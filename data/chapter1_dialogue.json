@@ -1,0 +1,54 @@
+{
+  "chapter": 1,
+  "title": "Ash",
+  "dialogues": {
+    "opening_void_beast": [
+      {"speaker": "", "text": "The beast was dead."},
+      {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."},
+      {"speaker": "", "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
+      {"speaker": "system_log", "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"}
+    ],
+    "elia_appears": [
+      {"speaker": "Elia", "text": "Arrel.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Her voice, close. He hadn't heard her approach."},
+      {"speaker": "", "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."},
+      {"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"},
+      {
+        "speaker": "Arrel",
+        "text": "One burn. Grade three, maybe. Nothing I'll miss.",
+        "portrait": "arrel_neutral"
+      },
+      {"speaker": "", "text": "That was probably true. That was probably a lie."},
+      {"speaker": "", "text": "The problem with burning memories was that you could never be sure which it was."}
+    ],
+    "ash_rain": [
+      {"speaker": "", "text": "Something touched his face. A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."},
+      {"speaker": "", "text": "Ash Rain."},
+      {"speaker": "", "text": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."},
+      {"speaker": "Elia", "text": "We should move. The rain will get thicker after dark.", "portrait": "elia_neutral"}
+    ],
+    "camp_night": [
+      {"speaker": "", "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth."},
+      {"speaker": "", "text": "His hand was still shaking."},
+      {"speaker": "", "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."},
+      {
+        "choices": [
+          {
+            "text": "Think about BL-07.",
+            "set_flag": "thought_about_bl07"
+          },
+          {
+            "text": "Listen to Elia's humming.",
+            "set_flag": "listened_to_humming",
+            "requires_memory_intact": "daily_campfire_song"
+          },
+          {
+            "text": "Try to remember what you burned.",
+            "set_flag": "tried_to_remember"
+          }
+        ]
+      },
+      {"speaker": "", "text": "The shaking stopped."}
+    ]
+  }
+}
