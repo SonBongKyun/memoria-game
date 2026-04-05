@@ -1,5 +1,5 @@
 ## DialogueManager (Autoload)
-## 대화 시스템 기초. 대화 데이터 로드 및 진행 관리.
+## 대화 시스템. 대화 데이터 로드 및 진행 관리.
 extends Node
 
 signal dialogue_started()
@@ -11,8 +11,50 @@ var is_active: bool = false
 var current_dialogue: Array = []
 var current_index: int = 0
 
+# JSON에서 로드한 대화 데이터 캐시
+var loaded_dialogues: Dictionary = {}
+
 func _ready() -> void:
 	print("[DialogueManager] Ready")
+
+## JSON 파일에서 대화 데이터 로드 (캐싱)
+func load_dialogue_file(file_path: String) -> bool:
+	if loaded_dialogues.has(file_path):
+		return true
+
+	if not FileAccess.file_exists(file_path):
+		push_error("[DialogueManager] File not found: %s" % file_path)
+		return false
+
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	var json = JSON.new()
+	var error = json.parse(file.get_as_text())
+	file.close()
+
+	if error != OK:
+		push_error("[DialogueManager] JSON parse error in %s: %s" % [file_path, json.get_error_message()])
+		return false
+
+	var data = json.data
+	if data is Dictionary and data.has("dialogues"):
+		loaded_dialogues[file_path] = data.dialogues
+		print("[DialogueManager] Loaded: %s (%d dialogues)" % [file_path, data.dialogues.size()])
+		return true
+
+	push_error("[DialogueManager] Invalid dialogue format in %s" % file_path)
+	return false
+
+## JSON 파일 로드 + 특정 키로 대화 시작 (NPC에서 호출)
+func load_and_start(file_path: String, dialogue_key: String) -> void:
+	if not load_dialogue_file(file_path):
+		return
+
+	var dialogues = loaded_dialogues[file_path]
+	if not dialogues.has(dialogue_key):
+		push_error("[DialogueManager] Dialogue key not found: %s" % dialogue_key)
+		return
+
+	start_dialogue(dialogues[dialogue_key])
 
 ## 대화 시작 — dialogue_data는 Array of Dictionary
 ## [{"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"}, ...]

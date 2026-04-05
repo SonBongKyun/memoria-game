@@ -27,6 +27,7 @@ GameManager="*res://scripts/core/game_manager.gd"
 MemoryManager="*res://scripts/systems/memory_manager.gd"
 DialogueManager="*res://scripts/systems/dialogue_manager.gd"
 SceneTransition="*res://scripts/core/scene_transition.gd"
+DialogueBox="*res://scripts/ui/dialogue_box.gd"
 
 [display]
 

@@ -40,13 +40,9 @@ func _physics_process(_delta: float) -> void:
 		_update_animation(facing_direction, false)
 
 func _input(event: InputEvent) -> void:
-	# 상호작용 (Space / Enter)
+	# 상호작용 (Space / Enter) — 탐색 모드에서만
 	if event.is_action_pressed("interact") and GameManager.current_state == GameManager.GameState.EXPLORATION:
 		_try_interact()
-
-	# 대화 중 다음 대사
-	if event.is_action_pressed("interact") and GameManager.current_state == GameManager.GameState.DIALOGUE:
-		DialogueManager.advance()
 
 ## 플레이스홀더 SpriteFrames 동적 생성
 ## 나중에 실제 스프라이트 에셋으로 교체 시 이 함수만 제거하면 됨.

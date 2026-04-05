@@ -60,13 +60,51 @@
 - `project.godot` — main_scene 경로 변경
 
 ### 다음 세션 (S03) 할 일
-- [ ] Godot 4.6에서 프로젝트 열고 실행 테스트
-- [ ] 맵 레이아웃 조정 (실제 플레이 느낌 확인 후)
-- [ ] NPC 기본 씬 + 상호작용 시스템 (대화 트리거)
-- [ ] 대화 UI (DialogueBox 씬) — 화면 하단 텍스트 박스 + 포트레이트
-- [ ] DialogueManager에 JSON 파일 로더 연결
+- [x] NPC 기본 씬 + 상호작용 시스템 (대화 트리거) → S03에서 완료
+- [x] 대화 UI (DialogueBox 씬) — 화면 하단 텍스트 박스 + 포트레이트 → S03에서 완료
+- [x] DialogueManager에 JSON 파일 로더 연결 → S03에서 완료
+- [ ] Godot 4.6에서 프로젝트 열고 실행 테스트 → S04로 이월
+- [ ] 맵 레이아웃 조정 (실제 플레이 느낌 확인 후) → S04로 이월
 
 ### 메모
 - 스프라이트는 _ready()에서 코드로 생성됨. 실제 에셋으로 교체 시 _setup_placeholder_sprites() 함수만 제거하면 됨.
 - 맵도 ColorRect + StaticBody2D로 코드 생성. 나중에 TileMap으로 전환 가능.
 - 기존 main.tscn (테스트 씬)은 삭제하지 않고 유지. 시스템 디버그용으로 사용 가능.
+
+---
+
+## S03 — 2026-04-05 (NPC 시스템 + 대화 UI + JSON 로더)
+
+### 완료
+- [x] **NPC 기본 씬:** StaticBody2D 기반, 플레이스홀더 스프라이트(코드 생성), interact() 인터페이스
+- [x] **NPC export vars:** npc_name, dialogue_file, dialogue_key, npc_color (에디터에서 설정 가능)
+- [x] **엘리아 NPC 배치:** 림 외곽 숲 맵에 엘리아(청회색) 배치, dialogue_key="elia_appears"
+- [x] **DialogueManager JSON 로더:** load_dialogue_file(), load_and_start() 추가. 캐싱 지원.
+- [x] **DialogueBox (오토로드):** 하단 대화 박스 UI 전체 코드 생성
+  - 어두운 반투명 패널 (서고 모티프)
+  - 좌측 포트레이트 (캐릭터별 색상 + 이니셜)
+  - 타자기 효과 (글자당 0.03초, Space로 즉시 완료)
+  - 선택지 버튼 (VBoxContainer, 키보드 포커스 지원)
+  - ▼ 다음 대사 표시기
+- [x] **Player 입력 정리:** 대화 진행 입력을 DialogueBox._unhandled_input()으로 이전 (충돌 방지)
+
+### 변경된 파일
+- `scripts/core/npc.gd` — **신규** NPC 스크립트
+- `scenes/npc/npc.tscn` — **신규** NPC 기본 씬
+- `scripts/ui/dialogue_box.gd` — **신규** 대화 UI 스크립트
+- `scripts/systems/dialogue_manager.gd` — JSON 로더 추가 (load_dialogue_file, load_and_start)
+- `scenes/maps/rim_forest.tscn` — 엘리아 NPC 인스턴스 추가
+- `scripts/core/player.gd` — 대화 중 입력 처리 제거 (DialogueBox로 이전)
+- `project.godot` — DialogueBox 오토로드 추가
+
+### 다음 세션 (S04) 할 일
+- [ ] Godot 4.6에서 프로젝트 열고 실행 테스트 (전체 흐름)
+- [ ] 맵 레이아웃 조정 (실제 플레이 느낌 확인 후)
+- [ ] 기억 UI (아렐의 서고) — 보유 기억 목록 화면
+- [ ] 시스템 로그 팝업 UI (기억 연소 시 상단 표시)
+
+### 메모
+- DialogueBox는 CanvasLayer 오토로드 (layer 50). 모든 씬에서 자동 사용 가능.
+- NPC collision_layer = 12 (NPCs + Interactables). Player의 InteractionRay mask=4 에 대응.
+- 포트레이트는 현재 ColorRect + 이니셜. 실제 이미지 적용 시 _update_portrait() 수정.
+- JSON 대화 파일은 첫 로드 시 캐싱됨. 같은 파일 재요청 시 파싱 생략.
