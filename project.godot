@@ -30,6 +30,7 @@ SceneTransition="*res://scripts/core/scene_transition.gd"
 DialogueBox="*res://scripts/ui/dialogue_box.gd"
 MemoryUI="*res://scripts/ui/memory_ui.gd"
 SystemLog="*res://scripts/ui/system_log.gd"
+BattleManager="*res://scripts/systems/battle_manager.gd"
 
 [display]
 

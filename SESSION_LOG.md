@@ -144,11 +144,61 @@
 | 100 | SceneTransition | 씬 전환 페이드 |
 
 ### 다음 세션 (S05) 할 일
-- [ ] Godot 4.6에서 전체 프로젝트 실행 테스트
-- [ ] 전투 시스템 기초 (턴제 전투, 기본 공격, HP바)
-- [ ] 전투 중 기억 연소 스킬 선택
+- [x] 전투 시스템 기초 → S05에서 완료
+- [x] 전투 중 기억 연소 스킬 선택 → S05에서 완료
+- [ ] Godot 4.6에서 전체 프로젝트 실행 테스트 → S06로 이월
 
 ### 메모
 - MemoryUI는 MemoryManager.memories를 직접 읽어서 카드 생성. 기억 추가/연소 시 _refresh_cards() 호출로 동기화.
 - SystemLog는 queue 방식이라 연속 3번 연소해도 순차적으로 표시됨.
 - memory_menu 키: Tab(4194306) + M(77)
+
+---
+
+## S05 — 2026-04-05 (포트레이트 이미지 + 전투 시스템)
+
+### 완료
+- [x] **포트레이트 이미지 적용:** 아렐 3장(neutral/side/wounded) + 엘리아 2장(neutral/concern) 복사
+- [x] **DialogueBox 이미지 지원:** TextureRect 기반 포트레이트 표시, portrait 키→파일 매핑, fallback 유지
+- [x] **커버 이미지 복사:** Cover.png → assets/cg/cover.png
+- [x] **BattleManager (오토로드):** 턴제 전투 로직
+  - Enemy 클래스 (이름, HP, 공격력, 공허수 여부)
+  - 플레이어 행동: Attack / Burn / Defend / Flee
+  - 기억 연소 스킬 5등급 (Ember → Zero Burn)
+  - 공허수 = 일반 공격 불가, 기억 연소만 유효
+  - 도주 확률 70%, 공허수 도주 불가
+- [x] **전투 씬 (battle_scene):** 코드 생성 UI
+  - 적 HP바 (우상단) + 플레이어 HP바 (좌하단)
+  - 적 플레이스홀더 스프라이트 (붉은 사각형 + 눈)
+  - 행동 버튼 4개 (ATTACK / BURN / DEFEND / FLEE)
+  - BURN 선택 → 사용 가능한 기억 목록 팝업
+  - 전투 로그 (중앙 텍스트)
+- [x] **전투 트리거:** 림 외곽 숲 맵에 2개 배치
+  - 남쪽 길: Ash Crawler (일반 몬스터, HP 40, ATK 8)
+  - 북쪽 숲: Void Beast (공허수, HP 80, ATK 15, 일반 공격 불가)
+  - Area2D + body_entered로 자동 전투 진입
+
+### 변경된 파일
+- `assets/portraits/arrel_neutral.jpg` — **신규** 아렐 포트레이트
+- `assets/portraits/arrel_side.jpg` — **신규**
+- `assets/portraits/arrel_wounded.jpg` — **신규**
+- `assets/portraits/elia_neutral.jpg` — **신규** 엘리아 포트레이트
+- `assets/portraits/elia_concern.jpg` — **신규**
+- `assets/cg/cover.png` — **신규** 커버 이미지
+- `scripts/ui/dialogue_box.gd` — TextureRect 포트레이트 + 이미지 매핑 추가
+- `scripts/systems/battle_manager.gd` — **신규** 전투 로직
+- `scenes/battle/battle_scene.tscn` — **신규** 전투 씬
+- `scenes/battle/battle_scene.gd` — **신규** 전투 씬 UI
+- `scenes/maps/rim_forest.gd` — 전투 트리거 영역 2개 추가
+- `project.godot` — BattleManager 오토로드 추가
+
+### 다음 세션 (S06) 할 일
+- [ ] Godot 4.6에서 전체 프로젝트 실행 테스트
+- [ ] 전투 밸런스 조정 + 전투 후 HP 회복 처리
+- [ ] 세이브/로드 시스템 기초
+
+### 메모
+- 포트레이트 매핑: PORTRAIT_MAP dict에 키→경로. DEFAULT_PORTRAITS로 화자별 기본값 설정.
+- 전투 씬은 SceneTransition으로 전환. 전투 종료 후 return_scene으로 자동 복귀.
+- 기억 연소 스킬 데미지 = BURN_SKILLS[grade].base_damage + memory.burn_power
+- 공허수(Void Beast)는 is_void_beast=true → player_attack()에서 0 데미지 처리.

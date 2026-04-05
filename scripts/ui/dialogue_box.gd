@@ -7,10 +7,25 @@ const TYPEWRITER_SPEED: float = 0.03  # 글자당 초
 const BOX_HEIGHT: int = 160
 const PORTRAIT_SIZE: int = 96
 
+# 포트레이트 이미지 매핑 (portrait 키 → 파일 경로)
+const PORTRAIT_MAP: Dictionary = {
+	"arrel_neutral": "res://assets/portraits/arrel_neutral.jpg",
+	"arrel_side": "res://assets/portraits/arrel_side.jpg",
+	"arrel_wounded": "res://assets/portraits/arrel_wounded.jpg",
+	"elia_neutral": "res://assets/portraits/elia_neutral.jpg",
+	"elia_concern": "res://assets/portraits/elia_concern.jpg",
+}
+# 화자 이름 → 기본 포트레이트 (portrait 키가 비어있을 때 사용)
+const DEFAULT_PORTRAITS: Dictionary = {
+	"Arrel": "arrel_neutral",
+	"Elia": "elia_neutral",
+}
+
 # UI 노드 (코드로 생성)
 var panel: PanelContainer
-var portrait_rect: ColorRect
-var portrait_label: Label
+var portrait_texture: TextureRect  # 실제 ��미지 표시
+var portrait_fallback: ColorRect   # 이미지 없을 때 fallback
+var portrait_label: Label          # fallback용 이니셜
 var speaker_label: Label
 var text_label: RichTextLabel
 var choice_container: VBoxContainer
@@ -79,19 +94,28 @@ func _build_ui() -> void:
 	portrait_container.custom_minimum_size = Vector2(PORTRAIT_SIZE, 0)
 	hbox.add_child(portrait_container)
 
-	portrait_rect = ColorRect.new()
-	portrait_rect.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
-	portrait_rect.color = Color(0.2, 0.2, 0.25)
-	portrait_container.add_child(portrait_rect)
+	# 실제 이미지 (TextureRect)
+	portrait_texture = TextureRect.new()
+	portrait_texture.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
+	portrait_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	portrait_texture.visible = false
+	portrait_container.add_child(portrait_texture)
 
-	# 포트레이트 위에 이니셜 표시
+	# fallback (ColorRect + 이니셜, 이미지 없을 때)
+	portrait_fallback = ColorRect.new()
+	portrait_fallback.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
+	portrait_fallback.color = Color(0.2, 0.2, 0.25)
+	portrait_fallback.visible = false
+	portrait_container.add_child(portrait_fallback)
+
 	portrait_label = Label.new()
 	portrait_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	portrait_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	portrait_label.add_theme_font_size_override("font_size", 32)
 	portrait_label.add_theme_color_override("font_color", Color(0.7, 0.6, 0.5))
 	portrait_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	portrait_rect.add_child(portrait_label)
+	portrait_fallback.add_child(portrait_label)
 
 	# 텍스트 영역 (VBox: 이름 + 대사)
 	var text_area = VBoxContainer.new()
@@ -152,11 +176,11 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	# 화자 이름 (나레이션이면 숨김)
 	if speaker == "" or speaker == "system_log":
 		speaker_label.text = ""
-		portrait_rect.visible = false
+		portrait_texture.visible = false
+		portrait_fallback.visible = false
 	else:
 		speaker_label.text = speaker
-		portrait_rect.visible = true
-		_update_portrait(speaker)
+		_update_portrait(speaker, portrait)
 
 	# 타자기 효과로 텍스트 표시
 	full_text = text
@@ -210,14 +234,32 @@ func _on_choice_selected(index: int) -> void:
 	_clear_choices()
 	DialogueManager.select_choice(index)
 
-## 포트레이트 업데이트 (플레이스홀더: 이름 이니셜 + 캐릭터별 색상)
-func _update_portrait(speaker: String) -> void:
+## 포트레이트 업데이트 — 이미지가 있으면 표시, 없으면 fallback
+func _update_portrait(speaker: String, portrait_key: String = "") -> void:
+	# portrait 키 결정: 명시적 키 > 화자별 기본값
+	var key = portrait_key
+	if key == "" and DEFAULT_PORTRAITS.has(speaker):
+		key = DEFAULT_PORTRAITS[speaker]
+
+	# 이미지 로드 시도
+	if key != "" and PORTRAIT_MAP.has(key):
+		var path = PORTRAIT_MAP[key]
+		if ResourceLoader.exists(path):
+			var tex = load(path)
+			portrait_texture.texture = tex
+			portrait_texture.visible = true
+			portrait_fallback.visible = false
+			return
+
+	# fallback: ColorRect + 이니셜
 	var colors = {
 		"Arrel": Color(0.2, 0.25, 0.4),
 		"Elia": Color(0.45, 0.55, 0.65),
 	}
-	portrait_rect.color = colors.get(speaker, Color(0.25, 0.25, 0.3))
+	portrait_fallback.color = colors.get(speaker, Color(0.25, 0.25, 0.3))
 	portrait_label.text = speaker.substr(0, 1).to_upper() if speaker.length() > 0 else "?"
+	portrait_texture.visible = false
+	portrait_fallback.visible = true
 
 ## 선택지 정리
 func _clear_choices() -> void:

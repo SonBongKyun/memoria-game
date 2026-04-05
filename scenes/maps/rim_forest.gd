@@ -49,6 +49,7 @@ var collision_bodies: Array = []  # 충돌 StaticBody2D
 func _ready() -> void:
 	_build_map()
 	_position_player()
+	_setup_battle_triggers()
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 ## 맵 구축 — 타일을 ColorRect로 배치하고, 나무/물에 충돌 추가
@@ -123,3 +124,51 @@ func _add_collision(pos: Vector2) -> void:
 func _position_player() -> void:
 	# 맵 중앙 근처 (길 위)
 	player.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 9 * TILE_SIZE + TILE_SIZE / 2.0)
+
+## 전투 트리거 영역 — 맵 남쪽 길에 일반 몬스터, 북쪽에 공허수
+func _setup_battle_triggers() -> void:
+	# 일반 몬스터 (남쪽 길 — 타일 12,14 근처)
+	_add_battle_area(
+		Vector2(12 * TILE_SIZE, 14 * TILE_SIZE),
+		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
+		"Ash Crawler", 40, 8, false
+	)
+
+	# 공허수 (북쪽 숲 — 타일 12,4 근처)
+	_add_battle_area(
+		Vector2(12 * TILE_SIZE, 4 * TILE_SIZE),
+		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
+		"Void Beast", 80, 15, true
+	)
+
+func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, atk: int, is_void: bool) -> void:
+	var area = Area2D.new()
+	area.position = pos + size / 2.0
+	area.collision_layer = 0
+	area.collision_mask = 2  # Player 레이어
+
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	area.add_child(shape)
+
+	# 시각적 표시 (위험 지역 — 붉은 반투명)
+	var indicator = ColorRect.new()
+	indicator.size = size
+	indicator.position = -size / 2.0
+	indicator.color = Color(0.5, 0.1, 0.1, 0.15) if not is_void else Color(0.3, 0.05, 0.3, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
+			_trigger_battle(enemy_name, hp, atk, is_void)
+	)
+
+	add_child(area)
+
+func _trigger_battle(enemy_name: String, hp: int, atk: int, is_void: bool) -> void:
+	var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)
+	BattleManager.start_battle(enemy, "res://scenes/maps/rim_forest.tscn")
+	SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
