@@ -88,6 +88,7 @@ func player_attack() -> void:
 
 	var base_dmg = 15 + randi_range(0, 10)
 	var actual = current_enemy.take_damage(base_dmg)
+	AudioManager.play_sfx("hit")
 	battle_log.emit("Arrel strikes! %d damage." % actual)
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_check_enemy_defeated()
@@ -103,6 +104,7 @@ func player_burn(memory_id: String) -> void:
 		return
 
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
+	AudioManager.play_sfx("burn")
 	var dmg = skill.base_damage + memory.burn_power
 	var actual = current_enemy.take_damage(dmg)
 
@@ -194,6 +196,7 @@ func _cleanup() -> void:
 			GameManager.player_data.hp + heal,
 			GameManager.player_data.max_hp
 		)
+		AudioManager.play_sfx("heal")
 		battle_log.emit("Recovered %d HP." % heal)
 
 	await get_tree().create_timer(1.5).timeout

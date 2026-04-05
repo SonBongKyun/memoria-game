@@ -304,5 +304,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		elif not choice_container.visible:
 			# 다음 대사로
+			AudioManager.play_sfx("confirm")
 			DialogueManager.advance()
 			get_viewport().set_input_as_handled()
