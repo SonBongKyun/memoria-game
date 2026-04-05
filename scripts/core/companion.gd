@@ -60,29 +60,59 @@ func interact() -> void:
 
 ## 플레이스홀더 스프라이트
 func _setup_placeholder_sprite() -> void:
-	var img = Image.create(SPRITE_SIZE, SPRITE_SIZE, false, Image.FORMAT_RGBA8)
+	var S = SPRITE_SIZE
+	var img = Image.create(S, S, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 
-	var outline = npc_color.darkened(0.4)
-	_draw_rect(img, 3, 4, 28, 26, outline)
-	_draw_rect(img, 4, 5, 26, 24, npc_color)
+	var skin = Color(0.85, 0.75, 0.68)
+	var hair = Color(0.78, 0.8, 0.85)        # 은백색 긴 머리
+	var cloak = Color(0.3, 0.25, 0.2)        # 갈색 망토
+	var cloak_l = Color(0.38, 0.32, 0.25)
+	var dress = Color(0.55, 0.5, 0.45)       # 밝은 옷
+	var eye = Color(0.35, 0.6, 0.9)          # 파란 눈
+	var out = Color(0.08, 0.08, 0.1)
+
+	# 다리
+	_draw_rect(img, 11, 24, 4, 6, dress)
+	_draw_rect(img, 17, 24, 4, 6, dress)
+	_draw_rect(img, 10, 28, 5, 3, out)
+	_draw_rect(img, 17, 28, 5, 3, out)
+
+	# 몸통 (치마/망토)
+	_draw_rect(img, 8, 14, 16, 11, out)
+	_draw_rect(img, 9, 15, 14, 9, cloak)
+	_draw_rect(img, 11, 15, 10, 9, dress)
+
+	# 팔 (망토 소매)
+	_draw_rect(img, 5, 15, 4, 8, cloak)
+	_draw_rect(img, 23, 15, 4, 8, cloak)
+	_draw_rect(img, 5, 22, 4, 2, skin)
+	_draw_rect(img, 23, 22, 4, 2, skin)
+
+	# 머리
+	_draw_rect(img, 8, 1, 16, 14, out)
+	_draw_rect(img, 9, 2, 14, 12, skin)
+
+	# 긴 머리카락 (은백색)
+	_draw_rect(img, 8, 0, 16, 6, hair)        # 앞머리
+	_draw_rect(img, 6, 1, 4, 14, hair)         # 왼쪽 긴 머리
+	_draw_rect(img, 22, 1, 4, 14, hair)        # 오른쪽 긴 머리
+	_draw_rect(img, 5, 14, 3, 8, hair)         # 왼쪽 늘어진 머리
+	_draw_rect(img, 24, 14, 3, 8, hair)        # 오른쪽 늘어진 머리
 
 	# 눈
-	var eye_color = Color(0.5, 0.7, 0.9)
-	_draw_rect(img, 9, 10, 4, 4, eye_color)
-	_draw_rect(img, 19, 10, 4, 4, eye_color)
+	_draw_rect(img, 11, 7, 3, 3, Color.WHITE)
+	_draw_rect(img, 18, 7, 3, 3, Color.WHITE)
+	_draw_rect(img, 12, 8, 2, 2, eye)
+	_draw_rect(img, 19, 8, 2, 2, eye)
 
-	# 긴 머리 (엘리아 특징)
-	_draw_rect(img, 4, 2, 24, 8, Color(0.7, 0.72, 0.75))
-	_draw_rect(img, 2, 8, 4, 14, Color(0.65, 0.68, 0.72))
-	_draw_rect(img, 26, 8, 4, 14, Color(0.65, 0.68, 0.72))
+	# 입
+	_draw_rect(img, 14, 11, 4, 1, Color(0.7, 0.55, 0.5))
 
-	# 발
-	_draw_rect(img, 8, 26, 6, 4, outline)
-	_draw_rect(img, 18, 26, 6, 4, outline)
+	# 망토 브로치
+	_draw_rect(img, 15, 15, 2, 2, Color(0.7, 0.55, 0.3))
 
-	var tex = ImageTexture.create_from_image(img)
-	sprite.texture = tex
+	sprite.texture = ImageTexture.create_from_image(img)
 
 func _draw_rect(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
 	for px in range(x, mini(x + w, SPRITE_SIZE)):

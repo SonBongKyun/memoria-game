@@ -49,78 +49,107 @@ func _input(event: InputEvent) -> void:
 ## 나중에 실제 스프라이트 에셋으로 교체 시 이 함수만 제거하면 됨.
 func _setup_placeholder_sprites() -> void:
 	var frames = SpriteFrames.new()
-	# 기본 "default" 애니메이션 제거
 	if frames.has_animation("default"):
 		frames.remove_animation("default")
 
-	# 방향별 색상 (몸통 / 방향 표시)
-	var dir_colors = {
-		"down": Color(0.2, 0.25, 0.4),   # 정면 — 다크 블루
-		"up": Color(0.15, 0.2, 0.35),    # 뒷면 — 더 어두운 블루
-		"left": Color(0.18, 0.22, 0.38), # 왼쪽
-		"right": Color(0.22, 0.28, 0.42) # 오른쪽
-	}
-	var eye_color = Color(0.85, 0.6, 0.2)  # 주황 눈 (방향 표시)
-	var body_outline = Color(0.1, 0.12, 0.2)
+	# 아렐 색상
+	var skin = Color(0.82, 0.7, 0.6)
+	var hair = Color(0.45, 0.48, 0.55)       # 재색 머리
+	var coat = Color(0.15, 0.18, 0.28)       # 어두운 코트
+	var coat_light = Color(0.2, 0.24, 0.35)  # 코트 밝은 면
+	var pants = Color(0.12, 0.12, 0.15)
+	var eye = Color(0.3, 0.55, 0.85)         # 파란 눈
+	var outline = Color(0.08, 0.08, 0.1)
 
 	for dir_name in ["down", "up", "left", "right"]:
-		var body_color = dir_colors[dir_name]
-
-		# idle 애니메이션 (1프레임)
 		var idle_name = "idle_" + dir_name
 		frames.add_animation(idle_name)
 		frames.set_animation_speed(idle_name, 4)
 		frames.set_animation_loop(idle_name, true)
-		var idle_tex = _create_frame(body_color, body_outline, eye_color, dir_name, 0)
-		frames.add_frame(idle_name, idle_tex)
+		frames.add_frame(idle_name, _create_arrel_frame(dir_name, 0, skin, hair, coat, coat_light, pants, eye, outline))
 
-		# walk 애니메이션 (4프레임 — 발 위치 변화)
 		var walk_name = "walk_" + dir_name
 		frames.add_animation(walk_name)
 		frames.set_animation_speed(walk_name, 8)
 		frames.set_animation_loop(walk_name, true)
-		for frame_idx in range(4):
-			var walk_tex = _create_frame(body_color, body_outline, eye_color, dir_name, frame_idx)
-			frames.add_frame(walk_name, walk_tex)
+		for f in range(4):
+			frames.add_frame(walk_name, _create_arrel_frame(dir_name, f, skin, hair, coat, coat_light, pants, eye, outline))
 
 	sprite.sprite_frames = frames
 
-## 단일 프레임 이미지 생성
-func _create_frame(body_color: Color, outline_color: Color, eye_color: Color, direction: String, frame_idx: int) -> Texture2D:
-	var img = Image.create(SPRITE_SIZE, SPRITE_SIZE, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))  # 투명 배경
+func _create_arrel_frame(dir: String, frame: int, skin: Color, hair: Color, coat: Color, coat_l: Color, pants: Color, eye: Color, out: Color) -> Texture2D:
+	var S = SPRITE_SIZE
+	var img = Image.create(S, S, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
 
-	# 몸통 (아웃라인 포함)
-	_draw_rect_on_image(img, 3, 4, 28, 26, outline_color)   # 아웃라인
-	_draw_rect_on_image(img, 4, 5, 26, 24, body_color)      # 몸통
+	# 걷기 흔들림
+	var bob = 0
+	if frame == 1: bob = -1
+	elif frame == 3: bob = -1
+	var leg_off = 0
+	if frame == 1: leg_off = -2
+	elif frame == 3: leg_off = 2
 
-	# 걷기 프레임별 발 위치 (좌/우 발 번갈아 움직임)
-	var foot_offset = 0
-	match frame_idx:
-		0: foot_offset = 0
-		1: foot_offset = -2
-		2: foot_offset = 0
-		3: foot_offset = 2
+	# === 다리 (하단) ===
+	_draw_rect_on_image(img, 10 + leg_off, 24 - bob, 4, 7, pants)     # 왼다리
+	_draw_rect_on_image(img, 18 - leg_off, 24 - bob, 4, 7, pants)     # 오른다리
+	_draw_rect_on_image(img, 9 + leg_off, 28 - bob, 6, 3, out)        # 왼발
+	_draw_rect_on_image(img, 17 - leg_off, 28 - bob, 6, 3, out)       # 오른발
 
-	# 발 (하단)
-	_draw_rect_on_image(img, 8 + foot_offset, 26, 6, 4, outline_color)   # 왼발
-	_draw_rect_on_image(img, 18 - foot_offset, 26, 6, 4, outline_color)  # 오른발
+	# === 몸통 (코트) ===
+	_draw_rect_on_image(img, 8, 13 + bob, 16, 12, out)     # 아웃라인
+	_draw_rect_on_image(img, 9, 14 + bob, 14, 10, coat)    # 코트
+	# 코트 중앙선 / 밝은 면
+	if dir == "down":
+		_draw_rect_on_image(img, 15, 14 + bob, 2, 10, coat_l)  # 중앙 단추 라인
+	elif dir == "left":
+		_draw_rect_on_image(img, 9, 14 + bob, 4, 10, coat_l)
+	elif dir == "right":
+		_draw_rect_on_image(img, 19, 14 + bob, 4, 10, coat_l)
 
-	# 방향 표시 (눈 or 화살표)
-	match direction:
+	# === 팔 ===
+	_draw_rect_on_image(img, 5, 15 + bob, 4, 9, coat)   # 왼팔
+	_draw_rect_on_image(img, 23, 15 + bob, 4, 9, coat)  # 오른팔
+	_draw_rect_on_image(img, 5, 23 + bob, 4, 2, skin)   # 왼손
+	_draw_rect_on_image(img, 23, 23 + bob, 4, 2, skin)  # 오른손
+
+	# === 머리 ===
+	_draw_rect_on_image(img, 8, 1 + bob, 16, 14, out)    # 머리 아웃라인
+	_draw_rect_on_image(img, 9, 2 + bob, 14, 12, skin)   # 얼굴
+
+	# 머리카락
+	match dir:
 		"down":
-			_draw_rect_on_image(img, 9, 10, 4, 4, eye_color)    # 왼쪽 눈
-			_draw_rect_on_image(img, 19, 10, 4, 4, eye_color)   # 오른쪽 눈
+			_draw_rect_on_image(img, 8, 1 + bob, 16, 5, hair)      # 앞머리
+			_draw_rect_on_image(img, 8, 1 + bob, 3, 10, hair)      # 왼쪽 옆머리
+			_draw_rect_on_image(img, 21, 1 + bob, 3, 10, hair)     # 오른쪽 옆머리
+			# 눈
+			_draw_rect_on_image(img, 11, 8 + bob, 3, 3, Color.WHITE)
+			_draw_rect_on_image(img, 18, 8 + bob, 3, 3, Color.WHITE)
+			_draw_rect_on_image(img, 12, 9 + bob, 2, 2, eye)
+			_draw_rect_on_image(img, 19, 9 + bob, 2, 2, eye)
+			# 입
+			_draw_rect_on_image(img, 14, 12 + bob, 4, 1, Color(0.65, 0.5, 0.45))
 		"up":
-			# 뒷모습 — 머리카락 표시
-			_draw_rect_on_image(img, 6, 2, 20, 6, Color(0.15, 0.15, 0.25))
+			_draw_rect_on_image(img, 8, 1 + bob, 16, 12, hair)     # 뒷머리 전체
+			_draw_rect_on_image(img, 7, 8 + bob, 3, 6, hair)       # 왼쪽 늘어진 머리
+			_draw_rect_on_image(img, 22, 8 + bob, 3, 6, hair)      # 오른쪽
 		"left":
-			_draw_rect_on_image(img, 6, 10, 4, 4, eye_color)    # 왼쪽에 눈
+			_draw_rect_on_image(img, 8, 1 + bob, 16, 5, hair)
+			_draw_rect_on_image(img, 8, 1 + bob, 5, 12, hair)      # 왼쪽 머리 두꺼움
+			_draw_rect_on_image(img, 21, 1 + bob, 3, 8, hair)
+			_draw_rect_on_image(img, 11, 8 + bob, 3, 3, Color.WHITE)
+			_draw_rect_on_image(img, 12, 9 + bob, 2, 2, eye)
+			_draw_rect_on_image(img, 13, 12 + bob, 3, 1, Color(0.65, 0.5, 0.45))
 		"right":
-			_draw_rect_on_image(img, 22, 10, 4, 4, eye_color)   # 오른쪽에 눈
+			_draw_rect_on_image(img, 8, 1 + bob, 16, 5, hair)
+			_draw_rect_on_image(img, 19, 1 + bob, 5, 12, hair)
+			_draw_rect_on_image(img, 8, 1 + bob, 3, 8, hair)
+			_draw_rect_on_image(img, 18, 8 + bob, 3, 3, Color.WHITE)
+			_draw_rect_on_image(img, 18, 9 + bob, 2, 2, eye)
+			_draw_rect_on_image(img, 16, 12 + bob, 3, 1, Color(0.65, 0.5, 0.45))
 
-	var tex = ImageTexture.create_from_image(img)
-	return tex
+	return ImageTexture.create_from_image(img)
 
 ## Image에 사각형 그리기 헬퍼
 func _draw_rect_on_image(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:

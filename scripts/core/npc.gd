@@ -28,30 +28,54 @@ func interact() -> void:
 			{"speaker": npc_name, "text": "...", "portrait": ""}
 		])
 
-## 플레이스홀더 스프라이트 (플레이어와 다른 색상)
+## 플레이스홀더 스프라이트 (인간형 NPC)
 func _setup_placeholder_sprite() -> void:
-	var img = Image.create(SPRITE_SIZE, SPRITE_SIZE, false, Image.FORMAT_RGBA8)
+	var S = SPRITE_SIZE
+	var img = Image.create(S, S, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 
+	var skin = Color(0.8, 0.7, 0.6)
+	var cloth = npc_color
+	var cloth_d = npc_color.darkened(0.3)
+	var hair_c = npc_color.lightened(0.2)
+	var out = Color(0.08, 0.08, 0.1)
+	var eye_c = Color(0.9, 0.75, 0.4)
+
+	# 다리
+	_draw_rect(img, 11, 24, 4, 6, cloth_d)
+	_draw_rect(img, 17, 24, 4, 6, cloth_d)
+	_draw_rect(img, 10, 28, 5, 3, out)
+	_draw_rect(img, 17, 28, 5, 3, out)
+
 	# 몸통
-	var outline = npc_color.darkened(0.4)
-	_draw_rect(img, 3, 4, 28, 26, outline)
-	_draw_rect(img, 4, 5, 26, 24, npc_color)
+	_draw_rect(img, 8, 14, 16, 11, out)
+	_draw_rect(img, 9, 15, 14, 9, cloth)
 
-	# 눈 (정면 고정)
-	var eye_color = Color(0.9, 0.85, 0.7)
-	_draw_rect(img, 9, 10, 4, 4, eye_color)
-	_draw_rect(img, 19, 10, 4, 4, eye_color)
+	# 팔
+	_draw_rect(img, 5, 15, 4, 8, cloth)
+	_draw_rect(img, 23, 15, 4, 8, cloth)
+	_draw_rect(img, 5, 22, 4, 2, skin)
+	_draw_rect(img, 23, 22, 4, 2, skin)
 
-	# 발
-	_draw_rect(img, 8, 26, 6, 4, outline)
-	_draw_rect(img, 18, 26, 6, 4, outline)
+	# 머리
+	_draw_rect(img, 8, 1, 16, 14, out)
+	_draw_rect(img, 9, 2, 14, 12, skin)
 
-	# 이름 첫 글자 표시 (시각적 구분용) — 가슴 부분에 밝은 점
-	_draw_rect(img, 13, 17, 6, 6, npc_color.lightened(0.3))
+	# 머리카락
+	_draw_rect(img, 8, 0, 16, 5, hair_c)
+	_draw_rect(img, 8, 1, 3, 8, hair_c)
+	_draw_rect(img, 21, 1, 3, 8, hair_c)
 
-	var tex = ImageTexture.create_from_image(img)
-	sprite.texture = tex
+	# 눈
+	_draw_rect(img, 11, 7, 3, 3, Color.WHITE)
+	_draw_rect(img, 18, 7, 3, 3, Color.WHITE)
+	_draw_rect(img, 12, 8, 2, 2, eye_c)
+	_draw_rect(img, 19, 8, 2, 2, eye_c)
+
+	# 입
+	_draw_rect(img, 14, 11, 4, 1, Color(0.65, 0.5, 0.45))
+
+	sprite.texture = ImageTexture.create_from_image(img)
 
 func _draw_rect(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
 	for px in range(x, mini(x + w, SPRITE_SIZE)):
