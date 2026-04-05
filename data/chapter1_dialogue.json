@@ -4,7 +4,7 @@
   "dialogues": {
     "opening_void_beast": [
       {"speaker": "", "text": "The beast was dead.", "cg": "res://assets/cg/ch1_forest.jpg"},
-      {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."},
+      {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.", "cg": "res://assets/cg/arrel_combat.jpg"},
       {"speaker": "", "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
       {"speaker": "system_log", "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"}
     ],
@@ -26,7 +26,7 @@
       {"speaker": "Elia", "text": "We should move. The rain will get thicker after dark.", "portrait": "elia_neutral"}
     ],
     "camp_night": [
-      {"speaker": "", "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth."},
+      {"speaker": "", "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.", "cg": "res://assets/cg/ch1_camp_moment.jpg"},
       {"speaker": "", "text": "His hand was still shaking."},
       {"speaker": "", "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."},
       {

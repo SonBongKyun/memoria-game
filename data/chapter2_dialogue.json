@@ -10,7 +10,7 @@
       {"speaker": "", "text": "She moved through the crowd like water through cracks — never touching, never stopping, always finding the gap."}
     ],
     "malet_encounter": [
-      {"speaker": "", "text": "The cellar was three levels below street. The air down here tasted like copper and old paper."},
+      {"speaker": "", "text": "The cellar was three levels below street. The air down here tasted like copper and old paper.", "cg": "res://assets/cg/ch2_sump_interior.jpg"},
       {"speaker": "", "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning."},
       {"speaker": "", "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls."},
       {"speaker": "", "text": "His eyes were wrong. Too vivid. Amber that caught light that wasn't there. High-grade Memory Ampoules."},
