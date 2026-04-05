@@ -92,7 +92,11 @@ func _on_refused_ended() -> void:
 
 func _on_reward_ended() -> void:
 	GameManager.set_flag("ch2_malet_done")
-	print("[VerdenMarket] Malet deal complete — Ch2 main event done")
+	GameManager.set_flag("ch2_complete")
+	GameManager.current_chapter = 3
+	print("[VerdenMarket] Chapter 2 complete — transitioning to Crumbling Coast")
+	await get_tree().create_timer(1.5).timeout
+	SceneTransition.change_scene("res://scenes/maps/crumbling_coast.tscn")
 
 ## ===================== 맵 빌드 =====================
 

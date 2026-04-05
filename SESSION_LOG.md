@@ -403,6 +403,34 @@
 - CG: 9장 (cover, ch1 x3, ch2 x3, void_beast, ash_crawler)
 
 ### 다음 세션 (S12) 할 일
-- [ ] Godot 전체 테스트 (Ch1→Ch2 + 새 이미지 확인)
-- [ ] Ch3 콘텐츠 (세이블/The Seam)
-- [ ] 맵 간 이동 시스템
+- [x] Ch3 콘텐츠 → S12에서 완료
+
+---
+
+## S12 — 2026-04-05 (Ch2→Ch3 전환 + 크럼블링 코스트 맵)
+
+### 완료
+- [x] **Ch2 → Ch3 전환:** 말렛 보상 대화 후 자동 크럼블링 코스트 이동
+- [x] **크럼블링 코스트 맵 (25x18):** 바위/모래/절벽/물/길 5종 타일, 물 파도 디테일
+- [x] **Ch3 스토리 시퀀스:**
+  - 도착 대화 + 크럼블링 코스트 CG
+  - 카이로스 목격 이벤트 (2초 딜레이 후 자동 + CG)
+  - 북쪽 도달 → The Seam 도착 + 세이블 첫 만남 + village CG
+- [x] **Ch3 대화 데이터:** coast_arrival, kairos_sighting, seam_arrival, elia_coast_talk
+- [x] **Coastal Void Beast 전투:** HP 100, ATK 18 (강화 공허수)
+- [x] **크럼블링 코스트 BGM:** dialogue_tense.mp3 (Morning Light)
+
+### 변경된 파일
+- `scenes/maps/verdan_market.gd` — Ch3 전환 + chapter=3
+- `scenes/maps/crumbling_coast.tscn` — **신규** Ch3 맵
+- `scenes/maps/crumbling_coast.gd` — **신규** Ch3 맵 스크립트
+- `data/chapter3_dialogue.json` — **신규** Ch3 대화
+- `scripts/systems/audio_manager.gd` — 크럼블링 코스트 BGM 매핑
+
+### 전체 플레이 흐름 (Ch1~Ch3)
+타이틀 → Ch1 림 외곽 숲 (오프닝→엘리아→재비→전투→야영→녹색나무) → Ch2 베르단 시장 (도착→말렛 거래→추출→보상+카이로스 경고) → Ch3 크럼블링 코스트 (도착→카이로스 목격→전투→The Seam 도착+세이블)
+
+### 다음 세션 (S13) 할 일
+- [ ] Godot 전체 테스트 (Ch1→Ch2→Ch3)
+- [ ] The Seam 맵 (Ch4 세이블 거점)
+- [ ] 전투 시스템 확장 (적 다양화, 보스전)

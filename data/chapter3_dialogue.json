@@ -1,0 +1,41 @@
+{
+  "chapter": 3,
+  "title": "The Classifier",
+  "dialogues": {
+    "coast_arrival": [
+      {"speaker": "", "text": "The Crumbling Coast.", "cg": "res://assets/cg/crumbling_coast.jpg"},
+      {"speaker": "", "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock."},
+      {"speaker": "", "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea."},
+      {"speaker": "Elia", "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "And Sable?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Follow the colors. That's what he said.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Colors. In a world that was forgetting how to have them."}
+    ],
+    "kairos_sighting": [
+      {"speaker": "", "text": "Movement. On the ridge behind them, half a mile back.", "cg": "res://assets/cg/ch2_kairos_warning.jpg"},
+      {"speaker": "", "text": "A figure. Still as stone. Watching."},
+      {"speaker": "Elia", "text": "Don't look back.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Kairos?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "He's not chasing. He's classifying. That's worse.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The figure did not move. It did not need to. It had already seen everything it needed to see."},
+      {"speaker": "", "text": "They walked faster."}
+    ],
+    "seam_arrival": [
+      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."},
+      {"speaker": "", "text": "Amber. Crimson. A green so deep it hurt to look at."},
+      {"speaker": "", "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."},
+      {"speaker": "Elia", "text": "We made it.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "A woman stood at the entrance. Short dark hair. Eyes that had seen the inside of a Void Hole and come back."},
+      {"speaker": "Sable", "text": "You're the one Malet sent. The one who burns.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Come inside. We have a lot to discuss. And not much time.", "portrait": "sable_calm"}
+    ],
+    "elia_coast_talk": [
+      {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "Do you miss it?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "She said nothing. But she walked closer. Two steps behind became one."}
+    ]
+  }
+}

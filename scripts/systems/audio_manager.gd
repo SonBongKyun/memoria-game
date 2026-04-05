@@ -13,6 +13,7 @@ const SCENE_BGM: Dictionary = {
 	"res://scenes/maps/rim_forest.tscn": "res://assets/audio/bgm/ch1_forest.mp3",
 	"res://scenes/maps/verdan_market.tscn": "res://assets/audio/bgm/ch2_verdan.mp3",
 	"res://scenes/battle/battle_scene.tscn": "res://assets/audio/bgm/battle.mp3",
+	"res://scenes/maps/crumbling_coast.tscn": "res://assets/audio/bgm/dialogue_tense.mp3",
 }
 
 const FADE_DURATION: float = 1.0
