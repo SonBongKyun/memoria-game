@@ -158,11 +158,37 @@ func _unhandled_input(event: InputEvent) -> void:
 		close_cg()
 		get_viewport().set_input_as_handled()
 
-## DialogueManager 연동: 대화 라인에 "cg" 키가 있으면 자동 표시
-func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
-	# DialogueManager의 현재 라인에서 cg 키 확인
+## DialogueManager 연동: 대화 라인에 "cg" 키가 있으면 배경으로 표시
+func _on_dialogue_line(_speaker: String, _text: String, _portrait: String) -> void:
 	if DialogueManager.current_index < DialogueManager.current_dialogue.size():
 		var line = DialogueManager.current_dialogue[DialogueManager.current_index]
 		if line.has("cg"):
-			var cg_text = line.get("cg_text", "")
-			show_cg(line.cg, cg_text)
+			_show_cg_background(line.cg)
+
+## 대화 중 CG 배경 표시 (입력 차단 없음 — 대화와 동시 진행)
+func _show_cg_background(image_path: String) -> void:
+	if not ResourceLoader.exists(image_path):
+		return
+	var tex = load(image_path)
+	cg_texture.texture = tex
+
+	bg.modulate.a = 0.0
+	cg_texture.modulate.a = 0.0
+	bg.visible = true
+	cg_texture.visible = true
+	is_showing = true
+	waiting_for_input = false  # 대화 중이므로 입력 차단 안 함
+
+	if tween:
+		tween.kill()
+	tween = create_tween().set_parallel(true)
+	tween.tween_property(bg, "modulate:a", 1.0, FADE_DURATION)
+	tween.tween_property(cg_texture, "modulate:a", 1.0, FADE_DURATION)
+
+	# 대화 끝나면 CG도 닫기
+	if not DialogueManager.dialogue_ended.is_connected(_on_dialogue_ended_close_cg):
+		DialogueManager.dialogue_ended.connect(_on_dialogue_ended_close_cg, CONNECT_ONE_SHOT)
+
+func _on_dialogue_ended_close_cg() -> void:
+	if is_showing:
+		close_cg()

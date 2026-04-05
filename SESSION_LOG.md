@@ -431,6 +431,306 @@
 타이틀 → Ch1 림 외곽 숲 (오프닝→엘리아→재비→전투→야영→녹색나무) → Ch2 베르단 시장 (도착→말렛 거래→추출→보상+카이로스 경고) → Ch3 크럼블링 코스트 (도착→카이로스 목격→전투→The Seam 도착+세이블)
 
 ### 다음 세션 (S13) 할 일
-- [ ] Godot 전체 테스트 (Ch1→Ch2→Ch3)
-- [ ] The Seam 맵 (Ch4 세이블 거점)
-- [ ] 전투 시스템 확장 (적 다양화, 보스전)
+- [x] The Seam 맵 (Ch4 세이블 거점) → S13에서 완료
+- [x] 전투 시스템 확장 (적 다양화, 보스전) → S13에서 완료
+
+---
+
+## S13 — 2026-04-05 (The Seam 맵 + Ch4 + 전투 확장)
+
+### 완료
+- [x] **The Seam 맵 (25x18):** 절벽/돌/오두막/정원/길/물/랜턴 7종 타일
+  - 랜턴: 따뜻한 빛 효과 (중심점 + 은은한 후광)
+  - 정원: 랜덤 색상 꽃 디테일 (붉은/노란/보라 — 세상에서 사라져가는 색들)
+  - 물: 작은 개울 + 파도 디테일
+- [x] **Ch4 스토리 시퀀스:**
+  - seam_welcome: The Seam 도착 + village CG
+  - sable_briefing: BL-07 보이드 홀 조사 미션 + BL-07 내부 CG
+  - bl07_entrance: 보이드 홀 앞 + void_portal CG → Shade Sentinel 보스전
+  - bl07_aftermath: 보스전 후 에필로그 → Ch5 전환
+- [x] **Ch4 대화 데이터:** seam_welcome, sable_briefing, bl07_entrance, bl07_aftermath, sable_talk, elia_seam_talk
+- [x] **Ch3→Ch4 전환:** crumbling_coast.gd _on_seam_ended()에서 The Seam으로 자동 전환
+- [x] **전투 시스템 확장:**
+  - Enemy 클래스에 is_boss, phase, abilities 추가
+  - 보스 페이즈 시스템: HP 50% 이하 → 페이즈 2 전환 + 알림
+  - 적 특수 능력 3종: drain(HP 흡수), shield(방어 배리어), multi_hit(2연타)
+  - 보스/공허수 도주 불가
+  - enemy_shielded: 일반 공격 50% 감소, 번 스킬 30% 감소
+- [x] **Shade Sentinel 보스전:** HP 180, ATK 24, 공허수+보스, 능력 3종 모두 보유
+- [x] **Coastal Void Beast 능력 추가:** drain 능력
+- [x] **The Seam BGM:** exploration.mp3 (Sunrise Over Waves) 매핑
+
+### 변경된 파일
+- `scenes/maps/the_seam.tscn` — **신규** Ch4 맵
+- `scenes/maps/the_seam.gd` — **신규** Ch4 맵 스크립트
+- `data/chapter4_dialogue.json` — **신규** Ch4 대화
+- `scenes/maps/crumbling_coast.gd` — Ch4 전환 + Void Beast drain 능력
+- `scripts/systems/battle_manager.gd` — 보스/페이즈/특수능력 시스템
+- `scripts/systems/audio_manager.gd` — The Seam BGM 매핑
+
+### 전체 플레이 흐름 (Ch1~Ch4)
+타이틀 → Ch1 림 외곽 숲 (오프닝→엘리아→재비→전투→야영→녹색나무) → Ch2 베르단 시장 (도착→말렛 거래→추출→보상+카이로스 경고) → Ch3 크럼블링 코스트 (도착→카이로스 목격→전투→The Seam 도착+세이블) → Ch4 The Seam (도착→세이블 브리핑→BL-07 보스전→에필로그)
+
+### 에셋 현황
+- 포트레이트: 11장 (아렐 5, 엘리아 2, 말렛 1, 카이로스 1, 세이블 2)
+- CG: 18장 (cover, ch1 x4, ch2 x4, ch3 x1, village_seam, bl07_interior, void_portal, void_beast, ash_crawler, arrel_combat, item x2)
+- BGM: 7트랙 (title, ch1_forest, ch1_camp, ch2_verdan, battle, dialogue_tense, exploration)
+
+### 다음 세션 (S14) 할 일
+- [x] Ch5 콘텐츠 → S14에서 완료
+- [x] 기억 시스템 확장 → S14에서 완료
+
+---
+
+## S14 — 2026-04-05 (Ch5 The Seal + 기억 시스템 확장)
+
+### 완료
+- [x] **S13 버그 수정:** the_seam.gd _setup_battle_triggers() 호출 누락 수정
+- [x] **챕터별 기억 추가 시스템:** MemoryManager.add_chapter_memories(chapter)
+  - Ch3: "Salt Wind on the Cliffs" (G5), "Walking With Someone" (G4, Elia 관련)
+  - Ch4: "The Woman Who Came Back" (G3, Sable 관련), "Colors That Shouldn't Exist" (G5), "Flowers From Every Season" (G4)
+  - Ch5: "What You Saw Inside BL-07" (G2, 보이드 경험)
+- [x] **BL-07 보이드 내부 맵 (20x20):** 허공/부유파편/길/균열/핵심부 5종 타일
+  - 핵심부 맥동 효과 (_process에서 sin 기반 색상 변화)
+  - 부유 파편 시각 디테일
+  - 2개 전투 트리거: Void Fragment (HP 70), Memory Eater (HP 90, drain+multi_hit)
+- [x] **Ch5 스토리 시퀀스 (The Seal 결정):**
+  - void_entry: BL-07 진입 + void_portal CG
+  - void_core: 핵심부 도달 + 아렐의 깨달음
+  - seal_decision: **플레이어 선택** — "이름을 태워 봉인" vs "이름을 지키고 다른 방법을 찾기"
+  - seal_complete: Zero Burn 경로 (이름 상실, 엘리아를 알아보지 못함)
+  - seal_refused: 보존 경로 (BL-07 미봉인, 시간과의 싸움)
+- [x] **Ch5 대화 데이터:** void_entry, void_core, seal_decision, seal_complete, seal_refused, elia_void_talk
+- [x] **Ch4→Ch5 전환:** the_seam.gd 보스전 에필로그 → BL-07 내부 자동 전환
+- [x] **BL-07 BGM 매핑:** dialogue_tense.mp3
+- [x] **선택지 flag 키 수정:** chapter5에서 "flag" → "set_flag" (DialogueManager 호환)
+
+### 변경된 파일
+- `scenes/maps/bl07_void.tscn` — **신규** Ch5 맵
+- `scenes/maps/bl07_void.gd` — **신규** Ch5 맵 스크립트 (The Seal 메카닉)
+- `data/chapter5_dialogue.json` — **신규** Ch5 대화 (분기 엔딩)
+- `scripts/systems/memory_manager.gd` — 챕터별 기억 추가 + _has_memory
+- `scenes/maps/crumbling_coast.gd` — Ch3 기억 자동 추가
+- `scenes/maps/the_seam.gd` — Ch4 기억 추가 + _setup_battle_triggers 호출 + Ch5 전환
+- `scripts/systems/audio_manager.gd` — BL-07 BGM 매핑
+
+### 전체 플레이 흐름 (Ch1~Ch5)
+타이틀 → Ch1 림 외곽 숲 → Ch2 베르단 시장 → Ch3 크럼블링 코스트 → Ch4 The Seam (세이블 브리핑→보스전) → Ch5 BL-07 내부 (탐색→핵심부→**The Seal 선택**)
+- **Zero Burn 경로:** 이름 연소 → BL-07 봉인 → 아렐의 정체성 상실
+- **보존 경로:** 이름 보존 → BL-07 미봉인 → 다른 방법 탐색
+
+### 기억 총 현황 (최대)
+| 등급 | 초기 | Ch3 추가 | Ch4 추가 | Ch5 추가 | 계 |
+|------|------|----------|----------|----------|-----|
+| G5 | 2 | 1 | 1 | 0 | 4 |
+| G4 | 2 | 1 | 1 | 0 | 4 |
+| G3 | 1 | 0 | 1 | 0 | 2 |
+| G2 | 1 | 0 | 0 | 1 | 2 |
+| G1 | 1 | 0 | 0 | 0 | 1 |
+| **계** | **7** | **2** | **3** | **1** | **13** |
+
+### 다음 세션 (S15) 할 일
+- [x] 그래픽 업그레이드 → S15에서 완료
+
+---
+
+## S15 — 2026-04-05 (그래픽 대규모 업그레이드)
+
+### 완료
+- [x] **PixelSprite 유틸리티 (pixel_sprite.gd):**
+  - Image.set_pixel() 기반 상세 픽��아트 캐릭터 생성
+  - 32x32 프레임, 4방향 x (idle + 4 walk) = 20프레임 완전 애니메이션
+  - 머리카락 텍스처/하이라이트, 눈(홍채+하이라이트), 코/입 힌트
+  - 코트 주름/밝은면, 팔 스윙, 발 스텝 애니메이션
+  - 프리셋: arrel_config (은청 머리+남색 코트+검), elia_config (은발+갈색 망토+브로치), sable_config (짧��� 검은 머리+실용복+흉터)
+  - npc_config(color) — npc_color 기반 자동 생성
+- [x] **TilePainter 유틸리티 (tile_painter.gd):**
+  - TileMapLayer + TileSetAtlasSource 기반 맵 렌더링
+  - 20종 타일 디테일: grass(풀잎+꽃), tree(줄기+수관), bush, water(파도라인), path(자갈), stone(줄눈), wall(벽돌패턴), stall(천막+물건), door, alley(물웅덩이), sand(바람자국), cliff(균열선), rock, hut(지붕+문+창), garden(색색의 꽃), lantern(빛+후광), void(에너지점), fragment(부유파편), crack(보라 균열), core(맥동)
+  - create_tilemap() → TileMapLayer 반환
+  - add_collisions() → 벽 충돌 StaticBody2D 일괄 생성
+- [x] **캐릭터 스프라이트 교체:**
+  - player.gd → PixelSprite.arrel_config() (120줄 삭제)
+  - companion.gd → Sprite2D→AnimatedSprite2D 전환 + PixelSprite (방향 애니메이션 추가)
+  - npc.gd → PixelSprite.npc_config(npc_color), 이름별 전용 config (Sable, Malet)
+- [x] **맵 5개 TileMap 전환:**
+  - rim_forest.gd — ColorRect 50줄 → TilePainter 10줄
+  - verdan_market.gd — ColorRect 35줄 → TilePainter 10줄
+  - crumbling_coast.gd — ColorRect 30줄 → TilePainter 8줄
+  - the_seam.gd — ColorRect 60줄 (랜턴/정원 포함) → TilePainter 10줄
+  - bl07_void.gd — ColorRect + 맥동 → TilePainter + 코어 오버레이
+
+### 변경된 파일
+- `scripts/utils/pixel_sprite.gd` — **신규** 캐릭터 스프라이트 유틸리티
+- `scripts/utils/tile_painter.gd` — **신규** 타일맵 생성 유틸리티
+- `scripts/core/player.gd` — 스프라이트 코드 120줄 ��� 2줄
+- `scripts/core/companion.gd` — AnimatedSprite2D + 방향 애니메이션
+- `scripts/core/npc.gd` — PixelSprite 기반 생성
+- `scenes/maps/rim_forest.gd` — TileMap 전환
+- `scenes/maps/verdan_market.gd` — TileMap 전환
+- `scenes/maps/crumbling_coast.gd` — TileMap 전환
+- `scenes/maps/the_seam.gd` — TileMap 전환
+- `scenes/maps/bl07_void.gd` — TileMap 전환
+
+### 그래픽 개선 요약
+| Before | After |
+|--------|-------|
+| 플랫 ColorRect 타일 | 텍스처 있는 TileMap (풀잎, 벽돌, 파도, 꽃 등) |
+| 사각형 블록 캐릭터 | 픽���아트 캐릭터 (머리/눈/코/입/옷 디테일) |
+| 정적 엘리아 (Sprite2D 1장) | 4방향 걷기 애니메이션 엘리아 |
+| 맵당 수백 개 ColorRect 노드 | TileMapLayer 1개 (성능 대폭 개선) |
+
+### 다음 세션 (S16) 할 일
+- [ ] Godot 전체 테스트 (그래픽 확인 + Ch1→Ch5)
+- [ ] Ch6 콘텐츠 (분기 후 에필로그)
+- [ ] UI 테마 개선
+
+---
+
+## S16 — 2026-04-05 (에필로그 + UI 테마 개선)
+
+### 완료
+- [x] **전투씬 BGM 제거:**
+  - audio_manager.gd: SCENE_BGM에서 battle_scene 매핑 제거
+  - 전투씬 진입 시 stop_bgm() 호출 (무음 전투)
+- [x] **Ch6 에필로그 대화 데이터:**
+  - `data/chapter6_dialogue.json` — 4개 대화 키
+  - epilogue_zero_burn: 이름을 잃은 아렐 (34줄, Elia/Sable 대화)
+  - epilogue_preservation: 이름을 지킨 아렐 (24줄, 보이드 홀 미해결)
+  - elia_epilogue_talk: 보이드 홀의 패턴 발견 (기억 연소가 원인?)
+  - sable_epilogue_talk: 동쪽 정착촌 기억 유실 → 후속작 암시
+- [x] **Ch6 에필로그 트리거 연결 (the_seam.gd):**
+  - Ch5 완료 후 The Seam 복귀 시 자동 에필로그 시작
+  - zero_burn_path / seal_refused 플래그에 따라 분기
+  - 에필로그 후 Elia/Sable NPC 개별 대화 트리거
+  - 에필로그 시 플레이어 위치를 마을 중앙으로 변경
+- [x] **UI 테마 개선:**
+  - `scripts/utils/ui_theme.gd` — 공통 UI 색상/스타일 상수 유틸리티
+  - 캐릭터별 화자 이름 색상 (Arrel=은청, Elia=라벤더, Sable=보라, Malet=앰버, Kairos=청록)
+  - DialogueBox에 UITheme 적용 (화자별 이름 색상 + 나레이션/시스템 색상)
+  - 전투 HP바 애니메이션 (데미지 시 Tween 부드러운 감소)
+  - HP 25% 이하 시 바 색상 빨간색 전환
+
+### 변경된 파일
+- `scripts/systems/audio_manager.gd` — 전투 BGM 제거
+- `data/chapter6_dialogue.json` — **신규** 에필로그 대화 데이터
+- `scenes/maps/the_seam.gd` — Ch6 에필로그 트리거 + NPC 대화
+- `scripts/utils/ui_theme.gd` — **신규** 공통 UI 테마 유틸리티
+- `scripts/ui/dialogue_box.gd` — 화자별 이름 색상 적용
+- `scenes/battle/battle_scene.gd` — HP바 트위닝 + 저HP 색상 변환
+
+### 스토리 완결 구조
+```
+Ch1 림 외곽 숲 → Ch2 베르단 시장 → Ch3 크럼블링 코스트
+→ Ch4 The Seam → Ch5 BL-07 보이드
+→ Ch6 에필로그 (Zero Burn / Preservation 분기)
+→ NPC 후일담 대화 (Elia: 보이드 홀 원인 발견, Sable: 후속 탐사 암시)
+```
+
+### 다음 세션 (S17) 할 일
+- [ ] Godot 전체 테스트 (Ch1→Ch6, 양 분기 엔딩 확인)
+- [ ] 전투 밸런스 조정 (필요 시)
+- [ ] 추가 CG/이미지 배치 (에필로그용)
+
+---
+
+## S17 — 2026-04-05 (전체 테스트 + 버그 수정 + 밸런스)
+
+### 발견된 버그 및 수정
+- [x] **전투 재트리거 (Critical):**
+  - 문제: 전투 영역에 다시 들어가면 무한 전투 발생
+  - 수정: 4개 맵 모두 `_battle_counter` + 1회성 플래그(`battle_rim_1` 등) 추가
+  - 영향: rim_forest.gd, crumbling_coast.gd, the_seam.gd, bl07_void.gd
+- [x] **게임 오버 소프트 록 (Critical):**
+  - 문제: 패배 시 HP 0으로 맵 복귀 → 이후 전투 불가
+  - 수정: 패배 시 HP 30% 회복 + "Something pulls you back..." 메시지
+- [x] **보스전 시그널 크래시 (Critical):**
+  - 문제: the_seam.gd에서 `battle_ended.connect(_on_boss_defeated)` 후 씬 전환 → 노드 해제 → 콜백 크래시
+  - 수정: 시그널 대신 플래그 기반 감지 (맵 재진입 시 `ch4_bl07_entered && !ch4_complete` 체크)
+  - 추가: 패배 시 `ch4_bl07_entered` 플래그 리셋으로 재도전 가능
+- [x] **대화 CG 입력 충돌 (Medium):**
+  - 문제: CG 표시 시 입력 대기(waiting_for_input) + 대화 입력 처리 동시 발생
+  - 수정: 대화 중 CG는 `_show_cg_background()` (non-blocking) 사용, 대화 끝나면 자동 닫기
+- [x] **동행 캐릭터 애니메이션 (Minor):**
+  - 문제: 엘리아가 멈추면 마지막 걷기 프레임에서 정지 (idle 미전환)
+  - 수정: `dist < MIN_DISTANCE` 시 idle 애니메이션 재생
+- [x] **챕터 기억 누락 (Minor):**
+  - 문제: the_seam.gd에서 Ch4 기억이 `_start_ch4_sequence()`에서만 추가 → 세이브 로드 시 누락
+  - 수정: `_ready()`에서 `add_chapter_memories(4)` 호출 (중복 방지는 `_has_memory()`)
+
+### 밸런스 조정
+- [x] **보이드 적 일반 공격 가능:**
+  - 변경 전: 보이드 적 = 일반 공격 완전 무효 → 기억 소진 시 진행 불가
+  - 변경 후: 보이드 적에게 30% 감쇠 데미지 ("Your blade struggles against the void...")
+- [x] **챕터별 플레이어 성장:**
+  - 기본 공격력: 15 + (chapter-1) × 3 (Ch1=15, Ch5=27)
+  - 최대 HP: 100 + (chapter-1) × 15 (Ch1=100, Ch5=160)
+  - 전투 시작 시 자동 적용 (HP 성장 시 15 회복)
+
+### 밸런스 테이블
+| 챕터 | 플레이어 HP | 공격력 | 적 HP | 적 ATK | 특수 |
+|------|-----------|--------|-------|--------|------|
+| Ch1  | 100       | 15-25  | 40/80 | 8/15   | Void Beast |
+| Ch3  | 130       | 21-31  | 100   | 18     | Void+Drain |
+| Ch4  | 145       | 24-34  | 60/180| 14/24  | Boss: 3 abilities |
+| Ch5  | 160       | 27-37  | 70/90 | 16/20  | Drain+Multi |
+
+### 변경된 파일
+- `scenes/maps/rim_forest.gd` — 전투 1회성 플래그
+- `scenes/maps/crumbling_coast.gd` — 전투 1회성 플래그
+- `scenes/maps/the_seam.gd` — 전투 플래그 + 보스전 플래그 기반 감지 + 기억 추가 위치 변경
+- `scenes/maps/bl07_void.gd` — 전투 1회성 플래그
+- `scripts/systems/battle_manager.gd` — 패배 HP 회복, 보이드 감쇠, 챕터별 성장
+- `scripts/ui/cg_viewer.gd` — 대화 중 CG non-blocking 모드
+- `scripts/core/companion.gd` — idle 애니메이션 수정
+
+### 다음 세션 (S18) 할 일
+- [ ] Godot 실행 테스트 (Ch1→Ch6, 양 분기 실제 플레이)
+- [ ] 추가 CG/이미지 (에필로그용)
+- [ ] 사운드 추가 (전투 효과음 확장)
+
+---
+
+## S18 — 2026-04-05 (CG 보완 + SFX 확장 + 연출 강화)
+
+### 완료
+- [x] **CG 이미지 연결 보완:**
+  - `item_memory_ampoule.jpg` → Ch5 seal_decision (보이드 홀 맥동 장면), seal_complete (백색 불꽃 장면)
+  - `item_extractor.jpg` → Ch2 malet_encounter (말렛의 가격 제시 장면)
+  - 전체 17장 CG 100% 연결 완료
+- [x] **SFX 6종 추가 (총 12종):**
+  - `shield` — 적 방어막 (저음 울림)
+  - `drain` — 생명력 흡수 (역방향 스윕)
+  - `phase_change` — 보스 페이즈 전환 (깊은 공명)
+  - `defeat` — 플레이어 패배 (하강 톤)
+  - `flee` — 도주 (빠른 상승음)
+  - `memory_add` — 기억 획득 (맑은 C-E-G 화음)
+  - `void_pulse` — 보이드 맥동 (불안한 저주파)
+- [x] **SFX 연결:**
+  - battle_manager.gd: drain, shield, phase_change, defeat, flee
+  - memory_manager.gd: memory_add (add_memory 시 자동 재생)
+  - bl07_void.gd: void_pulse (Seal 결정 장면)
+- [x] **Ch5 Seal 연출 강화:**
+  - Zero Burn: void_pulse SFX → 화면 백색 플래시 (1.2초) → 서서히 복귀 → seal_complete 대화
+  - Preservation: void_pulse SFX → 짧은 딜레이 → seal_refused 대화
+
+### 변경된 파일
+- `data/chapter2_dialogue.json` — item_extractor.jpg CG 추가
+- `data/chapter5_dialogue.json` — item_memory_ampoule.jpg CG 2곳 추가
+- `scripts/systems/audio_manager.gd` — SFX 6종 추가 (shield, drain, phase_change, defeat, flee, memory_add, void_pulse)
+- `scripts/systems/battle_manager.gd` — 새 SFX 연결 (drain, shield, phase_change, defeat, flee)
+- `scripts/systems/memory_manager.gd` — memory_add SFX (기억 추가 시)
+- `scenes/maps/bl07_void.gd` — Seal 장면 연출 강화 (void_pulse + 백색 플래시)
+
+### 전체 에셋 현황
+| 카테고리 | 수량 | 상태 |
+|---------|------|------|
+| CG 이미지 | 17장 | 100% 연결 |
+| 포트레이트 | 11장 | 100% 연결 |
+| SFX | 12종 | 코드 생성 (외부 파일 불필요) |
+| BGM | 5곡 | 씬별 매핑 (전투=무음) |
+
+### 다음 세션 (S19) 할 일
+- [ ] Godot 실행 테스트 (Ch1→Ch6, 양 분기 실제 플레이)
+- [ ] 추가 BGM (에필로그 전용 BGM?)
+- [ ] 타이틀 화면 → New Game / Continue 흐름 정리

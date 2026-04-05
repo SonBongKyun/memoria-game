@@ -58,6 +58,7 @@ func _ready() -> void:
 
 func _start_ch3_sequence() -> void:
 	GameManager.set_flag("ch3_arrived")
+	MemoryManager.add_chapter_memories(3)
 	DialogueManager.dialogue_ended.connect(_on_arrival_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "coast_arrival")
 
@@ -97,44 +98,25 @@ func _arrive_at_seam() -> void:
 func _on_seam_ended() -> void:
 	GameManager.current_chapter = 4
 	print("[CrumblingCoast] Chapter 3 complete — The Seam reached")
+	await get_tree().create_timer(1.5).timeout
+	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
 
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	for y in range(MAP_HEIGHT):
-		for x in range(MAP_WIDTH):
-			var tile_type = map_data[y][x] as Tile
-			var pos = Vector2(x * TILE_SIZE, y * TILE_SIZE)
+	var tile_defs = [
+		{"color": Color(0.32, 0.3, 0.28), "detail": "rock"},     # 0: ROCK
+		{"color": Color(0.45, 0.4, 0.32), "detail": "sand"},     # 1: SAND
+		{"color": Color(0.15, 0.13, 0.12), "detail": "cliff"},   # 2: CLIFF
+		{"color": Color(0.1, 0.18, 0.3), "detail": "water"},     # 3: WATER
+		{"color": Color(0.38, 0.35, 0.3), "detail": "path"},     # 4: PATH
+	]
+	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	add_child(tilemap)
 
-			var rect = ColorRect.new()
-			rect.size = Vector2(TILE_SIZE, TILE_SIZE)
-			rect.position = pos
-			rect.color = tile_colors[tile_type]
-			rect.z_index = -1
-			add_child(rect)
-
-			# 물에 파도 디테일
-			if tile_type == Tile.WATER:
-				var wave = ColorRect.new()
-				wave.size = Vector2(TILE_SIZE, 4)
-				wave.position = pos + Vector2(0, randi_range(8, 24))
-				wave.color = Color(0.15, 0.25, 0.4, 0.4)
-				wave.z_index = 0
-				add_child(wave)
-
-			if tile_type == Tile.CLIFF or tile_type == Tile.WATER:
-				_add_collision(pos)
-
-func _add_collision(pos: Vector2) -> void:
-	var body = StaticBody2D.new()
-	body.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	body.collision_layer = 1
-	var shape = CollisionShape2D.new()
-	var rect_shape = RectangleShape2D.new()
-	rect_shape.size = Vector2(TILE_SIZE, TILE_SIZE)
-	shape.shape = rect_shape
-	body.add_child(shape)
-	add_child(body)
+	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CLIFF, Tile.WATER])
+	for body in bodies:
+		add_child(body)
 
 func _position_player() -> void:
 	player.position = Vector2(12 * TILE_SIZE, 16 * TILE_SIZE)
@@ -149,6 +131,8 @@ func _setup_battle_triggers() -> void:
 		"Coastal Void Beast", 100, 18, true,
 		"res://assets/cg/crumbling_coast.jpg", "res://assets/cg/void_beast.jpg"
 	)
+
+var _battle_counter: int = 0
 
 func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, atk: int, is_void: bool, bg_img: String = "", e_img: String = "") -> void:
 	var area = Area2D.new()
@@ -169,9 +153,14 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 	indicator.z_index = -1
 	area.add_child(indicator)
 
+	_battle_counter += 1
+	var flag_name = "battle_coast_%d" % _battle_counter
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
 			var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)
+			if enemy_name == "Coastal Void Beast":
+				enemy.abilities = ["drain"]
 			BattleManager.start_battle(enemy, "res://scenes/maps/crumbling_coast.tscn", bg_img, e_img)
 			SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
 	)

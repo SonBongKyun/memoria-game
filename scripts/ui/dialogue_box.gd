@@ -186,13 +186,14 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 		speaker_label.text = ""
 		portrait_texture.visible = false
 		portrait_fallback.visible = false
-		# 나레이션 스타일: 더 어둡고 이탤릭 느낌
-		text_label.add_theme_color_override("default_color", Color(0.65, 0.6, 0.55))
+		# 나레이션 스타일
+		text_label.add_theme_color_override("default_color", UITheme.TEXT_NARRATION)
 		if speaker == "system_log":
-			text_label.add_theme_color_override("default_color", Color(0.3, 0.65, 0.55))
+			text_label.add_theme_color_override("default_color", UITheme.TEXT_SYSTEM)
 	else:
 		speaker_label.text = speaker
-		text_label.add_theme_color_override("default_color", Color(0.85, 0.82, 0.78))
+		speaker_label.add_theme_color_override("font_color", UITheme.get_speaker_color(speaker))
+		text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
 		_update_portrait(speaker, portrait)
 
 	# 타자기 효과로 텍스트 표시

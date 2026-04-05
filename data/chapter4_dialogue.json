@@ -1,0 +1,63 @@
+{
+  "chapter": 4,
+  "title": "The Seam",
+  "dialogues": {
+    "seam_welcome": [
+      {"speaker": "", "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist. Amber. Teal. A red so vivid it felt borrowed from a dream."},
+      {"speaker": "", "text": "People moved through the narrow streets. Not many, but enough. Enough to prove that survival was still possible."},
+      {"speaker": "Elia", "text": "It's real. I wasn't sure it would be.", "portrait": "elia_neutral"},
+      {"speaker": "Sable", "text": "It's real because we make it real. Every day. Come — there's food, and we need to talk.", "portrait": "sable_calm"}
+    ],
+    "sable_briefing": [
+      {"speaker": "", "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.", "cg": "res://assets/cg/bl07_interior.jpg"},
+      {"speaker": "Sable", "text": "Malet sent you because of what you can do. The burning.", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "He sent me because I was useful.", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "Same thing. Listen — there's a Void Hole forming south of here. Designation BL-07.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "If it opens fully, The Seam won't survive. This canyon will become another dead zone.", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "And you want me to burn something to close it.", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "I want you to investigate it. What I need to know is whether it CAN be closed. Some can. Some... are past that.", "portrait": "sable_calm"},
+      {"speaker": "Elia", "text": "What happens if it can't be closed?", "portrait": "elia_concern"},
+      {"speaker": "Sable", "text": "Then we pack. We've done it before.", "portrait": "sable_neutral"},
+      {"speaker": "", "text": "Her voice was steady. The voice of someone who had lost homes before and expected to lose them again."},
+      {"speaker": "Sable", "text": "BL-07 is south, past the garden terraces. You'll know it when you feel the air go thin.", "portrait": "sable_calm"},
+      {"speaker": "", "text": "A Shade Sentinel guards the entrance. It will need to be dealt with first."}
+    ],
+    "bl07_entrance": [
+      {"speaker": "", "text": "The air changed. Colors drained from the rock. The flowers stopped.", "cg": "res://assets/cg/void_portal.jpg"},
+      {"speaker": "", "text": "Ahead — a tear in the world. Not large, but growing. The edges flickered between here and nowhere."},
+      {"speaker": "Elia", "text": "I can feel it pulling. Like something trying to remember how to forget.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "Between them and the Void Hole, a shape coalesced. Dark. Wrong. A Shade Sentinel — the Void's immune response."},
+      {"speaker": "Arrel", "text": "Stay back.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "He drew his sword. The blade felt heavier than it should."}
+    ],
+    "bl07_aftermath": [
+      {"speaker": "", "text": "The Sentinel dissolved. The Void Hole flickered, contracted — but didn't close."},
+      {"speaker": "Arrel", "text": "It's still there.", "portrait": "arrel_wounded"},
+      {"speaker": "Elia", "text": "But smaller. You hurt it.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Arrel looked at his hands. The burning had taken something. He couldn't remember what."},
+      {"speaker": "Sable", "text": "You're alive. That's more than the last team managed.", "portrait": "sable_calm"},
+      {"speaker": "Sable", "text": "The Hole responds to Grade 1 burns. We can seal it — but the cost will be significant.", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "How significant?", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "That depends on what you're willing to forget.", "portrait": "sable_neutral"},
+      {"speaker": "", "text": "The wind from the Void Hole carried no sound. Just absence. Just the promise of nothing."},
+      {"speaker": "", "text": "Chapter 4 — End. The investigation of BL-07 has begun."}
+    ],
+    "sable_talk": [
+      {"speaker": "Sable", "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Before that, Thornfield. Before that, somewhere I've chosen not to remember.", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "Chosen?", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "Not everyone who forgets was forced to. Sometimes it's the only kindness left.", "portrait": "sable_calm"},
+      {"speaker": "", "text": "She turned back to her maps. The conversation was over."}
+    ],
+    "elia_seam_talk": [
+      {"speaker": "Elia", "text": "This place... it's different. The air doesn't taste like ash.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "Sable's doing?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Maybe. Or maybe the world still has places it hasn't given up on.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "The flowers in the gardens — have you noticed? They're all from different seasons. They shouldn't bloom at the same time.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Memory leakage?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Sable calls it 'bleed-through.' The Seam sits on a crack between what was and what is. Things... slip through.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "She smiled. It was the first real smile he'd seen from her since Verdan."}
+    ]
+  }
+}

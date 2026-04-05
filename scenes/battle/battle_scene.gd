@@ -16,6 +16,8 @@ var enemy_sprite: ColorRect  # 플레이스홀더
 
 var log_lines: Array = []
 const MAX_LOG_LINES: int = 6
+var hp_tween_player: Tween
+var hp_tween_enemy: Tween
 
 func _ready() -> void:
 	_build_ui()
@@ -311,17 +313,43 @@ func _setup_enemy_display() -> void:
 		enemy_sprite.color = Color(0.15, 0.05, 0.2)
 		enemy_name_label.add_theme_color_override("font_color", Color(0.6, 0.2, 0.6))
 
-func _update_hp_displays() -> void:
+func _update_hp_displays(animate: bool = false) -> void:
 	# 플레이어 HP
 	player_hp_bar.max_value = GameManager.player_data.max_hp
-	player_hp_bar.value = GameManager.player_data.hp
-	player_hp_label.text = "HP: %d / %d" % [GameManager.player_data.hp, GameManager.player_data.max_hp]
+	var p_hp = GameManager.player_data.hp
+	player_hp_label.text = "HP: %d / %d" % [p_hp, GameManager.player_data.max_hp]
+
+	# HP 낮을 때 색상 변경
+	var p_ratio = float(p_hp) / max(GameManager.player_data.max_hp, 1)
+	var p_fill = player_hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
+	if p_fill:
+		p_fill.bg_color = UITheme.HP_LOW if p_ratio <= 0.25 else UITheme.HP_PLAYER
+
+	if animate:
+		if hp_tween_player:
+			hp_tween_player.kill()
+		hp_tween_player = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		hp_tween_player.tween_property(player_hp_bar, "value", float(p_hp), 0.4)
+	else:
+		player_hp_bar.value = p_hp
 
 	# 적 HP
 	if BattleManager.current_enemy:
 		var e = BattleManager.current_enemy
-		enemy_hp_bar.value = e.hp
 		enemy_hp_label.text = "HP: %d / %d" % [e.hp, e.max_hp]
+
+		var e_ratio = float(e.hp) / max(e.max_hp, 1)
+		var e_fill = enemy_hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
+		if e_fill:
+			e_fill.bg_color = UITheme.HP_LOW if e_ratio <= 0.25 else UITheme.HP_ENEMY
+
+		if animate:
+			if hp_tween_enemy:
+				hp_tween_enemy.kill()
+			hp_tween_enemy = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+			hp_tween_enemy.tween_property(enemy_hp_bar, "value", float(e.hp), 0.4)
+		else:
+			enemy_hp_bar.value = e.hp
 
 ## 전투 로그 표시
 func _on_battle_log(message: String) -> void:
@@ -331,7 +359,7 @@ func _on_battle_log(message: String) -> void:
 	log_label.text = "\n".join(log_lines)
 
 func _on_damage_dealt(_target: String, _amount: int, _skill: String) -> void:
-	_update_hp_displays()
+	_update_hp_displays(true)
 
 func _on_player_turn() -> void:
 	action_container.visible = true

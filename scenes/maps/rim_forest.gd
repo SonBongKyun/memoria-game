@@ -135,63 +135,21 @@ func _on_camp_ended() -> void:
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	for y in range(MAP_HEIGHT):
-		for x in range(MAP_WIDTH):
-			var tile_type = map_data[y][x] as Tile
-			var pos = Vector2(x * TILE_SIZE, y * TILE_SIZE)
+	var tile_defs = [
+		{"color": Color(0.18, 0.28, 0.15), "detail": "grass"},   # 0: GRASS
+		{"color": Color(0.35, 0.28, 0.2), "detail": "path"},     # 1: PATH
+		{"color": Color(0.08, 0.12, 0.08), "detail": "tree"},    # 2: TREE
+		{"color": Color(0.22, 0.32, 0.18), "detail": "bush"},    # 3: BUSH
+		{"color": Color(0.12, 0.15, 0.25), "detail": "water"},   # 4: WATER
+	]
+	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	add_child(tilemap)
 
-			var rect = ColorRect.new()
-			rect.size = Vector2(TILE_SIZE, TILE_SIZE)
-			rect.position = pos
-			rect.color = tile_colors[tile_type]
-			rect.z_index = -1
-			add_child(rect)
-			tile_nodes.append(rect)
-
-			if tile_type == Tile.TREE:
-				_add_tree_detail(rect, pos)
-			elif tile_type == Tile.BUSH:
-				_add_bush_detail(rect, pos)
-
-			if tile_type == Tile.TREE or tile_type == Tile.WATER:
-				_add_collision(pos)
-
-func _add_tree_detail(_parent_rect: ColorRect, pos: Vector2) -> void:
-	var trunk = ColorRect.new()
-	trunk.size = Vector2(6, 10)
-	trunk.position = pos + Vector2(13, 20)
-	trunk.color = Color(0.25, 0.18, 0.1)
-	trunk.z_index = 0
-	add_child(trunk)
-
-	var canopy = ColorRect.new()
-	canopy.size = Vector2(22, 18)
-	canopy.position = pos + Vector2(5, 2)
-	canopy.color = Color(0.12, 0.2, 0.1)
-	canopy.z_index = 1
-	add_child(canopy)
-
-func _add_bush_detail(_parent_rect: ColorRect, pos: Vector2) -> void:
-	var detail = ColorRect.new()
-	detail.size = Vector2(18, 12)
-	detail.position = pos + Vector2(7, 10)
-	detail.color = Color(0.15, 0.25, 0.12)
-	detail.z_index = 0
-	add_child(detail)
-
-func _add_collision(pos: Vector2) -> void:
-	var body = StaticBody2D.new()
-	body.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	body.collision_layer = 1
-
-	var shape = CollisionShape2D.new()
-	var rect_shape = RectangleShape2D.new()
-	rect_shape.size = Vector2(TILE_SIZE, TILE_SIZE)
-	shape.shape = rect_shape
-	body.add_child(shape)
-
-	add_child(body)
-	collision_bodies.append(body)
+	# 충돌 (나무, 물)
+	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.WATER])
+	for body in bodies:
+		add_child(body)
+		collision_bodies.append(body)
 
 func _position_player() -> void:
 	player.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 9 * TILE_SIZE + TILE_SIZE / 2.0)
@@ -213,6 +171,8 @@ func _setup_battle_triggers() -> void:
 		"res://assets/cg/ch1_forest.jpg", "res://assets/cg/void_beast.jpg"
 	)
 
+var _battle_counter: int = 0
+
 func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, atk: int, is_void: bool, bg_img: String = "", e_img: String = "") -> void:
 	var area = Area2D.new()
 	area.position = pos + size / 2.0
@@ -232,8 +192,11 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 	indicator.z_index = -1
 	area.add_child(indicator)
 
+	_battle_counter += 1
+	var flag_name = "battle_rim_%d" % _battle_counter
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
 			_trigger_battle(enemy_name, hp, atk, is_void, bg_img, e_img)
 	)
 

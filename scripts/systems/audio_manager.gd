@@ -12,8 +12,9 @@ const SCENE_BGM: Dictionary = {
 	"res://scenes/main/main.tscn": "res://assets/audio/bgm/title.mp3",
 	"res://scenes/maps/rim_forest.tscn": "res://assets/audio/bgm/ch1_forest.mp3",
 	"res://scenes/maps/verdan_market.tscn": "res://assets/audio/bgm/ch2_verdan.mp3",
-	"res://scenes/battle/battle_scene.tscn": "res://assets/audio/bgm/battle.mp3",
 	"res://scenes/maps/crumbling_coast.tscn": "res://assets/audio/bgm/dialogue_tense.mp3",
+	"res://scenes/maps/the_seam.tscn": "res://assets/audio/bgm/exploration.mp3",
+	"res://scenes/maps/bl07_void.tscn": "res://assets/audio/bgm/dialogue_tense.mp3",
 }
 
 const FADE_DURATION: float = 1.0
@@ -133,6 +134,55 @@ func _generate_sfx(type: String) -> PackedFloat32Array:
 			for i in range(int(sample_rate * duration)):
 				var t = float(i) / sample_rate
 				samples.append(randf_range(-0.15, 0.15) * (1.0 - t / duration))
+		"shield":  # 적 방어막 — 저음 울림
+			duration = 0.35
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI) * 0.8
+				samples.append((sin(t * 150.0 * TAU) * 0.2 + sin(t * 75.0 * TAU) * 0.15) * env)
+		"drain":  # 생명력 흡수 — 역방향 스윕
+			duration = 0.35
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = t / duration  # 역페이드 (점점 커짐)
+				var f = lerpf(600.0, 150.0, t / duration)
+				samples.append(sin(t * f * TAU) * 0.25 * env)
+		"phase_change":  # 보스 페이즈 전환 — 깊은 공명
+			duration = 0.6
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI)
+				var wave = sin(t * 110.0 * TAU) * 0.2 + sin(t * 55.0 * TAU) * 0.15
+				var noise = randf_range(-0.05, 0.05)
+				samples.append((wave + noise) * env)
+		"defeat":  # 패배 — 하강하는 톤
+			duration = 0.5
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = (1.0 - t / duration)
+				var f = lerpf(440.0, 110.0, t / duration)
+				samples.append(sin(t * f * TAU) * 0.2 * env)
+		"flee":  # 도주 — 빠른 상승음
+			duration = 0.2
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = (1.0 - t / duration)
+				var f = lerpf(330.0, 880.0, t / duration)
+				samples.append(sin(t * f * TAU) * 0.25 * env)
+		"memory_add":  # 기억 획득 — 맑은 화음
+			duration = 0.4
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI) * 0.8
+				samples.append((sin(t * 523.0 * TAU) * 0.12 + sin(t * 659.0 * TAU) * 0.1 + sin(t * 784.0 * TAU) * 0.08) * env)
+		"void_pulse":  # 보이드 맥동 — 불안한 저주파
+			duration = 0.5
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI)
+				var wave = sin(t * 45.0 * TAU) * 0.3
+				var mod = sin(t * 7.0 * TAU) * 0.1
+				samples.append((wave + mod) * env)
 
 	return samples
 
@@ -156,5 +206,7 @@ func _on_tree_changed() -> void:
 	var scene = get_tree().current_scene
 	if scene and scene.scene_file_path != "":
 		var path = scene.scene_file_path
-		if SCENE_BGM.has(path):
+		if path == "res://scenes/battle/battle_scene.tscn":
+			stop_bgm()
+		elif SCENE_BGM.has(path):
 			play_bgm(SCENE_BGM[path])

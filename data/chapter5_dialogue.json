@@ -1,0 +1,78 @@
+{
+  "chapter": 5,
+  "title": "The Seal",
+  "dialogues": {
+    "void_entry": [
+      {"speaker": "", "text": "The world ended at the threshold.", "cg": "res://assets/cg/void_portal.jpg"},
+      {"speaker": "", "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing."},
+      {"speaker": "", "text": "Fragments of ground floated in the void. Stone from somewhere that no longer existed. Paths that led between things that weren't there."},
+      {"speaker": "Elia", "text": "The air... it's not thin. There just isn't any.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I can still breathe.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "That's what worries me. You shouldn't be able to.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The Void Hole designated BL-07. This is what happens when the world forgets too much in one place."}
+    ],
+    "void_core": [
+      {"speaker": "", "text": "At the center, the tear widened. Not a hole — a mouth. Open and patient.", "cg": "res://assets/cg/bl07_interior.jpg"},
+      {"speaker": "", "text": "Something pulsed inside it. Not light. Not sound. A rhythm that his bones recognized even if his mind didn't."},
+      {"speaker": "Arrel", "text": "It's... familiar.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "Arrel, don't—", "portrait": "elia_concern"},
+      {"speaker": "", "text": "He could feel it now. The Void Hole wasn't destroying. It was forgetting. The world was forgetting itself here, and the hole was what was left."},
+      {"speaker": "", "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance."},
+      {"speaker": "Arrel", "text": "I know how to close it.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "How?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "The same way I do everything. Burn something that matters.", "portrait": "arrel_pain"}
+    ],
+    "seal_decision": [
+      {"speaker": "", "text": "The core of BL-07 pulsed. Waiting."},
+      {"speaker": "Elia", "text": "You're talking about burning your name. Your NAME, Arrel. The last thing that makes you... you.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "If The Seam falls, everyone there loses everything. Not just a name.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "And if you burn it? What's left?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_pain"},
+      {"speaker": "", "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.", "cg": "res://assets/cg/item_memory_ampoule.jpg"},
+      {
+        "speaker": "",
+        "text": "What do you do?",
+        "choices": [
+          {"text": "Burn the Name — Seal BL-07", "set_flag": "seal_accepted"},
+          {"text": "Keep the Name — Find another way", "set_flag": "seal_refused"}
+        ]
+      }
+    ],
+    "seal_complete": [
+      {"speaker": "", "text": "He reached inside. Past the memories of rain and campfires and a hand reaching out. Past the sword and the market and the song."},
+      {"speaker": "", "text": "Down to the bottom. To the name."},
+      {"speaker": "", "text": "'Arrel.'"},
+      {"speaker": "", "text": "He let it go."},
+      {"speaker": "", "text": "The fire was not blue this time. It was white. Pure. The color of everything and nothing at once.", "cg": "res://assets/cg/item_memory_ampoule.jpg"},
+      {"speaker": "", "text": "The Void Hole screamed — a sound that existed only in the space between hearing and remembering — and collapsed inward."},
+      {"speaker": "", "text": "The ground beneath them solidified. Color bled back into the stone. The crack sealed like a wound closing."},
+      {"speaker": "Elia", "text": "...hey. Hey. Can you hear me?", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The man who had been Arrel opened his eyes. He looked at the woman standing over him."},
+      {"speaker": "", "text": "He did not recognize her."},
+      {"speaker": "", "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important."},
+      {"speaker": "Elia", "text": "Do you... do you know who you are?", "portrait": "elia_concern"},
+      {"speaker": "", "text": "He thought about it for a long time."},
+      {"speaker": "???", "text": "No. But I know I'm supposed to be here.", "portrait": "arrel_wounded"},
+      {"speaker": "", "text": "BL-07 was sealed. The Seam would survive. The cost was everything that made the price meaningful."}
+    ],
+    "seal_refused": [
+      {"speaker": "", "text": "He pulled his hand back from the edge."},
+      {"speaker": "Arrel", "text": "No.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Arrel—", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "There has to be another way. There always is. People just stop looking because burning is easier.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "The Void Hole pulsed. Unimpressed. Unchanged."},
+      {"speaker": "", "text": "They walked back the way they came. The fragments of ground felt less stable than before. Or maybe that was just the weight of a decision unmade."},
+      {"speaker": "Elia", "text": "Sable won't be happy.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "Sable doesn't have to lose her name.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "Behind them, BL-07 continued to grow. Slowly. Patiently."},
+      {"speaker": "", "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't."}
+    ],
+    "elia_void_talk": [
+      {"speaker": "Elia", "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "New?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I've never been in a place that has no past. Everything has a past. Even ruins. Even ash.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "But this... this is what happens when even the past forgets it was here.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "She shivered. Not from cold. There was no temperature here. Only absence."}
+    ]
+  }
+}

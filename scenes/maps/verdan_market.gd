@@ -101,44 +101,19 @@ func _on_reward_ended() -> void:
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	for y in range(MAP_HEIGHT):
-		for x in range(MAP_WIDTH):
-			var tile_type = map_data[y][x] as Tile
-			var pos = Vector2(x * TILE_SIZE, y * TILE_SIZE)
+	var tile_defs = [
+		{"color": Color(0.28, 0.26, 0.25), "detail": "stone"},   # 0: STONE
+		{"color": Color(0.18, 0.15, 0.13), "detail": "wall"},    # 1: WALL
+		{"color": Color(0.35, 0.25, 0.18), "detail": "stall"},   # 2: STALL
+		{"color": Color(0.4, 0.32, 0.22), "detail": "door"},     # 3: DOOR
+		{"color": Color(0.15, 0.13, 0.12), "detail": "alley"},   # 4: ALLEY
+	]
+	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	add_child(tilemap)
 
-			var rect = ColorRect.new()
-			rect.size = Vector2(TILE_SIZE, TILE_SIZE)
-			rect.position = pos
-			rect.color = tile_colors[tile_type]
-			rect.z_index = -1
-			add_child(rect)
-
-			if tile_type == Tile.STALL:
-				_add_stall_detail(pos)
-
-			if tile_type == Tile.WALL:
-				_add_collision(pos)
-
-func _add_stall_detail(pos: Vector2) -> void:
-	# 노점 천막
-	var canopy = ColorRect.new()
-	canopy.size = Vector2(28, 10)
-	canopy.position = pos + Vector2(2, 0)
-	canopy.color = Color(0.45, 0.3, 0.2)
-	canopy.z_index = 1
-	add_child(canopy)
-
-func _add_collision(pos: Vector2) -> void:
-	var body = StaticBody2D.new()
-	body.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	body.collision_layer = 1
-
-	var shape = CollisionShape2D.new()
-	var rect_shape = RectangleShape2D.new()
-	rect_shape.size = Vector2(TILE_SIZE, TILE_SIZE)
-	shape.shape = rect_shape
-	body.add_child(shape)
-	add_child(body)
+	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL])
+	for body in bodies:
+		add_child(body)
 
 func _position_player() -> void:
 	player.position = Vector2(4 * TILE_SIZE, 9 * TILE_SIZE)

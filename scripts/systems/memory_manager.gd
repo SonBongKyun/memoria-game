@@ -105,10 +105,73 @@ func _init_starting_memories() -> void:
 		"Elia"
 	))
 
+## 챕터 진행에 따른 기억 추가
+func add_chapter_memories(chapter: int) -> void:
+	match chapter:
+		3:
+			if not _has_memory("sense_salt_wind"):
+				add_memory(Memory.new(
+					"sense_salt_wind",
+					"Salt Wind on the Cliffs",
+					"The taste of brine carried up from where the coast is falling apart. Cold and honest.",
+					MemoryGrade.GRADE_5, 12
+				))
+			if not _has_memory("daily_elia_walking"):
+				add_memory(Memory.new(
+					"daily_elia_walking",
+					"Walking With Someone",
+					"Two sets of footsteps. Yours and someone lighter. The rhythm is familiar.",
+					MemoryGrade.GRADE_4, 30,
+					"Lose awareness of Elia's movement patterns",
+					"Elia"
+				))
+		4:
+			if not _has_memory("rel_sable_trust"):
+				add_memory(Memory.new(
+					"rel_sable_trust",
+					"The Woman Who Came Back",
+					"She walked into a Void Hole and walked out. You don't know how. But when she speaks, you believe her.",
+					MemoryGrade.GRADE_3, 55,
+					"Lose instinctive trust toward Sable. Her advice feels hollow.",
+					"Sable"
+				))
+			if not _has_memory("sense_seam_colors"):
+				add_memory(Memory.new(
+					"sense_seam_colors",
+					"Colors That Shouldn't Exist",
+					"Amber. Crimson. Green so deep it hurts. The Seam bleeds color into a gray world.",
+					MemoryGrade.GRADE_5, 15
+				))
+			if not _has_memory("daily_garden_flowers"):
+				add_memory(Memory.new(
+					"daily_garden_flowers",
+					"Flowers From Every Season",
+					"They bloom together — spring and autumn sharing the same soil. Time doesn't work right here.",
+					MemoryGrade.GRADE_4, 28,
+					"The Seam's gardens appear monochrome"
+				))
+		5:
+			if not _has_memory("identity_void_walker"):
+				add_memory(Memory.new(
+					"identity_void_walker",
+					"What You Saw Inside BL-07",
+					"The space between spaces. A sound that wasn't a sound. Something looked back at you through the tear.",
+					MemoryGrade.GRADE_2, 120,
+					"Lose the ability to sense Void Holes. Navigate by instinct alone."
+				))
+
+func _has_memory(memory_id: String) -> bool:
+	for m in memories:
+		if m.id == memory_id:
+			return true
+	return false
+
 ## 기억 추가
 func add_memory(memory: Memory) -> void:
 	memories.append(memory)
 	memory_added.emit(memory)
+	if is_inside_tree():
+		AudioManager.play_sfx("memory_add")
 
 ## 기억 연소
 func burn_memory(memory_id: String) -> Memory:
