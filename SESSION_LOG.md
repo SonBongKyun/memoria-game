@@ -240,3 +240,37 @@
 - SaveManager는 F6/F7 키를 _unhandled_input에서 직접 처리 (input map 불필요).
 - 세이브 파일 경로: user://saves/save_1.json ~ save_3.json
 - get_save_info()로 슬롯 선택 UI에서 저장 시간/챕터/연소 수 표시 가능.
+
+---
+
+## S07 — 2026-04-05 (타이틀 화면 + CG 이벤트 시스템)
+
+### 완료
+- [x] **타이틀 화면:** main.tscn을 Cover.png 배경 타이틀로 전환
+  - New Game / Continue / Quit 버튼
+  - Continue는 세이브 없으면 비활성
+  - New Game 시 기억/플래그 초기화
+  - main_scene을 main.tscn으로 복원
+- [x] **CG 이벤트 시스템 (CgViewer 오토로드)**
+  - show_cg(path, text, auto_close, callback) — 풀스크린 CG 표시
+  - 페이드 인/아웃, 텍스트 오버레이, Space로 닫기
+  - DialogueManager 연동: 대화 라인에 "cg" 키 있으면 자동 CG 표시
+- [x] **CG 이미지 2장 복사:** ch1_forest.jpg, ch1_ash_rain.jpg
+
+### 변경된 파일
+- `scenes/main/main.tscn` — 타이틀 화면으로 전면 재작성
+- `scenes/main/main.gd` — 타이틀 메뉴 로직
+- `scripts/ui/cg_viewer.gd` — **신규** CG 이벤트 시스템
+- `assets/cg/ch1_forest.jpg` — **신규** Chapter 1 숲 CG
+- `assets/cg/ch1_ash_rain.jpg` — **신규** Chapter 1 재비 CG
+- `project.godot` — CgViewer 오토로드 + main_scene 복원
+
+### 다음 세션 (S08) 할 일
+- [ ] Godot 실행 테스트 (타이틀 → 게임 플로우)
+- [ ] Chapter 1 스토리 흐름 연결 (대화 + CG + 전투 시퀀스)
+- [ ] 재비(Ash Rain) 파티클 이펙트
+
+### 메모
+- CgViewer는 layer 45. MemoryUI(40) < CgViewer(45) < DialogueBox(50) < SystemLog(60) < SceneTransition(100).
+- 대화 JSON에서 CG 사용: {"speaker": "", "text": "...", "cg": "res://assets/cg/ch1_forest.jpg", "cg_text": "The forest stretched..."}
+- 오토로드 총 10개: GameManager, MemoryManager, DialogueManager, SceneTransition, DialogueBox, MemoryUI, SystemLog, BattleManager, SaveManager, CgViewer
