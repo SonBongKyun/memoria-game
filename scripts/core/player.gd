@@ -12,6 +12,7 @@ var facing_direction: Vector2 = Vector2.DOWN
 var can_move: bool = true
 
 func _ready() -> void:
+	add_to_group("player")
 	_setup_placeholder_sprites()
 	sprite.play("idle_down")
 	print("[Player] Arrel ready")

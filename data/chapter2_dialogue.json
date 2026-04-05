@@ -1,0 +1,59 @@
+{
+  "chapter": 2,
+  "title": "The Price",
+  "dialogues": {
+    "verdan_arrival": [
+      {"speaker": "", "text": "Verdan. The largest settlement in the Gray Belt."},
+      {"speaker": "", "text": "The stench hit first — burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared."},
+      {"speaker": "", "text": "Arrel pulled his scarf higher. Elia did the same, though hers covered something more than anonymity."},
+      {"speaker": "Elia", "text": "The Sump. Underground. Follow me.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "She moved through the crowd like water through cracks — never touching, never stopping, always finding the gap."}
+    ],
+    "malet_encounter": [
+      {"speaker": "", "text": "The cellar was three levels below street. The air down here tasted like copper and old paper."},
+      {"speaker": "", "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning."},
+      {"speaker": "", "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls."},
+      {"speaker": "", "text": "His eyes were wrong. Too vivid. Amber that caught light that wasn't there. High-grade Memory Ampoules."},
+      {"speaker": "Malet", "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.", "portrait": "arrel_neutral"},
+      {"speaker": "Malet", "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it."},
+      {"speaker": "Arrel", "text": "I need a route to BL-07.", "portrait": "arrel_neutral"},
+      {"speaker": "Malet", "text": "Seventeen people have asked me that question. None of them came back whole."},
+      {"speaker": "Malet", "text": "My price: the day you first held a sword."}
+    ],
+    "malet_deal": [
+      {
+        "choices": [
+          {
+            "text": "Accept the deal.",
+            "set_flag": "malet_deal_accepted",
+            "burn_memory": "identity_first_sword"
+          },
+          {
+            "text": "Refuse.",
+            "set_flag": "malet_deal_refused"
+          }
+        ]
+      },
+      {"speaker": "", "text": "The extractor was civilian-grade. Small. Clean. Almost gentle."},
+      {"speaker": "", "text": "The memory surfaced as it was pulled: a courtyard, dust in afternoon light, a hand larger than his closing his fingers around a wooden grip."},
+      {"speaker": "", "text": "Absolute certainty that the person teaching him was the most important person in the world."},
+      {"speaker": "", "text": "Then it left. Silent as a drawer closing. And where it had been — nothing. A space shaped like significance, emptied of content."},
+      {"speaker": "", "text": "His hand did not shake this time. There was nothing left to shake for."}
+    ],
+    "malet_reward": [
+      {"speaker": "Malet", "text": "Three things. Listen carefully."},
+      {"speaker": "Malet", "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes."},
+      {"speaker": "Malet", "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it."},
+      {"speaker": "Malet", "text": "Third — a warning."},
+      {"speaker": "", "text": "He paused. For the first time, something moved behind those amber eyes."},
+      {"speaker": "Malet", "text": "An Editor has been dispatched. Name: Kairos. Quiet. Methodical. You have four days before he closes the distance."},
+      {"speaker": "", "text": "Elia's hand tightened on her cup. Her knuckles went white."},
+      {"speaker": "Elia", "text": "We need to leave. Now.", "portrait": "elia_concern"}
+    ],
+    "elia_ch2_talk": [
+      {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "Ironic.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Not the kind of irony that's funny.", "portrait": "elia_concern"}
+    ]
+  }
+}

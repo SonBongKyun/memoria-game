@@ -125,7 +125,9 @@ func _start_camp_scene() -> void:
 func _on_camp_ended() -> void:
 	GameManager.set_flag("ch1_complete")
 	GameManager.current_chapter = 2
-	print("[RimForest] Chapter 1 complete!")
+	print("[RimForest] Chapter 1 complete — transitioning to Verdan Market")
+	await get_tree().create_timer(1.0).timeout
+	SceneTransition.change_scene("res://scenes/maps/verdan_market.tscn")
 
 ## ===================== 맵 빌드 =====================
 

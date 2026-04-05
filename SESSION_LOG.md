@@ -300,11 +300,52 @@
 - `data/chapter1_dialogue.json` — CG 키 + 대화 확장
 
 ### 다음 세션 (S09) 할 일
-- [ ] Godot 실행 테스트 (타이틀 → Ch1 전체 플로우)
-- [ ] Chapter 2 맵 + 스토리 기초 (벨트 남부 도로)
-- [ ] NPC 엘리아 따라오기 (동행 시스템)
+- [x] Ch2 맵 + 스토리 → S09에서 완료
+- [x] 엘리아 동행 시스템 → S09에서 완료
 
 ### 메모
 - 스토리 시퀀스는 CONNECT_ONE_SHOT으로 연결. 대화 종료 시 다음 단계 자동 진행.
 - 전투 트리거를 스토리 동선(중앙 길)에서 벗어나도록 좌상/우상으로 이동.
-- 엘리아 NPC는 현재 고정 위치. 동행 시스템은 S09에서 구현.
+
+---
+
+## S09 — 2026-04-05 (엘리아 동행 + Ch2 베르단 시장)
+
+### 완료
+- [x] **엘리아 동행 시스템 (Companion)**
+  - CharacterBody2D 기반, 플레이어를 따라다님
+  - MIN_DISTANCE(40px) 이내 멈춤, MAX_DISTANCE(200px) 초과 시 텔레포트
+  - 플레이스홀더 스프라이트 (은발 + 파란 눈)
+  - interact() 지원 (대화 가능)
+  - Player에 "player" 그룹 추가 → get_first_node_in_group()으로 탐색
+- [x] **Ch2 베르단 시장 맵 (30x20 타일)**
+  - 돌바닥/벽/노점/골목 5종 타일
+  - 말렛 NPC 배치 (The Sump 골목 안쪽)
+  - 엘리아 Companion 배치
+  - 도착 대화 자동 시작
+- [x] **Ch2 대화 데이터**
+  - verdan_arrival: 베르단 도착 묘사
+  - malet_encounter: 말렛 등장 + 거래 제안 (Grade 2 기억 요구)
+  - malet_deal: 선택지 (수락/거절) + 기억 추출 장면
+  - malet_reward: BL-07 경로, 세이블 이름, 카이로스 경고
+  - elia_ch2_talk: 엘리아 재대화
+- [x] **Ch1→Ch2 자동 전환:** camp_night 종료 → verdan_market 씬 전환
+
+### 변경된 파일
+- `scripts/core/companion.gd` — **신규** 동행 NPC
+- `scenes/npc/companion.tscn` — **신규** 동행 NPC 씬
+- `scenes/maps/verdan_market.gd` — **신규** Ch2 맵
+- `scenes/maps/verdan_market.tscn` — **신규** Ch2 맵 씬
+- `data/chapter2_dialogue.json` — **신규** Ch2 대화
+- `scenes/maps/rim_forest.gd` — Ch2 전환 추가
+- `scripts/core/player.gd` — "player" 그룹 추가
+
+### 다음 세션 (S10) 할 일
+- [ ] Godot 테스트 (Ch1→Ch2 전체 흐름)
+- [ ] 말렛 거래 후 Ch2 완료 → Ch3 연결 준비
+- [ ] 맵 간 이동 시스템 (출입구 트리거)
+
+### 메모
+- Companion은 collision_layer=4(Interactables), Player의 InteractionRay mask가 감지 가능.
+- 말렛 대화에서 "Accept the deal" 선택 시 identity_first_sword 기억 자동 연소.
+- Ch2 맵의 골목(ALLEY) 타일은 The Sump 입구를 표현.

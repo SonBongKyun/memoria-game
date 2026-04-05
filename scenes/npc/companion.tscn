@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/companion.gd" id="1_companion"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_comp"]
+size = Vector2(16, 20)
+
+[node name="Companion" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_companion")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 2)
+shape = SubResource("RectangleShape2D_comp")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
