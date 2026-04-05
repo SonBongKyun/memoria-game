@@ -5,6 +5,7 @@ extends Control
 @onready var continue_btn: Button = $VBoxContainer/ContinueButton
 
 func _ready() -> void:
+	GameManager.change_state(GameManager.GameState.MENU)
 	_setup_background()
 	_setup_menu()
 	print("=== MEMORIA: The Price of Oblivion ===")
@@ -26,6 +27,7 @@ func _setup_background() -> void:
 		add_child(fallback)
 		return
 	bg.z_index = -1
+	bg.mouse_filter = MOUSE_FILTER_IGNORE
 	# 배경을 메뉴 뒤로
 	add_child(bg)
 	move_child(bg, 0)
