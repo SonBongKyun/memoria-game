@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cyyossikxpxwi"
+path="res://.godot/imported/Echoes of Time.mp3-85dab4ccc1d5082c6a16eadc2b16e862.mp3str"
+
+[deps]
+
+source_file="res://mugic/Echoes of Time.mp3"
+dest_files=["res://.godot/imported/Echoes of Time.mp3-85dab4ccc1d5082c6a16eadc2b16e862.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
