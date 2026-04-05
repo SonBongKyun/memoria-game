@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://rimforest001"]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/maps/rim_forest.gd" id="1_rimforest"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
@@ -15,4 +15,4 @@ position = Vector2(464, 240)
 npc_name = "Elia"
 dialogue_file = "res://data/chapter1_dialogue.json"
 dialogue_key = "elia_appears"
-npc_color = Color(0.45, 0.55, 0.65)
+npc_color = Color(0.45, 0.55, 0.65, 1)

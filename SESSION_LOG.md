@@ -193,12 +193,50 @@
 - `project.godot` — BattleManager 오토로드 추가
 
 ### 다음 세션 (S06) 할 일
-- [ ] Godot 4.6에서 전체 프로젝트 실행 테스트
-- [ ] 전투 밸런스 조정 + 전투 후 HP 회복 처리
-- [ ] 세이브/로드 시스템 기초
+- [x] Godot 실행 테스트 → 완료 (Color alpha 누락 버그 수정 후 실행 성공)
+- [x] 전투 후 HP 회복 → S06에서 완료
+- [x] 세이브/로드 → S06에서 완료
+- [x] NPC 상호작용 버그 → S06에서 수정
 
 ### 메모
 - 포트레이트 매핑: PORTRAIT_MAP dict에 키→경로. DEFAULT_PORTRAITS로 화자별 기본값 설정.
 - 전투 씬은 SceneTransition으로 전환. 전투 종료 후 return_scene으로 자동 복귀.
 - 기억 연소 스킬 데미지 = BURN_SKILLS[grade].base_damage + memory.burn_power
 - 공허수(Void Beast)는 is_void_beast=true → player_attack()에서 0 데미지 처리.
+
+---
+
+## S06 — 2026-04-05 (NPC 버그 수정 + HP 회복 + 세이브/로드)
+
+### 완료
+- [x] **버그 수정: NPC 상호작용 안 됨**
+  - InteractionRay에 `force_raycast_update()` 추가 (입력 시점 동기화)
+  - ray 길이 20px → 32px 증가 (NPC 감지 범위 확대)
+- [x] **전투 후 HP 회복:** 승리 시 max_hp의 20% 회복
+- [x] **세이브/로드 시스템 (SaveManager 오토로드)**
+  - 3슬롯 JSON 저장 (user://saves/)
+  - F6 = 퀵세이브, F7 = 퀵로드
+  - 저장: player_data, story_flags, chapter, memory 상태, 현재 씬
+  - GameManager/MemoryManager에 import_data() 추가
+- [x] **tscn uid 제거:** 모든 씬에서 가짜 uid 제거 (Godot 자동 생성에 맡김)
+- [x] **tscn Color alpha 수정:** Color(r,g,b) → Color(r,g,b,a)
+
+### 변경된 파일
+- `scripts/core/player.gd` — force_raycast_update + ray 32px
+- `scenes/player/player.tscn` — InteractionRay target_position 32
+- `scripts/systems/battle_manager.gd` — 승리 시 HP 20% 회복
+- `scripts/systems/save_manager.gd` — **신규** 세이브/로드
+- `scripts/core/game_manager.gd` — export_data/import_data 추가
+- `scripts/systems/memory_manager.gd` — import_data 추가
+- `project.godot` — SaveManager 오토로드
+- 모든 .tscn — uid 제거, Color alpha 수정
+
+### 다음 세션 (S07) 할 일
+- [ ] Godot 재실행 + NPC 대화 테스트
+- [ ] 타이틀 화면 (Cover.png, 새 게임/이어하기)
+- [ ] CG 이벤트 시스템 (풀스크린 CG 표시)
+
+### 메모
+- SaveManager는 F6/F7 키를 _unhandled_input에서 직접 처리 (input map 불필요).
+- 세이브 파일 경로: user://saves/save_1.json ~ save_3.json
+- get_save_info()로 슬롯 선택 UI에서 저장 시간/챕터/연소 수 표시 가능.

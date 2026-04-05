@@ -172,3 +172,26 @@ func export_data() -> Dictionary:
 	for m in burned_memories:
 		data.burned.append(m.id)
 	return data
+
+## 세이브 데이터 불러오기
+func import_data(data: Dictionary) -> void:
+	if not data.has("memories"):
+		return
+
+	memories.clear()
+	burned_memories.clear()
+
+	var burned_ids = data.get("burned", [])
+	for m_data in data.memories:
+		var m = Memory.new(
+			m_data.id, m_data.title, m_data.description,
+			m_data.grade, m_data.burn_power,
+			m_data.get("story_effect", ""), m_data.get("related_npc", "")
+		)
+		m.is_burned = m_data.get("is_burned", false)
+		m.is_residue = m_data.get("is_residue", false)
+		memories.append(m)
+		if m.is_burned:
+			burned_memories.append(m)
+
+	print("[MemoryManager] Imported — %d memories, %d burned" % [memories.size(), burned_memories.size()])

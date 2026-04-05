@@ -149,11 +149,14 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 func _update_raycast_direction() -> void:
 	if not interaction_ray:
 		return
-	interaction_ray.target_position = facing_direction * 20
+	interaction_ray.target_position = facing_direction * 32
 
 ## 상호작용 시도
 func _try_interact() -> void:
-	if not interaction_ray or not interaction_ray.is_colliding():
+	if not interaction_ray:
+		return
+	interaction_ray.force_raycast_update()
+	if not interaction_ray.is_colliding():
 		return
 
 	var collider = interaction_ray.get_collider()

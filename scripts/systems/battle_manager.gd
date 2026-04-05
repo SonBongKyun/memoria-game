@@ -183,6 +183,15 @@ func _end_player_turn() -> void:
 	_enemy_turn()
 
 func _cleanup() -> void:
+	# 승리 시 HP 20% 회복
+	if state == BattleState.VICTORY:
+		var heal = int(GameManager.player_data.max_hp * 0.2)
+		GameManager.player_data.hp = mini(
+			GameManager.player_data.hp + heal,
+			GameManager.player_data.max_hp
+		)
+		battle_log.emit("Recovered %d HP." % heal)
+
 	await get_tree().create_timer(1.5).timeout
 	current_enemy = null
 	GameManager.change_state(GameManager.GameState.EXPLORATION)

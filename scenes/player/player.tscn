@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://player001"]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/core/player.gd" id="1_player"]
 
@@ -16,7 +16,7 @@ shape = SubResource("RectangleShape2D_placeholder")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 
 [node name="InteractionRay" type="RayCast2D" parent="."]
-target_position = Vector2(0, 20)
+target_position = Vector2(0, 32)
 collision_mask = 4
 
 [node name="Camera2D" type="Camera2D" parent="."]

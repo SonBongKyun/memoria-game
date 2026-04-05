@@ -47,3 +47,20 @@ func pause_game() -> void:
 func unpause_game() -> void:
 	get_tree().paused = false
 	change_state(GameState.EXPLORATION)
+
+## 세이브용 데이터 내보내기
+func export_data() -> Dictionary:
+	return {
+		"player_data": player_data.duplicate(),
+		"story_flags": story_flags.duplicate(),
+		"current_chapter": current_chapter,
+	}
+
+## 세이브 데이터 불러오기
+func import_data(data: Dictionary) -> void:
+	if data.has("player_data"):
+		player_data = data.player_data
+	if data.has("story_flags"):
+		story_flags = data.story_flags
+	if data.has("current_chapter"):
+		current_chapter = data.current_chapter
