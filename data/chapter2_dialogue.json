@@ -14,11 +14,11 @@
       {"speaker": "", "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning."},
       {"speaker": "", "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls."},
       {"speaker": "", "text": "His eyes were wrong. Too vivid. Amber that caught light that wasn't there. High-grade Memory Ampoules."},
-      {"speaker": "Malet", "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.", "portrait": "arrel_neutral"},
-      {"speaker": "Malet", "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it."},
+      {"speaker": "Malet", "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.", "portrait": "malet_neutral"},
+      {"speaker": "Malet", "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it.", "portrait": "malet_neutral"},
       {"speaker": "Arrel", "text": "I need a route to BL-07.", "portrait": "arrel_neutral"},
-      {"speaker": "Malet", "text": "Seventeen people have asked me that question. None of them came back whole."},
-      {"speaker": "Malet", "text": "My price: the day you first held a sword."}
+      {"speaker": "Malet", "text": "Seventeen people have asked me that question. None of them came back whole.", "portrait": "malet_neutral"},
+      {"speaker": "Malet", "text": "My price: the day you first held a sword.", "portrait": "malet_neutral"}
     ],
     "malet_deal": [
       {
@@ -34,21 +34,26 @@
           }
         ]
       },
-      {"speaker": "", "text": "The extractor was civilian-grade. Small. Clean. Almost gentle."},
+      {"speaker": "", "text": "The extractor was civilian-grade. Small. Clean. Almost gentle.", "cg": "res://assets/cg/ch2_extraction.jpg"},
       {"speaker": "", "text": "The memory surfaced as it was pulled: a courtyard, dust in afternoon light, a hand larger than his closing his fingers around a wooden grip."},
       {"speaker": "", "text": "Absolute certainty that the person teaching him was the most important person in the world."},
       {"speaker": "", "text": "Then it left. Silent as a drawer closing. And where it had been — nothing. A space shaped like significance, emptied of content."},
-      {"speaker": "", "text": "His hand did not shake this time. There was nothing left to shake for."}
+      {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"}
     ],
     "malet_reward": [
-      {"speaker": "Malet", "text": "Three things. Listen carefully."},
-      {"speaker": "Malet", "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes."},
-      {"speaker": "Malet", "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it."},
-      {"speaker": "Malet", "text": "Third — a warning."},
+      {"speaker": "Malet", "text": "Three things. Listen carefully.", "portrait": "malet_neutral"},
+      {"speaker": "Malet", "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes.", "portrait": "malet_neutral"},
+      {"speaker": "Malet", "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it.", "portrait": "malet_neutral"},
+      {"speaker": "Malet", "text": "Third — a warning.", "portrait": "malet_neutral"},
       {"speaker": "", "text": "He paused. For the first time, something moved behind those amber eyes."},
-      {"speaker": "Malet", "text": "An Editor has been dispatched. Name: Kairos. Quiet. Methodical. You have four days before he closes the distance."},
-      {"speaker": "", "text": "Elia's hand tightened on her cup. Her knuckles went white."},
+      {"speaker": "Malet", "text": "An Editor has been dispatched. Name: Kairos. Quiet. Methodical. You have four days before he closes the distance.", "portrait": "malet_neutral"},
+      {"speaker": "", "text": "Elia's hand tightened on her cup. Her knuckles went white.", "cg": "res://assets/cg/ch2_kairos_warning.jpg"},
       {"speaker": "Elia", "text": "We need to leave. Now.", "portrait": "elia_concern"}
+    ],
+    "malet_refused": [
+      {"speaker": "Malet", "text": "Then we have nothing to discuss. The door is behind you.", "portrait": "malet_neutral"},
+      {"speaker": "", "text": "His amber eyes didn't blink. The dismissal was absolute."},
+      {"speaker": "Elia", "text": "Arrel...", "portrait": "elia_concern"}
     ],
     "elia_ch2_talk": [
       {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral"},

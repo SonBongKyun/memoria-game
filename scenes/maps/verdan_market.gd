@@ -62,17 +62,33 @@ func _start_ch2_sequence() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "verdan_arrival")
 
 func _on_arrival_ended() -> void:
-	# 자유 탐색 — 말렛에게 말 걸면 거래 시작
+	# 자유 탐색 — 말렛 대화 종료 감지
+	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended)
 	print("[VerdenMarket] Free exploration — talk to Malet in the Sump")
 
-## 말렛 거래 완료 후 (NPC dialogue_ended에서 호출)
-func _on_malet_deal_done() -> void:
-	if GameManager.get_flag("malet_deal_accepted"):
-		# 보상 대화
-		DialogueManager.dialogue_ended.connect(_on_reward_ended, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(DIALOGUE_FILE, "malet_reward")
-	else:
-		print("[VerdenMarket] Deal refused — player must find another way")
+## 대화 종료 감지 — 말렛 거래 흐름 자동 연결
+func _on_any_dialogue_ended() -> void:
+	# malet_encounter 끝나면 → malet_deal 시작
+	if GameManager.get_flag("malet_deal_accepted") or GameManager.get_flag("malet_deal_refused"):
+		DialogueManager.dialogue_ended.disconnect(_on_any_dialogue_ended)
+		await get_tree().create_timer(0.3).timeout
+		if GameManager.get_flag("malet_deal_accepted"):
+			# 거래 수락 → 추출 대화 → 보상
+			DialogueManager.dialogue_ended.connect(_on_deal_ended, CONNECT_ONE_SHOT)
+			DialogueManager.load_and_start(DIALOGUE_FILE, "malet_deal")
+		else:
+			# 거절
+			DialogueManager.dialogue_ended.connect(_on_refused_ended, CONNECT_ONE_SHOT)
+			DialogueManager.load_and_start(DIALOGUE_FILE, "malet_refused")
+
+func _on_deal_ended() -> void:
+	await get_tree().create_timer(0.5).timeout
+	DialogueManager.dialogue_ended.connect(_on_reward_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "malet_reward")
+
+func _on_refused_ended() -> void:
+	# 거절해도 재대화로 다시 시도 가능
+	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended)
 
 func _on_reward_ended() -> void:
 	GameManager.set_flag("ch2_malet_done")

@@ -373,6 +373,36 @@
 - `data/chapter2_dialogue.json` — 도착 CG 추가
 
 ### 다음 세션 (S11) 할 일
-- [ ] Godot 전체 테스트 (비주얼 확인)
-- [ ] Ch2 완료 처리 + Ch3 연결
+- [x] 새 이미지 배치 + Ch2 완료 → S11에서 완료
+
+---
+
+## S11 — 2026-04-05 (새 이미지 배치 + Ch2 거래 흐름 완성)
+
+### 완료
+- [x] **포트레이트 6장 추가:** 말렛, 카이로스, 세이블(2장), 아렐 angry/pain
+- [x] **CG 4장 추가:** 카이로스 경고, 기억 추출, Ch1 녹색 나무, Ash Crawler
+- [x] **PORTRAIT_MAP 확장:** 5캐릭터 11장 포트레이트, DEFAULT_PORTRAITS 5명
+- [x] **Ch2 말렛 거래 흐름 완성:**
+  - malet_encounter → malet_deal(선택지) → malet_deal 추출 CG → malet_reward + 카이로스 경고 CG
+  - 거절 시 malet_refused 대화 → 재대화로 재시도 가능
+  - 모든 대사에 포트레이트 키 연결
+- [x] **Ch1 녹색 나무 히든 CG:** camp 종료 → 3초간 녹색 나무 CG → Ch2 전환
+- [x] **Ash Crawler 전투 이미지:** 절지류 크리처 이미지 전투 씬에 표시
+
+### 변경된 파일
+- `assets/portraits/` — 6장 추가 (malet, kairos, sable x2, arrel angry/pain)
+- `assets/cg/` — 4장 추가 (kairos_warning, extraction, green_tree, ash_crawler)
+- `scripts/ui/dialogue_box.gd` — PORTRAIT_MAP 11개 + DEFAULT_PORTRAITS 5명
+- `data/chapter2_dialogue.json` — 포트레이트 키 + CG + malet_refused 추가
+- `scenes/maps/verdan_market.gd` — 말렛 거래 자동 연결 흐름
+- `scenes/maps/rim_forest.gd` — 녹색 나무 CG + Ash Crawler 이미지
+
+### 에셋 현황
+- 포트레이트: 11장 (아렐 5, 엘리아 2, 말렛 1, 카이로스 1, 세이블 2)
+- CG: 9장 (cover, ch1 x3, ch2 x3, void_beast, ash_crawler)
+
+### 다음 세션 (S12) 할 일
+- [ ] Godot 전체 테스트 (Ch1→Ch2 + 새 이미지 확인)
+- [ ] Ch3 콘텐츠 (세이블/The Seam)
 - [ ] 맵 간 이동 시스템

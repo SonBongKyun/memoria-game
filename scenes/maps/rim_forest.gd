@@ -125,9 +125,12 @@ func _start_camp_scene() -> void:
 func _on_camp_ended() -> void:
 	GameManager.set_flag("ch1_complete")
 	GameManager.current_chapter = 2
-	print("[RimForest] Chapter 1 complete — transitioning to Verdan Market")
+	print("[RimForest] Chapter 1 complete")
+	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
-	SceneTransition.change_scene("res://scenes/maps/verdan_market.tscn")
+	CgViewer.show_cg("res://assets/cg/ch1_green_tree.jpg", "", 3.0, func():
+		SceneTransition.change_scene("res://scenes/maps/verdan_market.tscn")
+	)
 
 ## ===================== 맵 빌드 =====================
 
@@ -200,7 +203,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(8 * TILE_SIZE, 5 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Ash Crawler", 40, 8, false,
-		"res://assets/cg/ch1_forest.jpg", ""
+		"res://assets/cg/ch1_forest.jpg", "res://assets/cg/ash_crawler.jpg"
 	)
 
 	_add_battle_area(

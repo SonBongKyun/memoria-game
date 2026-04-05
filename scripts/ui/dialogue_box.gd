@@ -12,13 +12,21 @@ const PORTRAIT_MAP: Dictionary = {
 	"arrel_neutral": "res://assets/portraits/arrel_neutral.jpg",
 	"arrel_side": "res://assets/portraits/arrel_side.jpg",
 	"arrel_wounded": "res://assets/portraits/arrel_wounded.jpg",
+	"arrel_angry": "res://assets/portraits/arrel_angry.jpg",
+	"arrel_pain": "res://assets/portraits/arrel_pain.jpg",
 	"elia_neutral": "res://assets/portraits/elia_neutral.jpg",
 	"elia_concern": "res://assets/portraits/elia_concern.jpg",
+	"malet_neutral": "res://assets/portraits/malet_neutral.jpg",
+	"kairos_neutral": "res://assets/portraits/kairos_neutral.jpg",
+	"sable_neutral": "res://assets/portraits/sable_neutral.jpg",
+	"sable_calm": "res://assets/portraits/sable_calm.jpg",
 }
-# 화자 이름 → 기본 포트레이트 (portrait 키가 비어있을 때 사용)
 const DEFAULT_PORTRAITS: Dictionary = {
 	"Arrel": "arrel_neutral",
 	"Elia": "elia_neutral",
+	"Malet": "malet_neutral",
+	"Kairos": "kairos_neutral",
+	"Sable": "sable_neutral",
 }
 
 # UI 노드 (코드로 생성)
