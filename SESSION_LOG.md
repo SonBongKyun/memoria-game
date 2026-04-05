@@ -98,13 +98,57 @@
 - `project.godot` — DialogueBox 오토로드 추가
 
 ### 다음 세션 (S04) 할 일
-- [ ] Godot 4.6에서 프로젝트 열고 실행 테스트 (전체 흐름)
-- [ ] 맵 레이아웃 조정 (실제 플레이 느낌 확인 후)
-- [ ] 기억 UI (아렐의 서고) — 보유 기억 목록 화면
-- [ ] 시스템 로그 팝업 UI (기억 연소 시 상단 표시)
+- [x] 기억 UI (아렐의 서고) → S04에서 완료
+- [x] 시스템 로그 팝업 UI → S04에서 완료
+- [ ] Godot 4.6에서 프로젝트 열고 실행 테스트 (전체 흐름) → S05로 이월
+- [ ] 맵 레이아웃 조정 (실제 플레이 느낌 확인 후) → S05로 이월
 
 ### 메모
 - DialogueBox는 CanvasLayer 오토로드 (layer 50). 모든 씬에서 자동 사용 가능.
 - NPC collision_layer = 12 (NPCs + Interactables). Player의 InteractionRay mask=4 에 대응.
 - 포트레이트는 현재 ColorRect + 이니셜. 실제 이미지 적용 시 _update_portrait() 수정.
 - JSON 대화 파일은 첫 로드 시 캐싱됨. 같은 파일 재요청 시 파싱 생략.
+
+---
+
+## S04 — 2026-04-05 (기억 UI + 시스템 로그 팝업)
+
+### 완료
+- [x] **아렐의 서고 (MemoryUI):** 기억 인벤토리 전체 화면 UI
+  - 서고 모티프 — 어두운 나무색 패널, 등급별 색상 코딩
+  - 좌측 등급 필터 탭 (All / Grade 5~1)
+  - 중앙 기억 카드 스크롤 목록 (등급 좌측 컬러 바, 연소/잔존 상태 표시)
+  - 우측 상세 정보 패널 (이름, 등급, 설명, 연소력, 관련 NPC, 스토리 효과, 상태)
+  - Tab/M 키로 토글, ESC로 닫기
+  - MENU 상태 전환 (열기/닫기 시 GameManager 연동)
+- [x] **시스템 로그 (SystemLog):** 관리국 감지 로그 팝업
+  - 화면 상단 청록색 모노스페이스 스타일 팝업
+  - MemoryManager.memory_burned 시그널 자동 연결
+  - ���이드 인 → 3.5초 유지 → 페이드 아웃
+  - 연속 연소 시 대기열(queue) 처리
+  - BBCode로 등급별 색상 차이 표현
+- [x] **입력 매핑:** memory_menu 액션 추가 (Tab + M)
+- [x] **오토로드:** MemoryUI (layer 40), SystemLog (layer 60) 등록
+
+### 변경된 파일
+- `scripts/ui/memory_ui.gd` — **신규** 기억 서고 UI
+- `scripts/ui/system_log.gd` — **신규** 시스템 로그 팝업
+- `project.godot` — 오토로드 2개 + memory_menu 입력 매핑 추가
+
+### 오���로드 레이어 정리
+| Layer | 오토로드 | 용도 |
+|-------|----------|------|
+| 40 | MemoryUI | 기억 서고 (전체화면) |
+| 50 | DialogueBox | 대화 UI (하단) |
+| 60 | SystemLog | 관리국 로그 (상단 팝업) |
+| 100 | SceneTransition | 씬 전환 페이드 |
+
+### 다음 세션 (S05) 할 일
+- [ ] Godot 4.6에서 전체 프로젝트 실행 테스트
+- [ ] 전투 시스템 기초 (턴제 전투, 기본 공격, HP바)
+- [ ] 전투 중 기억 연소 스킬 선택
+
+### 메모
+- MemoryUI는 MemoryManager.memories를 직접 읽어서 카드 생성. 기억 추가/연소 시 _refresh_cards() 호출로 동기화.
+- SystemLog는 queue 방식이라 연속 3번 연소해도 순차적으로 표시됨.
+- memory_menu 키: Tab(4194306) + M(77)
