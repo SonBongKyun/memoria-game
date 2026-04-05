@@ -43,6 +43,8 @@ const BURN_SKILLS: Dictionary = {
 var current_enemy: Enemy = null
 var return_scene: String = ""  # 전투 후 돌아갈 씬
 var player_defending: bool = false
+var battle_bg_image: String = ""    # 전투 배경 이미지 경로
+var enemy_image: String = ""        # 적 이미지 경로
 
 # --- 시그널 ---
 signal battle_started(enemy: Enemy)
@@ -56,9 +58,11 @@ func _ready() -> void:
 	print("[BattleManager] Ready")
 
 ## 전투 시작
-func start_battle(enemy: Enemy, from_scene: String = "") -> void:
+func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", e_image: String = "") -> void:
 	current_enemy = enemy
 	return_scene = from_scene
+	battle_bg_image = bg_image
+	enemy_image = e_image
 	player_defending = false
 	state = BattleState.PLAYER_TURN
 

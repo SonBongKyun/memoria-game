@@ -199,16 +199,18 @@ func _setup_battle_triggers() -> void:
 	_add_battle_area(
 		Vector2(8 * TILE_SIZE, 5 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
-		"Ash Crawler", 40, 8, false
+		"Ash Crawler", 40, 8, false,
+		"res://assets/cg/ch1_forest.jpg", ""
 	)
 
 	_add_battle_area(
 		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
-		"Void Beast", 80, 15, true
+		"Void Beast", 80, 15, true,
+		"res://assets/cg/ch1_forest.jpg", "res://assets/cg/void_beast.jpg"
 	)
 
-func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, atk: int, is_void: bool) -> void:
+func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, atk: int, is_void: bool, bg_img: String = "", e_img: String = "") -> void:
 	var area = Area2D.new()
 	area.position = pos + size / 2.0
 	area.collision_layer = 0
@@ -229,12 +231,12 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 
 	area.body_entered.connect(func(body):
 		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
-			_trigger_battle(enemy_name, hp, atk, is_void)
+			_trigger_battle(enemy_name, hp, atk, is_void, bg_img, e_img)
 	)
 
 	add_child(area)
 
-func _trigger_battle(enemy_name: String, hp: int, atk: int, is_void: bool) -> void:
+func _trigger_battle(enemy_name: String, hp: int, atk: int, is_void: bool, bg_img: String = "", e_img: String = "") -> void:
 	var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)
-	BattleManager.start_battle(enemy, "res://scenes/maps/rim_forest.tscn")
+	BattleManager.start_battle(enemy, "res://scenes/maps/rim_forest.tscn", bg_img, e_img)
 	SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")

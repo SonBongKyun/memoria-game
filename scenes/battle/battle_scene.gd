@@ -24,11 +24,20 @@ func _ready() -> void:
 
 ## UI 전체 구축
 func _build_ui() -> void:
-	# 배경
+	# 배경 (이미지 또는 단색)
 	bg = ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.color = Color(0.06, 0.06, 0.08)
 	add_child(bg)
+
+	if BattleManager.battle_bg_image != "" and ResourceLoader.exists(BattleManager.battle_bg_image):
+		var bg_tex = TextureRect.new()
+		bg_tex.set_anchors_preset(Control.PRESET_FULL_RECT)
+		bg_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bg_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		bg_tex.texture = load(BattleManager.battle_bg_image)
+		bg_tex.modulate = Color(0.5, 0.45, 0.4, 0.7)  # 어둡게
+		add_child(bg_tex)
 
 	var canvas = CanvasLayer.new()
 	canvas.layer = 10
@@ -101,30 +110,45 @@ func _build_enemy_panel(root: Control) -> void:
 	vbox.add_child(enemy_hp_label)
 
 func _build_enemy_sprite(root: Control) -> void:
-	enemy_sprite = ColorRect.new()
-	enemy_sprite.anchor_left = 0.35
-	enemy_sprite.anchor_right = 0.65
-	enemy_sprite.anchor_top = 0.12
-	enemy_sprite.anchor_bottom = 0.45
-	enemy_sprite.color = Color(0.3, 0.1, 0.15)
-	root.add_child(enemy_sprite)
+	# 이미지가 있으면 TextureRect, 없으면 ColorRect fallback
+	if BattleManager.enemy_image != "" and ResourceLoader.exists(BattleManager.enemy_image):
+		var tex_rect = TextureRect.new()
+		tex_rect.anchor_left = 0.25
+		tex_rect.anchor_right = 0.75
+		tex_rect.anchor_top = 0.08
+		tex_rect.anchor_bottom = 0.48
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = load(BattleManager.enemy_image)
+		root.add_child(tex_rect)
+		# enemy_sprite를 참조용으로 유지
+		enemy_sprite = ColorRect.new()
+		enemy_sprite.visible = false
+		root.add_child(enemy_sprite)
+	else:
+		enemy_sprite = ColorRect.new()
+		enemy_sprite.anchor_left = 0.35
+		enemy_sprite.anchor_right = 0.65
+		enemy_sprite.anchor_top = 0.12
+		enemy_sprite.anchor_bottom = 0.45
+		enemy_sprite.color = Color(0.3, 0.1, 0.15)
+		root.add_child(enemy_sprite)
 
-	# 적 눈 표시
-	var eye_l = ColorRect.new()
-	eye_l.anchor_left = 0.3
-	eye_l.anchor_top = 0.3
-	eye_l.offset_right = 12
-	eye_l.offset_bottom = 12
-	eye_l.color = Color(0.9, 0.2, 0.15)
-	enemy_sprite.add_child(eye_l)
+		var eye_l = ColorRect.new()
+		eye_l.anchor_left = 0.3
+		eye_l.anchor_top = 0.3
+		eye_l.offset_right = 12
+		eye_l.offset_bottom = 12
+		eye_l.color = Color(0.9, 0.2, 0.15)
+		enemy_sprite.add_child(eye_l)
 
-	var eye_r = ColorRect.new()
-	eye_r.anchor_left = 0.6
-	eye_r.anchor_top = 0.3
-	eye_r.offset_right = 12
-	eye_r.offset_bottom = 12
-	eye_r.color = Color(0.9, 0.2, 0.15)
-	enemy_sprite.add_child(eye_r)
+		var eye_r = ColorRect.new()
+		eye_r.anchor_left = 0.6
+		eye_r.anchor_top = 0.3
+		eye_r.offset_right = 12
+		eye_r.offset_bottom = 12
+		eye_r.color = Color(0.9, 0.2, 0.15)
+		enemy_sprite.add_child(eye_r)
 
 func _build_log_panel(root: Control) -> void:
 	var panel = PanelContainer.new()

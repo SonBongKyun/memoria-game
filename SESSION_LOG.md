@@ -341,11 +341,38 @@
 - `scripts/core/player.gd` — "player" 그룹 추가
 
 ### 다음 세션 (S10) 할 일
-- [ ] Godot 테스트 (Ch1→Ch2 전체 흐름)
-- [ ] 말렛 거래 후 Ch2 완료 → Ch3 연결 준비
-- [ ] 맵 간 이동 시스템 (출입구 트리거)
+- [x] 시각적 품질 개선 → S10에서 완료
 
 ### 메모
 - Companion은 collision_layer=4(Interactables), Player의 InteractionRay mask가 감지 가능.
 - 말렛 대화에서 "Accept the deal" 선택 시 identity_first_sword 기억 자동 연소.
 - Ch2 맵의 골목(ALLEY) 타일은 The Sump 입구를 표현.
+
+---
+
+## S10 — 2026-04-05 (시각적 품질 개선)
+
+### 완료
+- [x] **전투 배경 이미지:** BattleManager에 bg_image/enemy_image 경로 지원, 전투 씬에서 TextureRect로 표시
+- [x] **공허수 이미지:** void_beast.jpg → 전투 시 실제 크리처 이미지 표시 (ColorRect 대체)
+- [x] **전투 배경:** 림 외곽 숲 전투 시 ch1_forest.jpg 배경
+- [x] **타이틀 버튼 스타일링:** 다크 판타지 스타일 (어두운 배경, 골드 테두리, 호버 강조, 18px 폰트)
+- [x] **대화 나레이션 스타일 분리:** 나레이션=어두운 크림색, 시스템 로그=청록색, 일반 대사=밝은 크림색
+- [x] **Ch2 도착 CG:** verdan_arrival 첫 대사에 ch2_verdan.jpg CG 연결
+- [x] **CG 이미지 3장 추가:** void_beast.jpg, ch2_verdan.jpg, village_seam.jpg
+
+### 변경된 파일
+- `assets/cg/void_beast.jpg` — **신규**
+- `assets/cg/ch2_verdan.jpg` — **신규**
+- `assets/cg/village_seam.jpg` — **신규** (Ch3 대비)
+- `scripts/systems/battle_manager.gd` — bg_image/enemy_image 지원
+- `scenes/battle/battle_scene.gd` — 배경 이미지 + 적 이미지 TextureRect
+- `scenes/maps/rim_forest.gd` — 전투 트리거에 이미지 경로 전달
+- `scenes/main/main.gd` — 버튼 스타일링
+- `scripts/ui/dialogue_box.gd` — 나레이션/시스템 로그 색상 분리
+- `data/chapter2_dialogue.json` — 도착 CG 추가
+
+### 다음 세션 (S11) 할 일
+- [ ] Godot 전체 테스트 (비주얼 확인)
+- [ ] Ch2 완료 처리 + Ch3 연결
+- [ ] 맵 간 이동 시스템

@@ -3,7 +3,7 @@
   "title": "The Price",
   "dialogues": {
     "verdan_arrival": [
-      {"speaker": "", "text": "Verdan. The largest settlement in the Gray Belt."},
+      {"speaker": "", "text": "Verdan. The largest settlement in the Gray Belt.", "cg": "res://assets/cg/ch2_verdan.jpg"},
       {"speaker": "", "text": "The stench hit first — burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared."},
       {"speaker": "", "text": "Arrel pulled his scarf higher. Elia did the same, though hers covered something more than anonymity."},
       {"speaker": "Elia", "text": "The Sump. Underground. Follow me.", "portrait": "elia_neutral"},
