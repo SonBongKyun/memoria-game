@@ -3,7 +3,7 @@
   "title": "Ash",
   "dialogues": {
     "opening_void_beast": [
-      {"speaker": "", "text": "The beast was dead."},
+      {"speaker": "", "text": "The beast was dead.", "cg": "res://assets/cg/ch1_forest.jpg"},
       {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."},
       {"speaker": "", "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
       {"speaker": "system_log", "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"}
@@ -13,18 +13,16 @@
       {"speaker": "", "text": "Her voice, close. He hadn't heard her approach."},
       {"speaker": "", "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."},
       {"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"},
-      {
-        "speaker": "Arrel",
-        "text": "One burn. Grade three, maybe. Nothing I'll miss.",
-        "portrait": "arrel_neutral"
-      },
+      {"speaker": "Arrel", "text": "One burn. Grade three, maybe. Nothing I'll miss.", "portrait": "arrel_neutral"},
       {"speaker": "", "text": "That was probably true. That was probably a lie."},
       {"speaker": "", "text": "The problem with burning memories was that you could never be sure which it was."}
     ],
     "ash_rain": [
-      {"speaker": "", "text": "Something touched his face. A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."},
+      {"speaker": "", "text": "Something touched his face.", "cg": "res://assets/cg/ch1_ash_rain.jpg"},
+      {"speaker": "", "text": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."},
       {"speaker": "", "text": "Ash Rain."},
       {"speaker": "", "text": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."},
+      {"speaker": "", "text": "He brushed the dissolving flake from his cheek. Someone else's sorrow. Not his. Not anymore."},
       {"speaker": "Elia", "text": "We should move. The rain will get thicker after dark.", "portrait": "elia_neutral"}
     ],
     "camp_night": [
@@ -48,7 +46,16 @@
           }
         ]
       },
-      {"speaker": "", "text": "The shaking stopped."}
+      {"speaker": "", "text": "The shaking stopped."},
+      {"speaker": "", "text": "Elia hummed low, a melody with no beginning and no end. It filled the space behind his eyes and made the gaps feel less sharp."},
+      {"speaker": "", "text": "He closed his eyes."},
+      {"speaker": "", "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."}
+    ],
+    "elia_talk": [
+      {"speaker": "Elia", "text": "Stay close. The Rim gets worse at night.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?", "portrait": "elia_concern"},
+      {"speaker": "", "text": "He didn't answer. She was right. She usually was."}
     ]
   }
 }

@@ -266,11 +266,45 @@
 - `project.godot` — CgViewer 오토로드 + main_scene 복원
 
 ### 다음 세션 (S08) 할 일
-- [ ] Godot 실행 테스트 (타이틀 → 게임 플로우)
-- [ ] Chapter 1 스토리 흐름 연결 (대화 + CG + 전투 시퀀스)
-- [ ] 재비(Ash Rain) 파티클 이펙트
+- [x] Chapter 1 스토리 흐름 연결 → S08에서 완료
+- [x] 재비 파티클 이펙트 → S08에서 완료
 
 ### 메모
 - CgViewer는 layer 45. MemoryUI(40) < CgViewer(45) < DialogueBox(50) < SystemLog(60) < SceneTransition(100).
 - 대화 JSON에서 CG 사용: {"speaker": "", "text": "...", "cg": "res://assets/cg/ch1_forest.jpg", "cg_text": "The forest stretched..."}
 - 오토로드 총 10개: GameManager, MemoryManager, DialogueManager, SceneTransition, DialogueBox, MemoryUI, SystemLog, BattleManager, SaveManager, CgViewer
+
+---
+
+## S08 — 2026-04-05 (Chapter 1 스토리 흐름 + 재비 파티클)
+
+### 완료
+- [x] **재비(Ash Rain) 파티클:** GPUParticles2D 기반, 회색 플레이크 하강, Player에 부착
+  - ParticleProcessMaterial: 느린 하강 + turbulence 좌우 흔들림
+  - GradientTexture로 서서히 투명해지는 효과
+  - set_intensity()로 강도 조절 가능
+- [x] **Chapter 1 스토리 시퀀스:** flag 기반 자동 진행
+  - 1. 맵 진입 → opening_void_beast 대화 + 숲 CG (자동)
+  - 2. opening 종료 → elia_appears 대화 (자동)
+  - 3. elia 종료 → 재비 시작 + ash_rain 대화 + 재비 CG (자동)
+  - 4. ash_rain 종료 → 자유 탐색 (전투, NPC 재대화 가능)
+  - 5. 남쪽 끝 도달 → camp_night 대화 + 선택지
+  - 6. camp 종료 → ch1_complete 플래그, chapter=2
+- [x] **대화 데이터 확장:** CG 키 추가, 엘리아 재대화(elia_talk) 추가
+- [x] **전투 트리거 위치 조정:** 스토리 동선에 안 겹치도록 이동
+- [x] **야영 트리거:** 남쪽 길 끝에 Area2D (ash_rain 본 후만 활성)
+
+### 변경된 파일
+- `scripts/effects/ash_rain.gd` — **신규** 재비 파티클
+- `scenes/maps/rim_forest.gd` — 스토리 시퀀스 + 재비 + 야영 트리거
+- `data/chapter1_dialogue.json` — CG 키 + 대화 확장
+
+### 다음 세션 (S09) 할 일
+- [ ] Godot 실행 테스트 (타이틀 → Ch1 전체 플로우)
+- [ ] Chapter 2 맵 + 스토리 기초 (벨트 남부 도로)
+- [ ] NPC 엘리아 따라오기 (동행 시스템)
+
+### 메모
+- 스토리 시퀀스는 CONNECT_ONE_SHOT으로 연결. 대화 종료 시 다음 단계 자동 진행.
+- 전투 트리거를 스토리 동선(중앙 길)에서 벗어나도록 좌상/우상으로 이동.
+- 엘리아 NPC는 현재 고정 위치. 동행 시스템은 S09에서 구현.

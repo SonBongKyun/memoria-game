@@ -1,16 +1,15 @@
 ## Rim Exterior Forest — 림 외곽 숲 (Chapter 1 시작 맵)
 ## 아렐이 공허수를 처치한 직후. 재비가 내리는 숲.
+## 스토리 시퀀스: opening → elia → ash_rain → 자유탐색 → camp_night
 extends Node2D
 
 const TILE_SIZE: int = 32
-const MAP_WIDTH: int = 25   # 타일 수
+const MAP_WIDTH: int = 25
 const MAP_HEIGHT: int = 18
+const DIALOGUE_FILE: String = "res://data/chapter1_dialogue.json"
 
-# 타일 타입
 enum Tile { GRASS, PATH, TREE, BUSH, WATER }
 
-# 맵 레이아웃 (0=풀, 1=길, 2=나무, 3=덤불, 4=물)
-# 둘레는 나무로 막고, 가운데에 길과 열린 공간
 var map_data: Array = [
 	[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
 	[2,2,2,0,0,0,2,2,0,0,0,0,0,0,0,0,0,2,2,0,0,0,2,2,2],
@@ -32,17 +31,17 @@ var map_data: Array = [
 	[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
 ]
 
-# 타일 색상
 var tile_colors: Dictionary = {
-	Tile.GRASS: Color(0.18, 0.28, 0.15),   # 어두운 초록 (회색 톤 숲)
-	Tile.PATH: Color(0.35, 0.28, 0.2),     # 갈색 길
-	Tile.TREE: Color(0.08, 0.12, 0.08),    # 진한 초록 (나무/벽)
-	Tile.BUSH: Color(0.22, 0.32, 0.18),    # 중간 초록 (덤불)
-	Tile.WATER: Color(0.12, 0.15, 0.25),   # 어두운 파랑 (물)
+	Tile.GRASS: Color(0.18, 0.28, 0.15),
+	Tile.PATH: Color(0.35, 0.28, 0.2),
+	Tile.TREE: Color(0.08, 0.12, 0.08),
+	Tile.BUSH: Color(0.22, 0.32, 0.18),
+	Tile.WATER: Color(0.12, 0.15, 0.25),
 }
 
-var tile_nodes: Array = []  # 타일 ColorRect 노드 저장
-var collision_bodies: Array = []  # 충돌 StaticBody2D
+var tile_nodes: Array = []
+var collision_bodies: Array = []
+var ash_rain_node = null  # 재비 파티클
 
 @onready var player: CharacterBody2D = $Player
 
@@ -50,16 +49,92 @@ func _ready() -> void:
 	_build_map()
 	_position_player()
 	_setup_battle_triggers()
+	_setup_camp_trigger()
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
-## 맵 구축 — 타일을 ColorRect로 배치하고, 나무/물에 충돌 추가
+	# 스토리 시퀀스 시작 (첫 진입 시만)
+	if not GameManager.get_flag("ch1_opening_done"):
+		# 짧은 딜레이 후 오프닝 대화 시작
+		await get_tree().create_timer(0.5).timeout
+		_start_story_sequence()
+
+## ===================== 스토리 시퀀스 =====================
+
+func _start_story_sequence() -> void:
+	# 1단계: 오프닝 대화
+	DialogueManager.dialogue_ended.connect(_on_opening_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "opening_void_beast")
+
+func _on_opening_ended() -> void:
+	GameManager.set_flag("ch1_opening_done")
+	# 2단계: 엘리아 등장
+	await get_tree().create_timer(0.8).timeout
+	DialogueManager.dialogue_ended.connect(_on_elia_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "elia_appears")
+
+func _on_elia_ended() -> void:
+	GameManager.set_flag("ch1_elia_appeared")
+	# 3단계: 재비 시작 + 대화
+	await get_tree().create_timer(0.5).timeout
+	_start_ash_rain()
+	DialogueManager.dialogue_ended.connect(_on_ash_rain_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "ash_rain")
+
+func _on_ash_rain_ended() -> void:
+	GameManager.set_flag("ch1_ash_rain_seen")
+	# 자유 탐색 모드 — 엘리아 재대화 가능, 전투 트리거 활성
+	print("[RimForest] Free exploration — head south for camp")
+
+## ===================== 재비 파티클 =====================
+
+func _start_ash_rain() -> void:
+	if ash_rain_node:
+		return
+	var AshRainScript = load("res://scripts/effects/ash_rain.gd")
+	ash_rain_node = GPUParticles2D.new()
+	ash_rain_node.set_script(AshRainScript)
+	player.add_child(ash_rain_node)
+
+## ===================== 야영 트리거 (남쪽 끝) =====================
+
+func _setup_camp_trigger() -> void:
+	# 남쪽 길 끝 (타일 12,16 근처)
+	var area = Area2D.new()
+	area.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 16 * TILE_SIZE)
+	area.collision_layer = 0
+	area.collision_mask = 2
+
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE * 3, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.get_flag("ch1_ash_rain_seen") and not GameManager.get_flag("ch1_camp_done"):
+			_start_camp_scene()
+	)
+
+	add_child(area)
+
+func _start_camp_scene() -> void:
+	GameManager.set_flag("ch1_camp_done")
+	DialogueManager.dialogue_ended.connect(_on_camp_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "camp_night")
+
+func _on_camp_ended() -> void:
+	GameManager.set_flag("ch1_complete")
+	GameManager.current_chapter = 2
+	print("[RimForest] Chapter 1 complete!")
+
+## ===================== 맵 빌드 =====================
+
 func _build_map() -> void:
 	for y in range(MAP_HEIGHT):
 		for x in range(MAP_WIDTH):
 			var tile_type = map_data[y][x] as Tile
 			var pos = Vector2(x * TILE_SIZE, y * TILE_SIZE)
 
-			# 타일 시각 (ColorRect)
 			var rect = ColorRect.new()
 			rect.size = Vector2(TILE_SIZE, TILE_SIZE)
 			rect.position = pos
@@ -68,19 +143,15 @@ func _build_map() -> void:
 			add_child(rect)
 			tile_nodes.append(rect)
 
-			# 나무 타일에 약간의 시각적 변화
 			if tile_type == Tile.TREE:
 				_add_tree_detail(rect, pos)
 			elif tile_type == Tile.BUSH:
 				_add_bush_detail(rect, pos)
 
-			# 충돌 (나무, 물)
 			if tile_type == Tile.TREE or tile_type == Tile.WATER:
 				_add_collision(pos)
 
-## 나무 타일에 시각적 디테일 추가
-func _add_tree_detail(parent_rect: ColorRect, pos: Vector2) -> void:
-	# 나무 줄기 (갈색 작은 사각형)
+func _add_tree_detail(_parent_rect: ColorRect, pos: Vector2) -> void:
 	var trunk = ColorRect.new()
 	trunk.size = Vector2(6, 10)
 	trunk.position = pos + Vector2(13, 20)
@@ -88,7 +159,6 @@ func _add_tree_detail(parent_rect: ColorRect, pos: Vector2) -> void:
 	trunk.z_index = 0
 	add_child(trunk)
 
-	# 나무 관 (더 밝은 초록 원형 느낌)
 	var canopy = ColorRect.new()
 	canopy.size = Vector2(22, 18)
 	canopy.position = pos + Vector2(5, 2)
@@ -96,8 +166,7 @@ func _add_tree_detail(parent_rect: ColorRect, pos: Vector2) -> void:
 	canopy.z_index = 1
 	add_child(canopy)
 
-## 덤불에 시각적 디테일
-func _add_bush_detail(parent_rect: ColorRect, pos: Vector2) -> void:
+func _add_bush_detail(_parent_rect: ColorRect, pos: Vector2) -> void:
 	var detail = ColorRect.new()
 	detail.size = Vector2(18, 12)
 	detail.position = pos + Vector2(7, 10)
@@ -105,11 +174,10 @@ func _add_bush_detail(parent_rect: ColorRect, pos: Vector2) -> void:
 	detail.z_index = 0
 	add_child(detail)
 
-## 충돌 바디 추가
 func _add_collision(pos: Vector2) -> void:
 	var body = StaticBody2D.new()
 	body.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	body.collision_layer = 1  # World 레이어
+	body.collision_layer = 1
 
 	var shape = CollisionShape2D.new()
 	var rect_shape = RectangleShape2D.new()
@@ -120,23 +188,20 @@ func _add_collision(pos: Vector2) -> void:
 	add_child(body)
 	collision_bodies.append(body)
 
-## 플레이어를 맵 중앙 길 위에 배치
 func _position_player() -> void:
-	# 맵 중앙 근처 (길 위)
 	player.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 9 * TILE_SIZE + TILE_SIZE / 2.0)
 
-## 전투 트리거 영역 — 맵 남쪽 길에 일반 몬스터, 북쪽에 공허수
+## ===================== 전투 트리거 =====================
+
 func _setup_battle_triggers() -> void:
-	# 일반 몬스터 (남쪽 길 — 타일 12,14 근처)
 	_add_battle_area(
-		Vector2(12 * TILE_SIZE, 14 * TILE_SIZE),
+		Vector2(8 * TILE_SIZE, 5 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Ash Crawler", 40, 8, false
 	)
 
-	# 공허수 (북쪽 숲 — 타일 12,4 근처)
 	_add_battle_area(
-		Vector2(12 * TILE_SIZE, 4 * TILE_SIZE),
+		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Beast", 80, 15, true
 	)
@@ -145,7 +210,7 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 	var area = Area2D.new()
 	area.position = pos + size / 2.0
 	area.collision_layer = 0
-	area.collision_mask = 2  # Player 레이어
+	area.collision_mask = 2
 
 	var shape = CollisionShape2D.new()
 	var rect = RectangleShape2D.new()
@@ -153,7 +218,6 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 	shape.shape = rect
 	area.add_child(shape)
 
-	# 시각적 표시 (위험 지역 — 붉은 반투명)
 	var indicator = ColorRect.new()
 	indicator.size = size
 	indicator.position = -size / 2.0
