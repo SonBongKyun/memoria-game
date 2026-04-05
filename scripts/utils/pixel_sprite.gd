@@ -401,7 +401,7 @@ static func _flip_horizontal(img: Image) -> void:
 	var w = img.get_width()
 	var h = img.get_height()
 	for y in range(h):
-		for x in range(w / 2):
+		for x in range(int(w / 2.0)):
 			var left = img.get_pixel(x, y)
 			var right = img.get_pixel(w - 1 - x, y)
 			img.set_pixel(x, y, right)

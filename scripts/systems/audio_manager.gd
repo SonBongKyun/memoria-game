@@ -85,6 +85,8 @@ func stop_bgm(fade: bool = true) -> void:
 
 ## SFX 재생 (코드 생성 — 외부 파일 불필요)
 func play_sfx(type: String) -> void:
+	if not sfx_player:
+		return
 	var samples = _generate_sfx(type)
 	if samples.is_empty():
 		return
