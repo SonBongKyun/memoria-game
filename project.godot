@@ -36,6 +36,8 @@ CgViewer="*res://scripts/ui/cg_viewer.gd"
 AudioManager="*res://scripts/systems/audio_manager.gd"
 PauseMenu="*res://scripts/ui/pause_menu.gd"
 OptionsMenu="*res://scenes/ui/options_menu.gd"
+ExplorationHUD="*res://scripts/ui/exploration_hud.gd"
+NotificationToast="*res://scripts/ui/notification_toast.gd"
 
 [display]
 

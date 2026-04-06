@@ -1227,4 +1227,45 @@ Ch5 The Seal 결정:
 - `scripts/systems/audio_manager.gd` — step_player + play_step()
 
 ### 다음
+- [x] UX 개선 → S28에서 완료
+
+---
+
+## S28 — 2026-04-06 (탐색 HUD + 알림 토스트 시스템)
+
+### 완료
+- [x] **탐색 HUD (ExplorationHUD 오토로드):**
+  - CanvasLayer (layer 10), 좌상단 고정
+  - HP 바 (100px 프로그레스바 + 수치, HP≤25%면 빨간색)
+  - 챕터/지역 표시 ("Ch.3 — Crumbling Coast")
+  - 기억 카운터 ("Memories: 6 held, 2 burned")
+  - 0.5초 타이머 기반 업데이트 (성능 최적화)
+  - HP 바 트윈 애니메이션 (0.4s ease-out)
+  - GameState.EXPLORATION에서만 표시 (전투/대화/메뉴 중 숨김)
+  - UITheme 색상 체계 활용
+
+- [x] **알림 토스트 시스템 (NotificationToast 오토로드):**
+  - CanvasLayer (layer 35), 하단 중앙
+  - 슬라이드 업 + 페이드인(0.3s) → 홀드(2.0s) → 페이드아웃(0.5s)
+  - 3가지 타입: INFO(ℹ 앰버), SUCCESS(✓ 녹색), WARNING(⚠ 오렌지)
+  - 대기열 시스템 (연속 알림 순차 처리)
+  - 자동 시그널 연결:
+    - MemoryManager.memory_added → "✓ Memory acquired: {title}"
+    - MemoryManager.memory_burned → "⚠ Memory burned: {title}"
+    - SaveManager.save_completed → "✓ Game saved — Slot {n}"
+    - SaveManager.load_completed → "ℹ Game loaded — Slot {n}"
+
+### 변경/생성된 파일
+- `scripts/ui/exploration_hud.gd` — **신규** 탐색 HUD 오토로드
+- `scripts/ui/notification_toast.gd` — **신규** 알림 토스트 오토로드
+- `project.godot` — ExplorationHUD + NotificationToast 오토로드 등록
+
+### 오토로드 목록 (최종 14개)
+```
+GameManager, MemoryManager, DialogueManager, SceneTransition,
+DialogueBox, MemoryUI, SystemLog, BattleManager, SaveManager,
+CgViewer, PauseMenu, OptionsMenu, ExplorationHUD, NotificationToast
+```
+
+### 다음
 - Godot F5 실제 플레이 테스트 권장
