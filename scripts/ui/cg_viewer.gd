@@ -111,14 +111,14 @@ func show_cg(image_path: String, text: String = "", auto_close_sec: float = 0.0,
 	tween.tween_property(cg_texture, "modulate:a", 1.0, FADE_DURATION)
 	await tween.finished
 
+	cg_shown.emit(image_path)
+
 	# 자동 닫기 or 입력 대기
 	if auto_close_sec > 0:
 		await get_tree().create_timer(auto_close_sec).timeout
 		close_cg()
 	else:
 		waiting_for_input = true
-
-	cg_shown.emit(image_path)
 
 ## CG 닫기
 func close_cg() -> void:

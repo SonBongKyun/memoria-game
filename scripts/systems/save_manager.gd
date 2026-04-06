@@ -18,7 +18,9 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		# F6 = 퀵세이브, F7 = 퀵로드
+		# F6 = 퀵세이브, F7 = 퀵로드 (탐색 중에만)
+		if GameManager.current_state != GameManager.GameState.EXPLORATION:
+			return
 		if event.physical_keycode == KEY_F6:
 			save_game(1)
 			get_viewport().set_input_as_handled()

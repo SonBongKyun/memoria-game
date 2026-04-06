@@ -54,14 +54,17 @@ func _ready() -> void:
 	_setup_seam_trigger()
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	_ready_sequence()
+
+func _ready_sequence() -> void:
+	# Ch3 도착 시퀀스 (한 번만 실행)
+	if not GameManager.get_flag("ch3_arrived"):
+		await get_tree().create_timer(0.5).timeout
+		_start_ch3_sequence()
 
 func _process(delta: float) -> void:
 	effect_time += delta
 	MapEffects.update_water_shimmer(water_shimmers, effect_time)
-
-	if not GameManager.get_flag("ch3_arrived"):
-		await get_tree().create_timer(0.5).timeout
-		_start_ch3_sequence()
 
 ## ===================== 스토리 시퀀스 =====================
 

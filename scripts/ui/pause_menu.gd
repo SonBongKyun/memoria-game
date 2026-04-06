@@ -24,7 +24,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if is_open:
 			_close()
 			get_viewport().set_input_as_handled()
-		elif GameManager.current_state == GameManager.GameState.EXPLORATION:
+		elif GameManager.current_state == GameManager.GameState.EXPLORATION and not MemoryUI.is_open:
 			_open()
 			get_viewport().set_input_as_handled()
 
@@ -201,6 +201,8 @@ func _on_save() -> void:
 	title_label.text = "SAVED!"
 	title_label.add_theme_color_override("font_color", Color(0.4, 0.7, 0.45))
 	await get_tree().create_timer(0.8).timeout
+	if not is_open:
+		return
 	title_label.text = "PAUSED"
 	title_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
 

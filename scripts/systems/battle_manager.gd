@@ -33,7 +33,7 @@ class Enemy:
 		var actual = mini(amount, hp)
 		hp -= actual
 		# 보스 페이즈 전환 체크
-		if is_boss and phase == 1 and hp <= max_hp / 2.0:
+		if is_boss and phase == 1 and hp * 2 <= max_hp:
 			phase = 2
 			phase_changed = true
 		return actual
@@ -88,7 +88,7 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	battle_log.emit("A %s appears!" % enemy.name)
 
 	if enemy.is_void_beast:
-		battle_log.emit("It's a Void Beast — normal attacks won't work.")
+		battle_log.emit("It's a Void Beast — normal attacks are weakened.")
 
 	player_turn_started.emit()
 
@@ -105,7 +105,7 @@ func player_attack() -> void:
 		battle_log.emit("Your blade struggles against the void...")
 
 	if enemy_shielded:
-		base_dmg = maxi(1, base_dmg / 2.0)
+		base_dmg = maxi(1, base_dmg / 2)
 		enemy_shielded = false
 		battle_log.emit("The barrier absorbs some damage!")
 	var actual = current_enemy.take_damage(base_dmg)
@@ -181,6 +181,8 @@ func player_flee() -> void:
 func _enemy_turn() -> void:
 	if current_enemy == null or not current_enemy.is_alive():
 		return
+	if state == BattleState.VICTORY or state == BattleState.DEFEAT or state == BattleState.FLED:
+		return
 
 	state = BattleState.ENEMY_TURN
 	enemy_turn_started.emit()
@@ -193,7 +195,7 @@ func _enemy_turn() -> void:
 
 	var base_dmg = current_enemy.attack + randi_range(0, 5)
 	if player_defending:
-		base_dmg = maxi(1, base_dmg / 2.0)
+		base_dmg = maxi(1, base_dmg / 2)
 		battle_log.emit("Defended! Reduced damage.")
 
 	player_defending = false
@@ -220,10 +222,10 @@ func _try_enemy_ability() -> bool:
 		"drain":  # HP 흡수 공격
 			var dmg = current_enemy.attack + randi_range(5, 10)
 			if player_defending:
-				dmg = maxi(1, dmg / 2.0)
+				dmg = maxi(1, dmg / 2)
 			player_defending = false
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
-			var heal = int(dmg / 2.0)
+			var heal = dmg / 2
 			current_enemy.hp = mini(current_enemy.hp + heal, current_enemy.max_hp)
 			AudioManager.play_sfx("drain")
 			battle_log.emit("%s drains your life! %d damage, heals %d." % [current_enemy.name, dmg, heal])
@@ -237,7 +239,7 @@ func _try_enemy_ability() -> bool:
 			for i in range(2):
 				var hit = int(current_enemy.attack * 0.6) + randi_range(0, 3)
 				if player_defending:
-					hit = maxi(1, hit / 2.0)
+					hit = maxi(1, hit / 2)
 				total_dmg += hit
 			player_defending = false
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - total_dmg)

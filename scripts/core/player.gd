@@ -14,7 +14,8 @@ var can_move: bool = true
 func _ready() -> void:
 	add_to_group("player")
 	_setup_placeholder_sprites()
-	sprite.play("idle_down")
+	if sprite and sprite.sprite_frames:
+		sprite.play("idle_down")
 	print("[Player] Arrel ready")
 
 func _physics_process(_delta: float) -> void:

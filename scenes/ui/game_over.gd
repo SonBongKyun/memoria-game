@@ -55,6 +55,7 @@ func _build_ui() -> void:
 		{"text": "Return to Title", "callback": _on_title},
 	]
 
+	var first_btn: Button = null
 	for data in buttons:
 		var btn = Button.new()
 		btn.text = data.text
@@ -81,10 +82,13 @@ func _build_ui() -> void:
 		btn.pressed.connect(data.callback)
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		vbox.add_child(btn)
+		if first_btn == null:
+			first_btn = btn
 
 	# 첫 버튼 포커스 (짧은 딜레이로 빌드 완료 후)
 	await get_tree().create_timer(0.1).timeout
-	vbox.get_child(3).grab_focus()  # 첫 번째 ��튼 (sep 이후)
+	if is_instance_valid(first_btn):
+		first_btn.grab_focus()
 
 func _reset_battle() -> void:
 	BattleManager.current_enemy = null

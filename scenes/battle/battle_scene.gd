@@ -604,6 +604,19 @@ func _connect_signals() -> void:
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
 
+func _exit_tree() -> void:
+	# 오토로드 시그널 연결 해제 — 씬 재진입 시 freed 객체 참조 방지
+	if BattleManager.battle_log.is_connected(_on_battle_log):
+		BattleManager.battle_log.disconnect(_on_battle_log)
+	if BattleManager.damage_dealt.is_connected(_on_damage_dealt):
+		BattleManager.damage_dealt.disconnect(_on_damage_dealt)
+	if BattleManager.player_turn_started.is_connected(_on_player_turn):
+		BattleManager.player_turn_started.disconnect(_on_player_turn)
+	if BattleManager.enemy_turn_started.is_connected(_on_enemy_turn):
+		BattleManager.enemy_turn_started.disconnect(_on_enemy_turn)
+	if BattleManager.battle_ended.is_connected(_on_battle_ended):
+		BattleManager.battle_ended.disconnect(_on_battle_ended)
+
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
 	enemy_name_label.text = enemy.name

@@ -143,8 +143,9 @@ func _on_epilogue_ended() -> void:
 	print("[TheSeam] Epilogue complete — talk to Elia or Sable")
 
 func _setup_epilogue_npcs() -> void:
-	# 대화 종료 시 크레딧 체크 (매 대화마다)
-	DialogueManager.dialogue_ended.connect(_check_credits_trigger)
+	# 대화 종료 시 크레딧 체크 (매 대화마다, 중복 연결 방지)
+	if not DialogueManager.dialogue_ended.is_connected(_check_credits_trigger):
+		DialogueManager.dialogue_ended.connect(_check_credits_trigger)
 	# 엘리아 대화 트리거
 	_add_npc_talk_area(
 		elia.position,
@@ -258,7 +259,7 @@ func _setup_battle_triggers() -> void:
 	_add_battle_area(
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
-		"Void Wraith", 60, 14, true,
+		"Void Wraith", 90, 18, true,
 		"res://assets/cg/village_seam.jpg", "res://assets/cg/void_beast.jpg"
 	)
 

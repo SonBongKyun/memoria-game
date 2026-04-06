@@ -6,6 +6,7 @@ var bgm_player: AudioStreamPlayer
 var sfx_player: AudioStreamPlayer
 var current_bgm: String = ""
 var bgm_tween: Tween
+var _last_scene_path: String = ""
 
 # 씬 경로 → BGM 매핑
 const SCENE_BGM: Dictionary = {
@@ -223,7 +224,6 @@ func _generate_sfx(type: String) -> PackedFloat32Array:
 
 func _samples_to_stream(samples: PackedFloat32Array) -> AudioStreamWAV:
 	var stream = AudioStreamWAV.new()
-	stream.format = AudioStreamWAV.FORMAT_IMA_ADPCM
 	# float → 16bit PCM
 	var byte_data = PackedByteArray()
 	for s in samples:
@@ -239,9 +239,13 @@ func _samples_to_stream(samples: PackedFloat32Array) -> AudioStreamWAV:
 ## 씬 전환 시 자동 BGM 교체
 func _on_tree_changed() -> void:
 	var scene = get_tree().current_scene
-	if scene and scene.scene_file_path != "":
-		var path = scene.scene_file_path
-		if path == "res://scenes/battle/battle_scene.tscn":
-			play_bgm("res://assets/audio/bgm/battle_theme.mp3")
-		elif SCENE_BGM.has(path):
-			play_bgm(SCENE_BGM[path])
+	if not scene or scene.scene_file_path == "":
+		return
+	var path = scene.scene_file_path
+	if path == _last_scene_path:
+		return
+	_last_scene_path = path
+	if path == "res://scenes/battle/battle_scene.tscn":
+		play_bgm("res://assets/audio/bgm/battle_theme.mp3")
+	elif SCENE_BGM.has(path):
+		play_bgm(SCENE_BGM[path])
