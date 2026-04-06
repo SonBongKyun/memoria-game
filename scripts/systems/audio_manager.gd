@@ -14,7 +14,7 @@ const SCENE_BGM: Dictionary = {
 	"res://scenes/maps/verdan_market.tscn": "res://assets/audio/bgm/ch2_verdan.mp3",
 	"res://scenes/maps/crumbling_coast.tscn": "res://assets/audio/bgm/dialogue_tense.mp3",
 	"res://scenes/maps/the_seam.tscn": "res://assets/audio/bgm/exploration.mp3",
-	"res://scenes/maps/bl07_void.tscn": "res://assets/audio/bgm/dialogue_tense.mp3",
+	"res://scenes/maps/bl07_void.tscn": "res://assets/audio/bgm/ch5_void.mp3",
 }
 
 const FADE_DURATION: float = 1.0
@@ -209,6 +209,6 @@ func _on_tree_changed() -> void:
 	if scene and scene.scene_file_path != "":
 		var path = scene.scene_file_path
 		if path == "res://scenes/battle/battle_scene.tscn":
-			stop_bgm()
+			play_bgm("res://assets/audio/bgm/battle_theme.mp3")
 		elif SCENE_BGM.has(path):
 			play_bgm(SCENE_BGM[path])

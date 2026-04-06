@@ -48,11 +48,15 @@ var tile_colors: Dictionary = {
 var pulse_time: float = 0.0
 var core_rects: Array = []
 
+var void_particles: GPUParticles2D
+
 func _ready() -> void:
 	_build_map()
 	_position_player()
 	_setup_core_trigger()
 	_setup_battle_triggers()
+	void_particles = MapEffects.add_void_particles(self)
+	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	MemoryManager.add_chapter_memories(5)

@@ -289,10 +289,11 @@ func _cleanup() -> void:
 		AudioManager.play_sfx("heal")
 		battle_log.emit("Recovered %d HP." % heal)
 	elif state == BattleState.DEFEAT:
-		# 패배 시 HP 30%로 회복 + 맵 복귀 (관대 처리)
-		GameManager.player_data.hp = int(GameManager.player_data.max_hp * 0.3)
-		battle_log.emit("Something pulls you back from the edge...")
-		battle_log.emit("You stagger to your feet. HP partially restored.")
+		battle_log.emit("Darkness closes in...")
+		await get_tree().create_timer(1.5).timeout
+		# 게임 오버 화면으로 전환 (current_enemy/return_scene 유지)
+		SceneTransition.change_scene("res://scenes/ui/game_over.tscn")
+		return
 
 	await get_tree().create_timer(1.5).timeout
 	current_enemy = null

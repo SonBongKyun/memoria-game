@@ -84,13 +84,19 @@ func _style_button(btn: Button) -> void:
 	btn.add_theme_color_override("font_pressed_color", Color(1.0, 0.9, 0.6))
 
 func _on_new_game_pressed() -> void:
-	# 기억 초기화 (새 게임)
+	# 전체 게임 상태 초기화
 	MemoryManager.memories.clear()
 	MemoryManager.burned_memories.clear()
 	MemoryManager._init_starting_memories()
 	GameManager.story_flags.clear()
 	GameManager.current_chapter = 1
-	GameManager.player_data.hp = GameManager.player_data.max_hp
+	GameManager.player_data = {
+		"name": "Arrel",
+		"hp": 100,
+		"max_hp": 100,
+		"grains": 0,
+		"elia_with_party": true,
+	}
 	SceneTransition.change_scene("res://scenes/maps/rim_forest.tscn")
 
 func _on_continue_pressed() -> void:

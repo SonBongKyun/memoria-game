@@ -58,6 +58,14 @@
       {"speaker": "Arrel", "text": "Memory leakage?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "Sable calls it 'bleed-through.' The Seam sits on a crack between what was and what is. Things... slip through.", "portrait": "elia_neutral"},
       {"speaker": "", "text": "She smiled. It was the first real smile he'd seen from her since Verdan."}
+    ],
+    "hidden_garden": [
+      {"speaker": "", "text": "He knelt beside a flower he didn't recognize."},
+      {"speaker": "", "text": "White petals, veined with gold. It was warm to the touch, as if remembering sunlight from somewhere that no longer existed."},
+      {"speaker": "", "text": "A fragment surfaced — not a memory, not quite. A sensation."},
+      {"speaker": "", "text": "Someone handing him a flower like this one. Small hands. A child's laugh."},
+      {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"},
+      {"speaker": "", "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after."}
     ]
   }
 }

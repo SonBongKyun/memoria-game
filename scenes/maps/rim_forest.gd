@@ -50,6 +50,7 @@ func _ready() -> void:
 	_position_player()
 	_setup_battle_triggers()
 	_setup_camp_trigger()
+	_setup_hidden_events()
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# 스토리 시퀀스 시작 (첫 진입 시만)
@@ -131,6 +132,33 @@ func _on_camp_ended() -> void:
 	CgViewer.show_cg("res://assets/cg/ch1_green_tree.jpg", "", 3.0, func():
 		SceneTransition.change_scene("res://scenes/maps/verdan_market.tscn")
 	)
+
+## ===================== 히든 이벤트 =====================
+
+func _setup_hidden_events() -> void:
+	# 숨겨진 나무 그루터기 (우측 하단 덤불 근처)
+	_add_hidden_trigger(
+		Vector2(20 * TILE_SIZE, 13 * TILE_SIZE),
+		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
+		DIALOGUE_FILE, "hidden_stump", "hidden_ch1_stump"
+	)
+
+func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
+	var area = Area2D.new()
+	area.position = pos + size / 2.0
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			DialogueManager.load_and_start(dialogue_file, dialogue_key)
+	)
+	add_child(area)
 
 ## ===================== 맵 빌드 =====================
 

@@ -731,6 +731,163 @@ Ch1 림 외곽 숲 → Ch2 베르단 시장 → Ch3 크럼블링 코스트
 | BGM | 5곡 | 씬별 매핑 (전투=무음) |
 
 ### 다음 세션 (S19) 할 일
-- [ ] Godot 실행 테스트 (Ch1→Ch6, 양 분기 실제 플레이)
-- [ ] 추가 BGM (에필로그 전용 BGM?)
-- [ ] 타이틀 화면 → New Game / Continue 흐름 정리
+- [x] BGM 확장 → S19에서 완료
+- [x] 타이틀 화면 흐름 정리 → S19에서 완료
+- [x] 코드 검증 → S19에서 완료
+
+---
+
+## S19 — 2026-04-06 (BGM 확장 + 타이틀 수정 + 코드 검증)
+
+### 완료
+- [x] **BGM 3트랙 추가 (총 10트랙):**
+  - `epilogue.mp3` (Quiet Gravity) → Ch6 에필로그 전용 BGM
+  - `ch5_void.mp3` (Invisible Room) → BL-07 보이드 내부 전용 BGM (dialogue_tense에서 교체)
+  - `battle_theme.mp3` (Raindrops in D Minor) → 전투 BGM 복원 (무음→BGM)
+- [x] **AudioManager BGM 매핑 확장:**
+  - BL-07: dialogue_tense → ch5_void.mp3 전환 (보이드 분위기 강화)
+  - 전투씬: stop_bgm() → play_bgm("battle_theme.mp3") (전투 BGM 복원)
+  - The Seam 에필로그: 진입 시 epilogue.mp3 수동 재생
+- [x] **타이틀 New Game 초기화 버그 수정:**
+  - 문제: max_hp, grains, elia_with_party가 리셋되지 않음 (이전 플레이 데이터 잔존)
+  - 수정: player_data를 완전히 새 Dictionary로 교체
+- [x] **코드 레벨 전체 검증:**
+  - 전 스크립트 null 접근, 시그널 크래시, 정수 나눗셈 점검
+  - 심각한 버그 없음 확인 (S17 수정이 잘 적용됨)
+
+### 변경된 파일
+- `assets/audio/bgm/epilogue.mp3` — **신규** (mugic/Quiet Gravity)
+- `assets/audio/bgm/ch5_void.mp3` — **신규** (mugic/Invisible Room)
+- `assets/audio/bgm/battle_theme.mp3` — **신규** (mugic/Raindrops in D Minor)
+- `scripts/systems/audio_manager.gd` — BL-07 BGM 교체 + 전투 BGM 복원
+- `scenes/maps/the_seam.gd` — 에필로그 BGM 재생
+- `scenes/main/main.gd` — New Game player_data 완전 초기화
+
+### 전체 BGM 현황
+| BGM | 파일 | 사용처 |
+|-----|------|--------|
+| title.mp3 | 타이틀 | 타이틀 화면 |
+| ch1_forest.mp3 | 림 외곽 숲 | Ch1 맵 |
+| ch1_camp.mp3 | 야영 | Ch1 야영 장면 |
+| ch2_verdan.mp3 | 베르단 시장 | Ch2 맵 |
+| dialogue_tense.mp3 | 긴장 대화 | Ch3 크럼블링 코스트 |
+| exploration.mp3 | 탐색 | Ch4 The Seam |
+| ch5_void.mp3 | 보이드 내부 | Ch5 BL-07 |
+| epilogue.mp3 | 에필로그 | Ch6 에필로그 |
+| battle_theme.mp3 | 전투 | 모든 전투 씬 |
+| battle.mp3 | (미사용) | 예비 |
+
+### 다음 세션 (S20) 할 일
+- [x] 폴리싱 → S20에서 완료
+
+---
+
+## S20 — 2026-04-06 (폴리싱 — 일시정지 메뉴 + 전투 피드백 + 환경 효과)
+
+### 완료
+- [x] **일시정지 메뉴 (PauseMenu 오토로드):**
+  - ESC 키로 토글 (EXPLORATION 상태에서만)
+  - Resume / Save (Slot 1) / Load (Slot 1) / Return to Title / Quit
+  - 현재 챕터, HP, 기억 상태, 세이브 슬롯 정보 표시
+  - 세이브 성공 피드백 ("SAVED!" 텍스트 전환)
+  - CanvasLayer 55 (DialogueBox↔SystemLog 사이)
+  - `process_mode = ALWAYS` — pause 중에도 작동
+  - F6/F7 퀵세이브 힌트 표시
+- [x] **전투 시각 피드백 (battle_scene.gd):**
+  - 데미지 숫자: 피격 시 떠오르며 사라지는 텍스트 (적=노란, 플레이어=빨간)
+  - 히트 플래시: 화면 전체 빨간/흰색 번쩍임 (0.2초 페이드)
+  - 스크린 셰이크: 4프레임 랜덤 흔들림 (데미지마다 발동)
+- [x] **맵 환경 효과 (MapEffects 유틸리티):**
+  - `MapEffects.add_water_shimmer()` — 물 타일 위 반짝이는 반투명 라인 (sin 파동)
+  - `MapEffects.add_lantern_lights()` — 랜턴 타일 주변 따뜻한 빛 (촛불 깜빡임)
+  - `MapEffects.add_void_particles()` — GPUParticles2D 보라색 떠다니는 입자
+  - The Seam: 물 반짝임 + 랜턴 빛
+  - Crumbling Coast: 물 반짝임
+  - BL-07 Void: 보이드 파티클
+
+### 변경/생성된 파일
+- `scripts/ui/pause_menu.gd` — **신규** 일시정지 메뉴 오토로드
+- `scripts/utils/map_effects.gd` — **신규** 맵 환경 효과 유틸리티
+- `project.godot` — PauseMenu 오토로드 추가
+- `scenes/battle/battle_scene.gd` — 데미지 숫자 + 히트 플래시 + 스크린 셰이크
+- `scenes/maps/the_seam.gd` — 물 반짝임 + 랜턴 빛 효과
+- `scenes/maps/crumbling_coast.gd` — 물 반짝임 효과
+- `scenes/maps/bl07_void.gd` — 보이드 파티클 효과
+
+### 오토로드 현황 (12개)
+| 이름 | 레이어 | 역할 |
+|------|--------|------|
+| GameManager | - | 게임 상태, 플래그, 플레이어 데이터 |
+| MemoryManager | - | 기억 연소 시스템 |
+| DialogueManager | - | 대화 진행 |
+| SceneTransition | 100 | 페이드 인/아웃 |
+| DialogueBox | 50 | 대화 UI |
+| MemoryUI | 40 | 기억 서고 |
+| SystemLog | 60 | 관리국 로그 팝업 |
+| BattleManager | - | 전투 로직 |
+| SaveManager | - | 세이브/로드 |
+| CgViewer | 45 | CG 표시 |
+| AudioManager | - | BGM/SFX |
+| PauseMenu | 55 | **신규** 일시정지 메뉴 |
+
+### 다음 세션 (S21) 할 일
+- [x] 게임 오버 화면 → S21에서 완료
+- [x] 히든 이벤트 → S21에서 완료
+- [x] 코드 검증 → S21에서 완료
+
+---
+
+## S21 — 2026-04-06 (게임 오버 화면 + 히든 이벤트 + 플레이 검증)
+
+### 완료
+- [x] **게임 오버 화면 (game_over.tscn + .gd):**
+  - 패배 시 자동 HP 복귀 대신 게임 오버 화면으로 전환
+  - "You fell." + "Something pulls you back from the edge..."
+  - 3개 선택지: Stagger On (HP 30%) / Load Save / Return to Title
+  - BattleManager 상태 리셋 (IDLE + enemy null)
+  - BattleManager._cleanup() 수정: defeat 시 game_over.tscn으로 전환
+- [x] **히든 이벤트 2개:**
+  - Ch1 림 외곽 숲 — "나무 그루터기" (A.E. 이니셜 각인, 아렐+엘리아 암시)
+    - 맵 우측 하단, 1회성 트리거 (hidden_ch1_stump 플래그)
+  - Ch4 The Seam — "숨겨진 정원" (금빛 꽃, 아이의 웃음소리 잔상)
+    - 좌상단 정원 타일, 1회성 트리거 (hidden_ch4_garden 플래그)
+- [x] **코드 레벨 전체 플레이 검증:**
+  - Ch1→Ch6 양 분기 흐름 추적 완료
+  - 게임 오버 → 재시도/로드/타이틀 흐름 검증
+  - 보스전 패배 → 게임 오버 → 재시도 → 보스 재도전 흐름 검증
+  - 히든 이벤트 트리거 논리 검증
+
+### 변경/생성된 파일
+- `scenes/ui/game_over.tscn` — **신규** 게임 오버 씬
+- `scenes/ui/game_over.gd` — **신규** 게임 오버 로직
+- `scripts/systems/battle_manager.gd` — 패배 시 game_over 씬 전환
+- `data/chapter1_dialogue.json` — hidden_stump 대화 추가
+- `data/chapter4_dialogue.json` — hidden_garden 대화 추가
+- `scenes/maps/rim_forest.gd` — 히든 이벤트 트리거
+- `scenes/maps/the_seam.gd` — 히든 이벤트 트리거
+
+### 전체 플레이 흐름 (최종)
+```
+타이틀 (New Game / Continue / Quit)
+  ↓
+Ch1 림 외곽 숲 — 오프닝 → 엘리아 → 재비 → 전투 → [히든: 그루터기] → 야영 → 녹색 나무 CG
+  ↓
+Ch2 베르단 시장 — 도착 → 말렛 거래(수락/거절) → 추출 → 보상 + 카이로스 경고
+  ↓
+Ch3 크럼블링 코스트 — 도착 → 카이로스 목격 → 전투 → The Seam 도착
+  ↓
+Ch4 The Seam — 도착 → 세이블 브리핑 → [히든: 정원] → BL-07 보스전
+  ↓
+Ch5 BL-07 내부 — 진입 → 탐색+전투 → 핵심부 → **The Seal 결정**
+  ├── Zero Burn: 이름 연소 → 백색 플래시 → seal_complete
+  └── Preservation: 이름 보존 → seal_refused
+  ↓
+Ch6 에필로그 — The Seam 복귀 → 분기별 에필로그 → NPC 후일담
+  ↓
+패배 시: 게임 오버 화면 → Stagger On / Load / Title
+```
+
+### 다음 세션 (S22) 할 일
+- [ ] Godot F5 실행 테스트 (실제 플레이)
+- [ ] 사운드 폴리싱 (UI 조작음, 맵 진입음)
+- [ ] 엔딩 크레딧 화면?

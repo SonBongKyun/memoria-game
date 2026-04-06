@@ -18,6 +18,8 @@ var log_lines: Array = []
 const MAX_LOG_LINES: int = 6
 var hp_tween_player: Tween
 var hp_tween_enemy: Tween
+var canvas_root: Control  # 전투 UI 루트 (셰이크용)
+var hit_flash_rect: ColorRect  # 히트 플래시 오버레이
 
 func _ready() -> void:
 	_build_ui()
@@ -48,6 +50,14 @@ func _build_ui() -> void:
 	var root = Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	canvas.add_child(root)
+	canvas_root = root
+
+	# 히트 플래시 오버레이 (최상단)
+	hit_flash_rect = ColorRect.new()
+	hit_flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hit_flash_rect.color = Color(1, 0.2, 0.15, 0)
+	hit_flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hit_flash_rect.z_index = 100
 
 	# 적 이름 + HP (상단)
 	_build_enemy_panel(root)
@@ -66,6 +76,9 @@ func _build_ui() -> void:
 
 	# 기억 연소 목록 (숨김 상태)
 	_build_burn_list(root)
+
+	# 히트 플래시 (최상단에 추가)
+	root.add_child(hit_flash_rect)
 
 func _build_enemy_panel(root: Control) -> void:
 	var panel = PanelContainer.new()
@@ -358,8 +371,11 @@ func _on_battle_log(message: String) -> void:
 		log_lines = log_lines.slice(-MAX_LOG_LINES)
 	log_label.text = "\n".join(log_lines)
 
-func _on_damage_dealt(_target: String, _amount: int, _skill: String) -> void:
+func _on_damage_dealt(target: String, amount: int, _skill: String) -> void:
 	_update_hp_displays(true)
+	_show_damage_number(target, amount)
+	_hit_flash(target)
+	_screen_shake()
 
 func _on_player_turn() -> void:
 	action_container.visible = true
@@ -462,3 +478,47 @@ func _hide_burn_list() -> void:
 	var scroll = burn_list_container.get_meta("scroll_parent") as ScrollContainer
 	if scroll:
 		scroll.visible = false
+
+## ===================== 시각 피드백 =====================
+
+## 데미지 숫자 표시 (떠오르며 사라짐)
+func _show_damage_number(target: String, amount: int) -> void:
+	var label = Label.new()
+	label.text = str(amount)
+	label.add_theme_font_size_override("font_size", 22)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+	# 적에게 데미지 = 상단, 플레이어에게 데미지 = 하단
+	if target == "Arrel":
+		label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.25))
+		label.position = Vector2(200, 500)
+	else:
+		label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4))
+		label.position = Vector2(600, 200)
+
+	canvas_root.add_child(label)
+
+	# 떠오르며 사라지는 애니메이션
+	var t = create_tween().set_parallel(true)
+	t.tween_property(label, "position:y", label.position.y - 40, 0.8).set_ease(Tween.EASE_OUT)
+	t.tween_property(label, "modulate:a", 0.0, 0.8).set_delay(0.3)
+	t.chain().tween_callback(label.queue_free)
+
+## 히트 플래시 (적 피격 = 흰색, 플레이어 피격 = 빨간색)
+func _hit_flash(target: String) -> void:
+	if target == "Arrel":
+		hit_flash_rect.color = Color(1, 0.15, 0.1, 0.25)
+	else:
+		hit_flash_rect.color = Color(1, 1, 1, 0.2)
+
+	var t = create_tween()
+	t.tween_property(hit_flash_rect, "color:a", 0.0, 0.2)
+
+## 스크린 셰이크 (짧은 흔들림)
+func _screen_shake() -> void:
+	var original_pos = canvas_root.position
+	var t = create_tween()
+	for i in range(4):
+		var offset = Vector2(randf_range(-4, 4), randf_range(-3, 3))
+		t.tween_property(canvas_root, "position", original_pos + offset, 0.04)
+	t.tween_property(canvas_root, "position", original_pos, 0.04)

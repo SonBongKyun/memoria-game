@@ -56,6 +56,14 @@
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?", "portrait": "elia_concern"},
       {"speaker": "", "text": "He didn't answer. She was right. She usually was."}
+    ],
+    "hidden_stump": [
+      {"speaker": "", "text": "A tree stump, old enough that its rings had turned to stone."},
+      {"speaker": "", "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."},
+      {"speaker": "", "text": "His hand moved toward the carving before he could stop it."},
+      {"speaker": "Elia", "text": "Arrel?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "...Nothing. Just letters.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "But his fingers traced the grooves one more time before he pulled away."}
     ]
   }
 }

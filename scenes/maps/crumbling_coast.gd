@@ -43,12 +43,20 @@ var tile_colors: Dictionary = {
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
 
+var water_shimmers: Array[ColorRect] = []
+var effect_time: float = 0.0
+
 func _ready() -> void:
 	_build_map()
 	_position_player()
 	_setup_battle_triggers()
 	_setup_seam_trigger()
+	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+
+func _process(delta: float) -> void:
+	effect_time += delta
+	MapEffects.update_water_shimmer(water_shimmers, effect_time)
 
 	if not GameManager.get_flag("ch3_arrived"):
 		await get_tree().create_timer(0.5).timeout

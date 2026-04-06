@@ -47,14 +47,21 @@ var tile_colors: Dictionary = {
 @onready var elia: CharacterBody2D = $Elia
 @onready var sable_npc: StaticBody2D = $Sable
 
+var water_shimmers: Array[ColorRect] = []
+var lantern_lights: Array[ColorRect] = []
+var effect_time: float = 0.0
+
 func _ready() -> void:
 	_build_map()
 	_position_player()
+	_setup_effects()
+	_setup_hidden_events()
 	MemoryManager.add_chapter_memories(4)
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	if GameManager.current_chapter >= 6 and GameManager.get_flag("ch5_complete"):
 		# Ch6 에필로그 — Ch5 완료 후 복귀
+		AudioManager.play_bgm("res://assets/audio/bgm/epilogue.mp3")
 		await get_tree().create_timer(1.0).timeout
 		_start_epilogue()
 	elif GameManager.get_flag("ch4_bl07_entered") and not GameManager.get_flag("ch4_complete"):
@@ -76,6 +83,33 @@ func _ready() -> void:
 	else:
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
+
+func _process(delta: float) -> void:
+	effect_time += delta
+	MapEffects.update_water_shimmer(water_shimmers, effect_time)
+	MapEffects.update_lantern_lights(lantern_lights, effect_time)
+
+func _setup_hidden_events() -> void:
+	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)
+	var area = Area2D.new()
+	area.position = Vector2(3.5 * TILE_SIZE, 2.5 * TILE_SIZE)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag("hidden_ch4_garden"):
+			GameManager.set_flag("hidden_ch4_garden")
+			DialogueManager.load_and_start(DIALOGUE_FILE, "hidden_garden")
+	)
+	add_child(area)
+
+func _setup_effects() -> void:
+	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
+	lantern_lights = MapEffects.add_lantern_lights(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN)
 
 ## ===================== 스토리 시퀀스 =====================
 
