@@ -143,6 +143,8 @@ func _on_epilogue_ended() -> void:
 	print("[TheSeam] Epilogue complete — talk to Elia or Sable")
 
 func _setup_epilogue_npcs() -> void:
+	# 대화 종료 시 크레딧 체크 (매 대화마다)
+	DialogueManager.dialogue_ended.connect(_check_credits_trigger)
 	# 엘리아 대화 트리거
 	_add_npc_talk_area(
 		elia.position,
@@ -174,6 +176,13 @@ func _add_npc_talk_area(pos: Vector2, size: Vector2, dialogue_file: String, dial
 			DialogueManager.load_and_start(dialogue_file, dialogue_key)
 	)
 	add_child(area)
+
+## 에필로그 NPC 둘 다 대화 완료 시 크레딧 진입
+func _check_credits_trigger() -> void:
+	if GameManager.get_flag("epilogue_elia_talked") and GameManager.get_flag("epilogue_sable_talked"):
+		DialogueManager.dialogue_ended.disconnect(_check_credits_trigger)
+		await get_tree().create_timer(2.0).timeout
+		SceneTransition.change_scene("res://scenes/ui/credits.tscn")
 
 func _on_arrival_ended() -> void:
 	# 짧은 딜레이 후 세이블 브리핑

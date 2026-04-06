@@ -36,7 +36,7 @@ func _open() -> void:
 	_update_save_info()
 	overlay.visible = true
 	panel.visible = true
-	AudioManager.play_sfx("confirm")
+	AudioManager.play_sfx("ui_open")
 	# 첫 버튼 포커스
 	if btn_container.get_child_count() > 0:
 		btn_container.get_child(0).grab_focus()
@@ -46,7 +46,7 @@ func _close() -> void:
 		return
 	is_open = false
 	get_tree().paused = false
-	AudioManager.play_sfx("cancel")
+	AudioManager.play_sfx("ui_close")
 	_hide_ui()
 
 func _hide_ui() -> void:
@@ -161,6 +161,7 @@ func _build_ui() -> void:
 		btn.add_theme_color_override("font_hover_color", Color(0.95, 0.82, 0.5))
 
 		btn.pressed.connect(data.callback)
+		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		btn_container.add_child(btn)
 
 	# 하단 조작법

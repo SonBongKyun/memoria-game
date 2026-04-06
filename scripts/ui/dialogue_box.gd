@@ -234,7 +234,11 @@ func _on_dialogue_choice(choices: Array) -> void:
 		btn.add_theme_font_size_override("font_size", 14)
 
 		var idx = i  # 클로저 캡처용
-		btn.pressed.connect(func(): _on_choice_selected(idx))
+		btn.pressed.connect(func():
+			AudioManager.play_sfx("ui_select")
+			_on_choice_selected(idx)
+		)
+		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		choice_container.add_child(btn)
 
 	# 첫 번째 버튼에 포커스

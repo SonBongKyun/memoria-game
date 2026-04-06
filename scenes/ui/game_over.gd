@@ -79,6 +79,7 @@ func _build_ui() -> void:
 		btn.add_theme_color_override("font_hover_color", Color(0.95, 0.75, 0.45))
 
 		btn.pressed.connect(data.callback)
+		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		vbox.add_child(btn)
 
 	# 첫 버튼 포커스 (짧은 딜레이로 빌드 완료 후)

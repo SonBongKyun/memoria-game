@@ -55,6 +55,7 @@ func _setup_menu() -> void:
 func _style_button(btn: Button) -> void:
 	btn.custom_minimum_size = Vector2(200, 44)
 	btn.add_theme_font_size_override("font_size", 18)
+	btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 
 	# Normal
 	var normal = StyleBoxFlat.new()
