@@ -10,6 +10,8 @@ const SPRITE_SIZE: int = 32
 
 var facing_direction: Vector2 = Vector2.DOWN
 var can_move: bool = true
+var _step_timer: float = 0.0
+const STEP_INTERVAL: float = 0.25
 
 func _ready() -> void:
 	add_to_group("player")
@@ -18,7 +20,7 @@ func _ready() -> void:
 		sprite.play("idle_down")
 	print("[Player] Arrel ready")
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not can_move or GameManager.current_state != GameManager.GameState.EXPLORATION:
 		velocity = Vector2.ZERO
 		return
@@ -40,6 +42,15 @@ func _physics_process(_delta: float) -> void:
 		_update_raycast_direction()
 	else:
 		_update_animation(facing_direction, false)
+
+	# 발걸음 소리
+	if input_vector != Vector2.ZERO:
+		_step_timer += delta
+		if _step_timer >= STEP_INTERVAL:
+			_step_timer = 0.0
+			AudioManager.play_step()
+	else:
+		_step_timer = 0.0
 
 func _input(event: InputEvent) -> void:
 	# 상호작용 (Space / Enter) — 탐색 모드에서만

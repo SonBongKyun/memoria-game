@@ -1179,4 +1179,52 @@ Ch5 The Seal 결정:
 ```
 
 ### 다음
+- [x] 추가 폴리싱 → S27에서 완료
+
+---
+
+## S27 — 2026-04-06 (챕터 타이틀 + 텍스트 속도 + 발걸음 + UI 폴리싱)
+
+### 완료
+- [x] **OptionsMenu ESC 닫기:**
+  - `_unhandled_input`에서 "cancel" 액션으로 닫기
+  - 입력 소비(`set_input_as_handled`)로 PauseMenu 전파 방지
+
+- [x] **텍스트 속도 옵션:**
+  - OptionsMenu에 Text Speed 슬라이더 추가 (1-5단계)
+  - 1=Slow(0.06s), 2=Slow+(0.045s), 3=Normal(0.03s), 4=Fast(0.015s), 5=Instant(0s)
+  - `settings.json`에 저장/로드
+  - DialogueBox에서 런타임으로 OptionsMenu 설정 참조
+
+- [x] **챕터 타이틀 카드:**
+  - `MapEffects.show_chapter_title()` — CanvasLayer 기반 오버레이
+  - 페이드인(0.5s) → 홀드(2.0s) → 페이드아웃(0.8s) → 자동 제거
+  - "CHAPTER X" + 타이틀 + 서브타이틀 3줄 구성
+  - 5개 맵 전부 적용:
+    - Ch1 "Rim Forest" — "The edge of what remains"
+    - Ch2 "Verdan Market" — "Where memories are currency"
+    - Ch3 "Crumbling Coast" — "The ground gives way"
+    - Ch4 "The Seam" — "Between what was and what will be"
+    - Ch5 "BL-07" — "The Void stares back"
+  - `await`로 타이틀 카드 완료 후 스토리 시퀀스 시작
+
+- [x] **발걸음 SFX:**
+  - AudioManager에 `step_player` 전용 플레이어 추가 (-12dB, SFX와 독립)
+  - `play_step()` 메서드 — 다른 SFX와 겹치지 않음
+  - Player에서 0.25초 간격으로 이동 중 발소리 재생
+  - EXPLORATION 상태에서만 동작
+
+### 변경된 파일
+- `scenes/ui/options_menu.gd` — ESC 닫기 + 텍스트 속도 슬라이더
+- `scripts/ui/dialogue_box.gd` — 동적 타자기 속도 (OptionsMenu 연동)
+- `scripts/utils/map_effects.gd` — `show_chapter_title()` 정적 함수
+- `scenes/maps/rim_forest.gd` — Ch1 타이틀 카드
+- `scenes/maps/verdan_market.gd` — Ch2 타이틀 카드
+- `scenes/maps/crumbling_coast.gd` — Ch3 타이틀 카드
+- `scenes/maps/the_seam.gd` — Ch4 타이틀 카드
+- `scenes/maps/bl07_void.gd` — Ch5 타이틀 카드
+- `scripts/core/player.gd` — 발걸음 타이머 + SFX
+- `scripts/systems/audio_manager.gd` — step_player + play_step()
+
+### 다음
 - Godot F5 실제 플레이 테스트 권장

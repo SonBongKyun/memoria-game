@@ -10,16 +10,19 @@ var panel: PanelContainer
 var master_slider: HSlider
 var bgm_slider: HSlider
 var sfx_slider: HSlider
+var text_speed_slider: HSlider
 var fullscreen_check: CheckButton
 var master_value_label: Label
 var bgm_value_label: Label
 var sfx_value_label: Label
+var text_speed_value_label: Label
 
 # 설정 기본값
 var settings: Dictionary = {
 	"master_volume": 80,
 	"bgm_volume": 70,
 	"sfx_volume": 80,
+	"text_speed": 3,
 	"fullscreen": false,
 }
 
@@ -34,6 +37,11 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	print("[OptionsMenu] Ready")
 
+func _unhandled_input(event: InputEvent) -> void:
+	if is_open and event.is_action_pressed("cancel"):
+		close()
+		get_viewport().set_input_as_handled()
+
 func open() -> void:
 	if is_open:
 		return
@@ -42,6 +50,7 @@ func open() -> void:
 	master_slider.value = settings.master_volume
 	bgm_slider.value = settings.bgm_volume
 	sfx_slider.value = settings.sfx_volume
+	text_speed_slider.value = settings.text_speed
 	fullscreen_check.button_pressed = settings.fullscreen
 	_update_value_labels()
 	overlay.visible = true
@@ -107,6 +116,14 @@ func _load_settings() -> void:
 				if data.has(key):
 					settings[key] = data[key]
 
+const TEXT_SPEED_LABELS: Dictionary = {
+	1: "Slow",
+	2: "Slow+",
+	3: "Normal",
+	4: "Fast",
+	5: "Instant",
+}
+
 func _update_value_labels() -> void:
 	if master_value_label:
 		master_value_label.text = "%d%%" % int(master_slider.value)
@@ -114,6 +131,9 @@ func _update_value_labels() -> void:
 		bgm_value_label.text = "%d%%" % int(bgm_slider.value)
 	if sfx_value_label:
 		sfx_value_label.text = "%d%%" % int(sfx_slider.value)
+	if text_speed_value_label:
+		var spd = int(text_speed_slider.value)
+		text_speed_value_label.text = TEXT_SPEED_LABELS.get(spd, "Normal")
 
 func _build_ui() -> void:
 	var root = Control.new()
@@ -194,6 +214,14 @@ func _build_ui() -> void:
 		AudioManager.play_sfx("ui_select")
 	)
 
+	# --- Text Speed ---
+	text_speed_value_label = Label.new()
+	text_speed_slider = _create_speed_slider_row(vbox, "Text Speed", settings.text_speed, text_speed_value_label)
+	text_speed_slider.value_changed.connect(func(val: float):
+		settings.text_speed = int(val)
+		_update_value_labels()
+	)
+
 	# 구분선
 	var sep2 = HSeparator.new()
 	sep2.add_theme_constant_override("separation", 8)
@@ -261,6 +289,58 @@ func _create_slider_row(parent: VBoxContainer, label_text: String, default_val: 
 	var slider = HSlider.new()
 	slider.min_value = 0
 	slider.max_value = 100
+	slider.step = 1
+	slider.value = default_val
+	slider.custom_minimum_size = Vector2(0, 20)
+
+	# 슬라이더 스타일
+	var grabber_style = StyleBoxFlat.new()
+	grabber_style.bg_color = Color(0.75, 0.6, 0.3)
+	grabber_style.set_corner_radius_all(4)
+	grabber_style.set_content_margin_all(0)
+	grabber_style.content_margin_left = 8
+	grabber_style.content_margin_right = 8
+	grabber_style.content_margin_top = 8
+	grabber_style.content_margin_bottom = 8
+	slider.add_theme_stylebox_override("grabber_area", grabber_style)
+	slider.add_theme_stylebox_override("grabber_area_highlight", grabber_style)
+
+	var slider_style = StyleBoxFlat.new()
+	slider_style.bg_color = Color(0.15, 0.12, 0.18, 0.9)
+	slider_style.set_corner_radius_all(3)
+	slider_style.set_content_margin_all(0)
+	slider_style.content_margin_top = 6
+	slider_style.content_margin_bottom = 6
+	slider.add_theme_stylebox_override("slider", slider_style)
+
+	row_vbox.add_child(slider)
+	return slider
+
+func _create_speed_slider_row(parent: VBoxContainer, label_text: String, default_val: int, value_label: Label) -> HSlider:
+	var row_vbox = VBoxContainer.new()
+	row_vbox.add_theme_constant_override("separation", 4)
+	parent.add_child(row_vbox)
+
+	var header = HBoxContainer.new()
+	row_vbox.add_child(header)
+
+	var label = Label.new()
+	label.text = label_text
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(label)
+
+	value_label.text = TEXT_SPEED_LABELS.get(default_val, "Normal")
+	value_label.add_theme_font_size_override("font_size", 14)
+	value_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
+	value_label.custom_minimum_size = Vector2(50, 0)
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	header.add_child(value_label)
+
+	var slider = HSlider.new()
+	slider.min_value = 1
+	slider.max_value = 5
 	slider.step = 1
 	slider.value = default_val
 	slider.custom_minimum_size = Vector2(0, 20)

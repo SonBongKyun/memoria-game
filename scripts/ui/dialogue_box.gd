@@ -3,7 +3,7 @@
 ## 하단 텍스트 박스 + 좌측 포트레이트 + 선택지.
 extends CanvasLayer
 
-const TYPEWRITER_SPEED: float = 0.03  # 글자당 초
+const TYPEWRITER_SPEEDS: Dictionary = {1: 0.06, 2: 0.045, 3: 0.03, 4: 0.015, 5: 0.0}
 const BOX_HEIGHT: int = 160
 const PORTRAIT_SIZE: int = 96
 
@@ -51,11 +51,23 @@ func _ready() -> void:
 	hide_box()
 	print("[DialogueBox] Ready")
 
+func _get_typewriter_speed() -> float:
+	var spd = OptionsMenu.settings.get("text_speed", 3) if OptionsMenu else 3
+	return TYPEWRITER_SPEEDS.get(spd, 0.03)
+
 func _process(delta: float) -> void:
 	if is_typing:
+		var speed = _get_typewriter_speed()
+		if speed <= 0.0:
+			# Instant mode
+			displayed_chars = full_text.length()
+			text_label.text = full_text
+			is_typing = false
+			indicator.visible = true
+			return
 		typewriter_timer += delta
-		while typewriter_timer >= TYPEWRITER_SPEED and displayed_chars < full_text.length():
-			typewriter_timer -= TYPEWRITER_SPEED
+		while typewriter_timer >= speed and displayed_chars < full_text.length():
+			typewriter_timer -= speed
 			displayed_chars += 1
 			text_label.text = full_text.substr(0, displayed_chars)
 

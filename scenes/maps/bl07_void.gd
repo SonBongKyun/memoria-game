@@ -63,7 +63,9 @@ func _ready() -> void:
 	MemoryManager.add_chapter_memories(5)
 
 	if not GameManager.get_flag("ch5_void_entered"):
-		await get_tree().create_timer(0.5).timeout
+		# 챕터 타이틀 카드 표시 후 대화 시작
+		await MapEffects.show_chapter_title(self, 5, "BL-07", "The Void stares back")
+		await get_tree().create_timer(0.3).timeout
 		_start_ch5_sequence()
 
 func _process(delta: float) -> void:

@@ -59,7 +59,9 @@ func _ready() -> void:
 func _ready_sequence() -> void:
 	# Ch3 도착 시퀀스 (한 번만 실행)
 	if not GameManager.get_flag("ch3_arrived"):
-		await get_tree().create_timer(0.5).timeout
+		# 챕터 타이틀 카드 표시 후 대화 시작
+		await MapEffects.show_chapter_title(self, 3, "Crumbling Coast", "The ground gives way")
+		await get_tree().create_timer(0.3).timeout
 		_start_ch3_sequence()
 
 func _process(delta: float) -> void:

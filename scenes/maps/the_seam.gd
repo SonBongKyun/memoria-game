@@ -79,7 +79,9 @@ func _ready() -> void:
 	elif not GameManager.get_flag("ch4_arrived"):
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
-		await get_tree().create_timer(0.5).timeout
+		# 챕터 타이틀 카드 표시 후 대화 시작
+		await MapEffects.show_chapter_title(self, 4, "The Seam", "Between what was and what will be")
+		await get_tree().create_timer(0.3).timeout
 		_start_ch4_sequence()
 	else:
 		_setup_battle_triggers()

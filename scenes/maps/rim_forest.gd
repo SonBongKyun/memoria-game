@@ -59,8 +59,9 @@ func _ready() -> void:
 
 	# 스토리 시퀀스 시작 (첫 진입 시만)
 	if not GameManager.get_flag("ch1_opening_done"):
-		# 짧은 딜레이 후 오프닝 대화 시작
-		await get_tree().create_timer(0.5).timeout
+		# 챕터 타이틀 카드 표시 후 대화 시작
+		await MapEffects.show_chapter_title(self, 1, "Rim Forest", "The edge of what remains")
+		await get_tree().create_timer(0.3).timeout
 		_start_story_sequence()
 
 func _process(delta: float) -> void:

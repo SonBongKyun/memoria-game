@@ -4,6 +4,7 @@ extends Node
 
 var bgm_player: AudioStreamPlayer
 var sfx_player: AudioStreamPlayer
+var step_player: AudioStreamPlayer
 var current_bgm: String = ""
 var bgm_tween: Tween
 var _last_scene_path: String = ""
@@ -32,6 +33,12 @@ func _ready() -> void:
 	sfx_player.bus = "Master"
 	sfx_player.volume_db = -3.0
 	add_child(sfx_player)
+
+	# 발걸음 전용 플레이어 (낮은 볼륨, SFX와 겹치지 않음)
+	step_player = AudioStreamPlayer.new()
+	step_player.bus = "Master"
+	step_player.volume_db = -12.0
+	add_child(step_player)
 
 	# 씬 전환 감지
 	get_tree().tree_changed.connect(_on_tree_changed)
@@ -94,6 +101,17 @@ func play_sfx(type: String) -> void:
 	var stream = _samples_to_stream(samples)
 	sfx_player.stream = stream
 	sfx_player.play()
+
+## 발걸음 전용 재생 (step_player 사용, 다른 SFX와 겹치지 않음)
+func play_step() -> void:
+	if not step_player:
+		return
+	var samples = _generate_sfx("step")
+	if samples.is_empty():
+		return
+	var stream = _samples_to_stream(samples)
+	step_player.stream = stream
+	step_player.play()
 
 ## 간단한 SFX 생성 (사인파 기반)
 func _generate_sfx(type: String) -> PackedFloat32Array:

@@ -52,7 +52,9 @@ func _ready() -> void:
 
 	# Ch2 도착 대화 (첫 진입)
 	if not GameManager.get_flag("ch2_arrived"):
-		await get_tree().create_timer(0.5).timeout
+		# 챕터 타이틀 카드 표시 후 대화 시작
+		await MapEffects.show_chapter_title(self, 2, "Verdan Market", "Where memories are currency")
+		await get_tree().create_timer(0.3).timeout
 		_start_ch2_sequence()
 
 ## ===================== 스토리 시퀀스 =====================

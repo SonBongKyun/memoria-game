@@ -163,6 +163,73 @@ static func add_fog(parent: Node, color: Color = Color(0.2, 0.2, 0.25, 0.08)) ->
 	parent.add_child(layer)
 	return fogs
 
+## 챕터 타이틀 카드 오버레이
+## 페이드 인 → 홀드 → 페이드 아웃 후 자동 제거. CanvasLayer 반환.
+static func show_chapter_title(parent: Node, chapter_num: int, title: String, subtitle: String = "") -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 4  # 비네트(3) 위, UI 아래
+
+	# 풀스크린 어둠 배경
+	var bg = ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0, 0, 0, 0.85)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(bg)
+
+	# 중앙 컨테이너
+	var container = VBoxContainer.new()
+	container.set_anchors_preset(Control.PRESET_CENTER)
+	container.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	container.grow_vertical = Control.GROW_DIRECTION_BOTH
+	container.alignment = BoxContainer.ALIGNMENT_CENTER
+	container.add_theme_constant_override("separation", 8)
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(container)
+
+	# "CHAPTER X" 소형 앰버 텍스트
+	var chapter_label = Label.new()
+	chapter_label.text = "CHAPTER %d" % chapter_num
+	chapter_label.add_theme_font_size_override("font_size", 16)
+	chapter_label.add_theme_color_override("font_color", Color(0.6, 0.5, 0.35))
+	chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chapter_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(chapter_label)
+
+	# 타이틀 대형 텍스트
+	var title_label = Label.new()
+	title_label.text = title
+	title_label.add_theme_font_size_override("font_size", 28)
+	title_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.65))
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(title_label)
+
+	# 선택적 서브타이틀
+	if subtitle != "":
+		var sub_label = Label.new()
+		sub_label.text = subtitle
+		sub_label.add_theme_font_size_override("font_size", 14)
+		sub_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
+		sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		container.add_child(sub_label)
+
+	# 초기 투명
+	layer.modulate = Color(1, 1, 1, 0)
+	parent.add_child(layer)
+
+	# 애니메이션: 페이드 인 0.5s → 홀드 2.0s → 페이드 아웃 0.8s → 제거
+	var tween = parent.create_tween()
+	tween.tween_property(layer, "modulate:a", 1.0, 0.5)
+	tween.tween_interval(2.0)
+	tween.tween_property(layer, "modulate:a", 0.0, 0.8)
+	tween.tween_callback(layer.queue_free)
+
+	# await용: 트윈 완료까지 대기 가능
+	await tween.finished
+
+	return layer
+
 ## 안개 업데이트 (_process에서 호출)
 static func update_fog(fogs: Array[ColorRect], time: float) -> void:
 	for fog in fogs:
