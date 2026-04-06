@@ -103,5 +103,9 @@ func _on_new_game_pressed() -> void:
 func _on_continue_pressed() -> void:
 	SaveManager.load_game(1)
 
+func _on_options_pressed() -> void:
+	AudioManager.play_sfx("ui_select")
+	OptionsMenu.open()
+
 func _on_quit_pressed() -> void:
 	get_tree().quit()

@@ -254,3 +254,8 @@ func _position_player() -> void:
 	# 북쪽 입구
 	player.position = Vector2(4 * TILE_SIZE, 3 * TILE_SIZE)
 	elia.position = Vector2(4 * TILE_SIZE - 25, 3 * TILE_SIZE + 15)
+	# 세이브 로드 시 위치 복원
+	if not SaveManager.loaded_player_pos.is_empty():
+		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
+		elia.position = player.position + Vector2(-25, 15)
+		SaveManager.loaded_player_pos = {}

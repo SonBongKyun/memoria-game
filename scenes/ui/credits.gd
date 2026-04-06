@@ -68,6 +68,12 @@ func _build_ui() -> void:
 	if GameManager.get_flag("zero_burn_path"):
 		credits.append({"type": "quote", "text": "He burned everything. Even his name."})
 		credits.append({"type": "quote_sub", "text": "But something remained — a shape where a person used to be."})
+	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
+		credits.append({"type": "quote", "text": "What remains is not a man. Just ash, drifting."})
+		credits.append({"type": "quote_sub", "text": "The name survived. Nothing else did."})
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch4_garden"):
+		credits.append({"type": "quote", "text": "In the cracks between loss, something green still grows."})
+		credits.append({"type": "quote_sub", "text": "The smallest moments became the strongest shield."})
 	else:
 		credits.append({"type": "quote", "text": "He kept his name. The seal held."})
 		credits.append({"type": "quote_sub", "text": "Whether that was enough... only time would tell."})

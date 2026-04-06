@@ -52,9 +52,13 @@
       {"speaker": "", "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."}
     ],
     "elia_talk": [
-      {"speaker": "Elia", "text": "Stay close. The Rim gets worse at night.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Stay close. The Rim gets worse at night.", "portrait": "elia_neutral",
+        "requires_memory": "sense_forest_smell",
+        "burned_text": "You seem... distant. Like you can't quite smell the rain anymore."},
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?", "portrait": "elia_concern",
+        "requires_memory": "identity_first_sword",
+        "burned_text": "You used to talk about your training days. Now it's like those stories never happened."},
       {"speaker": "", "text": "He didn't answer. She was right. She usually was."}
     ],
     "hidden_stump": [

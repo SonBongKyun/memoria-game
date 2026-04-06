@@ -128,14 +128,22 @@ func _start_epilogue() -> void:
 		return
 	GameManager.set_flag("epilogue_started")
 
+	var epilogue_key: String
 	if GameManager.get_flag("zero_burn_path"):
 		# Zero Burn — 이름을 잃은 아렐
-		DialogueManager.dialogue_ended.connect(_on_epilogue_ended, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(EPILOGUE_FILE, "epilogue_zero_burn")
+		epilogue_key = "epilogue_zero_burn"
+	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
+		# Ash — 기억을 너무 많이 태운 아렐 (이름은 지켰지만 껍데기만 남음)
+		epilogue_key = "epilogue_ash"
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch4_garden"):
+		# Seam — 숨겨진 아름다움을 발견한 아렐 (희망의 비밀 엔딩)
+		epilogue_key = "epilogue_seam"
 	else:
-		# Preservation — 이름을 지킨 아렐
-		DialogueManager.dialogue_ended.connect(_on_epilogue_ended, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(EPILOGUE_FILE, "epilogue_preservation")
+		# Preservation — 이름을 지킨 아렐 (기본 보존 엔딩)
+		epilogue_key = "epilogue_preservation"
+
+	DialogueManager.dialogue_ended.connect(_on_epilogue_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(EPILOGUE_FILE, epilogue_key)
 
 func _on_epilogue_ended() -> void:
 	GameManager.set_flag("epilogue_complete")
@@ -291,6 +299,11 @@ func _position_player() -> void:
 		# 북쪽 입구에서 시작 (절벽 사이 진입)
 		player.position = Vector2(5 * TILE_SIZE, 1.5 * TILE_SIZE)
 		elia.position = Vector2(5 * TILE_SIZE - 30, 1.5 * TILE_SIZE + 20)
+	# 세이브 로드 시 위치 복원
+	if not SaveManager.loaded_player_pos.is_empty():
+		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
+		elia.position = player.position + Vector2(-30, 20)
+		SaveManager.loaded_player_pos = {}
 
 var _battle_counter: int = 0
 

@@ -10,6 +10,9 @@ signal save_completed(slot: int)
 signal load_completed(slot: int)
 signal save_failed(reason: String)
 
+## 로드 시 플레이어 위치 복원용 (맵 스크립트에서 참조)
+var loaded_player_pos: Dictionary = {}
+
 func _ready() -> void:
 	# 세이브 디렉토리 생성
 	if not DirAccess.dir_exists_absolute(SAVE_DIR):
@@ -34,12 +37,20 @@ func save_game(slot: int) -> bool:
 		save_failed.emit("Invalid slot: %d" % slot)
 		return false
 
+	# 플레이어 위치 저장
+	var player_pos: Dictionary = {}
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() > 0:
+		var pos = players[0].position
+		player_pos = {"x": pos.x, "y": pos.y}
+
 	var save_data: Dictionary = {
 		"version": "0.1.0",
 		"timestamp": Time.get_datetime_string_from_system(),
 		"scene": _get_current_scene_path(),
 		"game": GameManager.export_data(),
 		"memory": MemoryManager.export_data(),
+		"player_pos": player_pos,
 	}
 
 	var path = SAVE_DIR + "save_%d.json" % slot
@@ -84,6 +95,9 @@ func load_game(slot: int) -> bool:
 
 	if save_data.has("memory"):
 		MemoryManager.import_data(save_data.memory)
+
+	# 플레이어 위치 복원 준비
+	loaded_player_pos = save_data.get("player_pos", {})
 
 	# 씬 전환
 	var scene_path = save_data.get("scene", "")

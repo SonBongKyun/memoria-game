@@ -189,6 +189,10 @@ func _build_map() -> void:
 
 func _position_player() -> void:
 	player.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 9 * TILE_SIZE + TILE_SIZE / 2.0)
+	# 세이브 로드 시 위치 복원
+	if not SaveManager.loaded_player_pos.is_empty():
+		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
+		SaveManager.loaded_player_pos = {}
 
 ## ===================== 전투 트리거 =====================
 

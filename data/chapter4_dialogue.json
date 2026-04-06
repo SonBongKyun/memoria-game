@@ -44,7 +44,9 @@
       {"speaker": "", "text": "Chapter 4 — End. The investigation of BL-07 has begun."}
     ],
     "sable_talk": [
-      {"speaker": "Sable", "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.", "portrait": "sable_neutral",
+        "requires_memory": "identity_void_walker",
+        "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one."},
       {"speaker": "Sable", "text": "Before that, Thornfield. Before that, somewhere I've chosen not to remember.", "portrait": "sable_calm"},
       {"speaker": "Arrel", "text": "Chosen?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Not everyone who forgets was forced to. Sometimes it's the only kindness left.", "portrait": "sable_calm"},
@@ -53,7 +55,9 @@
     "elia_seam_talk": [
       {"speaker": "Elia", "text": "This place... it's different. The air doesn't taste like ash.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "Sable's doing?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Maybe. Or maybe the world still has places it hasn't given up on.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Maybe. Or maybe the world still has places it hasn't given up on.", "portrait": "elia_neutral",
+        "requires_memory": "rel_hand_reaching",
+        "burned_text": "How many have you burned now, Arrel? Sometimes I look at you and wonder how much is left."},
       {"speaker": "Elia", "text": "The flowers in the gardens — have you noticed? They're all from different seasons. They shouldn't bloom at the same time.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "Memory leakage?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "Sable calls it 'bleed-through.' The Seam sits on a crack between what was and what is. Things... slip through.", "portrait": "elia_neutral"},

@@ -56,9 +56,13 @@
       {"speaker": "Elia", "text": "Arrel...", "portrait": "elia_concern"}
     ],
     "elia_ch2_talk": [
-      {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral",
+        "requires_memory": "daily_market_food",
+        "burned_text": "There was this market you mentioned once... You don't remember it at all, do you?"},
       {"speaker": "Arrel", "text": "Ironic.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Not the kind of irony that's funny.", "portrait": "elia_concern"}
+      {"speaker": "Elia", "text": "Not the kind of irony that's funny.", "portrait": "elia_concern",
+        "requires_memory": "daily_campfire_song",
+        "burned_text": "You said someone used to sing by the campfire. But you can't even recall the melody now."}
     ]
   }
 }

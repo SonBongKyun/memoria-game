@@ -31,7 +31,9 @@
       {"speaker": "Sable", "text": "Come inside. We have a lot to discuss. And not much time.", "portrait": "sable_calm"}
     ],
     "elia_coast_talk": [
-      {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern",
+        "requires_memory": "daily_campfire_song",
+        "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune."},
       {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_pain"},
       {"speaker": "Elia", "text": "Do you miss it?", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_neutral"},
