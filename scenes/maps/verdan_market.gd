@@ -87,7 +87,8 @@ func _on_deal_ended() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "malet_reward")
 
 func _on_refused_ended() -> void:
-	# 거절해도 재대화로 다시 시도 가능
+	# 거절해도 재대화로 다시 시도 가능 — 플래그 초기화
+	GameManager.story_flags.erase("malet_deal_refused")
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended)
 
 func _on_reward_ended() -> void:

@@ -18,9 +18,7 @@
       {"speaker": "Malet", "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it.", "portrait": "malet_neutral"},
       {"speaker": "Arrel", "text": "I need a route to BL-07.", "portrait": "arrel_neutral"},
       {"speaker": "Malet", "text": "Seventeen people have asked me that question. None of them came back whole.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "My price: the day you first held a sword.", "portrait": "malet_neutral", "cg": "res://assets/cg/item_extractor.jpg"}
-    ],
-    "malet_deal": [
+      {"speaker": "Malet", "text": "My price: the day you first held a sword.", "portrait": "malet_neutral", "cg": "res://assets/cg/item_extractor.jpg"},
       {
         "choices": [
           {
@@ -33,7 +31,9 @@
             "set_flag": "malet_deal_refused"
           }
         ]
-      },
+      }
+    ],
+    "malet_deal": [
       {"speaker": "", "text": "The extractor was civilian-grade. Small. Clean. Almost gentle.", "cg": "res://assets/cg/ch2_extraction.jpg"},
       {"speaker": "", "text": "The memory surfaced as it was pulled: a courtyard, dust in afternoon light, a hand larger than his closing his fingers around a wooden grip."},
       {"speaker": "", "text": "Absolute certainty that the person teaching him was the most important person in the world."},
