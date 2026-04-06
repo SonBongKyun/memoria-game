@@ -1,9 +1,12 @@
 ## SceneTransition (Autoload)
-## 씬 전환 (페이드 인/아웃) 처리.
+## 씬 전환 처리. 페이드/다이아몬드 와이프/디졸브 효과 지원.
 extends CanvasLayer
 
 var transition_rect: ColorRect
 var tween: Tween
+
+# 와이프 효과용
+var wipe_rects: Array = []
 
 func _ready() -> void:
 	layer = 100  # 최상위 레이어
@@ -18,22 +21,89 @@ func _create_transition_rect() -> void:
 	transition_rect.modulate.a = 0.0
 	add_child(transition_rect)
 
-## 페이드 아웃 → 씬 전환 → 페이드 인
+## 기본 페이드 전환
 func change_scene(scene_path: String, duration: float = 0.5) -> void:
-	# 페이드 아웃 (화면 어두워짐)
 	if tween:
 		tween.kill()
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 1.0, duration)
 	await tween.finished
 
-	# 씬 전환
 	get_tree().change_scene_to_file(scene_path)
 
-	# 페이드 인 (화면 밝아짐)
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 0.0, duration)
 	await tween.finished
+
+## 전투 진입용 다이아몬드 와이프 전환
+func change_scene_battle(scene_path: String) -> void:
+	await _diamond_wipe_out(0.6)
+	get_tree().change_scene_to_file(scene_path)
+	await _diamond_wipe_in(0.5)
+
+## 다이아몬드 와이프 아웃 (화면 덮기)
+func _diamond_wipe_out(duration: float) -> void:
+	_clear_wipe_rects()
+
+	var cols = 16
+	var rows = 9
+	var cell_w = 1280.0 / cols
+	var cell_h = 720.0 / rows
+	var max_delay = duration * 0.6
+
+	for y in range(rows):
+		for x in range(cols):
+			var rect = ColorRect.new()
+			rect.size = Vector2(cell_w + 2, cell_h + 2)
+			rect.position = Vector2(x * cell_w - 1, y * cell_h - 1)
+			rect.color = Color.BLACK
+			rect.scale = Vector2.ZERO
+			rect.pivot_offset = rect.size / 2.0
+			rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(rect)
+			wipe_rects.append(rect)
+
+			# 중앙에서 퍼져나가는 딜레이
+			var cx = (x - cols / 2.0) / (cols / 2.0)
+			var cy = (y - rows / 2.0) / (rows / 2.0)
+			var dist = sqrt(cx * cx + cy * cy) / 1.42  # 0~1 정규화
+			var delay = dist * max_delay
+
+			var t = create_tween()
+			t.tween_property(rect, "scale", Vector2(1.0, 1.0), duration * 0.35).set_delay(delay).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	await get_tree().create_timer(duration).timeout
+
+## 다이아몬드 와이프 인 (화면 열기)
+func _diamond_wipe_in(duration: float) -> void:
+	if wipe_rects.is_empty():
+		return
+
+	var cols = 16
+	var rows = 9
+	var max_delay = duration * 0.5
+
+	for rect in wipe_rects:
+		if not is_instance_valid(rect):
+			continue
+		var pos = rect.position
+		var cx = (pos.x / 1280.0 - 0.5) * 2.0
+		var cy = (pos.y / 720.0 - 0.5) * 2.0
+		var dist = sqrt(cx * cx + cy * cy) / 1.42
+		var delay = dist * max_delay
+
+		var t = create_tween()
+		t.tween_property(rect, "scale", Vector2.ZERO, duration * 0.3).set_delay(delay).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		t.tween_callback(rect.queue_free)
+
+	await get_tree().create_timer(duration + 0.1).timeout
+	wipe_rects.clear()
+
+func _clear_wipe_rects() -> void:
+	for rect in wipe_rects:
+		if is_instance_valid(rect):
+			rect.queue_free()
+	wipe_rects.clear()
 
 ## 페이드 아웃만 (컷씬 전환용)
 func fade_out(duration: float = 0.5) -> void:

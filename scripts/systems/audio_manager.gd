@@ -185,6 +185,39 @@ func _generate_sfx(type: String) -> PackedFloat32Array:
 				var wave = sin(t * 45.0 * TAU) * 0.3
 				var mod = sin(t * 7.0 * TAU) * 0.1
 				samples.append((wave + mod) * env)
+		"ui_hover":  # UI 호버 — 짧은 고음 틱
+			duration = 0.04
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = (1.0 - t / duration)
+				samples.append(sin(t * 1200.0 * TAU) * 0.12 * env)
+		"ui_select":  # UI 선택 — 명확한 확인음
+			duration = 0.08
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = (1.0 - t / duration) * (1.0 - t / duration)
+				samples.append((sin(t * 880.0 * TAU) * 0.2 + sin(t * 1320.0 * TAU) * 0.1) * env)
+		"ui_open":  # 메뉴 열기 — 상승 스윕
+			duration = 0.12
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI) * 0.8
+				var f = lerpf(400.0, 900.0, t / duration)
+				samples.append(sin(t * f * TAU) * 0.15 * env)
+		"ui_close":  # 메뉴 닫기 — 하강 스윕
+			duration = 0.1
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = (1.0 - t / duration)
+				var f = lerpf(800.0, 350.0, t / duration)
+				samples.append(sin(t * f * TAU) * 0.12 * env)
+		"battle_intro":  # 전투 진입 — 긴장 저음
+			duration = 0.6
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI) * 0.7
+				var wave = sin(t * 80.0 * TAU) * 0.2 + sin(t * 120.0 * TAU) * 0.15
+				samples.append(wave * env)
 
 	return samples
 

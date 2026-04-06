@@ -97,3 +97,69 @@ static func add_void_particles(parent: Node2D) -> GPUParticles2D:
 
 	parent.add_child(particles)
 	return particles
+
+## 맵 비네트 오버레이 (화면 가장자리 어둡게 — 분위기 강화)
+static func add_vignette(parent: Node2D, intensity: float = 0.4) -> void:
+	# 상단 그라데이션 (강)
+	var top = ColorRect.new()
+	top.size = Vector2(1280, 100)
+	top.position = Vector2(0, 0)
+	top.color = Color(0, 0, 0, intensity)
+	top.z_index = 5
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(top)
+
+	# 하단 그라데이션
+	var bottom = ColorRect.new()
+	bottom.size = Vector2(1280, 80)
+	bottom.position = Vector2(0, 720 - 80)
+	bottom.color = Color(0, 0, 0, intensity * 0.7)
+	bottom.z_index = 5
+	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(bottom)
+
+	# 좌측
+	var left = ColorRect.new()
+	left.size = Vector2(60, 720)
+	left.position = Vector2(0, 0)
+	left.color = Color(0, 0, 0, intensity * 0.5)
+	left.z_index = 5
+	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(left)
+
+	# 우측
+	var right = ColorRect.new()
+	right.size = Vector2(60, 720)
+	right.position = Vector2(1220, 0)
+	right.color = Color(0, 0, 0, intensity * 0.5)
+	right.z_index = 5
+	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(right)
+
+## 안개 효과 (느리게 움직이는 반투명 레이어)
+static func add_fog(parent: Node2D, color: Color = Color(0.2, 0.2, 0.25, 0.08)) -> Array[ColorRect]:
+	var fogs: Array[ColorRect] = []
+	for i in range(3):
+		var fog = ColorRect.new()
+		fog.size = Vector2(randi_range(300, 500), randi_range(100, 200))
+		fog.position = Vector2(randf_range(-100, 900), randf_range(100, 500))
+		fog.color = color
+		fog.z_index = 4
+		fog.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		fog.set_meta("speed_x", randf_range(3.0, 8.0))
+		fog.set_meta("phase", randf() * TAU)
+		parent.add_child(fog)
+		fogs.append(fog)
+	return fogs
+
+## 안개 업데이트 (_process에서 호출)
+static func update_fog(fogs: Array[ColorRect], time: float) -> void:
+	for fog in fogs:
+		if is_instance_valid(fog):
+			var speed = fog.get_meta("speed_x", 5.0)
+			var phase = fog.get_meta("phase", 0.0)
+			fog.position.x += speed * 0.016  # ~60fps
+			fog.color.a = 0.05 + sin(time * 0.5 + phase) * 0.03
+			# 화면 밖으로 나가면 리셋
+			if fog.position.x > 1400:
+				fog.position.x = -fog.size.x

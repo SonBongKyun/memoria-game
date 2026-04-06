@@ -48,6 +48,7 @@ var effect_time: float = 0.0
 
 func _ready() -> void:
 	_build_map()
+	MapEffects.add_vignette(self)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_seam_trigger()
@@ -170,6 +171,6 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 			if enemy_name == "Coastal Void Beast":
 				enemy.abilities = ["drain"]
 			BattleManager.start_battle(enemy, "res://scenes/maps/crumbling_coast.tscn", bg_img, e_img)
-			SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
+			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
 	add_child(area)

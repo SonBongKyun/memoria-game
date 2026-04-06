@@ -52,6 +52,7 @@ var void_particles: GPUParticles2D
 
 func _ready() -> void:
 	_build_map()
+	MapEffects.add_vignette(self, 0.6)  # 보이드: 강한 비네트
 	_position_player()
 	_setup_core_trigger()
 	_setup_battle_triggers()
@@ -215,7 +216,7 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 			if enemy_name == "Memory Eater":
 				enemy.abilities = ["drain", "multi_hit"]
 			BattleManager.start_battle(enemy, "res://scenes/maps/bl07_void.tscn", "res://assets/cg/bl07_interior.jpg", "res://assets/cg/void_portal.jpg")
-			SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
+			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
 	add_child(area)
 

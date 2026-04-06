@@ -72,6 +72,9 @@ static func _paint_tile(img: Image, ox: int, oy: int, base: Color, detail: Strin
 	# 기본 채우기
 	_fill(img, ox, oy, TILE, TILE, base)
 
+	# 엣지 셰이딩 (깊이감) — detail 페인팅 전에 적용
+	_paint_edge_shading(img, ox, oy, base, detail)
+
 	match detail:
 		"grass":
 			_paint_grass(img, ox, oy, base)
@@ -401,6 +404,53 @@ static func _paint_core(img: Image, ox: int, oy: int, base: Color) -> void:
 			var dist = sqrt(dx * dx + dy * dy) / 16.0
 			var intensity = maxf(0, 1.0 - dist) * 0.15
 			_px(img, ox + x, oy + y, _shift(base, intensity + randf_range(-0.02, 0.02)))
+
+## ── 엣지 셰이딩 (깊이감) ──
+
+static func _paint_edge_shading(img: Image, ox: int, oy: int, base: Color, detail: String) -> void:
+	# 벽/나무/건물은 강한 셰이딩, 바닥류는 약한 셰이딩
+	var shadow_strength: float = 0.0
+	var highlight_strength: float = 0.0
+
+	match detail:
+		"tree", "wall", "cliff", "rock", "hut", "stall":
+			shadow_strength = 0.08
+			highlight_strength = 0.05
+		"grass", "path", "sand", "stone", "alley", "garden":
+			shadow_strength = 0.03
+			highlight_strength = 0.02
+		"water", "void", "fragment", "crack", "core":
+			shadow_strength = 0.02
+			highlight_strength = 0.01
+		"door", "lantern":
+			shadow_strength = 0.05
+			highlight_strength = 0.03
+		_:
+			return
+
+	# 상단 하이라이트 (빛 받는 면)
+	for x in range(TILE):
+		for i in range(2):
+			var alpha = highlight_strength * (1.0 - float(i) / 2.0)
+			_px(img, ox + x, oy + i, _shift(base, alpha))
+
+	# 좌측 하이라이트 (약하게)
+	for y in range(TILE):
+		_px(img, ox, oy + y, _shift(base, highlight_strength * 0.5))
+
+	# 하단 그림자 (깊이감)
+	for x in range(TILE):
+		for i in range(3):
+			var row = TILE - 1 - i
+			var alpha = shadow_strength * (1.0 - float(i) / 3.0)
+			_px(img, ox + x, oy + row, _shift(base, -alpha))
+
+	# 우측 그림자 (약하게)
+	for y in range(TILE):
+		for i in range(2):
+			var col = TILE - 1 - i
+			var alpha = shadow_strength * 0.6 * (1.0 - float(i) / 2.0)
+			_px(img, ox + col, oy + y, _shift(base, -alpha))
 
 ## ========== 헬퍼 ==========
 

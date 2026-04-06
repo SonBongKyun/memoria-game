@@ -53,6 +53,7 @@ var effect_time: float = 0.0
 
 func _ready() -> void:
 	_build_map()
+	MapEffects.add_vignette(self)
 	_position_player()
 	_setup_effects()
 	_setup_hidden_events()
@@ -226,7 +227,7 @@ func _on_bl07_dialogue_ended() -> void:
 	boss.is_boss = true
 	boss.abilities = ["drain", "shield", "multi_hit"]
 	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/bl07_interior.jpg", "res://assets/cg/void_portal.jpg")
-	SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
+	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
 func _start_ch4_epilogue() -> void:
 	if GameManager.get_flag("ch4_complete"):
@@ -309,6 +310,6 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 			GameManager.set_flag(flag_name)
 			var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)
 			BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", bg_img, e_img)
-			SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
+			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
 	add_child(area)

@@ -46,6 +46,7 @@ var tile_colors: Dictionary = {
 
 func _ready() -> void:
 	_build_map()
+	MapEffects.add_vignette(self)
 	_position_player()
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 

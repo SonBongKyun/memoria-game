@@ -42,11 +42,15 @@ var tile_colors: Dictionary = {
 var tile_nodes: Array = []
 var collision_bodies: Array = []
 var ash_rain_node = null  # 재비 파티클
+var fog_rects: Array[ColorRect] = []  # 안개 효과
+var _time: float = 0.0
 
 @onready var player: CharacterBody2D = $Player
 
 func _ready() -> void:
 	_build_map()
+	MapEffects.add_vignette(self)
+	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.06))
 	_position_player()
 	_setup_battle_triggers()
 	_setup_camp_trigger()
@@ -58,6 +62,10 @@ func _ready() -> void:
 		# 짧은 딜레이 후 오프닝 대화 시작
 		await get_tree().create_timer(0.5).timeout
 		_start_story_sequence()
+
+func _process(delta: float) -> void:
+	_time += delta
+	MapEffects.update_fog(fog_rects, _time)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -233,4 +241,4 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 func _trigger_battle(enemy_name: String, hp: int, atk: int, is_void: bool, bg_img: String = "", e_img: String = "") -> void:
 	var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)
 	BattleManager.start_battle(enemy, "res://scenes/maps/rim_forest.tscn", bg_img, e_img)
-	SceneTransition.change_scene("res://scenes/battle/battle_scene.tscn")
+	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
