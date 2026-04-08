@@ -1805,3 +1805,54 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 ### 다음
 - 추가 폴리싱 및 밸런스 조정
 - 사운드/VFX 보강
+
+---
+
+## S40 — 2026-04-08 (셰이더 시스템 + 그래픽 대폭 개선)
+
+### 완료
+- [x] **커스텀 셰이더 5종 신규:**
+  - `water_distortion.gdshader` — 이중 사인파 왜곡 + 수면 반짝임
+  - `vignette.gdshader` — 부드러운 원형 비네트 (직사각형 → 래디얼)
+  - `dissolve.gdshader` — 노이즈 기반 디졸브 + 엣지 글로우 (적 사망)
+  - `chromatic_aberration.gdshader` — 색수차 펄스 (Limit Break 연출)
+  - `glow_pulse.gdshader` — 맥동 글로우 (랜턴/크리스탈/보이드)
+
+- [x] **맵 비네트 셰이더 전환:**
+  - map_effects.gd: 직사각형 4면 비네트 → 셰이더 기반 원형 비네트
+  - battle_scene.gd: 전투 비네트도 셰이더 적용
+  - 폴백: 셰이더 로드 실패 시 기존 방식 유지
+
+- [x] **물 왜곡 셰이더:**
+  - 물 타일 영역에 실시간 웨이브 왜곡 오버레이 자동 배치
+  - row 단위 연속 물 구간 그룹핑 (성능 최적화)
+  - 기존 ColorRect 반짝임과 셰이더 오버레이 공존
+
+- [x] **전투 VFX 대폭 강화:**
+  - 데미지 숫자 색상 분류: 화염(주황)/보이드(보라)/드레인(연초록)/독(녹색)/콤보(금색)/회복(초록)
+  - 슬래시 VFX: 길이 확장 애니메이션 + 크로스 슬래시 + 충격 파편 입자
+  - 보이드 전용 VFX: 보라색 방사형 파티클 폭발 (기억 연소/Limit Break)
+  - 적 사망 디졸브: 셰이더 기반 노이즈 디졸브 + 보라색 엣지 글로우
+  - Limit Break 색수차: 전체 화면 크로마틱 펄스 + 강한 셰이크
+
+- [x] **원형 와이프 전환 (아이리스):**
+  - scene_transition.gd에 change_scene_iris() 추가
+  - 셰이더 기반 원형 닫힘/열림 (부드러운 엣지)
+  - CG/보스전 전환에 활용 가능
+
+- [x] **랜턴/보이드 글로우 셰이더:**
+  - 랜턴: glow_pulse 셰이더로 자연스러운 촛불 맥동
+  - 보이드 파티클: 환경 글로우 오버레이 추가
+
+### 변경/생성된 파일
+- `assets/shaders/water_distortion.gdshader` — **신규**
+- `assets/shaders/vignette.gdshader` — **신규**
+- `assets/shaders/dissolve.gdshader` — **신규**
+- `assets/shaders/chromatic_aberration.gdshader` — **신규**
+- `assets/shaders/glow_pulse.gdshader` — **신규**
+- `scripts/utils/map_effects.gd` — 셰이더 비네트/물 왜곡/랜턴 글로우/보이드 글로우
+- `scenes/battle/battle_scene.gd` — 셰이더 비네트, 데미지 색상, 디졸브, 색수차, 보이드 VFX, 슬래시 개선
+- `scripts/core/scene_transition.gd` — 원형 와이프 전환
+
+### 다음
+- 밸런스 조정 및 추가 폴리싱

@@ -4,10 +4,14 @@ class_name MapEffects
 
 const TILE: int = 32
 
-## 물 타일 반짝임 효과 추가
+## 물 타일 반짝임 효과 추가 — 셰이더 기반 물 왜곡 (S40)
 ## parent에 추가된 ColorRect들을 반환 (caller가 _process에서 업데이트)
 static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, height: int, water_index: int) -> Array[ColorRect]:
 	var shimmers: Array[ColorRect] = []
+	var shader_path = "res://assets/shaders/water_distortion.gdshader"
+	var has_shader = ResourceLoader.exists(shader_path)
+	var shader_res = load(shader_path) if has_shader else null
+
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
@@ -20,11 +24,44 @@ static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, heigh
 						rect.color = Color(0.4, 0.6, 0.8, 0.0)
 						rect.z_index = 0
 						rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-						# 메타에 위상 저장 (각각 다른 타이밍)
 						rect.set_meta("phase", randf() * TAU)
 						parent.add_child(rect)
 						shimmers.append(rect)
+
+	# 셰이더 기반 물 오버레이 — 넓은 물 영역에 왜곡 효과
+	if has_shader:
+		_add_water_overlay(parent, map_data, width, height, water_index, shader_res)
+
 	return shimmers
+
+## 물 영역에 셰이더 오버레이 배치 (왜곡 + 반짝임)
+static func _add_water_overlay(parent: Node2D, map_data: Array, width: int, height: int, water_index: int, shader_res: Shader) -> void:
+	# 물 타일 연속 영역을 row 단위로 그룹핑
+	for y in range(height):
+		var start_x = -1
+		for x in range(width + 1):
+			var is_water = false
+			if x < width and y < map_data.size() and x < map_data[y].size():
+				is_water = (map_data[y][x] == water_index)
+			if is_water and start_x < 0:
+				start_x = x
+			elif not is_water and start_x >= 0:
+				# 연속 물 구간 발견 — 오버레이 배치
+				var span = x - start_x
+				if span >= 2:  # 최소 2타일 이상
+					var overlay = ColorRect.new()
+					overlay.size = Vector2(span * TILE, TILE)
+					overlay.position = Vector2(start_x * TILE, y * TILE)
+					overlay.color = Color(0.3, 0.5, 0.8, 0.15)
+					overlay.z_index = 1
+					overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+					var mat = ShaderMaterial.new()
+					mat.shader = shader_res
+					mat.set_shader_parameter("wave_speed", 1.2 + randf() * 0.6)
+					mat.set_shader_parameter("shimmer_intensity", 0.12)
+					overlay.material = mat
+					parent.add_child(overlay)
+				start_x = -1
 
 ## 물 반짝임 업데이트 (_process에서 호출)
 static func update_water_shimmer(shimmers: Array[ColorRect], time: float) -> void:
@@ -34,14 +71,17 @@ static func update_water_shimmer(shimmers: Array[ColorRect], time: float) -> voi
 			var alpha = (sin(time * 1.5 + phase) + 1.0) * 0.15
 			rect.color.a = alpha
 
-## 랜턴 빛 효과 추가
+## 랜턴 빛 효과 추가 — 셰이더 글로우 (S40)
 static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, height: int, lantern_index: int) -> Array[ColorRect]:
 	var lights: Array[ColorRect] = []
+	var shader_path = "res://assets/shaders/glow_pulse.gdshader"
+	var has_shader = ResourceLoader.exists(shader_path)
+	var shader_res = load(shader_path) if has_shader else null
+
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
 				if map_data[y][x] == lantern_index:
-					# 따뜻한 원형 빛 (큰 반투명 사각형)
 					var size = TILE * 3
 					var rect = ColorRect.new()
 					rect.size = Vector2(size, size)
@@ -50,6 +90,16 @@ static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, heig
 					rect.z_index = 1
 					rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 					rect.set_meta("phase", randf() * TAU)
+					# 셰이더 적용
+					if has_shader:
+						var mat = ShaderMaterial.new()
+						mat.shader = shader_res
+						mat.set_shader_parameter("glow_color", Color(0.95, 0.75, 0.3, 0.5))
+						mat.set_shader_parameter("pulse_speed", 2.0 + randf() * 1.5)
+						mat.set_shader_parameter("min_intensity", 0.25)
+						mat.set_shader_parameter("max_intensity", 0.65)
+						mat.set_shader_parameter("glow_radius", 0.4)
+						rect.material = mat
 					parent.add_child(rect)
 					lights.append(rect)
 	return lights
@@ -58,8 +108,9 @@ static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, heig
 static func update_lantern_lights(lights: Array[ColorRect], time: float) -> void:
 	for rect in lights:
 		if is_instance_valid(rect):
+			if rect.material:
+				continue  # 셰이더가 자체 펄스 처리
 			var phase = rect.get_meta("phase", 0.0)
-			# 약한 깜빡임 (촛불 느낌)
 			var flicker = 0.06 + sin(time * 3.0 + phase) * 0.02 + sin(time * 7.0 + phase * 2) * 0.01
 			rect.color.a = flicker
 
@@ -91,55 +142,56 @@ static func add_void_particles(parent: Node2D) -> GPUParticles2D:
 	mat.emission_box_extents = Vector3(320, 320, 0)
 
 	particles.process_material = mat
-	particles.amount = 20
+	particles.amount = 25
 	particles.lifetime = 5.0
 	particles.visibility_rect = Rect2(-400, -400, 800, 800)
 
 	parent.add_child(particles)
+
+	# S40: 보이드 환경 글로우 오버레이
+	var shader_path = "res://assets/shaders/glow_pulse.gdshader"
+	if ResourceLoader.exists(shader_path):
+		var glow = ColorRect.new()
+		glow.size = Vector2(200, 200)
+		glow.position = Vector2(-100, -100)
+		glow.color = Color(0.3, 0.1, 0.5, 0.1)
+		glow.z_index = -1
+		glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var glow_mat = ShaderMaterial.new()
+		glow_mat.shader = load(shader_path)
+		glow_mat.set_shader_parameter("glow_color", Color(0.4, 0.15, 0.6, 0.35))
+		glow_mat.set_shader_parameter("pulse_speed", 1.2)
+		glow_mat.set_shader_parameter("min_intensity", 0.15)
+		glow_mat.set_shader_parameter("max_intensity", 0.45)
+		glow_mat.set_shader_parameter("glow_radius", 0.45)
+		glow.material = glow_mat
+		parent.add_child(glow)
+
 	return particles
 
-## 맵 비네트 오버레이 (CanvasLayer 기반 — 카메라 독립)
+## 맵 비네트 오버레이 — 셰이더 기반 원형 비네트 (S40)
 static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 	var layer = CanvasLayer.new()
 	layer.layer = 3  # 맵 위, UI 아래
 
-	var container = Control.new()
-	container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(container)
+	var rect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(1, 1, 1, 1)
 
-	# 상단 그라데이션
-	var top = ColorRect.new()
-	top.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	top.offset_bottom = 100
-	top.color = Color(0, 0, 0, intensity)
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(top)
+	var shader_path = "res://assets/shaders/vignette.gdshader"
+	if ResourceLoader.exists(shader_path):
+		var shader_mat = ShaderMaterial.new()
+		shader_mat.shader = load(shader_path)
+		shader_mat.set_shader_parameter("intensity", intensity)
+		shader_mat.set_shader_parameter("outer_radius", 0.85)
+		shader_mat.set_shader_parameter("inner_radius", 0.35)
+		rect.material = shader_mat
+	else:
+		# 폴백: 기존 직사각형 방식
+		rect.color = Color(0, 0, 0, 0)
 
-	# 하단 그라데이션
-	var bottom = ColorRect.new()
-	bottom.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	bottom.offset_top = -80
-	bottom.color = Color(0, 0, 0, intensity * 0.7)
-	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(bottom)
-
-	# 좌측
-	var left = ColorRect.new()
-	left.set_anchors_preset(Control.PRESET_LEFT_WIDE)
-	left.offset_right = 60
-	left.color = Color(0, 0, 0, intensity * 0.5)
-	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(left)
-
-	# 우측
-	var right = ColorRect.new()
-	right.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
-	right.offset_left = -60
-	right.color = Color(0, 0, 0, intensity * 0.5)
-	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(right)
-
+	layer.add_child(rect)
 	parent.add_child(layer)
 	return layer
 

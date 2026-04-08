@@ -105,6 +105,76 @@ func _clear_wipe_rects() -> void:
 			rect.queue_free()
 	wipe_rects.clear()
 
+## S40: 원형 와이프 전환 (아이리스) — CG/보스전 전환용
+func change_scene_iris(scene_path: String, duration: float = 0.8) -> void:
+	await _iris_wipe_out(duration)
+	get_tree().change_scene_to_file(scene_path)
+	await _iris_wipe_in(duration * 0.7)
+
+func _iris_wipe_out(duration: float) -> void:
+	var iris = ColorRect.new()
+	iris.set_anchors_preset(Control.PRESET_FULL_RECT)
+	iris.color = Color.BLACK
+	iris.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shader_code = """
+shader_type canvas_item;
+uniform float radius : hint_range(0.0, 1.5) = 1.2;
+uniform vec2 center = vec2(0.5, 0.5);
+uniform float edge_softness : hint_range(0.0, 0.1) = 0.03;
+void fragment() {
+	vec2 uv = UV - center;
+	uv.x *= SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
+	float dist = length(uv);
+	float alpha = smoothstep(radius - edge_softness, radius, dist);
+	COLOR = vec4(0.0, 0.0, 0.0, alpha);
+}
+"""
+	var shader = Shader.new()
+	shader.code = shader_code
+	var mat = ShaderMaterial.new()
+	mat.shader = shader
+	mat.set_shader_parameter("radius", 1.2)
+	mat.set_shader_parameter("center", Vector2(0.5, 0.5))
+	iris.material = mat
+	add_child(iris)
+
+	var t = create_tween()
+	t.tween_method(func(val): mat.set_shader_parameter("radius", val), 1.2, 0.0, duration).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	await t.finished
+	iris.queue_free()
+
+func _iris_wipe_in(duration: float) -> void:
+	var iris = ColorRect.new()
+	iris.set_anchors_preset(Control.PRESET_FULL_RECT)
+	iris.color = Color.BLACK
+	iris.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shader_code = """
+shader_type canvas_item;
+uniform float radius : hint_range(0.0, 1.5) = 0.0;
+uniform vec2 center = vec2(0.5, 0.5);
+uniform float edge_softness : hint_range(0.0, 0.1) = 0.03;
+void fragment() {
+	vec2 uv = UV - center;
+	uv.x *= SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
+	float dist = length(uv);
+	float alpha = smoothstep(radius - edge_softness, radius, dist);
+	COLOR = vec4(0.0, 0.0, 0.0, alpha);
+}
+"""
+	var shader = Shader.new()
+	shader.code = shader_code
+	var mat = ShaderMaterial.new()
+	mat.shader = shader
+	mat.set_shader_parameter("radius", 0.0)
+	mat.set_shader_parameter("center", Vector2(0.5, 0.5))
+	iris.material = mat
+	add_child(iris)
+
+	var t = create_tween()
+	t.tween_method(func(val): mat.set_shader_parameter("radius", val), 0.0, 1.2, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	await t.finished
+	iris.queue_free()
+
 ## 페이드 아웃만 (컷씬 전환용)
 func fade_out(duration: float = 0.5) -> void:
 	if tween:

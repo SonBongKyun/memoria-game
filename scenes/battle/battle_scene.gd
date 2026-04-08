@@ -147,30 +147,24 @@ func _build_ui() -> void:
 ## ===================== 배경 비네트 =====================
 
 func _add_battle_vignette() -> void:
-	# 화면 가장자리를 어둡게 — 전투 집중감
+	# 셰이더 기반 원형 비네트 (S40)
 	var vignette = ColorRect.new()
 	vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
-	vignette.color = Color(0, 0, 0, 0)
+	vignette.color = Color(1, 1, 1, 1)
 	vignette.z_index = -1
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var shader_path = "res://assets/shaders/vignette.gdshader"
+	if ResourceLoader.exists(shader_path):
+		var mat = ShaderMaterial.new()
+		mat.shader = load(shader_path)
+		mat.set_shader_parameter("intensity", 0.6)
+		mat.set_shader_parameter("outer_radius", 0.9)
+		mat.set_shader_parameter("inner_radius", 0.3)
+		vignette.material = mat
+	else:
+		vignette.color = Color(0, 0, 0, 0)
 	add_child(vignette)
-
-	# 상단 그라데이션
-	var top = ColorRect.new()
-	top.anchor_right = 1.0
-	top.offset_bottom = 80
-	top.color = Color(0, 0, 0, 0.4)
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(top)
-
-	# 하단 그라데이션
-	var bottom = ColorRect.new()
-	bottom.anchor_right = 1.0
-	bottom.anchor_top = 1.0
-	bottom.anchor_bottom = 1.0
-	bottom.offset_top = -80
-	bottom.color = Color(0, 0, 0, 0.4)
-	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(bottom)
 
 ## ===================== 인트로 시스템 =====================
 
@@ -740,7 +734,7 @@ func _on_battle_log(message: String) -> void:
 
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
-	_show_damage_number(target, amount)
+	_show_damage_number(target, amount, skill_name)
 	_hit_flash(target)
 	_screen_shake()
 
@@ -768,6 +762,9 @@ func _on_battle_ended(_result) -> void:
 	action_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	# S40: 승리 시 적 디졸브 효과
+	if _result == BattleManager.BattleState.VICTORY and enemy_sprite:
+		_play_enemy_dissolve()
 
 ## ===================== 행동 콜백 =====================
 
@@ -1031,24 +1028,51 @@ func _hide_item_list() -> void:
 ## ===================== 시각 피드백 =====================
 
 ## 데미지 숫자 표시 (떠오르며 사라짐 — 크기 스케일링)
-func _show_damage_number(target: String, amount: int) -> void:
+func _show_damage_number(target: String, amount: int, skill_name: String = "") -> void:
 	var label = Label.new()
-	label.text = str(amount)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+	# 회복인 경우 (음수 amount = 힐)
+	var is_heal = amount < 0
+	if is_heal:
+		label.text = "+%d" % abs(amount)
+	else:
+		label.text = str(amount)
 
 	# 데미지 크기에 따른 폰트 스케일
 	var font_size = 22
-	if amount >= 100:
+	if abs(amount) >= 100:
 		font_size = 30
-	elif amount >= 50:
+	elif abs(amount) >= 50:
 		font_size = 26
 	label.add_theme_font_size_override("font_size", font_size)
 
+	# S40: 스킬/상황별 색상 분류
+	var dmg_color: Color
+	if is_heal:
+		dmg_color = Color(0.3, 1.0, 0.4)  # 회복 = 초록
+	elif target == "Arrel":
+		dmg_color = Color(1.0, 0.3, 0.25)  # 플레이어 피격 = 빨강
+	else:
+		# 스킬별 색상
+		var sn = skill_name.to_lower()
+		if sn.find("burn") >= 0 or sn.find("flame") >= 0 or sn.find("ember") >= 0 or sn.find("fire") >= 0 or sn.find("scorch") >= 0:
+			dmg_color = Color(1.0, 0.5, 0.15)  # 화염 = 주황
+		elif sn.find("void") >= 0 or sn.find("cascade") >= 0 or sn.find("residue") >= 0:
+			dmg_color = Color(0.7, 0.3, 1.0)  # 보이드 = 보라
+		elif sn.find("drain") >= 0:
+			dmg_color = Color(0.5, 0.9, 0.5)  # 드레인 = 연초록
+		elif sn.find("poison") >= 0:
+			dmg_color = Color(0.4, 0.85, 0.3)  # 독 = 독녹색
+		elif sn.find("combo") >= 0:
+			dmg_color = Color(1.0, 0.85, 0.2)  # 콤보 = 금색
+		else:
+			dmg_color = Color(1.0, 0.9, 0.4)  # 기본 = 연노랑
+	label.add_theme_color_override("font_color", dmg_color)
+
 	if target == "Arrel":
-		label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.25))
 		label.position = Vector2(200 + randf_range(-20, 20), 500)
 	else:
-		label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4))
 		label.position = Vector2(600 + randf_range(-30, 30), 180 + randf_range(-10, 10))
 
 	# 드롭 섀도우 효과
@@ -1100,41 +1124,65 @@ func _screen_shake(intensity: float = 1.0) -> void:
 
 ## ===================== 공격 VFX =====================
 
-## 물리 공격 슬래시 이펙트
+## 물리 공격 슬래시 이펙트 (S40 개선: 스위핑 + 파티클 트레일)
 func _play_slash_vfx() -> void:
-	# 대각선 슬래시 라인 표시
+	var center = Vector2(560, 190)
+
+	# 메인 슬래시 — 길이 확장 애니메이션
 	var slash = ColorRect.new()
-	slash.size = Vector2(200, 4)
-	slash.position = Vector2(450, 150)
-	slash.rotation = -0.6
-	slash.color = Color(1, 1, 1, 0.8)
+	slash.size = Vector2(0, 4)
+	slash.position = center + Vector2(-60, -30)
+	slash.rotation = -0.55
+	slash.pivot_offset = Vector2(0, 2)
+	slash.color = Color(1, 1, 1, 0.9)
 	slash.z_index = 60
 	canvas_root.add_child(slash)
 
 	var t = create_tween()
-	t.tween_property(slash, "modulate:a", 0.0, 0.25).set_ease(Tween.EASE_IN)
+	t.tween_property(slash, "size:x", 220.0, 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(slash, "modulate:a", 0.0, 0.2).set_ease(Tween.EASE_IN)
 	t.tween_callback(slash.queue_free)
 
-	# 두 번째 슬래시 (약간 지연)
+	# 크로스 슬래시 (지연)
 	var slash2 = ColorRect.new()
-	slash2.size = Vector2(180, 3)
-	slash2.position = Vector2(470, 180)
-	slash2.rotation = 0.4
-	slash2.color = Color(1, 0.9, 0.7, 0.6)
+	slash2.size = Vector2(0, 3)
+	slash2.position = center + Vector2(-40, 10)
+	slash2.rotation = 0.45
+	slash2.pivot_offset = Vector2(0, 1.5)
+	slash2.color = Color(1, 0.9, 0.7, 0.7)
 	slash2.z_index = 60
 	canvas_root.add_child(slash2)
 
 	var t2 = create_tween()
-	t2.tween_interval(0.08)
-	t2.tween_property(slash2, "modulate:a", 0.0, 0.2).set_ease(Tween.EASE_IN)
+	t2.tween_interval(0.06)
+	t2.tween_property(slash2, "size:x", 190.0, 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t2.tween_property(slash2, "modulate:a", 0.0, 0.18).set_ease(Tween.EASE_IN)
 	t2.tween_callback(slash2.queue_free)
 
-## 기억 연소 VFX — 불꽃 파티클
-func _play_attack_vfx(skill_name: String) -> void:
-	# 연소 스킬일 때 불꽃 VFX
-	var is_burn = skill_name.to_lower().find("burn") >= 0 or skill_name.to_lower().find("flame") >= 0 or skill_name.to_lower().find("ember") >= 0 or skill_name.to_lower().find("pyre") >= 0 or skill_name.to_lower().find("incinerate") >= 0
+	# 충격 파편 (흰색 입자 4~6개)
+	for i in range(randi_range(4, 6)):
+		var spark = ColorRect.new()
+		spark.size = Vector2(3, 3)
+		spark.position = center + Vector2(randf_range(-20, 20), randf_range(-15, 15))
+		spark.color = Color(1, 1, 1, 0.8)
+		spark.z_index = 58
+		canvas_root.add_child(spark)
+		var angle = randf() * TAU
+		var dist = randf_range(25, 60)
+		var target_pos = spark.position + Vector2(cos(angle), sin(angle)) * dist
+		var st = create_tween().set_parallel(true)
+		st.tween_property(spark, "position", target_pos, 0.3).set_ease(Tween.EASE_OUT)
+		st.tween_property(spark, "modulate:a", 0.0, 0.25).set_delay(0.08)
+		st.chain().tween_callback(spark.queue_free)
 
-	if is_burn or true:  # 모든 스킬에 VFX 적용
+## 기억 연소 VFX — 스킬별 분류 (S40)
+func _play_attack_vfx(skill_name: String) -> void:
+	var sn = skill_name.to_lower()
+	# 보이드 스킬 → 보라 파티클
+	if sn.find("void") >= 0 or sn.find("cascade") >= 0 or sn.find("residue") >= 0:
+		_play_void_vfx()
+	else:
+		# 연소/기본 → 불꽃 VFX
 		_play_burn_vfx()
 
 ## 불꽃 VFX (여러 파티클)
@@ -1178,6 +1226,87 @@ func _play_burn_vfx() -> void:
 
 	var ft = create_tween()
 	ft.tween_property(flash, "modulate:a", 0.0, 0.35)
+	ft.tween_callback(flash.queue_free)
+
+## ===================== S40: 적 디졸브 사망 이펙트 =====================
+
+func _play_enemy_dissolve() -> void:
+	var shader_path = "res://assets/shaders/dissolve.gdshader"
+	if not ResourceLoader.exists(shader_path) or not enemy_sprite:
+		return
+	var mat = ShaderMaterial.new()
+	mat.shader = load(shader_path)
+	mat.set_shader_parameter("progress", 0.0)
+	mat.set_shader_parameter("edge_color", Color(0.6, 0.2, 0.8, 1.0))
+	mat.set_shader_parameter("edge_width", 0.08)
+	enemy_sprite.material = mat
+	var t = create_tween()
+	t.tween_method(func(val): mat.set_shader_parameter("progress", val), 0.0, 1.0, 1.2).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+
+## ===================== S40: 색수차 이펙트 (Limit Break) =====================
+
+var _chromatic_overlay: ColorRect
+
+func _play_chromatic_aberration(duration: float = 1.5) -> void:
+	var shader_path = "res://assets/shaders/chromatic_aberration.gdshader"
+	if not ResourceLoader.exists(shader_path):
+		return
+	if _chromatic_overlay and is_instance_valid(_chromatic_overlay):
+		_chromatic_overlay.queue_free()
+	_chromatic_overlay = ColorRect.new()
+	_chromatic_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_chromatic_overlay.color = Color(1, 1, 1, 1)
+	_chromatic_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chromatic_overlay.z_index = 80
+	var mat = ShaderMaterial.new()
+	mat.shader = load(shader_path)
+	mat.set_shader_parameter("strength", 0.008)
+	mat.set_shader_parameter("pulse_speed", 5.0)
+	mat.set_shader_parameter("use_pulse", true)
+	_chromatic_overlay.material = mat
+	canvas_root.add_child(_chromatic_overlay)
+	# 강도 페이드: 강하게 시작 → 점점 감소
+	var t = create_tween()
+	t.tween_method(func(val): mat.set_shader_parameter("strength", val), 0.012, 0.0, duration).set_ease(Tween.EASE_OUT)
+	t.tween_callback(_chromatic_overlay.queue_free)
+
+## ===================== S40: 보이드 스킬 VFX (보라색 파티클 폭발) =====================
+
+func _play_void_vfx() -> void:
+	var center = Vector2(580, 200)
+	for i in range(16):
+		var particle = ColorRect.new()
+		var s = randf_range(3, 8)
+		particle.size = Vector2(s, s)
+		particle.position = center + Vector2(randf_range(-50, 50), randf_range(-40, 40))
+		particle.z_index = 55
+		var void_colors = [
+			Color(0.5, 0.15, 0.8, 0.9),
+			Color(0.3, 0.1, 0.6, 0.85),
+			Color(0.7, 0.3, 1.0, 0.8),
+			Color(0.2, 0.05, 0.4, 0.7),
+		]
+		particle.color = void_colors[randi_range(0, void_colors.size() - 1)]
+		canvas_root.add_child(particle)
+		# 방사형으로 퍼지며 사라짐
+		var angle = randf() * TAU
+		var dist = randf_range(40, 100)
+		var target_pos = particle.position + Vector2(cos(angle), sin(angle)) * dist
+		var delay = randf_range(0, 0.1)
+		var t = create_tween().set_parallel(true)
+		t.tween_property(particle, "position", target_pos, randf_range(0.5, 0.9)).set_delay(delay).set_ease(Tween.EASE_OUT)
+		t.tween_property(particle, "modulate:a", 0.0, randf_range(0.4, 0.7)).set_delay(delay + 0.15)
+		t.tween_property(particle, "size", Vector2(1, 1), 0.7).set_delay(delay)
+		t.chain().tween_callback(particle.queue_free)
+	# 보라색 플래시
+	var flash = ColorRect.new()
+	flash.size = Vector2(120, 120)
+	flash.position = center - Vector2(60, 60)
+	flash.color = Color(0.4, 0.1, 0.6, 0.35)
+	flash.z_index = 54
+	canvas_root.add_child(flash)
+	var ft = create_tween()
+	ft.tween_property(flash, "modulate:a", 0.0, 0.4)
 	ft.tween_callback(flash.queue_free)
 
 ## ===================== Limit Break UI =====================
@@ -1260,4 +1389,7 @@ func _on_limit_break() -> void:
 	action_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	# S40: Limit Break 색수차 연출
+	_play_chromatic_aberration(2.0)
+	_screen_shake(2.5)
 	BattleManager.player_limit_break()
