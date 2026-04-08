@@ -1,6 +1,6 @@
-## BattleScene — 턴제 전투 화면
+## BattleScene — 턴제 전투 화면 (S44: 사이드뷰 오버홀)
 ## BattleManager의 시그널을 받아 UI 표시.
-## S22: 인트로 연출, 공격/번 VFX, 적 아이들 모션, 턴 표시, 상태 아이콘
+## S44: 사이드뷰 레이아웃, 캐릭터/적 128x128 스프라이트, 전투 애니메이션
 extends Node2D
 
 # UI 노드
@@ -14,8 +14,8 @@ var log_label: RichTextLabel
 var action_container: HBoxContainer
 var burn_list_container: VBoxContainer
 var item_list_container: VBoxContainer
-var enemy_sprite: Control  # 적 스프라이트 (TextureRect 또는 ColorRect)
-var enemy_sprite_container: Control  # 아이들 애니메이션용 컨테이너
+var enemy_sprite: Control  # 적 스프라이트
+var enemy_sprite_container: Control  # 적 아이들 모션용 컨테이너
 
 var log_lines: Array = []
 const MAX_LOG_LINES: int = 6
@@ -37,6 +37,20 @@ var limit_bar: ProgressBar
 var limit_label: Label
 var limit_btn: Button
 
+# S44: 사이드뷰 캐릭터 스프라이트
+var player_sprite: Control  # 아렐 스프라이트
+var player_sprite_container: Control  # 아이들 모션용
+var ally_sprite: Control  # 동행자 스프라이트 (엘리아/세이블)
+var ally_sprite_container: Control
+var _player_base_pos: Vector2 = Vector2.ZERO  # 돌진 복귀용
+var _enemy_base_pos: Vector2 = Vector2.ZERO
+var _ally_base_pos: Vector2 = Vector2.ZERO
+var player_shadow: ColorRect
+var enemy_shadow: ColorRect
+var ally_shadow: ColorRect
+var _ground_rect: ColorRect  # 전투 지면
+var player_portrait_rect: TextureRect  # HP 옆 포트레이트
+
 # 적 아이들 모션
 var _idle_time: float = 0.0
 var _enemy_base_y: float = 0.0
@@ -52,10 +66,16 @@ func _ready() -> void:
 	_play_intro()
 
 func _process(delta: float) -> void:
-	# 적 아이들 모션 (부드러운 상하 흔들림)
 	_idle_time += delta
+	# 적 아이들 모션 (호흡 — 부드러운 상하)
 	if enemy_sprite_container and enemy_sprite_container.visible:
-		enemy_sprite_container.position.y = _enemy_base_y + sin(_idle_time * 1.5) * 3.0
+		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
+	# 플레이어 아이들 모션 (호흡)
+	if player_sprite_container:
+		player_sprite_container.position.y = _player_base_pos.y + sin(_idle_time * 1.8 + 0.5) * 2.0
+	# 동행자 아이들
+	if ally_sprite_container and ally_sprite_container.visible:
+		ally_sprite_container.position.y = _ally_base_pos.y + sin(_idle_time * 1.3 + 1.2) * 2.5
 
 ## ===================== UI 빌드 =====================
 
@@ -79,6 +99,9 @@ func _build_ui() -> void:
 	_add_battle_vignette()
 	# S42: 배경 분위기 파티클 + 컬러 그레이딩
 	_add_battle_atmosphere()
+
+	# S44: 전투 지면 (그라운드 플랫폼)
+	_build_battle_ground()
 
 	var canvas = CanvasLayer.new()
 	canvas.layer = 10
@@ -109,10 +132,16 @@ func _build_ui() -> void:
 	burn_vfx_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	burn_vfx_container.z_index = 45
 
-	# 적 스프라이트 (화면 중앙 상단)
+	# S44: 사이드뷰 — 플레이어 스프라이트 (왼쪽)
+	_build_player_sprite(root)
+
+	# S44: 사이드뷰 — 동행자 스프라이트 (왼쪽, 플레이어 뒤)
+	_build_ally_sprite(root)
+
+	# S44: 적 스프라이트 (오른쪽) — 128x128 대형
 	_build_enemy_sprite(root)
 
-	# 적 이름 + HP (상단)
+	# 적 이름 + HP (상단 오른쪽)
 	_build_enemy_panel(root)
 
 	# 상태 아이콘 (적 패널 아래)
@@ -601,34 +630,167 @@ func _build_enemy_panel(root: Control) -> void:
 	enemy_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(enemy_hp_label)
 
+## S44: 전투 지면 (그라운드 플랫폼 — 원근감)
+func _build_battle_ground() -> void:
+	_ground_rect = ColorRect.new()
+	_ground_rect.anchor_left = 0.0
+	_ground_rect.anchor_right = 1.0
+	_ground_rect.anchor_top = 0.58
+	_ground_rect.anchor_bottom = 1.0
+	_ground_rect.color = Color(0.06, 0.05, 0.08, 0.85)
+	add_child(_ground_rect)
+	# 지면 경계선 (밝은 라인)
+	var line = ColorRect.new()
+	line.anchor_left = 0.0
+	line.anchor_right = 1.0
+	line.anchor_top = 0.58
+	line.anchor_bottom = 0.58
+	line.offset_bottom = 2
+	line.color = Color(0.2, 0.18, 0.25, 0.6)
+	add_child(line)
+	# 지면 그라데이션 (위에서 아래로 점점 밝아짐)
+	var gradient = ColorRect.new()
+	gradient.anchor_left = 0.0
+	gradient.anchor_right = 1.0
+	gradient.anchor_top = 0.58
+	gradient.anchor_bottom = 0.72
+	gradient.color = Color(0.08, 0.07, 0.12, 0.4)
+	add_child(gradient)
+
+## S44: 플레이어 스프라이트 (왼쪽 — 사이드뷰)
+func _build_player_sprite(root: Control) -> void:
+	player_sprite_container = Control.new()
+	player_sprite_container.position = Vector2(120, 260)
+	player_sprite_container.size = Vector2(200, 200)
+	root.add_child(player_sprite_container)
+	_player_base_pos = player_sprite_container.position
+
+	# 그림자
+	player_shadow = ColorRect.new()
+	player_shadow.size = Vector2(120, 16)
+	player_shadow.position = Vector2(40, 188)
+	player_shadow.color = Color(0, 0, 0, 0.3)
+	player_sprite_container.add_child(player_shadow)
+
+	# 포트레이트 이미지가 있으면 사용, 없으면 128x128 픽셀 스프라이트
+	var portrait_path = "res://assets/portraits/arrel_neutral.jpg"
+	if ResourceLoader.exists(portrait_path):
+		var tex_rect = TextureRect.new()
+		tex_rect.position = Vector2(10, 0)
+		tex_rect.size = Vector2(180, 180)
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = load(portrait_path)
+		tex_rect.modulate = Color(1, 1, 1, 0.92)
+		player_sprite_container.add_child(tex_rect)
+		player_sprite = tex_rect
+	else:
+		var tex = PixelSprite.create_battle_sprite("arrel")
+		var tex_rect = TextureRect.new()
+		tex_rect.position = Vector2(20, 5)
+		tex_rect.size = Vector2(160, 160)
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = tex
+		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		player_sprite_container.add_child(tex_rect)
+		player_sprite = tex_rect
+
+	# 발밑 광원 (은은한 파란 빛)
+	var glow = ColorRect.new()
+	glow.size = Vector2(140, 20)
+	glow.position = Vector2(30, 176)
+	glow.color = Color(0.2, 0.35, 0.6, 0.15)
+	player_sprite_container.add_child(glow)
+
+## S44: 동행자 스프라이트 (왼쪽 뒤)
+func _build_ally_sprite(root: Control) -> void:
+	ally_sprite_container = Control.new()
+	ally_sprite_container.position = Vector2(20, 230)
+	ally_sprite_container.size = Vector2(160, 160)
+	ally_sprite_container.visible = false
+	root.add_child(ally_sprite_container)
+	_ally_base_pos = ally_sprite_container.position
+
+	# 동행자가 있는지 확인
+	var has_ally = BattleManager.sable_in_party or GameManager.get_flag("elia_companion")
+	if not has_ally:
+		return
+
+	ally_sprite_container.visible = true
+	var who = "sable" if BattleManager.sable_in_party else "elia"
+
+	# 그림자
+	ally_shadow = ColorRect.new()
+	ally_shadow.size = Vector2(90, 12)
+	ally_shadow.position = Vector2(35, 150)
+	ally_shadow.color = Color(0, 0, 0, 0.25)
+	ally_sprite_container.add_child(ally_shadow)
+
+	# 동행자 포트레이트 체크
+	var portrait_map = {"elia": "res://assets/portraits/elia_neutral.jpg", "sable": "res://assets/portraits/sable_neutral.jpg"}
+	var p_path = portrait_map.get(who, "")
+	if p_path != "" and ResourceLoader.exists(p_path):
+		var tex_rect = TextureRect.new()
+		tex_rect.position = Vector2(15, 5)
+		tex_rect.size = Vector2(130, 140)
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = load(p_path)
+		tex_rect.modulate = Color(0.9, 0.9, 0.9, 0.85)
+		ally_sprite_container.add_child(tex_rect)
+		ally_sprite = tex_rect
+	else:
+		var tex = PixelSprite.create_battle_sprite(who)
+		var tex_rect = TextureRect.new()
+		tex_rect.position = Vector2(20, 10)
+		tex_rect.size = Vector2(120, 120)
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = tex
+		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		ally_sprite_container.add_child(tex_rect)
+		ally_sprite = tex_rect
+
+	# 발밑 광원
+	var glow = ColorRect.new()
+	glow.size = Vector2(100, 14)
+	glow.position = Vector2(30, 142)
+	var glow_color = Color(0.5, 0.3, 0.6, 0.12) if who == "sable" else Color(0.6, 0.5, 0.2, 0.12)
+	glow.color = glow_color
+	ally_sprite_container.add_child(glow)
+
+## S44: 적 스프라이트 (오른쪽 — 128x128 대형)
 func _build_enemy_sprite(root: Control) -> void:
-	# 적 스프라이트 컨테이너 (아이들 모션용)
 	enemy_sprite_container = Control.new()
-	enemy_sprite_container.anchor_left = 0.2
-	enemy_sprite_container.anchor_right = 0.8
-	enemy_sprite_container.anchor_top = 0.06
-	enemy_sprite_container.anchor_bottom = 0.48
+	enemy_sprite_container.position = Vector2(820, 180)
+	enemy_sprite_container.size = Vector2(260, 260)
 	root.add_child(enemy_sprite_container)
-	_enemy_base_y = 0.0
+	_enemy_base_pos = enemy_sprite_container.position
+
+	# 그림자
+	enemy_shadow = ColorRect.new()
+	enemy_shadow.size = Vector2(160, 18)
+	enemy_shadow.position = Vector2(50, 240)
+	enemy_shadow.color = Color(0, 0, 0, 0.35)
+	enemy_sprite_container.add_child(enemy_shadow)
 
 	if BattleManager.enemy_image != "" and ResourceLoader.exists(BattleManager.enemy_image):
 		var tex_rect = TextureRect.new()
-		tex_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		tex_rect.position = Vector2(10, 10)
+		tex_rect.size = Vector2(240, 230)
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(BattleManager.enemy_image)
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 	else:
-		# S43: PixelSprite 몬스터 스프라이트 생성
+		# S44: 128x128 대형 적 스프라이트
 		var enemy_type = BattleManager.current_enemy.name if BattleManager.current_enemy else "generic"
-		var tex = PixelSprite.create_enemy_sprite(enemy_type)
+		var tex = PixelSprite.create_battle_enemy(enemy_type)
 		var tex_rect = TextureRect.new()
-		tex_rect.set_anchors_preset(Control.PRESET_CENTER)
-		tex_rect.offset_left = -96
-		tex_rect.offset_right = 96
-		tex_rect.offset_top = -96
-		tex_rect.offset_bottom = 96
+		tex_rect.position = Vector2(20, 10)
+		tex_rect.size = Vector2(220, 220)
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = tex
@@ -636,18 +798,28 @@ func _build_enemy_sprite(root: Control) -> void:
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 
+	# 발밑 광원 (적은 빨간/보라 톤)
+	var enemy_name = BattleManager.current_enemy.name.to_lower() if BattleManager.current_enemy else ""
+	var glow_c = Color(0.5, 0.15, 0.5, 0.15) if "void" in enemy_name or "shade" in enemy_name else Color(0.5, 0.2, 0.15, 0.12)
+	var glow = ColorRect.new()
+	glow.size = Vector2(180, 22)
+	glow.position = Vector2(40, 232)
+	glow.color = glow_c
+	enemy_sprite_container.add_child(glow)
+
 func _build_log_panel(root: Control) -> void:
 	var panel = PanelContainer.new()
-	panel.anchor_left = 0.05
-	panel.anchor_right = 0.95
-	panel.anchor_top = 0.48
-	panel.anchor_bottom = 0.65
+	# S44: 로그를 화면 하단 중앙으로 이동
+	panel.anchor_left = 0.28
+	panel.anchor_right = 0.72
+	panel.anchor_top = 0.62
+	panel.anchor_bottom = 0.78
 
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.04, 0.06, 0.85)
+	style.bg_color = Color(0.04, 0.04, 0.06, 0.88)
 	style.set_content_margin_all(10)
 	style.set_corner_radius_all(4)
-	style.border_color = Color(0.2, 0.18, 0.15, 0.3)
+	style.border_color = Color(0.2, 0.18, 0.15, 0.35)
 	style.set_border_width_all(1)
 	panel.add_theme_stylebox_override("panel", style)
 	root.add_child(panel)
@@ -662,14 +834,14 @@ func _build_log_panel(root: Control) -> void:
 
 func _build_player_panel(root: Control) -> void:
 	var panel = PanelContainer.new()
-	panel.anchor_left = 0.05
-	panel.anchor_right = 0.4
-	panel.anchor_top = 0.68
-	panel.anchor_bottom = 0.68
-	panel.offset_bottom = 70
+	panel.anchor_left = 0.02
+	panel.anchor_right = 0.35
+	panel.anchor_top = 0.62
+	panel.anchor_bottom = 0.62
+	panel.offset_bottom = 74
 
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.06, 0.1, 0.9)
+	style.bg_color = Color(0.06, 0.06, 0.1, 0.92)
 	style.border_color = Color(0.2, 0.3, 0.5, 0.5)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
@@ -677,9 +849,24 @@ func _build_player_panel(root: Control) -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	root.add_child(panel)
 
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 10)
+	panel.add_child(hbox)
+
+	# S44: 미니 포트레이트 (HP 옆)
+	var portrait_path = "res://assets/portraits/arrel_neutral.jpg"
+	if ResourceLoader.exists(portrait_path):
+		player_portrait_rect = TextureRect.new()
+		player_portrait_rect.custom_minimum_size = Vector2(52, 52)
+		player_portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		player_portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		player_portrait_rect.texture = load(portrait_path)
+		hbox.add_child(player_portrait_rect)
+
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 4)
-	panel.add_child(vbox)
+	vbox.add_theme_constant_override("separation", 3)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(vbox)
 
 	var name_label = Label.new()
 	name_label.text = "Arrel"
@@ -709,9 +896,9 @@ func _build_action_buttons(root: Control) -> void:
 	action_container = HBoxContainer.new()
 	action_container.anchor_left = 0.1
 	action_container.anchor_right = 0.9
-	action_container.anchor_top = 0.82
-	action_container.anchor_bottom = 0.82
-	action_container.offset_bottom = 54
+	action_container.anchor_top = 0.86
+	action_container.anchor_bottom = 0.86
+	action_container.offset_bottom = 50
 	action_container.add_theme_constant_override("separation", 10)
 	action_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(action_container)
@@ -878,6 +1065,11 @@ func _on_battle_log(message: String) -> void:
 
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
+
+	# S44: 공격 돌진 애니메이션
+	if target != "Arrel" and player_sprite_container:
+		_player_attack_rush()
+
 	_show_damage_number(target, amount, skill_name)
 	_hit_flash(target)
 	_screen_shake()
@@ -887,6 +1079,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		_play_attack_vfx(skill_name)
 	elif target != "Arrel":
 		_play_slash_vfx()
+		_play_speed_lines()  # S44: 속도선
 
 func _on_player_turn() -> void:
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
@@ -1221,10 +1414,11 @@ func _show_damage_number(target: String, amount: int, skill_name: String = "") -
 			dmg_color = Color(1.0, 0.9, 0.4)  # 기본 = 연노랑
 	label.add_theme_color_override("font_color", dmg_color)
 
+	# S44: 사이드뷰 위치 기반 데미지 숫자
 	if target == "Arrel":
-		label.position = Vector2(200 + randf_range(-20, 20), 500)
+		label.position = Vector2(180 + randf_range(-20, 20), 280 + randf_range(-10, 10))
 	else:
-		label.position = Vector2(600 + randf_range(-30, 30), 180 + randf_range(-10, 10))
+		label.position = Vector2(900 + randf_range(-30, 30), 260 + randf_range(-10, 10))
 
 	# 드롭 섀도우 효과
 	var shadow = Label.new()
@@ -1254,11 +1448,25 @@ func _hit_flash(target: String) -> void:
 	var t = create_tween()
 	t.tween_property(hit_flash_rect, "color:a", 0.0, 0.2)
 
-	# 적 스프라이트 깜빡임
+	# S44: 스프라이트 깜빡임 + 피격 밀림
 	if target != "Arrel" and enemy_sprite:
 		var flash_t = create_tween()
 		flash_t.tween_property(enemy_sprite, "modulate", Color(3, 3, 3, 1), 0.05)
 		flash_t.tween_property(enemy_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
+		# 피격 밀림 (오른쪽으로 살짝)
+		if enemy_sprite_container:
+			var push_t = create_tween()
+			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 15, 0.06).set_ease(Tween.EASE_OUT)
+			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x, 0.2).set_ease(Tween.EASE_IN_OUT)
+	elif target == "Arrel" and player_sprite:
+		var flash_t = create_tween()
+		flash_t.tween_property(player_sprite, "modulate", Color(2, 0.5, 0.5, 1), 0.05)
+		flash_t.tween_property(player_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
+		# 피격 밀림 (왼쪽으로)
+		if player_sprite_container:
+			var push_t = create_tween()
+			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x - 12, 0.06).set_ease(Tween.EASE_OUT)
+			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x, 0.2).set_ease(Tween.EASE_IN_OUT)
 
 ## 스크린 셰이크 (S42 강화: 더 많은 프레임 + 회전 흔들림)
 func _screen_shake(intensity: float = 1.0) -> void:
@@ -1274,12 +1482,71 @@ func _screen_shake(intensity: float = 1.0) -> void:
 		t.tween_property(canvas_root, "position", original_pos + offset, 0.03)
 	t.tween_property(canvas_root, "position", original_pos, 0.04)
 
+## ===================== S44: 전투 애니메이션 =====================
+
+## 플레이어 공격 돌진 (적 방향으로 빠르게 이동 후 복귀)
+func _player_attack_rush() -> void:
+	if not player_sprite_container:
+		return
+	var rush_target = Vector2(_enemy_base_pos.x - 180, _player_base_pos.y - 10)
+	var t = create_tween()
+	t.tween_property(player_sprite_container, "position", rush_target, 0.12).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+	t.tween_interval(0.1)  # 잠깐 멈춤 (임팩트)
+	t.tween_property(player_sprite_container, "position", _player_base_pos, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+## 속도선 (공격 시 화면에 빗금)
+func _play_speed_lines() -> void:
+	for i in range(6):
+		var line = ColorRect.new()
+		line.size = Vector2(randf_range(200, 500), 2)
+		line.position = Vector2(-100, randf_range(50, 500))
+		line.rotation = -0.15
+		line.color = Color(1, 1, 1, randf_range(0.08, 0.2))
+		line.z_index = 40
+		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		canvas_root.add_child(line)
+		var t = create_tween().set_parallel(true)
+		t.tween_property(line, "position:x", 1400.0, randf_range(0.15, 0.3)).set_delay(randf_range(0, 0.05))
+		t.tween_property(line, "modulate:a", 0.0, 0.2).set_delay(0.1)
+		t.chain().tween_callback(line.queue_free)
+
+## 임팩트 버스트 (타격 순간 방사형 빛)
+func _play_impact_burst(pos: Vector2) -> void:
+	# 중앙 원형 플래시
+	var burst = ColorRect.new()
+	burst.size = Vector2(8, 8)
+	burst.position = pos - Vector2(4, 4)
+	burst.color = Color(1, 0.95, 0.8, 0.9)
+	burst.z_index = 62
+	canvas_root.add_child(burst)
+	var bt = create_tween().set_parallel(true)
+	bt.tween_property(burst, "size", Vector2(80, 80), 0.15).set_ease(Tween.EASE_OUT)
+	bt.tween_property(burst, "position", pos - Vector2(40, 40), 0.15).set_ease(Tween.EASE_OUT)
+	bt.tween_property(burst, "color:a", 0.0, 0.25)
+	bt.chain().tween_callback(burst.queue_free)
+	# 방사 선 4개
+	for j in range(4):
+		var ray = ColorRect.new()
+		ray.size = Vector2(3, 0)
+		ray.position = pos
+		ray.rotation = j * PI / 4.0 + randf_range(-0.2, 0.2)
+		ray.pivot_offset = Vector2(1.5, 0)
+		ray.color = Color(1, 0.9, 0.7, 0.7)
+		ray.z_index = 61
+		canvas_root.add_child(ray)
+		var rt = create_tween().set_parallel(true)
+		rt.tween_property(ray, "size:y", randf_range(60, 120), 0.12).set_ease(Tween.EASE_OUT)
+		rt.tween_property(ray, "modulate:a", 0.0, 0.2).set_delay(0.08)
+		rt.chain().tween_callback(ray.queue_free)
+
 ## ===================== 공격 VFX =====================
 
 ## 물리 공격 슬래시 이펙트 (S42 개선: GPU 파티클 추가)
 func _play_slash_vfx() -> void:
 	_play_gpu_slash_particles()  # S42: GPU 파티클
-	var center = Vector2(560, 190)
+	# S44: 임팩트 버스트
+	_play_impact_burst(Vector2(900, 320))
+	var center = Vector2(900, 320)  # S44: 사이드뷰 적 위치
 
 	# 메인 슬래시 — 길이 확장 애니메이션
 	var slash = ColorRect.new()
@@ -1341,7 +1608,7 @@ func _play_attack_vfx(skill_name: String) -> void:
 ## 불꽃 VFX (S42: GPU 파티클 추가)
 func _play_burn_vfx() -> void:
 	_play_gpu_burn_particles()  # S42: GPU 파티클
-	var center = Vector2(580, 200)
+	var center = Vector2(920, 310)
 
 	# 여러 불꽃 입자 생성
 	for i in range(12):
@@ -1428,7 +1695,7 @@ func _play_chromatic_aberration(duration: float = 1.5) -> void:
 
 func _play_void_vfx() -> void:
 	_play_gpu_void_particles()  # S42: GPU 파티클
-	var center = Vector2(580, 200)
+	var center = Vector2(920, 310)
 	for i in range(16):
 		var particle = ColorRect.new()
 		var s = randf_range(3, 8)
@@ -1468,10 +1735,10 @@ func _play_void_vfx() -> void:
 
 func _build_limit_gauge(root: Control) -> void:
 	var panel = PanelContainer.new()
-	panel.anchor_left = 0.42
-	panel.anchor_right = 0.58
-	panel.anchor_top = 0.72
-	panel.anchor_bottom = 0.72
+	panel.anchor_left = 0.38
+	panel.anchor_right = 0.62
+	panel.anchor_top = 0.78
+	panel.anchor_bottom = 0.78
 	panel.offset_bottom = 28
 
 	var style = StyleBoxFlat.new()
@@ -1609,7 +1876,7 @@ func _add_battle_atmosphere() -> void:
 
 ## 물리 공격 GPUParticles2D 이펙트 (S42: 기존 ColorRect 대체)
 func _play_gpu_slash_particles() -> void:
-	var center = Vector2(560, 190)
+	var center = Vector2(900, 300)
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
 	mat.direction = Vector3(-1, 0, 0)
@@ -1649,7 +1916,7 @@ func _play_gpu_slash_particles() -> void:
 
 ## 불꽃 GPUParticles2D (S42)
 func _play_gpu_burn_particles() -> void:
-	var center = Vector2(580, 200)
+	var center = Vector2(920, 310)
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, -1, 0)
@@ -1698,7 +1965,7 @@ func _play_gpu_burn_particles() -> void:
 
 ## 보이드 GPUParticles2D (S42)
 func _play_gpu_void_particles() -> void:
-	var center = Vector2(580, 200)
+	var center = Vector2(920, 310)
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, 0, 0)
@@ -1751,7 +2018,7 @@ func _play_gpu_void_particles() -> void:
 
 ## 힐 GPUParticles2D (S42: 새로운 힐 이펙트)
 func _play_heal_vfx() -> void:
-	var center = Vector2(200, 450)  # 플레이어 위치 근처
+	var center = Vector2(200, 360)  # S44: 플레이어 위치 근처
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, -1, 0)
@@ -1788,7 +2055,7 @@ func _play_heal_vfx() -> void:
 
 ## 리밋 브레이크 폭발 VFX (S42)
 func _play_limit_burst_vfx() -> void:
-	var center = Vector2(580, 200)
+	var center = Vector2(920, 310)
 	# 큰 폭발 파티클
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
