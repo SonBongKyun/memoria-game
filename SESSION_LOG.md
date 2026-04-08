@@ -1268,4 +1268,96 @@ CgViewer, PauseMenu, OptionsMenu, ExplorationHUD, NotificationToast
 ```
 
 ### 다음
+- [x] 기억 거래 상점 → S29에서 완료
+- [x] 엘리아 분리 메카닉 → S30에서 완료
+
+---
+
+## S29 — 2026-04-08 (기억 거래 상점 + Grains 경제 시스템)
+
+### 완료
+- [x] **MemoryShop 오토로드 (layer 42):**
+  - 풀스크린 상점 UI (오버레이 + 패널)
+  - Sell/Buy 탭 전환, 아이템 목록 + 상세 패널
+  - 판매: 플레이어 보유 미연소 기억 → Grains 획득 (Grade 1 핵심 기억 판매 불가)
+  - 구매: 상인 인벤토리 기억 → Grains 소모
+  - 등급별 가격 체계: G5=5/10, G4=15/25, G3=30/50, G2=60/100, G1=150/300
+  - ESC 닫기, UI SFX (hover/select/open/close), NotificationToast 연동
+  - `shop_closed` / `grains_changed` 시그널
+
+- [x] **Grains 경제 시스템:**
+  - 전투 승리 시 Grains 자동 보상 (일반 3+HP/20, 보이드 8+HP/20, 보스 20+HP/20)
+  - NotificationToast로 획득량 표시
+  - DialogueManager에 `add_grains` 선택지 지원 추가
+
+- [x] **Verdan Market 말렛 상점 연동:**
+  - malet_reward 대화 후 상점 자동 오픈
+  - 상점 재고: "The Taste of Copper" (G5, 8G), "A Deal in the Dark" (G4, 20G)
+  - 상점 닫으면 Ch3 전환
+
+- [x] **ExplorationHUD Grains 표시:**
+  - 하단에 "Grains: N" 표시 (금색, 0.5초 갱신)
+
+### 변경/생성된 파일
+- `scripts/ui/memory_shop.gd` — **신규** 기억 거래 상점 오토로드
+- `project.godot` — MemoryShop 오토로드 등록 (총 15개)
+- `scripts/systems/battle_manager.gd` — Grains 전투 보상 + NotificationToast
+- `scripts/systems/dialogue_manager.gd` — `add_grains` 선택지 지원
+- `scripts/ui/exploration_hud.gd` — Grains 표시 추가
+- `scenes/maps/verdan_market.gd` — 말렛 상점 연동
+
+---
+
+## S30 — 2026-04-08 (엘리아 분리 메카닉 + 앵커링 시스템 실체화)
+
+### 완료
+- [x] **엘리아 분리 선택 (Ch3 크럼블링 코스트):**
+  - 카이로스 목격 후 분리 선택지 자동 발생
+  - "Go together" → `elia_stays` 플래그, 동행 유지
+  - "Split up" → `elia_separates` 플래그, `elia_with_party=false`
+  - 분리 시 엘리아 씬에서 비활성화 (visible=false, physics 중지)
+  - 세이브/로드 시에도 분리 상태 유지
+
+- [x] **잔존(Residue) 메카닉 차별화:**
+  - 엘리아 동행 시: Grade 3+ 기억 연소 → 잔존(희미한 흔적) 상태로 남음
+  - 엘리아 분리 시: 모든 기억 연소 → 완전 소실 (잔존 없음)
+  - 기존 MemoryManager의 `elia_with_party` 체크가 자동으로 동작
+
+- [x] **분리 인지 대화 변형:**
+  - Ch3 분리/동행 선택 대화 3종 (choice, stays_response, separates_response)
+  - Ch4 솔로 도착 대화 (seam_welcome_solo) — 혼자 온 아렐에 대한 세이블 반응
+  - Ch3 재합류 대화 (elia_reunion) — 해안길 경유 후 재합류
+
+- [x] **재합류 메카닉 (Ch4 The Seam):**
+  - 분리 상태로 The Seam 도착 시 솔로 대사 → 재합류 이벤트 자동 발생
+  - `elia_reunited` 플래그 + `elia_with_party=true` 복원
+  - 엘리아 다시 표시 + 물리 활성화 + 플레이어 근처 위치
+  - 재합류 후 기존 Ch4 시퀀스 정상 진행
+
+### 변경/생성된 파일
+- `data/chapter3_dialogue.json` — 분리 선택 대화 4종 추가
+- `data/chapter4_dialogue.json` — 솔로 도착 대화 추가
+- `scenes/maps/crumbling_coast.gd` — 분리 선택 이벤트 + 상태 반영
+- `scenes/maps/the_seam.gd` — 재합류 이벤트 + 솔로 대사 분기
+
+### 엘리아 앵커링 효과 (최종)
+```
+엘리아 동행 (elia_with_party = true):
+  └── Grade 3+ 기억 연소 시 → 잔존(Residue) 상태로 남음 (희미한 효과 유지)
+
+엘리아 분리 (elia_with_party = false):
+  └── 모든 기억 연소 시 → 완전 소실 (되돌릴 수 없음)
+  └── Ch3 크럼블링 코스트에서만 분리 가능
+  └── Ch4 The Seam에서 자동 재합류
+```
+
+### 오토로드 목록 (최종 15개)
+```
+GameManager, MemoryManager, DialogueManager, SceneTransition,
+DialogueBox, MemoryUI, SystemLog, BattleManager, SaveManager,
+CgViewer, AudioManager, PauseMenu, OptionsMenu, ExplorationHUD,
+NotificationToast, MemoryShop
+```
+
+### 다음
 - Godot F5 실제 플레이 테스트 권장

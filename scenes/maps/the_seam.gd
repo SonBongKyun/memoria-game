@@ -79,10 +79,18 @@ func _ready() -> void:
 	elif not GameManager.get_flag("ch4_arrived"):
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
+		# 엘리아 분리 상태 체크 — 분리 시 Seam 도착 전 재합류
+		if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
+			elia.visible = false
+			elia.set_physics_process(false)
 		# 챕터 타이틀 카드 표시 후 대화 시작
 		await MapEffects.show_chapter_title(self, 4, "The Seam", "Between what was and what will be")
 		await get_tree().create_timer(0.3).timeout
-		_start_ch4_sequence()
+		# 재합류 이벤트
+		if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
+			_start_reunion()
+		else:
+			_start_ch4_sequence()
 	else:
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
@@ -114,12 +122,33 @@ func _setup_effects() -> void:
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	lantern_lights = MapEffects.add_lantern_lights(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN)
 
+## ===================== 엘리아 재합류 =====================
+
+func _start_reunion() -> void:
+	GameManager.set_flag("elia_reunited")
+	GameManager.player_data.elia_with_party = true
+	DialogueManager.dialogue_ended.connect(_on_reunion_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start("res://data/chapter3_dialogue.json", "elia_reunion")
+
+func _on_reunion_ended() -> void:
+	# 엘리아 다시 표시
+	elia.visible = true
+	elia.set_physics_process(true)
+	elia.position = player.position + Vector2(-30, 20)
+	print("[TheSeam] Elia reunited — anchor restored")
+	await get_tree().create_timer(0.5).timeout
+	_start_ch4_sequence()
+
 ## ===================== 스토리 시퀀스 =====================
 
 func _start_ch4_sequence() -> void:
 	GameManager.set_flag("ch4_arrived")
 	DialogueManager.dialogue_ended.connect(_on_arrival_ended, CONNECT_ONE_SHOT)
-	DialogueManager.load_and_start(DIALOGUE_FILE, "seam_welcome")
+	# 엘리아 분리 시 솔로 대사
+	if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
+		DialogueManager.load_and_start(DIALOGUE_FILE, "seam_welcome_solo")
+	else:
+		DialogueManager.load_and_start(DIALOGUE_FILE, "seam_welcome")
 
 ## ===================== Ch6 에필로그 =====================
 

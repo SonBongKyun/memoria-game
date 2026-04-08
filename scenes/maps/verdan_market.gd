@@ -96,6 +96,36 @@ func _on_refused_ended() -> void:
 
 func _on_reward_ended() -> void:
 	GameManager.set_flag("ch2_malet_done")
+	# 보상 대화 후 상점 오픈 (Grains 거래 기회)
+	_open_malet_shop()
+
+## 말렛 상점 — 기억 매매 + 완료 시 Ch3 전환
+func _open_malet_shop() -> void:
+	# 말렛 상점 재고: 구매 가능한 기억 (정보 기억)
+	var shop_items: Array[Dictionary] = [
+		{
+			"id": "sense_copper_taste",
+			"title": "The Taste of Copper",
+			"description": "The Sump's air. Old paper and metal. A taste you shouldn't remember but do.",
+			"grade": MemoryManager.MemoryGrade.GRADE_5,
+			"burn_power": 12,
+			"price": 8,
+		},
+		{
+			"id": "daily_malet_deal",
+			"title": "A Deal in the Dark",
+			"description": "Amber eyes in a dim cellar. A transaction that felt like surgery.",
+			"grade": MemoryManager.MemoryGrade.GRADE_4,
+			"burn_power": 28,
+			"story_effect": "Malet's trust decreases.",
+			"related_npc": "Malet",
+			"price": 20,
+		},
+	]
+	MemoryShop.open_shop("Malet", shop_items)
+	MemoryShop.shop_closed.connect(_on_shop_closed, CONNECT_ONE_SHOT)
+
+func _on_shop_closed() -> void:
 	GameManager.set_flag("ch2_complete")
 	GameManager.current_chapter = 3
 	print("[VerdenMarket] Chapter 2 complete — transitioning to Crumbling Coast")

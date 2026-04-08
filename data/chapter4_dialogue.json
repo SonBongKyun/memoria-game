@@ -9,6 +9,14 @@
       {"speaker": "Elia", "text": "It's real. I wasn't sure it would be.", "portrait": "elia_neutral"},
       {"speaker": "Sable", "text": "It's real because we make it real. Every day. Come — there's food, and we need to talk.", "portrait": "sable_calm"}
     ],
+    "seam_welcome_solo": [
+      {"speaker": "", "text": "The Seam opened before him like a wound that had healed wrong — but beautifully.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist."},
+      {"speaker": "", "text": "He stood at the entrance. Alone. The silence where Elia's voice should have been was louder than any sound."},
+      {"speaker": "Sable", "text": "You're the one Malet sent. You came alone?", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "She's taking the coastal path. She'll be here.", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "If she's smart, she will. Come inside.", "portrait": "sable_calm"}
+    ],
     "sable_briefing": [
       {"speaker": "", "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.", "cg": "res://assets/cg/bl07_interior.jpg"},
       {"speaker": "Sable", "text": "Malet sent you because of what you can do. The burning.", "portrait": "sable_neutral"},

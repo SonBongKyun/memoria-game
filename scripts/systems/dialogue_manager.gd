@@ -113,6 +113,11 @@ func select_choice(choice_index: int) -> void:
 		if choice.has("burn_memory"):
 			MemoryManager.burn_memory(choice.burn_memory)
 
+		# Grains 지급
+		if choice.has("add_grains"):
+			GameManager.player_data.grains += int(choice.add_grains)
+			NotificationToast.show_toast("+%d Grains" % int(choice.add_grains), NotificationToast.ToastType.SUCCESS)
+
 		# 다음 대사로 점프
 		if choice.has("jump_to"):
 			current_index = choice.jump_to - 1  # advance()에서 +1 되므로

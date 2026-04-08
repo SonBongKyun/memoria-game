@@ -38,6 +38,7 @@ PauseMenu="*res://scripts/ui/pause_menu.gd"
 OptionsMenu="*res://scenes/ui/options_menu.gd"
 ExplorationHUD="*res://scripts/ui/exploration_hud.gd"
 NotificationToast="*res://scripts/ui/notification_toast.gd"
+MemoryShop="*res://scripts/ui/memory_shop.gd"
 
 [display]
 

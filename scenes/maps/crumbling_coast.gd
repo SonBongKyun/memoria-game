@@ -81,7 +81,36 @@ func _on_arrival_ended() -> void:
 	await get_tree().create_timer(2.0).timeout
 	if not GameManager.get_flag("ch3_kairos_seen"):
 		GameManager.set_flag("ch3_kairos_seen")
+		DialogueManager.dialogue_ended.connect(_on_kairos_ended, CONNECT_ONE_SHOT)
 		DialogueManager.load_and_start(DIALOGUE_FILE, "kairos_sighting")
+
+func _on_kairos_ended() -> void:
+	# 카이로스 목격 후 → 엘리아 분리 선택 (한 번만)
+	if not GameManager.get_flag("elia_separation_done"):
+		await get_tree().create_timer(1.5).timeout
+		GameManager.set_flag("elia_separation_done")
+		DialogueManager.dialogue_ended.connect(_on_separation_choice_ended, CONNECT_ONE_SHOT)
+		DialogueManager.load_and_start(DIALOGUE_FILE, "elia_separation_choice")
+
+func _on_separation_choice_ended() -> void:
+	await get_tree().create_timer(0.3).timeout
+	if GameManager.get_flag("elia_separates"):
+		# 엘리아 분리
+		GameManager.player_data.elia_with_party = false
+		DialogueManager.dialogue_ended.connect(_on_separation_response_ended, CONNECT_ONE_SHOT)
+		DialogueManager.load_and_start(DIALOGUE_FILE, "elia_separates_response")
+	else:
+		# 엘리아 동행 유지
+		DialogueManager.dialogue_ended.connect(_on_separation_response_ended, CONNECT_ONE_SHOT)
+		DialogueManager.load_and_start(DIALOGUE_FILE, "elia_stays_response")
+
+func _on_separation_response_ended() -> void:
+	if GameManager.get_flag("elia_separates"):
+		# 엘리아 씬에서 제거
+		if elia:
+			elia.visible = false
+			elia.set_physics_process(false)
+		print("[CrumblingCoast] Elia separated — memories burn without residue")
 
 ## ===================== The Seam 도착 트리거 (북쪽) =====================
 
@@ -140,6 +169,10 @@ func _position_player() -> void:
 		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
+	# 엘리아 분리 상태 반영
+	if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
+		elia.visible = false
+		elia.set_physics_process(false)
 
 ## ===================== 전투 트리거 =====================
 

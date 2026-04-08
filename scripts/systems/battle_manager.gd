@@ -280,6 +280,19 @@ func _end_player_turn() -> void:
 	await get_tree().create_timer(0.8).timeout
 	_enemy_turn()
 
+## 전투 승리 시 Grains 보상 계산
+func _get_grains_reward() -> int:
+	if current_enemy == null:
+		return 0
+	var base = 3
+	if current_enemy.is_void_beast:
+		base = 8
+	if current_enemy.is_boss:
+		base = 20
+	# 적 HP 기반 보너스
+	base += current_enemy.max_hp / 20
+	return base
+
 func _cleanup() -> void:
 	if state == BattleState.VICTORY:
 		# 승리 시 HP 20% 회복
@@ -290,6 +303,12 @@ func _cleanup() -> void:
 		)
 		AudioManager.play_sfx("heal")
 		battle_log.emit("Recovered %d HP." % heal)
+
+		# Grains 보상
+		var grains = _get_grains_reward()
+		GameManager.player_data.grains += grains
+		battle_log.emit("Gained %d Grains." % grains)
+		NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
 	elif state == BattleState.DEFEAT:
 		battle_log.emit("Darkness closes in...")
 		await get_tree().create_timer(1.5).timeout
