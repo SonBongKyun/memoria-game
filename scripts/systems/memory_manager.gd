@@ -33,10 +33,20 @@ class Memory:
 var memories: Array[Memory] = []
 var burned_memories: Array[Memory] = []  # 연소된 기억 기록
 
+# --- 합성 결과 이름 ---
+const SYNTHESIS_NAMES: Dictionary = {
+	# grade_value → 합성 결과 제목/설명 템플릿
+	MemoryGrade.GRADE_4: {"title": "Blended Sensation", "desc": "Two fading impressions fused into something richer. The detail is sharper now."},
+	MemoryGrade.GRADE_3: {"title": "Woven Routine", "desc": "Daily fragments entwined — a habit you didn't know you had."},
+	MemoryGrade.GRADE_2: {"title": "Bound Connection", "desc": "Relationships compressed into a single ache. Heavier, but clearer."},
+	MemoryGrade.GRADE_1: {"title": "Forged Identity", "desc": "The core of who you are, distilled from what you chose to keep."},
+}
+
 # --- 시그널 ---
 signal memory_burned(memory: Memory)
 signal memory_added(memory: Memory)
 signal memory_became_residue(memory: Memory)
+signal memory_synthesized(result: Memory, consumed_a: Memory, consumed_b: Memory)
 
 func _ready() -> void:
 	_init_starting_memories()
@@ -216,6 +226,60 @@ func get_burn_ratio() -> float:
 func is_memory_burned(memory_id: String) -> bool:
 	for memory in burned_memories:
 		if memory.id == memory_id:
+			return true
+	return false
+
+## 기억 합성 — 동일 등급 기억 2개 → 상위 등급 1개
+## 원본은 소실(연소와 다른 방식의 상실). Grade 1(=4)은 최고 등급이므로 합성 불가.
+func synthesize(memory_a_id: String, memory_b_id: String) -> Memory:
+	var mem_a: Memory = null
+	var mem_b: Memory = null
+	for m in memories:
+		if m.id == memory_a_id and not m.is_burned:
+			mem_a = m
+		elif m.id == memory_b_id and not m.is_burned:
+			mem_b = m
+
+	if mem_a == null or mem_b == null:
+		return null
+	if mem_a.grade != mem_b.grade:
+		return null
+	if mem_a.grade >= MemoryGrade.GRADE_1:  # 이미 최고 등급
+		return null
+
+	var new_grade = mem_a.grade + 1
+	var new_power = int((mem_a.burn_power + mem_b.burn_power) * 0.7) + 10
+	var template = SYNTHESIS_NAMES.get(new_grade, {"title": "Synthesized Memory", "desc": "Two memories became one."})
+
+	var synth_id = "synth_%s_%s" % [mem_a.id.left(8), mem_b.id.left(8)]
+	var synth = Memory.new(
+		synth_id,
+		template["title"],
+		template["desc"] + "\n(From: %s + %s)" % [mem_a.title, mem_b.title],
+		new_grade,
+		new_power,
+		"Synthesized — cannot be undone"
+	)
+
+	# 원본 제거
+	memories.erase(mem_a)
+	memories.erase(mem_b)
+
+	# 새 기억 추가
+	add_memory(synth)
+	memory_synthesized.emit(synth, mem_a, mem_b)
+	NotificationToast.show_toast("Synthesized: %s" % synth.title, NotificationToast.ToastType.SUCCESS)
+	print("[MemoryManager] SYNTHESIZED: %s + %s → %s (Grade %d)" % [mem_a.title, mem_b.title, synth.title, new_grade])
+	return synth
+
+## 합성 가능한 쌍 존재 여부 (같은 등급 미연소 기억 2개 이상, Grade 1 제외)
+func has_synthesizable_pair() -> bool:
+	var grade_counts: Dictionary = {}
+	for m in memories:
+		if not m.is_burned and m.grade < MemoryGrade.GRADE_1:
+			grade_counts[m.grade] = grade_counts.get(m.grade, 0) + 1
+	for count in grade_counts.values():
+		if count >= 2:
 			return true
 	return false
 

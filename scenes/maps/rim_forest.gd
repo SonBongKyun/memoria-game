@@ -58,6 +58,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	_setup_camp_trigger()
 	_setup_hidden_events()
+	_setup_interactive_objects()
 	_setup_random_encounters()
 	AchievementManager.record_map_visit("rim_forest")
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
@@ -179,6 +180,82 @@ func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dia
 			# 히든 이벤트 업적
 			if flag_name == "hidden_ch1_stump":
 				AchievementManager.unlock("hidden_stump")
+	)
+	add_child(area)
+
+## ===================== 인터랙티브 오브젝트 =====================
+
+func _setup_interactive_objects() -> void:
+	# 숨겨진 상자 — 덤불 속 (좌측 하단 덤불 근처)
+	_add_chest(
+		Vector2(4 * TILE_SIZE, 13 * TILE_SIZE),
+		"chest_rim_bush",
+		{"items": {"potion": 2}, "grains": 10}
+	)
+	# 기억 단서 — 길 옆 돌무더기 (중앙 하단)
+	_add_clue(
+		Vector2(10 * TILE_SIZE, 14 * TILE_SIZE),
+		"clue_rim_stone",
+		"A worn stone with scratches. Someone counted days here."
+	)
+
+func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	# 금색 인디케이터
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.6, 0.5, 0.2, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			AudioManager.play_sfx("ui_select")
+			if rewards.has("grains"):
+				GameManager.player_data.grains += rewards["grains"]
+				NotificationToast.show_toast("+%d Grains" % rewards["grains"], NotificationToast.ToastType.SUCCESS)
+			if rewards.has("items"):
+				for item_id in rewards["items"]:
+					GameManager.add_item(item_id, rewards["items"][item_id])
+			indicator.queue_free()
+	)
+	add_child(area)
+
+func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	# 청색 인디케이터
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.2, 0.3, 0.6, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			NotificationToast.show_toast(clue_text, NotificationToast.ToastType.INFO)
+			indicator.queue_free()
 	)
 	add_child(area)
 

@@ -348,6 +348,11 @@ func _update_status_icons() -> void:
 			_add_status_icon(enemy_status_container, "PHASE %d" % enemy.phase, Color(0.8, 0.3, 0.2, 0.9))
 		if enemy.is_void_beast:
 			_add_status_icon(enemy_status_container, "VOID", Color(0.5, 0.15, 0.6, 0.9))
+		# 약점/저항 표시
+		if enemy.weakness != "":
+			_add_status_icon(enemy_status_container, "WEAK:%s" % enemy.weakness.to_upper(), Color(0.2, 0.8, 0.3, 0.8))
+		if enemy.resistance != "":
+			_add_status_icon(enemy_status_container, "RESIST:%s" % enemy.resistance.to_upper(), Color(0.8, 0.4, 0.2, 0.8))
 		# 적 상태이상
 		for entry in BattleManager.get_statuses("enemy"):
 			var info = _get_status_display(entry.effect)
@@ -812,9 +817,10 @@ func _toggle_burn_list() -> void:
 
 		for memory in available:
 			var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
+			var elem = skill.get("element", "fire").to_upper()
 			var btn = Button.new()
-			btn.text = "[%s] %s — Grade %d (DMG: %d+%d)" % [
-				skill.name, memory.title,
+			btn.text = "[%s|%s] %s — Grade %d (DMG: %d+%d)" % [
+				skill.name, elem, memory.title,
 				memory.grade,
 				skill.base_damage, memory.burn_power
 			]

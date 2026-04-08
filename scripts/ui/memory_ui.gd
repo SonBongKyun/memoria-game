@@ -23,6 +23,10 @@ var close_hint: Label
 
 var selected_grade_filter: int = -1  # -1 = 전체
 var selected_memory = null           # 현재 선택된 기억
+var synthesis_mode: bool = false     # 합성 모드 활성 여부
+var synthesis_first = null           # 합성 첫 번째 기억
+var synth_btn: Button                # 합성 버튼
+var synth_status_label: Label        # 합성 모드 상태 표시
 
 const GRADE_NAMES = ["Grade 5 — Sensory", "Grade 4 — Daily", "Grade 3 — Relational", "Grade 2 — Identity", "Grade 1 — Core"]
 const GRADE_COLORS = [
@@ -124,6 +128,12 @@ func _build_ui() -> void:
 	count_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 	count_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom_bar.add_child(count_label)
+
+	synth_status_label = Label.new()
+	synth_status_label.add_theme_font_size_override("font_size", 12)
+	synth_status_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
+	synth_status_label.visible = false
+	bottom_bar.add_child(synth_status_label)
 
 	close_hint = Label.new()
 	close_hint.text = "[Tab / M] Close    [ESC] Close"
@@ -282,6 +292,29 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	detail_status.add_theme_font_size_override("font_size", 14)
 	vbox.add_child(detail_status)
 
+	# 합성 버튼
+	synth_btn = Button.new()
+	synth_btn.text = "SYNTHESIZE"
+	synth_btn.custom_minimum_size = Vector2(0, 36)
+	synth_btn.visible = false
+	var synth_style = StyleBoxFlat.new()
+	synth_style.bg_color = Color(0.2, 0.15, 0.3, 0.8)
+	synth_style.border_color = Color(0.5, 0.35, 0.6, 0.6)
+	synth_style.set_border_width_all(1)
+	synth_style.set_corner_radius_all(4)
+	synth_style.set_content_margin_all(6)
+	synth_btn.add_theme_stylebox_override("normal", synth_style)
+	var synth_hover = synth_style.duplicate()
+	synth_hover.bg_color = Color(0.3, 0.2, 0.4, 0.9)
+	synth_hover.border_color = Color(0.7, 0.5, 0.8, 0.8)
+	synth_btn.add_theme_stylebox_override("hover", synth_hover)
+	synth_btn.add_theme_stylebox_override("focus", synth_hover)
+	synth_btn.add_theme_font_size_override("font_size", 13)
+	synth_btn.add_theme_color_override("font_color", Color(0.7, 0.55, 0.8))
+	synth_btn.add_theme_color_override("font_hover_color", Color(0.9, 0.7, 1.0))
+	synth_btn.pressed.connect(_on_synth_pressed)
+	vbox.add_child(synth_btn)
+
 	_clear_detail()
 
 ## 카드 목록 새로고침
@@ -345,6 +378,25 @@ func _add_memory_card(memory) -> void:
 
 ## 상세 정보 표시
 func _show_detail(memory) -> void:
+	# 합성 모드 — 두 번째 기억 선택
+	if synthesis_mode and synthesis_first != null:
+		if memory.id == synthesis_first.id:
+			return  # 같은 기억 선택 불가
+		if memory.is_burned:
+			return
+		if memory.grade != synthesis_first.grade:
+			synth_status_label.text = "Must be same grade! (%s ≠ %s)" % [GRADE_NAMES[synthesis_first.grade].split(" — ")[0], GRADE_NAMES[memory.grade].split(" — ")[0]]
+			return
+		# 합성 실행
+		var result = MemoryManager.synthesize(synthesis_first.id, memory.id)
+		if result:
+			AudioManager.play_sfx("memory_add")
+		_exit_synthesis_mode()
+		_refresh_cards()
+		if result:
+			_show_detail(result)
+		return
+
 	selected_memory = memory
 	detail_title.text = memory.title
 	detail_grade.text = GRADE_NAMES[memory.grade]
@@ -372,6 +424,9 @@ func _show_detail(memory) -> void:
 		detail_status.text = "INTACT"
 		detail_status.add_theme_color_override("font_color", Color(0.5, 0.6, 0.45))
 
+	# 합성 버튼 표시 (미연소 + Grade 1 미만 + 같은 등급 짝이 있을 때)
+	synth_btn.visible = not memory.is_burned and memory.grade < MemoryManager.MemoryGrade.GRADE_1 and _count_same_grade(memory.grade) >= 2
+
 func _clear_detail() -> void:
 	detail_title.text = "Select a memory..."
 	detail_grade.text = ""
@@ -382,15 +437,42 @@ func _clear_detail() -> void:
 	detail_effect.text = ""
 	detail_effect.visible = false
 	detail_status.text = ""
+	synth_btn.visible = false
 
 func _on_grade_filter(grade: int) -> void:
 	selected_grade_filter = grade
 	_refresh_cards()
 
+## ===================== 합성 시스템 =====================
+
+func _count_same_grade(grade: int) -> int:
+	var count = 0
+	for m in MemoryManager.memories:
+		if not m.is_burned and m.grade == grade:
+			count += 1
+	return count
+
+func _on_synth_pressed() -> void:
+	if selected_memory == null or selected_memory.is_burned:
+		return
+	synthesis_mode = true
+	synthesis_first = selected_memory
+	synth_status_label.text = "SYNTHESIS: Select second memory (same grade: %s)" % GRADE_NAMES[synthesis_first.grade].split(" — ")[0]
+	synth_status_label.visible = true
+	synth_btn.visible = false
+	AudioManager.play_sfx("ui_select")
+
+func _exit_synthesis_mode() -> void:
+	synthesis_mode = false
+	synthesis_first = null
+	synth_status_label.visible = false
+
 func _show_ui() -> void:
 	overlay.visible = true
 	main_panel.visible = true
+	_exit_synthesis_mode()
 
 func _hide_ui() -> void:
 	overlay.visible = false
 	main_panel.visible = false
+	_exit_synthesis_mode()

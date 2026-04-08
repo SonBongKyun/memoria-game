@@ -16,6 +16,8 @@ class Enemy:
 	var is_boss: bool = false  # 보스는 도주 불가 + 특수 패턴
 	var phase: int = 1  # 보스 페이즈 (HP 50% 이하에서 2)
 	var abilities: Array = []  # 특수 능력 목록 ("drain", "shield", "multi_hit")
+	var weakness: String = ""   # 약점 속성 ("physical", "fire", "void")
+	var resistance: String = "" # 저항 속성
 
 	func _init(p_name: String, p_hp: int, p_atk: int, p_void: bool = false) -> void:
 		name = p_name
@@ -23,6 +25,13 @@ class Enemy:
 		max_hp = p_hp
 		attack = p_atk
 		is_void_beast = p_void
+		# 기본 약점/저항 자동 설정
+		if is_void_beast:
+			weakness = "void"
+			resistance = "physical"
+		else:
+			weakness = "fire"
+			resistance = ""
 
 	func is_alive() -> bool:
 		return hp > 0
@@ -38,14 +47,20 @@ class Enemy:
 			phase_changed = true
 		return actual
 
+# --- 속성 시스템 ---
+# 공격 속성: physical(일반공격), fire(Grade 5~3 연소), void(Grade 2~1 연소)
+# 약점 적중 = +50% 데미지, 저항 적중 = -30% 데미지
+const ELEMENT_BONUS: float = 1.5   # 약점 보너스
+const ELEMENT_RESIST: float = 0.7  # 저항 감쇠
+
 # --- 기억 연소 스킬 ---
 const BURN_SKILLS: Dictionary = {
-	# grade: {name, base_damage, description}
-	0: {"name": "Ember", "base_damage": 30, "desc": "A flicker of forgotten warmth."},
-	1: {"name": "Blue Flame Slash", "base_damage": 60, "desc": "A blade edged with erased days."},
-	2: {"name": "Incinerate", "base_damage": 120, "desc": "Bonds severed feed the fire."},
-	3: {"name": "Identity Pyre", "base_damage": 250, "desc": "Who you were becomes what you wield."},
-	4: {"name": "Zero Burn", "base_damage": 999, "desc": "Everything. All of it. Gone."},
+	# grade: {name, base_damage, description, element}
+	0: {"name": "Ember", "base_damage": 30, "desc": "A flicker of forgotten warmth.", "element": "fire"},
+	1: {"name": "Blue Flame Slash", "base_damage": 60, "desc": "A blade edged with erased days.", "element": "fire"},
+	2: {"name": "Incinerate", "base_damage": 120, "desc": "Bonds severed feed the fire.", "element": "fire"},
+	3: {"name": "Identity Pyre", "base_damage": 250, "desc": "Who you were becomes what you wield.", "element": "void"},
+	4: {"name": "Zero Burn", "base_damage": 999, "desc": "Everything. All of it. Gone.", "element": "void"},
 }
 
 # --- 상태이상 ---
@@ -164,6 +179,10 @@ func player_attack() -> void:
 	# 약화 적용
 	base_dmg = int(base_dmg * _get_weaken_multiplier("player"))
 
+	# 속성 상성 (물리)
+	var elem_mult = _get_element_multiplier("physical")
+	base_dmg = int(base_dmg * elem_mult)
+
 	if current_enemy.is_void_beast:
 		base_dmg = maxi(1, int(base_dmg * 0.3))
 		battle_log.emit("Your blade struggles against the void...")
@@ -176,8 +195,28 @@ func player_attack() -> void:
 	AudioManager.play_sfx("hit")
 	var combo_text = " (Combo x%d!)" % combo_count if combo_count >= 2 else ""
 	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
+	_log_element_effect("physical")
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_check_enemy_defeated()
+
+## 속성 상성 배율 계산
+func _get_element_multiplier(attack_element: String) -> float:
+	if current_enemy == null or attack_element == "":
+		return 1.0
+	if current_enemy.weakness == attack_element:
+		return ELEMENT_BONUS
+	if current_enemy.resistance == attack_element:
+		return ELEMENT_RESIST
+	return 1.0
+
+## 속성 상성 로그 메시지
+func _log_element_effect(attack_element: String) -> void:
+	if current_enemy == null or attack_element == "":
+		return
+	if current_enemy.weakness == attack_element:
+		battle_log.emit("It's super effective!")
+	elif current_enemy.resistance == attack_element:
+		battle_log.emit("It's not very effective...")
 
 ## 콤보 보너스 계수
 func _get_combo_multiplier() -> float:
@@ -214,6 +253,10 @@ func player_burn(memory_id: String) -> void:
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
 	var dmg = skill.base_damage + memory.burn_power
+	# 속성 상성 (연소 속성)
+	var burn_element = skill.get("element", "fire")
+	var elem_mult = _get_element_multiplier(burn_element)
+	dmg = int(dmg * elem_mult)
 	if enemy_shielded:
 		dmg = maxi(1, int(dmg * 0.7))
 		enemy_shielded = false
@@ -222,6 +265,7 @@ func player_burn(memory_id: String) -> void:
 
 	battle_log.emit("[BURN] %s — %s" % [skill.name, skill.desc])
 	battle_log.emit("%d damage to %s!" % [actual, current_enemy.name])
+	_log_element_effect(burn_element)
 	damage_dealt.emit(current_enemy.name, actual, skill.name)
 
 	# Grade 3+ 기억 연소 시 적에게 화상 DoT 부여

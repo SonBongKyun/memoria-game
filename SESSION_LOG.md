@@ -1659,3 +1659,55 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 맵 인터랙티브 오브젝트 (숨겨진 상자/단서)
 - 전투 약점/저항 시스템 (적 속성)
 - 기억 조합 시스템 (2개 기억 합성)
+
+---
+
+## S37 — 2026-04-08 (인터랙티브 오브젝트 + 속성 시스템 + 기억 합성)
+
+### 완료
+- [x] **맵 인터랙티브 오브젝트:**
+  - 5개 맵 전체에 숨겨진 상자(금색 인디케이터) + 단서(청색 인디케이터)
+  - 상자: 아이템 + Grains 보상, 1회 획득 (플래그 기반)
+  - 단서: 세계관 텍스트 토스트 표시, 탐색 보상 강화
+  - 림 포레스트: 포션x2+10G, 돌무더기 단서
+  - 베르단 마켓: 화염탄+15G, 썸프 입구 단서
+  - 크럼블링 코스트: Hi-Potion+12G, 해독제x2+8G, 카이로스 단서
+  - 더 씸: Hi-Potion+연막탄+20G, 개울 단서
+  - BL-07: Hi-Potionx2+화염탄+25G, 보이드 속삭임 단서
+
+- [x] **전투 약점/저항 시스템:**
+  - 3속성: PHYSICAL(일반공격), FIRE(Grade 5~3 연소), VOID(Grade 2~1 연소)
+  - 약점 적중 = +50% 데미지, 저항 적중 = -30% 데미지
+  - Enemy 클래스에 `weakness`/`resistance` 속성 추가
+  - 기본: 보이드 수 = VOID 약점+PHYSICAL 저항, 일반 적 = FIRE 약점
+  - Memory Eater: FIRE 약점, VOID 저항 (역전된 상성)
+  - Shade Sentinel 보스: VOID 약점, FIRE 저항
+  - 전투 UI에 WEAK/RESIST 아이콘 표시
+  - 연소 메뉴에 속성(FIRE/VOID) 표시 → 전략적 기억 선택 유도
+  - "It's super effective!" / "It's not very effective..." 로그 메시지
+
+- [x] **기억 조합 시스템 (Synthesis):**
+  - 동일 등급 미연소 기억 2개 → 상위 등급 1개로 합성
+  - 원본 소실 (연소와 다른 방식의 상실 — 테마 강화)
+  - 합성 결과: burn_power = (A + B) * 0.7 + 10 보너스
+  - Grade 5→4→3→2 합성 가능, Grade 1(최고)은 합성 불가
+  - MemoryUI에 SYNTHESIZE 버튼 (조건 충족 시 표시)
+  - 합성 모드: 첫 기억 선택 → 두 번째 기억 선택 → 즉시 합성
+  - 등급별 합성 결과 이름: Blended Sensation / Woven Routine / Bound Connection / Forged Identity
+  - `memory_synthesized` 시그널 + 토스트 알림
+
+### 변경/생성된 파일
+- `scripts/systems/battle_manager.gd` — 속성 시스템 (ELEMENT_BONUS/RESIST, _get_element_multiplier)
+- `scripts/systems/memory_manager.gd` — synthesize(), has_synthesizable_pair(), SYNTHESIS_NAMES
+- `scripts/ui/memory_ui.gd` — 합성 모드 UI (synth_btn, synthesis_mode, _on_synth_pressed)
+- `scenes/battle/battle_scene.gd` — WEAK/RESIST 아이콘, 연소 메뉴 속성 표시
+- `scenes/maps/rim_forest.gd` — 인터랙티브 오브젝트 (상자+단서)
+- `scenes/maps/verdan_market.gd` — 인터랙티브 오브젝트 (상자+단서)
+- `scenes/maps/crumbling_coast.gd` — 인터랙티브 오브젝트 (상자x2+단서)
+- `scenes/maps/the_seam.gd` — 인터랙티브 오브젝트 (상자+단서), 보스 약점/저항
+- `scenes/maps/bl07_void.gd` — 인터랙티브 오브젝트 (상자+단서), Memory Eater 약점/저항
+
+### 다음
+- 맵 간 자유 이동 (월드맵 / 빠른 이동)
+- 전투 궁극기 시스템 (게이지 축적 → 강력 일격)
+- 기억 잔존 활용 (잔존 기억으로 약한 스킬 재사용)

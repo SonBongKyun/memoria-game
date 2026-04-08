@@ -64,6 +64,7 @@ func _ready() -> void:
 	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
 	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	_setup_random_encounters()
+	_setup_interactive_objects()
 	AchievementManager.record_map_visit("bl07_void")
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -230,6 +231,8 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 			var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)
 			if enemy_name == "Memory Eater":
 				enemy.abilities = ["drain", "multi_hit"]
+				enemy.weakness = "fire"
+				enemy.resistance = "void"
 			BattleManager.start_battle(enemy, "res://scenes/maps/bl07_void.tscn", "res://assets/cg/bl07_interior.jpg", "res://assets/cg/void_portal.jpg")
 			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
@@ -247,6 +250,80 @@ func _setup_random_encounters() -> void:
 		],
 		"res://scenes/maps/bl07_void.tscn", "", "", 30, 55
 	)
+
+## ===================== 인터랙티브 오브젝트 =====================
+
+func _setup_interactive_objects() -> void:
+	# 보이드 상자 — 파편 영역 (좌측 파편 근처, 희귀 아이템)
+	_add_chest(
+		Vector2(16 * TILE_SIZE, 2 * TILE_SIZE),
+		"chest_void_fragment",
+		{"items": {"hi_potion": 2, "firebomb": 1}, "grains": 25}
+	)
+	# 단서 — 핵심부 근처 (보이드 본질)
+	_add_clue(
+		Vector2(5 * TILE_SIZE, 9 * TILE_SIZE),
+		"clue_void_whisper",
+		"A sound that isn't a sound. The void remembers what you've forgotten."
+	)
+
+func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.5, 0.3, 0.6, 0.25)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			AudioManager.play_sfx("ui_select")
+			if rewards.has("grains"):
+				GameManager.player_data.grains += rewards["grains"]
+				NotificationToast.show_toast("+%d Grains" % rewards["grains"], NotificationToast.ToastType.SUCCESS)
+			if rewards.has("items"):
+				for item_id in rewards["items"]:
+					GameManager.add_item(item_id, rewards["items"][item_id])
+			indicator.queue_free()
+	)
+	add_child(area)
+
+func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.2, 0.2, 0.5, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			NotificationToast.show_toast(clue_text, NotificationToast.ToastType.INFO)
+			indicator.queue_free()
+	)
+	add_child(area)
 
 ## ===================== 맵 빌드 =====================
 

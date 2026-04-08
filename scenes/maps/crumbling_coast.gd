@@ -58,6 +58,7 @@ func _ready() -> void:
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	MapEffects.add_rain(self, 0.7, Color(0.5, 0.55, 0.7, 0.25))
 	_setup_random_encounters()
+	_setup_interactive_objects()
 	AchievementManager.record_map_visit("crumbling_coast")
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
@@ -167,6 +168,86 @@ func _setup_random_encounters() -> void:
 		],
 		"res://scenes/maps/crumbling_coast.tscn", "", "", 40, 70
 	)
+
+## ===================== 인터랙티브 오브젝트 =====================
+
+func _setup_interactive_objects() -> void:
+	# 상자 — 모래밭 사이 (우측 중단)
+	_add_chest(
+		Vector2(19 * TILE_SIZE, 6 * TILE_SIZE),
+		"chest_coast_sand",
+		{"items": {"hi_potion": 1}, "grains": 12}
+	)
+	# 단서 — 절벽 근처 (카이로스 관련)
+	_add_clue(
+		Vector2(7 * TILE_SIZE, 11 * TILE_SIZE),
+		"clue_coast_tracks",
+		"Footprints that end abruptly. Whoever walked here... stopped existing."
+	)
+	# 상자 — 남쪽 길 옆
+	_add_chest(
+		Vector2(14 * TILE_SIZE, 14 * TILE_SIZE),
+		"chest_coast_path",
+		{"items": {"antidote": 2}, "grains": 8}
+	)
+
+func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.6, 0.5, 0.2, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			AudioManager.play_sfx("ui_select")
+			if rewards.has("grains"):
+				GameManager.player_data.grains += rewards["grains"]
+				NotificationToast.show_toast("+%d Grains" % rewards["grains"], NotificationToast.ToastType.SUCCESS)
+			if rewards.has("items"):
+				for item_id in rewards["items"]:
+					GameManager.add_item(item_id, rewards["items"][item_id])
+			indicator.queue_free()
+	)
+	add_child(area)
+
+func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.2, 0.3, 0.6, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			NotificationToast.show_toast(clue_text, NotificationToast.ToastType.INFO)
+			indicator.queue_free()
+	)
+	add_child(area)
 
 ## ===================== 맵 빌드 =====================
 

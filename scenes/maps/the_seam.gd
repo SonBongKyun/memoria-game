@@ -63,6 +63,7 @@ func _ready() -> void:
 	MemoryManager.add_chapter_memories(4)
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
+	_setup_interactive_objects()
 	AchievementManager.record_map_visit("the_seam")
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -290,6 +291,8 @@ func _on_bl07_dialogue_ended() -> void:
 	var boss = BattleManager.Enemy.new("Shade Sentinel", 180, 24, true)
 	boss.is_boss = true
 	boss.abilities = ["drain", "shield", "multi_hit"]
+	boss.weakness = "void"
+	boss.resistance = "fire"
 	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/bl07_interior.jpg", "res://assets/cg/void_portal.jpg")
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
@@ -351,6 +354,80 @@ func _setup_random_encounters() -> void:
 		],
 		"res://scenes/maps/the_seam.tscn", "", "", 45, 80
 	)
+
+## ===================== 인터랙티브 오브젝트 =====================
+
+func _setup_interactive_objects() -> void:
+	# 상자 — 정원 구석 (우상단 오두막 뒤)
+	_add_chest(
+		Vector2(21 * TILE_SIZE, 3 * TILE_SIZE),
+		"chest_seam_garden",
+		{"items": {"hi_potion": 1, "smoke_bomb": 1}, "grains": 20}
+	)
+	# 단서 — 개울 옆 (세이블 관련)
+	_add_clue(
+		Vector2(10 * TILE_SIZE, 8 * TILE_SIZE),
+		"clue_seam_stream",
+		"Water that flows upward. The Seam bends even simple things."
+	)
+
+func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.6, 0.5, 0.2, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			AudioManager.play_sfx("ui_select")
+			if rewards.has("grains"):
+				GameManager.player_data.grains += rewards["grains"]
+				NotificationToast.show_toast("+%d Grains" % rewards["grains"], NotificationToast.ToastType.SUCCESS)
+			if rewards.has("items"):
+				for item_id in rewards["items"]:
+					GameManager.add_item(item_id, rewards["items"][item_id])
+			indicator.queue_free()
+	)
+	add_child(area)
+
+func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	indicator.color = Color(0.2, 0.3, 0.6, 0.2)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			NotificationToast.show_toast(clue_text, NotificationToast.ToastType.INFO)
+			indicator.queue_free()
+	)
+	add_child(area)
 
 ## ===================== 맵 빌드 =====================
 
