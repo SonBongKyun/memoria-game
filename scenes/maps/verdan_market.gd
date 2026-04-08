@@ -44,6 +44,9 @@ var tile_colors: Dictionary = {
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
 
+var _minimap_data: Dictionary = {}
+var _tile_defs: Array = []
+
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
@@ -56,6 +59,9 @@ func _ready() -> void:
 		await MapEffects.show_chapter_title(self, 2, "Verdan Market", "Where memories are currency")
 		await get_tree().create_timer(0.3).timeout
 		_start_ch2_sequence()
+
+func _process(_delta: float) -> void:
+	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -135,19 +141,21 @@ func _on_shop_closed() -> void:
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	var tile_defs = [
+	_tile_defs = [
 		{"color": Color(0.28, 0.26, 0.25), "detail": "stone"},   # 0: STONE
 		{"color": Color(0.18, 0.15, 0.13), "detail": "wall"},    # 1: WALL
 		{"color": Color(0.35, 0.25, 0.18), "detail": "stall"},   # 2: STALL
 		{"color": Color(0.4, 0.32, 0.22), "detail": "door"},     # 3: DOOR
 		{"color": Color(0.15, 0.13, 0.12), "detail": "alley"},   # 4: ALLEY
 	]
-	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
 
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL])
 	for body in bodies:
 		add_child(body)
+
+	_minimap_data = Minimap.create_minimap(self, map_data, _tile_defs, MAP_WIDTH, MAP_HEIGHT)
 
 func _position_player() -> void:
 	player.position = Vector2(4 * TILE_SIZE, 9 * TILE_SIZE)

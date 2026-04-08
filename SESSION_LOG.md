@@ -1360,4 +1360,53 @@ NotificationToast, MemoryShop
 ```
 
 ### 다음
+- [x] 미니맵 + 저널 → S31에서 완료
+
+---
+
+## S31 — 2026-04-08 (미니맵 + 스토리 저널 시스템)
+
+### 완료
+- [x] **미니맵 시스템 (Minimap 유틸리티 클래스):**
+  - CanvasLayer(9) 기반, 우상단 140x100px 미니맵
+  - 맵 타일을 4px 단위로 렌더링 (20+ 타일 종류 색상 매핑)
+  - 플레이어 마커 (밝은 파란 6px 점, 실시간 위치 추적)
+  - 엘리아 마커 (은빛 4px 점, 분리 시 숨김)
+  - GameState.EXPLORATION에서만 표시
+  - 5개 맵 전체 통합 (_build_map에서 생성, _process에서 업데이트)
+  - 반투명 배경 + 앰버 테두리 (UITheme 일관)
+
+- [x] **스토리 저널 / 코덱스 (StoryJournal 오토로드, layer 57):**
+  - 3개 탭: Events(이벤트) / People(NPC) / Choices(선택)
+  - Events: 21개 이벤트 엔트리 (Ch1~Ch6, 히든 포함), 챕터별 헤더 구분
+  - People: 4명 NPC (Elia/Malet/Sable/Kairos), 캐릭터 색상 반영
+  - Choices: 6개 주요 분기 선택 기록
+  - story_flags 기반 자동 언락 (직접 기록 불필요)
+  - 좌측 스크롤 목록 + 우측 상세 패널
+  - ESC 닫기, UI SFX 연동
+
+- [x] **PauseMenu 통합:**
+  - "Journal" 버튼 추가 (Resume 바로 아래)
+  - 저널 오픈 시 PauseMenu 위에 표시
+
+### 변경/생성된 파일
+- `scripts/ui/minimap.gd` — **신규** 미니맵 유틸리티 (class_name Minimap)
+- `scripts/ui/story_journal.gd` — **신규** 스토리 저널 오토로드
+- `project.godot` — StoryJournal 오토로드 등록 (총 16개)
+- `scripts/ui/pause_menu.gd` — Journal 버튼 추가
+- `scenes/maps/rim_forest.gd` — 미니맵 통합
+- `scenes/maps/verdan_market.gd` — 미니맵 통합
+- `scenes/maps/crumbling_coast.gd` — 미니맵 통합
+- `scenes/maps/the_seam.gd` — 미니맵 통합
+- `scenes/maps/bl07_void.gd` — 미니맵 통합
+
+### 오토로드 목록 (최종 16개)
+```
+GameManager, MemoryManager, DialogueManager, SceneTransition,
+DialogueBox, MemoryUI, SystemLog, BattleManager, SaveManager,
+CgViewer, AudioManager, PauseMenu, OptionsMenu, ExplorationHUD,
+NotificationToast, MemoryShop, StoryJournal
+```
+
+### 다음
 - Godot F5 실제 플레이 테스트 권장

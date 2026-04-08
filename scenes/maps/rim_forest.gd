@@ -44,6 +44,8 @@ var collision_bodies: Array = []
 var ash_rain_node = null  # 재비 파티클
 var fog_rects: Array[ColorRect] = []  # 안개 효과
 var _time: float = 0.0
+var _minimap_data: Dictionary = {}
+var _tile_defs: Array = []
 
 @onready var player: CharacterBody2D = $Player
 
@@ -67,6 +69,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_time += delta
 	MapEffects.update_fog(fog_rects, _time)
+	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -172,14 +175,14 @@ func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dia
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	var tile_defs = [
+	_tile_defs = [
 		{"color": Color(0.18, 0.28, 0.15), "detail": "grass"},   # 0: GRASS
 		{"color": Color(0.35, 0.28, 0.2), "detail": "path"},     # 1: PATH
 		{"color": Color(0.08, 0.12, 0.08), "detail": "tree"},    # 2: TREE
 		{"color": Color(0.22, 0.32, 0.18), "detail": "bush"},    # 3: BUSH
 		{"color": Color(0.12, 0.15, 0.25), "detail": "water"},   # 4: WATER
 	]
-	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
 
 	# 충돌 (나무, 물)
@@ -187,6 +190,9 @@ func _build_map() -> void:
 	for body in bodies:
 		add_child(body)
 		collision_bodies.append(body)
+
+	# 미니맵
+	_minimap_data = Minimap.create_minimap(self, map_data, _tile_defs, MAP_WIDTH, MAP_HEIGHT)
 
 func _position_player() -> void:
 	player.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 9 * TILE_SIZE + TILE_SIZE / 2.0)

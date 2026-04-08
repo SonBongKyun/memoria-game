@@ -50,6 +50,8 @@ var tile_colors: Dictionary = {
 var water_shimmers: Array[ColorRect] = []
 var lantern_lights: Array[ColorRect] = []
 var effect_time: float = 0.0
+var _minimap_data: Dictionary = {}
+var _tile_defs: Array = []
 
 func _ready() -> void:
 	_build_map()
@@ -99,6 +101,9 @@ func _process(delta: float) -> void:
 	effect_time += delta
 	MapEffects.update_water_shimmer(water_shimmers, effect_time)
 	MapEffects.update_lantern_lights(lantern_lights, effect_time)
+	var elia_vis = elia.visible if elia else false
+	var elia_pos = elia.position if elia else Vector2.ZERO
+	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 
 func _setup_hidden_events() -> void:
 	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)
@@ -305,7 +310,7 @@ func _setup_battle_triggers() -> void:
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	var tile_defs = [
+	_tile_defs = [
 		{"color": Color(0.3, 0.28, 0.26), "detail": "stone"},     # 0: STONE
 		{"color": Color(0.15, 0.13, 0.12), "detail": "cliff"},    # 1: CLIFF
 		{"color": Color(0.42, 0.3, 0.22), "detail": "hut"},       # 2: HUT
@@ -314,12 +319,14 @@ func _build_map() -> void:
 		{"color": Color(0.12, 0.25, 0.45), "detail": "water"},    # 5: WATER
 		{"color": Color(0.7, 0.55, 0.2), "detail": "lantern"},    # 6: LANTERN
 	]
-	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
 
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CLIFF, Tile.HUT])
 	for body in bodies:
 		add_child(body)
+
+	_minimap_data = Minimap.create_minimap(self, map_data, _tile_defs, MAP_WIDTH, MAP_HEIGHT)
 
 func _position_player() -> void:
 	if GameManager.current_chapter >= 6:

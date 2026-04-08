@@ -126,6 +126,7 @@ func _build_ui() -> void:
 
 	var buttons = [
 		{"text": "Resume", "callback": _close},
+		{"text": "Journal", "callback": _on_journal},
 		{"text": "Options", "callback": _on_options},
 		{"text": "Save (Slot 1)", "callback": _on_save},
 		{"text": "Load (Slot 1)", "callback": _on_load},
@@ -217,6 +218,10 @@ func _on_load() -> void:
 func _on_title() -> void:
 	_close()
 	SceneTransition.change_scene("res://scenes/main/main.tscn")
+
+func _on_journal() -> void:
+	AudioManager.play_sfx("ui_select")
+	StoryJournal.open_journal()
 
 func _on_options() -> void:
 	AudioManager.play_sfx("ui_select")

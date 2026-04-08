@@ -47,6 +47,8 @@ var tile_colors: Dictionary = {
 
 var pulse_time: float = 0.0
 var core_rects: Array = []
+var _minimap_data: Dictionary = {}
+var _tile_defs: Array = []
 
 var void_particles: GPUParticles2D
 
@@ -79,6 +81,7 @@ func _process(delta: float) -> void:
 				0.02 + pulse * 0.03,
 				0.3 + pulse * 0.1,
 			)
+	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -225,20 +228,22 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
-	var tile_defs = [
+	_tile_defs = [
 		{"color": Color(0.02, 0.02, 0.05), "detail": "void"},       # 0: VOID
 		{"color": Color(0.12, 0.1, 0.15), "detail": "fragment"},    # 1: FRAGMENT
 		{"color": Color(0.08, 0.06, 0.12), "detail": "path"},       # 2: PATH
 		{"color": Color(0.05, 0.03, 0.08), "detail": "crack"},      # 3: CRACK
 		{"color": Color(0.2, 0.05, 0.3), "detail": "core"},         # 4: CORE
 	]
-	var tilemap = TilePainter.create_tilemap(tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
+	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
 
 	# 충돌 (균열만)
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CRACK])
 	for body in bodies:
 		add_child(body)
+
+	_minimap_data = Minimap.create_minimap(self, map_data, _tile_defs, MAP_WIDTH, MAP_HEIGHT)
 
 	# 핵심부 맥동용 — TileMap 위에 ColorRect 오버레이
 	for y in range(MAP_HEIGHT):
