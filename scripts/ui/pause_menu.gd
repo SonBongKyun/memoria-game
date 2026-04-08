@@ -127,6 +127,7 @@ func _build_ui() -> void:
 	var buttons = [
 		{"text": "Resume", "callback": _close},
 		{"text": "Journal", "callback": _on_journal},
+		{"text": "Codex", "callback": _on_codex},
 		{"text": "Achievements", "callback": _on_achievements},
 		{"text": "Options", "callback": _on_options},
 		{"text": "Save (Slot 1)", "callback": _on_save},
@@ -230,6 +231,10 @@ func _on_journal() -> void:
 func _on_options() -> void:
 	AudioManager.play_sfx("ui_select")
 	OptionsMenu.open()
+
+func _on_codex() -> void:
+	AudioManager.play_sfx("ui_select")
+	Codex.open()
 
 func _on_achievements() -> void:
 	AudioManager.play_sfx("ui_select")

@@ -53,6 +53,7 @@ func _ready() -> void:
 	MapEffects.add_vignette(self)
 	_position_player()
 	_setup_random_encounters()
+	_setup_puzzle_trigger()
 	AchievementManager.record_map_visit("verdan_market")
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -159,6 +160,34 @@ func _setup_random_encounters() -> void:
 		],
 		"res://scenes/maps/verdan_market.tscn", "", "", 60, 100
 	)
+
+## ===================== 퍼즐 미니게임 트리거 =====================
+
+func _setup_puzzle_trigger() -> void:
+	# Ch2 완료 후 재방문 시 노점 근처에서 퍼즐 플레이 가능
+	if not GameManager.get_flag("ch2_complete"):
+		return
+	var area = Area2D.new()
+	area.position = Vector2(24 * TILE_SIZE + TILE_SIZE / 2.0, 10 * TILE_SIZE + TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	shape.shape = rect
+	area.add_child(shape)
+	# 인디케이터
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	indicator.position = -Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.color = Color(0.3, 0.5, 0.3, 0.15)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
+			MemoryPuzzle.open_puzzle(4, 15)
+	)
+	add_child(area)
 
 ## ===================== 맵 빌드 =====================
 

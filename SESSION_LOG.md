@@ -1577,3 +1577,48 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 도감 시스템 (적/기억 수집도)
 - 난이도 선택 (Easy/Normal/Hard)
 - 미니게임 (시장 미니 퀴즈)
+
+---
+
+## S35 — 2026-04-08 (도감 + 난이도 + 기억 매칭 퍼즐)
+
+### 완료
+- [x] **도감 시스템 (Codex 오토로드):**
+  - Bestiary 탭: 만난 적 기록 (이름/타입/HP/ATK/조우 횟수/격파 횟수)
+  - Memory Archive 탭: 수집한 기억 카탈로그 (제목/등급/설명/연소 여부)
+  - `user://codex.json` 영구 저장 (세이브와 독립)
+  - BattleManager.battle_started/ended → 적 자동 기록
+  - MemoryManager.memory_added/burned → 기억 자동 기록
+  - 2탭 UI: 좌측 리스트 + 우측 상세 패널
+  - PauseMenu "Codex" 버튼 추가
+
+- [x] **난이도 선택 (OptionsMenu 확장):**
+  - 3단계: Easy (적 0.7배) / Normal (1.0배) / Hard (1.4배)
+  - OptionsMenu에 Difficulty 토글 버튼 추가 (순환식)
+  - `settings.json`에 저장 → 재시작 시 유지
+  - BattleManager.start_battle에서 적 HP/ATK에 난이도 계수 적용
+  - NG+ 스케일링과 중첩 (NG+1 Hard = 1.3 × 1.4 = 1.82배)
+
+- [x] **기억 매칭 퍼즐 (MemoryPuzzle 오토로드):**
+  - 카드 뒤집기 미니게임 (현재 보유 기억에서 랜덤 쌍 생성)
+  - 3~8쌍 설정 가능, 그리드 자동 조절
+  - 매칭 성공/실패 시각 피드백 + SFX
+  - 클리어 시 Grains 보상 (기본 + 시도 횟수 보너스)
+  - 베르단 시장 (Ch2 완료 후): 4쌍, 15G 보상
+  - The Seam (Ch4 완료 후): 5쌍, 20G 보상
+  - 녹색/보라색 인디케이터로 퍼즐 영역 표시
+
+### 변경/생성된 파일
+- `scripts/ui/codex.gd` — **신규** 도감 오토로드
+- `scripts/ui/memory_puzzle.gd` — **신규** 기억 매칭 퍼즐 오토로드
+- `scenes/ui/options_menu.gd` — 난이도 토글 (difficulty 설정)
+- `scripts/systems/battle_manager.gd` — 난이도 스케일링 적용
+- `scripts/ui/pause_menu.gd` — Codex 버튼 추가
+- `scenes/maps/verdan_market.gd` — 퍼즐 트리거 영역
+- `scenes/maps/the_seam.gd` — 퍼즐 트리거 영역
+- `project.godot` — Codex, MemoryPuzzle 오토로드 추가
+
+### 다음
+- 파티 시스템 (세이블 동행)
+- 맵 날씨 효과 (비/눈/안개 변화)
+- 전투 콤보 시스템

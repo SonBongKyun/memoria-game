@@ -7,6 +7,7 @@ var is_open: bool = false
 # UI 노드
 var overlay: ColorRect
 var panel: PanelContainer
+var difficulty_btn: Button
 var master_slider: HSlider
 var bgm_slider: HSlider
 var sfx_slider: HSlider
@@ -23,6 +24,7 @@ var settings: Dictionary = {
 	"bgm_volume": 70,
 	"sfx_volume": 80,
 	"text_speed": 3,
+	"difficulty": 1,  # 0=Easy, 1=Normal, 2=Hard
 	"fullscreen": false,
 }
 
@@ -52,6 +54,7 @@ func open() -> void:
 	sfx_slider.value = settings.sfx_volume
 	text_speed_slider.value = settings.text_speed
 	fullscreen_check.button_pressed = settings.fullscreen
+	_update_difficulty_label()
 	_update_value_labels()
 	overlay.visible = true
 	panel.visible = true
@@ -115,6 +118,19 @@ func _load_settings() -> void:
 			for key in settings.keys():
 				if data.has(key):
 					settings[key] = data[key]
+
+const DIFFICULTY_LABELS: Dictionary = {0: "Easy", 1: "Normal", 2: "Hard"}
+const DIFFICULTY_COLORS: Dictionary = {
+	0: Color(0.5, 0.75, 0.5),
+	1: Color(0.85, 0.7, 0.45),
+	2: Color(0.85, 0.4, 0.35),
+}
+
+func _update_difficulty_label() -> void:
+	if difficulty_btn:
+		var diff = settings.get("difficulty", 1)
+		difficulty_btn.text = DIFFICULTY_LABELS.get(diff, "Normal")
+		difficulty_btn.add_theme_color_override("font_color", DIFFICULTY_COLORS.get(diff, Color(0.85, 0.7, 0.45)))
 
 const TEXT_SPEED_LABELS: Dictionary = {
 	1: "Slow",
@@ -221,6 +237,40 @@ func _build_ui() -> void:
 		settings.text_speed = int(val)
 		_update_value_labels()
 	)
+
+	# --- Difficulty ---
+	var diff_row = HBoxContainer.new()
+	diff_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(diff_row)
+
+	var diff_label = Label.new()
+	diff_label.text = "Difficulty"
+	diff_label.add_theme_font_size_override("font_size", 15)
+	diff_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	diff_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	diff_row.add_child(diff_label)
+
+	difficulty_btn = Button.new()
+	difficulty_btn.custom_minimum_size = Vector2(100, 30)
+	difficulty_btn.add_theme_font_size_override("font_size", 14)
+	difficulty_btn.add_theme_color_override("font_color", Color(0.85, 0.7, 0.45))
+	var diff_style = StyleBoxFlat.new()
+	diff_style.bg_color = Color(0.1, 0.08, 0.12, 0.9)
+	diff_style.border_color = Color(0.4, 0.3, 0.2, 0.5)
+	diff_style.set_border_width_all(1)
+	diff_style.set_corner_radius_all(3)
+	diff_style.set_content_margin_all(4)
+	difficulty_btn.add_theme_stylebox_override("normal", diff_style)
+	var diff_hover = diff_style.duplicate()
+	diff_hover.border_color = Color(0.7, 0.55, 0.3, 0.8)
+	difficulty_btn.add_theme_stylebox_override("hover", diff_hover)
+	_update_difficulty_label()
+	difficulty_btn.pressed.connect(func():
+		settings.difficulty = (settings.difficulty + 1) % 3
+		_update_difficulty_label()
+		AudioManager.play_sfx("ui_select")
+	)
+	diff_row.add_child(difficulty_btn)
 
 	# 구분선
 	var sep2 = HSeparator.new()

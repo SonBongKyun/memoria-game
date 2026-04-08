@@ -80,6 +80,14 @@ signal battle_ended(result: BattleState)
 signal battle_log(message: String)
 signal status_changed()
 
+## 난이도별 적 스케일링 (Easy=0.7, Normal=1.0, Hard=1.4)
+func _get_difficulty_scale() -> float:
+	var diff = OptionsMenu.settings.get("difficulty", 1)
+	match diff:
+		0: return 0.7
+		2: return 1.4
+	return 1.0
+
 func _ready() -> void:
 	print("[BattleManager] Ready")
 
@@ -101,6 +109,13 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 		enemy.hp = int(enemy.hp * ng_scale)
 		enemy.max_hp = int(enemy.max_hp * ng_scale)
 		enemy.attack = int(enemy.attack * ng_scale)
+
+	# 난이도 스케일링 (Easy: 적 약화, Hard: 적 강화)
+	var diff_scale = _get_difficulty_scale()
+	if diff_scale != 1.0:
+		enemy.hp = int(enemy.hp * diff_scale)
+		enemy.max_hp = int(enemy.max_hp * diff_scale)
+		enemy.attack = int(enemy.attack * diff_scale)
 
 	# 챕터별 최대 HP 성장
 	var chapter_hp = 100 + (GameManager.current_chapter - 1) * 15

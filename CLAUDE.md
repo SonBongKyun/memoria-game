@@ -59,6 +59,8 @@ Game/
 - `MemoryShop` — 기억 거래 상점 (Grains 화폐, 기억 매매, 상인 NPC 연동)
 - `StoryJournal` — 스토리 저널 (이벤트/NPC/선택 기록, PauseMenu에서 접근)
 - `AchievementManager` — 업적 시스템 (25종 도전과제, 영구 저장, PauseMenu 뷰어)
+- `Codex` — 도감 (Bestiary 적 기록 + Memory Archive 기억 수집, 영구 저장)
+- `MemoryPuzzle` — 기억 매칭 퍼즐 미니게임 (카드 뒤집기, Grains 보상)
 
 ## 유틸리티 클래스 (class_name, 비-오토로드)
 - `Minimap` — 미니맵 유틸 (CanvasLayer 9, 우상단 140x100px)
@@ -103,6 +105,7 @@ Game/
 - **S32 완료 (2026-04-08):** 랜덤 인카운터(5개 맵 재방문 전투), 전투 상태이상(독/약화/화상 3종), 적 능력 확장(poison/burn_attack/weaken)
 - **S33 완료 (2026-04-08):** 전투 소모 아이템(포션/해독제/화염탄/연막탄), 전투 드롭, 스타터 아이템, HUD 아이템 카운터
 - **S34 완료 (2026-04-08):** MemoryShop 아이템 탭, New Game+(적 스케일링/아이템 유지), 업적 시스템(25종/영구저장/PauseMenu 뷰어)
+- **S35 완료 (2026-04-08):** 도감(Bestiary+Memory Archive), 난이도 선택(Easy/Normal/Hard), 기억 매칭 퍼즐 미니게임
 - **상태:** 게임 완성. Godot F5 실제 플레이 테스트 권장.
 
 ## 개발 규칙

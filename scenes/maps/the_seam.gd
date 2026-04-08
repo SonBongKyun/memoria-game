@@ -62,6 +62,7 @@ func _ready() -> void:
 	_setup_hidden_events()
 	MemoryManager.add_chapter_memories(4)
 	_setup_random_encounters()
+	_setup_puzzle_trigger()
 	AchievementManager.record_map_visit("the_seam")
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -312,6 +313,30 @@ func _setup_battle_triggers() -> void:
 		"Void Wraith", 90, 18, true,
 		"res://assets/cg/village_seam.jpg", "res://assets/cg/void_beast.jpg"
 	)
+
+func _setup_puzzle_trigger() -> void:
+	if not GameManager.get_flag("ch4_complete"):
+		return
+	var area = Area2D.new()
+	area.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 14 * TILE_SIZE + TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	indicator.position = -Vector2(TILE_SIZE, TILE_SIZE)
+	indicator.color = Color(0.3, 0.3, 0.5, 0.15)
+	indicator.z_index = -1
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
+			MemoryPuzzle.open_puzzle(5, 20)
+	)
+	add_child(area)
 
 func _setup_random_encounters() -> void:
 	if not GameManager.get_flag("ch4_complete"):
