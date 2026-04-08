@@ -214,15 +214,22 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 		sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		container.add_child(sub_label)
 
-	# 초기 투명
-	layer.modulate = Color(1, 1, 1, 0)
+	# 초기 투명 — CanvasLayer에는 modulate가 없으므로 bg+container를 조작
+	bg.modulate = Color(1, 1, 1, 0)
+	container.modulate = Color(1, 1, 1, 0)
 	parent.add_child(layer)
 
 	# 애니메이션: 페이드 인 0.5s → 홀드 2.0s → 페이드 아웃 0.8s → 제거
 	var tween = parent.create_tween()
-	tween.tween_property(layer, "modulate:a", 1.0, 0.5)
+	tween.set_parallel(true)
+	tween.tween_property(bg, "modulate:a", 1.0, 0.5)
+	tween.tween_property(container, "modulate:a", 1.0, 0.5)
+	tween.set_parallel(false)
 	tween.tween_interval(2.0)
-	tween.tween_property(layer, "modulate:a", 0.0, 0.8)
+	tween.set_parallel(true)
+	tween.tween_property(bg, "modulate:a", 0.0, 0.8)
+	tween.tween_property(container, "modulate:a", 0.0, 0.8)
+	tween.set_parallel(false)
 	tween.tween_callback(layer.queue_free)
 
 	# await용: 트윈 완료까지 대기 가능
