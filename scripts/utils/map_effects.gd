@@ -397,6 +397,71 @@ static func update_fog(fogs: Array[ColorRect], time: float) -> void:
 			if fog.position.x > 1400:
 				fog.position.x = -fog.size.x
 
+## ===================== S43: 애니메이션 타일 효과 =====================
+
+## 풀 타일에 흔들리는 풀잎 오버레이 추가
+static func add_grass_sway(parent: Node2D, map_data: Array, width: int, height: int, grass_index: int) -> Array[ColorRect]:
+	var blades: Array[ColorRect] = []
+	for y in range(height):
+		for x in range(width):
+			if y < map_data.size() and x < map_data[y].size():
+				if map_data[y][x] == grass_index and randi() % 4 == 0:
+					var blade = ColorRect.new()
+					blade.size = Vector2(2, randi_range(4, 7))
+					blade.position = Vector2(x * TILE + randi_range(4, 28), y * TILE + randi_range(10, 24))
+					blade.color = Color(0.2, 0.42, 0.18, 0.5)
+					blade.z_index = 0
+					blade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+					blade.pivot_offset = Vector2(1, blade.size.y)
+					blade.set_meta("phase", randf() * TAU)
+					blade.set_meta("speed", randf_range(1.5, 3.0))
+					parent.add_child(blade)
+					blades.append(blade)
+	return blades
+
+## 풀 흔들림 업데이트 (_process에서 호출)
+static func update_grass_sway(blades: Array[ColorRect], time: float) -> void:
+	for blade in blades:
+		if is_instance_valid(blade):
+			var phase = blade.get_meta("phase", 0.0)
+			var speed = blade.get_meta("speed", 2.0)
+			blade.rotation = sin(time * speed + phase) * 0.15
+
+## 횃불/랜턴에 불꽃 파티클 추가
+static func add_fire_particles(parent: Node2D, map_data: Array, width: int, height: int, lantern_index: int) -> Array[GPUParticles2D]:
+	var fires: Array[GPUParticles2D] = []
+	for y in range(height):
+		for x in range(width):
+			if y < map_data.size() and x < map_data[y].size():
+				if map_data[y][x] == lantern_index:
+					var particles = GPUParticles2D.new()
+					var mat = ParticleProcessMaterial.new()
+					mat.direction = Vector3(0, -1, 0)
+					mat.spread = 15.0
+					mat.initial_velocity_min = 8.0
+					mat.initial_velocity_max = 20.0
+					mat.gravity = Vector3(0, -15, 0)
+					mat.scale_min = 0.5
+					mat.scale_max = 1.5
+					var gradient = GradientTexture1D.new()
+					var g = Gradient.new()
+					g.set_color(0, Color(1, 0.8, 0.3, 0.8))
+					g.add_point(0.4, Color(1, 0.5, 0.1, 0.6))
+					g.set_color(1, Color(0.5, 0.2, 0.05, 0.0))
+					gradient.gradient = g
+					mat.color_ramp = gradient
+					mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+					mat.emission_sphere_radius = 3.0
+					particles.process_material = mat
+					particles.amount = 6
+					particles.lifetime = 0.8
+					particles.position = Vector2(x * TILE + TILE / 2.0, y * TILE + 6)
+					particles.z_index = 2
+					particles.visibility_rect = Rect2(-20, -30, 40, 40)
+					parent.add_child(particles)
+					fires.append(particles)
+	return fires
+
 ## ===================== S42: 2D 조명 시스템 =====================
 
 ## 맵에 환경 조명 추가 (CanvasModulate로 전체 어둡게 + PointLight2D)

@@ -33,12 +33,13 @@ var map_data: Array = [
 	[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ]
 
+# S43: 컬러 팔레트 리뉴얼
 var tile_colors: Dictionary = {
-	Tile.STONE: Color(0.28, 0.26, 0.25),
-	Tile.WALL: Color(0.18, 0.15, 0.13),
-	Tile.STALL: Color(0.35, 0.25, 0.18),
-	Tile.DOOR: Color(0.4, 0.32, 0.22),
-	Tile.ALLEY: Color(0.15, 0.13, 0.12),
+	Tile.STONE: Color(0.32, 0.3, 0.28),  # 더 밝은 돌바닥
+	Tile.WALL: Color(0.2, 0.17, 0.14),
+	Tile.STALL: Color(0.42, 0.3, 0.18),  # 더 따뜻한 노점
+	Tile.DOOR: Color(0.45, 0.35, 0.22),
+	Tile.ALLEY: Color(0.12, 0.1, 0.1),
 }
 
 @onready var player: CharacterBody2D = $Player

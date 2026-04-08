@@ -59,6 +59,9 @@ static func _draw_character(config: Dictionary, direction: String, walk_frame: i
 		"right":
 			_draw_side(img, config, base_y, walk_frame, step_offset, true)
 
+	# S43: 1px 아웃라인 추가 (캐릭터가 배경에서 확실히 분리됨)
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+
 	return img
 
 ## ========== 정면 (down) ==========
@@ -422,6 +425,38 @@ static func _lighten(color: Color, amount: float) -> Color:
 		color.a
 	)
 
+## S43: 1px 아웃라인 — 불투명 픽셀 주변에 어두운 테두리 추가
+static func _add_outline(img: Image, outline_color: Color) -> void:
+	# 원본 알파를 먼저 복사
+	var alpha_map: Array = []
+	for y in range(SIZE):
+		var row: Array = []
+		for x in range(SIZE):
+			row.append(img.get_pixel(x, y).a > 0.1)
+		alpha_map.append(row)
+
+	# 불투명 픽셀의 인접 빈 공간에 아웃라인 배치
+	for y in range(SIZE):
+		for x in range(SIZE):
+			if alpha_map[y][x]:
+				continue  # 이미 채워진 픽셀은 스킵
+			# 상하좌우 + 대각선 검사
+			var has_neighbor = false
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					if dx == 0 and dy == 0:
+						continue
+					var nx = x + dx
+					var ny = y + dy
+					if nx >= 0 and nx < SIZE and ny >= 0 and ny < SIZE:
+						if alpha_map[ny][nx]:
+							has_neighbor = true
+							break
+				if has_neighbor:
+					break
+			if has_neighbor:
+				img.set_pixel(x, y, outline_color)
+
 static func _flip_horizontal(img: Image) -> void:
 	var w = img.get_width()
 	var h = img.get_height()
@@ -434,57 +469,296 @@ static func _flip_horizontal(img: Image) -> void:
 
 ## ========== 프리셋 캐릭터 설정 ==========
 
+## S43: 컬러 팔레트 리뉴얼 — 채도/대비 강화
+
 static func arrel_config() -> Dictionary:
 	return {
-		"skin": Color(0.82, 0.7, 0.58),
-		"hair": Color(0.35, 0.38, 0.55),
+		"skin": Color(0.85, 0.72, 0.6),
+		"hair": Color(0.4, 0.45, 0.65),  # 더 선명한 은청색
 		"hair_style": "medium",
-		"coat": Color(0.15, 0.17, 0.28),
-		"shirt": Color(0.35, 0.3, 0.28),
-		"pants": Color(0.12, 0.12, 0.15),
-		"boots": Color(0.08, 0.07, 0.07),
-		"eye": Color(0.25, 0.45, 0.65),
-		"accessory": Color(0.5, 0.45, 0.4),
+		"coat": Color(0.12, 0.15, 0.32),  # 더 진한 남색
+		"shirt": Color(0.4, 0.32, 0.28),
+		"pants": Color(0.1, 0.1, 0.16),
+		"boots": Color(0.06, 0.05, 0.08),
+		"eye": Color(0.2, 0.5, 0.8),  # 더 밝은 파랑
+		"accessory": Color(0.55, 0.5, 0.42),
 		"accessory_type": "sword",
 	}
 
 static func elia_config() -> Dictionary:
 	return {
-		"skin": Color(0.88, 0.78, 0.68),
-		"hair": Color(0.7, 0.72, 0.78),
+		"skin": Color(0.9, 0.8, 0.7),
+		"hair": Color(0.78, 0.8, 0.88),  # 더 밝은 은발
 		"hair_style": "long",
-		"coat": Color(0.35, 0.28, 0.2),
-		"shirt": Color(0.55, 0.5, 0.45),
-		"pants": Color(0.25, 0.22, 0.2),
-		"boots": Color(0.15, 0.12, 0.1),
-		"eye": Color(0.3, 0.5, 0.8),
-		"accessory": Color(0.7, 0.55, 0.25),
+		"coat": Color(0.4, 0.3, 0.2),  # 더 따뜻한 갈색
+		"shirt": Color(0.6, 0.55, 0.48),
+		"pants": Color(0.28, 0.24, 0.2),
+		"boots": Color(0.16, 0.13, 0.1),
+		"eye": Color(0.25, 0.55, 0.9),  # 더 선명한 파랑
+		"accessory": Color(0.85, 0.65, 0.2),  # 더 밝은 금색
 		"accessory_type": "brooch",
 	}
 
 static func sable_config() -> Dictionary:
 	return {
-		"skin": Color(0.65, 0.5, 0.4),
-		"hair": Color(0.12, 0.1, 0.1),
+		"skin": Color(0.6, 0.48, 0.38),
+		"hair": Color(0.1, 0.08, 0.1),
 		"hair_style": "short",
-		"coat": Color(0.22, 0.2, 0.25),
-		"shirt": Color(0.3, 0.25, 0.28),
-		"pants": Color(0.15, 0.14, 0.16),
-		"boots": Color(0.1, 0.08, 0.08),
-		"eye": Color(0.45, 0.35, 0.25),
-		"accessory": Color(0.4, 0.35, 0.3),
+		"coat": Color(0.18, 0.16, 0.22),  # 어두운 보라 톤
+		"shirt": Color(0.28, 0.22, 0.26),
+		"pants": Color(0.12, 0.11, 0.15),
+		"boots": Color(0.08, 0.06, 0.08),
+		"eye": Color(0.55, 0.4, 0.2),  # 더 강한 호박색
+		"accessory": Color(0.45, 0.35, 0.3),
 		"accessory_type": "scar",
 	}
 
 static func npc_config(base_color: Color) -> Dictionary:
 	return {
-		"skin": Color(0.8, 0.7, 0.6),
-		"hair": _darken(base_color, 0.1),
+		"skin": Color(0.82, 0.72, 0.62),
+		"hair": _darken(base_color, 0.08),
 		"hair_style": "short",
 		"coat": base_color,
-		"shirt": _lighten(base_color, 0.1),
-		"pants": _darken(base_color, 0.15),
-		"boots": Color(0.12, 0.1, 0.1),
+		"shirt": _lighten(base_color, 0.12),
+		"pants": _darken(base_color, 0.12),
+		"boots": Color(0.1, 0.08, 0.1),
 		"eye": Color(0.35, 0.3, 0.25),
 		"accessory_type": "none",
 	}
+
+## ========== S43: 전투 적 스프라이트 생성 ==========
+
+## 적 몬스터 스프라이트 생성 (64x64)
+static func create_enemy_sprite(enemy_type: String) -> ImageTexture:
+	var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+
+	match enemy_type.to_lower():
+		"void_beast":
+			_draw_void_beast(img)
+		"shadow_wisp":
+			_draw_shadow_wisp(img)
+		"memory_eater":
+			_draw_memory_eater(img)
+		"shade_sentinel":
+			_draw_shade_sentinel(img)
+		"void_stalker":
+			_draw_void_stalker(img)
+		_:
+			_draw_generic_enemy(img, enemy_type)
+
+	# 적에게도 아웃라인
+	_add_outline_64(img, Color(0.02, 0.01, 0.04, 0.95))
+	return ImageTexture.create_from_image(img)
+
+## 보이드 비스트 — 네발짐승, 보라+검정
+static func _draw_void_beast(img: Image) -> void:
+	var body = Color(0.15, 0.08, 0.2)
+	var body_h = Color(0.25, 0.12, 0.35)
+	var eye_c = Color(0.8, 0.2, 0.9)
+	# 몸통 (타원)
+	for y in range(20, 50):
+		for x in range(12, 52):
+			var dx = (x - 32.0) / 20.0
+			var dy = (y - 35.0) / 15.0
+			if dx * dx + dy * dy < 1.0:
+				var shade = randf_range(-0.02, 0.02)
+				var c = body if (x + y) % 3 != 0 else body_h
+				_px64(img, x, y, Color(c.r + shade, c.g + shade, c.b + shade, 1.0))
+	# 다리 4개
+	for lx in [18, 26, 38, 46]:
+		for ly in range(42, 56):
+			_px64(img, lx, ly, body)
+			_px64(img, lx + 1, ly, body)
+			_px64(img, lx + 2, ly, body)
+	# 머리
+	for y in range(12, 28):
+		for x in range(20, 44):
+			var dx = (x - 32.0) / 12.0
+			var dy = (y - 20.0) / 8.0
+			if dx * dx + dy * dy < 1.0:
+				_px64(img, x, y, body_h)
+	# 눈 (빛나는 보라)
+	_fill64(img, 26, 18, 3, 3, eye_c)
+	_fill64(img, 35, 18, 3, 3, eye_c)
+	_px64(img, 27, 19, Color(1, 1, 1, 0.8))
+	_px64(img, 36, 19, Color(1, 1, 1, 0.8))
+	# 이빨
+	_fill64(img, 28, 24, 2, 3, Color(0.7, 0.7, 0.75))
+	_fill64(img, 34, 24, 2, 3, Color(0.7, 0.7, 0.75))
+	# 보이드 연기
+	for i in range(6):
+		var sx = randi_range(15, 48)
+		var sy = randi_range(8, 18)
+		_px64(img, sx, sy, Color(0.3, 0.1, 0.4, 0.3))
+		_px64(img, sx + 1, sy, Color(0.25, 0.08, 0.35, 0.2))
+
+## 셰도우 위스프 — 떠다니는 유령
+static func _draw_shadow_wisp(img: Image) -> void:
+	var body = Color(0.12, 0.1, 0.18)
+	var glow = Color(0.4, 0.2, 0.6)
+	# 몸통 (위에서 아래로 흐르는 형태)
+	for y in range(10, 55):
+		var width_ratio = 1.0 - abs((y - 28.0) / 25.0)
+		width_ratio = maxf(width_ratio, 0.2)
+		var hw = int(12.0 * width_ratio)
+		for x in range(32 - hw, 32 + hw):
+			var alpha = 0.7 + randf_range(-0.1, 0.1)
+			if y > 40:
+				alpha *= 1.0 - (y - 40.0) / 15.0  # 아래로 갈수록 투명
+			_px64(img, x, y, Color(body.r, body.g, body.b, alpha))
+	# 눈 (빛나는)
+	_fill64(img, 26, 22, 3, 2, glow)
+	_fill64(img, 35, 22, 3, 2, glow)
+	_px64(img, 27, 22, Color(0.8, 0.6, 1.0))
+	_px64(img, 36, 22, Color(0.8, 0.6, 1.0))
+
+## 메모리 이터 — 기억을 먹는 곤충형
+static func _draw_memory_eater(img: Image) -> void:
+	var body = Color(0.2, 0.15, 0.12)
+	var shell = Color(0.3, 0.22, 0.18)
+	var eye_c = Color(0.9, 0.7, 0.1)
+	# 등딱지 (타원)
+	for y in range(15, 45):
+		for x in range(14, 50):
+			var dx = (x - 32.0) / 18.0
+			var dy = (y - 30.0) / 15.0
+			if dx * dx + dy * dy < 1.0:
+				var c = shell if dy < 0.3 else body
+				_px64(img, x, y, Color(c.r + randf_range(-0.02, 0.02), c.g + randf_range(-0.02, 0.02), c.b + randf_range(-0.02, 0.02), 1.0))
+	# 등딱지 무늬
+	_fill64(img, 30, 18, 4, 20, Color(shell.r + 0.08, shell.g + 0.05, shell.b + 0.02))
+	# 다리 6개
+	for i in range(3):
+		var lx1 = 16 + i * 8
+		_fill64(img, lx1, 40, 2, 12, body)
+		_fill64(img, lx1 + 20, 40, 2, 12, body)
+	# 머리
+	_fill64(img, 24, 10, 16, 8, body)
+	# 눈
+	_fill64(img, 27, 12, 3, 3, eye_c)
+	_fill64(img, 36, 12, 3, 3, eye_c)
+	# 턱
+	_fill64(img, 28, 17, 3, 4, Color(0.15, 0.1, 0.08))
+	_fill64(img, 33, 17, 3, 4, Color(0.15, 0.1, 0.08))
+
+## 쉐이드 센티넬 — 보스, 거대 갑옷 형태
+static func _draw_shade_sentinel(img: Image) -> void:
+	var armor = Color(0.15, 0.12, 0.2)
+	var armor_h = Color(0.25, 0.2, 0.35)
+	var eye_c = Color(0.9, 0.15, 0.3)
+	var void_c = Color(0.4, 0.1, 0.5)
+	# 몸통 (넓은 갑옷)
+	_fill64(img, 12, 18, 40, 35, armor)
+	# 어깨
+	_fill64(img, 6, 18, 10, 12, armor_h)
+	_fill64(img, 48, 18, 10, 12, armor_h)
+	# 어깨 스파이크
+	_fill64(img, 8, 14, 4, 6, armor)
+	_fill64(img, 52, 14, 4, 6, armor)
+	# 가슴 디테일
+	_fill64(img, 24, 28, 16, 2, void_c)
+	_fill64(img, 28, 32, 8, 8, Color(void_c.r, void_c.g, void_c.b, 0.5))
+	# 투구
+	_fill64(img, 18, 4, 28, 16, armor_h)
+	_fill64(img, 20, 2, 24, 4, armor)
+	# 눈 (빨간 슬릿)
+	_fill64(img, 24, 10, 6, 2, eye_c)
+	_fill64(img, 34, 10, 6, 2, eye_c)
+	_px64(img, 25, 10, Color(1, 0.5, 0.5))
+	_px64(img, 35, 10, Color(1, 0.5, 0.5))
+	# 다리
+	_fill64(img, 18, 50, 8, 12, armor)
+	_fill64(img, 38, 50, 8, 12, armor)
+	# 보이드 에너지 줄기
+	for i in range(4):
+		var sx = randi_range(14, 50)
+		for sy in range(randi_range(5, 15), randi_range(20, 30)):
+			_px64(img, sx, sy, Color(void_c.r, void_c.g, void_c.b, 0.25))
+
+## 보이드 스토커 — 날씬한 인간형
+static func _draw_void_stalker(img: Image) -> void:
+	var body = Color(0.08, 0.06, 0.12)
+	var glow = Color(0.5, 0.2, 0.7)
+	# 몸통
+	for y in range(18, 55):
+		var w = 8 if y < 35 else 6
+		for x in range(32 - w, 32 + w):
+			_px64(img, x, y, body)
+	# 팔 (길게)
+	_fill64(img, 16, 22, 3, 20, body)
+	_fill64(img, 45, 22, 3, 20, body)
+	# 발톱
+	_fill64(img, 15, 40, 4, 3, glow)
+	_fill64(img, 45, 40, 4, 3, glow)
+	# 머리
+	for y in range(5, 20):
+		for x in range(22, 42):
+			var dx = (x - 32.0) / 10.0
+			var dy = (y - 12.0) / 8.0
+			if dx * dx + dy * dy < 1.0:
+				_px64(img, x, y, body)
+	# 눈 (3개!)
+	_fill64(img, 26, 10, 2, 2, glow)
+	_fill64(img, 30, 8, 2, 2, glow)
+	_fill64(img, 36, 10, 2, 2, glow)
+	# 다리
+	_fill64(img, 26, 50, 3, 12, body)
+	_fill64(img, 35, 50, 3, 12, body)
+
+## 범용 적 (이름 기반 색상)
+static func _draw_generic_enemy(img: Image, enemy_type: String) -> void:
+	var hash_val = enemy_type.hash()
+	var r = fmod(abs(float(hash_val)) * 0.000001, 0.4) + 0.1
+	var g_val = fmod(abs(float(hash_val)) * 0.0000017, 0.3) + 0.05
+	var b = fmod(abs(float(hash_val)) * 0.0000023, 0.4) + 0.1
+	var body = Color(r, g_val, b)
+	var eye_c = Color(minf(r + 0.5, 1.0), g_val + 0.2, minf(b + 0.3, 1.0))
+	# 기본 몸통
+	for y in range(12, 52):
+		for x in range(14, 50):
+			var dx = (x - 32.0) / 18.0
+			var dy = (y - 32.0) / 20.0
+			if dx * dx + dy * dy < 1.0:
+				_px64(img, x, y, Color(body.r + randf_range(-0.03, 0.03), body.g + randf_range(-0.03, 0.03), body.b + randf_range(-0.03, 0.03), 1.0))
+	# 눈
+	_fill64(img, 25, 22, 3, 3, eye_c)
+	_fill64(img, 36, 22, 3, 3, eye_c)
+
+## 64x64 헬퍼
+static func _px64(img: Image, x: int, y: int, color: Color) -> void:
+	if x >= 0 and x < 64 and y >= 0 and y < 64:
+		img.set_pixel(x, y, color)
+
+static func _fill64(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
+	for py in range(h):
+		for px in range(w):
+			_px64(img, x + px, y + py, color)
+
+static func _add_outline_64(img: Image, outline_color: Color) -> void:
+	var s = 64
+	var alpha_map: Array = []
+	for y in range(s):
+		var row: Array = []
+		for x in range(s):
+			row.append(img.get_pixel(x, y).a > 0.1)
+		alpha_map.append(row)
+	for y in range(s):
+		for x in range(s):
+			if alpha_map[y][x]:
+				continue
+			var has_neighbor = false
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					if dx == 0 and dy == 0:
+						continue
+					var nx = x + dx
+					var ny = y + dy
+					if nx >= 0 and nx < s and ny >= 0 and ny < s:
+						if alpha_map[ny][nx]:
+							has_neighbor = true
+							break
+				if has_neighbor:
+					break
+			if has_neighbor:
+				img.set_pixel(x, y, outline_color)

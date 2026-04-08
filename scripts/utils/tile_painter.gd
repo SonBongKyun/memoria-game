@@ -120,47 +120,99 @@ static func _paint_tile(img: Image, ox: int, oy: int, base: Color, detail: Strin
 ## ── 개별 타일 페인팅 ──
 
 static func _paint_grass(img: Image, ox: int, oy: int, base: Color) -> void:
-	# 풀 텍스처: 랜덤 밝기 변화 + 풀잎 힌트
+	# S43: 풍부한 풀 텍스처 — 다층 노이즈 + 풀잎 다수
+	var dark_grass = _shift(base, -0.04)
+	var light_grass = _shift(base, 0.06)
 	for y in range(TILE):
 		for x in range(TILE):
-			var v = randf_range(-0.04, 0.04)
-			_px(img, ox + x, oy + y, _shift(base, v))
-	# 풀잎 (짧은 세로 선)
-	for i in range(8):
-		var gx = randi_range(2, TILE - 3)
-		var gy = randi_range(4, TILE - 2)
-		var gc = _shift(base, randf_range(0.05, 0.12))
-		_px(img, ox + gx, oy + gy, gc)
-		_px(img, ox + gx, oy + gy - 1, gc)
-	# 가끔 꽃
-	if randi_range(0, 3) == 0:
+			# 다층 컬러 변화
+			var v1 = sin(x * 0.8 + y * 0.5) * 0.03
+			var v2 = randf_range(-0.025, 0.025)
+			_px(img, ox + x, oy + y, _shift(base, v1 + v2))
+	# 풀잎 다수 (높이 2~4px, 방향 변화)
+	for i in range(18):
+		var gx = randi_range(1, TILE - 2)
+		var gy = randi_range(3, TILE - 1)
+		var gc = _shift(base, randf_range(0.06, 0.15))
+		var h = randi_range(2, 4)
+		for j in range(h):
+			_px(img, ox + gx, oy + gy - j, gc)
+		# 풀잎 꼭대기 밝게
+		_px(img, ox + gx, oy + gy - h + 1, _shift(gc, 0.05))
+	# 어두운 풀 뭉치
+	for i in range(4):
+		var gx = randi_range(2, TILE - 4)
+		var gy = randi_range(6, TILE - 2)
+		_px(img, ox + gx, oy + gy, dark_grass)
+		_px(img, ox + gx + 1, oy + gy, dark_grass)
+		_px(img, ox + gx, oy + gy - 1, _shift(dark_grass, 0.03))
+	# 꽃 (더 자주, 더 다양)
+	if randi_range(0, 2) == 0:
 		var fx = randi_range(4, TILE - 5)
 		var fy = randi_range(4, TILE - 5)
-		var fc = [Color(0.8, 0.7, 0.2), Color(0.7, 0.3, 0.3), Color(0.8, 0.8, 0.5)][randi_range(0, 2)]
+		var flower_colors = [Color(0.85, 0.75, 0.2), Color(0.75, 0.3, 0.35), Color(0.85, 0.85, 0.5), Color(0.6, 0.3, 0.6)]
+		var fc = flower_colors[randi_range(0, flower_colors.size() - 1)]
 		_px(img, ox + fx, oy + fy, fc)
+		_px(img, ox + fx + 1, oy + fy, _shift(fc, -0.1))
+		_px(img, ox + fx, oy + fy + 1, _shift(base, 0.05))  # 줄기
 
 static func _paint_tree(img: Image, ox: int, oy: int, _base: Color) -> void:
-	# 줄기
-	var trunk = Color(0.35, 0.22, 0.12)
-	_fill(img, ox + 13, oy + 20, 6, 12, trunk)
-	_fill(img, ox + 14, oy + 22, 4, 10, _shift(trunk, 0.05))
-	# 수관 (원형 느낌)
-	var canopy = Color(0.12, 0.35, 0.15)
-	var canopy2 = Color(0.08, 0.28, 0.12)
-	for y in range(20):
+	# S43: 나무 — 껍질 텍스처 + 풍성한 수관 + 그림자
+	# 줄기 (껍질 텍스처)
+	var trunk = Color(0.38, 0.24, 0.14)
+	var trunk_dark = _shift(trunk, -0.06)
+	var trunk_light = _shift(trunk, 0.04)
+	_fill(img, ox + 12, oy + 18, 8, 14, trunk)
+	# 나무껍질 디테일
+	for y in range(18, 32):
+		for x in range(12, 20):
+			if randi_range(0, 2) == 0:
+				_px(img, ox + x, oy + y, trunk_dark)
+			elif randi_range(0, 4) == 0:
+				_px(img, ox + x, oy + y, trunk_light)
+	# 줄기 좌측 어둡게 (입체감)
+	for y in range(18, 32):
+		_px(img, ox + 12, oy + y, _shift(trunk, -0.08))
+		_px(img, ox + 13, oy + y, trunk_dark)
+	# 수관 (다층 원형 — 3겹)
+	var canopy = Color(0.15, 0.38, 0.18)
+	var canopy_dark = Color(0.08, 0.28, 0.1)
+	var canopy_light = Color(0.22, 0.48, 0.25)
+	# 뒤쪽 어두운 수관
+	for y in range(2, 22):
+		for x in range(TILE):
+			var dx = x - 16.0
+			var dy = y - 11.0
+			if dx * dx + dy * dy < 140:
+				_px(img, ox + x, oy + y, _shift(canopy_dark, randf_range(-0.02, 0.02)))
+	# 메인 수관
+	for y in range(1, 20):
 		for x in range(TILE):
 			var dx = x - 16.0
 			var dy = y - 10.0
-			if dx * dx + dy * dy < 120:
-				var c = canopy if ((x + y) % 3 != 0) else canopy2
-				_px(img, ox + x, oy + y, _shift(c, randf_range(-0.02, 0.02)))
-	# 하이라이트
-	for y in range(4, 10):
-		for x in range(10, 16):
-			var dx = x - 13.0
+			if dx * dx + dy * dy < 115:
+				var leaf_var = randf_range(-0.03, 0.03)
+				var c = canopy if randi_range(0, 2) != 0 else canopy_dark
+				_px(img, ox + x, oy + y, _shift(c, leaf_var))
+	# 하이라이트 (상단 좌측 — 빛)
+	for y in range(3, 11):
+		for x in range(8, 17):
+			var dx = x - 12.0
 			var dy = y - 7.0
-			if dx * dx + dy * dy < 12:
-				_px(img, ox + x, oy + y, _shift(canopy, 0.08))
+			if dx * dx + dy * dy < 18:
+				_px(img, ox + x, oy + y, _shift(canopy_light, randf_range(-0.02, 0.02)))
+	# 잎 가장자리 디테일
+	for i in range(12):
+		var lx = randi_range(3, 29)
+		var ly = randi_range(1, 19)
+		var dx = lx - 16.0
+		var dy = ly - 10.0
+		if dx * dx + dy * dy > 90 and dx * dx + dy * dy < 150:
+			_px(img, ox + lx, oy + ly, _shift(canopy, randf_range(0.04, 0.1)))
+	# 나무 그림자 (바닥)
+	for x in range(8, 24):
+		_px(img, ox + x, oy + 31, _shift(_base, -0.06))
+		_px(img, ox + x, oy + 30, _shift(_base, -0.03))
 
 static func _paint_bush(img: Image, ox: int, oy: int, base: Color) -> void:
 	# 덤불: 작은 원형 수관
@@ -176,45 +228,91 @@ static func _paint_bush(img: Image, ox: int, oy: int, base: Color) -> void:
 		_px(img, ox + x, oy + TILE - 2, _shift(base, -0.05))
 
 static func _paint_water(img: Image, ox: int, oy: int, base: Color) -> void:
-	var deep = _shift(base, -0.05)
+	# S43: 풍부한 물 텍스처 — 깊이감 + 다층 파도 + 반짝임
+	var deep = _shift(base, -0.06)
+	var shallow = _shift(base, 0.04)
 	for y in range(TILE):
 		for x in range(TILE):
-			var wave = sin((x + y * 0.5) * 0.5) * 0.04
-			_px(img, ox + x, oy + y, _shift(base, wave))
-	# 파도 라인
-	for i in range(3):
-		var wy = 6 + i * 10
-		var highlight = Color(0.25, 0.4, 0.6, 0.6)
+			var wave1 = sin((x + y * 0.5) * 0.5) * 0.04
+			var wave2 = sin((x * 0.3 - y * 0.7) * 0.8) * 0.02
+			var depth = sin(y * 0.2) * 0.03  # 위에서 아래로 깊이감
+			_px(img, ox + x, oy + y, _shift(base, wave1 + wave2 + depth))
+	# 파도 라인 (더 많고 부드럽게)
+	for i in range(4):
+		var wy = 4 + i * 7
+		var highlight = Color(0.3, 0.5, 0.7, 0.5)
 		for x in range(TILE):
-			var offset = int(sin(x * 0.3 + i * 2.0) * 2)
+			var offset = int(sin(x * 0.35 + i * 1.7) * 2.5)
 			var py = wy + offset
 			if py >= 0 and py < TILE:
 				_px(img, ox + x, oy + py, highlight)
+				if py + 1 < TILE:
+					_px(img, ox + x, oy + py + 1, Color(highlight.r, highlight.g, highlight.b, 0.2))
+	# 반짝임 하이라이트
+	for i in range(3):
+		var sx = randi_range(3, TILE - 4)
+		var sy = randi_range(3, TILE - 4)
+		_px(img, ox + sx, oy + sy, Color(0.5, 0.65, 0.8, 0.6))
 
 static func _paint_path(img: Image, ox: int, oy: int, base: Color) -> void:
+	# S43: 길 — 자갈 다수 + 발자국 흔적 + 가장자리 풀
 	for y in range(TILE):
 		for x in range(TILE):
-			_px(img, ox + x, oy + y, _shift(base, randf_range(-0.03, 0.03)))
-	# 자갈 힌트
-	for i in range(5):
-		var px = randi_range(3, TILE - 4)
-		var py = randi_range(3, TILE - 4)
-		_px(img, ox + px, oy + py, _shift(base, -0.08))
-		_px(img, ox + px + 1, oy + py, _shift(base, -0.06))
+			var v = randf_range(-0.03, 0.03) + sin(x * 0.6) * 0.01
+			_px(img, ox + x, oy + y, _shift(base, v))
+	# 자갈 (다수, 다양한 크기)
+	for i in range(10):
+		var gx = randi_range(2, TILE - 4)
+		var gy = randi_range(2, TILE - 4)
+		var gs = randi_range(1, 3)
+		var gc = _shift(base, randf_range(-0.1, -0.04))
+		for dy in range(gs):
+			for dx in range(gs):
+				_px(img, ox + gx + dx, oy + gy + dy, gc)
+	# 발자국 흔적 (희미한)
+	if randi_range(0, 3) == 0:
+		var fx = randi_range(8, 20)
+		var fy = randi_range(8, 24)
+		_px(img, ox + fx, oy + fy, _shift(base, -0.04))
+		_px(img, ox + fx + 4, oy + fy + 5, _shift(base, -0.04))
+	# 가장자리 풀 힌트
+	for i in range(3):
+		var ex = randi_range(0, 3)
+		var ey = randi_range(2, TILE - 3)
+		_px(img, ox + ex, oy + ey, _shift(base, 0.06))
+		ex = randi_range(TILE - 4, TILE - 1)
+		_px(img, ox + ex, oy + ey, _shift(base, 0.06))
 
 static func _paint_stone(img: Image, ox: int, oy: int, base: Color) -> void:
+	# S43: 돌바닥 — 균열 + 이끼 + 풍화
 	for y in range(TILE):
 		for x in range(TILE):
-			_px(img, ox + x, oy + y, _shift(base, randf_range(-0.02, 0.02)))
-	# 돌 줄눈 (수평/수직 선)
-	var grout = _shift(base, -0.08)
+			var v = randf_range(-0.03, 0.03) + sin(x * 0.5 + y * 0.3) * 0.015
+			_px(img, ox + x, oy + y, _shift(base, v))
+	# 돌 줄눈 (더 굵고 자연스러운 선)
+	var grout = _shift(base, -0.1)
+	var grout_h = _shift(base, -0.06)
 	for x in range(TILE):
 		_px(img, ox + x, oy + 15, grout)
+		_px(img, ox + x, oy + 16, grout_h)
 	for y in range(0, 15):
 		_px(img, ox + 16, oy + y, grout)
 	for y in range(16, TILE):
 		_px(img, ox + 8, oy + y, grout)
 		_px(img, ox + 24, oy + y, grout)
+	# 균열 (랜덤 위치)
+	if randi_range(0, 3) == 0:
+		var cx = randi_range(4, 28)
+		for dy in range(randi_range(3, 6)):
+			cx += randi_range(-1, 1)
+			_px(img, ox + clampi(cx, 0, 31), oy + randi_range(2, 29), _shift(base, -0.12))
+	# 이끼 흔적
+	if randi_range(0, 4) == 0:
+		var mx = randi_range(2, 26)
+		var my = randi_range(2, 26)
+		for dy in range(3):
+			for dx in range(randi_range(2, 5)):
+				_px(img, ox + mx + dx, oy + my + dy, Color(base.r - 0.02, base.g + 0.04, base.b - 0.02))
 
 static func _paint_wall(img: Image, ox: int, oy: int, base: Color) -> void:
 	# 벽돌 패턴
@@ -273,15 +371,25 @@ static func _paint_alley(img: Image, ox: int, oy: int, base: Color) -> void:
 				_px(img, ox + px + dx, oy + py + dy, _shift(base, -0.05))
 
 static func _paint_sand(img: Image, ox: int, oy: int, base: Color) -> void:
+	# S43: 모래 — 물결 패턴 + 조개/조약돌 + 바람 자국
 	for y in range(TILE):
 		for x in range(TILE):
-			var v = sin(x * 0.4 + y * 0.3) * 0.03
-			_px(img, ox + x, oy + y, _shift(base, v + randf_range(-0.02, 0.02)))
-	# 바람 자국
-	for i in range(2):
-		var sy = randi_range(4, TILE - 4)
-		for x in range(randi_range(4, 10), randi_range(18, TILE - 2)):
-			_px(img, ox + x, oy + sy, _shift(base, 0.04))
+			var wave = sin(x * 0.4 + y * 0.3) * 0.03 + sin(x * 0.15 - y * 0.2) * 0.02
+			_px(img, ox + x, oy + y, _shift(base, wave + randf_range(-0.02, 0.02)))
+	# 바람 자국 (곡선)
+	for i in range(3):
+		var sy = randi_range(3, TILE - 4)
+		for x in range(randi_range(2, 8), randi_range(20, TILE - 1)):
+			var offset = int(sin(x * 0.2 + i) * 1.5)
+			var py = sy + offset
+			if py >= 0 and py < TILE:
+				_px(img, ox + x, oy + py, _shift(base, 0.05))
+	# 조개/조약돌
+	if randi_range(0, 3) == 0:
+		var sx = randi_range(4, TILE - 6)
+		var sy = randi_range(4, TILE - 6)
+		_px(img, ox + sx, oy + sy, Color(0.65, 0.6, 0.55))
+		_px(img, ox + sx + 1, oy + sy, Color(0.6, 0.55, 0.5))
 
 static func _paint_cliff(img: Image, ox: int, oy: int, base: Color) -> void:
 	for y in range(TILE):
@@ -361,15 +469,20 @@ static func _paint_lantern(img: Image, ox: int, oy: int, base: Color) -> void:
 				_px(img, ox + x, oy + y, current.lerp(glow, blend))
 
 static func _paint_void(img: Image, ox: int, oy: int, base: Color) -> void:
+	# S43: 보이드 — 맥동 에너지 패턴 + 별빛
 	for y in range(TILE):
 		for x in range(TILE):
+			var dist = sqrt(pow(x - 16.0, 2) + pow(y - 16.0, 2)) / 22.0
+			var pulse = sin(dist * 8.0) * 0.015
 			var noise = randf_range(-0.01, 0.01)
-			_px(img, ox + x, oy + y, _shift(base, noise))
-	# 가끔 빛나는 점 (보이드 에너지)
-	if randi_range(0, 2) == 0:
-		var sx = randi_range(4, TILE - 5)
-		var sy = randi_range(4, TILE - 5)
-		_px(img, ox + sx, oy + sy, Color(0.15, 0.05, 0.25))
+			_px(img, ox + x, oy + y, _shift(base, noise + pulse))
+	# 보이드 에너지 점 (더 많고 밝게)
+	for i in range(randi_range(1, 4)):
+		var sx = randi_range(3, TILE - 4)
+		var sy = randi_range(3, TILE - 4)
+		var glow = Color(0.2, 0.08, 0.35, 0.8)
+		_px(img, ox + sx, oy + sy, glow)
+		_px(img, ox + sx + 1, oy + sy, Color(glow.r * 0.5, glow.g * 0.5, glow.b * 0.5, 0.4))
 
 static func _paint_fragment(img: Image, ox: int, oy: int, base: Color) -> void:
 	_paint_void(img, ox, oy, Color(0.02, 0.02, 0.05))

@@ -1982,6 +1982,55 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - `scripts/core/npc.gd` — SPRITE_SIZE 48
 
 ### 다음
-- F5 실행 테스트: 조명/패럴랙스/파티클 동작 확인
-- 스프라이트 48x48에 따른 충돌 박스 조정 필요 시 수정
-- 전투 VFX 타이밍 미세 조정
+- S43 그래픽 심화 개선
+
+---
+
+## S43 — 그래픽 심화 개선: 캐릭터 아웃라인, 타일 텍스처, 애니메이션 타일, 적 스프라이트, 색상 팔레트 (2026-04-08)
+
+### 목표
+S42 이후에도 아쉬운 그래픽 품질을 한 단계 더 끌어올리기 위한 5가지 심화 개선.
+
+### 구현 내용
+
+#### 1. 캐릭터 아웃라인 (1px 외곽선)
+- `PixelSprite._add_outline()` — 48x48 스프라이트 8방향 이웃 체크, 투명 픽셀에 아웃라인 배치
+- `_add_outline_64()` — 64x64 적 스프라이트용
+- 모든 캐릭터(아렐/엘리아/세이블/NPC) 자동 적용
+
+#### 2. 타일 텍스처 강화
+- `TilePainter` 전면 리라이트: 풀(다층 노이즈+18풀잎+꽃4색), 물(듀얼웨이브+4줄파도), 돌(사인파텍스처+균열+이끼), 나무(수피텍스처+3층캐노피+엣지잎), 길(10자갈+발자국), 모래(듀얼웨이브+조개), 보이드(맥동에너지링)
+
+#### 3. 애니메이션 타일
+- `MapEffects.add_grass_sway()` — 풀 타일에 흔들리는 풀잎 배치 (4타일당 1개)
+- `MapEffects.update_grass_sway()` — sin() 기반 회전 애니메이션
+- `MapEffects.add_fire_particles()` — 랜턴 타일에 GPUParticles2D 불꽃 (6파티클, 주황→빨강)
+- 림 외곽 숲: 풀 흔들림, The Seam: 불꽃 파티클
+
+#### 4. 적 스프라이트 생성 (64x64)
+- `PixelSprite.create_enemy_sprite()` — 적 종류별 전용 스프라이트
+- 5종 전용 드로어: Void Beast(보라 갑각+빛나는 눈), Shadow Wisp(유령형), Memory Eater(턱+빛나는 코어), Shade Sentinel(갑옷+검), Void Stalker(가시+꼬리)
+- `_draw_generic_enemy()` — 미등록 적은 이름 해시 기반 색상
+- 전투씬 `_build_enemy_sprite()`에서 ColorRect 대신 적용
+
+#### 5. 색상 팔레트 갱신
+- 캐릭터: 더 채도 높은 색상 (아렐 파랑 강화, 엘리아 금빛, 세이블 은색)
+- 림 외곽 숲: 풀 0.15,0.32,0.12 (진한 녹색), 물 0.08,0.18,0.32 (깊은 파랑)
+- 베르단 시장: 돌 0.32,0.3,0.28, 가판대 0.42,0.3,0.18 (따뜻한 톤)
+
+### 버그 수정
+- `battle_scene.gd` — `BattleManager.enemy_name` → `BattleManager.current_enemy.name` (크래시 수정)
+- `exploration_hud.gd` — `SideQuest.has_method()` 비정적 호출 → `SideQuest.get_all_quests()` 정적 호출로 변경
+
+### 수정/생성 파일
+- `scripts/utils/pixel_sprite.gd` — 아웃라인 + 적 스프라이트 + 색상 갱신
+- `scripts/utils/tile_painter.gd` — 7종 타일 텍스처 전면 강화
+- `scripts/utils/map_effects.gd` — 풀 흔들림 + 불꽃 파티클
+- `scenes/battle/battle_scene.gd` — 적 스프라이트 생성 적용
+- `scenes/maps/rim_forest.gd` — 풀 흔들림 + 색상 팔레트
+- `scenes/maps/verdan_market.gd` — 색상 팔레트
+- `scenes/maps/the_seam.gd` — 불꽃 파티클
+
+### 다음
+- F5 실행 테스트: 아웃라인/텍스처/애니메이션/적 스프라이트 확인
+- 추가 그래픽 개선 가능: 셰이더 기반 포스트프로세싱, 라이트맵 등

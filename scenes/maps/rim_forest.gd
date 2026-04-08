@@ -31,12 +31,13 @@ var map_data: Array = [
 	[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
 ]
 
+# S43: 컬러 팔레트 리뉴얼 — 더 풍부한 색상
 var tile_colors: Dictionary = {
-	Tile.GRASS: Color(0.18, 0.28, 0.15),
-	Tile.PATH: Color(0.35, 0.28, 0.2),
-	Tile.TREE: Color(0.08, 0.12, 0.08),
-	Tile.BUSH: Color(0.22, 0.32, 0.18),
-	Tile.WATER: Color(0.12, 0.15, 0.25),
+	Tile.GRASS: Color(0.15, 0.32, 0.12),  # 더 진한 초록
+	Tile.PATH: Color(0.38, 0.3, 0.2),  # 더 따뜻한 흙
+	Tile.TREE: Color(0.06, 0.15, 0.06),  # 더 진한 나무
+	Tile.BUSH: Color(0.18, 0.36, 0.15),  # 더 선명한 덤불
+	Tile.WATER: Color(0.08, 0.18, 0.32),  # 더 깊은 파랑
 }
 
 var tile_nodes: Array = []
@@ -49,6 +50,7 @@ var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
 var _mushroom_lights: Array[ColorRect] = []
 var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
+var _grass_blades: Array[ColorRect] = []  # S43: 풀 흔들림
 
 @onready var player: CharacterBody2D = $Player
 
@@ -59,6 +61,8 @@ func _ready() -> void:
 	# S42: 패럴랙스 배경 + 2D 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.08, 0.12), "far": Color(0.08, 0.12, 0.08), "mid": Color(0.12, 0.18, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.55, 0.55, 0.6))
+	# S43: 풀 흔들림 애니메이션
+	_grass_blades = MapEffects.add_grass_sway(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.GRASS)
 	# 버섯 위치에 은은한 초록 라이트
 	for m in _mushroom_lights:
 		_point_lights.append(MapEffects.add_point_light(self, m.position + Vector2(3, 3), Color(0.3, 0.9, 0.4), 0.4, 48.0))
@@ -84,6 +88,7 @@ func _process(delta: float) -> void:
 	_time += delta
 	MapEffects.update_fog(fog_rects, _time)
 	MapEffects.update_point_lights(_point_lights, _time)
+	MapEffects.update_grass_sway(_grass_blades, _time)
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)

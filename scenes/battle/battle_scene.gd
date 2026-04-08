@@ -620,29 +620,21 @@ func _build_enemy_sprite(root: Control) -> void:
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 	else:
-		var rect = ColorRect.new()
-		rect.set_anchors_preset(Control.PRESET_CENTER)
-		rect.offset_left = -80
-		rect.offset_right = 80
-		rect.offset_top = -60
-		rect.offset_bottom = 60
-		rect.color = Color(0.25, 0.08, 0.12)
-		enemy_sprite_container.add_child(rect)
-
-		# 눈 (빛나는 효과)
-		var eye_l = ColorRect.new()
-		eye_l.size = Vector2(10, 10)
-		eye_l.position = Vector2(30, 35)
-		eye_l.color = Color(0.95, 0.2, 0.15)
-		rect.add_child(eye_l)
-
-		var eye_r = ColorRect.new()
-		eye_r.size = Vector2(10, 10)
-		eye_r.position = Vector2(120, 35)
-		eye_r.color = Color(0.95, 0.2, 0.15)
-		rect.add_child(eye_r)
-
-		enemy_sprite = rect
+		# S43: PixelSprite 몬스터 스프라이트 생성
+		var enemy_type = BattleManager.current_enemy.name if BattleManager.current_enemy else "generic"
+		var tex = PixelSprite.create_enemy_sprite(enemy_type)
+		var tex_rect = TextureRect.new()
+		tex_rect.set_anchors_preset(Control.PRESET_CENTER)
+		tex_rect.offset_left = -96
+		tex_rect.offset_right = 96
+		tex_rect.offset_top = -96
+		tex_rect.offset_bottom = 96
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = tex
+		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		enemy_sprite_container.add_child(tex_rect)
+		enemy_sprite = tex_rect
 
 func _build_log_panel(root: Control) -> void:
 	var panel = PanelContainer.new()

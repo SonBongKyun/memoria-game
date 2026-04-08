@@ -63,6 +63,8 @@ func _ready() -> void:
 	MapEffects.add_parallax_background(self, {"sky": Color(0.06, 0.06, 0.1), "far": Color(0.1, 0.1, 0.15), "mid": Color(0.15, 0.12, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.4, 0.38, 0.45))
 	_point_lights = MapEffects.add_tile_lights(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN, Color(1.0, 0.85, 0.5))
+	# S43: 횃불 불꽃 파티클
+	MapEffects.add_fire_particles(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN)
 	_position_player()
 	_setup_effects()
 	_setup_hidden_events()
