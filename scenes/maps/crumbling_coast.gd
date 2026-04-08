@@ -56,6 +56,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	_setup_seam_trigger()
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
+	MapEffects.add_rain(self, 0.7, Color(0.5, 0.55, 0.7, 0.25))
 	_setup_random_encounters()
 	AchievementManager.record_map_visit("crumbling_coast")
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])

@@ -133,6 +133,7 @@ func _setup_hidden_events() -> void:
 func _setup_effects() -> void:
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	lantern_lights = MapEffects.add_lantern_lights(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN)
+	MapEffects.add_snow(self, 0.6)
 
 ## ===================== 엘리아 재합류 =====================
 
@@ -245,8 +246,10 @@ func _on_arrival_ended() -> void:
 		DialogueManager.load_and_start(DIALOGUE_FILE, "sable_briefing")
 
 func _on_briefing_ended() -> void:
+	# 세이블 파티 합류
+	GameManager.set_flag("sable_joined")
 	# 자유 탐색 — BL-07 입구 트리거 활성
-	print("[TheSeam] Briefing complete — explore the village or head to BL-07")
+	print("[TheSeam] Briefing complete — Sable joined. Explore or head to BL-07")
 
 ## ===================== BL-07 탐사 트리거 (남쪽 중앙) =====================
 

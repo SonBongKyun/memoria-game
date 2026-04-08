@@ -71,6 +71,15 @@ var enemy_image: String = ""        # 적 이미지 경로
 var player_statuses: Array = []     # StatusEntry 배열
 var enemy_statuses: Array = []      # StatusEntry 배열
 
+# --- 콤보 시스템 ---
+var combo_count: int = 0            # 연속 공격 횟수
+var _last_action: String = ""       # 마지막 행동 ("attack", "burn", "defend", "item")
+
+# --- 파티 시스템 ---
+var sable_in_party: bool = false    # 세이블 동행 여부
+signal combo_changed(count: int)
+signal ally_action(ally_name: String, action: String, value: int)
+
 # --- 시그널 ---
 signal battle_started(enemy: Enemy)
 signal player_turn_started()
@@ -101,6 +110,9 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	enemy_shielded = false
 	player_statuses.clear()
 	enemy_statuses.clear()
+	combo_count = 0
+	_last_action = ""
+	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
 	state = BattleState.PLAYER_TURN
 
 	# NG+ 적 스케일링
@@ -137,12 +149,22 @@ func player_attack() -> void:
 	if state != BattleState.PLAYER_TURN or current_enemy == null:
 		return
 
+	# 콤보 빌드
+	if _last_action == "attack":
+		combo_count += 1
+	else:
+		combo_count = 1
+	_last_action = "attack"
+	combo_changed.emit(combo_count)
+
 	var base_dmg = _get_player_attack() + randi_range(0, 10)
+	# 콤보 보너스 (2연속: +15%, 3연속: +30%, 4+: +50%)
+	var combo_mult = _get_combo_multiplier()
+	base_dmg = int(base_dmg * combo_mult)
 	# 약화 적용
 	base_dmg = int(base_dmg * _get_weaken_multiplier("player"))
 
 	if current_enemy.is_void_beast:
-		# 보이드 적에게 30% 감쇠 (완전 무효 아님)
 		base_dmg = maxi(1, int(base_dmg * 0.3))
 		battle_log.emit("Your blade struggles against the void...")
 
@@ -152,9 +174,25 @@ func player_attack() -> void:
 		battle_log.emit("The barrier absorbs some damage!")
 	var actual = current_enemy.take_damage(base_dmg)
 	AudioManager.play_sfx("hit")
-	battle_log.emit("Arrel strikes! %d damage." % actual)
+	var combo_text = " (Combo x%d!)" % combo_count if combo_count >= 2 else ""
+	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_check_enemy_defeated()
+
+## 콤보 보너스 계수
+func _get_combo_multiplier() -> float:
+	match combo_count:
+		2: return 1.15
+		3: return 1.30
+	if combo_count >= 4:
+		return 1.50
+	return 1.0
+
+## 콤보 리셋 (비공격 행동 시)
+func _reset_combo(action: String) -> void:
+	_last_action = action
+	combo_count = 0
+	combo_changed.emit(combo_count)
 
 ## 챕터에 따른 플레이어 기본 공격력
 func _get_player_attack() -> int:
@@ -172,6 +210,7 @@ func player_burn(memory_id: String) -> void:
 		battle_log.emit("That memory is already gone.")
 		return
 
+	_reset_combo("burn")
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
 	var dmg = skill.base_damage + memory.burn_power
@@ -198,6 +237,7 @@ func player_defend() -> void:
 		return
 
 	player_defending = true
+	_reset_combo("defend")
 	battle_log.emit("Arrel braces for impact.")
 	_end_player_turn()
 
@@ -217,6 +257,7 @@ func player_use_item(item_id: String) -> void:
 
 	AudioManager.play_sfx("ui_select")
 	AchievementManager.record_item_used()
+	_reset_combo("item")
 
 	match item_def["type"]:
 		"heal":
@@ -408,6 +449,10 @@ func _check_enemy_defeated() -> void:
 		_end_player_turn()
 
 func _end_player_turn() -> void:
+	# 세이블 지원 행동 (파티에 있을 때, 40% 확률)
+	if sable_in_party and current_enemy and current_enemy.is_alive() and randf() < 0.4:
+		_sable_support_action()
+
 	# 적 상태이상 처리 (독/화상 DoT)
 	if current_enemy and not enemy_statuses.is_empty():
 		_process_statuses("enemy")
@@ -420,6 +465,29 @@ func _end_player_turn() -> void:
 	# 짧은 딜레이 후 적 턴 (UI 갱신 시간)
 	await get_tree().create_timer(0.8).timeout
 	_enemy_turn()
+
+## 세이블 지원 행동 (랜덤)
+func _sable_support_action() -> void:
+	var actions = ["heal", "strike", "weaken"]
+	var action = actions[randi_range(0, actions.size() - 1)]
+	match action:
+		"heal":
+			var heal = randi_range(10, 20)
+			GameManager.player_data.hp = mini(GameManager.player_data.hp + heal, GameManager.player_data.max_hp)
+			battle_log.emit("Sable mends your wounds. +%d HP." % heal)
+			ally_action.emit("Sable", "heal", heal)
+			damage_dealt.emit("Arrel", -heal, "Sable Heal")
+		"strike":
+			var dmg = randi_range(8, 18)
+			if current_enemy:
+				var actual = current_enemy.take_damage(dmg)
+				battle_log.emit("Sable strikes from the shadows! %d damage." % actual)
+				ally_action.emit("Sable", "strike", actual)
+				damage_dealt.emit(current_enemy.name, actual, "Sable Strike")
+		"weaken":
+			apply_status("enemy", StatusEffect.WEAKEN, 2, 20)
+			battle_log.emit("Sable disrupts the enemy's stance!")
+			ally_action.emit("Sable", "weaken", 20)
 
 ## 전투 승리 시 Grains 보상 계산
 func _get_grains_reward() -> int:

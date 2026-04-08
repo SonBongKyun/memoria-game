@@ -361,6 +361,14 @@ func _update_status_icons() -> void:
 		var info = _get_status_display(entry.effect)
 		_add_status_icon(player_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
 
+	# 콤보 표시
+	if BattleManager.combo_count >= 2:
+		_add_status_icon(player_status_container, "COMBO x%d" % BattleManager.combo_count, Color(0.9, 0.7, 0.2, 0.9))
+
+	# 세이블 동행 표시
+	if BattleManager.sable_in_party:
+		_add_status_icon(player_status_container, "SABLE", Color(0.5, 0.6, 0.8, 0.8))
+
 func _get_status_display(effect: int) -> Dictionary:
 	if effect == BattleManager.StatusEffect.POISON:
 		return {"text": "POISON", "color": Color(0.3, 0.7, 0.2, 0.9)}

@@ -52,6 +52,7 @@ var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
 
 var void_particles: GPUParticles2D
+var heavy_fog: Array[ColorRect] = []
 
 func _ready() -> void:
 	_build_map()
@@ -61,6 +62,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	void_particles = MapEffects.add_void_particles(self)
 	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
+	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	_setup_random_encounters()
 	AchievementManager.record_map_visit("bl07_void")
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
@@ -74,6 +76,7 @@ func _ready() -> void:
 		_start_ch5_sequence()
 
 func _process(delta: float) -> void:
+	MapEffects.update_heavy_fog(heavy_fog, pulse_time)
 	# 코어 맥동 효과
 	pulse_time += delta
 	var pulse = (sin(pulse_time * 2.0) + 1.0) * 0.5  # 0~1

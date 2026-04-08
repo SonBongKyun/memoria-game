@@ -1622,3 +1622,40 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 파티 시스템 (세이블 동행)
 - 맵 날씨 효과 (비/눈/안개 변화)
 - 전투 콤보 시스템
+
+---
+
+## S36 — 2026-04-08 (파티 시스템 + 날씨 효과 + 전투 콤보)
+
+### 완료
+- [x] **파티 시스템 (세이블 전투 동행):**
+  - Ch4(The Seam) 브리핑 완료 시 `sable_joined` 플래그 설정
+  - BattleManager: `sable_in_party` — Ch4+ & sable_joined일 때 활성
+  - 세이블 지원 행동 (40% 확률): 힐(10~20HP) / 타격(8~18dmg) / 약화(20% 2턴)
+  - `ally_action` 시그널 → 전투 로그에 세이블 행동 표시
+  - 전투 UI에 "SABLE" 동행 아이콘 표시
+
+- [x] **맵 날씨 효과:**
+  - MapEffects: `add_rain()`, `add_snow()`, `add_heavy_fog()`, `update_heavy_fog()` 추가
+  - 크럼블링 코스트(Ch3): 비 (GPUParticles2D, 빗방울 파티클)
+  - The Seam(Ch4): 눈 (느린 낙하 파티클)
+  - BL-07 보이드(Ch5): 짙은 안개 (5개 ColorRect 드리프트)
+
+- [x] **전투 콤보 시스템:**
+  - 연속 공격 시 콤보 카운터 누적 (2=+15%, 3=+30%, 4+=+50% 데미지)
+  - 방어/연소/아이템 사용 시 콤보 리셋
+  - `combo_changed` 시그널 → 전투 UI "COMBO x%d" 표시
+  - 전투 로그에 콤보 배율 메시지
+
+### 변경/생성된 파일
+- `scripts/systems/battle_manager.gd` — 콤보 변수/시그널, 세이블 지원 행동, 콤보 배율
+- `scripts/utils/map_effects.gd` — rain/snow/heavy_fog 파티클 함수
+- `scenes/battle/battle_scene.gd` — 콤보/세이블 상태 아이콘 표시
+- `scenes/maps/crumbling_coast.gd` — 비 효과 추가
+- `scenes/maps/the_seam.gd` — 눈 효과, sable_joined 플래그
+- `scenes/maps/bl07_void.gd` — 짙은 안개 효과
+
+### 다음
+- 맵 인터랙티브 오브젝트 (숨겨진 상자/단서)
+- 전투 약점/저항 시스템 (적 속성)
+- 기억 조합 시스템 (2개 기억 합성)

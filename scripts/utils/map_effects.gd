@@ -237,6 +237,90 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 
 	return layer
 
+## ===================== 날씨 효과 =====================
+
+## 비 효과 (CanvasLayer 기반)
+static func add_rain(parent: Node, intensity: float = 1.0, color: Color = Color(0.6, 0.65, 0.8, 0.3)) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 2
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0.2, 1.0, 0)
+	mat.spread = 5.0
+	mat.initial_velocity_min = 300.0 * intensity
+	mat.initial_velocity_max = 450.0 * intensity
+	mat.gravity = Vector3(20, 800 * intensity, 0)
+	mat.scale_min = 0.5
+	mat.scale_max = 1.5
+	mat.color = color
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(700, 10, 0)
+	particles.process_material = mat
+	particles.amount = int(80 * intensity)
+	particles.lifetime = 1.2
+	particles.position = Vector2(640, -20)
+	particles.visibility_rect = Rect2(-700, -50, 1400, 800)
+	layer.add_child(particles)
+	parent.add_child(layer)
+	return layer
+
+## 눈 효과 (CanvasLayer 기반)
+static func add_snow(parent: Node, intensity: float = 1.0) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 2
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 1, 0)
+	mat.spread = 30.0
+	mat.initial_velocity_min = 20.0 * intensity
+	mat.initial_velocity_max = 60.0 * intensity
+	mat.gravity = Vector3(5, 30 * intensity, 0)
+	mat.scale_min = 1.0
+	mat.scale_max = 3.0
+	mat.color = Color(0.85, 0.88, 0.95, 0.5)
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(700, 10, 0)
+	particles.process_material = mat
+	particles.amount = int(40 * intensity)
+	particles.lifetime = 6.0
+	particles.position = Vector2(640, -30)
+	particles.visibility_rect = Rect2(-700, -50, 1400, 800)
+	layer.add_child(particles)
+	parent.add_child(layer)
+	return layer
+
+## 짙은 안개 (CanvasLayer 기반, 동적 불투명도)
+static func add_heavy_fog(parent: Node, color: Color = Color(0.3, 0.3, 0.35, 0.12)) -> Array[ColorRect]:
+	var layer = CanvasLayer.new()
+	layer.layer = 2
+	var fogs: Array[ColorRect] = []
+	for i in range(5):
+		var fog = ColorRect.new()
+		fog.size = Vector2(randi_range(400, 700), randi_range(150, 300))
+		fog.position = Vector2(randf_range(-200, 1000), randf_range(50, 600))
+		fog.color = color
+		fog.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		fog.set_meta("speed_x", randf_range(2.0, 6.0))
+		fog.set_meta("speed_y", randf_range(-1.0, 1.0))
+		fog.set_meta("phase", randf() * TAU)
+		layer.add_child(fog)
+		fogs.append(fog)
+	parent.add_child(layer)
+	return fogs
+
+## 짙은 안개 업데이트
+static func update_heavy_fog(fogs: Array[ColorRect], time: float) -> void:
+	for fog in fogs:
+		if is_instance_valid(fog):
+			var sx = fog.get_meta("speed_x", 4.0)
+			var sy = fog.get_meta("speed_y", 0.0)
+			var phase = fog.get_meta("phase", 0.0)
+			fog.position.x += sx * 0.016
+			fog.position.y += sin(time * 0.3 + phase) * sy * 0.016
+			fog.color.a = 0.08 + sin(time * 0.4 + phase) * 0.04
+			if fog.position.x > 1500:
+				fog.position.x = -fog.size.x
+
 ## 안개 업데이트 (_process에서 호출)
 static func update_fog(fogs: Array[ColorRect], time: float) -> void:
 	for fog in fogs:
