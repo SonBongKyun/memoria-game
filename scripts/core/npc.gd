@@ -2,7 +2,7 @@
 ## StaticBody2D 기반. interact() 호출 시 대화 시작.
 extends StaticBody2D
 
-const SPRITE_SIZE: int = 32
+const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 
 @export var npc_name: String = "NPC"
 @export var dialogue_file: String = "res://data/chapter1_dialogue.json"

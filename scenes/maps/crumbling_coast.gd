@@ -49,10 +49,14 @@ var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
 var _tide_pools: Array[ColorRect] = []
+var _point_lights: Array[PointLight2D] = []  # S42
 
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
+	# S42: 패럴랙스 + 조명
+	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.18), "far": Color(0.15, 0.15, 0.2), "mid": Color(0.2, 0.18, 0.16), "biome": "coast", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
+	MapEffects.add_ambient_lighting(self, Color(0.5, 0.5, 0.55))
 	_position_player()
 	_setup_battle_triggers()
 	_setup_seam_trigger()

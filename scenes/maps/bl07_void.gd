@@ -54,10 +54,22 @@ var _encounter_data: RandomEncounter.EncounterData = null
 var void_particles: GPUParticles2D
 var heavy_fog: Array[ColorRect] = []
 var _memory_shards: Array[ColorRect] = []
+var _point_lights: Array[PointLight2D] = []  # S42
 
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self, 0.6)  # 보이드: 강한 비네트
+	# S42: 패럴랙스 + 조명
+	MapEffects.add_parallax_background(self, {"sky": Color(0.01, 0.01, 0.03), "far": Color(0.05, 0.02, 0.08), "mid": Color(0.08, 0.04, 0.12), "biome": "void", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
+	MapEffects.add_ambient_lighting(self, Color(0.3, 0.25, 0.4))
+	# 코어와 파편에 보이드 라이트
+	for y in range(MAP_HEIGHT):
+		for x in range(MAP_WIDTH):
+			if y < map_data.size() and x < map_data[y].size():
+				if map_data[y][x] == Tile.CORE:
+					_point_lights.append(MapEffects.add_point_light(self, Vector2(x * TILE_SIZE + 16, y * TILE_SIZE + 16), Color(0.6, 0.2, 0.8), 1.2, 128.0))
+				elif map_data[y][x] == Tile.FRAGMENT and randi() % 3 == 0:
+					_point_lights.append(MapEffects.add_point_light(self, Vector2(x * TILE_SIZE + 16, y * TILE_SIZE + 16), Color(0.4, 0.15, 0.6), 0.3, 48.0))
 	_position_player()
 	_setup_core_trigger()
 	_setup_battle_triggers()
@@ -80,6 +92,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	MapEffects.update_heavy_fog(heavy_fog, pulse_time)
+	MapEffects.update_point_lights(_point_lights, pulse_time)
 	# 코어 맥동 효과
 	pulse_time += delta
 	var pulse = (sin(pulse_time * 2.0) + 1.0) * 0.5  # 0~1

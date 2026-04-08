@@ -396,3 +396,230 @@ static func update_fog(fogs: Array[ColorRect], time: float) -> void:
 			fog.color.a = 0.05 + sin(time * 0.5 + phase) * 0.03
 			if fog.position.x > 1400:
 				fog.position.x = -fog.size.x
+
+## ===================== S42: 2D 조명 시스템 =====================
+
+## 맵에 환경 조명 추가 (CanvasModulate로 전체 어둡게 + PointLight2D)
+static func add_ambient_lighting(parent: Node2D, ambient_color: Color = Color(0.6, 0.6, 0.7, 1.0)) -> CanvasModulate:
+	var modulate = CanvasModulate.new()
+	modulate.color = ambient_color
+	parent.add_child(modulate)
+	return modulate
+
+## 포인트 라이트 생성 (횃불, 랜턴, 빛나는 오브젝트)
+static func add_point_light(parent: Node2D, pos: Vector2, color: Color = Color(1.0, 0.85, 0.5), energy: float = 1.0, radius: float = 128.0, shadow: bool = false) -> PointLight2D:
+	var light = PointLight2D.new()
+	light.position = pos
+	light.color = color
+	light.energy = energy
+	light.texture = _create_light_texture(int(radius))
+	light.texture_scale = 1.0
+	light.shadow_enabled = shadow
+	light.blend_mode = Light2D.BLEND_MODE_ADD
+	parent.add_child(light)
+	return light
+
+## 맵 타일 기반 자동 라이트 배치 (랜턴 위치에 PointLight2D)
+static func add_tile_lights(parent: Node2D, map_data: Array, width: int, height: int, lantern_index: int, light_color: Color = Color(1.0, 0.85, 0.5)) -> Array[PointLight2D]:
+	var lights: Array[PointLight2D] = []
+	for y in range(height):
+		for x in range(width):
+			if y < map_data.size() and x < map_data[y].size():
+				if map_data[y][x] == lantern_index:
+					var pos = Vector2(x * TILE + TILE / 2.0, y * TILE + TILE / 2.0)
+					var light = add_point_light(parent, pos, light_color, 0.8, 96.0)
+					light.set_meta("phase", randf() * TAU)
+					lights.append(light)
+	return lights
+
+## 라이트 플리커 업데이트 (_process에서 호출)
+static func update_point_lights(lights: Array[PointLight2D], time: float) -> void:
+	for light in lights:
+		if is_instance_valid(light):
+			var phase = light.get_meta("phase", 0.0)
+			light.energy = 0.7 + sin(time * 3.0 + phase) * 0.15 + sin(time * 7.5 + phase * 2.0) * 0.08
+
+## 원형 라이트 텍스처 프로시저럴 생성
+static func _create_light_texture(radius: int) -> ImageTexture:
+	var size = radius * 2
+	var img = Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var center = Vector2(radius, radius)
+	for y in range(size):
+		for x in range(size):
+			var dist = Vector2(x, y).distance_to(center) / radius
+			var alpha = clampf(1.0 - dist * dist, 0.0, 1.0)  # 부드러운 감쇠
+			img.set_pixel(x, y, Color(1, 1, 1, alpha))
+	return ImageTexture.create_from_image(img)
+
+## ===================== S42: 패럴랙스 배경 =====================
+
+## 맵에 패럴랙스 배경 추가 (깊이감 레이어)
+static func add_parallax_background(parent: Node2D, config: Dictionary = {}) -> ParallaxBackground:
+	var bg = ParallaxBackground.new()
+	bg.scroll_ignore_camera_zoom = true
+	parent.add_child(bg)
+
+	var sky_color = config.get("sky", Color(0.08, 0.1, 0.15))
+	var far_color = config.get("far", Color(0.12, 0.15, 0.2))
+	var mid_color = config.get("mid", Color(0.15, 0.18, 0.14))
+	var map_w = config.get("width", 800)
+	var map_h = config.get("height", 576)
+
+	# Layer 0: 하늘 (고정)
+	var sky_layer = ParallaxLayer.new()
+	sky_layer.motion_scale = Vector2.ZERO  # 고정
+	bg.add_child(sky_layer)
+	var sky_rect = ColorRect.new()
+	sky_rect.size = Vector2(map_w + 400, map_h + 200)
+	sky_rect.position = Vector2(-200, -100)
+	sky_rect.color = sky_color
+	sky_rect.z_index = -30
+	sky_layer.add_child(sky_rect)
+	# 하늘 그라디언트 — 위는 밝게, 아래는 어둡게
+	for i in range(6):
+		var grad = ColorRect.new()
+		grad.size = Vector2(map_w + 400, 30)
+		grad.position = Vector2(-200, -100 + i * 30)
+		grad.color = Color(sky_color.r + 0.02 * (6 - i), sky_color.g + 0.02 * (6 - i), sky_color.b + 0.03 * (6 - i), 0.3)
+		grad.z_index = -29
+		grad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		sky_layer.add_child(grad)
+
+	# Layer 1: 먼 산/건물 실루엣 (느린 스크롤)
+	var far_layer = ParallaxLayer.new()
+	far_layer.motion_scale = Vector2(0.15, 0.1)
+	bg.add_child(far_layer)
+	_add_silhouette_mountains(far_layer, far_color, map_w, map_h)
+
+	# Layer 2: 중간 나무/구조물 (중간 스크롤)
+	var mid_layer = ParallaxLayer.new()
+	mid_layer.motion_scale = Vector2(0.35, 0.2)
+	bg.add_child(mid_layer)
+	_add_midground_elements(mid_layer, mid_color, map_w, map_h, config.get("biome", "forest"))
+
+	return bg
+
+## 먼 산/실루엣 레이어 생성
+static func _add_silhouette_mountains(layer: ParallaxLayer, color: Color, w: int, h: int) -> void:
+	# 3~5개 산 봉우리
+	var num_peaks = randi_range(3, 5)
+	for i in range(num_peaks):
+		var peak_w = randi_range(150, 300)
+		var peak_h = randi_range(60, 140)
+		var peak_x = int(float(i) / num_peaks * (w + 200)) - 100 + randi_range(-40, 40)
+		var peak_y = h - 200 - peak_h + randi_range(0, 40)
+
+		# 삼각형을 ColorRect 스택으로 표현
+		for row in range(peak_h):
+			var ratio = 1.0 - float(row) / peak_h
+			var row_w = int(peak_w * ratio)
+			if row_w < 2:
+				continue
+			var rect = ColorRect.new()
+			rect.size = Vector2(row_w, 2)
+			rect.position = Vector2(peak_x + int((peak_w - row_w) / 2.0), peak_y + row)
+			# 높이별 색상 변화
+			var bright = 0.02 * (1.0 - ratio)
+			rect.color = Color(color.r + bright, color.g + bright, color.b + bright + 0.01, 0.7)
+			rect.z_index = -25
+			rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			layer.add_child(rect)
+
+## 중간 레이어 요소 (바이옴별)
+static func _add_midground_elements(layer: ParallaxLayer, color: Color, w: int, h: int, biome: String) -> void:
+	var num_elements = randi_range(5, 8)
+	for i in range(num_elements):
+		var ex = int(float(i) / num_elements * (w + 100)) - 50 + randi_range(-30, 30)
+		var ey = h - 180 + randi_range(-20, 40)
+
+		match biome:
+			"forest":
+				_add_tree_silhouette(layer, Vector2(ex, ey), color)
+			"coast":
+				_add_rock_silhouette(layer, Vector2(ex, ey), color)
+			"market":
+				_add_building_silhouette(layer, Vector2(ex, ey), color)
+			"void":
+				_add_crystal_silhouette(layer, Vector2(ex, ey), color)
+			_:
+				_add_tree_silhouette(layer, Vector2(ex, ey), color)
+
+## 나무 실루엣
+static func _add_tree_silhouette(layer: ParallaxLayer, pos: Vector2, color: Color) -> void:
+	# 줄기
+	var trunk = ColorRect.new()
+	trunk.size = Vector2(4, randi_range(25, 45))
+	trunk.position = pos
+	trunk.color = _darken_c(color, 0.05)
+	trunk.z_index = -20
+	trunk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(trunk)
+	# 수관 (원형 근사)
+	var canopy_r = randi_range(12, 24)
+	for dy in range(-canopy_r, canopy_r + 1, 3):
+		var half_w = int(sqrt(maxf(canopy_r * canopy_r - dy * dy, 0)))
+		if half_w < 2:
+			continue
+		var rect = ColorRect.new()
+		rect.size = Vector2(half_w * 2, 3)
+		rect.position = Vector2(pos.x + 2 - half_w, pos.y - canopy_r + dy)
+		rect.color = Color(color.r, color.g + 0.02, color.b, 0.6 + randf() * 0.15)
+		rect.z_index = -20
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(rect)
+
+## 바위 실루엣
+static func _add_rock_silhouette(layer: ParallaxLayer, pos: Vector2, color: Color) -> void:
+	var rw = randi_range(20, 50)
+	var rh = randi_range(15, 35)
+	for row in range(rh):
+		var ratio = 1.0 - float(row) / rh
+		var row_w = int(rw * (0.5 + 0.5 * ratio))
+		var rect = ColorRect.new()
+		rect.size = Vector2(row_w, 2)
+		rect.position = Vector2(pos.x + int((rw - row_w) / 2.0), pos.y + row)
+		rect.color = Color(color.r + 0.01, color.g, color.b, 0.5)
+		rect.z_index = -20
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(rect)
+
+## 건물 실루엣
+static func _add_building_silhouette(layer: ParallaxLayer, pos: Vector2, color: Color) -> void:
+	var bw = randi_range(25, 50)
+	var bh = randi_range(30, 60)
+	var rect = ColorRect.new()
+	rect.size = Vector2(bw, bh)
+	rect.position = pos
+	rect.color = Color(color.r, color.g, color.b, 0.5)
+	rect.z_index = -20
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(rect)
+	# 창문
+	for wy in range(2):
+		for wx in range(2):
+			var win = ColorRect.new()
+			win.size = Vector2(4, 5)
+			win.position = Vector2(pos.x + 6 + wx * (bw - 16), pos.y + 8 + wy * 18)
+			win.color = Color(0.6, 0.55, 0.3, 0.3)
+			win.z_index = -19
+			win.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			layer.add_child(win)
+
+## 크리스탈 실루엣 (보이드)
+static func _add_crystal_silhouette(layer: ParallaxLayer, pos: Vector2, color: Color) -> void:
+	var ch = randi_range(30, 60)
+	var cw = randi_range(8, 16)
+	for row in range(ch):
+		var ratio = 1.0 - abs(2.0 * row / ch - 1.0)
+		var row_w = int(cw * ratio) + 2
+		var rect = ColorRect.new()
+		rect.size = Vector2(row_w, 2)
+		rect.position = Vector2(pos.x + int((cw - row_w) / 2.0), pos.y + row)
+		rect.color = Color(color.r + 0.05 * ratio, color.g, color.b + 0.1 * ratio, 0.4 + 0.2 * ratio)
+		rect.z_index = -20
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(rect)
+
+## 색상 유틸
+static func _darken_c(color: Color, amount: float) -> Color:
+	return Color(maxf(color.r - amount, 0), maxf(color.g - amount, 0), maxf(color.b - amount, 0), color.a)

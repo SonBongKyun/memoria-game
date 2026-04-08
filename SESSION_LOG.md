@@ -1920,3 +1920,68 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 플러그인 Godot 에디터에서 활성화 (Project > Project Settings > Plugins)
 - 장비 밸런스 테스트
 - Dialogic 2로 대화 시스템 마이그레이션 검토
+
+---
+
+## S42 — 2026-04-08 (그래픽 대규모 업그레이드)
+
+### 목표
+캐릭터, 맵, 전투 전반의 시각적 품질 대폭 개선.
+
+### 완료
+
+#### 1. 2D 조명 시스템 (PointLight2D + CanvasModulate)
+- `MapEffects`에 `add_ambient_lighting()`, `add_point_light()`, `add_tile_lights()`, `update_point_lights()` 추가
+- 프로시저럴 원형 라이트 텍스처 생성 (`_create_light_texture()`)
+- 5개 맵 전체 적용:
+  - rim_forest: 어두운 숲 분위기 (0.55 ambient) + 버섯 초록 라이트
+  - verdan_market: 따뜻한 시장 (0.5 amber ambient) + 노점 라이트
+  - crumbling_coast: 폭풍 해안 (0.5 cool ambient)
+  - the_seam: 은신처 (0.4 dim ambient) + 랜턴 PointLight2D 자동 배치
+  - bl07_void: 보이드 (0.3 purple ambient) + 코어/파편 보라 라이트
+
+#### 2. 패럴랙스 배경
+- `MapEffects.add_parallax_background()` — ParallaxBackground + 3레이어 (하늘/산/중경)
+- 바이옴별 중경 요소: 나무/바위/건물/크리스탈 실루엣 프로시저럴 생성
+- 하늘 그라디언트 (위 밝음→아래 어둠)
+- 5개 맵에 바이옴별 색상+요소 적용
+
+#### 3. 캐릭터 스프라이트 48x48 업그레이드
+- `PixelSprite` SIZE 32→48으로 확대 (2.25배 픽셀 밀도)
+- 눈 2x2 + 하이라이트 + 눈동자 + 눈썹 추가
+- 입, 코, 볼 하이라이트, 귀 디테일 강화
+- 코트 라펠, 주름, 벨트+버클, 하단 테두리
+- 부츠 하이라이트+상단 테두리
+- 팔 스윙 진폭 ±2px로 확대
+- player.gd, companion.gd, npc.gd — SPRITE_SIZE 48로 업데이트
+
+#### 4. 전투 파티클 VFX (GPUParticles2D)
+- `_play_gpu_slash_particles()` — 물리공격 방사형 스파크 (24 particles)
+- `_play_gpu_burn_particles()` — 화염 상승 (40 particles + 열기 오버레이)
+- `_play_gpu_void_particles()` — 보이드 방사형 폭발 (50 particles + 에너지 링)
+- `_play_heal_vfx()` — 힐 상승 초록 파티클 (25 particles)
+- `_play_limit_burst_vfx()` — 리밋 브레이크 80 particles + 백색 플래시
+- 기존 ColorRect VFX에 GPU 파티클 오버레이로 동시 재생
+
+#### 5. 전투씬 연출 강화
+- `_add_battle_atmosphere()` — 배경 먼지 파티클 20개 상시 + 컬러 그레이딩 오버레이
+- 적 이름 기반 파티클/그레이딩 색상 (보이드=보라, 일반=재)
+- 스크린 셰이크 강화: 프레임 수 = 6+intensity×2, 진폭 ±7px
+
+### 수정/생성 파일
+- `scripts/utils/pixel_sprite.gd` — 48x48 전면 리라이트
+- `scripts/utils/map_effects.gd` — 조명+패럴랙스 시스템 추가
+- `scenes/battle/battle_scene.gd` — GPU 파티클 VFX 6종 + 분위기 시스템
+- `scenes/maps/rim_forest.gd` — 조명+패럴랙스 적용
+- `scenes/maps/verdan_market.gd` — 조명+패럴랙스 적용
+- `scenes/maps/crumbling_coast.gd` — 조명+패럴랙스 적용
+- `scenes/maps/the_seam.gd` — 조명+패럴랙스 적용
+- `scenes/maps/bl07_void.gd` — 조명+패럴랙스 적용
+- `scripts/core/player.gd` — SPRITE_SIZE 48
+- `scripts/core/companion.gd` — SPRITE_SIZE 48
+- `scripts/core/npc.gd` — SPRITE_SIZE 48
+
+### 다음
+- F5 실행 테스트: 조명/패럴랙스/파티클 동작 확인
+- 스프라이트 48x48에 따른 충돌 박스 조정 필요 시 수정
+- 전투 VFX 타이밍 미세 조정

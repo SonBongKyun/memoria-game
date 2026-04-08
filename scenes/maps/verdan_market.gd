@@ -50,10 +50,19 @@ var _encounter_data: RandomEncounter.EncounterData = null
 var _lantern_lights: Array[ColorRect] = []
 var _smoke_wisps: Array[Dictionary] = []
 var _time: float = 0.0
+var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
 
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
+	# S42: 패럴랙스 + 조명
+	MapEffects.add_parallax_background(self, {"sky": Color(0.1, 0.08, 0.12), "far": Color(0.15, 0.12, 0.1), "mid": Color(0.2, 0.16, 0.14), "biome": "market", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
+	MapEffects.add_ambient_lighting(self, Color(0.5, 0.45, 0.4))
+	# 노점에 따뜻한 라이트
+	for y in range(MAP_HEIGHT):
+		for x in range(MAP_WIDTH):
+			if y < map_data.size() and x < map_data[y].size() and map_data[y][x] == Tile.STALL:
+				_point_lights.append(MapEffects.add_point_light(self, Vector2(x * TILE_SIZE + 16, y * TILE_SIZE + 16), Color(1.0, 0.8, 0.5), 0.6, 80.0))
 	_position_player()
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
@@ -75,6 +84,7 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	MapEffects.update_point_lights(_point_lights, _time)
 	# 랜턴 깜빡임
 	for l in _lantern_lights:
 		l.color.a = 0.3 + randf_range(-0.05, 0.05) + sin(_time * 3.0) * 0.05

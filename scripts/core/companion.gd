@@ -2,7 +2,7 @@
 ## CharacterBody2D 기반. 플레이어를 따라다니며 대화 가능.
 extends CharacterBody2D
 
-const SPRITE_SIZE: int = 32
+const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const FOLLOW_SPEED: float = 100.0
 const MIN_DISTANCE: float = 40.0   # 이 거리 이내면 멈춤
 const MAX_DISTANCE: float = 200.0  # 이 거리 넘으면 텔레포트

@@ -41,6 +41,10 @@ var limit_btn: Button
 var _idle_time: float = 0.0
 var _enemy_base_y: float = 0.0
 
+# S42: 전투 분위기 컬러 그레이딩
+var _color_grade_rect: ColorRect
+var _battle_particles: GPUParticles2D  # 배경 파티클
+
 func _ready() -> void:
 	_build_ui()
 	_connect_signals()
@@ -73,6 +77,8 @@ func _build_ui() -> void:
 
 	# 배경 비네트 오버레이
 	_add_battle_vignette()
+	# S42: 배경 분위기 파티클 + 컬러 그레이딩
+	_add_battle_atmosphere()
 
 	var canvas = CanvasLayer.new()
 	canvas.layer = 10
@@ -1188,6 +1194,7 @@ func _show_damage_number(target: String, amount: int, skill_name: String = "") -
 	var is_heal = amount < 0
 	if is_heal:
 		label.text = "+%d" % abs(amount)
+		_play_heal_vfx()  # S42: 힐 파티클
 	else:
 		label.text = str(amount)
 
@@ -1261,23 +1268,25 @@ func _hit_flash(target: String) -> void:
 		flash_t.tween_property(enemy_sprite, "modulate", Color(3, 3, 3, 1), 0.05)
 		flash_t.tween_property(enemy_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
 
-## 스크린 셰이크 (짧은 흔들림 — 개선)
+## 스크린 셰이크 (S42 강화: 더 많은 프레임 + 회전 흔들림)
 func _screen_shake(intensity: float = 1.0) -> void:
 	var original_pos = canvas_root.position
 	var t = create_tween()
-	for i in range(5):
-		var decay = 1.0 - float(i) / 5.0
+	var frames = int(6 + intensity * 2)
+	for i in range(frames):
+		var decay = 1.0 - float(i) / frames
 		var offset = Vector2(
-			randf_range(-5, 5) * intensity * decay,
-			randf_range(-4, 4) * intensity * decay
+			randf_range(-7, 7) * intensity * decay,
+			randf_range(-5, 5) * intensity * decay
 		)
-		t.tween_property(canvas_root, "position", original_pos + offset, 0.035)
-	t.tween_property(canvas_root, "position", original_pos, 0.035)
+		t.tween_property(canvas_root, "position", original_pos + offset, 0.03)
+	t.tween_property(canvas_root, "position", original_pos, 0.04)
 
 ## ===================== 공격 VFX =====================
 
-## 물리 공격 슬래시 이펙트 (S40 개선: 스위핑 + 파티클 트레일)
+## 물리 공격 슬래시 이펙트 (S42 개선: GPU 파티클 추가)
 func _play_slash_vfx() -> void:
+	_play_gpu_slash_particles()  # S42: GPU 파티클
 	var center = Vector2(560, 190)
 
 	# 메인 슬래시 — 길이 확장 애니메이션
@@ -1337,8 +1346,9 @@ func _play_attack_vfx(skill_name: String) -> void:
 		# 연소/기본 → 불꽃 VFX
 		_play_burn_vfx()
 
-## 불꽃 VFX (여러 파티클)
+## 불꽃 VFX (S42: GPU 파티클 추가)
 func _play_burn_vfx() -> void:
+	_play_gpu_burn_particles()  # S42: GPU 파티클
 	var center = Vector2(580, 200)
 
 	# 여러 불꽃 입자 생성
@@ -1425,6 +1435,7 @@ func _play_chromatic_aberration(duration: float = 1.5) -> void:
 ## ===================== S40: 보이드 스킬 VFX (보라색 파티클 폭발) =====================
 
 func _play_void_vfx() -> void:
+	_play_gpu_void_particles()  # S42: GPU 파티클
 	var center = Vector2(580, 200)
 	for i in range(16):
 		var particle = ColorRect.new()
@@ -1544,4 +1555,293 @@ func _on_limit_break() -> void:
 	# S40: Limit Break 색수차 연출
 	_play_chromatic_aberration(2.0)
 	_screen_shake(2.5)
+	# S42: 리밋 브레이크 폭발 파티클
+	_play_limit_burst_vfx()
 	BattleManager.player_limit_break()
+
+## ===================== S42: 전투 분위기 + 강화된 VFX =====================
+
+## 배경 분위기 파티클 (떠다니는 먼지/잿가루)
+func _add_battle_atmosphere() -> void:
+	# 떠다니는 먼지 파티클
+	_battle_particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0.5, -0.3, 0)
+	mat.spread = 60.0
+	mat.initial_velocity_min = 5.0
+	mat.initial_velocity_max = 15.0
+	mat.gravity = Vector3(2, -3, 0)
+	mat.scale_min = 0.5
+	mat.scale_max = 2.0
+
+	# 적에 따라 파티클 색상 결정
+	var enemy_name = BattleManager.enemy_name.to_lower() if BattleManager.enemy_name else ""
+	var p_color: Color
+	if "void" in enemy_name or "shade" in enemy_name:
+		p_color = Color(0.4, 0.15, 0.6, 0.25)
+	elif "sentinel" in enemy_name:
+		p_color = Color(0.3, 0.1, 0.5, 0.3)
+	else:
+		p_color = Color(0.5, 0.45, 0.4, 0.15)
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(p_color.r, p_color.g, p_color.b, 0.0))
+	g.add_point(0.3, p_color)
+	g.add_point(0.7, Color(p_color.r, p_color.g, p_color.b, p_color.a * 0.6))
+	g.set_color(1, Color(p_color.r, p_color.g, p_color.b, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(640, 360, 0)
+
+	_battle_particles.process_material = mat
+	_battle_particles.amount = 20
+	_battle_particles.lifetime = 6.0
+	_battle_particles.position = Vector2(640, 360)
+	_battle_particles.z_index = -1
+	_battle_particles.visibility_rect = Rect2(-700, -400, 1400, 800)
+	add_child(_battle_particles)
+
+	# 컬러 그레이딩 오버레이 (전투 분위기)
+	_color_grade_rect = ColorRect.new()
+	_color_grade_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_color_grade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_color_grade_rect.z_index = -2
+	if "void" in enemy_name or "shade" in enemy_name:
+		_color_grade_rect.color = Color(0.1, 0.05, 0.15, 0.15)
+	else:
+		_color_grade_rect.color = Color(0.05, 0.03, 0.0, 0.1)
+	add_child(_color_grade_rect)
+
+## 물리 공격 GPUParticles2D 이펙트 (S42: 기존 ColorRect 대체)
+func _play_gpu_slash_particles() -> void:
+	var center = Vector2(560, 190)
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(-1, 0, 0)
+	mat.spread = 25.0
+	mat.initial_velocity_min = 150.0
+	mat.initial_velocity_max = 300.0
+	mat.gravity = Vector3(0, 50, 0)
+	mat.scale_min = 0.5
+	mat.scale_max = 2.0
+	mat.damping_min = 100.0
+	mat.damping_max = 200.0
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(1, 1, 1, 1.0))
+	g.add_point(0.3, Color(1, 0.9, 0.7, 0.8))
+	g.set_color(1, Color(1, 0.7, 0.3, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.emission_sphere_radius = 5.0
+	particles.process_material = mat
+	particles.amount = 24
+	particles.lifetime = 0.4
+	particles.one_shot = true
+	particles.explosiveness = 0.9
+	particles.position = center
+	particles.z_index = 60
+	particles.visibility_rect = Rect2(-200, -200, 400, 400)
+	canvas_root.add_child(particles)
+	particles.emitting = true
+
+	# 자동 정리
+	var timer = get_tree().create_timer(1.0)
+	timer.timeout.connect(particles.queue_free)
+
+## 불꽃 GPUParticles2D (S42)
+func _play_gpu_burn_particles() -> void:
+	var center = Vector2(580, 200)
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, -1, 0)
+	mat.spread = 40.0
+	mat.initial_velocity_min = 40.0
+	mat.initial_velocity_max = 120.0
+	mat.gravity = Vector3(0, -80, 0)
+	mat.scale_min = 1.0
+	mat.scale_max = 4.0
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(1, 0.9, 0.3, 1.0))
+	g.add_point(0.2, Color(1, 0.6, 0.1, 0.9))
+	g.add_point(0.5, Color(0.9, 0.3, 0.05, 0.7))
+	g.set_color(1, Color(0.3, 0.1, 0.05, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(40, 20, 0)
+	particles.process_material = mat
+	particles.amount = 40
+	particles.lifetime = 0.7
+	particles.one_shot = true
+	particles.explosiveness = 0.7
+	particles.position = center
+	particles.z_index = 55
+	particles.visibility_rect = Rect2(-200, -200, 400, 400)
+	canvas_root.add_child(particles)
+	particles.emitting = true
+
+	# 열기 왜곡 오버레이
+	var heat = ColorRect.new()
+	heat.size = Vector2(120, 80)
+	heat.position = center - Vector2(60, 50)
+	heat.color = Color(1.0, 0.5, 0.1, 0.2)
+	heat.z_index = 54
+	canvas_root.add_child(heat)
+	var ht = create_tween()
+	ht.tween_property(heat, "color:a", 0.0, 0.5)
+	ht.tween_callback(heat.queue_free)
+
+	var timer = get_tree().create_timer(1.5)
+	timer.timeout.connect(particles.queue_free)
+
+## 보이드 GPUParticles2D (S42)
+func _play_gpu_void_particles() -> void:
+	var center = Vector2(580, 200)
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 0, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 60.0
+	mat.initial_velocity_max = 150.0
+	mat.gravity = Vector3(0, 0, 0)
+	mat.scale_min = 1.0
+	mat.scale_max = 3.5
+	mat.damping_min = 50.0
+	mat.damping_max = 100.0
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(0.7, 0.3, 1.0, 1.0))
+	g.add_point(0.3, Color(0.5, 0.15, 0.8, 0.8))
+	g.add_point(0.6, Color(0.3, 0.1, 0.6, 0.5))
+	g.set_color(1, Color(0.15, 0.05, 0.3, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.emission_sphere_radius = 10.0
+	particles.process_material = mat
+	particles.amount = 50
+	particles.lifetime = 0.8
+	particles.one_shot = true
+	particles.explosiveness = 0.85
+	particles.position = center
+	particles.z_index = 55
+	particles.visibility_rect = Rect2(-200, -200, 400, 400)
+	canvas_root.add_child(particles)
+	particles.emitting = true
+
+	# 중앙 에너지 링
+	var ring = ColorRect.new()
+	ring.size = Vector2(8, 8)
+	ring.position = center - Vector2(4, 4)
+	ring.color = Color(0.6, 0.2, 1.0, 0.8)
+	ring.z_index = 56
+	canvas_root.add_child(ring)
+	var rt = create_tween().set_parallel(true)
+	rt.tween_property(ring, "size", Vector2(100, 100), 0.3).set_ease(Tween.EASE_OUT)
+	rt.tween_property(ring, "position", center - Vector2(50, 50), 0.3).set_ease(Tween.EASE_OUT)
+	rt.tween_property(ring, "color:a", 0.0, 0.4)
+	rt.chain().tween_callback(ring.queue_free)
+
+	var timer = get_tree().create_timer(1.5)
+	timer.timeout.connect(particles.queue_free)
+
+## 힐 GPUParticles2D (S42: 새로운 힐 이펙트)
+func _play_heal_vfx() -> void:
+	var center = Vector2(200, 450)  # 플레이어 위치 근처
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, -1, 0)
+	mat.spread = 30.0
+	mat.initial_velocity_min = 30.0
+	mat.initial_velocity_max = 80.0
+	mat.gravity = Vector3(0, -40, 0)
+	mat.scale_min = 1.0
+	mat.scale_max = 3.0
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(0.3, 1.0, 0.5, 0.9))
+	g.add_point(0.4, Color(0.5, 1.0, 0.7, 0.7))
+	g.set_color(1, Color(0.7, 1.0, 0.9, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(30, 5, 0)
+	particles.process_material = mat
+	particles.amount = 25
+	particles.lifetime = 0.8
+	particles.one_shot = true
+	particles.explosiveness = 0.5
+	particles.position = center
+	particles.z_index = 55
+	particles.visibility_rect = Rect2(-200, -200, 400, 400)
+	canvas_root.add_child(particles)
+	particles.emitting = true
+
+	var timer = get_tree().create_timer(1.5)
+	timer.timeout.connect(particles.queue_free)
+
+## 리밋 브레이크 폭발 VFX (S42)
+func _play_limit_burst_vfx() -> void:
+	var center = Vector2(580, 200)
+	# 큰 폭발 파티클
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 0, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 100.0
+	mat.initial_velocity_max = 350.0
+	mat.gravity = Vector3(0, 30, 0)
+	mat.scale_min = 2.0
+	mat.scale_max = 6.0
+	mat.damping_min = 50.0
+	mat.damping_max = 150.0
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(1.0, 0.9, 1.0, 1.0))
+	g.add_point(0.2, Color(1.0, 0.6, 0.9, 0.9))
+	g.add_point(0.5, Color(0.8, 0.3, 0.7, 0.6))
+	g.set_color(1, Color(0.5, 0.1, 0.4, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.emission_sphere_radius = 15.0
+	particles.process_material = mat
+	particles.amount = 80
+	particles.lifetime = 1.0
+	particles.one_shot = true
+	particles.explosiveness = 0.95
+	particles.position = center
+	particles.z_index = 65
+	particles.visibility_rect = Rect2(-400, -400, 800, 800)
+	canvas_root.add_child(particles)
+	particles.emitting = true
+
+	# 화면 백색 플래시
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(1, 0.9, 1, 0.6)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 90
+	canvas_root.add_child(flash)
+	var ft = create_tween()
+	ft.tween_property(flash, "color:a", 0.0, 0.8).set_ease(Tween.EASE_OUT)
+	ft.tween_callback(flash.queue_free)
+
+	var timer = get_tree().create_timer(2.0)
+	timer.timeout.connect(particles.queue_free)

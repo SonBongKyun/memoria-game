@@ -48,6 +48,7 @@ var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
 var _mushroom_lights: Array[ColorRect] = []
+var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
 
 @onready var player: CharacterBody2D = $Player
 
@@ -55,6 +56,12 @@ func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
 	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.06))
+	# S42: 패럴랙스 배경 + 2D 조명
+	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.08, 0.12), "far": Color(0.08, 0.12, 0.08), "mid": Color(0.12, 0.18, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
+	MapEffects.add_ambient_lighting(self, Color(0.55, 0.55, 0.6))
+	# 버섯 위치에 은은한 초록 라이트
+	for m in _mushroom_lights:
+		_point_lights.append(MapEffects.add_point_light(self, m.position + Vector2(3, 3), Color(0.3, 0.9, 0.4), 0.4, 48.0))
 	_position_player()
 	_setup_battle_triggers()
 	_setup_camp_trigger()
@@ -76,6 +83,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_time += delta
 	MapEffects.update_fog(fog_rects, _time)
+	MapEffects.update_point_lights(_point_lights, _time)
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)

@@ -3,7 +3,7 @@
 extends CharacterBody2D
 
 const SPEED: float = 120.0
-const SPRITE_SIZE: int = 32
+const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var interaction_ray: RayCast2D = $InteractionRay
