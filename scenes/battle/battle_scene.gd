@@ -136,6 +136,9 @@ func _build_ui() -> void:
 	# 턴 표시 라벨
 	_build_turn_label(root)
 
+	# S41: 턴 순서 미리보기
+	_build_turn_preview(root)
+
 	# VFX 레이어 추가
 	root.add_child(burn_vfx_container)
 	root.add_child(slash_rect)
@@ -310,6 +313,151 @@ func _show_turn_indicator(text: String, color: Color = Color(0.85, 0.75, 0.55)) 
 	t.tween_property(turn_label, "modulate:a", 0.9, 0.15)
 	t.tween_interval(0.4)
 	t.tween_property(turn_label, "modulate:a", 0.0, 0.25)
+
+## ===================== S41: 상태이상 비주얼 (적 스프라이트 틴트) =====================
+
+var _status_tween: Tween
+var _status_overlay: ColorRect  # 상태이상 오버레이 (적 스프라이트 위)
+
+func _update_enemy_status_visual() -> void:
+	if not enemy_sprite:
+		return
+	# 상태이상에 따라 적 스프라이트에 시각적 틴트 적용
+	var has_poison = false
+	var has_burn = false
+	var has_weaken = false
+	for entry in BattleManager.get_statuses("enemy"):
+		if entry.effect == BattleManager.StatusEffect.POISON:
+			has_poison = true
+		elif entry.effect == BattleManager.StatusEffect.BURN:
+			has_burn = true
+		elif entry.effect == BattleManager.StatusEffect.WEAKEN:
+			has_weaken = true
+
+	if _status_tween and _status_tween.is_running():
+		_status_tween.kill()
+
+	if has_poison:
+		# 독: 초록 틴트 맥동
+		_status_tween = create_tween().set_loops()
+		_status_tween.tween_property(enemy_sprite, "modulate", Color(0.6, 1.2, 0.6, 1.0), 0.5)
+		_status_tween.tween_property(enemy_sprite, "modulate", Color(0.8, 1.0, 0.8, 1.0), 0.5)
+	elif has_burn:
+		# 화상: 주황 깜빡임
+		_status_tween = create_tween().set_loops()
+		_status_tween.tween_property(enemy_sprite, "modulate", Color(1.3, 0.7, 0.4, 1.0), 0.3)
+		_status_tween.tween_property(enemy_sprite, "modulate", Color(1.0, 0.85, 0.7, 1.0), 0.4)
+	elif has_weaken:
+		# 약화: 파란 톤
+		enemy_sprite.modulate = Color(0.7, 0.7, 1.2, 1.0)
+	else:
+		enemy_sprite.modulate = Color(1, 1, 1, 1)
+
+## ===================== S41: 콤보 버스트 VFX =====================
+
+func _play_combo_burst(combo: int) -> void:
+	if combo < 2:
+		return
+	var center = Vector2(400, 200)
+	# 콤보 텍스트 (큰 금색)
+	var lbl = Label.new()
+	lbl.text = "COMBO x%d!" % combo
+	lbl.add_theme_font_size_override("font_size", 22 + combo * 2)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.position = center - Vector2(80, 20)
+	lbl.z_index = 70
+	lbl.modulate.a = 0.0
+	lbl.scale = Vector2(0.5, 0.5)
+	lbl.pivot_offset = Vector2(80, 20)
+	canvas_root.add_child(lbl)
+
+	var lt = create_tween().set_parallel(true)
+	lt.tween_property(lbl, "modulate:a", 1.0, 0.1)
+	lt.tween_property(lbl, "scale", Vector2(1.2, 1.2), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	lt.chain().tween_property(lbl, "scale", Vector2(1.0, 1.0), 0.1)
+	lt.chain().tween_interval(0.4)
+	lt.chain().tween_property(lbl, "modulate:a", 0.0, 0.3)
+	lt.chain().tween_callback(lbl.queue_free)
+
+	# 파티클 버스트 (금색 방사형)
+	for i in range(8 + combo * 2):
+		var spark = ColorRect.new()
+		spark.size = Vector2(4, 4)
+		spark.position = center
+		spark.color = Color(1.0, 0.8 + randf() * 0.2, 0.2, 0.9)
+		spark.z_index = 68
+		canvas_root.add_child(spark)
+		var angle = randf() * TAU
+		var dist = randf_range(40, 100 + combo * 15)
+		var target_pos = center + Vector2(cos(angle), sin(angle)) * dist
+		var st = create_tween().set_parallel(true)
+		st.tween_property(spark, "position", target_pos, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		st.tween_property(spark, "modulate:a", 0.0, 0.3).set_delay(0.15)
+		st.chain().tween_callback(spark.queue_free)
+
+## ===================== S41: 턴 순서 미리보기 =====================
+
+var turn_preview_container: HBoxContainer
+
+func _build_turn_preview(root: Control) -> void:
+	turn_preview_container = HBoxContainer.new()
+	turn_preview_container.anchor_left = 0.3
+	turn_preview_container.anchor_right = 0.7
+	turn_preview_container.anchor_top = 0.0
+	turn_preview_container.offset_top = 4
+	turn_preview_container.offset_bottom = 24
+	turn_preview_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	turn_preview_container.add_theme_constant_override("separation", 8)
+	turn_preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(turn_preview_container)
+
+func _update_turn_preview() -> void:
+	if not turn_preview_container:
+		return
+	for child in turn_preview_container.get_children():
+		child.queue_free()
+
+	# 현재 턴 + 다음 2턴 예측
+	var turns: Array = []
+	if BattleManager.state == BattleManager.BattleState.PLAYER_TURN:
+		turns = ["PLAYER", "ENEMY", "PLAYER"]
+	elif BattleManager.state == BattleManager.BattleState.ENEMY_TURN:
+		turns = ["ENEMY", "PLAYER", "ENEMY"]
+	else:
+		return
+
+	for i in range(turns.size()):
+		var is_current = (i == 0)
+		var lbl = Label.new()
+		lbl.text = turns[i]
+		lbl.add_theme_font_size_override("font_size", 9 if not is_current else 11)
+		var col = Color(0.5, 0.65, 0.85) if turns[i] == "PLAYER" else Color(0.8, 0.4, 0.35)
+		if not is_current:
+			col = col.darkened(0.4)
+		lbl.add_theme_color_override("font_color", col)
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		var panel = PanelContainer.new()
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.05, 0.04, 0.07, 0.7 if is_current else 0.4)
+		style.border_color = col * Color(1, 1, 1, 0.5 if is_current else 0.2)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(2)
+		style.set_content_margin_all(3)
+		panel.add_theme_stylebox_override("panel", style)
+		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(lbl)
+		turn_preview_container.add_child(panel)
+
+		if is_current:
+			# 현재 턴 표시자에 화살표
+			var arrow = Label.new()
+			arrow.text = ">"
+			arrow.add_theme_font_size_override("font_size", 9)
+			arrow.add_theme_color_override("font_color", col.darkened(0.2))
+			arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			turn_preview_container.add_child(arrow)
 
 ## ===================== 상태 아이콘 =====================
 
@@ -744,6 +892,10 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 
 func _on_player_turn() -> void:
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
+	_update_turn_preview()  # S41
+	# S41: 콤보 버스트 VFX
+	if BattleManager.combo_count >= 2:
+		_play_combo_burst(BattleManager.combo_count)
 	await get_tree().create_timer(0.5).timeout
 	action_container.visible = true
 	_update_limit_button()
@@ -752,9 +904,11 @@ func _on_player_turn() -> void:
 
 func _on_enemy_turn() -> void:
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
+	_update_turn_preview()  # S41
 
 func _on_status_changed() -> void:
 	_update_status_icons()
+	_update_enemy_status_visual()  # S41: 상태이상 스프라이트 틴트
 
 func _on_battle_ended(_result) -> void:
 	action_container.visible = false

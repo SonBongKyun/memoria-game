@@ -13,6 +13,7 @@ var grains_label: Label
 var tab_buy: Button
 var tab_sell: Button
 var tab_items: Button
+var tab_equip: Button  # S41
 var item_list: VBoxContainer
 var item_scroll: ScrollContainer
 var detail_panel: PanelContainer
@@ -145,6 +146,9 @@ func _build_ui() -> void:
 	tab_items = _create_tab("Items", "items")
 	tab_row.add_child(tab_items)
 
+	tab_equip = _create_tab("Equip", "equip")  # S41
+	tab_row.add_child(tab_equip)
+
 	# 구분선
 	var sep = HSeparator.new()
 	sep.add_theme_color_override("separator", UITheme.BORDER_DIM)
@@ -269,6 +273,7 @@ func _refresh_items() -> void:
 	_update_tab_style(tab_sell, _current_mode == "sell")
 	_update_tab_style(tab_buy, _current_mode == "buy")
 	_update_tab_style(tab_items, _current_mode == "items")
+	_update_tab_style(tab_equip, _current_mode == "equip")
 
 	# 목록 클리어
 	for child in item_list.get_children():
@@ -279,6 +284,8 @@ func _refresh_items() -> void:
 		_populate_sell_list()
 	elif _current_mode == "buy":
 		_populate_buy_list()
+	elif _current_mode == "equip":
+		_populate_equip_list()  # S41
 	else:
 		_populate_items_list()
 
@@ -458,6 +465,25 @@ func _select_item(item: Dictionary) -> void:
 		action_btn.text = "Sell for %d G" % item.price
 		action_btn.disabled = false
 		action_btn.visible = true
+	elif item.type == "buy_equip":  # S41
+		var def = GameManager.EQUIPMENT.get(item.equip_id, {})
+		detail_title.text = def.get("name", "???")
+		var stats_text = "Slot: %s" % def.get("slot", "?").capitalize()
+		if def.get("atk", 0) > 0: stats_text += " | ATK +%d" % def.atk
+		if def.get("def", 0) > 0: stats_text += " | DEF +%d" % def.get("def", 0)
+		detail_grade.text = stats_text
+		detail_grade.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
+		detail_desc.text = def.get("desc", "")
+		detail_price.text = "Price: %d Grains" % item.price
+		if def.has("effect"):
+			detail_effect.text = "Special: %s" % def.effect.replace("_", " ").capitalize()
+			detail_effect.visible = true
+		else:
+			detail_effect.visible = false
+		var can_afford = GameManager.player_data.get("grains", 0) >= item.price
+		action_btn.text = "Buy & Equip (%d G)" % item.price if can_afford else "Not enough Grains"
+		action_btn.disabled = not can_afford
+		action_btn.visible = true
 
 func _clear_detail() -> void:
 	detail_title.text = "Select a memory..."
@@ -483,6 +509,8 @@ func _on_action_pressed() -> void:
 		_execute_buy_item()
 	elif _selected_item.type == "sell_item":
 		_execute_sell_item()
+	elif _selected_item.type == "buy_equip":  # S41
+		_execute_buy_equip()
 
 func _execute_sell() -> void:
 	var memory = _selected_item.memory
@@ -551,6 +579,63 @@ func _execute_sell_item() -> void:
 	NotificationToast.show_toast("Sold: %s (+%d G)" % [def.get("name", "?"), price], NotificationToast.ToastType.WARNING)
 	_update_grains()
 	_refresh_items()
+
+## S41: 장비 구매/장착
+func _execute_buy_equip() -> void:
+	var equip_id = _selected_item.get("equip_id", "")
+	var price = _selected_item.get("price", 0)
+	if equip_id == "" or not GameManager.EQUIPMENT.has(equip_id):
+		return
+	if GameManager.player_data.get("grains", 0) < price:
+		return
+	GameManager.player_data.grains -= price
+	grains_changed.emit(GameManager.player_data.grains)
+	GameManager.equip_item(equip_id)
+	AudioManager.play_sfx("confirm")
+	var def = GameManager.EQUIPMENT[equip_id]
+	NotificationToast.show_toast("Equipped: %s (-%d G)" % [def.name, price], NotificationToast.ToastType.SUCCESS)
+	_update_grains()
+	_refresh_items()
+
+## S41: 장비 목록 표시
+func _populate_equip_list() -> void:
+	# 현재 장비 표시
+	var equip_header = Label.new()
+	equip_header.text = "— Current Equipment —"
+	equip_header.add_theme_font_size_override("font_size", 12)
+	equip_header.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
+	equip_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	item_list.add_child(equip_header)
+
+	for slot in ["weapon", "armor", "accessory"]:
+		var eid = GameManager.equipped.get(slot, "")
+		var label_text = "%s: %s" % [slot.capitalize(), "—"]
+		if eid != "" and GameManager.EQUIPMENT.has(eid):
+			label_text = "%s: %s" % [slot.capitalize(), GameManager.EQUIPMENT[eid].name]
+		var lbl = Label.new()
+		lbl.text = label_text
+		lbl.add_theme_font_size_override("font_size", 12)
+		lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.75))
+		item_list.add_child(lbl)
+
+	# 구매 가능한 장비
+	var shop_header = Label.new()
+	shop_header.text = "— Buy & Equip —"
+	shop_header.add_theme_font_size_override("font_size", 12)
+	shop_header.add_theme_color_override("font_color", Color(0.55, 0.65, 0.8))
+	shop_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	item_list.add_child(shop_header)
+
+	for equip_id in GameManager.EQUIPMENT:
+		var def = GameManager.EQUIPMENT[equip_id]
+		var already_equipped = GameManager.equipped.get(def.slot, "") == equip_id
+		if already_equipped:
+			continue
+		var stats = ""
+		if def.atk > 0: stats += "+%d ATK " % def.atk
+		if def.get("def", 0) > 0: stats += "+%d DEF " % def.get("def", 0)
+		var item = {"type": "buy_equip", "equip_id": equip_id, "price": def.price}
+		_add_item_button("%s %s" % [def.name, stats], Color(0.55, 0.45, 0.75), def.price, item)
 
 func _update_grains() -> void:
 	grains_label.text = "%d Grains" % GameManager.player_data.grains

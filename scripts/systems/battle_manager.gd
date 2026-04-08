@@ -257,7 +257,12 @@ func _reset_combo(action: String) -> void:
 func _get_player_attack() -> int:
 	var base = 15
 	var chapter_bonus = (GameManager.current_chapter - 1) * 3
-	return base + chapter_bonus
+	var equip_bonus = GameManager.get_equip_bonus("atk")  # S41: 장비 보너스
+	return base + chapter_bonus + equip_bonus
+
+## S41: 장비 방어력 적용 (적 공격 시 피해 감소)
+func _get_player_defense() -> int:
+	return GameManager.get_equip_bonus("def")
 
 ## 플레이어 행동: 기억 연소 스킬
 func player_burn(memory_id: String) -> void:
@@ -273,6 +278,9 @@ func player_burn(memory_id: String) -> void:
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
 	var dmg = skill.base_damage + memory.burn_power
+	# S41: 장비 효과 — 연소 부스트
+	if GameManager.has_equip_effect("burn_boost"):
+		dmg = int(dmg * 1.2)
 	# 속성 상성 (연소 속성)
 	var burn_element = skill.get("element", "fire")
 	var elem_mult = _get_element_multiplier(burn_element)
@@ -406,6 +414,13 @@ func _enemy_turn() -> void:
 	var base_dmg = current_enemy.attack + randi_range(0, 5)
 	# 적 약화 적용
 	base_dmg = int(base_dmg * _get_weaken_multiplier("enemy"))
+	# S41: 장비 방어력 적용
+	var def = _get_player_defense()
+	if def > 0:
+		base_dmg = maxi(1, base_dmg - def)
+	# 보이드 내성 (액세서리 효과)
+	if current_enemy.is_void_beast and GameManager.has_equip_effect("void_resist"):
+		base_dmg = maxi(1, int(base_dmg * 0.75))
 	if player_defending:
 		base_dmg = maxi(1, base_dmg / 2)
 		battle_log.emit("Defended! Reduced damage.")
@@ -497,6 +512,27 @@ func _try_enemy_ability() -> bool:
 			battle_log.emit("Shadows coalesce around %s. +%d HP." % [current_enemy.name, heal])
 			battle_log.emit("The darkness saps your strength!")
 			damage_dealt.emit(current_enemy.name, -heal, "Shadow Summon")
+		# S41: 새로운 보스 전용 능력
+		"void_pulse":
+			# 보이드 펄스: 전체 데미지 + 콤보 초기화
+			var dmg = int((current_enemy.attack * 0.8 + 10) * rage_bonus)
+			if player_defending:
+				dmg = maxi(1, dmg / 2)
+			player_defending = false
+			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
+			combo_count = 0
+			combo_changed.emit(0)
+			battle_log.emit("Reality distorts around %s! %d damage." % [current_enemy.name, dmg])
+			battle_log.emit("Your momentum shatters... combo broken!")
+			damage_dealt.emit("Arrel", dmg, "Void Pulse")
+			_add_limit(LIMIT_GAIN_HIT)
+		"despair":
+			# 절망: 독 + 약화 동시 부여
+			apply_status("player", StatusEffect.POISON, 3, int(current_enemy.attack * 0.2) + 3)
+			apply_status("player", StatusEffect.WEAKEN, 2, 25)
+			AudioManager.play_sfx("drain")
+			battle_log.emit("%s floods your mind with despair!" % current_enemy.name)
+			battle_log.emit("Poison and weakness seize your body!")
 	return true
 
 ## 전술적 능력 선택 — 상황 분석 기반

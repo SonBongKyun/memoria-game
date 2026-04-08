@@ -43,12 +43,13 @@ func _physics_process(delta: float) -> void:
 	else:
 		_update_animation(facing_direction, false)
 
-	# 발걸음 소리
+	# S41: 지형별 발걸음 SFX
 	if input_vector != Vector2.ZERO:
 		_step_timer += delta
 		if _step_timer >= STEP_INTERVAL:
 			_step_timer = 0.0
-			AudioManager.play_step()
+			var terrain = _get_terrain_type()
+			AudioManager.play_step(terrain)
 	else:
 		_step_timer = 0.0
 
@@ -95,6 +96,22 @@ func _try_interact() -> void:
 	var collider = interaction_ray.get_collider()
 	if collider and collider.has_method("interact"):
 		collider.interact()
+
+## S41: 현재 지형 타입 감지 (맵 스크립트의 terrain_map 메타 사용)
+func _get_terrain_type() -> String:
+	var scene = get_tree().current_scene
+	if scene and scene.has_method("get_terrain_at"):
+		return scene.get_terrain_at(global_position)
+	# 씬 이름 기반 폴백
+	if scene:
+		var sname = scene.name.to_lower()
+		if "coast" in sname or "sand" in sname:
+			return "sand"
+		elif "void" in sname or "bl07" in sname:
+			return "stone"
+		elif "market" in sname:
+			return "stone"
+	return "grass"
 
 ## 이동 잠금/해제 (컷씬, 대화 중)
 func lock_movement() -> void:

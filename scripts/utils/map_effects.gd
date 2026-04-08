@@ -4,20 +4,32 @@ class_name MapEffects
 
 const TILE: int = 32
 
+# S41: 셰이더 캐시 (한번 로드한 셰이더 재사용)
+static var _shader_cache: Dictionary = {}
+
+static func _get_shader(path: String) -> Shader:
+	if _shader_cache.has(path):
+		return _shader_cache[path]
+	if ResourceLoader.exists(path):
+		var shader = load(path) as Shader
+		_shader_cache[path] = shader
+		return shader
+	return null
+
 ## 물 타일 반짝임 효과 추가 — 셰이더 기반 물 왜곡 (S40)
 ## parent에 추가된 ColorRect들을 반환 (caller가 _process에서 업데이트)
 static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, height: int, water_index: int) -> Array[ColorRect]:
 	var shimmers: Array[ColorRect] = []
 	var shader_path = "res://assets/shaders/water_distortion.gdshader"
-	var has_shader = ResourceLoader.exists(shader_path)
-	var shader_res = load(shader_path) if has_shader else null
+	var shader_res = _get_shader(shader_path)
+	var has_shader = shader_res != null
 
+	# S41: 물 반짝임 최적화 — 5타일마다 1개로 줄여 ColorRect 수 감소
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
 				if map_data[y][x] == water_index:
-					# 간헐적으로만 추가 (성능)
-					if (x + y) % 3 == 0:
+					if (x + y) % 5 == 0:
 						var rect = ColorRect.new()
 						rect.size = Vector2(TILE, 2)
 						rect.position = Vector2(x * TILE, y * TILE + randi_range(4, 28))
@@ -75,8 +87,8 @@ static func update_water_shimmer(shimmers: Array[ColorRect], time: float) -> voi
 static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, height: int, lantern_index: int) -> Array[ColorRect]:
 	var lights: Array[ColorRect] = []
 	var shader_path = "res://assets/shaders/glow_pulse.gdshader"
-	var has_shader = ResourceLoader.exists(shader_path)
-	var shader_res = load(shader_path) if has_shader else null
+	var shader_res = _get_shader(shader_path)
+	var has_shader = shader_res != null
 
 	for y in range(height):
 		for x in range(width):
@@ -152,7 +164,8 @@ static func add_void_particles(parent: Node2D) -> GPUParticles2D:
 
 	# S40: 보이드 환경 글로우 오버레이
 	var shader_path = "res://assets/shaders/glow_pulse.gdshader"
-	if ResourceLoader.exists(shader_path):
+	var glow_shader = _get_shader(shader_path)
+	if glow_shader:
 		var glow = ColorRect.new()
 		glow.size = Vector2(200, 200)
 		glow.position = Vector2(-100, -100)
@@ -160,7 +173,7 @@ static func add_void_particles(parent: Node2D) -> GPUParticles2D:
 		glow.z_index = -1
 		glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var glow_mat = ShaderMaterial.new()
-		glow_mat.shader = load(shader_path)
+		glow_mat.shader = glow_shader
 		glow_mat.set_shader_parameter("glow_color", Color(0.4, 0.15, 0.6, 0.35))
 		glow_mat.set_shader_parameter("pulse_speed", 1.2)
 		glow_mat.set_shader_parameter("min_intensity", 0.15)
@@ -182,9 +195,10 @@ static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 	rect.color = Color(0, 0, 0, 0)  # 셰이더가 알파를 제어
 
 	var shader_path = "res://assets/shaders/vignette.gdshader"
-	if ResourceLoader.exists(shader_path):
+	var vignette_shader = _get_shader(shader_path)
+	if vignette_shader:
 		var shader_mat = ShaderMaterial.new()
-		shader_mat.shader = load(shader_path)
+		shader_mat.shader = vignette_shader
 		shader_mat.set_shader_parameter("intensity", intensity)
 		shader_mat.set_shader_parameter("outer_radius", 0.85)
 		shader_mat.set_shader_parameter("inner_radius", 0.35)

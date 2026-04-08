@@ -103,10 +103,16 @@ func play_sfx(type: String) -> void:
 	sfx_player.play()
 
 ## 발걸음 전용 재생 (step_player 사용, 다른 SFX와 겹치지 않음)
-func play_step() -> void:
+## S41: 지형별 발걸음 SFX
+func play_step(terrain: String = "grass") -> void:
 	if not step_player:
 		return
-	var samples = _generate_sfx("step")
+	var sfx_type = "step"
+	match terrain:
+		"sand": sfx_type = "step_sand"
+		"stone": sfx_type = "step_stone"
+		"water": sfx_type = "step_water"
+	var samples = _generate_sfx(sfx_type)
 	if samples.is_empty():
 		return
 	var stream = _samples_to_stream(samples)
@@ -150,11 +156,28 @@ func _generate_sfx(type: String) -> PackedFloat32Array:
 				var t = float(i) / sample_rate
 				var env = sin(t / duration * PI)
 				samples.append(sin(t * 660.0 * TAU) * 0.15 * env + sin(t * 990.0 * TAU) * 0.1 * env)
-		"step":  # 발걸음
+		"step":  # 발걸음 (풀)
 			duration = 0.06
 			for i in range(int(sample_rate * duration)):
 				var t = float(i) / sample_rate
 				samples.append(randf_range(-0.15, 0.15) * (1.0 - t / duration))
+		"step_sand":  # 모래 발걸음 — 부드럽고 길게
+			duration = 0.09
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				samples.append(randf_range(-0.1, 0.1) * (1.0 - t / duration) * 0.8)
+		"step_stone":  # 돌 발걸음 — 날카롭고 짧게
+			duration = 0.05
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = (1.0 - t / duration) * (1.0 - t / duration)
+				samples.append((sin(t * 1200.0 * TAU) * 0.08 + randf_range(-0.12, 0.12)) * env)
+		"step_water":  # 물 발걸음 — 스플래시
+			duration = 0.1
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = sin(t / duration * PI) * 0.7
+				samples.append((randf_range(-0.2, 0.2) + sin(t * 300.0 * TAU) * 0.05) * env)
 		"shield":  # 적 방어막 — 저음 울림
 			duration = 0.35
 			for i in range(int(sample_rate * duration)):

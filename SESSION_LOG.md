@@ -1856,3 +1856,67 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 
 ### 다음
 - 밸런스 조정 및 추가 폴리싱
+
+---
+
+## S41 — 2026-04-08 (대규모 업그레이드: 플러그인+전투VFX+장비+UX+성능)
+
+### 완료
+
+- [x] **플러그인 다운로드 (3종):**
+  - Dialogic 2 — 비주얼 대화 에디터
+  - ShaderV — 2D 비주얼 셰이더 노드 라이브러리
+  - GODOT-VFX-LIBRARY — 전투 VFX 씬 컬렉션
+
+- [x] **전투 VFX 강화:**
+  - 상태이상 비주얼 (적 스프라이트 틴트: 독=초록 맥동, 화상=주황 깜빡, 약화=파란 톤)
+  - 콤보 버스트 VFX (금색 텍스트 스케일 펀치 + 방사형 파티클)
+  - 턴 순서 미리보기 (상단 PLAYER/ENEMY 턴 큐 3턴 표시)
+
+- [x] **장비 시스템:**
+  - 10종 장비 (무기 4, 방어구 3, 액세서리 3)
+  - ATK/DEF 스탯 보너스, 전투에 자동 적용
+  - 특수 효과: burn_boost(+20% 연소), void_resist(-25% 보이드 피해)
+  - MemoryShop "Equip" 탭으로 구매/장착
+  - 세이브/로드에 장비 데이터 포함
+
+- [x] **보스 전투 패턴 확장:**
+  - void_pulse: 데미지 + 콤보 초기화
+  - despair: 독 + 약화 동시 부여
+  - 장비 방어력 적 공격 시 피해 감소
+
+- [x] **UX 개선:**
+  - 퀘스트 트래커 HUD (ExplorationHUD에 활성 퀘스트 표시)
+  - 장비 상태 HUD 표시
+  - 세이브 슬롯 정보 확장 (위치/HP/Grains 표시)
+  - 지형별 발걸음 SFX (풀/모래/돌/물 4종)
+
+- [x] **성능 최적화:**
+  - 셰이더 캐시 시스템 (MapEffects._shader_cache)
+  - 물 반짝임 간격 3→5로 줄여 ColorRect 40% 감소
+  - 맵 비네트/글로우/물 왜곡 모두 캐시 적용
+
+- [x] **버그 수정 (이전 세션):**
+  - 전투 승리 후 화면 프리즈 (SceneTransition await 누락)
+  - 미니맵 시그널 누수 (freed 노드 참조)
+  - 세이블 적 처치 미감지
+
+### 변경/생성된 파일
+- `addons/dialogic/` — **신규** (플러그인)
+- `addons/shaderV/` — **신규** (플러그인)
+- `addons/vfx_lib/` — **신규** (플러그인)
+- `scripts/core/game_manager.gd` — 장비 시스템 (EQUIPMENT, equip/export/import)
+- `scripts/systems/battle_manager.gd` — 장비 방어력, 연소 부스트, 보스 능력 2종, 세이블 킬 감지, 전투 후 await
+- `scenes/battle/battle_scene.gd` — 상태이상 비주얼, 콤보 버스트, 턴 미리보기
+- `scripts/ui/exploration_hud.gd` — 퀘스트 트래커, 장비 표시
+- `scripts/ui/memory_shop.gd` — 장비 탭 (구매/장착)
+- `scripts/ui/minimap.gd` — freed 노드 가드
+- `scripts/core/player.gd` — 지형별 SFX
+- `scripts/systems/audio_manager.gd` — 지형 SFX 4종 (sand/stone/water)
+- `scripts/systems/save_manager.gd` — 세이브 정보 확장
+- `scripts/utils/map_effects.gd` — 셰이더 캐시, 물 반짝임 최적화
+
+### 다음
+- 플러그인 Godot 에디터에서 활성화 (Project > Project Settings > Plugins)
+- 장비 밸런스 테스트
+- Dialogic 2로 대화 시스템 마이그레이션 검토

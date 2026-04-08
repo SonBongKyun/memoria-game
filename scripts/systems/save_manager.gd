@@ -126,10 +126,25 @@ func get_save_info(slot: int) -> Dictionary:
 	file.close()
 
 	var data = json.data
+	var game_data = data.get("game", {})
+	var mem_data = data.get("memory", {})
+	# S41: 세이브 슬롯에 더 많은 정보 표시
+	var scene_path: String = data.get("scene", "")
+	var location: String = ""
+	if scene_path != "":
+		location = scene_path.get_file().get_basename().replace("_", " ").capitalize()
+	var hp_val: int = game_data.get("player_data", {}).get("hp", 0)
+	var max_hp_val: int = game_data.get("player_data", {}).get("max_hp", 100)
+	var grains_val: int = game_data.get("player_data", {}).get("grains", 0)
 	return {
 		"timestamp": data.get("timestamp", ""),
-		"chapter": data.get("game", {}).get("current_chapter", 1),
-		"burn_count": data.get("memory", {}).get("burned", []).size(),
+		"chapter": game_data.get("current_chapter", 1),
+		"burn_count": mem_data.get("burned", []).size(),
+		"location": location,
+		"hp": hp_val,
+		"max_hp": max_hp_val,
+		"grains": grains_val,
+		"equipped": game_data.get("equipped", {}),
 	}
 
 ## 현재 씬 경로

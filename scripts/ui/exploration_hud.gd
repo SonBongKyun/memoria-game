@@ -20,6 +20,8 @@ var chapter_label: Label
 var memory_label: Label
 var grains_label: Label
 var items_label: Label
+var equip_label: Label    # S41
+var quest_label: Label    # S41
 var update_timer: Timer
 var hp_tween: Tween
 var _last_hp: int = -1
@@ -106,6 +108,20 @@ func _build_ui() -> void:
 	items_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 	vbox.add_child(items_label)
 
+	# ── S41: Equipment Row ──
+	equip_label = Label.new()
+	equip_label.add_theme_font_size_override("font_size", 11)
+	equip_label.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
+	vbox.add_child(equip_label)
+
+	# ── S41: Active Quest Tracker ──
+	quest_label = Label.new()
+	quest_label.add_theme_font_size_override("font_size", 11)
+	quest_label.add_theme_color_override("font_color", Color(0.7, 0.6, 0.4))
+	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	quest_label.custom_minimum_size.x = 180
+	vbox.add_child(quest_label)
+
 func _start_timer() -> void:
 	update_timer = Timer.new()
 	update_timer.wait_time = 0.5
@@ -173,6 +189,43 @@ func _update_hud() -> void:
 	for item_id in items_dict:
 		total_items += items_dict[item_id]
 	items_label.text = "Items: %d" % total_items
+
+	# S41: Equipment summary
+	var weapon_name = ""
+	var wid = GameManager.equipped.get("weapon", "")
+	if wid != "" and GameManager.EQUIPMENT.has(wid):
+		weapon_name = GameManager.EQUIPMENT[wid].name
+	equip_label.text = "Weapon: %s" % weapon_name if weapon_name != "" else ""
+	equip_label.visible = weapon_name != ""
+
+	# S41: Active quest tracker
+	_update_quest_tracker()
+
+## S41: 활성 퀘스트 트래커
+func _update_quest_tracker() -> void:
+	var active_quest = ""
+	# SideQuest에서 활성 퀘스트 검색
+	if SideQuest:
+		var quests = SideQuest.get_active_quests() if SideQuest.has_method("get_active_quests") else []
+		if not quests.is_empty():
+			var q = quests[0]
+			active_quest = q.get("name", "")
+	# 스토리 기반 힌트
+	if active_quest == "":
+		var ch = GameManager.current_chapter
+		if ch == 1 and not GameManager.get_flag("met_elia"):
+			active_quest = "Find Elia in the forest"
+		elif ch == 2 and not GameManager.get_flag("malet_deal"):
+			active_quest = "Meet Malet at the market"
+		elif ch == 3 and not GameManager.get_flag("reached_seam"):
+			active_quest = "Reach The Seam"
+		elif ch == 4 and not GameManager.get_flag("shade_sentinel_defeated"):
+			active_quest = "Defeat the Shade Sentinel"
+	if active_quest != "":
+		quest_label.text = "> %s" % active_quest
+		quest_label.visible = true
+	else:
+		quest_label.visible = false
 
 ## 현재 맵 이름 가져오기
 func _get_location_name() -> String:

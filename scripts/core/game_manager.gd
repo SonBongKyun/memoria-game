@@ -33,6 +33,49 @@ const ITEMS: Dictionary = {
 	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15},
 }
 
+# --- S41: 장비 시스템 ---
+const EQUIPMENT: Dictionary = {
+	# 무기
+	"rusty_blade": {"name": "Rusty Blade", "slot": "weapon", "atk": 3, "def": 0, "desc": "A dull, corroded sword.", "price": 15},
+	"iron_sword": {"name": "Iron Sword", "slot": "weapon", "atk": 8, "def": 0, "desc": "Sturdy and reliable.", "price": 35},
+	"void_edge": {"name": "Void Edge", "slot": "weapon", "atk": 15, "def": 0, "desc": "A blade that hums with void energy.", "price": 80, "element": "void"},
+	"ember_brand": {"name": "Ember Brand", "slot": "weapon", "atk": 12, "def": 0, "desc": "Warm to the touch. Burns on contact.", "price": 60, "element": "fire"},
+	# 방어구
+	"worn_coat": {"name": "Worn Coat", "slot": "armor", "atk": 0, "def": 3, "desc": "Threadbare but better than nothing.", "price": 12},
+	"leather_vest": {"name": "Leather Vest", "slot": "armor", "atk": 0, "def": 7, "desc": "Basic protection.", "price": 30},
+	"memory_weave": {"name": "Memory Weave", "slot": "armor", "atk": 2, "def": 12, "desc": "Woven from residue threads. Resists void.", "price": 70},
+	# 액세서리
+	"ash_pendant": {"name": "Ash Pendant", "slot": "accessory", "atk": 0, "def": 0, "desc": "Increases burn damage by 20%.", "price": 50, "effect": "burn_boost"},
+	"iron_ring": {"name": "Iron Ring", "slot": "accessory", "atk": 3, "def": 3, "desc": "Simple but effective.", "price": 40},
+	"void_charm": {"name": "Void Charm", "slot": "accessory", "atk": 0, "def": 0, "desc": "Reduces void damage taken by 25%.", "price": 65, "effect": "void_resist"},
+}
+
+var equipped: Dictionary = {"weapon": "", "armor": "", "accessory": ""}
+
+func equip_item(equip_id: String) -> String:
+	if not EQUIPMENT.has(equip_id):
+		return ""
+	var slot: String = EQUIPMENT[equip_id].slot
+	var old = equipped[slot]
+	equipped[slot] = equip_id
+	return old
+
+func get_equip_bonus(stat: String) -> int:
+	var total: int = 0
+	for slot in equipped:
+		var eid = equipped[slot]
+		if eid != "" and EQUIPMENT.has(eid):
+			total += EQUIPMENT[eid].get(stat, 0)
+	return total
+
+func has_equip_effect(effect_name: String) -> bool:
+	for slot in equipped:
+		var eid = equipped[slot]
+		if eid != "" and EQUIPMENT.has(eid):
+			if EQUIPMENT[eid].get("effect", "") == effect_name:
+				return true
+	return false
+
 func add_item(item_id: String, count: int = 1) -> void:
 	if not ITEMS.has(item_id):
 		return
@@ -144,6 +187,7 @@ func export_data() -> Dictionary:
 		"story_flags": story_flags.duplicate(),
 		"current_chapter": current_chapter,
 		"ng_plus_cycle": ng_plus_cycle,
+		"equipped": equipped.duplicate(),  # S41
 	}
 
 ## 세이브 데이터 불러오기
@@ -156,3 +200,5 @@ func import_data(data: Dictionary) -> void:
 		current_chapter = data.current_chapter
 	if data.has("ng_plus_cycle"):
 		ng_plus_cycle = int(data["ng_plus_cycle"])
+	if data.has("equipped"):
+		equipped = data.equipped  # S41
