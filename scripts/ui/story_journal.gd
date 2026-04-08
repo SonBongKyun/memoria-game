@@ -1,7 +1,6 @@
 ## StoryJournal — 스토리 저널 / 코덱스
 ## PauseMenu에서 접근. 게임 진행 중 자동으로 기록되는 이벤트/NPC/선택 목록.
 ## ESC로 닫기.
-class_name StoryJournal
 extends CanvasLayer
 
 var is_open: bool = false
