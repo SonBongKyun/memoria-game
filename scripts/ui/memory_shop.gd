@@ -12,6 +12,7 @@ var shop_title: Label
 var grains_label: Label
 var tab_buy: Button
 var tab_sell: Button
+var tab_items: Button
 var item_list: VBoxContainer
 var item_scroll: ScrollContainer
 var detail_panel: PanelContainer
@@ -25,7 +26,7 @@ var close_btn: Button
 var close_hint: Label
 
 # ── 상점 데이터 ──
-var _current_mode: String = "sell"  # "buy" or "sell"
+var _current_mode: String = "sell"  # "buy", "sell", or "items"
 var _shop_inventory: Array[Dictionary] = []  # 상점 구매 가능 아이템
 var _selected_item: Dictionary = {}
 var _merchant_name: String = "Merchant"
@@ -140,6 +141,9 @@ func _build_ui() -> void:
 
 	tab_buy = _create_tab("Buy Memories", "buy")
 	tab_row.add_child(tab_buy)
+
+	tab_items = _create_tab("Items", "items")
+	tab_row.add_child(tab_items)
 
 	# 구분선
 	var sep = HSeparator.new()
@@ -264,6 +268,7 @@ func _refresh_items() -> void:
 	# 탭 스타일 업데이트
 	_update_tab_style(tab_sell, _current_mode == "sell")
 	_update_tab_style(tab_buy, _current_mode == "buy")
+	_update_tab_style(tab_items, _current_mode == "items")
 
 	# 목록 클리어
 	for child in item_list.get_children():
@@ -272,8 +277,10 @@ func _refresh_items() -> void:
 
 	if _current_mode == "sell":
 		_populate_sell_list()
-	else:
+	elif _current_mode == "buy":
 		_populate_buy_list()
+	else:
+		_populate_items_list()
 
 func _update_tab_style(btn: Button, active: bool) -> void:
 	if active:
@@ -323,6 +330,50 @@ func _populate_buy_list() -> void:
 		var item = {"type": "buy", "data": item_data, "price": price}
 		_add_item_button(item_data.get("title", "???"), grade_color, price, item)
 
+## 아이템 매매 목록
+func _populate_items_list() -> void:
+	# 구매 가능한 아이템
+	var buy_header = Label.new()
+	buy_header.text = "— Buy Items —"
+	buy_header.add_theme_font_size_override("font_size", 12)
+	buy_header.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
+	buy_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	item_list.add_child(buy_header)
+
+	for item_id in GameManager.ITEMS:
+		var def = GameManager.ITEMS[item_id]
+		var price = def["price"]
+		var item = {"type": "buy_item", "item_id": item_id, "price": price}
+		_add_item_button(def["name"], Color(0.45, 0.65, 0.45), price, item)
+
+	# 판매 가능한 아이템
+	var sell_header = Label.new()
+	sell_header.text = "— Sell Items —"
+	sell_header.add_theme_font_size_override("font_size", 12)
+	sell_header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.4))
+	sell_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	item_list.add_child(sell_header)
+
+	var has_items = false
+	for item_id in GameManager.player_data.get("items", {}):
+		var count = GameManager.player_data["items"][item_id]
+		if count <= 0:
+			continue
+		has_items = true
+		var def = GameManager.ITEMS.get(item_id)
+		if def == null:
+			continue
+		var sell_price = int(def["price"] * 0.6)  # 60% 가격에 판매
+		var item = {"type": "sell_item", "item_id": item_id, "price": sell_price, "count": count}
+		_add_item_button("%s (×%d)" % [def["name"], count], Color(0.65, 0.55, 0.35), sell_price, item)
+
+	if not has_items:
+		var empty = Label.new()
+		empty.text = "No items to sell."
+		empty.add_theme_font_size_override("font_size", 13)
+		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		item_list.add_child(empty)
+
 func _add_item_button(title: String, color: Color, price: int, item_data: Dictionary) -> void:
 	var btn = Button.new()
 	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -369,6 +420,7 @@ func _select_item(item: Dictionary) -> void:
 		else:
 			detail_effect.visible = false
 		action_btn.text = "Sell for %d G" % item.price
+		action_btn.disabled = false
 		action_btn.visible = true
 	elif item.type == "buy":
 		var data = item.data
@@ -382,6 +434,29 @@ func _select_item(item: Dictionary) -> void:
 		var can_afford = GameManager.player_data.grains >= item.price
 		action_btn.text = "Buy for %d G" % item.price if can_afford else "Not enough Grains"
 		action_btn.disabled = not can_afford
+		action_btn.visible = true
+	elif item.type == "buy_item":
+		var def = GameManager.ITEMS.get(item.item_id, {})
+		detail_title.text = def.get("name", "???")
+		detail_grade.text = "Consumable Item"
+		detail_grade.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
+		detail_desc.text = def.get("desc", "")
+		detail_price.text = "Buy Price: %d Grains" % item.price
+		detail_effect.visible = false
+		var can_afford = GameManager.player_data.get("grains", 0) >= item.price
+		action_btn.text = "Buy for %d G" % item.price if can_afford else "Not enough Grains"
+		action_btn.disabled = not can_afford
+		action_btn.visible = true
+	elif item.type == "sell_item":
+		var def = GameManager.ITEMS.get(item.item_id, {})
+		detail_title.text = def.get("name", "???")
+		detail_grade.text = "Consumable Item (×%d owned)" % item.get("count", 0)
+		detail_grade.add_theme_color_override("font_color", Color(0.65, 0.55, 0.35))
+		detail_desc.text = def.get("desc", "")
+		detail_price.text = "Sell Price: %d Grains" % item.price
+		detail_effect.visible = false
+		action_btn.text = "Sell for %d G" % item.price
+		action_btn.disabled = false
 		action_btn.visible = true
 
 func _clear_detail() -> void:
@@ -404,6 +479,10 @@ func _on_action_pressed() -> void:
 		_execute_sell()
 	elif _selected_item.type == "buy":
 		_execute_buy()
+	elif _selected_item.type == "buy_item":
+		_execute_buy_item()
+	elif _selected_item.type == "sell_item":
+		_execute_sell_item()
 
 func _execute_sell() -> void:
 	var memory = _selected_item.memory
@@ -448,8 +527,34 @@ func _execute_buy() -> void:
 	_update_grains()
 	_refresh_items()
 
+func _execute_buy_item() -> void:
+	var item_id = _selected_item.item_id
+	var price = _selected_item.price
+	if GameManager.player_data.get("grains", 0) < price:
+		return
+	GameManager.player_data.grains -= price
+	grains_changed.emit(GameManager.player_data.grains)
+	GameManager.add_item(item_id)
+	AudioManager.play_sfx("confirm")
+	_update_grains()
+	_refresh_items()
+
+func _execute_sell_item() -> void:
+	var item_id = _selected_item.item_id
+	var price = _selected_item.price
+	if not GameManager.remove_item(item_id):
+		return
+	GameManager.player_data.grains += price
+	grains_changed.emit(GameManager.player_data.grains)
+	AudioManager.play_sfx("confirm")
+	var def = GameManager.ITEMS.get(item_id, {})
+	NotificationToast.show_toast("Sold: %s (+%d G)" % [def.get("name", "?"), price], NotificationToast.ToastType.WARNING)
+	_update_grains()
+	_refresh_items()
+
 func _update_grains() -> void:
 	grains_label.text = "%d Grains" % GameManager.player_data.grains
+	AchievementManager.check_grains()
 
 func _show_ui() -> void:
 	overlay.visible = true

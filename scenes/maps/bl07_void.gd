@@ -62,6 +62,7 @@ func _ready() -> void:
 	void_particles = MapEffects.add_void_particles(self)
 	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
 	_setup_random_encounters()
+	AchievementManager.record_map_visit("bl07_void")
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	MemoryManager.add_chapter_memories(5)
@@ -168,6 +169,7 @@ func _refuse_seal() -> void:
 func _on_seal_complete() -> void:
 	GameManager.set_flag("ch5_complete")
 	GameManager.current_chapter = 6
+	AchievementManager.record_chapter_complete(5)
 	print("[BL07Void] Chapter 5 complete — The Seal executed (Zero Burn path)")
 	await get_tree().create_timer(2.0).timeout
 	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
@@ -175,6 +177,7 @@ func _on_seal_complete() -> void:
 func _on_refuse_complete() -> void:
 	GameManager.set_flag("ch5_complete")
 	GameManager.current_chapter = 6
+	AchievementManager.record_chapter_complete(5)
 	print("[BL07Void] Chapter 5 complete — The Seal refused (Preservation path)")
 	await get_tree().create_timer(2.0).timeout
 	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")

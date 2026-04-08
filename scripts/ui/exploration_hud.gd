@@ -152,10 +152,11 @@ func _update_hud() -> void:
 	# Chapter & location
 	var chapter_num: int = GameManager.current_chapter
 	var location_name: String = _get_location_name()
+	var ng_suffix = " (NG+%d)" % GameManager.ng_plus_cycle if GameManager.ng_plus_cycle > 0 else ""
 	if location_name.is_empty():
-		chapter_label.text = "Ch.%d" % chapter_num
+		chapter_label.text = "Ch.%d%s" % [chapter_num, ng_suffix]
 	else:
-		chapter_label.text = "Ch.%d — %s" % [chapter_num, location_name]
+		chapter_label.text = "Ch.%d — %s%s" % [chapter_num, location_name, ng_suffix]
 
 	# Memories
 	var held: int = MemoryManager.memories.size()

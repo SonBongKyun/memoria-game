@@ -1526,3 +1526,54 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - MemoryShop에 아이템 상점 탭 추가
 - New Game+ 모드
 - 업적 시스템
+
+---
+
+## S34 — 2026-04-08 (MemoryShop 아이템 탭 + New Game+ + 업적 시스템)
+
+### 완료
+- [x] **MemoryShop 아이템 탭:**
+  - 3번째 탭 "Items" 추가 (Sell Memories / Buy Memories / Items)
+  - 아이템 구매: GameManager.ITEMS 전체 목록, Grains로 구매
+  - 아이템 판매: 보유 아이템 60% 가격에 Grains로 판매
+  - 상세 패널 (이름/설명/가격) + 구매/판매 버튼
+
+- [x] **New Game+ 모드:**
+  - 게임 클리어 시 `user://ng_plus.json` 영구 파일 생성
+  - 타이틀 화면에 "New Game+" 버튼 동적 추가 (클리어 후에만)
+  - NG+ 시작: Grains + 아이템 유지, 스토리/기억 초기화, 회차 증가
+  - 적 스케일링: HP/ATK × (1 + 0.3 × 회차) — NG+1 = 1.3배, NG+2 = 1.6배
+  - HUD/PauseMenu에 "NG+N" 회차 표시
+  - GameManager export/import에 ng_plus_cycle 포함 (세이브 호환)
+
+- [x] **업적 시스템 (AchievementManager 오토로드):**
+  - 25종 업적 정의 (전투 6 / 기억 4 / 탐색 3 / 스토리 9 / 경제 2 / NG+ 1)
+  - `user://achievements.json` 영구 저장 (세이브 슬롯과 독립)
+  - 전투: first_blood, void_slayer, boss_hunter, battle_veteran(10승), survivor(10HP이하 승리), item_master(10회 사용)
+  - 기억: first_burn, pyromaniac(5회 연소), identity_crisis(Grade 2), zero_burn(핵심 기억)
+  - 탐색: hidden_stump, hidden_garden, explorer(5맵 방문)
+  - 스토리: Ch1~5 완료, 4종 엔딩, all_endings(4종 수집)
+  - 경제: merchant(말렛 거래), wealthy(100 Grains)
+  - PauseMenu "Achievements" 버튼 + 뷰어 패널 (아이콘/제목/설명, 미해금=???)
+  - 달성 시 NotificationToast 자동 알림
+
+### 변경/생성된 파일
+- `scripts/ui/memory_shop.gd` — Items 탭 (buy_item/sell_item 모드)
+- `scripts/core/game_manager.gd` — ng_plus_cycle, NG+ 관련 함수, export/import
+- `scripts/systems/battle_manager.gd` — NG+ 적 스케일링, 아이템 사용 업적 추적, Grains 업적
+- `scripts/ui/achievement_manager.gd` — **신규** 업적 오토로드
+- `scripts/ui/pause_menu.gd` — Achievements 버튼 + 뷰어 패널, NG+ 표시
+- `scripts/ui/exploration_hud.gd` — NG+ 회차 표시
+- `scenes/main/main.gd` — NG+ 버튼, New Game 아이템 초기화
+- `scenes/ui/credits.gd` — 게임 완료 기록, 엔딩 업적
+- `scenes/maps/rim_forest.gd` — 맵 방문/챕터 완료/히든 이벤트 업적
+- `scenes/maps/verdan_market.gd` — 맵 방문/챕터 완료/거래 업적
+- `scenes/maps/crumbling_coast.gd` — 맵 방문/챕터 완료 업적
+- `scenes/maps/the_seam.gd` — 맵 방문/히든 정원 업적
+- `scenes/maps/bl07_void.gd` — 맵 방문/챕터 완료 업적
+- `project.godot` — AchievementManager 오토로드 추가
+
+### 다음
+- 도감 시스템 (적/기억 수집도)
+- 난이도 선택 (Easy/Normal/Hard)
+- 미니게임 (시장 미니 퀴즈)

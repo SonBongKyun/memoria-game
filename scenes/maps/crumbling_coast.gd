@@ -57,6 +57,7 @@ func _ready() -> void:
 	_setup_seam_trigger()
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	_setup_random_encounters()
+	AchievementManager.record_map_visit("crumbling_coast")
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
@@ -144,6 +145,7 @@ func _setup_seam_trigger() -> void:
 func _arrive_at_seam() -> void:
 	GameManager.set_flag("ch3_seam_arrived")
 	GameManager.set_flag("ch3_complete")
+	AchievementManager.record_chapter_complete(3)
 	DialogueManager.dialogue_ended.connect(_on_seam_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "seam_arrival")
 

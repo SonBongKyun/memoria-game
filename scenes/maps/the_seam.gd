@@ -62,6 +62,7 @@ func _ready() -> void:
 	_setup_hidden_events()
 	MemoryManager.add_chapter_memories(4)
 	_setup_random_encounters()
+	AchievementManager.record_map_visit("the_seam")
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	if GameManager.current_chapter >= 6 and GameManager.get_flag("ch5_complete"):
@@ -123,6 +124,7 @@ func _setup_hidden_events() -> void:
 	area.body_entered.connect(func(body):
 		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag("hidden_ch4_garden"):
 			GameManager.set_flag("hidden_ch4_garden")
+			AchievementManager.unlock("hidden_garden")
 			DialogueManager.load_and_start(DIALOGUE_FILE, "hidden_garden")
 	)
 	add_child(area)

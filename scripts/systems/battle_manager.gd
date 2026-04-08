@@ -95,6 +95,13 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	enemy_statuses.clear()
 	state = BattleState.PLAYER_TURN
 
+	# NG+ 적 스케일링
+	var ng_scale = GameManager.get_ng_scale()
+	if ng_scale > 1.0:
+		enemy.hp = int(enemy.hp * ng_scale)
+		enemy.max_hp = int(enemy.max_hp * ng_scale)
+		enemy.attack = int(enemy.attack * ng_scale)
+
 	# 챕터별 최대 HP 성장
 	var chapter_hp = 100 + (GameManager.current_chapter - 1) * 15
 	if GameManager.player_data.max_hp < chapter_hp:
@@ -194,6 +201,7 @@ func player_use_item(item_id: String) -> void:
 		return
 
 	AudioManager.play_sfx("ui_select")
+	AchievementManager.record_item_used()
 
 	match item_def["type"]:
 		"heal":
@@ -427,6 +435,7 @@ func _cleanup() -> void:
 		GameManager.player_data.grains += grains
 		battle_log.emit("Gained %d Grains." % grains)
 		NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
+		AchievementManager.check_grains()
 
 		# 아이템 드롭 (30% 확률)
 		_try_item_drop()

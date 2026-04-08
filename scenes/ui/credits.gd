@@ -47,7 +47,20 @@ var _total_height: float = 0.0
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	AudioManager.play_bgm("res://assets/audio/bgm/epilogue.mp3")
+	# NG+ 해금 + 업적 기록
+	GameManager.mark_game_completed()
+	_record_ending_achievements()
 	_build_ui()
+
+func _record_ending_achievements() -> void:
+	if GameManager.get_flag("zero_burn_path"):
+		AchievementManager.record_ending("ending_zero")
+	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
+		AchievementManager.record_ending("ending_ash")
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch4_garden"):
+		AchievementManager.record_ending("ending_seam")
+	else:
+		AchievementManager.record_ending("ending_seal")
 
 func _build_ui() -> void:
 	# 배경

@@ -3,6 +3,7 @@
 extends Control
 
 @onready var continue_btn: Button = $VBoxContainer/ContinueButton
+var ng_plus_btn: Button = null
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -41,6 +42,21 @@ func _setup_background() -> void:
 	move_child(overlay, 1)
 
 func _setup_menu() -> void:
+	# NG+ 버튼 동적 추가 (New Game 아래)
+	if GameManager.is_ng_plus_unlocked():
+		ng_plus_btn = Button.new()
+		ng_plus_btn.text = "New Game+"
+		ng_plus_btn.pressed.connect(_on_ng_plus_pressed)
+		# New Game 버튼 바로 아래에 삽입
+		var new_game_idx = 0
+		for i in range($VBoxContainer.get_child_count()):
+			var child = $VBoxContainer.get_child(i)
+			if child is Button and child.text == "New Game":
+				new_game_idx = i + 1
+				break
+		$VBoxContainer.add_child(ng_plus_btn)
+		$VBoxContainer.move_child(ng_plus_btn, new_game_idx)
+
 	# 모든 버튼 스타일링
 	for btn in $VBoxContainer.get_children():
 		if btn is Button:
@@ -91,12 +107,14 @@ func _on_new_game_pressed() -> void:
 	MemoryManager._init_starting_memories()
 	GameManager.story_flags.clear()
 	GameManager.current_chapter = 1
+	GameManager.ng_plus_cycle = 0
 	GameManager.player_data = {
 		"name": "Arrel",
 		"hp": 100,
 		"max_hp": 100,
 		"grains": 0,
 		"elia_with_party": true,
+		"items": {},
 	}
 	SceneTransition.change_scene("res://scenes/maps/rim_forest.tscn")
 
@@ -106,6 +124,10 @@ func _on_continue_pressed() -> void:
 func _on_options_pressed() -> void:
 	AudioManager.play_sfx("ui_select")
 	OptionsMenu.open()
+
+func _on_ng_plus_pressed() -> void:
+	GameManager.start_new_game_plus()
+	SceneTransition.change_scene("res://scenes/maps/rim_forest.tscn")
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

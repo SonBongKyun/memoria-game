@@ -59,6 +59,7 @@ func _ready() -> void:
 	_setup_camp_trigger()
 	_setup_hidden_events()
 	_setup_random_encounters()
+	AchievementManager.record_map_visit("rim_forest")
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# 스토리 시퀀스 시작 (첫 진입 시만)
@@ -142,6 +143,7 @@ func _start_camp_scene() -> void:
 func _on_camp_ended() -> void:
 	GameManager.set_flag("ch1_complete")
 	GameManager.current_chapter = 2
+	AchievementManager.record_chapter_complete(1)
 	GameManager.add_item("potion", 1)
 	print("[RimForest] Chapter 1 complete")
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
@@ -174,6 +176,9 @@ func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dia
 		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
 			GameManager.set_flag(flag_name)
 			DialogueManager.load_and_start(dialogue_file, dialogue_key)
+			# 히든 이벤트 업적
+			if flag_name == "hidden_ch1_stump":
+				AchievementManager.unlock("hidden_stump")
 	)
 	add_child(area)
 

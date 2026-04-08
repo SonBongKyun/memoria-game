@@ -40,6 +40,7 @@ ExplorationHUD="*res://scripts/ui/exploration_hud.gd"
 NotificationToast="*res://scripts/ui/notification_toast.gd"
 MemoryShop="*res://scripts/ui/memory_shop.gd"
 StoryJournal="*res://scripts/ui/story_journal.gd"
+AchievementManager="*res://scripts/ui/achievement_manager.gd"
 
 [display]
 

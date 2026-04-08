@@ -127,6 +127,7 @@ func _build_ui() -> void:
 	var buttons = [
 		{"text": "Resume", "callback": _close},
 		{"text": "Journal", "callback": _on_journal},
+		{"text": "Achievements", "callback": _on_achievements},
 		{"text": "Options", "callback": _on_options},
 		{"text": "Save (Slot 1)", "callback": _on_save},
 		{"text": "Load (Slot 1)", "callback": _on_load},
@@ -182,7 +183,10 @@ func _update_save_info() -> void:
 	var burn_count = MemoryManager.get_burn_count()
 	var memory_count = MemoryManager.memories.size()
 
-	var text = "Chapter %d — %s\n" % [ch, chapter_name[ch]]
+	var ng_text = ""
+	if GameManager.ng_plus_cycle > 0:
+		ng_text = " (NG+%d)" % GameManager.ng_plus_cycle
+	var text = "Chapter %d — %s%s\n" % [ch, chapter_name[ch], ng_text]
 	text += "HP: %d / %d\n" % [hp, max_hp]
 	text += "Memories: %d held, %d burned" % [memory_count - burn_count, burn_count]
 
@@ -226,6 +230,116 @@ func _on_journal() -> void:
 func _on_options() -> void:
 	AudioManager.play_sfx("ui_select")
 	OptionsMenu.open()
+
+func _on_achievements() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_achievements_panel()
+
+func _show_achievements_panel() -> void:
+	# 업적 패널 (PauseMenu 위에 오버레이)
+	var ach_overlay = ColorRect.new()
+	ach_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ach_overlay.color = Color(0, 0, 0, 0.7)
+	ach_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(ach_overlay)
+
+	var ach_panel = PanelContainer.new()
+	ach_panel.anchor_left = 0.15
+	ach_panel.anchor_right = 0.85
+	ach_panel.anchor_top = 0.05
+	ach_panel.anchor_bottom = 0.95
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.05, 0.08, 0.98)
+	style.border_color = Color(0.5, 0.4, 0.25, 0.7)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(16)
+	ach_panel.add_theme_stylebox_override("panel", style)
+	ach_overlay.add_child(ach_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	ach_panel.add_child(vbox)
+
+	# 타이틀
+	var header = Label.new()
+	var all_achs = AchievementManager.get_all_achievements()
+	var unlocked_count = 0
+	for a in all_achs:
+		if a["unlocked"]:
+			unlocked_count += 1
+	header.text = "ACHIEVEMENTS  (%d / %d)" % [unlocked_count, all_achs.size()]
+	header.add_theme_font_size_override("font_size", 18)
+	header.add_theme_color_override("font_color", Color(0.85, 0.7, 0.45))
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(header)
+
+	var sep = HSeparator.new()
+	vbox.add_child(sep)
+
+	# 스크롤 리스트
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	var list = VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 4)
+	scroll.add_child(list)
+
+	for ach in all_achs:
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		list.add_child(row)
+
+		# 아이콘 (간단한 텍스트)
+		var icon_map = {"sword": "⚔", "skull": "💀", "crown": "👑", "shield": "🛡", "heart": "❤", "potion": "🧪", "flame": "🔥", "eye": "👁", "map": "🗺", "book": "📖", "star": "⭐", "coin": "🪙", "cycle": "🔄"}
+		var icon_label = Label.new()
+		icon_label.text = icon_map.get(ach.get("icon", ""), "•")
+		icon_label.add_theme_font_size_override("font_size", 16)
+		icon_label.custom_minimum_size = Vector2(28, 0)
+		row.add_child(icon_label)
+
+		var info = VBoxContainer.new()
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(info)
+
+		var title_lbl = Label.new()
+		title_lbl.add_theme_font_size_override("font_size", 14)
+		info.add_child(title_lbl)
+
+		var desc_lbl = Label.new()
+		desc_lbl.add_theme_font_size_override("font_size", 11)
+		info.add_child(desc_lbl)
+
+		if ach["unlocked"]:
+			title_lbl.text = ach["title"]
+			title_lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.5))
+			desc_lbl.text = ach["desc"]
+			desc_lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.5))
+		else:
+			title_lbl.text = "???"
+			title_lbl.add_theme_color_override("font_color", Color(0.35, 0.3, 0.28))
+			desc_lbl.text = ach["desc"]
+			desc_lbl.add_theme_color_override("font_color", Color(0.3, 0.28, 0.25))
+
+	# 닫기 힌트
+	var close_label = Label.new()
+	close_label.text = "[ESC] Close"
+	close_label.add_theme_font_size_override("font_size", 11)
+	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
+	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vbox.add_child(close_label)
+
+	# ESC로 닫기
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			ach_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	ach_overlay.gui_input.connect(close_handler)
+	# 패널 클릭으로도 닫기
+	ach_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 
 func _on_quit() -> void:
 	get_tree().quit()

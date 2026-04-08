@@ -53,6 +53,7 @@ func _ready() -> void:
 	MapEffects.add_vignette(self)
 	_position_player()
 	_setup_random_encounters()
+	AchievementManager.record_map_visit("verdan_market")
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)
@@ -142,6 +143,8 @@ func _open_malet_shop() -> void:
 func _on_shop_closed() -> void:
 	GameManager.set_flag("ch2_complete")
 	GameManager.current_chapter = 3
+	AchievementManager.record_chapter_complete(2)
+	AchievementManager.unlock("merchant")
 	print("[VerdenMarket] Chapter 2 complete — transitioning to Crumbling Coast")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene("res://scenes/maps/crumbling_coast.tscn")
