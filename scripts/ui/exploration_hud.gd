@@ -205,11 +205,11 @@ func _update_hud() -> void:
 func _update_quest_tracker() -> void:
 	var active_quest = ""
 	# SideQuest에서 활성 퀘스트 검색
-	if SideQuest:
-		var quests = SideQuest.get_active_quests() if SideQuest.has_method("get_active_quests") else []
-		if not quests.is_empty():
-			var q = quests[0]
+	var all_quests = SideQuest.get_all_quests()
+	for q in all_quests:
+		if SideQuest.is_active(q.get("id", "")):
 			active_quest = q.get("name", "")
+			break
 	# 스토리 기반 힌트
 	if active_quest == "":
 		var ch = GameManager.current_chapter
