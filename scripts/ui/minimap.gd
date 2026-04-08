@@ -93,9 +93,10 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 
 	parent.add_child(layer)
 
-	# 가시성 연동
+	# 가시성 연동 — is_instance_valid 체크 (씬 전환 시 freed 방지)
 	GameManager.state_changed.connect(func(state):
-		container.visible = (state == GameManager.GameState.EXPLORATION)
+		if is_instance_valid(container):
+			container.visible = (state == GameManager.GameState.EXPLORATION)
 	)
 	container.visible = (GameManager.current_state == GameManager.GameState.EXPLORATION)
 

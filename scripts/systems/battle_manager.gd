@@ -589,6 +589,13 @@ func _end_player_turn() -> void:
 	# 세이블 지원 행동 (파티에 있을 때, 40% 확률)
 	if sable_in_party and current_enemy and current_enemy.is_alive() and randf() < 0.4:
 		_sable_support_action()
+		# 세이블이 적을 처치했는지 확인
+		if current_enemy and not current_enemy.is_alive():
+			state = BattleState.VICTORY
+			battle_log.emit("%s is defeated!" % current_enemy.name)
+			battle_ended.emit(BattleState.VICTORY)
+			_cleanup()
+			return
 
 	# 적 상태이상 처리 (독/화상 DoT)
 	if current_enemy and not enemy_statuses.is_empty():
@@ -663,7 +670,7 @@ func _cleanup() -> void:
 		battle_log.emit("Darkness closes in...")
 		await get_tree().create_timer(1.5).timeout
 		# 게임 오버 화면으로 전환 (current_enemy/return_scene 유지)
-		SceneTransition.change_scene("res://scenes/ui/game_over.tscn")
+		await SceneTransition.change_scene("res://scenes/ui/game_over.tscn")
 		return
 
 	await get_tree().create_timer(1.5).timeout
@@ -672,7 +679,7 @@ func _cleanup() -> void:
 	enemy_statuses.clear()
 	GameManager.change_state(GameManager.GameState.EXPLORATION)
 	if return_scene != "":
-		SceneTransition.change_scene(return_scene)
+		await SceneTransition.change_scene(return_scene)
 
 ## 전투 승리 시 아이템 드롭
 func _try_item_drop() -> void:
