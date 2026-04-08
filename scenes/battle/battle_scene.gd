@@ -357,14 +357,13 @@ func _update_status_icons() -> void:
 		var info = _get_status_display(entry.effect)
 		_add_status_icon(player_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
 
-func _get_status_display(effect: BattleManager.StatusEffect) -> Dictionary:
-	match effect:
-		BattleManager.StatusEffect.POISON:
-			return {"text": "POISON", "color": Color(0.3, 0.7, 0.2, 0.9)}
-		BattleManager.StatusEffect.WEAKEN:
-			return {"text": "WEAK", "color": Color(0.7, 0.5, 0.2, 0.9)}
-		BattleManager.StatusEffect.BURN:
-			return {"text": "BURN", "color": Color(0.9, 0.4, 0.1, 0.9)}
+func _get_status_display(effect: int) -> Dictionary:
+	if effect == BattleManager.StatusEffect.POISON:
+		return {"text": "POISON", "color": Color(0.3, 0.7, 0.2, 0.9)}
+	elif effect == BattleManager.StatusEffect.WEAKEN:
+		return {"text": "WEAK", "color": Color(0.7, 0.5, 0.2, 0.9)}
+	elif effect == BattleManager.StatusEffect.BURN:
+		return {"text": "BURN", "color": Color(0.9, 0.4, 0.1, 0.9)}
 	return {"text": "???", "color": Color(0.5, 0.5, 0.5, 0.9)}
 
 func _add_status_icon(container: HBoxContainer, text: String, color: Color) -> void:

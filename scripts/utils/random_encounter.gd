@@ -63,15 +63,15 @@ static func _trigger_encounter(data: EncounterData) -> void:
 	if data.enemy_pool.is_empty():
 		return
 
-	var pool_entry = data.enemy_pool[randi_range(0, data.enemy_pool.size() - 1)]
+	var pool_entry: Dictionary = data.enemy_pool[randi_range(0, data.enemy_pool.size() - 1)]
 	var enemy = BattleManager.Enemy.new(
-		pool_entry.name,
-		pool_entry.hp,
-		pool_entry.atk,
+		pool_entry["name"],
+		pool_entry["hp"],
+		pool_entry["atk"],
 		pool_entry.get("is_void", false)
 	)
 	if pool_entry.has("abilities"):
-		enemy.abilities = pool_entry.abilities
+		enemy.abilities = pool_entry["abilities"]
 
 	var bg = data.bg_image if data.bg_image != "" else pool_entry.get("bg", "")
 	var ei = data.enemy_image if data.enemy_image != "" else pool_entry.get("img", "")

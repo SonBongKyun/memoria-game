@@ -52,11 +52,11 @@ const BURN_SKILLS: Dictionary = {
 enum StatusEffect { POISON, WEAKEN, BURN }
 
 class StatusEntry:
-	var effect: StatusEffect
+	var effect: int  # StatusEffect enum 값
 	var turns_left: int
 	var power: int  # 독/화상: DoT 데미지, 약화: 공격력 감소%
 
-	func _init(p_effect: StatusEffect, p_turns: int, p_power: int) -> void:
+	func _init(p_effect: int, p_turns: int, p_power: int) -> void:
 		effect = p_effect
 		turns_left = p_turns
 		power = p_power
