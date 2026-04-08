@@ -52,7 +52,7 @@ static func _add_water_overlay(parent: Node2D, map_data: Array, width: int, heig
 					var overlay = ColorRect.new()
 					overlay.size = Vector2(span * TILE, TILE)
 					overlay.position = Vector2(start_x * TILE, y * TILE)
-					overlay.color = Color(0.3, 0.5, 0.8, 0.15)
+					overlay.color = Color(0, 0, 0, 0)  # 셰이더가 알파 제어
 					overlay.z_index = 1
 					overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 					var mat = ShaderMaterial.new()
@@ -86,12 +86,12 @@ static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, heig
 					var rect = ColorRect.new()
 					rect.size = Vector2(size, size)
 					rect.position = Vector2(x * TILE - TILE, y * TILE - TILE)
-					rect.color = Color(0.9, 0.7, 0.3, 0.08)
 					rect.z_index = 1
 					rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 					rect.set_meta("phase", randf() * TAU)
 					# 셰이더 적용
 					if has_shader:
+						rect.color = Color(0, 0, 0, 0)  # 셰이더가 알파 제어
 						var mat = ShaderMaterial.new()
 						mat.shader = shader_res
 						mat.set_shader_parameter("glow_color", Color(0.95, 0.75, 0.3, 0.5))
@@ -100,6 +100,8 @@ static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, heig
 						mat.set_shader_parameter("max_intensity", 0.65)
 						mat.set_shader_parameter("glow_radius", 0.4)
 						rect.material = mat
+					else:
+						rect.color = Color(0.9, 0.7, 0.3, 0.08)
 					parent.add_child(rect)
 					lights.append(rect)
 	return lights
@@ -154,7 +156,7 @@ static func add_void_particles(parent: Node2D) -> GPUParticles2D:
 		var glow = ColorRect.new()
 		glow.size = Vector2(200, 200)
 		glow.position = Vector2(-100, -100)
-		glow.color = Color(0.3, 0.1, 0.5, 0.1)
+		glow.color = Color(0, 0, 0, 0)  # 셰이더가 알파 제어
 		glow.z_index = -1
 		glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var glow_mat = ShaderMaterial.new()
@@ -177,7 +179,7 @@ static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 	var rect = ColorRect.new()
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rect.color = Color(1, 1, 1, 1)
+	rect.color = Color(0, 0, 0, 0)  # 셰이더가 알파를 제어
 
 	var shader_path = "res://assets/shaders/vignette.gdshader"
 	if ResourceLoader.exists(shader_path):
@@ -187,9 +189,6 @@ static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 		shader_mat.set_shader_parameter("outer_radius", 0.85)
 		shader_mat.set_shader_parameter("inner_radius", 0.35)
 		rect.material = shader_mat
-	else:
-		# 폴백: 기존 직사각형 방식
-		rect.color = Color(0, 0, 0, 0)
 
 	layer.add_child(rect)
 	parent.add_child(layer)

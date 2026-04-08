@@ -150,7 +150,7 @@ func _add_battle_vignette() -> void:
 	# 셰이더 기반 원형 비네트 (S40)
 	var vignette = ColorRect.new()
 	vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
-	vignette.color = Color(1, 1, 1, 1)
+	vignette.color = Color(0, 0, 0, 0)  # 셰이더가 알파를 제어
 	vignette.z_index = -1
 	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -162,8 +162,6 @@ func _add_battle_vignette() -> void:
 		mat.set_shader_parameter("outer_radius", 0.9)
 		mat.set_shader_parameter("inner_radius", 0.3)
 		vignette.material = mat
-	else:
-		vignette.color = Color(0, 0, 0, 0)
 	add_child(vignette)
 
 ## ===================== 인트로 시스템 =====================
@@ -1255,7 +1253,7 @@ func _play_chromatic_aberration(duration: float = 1.5) -> void:
 		_chromatic_overlay.queue_free()
 	_chromatic_overlay = ColorRect.new()
 	_chromatic_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_chromatic_overlay.color = Color(1, 1, 1, 1)
+	_chromatic_overlay.color = Color(0, 0, 0, 0)  # 셰이더가 screen_texture에서 직접 샘플링
 	_chromatic_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_chromatic_overlay.z_index = 80
 	var mat = ShaderMaterial.new()

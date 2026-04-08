@@ -114,7 +114,7 @@ func change_scene_iris(scene_path: String, duration: float = 0.8) -> void:
 func _iris_wipe_out(duration: float) -> void:
 	var iris = ColorRect.new()
 	iris.set_anchors_preset(Control.PRESET_FULL_RECT)
-	iris.color = Color.BLACK
+	iris.color = Color(0, 0, 0, 0)  # 셰이더가 알파 제어
 	iris.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var shader_code = """
 shader_type canvas_item;
@@ -146,7 +146,7 @@ void fragment() {
 func _iris_wipe_in(duration: float) -> void:
 	var iris = ColorRect.new()
 	iris.set_anchors_preset(Control.PRESET_FULL_RECT)
-	iris.color = Color.BLACK
+	iris.color = Color(0, 0, 0, 0)  # 셰이더가 알파 제어
 	iris.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var shader_code = """
 shader_type canvas_item;
