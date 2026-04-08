@@ -26,9 +26,10 @@ class Enemy:
 		attack = p_atk
 		is_void_beast = p_void
 		# 기본 약점/저항 자동 설정
+		# 보이드 수: is_void_beast 0.3배 감쇠가 별도 적용되므로 resistance="physical" 중복 방지
 		if is_void_beast:
 			weakness = "void"
-			resistance = "physical"
+			resistance = ""
 		else:
 			weakness = "fire"
 			resistance = ""
@@ -95,6 +96,20 @@ var sable_in_party: bool = false    # 세이블 동행 여부
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
 
+# --- Limit Break 시스템 ---
+var limit_gauge: float = 0.0        # 0.0 ~ 100.0
+const LIMIT_MAX: float = 100.0
+const LIMIT_GAIN_ATTACK: float = 8.0    # 공격 시
+const LIMIT_GAIN_BURN: float = 12.0     # 연소 시
+const LIMIT_GAIN_HIT: float = 15.0      # 피격 시
+const LIMIT_GAIN_DEFEND: float = 5.0    # 방어 시
+signal limit_changed(value: float)
+
+## Limit 게이지 증가 헬퍼
+func _add_limit(amount: float) -> void:
+	limit_gauge = minf(limit_gauge + amount, LIMIT_MAX)
+	limit_changed.emit(limit_gauge)
+
 # --- 시그널 ---
 signal battle_started(enemy: Enemy)
 signal player_turn_started()
@@ -128,6 +143,8 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	combo_count = 0
 	_last_action = ""
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
+	limit_gauge = 0.0
+	limit_changed.emit(0.0)
 	state = BattleState.PLAYER_TURN
 
 	# NG+ 적 스케일링
@@ -197,6 +214,7 @@ func player_attack() -> void:
 	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
 	_log_element_effect("physical")
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
+	_add_limit(LIMIT_GAIN_ATTACK)
 	_check_enemy_defeated()
 
 ## 속성 상성 배율 계산
@@ -268,11 +286,12 @@ func player_burn(memory_id: String) -> void:
 	_log_element_effect(burn_element)
 	damage_dealt.emit(current_enemy.name, actual, skill.name)
 
-	# Grade 3+ 기억 연소 시 적에게 화상 DoT 부여
-	if memory.grade <= 2:  # Grade 2(=Identity), 1(=Core), 0(=Zero) → 높은 등급
+	# 고등급 기억 연소 시 적에게 화상 DoT 부여 (Grade 2=Identity 이상)
+	if memory.grade >= MemoryManager.MemoryGrade.GRADE_2:  # Grade 2(=3), Grade 1(=4)
 		var burn_dot = int(memory.burn_power * 0.3) + 5
 		apply_status("enemy", StatusEffect.BURN, 2, burn_dot)
 
+	_add_limit(LIMIT_GAIN_BURN)
 	_check_enemy_defeated()
 
 ## 플레이어 행동: 방어
@@ -282,6 +301,7 @@ func player_defend() -> void:
 
 	player_defending = true
 	_reset_combo("defend")
+	_add_limit(LIMIT_GAIN_DEFEND)
 	battle_log.emit("Arrel braces for impact.")
 	_end_player_turn()
 
@@ -394,6 +414,7 @@ func _enemy_turn() -> void:
 	GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - base_dmg)
 	battle_log.emit("%s attacks! %d damage to Arrel." % [current_enemy.name, base_dmg])
 	damage_dealt.emit("Arrel", base_dmg, current_enemy.name)
+	_add_limit(LIMIT_GAIN_HIT)
 
 	_check_player_defeated()
 
@@ -686,3 +707,78 @@ func has_status(target: String, effect: StatusEffect) -> bool:
 ## 대상의 모든 상태이상 반환
 func get_statuses(target: String) -> Array:
 	return player_statuses if target == "player" else enemy_statuses
+
+## ===================== Limit Break =====================
+
+## 플레이어 궁극기 — 게이지 100% 시 사용 가능
+func player_limit_break() -> void:
+	if state != BattleState.PLAYER_TURN or current_enemy == null:
+		return
+	if limit_gauge < LIMIT_MAX:
+		battle_log.emit("Limit gauge not full yet.")
+		return
+
+	_reset_combo("limit")
+	limit_gauge = 0.0
+	limit_changed.emit(0.0)
+
+	# 데미지: 기본 300 + 챕터 보너스 + 연소 횟수 보너스
+	var base = 300
+	var chapter_bonus = (GameManager.current_chapter - 1) * 40
+	var burn_bonus = MemoryManager.get_burn_count() * 15
+	var dmg = base + chapter_bonus + burn_bonus
+
+	# 속성: void (고등급 기술)
+	var elem_mult = _get_element_multiplier("void")
+	dmg = int(dmg * elem_mult)
+
+	if enemy_shielded:
+		dmg = maxi(1, int(dmg * 0.5))
+		enemy_shielded = false
+		battle_log.emit("The barrier cracks under the weight!")
+
+	var actual = current_enemy.take_damage(dmg)
+	AudioManager.play_sfx("burn")
+	battle_log.emit("[LIMIT BREAK] Memory Cascade!")
+	battle_log.emit("All remembered pain converges — %d damage!" % actual)
+	_log_element_effect("void")
+	damage_dealt.emit(current_enemy.name, actual, "Memory Cascade")
+
+	# 적에게 약화 부여
+	apply_status("enemy", StatusEffect.WEAKEN, 2, 25)
+
+	_check_enemy_defeated()
+
+## ===================== Residue Burn (잔존 기억 재사용) =====================
+
+## 잔존 기억으로 약한 연소 (50% 데미지, 기억 소멸 없음)
+func player_burn_residue(memory_id: String) -> void:
+	if state != BattleState.PLAYER_TURN or current_enemy == null:
+		return
+
+	var memory = MemoryManager.get_residue_memory(memory_id)
+	if memory == null:
+		battle_log.emit("That residue is too faint to use.")
+		return
+
+	_reset_combo("burn")
+	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
+	AudioManager.play_sfx("burn")
+	var dmg = int((skill.base_damage + memory.burn_power) * 0.5)
+	var burn_element = skill.get("element", "fire")
+	var elem_mult = _get_element_multiplier(burn_element)
+	dmg = int(dmg * elem_mult)
+
+	if enemy_shielded:
+		dmg = maxi(1, int(dmg * 0.7))
+		enemy_shielded = false
+		battle_log.emit("The barrier weakens the residue flames!")
+	var actual = current_enemy.take_damage(dmg)
+
+	battle_log.emit("[RESIDUE] %s — a faded echo of %s" % [skill.name, memory.title])
+	battle_log.emit("%d damage to %s. (50%% power)" % [actual, current_enemy.name])
+	_log_element_effect(burn_element)
+	damage_dealt.emit(current_enemy.name, actual, "Residue: " + skill.name)
+	_add_limit(LIMIT_GAIN_BURN * 0.5)
+
+	_check_enemy_defeated()

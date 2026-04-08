@@ -1711,3 +1711,45 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 맵 간 자유 이동 (월드맵 / 빠른 이동)
 - 전투 궁극기 시스템 (게이지 축적 → 강력 일격)
 - 기억 잔존 활용 (잔존 기억으로 약한 스킬 재사용)
+
+---
+
+## S38 — 2026-04-08 (Fast Travel + Limit Break + Residue 재사용 + 버그 수정)
+
+### 버그 수정
+- [x] **Burn DoT 등급 반전:** `memory.grade <= 2`가 Grade 5~3(낮은 등급)을 선택하던 문제 → `>= MemoryGrade.GRADE_2`로 수정 (Grade 2=3, Grade 1=4만 DoT 부여)
+- [x] **보이드 수 이중 감쇠:** resistance="physical" + is_void_beast 0.3배가 중첩되어 0.21배 → resistance="" 로 변경 (is_void_beast 감쇠만 적용)
+
+### 완료
+- [x] **Fast Travel 시스템:**
+  - PauseMenu에 "Travel" 버튼 추가 (Journal과 Codex 사이)
+  - 맵 선택 오버레이: 5개 맵 (림 포레스트~BL-07)
+  - 챕터 진행도에 따른 맵 해금 (현재 챕터 이상만 이동 가능)
+  - 미해금 맵은 "???" + 비활성화
+  - 선택 즉시 SceneTransition으로 이동, ESC로 닫기
+
+- [x] **Limit Break 궁극기:**
+  - limit_gauge: 0~100 게이지, 전투 시작 시 리셋
+  - 게이지 축적: 공격(+8), 연소(+12), 피격(+15), 방어(+5)
+  - 게이지 100% 시 LIMIT 버튼 활성화 (보라색 강조)
+  - Memory Cascade: 300 + 챕터보너스(40/ch) + 연소보너스(15/burn) 데미지
+  - VOID 속성 공격 + 적 약화 2턴 부여
+  - 전투 UI: 게이지 바 (플레이어 HP 우측), 꽉 찬 상태 색상 변경
+
+- [x] **기억 잔존 재사용 (Residue Burn):**
+  - 연소된 기억 중 is_residue=true인 기억을 전투에서 재사용
+  - 50% 데미지, 기억 소멸 없음 (반복 사용 가능)
+  - 연소 메뉴 하단에 [RESIDUE] 섹션으로 표시 (보라색 테마)
+  - MemoryManager에 get_residue_memories(), get_residue_memory() 추가
+  - BattleManager에 player_burn_residue() 추가
+
+### 변경/생성된 파일
+- `scripts/systems/battle_manager.gd` — Limit Break 시스템, Residue Burn, 버그 수정 2건
+- `scripts/systems/memory_manager.gd` — get_residue_memories(), get_residue_memory()
+- `scenes/battle/battle_scene.gd` — Limit 게이지 UI, LIMIT 버튼, Residue 번 메뉴
+- `scripts/ui/pause_menu.gd` — Travel 버튼, 맵 선택 오버레이
+
+### 다음
+- 전투 AI 패턴 강화 (적 행동 다양화)
+- 맵 시각 다양성 (맵별 고유 오브젝트/디테일)
+- 기억 관련 사이드퀘스트

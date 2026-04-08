@@ -212,6 +212,21 @@ func get_available_memories(min_grade: int = MemoryGrade.GRADE_5) -> Array[Memor
 			available.append(memory)
 	return available
 
+## 잔존 기억 목록 (연소됨 + is_residue)
+func get_residue_memories() -> Array[Memory]:
+	var residues: Array[Memory] = []
+	for memory in memories:
+		if memory.is_burned and memory.is_residue:
+			residues.append(memory)
+	return residues
+
+## 특정 잔존 기억 가져오기
+func get_residue_memory(memory_id: String) -> Memory:
+	for memory in memories:
+		if memory.id == memory_id and memory.is_burned and memory.is_residue:
+			return memory
+	return null
+
 ## 전체 연소된 기억 수
 func get_burn_count() -> int:
 	return burned_memories.size()

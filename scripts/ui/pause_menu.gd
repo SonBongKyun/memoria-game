@@ -127,6 +127,7 @@ func _build_ui() -> void:
 	var buttons = [
 		{"text": "Resume", "callback": _close},
 		{"text": "Journal", "callback": _on_journal},
+		{"text": "Travel", "callback": _on_travel},
 		{"text": "Codex", "callback": _on_codex},
 		{"text": "Achievements", "callback": _on_achievements},
 		{"text": "Options", "callback": _on_options},
@@ -345,6 +346,120 @@ func _show_achievements_panel() -> void:
 	ach_overlay.gui_input.connect(close_handler)
 	# 패널 클릭으로도 닫기
 	ach_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+
+func _on_travel() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_travel_panel()
+
+func _show_travel_panel() -> void:
+	var travel_overlay = ColorRect.new()
+	travel_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	travel_overlay.color = Color(0, 0, 0, 0.7)
+	travel_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(travel_overlay)
+
+	var travel_panel = PanelContainer.new()
+	travel_panel.anchor_left = 0.25
+	travel_panel.anchor_right = 0.75
+	travel_panel.anchor_top = 0.15
+	travel_panel.anchor_bottom = 0.85
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.05, 0.08, 0.98)
+	style.border_color = Color(0.4, 0.5, 0.3, 0.7)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(20)
+	travel_panel.add_theme_stylebox_override("panel", style)
+	travel_overlay.add_child(travel_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	travel_panel.add_child(vbox)
+
+	var header = Label.new()
+	header.text = "FAST TRAVEL"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 18)
+	header.add_theme_color_override("font_color", Color(0.7, 0.8, 0.55))
+	vbox.add_child(header)
+
+	var sep = HSeparator.new()
+	vbox.add_child(sep)
+
+	var desc = Label.new()
+	desc.text = "Select a destination. Travel is instant."
+	desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc.add_theme_font_size_override("font_size", 12)
+	desc.add_theme_color_override("font_color", Color(0.5, 0.5, 0.45))
+	vbox.add_child(desc)
+
+	# 맵 목록 — 챕터에 따라 해금
+	var maps = [
+		{"name": "Rim Forest", "scene": "res://scenes/maps/rim_forest.tscn", "chapter": 1, "desc": "Where it all began."},
+		{"name": "Verdan Market", "scene": "res://scenes/maps/verdan_market.tscn", "chapter": 2, "desc": "A place of trade and memory."},
+		{"name": "Crumbling Coast", "scene": "res://scenes/maps/crumbling_coast.tscn", "chapter": 3, "desc": "Cliffs falling into the void."},
+		{"name": "The Seam", "scene": "res://scenes/maps/the_seam.tscn", "chapter": 4, "desc": "Where color bleeds through."},
+		{"name": "BL-07 Void", "scene": "res://scenes/maps/bl07_void.tscn", "chapter": 5, "desc": "The space between spaces."},
+	]
+
+	var current_ch = GameManager.current_chapter
+	for map_data in maps:
+		var btn = Button.new()
+		var unlocked = current_ch >= map_data["chapter"]
+		btn.custom_minimum_size = Vector2(0, 44)
+
+		var btn_style = StyleBoxFlat.new()
+		btn_style.set_content_margin_all(10)
+		btn_style.set_corner_radius_all(4)
+
+		if unlocked:
+			btn.text = "Ch%d — %s\n    %s" % [map_data["chapter"], map_data["name"], map_data["desc"]]
+			btn_style.bg_color = Color(0.08, 0.1, 0.06, 0.9)
+			btn_style.border_color = Color(0.35, 0.45, 0.25, 0.5)
+			btn_style.set_border_width_all(1)
+			btn.add_theme_color_override("font_color", Color(0.65, 0.75, 0.5))
+			btn.add_theme_color_override("font_hover_color", Color(0.85, 0.95, 0.6))
+		else:
+			btn.text = "Ch%d — ???" % map_data["chapter"]
+			btn_style.bg_color = Color(0.06, 0.06, 0.06, 0.7)
+			btn_style.border_color = Color(0.2, 0.2, 0.2, 0.3)
+			btn_style.set_border_width_all(1)
+			btn.add_theme_color_override("font_color", Color(0.3, 0.3, 0.3))
+			btn.disabled = true
+
+		btn.add_theme_stylebox_override("normal", btn_style)
+		var hover_s = btn_style.duplicate()
+		hover_s.bg_color = Color(0.12, 0.16, 0.08, 0.95)
+		hover_s.border_color = Color(0.6, 0.7, 0.35, 0.8)
+		btn.add_theme_stylebox_override("hover", hover_s)
+		btn.add_theme_stylebox_override("focus", hover_s)
+		btn.add_theme_font_size_override("font_size", 13)
+
+		if unlocked:
+			var scene_path = map_data["scene"]
+			btn.pressed.connect(func():
+				AudioManager.play_sfx("confirm")
+				travel_overlay.queue_free()
+				_close()
+				SceneTransition.change_scene(scene_path)
+			)
+			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+
+		vbox.add_child(btn)
+
+	# 닫기
+	var close_label = Label.new()
+	close_label.text = "[ESC] Close"
+	close_label.add_theme_font_size_override("font_size", 11)
+	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
+	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vbox.add_child(close_label)
+
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			travel_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	travel_overlay.gui_input.connect(close_handler)
 
 func _on_quit() -> void:
 	get_tree().quit()

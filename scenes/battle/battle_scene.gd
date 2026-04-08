@@ -32,6 +32,11 @@ var player_status_container: HBoxContainer
 var slash_rect: ColorRect  # 공격 슬래시 VFX
 var burn_vfx_container: Control  # 연소 VFX 컨테이너
 
+# Limit Break UI
+var limit_bar: ProgressBar
+var limit_label: Label
+var limit_btn: Button
+
 # 적 아이들 모션
 var _idle_time: float = 0.0
 var _enemy_base_y: float = 0.0
@@ -115,6 +120,9 @@ func _build_ui() -> void:
 
 	# 플레이어 상태 아이콘 (플레이어 패널 아래)
 	_build_player_status(root)
+
+	# Limit Break 게이지 (플레이어 패널 우측)
+	_build_limit_gauge(root)
 
 	# 행동 버튼 (하단)
 	_build_action_buttons(root)
@@ -575,6 +583,7 @@ func _build_action_buttons(root: Control) -> void:
 		{"text": "BURN", "callback": _on_burn_menu, "icon": "🔥"},
 		{"text": "ITEM", "callback": _on_item_menu, "icon": ""},
 		{"text": "DEFEND", "callback": _on_defend, "icon": "🛡"},
+		{"text": "LIMIT", "callback": _on_limit_break, "icon": "💥"},
 		{"text": "FLEE", "callback": _on_flee, "icon": "💨"},
 	]
 
@@ -648,6 +657,7 @@ func _connect_signals() -> void:
 	BattleManager.enemy_turn_started.connect(_on_enemy_turn)
 	BattleManager.battle_ended.connect(_on_battle_ended)
 	BattleManager.status_changed.connect(_on_status_changed)
+	BattleManager.limit_changed.connect(_on_limit_changed)
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -666,6 +676,8 @@ func _exit_tree() -> void:
 		BattleManager.battle_ended.disconnect(_on_battle_ended)
 	if BattleManager.status_changed.is_connected(_on_status_changed):
 		BattleManager.status_changed.disconnect(_on_status_changed)
+	if BattleManager.limit_changed.is_connected(_on_limit_changed):
+		BattleManager.limit_changed.disconnect(_on_limit_changed)
 
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
@@ -742,6 +754,7 @@ func _on_player_turn() -> void:
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
 	await get_tree().create_timer(0.5).timeout
 	action_container.visible = true
+	_update_limit_button()
 	if action_container.get_child_count() > 0:
 		action_container.get_child(0).grab_focus()
 
@@ -801,55 +814,98 @@ func _toggle_burn_list() -> void:
 		child.queue_free()
 
 	var available = MemoryManager.get_available_memories()
-	if available.is_empty():
+	var residues = MemoryManager.get_residue_memories()
+	if available.is_empty() and residues.is_empty():
 		var empty_label = Label.new()
 		empty_label.text = "No memories left to burn."
 		empty_label.add_theme_font_size_override("font_size", 13)
 		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
 		burn_list_container.add_child(empty_label)
 	else:
-		var title = Label.new()
-		title.text = "— Select a memory to burn —"
-		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		title.add_theme_font_size_override("font_size", 13)
-		title.add_theme_color_override("font_color", Color(0.75, 0.5, 0.35))
-		burn_list_container.add_child(title)
+		if not available.is_empty():
+			var title = Label.new()
+			title.text = "— Select a memory to burn —"
+			title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			title.add_theme_font_size_override("font_size", 13)
+			title.add_theme_color_override("font_color", Color(0.75, 0.5, 0.35))
+			burn_list_container.add_child(title)
 
-		for memory in available:
-			var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
-			var elem = skill.get("element", "fire").to_upper()
-			var btn = Button.new()
-			btn.text = "[%s|%s] %s — Grade %d (DMG: %d+%d)" % [
-				skill.name, elem, memory.title,
-				memory.grade,
-				skill.base_damage, memory.burn_power
-			]
-			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			for memory in available:
+				var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
+				var elem = skill.get("element", "fire").to_upper()
+				var btn = Button.new()
+				btn.text = "[%s|%s] %s — Grade %d (DMG: %d+%d)" % [
+					skill.name, elem, memory.title,
+					memory.grade,
+					skill.base_damage, memory.burn_power
+				]
+				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
-			var style = StyleBoxFlat.new()
-			style.bg_color = Color(0.08, 0.06, 0.1, 0.85)
-			style.set_content_margin_all(8)
-			style.set_corner_radius_all(3)
-			btn.add_theme_stylebox_override("normal", style)
-			var hover_s = style.duplicate()
-			hover_s.bg_color = Color(0.18, 0.1, 0.16, 0.95)
-			hover_s.border_color = Color(0.7, 0.4, 0.3, 0.7)
-			hover_s.set_border_width_all(1)
-			btn.add_theme_stylebox_override("hover", hover_s)
-			btn.add_theme_stylebox_override("focus", hover_s)
-			btn.add_theme_font_size_override("font_size", 12)
-			btn.add_theme_color_override("font_color", Color(0.7, 0.6, 0.55))
-			btn.add_theme_color_override("font_hover_color", Color(0.95, 0.7, 0.4))
+				var style = StyleBoxFlat.new()
+				style.bg_color = Color(0.08, 0.06, 0.1, 0.85)
+				style.set_content_margin_all(8)
+				style.set_corner_radius_all(3)
+				btn.add_theme_stylebox_override("normal", style)
+				var hover_s = style.duplicate()
+				hover_s.bg_color = Color(0.18, 0.1, 0.16, 0.95)
+				hover_s.border_color = Color(0.7, 0.4, 0.3, 0.7)
+				hover_s.set_border_width_all(1)
+				btn.add_theme_stylebox_override("hover", hover_s)
+				btn.add_theme_stylebox_override("focus", hover_s)
+				btn.add_theme_font_size_override("font_size", 12)
+				btn.add_theme_color_override("font_color", Color(0.7, 0.6, 0.55))
+				btn.add_theme_color_override("font_hover_color", Color(0.95, 0.7, 0.4))
 
-			var mid = memory.id
-			btn.pressed.connect(func():
-				AudioManager.play_sfx("ui_select")
-				action_container.visible = false
-				_hide_burn_list()
-				BattleManager.player_burn(mid)
-			)
-			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
-			burn_list_container.add_child(btn)
+				var mid = memory.id
+				btn.pressed.connect(func():
+					AudioManager.play_sfx("ui_select")
+					action_container.visible = false
+					_hide_burn_list()
+					BattleManager.player_burn(mid)
+				)
+				btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+				burn_list_container.add_child(btn)
+
+		# 잔존 기억 (Residue) — 50% 데미지로 재사용
+		if not residues.is_empty():
+			var res_title = Label.new()
+			res_title.text = "— Residue (50% power, no loss) —"
+			res_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			res_title.add_theme_font_size_override("font_size", 12)
+			res_title.add_theme_color_override("font_color", Color(0.5, 0.4, 0.6))
+			burn_list_container.add_child(res_title)
+
+			for memory in residues:
+				var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
+				var half_dmg = int((skill.base_damage + memory.burn_power) * 0.5)
+				var btn = Button.new()
+				btn.text = "[RESIDUE] %s — %s (DMG: ~%d)" % [skill.name, memory.title, half_dmg]
+				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+				var style = StyleBoxFlat.new()
+				style.bg_color = Color(0.06, 0.05, 0.1, 0.85)
+				style.set_content_margin_all(8)
+				style.set_corner_radius_all(3)
+				btn.add_theme_stylebox_override("normal", style)
+				var hover_s = style.duplicate()
+				hover_s.bg_color = Color(0.12, 0.08, 0.18, 0.95)
+				hover_s.border_color = Color(0.5, 0.3, 0.6, 0.7)
+				hover_s.set_border_width_all(1)
+				btn.add_theme_stylebox_override("hover", hover_s)
+				btn.add_theme_stylebox_override("focus", hover_s)
+				btn.add_theme_font_size_override("font_size", 12)
+				btn.add_theme_color_override("font_color", Color(0.5, 0.4, 0.6))
+				btn.add_theme_color_override("font_hover_color", Color(0.75, 0.55, 0.8))
+
+				var mid = memory.id
+				btn.pressed.connect(func():
+					AudioManager.play_sfx("ui_select")
+					action_container.visible = false
+					_hide_burn_list()
+					BattleManager.player_burn_residue(mid)
+				)
+				btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+				burn_list_container.add_child(btn)
 
 	var cancel_btn = Button.new()
 	cancel_btn.text = "[ Cancel ]"
@@ -1123,3 +1179,85 @@ func _play_burn_vfx() -> void:
 	var ft = create_tween()
 	ft.tween_property(flash, "modulate:a", 0.0, 0.35)
 	ft.tween_callback(flash.queue_free)
+
+## ===================== Limit Break UI =====================
+
+func _build_limit_gauge(root: Control) -> void:
+	var panel = PanelContainer.new()
+	panel.anchor_left = 0.42
+	panel.anchor_right = 0.58
+	panel.anchor_top = 0.72
+	panel.anchor_bottom = 0.72
+	panel.offset_bottom = 28
+
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.04, 0.08, 0.85)
+	style.border_color = Color(0.5, 0.3, 0.6, 0.5)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.set_content_margin_all(4)
+	panel.add_theme_stylebox_override("panel", style)
+	root.add_child(panel)
+
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 6)
+	panel.add_child(hbox)
+
+	limit_label = Label.new()
+	limit_label.text = "LIMIT"
+	limit_label.add_theme_font_size_override("font_size", 10)
+	limit_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
+	hbox.add_child(limit_label)
+
+	limit_bar = ProgressBar.new()
+	limit_bar.custom_minimum_size = Vector2(100, 14)
+	limit_bar.max_value = 100.0
+	limit_bar.value = 0.0
+	limit_bar.show_percentage = false
+	limit_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var fill = StyleBoxFlat.new()
+	fill.bg_color = Color(0.7, 0.3, 0.8)
+	fill.set_corner_radius_all(2)
+	limit_bar.add_theme_stylebox_override("fill", fill)
+	var bg_s = StyleBoxFlat.new()
+	bg_s.bg_color = Color(0.08, 0.06, 0.1)
+	bg_s.set_corner_radius_all(2)
+	limit_bar.add_theme_stylebox_override("background", bg_s)
+	hbox.add_child(limit_bar)
+
+func _on_limit_changed(value: float) -> void:
+	if limit_bar:
+		limit_bar.value = value
+		# 게이지 꽉 차면 색상 변경
+		var fill = limit_bar.get_theme_stylebox("fill") as StyleBoxFlat
+		if fill:
+			if value >= BattleManager.LIMIT_MAX:
+				fill.bg_color = Color(1.0, 0.6, 0.9)
+				limit_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.9))
+			else:
+				fill.bg_color = Color(0.7, 0.3, 0.8)
+				limit_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
+	# LIMIT 버튼 활성화/비활성화
+	_update_limit_button()
+
+func _update_limit_button() -> void:
+	if not action_container:
+		return
+	for child in action_container.get_children():
+		if child is Button and child.text == "LIMIT":
+			child.disabled = BattleManager.limit_gauge < BattleManager.LIMIT_MAX
+			if child.disabled:
+				child.modulate = Color(0.5, 0.5, 0.5, 0.7)
+			else:
+				child.modulate = Color(1.0, 0.8, 1.0, 1.0)
+
+func _on_limit_break() -> void:
+	if BattleManager.limit_gauge < BattleManager.LIMIT_MAX:
+		AudioManager.play_sfx("cancel")
+		return
+	AudioManager.play_sfx("ui_select")
+	action_container.visible = false
+	_hide_burn_list()
+	_hide_item_list()
+	BattleManager.player_limit_break()
