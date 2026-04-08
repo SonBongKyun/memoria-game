@@ -47,6 +47,7 @@ var water_shimmers: Array[ColorRect] = []
 var effect_time: float = 0.0
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
+var _encounter_data: RandomEncounter.EncounterData = null
 
 func _ready() -> void:
 	_build_map()
@@ -55,6 +56,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	_setup_seam_trigger()
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
+	_setup_random_encounters()
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
@@ -72,6 +74,8 @@ func _process(delta: float) -> void:
 	var elia_vis = elia.visible if elia else false
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
+	if _encounter_data:
+		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -148,6 +152,18 @@ func _on_seam_ended() -> void:
 	print("[CrumblingCoast] Chapter 3 complete — The Seam reached")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
+
+func _setup_random_encounters() -> void:
+	if not GameManager.get_flag("ch3_complete"):
+		return
+	_encounter_data = RandomEncounter.setup(
+		[
+			{"name": "Coastal Void Beast", "hp": 100, "atk": 18, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/crumbling_coast.jpg", "img": "res://assets/cg/void_beast.jpg"},
+			{"name": "Cliff Stalker", "hp": 70, "atk": 16, "is_void": false, "abilities": ["poison", "multi_hit"], "bg": "res://assets/cg/crumbling_coast.jpg"},
+			{"name": "Shore Wraith", "hp": 85, "atk": 14, "is_void": true, "abilities": ["burn_attack", "weaken"], "bg": "res://assets/cg/crumbling_coast.jpg"},
+		],
+		"res://scenes/maps/crumbling_coast.tscn", "", "", 40, 70
+	)
 
 ## ===================== 맵 빌드 =====================
 

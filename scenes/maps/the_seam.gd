@@ -52,6 +52,7 @@ var lantern_lights: Array[ColorRect] = []
 var effect_time: float = 0.0
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
+var _encounter_data: RandomEncounter.EncounterData = null
 
 func _ready() -> void:
 	_build_map()
@@ -60,6 +61,7 @@ func _ready() -> void:
 	_setup_effects()
 	_setup_hidden_events()
 	MemoryManager.add_chapter_memories(4)
+	_setup_random_encounters()
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	if GameManager.current_chapter >= 6 and GameManager.get_flag("ch5_complete"):
@@ -104,6 +106,8 @@ func _process(delta: float) -> void:
 	var elia_vis = elia.visible if elia else false
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
+	if _encounter_data:
+		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
 func _setup_hidden_events() -> void:
 	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)
@@ -305,6 +309,17 @@ func _setup_battle_triggers() -> void:
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Wraith", 90, 18, true,
 		"res://assets/cg/village_seam.jpg", "res://assets/cg/void_beast.jpg"
+	)
+
+func _setup_random_encounters() -> void:
+	if not GameManager.get_flag("ch4_complete"):
+		return
+	_encounter_data = RandomEncounter.setup(
+		[
+			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/village_seam.jpg", "img": "res://assets/cg/void_beast.jpg"},
+			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/village_seam.jpg"},
+		],
+		"res://scenes/maps/the_seam.tscn", "", "", 45, 80
 	)
 
 ## ===================== 맵 빌드 =====================

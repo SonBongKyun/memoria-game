@@ -46,11 +46,13 @@ var tile_colors: Dictionary = {
 
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
+var _encounter_data: RandomEncounter.EncounterData = null
 
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
 	_position_player()
+	_setup_random_encounters()
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)
@@ -62,6 +64,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
+	if _encounter_data:
+		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -137,6 +141,17 @@ func _on_shop_closed() -> void:
 	print("[VerdenMarket] Chapter 2 complete — transitioning to Crumbling Coast")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene("res://scenes/maps/crumbling_coast.tscn")
+
+func _setup_random_encounters() -> void:
+	if not GameManager.get_flag("ch2_complete"):
+		return
+	_encounter_data = RandomEncounter.setup(
+		[
+			{"name": "Alley Rat", "hp": 35, "atk": 8, "is_void": false, "abilities": ["poison"]},
+			{"name": "Market Thief", "hp": 50, "atk": 12, "is_void": false, "abilities": ["weaken"]},
+		],
+		"res://scenes/maps/verdan_market.tscn", "", "", 60, 100
+	)
 
 ## ===================== 맵 빌드 =====================
 

@@ -49,6 +49,7 @@ var pulse_time: float = 0.0
 var core_rects: Array = []
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
+var _encounter_data: RandomEncounter.EncounterData = null
 
 var void_particles: GPUParticles2D
 
@@ -60,6 +61,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	void_particles = MapEffects.add_void_particles(self)
 	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
+	_setup_random_encounters()
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	MemoryManager.add_chapter_memories(5)
@@ -82,6 +84,8 @@ func _process(delta: float) -> void:
 				0.3 + pulse * 0.1,
 			)
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
+	if _encounter_data:
+		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -224,6 +228,19 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
 	add_child(area)
+
+func _setup_random_encounters() -> void:
+	# Ch5 진입 후 (보이드 내부는 항상 위험)
+	if not GameManager.get_flag("ch5_void_entered"):
+		return
+	_encounter_data = RandomEncounter.setup(
+		[
+			{"name": "Void Fragment", "hp": 75, "atk": 16, "is_void": true, "abilities": ["burn_attack"], "bg": "res://assets/cg/bl07_interior.jpg", "img": "res://assets/cg/void_portal.jpg"},
+			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/bl07_interior.jpg", "img": "res://assets/cg/void_portal.jpg"},
+			{"name": "Null Wisp", "hp": 60, "atk": 22, "is_void": true, "abilities": ["poison", "burn_attack"], "bg": "res://assets/cg/bl07_interior.jpg"},
+		],
+		"res://scenes/maps/bl07_void.tscn", "", "", 30, 55
+	)
 
 ## ===================== 맵 빌드 =====================
 

@@ -27,6 +27,7 @@ var hit_flash_rect: ColorRect  # 히트 플래시 오버레이
 var intro_overlay: ColorRect
 var turn_label: Label
 var enemy_status_container: HBoxContainer
+var player_status_container: HBoxContainer
 var slash_rect: ColorRect  # 공격 슬래시 VFX
 var burn_vfx_container: Control  # 연소 VFX 컨테이너
 
@@ -110,6 +111,9 @@ func _build_ui() -> void:
 
 	# 플레이어 HP (좌하단)
 	_build_player_panel(root)
+
+	# 플레이어 상태 아이콘 (플레이어 패널 아래)
+	_build_player_status(root)
 
 	# 행동 버튼 (하단)
 	_build_action_buttons(root)
@@ -316,28 +320,54 @@ func _build_enemy_status(root: Control) -> void:
 	enemy_status_container.add_theme_constant_override("separation", 6)
 	root.add_child(enemy_status_container)
 
+func _build_player_status(root: Control) -> void:
+	player_status_container = HBoxContainer.new()
+	player_status_container.anchor_left = 0.05
+	player_status_container.anchor_right = 0.4
+	player_status_container.anchor_top = 0.68
+	player_status_container.anchor_bottom = 0.68
+	player_status_container.offset_top = 74
+	player_status_container.offset_bottom = 94
+	player_status_container.add_theme_constant_override("separation", 6)
+	root.add_child(player_status_container)
+
 func _update_status_icons() -> void:
-	# 기존 아이콘 제거
+	# 적 상태 아이콘
 	for child in enemy_status_container.get_children():
 		child.queue_free()
 
 	var enemy = BattleManager.current_enemy
-	if not enemy:
-		return
+	if enemy:
+		if BattleManager.enemy_shielded:
+			_add_status_icon(enemy_status_container, "SHIELD", Color(0.3, 0.5, 0.8, 0.9))
+		if enemy.is_boss and enemy.phase > 1:
+			_add_status_icon(enemy_status_container, "PHASE %d" % enemy.phase, Color(0.8, 0.3, 0.2, 0.9))
+		if enemy.is_void_beast:
+			_add_status_icon(enemy_status_container, "VOID", Color(0.5, 0.15, 0.6, 0.9))
+		# 적 상태이상
+		for entry in BattleManager.get_statuses("enemy"):
+			var info = _get_status_display(entry.effect)
+			_add_status_icon(enemy_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
 
-	# 방어 상태
-	if BattleManager.enemy_shielded:
-		_add_status_icon("SHIELD", Color(0.3, 0.5, 0.8, 0.9))
+	# 플레이어 상태 아이콘
+	for child in player_status_container.get_children():
+		child.queue_free()
 
-	# 보스 페이즈
-	if enemy.is_boss and enemy.phase > 1:
-		_add_status_icon("PHASE %d" % enemy.phase, Color(0.8, 0.3, 0.2, 0.9))
+	for entry in BattleManager.get_statuses("player"):
+		var info = _get_status_display(entry.effect)
+		_add_status_icon(player_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
 
-	# 공허수 표시
-	if enemy.is_void_beast:
-		_add_status_icon("VOID", Color(0.5, 0.15, 0.6, 0.9))
+func _get_status_display(effect: BattleManager.StatusEffect) -> Dictionary:
+	match effect:
+		BattleManager.StatusEffect.POISON:
+			return {"text": "POISON", "color": Color(0.3, 0.7, 0.2, 0.9)}
+		BattleManager.StatusEffect.WEAKEN:
+			return {"text": "WEAK", "color": Color(0.7, 0.5, 0.2, 0.9)}
+		BattleManager.StatusEffect.BURN:
+			return {"text": "BURN", "color": Color(0.9, 0.4, 0.1, 0.9)}
+	return {"text": "???", "color": Color(0.5, 0.5, 0.5, 0.9)}
 
-func _add_status_icon(text: String, color: Color) -> void:
+func _add_status_icon(container: HBoxContainer, text: String, color: Color) -> void:
 	var label = Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 10)
@@ -352,7 +382,7 @@ func _add_status_icon(text: String, color: Color) -> void:
 	style.set_content_margin_all(3)
 	panel.add_theme_stylebox_override("panel", style)
 	panel.add_child(label)
-	enemy_status_container.add_child(panel)
+	container.add_child(panel)
 
 ## ===================== UI 패널 빌드 =====================
 
@@ -600,6 +630,7 @@ func _connect_signals() -> void:
 	BattleManager.player_turn_started.connect(_on_player_turn)
 	BattleManager.enemy_turn_started.connect(_on_enemy_turn)
 	BattleManager.battle_ended.connect(_on_battle_ended)
+	BattleManager.status_changed.connect(_on_status_changed)
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -616,6 +647,8 @@ func _exit_tree() -> void:
 		BattleManager.enemy_turn_started.disconnect(_on_enemy_turn)
 	if BattleManager.battle_ended.is_connected(_on_battle_ended):
 		BattleManager.battle_ended.disconnect(_on_battle_ended)
+	if BattleManager.status_changed.is_connected(_on_status_changed):
+		BattleManager.status_changed.disconnect(_on_status_changed)
 
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
@@ -697,6 +730,9 @@ func _on_player_turn() -> void:
 
 func _on_enemy_turn() -> void:
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
+
+func _on_status_changed() -> void:
+	_update_status_icons()
 
 func _on_battle_ended(_result) -> void:
 	action_container.visible = false

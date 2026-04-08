@@ -46,6 +46,7 @@ var fog_rects: Array[ColorRect] = []  # 안개 효과
 var _time: float = 0.0
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
+var _encounter_data: RandomEncounter.EncounterData = null
 
 @onready var player: CharacterBody2D = $Player
 
@@ -57,6 +58,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	_setup_camp_trigger()
 	_setup_hidden_events()
+	_setup_random_encounters()
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# 스토리 시퀀스 시작 (첫 진입 시만)
@@ -70,6 +72,8 @@ func _process(delta: float) -> void:
 	_time += delta
 	MapEffects.update_fog(fog_rects, _time)
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
+	if _encounter_data:
+		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -248,6 +252,19 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 	)
 
 	add_child(area)
+
+func _setup_random_encounters() -> void:
+	# Ch1 완료 후 재방문 시에만 활성화
+	if not GameManager.get_flag("ch1_complete"):
+		return
+	_encounter_data = RandomEncounter.setup(
+		[
+			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/ch1_forest.jpg", "img": "res://assets/cg/ash_crawler.jpg"},
+			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/ch1_forest.jpg", "img": ""},
+			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/ch1_forest.jpg", "img": "res://assets/cg/void_beast.jpg"},
+		],
+		"res://scenes/maps/rim_forest.tscn", "", "", 50, 90
+	)
 
 func _trigger_battle(enemy_name: String, hp: int, atk: int, is_void: bool, bg_img: String = "", e_img: String = "") -> void:
 	var enemy = BattleManager.Enemy.new(enemy_name, hp, atk, is_void)

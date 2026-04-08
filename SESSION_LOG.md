@@ -1409,4 +1409,71 @@ NotificationToast, MemoryShop, StoryJournal
 ```
 
 ### 다음
-- Godot F5 실제 플레이 테스트 권장
+- [x] 랜덤 인카운터 + 상태이상 → S32에서 완료
+
+---
+
+## S32 — 2026-04-08 (랜덤 인카운터 + 전투 상태이상)
+
+### 완료
+- [x] **전투 상태이상 시스템 (BattleManager 확장):**
+  - 3종 상태이상: Poison(독 DoT), Weaken(공격력 30% 감소), Burn(화상 DoT)
+  - StatusEffect enum + StatusEntry 클래스 (효과/지속턴/위력)
+  - `apply_status()`: 대상(player/enemy)에 상태이상 부여, 중복 시 강한 쪽 갱신
+  - `_process_statuses()`: 턴 시작 시 DoT 처리 + 지속턴 감소 + 만료 알림
+  - `_get_weaken_multiplier()`: 약화 상태 시 공격력 계수 반환
+  - 플레이어 공격/적 공격 모두 약화 적용
+  - Grade 2+ 기억 연소 시 적에게 화상 DoT 자동 부여
+  - `status_changed` 시그널 → UI 실시간 갱신
+  - 독/화상으로 사망 시 정상 승리/패배 처리
+
+- [x] **적 상태이상 능력 4종 추가:**
+  - `poison`: 3턴 DoT (공격력 30% + 2~5 랜덤)
+  - `burn_attack`: 데미지 + 2턴 화상 DoT
+  - `weaken`: 플레이어 공격력 30% 감소 3턴
+  - 기존 drain/shield/multi_hit과 병합
+
+- [x] **전투 UI 상태이상 표시 (battle_scene.gd):**
+  - 적 상태 컨테이너: 기존 SHIELD/PHASE/VOID + 새 상태이상 아이콘
+  - 플레이어 상태 컨테이너: 플레이어 HP 패널 아래 상태이상 표시
+  - 색상 코드: POISON(녹색), WEAK(주황), BURN(오렌지)
+  - 남은 턴 수 표시 (예: "POISON 2")
+  - `status_changed` 시그널 연결 + _exit_tree에서 정리
+
+- [x] **랜덤 인카운터 시스템 (RandomEncounter 유틸리티):**
+  - `class_name RandomEncounter` (static utility, Minimap과 동일 패턴)
+  - 이동 거리 기반 인카운터 (타일 단위 step 카운터)
+  - 맵별 설정: 적 풀, 최소/최대 걸음 수, 배경/적 이미지
+  - 챕터 완료 후 재방문 시에만 활성화
+  - `setup()` → `update()` 패턴 (맵 _ready에서 초기화, _process에서 체크)
+
+- [x] **5개 맵 랜덤 인카운터 통합:**
+  - Rim Forest (Ch1 완료 후): Ash Crawler, Forest Shade(독), Void Beast — 50~90 걸음
+  - Verdan Market (Ch2 완료 후): Alley Rat(독), Market Thief(약화) — 60~100 걸음
+  - Crumbling Coast (Ch3 완료 후): Coastal Void Beast, Cliff Stalker(독+연타), Shore Wraith(화상+약화) — 40~70 걸음
+  - The Seam (Ch4 완료 후): Void Wraith(흡수+약화), Seam Lurker(독+방어) — 45~80 걸음
+  - BL-07 Void (Ch5 진입 후): Void Fragment(화상), Memory Eater(흡수+연타+약화), Null Wisp(독+화상) — 30~55 걸음
+
+### 변경/생성된 파일
+- `scripts/systems/battle_manager.gd` — 상태이상 시스템 (StatusEffect, apply/process/weaken)
+- `scenes/battle/battle_scene.gd` — 상태이상 UI (플레이어+적 상태 컨테이너)
+- `scripts/utils/random_encounter.gd` — **신규** 랜덤 인카운터 유틸리티
+- `scenes/maps/rim_forest.gd` — 랜덤 인카운터 통합
+- `scenes/maps/verdan_market.gd` — 랜덤 인카운터 통합
+- `scenes/maps/crumbling_coast.gd` — 랜덤 인카운터 통합
+- `scenes/maps/the_seam.gd` — 랜덤 인카운터 통합
+- `scenes/maps/bl07_void.gd` — 랜덤 인카운터 통합
+
+### 상태이상 효과 정리
+```
+Poison (독): 매 턴 고정 데미지, 3턴 지속
+Weaken (약화): 공격력 30% 감소, 3턴 지속
+Burn (화상): 매 턴 고정 데미지, 2턴 지속
+- Grade 2+ 기억 연소 시 적에게 자동 화상 부여
+- 같은 효과 중복 시 강한 쪽으로 갱신
+```
+
+### 다음
+- 전투 아이템 시스템 (포션/해독제) 추천
+- New Game+ 모드
+- 업적 시스템

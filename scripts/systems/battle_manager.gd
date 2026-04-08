@@ -48,6 +48,19 @@ const BURN_SKILLS: Dictionary = {
 	4: {"name": "Zero Burn", "base_damage": 999, "desc": "Everything. All of it. Gone."},
 }
 
+# --- 상태이상 ---
+enum StatusEffect { POISON, WEAKEN, BURN }
+
+class StatusEntry:
+	var effect: StatusEffect
+	var turns_left: int
+	var power: int  # 독/화상: DoT 데미지, 약화: 공격력 감소%
+
+	func _init(p_effect: StatusEffect, p_turns: int, p_power: int) -> void:
+		effect = p_effect
+		turns_left = p_turns
+		power = p_power
+
 # --- 현재 전투 데이터 ---
 var current_enemy: Enemy = null
 var return_scene: String = ""  # 전투 후 돌아갈 씬
@@ -55,6 +68,8 @@ var player_defending: bool = false
 var enemy_shielded: bool = false    # 적 방어 상태
 var battle_bg_image: String = ""    # 전투 배경 이미지 경로
 var enemy_image: String = ""        # 적 이미지 경로
+var player_statuses: Array = []     # StatusEntry 배열
+var enemy_statuses: Array = []      # StatusEntry 배열
 
 # --- 시그널 ---
 signal battle_started(enemy: Enemy)
@@ -63,6 +78,7 @@ signal enemy_turn_started()
 signal damage_dealt(target: String, amount: int, skill_name: String)
 signal battle_ended(result: BattleState)
 signal battle_log(message: String)
+signal status_changed()
 
 func _ready() -> void:
 	print("[BattleManager] Ready")
@@ -75,6 +91,8 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	enemy_image = e_image
 	player_defending = false
 	enemy_shielded = false
+	player_statuses.clear()
+	enemy_statuses.clear()
 	state = BattleState.PLAYER_TURN
 
 	# 챕터별 최대 HP 성장
@@ -98,6 +116,8 @@ func player_attack() -> void:
 		return
 
 	var base_dmg = _get_player_attack() + randi_range(0, 10)
+	# 약화 적용
+	base_dmg = int(base_dmg * _get_weaken_multiplier("player"))
 
 	if current_enemy.is_void_beast:
 		# 보이드 적에게 30% 감쇠 (완전 무효 아님)
@@ -142,6 +162,12 @@ func player_burn(memory_id: String) -> void:
 	battle_log.emit("[BURN] %s — %s" % [skill.name, skill.desc])
 	battle_log.emit("%d damage to %s!" % [actual, current_enemy.name])
 	damage_dealt.emit(current_enemy.name, actual, skill.name)
+
+	# Grade 3+ 기억 연소 시 적에게 화상 DoT 부여
+	if memory.grade <= 2:  # Grade 2(=Identity), 1(=Core), 0(=Zero) → 높은 등급
+		var burn_dot = int(memory.burn_power * 0.3) + 5
+		apply_status("enemy", StatusEffect.BURN, 2, burn_dot)
+
 	_check_enemy_defeated()
 
 ## 플레이어 행동: 방어
@@ -194,6 +220,8 @@ func _enemy_turn() -> void:
 		return
 
 	var base_dmg = current_enemy.attack + randi_range(0, 5)
+	# 적 약화 적용
+	base_dmg = int(base_dmg * _get_weaken_multiplier("enemy"))
 	if player_defending:
 		base_dmg = maxi(1, base_dmg / 2)
 		battle_log.emit("Defended! Reduced damage.")
@@ -245,6 +273,22 @@ func _try_enemy_ability() -> bool:
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - total_dmg)
 			battle_log.emit("%s strikes twice! %d total damage." % [current_enemy.name, total_dmg])
 			damage_dealt.emit("Arrel", total_dmg, "Multi Hit")
+		"poison":  # 독 — 3턴 DoT
+			var dot = int(current_enemy.attack * 0.3) + randi_range(2, 5)
+			apply_status("player", StatusEffect.POISON, 3, dot)
+			battle_log.emit("%s releases a toxic cloud!" % current_enemy.name)
+		"burn_attack":  # 화상 공격 — 데미지 + 2턴 DoT
+			var dmg_val = int(current_enemy.attack * 0.7) + randi_range(0, 5)
+			if player_defending:
+				dmg_val = maxi(1, dmg_val / 2)
+			player_defending = false
+			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg_val)
+			battle_log.emit("%s scorches Arrel! %d damage." % [current_enemy.name, dmg_val])
+			damage_dealt.emit("Arrel", dmg_val, "Scorch")
+			apply_status("player", StatusEffect.BURN, 2, int(current_enemy.attack * 0.2) + 3)
+		"weaken":  # 약화 — 플레이어 공격력 30% 감소 3턴
+			apply_status("player", StatusEffect.WEAKEN, 3, 30)
+			battle_log.emit("%s curses Arrel's strength!" % current_enemy.name)
 	return true
 
 ## 플레이어 사망 체크
@@ -256,6 +300,17 @@ func _check_player_defeated() -> void:
 		battle_ended.emit(BattleState.DEFEAT)
 		_cleanup()
 		return
+
+	# 플레이어 상태이상 처리 (독/화상 DoT)
+	if not player_statuses.is_empty():
+		_process_statuses("player")
+		if GameManager.player_data.hp <= 0:
+			state = BattleState.DEFEAT
+			AudioManager.play_sfx("defeat")
+			battle_log.emit("Arrel succumbs...")
+			battle_ended.emit(BattleState.DEFEAT)
+			_cleanup()
+			return
 
 	# 다시 플레이어 턴
 	state = BattleState.PLAYER_TURN
@@ -276,6 +331,15 @@ func _check_enemy_defeated() -> void:
 		_end_player_turn()
 
 func _end_player_turn() -> void:
+	# 적 상태이상 처리 (독/화상 DoT)
+	if current_enemy and not enemy_statuses.is_empty():
+		_process_statuses("enemy")
+		if current_enemy and not current_enemy.is_alive():
+			state = BattleState.VICTORY
+			battle_log.emit("%s is defeated!" % current_enemy.name)
+			battle_ended.emit(BattleState.VICTORY)
+			_cleanup()
+			return
 	# 짧은 딜레이 후 적 턴 (UI 갱신 시간)
 	await get_tree().create_timer(0.8).timeout
 	_enemy_turn()
@@ -318,6 +382,101 @@ func _cleanup() -> void:
 
 	await get_tree().create_timer(1.5).timeout
 	current_enemy = null
+	player_statuses.clear()
+	enemy_statuses.clear()
 	GameManager.change_state(GameManager.GameState.EXPLORATION)
 	if return_scene != "":
 		SceneTransition.change_scene(return_scene)
+
+## ===================== 상태이상 시스템 =====================
+
+## 상태이상 적용 (대상: "player" 또는 "enemy")
+func apply_status(target: String, effect: StatusEffect, turns: int, power: int) -> void:
+	var list = player_statuses if target == "player" else enemy_statuses
+	# 같은 효과 중복 시 강한 쪽으로 갱신
+	for entry in list:
+		if entry.effect == effect:
+			if power >= entry.power:
+				entry.turns_left = turns
+				entry.power = power
+			status_changed.emit()
+			return
+	list.append(StatusEntry.new(effect, turns, power))
+	status_changed.emit()
+
+	var effect_name = _get_status_name(effect)
+	var target_name = "Arrel" if target == "player" else current_enemy.name if current_enemy else "Enemy"
+	battle_log.emit("%s is afflicted with %s!" % [target_name, effect_name])
+
+## 턴 시작 시 상태이상 처리 (DoT 등)
+func _process_statuses(target: String) -> void:
+	var list = player_statuses if target == "player" else enemy_statuses
+	var expired: Array = []
+
+	for entry in list:
+		match entry.effect:
+			StatusEffect.POISON:
+				var dmg = entry.power
+				if target == "player":
+					GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
+					battle_log.emit("Poison deals %d damage to Arrel." % dmg)
+					damage_dealt.emit("Arrel", dmg, "Poison")
+				else:
+					if current_enemy:
+						current_enemy.take_damage(dmg)
+						battle_log.emit("Poison deals %d damage to %s." % [dmg, current_enemy.name])
+						damage_dealt.emit(current_enemy.name, dmg, "Poison")
+			StatusEffect.BURN:
+				var dmg = entry.power
+				if target == "player":
+					GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
+					battle_log.emit("Burn deals %d damage to Arrel." % dmg)
+					damage_dealt.emit("Arrel", dmg, "Burn")
+				else:
+					if current_enemy:
+						current_enemy.take_damage(dmg)
+						battle_log.emit("Burn sears %s for %d damage." % [current_enemy.name, dmg])
+						damage_dealt.emit(current_enemy.name, dmg, "Burn")
+			StatusEffect.WEAKEN:
+				pass  # 약화는 공격 시 적용됨
+
+		entry.turns_left -= 1
+		if entry.turns_left <= 0:
+			expired.append(entry)
+
+	for e in expired:
+		list.erase(e)
+		var effect_name = _get_status_name(e.effect)
+		var target_name = "Arrel" if target == "player" else current_enemy.name if current_enemy else "Enemy"
+		battle_log.emit("%s's %s wears off." % [target_name, effect_name])
+
+	if not expired.is_empty():
+		status_changed.emit()
+
+## 약화 계수 가져오기 (1.0 = 약화 없음, 0.7 = 30% 감소)
+func _get_weaken_multiplier(target: String) -> float:
+	var list = player_statuses if target == "player" else enemy_statuses
+	for entry in list:
+		if entry.effect == StatusEffect.WEAKEN:
+			return 1.0 - (entry.power / 100.0)
+	return 1.0
+
+## 상태이상 이름
+func _get_status_name(effect: StatusEffect) -> String:
+	match effect:
+		StatusEffect.POISON: return "Poison"
+		StatusEffect.WEAKEN: return "Weaken"
+		StatusEffect.BURN: return "Burn"
+	return "Unknown"
+
+## 상태이상 보유 여부
+func has_status(target: String, effect: StatusEffect) -> bool:
+	var list = player_statuses if target == "player" else enemy_statuses
+	for entry in list:
+		if entry.effect == effect:
+			return true
+	return false
+
+## 대상의 모든 상태이상 반환
+func get_statuses(target: String) -> Array:
+	return player_statuses if target == "player" else enemy_statuses
