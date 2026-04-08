@@ -1575,7 +1575,7 @@ func _add_battle_atmosphere() -> void:
 	mat.scale_max = 2.0
 
 	# 적에 따라 파티클 색상 결정
-	var enemy_name = BattleManager.enemy_name.to_lower() if BattleManager.enemy_name else ""
+	var enemy_name = BattleManager.current_enemy.name.to_lower() if BattleManager.current_enemy else ""
 	var p_color: Color
 	if "void" in enemy_name or "shade" in enemy_name:
 		p_color = Color(0.4, 0.15, 0.6, 0.25)
