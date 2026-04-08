@@ -11,6 +11,7 @@ var main_panel: PanelContainer
 var tab_events: Button
 var tab_npcs: Button
 var tab_choices: Button
+var tab_quests_btn: Button
 var item_list: VBoxContainer
 var item_scroll: ScrollContainer
 var detail_title: Label
@@ -137,6 +138,8 @@ func _build_ui() -> void:
 	tab_row.add_child(tab_npcs)
 	tab_choices = _create_tab("Choices", "choices")
 	tab_row.add_child(tab_choices)
+	tab_quests_btn = _create_tab("Quests", "quests")
+	tab_row.add_child(tab_quests_btn)
 
 	# 구분선
 	var sep = HSeparator.new()
@@ -235,9 +238,11 @@ func _refresh_list() -> void:
 			_populate_npcs()
 		"choices":
 			_populate_choices()
+		"quests":
+			_populate_quests()
 
 func _update_tab_styles() -> void:
-	for tab_data in [{"btn": tab_events, "name": "events"}, {"btn": tab_npcs, "name": "npcs"}, {"btn": tab_choices, "name": "choices"}]:
+	for tab_data in [{"btn": tab_events, "name": "events"}, {"btn": tab_npcs, "name": "npcs"}, {"btn": tab_choices, "name": "choices"}, {"btn": tab_quests_btn, "name": "quests"}]:
 		var btn: Button = tab_data.btn
 		var active: bool = (_current_tab == tab_data.name)
 		if active:
@@ -293,6 +298,39 @@ func _populate_choices() -> void:
 	if item_list.get_child_count() == 0:
 		var empty = Label.new()
 		empty.text = "No major choices recorded yet."
+		empty.add_theme_font_size_override("font_size", 13)
+		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		item_list.add_child(empty)
+
+func _populate_quests() -> void:
+	var quests = SideQuest.get_all_quests()
+	var has_any = false
+	for q in quests:
+		var status = q["status"]
+		if status == "locked":
+			continue
+		has_any = true
+		var color: Color
+		var prefix: String
+		var desc_text: String
+		match status:
+			"complete":
+				color = Color(0.4, 0.7, 0.4)
+				prefix = "[DONE] "
+				desc_text = q["desc"]
+			"active":
+				color = Color(0.85, 0.7, 0.4)
+				prefix = ""
+				desc_text = q["desc"] + "\n\nCurrent: " + q["step_desc"]
+			"available":
+				color = Color(0.55, 0.5, 0.45)
+				prefix = "[NEW] "
+				desc_text = q["desc"] + "\n\nTalk to %s at %s." % [q["npc"], q["map"].replace("_", " ").capitalize()]
+		_add_list_button(prefix + q["title"], color, q["title"], desc_text)
+
+	if not has_any:
+		var empty = Label.new()
+		empty.text = "No quests discovered yet."
 		empty.add_theme_font_size_override("font_size", 13)
 		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		item_list.add_child(empty)

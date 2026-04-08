@@ -48,6 +48,7 @@ var effect_time: float = 0.0
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
+var _tide_pools: Array[ColorRect] = []
 
 func _ready() -> void:
 	_build_map()
@@ -59,6 +60,7 @@ func _ready() -> void:
 	MapEffects.add_rain(self, 0.7, Color(0.5, 0.55, 0.7, 0.25))
 	_setup_random_encounters()
 	_setup_interactive_objects()
+	_setup_map_decorations()
 	AchievementManager.record_map_visit("crumbling_coast")
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
@@ -79,6 +81,34 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# 조수 웅덩이 맥동
+	for tp in _tide_pools:
+		var phase = tp.get_meta("phase", 0.0)
+		tp.color.a = 0.15 + sin(effect_time * 1.8 + phase) * 0.08
+
+## ===================== 맵 데코레이션 =====================
+
+func _setup_map_decorations() -> void:
+	# 조수 웅덩이 (모래 근처 물가)
+	var pool_positions = [Vector2(5, 12), Vector2(10, 15), Vector2(18, 13)]
+	for i in range(pool_positions.size()):
+		var pos = pool_positions[i]
+		var tp = ColorRect.new()
+		tp.size = Vector2(10, 6)
+		tp.position = pos * TILE_SIZE + Vector2(8, 12)
+		tp.color = Color(0.3, 0.5, 0.7, 0.18)
+		tp.z_index = -1
+		tp.set_meta("phase", float(i) * 2.1)
+		add_child(tp)
+		_tide_pools.append(tp)
+	# 유목 (해변 위)
+	for dw_pos in [Vector2(8, 14), Vector2(15, 16)]:
+		var dw = ColorRect.new()
+		dw.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 0.3)
+		dw.position = dw_pos * TILE_SIZE + Vector2(4, 20)
+		dw.color = Color(0.3, 0.25, 0.2, 0.3)
+		dw.z_index = -1
+		add_child(dw)
 
 ## ===================== 스토리 시퀀스 =====================
 

@@ -53,6 +53,7 @@ var effect_time: float = 0.0
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
+var _crystal_lights: Array[ColorRect] = []
 
 func _ready() -> void:
 	_build_map()
@@ -64,6 +65,8 @@ func _ready() -> void:
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
 	_setup_interactive_objects()
+	_setup_side_quests()
+	_setup_map_decorations()
 	AchievementManager.record_map_visit("the_seam")
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -111,6 +114,10 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# 크리스탈 반짝임
+	for c in _crystal_lights:
+		var phase = c.get_meta("phase", 0.0)
+		c.color.a = 0.15 + sin(effect_time * 2.5 + phase) * 0.1 + (0.3 if fmod(effect_time + phase, 4.0) < 0.15 else 0.0)
 
 func _setup_hidden_events() -> void:
 	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)
@@ -290,7 +297,7 @@ func _on_bl07_dialogue_ended() -> void:
 	# 보스전 후 return_scene으로 돌아오면 _ready()에서 자동 감지
 	var boss = BattleManager.Enemy.new("Shade Sentinel", 180, 24, true)
 	boss.is_boss = true
-	boss.abilities = ["drain", "shield", "multi_hit"]
+	boss.abilities = ["drain", "shield", "multi_hit", "summon"]
 	boss.weakness = "void"
 	boss.resistance = "fire"
 	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/bl07_interior.jpg", "res://assets/cg/void_portal.jpg")
@@ -428,6 +435,99 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 			indicator.queue_free()
 	)
 	add_child(area)
+
+## ===================== 사이드 퀘스트 =====================
+
+func _setup_side_quests() -> void:
+	if not SideQuest.is_available("sable_vigil") and not SideQuest.is_active("sable_vigil"):
+		return
+	if SideQuest.is_complete("sable_vigil"):
+		return
+	# 세이블 NPC에 퀘스트 마커
+	var q_marker = Label.new()
+	q_marker.text = "!" if not SideQuest.is_active("sable_vigil") else "?"
+	q_marker.add_theme_font_size_override("font_size", 16)
+	q_marker.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	q_marker.position = Vector2(-4, -TILE_SIZE * 1.5)
+	if sable_npc:
+		sable_npc.add_child(q_marker)
+
+	# 세이블 대화 트리거 확장 (기존 interact 보완)
+	var quest_area = Area2D.new()
+	quest_area.position = sable_npc.position if sable_npc else Vector2(6 * TILE_SIZE, 5 * TILE_SIZE)
+	quest_area.collision_layer = 0
+	quest_area.collision_mask = 2
+	var qs = CollisionShape2D.new()
+	var qr = RectangleShape2D.new()
+	qr.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	qs.shape = qr
+	quest_area.add_child(qs)
+	quest_area.body_entered.connect(func(body):
+		if body.name != "Player" or GameManager.current_state != GameManager.GameState.EXPLORATION:
+			return
+		if SideQuest.is_available("sable_vigil"):
+			SideQuest.advance_step("sable_vigil", "sq_sable_vigil_started")
+			DialogueManager.load_and_start("res://data/chapter4_dialogue.json", "sq_sable_vigil_start")
+		elif SideQuest.is_active("sable_vigil") and GameManager.get_flag("sq_sable_vigil_killed"):
+			SideQuest.advance_step("sable_vigil", "sq_sable_vigil_complete")
+			DialogueManager.load_and_start("res://data/chapter4_dialogue.json", "sq_sable_vigil_complete")
+			q_marker.queue_free()
+	)
+	add_child(quest_area)
+
+	# Void Watcher 전투 트리거 (퀘스트 진행 중에만)
+	if SideQuest.is_active("sable_vigil") and not GameManager.get_flag("sq_sable_vigil_killed"):
+		var vw_area = Area2D.new()
+		vw_area.position = Vector2(22 * TILE_SIZE + TILE_SIZE / 2.0, 14 * TILE_SIZE + TILE_SIZE / 2.0)
+		vw_area.collision_layer = 0
+		vw_area.collision_mask = 2
+		var vs = CollisionShape2D.new()
+		var vr = RectangleShape2D.new()
+		vr.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+		vs.shape = vr
+		vw_area.add_child(vs)
+		var v_ind = ColorRect.new()
+		v_ind.size = Vector2(TILE_SIZE, TILE_SIZE * 1.2)
+		v_ind.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE * 0.6)
+		v_ind.color = Color(0.4, 0.1, 0.5, 0.4)
+		vw_area.add_child(v_ind)
+		vw_area.body_entered.connect(func(body):
+			if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag("sq_sable_vigil_killed"):
+				GameManager.set_flag("sq_sable_vigil_killed")
+				var enemy = BattleManager.Enemy.new("Void Watcher", 120, 22, true)
+				enemy.abilities = ["drain", "shield"]
+				enemy.weakness = "void"
+				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/void_portal.jpg", "")
+				SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
+		)
+		add_child(vw_area)
+
+## ===================== 맵 데코레이션 =====================
+
+func _setup_map_decorations() -> void:
+	# 크리스탈 형성 (돌 타일 근처)
+	var crystal_positions = [
+		Vector2(8, 3), Vector2(15, 6), Vector2(20, 10), Vector2(5, 14),
+	]
+	for i in range(crystal_positions.size()):
+		var pos = crystal_positions[i]
+		var c = ColorRect.new()
+		c.size = Vector2(5, 8)
+		c.position = pos * TILE_SIZE + Vector2(randf_range(4, 20), randf_range(4, 20))
+		c.color = Color(0.7, 0.4, 0.6, 0.2)
+		c.z_index = -1
+		c.set_meta("phase", float(i) * 2.0)
+		add_child(c)
+		_crystal_lights.append(c)
+
+	# 덩굴 (절벽 가장자리에서 늘어지는)
+	for vine_pos in [Vector2(3, 7), Vector2(18, 4), Vector2(12, 12)]:
+		var vine = ColorRect.new()
+		vine.size = Vector2(2, TILE_SIZE * 1.5)
+		vine.position = vine_pos * TILE_SIZE + Vector2(14, 0)
+		vine.color = Color(0.2, 0.35, 0.15, 0.25)
+		vine.z_index = -1
+		add_child(vine)
 
 ## ===================== 맵 빌드 =====================
 

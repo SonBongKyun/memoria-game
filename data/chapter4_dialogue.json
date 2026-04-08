@@ -78,6 +78,19 @@
       {"speaker": "", "text": "Someone handing him a flower like this one. Small hands. A child's laugh."},
       {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"},
       {"speaker": "", "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after."}
+    ],
+    "sq_sable_vigil_start": [
+      {"speaker": "Sable", "text": "There's something else. A Void Watcher — not a beast, something more deliberate. It's been circling the rift entrance.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "I'd handle it myself, but I can't leave the defenses unmanned. You've proven you can fight these things.", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "What's a Void Watcher?", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "A sentinel. Smarter than the beasts. It watches, learns, reports back. If it stays, more will come.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Kill it. Come back alive. That's the whole mission.", "portrait": "sable_calm"}
+    ],
+    "sq_sable_vigil_complete": [
+      {"speaker": "Sable", "text": "It's done? Good. The patrols will be easier for a while.", "portrait": "sable_calm"},
+      {"speaker": "", "text": "She reached into her coat and pulled out something — a small, cold object that pulsed with faint light."},
+      {"speaker": "Sable", "text": "I found this in the rubble of Ashbridge. It's mine, but... you'll make better use of it.", "portrait": "sable_neutral"},
+      {"speaker": "", "text": "A memory. Not yours, but offered freely. It carried the weight of an oath kept through years of loss."}
     ]
   }
 }

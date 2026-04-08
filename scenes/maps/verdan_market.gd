@@ -47,6 +47,9 @@ var tile_colors: Dictionary = {
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
+var _lantern_lights: Array[ColorRect] = []
+var _smoke_wisps: Array[Dictionary] = []
+var _time: float = 0.0
 
 func _ready() -> void:
 	_build_map()
@@ -55,6 +58,8 @@ func _ready() -> void:
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
 	_setup_interactive_objects()
+	_setup_side_quests()
+	_setup_map_decorations()
 	AchievementManager.record_map_visit("verdan_market")
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -65,10 +70,22 @@ func _ready() -> void:
 		await get_tree().create_timer(0.3).timeout
 		_start_ch2_sequence()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_time += delta
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# 랜턴 깜빡임
+	for l in _lantern_lights:
+		l.color.a = 0.3 + randf_range(-0.05, 0.05) + sin(_time * 3.0) * 0.05
+	# 연기 상승
+	for w in _smoke_wisps:
+		var rect = w["rect"] as ColorRect
+		rect.position.y -= delta * 8.0
+		rect.color.a = maxf(0.0, rect.color.a - delta * 0.02)
+		if rect.position.y < w["start_y"] - 60:
+			rect.position.y = w["start_y"]
+			rect.color.a = 0.08
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -263,6 +280,101 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 			indicator.queue_free()
 	)
 	add_child(area)
+
+## ===================== 사이드 퀘스트 =====================
+
+func _setup_side_quests() -> void:
+	if not SideQuest.is_available("sump_ledger") and not SideQuest.is_active("sump_ledger"):
+		return
+	if not SideQuest.is_complete("sump_ledger"):
+		# NPC: Nervous Trader (골목 근처)
+		var area = Area2D.new()
+		area.position = Vector2(2 * TILE_SIZE + TILE_SIZE / 2.0, 16 * TILE_SIZE + TILE_SIZE / 2.0)
+		area.collision_layer = 0
+		area.collision_mask = 2
+		var shape = CollisionShape2D.new()
+		var rect = RectangleShape2D.new()
+		rect.size = Vector2(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+		shape.shape = rect
+		area.add_child(shape)
+		var sprite = ColorRect.new()
+		sprite.size = Vector2(TILE_SIZE * 0.7, TILE_SIZE * 1.0)
+		sprite.position = -Vector2(TILE_SIZE * 0.35, TILE_SIZE * 0.5)
+		sprite.color = Color(0.4, 0.35, 0.3, 0.6)
+		area.add_child(sprite)
+		var marker = Label.new()
+		marker.text = "!" if not SideQuest.is_active("sump_ledger") else "?"
+		marker.add_theme_font_size_override("font_size", 16)
+		marker.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+		marker.position = Vector2(-4, -TILE_SIZE)
+		area.add_child(marker)
+
+		area.body_entered.connect(func(body):
+			if body.name != "Player" or GameManager.current_state != GameManager.GameState.EXPLORATION:
+				return
+			if SideQuest.is_available("sump_ledger"):
+				SideQuest.advance_step("sump_ledger", "sq_sump_ledger_started")
+				DialogueManager.load_and_start("res://data/chapter2_dialogue.json", "sq_sump_ledger_start")
+			elif SideQuest.is_active("sump_ledger") and GameManager.get_flag("sq_sump_ledger_found"):
+				# 반납 선택 (간단히: Grains 보상)
+				SideQuest.advance_step("sump_ledger", "sq_sump_ledger_done")
+				DialogueManager.load_and_start("res://data/chapter2_dialogue.json", "sq_sump_ledger_return")
+			elif SideQuest.is_active("sump_ledger"):
+				NotificationToast.show_toast("Find the ledger in the Sump.", NotificationToast.ToastType.INFO)
+		)
+		add_child(area)
+
+	# 장부 위치 (숨겨진 골목)
+	if SideQuest.is_active("sump_ledger") and not GameManager.get_flag("sq_sump_ledger_found"):
+		var ledger_area = Area2D.new()
+		ledger_area.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 12 * TILE_SIZE + TILE_SIZE / 2.0)
+		ledger_area.collision_layer = 0
+		ledger_area.collision_mask = 2
+		var ls = CollisionShape2D.new()
+		var lr = RectangleShape2D.new()
+		lr.size = Vector2(TILE_SIZE, TILE_SIZE)
+		ls.shape = lr
+		ledger_area.add_child(ls)
+		var ind = ColorRect.new()
+		ind.size = Vector2(TILE_SIZE * 0.5, TILE_SIZE * 0.5)
+		ind.position = -Vector2(TILE_SIZE * 0.25, TILE_SIZE * 0.25)
+		ind.color = Color(0.7, 0.6, 0.3, 0.3)
+		ledger_area.add_child(ind)
+		ledger_area.body_entered.connect(func(body):
+			if body.name == "Player" and not GameManager.get_flag("sq_sump_ledger_found"):
+				SideQuest.advance_step("sump_ledger", "sq_sump_ledger_found")
+				AudioManager.play_sfx("ui_select")
+				DialogueManager.load_and_start("res://data/chapter2_dialogue.json", "sq_sump_ledger_found")
+				ind.queue_free()
+		)
+		add_child(ledger_area)
+
+## ===================== 맵 데코레이션 =====================
+
+func _setup_map_decorations() -> void:
+	# 매달린 랜턴 (노점 위)
+	var lantern_positions = [
+		Vector2(6, 4), Vector2(10, 3), Vector2(14, 5), Vector2(18, 4), Vector2(8, 8),
+	]
+	for pos in lantern_positions:
+		var l = ColorRect.new()
+		l.size = Vector2(5, 5)
+		l.position = pos * TILE_SIZE + Vector2(12, 4)
+		l.color = Color(0.8, 0.6, 0.2, 0.3)
+		l.z_index = -1
+		add_child(l)
+		_lantern_lights.append(l)
+
+	# 연기 (골목에서 올라오는 연기)
+	for smoke_pos in [Vector2(3, 14), Vector2(15, 11), Vector2(9, 16)]:
+		var s = ColorRect.new()
+		s.size = Vector2(8, 4)
+		var start_y = smoke_pos.y * TILE_SIZE
+		s.position = Vector2(smoke_pos.x * TILE_SIZE + 10, start_y)
+		s.color = Color(0.5, 0.5, 0.5, 0.08)
+		s.z_index = -1
+		add_child(s)
+		_smoke_wisps.append({"rect": s, "start_y": start_y})
 
 ## ===================== 맵 빌드 =====================
 

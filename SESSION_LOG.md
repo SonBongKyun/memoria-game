@@ -1753,3 +1753,55 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 전투 AI 패턴 강화 (적 행동 다양화)
 - 맵 시각 다양성 (맵별 고유 오브젝트/디테일)
 - 기억 관련 사이드퀘스트
+
+---
+
+## S39 — 2026-04-08 (전술적 AI + 사이드 퀘스트 + 맵 데코레이션)
+
+### 버그 수정
+- [x] **SideQuest null 체크:** `_find_quest()`가 `{}`를 반환하지만 호출부에서 `== null`로 비교 → `.is_empty()`로 변경 (4개소)
+- [x] **Limit 게이지 비-데미지 능력 축적:** shield/summon/weaken 등 피해 없는 능력에도 `_add_limit(LIMIT_GAIN_HIT)` 호출 → 데미지 능력(drain/multi_hit/burn_attack)에만 호출하도록 이동
+- [x] **보스 턴 카운터 드리프트:** `_boss_turn_counter += 1`이 확률 체크 전에 실행되어 능력 미사용 시에도 증가 → 확률 체크 후로 이동
+
+### 완료
+- [x] **전투 AI 강화:**
+  - 랜덤 능력 선택 → 전술적 `_select_ability()` 도입
+  - HP 비율/플레이어 상태/쉴드 유무에 따른 능력 우선순위
+  - "summon" 능력 추가 (최대HP 15% 회복 + 플레이어 약화)
+  - 보스 페이즈2 분노 패턴: 매 3턴 1.3배 강화 + multi_hit 3연타
+  - `_boss_turn_counter` 페이즈2 전용 카운터
+
+- [x] **사이드 퀘스트 시스템:**
+  - `SideQuest` 유틸리티 클래스 (class_name, 비-오토로드)
+  - 3개 퀘스트: Echoes in the Ash (림), The Sump Ledger (시장), Sable's Vigil (심)
+  - 플래그 기반 단계 진행 (GameManager.story_flags)
+  - 보상: Grains + 아이템 + 고유 기억
+  - 맵별 NPC/단서 트리거 배치 (림/시장/심)
+  - 대화 데이터 추가 (chapter1/2/4_dialogue.json)
+  - StoryJournal "Quests" 탭 추가 (상태별 색상 표시)
+  - "all_quests" 업적 (Memory Hunter) + check_quest_complete()
+
+- [x] **맵 시각 다양성 (5개 맵):**
+  - 림 포레스트: 발광 버섯 + 쓰러진 통나무
+  - 베르단 시장: 걸린 랜턴 + 연기 효과
+  - 크럼블링 코스트: 조수 웅덩이 + 표류목
+  - The Seam: 크리스탈 포메이션 + 덩굴
+  - BL-07: 기억 파편 + 보이드 균열
+
+### 변경/생성된 파일
+- `scripts/systems/battle_manager.gd` — 전술적 AI, summon 능력, 분노 패턴, 버그 2건 수정
+- `scripts/utils/side_quest.gd` — **신규** 사이드 퀘스트 유틸리티
+- `scripts/ui/story_journal.gd` — Quests 탭 추가
+- `scripts/ui/achievement_manager.gd` — all_quests 업적, check_quest_complete()
+- `scenes/maps/rim_forest.gd` — 퀘스트 트리거 + 발광 버섯/통나무 데코
+- `scenes/maps/verdan_market.gd` — 퀘스트 트리거 + 랜턴/연기 데코
+- `scenes/maps/crumbling_coast.gd` — 조수 웅덩이/표류목 데코
+- `scenes/maps/the_seam.gd` — 퀘스트 트리거 + 크리스탈/덩굴 데코
+- `scenes/maps/bl07_void.gd` — 기억 파편/보이드 균열 데코
+- `data/chapter1_dialogue.json` — 퀘스트 대화 3개
+- `data/chapter2_dialogue.json` — 퀘스트 대화 4개
+- `data/chapter4_dialogue.json` — 퀘스트 대화 2개
+
+### 다음
+- 추가 폴리싱 및 밸런스 조정
+- 사운드/VFX 보강

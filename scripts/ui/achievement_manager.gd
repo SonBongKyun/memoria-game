@@ -41,6 +41,9 @@ const ACHIEVEMENTS: Dictionary = {
 	"merchant": {"title": "Merchant", "desc": "Complete a trade with Malet.", "icon": "coin"},
 	"wealthy": {"title": "Wealthy", "desc": "Accumulate 100 Grains.", "icon": "coin"},
 
+	# 사이드 퀘스트
+	"all_quests": {"title": "Memory Hunter", "desc": "Complete all side quests.", "icon": "star"},
+
 	# NG+
 	"new_game_plus": {"title": "New Game+", "desc": "Start a New Game+ run.", "icon": "cycle"},
 }
@@ -141,6 +144,16 @@ func record_ending(ending_id: String) -> void:
 func check_grains() -> void:
 	if GameManager.player_data.get("grains", 0) >= 100:
 		unlock("wealthy")
+
+func check_quest_complete() -> void:
+	# 모든 사이드 퀘스트 완료 체크
+	var all_done = true
+	for q in SideQuest.QUESTS:
+		if not SideQuest.is_complete(q["id"]):
+			all_done = false
+			break
+	if all_done:
+		unlock("all_quests")
 
 func _check_all_endings() -> void:
 	var endings = ["ending_seal", "ending_zero", "ending_ash", "ending_seam"]

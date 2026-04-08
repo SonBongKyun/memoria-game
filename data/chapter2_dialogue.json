@@ -63,6 +63,25 @@
       {"speaker": "Elia", "text": "Not the kind of irony that's funny.", "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",
         "burned_text": "You said someone used to sing by the campfire. But you can't even recall the melody now."}
+    ],
+    "sq_sump_ledger_start": [
+      {"speaker": "", "text": "A man pressed against the alley wall, eyes darting between every shadow."},
+      {"speaker": "Nervous Trader", "text": "You. You're not Authority? No, you can't be — you smell like combustion."},
+      {"speaker": "Nervous Trader", "text": "Listen. There's a ledger. Hidden in the Sump. Names, transactions, memory trades that were never supposed to happen."},
+      {"speaker": "Nervous Trader", "text": "Find it. Bring it back to me. Or burn it. I don't care which — just don't let the Authority find it."}
+    ],
+    "sq_sump_ledger_found": [
+      {"speaker": "", "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger."},
+      {"speaker": "", "text": "Pages of names and numbers. Each entry a memory sold, a price paid. Some names have been crossed out. Permanently."}
+    ],
+    "sq_sump_ledger_return": [
+      {"speaker": "Nervous Trader", "text": "You brought it back. Good. Good. Here — for your trouble."},
+      {"speaker": "", "text": "He snatched the ledger and disappeared into the crowd before you could respond."}
+    ],
+    "sq_sump_ledger_burn": [
+      {"speaker": "", "text": "The pages caught fire instantly, as if they wanted to burn."},
+      {"speaker": "", "text": "Names turned to ash. Debts dissolved. And something crystallized in the smoke — a memory that wasn't yours."},
+      {"speaker": "", "text": "But it is now."}
     ]
   }
 }

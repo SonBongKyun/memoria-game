@@ -47,6 +47,7 @@ var _time: float = 0.0
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
+var _mushroom_lights: Array[ColorRect] = []
 
 @onready var player: CharacterBody2D = $Player
 
@@ -60,6 +61,8 @@ func _ready() -> void:
 	_setup_hidden_events()
 	_setup_interactive_objects()
 	_setup_random_encounters()
+	_setup_side_quests()
+	_setup_map_decorations()
 	AchievementManager.record_map_visit("rim_forest")
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -76,6 +79,10 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# 버섯 빛 애니메이션
+	for m in _mushroom_lights:
+		var phase = m.get_meta("phase", 0.0)
+		m.color.a = 0.2 + sin(_time * 2.0 + phase) * 0.12
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -258,6 +265,130 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 			indicator.queue_free()
 	)
 	add_child(area)
+
+## ===================== 사이드 퀘스트 =====================
+
+func _setup_side_quests() -> void:
+	if not SideQuest.is_available("echoes_ash") and not SideQuest.is_active("echoes_ash"):
+		return
+	# NPC: Ashen Figure (나무 그루터기 근처)
+	if not SideQuest.is_complete("echoes_ash"):
+		_add_quest_npc(
+			Vector2(20 * TILE_SIZE, 10 * TILE_SIZE),
+			"Ashen Figure",
+			Color(0.5, 0.5, 0.5, 0.4),
+			"echoes_ash"
+		)
+	# 기억 조각 1 (이끼 돌 근처)
+	if SideQuest.is_active("echoes_ash") and not GameManager.get_flag("sq_echoes_ash_frag1"):
+		_add_quest_clue(
+			Vector2(6 * TILE_SIZE, 5 * TILE_SIZE),
+			"sq_echoes_ash_frag1",
+			"echoes_ash"
+		)
+	# 기억 조각 2 (쓰러진 나무 근처)
+	if SideQuest.is_active("echoes_ash") and not GameManager.get_flag("sq_echoes_ash_frag2"):
+		_add_quest_clue(
+			Vector2(18 * TILE_SIZE, 13 * TILE_SIZE),
+			"sq_echoes_ash_frag2",
+			"echoes_ash"
+		)
+
+func _add_quest_npc(pos: Vector2, npc_name: String, color: Color, quest_id: String) -> void:
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	shape.shape = rect
+	area.add_child(shape)
+	# NPC 비주얼
+	var sprite = ColorRect.new()
+	sprite.size = Vector2(TILE_SIZE * 0.8, TILE_SIZE * 1.2)
+	sprite.position = -Vector2(TILE_SIZE * 0.4, TILE_SIZE * 0.6)
+	sprite.color = color
+	area.add_child(sprite)
+	# "!" 퀘스트 마커
+	var marker = Label.new()
+	marker.text = "!" if not SideQuest.is_active(quest_id) else "?"
+	marker.add_theme_font_size_override("font_size", 16)
+	marker.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	marker.position = Vector2(-4, -TILE_SIZE)
+	area.add_child(marker)
+
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION:
+			if not SideQuest.is_active(quest_id) and SideQuest.is_available(quest_id):
+				# 퀘스트 시작
+				SideQuest.advance_step(quest_id, "sq_%s_started" % quest_id)
+				DialogueManager.load_and_start(DIALOGUE_FILE, "sq_%s_start" % quest_id)
+			elif SideQuest.is_active(quest_id):
+				var step = SideQuest.get_current_step(quest_id)
+				var quest = SideQuest._find_quest(quest_id)
+				var steps = quest["steps"] as Array
+				if step >= steps.size() - 1:
+					# 마지막 단계: 완료
+					SideQuest.advance_step(quest_id, steps[steps.size() - 1]["flag"])
+					DialogueManager.load_and_start(DIALOGUE_FILE, "sq_%s_complete" % quest_id)
+					sprite.queue_free()
+					marker.queue_free()
+				else:
+					NotificationToast.show_toast("Find the memory fragments.", NotificationToast.ToastType.INFO)
+	)
+	add_child(area)
+
+func _add_quest_clue(pos: Vector2, flag_name: String, quest_id: String) -> void:
+	var area = Area2D.new()
+	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE)
+	shape.shape = rect
+	area.add_child(shape)
+	var indicator = ColorRect.new()
+	indicator.size = Vector2(TILE_SIZE * 0.6, TILE_SIZE * 0.6)
+	indicator.position = -Vector2(TILE_SIZE * 0.3, TILE_SIZE * 0.3)
+	indicator.color = Color(0.8, 0.7, 0.4, 0.35)
+	area.add_child(indicator)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			SideQuest.advance_step(quest_id, flag_name)
+			AudioManager.play_sfx("memory_add")
+			DialogueManager.load_and_start(DIALOGUE_FILE, "sq_echoes_ash_frag")
+			indicator.queue_free()
+	)
+	add_child(area)
+
+## ===================== 맵 데코레이션 =====================
+
+func _setup_map_decorations() -> void:
+	# 빛나는 버섯 (나무 가장자리 풀밭)
+	var mushroom_positions = [
+		Vector2(3, 5), Vector2(19, 3), Vector2(5, 11), Vector2(21, 9),
+	]
+	for i in range(mushroom_positions.size()):
+		var pos = mushroom_positions[i]
+		var m = ColorRect.new()
+		m.size = Vector2(6, 6)
+		m.position = pos * TILE_SIZE + Vector2(randf_range(4, 20), randf_range(4, 20))
+		m.color = Color(0.3, 0.7, 0.5, 0.25)
+		m.z_index = -1
+		m.set_meta("phase", float(i) * 1.5)
+		add_child(m)
+		_mushroom_lights.append(m)
+
+	# 쓰러진 나무줄기 (장식)
+	for log_pos in [Vector2(7, 12), Vector2(16, 4)]:
+		var log = ColorRect.new()
+		log.size = Vector2(TILE_SIZE * 2.5, TILE_SIZE * 0.4)
+		log.position = log_pos * TILE_SIZE + Vector2(4, 16)
+		log.color = Color(0.15, 0.1, 0.06, 0.35)
+		log.z_index = -1
+		add_child(log)
 
 ## ===================== 맵 빌드 =====================
 

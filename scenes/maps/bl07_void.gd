@@ -53,6 +53,7 @@ var _encounter_data: RandomEncounter.EncounterData = null
 
 var void_particles: GPUParticles2D
 var heavy_fog: Array[ColorRect] = []
+var _memory_shards: Array[ColorRect] = []
 
 func _ready() -> void:
 	_build_map()
@@ -65,6 +66,7 @@ func _ready() -> void:
 	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	_setup_random_encounters()
 	_setup_interactive_objects()
+	_setup_map_decorations()
 	AchievementManager.record_map_visit("bl07_void")
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
@@ -91,6 +93,47 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# 기억 파편 부유
+	for s in _memory_shards:
+		var phase = s.get_meta("phase", 0.0)
+		s.position.y = s.get_meta("base_y") + sin(pulse_time * 1.2 + phase) * 6.0
+		s.color.a = 0.1 + sin(pulse_time * 2.0 + phase) * 0.06
+
+## ===================== 맵 데코레이션 =====================
+
+func _setup_map_decorations() -> void:
+	# 떠다니는 기억 파편 (보이드 타일 위)
+	var shard_positions = [
+		Vector2(6, 5), Vector2(12, 3), Vector2(18, 7), Vector2(8, 12), Vector2(16, 14),
+	]
+	var shard_colors = [
+		Color(0.9, 0.8, 0.5, 0.12),
+		Color(0.7, 0.6, 0.9, 0.1),
+		Color(0.5, 0.8, 0.7, 0.1),
+		Color(0.9, 0.5, 0.6, 0.1),
+		Color(0.8, 0.9, 0.5, 0.12),
+	]
+	for i in range(shard_positions.size()):
+		var pos = shard_positions[i]
+		var shard = ColorRect.new()
+		shard.size = Vector2(4, 4)
+		var base_y = pos.y * TILE_SIZE + randf_range(4, 20)
+		shard.position = Vector2(pos.x * TILE_SIZE + randf_range(4, 20), base_y)
+		shard.color = shard_colors[i]
+		shard.z_index = -1
+		shard.set_meta("phase", float(i) * 1.7)
+		shard.set_meta("base_y", base_y)
+		add_child(shard)
+		_memory_shards.append(shard)
+	# 보이드 균열 (바닥에 가느다란 보라색 선)
+	for crack_pos in [Vector2(9, 8), Vector2(15, 11), Vector2(5, 15)]:
+		var crack = ColorRect.new()
+		crack.size = Vector2(TILE_SIZE * 2.5, 2)
+		crack.position = crack_pos * TILE_SIZE + Vector2(0, TILE_SIZE / 2.0)
+		crack.color = Color(0.3, 0.1, 0.4, 0.25)
+		crack.rotation = randf_range(-0.2, 0.2)
+		crack.z_index = -1
+		add_child(crack)
 
 ## ===================== 스토리 시퀀스 =====================
 

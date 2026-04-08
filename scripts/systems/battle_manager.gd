@@ -93,6 +93,7 @@ var _last_action: String = ""       # 마지막 행동 ("attack", "burn", "defen
 
 # --- 파티 시스템 ---
 var sable_in_party: bool = false    # 세이블 동행 여부
+var _boss_turn_counter: int = 0     # 보스 턴 카운터 (페이즈2 분노 패턴용)
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
 
@@ -142,6 +143,7 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	enemy_statuses.clear()
 	combo_count = 0
 	_last_action = ""
+	_boss_turn_counter = 0
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
 	limit_gauge = 0.0
 	limit_changed.emit(0.0)
@@ -418,20 +420,31 @@ func _enemy_turn() -> void:
 
 	_check_player_defeated()
 
-## 적 특수 능력 시도
+## 적 특수 능력 시도 — 전술적 AI
 func _try_enemy_ability() -> bool:
 	if current_enemy.abilities.is_empty():
 		return false
 
-	# 페이즈 2에서는 50% 확률, 페이즈 1에서는 25% 확률
-	var chance = 0.5 if current_enemy.phase == 2 else 0.25
+	# 페이즈 2에서는 60% 확률, 페이즈 1에서는 30% 확률
+	var chance = 0.6 if current_enemy.phase == 2 else 0.3
 	if randf() > chance:
 		return false
 
-	var ability = current_enemy.abilities[randi_range(0, current_enemy.abilities.size() - 1)]
+	_boss_turn_counter += 1
+
+	var ability = _select_ability()
+	if ability == "":
+		return false
+
+	# 보스 페이즈2 분노 패턴: 매 3턴 강화 공격
+	var rage_bonus: float = 1.0
+	if current_enemy.is_boss and current_enemy.phase == 2 and _boss_turn_counter % 3 == 0:
+		rage_bonus = 1.3
+		battle_log.emit("%s surges with dark fury!" % current_enemy.name)
+
 	match ability:
-		"drain":  # HP 흡수 공격
-			var dmg = current_enemy.attack + randi_range(5, 10)
+		"drain":
+			var dmg = int((current_enemy.attack + randi_range(5, 10)) * rage_bonus)
 			if player_defending:
 				dmg = maxi(1, dmg / 2)
 			player_defending = false
@@ -441,38 +454,97 @@ func _try_enemy_ability() -> bool:
 			AudioManager.play_sfx("drain")
 			battle_log.emit("%s drains your life! %d damage, heals %d." % [current_enemy.name, dmg, heal])
 			damage_dealt.emit("Arrel", dmg, "Drain")
-		"shield":  # 다음 턴 방어력 상승 (50% 데미지 감소 효과)
+			_add_limit(LIMIT_GAIN_HIT)
+		"shield":
 			enemy_shielded = true
 			AudioManager.play_sfx("shield")
 			battle_log.emit("%s raises a dark barrier." % current_enemy.name)
-		"multi_hit":  # 연속 공격 (약한 2타)
+		"multi_hit":
 			var total_dmg = 0
-			for i in range(2):
+			var hits = 3 if rage_bonus > 1.0 else 2
+			for i in range(hits):
 				var hit = int(current_enemy.attack * 0.6) + randi_range(0, 3)
 				if player_defending:
 					hit = maxi(1, hit / 2)
 				total_dmg += hit
 			player_defending = false
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - total_dmg)
-			battle_log.emit("%s strikes twice! %d total damage." % [current_enemy.name, total_dmg])
+			battle_log.emit("%s strikes %d times! %d total damage." % [current_enemy.name, hits, total_dmg])
 			damage_dealt.emit("Arrel", total_dmg, "Multi Hit")
-		"poison":  # 독 — 3턴 DoT
+			_add_limit(LIMIT_GAIN_HIT)
+		"poison":
 			var dot = int(current_enemy.attack * 0.3) + randi_range(2, 5)
 			apply_status("player", StatusEffect.POISON, 3, dot)
 			battle_log.emit("%s releases a toxic cloud!" % current_enemy.name)
-		"burn_attack":  # 화상 공격 — 데미지 + 2턴 DoT
-			var dmg_val = int(current_enemy.attack * 0.7) + randi_range(0, 5)
+		"burn_attack":
+			var dmg_val = int((current_enemy.attack * 0.7 + randi_range(0, 5)) * rage_bonus)
 			if player_defending:
 				dmg_val = maxi(1, dmg_val / 2)
 			player_defending = false
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg_val)
 			battle_log.emit("%s scorches Arrel! %d damage." % [current_enemy.name, dmg_val])
 			damage_dealt.emit("Arrel", dmg_val, "Scorch")
+			_add_limit(LIMIT_GAIN_HIT)
 			apply_status("player", StatusEffect.BURN, 2, int(current_enemy.attack * 0.2) + 3)
-		"weaken":  # 약화 — 플레이어 공격력 30% 감소 3턴
+		"weaken":
 			apply_status("player", StatusEffect.WEAKEN, 3, 30)
 			battle_log.emit("%s curses Arrel's strength!" % current_enemy.name)
+		"summon":
+			var heal = int(current_enemy.max_hp * 0.15)
+			current_enemy.hp = mini(current_enemy.hp + heal, current_enemy.max_hp)
+			apply_status("player", StatusEffect.WEAKEN, 2, 20)
+			AudioManager.play_sfx("shield")
+			battle_log.emit("Shadows coalesce around %s. +%d HP." % [current_enemy.name, heal])
+			battle_log.emit("The darkness saps your strength!")
+			damage_dealt.emit(current_enemy.name, -heal, "Shadow Summon")
 	return true
+
+## 전술적 능력 선택 — 상황 분석 기반
+func _select_ability() -> String:
+	var abilities = current_enemy.abilities
+	if abilities.is_empty():
+		return ""
+
+	var hp_ratio = float(current_enemy.hp) / max(current_enemy.max_hp, 1)
+
+	# 1. 위기 시 자가 치유 우선 (HP < 30%)
+	if hp_ratio < 0.3 and "drain" in abilities and randf() < 0.7:
+		return "drain"
+	if hp_ratio < 0.3 and "summon" in abilities and randf() < 0.6:
+		return "summon"
+
+	# 2. 플레이어 콤보 방어 (combo >= 3 → shield 우선)
+	if combo_count >= 3 and "shield" in abilities and not enemy_shielded and randf() < 0.6:
+		return "shield"
+
+	# 3. 방어 미사용 시 multi_hit 활용
+	if not player_defending and "multi_hit" in abilities and randf() < 0.5:
+		return "multi_hit"
+
+	# 4. 중복 상태이상 회피 — 이미 걸려있으면 다른 능력 선택
+	var filtered: Array = []
+	for a in abilities:
+		match a:
+			"poison":
+				if not has_status("player", StatusEffect.POISON):
+					filtered.append(a)
+			"burn_attack":
+				if not has_status("player", StatusEffect.BURN):
+					filtered.append(a)
+			"weaken":
+				if not has_status("player", StatusEffect.WEAKEN):
+					filtered.append(a)
+			_:
+				filtered.append(a)
+
+	# 5. 보스 페이즈2 전용: summon 우선
+	if current_enemy.is_boss and current_enemy.phase == 2 and "summon" in filtered and randf() < 0.4:
+		return "summon"
+
+	if filtered.is_empty():
+		filtered = abilities  # 모두 중복이면 그냥 아무거나
+
+	return filtered[randi_range(0, filtered.size() - 1)]
 
 ## 플레이어 사망 체크
 func _check_player_defeated() -> void:

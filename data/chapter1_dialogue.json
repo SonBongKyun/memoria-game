@@ -68,6 +68,23 @@
       {"speaker": "Elia", "text": "Arrel?", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "...Nothing. Just letters.", "portrait": "arrel_neutral"},
       {"speaker": "", "text": "But his fingers traced the grooves one more time before he pulled away."}
+    ],
+    "sq_echoes_ash_start": [
+      {"speaker": "", "text": "A figure stood at the edge of the clearing, flickering like a candle in wind."},
+      {"speaker": "Ashen Figure", "text": "You... burn, don't you? I can smell it. The smoke of what you've lost."},
+      {"speaker": "Ashen Figure", "text": "I was like you once. But the fragments of what I was are scattered in this forest."},
+      {"speaker": "Ashen Figure", "text": "Two pieces. Find them. Bring them back. Maybe then I can remember my own name."},
+      {"speaker": "", "text": "The figure's edges blurred. It was already fading."}
+    ],
+    "sq_echoes_ash_frag": [
+      {"speaker": "", "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch."},
+      {"speaker": "", "text": "It hums with someone else's past — a child's voice, counting."}
+    ],
+    "sq_echoes_ash_complete": [
+      {"speaker": "Ashen Figure", "text": "You found them. Both of them."},
+      {"speaker": "", "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place."},
+      {"speaker": "Ashen Figure", "text": "I remember now. I was... counting. Always counting. Take this — it's mine, but I don't need it where I'm going."},
+      {"speaker": "", "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand."}
     ]
   }
 }
