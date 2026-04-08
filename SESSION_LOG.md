@@ -1477,3 +1477,52 @@ Burn (화상): 매 턴 고정 데미지, 2턴 지속
 - 전투 아이템 시스템 (포션/해독제) 추천
 - New Game+ 모드
 - 업적 시스템
+
+---
+
+## S33 — 2026-04-08 (전투 소모 아이템 시스템)
+
+### 완료
+- [x] **아이템 정의 + 인벤토리 (GameManager):**
+  - `ITEMS` 상수: potion(40HP), hi_potion(80HP), antidote(독/화상 해제), firebomb(2턴 화상), smoke_bomb(확정 도주)
+  - `player_data.items` Dictionary (`{id: count}`)
+  - `add_item()`, `remove_item()`, `get_item_count()` — NotificationToast 연동
+
+- [x] **전투 중 아이템 사용 (BattleManager):**
+  - `player_use_item(item_id)`: heal/cure/burn/flee 4종 처리
+  - heal: HP 회복 (max_hp 클램프)
+  - cure: 독+화상 상태이상 해제
+  - burn: 적에게 화상 DoT 부여
+  - flee: 확정 도주 (battle_fled 시그널)
+  - 아이템 사용 = 1턴 소모 → 적 반격
+
+- [x] **전투 UI ITEM 버튼 + 아이템 목록 (battle_scene.gd):**
+  - 행동 버튼에 ITEM 추가 (ATK/BURN/ITEM/FLEE)
+  - 초록색 테마 아이템 리스트 패널 (토글 표시)
+  - 보유 아이템만 버튼으로 표시 (이름 + 수량)
+  - 클릭 시 사용 + 목록 닫기
+
+- [x] **전투 승리 아이템 드롭:**
+  - 30% 확률 아이템 드롭 (적 유형별 가중치)
+  - void 적: firebomb/antidote 위주, 일반 적: potion/antidote 위주
+
+- [x] **스타터 아이템:**
+  - Ch1 캠프 완료: potion ×1
+  - Ch2 말렛 보상: potion ×2, antidote ×1, firebomb ×1
+
+- [x] **ExplorationHUD 아이템 카운터:**
+  - HUD에 "Items: N" 행 추가 (초록색, Grains 아래)
+  - 0.5초 주기 자동 갱신
+
+### 변경/생성된 파일
+- `scripts/core/game_manager.gd` — ITEMS 상수, add/remove/get_item, player_data.items
+- `scripts/systems/battle_manager.gd` — player_use_item(), _try_item_drop()
+- `scenes/battle/battle_scene.gd` — ITEM 버튼, 아이템 목록 UI
+- `scenes/maps/rim_forest.gd` — Ch1 스타터 아이템
+- `scenes/maps/verdan_market.gd` — Ch2 말렛 보상 아이템, 상점 아이템
+- `scripts/ui/exploration_hud.gd` — items_label 추가
+
+### 다음
+- MemoryShop에 아이템 상점 탭 추가
+- New Game+ 모드
+- 업적 시스템

@@ -179,6 +179,60 @@ func player_defend() -> void:
 	battle_log.emit("Arrel braces for impact.")
 	_end_player_turn()
 
+## 플레이어 행동: 아이템 사용
+func player_use_item(item_id: String) -> void:
+	if state != BattleState.PLAYER_TURN:
+		return
+
+	var item_def = GameManager.ITEMS.get(item_id)
+	if item_def == null:
+		battle_log.emit("Unknown item.")
+		return
+
+	if not GameManager.remove_item(item_id):
+		battle_log.emit("No %s left." % item_def["name"])
+		return
+
+	AudioManager.play_sfx("ui_select")
+
+	match item_def["type"]:
+		"heal":
+			var heal_amount = item_def["power"]
+			GameManager.player_data.hp = mini(
+				GameManager.player_data.hp + heal_amount,
+				GameManager.player_data.max_hp
+			)
+			AudioManager.play_sfx("heal")
+			battle_log.emit("Used %s — restored %d HP." % [item_def["name"], heal_amount])
+			damage_dealt.emit("Arrel", -heal_amount, item_def["name"])
+		"cure":
+			var cured = false
+			var to_remove: Array = []
+			for entry in player_statuses:
+				if entry.effect == StatusEffect.POISON or entry.effect == StatusEffect.BURN:
+					to_remove.append(entry)
+					cured = true
+			for e in to_remove:
+				player_statuses.erase(e)
+			if cured:
+				status_changed.emit()
+				battle_log.emit("Used %s — status effects cured!" % item_def["name"])
+			else:
+				battle_log.emit("Used %s — but nothing to cure." % item_def["name"])
+		"burn":
+			if current_enemy:
+				apply_status("enemy", StatusEffect.BURN, 2, item_def["power"])
+				battle_log.emit("Threw %s — enemy is burning!" % item_def["name"])
+		"flee":
+			battle_log.emit("Used %s — vanished in smoke!" % item_def["name"])
+			AudioManager.play_sfx("flee")
+			state = BattleState.FLED
+			battle_ended.emit(BattleState.FLED)
+			_cleanup()
+			return
+
+	_end_player_turn()
+
 ## 플레이어 행동: 도주
 func player_flee() -> void:
 	if state != BattleState.PLAYER_TURN:
@@ -373,6 +427,9 @@ func _cleanup() -> void:
 		GameManager.player_data.grains += grains
 		battle_log.emit("Gained %d Grains." % grains)
 		NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
+
+		# 아이템 드롭 (30% 확률)
+		_try_item_drop()
 	elif state == BattleState.DEFEAT:
 		battle_log.emit("Darkness closes in...")
 		await get_tree().create_timer(1.5).timeout
@@ -387,6 +444,19 @@ func _cleanup() -> void:
 	GameManager.change_state(GameManager.GameState.EXPLORATION)
 	if return_scene != "":
 		SceneTransition.change_scene(return_scene)
+
+## 전투 승리 시 아이템 드롭
+func _try_item_drop() -> void:
+	if randf() > 0.30:  # 30% 확률
+		return
+	var drop_table: Array = ["potion", "potion", "potion", "antidote", "antidote", "firebomb"]
+	if current_enemy and current_enemy.is_void_beast:
+		drop_table.append_array(["firebomb", "hi_potion"])
+	if current_enemy and current_enemy.is_boss:
+		drop_table.append_array(["hi_potion", "hi_potion", "smoke_bomb"])
+	var drop = drop_table[randi_range(0, drop_table.size() - 1)]
+	GameManager.add_item(drop)
+	battle_log.emit("Found: %s" % GameManager.ITEMS[drop]["name"])
 
 ## ===================== 상태이상 시스템 =====================
 

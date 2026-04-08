@@ -13,6 +13,7 @@ var player_hp_label: Label
 var log_label: RichTextLabel
 var action_container: HBoxContainer
 var burn_list_container: VBoxContainer
+var item_list_container: VBoxContainer
 var enemy_sprite: Control  # 적 스프라이트 (TextureRect 또는 ColorRect)
 var enemy_sprite_container: Control  # 아이들 애니메이션용 컨테이너
 
@@ -120,6 +121,9 @@ func _build_ui() -> void:
 
 	# 기억 연소 목록 (숨김 상태)
 	_build_burn_list(root)
+
+	# 아이템 목록 (숨김 상태)
+	_build_item_list(root)
 
 	# 턴 표시 라벨
 	_build_turn_label(root)
@@ -556,6 +560,7 @@ func _build_action_buttons(root: Control) -> void:
 	var actions = [
 		{"text": "ATTACK", "callback": _on_attack, "icon": "⚔"},
 		{"text": "BURN", "callback": _on_burn_menu, "icon": "🔥"},
+		{"text": "ITEM", "callback": _on_item_menu, "icon": ""},
 		{"text": "DEFEND", "callback": _on_defend, "icon": "🛡"},
 		{"text": "FLEE", "callback": _on_flee, "icon": "💨"},
 	]
@@ -736,6 +741,7 @@ func _on_status_changed() -> void:
 func _on_battle_ended(_result) -> void:
 	action_container.visible = false
 	_hide_burn_list()
+	_hide_item_list()
 
 ## ===================== 행동 콜백 =====================
 
@@ -743,22 +749,31 @@ func _on_attack() -> void:
 	AudioManager.play_sfx("ui_select")
 	action_container.visible = false
 	_hide_burn_list()
+	_hide_item_list()
 	BattleManager.player_attack()
 
 func _on_burn_menu() -> void:
 	AudioManager.play_sfx("ui_select")
+	_hide_item_list()
 	_toggle_burn_list()
+
+func _on_item_menu() -> void:
+	AudioManager.play_sfx("ui_select")
+	_hide_burn_list()
+	_toggle_item_list()
 
 func _on_defend() -> void:
 	AudioManager.play_sfx("ui_select")
 	action_container.visible = false
 	_hide_burn_list()
+	_hide_item_list()
 	BattleManager.player_defend()
 
 func _on_flee() -> void:
 	AudioManager.play_sfx("ui_select")
 	action_container.visible = false
 	_hide_burn_list()
+	_hide_item_list()
 	BattleManager.player_flee()
 
 ## ===================== 기억 연소 목록 =====================
@@ -836,6 +851,110 @@ func _toggle_burn_list() -> void:
 
 func _hide_burn_list() -> void:
 	var scroll = burn_list_container.get_meta("scroll_parent") as ScrollContainer
+	if scroll:
+		scroll.visible = false
+
+## ===================== 아이템 목록 =====================
+
+func _build_item_list(root: Control) -> void:
+	var scroll = ScrollContainer.new()
+	scroll.anchor_left = 0.15
+	scroll.anchor_right = 0.85
+	scroll.anchor_top = 0.35
+	scroll.anchor_bottom = 0.78
+	scroll.visible = false
+
+	var panel = PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.08, 0.04, 0.96)
+	style.border_color = Color(0.3, 0.5, 0.2, 0.7)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	style.set_content_margin_all(12)
+	panel.add_theme_stylebox_override("panel", style)
+	scroll.add_child(panel)
+
+	item_list_container = VBoxContainer.new()
+	item_list_container.add_theme_constant_override("separation", 6)
+	panel.add_child(item_list_container)
+
+	root.add_child(scroll)
+	item_list_container.set_meta("scroll_parent", scroll)
+
+func _toggle_item_list() -> void:
+	var scroll = item_list_container.get_meta("scroll_parent") as ScrollContainer
+	if scroll.visible:
+		_hide_item_list()
+		return
+
+	for child in item_list_container.get_children():
+		child.queue_free()
+
+	var items = GameManager.player_data.items
+	if items.is_empty():
+		var empty_label = Label.new()
+		empty_label.text = "No items."
+		empty_label.add_theme_font_size_override("font_size", 13)
+		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
+		item_list_container.add_child(empty_label)
+	else:
+		var title = Label.new()
+		title.text = "— Select an item —"
+		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title.add_theme_font_size_override("font_size", 13)
+		title.add_theme_color_override("font_color", Color(0.4, 0.65, 0.35))
+		item_list_container.add_child(title)
+
+		for item_id in items:
+			var count = items[item_id]
+			var item_def = GameManager.ITEMS.get(item_id)
+			if item_def == null:
+				continue
+			var btn = Button.new()
+			btn.text = "%s x%d — %s" % [item_def["name"], count, item_def["desc"]]
+			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+			var s = StyleBoxFlat.new()
+			s.bg_color = Color(0.06, 0.08, 0.05, 0.85)
+			s.set_content_margin_all(8)
+			s.set_corner_radius_all(3)
+			btn.add_theme_stylebox_override("normal", s)
+			var hover_s = s.duplicate()
+			hover_s.bg_color = Color(0.12, 0.18, 0.1, 0.95)
+			hover_s.border_color = Color(0.4, 0.65, 0.3, 0.7)
+			hover_s.set_border_width_all(1)
+			btn.add_theme_stylebox_override("hover", hover_s)
+			btn.add_theme_stylebox_override("focus", hover_s)
+			btn.add_theme_font_size_override("font_size", 12)
+			btn.add_theme_color_override("font_color", Color(0.6, 0.7, 0.55))
+			btn.add_theme_color_override("font_hover_color", Color(0.8, 0.95, 0.5))
+
+			var iid = item_id
+			btn.pressed.connect(func():
+				AudioManager.play_sfx("ui_select")
+				action_container.visible = false
+				_hide_item_list()
+				BattleManager.player_use_item(iid)
+			)
+			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+			item_list_container.add_child(btn)
+
+	var cancel_btn = Button.new()
+	cancel_btn.text = "[ Cancel ]"
+	cancel_btn.add_theme_font_size_override("font_size", 12)
+	cancel_btn.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
+	cancel_btn.pressed.connect(func():
+		AudioManager.play_sfx("cancel")
+		_hide_item_list()
+	)
+	item_list_container.add_child(cancel_btn)
+
+	scroll.visible = true
+
+func _hide_item_list() -> void:
+	var scroll = item_list_container.get_meta("scroll_parent") as ScrollContainer
 	if scroll:
 		scroll.visible = false
 

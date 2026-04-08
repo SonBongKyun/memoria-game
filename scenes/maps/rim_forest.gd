@@ -142,6 +142,7 @@ func _start_camp_scene() -> void:
 func _on_camp_ended() -> void:
 	GameManager.set_flag("ch1_complete")
 	GameManager.current_chapter = 2
+	GameManager.add_item("potion", 1)
 	print("[RimForest] Chapter 1 complete")
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout

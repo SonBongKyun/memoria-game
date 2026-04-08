@@ -17,7 +17,36 @@ var player_data: Dictionary = {
 	"max_hp": 100,
 	"grains": 0,  # 화폐
 	"elia_with_party": true,  # 엘리아 동행 여부
+	"items": {},  # 아이템 인벤토리 {"potion": 2, "antidote": 1, ...}
 }
+
+# --- 아이템 정의 ---
+const ITEMS: Dictionary = {
+	"potion": {"name": "Potion", "desc": "Restores 40 HP.", "type": "heal", "power": 40, "price": 12},
+	"hi_potion": {"name": "Hi-Potion", "desc": "Restores 80 HP.", "type": "heal", "power": 80, "price": 25},
+	"antidote": {"name": "Antidote", "desc": "Cures poison and burn.", "type": "cure", "power": 0, "price": 10},
+	"firebomb": {"name": "Firebomb", "desc": "Burns the enemy for 2 turns.", "type": "burn", "power": 15, "price": 18},
+	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15},
+}
+
+func add_item(item_id: String, count: int = 1) -> void:
+	if not ITEMS.has(item_id):
+		return
+	var current = player_data.items.get(item_id, 0)
+	player_data.items[item_id] = current + count
+	NotificationToast.show_toast("+%d %s" % [count, ITEMS[item_id]["name"]], NotificationToast.ToastType.SUCCESS)
+
+func remove_item(item_id: String, count: int = 1) -> bool:
+	var current = player_data.items.get(item_id, 0)
+	if current < count:
+		return false
+	player_data.items[item_id] = current - count
+	if player_data.items[item_id] <= 0:
+		player_data.items.erase(item_id)
+	return true
+
+func get_item_count(item_id: String) -> int:
+	return player_data.items.get(item_id, 0)
 
 signal state_changed(new_state: GameState)
 

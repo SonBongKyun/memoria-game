@@ -106,6 +106,10 @@ func _on_refused_ended() -> void:
 
 func _on_reward_ended() -> void:
 	GameManager.set_flag("ch2_malet_done")
+	# 말렛 거래 보상: 아이템 지급
+	GameManager.add_item("potion", 2)
+	GameManager.add_item("antidote", 1)
+	GameManager.add_item("firebomb", 1)
 	# 보상 대화 후 상점 오픈 (Grains 거래 기회)
 	_open_malet_shop()
 

@@ -19,6 +19,7 @@ var hp_value_label: Label
 var chapter_label: Label
 var memory_label: Label
 var grains_label: Label
+var items_label: Label
 var update_timer: Timer
 var hp_tween: Tween
 var _last_hp: int = -1
@@ -99,6 +100,12 @@ func _build_ui() -> void:
 	grains_label.add_theme_color_override("font_color", Color(0.85, 0.7, 0.35))
 	vbox.add_child(grains_label)
 
+	# ── Items Row ──
+	items_label = Label.new()
+	items_label.add_theme_font_size_override("font_size", 12)
+	items_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
+	vbox.add_child(items_label)
+
 func _start_timer() -> void:
 	update_timer = Timer.new()
 	update_timer.wait_time = 0.5
@@ -158,6 +165,13 @@ func _update_hud() -> void:
 	# Grains
 	var grains: int = GameManager.player_data.get("grains", 0)
 	grains_label.text = "Grains: %d" % grains
+
+	# Items
+	var total_items: int = 0
+	var items_dict: Dictionary = GameManager.player_data.get("items", {})
+	for item_id in items_dict:
+		total_items += items_dict[item_id]
+	items_label.text = "Items: %d" % total_items
 
 ## 현재 맵 이름 가져오기
 func _get_location_name() -> String:
