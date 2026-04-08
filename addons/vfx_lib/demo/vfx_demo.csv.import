@@ -6,12 +6,14 @@ uid="uid://bn52hmttwustt"
 
 [deps]
 
-files=["res://addons/vfx_library/demo/vfx_demo.en.translation", "res://addons/vfx_library/demo/vfx_demo.zh.translation"]
+files=["res://addons/vfx_lib/demo/vfx_demo.en.translation", "res://addons/vfx_lib/demo/vfx_demo.zh.translation"]
 
-source_file="res://addons/vfx_library/demo/vfx_demo.csv"
-dest_files=["res://addons/vfx_library/demo/vfx_demo.en.translation", "res://addons/vfx_library/demo/vfx_demo.zh.translation"]
+source_file="res://addons/vfx_lib/demo/vfx_demo.csv"
+dest_files=["res://addons/vfx_lib/demo/vfx_demo.en.translation", "res://addons/vfx_lib/demo/vfx_demo.zh.translation"]
 
 [params]
 
 compress=true
 delimiter=0
+unescape_keys=false
+unescape_translations=true
