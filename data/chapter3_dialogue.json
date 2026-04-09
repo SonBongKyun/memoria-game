@@ -64,7 +64,7 @@
       {"speaker": "", "text": "They walked faster."}
     ],
     "seam_arrival": [
-      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam2.jpg"},
       {"speaker": "", "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."},
       {"speaker": "", "text": "Amber. Crimson. A green so deep it hurt to look at."},
       {"speaker": "", "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."},

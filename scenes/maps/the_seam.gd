@@ -332,7 +332,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Wraith", 90, 18, true,
-		"res://assets/cg/village_seam.jpg", "res://assets/cg/void_beast.jpg"
+		"res://assets/cg/village_seam2.jpg", "res://assets/cg/void_beast.jpg"
 	)
 
 func _setup_puzzle_trigger() -> void:
@@ -364,8 +364,8 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/village_seam.jpg", "img": "res://assets/cg/void_beast.jpg"},
-			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/village_seam.jpg"},
+			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/village_seam2.jpg", "img": "res://assets/cg/void_beast.jpg"},
+			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/village_seam2.jpg"},
 		],
 		"res://scenes/maps/the_seam.tscn", "", "", 45, 80
 	)

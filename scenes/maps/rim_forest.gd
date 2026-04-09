@@ -169,7 +169,7 @@ func _on_camp_ended() -> void:
 	print("[RimForest] Chapter 1 complete")
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
-	CgViewer.show_cg("res://assets/cg/ch1_green_tree.jpg", "", 3.0, func():
+	CgViewer.show_cg("res://assets/cg/ch1_green_tree2.jpg", "", 3.0, func():
 		SceneTransition.change_scene("res://scenes/maps/verdan_market.tscn")
 	)
 

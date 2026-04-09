@@ -4,7 +4,7 @@
   "dialogues": {
     "epilogue_zero_burn": [
       {"speaker": "", "text": "Three days passed. Or maybe it was longer. Time moved differently when you didn't have a name to mark it with."},
-      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/village_seam2.jpg"},
       {"speaker": "", "text": "BL-07 was sealed. The ground was solid. Children played in the gardens where flowers bloomed in impossible seasons."},
       {"speaker": "Elia", "text": "You've been sitting here since dawn.", "portrait": "elia_neutral"},
       {"speaker": "???", "text": "Have I? I can't tell.", "portrait": "arrel_wounded"},
@@ -33,7 +33,7 @@
       {"speaker": "", "text": "ZERO BURN ENDING: The name is gone. But the man remains."}
     ],
     "epilogue_preservation": [
-      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/village_seam2.jpg"},
       {"speaker": "", "text": "Sable was waiting at the entrance. Her face said she already knew."},
       {"speaker": "Sable", "text": "It's still growing.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
@@ -58,7 +58,7 @@
       {"speaker": "", "text": "PRESERVATION ENDING: The hole remains. So does the name. The search continues."}
     ],
     "epilogue_ash": [
-      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/village_seam2.jpg"},
       {"speaker": "", "text": "But the words came from somewhere hollow. A place where a person used to be."},
       {"speaker": "Elia", "text": "Arrel. Look at me.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "...That name. I know it's mine. I just can't feel it.", "portrait": "arrel_wounded"},
@@ -77,7 +77,7 @@
       {"speaker": "", "text": "ASH ENDING: The name remains. But the man behind it is ash."}
     ],
     "epilogue_seam": [
-      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/village_seam.jpg"},
+      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/village_seam2.jpg"},
       {"speaker": "", "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch."},
       {"speaker": "Arrel", "text": "Elia. Do you remember the stump in Rim Forest? The one with the new growth?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The one you spent ten minutes staring at? Yes.", "portrait": "elia_neutral"},

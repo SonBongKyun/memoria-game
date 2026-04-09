@@ -14,12 +14,28 @@ const PORTRAIT_MAP: Dictionary = {
 	"arrel_wounded": "res://assets/portraits/arrel_wounded.jpg",
 	"arrel_angry": "res://assets/portraits/arrel_angry.jpg",
 	"arrel_pain": "res://assets/portraits/arrel_pain.jpg",
+	"arrel_determined": "res://assets/portraits/arrel_determined.jpg",
+	"arrel_sad": "res://assets/portraits/arrel_sad.jpg",
+	"arrel_cold": "res://assets/portraits/arrel_cold.jpg",
+	"arrel_rage": "res://assets/portraits/arrel_rage.jpg",
+	"arrel_pensive": "res://assets/portraits/arrel_pensive.jpg",
+	"arrel_battle": "res://assets/portraits/arrel_battle.png",
 	"elia_neutral": "res://assets/portraits/elia_neutral.jpg",
 	"elia_concern": "res://assets/portraits/elia_concern.jpg",
+	"elia_hopeful": "res://assets/portraits/elia_hopeful.jpg",
+	"elia_sad": "res://assets/portraits/elia_sad.jpg",
+	"elia_determined": "res://assets/portraits/elia_determined.jpg",
+	"elia_calm": "res://assets/portraits/elia_calm.jpg",
+	"elia_side": "res://assets/portraits/elia_side.jpg",
+	"elia_void": "res://assets/portraits/elia_void.jpg",
 	"malet_neutral": "res://assets/portraits/malet_neutral.jpg",
+	"malet_desk": "res://assets/portraits/malet_desk.jpg",
 	"kairos_neutral": "res://assets/portraits/kairos_neutral.jpg",
 	"sable_neutral": "res://assets/portraits/sable_neutral.jpg",
 	"sable_calm": "res://assets/portraits/sable_calm.jpg",
+	"nera_neutral": "res://assets/portraits/nera_neutral.jpg",
+	"seric_neutral": "res://assets/portraits/seric_neutral.jpg",
+	"tobias_neutral": "res://assets/portraits/tobias_neutral.jpg",
 }
 const DEFAULT_PORTRAITS: Dictionary = {
 	"Arrel": "arrel_neutral",
@@ -27,6 +43,9 @@ const DEFAULT_PORTRAITS: Dictionary = {
 	"Malet": "malet_neutral",
 	"Kairos": "kairos_neutral",
 	"Sable": "sable_neutral",
+	"Nera": "nera_neutral",
+	"Seric": "seric_neutral",
+	"Tobias": "tobias_neutral",
 }
 
 # UI 노드 (코드로 생성)
