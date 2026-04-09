@@ -59,6 +59,11 @@ var _enemy_base_y: float = 0.0
 var _color_grade_rect: ColorRect
 var _battle_particles: GPUParticles2D  # 배경 파티클
 
+# S46: 타격감 강화
+var _enemy_shader_mat: ShaderMaterial  # 적 VFX 셰이더
+var _player_shader_mat: ShaderMaterial  # 플레이어 VFX 셰이더
+var ally_cmd_container: HBoxContainer  # 세이블 명령 UI
+
 func _ready() -> void:
 	_build_ui()
 	_connect_signals()
@@ -173,6 +178,9 @@ func _build_ui() -> void:
 
 	# S41: 턴 순서 미리보기
 	_build_turn_preview(root)
+
+	# S46: 세이블 명령 UI
+	_build_ally_command_ui(root)
 
 	# VFX 레이어 추가
 	root.add_child(burn_vfx_container)
@@ -983,6 +991,7 @@ func _connect_signals() -> void:
 	BattleManager.battle_ended.connect(_on_battle_ended)
 	BattleManager.status_changed.connect(_on_status_changed)
 	BattleManager.limit_changed.connect(_on_limit_changed)
+	BattleManager.phase_changed.connect(_on_phase_changed)  # S46
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -1003,6 +1012,8 @@ func _exit_tree() -> void:
 		BattleManager.status_changed.disconnect(_on_status_changed)
 	if BattleManager.limit_changed.is_connected(_on_limit_changed):
 		BattleManager.limit_changed.disconnect(_on_limit_changed)
+	if BattleManager.phase_changed.is_connected(_on_phase_changed):
+		BattleManager.phase_changed.disconnect(_on_phase_changed)
 
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
@@ -1066,13 +1077,30 @@ func _on_battle_log(message: String) -> void:
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
 
+	# S46: 히트스톱 — 강한 공격일수록 더 긴 프리즈
+	var hit_stop_dur = 0.0
+	if amount >= 200:
+		hit_stop_dur = 0.12
+	elif amount >= 80:
+		hit_stop_dur = 0.08
+	elif amount >= 30:
+		hit_stop_dur = 0.04
+	if hit_stop_dur > 0:
+		get_tree().paused = true
+		await get_tree().create_timer(hit_stop_dur, true, false, true).timeout
+		get_tree().paused = false
+
 	# S44: 공격 돌진 애니메이션
 	if target != "Arrel" and player_sprite_container:
 		_player_attack_rush()
 
 	_show_damage_number(target, amount, skill_name)
+	# S46: VFX Library 셰이더 피격 플래시 (flash_white)
+	_apply_hit_shader(target, amount)
 	_hit_flash(target)
-	_screen_shake()
+	# S46: 셰이크 스케일링 — 데미지에 비례
+	var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
+	_screen_shake(shake_intensity)
 
 	# 스킬별 VFX
 	if skill_name != "" and target != "Arrel":
@@ -1089,6 +1117,8 @@ func _on_player_turn() -> void:
 		_play_combo_burst(BattleManager.combo_count)
 	await get_tree().create_timer(0.5).timeout
 	action_container.visible = true
+	if ally_cmd_container:
+		ally_cmd_container.visible = BattleManager.sable_in_party
 	_update_limit_button()
 	if action_container.get_child_count() > 0:
 		action_container.get_child(0).grab_focus()
@@ -1100,9 +1130,12 @@ func _on_enemy_turn() -> void:
 func _on_status_changed() -> void:
 	_update_status_icons()
 	_update_enemy_status_visual()  # S41: 상태이상 스프라이트 틴트
+	_update_status_shaders()       # S46: VFX Library 상태이상 셰이더
 
 func _on_battle_ended(_result) -> void:
 	action_container.visible = false
+	if ally_cmd_container:
+		ally_cmd_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
 	# S40: 승리 시 적 디졸브 효과
@@ -2104,3 +2137,172 @@ func _play_limit_burst_vfx() -> void:
 
 	var timer = get_tree().create_timer(2.0)
 	timer.timeout.connect(particles.queue_free)
+
+## ===================== S46: 타격감 강화 + VFX Library 셰이더 =====================
+
+## VFX Library — flash_white 피격 셰이더 (적/플레이어 스프라이트에 흰색 플래시)
+func _apply_hit_shader(target: String, amount: int) -> void:
+	var shader_path = "res://addons/vfx_lib/shaders/flash_white.gdshader"
+	if not ResourceLoader.exists(shader_path):
+		return
+	var sprite_node: Control = null
+	if target != "Arrel" and enemy_sprite:
+		sprite_node = enemy_sprite
+	elif target == "Arrel" and player_sprite:
+		sprite_node = player_sprite
+	if not sprite_node:
+		return
+	var mat = ShaderMaterial.new()
+	mat.shader = load(shader_path)
+	var flash_strength = clampf(float(amount) / 100.0, 0.4, 1.0)
+	mat.set_shader_parameter("flash_amount", flash_strength)
+	mat.set_shader_parameter("flash_color", Color(1, 1, 1, 1) if target != "Arrel" else Color(1, 0.4, 0.3, 1))
+	sprite_node.material = mat
+	# 플래시 페이드아웃
+	var t = create_tween()
+	t.tween_method(func(val): mat.set_shader_parameter("flash_amount", val), flash_strength, 0.0, 0.25)
+	t.tween_callback(func(): sprite_node.material = null)
+
+## VFX Library — 상태이상 셰이더 (독/화상/약화) 적 스프라이트에 적용
+func _apply_status_shader() -> void:
+	if not enemy_sprite:
+		return
+	# 독 — poison 셰이더
+	if BattleManager.has_status("enemy", BattleManager.StatusEffect.POISON):
+		var shader_path = "res://addons/vfx_lib/shaders/poison.gdshader"
+		if ResourceLoader.exists(shader_path):
+			var mat = ShaderMaterial.new()
+			mat.shader = load(shader_path)
+			mat.set_shader_parameter("poison_amount", 0.6)
+			mat.set_shader_parameter("poison_color", Color(0.3, 1.0, 0.3, 1.0))
+			mat.set_shader_parameter("pulse_speed", 3.0)
+			enemy_sprite.material = mat
+			return
+	# 화상 — burning 셰이더
+	if BattleManager.has_status("enemy", BattleManager.StatusEffect.BURN):
+		var shader_path = "res://addons/vfx_lib/shaders/burning.gdshader"
+		if ResourceLoader.exists(shader_path):
+			var mat = ShaderMaterial.new()
+			mat.shader = load(shader_path)
+			mat.set_shader_parameter("burn_amount", 0.5)
+			mat.set_shader_parameter("fire_color1", Color(1.0, 0.8, 0.2, 1.0))
+			mat.set_shader_parameter("fire_color2", Color(1.0, 0.3, 0.0, 1.0))
+			mat.set_shader_parameter("distortion_strength", 0.02)
+			enemy_sprite.material = mat
+			return
+	# 약화 — 그레이스케일 틴트 (기존 VFX lib grayscale 사용)
+	if BattleManager.has_status("enemy", BattleManager.StatusEffect.WEAKEN):
+		enemy_sprite.modulate = Color(0.7, 0.6, 0.8, 1.0)
+		return
+	# 상태이상 없으면 클리어
+	enemy_sprite.material = null
+	enemy_sprite.modulate = Color.WHITE
+
+## 보스 페이즈 2 드라마틱 전환 (프리즈 프레임 + 화면 변색 + 적 분노 광원)
+func _on_phase_changed(enemy_name: String, phase: int) -> void:
+	if phase != 2:
+		return
+	# 1. 프리즈 프레임 (0.4초)
+	get_tree().paused = true
+	# 2. 화면 적색 플래시
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(0.8, 0.1, 0.05, 0.6)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 95
+	canvas_root.add_child(flash)
+	# 3. 경고 텍스트
+	var warn = Label.new()
+	warn.text = "— PHASE 2 —"
+	warn.add_theme_font_size_override("font_size", 36)
+	warn.add_theme_color_override("font_color", Color(1, 0.3, 0.2))
+	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	warn.set_anchors_preset(Control.PRESET_CENTER)
+	warn.position = Vector2(640 - 100, 280)
+	warn.z_index = 96
+	canvas_root.add_child(warn)
+	# 프리즈 해제 후 페이드
+	await get_tree().create_timer(0.4, true, false, true).timeout
+	get_tree().paused = false
+	# 강한 셰이크
+	_screen_shake(3.0)
+	# 색수차
+	_play_chromatic_aberration(2.0)
+	# 적 분노 틴트 — outline_glow 셰이더
+	var glow_path = "res://addons/vfx_lib/shaders/outline_glow.gdshader"
+	if enemy_sprite and ResourceLoader.exists(glow_path):
+		var mat = ShaderMaterial.new()
+		mat.shader = load(glow_path)
+		mat.set_shader_parameter("outline_color", Color(1.0, 0.2, 0.1, 1.0))
+		mat.set_shader_parameter("outline_width", 3.0)
+		mat.set_shader_parameter("glow_intensity", 1.5)
+		enemy_sprite.material = mat
+		# 2초 후 페이드
+		var gt = create_tween()
+		gt.tween_interval(2.0)
+		gt.tween_callback(func(): enemy_sprite.material = null)
+	# 경고 페이드아웃
+	var wt = create_tween()
+	wt.tween_property(warn, "modulate:a", 0.0, 1.0).set_delay(0.5)
+	wt.tween_callback(warn.queue_free)
+	var ft = create_tween()
+	ft.tween_property(flash, "color:a", 0.0, 0.6)
+	ft.tween_callback(flash.queue_free)
+
+## S46: 상태이상 셰이더 업데이트 (status_changed 시그널에 연동)
+func _update_status_shaders() -> void:
+	_apply_status_shader()
+
+## ===================== S46: 세이블 명령 UI =====================
+
+func _build_ally_command_ui(root: Control) -> void:
+	if not BattleManager.sable_in_party:
+		return
+	ally_cmd_container = HBoxContainer.new()
+	ally_cmd_container.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	ally_cmd_container.anchor_left = 0.0
+	ally_cmd_container.anchor_right = 0.35
+	ally_cmd_container.anchor_top = 0.78
+	ally_cmd_container.anchor_bottom = 0.84
+	ally_cmd_container.offset_left = 10
+	ally_cmd_container.add_theme_constant_override("separation", 4)
+
+	var lbl = Label.new()
+	lbl.text = "Sable:"
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_color_override("font_color", Color(0.7, 0.85, 0.95))
+	ally_cmd_container.add_child(lbl)
+
+	var cmds = [["Heal", "heal"], ["Strike", "strike"], ["Weaken", "weaken"], ["Guard", "guard"]]
+	for cmd in cmds:
+		var btn = Button.new()
+		btn.text = cmd[0]
+		btn.custom_minimum_size = Vector2(52, 22)
+		btn.add_theme_font_size_override("font_size", 10)
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.15, 0.18, 0.25, 0.9)
+		style.border_color = Color(0.4, 0.55, 0.7, 0.7)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(3)
+		btn.add_theme_stylebox_override("normal", style)
+		var hover = style.duplicate()
+		hover.bg_color = Color(0.25, 0.35, 0.5, 0.95)
+		btn.add_theme_stylebox_override("hover", hover)
+		btn.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
+		var action_name = cmd[1]
+		btn.pressed.connect(func(): _on_ally_cmd(action_name))
+		ally_cmd_container.add_child(btn)
+
+	ally_cmd_container.visible = false
+	root.add_child(ally_cmd_container)
+
+func _on_ally_cmd(action: String) -> void:
+	BattleManager.set_ally_command(action)
+	AudioManager.play_sfx("ui_select")
+	# 선택 확인 — 버튼 하이라이트
+	if ally_cmd_container:
+		for i in range(1, ally_cmd_container.get_child_count()):
+			var btn = ally_cmd_container.get_child(i)
+			if btn is Button:
+				var is_selected = (btn.text.to_lower() == action)
+				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE

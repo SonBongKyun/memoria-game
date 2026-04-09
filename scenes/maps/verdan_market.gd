@@ -56,6 +56,8 @@ var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
+	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
+	MapEffects.add_heat_haze(self, 0.0015)  # S46: 시장 훈기
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.1, 0.08, 0.12), "far": Color(0.15, 0.12, 0.1), "mid": Color(0.2, 0.16, 0.14), "biome": "market", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.5, 0.45, 0.4))

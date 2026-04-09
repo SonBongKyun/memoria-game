@@ -57,6 +57,8 @@ var _grass_blades: Array[ColorRect] = []  # S43: 풀 흔들림
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
+	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
+	MapEffects.add_fireflies(self, 12, Color(0.5, 0.85, 0.3, 0.5))  # S46: 숲 반딧불
 	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.06))
 	# S42: 패럴랙스 배경 + 2D 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.08, 0.12), "far": Color(0.08, 0.12, 0.08), "mid": Color(0.12, 0.18, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})

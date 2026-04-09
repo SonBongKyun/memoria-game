@@ -96,6 +96,11 @@ var sable_in_party: bool = false    # 세이블 동행 여부
 var _boss_turn_counter: int = 0     # 보스 턴 카운터 (페이즈2 분노 패턴용)
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
+signal phase_changed(enemy_name: String, phase: int)
+
+# --- 아군 조작 모드 ---
+var ally_command: String = ""  # 플레이어가 선택한 세이블 행동 ("", "heal", "strike", "weaken", "guard")
+var ally_command_pending: bool = false  # 세이블 행동 대기 중
 
 # --- Limit Break 시스템 ---
 var limit_gauge: float = 0.0        # 0.0 ~ 100.0
@@ -217,6 +222,7 @@ func player_attack() -> void:
 	_log_element_effect("physical")
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_add_limit(LIMIT_GAIN_ATTACK)
+	_check_combo_milestone()
 	_check_enemy_defeated()
 
 ## 속성 상성 배율 계산
@@ -238,14 +244,28 @@ func _log_element_effect(attack_element: String) -> void:
 	elif current_enemy.resistance == attack_element:
 		battle_log.emit("It's not very effective...")
 
-## 콤보 보너스 계수
+## 콤보 보너스 계수 (S46: 스케일링 강화 + 마일스톤 보상)
 func _get_combo_multiplier() -> float:
 	match combo_count:
 		2: return 1.15
 		3: return 1.30
-	if combo_count >= 4:
-		return 1.50
+		4: return 1.50
+		5: return 1.70
+	if combo_count >= 6:
+		return 2.0
 	return 1.0
+
+## S46: 콤보 마일스톤 보상 (3, 5, 7+ 콤보에서 리밋 보너스)
+func _check_combo_milestone() -> void:
+	if combo_count == 3:
+		_add_limit(5.0)
+		battle_log.emit("Combo x3! Limit gauge rising!")
+	elif combo_count == 5:
+		_add_limit(10.0)
+		battle_log.emit("Combo x5! Momentum surges!")
+	elif combo_count == 7:
+		_add_limit(15.0)
+		battle_log.emit("COMBO x7! Unstoppable!")
 
 ## 콤보 리셋 (비공격 행동 시)
 func _reset_combo(action: String) -> void:
@@ -614,17 +634,23 @@ func _check_enemy_defeated() -> void:
 		battle_ended.emit(BattleState.VICTORY)
 		_cleanup()
 	else:
-		# 보스 페이즈 전환 알림
+		# S46: 보스 페이즈 전환 — 드라마틱 연출
 		if current_enemy and current_enemy.phase_changed:
 			current_enemy.phase_changed = false
 			AudioManager.play_sfx("phase_change")
 			battle_log.emit("%s staggers... then surges with renewed fury!" % current_enemy.name)
+			phase_changed.emit(current_enemy.name, 2)
 		_end_player_turn()
 
 func _end_player_turn() -> void:
-	# 세이블 지원 행동 (파티에 있을 때, 40% 확률)
-	if sable_in_party and current_enemy and current_enemy.is_alive() and randf() < 0.4:
-		_sable_support_action()
+	# S46: 세이블 행동 — 플레이어가 명령을 지정했으면 실행, 아니면 40% 자동
+	if sable_in_party and current_enemy and current_enemy.is_alive():
+		if ally_command_pending and ally_command != "":
+			_sable_support_action(ally_command)
+			ally_command = ""
+			ally_command_pending = false
+		elif randf() < 0.4:
+			_sable_support_action()
 		# 세이블이 적을 처치했는지 확인
 		if current_enemy and not current_enemy.is_alive():
 			state = BattleState.VICTORY
@@ -646,10 +672,15 @@ func _end_player_turn() -> void:
 	await get_tree().create_timer(0.8).timeout
 	_enemy_turn()
 
-## 세이블 지원 행동 (랜덤)
-func _sable_support_action() -> void:
+## S46: 플레이어 세이블 명령 설정
+func set_ally_command(command: String) -> void:
+	ally_command = command
+	ally_command_pending = true
+
+## 세이블 지원 행동 (S46: 명령 지정 가능)
+func _sable_support_action(forced_action: String = "") -> void:
 	var actions = ["heal", "strike", "weaken"]
-	var action = actions[randi_range(0, actions.size() - 1)]
+	var action = forced_action if forced_action != "" else actions[randi_range(0, actions.size() - 1)]
 	match action:
 		"heal":
 			var heal = randi_range(10, 20)
@@ -668,6 +699,10 @@ func _sable_support_action() -> void:
 			apply_status("enemy", StatusEffect.WEAKEN, 2, 20)
 			battle_log.emit("Sable disrupts the enemy's stance!")
 			ally_action.emit("Sable", "weaken", 20)
+		"guard":
+			player_defending = true
+			battle_log.emit("Sable shields Arrel! Damage halved this turn.")
+			ally_action.emit("Sable", "guard", 0)
 
 ## 전투 승리 시 Grains 보상 계산
 func _get_grains_reward() -> int:

@@ -54,6 +54,8 @@ var _point_lights: Array[PointLight2D] = []  # S42
 func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self)
+	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
+	MapEffects.add_heat_haze(self, 0.002)  # S46: 해안 열기 왜곡
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.18), "far": Color(0.15, 0.15, 0.2), "mid": Color(0.2, 0.18, 0.16), "biome": "coast", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.5, 0.5, 0.55))

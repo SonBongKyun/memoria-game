@@ -685,6 +685,120 @@ static func _add_crystal_silhouette(layer: ParallaxLayer, pos: Vector2, color: C
 		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		layer.add_child(rect)
 
+## ===================== S46: 맵 비주얼 강화 =====================
+
+## 반딧불 파티클 (숲/Seam 맵용)
+static func add_fireflies(parent: Node, count: int = 15, color: Color = Color(0.6, 0.9, 0.4, 0.6)) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 2
+
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 0, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 3.0
+	mat.initial_velocity_max = 12.0
+	mat.gravity = Vector3(0, -2, 0)
+	mat.scale_min = 1.0
+	mat.scale_max = 2.5
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(color.r, color.g, color.b, 0.0))
+	g.add_point(0.2, color)
+	g.add_point(0.5, Color(color.r, color.g, color.b, color.a * 0.7))
+	g.add_point(0.8, color)
+	g.set_color(1, Color(color.r, color.g, color.b, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(600, 350, 0)
+
+	particles.process_material = mat
+	particles.amount = count
+	particles.lifetime = 4.0
+	particles.position = Vector2(640, 360)
+	particles.visibility_rect = Rect2(-700, -400, 1400, 800)
+	layer.add_child(particles)
+	parent.add_child(layer)
+	return layer
+
+## 대기 열 왜곡 (해안/시장 맵용 — BackBufferCopy + 셰이더)
+static func add_heat_haze(parent: Node, strength: float = 0.003) -> CanvasLayer:
+	var shader_path = "res://assets/shaders/heat_haze.gdshader"
+	var shader_res = _get_shader(shader_path)
+	if shader_res == null:
+		return null
+
+	var layer = CanvasLayer.new()
+	layer.layer = 1  # 가장 낮은 레이어
+
+	var rect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var mat = ShaderMaterial.new()
+	mat.shader = shader_res
+	mat.set_shader_parameter("distortion_strength", strength)
+	mat.set_shader_parameter("wave_speed", 1.5)
+	mat.set_shader_parameter("wave_frequency", 8.0)
+	rect.material = mat
+
+	layer.add_child(rect)
+	parent.add_child(layer)
+	return layer
+
+## 동적 라이트 펄스 — CanvasModulate 색상을 시간에 따라 미세 변화
+static func update_ambient_pulse(modulate: CanvasModulate, base_color: Color, time: float, intensity: float = 0.03) -> void:
+	if not is_instance_valid(modulate):
+		return
+	var pulse = sin(time * 0.3) * intensity
+	modulate.color = Color(
+		base_color.r + pulse,
+		base_color.g + pulse * 0.8,
+		base_color.b + pulse * 0.5,
+		base_color.a
+	)
+
+## ===================== S46: 기억 연소 월드 반응 =====================
+
+## 기억 연소 비율에 따라 화면 채도를 낮추는 오버레이 (CanvasLayer)
+## burn_count가 높을수록 세계가 회색으로 빠져감 + 보이드 보라 틴트
+static func add_burn_desaturation(parent: Node) -> CanvasLayer:
+	var burn_count = MemoryManager.get_burn_count()
+	if burn_count <= 0:
+		return null  # 연소 없으면 효과 없음
+
+	var shader_path = "res://assets/shaders/desaturation.gdshader"
+	var shader_res = _get_shader(shader_path)
+	if shader_res == null:
+		return null
+
+	var layer = CanvasLayer.new()
+	layer.layer = 3  # 비네트와 동일 레이어
+
+	var rect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(1, 1, 1, 1)
+
+	# 연소량 → 채도 감소 (0~8+ 연소: 0%~40% 탈색)
+	var desat = clampf(burn_count * 0.05, 0.0, 0.4)
+	# 5회 이상 연소 시 보이드 보라 틴트 시작
+	var tint = clampf((burn_count - 4) * 0.03, 0.0, 0.15)
+
+	var mat = ShaderMaterial.new()
+	mat.shader = shader_res
+	mat.set_shader_parameter("desaturation", desat)
+	mat.set_shader_parameter("tint_color", Color(0.15, 0.12, 0.18, 1.0))
+	mat.set_shader_parameter("tint_strength", tint)
+	rect.material = mat
+
+	layer.add_child(rect)
+	parent.add_child(layer)
+	return layer
+
 ## 색상 유틸
 static func _darken_c(color: Color, amount: float) -> Color:
 	return Color(maxf(color.r - amount, 0), maxf(color.g - amount, 0), maxf(color.b - amount, 0), color.a)
