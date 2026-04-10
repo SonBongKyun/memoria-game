@@ -79,6 +79,7 @@ func _ready() -> void:
 	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	_setup_random_encounters()
 	_setup_interactive_objects()
+	_setup_exploration_events()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("bl07_void")
 	elia.repeat_line = "I can feel it pulling. Don't let go."
@@ -113,6 +114,38 @@ func _process(delta: float) -> void:
 		var phase = s.get_meta("phase", 0.0)
 		s.position.y = s.get_meta("base_y") + sin(pulse_time * 1.2 + phase) * 6.0
 		s.color.a = 0.1 + sin(pulse_time * 2.0 + phase) * 0.06
+
+## ===================== S48: 탐색 이벤트 =====================
+
+func _setup_exploration_events() -> void:
+	var df = "res://data/chapter5_dialogue.json"
+	# 하강 중 문 이벤트 (입구 근처 남쪽)
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), df, "void_descent", "ch5_descent")
+	# 보이드 에코 (중앙 경로)
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_echoes", "ch5_echoes")
+	# 기억 파편 플랫폼 (동쪽)
+	_add_story_trigger(Vector2(15 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_memory_fragments", "ch5_fragments")
+	# 코어 직전 엘리아 대화 (남쪽 중앙)
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_before_core", "ch5_before_core")
+
+func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + size / 2.0
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			DialogueManager.load_and_start(dialogue_file, dialogue_key)
+	)
+	add_child(area)
 
 ## ===================== 맵 데코레이션 =====================
 

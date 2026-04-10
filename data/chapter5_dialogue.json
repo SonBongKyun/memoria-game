@@ -67,6 +67,55 @@
       {"speaker": "", "text": "Behind them, BL-07 continued to grow. Slowly. Patiently."},
       {"speaker": "", "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't."}
     ],
+    "void_descent": [
+      {"speaker": "", "text": "The path — if it could be called that — descended in spirals that didn't obey geometry."},
+      {"speaker": "", "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction."},
+      {"speaker": "Elia", "text": "Arrel. Look.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved."},
+      {"speaker": "Arrel", "text": "Someone's home.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Was. Before the Void ate the house around it. The door is all that's left.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "As they passed, the door swung open. Beyond it — nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering."},
+      {"speaker": "", "text": "Then silence. The door closed itself, gently, as if the memory had finished its performance and was taking a bow."}
+    ],
+    "void_echoes": [
+      {"speaker": "", "text": "Deeper in, the Void began to speak."},
+      {"speaker": "", "text": "Not words. Feelings. Borrowed grief that pressed against his ribs like an unwelcome hand."},
+      {"speaker": "", "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important."},
+      {"speaker": "Arrel", "text": "It's showing me things.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "It shows everyone things. That's how it feeds. You feel the loss, and the feeling makes the loss bigger, and the bigger loss feeds the Void.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "What does it show you?", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "She was quiet for three steps."},
+      {"speaker": "Elia", "text": "You. Before the burns. The person you were when we first met.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "You laughed more. Did you know that? You used to laugh at terrible things. It drove me insane.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I still laugh.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "You smile. It's not the same thing.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The Void hummed around them, drinking the sadness like water."}
+    ],
+    "void_memory_fragments": [
+      {"speaker": "", "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist."},
+      {"speaker": "", "text": "Each one was someone's life. A first step. A last breath. A morning so ordinary that no one thought to protect it from being forgotten."},
+      {"speaker": "Elia", "text": "These are the memories the Void has consumed. It doesn't destroy them — it KEEPS them. Like a collection.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Can we take them back?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "They don't belong to anyone anymore. The people who lost them have forgotten they ever existed. A memory without an owner is just... light.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "He picked one up. Warm. It showed him a sunset over a city he'd never seen, felt through eyes that were not his own. Beautiful. Meaningless. Orphaned."},
+      {"speaker": "", "text": "He set it down. Carefully. Even orphaned beauty deserved to be handled gently."}
+    ],
+    "void_before_core": [
+      {"speaker": "", "text": "The pull was stronger here. Like standing at the edge of a waterfall, except the water was made of forgetting.", "cg": "res://assets/cg/ch5_climax.jpg"},
+      {"speaker": "Elia", "text": "Arrel. Before we go further. There's something I need to say.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Let me finish. Please.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Whatever happens in there — whatever you decide — I need you to know that the person you are RIGHT NOW is enough. You don't have to burn anything else to be worth saving.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "It's not about being worth saving. It's about the Seam. The children. Sable's people.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I know. But the world doesn't get to have you AND those children. It shouldn't have to choose. Something is WRONG with a world that makes people pay for survival with themselves.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "Her voice echoed in the absence. The Void drank the sound, but the meaning survived."},
+      {"speaker": "Arrel", "text": "Are you trying to talk me out of it?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I'm trying to make sure that whatever you choose, you choose it as ARREL. Not as a weapon. Not as a tool. As the person who once laughed at terrible things and noticed flowers growing in impossible places.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The core of BL-07 waited ahead. Patient as gravity. Hungry as absence."},
+      {"speaker": "", "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take — the choice to be here, together, right now."},
+      {"speaker": "Arrel", "text": "Let's go.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "They went."}
+    ],
     "elia_void_talk": [
       {"speaker": "Elia", "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "New?", "portrait": "arrel_neutral"},

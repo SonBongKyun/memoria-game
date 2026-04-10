@@ -71,6 +71,7 @@ func _ready() -> void:
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
 	_setup_interactive_objects()
+	_setup_exploration_events()
 	_setup_side_quests()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("verdan_market")
@@ -296,6 +297,40 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 			GameManager.set_flag(flag_name)
 			NotificationToast.show_toast(clue_text, NotificationToast.ToastType.INFO)
 			indicator.queue_free()
+	)
+	add_child(area)
+
+## ===================== S48: 탐색 이벤트 =====================
+
+func _setup_exploration_events() -> void:
+	# 시장 구경 대화 (노점 중앙 근처)
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "verdan_market_walk", "ch2_market_walk")
+	# 늙은 버너 (시장 외곽 좌측)
+	_add_story_trigger(Vector2(3 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "verdan_old_burner", "ch2_old_burner")
+	# 말렛 과거 이야기 (거래 후 잠시 대기 중)
+	if GameManager.get_flag("malet_deal_accepted"):
+		_add_story_trigger(Vector2(14 * TILE_SIZE, 12 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "malet_backstory", "ch2_malet_backstory")
+	# 엘리아 걱정 대화 (썸프 입구 근처)
+	_add_story_trigger(Vector2(16 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "elia_sump_concern", "ch2_elia_concern")
+	# 썸프 분위기 (지하 영역)
+	_add_story_trigger(Vector2(14 * TILE_SIZE, 16 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "sump_atmosphere", "ch2_sump_atmos")
+
+func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + size / 2.0
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			DialogueManager.load_and_start(DIALOGUE_FILE, dialogue_key)
 	)
 	add_child(area)
 

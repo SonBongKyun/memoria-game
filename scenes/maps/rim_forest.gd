@@ -184,6 +184,36 @@ func _setup_hidden_events() -> void:
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		DIALOGUE_FILE, "hidden_stump", "hidden_ch1_stump"
 	)
+	# S48: 탐색 이벤트 — 기억 사당 (좌측 상단 덤불 근처)
+	_add_hidden_trigger(
+		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
+		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
+		DIALOGUE_FILE, "forest_shrine", "ch1_shrine_found"
+	)
+	# S48: 탐색 이벤트 — 죽은 버너 (좌측 중앙)
+	_add_hidden_trigger(
+		Vector2(2 * TILE_SIZE, 9 * TILE_SIZE),
+		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
+		DIALOGUE_FILE, "dead_burner", "ch1_dead_burner"
+	)
+	# S48: 엘리아 대화 — 숲 산책 (중앙 길 주변, 오프닝 후)
+	_add_hidden_trigger(
+		Vector2(14 * TILE_SIZE, 6 * TILE_SIZE),
+		Vector2(TILE_SIZE * 3, TILE_SIZE * 2),
+		DIALOGUE_FILE, "elia_forest_walk", "ch1_elia_walk"
+	)
+	# S48: 엘리아 대화 — 기억 이야기 (길 남쪽)
+	_add_hidden_trigger(
+		Vector2(10 * TILE_SIZE, 12 * TILE_SIZE),
+		Vector2(TILE_SIZE * 3, TILE_SIZE * 2),
+		DIALOGUE_FILE, "elia_memory_talk", "ch1_elia_memory"
+	)
+	# S48: 엘리아 대화 — 앵커 설명 (캠프 근처)
+	_add_hidden_trigger(
+		Vector2(12 * TILE_SIZE, 14 * TILE_SIZE),
+		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
+		DIALOGUE_FILE, "elia_anchor_talk", "ch1_elia_anchor"
+	)
 
 func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
 	var area = Area2D.new()

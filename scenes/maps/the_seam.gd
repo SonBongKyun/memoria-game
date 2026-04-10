@@ -70,6 +70,7 @@ func _ready() -> void:
 	_position_player()
 	_setup_effects()
 	_setup_hidden_events()
+	_setup_exploration_events()
 	MemoryManager.add_chapter_memories(4)
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
@@ -147,6 +148,40 @@ func _setup_hidden_events() -> void:
 			GameManager.set_flag("hidden_ch4_garden")
 			AchievementManager.unlock("hidden_garden")
 			DialogueManager.load_and_start(DIALOGUE_FILE, "hidden_garden")
+	)
+	add_child(area)
+
+## ===================== S48: 탐색 이벤트 =====================
+
+func _setup_exploration_events() -> void:
+	# 저녁 풍경 대화 (정원 근처)
+	_add_story_trigger(Vector2(5 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "seam_evening", "ch4_evening")
+	# 세이블 과거 이야기 (세이블 집 근처)
+	_add_story_trigger(Vector2(18 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_past", "ch4_sable_past")
+	# 마을 주민 대화 (중앙 거리)
+	_add_story_trigger(Vector2(12 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "seam_residents", "ch4_residents")
+	# 엘리아 밤 대화 (북쪽 절벽 위)
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 2 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_night_talk", "ch4_elia_night")
+	# BL-07 출발 전 세이블 준비 (남쪽 근처)
+	if GameManager.get_flag("ch4_briefing_done") and not GameManager.get_flag("ch4_bl07_entered"):
+		_add_story_trigger(Vector2(12 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_preparation", "ch4_sable_prep")
+
+func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + size / 2.0
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			DialogueManager.load_and_start(DIALOGUE_FILE, dialogue_key)
 	)
 	add_child(area)
 

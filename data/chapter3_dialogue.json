@@ -73,6 +73,59 @@
       {"speaker": "Sable", "text": "You're the one Malet sent. The one who burns.", "portrait": "sable_neutral"},
       {"speaker": "Sable", "text": "Come inside. We have a lot to discuss. And not much time.", "portrait": "sable_calm"}
     ],
+    "coast_cliff_walk": [
+      {"speaker": "", "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years."},
+      {"speaker": "Arrel", "text": "The stone here. It's warm.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "He pressed his hand against the cliff face. For a moment — just a flash — he heard laughter. Children's voices. The clatter of a market that no longer existed."},
+      {"speaker": "", "text": "Then silence. The stone was just stone again."},
+      {"speaker": "Elia", "text": "Don't linger. The residue can pull you in. People have walked off cliffs chasing echoes they thought were their own.", "portrait": "elia_concern"}
+    ],
+    "coast_watchtower": [
+      {"speaker": "", "text": "The watchtower stood at the cliff's highest point, gutted and hollow."},
+      {"speaker": "", "text": "Its roof was gone. Its walls were covered in scratches — thousands of tally marks, carved by someone counting something obsessively."},
+      {"speaker": "Arrel", "text": "What was this?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Bureau outpost. Before the coast crumbled, they monitored combustion signatures from here.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Arrel looked at the walls. Thousands of marks. Thousands of people, burning pieces of themselves to fight the Void. Or to sell. Or just to survive."},
+      {"speaker": "Arrel", "text": "How many of them are still alive?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "The marks stopped three years ago. Draw your own conclusion.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "Wind moved through the hollow tower. It sounded almost like counting."}
+    ],
+    "kairos_presence": [
+      {"speaker": "", "text": "He was closer now."},
+      {"speaker": "", "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
+      {"speaker": "Elia", "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "And then?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "And then they know exactly which memory to target. The one that holds everything else together. Pull it, and the whole structure collapses.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "For you, that would be—", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Don't say it.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "She didn't. They both knew. The most dangerous memory Arrel carried wasn't a battle or a burn. It was a name."},
+      {"speaker": "", "text": "Elia."}
+    ],
+    "coast_void_crack": [
+      {"speaker": "", "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
+      {"speaker": "Elia", "text": "Void fissure. Don't step on it.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "From the crack came a sound. Not quite a whisper. Not quite a name. Something in between."},
+      {"speaker": "Arrel", "text": "It's calling.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "It shows you the memories you've lost. Tells you they're inside, waiting. All you have to do is step through.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Is it true? Are the memories in there?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Maybe. But the people who go in to find out don't come back to tell us.", "portrait": "elia_concern"}
+    ],
+    "elia_before_separation": [
+      {"speaker": "Elia", "text": "Arrel. If we split up—", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I haven't decided yet.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I know. But if we do... you need to understand what happens to a burner without an Anchor.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Every burn you've done, I've been the reference point. I carry the SHAPE of what you lost, even when the content is gone. Without me, burns become... absolute.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "No residue.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "No residue. No echo. No sense that something used to be there. Just smooth nothing, all the way down.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "She looked at the ocean. The gray water met the gray sky at a line that didn't quite exist."},
+      {"speaker": "Elia", "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I'll be careful.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "You always say that.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "He always did. She always worried. Some patterns survived even the Void."}
+    ],
     "elia_coast_talk": [
       {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",

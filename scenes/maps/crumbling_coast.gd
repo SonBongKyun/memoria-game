@@ -66,6 +66,7 @@ func _ready() -> void:
 	MapEffects.add_rain(self, 0.7, Color(0.5, 0.55, 0.7, 0.25))
 	_setup_random_encounters()
 	_setup_interactive_objects()
+	_setup_exploration_events()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("crumbling_coast")
 	elia.repeat_line = "The ground shifts. Stay close."
@@ -283,6 +284,40 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 			GameManager.set_flag(flag_name)
 			NotificationToast.show_toast(clue_text, NotificationToast.ToastType.INFO)
 			indicator.queue_free()
+	)
+	add_child(area)
+
+## ===================== S48: 탐색 이벤트 =====================
+
+func _setup_exploration_events() -> void:
+	# 절벽 산책 대화 (동쪽 절벽)
+	_add_story_trigger(Vector2(18 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_cliff_walk", "ch3_cliff_walk")
+	# 감시탑 (북서쪽)
+	_add_story_trigger(Vector2(4 * TILE_SIZE, 3 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_watchtower", "ch3_watchtower")
+	# 카이로스 존재감 (중앙 길)
+	_add_story_trigger(Vector2(12 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "kairos_presence", "ch3_kairos_presence")
+	# 보이드 균열 (남쪽 중앙)
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 13 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_void_crack", "ch3_void_crack")
+	# 분리 전 엘리아 대화 (분리 선택지 전)
+	if not GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_stays"):
+		_add_story_trigger(Vector2(8 * TILE_SIZE, 6 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_before_separation", "ch3_elia_presep")
+
+func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
+	if GameManager.get_flag(flag_name):
+		return
+	var area = Area2D.new()
+	area.position = pos + size / 2.0
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name)
+			DialogueManager.load_and_start(DIALOGUE_FILE, dialogue_key)
 	)
 	add_child(area)
 
