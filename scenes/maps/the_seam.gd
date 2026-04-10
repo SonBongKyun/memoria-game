@@ -77,6 +77,8 @@ func _ready() -> void:
 	_setup_side_quests()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("the_seam")
+	elia.repeat_line = "I'm here. I'm not going anywhere."
+	sable_npc.repeat_line = "The Seam holds. For now."
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	if GameManager.current_chapter >= 6 and GameManager.get_flag("ch5_complete"):

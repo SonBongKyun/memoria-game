@@ -44,6 +44,7 @@ var tile_colors: Dictionary = {
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
+@onready var malet_npc: StaticBody2D = $Malet
 
 var _minimap_data: Dictionary = {}
 var _tile_defs: Array = []
@@ -73,6 +74,8 @@ func _ready() -> void:
 	_setup_side_quests()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("verdan_market")
+	elia.repeat_line = "This market smells like rust and regret."
+	malet_npc.repeat_line = "You know where to find me."
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)
@@ -135,6 +138,8 @@ func _on_deal_ended() -> void:
 func _on_refused_ended() -> void:
 	# 거절해도 재대화로 다시 시도 가능 — 플래그 초기화
 	GameManager.story_flags.erase("malet_deal_refused")
+	GameManager.story_flags.erase("talked_Malet_malet_encounter")
+	malet_npc._talked_keys.erase("malet_encounter")
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended)
 
 func _on_reward_ended() -> void:

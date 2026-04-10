@@ -81,6 +81,7 @@ func _ready() -> void:
 	_setup_interactive_objects()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("bl07_void")
+	elia.repeat_line = "I can feel it pulling. Don't let go."
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	MemoryManager.add_chapter_memories(5)

@@ -11,6 +11,9 @@ const MAX_DISTANCE: float = 200.0  # 이 거리 넘으면 텔레포트
 @export var dialogue_file: String = "res://data/chapter1_dialogue.json"
 @export var dialogue_key: String = "elia_talk"
 @export var npc_color: Color = Color(0.45, 0.55, 0.65, 1.0)
+@export var repeat_line: String = ""  # 재대화 시 표시할 대사
+
+var _talked_keys: Dictionary = {}  # 이미 진행한 dialogue_key 추적
 
 var sprite: AnimatedSprite2D
 var target: Node2D = null  # 따라갈 대상 (Player)
@@ -66,6 +69,18 @@ func _physics_process(_delta: float) -> void:
 func interact() -> void:
 	if DialogueManager.is_active:
 		return
+
+	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
+	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
+		# 이미 대화한 동행 — 짧은 후속 대사
+		var line = repeat_line if repeat_line != "" else "..."
+		DialogueManager.start_dialogue([
+			{"speaker": npc_name, "text": line, "portrait": ""}
+		])
+		return
+
+	_talked_keys[dialogue_key] = true
+	DialogueManager.dialogue_ended.connect(func(): GameManager.set_flag(talk_flag), CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(dialogue_file, dialogue_key)
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성

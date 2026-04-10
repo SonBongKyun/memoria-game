@@ -68,6 +68,7 @@ func _ready() -> void:
 	_setup_interactive_objects()
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("crumbling_coast")
+	elia.repeat_line = "The ground shifts. Stay close."
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
