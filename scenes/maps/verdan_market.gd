@@ -183,9 +183,9 @@ func _on_shop_closed() -> void:
 	GameManager.current_chapter = 3
 	AchievementManager.record_chapter_complete(2)
 	AchievementManager.unlock("merchant")
-	print("[VerdenMarket] Chapter 2 complete — transitioning to Crumbling Coast")
+	print("[VerdenMarket] Chapter 2 complete — transitioning to Belt Waystation")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/crumbling_coast.tscn")
+	SceneTransition.change_scene("res://scenes/maps/belt_waystation.tscn")
 
 func _setup_random_encounters() -> void:
 	if not GameManager.get_flag("ch2_complete"):

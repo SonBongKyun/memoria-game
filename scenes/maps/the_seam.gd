@@ -1,4 +1,4 @@
-## The Seam — 더 씸 (Chapter 4)
+## The Seam — 더 씸 (Chapter 6: Thread That Holds)
 ## 절벽 사이 숨겨진 컬러풀한 정착촌. 세이블의 거점.
 ## 세이블과의 대화 → BL-07 탐사 계획 → 보이드 홀 조사.
 extends Node2D
@@ -6,8 +6,8 @@ extends Node2D
 const TILE_SIZE: int = 32
 const MAP_WIDTH: int = 25
 const MAP_HEIGHT: int = 18
-const DIALOGUE_FILE: String = "res://data/chapter4_dialogue.json"
-const EPILOGUE_FILE: String = "res://data/chapter6_dialogue.json"
+const DIALOGUE_FILE: String = "res://data/chapter6_dialogue.json"
+const EPILOGUE_FILE: String = "res://data/epilogue_dialogue.json"
 
 enum Tile { STONE, CLIFF, HUT, GARDEN, PATH, WATER, LANTERN }
 
@@ -71,7 +71,7 @@ func _ready() -> void:
 	_setup_effects()
 	_setup_hidden_events()
 	_setup_exploration_events()
-	MemoryManager.add_chapter_memories(4)
+	MemoryManager.add_chapter_memories(6)
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
 	_setup_interactive_objects()
@@ -82,23 +82,23 @@ func _ready() -> void:
 	sable_npc.repeat_line = "The Seam holds. For now."
 	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
-	if GameManager.current_chapter >= 6 and GameManager.get_flag("ch5_complete"):
-		# Ch6 에필로그 — Ch5 완료 후 복귀
+	if GameManager.current_chapter >= 11 and GameManager.get_flag("ch10_complete"):
+		# 에필로그 — Ch10 완료 후 복귀
 		AudioManager.play_bgm("res://assets/audio/bgm/epilogue.mp3")
 		await get_tree().create_timer(1.0).timeout
 		_start_epilogue()
-	elif GameManager.get_flag("ch4_bl07_entered") and not GameManager.get_flag("ch4_complete"):
+	elif GameManager.get_flag("ch6_bl07_entered") and not GameManager.get_flag("ch6_complete"):
 		# 보스전 후 복귀
 		_setup_battle_triggers()
 		if GameManager.player_data.hp > int(GameManager.player_data.max_hp * 0.3):
 			# 승리로 복귀 — 에필로그 시작
 			await get_tree().create_timer(1.0).timeout
-			_start_ch4_epilogue()
+			_start_ch6_epilogue()
 		else:
 			# 패배로 복귀 — 보스전 재도전 가능하도록 플래그 리셋
-			GameManager.set_flag("ch4_bl07_entered", false)
+			GameManager.set_flag("ch6_bl07_entered", false)
 			_setup_bl07_trigger()
-	elif not GameManager.get_flag("ch4_arrived"):
+	elif not GameManager.get_flag("ch6_arrived"):
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
 		# 엘리아 분리 상태 체크 — 분리 시 Seam 도착 전 재합류
@@ -106,13 +106,13 @@ func _ready() -> void:
 			elia.visible = false
 			elia.set_physics_process(false)
 		# 챕터 타이틀 카드 표시 후 대화 시작
-		await MapEffects.show_chapter_title(self, 4, "The Seam", "Between what was and what will be")
+		await MapEffects.show_chapter_title(self, 6, "The Seam", "Between what was and what will be")
 		await get_tree().create_timer(0.3).timeout
 		# 재합류 이벤트
 		if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
 			_start_reunion()
 		else:
-			_start_ch4_sequence()
+			_start_ch6_sequence()
 	else:
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
@@ -144,8 +144,8 @@ func _setup_hidden_events() -> void:
 	shape.shape = rect
 	area.add_child(shape)
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag("hidden_ch4_garden"):
-			GameManager.set_flag("hidden_ch4_garden")
+		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag("hidden_ch6_garden"):
+			GameManager.set_flag("hidden_ch6_garden")
 			AchievementManager.unlock("hidden_garden")
 			DialogueManager.load_and_start(DIALOGUE_FILE, "hidden_garden")
 	)
@@ -155,16 +155,16 @@ func _setup_hidden_events() -> void:
 
 func _setup_exploration_events() -> void:
 	# 저녁 풍경 대화 (정원 근처)
-	_add_story_trigger(Vector2(5 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "seam_evening", "ch4_evening")
+	_add_story_trigger(Vector2(5 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "seam_evening", "ch6_evening")
 	# 세이블 과거 이야기 (세이블 집 근처)
-	_add_story_trigger(Vector2(18 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_past", "ch4_sable_past")
+	_add_story_trigger(Vector2(18 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_past", "ch6_sable_past")
 	# 마을 주민 대화 (중앙 거리)
-	_add_story_trigger(Vector2(12 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "seam_residents", "ch4_residents")
+	_add_story_trigger(Vector2(12 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "seam_residents", "ch6_residents")
 	# 엘리아 밤 대화 (북쪽 절벽 위)
-	_add_story_trigger(Vector2(10 * TILE_SIZE, 2 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_night_talk", "ch4_elia_night")
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 2 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_night_talk", "ch6_elia_night")
 	# BL-07 출발 전 세이블 준비 (남쪽 근처)
-	if GameManager.get_flag("ch4_briefing_done") and not GameManager.get_flag("ch4_bl07_entered"):
-		_add_story_trigger(Vector2(12 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_preparation", "ch4_sable_prep")
+	if GameManager.get_flag("ch6_briefing_done") and not GameManager.get_flag("ch6_bl07_entered"):
+		_add_story_trigger(Vector2(12 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_preparation", "ch6_sable_prep")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):
@@ -196,7 +196,7 @@ func _start_reunion() -> void:
 	GameManager.set_flag("elia_reunited")
 	GameManager.player_data.elia_with_party = true
 	DialogueManager.dialogue_ended.connect(_on_reunion_ended, CONNECT_ONE_SHOT)
-	DialogueManager.load_and_start("res://data/chapter3_dialogue.json", "elia_reunion")
+	DialogueManager.load_and_start("res://data/chapter5_dialogue.json", "elia_reunion")
 
 func _on_reunion_ended() -> void:
 	# 엘리아 다시 표시
@@ -205,12 +205,12 @@ func _on_reunion_ended() -> void:
 	elia.position = player.position + Vector2(-30, 20)
 	print("[TheSeam] Elia reunited — anchor restored")
 	await get_tree().create_timer(0.5).timeout
-	_start_ch4_sequence()
+	_start_ch6_sequence()
 
 ## ===================== 스토리 시퀀스 =====================
 
-func _start_ch4_sequence() -> void:
-	GameManager.set_flag("ch4_arrived")
+func _start_ch6_sequence() -> void:
+	GameManager.set_flag("ch6_arrived")
 	DialogueManager.dialogue_ended.connect(_on_arrival_ended, CONNECT_ONE_SHOT)
 	# 엘리아 분리 시 솔로 대사
 	if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
@@ -234,7 +234,7 @@ func _start_epilogue() -> void:
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
 		# Ash — 기억을 너무 많이 태운 아렐 (이름은 지켰지만 껍데기만 남음)
 		epilogue_key = "epilogue_ash"
-	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch4_garden"):
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
 		# Seam — 숨겨진 아름다움을 발견한 아렐 (희망의 비밀 엔딩)
 		epilogue_key = "epilogue_seam"
 	else:
@@ -295,8 +295,8 @@ func _check_credits_trigger() -> void:
 func _on_arrival_ended() -> void:
 	# 짧은 딜레이 후 세이블 브리핑
 	await get_tree().create_timer(1.5).timeout
-	if not GameManager.get_flag("ch4_briefing_done"):
-		GameManager.set_flag("ch4_briefing_done")
+	if not GameManager.get_flag("ch6_briefing_done"):
+		GameManager.set_flag("ch6_briefing_done")
 		DialogueManager.dialogue_ended.connect(_on_briefing_ended, CONNECT_ONE_SHOT)
 		DialogueManager.load_and_start(DIALOGUE_FILE, "sable_briefing")
 
@@ -329,13 +329,13 @@ func _setup_bl07_trigger() -> void:
 	area.add_child(indicator)
 
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.get_flag("ch4_briefing_done") and not GameManager.get_flag("ch4_bl07_entered"):
+		if body.name == "Player" and GameManager.get_flag("ch6_briefing_done") and not GameManager.get_flag("ch6_bl07_entered"):
 			_enter_bl07()
 	)
 	add_child(area)
 
 func _enter_bl07() -> void:
-	GameManager.set_flag("ch4_bl07_entered")
+	GameManager.set_flag("ch6_bl07_entered")
 	DialogueManager.dialogue_ended.connect(_on_bl07_dialogue_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "bl07_entrance")
 
@@ -350,16 +350,16 @@ func _on_bl07_dialogue_ended() -> void:
 	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/ch5_void_entrance.jpg", "res://assets/cg/memory_wraith2.jpg")
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
-func _start_ch4_epilogue() -> void:
-	if GameManager.get_flag("ch4_complete"):
+func _start_ch6_epilogue() -> void:
+	if GameManager.get_flag("ch6_complete"):
 		return
-	GameManager.set_flag("ch4_complete")
-	DialogueManager.dialogue_ended.connect(_on_ch4_ended, CONNECT_ONE_SHOT)
+	GameManager.set_flag("ch6_complete")
+	DialogueManager.dialogue_ended.connect(_on_ch6_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "bl07_aftermath")
 
-func _on_ch4_ended() -> void:
-	GameManager.current_chapter = 5
-	print("[TheSeam] Chapter 4 complete — entering BL-07 interior")
+func _on_ch6_ended() -> void:
+	GameManager.current_chapter = 10
+	print("[TheSeam] Chapter 6 complete — entering BL-07 interior")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene("res://scenes/maps/bl07_void.tscn")
 
@@ -375,7 +375,7 @@ func _setup_battle_triggers() -> void:
 	)
 
 func _setup_puzzle_trigger() -> void:
-	if not GameManager.get_flag("ch4_complete"):
+	if not GameManager.get_flag("ch6_complete"):
 		return
 	var area = Area2D.new()
 	area.position = Vector2(12 * TILE_SIZE + TILE_SIZE / 2.0, 14 * TILE_SIZE + TILE_SIZE / 2.0)
@@ -399,7 +399,7 @@ func _setup_puzzle_trigger() -> void:
 	add_child(area)
 
 func _setup_random_encounters() -> void:
-	if not GameManager.get_flag("ch4_complete"):
+	if not GameManager.get_flag("ch6_complete"):
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
@@ -514,10 +514,10 @@ func _setup_side_quests() -> void:
 			return
 		if SideQuest.is_available("sable_vigil"):
 			SideQuest.advance_step("sable_vigil", "sq_sable_vigil_started")
-			DialogueManager.load_and_start("res://data/chapter4_dialogue.json", "sq_sable_vigil_start")
+			DialogueManager.load_and_start("res://data/chapter6_dialogue.json", "sq_sable_vigil_start")
 		elif SideQuest.is_active("sable_vigil") and GameManager.get_flag("sq_sable_vigil_killed"):
 			SideQuest.advance_step("sable_vigil", "sq_sable_vigil_complete")
-			DialogueManager.load_and_start("res://data/chapter4_dialogue.json", "sq_sable_vigil_complete")
+			DialogueManager.load_and_start("res://data/chapter6_dialogue.json", "sq_sable_vigil_complete")
 			q_marker.queue_free()
 	)
 	add_child(quest_area)
@@ -598,7 +598,7 @@ func _build_map() -> void:
 	_minimap_data = Minimap.create_minimap(self, map_data, _tile_defs, MAP_WIDTH, MAP_HEIGHT)
 
 func _position_player() -> void:
-	if GameManager.current_chapter >= 6:
+	if GameManager.current_chapter >= 11:
 		# 에필로그 — The Seam 절벽 가장자리
 		player.position = Vector2(10 * TILE_SIZE, 8 * TILE_SIZE)
 		elia.position = Vector2(10 * TILE_SIZE - 30, 8 * TILE_SIZE + 20)

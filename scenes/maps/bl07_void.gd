@@ -1,4 +1,4 @@
-## BL-07 Void Interior — 보이드 홀 내부 (Chapter 5)
+## BL-07 Void Interior — 보이드 홀 내부 (Chapter 10: The Seal)
 ## 현실이 무너져 내리는 공간. The Seal 결정이 이루어지는 곳.
 ## 보이드의 심장부까지 진행 → Grade 1 기억 연소 결정.
 extends Node2D
@@ -6,7 +6,7 @@ extends Node2D
 const TILE_SIZE: int = 32
 const MAP_WIDTH: int = 20
 const MAP_HEIGHT: int = 20
-const DIALOGUE_FILE: String = "res://data/chapter5_dialogue.json"
+const DIALOGUE_FILE: String = "res://data/chapter10_dialogue.json"
 
 enum Tile { VOID, FRAGMENT, PATH, CRACK, CORE }
 
@@ -85,13 +85,13 @@ func _ready() -> void:
 	elia.repeat_line = "I can feel it pulling. Don't let go."
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
-	MemoryManager.add_chapter_memories(5)
+	MemoryManager.add_chapter_memories(10)
 
-	if not GameManager.get_flag("ch5_void_entered"):
+	if not GameManager.get_flag("ch10_void_entered"):
 		# 챕터 타이틀 카드 표시 후 대화 시작
-		await MapEffects.show_chapter_title(self, 5, "BL-07", "The Void stares back")
+		await MapEffects.show_chapter_title(self, 10, "BL-07", "The Void stares back")
 		await get_tree().create_timer(0.3).timeout
-		_start_ch5_sequence()
+		_start_ch10_sequence()
 
 func _process(delta: float) -> void:
 	MapEffects.update_heavy_fog(heavy_fog, pulse_time)
@@ -118,15 +118,15 @@ func _process(delta: float) -> void:
 ## ===================== S48: 탐색 이벤트 =====================
 
 func _setup_exploration_events() -> void:
-	var df = "res://data/chapter5_dialogue.json"
+	var df = "res://data/chapter10_dialogue.json"
 	# 하강 중 문 이벤트 (입구 근처 남쪽)
-	_add_story_trigger(Vector2(10 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), df, "void_descent", "ch5_descent")
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), df, "void_descent", "ch10_descent")
 	# 보이드 에코 (중앙 경로)
-	_add_story_trigger(Vector2(10 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_echoes", "ch5_echoes")
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_echoes", "ch10_echoes")
 	# 기억 파편 플랫폼 (동쪽)
-	_add_story_trigger(Vector2(15 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_memory_fragments", "ch5_fragments")
+	_add_story_trigger(Vector2(15 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_memory_fragments", "ch10_fragments")
 	# 코어 직전 엘리아 대화 (남쪽 중앙)
-	_add_story_trigger(Vector2(10 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_before_core", "ch5_before_core")
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_before_core", "ch10_before_core")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):
@@ -185,8 +185,8 @@ func _setup_map_decorations() -> void:
 
 ## ===================== 스토리 시퀀스 =====================
 
-func _start_ch5_sequence() -> void:
-	GameManager.set_flag("ch5_void_entered")
+func _start_ch10_sequence() -> void:
+	GameManager.set_flag("ch10_void_entered")
 	DialogueManager.dialogue_ended.connect(_on_entry_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "void_entry")
 
@@ -208,13 +208,13 @@ func _setup_core_trigger() -> void:
 	area.add_child(shape)
 
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.get_flag("ch5_void_entered") and not GameManager.get_flag("ch5_core_reached"):
+		if body.name == "Player" and GameManager.get_flag("ch10_void_entered") and not GameManager.get_flag("ch10_core_reached"):
 			_reach_core()
 	)
 	add_child(area)
 
 func _reach_core() -> void:
-	GameManager.set_flag("ch5_core_reached")
+	GameManager.set_flag("ch10_core_reached")
 	DialogueManager.dialogue_ended.connect(_on_core_dialogue_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "void_core")
 
@@ -262,18 +262,18 @@ func _refuse_seal() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "seal_refused")
 
 func _on_seal_complete() -> void:
-	GameManager.set_flag("ch5_complete")
-	GameManager.current_chapter = 6
-	AchievementManager.record_chapter_complete(5)
-	print("[BL07Void] Chapter 5 complete — The Seal executed (Zero Burn path)")
+	GameManager.set_flag("ch10_complete")
+	GameManager.current_chapter = 11
+	AchievementManager.record_chapter_complete(10)
+	print("[BL07Void] Chapter 10 complete — The Seal executed (Zero Burn path)")
 	await get_tree().create_timer(2.0).timeout
 	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
 
 func _on_refuse_complete() -> void:
-	GameManager.set_flag("ch5_complete")
-	GameManager.current_chapter = 6
-	AchievementManager.record_chapter_complete(5)
-	print("[BL07Void] Chapter 5 complete — The Seal refused (Preservation path)")
+	GameManager.set_flag("ch10_complete")
+	GameManager.current_chapter = 11
+	AchievementManager.record_chapter_complete(10)
+	print("[BL07Void] Chapter 10 complete — The Seal refused (Preservation path)")
 	await get_tree().create_timer(2.0).timeout
 	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
 
@@ -331,7 +331,7 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 
 func _setup_random_encounters() -> void:
 	# Ch5 진입 후 (보이드 내부는 항상 위험)
-	if not GameManager.get_flag("ch5_void_entered"):
+	if not GameManager.get_flag("ch10_void_entered"):
 		return
 	_encounter_data = RandomEncounter.setup(
 		[

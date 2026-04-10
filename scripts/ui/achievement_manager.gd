@@ -29,8 +29,11 @@ const ACHIEVEMENTS: Dictionary = {
 	# 스토리 관련
 	"chapter_complete_1": {"title": "Rim Forest", "desc": "Complete Chapter 1.", "icon": "book"},
 	"chapter_complete_2": {"title": "Verdan Market", "desc": "Complete Chapter 2.", "icon": "book"},
-	"chapter_complete_3": {"title": "Crumbling Coast", "desc": "Complete Chapter 3.", "icon": "book"},
-	"chapter_complete_5": {"title": "Into the Void", "desc": "Complete Chapter 5.", "icon": "book"},
+	"chapter_complete_3": {"title": "Weight of Pages", "desc": "Complete Chapter 3.", "icon": "book"},
+	"chapter_complete_4": {"title": "Drift", "desc": "Complete Chapter 4.", "icon": "book"},
+	"chapter_complete_5": {"title": "The Classifier", "desc": "Complete Chapter 5.", "icon": "book"},
+	"chapter_complete_6": {"title": "Thread That Holds", "desc": "Complete Chapter 6.", "icon": "book"},
+	"chapter_complete_10": {"title": "Into the Void", "desc": "Complete Chapter 10.", "icon": "book"},
 	"ending_seal": {"title": "The Seal Holds", "desc": "Reach the Seal ending.", "icon": "star"},
 	"ending_zero": {"title": "Nothing Remains", "desc": "Reach the Zero Burn ending.", "icon": "star"},
 	"ending_ash": {"title": "Ash Ending", "desc": "Reach the Ash ending.", "icon": "star"},

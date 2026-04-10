@@ -119,6 +119,43 @@ func _init_starting_memories() -> void:
 func add_chapter_memories(chapter: int) -> void:
 	match chapter:
 		3:
+			# Ch3: Belt Waystation — Weight of Pages
+			if not _has_memory("sense_dead_soil"):
+				add_memory(Memory.new(
+					"sense_dead_soil",
+					"The Taste of Dead Earth",
+					"Dust that tastes of nothing. The Belt stretches on, a road that forgot its purpose.",
+					MemoryGrade.GRADE_5, 10
+				))
+			if not _has_memory("rel_tobias_records"):
+				add_memory(Memory.new(
+					"rel_tobias_records",
+					"The Man Who Writes Everything Down",
+					"Ink-stained fingers. Spectacles perched on a nose that's seen too many ledgers. He records the dying.",
+					MemoryGrade.GRADE_4, 25,
+					"Lose the ability to recall Tobias's explanations. Bureau terminology blurs.",
+					"Tobias"
+				))
+		4:
+			# Ch4: Drift Shelter — Drift
+			if not _has_memory("sense_ash_rain"):
+				add_memory(Memory.new(
+					"sense_ash_rain",
+					"Rain That Isn't Rain",
+					"Gray drops that leave streaks on skin. Memory residue from someone else's burning, carried on the wind.",
+					MemoryGrade.GRADE_5, 12
+				))
+			if not _has_memory("daily_elia_hands"):
+				add_memory(Memory.new(
+					"daily_elia_hands",
+					"Warm Hands on Cold Palms",
+					"She held your hands and something shifted. A page pressed back into its binding. You could read again.",
+					MemoryGrade.GRADE_3, 50,
+					"Lose the sensation of being anchored. The architecture loosens.",
+					"Elia"
+				))
+		5:
+			# Ch5: Crumbling Coast — The Classifier
 			if not _has_memory("sense_salt_wind"):
 				add_memory(Memory.new(
 					"sense_salt_wind",
@@ -135,7 +172,8 @@ func add_chapter_memories(chapter: int) -> void:
 					"Lose awareness of Elia's movement patterns",
 					"Elia"
 				))
-		4:
+		6:
+			# Ch6: The Seam — Thread That Holds
 			if not _has_memory("rel_sable_trust"):
 				add_memory(Memory.new(
 					"rel_sable_trust",
@@ -160,7 +198,8 @@ func add_chapter_memories(chapter: int) -> void:
 					MemoryGrade.GRADE_4, 28,
 					"The Seam's gardens appear monochrome"
 				))
-		5:
+		10:
+			# Ch10: BL-07 — The Seal
 			if not _has_memory("identity_void_walker"):
 				add_memory(Memory.new(
 					"identity_void_walker",

@@ -1,127 +1,139 @@
 {
   "chapter": 5,
-  "title": "The Seal",
+  "title": "The Classifier",
   "dialogues": {
-    "void_entry": [
-      {"speaker": "", "text": "The world ended at the threshold.", "cg": "res://assets/cg/ch5_void_entrance.jpg"},
-      {"speaker": "", "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing."},
-      {"speaker": "", "text": "Fragments of ground floated in the void. Stone from somewhere that no longer existed. Paths that led between things that weren't there.", "cg": "res://assets/cg/void_islands.png"},
-      {"speaker": "Elia", "text": "The air... it's not thin. There just isn't any.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I can still breathe.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "That's what worries me. You shouldn't be able to.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The Void Hole designated BL-07. This is what happens when the world forgets too much in one place."}
+    "coast_arrival": [
+      {"speaker": "", "text": "The Crumbling Coast.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
+      {"speaker": "", "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock."},
+      {"speaker": "", "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea."},
+      {"speaker": "Elia", "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "And Sable?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Follow the colors. That's what he said.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Colors. In a world that was forgetting how to have them."}
     ],
-    "void_core": [
-      {"speaker": "", "text": "At the center, the tear widened. Not a hole — a mouth. Open and patient.", "cg": "res://assets/cg/bl07_interior.jpg"},
-      {"speaker": "", "text": "Something pulsed inside it. Not light. Not sound. A rhythm that his bones recognized even if his mind didn't."},
-      {"speaker": "Arrel", "text": "It's... familiar.", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "Arrel, don't—", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He could feel it now. The Void Hole wasn't destroying. It was forgetting. The world was forgetting itself here, and the hole was what was left."},
-      {"speaker": "", "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance."},
-      {"speaker": "Arrel", "text": "I know how to close it.", "portrait": "arrel_burn", "cg": "res://assets/cg/ch5_climax.jpg"},
-      {"speaker": "Elia", "text": "How?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "The same way I do everything. Burn something that matters.", "portrait": "arrel_pain"}
-    ],
-    "seal_decision": [
-      {"speaker": "", "text": "The core of BL-07 pulsed. Waiting."},
-      {"speaker": "Elia", "text": "You're talking about burning your name. Your NAME, Arrel. The last thing that makes you... you.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "If The Seam falls, everyone there loses everything. Not just a name.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "And if you burn it? What's left?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_pain"},
-      {"speaker": "", "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.", "cg": "res://assets/cg/ch5_arrel_elia_void.jpg"},
+    "elia_separation_choice": [
+      {"speaker": "", "text": "Elia stopped. Her eyes traced the cliff edge, then snapped back to the ridge behind them."},
+      {"speaker": "Elia", "text": "Arrel. That figure on the ridge. If he's classifying us, he's building a pattern.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Two signatures are easier to track than one.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "What are you saying?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I can take the coastal path. Draw his attention south. Meet you at the Seam.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Or I stay. We go together. But if he catches both of us...", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.", "cg": "res://assets/cg/ch3_arrel_elia_coast.jpg"},
       {
-        "speaker": "",
-        "text": "What do you do?",
         "choices": [
-          {"text": "Burn the Name — Seal BL-07", "set_flag": "seal_accepted"},
-          {"text": "Keep the Name — Find another way", "set_flag": "seal_refused"}
+          {
+            "text": "Go together. I need you close.",
+            "set_flag": "elia_stays"
+          },
+          {
+            "text": "Split up. Meet at the Seam.",
+            "set_flag": "elia_separates"
+          }
         ]
       }
     ],
-    "seal_complete": [
-      {"speaker": "", "text": "He reached inside. Past the memories of rain and campfires and a hand reaching out. Past the sword and the market and the song."},
-      {"speaker": "", "text": "Down to the bottom. To the name."},
-      {"speaker": "", "text": "'Arrel.'"},
-      {"speaker": "", "text": "He let it go."},
-      {"speaker": "", "text": "The fire was not blue this time. It was white. Pure. The color of everything and nothing at once.", "cg": "res://assets/cg/battle_memory_burn.jpg"},
-      {"speaker": "", "text": "The Void Hole screamed — a sound that existed only in the space between hearing and remembering — and collapsed inward."},
-      {"speaker": "", "text": "The ground beneath them solidified. Color bled back into the stone. The crack sealed like a wound closing."},
-      {"speaker": "Elia", "text": "...hey. Hey. Can you hear me?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The man who had been Arrel opened his eyes. He looked at the woman standing over him."},
-      {"speaker": "", "text": "He did not recognize her."},
-      {"speaker": "", "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important."},
-      {"speaker": "Elia", "text": "Do you... do you know who you are?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He thought about it for a long time."},
-      {"speaker": "???", "text": "No. But I know I'm supposed to be here.", "portrait": "arrel_exhausted"},
-      {"speaker": "", "text": "BL-07 was sealed. The Seam would survive. The cost was everything that made the price meaningful."}
+    "elia_stays_response": [
+      {"speaker": "Elia", "text": "...Alright. Together, then.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "She fell into step beside him. Close enough that their shoulders almost touched."},
+      {"speaker": "", "text": "Whatever came next, they would face it with two sets of eyes. Two hearts. Two sets of memories worth losing."}
     ],
-    "seal_refused": [
-      {"speaker": "", "text": "He pulled his hand back from the edge."},
-      {"speaker": "Arrel", "text": "No.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Arrel—", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "There has to be another way. There always is. People just stop looking because burning is easier.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "The Void Hole pulsed. Unimpressed. Unchanged."},
-      {"speaker": "", "text": "They walked back the way they came. The fragments of ground felt less stable than before. Or maybe that was just the weight of a decision unmade."},
-      {"speaker": "Elia", "text": "Sable won't be happy.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Sable doesn't have to lose her name.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Behind them, BL-07 continued to grow. Slowly. Patiently."},
-      {"speaker": "", "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't."}
+    "elia_separates_response": [
+      {"speaker": "", "text": "Something flickered across her face. Too fast to name."},
+      {"speaker": "Elia", "text": "The Seam. Northeast. I'll find it.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "Don't. If you say something kind, I won't be able to leave.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "She turned. Walked south along the cliff edge. Didn't look back."},
+      {"speaker": "", "text": "The wind felt colder. The footsteps behind him went silent. And somewhere in his chest, the anchor loosened."},
+      {"speaker": "", "text": "Memories burned alone vanish completely. No residue. No trace. Just absence."}
     ],
-    "void_descent": [
-      {"speaker": "", "text": "The path — if it could be called that — descended in spirals that didn't obey geometry."},
-      {"speaker": "", "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction."},
-      {"speaker": "Elia", "text": "Arrel. Look.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved."},
-      {"speaker": "Arrel", "text": "Someone's home.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Was. Before the Void ate the house around it. The door is all that's left.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "As they passed, the door swung open. Beyond it — nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering."},
-      {"speaker": "", "text": "Then silence. The door closed itself, gently, as if the memory had finished its performance and was taking a bow."}
+    "elia_reunion": [
+      {"speaker": "", "text": "A familiar silhouette stood at the Seam's entrance. Windswept. Tired. Alive."},
+      {"speaker": "Elia", "text": "You made it.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "You too.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "Neither of them said anything about the distance. Or the silence. Or the memories that might have scattered in the space between them."},
+      {"speaker": "Elia", "text": "The coastal path worked. Kairos went south. Bought us time.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "She fell into step beside him again. The anchor tightened. The world felt a fraction more solid."}
     ],
-    "void_echoes": [
-      {"speaker": "", "text": "Deeper in, the Void began to speak."},
-      {"speaker": "", "text": "Not words. Feelings. Borrowed grief that pressed against his ribs like an unwelcome hand."},
-      {"speaker": "", "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important."},
-      {"speaker": "Arrel", "text": "It's showing me things.", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "It shows everyone things. That's how it feeds. You feel the loss, and the feeling makes the loss bigger, and the bigger loss feeds the Void.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "What does it show you?", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She was quiet for three steps."},
-      {"speaker": "Elia", "text": "You. Before the burns. The person you were when we first met.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "You laughed more. Did you know that? You used to laugh at terrible things. It drove me insane.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I still laugh.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "You smile. It's not the same thing.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The Void hummed around them, drinking the sadness like water."}
+    "kairos_sighting": [
+      {"speaker": "", "text": "Movement. On the ridge behind them, half a mile back.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
+      {"speaker": "", "text": "A figure. Still as stone. Watching."},
+      {"speaker": "Elia", "text": "Don't look back.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Kairos?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "He's not chasing. He's classifying. That's worse.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The figure did not move. It did not need to. It had already seen everything it needed to see."},
+      {"speaker": "", "text": "They walked faster."}
     ],
-    "void_memory_fragments": [
-      {"speaker": "", "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist."},
-      {"speaker": "", "text": "Each one was someone's life. A first step. A last breath. A morning so ordinary that no one thought to protect it from being forgotten."},
-      {"speaker": "Elia", "text": "These are the memories the Void has consumed. It doesn't destroy them — it KEEPS them. Like a collection.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Can we take them back?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "They don't belong to anyone anymore. The people who lost them have forgotten they ever existed. A memory without an owner is just... light.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "He picked one up. Warm. It showed him a sunset over a city he'd never seen, felt through eyes that were not his own. Beautiful. Meaningless. Orphaned."},
-      {"speaker": "", "text": "He set it down. Carefully. Even orphaned beauty deserved to be handled gently."}
+    "seam_arrival": [
+      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam3.jpg"},
+      {"speaker": "", "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."},
+      {"speaker": "", "text": "Amber. Crimson. A green so deep it hurt to look at."},
+      {"speaker": "", "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."},
+      {"speaker": "Elia", "text": "We made it.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "A woman stood at the entrance. Short dark hair. Eyes that had seen the inside of a Void Hole and come back."},
+      {"speaker": "Sable", "text": "You're the one Malet sent. The one who burns.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Come inside. We have a lot to discuss. And not much time.", "portrait": "sable_calm"}
     ],
-    "void_before_core": [
-      {"speaker": "", "text": "The pull was stronger here. Like standing at the edge of a waterfall, except the water was made of forgetting.", "cg": "res://assets/cg/ch5_climax.jpg"},
-      {"speaker": "Elia", "text": "Arrel. Before we go further. There's something I need to say.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Let me finish. Please.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "Whatever happens in there — whatever you decide — I need you to know that the person you are RIGHT NOW is enough. You don't have to burn anything else to be worth saving.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "It's not about being worth saving. It's about the Seam. The children. Sable's people.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I know. But the world doesn't get to have you AND those children. It shouldn't have to choose. Something is WRONG with a world that makes people pay for survival with themselves.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Her voice echoed in the absence. The Void drank the sound, but the meaning survived."},
-      {"speaker": "Arrel", "text": "Are you trying to talk me out of it?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I'm trying to make sure that whatever you choose, you choose it as ARREL. Not as a weapon. Not as a tool. As the person who once laughed at terrible things and noticed flowers growing in impossible places.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The core of BL-07 waited ahead. Patient as gravity. Hungry as absence."},
-      {"speaker": "", "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take — the choice to be here, together, right now."},
-      {"speaker": "Arrel", "text": "Let's go.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "They went."}
+    "coast_cliff_walk": [
+      {"speaker": "", "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years."},
+      {"speaker": "Arrel", "text": "The stone here. It's warm.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "He pressed his hand against the cliff face. For a moment — just a flash — he heard laughter. Children's voices. The clatter of a market that no longer existed."},
+      {"speaker": "", "text": "Then silence. The stone was just stone again."},
+      {"speaker": "Elia", "text": "Don't linger. The residue can pull you in. People have walked off cliffs chasing echoes they thought were their own.", "portrait": "elia_concern"}
     ],
-    "elia_void_talk": [
-      {"speaker": "Elia", "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "New?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I've never been in a place that has no past. Everything has a past. Even ruins. Even ash.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "But this... this is what happens when even the past forgets it was here.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She shivered. Not from cold. There was no temperature here. Only absence."}
+    "coast_watchtower": [
+      {"speaker": "", "text": "The watchtower stood at the cliff's highest point, gutted and hollow."},
+      {"speaker": "", "text": "Its roof was gone. Its walls were covered in scratches — thousands of tally marks, carved by someone counting something obsessively."},
+      {"speaker": "Arrel", "text": "What was this?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Bureau outpost. Before the coast crumbled, they monitored combustion signatures from here.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Arrel looked at the walls. Thousands of marks. Thousands of people, burning pieces of themselves to fight the Void. Or to sell. Or just to survive."},
+      {"speaker": "Arrel", "text": "How many of them are still alive?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "The marks stopped three years ago. Draw your own conclusion.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "Wind moved through the hollow tower. It sounded almost like counting."}
+    ],
+    "kairos_presence": [
+      {"speaker": "", "text": "He was closer now."},
+      {"speaker": "", "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
+      {"speaker": "Elia", "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "And then?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "And then they know exactly which memory to target. The one that holds everything else together. Pull it, and the whole structure collapses.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "For you, that would be—", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Don't say it.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "She didn't. They both knew. The most dangerous memory Arrel carried wasn't a battle or a burn. It was a name."},
+      {"speaker": "", "text": "Elia."}
+    ],
+    "coast_void_crack": [
+      {"speaker": "", "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
+      {"speaker": "Elia", "text": "Void fissure. Don't step on it.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "From the crack came a sound. Not quite a whisper. Not quite a name. Something in between."},
+      {"speaker": "Arrel", "text": "It's calling.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "It shows you the memories you've lost. Tells you they're inside, waiting. All you have to do is step through.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Is it true? Are the memories in there?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Maybe. But the people who go in to find out don't come back to tell us.", "portrait": "elia_concern"}
+    ],
+    "elia_before_separation": [
+      {"speaker": "Elia", "text": "Arrel. If we split up—", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I haven't decided yet.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I know. But if we do... you need to understand what happens to a burner without an Anchor.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Every burn you've done, I've been the reference point. I carry the SHAPE of what you lost, even when the content is gone. Without me, burns become... absolute.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "No residue.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "No residue. No echo. No sense that something used to be there. Just smooth nothing, all the way down.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "She looked at the ocean. The gray water met the gray sky at a line that didn't quite exist."},
+      {"speaker": "Elia", "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I'll be careful.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "You always say that.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "He always did. She always worried. Some patterns survived even the Void."}
+    ],
+    "elia_coast_talk": [
+      {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern",
+        "requires_memory": "daily_campfire_song",
+        "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune."},
+      {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_exhausted", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
+      {"speaker": "Elia", "text": "Do you miss it?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "She said nothing. But she walked closer. Two steps behind became one."}
     ]
   }
 }

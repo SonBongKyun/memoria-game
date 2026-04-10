@@ -1,139 +1,90 @@
 {
   "chapter": 3,
-  "title": "The Classifier",
+  "title": "Weight of Pages",
   "dialogues": {
-    "coast_arrival": [
-      {"speaker": "", "text": "The Crumbling Coast.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
-      {"speaker": "", "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock."},
-      {"speaker": "", "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea."},
-      {"speaker": "Elia", "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "And Sable?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Follow the colors. That's what he said.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Colors. In a world that was forgetting how to have them."}
+    "waystation_arrival": [
+      {"speaker": "", "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence."},
+      {"speaker": "", "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry."},
+      {"speaker": "Elia", "text": "This was a relay point. Traders used the Belt before the Voidline shifted.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "Nobody uses it now?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Not since the soil went dead. Look—", "portrait": "elia_concern"},
+      {"speaker": "", "text": "She pointed at a faded sign: BUREAU RELAY STATION 14 — AUTHORIZED PERSONNEL ONLY."},
+      {"speaker": "Arrel", "text": "Bureau built this?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "They built everything out here. And abandoned it when the cost exceeded the yield.", "portrait": "elia_neutral"}
     ],
-    "elia_separation_choice": [
-      {"speaker": "", "text": "Elia stopped. Her eyes traced the cliff edge, then snapped back to the ridge behind them."},
-      {"speaker": "Elia", "text": "Arrel. That figure on the ridge. If he's classifying us, he's building a pattern.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "Two signatures are easier to track than one.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "What are you saying?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I can take the coastal path. Draw his attention south. Meet you at the Seam.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "Or I stay. We go together. But if he catches both of us...", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.", "cg": "res://assets/cg/ch3_arrel_elia_coast.jpg"},
-      {
-        "choices": [
-          {
-            "text": "Go together. I need you close.",
-            "set_flag": "elia_stays"
-          },
-          {
-            "text": "Split up. Meet at the Seam.",
-            "set_flag": "elia_separates"
-          }
-        ]
-      }
+    "tobias_encounter": [
+      {"speaker": "", "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers."},
+      {"speaker": "Tobias", "text": "...seven-point-three Grains per unit, adjusted for residue decay... no, that can't be right—", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "Hello?", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "The man startled, knocking a stack of bound journals to the floor."},
+      {"speaker": "Tobias", "text": "Oh! Travelers? On the Belt? That's — well, that's unusual. I'm Tobias. Tobias Crane.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "What are you doing out here alone?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "Recording. I record things. Transactions, mostly. Memory transactions.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "The Bureau calls me a Recorder — Class C, if you care about rank. I document combustion events for the official ledger.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "A bureaucrat. Out here.", "portrait": "elia_concern"},
+      {"speaker": "Tobias", "text": "Voluntarily! Well... mostly voluntarily. The Belt waystation records haven't been updated in six months. Someone had to come.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "Though I admit, the solitude has been... educational.", "portrait": "tobias_neutral"}
     ],
-    "elia_stays_response": [
-      {"speaker": "Elia", "text": "...Alright. Together, then.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She fell into step beside him. Close enough that their shoulders almost touched."},
-      {"speaker": "", "text": "Whatever came next, they would face it with two sets of eyes. Two hearts. Two sets of memories worth losing."}
+    "blank_book_discovery": [
+      {"speaker": "", "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges."},
+      {"speaker": "Arrel", "text": "What's that?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "Ah. You can see it too? Most people walk right past. That's a Blank Book.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "Record-tree fiber. Incredibly rare. It absorbs memory resonance — not the memory itself, but the shape of it.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "The shape?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "Think of it as... a mold. The memory fills it once, and the book remembers the contour even after the memory burns.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "In theory, you could rebuild a burned memory from its contour. In theory.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "That's impossible. Burned memories are gone. Everyone knows that.", "portrait": "elia_concern"},
+      {"speaker": "Tobias", "text": "Everyone knows a lot of things that aren't entirely true.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "Tobias carefully took the book from the shelf and held it out to Arrel."},
+      {"speaker": "Tobias", "text": "Take it. You're a Burner, aren't you? Class Seven efficiency, if I had to guess. You'll need this more than I will.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "The book felt warm in Arrel's hands. Like holding something alive."},
+      {"speaker": "", "text": "[Obtained: Blank Book — Records the contours of burned memories]"}
     ],
-    "elia_separates_response": [
-      {"speaker": "", "text": "Something flickered across her face. Too fast to name."},
-      {"speaker": "Elia", "text": "The Seam. Northeast. I'll find it.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "Don't. If you say something kind, I won't be able to leave.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She turned. Walked south along the cliff edge. Didn't look back."},
-      {"speaker": "", "text": "The wind felt colder. The footsteps behind him went silent. And somewhere in his chest, the anchor loosened."},
-      {"speaker": "", "text": "Memories burned alone vanish completely. No residue. No trace. Just absence."}
+    "kairos_wall_writing": [
+      {"speaker": "", "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall."},
+      {"speaker": "", "text": "The handwriting was precise, almost mechanical: 'Subject demonstrates Class Seven combustion efficiency.'"},
+      {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "Arrel? What is it?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Someone was here. Watching. Recording.", "portrait": "arrel_pain"},
+      {"speaker": "Tobias", "text": "That writing wasn't there a week ago. I use these stairs every day.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "Class Seven... the Bureau's classification system for Burners?", "portrait": "elia_concern"},
+      {"speaker": "Tobias", "text": "Yes. And Class Seven is the highest recorded efficiency. The Bureau has only ever documented three.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "Whoever wrote this... they're tracking you.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "A chill ran through the stairwell that had nothing to do with temperature."}
     ],
-    "elia_reunion": [
-      {"speaker": "", "text": "A familiar silhouette stood at the Seam's entrance. Windswept. Tired. Alive."},
-      {"speaker": "Elia", "text": "You made it.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "You too.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Neither of them said anything about the distance. Or the silence. Or the memories that might have scattered in the space between them."},
-      {"speaker": "Elia", "text": "The coastal path worked. Kairos went south. Bought us time.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She fell into step beside him again. The anchor tightened. The world felt a fraction more solid."}
+    "tobias_joins": [
+      {"speaker": "Tobias", "text": "Listen — I know I'm not a fighter. I can barely swing a pen without getting ink on my face.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "But I've spent twenty years recording memory transactions. I know the Bureau's classification system inside and out.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "If someone is tracking you as a Class Seven, you need someone who understands what that means.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "You want to come with us?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "I want to record what happens. That's what I do.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "Can you keep up?", "portrait": "elia_neutral"},
+      {"speaker": "Tobias", "text": "I walked the Belt alone for three days to get here. I can keep up.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "Tobias packed his journals into a battered satchel and slung it over his shoulder."},
+      {"speaker": "", "text": "[Tobias has joined the party]"}
     ],
-    "kairos_sighting": [
-      {"speaker": "", "text": "Movement. On the ridge behind them, half a mile back.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
-      {"speaker": "", "text": "A figure. Still as stone. Watching."},
-      {"speaker": "Elia", "text": "Don't look back.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Kairos?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "He's not chasing. He's classifying. That's worse.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The figure did not move. It did not need to. It had already seen everything it needed to see."},
-      {"speaker": "", "text": "They walked faster."}
+    "belt_atmosphere": [
+      {"speaker": "", "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar."},
+      {"speaker": "", "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned — not by fire, but by memory."},
+      {"speaker": "Elia", "text": "Forty years ago, a Burner lost control here. Burned everything — including the land's memory of how to grow things.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "The land has memories?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Everything remembers. Soil remembers rain. Stone remembers pressure. When those memories burn, the world... forgets.", "portrait": "elia_concern"}
     ],
-    "seam_arrival": [
-      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam3.jpg"},
-      {"speaker": "", "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."},
-      {"speaker": "", "text": "Amber. Crimson. A green so deep it hurt to look at."},
-      {"speaker": "", "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."},
-      {"speaker": "Elia", "text": "We made it.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "A woman stood at the entrance. Short dark hair. Eyes that had seen the inside of a Void Hole and come back."},
-      {"speaker": "Sable", "text": "You're the one Malet sent. The one who burns.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Come inside. We have a lot to discuss. And not much time.", "portrait": "sable_calm"}
+    "tobias_records": [
+      {"speaker": "Tobias", "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was — let me check — approximately 60 percent retention.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "You were writing during the fight?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "Force of habit. The Bureau requires real-time documentation of all combustion events.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "Your anchor's influence is remarkable, by the way. Most Burners retain less than 30 percent as residue.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "Don't call me his anchor.", "portrait": "elia_concern"},
+      {"speaker": "Tobias", "text": "Apologies. Occupational terminology.", "portrait": "tobias_neutral"}
     ],
-    "coast_cliff_walk": [
-      {"speaker": "", "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years."},
-      {"speaker": "Arrel", "text": "The stone here. It's warm.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "He pressed his hand against the cliff face. For a moment — just a flash — he heard laughter. Children's voices. The clatter of a market that no longer existed."},
-      {"speaker": "", "text": "Then silence. The stone was just stone again."},
-      {"speaker": "Elia", "text": "Don't linger. The residue can pull you in. People have walked off cliffs chasing echoes they thought were their own.", "portrait": "elia_concern"}
-    ],
-    "coast_watchtower": [
-      {"speaker": "", "text": "The watchtower stood at the cliff's highest point, gutted and hollow."},
-      {"speaker": "", "text": "Its roof was gone. Its walls were covered in scratches — thousands of tally marks, carved by someone counting something obsessively."},
-      {"speaker": "Arrel", "text": "What was this?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Bureau outpost. Before the coast crumbled, they monitored combustion signatures from here.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Arrel looked at the walls. Thousands of marks. Thousands of people, burning pieces of themselves to fight the Void. Or to sell. Or just to survive."},
-      {"speaker": "Arrel", "text": "How many of them are still alive?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "The marks stopped three years ago. Draw your own conclusion.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Wind moved through the hollow tower. It sounded almost like counting."}
-    ],
-    "kairos_presence": [
-      {"speaker": "", "text": "He was closer now."},
-      {"speaker": "", "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
-      {"speaker": "Elia", "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "And then?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "And then they know exactly which memory to target. The one that holds everything else together. Pull it, and the whole structure collapses.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "For you, that would be—", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Don't say it.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She didn't. They both knew. The most dangerous memory Arrel carried wasn't a battle or a burn. It was a name."},
-      {"speaker": "", "text": "Elia."}
-    ],
-    "coast_void_crack": [
-      {"speaker": "", "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
-      {"speaker": "Elia", "text": "Void fissure. Don't step on it.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "From the crack came a sound. Not quite a whisper. Not quite a name. Something in between."},
-      {"speaker": "Arrel", "text": "It's calling.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "It shows you the memories you've lost. Tells you they're inside, waiting. All you have to do is step through.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Is it true? Are the memories in there?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Maybe. But the people who go in to find out don't come back to tell us.", "portrait": "elia_concern"}
-    ],
-    "elia_before_separation": [
-      {"speaker": "Elia", "text": "Arrel. If we split up—", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I haven't decided yet.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I know. But if we do... you need to understand what happens to a burner without an Anchor.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "Every burn you've done, I've been the reference point. I carry the SHAPE of what you lost, even when the content is gone. Without me, burns become... absolute.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "No residue.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "No residue. No echo. No sense that something used to be there. Just smooth nothing, all the way down.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She looked at the ocean. The gray water met the gray sky at a line that didn't quite exist."},
-      {"speaker": "Elia", "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I'll be careful.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "You always say that.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He always did. She always worried. Some patterns survived even the Void."}
-    ],
-    "elia_coast_talk": [
-      {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern",
-        "requires_memory": "daily_campfire_song",
-        "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune."},
-      {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_exhausted", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
-      {"speaker": "Elia", "text": "Do you miss it?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She said nothing. But she walked closer. Two steps behind became one."}
+    "waystation_departure": [
+      {"speaker": "", "text": "Arrel looked back at the waystation one last time. It sat alone on the Belt like a forgotten thought."},
+      {"speaker": "Tobias", "text": "The Crumbling Coast is two days north. There's a fishing village — or what's left of one — where we can resupply.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "And whoever wrote on that wall?", "portrait": "elia_concern"},
+      {"speaker": "Tobias", "text": "Will probably be following us. But I'd rather know that than not.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "Let's move.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot."}
     ]
   }
 }

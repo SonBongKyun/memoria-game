@@ -57,7 +57,7 @@ func _record_ending_achievements() -> void:
 		AchievementManager.record_ending("ending_zero")
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
 		AchievementManager.record_ending("ending_ash")
-	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch4_garden"):
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
 		AchievementManager.record_ending("ending_seam")
 	else:
 		AchievementManager.record_ending("ending_seal")
@@ -84,7 +84,7 @@ func _build_ui() -> void:
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
 		credits.append({"type": "quote", "text": "What remains is not a man. Just ash, drifting."})
 		credits.append({"type": "quote_sub", "text": "The name survived. Nothing else did."})
-	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch4_garden"):
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
 		credits.append({"type": "quote", "text": "In the cracks between loss, something green still grows."})
 		credits.append({"type": "quote_sub", "text": "The smallest moments became the strongest shield."})
 	else:

@@ -14,13 +14,13 @@ position = Vector2(160, 48)
 [node name="Elia" parent="." instance=ExtResource("3_companion")]
 position = Vector2(130, 68)
 npc_name = "Elia"
-dialogue_file = "res://data/chapter4_dialogue.json"
+dialogue_file = "res://data/chapter6_dialogue.json"
 dialogue_key = "elia_seam_talk"
 npc_color = Color(0.45, 0.55, 0.65, 1.0)
 
 [node name="Sable" parent="." instance=ExtResource("4_npc")]
 position = Vector2(384, 288)
 npc_name = "Sable"
-dialogue_file = "res://data/chapter4_dialogue.json"
+dialogue_file = "res://data/chapter6_dialogue.json"
 dialogue_key = "sable_talk"
 npc_color = Color(0.35, 0.3, 0.45, 1.0)

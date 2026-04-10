@@ -1,4 +1,4 @@
-## Crumbling Coast — 크럼블링 코스트 (Chapter 3)
+## Crumbling Coast — 크럼블링 코스트 (Chapter 5: The Classifier)
 ## 땅이 무너져 내리는 해안 절벽. 카이로스의 추적이 시작되는 곳.
 ## 남쪽에서 시작 → 북쪽 The Seam으로 이동.
 extends Node2D
@@ -6,7 +6,7 @@ extends Node2D
 const TILE_SIZE: int = 32
 const MAP_WIDTH: int = 25
 const MAP_HEIGHT: int = 18
-const DIALOGUE_FILE: String = "res://data/chapter3_dialogue.json"
+const DIALOGUE_FILE: String = "res://data/chapter5_dialogue.json"
 
 enum Tile { ROCK, SAND, CLIFF, WATER, PATH }
 
@@ -75,11 +75,11 @@ func _ready() -> void:
 
 func _ready_sequence() -> void:
 	# Ch3 도착 시퀀스 (한 번만 실행)
-	if not GameManager.get_flag("ch3_arrived"):
+	if not GameManager.get_flag("ch5_arrived"):
 		# 챕터 타이틀 카드 표시 후 대화 시작
-		await MapEffects.show_chapter_title(self, 3, "Crumbling Coast", "The ground gives way")
+		await MapEffects.show_chapter_title(self, 5, "Crumbling Coast", "The ground gives way")
 		await get_tree().create_timer(0.3).timeout
-		_start_ch3_sequence()
+		_start_ch5_sequence()
 
 func _process(delta: float) -> void:
 	effect_time += delta
@@ -120,17 +120,17 @@ func _setup_map_decorations() -> void:
 
 ## ===================== 스토리 시퀀스 =====================
 
-func _start_ch3_sequence() -> void:
-	GameManager.set_flag("ch3_arrived")
-	MemoryManager.add_chapter_memories(3)
+func _start_ch5_sequence() -> void:
+	GameManager.set_flag("ch5_arrived")
+	MemoryManager.add_chapter_memories(5)
 	DialogueManager.dialogue_ended.connect(_on_arrival_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "coast_arrival")
 
 func _on_arrival_ended() -> void:
 	# 카이로스 목격 이벤트 (짧은 딜레이 후)
 	await get_tree().create_timer(2.0).timeout
-	if not GameManager.get_flag("ch3_kairos_seen"):
-		GameManager.set_flag("ch3_kairos_seen")
+	if not GameManager.get_flag("ch5_kairos_seen"):
+		GameManager.set_flag("ch5_kairos_seen")
 		DialogueManager.dialogue_ended.connect(_on_kairos_ended, CONNECT_ONE_SHOT)
 		DialogueManager.load_and_start(DIALOGUE_FILE, "kairos_sighting")
 
@@ -177,26 +177,26 @@ func _setup_seam_trigger() -> void:
 	area.add_child(shape)
 
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and not GameManager.get_flag("ch3_seam_arrived"):
+		if body.name == "Player" and not GameManager.get_flag("ch5_seam_arrived"):
 			_arrive_at_seam()
 	)
 	add_child(area)
 
 func _arrive_at_seam() -> void:
-	GameManager.set_flag("ch3_seam_arrived")
-	GameManager.set_flag("ch3_complete")
-	AchievementManager.record_chapter_complete(3)
+	GameManager.set_flag("ch5_seam_arrived")
+	GameManager.set_flag("ch5_complete")
+	AchievementManager.record_chapter_complete(5)
 	DialogueManager.dialogue_ended.connect(_on_seam_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "seam_arrival")
 
 func _on_seam_ended() -> void:
-	GameManager.current_chapter = 4
-	print("[CrumblingCoast] Chapter 3 complete — The Seam reached")
+	GameManager.current_chapter = 6
+	print("[CrumblingCoast] Chapter 5 complete — The Seam reached")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
 
 func _setup_random_encounters() -> void:
-	if not GameManager.get_flag("ch3_complete"):
+	if not GameManager.get_flag("ch5_complete"):
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
@@ -291,16 +291,16 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 
 func _setup_exploration_events() -> void:
 	# 절벽 산책 대화 (동쪽 절벽)
-	_add_story_trigger(Vector2(18 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_cliff_walk", "ch3_cliff_walk")
+	_add_story_trigger(Vector2(18 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_cliff_walk", "ch5_cliff_walk")
 	# 감시탑 (북서쪽)
-	_add_story_trigger(Vector2(4 * TILE_SIZE, 3 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_watchtower", "ch3_watchtower")
+	_add_story_trigger(Vector2(4 * TILE_SIZE, 3 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_watchtower", "ch5_watchtower")
 	# 카이로스 존재감 (중앙 길)
-	_add_story_trigger(Vector2(12 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "kairos_presence", "ch3_kairos_presence")
+	_add_story_trigger(Vector2(12 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "kairos_presence", "ch5_kairos_presence")
 	# 보이드 균열 (남쪽 중앙)
-	_add_story_trigger(Vector2(10 * TILE_SIZE, 13 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_void_crack", "ch3_void_crack")
+	_add_story_trigger(Vector2(10 * TILE_SIZE, 13 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "coast_void_crack", "ch5_void_crack")
 	# 분리 전 엘리아 대화 (분리 선택지 전)
 	if not GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_stays"):
-		_add_story_trigger(Vector2(8 * TILE_SIZE, 6 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_before_separation", "ch3_elia_presep")
+		_add_story_trigger(Vector2(8 * TILE_SIZE, 6 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_before_separation", "ch5_elia_presep")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):

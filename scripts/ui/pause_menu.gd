@@ -178,8 +178,8 @@ func _build_ui() -> void:
 	vbox.add_child(hint)
 
 func _update_save_info() -> void:
-	var chapter_name = ["", "Rim Forest", "Verdan Market", "Crumbling Coast", "The Seam", "BL-07 Void", "Epilogue"]
-	var ch = clampi(GameManager.current_chapter, 1, 6)
+	var chapter_name = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 10: "BL-07 Void", 11: "Epilogue"}
+	var ch = GameManager.current_chapter
 	var hp = GameManager.player_data.hp
 	var max_hp = GameManager.player_data.max_hp
 	var burn_count = MemoryManager.get_burn_count()
@@ -188,7 +188,8 @@ func _update_save_info() -> void:
 	var ng_text = ""
 	if GameManager.ng_plus_cycle > 0:
 		ng_text = " (NG+%d)" % GameManager.ng_plus_cycle
-	var text = "Chapter %d — %s%s\n" % [ch, chapter_name[ch], ng_text]
+	var ch_name = chapter_name.get(ch, "Unknown")
+	var text = "Chapter %d — %s%s\n" % [ch, ch_name, ng_text]
 	text += "HP: %d / %d\n" % [hp, max_hp]
 	text += "Memories: %d held, %d burned" % [memory_count - burn_count, burn_count]
 
@@ -397,9 +398,11 @@ func _show_travel_panel() -> void:
 	var maps = [
 		{"name": "Rim Forest", "scene": "res://scenes/maps/rim_forest.tscn", "chapter": 1, "desc": "Where it all began."},
 		{"name": "Verdan Market", "scene": "res://scenes/maps/verdan_market.tscn", "chapter": 2, "desc": "A place of trade and memory."},
-		{"name": "Crumbling Coast", "scene": "res://scenes/maps/crumbling_coast.tscn", "chapter": 3, "desc": "Cliffs falling into the void."},
-		{"name": "The Seam", "scene": "res://scenes/maps/the_seam.tscn", "chapter": 4, "desc": "Where color bleeds through."},
-		{"name": "BL-07 Void", "scene": "res://scenes/maps/bl07_void.tscn", "chapter": 5, "desc": "The space between spaces."},
+		{"name": "Belt Waystation", "scene": "res://scenes/maps/belt_waystation.tscn", "chapter": 3, "desc": "Bureau Relay Station 14. The dead road."},
+		{"name": "Drift Shelter", "scene": "res://scenes/maps/drift_shelter.tscn", "chapter": 4, "desc": "Where the architecture crumbles."},
+		{"name": "Crumbling Coast", "scene": "res://scenes/maps/crumbling_coast.tscn", "chapter": 5, "desc": "Cliffs falling into the void."},
+		{"name": "The Seam", "scene": "res://scenes/maps/the_seam.tscn", "chapter": 6, "desc": "Where color bleeds through."},
+		{"name": "BL-07 Void", "scene": "res://scenes/maps/bl07_void.tscn", "chapter": 10, "desc": "The space between spaces."},
 	]
 
 	var current_ch = GameManager.current_chapter
