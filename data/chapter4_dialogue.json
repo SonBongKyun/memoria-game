@@ -3,7 +3,7 @@
   "title": "The Seam",
   "dialogues": {
     "seam_welcome": [
-      {"speaker": "", "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.", "cg": "res://assets/cg/village_seam2.jpg"},
+      {"speaker": "", "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.", "cg": "res://assets/cg/village_seam3.jpg"},
       {"speaker": "", "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist. Amber. Teal. A red so vivid it felt borrowed from a dream."},
       {"speaker": "", "text": "People moved through the narrow streets. Not many, but enough. Enough to prove that survival was still possible."},
       {"speaker": "Elia", "text": "It's real. I wasn't sure it would be.", "portrait": "elia_neutral"},
@@ -18,7 +18,7 @@
       {"speaker": "Sable", "text": "If she's smart, she will. Come inside.", "portrait": "sable_calm"}
     ],
     "sable_briefing": [
-      {"speaker": "", "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.", "cg": "res://assets/cg/bl07_interior.jpg"},
+      {"speaker": "", "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.", "cg": "res://assets/cg/ch4_sable_house.jpg"},
       {"speaker": "Sable", "text": "Malet sent you because of what you can do. The burning.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "He sent me because I was useful.", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Same thing. Listen — there's a Void Hole forming south of here. Designation BL-07.", "portrait": "sable_neutral"},
@@ -32,7 +32,7 @@
       {"speaker": "", "text": "A Shade Sentinel guards the entrance. It will need to be dealt with first."}
     ],
     "bl07_entrance": [
-      {"speaker": "", "text": "The air changed. Colors drained from the rock. The flowers stopped.", "cg": "res://assets/cg/void_portal2.jpg"},
+      {"speaker": "", "text": "The air changed. Colors drained from the rock. The flowers stopped.", "cg": "res://assets/cg/ch5_void_entrance.jpg"},
       {"speaker": "", "text": "Ahead — a tear in the world. Not large, but growing. The edges flickered between here and nowhere."},
       {"speaker": "Elia", "text": "I can feel it pulling. Like something trying to remember how to forget.", "portrait": "elia_concern"},
       {"speaker": "", "text": "Between them and the Void Hole, a shape coalesced. Dark. Wrong. A Shade Sentinel — the Void's immune response."},
@@ -52,7 +52,7 @@
       {"speaker": "", "text": "Chapter 4 — End. The investigation of BL-07 has begun."}
     ],
     "sable_talk": [
-      {"speaker": "Sable", "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.", "portrait": "sable_neutral",
+      {"speaker": "Sable", "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.", "portrait": "sable_neutral", "cg": "res://assets/cg/ch4_sable_porch.jpg",
         "requires_memory": "identity_void_walker",
         "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one."},
       {"speaker": "Sable", "text": "Before that, Thornfield. Before that, somewhere I've chosen not to remember.", "portrait": "sable_calm"},
@@ -61,7 +61,7 @@
       {"speaker": "", "text": "She turned back to her maps. The conversation was over."}
     ],
     "elia_seam_talk": [
-      {"speaker": "Elia", "text": "This place... it's different. The air doesn't taste like ash.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "This place... it's different. The air doesn't taste like ash.", "portrait": "elia_mature", "cg": "res://assets/cg/ch4_elia_window.jpg"},
       {"speaker": "Arrel", "text": "Sable's doing?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "Maybe. Or maybe the world still has places it hasn't given up on.", "portrait": "elia_neutral",
         "requires_memory": "rel_hand_reaching",
@@ -72,7 +72,7 @@
       {"speaker": "", "text": "She smiled. It was the first real smile he'd seen from her since Verdan."}
     ],
     "hidden_garden": [
-      {"speaker": "", "text": "He knelt beside a flower he didn't recognize."},
+      {"speaker": "", "text": "He knelt beside a flower he didn't recognize.", "cg": "res://assets/cg/ch1_elia_flower.jpg"},
       {"speaker": "", "text": "White petals, veined with gold. It was warm to the touch, as if remembering sunlight from somewhere that no longer existed."},
       {"speaker": "", "text": "A fragment surfaced — not a memory, not quite. A sensation."},
       {"speaker": "", "text": "Someone handing him a flower like this one. Small hands. A child's laugh."},

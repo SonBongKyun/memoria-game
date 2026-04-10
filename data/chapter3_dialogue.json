@@ -3,7 +3,7 @@
   "title": "The Classifier",
   "dialogues": {
     "coast_arrival": [
-      {"speaker": "", "text": "The Crumbling Coast.", "cg": "res://assets/cg/crumbling_coast.jpg"},
+      {"speaker": "", "text": "The Crumbling Coast.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
       {"speaker": "", "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock."},
       {"speaker": "", "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea."},
       {"speaker": "Elia", "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.", "portrait": "elia_neutral"},
@@ -18,7 +18,7 @@
       {"speaker": "Arrel", "text": "What are you saying?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "I can take the coastal path. Draw his attention south. Meet you at the Seam.", "portrait": "elia_neutral"},
       {"speaker": "Elia", "text": "Or I stay. We go together. But if he catches both of us...", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash."},
+      {"speaker": "", "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.", "cg": "res://assets/cg/ch3_arrel_elia_coast.jpg"},
       {
         "choices": [
           {
@@ -55,7 +55,7 @@
       {"speaker": "", "text": "She fell into step beside him again. The anchor tightened. The world felt a fraction more solid."}
     ],
     "kairos_sighting": [
-      {"speaker": "", "text": "Movement. On the ridge behind them, half a mile back.", "cg": "res://assets/cg/ch2_kairos_warning.jpg"},
+      {"speaker": "", "text": "Movement. On the ridge behind them, half a mile back.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
       {"speaker": "", "text": "A figure. Still as stone. Watching."},
       {"speaker": "Elia", "text": "Don't look back.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "Kairos?", "portrait": "arrel_neutral"},
@@ -64,7 +64,7 @@
       {"speaker": "", "text": "They walked faster."}
     ],
     "seam_arrival": [
-      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam2.jpg"},
+      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam3.jpg"},
       {"speaker": "", "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."},
       {"speaker": "", "text": "Amber. Crimson. A green so deep it hurt to look at."},
       {"speaker": "", "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."},
@@ -77,7 +77,7 @@
       {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",
         "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune."},
-      {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_pain"},
+      {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_exhausted", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
       {"speaker": "Elia", "text": "Do you miss it?", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_neutral"},
       {"speaker": "", "text": "She said nothing. But she walked closer. Two steps behind became one."}

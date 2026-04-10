@@ -441,14 +441,14 @@ func _setup_battle_triggers() -> void:
 		Vector2(8 * TILE_SIZE, 5 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Ash Crawler", 40, 8, false,
-		"res://assets/cg/ch1_forest.jpg", "res://assets/cg/ash_crawler.jpg"
+		"res://assets/cg/ch1_twisted_forest.jpg", "res://assets/cg/ash_crawler3.jpg"
 	)
 
 	_add_battle_area(
 		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Beast", 80, 15, true,
-		"res://assets/cg/ch1_forest.jpg", "res://assets/cg/void_beast.jpg"
+		"res://assets/cg/ch1_twisted_forest2.jpg", "res://assets/cg/void_beast3.jpg"
 	)
 
 var _battle_counter: int = 0

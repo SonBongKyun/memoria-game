@@ -3,17 +3,17 @@
   "title": "Ash",
   "dialogues": {
     "opening_void_beast": [
-      {"speaker": "", "text": "The beast was dead.", "cg": "res://assets/cg/ch1_forest.jpg"},
-      {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.", "cg": "res://assets/cg/arrel_combat.jpg"},
+      {"speaker": "", "text": "The beast was dead.", "cg": "res://assets/cg/ch1_twisted_forest.jpg"},
+      {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.", "cg": "res://assets/cg/arrel_combat4.jpg"},
       {"speaker": "", "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
       {"speaker": "system_log", "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"}
     ],
     "elia_appears": [
-      {"speaker": "Elia", "text": "Arrel.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Arrel.", "portrait": "elia_wind", "cg": "res://assets/cg/ch1_ash_walk.jpg"},
       {"speaker": "", "text": "Her voice, close. He hadn't heard her approach."},
       {"speaker": "", "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."},
       {"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "One burn. Grade three, maybe. Nothing I'll miss.", "portrait": "arrel_neutral"},
+      {"speaker": "Arrel", "text": "One burn. Grade three, maybe. Nothing I'll miss.", "portrait": "arrel_default2"},
       {"speaker": "", "text": "That was probably true. That was probably a lie."},
       {"speaker": "", "text": "The problem with burning memories was that you could never be sure which it was."}
     ],
@@ -26,7 +26,7 @@
       {"speaker": "Elia", "text": "We should move. The rain will get thicker after dark.", "portrait": "elia_neutral"}
     ],
     "camp_night": [
-      {"speaker": "", "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.", "cg": "res://assets/cg/ch1_camp_moment.jpg"},
+      {"speaker": "", "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.", "cg": "res://assets/cg/ch1_campfire.jpg"},
       {"speaker": "", "text": "His hand was still shaking."},
       {"speaker": "", "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."},
       {
@@ -62,7 +62,7 @@
       {"speaker": "", "text": "He didn't answer. She was right. She usually was."}
     ],
     "hidden_stump": [
-      {"speaker": "", "text": "A tree stump, old enough that its rings had turned to stone."},
+      {"speaker": "", "text": "A tree stump, old enough that its rings had turned to stone.", "cg": "res://assets/cg/ch1_stump2.jpg"},
       {"speaker": "", "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."},
       {"speaker": "", "text": "His hand moved toward the carving before he could stop it."},
       {"speaker": "Elia", "text": "Arrel?", "portrait": "elia_concern"},
@@ -70,7 +70,7 @@
       {"speaker": "", "text": "But his fingers traced the grooves one more time before he pulled away."}
     ],
     "sq_echoes_ash_start": [
-      {"speaker": "", "text": "A figure stood at the edge of the clearing, flickering like a candle in wind."},
+      {"speaker": "", "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.", "cg": "res://assets/cg/ch1_arrel_ghost.jpg"},
       {"speaker": "Ashen Figure", "text": "You... burn, don't you? I can smell it. The smoke of what you've lost."},
       {"speaker": "Ashen Figure", "text": "I was like you once. But the fragments of what I was are scattered in this forest."},
       {"speaker": "Ashen Figure", "text": "Two pieces. Find them. Bring them back. Maybe then I can remember my own name."},

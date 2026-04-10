@@ -198,9 +198,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Coastal Void Beast", "hp": 100, "atk": 18, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/crumbling_coast.jpg", "img": "res://assets/cg/void_beast.jpg"},
-			{"name": "Cliff Stalker", "hp": 70, "atk": 16, "is_void": false, "abilities": ["poison", "multi_hit"], "bg": "res://assets/cg/crumbling_coast.jpg"},
-			{"name": "Shore Wraith", "hp": 85, "atk": 14, "is_void": true, "abilities": ["burn_attack", "weaken"], "bg": "res://assets/cg/crumbling_coast.jpg"},
+			{"name": "Coastal Void Beast", "hp": 100, "atk": 18, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/ch3_seam_coast.jpg", "img": "res://assets/cg/void_beast.jpg"},
+			{"name": "Cliff Stalker", "hp": 70, "atk": 16, "is_void": false, "abilities": ["poison", "multi_hit"], "bg": "res://assets/cg/ch3_seam_coast.jpg"},
+			{"name": "Shore Wraith", "hp": 85, "atk": 14, "is_void": true, "abilities": ["burn_attack", "weaken"], "bg": "res://assets/cg/ch3_seam_coast.jpg"},
 		],
 		"res://scenes/maps/crumbling_coast.tscn", "", "", 40, 70
 	)
@@ -324,7 +324,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(18 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Coastal Void Beast", 100, 18, true,
-		"res://assets/cg/crumbling_coast.jpg", "res://assets/cg/void_beast.jpg"
+		"res://assets/cg/ch3_seam_coast.jpg", "res://assets/cg/void_beast3.jpg"
 	)
 
 var _battle_counter: int = 0

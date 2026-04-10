@@ -310,7 +310,7 @@ func _on_bl07_dialogue_ended() -> void:
 	boss.abilities = ["drain", "shield", "multi_hit", "summon"]
 	boss.weakness = "void"
 	boss.resistance = "fire"
-	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/bl07_interior.jpg", "res://assets/cg/void_portal.jpg")
+	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/ch5_void_entrance.jpg", "res://assets/cg/memory_wraith2.jpg")
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
 func _start_ch4_epilogue() -> void:
@@ -334,7 +334,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Wraith", 90, 18, true,
-		"res://assets/cg/village_seam2.jpg", "res://assets/cg/void_beast.jpg"
+		"res://assets/cg/village_seam3.jpg", "res://assets/cg/memory_wraith2.jpg"
 	)
 
 func _setup_puzzle_trigger() -> void:
@@ -507,7 +507,7 @@ func _setup_side_quests() -> void:
 				var enemy = BattleManager.Enemy.new("Void Watcher", 120, 22, true)
 				enemy.abilities = ["drain", "shield"]
 				enemy.weakness = "void"
-				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/void_portal.jpg", "")
+				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/ch5_void_entrance.jpg", "res://assets/cg/void_husk.jpg")
 				SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 		)
 		add_child(vw_area)

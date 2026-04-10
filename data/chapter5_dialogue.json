@@ -3,9 +3,9 @@
   "title": "The Seal",
   "dialogues": {
     "void_entry": [
-      {"speaker": "", "text": "The world ended at the threshold.", "cg": "res://assets/cg/void_portal2.jpg"},
+      {"speaker": "", "text": "The world ended at the threshold.", "cg": "res://assets/cg/ch5_void_entrance.jpg"},
       {"speaker": "", "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing."},
-      {"speaker": "", "text": "Fragments of ground floated in the void. Stone from somewhere that no longer existed. Paths that led between things that weren't there."},
+      {"speaker": "", "text": "Fragments of ground floated in the void. Stone from somewhere that no longer existed. Paths that led between things that weren't there.", "cg": "res://assets/cg/void_islands.png"},
       {"speaker": "Elia", "text": "The air... it's not thin. There just isn't any.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "I can still breathe.", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "That's what worries me. You shouldn't be able to.", "portrait": "elia_concern"},
@@ -18,7 +18,7 @@
       {"speaker": "Elia", "text": "Arrel, don't—", "portrait": "elia_concern"},
       {"speaker": "", "text": "He could feel it now. The Void Hole wasn't destroying. It was forgetting. The world was forgetting itself here, and the hole was what was left."},
       {"speaker": "", "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance."},
-      {"speaker": "Arrel", "text": "I know how to close it.", "portrait": "arrel_neutral"},
+      {"speaker": "Arrel", "text": "I know how to close it.", "portrait": "arrel_burn", "cg": "res://assets/cg/ch5_climax.jpg"},
       {"speaker": "Elia", "text": "How?", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "The same way I do everything. Burn something that matters.", "portrait": "arrel_pain"}
     ],
@@ -28,7 +28,7 @@
       {"speaker": "Arrel", "text": "If The Seam falls, everyone there loses everything. Not just a name.", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "And if you burn it? What's left?", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_pain"},
-      {"speaker": "", "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.", "cg": "res://assets/cg/item_memory_vial.jpg"},
+      {"speaker": "", "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.", "cg": "res://assets/cg/ch5_arrel_elia_void.jpg"},
       {
         "speaker": "",
         "text": "What do you do?",
@@ -43,7 +43,7 @@
       {"speaker": "", "text": "Down to the bottom. To the name."},
       {"speaker": "", "text": "'Arrel.'"},
       {"speaker": "", "text": "He let it go."},
-      {"speaker": "", "text": "The fire was not blue this time. It was white. Pure. The color of everything and nothing at once.", "cg": "res://assets/cg/item_memory_vial.jpg"},
+      {"speaker": "", "text": "The fire was not blue this time. It was white. Pure. The color of everything and nothing at once.", "cg": "res://assets/cg/battle_memory_burn.jpg"},
       {"speaker": "", "text": "The Void Hole screamed — a sound that existed only in the space between hearing and remembering — and collapsed inward."},
       {"speaker": "", "text": "The ground beneath them solidified. Color bled back into the stone. The crack sealed like a wound closing."},
       {"speaker": "Elia", "text": "...hey. Hey. Can you hear me?", "portrait": "elia_concern"},
@@ -52,7 +52,7 @@
       {"speaker": "", "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important."},
       {"speaker": "Elia", "text": "Do you... do you know who you are?", "portrait": "elia_concern"},
       {"speaker": "", "text": "He thought about it for a long time."},
-      {"speaker": "???", "text": "No. But I know I'm supposed to be here.", "portrait": "arrel_wounded"},
+      {"speaker": "???", "text": "No. But I know I'm supposed to be here.", "portrait": "arrel_exhausted"},
       {"speaker": "", "text": "BL-07 was sealed. The Seam would survive. The cost was everything that made the price meaningful."}
     ],
     "seal_refused": [

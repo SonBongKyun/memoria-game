@@ -4,13 +4,13 @@
   "dialogues": {
     "epilogue_zero_burn": [
       {"speaker": "", "text": "Three days passed. Or maybe it was longer. Time moved differently when you didn't have a name to mark it with."},
-      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/village_seam2.jpg"},
+      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/village_seam4.jpg"},
       {"speaker": "", "text": "BL-07 was sealed. The ground was solid. Children played in the gardens where flowers bloomed in impossible seasons."},
-      {"speaker": "Elia", "text": "You've been sitting here since dawn.", "portrait": "elia_neutral"},
-      {"speaker": "???", "text": "Have I? I can't tell.", "portrait": "arrel_wounded"},
+      {"speaker": "Elia", "text": "You've been sitting here since dawn.", "portrait": "elia_mature"},
+      {"speaker": "???", "text": "Have I? I can't tell.", "portrait": "arrel_exhausted"},
       {"speaker": "Elia", "text": "Do you... want me to tell you? About who you were?", "portrait": "elia_concern"},
       {"speaker": "", "text": "He looked at her. The woman with silver hair. He knew she was important. He just didn't know why."},
-      {"speaker": "???", "text": "Would it change anything?", "portrait": "arrel_wounded"},
+      {"speaker": "???", "text": "Would it change anything?", "portrait": "arrel_exhausted"},
       {"speaker": "Elia", "text": "It might change everything.", "portrait": "elia_concern"},
       {"speaker": "", "text": "She sat down beside him. Close enough that their shoulders almost touched."},
       {"speaker": "Elia", "text": "Your name was Arrel. You were someone who burned pieces of himself to keep other people warm.", "portrait": "elia_neutral"},
@@ -33,7 +33,7 @@
       {"speaker": "", "text": "ZERO BURN ENDING: The name is gone. But the man remains."}
     ],
     "epilogue_preservation": [
-      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/village_seam2.jpg"},
+      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/ch4_arrel_sable.jpg"},
       {"speaker": "", "text": "Sable was waiting at the entrance. Her face said she already knew."},
       {"speaker": "Sable", "text": "It's still growing.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
@@ -58,18 +58,18 @@
       {"speaker": "", "text": "PRESERVATION ENDING: The hole remains. So does the name. The search continues."}
     ],
     "epilogue_ash": [
-      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/village_seam2.jpg"},
+      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/ch5_climax2.jpg"},
       {"speaker": "", "text": "But the words came from somewhere hollow. A place where a person used to be."},
       {"speaker": "Elia", "text": "Arrel. Look at me.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "...That name. I know it's mine. I just can't feel it.", "portrait": "arrel_wounded"},
+      {"speaker": "Arrel", "text": "...That name. I know it's mine. I just can't feel it.", "portrait": "arrel_wounded2"},
       {"speaker": "Elia", "text": "You burned too much. The memories you gave up — they weren't just fuel. They were YOU.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I kept my name. Isn't that enough?", "portrait": "arrel_wounded"},
+      {"speaker": "Arrel", "text": "I kept my name. Isn't that enough?", "portrait": "arrel_wounded2"},
       {"speaker": "Elia", "text": "A name without the life behind it is just... letters.", "portrait": "elia_concern"},
       {"speaker": "", "text": "He tried to remember what the forest smelled like. What his mother's voice sounded like. What it felt like to be afraid."},
       {"speaker": "", "text": "Nothing. Smooth, clean nothing. Like a wall where a door used to be."},
       {"speaker": "Sable", "text": "I've seen this before. Burners who kept their names but lost everything the name was attached to.", "portrait": "sable_calm"},
       {"speaker": "Sable", "text": "They walk. They eat. They breathe. But the light behind their eyes... it's gone.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "I can still fight. I can still burn.", "portrait": "arrel_wounded"},
+      {"speaker": "Arrel", "text": "I can still fight. I can still burn.", "portrait": "arrel_wounded2"},
       {"speaker": "Elia", "text": "That's what scares me.", "portrait": "elia_concern"},
       {"speaker": "", "text": "The sun set. He watched it without recognition. Just light, fading."},
       {"speaker": "", "text": "Somewhere inside the shell of Arrel, ash settled where memories used to burn."},
@@ -77,7 +77,7 @@
       {"speaker": "", "text": "ASH ENDING: The name remains. But the man behind it is ash."}
     ],
     "epilogue_seam": [
-      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/village_seam2.jpg"},
+      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/great_tree.png"},
       {"speaker": "", "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch."},
       {"speaker": "Arrel", "text": "Elia. Do you remember the stump in Rim Forest? The one with the new growth?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The one you spent ten minutes staring at? Yes.", "portrait": "elia_neutral"},
@@ -96,7 +96,7 @@
       {"speaker": "", "text": "SEAM ENDING: In the cracks between loss, something green still grows."}
     ],
     "elia_epilogue_talk": [
-      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/ch5_climax2.jpg"},
       {"speaker": "Arrel", "text": "And?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.", "portrait": "elia_neutral"},
       {"speaker": "Elia", "text": "What if the world isn't forgetting on its own? What if we're MAKING it forget?", "portrait": "elia_concern"},
@@ -108,7 +108,7 @@
       {"speaker": "Elia", "text": "We'll figure it out. Together.", "portrait": "elia_neutral"}
     ],
     "sable_epilogue_talk": [
-      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/ch4_sable_porch.jpg"},
       {"speaker": "Arrel", "text": "Where else would I go?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Most burners don't stay. The ones who survive... they keep moving. Keep burning. Until there's nothing left.", "portrait": "sable_calm"},
       {"speaker": "Arrel", "text": "I'm not most burners.", "portrait": "arrel_neutral"},
