@@ -2682,3 +2682,58 @@ Ch1 (rim_forest) → Ch2 (verdan_market) → Ch3 (belt_waystation) → Ch4 (drif
 - 전체 플레이 테스트
 - 추가 CG 연결
 - 사운드 추가
+
+---
+
+## S54 — 2026-04-12 (16대 업그레이드 — 스토리+전투+비주얼+시스템)
+
+### 완료
+
+**스토리/콘텐츠 (4종)**
+- [x] **캐릭터 블립 SFX** — 언더테일 스타일 텍스트 출력 사운드, 캐릭터별 피치 (아렐1.0/엘리아1.3/세이블0.7 등)
+- [x] **엔딩 갤러리** — PauseMenu에서 달성 엔딩 열람 (6종 CG+설명, 미달성 잠금), seen_endings 영구 저장
+- [x] **NPC 스케줄** — 챕터별 NPC 위치/대사 변화 (말렛 Ch2→3→6, 토비아스 Ch3→4-6→7+)
+- [x] **대화 연출 태그** — [shake]/[slow]/[fast]/[pause=N] 대화 텍스트 특수 효과
+
+**전투/게임성 (4종)**
+- [x] **스킬 트리 (번 패시브)** — 총 연소 횟수 기반 5종 패시브 해금 (5/10/20/30/50회)
+- [x] **도감 스캔 강화** — 토비아스 분석 시 약점/저항 표시, Codex 영구 기록, Ash Sight 패시브 연동
+- [x] **전투 환경 효과** — 10맵별 전투 보너스 (회피/명중/속성 데미지/상태이상/힐링)
+- [x] **보스 러시 모드** — 엔딩 달성 후 해금, 연속 보스전 + 최고 기록 타이머
+
+**비주얼/연출 (4종)**
+- [x] **맵 전환 다양화** — 맵별 고유 전환 (글리치/낙엽/먼지/안개), 자동 감지
+- [x] **전투 승리 화면** — VICTORY/BOSS DEFEATED 연출 + 보상 요약
+- [x] **감정 포트레이트 전환** — 동일 캐릭터 크로스페이드, 다른 캐릭터 슬라이드
+- [x] **대화 카메라 효과** — [zoom=N]/[pan=X,Y]/[reset] 태그로 카메라 제어
+
+**시스템/편의 (4종)**
+- [x] **튜토리얼 힌트** — 5종 상황별 첫 발생 가이드 팝업, 자동 디스미스
+- [x] **자동 전투** — AUTO 버튼 토글, AI 행동 선택 (HP/상태/기억등급 기반)
+- [x] **통계 화면** — 10종 플레이 통계 (시간/전투/연소/걸음 등), PauseMenu Stats 버튼
+- [x] **다국어 기반** — UI 로컬라이제이션 프레임워크 (en/ko 27키), OptionsMenu 언어 전환
+
+### 수정 파일 (25개 + 신규 1개)
+| 파일 | 변경 내용 |
+|------|----------|
+| `scripts/ui/dialogue_box.gd` | 블립SFX, 포트레이트 전환, 대화 태그, 카메라 효과 |
+| `scripts/core/game_manager.gd` | 엔딩 갤러리, NPC 스케줄, 보스러시, 통계, 로컬라이제이션 |
+| `scripts/systems/battle_manager.gd` | 스킬트리 적용, 스캔, 환경효과, 자동전투, 통계 |
+| `scenes/battle/battle_scene.gd` | 승리화면, 스캔UI, 환경표시, AUTO버튼, 로컬라이즈 |
+| `scripts/systems/memory_manager.gd` | 번 패시브 5종, 수집 통계 |
+| `scripts/core/scene_transition.gd` | 전환 스타일 4종 (글리치/낙엽/먼지/안개) |
+| `scripts/ui/pause_menu.gd` | 엔딩갤러리, 통계, 로컬라이즈, 보스러시 |
+| `scenes/ui/options_menu.gd` | 언어 전환 |
+| `scripts/ui/codex.gd` | 스캔 데이터 표시 |
+| `scripts/core/player.gd` | 걸음 통계 |
+| `scripts/systems/save_manager.gd` | TutorialHints 세이브 |
+| `scripts/ui/memory_shop.gd` | 튜토리얼 힌트 |
+| `scenes/maps/*.gd` (10파일) | 스타일 전환, NPC 스케줄 |
+| `scenes/main/main.gd` | 보스러시 버튼 |
+| `scenes/ui/game_over.gd` | 스타일 전환 |
+| `scripts/ui/tutorial_hints.gd` | **신규** — 튜토리얼 힌트 오토로드 |
+
+### 다음
+- 전체 플레이 테스트
+- 추가 CG/사운드
+- 스토리 확장

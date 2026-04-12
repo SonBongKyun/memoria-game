@@ -110,7 +110,7 @@ func _build_ui() -> void:
 
 	# 타이틀
 	title_label = Label.new()
-	title_label.text = "PAUSED"
+	title_label.text = GameManager.tr("paused")
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 22)
 	title_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
@@ -146,17 +146,23 @@ func _build_ui() -> void:
 	vbox.add_child(btn_container)
 
 	var buttons = [
-		{"text": "Resume", "callback": _close},
-		{"text": "Journal", "callback": _on_journal},
-		{"text": "Travel", "callback": _on_travel},
-		{"text": "Codex", "callback": _on_codex},
-		{"text": "Achievements", "callback": _on_achievements},
-		{"text": "Options", "callback": _on_options},
-		{"text": "Save (Slot 1)", "callback": _on_save},
-		{"text": "Load (Slot 1)", "callback": _on_load},
-		{"text": "Return to Title", "callback": _on_title},
-		{"text": "Quit Game", "callback": _on_quit},
+		{"text": GameManager.tr("resume"), "callback": _close},
+		{"text": GameManager.tr("journal"), "callback": _on_journal},
+		{"text": GameManager.tr("travel"), "callback": _on_travel},
+		{"text": GameManager.tr("codex"), "callback": _on_codex},
+		{"text": GameManager.tr("achievements"), "callback": _on_achievements},
 	]
+	buttons.append({"text": GameManager.tr("stats"), "callback": _on_stats})
+	# S54: Endings button (only if at least 1 ending seen)
+	if GameManager.seen_endings.size() > 0:
+		buttons.append({"text": GameManager.tr("endings"), "callback": _on_endings})
+	buttons.append_array([
+		{"text": GameManager.tr("options"), "callback": _on_options},
+		{"text": GameManager.tr("save"), "callback": _on_save},
+		{"text": GameManager.tr("load"), "callback": _on_load},
+		{"text": GameManager.tr("title_return"), "callback": _on_title},
+		{"text": GameManager.tr("quit"), "callback": _on_quit},
+	])
 
 	for data in buttons:
 		var btn = Button.new()
@@ -233,7 +239,7 @@ func _on_save() -> void:
 	await get_tree().create_timer(0.8).timeout
 	if not is_open:
 		return
-	title_label.text = "PAUSED"
+	title_label.text = GameManager.tr("paused")
 	title_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
 
 func _on_load() -> void:
@@ -468,7 +474,7 @@ func _show_travel_panel() -> void:
 				AudioManager.play_sfx("confirm")
 				travel_overlay.queue_free()
 				_close()
-				SceneTransition.change_scene(scene_path)
+				SceneTransition.change_scene_styled(scene_path)
 			)
 			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 
@@ -487,6 +493,237 @@ func _show_travel_panel() -> void:
 			travel_overlay.queue_free()
 			get_viewport().set_input_as_handled()
 	travel_overlay.gui_input.connect(close_handler)
+
+## S54: Ending Gallery
+func _on_endings() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_endings_gallery()
+
+func _show_endings_gallery() -> void:
+	var end_overlay = ColorRect.new()
+	end_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	end_overlay.color = Color(0, 0, 0, 0.8)
+	end_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(end_overlay)
+
+	var end_panel = PanelContainer.new()
+	end_panel.anchor_left = 0.1
+	end_panel.anchor_right = 0.9
+	end_panel.anchor_top = 0.05
+	end_panel.anchor_bottom = 0.95
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.03, 0.06, 0.98)
+	style.border_color = Color(0.6, 0.45, 0.2, 0.7)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(20)
+	end_panel.add_theme_stylebox_override("panel", style)
+	end_overlay.add_child(end_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	end_panel.add_child(vbox)
+
+	# Header
+	var header = Label.new()
+	header.text = "ENDING GALLERY  (%d / %d)" % [GameManager.seen_endings.size(), GameManager.ENDING_DATA.size()]
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_color_override("font_color", Color(0.85, 0.7, 0.4))
+	vbox.add_child(header)
+
+	var sep = HSeparator.new()
+	vbox.add_child(sep)
+
+	# Grid of endings
+	var grid = GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 16)
+	grid.add_theme_constant_override("v_separation", 16)
+	vbox.add_child(grid)
+
+	var ending_ids = ["zero_burn", "preservation", "ash", "seam", "tobias", "hollow"]
+	for eid in ending_ids:
+		var card = VBoxContainer.new()
+		card.custom_minimum_size = Vector2(180, 160)
+		card.add_theme_constant_override("separation", 6)
+		grid.add_child(card)
+
+		var seen = eid in GameManager.seen_endings
+		var data = GameManager.ENDING_DATA.get(eid, {})
+
+		# Thumbnail area
+		var thumb = ColorRect.new()
+		thumb.custom_minimum_size = Vector2(180, 100)
+		if seen:
+			# Try to load CG image
+			var cg_path = data.get("cg", "")
+			if cg_path != "" and ResourceLoader.exists(cg_path):
+				var tex_rect = TextureRect.new()
+				tex_rect.custom_minimum_size = Vector2(180, 100)
+				tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+				tex_rect.texture = load(cg_path)
+				card.add_child(tex_rect)
+			else:
+				# Fallback colored rect
+				thumb.color = Color(0.15, 0.12, 0.18)
+				card.add_child(thumb)
+		else:
+			# Locked — dark with lock icon
+			thumb.color = Color(0.06, 0.05, 0.07)
+			card.add_child(thumb)
+			var lock_label = Label.new()
+			lock_label.text = "?"
+			lock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			lock_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			lock_label.add_theme_font_size_override("font_size", 32)
+			lock_label.add_theme_color_override("font_color", Color(0.25, 0.2, 0.18))
+			lock_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+			thumb.add_child(lock_label)
+
+		# Title
+		var title_lbl = Label.new()
+		title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title_lbl.add_theme_font_size_override("font_size", 13)
+		if seen:
+			title_lbl.text = data.get("name", eid)
+			title_lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.5))
+		else:
+			title_lbl.text = "???"
+			title_lbl.add_theme_color_override("font_color", Color(0.3, 0.25, 0.2))
+		card.add_child(title_lbl)
+
+		# Description (only if seen)
+		var desc_lbl = Label.new()
+		desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		desc_lbl.add_theme_font_size_override("font_size", 10)
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+		desc_lbl.custom_minimum_size = Vector2(180, 0)
+		if seen:
+			desc_lbl.text = data.get("desc", "")
+			desc_lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+		else:
+			desc_lbl.text = "Reach this ending to unlock."
+			desc_lbl.add_theme_color_override("font_color", Color(0.25, 0.22, 0.2))
+		card.add_child(desc_lbl)
+
+	# Close hint
+	var close_label = Label.new()
+	close_label.text = "[ESC] Close"
+	close_label.add_theme_font_size_override("font_size", 11)
+	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
+	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vbox.add_child(close_label)
+
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			end_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	end_overlay.gui_input.connect(close_handler)
+
+## S55: Statistics Screen
+func _on_stats() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_stats_panel()
+
+func _show_stats_panel() -> void:
+	var stats_overlay = ColorRect.new()
+	stats_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	stats_overlay.color = Color(0, 0, 0, 0.7)
+	stats_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(stats_overlay)
+
+	var stats_panel = PanelContainer.new()
+	stats_panel.anchor_left = 0.2
+	stats_panel.anchor_right = 0.8
+	stats_panel.anchor_top = 0.05
+	stats_panel.anchor_bottom = 0.95
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.05, 0.08, 0.98)
+	style.border_color = Color(0.45, 0.55, 0.35, 0.7)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(20)
+	stats_panel.add_theme_stylebox_override("panel", style)
+	stats_overlay.add_child(stats_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	stats_panel.add_child(vbox)
+
+	# Header
+	var header = Label.new()
+	header.text = "PLAY STATISTICS"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_color_override("font_color", Color(0.75, 0.85, 0.55))
+	vbox.add_child(header)
+
+	var sep = HSeparator.new()
+	vbox.add_child(sep)
+
+	# Scrollable stat list
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+
+	var list = VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 6)
+	scroll.add_child(list)
+
+	var stats = GameManager.play_stats
+	var stat_display = [
+		{"label": "Play Time", "value": GameManager.format_play_time()},
+		{"label": "Total Battles", "value": str(int(stats.total_battles))},
+		{"label": "Enemies Defeated", "value": str(int(stats.enemies_defeated))},
+		{"label": "Bosses Defeated", "value": str(int(stats.bosses_defeated))},
+		{"label": "Memories Burned", "value": str(int(stats.total_burns))},
+		{"label": "Memories Collected", "value": str(int(stats.memories_collected))},
+		{"label": "Grains Earned", "value": str(int(stats.total_grains_earned))},
+		{"label": "Steps Taken", "value": str(int(stats.steps_taken))},
+		{"label": "Highest Combo", "value": str(int(stats.highest_combo))},
+		{"label": "Items Used", "value": str(int(stats.items_used))},
+		{"label": "Current Chapter", "value": str(GameManager.current_chapter)},
+		{"label": "NG+ Cycle", "value": str(GameManager.ng_plus_cycle)},
+	]
+
+	for entry in stat_display:
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		list.add_child(row)
+
+		var name_label = Label.new()
+		name_label.text = entry.label
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.add_theme_font_size_override("font_size", 15)
+		name_label.add_theme_color_override("font_color", Color(0.6, 0.58, 0.52))
+		row.add_child(name_label)
+
+		var val_label = Label.new()
+		val_label.text = entry.value
+		val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		val_label.add_theme_font_size_override("font_size", 15)
+		val_label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.5))
+		val_label.custom_minimum_size = Vector2(120, 0)
+		row.add_child(val_label)
+
+	# Close hint
+	var close_label = Label.new()
+	close_label.text = "[ESC] Close"
+	close_label.add_theme_font_size_override("font_size", 11)
+	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
+	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	vbox.add_child(close_label)
+
+	# ESC close handler
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			stats_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	stats_overlay.gui_input.connect(close_handler)
 
 func _on_quit() -> void:
 	get_tree().quit()

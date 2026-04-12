@@ -19,10 +19,10 @@ config/description="A dark fantasy RPG where memories are the price of power."
 config/version="0.1.0"
 run/main_scene="res://scenes/main/main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://icon.svg"
-config/windows_native_icon="res://icon.ico"
 boot_splash/bg_color=Color(0.02, 0.02, 0.05, 1)
 boot_splash/show_image=false
+config/icon="res://icon.svg"
+config/windows_native_icon="res://icon.ico"
 
 [autoload]
 
@@ -47,6 +47,7 @@ AchievementManager="*res://scripts/ui/achievement_manager.gd"
 Codex="*res://scripts/ui/codex.gd"
 MemoryPuzzle="*res://scripts/ui/memory_puzzle.gd"
 EliaDiary="*res://scripts/ui/elia_diary.gd"
+TutorialHints="*res://scripts/ui/tutorial_hints.gd"
 Dialogic="*uid://ds2q0uclmolvu"
 
 [dialogic]
@@ -59,8 +60,6 @@ layout/style_directory={}
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/resizable=true
-window/size/borderless=false
 window/stretch/mode="viewport"
 
 [editor_plugins]

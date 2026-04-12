@@ -62,9 +62,21 @@ var _battle_parallax_layers: Array = []  # S53: 전투 패럴랙스
 
 # S46: 타격감 강화
 var _enemy_shader_mat: ShaderMaterial  # 적 VFX 셰이더
-var _player_shader_mat: ShaderMaterial  # 플레이어 VFX 셰이더
+var _player_shader_mat: ShaderMaterial  # ��레이어 VFX 셰이더
 var ally_cmd_container: HBoxContainer  # 세이블 명령 UI
 var tobias_cmd_container: HBoxContainer  # 토비아스 명령 UI
+
+# S55: Scan + Environment display
+var scan_info_container: HBoxContainer  # 스캔 약점/저항 표시 (적 HP 아래)
+var env_label: Label  # 환경 보너스 표시
+
+# S55: Auto Battle
+var auto_label: Label  # [AUTO] 표시
+var auto_btn: Button  # 자동전투 버튼
+
+# S54: Victory screen
+var _victory_panel: PanelContainer
+var _victory_rewards: Array = []  # collected reward lines from battle_log
 
 func _ready() -> void:
 	_build_ui()
@@ -206,8 +218,10 @@ func _build_ui() -> void:
 	root.add_child(slash_rect)
 	root.add_child(hit_flash_rect)
 
+	# S55: Auto Battle 라벨
+	_build_auto_label(root)
+
 	# 인트로 오버레이 (최상단)
-	_build_intro_overlay(root)
 
 ## ===================== 배경 비네트 =====================
 
@@ -254,6 +268,29 @@ func _add_battle_parallax() -> void:
 	move_child(mid_layer, 1)
 
 	_battle_parallax_layers = [far_layer, mid_layer]
+
+## ===================== Auto Battle (S55) =====================
+
+func _build_auto_label(root: Control) -> void:
+	auto_label = Label.new()
+	auto_label.text = "[AUTO]"
+	auto_label.anchor_left = 0.5
+	auto_label.anchor_right = 0.5
+	auto_label.anchor_top = 0.0
+	auto_label.offset_left = -40
+	auto_label.offset_right = 40
+	auto_label.offset_top = 8
+	auto_label.offset_bottom = 30
+	auto_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	auto_label.add_theme_font_size_override("font_size", 16)
+	auto_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.5))
+	auto_label.visible = false
+	auto_label.z_index = 90
+	root.add_child(auto_label)
+
+func _on_auto_battle_changed(enabled: bool) -> void:
+	if auto_label:
+		auto_label.visible = enabled
 
 ## ===================== 인트로 시스템 =====================
 
@@ -584,11 +621,15 @@ func _update_status_icons() -> void:
 			_add_status_icon(enemy_status_container, "PHASE %d" % enemy.phase, Color(0.8, 0.3, 0.2, 0.9))
 		if enemy.is_void_beast:
 			_add_status_icon(enemy_status_container, "VOID", Color(0.5, 0.15, 0.6, 0.9))
-		# 약점/저항 표시
-		if enemy.weakness != "":
-			_add_status_icon(enemy_status_container, "WEAK:%s" % enemy.weakness.to_upper(), Color(0.2, 0.8, 0.3, 0.8))
-		if enemy.resistance != "":
-			_add_status_icon(enemy_status_container, "RESIST:%s" % enemy.resistance.to_upper(), Color(0.8, 0.4, 0.2, 0.8))
+		# 약점/저항 표시 — Ash Sight 패시브 또는 스캔된 적만 상세 표시
+		var show_details = MemoryManager.has_passive("ash_sight") or enemy.name in BattleManager.scanned_enemies
+		if show_details:
+			if enemy.weakness != "":
+				var w_color = _get_element_color(enemy.weakness)
+				_add_status_icon(enemy_status_container, "Weak: %s" % enemy.weakness.to_upper(), w_color)
+			if enemy.resistance != "":
+				var r_color = _get_element_color(enemy.resistance)
+				_add_status_icon(enemy_status_container, "Resist: %s" % enemy.resistance.to_upper(), r_color)
 		# 적 상태이상
 		for entry in BattleManager.get_statuses("enemy"):
 			var info = _get_status_display(entry.effect)
@@ -957,12 +998,13 @@ func _build_action_buttons(root: Control) -> void:
 	root.add_child(action_container)
 
 	var actions = [
-		{"text": "ATTACK", "callback": _on_attack, "icon": "⚔"},
-		{"text": "BURN", "callback": _on_burn_menu, "icon": "🔥"},
-		{"text": "ITEM", "callback": _on_item_menu, "icon": ""},
-		{"text": "DEFEND", "callback": _on_defend, "icon": "🛡"},
-		{"text": "LIMIT", "callback": _on_limit_break, "icon": "💥"},
-		{"text": "FLEE", "callback": _on_flee, "icon": "💨"},
+		{"text": GameManager.tr("attack"), "callback": _on_attack, "icon": "⚔"},
+		{"text": GameManager.tr("burn"), "callback": _on_burn_menu, "icon": "🔥"},
+		{"text": GameManager.tr("item"), "callback": _on_item_menu, "icon": ""},
+		{"text": GameManager.tr("defend"), "callback": _on_defend, "icon": "🛡"},
+		{"text": GameManager.tr("limit"), "callback": _on_limit_break, "icon": "💥"},
+		{"text": GameManager.tr("auto"), "callback": _on_auto_battle, "icon": ""},
+		{"text": GameManager.tr("flee"), "callback": _on_flee, "icon": "💨"},
 	]
 
 	for action in actions:
@@ -1039,6 +1081,9 @@ func _connect_signals() -> void:
 	BattleManager.phase_changed.connect(_on_phase_changed)  # S46
 	BattleManager.echo_activated.connect(_on_echo_activated)  # S51
 	BattleManager.stance_changed.connect(_on_stance_changed)  # S51
+	BattleManager.enemy_scanned.connect(_on_enemy_scanned)  # S55: scan display
+	BattleManager.environment_info.connect(_on_environment_info)  # S55: env display
+	BattleManager.auto_battle_changed.connect(_on_auto_battle_changed)  # S55: auto battle
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -1061,6 +1106,10 @@ func _exit_tree() -> void:
 		BattleManager.limit_changed.disconnect(_on_limit_changed)
 	if BattleManager.phase_changed.is_connected(_on_phase_changed):
 		BattleManager.phase_changed.disconnect(_on_phase_changed)
+	if BattleManager.enemy_scanned.is_connected(_on_enemy_scanned):
+		BattleManager.enemy_scanned.disconnect(_on_enemy_scanned)
+	if BattleManager.environment_info.is_connected(_on_environment_info):
+		BattleManager.environment_info.disconnect(_on_environment_info)
 
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
@@ -1092,10 +1141,13 @@ func _update_hp_displays(animate: bool = false) -> void:
 	else:
 		player_hp_bar.value = p_hp
 
-	# 적 HP
+	# 적 HP — Ash Sight 패시브 또는 스캔 시에만 수치 표시
 	if BattleManager.current_enemy:
 		var e = BattleManager.current_enemy
-		enemy_hp_label.text = "HP: %d / %d" % [e.hp, e.max_hp]
+		if MemoryManager.has_passive("ash_sight") or e.name in BattleManager.scanned_enemies:
+			enemy_hp_label.text = "HP: %d / %d" % [e.hp, e.max_hp]
+		else:
+			enemy_hp_label.text = "HP: ??? / ???"
 
 		var e_ratio = float(e.hp) / max(e.max_hp, 1)
 		var e_fill = enemy_hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
@@ -1120,6 +1172,9 @@ func _on_battle_log(message: String) -> void:
 	if log_lines.size() > MAX_LOG_LINES:
 		log_lines = log_lines.slice(-MAX_LOG_LINES)
 	log_label.text = "\n".join(log_lines)
+	# S54: 보상 메시지 수집 (승리 화면용)
+	if "Gained" in message or "Recovered" in message or "Found:" in message:
+		_victory_rewards.append(message)
 
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
@@ -1166,6 +1221,12 @@ func _on_player_turn() -> void:
 	# S41: 콤보 버스트 VFX
 	if BattleManager.combo_count >= 2:
 		_play_combo_burst(BattleManager.combo_count)
+	# S55: Auto Battle — 자동 행동 (짧은 딜레이 후)
+	if BattleManager.auto_battle:
+		await get_tree().create_timer(0.25).timeout
+		action_container.visible = false
+		BattleManager.auto_battle_action()
+		return
 	await get_tree().create_timer(0.5).timeout
 	action_container.visible = true
 	if ally_cmd_container:
@@ -1208,11 +1269,19 @@ func _on_battle_ended(_result) -> void:
 	# S40: 승리 시 적 디졸브 효과
 	if _result == BattleManager.BattleState.VICTORY and enemy_sprite:
 		_play_enemy_dissolve()
+	# S54: 승리 화면 표시
+	if _result == BattleManager.BattleState.VICTORY:
+		# Short delay for dissolve to play, then show victory screen
+		await get_tree().create_timer(0.4).timeout
+		_show_victory_screen()
 
 ## ===================== 행동 콜백 =====================
 
 func _on_attack() -> void:
 	AudioManager.play_sfx("ui_select")
+	if BattleManager.auto_battle:
+		BattleManager.auto_battle = false
+		BattleManager.auto_battle_changed.emit(false)
 	action_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
@@ -1234,6 +1303,16 @@ func _on_defend() -> void:
 	_hide_burn_list()
 	_hide_item_list()
 	BattleManager.player_defend()
+
+func _on_auto_battle() -> void:
+	AudioManager.play_sfx("ui_select")
+	BattleManager.toggle_auto_battle()
+	# If just enabled, immediately run auto action
+	if BattleManager.auto_battle:
+		action_container.visible = false
+		_hide_burn_list()
+		_hide_item_list()
+		BattleManager.auto_battle_action()
 
 func _on_flee() -> void:
 	AudioManager.play_sfx("ui_select")
@@ -2689,3 +2768,147 @@ func _element_flash(element: String) -> void:
 	var t = create_tween()
 	t.tween_property(flash, "color:a", 0.0, 0.3).set_ease(Tween.EASE_OUT)
 	t.tween_callback(flash.queue_free)
+
+## ===================== S55: Element Color Helper =====================
+
+func _get_element_color(element: String) -> Color:
+	match element:
+		"physical": return Color(0.8, 0.75, 0.6, 0.9)
+		"fire": return Color(0.9, 0.4, 0.15, 0.9)
+		"void": return Color(0.6, 0.25, 0.75, 0.9)
+	return Color(0.6, 0.6, 0.6, 0.9)
+
+## ===================== S55: Bestiary Scan Display =====================
+
+func _on_enemy_scanned(enemy_name: String, weakness: String, resistance: String) -> void:
+	# Flash scan effect
+	_show_turn_indicator("SCAN COMPLETE", Color(0.4, 0.8, 0.9))
+	# Refresh status icons to show weakness/resistance
+	_update_status_icons()
+	# Also refresh HP display (now shows numbers)
+	_update_hp_displays()
+
+## ===================== S55: Battle Environment Display =====================
+
+func _on_environment_info(env_name: String, bonus_text: String) -> void:
+	# Show environment name + bonus as a temporary label at top
+	if env_name == "":
+		return
+	var lbl = Label.new()
+	lbl.text = "[%s] %s" % [env_name, bonus_text]
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	lbl.offset_top = 28
+	lbl.offset_bottom = 48
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_color_override("font_color", Color(0.55, 0.7, 0.5, 0.9))
+	lbl.modulate.a = 0.0
+	lbl.z_index = 60
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_root.add_child(lbl)
+	var t2 = create_tween()
+	t2.tween_property(lbl, "modulate:a", 0.8, 0.3)
+	t2.tween_interval(2.5)
+	t2.tween_property(lbl, "modulate:a", 0.0, 0.5)
+	t2.tween_callback(lbl.queue_free)
+
+## ===================== S54: Victory Screen =====================
+
+func _show_victory_screen() -> void:
+	var is_boss = BattleManager.current_enemy and BattleManager.current_enemy.is_boss
+
+	# Semi-transparent backdrop
+	var backdrop = ColorRect.new()
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.color = Color(0.0, 0.0, 0.0, 0.0)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	backdrop.z_index = 80
+	canvas_root.add_child(backdrop)
+	var t_bg = create_tween()
+	t_bg.tween_property(backdrop, "color:a", 0.5, 0.3)
+
+	# Victory panel
+	_victory_panel = PanelContainer.new()
+	_victory_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_victory_panel.offset_left = -180
+	_victory_panel.offset_right = 180
+	_victory_panel.offset_top = -120
+	_victory_panel.offset_bottom = 120
+	_victory_panel.z_index = 85
+
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.06, 0.05, 0.08, 0.95)
+	panel_style.border_color = Color(0.75, 0.6, 0.3, 0.9) if not is_boss else Color(0.9, 0.3, 0.2, 0.9)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(6)
+	panel_style.set_content_margin_all(16)
+	_victory_panel.add_theme_stylebox_override("panel", panel_style)
+	canvas_root.add_child(_victory_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	_victory_panel.add_child(vbox)
+
+	# Title text
+	var title = Label.new()
+	title.text = "BOSS DEFEATED" if is_boss else "VICTORY"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var title_color = Color(0.95, 0.4, 0.3) if is_boss else Color(0.9, 0.8, 0.5)
+	title.add_theme_color_override("font_color", title_color)
+	title.add_theme_font_size_override("font_size", 28 if is_boss else 24)
+	vbox.add_child(title)
+
+	# Scale animation for title
+	title.pivot_offset = Vector2(180, 16)
+	title.scale = Vector2(0.3, 0.3)
+	var t_title = create_tween()
+	t_title.tween_property(title, "scale", Vector2(1.0, 1.0), 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# Separator
+	var sep = HSeparator.new()
+	sep.add_theme_color_override("separator", Color(0.4, 0.35, 0.25, 0.6))
+	vbox.add_child(sep)
+
+	# Rewards list
+	var rewards_label = Label.new()
+	rewards_label.add_theme_font_size_override("font_size", 13)
+	rewards_label.add_theme_color_override("font_color", Color(0.75, 0.7, 0.6))
+	if _victory_rewards.size() > 0:
+		rewards_label.text = "\n".join(_victory_rewards)
+	else:
+		rewards_label.text = "No additional rewards."
+	vbox.add_child(rewards_label)
+
+	# Enemy name
+	var enemy_line = Label.new()
+	enemy_line.add_theme_font_size_override("font_size", 11)
+	enemy_line.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.7))
+	if BattleManager.current_enemy:
+		enemy_line.text = "Defeated: %s" % BattleManager.current_enemy.name
+	vbox.add_child(enemy_line)
+
+	# Spacer
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 8)
+	vbox.add_child(spacer)
+
+	# Dismiss hint
+	var hint = Label.new()
+	hint.text = "Press any key to continue"
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 10)
+	hint.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.5))
+	vbox.add_child(hint)
+
+	# Blink hint text
+	var t_hint = create_tween().set_loops()
+	t_hint.tween_property(hint, "modulate:a", 0.3, 0.6)
+	t_hint.tween_property(hint, "modulate:a", 1.0, 0.6)
+
+	# Panel entrance animation
+	_victory_panel.modulate.a = 0.0
+	_victory_panel.scale = Vector2(0.8, 0.8)
+	_victory_panel.pivot_offset = Vector2(180, 120)
+	var t_panel = create_tween().set_parallel(true)
+	t_panel.tween_property(_victory_panel, "modulate:a", 1.0, 0.3)
+	t_panel.tween_property(_victory_panel, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)

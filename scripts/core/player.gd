@@ -57,6 +57,7 @@ func _physics_process(delta: float) -> void:
 			_step_timer = 0.0
 			var terrain = _get_terrain_type()
 			AudioManager.play_step(terrain)
+			GameManager.add_stat("steps_taken")  # S55: 걸음 수 추적
 	else:
 		_step_timer = 0.0
 

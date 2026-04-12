@@ -100,7 +100,7 @@ func _on_retry() -> void:
 	_reset_battle()
 	GameManager.change_state(GameManager.GameState.EXPLORATION)
 	if return_scene != "":
-		SceneTransition.change_scene(return_scene)
+		SceneTransition.change_scene_styled(return_scene)
 	else:
 		SceneTransition.change_scene("res://scenes/main/main.tscn")
 

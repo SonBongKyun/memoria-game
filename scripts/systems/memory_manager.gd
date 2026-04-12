@@ -46,6 +46,17 @@ const SYNTHESIS_NAMES: Dictionary = {
 	MemoryGrade.GRADE_1: {"title": "Forged Identity", "desc": "The core of who you are, distilled from what you chose to keep."},
 }
 
+# --- Burn Passives (Skill Tree) ---
+var burn_passives: Dictionary = {}  # {passive_name: true}
+
+const PASSIVE_THRESHOLDS: Dictionary = {
+	5: {"id": "ember_affinity", "name": "Ember Affinity", "desc": "+10% burn damage", "icon": "flame"},
+	10: {"id": "residual_warmth", "name": "Residual Warmth", "desc": "+5 HP heal after burn", "icon": "heart"},
+	20: {"id": "ash_sight", "name": "Ash Sight", "desc": "See enemy HP numbers", "icon": "eye"},
+	30: {"id": "void_touch", "name": "Void Touch", "desc": "+15% void damage", "icon": "skull"},
+	50: {"id": "memory_cascade", "name": "Memory Cascade", "desc": "Limit break charges 20% faster", "icon": "star"},
+}
+
 # --- 시그널 ---
 signal memory_burned(memory: Memory)
 signal memory_added(memory: Memory)
@@ -53,6 +64,7 @@ signal memory_became_residue(memory: Memory)
 signal memory_synthesized(result: Memory, consumed_a: Memory, consumed_b: Memory)
 signal memory_faded(memory: Memory)
 signal memories_eroded(count: int)
+signal passive_unlocked(passive_name: String)
 
 func _ready() -> void:
 	_init_starting_memories()
@@ -169,6 +181,7 @@ func burn_memory_silent(memory_id: String) -> Memory:
 			memory.is_burned = true
 			burned_memories.append(memory)
 			memory_burned.emit(memory)
+			check_unlock_passives()
 			print("[MemoryManager] SILENT BURN: %s" % memory.title)
 			return memory
 	return null
@@ -339,6 +352,7 @@ func _has_memory(memory_id: String) -> bool:
 func add_memory(memory: Memory) -> void:
 	memories.append(memory)
 	memory_added.emit(memory)
+	GameManager.add_stat("memories_collected")  # S55
 	if is_inside_tree():
 		AudioManager.play_sfx("memory_add")
 
@@ -359,6 +373,7 @@ func burn_memory(memory_id: String) -> Memory:
 
 			burned_memories.append(memory)
 			memory_burned.emit(memory)
+			check_unlock_passives()
 			return memory
 
 	return null
@@ -457,11 +472,38 @@ func has_synthesizable_pair() -> bool:
 			return true
 	return false
 
+## 전체 연소 횟수 합계 (모든 기억의 burn 상태)
+func get_total_burn_count() -> int:
+	return burned_memories.size()
+
+## 연소 패시브 해금 체크 (연소 후 호출)
+func check_unlock_passives() -> void:
+	var total = get_total_burn_count()
+	for threshold in PASSIVE_THRESHOLDS:
+		var passive = PASSIVE_THRESHOLDS[threshold]
+		if total >= threshold and not burn_passives.has(passive["id"]):
+			burn_passives[passive["id"]] = true
+			passive_unlocked.emit(passive["name"])
+			NotificationToast.show_toast("Passive Unlocked: %s" % passive["name"], NotificationToast.ToastType.SUCCESS)
+			print("[MemoryManager] PASSIVE UNLOCKED: %s (burns: %d)" % [passive["name"], total])
+
+## 활성 패시브 목록 반환
+func get_active_passives() -> Array:
+	var result: Array = []
+	for pid in burn_passives:
+		result.append(pid)
+	return result
+
+## 특정 패시브 보유 여부
+func has_passive(passive_id: String) -> bool:
+	return burn_passives.has(passive_id)
+
 ## 세이브용 데이터 내보내기
 func export_data() -> Dictionary:
 	var data = {
 		"memories": [],
-		"burned": []
+		"burned": [],
+		"burn_passives": burn_passives.duplicate(),
 	}
 	for m in memories:
 		data.memories.append({
@@ -482,6 +524,7 @@ func import_data(data: Dictionary) -> void:
 
 	memories.clear()
 	burned_memories.clear()
+	burn_passives = data.get("burn_passives", {})
 
 	var burned_ids = data.get("burned", [])
 	for m_data in data.memories:

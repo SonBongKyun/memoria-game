@@ -138,7 +138,7 @@ func _on_departure_ended() -> void:
 	GameManager.current_chapter = 9
 	print("[ForgottenForest] Chapter 8 complete — entering Colorless Waste")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/colorless_waste.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/colorless_waste.tscn")
 
 ## ===================== 전투 트리거 =====================
 

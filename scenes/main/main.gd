@@ -4,6 +4,7 @@ extends Control
 
 @onready var continue_btn: Button = $VBoxContainer/ContinueButton
 var ng_plus_btn: Button = null
+var boss_rush_btn: Button = null
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -56,6 +57,21 @@ func _setup_menu() -> void:
 				break
 		$VBoxContainer.add_child(ng_plus_btn)
 		$VBoxContainer.move_child(ng_plus_btn, new_game_idx)
+
+	# Boss Rush 버튼 (엔딩 본 후 해금)
+	if GameManager.is_boss_rush_unlocked():
+		boss_rush_btn = Button.new()
+		var best = GameManager.boss_rush_best_time
+		if best > 0.0:
+			var mins = int(best) / 60
+			var secs = int(best) % 60
+			boss_rush_btn.text = "Boss Rush (Best: %d:%02d)" % [mins, secs]
+		else:
+			boss_rush_btn.text = "Boss Rush"
+		boss_rush_btn.pressed.connect(_on_boss_rush_pressed)
+		var insert_idx = $VBoxContainer.get_child_count() - 1  # Before Quit
+		$VBoxContainer.add_child(boss_rush_btn)
+		$VBoxContainer.move_child(boss_rush_btn, insert_idx)
 
 	# 모든 버튼 스타일링
 	for btn in $VBoxContainer.get_children():
@@ -116,7 +132,7 @@ func _on_new_game_pressed() -> void:
 		"elia_with_party": true,
 		"items": {},
 	}
-	SceneTransition.change_scene("res://scenes/maps/rim_forest.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/rim_forest.tscn")
 
 func _on_continue_pressed() -> void:
 	SaveManager.load_game(1)
@@ -127,7 +143,15 @@ func _on_options_pressed() -> void:
 
 func _on_ng_plus_pressed() -> void:
 	GameManager.start_new_game_plus()
-	SceneTransition.change_scene("res://scenes/maps/rim_forest.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/rim_forest.tscn")
+
+func _on_boss_rush_pressed() -> void:
+	# Prepare a fresh state for boss rush
+	GameManager.story_flags.clear()
+	GameManager.current_chapter = 10
+	GameManager.player_data.hp = 200
+	GameManager.player_data.max_hp = 200
+	GameManager.start_boss_rush()
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()

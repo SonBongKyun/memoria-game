@@ -273,19 +273,25 @@ func _start_epilogue() -> void:
 
 func _on_epilogue_ended() -> void:
 	GameManager.set_flag("epilogue_complete")
-	# 엔딩별 업적 기록
+	# 엔딩별 업적 기록 + S54: Ending Gallery 기록
 	if GameManager.get_flag("zero_burn_path"):
 		AchievementManager.unlock("ending_zero_burn")
+		GameManager.record_ending("zero_burn")
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("tobias_joined") and GameManager.get_flag("ch9_kairos_battle"):
 		AchievementManager.unlock("ending_tobias")
+		GameManager.record_ending("tobias")
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 8:
 		AchievementManager.unlock("ending_hollow")
+		GameManager.record_ending("hollow")
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
 		AchievementManager.unlock("ending_ash")
+		GameManager.record_ending("ash")
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
 		AchievementManager.unlock("ending_seam")
+		GameManager.record_ending("seam")
 	else:
 		AchievementManager.unlock("ending_preservation")
+		GameManager.record_ending("preservation")
 	_setup_epilogue_npcs()
 	print("[TheSeam] Epilogue complete — talk to Elia or Sable")
 
@@ -401,7 +407,7 @@ func _on_ch6_ended() -> void:
 	GameManager.current_chapter = 7
 	print("[TheSeam] Chapter 6 complete — heading to Seam Outskirts")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/seam_outskirts.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/seam_outskirts.tscn")
 
 ## ===================== 전투 트리거 (마을 외곽) =====================
 

@@ -87,36 +87,129 @@ var displayed_chars: int = 0
 var is_typing: bool = false
 var typewriter_timer: float = 0.0
 
+# S54: Character text blip SFX (Undertale style)
+var _blip_player: AudioStreamPlayer = null
+var _blip_char_count: int = 0  # counter to play blip every 2-3 chars
+var _blip_stream: AudioStreamWAV = null
+
+# S54: Portrait transition tracking
+var _current_portrait_key: String = ""
+var _portrait_tween: Tween
+
+# S54: Dialogue camera effects
+var _cam_tween: Tween
+var _cam_original_zoom: Vector2 = Vector2(1.0, 1.0)
+var _cam_original_offset: Vector2 = Vector2.ZERO
+var _cam_initialized: bool = false
+const BLIP_PITCH_MAP: Dictionary = {
+	"Arrel": 1.0,
+	"Elia": 1.3,
+	"Sable": 0.7,
+	"Tobias": 0.9,
+	"Kairos": 0.6,
+	"Malet": 0.8,
+}
+const BLIP_INTERVAL: int = 2  # play blip every N characters
+var _current_blip_pitch: float = 1.0
+
+# S54: Dialogue direction tags
+var _line_speed_override: float = -1.0  # -1 = use default
+var _line_shake: bool = false
+var _line_pause_time: float = 0.0
+var _pause_timer: float = 0.0
+var _is_paused: bool = false
+
 func _ready() -> void:
 	layer = 50  # SceneTransition(100)보다 아래, 게임 위
 	_build_ui()
+	_setup_blip_player()
 	_connect_signals()
 	hide_box()
 	print("[DialogueBox] Ready")
+
+## S54: Generate blip sound (simple square wave) and create AudioStreamPlayer
+func _setup_blip_player() -> void:
+	_blip_player = AudioStreamPlayer.new()
+	_blip_player.bus = "Master"
+	add_child(_blip_player)
+	# Generate a short square wave blip (~40ms)
+	_blip_stream = AudioStreamWAV.new()
+	_blip_stream.format = AudioStreamWAV.FORMAT_8_BITS
+	_blip_stream.mix_rate = 22050
+	_blip_stream.stereo = false
+	var sample_count: int = int(22050 * 0.04)  # 40ms
+	var data: PackedByteArray = PackedByteArray()
+	data.resize(sample_count)
+	var freq: float = 440.0  # A4 base frequency
+	for i in range(sample_count):
+		var t: float = float(i) / 22050.0
+		# Square wave
+		var val: float = 1.0 if fmod(t * freq, 1.0) < 0.5 else -1.0
+		# Envelope: quick fade out
+		var env: float = 1.0 - float(i) / float(sample_count)
+		val *= env * 0.3  # keep volume moderate
+		data[i] = int((val * 0.5 + 0.5) * 255.0)
+	_blip_stream.data = data
+	_blip_player.stream = _blip_stream
+
+func _play_blip() -> void:
+	if _blip_player == null or _blip_stream == null:
+		return
+	# Respect SFX volume from OptionsMenu
+	var sfx_vol: float = OptionsMenu.settings.get("sfx_volume", 80) / 100.0 if OptionsMenu else 0.8
+	_blip_player.volume_db = linear_to_db(sfx_vol * 0.4)  # softer than regular SFX
+	_blip_player.pitch_scale = _current_blip_pitch + randf_range(-0.05, 0.05)  # slight variation
+	_blip_player.play()
 
 func _get_typewriter_speed() -> float:
 	var spd = OptionsMenu.settings.get("text_speed", 3) if OptionsMenu else 3
 	return TYPEWRITER_SPEEDS.get(spd, 0.03)
 
 func _process(delta: float) -> void:
+	# S54: Handle pause tag
+	if _is_paused:
+		_pause_timer -= delta
+		if _pause_timer <= 0.0:
+			_is_paused = false
+		return
+
 	if is_typing:
-		var speed = _get_typewriter_speed()
+		var speed = _line_speed_override if _line_speed_override >= 0.0 else _get_typewriter_speed()
 		if speed <= 0.0:
 			# Instant mode
 			displayed_chars = full_text.length()
 			text_label.text = full_text
 			is_typing = false
 			indicator.visible = true
+			_line_shake = false
 			return
 		typewriter_timer += delta
 		while typewriter_timer >= speed and displayed_chars < full_text.length():
 			typewriter_timer -= speed
 			displayed_chars += 1
 			text_label.text = full_text.substr(0, displayed_chars)
+			# S54: Blip SFX every N characters (skip spaces/punctuation)
+			var ch = full_text[displayed_chars - 1]
+			if ch != " " and ch != "\n":
+				_blip_char_count += 1
+				if _blip_char_count >= BLIP_INTERVAL:
+					_blip_char_count = 0
+					_play_blip()
 
 		if displayed_chars >= full_text.length():
 			is_typing = false
 			indicator.visible = true
+			_line_shake = false
+
+	# S54: Screen shake effect during dialogue
+	if _line_shake and is_typing:
+		var viewport = get_viewport()
+		if viewport:
+			viewport.canvas_transform.origin = Vector2(randf_range(-1.5, 1.5), randf_range(-1.5, 1.5))
+	elif not _line_shake:
+		var viewport = get_viewport()
+		if viewport and not is_typing:
+			viewport.canvas_transform.origin = Vector2.ZERO
 
 ## UI 구조 코드 생성
 func _build_ui() -> void:
@@ -236,6 +329,22 @@ func _on_dialogue_started() -> void:
 func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	_clear_choices()
 
+	# S54: Parse direction tags before display
+	var parsed = _parse_direction_tags(text)
+	var clean_text: String = parsed["text"]
+	_line_speed_override = parsed["speed"]
+	_line_shake = parsed["shake"]
+	_line_pause_time = parsed["pause"]
+
+	# S54: Apply pause if present (before text starts)
+	if _line_pause_time > 0.0:
+		_is_paused = true
+		_pause_timer = _line_pause_time
+
+	# S54: Set blip pitch based on speaker
+	_current_blip_pitch = BLIP_PITCH_MAP.get(speaker, 1.0)
+	_blip_char_count = 0
+
 	# 화자 이름 (나레이션이면 숨김)
 	if speaker == "" or speaker == "system_log":
 		speaker_label.text = ""
@@ -252,12 +361,62 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 		_update_portrait(speaker, portrait)
 
 	# 타자기 효과로 텍스트 표시
-	full_text = text
+	full_text = clean_text
 	displayed_chars = 0
 	text_label.text = ""
 	is_typing = true
 	typewriter_timer = 0.0
 	indicator.visible = false
+
+## S54: Parse direction tags from dialogue text
+## Supports: [shake], [slow], [fast], [pause=N], [zoom=N], [pan=X,Y], [reset]
+func _parse_direction_tags(text: String) -> Dictionary:
+	var result = {"text": text, "speed": -1.0, "shake": false, "pause": 0.0}
+	# [shake]
+	if "[shake]" in text:
+		result["shake"] = true
+		result["text"] = result["text"].replace("[shake]", "")
+	# [slow] — 2x slower than current speed
+	if "[slow]" in text:
+		var base_speed = _get_typewriter_speed()
+		result["speed"] = base_speed * 2.5 if base_speed > 0.0 else 0.06
+		result["text"] = result["text"].replace("[slow]", "")
+	# [fast] — 2x faster than current speed
+	if "[fast]" in text:
+		var base_speed = _get_typewriter_speed()
+		result["speed"] = base_speed * 0.4 if base_speed > 0.0 else 0.0
+		result["text"] = result["text"].replace("[fast]", "")
+	# [pause=N] — pause for N seconds before continuing
+	var regex = RegEx.new()
+	regex.compile("\\[pause=(\\d+\\.?\\d*)\\]")
+	var match = regex.search(result["text"])
+	if match:
+		result["pause"] = float(match.get_string(1))
+		result["text"] = result["text"].replace(match.get_string(0), "")
+	# S54: [zoom=N] — zoom camera by factor N (e.g. 1.2 = zoom in 20%)
+	var zoom_regex = RegEx.new()
+	zoom_regex.compile("\\[zoom=(\\d+\\.?\\d*)\\]")
+	var zoom_match = zoom_regex.search(result["text"])
+	if zoom_match:
+		var zoom_val = float(zoom_match.get_string(1))
+		result["text"] = result["text"].replace(zoom_match.get_string(0), "")
+		_dialogue_zoom(zoom_val, 0.5)
+	# S54: [pan=X,Y] — pan camera by offset
+	var pan_regex = RegEx.new()
+	pan_regex.compile("\\[pan=(-?\\d+\\.?\\d*),(-?\\d+\\.?\\d*)\\]")
+	var pan_match = pan_regex.search(result["text"])
+	if pan_match:
+		var px = float(pan_match.get_string(1))
+		var py = float(pan_match.get_string(2))
+		result["text"] = result["text"].replace(pan_match.get_string(0), "")
+		_dialogue_pan(Vector2(px, py), 0.5)
+	# S54: [reset] — reset camera to original
+	if "[reset]" in text:
+		result["text"] = result["text"].replace("[reset]", "")
+		_dialogue_reset(0.4)
+	# Clean up any extra spaces from tag removal
+	result["text"] = result["text"].strip_edges()
+	return result
 
 func _on_dialogue_choice(choices: Array) -> void:
 	_clear_choices()
@@ -301,27 +460,93 @@ func _on_dialogue_choice(choices: Array) -> void:
 		choice_container.get_child(0).grab_focus()
 
 func _on_dialogue_ended() -> void:
+	# S54: Reset direction effects
+	_line_shake = false
+	_line_speed_override = -1.0
+	_is_paused = false
+	_current_portrait_key = ""
+	var viewport = get_viewport()
+	if viewport:
+		viewport.canvas_transform.origin = Vector2.ZERO
+	# S54: Reset dialogue camera
+	_dialogue_reset(0.3)
 	hide_box()
 
 func _on_choice_selected(index: int) -> void:
 	_clear_choices()
 	DialogueManager.select_choice(index)
 
-## 포트레이트 업데이트 — 이미지가 있으면 표시, 없으면 fallback
+## S54: 포트레이트 베이스 이름 추출 (elia_sad → elia, arrel_pain → arrel)
+func _get_portrait_base(key: String) -> String:
+	if key == "":
+		return ""
+	# Split on underscore, take first part
+	var parts = key.split("_")
+	if parts.size() > 0:
+		return parts[0]
+	return key
+
+## 포트레이트 업데이트 — S54: 크로스페이드 전환 추가
 func _update_portrait(speaker: String, portrait_key: String = "") -> void:
 	# portrait 키 결정: 명시적 키 > 화자별 기본값
 	var key = portrait_key
 	if key == "" and DEFAULT_PORTRAITS.has(speaker):
 		key = DEFAULT_PORTRAITS[speaker]
 
+	# 동일한 포트레이트면 변경 없음
+	if key == _current_portrait_key and key != "":
+		return
+
+	var old_key = _current_portrait_key
+	_current_portrait_key = key
+
 	# 이미지 로드 시도
 	if key != "" and PORTRAIT_MAP.has(key):
 		var path = PORTRAIT_MAP[key]
 		if ResourceLoader.exists(path):
 			var tex = load(path)
-			portrait_texture.texture = tex
-			portrait_texture.visible = true
-			portrait_fallback.visible = false
+			# S54: 전환 효과 적용
+			if old_key == "":
+				# 첫 포트레이트 — 단순 페이드 인
+				portrait_texture.texture = tex
+				portrait_texture.visible = true
+				portrait_fallback.visible = false
+				portrait_texture.modulate.a = 0.0
+				if _portrait_tween:
+					_portrait_tween.kill()
+				_portrait_tween = create_tween()
+				_portrait_tween.tween_property(portrait_texture, "modulate:a", 1.0, 0.15)
+			elif _get_portrait_base(old_key) == _get_portrait_base(key):
+				# 같은 캐릭터 다른 표정 — 빠른 크로스페이드 (0.1s)
+				if _portrait_tween:
+					_portrait_tween.kill()
+				_portrait_tween = create_tween()
+				_portrait_tween.tween_property(portrait_texture, "modulate:a", 0.0, 0.1)
+				_portrait_tween.tween_callback(func():
+					portrait_texture.texture = tex
+				)
+				_portrait_tween.tween_property(portrait_texture, "modulate:a", 1.0, 0.1)
+			else:
+				# 다른 캐릭터 — 슬라이드 아웃/인 (0.2s)
+				if _portrait_tween:
+					_portrait_tween.kill()
+				var orig_x = portrait_texture.position.x
+				_portrait_tween = create_tween()
+				# Slide old out to left + fade
+				_portrait_tween.set_parallel(true)
+				_portrait_tween.tween_property(portrait_texture, "position:x", orig_x - 30, 0.15).set_ease(Tween.EASE_IN)
+				_portrait_tween.tween_property(portrait_texture, "modulate:a", 0.0, 0.12)
+				_portrait_tween.set_parallel(false)
+				# Swap texture, position to right
+				_portrait_tween.tween_callback(func():
+					portrait_texture.texture = tex
+					portrait_texture.position.x = orig_x + 30
+				)
+				# Slide new in from right + fade
+				_portrait_tween.set_parallel(true)
+				_portrait_tween.tween_property(portrait_texture, "position:x", orig_x, 0.15).set_ease(Tween.EASE_OUT)
+				_portrait_tween.tween_property(portrait_texture, "modulate:a", 1.0, 0.15)
+				_portrait_tween.set_parallel(false)
 			return
 
 	# fallback: ColorRect + 이니셜
@@ -333,6 +558,7 @@ func _update_portrait(speaker: String, portrait_key: String = "") -> void:
 	portrait_label.text = speaker.substr(0, 1).to_upper() if speaker.length() > 0 else "?"
 	portrait_texture.visible = false
 	portrait_fallback.visible = true
+	_current_portrait_key = ""
 
 ## 선택지 정리
 func _clear_choices() -> void:
@@ -373,15 +599,105 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if event.is_action_pressed("interact"):
+		# S54: Cancel pause on interact
+		if _is_paused:
+			_is_paused = false
+			_pause_timer = 0.0
 		if is_typing:
 			# 타자기 진행 중 → 즉시 전체 표시
 			displayed_chars = full_text.length()
 			text_label.text = full_text
 			is_typing = false
+			_line_shake = false
 			indicator.visible = true
+			# S54: Reset canvas shake
+			var viewport = get_viewport()
+			if viewport:
+				viewport.canvas_transform.origin = Vector2.ZERO
 			get_viewport().set_input_as_handled()
 		elif not choice_container.visible:
 			# 다음 대사로
 			AudioManager.play_sfx("confirm")
 			DialogueManager.advance()
 			get_viewport().set_input_as_handled()
+
+## ===================== S54: Dialogue Camera Effects =====================
+
+## 현재 활성 Camera2D 찾기 (플레이어 자식 또는 뷰포트)
+func _get_active_camera() -> Camera2D:
+	var vp = get_viewport()
+	if vp == null:
+		return null
+	# Try to find the player's camera
+	var tree = get_tree()
+	if tree == null:
+		return null
+	var players = tree.get_nodes_in_group("player")
+	if players.size() > 0:
+		for child in players[0].get_children():
+			if child is Camera2D:
+				return child
+	# Fallback: find any Camera2D in current scene
+	var root = tree.current_scene
+	if root:
+		var cameras = _find_cameras(root)
+		if cameras.size() > 0:
+			return cameras[0]
+	return null
+
+func _find_cameras(node: Node) -> Array:
+	var result = []
+	if node is Camera2D:
+		result.append(node)
+	for child in node.get_children():
+		result.append_array(_find_cameras(child))
+	return result
+
+## 카메라 초기 상태 저장
+func _init_camera_state() -> void:
+	if _cam_initialized:
+		return
+	var cam = _get_active_camera()
+	if cam:
+		_cam_original_zoom = cam.zoom
+		_cam_original_offset = cam.offset
+		_cam_initialized = true
+
+## 대화 줌 효과
+func _dialogue_zoom(target_scale: float, duration: float = 0.5) -> void:
+	var cam = _get_active_camera()
+	if cam == null:
+		return
+	_init_camera_state()
+	if _cam_tween:
+		_cam_tween.kill()
+	_cam_tween = create_tween()
+	var target_zoom = _cam_original_zoom * target_scale
+	_cam_tween.tween_property(cam, "zoom", target_zoom, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+
+## 대화 팬 효과
+func _dialogue_pan(offset: Vector2, duration: float = 0.5) -> void:
+	var cam = _get_active_camera()
+	if cam == null:
+		return
+	_init_camera_state()
+	if _cam_tween:
+		_cam_tween.kill()
+	_cam_tween = create_tween()
+	_cam_tween.tween_property(cam, "offset", _cam_original_offset + offset, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+
+## 카메라 원복
+func _dialogue_reset(duration: float = 0.5) -> void:
+	if not _cam_initialized:
+		return
+	var cam = _get_active_camera()
+	if cam == null:
+		_cam_initialized = false
+		return
+	if _cam_tween:
+		_cam_tween.kill()
+	_cam_tween = create_tween().set_parallel(true)
+	_cam_tween.tween_property(cam, "zoom", _cam_original_zoom, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	_cam_tween.tween_property(cam, "offset", _cam_original_offset, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+	_cam_tween.set_parallel(false)
+	_cam_tween.tween_callback(func(): _cam_initialized = false)

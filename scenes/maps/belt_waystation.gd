@@ -70,6 +70,8 @@ func _ready() -> void:
 	if not GameManager.get_flag("ch3_tobias_met"):
 		tobias_npc.visible = false
 		tobias_npc.set_physics_process(false)
+	# S54: NPC Schedule — adjust tobias based on chapter
+	_apply_npc_schedules()
 	print("[BeltWaystation] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
@@ -172,7 +174,7 @@ func _on_departure_ended() -> void:
 	GameManager.current_chapter = 4
 	print("[BeltWaystation] Chapter 3 complete — heading to Drift Shelter")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/drift_shelter.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/drift_shelter.tscn")
 
 ## ===================== 전투 트리거 =====================
 
@@ -386,3 +388,24 @@ func _position_player() -> void:
 		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
+
+## S54: NPC Schedule System — adjust tobias based on current chapter
+func _apply_npc_schedules() -> void:
+	var ch = GameManager.current_chapter
+	var tobias_sched = GameManager.get_npc_schedule("tobias", ch)
+	if not tobias_sched.is_empty():
+		var is_vis: bool = tobias_sched.get("visible", true)
+		# Ch4-6: tobias is traveling with party, not at waystation
+		if not is_vis and GameManager.get_flag("ch3_tobias_met"):
+			tobias_npc.visible = false
+			tobias_npc.set_physics_process(false)
+		elif is_vis and GameManager.get_flag("ch3_tobias_met"):
+			tobias_npc.visible = true
+			tobias_npc.set_physics_process(true)
+			var tile_pos: Vector2 = tobias_sched.get("pos", Vector2(11, 9))
+			tobias_npc.position = Vector2(tile_pos.x * TILE_SIZE, tile_pos.y * TILE_SIZE)
+		# Update repeat line based on chapter
+		if ch >= 7:
+			tobias_npc.repeat_line = "I've been cross-referencing the Bureau records. The patterns are... troubling."
+		elif ch >= 4:
+			tobias_npc.repeat_line = ""  # not visible anyway

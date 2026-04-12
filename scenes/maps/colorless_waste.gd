@@ -169,7 +169,7 @@ func _on_departure_ended() -> void:
 	GameManager.current_chapter = 10
 	print("[ColorlessWaste] Chapter 9 complete — entering BL-07")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/bl07_void.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/bl07_void.tscn")
 
 ## ===================== 전투 트리거 =====================
 

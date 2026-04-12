@@ -29,6 +29,7 @@ var settings: Dictionary = {
 	"font_scale": 1.0,       # S53: 0.8, 1.0, 1.2, 1.5
 	"screen_shake": true,     # S53: 화면 흔들림 토글
 	"colorblind_mode": 0,     # S53: 0=Off, 1=Deuteranopia, 2=Protanopia
+	"locale": "en",           # S55: Language (en/ko)
 }
 
 const SETTINGS_PATH: String = "user://settings.json"
@@ -78,6 +79,9 @@ func _hide_ui() -> void:
 		panel.visible = false
 
 func _apply_settings() -> void:
+	# S55: Locale
+	if settings.has("locale"):
+		GameManager.current_locale = settings["locale"]
 	# Master 볼륨 (bus index 0)
 	var master_db = linear_to_db(settings.master_volume / 100.0)
 	AudioServer.set_bus_volume_db(0, master_db)
@@ -375,9 +379,53 @@ func _build_ui() -> void:
 	sep4.add_theme_constant_override("separation", 8)
 	vbox.add_child(sep4)
 
+	# --- S55: Language ---
+	var lang_row = HBoxContainer.new()
+	lang_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(lang_row)
+
+	var lang_label = Label.new()
+	lang_label.text = "Language"
+	lang_label.add_theme_font_size_override("font_size", 15)
+	lang_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	lang_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lang_row.add_child(lang_label)
+
+	var lang_btn = Button.new()
+	lang_btn.custom_minimum_size = Vector2(130, 30)
+	lang_btn.add_theme_font_size_override("font_size", 14)
+	lang_btn.add_theme_color_override("font_color", Color(0.85, 0.7, 0.45))
+	var lang_style = StyleBoxFlat.new()
+	lang_style.bg_color = Color(0.1, 0.08, 0.12, 0.9)
+	lang_style.border_color = Color(0.4, 0.3, 0.2, 0.5)
+	lang_style.set_border_width_all(1)
+	lang_style.set_corner_radius_all(3)
+	lang_style.set_content_margin_all(4)
+	lang_btn.add_theme_stylebox_override("normal", lang_style)
+	var lang_hover = lang_style.duplicate()
+	lang_hover.border_color = Color(0.7, 0.55, 0.3, 0.8)
+	lang_btn.add_theme_stylebox_override("hover", lang_hover)
+	var lang_map = {"en": "English", "ko": "한국어"}
+	lang_btn.text = lang_map.get(GameManager.current_locale, "English")
+	lang_btn.pressed.connect(func():
+		if GameManager.current_locale == "en":
+			GameManager.current_locale = "ko"
+		else:
+			GameManager.current_locale = "en"
+		lang_btn.text = lang_map.get(GameManager.current_locale, "English")
+		settings["locale"] = GameManager.current_locale
+		AudioManager.play_sfx("ui_select")
+	)
+	lang_row.add_child(lang_btn)
+
+	# 구분선
+	var sep5 = HSeparator.new()
+	sep5.add_theme_constant_override("separation", 8)
+	vbox.add_child(sep5)
+
 	# --- Back 버튼 ---
 	var back_btn = Button.new()
-	back_btn.text = "Back"
+	back_btn.text = GameManager.tr("back")
 	back_btn.custom_minimum_size = Vector2(0, 40)
 	_style_button(back_btn)
 	back_btn.pressed.connect(close)

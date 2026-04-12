@@ -87,6 +87,8 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("verdan_market")
 	elia.repeat_line = "This market smells like rust and regret."
 	malet_npc.repeat_line = "You know where to find me."
+	# S54: NPC Schedule — adjust malet position/dialogue based on chapter
+	_apply_npc_schedules()
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)
@@ -205,7 +207,7 @@ func _on_shop_closed() -> void:
 	AchievementManager.unlock("merchant")
 	print("[VerdenMarket] Chapter 2 complete — transitioning to Belt Waystation")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/belt_waystation.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/belt_waystation.tscn")
 
 func _setup_random_encounters() -> void:
 	if not GameManager.get_flag("ch2_complete"):
@@ -478,3 +480,17 @@ func _position_player() -> void:
 		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
+
+## S54: NPC Schedule System — reposition NPCs based on current chapter
+func _apply_npc_schedules() -> void:
+	var ch = GameManager.current_chapter
+	var malet_sched = GameManager.get_npc_schedule("malet", ch)
+	if not malet_sched.is_empty():
+		var tile_pos: Vector2 = malet_sched.get("pos", Vector2(14, 12))
+		malet_npc.position = Vector2(tile_pos.x * TILE_SIZE, tile_pos.y * TILE_SIZE)
+		malet_npc.visible = malet_sched.get("visible", true)
+		# Update repeat line based on chapter
+		if ch >= 6:
+			malet_npc.repeat_line = "Still here? Business never sleeps, even when everything else does."
+		elif ch >= 3:
+			malet_npc.repeat_line = "Come back when you have something worth trading."

@@ -329,6 +329,15 @@ func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
 	lines += "Base ATK: %d\n" % data.get("atk", 0)
 	lines += "\nEncounters: %d\n" % data.get("encounters", 0)
 	lines += "Defeated: %d\n" % data.get("defeated", 0)
+	# Scan data (from Tobias analyze)
+	if data.get("scanned", false):
+		var weakness = data.get("weakness", "")
+		var resistance = data.get("resistance", "")
+		lines += "\n--- SCAN DATA ---\n"
+		lines += "Weakness: %s\n" % (weakness.to_upper() if weakness != "" else "None")
+		lines += "Resistance: %s\n" % (resistance.to_upper() if resistance != "" else "None")
+	else:
+		lines += "\n[Not yet scanned — use Tobias: Analyze]\n"
 	detail_body.text = lines
 
 func _show_memory_detail(mem_id: String, data: Dictionary) -> void:

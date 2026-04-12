@@ -21,10 +21,17 @@ func _create_transition_rect() -> void:
 	transition_rect.modulate.a = 0.0
 	add_child(transition_rect)
 
-## 기본 페이드 전환
-func change_scene(scene_path: String, duration: float = 0.5) -> void:
+## 기본 페이드 전환 (S54: 맵별 스타일 자동 감지 — styled=true일 때)
+func change_scene(scene_path: String, duration: float = 0.5, styled: bool = false) -> void:
+	# S54: styled 모드에서 맵별 전환 효과 자동 적용
+	if styled:
+		var style = _detect_style(scene_path)
+		if style != "fade":
+			await change_scene_styled(scene_path, style)
+			return
 	if tween:
 		tween.kill()
+	transition_rect.color = Color.BLACK
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 1.0, duration)
 	await tween.finished
@@ -174,6 +181,127 @@ void fragment() {
 	t.tween_method(func(val): mat.set_shader_parameter("radius", val), 0.0, 1.2, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	await t.finished
 	iris.queue_free()
+
+## S54: 맵별 전환 스타일 자동 감지
+const TRANSITION_STYLES: Dictionary = {
+	"bl07_void": "glitch",
+	"seam_outskirts": "glitch",
+	"rim_forest": "leaves",
+	"forgotten_forest": "leaves",
+	"colorless_waste": "dust",
+	"crumbling_coast": "dust",
+	"drift_shelter": "mist",
+	"belt_waystation": "mist",
+}
+
+## S54: 맵 전환 스타일 색상/설정
+const STYLE_CONFIGS: Dictionary = {
+	"fade": {"color": Color.BLACK, "duration": 0.5},
+	"glitch": {"color": Color(0.15, 0.0, 0.2, 1.0), "duration": 0.35},
+	"leaves": {"color": Color(0.1, 0.2, 0.08, 1.0), "duration": 0.6},
+	"dust": {"color": Color(0.25, 0.18, 0.1, 1.0), "duration": 0.55},
+	"mist": {"color": Color(0.7, 0.75, 0.85, 1.0), "duration": 0.7},
+}
+
+## S54: 스타일 자동 감지 — 씬 경로에서 맵 이름 추출
+func _detect_style(scene_path: String) -> String:
+	for map_key in TRANSITION_STYLES:
+		if map_key in scene_path:
+			return TRANSITION_STYLES[map_key]
+	return "fade"
+
+## S54: 맵별 전환 효과 적용 씬 전환
+func change_scene_styled(scene_path: String, style: String = "") -> void:
+	if style == "":
+		style = _detect_style(scene_path)
+	var config = STYLE_CONFIGS.get(style, STYLE_CONFIGS["fade"])
+	var dur: float = config["duration"]
+
+	if style == "glitch":
+		await _glitch_transition_out(dur)
+		get_tree().change_scene_to_file(scene_path)
+		await _glitch_transition_in(dur * 0.8)
+	elif style == "leaves":
+		transition_rect.color = config["color"]
+		transition_rect.modulate = Color(0.6, 1.0, 0.5, 0.0)  # green tint
+		await _tinted_fade_out(dur)
+		get_tree().change_scene_to_file(scene_path)
+		await _tinted_fade_in(dur)
+		transition_rect.color = Color.BLACK
+		transition_rect.modulate = Color(1, 1, 1, 0)
+	elif style == "dust":
+		transition_rect.color = config["color"]
+		transition_rect.modulate = Color(1.0, 0.85, 0.6, 0.0)  # sandy tint
+		await _tinted_fade_out(dur)
+		get_tree().change_scene_to_file(scene_path)
+		await _tinted_fade_in(dur)
+		transition_rect.color = Color.BLACK
+		transition_rect.modulate = Color(1, 1, 1, 0)
+	elif style == "mist":
+		transition_rect.color = config["color"]
+		transition_rect.modulate = Color(1, 1, 1, 0)
+		await _slow_mist_out(dur)
+		get_tree().change_scene_to_file(scene_path)
+		await _slow_mist_in(dur)
+		transition_rect.color = Color.BLACK
+		transition_rect.modulate = Color(1, 1, 1, 0)
+	else:
+		await change_scene(scene_path, dur)
+
+## S54: Glitch transition — rapid flash/noise for void maps
+func _glitch_transition_out(duration: float) -> void:
+	transition_rect.color = Color(0.15, 0.0, 0.2)
+	# Rapid flashes
+	var flash_count: int = 6
+	var flash_dur: float = duration / float(flash_count)
+	for i in range(flash_count):
+		transition_rect.modulate.a = randf_range(0.3, 0.9) if i % 2 == 0 else randf_range(0.0, 0.3)
+		transition_rect.color = Color(randf_range(0.05, 0.2), 0.0, randf_range(0.1, 0.3))
+		await get_tree().create_timer(flash_dur).timeout
+	# Final solid
+	transition_rect.color = Color(0.08, 0.0, 0.12)
+	transition_rect.modulate.a = 1.0
+	await get_tree().create_timer(0.1).timeout
+
+func _glitch_transition_in(duration: float) -> void:
+	var flash_count: int = 4
+	var flash_dur: float = duration / float(flash_count)
+	for i in range(flash_count):
+		transition_rect.modulate.a = randf_range(0.4, 0.8) if i % 2 == 0 else randf_range(0.1, 0.5)
+		transition_rect.color = Color(randf_range(0.05, 0.15), 0.0, randf_range(0.08, 0.2))
+		await get_tree().create_timer(flash_dur).timeout
+	transition_rect.color = Color.BLACK
+	transition_rect.modulate.a = 0.0
+
+## S54: Tinted fade (leaves/dust)
+func _tinted_fade_out(duration: float) -> void:
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 1.0, duration).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	await tween.finished
+
+func _tinted_fade_in(duration: float) -> void:
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 0.0, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	await tween.finished
+
+## S54: Slow mist fade (shelter/waystation) — slower with easing
+func _slow_mist_out(duration: float) -> void:
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 1.0, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	await tween.finished
+
+func _slow_mist_in(duration: float) -> void:
+	if tween:
+		tween.kill()
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 0.0, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	await tween.finished
 
 ## 페이드 아웃만 (컷씬 전환용)
 func fade_out(duration: float = 0.5) -> void:

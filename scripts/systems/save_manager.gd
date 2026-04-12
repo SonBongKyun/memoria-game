@@ -51,6 +51,7 @@ func save_game(slot: int) -> bool:
 		"game": GameManager.export_data(),
 		"memory": MemoryManager.export_data(),
 		"elia_diary": EliaDiary.export_data(),
+		"tutorial_hints": TutorialHints.export_data(),
 		"player_pos": player_pos,
 	}
 
@@ -100,13 +101,16 @@ func load_game(slot: int) -> bool:
 	if save_data.has("elia_diary"):
 		EliaDiary.import_data(save_data.elia_diary)
 
+	if save_data.has("tutorial_hints"):
+		TutorialHints.import_data(save_data.tutorial_hints)
+
 	# 플레이어 위치 복원 준비
 	loaded_player_pos = save_data.get("player_pos", {})
 
 	# 씬 전환
 	var scene_path = save_data.get("scene", "")
 	if scene_path != "" and ResourceLoader.exists(scene_path):
-		SceneTransition.change_scene(scene_path)
+		SceneTransition.change_scene_styled(scene_path)
 
 	print("[SaveManager] Loaded slot %d (saved: %s)" % [slot, save_data.get("timestamp", "?")])
 	load_completed.emit(slot)

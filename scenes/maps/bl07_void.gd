@@ -286,7 +286,7 @@ func _on_seal_complete() -> void:
 	AchievementManager.record_chapter_complete(10)
 	print("[BL07Void] Chapter 10 complete — The Seal executed (Zero Burn path)")
 	await get_tree().create_timer(2.0).timeout
-	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")
 
 func _on_refuse_complete() -> void:
 	GameManager.set_flag("ch10_complete")
@@ -294,7 +294,7 @@ func _on_refuse_complete() -> void:
 	AchievementManager.record_chapter_complete(10)
 	print("[BL07Void] Chapter 10 complete — The Seal refused (Preservation path)")
 	await get_tree().create_timer(2.0).timeout
-	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")
 
 ## ===================== 전투 트리거 =====================
 

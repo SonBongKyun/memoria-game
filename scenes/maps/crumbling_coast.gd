@@ -211,7 +211,7 @@ func _on_seam_ended() -> void:
 	GameManager.current_chapter = 6
 	print("[CrumblingCoast] Chapter 5 complete — The Seam reached")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/the_seam.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")
 
 func _setup_random_encounters() -> void:
 	if not GameManager.get_flag("ch5_complete"):

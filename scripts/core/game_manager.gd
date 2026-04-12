@@ -14,6 +14,163 @@ var story_flags: Dictionary = {}  # "met_elia": true, "malet_deal": false 등
 var ng_plus_cycle: int = 0  # 0 = 일반, 1+ = NG+ 회차
 const NG_PLUS_FILE: String = "user://ng_plus.json"
 
+# --- S54: Ending Gallery — 본 엔딩 추적 ---
+var seen_endings: Array = []  # ["zero_burn", "preservation", ...]
+const ENDING_DATA: Dictionary = {
+	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/ending_zero_burn.jpg"},
+	"preservation": {"name": "Preservation", "desc": "He kept his name. The seal held.", "cg": "res://assets/cg/ending_preservation.jpg"},
+	"ash": {"name": "Ash", "desc": "What remains is not a man. Just ash, drifting.", "cg": "res://assets/cg/ending_ash.jpg"},
+	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/ending_seam.jpg"},
+	"tobias": {"name": "The Record Remains", "desc": "Tobias finished what he started. Every name accounted for.", "cg": "res://assets/cg/ending_tobias.jpg"},
+	"hollow": {"name": "Hollow", "desc": "A shape where a person used to be.", "cg": "res://assets/cg/ending_hollow.jpg"},
+}
+const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
+
+func record_ending(ending_id: String) -> void:
+	if ending_id not in seen_endings:
+		seen_endings.append(ending_id)
+		_save_seen_endings()
+		print("[GameManager] Ending recorded: %s" % ending_id)
+
+func _load_seen_endings() -> void:
+	if not FileAccess.file_exists(SEEN_ENDINGS_FILE):
+		return
+	var file = FileAccess.open(SEEN_ENDINGS_FILE, FileAccess.READ)
+	var json = JSON.new()
+	if json.parse(file.get_as_text()) == OK and json.data is Array:
+		seen_endings = json.data
+	file.close()
+
+func _save_seen_endings() -> void:
+	var file = FileAccess.open(SEEN_ENDINGS_FILE, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(seen_endings))
+		file.close()
+
+# --- Boss Rush Mode ---
+var boss_rush_mode: bool = false
+var boss_rush_queue: Array = []  # [{name, hp, atk, is_void, abilities, weakness, resistance}]
+var boss_rush_index: int = 0
+var boss_rush_start_time: float = 0.0
+var boss_rush_best_time: float = 0.0  # seconds, 0 = no record
+const BOSS_RUSH_FILE: String = "user://boss_rush.json"
+
+const BOSS_RUSH_BOSSES: Array = [
+	{"name": "Shade Sentinel", "hp": 300, "atk": 28, "is_void": true, "abilities": ["shield", "drain", "multi_hit", "summon"], "weakness": "void", "resistance": "physical"},
+	{"name": "Kairos, The Watcher", "hp": 500, "atk": 45, "is_void": true, "abilities": ["void_pulse", "drain", "shield", "charge", "reflect", "stun"], "weakness": "fire", "resistance": "void"},
+]
+
+func is_boss_rush_unlocked() -> bool:
+	return seen_endings.size() > 0
+
+func start_boss_rush() -> void:
+	boss_rush_mode = true
+	boss_rush_index = 0
+	boss_rush_queue = BOSS_RUSH_BOSSES.duplicate(true)
+	boss_rush_start_time = Time.get_unix_time_from_system()
+	_load_boss_rush_record()
+	# Reset player for boss rush
+	player_data.hp = player_data.max_hp
+	player_data.items = {"potion": 3, "hi_potion": 2, "antidote": 2}
+	print("[GameManager] Boss Rush started — %d bosses" % boss_rush_queue.size())
+	_start_next_boss()
+
+func _start_next_boss() -> void:
+	if boss_rush_index >= boss_rush_queue.size():
+		_boss_rush_complete()
+		return
+	var data = boss_rush_queue[boss_rush_index]
+	var enemy = BattleManager.Enemy.new(data["name"], data["hp"], data["atk"], data["is_void"])
+	enemy.is_boss = true
+	enemy.abilities = data.get("abilities", [])
+	enemy.weakness = data.get("weakness", "")
+	enemy.resistance = data.get("resistance", "")
+	BattleManager.start_battle(enemy, "", "", "")
+	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
+
+func on_boss_rush_battle_ended(result: int) -> void:
+	if not boss_rush_mode:
+		return
+	if result == BattleManager.BattleState.VICTORY:
+		boss_rush_index += 1
+		if boss_rush_index < boss_rush_queue.size():
+			# Heal 50% between bosses
+			player_data.hp = mini(player_data.hp + int(player_data.max_hp * 0.5), player_data.max_hp)
+			NotificationToast.show_toast("Boss %d/%d defeated! 50%% HP restored." % [boss_rush_index, boss_rush_queue.size()], NotificationToast.ToastType.SUCCESS)
+			# Small delay before next boss
+			get_tree().create_timer(2.0).timeout.connect(_start_next_boss)
+		else:
+			_boss_rush_complete()
+	elif result == BattleManager.BattleState.DEFEAT:
+		boss_rush_mode = false
+		NotificationToast.show_toast("Boss Rush failed at boss %d/%d." % [boss_rush_index + 1, boss_rush_queue.size()], NotificationToast.ToastType.WARNING)
+
+func _boss_rush_complete() -> void:
+	var elapsed = Time.get_unix_time_from_system() - boss_rush_start_time
+	boss_rush_mode = false
+	var is_record = false
+	if boss_rush_best_time <= 0.0 or elapsed < boss_rush_best_time:
+		boss_rush_best_time = elapsed
+		is_record = true
+		_save_boss_rush_record()
+	var mins = int(elapsed) / 60
+	var secs = int(elapsed) % 60
+	var record_text = " NEW RECORD!" if is_record else ""
+	NotificationToast.show_toast("Boss Rush Complete! Time: %d:%02d%s" % [mins, secs, record_text], NotificationToast.ToastType.SUCCESS)
+	print("[GameManager] Boss Rush complete — %.1fs%s" % [elapsed, record_text])
+	change_state(GameState.MENU)
+	SceneTransition.change_scene("res://scenes/main/main.tscn")
+
+func _load_boss_rush_record() -> void:
+	if not FileAccess.file_exists(BOSS_RUSH_FILE):
+		return
+	var file = FileAccess.open(BOSS_RUSH_FILE, FileAccess.READ)
+	var json = JSON.new()
+	if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+		boss_rush_best_time = json.data.get("best_time", 0.0)
+	file.close()
+
+func _save_boss_rush_record() -> void:
+	var file = FileAccess.open(BOSS_RUSH_FILE, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify({"best_time": boss_rush_best_time}))
+		file.close()
+
+# --- S54: NPC Schedule System ---
+# Maps npc_name -> {chapter_min: {position: Vector2, dialogue_key: str, visible: bool}}
+var NPC_SCHEDULES: Dictionary = {
+	"malet": {
+		# Ch2: present at market (default position)
+		2: {"pos": Vector2(14, 12), "dialogue": "malet_encounter", "visible": true},
+		# Ch3-5: malet still at market but moved to different corner
+		3: {"pos": Vector2(22, 4), "dialogue": "malet_revisit_ch3", "visible": true},
+		# Ch6+: malet is in the Sump (barely visible)
+		6: {"pos": Vector2(12, 17), "dialogue": "malet_late_game", "visible": true},
+	},
+	"tobias": {
+		# Ch3: at waystation (default)
+		3: {"pos": Vector2(11, 9), "dialogue": "tobias_encounter", "visible": true},
+		# Ch4-6: tobias gone (traveling with party)
+		4: {"pos": Vector2(11, 9), "dialogue": "", "visible": false},
+		# Ch7+: tobias returns to waystation for research
+		7: {"pos": Vector2(11, 9), "dialogue": "tobias_research", "visible": true},
+	},
+}
+
+## Get NPC schedule for given chapter. Returns the most recent schedule entry at or before the chapter.
+func get_npc_schedule(npc_name: String, chapter: int) -> Dictionary:
+	if not NPC_SCHEDULES.has(npc_name):
+		return {}
+	var schedule = NPC_SCHEDULES[npc_name]
+	var best_ch: int = -1
+	for ch_key in schedule:
+		var ch_int = int(ch_key)
+		if ch_int <= chapter and ch_int > best_ch:
+			best_ch = ch_int
+	if best_ch >= 0:
+		return schedule[best_ch]
+	return {}
+
 # --- 플레이어 데이터 ---
 var player_data: Dictionary = {
 	"name": "Arrel",
@@ -64,6 +221,8 @@ func equip_item(equip_id: String) -> String:
 	var slot: String = EQUIPMENT[equip_id].slot
 	var old = equipped[slot]
 	equipped[slot] = equip_id
+	# S55: Tutorial hint
+	TutorialHints.show_hint("first_equipment")
 	return old
 
 func upgrade_equipment(equip_id: String) -> bool:
@@ -122,10 +281,122 @@ func remove_item(item_id: String, count: int = 1) -> bool:
 func get_item_count(item_id: String) -> int:
 	return player_data.items.get(item_id, 0)
 
+# --- S55: Play Statistics ---
+var play_stats: Dictionary = {
+	"play_time_seconds": 0.0,
+	"total_battles": 0,
+	"total_burns": 0,
+	"total_grains_earned": 0,
+	"enemies_defeated": 0,
+	"memories_collected": 0,
+	"steps_taken": 0,
+	"highest_combo": 0,
+	"bosses_defeated": 0,
+	"items_used": 0,
+}
+
+## 통계 증가 헬퍼
+func add_stat(stat_name: String, amount = 1) -> void:
+	if play_stats.has(stat_name):
+		play_stats[stat_name] += amount
+
+## 통계 최대값 갱신 헬퍼
+func max_stat(stat_name: String, value) -> void:
+	if play_stats.has(stat_name):
+		if value > play_stats[stat_name]:
+			play_stats[stat_name] = value
+
+## 플레이 타임 포맷 (HH:MM:SS)
+func format_play_time() -> String:
+	var total = int(play_stats.play_time_seconds)
+	var hours = total / 3600
+	var mins = (total % 3600) / 60
+	var secs = total % 60
+	return "%02d:%02d:%02d" % [hours, mins, secs]
+
+# --- S55: Localization Foundation ---
+var current_locale: String = "en"
+
+const LOCALIZED_STRINGS: Dictionary = {
+	"attack": {"en": "ATTACK", "ko": "공격"},
+	"burn": {"en": "BURN", "ko": "연소"},
+	"defend": {"en": "DEFEND", "ko": "방어"},
+	"item": {"en": "ITEM", "ko": "아이템"},
+	"auto": {"en": "AUTO", "ko": "자동"},
+	"limit": {"en": "LIMIT", "ko": "리밋"},
+	"flee": {"en": "FLEE", "ko": "도주"},
+	"victory": {"en": "VICTORY", "ko": "승리"},
+	"defeat": {"en": "DEFEAT", "ko": "패배"},
+	"save": {"en": "Save (Slot 1)", "ko": "저장 (슬롯 1)"},
+	"load": {"en": "Load (Slot 1)", "ko": "불러오기 (슬롯 1)"},
+	"options": {"en": "Options", "ko": "옵션"},
+	"resume": {"en": "Resume", "ko": "계속"},
+	"quit": {"en": "Quit Game", "ko": "게임 종료"},
+	"stats": {"en": "Stats", "ko": "통계"},
+	"journal": {"en": "Journal", "ko": "저널"},
+	"travel": {"en": "Travel", "ko": "이동"},
+	"codex": {"en": "Codex", "ko": "도감"},
+	"achievements": {"en": "Achievements", "ko": "업적"},
+	"endings": {"en": "Endings", "ko": "엔딩"},
+	"title_return": {"en": "Return to Title", "ko": "타이틀로"},
+	"paused": {"en": "PAUSED", "ko": "일시정지"},
+	"hp": {"en": "HP", "ko": "HP"},
+	"grains": {"en": "Grains", "ko": "그레인"},
+	"language": {"en": "Language", "ko": "언어"},
+	"back": {"en": "Back", "ko": "뒤로"},
+}
+
+## 게임 시작 시 설정 파일에서 locale 조기 로드 (다른 autoload의 _ready보다 먼저)
+func _load_locale_early() -> void:
+	var settings_path = "user://settings.json"
+	if not FileAccess.file_exists(settings_path):
+		return
+	var file = FileAccess.open(settings_path, FileAccess.READ)
+	if not file:
+		return
+	var json = JSON.new()
+	if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+		if json.data.has("locale"):
+			current_locale = json.data["locale"]
+	file.close()
+
+## 번역 함수
+func tr(key: String) -> String:
+	if LOCALIZED_STRINGS.has(key):
+		var entry = LOCALIZED_STRINGS[key]
+		if entry.has(current_locale):
+			return entry[current_locale]
+		if entry.has("en"):
+			return entry["en"]
+	return key
+
 signal state_changed(new_state: GameState)
 
 func _ready() -> void:
-	print("[GameManager] Initialized — MEMORIA v0.1.0")
+	_load_locale_early()  # S55: Load locale before other autoloads build UI
+	_load_seen_endings()
+	_load_boss_rush_record()
+	BattleManager.battle_ended.connect(_on_battle_ended_for_boss_rush)
+	# S55: 통계 — 전투/연소/적 격파 추적
+	BattleManager.battle_started.connect(func(_e): add_stat("total_battles"))
+	BattleManager.battle_ended.connect(_on_battle_ended_stats)
+	BattleManager.combo_changed.connect(func(c): max_stat("highest_combo", c))
+	print("[GameManager] Initialized — MEMORIA v0.1.0 (seen endings: %d)" % seen_endings.size())
+
+func _process(delta: float) -> void:
+	# S55: 플레이 타임 추적 (일시정지 아닐 때만)
+	if current_state != GameState.PAUSED and current_state != GameState.MENU:
+		play_stats.play_time_seconds += delta
+
+func _on_battle_ended_stats(result: BattleManager.BattleState) -> void:
+	if result == BattleManager.BattleState.VICTORY:
+		add_stat("enemies_defeated")
+		if BattleManager.current_enemy and BattleManager.current_enemy.is_boss:
+			add_stat("bosses_defeated")
+
+func _on_battle_ended_for_boss_rush(result: BattleManager.BattleState) -> void:
+	if boss_rush_mode:
+		on_boss_rush_battle_ended(result)
 
 ## NG+ 적 스케일링 계수 (HP/ATK에 곱함)
 func get_ng_scale() -> float:
@@ -225,6 +496,9 @@ func export_data() -> Dictionary:
 		"ng_plus_cycle": ng_plus_cycle,
 		"equipped": equipped.duplicate(),  # S41
 		"upgrade_levels": upgrade_levels.duplicate(),  # S53
+		"seen_endings": seen_endings.duplicate(),  # S54
+		"play_stats": play_stats.duplicate(),  # S55
+		"current_locale": current_locale,  # S55
 	}
 
 ## 세이브 데이터 불러오기
@@ -241,3 +515,14 @@ func import_data(data: Dictionary) -> void:
 		equipped = data.equipped  # S41
 	if data.has("upgrade_levels"):
 		upgrade_levels = data.upgrade_levels  # S53
+	if data.has("seen_endings"):
+		for e in data.seen_endings:
+			if e not in seen_endings:
+				seen_endings.append(e)
+		_save_seen_endings()  # S54: persist endings across saves
+	if data.has("play_stats") and data.play_stats is Dictionary:
+		for key in play_stats.keys():
+			if data.play_stats.has(key):
+				play_stats[key] = data.play_stats[key]
+	if data.has("current_locale"):
+		current_locale = data.current_locale

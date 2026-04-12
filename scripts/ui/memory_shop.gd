@@ -75,6 +75,8 @@ func open_shop(merchant_name: String = "Merchant", inventory: Array[Dictionary] 
 	_update_grains()
 	_refresh_items()
 	_show_ui()
+	# S55: Tutorial hints
+	TutorialHints.show_hint("first_shop")
 
 func close_shop() -> void:
 	if not is_open:

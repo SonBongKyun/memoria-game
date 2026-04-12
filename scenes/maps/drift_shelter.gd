@@ -147,7 +147,7 @@ func _on_departure_ended() -> void:
 	GameManager.current_chapter = 5
 	print("[DriftShelter] Chapter 4 complete — heading to Crumbling Coast")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/crumbling_coast.tscn")
+	SceneTransition.change_scene_styled("res://scenes/maps/crumbling_coast.tscn")
 
 ## ===================== 전투 트리거 =====================
 
