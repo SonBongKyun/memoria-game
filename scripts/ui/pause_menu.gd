@@ -110,7 +110,7 @@ func _build_ui() -> void:
 
 	# 타이틀
 	title_label = Label.new()
-	title_label.text = GameManager.tr("paused")
+	title_label.text = GameManager.loc("paused")
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 22)
 	title_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
@@ -146,22 +146,22 @@ func _build_ui() -> void:
 	vbox.add_child(btn_container)
 
 	var buttons = [
-		{"text": GameManager.tr("resume"), "callback": _close},
-		{"text": GameManager.tr("journal"), "callback": _on_journal},
-		{"text": GameManager.tr("travel"), "callback": _on_travel},
-		{"text": GameManager.tr("codex"), "callback": _on_codex},
-		{"text": GameManager.tr("achievements"), "callback": _on_achievements},
+		{"text": GameManager.loc("resume"), "callback": _close},
+		{"text": GameManager.loc("journal"), "callback": _on_journal},
+		{"text": GameManager.loc("travel"), "callback": _on_travel},
+		{"text": GameManager.loc("codex"), "callback": _on_codex},
+		{"text": GameManager.loc("achievements"), "callback": _on_achievements},
 	]
-	buttons.append({"text": GameManager.tr("stats"), "callback": _on_stats})
+	buttons.append({"text": GameManager.loc("stats"), "callback": _on_stats})
 	# S54: Endings button (only if at least 1 ending seen)
 	if GameManager.seen_endings.size() > 0:
-		buttons.append({"text": GameManager.tr("endings"), "callback": _on_endings})
+		buttons.append({"text": GameManager.loc("endings"), "callback": _on_endings})
 	buttons.append_array([
-		{"text": GameManager.tr("options"), "callback": _on_options},
-		{"text": GameManager.tr("save"), "callback": _on_save},
-		{"text": GameManager.tr("load"), "callback": _on_load},
-		{"text": GameManager.tr("title_return"), "callback": _on_title},
-		{"text": GameManager.tr("quit"), "callback": _on_quit},
+		{"text": GameManager.loc("options"), "callback": _on_options},
+		{"text": GameManager.loc("save"), "callback": _on_save},
+		{"text": GameManager.loc("load"), "callback": _on_load},
+		{"text": GameManager.loc("title_return"), "callback": _on_title},
+		{"text": GameManager.loc("quit"), "callback": _on_quit},
 	])
 
 	for data in buttons:
@@ -239,7 +239,7 @@ func _on_save() -> void:
 	await get_tree().create_timer(0.8).timeout
 	if not is_open:
 		return
-	title_label.text = GameManager.tr("paused")
+	title_label.text = GameManager.loc("paused")
 	title_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
 
 func _on_load() -> void:

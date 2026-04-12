@@ -998,13 +998,13 @@ func _build_action_buttons(root: Control) -> void:
 	root.add_child(action_container)
 
 	var actions = [
-		{"text": GameManager.tr("attack"), "callback": _on_attack, "icon": "⚔"},
-		{"text": GameManager.tr("burn"), "callback": _on_burn_menu, "icon": "🔥"},
-		{"text": GameManager.tr("item"), "callback": _on_item_menu, "icon": ""},
-		{"text": GameManager.tr("defend"), "callback": _on_defend, "icon": "🛡"},
-		{"text": GameManager.tr("limit"), "callback": _on_limit_break, "icon": "💥"},
-		{"text": GameManager.tr("auto"), "callback": _on_auto_battle, "icon": ""},
-		{"text": GameManager.tr("flee"), "callback": _on_flee, "icon": "💨"},
+		{"text": GameManager.loc("attack"), "callback": _on_attack, "icon": "⚔"},
+		{"text": GameManager.loc("burn"), "callback": _on_burn_menu, "icon": "🔥"},
+		{"text": GameManager.loc("item"), "callback": _on_item_menu, "icon": ""},
+		{"text": GameManager.loc("defend"), "callback": _on_defend, "icon": "🛡"},
+		{"text": GameManager.loc("limit"), "callback": _on_limit_break, "icon": "💥"},
+		{"text": GameManager.loc("auto"), "callback": _on_auto_battle, "icon": ""},
+		{"text": GameManager.loc("flee"), "callback": _on_flee, "icon": "💨"},
 	]
 
 	for action in actions:

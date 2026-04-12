@@ -361,7 +361,7 @@ func _load_locale_early() -> void:
 	file.close()
 
 ## 번역 함수
-func tr(key: String) -> String:
+func loc(key: String) -> String:
 	if LOCALIZED_STRINGS.has(key):
 		var entry = LOCALIZED_STRINGS[key]
 		if entry.has(current_locale):

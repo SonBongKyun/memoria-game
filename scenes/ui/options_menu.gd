@@ -425,7 +425,7 @@ func _build_ui() -> void:
 
 	# --- Back 버튼 ---
 	var back_btn = Button.new()
-	back_btn.text = GameManager.tr("back")
+	back_btn.text = GameManager.loc("back")
 	back_btn.custom_minimum_size = Vector2(0, 40)
 	_style_button(back_btn)
 	back_btn.pressed.connect(close)

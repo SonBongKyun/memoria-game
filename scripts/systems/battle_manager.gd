@@ -549,7 +549,7 @@ func player_use_elia_skill(skill_id: String) -> void:
 		"stun_enemy":
 			_player_stunned = false  # 적 기절 (다음 적 턴 스킵)
 			# enemy stun: 적에게 stun 상태 부여 (1턴)
-			apply_status("enemy", StatusEffect.WEAKENED, 1, 0)
+			apply_status("enemy", StatusEffect.WEAKEN, 1, 0)
 			battle_log.emit("%s is stunned!" % current_enemy.name)
 		"damage":
 			var dmg = result["power"]
