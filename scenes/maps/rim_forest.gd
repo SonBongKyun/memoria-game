@@ -51,6 +51,9 @@ var _encounter_data: RandomEncounter.EncounterData = null
 var _mushroom_lights: Array[ColorRect] = []
 var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
 var _grass_blades: Array[ColorRect] = []  # S43: 풀 흔들림
+var _occluders: Array[LightOccluder2D] = []  # S52: 그림자 오클루더
+var _pollen: Array[ColorRect] = []  # S52: 꽃가루 파티클
+var _camera: Camera2D = null  # S52: 스무스 카메라
 
 @onready var player: CharacterBody2D = $Player
 
@@ -68,6 +71,13 @@ func _ready() -> void:
 	# 버섯 위치에 은은한 초록 라이트
 	for m in _mushroom_lights:
 		_point_lights.append(MapEffects.add_point_light(self, m.position + Vector2(3, 3), Color(0.3, 0.9, 0.4), 0.4, 48.0))
+	# S52: 그래픽 업그레이드
+	MapEffects.enable_shadows_on_lights(_point_lights)
+	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.BUSH])
+	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.45, 0.25), "brightness": -0.02})
+	_pollen = MapEffects.add_pollen_particles(self, 12, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.25))
+	_camera = MapEffects.setup_smooth_camera(player, 1.0)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_camp_trigger()
@@ -91,6 +101,8 @@ func _process(delta: float) -> void:
 	MapEffects.update_fog(fog_rects, _time)
 	MapEffects.update_point_lights(_point_lights, _time)
 	MapEffects.update_grass_sway(_grass_blades, _time)
+	MapEffects.update_pollen(_pollen, _time, delta)
+	MapEffects.update_camera_shake(_camera, _time)
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
@@ -214,6 +226,8 @@ func _setup_hidden_events() -> void:
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		DIALOGUE_FILE, "elia_anchor_talk", "ch1_elia_anchor"
 	)
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "rim_forest")
 
 func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
 	var area = Area2D.new()

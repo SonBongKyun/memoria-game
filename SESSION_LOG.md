@@ -2540,3 +2540,84 @@ Ch1 (rim_forest) → Ch2 (verdan_market) → Ch3 (belt_waystation) → Ch4 (drif
 - 카이로스 보스전 (Ch9 또는 Ch10 내부)
 - 추가 사이드 퀘스트 (Ch7-9 맵용)
 - CG/포트레이트 연결 (카이로스 포트레이트 등)
+
+---
+
+## S51 — 2026-04-12 (게임성 대폭 업그레이드 — 6대 시스템)
+
+### 완료
+- [x] **Memory Decay/Erosion** — 기억 침식 시스템 (챕터 진행 시 기억 약화, Grade 1 면역, 엘리아 관련 반감, is_faded/erosion 필드)
+- [x] **Memory Echo** — 연소 후 전장 잔류 효과 (등급별 7종: Fading Warmth/Lingering Habit/Elia Anchor/Sable Shadow/Bond Fracture/Identity Fracture/Total Erasure)
+- [x] **Battle Stance** — 전투 자세 3종 (Remnant/Pyre/Hollow, 챕터별 해금, 공방 배율 + 고유 효과)
+- [x] **Void Corruption Modifiers** — 보이드 부패 인카운터 수정자 (연소 횟수 기반, 4등급 12종, 전투 난이도 동적 변화)
+- [x] **Elia Diary** — 엘리아 일지 + 비연소 전투 기술 (일지 8항목, 기술 4종: Humming Shield/Desperate Reach/Remembered Strike/Anchor Pulse, 쿨다운 시스템)
+- [x] **Memory Resonance** — 기억 공명 탐색 이벤트 (10맵 18지점, 기억 비전투 연소로 탐색 보너스, 맥동 시각 효과)
+- [x] MemoryUI 침식/소실 시각화 (FADED/ERODING 상태, 알파 페이드, 침식 비율 표시)
+- [x] 전투 연소 목록에서 Faded 기억 필터링 + 침식 반영 유효 파워 표시
+- [x] EliaDiary 오토로드 등록 + SaveManager 연동 (세이브/로드)
+- [x] Lingering Habit 에코 → 콤보 배율 +20% 연결
+
+### 신규 파일
+| 파일 | 설명 |
+|------|------|
+| `scripts/utils/encounter_modifiers.gd` | EncounterModifier 클래스 — 연소 횟수별 전투 수정자 |
+| `scripts/ui/elia_diary.gd` | EliaDiary 오토로드 — 일지 + 전투 기술 4종 |
+| `scripts/utils/memory_resonance.gd` | MemoryResonance 클래스 — 맵 공명 지점 설치 |
+
+### 수정 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `project.godot` | EliaDiary 오토로드 등록 |
+| `scripts/systems/memory_manager.gd` | is_faded/erosion 필드, apply_erosion(), get_effective_burn_power(), burn_memory_silent() |
+| `scripts/systems/battle_manager.gd` | Echo/Stance/Modifier/Elia 통합, player_use_elia_skill(), 콤보 Lingering Habit 연결 |
+| `scenes/battle/battle_scene.gd` | Stance UI, Echo 표시, Elia 기술 UI, Faded 필터, 침식 파워 표시 |
+| `scripts/ui/memory_ui.gd` | 침식/소실 시각화 (FADED/ERODING 표시, 알파 그라데이션) |
+| `scripts/systems/save_manager.gd` | EliaDiary 세이브/로드 연동 |
+| `scenes/maps/*.gd` (10파일) | MemoryResonance.setup_points() 호출 추가 |
+
+### 다음
+- 전투 밸런스 미세 조정 (침식 속도, 에코 지속턴, 수정자 확률)
+- 카이로스 보스전 (Ch9)
+- 엘리아 일지 UI 뷰어 (MemoryUI Diary 탭)
+
+---
+
+## S52 — 2026-04-12 (그래픽 대규모 업그레이드)
+
+### 완료
+- [x] **2D 그림자 시스템** — PointLight2D shadow 활성화 + LightOccluder2D 벽/나무 타일 자동 생성
+- [x] **컬러 그레이딩** — 맵별 분위기 색조 보정 (10맵 바이옴별 커스텀 tint/brightness)
+- [x] **캐릭터 드롭 섀도우** — 발밑 타원형 그림자 (탐색 10맵 + 전투 기존)
+- [x] **캐릭터 호흡 애니메이션** — 정지 시 미세 스케일 펄스 (탐색 + 전투 3캐릭터)
+- [x] **바이옴별 향상 파티클** — 꽃가루(숲), 재(황무지), 보이드 촉수(보이드) + 업데이트 루프
+- [x] **스무스 카메라** — Camera2D 부드러운 추적, 드래그 마진, 환경 미세 흔들림(비/보이드 맵)
+- [x] **전투 크리티컬 줌** — 200+ 데미지 시 화면 줌 펀치 + 임팩트 플래시
+- [x] **연소 화면 이펙트** — 기억 연소 시 화면 가장자리 화염 비네트
+- [x] **전투 호흡 스케일** — 아군/적 idle에 미세 스케일 변화 추가 (기존 Y bob + 신규 XY scale)
+
+### 수정 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `scripts/utils/map_effects.gd` | 신규 함수 14개 (그림자/오클루더/컬러그레이딩/드롭섀도/꽃가루/재/보이드촉수/카메라) |
+| `scripts/core/player.gd` | 정지 시 호흡 스케일 애니메이션 |
+| `scenes/battle/battle_scene.gd` | 크리티컬 줌, 연소 화면 이펙트, 호흡 스케일, 엘리아 기술 UI |
+| `scenes/maps/*.gd` (10파일) | 컬러 그레이딩 + 스무스 카메라 + 드롭 섀도우 + 바이옴 파티클 |
+
+### 맵별 비주얼 설정
+| 맵 | 컬러 그레이딩 | 파티클 | 특수 |
+|----|-------------|--------|------|
+| rim_forest | 초록 틴트 | 꽃가루 12 | 그림자+오클루더 |
+| verdan_market | 따뜻한 틴트 | 먼지 8 | 그림자+오클루더 |
+| belt_waystation | 황토 틴트 | 먼지 15 | — |
+| drift_shelter | 푸른 틴트 | (비) | 미세 흔들림 0.3 |
+| crumbling_coast | 해안 틴트 | 물보라 10 | — |
+| the_seam | 보라 틴트 | 잔불 8 | 그림자+오클루더 |
+| seam_outskirts | 짙은 보라 | 촉수 4 | 흔들림 0.4 |
+| forgotten_forest | 병적 초록 | 포자 18 | 흔들림 0.3 |
+| colorless_waste | 무채색 | 잿가루 20 | — |
+| bl07_void | 심연 보라 | 촉수 8 | 그림자+오클루더, 흔들림 0.6 |
+
+### 다음
+- 전투 밸런스 미세 조정
+- 카이로스 보스전
+- 추가 CG 연결

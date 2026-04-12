@@ -43,6 +43,7 @@ StoryJournal="*res://scripts/ui/story_journal.gd"
 AchievementManager="*res://scripts/ui/achievement_manager.gd"
 Codex="*res://scripts/ui/codex.gd"
 MemoryPuzzle="*res://scripts/ui/memory_puzzle.gd"
+EliaDiary="*res://scripts/ui/elia_diary.gd"
 Dialogic="*uid://ds2q0uclmolvu"
 
 [dialogic]

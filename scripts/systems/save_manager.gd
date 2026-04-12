@@ -50,6 +50,7 @@ func save_game(slot: int) -> bool:
 		"scene": _get_current_scene_path(),
 		"game": GameManager.export_data(),
 		"memory": MemoryManager.export_data(),
+		"elia_diary": EliaDiary.export_data(),
 		"player_pos": player_pos,
 	}
 
@@ -95,6 +96,9 @@ func load_game(slot: int) -> bool:
 
 	if save_data.has("memory"):
 		MemoryManager.import_data(save_data.memory)
+
+	if save_data.has("elia_diary"):
+		EliaDiary.import_data(save_data.elia_diary)
 
 	# 플레이어 위치 복원 준비
 	loaded_player_pos = save_data.get("player_pos", {})

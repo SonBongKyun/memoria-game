@@ -55,6 +55,9 @@ var void_particles: GPUParticles2D
 var heavy_fog: Array[ColorRect] = []
 var _memory_shards: Array[ColorRect] = []
 var _point_lights: Array[PointLight2D] = []  # S42
+var _occluders: Array[LightOccluder2D] = []  # S52
+var _s52_particles: Array[ColorRect] = []  # S52
+var _camera: Camera2D = null  # S52
 
 func _ready() -> void:
 	_build_map()
@@ -71,6 +74,13 @@ func _ready() -> void:
 					_point_lights.append(MapEffects.add_point_light(self, Vector2(x * TILE_SIZE + 16, y * TILE_SIZE + 16), Color(0.6, 0.2, 0.8), 1.2, 128.0))
 				elif map_data[y][x] == Tile.FRAGMENT and randi() % 3 == 0:
 					_point_lights.append(MapEffects.add_point_light(self, Vector2(x * TILE_SIZE + 16, y * TILE_SIZE + 16), Color(0.4, 0.15, 0.6), 0.3, 48.0))
+	# S52: 그래픽 업그레이드
+	MapEffects.enable_shadows_on_lights(_point_lights)
+	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CRACK])
+	MapEffects.add_color_grading(self, {"tint": Color(0.2, 0.1, 0.35), "brightness": -0.1})
+	_s52_particles = MapEffects.add_void_tendrils(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
+	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.6)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_core_trigger()
 	_setup_battle_triggers()
@@ -96,6 +106,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	MapEffects.update_heavy_fog(heavy_fog, pulse_time)
 	MapEffects.update_point_lights(_point_lights, pulse_time)
+	MapEffects.update_void_tendrils(_s52_particles, pulse_time, delta)
+	MapEffects.update_camera_shake(_camera, pulse_time)
 	# 코어 맥동 효과
 	pulse_time += delta
 	var pulse = (sin(pulse_time * 2.0) + 1.0) * 0.5  # 0~1
@@ -127,6 +139,8 @@ func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(15 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_memory_fragments", "ch10_fragments")
 	# 코어 직전 엘리아 대화 (남쪽 중앙)
 	_add_story_trigger(Vector2(10 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), df, "void_before_core", "ch10_before_core")
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "bl07_void")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):

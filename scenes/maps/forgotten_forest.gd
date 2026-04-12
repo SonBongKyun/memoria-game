@@ -36,6 +36,9 @@ var _tile_defs: Array = []
 var _minimap_data: Dictionary = {}
 var _encounter_data: RandomEncounter.EncounterData = null
 var effect_time: float = 0.0
+var _occluders: Array[LightOccluder2D] = []  # S52
+var _s52_particles: Array[ColorRect] = []  # S52
+var _camera: Camera2D = null  # S52
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -48,6 +51,11 @@ func _ready() -> void:
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.06, 0.04), "far": Color(0.08, 0.1, 0.06), "mid": Color(0.1, 0.12, 0.08), "biome": "dead_forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.25, 0.28, 0.22))
 	MapEffects.add_fog(self, 0.7, Color(0.15, 0.18, 0.12, 0.3))
+	# S52: 그래픽 업그레이드
+	MapEffects.add_color_grading(self, {"tint": Color(0.15, 0.2, 0.12), "brightness": -0.08})
+	_s52_particles = MapEffects.add_pollen_particles(self, 18, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.4, 0.5, 0.2, 0.2))
+	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -72,6 +80,8 @@ func _process(delta: float) -> void:
 	var elia_vis = elia.visible if elia else false
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
+	MapEffects.update_pollen(_s52_particles, effect_time, delta)
+	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
@@ -249,6 +259,8 @@ func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(4 * TILE_SIZE, 10 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "elia_anchor_strain", "ch8_anchor")
 	_add_story_trigger(Vector2(16 * TILE_SIZE, 12 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "ghost_child", "ch8_ghost_child")
 	_add_story_trigger(Vector2(10 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "forest_whispers", "ch8_whispers")
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "forgotten_forest")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):

@@ -36,6 +36,9 @@ var _tile_defs: Array = []
 var _minimap_data: Dictionary = {}
 var _encounter_data: RandomEncounter.EncounterData = null
 var effect_time: float = 0.0
+var _occluders: Array[LightOccluder2D] = []  # S52
+var _s52_particles: Array[ColorRect] = []  # S52
+var _camera: Camera2D = null  # S52
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -48,6 +51,10 @@ func _ready() -> void:
 	MapEffects.add_ambient_lighting(self, Color(0.35, 0.33, 0.38))
 	# 재비 (메모리 레인)
 	MapEffects.add_rain(self, 0.5, Color(0.4, 0.38, 0.42, 0.2))
+	# S52: 그래픽 업그레이드
+	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.3, 0.45), "brightness": -0.05})
+	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -71,6 +78,7 @@ func _process(delta: float) -> void:
 	var elia_vis = elia.visible if elia else false
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
+	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
@@ -276,6 +284,8 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(8 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "tobias_explains_classification", "ch4_classification")
 	_add_story_trigger(Vector2(13 * TILE_SIZE, 7 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "night_conversation", "ch4_night_talk")
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "drift_shelter")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):

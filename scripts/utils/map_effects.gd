@@ -799,6 +799,255 @@ static func add_burn_desaturation(parent: Node) -> CanvasLayer:
 	parent.add_child(layer)
 	return layer
 
+## ===================== S52: 2D 그림자 시스템 =====================
+## PointLight2D에 그림자 활성화 + 벽/나무 타일에 오클루더 자동 추가
+static func enable_shadows_on_lights(lights: Array) -> void:
+	for light in lights:
+		if light is PointLight2D:
+			light.shadow_enabled = true
+			light.shadow_color = Color(0.0, 0.0, 0.05, 0.7)
+			light.shadow_filter = PointLight2D.SHADOW_FILTER_PCF5
+			light.shadow_filter_smooth = 1.5
+
+## 벽/나무 타일에 LightOccluder2D 추가 (그림자 드리움)
+static func add_tile_occluders(parent: Node2D, map_data: Array, width: int, height: int, wall_indices: Array) -> Array[LightOccluder2D]:
+	var occluders: Array[LightOccluder2D] = []
+	for y in range(height):
+		for x in range(width):
+			if y < map_data.size() and x < map_data[y].size():
+				if map_data[y][x] in wall_indices:
+					var occ = LightOccluder2D.new()
+					occ.position = Vector2(x * TILE + TILE / 2.0, y * TILE + TILE / 2.0)
+					var poly = OccluderPolygon2D.new()
+					var half = TILE / 2.0 - 1
+					poly.polygon = PackedVector2Array([
+						Vector2(-half, -half), Vector2(half, -half),
+						Vector2(half, half), Vector2(-half, half)
+					])
+					poly.cull_mode = OccluderPolygon2D.CULL_DISABLED
+					occ.occluder = poly
+					parent.add_child(occ)
+					occluders.append(occ)
+	return occluders
+
+## ===================== S52: 컬러 그레이딩 포스트프로세스 =====================
+## 맵별 분위기 색조 보정 (셰이더 기반)
+static func add_color_grading(parent: Node2D, settings: Dictionary) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 4  # 비네트(3) 위
+
+	var rect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# 순수 컬러 오버레이 방식 (셰이더 불필요)
+	var tint: Color = settings.get("tint", Color(1, 1, 1, 0))
+	var brightness: float = settings.get("brightness", 0.0)
+	var contrast: float = settings.get("contrast", 1.0)
+
+	# tint 블렌드 — 투명 오버레이
+	rect.color = Color(tint.r, tint.g, tint.b, tint.a * 0.15)
+
+	# contrast/brightness — CanvasItem modulate
+	if brightness != 0.0:
+		var b = 1.0 + brightness
+		rect.modulate = Color(b, b, b, 1.0)
+
+	layer.add_child(rect)
+	parent.add_child(layer)
+	return layer
+
+## ===================== S52: 캐릭터 드롭 섀도우 =====================
+## 플레이어/NPC 발밑에 타원형 그림자 추가
+static func add_drop_shadow(character: Node2D) -> ColorRect:
+	var shadow = ColorRect.new()
+	shadow.color = Color(0.0, 0.0, 0.05, 0.35)
+	shadow.size = Vector2(28, 10)
+	shadow.position = Vector2(-14, 12)  # 발밑
+	shadow.z_index = -1  # 캐릭터 뒤
+
+	# 타원형 느낌 — 모서리 둥글게
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.05, 0.3)
+	style.set_corner_radius_all(5)
+	# ColorRect에는 StyleBox 직접 적용 불가 → 대안: 스프라이트
+	# 간단히 알파 블렌딩된 사각형으로 근사
+	shadow.pivot_offset = shadow.size / 2.0
+	shadow.scale = Vector2(1.0, 0.5)  # 수직 압축으로 타원 효과
+
+	character.add_child(shadow)
+	return shadow
+
+## ===================== S52: 향상된 바이옴 파티클 =====================
+
+## 꽃가루/포자 파티클 (숲 맵)
+static func add_pollen_particles(parent: Node2D, count: int = 15, area: Vector2 = Vector2(800, 600), color: Color = Color(0.8, 0.85, 0.5, 0.3)) -> Array[ColorRect]:
+	var particles: Array[ColorRect] = []
+	for i in range(count):
+		var p = ColorRect.new()
+		p.size = Vector2(randf_range(2, 4), randf_range(2, 4))
+		p.color = Color(color.r + randf_range(-0.1, 0.1), color.g + randf_range(-0.1, 0.1), color.b, color.a)
+		p.position = Vector2(randf_range(0, area.x), randf_range(0, area.y))
+		p.set_meta("drift_x", randf_range(-8, 8))
+		p.set_meta("drift_y", randf_range(-12, -3))
+		p.set_meta("wave_phase", randf() * TAU)
+		p.set_meta("wave_amp", randf_range(15, 40))
+		p.set_meta("base_x", p.position.x)
+		p.set_meta("area", area)
+		p.z_index = 5
+		parent.add_child(p)
+		particles.append(p)
+	return particles
+
+## 꽃가루 업데이트 (사인파 흔들림 + 느린 부유)
+static func update_pollen(particles: Array, time: float, delta: float) -> void:
+	for p in particles:
+		if p == null or not is_instance_valid(p):
+			continue
+		var area: Vector2 = p.get_meta("area", Vector2(800, 600))
+		var phase: float = p.get_meta("wave_phase", 0.0)
+		var amp: float = p.get_meta("wave_amp", 20.0)
+		var base_x: float = p.get_meta("base_x", p.position.x)
+
+		p.position.y += p.get_meta("drift_y", -5.0) * delta
+		base_x += p.get_meta("drift_x", 0.0) * delta
+		p.position.x = base_x + sin(time * 0.8 + phase) * amp
+		p.color.a = 0.2 + sin(time * 1.2 + phase) * 0.15
+
+		p.set_meta("base_x", base_x)
+		# 화면 밖 → 리셋
+		if p.position.y < -20:
+			p.position.y = area.y + 10
+			base_x = randf_range(0, area.x)
+			p.set_meta("base_x", base_x)
+
+## 재/잿가루 파티클 (황무지/보이드 맵)
+static func add_ash_particles(parent: Node2D, count: int = 20, area: Vector2 = Vector2(800, 600), color: Color = Color(0.4, 0.35, 0.3, 0.25)) -> Array[ColorRect]:
+	var particles: Array[ColorRect] = []
+	for i in range(count):
+		var p = ColorRect.new()
+		var sz = randf_range(1.5, 3.5)
+		p.size = Vector2(sz, sz)
+		p.color = Color(color.r + randf_range(-0.05, 0.05), color.g + randf_range(-0.05, 0.05), color.b + randf_range(-0.05, 0.05), color.a)
+		p.position = Vector2(randf_range(0, area.x), randf_range(0, area.y))
+		p.set_meta("fall_speed", randf_range(8, 22))
+		p.set_meta("sway_phase", randf() * TAU)
+		p.set_meta("sway_amp", randf_range(20, 50))
+		p.set_meta("base_x", p.position.x)
+		p.set_meta("area", area)
+		p.rotation = randf() * TAU
+		p.z_index = 5
+		parent.add_child(p)
+		particles.append(p)
+	return particles
+
+## 재 업데이트 (느리게 떨어지면서 좌우 흔들림)
+static func update_ash(particles: Array, time: float, delta: float) -> void:
+	for p in particles:
+		if p == null or not is_instance_valid(p):
+			continue
+		var area: Vector2 = p.get_meta("area", Vector2(800, 600))
+		var phase: float = p.get_meta("sway_phase", 0.0)
+		var amp: float = p.get_meta("sway_amp", 30.0)
+		var base_x: float = p.get_meta("base_x", p.position.x)
+
+		p.position.y += p.get_meta("fall_speed", 15.0) * delta
+		p.position.x = base_x + sin(time * 0.6 + phase) * amp
+		p.rotation += delta * 0.3
+		p.color.a = 0.15 + sin(time + phase) * 0.1
+
+		if p.position.y > area.y + 20:
+			p.position.y = -10
+			base_x = randf_range(0, area.x)
+			p.set_meta("base_x", base_x)
+
+## 보이드 촉수/와이프 파티클 (보이드 맵 전용)
+static func add_void_tendrils(parent: Node2D, count: int = 6, area: Vector2 = Vector2(800, 600)) -> Array[ColorRect]:
+	var tendrils: Array[ColorRect] = []
+	for i in range(count):
+		var t = ColorRect.new()
+		t.size = Vector2(randf_range(2, 4), randf_range(40, 100))
+		t.color = Color(0.15, 0.08, 0.25, 0.12)
+		t.position = Vector2(randf_range(50, area.x - 50), area.y)
+		t.set_meta("base_y", t.position.y)
+		t.set_meta("phase", randf() * TAU)
+		t.set_meta("speed", randf_range(0.3, 0.8))
+		t.set_meta("reach", randf_range(30, 80))
+		t.z_index = 1
+		t.pivot_offset = Vector2(t.size.x / 2, t.size.y)
+		parent.add_child(t)
+		tendrils.append(t)
+	return tendrils
+
+## 보이드 촉수 업데이트 (바닥에서 올라왔다 내려감)
+static func update_void_tendrils(tendrils: Array, time: float, _delta: float = 0.0) -> void:
+	for t in tendrils:
+		if t == null or not is_instance_valid(t):
+			continue
+		var phase: float = t.get_meta("phase", 0.0)
+		var speed: float = t.get_meta("speed", 0.5)
+		var reach: float = t.get_meta("reach", 50.0)
+		var base_y: float = t.get_meta("base_y", t.position.y)
+
+		var wave = sin(time * speed + phase)
+		t.position.y = base_y - abs(wave) * reach
+		t.color.a = 0.06 + abs(wave) * 0.1
+		t.rotation = sin(time * speed * 0.7 + phase) * 0.15  # 미세 흔들림
+
+## ===================== S52: 스무스 카메라 =====================
+## 카메라 설정 헬퍼 (플레이어에 Camera2D 부착)
+static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient_shake_intensity: float = 0.0) -> Camera2D:
+	# 기존 카메라 체크
+	for child in player.get_children():
+		if child is Camera2D:
+			child.position_smoothing_enabled = true
+			child.position_smoothing_speed = 5.0
+			child.zoom = Vector2(zoom_level, zoom_level)
+			if ambient_shake_intensity > 0.0:
+				child.set_meta("ambient_shake", ambient_shake_intensity)
+			return child
+
+	var cam = Camera2D.new()
+	cam.enabled = true
+	cam.position_smoothing_enabled = true
+	cam.position_smoothing_speed = 5.0
+	cam.drag_horizontal_enabled = true
+	cam.drag_vertical_enabled = true
+	cam.drag_left_margin = 0.15
+	cam.drag_right_margin = 0.15
+	cam.drag_top_margin = 0.15
+	cam.drag_bottom_margin = 0.15
+	cam.zoom = Vector2(zoom_level, zoom_level)
+	if ambient_shake_intensity > 0.0:
+		cam.set_meta("ambient_shake", ambient_shake_intensity)
+	player.add_child(cam)
+	return cam
+
+## 카메라 이벤트 줌 (극적 순간용)
+static func camera_event_zoom(cam: Camera2D, target_zoom: float, duration: float = 0.8) -> void:
+	if cam == null:
+		return
+	var tween = cam.create_tween()
+	tween.tween_property(cam, "zoom", Vector2(target_zoom, target_zoom), duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
+
+## 카메라 미세 흔들림 (지속적 환경 효과)
+static func camera_ambient_shake(cam: Camera2D, intensity: float = 0.5) -> void:
+	if cam == null:
+		return
+	cam.set_meta("ambient_shake", intensity)
+
+## 카메라 미세 흔들림 업데이트 (_process에서 호출)
+static func update_camera_shake(cam: Camera2D, time: float) -> void:
+	if cam == null:
+		return
+	var intensity: float = cam.get_meta("ambient_shake", 0.0)
+	if intensity <= 0.0:
+		return
+	cam.offset = Vector2(
+		sin(time * 7.3) * intensity + sin(time * 13.1) * intensity * 0.5,
+		cos(time * 5.7) * intensity + cos(time * 11.9) * intensity * 0.5
+	)
+
 ## 색상 유틸
 static func _darken_c(color: Color, amount: float) -> Color:
 	return Color(maxf(color.r - amount, 0), maxf(color.g - amount, 0), maxf(color.b - amount, 0), color.a)

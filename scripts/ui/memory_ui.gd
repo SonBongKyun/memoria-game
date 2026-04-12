@@ -345,6 +345,10 @@ func _add_memory_card(memory) -> void:
 	var status_mark = ""
 	if memory.is_burned:
 		status_mark = " [BURNED]" if not memory.is_residue else " [RESIDUE]"
+	elif memory.is_faded:
+		status_mark = " [FADED]"
+	elif memory.erosion > 0:
+		status_mark = " [ERODING %d%%]" % int(MemoryManager.get_erosion_ratio(memory) * 100)
 	btn.text = "[%s] %s%s" % [grade_label, memory.title, status_mark]
 
 	# 스타일
@@ -363,11 +367,18 @@ func _add_memory_card(memory) -> void:
 	btn.add_theme_stylebox_override("hover", hover)
 	btn.add_theme_stylebox_override("focus", hover)
 
-	# 연소된 기억은 흐리게
+	# 연소/침식/소실 상태 시각화
 	var font_color = Color(0.75, 0.7, 0.65)
-	if memory.is_burned:
+	if memory.is_faded:
+		font_color = Color(0.35, 0.3, 0.3)
+		btn.modulate.a = 0.45
+	elif memory.is_burned:
 		font_color = Color(0.4, 0.35, 0.3) if not memory.is_residue else Color(0.5, 0.5, 0.55)
 		btn.modulate.a = 0.7 if not memory.is_residue else 0.85
+	elif memory.erosion > 0:
+		var ratio = MemoryManager.get_erosion_ratio(memory)
+		font_color = font_color.lerp(Color(0.5, 0.35, 0.3), ratio)
+		btn.modulate.a = lerpf(1.0, 0.6, ratio)
 
 	btn.add_theme_font_size_override("font_size", 13)
 	btn.add_theme_color_override("font_color", font_color)

@@ -53,6 +53,9 @@ var _lantern_lights: Array[ColorRect] = []
 var _smoke_wisps: Array[Dictionary] = []
 var _time: float = 0.0
 var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
+var _occluders: Array[LightOccluder2D] = []  # S52
+var _s52_particles: Array[ColorRect] = []  # S52
+var _camera: Camera2D = null  # S52
 
 func _ready() -> void:
 	_build_map()
@@ -67,6 +70,13 @@ func _ready() -> void:
 		for x in range(MAP_WIDTH):
 			if y < map_data.size() and x < map_data[y].size() and map_data[y][x] == Tile.STALL:
 				_point_lights.append(MapEffects.add_point_light(self, Vector2(x * TILE_SIZE + 16, y * TILE_SIZE + 16), Color(1.0, 0.8, 0.5), 0.6, 80.0))
+	# S52: 그래픽 업그레이드
+	MapEffects.enable_shadows_on_lights(_point_lights)
+	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL])
+	MapEffects.add_color_grading(self, {"tint": Color(0.5, 0.35, 0.2), "brightness": 0.0})
+	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.5, 0.45, 0.35, 0.15))
+	_camera = MapEffects.setup_smooth_camera(player, 1.0)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_random_encounters()
 	_setup_puzzle_trigger()
@@ -92,6 +102,8 @@ func _process(delta: float) -> void:
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	MapEffects.update_point_lights(_point_lights, _time)
+	MapEffects.update_pollen(_s52_particles, _time, delta)
+	MapEffects.update_camera_shake(_camera, _time)
 	# 랜턴 깜빡임
 	for l in _lantern_lights:
 		l.color.a = 0.3 + randf_range(-0.05, 0.05) + sin(_time * 3.0) * 0.05
@@ -314,6 +326,8 @@ func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(16 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "elia_sump_concern", "ch2_elia_concern")
 	# 썸프 분위기 (지하 영역)
 	_add_story_trigger(Vector2(14 * TILE_SIZE, 16 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "sump_atmosphere", "ch2_sump_atmos")
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "verdan_market")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):

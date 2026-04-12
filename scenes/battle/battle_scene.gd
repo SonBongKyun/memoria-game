@@ -72,15 +72,18 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_idle_time += delta
-	# 적 아이들 모션 (호흡 — 부드러운 상하)
+	# 적 아이들 모션 (호흡 — 상하 + 미세 스케일)
 	if enemy_sprite_container and enemy_sprite_container.visible:
 		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
-	# 플레이어 아이들 모션 (호흡)
+		enemy_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.5) * 0.008, 1.0 - sin(_idle_time * 1.5) * 0.006)
+	# 플레이어 아이들 모션 (호흡 + 미세 스케일)
 	if player_sprite_container:
 		player_sprite_container.position.y = _player_base_pos.y + sin(_idle_time * 1.8 + 0.5) * 2.0
+		player_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.8 + 0.5) * 0.006, 1.0 - sin(_idle_time * 1.8 + 0.5) * 0.005)
 	# 동행자 아이들
 	if ally_sprite_container and ally_sprite_container.visible:
 		ally_sprite_container.position.y = _ally_base_pos.y + sin(_idle_time * 1.3 + 1.2) * 2.5
+		ally_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.3 + 1.2) * 0.007, 1.0 - sin(_idle_time * 1.3 + 1.2) * 0.005)
 
 ## ===================== UI 빌드 =====================
 
@@ -181,6 +184,11 @@ func _build_ui() -> void:
 
 	# S46: 세이블 명령 UI
 	_build_ally_command_ui(root)
+
+	# S51: 스탠스 전환 UI + 에코 표시 + 엘리아 기술 UI
+	_build_stance_ui(root)
+	_build_echo_display(root)
+	_build_elia_skill_ui(root)
 
 	# VFX 레이어 추가
 	root.add_child(burn_vfx_container)
@@ -992,6 +1000,8 @@ func _connect_signals() -> void:
 	BattleManager.status_changed.connect(_on_status_changed)
 	BattleManager.limit_changed.connect(_on_limit_changed)
 	BattleManager.phase_changed.connect(_on_phase_changed)  # S46
+	BattleManager.echo_activated.connect(_on_echo_activated)  # S51
+	BattleManager.stance_changed.connect(_on_stance_changed)  # S51
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -1102,6 +1112,10 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
 	_screen_shake(shake_intensity)
 
+	# S52: 크리티컬 히트 줌 펀치 (200+ 데미지)
+	if amount >= 200 and target != "Arrel":
+		_critical_zoom_punch()
+
 	# 스킬별 VFX
 	if skill_name != "" and target != "Arrel":
 		_play_attack_vfx(skill_name)
@@ -1119,6 +1133,12 @@ func _on_player_turn() -> void:
 	action_container.visible = true
 	if ally_cmd_container:
 		ally_cmd_container.visible = BattleManager.sable_in_party
+	if stance_container:
+		stance_container.visible = true
+	if elia_skill_container:
+		elia_skill_container.visible = GameManager.player_data.elia_with_party
+		_refresh_elia_skills()
+	_refresh_echo_display()
 	_update_limit_button()
 	if action_container.get_child_count() > 0:
 		action_container.get_child(0).grab_focus()
@@ -1126,6 +1146,10 @@ func _on_player_turn() -> void:
 func _on_enemy_turn() -> void:
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
+	if stance_container:
+		stance_container.visible = false
+	if elia_skill_container:
+		elia_skill_container.visible = false
 
 func _on_status_changed() -> void:
 	_update_status_icons()
@@ -1186,7 +1210,7 @@ func _toggle_burn_list() -> void:
 	for child in burn_list_container.get_children():
 		child.queue_free()
 
-	var available = MemoryManager.get_available_memories()
+	var available = MemoryManager.get_available_memories().filter(func(m): return not m.is_faded)
 	var residues = MemoryManager.get_residue_memories()
 	if available.is_empty() and residues.is_empty():
 		var empty_label = Label.new()
@@ -1206,11 +1230,13 @@ func _toggle_burn_list() -> void:
 			for memory in available:
 				var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
 				var elem = skill.get("element", "fire").to_upper()
+				var eff_power = MemoryManager.get_effective_burn_power(memory)
+				var erosion_tag = "" if memory.erosion == 0 else " ⚠"
 				var btn = Button.new()
-				btn.text = "[%s|%s] %s — Grade %d (DMG: %d+%d)" % [
+				btn.text = "[%s|%s] %s — Grade %d (DMG: %d+%d)%s" % [
 					skill.name, elem, memory.title,
 					memory.grade,
-					skill.base_damage, memory.burn_power
+					skill.base_damage, eff_power, erosion_tag
 				]
 				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
@@ -1638,9 +1664,10 @@ func _play_attack_vfx(skill_name: String) -> void:
 		# 연소/기본 → 불꽃 VFX
 		_play_burn_vfx()
 
-## 불꽃 VFX (S42: GPU 파티클 추가)
+## 불꽃 VFX (S42: GPU 파티클 추가, S52: 화면 가장자리 불꽃)
 func _play_burn_vfx() -> void:
 	_play_gpu_burn_particles()  # S42: GPU 파티클
+	_burn_edge_flare()  # S52: 화면 가장자리 화염
 	var center = Vector2(920, 310)
 
 	# 여러 불꽃 입자 생성
@@ -2306,3 +2333,260 @@ func _on_ally_cmd(action: String) -> void:
 			if btn is Button:
 				var is_selected = (btn.text.to_lower() == action)
 				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE
+
+## ===================== S51: 스탠스 전환 UI =====================
+
+var stance_container: HBoxContainer
+var stance_buttons: Array[Button] = []
+
+func _build_stance_ui(root: Control) -> void:
+	stance_container = HBoxContainer.new()
+	stance_container.anchor_left = 0.35
+	stance_container.anchor_right = 0.65
+	stance_container.anchor_top = 0.78
+	stance_container.anchor_bottom = 0.84
+	stance_container.add_theme_constant_override("separation", 6)
+	stance_container.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	var lbl = Label.new()
+	lbl.text = "Stance:"
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
+	stance_container.add_child(lbl)
+
+	var stances = [
+		[BattleManager.Stance.REMNANT, "Remnant", Color(0.6, 0.55, 0.45)],
+		[BattleManager.Stance.PYRE, "Pyre", Color(0.85, 0.4, 0.25)],
+		[BattleManager.Stance.HOLLOW, "Hollow", Color(0.4, 0.35, 0.7)],
+	]
+
+	for s in stances:
+		var btn = Button.new()
+		btn.text = s[1]
+		btn.custom_minimum_size = Vector2(65, 24)
+		btn.add_theme_font_size_override("font_size", 10)
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(s[2].r * 0.3, s[2].g * 0.3, s[2].b * 0.3, 0.9)
+		style.border_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.6)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(3)
+		btn.add_theme_stylebox_override("normal", style)
+		var hover = style.duplicate()
+		hover.bg_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.95)
+		hover.border_color = s[2]
+		btn.add_theme_stylebox_override("hover", hover)
+		btn.add_theme_color_override("font_color", Color(0.8, 0.75, 0.7))
+		# 해금 체크
+		var stance_val = s[0]
+		var info = BattleManager.STANCE_INFO[stance_val]
+		if GameManager.current_chapter < info["unlock_chapter"]:
+			btn.disabled = true
+			btn.modulate.a = 0.4
+		else:
+			btn.pressed.connect(func(): _on_stance_select(stance_val))
+		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		stance_container.add_child(btn)
+		stance_buttons.append(btn)
+
+	stance_container.visible = false
+	root.add_child(stance_container)
+	_update_stance_highlight()
+
+func _on_stance_select(stance: int) -> void:
+	BattleManager.switch_stance(stance)
+	AudioManager.play_sfx("ui_select")
+	_update_stance_highlight()
+
+func _on_stance_changed(_stance: int) -> void:
+	_update_stance_highlight()
+
+func _update_stance_highlight() -> void:
+	var names = ["Remnant", "Pyre", "Hollow"]
+	for i in range(stance_buttons.size()):
+		var btn = stance_buttons[i]
+		var is_active = (i == BattleManager.current_stance)
+		if is_active:
+			btn.modulate = Color(1.0, 1.0, 0.7) if not btn.disabled else Color(0.4, 0.4, 0.4, 0.4)
+		else:
+			btn.modulate = Color.WHITE if not btn.disabled else Color(0.4, 0.4, 0.4, 0.4)
+
+## ===================== S51: 에코 표시 =====================
+
+var echo_display: VBoxContainer
+
+func _build_echo_display(root: Control) -> void:
+	echo_display = VBoxContainer.new()
+	echo_display.anchor_left = 0.7
+	echo_display.anchor_right = 0.98
+	echo_display.anchor_top = 0.42
+	echo_display.anchor_bottom = 0.65
+	echo_display.add_theme_constant_override("separation", 2)
+	root.add_child(echo_display)
+
+func _on_echo_activated(_echo_type: String, _desc: String) -> void:
+	_refresh_echo_display()
+
+func _refresh_echo_display() -> void:
+	if not echo_display:
+		return
+	for child in echo_display.get_children():
+		child.queue_free()
+	if BattleManager.active_echoes.is_empty():
+		return
+	var header = Label.new()
+	header.text = "— Active Echoes —"
+	header.add_theme_font_size_override("font_size", 10)
+	header.add_theme_color_override("font_color", Color(0.7, 0.55, 0.35))
+	echo_display.add_child(header)
+	var echo_colors = {
+		"fading_warmth": Color(0.4, 0.7, 0.4),
+		"lingering_habit": Color(0.55, 0.5, 0.35),
+		"elia_anchor": Color(0.4, 0.5, 0.7),
+		"sable_shadow": Color(0.5, 0.4, 0.6),
+		"bond_fracture": Color(0.6, 0.45, 0.45),
+		"identity_fracture": Color(0.6, 0.3, 0.7),
+		"total_erasure": Color(0.9, 0.6, 0.2),
+	}
+	for echo in BattleManager.active_echoes:
+		var lbl = Label.new()
+		var echo_name = echo["type"].replace("_", " ").capitalize()
+		lbl.text = "%s (%dt)" % [echo_name, echo.get("turns", 0)]
+		lbl.add_theme_font_size_override("font_size", 9)
+		lbl.add_theme_color_override("font_color", echo_colors.get(echo["type"], Color(0.6, 0.6, 0.6)))
+		echo_display.add_child(lbl)
+
+## ===================== S51: 엘리아 기술 UI =====================
+
+var elia_skill_container: VBoxContainer
+
+func _build_elia_skill_ui(root: Control) -> void:
+	if not GameManager.player_data.elia_with_party:
+		return
+	elia_skill_container = VBoxContainer.new()
+	elia_skill_container.anchor_left = 0.0
+	elia_skill_container.anchor_right = 0.22
+	elia_skill_container.anchor_top = 0.42
+	elia_skill_container.anchor_bottom = 0.68
+	elia_skill_container.offset_left = 10
+	elia_skill_container.add_theme_constant_override("separation", 3)
+
+	var header = Label.new()
+	header.text = "— Elia —"
+	header.add_theme_font_size_override("font_size", 11)
+	header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.85))
+	elia_skill_container.add_child(header)
+
+	elia_skill_container.visible = false
+	root.add_child(elia_skill_container)
+
+func _refresh_elia_skills() -> void:
+	if not elia_skill_container:
+		return
+	# 헤더 외 기존 버튼 제거
+	while elia_skill_container.get_child_count() > 1:
+		elia_skill_container.get_child(elia_skill_container.get_child_count() - 1).queue_free()
+		elia_skill_container.remove_child(elia_skill_container.get_child(elia_skill_container.get_child_count() - 1))
+
+	var skills = EliaDiary.get_available_skills()
+	if skills.is_empty():
+		var no_skill = Label.new()
+		no_skill.text = "(no techniques)"
+		no_skill.add_theme_font_size_override("font_size", 9)
+		no_skill.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
+		elia_skill_container.add_child(no_skill)
+		return
+
+	for skill in skills:
+		var btn = Button.new()
+		var cd_text = " [READY]" if skill["ready"] else " [%dT]" % skill["cooldown"]
+		btn.text = "%s%s" % [skill["name"], cd_text]
+		btn.tooltip_text = skill["desc"]
+		btn.custom_minimum_size = Vector2(140, 24)
+		btn.add_theme_font_size_override("font_size", 10)
+		btn.disabled = not skill["ready"]
+
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.18, 0.12, 0.25, 0.9) if skill["ready"] else Color(0.1, 0.08, 0.12, 0.6)
+		style.border_color = Color(0.6, 0.45, 0.75, 0.7) if skill["ready"] else Color(0.3, 0.25, 0.3, 0.4)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(3)
+		btn.add_theme_stylebox_override("normal", style)
+		var hover = style.duplicate()
+		hover.bg_color = Color(0.3, 0.2, 0.4, 0.95)
+		hover.border_color = Color(0.8, 0.6, 0.9, 0.9)
+		btn.add_theme_stylebox_override("hover", hover)
+		btn.add_theme_color_override("font_color", Color(0.85, 0.75, 0.95) if skill["ready"] else Color(0.4, 0.35, 0.4))
+
+		var skill_id = skill["id"]
+		btn.pressed.connect(func(): _on_elia_skill(skill_id))
+		elia_skill_container.add_child(btn)
+
+func _on_elia_skill(skill_id: String) -> void:
+	AudioManager.play_sfx("ui_select")
+	BattleManager.player_use_elia_skill(skill_id)
+	_refresh_elia_skills()
+
+## ===================== S52: 전투 VFX 강화 =====================
+
+## 크리티컬 히트 줌 펀치 — 강력한 공격 시 화면 줌인→복귀
+func _critical_zoom_punch() -> void:
+	# 전투 루트 스케일로 줌 효과 근사
+	var original_scale = canvas_root.scale
+	var original_pivot = canvas_root.pivot_offset
+	canvas_root.pivot_offset = canvas_root.size / 2.0 if canvas_root.size != Vector2.ZERO else Vector2(640, 360)
+
+	# 빠른 줌인
+	var t = create_tween()
+	t.tween_property(canvas_root, "scale", Vector2(1.08, 1.08), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(canvas_root, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_ELASTIC)
+
+	# 크리티컬 플래시 — 밝은 임팩트 프레임
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(1.0, 0.95, 0.8, 0.35)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_root.add_child(flash)
+	var ft = create_tween()
+	ft.tween_property(flash, "color:a", 0.0, 0.25).set_ease(Tween.EASE_OUT)
+	ft.tween_callback(flash.queue_free)
+
+## 연소 임팩트 — 기억 연소 시 화면 가장자리 불타는 효과
+func _burn_edge_flare() -> void:
+	var flare = ColorRect.new()
+	flare.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flare.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# 비네트 스타일 화염 테두리
+	var shader_path = "res://assets/shaders/vignette.gdshader"
+	if ResourceLoader.exists(shader_path):
+		var mat = ShaderMaterial.new()
+		mat.shader = load(shader_path)
+		mat.set_shader_parameter("color", Color(0.9, 0.4, 0.1, 0.5))
+		mat.set_shader_parameter("radius", 0.6)
+		mat.set_shader_parameter("softness", 0.4)
+		flare.material = mat
+	else:
+		flare.color = Color(0.8, 0.3, 0.1, 0.15)
+
+	canvas_root.add_child(flare)
+	var t = create_tween()
+	t.tween_property(flare, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_OUT)
+	t.tween_callback(flare.queue_free)
+
+## 속성 임팩트 배경 플래시 (속성별 색상)
+func _element_flash(element: String) -> void:
+	var flash_color: Color
+	match element:
+		"fire": flash_color = Color(1.0, 0.4, 0.1, 0.2)
+		"void": flash_color = Color(0.5, 0.2, 0.8, 0.2)
+		"physical": flash_color = Color(0.9, 0.9, 0.9, 0.15)
+		_: flash_color = Color(0.8, 0.7, 0.3, 0.15)
+
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = flash_color
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas_root.add_child(flash)
+	var t = create_tween()
+	t.tween_property(flash, "color:a", 0.0, 0.3).set_ease(Tween.EASE_OUT)
+	t.tween_callback(flash.queue_free)

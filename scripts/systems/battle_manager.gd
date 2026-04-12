@@ -94,6 +94,8 @@ var _last_action: String = ""       # 마지막 행동 ("attack", "burn", "defen
 # --- 파티 시스템 ---
 var sable_in_party: bool = false    # 세이블 동행 여부
 var _boss_turn_counter: int = 0     # 보스 턴 카운터 (페이즈2 분노 패턴용)
+var _encounter_modifier: Dictionary = {}  # S51: 인카운터 수정자
+var _total_turns: int = 0           # S51: 턴 카운터 (수정자용)
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
 signal phase_changed(enemy_name: String, phase: int)
@@ -106,6 +108,22 @@ var ally_command_pending: bool = false  # 세이블 행동 대기 중
 var _player_stunned: bool = false   # 기절: 다음 플레이어 턴 스킵
 var _enemy_reflecting: bool = false # 반사: 다음 공격 30% 반사
 var _enemy_charged: bool = false    # 차지: 다음 적 턴 2배 데미지
+
+# --- Memory Echo 시스템 (S51: 기억 연소 후 전장 잔류 효과) ---
+# 기억을 태우면 등급/관련 NPC에 따라 전장에 남는 효과
+var active_echoes: Array = []  # [{id, grade, npc, type, power, turns}]
+signal echo_activated(echo_type: String, desc: String)
+
+# --- Battle Stance 시스템 (S51: 전투 자세 전환) ---
+enum Stance { REMNANT, PYRE, HOLLOW }
+var current_stance: Stance = Stance.REMNANT
+signal stance_changed(stance: int)
+
+const STANCE_INFO: Dictionary = {
+	Stance.REMNANT: {"name": "Remnant", "desc": "Balanced. Special: Cling (+30% burn, no residue)", "atk_mult": 1.0, "def_mult": 1.0, "unlock_chapter": 1},
+	Stance.PYRE: {"name": "Pyre", "desc": "Aggressive. +25% ATK, -20% DEF. Special: Immolate (burn 2 at once)", "atk_mult": 1.25, "def_mult": 0.8, "unlock_chapter": 4},
+	Stance.HOLLOW: {"name": "Hollow", "desc": "Tactical. -15% ATK, +30% DEF, 2x combo mult", "atk_mult": 0.85, "def_mult": 1.3, "unlock_chapter": 7},
+}
 
 # --- Limit Break 시스템 ---
 var limit_gauge: float = 0.0        # 0.0 ~ 100.0
@@ -157,7 +175,14 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	_player_stunned = false
 	_enemy_reflecting = false
 	_enemy_charged = false
+	active_echoes.clear()
+	current_stance = Stance.REMNANT
+	_encounter_modifier = {}
+	_total_turns = 0
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
+	# S51: 엘리아 기술 쿨다운 리셋
+	if GameManager.player_data.elia_with_party:
+		EliaDiary.reset_cooldowns()
 	limit_gauge = 0.0
 	limit_changed.emit(0.0)
 	state = BattleState.PLAYER_TURN
@@ -189,6 +214,12 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	if enemy.is_void_beast:
 		battle_log.emit("It's a Void Beast — normal attacks are weakened.")
 
+	# S51: 보이드 부패 수정자 적용
+	_encounter_modifier = EncounterModifier.apply(enemy)
+	if not _encounter_modifier.is_empty():
+		battle_log.emit("[VOID CORRUPTION] %s" % _encounter_modifier.get("name", ""))
+		battle_log.emit(_encounter_modifier.get("desc", ""))
+
 	player_turn_started.emit()
 
 ## 플레이어 행동: 일반 공격
@@ -204,15 +235,32 @@ func player_attack() -> void:
 	_last_action = "attack"
 	combo_changed.emit(combo_count)
 
+	# S51: Memory Fog 수정자 — 미스 확률
+	if has_modifier("player_miss") and randi_range(0, 99) < _encounter_modifier.get("value", 0):
+		battle_log.emit("The fog of burned memories clouds your strike... MISS!")
+		_end_player_turn()
+		return
+
 	var base_dmg = _get_player_attack() + randi_range(0, 10)
+	# 스탠스 공격 보정
+	base_dmg = int(base_dmg * get_stance_atk_mult())
 	# 콤보 보너스 (2연속: +15%, 3연속: +30%, 4+: +50%)
 	var combo_mult = _get_combo_multiplier()
+	# Hollow 스탠스: 콤보 배율 2배
+	if current_stance == Stance.HOLLOW:
+		combo_mult = 1.0 + (combo_mult - 1.0) * 2.0
 	base_dmg = int(base_dmg * combo_mult)
 	# 약화 적용
 	base_dmg = int(base_dmg * _get_weaken_multiplier("player"))
+	# Total Erasure 에코: 2배 데미지
+	if has_echo("total_erasure"):
+		base_dmg *= 2
+		consume_echo_charge("total_erasure")
+		battle_log.emit("[ECHO] Total Erasure surges through the blade!")
 
-	# 속성 상성 (물리)
-	var elem_mult = _get_element_multiplier("physical")
+	# 속성 상성 (물리 — Identity Fracture 에코 시 void로 변환)
+	var atk_element = "void" if has_echo("identity_fracture") else "physical"
+	var elem_mult = _get_element_multiplier(atk_element)
 	base_dmg = int(base_dmg * elem_mult)
 
 	if current_enemy.is_void_beast:
@@ -227,7 +275,7 @@ func player_attack() -> void:
 	AudioManager.play_sfx("hit")
 	var combo_text = " (Combo x%d!)" % combo_count if combo_count >= 2 else ""
 	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
-	_log_element_effect("physical")
+	_log_element_effect(atk_element)
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_add_limit(LIMIT_GAIN_ATTACK)
 	_check_combo_milestone()
@@ -261,14 +309,18 @@ func _log_element_effect(attack_element: String) -> void:
 
 ## 콤보 보너스 계수 (S46: 스케일링 강화 + 마일스톤 보상)
 func _get_combo_multiplier() -> float:
+	var base: float
 	match combo_count:
-		2: return 1.15
-		3: return 1.30
-		4: return 1.50
-		5: return 1.70
-	if combo_count >= 6:
-		return 2.0
-	return 1.0
+		2: base = 1.15
+		3: base = 1.30
+		4: base = 1.50
+		5: base = 1.70
+		_:
+			base = 2.0 if combo_count >= 6 else 1.0
+	# S51: Lingering Habit 에코 — 콤보 배율 +20%
+	if has_echo("lingering_habit") and base > 1.0:
+		base += 0.20
+	return base
 
 ## S46: 콤보 마일스톤 보상 (3, 5, 7+ 콤보에서 리밋 보너스)
 func _check_combo_milestone() -> void:
@@ -304,6 +356,12 @@ func player_burn(memory_id: String) -> void:
 	if state != BattleState.PLAYER_TURN or current_enemy == null:
 		return
 
+	# Faded 기억은 전투 연소 불가
+	var pre_check = MemoryManager._get_memory(memory_id)
+	if pre_check and pre_check.is_faded:
+		battle_log.emit("That memory has faded beyond use...")
+		return
+
 	var memory = MemoryManager.burn_memory(memory_id)
 	if memory == null:
 		battle_log.emit("That memory is already gone.")
@@ -312,7 +370,9 @@ func player_burn(memory_id: String) -> void:
 	_reset_combo("burn")
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
-	var dmg = skill.base_damage + memory.burn_power
+	# 침식 반영 — 유효 연소력
+	var effective_power = MemoryManager.get_effective_burn_power(memory)
+	var dmg = skill.base_damage + effective_power
 	# S41: 장비 효과 — 연소 부스트
 	if GameManager.has_equip_effect("burn_boost"):
 		dmg = int(dmg * 1.2)
@@ -337,6 +397,53 @@ func player_burn(memory_id: String) -> void:
 		apply_status("enemy", StatusEffect.BURN, 2, burn_dot)
 
 	_add_limit(LIMIT_GAIN_BURN)
+	# Memory Echo — 연소 후 전장 잔류 효과
+	_apply_memory_echo(memory)
+	_check_enemy_defeated()
+
+## 플레이어 행동: 엘리아 기술 (S51: EliaDiary 연동)
+func player_use_elia_skill(skill_id: String) -> void:
+	if state != BattleState.PLAYER_TURN or current_enemy == null:
+		return
+	if not GameManager.player_data.elia_with_party:
+		battle_log.emit("Elia is not with you.")
+		return
+	var result = EliaDiary.use_skill(skill_id)
+	if not result["success"]:
+		battle_log.emit(result["msg"])
+		return
+
+	AudioManager.play_sfx("heal")
+	battle_log.emit("[ELIA] %s" % result["name"])
+	battle_log.emit(result["msg"])
+
+	match result["effect"]:
+		"defend":
+			# 다음 적 턴 데미지 50% 감소
+			player_defending = true
+		"stun_enemy":
+			_player_stunned = false  # 적 기절 (다음 적 턴 스킵)
+			# enemy stun: 적에게 stun 상태 부여 (1턴)
+			apply_status("enemy", StatusEffect.WEAKENED, 1, 0)
+			battle_log.emit("%s is stunned!" % current_enemy.name)
+		"damage":
+			var dmg = result["power"]
+			var elem_mult = _get_element_multiplier("void")
+			dmg = int(dmg * elem_mult)
+			if enemy_shielded:
+				dmg = maxi(1, int(dmg * 0.7))
+				enemy_shielded = false
+			var actual = current_enemy.take_damage(dmg)
+			damage_dealt.emit(current_enemy.name, actual, result["name"])
+		"heal_cure":
+			var heal = result["power"]
+			GameManager.player_data.hp = mini(GameManager.player_data.hp + heal, GameManager.player_data.max_hp)
+			# 상태이상 해제
+			player_statuses.clear()
+			status_changed.emit()
+			battle_log.emit("Healed %d HP and cured all ailments." % heal)
+
+	_add_limit(5.0)
 	_check_enemy_defeated()
 
 ## 플레이어 행동: 방어
@@ -461,9 +568,15 @@ func _enemy_turn() -> void:
 	# 보이드 내성 (액세서리 효과)
 	if current_enemy.is_void_beast and GameManager.has_equip_effect("void_resist"):
 		base_dmg = maxi(1, int(base_dmg * 0.75))
+	# 스탠스 방어 보정
+	base_dmg = int(base_dmg / get_stance_def_mult())
 	if player_defending:
 		base_dmg = maxi(1, base_dmg / 2)
 		battle_log.emit("Defended! Reduced damage.")
+	# Elia Anchor 에코: 25% 확률로 절반 데미지
+	if has_echo("elia_anchor") and randf() < 0.25:
+		base_dmg = maxi(1, base_dmg / 2)
+		battle_log.emit("[ECHO] Elia's Anchor softens the blow!")
 
 	player_defending = false
 
@@ -712,12 +825,19 @@ func _check_enemy_defeated() -> void:
 		_end_player_turn()
 
 func _end_player_turn() -> void:
-	# S46: 세이블 행동 — 플레이어가 명령을 지정했으면 실행, 아니면 40% 자동
+	# S51: 턴 카운터 + 수정자 처리
+	_total_turns += 1
+	_process_modifier_effects()
+	# Memory Echo 턴 처리 (힐 틱 등)
+	_process_echoes_turn()
+	# S46: 세이블 행동 — Sable Shadow 에코 시 100%, 아니면 40%/명령
 	if sable_in_party and current_enemy and current_enemy.is_alive():
 		if ally_command_pending and ally_command != "":
 			_sable_support_action(ally_command)
 			ally_command = ""
 			ally_command_pending = false
+		elif has_echo("sable_shadow"):
+			_sable_support_action()
 		elif randf() < 0.4:
 			_sable_support_action()
 		# 세이블이 적을 처치했는지 확인
@@ -737,6 +857,9 @@ func _end_player_turn() -> void:
 			battle_ended.emit(BattleState.VICTORY)
 			_cleanup()
 			return
+	# S51: 엘리아 기술 쿨다운 틱
+	if GameManager.player_data.elia_with_party:
+		EliaDiary.tick_cooldowns()
 	# 짧은 딜레이 후 적 턴 (UI 갱신 시간)
 	await get_tree().create_timer(0.8).timeout
 	_enemy_turn()
@@ -786,7 +909,135 @@ func _get_grains_reward() -> int:
 	base += current_enemy.max_hp / 20
 	return base
 
+## ===================== Encounter Modifier 처리 (S51) =====================
+
+func _process_modifier_effects() -> void:
+	if _encounter_modifier.is_empty():
+		return
+	var effect = _encounter_modifier.get("effect", "")
+	var value = _encounter_modifier.get("value", 0)
+	match effect:
+		"dot_both":
+			# 양쪽 모두 DoT
+			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - value)
+			if current_enemy and current_enemy.is_alive():
+				current_enemy.take_damage(value)
+			battle_log.emit("[CORRUPTION] The ground burns — %d damage to both sides." % value)
+		"player_dot":
+			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - value)
+			battle_log.emit("[CORRUPTION] The void gnaws — %d damage." % value)
+		"turn_limit":
+			if _total_turns >= value:
+				battle_log.emit("[CORRUPTION] The Watcher's patience ends. You are recalled.")
+				state = BattleState.DEFEAT
+				battle_ended.emit(BattleState.DEFEAT)
+				_cleanup()
+		"enemy_double_turn":
+			if _total_turns > 0 and _total_turns % value == 0:
+				# 추가 적 턴
+				if current_enemy and current_enemy.is_alive():
+					battle_log.emit("[CORRUPTION] Time fractures — the enemy moves again!")
+					_enemy_turn()
+
+func has_modifier(effect_name: String) -> bool:
+	return _encounter_modifier.get("effect", "") == effect_name
+
+## ===================== Memory Echo (S51) =====================
+
+func _apply_memory_echo(memory: MemoryManager.Memory) -> void:
+	var echo := {}
+	echo["id"] = memory.id
+	echo["grade"] = memory.grade
+	echo["npc"] = memory.related_npc
+	echo["turns"] = 3
+	match memory.grade:
+		MemoryManager.MemoryGrade.GRADE_5:
+			echo["type"] = "fading_warmth"
+			echo["power"] = 5
+			battle_log.emit("[ECHO] Fading Warmth — heal 5 HP/turn for 3 turns.")
+		MemoryManager.MemoryGrade.GRADE_4:
+			echo["type"] = "lingering_habit"
+			echo["power"] = 10
+			battle_log.emit("[ECHO] Lingering Habit — combo multiplier boosted.")
+		MemoryManager.MemoryGrade.GRADE_3:
+			if memory.related_npc == "Elia":
+				echo["type"] = "elia_anchor"
+				echo["power"] = 25
+				battle_log.emit("[ECHO] Elia's Anchor — 25%% chance to halve next hit.")
+			elif memory.related_npc == "Sable":
+				echo["type"] = "sable_shadow"
+				echo["power"] = 0
+				battle_log.emit("[ECHO] Sable's Shadow — Sable attacks every turn.")
+			else:
+				echo["type"] = "bond_fracture"
+				echo["power"] = 15
+				battle_log.emit("[ECHO] Bond Fracture — +15%% critical chance.")
+		MemoryManager.MemoryGrade.GRADE_2:
+			echo["type"] = "identity_fracture"
+			echo["power"] = 0
+			echo["turns"] = 99  # 전투 종료까지
+			battle_log.emit("[ECHO] Identity Fracture — all attacks deal void damage.")
+		MemoryManager.MemoryGrade.GRADE_1:
+			echo["type"] = "total_erasure"
+			echo["power"] = 2  # 2배 데미지 횟수
+			echo["turns"] = 2
+			battle_log.emit("[ECHO] Total Erasure — next 2 attacks deal double damage!")
+	active_echoes.append(echo)
+	echo_activated.emit(echo["type"], "")
+
+func _process_echoes_turn() -> void:
+	# 턴 종료 시 에코 틱 처리
+	var to_remove: Array = []
+	for echo in active_echoes:
+		match echo["type"]:
+			"fading_warmth":
+				var heal = echo["power"]
+				GameManager.player_data.hp = mini(GameManager.player_data.hp + heal, GameManager.player_data.max_hp)
+				battle_log.emit("[ECHO] Warmth restores %d HP." % heal)
+				damage_dealt.emit("Arrel", -heal, "Echo Heal")
+		echo["turns"] -= 1
+		if echo["turns"] <= 0:
+			to_remove.append(echo)
+	for e in to_remove:
+		active_echoes.erase(e)
+
+func has_echo(echo_type: String) -> bool:
+	for echo in active_echoes:
+		if echo["type"] == echo_type:
+			return true
+	return false
+
+func consume_echo_charge(echo_type: String) -> bool:
+	for echo in active_echoes:
+		if echo["type"] == echo_type and echo.get("power", 0) > 0:
+			echo["power"] -= 1
+			if echo["power"] <= 0:
+				active_echoes.erase(echo)
+			return true
+	return false
+
+## ===================== Battle Stance (S51) =====================
+
+func switch_stance(new_stance: Stance) -> void:
+	# 해금 체크
+	var info = STANCE_INFO[new_stance]
+	if GameManager.current_chapter < info["unlock_chapter"]:
+		battle_log.emit("Stance not yet unlocked.")
+		return
+	if new_stance == current_stance:
+		return
+	current_stance = new_stance
+	stance_changed.emit(new_stance)
+	battle_log.emit("Switched to %s stance." % info["name"])
+
+func get_stance_atk_mult() -> float:
+	return STANCE_INFO[current_stance]["atk_mult"]
+
+func get_stance_def_mult() -> float:
+	return STANCE_INFO[current_stance]["def_mult"]
+
 func _cleanup() -> void:
+	active_echoes.clear()
 	if state == BattleState.VICTORY:
 		# 승리 시 HP 20% 회복
 		var heal = int(GameManager.player_data.max_hp * 0.2)

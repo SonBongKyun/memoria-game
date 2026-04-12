@@ -36,6 +36,9 @@ var _tile_defs: Array = []
 var _minimap_data: Dictionary = {}
 var _encounter_data: RandomEncounter.EncounterData = null
 var effect_time: float = 0.0
+var _occluders: Array[LightOccluder2D] = []  # S52
+var _s52_particles: Array[ColorRect] = []  # S52
+var _camera: Camera2D = null  # S52
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -49,6 +52,11 @@ func _ready() -> void:
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.12), "far": Color(0.15, 0.15, 0.15), "mid": Color(0.18, 0.18, 0.18), "biome": "waste", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.35, 0.35, 0.35))
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.3, 0.3, 0.3, 0.08), 30)
+	# S52: 그래픽 업그레이드
+	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.35, 0.35), "brightness": -0.05})
+	_s52_particles = MapEffects.add_pollen_particles(self, 20, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.35, 0.35, 0.35, 0.2))
+	_camera = MapEffects.setup_smooth_camera(player, 1.0)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -73,6 +81,8 @@ func _process(delta: float) -> void:
 	var elia_vis = elia.visible if elia else false
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
+	MapEffects.update_pollen(_s52_particles, effect_time, delta)
+	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 
@@ -257,6 +267,8 @@ func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(15 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "waste_atmosphere", "ch9_atmosphere")
 	_add_story_trigger(Vector2(8 * TILE_SIZE, 7 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_compass_pull", "ch9_pull")
 	_add_story_trigger(Vector2(16 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "depth_markers", "ch9_markers")
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "colorless_waste")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):

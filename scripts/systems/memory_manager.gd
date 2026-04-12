@@ -15,6 +15,8 @@ class Memory:
 	var burn_power: int       # 연소 시 전투력
 	var is_burned: bool       # 연소 여부
 	var is_residue: bool      # 잔존(희미한 흔적) 상태인지
+	var is_faded: bool        # 침식으로 희미해짐 (전투 연소 불가)
+	var erosion: int          # 침식도 (0~burn_power*0.7 이상이면 faded)
 	var story_effect: String  # 연소 시 스토리 영향 설명
 	var related_npc: String   # 관련 NPC (빈 문자열이면 없음)
 
@@ -26,6 +28,8 @@ class Memory:
 		burn_power = p_power
 		is_burned = false
 		is_residue = false
+		is_faded = false
+		erosion = 0
 		story_effect = p_effect
 		related_npc = p_npc
 
@@ -47,6 +51,8 @@ signal memory_burned(memory: Memory)
 signal memory_added(memory: Memory)
 signal memory_became_residue(memory: Memory)
 signal memory_synthesized(result: Memory, consumed_a: Memory, consumed_b: Memory)
+signal memory_faded(memory: Memory)
+signal memories_eroded(count: int)
 
 func _ready() -> void:
 	_init_starting_memories()
@@ -115,8 +121,60 @@ func _init_starting_memories() -> void:
 		"Elia"
 	))
 
+## 기억 침식 — 챕터 진행 시 미연소 기억이 서서히 바래짐
+## Grade 1(핵심)과 엘리아 관련 기억(동행 시)은 침식 내성
+func apply_erosion(chapter: int) -> void:
+	var base_amount = chapter * 2
+	var eroded_count = 0
+	for m in memories:
+		if m.is_burned or m.is_faded:
+			continue
+		# Grade 1(핵심 기억)은 침식 면역
+		if m.grade >= MemoryGrade.GRADE_1:
+			continue
+		# 엘리아 동행 시 관련 기억은 침식 절반
+		var amount = base_amount
+		if m.related_npc == "Elia" and GameManager.player_data.elia_with_party:
+			amount = int(amount * 0.5)
+		m.erosion += amount
+		eroded_count += 1
+		# 침식 임계: burn_power의 70% 이상이면 Faded
+		if m.erosion >= int(m.burn_power * 0.7) and not m.is_faded:
+			m.is_faded = true
+			memory_faded.emit(m)
+			NotificationToast.show_toast("Memory fading: %s" % m.title, NotificationToast.ToastType.WARNING)
+			print("[MemoryManager] FADED: %s (erosion %d/%d)" % [m.title, m.erosion, m.burn_power])
+	if eroded_count > 0:
+		memories_eroded.emit(eroded_count)
+		print("[MemoryManager] Erosion applied — %d memories affected (ch%d, +%d)" % [eroded_count, chapter, base_amount])
+
+## 유효 연소력 계산 (침식 반영)
+func get_effective_burn_power(memory: Memory) -> int:
+	return maxi(1, memory.burn_power - memory.erosion)
+
+## 침식 비율 (UI 표시용)
+func get_erosion_ratio(memory: Memory) -> float:
+	if memory.burn_power <= 0:
+		return 0.0
+	return clampf(float(memory.erosion) / float(memory.burn_power), 0.0, 1.0)
+
+## 비전투 연소 (탐색 공명 이벤트용 — 소리 없이)
+func burn_memory_silent(memory_id: String) -> Memory:
+	for i in range(memories.size()):
+		if memories[i].id == memory_id and not memories[i].is_burned:
+			var memory = memories[i]
+			memory.is_burned = true
+			burned_memories.append(memory)
+			memory_burned.emit(memory)
+			print("[MemoryManager] SILENT BURN: %s" % memory.title)
+			return memory
+	return null
+
 ## 챕터 진행에 따른 기억 추가
 func add_chapter_memories(chapter: int) -> void:
+	# 챕터 진행 시 기존 기억 침식 적용
+	if chapter >= 3:
+		apply_erosion(chapter)
 	match chapter:
 		3:
 			# Ch3: Belt Waystation — Weight of Pages
@@ -262,6 +320,12 @@ func add_chapter_memories(chapter: int) -> void:
 					"Lose the ability to sense Void Holes. Navigate by instinct alone."
 				))
 
+func _get_memory(memory_id: String) -> Memory:
+	for m in memories:
+		if m.id == memory_id:
+			return m
+	return null
+
 func _has_memory(memory_id: String) -> bool:
 	for m in memories:
 		if m.id == memory_id:
@@ -401,6 +465,7 @@ func export_data() -> Dictionary:
 			"id": m.id, "title": m.title, "description": m.description,
 			"grade": m.grade, "burn_power": m.burn_power,
 			"is_burned": m.is_burned, "is_residue": m.is_residue,
+			"is_faded": m.is_faded, "erosion": m.erosion,
 			"story_effect": m.story_effect, "related_npc": m.related_npc
 		})
 	for m in burned_memories:
@@ -424,6 +489,8 @@ func import_data(data: Dictionary) -> void:
 		)
 		m.is_burned = m_data.get("is_burned", false)
 		m.is_residue = m_data.get("is_residue", false)
+		m.is_faded = m_data.get("is_faded", false)
+		m.erosion = m_data.get("erosion", 0)
 		memories.append(m)
 		if m.is_burned:
 			burned_memories.append(m)

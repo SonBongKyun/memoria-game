@@ -11,6 +11,7 @@ const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 var facing_direction: Vector2 = Vector2.DOWN
 var can_move: bool = true
 var _step_timer: float = 0.0
+var _breath_time: float = 0.0  # S52: 호흡 애니메이션
 const STEP_INTERVAL: float = 0.25
 
 func _ready() -> void:
@@ -40,8 +41,14 @@ func _physics_process(delta: float) -> void:
 		facing_direction = input_vector
 		_update_animation(input_vector, true)
 		_update_raycast_direction()
+		if sprite:
+			sprite.scale = Vector2(1.0, 1.0)  # 이동 중 스케일 초기화
 	else:
 		_update_animation(facing_direction, false)
+		# S52: 정지 시 호흡 미세 스케일
+		_breath_time += delta
+		if sprite:
+			sprite.scale = Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008)
 
 	# S41: 지형별 발걸음 SFX
 	if input_vector != Vector2.ZERO:

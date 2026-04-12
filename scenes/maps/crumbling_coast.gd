@@ -50,6 +50,9 @@ var _tile_defs: Array = []
 var _encounter_data: RandomEncounter.EncounterData = null
 var _tide_pools: Array[ColorRect] = []
 var _point_lights: Array[PointLight2D] = []  # S42
+var _occluders: Array[LightOccluder2D] = []  # S52
+var _s52_particles: Array[ColorRect] = []  # S52
+var _camera: Camera2D = null  # S52
 
 func _ready() -> void:
 	_build_map()
@@ -59,6 +62,11 @@ func _ready() -> void:
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.18), "far": Color(0.15, 0.15, 0.2), "mid": Color(0.2, 0.18, 0.16), "biome": "coast", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.5, 0.5, 0.55))
+	# S52: 그래픽 업그레이드
+	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.4, 0.5), "brightness": -0.02})
+	_s52_particles = MapEffects.add_pollen_particles(self, 10, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.5, 0.5, 0.55, 0.15))
+	_camera = MapEffects.setup_smooth_camera(player, 1.0)
+	MapEffects.add_drop_shadow(player)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_seam_trigger()
@@ -87,6 +95,8 @@ func _process(delta: float) -> void:
 	var elia_vis = elia.visible if elia else false
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
+	MapEffects.update_pollen(_s52_particles, effect_time, delta)
+	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# 조수 웅덩이 맥동
@@ -301,6 +311,8 @@ func _setup_exploration_events() -> void:
 	# 분리 전 엘리아 대화 (분리 선택지 전)
 	if not GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_stays"):
 		_add_story_trigger(Vector2(8 * TILE_SIZE, 6 * TILE_SIZE), Vector2(TILE_SIZE * 3, TILE_SIZE * 2), "elia_before_separation", "ch5_elia_presep")
+	# S51: 기억 공명 지점
+	MemoryResonance.setup_points(self, "crumbling_coast")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):
