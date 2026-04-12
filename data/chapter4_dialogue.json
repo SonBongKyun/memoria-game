@@ -78,6 +78,13 @@
       {"speaker": "Arrel", "text": "Is there another way?", "portrait": "arrel_neutral"},
       {"speaker": "Tobias", "text": "Not if you want to reach The Seam before whoever is following us does.", "portrait": "tobias_neutral"},
       {"speaker": "", "text": "They packed up and moved north. The air grew colder. Salt began to creep into the ash."}
+    ],
+    "arrel_flashback_home": [
+      {"speaker": "", "text": "A fragment surfaces — unbidden, unwanted.", "cg": "res://assets/cg/flashback_home.jpg"},
+      {"speaker": "???", "text": "...the table was always set for three.", "portrait": "arrel_pain"},
+      {"speaker": "", "text": "Warmth. The smell of bread. A voice calling your name."},
+      {"speaker": "???", "text": "Come inside. It's getting cold."},
+      {"speaker": "", "text": "The image fractures. You can't remember whose voice that was."}
     ]
   }
 }

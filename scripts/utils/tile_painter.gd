@@ -583,3 +583,38 @@ static func _shift(color: Color, amount: float) -> Color:
 		clampf(color.b + amount, 0, 1),
 		color.a
 	)
+
+## S53: 타일 경계 자동 전환 (오토타일링)
+## 서로 다른 타일 인접 시 경계 블렌딩
+static func auto_blend_edges(parent: Node2D, map_data: Array, width: int, height: int, tile_colors: Dictionary, tile_size: int = 32) -> Array[ColorRect]:
+	var edges: Array[ColorRect] = []
+	for y in range(height):
+		for x in range(width):
+			if y >= map_data.size() or x >= map_data[y].size():
+				continue
+			var current = map_data[y][x]
+			# 오른쪽 인접 타일 체크
+			if x + 1 < width and x + 1 < map_data[y].size():
+				var right = map_data[y][x + 1]
+				if right != current and tile_colors.has(current) and tile_colors.has(right):
+					var edge = ColorRect.new()
+					edge.size = Vector2(4, tile_size)
+					edge.position = Vector2((x + 1) * tile_size - 2, y * tile_size)
+					edge.color = tile_colors[current].lerp(tile_colors[right], 0.5)
+					edge.color.a = 0.4
+					edge.z_index = 2
+					parent.add_child(edge)
+					edges.append(edge)
+			# 아래 인접 타일 체크
+			if y + 1 < height and y + 1 < map_data.size() and x < map_data[y + 1].size():
+				var below = map_data[y + 1][x]
+				if below != current and tile_colors.has(current) and tile_colors.has(below):
+					var edge = ColorRect.new()
+					edge.size = Vector2(tile_size, 4)
+					edge.position = Vector2(x * tile_size, (y + 1) * tile_size - 2)
+					edge.color = tile_colors[current].lerp(tile_colors[below], 0.5)
+					edge.color.a = 0.4
+					edge.z_index = 2
+					parent.add_child(edge)
+					edges.append(edge)
+	return edges

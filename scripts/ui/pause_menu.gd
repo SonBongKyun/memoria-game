@@ -3,6 +3,8 @@
 extends CanvasLayer
 
 var is_open: bool = false
+var _panel_original_x: float = 0.0  # S53: 슬라이드 애니메이션용
+var _anim_tween: Tween = null  # S53
 
 # UI 노드
 var overlay: ColorRect
@@ -36,6 +38,16 @@ func _open() -> void:
 	_update_save_info()
 	overlay.visible = true
 	panel.visible = true
+	# S53: 메뉴 슬라이드 인 애니메이션
+	_panel_original_x = panel.position.x
+	panel.modulate.a = 0.0
+	panel.position.x = _panel_original_x - 300
+	if _anim_tween and _anim_tween.is_valid():
+		_anim_tween.kill()
+	_anim_tween = create_tween().set_parallel(true)
+	_anim_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_anim_tween.tween_property(panel, "modulate:a", 1.0, 0.25).set_ease(Tween.EASE_OUT)
+	_anim_tween.tween_property(panel, "position:x", _panel_original_x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	AudioManager.play_sfx("ui_open")
 	# 첫 버튼 포커스
 	if btn_container.get_child_count() > 0:
@@ -45,9 +57,18 @@ func _close() -> void:
 	if not is_open:
 		return
 	is_open = false
-	get_tree().paused = false
 	AudioManager.play_sfx("ui_close")
-	_hide_ui()
+	# S53: 메뉴 슬라이드 아웃 애니메이션
+	if _anim_tween and _anim_tween.is_valid():
+		_anim_tween.kill()
+	_anim_tween = create_tween().set_parallel(true)
+	_anim_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_anim_tween.tween_property(panel, "modulate:a", 0.0, 0.2)
+	_anim_tween.tween_property(panel, "position:x", _panel_original_x - 300, 0.2).set_ease(Tween.EASE_IN)
+	_anim_tween.chain().tween_callback(func():
+		_hide_ui()
+		get_tree().paused = false
+	)
 
 func _hide_ui() -> void:
 	if overlay:

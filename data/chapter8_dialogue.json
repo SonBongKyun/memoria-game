@@ -89,6 +89,29 @@
       {"speaker": "", "text": "Arrel held it to his ear. A child's voice, clearer than the others: 'I had a dog. His name was— his name was—'"},
       {"speaker": "", "text": "The sentence looped. The name was gone. Just the shape of having known it remained."},
       {"speaker": "Arrel", "text": "...we have to seal BL-07. Whatever it takes.", "portrait": "arrel_neutral"}
+    ],
+    "tobias_ring_theory": [
+      {"speaker": "Tobias", "text": "I've been mapping the rings. Each one corresponds to a consumption event — but the spacing isn't random.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "The intervals are decreasing. Ring one to ring two: eight years. Ring sixteen to seventeen: four months. It's accelerating.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "What does that mean for The Seam?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "It means BL-07 isn't growing steadily. It's growing like hunger — the more it eats, the faster it needs to eat again. My Ring Theory predicts total collapse within a year.", "portrait": "tobias_neutral"}
+    ],
+    "ghost_mother": [
+      {"speaker": "", "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over."},
+      {"speaker": "Elia", "text": "She's looking for someone. A child. You can see it in the way her arms are held — muscle memory outlasting everything else.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "The ghost turned toward them. For one terrible moment, recognition flickered in her hollow eyes — then faded. She drifted back among the trees, still searching."}
+    ],
+    "forest_heart": [
+      {"speaker": "", "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing."},
+      {"speaker": "Tobias", "text": "We've reached it. The parasitic core. Every tree in this forest is connected to this point — a single organism feeding on memory residue.", "portrait": "tobias_neutral"},
+      {"speaker": "Sable", "text": "It's not just feeding. It's growing. Last time I was here, the core was half this size.", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "Can it be destroyed?", "portrait": "arrel_determined"}
+    ],
+    "arrel_flashback_elia": [
+      {"speaker": "", "text": "The forest whispers a memory you'd almost lost.", "cg": "res://assets/cg/flashback_elia_first.jpg"},
+      {"speaker": "", "text": "A girl standing in the rain. Translucent. Not quite real."},
+      {"speaker": "Elia", "text": "You can see me?", "portrait": "elia_concern"},
+      {"speaker": "", "text": "That was the moment everything changed."}
     ]
   }
 }

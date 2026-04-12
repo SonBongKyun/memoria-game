@@ -26,6 +26,9 @@ var settings: Dictionary = {
 	"text_speed": 3,
 	"difficulty": 1,  # 0=Easy, 1=Normal, 2=Hard
 	"fullscreen": false,
+	"font_scale": 1.0,       # S53: 0.8, 1.0, 1.2, 1.5
+	"screen_shake": true,     # S53: 화면 흔들림 토글
+	"colorblind_mode": 0,     # S53: 0=Off, 1=Deuteranopia, 2=Protanopia
 }
 
 const SETTINGS_PATH: String = "user://settings.json"
@@ -305,6 +308,73 @@ func _build_ui() -> void:
 	sep3.add_theme_constant_override("separation", 8)
 	vbox.add_child(sep3)
 
+	# --- S53: Font Scale ---
+	var font_value_label = Label.new()
+	var font_slider = _create_font_scale_slider(vbox, "Font Scale", settings.font_scale, font_value_label)
+	font_slider.value_changed.connect(func(val: float):
+		settings.font_scale = snapped(val, 0.1)
+		font_value_label.text = "%.1fx" % settings.font_scale
+	)
+
+	# --- S53: Screen Shake ---
+	var shake_row = HBoxContainer.new()
+	shake_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(shake_row)
+
+	var shake_label = Label.new()
+	shake_label.text = "Screen Shake"
+	shake_label.add_theme_font_size_override("font_size", 15)
+	shake_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	shake_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	shake_row.add_child(shake_label)
+
+	var shake_check = CheckButton.new()
+	shake_check.button_pressed = settings.screen_shake
+	shake_check.toggled.connect(func(toggled: bool):
+		settings.screen_shake = toggled
+	)
+	shake_row.add_child(shake_check)
+
+	# --- S53: Colorblind Mode ---
+	var cb_row = HBoxContainer.new()
+	cb_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(cb_row)
+
+	var cb_label = Label.new()
+	cb_label.text = "Colorblind Mode"
+	cb_label.add_theme_font_size_override("font_size", 15)
+	cb_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	cb_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cb_row.add_child(cb_label)
+
+	var cb_btn = Button.new()
+	cb_btn.custom_minimum_size = Vector2(130, 30)
+	cb_btn.add_theme_font_size_override("font_size", 14)
+	cb_btn.add_theme_color_override("font_color", Color(0.85, 0.7, 0.45))
+	var cb_style = StyleBoxFlat.new()
+	cb_style.bg_color = Color(0.1, 0.08, 0.12, 0.9)
+	cb_style.border_color = Color(0.4, 0.3, 0.2, 0.5)
+	cb_style.set_border_width_all(1)
+	cb_style.set_corner_radius_all(3)
+	cb_style.set_content_margin_all(4)
+	cb_btn.add_theme_stylebox_override("normal", cb_style)
+	var cb_hover = cb_style.duplicate()
+	cb_hover.border_color = Color(0.7, 0.55, 0.3, 0.8)
+	cb_btn.add_theme_stylebox_override("hover", cb_hover)
+	var cb_labels_map = {0: "Off", 1: "Deuteranopia", 2: "Protanopia"}
+	cb_btn.text = cb_labels_map.get(settings.colorblind_mode, "Off")
+	cb_btn.pressed.connect(func():
+		settings.colorblind_mode = (settings.colorblind_mode + 1) % 3
+		cb_btn.text = cb_labels_map.get(settings.colorblind_mode, "Off")
+		AudioManager.play_sfx("ui_select")
+	)
+	cb_row.add_child(cb_btn)
+
+	# 구분선
+	var sep4 = HSeparator.new()
+	sep4.add_theme_constant_override("separation", 8)
+	vbox.add_child(sep4)
+
 	# --- Back 버튼 ---
 	var back_btn = Button.new()
 	back_btn.text = "Back"
@@ -396,6 +466,58 @@ func _create_speed_slider_row(parent: VBoxContainer, label_text: String, default
 	slider.custom_minimum_size = Vector2(0, 20)
 
 	# 슬라이더 스타일
+	var grabber_style = StyleBoxFlat.new()
+	grabber_style.bg_color = Color(0.75, 0.6, 0.3)
+	grabber_style.set_corner_radius_all(4)
+	grabber_style.set_content_margin_all(0)
+	grabber_style.content_margin_left = 8
+	grabber_style.content_margin_right = 8
+	grabber_style.content_margin_top = 8
+	grabber_style.content_margin_bottom = 8
+	slider.add_theme_stylebox_override("grabber_area", grabber_style)
+	slider.add_theme_stylebox_override("grabber_area_highlight", grabber_style)
+
+	var slider_style = StyleBoxFlat.new()
+	slider_style.bg_color = Color(0.15, 0.12, 0.18, 0.9)
+	slider_style.set_corner_radius_all(3)
+	slider_style.set_content_margin_all(0)
+	slider_style.content_margin_top = 6
+	slider_style.content_margin_bottom = 6
+	slider.add_theme_stylebox_override("slider", slider_style)
+
+	row_vbox.add_child(slider)
+	return slider
+
+## S53: 폰트 스케일 슬라이더 생성
+func _create_font_scale_slider(parent: VBoxContainer, label_text: String, default_val: float, value_label: Label) -> HSlider:
+	var row_vbox = VBoxContainer.new()
+	row_vbox.add_theme_constant_override("separation", 4)
+	parent.add_child(row_vbox)
+
+	var header = HBoxContainer.new()
+	row_vbox.add_child(header)
+
+	var label = Label.new()
+	label.text = label_text
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(label)
+
+	value_label.text = "%.1fx" % default_val
+	value_label.add_theme_font_size_override("font_size", 14)
+	value_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
+	value_label.custom_minimum_size = Vector2(50, 0)
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	header.add_child(value_label)
+
+	var slider = HSlider.new()
+	slider.min_value = 0.8
+	slider.max_value = 1.5
+	slider.step = 0.1
+	slider.value = default_val
+	slider.custom_minimum_size = Vector2(0, 20)
+
 	var grabber_style = StyleBoxFlat.new()
 	grabber_style.bg_color = Color(0.75, 0.6, 0.3)
 	grabber_style.set_corner_radius_all(4)

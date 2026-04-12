@@ -83,6 +83,11 @@ func _process(delta: float) -> void:
 	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -282,6 +287,10 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(15 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "threshold_atmosphere", "ch7_atmosphere")
 	_add_story_trigger(Vector2(5 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "echo_shell_discovery", "ch7_echo_listen")
+	# Side quest: Echoes of the Threshold
+	if SideQuest.is_active("echo_fragments"):
+		_add_story_trigger(Vector2(3 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "echo_shell_discovery", "sq_echo_frag1")
+		_add_story_trigger(Vector2(19 * TILE_SIZE, 4 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "echo_shell_discovery", "sq_echo_frag2")
 	# S51: 기억 공명 지점
 	MemoryResonance.setup_points(self, "seam_outskirts")
 

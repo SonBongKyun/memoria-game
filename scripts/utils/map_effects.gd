@@ -1048,6 +1048,79 @@ static func update_camera_shake(cam: Camera2D, time: float) -> void:
 		cos(time * 5.7) * intensity + cos(time * 11.9) * intensity * 0.5
 	)
 
+## S53: 파티클 오브젝트 풀
+static var _particle_pool: Array[ColorRect] = []
+const MAX_POOL_SIZE: int = 50
+
+static func _get_pooled_rect() -> ColorRect:
+	if _particle_pool.size() > 0:
+		return _particle_pool.pop_back()
+	return ColorRect.new()
+
+static func _return_to_pool(rect: ColorRect) -> void:
+	if _particle_pool.size() < MAX_POOL_SIZE:
+		rect.visible = false
+		if rect.get_parent():
+			rect.get_parent().remove_child(rect)
+		_particle_pool.append(rect)
+	else:
+		rect.queue_free()
+
+## S53: 뷰포트 외 파티클 비활성화
+static func cull_offscreen_particles(particles: Array, viewport_rect: Rect2) -> void:
+	for p in particles:
+		if p == null or not is_instance_valid(p):
+			continue
+		p.visible = viewport_rect.has_point(p.global_position) if p.is_inside_tree() else true
+
+## ===================== S53: 동적 날씨 전환 =====================
+## 시간 경과에 따라 날씨 강도 변화
+static func update_weather_intensity(rain_node: Node, time: float, base_intensity: float = 1.0) -> void:
+	if rain_node == null or not is_instance_valid(rain_node):
+		return
+	# 사인파 기반 강도 변화 (느린 주기)
+	var cycle = sin(time * 0.05) * 0.5 + 0.5  # 0~1 oscillation
+	var intensity = base_intensity * (0.4 + cycle * 0.6)  # 40%~100%
+	if rain_node is GPUParticles2D:
+		rain_node.amount_ratio = intensity
+	elif rain_node is ColorRect:
+		rain_node.color.a = intensity * 0.3
+
+## 안개 밀도 동적 변화
+static func update_dynamic_fog(fog_rects: Array, time: float, base_alpha: float = 0.06) -> void:
+	var cycle = sin(time * 0.03) * 0.5 + 0.5
+	for rect in fog_rects:
+		if rect == null or not is_instance_valid(rect):
+			continue
+		var phase = rect.get_meta("phase", 0.0)
+		rect.color.a = base_alpha * (0.5 + cycle * 0.5) + sin(time * 0.5 + phase) * base_alpha * 0.3
+
+## 번개 효과 (비 맵 전용)
+static func add_lightning(parent: Node2D) -> ColorRect:
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(0.9, 0.9, 1.0, 0.0)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 10
+	flash.set_meta("next_flash", randf_range(8.0, 25.0))
+	flash.set_meta("timer", 0.0)
+	parent.add_child(flash)
+	return flash
+
+static func update_lightning(flash_rect: ColorRect, delta: float) -> void:
+	if flash_rect == null or not is_instance_valid(flash_rect):
+		return
+	var timer = flash_rect.get_meta("timer", 0.0) + delta
+	var next = flash_rect.get_meta("next_flash", 15.0)
+	flash_rect.set_meta("timer", timer)
+	if timer >= next:
+		# 번개 플래시!
+		flash_rect.color.a = randf_range(0.15, 0.35)
+		flash_rect.set_meta("timer", 0.0)
+		flash_rect.set_meta("next_flash", randf_range(8.0, 25.0))
+	elif flash_rect.color.a > 0:
+		flash_rect.color.a = maxf(0.0, flash_rect.color.a - delta * 3.0)
+
 ## 색상 유틸
 static func _darken_c(color: Color, amount: float) -> Color:
 	return Color(maxf(color.r - amount, 0), maxf(color.g - amount, 0), maxf(color.b - amount, 0), color.a)

@@ -58,11 +58,13 @@ var _enemy_base_y: float = 0.0
 # S42: 전투 분위기 컬러 그레이딩
 var _color_grade_rect: ColorRect
 var _battle_particles: GPUParticles2D  # 배경 파티클
+var _battle_parallax_layers: Array = []  # S53: 전투 패럴랙스
 
 # S46: 타격감 강화
 var _enemy_shader_mat: ShaderMaterial  # 적 VFX 셰이더
 var _player_shader_mat: ShaderMaterial  # 플레이어 VFX 셰이더
 var ally_cmd_container: HBoxContainer  # 세이블 명령 UI
+var tobias_cmd_container: HBoxContainer  # 토비아스 명령 UI
 
 func _ready() -> void:
 	_build_ui()
@@ -84,6 +86,11 @@ func _process(delta: float) -> void:
 	if ally_sprite_container and ally_sprite_container.visible:
 		ally_sprite_container.position.y = _ally_base_pos.y + sin(_idle_time * 1.3 + 1.2) * 2.5
 		ally_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.3 + 1.2) * 0.007, 1.0 - sin(_idle_time * 1.3 + 1.2) * 0.005)
+	# S53: 전투 패럴랙스 미세 이동
+	for layer in _battle_parallax_layers:
+		if layer and is_instance_valid(layer):
+			var speed = layer.get_meta("parallax_speed", 0.5)
+			layer.position.x = sin(_idle_time * speed * 0.3) * 15 * speed
 
 ## ===================== UI 빌드 =====================
 
@@ -107,6 +114,8 @@ func _build_ui() -> void:
 	_add_battle_vignette()
 	# S42: 배경 분위기 파티클 + 컬러 그레이딩
 	_add_battle_atmosphere()
+	# S53: 전투 패럴랙스 레이어
+	_add_battle_parallax()
 
 	# S44: 전투 지면 (그라운드 플랫폼)
 	_build_battle_ground()
@@ -184,6 +193,8 @@ func _build_ui() -> void:
 
 	# S46: 세이블 명령 UI
 	_build_ally_command_ui(root)
+	# S53: 토비아스 명령 UI
+	_build_tobias_command_ui(root)
 
 	# S51: 스탠스 전환 UI + 에코 표시 + 엘리아 기술 UI
 	_build_stance_ui(root)
@@ -217,6 +228,32 @@ func _add_battle_vignette() -> void:
 		mat.set_shader_parameter("inner_radius", 0.3)
 		vignette.material = mat
 	add_child(vignette)
+
+## S53: 전투 배경 패럴랙스 레이어
+func _add_battle_parallax() -> void:
+	# Layer 1: 먼 실루엣 (느린 이동)
+	var far_layer = ColorRect.new()
+	far_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	far_layer.color = Color(0.05, 0.03, 0.08, 0.3)
+	far_layer.z_index = -2
+	far_layer.set_meta("parallax_speed", 0.3)
+	far_layer.set_meta("base_x", 0.0)
+	far_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(far_layer)
+	move_child(far_layer, 0)
+
+	# Layer 2: 안개/먼지 (중간 이동)
+	var mid_layer = ColorRect.new()
+	mid_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mid_layer.color = Color(0.1, 0.08, 0.12, 0.15)
+	mid_layer.z_index = -1
+	mid_layer.set_meta("parallax_speed", 0.8)
+	mid_layer.set_meta("base_x", 0.0)
+	mid_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(mid_layer)
+	move_child(mid_layer, 1)
+
+	_battle_parallax_layers = [far_layer, mid_layer]
 
 ## ===================== 인트로 시스템 =====================
 
@@ -1133,6 +1170,8 @@ func _on_player_turn() -> void:
 	action_container.visible = true
 	if ally_cmd_container:
 		ally_cmd_container.visible = BattleManager.sable_in_party
+	if tobias_cmd_container:
+		tobias_cmd_container.visible = BattleManager.tobias_in_party
 	if stance_container:
 		stance_container.visible = true
 	if elia_skill_container:
@@ -1146,6 +1185,8 @@ func _on_player_turn() -> void:
 func _on_enemy_turn() -> void:
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
+	if tobias_cmd_container:
+		tobias_cmd_container.visible = false
 	if stance_container:
 		stance_container.visible = false
 	if elia_skill_container:
@@ -1160,6 +1201,8 @@ func _on_battle_ended(_result) -> void:
 	action_container.visible = false
 	if ally_cmd_container:
 		ally_cmd_container.visible = false
+	if tobias_cmd_container:
+		tobias_cmd_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
 	# S40: 승리 시 적 디졸브 효과
@@ -1529,6 +1572,9 @@ func _hit_flash(target: String) -> void:
 
 ## 스크린 셰이크 (S42 강화: 더 많은 프레임 + 회전 흔들림)
 func _screen_shake(intensity: float = 1.0) -> void:
+	# S53: 접근성 — 화면 흔들림 비활성화 옵션
+	if not OptionsMenu.settings.get("screen_shake", true):
+		return
 	var original_pos = canvas_root.position
 	var t = create_tween()
 	var frames = int(6 + intensity * 2)
@@ -2330,6 +2376,59 @@ func _on_ally_cmd(action: String) -> void:
 	if ally_cmd_container:
 		for i in range(1, ally_cmd_container.get_child_count()):
 			var btn = ally_cmd_container.get_child(i)
+			if btn is Button:
+				var is_selected = (btn.text.to_lower() == action)
+				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE
+
+## ===================== S53: 토비아스 명령 UI =====================
+
+func _build_tobias_command_ui(root: Control) -> void:
+	if not BattleManager.tobias_in_party:
+		return
+	tobias_cmd_container = HBoxContainer.new()
+	tobias_cmd_container.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	tobias_cmd_container.anchor_left = 0.0
+	tobias_cmd_container.anchor_right = 0.35
+	tobias_cmd_container.anchor_top = 0.84
+	tobias_cmd_container.anchor_bottom = 0.90
+	tobias_cmd_container.offset_left = 10
+	tobias_cmd_container.add_theme_constant_override("separation", 4)
+
+	var lbl = Label.new()
+	lbl.text = "Tobias:"
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.55))
+	tobias_cmd_container.add_child(lbl)
+
+	var cmds = [["Analyze", "analyze"], ["Archive", "archive"], ["Protect", "protect"]]
+	for cmd in cmds:
+		var btn = Button.new()
+		btn.text = cmd[0]
+		btn.custom_minimum_size = Vector2(52, 22)
+		btn.add_theme_font_size_override("font_size", 10)
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0.2, 0.18, 0.12, 0.9)
+		style.border_color = Color(0.6, 0.5, 0.3, 0.7)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(3)
+		btn.add_theme_stylebox_override("normal", style)
+		var hover = style.duplicate()
+		hover.bg_color = Color(0.35, 0.3, 0.2, 0.95)
+		btn.add_theme_stylebox_override("hover", hover)
+		btn.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7))
+		var action_name = cmd[1]
+		btn.pressed.connect(func(): _on_tobias_cmd(action_name))
+		tobias_cmd_container.add_child(btn)
+
+	tobias_cmd_container.visible = false
+	root.add_child(tobias_cmd_container)
+
+func _on_tobias_cmd(action: String) -> void:
+	BattleManager.set_tobias_command(action)
+	AudioManager.play_sfx("ui_select")
+	if tobias_cmd_container:
+		for i in range(1, tobias_cmd_container.get_child_count()):
+			var btn = tobias_cmd_container.get_child(i)
 			if btn is Button:
 				var is_selected = (btn.text.to_lower() == action)
 				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE

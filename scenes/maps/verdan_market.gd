@@ -104,6 +104,14 @@ func _process(delta: float) -> void:
 	MapEffects.update_point_lights(_point_lights, _time)
 	MapEffects.update_pollen(_s52_particles, _time, delta)
 	MapEffects.update_camera_shake(_camera, _time)
+	# S53: 뷰포트 외 파티클 컬링
+	var vp_rect = Rect2(player.position - Vector2(700, 400), Vector2(1400, 800))
+	MapEffects.cull_offscreen_particles(_s52_particles, vp_rect)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(_time * 1.5 + npc.position.x * 0.1) * 0.006)
 	# 랜턴 깜빡임
 	for l in _lantern_lights:
 		l.color.a = 0.3 + randf_range(-0.05, 0.05) + sin(_time * 3.0) * 0.05

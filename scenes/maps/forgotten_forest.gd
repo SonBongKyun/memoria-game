@@ -84,6 +84,11 @@ func _process(delta: float) -> void:
 	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -259,6 +264,12 @@ func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(4 * TILE_SIZE, 10 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "elia_anchor_strain", "ch8_anchor")
 	_add_story_trigger(Vector2(16 * TILE_SIZE, 12 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "ghost_child", "ch8_ghost_child")
 	_add_story_trigger(Vector2(10 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "forest_whispers", "ch8_whispers")
+	# 플래시백: 엘리아와의 첫 만남
+	_add_story_trigger(Vector2(14 * TILE_SIZE, 6 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_flashback_elia", "ch8_flashback_elia")
+	# Side quest: The Parasite's Root
+	if SideQuest.is_active("forest_parasite"):
+		_add_story_trigger(Vector2(14 * TILE_SIZE, 10 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "forest_whispers", "sq_parasite_found")
+		_add_story_trigger(Vector2(6 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "forest_whispers", "sq_parasite_burned")
 	# S51: 기억 공명 지점
 	MemoryResonance.setup_points(self, "forgotten_forest")
 

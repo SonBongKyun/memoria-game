@@ -126,6 +126,11 @@ func _process(delta: float) -> void:
 		var phase = s.get_meta("phase", 0.0)
 		s.position.y = s.get_meta("base_y") + sin(pulse_time * 1.2 + phase) * 6.0
 		s.color.a = 0.1 + sin(pulse_time * 2.0 + phase) * 0.06
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(pulse_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(pulse_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== S48: 탐색 이벤트 =====================
 

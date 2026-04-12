@@ -124,7 +124,7 @@ func _init_starting_memories() -> void:
 ## 기억 침식 — 챕터 진행 시 미연소 기억이 서서히 바래짐
 ## Grade 1(핵심)과 엘리아 관련 기억(동행 시)은 침식 내성
 func apply_erosion(chapter: int) -> void:
-	var base_amount = chapter * 2
+	var base_amount = chapter * 1  # S53: 침식 속도 완화 (chapter*2 → chapter*1)
 	var eroded_count = 0
 	for m in memories:
 		if m.is_burned or m.is_faded:
@@ -136,6 +136,9 @@ func apply_erosion(chapter: int) -> void:
 		var amount = base_amount
 		if m.related_npc == "Elia" and GameManager.player_data.elia_with_party:
 			amount = int(amount * 0.5)
+		# S53: Grade 2(정체성) 기억은 침식 75% 속도
+		if m.grade == MemoryGrade.GRADE_2:
+			amount = int(amount * 0.75)
 		m.erosion += amount
 		eroded_count += 1
 		# 침식 임계: burn_power의 70% 이상이면 Faded

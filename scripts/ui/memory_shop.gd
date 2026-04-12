@@ -611,12 +611,43 @@ func _populate_equip_list() -> void:
 		var eid = GameManager.equipped.get(slot, "")
 		var label_text = "%s: %s" % [slot.capitalize(), "—"]
 		if eid != "" and GameManager.EQUIPMENT.has(eid):
-			label_text = "%s: %s" % [slot.capitalize(), GameManager.EQUIPMENT[eid].name]
+			var lvl = GameManager.get_upgrade_level(eid)
+			var lvl_str = " +%d" % lvl if lvl > 0 else ""
+			label_text = "%s: %s%s" % [slot.capitalize(), GameManager.EQUIPMENT[eid].name, lvl_str]
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
 		var lbl = Label.new()
 		lbl.text = label_text
 		lbl.add_theme_font_size_override("font_size", 12)
 		lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.75))
-		item_list.add_child(lbl)
+		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(lbl)
+		# S53: Upgrade 버튼
+		if eid != "" and GameManager.EQUIPMENT.has(eid):
+			var cur_lvl = GameManager.get_upgrade_level(eid)
+			if cur_lvl < 3:
+				var cost = (cur_lvl + 1) * 30
+				var upg_btn = Button.new()
+				upg_btn.text = "Upgrade (%dG)" % cost
+				upg_btn.custom_minimum_size = Vector2(100, 24)
+				upg_btn.add_theme_font_size_override("font_size", 11)
+				var upg_style = UITheme.make_button_style(Color(0.12, 0.1, 0.06, 0.9), Color(0.5, 0.4, 0.2, 0.7))
+				upg_btn.add_theme_stylebox_override("normal", upg_style)
+				upg_btn.add_theme_stylebox_override("hover", UITheme.make_hover_style(upg_style))
+				upg_btn.add_theme_color_override("font_color", Color(0.85, 0.7, 0.35))
+				var captured_eid = eid
+				upg_btn.pressed.connect(func():
+					if GameManager.upgrade_equipment(captured_eid):
+						AudioManager.play_sfx("confirm")
+						NotificationToast.show_toast("Upgraded: %s +%d" % [GameManager.EQUIPMENT[captured_eid].name, GameManager.get_upgrade_level(captured_eid)], NotificationToast.ToastType.SUCCESS)
+						_update_grains()
+						_refresh_items()
+					else:
+						AudioManager.play_sfx("ui_close")
+				)
+				upg_btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+				row.add_child(upg_btn)
+		item_list.add_child(row)
 
 	# 구매 가능한 장비
 	var shop_header = Label.new()

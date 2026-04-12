@@ -84,6 +84,22 @@
       {"speaker": "Arrel", "text": "And if I've forgotten my name?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Then we've already lost.", "portrait": "sable_neutral"},
       {"speaker": "", "text": "They crossed the ridgeline. Behind them, The Seam's colors faded to nothing."}
+    ],
+    "sable_confession": [
+      {"speaker": "Sable", "text": "I wasn't always freelance. Before Ashbridge, before The Seam — I worked for the Authority.", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "You were Bureau?", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "Subsection Eleven. Memory Disposal. They called us Cleaners. We made people forget things the Authority didn't want remembered.", "portrait": "sable_intense"},
+      {"speaker": "Sable", "text": "I left when they asked me to burn a child's memory of her parents. That was my line. Everyone has one.", "portrait": "sable_calm"}
+    ],
+    "outskirts_monument": [
+      {"speaker": "", "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water."},
+      {"speaker": "Tobias", "text": "A memorial cairn. Bureau standard. These names... they're the first expedition team. Twelve people. All erased.", "portrait": "tobias_neutral"},
+      {"speaker": "Arrel", "text": "The stone remembers them even if nothing else does.", "portrait": "arrel_determined"}
+    ],
+    "elia_void_edge": [
+      {"speaker": "Elia", "text": "Arrel. Stop walking for a moment.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "What's wrong?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I can feel it pulling. Not at you — at me. Like it knows I'm not fully real. Like it's offering to finish what was started.", "portrait": "elia_concern"}
     ]
   }
 }

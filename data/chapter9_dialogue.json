@@ -75,6 +75,14 @@
       {"speaker": "Sable", "text": "Nothing. I already lost it.", "portrait": "sable_neutral"},
       {"speaker": "", "text": "They crossed the threshold. Behind them, the colorless Waste sealed shut like a wound remembering how to close."}
     ],
+    "kairos_defeated": [
+      {"speaker": "", "text": "Kairos buckled. Not destroyed — folded. Like a page being turned rather than torn."},
+      {"speaker": "Kairos", "text": "Impressive. Subject ARL-0091 exceeds even the revised projections.", "portrait": "kairos_neutral"},
+      {"speaker": "Kairos", "text": "I will withdraw. Not because you've won — but because the data is sufficient. The Authority will decide what comes next.", "portrait": "kairos_neutral"},
+      {"speaker": "Sable", "text": "He's retreating toward BL-07's edge. We should move before he changes his mind.", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "He wasn't trying to stop us. He was measuring us.", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "Then let's make sure the measurement was worth his time. Forward — the Void Hole awaits.", "portrait": "tobias_neutral"}
+    ],
     "depth_markers": [
       {"speaker": "", "text": "Strange markers dotted the Waste — pillars of compressed memory residue, frozen mid-dissolution."},
       {"speaker": "Tobias", "text": "These are depth markers. The closer to BL-07, the more compressed the residue. It's like tree rings but for destruction.", "portrait": "tobias_neutral"},
@@ -83,6 +91,22 @@
       {"speaker": "Tobias", "text": "Each ring is a generation of people who were erased. Their compressed existence is all that's left.", "portrait": "tobias_neutral"},
       {"speaker": "Elia", "text": "We're walking on gravestones.", "portrait": "elia_concern"},
       {"speaker": "Tobias", "text": "...that is unfortunately accurate.", "portrait": "tobias_neutral"}
+    ],
+    "kairos_defeated": [
+      {"speaker": "", "text": "Kairos staggered. For the first time, his composure fractured — a crack in the mask of clinical detachment."},
+      {"speaker": "Kairos", "text": "You've exceeded every model. Every projection. The Authority will need to revise their entire framework.", "portrait": "kairos_neutral"},
+      {"speaker": "Kairos", "text": "I withdraw — not in defeat, but in acknowledgment. You are no longer a subject. You are a variable we cannot control.", "portrait": "kairos_neutral"},
+      {"speaker": "Arrel", "text": "Tell the Authority this: we're coming for the Seal. And no amount of data will stop us.", "portrait": "arrel_determined"}
+    ],
+    "compass_resonance": [
+      {"speaker": "", "text": "The compass in Arrel's chest flared — not toward BL-07, but sideways. Toward something buried in the colorless soil."},
+      {"speaker": "Arrel", "text": "There's something here. A memory. Not mine — older. Much older.", "portrait": "arrel_pain"},
+      {"speaker": "", "text": "He knelt and pressed his palm to the ground. A fragment surfaced: the last thought of someone who had stood here centuries ago, watching the first Void Hole open."}
+    ],
+    "waste_final_view": [
+      {"speaker": "", "text": "At the edge of the Waste, Arrel turned back. The colorless expanse stretched to the horizon — a world stripped of every quality except existence."},
+      {"speaker": "Elia", "text": "It's hard to believe there were towns here once. Families. Gardens.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "There will be again. That's what we're fighting for.", "portrait": "arrel_determined"}
     ]
   }
 }

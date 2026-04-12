@@ -2621,3 +2621,64 @@ Ch1 (rim_forest) → Ch2 (verdan_market) → Ch3 (belt_waystation) → Ch4 (drif
 - 전투 밸런스 미세 조정
 - 카이로스 보스전
 - 추가 CG 연결
+
+---
+
+## S53 — 2026-04-12 (20대 업그레이드 — 게임성+스토리+비주얼+폴리싱)
+
+### 완료
+
+**게임성 (6종)**
+- [x] **토비아스 전투 동행** — Ch3-6 서포트 (analyze/archive/protect), 전투 UI 커맨드
+- [x] **기억 체인 번** — 연속 연소 시 +20% 누적 데미지 보너스 (_burn_chain)
+- [x] **NG++ 보스 강화** — cycle 3+ 보스에 despair/charge/reflect 능력 추가
+- [x] **장비 강화 시스템** — 0~3단계 업그레이드, MemoryShop 업그레이드 버튼, Grains 비용
+- [x] **사이드 퀘스트 3종 추가** — echo_fragments(Ch7), forest_parasite(Ch8), colorless_compass(Ch9)
+- [x] **전투 밸런스 조정** — 세이블 공격력 12-22, 침식률 50% 감소, 에코 지속시간 조정
+
+**스토리 (4종)**
+- [x] **대화 9종 추가** — Ch7-9 신규 대화 + 플래시백 3종 (Ch4/Ch6/Ch8)
+- [x] **엔딩 2종 추가** — tobias 엔딩 (동행 희생), hollow 엔딩 (완전 연소), 총 6종
+- [x] **카이로스 보스전** — Ch9 450HP/38ATK, 6능력, 클리어 후 대화
+- [x] **토비아스 합류 이벤트** — Belt Waystation에서 tobias_joined 플래그
+
+**비주얼 (5종)**
+- [x] **NPC 아이들 애니메이션** — 8개 맵 NPC에 미세 호흡/움직임 추가
+- [x] **타일 블렌딩** — auto_blend_edges() 타일 경계 자연스러운 혼합
+- [x] **동적 날씨** — update_weather_intensity(), 번개 효과 (drift_shelter/crumbling_coast)
+- [x] **파티클 풀링** — _get_pooled_rect/_return_to_pool 성능 최적화
+- [x] **오프스크린 컬링** — cull_offscreen_particles() 화면 밖 파티클 비활성화
+
+**폴리싱 (5종)**
+- [x] **대화 상자 애니메이션** — slide-up/down 등장·퇴장
+- [x] **일시정지 메뉴 애니메이션** — slide-in/out 효과
+- [x] **접근성 옵션 3종** — 폰트 크기, 화면 흔들림 토글, 색맹 모드
+- [x] **신규 포트레이트 3종** — kairos_cold, kairos_amused, tobias_concerned
+- [x] **Windows 내보내기 설정** — export_presets.cfg
+
+### 수정 파일 (28개)
+| 파일 | 변경 내용 |
+|------|----------|
+| `scripts/systems/battle_manager.gd` | 토비아스 동행, 체인 번, NG++ 보스 강화 |
+| `scenes/battle/battle_scene.gd` | 토비아스 커맨드 UI, 접근성 셰이크 체크 |
+| `scripts/core/game_manager.gd` | 장비 강화 시스템, NG++ 보너스, 전용 장비 2종 |
+| `scripts/ui/memory_shop.gd` | 장비 업그레이드 버튼 |
+| `scripts/utils/side_quest.gd` | Ch7-9 사이드 퀘스트 3종 |
+| `scripts/systems/memory_manager.gd` | 침식률 밸런스 (50% 감소) |
+| `data/chapter4~9_dialogue.json` | 대화 9종 + 플래시백 3종 |
+| `data/epilogue_dialogue.json` | tobias/hollow 엔딩 2종 |
+| `scenes/maps/the_seam.gd` | 엔딩 분기 2종 추가, 플래시백 |
+| `scenes/maps/colorless_waste.gd` | 카이로스 보스전 + NPC 애니메이션 |
+| `scenes/maps/belt_waystation.gd` | 토비아스 합류 이벤트 |
+| `scenes/maps/*.gd` (8파일) | NPC 아이들, 퀘스트 트리거, 번개 |
+| `scripts/utils/map_effects.gd` | 동적 날씨, 번개, 파티클 풀/컬링 |
+| `scripts/utils/tile_painter.gd` | auto_blend_edges() |
+| `scripts/ui/dialogue_box.gd` | slide 애니메이션, 포트레이트 3종 |
+| `scripts/ui/pause_menu.gd` | slide-in/out 애니메이션 |
+| `scenes/ui/options_menu.gd` | 접근성 설정 3종 |
+| `export_presets.cfg` | Windows Desktop 내보내기 템플릿 |
+
+### 다음
+- 전체 플레이 테스트
+- 추가 CG 연결
+- 사운드 추가

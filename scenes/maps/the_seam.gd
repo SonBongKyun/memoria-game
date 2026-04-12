@@ -143,6 +143,11 @@ func _process(delta: float) -> void:
 	for c in _crystal_lights:
 		var phase = c.get_meta("phase", 0.0)
 		c.color.a = 0.15 + sin(effect_time * 2.5 + phase) * 0.1 + (0.3 if fmod(effect_time + phase, 4.0) < 0.15 else 0.0)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 func _setup_hidden_events() -> void:
 	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)
@@ -177,6 +182,8 @@ func _setup_exploration_events() -> void:
 	# BL-07 출발 전 세이블 준비 (남쪽 근처)
 	if GameManager.get_flag("ch6_briefing_done") and not GameManager.get_flag("ch6_bl07_entered"):
 		_add_story_trigger(Vector2(12 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "sable_preparation", "ch6_sable_prep")
+	# 플래시백: 상실의 날 기억
+	_add_story_trigger(Vector2(16 * TILE_SIZE, 10 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_flashback_loss", "ch6_flashback_loss")
 	# S51: 기억 공명 지점
 	MemoryResonance.setup_points(self, "the_seam")
 
@@ -251,6 +258,12 @@ func _start_epilogue() -> void:
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
 		# Seam — 숨겨진 아름다움을 발견한 아렐 (희망의 비밀 엔딩)
 		epilogue_key = "epilogue_seam"
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("tobias_joined") and GameManager.get_flag("ch9_kairos_battle"):
+		# Tobias — 토비아스가 연구를 완성하는 엔딩
+		epilogue_key = "epilogue_tobias"
+	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 8:
+		# Hollow — 아렐이 거의 텅 빈 엔딩
+		epilogue_key = "epilogue_hollow"
 	else:
 		# Preservation — 이름을 지킨 아렐 (기본 보존 엔딩)
 		epilogue_key = "epilogue_preservation"
@@ -260,6 +273,19 @@ func _start_epilogue() -> void:
 
 func _on_epilogue_ended() -> void:
 	GameManager.set_flag("epilogue_complete")
+	# 엔딩별 업적 기록
+	if GameManager.get_flag("zero_burn_path"):
+		AchievementManager.unlock("ending_zero_burn")
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("tobias_joined") and GameManager.get_flag("ch9_kairos_battle"):
+		AchievementManager.unlock("ending_tobias")
+	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 8:
+		AchievementManager.unlock("ending_hollow")
+	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
+		AchievementManager.unlock("ending_ash")
+	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
+		AchievementManager.unlock("ending_seam")
+	else:
+		AchievementManager.unlock("ending_preservation")
 	_setup_epilogue_npcs()
 	print("[TheSeam] Epilogue complete — talk to Elia or Sable")
 

@@ -48,7 +48,13 @@ const EQUIPMENT: Dictionary = {
 	"ash_pendant": {"name": "Ash Pendant", "slot": "accessory", "atk": 0, "def": 0, "desc": "Increases burn damage by 20%.", "price": 50, "effect": "burn_boost"},
 	"iron_ring": {"name": "Iron Ring", "slot": "accessory", "atk": 3, "def": 3, "desc": "Simple but effective.", "price": 40},
 	"void_charm": {"name": "Void Charm", "slot": "accessory", "atk": 0, "def": 0, "desc": "Reduces void damage taken by 25%.", "price": 65, "effect": "void_resist"},
+	# S53: NG++ 전용 장비
+	"void_edge_plus": {"name": "Void Edge", "slot": "weapon", "atk": 18, "def": 0, "price": 200, "desc": "Forged from collapsed void. NG++ only.", "element": "void", "effect": "burn_boost"},
+	"memory_plate": {"name": "Memory Plate", "slot": "armor", "atk": 0, "def": 16, "price": 200, "desc": "Woven from residual memories. NG++ only.", "element": "", "effect": "erosion_resist"},
 }
+
+## S53: 장비 강화
+var upgrade_levels: Dictionary = {}  # {"equip_id": level}
 
 var equipped: Dictionary = {"weapon": "", "armor": "", "accessory": ""}
 
@@ -60,12 +66,33 @@ func equip_item(equip_id: String) -> String:
 	equipped[slot] = equip_id
 	return old
 
+func upgrade_equipment(equip_id: String) -> bool:
+	if not EQUIPMENT.has(equip_id):
+		return false
+	var level = upgrade_levels.get(equip_id, 0)
+	var cost = (level + 1) * 30  # 30, 60, 90...
+	if player_data.grains < cost or level >= 3:
+		return false
+	player_data.grains -= cost
+	upgrade_levels[equip_id] = level + 1
+	return true
+
+func get_upgrade_level(equip_id: String) -> int:
+	return upgrade_levels.get(equip_id, 0)
+
+func get_upgraded_bonus(equip_id: String, stat: String) -> int:
+	if not EQUIPMENT.has(equip_id):
+		return 0
+	var base = EQUIPMENT[equip_id].get(stat, 0)
+	var level = get_upgrade_level(equip_id)
+	return base + level * 3  # +3 per upgrade level
+
 func get_equip_bonus(stat: String) -> int:
 	var total: int = 0
 	for slot in equipped:
 		var eid = equipped[slot]
 		if eid != "" and EQUIPMENT.has(eid):
-			total += EQUIPMENT[eid].get(stat, 0)
+			total += get_upgraded_bonus(eid, stat)
 	return total
 
 func has_equip_effect(effect_name: String) -> bool:
@@ -153,6 +180,15 @@ func start_new_game_plus() -> void:
 	MemoryManager.burned_memories.clear()
 	MemoryManager._init_starting_memories()
 
+	# S53: NG++ (cycle 2+) 보너스
+	if ng_plus_cycle >= 2:
+		player_data["max_hp"] = 120  # 시작 HP 증가
+		player_data["hp"] = 120
+		# NG++ 전용 장비 해금
+		set_flag("ng_plus_equipment", true)
+	if ng_plus_cycle >= 3:
+		set_flag("ng_triple_plus", true)  # 최종 보스 변형 플래그
+
 	AchievementManager.unlock("new_game_plus")
 	print("[GameManager] New Game+ Cycle %d started (Grains: %d, Items: %d)" % [ng_plus_cycle, kept_grains, kept_items.size()])
 
@@ -188,6 +224,7 @@ func export_data() -> Dictionary:
 		"current_chapter": current_chapter,
 		"ng_plus_cycle": ng_plus_cycle,
 		"equipped": equipped.duplicate(),  # S41
+		"upgrade_levels": upgrade_levels.duplicate(),  # S53
 	}
 
 ## 세이브 데이터 불러오기
@@ -202,3 +239,5 @@ func import_data(data: Dictionary) -> void:
 		ng_plus_cycle = int(data["ng_plus_cycle"])
 	if data.has("equipped"):
 		equipped = data.equipped  # S41
+	if data.has("upgrade_levels"):
+		upgrade_levels = data.upgrade_levels  # S53

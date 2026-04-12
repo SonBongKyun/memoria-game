@@ -53,6 +53,7 @@ var _point_lights: Array[PointLight2D] = []  # S42
 var _occluders: Array[LightOccluder2D] = []  # S52
 var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
+var _lightning: ColorRect = null  # S53: 번개
 
 func _ready() -> void:
 	_build_map()
@@ -72,6 +73,7 @@ func _ready() -> void:
 	_setup_seam_trigger()
 	water_shimmers = MapEffects.add_water_shimmer(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.WATER)
 	MapEffects.add_rain(self, 0.7, Color(0.5, 0.55, 0.7, 0.25))
+	_lightning = MapEffects.add_lightning(self)  # S53: 번개
 	_setup_random_encounters()
 	_setup_interactive_objects()
 	_setup_exploration_events()
@@ -97,12 +99,18 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	MapEffects.update_pollen(_s52_particles, effect_time, delta)
 	MapEffects.update_camera_shake(_camera, effect_time)
+	MapEffects.update_lightning(_lightning, delta)  # S53: 번개
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# 조수 웅덩이 맥동
 	for tp in _tide_pools:
 		var phase = tp.get_meta("phase", 0.0)
 		tp.color.a = 0.15 + sin(effect_time * 1.8 + phase) * 0.08
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== 맵 데코레이션 =====================
 

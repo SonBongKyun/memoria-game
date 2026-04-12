@@ -56,6 +56,10 @@ const PORTRAIT_MAP: Dictionary = {
 	"sable_portrait": "res://assets/portraits/sable_neutral.jpg",
 	"kairos_portrait": "res://assets/portraits/kairos_neutral.jpg",
 	"tobias_uniform": "res://assets/portraits/tobias_uniform.jpg",
+	# S53: 카이로스/토비아스 추가 포트레이트
+	"kairos_cold": "res://assets/portraits/kairos_cold.jpg",
+	"kairos_amused": "res://assets/portraits/kairos_amused.jpg",
+	"tobias_concerned": "res://assets/portraits/tobias_concerned.jpg",
 }
 const DEFAULT_PORTRAITS: Dictionary = {
 	"Arrel": "arrel_neutral",
@@ -339,11 +343,29 @@ func _clear_choices() -> void:
 ## 박스 표시/숨김
 func show_box() -> void:
 	panel.visible = true
+	# S53: 대화 박스 슬라이드 업 애니메이션
+	var original_top = panel.offset_top
+	panel.offset_top = 0  # 화면 아래에서 시작
+	panel.modulate.a = 0.0
+	var tween = create_tween().set_parallel(true)
+	tween.tween_property(panel, "offset_top", original_top, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(panel, "modulate:a", 1.0, 0.2).set_ease(Tween.EASE_OUT)
 
 func hide_box() -> void:
-	panel.visible = false
+	# S53: 대화 박스 슬라이드 다운 애니메이션
 	choice_container.visible = false
 	is_typing = false
+	if panel.visible:
+		var tween = create_tween().set_parallel(true)
+		tween.tween_property(panel, "offset_top", 0, 0.15).set_ease(Tween.EASE_IN)
+		tween.tween_property(panel, "modulate:a", 0.0, 0.15)
+		tween.chain().tween_callback(func():
+			panel.visible = false
+			panel.offset_top = -BOX_HEIGHT
+			panel.modulate.a = 1.0
+		)
+	else:
+		panel.visible = false
 
 ## 입력 처리 (타자기 스킵 / 대사 넘기기)
 func _unhandled_input(event: InputEvent) -> void:

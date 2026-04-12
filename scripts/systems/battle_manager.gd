@@ -93,9 +93,11 @@ var _last_action: String = ""       # 마지막 행동 ("attack", "burn", "defen
 
 # --- 파티 시스템 ---
 var sable_in_party: bool = false    # 세이블 동행 여부
+var tobias_in_party: bool = false   # 토비아스 동행 여부
 var _boss_turn_counter: int = 0     # 보스 턴 카운터 (페이즈2 분노 패턴용)
 var _encounter_modifier: Dictionary = {}  # S51: 인카운터 수정자
 var _total_turns: int = 0           # S51: 턴 카운터 (수정자용)
+var _burn_chain: int = 0  # S53: 연속 연소 카운터
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
 signal phase_changed(enemy_name: String, phase: int)
@@ -103,6 +105,8 @@ signal phase_changed(enemy_name: String, phase: int)
 # --- 아군 조작 모드 ---
 var ally_command: String = ""  # 플레이어가 선택한 세이블 행동 ("", "heal", "strike", "weaken", "guard")
 var ally_command_pending: bool = false  # 세이블 행동 대기 중
+var tobias_command: String = ""  # 토비아스 명령 ("", "analyze", "archive", "protect")
+var tobias_command_pending: bool = false  # 토비아스 행동 대기 중
 
 # --- 신규 능력 상태 ---
 var _player_stunned: bool = false   # 기절: 다음 플레이어 턴 스킵
@@ -171,6 +175,7 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	enemy_statuses.clear()
 	combo_count = 0
 	_last_action = ""
+	_burn_chain = 0  # S53
 	_boss_turn_counter = 0
 	_player_stunned = false
 	_enemy_reflecting = false
@@ -180,6 +185,7 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	_encounter_modifier = {}
 	_total_turns = 0
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
+	tobias_in_party = GameManager.get_flag("tobias_joined") and GameManager.current_chapter >= 3 and GameManager.current_chapter < 7
 	# S51: 엘리아 기술 쿨다운 리셋
 	if GameManager.player_data.elia_with_party:
 		EliaDiary.reset_cooldowns()
@@ -220,6 +226,14 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 		battle_log.emit("[VOID CORRUPTION] %s" % _encounter_modifier.get("name", ""))
 		battle_log.emit(_encounter_modifier.get("desc", ""))
 
+	# S53: NG++ (cycle 3+) — 보스 변형
+	if GameManager.ng_plus_cycle >= 3 and enemy.is_boss:
+		enemy.abilities.append("despair")
+		enemy.abilities.append("charge")
+		if not enemy.abilities.has("reflect"):
+			enemy.abilities.append("reflect")
+		battle_log.emit("[NG+++] %s radiates with accumulated void energy!" % enemy.name)
+
 	player_turn_started.emit()
 
 ## 플레이어 행동: 일반 공격
@@ -227,6 +241,7 @@ func player_attack() -> void:
 	if state != BattleState.PLAYER_TURN or current_enemy == null:
 		return
 
+	_burn_chain = 0  # S53: 체인 리셋
 	# 콤보 빌드
 	if _last_action == "attack":
 		combo_count += 1
@@ -368,6 +383,8 @@ func player_burn(memory_id: String) -> void:
 		return
 
 	_reset_combo("burn")
+	# S53: 연속 연소 체인
+	_burn_chain += 1
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
 	# 침식 반영 — 유효 연소력
@@ -376,6 +393,11 @@ func player_burn(memory_id: String) -> void:
 	# S41: 장비 효과 — 연소 부스트
 	if GameManager.has_equip_effect("burn_boost"):
 		dmg = int(dmg * 1.2)
+	# S53: 체인 보너스 (+20% per consecutive burn)
+	if _burn_chain >= 2:
+		var chain_bonus = 1.0 + (_burn_chain - 1) * 0.2
+		dmg = int(dmg * chain_bonus)
+		battle_log.emit("[CHAIN x%d] Memory resonance amplifies the flames!" % _burn_chain)
 	# 속성 상성 (연소 속성)
 	var burn_element = skill.get("element", "fire")
 	var elem_mult = _get_element_multiplier(burn_element)
@@ -450,6 +472,8 @@ func player_use_elia_skill(skill_id: String) -> void:
 func player_defend() -> void:
 	if state != BattleState.PLAYER_TURN:
 		return
+
+	_burn_chain = 0  # S53: 체인 리셋
 
 	player_defending = true
 	_reset_combo("defend")
@@ -848,6 +872,15 @@ func _end_player_turn() -> void:
 			_cleanup()
 			return
 
+	# 토비아스 지원 행동 (Ch3~6)
+	if tobias_in_party and current_enemy and current_enemy.is_alive():
+		if tobias_command_pending and tobias_command != "":
+			_tobias_support_action(tobias_command)
+			tobias_command = ""
+			tobias_command_pending = false
+		elif randf() < 0.3:
+			_tobias_support_action()
+
 	# 적 상태이상 처리 (독/화상 DoT)
 	if current_enemy and not enemy_statuses.is_empty():
 		_process_statuses("enemy")
@@ -881,7 +914,7 @@ func _sable_support_action(forced_action: String = "") -> void:
 			ally_action.emit("Sable", "heal", heal)
 			damage_dealt.emit("Arrel", -heal, "Sable Heal")
 		"strike":
-			var dmg = randi_range(8, 18)
+			var dmg = randi_range(12, 22)  # S53: 세이블 타격 데미지 증가
 			if current_enemy:
 				var actual = current_enemy.take_damage(dmg)
 				battle_log.emit("Sable strikes from the shadows! %d damage." % actual)
@@ -895,6 +928,31 @@ func _sable_support_action(forced_action: String = "") -> void:
 			player_defending = true
 			battle_log.emit("Sable shields Arrel! Damage halved this turn.")
 			ally_action.emit("Sable", "guard", 0)
+
+## S53: 토비아스 명령 설정
+func set_tobias_command(command: String) -> void:
+	tobias_command = command
+	tobias_command_pending = true
+
+## 토비아스 지원 행동 (S53: 분석/기록/방어)
+func _tobias_support_action(forced_action: String = "") -> void:
+	var actions = ["analyze", "archive", "protect"]
+	var action = forced_action if forced_action != "" else actions[randi_range(0, actions.size() - 1)]
+	match action:
+		"analyze":
+			if current_enemy:
+				var weakness_text = current_enemy.weakness if current_enemy.weakness != "" else "none detected"
+				battle_log.emit("Tobias analyzes the enemy... Weakness: %s!" % weakness_text)
+				ally_action.emit("Tobias", "analyze", 0)
+		"archive":
+			battle_log.emit("Tobias opens his records — burn power boosted by 15%%!")
+			ally_action.emit("Tobias", "archive", 15)
+			# Boost implemented via a temporary echo-like effect
+			active_echoes.append({"id": "tobias_archive", "grade": 0, "npc": "Tobias", "type": "burn_boost", "power": 15, "turns": 1})
+		"protect":
+			player_defending = true
+			battle_log.emit("Tobias raises a ward from his ledger! Damage reduced by 30%%.")
+			ally_action.emit("Tobias", "protect", 30)
 
 ## 전투 승리 시 Grains 보상 계산
 func _get_grains_reward() -> int:
@@ -954,15 +1012,18 @@ func _apply_memory_echo(memory: MemoryManager.Memory) -> void:
 		MemoryManager.MemoryGrade.GRADE_5:
 			echo["type"] = "fading_warmth"
 			echo["power"] = 5
-			battle_log.emit("[ECHO] Fading Warmth — heal 5 HP/turn for 3 turns.")
+			echo["turns"] = 4  # S53: 힐 에코 4턴으로 증가
+			battle_log.emit("[ECHO] Fading Warmth — heal 5 HP/turn for 4 turns.")
 		MemoryManager.MemoryGrade.GRADE_4:
 			echo["type"] = "lingering_habit"
 			echo["power"] = 10
+			echo["turns"] = 3  # S53: 콤보 에코 3턴 유지
 			battle_log.emit("[ECHO] Lingering Habit — combo multiplier boosted.")
 		MemoryManager.MemoryGrade.GRADE_3:
 			if memory.related_npc == "Elia":
 				echo["type"] = "elia_anchor"
 				echo["power"] = 25
+				echo["turns"] = 5  # S53: 엘리아 앵커 5턴으로 증가
 				battle_log.emit("[ECHO] Elia's Anchor — 25%% chance to halve next hit.")
 			elif memory.related_npc == "Sable":
 				echo["type"] = "sable_shadow"

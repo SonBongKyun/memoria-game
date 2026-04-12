@@ -54,11 +54,13 @@ var _grass_blades: Array[ColorRect] = []  # S43: 풀 흔들림
 var _occluders: Array[LightOccluder2D] = []  # S52: 그림자 오클루더
 var _pollen: Array[ColorRect] = []  # S52: 꽃가루 파티클
 var _camera: Camera2D = null  # S52: 스무스 카메라
+var _blend_edges: Array[ColorRect] = []  # S53: 타일 경계 블렌딩
 
 @onready var player: CharacterBody2D = $Player
 
 func _ready() -> void:
 	_build_map()
+	_blend_edges = TilePainter.auto_blend_edges(self, map_data, MAP_WIDTH, MAP_HEIGHT, tile_colors, TILE_SIZE)
 	MapEffects.add_vignette(self)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 12, Color(0.5, 0.85, 0.3, 0.5))  # S46: 숲 반딧불
@@ -103,9 +105,18 @@ func _process(delta: float) -> void:
 	MapEffects.update_grass_sway(_grass_blades, _time)
 	MapEffects.update_pollen(_pollen, _time, delta)
 	MapEffects.update_camera_shake(_camera, _time)
+	# S53: 뷰포트 외 파티클 컬링
+	var vp_rect = Rect2(player.position - Vector2(700, 400), Vector2(1400, 800))
+	MapEffects.cull_offscreen_particles(_pollen, vp_rect)
+	MapEffects.cull_offscreen_particles(_grass_blades, vp_rect)
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(_time * 1.5 + npc.position.x * 0.1) * 0.006)
 	# 버섯 빛 애니메이션
 	for m in _mushroom_lights:
 		var phase = m.get_meta("phase", 0.0)
@@ -137,6 +148,27 @@ func _on_ash_rain_ended() -> void:
 	GameManager.set_flag("ch1_ash_rain_seen")
 	# 자유 탐색 모드 — 엘리아 재대화 가능, 전투 트리거 활성
 	print("[RimForest] Free exploration — head south for camp")
+	# S53: 튜토리얼 프롬프트 표시
+	_show_tutorial()
+
+## ===================== S53: 인터랙티브 튜토리얼 =====================
+
+func _show_tutorial() -> void:
+	if GameManager.get_flag("tutorial_complete"):
+		return
+	GameManager.set_flag("tutorial_complete")
+	# 이동 안내
+	await _show_tutorial_toast("Move with WASD or Arrow Keys", 3.0)
+	# 상호작용 안내
+	await _show_tutorial_toast("Press SPACE to interact with NPCs and objects", 3.0)
+	# 기억 안내
+	await _show_tutorial_toast("Press TAB or M to open your Memory Archive", 3.0)
+	# 메뉴 안내
+	await _show_tutorial_toast("Press ESC to open the Pause Menu", 2.0)
+
+func _show_tutorial_toast(text: String, duration: float) -> void:
+	NotificationToast.show_toast(text)
+	await get_tree().create_timer(duration).timeout
 
 ## ===================== 재비 파티클 =====================
 

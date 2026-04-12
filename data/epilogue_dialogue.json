@@ -107,6 +107,20 @@
       {"speaker": "", "text": "She took his hand. It was the first time she'd done that."},
       {"speaker": "Elia", "text": "We'll figure it out. Together.", "portrait": "elia_neutral"}
     ],
+    "epilogue_tobias": [
+      {"speaker": "", "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.", "cg": "res://assets/cg/ch5_climax2.jpg"},
+      {"speaker": "Tobias", "text": "They can burn every copy. I've already sent it to twelve independent archivists across the continent.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "The Authority responded with a formal censure. Then a warrant. Then silence — the kind of silence that meant they were reading it."},
+      {"speaker": "Tobias", "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted — and prevented.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "TOBIAS ENDING: The pen outlasts the flame. Sometimes the most dangerous weapon is a well-documented truth."}
+    ],
+    "epilogue_hollow": [
+      {"speaker": "", "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.", "cg": "res://assets/cg/ch5_climax2.jpg"},
+      {"speaker": "Elia", "text": "Arrel. Your name is Arrel. Say it back to me.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "...Arrel.", "portrait": "arrel_exhausted"},
+      {"speaker": "Elia", "text": "Again.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "HOLLOW ENDING: The name persists. A single word in an empty room, echoing off walls that used to hold a life."}
+    ],
     "sable_epilogue_talk": [
       {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/ch4_sable_porch.jpg"},
       {"speaker": "Arrel", "text": "Where else would I go?", "portrait": "arrel_neutral"},

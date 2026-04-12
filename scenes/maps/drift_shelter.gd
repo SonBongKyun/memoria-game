@@ -39,6 +39,7 @@ var effect_time: float = 0.0
 var _occluders: Array[LightOccluder2D] = []  # S52
 var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
+var _lightning: ColorRect = null  # S53: 번개
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -51,6 +52,7 @@ func _ready() -> void:
 	MapEffects.add_ambient_lighting(self, Color(0.35, 0.33, 0.38))
 	# 재비 (메모리 레인)
 	MapEffects.add_rain(self, 0.5, Color(0.4, 0.38, 0.42, 0.2))
+	_lightning = MapEffects.add_lightning(self)  # S53: 번개
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.3, 0.45), "brightness": -0.05})
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
@@ -79,8 +81,14 @@ func _process(delta: float) -> void:
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	MapEffects.update_camera_shake(_camera, effect_time)
+	MapEffects.update_lightning(_lightning, delta)  # S53: 번개
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -284,6 +292,8 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(8 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "tobias_explains_classification", "ch4_classification")
 	_add_story_trigger(Vector2(13 * TILE_SIZE, 7 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "night_conversation", "ch4_night_talk")
+	# 플래시백: 아렐의 집 기억
+	_add_story_trigger(Vector2(5 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_flashback_home", "ch4_flashback_home")
 	# S51: 기억 공명 지점
 	MemoryResonance.setup_points(self, "drift_shelter")
 

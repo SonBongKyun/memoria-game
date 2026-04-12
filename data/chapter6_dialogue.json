@@ -161,6 +161,12 @@
       {"speaker": "", "text": "She reached into her coat and pulled out something — a small, cold object that pulsed with faint light."},
       {"speaker": "Sable", "text": "I found this in the rubble of Ashbridge. It's mine, but... you'll make better use of it.", "portrait": "sable_neutral"},
       {"speaker": "", "text": "A memory. Not yours, but offered freely. It carried the weight of an oath kept through years of loss."}
+    ],
+    "arrel_flashback_loss": [
+      {"speaker": "", "text": "The memory bleeds through — a day you've tried to forget.", "cg": "res://assets/cg/flashback_loss.jpg"},
+      {"speaker": "", "text": "Ash falling. Screaming. A hand slipping from yours."},
+      {"speaker": "Arrel", "text": "I couldn't hold on.", "portrait": "arrel_pain"},
+      {"speaker": "", "text": "That's what started it. The burning. The first memory you chose to destroy."}
     ]
   }
 }

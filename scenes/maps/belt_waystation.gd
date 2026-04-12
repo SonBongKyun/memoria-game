@@ -88,6 +88,11 @@ func _process(delta: float) -> void:
 	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -133,6 +138,7 @@ func _on_writing_found() -> void:
 
 func _on_tobias_joined() -> void:
 	GameManager.set_flag("tobias_in_party")
+	GameManager.set_flag("tobias_joined", true)
 	NotificationToast.show_toast("Tobias joined the party", NotificationToast.ToastType.SUCCESS)
 	# 저널 등록
 	StoryJournal.add_event("tobias_joined", "Met Tobias Crane, a Bureau Recorder, at the Belt waystation. He carries twenty years of memory transaction records.")

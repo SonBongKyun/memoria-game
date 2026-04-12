@@ -85,6 +85,11 @@ func _process(delta: float) -> void:
 	MapEffects.update_camera_shake(_camera, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S53: NPC 아이들 모션
+	for npc in get_tree().get_nodes_in_group("npcs"):
+		if npc.has_node("AnimatedSprite2D"):
+			var spr = npc.get_node("AnimatedSprite2D")
+			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -113,7 +118,28 @@ func _on_kairos_ended() -> void:
 	await get_tree().create_timer(2.0).timeout
 	if not GameManager.get_flag("ch9_kairos_truth"):
 		GameManager.set_flag("ch9_kairos_truth")
+		DialogueManager.dialogue_ended.connect(_on_kairos_truth_ended, CONNECT_ONE_SHOT)
 		DialogueManager.load_and_start(DIALOGUE_FILE, "kairos_truth")
+
+func _on_kairos_truth_ended() -> void:
+	if not GameManager.get_flag("ch9_kairos_battle"):
+		GameManager.set_flag("ch9_kairos_battle", true)
+		# Kairos Boss Fight
+		var kairos = BattleManager.Enemy.new(
+			"Kairos, Authority Editor", 450, 38, true, true,
+			["void_pulse", "drain", "stun", "reflect", "charge", "despair"]
+		)
+		kairos.weakness = "physical"
+		kairos.resistance = "void"
+		BattleManager.start_battle(kairos, "res://scenes/maps/colorless_waste.tscn",
+			"res://assets/cg/ch9_kairos_battle.jpg", "res://assets/cg/ch9_kairos_battle.jpg")
+		BattleManager.battle_ended.connect(_on_kairos_battle_ended, CONNECT_ONE_SHOT)
+		SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
+
+func _on_kairos_battle_ended(victory: bool) -> void:
+	if victory:
+		await get_tree().create_timer(1.0).timeout
+		DialogueManager.load_and_start(DIALOGUE_FILE, "kairos_defeated")
 
 ## ===================== 출구 트리거 (북쪽 → BL-07) =====================
 
@@ -267,6 +293,10 @@ func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(15 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "waste_atmosphere", "ch9_atmosphere")
 	_add_story_trigger(Vector2(8 * TILE_SIZE, 7 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_compass_pull", "ch9_pull")
 	_add_story_trigger(Vector2(16 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "depth_markers", "ch9_markers")
+	# Side quest: Calibrating the Compass
+	if SideQuest.is_active("colorless_compass"):
+		_add_story_trigger(Vector2(20 * TILE_SIZE, 3 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_compass_pull", "sq_compass_anchor1")
+		_add_story_trigger(Vector2(4 * TILE_SIZE, 10 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_compass_pull", "sq_compass_anchor2")
 	# S51: 기억 공명 지점
 	MemoryResonance.setup_points(self, "colorless_waste")
 
