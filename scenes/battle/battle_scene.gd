@@ -222,6 +222,7 @@ func _build_ui() -> void:
 	_build_auto_label(root)
 
 	# 인트로 오버레이 (최상단)
+	_build_intro_overlay(root)
 
 ## ===================== 배경 비네트 =====================
 
