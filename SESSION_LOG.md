@@ -2446,3 +2446,97 @@ Ch1 (rim_forest) → Ch2 (verdan_market) → Ch3 (belt_waystation) → Ch4 (drif
 - Ch8 (Forest That Forgets) 구현
 - Ch9 (Where Colors Stop) 구현
 - 토비아스 전투 동행 시스템 (파티 시스템 확장)
+
+---
+
+## S50 — 2026-04-12 (10챕터 확장 Phase 2: Ch7-9 구현 + 전투 능력 확장)
+
+### 목표
+10챕터 구조 완성. Ch7-9 맵/대화/시스템 구현 + 전투 신규 능력 + 전환 체인 완성.
+
+### 완료
+
+#### 1. 전투 시스템 확장 — 3개 신규 적 능력
+- **stun** (기절): 약한 데미지 + 다음 플레이어 턴 스킵. 콤보 차단 전술용.
+- **reflect** (반사): 배리어 + 다음 공격 30% 데미지 반사.
+- **charge** (차지): 1턴 대기 → 다음 적 턴 2배 데미지 강타.
+- 전술 AI에 중복 회피 로직 통합 (reflect/charge/stun 중복 방지)
+- 스턴 시 플레이어 턴 자동 스킵 (로그 메시지 + 딜레이)
+
+#### 2. Ch7: Seam Outskirts (The Other Side of the Flame)
+- **맵** `seam_outskirts.tscn` + `.gd` (25x18 타일)
+- 세이블 진실: BL-07은 구멍이 아니라 입. 기억을 부른다.
+- 에코 셸 획득 (BL-07 희생자들의 마지막 메아리)
+- 세이블 시련 전투 (Threshold Shade: drain/stun/reflect)
+- 전투 3개 (Void Sentinel, Ash Phantom, Threshold Crawler)
+- 상자 1개 + 단서 2개 + 탐색 이벤트 2개
+- **대화** `chapter7_dialogue.json` (8키 ~90줄)
+
+#### 3. Ch8: Forgotten Forest (The Forest That Forgets)
+- **맵** `forgotten_forest.tscn` + `.gd` (25x18 타일)
+- 기억 기생 숲: 나무가 기억을 먹음, 유령(remnant) NPC
+- 토비아스의 링 이론 (동심원 17+1개 = 소비 사건 수)
+- 엘리아 앵커링 부담 (아렐이 엘리아 이름을 잊음)
+- 숲 속삭임 + 유령 아이 + 돌무더기 안전지대
+- 전투 3개 (Memory Leech, Hollow Walker, Root Shade)
+- 상자 2개 + 단서 2개 + 탐색 이벤트 4개
+- **대화** `chapter8_dialogue.json` (9키 ~95줄)
+
+#### 4. Ch9: Colorless Waste (Where Colors Stop)
+- **맵** `colorless_waste.tscn` + `.gd` (25x18 타일)
+- 완전 탈색 환경 (모노크롬 타일/패럴랙스/조명)
+- 메모리 나침반 획득 (아렐 몸이 BL-07에 반응)
+- **카이로스 대면**: 직접 대화. Outcome A/B 두 가지 결말 예측.
+- 전투 3개 (Colorless Wraith, Depth Crawler, Void Fragment)
+- 상자 1개 + 단서 2개 + 탐색 이벤트 3개
+- **대화** `chapter9_dialogue.json` (8키 ~90줄)
+
+#### 5. 전환 체인 완성
+- `the_seam.gd`: Ch6 완료 → Ch7 (seam_outskirts)로 변경 (기존: bl07_void)
+- Ch7 → Ch8 (forgotten_forest) → Ch9 (colorless_waste) → Ch10 (bl07_void)
+
+#### 6. 기억 시스템 확장
+- Ch7 기억 2개: "The Taste of Static" (Gr5), "Voices in the Shell" (Gr3, Sable)
+- Ch8 기억 2개: "Trees That Remember Being Trees" (Gr5), "A Ghost's Last Sentence" (Gr4)
+- Ch9 기억 2개: "The Place Where Color Stopped" (Gr5), "The Memory Compass" (Gr2)
+
+#### 7. UI 전면 업데이트
+- **StoryJournal**: CHAPTER_NAMES 11개 챕터 + 13개 신규 이벤트 엔트리
+- **AchievementManager**: Ch7/8/9 완료 업적 3개 추가 (총 28종)
+- **PauseMenu**: 챕터 이름 11개 + Fast Travel 10개 맵
+
+### 신규/수정 파일
+| 파일 | 작업 |
+|------|------|
+| `data/chapter7_dialogue.json` | **신규** — Seam Outskirts (8키) |
+| `data/chapter8_dialogue.json` | **신규** — Forgotten Forest (9키) |
+| `data/chapter9_dialogue.json` | **신규** — Colorless Waste (8키) |
+| `scenes/maps/seam_outskirts.tscn` | **신규** — Ch7 맵 씬 |
+| `scenes/maps/seam_outskirts.gd` | **신규** — Ch7 맵 스크립트 |
+| `scenes/maps/forgotten_forest.tscn` | **신규** — Ch8 맵 씬 |
+| `scenes/maps/forgotten_forest.gd` | **신규** — Ch8 맵 스크립트 |
+| `scenes/maps/colorless_waste.tscn` | **신규** — Ch9 맵 씬 |
+| `scenes/maps/colorless_waste.gd` | **신규** — Ch9 맵 스크립트 |
+| `scenes/maps/the_seam.gd` | Ch6→Ch7 전환으로 변경 |
+| `scripts/systems/battle_manager.gd` | stun/reflect/charge 3개 능력 추가 |
+| `scripts/systems/memory_manager.gd` | Ch7/8/9 기억 6개 추가 |
+| `scripts/ui/story_journal.gd` | CHAPTER_NAMES + 13개 이벤트 |
+| `scripts/ui/achievement_manager.gd` | Ch7/8/9 업적 3개 |
+| `scripts/ui/pause_menu.gd` | 챕터 이름 + Fast Travel 3맵 |
+
+### 총 대화량 변화
+- Before: ~1050줄, 87키
+- After: ~1325줄, 112키 (~26% 증가)
+
+### 챕터 전환 체인 (완성)
+```
+Ch1 (rim_forest) → Ch2 (verdan_market) → Ch3 (belt_waystation) → Ch4 (drift_shelter)
+→ Ch5 (crumbling_coast) → Ch6 (the_seam) → Ch7 (seam_outskirts) → Ch8 (forgotten_forest)
+→ Ch9 (colorless_waste) → Ch10 (bl07_void) → Epilogue
+```
+
+### 다음
+- 토비아스 전투 동행 (Ch3+ 파티 시스템 확장)
+- 카이로스 보스전 (Ch9 또는 Ch10 내부)
+- 추가 사이드 퀘스트 (Ch7-9 맵용)
+- CG/포트레이트 연결 (카이로스 포트레이트 등)

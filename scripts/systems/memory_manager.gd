@@ -198,8 +198,61 @@ func add_chapter_memories(chapter: int) -> void:
 					MemoryGrade.GRADE_4, 28,
 					"The Seam's gardens appear monochrome"
 				))
+		7:
+			# Ch7: Seam Outskirts — The Other Side of the Flame
+			if not _has_memory("sense_static_air"):
+				add_memory(Memory.new(
+					"sense_static_air",
+					"The Taste of Static",
+					"Air that crackles against your teeth. The Threshold tastes like a storm that never breaks.",
+					MemoryGrade.GRADE_5, 12
+				))
+			if not _has_memory("rel_echo_shell"):
+				add_memory(Memory.new(
+					"rel_echo_shell",
+					"Voices in the Shell",
+					"Dozens of fragments. A woman warned someone. A man felt his hands dissolving. A child forgot blue.",
+					MemoryGrade.GRADE_3, 55,
+					"Lose the Echo Shell's protection. BL-07's pull strengthens.",
+					"Sable"
+				))
+		8:
+			# Ch8: Forgotten Forest — The Forest That Forgets
+			if not _has_memory("sense_hollow_trees"):
+				add_memory(Memory.new(
+					"sense_hollow_trees",
+					"Trees That Remember Being Trees",
+					"They stand because they forgot how to fall. The bark peels away like old thoughts, revealing nothing underneath.",
+					MemoryGrade.GRADE_5, 14
+				))
+			if not _has_memory("rel_ghost_words"):
+				add_memory(Memory.new(
+					"rel_ghost_words",
+					"A Ghost's Last Sentence",
+					"'I was—' That's all they could say. The rest was eaten. You wonder how many sentences you've already lost.",
+					MemoryGrade.GRADE_4, 30,
+					"Lose awareness of incomplete thoughts. Gaps in speech go unnoticed.",
+					""
+				))
+		9:
+			# Ch9: Colorless Waste — Where Colors Stop
+			if not _has_memory("sense_no_color"):
+				add_memory(Memory.new(
+					"sense_no_color",
+					"The Place Where Color Stopped",
+					"Gray that isn't gray — it's the absence of the concept. Even memory of color feels distant here.",
+					MemoryGrade.GRADE_5, 15
+				))
+			if not _has_memory("identity_compass"):
+				add_memory(Memory.new(
+					"identity_compass",
+					"The Memory Compass",
+					"It doesn't point north. It points toward what you're about to forget. The needle spins faster near BL-07.",
+					MemoryGrade.GRADE_2, 110,
+					"Lose the ability to sense approaching memory loss. Burns happen without warning.",
+					""
+				))
 		10:
-			# Ch10: BL-07 — The Seal
 			if not _has_memory("identity_void_walker"):
 				add_memory(Memory.new(
 					"identity_void_walker",

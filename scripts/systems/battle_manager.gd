@@ -102,6 +102,11 @@ signal phase_changed(enemy_name: String, phase: int)
 var ally_command: String = ""  # 플레이어가 선택한 세이블 행동 ("", "heal", "strike", "weaken", "guard")
 var ally_command_pending: bool = false  # 세이블 행동 대기 중
 
+# --- 신규 능력 상태 ---
+var _player_stunned: bool = false   # 기절: 다음 플레이어 턴 스킵
+var _enemy_reflecting: bool = false # 반사: 다음 공격 30% 반사
+var _enemy_charged: bool = false    # 차지: 다음 적 턴 2배 데미지
+
 # --- Limit Break 시스템 ---
 var limit_gauge: float = 0.0        # 0.0 ~ 100.0
 const LIMIT_MAX: float = 100.0
@@ -149,6 +154,9 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	combo_count = 0
 	_last_action = ""
 	_boss_turn_counter = 0
+	_player_stunned = false
+	_enemy_reflecting = false
+	_enemy_charged = false
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
 	limit_gauge = 0.0
 	limit_changed.emit(0.0)
@@ -223,6 +231,13 @@ func player_attack() -> void:
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_add_limit(LIMIT_GAIN_ATTACK)
 	_check_combo_milestone()
+	# 반사 배리어 처리
+	if _enemy_reflecting:
+		_enemy_reflecting = false
+		var reflect_dmg = maxi(1, int(actual * 0.3))
+		GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - reflect_dmg)
+		battle_log.emit("The mirror reflects %d damage back!" % reflect_dmg)
+		damage_dealt.emit("Arrel", reflect_dmg, "Reflect")
 	_check_enemy_defeated()
 
 ## 속성 상성 배율 계산
@@ -432,6 +447,11 @@ func _enemy_turn() -> void:
 		return
 
 	var base_dmg = current_enemy.attack + randi_range(0, 5)
+	# 차지 공격: 이전 턴에 차지했으면 2배 데미지
+	if _enemy_charged:
+		_enemy_charged = false
+		base_dmg = int(base_dmg * 2.0)
+		battle_log.emit("%s unleashes charged energy!" % current_enemy.name)
 	# 적 약화 적용
 	base_dmg = int(base_dmg * _get_weaken_multiplier("enemy"))
 	# S41: 장비 방어력 적용
@@ -553,6 +573,32 @@ func _try_enemy_ability() -> bool:
 			AudioManager.play_sfx("drain")
 			battle_log.emit("%s floods your mind with despair!" % current_enemy.name)
 			battle_log.emit("Poison and weakness seize your body!")
+		"stun":
+			# 기절: 플레이어 다음 턴 스킵
+			var dmg = int((current_enemy.attack * 0.4 + randi_range(0, 5)) * rage_bonus)
+			if player_defending:
+				dmg = maxi(1, dmg / 2)
+			player_defending = false
+			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
+			_player_stunned = true
+			AudioManager.play_sfx("hit")
+			battle_log.emit("%s delivers a stunning blow! %d damage." % [current_enemy.name, dmg])
+			battle_log.emit("Arrel is stunned! Next turn will be lost.")
+			damage_dealt.emit("Arrel", dmg, "Stun")
+			_add_limit(LIMIT_GAIN_HIT)
+		"reflect":
+			# 반사 배리어: 다음 플레이어 공격의 30% 반사
+			_enemy_reflecting = true
+			enemy_shielded = true
+			AudioManager.play_sfx("shield")
+			battle_log.emit("%s conjures a mirror of void energy!" % current_enemy.name)
+			battle_log.emit("Attacks will be partially reflected!")
+		"charge":
+			# 차지: 1턴 대기 후 다음 턴 강타 (현재 턴은 차지만)
+			_enemy_charged = true
+			AudioManager.play_sfx("shield")
+			battle_log.emit("%s gathers dark energy..." % current_enemy.name)
+			battle_log.emit("A devastating attack is coming!")
 	return true
 
 ## 전술적 능력 선택 — 상황 분석 기반
@@ -577,6 +623,11 @@ func _select_ability() -> String:
 	if not player_defending and "multi_hit" in abilities and randf() < 0.5:
 		return "multi_hit"
 
+	# 3b. 플레이어 콤보 높으면 stun 우선
+	if combo_count >= 2 and "stun" in abilities and not _player_stunned and randf() < 0.5:
+		return "stun"
+
+	# 3c. 이미 reflect/charge 중이면 중복 회피
 	# 4. 중복 상태이상 회피 — 이미 걸려있으면 다른 능력 선택
 	var filtered: Array = []
 	for a in abilities:
@@ -589,6 +640,15 @@ func _select_ability() -> String:
 					filtered.append(a)
 			"weaken":
 				if not has_status("player", StatusEffect.WEAKEN):
+					filtered.append(a)
+			"reflect":
+				if not _enemy_reflecting:
+					filtered.append(a)
+			"charge":
+				if not _enemy_charged:
+					filtered.append(a)
+			"stun":
+				if not _player_stunned:
 					filtered.append(a)
 			_:
 				filtered.append(a)
@@ -622,6 +682,15 @@ func _check_player_defeated() -> void:
 			battle_ended.emit(BattleState.DEFEAT)
 			_cleanup()
 			return
+
+	# 스턴 체크: 플레이어 턴 스킵
+	if _player_stunned:
+		_player_stunned = false
+		battle_log.emit("Arrel shakes off the stun...")
+		state = BattleState.PLAYER_TURN
+		await get_tree().create_timer(0.6).timeout
+		_end_player_turn()
+		return
 
 	# 다시 플레이어 턴
 	state = BattleState.PLAYER_TURN

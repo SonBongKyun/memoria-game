@@ -22,7 +22,7 @@ var _current_tab: String = "events"
 
 # ── 저널 엔트리 ──
 # 자동으로 story_flags 기반으로 생성
-const CHAPTER_NAMES := {1: "Rim Forest", 2: "Verdan Market", 3: "Crumbling Coast", 4: "The Seam", 5: "BL-07 Void", 6: "Epilogue"}
+const CHAPTER_NAMES := {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
 
 # 이벤트 엔트리 (flag → 표시 정보)
 const EVENT_ENTRIES := [
@@ -51,6 +51,17 @@ const EVENT_ENTRIES := [
 	{"flag": "hidden_ch6_garden", "chapter": 6, "title": "[Hidden] The Impossible Garden", "desc": "White petals veined with gold. Warm to the touch. A fragment of someone handing a flower — small hands, a child's laugh."},
 	{"flag": "ch6_briefing_done", "chapter": 6, "title": "Sable's Briefing", "desc": "BL-07 forming south. If it opens, the Seam dies. A Shade Sentinel guards the entrance. Investigation required."},
 	{"flag": "ch6_bl07_entered", "chapter": 6, "title": "The Shade Sentinel", "desc": "Dark. Wrong. The Void's immune response. Between them and BL-07, it coalesced."},
+	{"flag": "ch7_arrived", "chapter": 7, "title": "The Threshold", "desc": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static."},
+	{"flag": "ch7_sable_truth", "chapter": 7, "title": "Sable's Truth", "desc": "BL-07 isn't a hole. It's a mouth. It calls memories. It's hungry. Seven people went in with Sable. She came out alone."},
+	{"flag": "has_echo_shell", "chapter": 7, "title": "The Echo Shell", "desc": "A spiraling shell covered in luminescent veins. It holds the last words of everyone BL-07 consumed."},
+	{"flag": "ch7_trial_complete", "chapter": 7, "title": "Sable's Trial", "desc": "A controlled burn on the Threshold. The memory passed like a wave of heat. Arrel held. Most people don't."},
+	{"flag": "ch8_arrived", "chapter": 8, "title": "The Forest That Forgets", "desc": "Trees that weren't growing — standing because they forgot how to fall. Body-temperature bark. Memory-parasitic ecosystem."},
+	{"flag": "ch8_ghost", "chapter": 8, "title": "The Remnants", "desc": "Shapes between the trees. Mouths open in soundless words. What's left when BL-07 takes everything except the shape."},
+	{"flag": "ch8_tobias_theory", "chapter": 8, "title": "Ring Theory", "desc": "The forest grows in concentric rings. Each ring is a feeding event — a generation of people erased. Eighteen rings total."},
+	{"flag": "ch9_arrived", "chapter": 9, "title": "Where Colors Stop", "desc": "Color ended like a sentence cut short. Not gray — the concept of color simply withdrew from the world."},
+	{"flag": "ch9_compass", "chapter": 9, "title": "The Memory Compass", "desc": "BL-07 recognizes Class Seven combustion. Arrel's body became a compass, pulled toward the Void Hole's core."},
+	{"flag": "ch9_kairos", "chapter": 9, "title": "Kairos Confrontation", "desc": "The Editor appeared in the Waste. Not to stop them — to observe the convergence. Two outcomes. Both terrible."},
+	{"flag": "ch9_kairos_truth", "chapter": 9, "title": "Kairos's Calculation", "desc": "Outcome A: BL-07 collapses, subject loses everything. Outcome B: BL-07 doubles. Sable said they'd find a third."},
 	{"flag": "ch10_complete", "chapter": 10, "title": "The Seal", "desc": "BL-07's core. A decision: burn everything to close it, or keep your name and find another way."},
 	{"flag": "zero_burn_path", "chapter": 10, "title": "Zero Burn — Name Consumed", "desc": "He burned 'Arrel.' The name that meant something. The Void Hole collapsed. He didn't know who he was anymore."},
 	{"flag": "seal_refused", "chapter": 10, "title": "Preservation — Name Kept", "desc": "He refused to burn his name. BL-07 remains unsolved. But he remembers who he is."},

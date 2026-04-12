@@ -1,0 +1,88 @@
+{
+  "chapter": 9,
+  "title": "Where Colors Stop",
+  "dialogues": {
+    "waste_arrival": [
+      {"speaker": "", "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray — the concept of color simply withdrew."},
+      {"speaker": "Tobias", "text": "Remarkable. My charcoal still leaves marks, but I can't tell if the marks are darker or lighter than the surface.", "portrait": "tobias_neutral"},
+      {"speaker": "Sable", "text": "Welcome to the Waste. Everything here has been equalized.", "portrait": "sable_neutral"},
+      {"speaker": "Elia", "text": "I can still see you all. Your shapes. But the detail is... flattening.", "portrait": "elia_concern"},
+      {"speaker": "Sable", "text": "That's the first stage. Lose color, then depth, then distinction. If you reach the fourth stage, you stop recognizing faces.", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "What's the fifth?", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "You stop recognizing that you ever could.", "portrait": "sable_neutral"}
+    ],
+    "compass_discovery": [
+      {"speaker": "", "text": "Something pulled at Arrel's chest. Not pain — direction. Like a compass needle that had replaced his sternum."},
+      {"speaker": "Arrel", "text": "I can feel where it is. BL-07. It's... that way.", "portrait": "arrel_pain"},
+      {"speaker": "Tobias", "text": "You're orienting toward the Void Hole? That shouldn't be possible without—", "portrait": "tobias_neutral"},
+      {"speaker": "Sable", "text": "Class Seven combustion. BL-07 recognizes him. He's become a compass.", "portrait": "sable_neutral"},
+      {"speaker": "Elia", "text": "Is that dangerous?", "portrait": "elia_concern"},
+      {"speaker": "Sable", "text": "Everything here is dangerous. But useful dangerous is better than useless dangerous.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Follow the pull. It's the only navigation we have.", "portrait": "sable_neutral"},
+      {"speaker": "", "text": "[Obtained: Memory Compass — Arrel's body resonates with BL-07's pull. Navigation through the Waste becomes possible.]"}
+    ],
+    "kairos_confrontation": [
+      {"speaker": "", "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there — as if the Waste had shaped itself around him."},
+      {"speaker": "Sable", "text": "Stop.", "portrait": "sable_neutral"},
+      {"speaker": "", "text": "Kairos. Taller than his silhouette on the coastal ridge. Dark coat, Bureau insignia — but modified. Gold thread where standard silver should be."},
+      {"speaker": "Kairos", "text": "Subject ARL-0091. Cumulative combustion events: forty-seven. Efficiency: Class Seven confirmed.", "portrait": "kairos_neutral"},
+      {"speaker": "Kairos", "text": "You've exceeded projections. The Authority is... interested.", "portrait": "kairos_neutral"},
+      {"speaker": "Arrel", "text": "I'm not a subject.", "portrait": "arrel_neutral"},
+      {"speaker": "Kairos", "text": "You are a phenomenon. Phenomena don't have preferences.", "portrait": "kairos_neutral"},
+      {"speaker": "Tobias", "text": "Kairos. I know you. Class A Editor, Subsection Nine. You filed the report that—", "portrait": "tobias_neutral"},
+      {"speaker": "Kairos", "text": "Recorder Crane. Your presence here is unauthorized. The Bureau will be informed.", "portrait": "kairos_neutral"},
+      {"speaker": "Tobias", "text": "Then inform them. I'm already walking dead paper.", "portrait": "tobias_neutral"}
+    ],
+    "kairos_truth": [
+      {"speaker": "Kairos", "text": "I didn't come to stop you. I came to observe the convergence.", "portrait": "kairos_neutral"},
+      {"speaker": "Sable", "text": "What convergence?", "portrait": "sable_neutral"},
+      {"speaker": "Kairos", "text": "BL-07 is not merely growing. It is reaching. Specifically — toward him.", "portrait": "kairos_neutral"},
+      {"speaker": "Kairos", "text": "Class Seven combustion creates a signature. A beacon. BL-07 has been moving toward that beacon for seventeen months.", "portrait": "kairos_neutral"},
+      {"speaker": "Elia", "text": "Then if Arrel seals it—", "portrait": "elia_concern"},
+      {"speaker": "Kairos", "text": "If Subject ARL-0091 enters BL-07's core, one of two outcomes occurs.", "portrait": "kairos_neutral"},
+      {"speaker": "Kairos", "text": "Outcome A: The combustion collapses BL-07. The hole seals. The subject survives, minus everything that made them a person.", "portrait": "kairos_neutral"},
+      {"speaker": "Kairos", "text": "Outcome B: BL-07 consumes the combustion. The hole doubles in size. The Seam is gone within a week.", "portrait": "kairos_neutral"},
+      {"speaker": "Arrel", "text": "Those are the only two?", "portrait": "arrel_neutral"},
+      {"speaker": "Kairos", "text": "Those are the only two the Authority has modeled. Whether reality agrees with models is not my department.", "portrait": "kairos_neutral"},
+      {"speaker": "Sable", "text": "Then we find a third outcome.", "portrait": "sable_neutral"},
+      {"speaker": "Kairos", "text": "I look forward to documenting your attempt.", "portrait": "kairos_neutral"},
+      {"speaker": "", "text": "He stepped sideways and the Waste swallowed his outline. Gone — or standing in the same place, invisible in the absence of color."}
+    ],
+    "waste_atmosphere": [
+      {"speaker": "", "text": "Walking the Waste was like walking inside a photograph that someone had drained. Shapes existed, but meaning didn't."},
+      {"speaker": "Tobias", "text": "I've lost the ability to distinguish distances. That rock could be ten meters or a hundred.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "Hold the person in front of you. Don't let go.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "They walked in a chain. Elia's hand in Arrel's. Arrel's other hand on Sable's shoulder. Tobias gripping Sable's coat."},
+      {"speaker": "Sable", "text": "If you feel someone let go, stop immediately. Don't turn around — just call their name.", "portrait": "sable_neutral"},
+      {"speaker": "Tobias", "text": "What if we've forgotten their name?", "portrait": "tobias_neutral"},
+      {"speaker": "Sable", "text": "Then you're already in stage four. And I'm sorry.", "portrait": "sable_calm"}
+    ],
+    "arrel_compass_pull": [
+      {"speaker": "", "text": "The pull grew stronger. Not magnetic — hungry. Like something at the end of the line was reeling him in."},
+      {"speaker": "Arrel", "text": "It's close. I can feel it pulling at... not my body. My name. The shape of who I am.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "Then hold your name tighter.", "portrait": "elia_determined"},
+      {"speaker": "Sable", "text": "We're within the final perimeter. BL-07's edge is just ahead.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Once we cross, there's no coming back to the Waste. We go forward or we don't come out.", "portrait": "sable_neutral"},
+      {"speaker": "Tobias", "text": "For the record — and I mean that literally, as I'm writing this down — I want to note that this is the furthest anyone from the Bureau has ever documented.", "portrait": "tobias_neutral"},
+      {"speaker": "Sable", "text": "Document faster. We move in sixty seconds.", "portrait": "sable_neutral"}
+    ],
+    "waste_departure": [
+      {"speaker": "", "text": "BL-07 appeared not as a hole but as a certainty. A point where the Waste's vagueness collapsed into absolute specificity — a door that was more real than anything around it."},
+      {"speaker": "Sable", "text": "There it is. The same mouth I walked into seven times.", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "It's different from what I expected.", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "It always is. BL-07 looks like whatever you're most afraid of losing.", "portrait": "sable_calm"},
+      {"speaker": "Elia", "text": "What does it look like to you?", "portrait": "elia_concern"},
+      {"speaker": "Sable", "text": "Nothing. I already lost it.", "portrait": "sable_neutral"},
+      {"speaker": "", "text": "They crossed the threshold. Behind them, the colorless Waste sealed shut like a wound remembering how to close."}
+    ],
+    "depth_markers": [
+      {"speaker": "", "text": "Strange markers dotted the Waste — pillars of compressed memory residue, frozen mid-dissolution."},
+      {"speaker": "Tobias", "text": "These are depth markers. The closer to BL-07, the more compressed the residue. It's like tree rings but for destruction.", "portrait": "tobias_neutral"},
+      {"speaker": "Sable", "text": "Seventeen rings. Eighteen, counting mine.", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "Each ring is a feeding event?", "portrait": "arrel_neutral"},
+      {"speaker": "Tobias", "text": "Each ring is a generation of people who were erased. Their compressed existence is all that's left.", "portrait": "tobias_neutral"},
+      {"speaker": "Elia", "text": "We're walking on gravestones.", "portrait": "elia_concern"},
+      {"speaker": "Tobias", "text": "...that is unfortunately accurate.", "portrait": "tobias_neutral"}
+    ]
+  }
+}

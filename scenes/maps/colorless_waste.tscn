@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/maps/colorless_waste.gd" id="1_waste"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/companion.tscn" id="3_companion"]
+[ext_resource type="PackedScene" path="res://scenes/npc/npc.tscn" id="4_npc"]
+
+[node name="ColorlessWaste" type="Node2D"]
+script = ExtResource("1_waste")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(384, 544)
+
+[node name="Elia" parent="." instance=ExtResource("3_companion")]
+position = Vector2(354, 564)
+npc_name = "Elia"
+dialogue_file = "res://data/chapter9_dialogue.json"
+dialogue_key = "waste_atmosphere"
+npc_color = Color(0.45, 0.55, 0.65, 1.0)
+
+[node name="Sable" parent="." instance=ExtResource("4_npc")]
+position = Vector2(320, 288)
+npc_name = "Sable"
+dialogue_file = "res://data/chapter9_dialogue.json"
+dialogue_key = "arrel_compass_pull"
+npc_color = Color(0.35, 0.3, 0.45, 1.0)

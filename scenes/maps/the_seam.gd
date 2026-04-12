@@ -358,10 +358,10 @@ func _start_ch6_epilogue() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "bl07_aftermath")
 
 func _on_ch6_ended() -> void:
-	GameManager.current_chapter = 10
-	print("[TheSeam] Chapter 6 complete — entering BL-07 interior")
+	GameManager.current_chapter = 7
+	print("[TheSeam] Chapter 6 complete — heading to Seam Outskirts")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene("res://scenes/maps/bl07_void.tscn")
+	SceneTransition.change_scene("res://scenes/maps/seam_outskirts.tscn")
 
 ## ===================== 전투 트리거 (마을 외곽) =====================
 
