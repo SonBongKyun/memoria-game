@@ -848,7 +848,7 @@ func _try_enemy_ability() -> bool:
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
 			_player_stunned = true
 			AudioManager.play_sfx("hit")
-	InputManager.vibrate("battle_hit")
+			InputManager.vibrate("battle_hit")
 			battle_log.emit("%s delivers a stunning blow! %d damage." % [current_enemy.name, dmg])
 			battle_log.emit("Arrel is stunned! Next turn will be lost.")
 			damage_dealt.emit("Arrel", dmg, "Stun")
@@ -934,7 +934,7 @@ func _check_player_defeated() -> void:
 	if GameManager.player_data.hp <= 0:
 		state = BattleState.DEFEAT
 		AudioManager.play_sfx("defeat")
-	InputManager.vibrate("game_over")
+		InputManager.vibrate("game_over")
 		battle_log.emit("Arrel falls...")
 		battle_ended.emit(BattleState.DEFEAT)
 		_cleanup()
@@ -946,7 +946,7 @@ func _check_player_defeated() -> void:
 		if GameManager.player_data.hp <= 0:
 			state = BattleState.DEFEAT
 			AudioManager.play_sfx("defeat")
-	InputManager.vibrate("game_over")
+			InputManager.vibrate("game_over")
 			battle_log.emit("Arrel succumbs...")
 			battle_ended.emit(BattleState.DEFEAT)
 			_cleanup()

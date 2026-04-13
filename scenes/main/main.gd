@@ -66,7 +66,6 @@ func _build_title_screen() -> void:
 
 	# --- Ash Particles ---
 	_ash_particles = GPUParticles2D.new()
-	_ash_particles.set_anchors_preset(PRESET_FULL_RECT) if _ash_particles is Control else null
 	_ash_particles.z_index = 0
 	_ash_particles.amount = 60
 	_ash_particles.lifetime = 8.0
@@ -99,11 +98,6 @@ func _build_title_screen() -> void:
 	mat.color_ramp = color_curve
 
 	_ash_particles.process_material = mat
-
-	# Simple quad mesh for particle drawing
-	var mesh = QuadMesh.new()
-	mesh.size = Vector2(3, 3)
-	_ash_particles.draw_pass_1 = mesh
 
 	add_child(_ash_particles)
 
