@@ -95,6 +95,10 @@ func _build_ui() -> void:
 	credits.append({"type": "spacer"})
 	credits.append({"type": "thanks", "text": "Thank you for playing."})
 	credits.append({"type": "spacer"})
+	# S56: Steam wishlist reminder (subtle, non-intrusive)
+	credits.append({"type": "steam_wishlist", "text": "MEMORIA is coming to Steam"})
+	credits.append({"type": "steam_sub", "text": "Wishlist now to be notified at launch"})
+	credits.append({"type": "spacer"})
 	credits.append({"type": "spacer"})
 	credits.append({"type": "spacer"})
 
@@ -136,6 +140,16 @@ func _build_ui() -> void:
 				label.position = Vector2(0, y_offset)
 				scroll_container.add_child(label)
 				y_offset += 40
+			"steam_wishlist":
+				label = _make_label(entry.text, 15, Color(0.4, 0.55, 0.7))
+				label.position = Vector2(0, y_offset)
+				scroll_container.add_child(label)
+				y_offset += 24
+			"steam_sub":
+				label = _make_label(entry.text, 12, Color(0.35, 0.45, 0.55))
+				label.position = Vector2(0, y_offset)
+				scroll_container.add_child(label)
+				y_offset += 24
 			"divider":
 				var line = ColorRect.new()
 				line.size = Vector2(200, 1)

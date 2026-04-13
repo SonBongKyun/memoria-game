@@ -136,6 +136,17 @@ func _setup_map_decorations() -> void:
 		dw.z_index = -1
 		add_child(dw)
 
+	# S55: 해안 배경 NPC (어부/여행자)
+	var ambient_npcs = [
+		{"pos": Vector2(6, 10), "preset": "fisherman"},
+		{"pos": Vector2(14, 11), "preset": "traveler"},
+	]
+	for npc_data in ambient_npcs:
+		var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
+		npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+		npc_sprite.z_index = 1
+		add_child(npc_sprite)
+
 ## ===================== 스토리 시퀀스 =====================
 
 func _start_ch5_sequence() -> void:
@@ -209,6 +220,7 @@ func _arrive_at_seam() -> void:
 
 func _on_seam_ended() -> void:
 	GameManager.current_chapter = 6
+	SaveManager.autosave_on_chapter_transition()
 	print("[CrumblingCoast] Chapter 5 complete — The Seam reached")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")

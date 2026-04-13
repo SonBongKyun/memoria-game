@@ -283,6 +283,7 @@ func _refuse_seal() -> void:
 func _on_seal_complete() -> void:
 	GameManager.set_flag("ch10_complete")
 	GameManager.current_chapter = 11
+	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(10)
 	print("[BL07Void] Chapter 10 complete — The Seal executed (Zero Burn path)")
 	await get_tree().create_timer(2.0).timeout
@@ -291,6 +292,7 @@ func _on_seal_complete() -> void:
 func _on_refuse_complete() -> void:
 	GameManager.set_flag("ch10_complete")
 	GameManager.current_chapter = 11
+	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(10)
 	print("[BL07Void] Chapter 10 complete — The Seal refused (Preservation path)")
 	await get_tree().create_timer(2.0).timeout

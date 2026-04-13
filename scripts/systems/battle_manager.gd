@@ -46,6 +46,7 @@ class Enemy:
 		if is_boss and phase == 1 and hp * 2 <= max_hp:
 			phase = 2
 			phase_changed = true
+			InputManager.vibrate("boss_phase")
 		return actual
 
 # --- 속성 시스템 ---
@@ -373,6 +374,7 @@ func player_attack() -> void:
 		battle_log.emit("The barrier absorbs some damage!")
 	var actual = current_enemy.take_damage(base_dmg)
 	AudioManager.play_sfx("hit")
+	InputManager.vibrate("battle_hit")
 	var combo_text = " (Combo x%d!)" % combo_count if combo_count >= 2 else ""
 	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
 	_log_element_effect(atk_element)
@@ -481,6 +483,7 @@ func player_burn(memory_id: String) -> void:
 	_burn_chain += 1
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
+	InputManager.vibrate("memory_burn")
 	# 침식 반영 — 유효 연소력
 	var effective_power = MemoryManager.get_effective_burn_power(memory)
 	var dmg = skill.base_damage + effective_power
@@ -845,6 +848,7 @@ func _try_enemy_ability() -> bool:
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
 			_player_stunned = true
 			AudioManager.play_sfx("hit")
+	InputManager.vibrate("battle_hit")
 			battle_log.emit("%s delivers a stunning blow! %d damage." % [current_enemy.name, dmg])
 			battle_log.emit("Arrel is stunned! Next turn will be lost.")
 			damage_dealt.emit("Arrel", dmg, "Stun")
@@ -930,6 +934,7 @@ func _check_player_defeated() -> void:
 	if GameManager.player_data.hp <= 0:
 		state = BattleState.DEFEAT
 		AudioManager.play_sfx("defeat")
+	InputManager.vibrate("game_over")
 		battle_log.emit("Arrel falls...")
 		battle_ended.emit(BattleState.DEFEAT)
 		_cleanup()
@@ -941,6 +946,7 @@ func _check_player_defeated() -> void:
 		if GameManager.player_data.hp <= 0:
 			state = BattleState.DEFEAT
 			AudioManager.play_sfx("defeat")
+	InputManager.vibrate("game_over")
 			battle_log.emit("Arrel succumbs...")
 			battle_ended.emit(BattleState.DEFEAT)
 			_cleanup()
@@ -1429,6 +1435,7 @@ func player_limit_break() -> void:
 
 	var actual = current_enemy.take_damage(dmg)
 	AudioManager.play_sfx("burn")
+	InputManager.vibrate("memory_burn")
 	battle_log.emit("[LIMIT BREAK] Memory Cascade!")
 	battle_log.emit("All remembered pain converges — %d damage!" % actual)
 	_log_element_effect("void")
@@ -1454,6 +1461,7 @@ func player_burn_residue(memory_id: String) -> void:
 	_reset_combo("burn")
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_sfx("burn")
+	InputManager.vibrate("memory_burn")
 	var dmg = int((skill.base_damage + memory.burn_power) * 0.5)
 	var burn_element = skill.get("element", "fire")
 	var elem_mult = _get_element_multiplier(burn_element)

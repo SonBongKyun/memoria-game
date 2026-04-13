@@ -405,6 +405,7 @@ func _start_ch6_epilogue() -> void:
 
 func _on_ch6_ended() -> void:
 	GameManager.current_chapter = 7
+	SaveManager.autosave_on_chapter_transition()
 	print("[TheSeam] Chapter 6 complete — heading to Seam Outskirts")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene_styled("res://scenes/maps/seam_outskirts.tscn")
@@ -579,11 +580,10 @@ func _setup_side_quests() -> void:
 		vr.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
 		vs.shape = vr
 		vw_area.add_child(vs)
-		var v_ind = ColorRect.new()
-		v_ind.size = Vector2(TILE_SIZE, TILE_SIZE * 1.2)
-		v_ind.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE * 0.6)
-		v_ind.color = Color(0.4, 0.1, 0.5, 0.4)
-		vw_area.add_child(v_ind)
+		# S55: NPC 비주얼 — PixelSprite 프리셋 사용 (보이드 요원)
+		var v_sprite = PixelSprite.create_npc_sprite("bureau_agent")
+		v_sprite.modulate = Color(0.6, 0.3, 0.8, 0.8)  # 보이드 보라색 틴트
+		vw_area.add_child(v_sprite)
 		vw_area.body_entered.connect(func(body):
 			if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag("sq_sable_vigil_killed"):
 				GameManager.set_flag("sq_sable_vigil_killed")

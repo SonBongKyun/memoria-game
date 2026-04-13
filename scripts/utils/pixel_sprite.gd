@@ -526,6 +526,180 @@ static func npc_config(base_color: Color) -> Dictionary:
 		"accessory_type": "none",
 	}
 
+## ========== S55: NPC 프리셋 10종 (맵별 다양한 NPC 외형) ==========
+
+## 상인 — 따뜻한 갈색 코트, 금색 브로치, 통통한 느낌
+static func npc_merchant_config() -> Dictionary:
+	return {
+		"skin": Color(0.84, 0.74, 0.62),
+		"hair": Color(0.35, 0.25, 0.15),
+		"hair_style": "short",
+		"coat": Color(0.45, 0.32, 0.18),
+		"shirt": Color(0.6, 0.52, 0.38),
+		"pants": Color(0.3, 0.22, 0.14),
+		"boots": Color(0.18, 0.12, 0.08),
+		"eye": Color(0.4, 0.32, 0.2),
+		"accessory": Color(0.85, 0.7, 0.25),
+		"accessory_type": "brooch",
+	}
+
+## 경비병 — 짙은 남색 갑옷, 검 휴대
+static func npc_guard_config() -> Dictionary:
+	return {
+		"skin": Color(0.78, 0.65, 0.55),
+		"hair": Color(0.2, 0.18, 0.15),
+		"hair_style": "short",
+		"coat": Color(0.15, 0.18, 0.3),
+		"shirt": Color(0.25, 0.22, 0.3),
+		"pants": Color(0.12, 0.12, 0.18),
+		"boots": Color(0.08, 0.07, 0.1),
+		"eye": Color(0.3, 0.28, 0.22),
+		"accessory": Color(0.5, 0.5, 0.55),
+		"accessory_type": "sword",
+	}
+
+## 장로 — 흰 머리, 긴 로브, 품위있는 느낌
+static func npc_elder_config() -> Dictionary:
+	return {
+		"skin": Color(0.8, 0.7, 0.6),
+		"hair": Color(0.75, 0.73, 0.7),
+		"hair_style": "long",
+		"coat": Color(0.35, 0.28, 0.38),
+		"shirt": Color(0.5, 0.45, 0.48),
+		"pants": Color(0.25, 0.2, 0.25),
+		"boots": Color(0.14, 0.1, 0.12),
+		"eye": Color(0.35, 0.4, 0.35),
+		"accessory": Color(0.7, 0.6, 0.4),
+		"accessory_type": "brooch",
+	}
+
+## 아이 — 작은 체형(색상으로 표현), 밝은 옷
+static func npc_child_config() -> Dictionary:
+	return {
+		"skin": Color(0.88, 0.78, 0.68),
+		"hair": Color(0.55, 0.4, 0.25),
+		"hair_style": "short",
+		"coat": Color(0.5, 0.55, 0.35),
+		"shirt": Color(0.65, 0.6, 0.45),
+		"pants": Color(0.35, 0.3, 0.22),
+		"boots": Color(0.2, 0.15, 0.1),
+		"eye": Color(0.35, 0.5, 0.4),
+		"accessory_type": "none",
+	}
+
+## 학자 — 안경 대신 브로치, 짙은 녹색 로브
+static func npc_scholar_config() -> Dictionary:
+	return {
+		"skin": Color(0.82, 0.72, 0.62),
+		"hair": Color(0.3, 0.25, 0.2),
+		"hair_style": "medium",
+		"coat": Color(0.18, 0.28, 0.22),
+		"shirt": Color(0.35, 0.4, 0.35),
+		"pants": Color(0.15, 0.18, 0.15),
+		"boots": Color(0.1, 0.08, 0.08),
+		"eye": Color(0.3, 0.45, 0.5),
+		"accessory": Color(0.6, 0.55, 0.4),
+		"accessory_type": "brooch",
+	}
+
+## 여성 마을주민 — 밝은 색 드레스, 긴 머리
+static func npc_villager_f_config() -> Dictionary:
+	return {
+		"skin": Color(0.86, 0.76, 0.66),
+		"hair": Color(0.5, 0.3, 0.2),
+		"hair_style": "long",
+		"coat": Color(0.45, 0.35, 0.42),
+		"shirt": Color(0.6, 0.52, 0.55),
+		"pants": Color(0.32, 0.25, 0.28),
+		"boots": Color(0.15, 0.12, 0.12),
+		"eye": Color(0.35, 0.4, 0.3),
+		"accessory_type": "none",
+	}
+
+## 남성 마을주민 — 수수한 작업복
+static func npc_villager_m_config() -> Dictionary:
+	return {
+		"skin": Color(0.8, 0.68, 0.58),
+		"hair": Color(0.28, 0.22, 0.18),
+		"hair_style": "short",
+		"coat": Color(0.35, 0.3, 0.25),
+		"shirt": Color(0.45, 0.4, 0.35),
+		"pants": Color(0.22, 0.2, 0.18),
+		"boots": Color(0.12, 0.1, 0.08),
+		"eye": Color(0.3, 0.28, 0.25),
+		"accessory_type": "none",
+	}
+
+## 어부 — 바다색 톤, 거친 피부
+static func npc_fisherman_config() -> Dictionary:
+	return {
+		"skin": Color(0.75, 0.62, 0.52),
+		"hair": Color(0.35, 0.32, 0.28),
+		"hair_style": "short",
+		"coat": Color(0.25, 0.35, 0.4),
+		"shirt": Color(0.4, 0.48, 0.5),
+		"pants": Color(0.2, 0.25, 0.28),
+		"boots": Color(0.12, 0.1, 0.1),
+		"eye": Color(0.3, 0.38, 0.4),
+		"accessory_type": "none",
+	}
+
+## 관리국 요원 — 검은 코트, 차가운 느낌
+static func npc_bureau_agent_config() -> Dictionary:
+	return {
+		"skin": Color(0.78, 0.68, 0.6),
+		"hair": Color(0.15, 0.12, 0.12),
+		"hair_style": "short",
+		"coat": Color(0.08, 0.08, 0.12),
+		"shirt": Color(0.18, 0.16, 0.2),
+		"pants": Color(0.06, 0.06, 0.08),
+		"boots": Color(0.04, 0.03, 0.05),
+		"eye": Color(0.35, 0.35, 0.4),
+		"accessory": Color(0.5, 0.45, 0.35),
+		"accessory_type": "brooch",
+	}
+
+## 여행자 — 먼지투성이, 망토/두건 느낌
+static func npc_traveler_config() -> Dictionary:
+	return {
+		"skin": Color(0.76, 0.65, 0.55),
+		"hair": Color(0.4, 0.35, 0.28),
+		"hair_style": "medium",
+		"coat": Color(0.32, 0.28, 0.22),
+		"shirt": Color(0.42, 0.38, 0.32),
+		"pants": Color(0.22, 0.18, 0.15),
+		"boots": Color(0.14, 0.1, 0.08),
+		"eye": Color(0.35, 0.32, 0.28),
+		"accessory": Color(0.45, 0.38, 0.3),
+		"accessory_type": "scar",
+	}
+
+## 프리셋 이름으로 설정 가져오기
+static func get_npc_preset(preset_name: String) -> Dictionary:
+	match preset_name:
+		"merchant": return npc_merchant_config()
+		"guard": return npc_guard_config()
+		"elder": return npc_elder_config()
+		"child": return npc_child_config()
+		"scholar": return npc_scholar_config()
+		"villager_f": return npc_villager_f_config()
+		"villager_m": return npc_villager_m_config()
+		"fisherman": return npc_fisherman_config()
+		"bureau_agent": return npc_bureau_agent_config()
+		"traveler": return npc_traveler_config()
+		_: return npc_config(Color(0.4, 0.35, 0.3))
+
+## NPC AnimatedSprite2D 생성 헬퍼 (맵에서 바로 사용 가능)
+## 반환된 AnimatedSprite2D를 NPC Area2D에 add_child하면 됨
+static func create_npc_sprite(preset_name: String) -> AnimatedSprite2D:
+	var config = get_npc_preset(preset_name)
+	var sprite = AnimatedSprite2D.new()
+	sprite.sprite_frames = create_frames(config)
+	sprite.play("idle_down")
+	sprite.scale = Vector2(0.7, 0.7)  # NPC는 약간 작게
+	sprite.position = Vector2(0, -8)  # 발 위치 보정
+	return sprite
+
 ## ========== S44: 전투 전용 대형 캐릭터 스프라이트 (128x128) ==========
 
 const BATTLE_SIZE: int = 128

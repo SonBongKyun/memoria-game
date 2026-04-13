@@ -167,6 +167,7 @@ func _depart_waste() -> void:
 
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 10
+	SaveManager.autosave_on_chapter_transition()
 	print("[ColorlessWaste] Chapter 9 complete — entering BL-07")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene_styled("res://scenes/maps/bl07_void.tscn")

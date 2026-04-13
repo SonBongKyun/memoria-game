@@ -1,13 +1,14 @@
 ## DialogueBox (Autoload)
 ## 대화 UI 표시. DialogueManager 시그널을 받아서 화면에 렌더링.
 ## 하단 텍스트 박스 + 좌측 포트레이트 + 선택지.
+## S55: Letterbox, screen tint, text emphasis (*bold*), narration sound, auto-advance.
 extends CanvasLayer
 
 const TYPEWRITER_SPEEDS: Dictionary = {1: 0.06, 2: 0.045, 3: 0.03, 4: 0.015, 5: 0.0}
 const BOX_HEIGHT: int = 160
 const PORTRAIT_SIZE: int = 96
 
-# 포트레이트 이미지 매핑 (portrait 키 → 파일 경로)
+# 포트레이트 이미지 매핑 (portrait 키 -> 파일 경로)
 const PORTRAIT_MAP: Dictionary = {
 	"arrel_neutral": "res://assets/portraits/arrel_neutral.jpg",
 	"arrel_side": "res://assets/portraits/arrel_side.jpg",
@@ -74,9 +75,9 @@ const DEFAULT_PORTRAITS: Dictionary = {
 
 # UI 노드 (코드로 생성)
 var panel: PanelContainer
-var portrait_texture: TextureRect  # 실제 ��미지 표시
-var portrait_fallback: ColorRect   # 이미지 없을 때 fallback
-var portrait_label: Label          # fallback용 이니셜
+var portrait_texture: TextureRect
+var portrait_fallback: ColorRect
+var portrait_label: Label
 var speaker_label: Label
 var text_label: RichTextLabel
 var choice_container: VBoxContainer
@@ -89,7 +90,7 @@ var typewriter_timer: float = 0.0
 
 # S54: Character text blip SFX (Undertale style)
 var _blip_player: AudioStreamPlayer = null
-var _blip_char_count: int = 0  # counter to play blip every 2-3 chars
+var _blip_char_count: int = 0
 var _blip_stream: AudioStreamWAV = null
 
 # S54: Portrait transition tracking
@@ -109,20 +110,49 @@ const BLIP_PITCH_MAP: Dictionary = {
 	"Kairos": 0.6,
 	"Malet": 0.8,
 }
-const BLIP_INTERVAL: int = 2  # play blip every N characters
+const BLIP_INTERVAL: int = 2
 var _current_blip_pitch: float = 1.0
 
 # S54: Dialogue direction tags
-var _line_speed_override: float = -1.0  # -1 = use default
+var _line_speed_override: float = -1.0
 var _line_shake: bool = false
 var _line_pause_time: float = 0.0
 var _pause_timer: float = 0.0
 var _is_paused: bool = false
 
+# S55: Letterbox bars
+var _letterbox_top: ColorRect = null
+var _letterbox_bottom: ColorRect = null
+var _letterbox_active: bool = false
+var _letterbox_tween: Tween
+const LETTERBOX_HEIGHT: int = 60
+
+# S55: Screen tint overlay
+var _tint_overlay: ColorRect = null
+var _tint_tween: Tween
+
+# S55: Narration page-turn SFX player
+var _narration_sfx_player: AudioStreamPlayer = null
+var _narration_sfx_stream: AudioStreamWAV = null
+
+# S55: Auto-advance for narration
+var _auto_advance_timer: float = 0.0
+var _auto_advance_active: bool = false
+const AUTO_ADVANCE_DELAY: float = 3.0
+
+# S55: Track current speaker for auto-advance
+var _current_speaker: String = ""
+
+# S55: BBCode text for emphasis rendering
+var _bbcode_text: String = ""
+
 func _ready() -> void:
-	layer = 50  # SceneTransition(100)보다 아래, 게임 위
+	layer = 50
 	_build_ui()
+	_build_letterbox()
+	_build_tint_overlay()
 	_setup_blip_player()
+	_setup_narration_sfx()
 	_connect_signals()
 	hide_box()
 	print("[DialogueBox] Ready")
@@ -132,22 +162,19 @@ func _setup_blip_player() -> void:
 	_blip_player = AudioStreamPlayer.new()
 	_blip_player.bus = "Master"
 	add_child(_blip_player)
-	# Generate a short square wave blip (~40ms)
 	_blip_stream = AudioStreamWAV.new()
 	_blip_stream.format = AudioStreamWAV.FORMAT_8_BITS
 	_blip_stream.mix_rate = 22050
 	_blip_stream.stereo = false
-	var sample_count: int = int(22050 * 0.04)  # 40ms
+	var sample_count: int = int(22050 * 0.04)
 	var data: PackedByteArray = PackedByteArray()
 	data.resize(sample_count)
-	var freq: float = 440.0  # A4 base frequency
+	var freq: float = 440.0
 	for i in range(sample_count):
 		var t: float = float(i) / 22050.0
-		# Square wave
 		var val: float = 1.0 if fmod(t * freq, 1.0) < 0.5 else -1.0
-		# Envelope: quick fade out
 		var env: float = 1.0 - float(i) / float(sample_count)
-		val *= env * 0.3  # keep volume moderate
+		val *= env * 0.3
 		data[i] = int((val * 0.5 + 0.5) * 255.0)
 	_blip_stream.data = data
 	_blip_player.stream = _blip_stream
@@ -155,11 +182,58 @@ func _setup_blip_player() -> void:
 func _play_blip() -> void:
 	if _blip_player == null or _blip_stream == null:
 		return
-	# Respect SFX volume from OptionsMenu
 	var sfx_vol: float = OptionsMenu.settings.get("sfx_volume", 80) / 100.0 if OptionsMenu else 0.8
-	_blip_player.volume_db = linear_to_db(sfx_vol * 0.4)  # softer than regular SFX
-	_blip_player.pitch_scale = _current_blip_pitch + randf_range(-0.05, 0.05)  # slight variation
+	_blip_player.volume_db = linear_to_db(sfx_vol * 0.4)
+	_blip_player.pitch_scale = _current_blip_pitch + randf_range(-0.05, 0.05)
 	_blip_player.play()
+
+## S55: Narration page-turn SFX (soft crinkle/rustle)
+func _setup_narration_sfx() -> void:
+	_narration_sfx_player = AudioStreamPlayer.new()
+	_narration_sfx_player.bus = "Master"
+	add_child(_narration_sfx_player)
+
+	# Generate a short paper rustle sound (~120ms of filtered noise with envelope)
+	var sample_rate: int = 22050
+	var duration: float = 0.12
+	var count: int = int(sample_rate * duration)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	var prev: float = 0.0
+	for i in range(count):
+		var t: float = float(i) / sample_rate
+		var raw: float = randf_range(-1.0, 1.0)
+		# Bandpass-ish filter: high alpha for crinkle texture
+		prev = prev + 0.15 * (raw - prev)
+		# Envelope: quick attack, medium decay
+		var env: float = 0.0
+		var norm_t: float = t / duration
+		if norm_t < 0.1:
+			env = norm_t / 0.1
+		else:
+			env = (1.0 - norm_t) / 0.9
+		samples[i] = prev * env * 0.25  # quiet
+
+	var byte_data := PackedByteArray()
+	for s in samples:
+		var val: int = int(clampf(s, -1.0, 1.0) * 32767)
+		byte_data.append(val & 0xFF)
+		byte_data.append((val >> 8) & 0xFF)
+
+	_narration_sfx_stream = AudioStreamWAV.new()
+	_narration_sfx_stream.data = byte_data
+	_narration_sfx_stream.format = AudioStreamWAV.FORMAT_16_BITS
+	_narration_sfx_stream.mix_rate = sample_rate
+	_narration_sfx_stream.stereo = false
+	_narration_sfx_player.stream = _narration_sfx_stream
+
+func _play_narration_sfx() -> void:
+	if _narration_sfx_player == null or _narration_sfx_stream == null:
+		return
+	var sfx_vol: float = OptionsMenu.settings.get("sfx_volume", 80) / 100.0 if OptionsMenu else 0.8
+	_narration_sfx_player.volume_db = linear_to_db(sfx_vol * 0.3)
+	_narration_sfx_player.pitch_scale = randf_range(0.9, 1.1)
+	_narration_sfx_player.play()
 
 func _get_typewriter_speed() -> float:
 	var spd = OptionsMenu.settings.get("text_speed", 3) if OptionsMenu else 3
@@ -177,32 +251,174 @@ func _process(delta: float) -> void:
 		var speed = _line_speed_override if _line_speed_override >= 0.0 else _get_typewriter_speed()
 		if speed <= 0.0:
 			# Instant mode
-			displayed_chars = full_text.length()
-			text_label.text = full_text
+			displayed_chars = _bbcode_text.length()
+			text_label.text = _bbcode_text
 			is_typing = false
 			indicator.visible = true
 			_line_shake = false
+			_start_auto_advance_if_narration()
 			return
 		typewriter_timer += delta
 		while typewriter_timer >= speed and displayed_chars < full_text.length():
 			typewriter_timer -= speed
 			displayed_chars += 1
-			text_label.text = full_text.substr(0, displayed_chars)
+			# Update BBCode text up to displayed_chars
+			text_label.text = _build_visible_bbcode(displayed_chars)
 
 		if displayed_chars >= full_text.length():
 			is_typing = false
+			text_label.text = _bbcode_text  # show full formatted text
 			indicator.visible = true
 			_line_shake = false
+			_start_auto_advance_if_narration()
+
+	# S55: Auto-advance timer for narration lines
+	if _auto_advance_active:
+		_auto_advance_timer -= delta
+		if _auto_advance_timer <= 0.0:
+			_auto_advance_active = false
+			if not choice_container.visible:
+				DialogueManager.advance()
 
 	# S54: Screen shake effect during dialogue
 	if _line_shake and is_typing:
-		var viewport = get_viewport()
-		if viewport:
-			viewport.canvas_transform.origin = Vector2(randf_range(-1.5, 1.5), randf_range(-1.5, 1.5))
+		# S55: Respect screen_shake setting
+		var shake_enabled: bool = OptionsMenu.settings.get("screen_shake", true) if OptionsMenu else true
+		if shake_enabled:
+			var viewport = get_viewport()
+			if viewport:
+				viewport.canvas_transform.origin = Vector2(randf_range(-1.5, 1.5), randf_range(-1.5, 1.5))
 	elif not _line_shake:
 		var viewport = get_viewport()
 		if viewport and not is_typing:
 			viewport.canvas_transform.origin = Vector2.ZERO
+
+## S55: Start auto-advance countdown if the current line is narration (no speaker)
+func _start_auto_advance_if_narration() -> void:
+	if _current_speaker == "" and not choice_container.visible:
+		# Check if auto-advance is enabled in options
+		var auto_adv: bool = OptionsMenu.settings.get("auto_advance_narration", true) if OptionsMenu else true
+		if auto_adv:
+			_auto_advance_active = true
+			_auto_advance_timer = AUTO_ADVANCE_DELAY
+
+## ===================== S55: LETTERBOX =====================
+
+func _build_letterbox() -> void:
+	_letterbox_top = ColorRect.new()
+	_letterbox_top.color = Color(0, 0, 0, 1)
+	_letterbox_top.anchor_left = 0.0
+	_letterbox_top.anchor_right = 1.0
+	_letterbox_top.anchor_top = 0.0
+	_letterbox_top.anchor_bottom = 0.0
+	_letterbox_top.offset_top = -LETTERBOX_HEIGHT
+	_letterbox_top.offset_bottom = 0
+	_letterbox_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_letterbox_top.z_index = -1
+	add_child(_letterbox_top)
+
+	_letterbox_bottom = ColorRect.new()
+	_letterbox_bottom.color = Color(0, 0, 0, 1)
+	_letterbox_bottom.anchor_left = 0.0
+	_letterbox_bottom.anchor_right = 1.0
+	_letterbox_bottom.anchor_top = 1.0
+	_letterbox_bottom.anchor_bottom = 1.0
+	_letterbox_bottom.offset_top = 0
+	_letterbox_bottom.offset_bottom = LETTERBOX_HEIGHT
+	_letterbox_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_letterbox_bottom.z_index = -1
+	add_child(_letterbox_bottom)
+
+func _show_letterbox() -> void:
+	if _letterbox_active:
+		return
+	_letterbox_active = true
+	if _letterbox_tween:
+		_letterbox_tween.kill()
+	_letterbox_tween = create_tween().set_parallel(true)
+	_letterbox_tween.tween_property(_letterbox_top, "offset_top", 0, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	_letterbox_tween.tween_property(_letterbox_top, "offset_bottom", LETTERBOX_HEIGHT, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	_letterbox_tween.tween_property(_letterbox_bottom, "offset_top", -LETTERBOX_HEIGHT, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	_letterbox_tween.tween_property(_letterbox_bottom, "offset_bottom", 0, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+func _hide_letterbox() -> void:
+	if not _letterbox_active:
+		return
+	_letterbox_active = false
+	if _letterbox_tween:
+		_letterbox_tween.kill()
+	_letterbox_tween = create_tween().set_parallel(true)
+	_letterbox_tween.tween_property(_letterbox_top, "offset_top", -LETTERBOX_HEIGHT, 0.3).set_ease(Tween.EASE_IN)
+	_letterbox_tween.tween_property(_letterbox_top, "offset_bottom", 0, 0.3).set_ease(Tween.EASE_IN)
+	_letterbox_tween.tween_property(_letterbox_bottom, "offset_top", 0, 0.3).set_ease(Tween.EASE_IN)
+	_letterbox_tween.tween_property(_letterbox_bottom, "offset_bottom", LETTERBOX_HEIGHT, 0.3).set_ease(Tween.EASE_IN)
+
+## ===================== S55: SCREEN TINT =====================
+
+func _build_tint_overlay() -> void:
+	_tint_overlay = ColorRect.new()
+	_tint_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tint_overlay.color = Color(0, 0, 0, 0)
+	_tint_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tint_overlay.z_index = -1
+	add_child(_tint_overlay)
+
+const TINT_COLORS: Dictionary = {
+	"red": Color(0.4, 0.05, 0.05, 0.25),
+	"dark": Color(0.0, 0.0, 0.0, 0.35),
+	"blue": Color(0.05, 0.08, 0.25, 0.2),
+	"sepia": Color(0.2, 0.12, 0.05, 0.2),
+	"void": Color(0.1, 0.0, 0.15, 0.3),
+	"gold": Color(0.25, 0.18, 0.05, 0.15),
+}
+
+func _apply_tint(tint_name: String) -> void:
+	var target_color: Color = TINT_COLORS.get(tint_name, Color(0, 0, 0, 0))
+	if _tint_tween:
+		_tint_tween.kill()
+	_tint_tween = create_tween()
+	_tint_tween.tween_property(_tint_overlay, "color", target_color, 0.4).set_ease(Tween.EASE_IN_OUT)
+
+func _clear_tint() -> void:
+	if _tint_tween:
+		_tint_tween.kill()
+	_tint_tween = create_tween()
+	_tint_tween.tween_property(_tint_overlay, "color", Color(0, 0, 0, 0), 0.3).set_ease(Tween.EASE_IN)
+
+## ===================== S55: TEXT EMPHASIS =====================
+## Convert *word* to gold-colored BBCode [color=...]*word*[/color]
+
+func _apply_emphasis(text: String) -> String:
+	# Replace *text* with BBCode color tag for gold emphasis
+	var result: String = ""
+	var emphasis_color: String = "#e8c860"  # gold
+	# Check high contrast mode
+	if OptionsMenu and OptionsMenu.settings.get("high_contrast", false):
+		emphasis_color = "#ffd700"  # brighter gold
+	var in_emphasis: bool = false
+	var i: int = 0
+	while i < text.length():
+		if text[i] == "*":
+			if in_emphasis:
+				result += "[/color]"
+				in_emphasis = false
+			else:
+				result += "[color=%s]" % emphasis_color
+				in_emphasis = true
+			i += 1
+		else:
+			result += text[i]
+			i += 1
+	# Close unclosed tag
+	if in_emphasis:
+		result += "[/color]"
+	return result
+
+## Build BBCode text visible up to char_count (for typewriter effect with emphasis)
+func _build_visible_bbcode(char_count: int) -> String:
+	# Show plain text up to char_count, then apply emphasis formatting
+	var visible_plain: String = full_text.substr(0, char_count)
+	return _apply_emphasis(visible_plain)
 
 ## UI 구조 코드 생성
 func _build_ui() -> void:
@@ -223,7 +439,7 @@ func _build_ui() -> void:
 	panel.offset_left = 16
 	panel.offset_right = -16
 
-	# 스타일 (어두운 반투명 — 서고 모티프)
+	# 스타일 (어두운 반투명 -- 서고 모티프)
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.08, 0.07, 0.1, 0.92)
 	style.border_color = Color(0.3, 0.25, 0.2, 0.8)
@@ -278,17 +494,17 @@ func _build_ui() -> void:
 	speaker_label.add_theme_color_override("font_color", Color(0.75, 0.6, 0.4))
 	text_area.add_child(speaker_label)
 
-	# 대사 텍스트
+	# 대사 텍스트 — S55: BBCode enabled for emphasis
 	text_label = RichTextLabel.new()
-	text_label.bbcode_enabled = false
+	text_label.bbcode_enabled = true
 	text_label.fit_content = false
 	text_label.scroll_active = false
 	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	text_label.add_theme_font_size_override("normal_font_size", 16)
+	text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
 	text_label.add_theme_color_override("default_color", Color(0.85, 0.82, 0.78))
 	text_area.add_child(text_label)
 
-	# 다음 대사 표시기 (▼)
+	# 다음 대사 표시기 (triangle)
 	indicator = Label.new()
 	indicator.text = "▼"
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -309,6 +525,21 @@ func _build_ui() -> void:
 	choice_container.visible = false
 	root.add_child(choice_container)
 
+## S55: Get dialogue font size based on accessibility settings
+func _get_dialogue_font_size() -> int:
+	var font_size_level: int = 0
+	if OptionsMenu:
+		font_size_level = OptionsMenu.settings.get("dialogue_font_size", 0)
+	match font_size_level:
+		1: return 20  # Large
+		2: return 24  # Extra Large
+		_: return 16  # Normal
+
+## S55: Refresh font size (called when settings change)
+func refresh_font_size() -> void:
+	if text_label:
+		text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
+
 ## DialogueManager 시그널 연결
 func _connect_signals() -> void:
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
@@ -321,6 +552,11 @@ func _on_dialogue_started() -> void:
 
 func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	_clear_choices()
+	_auto_advance_active = false
+	_current_speaker = speaker
+
+	# S55: Refresh font size in case it changed
+	refresh_font_size()
 
 	# S54: Parse direction tags before display
 	var parsed = _parse_direction_tags(text)
@@ -329,7 +565,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	_line_shake = parsed["shake"]
 	_line_pause_time = parsed["pause"]
 
-	# S54: Apply pause if present (before text starts)
+	# S54: Apply pause if present
 	if _line_pause_time > 0.0:
 		_is_paused = true
 		_pause_timer = _line_pause_time
@@ -338,12 +574,15 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	_current_blip_pitch = BLIP_PITCH_MAP.get(speaker, 1.0)
 	_blip_char_count = 0
 
+	# S55: Play narration page-turn sound for narration lines (no speaker)
+	if speaker == "":
+		_play_narration_sfx()
+
 	# 화자 이름 (나레이션이면 숨김)
 	if speaker == "" or speaker == "system_log":
 		speaker_label.text = ""
 		portrait_texture.visible = false
 		portrait_fallback.visible = false
-		# 나레이션 스타일
 		text_label.add_theme_color_override("default_color", UITheme.TEXT_NARRATION)
 		if speaker == "system_log":
 			text_label.add_theme_color_override("default_color", UITheme.TEXT_SYSTEM)
@@ -353,8 +592,9 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 		text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
 		_update_portrait(speaker, portrait)
 
-	# 타자기 효과로 텍스트 표시
+	# S55: Apply emphasis and store both plain and formatted text
 	full_text = clean_text
+	_bbcode_text = _apply_emphasis(clean_text)
 	displayed_chars = 0
 	text_label.text = ""
 	is_typing = true
@@ -363,30 +603,31 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 
 ## S54: Parse direction tags from dialogue text
 ## Supports: [shake], [slow], [fast], [pause=N], [zoom=N], [pan=X,Y], [reset]
+## S55: Added [letterbox], [/letterbox], [tint=NAME], [/tint]
 func _parse_direction_tags(text: String) -> Dictionary:
 	var result = {"text": text, "speed": -1.0, "shake": false, "pause": 0.0}
 	# [shake]
 	if "[shake]" in text:
 		result["shake"] = true
 		result["text"] = result["text"].replace("[shake]", "")
-	# [slow] — 2x slower than current speed
+	# [slow]
 	if "[slow]" in text:
 		var base_speed = _get_typewriter_speed()
 		result["speed"] = base_speed * 2.5 if base_speed > 0.0 else 0.06
 		result["text"] = result["text"].replace("[slow]", "")
-	# [fast] — 2x faster than current speed
+	# [fast]
 	if "[fast]" in text:
 		var base_speed = _get_typewriter_speed()
 		result["speed"] = base_speed * 0.4 if base_speed > 0.0 else 0.0
 		result["text"] = result["text"].replace("[fast]", "")
-	# [pause=N] — pause for N seconds before continuing
+	# [pause=N]
 	var regex = RegEx.new()
 	regex.compile("\\[pause=(\\d+\\.?\\d*)\\]")
 	var match = regex.search(result["text"])
 	if match:
 		result["pause"] = float(match.get_string(1))
 		result["text"] = result["text"].replace(match.get_string(0), "")
-	# S54: [zoom=N] — zoom camera by factor N (e.g. 1.2 = zoom in 20%)
+	# S54: [zoom=N]
 	var zoom_regex = RegEx.new()
 	zoom_regex.compile("\\[zoom=(\\d+\\.?\\d*)\\]")
 	var zoom_match = zoom_regex.search(result["text"])
@@ -394,7 +635,7 @@ func _parse_direction_tags(text: String) -> Dictionary:
 		var zoom_val = float(zoom_match.get_string(1))
 		result["text"] = result["text"].replace(zoom_match.get_string(0), "")
 		_dialogue_zoom(zoom_val, 0.5)
-	# S54: [pan=X,Y] — pan camera by offset
+	# S54: [pan=X,Y]
 	var pan_regex = RegEx.new()
 	pan_regex.compile("\\[pan=(-?\\d+\\.?\\d*),(-?\\d+\\.?\\d*)\\]")
 	var pan_match = pan_regex.search(result["text"])
@@ -403,16 +644,37 @@ func _parse_direction_tags(text: String) -> Dictionary:
 		var py = float(pan_match.get_string(2))
 		result["text"] = result["text"].replace(pan_match.get_string(0), "")
 		_dialogue_pan(Vector2(px, py), 0.5)
-	# S54: [reset] — reset camera to original
+	# S54: [reset]
 	if "[reset]" in text:
 		result["text"] = result["text"].replace("[reset]", "")
 		_dialogue_reset(0.4)
-	# Clean up any extra spaces from tag removal
+	# S55: [letterbox]
+	if "[letterbox]" in result["text"]:
+		result["text"] = result["text"].replace("[letterbox]", "")
+		_show_letterbox()
+	# S55: [/letterbox]
+	if "[/letterbox]" in result["text"]:
+		result["text"] = result["text"].replace("[/letterbox]", "")
+		_hide_letterbox()
+	# S55: [tint=NAME]
+	var tint_regex = RegEx.new()
+	tint_regex.compile("\\[tint=(\\w+)\\]")
+	var tint_match = tint_regex.search(result["text"])
+	if tint_match:
+		var tint_name = tint_match.get_string(1)
+		result["text"] = result["text"].replace(tint_match.get_string(0), "")
+		_apply_tint(tint_name)
+	# S55: [/tint]
+	if "[/tint]" in result["text"]:
+		result["text"] = result["text"].replace("[/tint]", "")
+		_clear_tint()
+	# Clean up extra spaces
 	result["text"] = result["text"].strip_edges()
 	return result
 
 func _on_dialogue_choice(choices: Array) -> void:
 	_clear_choices()
+	_auto_advance_active = false
 	choice_container.visible = true
 
 	for i in range(choices.size()):
@@ -421,7 +683,6 @@ func _on_dialogue_choice(choices: Array) -> void:
 		btn.text = choice.get("text", "...")
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
-		# 선택지 스타일
 		var btn_style = StyleBoxFlat.new()
 		btn_style.bg_color = Color(0.12, 0.1, 0.15, 0.9)
 		btn_style.border_color = Color(0.35, 0.3, 0.25, 0.6)
@@ -440,7 +701,7 @@ func _on_dialogue_choice(choices: Array) -> void:
 		btn.add_theme_color_override("font_hover_color", Color(0.95, 0.85, 0.6))
 		btn.add_theme_font_size_override("font_size", 14)
 
-		var idx = i  # 클로저 캡처용
+		var idx = i
 		btn.pressed.connect(func():
 			AudioManager.play_sfx("ui_select")
 			_on_choice_selected(idx)
@@ -448,7 +709,6 @@ func _on_dialogue_choice(choices: Array) -> void:
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		choice_container.add_child(btn)
 
-	# 첫 번째 버튼에 포커스
 	if choice_container.get_child_count() > 0:
 		choice_container.get_child(0).grab_focus()
 
@@ -457,50 +717,49 @@ func _on_dialogue_ended() -> void:
 	_line_shake = false
 	_line_speed_override = -1.0
 	_is_paused = false
+	_auto_advance_active = false
 	_current_portrait_key = ""
+	_current_speaker = ""
 	var viewport = get_viewport()
 	if viewport:
 		viewport.canvas_transform.origin = Vector2.ZERO
 	# S54: Reset dialogue camera
 	_dialogue_reset(0.3)
+	# S55: Clear cinematic effects
+	_hide_letterbox()
+	_clear_tint()
 	hide_box()
 
 func _on_choice_selected(index: int) -> void:
 	_clear_choices()
 	DialogueManager.select_choice(index)
 
-## S54: 포트레이트 베이스 이름 추출 (elia_sad → elia, arrel_pain → arrel)
+## S54: 포트레이트 베이스 이름 추출
 func _get_portrait_base(key: String) -> String:
 	if key == "":
 		return ""
-	# Split on underscore, take first part
 	var parts = key.split("_")
 	if parts.size() > 0:
 		return parts[0]
 	return key
 
-## 포트레이트 업데이트 — S54: 크로스페이드 전환 추가
+## 포트레이트 업데이트 -- S54: 크로스페이드 전환 추가
 func _update_portrait(speaker: String, portrait_key: String = "") -> void:
-	# portrait 키 결정: 명시적 키 > 화자별 기본값
 	var key = portrait_key
 	if key == "" and DEFAULT_PORTRAITS.has(speaker):
 		key = DEFAULT_PORTRAITS[speaker]
 
-	# 동일한 포트레이트면 변경 없음
 	if key == _current_portrait_key and key != "":
 		return
 
 	var old_key = _current_portrait_key
 	_current_portrait_key = key
 
-	# 이미지 로드 시도
 	if key != "" and PORTRAIT_MAP.has(key):
 		var path = PORTRAIT_MAP[key]
 		if ResourceLoader.exists(path):
 			var tex = load(path)
-			# S54: 전환 효과 적용
 			if old_key == "":
-				# 첫 포트레이트 — 단순 페이드 인
 				portrait_texture.texture = tex
 				portrait_texture.visible = true
 				portrait_fallback.visible = false
@@ -510,7 +769,6 @@ func _update_portrait(speaker: String, portrait_key: String = "") -> void:
 				_portrait_tween = create_tween()
 				_portrait_tween.tween_property(portrait_texture, "modulate:a", 1.0, 0.15)
 			elif _get_portrait_base(old_key) == _get_portrait_base(key):
-				# 같은 캐릭터 다른 표정 — 빠른 크로스페이드 (0.1s)
 				if _portrait_tween:
 					_portrait_tween.kill()
 				_portrait_tween = create_tween()
@@ -520,22 +778,18 @@ func _update_portrait(speaker: String, portrait_key: String = "") -> void:
 				)
 				_portrait_tween.tween_property(portrait_texture, "modulate:a", 1.0, 0.1)
 			else:
-				# 다른 캐릭터 — 슬라이드 아웃/인 (0.2s)
 				if _portrait_tween:
 					_portrait_tween.kill()
 				var orig_x = portrait_texture.position.x
 				_portrait_tween = create_tween()
-				# Slide old out to left + fade
 				_portrait_tween.set_parallel(true)
 				_portrait_tween.tween_property(portrait_texture, "position:x", orig_x - 30, 0.15).set_ease(Tween.EASE_IN)
 				_portrait_tween.tween_property(portrait_texture, "modulate:a", 0.0, 0.12)
 				_portrait_tween.set_parallel(false)
-				# Swap texture, position to right
 				_portrait_tween.tween_callback(func():
 					portrait_texture.texture = tex
 					portrait_texture.position.x = orig_x + 30
 				)
-				# Slide new in from right + fade
 				_portrait_tween.set_parallel(true)
 				_portrait_tween.tween_property(portrait_texture, "position:x", orig_x, 0.15).set_ease(Tween.EASE_OUT)
 				_portrait_tween.tween_property(portrait_texture, "modulate:a", 1.0, 0.15)
@@ -564,16 +818,16 @@ func show_box() -> void:
 	panel.visible = true
 	# S53: 대화 박스 슬라이드 업 애니메이션
 	var original_top = panel.offset_top
-	panel.offset_top = 0  # 화면 아래에서 시작
+	panel.offset_top = 0
 	panel.modulate.a = 0.0
 	var tween = create_tween().set_parallel(true)
 	tween.tween_property(panel, "offset_top", original_top, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tween.tween_property(panel, "modulate:a", 1.0, 0.2).set_ease(Tween.EASE_OUT)
 
 func hide_box() -> void:
-	# S53: 대화 박스 슬라이드 다운 애니메이션
 	choice_container.visible = false
 	is_typing = false
+	_auto_advance_active = false
 	if panel.visible:
 		var tween = create_tween().set_parallel(true)
 		tween.tween_property(panel, "offset_top", 0, 0.15).set_ease(Tween.EASE_IN)
@@ -596,32 +850,29 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _is_paused:
 			_is_paused = false
 			_pause_timer = 0.0
+		# S55: Cancel auto-advance on interact
+		_auto_advance_active = false
 		if is_typing:
-			# 타자기 진행 중 → 즉시 전체 표시
 			displayed_chars = full_text.length()
-			text_label.text = full_text
+			text_label.text = _bbcode_text
 			is_typing = false
 			_line_shake = false
 			indicator.visible = true
-			# S54: Reset canvas shake
 			var viewport = get_viewport()
 			if viewport:
 				viewport.canvas_transform.origin = Vector2.ZERO
 			get_viewport().set_input_as_handled()
 		elif not choice_container.visible:
-			# 다음 대사로
 			AudioManager.play_sfx("confirm")
 			DialogueManager.advance()
 			get_viewport().set_input_as_handled()
 
 ## ===================== S54: Dialogue Camera Effects =====================
 
-## 현재 활성 Camera2D 찾기 (플레이어 자식 또는 뷰포트)
 func _get_active_camera() -> Camera2D:
 	var vp = get_viewport()
 	if vp == null:
 		return null
-	# Try to find the player's camera
 	var tree = get_tree()
 	if tree == null:
 		return null
@@ -630,7 +881,6 @@ func _get_active_camera() -> Camera2D:
 		for child in players[0].get_children():
 			if child is Camera2D:
 				return child
-	# Fallback: find any Camera2D in current scene
 	var root = tree.current_scene
 	if root:
 		var cameras = _find_cameras(root)
@@ -646,7 +896,6 @@ func _find_cameras(node: Node) -> Array:
 		result.append_array(_find_cameras(child))
 	return result
 
-## 카메라 초기 상태 저장
 func _init_camera_state() -> void:
 	if _cam_initialized:
 		return
@@ -656,7 +905,6 @@ func _init_camera_state() -> void:
 		_cam_original_offset = cam.offset
 		_cam_initialized = true
 
-## 대화 줌 효과
 func _dialogue_zoom(target_scale: float, duration: float = 0.5) -> void:
 	var cam = _get_active_camera()
 	if cam == null:
@@ -668,7 +916,6 @@ func _dialogue_zoom(target_scale: float, duration: float = 0.5) -> void:
 	var target_zoom = _cam_original_zoom * target_scale
 	_cam_tween.tween_property(cam, "zoom", target_zoom, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
 
-## 대화 팬 효과
 func _dialogue_pan(offset: Vector2, duration: float = 0.5) -> void:
 	var cam = _get_active_camera()
 	if cam == null:
@@ -679,7 +926,6 @@ func _dialogue_pan(offset: Vector2, duration: float = 0.5) -> void:
 	_cam_tween = create_tween()
 	_cam_tween.tween_property(cam, "offset", _cam_original_offset + offset, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC)
 
-## 카메라 원복
 func _dialogue_reset(duration: float = 0.5) -> void:
 	if not _cam_initialized:
 		return

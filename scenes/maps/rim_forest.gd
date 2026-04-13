@@ -210,6 +210,7 @@ func _start_camp_scene() -> void:
 func _on_camp_ended() -> void:
 	GameManager.set_flag("ch1_complete")
 	GameManager.current_chapter = 2
+	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(1)
 	GameManager.add_item("potion", 1)
 	print("[RimForest] Chapter 1 complete")
@@ -385,7 +386,7 @@ func _setup_side_quests() -> void:
 			"echoes_ash"
 		)
 
-func _add_quest_npc(pos: Vector2, npc_name: String, color: Color, quest_id: String) -> void:
+func _add_quest_npc(pos: Vector2, npc_name: String, _color: Color, quest_id: String) -> void:
 	var area = Area2D.new()
 	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
 	area.collision_layer = 0
@@ -395,11 +396,8 @@ func _add_quest_npc(pos: Vector2, npc_name: String, color: Color, quest_id: Stri
 	rect.size = Vector2(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
 	shape.shape = rect
 	area.add_child(shape)
-	# NPC 비주얼
-	var sprite = ColorRect.new()
-	sprite.size = Vector2(TILE_SIZE * 0.8, TILE_SIZE * 1.2)
-	sprite.position = -Vector2(TILE_SIZE * 0.4, TILE_SIZE * 0.6)
-	sprite.color = color
+	# S55: NPC 비주얼 — PixelSprite 프리셋 사용
+	var sprite = PixelSprite.create_npc_sprite("traveler")
 	area.add_child(sprite)
 	# "!" 퀘스트 마커
 	var marker = Label.new()

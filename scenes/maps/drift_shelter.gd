@@ -145,6 +145,7 @@ func _depart_shelter() -> void:
 
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 5
+	SaveManager.autosave_on_chapter_transition()
 	print("[DriftShelter] Chapter 4 complete — heading to Crumbling Coast")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene_styled("res://scenes/maps/crumbling_coast.tscn")
@@ -343,6 +344,18 @@ func _setup_map_decorations() -> void:
 		rubble.color = Color(0.2, 0.18, 0.16, 0.25)
 		rubble.z_index = -1
 		add_child(rubble)
+	# S55: 피난처 배경 NPC (마을주민/학자)
+	var ambient_npcs = [
+		{"pos": Vector2(8, 7), "preset": "villager_f"},
+		{"pos": Vector2(13, 6), "preset": "scholar"},
+		{"pos": Vector2(16, 9), "preset": "villager_m"},
+	]
+	for npc_data in ambient_npcs:
+		var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
+		npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+		npc_sprite.z_index = 1
+		add_child(npc_sprite)
+
 	# 재비 파티클
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.35, 0.33, 0.38, 0.12), 20)
 

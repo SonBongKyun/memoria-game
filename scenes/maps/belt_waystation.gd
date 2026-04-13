@@ -172,6 +172,7 @@ func _depart_waystation() -> void:
 
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 4
+	SaveManager.autosave_on_chapter_transition()
 	print("[BeltWaystation] Chapter 3 complete — heading to Drift Shelter")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene_styled("res://scenes/maps/drift_shelter.tscn")
@@ -360,6 +361,18 @@ func _setup_map_decorations() -> void:
 		crack.color = Color(0.1, 0.08, 0.07, 0.3)
 		crack.z_index = -1
 		add_child(crack)
+	# S55: 중간역 배경 NPC (여행자/관리국 요원)
+	var ambient_npcs = [
+		{"pos": Vector2(8, 6), "preset": "traveler"},
+		{"pos": Vector2(14, 8), "preset": "bureau_agent"},
+		{"pos": Vector2(18, 5), "preset": "guard"},
+	]
+	for npc_data in ambient_npcs:
+		var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
+		npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+		npc_sprite.z_index = 1
+		add_child(npc_sprite)
+
 	# 먼지 파티클
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.4, 0.38, 0.35, 0.15), 15)
 

@@ -84,10 +84,16 @@ func _on_memory_burned(memory) -> void:
 	show_toast("Memory burned: %s" % memory.title, ToastType.WARNING)
 
 func _on_save_completed(slot: int) -> void:
-	show_toast("Game saved — Slot %d" % slot, ToastType.SUCCESS)
+	if slot == 0:
+		show_toast("Autosaved", ToastType.INFO)
+	else:
+		show_toast("Game saved — Slot %d" % slot, ToastType.SUCCESS)
 
 func _on_load_completed(slot: int) -> void:
-	show_toast("Game loaded — Slot %d" % slot, ToastType.INFO)
+	if slot == 0:
+		show_toast("Autosave loaded", ToastType.INFO)
+	else:
+		show_toast("Game loaded — Slot %d" % slot, ToastType.INFO)
 
 func show_toast(text: String, type: ToastType = ToastType.INFO) -> void:
 	_queue.append({"text": text, "type": type})

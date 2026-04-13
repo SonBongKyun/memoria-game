@@ -1018,6 +1018,8 @@ static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient
 	cam.drag_top_margin = 0.15
 	cam.drag_bottom_margin = 0.15
 	cam.zoom = Vector2(zoom_level, zoom_level)
+	# S55: 픽셀 퍼펙트 스냅 (정수 좌표로 카메라 정렬)
+	cam.set_meta("pixel_snap", true)
 	if ambient_shake_intensity > 0.0:
 		cam.set_meta("ambient_shake", ambient_shake_intensity)
 	player.add_child(cam)
@@ -1042,11 +1044,18 @@ static func update_camera_shake(cam: Camera2D, time: float) -> void:
 		return
 	var intensity: float = cam.get_meta("ambient_shake", 0.0)
 	if intensity <= 0.0:
+		# S55: 픽셀 스냅 — 흔들림 없을 때도 정수 좌표 유지
+		if cam.get_meta("pixel_snap", false):
+			cam.offset = Vector2(roundf(cam.offset.x), roundf(cam.offset.y))
 		return
-	cam.offset = Vector2(
+	var raw_offset = Vector2(
 		sin(time * 7.3) * intensity + sin(time * 13.1) * intensity * 0.5,
 		cos(time * 5.7) * intensity + cos(time * 11.9) * intensity * 0.5
 	)
+	# S55: 픽셀 퍼펙트 — 카메라 오프셋을 정수로 스냅
+	if cam.get_meta("pixel_snap", false):
+		raw_offset = Vector2(roundf(raw_offset.x), roundf(raw_offset.y))
+	cam.offset = raw_offset
 
 ## S53: 파티클 오브젝트 풀
 static var _particle_pool: Array[ColorRect] = []

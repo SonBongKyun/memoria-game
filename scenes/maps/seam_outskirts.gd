@@ -162,6 +162,7 @@ func _depart_outskirts() -> void:
 
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 8
+	SaveManager.autosave_on_chapter_transition()
 	print("[SeamOutskirts] Chapter 7 complete — entering Forgotten Forest")
 	await get_tree().create_timer(1.5).timeout
 	SceneTransition.change_scene_styled("res://scenes/maps/forgotten_forest.tscn")

@@ -1,6 +1,7 @@
 ## BattleScene — 턴제 전투 화면 (S44: 사이드뷰 오버홀)
 ## BattleManager의 시그널을 받아 UI 표시.
 ## S44: 사이드뷰 레이아웃, 캐릭터/적 128x128 스프라이트, 전투 애니메이션
+## S56: BattleVFX 통합 (향상된 데미지 넘버, 상태이상 파티클, 기억 연소 드라마틱 시퀀스)
 extends Node2D
 
 # UI 노드
@@ -74,6 +75,9 @@ var env_label: Label  # 환경 보너스 표시
 var auto_label: Label  # [AUTO] 표시
 var auto_btn: Button  # 자동전투 버튼
 
+# S56: BattleVFX 유틸리티
+var battle_vfx: BattleVFX
+
 # S54: Victory screen
 var _victory_panel: PanelContainer
 var _victory_rewards: Array = []  # collected reward lines from battle_log
@@ -81,6 +85,8 @@ var _victory_rewards: Array = []  # collected reward lines from battle_log
 func _ready() -> void:
 	_build_ui()
 	_connect_signals()
+	# S56: BattleVFX 초기화 (_build_ui 이후 canvas_root 유효)
+	battle_vfx = BattleVFX.new(self, canvas_root)
 	# 인트로 연출 후 HP 표시
 	_play_intro()
 
@@ -1111,6 +1117,11 @@ func _exit_tree() -> void:
 		BattleManager.enemy_scanned.disconnect(_on_enemy_scanned)
 	if BattleManager.environment_info.is_connected(_on_environment_info):
 		BattleManager.environment_info.disconnect(_on_environment_info)
+	if BattleManager.auto_battle_changed.is_connected(_on_auto_battle_changed):
+		BattleManager.auto_battle_changed.disconnect(_on_auto_battle_changed)
+	# S56: Cleanup battle VFX status particles
+	if battle_vfx:
+		battle_vfx.cleanup_status_particles()
 
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
@@ -1197,24 +1208,42 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	if target != "Arrel" and player_sprite_container:
 		_player_attack_rush()
 
-	_show_damage_number(target, amount, skill_name)
+	# S56: Enhanced damage numbers via BattleVFX
+	if battle_vfx:
+		battle_vfx.show_damage_number(target, amount, skill_name)
+	else:
+		_show_damage_number(target, amount, skill_name)
 	# S46: VFX Library 셰이더 피격 플래시 (flash_white)
 	_apply_hit_shader(target, amount)
 	_hit_flash(target)
-	# S46: 셰이크 스케일링 — 데미지에 비례
-	var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
-	_screen_shake(shake_intensity)
+	# S56: Enhanced camera shake scaling with damage amount
+	if battle_vfx:
+		battle_vfx.damage_screen_shake(amount)
+	else:
+		var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
+		_screen_shake(shake_intensity)
+
+	# S56: Critical screen flash on heavy hits (100+ damage to enemy)
+	if amount >= 100 and target != "Arrel" and battle_vfx:
+		battle_vfx.critical_screen_flash()
 
 	# S52: 크리티컬 히트 줌 펀치 (200+ 데미지)
 	if amount >= 200 and target != "Arrel":
 		_critical_zoom_punch()
 
-	# 스킬별 VFX
+	# S56: Skill-specific element particle effects
 	if skill_name != "" and target != "Arrel":
 		_play_attack_vfx(skill_name)
+		# S56: Element-specific particle burst
+		if battle_vfx:
+			var element = _detect_skill_element(skill_name)
+			battle_vfx.play_element_particles(element)
 	elif target != "Arrel":
 		_play_slash_vfx()
 		_play_speed_lines()  # S44: 속도선
+		# S56: Physical sparks
+		if battle_vfx:
+			battle_vfx.play_element_particles("physical")
 
 func _on_player_turn() -> void:
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
@@ -1258,6 +1287,13 @@ func _on_status_changed() -> void:
 	_update_status_icons()
 	_update_enemy_status_visual()  # S41: 상태이상 스프라이트 틴트
 	_update_status_shaders()       # S46: VFX Library 상태이상 셰이더
+	# S56: Status effect particle overlays on sprites
+	if battle_vfx:
+		battle_vfx.update_status_particles("enemy", enemy_sprite_container, enemy_sprite)
+		battle_vfx.update_status_particles("player", player_sprite_container, player_sprite)
+		# S56: Status icon bars above sprites with remaining turns
+		battle_vfx.build_sprite_status_bar("enemy", enemy_sprite_container)
+		battle_vfx.build_sprite_status_bar("player", player_sprite_container)
 
 func _on_battle_ended(_result) -> void:
 	action_container.visible = false
@@ -1267,9 +1303,18 @@ func _on_battle_ended(_result) -> void:
 		tobias_cmd_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	# S56: Cleanup status effect particles
+	if battle_vfx:
+		battle_vfx.cleanup_status_particles()
 	# S40: 승리 시 적 디졸브 효과
 	if _result == BattleManager.BattleState.VICTORY and enemy_sprite:
 		_play_enemy_dissolve()
+	# S56: Victory fanfare VFX (confetti + golden flash)
+	if _result == BattleManager.BattleState.VICTORY and battle_vfx:
+		battle_vfx.play_victory_fanfare()
+	# S56: Defeat dramatic slow-motion effect
+	if _result == BattleManager.BattleState.DEFEAT and battle_vfx:
+		battle_vfx.play_defeat_effect()
 	# S54: 승리 화면 표시
 	if _result == BattleManager.BattleState.VICTORY:
 		# Short delay for dissolve to play, then show victory screen
@@ -1379,11 +1424,14 @@ func _toggle_burn_list() -> void:
 				btn.add_theme_color_override("font_hover_color", Color(0.95, 0.7, 0.4))
 
 				var mid = memory.id
+				var mem_title = memory.title
+				var mem_grade = memory.grade
 				btn.pressed.connect(func():
 					AudioManager.play_sfx("ui_select")
 					action_container.visible = false
 					_hide_burn_list()
-					BattleManager.player_burn(mid)
+					# S56: Dramatic memory burn sequence before dealing damage
+					_play_memory_burn_then_execute(mid, mem_title, mem_grade)
 				)
 				btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 				burn_list_container.add_child(btn)
@@ -2913,3 +2961,23 @@ func _show_victory_screen() -> void:
 	var t_panel = create_tween().set_parallel(true)
 	t_panel.tween_property(_victory_panel, "modulate:a", 1.0, 0.3)
 	t_panel.tween_property(_victory_panel, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+## ===================== S56: Memory Burn Dramatic Sequence =====================
+
+## Play dramatic burn sequence then execute the actual burn
+func _play_memory_burn_then_execute(memory_id: String, memory_title: String, memory_grade: int) -> void:
+	if battle_vfx:
+		await battle_vfx.play_memory_burn_sequence(memory_title, memory_grade, player_sprite_container)
+	BattleManager.player_burn(memory_id)
+
+## ===================== S56: Skill Element Detection Helper =====================
+
+## Detect element type from skill name for particle effects
+func _detect_skill_element(skill_name: String) -> String:
+	var sn = skill_name.to_lower()
+	if sn.find("void") >= 0 or sn.find("cascade") >= 0 or sn.find("zero") >= 0 or sn.find("identity") >= 0:
+		return "void"
+	elif sn.find("burn") >= 0 or sn.find("flame") >= 0 or sn.find("ember") >= 0 or sn.find("fire") >= 0 or sn.find("scorch") >= 0 or sn.find("incinerate") >= 0 or sn.find("pyre") >= 0:
+		return "fire"
+	else:
+		return "physical"

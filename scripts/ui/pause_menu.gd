@@ -160,6 +160,7 @@ func _build_ui() -> void:
 		{"text": GameManager.loc("options"), "callback": _on_options},
 		{"text": GameManager.loc("save"), "callback": _on_save},
 		{"text": GameManager.loc("load"), "callback": _on_load},
+		{"text": "Load Autosave", "callback": _on_load_autosave},
 		{"text": GameManager.loc("title_return"), "callback": _on_title},
 		{"text": GameManager.loc("quit"), "callback": _on_quit},
 	])
@@ -196,13 +197,30 @@ func _build_ui() -> void:
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		btn_container.add_child(btn)
 
-	# 하단 조작법
+	# S56: Last saved indicator
+	var last_saved_label = Label.new()
+	last_saved_label.name = "LastSavedLabel"
+	last_saved_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	last_saved_label.add_theme_font_size_override("font_size", 11)
+	last_saved_label.add_theme_color_override("font_color", Color(0.45, 0.55, 0.35))
+	vbox.add_child(last_saved_label)
+
+	# 하단 조작법 — S56: Dynamic hints based on input mode
 	var hint = Label.new()
-	hint.text = "F6: Quick Save  |  F7: Quick Load"
+	hint.name = "HintLabel"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 11)
 	hint.add_theme_color_override("font_color", Color(0.4, 0.38, 0.35))
 	vbox.add_child(hint)
+	_update_hint_text(hint, last_saved_label)
+
+## S56: Update hint text based on input mode
+func _update_hint_text(hint_label: Label, last_saved: Label) -> void:
+	if InputManager and InputManager.is_controller_mode():
+		hint_label.text = "[LB] Quick Save  |  [RB] Quick Load  |  [B] Close"
+	else:
+		hint_label.text = "F6: Quick Save  |  F7: Quick Load"
+	last_saved.text = SaveManager.get_last_saved_text()
 
 func _update_save_info() -> void:
 	var chapter_name = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
@@ -227,6 +245,11 @@ func _update_save_info() -> void:
 	else:
 		text += "\n\nSlot 1: Ch%d, %s" % [save.get("chapter", 1), save.get("timestamp", "?")]
 
+	# S56: Autosave slot info
+	var auto_save = SaveManager.get_save_info(0)
+	if not auto_save.is_empty():
+		text += "\nAutosave: Ch%d, %s" % [auto_save.get("chapter", 1), auto_save.get("timestamp", "?")]
+
 	save_info_label.text = text
 
 func _on_save() -> void:
@@ -248,6 +271,15 @@ func _on_load() -> void:
 		return
 	_close()
 	SaveManager.load_game(1)
+
+## S56: Load autosave
+func _on_load_autosave() -> void:
+	if not SaveManager.has_save(0):
+		AudioManager.play_sfx("cancel")
+		NotificationToast.show_toast("No autosave found", NotificationToast.ToastType.WARNING)
+		return
+	_close()
+	SaveManager.load_game(0)
 
 func _on_title() -> void:
 	_close()
@@ -675,8 +707,14 @@ func _show_stats_panel() -> void:
 	scroll.add_child(list)
 
 	var stats = GameManager.play_stats
+	# S56: Completion percentage
+	var completion = AchievementManager.get_completion_percentage()
 	var stat_display = [
 		{"label": "Play Time", "value": GameManager.format_play_time()},
+		{"label": "Completion", "value": "%.1f%%" % completion},
+		{"label": "Achievements", "value": "%d / %d" % [AchievementManager.unlocked.size(), AchievementManager.ACHIEVEMENTS.size()]},
+		{"label": "Endings Seen", "value": "%d / %d" % [GameManager.seen_endings.size(), GameManager.ENDING_DATA.size()]},
+		{"label": "", "value": ""},
 		{"label": "Total Battles", "value": str(int(stats.total_battles))},
 		{"label": "Enemies Defeated", "value": str(int(stats.enemies_defeated))},
 		{"label": "Bosses Defeated", "value": str(int(stats.bosses_defeated))},
@@ -686,8 +724,10 @@ func _show_stats_panel() -> void:
 		{"label": "Steps Taken", "value": str(int(stats.steps_taken))},
 		{"label": "Highest Combo", "value": str(int(stats.highest_combo))},
 		{"label": "Items Used", "value": str(int(stats.items_used))},
+		{"label": "", "value": ""},
 		{"label": "Current Chapter", "value": str(GameManager.current_chapter)},
 		{"label": "NG+ Cycle", "value": str(GameManager.ng_plus_cycle)},
+		{"label": "Last Saved", "value": SaveManager.get_last_saved_text()},
 	]
 
 	for entry in stat_display:

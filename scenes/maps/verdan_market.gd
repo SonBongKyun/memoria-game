@@ -203,6 +203,7 @@ func _open_malet_shop() -> void:
 func _on_shop_closed() -> void:
 	GameManager.set_flag("ch2_complete")
 	GameManager.current_chapter = 3
+	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(2)
 	AchievementManager.unlock("merchant")
 	print("[VerdenMarket] Chapter 2 complete — transitioning to Belt Waystation")
@@ -374,10 +375,8 @@ func _setup_side_quests() -> void:
 		rect.size = Vector2(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
 		shape.shape = rect
 		area.add_child(shape)
-		var sprite = ColorRect.new()
-		sprite.size = Vector2(TILE_SIZE * 0.7, TILE_SIZE * 1.0)
-		sprite.position = -Vector2(TILE_SIZE * 0.35, TILE_SIZE * 0.5)
-		sprite.color = Color(0.4, 0.35, 0.3, 0.6)
+		# S55: NPC 비주얼 — PixelSprite 프리셋 사용
+		var sprite = PixelSprite.create_npc_sprite("merchant")
 		area.add_child(sprite)
 		var marker = Label.new()
 		marker.text = "!" if not SideQuest.is_active("sump_ledger") else "?"
@@ -441,6 +440,20 @@ func _setup_map_decorations() -> void:
 		l.z_index = -1
 		add_child(l)
 		_lantern_lights.append(l)
+
+	# S55: 시장 배경 NPC (PixelSprite 프리셋으로 다양한 외형)
+	var ambient_npcs = [
+		{"pos": Vector2(7, 6), "preset": "villager_f"},
+		{"pos": Vector2(12, 5), "preset": "fisherman"},
+		{"pos": Vector2(16, 7), "preset": "villager_m"},
+		{"pos": Vector2(4, 9), "preset": "elder"},
+		{"pos": Vector2(19, 6), "preset": "child"},
+	]
+	for npc_data in ambient_npcs:
+		var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
+		npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+		npc_sprite.z_index = 1
+		add_child(npc_sprite)
 
 	# 연기 (골목에서 올라오는 연기)
 	for smoke_pos in [Vector2(3, 14), Vector2(15, 11), Vector2(9, 16)]:

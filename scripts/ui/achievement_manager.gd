@@ -1,57 +1,58 @@
 ## AchievementManager (Autoload)
-## 업적 시스템. 도전과제 추적 + 달성 시 토스트 알림.
+## 업적 시스템. 도전과제 추적 + 달성 시 Steam-style 팝업 알림.
 ## 영구 저장 (user://achievements.json)
+## S56: Steam-ready achievement IDs, popup notification, completion stats
 extends Node
 
 const SAVE_PATH: String = "user://achievements.json"
 
-# ── 업적 정의 ──
+# ── 업적 정의 (S56: steam_id 추가) ──
 const ACHIEVEMENTS: Dictionary = {
 	# 전투 관련
-	"first_blood": {"title": "First Blood", "desc": "Win your first battle.", "icon": "sword"},
-	"void_slayer": {"title": "Void Slayer", "desc": "Defeat a Void Beast.", "icon": "skull"},
-	"boss_hunter": {"title": "Boss Hunter", "desc": "Defeat a boss enemy.", "icon": "crown"},
-	"battle_veteran": {"title": "Battle Veteran", "desc": "Win 10 battles.", "icon": "shield"},
-	"survivor": {"title": "Survivor", "desc": "Win a battle with 10 HP or less.", "icon": "heart"},
-	"item_master": {"title": "Item Master", "desc": "Use 10 items in battle.", "icon": "potion"},
+	"first_blood": {"title": "First Blood", "desc": "Win your first battle.", "icon": "sword", "steam_id": "ACH_FIRST_BLOOD"},
+	"void_slayer": {"title": "Void Slayer", "desc": "Defeat a Void Beast.", "icon": "skull", "steam_id": "ACH_VOID_SLAYER"},
+	"boss_hunter": {"title": "Boss Hunter", "desc": "Defeat a boss enemy.", "icon": "crown", "steam_id": "ACH_BOSS_HUNTER"},
+	"battle_veteran": {"title": "Battle Veteran", "desc": "Win 10 battles.", "icon": "shield", "steam_id": "ACH_BATTLE_VETERAN"},
+	"survivor": {"title": "Survivor", "desc": "Win a battle with 10 HP or less.", "icon": "heart", "steam_id": "ACH_SURVIVOR"},
+	"item_master": {"title": "Item Master", "desc": "Use 10 items in battle.", "icon": "potion", "steam_id": "ACH_ITEM_MASTER"},
 
 	# 기억 관련
-	"first_burn": {"title": "First Burn", "desc": "Burn your first memory.", "icon": "flame"},
-	"pyromaniac": {"title": "Pyromaniac", "desc": "Burn 5 memories.", "icon": "flame"},
-	"identity_crisis": {"title": "Identity Crisis", "desc": "Burn a Grade 2 (Identity) memory.", "icon": "flame"},
-	"zero_burn": {"title": "Zero Burn", "desc": "Burn the Core memory — your name.", "icon": "skull"},
+	"first_burn": {"title": "First Burn", "desc": "Burn your first memory.", "icon": "flame", "steam_id": "ACH_FIRST_BURN"},
+	"pyromaniac": {"title": "Pyromaniac", "desc": "Burn 5 memories.", "icon": "flame", "steam_id": "ACH_PYROMANIAC"},
+	"identity_crisis": {"title": "Identity Crisis", "desc": "Burn a Grade 2 (Identity) memory.", "icon": "flame", "steam_id": "ACH_IDENTITY_CRISIS"},
+	"zero_burn": {"title": "Zero Burn", "desc": "Burn the Core memory — your name.", "icon": "skull", "steam_id": "ACH_ZERO_BURN"},
 
 	# 탐색 관련
-	"hidden_stump": {"title": "Old Growth", "desc": "Find the hidden stump in Rim Forest.", "icon": "eye"},
-	"hidden_garden": {"title": "Secret Garden", "desc": "Find the hidden garden in The Seam.", "icon": "eye"},
-	"explorer": {"title": "Explorer", "desc": "Visit all 5 maps.", "icon": "map"},
+	"hidden_stump": {"title": "Old Growth", "desc": "Find the hidden stump in Rim Forest.", "icon": "eye", "steam_id": "ACH_OLD_GROWTH"},
+	"hidden_garden": {"title": "Secret Garden", "desc": "Find the hidden garden in The Seam.", "icon": "eye", "steam_id": "ACH_SECRET_GARDEN"},
+	"explorer": {"title": "Explorer", "desc": "Visit all 5 maps.", "icon": "map", "steam_id": "ACH_EXPLORER"},
 
 	# 스토리 관련
-	"chapter_complete_1": {"title": "Rim Forest", "desc": "Complete Chapter 1.", "icon": "book"},
-	"chapter_complete_2": {"title": "Verdan Market", "desc": "Complete Chapter 2.", "icon": "book"},
-	"chapter_complete_3": {"title": "Weight of Pages", "desc": "Complete Chapter 3.", "icon": "book"},
-	"chapter_complete_4": {"title": "Drift", "desc": "Complete Chapter 4.", "icon": "book"},
-	"chapter_complete_5": {"title": "The Classifier", "desc": "Complete Chapter 5.", "icon": "book"},
-	"chapter_complete_6": {"title": "Thread That Holds", "desc": "Complete Chapter 6.", "icon": "book"},
-	"chapter_complete_7": {"title": "The Threshold", "desc": "Complete Chapter 7.", "icon": "book"},
-	"chapter_complete_8": {"title": "Forest That Forgets", "desc": "Complete Chapter 8.", "icon": "book"},
-	"chapter_complete_9": {"title": "Where Colors Stop", "desc": "Complete Chapter 9.", "icon": "book"},
-	"chapter_complete_10": {"title": "Into the Void", "desc": "Complete Chapter 10.", "icon": "book"},
-	"ending_seal": {"title": "The Seal Holds", "desc": "Reach the Seal ending.", "icon": "star"},
-	"ending_zero": {"title": "Nothing Remains", "desc": "Reach the Zero Burn ending.", "icon": "star"},
-	"ending_ash": {"title": "Ash Ending", "desc": "Reach the Ash ending.", "icon": "star"},
-	"ending_seam": {"title": "The Seam Holds", "desc": "Reach the Seam ending.", "icon": "star"},
-	"all_endings": {"title": "Every Path", "desc": "See all 4 endings.", "icon": "crown"},
+	"chapter_complete_1": {"title": "Rim Forest", "desc": "Complete Chapter 1.", "icon": "book", "steam_id": "ACH_CH1"},
+	"chapter_complete_2": {"title": "Verdan Market", "desc": "Complete Chapter 2.", "icon": "book", "steam_id": "ACH_CH2"},
+	"chapter_complete_3": {"title": "Weight of Pages", "desc": "Complete Chapter 3.", "icon": "book", "steam_id": "ACH_CH3"},
+	"chapter_complete_4": {"title": "Drift", "desc": "Complete Chapter 4.", "icon": "book", "steam_id": "ACH_CH4"},
+	"chapter_complete_5": {"title": "The Classifier", "desc": "Complete Chapter 5.", "icon": "book", "steam_id": "ACH_CH5"},
+	"chapter_complete_6": {"title": "Thread That Holds", "desc": "Complete Chapter 6.", "icon": "book", "steam_id": "ACH_CH6"},
+	"chapter_complete_7": {"title": "The Threshold", "desc": "Complete Chapter 7.", "icon": "book", "steam_id": "ACH_CH7"},
+	"chapter_complete_8": {"title": "Forest That Forgets", "desc": "Complete Chapter 8.", "icon": "book", "steam_id": "ACH_CH8"},
+	"chapter_complete_9": {"title": "Where Colors Stop", "desc": "Complete Chapter 9.", "icon": "book", "steam_id": "ACH_CH9"},
+	"chapter_complete_10": {"title": "Into the Void", "desc": "Complete Chapter 10.", "icon": "book", "steam_id": "ACH_CH10"},
+	"ending_seal": {"title": "The Seal Holds", "desc": "Reach the Seal ending.", "icon": "star", "steam_id": "ACH_ENDING_SEAL"},
+	"ending_zero": {"title": "Nothing Remains", "desc": "Reach the Zero Burn ending.", "icon": "star", "steam_id": "ACH_ENDING_ZERO"},
+	"ending_ash": {"title": "Ash Ending", "desc": "Reach the Ash ending.", "icon": "star", "steam_id": "ACH_ENDING_ASH"},
+	"ending_seam": {"title": "The Seam Holds", "desc": "Reach the Seam ending.", "icon": "star", "steam_id": "ACH_ENDING_SEAM"},
+	"all_endings": {"title": "Every Path", "desc": "See all 4 endings.", "icon": "crown", "steam_id": "ACH_ALL_ENDINGS"},
 
 	# 경제 관련
-	"merchant": {"title": "Merchant", "desc": "Complete a trade with Malet.", "icon": "coin"},
-	"wealthy": {"title": "Wealthy", "desc": "Accumulate 100 Grains.", "icon": "coin"},
+	"merchant": {"title": "Merchant", "desc": "Complete a trade with Malet.", "icon": "coin", "steam_id": "ACH_MERCHANT"},
+	"wealthy": {"title": "Wealthy", "desc": "Accumulate 100 Grains.", "icon": "coin", "steam_id": "ACH_WEALTHY"},
 
 	# 사이드 퀘스트
-	"all_quests": {"title": "Memory Hunter", "desc": "Complete all side quests.", "icon": "star"},
+	"all_quests": {"title": "Memory Hunter", "desc": "Complete all side quests.", "icon": "star", "steam_id": "ACH_ALL_QUESTS"},
 
 	# NG+
-	"new_game_plus": {"title": "New Game+", "desc": "Start a New Game+ run.", "icon": "cycle"},
+	"new_game_plus": {"title": "New Game+", "desc": "Start a New Game+ run.", "icon": "cycle", "steam_id": "ACH_NEW_GAME_PLUS"},
 }
 
 # ── 달성 데이터 ──
@@ -64,9 +65,20 @@ var stats: Dictionary = {      # 통계 카운터
 
 signal achievement_unlocked(id: String)
 
+# S56: Steam-style popup UI
+var _popup_canvas: CanvasLayer
+var _popup_panel: PanelContainer
+var _popup_icon_label: Label
+var _popup_title_label: Label
+var _popup_desc_label: Label
+var _popup_tween: Tween
+var _popup_queue: Array[String] = []
+var _popup_showing: bool = false
+
 func _ready() -> void:
 	_load_data()
 	_connect_signals()
+	_build_achievement_popup()
 	print("[AchievementManager] Ready — %d/%d unlocked" % [unlocked.size(), ACHIEVEMENTS.size()])
 
 func _connect_signals() -> void:
@@ -81,10 +93,16 @@ func unlock(id: String) -> void:
 		return
 	unlocked[id] = true
 	var ach = ACHIEVEMENTS[id]
-	NotificationToast.show_toast("Achievement: %s" % ach["title"], NotificationToast.ToastType.SUCCESS)
+
+	# S56: Show Steam-style popup instead of generic toast
+	_queue_achievement_popup(id)
+
+	# S56: Call Steam API if available (placeholder for GodotSteam integration)
+	_steam_set_achievement(ach.get("steam_id", ""))
+
 	achievement_unlocked.emit(id)
 	_save_data()
-	print("[Achievement] Unlocked: %s" % ach["title"])
+	print("[Achievement] Unlocked: %s (Steam ID: %s)" % [ach["title"], ach.get("steam_id", "N/A")])
 
 	# all_endings 체크
 	if id.begins_with("ending_"):
@@ -92,6 +110,136 @@ func unlock(id: String) -> void:
 
 func is_unlocked(id: String) -> bool:
 	return unlocked.has(id)
+
+## S56: Steam API placeholder — will be replaced with actual GodotSteam calls
+func _steam_set_achievement(steam_id: String) -> void:
+	if steam_id == "":
+		return
+	# When GodotSteam is integrated, this becomes:
+	# if Steam.isSteamRunning():
+	#     Steam.setAchievement(steam_id)
+	#     Steam.storeStats()
+	print("[Steam] Would set achievement: %s" % steam_id)
+
+## S56: Get completion percentage
+func get_completion_percentage() -> float:
+	if ACHIEVEMENTS.size() == 0:
+		return 0.0
+	return float(unlocked.size()) / float(ACHIEVEMENTS.size()) * 100.0
+
+## ===================== S56: Steam-style Achievement Popup =====================
+
+func _build_achievement_popup() -> void:
+	_popup_canvas = CanvasLayer.new()
+	_popup_canvas.layer = 95  # Above most UI
+	add_child(_popup_canvas)
+
+	_popup_panel = PanelContainer.new()
+	_popup_panel.anchor_left = 1.0
+	_popup_panel.anchor_right = 1.0
+	_popup_panel.anchor_top = 0.0
+	_popup_panel.anchor_bottom = 0.0
+	_popup_panel.offset_left = -320
+	_popup_panel.offset_right = -12
+	_popup_panel.offset_top = -80  # Start above screen (hidden)
+	_popup_panel.offset_bottom = -8
+
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.07, 0.06, 0.95)
+	style.border_color = Color(0.7, 0.55, 0.25, 0.9)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(12)
+	_popup_panel.add_theme_stylebox_override("panel", style)
+
+	var hbox = HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 12)
+	_popup_panel.add_child(hbox)
+
+	# Achievement icon
+	_popup_icon_label = Label.new()
+	_popup_icon_label.add_theme_font_size_override("font_size", 28)
+	_popup_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_popup_icon_label.custom_minimum_size = Vector2(36, 0)
+	hbox.add_child(_popup_icon_label)
+
+	# Text area
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(vbox)
+
+	# "ACHIEVEMENT UNLOCKED" header
+	var header = Label.new()
+	header.text = "ACHIEVEMENT UNLOCKED"
+	header.add_theme_font_size_override("font_size", 10)
+	header.add_theme_color_override("font_color", Color(0.6, 0.55, 0.4))
+	vbox.add_child(header)
+
+	# Achievement title
+	_popup_title_label = Label.new()
+	_popup_title_label.add_theme_font_size_override("font_size", 16)
+	_popup_title_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
+	vbox.add_child(_popup_title_label)
+
+	# Achievement description
+	_popup_desc_label = Label.new()
+	_popup_desc_label.add_theme_font_size_override("font_size", 11)
+	_popup_desc_label.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	vbox.add_child(_popup_desc_label)
+
+	_popup_canvas.add_child(_popup_panel)
+
+func _queue_achievement_popup(id: String) -> void:
+	_popup_queue.append(id)
+	if not _popup_showing:
+		_show_next_popup()
+
+func _show_next_popup() -> void:
+	if _popup_queue.is_empty():
+		_popup_showing = false
+		return
+	_popup_showing = true
+	var id = _popup_queue.pop_front()
+	var ach = ACHIEVEMENTS.get(id, {})
+
+	# Set content
+	var icon_map = {"sword": "X", "skull": "X", "crown": "X", "shield": "X", "heart": "X", "potion": "X", "flame": "X", "eye": "X", "map": "X", "book": "X", "star": "X", "coin": "X", "cycle": "X"}
+	_popup_icon_label.text = icon_map.get(ach.get("icon", ""), "X")
+	_popup_title_label.text = ach.get("title", "???")
+	_popup_desc_label.text = ach.get("desc", "")
+
+	# Play SFX
+	AudioManager.play_sfx("memory_add")
+
+	# Controller vibration
+	if InputManager:
+		InputManager.vibrate("ui_confirm")
+
+	# Animate: slide down from top
+	if _popup_tween and _popup_tween.is_valid():
+		_popup_tween.kill()
+	_popup_panel.offset_top = -80
+	_popup_panel.offset_bottom = -8
+	_popup_panel.modulate.a = 0.0
+
+	_popup_tween = create_tween()
+	# Slide in
+	_popup_tween.set_parallel(true)
+	_popup_tween.tween_property(_popup_panel, "offset_top", 12.0, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	_popup_tween.tween_property(_popup_panel, "offset_bottom", 80.0, 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	_popup_tween.tween_property(_popup_panel, "modulate:a", 1.0, 0.3)
+	_popup_tween.set_parallel(false)
+	# Hold for 4 seconds
+	_popup_tween.tween_interval(4.0)
+	# Slide out
+	_popup_tween.set_parallel(true)
+	_popup_tween.tween_property(_popup_panel, "offset_top", -80.0, 0.3).set_ease(Tween.EASE_IN)
+	_popup_tween.tween_property(_popup_panel, "offset_bottom", -8.0, 0.3).set_ease(Tween.EASE_IN)
+	_popup_tween.tween_property(_popup_panel, "modulate:a", 0.0, 0.3)
+	_popup_tween.set_parallel(false)
+	# Next in queue
+	_popup_tween.tween_callback(_show_next_popup)
 
 ## ===================== 이벤트 핸들러 =====================
 
@@ -209,4 +357,11 @@ func get_all_achievements() -> Array[Dictionary]:
 		ach["id"] = id
 		ach["unlocked"] = unlocked.has(id)
 		result.append(ach)
+	return result
+
+## S56: Get Steam achievement ID map (for Steamworks dashboard setup)
+func get_steam_id_map() -> Dictionary:
+	var result: Dictionary = {}
+	for id in ACHIEVEMENTS:
+		result[id] = ACHIEVEMENTS[id].get("steam_id", "")
 	return result

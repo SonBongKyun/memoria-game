@@ -1,8 +1,10 @@
 ## TilePainter — 픽셀아트 타일셋 생성 + TileMapLayer 세팅 유틸리티
 ## Image.set_pixel()로 상세한 타일을 그려서 TileSet 아틀라스를 만듦.
+## S55: 타일 변형 시스템 — 타일 타입당 4 변형으로 시각적 반복 감소
 class_name TilePainter
 
 const TILE: int = 32
+const VARIATIONS: int = 4  ## S55: 타일 타입당 변형 수
 
 ## TileMapLayer를 생성하고 타일 데이터를 배치
 ## tile_defs: Array of {color: Color, detail: String}
@@ -12,15 +14,21 @@ static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height
 	var tilemap = TileMapLayer.new()
 	tilemap.z_index = -1
 
-	# 아틀라스 이미지 생성 (타일 수 x 1)
+	# S55: 아틀라스 이미지 생성 (타일 수 x VARIATIONS)
 	var count = tile_defs.size()
-	var atlas_img = Image.create(TILE * count, TILE, false, Image.FORMAT_RGBA8)
+	var total_tiles = count * VARIATIONS
+	var atlas_img = Image.create(TILE * total_tiles, TILE, false, Image.FORMAT_RGBA8)
 
 	for i in range(count):
 		var def = tile_defs[i]
 		var base_color: Color = def.get("color", Color(0.3, 0.3, 0.3))
 		var detail: String = def.get("detail", "flat")
-		_paint_tile(atlas_img, i * TILE, 0, base_color, detail)
+		# 변형 0: 기본
+		_paint_tile(atlas_img, (i * VARIATIONS) * TILE, 0, base_color, detail)
+		# 변형 1~3: 색상/디테일 약간 변형
+		for v in range(1, VARIATIONS):
+			var varied_color = _vary_color(base_color, v)
+			_paint_tile(atlas_img, (i * VARIATIONS + v) * TILE, 0, varied_color, detail)
 
 	# TileSet 생성
 	var tileset = TileSet.new()
@@ -30,22 +38,48 @@ static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height
 	source.texture = ImageTexture.create_from_image(atlas_img)
 	source.texture_region_size = Vector2i(TILE, TILE)
 
-	# 각 타일 등록
-	for i in range(count):
+	# 각 타일 등록 (전체 변형 포함)
+	for i in range(total_tiles):
 		source.create_tile(Vector2i(i, 0))
 
 	var source_id = tileset.add_source(source)
 	tilemap.tile_set = tileset
 
-	# 맵 데이터 배치
+	# 맵 데이터 배치 (랜덤 변형 선택)
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
 				var tile_idx = map_data[y][x]
 				if tile_idx >= 0 and tile_idx < count:
-					tilemap.set_cell(Vector2i(x, y), source_id, Vector2i(tile_idx, 0))
+					# 위치 기반 시드로 결정론적 변형 선택 (세이브/로드 일관성)
+					var variation = _position_hash(x, y) % VARIATIONS
+					var atlas_idx = tile_idx * VARIATIONS + variation
+					tilemap.set_cell(Vector2i(x, y), source_id, Vector2i(atlas_idx, 0))
 
 	return tilemap
+
+## S55: 색상 변형 생성 — 미세한 색조/명도 변화
+static func _vary_color(base: Color, variation_index: int) -> Color:
+	# 각 변형은 고유한 오프셋 패턴을 가짐
+	var offsets = [
+		Vector3(0.0, 0.0, 0.0),       # 변형 0: 기본 (사용 안 됨)
+		Vector3(0.02, -0.01, 0.01),    # 변형 1: 약간 따뜻하게
+		Vector3(-0.01, 0.01, -0.02),   # 변형 2: 약간 차갑게
+		Vector3(-0.02, -0.01, 0.02),   # 변형 3: 약간 보라 틴트
+	]
+	var idx = clampi(variation_index, 0, offsets.size() - 1)
+	var off = offsets[idx]
+	return Color(
+		clampf(base.r + off.x, 0.0, 1.0),
+		clampf(base.g + off.y, 0.0, 1.0),
+		clampf(base.b + off.z, 0.0, 1.0),
+		base.a
+	)
+
+## S55: 위치 기반 해시 (결정론적 변형 — 같은 위치는 항상 같은 변형)
+static func _position_hash(x: int, y: int) -> int:
+	# 간단한 해시: 큰 소수로 혼합
+	return absi((x * 73856093) ^ (y * 19349663)) % 2147483647
 
 ## 충돌 레이어 추가 (특정 타일 인덱스에)
 static func add_collisions(tilemap: TileMapLayer, map_data: Array, width: int, height: int, wall_indices: Array) -> Array[StaticBody2D]:
