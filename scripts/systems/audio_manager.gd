@@ -279,7 +279,10 @@ func _samples_to_stream(samples: PackedFloat32Array) -> AudioStreamWAV:
 
 ## 씬 전환 시 자동 BGM 교체
 func _on_tree_changed() -> void:
-	var scene = get_tree().current_scene
+	var tree = get_tree()
+	if not tree:
+		return
+	var scene = tree.current_scene
 	if not scene or scene.scene_file_path == "":
 		return
 	var path = scene.scene_file_path
