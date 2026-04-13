@@ -188,13 +188,6 @@ func _process(delta: float) -> void:
 			typewriter_timer -= speed
 			displayed_chars += 1
 			text_label.text = full_text.substr(0, displayed_chars)
-			# S54: Blip SFX every N characters (skip spaces/punctuation)
-			var ch = full_text[displayed_chars - 1]
-			if ch != " " and ch != "\n":
-				_blip_char_count += 1
-				if _blip_char_count >= BLIP_INTERVAL:
-					_blip_char_count = 0
-					_play_blip()
 
 		if displayed_chars >= full_text.length():
 			is_typing = false

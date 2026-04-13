@@ -56,7 +56,7 @@
       {"speaker": "Elia", "text": "Arrel...", "portrait": "elia_concern"}
     ],
     "elia_ch2_talk": [
-      {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral",
+      {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral", "cg": "res://assets/cg/ch2_verdan6.jpg",
         "requires_memory": "daily_market_food",
         "burned_text": "There was this market you mentioned once... You don't remember it at all, do you?"},
       {"speaker": "Arrel", "text": "Ironic.", "portrait": "arrel_neutral"},
@@ -65,7 +65,7 @@
         "burned_text": "You said someone used to sing by the campfire. But you can't even recall the melody now."}
     ],
     "verdan_market_walk": [
-      {"speaker": "", "text": "The market sprawled like a wound that refused to close."},
+      {"speaker": "", "text": "The market sprawled like a wound that refused to close.", "cg": "res://assets/cg/ch2_verdan7.jpg"},
       {"speaker": "", "text": "Stalls selling things that shouldn't exist — bottled laughter, crystallized grief, a child's first word trapped in resin and going for forty Grains."},
       {"speaker": "Elia", "text": "Don't stare.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "They're selling memories.", "portrait": "arrel_neutral"},
@@ -102,7 +102,7 @@
       {"speaker": "", "text": "His amber eyes caught the lamplight. Seventeen people's stolen light, looking out through one man's face."}
     ],
     "elia_sump_concern": [
-      {"speaker": "Elia", "text": "Arrel. Before we go further.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Arrel. Before we go further.", "portrait": "elia_concern", "cg": "res://assets/cg/아렐과 엘리아2.jpg"},
       {"speaker": "Arrel", "text": "What is it?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "If he asks for a Grade 2, you say no. If he asks for anything connected to me — to us — you walk away. Promise me.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_neutral"},

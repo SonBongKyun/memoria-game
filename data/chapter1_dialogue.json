@@ -52,7 +52,7 @@
       {"speaker": "", "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."}
     ],
     "elia_talk": [
-      {"speaker": "Elia", "text": "Stay close. The Rim gets worse at night.", "portrait": "elia_neutral",
+      {"speaker": "Elia", "text": "Stay close. The Rim gets worse at night.", "portrait": "elia_neutral", "cg": "res://assets/cg/ch1_elia_talk.jpg",
         "requires_memory": "sense_forest_smell",
         "burned_text": "You seem... distant. Like you can't quite smell the rain anymore."},
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
@@ -81,7 +81,7 @@
       {"speaker": "", "text": "It hums with someone else's past — a child's voice, counting."}
     ],
     "elia_forest_walk": [
-      {"speaker": "", "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep."},
+      {"speaker": "", "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.", "cg": "res://assets/cg/아렐과 엘리아.jpg"},
       {"speaker": "Elia", "text": "You're doing it again.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "Doing what?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "Touching your temple. You always do that after you burn.", "portrait": "elia_concern"},
@@ -94,7 +94,7 @@
       {"speaker": "Elia", "text": "One day 'fine' won't mean anything to you. And you won't even notice.", "portrait": "elia_concern"}
     ],
     "elia_memory_talk": [
-      {"speaker": "Elia", "text": "Can I ask you something?", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Can I ask you something?", "portrait": "elia_neutral", "cg": "res://assets/cg/elia3.jpg"},
       {"speaker": "Arrel", "text": "You're going to anyway.", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "What does it feel like? When you burn one.", "portrait": "elia_concern"},
       {"speaker": "", "text": "He stopped walking."},
@@ -106,7 +106,7 @@
       {"speaker": "", "text": "She was quiet for a long time after that."}
     ],
     "elia_anchor_talk": [
-      {"speaker": "Elia", "text": "Arrel. Do you know what I am?", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Arrel. Do you know what I am?", "portrait": "elia_neutral", "cg": "res://assets/cg/ch1_elia_tree.jpg"},
       {"speaker": "Arrel", "text": "You're Elia.", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "I'm your Anchor. That's what the Bureau calls it. A living reference point — someone whose memories overlap with yours enough that when you burn, the gap doesn't collapse entirely.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "I know what an Anchor is.", "portrait": "arrel_neutral"},
@@ -117,7 +117,7 @@
       {"speaker": "Elia", "text": "You won't mean to.", "portrait": "elia_concern"}
     ],
     "forest_shrine": [
-      {"speaker": "", "text": "Between the roots of a dead oak, someone had built a shrine."},
+      {"speaker": "", "text": "Between the roots of a dead oak, someone had built a shrine.", "cg": "res://assets/cg/ch1_elia_flower.jpg"},
       {"speaker": "", "text": "Stones stacked in careful pyramids. Strips of cloth tied to branches. And in the center, a glass bottle filled with something that caught the dim light like liquid amber."},
       {"speaker": "Elia", "text": "A memory shrine. People leave them for the things they've burned. As if placing the container near the place it happened might bring the content back.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "Does it work?", "portrait": "arrel_neutral"},

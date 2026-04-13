@@ -32,7 +32,7 @@
       {"speaker": "Tobias", "text": "...noted.", "portrait": "tobias_neutral"}
     ],
     "elia_anchor_strain": [
-      {"speaker": "Elia", "text": "Arrel. Stop.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "Arrel. Stop.", "portrait": "elia_concern", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
       {"speaker": "Arrel", "text": "What?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "You just called me 'Elise.' Three times.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "I... no, I said Elia. I'm sure I—", "portrait": "arrel_pain"},
@@ -82,7 +82,7 @@
       {"speaker": "Sable", "text": "Stop analyzing. Start moving.", "portrait": "sable_neutral"}
     ],
     "ghost_child": [
-      {"speaker": "", "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence."},
+      {"speaker": "", "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence.", "cg": "res://assets/cg/에코쉘.jpg"},
       {"speaker": "Arrel", "text": "How old...", "portrait": "arrel_pain"},
       {"speaker": "Sable", "text": "Don't. Age doesn't matter here. They're all the same age now — zero.", "portrait": "sable_neutral"},
       {"speaker": "Elia", "text": "The Echo Shell is vibrating.", "portrait": "elia_concern"},

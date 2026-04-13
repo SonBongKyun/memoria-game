@@ -3,7 +3,7 @@
   "title": "Weight of Pages",
   "dialogues": {
     "waystation_arrival": [
-      {"speaker": "", "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence."},
+      {"speaker": "", "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.", "cg": "res://assets/cg/wasteland.jpg"},
       {"speaker": "", "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry."},
       {"speaker": "Elia", "text": "This was a relay point. Traders used the Belt before the Voidline shifted.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "Nobody uses it now?", "portrait": "arrel_neutral"},

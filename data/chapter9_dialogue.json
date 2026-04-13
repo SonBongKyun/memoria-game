@@ -3,7 +3,7 @@
   "title": "Where Colors Stop",
   "dialogues": {
     "waste_arrival": [
-      {"speaker": "", "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray — the concept of color simply withdrew."},
+      {"speaker": "", "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray — the concept of color simply withdrew.", "cg": "res://assets/cg/wasteland.jpg"},
       {"speaker": "Tobias", "text": "Remarkable. My charcoal still leaves marks, but I can't tell if the marks are darker or lighter than the surface.", "portrait": "tobias_neutral"},
       {"speaker": "Sable", "text": "Welcome to the Waste. Everything here has been equalized.", "portrait": "sable_neutral"},
       {"speaker": "Elia", "text": "I can still see you all. Your shapes. But the detail is... flattening.", "portrait": "elia_concern"},
@@ -22,7 +22,7 @@
       {"speaker": "", "text": "[Obtained: Memory Compass — Arrel's body resonates with BL-07's pull. Navigation through the Waste becomes possible.]"}
     ],
     "kairos_confrontation": [
-      {"speaker": "", "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there — as if the Waste had shaped itself around him."},
+      {"speaker": "", "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there — as if the Waste had shaped itself around him.", "cg": "res://assets/cg/아마도 카이로스.jpg"},
       {"speaker": "Sable", "text": "Stop.", "portrait": "sable_neutral"},
       {"speaker": "", "text": "Kairos. Taller than his silhouette on the coastal ridge. Dark coat, Bureau insignia — but modified. Gold thread where standard silver should be."},
       {"speaker": "Kairos", "text": "Subject ARL-0091. Cumulative combustion events: forty-seven. Efficiency: Class Seven confirmed.", "portrait": "kairos_neutral"},

@@ -80,7 +80,7 @@
       {"speaker": "", "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after."}
     ],
     "seam_evening": [
-      {"speaker": "", "text": "Evening fell over the Seam. The canyon walls caught the last light and held it — amber deepening to copper, then to the color of old blood."},
+      {"speaker": "", "text": "Evening fell over the Seam. The canyon walls caught the last light and held it — amber deepening to copper, then to the color of old blood.", "cg": "res://assets/cg/village_seam4.jpg"},
       {"speaker": "", "text": "Someone was cooking. The smell of actual food — not rations, not preserved emergency supplies, but real vegetables in real broth — drifted through the narrow streets."},
       {"speaker": "", "text": "Children ran between the buildings. Arrel counted three. Maybe four. It was the first time he'd seen children in weeks."},
       {"speaker": "Elia", "text": "When's the last time you ate something you didn't have to fight for?", "portrait": "elia_neutral"},

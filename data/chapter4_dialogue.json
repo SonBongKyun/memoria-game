@@ -24,7 +24,7 @@
       {"speaker": "Tobias", "text": "'Duration varies. Recovery not guaranteed.'", "portrait": "tobias_neutral"}
     ],
     "anchoring_session": [
-      {"speaker": "Elia", "text": "Arrel. Sit down. Give me your hands.", "portrait": "elia_neutral"},
+      {"speaker": "Elia", "text": "Arrel. Sit down. Give me your hands.", "portrait": "elia_neutral", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
       {"speaker": "Arrel", "text": "What are you—", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "Just sit.", "portrait": "elia_concern"},
       {"speaker": "", "text": "She took his hands, palms up. Her fingers were warm against his wrists."},
@@ -52,7 +52,7 @@
       {"speaker": "Elia", "text": "I said don't call me that.", "portrait": "elia_concern"}
     ],
     "night_conversation": [
-      {"speaker": "", "text": "Night fell. Tobias snored softly by the fire. Elia sat with her back against the overpass wall."},
+      {"speaker": "", "text": "Night fell. Tobias snored softly by the fire. Elia sat with her back against the overpass wall.", "cg": "res://assets/cg/ch1_camp_moment.jpg"},
       {"speaker": "Arrel", "text": "How long can you keep doing this? The anchoring.", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "As long as you need me to.", "portrait": "elia_neutral"},
       {"speaker": "Arrel", "text": "That's not an answer.", "portrait": "arrel_neutral"},

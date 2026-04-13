@@ -68,7 +68,7 @@
       {"speaker": "", "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't."}
     ],
     "void_descent": [
-      {"speaker": "", "text": "The path — if it could be called that — descended in spirals that didn't obey geometry."},
+      {"speaker": "", "text": "The path — if it could be called that — descended in spirals that didn't obey geometry.", "cg": "res://assets/cg/void_portal2.jpg"},
       {"speaker": "", "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction."},
       {"speaker": "Elia", "text": "Arrel. Look.", "portrait": "elia_concern"},
       {"speaker": "", "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved."},
@@ -78,7 +78,7 @@
       {"speaker": "", "text": "Then silence. The door closed itself, gently, as if the memory had finished its performance and was taking a bow."}
     ],
     "void_echoes": [
-      {"speaker": "", "text": "Deeper in, the Void began to speak."},
+      {"speaker": "", "text": "Deeper in, the Void began to speak.", "cg": "res://assets/cg/void_portal.jpg"},
       {"speaker": "", "text": "Not words. Feelings. Borrowed grief that pressed against his ribs like an unwelcome hand."},
       {"speaker": "", "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important."},
       {"speaker": "Arrel", "text": "It's showing me things.", "portrait": "arrel_pain"},
@@ -92,7 +92,7 @@
       {"speaker": "", "text": "The Void hummed around them, drinking the sadness like water."}
     ],
     "void_memory_fragments": [
-      {"speaker": "", "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist."},
+      {"speaker": "", "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist.", "cg": "res://assets/cg/memory_artifacts.jpg"},
       {"speaker": "", "text": "Each one was someone's life. A first step. A last breath. A morning so ordinary that no one thought to protect it from being forgotten."},
       {"speaker": "Elia", "text": "These are the memories the Void has consumed. It doesn't destroy them — it KEEPS them. Like a collection.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "Can we take them back?", "portrait": "arrel_neutral"},
@@ -117,7 +117,7 @@
       {"speaker": "", "text": "They went."}
     ],
     "elia_void_talk": [
-      {"speaker": "Elia", "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.", "portrait": "elia_concern", "cg": "res://assets/cg/ch5_arrel_elia_void.jpg"},
       {"speaker": "Arrel", "text": "New?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "I've never been in a place that has no past. Everything has a past. Even ruins. Even ash.", "portrait": "elia_concern"},
       {"speaker": "Elia", "text": "But this... this is what happens when even the past forgets it was here.", "portrait": "elia_concern"},

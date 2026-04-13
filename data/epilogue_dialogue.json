@@ -96,7 +96,7 @@
       {"speaker": "", "text": "SEAM ENDING: In the cracks between loss, something green still grows."}
     ],
     "elia_epilogue_talk": [
-      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/ch5_climax2.jpg"},
+      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/아렐과 엘리아3.jpg"},
       {"speaker": "Arrel", "text": "And?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.", "portrait": "elia_neutral"},
       {"speaker": "Elia", "text": "What if the world isn't forgetting on its own? What if we're MAKING it forget?", "portrait": "elia_concern"},
