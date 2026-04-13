@@ -2,6 +2,7 @@
 ## BattleManager의 시그널을 받아 UI 표시.
 ## S44: 사이드뷰 레이아웃, 캐릭터/적 128x128 스프라이트, 전투 애니메이션
 ## S56: BattleVFX 통합 (향상된 데미지 넘버, 상태이상 파티클, 기억 연소 드라마틱 시퀀스)
+## S57: Battle Juice Overhaul — knockback, hit-freeze, screen flash, combo counter, turn dim, death anim, hurt bounce
 extends Node2D
 
 # UI 노드
@@ -77,6 +78,10 @@ var auto_btn: Button  # 자동전투 버튼
 
 # S56: BattleVFX 유틸리티
 var battle_vfx: BattleVFX
+
+# S57: Battle Juice — turn transition dim overlay, combo display
+var _turn_dim_overlay: ColorRect
+var _combo_display_label: Label
 
 # S54: Victory screen
 var _victory_panel: PanelContainer
@@ -226,6 +231,31 @@ func _build_ui() -> void:
 
 	# S55: Auto Battle 라벨
 	_build_auto_label(root)
+
+	# S57: 턴 전환 딤 오버레이
+	_turn_dim_overlay = ColorRect.new()
+	_turn_dim_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turn_dim_overlay.color = Color(0, 0, 0, 0)
+	_turn_dim_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_dim_overlay.z_index = 85
+	root.add_child(_turn_dim_overlay)
+
+	# S57: 콤보 카운터 디스플레이 (상시 표시용)
+	_combo_display_label = Label.new()
+	_combo_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_combo_display_label.anchor_left = 0.5
+	_combo_display_label.anchor_right = 0.5
+	_combo_display_label.anchor_top = 0.0
+	_combo_display_label.offset_left = -120
+	_combo_display_label.offset_right = 120
+	_combo_display_label.offset_top = 30
+	_combo_display_label.offset_bottom = 70
+	_combo_display_label.add_theme_font_size_override("font_size", 24)
+	_combo_display_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+	_combo_display_label.modulate.a = 0.0
+	_combo_display_label.z_index = 88
+	_combo_display_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_combo_display_label)
 
 	# 인트로 오버레이 (최상단)
 	_build_intro_overlay(root)
@@ -786,16 +816,15 @@ func _build_player_sprite(root: Control) -> void:
 		player_sprite_container.add_child(tex_rect)
 		player_sprite = tex_rect
 	else:
-		var tex = PixelSprite.create_battle_sprite("arrel")
-		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(20, 5)
-		tex_rect.size = Vector2(160, 160)
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = tex
-		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		player_sprite_container.add_child(tex_rect)
-		player_sprite = tex_rect
+		# S57: Use AnimatedSprite2D with battle sprite frames for animation support
+		var anim_sprite = AnimatedSprite2D.new()
+		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
+		anim_sprite.play("idle")
+		anim_sprite.position = Vector2(100, 85)
+		anim_sprite.scale = Vector2(1.25, 1.25)
+		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		player_sprite_container.add_child(anim_sprite)
+		player_sprite = anim_sprite
 
 	# 발밑 광원 (은은한 파란 빛)
 	var glow = ColorRect.new()
@@ -842,16 +871,15 @@ func _build_ally_sprite(root: Control) -> void:
 		ally_sprite_container.add_child(tex_rect)
 		ally_sprite = tex_rect
 	else:
-		var tex = PixelSprite.create_battle_sprite(who)
-		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(20, 10)
-		tex_rect.size = Vector2(120, 120)
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = tex
-		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		ally_sprite_container.add_child(tex_rect)
-		ally_sprite = tex_rect
+		# S57: Use AnimatedSprite2D with battle sprite frames for animation support
+		var anim_sprite = AnimatedSprite2D.new()
+		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames(who)
+		anim_sprite.play("idle")
+		anim_sprite.position = Vector2(80, 70)
+		anim_sprite.scale = Vector2(0.95, 0.95)
+		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		ally_sprite_container.add_child(anim_sprite)
+		ally_sprite = anim_sprite
 
 	# 발밑 광원
 	var glow = ColorRect.new()
@@ -1191,18 +1219,19 @@ func _on_battle_log(message: String) -> void:
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
 
-	# S46: 히트스톱 — 강한 공격일수록 더 긴 프리즈
+	# S57: Hit-freeze frame via Engine.time_scale (feels more impactful than pause)
 	var hit_stop_dur = 0.0
 	if amount >= 200:
 		hit_stop_dur = 0.12
 	elif amount >= 80:
 		hit_stop_dur = 0.08
 	elif amount >= 30:
-		hit_stop_dur = 0.04
+		hit_stop_dur = 0.05
 	if hit_stop_dur > 0:
-		get_tree().paused = true
+		var prev_scale = Engine.time_scale
+		Engine.time_scale = 0.0
 		await get_tree().create_timer(hit_stop_dur, true, false, true).timeout
-		get_tree().paused = false
+		Engine.time_scale = prev_scale
 
 	# S44: 공격 돌진 애니메이션
 	if target != "Arrel" and player_sprite_container:
@@ -1223,9 +1252,9 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
 		_screen_shake(shake_intensity)
 
-	# S56: Critical screen flash on heavy hits (100+ damage to enemy)
-	if amount >= 100 and target != "Arrel" and battle_vfx:
-		battle_vfx.critical_screen_flash()
+	# S57: Screen flash on big hits — white at 80+, red at 150+
+	if amount >= 80 and target != "Arrel":
+		_play_big_hit_screen_flash(amount)
 
 	# S52: 크리티컬 히트 줌 펀치 (200+ 데미지)
 	if amount >= 200 and target != "Arrel":
@@ -1246,11 +1275,14 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 			battle_vfx.play_element_particles("physical")
 
 func _on_player_turn() -> void:
+	# S57: Turn transition dim effect
+	_play_turn_dim()
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
-	# S41: 콤보 버스트 VFX
+	# S57: Enhanced combo counter display (persistent + escalating)
 	if BattleManager.combo_count >= 2:
 		_play_combo_burst(BattleManager.combo_count)
+		_show_combo_counter(BattleManager.combo_count)
 	# S55: Auto Battle — 자동 행동 (짧은 딜레이 후)
 	if BattleManager.auto_battle:
 		await get_tree().create_timer(0.25).timeout
@@ -1274,6 +1306,8 @@ func _on_player_turn() -> void:
 		action_container.get_child(0).grab_focus()
 
 func _on_enemy_turn() -> void:
+	# S57: Turn transition dim effect
+	_play_turn_dim()
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
 	if tobias_cmd_container:
@@ -1306,8 +1340,9 @@ func _on_battle_ended(_result) -> void:
 	# S56: Cleanup status effect particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
-	# S40: 승리 시 적 디졸브 효과
+	# S57: Enhanced enemy death — fade + shrink + particle burst, then dissolve
 	if _result == BattleManager.BattleState.VICTORY and enemy_sprite:
+		_play_enemy_death_animation()
 		_play_enemy_dissolve()
 	# S56: Victory fanfare VFX (confetti + golden flash)
 	if _result == BattleManager.BattleState.VICTORY and battle_vfx:
@@ -1683,20 +1718,28 @@ func _hit_flash(target: String) -> void:
 		var flash_t = create_tween()
 		flash_t.tween_property(enemy_sprite, "modulate", Color(3, 3, 3, 1), 0.05)
 		flash_t.tween_property(enemy_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
-		# 피격 밀림 (오른쪽으로 살짝)
+		# S57: Attack knockback — enemy slides back 15px then returns (0.15s)
 		if enemy_sprite_container:
 			var push_t = create_tween()
 			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 15, 0.06).set_ease(Tween.EASE_OUT)
-			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x, 0.2).set_ease(Tween.EASE_IN_OUT)
+			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x - 3, 0.06).set_ease(Tween.EASE_OUT)
+			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x, 0.03).set_ease(Tween.EASE_IN_OUT)
 	elif target == "Arrel" and player_sprite:
+		# S57: Enhanced player hurt — red flash 0.3s + bounce
 		var flash_t = create_tween()
-		flash_t.tween_property(player_sprite, "modulate", Color(2, 0.5, 0.5, 1), 0.05)
+		flash_t.tween_property(player_sprite, "modulate", Color(2.5, 0.4, 0.3, 1), 0.05)
+		flash_t.tween_property(player_sprite, "modulate", Color(1.5, 0.6, 0.5, 1), 0.1)
 		flash_t.tween_property(player_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
-		# 피격 밀림 (왼쪽으로)
+		# S57: 피격 밀림 (왼쪽으로 15px) + bounce back
 		if player_sprite_container:
 			var push_t = create_tween()
-			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x - 12, 0.06).set_ease(Tween.EASE_OUT)
-			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x, 0.2).set_ease(Tween.EASE_IN_OUT)
+			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x - 15, 0.06).set_ease(Tween.EASE_OUT)
+			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x + 4, 0.1).set_ease(Tween.EASE_OUT)
+			push_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x, 0.1).set_ease(Tween.EASE_IN_OUT)
+			# S57: Slight Y-axis bounce (hurt jolt)
+			var bounce_t = create_tween()
+			bounce_t.tween_property(player_sprite_container, "position:y", _player_base_pos.y - 6, 0.06).set_ease(Tween.EASE_OUT)
+			bounce_t.tween_property(player_sprite_container, "position:y", _player_base_pos.y, 0.15).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_BOUNCE)
 
 ## 스크린 셰이크 (S42 강화: 더 많은 프레임 + 회전 흔들림)
 func _screen_shake(intensity: float = 1.0) -> void:
@@ -2981,3 +3024,92 @@ func _detect_skill_element(skill_name: String) -> String:
 		return "fire"
 	else:
 		return "physical"
+
+## ===================== S57: Battle Juice Overhaul =====================
+
+## Screen flash for big hits — white at 80+, red at 150+
+func _play_big_hit_screen_flash(amount: int) -> void:
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.z_index = 95
+	if amount >= 150:
+		# Red flash for massive damage
+		flash.color = Color(0.9, 0.1, 0.05, 0.45)
+	else:
+		# White flash for big damage (80+)
+		flash.color = Color(1.0, 1.0, 0.95, 0.35)
+	canvas_root.add_child(flash)
+	var t = create_tween()
+	t.tween_property(flash, "color:a", 0.0, 0.1).set_ease(Tween.EASE_OUT)
+	t.tween_callback(flash.queue_free)
+
+## Turn transition dim effect — brief darkening between turns (0.2s)
+func _play_turn_dim() -> void:
+	if not _turn_dim_overlay:
+		return
+	_turn_dim_overlay.color = Color(0, 0, 0, 0)
+	var t = create_tween()
+	t.tween_property(_turn_dim_overlay, "color:a", 0.3, 0.1).set_ease(Tween.EASE_IN)
+	t.tween_property(_turn_dim_overlay, "color:a", 0.0, 0.1).set_ease(Tween.EASE_OUT)
+
+## Combo counter display — escalating size/color (gold at x3, red at x5+)
+func _show_combo_counter(combo: int) -> void:
+	if not _combo_display_label:
+		return
+	_combo_display_label.text = "COMBO x%d!" % combo
+	# Escalating font size and color
+	var font_size = 24 + combo * 3
+	if combo >= 5:
+		_combo_display_label.add_theme_font_size_override("font_size", mini(font_size, 42))
+		_combo_display_label.add_theme_color_override("font_color", Color(1.0, 0.2, 0.15))
+	elif combo >= 3:
+		_combo_display_label.add_theme_font_size_override("font_size", font_size)
+		_combo_display_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+	else:
+		_combo_display_label.add_theme_font_size_override("font_size", font_size)
+		_combo_display_label.add_theme_color_override("font_color", Color(0.85, 0.75, 0.5))
+	_combo_display_label.modulate.a = 0.0
+	_combo_display_label.scale = Vector2(1.5, 1.5)
+	_combo_display_label.pivot_offset = Vector2(120, 20)
+	var t = create_tween()
+	t.tween_property(_combo_display_label, "modulate:a", 1.0, 0.1)
+	t.tween_property(_combo_display_label, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	t.tween_interval(0.6)
+	t.tween_property(_combo_display_label, "modulate:a", 0.0, 0.3)
+
+## Enemy death animation — fade + shrink + particle burst before dissolve
+func _play_enemy_death_animation() -> void:
+	if not enemy_sprite_container:
+		return
+	# Particle burst from enemy position
+	var center = enemy_sprite_container.position + Vector2(130, 120)
+	for i in range(20):
+		var particle = ColorRect.new()
+		var s = randf_range(3, 8)
+		particle.size = Vector2(s, s)
+		particle.position = center + Vector2(randf_range(-30, 30), randf_range(-30, 30))
+		particle.z_index = 65
+		particle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Mix of enemy-colored particles (purple/dark/red)
+		var colors = [
+			Color(0.6, 0.2, 0.8, 0.9), Color(0.8, 0.15, 0.2, 0.85),
+			Color(0.3, 0.1, 0.5, 0.8), Color(0.9, 0.7, 0.2, 0.7),
+		]
+		particle.color = colors[randi_range(0, colors.size() - 1)]
+		canvas_root.add_child(particle)
+		var angle = randf() * TAU
+		var dist = randf_range(60, 160)
+		var target_pos = particle.position + Vector2(cos(angle), sin(angle)) * dist
+		var delay = randf_range(0, 0.15)
+		var pt = create_tween().set_parallel(true)
+		pt.tween_property(particle, "position", target_pos, randf_range(0.4, 0.8)).set_delay(delay).set_ease(Tween.EASE_OUT)
+		pt.tween_property(particle, "modulate:a", 0.0, 0.3).set_delay(delay + 0.2)
+		pt.tween_property(particle, "size", Vector2(1, 1), 0.6).set_delay(delay)
+		pt.chain().tween_callback(particle.queue_free)
+	# Fade out + shrink the enemy sprite container
+	var dt = create_tween().set_parallel(true)
+	dt.tween_property(enemy_sprite_container, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN)
+	dt.tween_property(enemy_sprite_container, "scale", Vector2(0.3, 0.3), 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+	# Pivot from center
+	enemy_sprite_container.pivot_offset = enemy_sprite_container.size * 0.5

@@ -406,6 +406,16 @@ func _style_button(btn: Button) -> void:
 		t.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
 	)
 
+	# S57: Button press scale feedback (squish on press)
+	btn.button_down.connect(func():
+		var t = create_tween()
+		t.tween_property(btn, "scale", Vector2(0.95, 0.95), 0.05)
+	)
+	btn.button_up.connect(func():
+		var t = create_tween()
+		t.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_OUT)
+	)
+
 	# Set pivot to center for scaling
 	btn.pivot_offset = btn.custom_minimum_size / 2.0
 

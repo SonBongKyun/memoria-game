@@ -767,3 +767,16 @@ func _style_button(btn: Button) -> void:
 	btn.add_theme_font_size_override("font_size", 15)
 	btn.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	btn.add_theme_color_override("font_hover_color", Color(0.95, 0.82, 0.5))
+
+	# S57: Hover sound + button press scale feedback
+	btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+	btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+	btn.pivot_offset = Vector2(btn.custom_minimum_size.x / 2.0, btn.custom_minimum_size.y / 2.0)
+	btn.button_down.connect(func():
+		var t = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		t.tween_property(btn, "scale", Vector2(0.95, 0.95), 0.05)
+	)
+	btn.button_up.connect(func():
+		var t = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		t.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_OUT)
+	)

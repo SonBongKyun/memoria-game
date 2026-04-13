@@ -7,7 +7,7 @@ class_name PixelSprite
 const SIZE: int = 48
 const HALF: int = 24
 
-## SpriteFrames 생성 (4방향 idle + walk)
+## SpriteFrames 생성 (4방향 idle + walk + S57: attack/hurt/death/cast)
 static func create_frames(config: Dictionary) -> SpriteFrames:
 	var frames = SpriteFrames.new()
 
@@ -28,10 +28,54 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 			var walk_img = _draw_character(config, dir, step + 1)
 			frames.add_frame(walk_name, ImageTexture.create_from_image(walk_img))
 
+		# S57: Attack frame (1 frame per direction) — arm swung forward + slash arc
+		var attack_name = "attack_" + dir
+		frames.add_animation(attack_name)
+		frames.set_animation_speed(attack_name, 1)
+		frames.set_animation_loop(attack_name, false)
+		var attack_img = _draw_attack_frame(config, dir)
+		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_img))
+
+	# S57: Hurt frame (1 frame, direction-independent — slight lean back)
+	var hurt_name = "hurt"
+	frames.add_animation(hurt_name)
+	frames.set_animation_speed(hurt_name, 1)
+	frames.set_animation_loop(hurt_name, false)
+	var hurt_img = _draw_hurt_frame(config)
+	frames.add_frame(hurt_name, ImageTexture.create_from_image(hurt_img))
+
+	# S57: Death frame (1 frame — collapsed position)
+	var death_name = "death"
+	frames.add_animation(death_name)
+	frames.set_animation_speed(death_name, 1)
+	frames.set_animation_loop(death_name, false)
+	var death_img = _draw_death_frame(config)
+	frames.add_frame(death_name, ImageTexture.create_from_image(death_img))
+
+	# S57: Cast/Burn frame (1 frame — arms raised, blue-white glow)
+	var cast_name = "cast"
+	frames.add_animation(cast_name)
+	frames.set_animation_speed(cast_name, 1)
+	frames.set_animation_loop(cast_name, false)
+	var cast_img = _draw_cast_frame(config)
+	frames.add_frame(cast_name, ImageTexture.create_from_image(cast_img))
+
 	if frames.has_animation("default"):
 		frames.remove_animation("default")
 
 	return frames
+
+## S57: Play animation helper — call from other systems
+## Usage: PixelSprite.play_animation(animated_sprite, "attack_down")
+static func play_animation(sprite: AnimatedSprite2D, anim_name: String) -> void:
+	if not sprite or not sprite.sprite_frames:
+		return
+	if sprite.sprite_frames.has_animation(anim_name):
+		sprite.play(anim_name)
+	else:
+		# Fallback: try idle_down
+		if sprite.sprite_frames.has_animation("idle_down"):
+			sprite.play("idle_down")
 
 ## 단일 프레임 그리기
 static func _draw_character(config: Dictionary, direction: String, walk_frame: int) -> Image:
@@ -395,6 +439,165 @@ static func _draw_side(img: Image, c: Dictionary, by: int, walk: int, step: int,
 	if flip:
 		_flip_horizontal(img)
 
+## ========== S57: 특수 애니메이션 프레임 ==========
+
+## Attack frame — arm swung forward with 3px white slash line
+static func _draw_attack_frame(config: Dictionary, direction: String) -> Image:
+	# Start from base idle frame, then modify arm position + add slash
+	var img = _draw_character(config, direction, 0)
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var acc_color = config.get("accessory", Color(0.7, 0.55, 0.2))
+	var acc_type = config.get("accessory_type", "none")
+	var hx = 17
+
+	match direction:
+		"down", "up":
+			# Arm swung forward (right arm extended further out)
+			var ay = 16
+			_fill_rect(img, hx + 14, ay - 2, 3, 6, coat)
+			_fill_rect(img, hx + 14, ay + 4, 3, 2, skin)
+			# White slash arc (3px wide diagonal line)
+			var slash_color = Color(1, 1, 1, 0.9)
+			for i in range(8):
+				_set_px(img, hx + 17 + i, ay - 3 + i, slash_color)
+				_set_px(img, hx + 18 + i, ay - 3 + i, slash_color)
+				_set_px(img, hx + 19 + i, ay - 3 + i, slash_color)
+		"left", "right":
+			# Side view: arm extended forward
+			var ty = 16
+			_fill_rect(img, hx - 6, ty, 3, 6, coat)
+			_fill_rect(img, hx - 6, ty + 6, 3, 2, skin)
+			# Slash line extending from hand
+			var slash_color = Color(1, 1, 1, 0.9)
+			for i in range(7):
+				_set_px(img, hx - 8 - i, ty - 1 + i, slash_color)
+				_set_px(img, hx - 7 - i, ty - 1 + i, slash_color)
+				_set_px(img, hx - 9 - i, ty - 1 + i, slash_color)
+
+	if direction == "right":
+		_flip_horizontal(img)
+
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+	return img
+
+## Hurt frame — slight lean back, eyes squinted, red flash overlay
+static func _draw_hurt_frame(config: Dictionary) -> Image:
+	var img = _draw_character(config, "down", 0)
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var eye = config.get("eye", Color(0.3, 0.5, 0.7))
+	var hx = 17
+	var by = 3
+
+	# Squint eyes — overwrite eye area with narrower shape
+	var fy = by + 3
+	_fill_rect(img, hx + 2, fy + 3, 2, 1, _darken(eye, 0.15))  # squinted left eye
+	_set_px(img, hx + 2, fy + 4, skin)  # close lower part
+	_fill_rect(img, hx + 8, fy + 3, 2, 1, _darken(eye, 0.15))  # squinted right eye
+	_set_px(img, hx + 8, fy + 4, skin)  # close lower part
+
+	# Shift body pixels slightly right (lean back effect — 1px)
+	# Apply red tint overlay
+	var red_tint = Color(1.0, 0.3, 0.2, 0.25)
+	for y in range(SIZE):
+		for x in range(SIZE):
+			var px = img.get_pixel(x, y)
+			if px.a > 0.1:
+				img.set_pixel(x, y, Color(
+					minf(px.r + red_tint.r * red_tint.a, 1.0),
+					px.g * (1.0 - red_tint.a * 0.3),
+					px.b * (1.0 - red_tint.a * 0.4),
+					px.a
+				))
+
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+	return img
+
+## Death frame — collapsed / fallen position (body rotated, lying on ground)
+static func _draw_death_frame(config: Dictionary) -> Image:
+	var img = Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var pants = config.get("pants", Color(0.18, 0.17, 0.2))
+	var boots = config.get("boots", Color(0.12, 0.1, 0.1))
+	var hair = config.get("hair", Color(0.25, 0.28, 0.4))
+	var c_s = _darken(coat, 0.12)
+
+	# Draw collapsed body — lying on the ground (horizontal orientation)
+	var gy = 32  # ground Y level
+
+	# Hair (head on ground, facing right)
+	_fill_rect(img, 8, gy - 2, 6, 5, hair)
+	# Head
+	_fill_rect(img, 11, gy - 1, 5, 4, skin)
+	_set_px(img, 14, gy, _darken(skin, 0.2))  # closed eye
+	# Body (lying flat — horizontal torso)
+	_fill_rect(img, 16, gy, 14, 5, coat)
+	_fill_rect(img, 16, gy + 1, 14, 3, c_s)
+	# Arms (splayed)
+	_fill_rect(img, 13, gy + 4, 4, 3, coat)
+	_fill_rect(img, 26, gy - 2, 3, 4, coat)
+	_fill_rect(img, 29, gy - 1, 2, 3, skin)  # hand
+	# Legs
+	_fill_rect(img, 30, gy + 1, 10, 4, pants)
+	# Boots
+	_fill_rect(img, 38, gy + 2, 4, 3, boots)
+
+	# Darken overall for lifeless feel
+	for y in range(SIZE):
+		for x in range(SIZE):
+			var px = img.get_pixel(x, y)
+			if px.a > 0.1:
+				img.set_pixel(x, y, Color(px.r * 0.7, px.g * 0.65, px.b * 0.7, px.a))
+
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+	return img
+
+## Cast/Burn frame — arms raised, blue-white glow around hands
+static func _draw_cast_frame(config: Dictionary) -> Image:
+	var img = _draw_character(config, "down", 0)
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var hx = 17
+	var c_s = _darken(coat, 0.12)
+
+	# Raise arms — overwrite arm area (arms pointing up)
+	var ty = 16  # torso y (approx)
+	# Left arm raised up
+	_fill_rect(img, hx - 5, ty - 6, 3, 8, coat)
+	_fill_rect(img, hx - 5, ty - 6, 1, 8, c_s)
+	_fill_rect(img, hx - 5, ty - 8, 3, 2, skin)  # hand
+	# Right arm raised up
+	_fill_rect(img, hx + 14, ty - 6, 3, 8, coat)
+	_fill_rect(img, hx + 14, ty - 8, 3, 2, skin)  # hand
+
+	# Blue-white glow pixels around hands (memory burning effect)
+	var glow_colors = [
+		Color(0.6, 0.8, 1.0, 0.7),
+		Color(0.4, 0.65, 1.0, 0.6),
+		Color(0.8, 0.9, 1.0, 0.5),
+		Color(0.3, 0.5, 0.9, 0.4),
+	]
+	# Left hand glow
+	for i in range(8):
+		var gx = hx - 6 + randi_range(-2, 3)
+		var gy = ty - 9 + randi_range(-3, 2)
+		_set_px(img, gx, gy, glow_colors[i % glow_colors.size()])
+	# Right hand glow
+	for i in range(8):
+		var gx = hx + 15 + randi_range(-2, 3)
+		var gy = ty - 9 + randi_range(-3, 2)
+		_set_px(img, gx, gy, glow_colors[i % glow_colors.size()])
+	# Center glow (between hands)
+	for i in range(5):
+		var gx = hx + 4 + randi_range(-1, 6)
+		var gy = ty - 7 + randi_range(-2, 2)
+		_set_px(img, gx, gy, Color(0.7, 0.85, 1.0, 0.55))
+
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+	return img
+
 ## ========== 헬퍼 ==========
 
 static func _fill_rect(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
@@ -718,6 +921,152 @@ static func create_battle_sprite(who: String) -> ImageTexture:
 	_draw_battle_character(img, config, who)
 	_add_outline_n(img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
 	return ImageTexture.create_from_image(img)
+
+## S57: 전투용 SpriteFrames 생성 (idle + attack + hurt + cast 애니메이션)
+static func create_battle_sprite_frames(who: String) -> SpriteFrames:
+	var config: Dictionary
+	match who:
+		"arrel": config = arrel_config()
+		"elia": config = elia_config()
+		"sable": config = sable_config()
+		_: config = arrel_config()
+
+	var frames = SpriteFrames.new()
+
+	# Idle frame (base battle pose)
+	var idle_name = "idle"
+	frames.add_animation(idle_name)
+	frames.set_animation_speed(idle_name, 1)
+	frames.set_animation_loop(idle_name, true)
+	var idle_img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
+	idle_img.fill(Color(0, 0, 0, 0))
+	_draw_battle_character(idle_img, config, who)
+	_add_outline_n(idle_img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
+	frames.add_frame(idle_name, ImageTexture.create_from_image(idle_img))
+
+	# Attack frame — arm thrust forward + slash arc
+	var attack_name = "attack"
+	frames.add_animation(attack_name)
+	frames.set_animation_speed(attack_name, 1)
+	frames.set_animation_loop(attack_name, false)
+	var attack_img = _draw_battle_attack_frame(config, who)
+	frames.add_frame(attack_name, ImageTexture.create_from_image(attack_img))
+
+	# Hurt frame — red tint + lean back
+	var hurt_name = "hurt"
+	frames.add_animation(hurt_name)
+	frames.set_animation_speed(hurt_name, 1)
+	frames.set_animation_loop(hurt_name, false)
+	var hurt_img = _draw_battle_hurt_frame(config, who)
+	frames.add_frame(hurt_name, ImageTexture.create_from_image(hurt_img))
+
+	# Cast frame — arms raised with glow
+	var cast_name = "cast"
+	frames.add_animation(cast_name)
+	frames.set_animation_speed(cast_name, 1)
+	frames.set_animation_loop(cast_name, false)
+	var cast_img = _draw_battle_cast_frame(config, who)
+	frames.add_frame(cast_name, ImageTexture.create_from_image(cast_img))
+
+	if frames.has_animation("default"):
+		frames.remove_animation("default")
+	return frames
+
+## S57: Battle attack frame (128x128) — arm extended forward + slash arc
+static func _draw_battle_attack_frame(config: Dictionary, who: String) -> Image:
+	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	_draw_battle_character(img, config, who)
+	var bx = 30
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var c_h = _lighten(coat, 0.06)
+	var ay = 34 + 3  # arm Y from battle_character
+
+	# Overwrite front arm — extended further right (attack thrust)
+	_bfill(img, bx + 60, ay - 4, 8, 18, coat)
+	_bfill(img, bx + 64, ay - 2, 3, 18, c_h)
+	_bfill(img, bx + 62, ay + 14, 8, 5, skin)
+
+	# Slash arc (white lines, 3px wide)
+	var slash_c = Color(1, 1, 1, 0.9)
+	for i in range(18):
+		_bpx(img, bx + 70 + i, ay - 8 + i, slash_c)
+		_bpx(img, bx + 71 + i, ay - 8 + i, slash_c)
+		_bpx(img, bx + 72 + i, ay - 8 + i, slash_c)
+
+	# Sword extended if arrel
+	if who == "arrel":
+		var acc_color = config.get("accessory", Color(0.7, 0.55, 0.2))
+		_bfill(img, bx + 70, ay - 20, 3, 38, Color(0.6, 0.62, 0.68))
+		_bfill(img, bx + 71, ay - 20, 1, 38, Color(0.75, 0.78, 0.85))
+		_bfill(img, bx + 68, ay + 12, 8, 3, acc_color)
+
+	_add_outline_n(img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
+	return img
+
+## S57: Battle hurt frame (128x128) — red tint + lean
+static func _draw_battle_hurt_frame(config: Dictionary, who: String) -> Image:
+	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	_draw_battle_character(img, config, who)
+	# Red tint overlay
+	for y in range(BATTLE_SIZE):
+		for x in range(BATTLE_SIZE):
+			var px = img.get_pixel(x, y)
+			if px.a > 0.1:
+				img.set_pixel(x, y, Color(
+					minf(px.r + 0.25, 1.0),
+					px.g * 0.75,
+					px.b * 0.65,
+					px.a
+				))
+	_add_outline_n(img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
+	return img
+
+## S57: Battle cast frame (128x128) — arms raised + blue-white glow
+static func _draw_battle_cast_frame(config: Dictionary, who: String) -> Image:
+	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	_draw_battle_character(img, config, who)
+	var bx = 30
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var c_s = _darken(coat, 0.1)
+	var ty = 34  # torso Y
+
+	# Overwrite arms — both raised upward
+	# Back arm raised
+	_bfill(img, bx + 14, ty - 12, 6, 16, coat)
+	_bfill(img, bx + 14, ty - 12, 2, 16, c_s)
+	_bfill(img, bx + 14, ty - 16, 6, 4, skin)  # hand
+	# Front arm raised
+	_bfill(img, bx + 56, ty - 12, 6, 16, coat)
+	_bfill(img, bx + 56, ty - 16, 6, 4, skin)  # hand
+
+	# Blue-white glow around hands
+	var glow_colors = [
+		Color(0.6, 0.8, 1.0, 0.7), Color(0.4, 0.65, 1.0, 0.6),
+		Color(0.8, 0.9, 1.0, 0.5), Color(0.3, 0.5, 0.9, 0.4),
+	]
+	# Glow around left hand
+	for i in range(12):
+		var gx = bx + 14 + randi_range(-4, 8)
+		var gy = ty - 18 + randi_range(-4, 4)
+		_bpx(img, gx, gy, glow_colors[i % glow_colors.size()])
+	# Glow around right hand
+	for i in range(12):
+		var gx = bx + 56 + randi_range(-4, 8)
+		var gy = ty - 18 + randi_range(-4, 4)
+		_bpx(img, gx, gy, glow_colors[i % glow_colors.size()])
+	# Center convergence glow
+	for i in range(8):
+		var gx = bx + 35 + randi_range(-3, 10)
+		var gy = ty - 14 + randi_range(-3, 5)
+		_bpx(img, gx, gy, Color(0.7, 0.85, 1.0, 0.5))
+
+	_add_outline_n(img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
+	return img
 
 ## 전투용 대형 적 스프라이트 (128x128)
 static func create_battle_enemy(enemy_type: String) -> ImageTexture:

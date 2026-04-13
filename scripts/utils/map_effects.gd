@@ -997,14 +997,17 @@ static func update_void_tendrils(tendrils: Array, time: float, _delta: float = 0
 ## ===================== S52: 스무스 카메라 =====================
 ## 카메라 설정 헬퍼 (플레이어에 Camera2D 부착)
 static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient_shake_intensity: float = 0.0) -> Camera2D:
-	# 기존 카메라 체크
+	# 기존 카메라 체크 — S57: 기존 카메라의 줌을 유지 (player.tscn Camera2D)
 	for child in player.get_children():
 		if child is Camera2D:
 			child.position_smoothing_enabled = true
 			child.position_smoothing_speed = 5.0
-			child.zoom = Vector2(zoom_level, zoom_level)
+			# S57: 기존 카메라가 있으면 줌 유지 (player.gd에서 관리)
 			if ambient_shake_intensity > 0.0:
 				child.set_meta("ambient_shake", ambient_shake_intensity)
+			# S57: 맵별 카메라 리밋 재적용
+			if player.has_method("refresh_camera_limits"):
+				player.refresh_camera_limits()
 			return child
 
 	var cam = Camera2D.new()
@@ -1129,6 +1132,298 @@ static func update_lightning(flash_rect: ColorRect, delta: float) -> void:
 		flash_rect.set_meta("next_flash", randf_range(8.0, 25.0))
 	elif flash_rect.color.a > 0:
 		flash_rect.color.a = maxf(0.0, flash_rect.color.a - delta * 3.0)
+
+## ===================== S57: 앰비언트 와일드라이프 =====================
+
+## 사인파 궤적 반딧불 (숲/습지 맵 — 개별 이동, GPUParticles2D보다 세밀한 제어)
+## 4px 밝은 점이 사인파 경로를 따라 천천히 떠다님
+static func add_drifting_fireflies(parent: Node2D, count: int = 10, area: Vector2 = Vector2(800, 576), color: Color = Color(0.6, 0.95, 0.4, 0.6)) -> Array[ColorRect]:
+	var flies: Array[ColorRect] = []
+	for i in range(count):
+		var fly = ColorRect.new()
+		fly.size = Vector2(3, 3)
+		fly.color = Color(color.r + randf_range(-0.1, 0.1), color.g, color.b + randf_range(-0.1, 0.1), 0.0)
+		fly.position = Vector2(randf_range(40, area.x - 40), randf_range(40, area.y - 40))
+		fly.z_index = 6
+		fly.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		fly.set_meta("base_x", fly.position.x)
+		fly.set_meta("base_y", fly.position.y)
+		fly.set_meta("freq_x", randf_range(0.2, 0.6))
+		fly.set_meta("freq_y", randf_range(0.15, 0.45))
+		fly.set_meta("amp_x", randf_range(30, 80))
+		fly.set_meta("amp_y", randf_range(20, 50))
+		fly.set_meta("phase_x", randf() * TAU)
+		fly.set_meta("phase_y", randf() * TAU)
+		fly.set_meta("blink_phase", randf() * TAU)
+		fly.set_meta("area", area)
+		parent.add_child(fly)
+		flies.append(fly)
+	return flies
+
+## 반딧불 업데이트 (사인파 이동 + 알파 깜빡임)
+static func update_drifting_fireflies(flies: Array[ColorRect], time: float) -> void:
+	for fly in flies:
+		if not is_instance_valid(fly):
+			continue
+		var bx: float = fly.get_meta("base_x", 400.0)
+		var by: float = fly.get_meta("base_y", 300.0)
+		var fx: float = fly.get_meta("freq_x", 0.4)
+		var fy: float = fly.get_meta("freq_y", 0.3)
+		var ax: float = fly.get_meta("amp_x", 50.0)
+		var ay: float = fly.get_meta("amp_y", 30.0)
+		var px: float = fly.get_meta("phase_x", 0.0)
+		var py: float = fly.get_meta("phase_y", 0.0)
+		var bp: float = fly.get_meta("blink_phase", 0.0)
+
+		fly.position.x = bx + sin(time * fx + px) * ax
+		fly.position.y = by + sin(time * fy + py) * ay
+		var blink = maxf(sin(time * 1.2 + bp), 0.0)
+		fly.color.a = blink * 0.6
+
+## 낙엽 효과 (나무에서 떨어지는 작은 잎사귀)
+static func add_falling_leaves(parent: Node2D, count: int = 8, area: Vector2 = Vector2(800, 576), color: Color = Color(0.45, 0.55, 0.2, 0.5)) -> Array[ColorRect]:
+	var leaves: Array[ColorRect] = []
+	for i in range(count):
+		var leaf = ColorRect.new()
+		leaf.size = Vector2(randi_range(3, 5), randi_range(3, 5))
+		var hue_shift = randf_range(-0.1, 0.15)
+		leaf.color = Color(
+			clampf(color.r + hue_shift + randf_range(-0.05, 0.05), 0, 1),
+			clampf(color.g - abs(hue_shift) * 0.3, 0, 1),
+			clampf(color.b + randf_range(-0.05, 0.05), 0, 1),
+			color.a
+		)
+		leaf.position = Vector2(randf_range(0, area.x), randf_range(-50, area.y))
+		leaf.z_index = 5
+		leaf.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		leaf.pivot_offset = leaf.size / 2.0
+		leaf.set_meta("fall_speed", randf_range(12, 28))
+		leaf.set_meta("sway_phase", randf() * TAU)
+		leaf.set_meta("sway_amp", randf_range(25, 60))
+		leaf.set_meta("spin_speed", randf_range(0.5, 2.0))
+		leaf.set_meta("base_x", leaf.position.x)
+		leaf.set_meta("area", area)
+		parent.add_child(leaf)
+		leaves.append(leaf)
+	return leaves
+
+## 낙엽 업데이트 (낙하 + 좌우 흔들림 + 회전)
+static func update_falling_leaves(leaves: Array[ColorRect], time: float, delta: float) -> void:
+	for leaf in leaves:
+		if not is_instance_valid(leaf):
+			continue
+		var area: Vector2 = leaf.get_meta("area", Vector2(800, 576))
+		var speed: float = leaf.get_meta("fall_speed", 20.0)
+		var phase: float = leaf.get_meta("sway_phase", 0.0)
+		var amp: float = leaf.get_meta("sway_amp", 40.0)
+		var spin: float = leaf.get_meta("spin_speed", 1.0)
+		var bx: float = leaf.get_meta("base_x", leaf.position.x)
+
+		leaf.position.y += speed * delta
+		leaf.position.x = bx + sin(time * 0.7 + phase) * amp
+		leaf.rotation = sin(time * spin + phase) * 0.8
+		leaf.color.a = 0.3 + sin(time * 0.5 + phase) * 0.15
+
+		if leaf.position.y > area.y + 30:
+			leaf.position.y = -20
+			bx = randf_range(0, area.x)
+			leaf.set_meta("base_x", bx)
+
+## ===================== S57: 시간대 색조 변화 =====================
+
+## 플레이타임 기반 시간대 색상 시프트 (CanvasLayer 오버레이)
+## ~30분 실시간 주기: 새벽(따뜻) → 낮(중립) → 황혼(차가움) → 밤(어두움)
+static func add_time_of_day(parent: Node2D) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 5
+
+	var rect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(0, 0, 0, 0)
+	rect.set_meta("tod_active", true)
+	layer.add_child(rect)
+	parent.add_child(layer)
+	return layer
+
+## 시간대 색상 업데이트 (맵의 _process에서 호출)
+static func update_time_of_day(layer: CanvasLayer, elapsed_time: float) -> void:
+	if layer == null or not is_instance_valid(layer):
+		return
+	var cycle = fmod(elapsed_time, 1800.0) / 1800.0
+	var tint: Color
+	var alpha: float
+
+	if cycle < 0.2:
+		tint = Color(0.9, 0.6, 0.3)
+		alpha = 0.06 * (1.0 - cycle / 0.2)
+	elif cycle < 0.5:
+		tint = Color(1.0, 1.0, 0.95)
+		alpha = 0.01
+	elif cycle < 0.7:
+		var t = (cycle - 0.5) / 0.2
+		tint = Color(0.4, 0.35, 0.6)
+		alpha = 0.04 * t
+	else:
+		var t = (cycle - 0.7) / 0.3
+		tint = Color(0.15, 0.18, 0.35)
+		alpha = 0.04 + 0.04 * sin(t * PI)
+
+	if layer.get_child_count() > 0:
+		var rect = layer.get_child(0)
+		if rect is ColorRect:
+			rect.color = Color(tint.r, tint.g, tint.b, alpha)
+
+## ===================== S57: 플레이어 포그 오브 워 라이트 =====================
+
+## 플레이어에 큰 범위 PointLight2D 부착 (주변 밝힘, 먼 곳 어둡게)
+static func add_player_fog_light(player: Node2D, radius: float = 300.0, energy: float = 1.2, color: Color = Color(1.0, 0.95, 0.85)) -> PointLight2D:
+	for child in player.get_children():
+		if child is PointLight2D and child.has_meta("fog_light"):
+			return child
+
+	var light = PointLight2D.new()
+	light.color = color
+	light.energy = energy
+	light.texture = _create_light_texture(int(radius))
+	light.texture_scale = 1.0
+	light.blend_mode = Light2D.BLEND_MODE_ADD
+	light.set_meta("fog_light", true)
+	player.add_child(light)
+	return light
+
+## ===================== S57: 로어 오브젝트 글로우 =====================
+
+## 맵에 로어/숨겨진 아이템 글로우 포인트 추가 (펄싱 라이트)
+static func add_lore_glow(parent: Node2D, pos: Vector2, color: Color = Color(0.8, 0.7, 0.3, 0.6), radius: float = 48.0) -> PointLight2D:
+	var light = PointLight2D.new()
+	light.position = pos
+	light.color = color
+	light.energy = 0.6
+	light.texture = _create_light_texture(int(radius))
+	light.texture_scale = 1.0
+	light.blend_mode = Light2D.BLEND_MODE_ADD
+	light.set_meta("lore_glow", true)
+	light.set_meta("phase", randf() * TAU)
+	light.set_meta("base_energy", 0.6)
+	parent.add_child(light)
+
+	var marker = ColorRect.new()
+	marker.size = Vector2(4, 4)
+	marker.position = pos - Vector2(2, 2)
+	marker.color = Color(color.r, color.g, color.b, 0.5)
+	marker.z_index = 3
+	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	marker.set_meta("lore_marker", true)
+	marker.set_meta("phase", light.get_meta("phase"))
+	parent.add_child(marker)
+
+	return light
+
+## 로어 글로우 업데이트 (펄싱 에너지 + 마커 알파)
+static func update_lore_glows(parent: Node2D, time: float) -> void:
+	for child in parent.get_children():
+		if child is PointLight2D and child.has_meta("lore_glow"):
+			var phase: float = child.get_meta("phase", 0.0)
+			var base_e: float = child.get_meta("base_energy", 0.6)
+			child.energy = base_e + sin(time * 2.0 + phase) * 0.25
+		elif child is ColorRect and child.has_meta("lore_marker"):
+			var phase: float = child.get_meta("phase", 0.0)
+			child.color.a = 0.3 + sin(time * 2.0 + phase) * 0.2
+
+## ===================== S57: 맵 전환 테마 파티클 =====================
+
+## 맵 진입 시 테마별 파티클 버스트 (자동 소멸)
+static func spawn_transition_particles(parent: Node, biome: String = "forest") -> void:
+	var layer = CanvasLayer.new()
+	layer.layer = 6
+
+	var particles = GPUParticles2D.new()
+	var mat = ParticleProcessMaterial.new()
+	particles.one_shot = true
+	particles.emitting = true
+	particles.position = Vector2(640, 360)
+
+	match biome:
+		"forest":
+			mat.direction = Vector3(0, 1, 0)
+			mat.spread = 180.0
+			mat.initial_velocity_min = 40.0
+			mat.initial_velocity_max = 120.0
+			mat.gravity = Vector3(10, 40, 0)
+			mat.scale_min = 1.5
+			mat.scale_max = 3.5
+			mat.color = Color(0.35, 0.5, 0.2, 0.5)
+			particles.amount = 30
+			particles.lifetime = 1.8
+		"belt", "coast":
+			mat.direction = Vector3(0.3, 0.5, 0)
+			mat.spread = 120.0
+			mat.initial_velocity_min = 20.0
+			mat.initial_velocity_max = 80.0
+			mat.gravity = Vector3(15, 25, 0)
+			mat.scale_min = 1.0
+			mat.scale_max = 2.5
+			mat.color = Color(0.6, 0.5, 0.3, 0.4)
+			particles.amount = 40
+			particles.lifetime = 2.0
+		"void":
+			mat.direction = Vector3(0, -1, 0)
+			mat.spread = 160.0
+			mat.initial_velocity_min = 15.0
+			mat.initial_velocity_max = 50.0
+			mat.gravity = Vector3(0, -20, 0)
+			mat.scale_min = 2.0
+			mat.scale_max = 4.0
+			mat.color = Color(0.2, 0.1, 0.35, 0.35)
+			particles.amount = 25
+			particles.lifetime = 2.5
+		"shelter", "mist":
+			mat.direction = Vector3(0.5, 0, 0)
+			mat.spread = 90.0
+			mat.initial_velocity_min = 10.0
+			mat.initial_velocity_max = 40.0
+			mat.gravity = Vector3(5, -5, 0)
+			mat.scale_min = 3.0
+			mat.scale_max = 6.0
+			mat.color = Color(0.7, 0.75, 0.85, 0.25)
+			particles.amount = 15
+			particles.lifetime = 2.0
+		_:
+			mat.direction = Vector3(0, 0.5, 0)
+			mat.spread = 180.0
+			mat.initial_velocity_min = 20.0
+			mat.initial_velocity_max = 60.0
+			mat.gravity = Vector3(0, 20, 0)
+			mat.scale_min = 1.0
+			mat.scale_max = 2.0
+			mat.color = Color(0.5, 0.5, 0.5, 0.3)
+			particles.amount = 20
+			particles.lifetime = 1.5
+
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(640, 360, 0)
+
+	var gradient = GradientTexture1D.new()
+	var g = Gradient.new()
+	g.set_color(0, Color(mat.color.r, mat.color.g, mat.color.b, 0.0))
+	g.add_point(0.2, mat.color)
+	g.add_point(0.6, Color(mat.color.r, mat.color.g, mat.color.b, mat.color.a * 0.7))
+	g.set_color(1, Color(mat.color.r, mat.color.g, mat.color.b, 0.0))
+	gradient.gradient = g
+	mat.color_ramp = gradient
+
+	particles.process_material = mat
+	particles.visibility_rect = Rect2(-700, -400, 1400, 800)
+	layer.add_child(particles)
+	parent.add_child(layer)
+
+	var cleanup_time = particles.lifetime + 0.5
+	var timer = parent.get_tree().create_timer(cleanup_time)
+	timer.timeout.connect(func():
+		if is_instance_valid(layer):
+			layer.queue_free()
+	)
 
 ## 색상 유틸
 static func _darken_c(color: Color, amount: float) -> Color:

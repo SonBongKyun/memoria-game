@@ -1,5 +1,6 @@
 ## SceneTransition (Autoload)
-## 씬 전환 처리. 페이드/다이아몬드 와이프/디졸브 효과 지원.
+## 씬 전환 처리. 페이드/다이아몬드 와이프/디졸브/커튼/로딩 화면 효과 지원.
+## S57: curtain wipe, loading screen, transition diversity.
 extends CanvasLayer
 
 var transition_rect: ColorRect
@@ -7,6 +8,24 @@ var tween: Tween
 
 # 와이프 효과용
 var wipe_rects: Array = []
+
+# S57: Curtain wipe rects
+var _curtain_left: ColorRect
+var _curtain_right: ColorRect
+
+# S57: Chapter name mapping for loading screen
+const CHAPTER_NAMES: Dictionary = {
+	1: "Chapter I\nRim Forest",
+	2: "Chapter II\nVerdan Market",
+	3: "Chapter III\nBelt Waystation",
+	4: "Chapter IV\nDrift Shelter",
+	5: "Chapter V\nCrumbling Coast",
+	6: "Chapter VI\nThe Seam",
+	7: "Chapter VII\nSeam Outskirts",
+	8: "Chapter VIII\nForgotten Forest",
+	9: "Chapter IX\nColorless Waste",
+	10: "Chapter X\nBL-07 Void",
+}
 
 func _ready() -> void:
 	layer = 100  # 최상위 레이어
@@ -42,11 +61,19 @@ func change_scene(scene_path: String, duration: float = 0.5, styled: bool = fals
 	tween.tween_property(transition_rect, "modulate:a", 0.0, duration)
 	await tween.finished
 
-## 전투 진입용 다이아몬드 와이프 전환
+	# S57: 맵 전환 후 테마 파티클 버스트
+	_spawn_biome_particles(scene_path)
+
+## 전투 진입용 다이아몬드 와이프 전환 (S57: 전투 줌 추가)
 func change_scene_battle(scene_path: String) -> void:
+	# S57: 전투 진입 전 카메라 줌인 (플레이어가 있을 때만)
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("battle_zoom_in"):
+		await player.battle_zoom_in(0.2)
 	await _diamond_wipe_out(0.6)
 	get_tree().change_scene_to_file(scene_path)
 	await _diamond_wipe_in(0.5)
+	# S57: 줌 리셋 (맵 복귀 시 player가 새로 로드되므로 자동 리셋됨)
 
 ## 다이아몬드 와이프 아웃 (화면 덮기)
 func _diamond_wipe_out(duration: float) -> void:
@@ -182,7 +209,7 @@ void fragment() {
 	await t.finished
 	iris.queue_free()
 
-## S54: 맵별 전환 스타일 자동 감지
+## S54/S57: 맵별 전환 스타일 자동 감지 — curtain added for markets/shelters
 const TRANSITION_STYLES: Dictionary = {
 	"bl07_void": "glitch",
 	"seam_outskirts": "glitch",
@@ -190,17 +217,20 @@ const TRANSITION_STYLES: Dictionary = {
 	"forgotten_forest": "leaves",
 	"colorless_waste": "dust",
 	"crumbling_coast": "dust",
-	"drift_shelter": "mist",
-	"belt_waystation": "mist",
+	"drift_shelter": "curtain",
+	"belt_waystation": "curtain",
+	"verdan_market": "curtain",
+	"the_seam": "mist",
 }
 
-## S54: 맵 전환 스타일 색상/설정
+## S54/S57: 맵 전환 스타일 색상/설정 — curtain added
 const STYLE_CONFIGS: Dictionary = {
 	"fade": {"color": Color.BLACK, "duration": 0.5},
 	"glitch": {"color": Color(0.15, 0.0, 0.2, 1.0), "duration": 0.35},
 	"leaves": {"color": Color(0.1, 0.2, 0.08, 1.0), "duration": 0.6},
 	"dust": {"color": Color(0.25, 0.18, 0.1, 1.0), "duration": 0.55},
 	"mist": {"color": Color(0.7, 0.75, 0.85, 1.0), "duration": 0.7},
+	"curtain": {"color": Color(0.03, 0.02, 0.05), "duration": 0.6},
 }
 
 ## S54: 스타일 자동 감지 — 씬 경로에서 맵 이름 추출
@@ -217,7 +247,12 @@ func change_scene_styled(scene_path: String, style: String = "") -> void:
 	var config = STYLE_CONFIGS.get(style, STYLE_CONFIGS["fade"])
 	var dur: float = config["duration"]
 
-	if style == "glitch":
+	if style == "curtain":
+		# S57: Curtain wipe for indoor/market maps
+		await _curtain_close(dur)
+		get_tree().change_scene_to_file(scene_path)
+		await _curtain_open(dur * 0.8)
+	elif style == "glitch":
 		await _glitch_transition_out(dur)
 		get_tree().change_scene_to_file(scene_path)
 		await _glitch_transition_in(dur * 0.8)
@@ -247,6 +282,10 @@ func change_scene_styled(scene_path: String, style: String = "") -> void:
 		transition_rect.modulate = Color(1, 1, 1, 0)
 	else:
 		await change_scene(scene_path, dur)
+
+	# S57: 전환 완료 후 테마 파티클 (change_scene 경유 시 중복 방지 — else만)
+	if style != "fade":
+		_spawn_biome_particles(scene_path)
 
 ## S54: Glitch transition — rapid flash/noise for void maps
 func _glitch_transition_out(duration: float) -> void:
@@ -318,3 +357,161 @@ func fade_in(duration: float = 0.5) -> void:
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 0.0, duration)
 	await tween.finished
+
+# ══════════════════════════════════════════════════════════════
+# S57: CURTAIN WIPE — two halves slide apart/together
+# ══════════════════════════════════════════════════════════════
+
+func change_scene_curtain(scene_path: String, duration: float = 0.6) -> void:
+	await _curtain_close(duration)
+	get_tree().change_scene_to_file(scene_path)
+	await _curtain_open(duration * 0.8)
+
+func _curtain_close(duration: float) -> void:
+	_curtain_left = ColorRect.new()
+	_curtain_left.color = Color(0.03, 0.02, 0.05)
+	_curtain_left.position = Vector2(-640, 0)
+	_curtain_left.size = Vector2(640, 720)
+	_curtain_left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_curtain_left)
+
+	_curtain_right = ColorRect.new()
+	_curtain_right.color = Color(0.03, 0.02, 0.05)
+	_curtain_right.position = Vector2(1280, 0)
+	_curtain_right.size = Vector2(640, 720)
+	_curtain_right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_curtain_right)
+
+	var t = create_tween().set_parallel(true)
+	t.tween_property(_curtain_left, "position:x", 0.0, duration).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	t.tween_property(_curtain_right, "position:x", 640.0, duration).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	await t.finished
+
+func _curtain_open(duration: float) -> void:
+	if not is_instance_valid(_curtain_left) or not is_instance_valid(_curtain_right):
+		return
+	var t = create_tween().set_parallel(true)
+	t.tween_property(_curtain_left, "position:x", -640.0, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	t.tween_property(_curtain_right, "position:x", 1280.0, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	await t.finished
+	if is_instance_valid(_curtain_left):
+		_curtain_left.queue_free()
+	if is_instance_valid(_curtain_right):
+		_curtain_right.queue_free()
+
+# ══════════════════════════════════════════════════════════════
+# S57: LOADING SCREEN — stylized chapter name with breathing animation
+# ══════════════════════════════════════════════════════════════
+
+## Show a brief loading screen between major scene transitions.
+## Displays chapter name with breathing animation, holds 1s minimum.
+func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> void:
+	# Determine chapter from GameManager if not provided
+	if chapter_num < 0:
+		chapter_num = GameManager.current_chapter
+
+	# Fade to black
+	if tween:
+		tween.kill()
+	transition_rect.color = Color.BLACK
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 1.0, 0.4)
+	await tween.finished
+
+	# Build loading overlay
+	var loading_overlay = ColorRect.new()
+	loading_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	loading_overlay.color = Color(0.03, 0.02, 0.05)
+	loading_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(loading_overlay)
+
+	# Chapter title label
+	var chapter_text = CHAPTER_NAMES.get(chapter_num, "Chapter %d" % chapter_num)
+	var title_lbl = Label.new()
+	title_lbl.text = chapter_text
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	title_lbl.position = Vector2(-200, -40)
+	title_lbl.size = Vector2(400, 80)
+	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_color_override("font_color", Color(0.7, 0.6, 0.45, 0.0))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.2, 0.15, 0.1))
+	title_lbl.add_theme_constant_override("outline_size", 2)
+	title_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_overlay.add_child(title_lbl)
+
+	# Small decorative line
+	var line = ColorRect.new()
+	line.set_anchors_preset(Control.PRESET_CENTER)
+	line.position = Vector2(-40, 30)
+	line.size = Vector2(80, 1)
+	line.color = Color(0.5, 0.4, 0.3, 0.0)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_overlay.add_child(line)
+
+	# Fade in title with breathing
+	var load_tween = create_tween()
+	load_tween.tween_property(title_lbl, "theme_override_colors/font_color",
+		Color(0.75, 0.65, 0.45, 1.0), 0.5).set_ease(Tween.EASE_OUT)
+	load_tween.parallel().tween_property(line, "color:a", 0.5, 0.5)
+
+	# Breathing pulse
+	var breath = create_tween().set_loops(2)
+	breath.tween_property(title_lbl, "theme_override_colors/font_color",
+		Color(0.85, 0.72, 0.5, 1.0), 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE).set_delay(0.5)
+	breath.tween_property(title_lbl, "theme_override_colors/font_color",
+		Color(0.65, 0.55, 0.4, 0.8), 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+
+	# Actually load scene (during the 1s hold)
+	get_tree().change_scene_to_file(scene_path)
+
+	# Hold for at least 1 second
+	await get_tree().create_timer(1.2).timeout
+
+	# Kill breathing tween
+	if breath and breath.is_valid():
+		breath.kill()
+
+	# Fade out loading screen
+	var fade_tw = create_tween()
+	fade_tw.tween_property(loading_overlay, "modulate:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)
+	fade_tw.parallel().tween_property(transition_rect, "modulate:a", 0.0, 0.4)
+	await fade_tw.finished
+	loading_overlay.queue_free()
+
+	# S57: 맵 전환 후 테마 파티클 버스트
+	_spawn_biome_particles(scene_path)
+
+## ===================== S57: 맵 전환 테마 파티클 =====================
+
+# 맵 바이옴 감지
+const BIOME_MAP: Dictionary = {
+	"rim_forest": "forest",
+	"forgotten_forest": "forest",
+	"verdan_market": "forest",
+	"belt_waystation": "belt",
+	"crumbling_coast": "coast",
+	"colorless_waste": "coast",
+	"bl07_void": "void",
+	"seam_outskirts": "void",
+	"the_seam": "void",
+	"drift_shelter": "shelter",
+}
+
+func _detect_biome(scene_path: String) -> String:
+	for map_key in BIOME_MAP:
+		if map_key in scene_path:
+			return BIOME_MAP[map_key]
+	return ""
+
+## 씬 전환 후 테마 파티클 스폰 (전투 씬 제외)
+func _spawn_biome_particles(scene_path: String) -> void:
+	if "battle" in scene_path:
+		return
+	var biome = _detect_biome(scene_path)
+	if biome == "":
+		return
+	var scene = get_tree().current_scene
+	if scene:
+		MapEffects.spawn_transition_particles(scene, biome)

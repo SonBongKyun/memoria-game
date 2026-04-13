@@ -55,6 +55,9 @@ var _occluders: Array[LightOccluder2D] = []  # S52: 그림자 오클루더
 var _pollen: Array[ColorRect] = []  # S52: 꽃가루 파티클
 var _camera: Camera2D = null  # S52: 스무스 카메라
 var _blend_edges: Array[ColorRect] = []  # S53: 타일 경계 블렌딩
+var _drifting_flies: Array[ColorRect] = []  # S57: 사인파 반딧불
+var _falling_leaves: Array[ColorRect] = []  # S57: 낙엽
+var _tod_layer: CanvasLayer = null  # S57: 시간대 색조
 
 @onready var player: CharacterBody2D = $Player
 
@@ -80,6 +83,19 @@ func _ready() -> void:
 	_pollen = MapEffects.add_pollen_particles(self, 12, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.25))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
+	# S57: 앰비언트 와일드라이프 — 반딧불 + 낙엽
+	var map_area = Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
+	_drifting_flies = MapEffects.add_drifting_fireflies(self, 8, map_area, Color(0.5, 0.9, 0.35, 0.6))
+	_falling_leaves = MapEffects.add_falling_leaves(self, 6, map_area, Color(0.4, 0.5, 0.18, 0.45))
+	# S57: 시간대 색조 변화
+	_tod_layer = MapEffects.add_time_of_day(self)
+	# S57: 플레이어 포그 오브 워 라이트
+	MapEffects.add_player_fog_light(player, 250.0, 1.0, Color(0.95, 0.9, 0.8))
+	# S57: 로어 글로우 포인트 (그루터기/숨겨진 메모)
+	MapEffects.add_lore_glow(self, Vector2(4 * TILE_SIZE, 9 * TILE_SIZE), Color(0.7, 0.85, 0.3, 0.5))
+	MapEffects.add_lore_glow(self, Vector2(20 * TILE_SIZE, 4 * TILE_SIZE), Color(0.85, 0.7, 0.3, 0.5))
+	# S57: 맵 진입 테마 파티클
+	MapEffects.spawn_transition_particles(self, "forest")
 	_position_player()
 	_setup_battle_triggers()
 	_setup_camp_trigger()
@@ -105,6 +121,11 @@ func _process(delta: float) -> void:
 	MapEffects.update_grass_sway(_grass_blades, _time)
 	MapEffects.update_pollen(_pollen, _time, delta)
 	MapEffects.update_camera_shake(_camera, _time)
+	# S57: 와일드라이프 + 시간대 + 로어 글로우 업데이트
+	MapEffects.update_drifting_fireflies(_drifting_flies, _time)
+	MapEffects.update_falling_leaves(_falling_leaves, _time, delta)
+	MapEffects.update_time_of_day(_tod_layer, _time)
+	MapEffects.update_lore_glows(self, _time)
 	# S53: 뷰포트 외 파티클 컬링
 	var vp_rect = Rect2(player.position - Vector2(700, 400), Vector2(1400, 800))
 	MapEffects.cull_offscreen_particles(_pollen, vp_rect)

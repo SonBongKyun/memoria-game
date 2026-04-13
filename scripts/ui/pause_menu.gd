@@ -85,7 +85,7 @@ func _build_ui() -> void:
 	# 어두운 오버레이
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0, 0, 0, 0.6)
+	overlay.color = Color(0, 0, 0, 0.7)  # S57: darker blur for cinematic feel (40% brightness)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(overlay)
 
@@ -195,6 +195,17 @@ func _build_ui() -> void:
 
 		btn.pressed.connect(data.callback)
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		# S57: Hover sound on mouse enter + button press scale feedback
+		btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		btn.pivot_offset = Vector2(btn.custom_minimum_size.x / 2.0, btn.custom_minimum_size.y / 2.0)
+		btn.button_down.connect(func():
+			var t = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+			t.tween_property(btn, "scale", Vector2(0.95, 0.95), 0.05)
+		)
+		btn.button_up.connect(func():
+			var t = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+			t.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_OUT)
+		)
 		btn_container.add_child(btn)
 
 	# S56: Last saved indicator
@@ -238,17 +249,32 @@ func _update_save_info() -> void:
 	text += "HP: %d / %d\n" % [hp, max_hp]
 	text += "Memories: %d held, %d burned" % [memory_count - burn_count, burn_count]
 
-	# 세이브 슬롯 정보
+	# S57: Enhanced save slot display with chapter name, HP, grains, and playtime
+	var ch_names = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
+
 	var save = SaveManager.get_save_info(1)
 	if save.is_empty():
-		text += "\n\nSlot 1: Empty"
+		text += "\n\nSlot 1: [Empty]"
 	else:
-		text += "\n\nSlot 1: Ch%d, %s" % [save.get("chapter", 1), save.get("timestamp", "?")]
+		var s_ch = save.get("chapter", 1)
+		var s_ch_name = ch_names.get(s_ch, "Unknown")
+		var s_hp = save.get("hp", 0)
+		var s_max_hp = save.get("max_hp", 100)
+		var s_grains = save.get("grains", 0)
+		var s_location = save.get("location", "")
+		text += "\n\nSlot 1: Ch%d - %s" % [s_ch, s_ch_name]
+		if s_location != "":
+			text += " (%s)" % s_location
+		text += "\n    HP: %d/%d | Grains: %d | %s" % [s_hp, s_max_hp, s_grains, save.get("timestamp", "?")]
 
-	# S56: Autosave slot info
+	# S56/S57: Autosave slot info (enhanced)
 	var auto_save = SaveManager.get_save_info(0)
 	if not auto_save.is_empty():
-		text += "\nAutosave: Ch%d, %s" % [auto_save.get("chapter", 1), auto_save.get("timestamp", "?")]
+		var a_ch = auto_save.get("chapter", 1)
+		var a_ch_name = ch_names.get(a_ch, "Unknown")
+		var a_hp = auto_save.get("hp", 0)
+		var a_max_hp = auto_save.get("max_hp", 100)
+		text += "\nAutosave: Ch%d - %s | HP: %d/%d | %s" % [a_ch, a_ch_name, a_hp, a_max_hp, auto_save.get("timestamp", "?")]
 
 	save_info_label.text = text
 
