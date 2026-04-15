@@ -221,9 +221,12 @@ signal battle_started(enemy: Enemy)
 signal player_turn_started()
 signal enemy_turn_started()
 signal damage_dealt(target: String, amount: int, skill_name: String)
+signal pre_attack(attacker: String, target: String, skill_name: String)  # S58: anticipation signal
 signal battle_ended(result: BattleState)
 signal battle_log(message: String)
 signal status_changed()
+signal victory_rewards_ready(rewards: Dictionary)  # S58: structured reward data
+var _victory_dismissed: bool = false  # S58: wait for player to dismiss rewards
 
 ## 난이도별 적 스케일링 (Easy=0.7, Normal=1.0, Hard=1.4)
 func _get_difficulty_scale() -> float:
@@ -235,6 +238,10 @@ func _get_difficulty_scale() -> float:
 
 func _ready() -> void:
 	print("[BattleManager] Ready")
+
+## S58: Called by battle_scene when player dismisses the rewards screen
+func dismiss_victory() -> void:
+	_victory_dismissed = true
 
 ## 전투 시작
 func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", e_image: String = "") -> void:
@@ -292,6 +299,11 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 		GameManager.player_data.hp = mini(GameManager.player_data.hp + 15, chapter_hp)
 
 	GameManager.change_state(GameManager.GameState.BATTLE)
+
+	# S58: 보스전 — 드라마틱 침묵 후 강렬한 BGM 진입
+	if enemy.is_boss:
+		AudioManager.dramatic_silence(1.0)
+
 	battle_started.emit(enemy)
 	battle_log.emit("A %s appears!" % enemy.name)
 	# S55: Tutorial hint
@@ -371,9 +383,13 @@ func player_attack() -> void:
 	if enemy_shielded:
 		base_dmg = maxi(1, base_dmg / 2)
 		enemy_shielded = false
+		AudioManager.play_combat_sfx("shield_break")  # S58: 방패 파괴 레이어드 SFX
 		battle_log.emit("The barrier absorbs some damage!")
+	# S58: Anticipation — signal before damage, await wind-up
+	pre_attack.emit("Arrel", current_enemy.name, "Attack")
+	await get_tree().create_timer(0.23).timeout  # anticipation + strike duration
 	var actual = current_enemy.take_damage(base_dmg)
-	AudioManager.play_sfx("hit")
+	AudioManager.play_combat_sfx("sword_slash")  # S58: 레이어드 전투 SFX
 	InputManager.vibrate("battle_hit")
 	var combo_text = " (Combo x%d!)" % combo_count if combo_count >= 2 else ""
 	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
@@ -482,7 +498,7 @@ func player_burn(memory_id: String) -> void:
 	# S53: 연속 연소 체인
 	_burn_chain += 1
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
-	AudioManager.play_sfx("burn")
+	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
 	InputManager.vibrate("memory_burn")
 	# 침식 반영 — 유효 연소력
 	var effective_power = MemoryManager.get_effective_burn_power(memory)
@@ -506,6 +522,9 @@ func player_burn(memory_id: String) -> void:
 		dmg = maxi(1, int(dmg * 0.7))
 		enemy_shielded = false
 		battle_log.emit("The barrier weakens the flames!")
+	# S58: Anticipation — signal before burn damage
+	pre_attack.emit("Arrel", current_enemy.name, skill.name)
+	await get_tree().create_timer(0.23).timeout
 	var actual = current_enemy.take_damage(dmg)
 
 	battle_log.emit("[BURN] %s — %s" % [skill.name, skill.desc])
@@ -541,7 +560,7 @@ func player_use_elia_skill(skill_id: String) -> void:
 		battle_log.emit(result["msg"])
 		return
 
-	AudioManager.play_sfx("heal")
+	AudioManager.play_combat_sfx("heal_layered")  # S58: 레이어드 힐 SFX
 	battle_log.emit("[ELIA] %s" % result["name"])
 	battle_log.emit(result["msg"])
 
@@ -733,6 +752,9 @@ func _enemy_turn() -> void:
 
 	player_defending = false
 
+	# S58: Enemy anticipation — signal before enemy damage
+	pre_attack.emit(current_enemy.name, "Arrel", "")
+	await get_tree().create_timer(0.2).timeout
 	# 플레이어 HP 감소
 	GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - base_dmg)
 	battle_log.emit("%s attacks! %d damage to Arrel." % [current_enemy.name, base_dmg])
@@ -847,7 +869,7 @@ func _try_enemy_ability() -> bool:
 			player_defending = false
 			GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - dmg)
 			_player_stunned = true
-			AudioManager.play_sfx("hit")
+			AudioManager.play_combat_sfx("sword_slash")  # S58: 레이어드 전투 SFX
 			InputManager.vibrate("battle_hit")
 			battle_log.emit("%s delivers a stunning blow! %d damage." % [current_enemy.name, dmg])
 			battle_log.emit("Arrel is stunned! Next turn will be lost.")
@@ -960,6 +982,11 @@ func _check_player_defeated() -> void:
 		await get_tree().create_timer(0.6).timeout
 		_end_player_turn()
 		return
+
+	# S58: Low HP 오디오 필터 업데이트 (HP < 25% → 로우패스 + 하트비트)
+	var _hp_ratio = float(GameManager.player_data.hp) / float(maxi(1, GameManager.player_data.max_hp))
+	AudioManager.update_low_hp_audio(_hp_ratio)
+	AudioManager.update_battle_intensity(_hp_ratio)
 
 	# 다시 플레이어 턴
 	state = BattleState.PLAYER_TURN
@@ -1265,7 +1292,26 @@ func _cleanup() -> void:
 		AchievementManager.check_grains()
 
 		# 아이템 드롭 (30% 확률)
-		_try_item_drop()
+		var dropped_item = _try_item_drop_return()
+
+		# S58: Emit structured reward data for animated rewards screen
+		var reward_data: Dictionary = {
+			"grains": grains,
+			"heal": heal,
+			"item": dropped_item,
+			"enemy_name": current_enemy.name if current_enemy else "Unknown",
+			"is_boss": current_enemy.is_boss if current_enemy else false,
+			"battles_total": GameManager.play_stats.get("total_battles", 0),
+		}
+		_victory_dismissed = false
+		victory_rewards_ready.emit(reward_data)
+
+		# S58: Wait for player to dismiss the rewards screen (max 15s safety)
+		var wait_time: float = 0.0
+		while not _victory_dismissed and wait_time < 15.0:
+			await get_tree().create_timer(0.1).timeout
+			wait_time += 0.1
+
 	elif state == BattleState.DEFEAT:
 		battle_log.emit("Darkness closes in...")
 		await get_tree().create_timer(1.5).timeout
@@ -1276,7 +1322,7 @@ func _cleanup() -> void:
 		await SceneTransition.change_scene("res://scenes/ui/game_over.tscn")
 		return
 
-	await get_tree().create_timer(1.5).timeout
+	await get_tree().create_timer(0.3).timeout
 	current_enemy = null
 	player_statuses.clear()
 	enemy_statuses.clear()
@@ -1289,8 +1335,12 @@ func _cleanup() -> void:
 
 ## 전투 승리 시 아이템 드롭
 func _try_item_drop() -> void:
+	_try_item_drop_return()
+
+## S58: 아이템 드롭 + 드롭된 아이템 이름 반환
+func _try_item_drop_return() -> String:
 	if randf() > 0.30:  # 30% 확률
-		return
+		return ""
 	var drop_table: Array = ["potion", "potion", "potion", "antidote", "antidote", "firebomb"]
 	if current_enemy and current_enemy.is_void_beast:
 		drop_table.append_array(["firebomb", "hi_potion"])
@@ -1299,6 +1349,7 @@ func _try_item_drop() -> void:
 	var drop = drop_table[randi_range(0, drop_table.size() - 1)]
 	GameManager.add_item(drop)
 	battle_log.emit("Found: %s" % GameManager.ITEMS[drop]["name"])
+	return GameManager.ITEMS[drop]["name"]
 
 ## ===================== 상태이상 시스템 =====================
 
@@ -1434,7 +1485,7 @@ func player_limit_break() -> void:
 		battle_log.emit("The barrier cracks under the weight!")
 
 	var actual = current_enemy.take_damage(dmg)
-	AudioManager.play_sfx("burn")
+	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
 	InputManager.vibrate("memory_burn")
 	battle_log.emit("[LIMIT BREAK] Memory Cascade!")
 	battle_log.emit("All remembered pain converges — %d damage!" % actual)
@@ -1460,7 +1511,7 @@ func player_burn_residue(memory_id: String) -> void:
 
 	_reset_combo("burn")
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
-	AudioManager.play_sfx("burn")
+	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
 	InputManager.vibrate("memory_burn")
 	var dmg = int((skill.base_damage + memory.burn_power) * 0.5)
 	var burn_element = skill.get("element", "fire")

@@ -223,7 +223,8 @@ func _on_seam_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[CrumblingCoast] Chapter 5 complete — The Seam reached")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 5)
 
 func _setup_random_encounters() -> void:
 	if not GameManager.get_flag("ch5_complete"):

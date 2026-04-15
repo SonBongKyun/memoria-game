@@ -707,10 +707,25 @@ func _on_dialogue_choice(choices: Array) -> void:
 			_on_choice_selected(idx)
 		)
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		# S58: Pop-in animation — start scaled up, overshoot settle to 1.0
+		btn.scale = Vector2(0.0, 0.0)
+		btn.pivot_offset = Vector2(btn.size.x * 0.5, btn.size.y * 0.5) if btn.size.x > 0 else Vector2(100, 14)
 		choice_container.add_child(btn)
 
+	# S58: Staggered pop-in animation for each choice button
+	for ci in range(choice_container.get_child_count()):
+		var child_btn = choice_container.get_child(ci)
+		child_btn.pivot_offset = child_btn.size * 0.5 if child_btn.size.x > 0 else Vector2(100, 14)
+		var pop_t = create_tween()
+		pop_t.tween_interval(ci * 0.06)  # stagger delay per button
+		pop_t.tween_property(child_btn, "scale", Vector2(1.15, 1.15), 0.08).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		pop_t.tween_property(child_btn, "scale", Vector2(1.0, 1.0), 0.06).set_ease(Tween.EASE_IN_OUT)
+
 	if choice_container.get_child_count() > 0:
-		choice_container.get_child(0).grab_focus()
+		# Delay focus grab slightly to let pop-in start
+		await get_tree().create_timer(0.08).timeout
+		if choice_container.get_child_count() > 0:
+			choice_container.get_child(0).grab_focus()
 
 func _on_dialogue_ended() -> void:
 	# S54: Reset direction effects

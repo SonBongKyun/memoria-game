@@ -1,5 +1,5 @@
 ## AudioManager (Autoload)
-## BGM 재생/전환, SFX 재생, 앰비언트 루프, 오디오 덕킹. 씬별 자동 BGM 매핑.
+## BGM 재생/전환, SFX 재생, 앰비언트 루프, 오디오 덕킹, 레이어드 전투 SFX, 환경 리버브.
 extends Node
 
 var bgm_player: AudioStreamPlayer
@@ -8,6 +8,8 @@ var sfx_player: AudioStreamPlayer
 var step_player: AudioStreamPlayer
 var ambient_player: AudioStreamPlayer  # S57: 앰비언트 사운드 루프
 var heartbeat_player: AudioStreamPlayer  # S57: 보스/위기 하트비트 레이어
+# S58: 레이어드 전투 SFX용 플레이어 풀 (3개 레이어 동시 재생)
+var _combat_layer_players: Array[AudioStreamPlayer] = []
 var current_bgm: String = ""
 var current_ambient: String = ""
 var bgm_tween: Tween
@@ -18,6 +20,14 @@ var _bgm_ducked: bool = false  # 대화 중 BGM 덕킹 상태
 var _is_boss_fight: bool = false
 var _heartbeat_active: bool = false
 var _intensity_tween: Tween
+# S58: 환경 리버브 상태
+var _reverb_active: bool = false
+var _reverb_bus_idx: int = -1
+# S58: Low HP 로우패스 필터 상태
+var _low_hp_filter_active: bool = false
+var _lowpass_bus_idx: int = -1
+# S58: 기억 연소 드라마 진행 중 플래그
+var _burn_drama_active: bool = false
 
 # 씬 경로 → BGM 매핑
 const SCENE_BGM: Dictionary = {
@@ -98,13 +108,29 @@ func _ready() -> void:
 	heartbeat_player.volume_db = -18.0
 	add_child(heartbeat_player)
 
+	# S58: 레이어드 전투 SFX 플레이어 풀 (3개)
+	for idx in range(3):
+		var lp = AudioStreamPlayer.new()
+		lp.bus = "Master"
+		lp.volume_db = -3.0
+		add_child(lp)
+		_combat_layer_players.append(lp)
+
+	# S58: SFX 리버브 버스 설정 (동적으로 추가)
+	_setup_reverb_bus()
+	# S58: BGM 로우패스 필터 버스 설정
+	_setup_lowpass_bus()
+
 	# 씬 전환 감지
 	get_tree().tree_changed.connect(_on_tree_changed)
 
 	# S57: 대화 덕킹 — DialogueManager 시그널 연결
 	_connect_dialogue_ducking()
 
-	print("[AudioManager] Ready — crossfade, ambient, ducking, intensity systems active")
+	# S58: MemoryManager 기억 연소 시그널 연결 (고등급 번 드라마)
+	_connect_memory_burn_drama()
+
+	print("[AudioManager] Ready — crossfade, ambient, ducking, intensity, layered combat, reverb, burn drama active")
 
 ## BGM 재생 (S57: 크로스페이드 — A/B 플레이어 교대)
 func play_bgm(path: String, fade: bool = true) -> void:
@@ -623,3 +649,415 @@ func _on_tree_changed() -> void:
 		if _heartbeat_active:
 			_stop_heartbeat()
 		_active_bgm_player.pitch_scale = 1.0
+
+	# S58: 환경 리버브 — 동굴/보이드 맵에서 리버브 활성화
+	var reverb_maps := [
+		"res://scenes/maps/bl07_void.tscn",
+		"res://scenes/maps/the_seam.tscn",
+		"res://scenes/maps/colorless_waste.tscn",
+		"res://scenes/maps/seam_outskirts.tscn",
+	]
+	if path in reverb_maps:
+		_enable_reverb()
+	else:
+		_disable_reverb()
+
+	# S58: Low HP 필터 리셋 (전투 밖에서)
+	if path != "res://scenes/battle/battle_scene.tscn":
+		_disable_low_hp_filter()
+
+
+## ===================== S58: 레이어드 전투 SFX 시스템 =====================
+## 전문 게임처럼 공격음을 2~3 레이어로 동시 재생 (Attack + Impact + Sweetener)
+
+## 레이어 정의 — 각 전투 사운드 타입에 대해 [{delay_ms, generator_key, volume_db}]
+const COMBAT_SFX_LAYERS: Dictionary = {
+	"sword_slash": [
+		{"delay": 0.0, "gen": "whoosh", "vol": -3.0},
+		{"delay": 0.03, "gen": "thud", "vol": -5.0},
+		{"delay": 0.05, "gen": "metallic_ring", "vol": -8.0},
+	],
+	"burn_ignite": [
+		{"delay": 0.0, "gen": "crackle", "vol": -4.0},
+		{"delay": 0.02, "gen": "deep_whomp", "vol": -5.0},
+		{"delay": 0.1, "gen": "sizzle_tail", "vol": -7.0},
+	],
+	"void_pulse": [
+		{"delay": 0.0, "gen": "reverse_boom", "vol": -4.0},
+		{"delay": 0.03, "gen": "low_drone", "vol": -6.0},
+		{"delay": 0.08, "gen": "crystal_shatter", "vol": -7.0},
+	],
+	"shield_break": [
+		{"delay": 0.0, "gen": "glass_crack", "vol": -4.0},
+		{"delay": 0.02, "gen": "thud", "vol": -5.0},
+	],
+	"heal_layered": [
+		{"delay": 0.0, "gen": "chime", "vol": -5.0},
+		{"delay": 0.05, "gen": "warm_pad", "vol": -8.0},
+	],
+}
+
+## 레이어드 전투 SFX 재생 — 여러 레이어를 딜레이 오프셋으로 동시 재생
+func play_combat_sfx(type: String) -> void:
+	if not COMBAT_SFX_LAYERS.has(type):
+		# 폴백: 기존 단일 SFX
+		play_sfx(type)
+		return
+
+	var layers: Array = COMBAT_SFX_LAYERS[type]
+	for layer_idx in range(mini(layers.size(), _combat_layer_players.size())):
+		var layer: Dictionary = layers[layer_idx]
+		var player: AudioStreamPlayer = _combat_layer_players[layer_idx]
+		var samples = _generate_combat_layer(layer["gen"])
+		if samples.is_empty():
+			continue
+		var stream = _samples_to_stream(samples)
+		player.stream = stream
+		player.volume_db = layer["vol"]
+		# 피치 변주 (미세한 자연스러움)
+		player.pitch_scale = 1.0 + randf_range(-0.06, 0.06)
+
+		var delay_sec: float = layer["delay"]
+		if delay_sec <= 0.001:
+			player.play()
+		else:
+			# 타이머로 딜레이 재생
+			var t = get_tree().create_timer(delay_sec)
+			t.timeout.connect(func(): player.play())
+
+## 전투 레이어 사운드 프로시저럴 생성기
+func _generate_combat_layer(gen_key: String) -> PackedFloat32Array:
+	var samples = PackedFloat32Array()
+	var sr = 22050
+
+	match gen_key:
+		"whoosh":
+			# 고주파 필터드 노이즈 + 빠른 엔벨로프 — 공기를 가르는 소리
+			var duration = 0.08
+			var prev: float = 0.0
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration)
+				env *= env  # 급격한 감쇠
+				var noise = randf_range(-1.0, 1.0)
+				# 밴드패스 효과 — 하이패스 후 로우패스
+				prev = prev * 0.6 + noise * 0.4
+				samples.append(prev * 0.35 * env)
+
+		"thud":
+			# 저주파 사인 + 날카로운 어택 — 육중한 타격
+			var duration = 0.1
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration)
+				env *= env * env  # 매우 급격한 감쇠
+				var freq_sweep = lerpf(180.0, 60.0, t / duration)
+				samples.append(sin(t * freq_sweep * TAU) * 0.4 * env)
+
+		"metallic_ring":
+			# 고음 사인 + 긴 디케이 — 금속 잔향
+			var duration = 0.25
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = exp(-t * 8.0)  # 지수 감쇠
+				var wave = sin(t * 2200.0 * TAU) * 0.12 + sin(t * 3300.0 * TAU) * 0.06
+				samples.append(wave * env)
+
+		"crackle":
+			# 랜덤 노이즈 버스트 — 불꽃 튀기는 소리
+			var duration = 0.12
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration)
+				var burst = 0.0
+				if randf() < 0.3:  # 30% 확률로 버스트
+					burst = randf_range(-0.5, 0.5)
+				var base_noise = randf_range(-0.1, 0.1)
+				samples.append((burst + base_noise) * env)
+
+		"deep_whomp":
+			# 저주파 임팩트 — 깊은 울림
+			var duration = 0.15
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration)
+				env *= env
+				var wave = sin(t * 55.0 * TAU) * 0.35 + sin(t * 30.0 * TAU) * 0.15
+				samples.append(wave * env)
+
+		"sizzle_tail":
+			# 고주파 노이즈 + 느린 감쇠 — 지글지글 꼬리
+			var duration = 0.35
+			var prev_val: float = 0.0
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration) * 0.8
+				var noise = randf_range(-1.0, 1.0)
+				prev_val = prev_val * 0.7 + noise * 0.3  # 약간의 로우패스
+				samples.append(prev_val * 0.15 * env)
+
+		"reverse_boom":
+			# 역방향 엔벨로프 저음 — 빨아들이는 느낌
+			var duration = 0.2
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (t / duration)  # 점점 커짐 (리버스)
+				env *= env
+				var freq_sweep = lerpf(30.0, 80.0, t / duration)
+				var wave = sin(t * freq_sweep * TAU) * 0.35
+				var noise = randf_range(-0.08, 0.08)
+				samples.append((wave + noise) * env)
+
+		"low_drone":
+			# 매우 낮은 주파수 드론 레이어
+			var duration = 0.25
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = sin(t / duration * PI) * 0.9
+				var wave = sin(t * 40.0 * TAU) * 0.25 + sin(t * 25.0 * TAU) * 0.15
+				samples.append(wave * env)
+
+		"crystal_shatter":
+			# 고음 글리치 + 랜덤 클릭 — 결정체 깨짐
+			var duration = 0.15
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration)
+				var click = 0.0
+				if randf() < 0.15:
+					click = randf_range(-0.3, 0.3)
+				var high_tone = sin(t * 4000.0 * TAU) * 0.08 * env
+				var mid_tone = sin(t * 1800.0 * TAU) * 0.06 * env
+				samples.append(high_tone + mid_tone + click * env)
+
+		"glass_crack":
+			# 날카로운 충격 + 잔잔한 깨짐 — 방패 파괴
+			var duration = 0.18
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = (1.0 - t / duration)
+				env *= env
+				var impact = 0.0
+				if t < 0.02:  # 초반 2ms 임팩트
+					impact = randf_range(-0.5, 0.5)
+				var crack = sin(t * 3000.0 * TAU) * 0.1 * env
+				var rumble = randf_range(-0.2, 0.2) * env * 0.5
+				samples.append(impact + crack + rumble)
+
+		"chime":
+			# 맑은 고음 화음 — 힐링 시작음
+			var duration = 0.4
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = exp(-t * 4.0)  # 부드러운 지수 감쇠
+				var wave = sin(t * 880.0 * TAU) * 0.12
+				wave += sin(t * 1320.0 * TAU) * 0.08
+				wave += sin(t * 1760.0 * TAU) * 0.05
+				samples.append(wave * env)
+
+		"warm_pad":
+			# 따뜻한 중저음 패드 — 힐링 배경음
+			var duration = 0.6
+			for i in range(int(sr * duration)):
+				var t = float(i) / sr
+				var env = sin(t / duration * PI) * 0.7  # 부드러운 등장/퇴장
+				var wave = sin(t * 330.0 * TAU) * 0.1
+				wave += sin(t * 440.0 * TAU) * 0.08
+				wave += sin(t * 550.0 * TAU) * 0.05
+				samples.append(wave * env)
+
+		_:
+			return PackedFloat32Array()
+
+	return samples
+
+
+## ===================== S58: 환경 리버브 시스템 =====================
+## 동굴/보이드 맵에서 SFX에 리버브 적용 — AudioServer 버스 동적 생성
+
+## 리버브 SFX 버스 초기 설정
+func _setup_reverb_bus() -> void:
+	# "SFX_Reverb" 버스 추가 (Master 하위)
+	var bus_count = AudioServer.bus_count
+	AudioServer.add_bus(bus_count)
+	_reverb_bus_idx = bus_count
+	AudioServer.set_bus_name(_reverb_bus_idx, "SFX_Reverb")
+	AudioServer.set_bus_send(_reverb_bus_idx, "Master")
+	AudioServer.set_bus_volume_db(_reverb_bus_idx, 0.0)
+
+	# 리버브 이펙트 추가 (비활성 상태로 시작)
+	var reverb = AudioEffectReverb.new()
+	reverb.room_size = 0.65
+	reverb.damping = 0.4
+	reverb.spread = 0.8
+	reverb.wet = 0.25
+	reverb.dry = 0.85
+	AudioServer.add_bus_effect(_reverb_bus_idx, reverb)
+	AudioServer.set_bus_effect_enabled(_reverb_bus_idx, 0, false)  # 비활성
+
+func _enable_reverb() -> void:
+	if _reverb_active or _reverb_bus_idx < 0:
+		return
+	_reverb_active = true
+	AudioServer.set_bus_effect_enabled(_reverb_bus_idx, 0, true)
+	# SFX 플레이어들을 리버브 버스로 라우팅
+	sfx_player.bus = "SFX_Reverb"
+	for lp in _combat_layer_players:
+		lp.bus = "SFX_Reverb"
+	print("[AudioManager] Reverb ON — cave/void environment")
+
+func _disable_reverb() -> void:
+	if not _reverb_active or _reverb_bus_idx < 0:
+		return
+	_reverb_active = false
+	AudioServer.set_bus_effect_enabled(_reverb_bus_idx, 0, false)
+	# SFX 플레이어들을 Master로 복귀
+	sfx_player.bus = "Master"
+	for lp in _combat_layer_players:
+		lp.bus = "Master"
+
+
+## ===================== S58: 드라마틱 침묵 =====================
+## 보스전 진입 전 모든 오디오를 일시 정지 → 강렬한 BGM 진입
+
+func dramatic_silence(duration: float = 1.0) -> void:
+	# 모든 오디오를 빠르게 페이드 아웃
+	var fade_out = 0.15
+	var master_idx = AudioServer.get_bus_index("Master")
+	var original_vol = AudioServer.get_bus_volume_db(master_idx)
+
+	var t = create_tween()
+	t.tween_method(func(v: float):
+		AudioServer.set_bus_volume_db(master_idx, v)
+	, original_vol, -60.0, fade_out)
+
+	t.tween_interval(duration)
+
+	# 복원
+	t.tween_method(func(v: float):
+		AudioServer.set_bus_volume_db(master_idx, v)
+	, -60.0, original_vol, 0.1)
+
+
+## ===================== S58: Low HP 오디오 필터 =====================
+## HP < 25%일 때 BGM에 로우패스 필터 → 답답하고 긴장감 있는 느낌
+
+func _setup_lowpass_bus() -> void:
+	# "BGM_Filtered" 버스 추가
+	var bus_count = AudioServer.bus_count
+	AudioServer.add_bus(bus_count)
+	_lowpass_bus_idx = bus_count
+	AudioServer.set_bus_name(_lowpass_bus_idx, "BGM_Filtered")
+	AudioServer.set_bus_send(_lowpass_bus_idx, "Master")
+	AudioServer.set_bus_volume_db(_lowpass_bus_idx, 0.0)
+
+	# 로우패스 필터 추가 (비활성 상태)
+	var lpf = AudioEffectLowPassFilter.new()
+	lpf.cutoff_hz = 800.0  # 답답한 느낌 — 고음 차단
+	lpf.resonance = 0.7
+	AudioServer.add_bus_effect(_lowpass_bus_idx, lpf)
+	AudioServer.set_bus_effect_enabled(_lowpass_bus_idx, 0, false)
+
+## HP 비율에 따른 로우패스 필터 + 하트비트 강화 (BattleManager에서 매 턴 호출)
+func update_low_hp_audio(hp_ratio: float) -> void:
+	if hp_ratio < 0.25 and not _low_hp_filter_active:
+		_enable_low_hp_filter()
+	elif hp_ratio >= 0.25 and _low_hp_filter_active:
+		_disable_low_hp_filter()
+
+func _enable_low_hp_filter() -> void:
+	if _low_hp_filter_active or _lowpass_bus_idx < 0:
+		return
+	_low_hp_filter_active = true
+	AudioServer.set_bus_effect_enabled(_lowpass_bus_idx, 0, true)
+	# BGM 플레이어를 필터 버스로 라우팅
+	bgm_player.bus = "BGM_Filtered"
+	bgm_player_b.bus = "BGM_Filtered"
+
+func _disable_low_hp_filter() -> void:
+	if not _low_hp_filter_active or _lowpass_bus_idx < 0:
+		return
+	_low_hp_filter_active = false
+	AudioServer.set_bus_effect_enabled(_lowpass_bus_idx, 0, false)
+	# BGM 플레이어를 Master로 복귀
+	bgm_player.bus = "Master"
+	bgm_player_b.bus = "Master"
+
+
+## ===================== S58: 기억 연소 오디오 드라마 =====================
+## 고등급 기억(Grade 1-2) 연소 시: 0.3s 전체 덕 → 라이징 톤 → 번 SFX 레이어
+
+func _connect_memory_burn_drama() -> void:
+	var mm = get_node_or_null("/root/MemoryManager")
+	if mm == null:
+		call_deferred("_connect_memory_burn_drama_deferred")
+		return
+	if mm.has_signal("memory_burned") and not mm.memory_burned.is_connected(_on_memory_burned_drama):
+		mm.memory_burned.connect(_on_memory_burned_drama)
+
+func _connect_memory_burn_drama_deferred() -> void:
+	await get_tree().process_frame
+	var mm = get_node_or_null("/root/MemoryManager")
+	if mm and mm.has_signal("memory_burned"):
+		if not mm.memory_burned.is_connected(_on_memory_burned_drama):
+			mm.memory_burned.connect(_on_memory_burned_drama)
+
+func _on_memory_burned_drama(memory) -> void:
+	# Grade 1(=4) 또는 Grade 2(=3) — 고등급 기억 연소 시 드라마틱 연출
+	if memory.grade >= 3 and not _burn_drama_active:
+		_play_burn_drama()
+
+func _play_burn_drama() -> void:
+	_burn_drama_active = true
+	var master_idx = AudioServer.get_bus_index("Master")
+	var original_vol = AudioServer.get_bus_volume_db(master_idx)
+
+	# Phase 1: 전체 오디오 덕 (0.3초 침묵)
+	var t = create_tween()
+	t.tween_method(func(v: float):
+		AudioServer.set_bus_volume_db(master_idx, v)
+	, original_vol, -50.0, 0.08)
+
+	t.tween_interval(0.3)
+
+	# Phase 2: 라이징 톤 재생 + 볼륨 서서히 복원
+	t.tween_callback(func():
+		_play_rising_tone()
+	)
+	t.tween_method(func(v: float):
+		AudioServer.set_bus_volume_db(master_idx, v)
+	, -50.0, original_vol, 0.4)
+
+	# Phase 3: 번 SFX 레이어 발사
+	t.tween_callback(func():
+		play_combat_sfx("burn_ignite")
+		_burn_drama_active = false
+	)
+
+## 라이징 톤 — 침묵 후 극적으로 상승하는 음
+func _play_rising_tone() -> void:
+	var samples = PackedFloat32Array()
+	var sr = 22050
+	var duration = 0.5
+	for i in range(int(sr * duration)):
+		var t_val = float(i) / sr
+		var progress = t_val / duration
+		var env = progress * progress  # 점점 커짐
+		# 주파수 상승 — 저음에서 고음으로
+		var freq = lerpf(80.0, 600.0, progress * progress)
+		var wave = sin(t_val * freq * TAU) * 0.2
+		# 고조파 추가 — 풍성한 음색
+		wave += sin(t_val * freq * 2.0 * TAU) * 0.08
+		wave += sin(t_val * freq * 3.0 * TAU) * 0.04
+		# 노이즈 레이어 — 불안감
+		var noise = randf_range(-0.05, 0.05) * progress
+		samples.append((wave + noise) * env * 0.8)
+
+	var stream = _samples_to_stream(samples)
+	# 첫 번째 레이어 플레이어에 재생 (다른 전투 SFX와 겹치지 않는 타이밍)
+	if _combat_layer_players.size() > 0:
+		var player = _combat_layer_players[0]
+		player.stream = stream
+		player.volume_db = -4.0
+		player.pitch_scale = 1.0
+		player.play()

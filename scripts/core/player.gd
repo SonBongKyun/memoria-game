@@ -42,6 +42,10 @@ var _idle_time: float = 0.0
 const FIDGET_START: float = 5.0  # 5초 대기 후 피젯 시작
 var _fidget_timer: float = 0.0
 
+# --- S58: Movement squash/stretch ---
+var _was_moving: bool = false  # 이전 프레임 이동 상태 (시작/정지 감지용)
+var _move_squash_tween: Tween  # 현재 스쿼시/스트레치 트윈 (중복 방지)
+
 # --- S57: Interaction indicator ---
 var _interact_indicator: Label = null
 var _indicator_bob_time: float = 0.0
@@ -126,16 +130,29 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	# 애니메이션 방향
-	if input_vector != Vector2.ZERO:
+	var is_moving = input_vector != Vector2.ZERO
+	if is_moving:
 		facing_direction = input_vector
 		_update_animation(input_vector, true)
 		_update_raycast_direction()
-		if sprite:
-			sprite.scale = Vector2(1.0, 1.0)  # 이동 중 스케일 초기화
+		# S58: Movement start squash — brief compression when beginning to walk
+		if not _was_moving and sprite:
+			_play_move_squash(Vector2(0.95, 1.05), 0.05)
+		# S58: Sprint stretch — elongate in movement direction while sprinting
+		if _is_sprinting and sprite:
+			if abs(input_vector.x) > abs(input_vector.y):
+				sprite.scale = sprite.scale.lerp(Vector2(1.08, 0.92), 8.0 * delta)
+			else:
+				sprite.scale = sprite.scale.lerp(Vector2(0.92, 1.08), 8.0 * delta)
+		elif sprite:
+			sprite.scale = sprite.scale.lerp(Vector2(1.0, 1.0), 10.0 * delta)
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
 		_update_animation(facing_direction, false)
+		# S58: Movement stop stretch — brief elongation when stopping
+		if _was_moving and sprite:
+			_play_move_squash(Vector2(1.05, 0.95), 0.08)
 		# S52: 정지 시 호흡 미세 스케일 + S57: 피젯
 		_idle_time += delta
 		_breath_time += delta
@@ -146,7 +163,10 @@ func _physics_process(delta: float) -> void:
 				if _fidget_timer > randf_range(2.0, 4.0):
 					_fidget_timer = 0.0
 					_do_fidget()
-			sprite.scale = Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008)
+			# Only apply breathing if no active squash tween
+			if not _move_squash_tween or not _move_squash_tween.is_running():
+				sprite.scale = Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008)
+	_was_moving = is_moving
 
 	# S41: 지형별 발걸음 SFX
 	if input_vector != Vector2.ZERO:
@@ -280,6 +300,16 @@ func _do_fidget() -> void:
 	t.tween_property(sprite, "scale", Vector2(1.02, 0.98), 0.08)
 	t.tween_property(sprite, "scale", Vector2(0.98, 1.02), 0.08)
 	t.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.1)
+
+## S58: Movement squash/stretch — brief scale pop on start/stop
+func _play_move_squash(target_scale: Vector2, duration: float) -> void:
+	if not sprite:
+		return
+	if _move_squash_tween and _move_squash_tween.is_running():
+		_move_squash_tween.kill()
+	_move_squash_tween = create_tween()
+	_move_squash_tween.tween_property(sprite, "scale", target_scale, duration * 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_move_squash_tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), duration * 0.6).set_ease(Tween.EASE_IN_OUT)
 
 ## 인터랙션 인디케이터 업데이트
 func _update_interact_indicator(delta: float) -> void:

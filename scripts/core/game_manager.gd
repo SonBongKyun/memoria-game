@@ -219,8 +219,18 @@ func equip_item(equip_id: String) -> String:
 	if not EQUIPMENT.has(equip_id):
 		return ""
 	var slot: String = EQUIPMENT[equip_id].slot
+	# S58: Track old stats for delta popup
+	var old_atk = get_equip_bonus("atk")
+	var old_def = get_equip_bonus("def")
 	var old = equipped[slot]
 	equipped[slot] = equip_id
+	# S58: Emit stat change popups
+	var new_atk = get_equip_bonus("atk")
+	var new_def = get_equip_bonus("def")
+	if new_atk != old_atk:
+		stat_gained.emit("ATK", new_atk - old_atk)
+	if new_def != old_def:
+		stat_gained.emit("DEF", new_def - old_def)
 	# S55: Tutorial hint
 	TutorialHints.show_hint("first_equipment")
 	return old
@@ -234,6 +244,12 @@ func upgrade_equipment(equip_id: String) -> bool:
 		return false
 	player_data.grains -= cost
 	upgrade_levels[equip_id] = level + 1
+	# S58: Stat gain popup for upgrade (+3 per level to relevant stat)
+	var eq = EQUIPMENT[equip_id]
+	if eq.get("atk", 0) > 0:
+		stat_gained.emit("ATK", 3)
+	if eq.get("def", 0) > 0:
+		stat_gained.emit("DEF", 3)
 	return true
 
 func get_upgrade_level(equip_id: String) -> int:
@@ -371,6 +387,82 @@ func loc(key: String) -> String:
 	return key
 
 signal state_changed(new_state: GameState)
+signal stat_gained(stat_name: String, amount: int)  # S58: Progression feedback
+
+# --- S58: Chapter completion tracking ---
+var _chapter_start_battles: int = 0
+var _chapter_start_burns: int = 0
+var _chapter_start_time: float = 0.0
+
+# --- S58: Rich Presence ---
+## Map chapter numbers to human-readable names for Steam Rich Presence.
+const RICH_PRESENCE_CHAPTERS: Dictionary = {
+	1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation",
+	4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam",
+	7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste",
+	10: "BL-07 Void", 11: "Epilogue",
+}
+
+## Current rich presence string (for debugging / Steam API)
+var _rich_presence_status: String = "In Menu"
+
+## Update Steam Rich Presence status. Called on every state/map transition.
+## Shows "In Menu", "Exploring: Rim Forest", "In Battle: Void Beast", "Chapter 3: Weight of Pages" etc.
+func update_rich_presence(status: String) -> void:
+	_rich_presence_status = status
+	# --- GodotSteam Integration Point ---
+	# When GodotSteam is installed, uncomment:
+	#   if Steam.isSteamRunning():
+	#       Steam.setRichPresence("steam_display", "#Status")
+	#       Steam.setRichPresence("status", status)
+	#       Steam.setRichPresence("chapter", str(current_chapter))
+	# Reference: https://godotsteam.com/classes/friends/#setrichpresence
+	print("[RichPresence] %s" % status)
+
+## Build rich presence string for current exploration state.
+func _get_exploration_presence() -> String:
+	var ch_name = RICH_PRESENCE_CHAPTERS.get(current_chapter, "Unknown")
+	return "Exploring: %s (Ch.%d)" % [ch_name, current_chapter]
+
+## S58: Store page metadata — print game stats to console for store description copy.
+## Call from debug console or add to a debug menu. Counts dialogue lines, endings, etc.
+func print_store_stats() -> void:
+	# Count dialogue lines across all chapter JSON files
+	var total_lines: int = 0
+	var dialogue_dir = "res://data/"
+	for i in range(1, 12):
+		var filename = "chapter%d_dialogue.json" if i <= 10 else "epilogue_dialogue.json"
+		var path = dialogue_dir + (filename % i if i <= 10 else "epilogue_dialogue.json")
+		if FileAccess.file_exists(path):
+			var file = FileAccess.open(path, FileAccess.READ)
+			if file:
+				var json = JSON.new()
+				if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+					for key in json.data:
+						var dialogue = json.data[key]
+						if dialogue is Array:
+							total_lines += dialogue.size()
+						elif dialogue is Dictionary and dialogue.has("lines"):
+							total_lines += dialogue["lines"].size()
+				file.close()
+
+	var num_endings = ENDING_DATA.size()
+	var num_achievements = AchievementManager.ACHIEVEMENTS.size() if AchievementManager.has_method("get") else 28
+	var num_maps = 10  # 10 explorable maps
+	var est_hours = "6-10"  # estimated play time range
+
+	print("========== MEMORIA — Steam Store Stats ==========")
+	print("  Dialogue lines:    ~%d" % total_lines)
+	print("  Endings:           %d unique endings" % num_endings)
+	print("  Achievements:      %d" % num_achievements)
+	print("  Maps:              %d explorable areas" % num_maps)
+	print("  Chapters:          10 story chapters + epilogue")
+	print("  Estimated time:    %s hours (first playthrough)" % est_hours)
+	print("  Side quests:       6")
+	print("  Boss battles:      2+ (with Boss Rush mode)")
+	print("  NG+ cycles:        Unlimited (NG++ with extra content)")
+	print("  Languages:         English, Korean")
+	print("=================================================")
 
 func _ready() -> void:
 	_load_locale_early()  # S55: Load locale before other autoloads build UI
@@ -381,6 +473,14 @@ func _ready() -> void:
 	BattleManager.battle_started.connect(func(_e): add_stat("total_battles"))
 	BattleManager.battle_ended.connect(_on_battle_ended_stats)
 	BattleManager.combo_changed.connect(func(c): max_stat("highest_combo", c))
+	# S58: Track rich presence on battle start (enemy name)
+	BattleManager.battle_started.connect(func(e):
+		if e:
+			update_rich_presence("In Battle: %s" % e.name)
+	)
+	# S58: Initial rich presence + chapter tracking
+	update_rich_presence("In Menu")
+	mark_chapter_start()
 	print("[GameManager] Initialized — MEMORIA v0.1.0 (seen endings: %d)" % seen_endings.size())
 
 func _process(delta: float) -> void:
@@ -468,6 +568,18 @@ func change_state(new_state: GameState) -> void:
 	var old_state = current_state
 	current_state = new_state
 	state_changed.emit(new_state)
+	# S58: Update rich presence on every state change
+	match new_state:
+		GameState.EXPLORATION:
+			update_rich_presence(_get_exploration_presence())
+		GameState.MENU:
+			update_rich_presence("In Menu")
+		GameState.DIALOGUE:
+			update_rich_presence("In Dialogue (Ch.%d)" % current_chapter)
+		GameState.CUTSCENE:
+			update_rich_presence("Watching Cutscene (Ch.%d)" % current_chapter)
+		GameState.PAUSED:
+			pass  # Keep previous status during pause
 	print("[GameManager] State: %s -> %s" % [GameState.keys()[old_state], GameState.keys()[new_state]])
 
 ## 스토리 플래그
@@ -486,6 +598,28 @@ func pause_game() -> void:
 func unpause_game() -> void:
 	get_tree().paused = false
 	change_state(GameState.EXPLORATION)
+
+## S58: Track chapter start stats for completion screen
+func mark_chapter_start() -> void:
+	_chapter_start_battles = play_stats.get("total_battles", 0)
+	_chapter_start_burns = play_stats.get("total_burns", 0)
+	_chapter_start_time = play_stats.get("play_time_seconds", 0.0)
+
+## S58: Get chapter stats delta for completion screen
+func get_chapter_stats() -> Dictionary:
+	return {
+		"battles": play_stats.get("total_battles", 0) - _chapter_start_battles,
+		"burns": play_stats.get("total_burns", 0) - _chapter_start_burns,
+		"time_seconds": play_stats.get("play_time_seconds", 0.0) - _chapter_start_time,
+	}
+
+## S58: Notify HP increase (called when max_hp changes)
+func set_max_hp(new_max: int) -> void:
+	var old_max = player_data.max_hp
+	player_data.max_hp = new_max
+	if new_max > old_max:
+		stat_gained.emit("MAX HP", new_max - old_max)
+	player_data.hp = mini(player_data.hp, player_data.max_hp)
 
 ## 세이브용 데이터 내보내기
 func export_data() -> Dictionary:

@@ -175,7 +175,8 @@ func _on_departure_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[BeltWaystation] Chapter 3 complete — heading to Drift Shelter")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/drift_shelter.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/drift_shelter.tscn", 3)
 
 ## ===================== 전투 트리거 =====================
 

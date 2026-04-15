@@ -2,6 +2,7 @@
 ## 세이브/로드 시스템. JSON 파일로 게임 상태 저장.
 ## F6 = 퀵세이브(슬롯 1), F7 = 퀵로드(슬롯 1)
 ## S56: Autosave + Save Backup + Corruption Recovery
+## S58: Steam Cloud save hooks (GodotSteam integration-ready)
 extends Node
 
 const SAVE_DIR: String = "user://saves/"
@@ -369,3 +370,88 @@ func _get_current_scene_path() -> String:
 	if scene and scene.scene_file_path != "":
 		return scene.scene_file_path
 	return ""
+
+## ===================== S58: Steam Cloud Save Hooks =====================
+##
+## GodotSteam integration stubs. When GodotSteam plugin is installed:
+## 1. Replace is_cloud_available() body with: return Steam.isCloudEnabledForAccount()
+## 2. In cloud_save(), after local write, call Steam.fileWrite(filename, bytes)
+## 3. In cloud_load(), call Steam.fileRead(filename) and parse JSON
+## 4. Add Steam.steamInit() in game_manager.gd _ready()
+## Reference: https://godotsteam.com/classes/remote_storage/
+
+## Check if Steam Cloud is available. Stub returns false until GodotSteam is connected.
+func is_cloud_available() -> bool:
+	# --- GodotSteam Integration Point ---
+	# Replace with:
+	#   if not Steam.isSteamRunning():
+	#       return false
+	#   return Steam.isCloudEnabledForAccount() and Steam.isCloudEnabledForApp()
+	return false
+
+## Write save data to Steam Cloud (falls back to local save).
+## Call this instead of save_game() when Steam integration is active.
+func cloud_save(slot: int) -> bool:
+	# Always save locally first (acts as cache and offline fallback)
+	var local_ok = save_game(slot)
+	if not local_ok:
+		return false
+
+	if not is_cloud_available():
+		return local_ok  # Local save succeeded, cloud not available
+
+	# --- GodotSteam Integration Point ---
+	# var path = _get_save_path(slot)
+	# var file = FileAccess.open(path, FileAccess.READ)
+	# if file:
+	#     var content = file.get_as_text()
+	#     file.close()
+	#     var cloud_filename = "memoria_save_%d.json" % slot
+	#     var bytes = content.to_utf8_buffer()
+	#     var success = Steam.fileWrite(cloud_filename, bytes)
+	#     if success:
+	#         print("[SaveManager] Cloud save slot %d synced (%d bytes)" % [slot, bytes.size()])
+	#     else:
+	#         push_warning("[SaveManager] Cloud save failed for slot %d" % slot)
+	#     return success
+
+	print("[SaveManager] Cloud save stub — local save only (slot %d)" % slot)
+	return local_ok
+
+## Load save data from Steam Cloud (falls back to local if unavailable).
+func cloud_load(slot: int) -> bool:
+	if not is_cloud_available():
+		return load_game(slot)  # Fallback to local
+
+	# --- GodotSteam Integration Point ---
+	# var cloud_filename = "memoria_save_%d.json" % slot
+	# if not Steam.fileExists(cloud_filename):
+	#     print("[SaveManager] No cloud save for slot %d, trying local" % slot)
+	#     return load_game(slot)
+	#
+	# var file_size = Steam.getFileSize(cloud_filename)
+	# var cloud_data = Steam.fileRead(cloud_filename, file_size)
+	# if cloud_data.is_empty():
+	#     push_warning("[SaveManager] Cloud read failed for slot %d" % slot)
+	#     return load_game(slot)
+	#
+	# # Write cloud data to local path, then load normally
+	# var local_path = _get_save_path(slot)
+	# var file = FileAccess.open(local_path, FileAccess.WRITE)
+	# if file:
+	#     file.store_string(cloud_data.get_string_from_utf8())
+	#     file.close()
+	# print("[SaveManager] Cloud load slot %d synced (%d bytes)" % [slot, file_size])
+	# return load_game(slot)
+
+	print("[SaveManager] Cloud load stub — local load only (slot %d)" % slot)
+	return load_game(slot)
+
+## Get cloud save info (for save slot UI — show cloud icon if synced).
+func has_cloud_save(slot: int) -> bool:
+	if not is_cloud_available():
+		return false
+	# --- GodotSteam Integration Point ---
+	# var cloud_filename = "memoria_save_%d.json" % slot
+	# return Steam.fileExists(cloud_filename)
+	return false

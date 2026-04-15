@@ -139,7 +139,8 @@ func _on_departure_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[ForgottenForest] Chapter 8 complete — entering Colorless Waste")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/colorless_waste.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/colorless_waste.tscn", 8)
 
 ## ===================== 전투 트리거 =====================
 

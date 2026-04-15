@@ -83,6 +83,14 @@ var battle_vfx: BattleVFX
 var _turn_dim_overlay: ColorRect
 var _combo_display_label: Label
 
+# S58: Burn Preview Popup — risk/reward decision UI
+var _burn_preview_panel: PanelContainer
+var _burn_preview_dimmer: ColorRect
+var _burn_preview_confirm_btn: Button
+var _burn_preview_cancel_btn: Button
+var _burn_preview_timer: SceneTreeTimer  # delay before buttons become clickable
+var _pending_burn_id: String = ""  # memory ID waiting for confirmation
+
 # S54: Victory screen
 var _victory_panel: PanelContainer
 var _victory_rewards: Array = []  # collected reward lines from battle_log
@@ -231,6 +239,9 @@ func _build_ui() -> void:
 
 	# S55: Auto Battle 라벨
 	_build_auto_label(root)
+
+	# S58: Burn Preview Popup (hidden by default)
+	_build_burn_preview(root)
 
 	# S57: 턴 전환 딤 오버레이
 	_turn_dim_overlay = ColorRect.new()
@@ -1119,6 +1130,8 @@ func _connect_signals() -> void:
 	BattleManager.enemy_scanned.connect(_on_enemy_scanned)  # S55: scan display
 	BattleManager.environment_info.connect(_on_environment_info)  # S55: env display
 	BattleManager.auto_battle_changed.connect(_on_auto_battle_changed)  # S55: auto battle
+	BattleManager.pre_attack.connect(_on_pre_attack)  # S58: anticipation
+	BattleManager.victory_rewards_ready.connect(_on_victory_rewards_ready)  # S58: animated rewards
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -1147,6 +1160,10 @@ func _exit_tree() -> void:
 		BattleManager.environment_info.disconnect(_on_environment_info)
 	if BattleManager.auto_battle_changed.is_connected(_on_auto_battle_changed):
 		BattleManager.auto_battle_changed.disconnect(_on_auto_battle_changed)
+	if BattleManager.pre_attack.is_connected(_on_pre_attack):
+		BattleManager.pre_attack.disconnect(_on_pre_attack)
+	if BattleManager.victory_rewards_ready.is_connected(_on_victory_rewards_ready):
+		BattleManager.victory_rewards_ready.disconnect(_on_victory_rewards_ready)
 	# S56: Cleanup battle VFX status particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
@@ -1233,9 +1250,18 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		await get_tree().create_timer(hit_stop_dur, true, false, true).timeout
 		Engine.time_scale = prev_scale
 
-	# S44: 공격 돌진 애니메이션
-	if target != "Arrel" and player_sprite_container:
-		_player_attack_rush()
+	# S58: Impact squash on enemy hit (stretch vertically = getting compressed by blow)
+	if target != "Arrel" and enemy_sprite:
+		var impact_t = create_tween()
+		impact_t.tween_property(enemy_sprite, "scale", Vector2(1.15, 0.85), 0.04).set_ease(Tween.EASE_OUT)
+		impact_t.tween_property(enemy_sprite, "scale", Vector2(0.95, 1.05), 0.06).set_ease(Tween.EASE_OUT)
+		impact_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_IN_OUT)
+	# S58: Player squash on getting hit (squash = pain compression)
+	elif target == "Arrel" and player_sprite:
+		var hurt_squash = create_tween()
+		hurt_squash.tween_property(player_sprite, "scale", Vector2(0.85, 1.15), 0.05).set_ease(Tween.EASE_OUT)
+		hurt_squash.tween_property(player_sprite, "scale", Vector2(1.05, 0.95), 0.07).set_ease(Tween.EASE_OUT)
+		hurt_squash.tween_property(player_sprite, "scale", Vector2(1.0, 1.0), 0.1).set_ease(Tween.EASE_IN_OUT)
 
 	# S56: Enhanced damage numbers via BattleVFX
 	if battle_vfx:
@@ -1273,6 +1299,62 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		# S56: Physical sparks
 		if battle_vfx:
 			battle_vfx.play_element_particles("physical")
+
+## S58: Anticipation + Follow-through attack sequence
+## Plays wind-up squash, lunge strike, then follow-through return
+## Called BEFORE damage is dealt — BattleManager awaits timer in parallel
+func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
+	if attacker == "Arrel":
+		# --- Player attacking enemy ---
+		if not player_sprite or not player_sprite_container:
+			return
+		var rush_target = Vector2(_enemy_base_pos.x - 180, _player_base_pos.y - 10)
+		# Phase 1: Anticipation — squash (wind-up, lean back)
+		var antic_t = create_tween()
+		antic_t.tween_property(player_sprite, "scale", Vector2(1.1, 0.9), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		antic_t.set_parallel(true)
+		antic_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x - 8, 0.1).set_ease(Tween.EASE_OUT)
+		await antic_t.finished
+		# Phase 2: Strike — stretch + lunge forward
+		var strike_t = create_tween()
+		strike_t.set_parallel(true)
+		strike_t.tween_property(player_sprite, "scale", Vector2(0.9, 1.1), 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		strike_t.tween_property(player_sprite_container, "position", rush_target, 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		await strike_t.finished
+		# Phase 3: Impact freeze (brief hold at contact point — damage applied by BattleManager during this)
+		await get_tree().create_timer(0.05).timeout
+		# Phase 4: Follow-through — return with overshoot
+		var return_t = create_tween()
+		return_t.tween_property(player_sprite_container, "position", _player_base_pos + Vector2(-5, 0), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		return_t.tween_property(player_sprite_container, "position", _player_base_pos, 0.08).set_ease(Tween.EASE_IN_OUT)
+		# Scale reset runs in parallel with the position return
+		var scale_t = create_tween()
+		scale_t.tween_property(player_sprite, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
+	else:
+		# --- Enemy attacking player ---
+		if not enemy_sprite or not enemy_sprite_container:
+			return
+		# Phase 1: Anticipation — enemy squash (coil back)
+		var antic_t = create_tween()
+		antic_t.tween_property(enemy_sprite, "scale", Vector2(1.1, 0.9), 0.1).set_ease(Tween.EASE_OUT)
+		antic_t.set_parallel(true)
+		antic_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 8, 0.1).set_ease(Tween.EASE_OUT)
+		await antic_t.finished
+		# Phase 2: Strike — enemy lunges LEFT toward player
+		var strike_t = create_tween()
+		strike_t.set_parallel(true)
+		strike_t.tween_property(enemy_sprite, "scale", Vector2(0.9, 1.1), 0.08).set_ease(Tween.EASE_IN)
+		strike_t.tween_property(enemy_sprite_container, "position:x", _player_base_pos.x + 200, 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		await strike_t.finished
+		# Phase 3: Hold at impact
+		await get_tree().create_timer(0.05).timeout
+		# Phase 4: Follow-through — enemy returns with overshoot
+		var return_t = create_tween()
+		return_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 5, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		return_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x, 0.08).set_ease(Tween.EASE_IN_OUT)
+		# Scale reset runs in parallel with the position return
+		var scale_t = create_tween()
+		scale_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
 
 func _on_player_turn() -> void:
 	# S57: Turn transition dim effect
@@ -1337,6 +1419,7 @@ func _on_battle_ended(_result) -> void:
 		tobias_cmd_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	_hide_burn_preview()  # S58: dismiss preview if open
 	# S56: Cleanup status effect particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
@@ -1350,11 +1433,8 @@ func _on_battle_ended(_result) -> void:
 	# S56: Defeat dramatic slow-motion effect
 	if _result == BattleManager.BattleState.DEFEAT and battle_vfx:
 		battle_vfx.play_defeat_effect()
-	# S54: 승리 화면 표시
-	if _result == BattleManager.BattleState.VICTORY:
-		# Short delay for dissolve to play, then show victory screen
-		await get_tree().create_timer(0.4).timeout
-		_show_victory_screen()
+	# S58: Victory rewards screen is now built by _on_victory_rewards_ready signal
+	# (emitted from BattleManager._cleanup after rewards are computed)
 
 ## ===================== 행동 콜백 =====================
 
@@ -1459,14 +1539,12 @@ func _toggle_burn_list() -> void:
 				btn.add_theme_color_override("font_hover_color", Color(0.95, 0.7, 0.4))
 
 				var mid = memory.id
-				var mem_title = memory.title
-				var mem_grade = memory.grade
+				var mem_ref = memory  # capture reference for preview
 				btn.pressed.connect(func():
 					AudioManager.play_sfx("ui_select")
-					action_container.visible = false
 					_hide_burn_list()
-					# S56: Dramatic memory burn sequence before dealing damage
-					_play_memory_burn_then_execute(mid, mem_title, mem_grade)
+					# S58: Show burn preview popup instead of immediate execution
+					_show_burn_preview(mem_ref)
 				)
 				btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 				burn_list_container.add_child(btn)
@@ -2904,10 +2982,23 @@ func _on_environment_info(env_name: String, bonus_text: String) -> void:
 	t2.tween_property(lbl, "modulate:a", 0.0, 0.5)
 	t2.tween_callback(lbl.queue_free)
 
-## ===================== S54: Victory Screen =====================
+## ===================== S54/S58: Victory Rewards Screen (animated) =====================
+
+var _rewards_can_dismiss: bool = false  # S58: true after all reveals done
 
 func _show_victory_screen() -> void:
-	var is_boss = BattleManager.current_enemy and BattleManager.current_enemy.is_boss
+	# S58: Now just a placeholder — real rewards screen is built by _on_victory_rewards_ready
+	pass
+
+## S58: Animated post-battle rewards screen
+func _on_victory_rewards_ready(rewards: Dictionary) -> void:
+	var is_boss: bool = rewards.get("is_boss", false)
+	var grains: int = rewards.get("grains", 0)
+	var heal: int = rewards.get("heal", 0)
+	var item_name: String = rewards.get("item", "")
+	var enemy_name: String = rewards.get("enemy_name", "Unknown")
+	var battles_total: int = rewards.get("battles_total", 0)
+	_rewards_can_dismiss = false
 
 	# Semi-transparent backdrop
 	var backdrop = ColorRect.new()
@@ -2917,93 +3008,562 @@ func _show_victory_screen() -> void:
 	backdrop.z_index = 80
 	canvas_root.add_child(backdrop)
 	var t_bg = create_tween()
-	t_bg.tween_property(backdrop, "color:a", 0.5, 0.3)
+	t_bg.tween_property(backdrop, "color:a", 0.55, 0.3)
 
-	# Victory panel
+	# Victory panel (wider for new layout)
 	_victory_panel = PanelContainer.new()
 	_victory_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_victory_panel.offset_left = -180
-	_victory_panel.offset_right = 180
-	_victory_panel.offset_top = -120
-	_victory_panel.offset_bottom = 120
+	_victory_panel.offset_left = -210
+	_victory_panel.offset_right = 210
+	_victory_panel.offset_top = -145
+	_victory_panel.offset_bottom = 145
 	_victory_panel.z_index = 85
 
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.06, 0.05, 0.08, 0.95)
+	panel_style.bg_color = Color(0.04, 0.035, 0.06, 0.96)
 	panel_style.border_color = Color(0.75, 0.6, 0.3, 0.9) if not is_boss else Color(0.9, 0.3, 0.2, 0.9)
 	panel_style.set_border_width_all(2)
-	panel_style.set_corner_radius_all(6)
-	panel_style.set_content_margin_all(16)
+	panel_style.set_corner_radius_all(8)
+	panel_style.set_content_margin_all(18)
 	_victory_panel.add_theme_stylebox_override("panel", panel_style)
 	canvas_root.add_child(_victory_panel)
 
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", 6)
 	_victory_panel.add_child(vbox)
 
-	# Title text
+	# --- TITLE ---
 	var title = Label.new()
 	title.text = "BOSS DEFEATED" if is_boss else "VICTORY"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var title_color = Color(0.95, 0.4, 0.3) if is_boss else Color(0.9, 0.8, 0.5)
 	title.add_theme_color_override("font_color", title_color)
 	title.add_theme_font_size_override("font_size", 28 if is_boss else 24)
+	title.add_theme_color_override("font_outline_color", Color(0.15, 0.1, 0.05))
+	title.add_theme_constant_override("outline_size", 2)
 	vbox.add_child(title)
 
-	# Scale animation for title
-	title.pivot_offset = Vector2(180, 16)
+	# Title scale-in animation
+	title.pivot_offset = Vector2(210, 16)
 	title.scale = Vector2(0.3, 0.3)
 	var t_title = create_tween()
 	t_title.tween_property(title, "scale", Vector2(1.0, 1.0), 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# Defeated enemy subtitle
+	var enemy_line = Label.new()
+	enemy_line.text = "Defeated: %s" % enemy_name
+	enemy_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	enemy_line.add_theme_font_size_override("font_size", 11)
+	enemy_line.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.0))
+	vbox.add_child(enemy_line)
 
 	# Separator
 	var sep = HSeparator.new()
 	sep.add_theme_color_override("separator", Color(0.4, 0.35, 0.25, 0.6))
 	vbox.add_child(sep)
 
-	# Rewards list
-	var rewards_label = Label.new()
-	rewards_label.add_theme_font_size_override("font_size", 13)
-	rewards_label.add_theme_color_override("font_color", Color(0.75, 0.7, 0.6))
-	if _victory_rewards.size() > 0:
-		rewards_label.text = "\n".join(_victory_rewards)
-	else:
-		rewards_label.text = "No additional rewards."
-	vbox.add_child(rewards_label)
+	# --- BATTLE GROWTH BAR (visual progress, battles_total as proxy) ---
+	var growth_row = HBoxContainer.new()
+	growth_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(growth_row)
 
-	# Enemy name
-	var enemy_line = Label.new()
-	enemy_line.add_theme_font_size_override("font_size", 11)
-	enemy_line.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.7))
-	if BattleManager.current_enemy:
-		enemy_line.text = "Defeated: %s" % BattleManager.current_enemy.name
-	vbox.add_child(enemy_line)
+	var growth_lbl = Label.new()
+	growth_lbl.text = "Battle Experience"
+	growth_lbl.add_theme_font_size_override("font_size", 12)
+	growth_lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.45, 0.0))
+	growth_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	growth_row.add_child(growth_lbl)
 
-	# Spacer
+	var growth_bar = ProgressBar.new()
+	growth_bar.custom_minimum_size = Vector2(140, 14)
+	growth_bar.max_value = 100
+	growth_bar.value = 0
+	growth_bar.show_percentage = false
+	var growth_fill = StyleBoxFlat.new()
+	growth_fill.bg_color = Color(0.7, 0.55, 0.25)
+	growth_fill.set_corner_radius_all(3)
+	growth_bar.add_theme_stylebox_override("fill", growth_fill)
+	var growth_bg = StyleBoxFlat.new()
+	growth_bg.bg_color = Color(0.12, 0.1, 0.08)
+	growth_bg.set_corner_radius_all(3)
+	growth_bar.add_theme_stylebox_override("background", growth_bg)
+	growth_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	growth_row.add_child(growth_bar)
+
+	# --- GRAINS EARNED ---
+	var grains_row = HBoxContainer.new()
+	grains_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(grains_row)
+
+	var grains_icon = Label.new()
+	grains_icon.text = "Grains Earned"
+	grains_icon.add_theme_font_size_override("font_size", 13)
+	grains_icon.add_theme_color_override("font_color", Color(0.85, 0.7, 0.35, 0.0))
+	grains_icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grains_row.add_child(grains_icon)
+
+	var grains_value = Label.new()
+	grains_value.text = "0"
+	grains_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	grains_value.add_theme_font_size_override("font_size", 16)
+	grains_value.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4, 0.0))
+	grains_value.add_theme_color_override("font_outline_color", Color(0.2, 0.15, 0.0))
+	grains_value.add_theme_constant_override("outline_size", 2)
+	grains_row.add_child(grains_value)
+
+	# --- HP RECOVERED ---
+	var heal_row = HBoxContainer.new()
+	heal_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(heal_row)
+
+	var heal_lbl = Label.new()
+	heal_lbl.text = "HP Recovered"
+	heal_lbl.add_theme_font_size_override("font_size", 12)
+	heal_lbl.add_theme_color_override("font_color", Color(0.4, 0.8, 0.45, 0.0))
+	heal_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heal_row.add_child(heal_lbl)
+
+	var heal_val = Label.new()
+	heal_val.text = "+%d" % heal
+	heal_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	heal_val.add_theme_font_size_override("font_size", 13)
+	heal_val.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5, 0.0))
+	heal_row.add_child(heal_val)
+
+	# --- ITEM DROP ---
+	var item_row = HBoxContainer.new()
+	item_row.add_theme_constant_override("separation", 8)
+	item_row.modulate.a = 0.0
+	vbox.add_child(item_row)
+
+	var item_lbl = Label.new()
+	item_lbl.text = "Item Found"
+	item_lbl.add_theme_font_size_override("font_size", 12)
+	item_lbl.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+	item_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_row.add_child(item_lbl)
+
+	var item_val = Label.new()
+	item_val.text = item_name if item_name != "" else "None"
+	item_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	item_val.add_theme_font_size_override("font_size", 13)
+	item_val.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0) if item_name != "" else Color(0.4, 0.38, 0.35))
+	item_row.add_child(item_val)
+
+	# --- MEMORY ACQUIRED (from _victory_rewards) ---
+	var has_memory_reward = false
+	for r in _victory_rewards:
+		if "Memory" in r or "memory" in r:
+			has_memory_reward = true
+			break
+
+	var memory_row = HBoxContainer.new()
+	memory_row.add_theme_constant_override("separation", 8)
+	memory_row.modulate.a = 0.0
+	vbox.add_child(memory_row)
+
+	if has_memory_reward:
+		var mem_lbl = Label.new()
+		mem_lbl.text = "Memory Acquired"
+		mem_lbl.add_theme_font_size_override("font_size", 13)
+		mem_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+		mem_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		memory_row.add_child(mem_lbl)
+
+	# --- SPACER ---
 	var spacer = Control.new()
-	spacer.custom_minimum_size = Vector2(0, 8)
+	spacer.custom_minimum_size = Vector2(0, 4)
 	vbox.add_child(spacer)
 
-	# Dismiss hint
+	# --- CONTINUE hint (hidden initially) ---
 	var hint = Label.new()
 	hint.text = "Press any key to continue"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 10)
-	hint.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.5))
+	hint.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.0))
 	vbox.add_child(hint)
-
-	# Blink hint text
-	var t_hint = create_tween().set_loops()
-	t_hint.tween_property(hint, "modulate:a", 0.3, 0.6)
-	t_hint.tween_property(hint, "modulate:a", 1.0, 0.6)
 
 	# Panel entrance animation
 	_victory_panel.modulate.a = 0.0
-	_victory_panel.scale = Vector2(0.8, 0.8)
-	_victory_panel.pivot_offset = Vector2(180, 120)
+	_victory_panel.scale = Vector2(0.85, 0.85)
+	_victory_panel.pivot_offset = Vector2(210, 145)
 	var t_panel = create_tween().set_parallel(true)
 	t_panel.tween_property(_victory_panel, "modulate:a", 1.0, 0.3)
 	t_panel.tween_property(_victory_panel, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# ====== SEQUENTIAL REVEAL ANIMATION ======
+	# 0.3s: Enemy name fades in
+	var tw_seq = create_tween()
+	tw_seq.tween_interval(0.3)
+	tw_seq.tween_property(enemy_line, "theme_override_colors/font_color", Color(0.5, 0.45, 0.4, 0.8), 0.25)
+
+	# 0.6s: Growth bar fills
+	tw_seq.tween_interval(0.1)
+	tw_seq.tween_property(growth_lbl, "theme_override_colors/font_color", Color(0.6, 0.55, 0.45, 1.0), 0.2)
+	var bar_target = clampf(fmod(float(battles_total), 20.0) / 20.0 * 100.0, 5.0, 100.0)
+	tw_seq.tween_property(growth_bar, "value", bar_target, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+	# 1.0s: Grains count up
+	tw_seq.tween_property(grains_icon, "theme_override_colors/font_color", Color(0.85, 0.7, 0.35, 1.0), 0.15)
+	tw_seq.tween_property(grains_value, "theme_override_colors/font_color", Color(1.0, 0.9, 0.4, 1.0), 0.15)
+	# Count-up animation for grains (step by step)
+	if grains > 0:
+		var grain_steps = mini(grains, 20)  # Max 20 ticks
+		var grain_per_step = maxi(grains / grain_steps, 1)
+		for i in range(grain_steps):
+			var display_val = mini((i + 1) * grain_per_step, grains)
+			tw_seq.tween_callback(func(): grains_value.text = str(display_val))
+			tw_seq.tween_callback(func(): AudioManager.play_sfx("ui_select"))
+			tw_seq.tween_interval(0.04)
+		tw_seq.tween_callback(func(): grains_value.text = str(grains))
+
+	# Heal line
+	tw_seq.tween_interval(0.15)
+	tw_seq.tween_property(heal_lbl, "theme_override_colors/font_color", Color(0.4, 0.8, 0.45, 1.0), 0.2)
+	tw_seq.tween_property(heal_val, "theme_override_colors/font_color", Color(0.5, 0.9, 0.5, 1.0), 0.15)
+
+	# Item drop (slide in with pop)
+	tw_seq.tween_interval(0.2)
+	if item_name != "":
+		tw_seq.tween_property(item_row, "modulate:a", 1.0, 0.2)
+		tw_seq.tween_callback(func(): AudioManager.play_sfx("ui_select"))
+		# Pop scale
+		tw_seq.tween_property(item_row, "scale", Vector2(1.08, 1.08), 0.1)
+		tw_seq.tween_property(item_row, "scale", Vector2(1.0, 1.0), 0.1)
+	else:
+		tw_seq.tween_property(item_row, "modulate:a", 0.5, 0.2)
+
+	# Memory (golden glow + special sound)
+	if has_memory_reward:
+		tw_seq.tween_interval(0.3)
+		tw_seq.tween_property(memory_row, "modulate:a", 1.0, 0.3)
+		tw_seq.tween_callback(func(): AudioManager.play_sfx("memory_add"))
+		# Gold flash behind memory row
+		tw_seq.tween_property(memory_row, "modulate", Color(1.3, 1.2, 0.8, 1.0), 0.15)
+		tw_seq.tween_property(memory_row, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.3)
+
+	# Show continue hint after all reveals (1.5s minimum from start)
+	tw_seq.tween_interval(0.4)
+	tw_seq.tween_property(hint, "theme_override_colors/font_color", Color(0.5, 0.45, 0.4, 0.6), 0.2)
+	tw_seq.tween_callback(func(): _rewards_can_dismiss = true)
+
+	# Blink hint text
+	var t_hint = create_tween().set_loops()
+	t_hint.tween_interval(1.5)  # Wait for hint to appear first
+	t_hint.tween_property(hint, "modulate:a", 0.3, 0.6)
+	t_hint.tween_property(hint, "modulate:a", 1.0, 0.6)
+
+## S58: Handle input to dismiss the rewards screen
+func _unhandled_input(event: InputEvent) -> void:
+	if _victory_panel and _rewards_can_dismiss:
+		if event is InputEventKey and event.pressed:
+			_dismiss_rewards()
+		elif event is InputEventMouseButton and event.pressed:
+			_dismiss_rewards()
+		elif event is InputEventJoypadButton and event.pressed:
+			_dismiss_rewards()
+
+func _dismiss_rewards() -> void:
+	_rewards_can_dismiss = false
+	AudioManager.play_sfx("ui_select")
+	BattleManager.dismiss_victory()
+	# Fade out victory panel
+	if _victory_panel and is_instance_valid(_victory_panel):
+		var tw = create_tween()
+		tw.tween_property(_victory_panel, "modulate:a", 0.0, 0.25)
+		tw.tween_callback(_victory_panel.queue_free)
+
+## ===================== S58: Burn Preview Popup (Risk/Reward) =====================
+
+## Grade color map for the preview
+const GRADE_COLORS: Dictionary = {
+	0: Color(0.5, 0.5, 0.45),   # Grade 5 — gray
+	1: Color(0.4, 0.65, 0.4),   # Grade 4 — green
+	2: Color(0.3, 0.5, 0.85),   # Grade 3 — blue
+	3: Color(0.7, 0.4, 0.85),   # Grade 2 — purple
+	4: Color(0.95, 0.75, 0.2),  # Grade 1 — gold
+}
+
+const GRADE_LABELS: Dictionary = {
+	0: "Grade 5 — Sensory Fragment",
+	1: "Grade 4 — Daily Memory",
+	2: "Grade 3 — Relationship",
+	3: "Grade 2 — Identity",
+	4: "Grade 1 — Core Memory",
+}
+
+## Build the burn preview popup (hidden by default, shown on memory selection).
+func _build_burn_preview(root: Control) -> void:
+	# Dimmer background
+	_burn_preview_dimmer = ColorRect.new()
+	_burn_preview_dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_burn_preview_dimmer.color = Color(0, 0, 0, 0.6)
+	_burn_preview_dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
+	_burn_preview_dimmer.z_index = 90
+	_burn_preview_dimmer.visible = false
+	root.add_child(_burn_preview_dimmer)
+
+	# Main panel
+	_burn_preview_panel = PanelContainer.new()
+	_burn_preview_panel.anchor_left = 0.15
+	_burn_preview_panel.anchor_right = 0.85
+	_burn_preview_panel.anchor_top = 0.18
+	_burn_preview_panel.anchor_bottom = 0.82
+	_burn_preview_panel.z_index = 91
+	_burn_preview_panel.visible = false
+
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.04, 0.03, 0.06, 0.97)
+	panel_style.border_color = Color(0.7, 0.35, 0.15, 0.85)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(6)
+	panel_style.set_content_margin_all(20)
+	_burn_preview_panel.add_theme_stylebox_override("panel", panel_style)
+
+	root.add_child(_burn_preview_panel)
+
+## Show the burn preview popup for a memory before confirming the burn.
+func _show_burn_preview(memory: MemoryManager.Memory) -> void:
+	_pending_burn_id = memory.id
+
+	# Clear previous content
+	for child in _burn_preview_panel.get_children():
+		child.queue_free()
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	_burn_preview_panel.add_child(vbox)
+
+	# --- Header: "BURN MEMORY?" ---
+	var header = Label.new()
+	header.text = "BURN THIS MEMORY?"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 18)
+	header.add_theme_color_override("font_color", Color(0.9, 0.55, 0.2))
+	vbox.add_child(header)
+
+	# --- Separator ---
+	var sep = HSeparator.new()
+	sep.add_theme_constant_override("separation", 8)
+	vbox.add_child(sep)
+
+	# --- Memory name + grade (colored) ---
+	var grade_color = GRADE_COLORS.get(memory.grade, Color(0.6, 0.6, 0.6))
+	var grade_label_text = GRADE_LABELS.get(memory.grade, "Grade %d" % memory.grade)
+
+	var name_label = Label.new()
+	name_label.text = memory.title
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_color_override("font_color", grade_color)
+	vbox.add_child(name_label)
+
+	var grade_lbl = Label.new()
+	grade_lbl.text = grade_label_text
+	grade_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	grade_lbl.add_theme_font_size_override("font_size", 12)
+	grade_lbl.add_theme_color_override("font_color", Color(grade_color.r * 0.7, grade_color.g * 0.7, grade_color.b * 0.7))
+	vbox.add_child(grade_lbl)
+
+	# --- Spacer ---
+	var spacer1 = Control.new()
+	spacer1.custom_minimum_size.y = 6
+	vbox.add_child(spacer1)
+
+	# --- POWER GAINED ---
+	var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
+	var eff_power = MemoryManager.get_effective_burn_power(memory)
+	var total_dmg = skill.base_damage + eff_power
+	# Apply bonuses (ember_affinity passive)
+	if MemoryManager.has_passive("ember_affinity"):
+		total_dmg = int(total_dmg * 1.1)
+
+	var power_label = Label.new()
+	power_label.text = "POWER GAINED:  +%d damage  (%s)" % [total_dmg, skill.name]
+	power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	power_label.add_theme_font_size_override("font_size", 14)
+	power_label.add_theme_color_override("font_color", Color(0.3, 0.9, 0.4))
+	vbox.add_child(power_label)
+
+	# Erosion warning if applicable
+	if memory.erosion > 0:
+		var erosion_pct = int(MemoryManager.get_erosion_ratio(memory) * 100)
+		var erosion_label = Label.new()
+		erosion_label.text = "Eroded: %d%% — effective power reduced" % erosion_pct
+		erosion_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		erosion_label.add_theme_font_size_override("font_size", 11)
+		erosion_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.3))
+		vbox.add_child(erosion_label)
+
+	# --- COST: What you lose ---
+	var spacer2 = Control.new()
+	spacer2.custom_minimum_size.y = 4
+	vbox.add_child(spacer2)
+
+	var cost_header = Label.new()
+	cost_header.text = "COST:"
+	cost_header.add_theme_font_size_override("font_size", 13)
+	cost_header.add_theme_color_override("font_color", Color(0.85, 0.35, 0.3))
+	vbox.add_child(cost_header)
+
+	var desc_label = Label.new()
+	desc_label.text = memory.description
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.add_theme_font_size_override("font_size", 12)
+	desc_label.add_theme_color_override("font_color", Color(0.6, 0.55, 0.5))
+	vbox.add_child(desc_label)
+
+	# --- Story effect hint ---
+	if memory.story_effect != "":
+		var effect_label = Label.new()
+		effect_label.text = "This will change the world around you."
+		effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		effect_label.add_theme_font_size_override("font_size", 11)
+		effect_label.add_theme_color_override("font_color", Color(0.6, 0.45, 0.7))
+		vbox.add_child(effect_label)
+
+	# --- Irreplaceable warning for Grade 1-2 (high value memories) ---
+	if memory.grade >= MemoryManager.MemoryGrade.GRADE_2:  # Grade 2 or Grade 1
+		var warn_label = Label.new()
+		warn_label.text = "WARNING: This memory is irreplaceable"
+		warn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		warn_label.add_theme_font_size_override("font_size", 13)
+		warn_label.add_theme_color_override("font_color", Color(0.95, 0.25, 0.2))
+		vbox.add_child(warn_label)
+
+		# Pulse animation on the warning
+		var pulse_tween = create_tween().set_loops()
+		pulse_tween.tween_property(warn_label, "modulate:a", 0.5, 0.6)
+		pulse_tween.tween_property(warn_label, "modulate:a", 1.0, 0.6)
+
+	# --- Spacer before buttons ---
+	var spacer3 = Control.new()
+	spacer3.custom_minimum_size.y = 10
+	vbox.add_child(spacer3)
+
+	# --- Buttons: Burn (red, pulsing) + Cancel (gray) ---
+	var btn_row = HBoxContainer.new()
+	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_row.add_theme_constant_override("separation", 30)
+	vbox.add_child(btn_row)
+
+	# Burn button
+	_burn_preview_confirm_btn = Button.new()
+	_burn_preview_confirm_btn.text = "BURN"
+	_burn_preview_confirm_btn.custom_minimum_size = Vector2(140, 44)
+	_burn_preview_confirm_btn.disabled = true  # Enabled after 0.5s delay
+
+	var burn_style = StyleBoxFlat.new()
+	burn_style.bg_color = Color(0.5, 0.12, 0.08, 0.95)
+	burn_style.border_color = Color(0.85, 0.3, 0.15, 0.9)
+	burn_style.set_border_width_all(2)
+	burn_style.set_corner_radius_all(4)
+	burn_style.set_content_margin_all(8)
+	_burn_preview_confirm_btn.add_theme_stylebox_override("normal", burn_style)
+	var burn_hover = burn_style.duplicate()
+	burn_hover.bg_color = Color(0.65, 0.15, 0.08, 1.0)
+	burn_hover.border_color = Color(1.0, 0.45, 0.2, 1.0)
+	_burn_preview_confirm_btn.add_theme_stylebox_override("hover", burn_hover)
+	_burn_preview_confirm_btn.add_theme_stylebox_override("focus", burn_hover)
+	var burn_disabled = burn_style.duplicate()
+	burn_disabled.bg_color = Color(0.2, 0.1, 0.08, 0.6)
+	burn_disabled.border_color = Color(0.4, 0.2, 0.15, 0.4)
+	_burn_preview_confirm_btn.add_theme_stylebox_override("disabled", burn_disabled)
+	_burn_preview_confirm_btn.add_theme_font_size_override("font_size", 16)
+	_burn_preview_confirm_btn.add_theme_color_override("font_color", Color(0.95, 0.55, 0.25))
+	_burn_preview_confirm_btn.add_theme_color_override("font_hover_color", Color(1.0, 0.75, 0.35))
+	_burn_preview_confirm_btn.add_theme_color_override("font_disabled_color", Color(0.4, 0.3, 0.25))
+
+	_burn_preview_confirm_btn.pressed.connect(_on_burn_preview_confirmed)
+	btn_row.add_child(_burn_preview_confirm_btn)
+
+	# Cancel button
+	_burn_preview_cancel_btn = Button.new()
+	_burn_preview_cancel_btn.text = "Cancel"
+	_burn_preview_cancel_btn.custom_minimum_size = Vector2(120, 44)
+
+	var cancel_style = StyleBoxFlat.new()
+	cancel_style.bg_color = Color(0.12, 0.11, 0.13, 0.9)
+	cancel_style.border_color = Color(0.35, 0.33, 0.3, 0.7)
+	cancel_style.set_border_width_all(1)
+	cancel_style.set_corner_radius_all(4)
+	cancel_style.set_content_margin_all(8)
+	_burn_preview_cancel_btn.add_theme_stylebox_override("normal", cancel_style)
+	var cancel_hover = cancel_style.duplicate()
+	cancel_hover.bg_color = Color(0.18, 0.16, 0.2, 0.95)
+	cancel_hover.border_color = Color(0.5, 0.45, 0.4, 0.9)
+	_burn_preview_cancel_btn.add_theme_stylebox_override("hover", cancel_hover)
+	_burn_preview_cancel_btn.add_theme_stylebox_override("focus", cancel_hover)
+	_burn_preview_cancel_btn.add_theme_font_size_override("font_size", 14)
+	_burn_preview_cancel_btn.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
+	_burn_preview_cancel_btn.add_theme_color_override("font_hover_color", Color(0.75, 0.7, 0.65))
+
+	_burn_preview_cancel_btn.pressed.connect(_on_burn_preview_cancelled)
+	btn_row.add_child(_burn_preview_cancel_btn)
+
+	# Show the popup with animation
+	_burn_preview_dimmer.visible = true
+	_burn_preview_panel.visible = true
+	_burn_preview_panel.modulate.a = 0.0
+	_burn_preview_panel.scale = Vector2(0.85, 0.85)
+	_burn_preview_panel.pivot_offset = _burn_preview_panel.size / 2.0
+
+	var show_tween = create_tween()
+	show_tween.set_parallel(true)
+	show_tween.tween_property(_burn_preview_dimmer, "color:a", 0.6, 0.2)
+	show_tween.tween_property(_burn_preview_panel, "modulate:a", 1.0, 0.25)
+	show_tween.tween_property(_burn_preview_panel, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	# Pulse animation on Burn button (starts after delay)
+	var burn_pulse = create_tween().set_loops()
+	burn_pulse.tween_property(_burn_preview_confirm_btn, "modulate:a", 0.7, 0.5)
+	burn_pulse.tween_property(_burn_preview_confirm_btn, "modulate:a", 1.0, 0.5)
+
+	# 0.5s delay before Burn button becomes clickable (prevent accidental burns)
+	_burn_preview_confirm_btn.disabled = true
+	get_tree().create_timer(0.5).timeout.connect(func():
+		if is_instance_valid(_burn_preview_confirm_btn):
+			_burn_preview_confirm_btn.disabled = false
+			AudioManager.play_sfx("ui_hover")  # subtle audio cue that button is now active
+	)
+
+## Called when player confirms the burn in the preview popup.
+func _on_burn_preview_confirmed() -> void:
+	AudioManager.play_sfx("ui_select")
+	var mid = _pending_burn_id
+	_pending_burn_id = ""
+	_hide_burn_preview()
+
+	# Find the memory to get title and grade for the dramatic sequence
+	var mem = MemoryManager._get_memory(mid)
+	if mem:
+		action_container.visible = false
+		_play_memory_burn_then_execute(mid, mem.title, mem.grade)
+	else:
+		# Fallback: memory already gone somehow
+		action_container.visible = false
+		BattleManager.player_burn(mid)
+
+## Called when player cancels the burn preview.
+func _on_burn_preview_cancelled() -> void:
+	AudioManager.play_sfx("cancel")
+	_pending_burn_id = ""
+	_hide_burn_preview()
+	# Reopen the burn list so player can pick something else
+	_toggle_burn_list()
+
+## Hide the burn preview popup with animation.
+func _hide_burn_preview() -> void:
+	if _burn_preview_panel == null:
+		return
+	var hide_tween = create_tween()
+	hide_tween.set_parallel(true)
+	hide_tween.tween_property(_burn_preview_dimmer, "color:a", 0.0, 0.15)
+	hide_tween.tween_property(_burn_preview_panel, "modulate:a", 0.0, 0.15)
+	hide_tween.chain().tween_callback(func():
+		_burn_preview_dimmer.visible = false
+		_burn_preview_panel.visible = false
+	)
 
 ## ===================== S56: Memory Burn Dramatic Sequence =====================
 

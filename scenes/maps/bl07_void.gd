@@ -252,7 +252,7 @@ func _on_seal_decision_ended() -> void:
 
 func _execute_seal() -> void:
 	# 씬 암전 연출 — 이름을 태우는 순간
-	AudioManager.play_sfx("void_pulse")
+	AudioManager.play_combat_sfx("void_pulse")  # S58: 레이어드 보이드 SFX
 	await get_tree().create_timer(0.5).timeout
 
 	# core_name_origin(Grade 1) 연소
@@ -275,7 +275,7 @@ func _execute_seal() -> void:
 
 func _refuse_seal() -> void:
 	GameManager.set_flag("seal_refused")
-	AudioManager.play_sfx("void_pulse")
+	AudioManager.play_combat_sfx("void_pulse")  # S58: 레이어드 보이드 SFX
 	await get_tree().create_timer(0.3).timeout
 	DialogueManager.dialogue_ended.connect(_on_refuse_complete, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "seal_refused")
@@ -287,7 +287,8 @@ func _on_seal_complete() -> void:
 	AchievementManager.record_chapter_complete(10)
 	print("[BL07Void] Chapter 10 complete — The Seal executed (Zero Burn path)")
 	await get_tree().create_timer(2.0).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 10)
 
 func _on_refuse_complete() -> void:
 	GameManager.set_flag("ch10_complete")
@@ -296,7 +297,8 @@ func _on_refuse_complete() -> void:
 	AchievementManager.record_chapter_complete(10)
 	print("[BL07Void] Chapter 10 complete — The Seal refused (Preservation path)")
 	await get_tree().create_timer(2.0).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/the_seam.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 10)
 
 ## ===================== 전투 트리거 =====================
 

@@ -191,6 +191,8 @@ func _connect_signals() -> void:
 	# S57: Listen for memory burned to trigger glow
 	if MemoryManager.has_signal("memory_burned"):
 		MemoryManager.memory_burned.connect(_on_memory_burned)
+	# S58: Stat gain popup
+	GameManager.stat_gained.connect(_on_stat_gained)
 	# Set initial visibility based on current state
 	_on_state_changed(GameManager.current_state)
 
@@ -249,6 +251,32 @@ func _show_grains_popup(amount: int) -> void:
 	t.tween_property(popup, "position:y", popup.position.y - 30, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	t.parallel().tween_property(popup, "modulate:a", 0.0, 0.8).set_ease(Tween.EASE_IN).set_delay(0.3)
 	t.tween_callback(popup.queue_free)
+
+# ── S58: Stat gain floating popup ──
+func _on_stat_gained(stat_name: String, amount: int) -> void:
+	if amount == 0:
+		return
+	var prefix = "+" if amount > 0 else ""
+	var popup = Label.new()
+	popup.text = "%s%d %s" % [prefix, amount, stat_name]
+	popup.add_theme_font_size_override("font_size", 16)
+	var col = Color(0.3, 1.0, 0.5) if amount > 0 else Color(1.0, 0.4, 0.3)
+	popup.add_theme_color_override("font_color", col)
+	popup.add_theme_color_override("font_outline_color", Color(0.05, 0.05, 0.05))
+	popup.add_theme_constant_override("outline_size", 3)
+	# Position near the HUD panel, offset right
+	popup.position = Vector2(panel.position.x + panel.size.x + 16, panel.position.y + 8)
+	popup.z_index = 120
+	popup.modulate.a = 0.0
+	add_child(popup)
+	# Animate: fade in, float up, fade out
+	var t = create_tween()
+	t.tween_property(popup, "modulate:a", 1.0, 0.15)
+	t.tween_property(popup, "position:y", popup.position.y - 40, 1.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.parallel().tween_property(popup, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN).set_delay(0.6)
+	t.tween_callback(popup.queue_free)
+	# Play a subtle SFX
+	AudioManager.play_sfx("ui_select")
 
 # ── S57: Update status effect icons ──
 func _update_status_icons() -> void:

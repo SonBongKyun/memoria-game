@@ -486,6 +486,8 @@ func check_unlock_passives() -> void:
 			passive_unlocked.emit(passive["name"])
 			NotificationToast.show_toast("Passive Unlocked: %s" % passive["name"], NotificationToast.ToastType.SUCCESS)
 			print("[MemoryManager] PASSIVE UNLOCKED: %s (burns: %d)" % [passive["name"], total])
+			# S58: Power milestone — dramatic screen effect
+			_play_power_milestone(passive["name"], total)
 
 ## 활성 패시브 목록 반환
 func get_active_passives() -> Array:
@@ -497,6 +499,121 @@ func get_active_passives() -> Array:
 ## 특정 패시브 보유 여부
 func has_passive(passive_id: String) -> bool:
 	return burn_passives.has(passive_id)
+
+## S58: Power milestone dramatic effect — screen flash + particle burst + text
+func _play_power_milestone(passive_name: String, burn_count: int) -> void:
+	if not is_inside_tree():
+		return
+	var tree = get_tree()
+	if not tree or not tree.root:
+		return
+	# Create a CanvasLayer overlay for the milestone effect
+	var overlay = CanvasLayer.new()
+	overlay.layer = 120
+	tree.root.add_child(overlay)
+
+	# White flash screen
+	var flash = ColorRect.new()
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.color = Color(1.0, 0.95, 0.7, 0.0)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(flash)
+
+	# "Power Awakened" title label
+	var title_lbl = Label.new()
+	title_lbl.text = "POWER AWAKENED"
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	title_lbl.position = Vector2(-200, -50)
+	title_lbl.size = Vector2(400, 40)
+	title_lbl.add_theme_font_size_override("font_size", 32)
+	title_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.2, 0.1, 0.0))
+	title_lbl.add_theme_constant_override("outline_size", 4)
+	title_lbl.modulate.a = 0.0
+	title_lbl.scale = Vector2(0.5, 0.5)
+	title_lbl.pivot_offset = Vector2(200, 20)
+	title_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(title_lbl)
+
+	# Passive name subtitle
+	var sub_lbl = Label.new()
+	sub_lbl.text = passive_name
+	sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	sub_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	sub_lbl.position = Vector2(-200, 0)
+	sub_lbl.size = Vector2(400, 30)
+	sub_lbl.add_theme_font_size_override("font_size", 18)
+	sub_lbl.add_theme_color_override("font_color", Color(0.9, 0.75, 0.4, 0.0))
+	sub_lbl.add_theme_color_override("font_outline_color", Color(0.1, 0.08, 0.0))
+	sub_lbl.add_theme_constant_override("outline_size", 2)
+	sub_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(sub_lbl)
+
+	# Burn count indicator
+	var count_lbl = Label.new()
+	count_lbl.text = "%d memories burned" % burn_count
+	count_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	count_lbl.position = Vector2(-200, 30)
+	count_lbl.size = Vector2(400, 20)
+	count_lbl.add_theme_font_size_override("font_size", 12)
+	count_lbl.add_theme_color_override("font_color", Color(0.7, 0.6, 0.4, 0.0))
+	count_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(count_lbl)
+
+	# Particle burst — radial gold particles
+	var particles = GPUParticles2D.new()
+	particles.position = Vector2(640, 360)  # Screen center
+	particles.emitting = false
+	particles.one_shot = true
+	particles.amount = 40
+	particles.lifetime = 1.2
+	particles.explosiveness = 0.9
+	var pmat = ParticleProcessMaterial.new()
+	pmat.direction = Vector3(0, -1, 0)
+	pmat.spread = 180.0
+	pmat.initial_velocity_min = 80.0
+	pmat.initial_velocity_max = 200.0
+	pmat.gravity = Vector3(0, 40, 0)
+	pmat.scale_min = 2.0
+	pmat.scale_max = 5.0
+	pmat.color = Color(1.0, 0.85, 0.3, 0.9)
+	var color_ramp = Gradient.new()
+	color_ramp.add_point(0.0, Color(1.0, 0.9, 0.4, 1.0))
+	color_ramp.add_point(0.7, Color(1.0, 0.6, 0.2, 0.6))
+	color_ramp.add_point(1.0, Color(0.8, 0.4, 0.1, 0.0))
+	pmat.color_ramp = GradientTexture1D.new()
+	pmat.color_ramp.gradient = color_ramp
+	particles.process_material = pmat
+	overlay.add_child(particles)
+
+	# Animate sequence
+	# 1. Flash in
+	var tw = overlay.create_tween()
+	tw.tween_property(flash, "color:a", 0.6, 0.15)
+	tw.tween_property(flash, "color:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)
+	# 2. Title scale-in
+	var tw2 = overlay.create_tween()
+	tw2.tween_property(title_lbl, "modulate:a", 1.0, 0.2)
+	tw2.parallel().tween_property(title_lbl, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	# 3. Subtitle fade in (delayed)
+	var tw3 = overlay.create_tween()
+	tw3.tween_interval(0.3)
+	tw3.tween_property(sub_lbl, "theme_override_colors/font_color", Color(0.9, 0.75, 0.4, 1.0), 0.3)
+	tw3.parallel().tween_property(count_lbl, "theme_override_colors/font_color", Color(0.7, 0.6, 0.4, 1.0), 0.3)
+	# 4. Fire particles
+	particles.emitting = true
+	# Play SFX
+	AudioManager.play_sfx("heal")
+	# 5. Hold, then fade out everything
+	var tw4 = overlay.create_tween()
+	tw4.tween_interval(2.0)
+	tw4.tween_property(overlay, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN)
+	tw4.tween_callback(overlay.queue_free)
+	print("[MemoryManager] S58: Power milestone displayed — %s (%d burns)" % [passive_name, burn_count])
 
 ## 세이브용 데이터 내보내기
 func export_data() -> Dictionary:

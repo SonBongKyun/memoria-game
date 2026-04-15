@@ -165,7 +165,8 @@ func _on_departure_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[SeamOutskirts] Chapter 7 complete — entering Forgotten Forest")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/forgotten_forest.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/forgotten_forest.tscn", 7)
 
 ## ===================== 전투 트리거 =====================
 

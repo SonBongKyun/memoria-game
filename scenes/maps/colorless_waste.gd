@@ -170,7 +170,8 @@ func _on_departure_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[ColorlessWaste] Chapter 9 complete — entering BL-07")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/bl07_void.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/bl07_void.tscn", 9)
 
 ## ===================== 전투 트리거 =====================
 

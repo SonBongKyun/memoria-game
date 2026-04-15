@@ -408,7 +408,8 @@ func _on_ch6_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[TheSeam] Chapter 6 complete — heading to Seam Outskirts")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/seam_outskirts.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/seam_outskirts.tscn", 6)
 
 ## ===================== 전투 트리거 (마을 외곽) =====================
 

@@ -148,7 +148,8 @@ func _on_departure_ended() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	print("[DriftShelter] Chapter 4 complete — heading to Crumbling Coast")
 	await get_tree().create_timer(1.5).timeout
-	SceneTransition.change_scene_styled("res://scenes/maps/crumbling_coast.tscn")
+	# S58: Chapter completion screen with stats summary
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/crumbling_coast.tscn", 4)
 
 ## ===================== 전투 트리거 =====================
 

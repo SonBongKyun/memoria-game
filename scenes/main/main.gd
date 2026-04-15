@@ -348,11 +348,38 @@ func _setup_menu() -> void:
 		if btn is Button:
 			_style_button(btn)
 
-	# Continue button activation
+	# Continue button activation + S58: show play time on continue button
 	if continue_btn:
 		continue_btn.disabled = not SaveManager.has_save(1)
 		if continue_btn.disabled:
 			continue_btn.modulate.a = 0.4
+		else:
+			# Show play time from save data on the continue button
+			var save_info = SaveManager.get_save_info(1)
+			if not save_info.is_empty():
+				var play_time_str = ""
+				var game_data_in_save = save_info  # get_save_info returns flat dict
+				# Try to get play time from the full save file
+				var save_path = SaveManager._get_save_path(1)
+				if FileAccess.file_exists(save_path):
+					var _file = FileAccess.open(save_path, FileAccess.READ)
+					if _file:
+						var _json = JSON.new()
+						if _json.parse(_file.get_as_text()) == OK and _json.data is Dictionary:
+							var gd = _json.data.get("game", {})
+							var ps = gd.get("play_stats", {})
+							var secs = ps.get("play_time_seconds", 0.0)
+							if secs > 0:
+								var h = int(secs) / 3600
+								var m = (int(secs) % 3600) / 60
+								play_time_str = " (%dh %02dm)" % [h, m]
+						_file.close()
+				var ch = save_info.get("chapter", 1)
+				var loc_name = save_info.get("location", "")
+				if loc_name != "":
+					continue_btn.text = "Continue — Ch.%d %s%s" % [ch, loc_name, play_time_str]
+				elif play_time_str != "":
+					continue_btn.text = "Continue%s" % play_time_str
 
 func _style_button(btn: Button) -> void:
 	btn.custom_minimum_size = Vector2(220, 48)

@@ -483,6 +483,155 @@ func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> voi
 	# S57: 맵 전환 후 테마 파티클 버스트
 	_spawn_biome_particles(scene_path)
 
+## ===================== S58: Chapter Completion Screen =====================
+
+## Show a brief "Chapter X Complete" screen with stats before transitioning.
+## Called from map scripts instead of directly transitioning.
+func change_scene_chapter_complete(scene_path: String, completed_chapter: int) -> void:
+	# Gather chapter stats from GameManager
+	var stats = GameManager.get_chapter_stats()
+	var battles = stats.get("battles", 0)
+	var burns = stats.get("burns", 0)
+	var time_secs = stats.get("time_seconds", 0.0)
+	var mins = int(time_secs) / 60
+	var secs = int(time_secs) % 60
+
+	# Fade to black
+	if tween:
+		tween.kill()
+	transition_rect.color = Color.BLACK
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 1.0, 0.4)
+	await tween.finished
+
+	# Build completion overlay
+	var overlay = ColorRect.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.03, 0.02, 0.05)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
+
+	# "Chapter X Complete" title
+	var ch_name = CHAPTER_NAMES.get(completed_chapter, "Chapter %d" % completed_chapter)
+	var title_lbl = Label.new()
+	title_lbl.text = ch_name.split("\n")[0] if "\n" in ch_name else ch_name
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	title_lbl.position = Vector2(-200, -80)
+	title_lbl.size = Vector2(400, 40)
+	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.5, 0.0))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.15, 0.1, 0.05))
+	title_lbl.add_theme_constant_override("outline_size", 2)
+	title_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(title_lbl)
+
+	# "Complete" subtitle
+	var complete_lbl = Label.new()
+	complete_lbl.text = "Complete"
+	complete_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	complete_lbl.set_anchors_preset(Control.PRESET_CENTER)
+	complete_lbl.position = Vector2(-200, -45)
+	complete_lbl.size = Vector2(400, 30)
+	complete_lbl.add_theme_font_size_override("font_size", 18)
+	complete_lbl.add_theme_color_override("font_color", Color(0.65, 0.55, 0.4, 0.0))
+	complete_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(complete_lbl)
+
+	# Decorative separator line
+	var line = ColorRect.new()
+	line.set_anchors_preset(Control.PRESET_CENTER)
+	line.position = Vector2(-50, -15)
+	line.size = Vector2(100, 1)
+	line.color = Color(0.5, 0.4, 0.3, 0.0)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(line)
+
+	# Stats labels — battles, burns, time
+	var stats_data: Array = [
+		{"label": "Battles Won", "value": str(battles)},
+		{"label": "Memories Burned", "value": str(burns)},
+		{"label": "Time", "value": "%d:%02d" % [mins, secs]},
+	]
+	var stat_labels: Array = []
+	var y_offset = 0
+	for i in range(stats_data.size()):
+		var stat = stats_data[i]
+		var row = HBoxContainer.new()
+		row.set_anchors_preset(Control.PRESET_CENTER)
+		row.position = Vector2(-120, y_offset)
+		row.size = Vector2(240, 24)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		var name_lbl = Label.new()
+		name_lbl.text = stat["label"]
+		name_lbl.add_theme_font_size_override("font_size", 14)
+		name_lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.4, 0.0))
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(name_lbl)
+
+		var val_lbl = Label.new()
+		val_lbl.text = stat["value"]
+		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		val_lbl.add_theme_font_size_override("font_size", 14)
+		val_lbl.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5, 0.0))
+		val_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		val_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(val_lbl)
+
+		overlay.add_child(row)
+		stat_labels.append({"name": name_lbl, "value": val_lbl})
+		y_offset += 28
+
+	# Animate: fade in title
+	var tw1 = create_tween()
+	tw1.tween_property(title_lbl, "theme_override_colors/font_color",
+		Color(0.85, 0.75, 0.5, 1.0), 0.4).set_ease(Tween.EASE_OUT)
+
+	# Complete label fade in (delayed)
+	var tw2 = create_tween()
+	tw2.tween_interval(0.3)
+	tw2.tween_property(complete_lbl, "theme_override_colors/font_color",
+		Color(0.65, 0.55, 0.4, 1.0), 0.3)
+
+	# Separator line
+	var tw_line = create_tween()
+	tw_line.tween_interval(0.5)
+	tw_line.tween_property(line, "color:a", 0.5, 0.3)
+
+	# Stats appear one by one
+	for i in range(stat_labels.size()):
+		var sl = stat_labels[i]
+		var tw_stat = create_tween()
+		tw_stat.tween_interval(0.7 + i * 0.3)
+		tw_stat.tween_property(sl["name"], "theme_override_colors/font_color",
+			Color(0.55, 0.5, 0.4, 1.0), 0.25).set_ease(Tween.EASE_OUT)
+		tw_stat.parallel().tween_property(sl["value"], "theme_override_colors/font_color",
+			Color(0.8, 0.7, 0.5, 1.0), 0.25).set_ease(Tween.EASE_OUT)
+
+	# Hold for display, then fade out and transition
+	await get_tree().create_timer(3.0).timeout
+
+	# Fade out overlay
+	var tw_out = create_tween()
+	tw_out.tween_property(overlay, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN)
+	await tw_out.finished
+	overlay.queue_free()
+
+	# Mark new chapter start for next tracking
+	GameManager.mark_chapter_start()
+
+	# Now do the actual scene transition
+	get_tree().change_scene_to_file(scene_path)
+
+	tween = create_tween()
+	tween.tween_property(transition_rect, "modulate:a", 0.0, 0.4)
+	await tween.finished
+
+	_spawn_biome_particles(scene_path)
+
 ## ===================== S57: 맵 전환 테마 파티클 =====================
 
 # 맵 바이옴 감지

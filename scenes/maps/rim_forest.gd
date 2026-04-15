@@ -238,7 +238,8 @@ func _on_camp_ended() -> void:
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
 	CgViewer.show_cg("res://assets/cg/ch1_green_tree2.jpg", "", 3.0, func():
-		SceneTransition.change_scene_styled("res://scenes/maps/verdan_market.tscn")
+		# S58: Chapter completion screen with stats summary
+		SceneTransition.change_scene_chapter_complete("res://scenes/maps/verdan_market.tscn", 1)
 	)
 
 ## ===================== 히든 이벤트 =====================
