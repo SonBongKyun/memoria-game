@@ -56,6 +56,7 @@ var _point_lights: Array[PointLight2D] = []  # S42: 2D 조명
 var _occluders: Array[LightOccluder2D] = []  # S52
 var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
+var _fog_layer: Array[ColorRect] = []  # S59: 프로시저럴 안개
 
 func _ready() -> void:
 	_build_map()
@@ -89,6 +90,11 @@ func _ready() -> void:
 	malet_npc.repeat_line = "You know where to find me."
 	# S54: NPC Schedule — adjust malet position/dialogue based on chapter
 	_apply_npc_schedules()
+	# S59: 인터랙티브 프롭 배치
+	_setup_interactive_props()
+	# S59: 분위기 강화 — 안개 + 깊이 그라디언트
+	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.35, 0.3, 0.28, 0.04), 2.0)
+	MapEffects.add_depth_gradient(self, 0.06)
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)
@@ -114,6 +120,10 @@ func _process(delta: float) -> void:
 		if npc.has_node("AnimatedSprite2D"):
 			var spr = npc.get_node("AnimatedSprite2D")
 			spr.scale = Vector2(1.0 + sin(_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(_time * 1.5 + npc.position.x * 0.1) * 0.006)
+	# S59: 프로시저럴 안개 + 트리거 접근 글로우 + 캠프파이어
+	MapEffects.update_fog_layer(_fog_layer, _time)
+	MapEffects.update_trigger_approach_glow(self, player.position, _time)
+	MapEffects.update_campfire_glows(self, _time)
 	# 랜턴 깜빡임
 	for l in _lantern_lights:
 		l.color.a = 0.3 + randf_range(-0.05, 0.05) + sin(_time * 3.0) * 0.05
@@ -425,6 +435,30 @@ func _setup_side_quests() -> void:
 				ind.queue_free()
 		)
 		add_child(ledger_area)
+
+## ===================== S59: 인터랙티브 프롭 =====================
+
+func _setup_interactive_props() -> void:
+	# 노점 옆 나무통 (Grains 보상)
+	MapEffects.add_interactive_prop(self, Vector2(5 * TILE_SIZE, 4 * TILE_SIZE), "barrel")
+	# 골목 입구 상자 (아이템 가능)
+	MapEffects.add_interactive_prop(self, Vector2(11 * TILE_SIZE, 9 * TILE_SIZE), "crate")
+	# 시장 안내판 (텍스트)
+	MapEffects.add_interactive_prop(self, Vector2(8 * TILE_SIZE, 2 * TILE_SIZE), "sign", {"text": "Verdan Market — Trade at your own risk."})
+	# 골목 깊숙한 곳 캠프파이어 (HP 회복)
+	MapEffects.add_interactive_prop(self, Vector2(13 * TILE_SIZE, 11 * TILE_SIZE), "campfire", {"heal": 5})
+	# S59: NPC 배회 — 배경 NPC 2명에게 적용 (시장 활기)
+	# _setup_map_decorations에서 생성된 NPC 스프라이트에 적용하려면
+	# decorations 이후 호출이므로, 기존 NPC 노드에서 검색
+	call_deferred("_apply_npc_wander")
+
+func _apply_npc_wander() -> void:
+	# 시장 배경 NPC 중 2명에게 배회 적용
+	var wander_count = 0
+	for child in get_children():
+		if child is AnimatedSprite2D and wander_count < 2:
+			MapEffects.add_npc_wander(child, 32.0)
+			wander_count += 1
 
 ## ===================== 맵 데코레이션 =====================
 

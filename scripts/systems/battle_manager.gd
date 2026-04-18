@@ -105,6 +105,10 @@ signal auto_battle_changed(enabled: bool)
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
 signal phase_changed(enemy_name: String, phase: int)
+signal enemy_ability_telegraph(ability_name: String, delay: float)  # S59: telegraph before enemy special
+
+# --- S59: Difficulty scaling ---
+var difficulty_bonus: float = 0.0  # Chapter + NG+ damage multiplier
 
 # --- Bestiary Scan ---
 var scanned_enemies: Array = []  # 이번 전투에서 스캔된 적 이름 목록
@@ -297,6 +301,13 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	if GameManager.player_data.max_hp < chapter_hp:
 		GameManager.player_data.max_hp = chapter_hp
 		GameManager.player_data.hp = mini(GameManager.player_data.hp + 15, chapter_hp)
+
+	# S59: Calculate difficulty bonus from chapter + NG+
+	difficulty_bonus = 0.0
+	if GameManager.current_chapter >= 7:
+		difficulty_bonus += 0.15  # Ch7-10: +15% enemy damage
+	if GameManager.ng_plus_cycle >= 1:
+		difficulty_bonus += 0.20  # NG+: additional +20%
 
 	GameManager.change_state(GameManager.GameState.BATTLE)
 
@@ -704,7 +715,7 @@ func _enemy_turn() -> void:
 	enemy_turn_started.emit()
 
 	# 특수 능력 선택 (보스 페이즈 2 또는 확률적)
-	var used_ability = _try_enemy_ability()
+	var used_ability = await _try_enemy_ability()
 	if used_ability:
 		_check_player_defeated()
 		return
@@ -720,6 +731,9 @@ func _enemy_turn() -> void:
 		return
 
 	var base_dmg = current_enemy.attack + randi_range(0, 5)
+	# S59: Difficulty scaling — chapters 7+ and NG+ bonus
+	if difficulty_bonus > 0.0:
+		base_dmg = int(base_dmg * (1.0 + difficulty_bonus))
 	# 차지 공격: 이전 턴에 차지했으면 2배 데미지
 	if _enemy_charged:
 		_enemy_charged = false
@@ -784,6 +798,13 @@ func _try_enemy_ability() -> bool:
 	if current_enemy.is_boss and current_enemy.phase == 2 and _boss_turn_counter % 3 == 0:
 		rage_bonus = 1.3
 		battle_log.emit("%s surges with dark fury!" % current_enemy.name)
+	# S59: Difficulty scaling applied to ability damage
+	if difficulty_bonus > 0.0:
+		rage_bonus *= (1.0 + difficulty_bonus)
+
+	# S59: Telegraph — warn player before special ability (0.5s delay)
+	enemy_ability_telegraph.emit(ability, 0.5)
+	await get_tree().create_timer(0.5).timeout
 
 	match ability:
 		"drain":
@@ -890,34 +911,16 @@ func _try_enemy_ability() -> bool:
 			battle_log.emit("A devastating attack is coming!")
 	return true
 
-## 전술적 능력 선택 — 상황 분석 기반
+## 전술적 능력 선택 — S59: 가중치 기반 전술 AI
 func _select_ability() -> String:
 	var abilities = current_enemy.abilities
 	if abilities.is_empty():
 		return ""
 
-	var hp_ratio = float(current_enemy.hp) / max(current_enemy.max_hp, 1)
+	var enemy_hp_ratio = float(current_enemy.hp) / max(current_enemy.max_hp, 1)
+	var player_hp_ratio = float(GameManager.player_data.hp) / max(GameManager.player_data.max_hp, 1)
 
-	# 1. 위기 시 자가 치유 우선 (HP < 30%)
-	if hp_ratio < 0.3 and "drain" in abilities and randf() < 0.7:
-		return "drain"
-	if hp_ratio < 0.3 and "summon" in abilities and randf() < 0.6:
-		return "summon"
-
-	# 2. 플레이어 콤보 방어 (combo >= 3 → shield 우선)
-	if combo_count >= 3 and "shield" in abilities and not enemy_shielded and randf() < 0.6:
-		return "shield"
-
-	# 3. 방어 미사용 시 multi_hit 활용
-	if not player_defending and "multi_hit" in abilities and randf() < 0.5:
-		return "multi_hit"
-
-	# 3b. 플레이어 콤보 높으면 stun 우선
-	if combo_count >= 2 and "stun" in abilities and not _player_stunned and randf() < 0.5:
-		return "stun"
-
-	# 3c. 이미 reflect/charge 중이면 중복 회피
-	# 4. 중복 상태이상 회피 — 이미 걸려있으면 다른 능력 선택
+	# Step 1: Filter out redundant/impossible abilities
 	var filtered: Array = []
 	for a in abilities:
 		match a:
@@ -942,14 +945,97 @@ func _select_ability() -> String:
 			_:
 				filtered.append(a)
 
-	# 5. 보스 페이즈2 전용: summon 우선
-	if current_enemy.is_boss and current_enemy.phase == 2 and "summon" in filtered and randf() < 0.4:
-		return "summon"
-
 	if filtered.is_empty():
 		filtered = abilities  # 모두 중복이면 그냥 아무거나
 
+	# Step 2: Weighted scoring for each ability
+	var weights: Dictionary = {}  # ability_name -> float weight
+	for a in filtered:
+		weights[a] = 1.0  # base weight
+
+	# Offensive abilities list
+	var offensive = ["drain", "multi_hit", "burn_attack", "void_pulse", "stun", "despair"]
+	# Defensive abilities list
+	var defensive = ["shield", "reflect", "summon", "charge"]
+
+	# S59: Player low HP — prefer offensive to finish them off (2x weight)
+	if player_hp_ratio < 0.3:
+		for a in filtered:
+			if a in offensive:
+				weights[a] *= 2.0
+
+	# S59: Enemy low HP — prefer defensive/healing (2x weight)
+	if enemy_hp_ratio < 0.4:
+		for a in filtered:
+			if a in defensive or a == "drain":
+				weights[a] *= 2.0
+
+	# S59: Player has high combo — prefer stun to interrupt (3x weight)
+	if combo_count >= 3:
+		if weights.has("stun"):
+			weights["stun"] *= 3.0
+		if weights.has("shield"):
+			weights["shield"] *= 1.5
+
+	# S59: Player already poisoned — avoid redundant poison (0.1x weight)
+	if has_status("player", StatusEffect.POISON) and weights.has("poison"):
+		weights["poison"] *= 0.1
+
+	# Boss phase 2: summon preference
+	if current_enemy.is_boss and current_enemy.phase == 2 and weights.has("summon"):
+		weights["summon"] *= 1.5
+
+	# Player defending: avoid multi_hit (less effective), prefer status
+	if player_defending:
+		if weights.has("multi_hit"):
+			weights["multi_hit"] *= 0.5
+		if weights.has("poison"):
+			weights["poison"] *= 1.5
+		if weights.has("weaken"):
+			weights["weaken"] *= 1.5
+
+	# Step 3: Weighted random selection
+	var total_weight: float = 0.0
+	for a in filtered:
+		total_weight += weights.get(a, 1.0)
+
+	var roll = randf() * total_weight
+	var cumulative: float = 0.0
+	for a in filtered:
+		cumulative += weights.get(a, 1.0)
+		if roll <= cumulative:
+			return a
+
 	return filtered[randi_range(0, filtered.size() - 1)]
+
+## S59: Turn order hint — predict what enemy might do next turn
+func get_next_turn_hint() -> String:
+	if current_enemy == null or not current_enemy.is_alive():
+		return ""
+	if current_enemy.abilities.is_empty():
+		return "The enemy readies a basic attack."
+
+	var enemy_hp_ratio = float(current_enemy.hp) / max(current_enemy.max_hp, 1)
+	var player_hp_ratio = float(GameManager.player_data.hp) / max(GameManager.player_data.max_hp, 1)
+
+	# Predict based on AI scoring tendencies
+	if enemy_hp_ratio < 0.3 and ("drain" in current_enemy.abilities or "summon" in current_enemy.abilities):
+		return "The enemy looks desperate... it may try to heal."
+	if player_hp_ratio < 0.3 and current_enemy.abilities.size() > 0:
+		return "The enemy senses weakness — brace for a fierce attack!"
+	if combo_count >= 3 and "stun" in current_enemy.abilities:
+		return "Your combo draws attention — watch for a stunning blow!"
+	if _enemy_charged:
+		return "Charged energy surges — a devastating strike is imminent!"
+	if current_enemy.is_boss and current_enemy.phase == 2:
+		return "Dark fury builds... expect a powerful ability."
+	# Generic hints
+	var hints = [
+		"The enemy shifts its stance...",
+		"Something stirs in the darkness...",
+		"The air grows tense...",
+	]
+	return hints[randi_range(0, hints.size() - 1)]
 
 ## 플레이어 사망 체크
 func _check_player_defeated() -> void:

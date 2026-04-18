@@ -3,6 +3,7 @@
 extends Control
 
 const SCROLL_SPEED: float = 40.0  # px/sec
+const GAME_VERSION: String = "v0.9.0"  # S59: Shown at the end of credits
 const CREDITS_DATA: Array = [
 	{"type": "title", "text": "MEMORIA"},
 	{"type": "subtitle", "text": "The Price of Oblivion"},
@@ -93,11 +94,27 @@ func _build_ui() -> void:
 
 	credits.append({"type": "spacer"})
 	credits.append({"type": "spacer"})
+
+	# S59: Special Thanks section
+	credits.append({"type": "divider"})
+	credits.append({"type": "spacer"})
+	credits.append({"type": "heading", "text": "Special Thanks"})
+	credits.append({"type": "name", "text": "The Godot Community"})
+	credits.append({"type": "name", "text": "Everyone who playtested and gave feedback"})
+	credits.append({"type": "name", "text": "To The Moon & LISA — for the inspiration"})
+	credits.append({"type": "name", "text": "All memory keepers who refuse to forget"})
+	credits.append({"type": "spacer"})
+	credits.append({"type": "divider"})
+	credits.append({"type": "spacer"})
+
 	credits.append({"type": "thanks", "text": "Thank you for playing."})
 	credits.append({"type": "spacer"})
 	# S56: Steam wishlist reminder (subtle, non-intrusive)
 	credits.append({"type": "steam_wishlist", "text": "MEMORIA is coming to Steam"})
 	credits.append({"type": "steam_sub", "text": "Wishlist now to be notified at launch"})
+	credits.append({"type": "spacer"})
+	# S59: Version number at the end
+	credits.append({"type": "version", "text": "MEMORIA %s" % GAME_VERSION})
 	credits.append({"type": "spacer"})
 	credits.append({"type": "spacer"})
 	credits.append({"type": "spacer"})
@@ -147,6 +164,11 @@ func _build_ui() -> void:
 				y_offset += 24
 			"steam_sub":
 				label = _make_label(entry.text, 12, Color(0.35, 0.45, 0.55))
+				label.position = Vector2(0, y_offset)
+				scroll_container.add_child(label)
+				y_offset += 24
+			"version":
+				label = _make_label(entry.text, 11, Color(0.35, 0.33, 0.3, 0.5))
 				label.position = Vector2(0, y_offset)
 				scroll_container.add_child(label)
 				y_offset += 24

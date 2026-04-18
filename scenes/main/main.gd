@@ -26,11 +26,19 @@ var _pak_tween: Tween  # press-any-key fade tween
 
 const GAME_VERSION: String = "v0.9.0"
 
+# S59: Splash screen state
+var _splash_shown: bool = false
+var _splash_overlay: ColorRect
+
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_title_screen()
-	_start_intro_sequence()
-	_play_ambient_wind()
+	# S59: Show splash screen first, then intro sequence
+	if not _splash_shown:
+		_show_splash_screen()
+	else:
+		_start_intro_sequence()
+		_play_ambient_wind()
 	print("=== MEMORIA: The Price of Oblivion ===")
 
 ## ===================== BUILD =====================
@@ -493,3 +501,58 @@ func _on_quit_pressed() -> void:
 func _stop_ambient() -> void:
 	if _wind_player and _wind_player.playing:
 		_wind_player.stop()
+
+## ===================== S59: SPLASH SCREEN =====================
+
+func _show_splash_screen() -> void:
+	_splash_shown = true
+
+	# Cover everything with a black overlay
+	_splash_overlay = ColorRect.new()
+	_splash_overlay.set_anchors_preset(PRESET_FULL_RECT)
+	_splash_overlay.color = Color(0.02, 0.02, 0.04)
+	_splash_overlay.z_index = 100
+	_splash_overlay.mouse_filter = MOUSE_FILTER_STOP
+	add_child(_splash_overlay)
+
+	# "Made with Godot" label
+	var godot_label = Label.new()
+	godot_label.text = "Made with Godot"
+	godot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	godot_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	godot_label.set_anchors_preset(PRESET_CENTER)
+	godot_label.position = Vector2(-150, -20)
+	godot_label.size = Vector2(300, 40)
+	godot_label.add_theme_font_size_override("font_size", 22)
+	godot_label.add_theme_color_override("font_color", Color(0.7, 0.75, 0.85, 0.0))
+	godot_label.mouse_filter = MOUSE_FILTER_IGNORE
+	_splash_overlay.add_child(godot_label)
+
+	# Subtle version text below
+	var ver_label = Label.new()
+	ver_label.text = "Engine 4.6"
+	ver_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ver_label.set_anchors_preset(PRESET_CENTER)
+	ver_label.position = Vector2(-100, 18)
+	ver_label.size = Vector2(200, 24)
+	ver_label.add_theme_font_size_override("font_size", 12)
+	ver_label.add_theme_color_override("font_color", Color(0.45, 0.48, 0.55, 0.0))
+	ver_label.mouse_filter = MOUSE_FILTER_IGNORE
+	_splash_overlay.add_child(ver_label)
+
+	# Animate: fade in (0.4s), hold (0.8s), fade out (0.3s)
+	var splash_tween = create_tween()
+	splash_tween.tween_property(godot_label, "theme_override_colors/font_color",
+		Color(0.7, 0.75, 0.85, 1.0), 0.4).set_ease(Tween.EASE_OUT)
+	splash_tween.parallel().tween_property(ver_label, "theme_override_colors/font_color",
+		Color(0.45, 0.48, 0.55, 0.7), 0.4).set_ease(Tween.EASE_OUT)
+	splash_tween.tween_interval(0.8)
+	splash_tween.tween_property(godot_label, "theme_override_colors/font_color",
+		Color(0.7, 0.75, 0.85, 0.0), 0.3).set_ease(Tween.EASE_IN)
+	splash_tween.parallel().tween_property(ver_label, "theme_override_colors/font_color",
+		Color(0.45, 0.48, 0.55, 0.0), 0.3).set_ease(Tween.EASE_IN)
+	splash_tween.tween_callback(func():
+		_splash_overlay.queue_free()
+		_start_intro_sequence()
+		_play_ambient_wind()
+	)

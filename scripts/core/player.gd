@@ -274,12 +274,29 @@ func _spawn_afterimage() -> void:
 	t.tween_property(ghost, "modulate:a", 0.0, 0.25)
 	t.tween_callback(ghost.queue_free)
 
-## 발밑 먼지 파티클
+## 발밑 먼지 파티클 — S59: terrain-specific dust colors
 func _spawn_dust() -> void:
 	var dust = ColorRect.new()
 	var size = randf_range(2.0, 3.5)
 	dust.size = Vector2(size, size)
-	dust.color = Color(0.65, 0.55, 0.4, 0.6)  # 흙먼지 색
+	# S59: Terrain-specific dust color
+	var terrain = _get_terrain_type()
+	var dust_color: Color
+	match terrain:
+		"grass":
+			dust_color = Color(0.29, 0.42, 0.23, 0.6)  # green-brown
+		"stone":
+			dust_color = Color(0.54, 0.54, 0.54, 0.6)  # gray
+		"sand":
+			dust_color = Color(0.77, 0.66, 0.29, 0.6)  # yellow-tan
+		_:
+			# Check for void terrain via scene name
+			var scene = get_tree().current_scene
+			if scene and ("void" in scene.name.to_lower() or "bl07" in scene.name.to_lower() or "seam" in scene.name.to_lower()):
+				dust_color = Color(0.42, 0.23, 0.54, 0.6)  # purple void dust
+			else:
+				dust_color = Color(0.65, 0.55, 0.4, 0.6)  # default earth
+	dust.color = dust_color
 	# 발밑 랜덤 위치
 	dust.global_position = global_position + Vector2(randf_range(-6, 6), randf_range(4, 10))
 	dust.z_index = z_index - 1

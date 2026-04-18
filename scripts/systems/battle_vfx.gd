@@ -26,7 +26,10 @@ func show_damage_number(target: String, amount: int, skill_name: String = "", is
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 	var is_heal = amount < 0
-	if is_heal:
+	var is_miss = (amount == 0 and not is_heal)  # S59: 0 damage = MISS
+	if is_miss:
+		label.text = "MISS"
+	elif is_heal:
 		label.text = "+%d" % abs(amount)
 	else:
 		label.text = str(amount)
@@ -43,7 +46,11 @@ func show_damage_number(target: String, amount: int, skill_name: String = "", is
 
 	# Color coding
 	var dmg_color: Color
-	if is_heal:
+	if is_miss:
+		dmg_color = Color(0.6, 0.6, 0.6)  # S59: gray = miss
+		font_size = 20
+		label.add_theme_font_size_override("font_size", font_size)
+	elif is_heal:
 		dmg_color = Color(0.3, 1.0, 0.4)  # green = heal
 	elif is_burn_cost:
 		dmg_color = Color(0.9, 0.2, 0.15)  # red = burn cost
@@ -87,13 +94,22 @@ func show_damage_number(target: String, amount: int, skill_name: String = "", is
 	var t = _scene.create_tween().set_parallel(true)
 	# Scale punch: big -> normal
 	t.tween_property(label, "scale", Vector2(1.0, 1.0), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	# Float upward
-	t.tween_property(label, "position:y", label.position.y - 60, 1.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	# S59: Healing numbers float DOWN, others float UP
+	if is_heal:
+		t.tween_property(label, "position:y", label.position.y + 40, 1.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	else:
+		t.tween_property(label, "position:y", label.position.y - 60, 1.0).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	# Slight horizontal drift
 	t.tween_property(label, "position:x", label.position.x + randf_range(-15, 15), 1.0)
 	# Fade out after lingering
 	t.tween_property(label, "modulate:a", 0.0, 0.4).set_delay(0.6)
 	t.chain().tween_callback(label.queue_free)
+
+	# S59: Numbers > 200 shake while floating
+	if abs(amount) > 200 and not is_heal and not is_miss:
+		var shake_t = _scene.create_tween().set_loops(8)
+		shake_t.tween_property(label, "position:x", label.position.x + randf_range(-4, 4), 0.06)
+		shake_t.tween_property(label, "position:x", label.position.x + randf_range(-4, 4), 0.06)
 
 ## Screen flash on critical hits (brief white overlay)
 func critical_screen_flash() -> void:
@@ -709,6 +725,116 @@ func _spawn_letter_spark(pos: Vector2) -> void:
 		st.tween_property(spark, "position", target, 0.3).set_ease(Tween.EASE_OUT)
 		st.tween_property(spark, "modulate:a", 0.0, 0.25).set_delay(0.1)
 		st.chain().tween_callback(spark.queue_free)
+
+## ===================== S59: Critical Hit Cinematic =====================
+
+## Play a cinematic cut-in effect for massive damage (150+)
+## Screen dims, diagonal slash sweeps, camera zoom punch
+func play_critical_cinematic() -> void:
+	# Step 1: Screen dim to 50%
+	var dim_overlay = ColorRect.new()
+	dim_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim_overlay.color = Color(0.0, 0.0, 0.0, 0.0)
+	dim_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dim_overlay.z_index = 96
+	_canvas.add_child(dim_overlay)
+
+	var dim_t = _scene.create_tween()
+	dim_t.tween_property(dim_overlay, "color:a", 0.5, 0.08).set_ease(Tween.EASE_OUT)
+
+	# Step 2: Diagonal slash line sweep (white gradient, top-right to bottom-left)
+	var slash = ColorRect.new()
+	slash.size = Vector2(1600, 6)
+	slash.position = Vector2(-200, -100)
+	slash.rotation = -0.6  # ~34 degrees diagonal
+	slash.color = Color(1.0, 1.0, 1.0, 0.9)
+	slash.z_index = 97
+	slash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_canvas.add_child(slash)
+
+	var slash_t = _scene.create_tween().set_parallel(true)
+	slash_t.tween_property(slash, "position", Vector2(-200, 900), 0.25).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	slash_t.tween_property(slash, "color:a", 0.0, 0.15).set_delay(0.12)
+	slash_t.chain().tween_callback(slash.queue_free)
+
+	# Step 3: Camera zoom in 10% then back
+	var orig_scale = _canvas.scale
+	var orig_pivot = _canvas.pivot_offset
+	_canvas.pivot_offset = _canvas.size / 2.0 if _canvas.size.length() > 0 else Vector2(640, 360)
+	var zoom_t = _scene.create_tween()
+	zoom_t.tween_property(_canvas, "scale", Vector2(1.1, 1.1), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	zoom_t.tween_property(_canvas, "scale", Vector2(1.0, 1.0), 0.18).set_ease(Tween.EASE_IN_OUT)
+	zoom_t.tween_callback(func(): _canvas.pivot_offset = orig_pivot)
+
+	# Step 4: Fade dim overlay back out
+	await _scene.get_tree().create_timer(0.3).timeout
+	var restore_t = _scene.create_tween()
+	restore_t.tween_property(dim_overlay, "color:a", 0.0, 0.2).set_ease(Tween.EASE_OUT)
+	restore_t.tween_callback(dim_overlay.queue_free)
+
+
+## ===================== S59: Enemy Ability Warning =====================
+
+## Show a pulsing red warning text above the enemy sprite before ability executes
+func show_ability_warning(ability_name: String, enemy_pos: Vector2) -> void:
+	# Map internal ability names to display names
+	var display_names: Dictionary = {
+		"drain": "Life Drain",
+		"shield": "Dark Barrier",
+		"multi_hit": "Flurry",
+		"poison": "Toxic Cloud",
+		"burn_attack": "Scorch",
+		"weaken": "Curse",
+		"summon": "Shadow Summon",
+		"void_pulse": "Void Pulse",
+		"despair": "Despair",
+		"stun": "Stunning Blow",
+		"reflect": "Mirror Barrier",
+		"charge": "Charging...",
+	}
+	var display = display_names.get(ability_name, ability_name.capitalize())
+
+	var warning = Label.new()
+	warning.text = "!! %s !!" % display
+	warning.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	warning.add_theme_font_size_override("font_size", 16)
+	warning.add_theme_color_override("font_color", Color(1.0, 0.25, 0.2, 1.0))
+	warning.position = enemy_pos + Vector2(-40, -45)
+	warning.z_index = 85
+	warning.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	warning.modulate.a = 0.0
+	_canvas.add_child(warning)
+
+	# Drop shadow for readability
+	var shadow = Label.new()
+	shadow.text = warning.text
+	shadow.add_theme_font_size_override("font_size", 16)
+	shadow.add_theme_color_override("font_color", Color(0, 0, 0, 0.6))
+	shadow.position = Vector2(1, 1)
+	warning.add_child(shadow)
+
+	# Pulse animation: fade in, pulse red, fade out over 0.5s
+	var t = _scene.create_tween()
+	t.tween_property(warning, "modulate:a", 1.0, 0.08)
+	t.tween_property(warning, "modulate", Color(1.5, 0.8, 0.8, 1.0), 0.12)
+	t.tween_property(warning, "modulate", Color(1.0, 0.3, 0.3, 1.0), 0.12)
+	t.tween_property(warning, "modulate:a", 0.0, 0.15).set_delay(0.05)
+	t.tween_callback(warning.queue_free)
+
+
+## ===================== S59: Battle Background Parallax Shift =====================
+
+## Shift battle background subtly in attack direction during strikes
+## direction: -1.0 = shift left (player attacking right), +1.0 = shift right (enemy attacking left)
+func parallax_attack_shift(bg_node: Node, direction: float, amount: float = 8.0) -> void:
+	if bg_node == null or not is_instance_valid(bg_node):
+		return
+	var original_x = bg_node.position.x
+	var shift = amount * direction
+	var t = _scene.create_tween()
+	t.tween_property(bg_node, "position:x", original_x + shift, 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	t.tween_property(bg_node, "position:x", original_x, 0.25).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+
 
 ## Dedicated screen shake for memory burn (stronger, more dramatic)
 func _screen_shake_burn() -> void:

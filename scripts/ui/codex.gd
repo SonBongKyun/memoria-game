@@ -1,6 +1,7 @@
 ## Codex (Autoload)
 ## 도감 시스템 — Bestiary (만난 적) + Memory Archive (수집한 기억)
 ## PauseMenu에서 접근. 영구 저장 (user://codex.json)
+## S59: Visual overhaul — enemy sprite preview, star ratings, defeat badges, animated reveal
 extends CanvasLayer
 
 const SAVE_PATH: String = "user://codex.json"
@@ -22,6 +23,11 @@ var detail_title: Label
 var detail_body: RichTextLabel
 var close_hint: Label
 var _current_tab: String = "bestiary"
+
+# S59: Animated reveal tracking
+var _revealed_entries: Dictionary = {}  # {entry_key: true} — already-seen entries
+var _detail_vbox: VBoxContainer  # reference to detail panel vbox for sprite preview
+var _enemy_preview: Control  # current enemy sprite preview node
 
 signal codex_closed()
 
@@ -49,6 +55,9 @@ func _on_battle_started(enemy: BattleManager.Enemy) -> void:
 	if not enemy_entries.has(enemy.name):
 		enemy_entries[enemy.name] = {"encounters": 0, "defeated": 0, "is_void": enemy.is_void_beast, "max_hp": enemy.max_hp, "atk": enemy.attack, "is_boss": enemy.is_boss}
 	enemy_entries[enemy.name]["encounters"] += 1
+	# S59: Store enemy image path for bestiary preview
+	if BattleManager.enemy_image != "":
+		enemy_entries[enemy.name]["image_path"] = BattleManager.enemy_image
 	_save_data()
 
 func _on_battle_ended(result: BattleManager.BattleState) -> void:
@@ -180,6 +189,7 @@ func _build_ui() -> void:
 	var dvbox = VBoxContainer.new()
 	dvbox.add_theme_constant_override("separation", 8)
 	detail_panel.add_child(dvbox)
+	_detail_vbox = dvbox  # S59: store reference for sprite preview
 
 	detail_title = Label.new()
 	detail_title.text = "Select an entry..."
@@ -236,6 +246,7 @@ func _refresh_list() -> void:
 		c.queue_free()
 	detail_title.text = "Select an entry..."
 	detail_body.text = ""
+	_clear_enemy_preview()  # S59: clean up preview on tab switch
 
 	if _current_tab == "bestiary":
 		_populate_bestiary()
@@ -262,7 +273,10 @@ func _populate_bestiary() -> void:
 		var color = Color(0.6, 0.3, 0.5) if data.get("is_void", false) else Color(0.5, 0.55, 0.45)
 		if data.get("is_boss", false):
 			color = Color(0.7, 0.5, 0.3)
-		var btn = _make_list_btn(enemy_name, color)
+		# S59: Defeat milestone badge suffix
+		var badge_text = _get_defeat_badge(data.get("defeated", 0))
+		var display_name = enemy_name + badge_text
+		var btn = _make_list_btn(display_name, color)
 		btn.pressed.connect(func(): _show_enemy_detail(enemy_name, data))
 		item_list.add_child(btn)
 
@@ -287,7 +301,9 @@ func _populate_memory_archive() -> void:
 		var grade = data.get("grade", 0)
 		var color = GRADE_COLORS_LOCAL[grade] if grade < GRADE_COLORS_LOCAL.size() else Color(0.5, 0.5, 0.5)
 		var suffix = " [BURNED]" if data.get("burned", false) else ""
-		var btn = _make_list_btn(data.get("title", "???") + suffix, color)
+		# S59: Star rating based on grade
+		var stars = _get_star_rating(grade)
+		var btn = _make_list_btn(stars + " " + data.get("title", "???") + suffix, color)
 		btn.pressed.connect(func(): _show_memory_detail(mem_id, data))
 		item_list.add_child(btn)
 
@@ -317,7 +333,14 @@ func _make_list_btn(text: String, color: Color) -> Button:
 ## ===================== 상세 표시 =====================
 
 func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
+	# S59: Remove old enemy preview if exists
+	_clear_enemy_preview()
+
 	detail_title.text = enemy_name
+
+	# S59: Add enemy sprite preview at top of detail panel
+	_add_enemy_preview(enemy_name, data)
+
 	var lines = ""
 	if data.get("is_boss", false):
 		lines += "Type: BOSS\n"
@@ -327,8 +350,11 @@ func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
 		lines += "Type: Normal\n"
 	lines += "Base HP: %d\n" % data.get("max_hp", 0)
 	lines += "Base ATK: %d\n" % data.get("atk", 0)
+	# S59: Defeat milestone badge in detail
+	var defeated = data.get("defeated", 0)
+	var badge = _get_defeat_badge(defeated)
 	lines += "\nEncounters: %d\n" % data.get("encounters", 0)
-	lines += "Defeated: %d\n" % data.get("defeated", 0)
+	lines += "Defeated: %d %s\n" % [defeated, badge]
 	# Scan data (from Tobias analyze)
 	if data.get("scanned", false):
 		var weakness = data.get("weakness", "")
@@ -340,14 +366,125 @@ func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
 		lines += "\n[Not yet scanned — use Tobias: Analyze]\n"
 	detail_body.text = lines
 
+	# S59: Animated entry reveal for first-time views
+	_animate_entry_reveal("enemy_" + enemy_name)
+
 func _show_memory_detail(mem_id: String, data: Dictionary) -> void:
+	# S59: Clear enemy preview when switching to memory
+	_clear_enemy_preview()
+
 	detail_title.text = data.get("title", "???")
 	const GRADE_NAMES_LOCAL = ["Grade 5 — Sensory", "Grade 4 — Daily", "Grade 3 — Relational", "Grade 2 — Identity", "Grade 1 — Core"]
 	var grade = data.get("grade", 0)
 	var grade_name = GRADE_NAMES_LOCAL[grade] if grade < GRADE_NAMES_LOCAL.size() else "Unknown"
 	var status = "BURNED" if data.get("burned", false) else "Held"
-	var lines = "%s\nStatus: %s\n\n%s" % [grade_name, status, data.get("desc", "")]
+	# S59: Star rating in detail view
+	var stars = _get_star_rating(grade)
+	var lines = "%s  %s\nStatus: %s\n\n%s" % [grade_name, stars, status, data.get("desc", "")]
 	detail_body.text = lines
+
+	# S59: Animated entry reveal for first-time views
+	_animate_entry_reveal("memory_" + mem_id)
+
+## ===================== S59: Visual Enhancements =====================
+
+## Star rating based on memory grade (grade 5=1star, grade 1=5stars)
+func _get_star_rating(grade: int) -> String:
+	var star_count = 5 - grade  # grade 0→5 stars, grade 4→1 star
+	star_count = clampi(star_count, 1, 5)
+	var filled = ""
+	var empty = ""
+	for i in range(star_count):
+		filled += "\u2605"
+	for i in range(5 - star_count):
+		empty += "\u2606"
+	return filled + empty
+
+## Defeat milestone badge text
+func _get_defeat_badge(defeated: int) -> String:
+	if defeated >= 50:
+		return " \u25cf"  # Gold dot
+	elif defeated >= 25:
+		return " \u25cb"  # Silver circle
+	elif defeated >= 10:
+		return " \u25e6"  # Bronze ring
+	return ""
+
+## Add enemy sprite preview to detail panel
+func _add_enemy_preview(enemy_name: String, data: Dictionary) -> void:
+	var preview_container = HBoxContainer.new()
+	preview_container.name = "EnemyPreview"
+	preview_container.custom_minimum_size = Vector2(0, 72)
+	preview_container.add_theme_constant_override("separation", 8)
+
+	var image_path = data.get("image_path", "")
+	if image_path != "" and ResourceLoader.exists(image_path):
+		# Use actual enemy image
+		var tex_rect = TextureRect.new()
+		tex_rect.texture = load(image_path)
+		tex_rect.custom_minimum_size = Vector2(64, 64)
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		preview_container.add_child(tex_rect)
+	else:
+		# Colored placeholder with enemy initial
+		var placeholder = ColorRect.new()
+		placeholder.custom_minimum_size = Vector2(64, 64)
+		# Color based on type
+		if data.get("is_boss", false):
+			placeholder.color = Color(0.35, 0.2, 0.1, 0.8)
+		elif data.get("is_void", false):
+			placeholder.color = Color(0.25, 0.1, 0.3, 0.8)
+		else:
+			placeholder.color = Color(0.15, 0.2, 0.15, 0.8)
+		preview_container.add_child(placeholder)
+		# Initial letter overlay
+		var initial_lbl = Label.new()
+		initial_lbl.text = enemy_name.substr(0, 1).to_upper()
+		initial_lbl.add_theme_font_size_override("font_size", 28)
+		initial_lbl.add_theme_color_override("font_color", Color(0.8, 0.75, 0.6, 0.7))
+		initial_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		initial_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		initial_lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+		initial_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		placeholder.add_child(initial_lbl)
+
+	# Insert preview after detail_title (index 0 is title, 1 is separator)
+	if _detail_vbox and _detail_vbox.get_child_count() > 1:
+		_detail_vbox.add_child(preview_container)
+		_detail_vbox.move_child(preview_container, 1)  # after title, before separator
+	_enemy_preview = preview_container
+
+## Clear enemy preview node
+func _clear_enemy_preview() -> void:
+	if _enemy_preview and is_instance_valid(_enemy_preview):
+		_enemy_preview.queue_free()
+		_enemy_preview = null
+
+## Animated entry reveal — slide in from right with flash on first view
+func _animate_entry_reveal(entry_key: String) -> void:
+	if _revealed_entries.has(entry_key):
+		return  # Already seen, no animation
+	_revealed_entries[entry_key] = true
+
+	# Slide detail body from right
+	if detail_body:
+		var original_pos = detail_body.position
+		detail_body.position.x += 60
+		detail_body.modulate = Color(1.2, 1.1, 0.9, 0.0)
+		var t = create_tween()
+		t.set_parallel(true)
+		t.tween_property(detail_body, "position:x", original_pos.x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		t.tween_property(detail_body, "modulate", Color(1, 1, 1, 1), 0.25).set_ease(Tween.EASE_OUT)
+
+	# Brief white flash on detail title
+	if detail_title:
+		var original_color = detail_title.get_theme_color("font_color")
+		detail_title.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8))
+		var t2 = create_tween()
+		t2.tween_property(detail_title, "theme_override_colors/font_color", original_color, 0.4).set_delay(0.1)
+
+	AudioManager.play_sfx("ui_select")
 
 ## ===================== 영구 저장 =====================
 

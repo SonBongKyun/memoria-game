@@ -28,6 +28,12 @@ var colorblind_btn: Button
 var reduce_motion_check: CheckButton
 var auto_advance_check: CheckButton
 
+# S59: Quality & Performance UI references
+var quality_btn: Button
+var vsync_check: CheckButton
+var fps_check: CheckButton
+var _fps_label: Label  # FPS counter overlay (top-left)
+
 # 설정 기본값
 var settings: Dictionary = {
 	"master_volume": 80,
@@ -46,6 +52,10 @@ var settings: Dictionary = {
 	"high_contrast": false,      # Increases outlines, brighter borders
 	"reduce_motion": false,      # Disables particles, simplifies animations
 	"auto_advance_narration": true, # Auto-advance narration lines
+	# S59: Quality & Performance settings
+	"quality_level": 2,              # 0=Low, 1=Medium, 2=High
+	"vsync": true,                   # VSync toggle
+	"show_fps": false,               # FPS counter toggle
 }
 
 const SETTINGS_PATH: String = "user://settings.json"
@@ -82,9 +92,14 @@ func open() -> void:
 		reduce_motion_check.button_pressed = settings.reduce_motion
 	if auto_advance_check:
 		auto_advance_check.button_pressed = settings.auto_advance_narration
+	if vsync_check:
+		vsync_check.button_pressed = settings.vsync
+	if fps_check:
+		fps_check.button_pressed = settings.show_fps
 	_update_difficulty_label()
 	_update_font_size_label()
 	_update_colorblind_label()
+	_update_quality_label()
 	_update_value_labels()
 	overlay.visible = true
 	panel.visible = true
@@ -135,6 +150,15 @@ func _apply_settings() -> void:
 	# S55: Apply dialogue font size to DialogueBox
 	if DialogueBox and DialogueBox.has_method("refresh_font_size"):
 		DialogueBox.refresh_font_size()
+
+	# S59: VSync
+	if settings.get("vsync", true):
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
+	else:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+
+	# S59: FPS counter
+	_apply_fps_counter(settings.get("show_fps", false))
 
 	# S55: Apply high contrast
 	_apply_high_contrast(settings.get("high_contrast", false))
@@ -196,8 +220,21 @@ const TEXT_SPEED_LABELS: Dictionary = {
 	5: "Instant",
 }
 
+const QUALITY_LABELS: Dictionary = {0: "Low", 1: "Medium", 2: "High"}
+const QUALITY_COLORS: Dictionary = {
+	0: Color(0.6, 0.55, 0.5),
+	1: Color(0.7, 0.65, 0.45),
+	2: Color(0.5, 0.8, 0.5),
+}
+
 const FONT_SIZE_LABELS: Dictionary = {0: "Normal", 1: "Large", 2: "Extra Large"}
 const COLORBLIND_LABELS: Dictionary = {0: "Off", 1: "Deuteranopia", 2: "Protanopia", 3: "Tritanopia"}
+
+func _update_quality_label() -> void:
+	if quality_btn:
+		var level = settings.get("quality_level", 2)
+		quality_btn.text = QUALITY_LABELS.get(level, "High")
+		quality_btn.add_theme_color_override("font_color", QUALITY_COLORS.get(level, Color(0.5, 0.8, 0.5)))
 
 func _update_font_size_label() -> void:
 	if font_size_btn:
@@ -416,6 +453,51 @@ func _build_ui() -> void:
 		AudioManager.play_sfx("ui_select")
 	)
 	lang_row.add_child(lang_btn)
+
+	_add_separator(vbox)
+
+	# ========== PERFORMANCE SECTION (S59) ==========
+	_add_section_header(vbox, "PERFORMANCE")
+
+	# Quality Preset
+	var quality_row = HBoxContainer.new()
+	quality_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(quality_row)
+
+	var quality_label = Label.new()
+	quality_label.text = "Quality"
+	quality_label.add_theme_font_size_override("font_size", 15)
+	quality_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	quality_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	quality_row.add_child(quality_label)
+
+	quality_btn = Button.new()
+	quality_btn.custom_minimum_size = Vector2(100, 30)
+	_style_cycle_button(quality_btn)
+	_update_quality_label()
+	quality_btn.pressed.connect(func():
+		settings.quality_level = (settings.quality_level + 1) % 3
+		_update_quality_label()
+		AudioManager.play_sfx("ui_select")
+	)
+	quality_row.add_child(quality_btn)
+
+	# VSync
+	vsync_check = _create_toggle_row(vbox, "VSync", settings.vsync)
+	vsync_check.toggled.connect(func(toggled: bool):
+		settings.vsync = toggled
+		if toggled:
+			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED)
+		else:
+			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	)
+
+	# FPS Counter
+	fps_check = _create_toggle_row(vbox, "Show FPS", settings.show_fps)
+	fps_check.toggled.connect(func(toggled: bool):
+		settings.show_fps = toggled
+		_apply_fps_counter(toggled)
+	)
 
 	_add_separator(vbox)
 
@@ -657,6 +739,62 @@ static func get_status_color(effect_name: String) -> Color:
 		"regeneration": Color(0.0, 0.6, 0.5),
 	}
 	return safe_colors.get(effect_name.to_lower(), Color.WHITE)
+
+## ===================== S59: Quality & Performance =====================
+
+## Get quality level: 0=Low, 1=Medium, 2=High
+static func get_quality() -> int:
+	if OptionsMenu:
+		return OptionsMenu.settings.get("quality_level", 2)
+	return 2
+
+## Get particle multiplier based on quality level: 1.0 for High, 0.5 for Medium, 0.0 for Low
+static func get_particle_multiplier() -> float:
+	var q = get_quality()
+	match q:
+		0: return 0.0
+		1: return 0.5
+		2: return 1.0
+		_: return 1.0
+
+## Check if shaders should be enabled (Low disables shaders)
+static func are_shaders_enabled() -> bool:
+	return get_quality() > 0
+
+## Apply FPS counter (create or hide the overlay label)
+func _apply_fps_counter(show: bool) -> void:
+	if show:
+		if not _fps_label:
+			_fps_label = Label.new()
+			_fps_label.name = "FPSCounter"
+			_fps_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			_fps_label.position = Vector2(8, 4)
+			_fps_label.add_theme_font_size_override("font_size", 12)
+			_fps_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.4, 0.7))
+			_fps_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
+			_fps_label.add_theme_constant_override("outline_size", 2)
+			_fps_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_fps_label.z_index = 1000
+			# Add to a separate root control so it's always visible
+			var fps_root = Control.new()
+			fps_root.name = "FPSRoot"
+			fps_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+			fps_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			fps_root.add_child(_fps_label)
+			add_child(fps_root)
+			set_process(true)
+		_fps_label.visible = true
+		if _fps_label.get_parent():
+			_fps_label.get_parent().visible = true
+	else:
+		if _fps_label:
+			_fps_label.visible = false
+			if _fps_label.get_parent():
+				_fps_label.get_parent().visible = false
+
+func _process(_delta: float) -> void:
+	if _fps_label and _fps_label.visible:
+		_fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
 
 ## ===================== SLIDER BUILDERS =====================
 

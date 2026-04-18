@@ -1425,6 +1425,374 @@ static func spawn_transition_particles(parent: Node, biome: String = "forest") -
 			layer.queue_free()
 	)
 
+## ===================== S59: 인터랙티브 프롭 시스템 =====================
+
+## 맵에 상호작용 가능한 소형 오브젝트 배치
+## type: "barrel" (Grains), "crate" (아이템), "sign" (텍스트), "campfire" (HP 회복)
+static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config: Dictionary = {}) -> Area2D:
+	var area = Area2D.new()
+	area.position = pos + Vector2(16, 16)
+	area.collision_layer = 0
+	area.collision_mask = 2
+
+	var shape = CollisionShape2D.new()
+	var rect_shape = RectangleShape2D.new()
+	rect_shape.size = Vector2(28, 28)
+	shape.shape = rect_shape
+	area.add_child(shape)
+
+	# 비주얼
+	var visual = ColorRect.new()
+	visual.size = Vector2(24, 24)
+	visual.position = Vector2(-12, -12)
+	visual.z_index = 1
+	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var flag_name = "prop_%s_%d_%d" % [type, int(pos.x), int(pos.y)]
+	var interacted = GameManager.get_flag(flag_name)
+
+	match type:
+		"barrel":
+			visual.color = Color(0.45, 0.3, 0.15, 0.7) if not interacted else Color(0.3, 0.25, 0.15, 0.3)
+			# 배럴 디테일 — 수평 줄무늬
+			var stripe = ColorRect.new()
+			stripe.size = Vector2(20, 2)
+			stripe.position = Vector2(-10, -2)
+			stripe.color = Color(0.35, 0.22, 0.1, 0.5)
+			stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			area.add_child(stripe)
+			var stripe2 = ColorRect.new()
+			stripe2.size = Vector2(20, 2)
+			stripe2.position = Vector2(-10, 5)
+			stripe2.color = Color(0.35, 0.22, 0.1, 0.5)
+			stripe2.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			area.add_child(stripe2)
+		"crate":
+			visual.color = Color(0.4, 0.38, 0.35, 0.7) if not interacted else Color(0.3, 0.28, 0.25, 0.3)
+			# 십자 무늬
+			var cross_h = ColorRect.new()
+			cross_h.size = Vector2(20, 2)
+			cross_h.position = Vector2(-10, -1)
+			cross_h.color = Color(0.3, 0.28, 0.22, 0.6)
+			cross_h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			area.add_child(cross_h)
+			var cross_v = ColorRect.new()
+			cross_v.size = Vector2(2, 20)
+			cross_v.position = Vector2(-1, -10)
+			cross_v.color = Color(0.3, 0.28, 0.22, 0.6)
+			cross_v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			area.add_child(cross_v)
+		"sign":
+			visual.size = Vector2(8, 20)
+			visual.position = Vector2(-4, -10)
+			visual.color = Color(0.35, 0.28, 0.2, 0.8)
+			# "!" 텍스트 마커
+			var marker = Label.new()
+			marker.text = "!"
+			marker.add_theme_font_size_override("font_size", 12)
+			marker.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
+			marker.position = Vector2(-3, -20)
+			marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			area.add_child(marker)
+		"campfire":
+			visual.size = Vector2(20, 12)
+			visual.position = Vector2(-10, -2)
+			visual.color = Color(0.3, 0.2, 0.1, 0.6)
+			# 불꽃 파티클
+			var fire = GPUParticles2D.new()
+			var fire_mat = ParticleProcessMaterial.new()
+			fire_mat.direction = Vector3(0, -1, 0)
+			fire_mat.spread = 20.0
+			fire_mat.initial_velocity_min = 6.0
+			fire_mat.initial_velocity_max = 14.0
+			fire_mat.gravity = Vector3(0, -10, 0)
+			fire_mat.scale_min = 0.5
+			fire_mat.scale_max = 1.5
+			var fire_grad = GradientTexture1D.new()
+			var fg = Gradient.new()
+			fg.set_color(0, Color(1.0, 0.85, 0.3, 0.9))
+			fg.add_point(0.4, Color(1.0, 0.5, 0.1, 0.7))
+			fg.set_color(1, Color(0.5, 0.15, 0.05, 0.0))
+			fire_grad.gradient = fg
+			fire_mat.color_ramp = fire_grad
+			fire_mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+			fire_mat.emission_sphere_radius = 4.0
+			fire.process_material = fire_mat
+			fire.amount = 8
+			fire.lifetime = 0.6
+			fire.position = Vector2(0, -4)
+			fire.z_index = 2
+			fire.visibility_rect = Rect2(-16, -24, 32, 32)
+			area.add_child(fire)
+			# 오렌지 글로우
+			var glow = ColorRect.new()
+			glow.size = Vector2(48, 48)
+			glow.position = Vector2(-24, -28)
+			glow.color = Color(0.9, 0.6, 0.2, 0.06)
+			glow.z_index = -1
+			glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			glow.set_meta("campfire_glow", true)
+			glow.set_meta("phase", randf() * TAU)
+			area.add_child(glow)
+
+	area.add_child(visual)
+
+	# 상호작용 처리
+	if not interacted:
+		area.body_entered.connect(func(body):
+			if body.name != "Player" or GameManager.current_state != GameManager.GameState.EXPLORATION:
+				return
+			if GameManager.get_flag(flag_name):
+				return
+			GameManager.set_flag(flag_name)
+			match type:
+				"barrel":
+					var grains = randi_range(1, 3)
+					GameManager.player_data.grains += grains
+					NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
+					AudioManager.play_sfx("ui_select")
+					visual.color = Color(0.3, 0.25, 0.15, 0.3)
+				"crate":
+					var roll = randi() % 100
+					if roll < 40:
+						GameManager.add_item("potion", 1)
+						NotificationToast.show_toast("Found a Potion!", NotificationToast.ToastType.SUCCESS)
+					elif roll < 70:
+						var grains = randi_range(2, 5)
+						GameManager.player_data.grains += grains
+						NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
+					else:
+						NotificationToast.show_toast("The crate is empty.", NotificationToast.ToastType.INFO)
+					AudioManager.play_sfx("ui_select")
+					visual.color = Color(0.3, 0.28, 0.25, 0.3)
+				"sign":
+					var text = config.get("text", "A faded sign. The words are gone.")
+					NotificationToast.show_toast(text, NotificationToast.ToastType.INFO)
+				"campfire":
+					var heal = config.get("heal", 5)
+					GameManager.player_data.hp = mini(GameManager.player_data.hp + heal, GameManager.player_data.max_hp)
+					NotificationToast.show_toast("Rested by the fire. +%d HP" % heal, NotificationToast.ToastType.SUCCESS)
+					AudioManager.play_sfx("ui_select")
+		)
+
+	map.add_child(area)
+	return area
+
+## ===================== S59: NPC 배회 시스템 =====================
+
+## NPC를 반경 내에서 천천히 배회시키는 시스템 (트윈 기반)
+static func add_npc_wander(npc_node: Node2D, radius: float = 48.0) -> void:
+	if npc_node == null or not is_instance_valid(npc_node):
+		return
+	var spawn_pos = npc_node.position
+	npc_node.set_meta("wander_spawn", spawn_pos)
+	npc_node.set_meta("wander_radius", radius)
+	npc_node.set_meta("wander_active", true)
+	# 첫 배회 시작
+	_start_wander_step(npc_node)
+
+## NPC 배회 단일 스텝 (목표 이동 → 대기 → 반복)
+static func _start_wander_step(npc_node: Node2D) -> void:
+	if npc_node == null or not is_instance_valid(npc_node):
+		return
+	if not npc_node.get_meta("wander_active", false):
+		return
+
+	var spawn: Vector2 = npc_node.get_meta("wander_spawn", npc_node.position)
+	var radius: float = npc_node.get_meta("wander_radius", 48.0)
+
+	# 반경 내 랜덤 목표 지점
+	var angle = randf() * TAU
+	var dist = randf_range(radius * 0.2, radius)
+	var target = spawn + Vector2(cos(angle) * dist, sin(angle) * dist)
+
+	# 이동 시간 (20px/s)
+	var move_dist = npc_node.position.distance_to(target)
+	var duration = maxf(move_dist / 20.0, 0.5)
+
+	var tween = npc_node.create_tween()
+	tween.tween_property(npc_node, "position", target, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	# 대기 2~5초
+	var wait = randf_range(2.0, 5.0)
+	tween.tween_interval(wait)
+	# 반복
+	tween.tween_callback(func():
+		_start_wander_step(npc_node)
+	)
+
+## ===================== S59: 트리거 접근 글로우 =====================
+
+## 스토리 트리거 Area2D에 접근 시 펄싱 글로우 테두리 추가
+## 플레이어 위치 기반 — _process에서 호출
+static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time: float) -> void:
+	for child in map.get_children():
+		if not (child is Area2D):
+			continue
+		# 이미 글로우가 있는지 체크
+		var glow_border: ColorRect = null
+		for sub in child.get_children():
+			if sub is ColorRect and sub.has_meta("approach_glow"):
+				glow_border = sub
+				break
+
+		var dist = player_pos.distance_to(child.global_position)
+		if dist < 48.0:
+			# 접근 — 글로우 생성 또는 업데이트
+			if glow_border == null:
+				glow_border = ColorRect.new()
+				# 트리거 크기 추정 (CollisionShape2D에서)
+				var trigger_size = Vector2(32, 32)
+				for sub in child.get_children():
+					if sub is CollisionShape2D and sub.shape is RectangleShape2D:
+						trigger_size = sub.shape.size
+						break
+				glow_border.size = trigger_size + Vector2(4, 4)
+				glow_border.position = -glow_border.size / 2.0
+				glow_border.color = Color(1.0, 1.0, 1.0, 0.0)
+				glow_border.z_index = 3
+				glow_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				glow_border.set_meta("approach_glow", true)
+				# 내부를 투명하게 (테두리만 표시) — 내부 마스크
+				var inner = ColorRect.new()
+				inner.size = trigger_size - Vector2(2, 2)
+				inner.position = Vector2(3, 3)
+				inner.color = Color(0, 0, 0, 0)
+				inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				inner.set_meta("glow_inner", true)
+				glow_border.add_child(inner)
+				child.add_child(glow_border)
+			# 펄싱 알파
+			var pulse = 0.3 + sin(time * 3.0) * 0.2
+			glow_border.color = Color(1.0, 1.0, 1.0, pulse)
+		else:
+			# 멀어짐 — 글로우 제거
+			if glow_border != null:
+				glow_border.queue_free()
+
+## ===================== S59: 프로시저럴 안개 레이어 =====================
+
+## 맵에 깊이감 있는 프로시저럴 안개 추가 (대형 블러 렉트가 천천히 드리프트)
+## 바이옴별 밀도/색상/속도 조절
+static func add_fog_layer(map: Node2D, density: float = 0.5, color: Color = Color(0.3, 0.3, 0.35, 0.06), speed: float = 3.0) -> Array[ColorRect]:
+	var fog_count = int(3 + density * 3)  # 3~6개 안개 렉트
+	var fogs: Array[ColorRect] = []
+
+	var layer = CanvasLayer.new()
+	layer.layer = 2
+
+	for i in range(fog_count):
+		var fog = ColorRect.new()
+		var w = randf_range(250, 550) * (0.8 + density * 0.4)
+		var h = randf_range(80, 200) * (0.8 + density * 0.4)
+		fog.size = Vector2(w, h)
+		fog.position = Vector2(randf_range(-200, 1100), randf_range(50, 650))
+		fog.color = Color(
+			color.r + randf_range(-0.03, 0.03),
+			color.g + randf_range(-0.03, 0.03),
+			color.b + randf_range(-0.03, 0.03),
+			color.a * randf_range(0.7, 1.3)
+		)
+		fog.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		fog.set_meta("fog_speed", speed * randf_range(0.6, 1.4))
+		fog.set_meta("fog_phase", randf() * TAU)
+		fog.set_meta("fog_base_alpha", fog.color.a)
+		fog.set_meta("fog_drift_y", randf_range(-0.5, 0.5))
+		layer.add_child(fog)
+		fogs.append(fog)
+
+	map.add_child(layer)
+	return fogs
+
+## 프로시저럴 안개 업데이트 (_process에서 호출)
+static func update_fog_layer(fogs: Array[ColorRect], time: float) -> void:
+	for fog in fogs:
+		if not is_instance_valid(fog):
+			continue
+		var speed: float = fog.get_meta("fog_speed", 3.0)
+		var phase: float = fog.get_meta("fog_phase", 0.0)
+		var base_a: float = fog.get_meta("fog_base_alpha", 0.06)
+		var drift_y: float = fog.get_meta("fog_drift_y", 0.0)
+
+		fog.position.x += speed * 0.016
+		fog.position.y += sin(time * 0.2 + phase) * drift_y * 0.016
+		fog.color.a = base_a + sin(time * 0.35 + phase) * base_a * 0.4
+
+		# 화면 밖 → 리셋
+		if fog.position.x > 1500:
+			fog.position.x = -fog.size.x - randf_range(0, 200)
+			fog.position.y = randf_range(50, 650)
+
+## ===================== S59: 바람에 의한 초목 흔들림 =====================
+
+## 풀/덤불 타일에 미세한 수평 흔들림 적용 (사인파 x 오프셋)
+## _process에서 호출할 필요 없음 — 트윈 기반 자동 루프
+static func add_wind_sway(map: Node2D, strength: float = 2.0) -> void:
+	# 맵의 기존 풀잎 오버레이(ColorRect)에 바람 흔들림 메타 추가
+	# S43 add_grass_sway로 만든 blade들에 적용
+	for child in map.get_children():
+		if child is ColorRect and child.has_meta("phase"):
+			child.set_meta("wind_strength", strength)
+			child.set_meta("wind_phase_offset", randf() * TAU)
+
+## 바람 흔들림 업데이트 (_process에서 호출)
+## 기존 update_grass_sway와 함께 사용 — 추가 x 오프셋
+static func update_wind_sway(map: Node2D, time: float) -> void:
+	for child in map.get_children():
+		if child is ColorRect and child.has_meta("wind_strength"):
+			var ws: float = child.get_meta("wind_strength", 2.0)
+			var wp: float = child.get_meta("wind_phase_offset", 0.0)
+			# 원래 위치 기반 사인파 x 오프셋
+			var offset_x = sin(time * 0.8 + wp) * ws
+			child.position.x += offset_x * 0.016  # delta 근사
+
+## ===================== S59: 깊이 기반 조명 그라디언트 =====================
+
+## 맵 상단을 약간 밝게, 하단을 약간 어둡게 하는 수직 그라디언트 오버레이
+## 머리 위 광원 시뮬레이션 (5~10% 차이)
+static func add_depth_gradient(map: Node2D, intensity: float = 0.08) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 2  # 안개와 같은 레이어
+
+	# 상단: 밝은 오버레이 (서서히 사라짐)
+	var top_grad = ColorRect.new()
+	top_grad.set_anchors_preset(Control.PRESET_FULL_RECT)
+	top_grad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top_grad.color = Color(1.0, 0.98, 0.9, 0.0)  # 기본 투명
+
+	# 수직 그라디언트를 여러 줄 ColorRect로 근사
+	var strip_count = 8
+	for i in range(strip_count):
+		var strip = ColorRect.new()
+		strip.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		strip.anchor_top = float(i) / strip_count
+		strip.anchor_bottom = float(i + 1) / strip_count
+		strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		# 상단(i=0)은 밝게, 하단(i=strip_count-1)은 어둡게
+		var t = float(i) / (strip_count - 1)
+		if t < 0.5:
+			# 상단 반 — 약간 밝게
+			var bright = (0.5 - t) * 2.0 * intensity
+			strip.color = Color(1.0, 0.98, 0.92, bright)
+		else:
+			# 하단 반 — 약간 어둡게
+			var dark = (t - 0.5) * 2.0 * intensity
+			strip.color = Color(0.0, 0.0, 0.05, dark)
+
+		layer.add_child(strip)
+
+	map.add_child(layer)
+	return layer
+
+## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)
+static func update_campfire_glows(map: Node2D, time: float) -> void:
+	for child in map.get_children():
+		if child is Area2D:
+			for sub in child.get_children():
+				if sub is ColorRect and sub.has_meta("campfire_glow"):
+					var phase: float = sub.get_meta("phase", 0.0)
+					sub.color.a = 0.04 + sin(time * 2.5 + phase) * 0.025
+
 ## 색상 유틸
 static func _darken_c(color: Color, amount: float) -> Color:
 	return Color(maxf(color.r - amount, 0), maxf(color.g - amount, 0), maxf(color.b - amount, 0), color.a)

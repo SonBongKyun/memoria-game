@@ -791,5 +791,109 @@ func _show_stats_panel() -> void:
 			get_viewport().set_input_as_handled()
 	stats_overlay.gui_input.connect(close_handler)
 
+## S59: Quit confirmation dialog
 func _on_quit() -> void:
-	get_tree().quit()
+	AudioManager.play_sfx("ui_select")
+	_show_quit_confirmation()
+
+func _show_quit_confirmation() -> void:
+	var confirm_overlay = ColorRect.new()
+	confirm_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	confirm_overlay.color = Color(0, 0, 0, 0.7)
+	confirm_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(confirm_overlay)
+
+	var confirm_panel = PanelContainer.new()
+	confirm_panel.anchor_left = 0.3
+	confirm_panel.anchor_right = 0.7
+	confirm_panel.anchor_top = 0.35
+	confirm_panel.anchor_bottom = 0.65
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.05, 0.08, 0.98)
+	style.border_color = Color(0.7, 0.4, 0.3, 0.7)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(24)
+	confirm_panel.add_theme_stylebox_override("panel", style)
+	confirm_overlay.add_child(confirm_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 16)
+	confirm_panel.add_child(vbox)
+
+	var question = Label.new()
+	question.text = "Are you sure you want to quit?"
+	question.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	question.add_theme_font_size_override("font_size", 18)
+	question.add_theme_color_override("font_color", Color(0.85, 0.7, 0.5))
+	vbox.add_child(question)
+
+	var hint = Label.new()
+	hint.text = "Unsaved progress will be lost."
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_color_override("font_color", Color(0.55, 0.45, 0.4, 0.7))
+	vbox.add_child(hint)
+
+	var btn_row = HBoxContainer.new()
+	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_row.add_theme_constant_override("separation", 20)
+	vbox.add_child(btn_row)
+
+	var yes_btn = Button.new()
+	yes_btn.text = "Yes, Quit"
+	yes_btn.custom_minimum_size = Vector2(120, 40)
+	var yes_style = StyleBoxFlat.new()
+	yes_style.bg_color = Color(0.25, 0.1, 0.08, 0.9)
+	yes_style.border_color = Color(0.7, 0.35, 0.25, 0.6)
+	yes_style.set_border_width_all(1)
+	yes_style.set_corner_radius_all(3)
+	yes_style.set_content_margin_all(8)
+	yes_btn.add_theme_stylebox_override("normal", yes_style)
+	var yes_hover = yes_style.duplicate()
+	yes_hover.border_color = Color(0.9, 0.45, 0.3, 0.9)
+	yes_btn.add_theme_stylebox_override("hover", yes_hover)
+	yes_btn.add_theme_stylebox_override("focus", yes_hover)
+	yes_btn.add_theme_font_size_override("font_size", 15)
+	yes_btn.add_theme_color_override("font_color", Color(0.85, 0.55, 0.4))
+	yes_btn.add_theme_color_override("font_hover_color", Color(1.0, 0.7, 0.5))
+	yes_btn.pressed.connect(func():
+		get_tree().quit()
+	)
+	yes_btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+	btn_row.add_child(yes_btn)
+
+	var no_btn = Button.new()
+	no_btn.text = "No, Stay"
+	no_btn.custom_minimum_size = Vector2(120, 40)
+	var no_style = StyleBoxFlat.new()
+	no_style.bg_color = Color(0.1, 0.08, 0.12, 0.9)
+	no_style.border_color = Color(0.35, 0.45, 0.3, 0.6)
+	no_style.set_border_width_all(1)
+	no_style.set_corner_radius_all(3)
+	no_style.set_content_margin_all(8)
+	no_btn.add_theme_stylebox_override("normal", no_style)
+	var no_hover = no_style.duplicate()
+	no_hover.border_color = Color(0.5, 0.7, 0.4, 0.9)
+	no_btn.add_theme_stylebox_override("hover", no_hover)
+	no_btn.add_theme_stylebox_override("focus", no_hover)
+	no_btn.add_theme_font_size_override("font_size", 15)
+	no_btn.add_theme_color_override("font_color", Color(0.6, 0.75, 0.5))
+	no_btn.add_theme_color_override("font_hover_color", Color(0.75, 0.9, 0.6))
+	no_btn.pressed.connect(func():
+		AudioManager.play_sfx("ui_close")
+		confirm_overlay.queue_free()
+	)
+	no_btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+	btn_row.add_child(no_btn)
+
+	# ESC closes the confirmation (No)
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			AudioManager.play_sfx("ui_close")
+			confirm_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	confirm_overlay.gui_input.connect(close_handler)
+
+	# Focus the No button by default
+	no_btn.grab_focus()

@@ -1,6 +1,7 @@
 ## SceneTransition (Autoload)
 ## 씬 전환 처리. 페이드/다이아몬드 와이프/디졸브/커튼/로딩 화면 효과 지원.
 ## S57: curtain wipe, loading screen, transition diversity.
+## S59: transition audio stings, void edge glow, elastic easing.
 extends CanvasLayer
 
 var transition_rect: ColorRect
@@ -12,6 +13,9 @@ var wipe_rects: Array = []
 # S57: Curtain wipe rects
 var _curtain_left: ColorRect
 var _curtain_right: ColorRect
+
+# S59: Transition audio sting player
+var _sting_player: AudioStreamPlayer
 
 # S57: Chapter name mapping for loading screen
 const CHAPTER_NAMES: Dictionary = {
@@ -27,9 +31,28 @@ const CHAPTER_NAMES: Dictionary = {
 	10: "Chapter X\nBL-07 Void",
 }
 
+# S59: Gameplay tips for loading screens
+const GAMEPLAY_TIPS: Array = [
+	"Burning Grade 1 memories is irreversible — consider the cost carefully.",
+	"Hold Shift to sprint through exploration areas.",
+	"Press M to open the Memory Archive and review your memories.",
+	"Burned memories leave behind Residue that can still be used in battle at reduced power.",
+	"Equipment can be upgraded up to 3 times at the Memory Shop.",
+	"Check the Codex for enemy weaknesses — exploiting them deals bonus damage.",
+	"Side quests reward rare memories and Grains. Talk to every NPC.",
+	"The Bureau tracks your burns. Burn too many and the world changes around you.",
+	"Combo attacks deal increasing bonus damage — chain 5 hits for maximum effect.",
+	"Press F6 to quick save and F7 to quick load at any time during exploration.",
+]
+
 func _ready() -> void:
 	layer = 100  # 최상위 레이어
 	_create_transition_rect()
+	# S59: Create transition sting audio player
+	_sting_player = AudioStreamPlayer.new()
+	_sting_player.bus = "SFX" if AudioServer.get_bus_index("SFX") >= 0 else "Master"
+	_sting_player.volume_db = -6.0
+	add_child(_sting_player)
 	print("[SceneTransition] Ready")
 
 func _create_transition_rect() -> void:
@@ -50,6 +73,8 @@ func change_scene(scene_path: String, duration: float = 0.5, styled: bool = fals
 			return
 	if tween:
 		tween.kill()
+	# S59: Play transition audio sting
+	_play_transition_sting(scene_path)
 	transition_rect.color = Color.BLACK
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 1.0, duration)
@@ -64,19 +89,23 @@ func change_scene(scene_path: String, duration: float = 0.5, styled: bool = fals
 	# S57: 맵 전환 후 테마 파티클 버스트
 	_spawn_biome_particles(scene_path)
 
-## 전투 진입용 다이아몬드 와이프 전환 (S57: 전투 줌 추가)
+## 전투 진입용 다이아몬드 와이프 전환 (S57: 전투 줌 추가, S59: void glow + sting)
 func change_scene_battle(scene_path: String) -> void:
+	# S59: Play battle transition sting
+	_play_transition_sting(scene_path)
+	# S59: Detect if current map is void-themed for purple edge glow
+	var is_void_map = _is_current_map_void()
 	# S57: 전투 진입 전 카메라 줌인 (플레이어가 있을 때만)
 	var player = get_tree().get_first_node_in_group("player")
 	if player and player.has_method("battle_zoom_in"):
 		await player.battle_zoom_in(0.2)
-	await _diamond_wipe_out(0.6)
+	await _diamond_wipe_out(0.6, is_void_map)
 	get_tree().change_scene_to_file(scene_path)
-	await _diamond_wipe_in(0.5)
+	await _diamond_wipe_in(0.5, is_void_map)
 	# S57: 줌 리셋 (맵 복귀 시 player가 새로 로드되므로 자동 리셋됨)
 
-## 다이아몬드 와이프 아웃 (화면 덮기)
-func _diamond_wipe_out(duration: float) -> void:
+## 다이아몬드 와이프 아웃 (화면 덮기) — S59: void glow + elastic easing
+func _diamond_wipe_out(duration: float, void_glow: bool = false) -> void:
 	_clear_wipe_rects()
 
 	var cols = 16
@@ -84,13 +113,15 @@ func _diamond_wipe_out(duration: float) -> void:
 	var cell_w = 1280.0 / cols
 	var cell_h = 720.0 / rows
 	var max_delay = duration * 0.6
+	# S59: Void maps use dark purple instead of black
+	var wipe_color = Color(0.1, 0.04, 0.16) if void_glow else Color.BLACK
 
 	for y in range(rows):
 		for x in range(cols):
 			var rect = ColorRect.new()
 			rect.size = Vector2(cell_w + 2, cell_h + 2)
 			rect.position = Vector2(x * cell_w - 1, y * cell_h - 1)
-			rect.color = Color.BLACK
+			rect.color = wipe_color
 			rect.scale = Vector2.ZERO
 			rect.pivot_offset = rect.size / 2.0
 			rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -104,12 +135,13 @@ func _diamond_wipe_out(duration: float) -> void:
 			var delay = dist * max_delay
 
 			var t = create_tween()
-			t.tween_property(rect, "scale", Vector2(1.0, 1.0), duration * 0.35).set_delay(delay).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			# S59: Use elastic easing for dynamic burst feel
+			t.tween_property(rect, "scale", Vector2(1.0, 1.0), duration * 0.35).set_delay(delay).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
 
 	await get_tree().create_timer(duration).timeout
 
-## 다이아몬드 와이프 인 (화면 열기)
-func _diamond_wipe_in(duration: float) -> void:
+## 다이아몬드 와이프 인 (화면 열기) — S59: elastic easing
+func _diamond_wipe_in(duration: float, _void_glow: bool = false) -> void:
 	if wipe_rects.is_empty():
 		return
 
@@ -127,7 +159,8 @@ func _diamond_wipe_in(duration: float) -> void:
 		var delay = dist * max_delay
 
 		var t = create_tween()
-		t.tween_property(rect, "scale", Vector2.ZERO, duration * 0.3).set_delay(delay).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		# S59: Elastic easing for dynamic feel
+		t.tween_property(rect, "scale", Vector2.ZERO, duration * 0.3).set_delay(delay).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_ELASTIC)
 		t.tween_callback(rect.queue_free)
 
 	await get_tree().create_timer(duration + 0.1).timeout
@@ -246,6 +279,9 @@ func change_scene_styled(scene_path: String, style: String = "") -> void:
 		style = _detect_style(scene_path)
 	var config = STYLE_CONFIGS.get(style, STYLE_CONFIGS["fade"])
 	var dur: float = config["duration"]
+
+	# S59: Play transition audio sting
+	_play_transition_sting(scene_path)
 
 	if style == "curtain":
 		# S57: Curtain wipe for indoor/market maps
@@ -450,11 +486,27 @@ func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> voi
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	loading_overlay.add_child(line)
 
+	# S59: Random gameplay tip
+	var tip_lbl = Label.new()
+	tip_lbl.text = GAMEPLAY_TIPS[randi() % GAMEPLAY_TIPS.size()]
+	tip_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tip_lbl.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	tip_lbl.position = Vector2(-400, -60)
+	tip_lbl.size = Vector2(800, 40)
+	tip_lbl.add_theme_font_size_override("font_size", 13)
+	tip_lbl.add_theme_color_override("font_color", Color(0.5, 0.48, 0.42, 0.0))
+	tip_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tip_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	loading_overlay.add_child(tip_lbl)
+
 	# Fade in title with breathing
 	var load_tween = create_tween()
 	load_tween.tween_property(title_lbl, "theme_override_colors/font_color",
 		Color(0.75, 0.65, 0.45, 1.0), 0.5).set_ease(Tween.EASE_OUT)
 	load_tween.parallel().tween_property(line, "color:a", 0.5, 0.5)
+	# S59: Fade in tip
+	load_tween.parallel().tween_property(tip_lbl, "theme_override_colors/font_color",
+		Color(0.5, 0.48, 0.42, 0.6), 0.6).set_ease(Tween.EASE_OUT).set_delay(0.3)
 
 	# Breathing pulse
 	var breath = create_tween().set_loops(2)
@@ -653,6 +705,92 @@ func _detect_biome(scene_path: String) -> String:
 		if map_key in scene_path:
 			return BIOME_MAP[map_key]
 	return ""
+
+# ══════════════════════════════════════════════════════════════
+# S59: TRANSITION AUDIO STINGS — procedural biome-matched sounds
+# ══════════════════════════════════════════════════════════════
+
+## Play a brief audio sting matching the target biome
+func _play_transition_sting(scene_path: String) -> void:
+	if not _sting_player:
+		return
+	var biome = _detect_biome(scene_path)
+	var samples = _generate_transition_sting(biome)
+	if samples.size() == 0:
+		return
+	var stream = AudioStreamWAV.new()
+	var byte_data = PackedByteArray()
+	for s in samples:
+		var val = int(clampf(s, -1.0, 1.0) * 32767)
+		byte_data.append(val & 0xFF)
+		byte_data.append((val >> 8) & 0xFF)
+	stream.data = byte_data
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = 22050
+	stream.stereo = false
+	_sting_player.stream = stream
+	_sting_player.play()
+
+## Generate procedural transition sting samples based on biome
+func _generate_transition_sting(biome: String) -> PackedFloat32Array:
+	var samples = PackedFloat32Array()
+	var sr = 22050
+
+	match biome:
+		"forest":
+			# Soft wind whoosh — filtered noise with gentle pitch sweep
+			var dur = 0.35
+			for i in range(int(sr * dur)):
+				var t = float(i) / sr
+				var env = sin(t / dur * PI) * 0.25
+				var noise = randf_range(-1.0, 1.0) * 0.15
+				var wind = sin(t * 120.0 * TAU) * 0.05
+				samples.append((noise + wind) * env)
+		"void":
+			# Deep bass drone — low frequency ominous rumble
+			var dur = 0.5
+			for i in range(int(sr * dur)):
+				var t = float(i) / sr
+				var env = sin(t / dur * PI) * 0.3
+				var bass = sin(t * 40.0 * TAU) * 0.25
+				var sub = sin(t * 25.0 * TAU) * 0.15
+				var noise = randf_range(-0.05, 0.05)
+				samples.append((bass + sub + noise) * env)
+		"shelter", "belt":
+			# Crowd murmur fade — layered low noise with subtle tone
+			var dur = 0.3
+			for i in range(int(sr * dur)):
+				var t = float(i) / sr
+				var env = (1.0 - t / dur) * 0.2
+				var murmur = randf_range(-0.12, 0.12)
+				var tone = sin(t * 200.0 * TAU) * 0.03
+				samples.append((murmur + tone) * env)
+		"coast":
+			# Wave-like whoosh — rising then fading noise
+			var dur = 0.4
+			for i in range(int(sr * dur)):
+				var t = float(i) / sr
+				var env = sin(t / dur * PI) * 0.22
+				var wave = sin(t * 80.0 * TAU) * 0.08
+				var noise = randf_range(-0.15, 0.15)
+				samples.append((noise + wave) * env)
+		_:
+			# Default simple whoosh — clean noise sweep
+			var dur = 0.25
+			for i in range(int(sr * dur)):
+				var t = float(i) / sr
+				var env = (1.0 - t / dur) * 0.2
+				samples.append(randf_range(-0.15, 0.15) * env)
+
+	return samples
+
+## Check if the current map is void-themed
+func _is_current_map_void() -> bool:
+	var scene = get_tree().current_scene
+	if not scene:
+		return false
+	var sname = scene.name.to_lower()
+	return "void" in sname or "bl07" in sname or "seam" in sname
 
 ## 씬 전환 후 테마 파티클 스폰 (전투 씬 제외)
 func _spawn_biome_particles(scene_path: String) -> void:

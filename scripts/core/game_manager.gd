@@ -483,6 +483,37 @@ func _ready() -> void:
 	mark_chapter_start()
 	print("[GameManager] Initialized — MEMORIA v0.1.0 (seen endings: %d)" % seen_endings.size())
 
+## S59: Screenshot mode — F12 to capture
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F12 or event.physical_keycode == KEY_F12:
+			_take_screenshot()
+			get_viewport().set_input_as_handled()
+
+func _take_screenshot() -> void:
+	# Ensure screenshots directory exists
+	var dir = DirAccess.open("user://")
+	if dir and not dir.dir_exists("screenshots"):
+		dir.make_dir("screenshots")
+
+	# Capture the viewport
+	var image = get_viewport().get_texture().get_image()
+	if not image:
+		return
+
+	# Generate filename with timestamp
+	var datetime = Time.get_datetime_dict_from_system()
+	var filename = "screenshot_%04d%02d%02d_%02d%02d%02d.png" % [
+		datetime.year, datetime.month, datetime.day,
+		datetime.hour, datetime.minute, datetime.second
+	]
+	var path = "user://screenshots/" + filename
+	image.save_png(path)
+
+	# Show toast notification
+	NotificationToast.show_toast("Screenshot saved: %s" % filename, NotificationToast.ToastType.SUCCESS)
+	print("[GameManager] Screenshot saved: %s" % path)
+
 func _process(delta: float) -> void:
 	# S55: 플레이 타임 추적 (일시정지 아닐 때만)
 	if current_state != GameState.PAUSED and current_state != GameState.MENU:

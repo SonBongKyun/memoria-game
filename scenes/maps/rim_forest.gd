@@ -58,6 +58,7 @@ var _blend_edges: Array[ColorRect] = []  # S53: 타일 경계 블렌딩
 var _drifting_flies: Array[ColorRect] = []  # S57: 사인파 반딧불
 var _falling_leaves: Array[ColorRect] = []  # S57: 낙엽
 var _tod_layer: CanvasLayer = null  # S57: 시간대 색조
+var _fog_layer: Array[ColorRect] = []  # S59: 프로시저럴 안개
 
 @onready var player: CharacterBody2D = $Player
 
@@ -96,6 +97,11 @@ func _ready() -> void:
 	MapEffects.add_lore_glow(self, Vector2(20 * TILE_SIZE, 4 * TILE_SIZE), Color(0.85, 0.7, 0.3, 0.5))
 	# S57: 맵 진입 테마 파티클
 	MapEffects.spawn_transition_particles(self, "forest")
+	# S59: 인터랙티브 프롭 + 분위기 강화
+	_setup_interactive_props()
+	_fog_layer = MapEffects.add_fog_layer(self, 0.5, Color(0.2, 0.22, 0.18, 0.05), 2.5)
+	MapEffects.add_wind_sway(self, 2.0)
+	MapEffects.add_depth_gradient(self, 0.07)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_camp_trigger()
@@ -121,6 +127,11 @@ func _process(delta: float) -> void:
 	MapEffects.update_grass_sway(_grass_blades, _time)
 	MapEffects.update_pollen(_pollen, _time, delta)
 	MapEffects.update_camera_shake(_camera, _time)
+	# S59: 안개 + 바람 + 트리거 글로우 + 캠프파이어
+	MapEffects.update_fog_layer(_fog_layer, _time)
+	MapEffects.update_wind_sway(self, _time)
+	MapEffects.update_trigger_approach_glow(self, player.position, _time)
+	MapEffects.update_campfire_glows(self, _time)
 	# S57: 와일드라이프 + 시간대 + 로어 글로우 업데이트
 	MapEffects.update_drifting_fireflies(_drifting_flies, _time)
 	MapEffects.update_falling_leaves(_falling_leaves, _time, delta)
@@ -303,6 +314,16 @@ func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dia
 				AchievementManager.unlock("hidden_stump")
 	)
 	add_child(area)
+
+## ===================== S59: 인터랙티브 프롭 =====================
+
+func _setup_interactive_props() -> void:
+	# 숲 길가 나무통 (Grains)
+	MapEffects.add_interactive_prop(self, Vector2(6 * TILE_SIZE, 8 * TILE_SIZE), "barrel")
+	# 쓰러진 나무 옆 상자 (아이템)
+	MapEffects.add_interactive_prop(self, Vector2(16 * TILE_SIZE, 5 * TILE_SIZE), "crate")
+	# 캠프파이어 — 남쪽 길 근처 (HP 회복)
+	MapEffects.add_interactive_prop(self, Vector2(12 * TILE_SIZE, 13 * TILE_SIZE), "campfire", {"heal": 5})
 
 ## ===================== 인터랙티브 오브젝트 =====================
 

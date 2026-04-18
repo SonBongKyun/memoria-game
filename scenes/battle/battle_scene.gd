@@ -1132,6 +1132,7 @@ func _connect_signals() -> void:
 	BattleManager.auto_battle_changed.connect(_on_auto_battle_changed)  # S55: auto battle
 	BattleManager.pre_attack.connect(_on_pre_attack)  # S58: anticipation
 	BattleManager.victory_rewards_ready.connect(_on_victory_rewards_ready)  # S58: animated rewards
+	BattleManager.enemy_ability_telegraph.connect(_on_enemy_ability_telegraph)  # S59: ability warning
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -1164,6 +1165,8 @@ func _exit_tree() -> void:
 		BattleManager.pre_attack.disconnect(_on_pre_attack)
 	if BattleManager.victory_rewards_ready.is_connected(_on_victory_rewards_ready):
 		BattleManager.victory_rewards_ready.disconnect(_on_victory_rewards_ready)
+	if BattleManager.enemy_ability_telegraph.is_connected(_on_enemy_ability_telegraph):
+		BattleManager.enemy_ability_telegraph.disconnect(_on_enemy_ability_telegraph)
 	# S56: Cleanup battle VFX status particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
@@ -1286,6 +1289,10 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	if amount >= 200 and target != "Arrel":
 		_critical_zoom_punch()
 
+	# S59: Critical hit cinematic cut-in (150+ damage)
+	if amount >= 150 and target != "Arrel" and battle_vfx:
+		battle_vfx.play_critical_cinematic()
+
 	# S56: Skill-specific element particle effects
 	if skill_name != "" and target != "Arrel":
 		_play_attack_vfx(skill_name)
@@ -1304,6 +1311,10 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 ## Plays wind-up squash, lunge strike, then follow-through return
 ## Called BEFORE damage is dealt — BattleManager awaits timer in parallel
 func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
+	# S59: Battle background parallax shift in attack direction
+	if battle_vfx and bg:
+		var direction = 1.0 if attacker == "Arrel" else -1.0  # player attacks right, enemy attacks left
+		battle_vfx.parallax_attack_shift(bg, direction, 8.0)
 	if attacker == "Arrel":
 		# --- Player attacking enemy ---
 		if not player_sprite or not player_sprite_container:
@@ -1361,6 +1372,10 @@ func _on_player_turn() -> void:
 	_play_turn_dim()
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
+	# S59: Show enemy intent hint in battle log
+	var hint = BattleManager.get_next_turn_hint()
+	if hint != "":
+		_on_battle_log("[INTEL] " + hint)
 	# S57: Enhanced combo counter display (persistent + escalating)
 	if BattleManager.combo_count >= 2:
 		_play_combo_burst(BattleManager.combo_count)
@@ -1398,6 +1413,16 @@ func _on_enemy_turn() -> void:
 		stance_container.visible = false
 	if elia_skill_container:
 		elia_skill_container.visible = false
+
+## S59: Enemy ability telegraph — show warning VFX before special ability
+func _on_enemy_ability_telegraph(ability_name: String, _delay: float) -> void:
+	if battle_vfx and enemy_sprite_container:
+		var enemy_pos = enemy_sprite_container.position
+		battle_vfx.show_ability_warning(ability_name, enemy_pos)
+	# Show turn hint about what's coming
+	var hint = BattleManager.get_next_turn_hint()
+	if hint != "":
+		_on_battle_log(hint)
 
 func _on_status_changed() -> void:
 	_update_status_icons()

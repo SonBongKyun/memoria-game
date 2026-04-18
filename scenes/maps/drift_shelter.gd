@@ -40,6 +40,7 @@ var _occluders: Array[LightOccluder2D] = []  # S52
 var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
 var _lightning: ColorRect = null  # S53: 번개
+var _fog_layer: Array[ColorRect] = []  # S59
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -57,6 +58,9 @@ func _ready() -> void:
 	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.3, 0.45), "brightness": -0.05})
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
 	MapEffects.add_drop_shadow(player)
+	# S59: 비에 젖은 안개 + 깊이 그라디언트
+	_fog_layer = MapEffects.add_fog_layer(self, 0.6, Color(0.25, 0.25, 0.3, 0.06), 1.5)
+	MapEffects.add_depth_gradient(self, 0.05)
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -82,6 +86,9 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	MapEffects.update_camera_shake(_camera, effect_time)
 	MapEffects.update_lightning(_lightning, delta)  # S53: 번개
+	# S59: 안개 + 트리거 글로우
+	MapEffects.update_fog_layer(_fog_layer, effect_time)
+	MapEffects.update_trigger_approach_glow(self, player.position, effect_time)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션

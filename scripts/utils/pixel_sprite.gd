@@ -28,13 +28,17 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 			var walk_img = _draw_character(config, dir, step + 1)
 			frames.add_frame(walk_name, ImageTexture.create_from_image(walk_img))
 
-		# S57: Attack frame (1 frame per direction) — arm swung forward + slash arc
+		# S59: Multi-frame attack (3 frames: wind-up, swing, follow-through) at 12 FPS
 		var attack_name = "attack_" + dir
 		frames.add_animation(attack_name)
-		frames.set_animation_speed(attack_name, 1)
+		frames.set_animation_speed(attack_name, 12)
 		frames.set_animation_loop(attack_name, false)
-		var attack_img = _draw_attack_frame(config, dir)
-		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_img))
+		var attack_windup = _draw_attack_frame_windup(config, dir)
+		var attack_swing = _draw_attack_frame(config, dir)
+		var attack_follow = _draw_attack_frame_followthrough(config, dir)
+		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_windup))
+		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_swing))
+		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_follow))
 
 	# S57: Hurt frame (1 frame, direction-independent — slight lean back)
 	var hurt_name = "hurt"
@@ -220,6 +224,12 @@ static func _draw_front(img: Image, c: Dictionary, by: int, walk: int, step: int
 		_fill_rect(img, hx + 12, ty + 1, 2, 9, _darken(acc_color, 0.2))
 		_fill_rect(img, hx + 11, ty, 4, 2, acc_color)  # 검자루
 		_set_px(img, hx + 12, ty - 1, _lighten(acc_color, 0.15))
+	elif acc_type == "staff":
+		# S59: Staff accessory — vertical line on character's side
+		var staff_color = _darken(acc_color, 0.1)
+		_fill_rect(img, hx + 13, ty - 3, 1, 14, staff_color)
+		_set_px(img, hx + 13, ty - 4, _lighten(acc_color, 0.3))  # staff tip glow
+		_set_px(img, hx + 13, ty - 3, _lighten(acc_color, 0.15))
 	elif acc_type == "scar":
 		_set_px(img, hx + 1, fy + 3, _darken(skin, 0.3))
 		_set_px(img, hx + 2, fy + 4, _darken(skin, 0.3))
@@ -317,11 +327,15 @@ static func _draw_back(img: Image, c: Dictionary, by: int, walk: int, step: int)
 	# 벨트
 	_fill_rect(img, hx, ty + 8, 12, 1, _darken(coat, 0.2))
 
-	# 검 (등에 걸침)
+	# 검/지팡이 (등에 걸침)
 	if acc_type == "sword":
 		_fill_rect(img, hx + 3, ty - 3, 2, 12, _darken(acc_color, 0.2))
 		_fill_rect(img, hx + 2, ty - 3, 4, 2, acc_color)
 		_set_px(img, hx + 3, ty - 4, _lighten(acc_color, 0.1))
+	elif acc_type == "staff":
+		# S59: Staff on back
+		_fill_rect(img, hx + 4, ty - 5, 1, 16, _darken(acc_color, 0.1))
+		_set_px(img, hx + 4, ty - 6, _lighten(acc_color, 0.3))
 
 	# ── 팔 ──
 	var arm_swing = 0
@@ -478,6 +492,64 @@ static func _draw_attack_frame(config: Dictionary, direction: String) -> Image:
 	if direction == "right":
 		_flip_horizontal(img)
 
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+	return img
+
+## S59: Attack frame 1 — Wind-up (arm pulled back)
+static func _draw_attack_frame_windup(config: Dictionary, direction: String) -> Image:
+	var img = _draw_character(config, direction, 0)
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var c_s = _darken(coat, 0.12)
+	var hx = 17
+
+	match direction:
+		"down", "up":
+			# Right arm pulled back (behind body)
+			var ay = 16
+			_fill_rect(img, hx + 13, ay + 2, 3, 6, coat)
+			_fill_rect(img, hx + 13, ay + 2, 1, 6, c_s)
+			_fill_rect(img, hx + 13, ay + 8, 3, 2, skin)
+		"left", "right":
+			# Arm pulled back behind torso
+			var ty = 16
+			_fill_rect(img, hx + 8, ty + 1, 3, 6, coat)
+			_fill_rect(img, hx + 8, ty + 7, 3, 2, skin)
+
+	if direction == "right":
+		_flip_horizontal(img)
+	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
+	return img
+
+## S59: Attack frame 3 — Follow-through (arm extended, slight lean, slash trail)
+static func _draw_attack_frame_followthrough(config: Dictionary, direction: String) -> Image:
+	var img = _draw_character(config, direction, 0)
+	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
+	var coat = config.get("coat", Color(0.2, 0.22, 0.35))
+	var hx = 17
+	var slash_trail = Color(1, 1, 1, 0.5)  # faded slash trail
+
+	match direction:
+		"down", "up":
+			# Arm extended far forward + lean
+			var ay = 14
+			_fill_rect(img, hx + 16, ay - 4, 3, 8, coat)
+			_fill_rect(img, hx + 16, ay + 4, 3, 2, skin)
+			# Fading slash trail (2 white pixels)
+			for i in range(10):
+				_set_px(img, hx + 19 + i, ay - 5 + i, slash_trail)
+				_set_px(img, hx + 20 + i, ay - 5 + i, Color(1, 1, 1, 0.3))
+		"left", "right":
+			var ty = 14
+			_fill_rect(img, hx - 8, ty - 1, 3, 8, coat)
+			_fill_rect(img, hx - 8, ty + 7, 3, 2, skin)
+			# Fading slash trail
+			for i in range(9):
+				_set_px(img, hx - 10 - i, ty - 3 + i, slash_trail)
+				_set_px(img, hx - 11 - i, ty - 3 + i, Color(1, 1, 1, 0.3))
+
+	if direction == "right":
+		_flip_horizontal(img)
 	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
 	return img
 
