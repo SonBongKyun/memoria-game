@@ -129,7 +129,8 @@ static func update_lantern_lights(lights: Array[ColorRect], time: float) -> void
 			rect.color.a = flicker
 
 ## 보이드 파티클 생성 (떠다니는 보라색 입자)
-static func add_void_particles(parent: Node2D) -> GPUParticles2D:
+## S59 호환: 맵별로 크기/색상/수량 커스터마이즈 가능
+static func add_void_particles(parent: Node2D, map_width: float = 640.0, map_height: float = 640.0, color_override: Color = Color(0, 0, 0, 0), amount: int = 25) -> GPUParticles2D:
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
 
@@ -140,25 +141,30 @@ static func add_void_particles(parent: Node2D) -> GPUParticles2D:
 	mat.gravity = Vector3(0, -5, 0)  # 위로 떠오르는 느낌
 	mat.scale_min = 1.0
 	mat.scale_max = 2.5
-	mat.color = Color(0.3, 0.1, 0.5, 0.4)
+	# 색상 오버라이드 지원 (alpha > 0이면 커스텀)
+	var base_color = Color(0.3, 0.1, 0.5, 0.4) if color_override.a == 0.0 else color_override
+	mat.color = base_color
 
 	var gradient = GradientTexture1D.new()
 	var g = Gradient.new()
-	g.set_color(0, Color(0.3, 0.1, 0.5, 0.0))
+	var fade_color = Color(base_color.r, base_color.g, base_color.b, 0.0)
+	var mid_color = Color(base_color.r * 1.2, base_color.g * 1.2, base_color.b * 1.2, base_color.a)
+	g.set_color(0, fade_color)
 	g.set_offset(0, 0.0)
-	g.add_point(0.3, Color(0.4, 0.15, 0.6, 0.4))
-	g.add_point(0.7, Color(0.3, 0.1, 0.5, 0.3))
-	g.set_color(1, Color(0.2, 0.05, 0.3, 0.0))
+	g.add_point(0.3, mid_color)
+	g.add_point(0.7, base_color)
+	g.set_color(1, fade_color)
 	gradient.gradient = g
 	mat.color_ramp = gradient
 
 	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	mat.emission_box_extents = Vector3(320, 320, 0)
+	mat.emission_box_extents = Vector3(map_width * 0.5, map_height * 0.5, 0)
 
 	particles.process_material = mat
-	particles.amount = 25
+	particles.amount = amount
 	particles.lifetime = 5.0
-	particles.visibility_rect = Rect2(-400, -400, 800, 800)
+	particles.position = Vector2(map_width * 0.5, map_height * 0.5)
+	particles.visibility_rect = Rect2(-map_width * 0.5, -map_height * 0.5, map_width, map_height)
 
 	parent.add_child(particles)
 
