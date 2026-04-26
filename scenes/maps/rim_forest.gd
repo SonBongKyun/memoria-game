@@ -103,19 +103,32 @@ func _ready() -> void:
 	MapEffects.add_wind_sway(self, 2.0)
 	MapEffects.add_depth_gradient(self, 0.07)
 	_position_player()
+	# S66 (A안 — Act I 데모 슬림화):
+	# 보스(Void Beast) 트리거 + 캠프 + 핵심 히든 이벤트만 유지.
+	# 비활성: 랜덤 인카운터, 사이드 퀘스트 — 코드 보존, 호출만 차단.
 	_setup_battle_triggers()
 	_setup_camp_trigger()
 	_setup_hidden_events()
 	_setup_interactive_objects()
-	_setup_random_encounters()
-	_setup_side_quests()
+	# _setup_random_encounters()  # S66: VN 정체성에 맞지 않음 — 비활성
+	# _setup_side_quests()        # S66: 사이드 분기 제거, 본 스토리에 집중
 	_setup_map_decorations()
 	AchievementManager.record_map_visit("rim_forest")
+	# S64: Perception Drift — daily_campfire_song 태웠으면 엘리아를 창백하게, "Echo of the Song" 오브젝트 표시
+	_setup_perception_nodes()
+	PerceptionFilter.apply(self)
 	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
-	# 스토리 시퀀스 시작 (첫 진입 시만)
-	if not GameManager.get_flag("ch1_opening_done"):
-		# 챕터 타이틀 카드 표시 후 대화 시작
+	# S60: VN 하이브리드 모드 — VN이 프롤로그를 이미 재생했으면 스토리 건너뛰고
+	# 자유 탐색 + 남쪽 끝에서 VN 재개(ch1_after_forest).
+	if SceneFlow.resume_queue.size() > 0:
+		GameManager.set_flag("ch1_opening_done")
+		GameManager.set_flag("ch1_elia_appeared")
+		GameManager.set_flag("ch1_ash_rain_seen")
+		_start_ash_rain()
+		print("[RimForest] VN hybrid mode — free exploration, exit south to resume VN")
+	# 레거시 스토리 시퀀스 (VN 없이 직접 진입 시)
+	elif not GameManager.get_flag("ch1_opening_done"):
 		await MapEffects.show_chapter_title(self, 1, "Rim Forest", "The edge of what remains")
 		await get_tree().create_timer(0.3).timeout
 		_start_story_sequence()
@@ -141,9 +154,10 @@ func _process(delta: float) -> void:
 	var vp_rect = Rect2(player.position - Vector2(700, 400), Vector2(1400, 800))
 	MapEffects.cull_offscreen_particles(_pollen, vp_rect)
 	MapEffects.cull_offscreen_particles(_grass_blades, vp_rect)
-	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
-	if _encounter_data:
-		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
+	# S66: 미니맵·랜덤 인카운터 비활성화 (Act I VN 정체성)
+	# Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
+	# if _encounter_data:
+	# 	RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
 		if npc.has_node("AnimatedSprite2D"):
@@ -228,7 +242,18 @@ func _setup_camp_trigger() -> void:
 	area.add_child(shape)
 
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.get_flag("ch1_ash_rain_seen") and not GameManager.get_flag("ch1_camp_done"):
+		if body.name != "Player" or GameManager.get_flag("ch1_camp_done"):
+			return
+		# S66 (Act I 데모): 보스(Void Beast) 처치 전에는 진행 불가 — 클라이맥스 필수화
+		if not GameManager.get_flag("ch1_void_beast_defeated"):
+			NotificationToast.show_toast("Something blocks the path. Find what hunts these woods.")
+			return
+		# S60: VN 하이브리드 — 복귀 큐가 있으면 VN으로 돌아감 (vn_host._ready가 자동 resume)
+		if SceneFlow.resume_queue.size() > 0:
+			GameManager.set_flag("ch1_camp_done")
+			SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
+			return
+		if GameManager.get_flag("ch1_ash_rain_seen"):
 			_start_camp_scene()
 	)
 
@@ -253,47 +278,100 @@ func _on_camp_ended() -> void:
 		SceneTransition.change_scene_chapter_complete("res://scenes/maps/verdan_market.tscn", 1)
 	)
 
+## ===================== S64: Perception Drift =====================
+
+## daily_campfire_song을 태운 플레이어에게만 보이는 "노래의 잔향"
+## 태우지 않았으면 일반 인카운터 구역, 태웠으면 흐릿한 빛이 캠프파이어 주변을 맴돈다.
+func _setup_perception_nodes() -> void:
+	# 태운 기억의 잔향 — 캠프 구역 근처 포인트라이트 + 파티클
+	var echo = Node2D.new()
+	echo.name = "SongEcho"
+	echo.position = Vector2(11 * TILE_SIZE, 15 * TILE_SIZE)
+	echo.add_to_group("perception_burned_daily_campfire_song")
+	add_child(echo)
+
+	var light = PointLight2D.new()
+	var tex = GradientTexture2D.new()
+	var gradient = Gradient.new()
+	gradient.add_point(0.0, Color(1, 0.85, 0.55, 1))
+	gradient.add_point(1.0, Color(1, 0.85, 0.55, 0))
+	tex.gradient = gradient
+	tex.width = 128
+	tex.height = 128
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	light.texture = tex
+	light.energy = 0.8
+	light.color = Color(1, 0.7, 0.4)
+	echo.add_child(light)
+
+	# 부유하는 재색 파티클 (잔향의 기억)
+	var particles = GPUParticles2D.new()
+	particles.amount = 12
+	particles.lifetime = 4.0
+	particles.preprocess = 2.0
+	var pmat = ParticleProcessMaterial.new()
+	pmat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	pmat.emission_sphere_radius = 40.0
+	pmat.direction = Vector3(0, -1, 0)
+	pmat.initial_velocity_min = 8.0
+	pmat.initial_velocity_max = 16.0
+	pmat.gravity = Vector3(0, -3, 0)
+	pmat.scale_min = 1.5
+	pmat.scale_max = 3.0
+	pmat.color = Color(1, 0.85, 0.6, 0.5)
+	particles.process_material = pmat
+	echo.add_child(particles)
+
+	# 상호작용 Area — 다가가면 짧은 나레이션 (이미 태운 기억의 흔적)
+	var area = Area2D.new()
+	area.collision_layer = 0
+	area.collision_mask = 2
+	var shape = CollisionShape2D.new()
+	var rect = RectangleShape2D.new()
+	rect.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
+	shape.shape = rect
+	area.add_child(shape)
+	area.body_entered.connect(func(body):
+		if body.name == "Player" and not GameManager.get_flag("ch1_song_echo_heard"):
+			GameManager.set_flag("ch1_song_echo_heard")
+			NotificationToast.show_toast("A faint warmth. A song you no longer know.")
+	)
+	echo.add_child(area)
+
+	# 엘리아 창백 틴트 — companions 그룹의 Elia 찾아 modulate 지정
+	for npc in get_tree().get_nodes_in_group("companions"):
+		if "npc_name" in npc and String(npc.npc_name) == "Elia":
+			npc.set_meta("on_burned_tint_memory", "daily_campfire_song")
+			npc.set_meta("on_burned_tint", Color(0.75, 0.8, 0.85, 0.85))
+			break
+
 ## ===================== 히든 이벤트 =====================
 
 func _setup_hidden_events() -> void:
-	# 숨겨진 나무 그루터기 (우측 하단 덤불 근처)
+	# S66 (Act I 데모): 핵심 3개만 — 기억 사당(테마 강화), 그루터기(A.E. 모멘트), 엘리아 기억 대화
+	# 제거: dead_burner(잡 분위기), forest_walk(중복), anchor_talk(중복), MemoryResonance(미니게임 잡요소)
+
+	# 그루터기 — 'A. E.' 각인. Act I 정체성 직결.
 	_add_hidden_trigger(
 		Vector2(20 * TILE_SIZE, 13 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		DIALOGUE_FILE, "hidden_stump", "hidden_ch1_stump"
 	)
-	# S48: 탐색 이벤트 — 기억 사당 (좌측 상단 덤불 근처)
+	# 기억 사당 — 세계관 확립
 	_add_hidden_trigger(
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		DIALOGUE_FILE, "forest_shrine", "ch1_shrine_found"
 	)
-	# S48: 탐색 이벤트 — 죽은 버너 (좌측 중앙)
-	_add_hidden_trigger(
-		Vector2(2 * TILE_SIZE, 9 * TILE_SIZE),
-		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
-		DIALOGUE_FILE, "dead_burner", "ch1_dead_burner"
-	)
-	# S48: 엘리아 대화 — 숲 산책 (중앙 길 주변, 오프닝 후)
-	_add_hidden_trigger(
-		Vector2(14 * TILE_SIZE, 6 * TILE_SIZE),
-		Vector2(TILE_SIZE * 3, TILE_SIZE * 2),
-		DIALOGUE_FILE, "elia_forest_walk", "ch1_elia_walk"
-	)
-	# S48: 엘리아 대화 — 기억 이야기 (길 남쪽)
+	# 엘리아 — 기억 이야기. 관계성 핵심 비트.
 	_add_hidden_trigger(
 		Vector2(10 * TILE_SIZE, 12 * TILE_SIZE),
 		Vector2(TILE_SIZE * 3, TILE_SIZE * 2),
 		DIALOGUE_FILE, "elia_memory_talk", "ch1_elia_memory"
 	)
-	# S48: 엘리아 대화 — 앵커 설명 (캠프 근처)
-	_add_hidden_trigger(
-		Vector2(12 * TILE_SIZE, 14 * TILE_SIZE),
-		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
-		DIALOGUE_FILE, "elia_anchor_talk", "ch1_elia_anchor"
-	)
-	# S51: 기억 공명 지점
-	MemoryResonance.setup_points(self, "rim_forest")
+	# Memory Resonance, dead_burner, forest_walk, anchor_talk 비활성 — Act I 흐름 짧고 강하게.
 
 func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
 	var area = Area2D.new()
@@ -554,19 +632,20 @@ func _position_player() -> void:
 ## ===================== 전투 트리거 =====================
 
 func _setup_battle_triggers() -> void:
-	_add_battle_area(
-		Vector2(8 * TILE_SIZE, 5 * TILE_SIZE),
-		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
-		"Ash Crawler", 40, 8, false,
-		"res://assets/cg/ch1_twisted_forest.jpg", "res://assets/cg/ash_crawler3.jpg"
-	)
-
+	# S66 (Act I 데모): 보스(Void Beast) 1전만. Ash Crawler 잡몹 제거 — 클라이맥스 집중.
 	_add_battle_area(
 		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Beast", 80, 15, true,
 		"res://assets/cg/ch1_twisted_forest2.jpg", "res://assets/cg/void_beast3.jpg"
 	)
+	# 보스 처치 시 ch1_void_beast_defeated 플래그 (캠프 진행 잠금 해제용)
+	if not BattleManager.battle_ended.is_connected(_on_act1_battle_ended):
+		BattleManager.battle_ended.connect(_on_act1_battle_ended)
+
+func _on_act1_battle_ended(result) -> void:
+	if result == BattleManager.BattleState.VICTORY:
+		GameManager.set_flag("ch1_void_beast_defeated")
 
 var _battle_counter: int = 0
 

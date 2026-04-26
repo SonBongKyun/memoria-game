@@ -135,6 +135,16 @@ func _build_ui() -> void:
 	synth_status_label.visible = false
 	bottom_bar.add_child(synth_status_label)
 
+	# S62: Constellation 토글 버튼
+	var constellation_btn = Button.new()
+	constellation_btn.text = "✦ Constellation"
+	constellation_btn.add_theme_font_size_override("font_size", 12)
+	constellation_btn.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
+	constellation_btn.pressed.connect(func():
+		MemoryConstellation.open()
+	)
+	bottom_bar.add_child(constellation_btn)
+
 	close_hint = Label.new()
 	close_hint.text = "[Tab / M] Close    [ESC] Close"
 	close_hint.add_theme_font_size_override("font_size", 11)

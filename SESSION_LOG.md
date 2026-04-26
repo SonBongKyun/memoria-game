@@ -2737,3 +2737,431 @@ Ch1 (rim_forest) → Ch2 (verdan_market) → Ch3 (belt_waystation) → Ch4 (drif
 - 전체 플레이 테스트
 - 추가 CG/사운드
 - 스토리 확장
+
+---
+
+## S60 — 2026-04-24 (하이브리드 VN 모드 Phase 1 — 삽화 중심 스토리 전환)
+
+### 목적
+현재 탐색/전투 중심 RPG → **삽화(CG+포트레이트) 중심의 하이브리드 스토리 어드벤처**로 전환.
+방식 1(풀 VN) + 2(하이브리드) + 3(장면집) 혼합: 기본은 VN 스타일 씬 시퀀스로 흐르고, 탐색(mini-exploration)·전투(클라이맥스)는 핵심 앵커에서만 삽입.
+
+### 완료
+
+**코어 시스템 (4종 신규)**
+- [x] **SceneFlow** 오토로드 (`scripts/systems/scene_flow.gd`) — JSON 구동 VN 시퀀스 런너. CG/포트레이트/나레이션/선택지/액션(`goto_map`/`goto_battle`/`goto_scene`/`end`) 처리, 탐색·전투 후 VN 복귀 큐
+- [x] **VNScene UI** (`scenes/ui/vn_scene.tscn` + `scripts/ui/vn_scene.gd`) — 풀스크린 CG 크로스페이드, 좌/우 포트레이트(말하는 쪽 강조), 대화박스(타이프라이터), 나레이션 모드, 선택지 패널, 레터박스, 시스템 로그 표시
+- [x] **VNHost** 빈 씬 (`scenes/main/vn_host.tscn/.gd`) — 순수 VN 구간용 배경 컨테이너, SceneFlow 종료 시 resume 자동 처리
+- [x] **시나리오 JSON 3종** (`data/vn_scenes/`)
+  - `ch1_prologue.json` — 오프닝~아침까지 ~30 스텝, CG 8종 + 포트레이트 15종 사용, Grade 3 연소 후 BL-07/엘리아 허밍/기억 복기 선택
+  - `ch1_after_forest.json` — 탐색 후 엘리아 대화 + Green Tree + 뷰로 타워 원경
+  - `ch2_market_arrival.json` — 베르단 시장 진입 VN 인트로, 말렛 언급, goto_map으로 탐색 전환
+
+**하이브리드 연결**
+- [x] **타이틀 → VN 시작** (`scenes/main/main.gd`) — New Game 시 vn_host로 전환 후 `SceneFlow.play("ch1_prologue")`
+- [x] **VN → 탐색 앵커** — `action: goto_map` + `resume_scene` 으로 VN 일시 중단 후 맵 이동, 복귀 큐에 다음 씬 기록
+- [x] **탐색 → VN 복귀** (`scenes/maps/rim_forest.gd`) — resume_queue 존재 시 스토리 스킵, 자유 탐색 + 캠프 트리거에서 vn_host로 복귀 후 `SceneFlow.resume_if_queued()`
+- [x] **VN → VN 체인** — `action: goto_scene` 으로 씬 간 연쇄 (ch1_after_forest → ch2_market_arrival)
+
+**기존 자산 활용**
+- CG: ch1_twisted_forest / arrel_combat4 / ch1_ash_walk / ch1_ash_rain2 / ch1_campfire / ch1_ash_forest / ch1_green_tree / bureau_tower3 / ch2_verdan_overlook / ch2_verdan5
+- 포트레이트: elia_wind/concern/neutral/calm/sad/determined/hopeful, arrel_default2/cold/pensive/neutral/determined
+- PORTRAIT_MAP은 DialogueBox 오토로드의 것을 공유
+
+### 수정/신규 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `scripts/systems/scene_flow.gd` | **신규** — VN 시퀀스 런너 오토로드 |
+| `scripts/ui/vn_scene.gd` | **신규** — VN UI (CG/포트레이트/대화/선택지) |
+| `scenes/ui/vn_scene.tscn` | **신규** — VN UI 씬 |
+| `scenes/main/vn_host.gd/.tscn` | **신규** — VN 전용 배경 컨테이너 |
+| `data/vn_scenes/ch1_prologue.json` | **신규** — Ch1 오프닝 VN 시나리오 |
+| `data/vn_scenes/ch1_after_forest.json` | **신규** — Ch1 후반 VN 시나리오 |
+| `data/vn_scenes/ch2_market_arrival.json` | **신규** — Ch2 진입 VN 시나리오 |
+| `scenes/main/main.gd` | New Game → VN 프롤로그 재생 |
+| `scenes/maps/rim_forest.gd` | VN 하이브리드 모드 — 스토리 스킵 + 캠프 트리거에서 VN 복귀 |
+| `project.godot` | SceneFlow 오토로드 등록 |
+
+### 하이브리드 플레이 흐름 (Ch1~Ch2 Phase 1)
+```
+타이틀 → [VN] ch1_prologue (보이드 비스트 처치 이후 CG 시퀀스 → 아침)
+       → [탐색] rim_forest (보이드 사냥 미니 탐색, 전투 트리거)
+       → [VN] ch1_after_forest (엘리아 대사 + Green Tree + 뷰로 타워)
+       → [VN] ch2_market_arrival (베르단 오버룩 CG 인트로)
+       → [탐색] verdan_market (말렛 거래 등 기존 흐름)
+```
+
+### 추가 삽화 권장 (차후 세션에서 요청)
+현재 자산으로 Ch1~Ch2 VN 전환 완료. 품질 향상에 도움 될 것:
+- **VN 스탠딩 전신 CG** — 현재 포트레이트는 흉상 위주. 전신 스탠딩은 VN 임팩트↑
+- **챕터 전환 타이포그래피 카드** — "Chapter 1: Ash" 스타일의 전용 타이틀 CG
+- **분위기 전용 배경 CG** — 각 챕터 시작·종료 순간의 "분위기 컷" (감정 여운용)
+- **엘리아 감정 추가** (elia_exhausted, elia_anger, elia_tears 등)
+
+### 다음 세션 (S61) 할 일
+- [ ] Ch3~Ch10 VN 시나리오 JSON 작성 (기존 dialogue JSON을 VN steps로 변환)
+- [ ] 세이브/로드에서 SceneFlow 상태 저장·복원 (current_id / current_index / resume_queue)
+- [ ] VN 내 ESC 일시정지 + 대화 로그 + 스킵 기능
+- [ ] PortraitMap에 스탠딩용 전신 이미지 별도 지원
+- [ ] 전투 앵커 연결 (Ch3 보스 등 `goto_battle` 실제 동작)
+
+### 테스트 포인트 (F5 실행)
+1. 타이틀 → New Game → VN 프롤로그 자동 시작되는지
+2. 클릭/Enter로 진행, 포트레이트 좌우 배치·말하는 쪽 강조 동작
+3. CG 크로스페이드 자연스러운지
+4. 캠프 밤 선택지 3종 표시·선택 후 다음 진행
+5. 아침 장면 후 rim_forest 맵 진입 → 남쪽 끝 도착 → vn_host로 복귀 → ch1_after_forest 재생
+6. ch1_after_forest 종료 후 ch2_market_arrival 자동 연결 → verdan_market 맵 진입
+
+---
+
+## S61 — 2026-04-24 (Memory Distortion — Katana ZERO 서사 트릭)
+
+### 목적
+MEMORIA 본질(기억을 태운다)을 **서사 레이어에서도 작동**시키기. 기억을 태우면 이후 그 기억과 연결된 대사·CG·포트레이트가 왜곡된 버전으로 재생. 플레이어의 선택이 게임플레이뿐 아니라 **텍스트 그 자체**를 변형시킴 (Katana ZERO 패턴).
+
+### 완료
+
+**1. SceneFlow 왜곡 로직 확장**
+- 스텝 필드 추가: `distort_if_burned`(기억 ID) + `distorted_text` / `distorted_narrate` / `distorted_speaker` / `distorted_portrait` / `distorted_cg`
+- 기억이 태워진 상태면 스텝 dict를 duplicate 후 필드 교체, `_distorted: true` 플래그로 VN UI에 신호
+
+**2. VNScene 글리치 VFX**
+- **기억 연소 순간** (MemoryManager.memory_burned 시그널) — 강한 VFX:
+  - 붉은 플래시 (0.55 알파 → 페이드아웃 0.9s)
+  - 색수차 분리 (CG의 R/B 채널 복사본을 좌우로 8px 오프셋 후 수렴)
+  - SFX `memory_burn`
+  - 텍스트 스크램블 (0.12s, `▓▒░█▄▀#@%&*?!` 로 치환 후 원래 텍스트 복원)
+- **왜곡된 대사** — 약한 VFX:
+  - CG 색수차 3px 약하게 1.2s 지속 후 페이드
+  - 플레이어가 "뭔가 어긋났다"는 감각을 받게
+
+**3. Ch1 프롤로그 왜곡 시퀀스 삽입**
+- 재비 장면 중간에 **능동 연소 선택** 추가:
+  - "Burn it. The song for passage." → `daily_campfire_song` 태움 + `burned_for_passage` 플래그
+  - "Hold on to it. Find another way." → `refused_to_burn` 플래그
+- 캠프 밤 선택지 이후 **엘리아 허밍 시퀀스** 추가 (3줄) — 각각 `distort_if_burned: "daily_campfire_song"`로 연소 시 다른 텍스트/포트레이트 재생:
+  - 나레이션: "threadbare melody" → "He waited for the melody to mean something. It didn't."
+  - 아렐: "...I know that song." → "...Is that a song? I can't tell." (포트레이트 cold로)
+  - 엘리아: "Your mother used to hum it..." → "...You used to know it." (포트레이트 sad로)
+
+### 수정 파일
+| 파일 | 변경 |
+|------|------|
+| `scripts/systems/scene_flow.gd` | `_run_step()`에 왜곡 분기 추가 (15줄) |
+| `scripts/ui/vn_scene.gd` | 글리치 레이어, `_on_memory_burned`, `_play_burn_glitch`, `_play_subtle_distortion`, `_scramble_text` (~80줄) |
+| `data/vn_scenes/ch1_prologue.json` | 능동 연소 선택지 + 왜곡 대사 3줄 추가 |
+
+### 플레이어 경험
+- **태우지 않은 플레이:** 엘리아가 어머니 노래를 알아보고 기억한다고 말함. 따뜻함.
+- **태운 플레이:** 엘리아가 허밍하지만 그게 뭔지 모름. 엘리아는 "너는 예전엔 알았었어"만 말함. 색수차로 화면이 미세하게 어긋남. 무게 있는 상실감.
+- 이 한 장면만으로 "기억 태움 = 서사 변형"의 MEMORIA 정체성이 플레이어에게 전달됨.
+
+### 다음 세션 (S62) 할 일
+- [ ] 다른 VN 씬에도 distort_if_burned 필드 확장 (Ch2 말렛 거래, Ch3+ 엘리아 관계 등)
+- [ ] 탐색 맵의 DialogueManager에도 같은 왜곡 로직 적용 (현재 VN 전용)
+- [ ] 여러 기억이 동시에 태워졌을 때 왜곡 누적 (색수차 농도 증가)
+- [ ] 글리치 사운드 `memory_burn` SFX 확인·생성
+
+---
+
+## S61b — 2026-04-24 (VN UI 입력 간섭 버그 수정)
+
+### 문제
+타이틀 → New Game → 프롤로그 끝 → rim_forest 맵 → Elia NPC 상호작용 시 화면이 멈춤. ch1_elia_talk.jpg 풀스크린 CG만 표시되고 DialogueBox가 Space/클릭에 반응 안 함.
+
+### 원인
+goto_map 액션 후 VN UI(CanvasLayer 50)가 `queue_free`되지만 한 프레임 동안 살아있으면서 `_input` 핸들러가 mouse/space 이벤트를 선점. 탐색 맵의 DialogueBox(같은 layer 50)의 `_unhandled_input`이 이벤트를 받지 못해 대사 진행 불가.
+
+### 수정
+- `vn_scene.gd._input()` — SceneFlow.is_active가 false면 즉시 early return (비활성 VN이 입력 가로채기 방지)
+- `scene_flow.gd._close_vn_ui()` — queue_free 전에 `visible=false` + `set_process_input(false)` + `set_process_unhandled_input(false)` 호출해 잔여 프레임 입력 완전 차단
+
+---
+
+## S62 — 2026-04-24 (Memory Constellation — 기억 성좌 UI)
+
+### 목적
+기억 보관 UI를 **정적 리스트 → 동적 네트워크**로 업그레이드. 기억들이 서로 연결된 별자리처럼 보이고, 하나를 태우면 연결된 기억들에 금이 감. 플레이어가 "이 기억을 잃으면 저 기억도 왜곡된다"는 무게를 시각적으로 인지.
+
+### 완료
+- **Memory 클래스 확장** (`memory_manager.gd`) — `connections: Array` 필드 + `_refresh_connections()` 자동 계산
+  - 규칙 1: 같은 `related_npc` 끼리 모두 연결 (NPC 단위 서브그래프)
+  - 규칙 2: 같은 id prefix(sense/daily/rel/identity/core)의 인접 기억 연결
+  - 헬퍼: `find_memory(id)`, `burned_neighbor_count(id)`
+- **MemoryConstellation 오토로드** (`scripts/ui/memory_constellation.gd`) — CanvasLayer 42
+  - **동심원 배치**: GRADE_5(감각)가 최외곽 → GRADE_1(핵심)이 중심
+  - **노드 렌더링**: 등급별 색, 맥동 애니메이션, 호버 시 확대+밝아짐
+  - **연결선**: 공통 NPC 있으면 NPC 고유색, 없으면 옅은 회색. 둘 중 하나라도 태워지면 **점선+붉은 톤**으로 "끊어진" 시각화
+  - **태워진 기억**: X 마크 + 어두운 링 (완전 소실) / 흐릿한 노드 + `~` (잔존)
+  - **금 효과**: 이웃 태워진 수에 비례해 노드에 붉은 균열 선 1~3개
+  - **툴팁**: 호버 시 제목/등급/상태/관련 NPC/설명/연소 시 효과 (RichText BBCode)
+  - **범례**: 하단에 링·선·금·X 의미 설명
+- **MemoryUI 토글 버튼** — 하단 바에 "✦ Constellation" 버튼 추가, 클릭 시 Constellation 오픈 (MemoryUI 자동 숨김→복귀)
+- **오토로드 등록** — project.godot에 MemoryConstellation 추가
+
+### 플레이어 경험
+- Tab/M으로 Archive 열고 "Constellation" 클릭 → 전체 기억 네트워크 조망
+- 한 기억을 태우면 다음에 성좌 열었을 때: 그 기억은 X 처리되고, **연결된 기억들 주변에 균열 선이 자동 생성**됨
+- 엘리아 관련 기억 클러스터가 초록선으로 묶여 있는 걸 보면 "이 관계를 파괴하지 않으려면 이 쪽은 태우지 말아야" 판단 가능
+
+---
+
+## S63 — 2026-04-24 (Memory Leverage — 대화 중 기억을 연료로)
+
+### 목적
+기억 연소가 전투 스킬에만 묶여 있던 걸 **대화/협상/설득에도 사용**하는 자원으로 확장. 선택지가 "텍스트"뿐 아니라 "이 선택을 위해 이 기억을 태운다"는 거래가 되게.
+
+### 완료
+- **VNScene 선택지 업그레이드** (`vn_scene.gd._show_choices`)
+  - `cost_memory: "memory_id"` 필드 인식 → 버튼 텍스트에 `✦ [선택]\n    [ Burn: 기억이름 ]` 형태로 표시
+  - **시각적 구분**: cost_memory 선택지는 붉은 테두리 + 어두운 바탕 (일반 선택지는 금색). 호버 시 더 강렬한 붉은 톤.
+  - **자동 비활성화**: 태울 기억이 이미 태워졌거나 존재하지 않으면 선택지 자체 제외
+  - `requires_memory_intact`와 조합 가능 (예: 기억이 살아있어야 선택 가능)
+- **SceneFlow 처리** (`scene_flow.gd.select_choice`) — `cost_memory` 필드는 `burn_memory`의 의미적 별칭으로 동일 연소 처리
+- **샘플 선택지 삽입**
+  - `ch1_prologue.json`: 재비 속 "The song for passage." → cost_memory: daily_campfire_song
+  - `ch2_market_arrival.json`: 뷰로 가드 앞에서 3선택지 — 거짓말 / 뇌물로 기억(daily_market_food) 태우기 / 검술 기억 있으면 돌파
+
+### 플레이어 경험
+- 선택지 창을 열었을 때 "그냥 선택" 과 "기억을 대가로 얻는 선택"이 시각적으로 명확히 구분
+- 붉은 선택지는 매번 "이 기억을 정말 태울 것인가" 질문하게 만듦 (아이템을 쓰는 게 아니라 **자신의 일부를 태우는 거래**)
+- Constellation UI와 연동 — 대화에서 기억을 태우면 성좌에서 즉시 X 표시 + 연결된 기억들 균열
+
+---
+
+## S64 — 2026-04-24 (Perception Drift — 세계가 기억에 따라 달라진다)
+
+### 목적
+기억 태움이 "내면"뿐 아니라 "외부 세계"에도 영향을 주게. 특정 기억을 태우면 NPC·오브젝트가 다르게 보이거나 사라지거나 나타남. 물리적 세계가 플레이어의 기억 상태에 따라 재구성됨.
+
+### 완료
+- **PerceptionFilter 유틸** (`scripts/systems/perception_filter.gd`) — `class_name PerceptionFilter`
+  - **정적 메서드** `PerceptionFilter.apply(scene)` — 맵 _ready 말미에 호출
+  - **메타 기반 필터**: 노드에 `set_meta("requires_memory_intact", "id")` 또는 `"requires_memory_burned"` 설정 → 자동 visible/collision 제어
+  - **그룹 기반 필터**: `perception_intact_<id>` / `perception_burned_<id>` 그룹에 속한 노드들 일괄 처리
+  - **NPC 대화 교체**: `burned_dialogue_<memory_id>` 메타로 기억 태움 시 dialogue_key 교체
+  - **틴트 효과**: `on_burned_tint_memory` + `on_burned_tint` 메타로 modulate 자동 적용
+  - 숨긴 CollisionObject2D는 layer/mask 0으로 리셋해 통과 가능
+- **rim_forest 시범 적용** (`_setup_perception_nodes`)
+  - **Song Echo**: `daily_campfire_song`을 태운 플레이어에게만 보이는 따뜻한 빛 + 부유 파티클 (캠프 근처). 다가가면 "A faint warmth. A song you no longer know." 토스트
+  - **엘리아 창백 틴트**: 노래 태움 시 엘리아 스프라이트 modulate가 차가운 색(0.75, 0.8, 0.85)으로 자동 변경
+  - PerceptionFilter.apply(self)를 rim_forest _ready 끝에서 호출
+
+### 플레이어 경험
+- 노래를 태우고 맵을 다시 걸으면: 전에 없던 **따뜻한 잔향 불빛**이 캠프 주변에 피어남. 그 빛은 "이 기억을 가진 다른 버전의 당신"의 흔적
+- 엘리아가 **살짝 창백하게** 보임. 게임이 직접 "엘리아가 변했다"고 말하지 않지만, 플레이어는 느낄 수 있음
+- 다른 맵·다른 챕터에도 `set_meta` 한 줄로 조건부 오브젝트 추가 가능 (확장 비용 낮음)
+
+---
+
+### 수정/신규 파일 (S62/S63/S64 합산)
+| 파일 | 변경 |
+|------|------|
+| `scripts/systems/memory_manager.gd` | connections 필드, _refresh_connections, find_memory, burned_neighbor_count |
+| `scripts/ui/memory_constellation.gd` | **신규** — Constellation UI 오토로드 |
+| `scripts/ui/memory_ui.gd` | 하단 바에 Constellation 토글 버튼 |
+| `scripts/ui/vn_scene.gd` | cost_memory 선택지 UI (붉은 테두리, 라벨 표시, 자동 비활성화) |
+| `scripts/systems/scene_flow.gd` | select_choice에 cost_memory 연소 처리 |
+| `scripts/systems/perception_filter.gd` | **신규** — 메타/그룹 기반 기억 상태 필터 유틸 |
+| `data/vn_scenes/ch1_prologue.json` | 재비 속 선택을 cost_memory 형식으로 |
+| `data/vn_scenes/ch2_market_arrival.json` | 뷰로 가드 3선택지 (leverage 예시) |
+| `scenes/maps/rim_forest.gd` | Song Echo 파티클/라이트 + 엘리아 틴트 + PerceptionFilter.apply 호출 |
+| `project.godot` | MemoryConstellation 오토로드 등록 |
+
+### 다음 세션 (S65) 할 일
+- [ ] Constellation 클릭 시 기억 상세 창(설명·연소 효과) 모달 팝업
+- [ ] 다른 맵(verdan_market 등)에도 PerceptionFilter 적용 + 2~3개 조건부 NPC/오브젝트
+- [ ] DialogueManager(탐색 맵 대화) 선택지에도 cost_memory UI 동기화
+- [ ] Constellation에 "연결 흐름" 애니메이션 (선이 흘러가는 느낌)
+- [ ] 핵심 기억(Grade 1) 태울 때 전체 성좌가 재편되는 컷씬
+
+---
+
+## S65 — 2026-04-24 (A안 피벗 시작 — The Cut)
+
+### 결정
+Steam 흥행을 위해 **Story-VN with Mechanics** (A안) 방향으로 피벗. LISA·OneShot·OMORI처럼 **하나의 본질에 집중**. 자산 비율(CG 130/포트레이트 49/대화 1400줄)은 RPG보다 VN에 가깝고, 솔로 개발 효율 + 차별점(메모리 메카닉 VN) 모두 A안이 유리.
+
+### 이번 세션: The Cut (범위 축소, 코드 보존)
+
+**1. 타이틀 화면 정리** (`scenes/main/main.gd`)
+- NG+ 버튼 노출 제거 (조건부 출력 코드 삭제, 콜백은 보존)
+- Boss Rush 버튼 노출 제거 (동일)
+- 서브타이틀 변경: `"The Price of Oblivion"` → `"The Price of Oblivion  ·  A story of what you choose to forget"`
+  - VN 카피 한 줄로 게임 본질 전달, 스토어 페이지 hero copy로도 사용 가능
+
+**2. PauseMenu 슬림화** (`scripts/ui/pause_menu.gd`)
+- **숨김**: Fast Travel (RPG 워프), Stats (통계 화면), Load Autosave (Load와 중복)
+- **유지**: Resume, Journal, Codex, Achievements (Steam 기대치), Endings, Options, Save, Load, Title, Quit
+- 코드는 모두 보존 — UI 진입점만 차단
+
+### 챕터 4압축 설계 (S66+에서 구현)
+
+기존 10챕터(Rim → Belt → Drift → Coast → Seam → Forest → Waste → Seal → Epilogue)를 **4막 구조**로 재편:
+
+| 신규 | 기존 매핑 | 핵심 비트 | 길이 목표 |
+|------|----------|---------|----------|
+| **Act I — Ash** (Rim Forest) | Ch1 그대로 | 첫 연소·재비·엘리아·캠프 / **첫 보스: Void Beast** | 30분 |
+| **Act II — Bargain** (Verdan Market) | Ch2 + Ch3 토비아스 압축 | 말렛 거래·뷰로 가드·세계관 노출 / **보스 없음** (대화 압박 클라이맥스) | 45분 |
+| **Act III — Echo** (Seam Outskirts → Forest 압축) | Ch3·Ch4·Ch5·Ch7·Ch8 핵심 장면 | 세이블 진실·기억 기생 숲·환각 / **두 번째 보스: Memory Wraith** | 60분 |
+| **Act IV — Origin** (BL-07 Void) | Ch9·Ch10 압축 + 6엔딩 | 카이로스 대면·Seal 결정 / **마지막 보스: Kairos** + 엔딩 분기 | 45분 |
+
+**총 플레이타임: 3시간** (현 10챕터 8시간 → 압축. Steam 짧고 강한 VN 트렌드).
+**보스 3전만 유지**: Void Beast / Memory Wraith / Kairos. 나머지 잡몹·랜덤 인카운터 비활성화.
+
+### 삭제 후보 시스템 목록 (S66~S68에서 단계적 비활성화)
+
+코드는 보존, UI/접근만 차단:
+- 랜덤 인카운터 (`RandomEncounter`)
+- 사이드 퀘스트 (`SideQuest`, 6종)
+- 장비 시스템 + 강화
+- 크래프팅 (기억 합성은 유지 — 본질 메카닉)
+- 콤보 시스템 / Limit Break
+- 자동 전투
+- 보스 러시
+- NG+
+- 통계 화면
+- 미니맵 (선형 진행이라 불필요)
+- 파티 시스템 (세이블 동행 → VN 동행자로만, 전투 동참 없음)
+
+### 유지·강화 시스템
+
+VN 본질에 직결되는 것만 살림:
+- 기억 연소 + Constellation (S62) + Leverage (S63) + Perception Drift (S64)
+- Memory Distortion 왜곡 (S61)
+- VN 씬 흐름 (SceneFlow)
+- Codex - Memory Archive
+- 6 엔딩 분기
+- 다국어 (en/ko)
+- 업적 (28종 → 스토리 중심으로 재선별)
+
+### 수정 파일
+| 파일 | 변경 |
+|------|------|
+| `scenes/main/main.gd` | NG+/Boss Rush 버튼 노출 코드 제거, 서브타이틀 변경 |
+| `scripts/ui/pause_menu.gd` | Fast Travel/Stats/Load Autosave 메뉴 숨김 |
+
+### 다음 세션 (S66) 할 일 — 옵션 2 채택
+- Ch1 (Act I — Ash) 데모 빌드 완성
+
+---
+
+## S66 — 2026-04-24 (Act I — Ash 데모 빌드)
+
+### 목표
+첫 30분을 흠 없이 갈고 닦은 **Steam Next Fest 출시 가능한 데모**. rim_forest를 단일 맵으로 정리하고, 보스(Void Beast) 1전 + 핵심 대화 3개 + 캠프 + VN 후일담만 남김.
+
+### 완료
+
+**1. rim_forest 부수 시스템 비활성화** (코드 보존, 호출만 차단)
+- `_setup_random_encounters()` 호출 제거 — 잡몹 인카운터 없음
+- `_setup_side_quests()` 호출 제거 — 사이드 분기 없음
+- `Minimap.update_minimap()` 비활성 — 선형 VN 진행 강조
+- `RandomEncounter.update()` 비활성
+
+**2. 핵심 트리거만 남기고 잡요소 제거**
+- 히든 이벤트: 6개 → **3개 (그루터기 / 기억 사당 / 엘리아 기억 대화)**
+  - 제거: dead_burner(잡 분위기), forest_walk(중복), anchor_talk(중복), MemoryResonance(미니게임)
+- 전투 트리거: 2개 → **1개 (Void Beast 보스만)**
+  - 제거: Ash Crawler 잡몹 — Act I는 클라이맥스 한 번만
+
+**3. Void Beast 필수화**
+- 캠프 트리거에 `ch1_void_beast_defeated` 플래그 체크 추가
+- 미처치 시 토스트: *"Something blocks the path. Find what hunts these woods."*
+- BattleManager.battle_ended 시그널 연결 — VICTORY 시 자동 플래그 설정
+
+**4. 데모 종료 화면** (`scripts/ui/demo_end.gd` + `scenes/ui/demo_end.tscn`)
+- ch1_after_forest VN 마지막 action을 `goto_scene: ch2_market_arrival` → **`demo_end`** 로 변경
+- SceneFlow에 `demo_end` 액션 처리 추가 — `res://scenes/ui/demo_end.tscn` 로드
+- 화면 구성:
+  - 배경: Cover2.png + 어두운 비네트
+  - 타이틀: **"Act I — Ash"** (큰 황금색)
+  - 부제: **"— End of Demo —"**
+  - 본문: 감사 메시지 + 풀버전 티저 (벨트, 시임, 형제, 결정)
+  - 통계: *"You burned X memories. Y remain as residue."* (플레이어의 기억 선택 기록)
+  - CTA 3버튼: **✦ Wishlist on Steam** (외부 링크) / **Return to Title** / **Quit**
+- 순차 페이드인 애니메이션 (각 요소 0.45s 간격)
+
+### Act I 플레이 흐름 (검증)
+1. 타이틀 → New Game
+2. VN 프롤로그 (ch1_prologue): 첫 연소 묘사 → 엘리아 등장 → 재비 → **연소 선택지 (cost_memory: daily_campfire_song)** → 캠프 밤 → 글리치 VFX (선택 시)
+3. rim_forest: 자유 탐색 (3 히든 이벤트 + 엘리아 동행 + Memory UI/Constellation 접근)
+4. **Void Beast 보스전** (필수)
+5. 캠프 트리거 (남쪽) — VN으로 복귀
+6. ch1_after_forest VN: 그린 트리 + 뷰로 타워 시야
+7. **Demo End 화면** — 위시리스트 CTA
+
+### 수정 파일
+| 파일 | 변경 |
+|------|------|
+| `scenes/maps/rim_forest.gd` | 인카운터/사이드퀘스트/미니맵 호출 제거, 히든 이벤트 3개로 축소, 잡몹 전투 제거, 보스 필수 게이트 추가, battle_ended 시그널 연결 |
+| `data/vn_scenes/ch1_after_forest.json` | 마지막 action을 `goto_scene: ch2_market_arrival` → `demo_end`로 |
+| `scripts/systems/scene_flow.gd` | `demo_end` 액션 핸들러 추가 |
+| `scripts/ui/demo_end.gd` | **신규** — 데모 종료 화면 |
+| `scenes/ui/demo_end.tscn` | **신규** — 데모 종료 씬 |
+
+### Steam Next Fest 빌드 체크리스트 (S67에서 마무리)
+- [ ] Steam URL 실제 앱 ID로 교체 (`STEAM_URL` 상수)
+- [ ] 데모 종료 화면 BGM 트랙 결정
+- [ ] Ch1 30분 풀 플레이 검증 (실시간 측정)
+- [ ] 한국어 로케일 점검 (대화·UI)
+- [ ] 시작 옵션에서 Steam achievement 등록 확인 (Codex/Achievement 시스템)
+
+### 다음 세션 (S67) 할 일
+- [x] Windows export 빌드 시도 (export_presets 정리 + 헤드리스 export 검증)
+- [x] Steam 상점 페이지 카피 / 태그 / 트레일러 콘티 / 스크린샷 세트 (STEAM_PAGE.md)
+
+---
+
+## S67 — 2026-04-24 (Windows 빌드 + Steam 상점 키트)
+
+### 목적
+S66에서 만든 Act I 데모를 실제 zip으로 배포 가능한 빌드로 굳히고, Steam 상점 페이지에 바로 붙일 마케팅 자료(카피/태그/트레일러 콘티/스크린샷 가이드)를 정리.
+
+### 완료
+
+**1. export_presets.cfg 완전 재작성**
+- Windows Desktop (Demo) 프리셋 정의
+- application 메타: 회사명 `MEMORIA Studio`, 제품명 `MEMORIA - The Price of Oblivion (Demo)`, 파일/제품 버전 0.9.0.0, 저작권 © 2026
+- export_path: `build/MEMORIA-Demo-v0.1.exe`
+- exclude_filter: `SESSION_LOG.md, CLAUDE.md, *.tmp, .git/*, .gitignore`
+- x86_64 아키텍처, embed_pck=false (별도 .pck 파일)
+
+**2. 헤드리스 export 시도 + 진단**
+- 명령: `Godot_v4.6.2-stable_win64_console.exe --headless --export-release "Windows Desktop (Demo)" "build/MEMORIA-Demo-v0.1.exe"`
+- **결과: 템플릿 미설치로 실패** — 사용자가 Godot Editor에서 직접 설치해야 함
+  - 경로: `C:/Users/jc/AppData/Roaming/Godot/export_templates/4.6.2.stable/` 가 비어있음
+  - **해결법: Godot Editor → Editor 메뉴 → Manage Export Templates → Download (~600MB)**
+- VFX Library 플러그인 종료 시 autoload/VFX, autoload/EnvVFX 미존재 경고 — 비치명적, 게임 실행에는 무관
+
+**3. Steam 상점 페이지 키트** (`STEAM_PAGE.md` 신규)
+- **게임 이름**: MEMORIA: The Price of Oblivion
+- **태그라인** (한/영): 기억을 태워 싸우는 다크 판타지 2D 어드벤처 — 잊는 만큼 세계가 바뀐다
+- **짧은 설명** (한 217자 / 영 293자): Steam 검색 결과 노출용
+- **About this game** (한/영 풀텍스트): 5개 핵심 메카닉 강조 — 기억 연소·대화 거래·세계 재작성·Constellation·6엔딩
+- **Steam 태그 15개 우선순위** — Story Rich / Choices Matter / Dark Fantasy / RPG / 2D 핵심 5
+- **30초 트레일러 콘티** (8컷, 시간 매핑·자막·캡처 소스): VN 씬→선택지→글리치→성좌→Perception→보스전→타이틀
+- **스크린샷 6장 가이드**: 메인 1 + 보조 5 (각각 의도된 메시지 명시)
+- **캡슐 이미지 6종 사양**: Main/Small/Header/Library Capsule + Library Hero + Logo
+- **출시 전략 노트**: Wishlist 빌드업, 가격대($9.99~14.99), 출시 윈도우 회피, itch.io 동시 배포
+
+### 수정/신규 파일
+| 파일 | 변경 |
+|------|------|
+| `export_presets.cfg` | Windows Demo 프리셋 완전 정의 |
+| `STEAM_PAGE.md` | **신규** — Steam 상점 페이지 자료 일체 |
+
+### 사용자 액션 아이템 (수동 작업 필요)
+1. **Export Templates 설치** — Godot Editor → Editor → Manage Export Templates → Download
+2. (설치 후) 헤드리스 빌드 재시도 또는 Editor → Project → Export → "Export Project" 클릭
+3. **Steam 앱 ID 발급** (Steamworks 가입 후) → `demo_end.gd`의 `STEAM_URL` 상수 교체
+4. **캡슐 이미지 디자인** — Photoshop/Affinity 등으로 Cover2.png 베이스로 6종 제작
+5. **트레일러 캡처** — 빌드 성공 후 OBS로 STEAM_PAGE.md의 8컷 따라 녹화
+
+### 다음 세션 (S68) 후보
+- [ ] 한/영 자막 검수 — Ch1 VN 씬 + 탐색 대화 전체 톤 정리
+- [ ] 데모 BGM/SFX 누락 점검 (특히 글리치 사운드 `memory_burn` 파일 존재 여부)
+- [ ] verdan_market에 PerceptionFilter 적용 — 풀버전 Act II 준비
+- [ ] (사용자 빌드 성공 후) 실제 zip 패키징 워크플로우 정리
+

@@ -145,14 +145,15 @@ func _build_ui() -> void:
 	btn_container.add_theme_constant_override("separation", 8)
 	vbox.add_child(btn_container)
 
+	# S65 (A안 피벗): VN 정체성에 맞게 메뉴 슬림화.
+	# 숨김: Fast Travel, Stats, Load Autosave (RPG 기능 — 스토리 몰입 방해)
+	# 유지: Resume, Journal, Codex, Achievements (Steam 기대치), Endings, Options, Save/Load, Title, Quit
 	var buttons = [
 		{"text": GameManager.loc("resume"), "callback": _close},
 		{"text": GameManager.loc("journal"), "callback": _on_journal},
-		{"text": GameManager.loc("travel"), "callback": _on_travel},
 		{"text": GameManager.loc("codex"), "callback": _on_codex},
 		{"text": GameManager.loc("achievements"), "callback": _on_achievements},
 	]
-	buttons.append({"text": GameManager.loc("stats"), "callback": _on_stats})
 	# S54: Endings button (only if at least 1 ending seen)
 	if GameManager.seen_endings.size() > 0:
 		buttons.append({"text": GameManager.loc("endings"), "callback": _on_endings})
@@ -160,7 +161,6 @@ func _build_ui() -> void:
 		{"text": GameManager.loc("options"), "callback": _on_options},
 		{"text": GameManager.loc("save"), "callback": _on_save},
 		{"text": GameManager.loc("load"), "callback": _on_load},
-		{"text": "Load Autosave", "callback": _on_load_autosave},
 		{"text": GameManager.loc("title_return"), "callback": _on_title},
 		{"text": GameManager.loc("quit"), "callback": _on_quit},
 	])

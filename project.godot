@@ -50,6 +50,8 @@ EliaDiary="*res://scripts/ui/elia_diary.gd"
 Dialogic="*uid://ds2q0uclmolvu"
 TutorialHints="*res://scripts/ui/tutorial_hints.gd"
 InputManager="*res://scripts/systems/input_manager.gd"
+SceneFlow="*res://scripts/systems/scene_flow.gd"
+MemoryConstellation="*res://scripts/ui/memory_constellation.gd"
 
 [dialogic]
 
@@ -63,9 +65,7 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
-window/size/resizable=true
 window/stretch/mode="viewport"
-window/stretch/aspect="keep"
 
 [editor_plugins]
 

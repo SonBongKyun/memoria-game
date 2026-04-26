@@ -138,13 +138,14 @@ func _build_title_screen() -> void:
 
 	# Subtitle
 	var subtitle = Label.new()
-	subtitle.text = "The Price of Oblivion"
+	# S65 (A안): VN 정체성 강화 서브타이틀 — 한 줄 카피로 게임 본질 전달
+	subtitle.text = "The Price of Oblivion  ·  A story of what you choose to forget"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.set_anchors_preset(PRESET_CENTER_TOP)
-	subtitle.position = Vector2(-200, 160)
-	subtitle.size = Vector2(400, 40)
+	subtitle.position = Vector2(-300, 160)
+	subtitle.size = Vector2(600, 40)
 	subtitle.add_theme_font_size_override("font_size", 16)
-	subtitle.add_theme_color_override("font_color", Color(0.6, 0.5, 0.4, 0.7))
+	subtitle.add_theme_color_override("font_color", Color(0.6, 0.5, 0.4, 0.75))
 	subtitle.modulate.a = 0.0
 	subtitle.name = "SubtitleLabel"
 	subtitle.mouse_filter = MOUSE_FILTER_IGNORE
@@ -322,34 +323,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _setup_menu() -> void:
 	$VBoxContainer.visible = false  # Hidden until after Press Any Key
 
-	# NG+ button
-	if GameManager.is_ng_plus_unlocked():
-		ng_plus_btn = Button.new()
-		ng_plus_btn.text = "New Game+"
-		ng_plus_btn.pressed.connect(_on_ng_plus_pressed)
-		var new_game_idx = 0
-		for i in range($VBoxContainer.get_child_count()):
-			var child = $VBoxContainer.get_child(i)
-			if child is Button and child.text == "New Game":
-				new_game_idx = i + 1
-				break
-		$VBoxContainer.add_child(ng_plus_btn)
-		$VBoxContainer.move_child(ng_plus_btn, new_game_idx)
-
-	# Boss Rush button
-	if GameManager.is_boss_rush_unlocked():
-		boss_rush_btn = Button.new()
-		var best = GameManager.boss_rush_best_time
-		if best > 0.0:
-			var mins = int(best) / 60
-			var secs = int(best) % 60
-			boss_rush_btn.text = "Boss Rush (Best: %d:%02d)" % [mins, secs]
-		else:
-			boss_rush_btn.text = "Boss Rush"
-		boss_rush_btn.pressed.connect(_on_boss_rush_pressed)
-		var insert_idx = $VBoxContainer.get_child_count() - 1  # Before Quit
-		$VBoxContainer.add_child(boss_rush_btn)
-		$VBoxContainer.move_child(boss_rush_btn, insert_idx)
+	# S65 (A안 피벗): NG+/Boss Rush 타이틀 노출 제거 — VN 정체성에 맞지 않음.
+	# 코드는 보존, UI 진입점만 차단. 후속 컨텐츠 패치에서 재활성 검토.
 
 	# Style all buttons with hover animations
 	for btn in $VBoxContainer.get_children():
@@ -472,7 +447,10 @@ func _on_new_game_pressed() -> void:
 		"elia_with_party": true,
 		"items": {},
 	}
-	SceneTransition.change_scene_styled("res://scenes/maps/rim_forest.tscn")
+	# S60: VN 프롤로그 자동 재생하도록 플래그 설정 후 vn_host로 전환
+	# (change_scene_to_file 이후 self가 해제되므로 이후 await 금지)
+	SceneFlow.pending_scene_id = "ch1_prologue"
+	SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
 
 func _on_continue_pressed() -> void:
 	_stop_ambient()

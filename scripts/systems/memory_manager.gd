@@ -19,6 +19,7 @@ class Memory:
 	var erosion: int          # 침식도 (0~burn_power*0.7 이상이면 faded)
 	var story_effect: String  # 연소 시 스토리 영향 설명
 	var related_npc: String   # 관련 NPC (빈 문자열이면 없음)
+	var connections: Array = []  # S62: 연결된 기억 ID 배열 (Memory Constellation)
 
 	func _init(p_id: String, p_title: String, p_desc: String, p_grade: int, p_power: int, p_effect: String = "", p_npc: String = "") -> void:
 		id = p_id
@@ -355,6 +356,69 @@ func add_memory(memory: Memory) -> void:
 	GameManager.add_stat("memories_collected")  # S55
 	if is_inside_tree():
 		AudioManager.play_sfx("memory_add")
+	_refresh_connections()  # S62: 새 기억 추가 시 연결 자동 재계산
+
+## S62: Memory Constellation — 기억 간 연결 자동 생성
+## 규칙: (1) 같은 related_npc 끼리 연결, (2) 인접 등급의 같은 주제 키워드 연결
+func _refresh_connections() -> void:
+	# 초기화
+	for m in memories:
+		m.connections.clear()
+	# related_npc 기반 연결 (같은 NPC 관련 기억들은 서로 연결)
+	var npc_groups: Dictionary = {}
+	for m in memories:
+		if m.related_npc == "":
+			continue
+		if not npc_groups.has(m.related_npc):
+			npc_groups[m.related_npc] = []
+		npc_groups[m.related_npc].append(m)
+	for npc in npc_groups.keys():
+		var group: Array = npc_groups[npc]
+		for i in range(group.size()):
+			for j in range(i + 1, group.size()):
+				_link(group[i], group[j])
+	# id prefix(카테고리) 기반 연결 (sense_*, daily_*, rel_*, identity_*, core_*)
+	var prefix_groups: Dictionary = {}
+	for m in memories:
+		var parts = m.id.split("_")
+		if parts.size() < 2:
+			continue
+		var prefix = parts[0]
+		if not prefix_groups.has(prefix):
+			prefix_groups[prefix] = []
+		prefix_groups[prefix].append(m)
+	for prefix in prefix_groups.keys():
+		var group: Array = prefix_groups[prefix]
+		# 같은 prefix는 인접 항목만 연결 (모든 쌍이면 너무 지저분)
+		for i in range(group.size() - 1):
+			_link(group[i], group[i + 1])
+
+func _link(a: Memory, b: Memory) -> void:
+	if a.id == b.id:
+		return
+	if not a.connections.has(b.id):
+		a.connections.append(b.id)
+	if not b.connections.has(a.id):
+		b.connections.append(a.id)
+
+## S62: id로 기억 조회
+func find_memory(memory_id: String) -> Memory:
+	for m in memories:
+		if m.id == memory_id:
+			return m
+	return null
+
+## S62: 특정 기억의 연결된 기억 중 태워진 것의 수 (균열 표현용)
+func burned_neighbor_count(memory_id: String) -> int:
+	var m = find_memory(memory_id)
+	if m == null:
+		return 0
+	var count = 0
+	for cid in m.connections:
+		var neighbor = find_memory(cid)
+		if neighbor != null and neighbor.is_burned:
+			count += 1
+	return count
 
 ## 기억 연소
 func burn_memory(memory_id: String) -> Memory:
