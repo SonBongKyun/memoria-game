@@ -3160,8 +3160,75 @@ S66에서 만든 Act I 데모를 실제 zip으로 배포 가능한 빌드로 굳
 5. **트레일러 캡처** — 빌드 성공 후 OBS로 STEAM_PAGE.md의 8컷 따라 녹화
 
 ### 다음 세션 (S68) 후보
+- [x] (사용자 빌드 성공 후) 실제 zip 패키징 워크플로우 정리 — S68에서 인프라 미리 준비
 - [ ] 한/영 자막 검수 — Ch1 VN 씬 + 탐색 대화 전체 톤 정리
 - [ ] 데모 BGM/SFX 누락 점검 (특히 글리치 사운드 `memory_burn` 파일 존재 여부)
 - [ ] verdan_market에 PerceptionFilter 적용 — 풀버전 Act II 준비
-- [ ] (사용자 빌드 성공 후) 실제 zip 패키징 워크플로우 정리
+
+---
+
+## S68 — 2026-04-24 (빌드 검증 + 테스터 패키지 준비)
+
+### 목적
+S67에서 export 인프라를 깔았지만 사용자가 templates를 직접 설치해야 빌드가 굴러감. 그 사이 제가 할 수 있는 것: **빌드 전 위생 검사**, **단계별 가이드**, **테스터 피드백 양식**, **자동 패키징 스크립트** 준비. 빌드 성공 직후 5분 안에 친구한테 zip 보낼 수 있게.
+
+### 완료
+
+**1. 빌드 전 위생 검사 (CLI)**
+- Godot 헤드리스 `--check-only --quit` 실행 → **GDScript 파싱 에러 0건, 미정의 참조 0건**. "data.tree is null" 경고는 헤드리스 모드 정상 잡음 (씬 트리 없는 상태에서 스크립트가 트리 접근 시도)
+- VN JSON에서 참조하는 **CG 14개 / 포트레이트 13개 모두 존재** 확인
+- 새로 짠 5개 스크립트(vn_scene/scene_flow/demo_end/memory_constellation/perception_filter) export 시 빌드 깨뜨릴 위험 없음
+
+**2. BUILD_GUIDE.md** — 5단계 빌드 가이드
+- STEP 1: Export Templates 설치 (Editor → Manage Export Templates → Download, ~600MB)
+- STEP 2: 빌드 실행 (Editor GUI 또는 CLI)
+- STEP 3: 빌드 결과 확인 (.exe + .pck + .console.exe)
+- STEP 4: zip 패키징 (`./package_demo.sh`)
+- STEP 5: 친구한테 보내기 (WeTransfer / Google Drive / itch.io 비공개 추천)
+- 트러블슈팅 4건 (흰 화면, 템플릿 없음, 한국어 깨짐, Defender 차단) + 코드 서명 미적용 사실 명시
+
+**3. TESTER_GUIDE.md** — 30분 플레이 후 답하는 피드백 양식
+- 5섹션 구조: 첫인상 / 스토리 / **핵심 메카닉 (가장 비중)** / 조작감·버그 / 종합
+- 핵심 질문:
+  - 재 장면 cost_memory 선택지 — 뭘 골랐고 *왜* 골랐는지
+  - 선택 *이후* 변화를 어디서 느꼈는지 (Perception Drift 동작 검증)
+  - Constellation 한 번이라도 눌러봤는지 (UI 발견 가능성 검증)
+  - Void Beast 보스전 난이도 + 의도 명확성
+- 종합: 다음 챕터 유료 구매 의향 / 친구 추천 / 흥행 점수 10점 만점
+- 조작 키 매핑 표 + 시작/종료 지점 명시 (사용자 혼란 방지)
+
+**4. package_demo.sh** — 빌드 → zip 자동화 (bash, Git Bash 호환)
+- 9단계 파이프라인:
+  1. 빌드 산출물 존재 검증 (없으면 친절한 에러 + BUILD_GUIDE.md 참조)
+  2. 스테이징 디렉터리 생성 (`build/stage/`)
+  3. exe + pck 복사
+  4. console.exe는 `build/debug/`로 별도 보관 (zip 부피 감소)
+  5. README.txt 자동 생성 (실행법 + 조작 + 피드백 안내)
+  6. TESTER_GUIDE.md 복사
+  7. zip 생성 (zip 또는 7z 자동 감지)
+  8. 결과 출력 (파일 경로 + 사이즈 + 다음 단계 가이드)
+  9. 스테이징 폴더 정리
+- 최종 산출물: `build/MEMORIA-Demo-v0.1-Windows.zip` (예상 150~300MB)
+
+### 신규 파일
+| 파일 | 용도 |
+|------|------|
+| `BUILD_GUIDE.md` | 사용자가 빌드부터 zip까지 따라 할 단계별 가이드 |
+| `TESTER_GUIDE.md` | 친구한테 zip과 함께 보낼 피드백 양식 |
+| `package_demo.sh` | 빌드 산출물을 친구 발송 가능 zip으로 자동 패키징 |
+
+### 사용자 액션 아이템 (S68 마무리용)
+1. **Godot Editor 열기 → Editor → Manage Export Templates → Download** (한 번만, ~600MB)
+2. **Project → Export → "Windows Desktop (Demo)" → Export Project**
+3. 본인 PC에서 `build/MEMORIA-Demo-v0.1.exe` 더블클릭 → 5분 동작 확인
+4. Git Bash 또는 WSL에서 `./package_demo.sh` 실행
+5. 생성된 zip을 WeTransfer/Drive/itch.io에 업로드
+6. 친구 1~3명에게 링크 + TESTER_GUIDE 안내 전송
+
+### 다음 세션 (S69) 후보
+- [ ] **테스터 피드백 1차 수집 후 분석 + 우선순위 버그/UX 패치**
+- [ ] 비주얼 스타일 결정 (AI 일러스트 단일화 vs 픽셀 유지)
+- [ ] 챕터별 시그니처 BGM 1트랙 (Suno/Udio)
+- [ ] 한/영 자막 검수 (Ch1 VN 전체 톤 정리)
+- [ ] Steamworks 가입 + 앱 ID 발급 (사용자 액션, 1주~2주)
 
