@@ -1144,10 +1144,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_show_damage_number(target, amount, skill_name)
 	# S46: VFX Library 셰이더 피격 플래시 (flash_white)
 	_apply_hit_shader(target, amount)
-	_hit_flash(target)
-	# S46: 셰이크 스케일링 — 데미지에 비례
-	var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
-	_screen_shake(shake_intensity)
+	_apply_skill_impact_preset(target, amount, skill_name)
 
 	# S52: 크리티컬 히트 줌 펀치 (200+ 데미지)
 	if amount >= 200 and target != "Arrel":

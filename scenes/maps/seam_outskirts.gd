@@ -41,6 +41,7 @@ var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
 var _atmos_layers: Array[ColorRect] = []  # Graphics upgrade
 var _grade_layer: CanvasLayer = null
+var _grade_target_alpha: float = 0.04
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -91,7 +92,9 @@ func _process(delta: float) -> void:
 		var r := _grade_layer.get_child(0) as ColorRect
 		if r:
 			var t = clampf(1.0 - (player.position.y / float(MAP_HEIGHT * TILE_SIZE)), 0.0, 1.0)
-			r.color = Color(0.25 + t * 0.22, 0.2 + t * 0.05, 0.4 + t * 0.25, 0.04 + t * 0.08)
+						_grade_target_alpha = 0.04 + t * 0.08
+			var target_color = Color(0.25 + t * 0.22, 0.2 + t * 0.05, 0.4 + t * 0.25, _grade_target_alpha)
+			r.color = r.color.lerp(target_color, clampf(delta * 2.5, 0.0, 1.0))
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션

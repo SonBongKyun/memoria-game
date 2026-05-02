@@ -11,9 +11,11 @@ const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 var facing_direction: Vector2 = Vector2.DOWN
 var can_move: bool = true
 var _step_timer: float = 0.0
+var _active_step_particles: int = 0
 var _breath_time: float = 0.0  # S52: 호흡 애니메이션
 const STEP_INTERVAL: float = 0.25
 const STEP_PARTICLE_LIFE: float = 0.24
+const MAX_STEP_PARTICLES: int = 32
 
 func _ready() -> void:
 	add_to_group("player")
@@ -143,6 +145,9 @@ func _spawn_step_particles(terrain: String) -> void:
 		_:
 			c = Color(0.6, 0.58, 0.55, 0.3)
 
+	if _active_step_particles >= MAX_STEP_PARTICLES:
+		return
+
 	for i in range(3):
 		var p = ColorRect.new()
 		p.size = Vector2(randf_range(2.0, 4.0), randf_range(2.0, 4.0))
@@ -151,9 +156,13 @@ func _spawn_step_particles(terrain: String) -> void:
 		p.z_index = 2
 		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		get_tree().current_scene.add_child(p)
+		_active_step_particles += 1
 		var tw = p.create_tween()
 		tw.set_parallel(true)
 		tw.tween_property(p, "position", p.position + Vector2(randf_range(-8, 8), randf_range(-8, -2)), STEP_PARTICLE_LIFE)
 		tw.tween_property(p, "modulate:a", 0.0, STEP_PARTICLE_LIFE)
 		tw.set_parallel(false)
-		tw.tween_callback(p.queue_free)
+		tw.tween_callback(func():
+			_active_step_particles = maxi(0, _active_step_particles - 1)
+			p.queue_free()
+		)
