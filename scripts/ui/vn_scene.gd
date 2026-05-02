@@ -29,6 +29,11 @@ var _glitch_overlay: ColorRect          # 전체화면 플래시/색상 틴트
 var _chroma_r: TextureRect              # 색수차 레이어 (붉은 채널)
 var _chroma_b: TextureRect              # 색수차 레이어 (푸른 채널)
 var _is_distorted_line: bool = false    # 현재 대사가 왜곡 상태인지
+# S69: 연소 잔열 비네트 (가장자리만 따뜻하게 타고 난 흔적)
+var _ember_vignette: TextureRect
+# S69: 필름 그레인 — 시네마틱 노이즈 텍스처
+var _film_grain: ColorRect
+var _film_grain_time: float = 0.0
 
 # 상태
 var _current_step: Dictionary = {}
@@ -216,6 +221,61 @@ func _build_glitch_layer() -> void:
 	_glitch_overlay.z_index = 2
 	add_child(_glitch_overlay)
 
+	# S69: 연소 잔열 비네트 — 가장자리에 타고 난 듯한 따뜻한 그라디언트
+	_ember_vignette = TextureRect.new()
+	_ember_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ember_vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_ember_vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	_ember_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ember_vignette.z_index = 1
+	_ember_vignette.modulate.a = 0.0
+	var grad = Gradient.new()
+	grad.add_point(0.0, Color(0.85, 0.35, 0.2, 0.0))
+	grad.add_point(0.55, Color(0.85, 0.3, 0.15, 0.0))
+	grad.add_point(0.85, Color(0.7, 0.2, 0.1, 0.55))
+	grad.add_point(1.0, Color(0.4, 0.1, 0.05, 0.85))
+	var gtex = GradientTexture2D.new()
+	gtex.gradient = grad
+	gtex.width = 256
+	gtex.height = 256
+	gtex.fill = GradientTexture2D.FILL_RADIAL
+	gtex.fill_from = Vector2(0.5, 0.5)
+	gtex.fill_to = Vector2(1.0, 0.5)
+	_ember_vignette.texture = gtex
+	add_child(_ember_vignette)
+
+	# S69: 필름 그레인 — 셰이더 노이즈 오버레이 (전체 화면 위에 살짝)
+	_film_grain = ColorRect.new()
+	_film_grain.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_film_grain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_film_grain.z_index = 3
+	var grain_shader = Shader.new()
+	grain_shader.code = """
+shader_type canvas_item;
+
+uniform float grain_strength : hint_range(0.0, 0.2) = 0.045;
+uniform float time_scale : hint_range(0.0, 60.0) = 16.0;
+uniform float u_time = 0.0;
+
+float hash21(vec2 p) {
+	p = fract(p * vec2(123.34, 456.21));
+	p += dot(p, p + 45.32);
+	return fract(p.x * p.y);
+}
+
+void fragment() {
+	vec2 uv = UV * vec2(640.0, 360.0);
+	float t = floor(u_time * time_scale);
+	float n = hash21(uv + vec2(t * 0.137, t * 0.731));
+	// 회색 노이즈, 알파만 살짝 깜빡이게 — 색조엔 영향 X
+	COLOR = vec4(n, n, n, grain_strength);
+}
+"""
+	var sm = ShaderMaterial.new()
+	sm.shader = grain_shader
+	_film_grain.material = sm
+	add_child(_film_grain)
+
 func _make_cg_rect() -> TextureRect:
 	var tr = TextureRect.new()
 	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -327,6 +387,32 @@ func _swap_cg() -> void:
 	_cg_current.modulate.a = 1.0
 	_cg_next.texture = null
 	_cg_next.modulate.a = 0.0
+	# S69: Ken Burns — 정적 일러스트에 미세한 줌+팬으로 생명감
+	_start_ken_burns(_cg_current)
+
+## S69: Ken Burns — 8~12초에 걸쳐 1.0 → 1.05 줌 + ±20px 팬
+func _start_ken_burns(rect: TextureRect) -> void:
+	if rect == null or rect.texture == null:
+		return
+	# 이전 트윈 정리
+	if rect.has_meta("kb_tween"):
+		var prev = rect.get_meta("kb_tween")
+		if prev is Tween and is_instance_valid(prev):
+			prev.kill()
+	# 시작 상태
+	rect.pivot_offset = rect.size / 2.0
+	rect.scale = Vector2(1.0, 1.0)
+	var pan_x = randf_range(-18.0, 18.0)
+	var pan_y = randf_range(-10.0, 10.0)
+	var orig_pos = rect.position
+	rect.position = orig_pos
+	# 트윈
+	var dur = randf_range(9.0, 13.0)
+	var tw = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(rect, "scale", Vector2(1.05, 1.05), dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(rect, "position", orig_pos + Vector2(pan_x, pan_y), dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	rect.set_meta("kb_tween", tw)
 
 func _resolve_cg_path(ref: String) -> String:
 	if ref == "":
@@ -396,6 +482,13 @@ func _play_burn_glitch() -> void:
 	_glitch_overlay.color = Color(0.95, 0.25, 0.15, 0.55)
 	var tw_flash = create_tween()
 	tw_flash.tween_property(_glitch_overlay, "color:a", 0.0, 0.9).set_trans(Tween.TRANS_EXPO)
+
+	# S69: 연소 잔열 — 가장자리 비네트가 천천히 차오르고 더 천천히 식음
+	if _ember_vignette:
+		var tw_ember = create_tween()
+		tw_ember.tween_property(_ember_vignette, "modulate:a", 0.85, 0.5).set_trans(Tween.TRANS_QUAD)
+		tw_ember.tween_interval(1.2)
+		tw_ember.tween_property(_ember_vignette, "modulate:a", 0.0, 3.5).set_trans(Tween.TRANS_SINE)
 
 	# 2. 색수차 분리 (CG가 있을 때만)
 	if _cg_current.texture != null:
@@ -496,6 +589,11 @@ func _color_for_speaker(speaker: String) -> Color:
 			return Color(0.9, 0.9, 0.9)
 
 func _process(delta: float) -> void:
+	# S69: 필름 그레인 시간 업데이트 (매 프레임 노이즈 패턴 변경)
+	_film_grain_time += delta
+	if _film_grain and _film_grain.material is ShaderMaterial:
+		(_film_grain.material as ShaderMaterial).set_shader_parameter("u_time", _film_grain_time)
+
 	if _typing_done or _full_text == "":
 		return
 	_type_timer += delta
@@ -534,6 +632,9 @@ func _show_choices(choices: Array) -> void:
 	_text_panel.visible = false
 	_name_panel.visible = false
 	_show_continue(false)
+
+	# S69: 선택지 등장 시 배경 CG/포트레이트 덤 — 결정 무게 강조
+	_dim_background_for_choice(true)
 
 	for i in range(choices.size()):
 		var c: Dictionary = choices[i]
@@ -589,7 +690,26 @@ func _on_choice_selected(index: int) -> void:
 		AudioManager.play_sfx("ui_select")
 	_choice_container.visible = false
 	_text_panel.visible = true
+	# S69: 선택지 닫히면 배경 복귀
+	_dim_background_for_choice(false)
 	SceneFlow.select_choice(index)
+
+## S69: 선택지 표시 시 CG/포트레이트 덤 (또는 복귀)
+func _dim_background_for_choice(dim: bool) -> void:
+	var target_cg = Color(0.6, 0.6, 0.65, 1.0) if dim else Color(1, 1, 1, 1)
+	var target_portrait = Color(0.5, 0.5, 0.55, 1.0) if dim else Color(1, 1, 1, 1)
+	var dur = 0.45
+	var tw = create_tween()
+	tw.set_parallel(true)
+	if _cg_current.modulate.a > 0.5:
+		# 알파는 유지하면서 색만 어둡게
+		var c = target_cg
+		c.a = _cg_current.modulate.a
+		tw.tween_property(_cg_current, "modulate", c, dur).set_trans(Tween.TRANS_SINE)
+	if _portrait_left and _portrait_left.texture:
+		tw.tween_property(_portrait_left, "modulate", target_portrait, dur)
+	if _portrait_right and _portrait_right.texture:
+		tw.tween_property(_portrait_right, "modulate", target_portrait, dur)
 
 ## ===================== INPUT =====================
 
