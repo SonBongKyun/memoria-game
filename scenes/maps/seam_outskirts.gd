@@ -39,6 +39,8 @@ var effect_time: float = 0.0
 var _occluders: Array[LightOccluder2D] = []  # S52
 var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
+var _atmos_layers: Array[ColorRect] = []  # Graphics upgrade
+var _grade_layer: CanvasLayer = null
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -51,8 +53,9 @@ func _ready() -> void:
 	MapEffects.add_parallax_background(self, {"sky": Color(0.1, 0.09, 0.12), "far": Color(0.12, 0.1, 0.14), "mid": Color(0.14, 0.12, 0.1), "biome": "void_edge", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.3, 0.28, 0.35))
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.4, 0.2, 0.5, 0.12), 25)
+	_atmos_layers = MapEffects.add_atmospheric_layer(self, "void_edge", MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
 	# S52: 그래픽 업그레이드
-	MapEffects.add_color_grading(self, {"tint": Color(0.25, 0.2, 0.4), "brightness": -0.05})
+	_grade_layer = MapEffects.add_color_grading(self, {"tint": Color(0.25, 0.2, 0.4), "brightness": -0.05})
 	_s52_particles = MapEffects.add_void_tendrils(self, 4, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.4)
 	MapEffects.add_drop_shadow(player)
@@ -81,6 +84,14 @@ func _process(delta: float) -> void:
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	MapEffects.update_void_tendrils(_s52_particles, effect_time, delta)
 	MapEffects.update_camera_shake(_camera, effect_time)
+	MapEffects.update_atmospheric_layer(_atmos_layers, delta, effect_time, MAP_WIDTH * TILE_SIZE)
+
+	# 구역 기반 컬러 시프트 (북쪽으로 갈수록 보이드 톤 강화)
+	if _grade_layer and is_instance_valid(_grade_layer):
+		var r := _grade_layer.get_child(0) as ColorRect
+		if r:
+			var t = clampf(1.0 - (player.position.y / float(MAP_HEIGHT * TILE_SIZE)), 0.0, 1.0)
+			r.color = Color(0.25 + t * 0.22, 0.2 + t * 0.05, 0.4 + t * 0.25, 0.04 + t * 0.08)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션

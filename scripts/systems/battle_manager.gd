@@ -628,6 +628,11 @@ func _try_enemy_ability() -> bool:
 	if ability == "":
 		return false
 
+	if current_stance == Stance.PYRE and ability in ["reflect", "weaken", "shield"]:
+		battle_log.emit("%s exploits your aggressive stance!" % current_enemy.name)
+	elif current_stance == Stance.HOLLOW and ability in ["poison", "charge", "multi_hit"]:
+		battle_log.emit("%s pressures your defensive rhythm." % current_enemy.name)
+
 	# 보스 페이즈2 분노 패턴: 매 3턴 강화 공격
 	var rage_bonus: float = 1.0
 	if current_enemy.is_boss and current_enemy.phase == 2 and _boss_turn_counter % 3 == 0:
@@ -755,6 +760,21 @@ func _select_ability() -> String:
 	# 2. 플레이어 콤보 방어 (combo >= 3 → shield 우선)
 	if combo_count >= 3 and "shield" in abilities and not enemy_shielded and randf() < 0.6:
 		return "shield"
+
+
+	# 2b. 스탠스 카운터: 공격적 스탠스(PYRE)면 방어/방해 능력 우선
+	if current_stance == Stance.PYRE:
+		if "reflect" in abilities and not _enemy_reflecting and randf() < 0.5:
+			return "reflect"
+		if "weaken" in abilities and not has_status("player", StatusEffect.WEAKEN) and randf() < 0.45:
+			return "weaken"
+
+	# 2c. 수비적 스탠스(HOLLOW)면 도트/차지로 압박
+	if current_stance == Stance.HOLLOW:
+		if "poison" in abilities and not has_status("player", StatusEffect.POISON) and randf() < 0.45:
+			return "poison"
+		if "charge" in abilities and not _enemy_charged and randf() < 0.4:
+			return "charge"
 
 	# 3. 방어 미사용 시 multi_hit 활용
 	if not player_defending and "multi_hit" in abilities and randf() < 0.5:

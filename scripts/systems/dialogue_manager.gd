@@ -13,9 +13,14 @@ var current_index: int = 0
 
 # JSON에서 로드한 대화 데이터 캐시
 var loaded_dialogues: Dictionary = {}
+var _previous_state: int = -1
 
 func _ready() -> void:
 	print("[DialogueManager] Ready")
+
+
+func _can_restore_state(state_value: int) -> bool:
+	return state_value >= 0 and state_value < GameManager.GameState.size()
 
 ## JSON 파일에서 대화 데이터 로드 (캐싱)
 func load_dialogue_file(file_path: String) -> bool:
@@ -59,6 +64,9 @@ func load_and_start(file_path: String, dialogue_key: String) -> void:
 ## 대화 시작 — dialogue_data는 Array of Dictionary
 ## [{"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"}, ...]
 func start_dialogue(dialogue_data: Array) -> void:
+	if is_active:
+		return
+	_previous_state = int(GameManager.current_state)
 	current_dialogue = dialogue_data
 	current_index = 0
 	is_active = true
@@ -101,8 +109,10 @@ func _show_next_line() -> void:
 
 ## 선택지 결과 처리
 func select_choice(choice_index: int) -> void:
+	if current_index < 0 or current_index >= current_dialogue.size():
+		return
 	var line = current_dialogue[current_index]
-	if line.has("choices") and choice_index < line.choices.size():
+	if line.has("choices") and choice_index >= 0 and choice_index < line.choices.size():
 		var choice = line.choices[choice_index]
 
 		# 플래그 설정
@@ -129,5 +139,12 @@ func end_dialogue() -> void:
 	is_active = false
 	current_dialogue = []
 	current_index = 0
-	GameManager.change_state(GameManager.GameState.EXPLORATION)
+	if _can_restore_state(_previous_state):
+		if _previous_state == GameManager.GameState.PAUSED:
+			GameManager.unpause_game()
+		else:
+			GameManager.change_state(_previous_state)
+	else:
+		GameManager.change_state(GameManager.GameState.EXPLORATION)
+	_previous_state = -1
 	dialogue_ended.emit()

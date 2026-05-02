@@ -1124,3 +1124,52 @@ static func update_lightning(flash_rect: ColorRect, delta: float) -> void:
 ## 색상 유틸
 static func _darken_c(color: Color, amount: float) -> Color:
 	return Color(maxf(color.r - amount, 0), maxf(color.g - amount, 0), maxf(color.b - amount, 0), color.a)
+
+
+## 바이옴 공기층(Atmospheric Layer) — 미세 입자/열기 왜곡 느낌
+static func add_atmospheric_layer(parent: Node2D, biome: String, width: int, height: int) -> Array[ColorRect]:
+	var layers: Array[ColorRect] = []
+	var cfg := {
+		"count": 10,
+		"color": Color(0.4, 0.4, 0.45, 0.06),
+		"speed": Vector2(8.0, 2.0),
+		"size": Vector2(140, 46),
+	}
+	match biome:
+		"void_edge":
+			cfg = {"count": 14, "color": Color(0.55, 0.35, 0.7, 0.07), "speed": Vector2(12.0, 3.0), "size": Vector2(180, 56)}
+		"ash":
+			cfg = {"count": 11, "color": Color(0.5, 0.47, 0.44, 0.06), "speed": Vector2(10.0, 2.0), "size": Vector2(160, 50)}
+		"forest":
+			cfg = {"count": 9, "color": Color(0.35, 0.5, 0.36, 0.05), "speed": Vector2(7.0, 1.5), "size": Vector2(130, 42)}
+
+	for i in range(cfg["count"]):
+		var r = ColorRect.new()
+		r.size = cfg["size"] + Vector2(randf_range(-30, 40), randf_range(-12, 15))
+		r.position = Vector2(randf_range(-120.0, float(width) + 120.0), randf_range(0.0, float(height)))
+		r.color = cfg["color"]
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		r.z_index = 1
+		r.set_meta("speed_x", cfg["speed"].x * randf_range(0.7, 1.3))
+		r.set_meta("speed_y", cfg["speed"].y * randf_range(-0.7, 0.7))
+		r.set_meta("phase", randf() * TAU)
+		r.set_meta("amp", randf_range(2.0, 8.0))
+		r.set_meta("base_y", r.position.y)
+		parent.add_child(r)
+		layers.append(r)
+	return layers
+
+static func update_atmospheric_layer(layers: Array[ColorRect], delta: float, time: float, width: int) -> void:
+	for r in layers:
+		if not is_instance_valid(r):
+			continue
+		var sx: float = r.get_meta("speed_x", 8.0)
+		var sy: float = r.get_meta("speed_y", 0.0)
+		var ph: float = r.get_meta("phase", 0.0)
+		var amp: float = r.get_meta("amp", 4.0)
+		var base_y: float = r.get_meta("base_y", r.position.y)
+		r.position.x += sx * delta
+		r.position.y = base_y + sin(time * 0.35 + ph) * amp + sy * sin(time * 0.9 + ph)
+		r.color.a = max(0.015, r.color.a + sin(time * 0.5 + ph) * 0.002)
+		if r.position.x > width + 160:
+			r.position.x = -r.size.x - 80

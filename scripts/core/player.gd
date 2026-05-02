@@ -13,6 +13,7 @@ var can_move: bool = true
 var _step_timer: float = 0.0
 var _breath_time: float = 0.0  # S52: 호흡 애니메이션
 const STEP_INTERVAL: float = 0.25
+const STEP_PARTICLE_LIFE: float = 0.24
 
 func _ready() -> void:
 	add_to_group("player")
@@ -57,6 +58,7 @@ func _physics_process(delta: float) -> void:
 			_step_timer = 0.0
 			var terrain = _get_terrain_type()
 			AudioManager.play_step(terrain)
+			_spawn_step_particles(terrain)
 	else:
 		_step_timer = 0.0
 
@@ -127,3 +129,31 @@ func lock_movement() -> void:
 
 func unlock_movement() -> void:
 	can_move = true
+
+
+func _spawn_step_particles(terrain: String) -> void:
+	var c = Color(0.65, 0.62, 0.58, 0.35)
+	match terrain:
+		"grass":
+			c = Color(0.45, 0.62, 0.42, 0.3)
+		"sand":
+			c = Color(0.72, 0.66, 0.52, 0.32)
+		"stone":
+			c = Color(0.62, 0.62, 0.66, 0.28)
+		_:
+			c = Color(0.6, 0.58, 0.55, 0.3)
+
+	for i in range(3):
+		var p = ColorRect.new()
+		p.size = Vector2(randf_range(2.0, 4.0), randf_range(2.0, 4.0))
+		p.color = c
+		p.position = global_position + Vector2(randf_range(-4, 4), randf_range(8, 14))
+		p.z_index = 2
+		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		get_tree().current_scene.add_child(p)
+		var tw = p.create_tween()
+		tw.set_parallel(true)
+		tw.tween_property(p, "position", p.position + Vector2(randf_range(-8, 8), randf_range(-8, -2)), STEP_PARTICLE_LIFE)
+		tw.tween_property(p, "modulate:a", 0.0, STEP_PARTICLE_LIFE)
+		tw.set_parallel(false)
+		tw.tween_callback(p.queue_free)

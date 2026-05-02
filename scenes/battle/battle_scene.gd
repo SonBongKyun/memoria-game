@@ -1160,6 +1160,26 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		_play_slash_vfx()
 		_play_speed_lines()  # S44: 속도선
 
+
+func _apply_skill_impact_preset(target: String, amount: int, skill_name: String) -> void:
+	var sn = skill_name.to_lower()
+	var flash_color = Color(1, 0.2, 0.15, 0.25)
+	var shake_mult = 1.0
+	if sn.find("burn") >= 0 or sn.find("flame") >= 0 or sn.find("ember") >= 0 or sn.find("scorch") >= 0:
+		flash_color = Color(1.0, 0.45, 0.2, 0.36)
+		shake_mult = 1.2
+	elif sn.find("stun") >= 0 or sn.find("weaken") >= 0 or sn.find("poison") >= 0:
+		flash_color = Color(0.65, 0.9, 0.7, 0.24)
+		shake_mult = 0.85
+	elif sn.find("limit") >= 0 or amount >= 250:
+		flash_color = Color(0.95, 0.9, 1.0, 0.45)
+		shake_mult = 1.5
+
+	hit_flash_rect.color = flash_color
+	_hit_flash(target)
+	var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0) * shake_mult
+	_screen_shake(shake_intensity)
+
 func _on_player_turn() -> void:
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41

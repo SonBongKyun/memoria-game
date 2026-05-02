@@ -5,6 +5,7 @@ extends Node
 
 const SAVE_DIR: String = "user://saves/"
 const MAX_SLOTS: int = 3
+const SAVE_VERSION: String = "0.1.0"
 
 signal save_completed(slot: int)
 signal load_completed(slot: int)
@@ -45,7 +46,7 @@ func save_game(slot: int) -> bool:
 		player_pos = {"x": pos.x, "y": pos.y}
 
 	var save_data: Dictionary = {
-		"version": "0.1.0",
+		"version": SAVE_VERSION,
 		"timestamp": Time.get_datetime_string_from_system(),
 		"scene": _get_current_scene_path(),
 		"game": GameManager.export_data(),
@@ -88,7 +89,11 @@ func load_game(slot: int) -> bool:
 		push_error("[SaveManager] Parse error in slot %d: %s" % [slot, json.get_error_message()])
 		return false
 
-	var save_data = json.data
+	if not (json.data is Dictionary):
+		push_error("[SaveManager] Invalid save payload in slot %d" % slot)
+		return false
+
+	var save_data = _migrate_save_data(json.data)
 
 	# 게임 데이터 복원
 	if save_data.has("game"):
@@ -150,6 +155,29 @@ func get_save_info(slot: int) -> Dictionary:
 		"grains": grains_val,
 		"equipped": game_data.get("equipped", {}),
 	}
+
+func _migrate_save_data(data: Dictionary) -> Dictionary:
+	var migrated: Dictionary = data.duplicate(true)
+	var version: String = str(migrated.get("version", "0.0.0"))
+	if version == SAVE_VERSION:
+		return migrated
+
+	# 구버전 세이브 최소 호환 처리
+	if not migrated.has("version"):
+		migrated["version"] = "0.0.0"
+	if not migrated.has("game") or not (migrated["game"] is Dictionary):
+		migrated["game"] = {}
+	if not migrated.has("memory") or not (migrated["memory"] is Dictionary):
+		migrated["memory"] = {}
+	if not migrated.has("elia_diary") or not (migrated["elia_diary"] is Dictionary):
+		migrated["elia_diary"] = {}
+	if not migrated.has("player_pos") or not (migrated["player_pos"] is Dictionary):
+		migrated["player_pos"] = {}
+	if not migrated.has("scene"):
+		migrated["scene"] = ""
+	migrated["version"] = SAVE_VERSION
+	print("[SaveManager] Migrated save data from %s to %s" % [version, SAVE_VERSION])
+	return migrated
 
 ## 현재 씬 경로
 func _get_current_scene_path() -> String:
