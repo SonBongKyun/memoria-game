@@ -1034,12 +1034,13 @@ func _build_burn_list(root: Control) -> void:
 func _connect_signals() -> void:
 	BattleManager.battle_log.connect(_on_battle_log)
 	BattleManager.damage_dealt.connect(_on_damage_dealt)
-	BattleManager.player_turn_started.connect(_on_player_turn)
+		BattleManager.player_turn_started.connect(_on_player_turn)
 	BattleManager.enemy_turn_started.connect(_on_enemy_turn)
 	BattleManager.battle_ended.connect(_on_battle_ended)
 	BattleManager.status_changed.connect(_on_status_changed)
 	BattleManager.limit_changed.connect(_on_limit_changed)
-	BattleManager.phase_changed.connect(_on_phase_changed)  # S46
+	if not BattleManager.phase_changed.is_connected(_on_phase_changed):
+		BattleManager.phase_changed.connect(_on_phase_changed)  # S46
 	BattleManager.echo_activated.connect(_on_echo_activated)  # S51
 	BattleManager.stance_changed.connect(_on_stance_changed)  # S51
 
