@@ -2350,252 +2350,78 @@ func _apply_status_shader() -> void:
 func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	if phase != 2:
 		return
-	# 1. 프리즈 프레임 (0.4초)
+
+	# Stage 1: Freeze + crimson warning
 	get_tree().paused = true
-	# 2. 화면 적색 플래시
+	_set_cinematic_bars(true)
 	var flash = ColorRect.new()
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
-	flash.color = Color(0.8, 0.1, 0.05, 0.6)
+	flash.color = Color(0.82, 0.08, 0.1, 0.0)
 	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	flash.z_index = 95
+	flash.z_index = 97
 	canvas_root.add_child(flash)
-	# 3. 경고 텍스트
+	var flash_in = create_tween()
+	flash_in.tween_property(flash, "color:a", 0.72, 0.14)
+
 	var warn = Label.new()
 	warn.text = "— PHASE 2 —"
-	warn.add_theme_font_size_override("font_size", 36)
-	warn.add_theme_color_override("font_color", Color(1, 0.3, 0.2))
+	warn.add_theme_font_size_override("font_size", 42)
+	warn.add_theme_color_override("font_color", Color(1, 0.35, 0.28))
 	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	warn.set_anchors_preset(Control.PRESET_CENTER)
-	warn.position = Vector2(640 - 100, 280)
-	warn.z_index = 96
+	warn.position = Vector2(640 - 150, 250)
+	warn.modulate.a = 0.0
+	warn.z_index = 98
 	canvas_root.add_child(warn)
-	# 프리즈 해제 후 페이드
-	await get_tree().create_timer(0.4, true, false, true).timeout
+	var sub = Label.new()
+	sub.text = enemy_name + " descends into frenzy"
+	sub.add_theme_font_size_override("font_size", 18)
+	sub.add_theme_color_override("font_color", Color(0.9, 0.6, 0.55))
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.set_anchors_preset(Control.PRESET_CENTER)
+	sub.position = Vector2(640 - 170, 304)
+	sub.modulate.a = 0.0
+	sub.z_index = 98
+	canvas_root.add_child(sub)
+	var txt_in = create_tween()
+	txt_in.set_parallel(true)
+	txt_in.tween_property(warn, "modulate:a", 1.0, 0.16)
+	txt_in.tween_property(sub, "modulate:a", 1.0, 0.2)
+
+	await get_tree().create_timer(0.38, true, false, true).timeout
 	get_tree().paused = false
-	# 강한 셰이크
-	_screen_shake(3.0)
-	# 색수차
-	_play_chromatic_aberration(2.0)
-	# 적 분노 틴트 — outline_glow 셰이더
+
+	# Stage 2: shock release
+	_screen_shake(3.2)
+	_play_chromatic_aberration(2.2)
+	AudioManager.play_sfx("hit")
+	var flash_out = create_tween()
+	flash_out.tween_property(flash, "color:a", 0.0, 0.42)
+
+	# Stage 3: sustained rage glow
 	var glow_path = "res://addons/vfx_lib/shaders/outline_glow.gdshader"
 	if enemy_sprite and ResourceLoader.exists(glow_path):
 		var mat = ShaderMaterial.new()
 		mat.shader = load(glow_path)
-		mat.set_shader_parameter("outline_color", Color(1.0, 0.2, 0.1, 1.0))
-		mat.set_shader_parameter("outline_width", 3.0)
-		mat.set_shader_parameter("glow_intensity", 1.5)
+		mat.set_shader_parameter("outline_color", Color(1.0, 0.25, 0.12, 1.0))
+		mat.set_shader_parameter("outline_width", 3.5)
+		mat.set_shader_parameter("glow_intensity", 1.8)
 		enemy_sprite.material = mat
-		# 2초 후 페이드
 		var gt = create_tween()
-		gt.tween_interval(2.0)
+		gt.tween_interval(2.4)
 		gt.tween_callback(func(): enemy_sprite.material = null)
-	# 경고 페이드아웃
-	var wt = create_tween()
-	wt.tween_property(warn, "modulate:a", 0.0, 1.0).set_delay(0.5)
-	wt.tween_callback(warn.queue_free)
-	var ft = create_tween()
-	ft.tween_property(flash, "color:a", 0.0, 0.6)
-	ft.tween_callback(flash.queue_free)
 
-## S46: 상태이상 셰이더 업데이트 (status_changed 시그널에 연동)
-func _update_status_shaders() -> void:
-	_apply_status_shader()
+	var fade_txt = create_tween()
+	fade_txt.set_parallel(true)
+	fade_txt.tween_property(warn, "modulate:a", 0.0, 0.7).set_delay(0.5)
+	fade_txt.tween_property(sub, "modulate:a", 0.0, 0.7).set_delay(0.55)
+	fade_txt.tween_callback(warn.queue_free)
+	fade_txt.tween_callback(sub.queue_free)
+	var clean = create_tween()
+	clean.tween_interval(0.9)
+	clean.tween_callback(flash.queue_free)
+	clean.tween_callback(func(): _set_cinematic_bars(false))
 
-## ===================== S46: 세이블 명령 UI =====================
-
-func _build_ally_command_ui(root: Control) -> void:
-	if not BattleManager.sable_in_party:
-		return
-	ally_cmd_container = HBoxContainer.new()
-	ally_cmd_container.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	ally_cmd_container.anchor_left = 0.0
-	ally_cmd_container.anchor_right = 0.35
-	ally_cmd_container.anchor_top = 0.78
-	ally_cmd_container.anchor_bottom = 0.84
-	ally_cmd_container.offset_left = 10
-	ally_cmd_container.add_theme_constant_override("separation", 4)
-
-	var lbl = Label.new()
-	lbl.text = "Sable:"
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.7, 0.85, 0.95))
-	ally_cmd_container.add_child(lbl)
-
-	var cmds = [["Heal", "heal"], ["Strike", "strike"], ["Weaken", "weaken"], ["Guard", "guard"]]
-	for cmd in cmds:
-		var btn = Button.new()
-		btn.text = cmd[0]
-		btn.custom_minimum_size = Vector2(52, 22)
-		btn.add_theme_font_size_override("font_size", 10)
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.15, 0.18, 0.25, 0.9)
-		style.border_color = Color(0.4, 0.55, 0.7, 0.7)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(0.25, 0.35, 0.5, 0.95)
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
-		var action_name = cmd[1]
-		btn.pressed.connect(func(): _on_ally_cmd(action_name))
-		ally_cmd_container.add_child(btn)
-
-	ally_cmd_container.visible = false
-	root.add_child(ally_cmd_container)
-
-func _on_ally_cmd(action: String) -> void:
-	BattleManager.set_ally_command(action)
-	AudioManager.play_sfx("ui_select")
-	# 선택 확인 — 버튼 하이라이트
-	if ally_cmd_container:
-		for i in range(1, ally_cmd_container.get_child_count()):
-			var btn = ally_cmd_container.get_child(i)
-			if btn is Button:
-				var is_selected = (btn.text.to_lower() == action)
-				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE
-
-## ===================== S53: 토비아스 명령 UI =====================
-
-func _build_tobias_command_ui(root: Control) -> void:
-	if not BattleManager.tobias_in_party:
-		return
-	tobias_cmd_container = HBoxContainer.new()
-	tobias_cmd_container.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	tobias_cmd_container.anchor_left = 0.0
-	tobias_cmd_container.anchor_right = 0.35
-	tobias_cmd_container.anchor_top = 0.84
-	tobias_cmd_container.anchor_bottom = 0.90
-	tobias_cmd_container.offset_left = 10
-	tobias_cmd_container.add_theme_constant_override("separation", 4)
-
-	var lbl = Label.new()
-	lbl.text = "Tobias:"
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.55))
-	tobias_cmd_container.add_child(lbl)
-
-	var cmds = [["Analyze", "analyze"], ["Archive", "archive"], ["Protect", "protect"]]
-	for cmd in cmds:
-		var btn = Button.new()
-		btn.text = cmd[0]
-		btn.custom_minimum_size = Vector2(52, 22)
-		btn.add_theme_font_size_override("font_size", 10)
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.2, 0.18, 0.12, 0.9)
-		style.border_color = Color(0.6, 0.5, 0.3, 0.7)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(0.35, 0.3, 0.2, 0.95)
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7))
-		var action_name = cmd[1]
-		btn.pressed.connect(func(): _on_tobias_cmd(action_name))
-		tobias_cmd_container.add_child(btn)
-
-	tobias_cmd_container.visible = false
-	root.add_child(tobias_cmd_container)
-
-func _on_tobias_cmd(action: String) -> void:
-	BattleManager.set_tobias_command(action)
-	AudioManager.play_sfx("ui_select")
-	if tobias_cmd_container:
-		for i in range(1, tobias_cmd_container.get_child_count()):
-			var btn = tobias_cmd_container.get_child(i)
-			if btn is Button:
-				var is_selected = (btn.text.to_lower() == action)
-				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE
-
-## ===================== S51: 스탠스 전환 UI =====================
-
-var stance_container: HBoxContainer
-var stance_buttons: Array[Button] = []
-
-func _build_stance_ui(root: Control) -> void:
-	stance_container = HBoxContainer.new()
-	stance_container.anchor_left = 0.35
-	stance_container.anchor_right = 0.65
-	stance_container.anchor_top = 0.78
-	stance_container.anchor_bottom = 0.84
-	stance_container.add_theme_constant_override("separation", 6)
-	stance_container.alignment = BoxContainer.ALIGNMENT_CENTER
-
-	var lbl = Label.new()
-	lbl.text = "Stance:"
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
-	stance_container.add_child(lbl)
-
-	var stances = [
-		[BattleManager.Stance.REMNANT, "Remnant", Color(0.6, 0.55, 0.45)],
-		[BattleManager.Stance.PYRE, "Pyre", Color(0.85, 0.4, 0.25)],
-		[BattleManager.Stance.HOLLOW, "Hollow", Color(0.4, 0.35, 0.7)],
-	]
-
-	for s in stances:
-		var btn = Button.new()
-		btn.text = s[1]
-		btn.custom_minimum_size = Vector2(65, 24)
-		btn.add_theme_font_size_override("font_size", 10)
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(s[2].r * 0.3, s[2].g * 0.3, s[2].b * 0.3, 0.9)
-		style.border_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.6)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.95)
-		hover.border_color = s[2]
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.8, 0.75, 0.7))
-		# 해금 체크
-		var stance_val = s[0]
-		var info = BattleManager.STANCE_INFO[stance_val]
-		if GameManager.current_chapter < info["unlock_chapter"]:
-			btn.disabled = true
-			btn.modulate.a = 0.4
-		else:
-			btn.pressed.connect(func(): _on_stance_select(stance_val))
-		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
-		stance_container.add_child(btn)
-		stance_buttons.append(btn)
-
-	stance_container.visible = false
-	root.add_child(stance_container)
-	_update_stance_highlight()
-
-func _on_stance_select(stance: int) -> void:
-	BattleManager.switch_stance(stance)
-	AudioManager.play_sfx("ui_select")
-	_update_stance_highlight()
-
-func _on_stance_changed(_stance: int) -> void:
-	_update_stance_highlight()
-
-func _update_stance_highlight() -> void:
-	var names = ["Remnant", "Pyre", "Hollow"]
-	for i in range(stance_buttons.size()):
-		var btn = stance_buttons[i]
-		var is_active = (i == BattleManager.current_stance)
-		if is_active:
-			btn.modulate = Color(1.0, 1.0, 0.7) if not btn.disabled else Color(0.4, 0.4, 0.4, 0.4)
-		else:
-			btn.modulate = Color.WHITE if not btn.disabled else Color(0.4, 0.4, 0.4, 0.4)
-
-## ===================== S51: 에코 표시 =====================
-
-var echo_display: VBoxContainer
-
-func _build_echo_display(root: Control) -> void:
-	echo_display = VBoxContainer.new()
-	echo_display.anchor_left = 0.7
-	echo_display.anchor_right = 0.98
-	echo_display.anchor_top = 0.42
-	echo_display.anchor_bottom = 0.65
-	echo_display.add_theme_constant_override("separation", 2)
-	root.add_child(echo_display)
 
 func _on_echo_activated(_echo_type: String, _desc: String) -> void:
 	_refresh_echo_display()
