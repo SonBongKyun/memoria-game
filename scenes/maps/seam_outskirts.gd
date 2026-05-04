@@ -79,7 +79,8 @@ func _ready() -> void:
 func _ready_sequence() -> void:
 	if not GameManager.get_flag("ch7_arrived"):
 		await MapEffects.show_chapter_title(self, 7, "The Threshold", "The other side of the flame")
-		await get_tree().create_timer(0.3).timeout
+		await MapEffects.show_region_title_cinematic(self, "Seam Outskirts", "Ash wind crossing the broken rim")
+		await get_tree().create_timer(0.25).timeout
 		_start_ch7_sequence()
 
 func _process(delta: float) -> void:

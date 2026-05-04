@@ -1194,3 +1194,73 @@ static func get_quality_scalar() -> float:
 		0: return 0.7
 		2: return 1.2
 	return 1.0
+
+
+## 지역 타이틀 시네마틱 (Step5)
+## 짧은 컷인 + 서브라인 + 라이트 스윕
+static func show_region_title_cinematic(parent: Node, title: String, subtitle: String = "") -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = 6
+
+	var bg = ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0, 0, 0, 0.0)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(bg)
+
+	var title_label = Label.new()
+	title_label.text = title
+	title_label.set_anchors_preset(Control.PRESET_CENTER)
+	title_label.position = Vector2(-240, -18)
+	title_label.add_theme_font_size_override("font_size", 34)
+	title_label.add_theme_color_override("font_color", Color(0.88, 0.78, 0.62))
+	title_label.modulate.a = 0.0
+	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(title_label)
+
+	var sub_label: Label = null
+	if subtitle != "":
+		sub_label = Label.new()
+		sub_label.text = subtitle
+		sub_label.set_anchors_preset(Control.PRESET_CENTER)
+		sub_label.position = Vector2(-210, 20)
+		sub_label.add_theme_font_size_override("font_size", 16)
+		sub_label.add_theme_color_override("font_color", Color(0.68, 0.62, 0.56))
+		sub_label.modulate.a = 0.0
+		sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(sub_label)
+
+	var sweep = ColorRect.new()
+	sweep.size = Vector2(240, 3)
+	sweep.color = Color(0.95, 0.8, 0.5, 0.0)
+	sweep.set_anchors_preset(Control.PRESET_CENTER)
+	sweep.position = Vector2(-280, 56)
+	sweep.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(sweep)
+
+	parent.add_child(layer)
+
+	var t = parent.create_tween()
+	t.set_parallel(true)
+	t.tween_property(bg, "color:a", 0.35, 0.35)
+	t.tween_property(title_label, "modulate:a", 1.0, 0.4)
+	if sub_label:
+		t.tween_property(sub_label, "modulate:a", 1.0, 0.45)
+	t.set_parallel(false)
+	t.tween_interval(0.15)
+	t.set_parallel(true)
+	t.tween_property(sweep, "color:a", 0.95, 0.18)
+	t.tween_property(sweep, "position:x", 200.0, 0.42)
+	t.tween_property(sweep, "color:a", 0.0, 0.2)
+	t.set_parallel(false)
+	t.tween_interval(1.3)
+	t.set_parallel(true)
+	t.tween_property(bg, "color:a", 0.0, 0.45)
+	t.tween_property(title_label, "modulate:a", 0.0, 0.45)
+	if sub_label:
+		t.tween_property(sub_label, "modulate:a", 0.0, 0.45)
+	t.set_parallel(false)
+	t.tween_callback(layer.queue_free)
+
+	await t.finished
+	return layer
