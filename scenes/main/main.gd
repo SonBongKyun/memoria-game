@@ -18,6 +18,7 @@ var _prompt_label: Label
 var _intro_skipped: bool = false
 var _intro_tween: Tween
 var _cinema_profile: Dictionary = {}
+var _mouse_parallax: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -181,6 +182,17 @@ func _process(delta: float) -> void:
 		var phase: float = m.get_meta("phase", 0.0)
 		m.position.y -= speed * delta
 		m.position.x += sin(_intro_t * 0.8 + phase) * 6.0 * delta
+
+	# 미세 마우스 패럴랙스 (타이틀 화면 깊이감)
+	var vp = get_viewport_rect().size
+	if vp.x > 0 and vp.y > 0:
+		var mp = get_viewport().get_mouse_position()
+		var n = Vector2((mp.x / vp.x) - 0.5, (mp.y / vp.y) - 0.5)
+		_mouse_parallax = _mouse_parallax.lerp(n, clampf(delta * 2.2, 0.0, 1.0))
+		if _bg_primary:
+			_bg_primary.position = Vector2(_mouse_parallax.x * -18.0, _mouse_parallax.y * -10.0)
+		if _bg_secondary:
+			_bg_secondary.position = Vector2(_mouse_parallax.x * -12.0, _mouse_parallax.y * -7.0)
 		m.modulate.a = 0.2 + sin(_intro_t * 0.9 + phase) * 0.08
 		if m.position.y < -12:
 			m.position.y = 740
