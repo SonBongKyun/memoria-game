@@ -4,11 +4,19 @@ extends Control
 
 @onready var continue_btn: Button = $VBoxContainer/ContinueButton
 var ng_plus_btn: Button = null
+var _title_label: Label
+var _subtitle_label: Label
+var _overlay_rect: ColorRect
+var _motes: Array[ColorRect] = []
+var _intro_t: float = 0.0
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_setup_background()
 	_setup_menu()
+	_build_title_overlay()
+	_spawn_ambient_motes()
+	_play_intro_fade()
 	print("=== MEMORIA: The Price of Oblivion ===")
 
 func _setup_background() -> void:
@@ -34,12 +42,12 @@ func _setup_background() -> void:
 	move_child(bg, 0)
 
 	# 어두운 오버레이 (메뉴 가독성)
-	var overlay = ColorRect.new()
-	overlay.set_anchors_preset(PRESET_FULL_RECT)
-	overlay.color = Color(0, 0, 0, 0.4)
-	overlay.mouse_filter = MOUSE_FILTER_IGNORE
-	add_child(overlay)
-	move_child(overlay, 1)
+	_overlay_rect = ColorRect.new()
+	_overlay_rect.set_anchors_preset(PRESET_FULL_RECT)
+	_overlay_rect.color = Color(0, 0, 0, 0.45)
+	_overlay_rect.mouse_filter = MOUSE_FILTER_IGNORE
+	add_child(_overlay_rect)
+	move_child(_overlay_rect, 1)
 
 func _setup_menu() -> void:
 	# NG+ 버튼 동적 추가 (New Game 아래)
@@ -131,3 +139,70 @@ func _on_ng_plus_pressed() -> void:
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
+
+
+func _process(delta: float) -> void:
+	_intro_t += delta
+	if _overlay_rect:
+		_overlay_rect.color.a = 0.43 + sin(_intro_t * 0.4) * 0.04
+	if _title_label:
+		_title_label.modulate.a = 0.86 + sin(_intro_t * 1.3) * 0.08
+	for m in _motes:
+		if not is_instance_valid(m):
+			continue
+		var speed: float = m.get_meta("speed", 8.0)
+		var phase: float = m.get_meta("phase", 0.0)
+		m.position.y -= speed * delta
+		m.position.x += sin(_intro_t * 0.8 + phase) * 6.0 * delta
+		m.modulate.a = 0.2 + sin(_intro_t * 0.9 + phase) * 0.08
+		if m.position.y < -12:
+			m.position.y = 740
+			m.position.x = randf_range(0, 1280)
+
+func _build_title_overlay() -> void:
+	_title_label = Label.new()
+	_title_label.text = "MEMORIA"
+	_title_label.set_anchors_preset(PRESET_TOP_WIDE)
+	_title_label.offset_top = 78
+	_title_label.offset_bottom = 150
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_label.add_theme_font_size_override("font_size", 56)
+	_title_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.7))
+	_title_label.modulate.a = 0.0
+	add_child(_title_label)
+
+	_subtitle_label = Label.new()
+	_subtitle_label.text = "The Price of Oblivion"
+	_subtitle_label.set_anchors_preset(PRESET_TOP_WIDE)
+	_subtitle_label.offset_top = 146
+	_subtitle_label.offset_bottom = 176
+	_subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subtitle_label.add_theme_font_size_override("font_size", 20)
+	_subtitle_label.add_theme_color_override("font_color", Color(0.72, 0.68, 0.62))
+	_subtitle_label.modulate.a = 0.0
+	add_child(_subtitle_label)
+
+func _spawn_ambient_motes() -> void:
+	for i in range(28):
+		var m = ColorRect.new()
+		m.size = Vector2(randf_range(1.5, 3.0), randf_range(1.5, 3.0))
+		m.color = Color(0.85, 0.78, 0.66, 0.22)
+		m.position = Vector2(randf_range(0, 1280), randf_range(0, 720))
+		m.mouse_filter = MOUSE_FILTER_IGNORE
+		m.z_index = 2
+		m.set_meta("speed", randf_range(6.0, 16.0))
+		m.set_meta("phase", randf() * TAU)
+		add_child(m)
+		_motes.append(m)
+
+func _play_intro_fade() -> void:
+	if _title_label == null or _subtitle_label == null:
+		return
+	$VBoxContainer.modulate.a = 0.0
+	var t = create_tween()
+	t.set_parallel(true)
+	t.tween_property(_title_label, "modulate:a", 1.0, 0.8)
+	t.tween_property(_subtitle_label, "modulate:a", 1.0, 1.0)
+	t.set_parallel(false)
+	t.tween_interval(0.25)
+	t.tween_property($VBoxContainer, "modulate:a", 1.0, 0.4)
