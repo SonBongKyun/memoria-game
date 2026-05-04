@@ -1181,6 +1181,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	# S46: VFX Library 셰이더 피격 플래시 (flash_white)
 	_apply_hit_shader(target, amount)
 	_apply_skill_impact_preset(target, amount, skill_name)
+	_apply_skill_palette_theme(skill_name, target)
 
 	# S52: 크리티컬 히트 줌 펀치 (200+ 데미지)
 	if amount >= 200 and target != "Arrel":
@@ -1212,6 +1213,25 @@ func _apply_skill_impact_preset(target: String, amount: int, skill_name: String)
 	_hit_flash(target)
 	var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0) * shake_mult
 	_screen_shake(shake_intensity)
+
+func _apply_skill_palette_theme(skill_name: String, target: String) -> void:
+	if skill_name == "":
+		return
+	var sn = skill_name.to_lower()
+	var tint = Color(1.0, 0.95, 0.95, 1.0)
+	if sn.find("burn") >= 0 or sn.find("flame") >= 0 or sn.find("scorch") >= 0:
+		tint = Color(1.0, 0.78, 0.62, 1.0)
+	elif sn.find("void") >= 0 or sn.find("despair") >= 0:
+		tint = Color(0.75, 0.7, 1.0, 1.0)
+	elif sn.find("poison") >= 0:
+		tint = Color(0.72, 0.9, 0.7, 1.0)
+
+	var target_node: CanvasItem = enemy_sprite_container if target != "Arrel" else player_sprite_container
+	if target_node == null:
+		return
+	target_node.modulate = tint
+	var tw = create_tween()
+	tw.tween_property(target_node, "modulate", Color(1, 1, 1, 1), 0.22)
 
 func _on_player_turn() -> void:
 	_set_cinematic_bars(false)
