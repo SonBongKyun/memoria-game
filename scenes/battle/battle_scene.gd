@@ -59,6 +59,8 @@ var _enemy_base_y: float = 0.0
 var _color_grade_rect: ColorRect
 var _battle_particles: GPUParticles2D  # 배경 파티클
 var _battle_parallax_layers: Array = []  # S53: 전투 패럴랙스
+var _cinema_top: ColorRect
+var _cinema_bottom: ColorRect
 
 # S46: 타격감 강화
 var _enemy_shader_mat: ShaderMaterial  # 적 VFX 셰이더
@@ -116,6 +118,7 @@ func _build_ui() -> void:
 	_add_battle_atmosphere()
 	# S53: 전투 패럴랙스 레이어
 	_add_battle_parallax()
+	_add_cinematic_bars()
 
 	# S44: 전투 지면 (그라운드 플랫폼)
 	_build_battle_ground()
@@ -1178,6 +1181,7 @@ func _apply_skill_impact_preset(target: String, amount: int, skill_name: String)
 	_screen_shake(shake_intensity)
 
 func _on_player_turn() -> void:
+	_set_cinematic_bars(false)
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
 	# S41: 콤보 버스트 VFX
@@ -1200,6 +1204,7 @@ func _on_player_turn() -> void:
 		action_container.get_child(0).grab_focus()
 
 func _on_enemy_turn() -> void:
+	_set_cinematic_bars(true)
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
 	if tobias_cmd_container:
@@ -2706,3 +2711,31 @@ func _element_flash(element: String) -> void:
 	var t = create_tween()
 	t.tween_property(flash, "color:a", 0.0, 0.3).set_ease(Tween.EASE_OUT)
 	t.tween_callback(flash.queue_free)
+
+
+func _add_cinematic_bars() -> void:
+	_cinema_top = ColorRect.new()
+	_cinema_top.anchor_right = 1.0
+	_cinema_top.offset_bottom = 0
+	_cinema_top.offset_top = -24
+	_cinema_top.color = Color(0, 0, 0, 0.0)
+	_cinema_top.z_index = 90
+	add_child(_cinema_top)
+	_cinema_bottom = ColorRect.new()
+	_cinema_bottom.anchor_right = 1.0
+	_cinema_bottom.anchor_top = 1.0
+	_cinema_bottom.anchor_bottom = 1.0
+	_cinema_bottom.offset_top = 0
+	_cinema_bottom.offset_bottom = 24
+	_cinema_bottom.color = Color(0, 0, 0, 0.0)
+	_cinema_bottom.z_index = 90
+	add_child(_cinema_bottom)
+
+func _set_cinematic_bars(enabled: bool) -> void:
+	if _cinema_top == null or _cinema_bottom == null:
+		return
+	var t = create_tween()
+	var alpha = 0.35 if enabled else 0.0
+	t.set_parallel(true)
+	t.tween_property(_cinema_top, "color:a", alpha, 0.25)
+	t.tween_property(_cinema_bottom, "color:a", alpha, 0.25)

@@ -97,6 +97,7 @@ var tobias_in_party: bool = false   # 토비아스 동행 여부
 var _boss_turn_counter: int = 0     # 보스 턴 카운터 (페이즈2 분노 패턴용)
 var _encounter_modifier: Dictionary = {}  # S51: 인카운터 수정자
 var _total_turns: int = 0           # S51: 턴 카운터 (수정자용)
+var _focus_guard: bool = false        # S54: 콤보 집중 가드(다음 적 타격 완화)
 var _burn_chain: int = 0  # S53: 연속 연소 카운터
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
@@ -184,6 +185,7 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	current_stance = Stance.REMNANT
 	_encounter_modifier = {}
 	_total_turns = 0
+	_focus_guard = false
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
 	tobias_in_party = GameManager.get_flag("tobias_joined") and GameManager.current_chapter >= 3 and GameManager.current_chapter < 7
 	# S51: 엘리아 기술 쿨다운 리셋
@@ -294,6 +296,9 @@ func player_attack() -> void:
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_add_limit(LIMIT_GAIN_ATTACK)
 	_check_combo_milestone()
+	if combo_count >= 4:
+		_focus_guard = true
+		battle_log.emit("[FOCUS] Your rhythm sharpens your guard for the next hit.")
 	# 반사 배리어 처리
 	if _enemy_reflecting:
 		_enemy_reflecting = false
@@ -569,6 +574,7 @@ func _enemy_turn() -> void:
 		return
 
 	state = BattleState.ENEMY_TURN
+	_total_turns += 1
 	enemy_turn_started.emit()
 
 	# 특수 능력 선택 (보스 페이즈 2 또는 확률적)
@@ -578,6 +584,10 @@ func _enemy_turn() -> void:
 		return
 
 	var base_dmg = current_enemy.attack + randi_range(0, 5)
+	# S54: 장기전 에스컬레이션 (7턴 이후 적 압박 증가)
+	if _total_turns >= 7:
+		base_dmg = int(base_dmg * 1.15)
+		battle_log.emit("The battlefield grows harsher as the fight drags on...")
 	# 차지 공격: 이전 턴에 차지했으면 2배 데미지
 	if _enemy_charged:
 		_enemy_charged = false
@@ -597,6 +607,10 @@ func _enemy_turn() -> void:
 	if player_defending:
 		base_dmg = maxi(1, base_dmg / 2)
 		battle_log.emit("Defended! Reduced damage.")
+	if _focus_guard:
+		_focus_guard = false
+		base_dmg = maxi(1, int(base_dmg * 0.8))
+		battle_log.emit("[FOCUS] You read the attack and soften the impact.")
 	# Elia Anchor 에코: 25% 확률로 절반 데미지
 	if has_echo("elia_anchor") and randf() < 0.25:
 		base_dmg = maxi(1, base_dmg / 2)
@@ -775,6 +789,11 @@ func _select_ability() -> String:
 			return "poison"
 		if "charge" in abilities and not _enemy_charged and randf() < 0.4:
 			return "charge"
+
+		# 2d. 플레이어 HP가 낮으면 압박 능력 우선
+	var player_hp_ratio = float(GameManager.player_data.hp) / max(float(GameManager.player_data.max_hp), 1.0)
+	if player_hp_ratio < 0.35 and "stun" in abilities and not _player_stunned and randf() < 0.6:
+		return "stun"
 
 	# 3. 방어 미사용 시 multi_hit 활용
 	if not player_defending and "multi_hit" in abilities and randf() < 0.5:

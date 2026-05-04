@@ -42,6 +42,7 @@ var _camera: Camera2D = null  # S52
 var _atmos_layers: Array[ColorRect] = []  # Graphics upgrade
 var _grade_layer: CanvasLayer = null
 var _grade_target_alpha: float = 0.04
+var _storm_flash: ColorRect = null
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -55,6 +56,7 @@ func _ready() -> void:
 	MapEffects.add_ambient_lighting(self, Color(0.3, 0.28, 0.35))
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.4, 0.2, 0.5, 0.12), 25)
 	_atmos_layers = MapEffects.add_atmospheric_layer(self, "void_edge", MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
+	_storm_flash = MapEffects.add_lightning(self)
 	# S52: 그래픽 업그레이드
 	_grade_layer = MapEffects.add_color_grading(self, MapEffects.get_biome_grade_preset("void_edge"))
 	_s52_particles = MapEffects.add_void_tendrils(self, 4, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
@@ -95,6 +97,7 @@ func _process(delta: float) -> void:
 						_grade_target_alpha = 0.04 + t * 0.08
 			var target_color = Color(0.25 + t * 0.22, 0.2 + t * 0.05, 0.4 + t * 0.25, _grade_target_alpha)
 			r.color = r.color.lerp(target_color, clampf(delta * 2.5, 0.0, 1.0))
+	MapEffects.update_lightning(_storm_flash, delta)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
