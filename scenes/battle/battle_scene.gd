@@ -1260,6 +1260,13 @@ func _apply_skill_palette_theme(skill_name: String, target: String) -> void:
 	var tw = create_tween()
 	tw.tween_property(target_node, "modulate", Color(1, 1, 1, 1), 0.22)
 
+func _intent_panel_pulse() -> void:
+	if enemy_intent_panel == null:
+		return
+	enemy_intent_panel.modulate = Color(1, 1, 1, 0.7)
+	var tw = create_tween()
+	tw.tween_property(enemy_intent_panel, "modulate:a", 1.0, 0.2)
+
 func _refresh_enemy_intent() -> void:
 	if enemy_intent_label == null:
 		return
@@ -1276,6 +1283,13 @@ func _refresh_enemy_intent() -> void:
 	if parts.is_empty():
 		parts.append("Adaptive attack pattern")
 	enemy_intent_label.text = "Enemy intent: " + " / ".join(parts)
+	if enemy_intent_label.text.find("Charged") >= 0:
+		enemy_intent_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.55))
+	elif enemy_intent_label.text.find("Reflect") >= 0:
+		enemy_intent_label.add_theme_color_override("font_color", Color(0.72, 0.85, 1.0))
+	else:
+		enemy_intent_label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.7))
+	_intent_panel_pulse()
 
 func _on_player_turn() -> void:
 	_set_cinematic_bars(false)

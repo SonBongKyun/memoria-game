@@ -45,6 +45,7 @@ var _grade_target_alpha: float = 0.04
 var _storm_flash: ColorRect = null
 var _fog_layers: Array[ColorRect] = []
 var _ambient_tint_phase: float = 0.0
+var _fg_shards: Array[ColorRect] = []
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -60,6 +61,7 @@ func _ready() -> void:
 	_atmos_layers = MapEffects.add_atmospheric_layer(self, "void_edge", MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
 	_storm_flash = MapEffects.add_lightning(self)
 	_fog_layers = MapEffects.add_fog(self, Color(0.24, 0.2, 0.28, 0.08))
+	_fg_shards = MapEffects.add_foreground_shards(self, 7, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.14, 0.09, 0.18, 0.52))
 	# S52: 그래픽 업그레이드
 	_grade_layer = MapEffects.add_color_grading(self, MapEffects.get_biome_grade_preset("void_edge"))
 	_s52_particles = MapEffects.add_void_tendrils(self, 4, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
@@ -103,6 +105,7 @@ func _process(delta: float) -> void:
 			r.color = r.color.lerp(target_color, clampf(delta * 2.5, 0.0, 1.0))
 	MapEffects.update_lightning(_storm_flash, delta)
 	MapEffects.update_dynamic_fog(_fog_layers, effect_time, 0.07)
+	MapEffects.update_foreground_shards(_fg_shards, effect_time)
 	_ambient_tint_phase += delta
 	if _grade_layer and is_instance_valid(_grade_layer):
 		var gr = _grade_layer.get_child(0) as ColorRect

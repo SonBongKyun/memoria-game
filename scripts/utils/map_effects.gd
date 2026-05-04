@@ -1276,3 +1276,29 @@ static func get_cinematic_profile() -> Dictionary:
 		"hold": 1.2,
 		"fade_out": 0.5,
 	}
+
+
+## 전경 실루엣 샤드 레이어 (Step3: 맵 체감 강화)
+static func add_foreground_shards(parent: Node2D, count: int = 6, area: Vector2 = Vector2(1280, 720), color: Color = Color(0.12, 0.08, 0.16, 0.55)) -> Array[ColorRect]:
+	var shards: Array[ColorRect] = []
+	for i in range(count):
+		var r = ColorRect.new()
+		r.size = Vector2(randf_range(120, 260), randf_range(220, 420))
+		r.position = Vector2(randf_range(-80, area.x + 80), randf_range(area.y * 0.35, area.y + 40))
+		r.color = color
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		r.z_index = 8
+		r.set_meta("drift", randf_range(-6.0, 6.0))
+		r.set_meta("phase", randf() * TAU)
+		parent.add_child(r)
+		shards.append(r)
+	return shards
+
+static func update_foreground_shards(shards: Array[ColorRect], time: float) -> void:
+	for r in shards:
+		if not is_instance_valid(r):
+			continue
+		var phase = r.get_meta("phase", 0.0)
+		var drift = r.get_meta("drift", 0.0)
+		r.position.x += sin(time * 0.25 + phase) * drift * 0.01
+		r.modulate.a = 0.45 + sin(time * 0.42 + phase) * 0.08
