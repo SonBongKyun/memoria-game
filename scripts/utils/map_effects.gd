@@ -1264,3 +1264,15 @@ static func show_region_title_cinematic(parent: Node, title: String, subtitle: S
 
 	await t.finished
 	return layer
+
+
+static func get_cinematic_profile() -> Dictionary:
+	# 통합 폴리싱용 공통 연출 프로필
+	return {
+		"amber": Color(0.9, 0.78, 0.58),
+		"void": Color(0.64, 0.52, 0.9),
+		"bg_dim": 0.42,
+		"fade_in": 0.45,
+		"hold": 1.2,
+		"fade_out": 0.5,
+	}

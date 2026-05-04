@@ -60,6 +60,7 @@ var _color_grade_rect: ColorRect
 var _battle_particles: GPUParticles2D  # 배경 파티클
 var _battle_parallax_layers: Array = []  # S53: 전투 패럴랙스
 var _theme_overlay: ColorRect
+var _cinema_profile: Dictionary = {}
 var _cinema_top: ColorRect
 var _cinema_bottom: ColorRect
 
@@ -70,6 +71,7 @@ var ally_cmd_container: HBoxContainer  # 세이블 명령 UI
 var tobias_cmd_container: HBoxContainer  # 토비아스 명령 UI
 
 func _ready() -> void:
+	_cinema_profile = MapEffects.get_cinematic_profile()
 	_build_ui()
 	_connect_signals()
 	# 인트로 연출 후 HP 표시
@@ -2366,7 +2368,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	var warn = Label.new()
 	warn.text = "— PHASE 2 —"
 	warn.add_theme_font_size_override("font_size", 42)
-	warn.add_theme_color_override("font_color", Color(1, 0.35, 0.28))
+	warn.add_theme_color_override("font_color", _cinema_profile.get("amber", Color(1, 0.35, 0.28)) if not _cinema_profile.is_empty() else Color(1, 0.35, 0.28))
 	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	warn.set_anchors_preset(Control.PRESET_CENTER)
 	warn.position = Vector2(640 - 150, 250)
@@ -2376,7 +2378,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	var sub = Label.new()
 	sub.text = enemy_name + " descends into frenzy"
 	sub.add_theme_font_size_override("font_size", 18)
-	sub.add_theme_color_override("font_color", Color(0.9, 0.6, 0.55))
+	sub.add_theme_color_override("font_color", _cinema_profile.get("void", Color(0.9, 0.6, 0.55)) if not _cinema_profile.is_empty() else Color(0.9, 0.6, 0.55))
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.set_anchors_preset(Control.PRESET_CENTER)
 	sub.position = Vector2(640 - 170, 304)

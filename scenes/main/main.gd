@@ -17,11 +17,13 @@ var _bg_index: int = 0
 var _prompt_label: Label
 var _intro_skipped: bool = false
 var _intro_tween: Tween
+var _cinema_profile: Dictionary = {}
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_setup_background()
 	_setup_menu()
+	_cinema_profile = MapEffects.get_cinematic_profile()
 	_build_title_overlay()
 	_spawn_ambient_motes()
 	_play_intro_fade()
@@ -55,7 +57,7 @@ func _setup_background() -> void:
 	# 어두운 오버레이 (메뉴 가독성)
 	_overlay_rect = ColorRect.new()
 	_overlay_rect.set_anchors_preset(PRESET_FULL_RECT)
-	_overlay_rect.color = Color(0, 0, 0, 0.45)
+	_overlay_rect.color = Color(0, 0, 0, _cinema_profile.get("bg_dim", 0.45) if not _cinema_profile.is_empty() else 0.45)
 	_overlay_rect.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_overlay_rect)
 	move_child(_overlay_rect, 1)
@@ -192,7 +194,7 @@ func _build_title_overlay() -> void:
 	_title_label.offset_bottom = 150
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.add_theme_font_size_override("font_size", 56)
-	_title_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.7))
+	_title_label.add_theme_color_override("font_color", _cinema_profile.get("amber", Color(0.95, 0.85, 0.7)) if not _cinema_profile.is_empty() else Color(0.95, 0.85, 0.7))
 	_title_label.modulate.a = 0.0
 	add_child(_title_label)
 
@@ -226,11 +228,11 @@ func _play_intro_fade() -> void:
 	$VBoxContainer.modulate.a = 0.0
 	_intro_tween = create_tween()
 	_intro_tween.set_parallel(true)
-	_intro_tween.tween_property(_title_label, "modulate:a", 1.0, 0.8)
+	_intro_tween.tween_property(_title_label, "modulate:a", 1.0, _cinema_profile.get("fade_in", 0.8) if not _cinema_profile.is_empty() else 0.8)
 	_intro_tween.tween_property(_subtitle_label, "modulate:a", 1.0, 1.0)
 	_intro_tween.set_parallel(false)
-	_intro_tween.tween_interval(0.25)
-	_intro_tween.tween_property($VBoxContainer, "modulate:a", 1.0, 0.4)
+	_intro_tween.tween_interval(0.2)
+	_intro_tween.tween_property($VBoxContainer, "modulate:a", 1.0, 0.35)
 	_intro_tween.tween_callback(func():
 		if _prompt_label:
 			_prompt_label.visible = true
