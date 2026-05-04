@@ -59,6 +59,7 @@ var _enemy_base_y: float = 0.0
 var _color_grade_rect: ColorRect
 var _battle_particles: GPUParticles2D  # 배경 파티클
 var _battle_parallax_layers: Array = []  # S53: 전투 패럴랙스
+var _theme_overlay: ColorRect
 var _cinema_top: ColorRect
 var _cinema_bottom: ColorRect
 
@@ -112,10 +113,12 @@ func _build_ui() -> void:
 		bg_tex.modulate = Color(0.45, 0.4, 0.35, 0.6)
 		add_child(bg_tex)
 
+
 	# 배경 비네트 오버레이
 	_add_battle_vignette()
 	# S42: 배경 분위기 파티클 + 컬러 그레이딩
 	_add_battle_atmosphere()
+	_apply_battle_visual_theme()
 	# S53: 전투 패럴랙스 레이어
 	_add_battle_parallax()
 	_add_cinematic_bars()
@@ -211,6 +214,35 @@ func _build_ui() -> void:
 
 	# 인트로 오버레이 (최상단)
 	_build_intro_overlay(root)
+
+func _apply_battle_visual_theme() -> void:
+	var scene_hint = BattleManager.return_scene.to_lower()
+	var enemy_hint = ""
+	if BattleManager.current_enemy:
+		enemy_hint = BattleManager.current_enemy.name.to_lower()
+
+	var theme := {
+		"overlay": Color(0.18, 0.12, 0.22, 0.18),
+		"grade": Color(0.35, 0.28, 0.45, 0.08),
+	}
+
+	if scene_hint.find("forest") >= 0:
+		theme = {"overlay": Color(0.12, 0.2, 0.14, 0.16), "grade": Color(0.24, 0.36, 0.24, 0.08)}
+	elif scene_hint.find("coast") >= 0 or scene_hint.find("waste") >= 0:
+		theme = {"overlay": Color(0.16, 0.16, 0.2, 0.18), "grade": Color(0.3, 0.3, 0.36, 0.08)}
+	elif scene_hint.find("void") >= 0 or enemy_hint.find("void") >= 0:
+		theme = {"overlay": Color(0.2, 0.1, 0.28, 0.24), "grade": Color(0.46, 0.28, 0.62, 0.11)}
+
+	_theme_overlay = ColorRect.new()
+	_theme_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_theme_overlay.color = theme["overlay"]
+	_theme_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_theme_overlay.z_index = -1
+	add_child(_theme_overlay)
+
+	if _color_grade_rect:
+		_color_grade_rect.color = theme["grade"]
+
 
 ## ===================== 배경 비네트 =====================
 
