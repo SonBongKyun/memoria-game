@@ -1237,6 +1237,7 @@ func _apply_skill_palette_theme(skill_name: String, target: String) -> void:
 
 func _on_player_turn() -> void:
 	_set_cinematic_bars(false)
+	_turn_transition_pulse(Color(0.45, 0.58, 0.8, 0.14))
 	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
 	# S41: 콤보 버스트 VFX
@@ -1260,6 +1261,7 @@ func _on_player_turn() -> void:
 
 func _on_enemy_turn() -> void:
 	_set_cinematic_bars(true)
+	_turn_transition_pulse(Color(0.78, 0.24, 0.22, 0.16))
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
 	if tobias_cmd_container:

@@ -19,6 +19,7 @@ var _intro_skipped: bool = false
 var _intro_tween: Tween
 var _cinema_profile: Dictionary = {}
 var _mouse_parallax: Vector2 = Vector2.ZERO
+var _menu_float_t: float = 0.0
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -174,6 +175,9 @@ func _process(delta: float) -> void:
 
 	if _prompt_label:
 		_prompt_label.modulate.a = 0.35 + sin(_intro_t * 2.4) * 0.25
+	_menu_float_t += delta
+	if $VBoxContainer:
+		$VBoxContainer.position.y = sin(_menu_float_t * 0.8) * 2.5
 
 	for m in _motes:
 		if not is_instance_valid(m):

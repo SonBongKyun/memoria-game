@@ -44,6 +44,7 @@ var _grade_layer: CanvasLayer = null
 var _grade_target_alpha: float = 0.04
 var _storm_flash: ColorRect = null
 var _fog_layers: Array[ColorRect] = []
+var _ambient_tint_phase: float = 0.0
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
@@ -102,6 +103,11 @@ func _process(delta: float) -> void:
 			r.color = r.color.lerp(target_color, clampf(delta * 2.5, 0.0, 1.0))
 	MapEffects.update_lightning(_storm_flash, delta)
 	MapEffects.update_dynamic_fog(_fog_layers, effect_time, 0.07)
+	_ambient_tint_phase += delta
+	if _grade_layer and is_instance_valid(_grade_layer):
+		var gr = _grade_layer.get_child(0) as ColorRect
+		if gr:
+			gr.modulate = Color(1.0 + sin(_ambient_tint_phase * 0.35) * 0.04, 1.0, 1.0 + cos(_ambient_tint_phase * 0.28) * 0.05, 1.0)
 	if _encounter_data:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
