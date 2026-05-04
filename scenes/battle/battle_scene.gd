@@ -28,6 +28,8 @@ var hit_flash_rect: ColorRect  # 히트 플래시 오버레이
 var intro_overlay: ColorRect
 var turn_label: Label
 var enemy_status_container: HBoxContainer
+var enemy_intent_panel: PanelContainer
+var enemy_intent_label: Label
 var player_status_container: HBoxContainer
 var slash_rect: ColorRect  # 공격 슬래시 VFX
 var burn_vfx_container: Control  # 연소 VFX 컨테이너
@@ -171,6 +173,7 @@ func _build_ui() -> void:
 
 	# 상태 아이콘 (적 패널 아래)
 	_build_enemy_status(root)
+	_build_enemy_intent_panel(root)
 
 	# 전투 로그 (중앙)
 	_build_log_panel(root)
@@ -585,6 +588,27 @@ func _update_turn_preview() -> void:
 			turn_preview_container.add_child(arrow)
 
 ## ===================== 상태 아이콘 =====================
+
+func _build_enemy_intent_panel(root: Control) -> void:
+	enemy_intent_panel = PanelContainer.new()
+	enemy_intent_panel.anchor_left = 0.02
+	enemy_intent_panel.anchor_top = 0.08
+	enemy_intent_panel.anchor_right = 0.35
+	enemy_intent_panel.anchor_bottom = 0.16
+	enemy_intent_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var st = StyleBoxFlat.new()
+	st.bg_color = Color(0.08, 0.07, 0.1, 0.82)
+	st.border_color = Color(0.55, 0.32, 0.22, 0.75)
+	st.set_border_width_all(1)
+	st.set_corner_radius_all(4)
+	st.set_content_margin_all(8)
+	enemy_intent_panel.add_theme_stylebox_override("panel", st)
+	root.add_child(enemy_intent_panel)
+	enemy_intent_label = Label.new()
+	enemy_intent_label.text = "Enemy intent: Reading..."
+	enemy_intent_label.add_theme_font_size_override("font_size", 12)
+	enemy_intent_label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.7))
+	enemy_intent_panel.add_child(enemy_intent_label)
 
 func _build_enemy_status(root: Control) -> void:
 	enemy_status_container = HBoxContainer.new()
@@ -1080,6 +1104,7 @@ func _connect_signals() -> void:
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
+		_refresh_enemy_intent()
 
 func _exit_tree() -> void:
 	# 오토로드 시그널 연결 해제 — 씬 재진입 시 freed 객체 참조 방지
@@ -1235,6 +1260,23 @@ func _apply_skill_palette_theme(skill_name: String, target: String) -> void:
 	var tw = create_tween()
 	tw.tween_property(target_node, "modulate", Color(1, 1, 1, 1), 0.22)
 
+func _refresh_enemy_intent() -> void:
+	if enemy_intent_label == null:
+		return
+	if BattleManager.current_enemy == null:
+		enemy_intent_label.text = "Enemy intent: --"
+		return
+	var parts: Array[String] = []
+	if BattleManager._enemy_charged:
+		parts.append("Charged strike incoming")
+	if BattleManager._enemy_reflecting:
+		parts.append("Reflect barrier active")
+	if BattleManager.current_enemy.phase >= 2:
+		parts.append("Phase %d aggression" % BattleManager.current_enemy.phase)
+	if parts.is_empty():
+		parts.append("Adaptive attack pattern")
+	enemy_intent_label.text = "Enemy intent: " + " / ".join(parts)
+
 func _on_player_turn() -> void:
 	_set_cinematic_bars(false)
 	_turn_transition_pulse(Color(0.45, 0.58, 0.8, 0.14))
@@ -1260,6 +1302,7 @@ func _on_player_turn() -> void:
 		action_container.get_child(0).grab_focus()
 
 func _on_enemy_turn() -> void:
+	_refresh_enemy_intent()
 	_set_cinematic_bars(true)
 	_turn_transition_pulse(Color(0.78, 0.24, 0.22, 0.16))
 	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
@@ -1273,6 +1316,7 @@ func _on_enemy_turn() -> void:
 
 func _on_status_changed() -> void:
 	_update_status_icons()
+	_refresh_enemy_intent()
 	_update_enemy_status_visual()  # S41: 상태이상 스프라이트 틴트
 	_update_status_shaders()       # S46: VFX Library 상태이상 셰이더
 
