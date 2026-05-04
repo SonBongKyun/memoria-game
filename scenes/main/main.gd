@@ -9,6 +9,11 @@ var _subtitle_label: Label
 var _overlay_rect: ColorRect
 var _motes: Array[ColorRect] = []
 var _intro_t: float = 0.0
+var _bg_primary: TextureRect
+var _bg_secondary: TextureRect
+var _bg_cycle: float = 0.0
+var _bg_candidates: Array[String] = []
+var _bg_index: int = 0
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -20,26 +25,28 @@ func _ready() -> void:
 	print("=== MEMORIA: The Price of Oblivion ===")
 
 func _setup_background() -> void:
-	# Cover.png 배경
-	var bg = TextureRect.new()
-	bg.set_anchors_preset(PRESET_FULL_RECT)
-	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	var tex = load("res://assets/cg/cover.png")
-	if tex:
-		bg.texture = tex
-	else:
-		# fallback
-		var fallback = ColorRect.new()
-		fallback.set_anchors_preset(PRESET_FULL_RECT)
-		fallback.color = Color(0.08, 0.08, 0.1)
-		add_child(fallback)
-		return
-	bg.z_index = -1
-	bg.mouse_filter = MOUSE_FILTER_IGNORE
-	# 배경을 메뉴 뒤로
-	add_child(bg)
-	move_child(bg, 0)
+	# Dark fantasy 배경 슬라이드(cover + cg 후보)
+	_bg_primary = TextureRect.new()
+	_bg_primary.set_anchors_preset(PRESET_FULL_RECT)
+	_bg_primary.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bg_primary.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg_primary.z_index = -2
+	_bg_primary.mouse_filter = MOUSE_FILTER_IGNORE
+	add_child(_bg_primary)
+
+	_bg_secondary = TextureRect.new()
+	_bg_secondary.set_anchors_preset(PRESET_FULL_RECT)
+	_bg_secondary.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bg_secondary.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg_secondary.z_index = -1
+	_bg_secondary.mouse_filter = MOUSE_FILTER_IGNORE
+	_bg_secondary.modulate.a = 0.0
+	add_child(_bg_secondary)
+
+	_bg_candidates = _get_intro_background_candidates()
+	if _bg_candidates.is_empty():
+		_bg_candidates = ["res://assets/cg/cover.png"]
+	_apply_bg_texture(_bg_primary, _bg_candidates[0])
 
 	# 어두운 오버레이 (메뉴 가독성)
 	_overlay_rect = ColorRect.new()
@@ -147,6 +154,11 @@ func _process(delta: float) -> void:
 		_overlay_rect.color.a = 0.43 + sin(_intro_t * 0.4) * 0.04
 	if _title_label:
 		_title_label.modulate.a = 0.86 + sin(_intro_t * 1.3) * 0.08
+	_bg_cycle += delta
+	if _bg_candidates.size() > 1 and _bg_cycle >= 8.0:
+		_bg_cycle = 0.0
+		_cycle_background()
+
 	for m in _motes:
 		if not is_instance_valid(m):
 			continue
@@ -206,3 +218,48 @@ func _play_intro_fade() -> void:
 	t.set_parallel(false)
 	t.tween_interval(0.25)
 	t.tween_property($VBoxContainer, "modulate:a", 1.0, 0.4)
+
+
+func _get_intro_background_candidates() -> Array[String]:
+	var candidates: Array[String] = ["res://assets/cg/cover.png"]
+	var dir = DirAccess.open("res://assets/cg")
+	if dir == null:
+		return candidates
+	dir.list_dir_begin()
+	while true:
+		var f = dir.get_next()
+		if f == "":
+			break
+		if dir.current_is_dir():
+			continue
+		var lf = f.to_lower()
+		if lf.ends_with(".png") or lf.ends_with(".jpg") or lf.ends_with(".jpeg"):
+			if lf.find("cover") >= 0 or lf.find("void") >= 0 or lf.find("forest") >= 0 or lf.find("wasteland") >= 0 or lf.find("coast") >= 0:
+				candidates.append("res://assets/cg/" + f)
+	dir.list_dir_end()
+	return candidates
+
+func _apply_bg_texture(node: TextureRect, path: String) -> void:
+	if node == null:
+		return
+	if ResourceLoader.exists(path):
+		node.texture = load(path)
+
+func _cycle_background() -> void:
+	if _bg_primary == null or _bg_secondary == null or _bg_candidates.is_empty():
+		return
+	_bg_index = (_bg_index + 1) % _bg_candidates.size()
+	_apply_bg_texture(_bg_secondary, _bg_candidates[_bg_index])
+	_bg_secondary.modulate.a = 0.0
+	var t = create_tween()
+	t.set_parallel(true)
+	t.tween_property(_bg_secondary, "modulate:a", 1.0, 1.8)
+	t.tween_property(_bg_primary, "modulate:a", 0.0, 1.8)
+	t.set_parallel(false)
+	t.tween_callback(func():
+		var tmp = _bg_primary
+		_bg_primary = _bg_secondary
+		_bg_secondary = tmp
+		_bg_secondary.modulate.a = 0.0
+		_bg_primary.modulate.a = 1.0
+	)
