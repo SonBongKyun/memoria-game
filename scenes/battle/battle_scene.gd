@@ -1068,7 +1068,7 @@ func _build_burn_list(root: Control) -> void:
 func _connect_signals() -> void:
 	BattleManager.battle_log.connect(_on_battle_log)
 	BattleManager.damage_dealt.connect(_on_damage_dealt)
-		BattleManager.player_turn_started.connect(_on_player_turn)
+	BattleManager.player_turn_started.connect(_on_player_turn)
 	BattleManager.enemy_turn_started.connect(_on_enemy_turn)
 	BattleManager.battle_ended.connect(_on_battle_ended)
 	BattleManager.status_changed.connect(_on_status_changed)
