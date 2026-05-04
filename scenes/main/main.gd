@@ -17,6 +17,7 @@ var _bg_index: int = 0
 var _prompt_label: Label
 var _intro_skipped: bool = false
 var _intro_tween: Tween
+var _logo_sweep: ColorRect
 var _cinema_profile: Dictionary = {}
 var _mouse_parallax: Vector2 = Vector2.ZERO
 var _menu_float_t: float = 0.0
@@ -27,6 +28,7 @@ func _ready() -> void:
 	_setup_menu()
 	_cinema_profile = MapEffects.get_cinematic_profile()
 	_build_title_overlay()
+	_build_logo_sweep()
 	_spawn_ambient_motes()
 	_play_intro_fade()
 	_build_continue_prompt()
@@ -168,6 +170,10 @@ func _process(delta: float) -> void:
 		_overlay_rect.color.a = 0.43 + sin(_intro_t * 0.4) * 0.04
 	if _title_label:
 		_title_label.modulate.a = 0.86 + sin(_intro_t * 1.3) * 0.08
+	if _logo_sweep and _logo_sweep.visible:
+		_logo_sweep.position.x += 180 * delta
+		if _logo_sweep.position.x > 900:
+			_logo_sweep.visible = false
 	_bg_cycle += delta
 	if _bg_candidates.size() > 1 and _bg_cycle >= 8.0:
 		_bg_cycle = 0.0
@@ -252,6 +258,8 @@ func _play_intro_fade() -> void:
 	_intro_tween.tween_callback(func():
 		if _prompt_label:
 			_prompt_label.visible = true
+		_play_menu_stagger_in()
+		_play_logo_sweep()
 	)
 
 
@@ -323,4 +331,40 @@ func _skip_intro() -> void:
 	$VBoxContainer.modulate.a = 1.0
 	if _prompt_label:
 		_prompt_label.visible = true
+	for child in $VBoxContainer.get_children():
+		if child is Control:
+			(child as Control).modulate.a = 1.0
 	AudioManager.play_sfx("ui_select")
+
+
+func _build_logo_sweep() -> void:
+	_logo_sweep = ColorRect.new()
+	_logo_sweep.size = Vector2(220, 120)
+	_logo_sweep.color = Color(0.95, 0.85, 0.65, 0.0)
+	_logo_sweep.mouse_filter = MOUSE_FILTER_IGNORE
+	_logo_sweep.position = Vector2(-260, 70)
+	_logo_sweep.visible = false
+	add_child(_logo_sweep)
+
+func _play_logo_sweep() -> void:
+	if _logo_sweep == null:
+		return
+	_logo_sweep.visible = true
+	_logo_sweep.position = Vector2(-260, 70)
+	_logo_sweep.color.a = 0.22
+	var tw = create_tween()
+	tw.tween_property(_logo_sweep, "color:a", 0.0, 1.0)
+
+func _play_menu_stagger_in() -> void:
+	for i in range($VBoxContainer.get_child_count()):
+		var child = $VBoxContainer.get_child(i)
+		if child is Control:
+			var c = child as Control
+			var base = c.position
+			c.position = base + Vector2(0, 18)
+			c.modulate.a = 0.0
+			var tw = create_tween()
+			tw.tween_interval(i * 0.05)
+			tw.set_parallel(true)
+			tw.tween_property(c, "position", base, 0.26).set_ease(Tween.EASE_OUT)
+			tw.tween_property(c, "modulate:a", 1.0, 0.22)
