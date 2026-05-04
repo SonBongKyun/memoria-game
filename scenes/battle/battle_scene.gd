@@ -1168,8 +1168,8 @@ func _apply_skill_impact_preset(target: String, amount: int, skill_name: String)
 	elif sn.find("stun") >= 0 or sn.find("weaken") >= 0 or sn.find("poison") >= 0:
 		flash_color = Color(0.65, 0.9, 0.7, 0.24)
 		shake_mult = 0.85
-	elif sn.find("limit") >= 0 or amount >= 250:
-		flash_color = Color(0.95, 0.9, 1.0, 0.45)
+	elif sn.find("limit") >= 0 or sn.find("cascade") >= 0 or amount >= 250:
+		flash_color = Color(0.95, 0.9, 1.0, 0.5)
 		shake_mult = 1.5
 
 	hit_flash_rect.color = flash_color

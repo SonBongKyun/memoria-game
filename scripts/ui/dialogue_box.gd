@@ -86,6 +86,7 @@ var full_text: String = ""
 var displayed_chars: int = 0
 var is_typing: bool = false
 var typewriter_timer: float = 0.0
+var _ui_time: float = 0.0
 
 func _ready() -> void:
 	layer = 50  # SceneTransition(100)보다 아래, 게임 위
@@ -99,6 +100,9 @@ func _get_typewriter_speed() -> float:
 	return TYPEWRITER_SPEEDS.get(spd, 0.03)
 
 func _process(delta: float) -> void:
+	_ui_time += delta
+	if indicator and indicator.visible:
+		indicator.modulate.a = 0.45 + sin(_ui_time * 4.0) * 0.25
 	if is_typing:
 		var speed = _get_typewriter_speed()
 		if speed <= 0.0:
@@ -234,6 +238,7 @@ func _on_dialogue_started() -> void:
 	show_box()
 
 func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
+	_pulse_dialogue_panel()
 	_clear_choices()
 
 	# 화자 이름 (나레이션이면 숨김)
@@ -385,3 +390,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			AudioManager.play_sfx("confirm")
 			DialogueManager.advance()
 			get_viewport().set_input_as_handled()
+
+
+func _pulse_dialogue_panel() -> void:
+	if panel == null:
+		return
+	panel.modulate = Color(1, 1, 1, 0.9)
+	panel.scale = Vector2(0.995, 0.995)
+	var tw = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(panel, "modulate:a", 1.0, 0.2)
+	tw.tween_property(panel, "scale", Vector2.ONE, 0.2)

@@ -12,6 +12,7 @@ var facing_direction: Vector2 = Vector2.DOWN
 var can_move: bool = true
 var _step_timer: float = 0.0
 var _active_step_particles: int = 0
+var _shadow_node: ColorRect = null
 var _breath_time: float = 0.0  # S52: 호흡 애니메이션
 const STEP_INTERVAL: float = 0.25
 const STEP_PARTICLE_LIFE: float = 0.24
@@ -22,6 +23,7 @@ func _ready() -> void:
 	_setup_placeholder_sprites()
 	if sprite and sprite.sprite_frames:
 		sprite.play("idle_down")
+	_shadow_node = _find_shadow_node()
 	print("[Player] Arrel ready")
 
 func _physics_process(delta: float) -> void:
@@ -52,6 +54,8 @@ func _physics_process(delta: float) -> void:
 		_breath_time += delta
 		if sprite:
 			sprite.scale = Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008)
+
+		_update_shadow_by_speed(input_vector.length())
 
 	# S41: 지형별 발걸음 SFX
 	if input_vector != Vector2.ZERO:
@@ -166,3 +170,17 @@ func _spawn_step_particles(terrain: String) -> void:
 			_active_step_particles = maxi(0, _active_step_particles - 1)
 			p.queue_free()
 		)
+
+
+func _find_shadow_node() -> ColorRect:
+	for c in get_children():
+		if c is ColorRect and c.z_index < 0:
+			return c
+	return null
+
+func _update_shadow_by_speed(move_amount: float) -> void:
+	if _shadow_node == null or not is_instance_valid(_shadow_node):
+		return
+	var t = clampf(move_amount, 0.0, 1.0)
+	_shadow_node.scale = Vector2(1.0 + t * 0.15, 0.5 - t * 0.05)
+	_shadow_node.modulate.a = 0.26 + t * 0.12

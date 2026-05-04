@@ -1143,7 +1143,9 @@ static func add_atmospheric_layer(parent: Node2D, biome: String, width: int, hei
 		"forest":
 			cfg = {"count": 9, "color": Color(0.35, 0.5, 0.36, 0.05), "speed": Vector2(7.0, 1.5), "size": Vector2(130, 42)}
 
-	for i in range(cfg["count"]):
+	var quality = get_quality_scalar()
+	var spawn_count: int = maxi(4, int(cfg["count"] * quality))
+	for i in range(spawn_count):
 		var r = ColorRect.new()
 		r.size = cfg["size"] + Vector2(randf_range(-30, 40), randf_range(-12, 15))
 		r.position = Vector2(randf_range(-120.0, float(width) + 120.0), randf_range(0.0, float(height)))
@@ -1173,3 +1175,22 @@ static func update_atmospheric_layer(layers: Array[ColorRect], delta: float, tim
 		r.color.a = max(0.015, r.color.a + sin(time * 0.5 + ph) * 0.002)
 		if r.position.x > width + 160:
 			r.position.x = -r.size.x - 80
+
+
+static func get_biome_grade_preset(biome: String) -> Dictionary:
+	match biome:
+		"void_edge":
+			return {"tint": Color(0.25, 0.2, 0.4, 0.4), "brightness": -0.05, "contrast": 1.05}
+		"ash":
+			return {"tint": Color(0.34, 0.31, 0.28, 0.3), "brightness": -0.02, "contrast": 1.02}
+		"forest":
+			return {"tint": Color(0.2, 0.3, 0.22, 0.24), "brightness": 0.02, "contrast": 1.03}
+	return {"tint": Color(1, 1, 1, 0), "brightness": 0.0, "contrast": 1.0}
+
+
+static func get_quality_scalar() -> float:
+	var q = OptionsMenu.settings.get("graphics_quality", 1) if OptionsMenu else 1
+	match q:
+		0: return 0.7
+		2: return 1.2
+	return 1.0
