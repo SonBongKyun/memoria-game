@@ -71,6 +71,6 @@
     {"speaker": "Elia", "portrait": "elia_determined", "side": "right", "text": "There's movement ahead. More of them. We can go around, or through."},
     {"speaker": "Arrel", "portrait": "arrel_determined", "side": "left", "text": "Through. If we lose the trail now, we lose days."},
 
-    {"action": "goto_map", "path": "res://scenes/maps/rim_forest.tscn", "resume_scene": "ch1_after_forest"}
+    {"action": "goto_scene", "id": "ch1_forest_walk"}
   ]
 }

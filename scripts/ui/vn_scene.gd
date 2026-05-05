@@ -642,6 +642,13 @@ func _show_choices(choices: Array) -> void:
 		if c.has("requires_memory_intact"):
 			if MemoryManager.is_memory_burned(c.requires_memory_intact):
 				continue
+		# S70: 플래그 게이팅 — 특정 플래그가 set 되어야 노출
+		if c.has("requires_flag"):
+			if not GameManager.story_flags.get(c.requires_flag, false):
+				continue
+		if c.has("requires_not_flag"):
+			if GameManager.story_flags.get(c.requires_not_flag, false):
+				continue
 
 		# S63: Memory Leverage — cost_memory 필드가 있으면 태울 기억 상태 체크
 		var cost_mem_id: String = c.get("cost_memory", c.get("burn_memory", ""))

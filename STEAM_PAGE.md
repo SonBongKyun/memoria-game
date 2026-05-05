@@ -138,18 +138,20 @@ Everything you burn has a price.
 
 ## 5. Steam 태그 (Tags · 우선순위 순)
 
+S70 (Full VN 전환 후) 기준:
+
 핵심 5:
-1. **Story Rich**
-2. **Choices Matter**
-3. **Dark Fantasy**
-4. **RPG**
-5. **2D**
+1. **Visual Novel**
+2. **Story Rich**
+3. **Choices Matter**
+4. **Dark Fantasy**
+5. **Psychological**
 
 지원 5:
-6. **Visual Novel**
-7. **Psychological**
-8. **Atmospheric**
-9. **Singleplayer**
+6. **Atmospheric**
+7. **Multiple Endings**
+8. **Singleplayer**
+9. **2D**
 10. **Indie**
 
 선택 5 (필요시):
