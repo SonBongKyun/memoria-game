@@ -1,0 +1,35 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://b2memoriatheme1"]
+
+[sub_resource type="SystemFont" id="SystemFont_body"]
+font_names = PackedStringArray("Cormorant Garamond", "EB Garamond", "Garamond", "Cambria", "Constantia", "Palatino Linotype", "Noto Serif KR", "Batang", "Times New Roman", "serif")
+font_weight = 400
+antialiasing = 2
+subpixel_positioning = 1
+
+[sub_resource type="SystemFont" id="SystemFont_ui"]
+font_names = PackedStringArray("Segoe UI", "Pretendard", "Malgun Gothic", "Helvetica Neue", "Arial", "sans-serif")
+font_weight = 400
+antialiasing = 2
+subpixel_positioning = 1
+
+[sub_resource type="SystemFont" id="SystemFont_title"]
+font_names = PackedStringArray("Cinzel", "Trajan Pro", "Cormorant Garamond", "Constantia", "Cambria", "Noto Serif KR", "Times New Roman", "serif")
+font_weight = 600
+antialiasing = 2
+subpixel_positioning = 1
+
+[resource]
+default_font = SubResource("SystemFont_body")
+default_font_size = 16
+Label/colors/font_color = Color(0.92, 0.88, 0.8, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 0.6)
+Label/constants/outline_size = 1
+Label/font_sizes/font_size = 16
+RichTextLabel/colors/default_color = Color(0.92, 0.88, 0.8, 1)
+RichTextLabel/font_sizes/normal_font_size = 17
+RichTextLabel/constants/line_separation = 6
+Button/colors/font_color = Color(0.78, 0.72, 0.6, 1)
+Button/colors/font_hover_color = Color(0.98, 0.88, 0.55, 1)
+Button/colors/font_pressed_color = Color(1, 0.95, 0.7, 1)
+Button/font_sizes/font_size = 15
+Button/fonts/font = SubResource("SystemFont_ui")

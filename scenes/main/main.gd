@@ -110,28 +110,29 @@ func _build_title_screen() -> void:
 	add_child(_ash_particles)
 
 	# --- Title (behind glow) ---
+	# S71: 타이틀 — 더 크고 자간 강조. theme.tres가 stylized serif 자동 적용
 	_title_glow_label = Label.new()
-	_title_glow_label.text = "MEMORIA"
+	_title_glow_label.text = "M E M O R I A"
 	_title_glow_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_glow_label.set_anchors_preset(PRESET_CENTER_TOP)
-	_title_glow_label.position = Vector2(-200, 100)
-	_title_glow_label.size = Vector2(400, 80)
-	_title_glow_label.add_theme_font_size_override("font_size", 52)
-	_title_glow_label.add_theme_color_override("font_color", Color(0.75, 0.55, 0.25, 0.4))
+	_title_glow_label.position = Vector2(-300, 92)
+	_title_glow_label.size = Vector2(600, 100)
+	_title_glow_label.add_theme_font_size_override("font_size", 72)
+	_title_glow_label.add_theme_color_override("font_color", Color(0.75, 0.55, 0.25, 0.45))
 	_title_glow_label.modulate.a = 0.0
 	_title_glow_label.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_title_glow_label)
 
 	_title_label = Label.new()
-	_title_label.text = "MEMORIA"
+	_title_label.text = "M E M O R I A"
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.set_anchors_preset(PRESET_CENTER_TOP)
-	_title_label.position = Vector2(-200, 100)
-	_title_label.size = Vector2(400, 80)
-	_title_label.add_theme_font_size_override("font_size", 52)
-	_title_label.add_theme_color_override("font_color", Color(0.9, 0.78, 0.5))
-	_title_label.add_theme_color_override("font_outline_color", Color(0.2, 0.15, 0.1))
-	_title_label.add_theme_constant_override("outline_size", 3)
+	_title_label.position = Vector2(-300, 92)
+	_title_label.size = Vector2(600, 100)
+	_title_label.add_theme_font_size_override("font_size", 72)
+	_title_label.add_theme_color_override("font_color", Color(0.95, 0.82, 0.5))
+	_title_label.add_theme_color_override("font_outline_color", Color(0.18, 0.12, 0.08))
+	_title_label.add_theme_constant_override("outline_size", 4)
 	_title_label.modulate.a = 0.0
 	_title_label.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_title_label)

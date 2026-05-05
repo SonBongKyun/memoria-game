@@ -142,8 +142,14 @@ func _build_ui() -> void:
 	_text_label.bbcode_enabled = true
 	_text_label.fit_content = false
 	_text_label.scroll_active = false
-	_text_label.add_theme_font_size_override("normal_font_size", 20)
+	# S71: 책 같은 가독성 — 사이즈 키우고 행간 넓히기. theme.tres가 serif 폰트 자동 적용
+	_text_label.add_theme_font_size_override("normal_font_size", 21)
+	_text_label.add_theme_constant_override("line_separation", 8)
 	_text_label.add_theme_color_override("default_color", Color(0.94, 0.91, 0.84))
+	# 부드러운 검정 그림자로 어두운 CG 위에서도 가독성 확보
+	_text_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	_text_label.add_theme_constant_override("shadow_offset_x", 1)
+	_text_label.add_theme_constant_override("shadow_offset_y", 1)
 	_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_text_panel.add_child(_text_label)
 
@@ -169,8 +175,13 @@ func _build_ui() -> void:
 
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.add_theme_font_size_override("font_size", 18)
-	_name_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
+	# S71: 화자 이름 — 살짝 더 큼 + letter_spacing 느낌의 voff
+	_name_label.add_theme_font_size_override("font_size", 19)
+	_name_label.add_theme_color_override("font_color", Color(0.97, 0.86, 0.55))
+	_name_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	_name_label.add_theme_constant_override("shadow_outline_size", 2)
+	_name_label.add_theme_constant_override("shadow_offset_x", 1)
+	_name_label.add_theme_constant_override("shadow_offset_y", 1)
 	_name_panel.add_child(_name_label)
 	_name_panel.visible = false
 
