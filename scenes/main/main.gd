@@ -30,6 +30,16 @@ const GAME_VERSION: String = "v0.9.0"
 var _splash_shown: bool = false
 var _splash_overlay: ColorRect
 
+# S72: 시네마틱 폴리싱 — Codex 살린 부분
+var _bg_secondary: TextureRect
+var _bg_candidates: Array[String] = []
+var _bg_index: int = 0
+var _bg_cycle: float = 0.0
+var _mouse_parallax: Vector2 = Vector2.ZERO
+var _menu_float_t: float = 0.0
+const BG_CYCLE_INTERVAL: float = 9.0
+const BG_FADE_DURATION: float = 1.8
+
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_title_screen()
@@ -57,11 +67,23 @@ func _build_title_screen() -> void:
 		fallback.set_anchors_preset(PRESET_FULL_RECT)
 		fallback.color = Color(0.08, 0.08, 0.1)
 		add_child(fallback)
-	_bg.z_index = -1
+	_bg.z_index = -2
 	_bg.mouse_filter = MOUSE_FILTER_IGNORE
 	_bg.modulate.a = 0.0  # start invisible for fade-in
 	add_child(_bg)
 	move_child(_bg, 0)
+
+	# S72: 두 번째 배경 레이어 (크로스페이드 슬라이드쇼용)
+	_bg_secondary = TextureRect.new()
+	_bg_secondary.set_anchors_preset(PRESET_FULL_RECT)
+	_bg_secondary.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bg_secondary.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg_secondary.z_index = -1
+	_bg_secondary.mouse_filter = MOUSE_FILTER_IGNORE
+	_bg_secondary.modulate.a = 0.0
+	add_child(_bg_secondary)
+	move_child(_bg_secondary, 1)
+	_collect_bg_candidates()
 
 	# Dark overlay for readability
 	_overlay = ColorRect.new()
@@ -535,3 +557,71 @@ func _show_splash_screen() -> void:
 		_start_intro_sequence()
 		_play_ambient_wind()
 	)
+
+## ===================== S72: Cinematic polishing =====================
+
+func _collect_bg_candidates() -> void:
+	# 분위기 일치하는 CG들을 슬라이드쇼 후보로 모음
+	_bg_candidates.clear()
+	if ResourceLoader.exists("res://assets/cg/cover.png"):
+		_bg_candidates.append("res://assets/cg/cover.png")
+	if ResourceLoader.exists("res://assets/cg/Cover2.png"):
+		_bg_candidates.append("res://assets/cg/Cover2.png")
+	# 챕터 분위기 CG
+	for c in [
+		"res://assets/cg/ch1_twisted_forest.jpg",
+		"res://assets/cg/ch1_twisted_forest2.jpg",
+		"res://assets/cg/ch1_ash_walk.jpg",
+		"res://assets/cg/bureau_tower3.jpg",
+		"res://assets/cg/ch2_verdan_overlook.jpg",
+	]:
+		if ResourceLoader.exists(c):
+			_bg_candidates.append(c)
+
+func _cycle_background() -> void:
+	if _bg_candidates.size() <= 1 or _bg_secondary == null:
+		return
+	_bg_index = (_bg_index + 1) % _bg_candidates.size()
+	var path = _bg_candidates[_bg_index]
+	if not ResourceLoader.exists(path):
+		return
+	_bg_secondary.texture = load(path)
+	_bg_secondary.modulate.a = 0.0
+	var t = create_tween()
+	t.set_parallel(true)
+	t.tween_property(_bg_secondary, "modulate:a", 1.0, BG_FADE_DURATION)
+	t.tween_property(_bg, "modulate:a", 0.0, BG_FADE_DURATION)
+	t.set_parallel(false)
+	t.tween_callback(func():
+		# 두 레이어 스왑
+		var tmp_tex = _bg.texture
+		_bg.texture = _bg_secondary.texture
+		_bg.modulate.a = 1.0
+		_bg_secondary.texture = tmp_tex
+		_bg_secondary.modulate.a = 0.0
+	)
+
+func _process(delta: float) -> void:
+	# S72: 8~9초마다 배경 크로스페이드
+	if _bg_candidates.size() > 1 and _intro_state == IntroState.SHOW_MENU:
+		_bg_cycle += delta
+		if _bg_cycle >= BG_CYCLE_INTERVAL:
+			_bg_cycle = 0.0
+			_cycle_background()
+
+	# S72: 메뉴 부유 — 미세 sin 동작
+	_menu_float_t += delta
+	if has_node("VBoxContainer") and _menu_ready:
+		$VBoxContainer.position.y = sin(_menu_float_t * 0.7) * 2.0
+
+	# S72: 마우스 패럴랙스 — 배경 살짝 따라옴 (깊이감)
+	if _bg == null or _bg_secondary == null:
+		return
+	var vp = get_viewport_rect().size
+	if vp.x <= 0 or vp.y <= 0:
+		return
+	var mp = get_viewport().get_mouse_position()
+	var n = Vector2((mp.x / vp.x) - 0.5, (mp.y / vp.y) - 0.5)
+	_mouse_parallax = _mouse_parallax.lerp(n, clampf(delta * 2.0, 0.0, 1.0))
+	_bg.position = Vector2(_mouse_parallax.x * -16.0, _mouse_parallax.y * -9.0)
+	_bg_secondary.position = Vector2(_mouse_parallax.x * -10.0, _mouse_parallax.y * -6.0)

@@ -95,7 +95,7 @@ func save_game(slot: int) -> bool:
 		player_pos = {"x": pos.x, "y": pos.y}
 
 	var save_data: Dictionary = {
-		"version": "0.2.0",
+		"version": SAVE_VERSION,
 		"timestamp": Time.get_datetime_string_from_system(),
 		"unix_time": Time.get_unix_time_from_system(),
 		"scene": _get_current_scene_path(),
@@ -145,6 +145,9 @@ func load_game(slot: int) -> bool:
 	var save_data = _load_json_with_recovery(path, slot)
 	if save_data == null:
 		return false
+
+	# S72: Codex 살린 부분 — 구버전 세이브 마이그레이션
+	save_data = _migrate_save_data(save_data)
 
 	# 게임 데이터 복원
 	if save_data.has("game"):
@@ -226,6 +229,33 @@ func _try_parse_json(path: String) -> Variant:
 	if json.data is Dictionary:
 		return json.data
 	return null
+
+## S72: 구버전 세이브 호환 — 누락 키 보강 + 버전 스탬프 갱신
+const SAVE_VERSION: String = "0.2.0"
+
+func _migrate_save_data(data: Dictionary) -> Dictionary:
+	var migrated: Dictionary = data.duplicate(true)
+	var version: String = str(migrated.get("version", "0.0.0"))
+	if version == SAVE_VERSION:
+		return migrated
+
+	# 누락 키 기본값 보강
+	if not migrated.has("game") or not (migrated["game"] is Dictionary):
+		migrated["game"] = {}
+	if not migrated.has("memory") or not (migrated["memory"] is Dictionary):
+		migrated["memory"] = {}
+	if not migrated.has("elia_diary") or not (migrated["elia_diary"] is Dictionary):
+		migrated["elia_diary"] = {}
+	if not migrated.has("tutorial_hints") or not (migrated["tutorial_hints"] is Dictionary):
+		migrated["tutorial_hints"] = {}
+	if not migrated.has("player_pos") or not (migrated["player_pos"] is Dictionary):
+		migrated["player_pos"] = {}
+	if not migrated.has("scene"):
+		migrated["scene"] = ""
+
+	migrated["version"] = SAVE_VERSION
+	print("[SaveManager] Migrated save from %s to %s" % [version, SAVE_VERSION])
+	return migrated
 
 ## S56: Create .bak backup before overwriting
 func _create_backup(path: String) -> void:
