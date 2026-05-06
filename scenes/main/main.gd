@@ -40,6 +40,15 @@ var _menu_float_t: float = 0.0
 const BG_CYCLE_INTERVAL: float = 9.0
 const BG_FADE_DURATION: float = 1.8
 
+# S74: 시네마틱 인트로 — 신규 레이어들
+var _god_rays: Array = []                   # 대각선 빛살 3겹 (TextureRect)
+var _color_grade: ColorRect                 # 따뜻한 앰버 톤
+var _vignette: TextureRect                  # 가장자리 어두움 (비네트)
+var _foreground_ash: GPUParticles2D         # 전경 큰 입자 (깊이감)
+var _title_burst: TextureRect               # 타이틀 등장 시 골든 버스트
+var _bg_zoom_t: float = 0.0                 # 배경 켄 버닝 시간
+var _bg_zoom_base: Vector2 = Vector2.ONE
+
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_title_screen()
@@ -208,6 +217,15 @@ func _build_title_screen() -> void:
 	# --- Menu Buttons (initially hidden) ---
 	_setup_menu()
 
+	# S74: 시네마틱 레이어 추가
+	_build_god_rays()
+	_build_color_grade()
+	_build_vignette()
+	_build_foreground_ash()
+	_build_title_burst()
+	_bg.pivot_offset = Vector2(640, 360)
+	_bg_secondary.pivot_offset = Vector2(640, 360)
+
 ## ===================== INTRO SEQUENCE =====================
 
 func _start_intro_sequence() -> void:
@@ -217,9 +235,13 @@ func _start_intro_sequence() -> void:
 	var tween = create_tween()
 	tween.tween_property(_bg, "modulate:a", 1.0, 1.2).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(_overlay, "modulate:a", 1.0, 1.2).set_ease(Tween.EASE_OUT)
+	# S74: 갓레이즈 페이드인 (배경과 함께)
+	tween.parallel().tween_callback(_fade_in_god_rays)
 
-	# Phase 2: Fade in title (0.8s after bg)
+	# Phase 2: Fade in title (0.8s after bg) + 골든 버스트
 	tween.tween_callback(func(): _intro_state = IntroState.FADE_TITLE)
+	# S74: 타이틀이 나타나기 직전 골든 버스트 (먼저 점화)
+	tween.tween_callback(_play_title_burst)
 	tween.tween_property(_title_label, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.parallel().tween_property(_title_glow_label, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
 	# Subtitle
@@ -625,3 +647,162 @@ func _process(delta: float) -> void:
 	_mouse_parallax = _mouse_parallax.lerp(n, clampf(delta * 2.0, 0.0, 1.0))
 	_bg.position = Vector2(_mouse_parallax.x * -16.0, _mouse_parallax.y * -9.0)
 	_bg_secondary.position = Vector2(_mouse_parallax.x * -10.0, _mouse_parallax.y * -6.0)
+
+	# S74: 배경 켄 버닝 — 1.0 → 1.05 → 1.0 부드럽게 30s 주기
+	_bg_zoom_t += delta * 0.21  # 약 30초 주기
+	var zoom = 1.0 + (sin(_bg_zoom_t) * 0.5 + 0.5) * 0.05  # 1.0~1.05
+	if _bg:
+		_bg.scale = Vector2(zoom, zoom)
+	if _bg_secondary:
+		_bg_secondary.scale = Vector2(zoom, zoom)
+
+	# S74: 비네트 호흡 — 알파 살짝 펄스 (관 안에서 숨쉬는 느낌)
+	if _vignette:
+		_vignette.modulate.a = 0.62 + sin(_bg_zoom_t * 1.3) * 0.06
+
+	# S74: 갓 레이즈 — 살짝 떠다님 (각도 미세 변화 + 위치 드리프트)
+	for i in range(_god_rays.size()):
+		var ray = _god_rays[i]
+		if not is_instance_valid(ray):
+			continue
+		var phase = float(i) * 1.7
+		ray.position.y = -100 + sin(_bg_zoom_t * 0.4 + phase) * 25
+		ray.modulate.a = 0.18 + sin(_bg_zoom_t * 0.6 + phase) * 0.06
+
+## ===================== S74: 시네마틱 레이어 빌드 =====================
+
+func _build_god_rays() -> void:
+	# 대각선 빛살 3겹 — 화면 위에서 사선으로 떨어짐
+	var x_positions = [180, 540, 900]
+	for i in range(3):
+		var grad = Gradient.new()
+		grad.add_point(0.0, Color(1, 0.92, 0.7, 0.0))
+		grad.add_point(0.5, Color(1, 0.92, 0.7, 0.18))
+		grad.add_point(1.0, Color(1, 0.92, 0.7, 0.0))
+		var gtex = GradientTexture2D.new()
+		gtex.gradient = grad
+		gtex.width = 420
+		gtex.height = 1200
+		gtex.fill = GradientTexture2D.FILL_LINEAR
+		gtex.fill_from = Vector2(0.0, 0.5)
+		gtex.fill_to = Vector2(1.0, 0.5)
+		var ray = TextureRect.new()
+		ray.texture = gtex
+		ray.size = Vector2(420, 1200)
+		ray.position = Vector2(x_positions[i], -100)
+		ray.rotation_degrees = -22 + (i - 1) * 4
+		ray.pivot_offset = Vector2(210, 0)
+		ray.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ray.stretch_mode = TextureRect.STRETCH_SCALE
+		ray.mouse_filter = MOUSE_FILTER_IGNORE
+		ray.z_index = 1
+		ray.modulate.a = 0.0  # 인트로에서 페이드인
+		add_child(ray)
+		_god_rays.append(ray)
+
+func _build_color_grade() -> void:
+	# 따뜻한 앰버 톤 오버레이 — 다크 판타지 색감
+	_color_grade = ColorRect.new()
+	_color_grade.set_anchors_preset(PRESET_FULL_RECT)
+	_color_grade.color = Color(0.85, 0.55, 0.25, 0.08)
+	_color_grade.mouse_filter = MOUSE_FILTER_IGNORE
+	_color_grade.z_index = 2
+	add_child(_color_grade)
+
+func _build_vignette() -> void:
+	# 가장자리 어두움 — 라디얼 그라디언트
+	_vignette = TextureRect.new()
+	_vignette.set_anchors_preset(PRESET_FULL_RECT)
+	_vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	_vignette.mouse_filter = MOUSE_FILTER_IGNORE
+	_vignette.z_index = 3
+	var grad = Gradient.new()
+	grad.add_point(0.0, Color(0, 0, 0, 0.0))
+	grad.add_point(0.55, Color(0, 0, 0, 0.0))
+	grad.add_point(0.85, Color(0, 0, 0, 0.45))
+	grad.add_point(1.0, Color(0, 0, 0, 0.85))
+	var gtex = GradientTexture2D.new()
+	gtex.gradient = grad
+	gtex.width = 1280
+	gtex.height = 720
+	gtex.fill = GradientTexture2D.FILL_RADIAL
+	gtex.fill_from = Vector2(0.5, 0.5)
+	gtex.fill_to = Vector2(1.0, 0.5)
+	_vignette.texture = gtex
+	_vignette.modulate.a = 0.62
+	add_child(_vignette)
+
+func _build_foreground_ash() -> void:
+	# 전경 큰 재 입자 (배경 ash보다 가까이) — 깊이감
+	_foreground_ash = GPUParticles2D.new()
+	_foreground_ash.amount = 18
+	_foreground_ash.lifetime = 12.0
+	_foreground_ash.preprocess = 6.0
+	_foreground_ash.position = Vector2(640, 360)
+	_foreground_ash.visibility_rect = Rect2(-640, -360, 1280, 720)
+	_foreground_ash.z_index = 4
+	var mat = ParticleProcessMaterial.new()
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(640, 50, 0)
+	mat.direction = Vector3(0, 1, 0)
+	mat.spread = 8.0
+	mat.gravity = Vector3(-3, 6, 0)
+	mat.initial_velocity_min = 8.0
+	mat.initial_velocity_max = 18.0
+	mat.scale_min = 4.0
+	mat.scale_max = 7.0
+	mat.color = Color(0.85, 0.78, 0.68, 0.45)
+	mat.angular_velocity_min = -10
+	mat.angular_velocity_max = 10
+	_foreground_ash.process_material = mat
+	# 위에서 떨어지게 위치 보정
+	_foreground_ash.position = Vector2(640, -50)
+	add_child(_foreground_ash)
+
+func _build_title_burst() -> void:
+	# 타이틀 등장 시 골든 버스트 — 라디얼 그라디언트, 평소엔 숨김
+	_title_burst = TextureRect.new()
+	_title_burst.size = Vector2(900, 380)
+	_title_burst.position = Vector2(190, 0)
+	_title_burst.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_title_burst.stretch_mode = TextureRect.STRETCH_SCALE
+	_title_burst.mouse_filter = MOUSE_FILTER_IGNORE
+	_title_burst.z_index = 5
+	var grad = Gradient.new()
+	grad.add_point(0.0, Color(1.0, 0.85, 0.55, 0.55))
+	grad.add_point(0.4, Color(1.0, 0.7, 0.35, 0.25))
+	grad.add_point(1.0, Color(1.0, 0.6, 0.3, 0.0))
+	var gtex = GradientTexture2D.new()
+	gtex.gradient = grad
+	gtex.width = 900
+	gtex.height = 380
+	gtex.fill = GradientTexture2D.FILL_RADIAL
+	gtex.fill_from = Vector2(0.5, 0.5)
+	gtex.fill_to = Vector2(1.0, 0.5)
+	_title_burst.texture = gtex
+	_title_burst.modulate.a = 0.0
+	add_child(_title_burst)
+
+## 인트로 시퀀스에서 호출 — 갓레이즈 페이드인 + 타이틀 버스트
+func _play_title_burst() -> void:
+	if _title_burst == null:
+		return
+	_title_burst.modulate.a = 0.0
+	_title_burst.scale = Vector2(0.85, 0.85)
+	_title_burst.pivot_offset = _title_burst.size / 2.0
+	var tw = create_tween()
+	tw.set_parallel(true)
+	# 알파: 0 → 0.95 → 0.4 (잔향)
+	tw.tween_property(_title_burst, "modulate:a", 0.95, 0.35).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_title_burst, "scale", Vector2(1.15, 1.15), 1.6).set_trans(Tween.TRANS_SINE)
+	tw.chain().tween_property(_title_burst, "modulate:a", 0.0, 1.4).set_trans(Tween.TRANS_SINE)
+
+func _fade_in_god_rays() -> void:
+	for ray in _god_rays:
+		if not is_instance_valid(ray):
+			continue
+		ray.modulate.a = 0.0
+		var tw = create_tween()
+		tw.tween_interval(randf_range(0.0, 0.4))
+		tw.tween_property(ray, "modulate:a", 0.22, 1.6).set_trans(Tween.TRANS_SINE)
