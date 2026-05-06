@@ -34,6 +34,9 @@ var _ember_vignette: TextureRect
 # S69: 필름 그레인 — 시네마틱 노이즈 텍스처
 var _film_grain: ColorRect
 var _film_grain_time: float = 0.0
+# S73: 책 페이지 넘기기 — 대사 advance 시 종이 휨 효과
+var _page_turn_overlay: TextureRect
+var _last_displayed_text: String = ""
 
 # 상태
 var _current_step: Dictionary = {}
@@ -286,6 +289,36 @@ void fragment() {
 	sm.shader = grain_shader
 	_film_grain.material = sm
 	add_child(_film_grain)
+
+	# S73: 페이지 넘김 오버레이 — 종이 그림자 + 살짝 밝은 페이지 엣지가 좌→우로 스윕
+	_page_turn_overlay = TextureRect.new()
+	_page_turn_overlay.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	_page_turn_overlay.offset_top = -260
+	_page_turn_overlay.offset_bottom = -10
+	_page_turn_overlay.offset_left = 80
+	_page_turn_overlay.offset_right = -80
+	_page_turn_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_page_turn_overlay.stretch_mode = TextureRect.STRETCH_SCALE
+	_page_turn_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_page_turn_overlay.z_index = 4
+	_page_turn_overlay.modulate.a = 0.0
+	_page_turn_overlay.pivot_offset = Vector2.ZERO
+	# 가로 그라디언트: 어두운 그림자 → 밝은 페이지 엣지 → 투명
+	var pg_grad = Gradient.new()
+	pg_grad.add_point(0.00, Color(0.05, 0.04, 0.03, 0.0))
+	pg_grad.add_point(0.40, Color(0.10, 0.08, 0.05, 0.65))
+	pg_grad.add_point(0.50, Color(0.95, 0.90, 0.78, 0.85))
+	pg_grad.add_point(0.60, Color(0.80, 0.75, 0.62, 0.55))
+	pg_grad.add_point(1.00, Color(0.50, 0.45, 0.38, 0.0))
+	var pg_tex = GradientTexture2D.new()
+	pg_tex.gradient = pg_grad
+	pg_tex.width = 1024
+	pg_tex.height = 32
+	pg_tex.fill = GradientTexture2D.FILL_LINEAR
+	pg_tex.fill_from = Vector2(0.0, 0.5)
+	pg_tex.fill_to = Vector2(1.0, 0.5)
+	_page_turn_overlay.texture = pg_tex
+	add_child(_page_turn_overlay)
 
 func _make_cg_rect() -> TextureRect:
 	var tr = TextureRect.new()
@@ -566,6 +599,11 @@ func _scramble_text(source: String) -> String:
 ## ===================== TEXT =====================
 
 func _display_line(speaker: String, text: String) -> void:
+	# S73: 책 페이지 넘기기 — 이전 줄에서 새 줄로 전환 시 종이 스윕
+	if _last_displayed_text != "" and _last_displayed_text != text:
+		_play_page_turn()
+	_last_displayed_text = text
+
 	_full_text = text
 	_typed_chars = 0
 	_typing_done = false
@@ -581,6 +619,30 @@ func _display_line(speaker: String, text: String) -> void:
 		_name_panel.visible = true
 
 	_text_label.text = ""
+
+## S73: 페이지 넘김 효과 — 종이 엣지 + 그림자가 좌→우로 약 0.32s 스윕
+func _play_page_turn() -> void:
+	if _page_turn_overlay == null:
+		return
+	var vp = get_viewport_rect().size
+	var span = vp.x  # 화면 가로 전체를 횡단
+	# 시작: 화면 왼쪽 밖
+	_page_turn_overlay.position.x = -span * 0.4
+	_page_turn_overlay.modulate.a = 0.0
+	# 위쪽으로 살짝 휘어진 듯한 인상 — 회전 -3도
+	_page_turn_overlay.rotation_degrees = -2.0
+	var tw = create_tween()
+	tw.set_parallel(true)
+	# 페이지 엣지가 화면 횡단 (왼→오른쪽 끝까지)
+	tw.tween_property(_page_turn_overlay, "position:x", span, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# 알파: 페이드인 → 페이드아웃 (peak at 50%)
+	tw.tween_property(_page_turn_overlay, "modulate:a", 0.85, 0.12).set_trans(Tween.TRANS_SINE)
+	tw.chain().tween_property(_page_turn_overlay, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_SINE)
+	# 페이지 휨 — 회전 살짝 변화
+	tw.parallel().tween_property(_page_turn_overlay, "rotation_degrees", 1.5, 0.32).set_trans(Tween.TRANS_SINE)
+	# 종이 사운드 (있으면)
+	if has_node("/root/AudioManager") and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx("page_turn")
 
 func _color_for_speaker(speaker: String) -> Color:
 	match speaker:

@@ -9,9 +9,9 @@
     {"speaker": "Arrel", "portrait": "arrel_determined", "side": "left", "text": "I know."},
 
     {"choice": [
-      {"text": "Strike with the sword.", "set_flag": "vb_round1", "goto": 7},
-      {"text": "Burn the warmth in your hand. Channel it through the blade.", "cost_memory": "sense_warm_light", "goto": 14},
-      {"text": "Wait. Read its rhythm.", "set_flag": "vb_read", "goto": 21}
+      {"text": "Strike with the sword.", "set_flag": "vb_round1", "goto": 6},
+      {"text": "Burn the warmth in your hand. Channel it through the blade.", "cost_memory": "sense_warm_light", "goto": 13},
+      {"text": "Wait. Read its rhythm.", "set_flag": "vb_read", "goto": 20}
     ]},
 
     {"narrate": "[ Filler — choice always jumps. ]"},
@@ -22,7 +22,7 @@
     {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "It's faster than the last one!"},
     {"narrate": "First wound: shallow. Survival, not victory."},
     {"narrate": "But it was bleeding now — if grey smoke pouring out of a wound counted as bleeding."},
-    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 23},
+    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 28},
 
     {"cg": "battle_burn_slash", "fade": 0.5, "narrate": "Warm light through a window. A room he could not place. He held it in his hand and let it go."},
     {"narrate": "The blade caught fire — not heat, but the *idea* of heat, golden and impossible."},
@@ -30,7 +30,7 @@
     {"speaker": "Elia", "portrait": "elia_hopeful", "side": "right", "text": "...That was something."},
     {"speaker": "Arrel", "portrait": "arrel_exhausted", "side": "left", "text": "It was warmth I'll never feel again."},
     {"narrate": "The beast staggered, half its weight gone in one strike."},
-    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 23, "_burn_advantage": true},
+    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 28},
 
     {"narrate": "He held the blade low and let it come."},
     {"narrate": "The thing moved in waves — limbs not striking but *flowing*, looking for a way through his guard."},
@@ -39,7 +39,7 @@
     {"speaker": "Elia", "portrait": "elia_determined", "side": "right", "text": "Clean."},
     {"narrate": "It was. The beast retreated, smoke leaking, cautious now.",
       "set_flag": "vb_read"},
-    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 23},
+    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 28},
 
     {"narrate": "[ === Round 2 starts at index 23 === ]"},
 
@@ -47,9 +47,9 @@
     {"narrate": "It widened. The hollow at its center opened, and from inside, more grey — older grey, the kind that smelled like other people's losses."},
 
     {"choice": [
-      {"text": "Strike again. Faster this time.", "goto": 28},
-      {"text": "Burn the smell of forest after rain. Make every cut count.", "cost_memory": "sense_forest_smell", "goto": 35},
-      {"text": "Use what you read. Counter its rhythm.", "requires_flag": "vb_read", "goto": 42}
+      {"text": "Strike again. Faster this time.", "goto": 32},
+      {"text": "Burn the smell of forest after rain. Make every cut count.", "cost_memory": "sense_forest_smell", "goto": 37},
+      {"text": "Use what you read. Counter its rhythm.", "requires_flag": "vb_read", "goto": 43}
     ]},
 
     {"narrate": "[ Filler. ]"},
@@ -58,21 +58,21 @@
     {"narrate": "But the blade was already through it. Through it. Through it."},
     {"speaker": "Arrel", "portrait": "arrel_burn", "side": "left", "text": "...How much does it have left?"},
     {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "Less than you. Keep going."},
-    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 47},
+    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 50},
 
     {"cg": "battle_burn_slash", "fade": 0.5, "narrate": "The smell of wet earth after rainfall. Where, when — gone."},
     {"narrate": "Every strike found its mark. The beast could not turn away from him."},
     {"narrate": "Its grey opened, opened, until there was nothing left for it to be."},
     {"speaker": "Elia", "portrait": "elia_sad", "side": "right", "text": "...Arrel."},
     {"speaker": "Arrel", "portrait": "arrel_exhausted", "side": "left", "text": "I know."},
-    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 47, "_burn_advantage": true},
+    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 50},
 
     {"narrate": "He moved as he had read the beast move — not against its rhythm, but *with* it."},
     {"narrate": "When its limb came high, he was already low. When the low strike opened, he was already past it."},
     {"narrate": "The killing cut went where the rhythm wanted it to go, and the beast had no answer."},
     {"speaker": "Elia", "portrait": "elia_calm", "side": "right", "text": "You learned its name."},
     {"speaker": "Arrel", "portrait": "arrel_pensive", "side": "left", "text": "It didn't have one to learn."},
-    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 47},
+    {"action": "goto_scene", "id": "ch1_void_beast", "start_index": 50},
 
     {"narrate": "[ === Endgame at 47 === ]"},
 
