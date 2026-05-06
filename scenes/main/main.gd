@@ -141,29 +141,57 @@ func _build_title_screen() -> void:
 	add_child(_ash_particles)
 
 	# --- Title (behind glow) ---
-	# S71: 타이틀 — 더 크고 자간 강조. theme.tres가 stylized serif 자동 적용
+	# S75: 고급스러운 타이틀 폰트 — 장식적 serif 우선 SystemFont
+	var title_font = SystemFont.new()
+	title_font.font_names = PackedStringArray([
+		"Cinzel",                # OFL — 사용자가 fonts/ 에 설치하면 적용
+		"Cinzel Decorative",
+		"Trajan Pro",            # Adobe
+		"Constantia",            # Windows 기본, 우아한 책 serif
+		"Palatino Linotype",     # Windows 기본
+		"Book Antiqua",
+		"Cormorant Garamond",
+		"Garamond",
+		"Cambria",
+		"Times New Roman",
+		"serif",
+	])
+	title_font.font_weight = 600  # SemiBold
+	title_font.antialiasing = 2
+	title_font.subpixel_positioning = 1
+
+	# S71/S75: 타이틀 글로우 (뒤편, 큰 블러 인상)
 	_title_glow_label = Label.new()
-	_title_glow_label.text = "M E M O R I A"
+	_title_glow_label.text = "M  E  M  O  R  I  A"  # 더 넓은 자간
 	_title_glow_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_glow_label.set_anchors_preset(PRESET_CENTER_TOP)
-	_title_glow_label.position = Vector2(-300, 92)
-	_title_glow_label.size = Vector2(600, 100)
-	_title_glow_label.add_theme_font_size_override("font_size", 72)
-	_title_glow_label.add_theme_color_override("font_color", Color(0.75, 0.55, 0.25, 0.45))
+	_title_glow_label.position = Vector2(-360, 84)
+	_title_glow_label.size = Vector2(720, 120)
+	_title_glow_label.add_theme_font_override("font", title_font)
+	_title_glow_label.add_theme_font_size_override("font_size", 88)
+	_title_glow_label.add_theme_color_override("font_color", Color(0.85, 0.6, 0.3, 0.55))
+	_title_glow_label.add_theme_color_override("font_outline_color", Color(0.85, 0.55, 0.25, 0.7))
+	_title_glow_label.add_theme_constant_override("outline_size", 8)
 	_title_glow_label.modulate.a = 0.0
 	_title_glow_label.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_title_glow_label)
 
 	_title_label = Label.new()
-	_title_label.text = "M E M O R I A"
+	_title_label.text = "M  E  M  O  R  I  A"
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.set_anchors_preset(PRESET_CENTER_TOP)
-	_title_label.position = Vector2(-300, 92)
-	_title_label.size = Vector2(600, 100)
-	_title_label.add_theme_font_size_override("font_size", 72)
-	_title_label.add_theme_color_override("font_color", Color(0.95, 0.82, 0.5))
-	_title_label.add_theme_color_override("font_outline_color", Color(0.18, 0.12, 0.08))
-	_title_label.add_theme_constant_override("outline_size", 4)
+	_title_label.position = Vector2(-360, 84)
+	_title_label.size = Vector2(720, 120)
+	_title_label.add_theme_font_override("font", title_font)
+	_title_label.add_theme_font_size_override("font_size", 88)
+	# 따뜻한 황금빛 본체 + 깊은 검정 아웃라인 + 살짝 어두운 그림자
+	_title_label.add_theme_color_override("font_color", Color(0.98, 0.86, 0.55))
+	_title_label.add_theme_color_override("font_outline_color", Color(0.10, 0.06, 0.04))
+	_title_label.add_theme_constant_override("outline_size", 5)
+	_title_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	_title_label.add_theme_constant_override("shadow_offset_x", 0)
+	_title_label.add_theme_constant_override("shadow_offset_y", 4)
+	_title_label.add_theme_constant_override("shadow_outline_size", 8)
 	_title_label.modulate.a = 0.0
 	_title_label.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_title_label)
@@ -764,7 +792,7 @@ func _build_title_burst() -> void:
 	# 타이틀 등장 시 골든 버스트 — 라디얼 그라디언트, 평소엔 숨김
 	_title_burst = TextureRect.new()
 	_title_burst.size = Vector2(900, 380)
-	_title_burst.position = Vector2(190, 0)
+	_title_burst.position = Vector2(190, -50)  # S75: 타이틀 88px 크기에 맞춰 위로
 	_title_burst.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_title_burst.stretch_mode = TextureRect.STRETCH_SCALE
 	_title_burst.mouse_filter = MOUSE_FILTER_IGNORE

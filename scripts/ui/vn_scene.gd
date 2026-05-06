@@ -624,7 +624,8 @@ func _display_line(speaker: String, text: String) -> void:
 func _play_page_turn() -> void:
 	if _page_turn_overlay == null:
 		return
-	var vp = get_viewport_rect().size
+	# CanvasLayer는 get_viewport_rect를 직접 못 씀 — viewport 노드 경유
+	var vp = get_viewport().get_visible_rect().size
 	var span = vp.x  # 화면 가로 전체를 횡단
 	# 시작: 화면 왼쪽 밖
 	_page_turn_overlay.position.x = -span * 0.4
