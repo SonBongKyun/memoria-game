@@ -49,6 +49,15 @@ var _title_burst: TextureRect               # 타이틀 등장 시 골든 버스
 var _bg_zoom_t: float = 0.0                 # 배경 켄 버닝 시간
 var _bg_zoom_base: Vector2 = Vector2.ONE
 
+# S76: 추가 고급화
+var _title_letters: Array = []              # 글자별 라벨 (M/E/M/O/R/I/A)
+var _title_letter_t: float = 0.0            # 글자 숨쉬기 시간
+var _title_embers: GPUParticles2D           # 타이틀에서 위로 떠오르는 잉걸불
+var _ornament_left: TextureRect             # 서브타이틀 좌측 장식 라인
+var _ornament_right: TextureRect            # 서브타이틀 우측 장식 라인
+var _title_grain: ColorRect                 # 타이틀 영역 미세 필름 그레인
+var _title_grain_t: float = 0.0
+
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_title_screen()
@@ -254,6 +263,14 @@ func _build_title_screen() -> void:
 	_bg.pivot_offset = Vector2(640, 360)
 	_bg_secondary.pivot_offset = Vector2(640, 360)
 
+	# S76: 글자별 타이틀 + 잉걸불 + 장식 라인 + 미세 그레인
+	_build_letter_title()
+	_build_title_embers()
+	_build_subtitle_ornaments()
+	_build_title_grain()
+	# 기존 통합 타이틀은 글로우(아우라)로만 활용 — 본체는 글자별 라벨이 대체
+	_title_label.visible = false
+
 ## ===================== INTRO SEQUENCE =====================
 
 func _start_intro_sequence() -> void:
@@ -270,8 +287,14 @@ func _start_intro_sequence() -> void:
 	tween.tween_callback(func(): _intro_state = IntroState.FADE_TITLE)
 	# S74: 타이틀이 나타나기 직전 골든 버스트 (먼저 점화)
 	tween.tween_callback(_play_title_burst)
-	tween.tween_property(_title_label, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	# S76: 글자별 캐스케이드 등장 (각 60ms 간격)
+	tween.tween_callback(_play_letter_cascade)
 	tween.parallel().tween_property(_title_glow_label, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
+	# 글자 7개 모두 등장하려면 약 0.5s + (6 * 0.06) = ~0.86s 대기
+	tween.tween_interval(0.86)
+	# S76: 잉걸불 발사 + 장식 라인 그려짐 (글자 등장 직후)
+	tween.tween_callback(_emit_title_embers)
+	tween.parallel().tween_callback(_draw_ornaments)
 	# Subtitle
 	var sub = get_node_or_null("SubtitleLabel")
 	if sub:
@@ -697,6 +720,24 @@ func _process(delta: float) -> void:
 		ray.position.y = -100 + sin(_bg_zoom_t * 0.4 + phase) * 25
 		ray.modulate.a = 0.18 + sin(_bg_zoom_t * 0.6 + phase) * 0.06
 
+	# S76: 타이틀 글자별 미세 숨쉬기 — 등장 후 약하게 살아있는 인상
+	_title_letter_t += delta
+	for i in range(_title_letters.size()):
+		var lbl = _title_letters[i]
+		if not is_instance_valid(lbl) or lbl.modulate.a < 0.95:
+			continue
+		var phase = float(i) * 0.6
+		var breathe = 1.0 + sin(_title_letter_t * 1.4 + phase) * 0.012
+		lbl.scale = Vector2(breathe, breathe)
+		# 글자별 색 미세 펄스 — 황금빛이 살아 흐르는 인상
+		var color_pulse = 0.98 + sin(_title_letter_t * 1.0 + phase) * 0.04
+		lbl.modulate = Color(color_pulse, color_pulse * 0.97, color_pulse * 0.92, 1.0)
+
+	# S76: 타이틀 그레인 시간
+	_title_grain_t += delta
+	if _title_grain and _title_grain.material is ShaderMaterial:
+		(_title_grain.material as ShaderMaterial).set_shader_parameter("u_time", _title_grain_t)
+
 ## ===================== S74: 시네마틱 레이어 빌드 =====================
 
 func _build_god_rays() -> void:
@@ -834,3 +875,178 @@ func _fade_in_god_rays() -> void:
 		var tw = create_tween()
 		tw.tween_interval(randf_range(0.0, 0.4))
 		tw.tween_property(ray, "modulate:a", 0.22, 1.6).set_trans(Tween.TRANS_SINE)
+
+## ===================== S76: 추가 고급화 =====================
+
+func _build_letter_title() -> void:
+	# 글자별 라벨 — 캐스케이드 등장용
+	var letters = ["M", "E", "M", "O", "R", "I", "A"]
+	var letter_spacing: float = 76.0  # 글자 사이 간격
+	var total_width = letter_spacing * (letters.size() - 1)
+	var center_x = 640.0
+	var start_x = center_x - total_width / 2.0
+	var center_y = 144.0  # 타이틀 중심 y (84 + 60)
+
+	# 글자 폰트는 기존 _title_label과 동일하게
+	var font = _title_label.get_theme_font("font") if _title_label.has_theme_font_override("font") else null
+
+	for i in range(letters.size()):
+		var lbl = Label.new()
+		lbl.text = letters[i]
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.size = Vector2(80, 120)
+		lbl.position = Vector2(start_x + i * letter_spacing - 40, center_y - 60)
+		if font:
+			lbl.add_theme_font_override("font", font)
+		lbl.add_theme_font_size_override("font_size", 88)
+		lbl.add_theme_color_override("font_color", Color(0.98, 0.86, 0.55))
+		lbl.add_theme_color_override("font_outline_color", Color(0.10, 0.06, 0.04))
+		lbl.add_theme_constant_override("outline_size", 5)
+		lbl.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+		lbl.add_theme_constant_override("shadow_offset_y", 4)
+		lbl.add_theme_constant_override("shadow_outline_size", 8)
+		lbl.modulate.a = 0.0
+		lbl.pivot_offset = lbl.size / 2.0
+		lbl.scale = Vector2(0.6, 0.6)
+		lbl.mouse_filter = MOUSE_FILTER_IGNORE
+		lbl.z_index = 6  # 글로우(_title_glow_label) 위
+		add_child(lbl)
+		_title_letters.append(lbl)
+
+func _build_title_embers() -> void:
+	# 타이틀 등장 시 위로 떠오르는 잉걸불
+	_title_embers = GPUParticles2D.new()
+	_title_embers.amount = 12
+	_title_embers.lifetime = 3.5
+	_title_embers.emitting = false  # 타이틀 등장 시 켜짐
+	_title_embers.one_shot = true
+	_title_embers.position = Vector2(640, 160)  # 타이틀 중심
+	_title_embers.visibility_rect = Rect2(-200, -300, 400, 400)
+	_title_embers.z_index = 7
+	var mat = ParticleProcessMaterial.new()
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(280, 30, 0)
+	mat.direction = Vector3(0, -1, 0)
+	mat.spread = 18.0
+	mat.gravity = Vector3(0, -8, 0)
+	mat.initial_velocity_min = 22.0
+	mat.initial_velocity_max = 50.0
+	mat.scale_min = 1.5
+	mat.scale_max = 3.5
+	mat.color = Color(1.0, 0.78, 0.42, 0.9)
+	mat.angular_velocity_min = -40
+	mat.angular_velocity_max = 40
+	# 시간에 따라 알파 페이드 (커브 없이 그냥 자연 소멸 — Godot 4 기본)
+	_title_embers.process_material = mat
+	add_child(_title_embers)
+
+func _build_subtitle_ornaments() -> void:
+	# 서브타이틀 좌우에 그라디언트 라인 — 우아한 분리선 인상
+	var sub_y = 180.0  # 서브타이틀 위치 근처
+	# 좌측 — 우측 끝이 진하고 좌측이 페이드아웃 (서브타이틀 쪽으로 그라디언트)
+	var grad_l = Gradient.new()
+	grad_l.add_point(0.0, Color(0.85, 0.7, 0.42, 0.0))
+	grad_l.add_point(1.0, Color(0.95, 0.78, 0.45, 0.7))
+	var gtex_l = GradientTexture2D.new()
+	gtex_l.gradient = grad_l
+	gtex_l.width = 200
+	gtex_l.height = 2
+	gtex_l.fill = GradientTexture2D.FILL_LINEAR
+	gtex_l.fill_from = Vector2(0.0, 0.5)
+	gtex_l.fill_to = Vector2(1.0, 0.5)
+	_ornament_left = TextureRect.new()
+	_ornament_left.texture = gtex_l
+	_ornament_left.size = Vector2(200, 2)
+	_ornament_left.position = Vector2(440, sub_y)
+	_ornament_left.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_ornament_left.stretch_mode = TextureRect.STRETCH_SCALE
+	_ornament_left.mouse_filter = MOUSE_FILTER_IGNORE
+	_ornament_left.modulate.a = 0.0
+	_ornament_left.pivot_offset = Vector2(200, 1)  # 우측이 anchor — scale.x로 그려짐
+	_ornament_left.scale = Vector2(0.0, 1.0)
+	_ornament_left.z_index = 5
+	add_child(_ornament_left)
+
+	# 우측 — 좌측이 진하고 우측이 페이드아웃
+	var grad_r = Gradient.new()
+	grad_r.add_point(0.0, Color(0.95, 0.78, 0.45, 0.7))
+	grad_r.add_point(1.0, Color(0.85, 0.7, 0.42, 0.0))
+	var gtex_r = GradientTexture2D.new()
+	gtex_r.gradient = grad_r
+	gtex_r.width = 200
+	gtex_r.height = 2
+	gtex_r.fill = GradientTexture2D.FILL_LINEAR
+	gtex_r.fill_from = Vector2(0.0, 0.5)
+	gtex_r.fill_to = Vector2(1.0, 0.5)
+	_ornament_right = TextureRect.new()
+	_ornament_right.texture = gtex_r
+	_ornament_right.size = Vector2(200, 2)
+	_ornament_right.position = Vector2(640, sub_y)
+	_ornament_right.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_ornament_right.stretch_mode = TextureRect.STRETCH_SCALE
+	_ornament_right.mouse_filter = MOUSE_FILTER_IGNORE
+	_ornament_right.modulate.a = 0.0
+	_ornament_right.pivot_offset = Vector2(0, 1)  # 좌측이 anchor
+	_ornament_right.scale = Vector2(0.0, 1.0)
+	_ornament_right.z_index = 5
+	add_child(_ornament_right)
+
+func _build_title_grain() -> void:
+	# 타이틀 영역만 살짝 필름 그레인 (전체화면이 아닌 윗부분 한정)
+	_title_grain = ColorRect.new()
+	_title_grain.set_anchors_preset(PRESET_TOP_WIDE)
+	_title_grain.offset_top = 60
+	_title_grain.offset_bottom = 230
+	_title_grain.mouse_filter = MOUSE_FILTER_IGNORE
+	_title_grain.z_index = 8
+	var sh = Shader.new()
+	sh.code = """
+shader_type canvas_item;
+uniform float u_time = 0.0;
+uniform float u_strength : hint_range(0.0, 0.1) = 0.038;
+float hash21(vec2 p) {
+	p = fract(p * vec2(123.34, 456.21));
+	p += dot(p, p + 45.32);
+	return fract(p.x * p.y);
+}
+void fragment() {
+	vec2 uv = UV * vec2(720.0, 200.0);
+	float t = floor(u_time * 18.0);
+	float n = hash21(uv + vec2(t * 0.137, t * 0.731));
+	COLOR = vec4(n, n, n, u_strength);
+}
+"""
+	var sm = ShaderMaterial.new()
+	sm.shader = sh
+	_title_grain.material = sm
+	add_child(_title_grain)
+
+## 글자별 캐스케이드 등장 — 인트로 시퀀스에서 호출
+func _play_letter_cascade() -> void:
+	for i in range(_title_letters.size()):
+		var lbl = _title_letters[i]
+		if not is_instance_valid(lbl):
+			continue
+		var tw = create_tween()
+		tw.tween_interval(0.06 * i)  # 글자당 60ms 간격
+		tw.set_parallel(true)
+		tw.tween_property(lbl, "modulate:a", 1.0, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		tw.tween_property(lbl, "scale", Vector2(1.0, 1.0), 0.55).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+## 잉걸불 발사 (타이틀 등장 직후)
+func _emit_title_embers() -> void:
+	if _title_embers:
+		_title_embers.restart()
+		_title_embers.emitting = true
+
+## 장식 라인이 좌우로 그려지듯 그어짐
+func _draw_ornaments() -> void:
+	if _ornament_left:
+		_ornament_left.modulate.a = 1.0
+		var tw_l = create_tween()
+		tw_l.tween_property(_ornament_left, "scale:x", 1.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if _ornament_right:
+		_ornament_right.modulate.a = 1.0
+		var tw_r = create_tween()
+		tw_r.tween_property(_ornament_right, "scale:x", 1.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
