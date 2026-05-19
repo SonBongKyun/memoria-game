@@ -615,6 +615,8 @@ func _generate_heartbeat() -> PackedFloat32Array:
 
 ## 씬 전환 시 자동 BGM 교체
 func _on_tree_changed() -> void:
+	if not is_inside_tree():
+		return
 	var tree = get_tree()
 	if not tree:
 		return
