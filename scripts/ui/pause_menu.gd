@@ -13,6 +13,93 @@ var btn_container: VBoxContainer
 var save_info_label: Label
 var title_label: Label
 
+const ARTBOOK_ITEMS: Array[Dictionary] = [
+	{
+		"title": "Arrel - Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/arrel_reference_turnaround.png",
+		"desc": "Wandering frostblade. Full costume, gear detail, palette, and side-view animation references."
+	},
+	{
+		"title": "Elia - Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/elia_reference_turnaround.png",
+		"desc": "Anchor, companion, and emotional counterweight. Costume and side-view animation reference."
+	},
+	{
+		"title": "Nera - Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/nera_reference_turnaround.png",
+		"desc": "Bureau-adjacent silhouette and dark formal palette reference."
+	},
+	{
+		"title": "Tobias - Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/tobias_reference_turnaround.png",
+		"desc": "Archivist/support-role visual reference with restrained dark academic styling."
+	},
+	{
+		"title": "Kairos - Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/kairos_reference_turnaround.png",
+		"desc": "Supreme strategist. Sharp black uniform, controlled posture, and command-read silhouette."
+	},
+	{
+		"title": "Veil - Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/veil_reference_turnaround.png",
+		"desc": "Pale, spectral costume reference for a memory-adjacent presence."
+	},
+	{
+		"title": "Arrel - Expressions",
+		"type": "Expression Sheet",
+		"path": "res://assets/game_image/reference/arrel_expression_sheet.png",
+		"desc": "Dialogue portrait reference for cold resolve, pain, exhaustion, and guarded emotion."
+	},
+	{
+		"title": "Elia - Expressions",
+		"type": "Expression Sheet",
+		"path": "res://assets/game_image/reference/elia_expression_sheet.png",
+		"desc": "Dialogue portrait reference for concern, hope, sadness, and restrained warmth."
+	},
+	{
+		"title": "Kairos - Expressions",
+		"type": "Expression Sheet",
+		"path": "res://assets/game_image/reference/kairos_expression_sheet.png",
+		"desc": "Dialogue portrait reference for authority, calculation, anger, and command focus."
+	},
+	{
+		"title": "Skill Icon Atlas",
+		"type": "UI Reference",
+		"path": "res://assets/game_image/reference/skill_icon_atlas_reference.png",
+		"desc": "Future source for memory-burn, void, frost, and Bureau ability icons."
+	},
+	{
+		"title": "Frost City",
+		"type": "Environment CG",
+		"path": "res://assets/cg/game_image/env_frost_city.png",
+		"desc": "Cold urban ruin palette for later acts and title-screen atmosphere."
+	},
+	{
+		"title": "Memory Hall",
+		"type": "Environment CG",
+		"path": "res://assets/cg/game_image/env_memory_hall.png",
+		"desc": "Interior memory archive mood: columns, blue fog, and cold reflected light."
+	},
+	{
+		"title": "Bureau Spires",
+		"type": "Environment CG",
+		"path": "res://assets/cg/game_image/env_bureau_spires.png",
+		"desc": "Bureau skyline reference now used in the Act I demo ending beat."
+	},
+	{
+		"title": "Arrel in the Ruins",
+		"type": "Illustration",
+		"path": "res://assets/cg/game_image/arrel_ruins_rest.png",
+		"desc": "Post-battle isolation beat now used after the Void Beast encounter."
+	},
+]
+
 func _ready() -> void:
 	layer = 55  # DialogueBox(50)와 SystemLog(60) 사이
 	_build_ui()
@@ -26,9 +113,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		if is_open:
 			_close()
 			get_viewport().set_input_as_handled()
-		elif GameManager.current_state == GameManager.GameState.EXPLORATION and not MemoryUI.is_open:
+		elif _can_open_pause_menu():
 			_open()
 			get_viewport().set_input_as_handled()
+
+func _can_open_pause_menu() -> bool:
+	if MemoryUI.is_open:
+		return false
+	if GameManager.current_state == GameManager.GameState.EXPLORATION:
+		return true
+	# S78: Full-VN pivot 이후에는 대부분의 플레이 시간이 DIALOGUE(SceneFlow) 상태다.
+	# Artbook / Save / Options에 접근할 수 있도록 VN 진행 중에도 ESC 메뉴를 허용한다.
+	return GameManager.current_state == GameManager.GameState.DIALOGUE and has_node("/root/SceneFlow") and SceneFlow.is_active
 
 func _open() -> void:
 	if is_open:
@@ -152,6 +248,7 @@ func _build_ui() -> void:
 		{"text": GameManager.loc("resume"), "callback": _close},
 		{"text": GameManager.loc("journal"), "callback": _on_journal},
 		{"text": GameManager.loc("codex"), "callback": _on_codex},
+		{"text": "Artbook", "callback": _on_artbook},
 		{"text": GameManager.loc("achievements"), "callback": _on_achievements},
 	]
 	# S54: Endings button (only if at least 1 ending seen)
@@ -322,6 +419,189 @@ func _on_options() -> void:
 func _on_codex() -> void:
 	AudioManager.play_sfx("ui_select")
 	Codex.open()
+
+func _on_artbook() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_artbook_panel()
+
+func _show_artbook_panel() -> void:
+	var art_overlay = ColorRect.new()
+	art_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art_overlay.color = Color(0.01, 0.01, 0.015, 0.88)
+	art_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(art_overlay)
+
+	var art_panel = PanelContainer.new()
+	art_panel.anchor_left = 0.05
+	art_panel.anchor_right = 0.95
+	art_panel.anchor_top = 0.04
+	art_panel.anchor_bottom = 0.96
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.045, 0.038, 0.055, 0.985)
+	style.border_color = Color(0.68, 0.54, 0.32, 0.75)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(18)
+	art_panel.add_theme_stylebox_override("panel", style)
+	art_overlay.add_child(art_panel)
+
+	var root = VBoxContainer.new()
+	root.add_theme_constant_override("separation", 10)
+	art_panel.add_child(root)
+
+	var header = Label.new()
+	header.text = "ARTBOOK / CHARACTER DOSSIER"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 21)
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44))
+	root.add_child(header)
+
+	var sub = Label.new()
+	sub.text = "Concept sheets, expression studies, and atmosphere plates"
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.add_theme_font_size_override("font_size", 12)
+	sub.add_theme_color_override("font_color", Color(0.58, 0.52, 0.45))
+	root.add_child(sub)
+
+	var sep = HSeparator.new()
+	root.add_child(sep)
+
+	var body = HBoxContainer.new()
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 18)
+	root.add_child(body)
+
+	var left_panel = PanelContainer.new()
+	left_panel.custom_minimum_size = Vector2(260, 0)
+	left_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var left_style = StyleBoxFlat.new()
+	left_style.bg_color = Color(0.025, 0.022, 0.032, 0.78)
+	left_style.border_color = Color(0.32, 0.25, 0.16, 0.5)
+	left_style.set_border_width_all(1)
+	left_style.set_corner_radius_all(4)
+	left_style.set_content_margin_all(10)
+	left_panel.add_theme_stylebox_override("panel", left_style)
+	body.add_child(left_panel)
+
+	var left_box = VBoxContainer.new()
+	left_box.add_theme_constant_override("separation", 8)
+	left_panel.add_child(left_box)
+
+	var list_title = Label.new()
+	list_title.text = "FILES"
+	list_title.add_theme_font_size_override("font_size", 14)
+	list_title.add_theme_color_override("font_color", Color(0.74, 0.65, 0.48))
+	left_box.add_child(list_title)
+
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	left_box.add_child(scroll)
+
+	var list = VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 6)
+	scroll.add_child(list)
+
+	var right_panel = PanelContainer.new()
+	right_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var right_style = StyleBoxFlat.new()
+	right_style.bg_color = Color(0.018, 0.017, 0.024, 0.92)
+	right_style.border_color = Color(0.42, 0.34, 0.22, 0.65)
+	right_style.set_border_width_all(1)
+	right_style.set_corner_radius_all(4)
+	right_style.set_content_margin_all(12)
+	right_panel.add_theme_stylebox_override("panel", right_style)
+	body.add_child(right_panel)
+
+	var preview_box = VBoxContainer.new()
+	preview_box.add_theme_constant_override("separation", 10)
+	right_panel.add_child(preview_box)
+
+	var preview_title = Label.new()
+	preview_title.add_theme_font_size_override("font_size", 18)
+	preview_title.add_theme_color_override("font_color", Color(0.9, 0.78, 0.52))
+	preview_box.add_child(preview_title)
+
+	var preview_type = Label.new()
+	preview_type.add_theme_font_size_override("font_size", 12)
+	preview_type.add_theme_color_override("font_color", Color(0.5, 0.48, 0.42))
+	preview_box.add_child(preview_type)
+
+	var preview = TextureRect.new()
+	preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview_box.add_child(preview)
+
+	var preview_desc = RichTextLabel.new()
+	preview_desc.bbcode_enabled = true
+	preview_desc.fit_content = true
+	preview_desc.scroll_active = false
+	preview_desc.add_theme_font_size_override("normal_font_size", 13)
+	preview_desc.add_theme_color_override("default_color", Color(0.74, 0.69, 0.61))
+	preview_box.add_child(preview_desc)
+
+	for i in range(ARTBOOK_ITEMS.size()):
+		var item := ARTBOOK_ITEMS[i]
+		var btn = Button.new()
+		btn.text = "%s\n   %s" % [item.get("title", "Untitled"), item.get("type", "Reference")]
+		btn.custom_minimum_size = Vector2(0, 48)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_color_override("font_color", Color(0.72, 0.68, 0.58))
+		btn.add_theme_color_override("font_hover_color", Color(0.98, 0.84, 0.52))
+		var btn_style = StyleBoxFlat.new()
+		btn_style.bg_color = Color(0.06, 0.052, 0.075, 0.9)
+		btn_style.border_color = Color(0.28, 0.22, 0.15, 0.45)
+		btn_style.set_border_width_all(1)
+		btn_style.set_corner_radius_all(3)
+		btn_style.set_content_margin_all(8)
+		btn.add_theme_stylebox_override("normal", btn_style)
+		var hover_style = btn_style.duplicate()
+		hover_style.bg_color = Color(0.12, 0.095, 0.08, 0.95)
+		hover_style.border_color = Color(0.74, 0.54, 0.27, 0.85)
+		btn.add_theme_stylebox_override("hover", hover_style)
+		btn.add_theme_stylebox_override("focus", hover_style)
+		btn.pressed.connect(_on_artbook_item_pressed.bind(i, preview, preview_title, preview_type, preview_desc))
+		btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		list.add_child(btn)
+
+	if ARTBOOK_ITEMS.size() > 0:
+		_set_artbook_preview(preview, preview_title, preview_type, preview_desc, ARTBOOK_ITEMS[0])
+
+	var close_label = Label.new()
+	close_label.text = "[ESC] Close"
+	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	close_label.add_theme_font_size_override("font_size", 11)
+	close_label.add_theme_color_override("font_color", Color(0.42, 0.37, 0.31))
+	root.add_child(close_label)
+
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			art_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	art_overlay.gui_input.connect(close_handler)
+
+func _set_artbook_preview(preview: TextureRect, title: Label, type_label: Label, desc: RichTextLabel, item: Dictionary) -> void:
+	var path: String = item.get("path", "")
+	title.text = item.get("title", "Untitled")
+	type_label.text = item.get("type", "Reference")
+	desc.text = "[i]%s[/i]" % item.get("desc", "")
+
+	if path != "" and ResourceLoader.exists(path):
+		preview.texture = load(path)
+	else:
+		preview.texture = null
+		desc.text = "[color=#c77855]Missing file:[/color] %s" % path
+
+func _on_artbook_item_pressed(index: int, preview: TextureRect, title: Label, type_label: Label, desc: RichTextLabel) -> void:
+	AudioManager.play_sfx("ui_select")
+	if index >= 0 and index < ARTBOOK_ITEMS.size():
+		_set_artbook_preview(preview, title, type_label, desc, ARTBOOK_ITEMS[index])
 
 func _on_achievements() -> void:
 	AudioManager.play_sfx("ui_select")
