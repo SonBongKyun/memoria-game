@@ -647,6 +647,14 @@ func _collect_bg_candidates() -> void:
 		"res://assets/cg/ch1_ash_walk.jpg",
 		"res://assets/cg/bureau_tower3.jpg",
 		"res://assets/cg/ch2_verdan_overlook.jpg",
+		# S77: game image 폴더에서 가져온 고해상도 환경/캐릭터 삽화
+		"res://assets/cg/game_image/env_frost_city.png",
+		"res://assets/cg/game_image/env_memory_hall.png",
+		"res://assets/cg/game_image/env_wasteland_city.png",
+		"res://assets/cg/game_image/env_void_cathedral.png",
+		"res://assets/cg/game_image/env_bureau_spires.png",
+		"res://assets/cg/game_image/env_frozen_archive.png",
+		"res://assets/cg/game_image/arrel_ruins_rest.png",
 	]:
 		if ResourceLoader.exists(c):
 			_bg_candidates.append(c)

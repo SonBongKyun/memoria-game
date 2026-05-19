@@ -76,7 +76,7 @@
 
     {"narrate": "[ === Endgame at 47 === ]"},
 
-    {"cg": "ch1_twisted_forest2", "fade": 1.2, "narrate": "What remained of the beast collapsed into a stain of grey ash that the wind took, slowly, like the wind was trying to be respectful about it."},
+    {"cg": "res://assets/cg/game_image/arrel_ruins_rest.png", "fade": 1.2, "narrate": "What remained of the beast collapsed into a stain of grey ash that the wind took, slowly, like the wind was trying to be respectful about it."},
     {"narrate": "He stood over it, breathing harder than he wanted Elia to see."},
     {"speaker": "Elia", "portrait": "elia_calm", "side": "right", "text": "You're hurt."},
     {"speaker": "Arrel", "portrait": "arrel_exhausted", "side": "left", "text": "I'll keep."},

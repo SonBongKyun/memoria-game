@@ -5,7 +5,7 @@
   "bgm": "res://assets/audio/bgm/rim_ambient.ogg",
   "steps": [
     {"cg": "ch1_twisted_forest", "fade": 1.5, "narrate": "The beast was dead."},
-    {"cg": "arrel_combat4", "fade": 1.2, "narrate": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."},
+    {"cg": "res://assets/cg/game_image/arrel_fullbody.png", "fade": 1.2, "narrate": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."},
     {"narrate": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
     {"cg": "arrel_combat2", "narrate": "He watched his own hand for a long moment before he recognized it."},
     {"system_log": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"},
