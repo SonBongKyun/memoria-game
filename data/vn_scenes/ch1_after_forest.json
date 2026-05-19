@@ -19,6 +19,6 @@
     {"narrate": "That was where the answers were. That was where he would have to go."},
     {"narrate": "But first — the Belt. And the man who might know whether his brother was still alive."},
 
-    {"action": "demo_end"}
+    {"set_flag": "ch1_complete", "set_chapter": 2, "complete_chapter": 1, "autosave_chapter_transition": true, "action": "goto_scene", "id": "ch2_market_arrival"}
   ]
 }

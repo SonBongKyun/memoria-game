@@ -2,7 +2,7 @@
   "id": "ch2_market_arrival",
   "title": "Chapter 2 — The Belt",
   "chapter": 2,
-  "bgm": "res://assets/audio/bgm/market_bustle.ogg",
+  "bgm": "res://assets/audio/bgm/ch2_verdan.mp3",
   "steps": [
     {"cg": "ch2_verdan_overlook", "fade": 2.0, "narrate": "Verdan Market — the Belt's largest trading hub, and the Bureau's most tolerated black eye."},
     {"narrate": "It sprawled across three old canyons, stitched together with rope-bridges and smoke and the low hum of too many voices at once."},
@@ -25,6 +25,6 @@
     ]},
 
     {"narrate": "Either way, the market swallowed them whole."},
-    {"action": "goto_map", "path": "res://scenes/maps/verdan_market.tscn", "resume_scene": "ch2_malet_deal"}
+    {"set_flag": "ch2_arrival_vn_seen", "action": "goto_map", "path": "res://scenes/maps/verdan_market.tscn"}
   ]
 }

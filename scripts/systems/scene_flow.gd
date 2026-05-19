@@ -72,6 +72,12 @@ func _run_step() -> void:
 	# 플래그/기억 처리 (즉시 실행, UI 안 건드림)
 	if step.has("set_flag"):
 		GameManager.set_flag(step.set_flag)
+	if step.has("set_chapter"):
+		GameManager.current_chapter = int(step.set_chapter)
+	if step.has("complete_chapter") and has_node("/root/AchievementManager"):
+		AchievementManager.record_chapter_complete(int(step.complete_chapter))
+	if step.get("autosave_chapter_transition", false) and has_node("/root/SaveManager"):
+		SaveManager.autosave_on_chapter_transition()
 	if step.has("burn_memory"):
 		MemoryManager.burn_memory(step.burn_memory)
 

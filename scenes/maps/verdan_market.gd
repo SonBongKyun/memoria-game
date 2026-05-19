@@ -102,7 +102,10 @@ func _ready() -> void:
 		# 챕터 타이틀 카드 표시 후 대화 시작
 		await MapEffects.show_chapter_title(self, 2, "Verdan Market", "Where memories are currency")
 		await get_tree().create_timer(0.3).timeout
-		_start_ch2_sequence()
+		if GameManager.get_flag("ch2_arrival_vn_seen"):
+			_start_ch2_free_exploration_after_vn()
+		else:
+			_start_ch2_sequence()
 
 func _process(delta: float) -> void:
 	_time += delta
@@ -142,6 +145,12 @@ func _start_ch2_sequence() -> void:
 	GameManager.set_flag("ch2_arrived")
 	DialogueManager.dialogue_ended.connect(_on_arrival_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "verdan_arrival")
+
+func _start_ch2_free_exploration_after_vn() -> void:
+	GameManager.set_flag("ch2_arrived")
+	if not DialogueManager.dialogue_ended.is_connected(_on_any_dialogue_ended):
+		DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended)
+	print("[VerdenMarket] Free exploration after VN arrival - talk to Malet in the Sump")
 
 func _on_arrival_ended() -> void:
 	# 자유 탐색 — 말렛 대화 종료 감지
