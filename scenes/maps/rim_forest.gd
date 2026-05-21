@@ -273,7 +273,7 @@ func _on_camp_ended() -> void:
 	print("[RimForest] Chapter 1 complete")
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
-	CgViewer.show_cg("res://assets/cg/ch1_green_tree2.jpg", "", 3.0, func():
+	CgViewer.show_cg("res://assets/cg/game_image/sealed_city_ruins.png", "", 3.0, func():
 		# S58: Chapter completion screen with stats summary
 		SceneTransition.change_scene_chapter_complete("res://scenes/maps/verdan_market.tscn", 1)
 	)
@@ -637,7 +637,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Beast", 80, 15, true,
-		"res://assets/cg/ch1_twisted_forest2.jpg", "res://assets/cg/void_beast3.jpg"
+		"res://assets/cg/game_image/void_beast_confrontation.png", "res://assets/cg/game_image/void_beast_confrontation.png"
 	)
 	# 보스 처치 시 ch1_void_beast_defeated 플래그 (캠프 진행 잠금 해제용)
 	if not BattleManager.battle_ended.is_connected(_on_act1_battle_ended):
@@ -684,9 +684,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/ch1_forest.jpg", "img": "res://assets/cg/ash_crawler.jpg"},
-			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/ch1_forest.jpg", "img": ""},
-			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/ch1_forest.jpg", "img": "res://assets/cg/void_beast.jpg"},
+			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/game_image/chapter_sealed_zone.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/game_image/chapter_sealed_zone.png", "img": ""},
+			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/game_image/chapter_sealed_zone.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
 		],
 		"res://scenes/maps/rim_forest.tscn", "", "", 50, 90
 	)

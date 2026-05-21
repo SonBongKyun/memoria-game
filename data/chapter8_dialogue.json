@@ -3,115 +3,437 @@
   "title": "The Forest That Forgets",
   "dialogues": {
     "forest_arrival": [
-      {"speaker": "", "text": "The trees began where the path ended. They weren't growing — they were standing still, the way someone stands when they've forgotten why they walked into a room."},
-      {"speaker": "Sable", "text": "This is the Memory Forest. The trees are what's left of the first settlement near BL-07.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "A settlement? There's no record of habitation this close to a Void Hole.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "That's the point. BL-07 ate the records. Ate the people. The trees are what grew in the gap.", "portrait": "sable_calm"},
-      {"speaker": "Elia", "text": "They're warm.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She was right. The bark was body-temperature. Like pressing your hand against sleeping skin."},
-      {"speaker": "Sable", "text": "Don't touch them for long. They'll take what you're feeling and replace it with what they remember.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Walk fast. Say your name if the edges go soft.", "portrait": "sable_neutral"}
+      {
+        "speaker": "",
+        "text": "The trees began where the path ended. They weren't growing — they were standing still, the way someone stands when they've forgotten why they walked into a room."
+      },
+      {
+        "speaker": "Sable",
+        "text": "This is the Memory Forest. The trees are what's left of the first settlement near BL-07.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "A settlement? There's no record of habitation this close to a Void Hole.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "That's the point. BL-07 ate the records. Ate the people. The trees are what grew in the gap.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Elia",
+        "text": "They're warm.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "She was right. The bark was body-temperature. Like pressing your hand against sleeping skin."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Don't touch them for long. They'll take what you're feeling and replace it with what they remember.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Walk fast. Say your name if the edges go soft.",
+        "portrait": "sable_neutral"
+      }
     ],
     "ghost_encounter": [
-      {"speaker": "", "text": "A shape between the trees. Not shadow — presence. A woman standing perfectly still, her mouth open in a word that had no sound."},
-      {"speaker": "Arrel", "text": "Is that—", "portrait": "arrel_pain"},
-      {"speaker": "Sable", "text": "A remnant. What's left when BL-07 takes everything except the shape.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "She's trying to speak. The jaw moves but there's nothing to say — the words were consumed.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Can we help her?", "portrait": "elia_concern"},
-      {"speaker": "Sable", "text": "She's not suffering. She can't. Suffering requires memory of not suffering.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "The kindest thing is to walk past. Don't give her your attention — it feeds the forest.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "They walked past. The shape's mouth kept moving. Arrel didn't look back."}
+      {
+        "speaker": "",
+        "text": "A shape between the trees. Not shadow — presence. A woman standing perfectly still, her mouth open in a word that had no sound."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Is that—",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Sable",
+        "text": "A remnant. What's left when BL-07 takes everything except the shape.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "She's trying to speak. The jaw moves but there's nothing to say — the words were consumed.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Can we help her?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Sable",
+        "text": "She's not suffering. She can't. Suffering requires memory of not suffering.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Sable",
+        "text": "The kindest thing is to walk past. Don't give her your attention — it feeds the forest.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "They walked past. The shape's mouth kept moving. Arrel didn't look back."
+      }
     ],
     "tobias_theory": [
-      {"speaker": "Tobias", "text": "I have a theory. The forest isn't random — it's organized.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "These trees are arranged in concentric rings. The oldest are at the center, closest to BL-07.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "Ring growth. Like a real forest.", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Exactly. But these rings correspond to consumption events. Each ring is a wave of memories eaten.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "If my count is correct... BL-07 has had seventeen major feeding events in the last forty years.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "Eighteen. You missed the one that took my team.", "portrait": "sable_calm"},
-      {"speaker": "Tobias", "text": "...noted.", "portrait": "tobias_neutral"}
+      {
+        "speaker": "Tobias",
+        "text": "I have a theory. The forest isn't random — it's organized.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "These trees are arranged in concentric rings. The oldest are at the center, closest to BL-07.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Ring growth. Like a real forest.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Exactly. But these rings correspond to consumption events. Each ring is a wave of memories eaten.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "If my count is correct... BL-07 has had seventeen major feeding events in the last forty years.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Eighteen. You missed the one that took my team.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "...noted.",
+        "portrait": "tobias_neutral"
+      }
     ],
     "elia_anchor_strain": [
-      {"speaker": "Elia", "text": "Arrel. Stop.", "portrait": "elia_concern", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
-      {"speaker": "Arrel", "text": "What?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "You just called me 'Elise.' Three times.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I... no, I said Elia. I'm sure I—", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "The forest is working on you. Hold still.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She took his hands again. The anchoring was harder here — like trying to hold a page flat in a gale."},
-      {"speaker": "Elia", "text": "Think of something real. Something that happened.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "...warm hands on cold palms.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Good. Hold that.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "The edges sharpened. The name returned. But something else — something small and unnamed — slipped away in its place."}
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Stop.",
+        "portrait": "elia_concern",
+        "cg": "res://assets/cg/game_image/sheet_elia_healing.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "You just called me 'Elise.' Three times.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I... no, I said Elia. I'm sure I—",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The forest is working on you. Hold still.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "She took his hands again. The anchoring was harder here — like trying to hold a page flat in a gale."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Think of something real. Something that happened.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...warm hands on cold palms.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Good. Hold that.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "The edges sharpened. The name returned. But something else — something small and unnamed — slipped away in its place."
+      }
     ],
     "forest_whispers": [
-      {"speaker": "", "text": "The deeper they went, the louder the forest became. Not sound — pressure. Like the air was trying to speak."},
-      {"speaker": "Sable", "text": "It's getting denser. We're approaching the inner rings.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "My pen stopped working three trees ago. I'm writing with charcoal now.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "Something whispered Arrel's name. Not from a direction — from inside his own memory of hearing his name."},
-      {"speaker": "Arrel", "text": "I heard—", "portrait": "arrel_pain"},
-      {"speaker": "Sable", "text": "Don't. Don't finish that sentence. Whatever you heard, it wasn't real.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "The forest uses your own memories as bait. It plays back what you expect to hear.", "portrait": "sable_neutral"},
-      {"speaker": "Elia", "text": "Then how do we know any of us are real right now?", "portrait": "elia_concern"},
-      {"speaker": "Sable", "text": "You don't. That's why you keep walking.", "portrait": "sable_calm"}
+      {
+        "speaker": "",
+        "text": "The deeper they went, the louder the forest became. Not sound — pressure. Like the air was trying to speak."
+      },
+      {
+        "speaker": "Sable",
+        "text": "It's getting denser. We're approaching the inner rings.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "My pen stopped working three trees ago. I'm writing with charcoal now.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Something whispered Arrel's name. Not from a direction — from inside his own memory of hearing his name."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I heard—",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Don't. Don't finish that sentence. Whatever you heard, it wasn't real.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "The forest uses your own memories as bait. It plays back what you expect to hear.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Then how do we know any of us are real right now?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Sable",
+        "text": "You don't. That's why you keep walking.",
+        "portrait": "sable_calm"
+      }
     ],
     "clearing_rest": [
-      {"speaker": "", "text": "A clearing. The trees pulled back as if repelled by something in the soil. In the center, a cairn of white stones."},
-      {"speaker": "Tobias", "text": "Bureau markers. Standard expedition cairn — someone made it this deep and turned back.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "My team. We built this on the third expedition. It was as far as we got before—", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She stopped. For the first time, her composure cracked — just a fissure, quickly sealed."},
-      {"speaker": "Sable", "text": "Rest here. The cairn creates a dead zone. The forest can't reach this spot.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "Why not?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Because these stones are from outside BL-07's range. They remember being stones. The forest doesn't know what to do with certainty.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "Fascinating. Memory-null objects as anchoring points. I need to document this.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "Use charcoal. Ink is dead here.", "portrait": "sable_neutral"}
+      {
+        "speaker": "",
+        "text": "A clearing. The trees pulled back as if repelled by something in the soil. In the center, a cairn of white stones."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Bureau markers. Standard expedition cairn — someone made it this deep and turned back.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "My team. We built this on the third expedition. It was as far as we got before—",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "She stopped. For the first time, her composure cracked — just a fissure, quickly sealed."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Rest here. The cairn creates a dead zone. The forest can't reach this spot.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Why not?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Because these stones are from outside BL-07's range. They remember being stones. The forest doesn't know what to do with certainty.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Fascinating. Memory-null objects as anchoring points. I need to document this.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Use charcoal. Ink is dead here.",
+        "portrait": "sable_neutral"
+      }
     ],
     "forest_departure": [
-      {"speaker": "Sable", "text": "Beyond the forest, the color drains. Completely.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Not gray — absence. The Waste is where even the memory of color was eaten.", "portrait": "sable_calm"},
-      {"speaker": "Tobias", "text": "The Bureau calls it the Achromatic Zone. No expedition has mapped it.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "How close are we to BL-07?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Half a day's walk. If we survive the Waste.", "portrait": "sable_neutral"},
-      {"speaker": "Elia", "text": "We will.", "portrait": "elia_determined"},
-      {"speaker": "", "text": "They left the cairn behind. The forest closed in one last time, then — abruptly — ended. Ahead: nothing with color."}
+      {
+        "speaker": "Sable",
+        "text": "Beyond the forest, the color drains. Completely.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Not gray — absence. The Waste is where even the memory of color was eaten.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The Bureau calls it the Achromatic Zone. No expedition has mapped it.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "How close are we to BL-07?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Half a day's walk. If we survive the Waste.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "We will.",
+        "portrait": "elia_determined"
+      },
+      {
+        "speaker": "",
+        "text": "They left the cairn behind. The forest closed in one last time, then — abruptly — ended. Ahead: nothing with color."
+      }
     ],
     "forest_atmosphere": [
-      {"speaker": "", "text": "The ground was soft. Not with moss — with something that used to be moss before it forgot what growing meant."},
-      {"speaker": "Tobias", "text": "The air composition here is abnormal. It smells like old paper.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Like a library left open in the rain.", "portrait": "elia_neutral"},
-      {"speaker": "Tobias", "text": "Precisely. Memory residue has a scent — oxidized narrative, if you will.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "Stop analyzing. Start moving.", "portrait": "sable_neutral"}
+      {
+        "speaker": "",
+        "text": "The ground was soft. Not with moss — with something that used to be moss before it forgot what growing meant."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The air composition here is abnormal. It smells like old paper.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Like a library left open in the rain.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Precisely. Memory residue has a scent — oxidized narrative, if you will.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Stop analyzing. Start moving.",
+        "portrait": "sable_neutral"
+      }
     ],
     "ghost_child": [
-      {"speaker": "", "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence.", "cg": "res://assets/cg/에코쉘.jpg"},
-      {"speaker": "Arrel", "text": "How old...", "portrait": "arrel_pain"},
-      {"speaker": "Sable", "text": "Don't. Age doesn't matter here. They're all the same age now — zero.", "portrait": "sable_neutral"},
-      {"speaker": "Elia", "text": "The Echo Shell is vibrating.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Arrel held it to his ear. A child's voice, clearer than the others: 'I had a dog. His name was— his name was—'"},
-      {"speaker": "", "text": "The sentence looped. The name was gone. Just the shape of having known it remained."},
-      {"speaker": "Arrel", "text": "...we have to seal BL-07. Whatever it takes.", "portrait": "arrel_neutral"}
+      {
+        "speaker": "",
+        "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence.",
+        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "How old...",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Don't. Age doesn't matter here. They're all the same age now — zero.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The Echo Shell is vibrating.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel held it to his ear. A child's voice, clearer than the others: 'I had a dog. His name was— his name was—'"
+      },
+      {
+        "speaker": "",
+        "text": "The sentence looped. The name was gone. Just the shape of having known it remained."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...we have to seal BL-07. Whatever it takes.",
+        "portrait": "arrel_neutral"
+      }
     ],
     "tobias_ring_theory": [
-      {"speaker": "Tobias", "text": "I've been mapping the rings. Each one corresponds to a consumption event — but the spacing isn't random.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "The intervals are decreasing. Ring one to ring two: eight years. Ring sixteen to seventeen: four months. It's accelerating.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "What does that mean for The Seam?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "It means BL-07 isn't growing steadily. It's growing like hunger — the more it eats, the faster it needs to eat again. My Ring Theory predicts total collapse within a year.", "portrait": "tobias_neutral"}
+      {
+        "speaker": "Tobias",
+        "text": "I've been mapping the rings. Each one corresponds to a consumption event — but the spacing isn't random.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The intervals are decreasing. Ring one to ring two: eight years. Ring sixteen to seventeen: four months. It's accelerating.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What does that mean for The Seam?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "It means BL-07 isn't growing steadily. It's growing like hunger — the more it eats, the faster it needs to eat again. My Ring Theory predicts total collapse within a year.",
+        "portrait": "tobias_neutral"
+      }
     ],
     "ghost_mother": [
-      {"speaker": "", "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over."},
-      {"speaker": "Elia", "text": "She's looking for someone. A child. You can see it in the way her arms are held — muscle memory outlasting everything else.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The ghost turned toward them. For one terrible moment, recognition flickered in her hollow eyes — then faded. She drifted back among the trees, still searching."}
+      {
+        "speaker": "",
+        "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over."
+      },
+      {
+        "speaker": "Elia",
+        "text": "She's looking for someone. A child. You can see it in the way her arms are held — muscle memory outlasting everything else.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The ghost turned toward them. For one terrible moment, recognition flickered in her hollow eyes — then faded. She drifted back among the trees, still searching."
+      }
     ],
     "forest_heart": [
-      {"speaker": "", "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing."},
-      {"speaker": "Tobias", "text": "We've reached it. The parasitic core. Every tree in this forest is connected to this point — a single organism feeding on memory residue.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "It's not just feeding. It's growing. Last time I was here, the core was half this size.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "Can it be destroyed?", "portrait": "arrel_determined"}
+      {
+        "speaker": "",
+        "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "We've reached it. The parasitic core. Every tree in this forest is connected to this point — a single organism feeding on memory residue.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "It's not just feeding. It's growing. Last time I was here, the core was half this size.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Can it be destroyed?",
+        "portrait": "arrel_determined"
+      }
     ],
     "arrel_flashback_elia": [
-      {"speaker": "", "text": "The forest whispers a memory you'd almost lost.", "cg": "res://assets/cg/flashback_elia_first.jpg"},
-      {"speaker": "", "text": "A girl standing in the rain. Translucent. Not quite real."},
-      {"speaker": "Elia", "text": "You can see me?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "That was the moment everything changed."}
+      {
+        "speaker": "",
+        "text": "The forest whispers a memory you'd almost lost.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "",
+        "text": "A girl standing in the rain. Translucent. Not quite real."
+      },
+      {
+        "speaker": "Elia",
+        "text": "You can see me?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "That was the moment everything changed."
+      }
     ]
   }
 }

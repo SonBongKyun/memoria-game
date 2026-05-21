@@ -302,7 +302,7 @@ func play_defeat_effect() -> void:
 
 ## Create/update particle overlays for active status effects on a sprite
 ## Call this from _on_status_changed
-func update_status_particles(target: String, sprite_container: Control, sprite_node: Control) -> void:
+func update_status_particles(target: String, sprite_container: Control, sprite_node: CanvasItem) -> void:
 	if not sprite_container or not sprite_node:
 		return
 
@@ -413,7 +413,7 @@ func _create_burn_particles(base_pos: Vector2, sprite_size: Vector2) -> GPUParti
 	particles.emitting = true
 	return particles
 
-func _create_weaken_overlay(sprite_container: Control, sprite_node: Control) -> Control:
+func _create_weaken_overlay(sprite_container: Control, sprite_node: CanvasItem) -> Control:
 	# Container for weaken visual
 	var overlay = Control.new()
 	overlay.z_index = 44

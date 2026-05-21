@@ -89,7 +89,11 @@ func _setup_placeholder_sprite() -> void:
 	# npc_name에 따라 다른 config 사용
 	if npc_name == "Sable":
 		config = PixelSprite.sable_config()
-	sprite.sprite_frames = PixelSprite.create_frames(config)
+		sprite.sprite_frames = PixelSprite.create_frames(config)
+		sprite.scale = Vector2.ONE
+	else:
+		sprite.sprite_frames = PixelSprite.create_sheet_frames("elia")
+		sprite.scale = Vector2(0.62, 0.62)
 	sprite.play("idle_down")
 
 ## 애니메이션 방향 업데이트

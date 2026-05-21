@@ -3,88 +3,355 @@
   "title": "Drift",
   "dialogues": {
     "drift_arrival": [
-      {"speaker": "", "text": "They found shelter in a collapsed overpass — a bridge that once spanned a river long since dried."},
-      {"speaker": "", "text": "Rain began to fall. Not water. Ash-colored drops that left gray streaks on skin."},
-      {"speaker": "Tobias", "text": "Memory rain. Residue from a combustion event somewhere upwind. Harmless, but unpleasant.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "We should rest here. Arrel, you've been walking unevenly for the last hour.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I'm fine.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "You're not fine. You forgot the name of the waystation ten minutes after we left it.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "...did I?", "portrait": "arrel_pain"}
+      {
+        "speaker": "",
+        "text": "They found shelter in a collapsed overpass — a bridge that once spanned a river long since dried."
+      },
+      {
+        "speaker": "",
+        "text": "Rain began to fall. Not water. Ash-colored drops that left gray streaks on skin."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Memory rain. Residue from a combustion event somewhere upwind. Harmless, but unpleasant.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "We should rest here. Arrel, you've been walking unevenly for the last hour.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I'm fine.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "You're not fine. You forgot the name of the waystation ten minutes after we left it.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...did I?",
+        "portrait": "arrel_pain"
+      }
     ],
     "reading_deterioration": [
-      {"speaker": "", "text": "Arrel opened the Blank Book. The letters on the first page swam and blurred."},
-      {"speaker": "Arrel", "text": "The words are moving.", "portrait": "arrel_pain"},
-      {"speaker": "Tobias", "text": "Let me see.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "Tobias took the book, examined it, then handed it back."},
-      {"speaker": "Tobias", "text": "The words aren't moving. Your ability to read them is... deteriorating.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "It's a known side effect of high-efficiency combustion. The brain prioritizes combat processing over literacy functions.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "He's losing the ability to read?", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "Temporarily. Probably. The Bureau documentation says 'temporary' but I've seen the footnotes.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "What do the footnotes say?", "portrait": "arrel_pain"},
-      {"speaker": "Tobias", "text": "'Duration varies. Recovery not guaranteed.'", "portrait": "tobias_neutral"}
+      {
+        "speaker": "",
+        "text": "Arrel opened the Blank Book. The letters on the first page swam and blurred."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The words are moving.",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Let me see.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Tobias took the book, examined it, then handed it back."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The words aren't moving. Your ability to read them is... deteriorating.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "It's a known side effect of high-efficiency combustion. The brain prioritizes combat processing over literacy functions.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "He's losing the ability to read?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Temporarily. Probably. The Bureau documentation says 'temporary' but I've seen the footnotes.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What do the footnotes say?",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "'Duration varies. Recovery not guaranteed.'",
+        "portrait": "tobias_neutral"
+      }
     ],
     "anchoring_session": [
-      {"speaker": "Elia", "text": "Arrel. Sit down. Give me your hands.", "portrait": "elia_neutral", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
-      {"speaker": "Arrel", "text": "What are you—", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Just sit.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She took his hands, palms up. Her fingers were warm against his wrists."},
-      {"speaker": "Elia", "text": "Close your eyes. Tell me something you remember. Not a big memory — something small.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "...I remember the smell of bread. From a shop I passed once. The door was open and the heat came out like a wall.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Good. Hold that. Feel the heat.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Something shifted. Like a loose page being pressed back into its binding."},
-      {"speaker": "Elia", "text": "That's an anchor point. A memory too small to burn, too real to forget. I'm tying it to the architecture.", "portrait": "elia_neutral"},
-      {"speaker": "Tobias", "text": "Remarkable. I've read about anchoring but never seen it performed. May I take notes?", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Quietly.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The world steadied. The letters in the Blank Book stopped swimming. For now."}
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Sit down. Give me your hands.",
+        "portrait": "elia_neutral",
+        "cg": "res://assets/cg/game_image/sheet_elia_healing.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What are you—",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Just sit.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "She took his hands, palms up. Her fingers were warm against his wrists."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Close your eyes. Tell me something you remember. Not a big memory — something small.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...I remember the smell of bread. From a shop I passed once. The door was open and the heat came out like a wall.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Good. Hold that. Feel the heat.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Something shifted. Like a loose page being pressed back into its binding."
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's an anchor point. A memory too small to burn, too real to forget. I'm tying it to the architecture.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Remarkable. I've read about anchoring but never seen it performed. May I take notes?",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Quietly.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The world steadied. The letters in the Blank Book stopped swimming. For now."
+      }
     ],
     "tobias_explains_classification": [
-      {"speaker": "Tobias", "text": "Since we have time — let me explain the classification system.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "The Bureau ranks Burners from Class One to Class Seven. Most never exceed Class Three.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Class One: involuntary micro-burns. Forgetting where you put your keys. Everyone does it.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Class Three: directed combustion. You choose what to burn. Most licensed Burners operate here.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Class Five: cascade capability. You can burn multiple memories in sequence. The power scales exponentially.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Class Seven: total architecture access. You can burn memories you don't even know you have. The substructure opens.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "And what happens to a Class Seven?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Historically? They burn everything. Then they forget how to breathe.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "But that's just statistics. You have something they didn't.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "What?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "An anchor who doesn't charge by the hour.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "I said don't call me that.", "portrait": "elia_concern"}
+      {
+        "speaker": "Tobias",
+        "text": "Since we have time — let me explain the classification system.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The Bureau ranks Burners from Class One to Class Seven. Most never exceed Class Three.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Class One: involuntary micro-burns. Forgetting where you put your keys. Everyone does it.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Class Three: directed combustion. You choose what to burn. Most licensed Burners operate here.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Class Five: cascade capability. You can burn multiple memories in sequence. The power scales exponentially.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Class Seven: total architecture access. You can burn memories you don't even know you have. The substructure opens.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And what happens to a Class Seven?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Historically? They burn everything. Then they forget how to breathe.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "But that's just statistics. You have something they didn't.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "An anchor who doesn't charge by the hour.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I said don't call me that.",
+        "portrait": "elia_concern"
+      }
     ],
     "night_conversation": [
-      {"speaker": "", "text": "Night fell. Tobias snored softly by the fire. Elia sat with her back against the overpass wall.", "cg": "res://assets/cg/ch1_camp_moment.jpg"},
-      {"speaker": "Arrel", "text": "How long can you keep doing this? The anchoring.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "As long as you need me to.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "That's not an answer.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "It's the only one I have.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "They sat in silence for a while. The ash-rain had stopped, but the sky stayed gray."},
-      {"speaker": "Arrel", "text": "I'm starting to forget things I didn't burn. Small things. Names of streets. Faces.", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "I know.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "You noticed?", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "I've been counting. You've lost eleven micro-memories in the last two days. Involuntary burns.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "The architecture is destabilizing. Each intentional burn makes the walls thinner.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Then I stop burning.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Can you?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Arrel didn't answer. He wasn't sure he could."}
+      {
+        "speaker": "",
+        "text": "Night fell. Tobias snored softly by the fire. Elia sat with her back against the overpass wall.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "How long can you keep doing this? The anchoring.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "As long as you need me to.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "That's not an answer.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "It's the only one I have.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "They sat in silence for a while. The ash-rain had stopped, but the sky stayed gray."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I'm starting to forget things I didn't burn. Small things. Names of streets. Faces.",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I know.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You noticed?",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I've been counting. You've lost eleven micro-memories in the last two days. Involuntary burns.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The architecture is destabilizing. Each intentional burn makes the walls thinner.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Then I stop burning.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Can you?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel didn't answer. He wasn't sure he could."
+      }
     ],
     "drift_departure": [
-      {"speaker": "", "text": "Morning. The ash-rain left a thin gray layer on everything. Tobias was already writing in his journal."},
-      {"speaker": "Tobias", "text": "The coast is close. I can smell salt under the ash.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "How are your eyes?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Better. The letters are holding still.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "For now.", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "There's something you should know about the coast. The Bureau declared it unstable six months ago.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "The Voidline is eating the cliffs. Whole sections drop into the sea without warning.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "Is there another way?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Not if you want to reach The Seam before whoever is following us does.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "They packed up and moved north. The air grew colder. Salt began to creep into the ash."}
+      {
+        "speaker": "",
+        "text": "Morning. The ash-rain left a thin gray layer on everything. Tobias was already writing in his journal."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The coast is close. I can smell salt under the ash.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "How are your eyes?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Better. The letters are holding still.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "For now.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "There's something you should know about the coast. The Bureau declared it unstable six months ago.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The Voidline is eating the cliffs. Whole sections drop into the sea without warning.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Is there another way?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Not if you want to reach The Seam before whoever is following us does.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "They packed up and moved north. The air grew colder. Salt began to creep into the ash."
+      }
     ],
     "arrel_flashback_home": [
-      {"speaker": "", "text": "A fragment surfaces — unbidden, unwanted.", "cg": "res://assets/cg/flashback_home.jpg"},
-      {"speaker": "???", "text": "...the table was always set for three.", "portrait": "arrel_pain"},
-      {"speaker": "", "text": "Warmth. The smell of bread. A voice calling your name."},
-      {"speaker": "???", "text": "Come inside. It's getting cold."},
-      {"speaker": "", "text": "The image fractures. You can't remember whose voice that was."}
+      {
+        "speaker": "",
+        "text": "A fragment surfaces — unbidden, unwanted.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "???",
+        "text": "...the table was always set for three.",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "",
+        "text": "Warmth. The smell of bread. A voice calling your name."
+      },
+      {
+        "speaker": "???",
+        "text": "Come inside. It's getting cold."
+      },
+      {
+        "speaker": "",
+        "text": "The image fractures. You can't remember whose voice that was."
+      }
     ]
   }
 }

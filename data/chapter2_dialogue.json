@@ -3,22 +3,74 @@
   "title": "The Price",
   "dialogues": {
     "verdan_arrival": [
-      {"speaker": "", "text": "Verdan. The largest settlement in the Gray Belt.", "cg": "res://assets/cg/ch2_verdan5.jpg"},
-      {"speaker": "", "text": "The stench hit first — burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared."},
-      {"speaker": "", "text": "Arrel pulled his scarf higher. Elia did the same, though hers covered something more than anonymity."},
-      {"speaker": "Elia", "text": "The Sump. Underground. Follow me.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She moved through the crowd like water through cracks — never touching, never stopping, always finding the gap."}
+      {
+        "speaker": "",
+        "text": "Verdan. The largest settlement in the Gray Belt.",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+      },
+      {
+        "speaker": "",
+        "text": "The stench hit first — burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared."
+      },
+      {
+        "speaker": "",
+        "text": "Arrel pulled his scarf higher. Elia did the same, though hers covered something more than anonymity."
+      },
+      {
+        "speaker": "Elia",
+        "text": "The Sump. Underground. Follow me.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She moved through the crowd like water through cracks — never touching, never stopping, always finding the gap."
+      }
     ],
     "malet_encounter": [
-      {"speaker": "", "text": "The cellar was three levels below street. The air down here tasted like copper and old paper.", "cg": "res://assets/cg/ch2_sump_entrance.jpg"},
-      {"speaker": "", "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning."},
-      {"speaker": "", "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls."},
-      {"speaker": "", "text": "His eyes were wrong. Too vivid. Amber that caught light that wasn't there. High-grade Memory Ampoules."},
-      {"speaker": "Malet", "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.", "portrait": "malet_smirk", "cg": "res://assets/cg/ch2_sump_interior3.jpg"},
-      {"speaker": "Malet", "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it.", "portrait": "malet_smirk"},
-      {"speaker": "Arrel", "text": "I need a route to BL-07.", "portrait": "arrel_neutral"},
-      {"speaker": "Malet", "text": "Seventeen people have asked me that question. None of them came back whole.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "My price: the day you first held a sword.", "portrait": "malet_smirk", "cg": "res://assets/cg/item_extractor3.jpg"},
+      {
+        "speaker": "",
+        "text": "The cellar was three levels below street. The air down here tasted like copper and old paper.",
+        "cg": "res://assets/cg/game_image/malet_bureau_overlook.png"
+      },
+      {
+        "speaker": "",
+        "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning."
+      },
+      {
+        "speaker": "",
+        "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls."
+      },
+      {
+        "speaker": "",
+        "text": "His eyes were wrong. Too vivid. Amber that caught light that wasn't there. High-grade Memory Ampoules."
+      },
+      {
+        "speaker": "Malet",
+        "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.",
+        "portrait": "malet_amused",
+        "cg": "res://assets/cg/game_image/malet_bureau_overlook.png"
+      },
+      {
+        "speaker": "Malet",
+        "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it.",
+        "portrait": "malet_warning"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I need a route to BL-07.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Malet",
+        "text": "Seventeen people have asked me that question. None of them came back whole.",
+        "portrait": "malet_neutral"
+      },
+      {
+        "speaker": "Malet",
+        "text": "My price: the day you first held a sword.",
+        "portrait": "malet_price_revealed",
+        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+      },
       {
         "choices": [
           {
@@ -34,109 +86,376 @@
       }
     ],
     "malet_deal": [
-      {"speaker": "", "text": "The extractor was civilian-grade. Small. Clean. Almost gentle.", "cg": "res://assets/cg/ch2_extraction4.jpg"},
-      {"speaker": "", "text": "The memory surfaced as it was pulled: a courtyard, dust in afternoon light, a hand larger than his closing his fingers around a wooden grip."},
-      {"speaker": "", "text": "Absolute certainty that the person teaching him was the most important person in the world."},
-      {"speaker": "", "text": "Then it left. Silent as a drawer closing. And where it had been — nothing. A space shaped like significance, emptied of content."},
-      {"speaker": "Arrel", "text": "...", "portrait": "arrel_exhausted"}
+      {
+        "speaker": "",
+        "text": "The extractor was civilian-grade. Small. Clean. Almost gentle.",
+        "cg": "res://assets/cg/game_image/memory_crystal_choice.png"
+      },
+      {
+        "speaker": "",
+        "text": "The memory surfaced as it was pulled: a courtyard, dust in afternoon light, a hand larger than his closing his fingers around a wooden grip."
+      },
+      {
+        "speaker": "",
+        "text": "Absolute certainty that the person teaching him was the most important person in the world."
+      },
+      {
+        "speaker": "",
+        "text": "Then it left. Silent as a drawer closing. And where it had been — nothing. A space shaped like significance, emptied of content."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...",
+        "portrait": "arrel_exhausted"
+      }
     ],
     "malet_reward": [
-      {"speaker": "Malet", "text": "Three things. Listen carefully.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "Third — a warning.", "portrait": "malet_neutral"},
-      {"speaker": "", "text": "He paused. For the first time, something moved behind those amber eyes."},
-      {"speaker": "Malet", "text": "An Editor has been dispatched. Name: Kairos. Quiet. Methodical. You have four days before he closes the distance.", "portrait": "malet_neutral"},
-      {"speaker": "", "text": "Elia's hand tightened on her cup. Her knuckles went white.", "cg": "res://assets/cg/ch2_kairos_warning.jpg"},
-      {"speaker": "Elia", "text": "We need to leave. Now.", "portrait": "elia_concern"}
+      {
+        "speaker": "Malet",
+        "text": "Three things. Listen carefully.",
+        "portrait": "malet_calculating"
+      },
+      {
+        "speaker": "Malet",
+        "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes.",
+        "portrait": "malet_calculating"
+      },
+      {
+        "speaker": "Malet",
+        "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it.",
+        "portrait": "malet_calculating"
+      },
+      {
+        "speaker": "Malet",
+        "text": "Third — a warning.",
+        "portrait": "malet_warning"
+      },
+      {
+        "speaker": "",
+        "text": "He paused. For the first time, something moved behind those amber eyes."
+      },
+      {
+        "speaker": "Malet",
+        "text": "An Editor has been dispatched. Name: Kairos. Quiet. Methodical. You have four days before he closes the distance.",
+        "portrait": "malet_warning"
+      },
+      {
+        "speaker": "",
+        "text": "Elia's hand tightened on her cup. Her knuckles went white.",
+        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "We need to leave. Now.",
+        "portrait": "elia_concern"
+      }
     ],
     "malet_refused": [
-      {"speaker": "Malet", "text": "Then we have nothing to discuss. The door is behind you.", "portrait": "malet_smirk", "cg": "res://assets/cg/ch2_arrel_malet.jpg"},
-      {"speaker": "", "text": "His amber eyes didn't blink. The dismissal was absolute."},
-      {"speaker": "Elia", "text": "Arrel...", "portrait": "elia_concern"}
+      {
+        "speaker": "Malet",
+        "text": "Then we have nothing to discuss. The door is behind you.",
+        "portrait": "malet_disappointed",
+        "cg": "res://assets/cg/game_image/malet_bureau_overlook.png"
+      },
+      {
+        "speaker": "",
+        "text": "His amber eyes didn't blink. The dismissal was absolute."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel...",
+        "portrait": "elia_concern"
+      }
     ],
     "elia_ch2_talk": [
-      {"speaker": "Elia", "text": "Don't linger. People remember faces here, even if they can't remember why.", "portrait": "elia_neutral", "cg": "res://assets/cg/ch2_verdan6.jpg",
+      {
+        "speaker": "Elia",
+        "text": "Don't linger. People remember faces here, even if they can't remember why.",
+        "portrait": "elia_neutral",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png",
         "requires_memory": "daily_market_food",
-        "burned_text": "There was this market you mentioned once... You don't remember it at all, do you?"},
-      {"speaker": "Arrel", "text": "Ironic.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Not the kind of irony that's funny.", "portrait": "elia_concern",
+        "burned_text": "There was this market you mentioned once... You don't remember it at all, do you?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Ironic.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Not the kind of irony that's funny.",
+        "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",
-        "burned_text": "You said someone used to sing by the campfire. But you can't even recall the melody now."}
+        "burned_text": "You said someone used to sing by the campfire. But you can't even recall the melody now."
+      }
     ],
     "verdan_market_walk": [
-      {"speaker": "", "text": "The market sprawled like a wound that refused to close.", "cg": "res://assets/cg/ch2_verdan7.jpg"},
-      {"speaker": "", "text": "Stalls selling things that shouldn't exist — bottled laughter, crystallized grief, a child's first word trapped in resin and going for forty Grains."},
-      {"speaker": "Elia", "text": "Don't stare.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "They're selling memories.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Of course they are. What else is there to sell? Look around — there are no farms, no factories. The only currency that matters here is what you've lost.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "A woman at a nearby stall held up a vial of something golden. Her sign read: MOTHER'S LOVE — GRADE 3 — SLIGHTLY USED."},
-      {"speaker": "Arrel", "text": "Who buys someone else's mother?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Someone who burned their own.", "portrait": "elia_concern"}
+      {
+        "speaker": "",
+        "text": "The market sprawled like a wound that refused to close.",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+      },
+      {
+        "speaker": "",
+        "text": "Stalls selling things that shouldn't exist — bottled laughter, crystallized grief, a child's first word trapped in resin and going for forty Grains."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Don't stare.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "They're selling memories.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Of course they are. What else is there to sell? Look around — there are no farms, no factories. The only currency that matters here is what you've lost.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "A woman at a nearby stall held up a vial of something golden. Her sign read: MOTHER'S LOVE — GRADE 3 — SLIGHTLY USED."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Who buys someone else's mother?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Someone who burned their own.",
+        "portrait": "elia_concern"
+      }
     ],
     "verdan_old_burner": [
-      {"speaker": "", "text": "An old man sat on a crate near the market's edge, staring at nothing.", "cg": "res://assets/cg/ch2_verdan_overlook2.jpg"},
-      {"speaker": "", "text": "His face was placid. Smooth. Not peaceful — empty. Like a mask worn by someone who had forgotten what expressions were for."},
-      {"speaker": "Old Man", "text": "Excuse me. Could you... tell me what my name is?"},
-      {"speaker": "Arrel", "text": "I don't know your name.", "portrait": "arrel_neutral"},
-      {"speaker": "Old Man", "text": "That's alright. Neither do I. I've been asking people all morning. No one knows."},
-      {"speaker": "", "text": "He smiled. The smile didn't reach his eyes. It couldn't. There was nothing behind them for it to reach."},
-      {"speaker": "Old Man", "text": "I think I used to be important. I have this feeling — right here—"},
-      {"speaker": "", "text": "He pressed a hand to his chest."},
-      {"speaker": "Old Man", "text": "—like something should be there. Something heavy. But when I look, it's just ribs and air."},
-      {"speaker": "Elia", "text": "We should go.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Arrel looked at the old man. The old man looked back. Two mirrors facing each other, one just further along the same road."}
+      {
+        "speaker": "",
+        "text": "An old man sat on a crate near the market's edge, staring at nothing.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "",
+        "text": "His face was placid. Smooth. Not peaceful — empty. Like a mask worn by someone who had forgotten what expressions were for."
+      },
+      {
+        "speaker": "Old Man",
+        "text": "Excuse me. Could you... tell me what my name is?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I don't know your name.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Old Man",
+        "text": "That's alright. Neither do I. I've been asking people all morning. No one knows."
+      },
+      {
+        "speaker": "",
+        "text": "He smiled. The smile didn't reach his eyes. It couldn't. There was nothing behind them for it to reach."
+      },
+      {
+        "speaker": "Old Man",
+        "text": "I think I used to be important. I have this feeling — right here—"
+      },
+      {
+        "speaker": "",
+        "text": "He pressed a hand to his chest."
+      },
+      {
+        "speaker": "Old Man",
+        "text": "—like something should be there. Something heavy. But when I look, it's just ribs and air."
+      },
+      {
+        "speaker": "Elia",
+        "text": "We should go.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel looked at the old man. The old man looked back. Two mirrors facing each other, one just further along the same road."
+      }
     ],
     "malet_backstory": [
-      {"speaker": "", "text": "While they waited for Malet's contact to prepare the route documents, the broker poured something amber into two cups."},
-      {"speaker": "Malet", "text": "You're wondering about the eyes.", "portrait": "malet_smirk"},
-      {"speaker": "Arrel", "text": "Memory Ampoules. High grade.", "portrait": "arrel_neutral"},
-      {"speaker": "Malet", "text": "Seventeen different people's memories, layered over what's left of my own. I see through borrowed eyes. Literally.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "I was Authority once. Did you know that? Bureau of Memory Regulation, Division 3. I classified burns. Decided which memories were acceptable losses.", "portrait": "malet_neutral"},
-      {"speaker": "Arrel", "text": "What happened?", "portrait": "arrel_neutral"},
-      {"speaker": "Malet", "text": "I found a memory they didn't want classified. Grade 1. Institutional. The kind that, if people remembered it, would unmake the Bureau from the inside out.", "portrait": "malet_neutral"},
-      {"speaker": "Malet", "text": "So they burned ME. Everything I was. Twenty-three years of service, gone in four seconds.", "portrait": "malet_smirk"},
-      {"speaker": "Malet", "text": "I rebuilt myself from other people's fragments. Seventeen donors. Some willing, most not.", "portrait": "malet_neutral"},
-      {"speaker": "", "text": "He drained his cup in one motion."},
-      {"speaker": "Malet", "text": "So when I ask for your memory of a sword — understand that I know exactly what I'm taking. And I don't feel guilty about it.", "portrait": "malet_smirk"},
-      {"speaker": "", "text": "His amber eyes caught the lamplight. Seventeen people's stolen light, looking out through one man's face."}
+      {
+        "speaker": "",
+        "text": "While they waited for Malet's contact to prepare the route documents, the broker poured something amber into two cups."
+      },
+      {
+        "speaker": "Malet",
+        "text": "You're wondering about the eyes.",
+        "portrait": "malet_amused"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Memory Ampoules. High grade.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Malet",
+        "text": "Seventeen different people's memories, layered over what's left of my own. I see through borrowed eyes. Literally.",
+        "portrait": "malet_neutral"
+      },
+      {
+        "speaker": "Malet",
+        "text": "I was Authority once. Did you know that? Bureau of Memory Regulation, Division 3. I classified burns. Decided which memories were acceptable losses.",
+        "portrait": "malet_deal_accepted"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What happened?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Malet",
+        "text": "I found a memory they didn't want classified. Grade 1. Institutional. The kind that, if people remembered it, would unmake the Bureau from the inside out.",
+        "portrait": "malet_neutral"
+      },
+      {
+        "speaker": "Malet",
+        "text": "So they burned ME. Everything I was. Twenty-three years of service, gone in four seconds.",
+        "portrait": "malet_amused"
+      },
+      {
+        "speaker": "Malet",
+        "text": "I rebuilt myself from other people's fragments. Seventeen donors. Some willing, most not.",
+        "portrait": "malet_deal_accepted"
+      },
+      {
+        "speaker": "",
+        "text": "He drained his cup in one motion."
+      },
+      {
+        "speaker": "Malet",
+        "text": "So when I ask for your memory of a sword — understand that I know exactly what I'm taking. And I don't feel guilty about it.",
+        "portrait": "malet_amused"
+      },
+      {
+        "speaker": "",
+        "text": "His amber eyes caught the lamplight. Seventeen people's stolen light, looking out through one man's face."
+      }
     ],
     "elia_sump_concern": [
-      {"speaker": "Elia", "text": "Arrel. Before we go further.", "portrait": "elia_concern", "cg": "res://assets/cg/아렐과 엘리아2.jpg"},
-      {"speaker": "Arrel", "text": "What is it?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "If he asks for a Grade 2, you say no. If he asks for anything connected to me — to us — you walk away. Promise me.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "PROMISE me.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Her voice cracked on the last word. Not anger. Fear. The kind that comes from having watched someone dissolve one piece at a time."},
-      {"speaker": "Arrel", "text": "I promise.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Good. Because I'm your Anchor, Arrel. If you burn the memories of me, there's no one left to tell you what you've lost.", "portrait": "elia_neutral"}
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Before we go further.",
+        "portrait": "elia_concern",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What is it?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "If he asks for a Grade 2, you say no. If he asks for anything connected to me — to us — you walk away. Promise me.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Elia—",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "PROMISE me.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Her voice cracked on the last word. Not anger. Fear. The kind that comes from having watched someone dissolve one piece at a time."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I promise.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Good. Because I'm your Anchor, Arrel. If you burn the memories of me, there's no one left to tell you what you've lost.",
+        "portrait": "elia_neutral"
+      }
     ],
     "sump_atmosphere": [
-      {"speaker": "", "text": "The Sump breathed."},
-      {"speaker": "", "text": "Not literally — but the walls pulsed with a rhythm that made the torchlight dance. Underground water channels ran beneath the floor, carrying whispers from somewhere deeper."},
-      {"speaker": "", "text": "Alcoves lined the tunnel walls. In each one, someone waited. Buyers. Sellers. People whose faces you forgot the moment you looked away."},
-      {"speaker": "", "text": "A woman in an alcove held up a vial. Inside, something silver swam in slow circles."},
-      {"speaker": "", "text": "'First Kiss,' she mouthed. 'Cheap.'"},
-      {"speaker": "", "text": "Arrel kept walking. He didn't look back. Looking back was how you got lost down here — not in the tunnels, but in other people's pasts."}
+      {
+        "speaker": "",
+        "text": "The Sump breathed."
+      },
+      {
+        "speaker": "",
+        "text": "Not literally — but the walls pulsed with a rhythm that made the torchlight dance. Underground water channels ran beneath the floor, carrying whispers from somewhere deeper."
+      },
+      {
+        "speaker": "",
+        "text": "Alcoves lined the tunnel walls. In each one, someone waited. Buyers. Sellers. People whose faces you forgot the moment you looked away."
+      },
+      {
+        "speaker": "",
+        "text": "A woman in an alcove held up a vial. Inside, something silver swam in slow circles."
+      },
+      {
+        "speaker": "",
+        "text": "'First Kiss,' she mouthed. 'Cheap.'"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel kept walking. He didn't look back. Looking back was how you got lost down here — not in the tunnels, but in other people's pasts."
+      }
     ],
     "sq_sump_ledger_start": [
-      {"speaker": "", "text": "A man pressed against the alley wall, eyes darting between every shadow."},
-      {"speaker": "Nervous Trader", "text": "You. You're not Authority? No, you can't be — you smell like combustion."},
-      {"speaker": "Nervous Trader", "text": "Listen. There's a ledger. Hidden in the Sump. Names, transactions, memory trades that were never supposed to happen."},
-      {"speaker": "Nervous Trader", "text": "Find it. Bring it back to me. Or burn it. I don't care which — just don't let the Authority find it."}
+      {
+        "speaker": "",
+        "text": "A man pressed against the alley wall, eyes darting between every shadow."
+      },
+      {
+        "speaker": "Nervous Trader",
+        "text": "You. You're not Authority? No, you can't be — you smell like combustion."
+      },
+      {
+        "speaker": "Nervous Trader",
+        "text": "Listen. There's a ledger. Hidden in the Sump. Names, transactions, memory trades that were never supposed to happen."
+      },
+      {
+        "speaker": "Nervous Trader",
+        "text": "Find it. Bring it back to me. Or burn it. I don't care which — just don't let the Authority find it."
+      }
     ],
     "sq_sump_ledger_found": [
-      {"speaker": "", "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger."},
-      {"speaker": "", "text": "Pages of names and numbers. Each entry a memory sold, a price paid. Some names have been crossed out. Permanently."}
+      {
+        "speaker": "",
+        "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger."
+      },
+      {
+        "speaker": "",
+        "text": "Pages of names and numbers. Each entry a memory sold, a price paid. Some names have been crossed out. Permanently."
+      }
     ],
     "sq_sump_ledger_return": [
-      {"speaker": "Nervous Trader", "text": "You brought it back. Good. Good. Here — for your trouble."},
-      {"speaker": "", "text": "He snatched the ledger and disappeared into the crowd before you could respond."}
+      {
+        "speaker": "Nervous Trader",
+        "text": "You brought it back. Good. Good. Here — for your trouble."
+      },
+      {
+        "speaker": "",
+        "text": "He snatched the ledger and disappeared into the crowd before you could respond."
+      }
     ],
     "sq_sump_ledger_burn": [
-      {"speaker": "", "text": "The pages caught fire instantly, as if they wanted to burn."},
-      {"speaker": "", "text": "Names turned to ash. Debts dissolved. And something crystallized in the smoke — a memory that wasn't yours."},
-      {"speaker": "", "text": "But it is now."}
+      {
+        "speaker": "",
+        "text": "The pages caught fire instantly, as if they wanted to burn."
+      },
+      {
+        "speaker": "",
+        "text": "Names turned to ash. Debts dissolved. And something crystallized in the smoke — a memory that wasn't yours."
+      },
+      {
+        "speaker": "",
+        "text": "But it is now."
+      }
     ]
   }
 }

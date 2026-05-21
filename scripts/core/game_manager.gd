@@ -17,12 +17,12 @@ const NG_PLUS_FILE: String = "user://ng_plus.json"
 # --- S54: Ending Gallery — 본 엔딩 추적 ---
 var seen_endings: Array = []  # ["zero_burn", "preservation", ...]
 const ENDING_DATA: Dictionary = {
-	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/ending_zero_burn.jpg"},
-	"preservation": {"name": "Preservation", "desc": "He kept his name. The seal held.", "cg": "res://assets/cg/ending_preservation.jpg"},
-	"ash": {"name": "Ash", "desc": "What remains is not a man. Just ash, drifting.", "cg": "res://assets/cg/ending_ash.jpg"},
-	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/ending_seam.jpg"},
-	"tobias": {"name": "The Record Remains", "desc": "Tobias finished what he started. Every name accounted for.", "cg": "res://assets/cg/ending_tobias.jpg"},
-	"hollow": {"name": "Hollow", "desc": "A shape where a person used to be.", "cg": "res://assets/cg/ending_hollow.jpg"},
+	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/game_image/memory_loss_warning.png"},
+	"preservation": {"name": "Preservation", "desc": "He kept his name. The seal held.", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+	"ash": {"name": "Ash", "desc": "What remains is not a man. Just ash, drifting.", "cg": "res://assets/cg/game_image/sheet_arrel_memory_fading.png"},
+	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/game_image/sealed_city_ruins.png"},
+	"tobias": {"name": "The Record Remains", "desc": "Tobias finished what he started. Every name accounted for.", "cg": "res://assets/cg/game_image/tobias_memory_corridor.png"},
+	"hollow": {"name": "Hollow", "desc": "A shape where a person used to be.", "cg": "res://assets/cg/game_image/nera_void_cavern.png"},
 }
 const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
 

@@ -6,6 +6,7 @@ class_name PixelSprite
 
 const SIZE: int = 48
 const HALF: int = 24
+const SHEET_FRAME_ROOT: String = "res://assets/sprites/characters"
 
 ## SpriteFrames 생성 (4방향 idle + walk + S57: attack/hurt/death/cast)
 static func create_frames(config: Dictionary) -> SpriteFrames:
@@ -68,6 +69,51 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 		frames.remove_animation("default")
 
 	return frames
+
+static func create_sheet_frames(who: String) -> SpriteFrames:
+	var folder = "%s/%s_sheet" % [SHEET_FRAME_ROOT, who]
+	if not ResourceLoader.exists("%s/idle_01.png" % folder):
+		match who:
+			"arrel":
+				return create_frames(arrel_config())
+			"elia":
+				return create_frames(elia_config())
+			_:
+				return create_frames(arrel_config())
+
+	var frames = SpriteFrames.new()
+	_add_loaded_anim(frames, "idle_down", _frame_paths(folder, "idle", 4), 4.0, true)
+	_add_loaded_anim(frames, "idle_up", _frame_paths(folder, "idle", 4), 4.0, true)
+	_add_loaded_anim(frames, "idle_right", _frame_paths(folder, "idle", 4), 4.0, true)
+	_add_loaded_anim(frames, "idle_left", _frame_paths(folder, "idle", 4), 4.0, true)
+	_add_loaded_anim(frames, "walk_down", _frame_paths(folder, "move", 4), 8.0, true)
+	_add_loaded_anim(frames, "walk_up", _frame_paths(folder, "move", 4), 8.0, true)
+	_add_loaded_anim(frames, "walk_right", _frame_paths(folder, "move", 4), 8.0, true)
+	_add_loaded_anim(frames, "walk_left", _frame_paths(folder, "move_left", 4), 8.0, true)
+	_add_loaded_anim(frames, "attack_down", _frame_paths(folder, "attack", 6), 12.0, false)
+	_add_loaded_anim(frames, "attack_up", _frame_paths(folder, "attack", 6), 12.0, false)
+	_add_loaded_anim(frames, "attack_right", _frame_paths(folder, "attack", 6), 12.0, false)
+	_add_loaded_anim(frames, "attack_left", _frame_paths(folder, "attack_left", 6), 12.0, false)
+	_add_loaded_anim(frames, "hurt", _frame_paths(folder, "hurt", 2), 8.0, false)
+	_add_loaded_anim(frames, "death", _frame_paths(folder, "down", 2), 4.0, false)
+	_add_loaded_anim(frames, "cast", _frame_paths(folder, "cast", 4), 8.0, false)
+	if frames.has_animation("default"):
+		frames.remove_animation("default")
+	return frames
+
+static func _frame_paths(folder: String, prefix: String, count: int) -> Array[String]:
+	var paths: Array[String] = []
+	for i in range(1, count + 1):
+		paths.append("%s/%s_%02d.png" % [folder, prefix, i])
+	return paths
+
+static func _add_loaded_anim(frames: SpriteFrames, anim_name: String, paths: Array[String], speed: float, loop: bool) -> void:
+	frames.add_animation(anim_name)
+	frames.set_animation_speed(anim_name, speed)
+	frames.set_animation_loop(anim_name, loop)
+	for path in paths:
+		if ResourceLoader.exists(path):
+			frames.add_frame(anim_name, load(path))
 
 ## S57: Play animation helper — call from other systems
 ## Usage: PixelSprite.play_animation(animated_sprite, "attack_down")
@@ -996,6 +1042,11 @@ static func create_battle_sprite(who: String) -> ImageTexture:
 
 ## S57: 전투용 SpriteFrames 생성 (idle + attack + hurt + cast 애니메이션)
 static func create_battle_sprite_frames(who: String) -> SpriteFrames:
+	if who == "arrel" or who == "elia":
+		var sheet_frames = _create_sheet_battle_sprite_frames(who)
+		if sheet_frames:
+			return sheet_frames
+
 	var config: Dictionary
 	match who:
 		"arrel": config = arrel_config()
@@ -1040,6 +1091,19 @@ static func create_battle_sprite_frames(who: String) -> SpriteFrames:
 	var cast_img = _draw_battle_cast_frame(config, who)
 	frames.add_frame(cast_name, ImageTexture.create_from_image(cast_img))
 
+	if frames.has_animation("default"):
+		frames.remove_animation("default")
+	return frames
+
+static func _create_sheet_battle_sprite_frames(who: String) -> SpriteFrames:
+	var folder = "%s/%s_sheet" % [SHEET_FRAME_ROOT, who]
+	if not ResourceLoader.exists("%s/idle_01.png" % folder):
+		return null
+	var frames = SpriteFrames.new()
+	_add_loaded_anim(frames, "idle", _frame_paths(folder, "idle", 4), 4.0, true)
+	_add_loaded_anim(frames, "attack", _frame_paths(folder, "attack", 6), 12.0, false)
+	_add_loaded_anim(frames, "hurt", _frame_paths(folder, "hurt", 2), 8.0, false)
+	_add_loaded_anim(frames, "cast", _frame_paths(folder, "cast", 4), 8.0, false)
 	if frames.has_animation("default"):
 		frames.remove_animation("default")
 	return frames

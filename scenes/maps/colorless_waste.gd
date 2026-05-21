@@ -133,13 +133,14 @@ func _on_kairos_truth_ended() -> void:
 		GameManager.set_flag("ch9_kairos_battle", true)
 		# Kairos Boss Fight
 		var kairos = BattleManager.Enemy.new(
-			"Kairos, Authority Editor", 450, 38, true, true,
-			["void_pulse", "drain", "stun", "reflect", "charge", "despair"]
+			"Kairos, Authority Editor", 450, 38, true
 		)
+		kairos.is_boss = true
+		kairos.abilities = ["void_pulse", "drain", "stun", "reflect", "charge", "despair"]
 		kairos.weakness = "physical"
 		kairos.resistance = "void"
 		BattleManager.start_battle(kairos, "res://scenes/maps/colorless_waste.tscn",
-			"res://assets/cg/ch9_kairos_battle.jpg", "res://assets/cg/ch9_kairos_battle.jpg")
+			"res://assets/cg/game_image/kairos_sealed_city.png", "res://assets/cg/game_image/kairos_sealed_city.png")
 		BattleManager.battle_ended.connect(_on_kairos_battle_ended, CONNECT_ONE_SHOT)
 		SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 

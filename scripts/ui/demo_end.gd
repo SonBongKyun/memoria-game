@@ -18,8 +18,8 @@ func _build() -> void:
 	bg.set_anchors_preset(PRESET_FULL_RECT)
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	if ResourceLoader.exists("res://assets/cg/Cover2.png"):
-		bg.texture = load("res://assets/cg/Cover2.png")
+	if ResourceLoader.exists("res://assets/cg/game_image/game_start.png"):
+		bg.texture = load("res://assets/cg/game_image/game_start.png")
 	bg.modulate = Color(0.55, 0.5, 0.55, 1.0)
 	add_child(bg)
 

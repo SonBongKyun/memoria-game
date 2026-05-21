@@ -14,12 +14,16 @@ const TITLE_BGM_PATH: String = "res://assets/audio/bgm/title.mp3"
 
 var _bg: TextureRect
 var _shade: ColorRect
+var _vignette: TextureRect
+var _menu_backing: ColorRect
 var _version_label: Label
 var _menu_tween: Tween
+var _title_particles: Array[Control] = []
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_background()
+	_build_cinematic_overlays()
 	_setup_menu()
 	_build_version_label()
 	_fade_in_title()
@@ -48,6 +52,70 @@ func _build_background() -> void:
 	_shade.modulate.a = 0.0
 	add_child(_shade)
 	move_child(_shade, 1)
+
+func _build_cinematic_overlays() -> void:
+	_vignette = TextureRect.new()
+	_vignette.set_anchors_preset(PRESET_FULL_RECT)
+	_vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	_vignette.mouse_filter = MOUSE_FILTER_IGNORE
+	_vignette.z_index = -1
+	_vignette.modulate.a = 0.0
+	var grad = Gradient.new()
+	grad.add_point(0.00, Color(0, 0, 0, 0.0))
+	grad.add_point(0.62, Color(0, 0, 0, 0.10))
+	grad.add_point(1.00, Color(0, 0, 0, 0.72))
+	var tex = GradientTexture2D.new()
+	tex.gradient = grad
+	tex.width = 512
+	tex.height = 512
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.50, 0.52)
+	tex.fill_to = Vector2(1.0, 0.52)
+	_vignette.texture = tex
+	add_child(_vignette)
+	move_child(_vignette, 2)
+
+	_menu_backing = ColorRect.new()
+	_menu_backing.anchor_left = 0.724
+	_menu_backing.anchor_top = 0.598
+	_menu_backing.anchor_right = 0.962
+	_menu_backing.anchor_bottom = 0.918
+	_menu_backing.color = Color(0.01, 0.012, 0.018, 0.18)
+	_menu_backing.mouse_filter = MOUSE_FILTER_IGNORE
+	_menu_backing.z_index = 0
+	_menu_backing.modulate.a = 0.0
+	add_child(_menu_backing)
+
+	_build_memory_dust()
+
+func _build_memory_dust() -> void:
+	var viewport_size = get_viewport_rect().size
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 7019
+	for i in range(28):
+		var mote = ColorRect.new()
+		mote.size = Vector2(rng.randf_range(1.0, 2.2), rng.randf_range(5.0, 12.0))
+		mote.position = Vector2(
+			rng.randf_range(viewport_size.x * 0.05, viewport_size.x * 0.95),
+			rng.randf_range(viewport_size.y * 0.08, viewport_size.y * 0.95)
+		)
+		mote.rotation = rng.randf_range(-0.7, 0.7)
+		mote.color = Color(0.86, 0.74, 0.48, rng.randf_range(0.10, 0.28))
+		mote.mouse_filter = MOUSE_FILTER_IGNORE
+		mote.z_index = 1
+		mote.modulate.a = 0.0
+		add_child(mote)
+		_title_particles.append(mote)
+		var tw = create_tween().set_loops()
+		tw.tween_interval(rng.randf_range(0.0, 1.8))
+		tw.tween_property(mote, "modulate:a", rng.randf_range(0.18, 0.42), rng.randf_range(0.9, 1.7))
+		tw.parallel().tween_property(mote, "position:y", mote.position.y - rng.randf_range(18.0, 52.0), rng.randf_range(4.5, 7.5)).set_trans(Tween.TRANS_SINE)
+		tw.parallel().tween_property(mote, "rotation", mote.rotation + rng.randf_range(-0.35, 0.35), rng.randf_range(4.5, 7.5)).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(mote, "modulate:a", 0.0, rng.randf_range(0.8, 1.4))
+		tw.tween_callback(func():
+			mote.position.y = viewport_size.y + rng.randf_range(10.0, 80.0)
+		)
 
 func _setup_menu() -> void:
 	# The image already contains the title and menu frame. These buttons sit on top
@@ -157,6 +225,8 @@ func _fade_in_title() -> void:
 	_menu_tween.set_parallel(true)
 	_menu_tween.tween_property(_bg, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
 	_menu_tween.tween_property(_shade, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
+	_menu_tween.tween_property(_vignette, "modulate:a", 1.0, 1.0).set_ease(Tween.EASE_OUT)
+	_menu_tween.tween_property(_menu_backing, "modulate:a", 1.0, 0.9).set_delay(0.15).set_ease(Tween.EASE_OUT)
 	_menu_tween.tween_property(menu_container, "modulate:a", 1.0, 0.7).set_delay(0.25).set_ease(Tween.EASE_OUT)
 	_menu_tween.tween_property(_version_label, "modulate:a", 1.0, 0.7).set_delay(0.35).set_ease(Tween.EASE_OUT)
 

@@ -353,7 +353,8 @@ func _update_interact_indicator(delta: float) -> void:
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprites() -> void:
-	sprite.sprite_frames = PixelSprite.create_frames(PixelSprite.arrel_config())
+	sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
+	sprite.scale = Vector2(0.62, 0.62)
 
 ## 애니메이션 업데이트
 func _update_animation(direction: Vector2, is_moving: bool) -> void:

@@ -3,22 +3,79 @@
   "title": "Chapter 1 — After the Forest",
   "chapter": 1,
   "steps": [
-    {"cg": "res://assets/cg/game_image/env_wasteland_city.png", "fade": 1.5, "narrate": "The forest thinned. The air cleared — or rather, it replaced one kind of thickness with another."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "You fought through that without burning anything else."},
-    {"speaker": "Arrel", "portrait": "arrel_exhausted", "side": "left", "text": "I know."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "You're keeping count."},
-    {"speaker": "Arrel", "portrait": "arrel_cold", "side": "left", "text": "I always keep count."},
-
-    {"cg": "ch1_green_tree", "fade": 1.8, "narrate": "A single tree, still green, stood at the edge of the clearing like a joke the world had forgotten to finish."},
-    {"narrate": "Elia stopped. Her hand went to the bark, fingers spread against the living wood as if checking whether it would answer."},
-    {"speaker": "Elia", "portrait": "elia_hopeful", "side": "right", "text": "It's still warm."},
-    {"speaker": "Arrel", "portrait": "arrel_pensive", "side": "left", "text": "It won't be, by winter."},
-    {"speaker": "Elia", "portrait": "elia_sad", "side": "right", "text": "No. It won't."},
-
-    {"cg": "res://assets/cg/game_image/env_bureau_spires.png", "fade": 2.0, "narrate": "Beyond the treeline, far to the south, the Bureau's tower scraped at the clouds like a finger pointing out an accusation."},
-    {"narrate": "That was where the answers were. That was where he would have to go."},
-    {"narrate": "But first — the Belt. And the man who might know whether his brother was still alive."},
-
-    {"set_flag": "ch1_complete", "set_chapter": 2, "complete_chapter": 1, "autosave_chapter_transition": true, "action": "goto_scene", "id": "ch2_market_arrival"}
+    {
+      "cg": "res://assets/cg/game_image/env_wasteland_city.png",
+      "fade": 1.5,
+      "narrate": "The forest thinned. The air cleared — or rather, it replaced one kind of thickness with another."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "You fought through that without burning anything else."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_exhausted",
+      "side": "left",
+      "text": "I know."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "You're keeping count."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "I always keep count."
+    },
+    {
+      "cg": "ch1_green_tree",
+      "fade": 1.8,
+      "narrate": "A single tree, still green, stood at the edge of the clearing like a joke the world had forgotten to finish."
+    },
+    {
+      "narrate": "Elia stopped. Her hand went to the bark, fingers spread against the living wood as if checking whether it would answer."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_hopeful",
+      "side": "right",
+      "text": "It's still warm."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "It won't be, by winter."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "No. It won't."
+    },
+    {
+      "cg": "res://assets/cg/game_image/sealed_city_ruins.png",
+      "fade": 2.0,
+      "narrate": "Beyond the treeline, far to the south, the Bureau's tower scraped at the clouds like a finger pointing out an accusation."
+    },
+    {
+      "narrate": "That was where the answers were. That was where he would have to go."
+    },
+    {
+      "narrate": "But first — the Belt. And the man who might know whether his brother was still alive."
+    },
+    {
+      "set_flag": "ch1_complete",
+      "set_chapter": 2,
+      "complete_chapter": 1,
+      "autosave_chapter_transition": true,
+      "action": "goto_scene",
+      "id": "ch2_market_arrival"
+    }
   ]
 }

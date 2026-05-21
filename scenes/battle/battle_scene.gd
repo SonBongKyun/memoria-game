@@ -40,9 +40,9 @@ var limit_label: Label
 var limit_btn: Button
 
 # S44: 사이드뷰 캐릭터 스프라이트
-var player_sprite: Control  # 아렐 스프라이트
+var player_sprite: CanvasItem  # 아렐 스프라이트
 var player_sprite_container: Control  # 아이들 모션용
-var ally_sprite: Control  # 동행자 스프라이트 (엘리아/세이블)
+var ally_sprite: CanvasItem  # 동행자 스프라이트 (엘리아/세이블)
 var ally_sprite_container: Control
 var _player_base_pos: Vector2 = Vector2.ZERO  # 돌진 복귀용
 var _enemy_base_pos: Vector2 = Vector2.ZERO
@@ -814,28 +814,14 @@ func _build_player_sprite(root: Control) -> void:
 	player_shadow.color = Color(0, 0, 0, 0.3)
 	player_sprite_container.add_child(player_shadow)
 
-	# 포트레이트 이미지가 있으면 사용, 없으면 128x128 픽셀 스프라이트
-	var portrait_path = "res://assets/portraits/arrel_neutral.jpg"
-	if ResourceLoader.exists(portrait_path):
-		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(10, 0)
-		tex_rect.size = Vector2(180, 180)
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = load(portrait_path)
-		tex_rect.modulate = Color(1, 1, 1, 0.92)
-		player_sprite_container.add_child(tex_rect)
-		player_sprite = tex_rect
-	else:
-		# S57: Use AnimatedSprite2D with battle sprite frames for animation support
-		var anim_sprite = AnimatedSprite2D.new()
-		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
-		anim_sprite.play("idle")
-		anim_sprite.position = Vector2(100, 85)
-		anim_sprite.scale = Vector2(1.25, 1.25)
-		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		player_sprite_container.add_child(anim_sprite)
-		player_sprite = anim_sprite
+	var anim_sprite = AnimatedSprite2D.new()
+	anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
+	anim_sprite.play("idle")
+	anim_sprite.position = Vector2(100, 95)
+	anim_sprite.scale = Vector2(1.15, 1.15)
+	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	player_sprite_container.add_child(anim_sprite)
+	player_sprite = anim_sprite
 
 	# 발밑 광원 (은은한 파란 빛)
 	var glow = ColorRect.new()
@@ -869,9 +855,18 @@ func _build_ally_sprite(root: Control) -> void:
 	ally_sprite_container.add_child(ally_shadow)
 
 	# 동행자 포트레이트 체크
-	var portrait_map = {"elia": "res://assets/portraits/elia_neutral.jpg", "sable": "res://assets/portraits/sable_neutral.jpg"}
+	var portrait_map = {"elia": "res://assets/portraits/elia_sheet_neutral.png", "sable": "res://assets/portraits/sable_neutral.jpg"}
 	var p_path = portrait_map.get(who, "")
-	if p_path != "" and ResourceLoader.exists(p_path):
+	if who == "elia":
+		var anim_sprite = AnimatedSprite2D.new()
+		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("elia")
+		anim_sprite.play("idle")
+		anim_sprite.position = Vector2(80, 78)
+		anim_sprite.scale = Vector2(0.95, 0.95)
+		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		ally_sprite_container.add_child(anim_sprite)
+		ally_sprite = anim_sprite
+	elif p_path != "" and ResourceLoader.exists(p_path):
 		var tex_rect = TextureRect.new()
 		tex_rect.position = Vector2(15, 5)
 		tex_rect.size = Vector2(130, 140)
@@ -994,7 +989,7 @@ func _build_player_panel(root: Control) -> void:
 	panel.add_child(hbox)
 
 	# S44: 미니 포트레이트 (HP 옆)
-	var portrait_path = "res://assets/portraits/arrel_neutral.jpg"
+	var portrait_path = "res://assets/portraits/arrel_sheet_neutral.png"
 	if ResourceLoader.exists(portrait_path):
 		player_portrait_rect = TextureRect.new()
 		player_portrait_rect.custom_minimum_size = Vector2(52, 52)

@@ -2,75 +2,232 @@
   "id": "ch1_prologue",
   "title": "Chapter 1 — Ash",
   "chapter": 1,
-  "bgm": "res://assets/audio/bgm/rim_ambient.ogg",
+  "bgm": "res://assets/audio/bgm/ch1_forest.mp3",
   "steps": [
-    {"cg": "ch1_twisted_forest", "fade": 1.5, "narrate": "The beast was dead."},
-    {"cg": "res://assets/cg/game_image/arrel_fullbody.png", "fade": 1.2, "narrate": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."},
-    {"narrate": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
-    {"cg": "arrel_combat2", "narrate": "He watched his own hand for a long moment before he recognized it."},
-    {"system_log": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"},
-
-    {"cg": "ch1_ash_walk", "fade": 1.4, "speaker": "Elia", "portrait": "elia_wind", "side": "right", "text": "Arrel."},
-    {"narrate": "Her voice, close. He hadn't heard her approach."},
-    {"narrate": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "How bad?"},
-    {"speaker": "Arrel", "portrait": "arrel_default2", "side": "left", "text": "One burn. Grade three, maybe. Nothing I'll miss."},
-    {"narrate": "That was probably true. That was probably a lie."},
-    {"narrate": "The problem with burning memories was that you could never be sure which it was."},
-
-    {"cg": "ch1_ash_rain2", "fade": 1.3, "narrate": "Something touched his face."},
-    {"narrate": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."},
-    {"narrate": "Ash Rain."},
-    {"narrate": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."},
-    {"speaker": "Arrel", "portrait": "arrel_cold", "side": "left", "text": "Someone else's sorrow. Not mine. Not anymore."},
-    {"speaker": "Elia", "portrait": "elia_neutral", "side": "right", "text": "We should move. The rain will get thicker after dark."},
-
-    {"cg": "ch1_ash_rain3", "fade": 1.2, "narrate": "The ash thickened. Between the trees, something moved in the gray — too many limbs, too little shape."},
-    {"speaker": "Arrel", "portrait": "arrel_determined", "side": "left", "text": "They can smell warmth. Heat. Living things."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "We can't outrun them. Not at this pace."},
-    {"narrate": "A memory surfaced, unbidden. A song his mother used to hum by a campfire. Warm. Specific. His."},
-    {"narrate": "He could burn it. Let the warmth of it spread into the ash and confuse the things that tracked him."},
-
-    {"choice": [
-      {"text": "The song for passage.", "cost_memory": "daily_campfire_song", "set_flag": "burned_for_passage"},
-      {"text": "Hold on to it. Find another way.", "set_flag": "refused_to_burn"}
-    ]},
-
-    {"cg": "ch1_campfire", "fade": 1.6, "narrate": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth."},
-    {"narrate": "His hand was still shaking."},
-    {"narrate": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."},
-
-    {"choice": [
-      {"text": "Think about BL-07.", "set_flag": "thought_about_bl07"},
-      {"text": "Listen to Elia's humming.", "set_flag": "listened_to_humming", "requires_memory_intact": "daily_campfire_song"},
-      {"text": "Try to remember what you burned.", "set_flag": "tried_to_remember"}
-    ]},
-
-    {"speaker": "Elia", "portrait": "elia_calm", "side": "right", "text": "You're quiet tonight."},
-    {"speaker": "Arrel", "portrait": "arrel_pensive", "side": "left", "text": "I'm quiet every night."},
-    {"speaker": "Elia", "portrait": "elia_sad", "side": "right", "text": "Quieter than that."},
-
-    {"narrate": "After a while she began to hum. A low melody, threadbare at the edges.",
+    {
+      "cg": "res://assets/cg/game_image/chapter_sealed_zone.png",
+      "fade": 1.5,
+      "narrate": "The beast was dead."
+    },
+    {
+      "cg": "res://assets/cg/game_image/sheet_arrel_profile.png",
+      "fade": 1.2,
+      "narrate": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut."
+    },
+    {
+      "narrate": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."
+    },
+    {
+      "cg": "res://assets/cg/game_image/sheet_arrel_profile.png",
+      "narrate": "He watched his own hand for a long moment before he recognized it."
+    },
+    {
+      "system_log": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"
+    },
+    {
+      "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+      "fade": 1.4,
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "Arrel."
+    },
+    {
+      "narrate": "Her voice found him before her face did. Soft, close, and threaded with a fear she was trying not to spend."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_shocked",
+      "side": "left",
+      "text": "...Elia?"
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_gentle_smile",
+      "side": "right",
+      "text": "Good. You kept that much."
+    },
+    {
+      "narrate": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."
+    },
+    {
+      "narrate": "She did not step into the reach of the blade. She only lowered her lantern until the light caught the ash on his knuckles."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "How bad?"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_default2",
+      "side": "left",
+      "text": "One burn. Grade three, maybe. Nothing I'll miss."
+    },
+    {
+      "narrate": "That was probably true. That was probably a lie."
+    },
+    {
+      "narrate": "The problem with burning memories was that you could never be sure which it was."
+    },
+    {
+      "cg": "res://assets/cg/game_image/memory_loss_warning.png",
+      "fade": 1.3,
+      "narrate": "Something touched his face."
+    },
+    {
+      "narrate": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."
+    },
+    {
+      "narrate": "Ash Rain."
+    },
+    {
+      "narrate": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Someone else's sorrow. Not mine. Not anymore."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_neutral",
+      "side": "right",
+      "text": "We should move. The rain will get thicker after dark."
+    },
+    {
+      "cg": "res://assets/cg/game_image/void_beast_confrontation.png",
+      "fade": 1.2,
+      "narrate": "The ash thickened. Between the trees, something moved in the gray — too many limbs, too little shape."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "They can smell warmth. Heat. Living things."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "We can't outrun them. Not at this pace."
+    },
+    {
+      "narrate": "A memory surfaced, unbidden. A song his mother used to hum by a campfire. Warm. Specific. His."
+    },
+    {
+      "narrate": "He could burn it. Let the warmth of it spread into the ash and confuse the things that tracked him."
+    },
+    {
+      "choice": [
+        {
+          "text": "The song for passage.",
+          "cost_memory": "daily_campfire_song",
+          "set_flag": "burned_for_passage"
+        },
+        {
+          "text": "Hold on to it. Find another way.",
+          "set_flag": "refused_to_burn"
+        }
+      ]
+    },
+    {
+      "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+      "fade": 1.6,
+      "narrate": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth."
+    },
+    {
+      "narrate": "His hand was still shaking."
+    },
+    {
+      "narrate": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."
+    },
+    {
+      "choice": [
+        {
+          "text": "Think about BL-07.",
+          "set_flag": "thought_about_bl07"
+        },
+        {
+          "text": "Listen to Elia's humming.",
+          "set_flag": "listened_to_humming",
+          "requires_memory_intact": "daily_campfire_song"
+        },
+        {
+          "text": "Try to remember what you burned.",
+          "set_flag": "tried_to_remember"
+        }
+      ]
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_calm",
+      "side": "right",
+      "text": "You're quiet tonight."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "I'm quiet every night."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "Quieter than that."
+    },
+    {
+      "narrate": "After a while she began to hum. A low melody, threadbare at the edges.",
       "distort_if_burned": "daily_campfire_song",
-      "distorted_narrate": "After a while she began to hum. He waited for the melody to mean something. It didn't."},
-
-    {"speaker": "Arrel", "portrait": "arrel_neutral", "side": "left", "text": "...I know that song.",
+      "distorted_narrate": "After a while she began to hum. He waited for the melody to mean something. It didn't."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_neutral",
+      "side": "left",
+      "text": "...I know that song.",
       "distort_if_burned": "daily_campfire_song",
       "distorted_text": "...Is that a song? It sounds like one. I can't tell.",
-      "distorted_portrait": "arrel_cold"},
-
-    {"speaker": "Elia", "portrait": "elia_hopeful", "side": "right", "text": "Your mother used to hum it. By the fire. You told me once.",
+      "distorted_portrait": "arrel_cold"
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_hopeful",
+      "side": "right",
+      "text": "Your mother used to hum it. By the fire. You told me once.",
       "distort_if_burned": "daily_campfire_song",
       "distorted_text": "...You used to know it.",
-      "distorted_portrait": "elia_sad"},
-
-    {"narrate": "He closed his eyes."},
-    {"narrate": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."},
-
-    {"cg": "ch1_ash_forest", "fade": 2.0, "narrate": "At dawn, the ash had thickened into a fine carpet over everything."},
-    {"speaker": "Elia", "portrait": "elia_determined", "side": "right", "text": "There's movement ahead. More of them. We can go around, or through."},
-    {"speaker": "Arrel", "portrait": "arrel_determined", "side": "left", "text": "Through. If we lose the trail now, we lose days."},
-
-    {"action": "goto_scene", "id": "ch1_forest_walk"}
+      "distorted_portrait": "elia_sad"
+    },
+    {
+      "narrate": "He closed his eyes."
+    },
+    {
+      "narrate": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."
+    },
+    {
+      "cg": "res://assets/cg/game_image/sealed_city_ruins.png",
+      "fade": 2.0,
+      "narrate": "At dawn, the ash had thickened into a fine carpet over everything."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "There's movement ahead. More of them. We can go around, or through."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "Through. If we lose the trail now, we lose days."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch1_forest_walk"
+    }
   ]
 }

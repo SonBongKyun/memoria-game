@@ -3,32 +3,101 @@
   "title": "Ash",
   "dialogues": {
     "opening_void_beast": [
-      {"speaker": "", "text": "The beast was dead.", "cg": "res://assets/cg/ch1_twisted_forest.jpg"},
-      {"speaker": "", "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.", "cg": "res://assets/cg/arrel_combat4.jpg"},
-      {"speaker": "", "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."},
-      {"speaker": "system_log", "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"}
+      {
+        "speaker": "",
+        "text": "The beast was dead.",
+        "cg": "res://assets/cg/game_image/void_beast_confrontation.png"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_profile.png"
+      },
+      {
+        "speaker": "",
+        "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."
+      },
+      {
+        "speaker": "system_log",
+        "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"
+      }
     ],
     "elia_appears": [
-      {"speaker": "Elia", "text": "Arrel.", "portrait": "elia_wind", "cg": "res://assets/cg/ch1_ash_walk.jpg"},
-      {"speaker": "", "text": "Her voice, close. He hadn't heard her approach."},
-      {"speaker": "", "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."},
-      {"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "One burn. Grade three, maybe. Nothing I'll miss.", "portrait": "arrel_default2"},
-      {"speaker": "", "text": "That was probably true. That was probably a lie."},
-      {"speaker": "", "text": "The problem with burning memories was that you could never be sure which it was."}
+      {
+        "speaker": "Elia",
+        "text": "Arrel.",
+        "portrait": "elia_wind",
+        "cg": "res://assets/cg/game_image/chapter_sealed_zone.png"
+      },
+      {
+        "speaker": "",
+        "text": "Her voice, close. He hadn't heard her approach."
+      },
+      {
+        "speaker": "",
+        "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."
+      },
+      {
+        "speaker": "Elia",
+        "text": "How bad?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "One burn. Grade three, maybe. Nothing I'll miss.",
+        "portrait": "arrel_default2"
+      },
+      {
+        "speaker": "",
+        "text": "That was probably true. That was probably a lie."
+      },
+      {
+        "speaker": "",
+        "text": "The problem with burning memories was that you could never be sure which it was."
+      }
     ],
     "ash_rain": [
-      {"speaker": "", "text": "Something touched his face.", "cg": "res://assets/cg/ch1_ash_rain2.jpg"},
-      {"speaker": "", "text": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."},
-      {"speaker": "", "text": "Ash Rain."},
-      {"speaker": "", "text": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."},
-      {"speaker": "", "text": "He brushed the dissolving flake from his cheek. Someone else's sorrow. Not his. Not anymore."},
-      {"speaker": "Elia", "text": "We should move. The rain will get thicker after dark.", "portrait": "elia_neutral"}
+      {
+        "speaker": "",
+        "text": "Something touched his face.",
+        "cg": "res://assets/cg/game_image/chapter_sealed_zone.png"
+      },
+      {
+        "speaker": "",
+        "text": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."
+      },
+      {
+        "speaker": "",
+        "text": "Ash Rain."
+      },
+      {
+        "speaker": "",
+        "text": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."
+      },
+      {
+        "speaker": "",
+        "text": "He brushed the dissolving flake from his cheek. Someone else's sorrow. Not his. Not anymore."
+      },
+      {
+        "speaker": "Elia",
+        "text": "We should move. The rain will get thicker after dark.",
+        "portrait": "elia_neutral"
+      }
     ],
     "camp_night": [
-      {"speaker": "", "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.", "cg": "res://assets/cg/ch1_campfire.jpg"},
-      {"speaker": "", "text": "His hand was still shaking."},
-      {"speaker": "", "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."},
+      {
+        "speaker": "",
+        "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "",
+        "text": "His hand was still shaking."
+      },
+      {
+        "speaker": "",
+        "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."
+      },
       {
         "choices": [
           {
@@ -46,102 +115,364 @@
           }
         ]
       },
-      {"speaker": "", "text": "The shaking stopped."},
-      {"speaker": "", "text": "Elia hummed low, a melody with no beginning and no end. It filled the space behind his eyes and made the gaps feel less sharp."},
-      {"speaker": "", "text": "He closed his eyes."},
-      {"speaker": "", "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."}
+      {
+        "speaker": "",
+        "text": "The shaking stopped."
+      },
+      {
+        "speaker": "",
+        "text": "Elia hummed low, a melody with no beginning and no end. It filled the space behind his eyes and made the gaps feel less sharp."
+      },
+      {
+        "speaker": "",
+        "text": "He closed his eyes."
+      },
+      {
+        "speaker": "",
+        "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."
+      }
     ],
     "elia_talk": [
-      {"speaker": "Elia", "text": "Stay close. The Rim gets worse at night.", "portrait": "elia_neutral", "cg": "res://assets/cg/ch1_elia_talk.jpg",
+      {
+        "speaker": "Elia",
+        "text": "Stay close. The Rim gets worse at night.",
+        "portrait": "elia_neutral",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png",
         "requires_memory": "sense_forest_smell",
-        "burned_text": "You seem... distant. Like you can't quite smell the rain anymore."},
-      {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?", "portrait": "elia_concern",
+        "burned_text": "You seem... distant. Like you can't quite smell the rain anymore."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I know.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?",
+        "portrait": "elia_concern",
         "requires_memory": "identity_first_sword",
-        "burned_text": "You used to talk about your training days. Now it's like those stories never happened."},
-      {"speaker": "", "text": "He didn't answer. She was right. She usually was."}
+        "burned_text": "You used to talk about your training days. Now it's like those stories never happened."
+      },
+      {
+        "speaker": "",
+        "text": "He didn't answer. She was right. She usually was."
+      }
     ],
     "hidden_stump": [
-      {"speaker": "", "text": "A tree stump, old enough that its rings had turned to stone.", "cg": "res://assets/cg/ch1_stump2.jpg"},
-      {"speaker": "", "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."},
-      {"speaker": "", "text": "His hand moved toward the carving before he could stop it."},
-      {"speaker": "Elia", "text": "Arrel?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "...Nothing. Just letters.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "But his fingers traced the grooves one more time before he pulled away."}
+      {
+        "speaker": "",
+        "text": "A tree stump, old enough that its rings had turned to stone.",
+        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+      },
+      {
+        "speaker": "",
+        "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."
+      },
+      {
+        "speaker": "",
+        "text": "His hand moved toward the carving before he could stop it."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...Nothing. Just letters.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "But his fingers traced the grooves one more time before he pulled away."
+      }
     ],
     "sq_echoes_ash_start": [
-      {"speaker": "", "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.", "cg": "res://assets/cg/ch1_arrel_ghost.jpg"},
-      {"speaker": "Ashen Figure", "text": "You... burn, don't you? I can smell it. The smoke of what you've lost."},
-      {"speaker": "Ashen Figure", "text": "I was like you once. But the fragments of what I was are scattered in this forest."},
-      {"speaker": "Ashen Figure", "text": "Two pieces. Find them. Bring them back. Maybe then I can remember my own name."},
-      {"speaker": "", "text": "The figure's edges blurred. It was already fading."}
+      {
+        "speaker": "",
+        "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_profile.png"
+      },
+      {
+        "speaker": "Ashen Figure",
+        "text": "You... burn, don't you? I can smell it. The smoke of what you've lost."
+      },
+      {
+        "speaker": "Ashen Figure",
+        "text": "I was like you once. But the fragments of what I was are scattered in this forest."
+      },
+      {
+        "speaker": "Ashen Figure",
+        "text": "Two pieces. Find them. Bring them back. Maybe then I can remember my own name."
+      },
+      {
+        "speaker": "",
+        "text": "The figure's edges blurred. It was already fading."
+      }
     ],
     "sq_echoes_ash_frag": [
-      {"speaker": "", "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch."},
-      {"speaker": "", "text": "It hums with someone else's past — a child's voice, counting."}
+      {
+        "speaker": "",
+        "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch."
+      },
+      {
+        "speaker": "",
+        "text": "It hums with someone else's past — a child's voice, counting."
+      }
     ],
     "elia_forest_walk": [
-      {"speaker": "", "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.", "cg": "res://assets/cg/아렐과 엘리아.jpg"},
-      {"speaker": "Elia", "text": "You're doing it again.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Doing what?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Touching your temple. You always do that after you burn.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He hadn't noticed. His fingers were pressed against the right side of his skull, tracing circles."},
-      {"speaker": "Arrel", "text": "Habit.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Habits are the last things to go. Did you know that? A man in Verdan burned everything down to Grade 1. Forgot his own children. But every morning he'd set two extra places at the table.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She said it casually, like weather. But her eyes stayed on his hands."},
-      {"speaker": "Arrel", "text": "I'm fine, Elia.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "That's what you said last time. And the time before that.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "One day 'fine' won't mean anything to you. And you won't even notice.", "portrait": "elia_concern"}
+      {
+        "speaker": "",
+        "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "You're doing it again.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Doing what?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Touching your temple. You always do that after you burn.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "He hadn't noticed. His fingers were pressed against the right side of his skull, tracing circles."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Habit.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Habits are the last things to go. Did you know that? A man in Verdan burned everything down to Grade 1. Forgot his own children. But every morning he'd set two extra places at the table.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She said it casually, like weather. But her eyes stayed on his hands."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I'm fine, Elia.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's what you said last time. And the time before that.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Elia",
+        "text": "One day 'fine' won't mean anything to you. And you won't even notice.",
+        "portrait": "elia_concern"
+      }
     ],
     "elia_memory_talk": [
-      {"speaker": "Elia", "text": "Can I ask you something?", "portrait": "elia_neutral", "cg": "res://assets/cg/elia3.jpg"},
-      {"speaker": "Arrel", "text": "You're going to anyway.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "What does it feel like? When you burn one.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He stopped walking."},
-      {"speaker": "Arrel", "text": "You know how you walk into a room and forget why you came? That. But the room is your entire life, and the door behind you is gone.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "...", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "It doesn't hurt. That's the worst part. If it hurt, you'd know what you lost. But it's just... smooth. Like the gap was always there.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "And the power?", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Like breathing fire. For about three seconds, you are the most dangerous thing in the world. Then the fire goes out, and you're a little less than you were.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She was quiet for a long time after that."}
+      {
+        "speaker": "Elia",
+        "text": "Can I ask you something?",
+        "portrait": "elia_neutral",
+        "cg": "res://assets/cg/game_image/sheet_elia_memory_restoration.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You're going to anyway.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "What does it feel like? When you burn one.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "He stopped walking."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You know how you walk into a room and forget why you came? That. But the room is your entire life, and the door behind you is gone.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "...",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "It doesn't hurt. That's the worst part. If it hurt, you'd know what you lost. But it's just... smooth. Like the gap was always there.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "And the power?",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Like breathing fire. For about three seconds, you are the most dangerous thing in the world. Then the fire goes out, and you're a little less than you were.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She was quiet for a long time after that."
+      }
     ],
     "elia_anchor_talk": [
-      {"speaker": "Elia", "text": "Arrel. Do you know what I am?", "portrait": "elia_neutral", "cg": "res://assets/cg/ch1_elia_tree.jpg"},
-      {"speaker": "Arrel", "text": "You're Elia.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I'm your Anchor. That's what the Bureau calls it. A living reference point — someone whose memories overlap with yours enough that when you burn, the gap doesn't collapse entirely.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "I know what an Anchor is.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Do you? Because three burns ago, you asked me the same question.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He had no way to know if that was true. That was the point."},
-      {"speaker": "Elia", "text": "I'm not trying to scare you. I just need you to understand — if you lose me, if you burn the memories of me, there's no safety net. You fall, and there's no one left who remembers where the ground used to be.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I won't burn you.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "You won't mean to.", "portrait": "elia_concern"}
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Do you know what I am?",
+        "portrait": "elia_neutral",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You're Elia.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I'm your Anchor. That's what the Bureau calls it. A living reference point — someone whose memories overlap with yours enough that when you burn, the gap doesn't collapse entirely.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I know what an Anchor is.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Do you? Because three burns ago, you asked me the same question.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "He had no way to know if that was true. That was the point."
+      },
+      {
+        "speaker": "Elia",
+        "text": "I'm not trying to scare you. I just need you to understand — if you lose me, if you burn the memories of me, there's no safety net. You fall, and there's no one left who remembers where the ground used to be.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I won't burn you.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "You won't mean to.",
+        "portrait": "elia_concern"
+      }
     ],
     "forest_shrine": [
-      {"speaker": "", "text": "Between the roots of a dead oak, someone had built a shrine.", "cg": "res://assets/cg/ch1_elia_flower.jpg"},
-      {"speaker": "", "text": "Stones stacked in careful pyramids. Strips of cloth tied to branches. And in the center, a glass bottle filled with something that caught the dim light like liquid amber."},
-      {"speaker": "Elia", "text": "A memory shrine. People leave them for the things they've burned. As if placing the container near the place it happened might bring the content back.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Does it work?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Never.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "But people keep building them.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The amber liquid caught the light once more. Then a flake of ash rain dissolved against the glass, and the glow faded."}
+      {
+        "speaker": "",
+        "text": "Between the roots of a dead oak, someone had built a shrine.",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "",
+        "text": "Stones stacked in careful pyramids. Strips of cloth tied to branches. And in the center, a glass bottle filled with something that caught the dim light like liquid amber."
+      },
+      {
+        "speaker": "Elia",
+        "text": "A memory shrine. People leave them for the things they've burned. As if placing the container near the place it happened might bring the content back.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Does it work?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Never.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "But people keep building them.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The amber liquid caught the light once more. Then a flake of ash rain dissolved against the glass, and the glow faded."
+      }
     ],
     "dead_burner": [
-      {"speaker": "", "text": "A body. Or what was left of one.", "cg": "res://assets/cg/ch1_ash_forest.jpg"},
-      {"speaker": "", "text": "It sat against a tree, arms at its sides, head tilted back as if watching something in the canopy that had long since moved on."},
-      {"speaker": "", "text": "There were no wounds. No signs of struggle. Just a person who had stopped."},
-      {"speaker": "Elia", "text": "Don't touch it.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Bureau equipment?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "A burner. Grade 1 burnout. They burned everything — every memory, every sense, every reason to keep breathing. And then they just... sat down.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The body's eyes were open. Clear. Empty. Like two windows in a house where no one lived."},
-      {"speaker": "Elia", "text": "This is what happens when there's nothing left to burn. Remember that.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "...I will.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "He meant it. He hoped he'd still mean it tomorrow."}
+      {
+        "speaker": "",
+        "text": "A body. Or what was left of one.",
+        "cg": "res://assets/cg/game_image/chapter_sealed_zone.png"
+      },
+      {
+        "speaker": "",
+        "text": "It sat against a tree, arms at its sides, head tilted back as if watching something in the canopy that had long since moved on."
+      },
+      {
+        "speaker": "",
+        "text": "There were no wounds. No signs of struggle. Just a person who had stopped."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Don't touch it.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Bureau equipment?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "A burner. Grade 1 burnout. They burned everything — every memory, every sense, every reason to keep breathing. And then they just... sat down.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The body's eyes were open. Clear. Empty. Like two windows in a house where no one lived."
+      },
+      {
+        "speaker": "Elia",
+        "text": "This is what happens when there's nothing left to burn. Remember that.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...I will.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "He meant it. He hoped he'd still mean it tomorrow."
+      }
     ],
     "sq_echoes_ash_complete": [
-      {"speaker": "Ashen Figure", "text": "You found them. Both of them."},
-      {"speaker": "", "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place."},
-      {"speaker": "Ashen Figure", "text": "I remember now. I was... counting. Always counting. Take this — it's mine, but I don't need it where I'm going."},
-      {"speaker": "", "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand."}
+      {
+        "speaker": "Ashen Figure",
+        "text": "You found them. Both of them."
+      },
+      {
+        "speaker": "",
+        "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place."
+      },
+      {
+        "speaker": "Ashen Figure",
+        "text": "I remember now. I was... counting. Always counting. Take this — it's mine, but I don't need it where I'm going."
+      },
+      {
+        "speaker": "",
+        "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand."
+      }
     ]
   }
 }

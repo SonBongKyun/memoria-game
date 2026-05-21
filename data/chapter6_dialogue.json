@@ -3,170 +3,650 @@
   "title": "Thread That Holds",
   "dialogues": {
     "seam_welcome": [
-      {"speaker": "", "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.", "cg": "res://assets/cg/village_seam3.jpg"},
-      {"speaker": "", "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist. Amber. Teal. A red so vivid it felt borrowed from a dream."},
-      {"speaker": "", "text": "People moved through the narrow streets. Not many, but enough. Enough to prove that survival was still possible."},
-      {"speaker": "Elia", "text": "It's real. I wasn't sure it would be.", "portrait": "elia_neutral"},
-      {"speaker": "Sable", "text": "It's real because we make it real. Every day. Come — there's food, and we need to talk.", "portrait": "sable_calm"}
+      {
+        "speaker": "",
+        "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "",
+        "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist. Amber. Teal. A red so vivid it felt borrowed from a dream."
+      },
+      {
+        "speaker": "",
+        "text": "People moved through the narrow streets. Not many, but enough. Enough to prove that survival was still possible."
+      },
+      {
+        "speaker": "Elia",
+        "text": "It's real. I wasn't sure it would be.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "It's real because we make it real. Every day. Come — there's food, and we need to talk.",
+        "portrait": "sable_calm"
+      }
     ],
     "seam_welcome_solo": [
-      {"speaker": "", "text": "The Seam opened before him like a wound that had healed wrong — but beautifully.", "cg": "res://assets/cg/village_seam2.jpg"},
-      {"speaker": "", "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist."},
-      {"speaker": "", "text": "He stood at the entrance. Alone. The silence where Elia's voice should have been was louder than any sound."},
-      {"speaker": "Sable", "text": "You're the one Malet sent. You came alone?", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "She's taking the coastal path. She'll be here.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "If she's smart, she will. Come inside.", "portrait": "sable_calm"}
+      {
+        "speaker": "",
+        "text": "The Seam opened before him like a wound that had healed wrong — but beautifully.",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+      },
+      {
+        "speaker": "",
+        "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist."
+      },
+      {
+        "speaker": "",
+        "text": "He stood at the entrance. Alone. The silence where Elia's voice should have been was louder than any sound."
+      },
+      {
+        "speaker": "Sable",
+        "text": "You're the one Malet sent. You came alone?",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "She's taking the coastal path. She'll be here.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "If she's smart, she will. Come inside.",
+        "portrait": "sable_calm"
+      }
     ],
     "sable_briefing": [
-      {"speaker": "", "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.", "cg": "res://assets/cg/ch4_sable_house.jpg"},
-      {"speaker": "Sable", "text": "Malet sent you because of what you can do. The burning.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "He sent me because I was useful.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Same thing. Listen — there's a Void Hole forming south of here. Designation BL-07.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "If it opens fully, The Seam won't survive. This canyon will become another dead zone.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "And you want me to burn something to close it.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "I want you to investigate it. What I need to know is whether it CAN be closed. Some can. Some... are past that.", "portrait": "sable_calm"},
-      {"speaker": "Elia", "text": "What happens if it can't be closed?", "portrait": "elia_concern"},
-      {"speaker": "Sable", "text": "Then we pack. We've done it before.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "Her voice was steady. The voice of someone who had lost homes before and expected to lose them again."},
-      {"speaker": "Sable", "text": "BL-07 is south, past the garden terraces. You'll know it when you feel the air go thin.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "A Shade Sentinel guards the entrance. It will need to be dealt with first."}
+      {
+        "speaker": "",
+        "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Malet sent you because of what you can do. The burning.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "He sent me because I was useful.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Same thing. Listen — there's a Void Hole forming south of here. Designation BL-07.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "If it opens fully, The Seam won't survive. This canyon will become another dead zone.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And you want me to burn something to close it.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "I want you to investigate it. What I need to know is whether it CAN be closed. Some can. Some... are past that.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Elia",
+        "text": "What happens if it can't be closed?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Then we pack. We've done it before.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Her voice was steady. The voice of someone who had lost homes before and expected to lose them again."
+      },
+      {
+        "speaker": "Sable",
+        "text": "BL-07 is south, past the garden terraces. You'll know it when you feel the air go thin.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "A Shade Sentinel guards the entrance. It will need to be dealt with first."
+      }
     ],
     "bl07_entrance": [
-      {"speaker": "", "text": "The air changed. Colors drained from the rock. The flowers stopped.", "cg": "res://assets/cg/ch5_void_entrance.jpg"},
-      {"speaker": "", "text": "Ahead — a tear in the world. Not large, but growing. The edges flickered between here and nowhere."},
-      {"speaker": "Elia", "text": "I can feel it pulling. Like something trying to remember how to forget.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Between them and the Void Hole, a shape coalesced. Dark. Wrong. A Shade Sentinel — the Void's immune response."},
-      {"speaker": "Arrel", "text": "Stay back.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "He drew his sword. The blade felt heavier than it should."}
+      {
+        "speaker": "",
+        "text": "The air changed. Colors drained from the rock. The flowers stopped.",
+        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+      },
+      {
+        "speaker": "",
+        "text": "Ahead — a tear in the world. Not large, but growing. The edges flickered between here and nowhere."
+      },
+      {
+        "speaker": "Elia",
+        "text": "I can feel it pulling. Like something trying to remember how to forget.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Between them and the Void Hole, a shape coalesced. Dark. Wrong. A Shade Sentinel — the Void's immune response."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Stay back.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "He drew his sword. The blade felt heavier than it should."
+      }
     ],
     "bl07_aftermath": [
-      {"speaker": "", "text": "The Sentinel dissolved. The Void Hole flickered, contracted — but didn't close."},
-      {"speaker": "Arrel", "text": "It's still there.", "portrait": "arrel_wounded"},
-      {"speaker": "Elia", "text": "But smaller. You hurt it.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Arrel looked at his hands. The burning had taken something. He couldn't remember what."},
-      {"speaker": "Sable", "text": "You're alive. That's more than the last team managed.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "The Hole responds to Grade 1 burns. We can seal it — but the cost will be significant.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "How significant?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "That depends on what you're willing to forget.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "The wind from the Void Hole carried no sound. Just absence. Just the promise of nothing."},
-      {"speaker": "", "text": "Chapter 4 — End. The investigation of BL-07 has begun."}
+      {
+        "speaker": "",
+        "text": "The Sentinel dissolved. The Void Hole flickered, contracted — but didn't close."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "It's still there.",
+        "portrait": "arrel_wounded"
+      },
+      {
+        "speaker": "Elia",
+        "text": "But smaller. You hurt it.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel looked at his hands. The burning had taken something. He couldn't remember what."
+      },
+      {
+        "speaker": "Sable",
+        "text": "You're alive. That's more than the last team managed.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Sable",
+        "text": "The Hole responds to Grade 1 burns. We can seal it — but the cost will be significant.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "How significant?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "That depends on what you're willing to forget.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "The wind from the Void Hole carried no sound. Just absence. Just the promise of nothing."
+      },
+      {
+        "speaker": "",
+        "text": "Chapter 4 — End. The investigation of BL-07 has begun."
+      }
     ],
     "sable_talk": [
-      {"speaker": "Sable", "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.", "portrait": "sable_neutral", "cg": "res://assets/cg/ch4_sable_porch.jpg",
+      {
+        "speaker": "Sable",
+        "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.",
+        "portrait": "sable_neutral",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png",
         "requires_memory": "identity_void_walker",
-        "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one."},
-      {"speaker": "Sable", "text": "Before that, Thornfield. Before that, somewhere I've chosen not to remember.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "Chosen?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Not everyone who forgets was forced to. Sometimes it's the only kindness left.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She turned back to her maps. The conversation was over."}
+        "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Before that, Thornfield. Before that, somewhere I've chosen not to remember.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Chosen?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Not everyone who forgets was forced to. Sometimes it's the only kindness left.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "She turned back to her maps. The conversation was over."
+      }
     ],
     "elia_seam_talk": [
-      {"speaker": "Elia", "text": "This place... it's different. The air doesn't taste like ash.", "portrait": "elia_mature", "cg": "res://assets/cg/ch4_elia_window.jpg"},
-      {"speaker": "Arrel", "text": "Sable's doing?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Maybe. Or maybe the world still has places it hasn't given up on.", "portrait": "elia_neutral",
+      {
+        "speaker": "Elia",
+        "text": "This place... it's different. The air doesn't taste like ash.",
+        "portrait": "elia_mature",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Sable's doing?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Maybe. Or maybe the world still has places it hasn't given up on.",
+        "portrait": "elia_neutral",
         "requires_memory": "rel_hand_reaching",
-        "burned_text": "How many have you burned now, Arrel? Sometimes I look at you and wonder how much is left."},
-      {"speaker": "Elia", "text": "The flowers in the gardens — have you noticed? They're all from different seasons. They shouldn't bloom at the same time.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Memory leakage?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Sable calls it 'bleed-through.' The Seam sits on a crack between what was and what is. Things... slip through.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She smiled. It was the first real smile he'd seen from her since Verdan."}
+        "burned_text": "How many have you burned now, Arrel? Sometimes I look at you and wonder how much is left."
+      },
+      {
+        "speaker": "Elia",
+        "text": "The flowers in the gardens — have you noticed? They're all from different seasons. They shouldn't bloom at the same time.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Memory leakage?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Sable calls it 'bleed-through.' The Seam sits on a crack between what was and what is. Things... slip through.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She smiled. It was the first real smile he'd seen from her since Verdan."
+      }
     ],
     "hidden_garden": [
-      {"speaker": "", "text": "He knelt beside a flower he didn't recognize.", "cg": "res://assets/cg/ch1_elia_flower.jpg"},
-      {"speaker": "", "text": "White petals, veined with gold. It was warm to the touch, as if remembering sunlight from somewhere that no longer existed."},
-      {"speaker": "", "text": "A fragment surfaced — not a memory, not quite. A sensation."},
-      {"speaker": "", "text": "Someone handing him a flower like this one. Small hands. A child's laugh."},
-      {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"},
-      {"speaker": "", "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after."}
+      {
+        "speaker": "",
+        "text": "He knelt beside a flower he didn't recognize.",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "",
+        "text": "White petals, veined with gold. It was warm to the touch, as if remembering sunlight from somewhere that no longer existed."
+      },
+      {
+        "speaker": "",
+        "text": "A fragment surfaced — not a memory, not quite. A sensation."
+      },
+      {
+        "speaker": "",
+        "text": "Someone handing him a flower like this one. Small hands. A child's laugh."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "",
+        "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after."
+      }
     ],
     "seam_evening": [
-      {"speaker": "", "text": "Evening fell over the Seam. The canyon walls caught the last light and held it — amber deepening to copper, then to the color of old blood.", "cg": "res://assets/cg/village_seam4.jpg"},
-      {"speaker": "", "text": "Someone was cooking. The smell of actual food — not rations, not preserved emergency supplies, but real vegetables in real broth — drifted through the narrow streets."},
-      {"speaker": "", "text": "Children ran between the buildings. Arrel counted three. Maybe four. It was the first time he'd seen children in weeks."},
-      {"speaker": "Elia", "text": "When's the last time you ate something you didn't have to fight for?", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "I don't remember.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "That's either very sad or very funny.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Can't it be both?", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She laughed. Quietly, as if she didn't want the sound to escape. But it did. And the children turned to look, surprised by the unfamiliar noise."},
-      {"speaker": "", "text": "Laughter. In a world that was forgetting how to have it."}
+      {
+        "speaker": "",
+        "text": "Evening fell over the Seam. The canyon walls caught the last light and held it — amber deepening to copper, then to the color of old blood.",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+      },
+      {
+        "speaker": "",
+        "text": "Someone was cooking. The smell of actual food — not rations, not preserved emergency supplies, but real vegetables in real broth — drifted through the narrow streets."
+      },
+      {
+        "speaker": "",
+        "text": "Children ran between the buildings. Arrel counted three. Maybe four. It was the first time he'd seen children in weeks."
+      },
+      {
+        "speaker": "Elia",
+        "text": "When's the last time you ate something you didn't have to fight for?",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I don't remember.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's either very sad or very funny.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Can't it be both?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She laughed. Quietly, as if she didn't want the sound to escape. But it did. And the children turned to look, surprised by the unfamiliar noise."
+      },
+      {
+        "speaker": "",
+        "text": "Laughter. In a world that was forgetting how to have it."
+      }
     ],
     "sable_past": [
-      {"speaker": "", "text": "He found Sable on the porch of her house, staring at maps she'd already memorized.", "cg": "res://assets/cg/ch4_sable_porch.jpg"},
-      {"speaker": "Arrel", "text": "You said you were from Ashbridge. What happened there?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Same thing that happens everywhere. A Void Hole opened. We fought it. We lost.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "But you survived.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Surviving and living are different things.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She was quiet for a while. The maps rustled in the evening wind."},
-      {"speaker": "Sable", "text": "I had a team. Seven people. All burners. All willing to sacrifice whatever it took.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "They burned everything. Grade 5 down to Grade 1. Names. Faces. The ability to feel fear. And for six months, the Hole stayed sealed.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Then it opened again. Wider. As if the burns had made it hungrier.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "What happened to the team?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Three walked into the Void voluntarily. They'd burned so much they forgot why they shouldn't. Two sat down and didn't get up. The other two...", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She folded a map. Precisely. Slowly."},
-      {"speaker": "Sable", "text": "I buried them. That's what leaders do. Bury their people and make plans for the next town.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "Is that why you haven't sent anyone into BL-07?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "I sent you, didn't I?", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "Her voice didn't break. It didn't need to. The steadiness was the crack."}
+      {
+        "speaker": "",
+        "text": "He found Sable on the porch of her house, staring at maps she'd already memorized.",
+        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You said you were from Ashbridge. What happened there?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Same thing that happens everywhere. A Void Hole opened. We fought it. We lost.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "But you survived.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Surviving and living are different things.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "She was quiet for a while. The maps rustled in the evening wind."
+      },
+      {
+        "speaker": "Sable",
+        "text": "I had a team. Seven people. All burners. All willing to sacrifice whatever it took.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "They burned everything. Grade 5 down to Grade 1. Names. Faces. The ability to feel fear. And for six months, the Hole stayed sealed.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Then it opened again. Wider. As if the burns had made it hungrier.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What happened to the team?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Three walked into the Void voluntarily. They'd burned so much they forgot why they shouldn't. Two sat down and didn't get up. The other two...",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "She folded a map. Precisely. Slowly."
+      },
+      {
+        "speaker": "Sable",
+        "text": "I buried them. That's what leaders do. Bury their people and make plans for the next town.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Is that why you haven't sent anyone into BL-07?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "I sent you, didn't I?",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Her voice didn't break. It didn't need to. The steadiness was the crack."
+      }
     ],
     "seam_residents": [
-      {"speaker": "", "text": "The Seam's residents watched Arrel with careful eyes."},
-      {"speaker": "", "text": "An old woman tending the garden waved him over. Her hands were dark with soil."},
-      {"speaker": "Gardener", "text": "You're the burner. Don't deny it — I can smell the smoke on you."},
-      {"speaker": "Arrel", "text": "Smoke?", "portrait": "arrel_neutral"},
-      {"speaker": "Gardener", "text": "Every burner carries it. The smell of things that used to be important. My husband burned three Grade 4 memories to keep us alive during the trek from Ashbridge."},
-      {"speaker": "Gardener", "text": "He can't remember our wedding now. Can't remember our daughter's name. But he remembers how to plant things. How to make things grow."},
-      {"speaker": "Gardener", "text": "I tell him our daughter's name every morning. He writes it on his hand. By evening, it's gone again. But the garden gets bigger every day."},
-      {"speaker": "", "text": "She turned back to her flowers. Impossible flowers, blooming in impossible seasons, tended by a man who couldn't remember who they were for."}
+      {
+        "speaker": "",
+        "text": "The Seam's residents watched Arrel with careful eyes."
+      },
+      {
+        "speaker": "",
+        "text": "An old woman tending the garden waved him over. Her hands were dark with soil."
+      },
+      {
+        "speaker": "Gardener",
+        "text": "You're the burner. Don't deny it — I can smell the smoke on you."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Smoke?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Gardener",
+        "text": "Every burner carries it. The smell of things that used to be important. My husband burned three Grade 4 memories to keep us alive during the trek from Ashbridge."
+      },
+      {
+        "speaker": "Gardener",
+        "text": "He can't remember our wedding now. Can't remember our daughter's name. But he remembers how to plant things. How to make things grow."
+      },
+      {
+        "speaker": "Gardener",
+        "text": "I tell him our daughter's name every morning. He writes it on his hand. By evening, it's gone again. But the garden gets bigger every day."
+      },
+      {
+        "speaker": "",
+        "text": "She turned back to her flowers. Impossible flowers, blooming in impossible seasons, tended by a man who couldn't remember who they were for."
+      }
     ],
     "elia_night_talk": [
-      {"speaker": "", "text": "He found Elia on the canyon rim, looking up at stars that were slowly going out.", "cg": "res://assets/cg/ch4_elia_window.jpg"},
-      {"speaker": "Elia", "text": "Can I tell you something selfish?", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Since when do you ask permission?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I don't want you to go into BL-07.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I know. I KNOW. The Seam needs it. Sable needs it. The world needs someone willing to burn. But I am so TIRED of watching you come back with less of yourself.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Her voice didn't rise. It dropped. The way things drop when they're too heavy to hold."},
-      {"speaker": "Elia", "text": "Every time you burn, I watch a piece of you go dark. Like a light switching off in a house I used to know. And I keep telling myself — 'this one doesn't matter, it's Grade 5, it's just a smell, it's just a taste.'", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "But they ALL mattered, Arrel. Every single one was a part of you that loved the world enough to notice it.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The stars were going out. One by one. Like the sky was forgetting them."},
-      {"speaker": "Arrel", "text": "If I don't go, the Seam dies. These people die. The children we saw running through the streets—", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I know.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Then what do you want me to do?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Come back. That's all. Whatever you burn in there — whatever you lose — just come back.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He didn't promise. They both knew promises were just another kind of memory, waiting to be broken."},
-      {"speaker": "", "text": "But he sat with her until the stars finished their forgetting, and that was enough."}
+      {
+        "speaker": "",
+        "text": "He found Elia on the canyon rim, looking up at stars that were slowly going out.",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Can I tell you something selfish?",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Since when do you ask permission?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I don't want you to go into BL-07.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Elia—",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I know. I KNOW. The Seam needs it. Sable needs it. The world needs someone willing to burn. But I am so TIRED of watching you come back with less of yourself.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Her voice didn't rise. It dropped. The way things drop when they're too heavy to hold."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Every time you burn, I watch a piece of you go dark. Like a light switching off in a house I used to know. And I keep telling myself — 'this one doesn't matter, it's Grade 5, it's just a smell, it's just a taste.'",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Elia",
+        "text": "But they ALL mattered, Arrel. Every single one was a part of you that loved the world enough to notice it.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The stars were going out. One by one. Like the sky was forgetting them."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "If I don't go, the Seam dies. These people die. The children we saw running through the streets—",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I know.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Then what do you want me to do?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Come back. That's all. Whatever you burn in there — whatever you lose — just come back.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "He didn't promise. They both knew promises were just another kind of memory, waiting to be broken."
+      },
+      {
+        "speaker": "",
+        "text": "But he sat with her until the stars finished their forgetting, and that was enough."
+      }
     ],
     "sable_preparation": [
-      {"speaker": "Sable", "text": "Tomorrow morning. BL-07.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Some tactical information. The inside is not a cave. It's the world's wound turned inside out. Space doesn't work. Direction is a suggestion.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "The creatures there are not protecting the Void. They ARE the Void. Concentrated absence wearing shapes that used to be something else.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "You've been inside.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Once. I lasted forty minutes. Burned a Grade 3 and a Grade 4 just to get back out.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "The core is at the center. You'll feel it — a pull, like gravity but wrong. Follow it, but don't let it lead. There's a difference.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "What's the difference?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Following means you choose. Leading means it chose for you. If you forget why you went in, you're already lost.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She handed him a small lantern. It flickered with a pale, steady light."},
-      {"speaker": "Sable", "text": "This won't illuminate anything. But it burns with a real flame. If you start losing yourself in there, look at the flame. It's real. Hold onto that.", "portrait": "sable_calm"}
+      {
+        "speaker": "Sable",
+        "text": "Tomorrow morning. BL-07.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I know.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Some tactical information. The inside is not a cave. It's the world's wound turned inside out. Space doesn't work. Direction is a suggestion.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "The creatures there are not protecting the Void. They ARE the Void. Concentrated absence wearing shapes that used to be something else.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You've been inside.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Once. I lasted forty minutes. Burned a Grade 3 and a Grade 4 just to get back out.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Sable",
+        "text": "The core is at the center. You'll feel it — a pull, like gravity but wrong. Follow it, but don't let it lead. There's a difference.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What's the difference?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Following means you choose. Leading means it chose for you. If you forget why you went in, you're already lost.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "She handed him a small lantern. It flickered with a pale, steady light."
+      },
+      {
+        "speaker": "Sable",
+        "text": "This won't illuminate anything. But it burns with a real flame. If you start losing yourself in there, look at the flame. It's real. Hold onto that.",
+        "portrait": "sable_calm"
+      }
     ],
     "sq_sable_vigil_start": [
-      {"speaker": "Sable", "text": "There's something else. A Void Watcher — not a beast, something more deliberate. It's been circling the rift entrance.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "I'd handle it myself, but I can't leave the defenses unmanned. You've proven you can fight these things.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "What's a Void Watcher?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "A sentinel. Smarter than the beasts. It watches, learns, reports back. If it stays, more will come.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Kill it. Come back alive. That's the whole mission.", "portrait": "sable_calm"}
+      {
+        "speaker": "Sable",
+        "text": "There's something else. A Void Watcher — not a beast, something more deliberate. It's been circling the rift entrance.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "I'd handle it myself, but I can't leave the defenses unmanned. You've proven you can fight these things.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What's a Void Watcher?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "A sentinel. Smarter than the beasts. It watches, learns, reports back. If it stays, more will come.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Kill it. Come back alive. That's the whole mission.",
+        "portrait": "sable_calm"
+      }
     ],
     "sq_sable_vigil_complete": [
-      {"speaker": "Sable", "text": "It's done? Good. The patrols will be easier for a while.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She reached into her coat and pulled out something — a small, cold object that pulsed with faint light."},
-      {"speaker": "Sable", "text": "I found this in the rubble of Ashbridge. It's mine, but... you'll make better use of it.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "A memory. Not yours, but offered freely. It carried the weight of an oath kept through years of loss."}
+      {
+        "speaker": "Sable",
+        "text": "It's done? Good. The patrols will be easier for a while.",
+        "portrait": "sable_calm"
+      },
+      {
+        "speaker": "",
+        "text": "She reached into her coat and pulled out something — a small, cold object that pulsed with faint light."
+      },
+      {
+        "speaker": "Sable",
+        "text": "I found this in the rubble of Ashbridge. It's mine, but... you'll make better use of it.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "A memory. Not yours, but offered freely. It carried the weight of an oath kept through years of loss."
+      }
     ],
     "arrel_flashback_loss": [
-      {"speaker": "", "text": "The memory bleeds through — a day you've tried to forget.", "cg": "res://assets/cg/flashback_loss.jpg"},
-      {"speaker": "", "text": "Ash falling. Screaming. A hand slipping from yours."},
-      {"speaker": "Arrel", "text": "I couldn't hold on.", "portrait": "arrel_pain"},
-      {"speaker": "", "text": "That's what started it. The burning. The first memory you chose to destroy."}
+      {
+        "speaker": "",
+        "text": "The memory bleeds through — a day you've tried to forget.",
+        "cg": "res://assets/cg/game_image/memory_loss_warning.png"
+      },
+      {
+        "speaker": "",
+        "text": "Ash falling. Screaming. A hand slipping from yours."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I couldn't hold on.",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "",
+        "text": "That's what started it. The burning. The first memory you chose to destroy."
+      }
     ]
   }
 }

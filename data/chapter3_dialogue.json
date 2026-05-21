@@ -3,88 +3,343 @@
   "title": "Weight of Pages",
   "dialogues": {
     "waystation_arrival": [
-      {"speaker": "", "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.", "cg": "res://assets/cg/wasteland.jpg"},
-      {"speaker": "", "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry."},
-      {"speaker": "Elia", "text": "This was a relay point. Traders used the Belt before the Voidline shifted.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Nobody uses it now?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Not since the soil went dead. Look—", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She pointed at a faded sign: BUREAU RELAY STATION 14 — AUTHORIZED PERSONNEL ONLY."},
-      {"speaker": "Arrel", "text": "Bureau built this?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "They built everything out here. And abandoned it when the cost exceeded the yield.", "portrait": "elia_neutral"}
+      {
+        "speaker": "",
+        "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "",
+        "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry."
+      },
+      {
+        "speaker": "Elia",
+        "text": "This was a relay point. Traders used the Belt before the Voidline shifted.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Nobody uses it now?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Not since the soil went dead. Look—",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "She pointed at a faded sign: BUREAU RELAY STATION 14 — AUTHORIZED PERSONNEL ONLY."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Bureau built this?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "They built everything out here. And abandoned it when the cost exceeded the yield.",
+        "portrait": "elia_neutral"
+      }
     ],
     "tobias_encounter": [
-      {"speaker": "", "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers."},
-      {"speaker": "Tobias", "text": "...seven-point-three Grains per unit, adjusted for residue decay... no, that can't be right—", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Hello?", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "The man startled, knocking a stack of bound journals to the floor."},
-      {"speaker": "Tobias", "text": "Oh! Travelers? On the Belt? That's — well, that's unusual. I'm Tobias. Tobias Crane.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "What are you doing out here alone?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Recording. I record things. Transactions, mostly. Memory transactions.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "The Bureau calls me a Recorder — Class C, if you care about rank. I document combustion events for the official ledger.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "A bureaucrat. Out here.", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "Voluntarily! Well... mostly voluntarily. The Belt waystation records haven't been updated in six months. Someone had to come.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Though I admit, the solitude has been... educational.", "portrait": "tobias_neutral"}
+      {
+        "speaker": "",
+        "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "...seven-point-three Grains per unit, adjusted for residue decay... no, that can't be right—",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Hello?",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "The man startled, knocking a stack of bound journals to the floor."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Oh! Travelers? On the Belt? That's — well, that's unusual. I'm Tobias. Tobias Crane.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What are you doing out here alone?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Recording. I record things. Transactions, mostly. Memory transactions.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The Bureau calls me a Recorder — Class C, if you care about rank. I document combustion events for the official ledger.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "A bureaucrat. Out here.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Voluntarily! Well... mostly voluntarily. The Belt waystation records haven't been updated in six months. Someone had to come.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Though I admit, the solitude has been... educational.",
+        "portrait": "tobias_neutral"
+      }
     ],
     "blank_book_discovery": [
-      {"speaker": "", "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges."},
-      {"speaker": "Arrel", "text": "What's that?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Ah. You can see it too? Most people walk right past. That's a Blank Book.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Record-tree fiber. Incredibly rare. It absorbs memory resonance — not the memory itself, but the shape of it.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "The shape?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Think of it as... a mold. The memory fills it once, and the book remembers the contour even after the memory burns.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "In theory, you could rebuild a burned memory from its contour. In theory.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "That's impossible. Burned memories are gone. Everyone knows that.", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "Everyone knows a lot of things that aren't entirely true.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "Tobias carefully took the book from the shelf and held it out to Arrel."},
-      {"speaker": "Tobias", "text": "Take it. You're a Burner, aren't you? Class Seven efficiency, if I had to guess. You'll need this more than I will.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "The book felt warm in Arrel's hands. Like holding something alive."},
-      {"speaker": "", "text": "[Obtained: Blank Book — Records the contours of burned memories]"}
+      {
+        "speaker": "",
+        "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What's that?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Ah. You can see it too? Most people walk right past. That's a Blank Book.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Record-tree fiber. Incredibly rare. It absorbs memory resonance — not the memory itself, but the shape of it.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The shape?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Think of it as... a mold. The memory fills it once, and the book remembers the contour even after the memory burns.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "In theory, you could rebuild a burned memory from its contour. In theory.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's impossible. Burned memories are gone. Everyone knows that.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Everyone knows a lot of things that aren't entirely true.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Tobias carefully took the book from the shelf and held it out to Arrel."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Take it. You're a Burner, aren't you? Class Seven efficiency, if I had to guess. You'll need this more than I will.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "The book felt warm in Arrel's hands. Like holding something alive."
+      },
+      {
+        "speaker": "",
+        "text": "[Obtained: Blank Book — Records the contours of burned memories]"
+      }
     ],
     "kairos_wall_writing": [
-      {"speaker": "", "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall."},
-      {"speaker": "", "text": "The handwriting was precise, almost mechanical: 'Subject demonstrates Class Seven combustion efficiency.'"},
-      {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "Arrel? What is it?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Someone was here. Watching. Recording.", "portrait": "arrel_pain"},
-      {"speaker": "Tobias", "text": "That writing wasn't there a week ago. I use these stairs every day.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Class Seven... the Bureau's classification system for Burners?", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "Yes. And Class Seven is the highest recorded efficiency. The Bureau has only ever documented three.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Whoever wrote this... they're tracking you.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "A chill ran through the stairwell that had nothing to do with temperature."}
+      {
+        "speaker": "",
+        "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall."
+      },
+      {
+        "speaker": "",
+        "text": "The handwriting was precise, almost mechanical: 'Subject demonstrates Class Seven combustion efficiency.'"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel? What is it?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Someone was here. Watching. Recording.",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "That writing wasn't there a week ago. I use these stairs every day.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Class Seven... the Bureau's classification system for Burners?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Yes. And Class Seven is the highest recorded efficiency. The Bureau has only ever documented three.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Whoever wrote this... they're tracking you.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "A chill ran through the stairwell that had nothing to do with temperature."
+      }
     ],
     "tobias_joins": [
-      {"speaker": "Tobias", "text": "Listen — I know I'm not a fighter. I can barely swing a pen without getting ink on my face.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "But I've spent twenty years recording memory transactions. I know the Bureau's classification system inside and out.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "If someone is tracking you as a Class Seven, you need someone who understands what that means.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "You want to come with us?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "I want to record what happens. That's what I do.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Can you keep up?", "portrait": "elia_neutral"},
-      {"speaker": "Tobias", "text": "I walked the Belt alone for three days to get here. I can keep up.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "Tobias packed his journals into a battered satchel and slung it over his shoulder."},
-      {"speaker": "", "text": "[Tobias has joined the party]"}
+      {
+        "speaker": "Tobias",
+        "text": "Listen — I know I'm not a fighter. I can barely swing a pen without getting ink on my face.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "But I've spent twenty years recording memory transactions. I know the Bureau's classification system inside and out.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "If someone is tracking you as a Class Seven, you need someone who understands what that means.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You want to come with us?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "I want to record what happens. That's what I do.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Can you keep up?",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "I walked the Belt alone for three days to get here. I can keep up.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Tobias packed his journals into a battered satchel and slung it over his shoulder."
+      },
+      {
+        "speaker": "",
+        "text": "[Tobias has joined the party]"
+      }
     ],
     "belt_atmosphere": [
-      {"speaker": "", "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar."},
-      {"speaker": "", "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned — not by fire, but by memory."},
-      {"speaker": "Elia", "text": "Forty years ago, a Burner lost control here. Burned everything — including the land's memory of how to grow things.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "The land has memories?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Everything remembers. Soil remembers rain. Stone remembers pressure. When those memories burn, the world... forgets.", "portrait": "elia_concern"}
+      {
+        "speaker": "",
+        "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar."
+      },
+      {
+        "speaker": "",
+        "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned — not by fire, but by memory."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Forty years ago, a Burner lost control here. Burned everything — including the land's memory of how to grow things.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The land has memories?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Everything remembers. Soil remembers rain. Stone remembers pressure. When those memories burn, the world... forgets.",
+        "portrait": "elia_concern"
+      }
     ],
     "tobias_records": [
-      {"speaker": "Tobias", "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was — let me check — approximately 60 percent retention.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "You were writing during the fight?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Force of habit. The Bureau requires real-time documentation of all combustion events.", "portrait": "tobias_neutral"},
-      {"speaker": "Tobias", "text": "Your anchor's influence is remarkable, by the way. Most Burners retain less than 30 percent as residue.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Don't call me his anchor.", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "Apologies. Occupational terminology.", "portrait": "tobias_neutral"}
+      {
+        "speaker": "Tobias",
+        "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was — let me check — approximately 60 percent retention.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You were writing during the fight?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Force of habit. The Bureau requires real-time documentation of all combustion events.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Your anchor's influence is remarkable, by the way. Most Burners retain less than 30 percent as residue.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Don't call me his anchor.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Apologies. Occupational terminology.",
+        "portrait": "tobias_neutral"
+      }
     ],
     "waystation_departure": [
-      {"speaker": "", "text": "Arrel looked back at the waystation one last time. It sat alone on the Belt like a forgotten thought."},
-      {"speaker": "Tobias", "text": "The Crumbling Coast is two days north. There's a fishing village — or what's left of one — where we can resupply.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "And whoever wrote on that wall?", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "Will probably be following us. But I'd rather know that than not.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "Let's move.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot."}
+      {
+        "speaker": "",
+        "text": "Arrel looked back at the waystation one last time. It sat alone on the Belt like a forgotten thought."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The Crumbling Coast is two days north. There's a fishing village — or what's left of one — where we can resupply.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "And whoever wrote on that wall?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Will probably be following us. But I'd rather know that than not.",
+        "portrait": "tobias_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Let's move.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot."
+      }
     ]
   }
 }

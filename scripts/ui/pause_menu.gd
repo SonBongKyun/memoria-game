@@ -69,10 +69,70 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Dialogue portrait reference for authority, calculation, anger, and command focus."
 	},
 	{
+		"title": "Malet - Expressions",
+		"type": "Expression Sheet",
+		"path": "res://assets/game_image/reference/malet_expression_sheet.png",
+		"desc": "Memory broker portrait sheet now used for Ch2 dialogue emotion swaps."
+	},
+	{
+		"title": "Malet - Sprite Reference",
+		"type": "Sprite Sheet",
+		"path": "res://assets/game_image/reference/malet_sprite_sheet_reference.png",
+		"desc": "Top-down and side-view reference for a future market broker sprite pass."
+	},
+	{
+		"title": "Memory Lost Soldier",
+		"type": "Enemy Sprite Sheet",
+		"path": "res://assets/game_image/reference/memory_lost_soldier_sprite_sheet.png",
+		"desc": "Frame reference for memory-corrupted humanoid enemies."
+	},
+	{
+		"title": "Void Creature Sheet",
+		"type": "Enemy Sprite Sheet",
+		"path": "res://assets/game_image/reference/void_creature_sprite_sheet.png",
+		"desc": "Silhouette and animation reference for future void enemy variants."
+	},
+	{
+		"title": "Forgotten Guardian",
+		"type": "Boss Sheet",
+		"path": "res://assets/game_image/reference/forgotten_guardian_sheet.png",
+		"desc": "Boss-scale armor, weapon, and material reference for late-game guardian encounters."
+	},
+	{
 		"title": "Skill Icon Atlas",
 		"type": "UI Reference",
 		"path": "res://assets/game_image/reference/skill_icon_atlas_reference.png",
 		"desc": "Future source for memory-burn, void, frost, and Bureau ability icons."
+	},
+	{
+		"title": "Item Icon Sheet",
+		"type": "UI Reference",
+		"path": "res://assets/game_image/reference/item_icon_sheet.png",
+		"desc": "High-polish item, relic, and memory-object icon reference."
+	},
+	{
+		"title": "Battle Effects Pack",
+		"type": "VFX Reference",
+		"path": "res://assets/game_image/reference/battle_effects_pack_reference.png",
+		"desc": "Slash, crystal, void, and memory-burn VFX timing and palette reference."
+	},
+	{
+		"title": "Dialogue Screen Reference",
+		"type": "UI Reference",
+		"path": "res://assets/game_image/reference/dialogue_screen_reference.png",
+		"desc": "Reference for a future dialogue UI pass with portrait framing and memory stats."
+	},
+	{
+		"title": "Battle Screen Reference",
+		"type": "UI Reference",
+		"path": "res://assets/game_image/reference/battle_screen_reference.png",
+		"desc": "Reference for future battle HUD layout, intent panels, and command clusters."
+	},
+	{
+		"title": "World Map",
+		"type": "World Reference",
+		"path": "res://assets/cg/game_image/world_map_memoria.png",
+		"desc": "Full-world route plate now used for the Ch2 transition toward Verdan."
 	},
 	{
 		"title": "Frost City",
@@ -93,10 +153,58 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Bureau skyline reference now used in the Act I demo ending beat."
 	},
 	{
-		"title": "Arrel in the Ruins",
-		"type": "Illustration",
-		"path": "res://assets/cg/game_image/arrel_ruins_rest.png",
-		"desc": "Post-battle isolation beat now used after the Void Beast encounter."
+		"title": "Arrel - Sheet Profile",
+		"type": "Sheet-Derived CG",
+		"path": "res://assets/cg/game_image/sheet_arrel_profile.png",
+		"desc": "Runtime Arrel plate extracted from the new character sheet pipeline."
+	},
+	{
+		"title": "Arrel - Memory Fading",
+		"type": "Sheet-Derived CG",
+		"path": "res://assets/cg/game_image/sheet_arrel_memory_fading.png",
+		"desc": "Runtime memory-loss plate extracted from Arrel's expression sheet."
+	},
+	{
+		"title": "Arrel and Elia - Sheet Duo",
+		"type": "Sheet-Derived CG",
+		"path": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+		"desc": "Duo dialogue plate built only from the newly added character sheets."
+	},
+	{
+		"title": "Memory Crystal",
+		"type": "Item CG",
+		"path": "res://assets/cg/game_image/memory_crystal_item.png",
+		"desc": "High-value memory object now used in the Ch2 extraction trade."
+	},
+	{
+		"title": "Void Beast Confrontation",
+		"type": "Battle CG",
+		"path": "res://assets/cg/game_image/void_beast_confrontation.png",
+		"desc": "Act I combat illustration replacing older forest combat placeholders."
+	},
+	{
+		"title": "Arrel - Battle Ready",
+		"type": "Sheet-Derived CG",
+		"path": "res://assets/cg/game_image/sheet_arrel_battle_ready.png",
+		"desc": "Battle dialogue plate extracted from Arrel's new expression sheet."
+	},
+	{
+		"title": "Kairos in the Sealed City",
+		"type": "Character CG",
+		"path": "res://assets/cg/game_image/kairos_sealed_city.png",
+		"desc": "Updated Kairos threat plate for Ch2 and Ch9 confrontation beats."
+	},
+	{
+		"title": "Sealed City Ruins",
+		"type": "Environment CG",
+		"path": "res://assets/cg/game_image/sealed_city_ruins.png",
+		"desc": "Bleak urban environment plate now used for route and Bureau foreshadowing."
+	},
+	{
+		"title": "Sealed Gate Plaza",
+		"type": "Environment CG",
+		"path": "res://assets/cg/game_image/sealed_gate_plaza.png",
+		"desc": "Gate plaza environment now used for Verdan and late-game threshold beats."
 	},
 ]
 

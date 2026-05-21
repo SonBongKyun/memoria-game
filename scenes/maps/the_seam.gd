@@ -400,7 +400,7 @@ func _on_bl07_dialogue_ended() -> void:
 	boss.abilities = ["drain", "shield", "multi_hit", "summon"]
 	boss.weakness = "void"
 	boss.resistance = "fire"
-	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/ch5_void_entrance.jpg", "res://assets/cg/memory_wraith2.jpg")
+	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/game_image/nera_void_cavern.png", "res://assets/cg/game_image/void_beast_confrontation.png")
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
 func _start_ch6_epilogue() -> void:
@@ -426,7 +426,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Wraith", 90, 18, true,
-		"res://assets/cg/village_seam3.jpg", "res://assets/cg/memory_wraith2.jpg"
+		"res://assets/cg/game_image/sealed_city_ruins.png", "res://assets/cg/game_image/void_beast_confrontation.png"
 	)
 
 func _setup_puzzle_trigger() -> void:
@@ -458,8 +458,8 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/village_seam2.jpg", "img": "res://assets/cg/void_beast.jpg"},
-			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/village_seam2.jpg"},
+			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/game_image/sealed_gate_plaza.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
 		],
 		"res://scenes/maps/the_seam.tscn", "", "", 45, 80
 	)
@@ -598,7 +598,7 @@ func _setup_side_quests() -> void:
 				var enemy = BattleManager.Enemy.new("Void Watcher", 120, 22, true)
 				enemy.abilities = ["drain", "shield"]
 				enemy.weakness = "void"
-				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/ch5_void_entrance.jpg", "res://assets/cg/void_husk.jpg")
+				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/game_image/nera_void_cavern.png", "res://assets/cg/game_image/void_beast_confrontation.png")
 				SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 		)
 		add_child(vw_area)

@@ -3,64 +3,223 @@
   "title": "Chapter 1 — Through the Forest",
   "chapter": 1,
   "steps": [
-    {"cg": "ch1_twisted_forest", "fade": 1.8, "narrate": "Morning came thin and grey. The ash had stopped sometime in the dark, and the forest looked, almost, like a forest again."},
-    {"narrate": "Almost. The trees still leaned toward something he could not see. The path under his boots remembered other footsteps."},
-    {"speaker": "Elia", "portrait": "elia_neutral", "side": "right", "text": "Bureau patrols start at noon. We have until then."},
-    {"speaker": "Arrel", "portrait": "arrel_neutral", "side": "left", "text": "Long enough."},
-    {"narrate": "He looked at the clearing. Three things in his memory pulled at him before the fourth — the path forward."},
-
-    {"choice": [
-      {"text": "Examine the carved stump.", "set_flag": "fw_visited_stump", "goto": 7, "requires_not_flag": "fw_visited_stump"},
-      {"text": "Approach the small shrine in the bushes.", "set_flag": "fw_visited_shrine", "goto": 14, "requires_not_flag": "fw_visited_shrine"},
-      {"text": "Talk with Elia.", "set_flag": "fw_talked_elia", "goto": 22, "requires_not_flag": "fw_talked_elia"},
-      {"text": "Push deeper into the forest.", "requires_flag": "fw_visited_any", "goto": 31}
-    ]},
-
-    {"narrate": "[ Filler — the choice block above always jumps past this. ]"},
-
-    {"cg": "ch1_stump2", "fade": 1.0, "narrate": "A tree stump, old enough that its rings had turned to stone."},
-    {"narrate": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."},
-    {"narrate": "His hand moved toward the carving before he could stop it."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "Arrel?"},
-    {"speaker": "Arrel", "portrait": "arrel_pensive", "side": "left", "text": "...Nothing. Just letters."},
-    {"narrate": "But his fingers traced the grooves one more time before he pulled away.",
-      "set_flag": "fw_visited_any"},
-    {"action": "goto_scene", "id": "ch1_forest_walk", "start_index": 5},
-
-    {"cg": "ch1_ash_forest", "fade": 1.0, "narrate": "A small shrine, half-swallowed by bushes. Smooth stones stacked into a cairn no taller than his knee."},
-    {"narrate": "Wax had pooled at the base — old, candle after candle, year after year. Someone had been keeping vigil here."},
-    {"narrate": "On top of the cairn, a single brass token. A name engraved, worn nearly smooth. He could not read it."},
-    {"speaker": "Elia", "portrait": "elia_sad", "side": "right", "text": "Burners come here. The ones who don't have a body to bury."},
-    {"speaker": "Elia", "portrait": "elia_calm", "side": "right", "text": "They leave a name. Sometimes their own."},
-    {"speaker": "Arrel", "portrait": "arrel_cold", "side": "left", "text": "...Sometimes someone else's."},
-    {"narrate": "He did not leave a token. He did not have one to spare.",
-      "set_flag": "fw_visited_any"},
-    {"action": "goto_scene", "id": "ch1_forest_walk", "start_index": 5},
-
-    {"cg": "ch1_ash_walk", "fade": 1.0, "narrate": "Elia waited where the path forked, hands loose at her sides, watching him in that careful way she had."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "How are you holding up?"},
-    {"speaker": "Arrel", "portrait": "arrel_neutral", "side": "left", "text": "Standing."},
-    {"speaker": "Elia", "portrait": "elia_sad", "side": "right", "text": "That's not what I asked."},
-    {"narrate": "He didn't answer. She did not push."},
-    {"speaker": "Elia", "portrait": "elia_hopeful", "side": "right", "text": "Whatever happens out there — you don't have to burn anything else today.",
+    {
+      "cg": "ch1_twisted_forest",
+      "fade": 1.8,
+      "narrate": "Morning came thin and grey. The ash had stopped sometime in the dark, and the forest looked, almost, like a forest again."
+    },
+    {
+      "narrate": "Almost. The trees still leaned toward something he could not see. The path under his boots remembered other footsteps."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_neutral",
+      "side": "right",
+      "text": "Bureau patrols start at noon. We have until then."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_neutral",
+      "side": "left",
+      "text": "Long enough."
+    },
+    {
+      "narrate": "He looked at the clearing. Three things in his memory pulled at him before the fourth — the path forward."
+    },
+    {
+      "choice": [
+        {
+          "text": "Examine the carved stump.",
+          "set_flag": "fw_visited_stump",
+          "goto": 7,
+          "requires_not_flag": "fw_visited_stump"
+        },
+        {
+          "text": "Approach the small shrine in the bushes.",
+          "set_flag": "fw_visited_shrine",
+          "goto": 14,
+          "requires_not_flag": "fw_visited_shrine"
+        },
+        {
+          "text": "Talk with Elia.",
+          "set_flag": "fw_talked_elia",
+          "goto": 22,
+          "requires_not_flag": "fw_talked_elia"
+        },
+        {
+          "text": "Push deeper into the forest.",
+          "requires_flag": "fw_visited_any",
+          "goto": 31
+        }
+      ]
+    },
+    {
+      "narrate": "[ Filler — the choice block above always jumps past this. ]"
+    },
+    {
+      "cg": "ch1_stump2",
+      "fade": 1.0,
+      "narrate": "A tree stump, old enough that its rings had turned to stone."
+    },
+    {
+      "narrate": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."
+    },
+    {
+      "narrate": "His hand moved toward the carving before he could stop it."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "Arrel?"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "...Nothing. Just letters."
+    },
+    {
+      "narrate": "But his fingers traced the grooves one more time before he pulled away.",
+      "set_flag": "fw_visited_any"
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch1_forest_walk",
+      "start_index": 5
+    },
+    {
+      "cg": "ch1_ash_forest",
+      "fade": 1.0,
+      "narrate": "A small shrine, half-swallowed by bushes. Smooth stones stacked into a cairn no taller than his knee."
+    },
+    {
+      "narrate": "Wax had pooled at the base — old, candle after candle, year after year. Someone had been keeping vigil here."
+    },
+    {
+      "narrate": "On top of the cairn, a single brass token. A name engraved, worn nearly smooth. He could not read it."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "Burners come here. The ones who don't have a body to bury."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_calm",
+      "side": "right",
+      "text": "They leave a name. Sometimes their own."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "...Sometimes someone else's."
+    },
+    {
+      "narrate": "He did not leave a token. He did not have one to spare.",
+      "set_flag": "fw_visited_any"
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch1_forest_walk",
+      "start_index": 5
+    },
+    {
+      "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+      "fade": 1.0,
+      "narrate": "Elia waited where the path forked, hands loose at her sides, watching him in that careful way she had."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "How are you holding up?"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_neutral",
+      "side": "left",
+      "text": "Standing."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "That's not what I asked."
+    },
+    {
+      "narrate": "He didn't answer. She did not push."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_hopeful",
+      "side": "right",
+      "text": "Whatever happens out there — you don't have to burn anything else today.",
       "distort_if_burned": "daily_campfire_song",
       "distorted_text": "Whatever happens out there — try not to burn the rest of yourself.",
-      "distorted_portrait": "elia_sad"},
-    {"speaker": "Arrel", "portrait": "arrel_pensive", "side": "left", "text": "...I'll try."},
-    {"narrate": "She nodded, once, and looked away.",
-      "set_flag": "fw_visited_any"},
-    {"action": "goto_scene", "id": "ch1_forest_walk", "start_index": 5},
-
-    {"cg": "ch1_twisted_forest2", "fade": 1.6, "narrate": "The path narrowed. The trees pressed closer."},
-    {"narrate": "Something had been here. The ground was wrong — patches of moss bleached white, bark stripped in long parallel grooves."},
-    {"speaker": "Elia", "portrait": "elia_concern", "side": "right", "text": "Arrel."},
-    {"speaker": "Arrel", "portrait": "arrel_determined", "side": "left", "text": "I see it."},
-    {"narrate": "Ahead, where the canopy opened, something exhaled."},
-    {"narrate": "Not breath. Something that wanted to be breath but had forgotten how."},
-    {"speaker": "Elia", "portrait": "elia_determined", "side": "right", "text": "It's between us and the road. We can't go around."},
-    {"speaker": "Arrel", "portrait": "arrel_determined", "side": "left", "text": "I know."},
-    {"narrate": "He drew his sword. The grip remembered his hand, even when he did not always remember the grip."},
-
-    {"action": "goto_scene", "id": "ch1_void_beast"}
+      "distorted_portrait": "elia_sad"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "...I'll try."
+    },
+    {
+      "narrate": "She nodded, once, and looked away.",
+      "set_flag": "fw_visited_any"
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch1_forest_walk",
+      "start_index": 5
+    },
+    {
+      "cg": "res://assets/cg/game_image/void_beast_confrontation.png",
+      "fade": 1.6,
+      "narrate": "The path narrowed. The trees pressed closer."
+    },
+    {
+      "narrate": "Something had been here. The ground was wrong — patches of moss bleached white, bark stripped in long parallel grooves."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "Arrel."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "I see it."
+    },
+    {
+      "narrate": "Ahead, where the canopy opened, something exhaled."
+    },
+    {
+      "narrate": "Not breath. Something that wanted to be breath but had forgotten how."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "It's between us and the road. We can't go around."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "I know."
+    },
+    {
+      "narrate": "He drew his sword. The grip remembered his hand, even when he did not always remember the grip."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch1_void_beast"
+    }
   ]
 }

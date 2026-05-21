@@ -349,7 +349,7 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 				enemy.abilities = ["drain", "multi_hit"]
 				enemy.weakness = "fire"
 				enemy.resistance = "void"
-			BattleManager.start_battle(enemy, "res://scenes/maps/bl07_void.tscn", "res://assets/cg/void_islands.png", "res://assets/cg/void_husk2.jpg")
+			BattleManager.start_battle(enemy, "res://scenes/maps/bl07_void.tscn", "res://assets/cg/game_image/nera_void_cavern.png", "res://assets/cg/game_image/void_beast_confrontation.png")
 			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
 	add_child(area)
@@ -360,9 +360,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Void Fragment", "hp": 75, "atk": 16, "is_void": true, "abilities": ["burn_attack"], "bg": "res://assets/cg/void_islands.png", "img": "res://assets/cg/memory_wraith3.jpg"},
-			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/void_islands.png", "img": "res://assets/cg/memory_wraith3.jpg"},
-			{"name": "Null Wisp", "hp": 60, "atk": 22, "is_void": true, "abilities": ["poison", "burn_attack"], "bg": "res://assets/cg/void_islands.png"},
+			{"name": "Void Fragment", "hp": 75, "atk": 16, "is_void": true, "abilities": ["burn_attack"], "bg": "res://assets/cg/game_image/nera_void_cavern.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/game_image/nera_void_cavern.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Null Wisp", "hp": 60, "atk": 22, "is_void": true, "abilities": ["poison", "burn_attack"], "bg": "res://assets/cg/game_image/nera_void_cavern.png"},
 		],
 		"res://scenes/maps/bl07_void.tscn", "", "", 30, 55
 	)

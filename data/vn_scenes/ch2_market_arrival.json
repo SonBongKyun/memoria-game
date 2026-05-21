@@ -4,27 +4,80 @@
   "chapter": 2,
   "bgm": "res://assets/audio/bgm/ch2_verdan.mp3",
   "steps": [
-    {"cg": "ch2_verdan_overlook", "fade": 2.0, "narrate": "Verdan Market — the Belt's largest trading hub, and the Bureau's most tolerated black eye."},
-    {"narrate": "It sprawled across three old canyons, stitched together with rope-bridges and smoke and the low hum of too many voices at once."},
-    {"narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts — including whatever was owed to the name Arrel no longer wanted to say aloud."},
-
-    {"cg": "ch2_verdan5", "fade": 1.4, "speaker": "Elia", "portrait": "elia_calm", "side": "right", "text": "Stay close. This place eats travelers."},
-    {"speaker": "Arrel", "portrait": "arrel_neutral", "side": "left", "text": "I'll stay close. You keep your hood up."},
-    {"speaker": "Elia", "portrait": "elia_hopeful", "side": "right", "text": "Worried about me?"},
-    {"speaker": "Arrel", "portrait": "arrel_pensive", "side": "left", "text": "Worried about what someone might recognize."},
-
-    {"narrate": "Below them, the market opened its mouth."},
-
-    {"cg": "ch2_verdan3", "fade": 1.2, "narrate": "A guard stopped them at the southern stairs. Bureau insignia. Too alert for a Belt posting."},
-    {"speaker": "Guard", "text": "Names. Purpose. Papers if you have them."},
-
-    {"choice": [
-      {"text": "Tell him we're hunters tracking rogue Husks.", "set_flag": "guard_lied_to"},
-      {"text": "Surface a memory of a bribe. Pay him off with what he wants to hear.", "cost_memory": "daily_market_food", "set_flag": "guard_bribed"},
-      {"text": "Push past him.", "set_flag": "guard_pushed", "requires_memory_intact": "identity_first_sword"}
-    ]},
-
-    {"narrate": "Either way, the market swallowed them whole."},
-    {"set_flag": "ch2_arrival_vn_seen", "action": "goto_map", "path": "res://scenes/maps/verdan_market.tscn"}
+    {
+      "cg": "res://assets/cg/game_image/world_map_memoria.png",
+      "fade": 2.0,
+      "narrate": "Verdan Market — the Belt's largest trading hub, and the Bureau's most tolerated black eye."
+    },
+    {
+      "narrate": "It sprawled across three old canyons, stitched together with rope-bridges and smoke and the low hum of too many voices at once."
+    },
+    {
+      "narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts — including whatever was owed to the name Arrel no longer wanted to say aloud."
+    },
+    {
+      "cg": "res://assets/cg/game_image/sealed_city_ruins.png",
+      "fade": 1.4,
+      "speaker": "Elia",
+      "portrait": "elia_calm",
+      "side": "right",
+      "text": "Stay close. This place eats travelers."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_neutral",
+      "side": "left",
+      "text": "I'll stay close. You keep your hood up."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_hopeful",
+      "side": "right",
+      "text": "Worried about me?"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "Worried about what someone might recognize."
+    },
+    {
+      "narrate": "Below them, the market opened its mouth."
+    },
+    {
+      "cg": "res://assets/cg/game_image/sealed_gate_plaza.png",
+      "fade": 1.2,
+      "narrate": "A guard stopped them at the southern stairs. Bureau insignia. Too alert for a Belt posting."
+    },
+    {
+      "speaker": "Guard",
+      "text": "Names. Purpose. Papers if you have them."
+    },
+    {
+      "choice": [
+        {
+          "text": "Tell him we're hunters tracking rogue Husks.",
+          "set_flag": "guard_lied_to"
+        },
+        {
+          "text": "Surface a memory of a bribe. Pay him off with what he wants to hear.",
+          "cost_memory": "daily_market_food",
+          "set_flag": "guard_bribed"
+        },
+        {
+          "text": "Push past him.",
+          "set_flag": "guard_pushed",
+          "requires_memory_intact": "identity_first_sword"
+        }
+      ]
+    },
+    {
+      "narrate": "Either way, the market swallowed them whole."
+    },
+    {
+      "set_flag": "ch2_arrival_vn_seen",
+      "action": "goto_map",
+      "path": "res://scenes/maps/verdan_market.tscn"
+    }
   ]
 }

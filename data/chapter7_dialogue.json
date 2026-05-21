@@ -3,7 +3,7 @@
   "title": "The Other Side of the Flame",
   "dialogues": {
     "outskirts_arrival": [
-      {"speaker": "", "text": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static.", "cg": "res://assets/cg/seam_forest.jpg"},
+      {"speaker": "", "text": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static.", "cg": "res://assets/cg/game_image/sealed_city_ruins.png"},
       {"speaker": "Sable", "text": "This is the Threshold. Everything past here belongs to BL-07.", "portrait": "sable_neutral"},
       {"speaker": "Tobias", "text": "The Bureau maps end exactly at this ridgeline. Beyond is classified — Level 9 clearance only.", "portrait": "tobias_neutral"},
       {"speaker": "Arrel", "text": "You've been past this point before.", "portrait": "arrel_neutral"},
@@ -38,7 +38,7 @@
       {"speaker": "Sable", "text": "Arrel. Show me.", "portrait": "sable_neutral"}
     ],
     "trial_complete": [
-      {"speaker": "", "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away — then Elia's hand was on his shoulder.", "cg": "res://assets/cg/아렐과 엘리아2.jpg"},
+      {"speaker": "", "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away — then Elia's hand was on his shoulder.", "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"},
       {"speaker": "Elia", "text": "I've got you.", "portrait": "elia_neutral"},
       {"speaker": "", "text": "The world steadied. The memory was gone, but Arrel knew who he was. Who they all were."},
       {"speaker": "Sable", "text": "Good. You held. Most people don't.", "portrait": "sable_neutral"},
@@ -97,7 +97,7 @@
       {"speaker": "Arrel", "text": "The stone remembers them even if nothing else does.", "portrait": "arrel_determined"}
     ],
     "elia_void_edge": [
-      {"speaker": "Elia", "text": "Arrel. Stop walking for a moment.", "portrait": "elia_concern", "cg": "res://assets/cg/엘리아4.jpg"},
+      {"speaker": "Elia", "text": "Arrel. Stop walking for a moment.", "portrait": "elia_concern", "cg": "res://assets/cg/game_image/sheet_elia_profile.png"},
       {"speaker": "Arrel", "text": "What's wrong?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "I can feel it pulling. Not at you — at me. Like it knows I'm not fully real. Like it's offering to finish what was started.", "portrait": "elia_concern"}
     ]

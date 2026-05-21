@@ -3,22 +3,74 @@
   "title": "The Classifier",
   "dialogues": {
     "coast_arrival": [
-      {"speaker": "", "text": "The Crumbling Coast.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
-      {"speaker": "", "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock."},
-      {"speaker": "", "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea."},
-      {"speaker": "Elia", "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "And Sable?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Follow the colors. That's what he said.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Colors. In a world that was forgetting how to have them."}
+      {
+        "speaker": "",
+        "text": "The Crumbling Coast.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "",
+        "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock."
+      },
+      {
+        "speaker": "",
+        "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And Sable?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Follow the colors. That's what he said.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Colors. In a world that was forgetting how to have them."
+      }
     ],
     "elia_separation_choice": [
-      {"speaker": "", "text": "Elia stopped. Her eyes traced the cliff edge, then snapped back to the ridge behind them."},
-      {"speaker": "Elia", "text": "Arrel. That figure on the ridge. If he's classifying us, he's building a pattern.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "Two signatures are easier to track than one.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "What are you saying?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I can take the coastal path. Draw his attention south. Meet you at the Seam.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "Or I stay. We go together. But if he catches both of us...", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.", "cg": "res://assets/cg/ch3_arrel_elia_coast.jpg"},
+      {
+        "speaker": "",
+        "text": "Elia stopped. Her eyes traced the cliff edge, then snapped back to the ridge behind them."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel. That figure on the ridge. If he's classifying us, he's building a pattern.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Two signatures are easier to track than one.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What are you saying?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I can take the coastal path. Draw his attention south. Meet you at the Seam.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Or I stay. We go together. But if he catches both of us...",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
       {
         "choices": [
           {
@@ -33,107 +85,398 @@
       }
     ],
     "elia_stays_response": [
-      {"speaker": "Elia", "text": "...Alright. Together, then.", "portrait": "elia_neutral", "cg": "res://assets/cg/아렐과 엘리아3.jpg"},
-      {"speaker": "", "text": "She fell into step beside him. Close enough that their shoulders almost touched."},
-      {"speaker": "", "text": "Whatever came next, they would face it with two sets of eyes. Two hearts. Two sets of memories worth losing."}
+      {
+        "speaker": "Elia",
+        "text": "...Alright. Together, then.",
+        "portrait": "elia_neutral",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "",
+        "text": "She fell into step beside him. Close enough that their shoulders almost touched."
+      },
+      {
+        "speaker": "",
+        "text": "Whatever came next, they would face it with two sets of eyes. Two hearts. Two sets of memories worth losing."
+      }
     ],
     "elia_separates_response": [
-      {"speaker": "", "text": "Something flickered across her face. Too fast to name.", "cg": "res://assets/cg/ch3_elia_coast.jpg"},
-      {"speaker": "Elia", "text": "The Seam. Northeast. I'll find it.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "Elia—", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "Don't. If you say something kind, I won't be able to leave.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She turned. Walked south along the cliff edge. Didn't look back."},
-      {"speaker": "", "text": "The wind felt colder. The footsteps behind him went silent. And somewhere in his chest, the anchor loosened."},
-      {"speaker": "", "text": "Memories burned alone vanish completely. No residue. No trace. Just absence."}
+      {
+        "speaker": "",
+        "text": "Something flickered across her face. Too fast to name.",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The Seam. Northeast. I'll find it.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Elia—",
+        "portrait": "arrel_pain"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Don't. If you say something kind, I won't be able to leave.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "She turned. Walked south along the cliff edge. Didn't look back."
+      },
+      {
+        "speaker": "",
+        "text": "The wind felt colder. The footsteps behind him went silent. And somewhere in his chest, the anchor loosened."
+      },
+      {
+        "speaker": "",
+        "text": "Memories burned alone vanish completely. No residue. No trace. Just absence."
+      }
     ],
     "elia_reunion": [
-      {"speaker": "", "text": "A familiar silhouette stood at the Seam's entrance. Windswept. Tired. Alive.", "cg": "res://assets/cg/아렐과 엘리아.jpg"},
-      {"speaker": "Elia", "text": "You made it.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "You too.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Neither of them said anything about the distance. Or the silence. Or the memories that might have scattered in the space between them."},
-      {"speaker": "Elia", "text": "The coastal path worked. Kairos went south. Bought us time.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She fell into step beside him again. The anchor tightened. The world felt a fraction more solid."}
+      {
+        "speaker": "",
+        "text": "A familiar silhouette stood at the Seam's entrance. Windswept. Tired. Alive.",
+        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "You made it.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You too.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Neither of them said anything about the distance. Or the silence. Or the memories that might have scattered in the space between them."
+      },
+      {
+        "speaker": "Elia",
+        "text": "The coastal path worked. Kairos went south. Bought us time.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She fell into step beside him again. The anchor tightened. The world felt a fraction more solid."
+      }
     ],
     "kairos_sighting": [
-      {"speaker": "", "text": "Movement. On the ridge behind them, half a mile back.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
-      {"speaker": "", "text": "A figure. Still as stone. Watching."},
-      {"speaker": "Elia", "text": "Don't look back.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Kairos?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "He's not chasing. He's classifying. That's worse.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The figure did not move. It did not need to. It had already seen everything it needed to see."},
-      {"speaker": "", "text": "They walked faster."}
+      {
+        "speaker": "",
+        "text": "Movement. On the ridge behind them, half a mile back.",
+        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+      },
+      {
+        "speaker": "",
+        "text": "A figure. Still as stone. Watching."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Don't look back.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Kairos?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "He's not chasing. He's classifying. That's worse.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "The figure did not move. It did not need to. It had already seen everything it needed to see."
+      },
+      {
+        "speaker": "",
+        "text": "They walked faster."
+      }
     ],
     "seam_arrival": [
-      {"speaker": "", "text": "The colors came first.", "cg": "res://assets/cg/village_seam3.jpg"},
-      {"speaker": "", "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."},
-      {"speaker": "", "text": "Amber. Crimson. A green so deep it hurt to look at."},
-      {"speaker": "", "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."},
-      {"speaker": "Elia", "text": "We made it.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "A woman stood at the entrance. Short dark hair. Eyes that had seen the inside of a Void Hole and come back."},
-      {"speaker": "Sable", "text": "You're the one Malet sent. The one who burns.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Come inside. We have a lot to discuss. And not much time.", "portrait": "sable_calm"}
+      {
+        "speaker": "",
+        "text": "The colors came first.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "",
+        "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse."
+      },
+      {
+        "speaker": "",
+        "text": "Amber. Crimson. A green so deep it hurt to look at."
+      },
+      {
+        "speaker": "",
+        "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming."
+      },
+      {
+        "speaker": "Elia",
+        "text": "We made it.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "A woman stood at the entrance. Short dark hair. Eyes that had seen the inside of a Void Hole and come back."
+      },
+      {
+        "speaker": "Sable",
+        "text": "You're the one Malet sent. The one who burns.",
+        "portrait": "sable_neutral"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Come inside. We have a lot to discuss. And not much time.",
+        "portrait": "sable_calm"
+      }
     ],
     "coast_cliff_walk": [
-      {"speaker": "", "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years."},
-      {"speaker": "Arrel", "text": "The stone here. It's warm.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "He pressed his hand against the cliff face. For a moment — just a flash — he heard laughter. Children's voices. The clatter of a market that no longer existed."},
-      {"speaker": "", "text": "Then silence. The stone was just stone again."},
-      {"speaker": "Elia", "text": "Don't linger. The residue can pull you in. People have walked off cliffs chasing echoes they thought were their own.", "portrait": "elia_concern"}
+      {
+        "speaker": "",
+        "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The stone here. It's warm.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "He pressed his hand against the cliff face. For a moment — just a flash — he heard laughter. Children's voices. The clatter of a market that no longer existed."
+      },
+      {
+        "speaker": "",
+        "text": "Then silence. The stone was just stone again."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Don't linger. The residue can pull you in. People have walked off cliffs chasing echoes they thought were their own.",
+        "portrait": "elia_concern"
+      }
     ],
     "coast_watchtower": [
-      {"speaker": "", "text": "The watchtower stood at the cliff's highest point, gutted and hollow."},
-      {"speaker": "", "text": "Its roof was gone. Its walls were covered in scratches — thousands of tally marks, carved by someone counting something obsessively."},
-      {"speaker": "Arrel", "text": "What was this?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Bureau outpost. Before the coast crumbled, they monitored combustion signatures from here.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Arrel looked at the walls. Thousands of marks. Thousands of people, burning pieces of themselves to fight the Void. Or to sell. Or just to survive."},
-      {"speaker": "Arrel", "text": "How many of them are still alive?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "The marks stopped three years ago. Draw your own conclusion.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "Wind moved through the hollow tower. It sounded almost like counting."}
+      {
+        "speaker": "",
+        "text": "The watchtower stood at the cliff's highest point, gutted and hollow."
+      },
+      {
+        "speaker": "",
+        "text": "Its roof was gone. Its walls were covered in scratches — thousands of tally marks, carved by someone counting something obsessively."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What was this?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Bureau outpost. Before the coast crumbled, they monitored combustion signatures from here.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "Arrel looked at the walls. Thousands of marks. Thousands of people, burning pieces of themselves to fight the Void. Or to sell. Or just to survive."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "How many of them are still alive?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The marks stopped three years ago. Draw your own conclusion.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "Wind moved through the hollow tower. It sounded almost like counting."
+      }
     ],
     "kairos_presence": [
-      {"speaker": "", "text": "He was closer now."},
-      {"speaker": "", "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.", "cg": "res://assets/cg/ch3_kairos_cliff.jpg"},
-      {"speaker": "Elia", "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "And then?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "And then they know exactly which memory to target. The one that holds everything else together. Pull it, and the whole structure collapses.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "For you, that would be—", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Don't say it.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She didn't. They both knew. The most dangerous memory Arrel carried wasn't a battle or a burn. It was a name."},
-      {"speaker": "", "text": "Elia."}
+      {
+        "speaker": "",
+        "text": "He was closer now."
+      },
+      {
+        "speaker": "",
+        "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.",
+        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And then?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "And then they know exactly which memory to target. The one that holds everything else together. Pull it, and the whole structure collapses.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Elia",
+        "text": "For you, that would be—",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Don't say it.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She didn't. They both knew. The most dangerous memory Arrel carried wasn't a battle or a burn. It was a name."
+      },
+      {
+        "speaker": "",
+        "text": "Elia."
+      }
     ],
     "coast_void_crack": [
-      {"speaker": "", "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.", "cg": "res://assets/cg/ch3_seam_coast.jpg"},
-      {"speaker": "Elia", "text": "Void fissure. Don't step on it.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "From the crack came a sound. Not quite a whisper. Not quite a name. Something in between."},
-      {"speaker": "Arrel", "text": "It's calling.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "It shows you the memories you've lost. Tells you they're inside, waiting. All you have to do is step through.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Is it true? Are the memories in there?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "Maybe. But the people who go in to find out don't come back to tell us.", "portrait": "elia_concern"}
+      {
+        "speaker": "",
+        "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.",
+        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Void fissure. Don't step on it.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "From the crack came a sound. Not quite a whisper. Not quite a name. Something in between."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "It's calling.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "It shows you the memories you've lost. Tells you they're inside, waiting. All you have to do is step through.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Is it true? Are the memories in there?",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Maybe. But the people who go in to find out don't come back to tell us.",
+        "portrait": "elia_concern"
+      }
     ],
     "elia_before_separation": [
-      {"speaker": "Elia", "text": "Arrel. If we split up—", "portrait": "elia_concern", "cg": "res://assets/cg/엘리아3.jpg"},
-      {"speaker": "Arrel", "text": "I haven't decided yet.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I know. But if we do... you need to understand what happens to a burner without an Anchor.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "Every burn you've done, I've been the reference point. I carry the SHAPE of what you lost, even when the content is gone. Without me, burns become... absolute.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "No residue.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "No residue. No echo. No sense that something used to be there. Just smooth nothing, all the way down.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She looked at the ocean. The gray water met the gray sky at a line that didn't quite exist."},
-      {"speaker": "Elia", "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I'll be careful.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "You always say that.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He always did. She always worried. Some patterns survived even the Void."}
+      {
+        "speaker": "Elia",
+        "text": "Arrel. If we split up—",
+        "portrait": "elia_concern",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I haven't decided yet.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I know. But if we do... you need to understand what happens to a burner without an Anchor.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Every burn you've done, I've been the reference point. I carry the SHAPE of what you lost, even when the content is gone. Without me, burns become... absolute.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "No residue.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "No residue. No echo. No sense that something used to be there. Just smooth nothing, all the way down.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "She looked at the ocean. The gray water met the gray sky at a line that didn't quite exist."
+      },
+      {
+        "speaker": "Elia",
+        "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I'll be careful.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "You always say that.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "He always did. She always worried. Some patterns survived even the Void."
+      }
     ],
     "elia_coast_talk": [
-      {"speaker": "Elia", "text": "The extraction... how much did you lose?", "portrait": "elia_concern",
+      {
+        "speaker": "Elia",
+        "text": "The extraction... how much did you lose?",
+        "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",
-        "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune."},
-      {"speaker": "Arrel", "text": "A sword. A courtyard. Someone important.", "portrait": "arrel_exhausted", "cg": "res://assets/cg/ch3_elia_healing.jpg"},
-      {"speaker": "Elia", "text": "Do you miss it?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I don't know. That's the point.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "She said nothing. But she walked closer. Two steps behind became one."}
+        "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "A sword. A courtyard. Someone important.",
+        "portrait": "arrel_exhausted",
+        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Do you miss it?",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I don't know. That's the point.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "She said nothing. But she walked closer. Two steps behind became one."
+      }
     ]
   }
 }
