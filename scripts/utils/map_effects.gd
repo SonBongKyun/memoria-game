@@ -1790,6 +1790,37 @@ static func add_depth_gradient(map: Node2D, intensity: float = 0.08) -> CanvasLa
 	map.add_child(layer)
 	return layer
 
+## Curated CG plates as subtle in-map atmosphere.
+static func add_illustration_atmosphere(parent: Node, texture_path: String, alpha: float = 0.12, tint: Color = Color(1, 1, 1, 1), layer_index: int = 1) -> CanvasLayer:
+	if texture_path == "" or not ResourceLoader.exists(texture_path):
+		return null
+
+	var layer = CanvasLayer.new()
+	layer.layer = layer_index
+	layer.follow_viewport_enabled = false
+
+	var plate = TextureRect.new()
+	plate.set_anchors_preset(Control.PRESET_FULL_RECT)
+	plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	plate.texture = load(texture_path)
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.modulate = Color(tint.r, tint.g, tint.b, alpha)
+	layer.add_child(plate)
+
+	var shade = ColorRect.new()
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.color = Color(0.0, 0.0, 0.0, clampf(alpha * 0.55, 0.03, 0.12))
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(shade)
+
+	parent.add_child(layer)
+
+	var tw = plate.create_tween().set_loops()
+	tw.tween_property(plate, "modulate:a", alpha * 0.68, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(plate, "modulate:a", alpha, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	return layer
+
 ## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)
 static func update_campfire_glows(map: Node2D, time: float) -> void:
 	for child in map.get_children():

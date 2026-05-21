@@ -66,6 +66,7 @@ func _ready() -> void:
 	MapEffects.add_ambient_lighting(self, Color(0.5, 0.5, 0.55))
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.4, 0.5), "brightness": -0.02})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/sealed_gate_plaza.png", 0.10, Color(0.78, 0.84, 0.96))
 	_s52_particles = MapEffects.add_pollen_particles(self, 10, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.5, 0.5, 0.55, 0.15))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)

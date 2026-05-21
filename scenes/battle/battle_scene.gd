@@ -818,7 +818,7 @@ func _build_player_sprite(root: Control) -> void:
 	anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
 	anim_sprite.play("idle")
 	anim_sprite.position = Vector2(100, 95)
-	anim_sprite.scale = Vector2(1.15, 1.15)
+	anim_sprite.scale = Vector2(0.78, 0.78)
 	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	player_sprite_container.add_child(anim_sprite)
 	player_sprite = anim_sprite
@@ -862,7 +862,7 @@ func _build_ally_sprite(root: Control) -> void:
 		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("elia")
 		anim_sprite.play("idle")
 		anim_sprite.position = Vector2(80, 78)
-		anim_sprite.scale = Vector2(0.95, 0.95)
+		anim_sprite.scale = Vector2(0.70, 0.70)
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
@@ -882,7 +882,7 @@ func _build_ally_sprite(root: Control) -> void:
 		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames(who)
 		anim_sprite.play("idle")
 		anim_sprite.position = Vector2(80, 70)
-		anim_sprite.scale = Vector2(0.95, 0.95)
+		anim_sprite.scale = Vector2(0.74, 0.74)
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite

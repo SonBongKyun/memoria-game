@@ -5,6 +5,7 @@ extends CharacterBody2D
 
 const BASE_SPEED: float = 120.0
 const SPRINT_MULTIPLIER: float = 1.8
+const SHEET_SPRITE_SCALE: Vector2 = Vector2(0.42, 0.42)
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const ACCELERATION: float = 600.0   # px/s^2 — 가속
 const DECELERATION: float = 800.0   # px/s^2 — 감속 (더 빠르게 멈춤)
@@ -141,11 +142,11 @@ func _physics_process(delta: float) -> void:
 		# S58: Sprint stretch — elongate in movement direction while sprinting
 		if _is_sprinting and sprite:
 			if abs(input_vector.x) > abs(input_vector.y):
-				sprite.scale = sprite.scale.lerp(Vector2(1.08, 0.92), 8.0 * delta)
+				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(1.08, 0.92)), 8.0 * delta)
 			else:
-				sprite.scale = sprite.scale.lerp(Vector2(0.92, 1.08), 8.0 * delta)
+				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(0.92, 1.08)), 8.0 * delta)
 		elif sprite:
-			sprite.scale = sprite.scale.lerp(Vector2(1.0, 1.0), 10.0 * delta)
+			sprite.scale = sprite.scale.lerp(SHEET_SPRITE_SCALE, 10.0 * delta)
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
@@ -165,7 +166,7 @@ func _physics_process(delta: float) -> void:
 					_do_fidget()
 			# Only apply breathing if no active squash tween
 			if not _move_squash_tween or not _move_squash_tween.is_running():
-				sprite.scale = Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008)
+				sprite.scale = _scaled_sprite(Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008))
 	_was_moving = is_moving
 
 	# S41: 지형별 발걸음 SFX
@@ -267,6 +268,7 @@ func _spawn_afterimage() -> void:
 	ghost.animation = sprite.animation
 	ghost.frame = sprite.frame
 	ghost.global_position = global_position
+	ghost.scale = sprite.scale
 	ghost.modulate = Color(0.4, 0.5, 0.8, 0.5)
 	ghost.z_index = z_index - 1
 	get_parent().add_child(ghost)
@@ -314,9 +316,9 @@ func _do_fidget() -> void:
 		return
 	var t = create_tween()
 	# 미세한 좌우 흔들림
-	t.tween_property(sprite, "scale", Vector2(1.02, 0.98), 0.08)
-	t.tween_property(sprite, "scale", Vector2(0.98, 1.02), 0.08)
-	t.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.1)
+	t.tween_property(sprite, "scale", _scaled_sprite(Vector2(1.02, 0.98)), 0.08)
+	t.tween_property(sprite, "scale", _scaled_sprite(Vector2(0.98, 1.02)), 0.08)
+	t.tween_property(sprite, "scale", SHEET_SPRITE_SCALE, 0.1)
 
 ## S58: Movement squash/stretch — brief scale pop on start/stop
 func _play_move_squash(target_scale: Vector2, duration: float) -> void:
@@ -325,8 +327,11 @@ func _play_move_squash(target_scale: Vector2, duration: float) -> void:
 	if _move_squash_tween and _move_squash_tween.is_running():
 		_move_squash_tween.kill()
 	_move_squash_tween = create_tween()
-	_move_squash_tween.tween_property(sprite, "scale", target_scale, duration * 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	_move_squash_tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), duration * 0.6).set_ease(Tween.EASE_IN_OUT)
+	_move_squash_tween.tween_property(sprite, "scale", _scaled_sprite(target_scale), duration * 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_move_squash_tween.tween_property(sprite, "scale", SHEET_SPRITE_SCALE, duration * 0.6).set_ease(Tween.EASE_IN_OUT)
+
+func _scaled_sprite(multiplier: Vector2) -> Vector2:
+	return Vector2(SHEET_SPRITE_SCALE.x * multiplier.x, SHEET_SPRITE_SCALE.y * multiplier.y)
 
 ## 인터랙션 인디케이터 업데이트
 func _update_interact_indicator(delta: float) -> void:
@@ -354,7 +359,7 @@ func _update_interact_indicator(delta: float) -> void:
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprites() -> void:
 	sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
-	sprite.scale = Vector2(0.62, 0.62)
+	sprite.scale = SHEET_SPRITE_SCALE
 
 ## 애니메이션 업데이트
 func _update_animation(direction: Vector2, is_moving: bool) -> void:

@@ -55,6 +55,7 @@ func _ready() -> void:
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.3, 0.3, 0.3, 0.08), 30)
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.35, 0.35), "brightness": -0.05})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/kairos_sealed_city.png", 0.13, Color(0.82, 0.82, 0.88))
 	_s52_particles = MapEffects.add_pollen_particles(self, 20, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.35, 0.35, 0.35, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)

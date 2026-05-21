@@ -81,6 +81,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.BUSH])
 	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.45, 0.25), "brightness": -0.02})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/chapter_sealed_zone.png", 0.10, Color(0.8, 0.95, 0.72))
 	_pollen = MapEffects.add_pollen_particles(self, 12, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.25))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
