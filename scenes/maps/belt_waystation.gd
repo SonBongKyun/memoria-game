@@ -54,7 +54,7 @@ func _ready() -> void:
 	MapEffects.add_ambient_lighting(self, Color(0.45, 0.42, 0.4))
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.45, 0.4, 0.3), "brightness": -0.03})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/world_map_memoria.png", 0.08, Color(0.92, 0.84, 0.68))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_wasteland_city.png", 0.13, Color(0.92, 0.84, 0.68))
 	_s52_particles = MapEffects.add_pollen_particles(self, 15, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.45, 0.4, 0.35, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)

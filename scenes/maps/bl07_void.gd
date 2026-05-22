@@ -78,7 +78,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CRACK])
 	MapEffects.add_color_grading(self, {"tint": Color(0.2, 0.1, 0.35), "brightness": -0.1})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/nera_void_cavern.png", 0.14, Color(0.72, 0.62, 0.95))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_void_cathedral.png", 0.16, Color(0.72, 0.62, 0.95))
 	_s52_particles = MapEffects.add_void_tendrils(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.6)
 	MapEffects.add_drop_shadow(player)

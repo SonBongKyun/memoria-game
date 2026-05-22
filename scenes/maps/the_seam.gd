@@ -75,7 +75,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CLIFF])
 	MapEffects.add_color_grading(self, {"tint": Color(0.4, 0.3, 0.45), "brightness": -0.03})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/tobias_memory_corridor.png", 0.11, Color(0.9, 0.78, 1.0))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_memory_hall.png", 0.13, Color(0.9, 0.78, 1.0))
 	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.7, 0.5, 0.3, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)

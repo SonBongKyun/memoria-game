@@ -61,6 +61,7 @@ var _enemy_base_y: float = 0.0
 var _color_grade_rect: ColorRect
 var _battle_particles: GPUParticles2D  # 배경 파티클
 var _battle_parallax_layers: Array = []  # S53: 전투 패럴랙스
+var _resolved_battle_bg_image: String = ""
 
 # S46: 타격감 강화
 var _enemy_shader_mat: ShaderMaterial  # 적 VFX 셰이더
@@ -123,6 +124,30 @@ func _process(delta: float) -> void:
 			var speed = layer.get_meta("parallax_speed", 0.5)
 			layer.position.x = sin(_idle_time * speed * 0.3) * 15 * speed
 
+func _resolve_battle_bg_image() -> String:
+	if BattleManager.battle_bg_image != "" and ResourceLoader.exists(BattleManager.battle_bg_image):
+		return BattleManager.battle_bg_image
+
+	var scene := BattleManager.return_scene
+	var scene_bg_map := {
+		"rim_forest": "res://assets/cg/game_image/chapter_sealed_zone.png",
+		"verdan_market": "res://assets/cg/game_image/env_bureau_spires.png",
+		"belt_waystation": "res://assets/cg/game_image/env_wasteland_city.png",
+		"drift_shelter": "res://assets/cg/game_image/env_frozen_archive.png",
+		"crumbling_coast": "res://assets/cg/game_image/sealed_gate_plaza.png",
+		"the_seam": "res://assets/cg/game_image/tobias_memory_corridor.png",
+		"seam_outskirts": "res://assets/cg/game_image/env_void_cathedral.png",
+		"forgotten_forest": "res://assets/cg/game_image/env_memory_hall.png",
+		"colorless_waste": "res://assets/cg/game_image/kairos_sealed_city.png",
+		"bl07_void": "res://assets/cg/game_image/env_void_cathedral.png",
+	}
+
+	for key in scene_bg_map.keys():
+		var candidate: String = scene_bg_map[key]
+		if key in scene and ResourceLoader.exists(candidate):
+			return candidate
+	return ""
+
 ## ===================== UI 빌드 =====================
 
 func _build_ui() -> void:
@@ -132,14 +157,16 @@ func _build_ui() -> void:
 	bg.color = Color(0.04, 0.04, 0.06)
 	add_child(bg)
 
-	if BattleManager.battle_bg_image != "" and ResourceLoader.exists(BattleManager.battle_bg_image):
+	_resolved_battle_bg_image = _resolve_battle_bg_image()
+	if _resolved_battle_bg_image != "":
 		var bg_tex = TextureRect.new()
 		bg_tex.set_anchors_preset(Control.PRESET_FULL_RECT)
 		bg_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bg_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		bg_tex.texture = load(BattleManager.battle_bg_image)
-		bg_tex.modulate = Color(0.45, 0.4, 0.35, 0.6)
+		bg_tex.texture = load(_resolved_battle_bg_image)
+		bg_tex.modulate = Color(0.62, 0.57, 0.52, 0.82)
 		add_child(bg_tex)
+		_add_battle_art_depth(_resolved_battle_bg_image)
 
 	# 배경 비네트 오버레이
 	_add_battle_vignette()
@@ -290,6 +317,57 @@ func _add_battle_vignette() -> void:
 		mat.set_shader_parameter("inner_radius", 0.3)
 		vignette.material = mat
 	add_child(vignette)
+
+func _add_battle_art_depth(texture_path: String) -> void:
+	if texture_path == "" or not ResourceLoader.exists(texture_path):
+		return
+
+	var top_plate = TextureRect.new()
+	top_plate.anchor_left = 0.0
+	top_plate.anchor_right = 1.0
+	top_plate.anchor_top = 0.0
+	top_plate.anchor_bottom = 0.42
+	top_plate.offset_left = -26
+	top_plate.offset_right = 26
+	top_plate.offset_top = -18
+	top_plate.offset_bottom = 18
+	top_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	top_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	top_plate.texture = load(texture_path)
+	top_plate.modulate = Color(0.95, 0.9, 0.82, 0.28)
+	top_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(top_plate)
+
+	var side_plate = TextureRect.new()
+	side_plate.anchor_left = 0.55
+	side_plate.anchor_right = 1.0
+	side_plate.anchor_top = 0.08
+	side_plate.anchor_bottom = 0.7
+	side_plate.offset_left = -20
+	side_plate.offset_right = 40
+	side_plate.offset_top = -20
+	side_plate.offset_bottom = 20
+	side_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	side_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	side_plate.texture = load(texture_path)
+	side_plate.modulate = Color(0.88, 0.78, 0.68, 0.18)
+	side_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(side_plate)
+
+	var readability = ColorRect.new()
+	readability.set_anchors_preset(Control.PRESET_FULL_RECT)
+	readability.color = Color(0.015, 0.012, 0.02, 0.28)
+	readability.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(readability)
+
+	var horizon = ColorRect.new()
+	horizon.anchor_left = 0.0
+	horizon.anchor_right = 1.0
+	horizon.anchor_top = 0.53
+	horizon.anchor_bottom = 0.62
+	horizon.color = Color(0.0, 0.0, 0.0, 0.24)
+	horizon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(horizon)
 
 ## S53: 전투 배경 패럴랙스 레이어
 func _add_battle_parallax() -> void:

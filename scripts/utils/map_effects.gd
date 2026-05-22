@@ -1808,17 +1808,43 @@ static func add_illustration_atmosphere(parent: Node, texture_path: String, alph
 	plate.modulate = Color(tint.r, tint.g, tint.b, alpha)
 	layer.add_child(plate)
 
+	var detail_plate = TextureRect.new()
+	detail_plate.anchor_left = 0.0
+	detail_plate.anchor_right = 1.0
+	detail_plate.anchor_top = 0.0
+	detail_plate.anchor_bottom = 0.38
+	detail_plate.offset_top = -16
+	detail_plate.offset_bottom = 16
+	detail_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	detail_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	detail_plate.texture = load(texture_path)
+	detail_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_plate.modulate = Color(tint.r, tint.g, tint.b, clampf(alpha * 1.15, 0.07, 0.18))
+	layer.add_child(detail_plate)
+
 	var shade = ColorRect.new()
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shade.color = Color(0.0, 0.0, 0.0, clampf(alpha * 0.55, 0.03, 0.12))
+	shade.color = Color(0.0, 0.0, 0.0, clampf(alpha * 0.45, 0.025, 0.1))
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(shade)
+
+	var lower_readability = ColorRect.new()
+	lower_readability.anchor_left = 0.0
+	lower_readability.anchor_right = 1.0
+	lower_readability.anchor_top = 0.58
+	lower_readability.anchor_bottom = 1.0
+	lower_readability.color = Color(0.0, 0.0, 0.0, clampf(alpha * 0.85, 0.05, 0.16))
+	lower_readability.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(lower_readability)
 
 	parent.add_child(layer)
 
 	var tw = plate.create_tween().set_loops()
 	tw.tween_property(plate, "modulate:a", alpha * 0.68, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_property(plate, "modulate:a", alpha, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var detail_tw = detail_plate.create_tween().set_loops()
+	detail_tw.tween_property(detail_plate, "modulate:a", clampf(alpha * 1.38, 0.09, 0.22), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	detail_tw.tween_property(detail_plate, "modulate:a", clampf(alpha * 0.78, 0.05, 0.14), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	return layer
 
 ## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)
