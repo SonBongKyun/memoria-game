@@ -75,6 +75,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL])
 	MapEffects.add_color_grading(self, {"tint": Color(0.5, 0.35, 0.2), "brightness": 0.0})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/malet_bureau_overlook.png", 0.10, Color(1.0, 0.82, 0.58))
 	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.5, 0.45, 0.35, 0.15))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)

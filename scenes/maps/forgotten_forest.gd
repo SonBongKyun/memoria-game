@@ -54,6 +54,7 @@ func _ready() -> void:
 	MapEffects.add_fog(self, 0.7, Color(0.15, 0.18, 0.12, 0.3))
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.15, 0.2, 0.12), "brightness": -0.08})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/void_beast_confrontation.png", 0.11, Color(0.66, 0.86, 0.58))
 	_s52_particles = MapEffects.add_pollen_particles(self, 18, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.4, 0.5, 0.2, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
 	MapEffects.add_drop_shadow(player)

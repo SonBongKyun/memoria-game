@@ -229,6 +229,7 @@ signal pre_attack(attacker: String, target: String, skill_name: String)  # S58: 
 signal battle_ended(result: BattleState)
 signal battle_log(message: String)
 signal status_changed()
+signal guard_focus(trigger: String, value: int)
 signal victory_rewards_ready(rewards: Dictionary)  # S58: structured reward data
 var _victory_dismissed: bool = false  # S58: wait for player to dismiss rewards
 
@@ -604,6 +605,23 @@ func player_use_elia_skill(skill_id: String) -> void:
 	_add_limit(5.0)
 	_check_enemy_defeated()
 
+func _soften_player_statuses() -> bool:
+	if player_statuses.is_empty():
+		return false
+
+	for entry in player_statuses:
+		entry.turns_left = maxi(entry.turns_left - 1, 0)
+
+	var expired: Array = []
+	for entry in player_statuses:
+		if entry.turns_left <= 0:
+			expired.append(entry)
+	for entry in expired:
+		player_statuses.erase(entry)
+
+	status_changed.emit()
+	return true
+
 ## 플레이어 행동: 방어
 func player_defend() -> void:
 	if state != BattleState.PLAYER_TURN:
@@ -613,8 +631,23 @@ func player_defend() -> void:
 
 	player_defending = true
 	_reset_combo("defend")
-	_add_limit(LIMIT_GAIN_DEFEND)
-	battle_log.emit("Arrel braces for impact.")
+	var focus_gain: float = LIMIT_GAIN_DEFEND + 7.0
+	if _soften_player_statuses():
+		focus_gain += 4.0
+		guard_focus.emit("status", 1)
+		battle_log.emit("Guard Focus steadies Arrel. Status pressure weakens.")
+	elif GameManager.player_data.hp < GameManager.player_data.max_hp:
+		var heal_amount: int = maxi(3, int(GameManager.player_data.max_hp * 0.05))
+		var actual_heal: int = mini(heal_amount, GameManager.player_data.max_hp - GameManager.player_data.hp)
+		GameManager.player_data.hp += actual_heal
+		damage_dealt.emit("Arrel", -actual_heal, "Guard Focus")
+		guard_focus.emit("heal", actual_heal)
+		battle_log.emit("Guard Focus restores %d HP." % actual_heal)
+	else:
+		focus_gain += 4.0
+		guard_focus.emit("limit", int(focus_gain))
+		battle_log.emit("Guard Focus primes the Limit gauge.")
+	_add_limit(focus_gain)
 	_end_player_turn()
 
 ## 플레이어 행동: 아이템 사용

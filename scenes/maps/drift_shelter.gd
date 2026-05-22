@@ -56,6 +56,7 @@ func _ready() -> void:
 	_lightning = MapEffects.add_lightning(self)  # S53: 번개
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.3, 0.45), "brightness": -0.05})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/memory_loss_warning.png", 0.10, Color(0.76, 0.76, 1.0))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
 	MapEffects.add_drop_shadow(player)
 	# S59: 비에 젖은 안개 + 깊이 그라디언트

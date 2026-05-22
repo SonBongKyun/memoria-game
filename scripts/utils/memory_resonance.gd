@@ -1,13 +1,9 @@
-## MemoryResonance — 기억 공명 탐색 이벤트
-## 맵 위 특정 위치에서 보유 기억이 공명. 현장 연소로 탐색 보너스 획득.
-## 각 맵의 _setup_exploration_events()에서 호출.
+## MemoryResonance - exploration events that trade an owned memory for a field bonus.
 class_name MemoryResonance
 extends RefCounted
 
 const TILE_SIZE: int = 32
 
-# 맵별 공명 지점 데이터
-# map_name → [{pos_x, pos_y, memory_id, bonus_type, bonus_value, bonus_desc, flag}]
 const RESONANCE_POINTS: Dictionary = {
 	"rim_forest": [
 		{"pos_x": 5, "pos_y": 4, "memory_id": "sense_forest_smell", "bonus_type": "max_hp", "bonus_value": 10, "bonus_desc": "The earth remembers your footsteps. +10 Max HP.", "flag": "resonance_rim_smell"},
@@ -48,15 +44,12 @@ const RESONANCE_POINTS: Dictionary = {
 	],
 }
 
-## 맵에 공명 지점 설치
-## map_node: 현재 맵 Node2D, map_name: RESONANCE_POINTS 키
 static func setup_points(map_node: Node2D, map_name: String) -> void:
 	var points = RESONANCE_POINTS.get(map_name, [])
 	for point in points:
-		# 이미 사용한 공명점은 스킵
 		if GameManager.get_flag(point["flag"]):
 			continue
-		# 해당 기억을 아직 보유 중인지 체크
+
 		var memory = MemoryManager._get_memory(point["memory_id"])
 		if memory == null or memory.is_burned:
 			continue
@@ -76,18 +69,39 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 	shape.shape = rect
 	area.add_child(shape)
 
-	# 시각 효과 — 맥동하는 빛
 	var glow = ColorRect.new()
-	glow.size = Vector2(TILE_SIZE, TILE_SIZE)
-	glow.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	glow.color = Color(0.7, 0.55, 0.3, 0.15)
+	glow.size = Vector2(TILE_SIZE * 1.7, TILE_SIZE * 1.7)
+	glow.position = -glow.size * 0.5
+	glow.pivot_offset = glow.size * 0.5
+	glow.color = Color(0.7, 0.55, 0.3, 0.16)
 	glow.z_index = -1
 	area.add_child(glow)
 
-	# 펄스 애니메이션
-	var tween = map_node.create_tween().set_loops()
-	tween.tween_property(glow, "color:a", 0.35, 1.5).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(glow, "color:a", 0.1, 1.5).set_trans(Tween.TRANS_SINE)
+	var core = ColorRect.new()
+	core.size = Vector2(8, 8)
+	core.position = -core.size * 0.5
+	core.pivot_offset = core.size * 0.5
+	core.color = Color(1.0, 0.8, 0.35, 0.72)
+	core.z_index = 2
+	area.add_child(core)
+
+	for i in range(4):
+		var spark = ColorRect.new()
+		spark.size = Vector2(3, 10)
+		var angle = float(i) * TAU / 4.0
+		spark.position = Vector2(cos(angle), sin(angle)) * 20.0 - spark.size * 0.5
+		spark.rotation = angle
+		spark.color = Color(0.95, 0.72, 0.28, 0.42)
+		spark.z_index = 1
+		area.add_child(spark)
+
+	var tween = map_node.create_tween().set_loops().set_parallel(true)
+	tween.tween_property(glow, "color:a", 0.32, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(glow, "scale", Vector2(1.12, 1.12), 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(core, "scale", Vector2(1.35, 1.35), 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.chain().tween_property(glow, "color:a", 0.1, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(glow, "scale", Vector2.ONE, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(core, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	var flag = point["flag"]
 	var memory_id = point["memory_id"]
@@ -100,29 +114,25 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 			return
 		if GameManager.get_flag(flag):
 			return
-		# 기억이 아직 미연소인지 재확인
+
 		var mem = MemoryManager._get_memory(memory_id)
 		if mem == null or mem.is_burned:
 			return
-		# 공명 발동 — 선택지 대화
+
 		GameManager.set_flag(flag)
-		glow.queue_free()
 		tween.kill()
+		area.queue_free()
 		_trigger_resonance_choice(mem, bonus_type, bonus_value, bonus_desc)
 	)
 	map_node.add_child(area)
 
 static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: String, bonus_value, bonus_desc: String) -> void:
-	# 공명 알림
 	NotificationToast.show_toast("Memory Resonance: %s" % memory.title, NotificationToast.ToastType.INFO)
 
-	# 비전투 연소 → 보너스 적용 (선택지 대신 자동 적용으로 간소화)
-	# 실제로는 DialogueManager 선택지 활용이 이상적이나, 현재 자동 적용으로 구현
 	var burned = MemoryManager.burn_memory_silent(memory.id)
 	if burned == null:
 		return
 
-	# 보너스 적용
 	match bonus_type:
 		"max_hp":
 			GameManager.player_data.max_hp += bonus_value
@@ -132,7 +142,6 @@ static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: 
 		"item":
 			GameManager.add_item(str(bonus_value), 1)
 		"encounter_reduce":
-			# 플래그로 저장 — RandomEncounter에서 체크
 			GameManager.set_flag("resonance_encounter_reduce")
 
 	NotificationToast.show_toast(bonus_desc, NotificationToast.ToastType.SUCCESS)

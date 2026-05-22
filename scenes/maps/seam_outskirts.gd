@@ -54,6 +54,7 @@ func _ready() -> void:
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.4, 0.2, 0.5, 0.12), 25)
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.25, 0.2, 0.4), "brightness": -0.05})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/sealed_city_ruins.png", 0.12, Color(0.82, 0.7, 1.0))
 	_s52_particles = MapEffects.add_void_tendrils(self, 4, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.4)
 	MapEffects.add_drop_shadow(player)

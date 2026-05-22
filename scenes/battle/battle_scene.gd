@@ -698,6 +698,8 @@ func _update_status_icons() -> void:
 	# 세이블 동행 표시
 	if BattleManager.sable_in_party:
 		_add_status_icon(player_status_container, "SABLE", Color(0.5, 0.6, 0.8, 0.8))
+	if BattleManager.player_defending:
+		_add_status_icon(player_status_container, "GUARD", Color(0.55, 0.75, 0.95, 0.95))
 
 func _get_status_display(effect: int) -> Dictionary:
 	if effect == BattleManager.StatusEffect.POISON:
@@ -1118,6 +1120,7 @@ func _connect_signals() -> void:
 	BattleManager.enemy_turn_started.connect(_on_enemy_turn)
 	BattleManager.battle_ended.connect(_on_battle_ended)
 	BattleManager.status_changed.connect(_on_status_changed)
+	BattleManager.guard_focus.connect(_on_guard_focus)
 	BattleManager.limit_changed.connect(_on_limit_changed)
 	BattleManager.phase_changed.connect(_on_phase_changed)  # S46
 	BattleManager.echo_activated.connect(_on_echo_activated)  # S51
@@ -1146,6 +1149,8 @@ func _exit_tree() -> void:
 		BattleManager.battle_ended.disconnect(_on_battle_ended)
 	if BattleManager.status_changed.is_connected(_on_status_changed):
 		BattleManager.status_changed.disconnect(_on_status_changed)
+	if BattleManager.guard_focus.is_connected(_on_guard_focus):
+		BattleManager.guard_focus.disconnect(_on_guard_focus)
 	if BattleManager.limit_changed.is_connected(_on_limit_changed):
 		BattleManager.limit_changed.disconnect(_on_limit_changed)
 	if BattleManager.phase_changed.is_connected(_on_phase_changed):
@@ -1230,6 +1235,48 @@ func _on_battle_log(message: String) -> void:
 	# S54: 보상 메시지 수집 (승리 화면용)
 	if "Gained" in message or "Recovered" in message or "Found:" in message:
 		_victory_rewards.append(message)
+
+func _on_guard_focus(trigger: String, value: int) -> void:
+	_update_status_icons()
+	if not player_sprite_container:
+		return
+
+	var label = Label.new()
+	match trigger:
+		"status":
+			label.text = "GUARD FOCUS\nAilment -1"
+		"heal":
+			label.text = "GUARD FOCUS\n+%d HP" % value
+		"limit":
+			label.text = "GUARD FOCUS\nLimit +%d" % value
+		_:
+			label.text = "GUARD FOCUS"
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", Color(0.72, 0.88, 1.0, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.04, 0.08, 0.85))
+	label.add_theme_constant_override("outline_size", 2)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.position = player_sprite_container.position + Vector2(-78, -122)
+	add_child(label)
+
+	var shield = ColorRect.new()
+	shield.size = Vector2(150, 84)
+	shield.position = player_sprite_container.position + Vector2(-75, -86)
+	shield.color = Color(0.25, 0.55, 0.9, 0.13)
+	shield.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(shield)
+
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(label, "position:y", label.position.y - 24.0, 0.75).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(label, "modulate:a", 0.0, 0.75).set_delay(0.28)
+	tw.tween_property(shield, "scale", Vector2(1.35, 1.35), 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(shield, "modulate:a", 0.0, 0.55)
+	tw.finished.connect(func():
+		if is_instance_valid(label):
+			label.queue_free()
+		if is_instance_valid(shield):
+			shield.queue_free()
+	)
 
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
