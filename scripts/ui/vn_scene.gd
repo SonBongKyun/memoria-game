@@ -13,8 +13,12 @@ const PORTRAIT_BRIGHT: Color = Color(1, 1, 1, 1)
 var _bg: ColorRect
 var _cg_current: TextureRect
 var _cg_next: TextureRect  # 크로스페이드용
+var _cg_detail_top: TextureRect
+var _cg_lower_wash: ColorRect
 var _portrait_left: TextureRect
 var _portrait_right: TextureRect
+var _portrait_left_shadow: TextureRect
+var _portrait_right_shadow: TextureRect
 var _name_label: Label
 var _name_panel: PanelContainer
 var _text_label: RichTextLabel
@@ -96,6 +100,18 @@ func _build_ui() -> void:
 	_cg_next.modulate = Color(1, 1, 1, 0)
 	root.add_child(_cg_next)
 
+	_cg_detail_top = _make_cg_detail_rect()
+	root.add_child(_cg_detail_top)
+
+	_cg_lower_wash = ColorRect.new()
+	_cg_lower_wash.anchor_left = 0.0
+	_cg_lower_wash.anchor_right = 1.0
+	_cg_lower_wash.anchor_top = 0.54
+	_cg_lower_wash.anchor_bottom = 1.0
+	_cg_lower_wash.color = Color(0.018, 0.014, 0.022, 0.38)
+	_cg_lower_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_cg_lower_wash)
+
 	# 레터박스 (연출용)
 	_letterbox_top = ColorRect.new()
 	_letterbox_top.anchor_left = 0.0
@@ -118,8 +134,12 @@ func _build_ui() -> void:
 	root.add_child(_letterbox_bottom)
 
 	# 포트레이트 (좌/우)
+	_portrait_left_shadow = _make_portrait_shadow_rect(true)
+	root.add_child(_portrait_left_shadow)
 	_portrait_left = _make_portrait_rect(true)
 	root.add_child(_portrait_left)
+	_portrait_right_shadow = _make_portrait_shadow_rect(false)
+	root.add_child(_portrait_right_shadow)
 	_portrait_right = _make_portrait_rect(false)
 	root.add_child(_portrait_right)
 
@@ -133,11 +153,14 @@ func _build_ui() -> void:
 	_text_panel.offset_bottom = -30
 	_text_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	var tstyle = StyleBoxFlat.new()
-	tstyle.bg_color = Color(0.04, 0.04, 0.08, 0.88)
-	tstyle.border_color = Color(0.6, 0.5, 0.35, 0.7)
-	tstyle.set_border_width_all(2)
-	tstyle.set_content_margin_all(20)
-	tstyle.set_corner_radius_all(6)
+	tstyle.bg_color = Color(0.025, 0.023, 0.032, 0.90)
+	tstyle.border_color = Color(0.82, 0.66, 0.40, 0.62)
+	tstyle.set_border_width(SIDE_LEFT, 1)
+	tstyle.set_border_width(SIDE_TOP, 2)
+	tstyle.set_border_width(SIDE_RIGHT, 1)
+	tstyle.set_border_width(SIDE_BOTTOM, 2)
+	tstyle.set_content_margin_all(22)
+	tstyle.set_corner_radius_all(5)
 	_text_panel.add_theme_stylebox_override("panel", tstyle)
 	root.add_child(_text_panel)
 
@@ -328,6 +351,59 @@ func _make_cg_rect() -> TextureRect:
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return tr
 
+func _make_cg_detail_rect() -> TextureRect:
+	var tr = TextureRect.new()
+	tr.anchor_left = 0.0
+	tr.anchor_right = 1.0
+	tr.anchor_top = 0.0
+	tr.anchor_bottom = 0.34
+	tr.offset_top = -18
+	tr.offset_bottom = 24
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.modulate = Color(0.88, 0.80, 0.68, 0.0)
+	return tr
+
+func _make_portrait_shadow_rect(is_left: bool) -> TextureRect:
+	var tr = TextureRect.new()
+	tr.custom_minimum_size = Vector2(PORTRAIT_SIZE + 70, 128)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.texture = _make_portrait_shadow_texture()
+	tr.anchor_top = 1.0
+	tr.anchor_bottom = 1.0
+	tr.offset_top = -284
+	tr.offset_bottom = -142
+	if is_left:
+		tr.anchor_left = 0.0
+		tr.anchor_right = 0.0
+		tr.offset_left = -6
+		tr.offset_right = PORTRAIT_SIZE + 64
+	else:
+		tr.anchor_left = 1.0
+		tr.anchor_right = 1.0
+		tr.offset_left = -PORTRAIT_SIZE - 64
+		tr.offset_right = 6
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.modulate = Color(0.0, 0.0, 0.0, 0.0)
+	tr.visible = false
+	return tr
+
+func _make_portrait_shadow_texture() -> Texture2D:
+	var grad = Gradient.new()
+	grad.add_point(0.0, Color(0, 0, 0, 0.52))
+	grad.add_point(0.55, Color(0, 0, 0, 0.30))
+	grad.add_point(1.0, Color(0, 0, 0, 0.0))
+	var tex = GradientTexture2D.new()
+	tex.gradient = grad
+	tex.width = 384
+	tex.height = 128
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(0.98, 0.5)
+	return tex
+
 func _make_portrait_rect(is_left: bool) -> TextureRect:
 	var tr = TextureRect.new()
 	tr.custom_minimum_size = Vector2(PORTRAIT_SIZE, PORTRAIT_SIZE)
@@ -348,6 +424,7 @@ func _make_portrait_rect(is_left: bool) -> TextureRect:
 		tr.offset_left = -PORTRAIT_SIZE - 20
 		tr.offset_right = -20
 	tr.modulate = PORTRAIT_DIM
+	tr.pivot_offset = Vector2(PORTRAIT_SIZE * 0.5, PORTRAIT_SIZE * 0.88)
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tr.visible = false
 	return tr
@@ -424,6 +501,8 @@ func _change_cg(cg_ref: String, fade: float) -> void:
 	tw.set_parallel(true)
 	tw.tween_property(_cg_next, "modulate:a", 1.0, fade)
 	tw.tween_property(_cg_current, "modulate:a", 0.0, fade)
+	if _cg_detail_top != null:
+		tw.tween_property(_cg_detail_top, "modulate:a", 0.0, minf(0.25, fade))
 	tw.chain().tween_callback(Callable(self, "_swap_cg"))
 
 func _swap_cg() -> void:
@@ -433,6 +512,26 @@ func _swap_cg() -> void:
 	_cg_next.modulate.a = 0.0
 	# S69: Ken Burns — 정적 일러스트에 미세한 줌+팬으로 생명감
 	_start_ken_burns(_cg_current)
+	_sync_cg_presentation_layers()
+
+func _sync_cg_presentation_layers() -> void:
+	if _cg_detail_top == null:
+		return
+	_cg_detail_top.texture = _cg_current.texture
+	_cg_detail_top.position = Vector2.ZERO
+	_cg_detail_top.scale = Vector2(1.0, 1.0)
+	_cg_detail_top.modulate = Color(0.88, 0.80, 0.68, 0.0)
+	if _cg_detail_top.has_meta("detail_tween"):
+		var prev = _cg_detail_top.get_meta("detail_tween")
+		if prev is Tween and is_instance_valid(prev):
+			prev.kill()
+	var fade_tw = create_tween()
+	fade_tw.tween_property(_cg_detail_top, "modulate:a", 0.13, 0.55).set_trans(Tween.TRANS_SINE)
+	var detail_tw = create_tween().set_loops()
+	detail_tw.tween_interval(0.55)
+	detail_tw.tween_property(_cg_detail_top, "modulate:a", 0.18, 5.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	detail_tw.tween_property(_cg_detail_top, "modulate:a", 0.10, 5.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_cg_detail_top.set_meta("detail_tween", detail_tw)
 
 ## S69: Ken Burns — 8~12초에 걸쳐 1.0 → 1.05 줌 + ±20px 팬
 func _start_ken_burns(rect: TextureRect) -> void:
@@ -477,6 +576,7 @@ func _set_portrait_side(side: String, portrait_id: String) -> void:
 
 	if portrait_id == "":
 		target.visible = false
+		_set_portrait_shadow_alpha(side, 0.0)
 		if side == "left":
 			_left_portrait_id = ""
 		else:
@@ -492,10 +592,20 @@ func _set_portrait_side(side: String, portrait_id: String) -> void:
 	if path == "" or not ResourceLoader.exists(path):
 		# 폴백
 		target.visible = false
+		_set_portrait_shadow_alpha(side, 0.0)
 		return
 
 	target.texture = load(path)
 	target.visible = true
+	var shadow := _portrait_left_shadow if side == "left" else _portrait_right_shadow
+	if shadow != null:
+		shadow.visible = true
+		shadow.scale = Vector2(0.96, 0.96)
+		var stw = create_tween()
+		stw.tween_property(shadow, "scale", Vector2(1.0, 1.0), 0.28).set_trans(Tween.TRANS_SINE)
+	target.scale = Vector2(0.985, 0.985)
+	var tw = create_tween()
+	tw.tween_property(target, "scale", Vector2(1.0, 1.0), 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 	if side == "left":
 		_left_portrait_id = portrait_id
@@ -506,12 +616,31 @@ func _highlight_speaking_side(side: String) -> void:
 	if side == "left":
 		_portrait_left.modulate = PORTRAIT_BRIGHT
 		_portrait_right.modulate = PORTRAIT_DIM
+		_set_portrait_shadow_alpha("left", 0.42)
+		_set_portrait_shadow_alpha("right", 0.18)
 	elif side == "right":
 		_portrait_right.modulate = PORTRAIT_BRIGHT
 		_portrait_left.modulate = PORTRAIT_DIM
+		_set_portrait_shadow_alpha("right", 0.42)
+		_set_portrait_shadow_alpha("left", 0.18)
 	else:
 		_portrait_left.modulate = PORTRAIT_DIM
 		_portrait_right.modulate = PORTRAIT_DIM
+		_set_portrait_shadow_alpha("left", 0.20)
+		_set_portrait_shadow_alpha("right", 0.20)
+
+func _set_portrait_shadow_alpha(side: String, alpha: float) -> void:
+	var shadow := _portrait_left_shadow if side == "left" else _portrait_right_shadow
+	var portrait := _portrait_left if side == "left" else _portrait_right
+	if shadow == null:
+		return
+	if portrait == null or not portrait.visible:
+		shadow.visible = false
+		shadow.modulate.a = 0.0
+		return
+	shadow.visible = true
+	var tw = create_tween()
+	tw.tween_property(shadow, "modulate:a", alpha, 0.22).set_trans(Tween.TRANS_SINE)
 
 ## ===================== S61: 기억 왜곡 VFX =====================
 
