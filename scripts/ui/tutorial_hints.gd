@@ -11,6 +11,7 @@ const HINTS: Dictionary = {
 	"first_shop": "Trade Grains for memories and items. Sell what you don't need.",
 	"first_equipment": "Equip gear from the shop to boost your stats.",
 	"first_status_effect": "Status effects last several turns. Use Antidote to cure poison.",
+	"first_pulse": "Press Q to send out a Memory Pulse. Nearby echoes will briefly answer.",
 }
 
 # UI 노드
@@ -82,19 +83,22 @@ func _build_ui() -> void:
 	add_child(_root)
 
 	_panel = PanelContainer.new()
-	_panel.anchor_left = 0.15
-	_panel.anchor_right = 0.85
+	_panel.anchor_left = 0.20
+	_panel.anchor_right = 0.80
 	_panel.anchor_top = 0.0
 	_panel.anchor_bottom = 0.0
 	_panel.offset_top = 10
-	_panel.offset_bottom = 60
+	_panel.offset_bottom = 64
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.06, 0.12, 0.92)
-	style.border_color = Color(0.65, 0.5, 0.25, 0.8)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(14)
+	style.bg_color = Color(0.030, 0.026, 0.038, 0.94)
+	style.border_color = Color(0.70, 0.56, 0.34, 0.62)
+	style.set_border_width(SIDE_LEFT, 1)
+	style.set_border_width(SIDE_TOP, 2)
+	style.set_border_width(SIDE_RIGHT, 1)
+	style.set_border_width(SIDE_BOTTOM, 1)
+	style.set_corner_radius_all(5)
+	style.set_content_margin_all(16)
 	_panel.add_theme_stylebox_override("panel", style)
 	_root.add_child(_panel)
 
@@ -102,7 +106,10 @@ func _build_ui() -> void:
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.add_theme_font_size_override("font_size", 15)
-	_label.add_theme_color_override("font_color", Color(0.9, 0.82, 0.55))
+	_label.add_theme_color_override("font_color", Color(0.92, 0.86, 0.72))
+	_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.58))
+	_label.add_theme_constant_override("shadow_offset_x", 1)
+	_label.add_theme_constant_override("shadow_offset_y", 1)
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_panel.add_child(_label)
 

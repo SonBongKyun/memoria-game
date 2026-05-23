@@ -9,6 +9,8 @@ const SHEET_SPRITE_SCALE: Vector2 = Vector2(0.42, 0.42)
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const ACCELERATION: float = 600.0   # px/s^2 — 가속
 const DECELERATION: float = 800.0   # px/s^2 — 감속 (더 빠르게 멈춤)
+const MEMORY_PULSE_RADIUS: float = 150.0
+const MEMORY_PULSE_COOLDOWN: float = 6.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var interaction_ray: RayCast2D = $InteractionRay
@@ -50,6 +52,9 @@ var _move_squash_tween: Tween  # 현재 스쿼시/스트레치 트윈 (중복 �
 # --- S57: Interaction indicator ---
 var _interact_indicator: Label = null
 var _indicator_bob_time: float = 0.0
+
+# --- S92: Memory Pulse ---
+var _memory_pulse_cooldown: float = 0.0
 
 func _ready() -> void:
 	add_to_group("player")
@@ -106,6 +111,9 @@ func _setup_interact_indicator() -> void:
 	add_child(_interact_indicator)
 
 func _physics_process(delta: float) -> void:
+	if _memory_pulse_cooldown > 0.0:
+		_memory_pulse_cooldown = maxf(0.0, _memory_pulse_cooldown - delta)
+
 	if not can_move or GameManager.current_state != GameManager.GameState.EXPLORATION:
 		velocity = Vector2.ZERO
 		_idle_time = 0.0
@@ -207,6 +215,11 @@ func _physics_process(delta: float) -> void:
 	_update_interact_indicator(delta)
 
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("memory_pulse") and GameManager.current_state == GameManager.GameState.EXPLORATION:
+		_try_memory_pulse()
+		get_viewport().set_input_as_handled()
+		return
+
 	# 상호작용 (Space / Enter) — 탐색 모드에서만
 	if event.is_action_pressed("interact") and GameManager.current_state == GameManager.GameState.EXPLORATION:
 		_try_interact()
@@ -395,6 +408,70 @@ func _try_interact() -> void:
 	var collider = interaction_ray.get_collider()
 	if collider and collider.has_method("interact"):
 		collider.interact()
+
+func _try_memory_pulse() -> void:
+	if not can_move:
+		return
+	if _memory_pulse_cooldown > 0.0:
+		NotificationToast.show_toast("Memory Pulse recharging: %.1fs" % _memory_pulse_cooldown, NotificationToast.ToastType.INFO)
+		return
+
+	_memory_pulse_cooldown = MEMORY_PULSE_COOLDOWN
+	_play_memory_pulse_vfx()
+	if has_node("/root/AudioManager"):
+		AudioManager.play_combat_sfx("void_pulse")
+	if has_node("/root/TutorialHints"):
+		TutorialHints.show_hint("first_pulse")
+
+	var scene = get_tree().current_scene if get_tree() else null
+	var result := MemoryResonance.pulse_scan(scene, global_position, MEMORY_PULSE_RADIUS)
+	var count: int = int(result.get("count", 0))
+	if count <= 0:
+		NotificationToast.show_toast("Memory Pulse: no echo nearby", NotificationToast.ToastType.INFO)
+		return
+
+	var title: String = result.get("memory_title", "unknown memory")
+	var paces: int = int(round(float(result.get("distance", 0.0)) / 32.0))
+	NotificationToast.show_toast("Memory Pulse: %d echo%s nearby" % [count, "" if count == 1 else "es"], NotificationToast.ToastType.SUCCESS)
+	NotificationToast.show_toast("Nearest echo: %s (%d paces)" % [title, max(paces, 1)], NotificationToast.ToastType.INFO)
+
+func _play_memory_pulse_vfx() -> void:
+	_spawn_pulse_ring(MEMORY_PULSE_RADIUS * 0.65, Color(0.85, 0.72, 0.38, 0.78), 0.42)
+	_spawn_pulse_ring(MEMORY_PULSE_RADIUS, Color(0.58, 0.74, 1.0, 0.52), 0.58)
+	if sprite:
+		var tw = create_tween()
+		tw.tween_property(sprite, "modulate", Color(1.35, 1.22, 0.82, 1.0), 0.10)
+		tw.tween_property(sprite, "modulate", Color.WHITE, 0.28)
+
+func _spawn_pulse_ring(radius: float, color: Color, duration: float) -> void:
+	var parent = get_parent()
+	if parent == null:
+		return
+	var ring = Line2D.new()
+	ring.width = 2.0
+	ring.default_color = color
+	ring.closed = true
+	ring.z_index = z_index + 8
+	for i in range(49):
+		var angle = TAU * float(i) / 48.0
+		ring.add_point(Vector2(cos(angle), sin(angle)) * radius)
+	ring.global_position = global_position
+	ring.scale = Vector2(0.12, 0.12)
+	ring.modulate.a = 0.0
+	parent.add_child(ring)
+	var tw = ring.create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(ring, "scale", Vector2.ONE, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(ring, "modulate:a", color.a, duration * 0.25).set_trans(Tween.TRANS_SINE)
+	tw.chain().tween_property(ring, "modulate:a", 0.0, duration * 0.75).set_trans(Tween.TRANS_SINE)
+	tw.chain().tween_callback(ring.queue_free)
+
+func get_memory_pulse_status() -> Dictionary:
+	return {
+		"cooldown": _memory_pulse_cooldown,
+		"max_cooldown": MEMORY_PULSE_COOLDOWN,
+		"ready": _memory_pulse_cooldown <= 0.0,
+	}
 
 ## S41: 현재 지형 타입 감지 (맵 스크립트의 terrain_map 메타 사용)
 func _get_terrain_type() -> String:

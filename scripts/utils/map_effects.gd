@@ -240,16 +240,52 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 	var layer = CanvasLayer.new()
 	layer.layer = 4  # 비네트(3) 위, UI 아래
 
+	var art_path := _get_chapter_art_path(chapter_num)
+
 	# 풀스크린 어둠 배경
 	var bg = ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0, 0, 0, 0.85)
+	bg.color = Color(0, 0, 0, 0.78)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(bg)
+
+	var art_bg: TextureRect = null
+	var art_panel: TextureRect = null
+	if art_path != "" and ResourceLoader.exists(art_path):
+		art_bg = TextureRect.new()
+		art_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+		art_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art_bg.texture = load(art_path)
+		art_bg.modulate = Color(0.72, 0.66, 0.58, 0.0)
+		art_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(art_bg)
+
+		var lower_wash = ColorRect.new()
+		lower_wash.anchor_left = 0.0
+		lower_wash.anchor_right = 1.0
+		lower_wash.anchor_top = 0.58
+		lower_wash.anchor_bottom = 1.0
+		lower_wash.color = Color(0.0, 0.0, 0.0, 0.42)
+		lower_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(lower_wash)
+
+		art_panel = TextureRect.new()
+		art_panel.anchor_left = 0.18
+		art_panel.anchor_right = 0.82
+		art_panel.anchor_top = 0.17
+		art_panel.anchor_bottom = 0.48
+		art_panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art_panel.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art_panel.texture = load(art_path)
+		art_panel.modulate = Color(1.0, 0.94, 0.82, 0.0)
+		art_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.add_child(art_panel)
 
 	# 중앙 컨테이너
 	var container = VBoxContainer.new()
 	container.set_anchors_preset(Control.PRESET_CENTER)
+	container.offset_top = 64
 	container.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	container.grow_vertical = Control.GROW_DIRECTION_BOTH
 	container.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -295,11 +331,19 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 	tween.set_parallel(true)
 	tween.tween_property(bg, "modulate:a", 1.0, 0.5)
 	tween.tween_property(container, "modulate:a", 1.0, 0.5)
+	if art_bg != null:
+		tween.tween_property(art_bg, "modulate:a", 0.30, 0.65)
+	if art_panel != null:
+		tween.tween_property(art_panel, "modulate:a", 0.72, 0.65)
 	tween.set_parallel(false)
 	tween.tween_interval(2.0)
 	tween.set_parallel(true)
 	tween.tween_property(bg, "modulate:a", 0.0, 0.8)
 	tween.tween_property(container, "modulate:a", 0.0, 0.8)
+	if art_bg != null:
+		tween.tween_property(art_bg, "modulate:a", 0.0, 0.8)
+	if art_panel != null:
+		tween.tween_property(art_panel, "modulate:a", 0.0, 0.8)
 	tween.set_parallel(false)
 	tween.tween_callback(layer.queue_free)
 
@@ -307,6 +351,22 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 	await tween.finished
 
 	return layer
+
+static func _get_chapter_art_path(chapter_num: int) -> String:
+	var art_map := {
+		1: "res://assets/cg/game_image/chapter_sealed_zone.png",
+		2: "res://assets/cg/game_image/env_bureau_spires.png",
+		3: "res://assets/cg/game_image/env_wasteland_city.png",
+		4: "res://assets/cg/game_image/env_frozen_archive.png",
+		5: "res://assets/cg/game_image/sealed_gate_plaza.png",
+		6: "res://assets/cg/game_image/env_memory_hall.png",
+		7: "res://assets/cg/game_image/env_void_cathedral.png",
+		8: "res://assets/cg/game_image/env_memory_hall.png",
+		9: "res://assets/cg/game_image/kairos_sealed_city.png",
+		10: "res://assets/cg/game_image/nera_void_cavern.png",
+		11: "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+	}
+	return art_map.get(chapter_num, "")
 
 ## ===================== 날씨 효과 =====================
 

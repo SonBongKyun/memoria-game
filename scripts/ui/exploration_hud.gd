@@ -8,9 +8,27 @@ extends CanvasLayer
 const MAP_NAMES := {
 	"rim_forest": "Rim Forest",
 	"verdan_market": "Verdan Market",
+	"belt_waystation": "Belt Waystation",
+	"drift_shelter": "Drift Shelter",
 	"crumbling_coast": "Crumbling Coast",
 	"the_seam": "The Seam",
+	"seam_outskirts": "Seam Outskirts",
+	"forgotten_forest": "Forgotten Forest",
+	"colorless_waste": "Colorless Waste",
 	"bl07_void": "BL-07 Void",
+}
+
+const MAP_ART := {
+	"rim_forest": "res://assets/cg/game_image/chapter_sealed_zone.png",
+	"verdan_market": "res://assets/cg/game_image/env_bureau_spires.png",
+	"belt_waystation": "res://assets/cg/game_image/env_wasteland_city.png",
+	"drift_shelter": "res://assets/cg/game_image/env_frozen_archive.png",
+	"crumbling_coast": "res://assets/cg/game_image/sealed_gate_plaza.png",
+	"the_seam": "res://assets/cg/game_image/env_memory_hall.png",
+	"seam_outskirts": "res://assets/cg/game_image/env_void_cathedral.png",
+	"forgotten_forest": "res://assets/cg/game_image/env_memory_hall.png",
+	"colorless_waste": "res://assets/cg/game_image/kairos_sealed_city.png",
+	"bl07_void": "res://assets/cg/game_image/nera_void_cavern.png",
 }
 
 # ── 노드 참조 ──
@@ -23,10 +41,15 @@ var chapter_label: Label
 var memory_label: Label
 var grains_label: Label
 var items_label: Label
+var pulse_label: Label
 var equip_label: Label    # S41
 var quest_label: Label    # S41
 var quest_progress_bar: ProgressBar  # S57: visual quest progress
 var status_icons_row: HBoxContainer  # S57: status effect icons
+var location_card: PanelContainer
+var location_art: TextureRect
+var location_title: Label
+var location_subtitle: Label
 var update_timer: Timer
 var hp_tween: Tween
 var hp_ghost_tween: Tween  # S57
@@ -35,6 +58,8 @@ var _last_grains: int = -1  # S57: track grains for popup
 var _last_burned: int = -1  # S57: track burned count for glow
 var _memory_glow_tween: Tween  # S57
 var _slide_in_done: bool = false  # S57
+var _last_location_key: String = ""
+var _location_card_tween: Tween
 
 func _ready() -> void:
 	layer = 10
@@ -56,6 +81,7 @@ func _build_ui() -> void:
 		8                                 # content margin
 	))
 	add_child(panel)
+	_build_location_card()
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 3)
@@ -148,6 +174,12 @@ func _build_ui() -> void:
 	items_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 	vbox.add_child(items_label)
 
+	# S92: Memory Pulse status
+	pulse_label = Label.new()
+	pulse_label.add_theme_font_size_override("font_size", 11)
+	pulse_label.add_theme_color_override("font_color", Color(0.72, 0.66, 0.48))
+	vbox.add_child(pulse_label)
+
 	# ── S41: Equipment Row ──
 	equip_label = Label.new()
 	equip_label.add_theme_font_size_override("font_size", 11)
@@ -179,6 +211,61 @@ func _build_ui() -> void:
 	quest_progress_bar.add_theme_stylebox_override("background", quest_bg_style)
 	vbox.add_child(quest_progress_bar)
 
+func _build_location_card() -> void:
+	location_card = PanelContainer.new()
+	location_card.anchor_left = 1.0
+	location_card.anchor_right = 1.0
+	location_card.anchor_top = 0.0
+	location_card.anchor_bottom = 0.0
+	location_card.offset_left = -334
+	location_card.offset_right = -18
+	location_card.offset_top = 16
+	location_card.offset_bottom = 138
+	location_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	location_card.modulate.a = 0.0
+	location_card.visible = false
+	location_card.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.018, 0.016, 0.024, 0.92),
+		Color(0.66, 0.52, 0.31, 0.62),
+		1,
+		5,
+		8
+	))
+	add_child(location_card)
+
+	var hbox := HBoxContainer.new()
+	hbox.add_theme_constant_override("separation", 10)
+	location_card.add_child(hbox)
+
+	location_art = TextureRect.new()
+	location_art.custom_minimum_size = Vector2(116, 86)
+	location_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	location_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	location_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_child(location_art)
+
+	var text_box := VBoxContainer.new()
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	text_box.add_theme_constant_override("separation", 5)
+	hbox.add_child(text_box)
+
+	location_title = Label.new()
+	location_title.add_theme_font_size_override("font_size", 15)
+	location_title.add_theme_color_override("font_color", Color(0.93, 0.84, 0.62))
+	location_title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.65))
+	location_title.add_theme_constant_override("shadow_offset_x", 1)
+	location_title.add_theme_constant_override("shadow_offset_y", 1)
+	location_title.autowrap_mode = TextServer.AUTOWRAP_WORD
+	text_box.add_child(location_title)
+
+	location_subtitle = Label.new()
+	location_subtitle.add_theme_font_size_override("font_size", 11)
+	location_subtitle.add_theme_color_override("font_color", Color(0.62, 0.58, 0.50))
+	location_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD
+	location_subtitle.text = "Area image reference"
+	text_box.add_child(location_subtitle)
+
 func _start_timer() -> void:
 	update_timer = Timer.new()
 	update_timer.wait_time = 0.5
@@ -206,6 +293,8 @@ func _on_state_changed(new_state: GameManager.GameState) -> void:
 		_slide_in_done = true
 	elif not should_show:
 		_slide_in_done = false
+		if location_card:
+			location_card.visible = false
 
 # ── S57: Slide-in animation ──
 func _play_slide_in() -> void:
@@ -362,6 +451,7 @@ func _update_hud() -> void:
 		chapter_label.text = "Ch.%d%s" % [chapter_num, ng_suffix]
 	else:
 		chapter_label.text = "Ch.%d — %s%s" % [chapter_num, location_name, ng_suffix]
+	_update_location_card()
 
 	# Memories
 	var held: int = MemoryManager.memories.size()
@@ -387,6 +477,8 @@ func _update_hud() -> void:
 	for item_id in items_dict:
 		total_items += items_dict[item_id]
 	items_label.text = "Items: %d" % total_items
+
+	_update_memory_pulse_status()
 
 	# S41: Equipment summary
 	var weapon_name = ""
@@ -448,18 +540,84 @@ func _update_quest_tracker() -> void:
 		quest_label.visible = false
 		quest_progress_bar.visible = false
 
+func _update_memory_pulse_status() -> void:
+	if pulse_label == null:
+		return
+	var player = _get_player_node()
+	if player == null or not player.has_method("get_memory_pulse_status"):
+		pulse_label.visible = false
+		return
+
+	pulse_label.visible = true
+	var status: Dictionary = player.get_memory_pulse_status()
+	if bool(status.get("ready", false)):
+		pulse_label.text = "Pulse: Ready [Q]"
+		pulse_label.add_theme_color_override("font_color", Color(0.86, 0.76, 0.42))
+	else:
+		var cooldown: float = float(status.get("cooldown", 0.0))
+		var max_cooldown: float = maxf(float(status.get("max_cooldown", 1.0)), 1.0)
+		var marks := 5
+		var filled := int(round((1.0 - cooldown / max_cooldown) * marks))
+		var meter := ""
+		for i in range(marks):
+			meter += "|" if i < filled else "."
+		pulse_label.text = "Pulse: %s %.1fs" % [meter, cooldown]
+		pulse_label.add_theme_color_override("font_color", Color(0.52, 0.55, 0.64))
+
+func _get_player_node() -> Node:
+	var tree = get_tree()
+	if tree == null:
+		return null
+	var players = tree.get_nodes_in_group("player")
+	if players.is_empty():
+		return null
+	return players[0]
+
+func _update_location_card() -> void:
+	var key := _get_location_key()
+	if key == "" or key == _last_location_key:
+		return
+	_last_location_key = key
+	var art_path: String = MAP_ART.get(key, "")
+	if art_path == "" or not ResourceLoader.exists(art_path):
+		return
+
+	location_art.texture = load(art_path)
+	location_title.text = MAP_NAMES.get(key, key.capitalize())
+	location_subtitle.text = "Ch.%d / %s" % [GameManager.current_chapter, "illustrated region"]
+
+	if _location_card_tween and _location_card_tween.is_valid():
+		_location_card_tween.kill()
+	location_card.visible = true
+	location_card.modulate.a = 0.0
+	location_card.position.x = 36
+	_location_card_tween = create_tween()
+	_location_card_tween.set_parallel(true)
+	_location_card_tween.tween_property(location_card, "modulate:a", 1.0, 0.28).set_trans(Tween.TRANS_SINE)
+	_location_card_tween.tween_property(location_card, "position:x", 0.0, 0.32).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_location_card_tween.set_parallel(false)
+	_location_card_tween.tween_interval(3.2)
+	_location_card_tween.tween_property(location_card, "modulate:a", 0.0, 0.55).set_trans(Tween.TRANS_SINE)
+	_location_card_tween.tween_callback(func(): location_card.visible = false)
+
 ## 현재 맵 이름 가져오기
 func _get_location_name() -> String:
+	var key := _get_location_key()
+	if key != "":
+		return MAP_NAMES.get(key, "")
+	return ""
+
+func _get_location_key() -> String:
 	var scene := get_tree().current_scene
 	if scene == null:
 		return ""
 	var scene_name: String = scene.name.to_lower()
 	# Try direct match first
 	if MAP_NAMES.has(scene_name):
-		return MAP_NAMES[scene_name]
+		return scene_name
 	# Try matching against scene file path
 	if scene.scene_file_path:
 		var file_name: String = scene.scene_file_path.get_file().get_basename().to_lower()
 		if MAP_NAMES.has(file_name):
-			return MAP_NAMES[file_name]
+			return file_name
 	return ""

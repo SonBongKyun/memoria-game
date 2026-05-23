@@ -83,6 +83,24 @@ const DEFAULT_PORTRAITS: Dictionary = {
 	"Seric": "seric_neutral",
 	"Tobias": "tobias_neutral",
 }
+const SPEAKER_STAGE_ART: Dictionary = {
+	"Arrel": "res://assets/cg/game_image/sheet_arrel_profile.png",
+	"Elia": "res://assets/cg/game_image/sheet_elia_profile.png",
+	"Kairos": "res://assets/cg/game_image/kairos_fullbody.png",
+	"Nera": "res://assets/cg/game_image/nera_fullbody.png",
+	"Tobias": "res://assets/cg/game_image/tobias_fullbody.png",
+	"Malet": "res://assets/cg/game_image/malet_bureau_overlook.png",
+}
+const SPEAKER_STAGE_SIDE: Dictionary = {
+	"Arrel": "left",
+	"Elia": "right",
+	"Sable": "right",
+	"Malet": "right",
+	"Kairos": "right",
+	"Nera": "right",
+	"Seric": "right",
+	"Tobias": "right",
+}
 
 # UI 노드 (코드로 생성)
 var panel: PanelContainer
@@ -90,10 +108,15 @@ var portrait_panel: PanelContainer
 var portrait_texture: TextureRect
 var portrait_fallback: ColorRect
 var portrait_label: Label
+var stage_left: TextureRect
+var stage_right: TextureRect
+var stage_left_shadow: ColorRect
+var stage_right_shadow: ColorRect
 var speaker_label: Label
 var text_label: RichTextLabel
 var choice_container: VBoxContainer
 var indicator: Label  # ▼ 다음 대사 표시
+var _indicator_tween: Tween
 
 var full_text: String = ""
 var displayed_chars: int = 0
@@ -108,6 +131,9 @@ var _blip_stream: AudioStreamWAV = null
 # S54: Portrait transition tracking
 var _current_portrait_key: String = ""
 var _portrait_tween: Tween
+var _current_stage_key: String = ""
+var _stage_left_tween: Tween
+var _stage_right_tween: Tween
 
 # S54: Dialogue camera effects
 var _cam_tween: Tween
@@ -266,7 +292,7 @@ func _process(delta: float) -> void:
 			displayed_chars = _bbcode_text.length()
 			text_label.text = _bbcode_text
 			is_typing = false
-			indicator.visible = true
+			_set_indicator_visible(true)
 			_line_shake = false
 			_start_auto_advance_if_narration()
 			return
@@ -280,7 +306,7 @@ func _process(delta: float) -> void:
 		if displayed_chars >= full_text.length():
 			is_typing = false
 			text_label.text = _bbcode_text  # show full formatted text
-			indicator.visible = true
+			_set_indicator_visible(true)
 			_line_shake = false
 			_start_auto_advance_if_narration()
 
@@ -439,6 +465,7 @@ func _build_ui() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	_build_stage_art(root)
 
 	# 패널 (하단 대화 박스)
 	panel = PanelContainer.new()
@@ -452,10 +479,13 @@ func _build_ui() -> void:
 	# 스타일 (어두운 반투명 -- 서고 모티프)
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.035, 0.032, 0.042, 0.94)
-	style.border_color = Color(0.52, 0.43, 0.28, 0.72)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(14)
+	style.border_color = Color(0.70, 0.56, 0.34, 0.58)
+	style.set_border_width(SIDE_LEFT, 1)
+	style.set_border_width(SIDE_TOP, 2)
+	style.set_border_width(SIDE_RIGHT, 1)
+	style.set_border_width(SIDE_BOTTOM, 2)
+	style.set_corner_radius_all(5)
+	style.set_content_margin_all(16)
 	panel.add_theme_stylebox_override("panel", style)
 	root.add_child(panel)
 
@@ -468,8 +498,8 @@ func _build_ui() -> void:
 	portrait_panel = PanelContainer.new()
 	portrait_panel.custom_minimum_size = Vector2(122, 126)
 	var portrait_style = StyleBoxFlat.new()
-	portrait_style.bg_color = Color(0.015, 0.014, 0.018, 0.72)
-	portrait_style.border_color = Color(0.36, 0.3, 0.22, 0.58)
+	portrait_style.bg_color = Color(0.012, 0.011, 0.016, 0.78)
+	portrait_style.border_color = Color(0.48, 0.38, 0.23, 0.54)
 	portrait_style.set_border_width_all(1)
 	portrait_style.set_corner_radius_all(5)
 	portrait_style.set_content_margin_all(7)
@@ -512,7 +542,7 @@ func _build_ui() -> void:
 	# 화자 이름
 	speaker_label = Label.new()
 	speaker_label.custom_minimum_size = Vector2(0, 22)
-	speaker_label.add_theme_font_size_override("font_size", 15)
+	speaker_label.add_theme_font_size_override("font_size", 16)
 	speaker_label.add_theme_color_override("font_color", Color(0.82, 0.68, 0.46))
 	speaker_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
 	speaker_label.add_theme_constant_override("outline_size", 1)
@@ -533,28 +563,78 @@ func _build_ui() -> void:
 	text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
 	text_label.add_theme_constant_override("line_separation", 7)
 	text_label.add_theme_color_override("default_color", Color(0.9, 0.87, 0.81))
+	text_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.58))
+	text_label.add_theme_constant_override("shadow_offset_x", 1)
+	text_label.add_theme_constant_override("shadow_offset_y", 1)
 	text_area.add_child(text_label)
 
 	# 다음 대사 표시기 (triangle)
 	indicator = Label.new()
-	indicator.text = "ENTER"
+	indicator.text = "NEXT"
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	indicator.add_theme_font_size_override("font_size", 11)
-	indicator.add_theme_color_override("font_color", Color(0.58, 0.5, 0.38, 0.78))
-	indicator.visible = false
+	indicator.add_theme_font_size_override("font_size", 10)
+	indicator.add_theme_color_override("font_color", Color(0.74, 0.62, 0.40, 0.76))
+	indicator.add_theme_constant_override("outline_size", 1)
+	indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
+	_set_indicator_visible(false)
 	text_area.add_child(indicator)
 
 	# 선택지 컨테이너 (대화 박스 위에 표시)
 	choice_container = VBoxContainer.new()
-	choice_container.anchor_left = 0.2
-	choice_container.anchor_right = 0.8
+	choice_container.anchor_left = 0.23
+	choice_container.anchor_right = 0.77
 	choice_container.anchor_top = 1.0
 	choice_container.anchor_bottom = 1.0
-	choice_container.offset_top = -270
+	choice_container.offset_top = -292
 	choice_container.offset_bottom = -196
-	choice_container.add_theme_constant_override("separation", 6)
+	choice_container.add_theme_constant_override("separation", 8)
 	choice_container.visible = false
 	root.add_child(choice_container)
+
+func _build_stage_art(root: Control) -> void:
+	stage_left_shadow = _make_stage_shadow(true)
+	root.add_child(stage_left_shadow)
+	stage_left = _make_stage_portrait(true)
+	root.add_child(stage_left)
+
+	stage_right_shadow = _make_stage_shadow(false)
+	root.add_child(stage_right_shadow)
+	stage_right = _make_stage_portrait(false)
+	root.add_child(stage_right)
+
+func _make_stage_portrait(is_left: bool) -> TextureRect:
+	var rect = TextureRect.new()
+	rect.anchor_top = 0.10
+	rect.anchor_bottom = 1.0
+	if is_left:
+		rect.anchor_left = 0.02
+		rect.anchor_right = 0.40
+	else:
+		rect.anchor_left = 0.60
+		rect.anchor_right = 0.98
+	rect.offset_bottom = -150
+	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CONTAINED
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.modulate = Color(1.0, 0.95, 0.84, 0.0)
+	rect.visible = false
+	return rect
+
+func _make_stage_shadow(is_left: bool) -> ColorRect:
+	var shadow = ColorRect.new()
+	shadow.anchor_top = 0.10
+	shadow.anchor_bottom = 1.0
+	if is_left:
+		shadow.anchor_left = 0.00
+		shadow.anchor_right = 0.42
+	else:
+		shadow.anchor_left = 0.58
+		shadow.anchor_right = 1.0
+	shadow.offset_bottom = -150
+	shadow.color = Color(0.0, 0.0, 0.0, 0.0)
+	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shadow.visible = false
+	return shadow
 
 ## S55: Get dialogue font size based on accessibility settings
 func _get_dialogue_font_size() -> int:
@@ -617,6 +697,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 			portrait_panel.visible = false
 		portrait_texture.visible = false
 		portrait_fallback.visible = false
+		_hide_speaker_stage()
 		text_label.add_theme_color_override("default_color", UITheme.TEXT_NARRATION)
 		if speaker == "system_log":
 			text_label.add_theme_color_override("default_color", UITheme.TEXT_SYSTEM)
@@ -627,6 +708,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 		speaker_label.add_theme_color_override("font_color", UITheme.get_speaker_color(speaker))
 		text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
 		_update_portrait(speaker, portrait)
+		_update_speaker_stage(speaker, portrait)
 
 	# S55: Apply emphasis and store both plain and formatted text
 	full_text = clean_text
@@ -635,7 +717,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	text_label.text = ""
 	is_typing = true
 	typewriter_timer = 0.0
-	indicator.visible = false
+	_set_indicator_visible(false)
 
 ## S54: Parse direction tags from dialogue text
 ## Supports: [shake], [slow], [fast], [pause=N], [zoom=N], [pan=X,Y], [reset]
@@ -718,23 +800,26 @@ func _on_dialogue_choice(choices: Array) -> void:
 		var btn = Button.new()
 		btn.text = "%d. %s" % [i + 1, choice.get("text", "...")]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.custom_minimum_size = Vector2(0, 42)
+		btn.custom_minimum_size = Vector2(0, 46)
 
 		var btn_style = StyleBoxFlat.new()
-		btn_style.bg_color = Color(0.035, 0.032, 0.042, 0.96)
-		btn_style.border_color = Color(0.45, 0.37, 0.24, 0.7)
-		btn_style.set_border_width_all(1)
-		btn_style.set_corner_radius_all(5)
-		btn_style.set_content_margin_all(10)
+		btn_style.bg_color = Color(0.026, 0.024, 0.034, 0.96)
+		btn_style.border_color = Color(0.58, 0.45, 0.27, 0.58)
+		btn_style.set_border_width(SIDE_LEFT, 2)
+		btn_style.set_border_width(SIDE_TOP, 1)
+		btn_style.set_border_width(SIDE_RIGHT, 1)
+		btn_style.set_border_width(SIDE_BOTTOM, 1)
+		btn_style.set_corner_radius_all(4)
+		btn_style.set_content_margin_all(12)
 		btn.add_theme_stylebox_override("normal", btn_style)
 
 		var hover_style = btn_style.duplicate()
-		hover_style.bg_color = Color(0.09, 0.075, 0.095, 0.98)
-		hover_style.border_color = Color(0.82, 0.64, 0.36, 0.88)
+		hover_style.bg_color = Color(0.095, 0.075, 0.085, 0.98)
+		hover_style.border_color = Color(0.92, 0.70, 0.38, 0.88)
 		btn.add_theme_stylebox_override("hover", hover_style)
 		btn.add_theme_stylebox_override("focus", hover_style)
 
-		btn.add_theme_color_override("font_color", Color(0.84, 0.8, 0.72))
+		btn.add_theme_color_override("font_color", Color(0.88, 0.84, 0.76))
 		btn.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.55))
 		btn.add_theme_font_size_override("font_size", 15)
 
@@ -744,19 +829,18 @@ func _on_dialogue_choice(choices: Array) -> void:
 			_on_choice_selected(idx)
 		)
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
-		# S58: Pop-in animation — start scaled up, overshoot settle to 1.0
-		btn.scale = Vector2(0.0, 0.0)
+		btn.modulate.a = 0.0
+		btn.scale = Vector2(0.985, 0.985)
 		btn.pivot_offset = Vector2(btn.size.x * 0.5, btn.size.y * 0.5) if btn.size.x > 0 else Vector2(100, 14)
 		choice_container.add_child(btn)
 
-	# S58: Staggered pop-in animation for each choice button
 	for ci in range(choice_container.get_child_count()):
 		var child_btn = choice_container.get_child(ci)
 		child_btn.pivot_offset = child_btn.size * 0.5 if child_btn.size.x > 0 else Vector2(100, 14)
 		var pop_t = create_tween()
-		pop_t.tween_interval(ci * 0.06)  # stagger delay per button
-		pop_t.tween_property(child_btn, "scale", Vector2(1.15, 1.15), 0.08).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		pop_t.tween_property(child_btn, "scale", Vector2(1.0, 1.0), 0.06).set_ease(Tween.EASE_IN_OUT)
+		pop_t.set_parallel(true)
+		pop_t.tween_property(child_btn, "modulate:a", 1.0, 0.16).set_delay(ci * 0.045).set_ease(Tween.EASE_OUT)
+		pop_t.tween_property(child_btn, "scale", Vector2(1.0, 1.0), 0.16).set_delay(ci * 0.045).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 
 	if choice_container.get_child_count() > 0:
 		# Delay focus grab slightly to let pop-in start
@@ -780,11 +864,97 @@ func _on_dialogue_ended() -> void:
 	# S55: Clear cinematic effects
 	_hide_letterbox()
 	_clear_tint()
+	_hide_speaker_stage(true)
 	hide_box()
 
 func _on_choice_selected(index: int) -> void:
 	_clear_choices()
 	DialogueManager.select_choice(index)
+
+func _get_stage_art_path(speaker: String, portrait_key: String) -> String:
+	if SPEAKER_STAGE_ART.has(speaker):
+		return SPEAKER_STAGE_ART[speaker]
+	if portrait_key != "" and PORTRAIT_MAP.has(portrait_key):
+		return PORTRAIT_MAP[portrait_key]
+	if DEFAULT_PORTRAITS.has(speaker):
+		var default_key: String = DEFAULT_PORTRAITS[speaker]
+		return PORTRAIT_MAP.get(default_key, "")
+	return ""
+
+func _update_speaker_stage(speaker: String, portrait_key: String) -> void:
+	var path := _get_stage_art_path(speaker, portrait_key)
+	if path == "" or not ResourceLoader.exists(path):
+		_hide_speaker_stage()
+		return
+
+	var side: String = SPEAKER_STAGE_SIDE.get(speaker, "right")
+	var target: TextureRect = stage_left if side == "left" else stage_right
+	var target_shadow: ColorRect = stage_left_shadow if side == "left" else stage_right_shadow
+	var other: TextureRect = stage_right if side == "left" else stage_left
+	var other_shadow: ColorRect = stage_right_shadow if side == "left" else stage_left_shadow
+	var stage_key := "%s|%s|%s" % [speaker, portrait_key, path]
+	if stage_key == _current_stage_key and target.visible:
+		return
+	_current_stage_key = stage_key
+
+	_fade_stage_out(other, other_shadow, side != "left")
+
+	target.texture = load(path)
+	target.visible = true
+	target_shadow.visible = true
+	target.modulate = Color(1.0, 0.95, 0.84, 0.0)
+	target_shadow.color = Color(0.0, 0.0, 0.0, 0.0)
+	target.position.x = -24.0 if side == "left" else 24.0
+	target.scale = Vector2(1.015, 1.015)
+
+	var target_alpha: float = 0.38 if SPEAKER_STAGE_ART.has(speaker) else 0.30
+	var shadow_alpha: float = 0.28 if SPEAKER_STAGE_ART.has(speaker) else 0.20
+	var tw := create_tween().set_parallel(true)
+	if side == "left":
+		if _stage_left_tween:
+			_stage_left_tween.kill()
+		_stage_left_tween = tw
+	else:
+		if _stage_right_tween:
+			_stage_right_tween.kill()
+		_stage_right_tween = tw
+	tw.tween_property(target, "modulate:a", target_alpha, 0.26).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(target, "position:x", 0.0, 0.30).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(target_shadow, "color:a", shadow_alpha, 0.26).set_trans(Tween.TRANS_SINE)
+
+func _fade_stage_out(rect: TextureRect, shadow: ColorRect, is_right: bool) -> void:
+	if rect == null or not rect.visible:
+		return
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(rect, "modulate:a", 0.0, 0.18)
+	tw.tween_property(rect, "position:x", 18.0 if is_right else -18.0, 0.18)
+	if shadow != null:
+		tw.tween_property(shadow, "color:a", 0.0, 0.18)
+	tw.set_parallel(false)
+	tw.tween_callback(func():
+		rect.visible = false
+		if shadow != null:
+			shadow.visible = false
+	)
+
+func _hide_speaker_stage(immediate: bool = false) -> void:
+	_current_stage_key = ""
+	if immediate:
+		if _stage_left_tween:
+			_stage_left_tween.kill()
+		if _stage_right_tween:
+			_stage_right_tween.kill()
+		for rect in [stage_left, stage_right]:
+			if rect:
+				rect.visible = false
+				rect.modulate.a = 0.0
+		for shadow in [stage_left_shadow, stage_right_shadow]:
+			if shadow:
+				shadow.visible = false
+				shadow.color.a = 0.0
+		return
+	_fade_stage_out(stage_left, stage_left_shadow, false)
+	_fade_stage_out(stage_right, stage_right_shadow, true)
 
 ## S54: 포트레이트 베이스 이름 추출
 func _get_portrait_base(key: String) -> String:
@@ -865,6 +1035,21 @@ func _clear_choices() -> void:
 		child.queue_free()
 	choice_container.visible = false
 
+func _set_indicator_visible(on: bool) -> void:
+	if indicator == null:
+		return
+	if _indicator_tween:
+		_indicator_tween.kill()
+	_indicator_tween = null
+	indicator.visible = on
+	if not on:
+		indicator.modulate.a = 1.0
+		return
+	indicator.modulate.a = 0.72
+	_indicator_tween = create_tween().set_loops()
+	_indicator_tween.tween_property(indicator, "modulate:a", 1.0, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_indicator_tween.tween_property(indicator, "modulate:a", 0.54, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
 ## 박스 표시/숨김
 func show_box() -> void:
 	panel.visible = true
@@ -878,6 +1063,7 @@ func show_box() -> void:
 
 func hide_box() -> void:
 	choice_container.visible = false
+	_set_indicator_visible(false)
 	is_typing = false
 	_auto_advance_active = false
 	if panel.visible:
@@ -909,7 +1095,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			text_label.text = _bbcode_text
 			is_typing = false
 			_line_shake = false
-			indicator.visible = true
+			_set_indicator_visible(true)
 			var viewport = get_viewport()
 			if viewport:
 				viewport.canvas_transform.origin = Vector2.ZERO

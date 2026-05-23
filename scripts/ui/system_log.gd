@@ -29,22 +29,22 @@ func _build_ui() -> void:
 	add_child(root)
 
 	log_panel = PanelContainer.new()
-	log_panel.anchor_left = 0.15
-	log_panel.anchor_right = 0.85
+	log_panel.anchor_left = 0.18
+	log_panel.anchor_right = 0.82
 	log_panel.anchor_top = 0.0
 	log_panel.anchor_bottom = 0.0
-	log_panel.offset_top = 16
-	log_panel.offset_bottom = 100
+	log_panel.offset_top = 18
+	log_panel.offset_bottom = 104
 	log_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# 관리국 스타일 — 어두운 배경, 청록/녹색 테두리
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.03, 0.05, 0.06, 0.92)
-	style.border_color = Color(0.2, 0.5, 0.45, 0.7)
+	style.bg_color = Color(0.018, 0.034, 0.038, 0.94)
+	style.border_color = Color(0.30, 0.62, 0.54, 0.62)
 	style.set_border_width_all(1)
 	style.border_width_top = 2
-	style.set_corner_radius_all(2)
-	style.set_content_margin_all(12)
+	style.set_corner_radius_all(4)
+	style.set_content_margin_all(14)
 	log_panel.add_theme_stylebox_override("panel", style)
 	root.add_child(log_panel)
 
@@ -54,7 +54,10 @@ func _build_ui() -> void:
 	log_label.scroll_active = false
 	log_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	log_label.add_theme_font_size_override("normal_font_size", 13)
-	log_label.add_theme_color_override("default_color", Color(0.3, 0.7, 0.6))
+	log_label.add_theme_color_override("default_color", Color(0.46, 0.82, 0.72))
+	log_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.55))
+	log_label.add_theme_constant_override("shadow_offset_x", 1)
+	log_label.add_theme_constant_override("shadow_offset_y", 1)
 	log_panel.add_child(log_label)
 
 ## 기억 연소 시그널 핸들러

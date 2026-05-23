@@ -59,9 +59,14 @@ static func setup_points(map_node: Node2D, map_name: String) -> void:
 
 static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dictionary) -> void:
 	var area = Area2D.new()
+	area.name = "MemoryResonance_%s" % str(point.get("flag", "echo"))
 	area.position = pos + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
 	area.collision_layer = 0
 	area.collision_mask = 2
+	area.add_to_group("memory_resonance")
+	area.set_meta("memory_id", point["memory_id"])
+	area.set_meta("bonus_desc", point["bonus_desc"])
+	area.set_meta("flag", point["flag"])
 
 	var shape = CollisionShape2D.new()
 	var rect = RectangleShape2D.new()
@@ -125,6 +130,68 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 		_trigger_resonance_choice(mem, bonus_type, bonus_value, bonus_desc)
 	)
 	map_node.add_child(area)
+
+static func pulse_scan(map_node: Node, origin: Vector2, radius: float) -> Dictionary:
+	if map_node == null or map_node.get_tree() == null:
+		return {"count": 0}
+
+	var nearest: Area2D = null
+	var nearest_distance := INF
+	var count := 0
+	for node in map_node.get_tree().get_nodes_in_group("memory_resonance"):
+		if not is_instance_valid(node) or not (node is Area2D):
+			continue
+		if node.get_parent() != map_node:
+			continue
+		var area := node as Area2D
+		var dist := origin.distance_to(area.global_position)
+		if dist <= radius:
+			count += 1
+			_flash_scan_target(area, radius, dist)
+			if dist < nearest_distance:
+				nearest_distance = dist
+				nearest = area
+
+	if nearest == null:
+		return {"count": 0}
+
+	var memory_id: String = str(nearest.get_meta("memory_id", ""))
+	var memory = MemoryManager._get_memory(memory_id)
+	var memory_title := memory.title if memory != null else "unknown memory"
+	return {
+		"count": count,
+		"distance": nearest_distance,
+		"memory_id": memory_id,
+		"memory_title": memory_title,
+	}
+
+static func _flash_scan_target(area: Area2D, radius: float, distance: float) -> void:
+	var strength: float = clampf(1.0 - (distance / maxf(radius, 1.0)), 0.25, 1.0)
+	for child in area.get_children():
+		if child is CanvasItem:
+			var item := child as CanvasItem
+			var base_modulate := item.modulate
+			var tw = area.create_tween()
+			tw.tween_property(item, "modulate", Color(1.45, 1.25, 0.55, clampf(base_modulate.a + 0.35 * strength, 0.2, 1.0)), 0.12)
+			tw.tween_property(item, "modulate", base_modulate, 0.55).set_trans(Tween.TRANS_SINE)
+
+	var hint = Label.new()
+	hint.text = "ECHO"
+	hint.add_theme_font_size_override("font_size", 9)
+	hint.add_theme_color_override("font_color", Color(1.0, 0.86, 0.46, 0.92))
+	hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
+	hint.add_theme_constant_override("outline_size", 2)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.position = Vector2(-28, -34)
+	hint.z_index = 8
+	hint.modulate.a = 0.0
+	area.add_child(hint)
+	var ht = area.create_tween()
+	ht.set_parallel(true)
+	ht.tween_property(hint, "modulate:a", 1.0, 0.12)
+	ht.tween_property(hint, "position:y", -44.0, 0.55).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	ht.chain().tween_property(hint, "modulate:a", 0.0, 0.28)
+	ht.chain().tween_callback(hint.queue_free)
 
 static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: String, bonus_value, bonus_desc: String) -> void:
 	NotificationToast.show_toast("Memory Resonance: %s" % memory.title, NotificationToast.ToastType.INFO)

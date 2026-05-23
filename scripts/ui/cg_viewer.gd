@@ -11,6 +11,8 @@ var waiting_for_input: bool = false
 # UI 노드
 var bg: ColorRect
 var cg_texture: TextureRect
+var cg_top_wash: ColorRect
+var cg_lower_wash: ColorRect
 var overlay_label: RichTextLabel
 var tween: Tween
 
@@ -49,6 +51,24 @@ func _build_ui() -> void:
 	cg_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	cg_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(cg_texture)
+
+	cg_top_wash = ColorRect.new()
+	cg_top_wash.anchor_left = 0.0
+	cg_top_wash.anchor_right = 1.0
+	cg_top_wash.anchor_top = 0.0
+	cg_top_wash.anchor_bottom = 0.28
+	cg_top_wash.color = Color(0.015, 0.012, 0.018, 0.0)
+	cg_top_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(cg_top_wash)
+
+	cg_lower_wash = ColorRect.new()
+	cg_lower_wash.anchor_left = 0.0
+	cg_lower_wash.anchor_right = 1.0
+	cg_lower_wash.anchor_top = 0.54
+	cg_lower_wash.anchor_bottom = 1.0
+	cg_lower_wash.color = Color(0.012, 0.010, 0.016, 0.0)
+	cg_lower_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(cg_lower_wash)
 
 	# 텍스트 오버레이 (하단)
 	var text_panel = PanelContainer.new()
@@ -99,8 +119,14 @@ func show_cg(image_path: String, text: String = "", auto_close_sec: float = 0.0,
 	# 페이드 인
 	bg.modulate.a = 0.0
 	cg_texture.modulate.a = 0.0
+	cg_texture.position = Vector2(-14, -8)
+	cg_texture.scale = Vector2(1.025, 1.025)
+	cg_top_wash.color.a = 0.0
+	cg_lower_wash.color.a = 0.0
 	bg.visible = true
 	cg_texture.visible = true
+	cg_top_wash.visible = true
+	cg_lower_wash.visible = true
 	is_showing = true
 
 	if tween:
@@ -109,6 +135,8 @@ func show_cg(image_path: String, text: String = "", auto_close_sec: float = 0.0,
 	tween.set_parallel(true)
 	tween.tween_property(bg, "modulate:a", 1.0, FADE_DURATION)
 	tween.tween_property(cg_texture, "modulate:a", 1.0, FADE_DURATION)
+	tween.tween_property(cg_top_wash, "color:a", 0.28, FADE_DURATION)
+	tween.tween_property(cg_lower_wash, "color:a", 0.56, FADE_DURATION)
 	await tween.finished
 
 	cg_shown.emit(image_path)
@@ -133,6 +161,8 @@ func close_cg() -> void:
 	tween.set_parallel(true)
 	tween.tween_property(bg, "modulate:a", 0.0, FADE_DURATION)
 	tween.tween_property(cg_texture, "modulate:a", 0.0, FADE_DURATION)
+	tween.tween_property(cg_top_wash, "color:a", 0.0, FADE_DURATION)
+	tween.tween_property(cg_lower_wash, "color:a", 0.0, FADE_DURATION)
 	await tween.finished
 
 	_hide_all()
@@ -146,6 +176,8 @@ func close_cg() -> void:
 func _hide_all() -> void:
 	bg.visible = false
 	cg_texture.visible = false
+	cg_top_wash.visible = false
+	cg_lower_wash.visible = false
 	var text_panel = overlay_label.get_meta("panel") as PanelContainer
 	text_panel.visible = false
 
@@ -174,8 +206,14 @@ func _show_cg_background(image_path: String) -> void:
 
 	bg.modulate.a = 0.0
 	cg_texture.modulate.a = 0.0
+	cg_texture.position = Vector2(-12, -8)
+	cg_texture.scale = Vector2(1.02, 1.02)
+	cg_top_wash.color.a = 0.0
+	cg_lower_wash.color.a = 0.0
 	bg.visible = true
 	cg_texture.visible = true
+	cg_top_wash.visible = true
+	cg_lower_wash.visible = true
 	is_showing = true
 	waiting_for_input = false  # 대화 중이므로 입력 차단 안 함
 
@@ -184,6 +222,8 @@ func _show_cg_background(image_path: String) -> void:
 	tween = create_tween().set_parallel(true)
 	tween.tween_property(bg, "modulate:a", 1.0, FADE_DURATION)
 	tween.tween_property(cg_texture, "modulate:a", 1.0, FADE_DURATION)
+	tween.tween_property(cg_top_wash, "color:a", 0.24, FADE_DURATION)
+	tween.tween_property(cg_lower_wash, "color:a", 0.50, FADE_DURATION)
 
 	# 대화 끝나면 CG도 닫기
 	if not DialogueManager.dialogue_ended.is_connected(_on_dialogue_ended_close_cg):

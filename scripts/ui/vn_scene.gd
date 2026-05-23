@@ -24,6 +24,7 @@ var _name_panel: PanelContainer
 var _text_label: RichTextLabel
 var _text_panel: PanelContainer
 var _continue_indicator: Label
+var _continue_tween: Tween
 var _choice_container: VBoxContainer
 var _letterbox_top: ColorRect
 var _letterbox_bottom: ColorRect
@@ -213,7 +214,7 @@ func _build_ui() -> void:
 
 	# 계속 표시 화살표
 	_continue_indicator = Label.new()
-	_continue_indicator.text = "▼"
+	_continue_indicator.text = "NEXT"
 	_continue_indicator.anchor_left = 1.0
 	_continue_indicator.anchor_right = 1.0
 	_continue_indicator.anchor_top = 1.0
@@ -222,8 +223,10 @@ func _build_ui() -> void:
 	_continue_indicator.offset_right = -90
 	_continue_indicator.offset_top = -55
 	_continue_indicator.offset_bottom = -25
-	_continue_indicator.add_theme_font_size_override("font_size", 20)
-	_continue_indicator.add_theme_color_override("font_color", Color(0.9, 0.8, 0.5, 0.85))
+	_continue_indicator.add_theme_font_size_override("font_size", 10)
+	_continue_indicator.add_theme_color_override("font_color", Color(0.82, 0.68, 0.42, 0.78))
+	_continue_indicator.add_theme_constant_override("outline_size", 1)
+	_continue_indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
 	_continue_indicator.visible = false
 	root.add_child(_continue_indicator)
 
@@ -810,7 +813,17 @@ func _process(delta: float) -> void:
 		_show_continue(true)
 
 func _show_continue(on: bool) -> void:
+	if _continue_tween:
+		_continue_tween.kill()
+	_continue_tween = null
 	_continue_indicator.visible = on
+	if not on:
+		_continue_indicator.modulate.a = 1.0
+		return
+	_continue_indicator.modulate.a = 0.72
+	_continue_tween = create_tween().set_loops()
+	_continue_tween.tween_property(_continue_indicator, "modulate:a", 1.0, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_continue_tween.tween_property(_continue_indicator, "modulate:a", 0.54, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 ## ===================== SYSTEM LOG =====================
 
@@ -871,29 +884,43 @@ func _show_choices(choices: Array) -> void:
 		if is_cost_choice and cost_mem != null:
 			label_text = "✦  %s\n    [ Burn: %s ]" % [c.get("text", "..."), cost_mem.title]
 		btn.text = label_text
-		btn.custom_minimum_size = Vector2(560, 60 if is_cost_choice else 50)
-		btn.add_theme_font_size_override("font_size", 18)
+		btn.custom_minimum_size = Vector2(590, 62 if is_cost_choice else 52)
+		btn.add_theme_font_size_override("font_size", 17)
 		var bstyle = StyleBoxFlat.new()
-		bstyle.bg_color = Color(0.08, 0.06, 0.1, 0.92)
-		bstyle.border_color = Color(0.6, 0.5, 0.35, 0.8)
+		bstyle.bg_color = Color(0.030, 0.026, 0.038, 0.94)
+		bstyle.border_color = Color(0.62, 0.48, 0.28, 0.62)
 		if is_cost_choice:
-			bstyle.bg_color = Color(0.14, 0.08, 0.06, 0.94)
-			bstyle.border_color = Color(0.9, 0.45, 0.3, 0.9)  # 주황/붉은 테두리로 "연소 선택" 강조
-		bstyle.set_border_width_all(2)
-		bstyle.set_content_margin_all(10)
+			bstyle.bg_color = Color(0.13, 0.065, 0.052, 0.94)
+			bstyle.border_color = Color(0.9, 0.45, 0.3, 0.84)
+		bstyle.set_border_width(SIDE_LEFT, 2)
+		bstyle.set_border_width(SIDE_TOP, 1)
+		bstyle.set_border_width(SIDE_RIGHT, 1)
+		bstyle.set_border_width(SIDE_BOTTOM, 1)
+		bstyle.set_content_margin_all(12)
 		bstyle.set_corner_radius_all(4)
 		btn.add_theme_stylebox_override("normal", bstyle)
 		var hover = bstyle.duplicate()
-		hover.bg_color = Color(0.18, 0.13, 0.08, 0.95)
+		hover.bg_color = Color(0.12, 0.092, 0.080, 0.98)
 		if is_cost_choice:
 			hover.bg_color = Color(0.28, 0.12, 0.08, 0.98)
 			hover.border_color = Color(1.0, 0.55, 0.35, 1.0)
 		else:
 			hover.border_color = Color(0.9, 0.75, 0.45, 1.0)
 		btn.add_theme_stylebox_override("hover", hover)
+		btn.add_theme_stylebox_override("focus", hover)
 		btn.add_theme_color_override("font_color", Color(0.94, 0.9, 0.82))
+		btn.add_theme_color_override("font_hover_color", Color(1.0, 0.88, 0.58))
 		btn.pressed.connect(_on_choice_selected.bind(i))
+		btn.modulate.a = 0.0
+		btn.scale = Vector2(0.99, 0.99)
 		_choice_container.add_child(btn)
+
+	for ci in range(_choice_container.get_child_count()):
+		var child_btn = _choice_container.get_child(ci)
+		var tw = create_tween()
+		tw.set_parallel(true)
+		tw.tween_property(child_btn, "modulate:a", 1.0, 0.16).set_delay(ci * 0.045).set_ease(Tween.EASE_OUT)
+		tw.tween_property(child_btn, "scale", Vector2.ONE, 0.16).set_delay(ci * 0.045).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 
 func _on_choice_selected(index: int) -> void:
 	if has_node("/root/AudioManager"):
