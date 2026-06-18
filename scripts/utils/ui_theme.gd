@@ -76,4 +76,15 @@ static func make_hover_style(base: StyleBoxFlat = null) -> StyleBoxFlat:
 
 ## 화자 이름 색상 가져오기
 static func get_speaker_color(speaker: String) -> Color:
+	match speaker:
+		"Mallet":
+			return Color(0.75, 0.6, 0.4)
+		"Nera":
+			return Color(0.62, 0.7, 0.82)
+		"Seric":
+			return Color(0.74, 0.68, 0.54)
+		"Tobias":
+			return Color(0.68, 0.58, 0.50)
+		"Veil":
+			return Color(0.54, 0.48, 0.70)
 	return SPEAKER_COLORS.get(speaker, SPEAKER_DEFAULT)

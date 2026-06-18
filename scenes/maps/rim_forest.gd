@@ -103,6 +103,7 @@ func _ready() -> void:
 	_fog_layer = MapEffects.add_fog_layer(self, 0.5, Color(0.2, 0.22, 0.18, 0.05), 2.5)
 	MapEffects.add_wind_sway(self, 2.0)
 	MapEffects.add_depth_gradient(self, 0.07)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.58, 0.72, 0.38, 1.0), "vignette": 0.46, "tint_strength": 0.08, "shafts": 0.09, "glints": 3})
 	_position_player()
 	# S66 (A안 — Act I 데모 슬림화):
 	# 보스(Void Beast) 트리거 + 캠프 + 핵심 히든 이벤트만 유지.

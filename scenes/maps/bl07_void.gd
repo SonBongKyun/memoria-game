@@ -90,6 +90,7 @@ func _ready() -> void:
 	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	# S59: 보이드 깊이 그라디언트 (바람/안개 없음 — 이미 heavy_fog 존재)
 	MapEffects.add_depth_gradient(self, 0.1)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.42, 0.24, 0.72, 1.0), "vignette": 0.62, "tint_strength": 0.12, "grain": 0.032, "shafts": 0.10, "glints": 2})
 	_setup_random_encounters()
 	_setup_interactive_objects()
 	_setup_exploration_events()

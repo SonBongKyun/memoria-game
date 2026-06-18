@@ -13,11 +13,14 @@ var card_list: VBoxContainer       # 중앙 기억 카드 목록
 var detail_panel: PanelContainer   # 우측 상세 정보
 var detail_title: Label
 var detail_grade: Label
+var detail_art: TextureRect
 var detail_desc: RichTextLabel
 var detail_power: Label
 var detail_npc: Label
 var detail_effect: Label
+var detail_rewrite: Label
 var detail_status: Label
+var archive_summary_label: Label
 var count_label: Label             # 하단 연소 수
 var close_hint: Label
 
@@ -103,6 +106,12 @@ func _build_ui() -> void:
 	# 타이틀 바
 	var title_bar = _create_title_bar()
 	main_vbox.add_child(title_bar)
+
+	archive_summary_label = Label.new()
+	archive_summary_label.add_theme_font_size_override("font_size", 12)
+	archive_summary_label.add_theme_color_override("font_color", Color(0.64, 0.58, 0.48))
+	archive_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	main_vbox.add_child(archive_summary_label)
 
 	# 내용 영역 (HBox: 등급탭 | 카드목록 | 상세)
 	var content_hbox = HBoxContainer.new()
@@ -268,6 +277,14 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	sep.add_theme_color_override("separator", Color(0.25, 0.2, 0.15, 0.3))
 	vbox.add_child(sep)
 
+	detail_art = TextureRect.new()
+	detail_art.custom_minimum_size = Vector2(292, 112)
+	detail_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	detail_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	detail_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_art.visible = false
+	vbox.add_child(detail_art)
+
 	# 설명
 	detail_desc = RichTextLabel.new()
 	detail_desc.bbcode_enabled = false
@@ -296,6 +313,13 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	detail_effect.add_theme_color_override("font_color", Color(0.6, 0.45, 0.4))
 	detail_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(detail_effect)
+
+	detail_rewrite = Label.new()
+	detail_rewrite.add_theme_font_size_override("font_size", 11)
+	detail_rewrite.add_theme_color_override("font_color", Color(0.72, 0.58, 0.42))
+	detail_rewrite.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail_rewrite.visible = false
+	vbox.add_child(detail_rewrite)
 
 	# 상태
 	detail_status = Label.new()
@@ -335,7 +359,18 @@ func _refresh_cards() -> void:
 
 	var memories = MemoryManager.memories
 	var burn_count = MemoryManager.get_burn_count()
-	count_label.text = "Burned: %d / %d" % [burn_count, memories.size()]
+	var faded_count := 0
+	var eroding_count := 0
+	var intact_count := 0
+	for m in memories:
+		if m.is_faded:
+			faded_count += 1
+		if m.erosion > 0 and not m.is_burned:
+			eroding_count += 1
+		if not m.is_burned and not m.is_faded:
+			intact_count += 1
+	count_label.text = "Held: %d    Burned: %d    Fading: %d" % [intact_count, burn_count, faded_count]
+	_update_archive_summary(memories.size(), intact_count, burn_count, faded_count, eroding_count)
 
 	for memory in memories:
 		# 등급 필터
@@ -426,6 +461,7 @@ func _show_detail(memory) -> void:
 	detail_power.text = "Burn Power: %d" % memory.burn_power
 	detail_npc.text = "Related: %s" % memory.related_npc if memory.related_npc != "" else ""
 	detail_npc.visible = memory.related_npc != ""
+	_apply_memory_art_and_rewrite(memory)
 
 	if memory.story_effect != "":
 		detail_effect.text = "If burned: %s" % memory.story_effect
@@ -455,10 +491,54 @@ func _clear_detail() -> void:
 	detail_power.text = ""
 	detail_npc.text = ""
 	detail_npc.visible = false
+	if detail_art:
+		detail_art.texture = null
+		detail_art.visible = false
 	detail_effect.text = ""
 	detail_effect.visible = false
+	detail_rewrite.text = ""
+	detail_rewrite.visible = false
 	detail_status.text = ""
 	synth_btn.visible = false
+
+func _update_archive_summary(total: int, intact_count: int, burn_count: int, faded_count: int, eroding_count: int) -> void:
+	if not archive_summary_label:
+		return
+	var rewrite_count := 0
+	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
+		rewrite_count = WorldRewriteDirector.get_loss_records().size()
+	var last_line := "No world rewrite recorded."
+	if MemoryManager.burned_memories.size() > 0 and WorldRewriteDirector and WorldRewriteDirector.has_method("get_rewrite_report"):
+		var last_memory = MemoryManager.burned_memories.back()
+		var report: Dictionary = WorldRewriteDirector.get_rewrite_report(last_memory.id)
+		if not report.is_empty():
+			last_line = "Last rewrite: %s" % String(report.get("title", last_memory.title))
+	archive_summary_label.text = "Archive state: %d total / %d intact / %d burned / %d fading / %d eroding. Loss records: %d. %s" % [
+		total, intact_count, burn_count, faded_count, eroding_count, rewrite_count, last_line
+	]
+
+func _apply_memory_art_and_rewrite(memory) -> void:
+	if not WorldRewriteDirector or not WorldRewriteDirector.has_method("get_rewrite_report"):
+		if detail_art:
+			detail_art.visible = false
+		if detail_rewrite:
+			detail_rewrite.visible = false
+		return
+	var report: Dictionary = WorldRewriteDirector.get_rewrite_report(memory.id)
+	if report.is_empty():
+		detail_art.visible = false
+		detail_rewrite.visible = false
+		return
+	var art_path := String(report.get("art", ""))
+	if art_path != "" and ResourceLoader.exists(art_path):
+		detail_art.texture = load(art_path)
+		detail_art.visible = true
+	else:
+		detail_art.texture = null
+		detail_art.visible = false
+	var label_prefix := "World consequence" if memory.is_burned or memory.is_faded else "If burned, world consequence"
+	detail_rewrite.text = "%s: %s" % [label_prefix, String(report.get("line", ""))]
+	detail_rewrite.visible = detail_rewrite.text != ""
 
 func _on_grade_filter(grade: int) -> void:
 	selected_grade_filter = grade

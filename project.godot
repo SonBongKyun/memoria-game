@@ -22,7 +22,6 @@ config/features=PackedStringArray("4.6", "GL Compatibility")
 boot_splash/bg_color=Color(0.02, 0.02, 0.05, 1)
 boot_splash/show_image=false
 config/icon="res://icon.svg"
-config/windows_native_icon="res://icon.ico"
 
 [autoload]
 
@@ -52,6 +51,8 @@ TutorialHints="*res://scripts/ui/tutorial_hints.gd"
 InputManager="*res://scripts/systems/input_manager.gd"
 SceneFlow="*res://scripts/systems/scene_flow.gd"
 MemoryConstellation="*res://scripts/ui/memory_constellation.gd"
+WorldRewriteDirector="*res://scripts/systems/world_rewrite_director.gd"
+MemoryCompass="*res://scripts/ui/memory_compass.gd"
 
 [dialogic]
 

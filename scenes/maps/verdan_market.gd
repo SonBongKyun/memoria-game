@@ -96,6 +96,7 @@ func _ready() -> void:
 	# S59: 분위기 강화 — 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.35, 0.3, 0.28, 0.04), 2.0)
 	MapEffects.add_depth_gradient(self, 0.06)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.88, 0.62, 0.32, 1.0), "vignette": 0.40, "tint_strength": 0.10, "shafts": 0.08, "glints": 3})
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)

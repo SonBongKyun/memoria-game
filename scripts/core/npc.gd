@@ -48,6 +48,18 @@ func _on_first_talk_ended(talk_flag: String) -> void:
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprite() -> void:
+	var portrait_path: String = _get_npc_portrait_sprite_path()
+	if portrait_path != "" and ResourceLoader.exists(portrait_path):
+		var portrait_texture: Texture2D = load(portrait_path) as Texture2D
+		if portrait_texture != null:
+			sprite.texture = portrait_texture
+			sprite.scale = Vector2(0.18, 0.18)
+			sprite.position.y = -4.0
+			sprite.z_index = 2
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			_add_portrait_marker(_get_npc_accent_color())
+			return
+
 	var config: Dictionary
 	# 이름별 전용 config, 없으면 npc_color 기반 자동 생성
 	match npc_name:
@@ -63,3 +75,57 @@ func _setup_placeholder_sprite() -> void:
 	var frames = PixelSprite.create_frames(config)
 	var idle_tex = frames.get_frame_texture("idle_down", 0)
 	sprite.texture = idle_tex
+
+func _add_portrait_marker(accent: Color) -> void:
+	var shadow := Polygon2D.new()
+	shadow.polygon = PackedVector2Array([
+		Vector2(-19, 20), Vector2(-10, 15), Vector2(10, 15), Vector2(19, 20),
+		Vector2(10, 25), Vector2(-10, 25)
+	])
+	shadow.color = Color(0.0, 0.0, 0.0, 0.34)
+	shadow.z_index = 0
+	add_child(shadow)
+
+	var frame := Line2D.new()
+	frame.closed = true
+	frame.width = 1.6
+	frame.default_color = Color(accent.r, accent.g, accent.b, 0.82)
+	frame.points = PackedVector2Array([
+		Vector2(-24, -30), Vector2(24, -30), Vector2(24, 18), Vector2(-24, 18)
+	])
+	frame.z_index = 3
+	add_child(frame)
+
+func _get_npc_portrait_sprite_path() -> String:
+	match npc_name:
+		"Malet", "Mallet":
+			return "res://assets/portraits/malet_face_neutral.png"
+		"Sable":
+			return "res://assets/portraits/sable_face_calm.png"
+		"Tobias":
+			return "res://assets/portraits/tobias_face_neutral.png"
+		"Kairos":
+			return "res://assets/portraits/kairos_face_neutral.png"
+		"Nera":
+			return "res://assets/portraits/nera_face_neutral.png"
+		"Seric":
+			return "res://assets/portraits/seric_face_neutral.png"
+		_:
+			return ""
+
+func _get_npc_accent_color() -> Color:
+	match npc_name:
+		"Malet", "Mallet":
+			return Color(0.75, 0.58, 0.28)
+		"Sable":
+			return Color(0.72, 0.62, 0.80)
+		"Tobias":
+			return Color(0.68, 0.58, 0.50)
+		"Kairos":
+			return Color(0.50, 0.74, 0.62)
+		"Nera":
+			return Color(0.62, 0.70, 0.82)
+		"Seric":
+			return Color(0.74, 0.68, 0.54)
+		_:
+			return Color(0.70, 0.56, 0.34)

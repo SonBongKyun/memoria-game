@@ -12,11 +12,14 @@ var tab_events: Button
 var tab_npcs: Button
 var tab_choices: Button
 var tab_quests_btn: Button
+var tab_losses_btn: Button
 var item_list: VBoxContainer
 var item_scroll: ScrollContainer
 var detail_title: Label
+var detail_art: TextureRect
 var detail_body: RichTextLabel
 var close_hint: Label
+var journal_summary_label: Label
 
 var _current_tab: String = "events"
 
@@ -147,6 +150,12 @@ func _build_ui() -> void:
 	header.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	main_vbox.add_child(header)
 
+	journal_summary_label = Label.new()
+	journal_summary_label.add_theme_font_size_override("font_size", 12)
+	journal_summary_label.add_theme_color_override("font_color", Color(0.64, 0.58, 0.48))
+	journal_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	main_vbox.add_child(journal_summary_label)
+
 	# ── 탭 ──
 	var tab_row = HBoxContainer.new()
 	tab_row.add_theme_constant_override("separation", 8)
@@ -160,6 +169,8 @@ func _build_ui() -> void:
 	tab_row.add_child(tab_choices)
 	tab_quests_btn = _create_tab("Quests", "quests")
 	tab_row.add_child(tab_quests_btn)
+	tab_losses_btn = _create_tab("Losses", "losses")
+	tab_row.add_child(tab_losses_btn)
 
 	# 구분선
 	var sep = HSeparator.new()
@@ -204,6 +215,14 @@ func _build_ui() -> void:
 	var sep2 = HSeparator.new()
 	sep2.add_theme_color_override("separator", UITheme.BORDER_DIM)
 	detail_vbox.add_child(sep2)
+
+	detail_art = TextureRect.new()
+	detail_art.custom_minimum_size = Vector2(360, 142)
+	detail_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	detail_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	detail_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_art.visible = false
+	detail_vbox.add_child(detail_art)
 
 	detail_body = RichTextLabel.new()
 	detail_body.bbcode_enabled = false
@@ -250,6 +269,10 @@ func _refresh_list() -> void:
 
 	detail_title.text = "Select an entry..."
 	detail_body.text = ""
+	if detail_art:
+		detail_art.texture = null
+		detail_art.visible = false
+	_update_journal_summary()
 
 	match _current_tab:
 		"events":
@@ -260,9 +283,24 @@ func _refresh_list() -> void:
 			_populate_choices()
 		"quests":
 			_populate_quests()
+		"losses":
+			_populate_losses()
+
+func _update_journal_summary() -> void:
+	if not journal_summary_label:
+		return
+	var burn_count := MemoryManager.get_burn_count() if MemoryManager else 0
+	var held_count := MemoryManager.memories.size() - burn_count if MemoryManager else 0
+	var loss_count := 0
+	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
+		loss_count = WorldRewriteDirector.get_loss_records().size()
+	var ch_name: String = String(CHAPTER_NAMES.get(GameManager.current_chapter, "Unknown"))
+	journal_summary_label.text = "Ch.%d / %s    Held memories: %d    Burned: %d    Recorded losses: %d" % [
+		GameManager.current_chapter, ch_name, held_count, burn_count, loss_count
+	]
 
 func _update_tab_styles() -> void:
-	for tab_data in [{"btn": tab_events, "name": "events"}, {"btn": tab_npcs, "name": "npcs"}, {"btn": tab_choices, "name": "choices"}, {"btn": tab_quests_btn, "name": "quests"}]:
+	for tab_data in [{"btn": tab_events, "name": "events"}, {"btn": tab_npcs, "name": "npcs"}, {"btn": tab_choices, "name": "choices"}, {"btn": tab_quests_btn, "name": "quests"}, {"btn": tab_losses_btn, "name": "losses"}]:
 		var btn: Button = tab_data.btn
 		var active: bool = (_current_tab == tab_data.name)
 		if active:
@@ -355,7 +393,23 @@ func _populate_quests() -> void:
 		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		item_list.add_child(empty)
 
-func _add_list_button(text: String, color: Color, title: String, desc: String) -> void:
+func _populate_losses() -> void:
+	var records: Array[Dictionary] = []
+	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
+		records = WorldRewriteDirector.get_loss_records()
+
+	for record in records:
+		var color: Color = record.get("color", Color(0.75, 0.58, 0.42))
+		_add_list_button(String(record.get("title", "Uncatalogued Loss")), color, String(record.get("title", "Uncatalogued Loss")), String(record.get("body", "")), String(record.get("art", "")))
+
+	if records.is_empty():
+		var empty = Label.new()
+		empty.text = "No irreversible losses recorded yet."
+		empty.add_theme_font_size_override("font_size", 13)
+		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		item_list.add_child(empty)
+
+func _add_list_button(text: String, color: Color, title: String, desc: String, art_path: String = "") -> void:
 	var btn = Button.new()
 	btn.text = text
 	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -382,6 +436,13 @@ func _add_list_button(text: String, color: Color, title: String, desc: String) -
 	btn.pressed.connect(func():
 		detail_title.text = title
 		detail_body.text = desc
+		if detail_art:
+			if art_path != "" and ResourceLoader.exists(art_path):
+				detail_art.texture = load(art_path)
+				detail_art.visible = true
+			else:
+				detail_art.texture = null
+				detail_art.visible = false
 	)
 	btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 	item_list.add_child(btn)

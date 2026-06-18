@@ -73,6 +73,7 @@ func _ready() -> void:
 	# S59: 해안 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.4, Color(0.3, 0.35, 0.4, 0.05), 3.0)
 	MapEffects.add_depth_gradient(self, 0.07)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.58, 0.70, 0.92, 1.0), "vignette": 0.42, "tint_strength": 0.08, "shafts": 0.08, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_seam_trigger()

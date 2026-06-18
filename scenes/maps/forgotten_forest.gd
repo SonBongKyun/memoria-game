@@ -51,7 +51,7 @@ func _ready() -> void:
 	MapEffects.add_burn_desaturation(self)
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.06, 0.04), "far": Color(0.08, 0.1, 0.06), "mid": Color(0.1, 0.12, 0.08), "biome": "dead_forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.25, 0.28, 0.22))
-	MapEffects.add_fog(self, 0.7, Color(0.15, 0.18, 0.12, 0.3))
+	MapEffects.add_fog(self, Color(0.15, 0.18, 0.12, 0.3))
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.15, 0.2, 0.12), "brightness": -0.08})
 	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_memory_hall.png", 0.13, Color(0.66, 0.86, 0.58))
@@ -62,6 +62,7 @@ func _ready() -> void:
 	_fog_layer = MapEffects.add_fog_layer(self, 0.8, Color(0.15, 0.18, 0.12, 0.08), 1.0)
 	MapEffects.add_wind_sway(self, 1.5)
 	MapEffects.add_depth_gradient(self, 0.09)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.48, 0.64, 0.36, 1.0), "vignette": 0.52, "tint_strength": 0.09, "shafts": 0.07, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

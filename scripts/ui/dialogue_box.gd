@@ -10,96 +10,122 @@ const PORTRAIT_SIZE: int = 96
 
 # 포트레이트 이미지 매핑 (portrait 키 -> 파일 경로)
 const PORTRAIT_MAP: Dictionary = {
-	"arrel_neutral": "res://assets/portraits/arrel_sheet_neutral.png",
-	"arrel_side": "res://assets/portraits/arrel_sheet_neutral.png",
-	"arrel_wounded": "res://assets/portraits/arrel_sheet_memory_fading.png",
-	"arrel_angry": "res://assets/portraits/arrel_sheet_angry.png",
-	"arrel_pain": "res://assets/portraits/arrel_sheet_shocked.png",
-	"arrel_determined": "res://assets/portraits/arrel_sheet_determined.png",
-	"arrel_sad": "res://assets/portraits/arrel_sheet_sad.png",
-	"arrel_cold": "res://assets/portraits/arrel_sheet_memory_fading.png",
-	"arrel_rage": "res://assets/portraits/arrel_sheet_angry.png",
-	"arrel_pensive": "res://assets/portraits/arrel_sheet_neutral.png",
-	"arrel_battle": "res://assets/portraits/arrel_sheet_battle_ready.png",
-	"arrel_shocked": "res://assets/portraits/arrel_sheet_shocked.png",
-	"arrel_soft_smile": "res://assets/portraits/arrel_sheet_soft_smile.png",
-	"elia_neutral": "res://assets/portraits/elia_sheet_neutral.png",
-	"elia_concern": "res://assets/portraits/elia_sheet_worried.png",
-	"elia_worried": "res://assets/portraits/elia_sheet_worried.png",
-	"elia_hopeful": "res://assets/portraits/elia_sheet_gentle_smile.png",
-	"elia_gentle_smile": "res://assets/portraits/elia_sheet_gentle_smile.png",
-	"elia_sad": "res://assets/portraits/elia_sheet_sad.png",
-	"elia_determined": "res://assets/portraits/elia_sheet_determined.png",
-	"elia_calm": "res://assets/portraits/elia_sheet_neutral.png",
-	"elia_side": "res://assets/portraits/elia_sheet_neutral.png",
-	"elia_void": "res://assets/portraits/elia_sheet_healing_focus.png",
-	"malet_neutral": "res://assets/portraits/malet_neutral_hd.png",
-	"malet_desk": "res://assets/portraits/malet_calculating_hd.png",
-	"kairos_neutral": "res://assets/portraits/kairos_neutral.jpg",
-	"sable_neutral": "res://assets/portraits/sable_neutral.jpg",
-	"sable_calm": "res://assets/portraits/sable_calm.jpg",
-	"nera_neutral": "res://assets/portraits/nera_neutral.jpg",
-	"seric_neutral": "res://assets/portraits/seric_neutral.jpg",
-	"tobias_neutral": "res://assets/portraits/tobias_neutral.jpg",
+	"arrel_neutral": "res://assets/portraits/arrel_face_neutral.png",
+	"arrel_side": "res://assets/portraits/arrel_face_neutral.png",
+	"arrel_wounded": "res://assets/portraits/arrel_face_memory_fading.png",
+	"arrel_angry": "res://assets/portraits/arrel_face_angry.png",
+	"arrel_pain": "res://assets/portraits/arrel_face_shocked.png",
+	"arrel_determined": "res://assets/portraits/arrel_face_determined.png",
+	"arrel_sad": "res://assets/portraits/arrel_face_sad.png",
+	"arrel_cold": "res://assets/portraits/arrel_face_memory_fading.png",
+	"arrel_rage": "res://assets/portraits/arrel_face_angry.png",
+	"arrel_pensive": "res://assets/portraits/arrel_face_neutral.png",
+	"arrel_battle": "res://assets/portraits/arrel_face_battle_ready.png",
+	"arrel_shocked": "res://assets/portraits/arrel_face_shocked.png",
+	"arrel_soft_smile": "res://assets/portraits/arrel_face_soft_smile.png",
+	"elia_neutral": "res://assets/portraits/elia_face_neutral.png",
+	"elia_concern": "res://assets/portraits/elia_face_worried.png",
+	"elia_worried": "res://assets/portraits/elia_face_worried.png",
+	"elia_hopeful": "res://assets/portraits/elia_face_gentle_smile.png",
+	"elia_gentle_smile": "res://assets/portraits/elia_face_gentle_smile.png",
+	"elia_sad": "res://assets/portraits/elia_face_sad.png",
+	"elia_determined": "res://assets/portraits/elia_face_determined.png",
+	"elia_calm": "res://assets/portraits/elia_face_neutral.png",
+	"elia_side": "res://assets/portraits/elia_face_neutral.png",
+	"elia_void": "res://assets/portraits/elia_face_healing_focus.png",
+	"malet_neutral": "res://assets/portraits/malet_face_neutral.png",
+	"malet_desk": "res://assets/portraits/malet_face_calculating.png",
+	"mallet_neutral": "res://assets/portraits/malet_face_neutral.png",
+	"mallet_desk": "res://assets/portraits/malet_face_calculating.png",
+	"kairos_neutral": "res://assets/portraits/kairos_face_neutral.png",
+	"sable_neutral": "res://assets/portraits/sable_face_neutral.png",
+	"sable_calm": "res://assets/portraits/sable_face_calm.png",
+	"nera_neutral": "res://assets/portraits/nera_face_neutral.png",
+	"seric_neutral": "res://assets/portraits/seric_face_neutral.png",
+	"tobias_neutral": "res://assets/portraits/tobias_face_neutral.png",
 	# S47: 신규 포트레이트 19장
-	"arrel_default2": "res://assets/portraits/arrel_sheet_neutral.png",
-	"arrel_cold2": "res://assets/portraits/arrel_sheet_memory_fading.png",
-	"arrel_heroic": "res://assets/portraits/arrel_sheet_battle_ready.png",
-	"arrel_wounded2": "res://assets/portraits/arrel_sheet_memory_fading.png",
-	"arrel_burn": "res://assets/portraits/arrel_sheet_memory_fading.png",
-	"arrel_exhausted": "res://assets/portraits/arrel_sheet_sad.png",
-	"elia_wind": "res://assets/portraits/elia_sheet_gentle_smile.png",
-	"elia_default2": "res://assets/portraits/elia_sheet_neutral.png",
-	"elia_void2": "res://assets/portraits/elia_sheet_healing_focus.png",
-	"elia_calm2": "res://assets/portraits/elia_sheet_neutral.png",
-	"elia_wind2": "res://assets/portraits/elia_sheet_gentle_smile.png",
-	"elia_mature": "res://assets/portraits/elia_sheet_memory_restoration.png",
-	"nera_bureau": "res://assets/portraits/nera_bureau.jpg",
-	"malet_smirk": "res://assets/portraits/malet_amused_hd.png",
-	"malet_casual": "res://assets/portraits/malet_smile_hd.png",
-	"malet_smile": "res://assets/portraits/malet_smile_hd.png",
-	"malet_amused": "res://assets/portraits/malet_amused_hd.png",
-	"malet_calculating": "res://assets/portraits/malet_calculating_hd.png",
-	"malet_disappointed": "res://assets/portraits/malet_disappointed_hd.png",
-	"malet_warning": "res://assets/portraits/malet_warning_hd.png",
-	"malet_deal_accepted": "res://assets/portraits/malet_deal_accepted_hd.png",
-	"malet_price_revealed": "res://assets/portraits/malet_price_revealed_hd.png",
-	"seric_clipboard": "res://assets/portraits/seric_clipboard.jpg",
-	"sable_portrait": "res://assets/portraits/sable_neutral.jpg",
-	"kairos_portrait": "res://assets/portraits/kairos_neutral.jpg",
-	"tobias_uniform": "res://assets/portraits/tobias_uniform.jpg",
+	"arrel_default2": "res://assets/portraits/arrel_face_neutral.png",
+	"arrel_cold2": "res://assets/portraits/arrel_face_memory_fading.png",
+	"arrel_heroic": "res://assets/portraits/arrel_face_battle_ready.png",
+	"arrel_wounded2": "res://assets/portraits/arrel_face_memory_fading.png",
+	"arrel_burn": "res://assets/portraits/arrel_face_memory_fading.png",
+	"arrel_exhausted": "res://assets/portraits/arrel_face_sad.png",
+	"elia_wind": "res://assets/portraits/elia_face_gentle_smile.png",
+	"elia_default2": "res://assets/portraits/elia_face_neutral.png",
+	"elia_void2": "res://assets/portraits/elia_face_healing_focus.png",
+	"elia_calm2": "res://assets/portraits/elia_face_neutral.png",
+	"elia_wind2": "res://assets/portraits/elia_face_gentle_smile.png",
+	"elia_mature": "res://assets/portraits/elia_face_memory_restoration.png",
+	"nera_bureau": "res://assets/portraits/nera_face_bureau.png",
+	"malet_smirk": "res://assets/portraits/malet_face_amused.png",
+	"malet_casual": "res://assets/portraits/malet_face_smile.png",
+	"malet_smile": "res://assets/portraits/malet_face_smile.png",
+	"malet_amused": "res://assets/portraits/malet_face_amused.png",
+	"malet_calculating": "res://assets/portraits/malet_face_calculating.png",
+	"malet_disappointed": "res://assets/portraits/malet_face_disappointed.png",
+	"malet_warning": "res://assets/portraits/malet_face_warning.png",
+	"malet_deal_accepted": "res://assets/portraits/malet_face_deal_accepted.png",
+	"malet_price_revealed": "res://assets/portraits/malet_face_price_revealed.png",
+	"mallet_smirk": "res://assets/portraits/malet_face_amused.png",
+	"mallet_casual": "res://assets/portraits/malet_face_smile.png",
+	"mallet_smile": "res://assets/portraits/malet_face_smile.png",
+	"mallet_amused": "res://assets/portraits/malet_face_amused.png",
+	"mallet_calculating": "res://assets/portraits/malet_face_calculating.png",
+	"mallet_disappointed": "res://assets/portraits/malet_face_disappointed.png",
+	"mallet_warning": "res://assets/portraits/malet_face_warning.png",
+	"mallet_deal_accepted": "res://assets/portraits/malet_face_deal_accepted.png",
+	"mallet_price_revealed": "res://assets/portraits/malet_face_price_revealed.png",
+	"seric_clipboard": "res://assets/portraits/seric_face_clipboard.png",
+	"sable_portrait": "res://assets/portraits/sable_face_neutral.png",
+	"sable_determined": "res://assets/portraits/sable_face_calm.png",
+	"kairos_portrait": "res://assets/portraits/kairos_face_neutral.png",
+	"tobias_uniform": "res://assets/portraits/tobias_face_uniform.png",
+	"veil_neutral": "res://assets/cg/game_image/veil_fullbody.png",
+	"veil_portrait": "res://assets/cg/game_image/veil_fullbody.png",
 	# S53: 카이로스/토비아스 추가 포트레이트
-	"kairos_cold": "res://assets/portraits/kairos_neutral.jpg",
-	"kairos_amused": "res://assets/portraits/kairos_neutral.jpg",
-	"tobias_concerned": "res://assets/portraits/tobias_neutral.jpg",
+	"kairos_cold": "res://assets/portraits/kairos_face_neutral.png",
+	"kairos_amused": "res://assets/portraits/kairos_face_neutral.png",
+	"tobias_concerned": "res://assets/portraits/tobias_face_neutral.png",
 }
 const DEFAULT_PORTRAITS: Dictionary = {
 	"Arrel": "arrel_neutral",
 	"Elia": "elia_neutral",
 	"Malet": "malet_neutral",
+	"Mallet": "malet_neutral",
 	"Kairos": "kairos_neutral",
 	"Sable": "sable_neutral",
 	"Nera": "nera_neutral",
 	"Seric": "seric_neutral",
 	"Tobias": "tobias_neutral",
+	"Veil": "veil_neutral",
 }
 const SPEAKER_STAGE_ART: Dictionary = {
 	"Arrel": "res://assets/cg/game_image/sheet_arrel_profile.png",
 	"Elia": "res://assets/cg/game_image/sheet_elia_profile.png",
+	"Sable": "res://assets/portraits/sable_face_calm.png",
 	"Kairos": "res://assets/cg/game_image/kairos_fullbody.png",
 	"Nera": "res://assets/cg/game_image/nera_fullbody.png",
+	"Seric": "res://assets/portraits/seric_face_clipboard.png",
 	"Tobias": "res://assets/cg/game_image/tobias_fullbody.png",
+	"Veil": "res://assets/cg/game_image/veil_fullbody.png",
 	"Malet": "res://assets/cg/game_image/malet_bureau_overlook.png",
+	"Mallet": "res://assets/cg/game_image/malet_bureau_overlook.png",
 }
 const SPEAKER_STAGE_SIDE: Dictionary = {
 	"Arrel": "left",
 	"Elia": "right",
 	"Sable": "right",
 	"Malet": "right",
+	"Mallet": "right",
 	"Kairos": "right",
 	"Nera": "right",
 	"Seric": "right",
 	"Tobias": "right",
+	"Veil": "right",
+}
+const DISABLE_STAGE_ART_SPEAKERS: Dictionary = {
+	"Arrel": true,
+	"Elia": true,
 }
 
 # UI 노드 (코드로 생성)
@@ -108,6 +134,7 @@ var portrait_panel: PanelContainer
 var portrait_texture: TextureRect
 var portrait_fallback: ColorRect
 var portrait_label: Label
+var portrait_accent: ColorRect
 var stage_left: TextureRect
 var stage_right: TextureRect
 var stage_left_shadow: ColorRect
@@ -147,6 +174,10 @@ const BLIP_PITCH_MAP: Dictionary = {
 	"Tobias": 0.9,
 	"Kairos": 0.6,
 	"Malet": 0.8,
+	"Mallet": 0.8,
+	"Nera": 0.85,
+	"Seric": 1.05,
+	"Veil": 0.55,
 }
 const BLIP_INTERVAL: int = 2
 var _current_blip_pitch: float = 1.0
@@ -533,6 +564,16 @@ func _build_ui() -> void:
 	portrait_label.add_theme_color_override("font_color", Color(0.72, 0.64, 0.52))
 	portrait_fallback.add_child(portrait_label)
 
+	portrait_accent = ColorRect.new()
+	portrait_accent.anchor_left = 0.0
+	portrait_accent.anchor_right = 1.0
+	portrait_accent.anchor_top = 1.0
+	portrait_accent.anchor_bottom = 1.0
+	portrait_accent.offset_top = -4
+	portrait_accent.color = Color(0.70, 0.56, 0.34, 0.75)
+	portrait_accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_container.add_child(portrait_accent)
+
 	# 텍스트 영역 (VBox: 이름 + 대사)
 	var text_area = VBoxContainer.new()
 	text_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -604,17 +645,17 @@ func _build_stage_art(root: Control) -> void:
 
 func _make_stage_portrait(is_left: bool) -> TextureRect:
 	var rect = TextureRect.new()
-	rect.anchor_top = 0.10
-	rect.anchor_bottom = 1.0
+	rect.anchor_top = 0.18
+	rect.anchor_bottom = 0.82
 	if is_left:
-		rect.anchor_left = 0.02
-		rect.anchor_right = 0.40
+		rect.anchor_left = 0.03
+		rect.anchor_right = 0.32
 	else:
-		rect.anchor_left = 0.60
-		rect.anchor_right = 0.98
-	rect.offset_bottom = -150
+		rect.anchor_left = 0.68
+		rect.anchor_right = 0.97
+	rect.offset_bottom = -36
 	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CONTAINED
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rect.modulate = Color(1.0, 0.95, 0.84, 0.0)
 	rect.visible = false
@@ -622,15 +663,15 @@ func _make_stage_portrait(is_left: bool) -> TextureRect:
 
 func _make_stage_shadow(is_left: bool) -> ColorRect:
 	var shadow = ColorRect.new()
-	shadow.anchor_top = 0.10
-	shadow.anchor_bottom = 1.0
+	shadow.anchor_top = 0.18
+	shadow.anchor_bottom = 0.82
 	if is_left:
-		shadow.anchor_left = 0.00
-		shadow.anchor_right = 0.42
+		shadow.anchor_left = 0.01
+		shadow.anchor_right = 0.34
 	else:
-		shadow.anchor_left = 0.58
-		shadow.anchor_right = 1.0
-	shadow.offset_bottom = -150
+		shadow.anchor_left = 0.66
+		shadow.anchor_right = 0.99
+	shadow.offset_bottom = -36
 	shadow.color = Color(0.0, 0.0, 0.0, 0.0)
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	shadow.visible = false
@@ -706,9 +747,13 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 			portrait_panel.visible = true
 		speaker_label.text = speaker
 		speaker_label.add_theme_color_override("font_color", UITheme.get_speaker_color(speaker))
+		_apply_portrait_tint(speaker)
 		text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
 		_update_portrait(speaker, portrait)
-		_update_speaker_stage(speaker, portrait)
+		if _has_active_dialogue_cg():
+			_hide_speaker_stage()
+		else:
+			_update_speaker_stage(speaker, portrait)
 
 	# S55: Apply emphasis and store both plain and formatted text
 	full_text = clean_text
@@ -872,6 +917,8 @@ func _on_choice_selected(index: int) -> void:
 	DialogueManager.select_choice(index)
 
 func _get_stage_art_path(speaker: String, portrait_key: String) -> String:
+	if DISABLE_STAGE_ART_SPEAKERS.has(speaker):
+		return ""
 	if SPEAKER_STAGE_ART.has(speaker):
 		return SPEAKER_STAGE_ART[speaker]
 	if portrait_key != "" and PORTRAIT_MAP.has(portrait_key):
@@ -881,7 +928,25 @@ func _get_stage_art_path(speaker: String, portrait_key: String) -> String:
 		return PORTRAIT_MAP.get(default_key, "")
 	return ""
 
+func _has_active_dialogue_cg() -> bool:
+	if _current_line_has_cg():
+		return true
+	if not has_node("/root/CgViewer"):
+		return false
+	return CgViewer.is_showing
+
+func _current_line_has_cg() -> bool:
+	if DialogueManager == null:
+		return false
+	if DialogueManager.current_index < 0 or DialogueManager.current_index >= DialogueManager.current_dialogue.size():
+		return false
+	var line = DialogueManager.current_dialogue[DialogueManager.current_index]
+	return line is Dictionary and line.has("cg") and str(line.get("cg", "")) != ""
+
 func _update_speaker_stage(speaker: String, portrait_key: String) -> void:
+	if _has_active_dialogue_cg():
+		_hide_speaker_stage()
+		return
 	var path := _get_stage_art_path(speaker, portrait_key)
 	if path == "" or not ResourceLoader.exists(path):
 		_hide_speaker_stage()
@@ -892,6 +957,8 @@ func _update_speaker_stage(speaker: String, portrait_key: String) -> void:
 	var target_shadow: ColorRect = stage_left_shadow if side == "left" else stage_right_shadow
 	var other: TextureRect = stage_right if side == "left" else stage_left
 	var other_shadow: ColorRect = stage_right_shadow if side == "left" else stage_left_shadow
+	if not _is_valid_stage_pair(target, target_shadow):
+		return
 	var stage_key := "%s|%s|%s" % [speaker, portrait_key, path]
 	if stage_key == _current_stage_key and target.visible:
 		return
@@ -904,11 +971,11 @@ func _update_speaker_stage(speaker: String, portrait_key: String) -> void:
 	target_shadow.visible = true
 	target.modulate = Color(1.0, 0.95, 0.84, 0.0)
 	target_shadow.color = Color(0.0, 0.0, 0.0, 0.0)
-	target.position.x = -24.0 if side == "left" else 24.0
-	target.scale = Vector2(1.015, 1.015)
+	target.position.x = -16.0 if side == "left" else 16.0
+	target.scale = Vector2(0.94, 0.94)
 
-	var target_alpha: float = 0.38 if SPEAKER_STAGE_ART.has(speaker) else 0.30
-	var shadow_alpha: float = 0.28 if SPEAKER_STAGE_ART.has(speaker) else 0.20
+	var target_alpha: float = 0.22 if SPEAKER_STAGE_ART.has(speaker) else 0.16
+	var shadow_alpha: float = 0.13 if SPEAKER_STAGE_ART.has(speaker) else 0.09
 	var tw := create_tween().set_parallel(true)
 	if side == "left":
 		if _stage_left_tween:
@@ -923,17 +990,18 @@ func _update_speaker_stage(speaker: String, portrait_key: String) -> void:
 	tw.tween_property(target_shadow, "color:a", shadow_alpha, 0.26).set_trans(Tween.TRANS_SINE)
 
 func _fade_stage_out(rect: TextureRect, shadow: ColorRect, is_right: bool) -> void:
-	if rect == null or not rect.visible:
+	if rect == null or not is_instance_valid(rect) or not rect.visible:
 		return
 	var tw := create_tween().set_parallel(true)
 	tw.tween_property(rect, "modulate:a", 0.0, 0.18)
 	tw.tween_property(rect, "position:x", 18.0 if is_right else -18.0, 0.18)
-	if shadow != null:
+	if shadow != null and is_instance_valid(shadow):
 		tw.tween_property(shadow, "color:a", 0.0, 0.18)
 	tw.set_parallel(false)
 	tw.tween_callback(func():
-		rect.visible = false
-		if shadow != null:
+		if rect != null and is_instance_valid(rect):
+			rect.visible = false
+		if shadow != null and is_instance_valid(shadow):
 			shadow.visible = false
 	)
 
@@ -945,18 +1013,38 @@ func _hide_speaker_stage(immediate: bool = false) -> void:
 		if _stage_right_tween:
 			_stage_right_tween.kill()
 		for rect in [stage_left, stage_right]:
-			if rect:
+			if rect != null and is_instance_valid(rect):
 				rect.visible = false
 				rect.modulate.a = 0.0
 		for shadow in [stage_left_shadow, stage_right_shadow]:
-			if shadow:
+			if shadow != null and is_instance_valid(shadow):
 				shadow.visible = false
 				shadow.color.a = 0.0
 		return
 	_fade_stage_out(stage_left, stage_left_shadow, false)
 	_fade_stage_out(stage_right, stage_right_shadow, true)
 
+func _is_valid_stage_pair(rect: TextureRect, shadow: ColorRect) -> bool:
+	return rect != null and shadow != null and is_instance_valid(rect) and is_instance_valid(shadow)
+
 ## S54: 포트레이트 베이스 이름 추출
+func _apply_portrait_tint(speaker: String) -> void:
+	if portrait_panel == null:
+		return
+	var accent: Color = UITheme.get_speaker_color(speaker)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.012, 0.011, 0.016, 0.82)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.72)
+	style.set_border_width(SIDE_LEFT, 2)
+	style.set_border_width(SIDE_TOP, 1)
+	style.set_border_width(SIDE_RIGHT, 1)
+	style.set_border_width(SIDE_BOTTOM, 2)
+	style.set_corner_radius_all(5)
+	style.set_content_margin_all(7)
+	portrait_panel.add_theme_stylebox_override("panel", style)
+	if portrait_accent:
+		portrait_accent.color = Color(accent.r, accent.g, accent.b, 0.78)
+
 func _get_portrait_base(key: String) -> String:
 	if key == "":
 		return ""

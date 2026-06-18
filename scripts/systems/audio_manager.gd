@@ -724,8 +724,13 @@ func play_combat_sfx(type: String) -> void:
 			player.play()
 		else:
 			# 타이머로 딜레이 재생
+			var player_ref: WeakRef = weakref(player)
 			var t = get_tree().create_timer(delay_sec)
-			t.timeout.connect(func(): player.play())
+			t.timeout.connect(func():
+				var delayed_player: AudioStreamPlayer = player_ref.get_ref() as AudioStreamPlayer
+				if delayed_player != null and is_instance_valid(delayed_player):
+					delayed_player.play()
+			)
 
 ## 전투 레이어 사운드 프로시저럴 생성기
 func _generate_combat_layer(gen_key: String) -> PackedFloat32Array:

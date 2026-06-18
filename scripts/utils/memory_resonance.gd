@@ -45,16 +45,17 @@ const RESONANCE_POINTS: Dictionary = {
 }
 
 static func setup_points(map_node: Node2D, map_name: String) -> void:
-	var points = RESONANCE_POINTS.get(map_name, [])
-	for point in points:
+	var points: Array = RESONANCE_POINTS.get(map_name, [])
+	for point_data in points:
+		var point: Dictionary = point_data as Dictionary
 		if GameManager.get_flag(point["flag"]):
 			continue
 
-		var memory = MemoryManager._get_memory(point["memory_id"])
+		var memory: MemoryManager.Memory = MemoryManager._get_memory(str(point["memory_id"]))
 		if memory == null or memory.is_burned:
 			continue
 
-		var pos = Vector2(point["pos_x"] * TILE_SIZE, point["pos_y"] * TILE_SIZE)
+		var pos: Vector2 = Vector2(float(point["pos_x"]) * TILE_SIZE, float(point["pos_y"]) * TILE_SIZE)
 		_create_resonance_trigger(map_node, pos, point)
 
 static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dictionary) -> void:
@@ -108,11 +109,11 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 	tween.parallel().tween_property(glow, "scale", Vector2.ONE, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.parallel().tween_property(core, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-	var flag = point["flag"]
-	var memory_id = point["memory_id"]
-	var bonus_desc = point["bonus_desc"]
-	var bonus_type = point["bonus_type"]
-	var bonus_value = point["bonus_value"]
+	var flag: String = str(point["flag"])
+	var memory_id: String = str(point["memory_id"])
+	var bonus_desc: String = str(point["bonus_desc"])
+	var bonus_type: String = str(point["bonus_type"])
+	var bonus_value: Variant = point["bonus_value"]
 
 	area.body_entered.connect(func(body):
 		if body.name != "Player" or GameManager.current_state != GameManager.GameState.EXPLORATION:
@@ -120,7 +121,7 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 		if GameManager.get_flag(flag):
 			return
 
-		var mem = MemoryManager._get_memory(memory_id)
+		var mem: MemoryManager.Memory = MemoryManager._get_memory(memory_id)
 		if mem == null or mem.is_burned:
 			return
 
@@ -136,15 +137,15 @@ static func pulse_scan(map_node: Node, origin: Vector2, radius: float) -> Dictio
 		return {"count": 0}
 
 	var nearest: Area2D = null
-	var nearest_distance := INF
-	var count := 0
+	var nearest_distance: float = INF
+	var count: int = 0
 	for node in map_node.get_tree().get_nodes_in_group("memory_resonance"):
 		if not is_instance_valid(node) or not (node is Area2D):
 			continue
 		if node.get_parent() != map_node:
 			continue
-		var area := node as Area2D
-		var dist := origin.distance_to(area.global_position)
+		var area: Area2D = node as Area2D
+		var dist: float = origin.distance_to(area.global_position)
 		if dist <= radius:
 			count += 1
 			_flash_scan_target(area, radius, dist)
@@ -156,8 +157,8 @@ static func pulse_scan(map_node: Node, origin: Vector2, radius: float) -> Dictio
 		return {"count": 0}
 
 	var memory_id: String = str(nearest.get_meta("memory_id", ""))
-	var memory = MemoryManager._get_memory(memory_id)
-	var memory_title := memory.title if memory != null else "unknown memory"
+	var memory: MemoryManager.Memory = MemoryManager._get_memory(memory_id)
+	var memory_title: String = memory.title if memory != null else "unknown memory"
 	return {
 		"count": count,
 		"distance": nearest_distance,
@@ -169,8 +170,8 @@ static func _flash_scan_target(area: Area2D, radius: float, distance: float) -> 
 	var strength: float = clampf(1.0 - (distance / maxf(radius, 1.0)), 0.25, 1.0)
 	for child in area.get_children():
 		if child is CanvasItem:
-			var item := child as CanvasItem
-			var base_modulate := item.modulate
+			var item: CanvasItem = child as CanvasItem
+			var base_modulate: Color = item.modulate
 			var tw = area.create_tween()
 			tw.tween_property(item, "modulate", Color(1.45, 1.25, 0.55, clampf(base_modulate.a + 0.35 * strength, 0.2, 1.0)), 0.12)
 			tw.tween_property(item, "modulate", base_modulate, 0.55).set_trans(Tween.TRANS_SINE)
@@ -193,10 +194,10 @@ static func _flash_scan_target(area: Area2D, radius: float, distance: float) -> 
 	ht.chain().tween_property(hint, "modulate:a", 0.0, 0.28)
 	ht.chain().tween_callback(hint.queue_free)
 
-static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: String, bonus_value, bonus_desc: String) -> void:
+static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: String, bonus_value: Variant, bonus_desc: String) -> void:
 	NotificationToast.show_toast("Memory Resonance: %s" % memory.title, NotificationToast.ToastType.INFO)
 
-	var burned = MemoryManager.burn_memory_silent(memory.id)
+	var burned: MemoryManager.Memory = MemoryManager.burn_memory_silent(memory.id)
 	if burned == null:
 		return
 

@@ -8,24 +8,15 @@ extends Control
 @onready var quit_btn: Button = $VBoxContainer/QuitButton
 @onready var menu_container: VBoxContainer = $VBoxContainer
 
-const GAME_VERSION: String = "v0.9.1"
 const TITLE_BG_PATH: String = "res://assets/cg/game_image/game_start.png"
 const TITLE_BGM_PATH: String = "res://assets/audio/bgm/title.mp3"
 
 var _bg: TextureRect
-var _shade: ColorRect
-var _vignette: TextureRect
-var _menu_backing: ColorRect
-var _version_label: Label
-var _menu_tween: Tween
-var _title_particles: Array[Control] = []
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_background()
-	_build_cinematic_overlays()
 	_setup_menu()
-	_build_version_label()
 	_fade_in_title()
 	_play_title_bgm()
 	print("=== MEMORIA: The Price of Oblivion ===")
@@ -37,106 +28,32 @@ func _build_background() -> void:
 	_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_bg.mouse_filter = MOUSE_FILTER_IGNORE
 	_bg.z_index = -2
-	_bg.modulate.a = 0.0
+	_bg.modulate.a = 1.0
 	if ResourceLoader.exists(TITLE_BG_PATH):
 		_bg.texture = load(TITLE_BG_PATH)
 	add_child(_bg)
 	move_child(_bg, 0)
 
-	# A light veil keeps the busy illustration readable without covering the art.
-	_shade = ColorRect.new()
-	_shade.set_anchors_preset(PRESET_FULL_RECT)
-	_shade.color = Color(0.015, 0.012, 0.018, 0.10)
-	_shade.mouse_filter = MOUSE_FILTER_IGNORE
-	_shade.z_index = -1
-	_shade.modulate.a = 0.0
-	add_child(_shade)
-	move_child(_shade, 1)
-
-func _build_cinematic_overlays() -> void:
-	_vignette = TextureRect.new()
-	_vignette.set_anchors_preset(PRESET_FULL_RECT)
-	_vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_vignette.stretch_mode = TextureRect.STRETCH_SCALE
-	_vignette.mouse_filter = MOUSE_FILTER_IGNORE
-	_vignette.z_index = -1
-	_vignette.modulate.a = 0.0
-	var grad = Gradient.new()
-	grad.add_point(0.00, Color(0, 0, 0, 0.0))
-	grad.add_point(0.62, Color(0, 0, 0, 0.10))
-	grad.add_point(1.00, Color(0, 0, 0, 0.72))
-	var tex = GradientTexture2D.new()
-	tex.gradient = grad
-	tex.width = 512
-	tex.height = 512
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.50, 0.52)
-	tex.fill_to = Vector2(1.0, 0.52)
-	_vignette.texture = tex
-	add_child(_vignette)
-	move_child(_vignette, 2)
-
-	_menu_backing = ColorRect.new()
-	_menu_backing.anchor_left = 0.724
-	_menu_backing.anchor_top = 0.598
-	_menu_backing.anchor_right = 0.962
-	_menu_backing.anchor_bottom = 0.918
-	_menu_backing.color = Color(0.01, 0.012, 0.018, 0.18)
-	_menu_backing.mouse_filter = MOUSE_FILTER_IGNORE
-	_menu_backing.z_index = 0
-	_menu_backing.modulate.a = 0.0
-	add_child(_menu_backing)
-
-	_build_memory_dust()
-
-func _build_memory_dust() -> void:
-	var viewport_size = get_viewport_rect().size
-	var rng = RandomNumberGenerator.new()
-	rng.seed = 7019
-	for i in range(28):
-		var mote = ColorRect.new()
-		mote.size = Vector2(rng.randf_range(1.0, 2.2), rng.randf_range(5.0, 12.0))
-		mote.position = Vector2(
-			rng.randf_range(viewport_size.x * 0.05, viewport_size.x * 0.95),
-			rng.randf_range(viewport_size.y * 0.08, viewport_size.y * 0.95)
-		)
-		mote.rotation = rng.randf_range(-0.7, 0.7)
-		mote.color = Color(0.86, 0.74, 0.48, rng.randf_range(0.10, 0.28))
-		mote.mouse_filter = MOUSE_FILTER_IGNORE
-		mote.z_index = 1
-		mote.modulate.a = 0.0
-		add_child(mote)
-		_title_particles.append(mote)
-		var tw = create_tween().set_loops()
-		tw.tween_interval(rng.randf_range(0.0, 1.8))
-		tw.tween_property(mote, "modulate:a", rng.randf_range(0.18, 0.42), rng.randf_range(0.9, 1.7))
-		tw.parallel().tween_property(mote, "position:y", mote.position.y - rng.randf_range(18.0, 52.0), rng.randf_range(4.5, 7.5)).set_trans(Tween.TRANS_SINE)
-		tw.parallel().tween_property(mote, "rotation", mote.rotation + rng.randf_range(-0.35, 0.35), rng.randf_range(4.5, 7.5)).set_trans(Tween.TRANS_SINE)
-		tw.tween_property(mote, "modulate:a", 0.0, rng.randf_range(0.8, 1.4))
-		tw.tween_callback(func():
-			mote.position.y = viewport_size.y + rng.randf_range(10.0, 80.0)
-		)
-
 func _setup_menu() -> void:
-	# The image already contains the title and menu frame. These buttons sit on top
-	# of that frame as quiet hit targets with only a subtle focus/hover treatment.
+	# The GAME START illustration already contains the visible menu.
+	# Keep these as invisible hit targets only, so the art is not overpainted.
 	menu_container.visible = true
-	menu_container.anchor_left = 0.742
-	menu_container.anchor_top = 0.623
-	menu_container.anchor_right = 0.946
-	menu_container.anchor_bottom = 0.890
+	menu_container.anchor_left = 0.720
+	menu_container.anchor_top = 0.652
+	menu_container.anchor_right = 0.956
+	menu_container.anchor_bottom = 0.928
 	menu_container.offset_left = 0
 	menu_container.offset_top = 0
 	menu_container.offset_right = 0
 	menu_container.offset_bottom = 0
 	menu_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	menu_container.add_theme_constant_override("separation", 6)
+	menu_container.add_theme_constant_override("separation", 10)
 	menu_container.modulate.a = 0.0
 
-	new_game_btn.text = "NEW GAME"
-	continue_btn.text = "CONTINUE"
-	options_btn.text = "SETTINGS"
-	quit_btn.text = "EXIT"
+	new_game_btn.text = ""
+	continue_btn.text = ""
+	options_btn.text = ""
+	quit_btn.text = ""
 
 	for btn in menu_container.get_children():
 		if btn is Button:
@@ -147,88 +64,44 @@ func _setup_menu() -> void:
 		continue_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
 
 func _style_title_button(btn: Button) -> void:
-	btn.custom_minimum_size = Vector2(260, 42)
+	btn.custom_minimum_size = Vector2(238, 35)
 	btn.focus_mode = Control.FOCUS_ALL
-	btn.add_theme_font_size_override("font_size", 19)
-
-	var font = SystemFont.new()
-	font.font_names = PackedStringArray([
-		"Cinzel",
-		"Cinzel Decorative",
-		"Trajan Pro",
-		"Constantia",
-		"Palatino Linotype",
-		"Book Antiqua",
-		"Garamond",
-		"serif",
-	])
-	font.font_weight = 500
-	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
-	btn.add_theme_font_override("font", font)
 
 	var normal = StyleBoxFlat.new()
 	normal.bg_color = Color(0, 0, 0, 0.0)
 	normal.border_color = Color(0.72, 0.58, 0.35, 0.0)
 	normal.set_border_width_all(1)
 	normal.set_corner_radius_all(2)
-	normal.set_content_margin_all(6)
+	normal.set_content_margin_all(5)
 	btn.add_theme_stylebox_override("normal", normal)
 
 	var hover = normal.duplicate()
-	hover.bg_color = Color(0.05, 0.06, 0.10, 0.16)
-	hover.border_color = Color(0.75, 0.62, 0.38, 0.55)
+	hover.bg_color = Color(0, 0, 0, 0.0)
+	hover.border_color = Color(0, 0, 0, 0.0)
 	btn.add_theme_stylebox_override("hover", hover)
 	btn.add_theme_stylebox_override("focus", hover)
 
 	var pressed = hover.duplicate()
-	pressed.bg_color = Color(0.10, 0.09, 0.12, 0.24)
-	pressed.border_color = Color(0.95, 0.80, 0.48, 0.70)
 	btn.add_theme_stylebox_override("pressed", pressed)
 
 	var disabled = normal.duplicate()
 	disabled.bg_color = Color(0, 0, 0, 0.0)
 	btn.add_theme_stylebox_override("disabled", disabled)
 
-	btn.add_theme_color_override("font_color", Color(0.92, 0.86, 0.74, 0.08))
-	btn.add_theme_color_override("font_hover_color", Color(0.98, 0.90, 0.68, 0.95))
-	btn.add_theme_color_override("font_focus_color", Color(0.98, 0.90, 0.68, 0.95))
-	btn.add_theme_color_override("font_pressed_color", Color(1.0, 0.94, 0.72, 1.0))
-	btn.add_theme_color_override("font_disabled_color", Color(0.42, 0.40, 0.38, 0.20))
+	btn.add_theme_color_override("font_color", Color(1, 1, 1, 0.0))
+	btn.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.0))
+	btn.add_theme_color_override("font_focus_color", Color(1, 1, 1, 0.0))
+	btn.add_theme_color_override("font_pressed_color", Color(1, 1, 1, 0.0))
+	btn.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.0))
 
 	btn.mouse_entered.connect(func():
 		if has_node("/root/AudioManager"):
 			AudioManager.play_sfx("ui_hover")
 	)
 
-func _build_version_label() -> void:
-	_version_label = Label.new()
-	_version_label.text = GAME_VERSION
-	_version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_version_label.anchor_left = 1.0
-	_version_label.anchor_top = 1.0
-	_version_label.anchor_right = 1.0
-	_version_label.anchor_bottom = 1.0
-	_version_label.offset_left = -110
-	_version_label.offset_top = -30
-	_version_label.offset_right = -14
-	_version_label.offset_bottom = -8
-	_version_label.add_theme_font_size_override("font_size", 11)
-	_version_label.add_theme_color_override("font_color", Color(0.65, 0.62, 0.55, 0.38))
-	_version_label.mouse_filter = MOUSE_FILTER_IGNORE
-	_version_label.modulate.a = 0.0
-	add_child(_version_label)
-
 func _fade_in_title() -> void:
-	if _menu_tween:
-		_menu_tween.kill()
-	_menu_tween = create_tween()
-	_menu_tween.set_parallel(true)
-	_menu_tween.tween_property(_bg, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
-	_menu_tween.tween_property(_shade, "modulate:a", 1.0, 0.8).set_ease(Tween.EASE_OUT)
-	_menu_tween.tween_property(_vignette, "modulate:a", 1.0, 1.0).set_ease(Tween.EASE_OUT)
-	_menu_tween.tween_property(_menu_backing, "modulate:a", 1.0, 0.9).set_delay(0.15).set_ease(Tween.EASE_OUT)
-	_menu_tween.tween_property(menu_container, "modulate:a", 1.0, 0.7).set_delay(0.25).set_ease(Tween.EASE_OUT)
-	_menu_tween.tween_property(_version_label, "modulate:a", 1.0, 0.7).set_delay(0.35).set_ease(Tween.EASE_OUT)
+	_bg.modulate.a = 1.0
+	menu_container.modulate.a = 0.0
 
 func _play_title_bgm() -> void:
 	if has_node("/root/AudioManager") and ResourceLoader.exists(TITLE_BGM_PATH):

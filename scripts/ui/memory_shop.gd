@@ -8,7 +8,10 @@ var is_open: bool = false
 # ── 노드 참조 ──
 var overlay: ColorRect
 var main_panel: PanelContainer
+var merchant_portrait_frame: PanelContainer
+var merchant_portrait: TextureRect
 var shop_title: Label
+var merchant_caption: Label
 var grains_label: Label
 var tab_buy: Button
 var tab_sell: Button
@@ -72,11 +75,41 @@ func open_shop(merchant_name: String = "Merchant", inventory: Array[Dictionary] 
 	GameManager.change_state(GameManager.GameState.MENU)
 	AudioManager.play_sfx("ui_open")
 	shop_title.text = "%s — Memory Exchange" % merchant_name
+	_update_merchant_portrait(merchant_name)
 	_update_grains()
 	_refresh_items()
 	_show_ui()
 	# S55: Tutorial hints
 	TutorialHints.show_hint("first_shop")
+
+func _update_merchant_portrait(merchant_name: String) -> void:
+	if merchant_portrait_frame == null or merchant_portrait == null:
+		return
+	if merchant_caption:
+		merchant_caption.text = _resolve_merchant_caption(merchant_name)
+	var portrait_path: String = _resolve_merchant_portrait(merchant_name)
+	if portrait_path == "" or not ResourceLoader.exists(portrait_path):
+		merchant_portrait.texture = null
+		merchant_portrait_frame.visible = false
+		return
+	merchant_portrait.texture = load(portrait_path) as Texture2D
+	merchant_portrait_frame.visible = merchant_portrait.texture != null
+
+func _resolve_merchant_portrait(merchant_name: String) -> String:
+	var normalized_name: String = merchant_name.to_lower()
+	match normalized_name:
+		"malet", "mallet":
+			return "res://assets/portraits/malet_face_neutral.png"
+		_:
+			return ""
+
+func _resolve_merchant_caption(merchant_name: String) -> String:
+	var normalized_name: String = merchant_name.to_lower()
+	match normalized_name:
+		"malet", "mallet":
+			return "Bureau-brokered memory trader"
+		_:
+			return "Memory trader"
 
 func close_shop() -> void:
 	if not is_open:
@@ -120,14 +153,40 @@ func _build_ui() -> void:
 
 	# ── 헤더: 타이틀 + Grains ──
 	var header = HBoxContainer.new()
+	header.add_theme_constant_override("separation", 10)
 	main_vbox.add_child(header)
+
+	merchant_portrait_frame = PanelContainer.new()
+	merchant_portrait_frame.custom_minimum_size = Vector2(58, 58)
+	merchant_portrait_frame.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.04, 0.035, 0.03, 0.95),
+		Color(0.75, 0.58, 0.28, 0.75),
+		1, 4, 6
+	))
+	header.add_child(merchant_portrait_frame)
+
+	merchant_portrait = TextureRect.new()
+	merchant_portrait.custom_minimum_size = Vector2(52, 52)
+	merchant_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	merchant_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	merchant_portrait_frame.add_child(merchant_portrait)
+
+	var title_stack = VBoxContainer.new()
+	title_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_stack.add_theme_constant_override("separation", 1)
+	header.add_child(title_stack)
 
 	shop_title = Label.new()
 	shop_title.text = "Memory Exchange"
 	shop_title.add_theme_font_size_override("font_size", 18)
 	shop_title.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
-	shop_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(shop_title)
+	title_stack.add_child(shop_title)
+
+	merchant_caption = Label.new()
+	merchant_caption.text = "Memory trader"
+	merchant_caption.add_theme_font_size_override("font_size", 11)
+	merchant_caption.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+	title_stack.add_child(merchant_caption)
 
 	grains_label = Label.new()
 	grains_label.add_theme_font_size_override("font_size", 16)

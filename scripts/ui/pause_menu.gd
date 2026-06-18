@@ -453,6 +453,8 @@ func _update_save_info() -> void:
 	var text = "Chapter %d — %s%s\n" % [ch, ch_name, ng_text]
 	text += "HP: %d / %d\n" % [hp, max_hp]
 	text += "Memories: %d held, %d burned" % [memory_count - burn_count, burn_count]
+	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
+		text += "\nLoss records: %d" % WorldRewriteDirector.get_loss_records().size()
 
 	# S57: Enhanced save slot display with chapter name, HP, grains, and playtime
 	var ch_names = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}

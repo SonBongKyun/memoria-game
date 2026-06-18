@@ -61,6 +61,7 @@ func _ready() -> void:
 	# S59: 분위기 강화 — 황무지 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.4, Color(0.35, 0.32, 0.3, 0.05), 2.0)
 	MapEffects.add_depth_gradient(self, 0.06)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.74, 0.62, 0.42, 1.0), "vignette": 0.44, "tint_strength": 0.09, "shafts": 0.07, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

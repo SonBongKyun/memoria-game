@@ -62,6 +62,7 @@ func _ready() -> void:
 	# S59: 무색 안개 (바람 없음) + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.7, Color(0.3, 0.3, 0.3, 0.06), 0.8)
 	MapEffects.add_depth_gradient(self, 0.07)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.64, 0.64, 0.68, 1.0), "vignette": 0.54, "tint_strength": 0.06, "grain": 0.035, "shafts": 0.04, "glints": 1})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -141,7 +142,7 @@ func _on_kairos_truth_ended() -> void:
 		kairos.weakness = "physical"
 		kairos.resistance = "void"
 		BattleManager.start_battle(kairos, "res://scenes/maps/colorless_waste.tscn",
-			"res://assets/cg/game_image/kairos_sealed_city.png", "res://assets/cg/game_image/kairos_sealed_city.png")
+			"res://assets/cg/game_image/kairos_sealed_city.png", "res://assets/cg/game_image/kairos_fullbody.png")
 		BattleManager.battle_ended.connect(_on_kairos_battle_ended, CONNECT_ONE_SHOT)
 		SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 

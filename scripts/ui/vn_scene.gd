@@ -3,16 +3,22 @@
 ## 클릭/Enter/Space/E로 진행. 선택지는 마우스 클릭.
 extends CanvasLayer
 
-const PORTRAIT_SIZE: int = 384  # VN 스탠딩 크기 (포트레이트 원본을 크게 보여줌)
+const PORTRAIT_SIZE: int = 300
 const TYPEWRITER_SPEED: float = 0.025
 const CG_FADE_DURATION: float = 0.8
 const PORTRAIT_DIM: Color = Color(0.45, 0.45, 0.5, 1.0)
 const PORTRAIT_BRIGHT: Color = Color(1, 1, 1, 1)
+const CG_ALIAS_FALLBACKS: Dictionary = {
+	"ch1_twisted_forest": "res://assets/cg/game_image/chapter_sealed_zone.png",
+	"ch1_stump2": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+	"ch1_green_tree": "res://assets/cg/game_image/sealed_city_ruins.png",
+}
+const DEFAULT_CG_FALLBACK: String = "res://assets/cg/game_image/chapter_sealed_zone.png"
 
 # 노드
 var _bg: ColorRect
 var _cg_current: TextureRect
-var _cg_next: TextureRect  # 크로스페이드용
+var _cg_next: TextureRect
 var _cg_detail_top: TextureRect
 var _cg_lower_wash: ColorRect
 var _portrait_left: TextureRect
@@ -25,6 +31,8 @@ var _text_label: RichTextLabel
 var _text_panel: PanelContainer
 var _continue_indicator: Label
 var _continue_tween: Tween
+var _choice_header: Label
+var _choice_hint: Label
 var _choice_container: VBoxContainer
 var _letterbox_top: ColorRect
 var _letterbox_bottom: ColorRect
@@ -36,7 +44,6 @@ var _chroma_b: TextureRect              # 색수차 레이어 (푸른 채널)
 var _is_distorted_line: bool = false    # 현재 대사가 왜곡 상태인지
 # S69: 연소 잔열 비네트 (가장자리만 따뜻하게 타고 난 흔적)
 var _ember_vignette: TextureRect
-# S69: 필름 그레인 — 시네마틱 노이즈 텍스처
 var _film_grain: ColorRect
 var _film_grain_time: float = 0.0
 # S73: 책 페이지 넘기기 — 대사 advance 시 종이 휨 효과
@@ -66,7 +73,6 @@ func _ready() -> void:
 	_build_glitch_layer()
 	SceneFlow.step_changed.connect(_on_step_changed)
 	SceneFlow.scene_ended.connect(_on_scene_ended)
-	# S61: 기억 연소 시 글리치 VFX 트리거
 	if has_node("/root/MemoryManager"):
 		MemoryManager.memory_burned.connect(_on_memory_burned)
 	set_process_input(true)
@@ -230,12 +236,45 @@ func _build_ui() -> void:
 	_continue_indicator.visible = false
 	root.add_child(_continue_indicator)
 
+	_choice_header = Label.new()
+	_choice_header.anchor_left = 0.18
+	_choice_header.anchor_right = 0.82
+	_choice_header.anchor_top = 0.18
+	_choice_header.anchor_bottom = 0.18
+	_choice_header.offset_top = -4
+	_choice_header.offset_bottom = 32
+	_choice_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_choice_header.add_theme_font_size_override("font_size", 16)
+	_choice_header.add_theme_color_override("font_color", Color(0.96, 0.78, 0.45, 0.92))
+	_choice_header.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	_choice_header.add_theme_constant_override("shadow_outline_size", 2)
+	_choice_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_choice_header.visible = false
+	root.add_child(_choice_header)
+
+	_choice_hint = Label.new()
+	_choice_hint.anchor_left = 0.18
+	_choice_hint.anchor_right = 0.82
+	_choice_hint.anchor_top = 0.22
+	_choice_hint.anchor_bottom = 0.22
+	_choice_hint.offset_top = -2
+	_choice_hint.offset_bottom = 28
+	_choice_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_choice_hint.add_theme_font_size_override("font_size", 13)
+	_choice_hint.add_theme_color_override("font_color", Color(0.86, 0.82, 0.72, 0.76))
+	_choice_hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
+	_choice_hint.add_theme_constant_override("shadow_outline_size", 1)
+	_choice_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_choice_hint.visible = false
+	root.add_child(_choice_hint)
+
 	# 선택지 컨테이너
 	_choice_container = VBoxContainer.new()
-	_choice_container.anchor_left = 0.25
-	_choice_container.anchor_right = 0.75
-	_choice_container.anchor_top = 0.28
-	_choice_container.anchor_bottom = 0.75
+	_choice_container.anchor_left = 0.20
+	_choice_container.anchor_right = 0.80
+	_choice_container.anchor_top = 0.29
+	_choice_container.anchor_bottom = 0.77
 	_choice_container.add_theme_constant_override("separation", 12)
 	_choice_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(_choice_container)
@@ -472,6 +511,8 @@ func _on_step_changed(step: Dictionary) -> void:
 
 	if portrait != "" and side != "":
 		_set_portrait_side(side, portrait)
+		if _uses_single_portrait_composition(speaker):
+			_set_portrait_side(_opposite_side(side), "")
 		_active_side = side
 		_highlight_speaking_side(side)
 	elif speaker == "":
@@ -520,6 +561,8 @@ func _swap_cg() -> void:
 func _sync_cg_presentation_layers() -> void:
 	if _cg_detail_top == null:
 		return
+	_cg_detail_top.texture = null
+	_cg_detail_top.modulate.a = 0.0
 	_cg_detail_top.texture = _cg_current.texture
 	_cg_detail_top.position = Vector2.ZERO
 	_cg_detail_top.scale = Vector2(1.0, 1.0)
@@ -565,12 +608,18 @@ func _resolve_cg_path(ref: String) -> String:
 		return ""
 	if ref.begins_with("res://"):
 		return ref
+	if CG_ALIAS_FALLBACKS.has(ref):
+		return CG_ALIAS_FALLBACKS[ref]
+	for ext in [".png", ".jpg"]:
+		var game_image_path = "res://assets/cg/game_image/" + ref + ext
+		if ResourceLoader.exists(game_image_path):
+			return game_image_path
 	# 짧은 이름 → cg 폴더에서 jpg/png 자동 탐색
 	for ext in [".jpg", ".png"]:
 		var p = "res://assets/cg/" + ref + ext
 		if ResourceLoader.exists(p):
 			return p
-	return "res://assets/cg/" + ref + ".jpg"
+	return DEFAULT_CG_FALLBACK
 
 ## ===================== PORTRAIT =====================
 
@@ -615,6 +664,12 @@ func _set_portrait_side(side: String, portrait_id: String) -> void:
 	else:
 		_right_portrait_id = portrait_id
 
+func _uses_single_portrait_composition(speaker: String) -> bool:
+	return speaker == "Arrel" or speaker == "Elia"
+
+func _opposite_side(side: String) -> String:
+	return "right" if side == "left" else "left"
+
 func _highlight_speaking_side(side: String) -> void:
 	if side == "left":
 		_portrait_left.modulate = PORTRAIT_BRIGHT
@@ -655,6 +710,7 @@ func _on_memory_burned(_memory) -> void:
 
 func _play_burn_glitch() -> void:
 	# 1. 붉은 플래시
+	_glitch_overlay.color = Color(0.95, 0.25, 0.15, 0.55)
 	_glitch_overlay.color = Color(0.95, 0.25, 0.15, 0.55)
 	var tw_flash = create_tween()
 	tw_flash.tween_property(_glitch_overlay, "color:a", 0.0, 0.9).set_trans(Tween.TRANS_EXPO)
@@ -761,8 +817,10 @@ func _play_page_turn() -> void:
 	var span = vp.x  # 화면 가로 전체를 횡단
 	# 시작: 화면 왼쪽 밖
 	_page_turn_overlay.position.x = -span * 0.4
+	_page_turn_overlay.position.x = -span * 0.4
 	_page_turn_overlay.modulate.a = 0.0
 	# 위쪽으로 살짝 휘어진 듯한 인상 — 회전 -3도
+	_page_turn_overlay.rotation_degrees = -2.0
 	_page_turn_overlay.rotation_degrees = -2.0
 	var tw = create_tween()
 	tw.set_parallel(true)
@@ -774,6 +832,7 @@ func _play_page_turn() -> void:
 	# 페이지 휨 — 회전 살짝 변화
 	tw.parallel().tween_property(_page_turn_overlay, "rotation_degrees", 1.5, 0.32).set_trans(Tween.TRANS_SINE)
 	# 종이 사운드 (있으면)
+	tw.parallel().tween_property(_page_turn_overlay, "rotation_degrees", 1.5, 0.32).set_trans(Tween.TRANS_SINE)
 	if has_node("/root/AudioManager") and AudioManager.has_method("play_sfx"):
 		AudioManager.play_sfx("page_turn")
 
@@ -845,6 +904,10 @@ func _show_choices(choices: Array) -> void:
 		c.queue_free()
 
 	_choice_container.visible = true
+	_choice_header.visible = true
+	_choice_hint.visible = true
+	_choice_header.text = _current_step.get("choice_title", "DECISION")
+	_choice_hint.text = _current_step.get("choice_hint", "Some choices change what Arrel can keep, spend, or survive.")
 	_text_panel.visible = false
 	_name_panel.visible = false
 	_show_continue(false)
@@ -882,10 +945,13 @@ func _show_choices(choices: Array) -> void:
 		var btn = Button.new()
 		var label_text = c.get("text", "...")
 		if is_cost_choice and cost_mem != null:
-			label_text = "✦  %s\n    [ Burn: %s ]" % [c.get("text", "..."), cost_mem.title]
+			label_text = "✦  %s\n    [Burn: %s]" % [c.get("text", "..."), cost_mem.title]
+		if c.has("effect"):
+			label_text += "\n    %s" % String(c.effect)
 		btn.text = label_text
-		btn.custom_minimum_size = Vector2(590, 62 if is_cost_choice else 52)
-		btn.add_theme_font_size_override("font_size", 17)
+		var button_height := 76 if c.has("effect") else (64 if is_cost_choice else 54)
+		btn.custom_minimum_size = Vector2(680, button_height)
+		btn.add_theme_font_size_override("font_size", 16)
 		var bstyle = StyleBoxFlat.new()
 		bstyle.bg_color = Color(0.030, 0.026, 0.038, 0.94)
 		bstyle.border_color = Color(0.62, 0.48, 0.28, 0.62)
@@ -926,6 +992,8 @@ func _on_choice_selected(index: int) -> void:
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("ui_select")
 	_choice_container.visible = false
+	_choice_header.visible = false
+	_choice_hint.visible = false
 	_text_panel.visible = true
 	# S69: 선택지 닫히면 배경 복귀
 	_dim_background_for_choice(false)

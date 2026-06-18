@@ -56,8 +56,11 @@ func _on_battle_started(enemy: BattleManager.Enemy) -> void:
 		enemy_entries[enemy.name] = {"encounters": 0, "defeated": 0, "is_void": enemy.is_void_beast, "max_hp": enemy.max_hp, "atk": enemy.attack, "is_boss": enemy.is_boss}
 	enemy_entries[enemy.name]["encounters"] += 1
 	# S59: Store enemy image path for bestiary preview
-	if BattleManager.enemy_image != "":
-		enemy_entries[enemy.name]["image_path"] = BattleManager.enemy_image
+	var image_path: String = BattleManager.enemy_image
+	if image_path == "":
+		image_path = BattleManager.resolve_enemy_image_by_name(enemy.name)
+	if image_path != "":
+		enemy_entries[enemy.name]["image_path"] = image_path
 	_save_data()
 
 func _on_battle_ended(result: BattleManager.BattleState) -> void:
@@ -417,7 +420,9 @@ func _add_enemy_preview(enemy_name: String, data: Dictionary) -> void:
 	preview_container.custom_minimum_size = Vector2(0, 72)
 	preview_container.add_theme_constant_override("separation", 8)
 
-	var image_path = data.get("image_path", "")
+	var image_path: String = data.get("image_path", "")
+	if image_path == "":
+		image_path = BattleManager.resolve_enemy_image_by_name(enemy_name)
 	if image_path != "" and ResourceLoader.exists(image_path):
 		# Use actual enemy image
 		var tex_rect = TextureRect.new()

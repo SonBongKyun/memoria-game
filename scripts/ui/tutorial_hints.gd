@@ -12,6 +12,7 @@ const HINTS: Dictionary = {
 	"first_equipment": "Equip gear from the shop to boost your stats.",
 	"first_status_effect": "Status effects last several turns. Use Antidote to cure poison.",
 	"first_pulse": "Press Q to send out a Memory Pulse. Nearby echoes will briefly answer.",
+	"first_break": "Exploit enemy weaknesses to fill BREAK. Broken enemies lose a turn and take heavier damage.",
 }
 
 # UI 노드

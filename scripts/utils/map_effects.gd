@@ -925,6 +925,71 @@ static func add_color_grading(parent: Node2D, settings: Dictionary) -> CanvasLay
 
 ## ===================== S52: 캐릭터 드롭 섀도우 =====================
 ## 플레이어/NPC 발밑에 타원형 그림자 추가
+## Premium screen lens: subtle paper grain, cinematic edges, and faint light shafts.
+## This is screen-space so every map can gain a stronger authored look without
+## rewriting tile or prop construction.
+static func add_premium_map_lens(parent: Node2D, settings: Dictionary = {}) -> CanvasLayer:
+	var layer = CanvasLayer.new()
+	layer.layer = int(settings.get("layer", 5))
+
+	var rect = ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(0, 0, 0, 0)
+
+	var shader_path = "res://assets/shaders/premium_lens.gdshader"
+	var shader_res = _get_shader(shader_path)
+	if shader_res:
+		var mat = ShaderMaterial.new()
+		mat.shader = shader_res
+		mat.set_shader_parameter("tint_color", settings.get("tint", Color(0.72, 0.58, 0.36, 1.0)))
+		mat.set_shader_parameter("vignette_strength", float(settings.get("vignette", 0.42)))
+		mat.set_shader_parameter("tint_strength", float(settings.get("tint_strength", 0.09)))
+		mat.set_shader_parameter("grain_strength", float(settings.get("grain", 0.025)))
+		mat.set_shader_parameter("letterbox_strength", float(settings.get("letterbox", 0.18)))
+		mat.set_shader_parameter("shaft_strength", float(settings.get("shafts", 0.07)))
+		mat.set_shader_parameter("pulse_speed", float(settings.get("pulse", 0.35)))
+		rect.material = mat
+	else:
+		var tint: Color = settings.get("tint", Color(0.72, 0.58, 0.36, 1.0))
+		rect.color = Color(tint.r, tint.g, tint.b, float(settings.get("fallback_alpha", 0.12)))
+
+	layer.add_child(rect)
+
+	var glint_count: int = int(settings.get("glints", 2))
+	for i in range(glint_count):
+		var glint = TextureRect.new()
+		glint.anchor_left = randf_range(-0.08, 0.72)
+		glint.anchor_right = glint.anchor_left + randf_range(0.18, 0.34)
+		glint.anchor_top = randf_range(-0.10, 0.32)
+		glint.anchor_bottom = glint.anchor_top + randf_range(0.22, 0.42)
+		glint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glint.modulate = Color(1.0, 0.86, 0.55, randf_range(0.045, 0.085))
+		glint.rotation = randf_range(-0.35, -0.16)
+		glint.texture = _make_linear_gradient_texture(
+			Color(1.0, 0.82, 0.45, 0.0),
+			Color(1.0, 0.88, 0.58, 0.42),
+			Color(1.0, 0.82, 0.45, 0.0)
+		)
+		layer.add_child(glint)
+
+	parent.add_child(layer)
+	return layer
+
+static func _make_linear_gradient_texture(left: Color, mid: Color, right: Color) -> GradientTexture2D:
+	var grad = Gradient.new()
+	grad.set_color(0, left)
+	grad.add_point(0.5, mid)
+	grad.set_color(1, right)
+	var tex = GradientTexture2D.new()
+	tex.gradient = grad
+	tex.width = 256
+	tex.height = 64
+	tex.fill = GradientTexture2D.FILL_LINEAR
+	tex.fill_from = Vector2(0.0, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	return tex
+
 static func add_drop_shadow(character: Node2D) -> ColorRect:
 	var shadow = ColorRect.new()
 	shadow.color = Color(0.0, 0.0, 0.05, 0.35)
@@ -1682,8 +1747,11 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 	var wait = randf_range(2.0, 5.0)
 	tween.tween_interval(wait)
 	# 반복
+	var npc_ref: WeakRef = weakref(npc_node)
 	tween.tween_callback(func():
-		_start_wander_step(npc_node)
+		var node: Node2D = npc_ref.get_ref() as Node2D
+		if node != null and is_instance_valid(node):
+			_start_wander_step(node)
 	)
 
 ## ===================== S59: 트리거 접근 글로우 =====================

@@ -89,6 +89,8 @@ func _run_step() -> void:
 		advance()
 		return
 
+	_apply_reward_fields(step)
+
 	# 액션 처리 (UI와 무관한 전환)
 	if step.has("action"):
 		_handle_action(step)
@@ -192,14 +194,32 @@ func select_choice(choice_index: int) -> void:
 	# S63: Memory Leverage — cost_memory는 burn_memory의 의미적 별칭 (UI에서 구분 강조됨)
 	if choice.has("cost_memory"):
 		MemoryManager.burn_memory(choice.cost_memory)
-	if choice.has("add_grains"):
-		GameManager.player_data.grains = int(GameManager.player_data.get("grains", 0)) + int(choice.add_grains)
-		if has_node("/root/NotificationToast"):
-			NotificationToast.show_toast("+%d Grains" % int(choice.add_grains), NotificationToast.ToastType.SUCCESS)
+	_apply_reward_fields(choice)
 	if choice.has("goto"):
 		current_index = int(choice.goto) - 1
 
 	advance()
+
+func _apply_reward_fields(data: Dictionary) -> void:
+	if data.has("add_grains"):
+		var grains := int(data.add_grains)
+		GameManager.player_data.grains = int(GameManager.player_data.get("grains", 0)) + grains
+		GameManager.add_stat("total_grains_earned", grains)
+		if has_node("/root/NotificationToast"):
+			NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
+	if data.has("add_item"):
+		var item_id := String(data.add_item)
+		var count := int(data.get("add_item_count", 1))
+		GameManager.add_item(item_id, count)
+	if data.has("heal_player"):
+		var heal := int(data.heal_player)
+		var current_hp := int(GameManager.player_data.get("hp", 100))
+		var max_hp := int(GameManager.player_data.get("max_hp", 100))
+		var actual := mini(heal, max_hp - current_hp)
+		if actual > 0:
+			GameManager.player_data.hp = current_hp + actual
+			if has_node("/root/NotificationToast"):
+				NotificationToast.show_toast("+%d HP" % actual, NotificationToast.ToastType.SUCCESS)
 
 ## ===================== 내부 =====================
 

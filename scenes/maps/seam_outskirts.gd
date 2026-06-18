@@ -61,6 +61,7 @@ func _ready() -> void:
 	# S59: 보이드 가장자리 짙은 안개 (바람 없음)
 	_fog_layer = MapEffects.add_fog_layer(self, 0.7, Color(0.2, 0.15, 0.3, 0.07), 1.0)
 	MapEffects.add_depth_gradient(self, 0.08)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.48, 0.88, 1.0), "vignette": 0.52, "tint_strength": 0.11, "shafts": 0.08, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

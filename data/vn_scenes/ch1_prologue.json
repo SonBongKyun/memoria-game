@@ -121,43 +121,79 @@
       "narrate": "He could burn it. Let the warmth of it spread into the ash and confuse the things that tracked him."
     },
     {
+      "choice_title": "WHAT WILL ARREL SPEND?",
+      "choice_hint": "This decision changes the next battle. Burning memory is faster. Keeping it changes how Arrel survives.",
       "choice": [
         {
           "text": "The song for passage.",
           "cost_memory": "daily_campfire_song",
-          "set_flag": "burned_for_passage"
+          "set_flag": "burned_for_passage",
+          "effect": "Next battle: +18 Limit and +22 BREAK pressure."
         },
         {
           "text": "Hold on to it. Find another way.",
-          "set_flag": "refused_to_burn"
+          "set_flag": "refused_to_burn",
+          "add_item": "smoke_bomb",
+          "effect": "Gain 1 Smoke Bomb. Next battle: first enemy blow is guarded."
         }
       ]
     },
     {
+      "cg": "res://assets/cg/game_image/memory_loss_warning.png",
+      "fade": 1.2,
+      "requires_flag": "burned_for_passage",
+      "narrate": "He let the melody catch. For one breath, the forest smelled of smoke and old wood. Then the song was heat, then ash, then nothing."
+    },
+    {
+      "requires_flag": "burned_for_passage",
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "That was yours."
+    },
+    {
+      "requires_flag": "burned_for_passage",
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "It got us through."
+    },
+    {
       "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
       "fade": 1.6,
+      "requires_flag": "refused_to_burn",
       "narrate": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth."
     },
     {
+      "requires_flag": "refused_to_burn",
       "narrate": "His hand was still shaking."
     },
     {
+      "requires_flag": "refused_to_burn",
       "narrate": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."
     },
     {
+      "choice_title": "WHAT KEEPS HIM MOVING?",
+      "choice_hint": "Small choices set Arrel's opening resources and emotional footing.",
       "choice": [
         {
           "text": "Think about BL-07.",
-          "set_flag": "thought_about_bl07"
+          "set_flag": "thought_about_bl07",
+          "add_grains": 6,
+          "effect": "Gain 6 Grains by recalling a Bureau route marker."
         },
         {
           "text": "Listen to Elia's humming.",
           "set_flag": "listened_to_humming",
-          "requires_memory_intact": "daily_campfire_song"
+          "requires_memory_intact": "daily_campfire_song",
+          "heal_player": 8,
+          "effect": "Recover up to 8 HP. Next battle: +10 Limit from Anchor focus."
         },
         {
           "text": "Try to remember what you burned.",
-          "set_flag": "tried_to_remember"
+          "set_flag": "tried_to_remember",
+          "add_item": "firebomb",
+          "effect": "Gain 1 Firebomb from the heat left in the ash."
         }
       ]
     },
