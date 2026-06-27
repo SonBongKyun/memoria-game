@@ -6,6 +6,7 @@ extends CanvasLayer
 var is_open: bool = false
 
 # UI 노드
+var backdrop: TextureRect
 var overlay: ColorRect
 var main_panel: PanelContainer
 var grade_tabs: VBoxContainer      # 좌측 등급 선반
@@ -39,6 +40,7 @@ const GRADE_COLORS = [
 	Color(0.6, 0.45, 0.55),    # Grade 2 — 보라
 	Color(0.7, 0.55, 0.3),     # Grade 1 — 금색
 ]
+const ARCHIVE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_memory_archive_backdrop.png"
 
 func _ready() -> void:
 	layer = 40
@@ -76,10 +78,20 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	backdrop = TextureRect.new()
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.modulate = Color(0.82, 0.78, 0.86, 0.95)
+	if ResourceLoader.exists(ARCHIVE_BACKDROP_PATH):
+		backdrop.texture = load(ARCHIVE_BACKDROP_PATH)
+	root.add_child(backdrop)
+
 	# 반투명 오버레이
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0.02, 0.02, 0.04, 0.85)
+	overlay.color = Color(0.015, 0.012, 0.022, 0.68)
 	root.add_child(overlay)
 
 	# 메인 패널 (중앙 서고)
@@ -90,8 +102,8 @@ func _build_ui() -> void:
 	main_panel.anchor_bottom = 0.92
 
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.1, 0.08, 0.06, 0.95)  # 어두운 나무색
-	panel_style.border_color = Color(0.3, 0.22, 0.15, 0.7)
+	panel_style.bg_color = Color(0.065, 0.050, 0.060, 0.90)
+	panel_style.border_color = Color(0.58, 0.44, 0.25, 0.72)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(6)
 	panel_style.set_content_margin_all(16)
@@ -569,11 +581,15 @@ func _exit_synthesis_mode() -> void:
 	synth_status_label.visible = false
 
 func _show_ui() -> void:
+	if backdrop:
+		backdrop.visible = true
 	overlay.visible = true
 	main_panel.visible = true
 	_exit_synthesis_mode()
 
 func _hide_ui() -> void:
+	if backdrop:
+		backdrop.visible = false
 	overlay.visible = false
 	main_panel.visible = false
 	_exit_synthesis_mode()

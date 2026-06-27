@@ -15,6 +15,8 @@ const ACHIEVEMENTS: Dictionary = {
 	"battle_veteran": {"title": "Battle Veteran", "desc": "Win 10 battles.", "icon": "shield", "steam_id": "ACH_BATTLE_VETERAN"},
 	"survivor": {"title": "Survivor", "desc": "Win a battle with 10 HP or less.", "icon": "heart", "steam_id": "ACH_SURVIVOR"},
 	"item_master": {"title": "Item Master", "desc": "Use 10 items in battle.", "icon": "potion", "steam_id": "ACH_ITEM_MASTER"},
+	"perfect_tactics": {"title": "Field Tactician", "desc": "Complete a tactical objective in battle.", "icon": "shield", "steam_id": "ACH_FIELD_TACTICIAN"},
+	"resonance_master": {"title": "Overbright", "desc": "Reach high combat resonance in a battle.", "icon": "flame", "steam_id": "ACH_RESONANCE_MASTER"},
 
 	# 기억 관련
 	"first_burn": {"title": "First Burn", "desc": "Burn your first memory.", "icon": "flame", "steam_id": "ACH_FIRST_BURN"},

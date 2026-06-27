@@ -18,11 +18,11 @@ const NG_PLUS_FILE: String = "user://ng_plus.json"
 var seen_endings: Array = []  # ["zero_burn", "preservation", ...]
 const ENDING_DATA: Dictionary = {
 	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/game_image/memory_loss_warning.png"},
-	"preservation": {"name": "Preservation", "desc": "He kept his name. The seal held.", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
-	"ash": {"name": "Ash", "desc": "What remains is not a man. Just ash, drifting.", "cg": "res://assets/cg/game_image/sheet_arrel_memory_fading.png"},
-	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/game_image/sealed_city_ruins.png"},
+	"preservation": {"name": "Preservation", "desc": "He kept his name. The seal held.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
+	"ash": {"name": "Ash", "desc": "What remains is not a man. Just ash, drifting.", "cg": "res://assets/cg/generated/memory_burn_arrel_name.png"},
+	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
 	"tobias": {"name": "The Record Remains", "desc": "Tobias finished what he started. Every name accounted for.", "cg": "res://assets/cg/game_image/tobias_memory_corridor.png"},
-	"hollow": {"name": "Hollow", "desc": "A shape where a person used to be.", "cg": "res://assets/cg/game_image/nera_void_cavern.png"},
+	"hollow": {"name": "Hollow", "desc": "A shape where a person used to be.", "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"},
 }
 const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
 
@@ -307,6 +307,9 @@ var play_stats: Dictionary = {
 	"memories_collected": 0,
 	"steps_taken": 0,
 	"highest_combo": 0,
+	"highest_momentum_rank": 0,
+	"objectives_completed": 0,
+	"momentum_surges": 0,
 	"bosses_defeated": 0,
 	"items_used": 0,
 }
@@ -330,8 +333,8 @@ func format_play_time() -> String:
 	var secs = total % 60
 	return "%02d:%02d:%02d" % [hours, mins, secs]
 
-# --- S55: Localization Foundation ---
-var current_locale: String = "en"
+# --- S55/S133: Localization Foundation ---
+var current_locale: String = "ko"
 
 const LOCALIZED_STRINGS: Dictionary = {
 	"attack": {"en": "ATTACK", "ko": "공격"},
@@ -362,6 +365,25 @@ const LOCALIZED_STRINGS: Dictionary = {
 	"back": {"en": "Back", "ko": "뒤로"},
 }
 
+const SPEAKER_NAMES_KO: Dictionary = {
+	"": "",
+	"system_log": "시스템",
+	"System": "시스템",
+	"Narration": "나레이션",
+	"Arrel": "아렐",
+	"Elia": "엘리아",
+	"Malet": "말렛",
+	"Mallet": "말렛",
+	"Kairos": "카이로스",
+	"Sable": "세이블",
+	"Nera": "네라",
+	"Seric": "세릭",
+	"Tobias": "토비아스",
+	"Veil": "베일",
+	"Ashen Figure": "잿빛 형상",
+	"???": "???",
+}
+
 ## 게임 시작 시 설정 파일에서 locale 조기 로드 (다른 autoload의 _ready보다 먼저)
 func _load_locale_early() -> void:
 	var settings_path = "user://settings.json"
@@ -385,6 +407,23 @@ func loc(key: String) -> String:
 		if entry.has("en"):
 			return entry["en"]
 	return key
+
+func localized_speaker(speaker: String) -> String:
+	if current_locale == "ko":
+		return String(SPEAKER_NAMES_KO.get(speaker, speaker))
+	return speaker
+
+func localized_value(source: Dictionary, key: String, fallback: String = "") -> String:
+	if source.is_empty():
+		return fallback
+	var locale_key := "%s_%s" % [key, current_locale]
+	if source.has(locale_key):
+		return String(source[locale_key])
+	if current_locale == "ko" and source.has("ko") and (key == "text" or key == "narrate"):
+		return String(source["ko"])
+	if source.has(key):
+		return String(source[key])
+	return fallback
 
 signal state_changed(new_state: GameState)
 signal stat_gained(stat_name: String, amount: int)  # S58: Progression feedback

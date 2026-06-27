@@ -7,6 +7,7 @@ extends CanvasLayer
 const TYPEWRITER_SPEEDS: Dictionary = {1: 0.06, 2: 0.045, 3: 0.03, 4: 0.015, 5: 0.0}
 const BOX_HEIGHT: int = 160
 const PORTRAIT_SIZE: int = 96
+const DIALOGUE_FRAME_PATH: String = "res://assets/cg/generated/ui_dialogue_ornate_frame.png"
 
 # 포트레이트 이미지 매핑 (portrait 키 -> 파일 경로)
 const PORTRAIT_MAP: Dictionary = {
@@ -100,8 +101,8 @@ const DEFAULT_PORTRAITS: Dictionary = {
 	"Veil": "veil_neutral",
 }
 const SPEAKER_STAGE_ART: Dictionary = {
-	"Arrel": "res://assets/cg/game_image/sheet_arrel_profile.png",
-	"Elia": "res://assets/cg/game_image/sheet_elia_profile.png",
+	"Arrel": "res://assets/portraits/arrel_face_neutral.png",
+	"Elia": "res://assets/portraits/elia_face_neutral.png",
 	"Sable": "res://assets/portraits/sable_face_calm.png",
 	"Kairos": "res://assets/cg/game_image/kairos_fullbody.png",
 	"Nera": "res://assets/cg/game_image/nera_fullbody.png",
@@ -130,6 +131,7 @@ const DISABLE_STAGE_ART_SPEAKERS: Dictionary = {
 
 # UI 노드 (코드로 생성)
 var panel: PanelContainer
+var dialogue_frame: TextureRect
 var portrait_panel: PanelContainer
 var portrait_texture: TextureRect
 var portrait_fallback: ColorRect
@@ -509,8 +511,8 @@ func _build_ui() -> void:
 
 	# 스타일 (어두운 반투명 -- 서고 모티프)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.035, 0.032, 0.042, 0.94)
-	style.border_color = Color(0.70, 0.56, 0.34, 0.58)
+	style.bg_color = Color(0.030, 0.026, 0.038, 0.76)
+	style.border_color = Color(0.70, 0.56, 0.34, 0.42)
 	style.set_border_width(SIDE_LEFT, 1)
 	style.set_border_width(SIDE_TOP, 2)
 	style.set_border_width(SIDE_RIGHT, 1)
@@ -518,6 +520,22 @@ func _build_ui() -> void:
 	style.set_corner_radius_all(5)
 	style.set_content_margin_all(16)
 	panel.add_theme_stylebox_override("panel", style)
+	if ResourceLoader.exists(DIALOGUE_FRAME_PATH):
+		dialogue_frame = TextureRect.new()
+		dialogue_frame.texture = load(DIALOGUE_FRAME_PATH)
+		dialogue_frame.anchor_left = panel.anchor_left
+		dialogue_frame.anchor_right = panel.anchor_right
+		dialogue_frame.anchor_top = panel.anchor_top
+		dialogue_frame.anchor_bottom = panel.anchor_bottom
+		dialogue_frame.offset_left = -16
+		dialogue_frame.offset_right = 16
+		dialogue_frame.offset_top = panel.offset_top - 24
+		dialogue_frame.offset_bottom = panel.offset_bottom + 18
+		dialogue_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		dialogue_frame.stretch_mode = TextureRect.STRETCH_SCALE
+		dialogue_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		dialogue_frame.modulate = Color(1.0, 0.92, 0.78, 0.72)
+		root.add_child(dialogue_frame)
 	root.add_child(panel)
 
 	# 내부 HBox (포트레이트 | 텍스트 영역)
@@ -583,6 +601,7 @@ func _build_ui() -> void:
 	# 화자 이름
 	speaker_label = Label.new()
 	speaker_label.custom_minimum_size = Vector2(0, 22)
+	UITheme.apply_title_font(speaker_label)
 	speaker_label.add_theme_font_size_override("font_size", 16)
 	speaker_label.add_theme_color_override("font_color", Color(0.82, 0.68, 0.46))
 	speaker_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
@@ -602,6 +621,7 @@ func _build_ui() -> void:
 	text_label.custom_minimum_size = Vector2(0, 82)
 	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
+	text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
 	text_label.add_theme_constant_override("line_separation", 7)
 	text_label.add_theme_color_override("default_color", Color(0.9, 0.87, 0.81))
 	text_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.58))
@@ -732,7 +752,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 
 	# 화자 이름 (나레이션이면 숨김)
 	if speaker == "" or speaker == "system_log":
-		speaker_label.text = "Narration" if speaker == "" else "System"
+		speaker_label.text = GameManager.localized_speaker("Narration" if speaker == "" else "System")
 		speaker_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION if speaker == "" else UITheme.TEXT_SYSTEM)
 		if portrait_panel:
 			portrait_panel.visible = false
@@ -745,7 +765,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	else:
 		if portrait_panel:
 			portrait_panel.visible = true
-		speaker_label.text = speaker
+		speaker_label.text = GameManager.localized_speaker(speaker)
 		speaker_label.add_theme_color_override("font_color", UITheme.get_speaker_color(speaker))
 		_apply_portrait_tint(speaker)
 		text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
@@ -843,7 +863,8 @@ func _on_dialogue_choice(choices: Array) -> void:
 	for i in range(choices.size()):
 		var choice = choices[i]
 		var btn = Button.new()
-		btn.text = "%d. %s" % [i + 1, choice.get("text", "...")]
+		var choice_text := GameManager.localized_value(choice, "text", String(choice.get("text", "..."))) if choice is Dictionary else "..."
+		btn.text = "%d. %s" % [i + 1, choice_text]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.custom_minimum_size = Vector2(0, 46)
 
@@ -1140,6 +1161,11 @@ func _set_indicator_visible(on: bool) -> void:
 
 ## 박스 표시/숨김
 func show_box() -> void:
+	var frame_top: float = panel.offset_top - 24
+	if dialogue_frame:
+		dialogue_frame.visible = true
+		dialogue_frame.offset_top = 0
+		dialogue_frame.modulate.a = 0.0
 	panel.visible = true
 	# S53: 대화 박스 슬라이드 업 애니메이션
 	var original_top = panel.offset_top
@@ -1148,6 +1174,9 @@ func show_box() -> void:
 	var tween = create_tween().set_parallel(true)
 	tween.tween_property(panel, "offset_top", original_top, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tween.tween_property(panel, "modulate:a", 1.0, 0.2).set_ease(Tween.EASE_OUT)
+	if dialogue_frame:
+		tween.tween_property(dialogue_frame, "offset_top", frame_top, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tween.tween_property(dialogue_frame, "modulate:a", 0.72, 0.2).set_ease(Tween.EASE_OUT)
 
 func hide_box() -> void:
 	choice_container.visible = false
@@ -1158,13 +1187,22 @@ func hide_box() -> void:
 		var tween = create_tween().set_parallel(true)
 		tween.tween_property(panel, "offset_top", 0, 0.15).set_ease(Tween.EASE_IN)
 		tween.tween_property(panel, "modulate:a", 0.0, 0.15)
+		if dialogue_frame:
+			tween.tween_property(dialogue_frame, "offset_top", 0, 0.15).set_ease(Tween.EASE_IN)
+			tween.tween_property(dialogue_frame, "modulate:a", 0.0, 0.15)
 		tween.chain().tween_callback(func():
 			panel.visible = false
 			panel.offset_top = -178
 			panel.modulate.a = 1.0
+			if dialogue_frame:
+				dialogue_frame.visible = false
+				dialogue_frame.offset_top = -202
+				dialogue_frame.modulate.a = 0.72
 		)
 	else:
 		panel.visible = false
+		if dialogue_frame:
+			dialogue_frame.visible = false
 
 ## 입력 처리 (타자기 스킵 / 대사 넘기기)
 func _unhandled_input(event: InputEvent) -> void:

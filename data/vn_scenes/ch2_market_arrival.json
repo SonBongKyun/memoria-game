@@ -16,7 +16,7 @@
       "narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts — including whatever was owed to the name Arrel no longer wanted to say aloud."
     },
     {
-      "cg": "res://assets/cg/game_image/sealed_city_ruins.png",
+      "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png",
       "fade": 1.4,
       "speaker": "Elia",
       "portrait": "elia_calm",
@@ -45,7 +45,7 @@
       "narrate": "Below them, the market opened its mouth."
     },
     {
-      "cg": "res://assets/cg/game_image/sealed_gate_plaza.png",
+      "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png",
       "fade": 1.2,
       "narrate": "A guard stopped them at the southern stairs. Bureau insignia. Too alert for a Belt posting."
     },

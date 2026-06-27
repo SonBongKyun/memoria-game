@@ -58,22 +58,22 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self)
+	MapEffects.add_vignette(self, 0.30)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_heat_haze(self, 0.002)  # S46: 해안 열기 왜곡
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.18), "far": Color(0.15, 0.15, 0.2), "mid": Color(0.2, 0.18, 0.16), "biome": "coast", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.5, 0.5, 0.55))
+	MapEffects.add_ambient_lighting(self, Color(0.58, 0.58, 0.62))
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.4, 0.5), "brightness": -0.02})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/sealed_gate_plaza.png", 0.10, Color(0.78, 0.84, 0.96))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_crumbling_coast.png", 0.07, Color(0.82, 0.88, 1.0))
 	_s52_particles = MapEffects.add_pollen_particles(self, 10, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.5, 0.5, 0.55, 0.15))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S59: 해안 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.4, Color(0.3, 0.35, 0.4, 0.05), 3.0)
 	MapEffects.add_depth_gradient(self, 0.07)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.58, 0.70, 0.92, 1.0), "vignette": 0.42, "tint_strength": 0.08, "shafts": 0.08, "glints": 2})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.60, 0.72, 0.94, 1.0), "vignette": 0.30, "tint_strength": 0.06, "shafts": 0.07, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_seam_trigger()
@@ -240,9 +240,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Coastal Void Beast", "hp": 100, "atk": 18, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/game_image/sealed_city_ruins.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Cliff Stalker", "hp": 70, "atk": 16, "is_void": false, "abilities": ["poison", "multi_hit"], "bg": "res://assets/cg/game_image/sealed_city_ruins.png"},
-			{"name": "Shore Wraith", "hp": 85, "atk": 14, "is_void": true, "abilities": ["burn_attack", "weaken"], "bg": "res://assets/cg/game_image/sealed_city_ruins.png"},
+			{"name": "Coastal Void Beast", "hp": 100, "atk": 18, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Cliff Stalker", "hp": 70, "atk": 16, "is_void": false, "abilities": ["poison", "multi_hit"], "bg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png"},
+			{"name": "Shore Wraith", "hp": 85, "atk": 14, "is_void": true, "abilities": ["burn_attack", "weaken"], "bg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png"},
 		],
 		"res://scenes/maps/crumbling_coast.tscn", "", "", 40, 70
 	)
@@ -402,7 +402,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(18 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Coastal Void Beast", 100, 18, true,
-		"res://assets/cg/game_image/sealed_city_ruins.png", "res://assets/cg/game_image/void_beast_confrontation.png"
+		"res://assets/cg/generated/chapter_splash_crumbling_coast.png", "res://assets/cg/game_image/void_beast_confrontation.png"
 	)
 
 var _battle_counter: int = 0

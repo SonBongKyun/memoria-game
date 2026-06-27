@@ -1,86 +1,104 @@
 {
   "chapter": 1,
   "title": "Ash",
+  "title_ko": "재",
   "dialogues": {
     "opening_void_beast": [
       {
         "speaker": "",
         "text": "The beast was dead.",
+        "text_ko": "괴물은 죽어 있었다.",
         "cg": "res://assets/cg/game_image/void_beast_confrontation.png"
       },
       {
         "speaker": "",
         "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_profile.png"
+        "text_ko": "아렐은 그것이 남긴 얼룩 앞에 서 있었다. 검은 아직 치켜든 채였지만, 더 이상 벨 것은 없었다.",
+        "cg": "res://assets/cg/game_image/void_beast_confrontation.png"
       },
       {
         "speaker": "",
-        "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed."
+        "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed.",
+        "text_ko": "두개골이 욱신거렸다. 깨끗한 두통이 아니라, 뇌의 한 조각을 도려낸 뒤 그 빈자리를 봉합하지 않은 듯한 깊은 압박이었다."
       },
       {
         "speaker": "system_log",
-        "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]"
+        "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]",
+        "text_ko": "[연소 감지: 유형 1 — 감각 파편]\n[위치 추정: 림 외곽, 아켄 숲]\n[잔류 기록: 흔적 감지 — 소실 중]"
       }
     ],
     "elia_appears": [
       {
         "speaker": "Elia",
         "text": "Arrel.",
+        "text_ko": "아렐.",
         "portrait": "elia_wind",
-        "cg": "res://assets/cg/game_image/chapter_sealed_zone.png"
+        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
       },
       {
         "speaker": "",
-        "text": "Her voice, close. He hadn't heard her approach."
+        "text": "Her voice, close. He hadn't heard her approach.",
+        "text_ko": "가까이에서 들려온 그녀의 목소리. 그는 그녀가 다가오는 소리를 듣지 못했다."
       },
       {
         "speaker": "",
-        "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not."
+        "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not.",
+        "text_ko": "오른손이 움찔했다. 멈추기도 전에 그녀를 향해 움직였고, 검 손잡이를 쥔 손가락이 풀리며 머리는 잊었지만 근육은 기억하는 무언가를 향해 뻗었다."
       },
       {
         "speaker": "Elia",
         "text": "How bad?",
+        "text_ko": "얼마나 심해?",
         "portrait": "elia_concern"
       },
       {
         "speaker": "Arrel",
         "text": "One burn. Grade three, maybe. Nothing I'll miss.",
+        "text_ko": "한 번 태웠어. 3등급쯤. 없어져도 아깝지 않은 거야.",
         "portrait": "arrel_default2"
       },
       {
         "speaker": "",
-        "text": "That was probably true. That was probably a lie."
+        "text": "That was probably true. That was probably a lie.",
+        "text_ko": "아마 사실이었다. 아마 거짓말이었다."
       },
       {
         "speaker": "",
-        "text": "The problem with burning memories was that you could never be sure which it was."
+        "text": "The problem with burning memories was that you could never be sure which it was.",
+        "text_ko": "기억을 태우는 일의 문제는, 어느 쪽인지 절대 확신할 수 없다는 데 있었다."
       }
     ],
     "ash_rain": [
       {
         "speaker": "",
         "text": "Something touched his face.",
-        "cg": "res://assets/cg/game_image/chapter_sealed_zone.png"
+        "text_ko": "무언가가 그의 얼굴에 닿았다.",
+        "cg": "res://assets/cg/generated/chapter_splash_rim_forest.png"
       },
       {
         "speaker": "",
-        "text": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own."
+        "text": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own.",
+        "text_ko": "먼지보다 가벼운 회색 조각 하나가 피부 위에서 녹아들었다. 희미한 온기가 있었지만, 그의 것은 아니었다."
       },
       {
         "speaker": "",
-        "text": "Ash Rain."
+        "text": "Ash Rain.",
+        "text_ko": "재비."
       },
       {
         "speaker": "",
-        "text": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss."
+        "text": "It came down through the canopy in slow spirals, each flake carrying the residue of someone else's loss.",
+        "text_ko": "재는 나무 사이로 느린 나선처럼 떨어졌다. 조각마다 누군가가 잃어버린 것의 잔재를 품고 있었다."
       },
       {
         "speaker": "",
-        "text": "He brushed the dissolving flake from his cheek. Someone else's sorrow. Not his. Not anymore."
+        "text": "He brushed the dissolving flake from his cheek. Someone else's sorrow. Not his. Not anymore.",
+        "text_ko": "그는 녹아드는 조각을 뺨에서 털어냈다. 다른 누군가의 슬픔. 그의 것이 아니었다. 이제는."
       },
       {
         "speaker": "Elia",
         "text": "We should move. The rain will get thicker after dark.",
+        "text_ko": "움직여야 해. 해가 지면 비가 더 짙어질 거야.",
         "portrait": "elia_neutral"
       }
     ],
@@ -88,74 +106,90 @@
       {
         "speaker": "",
         "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "text_ko": "불은 피우지 않았다. 불은 시선을 끌고, 이곳에서 시선은 기억은 너무 적고 이빨은 너무 많은 것들을 뜻했다.",
+        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
       },
       {
         "speaker": "",
-        "text": "His hand was still shaking."
+        "text": "His hand was still shaking.",
+        "text_ko": "그의 손은 아직 떨리고 있었다."
       },
       {
         "speaker": "",
-        "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat."
+        "text": "He pressed it flat against his knee and held it there until the tremors became indistinguishable from his own heartbeat.",
+        "text_ko": "그는 손을 무릎에 눌러 붙이고, 떨림이 자신의 심장 박동과 구분되지 않을 때까지 버텼다."
       },
       {
         "choices": [
           {
             "text": "Think about BL-07.",
+            "text_ko": "BL-07을 생각한다.",
             "set_flag": "thought_about_bl07"
           },
           {
             "text": "Listen to Elia's humming.",
+            "text_ko": "엘리아의 허밍을 듣는다.",
             "set_flag": "listened_to_humming",
             "requires_memory_intact": "daily_campfire_song"
           },
           {
             "text": "Try to remember what you burned.",
+            "text_ko": "무엇을 태웠는지 기억하려 한다.",
             "set_flag": "tried_to_remember"
           }
         ]
       },
       {
         "speaker": "",
-        "text": "The shaking stopped."
+        "text": "The shaking stopped.",
+        "text_ko": "떨림이 멎었다."
       },
       {
         "speaker": "",
-        "text": "Elia hummed low, a melody with no beginning and no end. It filled the space behind his eyes and made the gaps feel less sharp."
+        "text": "Elia hummed low, a melody with no beginning and no end. It filled the space behind his eyes and made the gaps feel less sharp.",
+        "text_ko": "엘리아는 낮게 흥얼거렸다. 시작도 끝도 없는 선율이었다. 그 노래는 그의 눈 뒤 빈자리를 채우고, 공허의 가장자리를 조금 무디게 만들었다."
       },
       {
         "speaker": "",
-        "text": "He closed his eyes."
+        "text": "He closed his eyes.",
+        "text_ko": "그는 눈을 감았다."
       },
       {
         "speaker": "",
-        "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find."
+        "text": "Morning would come. The Belt waited ahead. And somewhere beyond it, the answers he was trading himself to find.",
+        "text_ko": "아침은 올 것이다. 벨트가 앞에 기다리고 있었다. 그리고 그 너머 어딘가에, 그가 자기 자신과 맞바꾸며 찾는 답이 있었다."
       }
     ],
     "elia_talk": [
       {
         "speaker": "Elia",
         "text": "Stay close. The Rim gets worse at night.",
+        "text_ko": "가까이 있어. 림은 밤이 되면 더 나빠져.",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png",
+        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
         "requires_memory": "sense_forest_smell",
-        "burned_text": "You seem... distant. Like you can't quite smell the rain anymore."
+        "burned_text": "You seem... distant. Like you can't quite smell the rain anymore.",
+        "burned_text_ko": "너... 멀어진 것 같아. 더는 비 냄새를 제대로 맡지 못하는 사람처럼."
       },
       {
         "speaker": "Arrel",
         "text": "I know.",
+        "text_ko": "알아.",
         "portrait": "arrel_neutral"
       },
       {
         "speaker": "Elia",
         "text": "Do you? You burned a Grade 3 back there. How much of 'knowing' is left?",
+        "text_ko": "정말 알아? 방금 3등급을 태웠잖아. 네가 안다고 말하는 것 중 얼마나 남아 있어?",
         "portrait": "elia_concern",
         "requires_memory": "identity_first_sword",
-        "burned_text": "You used to talk about your training days. Now it's like those stories never happened."
+        "burned_text": "You used to talk about your training days. Now it's like those stories never happened.",
+        "burned_text_ko": "예전엔 훈련하던 날들 이야기를 했었어. 이제는 그런 이야기가 아예 없었던 것 같아."
       },
       {
         "speaker": "",
-        "text": "He didn't answer. She was right. She usually was."
+        "text": "He didn't answer. She was right. She usually was.",
+        "text_ko": "그는 대답하지 않았다. 그녀가 맞았다. 대개 그녀가 맞았다."
       }
     ],
     "hidden_stump": [
@@ -191,7 +225,7 @@
       {
         "speaker": "",
         "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_profile.png"
+        "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png"
       },
       {
         "speaker": "Ashen Figure",
@@ -224,7 +258,7 @@
       {
         "speaker": "",
         "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
       },
       {
         "speaker": "Elia",
@@ -280,7 +314,7 @@
         "speaker": "Elia",
         "text": "Can I ask you something?",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/game_image/sheet_elia_memory_restoration.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
       },
       {
         "speaker": "Arrel",
@@ -331,7 +365,7 @@
         "speaker": "Elia",
         "text": "Arrel. Do you know what I am?",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
       },
       {
         "speaker": "Arrel",
@@ -377,7 +411,7 @@
       {
         "speaker": "",
         "text": "Between the roots of a dead oak, someone had built a shrine.",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
       },
       {
         "speaker": "",
@@ -412,7 +446,7 @@
       {
         "speaker": "",
         "text": "A body. Or what was left of one.",
-        "cg": "res://assets/cg/game_image/chapter_sealed_zone.png"
+        "cg": "res://assets/cg/generated/chapter_splash_rim_forest.png"
       },
       {
         "speaker": "",

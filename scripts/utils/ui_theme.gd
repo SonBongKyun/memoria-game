@@ -74,6 +74,47 @@ static func make_hover_style(base: StyleBoxFlat = null) -> StyleBoxFlat:
 	style.set_content_margin_all(8)
 	return style
 
+static func make_title_font() -> SystemFont:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray([
+		"Cinzel",
+		"Trajan Pro",
+		"Cormorant SC",
+		"Cormorant Garamond",
+		"Noto Serif KR",
+		"Georgia",
+		"Cambria",
+		"Constantia",
+		"Palatino Linotype",
+		"Batang",
+		"serif",
+	])
+	return font
+
+static func make_body_font() -> SystemFont:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray([
+		"Cormorant Garamond",
+		"EB Garamond",
+		"Noto Serif KR",
+		"Georgia",
+		"Cambria",
+		"Constantia",
+		"Palatino Linotype",
+		"Batang",
+		"Times New Roman",
+		"serif",
+	])
+	return font
+
+static func apply_title_font(control: Control) -> void:
+	if control:
+		control.add_theme_font_override("font", make_title_font())
+
+static func apply_body_font(control: Control) -> void:
+	if control:
+		control.add_theme_font_override("font", make_body_font())
+
 ## 화자 이름 색상 가져오기
 static func get_speaker_color(speaker: String) -> Color:
 	match speaker:

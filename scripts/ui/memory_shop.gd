@@ -6,6 +6,7 @@ extends CanvasLayer
 var is_open: bool = false
 
 # ── 노드 참조 ──
+var backdrop: TextureRect
 var overlay: ColorRect
 var main_panel: PanelContainer
 var merchant_portrait_frame: PanelContainer
@@ -47,6 +48,7 @@ const GRADE_COLORS = [
 # ── 기억 등급별 판매/구매 가격 ──
 const SELL_PRICES := {0: 5, 1: 15, 2: 30, 3: 60, 4: 150}   # 판매가 (플레이어→상인)
 const BUY_PRICES := {0: 10, 1: 25, 2: 50, 3: 100, 4: 300}   # 구매가 (상인→플레이어)
+const SHOP_BACKDROP_PATH: String = "res://assets/cg/generated/ui_memory_shop_backdrop.png"
 
 signal shop_closed()
 signal grains_changed(amount: int)
@@ -128,21 +130,31 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	backdrop = TextureRect.new()
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.modulate = Color(0.88, 0.78, 0.68, 0.95)
+	if ResourceLoader.exists(SHOP_BACKDROP_PATH):
+		backdrop.texture = load(SHOP_BACKDROP_PATH)
+	root.add_child(backdrop)
+
 	# 오버레이
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = UITheme.BG_OVERLAY
+	overlay.color = Color(0.012, 0.010, 0.014, 0.60)
 	root.add_child(overlay)
 
 	# 메인 패널
 	main_panel = PanelContainer.new()
-	main_panel.anchor_left = 0.08
-	main_panel.anchor_right = 0.92
-	main_panel.anchor_top = 0.06
-	main_panel.anchor_bottom = 0.94
+	main_panel.anchor_left = 0.06
+	main_panel.anchor_right = 0.82
+	main_panel.anchor_top = 0.08
+	main_panel.anchor_bottom = 0.92
 	main_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.09, 0.07, 0.06, 0.95),
-		Color(0.5, 0.4, 0.25, 0.7),
+		Color(0.055, 0.040, 0.034, 0.90),
+		Color(0.72, 0.50, 0.25, 0.74),
 		2, 6, 16
 	))
 	root.add_child(main_panel)
@@ -734,9 +746,13 @@ func _update_grains() -> void:
 	AchievementManager.check_grains()
 
 func _show_ui() -> void:
+	if backdrop:
+		backdrop.visible = true
 	overlay.visible = true
 	main_panel.visible = true
 
 func _hide_ui() -> void:
+	if backdrop:
+		backdrop.visible = false
 	overlay.visible = false
 	main_panel.visible = false

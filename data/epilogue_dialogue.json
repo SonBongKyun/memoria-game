@@ -4,7 +4,7 @@
   "dialogues": {
     "epilogue_zero_burn": [
       {"speaker": "", "text": "Three days passed. Or maybe it was longer. Time moved differently when you didn't have a name to mark it with."},
-      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
       {"speaker": "", "text": "BL-07 was sealed. The ground was solid. Children played in the gardens where flowers bloomed in impossible seasons."},
       {"speaker": "Elia", "text": "You've been sitting here since dawn.", "portrait": "elia_mature"},
       {"speaker": "???", "text": "Have I? I can't tell.", "portrait": "arrel_exhausted"},
@@ -33,7 +33,7 @@
       {"speaker": "", "text": "ZERO BURN ENDING: The name is gone. But the man remains."}
     ],
     "epilogue_preservation": [
-      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/game_image/sheet_arrel_profile.png"},
+      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"},
       {"speaker": "", "text": "Sable was waiting at the entrance. Her face said she already knew."},
       {"speaker": "Sable", "text": "It's still growing.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
@@ -58,7 +58,7 @@
       {"speaker": "", "text": "PRESERVATION ENDING: The hole remains. So does the name. The search continues."}
     ],
     "epilogue_ash": [
-      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
       {"speaker": "", "text": "But the words came from somewhere hollow. A place where a person used to be."},
       {"speaker": "Elia", "text": "Arrel. Look at me.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "...That name. I know it's mine. I just can't feel it.", "portrait": "arrel_wounded2"},
@@ -77,7 +77,7 @@
       {"speaker": "", "text": "ASH ENDING: The name remains. But the man behind it is ash."}
     ],
     "epilogue_seam": [
-      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/game_image/sealed_city_ruins.png"},
+      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
       {"speaker": "", "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch."},
       {"speaker": "Arrel", "text": "Elia. Do you remember the stump in Rim Forest? The one with the new growth?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The one you spent ten minutes staring at? Yes.", "portrait": "elia_neutral"},
@@ -96,7 +96,7 @@
       {"speaker": "", "text": "SEAM ENDING: In the cracks between loss, something green still grows."}
     ],
     "elia_epilogue_talk": [
-      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"},
+      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"},
       {"speaker": "Arrel", "text": "And?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.", "portrait": "elia_neutral"},
       {"speaker": "Elia", "text": "What if the world isn't forgetting on its own? What if we're MAKING it forget?", "portrait": "elia_concern"},
@@ -108,21 +108,21 @@
       {"speaker": "Elia", "text": "We'll figure it out. Together.", "portrait": "elia_neutral"}
     ],
     "epilogue_tobias": [
-      {"speaker": "", "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+      {"speaker": "", "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.", "cg": "res://assets/cg/generated/world_rewrite_tobias_record_tree.png"},
       {"speaker": "Tobias", "text": "They can burn every copy. I've already sent it to twelve independent archivists across the continent.", "portrait": "tobias_neutral"},
       {"speaker": "", "text": "The Authority responded with a formal censure. Then a warrant. Then silence — the kind of silence that meant they were reading it."},
       {"speaker": "Tobias", "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted — and prevented.", "portrait": "tobias_neutral"},
       {"speaker": "", "text": "TOBIAS ENDING: The pen outlasts the flame. Sometimes the most dangerous weapon is a well-documented truth."}
     ],
     "epilogue_hollow": [
-      {"speaker": "", "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+      {"speaker": "", "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
       {"speaker": "Elia", "text": "Arrel. Your name is Arrel. Say it back to me.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "...Arrel.", "portrait": "arrel_exhausted"},
       {"speaker": "Elia", "text": "Again.", "portrait": "elia_concern"},
       {"speaker": "", "text": "HOLLOW ENDING: The name persists. A single word in an empty room, echoing off walls that used to hold a life."}
     ],
     "sable_epilogue_talk": [
-      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
       {"speaker": "Arrel", "text": "Where else would I go?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Most burners don't stay. The ones who survive... they keep moving. Keep burning. Until there's nothing left.", "portrait": "sable_calm"},
       {"speaker": "Arrel", "text": "I'm not most burners.", "portrait": "arrel_neutral"},

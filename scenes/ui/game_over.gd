@@ -3,6 +3,7 @@
 extends Control
 
 var return_scene: String = ""
+const GAME_OVER_BACKDROP_PATH: String = "res://assets/cg/generated/ui_game_over_void_backdrop.png"
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -12,19 +13,40 @@ func _ready() -> void:
 
 func _build_ui() -> void:
 	# 어두운 배경
+	if ResourceLoader.exists(GAME_OVER_BACKDROP_PATH):
+		var backdrop = TextureRect.new()
+		backdrop.texture = load(GAME_OVER_BACKDROP_PATH)
+		backdrop.set_anchors_preset(PRESET_FULL_RECT)
+		backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		backdrop.modulate = Color(0.92, 0.88, 0.82, 0.86)
+		add_child(backdrop)
+
 	var bg = ColorRect.new()
 	bg.set_anchors_preset(PRESET_FULL_RECT)
-	bg.color = Color(0.03, 0.02, 0.04)
+	bg.color = Color(0.02, 0.015, 0.03, 0.58)
 	add_child(bg)
 
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(PRESET_CENTER)
+	panel.offset_left = -230
+	panel.offset_right = 230
+	panel.offset_top = -190
+	panel.offset_bottom = 190
+	var panel_style = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.025, 0.020, 0.034, 0.84)
+	panel_style.border_color = Color(0.62, 0.28, 0.22, 0.72)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(6)
+	panel_style.set_content_margin_all(24)
+	panel.add_theme_stylebox_override("panel", panel_style)
+	add_child(panel)
+
 	var vbox = VBoxContainer.new()
-	vbox.set_anchors_preset(PRESET_CENTER)
-	vbox.offset_left = -200
-	vbox.offset_right = 200
-	vbox.offset_top = -180
-	vbox.offset_bottom = 180
 	vbox.add_theme_constant_override("separation", 16)
-	add_child(vbox)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_child(vbox)
 
 	# 타이틀 텍스트
 	var title = Label.new()

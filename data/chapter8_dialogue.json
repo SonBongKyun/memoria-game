@@ -45,7 +45,8 @@
     "ghost_encounter": [
       {
         "speaker": "",
-        "text": "A shape between the trees. Not shadow — presence. A woman standing perfectly still, her mouth open in a word that had no sound."
+        "text": "A shape between the trees. Not shadow — presence. A woman standing perfectly still, her mouth open in a word that had no sound.",
+        "cg": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png"
       },
       {
         "speaker": "Arrel",
@@ -124,7 +125,7 @@
         "speaker": "Elia",
         "text": "Arrel. Stop.",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/game_image/sheet_elia_healing.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
       },
       {
         "speaker": "Arrel",
@@ -419,7 +420,7 @@
       {
         "speaker": "",
         "text": "The forest whispers a memory you'd almost lost.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png"
       },
       {
         "speaker": "",

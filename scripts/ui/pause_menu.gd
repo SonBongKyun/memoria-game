@@ -7,11 +7,18 @@ var _panel_original_x: float = 0.0  # S53: 슬라이드 애니메이션용
 var _anim_tween: Tween = null  # S53
 
 # UI 노드
+var backdrop: TextureRect
+var control_slab: TextureRect
 var overlay: ColorRect
 var panel: PanelContainer
 var btn_container: VBoxContainer
 var save_info_label: Label
 var title_label: Label
+
+const PAUSE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_pause_archive_backdrop.png"
+const PAUSE_CONTROL_SLAB_PATH: String = "res://assets/cg/generated/ui_pause_control_slab.png"
+const ACHIEVEMENTS_BACKDROP_PATH: String = "res://assets/cg/generated/ui_achievements_chronicle_backdrop.png"
+const ENDING_GALLERY_BACKDROP_PATH: String = "res://assets/cg/generated/ui_ending_gallery_backdrop.png"
 
 const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
@@ -141,10 +148,10 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Cold urban ruin palette for later acts and title-screen atmosphere."
 	},
 	{
-		"title": "Memory Hall",
-		"type": "Environment CG",
-		"path": "res://assets/cg/game_image/env_memory_hall.png",
-		"desc": "Interior memory archive mood: columns, blue fog, and cold reflected light."
+		"title": "Forgotten Forest",
+		"type": "Generated Chapter Splash",
+		"path": "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
+		"desc": "Memory-parasite forest splash now used for Ch8 cards, HUD location art, and combat backdrops."
 	},
 	{
 		"title": "Bureau Spires",
@@ -153,22 +160,22 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Bureau skyline reference now used in the Act I demo ending beat."
 	},
 	{
-		"title": "Arrel - Sheet Profile",
-		"type": "Sheet-Derived CG",
-		"path": "res://assets/cg/game_image/sheet_arrel_profile.png",
-		"desc": "Runtime Arrel plate extracted from the new character sheet pipeline."
+		"title": "Memory Burn - Reaching Hand",
+		"type": "Generated Memory CG",
+		"path": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+		"desc": "Act I relationship-memory illustration now used in early story and burn-residue beats."
 	},
 	{
-		"title": "Arrel - Memory Fading",
-		"type": "Sheet-Derived CG",
-		"path": "res://assets/cg/game_image/sheet_arrel_memory_fading.png",
-		"desc": "Runtime memory-loss plate extracted from Arrel's expression sheet."
+		"title": "Memory Burn - Name Origin",
+		"type": "Generated Memory CG",
+		"path": "res://assets/cg/generated/memory_burn_arrel_name.png",
+		"desc": "Identity-loss illustration for high-cost burns and the Ash ending gallery."
 	},
 	{
-		"title": "Arrel and Elia - Sheet Duo",
-		"type": "Sheet-Derived CG",
-		"path": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
-		"desc": "Duo dialogue plate built only from the newly added character sheets."
+		"title": "Elia Finds Arrel",
+		"type": "Generated Dialogue CG",
+		"path": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
+		"desc": "Opening duo illustration replacing the old sheet-derived dialogue plate."
 	},
 	{
 		"title": "Memory Crystal",
@@ -183,10 +190,10 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Act I combat illustration replacing older forest combat placeholders."
 	},
 	{
-		"title": "Arrel - Battle Ready",
-		"type": "Sheet-Derived CG",
-		"path": "res://assets/cg/game_image/sheet_arrel_battle_ready.png",
-		"desc": "Battle dialogue plate extracted from Arrel's new expression sheet."
+		"title": "Memory Burn - First Sword",
+		"type": "Generated Battle CG",
+		"path": "res://assets/cg/generated/memory_burn_first_sword.png",
+		"desc": "Battle-stage and memory-burn illustration replacing the old battle-ready sheet plate."
 	},
 	{
 		"title": "Kairos in the Sealed City",
@@ -201,10 +208,244 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Bleak urban environment plate now used for route and Bureau foreshadowing."
 	},
 	{
-		"title": "Sealed Gate Plaza",
-		"type": "Environment CG",
-		"path": "res://assets/cg/game_image/sealed_gate_plaza.png",
-		"desc": "Gate plaza environment now used for Verdan and late-game threshold beats."
+		"title": "Crumbling Coast",
+		"type": "Generated Chapter Splash",
+		"path": "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
+		"desc": "Coastal threshold splash now used for Ch5 cards, HUD location art, and random encounter backdrops."
+	},
+	{
+		"title": "Belt Waystation",
+		"type": "Generated Chapter Splash",
+		"path": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
+		"desc": "Ash-wind transit ruin splash now used for Ch3 cards, HUD location art, map atmosphere, and battle backdrops."
+	},
+	{
+		"title": "Drift Shelter",
+		"type": "Generated Chapter Splash",
+		"path": "res://assets/cg/generated/chapter_splash_drift_shelter.png",
+		"desc": "Rain-lit refuge splash now used for Ch4 cards, HUD location art, map atmosphere, and battle backdrops."
+	},
+	{
+		"title": "Seam Outskirts",
+		"type": "Generated Chapter Splash",
+		"path": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+		"desc": "Fractured threshold splash now used for Ch7 cards, HUD location art, map atmosphere, and late VN threshold beats."
+	},
+	{
+		"title": "BL-07 Void",
+		"type": "Generated Chapter Splash",
+		"path": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+		"desc": "Void-core chamber splash now used for Ch10 cards, HUD location art, combat backdrops, and hollow ending imagery."
+	},
+	{
+		"title": "Blank Book at the Waystation",
+		"type": "Generated Story CG",
+		"path": "res://assets/cg/generated/story_ch3_waystation_blank_book.png",
+		"desc": "Tobias reveals record-tree fiber and the first real shape of memory restoration."
+	},
+	{
+		"title": "Ash-Rain Anchor",
+		"type": "Generated Story CG",
+		"path": "res://assets/cg/generated/story_ch4_drift_anchor.png",
+		"desc": "Elia anchors Arrel beneath the collapsed overpass while the cost of burning spreads."
+	},
+	{
+		"title": "The Forest Remnant",
+		"type": "Generated Story CG",
+		"path": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png",
+		"desc": "A silent remnant watches the party pass through the rings of the Memory Forest."
+	},
+	{
+		"title": "Colorless Compass",
+		"type": "Generated Story CG",
+		"path": "res://assets/cg/generated/story_ch9_colorless_compass.png",
+		"desc": "Arrel becomes the party's living compass through the Waste where colors stop."
+	},
+	{
+		"title": "BL-07 Core Choice",
+		"type": "Generated Story CG",
+		"path": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
+		"desc": "At the core of BL-07, white memory fire gathers around the final decision."
+	},
+	{
+		"title": "Elia Finds Arrel",
+		"type": "Generated Dialogue CG",
+		"path": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
+		"desc": "Elia finds Arrel after the first burn, turning the opening reunion into a full illustrated beat."
+	},
+	{
+		"title": "Malet's Offer",
+		"type": "Generated Dialogue CG",
+		"path": "res://assets/cg/generated/dialogue_ch2_malet_memory_trade.png",
+		"desc": "Malet names the price of passage while memory ampoules and amber light frame the Ch2 bargain."
+	},
+	{
+		"title": "The Cliff Choice",
+		"type": "Generated Dialogue CG",
+		"path": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png",
+		"desc": "Arrel and Elia face the split-or-stay decision on the Crumbling Coast."
+	},
+	{
+		"title": "The Echo Shell",
+		"type": "Generated Dialogue CG",
+		"path": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png",
+		"desc": "Sable offers the Echo Shell, making the BL-07 truth scene feel like a major relic reveal."
+	},
+	{
+		"title": "Premium Title Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_title_memoria_premium.png",
+		"desc": "New text-free title background supporting readable in-engine title and menu controls."
+	},
+	{
+		"title": "Pause Archive Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_pause_archive_backdrop.png",
+		"desc": "Archive desk, Memory Compass, and Blank Book backdrop for the pause-menu shell."
+	},
+	{
+		"title": "Memory Archive Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_memory_archive_backdrop.png",
+		"desc": "Open Blank Book and memory-shard constellation backdrop for Arrel's archive."
+	},
+	{
+		"title": "Loss Chronicle Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_story_journal_backdrop.png",
+		"desc": "Burned journal surface for the field notes and recorded-losses interface."
+	},
+	{
+		"title": "Memory Exchange Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_memory_shop_backdrop.png",
+		"desc": "Verdan memory-market counter and ampoule shelves for the trading interface."
+	},
+	{
+		"title": "Dialogue Ornate Frame",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_dialogue_ornate_frame.png",
+		"desc": "Lower-third dialogue frame with portrait recess and memory-glass ornaments."
+	},
+	{
+		"title": "Battle Tactical Plate",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_battle_tactical_plate.png",
+		"desc": "Compact objective HUD plate used behind battle tactical goal text."
+	},
+	{
+		"title": "Victory Reward Panel",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_battle_victory_reward_panel.png",
+		"desc": "Post-battle reward frame for grains, objective bonuses, and memory rewards."
+	},
+	{
+		"title": "Burn Preview Ritual Panel",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_burn_preview_ritual_panel.png",
+		"desc": "Memory-burn confirmation frame emphasizing cost, risk, and irreversible choice."
+	},
+	{
+		"title": "Options Observatory Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_options_observatory_backdrop.png",
+		"desc": "Archive observatory backdrop for the options and accessibility menu."
+	},
+	{
+		"title": "Game Over Void Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_game_over_void_backdrop.png",
+		"desc": "Void-lit shattered-memory backdrop for the defeat recovery screen."
+	},
+	{
+		"title": "Battle Command Ribbon",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_battle_command_ribbon.png",
+		"desc": "Wide command-bar frame used behind the bottom battle action buttons."
+	},
+	{
+		"title": "Pause Control Slab",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_pause_control_slab.png",
+		"desc": "Vertical ornament slab layered behind the pause-menu command stack."
+	},
+	{
+		"title": "Exploration HUD Plate",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_exploration_hud_plate.png",
+		"desc": "Top-left exploration HUD frame for HP, memory, grains, items, and quest status."
+	},
+	{
+		"title": "Notification Toast Frame",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_notification_toast_frame.png",
+		"desc": "Bottom-center toast frame for memory, save/load, and warning notifications."
+	},
+	{
+		"title": "Tutorial Hint Banner",
+		"type": "Generated UI Frame",
+		"path": "res://assets/cg/generated/ui_tutorial_hint_banner.png",
+		"desc": "Top-center contextual hint banner for first-time tutorial prompts."
+	},
+	{
+		"title": "Codex Archive Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_codex_archive_backdrop.png",
+		"desc": "Split bestiary and memory-archive environment used behind the Codex interface."
+	},
+	{
+		"title": "Memory Constellation Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_memory_constellation_backdrop.png",
+		"desc": "Mnemonic observatory with subdued orbital guides behind the live memory graph."
+	},
+	{
+		"title": "Achievement Chronicle Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_achievements_chronicle_backdrop.png",
+		"desc": "Memorial ledger wall framing unlocked and hidden achievement records."
+	},
+	{
+		"title": "Ending Gallery Backdrop",
+		"type": "Generated UI Backdrop",
+		"path": "res://assets/cg/generated/ui_ending_gallery_backdrop.png",
+		"desc": "Six-niche ruined reliquary behind the branching ending collection."
+	},
+	{
+		"title": "Burn Cut-In: First Sword",
+		"type": "Generated Battle Cut-In",
+		"path": "res://assets/cg/generated/memory_burn_first_sword.png",
+		"desc": "Battle cut-in for burning the memory of first holding a sword."
+	},
+	{
+		"title": "Burn Cut-In: Campfire Song",
+		"type": "Generated Battle Cut-In",
+		"path": "res://assets/cg/generated/memory_burn_elia_song.png",
+		"desc": "Battle cut-in for burning the campfire song tied to Elia."
+	},
+	{
+		"title": "Burn Cut-In: Reaching Hand",
+		"type": "Generated Battle Cut-In",
+		"path": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+		"desc": "Battle cut-in for burning the memory of a hand reaching out."
+	},
+	{
+		"title": "Burn Cut-In: Arrel's Name",
+		"type": "Generated Battle Cut-In",
+		"path": "res://assets/cg/generated/memory_burn_arrel_name.png",
+		"desc": "Battle cut-in for the dangerous core-name memory."
+	},
+	{
+		"title": "Burn Cut-In: Memory Compass",
+		"type": "Generated Battle Cut-In",
+		"path": "res://assets/cg/generated/memory_burn_compass.png",
+		"desc": "Battle cut-in for burning the compass memory near the Colorless Waste."
+	},
+	{
+		"title": "Burn Cut-In: Void Walker",
+		"type": "Generated Battle Cut-In",
+		"path": "res://assets/cg/generated/memory_burn_void_walker.png",
+		"desc": "Battle cut-in for late-game BL-07 and void-walker memory loss."
 	},
 ]
 
@@ -240,16 +481,26 @@ func _open() -> void:
 	is_open = true
 	get_tree().paused = true
 	_update_save_info()
+	if backdrop:
+		backdrop.visible = true
+	if control_slab:
+		control_slab.visible = true
 	overlay.visible = true
 	panel.visible = true
 	# S53: 메뉴 슬라이드 인 애니메이션
 	_panel_original_x = panel.position.x
+	if control_slab:
+		control_slab.modulate.a = 0.0
+		control_slab.position.x = -300
 	panel.modulate.a = 0.0
 	panel.position.x = _panel_original_x - 300
 	if _anim_tween and _anim_tween.is_valid():
 		_anim_tween.kill()
 	_anim_tween = create_tween().set_parallel(true)
 	_anim_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if control_slab:
+		_anim_tween.tween_property(control_slab, "modulate:a", 0.78, 0.25).set_ease(Tween.EASE_OUT)
+		_anim_tween.tween_property(control_slab, "position:x", 0.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	_anim_tween.tween_property(panel, "modulate:a", 1.0, 0.25).set_ease(Tween.EASE_OUT)
 	_anim_tween.tween_property(panel, "position:x", _panel_original_x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	AudioManager.play_sfx("ui_open")
@@ -267,6 +518,9 @@ func _close() -> void:
 		_anim_tween.kill()
 	_anim_tween = create_tween().set_parallel(true)
 	_anim_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if control_slab:
+		_anim_tween.tween_property(control_slab, "modulate:a", 0.0, 0.2)
+		_anim_tween.tween_property(control_slab, "position:x", -300.0, 0.2).set_ease(Tween.EASE_IN)
 	_anim_tween.tween_property(panel, "modulate:a", 0.0, 0.2)
 	_anim_tween.tween_property(panel, "position:x", _panel_original_x - 300, 0.2).set_ease(Tween.EASE_IN)
 	_anim_tween.chain().tween_callback(func():
@@ -275,6 +529,10 @@ func _close() -> void:
 	)
 
 func _hide_ui() -> void:
+	if backdrop:
+		backdrop.visible = false
+	if control_slab:
+		control_slab.visible = false
 	if overlay:
 		overlay.visible = false
 	if panel:
@@ -286,22 +544,45 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	backdrop = TextureRect.new()
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.modulate = Color(0.86, 0.82, 0.78, 0.94)
+	if ResourceLoader.exists(PAUSE_BACKDROP_PATH):
+		backdrop.texture = load(PAUSE_BACKDROP_PATH)
+	root.add_child(backdrop)
+
 	# 어두운 오버레이
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0, 0, 0, 0.7)  # S57: darker blur for cinematic feel (40% brightness)
+	overlay.color = Color(0, 0, 0, 0.58)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(overlay)
 
+	if ResourceLoader.exists(PAUSE_CONTROL_SLAB_PATH):
+		control_slab = TextureRect.new()
+		control_slab.texture = load(PAUSE_CONTROL_SLAB_PATH)
+		control_slab.anchor_left = 0.555
+		control_slab.anchor_right = 0.95
+		control_slab.anchor_top = 0.075
+		control_slab.anchor_bottom = 0.925
+		control_slab.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		control_slab.stretch_mode = TextureRect.STRETCH_SCALE
+		control_slab.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		control_slab.modulate = Color(1.0, 0.92, 0.78, 0.78)
+		root.add_child(control_slab)
+
 	# 중앙 패널
 	panel = PanelContainer.new()
-	panel.anchor_left = 0.3
-	panel.anchor_right = 0.7
-	panel.anchor_top = 0.15
-	panel.anchor_bottom = 0.85
+	panel.anchor_left = 0.585
+	panel.anchor_right = 0.92
+	panel.anchor_top = 0.12
+	panel.anchor_bottom = 0.88
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.05, 0.08, 0.95)
-	style.border_color = Color(0.4, 0.3, 0.2, 0.7)
+	style.bg_color = Color(0.030, 0.026, 0.040, 0.78)
+	style.border_color = Color(0.72, 0.54, 0.30, 0.46)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(24)
@@ -317,7 +598,9 @@ func _build_ui() -> void:
 	title_label.text = GameManager.loc("paused")
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 22)
-	title_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
+	title_label.add_theme_color_override("font_color", Color(0.92, 0.75, 0.45))
+	title_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	title_label.add_theme_constant_override("shadow_outline_size", 2)
 	vbox.add_child(title_label)
 
 	# 구분선
@@ -713,6 +996,30 @@ func _on_artbook_item_pressed(index: int, preview: TextureRect, title: Label, ty
 	if index >= 0 and index < ARTBOOK_ITEMS.size():
 		_set_artbook_preview(preview, title, type_label, desc, ARTBOOK_ITEMS[index])
 
+func _add_modal_backdrop(host: Control, path: String, wash: Color = Color(0.01, 0.008, 0.02, 0.34)) -> void:
+	var art := TextureRect.new()
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(path):
+		art.texture = load(path)
+	host.add_child(art)
+
+	var shade := ColorRect.new()
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.color = wash
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	host.add_child(shade)
+
+func _animate_modal_panel(target: Control) -> void:
+	target.modulate.a = 0.0
+	var resting_y := target.position.y
+	target.position.y += 14.0
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(target, "modulate:a", 1.0, 0.24).set_ease(Tween.EASE_OUT)
+	tween.tween_property(target, "position:y", resting_y, 0.32).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+
 func _on_achievements() -> void:
 	AudioManager.play_sfx("ui_select")
 	_show_achievements_panel()
@@ -721,18 +1028,19 @@ func _show_achievements_panel() -> void:
 	# 업적 패널 (PauseMenu 위에 오버레이)
 	var ach_overlay = ColorRect.new()
 	ach_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	ach_overlay.color = Color(0, 0, 0, 0.7)
+	ach_overlay.color = Color(0, 0, 0, 0)
 	ach_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(ach_overlay)
+	_add_modal_backdrop(ach_overlay, ACHIEVEMENTS_BACKDROP_PATH, Color(0.01, 0.008, 0.018, 0.42))
 
 	var ach_panel = PanelContainer.new()
-	ach_panel.anchor_left = 0.15
-	ach_panel.anchor_right = 0.85
+	ach_panel.anchor_left = 0.12
+	ach_panel.anchor_right = 0.88
 	ach_panel.anchor_top = 0.05
 	ach_panel.anchor_bottom = 0.95
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.05, 0.08, 0.98)
-	style.border_color = Color(0.5, 0.4, 0.25, 0.7)
+	style.bg_color = Color(0.035, 0.03, 0.05, 0.80)
+	style.border_color = Color(0.55, 0.42, 0.25, 0.78)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(16)
@@ -751,10 +1059,18 @@ func _show_achievements_panel() -> void:
 		if a["unlocked"]:
 			unlocked_count += 1
 	header.text = "ACHIEVEMENTS  (%d / %d)" % [unlocked_count, all_achs.size()]
-	header.add_theme_font_size_override("font_size", 18)
+	header.add_theme_font_size_override("font_size", 22)
 	header.add_theme_color_override("font_color", Color(0.85, 0.7, 0.45))
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UITheme.apply_title_font(header)
 	vbox.add_child(header)
+
+	var progress_label := Label.new()
+	progress_label.text = ("기억 속에 새겨진 이정표  ·  달성률 %.0f%%" if GameManager.current_locale == "ko" else "Milestones engraved in memory  ·  %.0f%% complete") % [float(unlocked_count) / maxf(1.0, float(all_achs.size())) * 100.0]
+	progress_label.add_theme_font_size_override("font_size", 12)
+	progress_label.add_theme_color_override("font_color", Color(0.56, 0.54, 0.52))
+	progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(progress_label)
 
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
@@ -771,15 +1087,26 @@ func _show_achievements_panel() -> void:
 	scroll.add_child(list)
 
 	for ach in all_achs:
+		var row_panel := PanelContainer.new()
+		var row_style := StyleBoxFlat.new()
+		row_style.bg_color = Color(0.08, 0.065, 0.09, 0.66) if ach["unlocked"] else Color(0.035, 0.03, 0.045, 0.56)
+		row_style.border_color = Color(0.58, 0.44, 0.24, 0.42) if ach["unlocked"] else Color(0.2, 0.18, 0.2, 0.28)
+		row_style.border_width_left = 3
+		row_style.set_content_margin_all(8)
+		row_style.set_corner_radius_all(3)
+		row_panel.add_theme_stylebox_override("panel", row_style)
+		list.add_child(row_panel)
+
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
-		list.add_child(row)
+		row_panel.add_child(row)
 
-		# 아이콘 (간단한 텍스트)
-		var icon_map = {"sword": "⚔", "skull": "💀", "crown": "👑", "shield": "🛡", "heart": "❤", "potion": "🧪", "flame": "🔥", "eye": "👁", "map": "🗺", "book": "📖", "star": "⭐", "coin": "🪙", "cycle": "🔄"}
+		# 단색 문양을 사용해 플랫폼별 컬러 이모지 편차를 피한다.
+		var icon_map = {"sword": "⚔", "skull": "☠", "crown": "♛", "shield": "◈", "heart": "♥", "potion": "◇", "flame": "♨", "eye": "◉", "map": "✧", "book": "▤", "star": "★", "coin": "◎", "cycle": "↻"}
 		var icon_label = Label.new()
 		icon_label.text = icon_map.get(ach.get("icon", ""), "•")
 		icon_label.add_theme_font_size_override("font_size", 16)
+		icon_label.add_theme_color_override("font_color", Color(0.82, 0.67, 0.38) if ach["unlocked"] else Color(0.3, 0.28, 0.3))
 		icon_label.custom_minimum_size = Vector2(28, 0)
 		row.add_child(icon_label)
 
@@ -822,6 +1149,7 @@ func _show_achievements_panel() -> void:
 	ach_overlay.gui_input.connect(close_handler)
 	# 패널 클릭으로도 닫기
 	ach_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_animate_modal_panel(ach_panel)
 
 func _on_travel() -> void:
 	AudioManager.play_sfx("ui_select")
@@ -950,9 +1278,10 @@ func _on_endings() -> void:
 func _show_endings_gallery() -> void:
 	var end_overlay = ColorRect.new()
 	end_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	end_overlay.color = Color(0, 0, 0, 0.8)
+	end_overlay.color = Color(0, 0, 0, 0)
 	end_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(end_overlay)
+	_add_modal_backdrop(end_overlay, ENDING_GALLERY_BACKDROP_PATH, Color(0.008, 0.006, 0.015, 0.30))
 
 	var end_panel = PanelContainer.new()
 	end_panel.anchor_left = 0.1
@@ -960,8 +1289,8 @@ func _show_endings_gallery() -> void:
 	end_panel.anchor_top = 0.05
 	end_panel.anchor_bottom = 0.95
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.03, 0.06, 0.98)
-	style.border_color = Color(0.6, 0.45, 0.2, 0.7)
+	style.bg_color = Color(0.025, 0.02, 0.04, 0.72)
+	style.border_color = Color(0.62, 0.47, 0.24, 0.72)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(20)
@@ -978,7 +1307,15 @@ func _show_endings_gallery() -> void:
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_theme_font_size_override("font_size", 20)
 	header.add_theme_color_override("font_color", Color(0.85, 0.7, 0.4))
+	UITheme.apply_title_font(header)
 	vbox.add_child(header)
+
+	var subtitle := Label.new()
+	subtitle.text = "기억된 결말과 아직 닿지 못한 가능성" if GameManager.current_locale == "ko" else "Remembered conclusions and paths not yet reached."
+	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_color_override("font_color", Color(0.56, 0.52, 0.5))
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(subtitle)
 
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
@@ -992,23 +1329,35 @@ func _show_endings_gallery() -> void:
 
 	var ending_ids = ["zero_burn", "preservation", "ash", "seam", "tobias", "hollow"]
 	for eid in ending_ids:
-		var card = VBoxContainer.new()
-		card.custom_minimum_size = Vector2(180, 160)
-		card.add_theme_constant_override("separation", 6)
-		grid.add_child(card)
-
 		var seen = eid in GameManager.seen_endings
 		var data = GameManager.ENDING_DATA.get(eid, {})
 
+		var card_panel := PanelContainer.new()
+		card_panel.custom_minimum_size = Vector2(250, 170)
+		card_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var card_style := StyleBoxFlat.new()
+		card_style.bg_color = Color(0.06, 0.048, 0.075, 0.72) if seen else Color(0.025, 0.022, 0.032, 0.76)
+		card_style.border_color = Color(0.58, 0.43, 0.22, 0.58) if seen else Color(0.19, 0.17, 0.2, 0.4)
+		card_style.set_border_width_all(1)
+		card_style.set_corner_radius_all(4)
+		card_style.set_content_margin_all(7)
+		card_panel.add_theme_stylebox_override("panel", card_style)
+		grid.add_child(card_panel)
+
+		var card = VBoxContainer.new()
+		card.custom_minimum_size = Vector2(236, 156)
+		card.add_theme_constant_override("separation", 6)
+		card_panel.add_child(card)
+
 		# Thumbnail area
 		var thumb = ColorRect.new()
-		thumb.custom_minimum_size = Vector2(180, 100)
+		thumb.custom_minimum_size = Vector2(236, 104)
 		if seen:
 			# Try to load CG image
 			var cg_path = data.get("cg", "")
 			if cg_path != "" and ResourceLoader.exists(cg_path):
 				var tex_rect = TextureRect.new()
-				tex_rect.custom_minimum_size = Vector2(180, 100)
+				tex_rect.custom_minimum_size = Vector2(236, 104)
 				tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 				tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 				tex_rect.texture = load(cg_path)
@@ -1047,7 +1396,7 @@ func _show_endings_gallery() -> void:
 		desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		desc_lbl.add_theme_font_size_override("font_size", 10)
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
-		desc_lbl.custom_minimum_size = Vector2(180, 0)
+		desc_lbl.custom_minimum_size = Vector2(236, 0)
 		if seen:
 			desc_lbl.text = data.get("desc", "")
 			desc_lbl.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
@@ -1069,6 +1418,7 @@ func _show_endings_gallery() -> void:
 			end_overlay.queue_free()
 			get_viewport().set_input_as_handled()
 	end_overlay.gui_input.connect(close_handler)
+	_animate_modal_panel(end_panel)
 
 ## S55: Statistics Screen
 func _on_stats() -> void:
@@ -1139,6 +1489,9 @@ func _show_stats_panel() -> void:
 		{"label": "Grains Earned", "value": str(int(stats.total_grains_earned))},
 		{"label": "Steps Taken", "value": str(int(stats.steps_taken))},
 		{"label": "Highest Combo", "value": str(int(stats.highest_combo))},
+		{"label": "Highest Resonance", "value": str(int(stats.get("highest_momentum_rank", 0)))},
+		{"label": "Objectives Completed", "value": str(int(stats.get("objectives_completed", 0)))},
+		{"label": "Resonance Surges", "value": str(int(stats.get("momentum_surges", 0)))},
 		{"label": "Items Used", "value": str(int(stats.items_used))},
 		{"label": "", "value": ""},
 		{"label": "Current Chapter", "value": str(GameManager.current_chapter)},

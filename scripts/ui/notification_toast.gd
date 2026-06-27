@@ -20,10 +20,12 @@ const SLIDE_DISTANCE := 20.0
 const FADE_IN_TIME := 0.3
 const HOLD_TIME := 2.0
 const FADE_OUT_TIME := 0.5
+const TOAST_FRAME_PATH: String = "res://assets/cg/generated/ui_notification_toast_frame.png"
 
 var _queue: Array[Dictionary] = []
 var _showing := false
 
+var _frame: TextureRect
 var _panel: PanelContainer
 var _label: Label
 
@@ -33,6 +35,24 @@ func _ready() -> void:
 	_connect_signals()
 
 func _build_ui() -> void:
+	if ResourceLoader.exists(TOAST_FRAME_PATH):
+		_frame = TextureRect.new()
+		_frame.texture = load(TOAST_FRAME_PATH)
+		_frame.anchor_left = 0.5
+		_frame.anchor_right = 0.5
+		_frame.anchor_top = 1.0
+		_frame.anchor_bottom = 1.0
+		_frame.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_frame.offset_left = -178
+		_frame.offset_right = 178
+		_frame.offset_top = -92
+		_frame.offset_bottom = -38
+		_frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_frame.stretch_mode = TextureRect.STRETCH_SCALE
+		_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_frame.modulate = Color(1.0, 0.92, 0.78, 0.0)
+		add_child(_frame)
+
 	# Panel container
 	_panel = PanelContainer.new()
 	_panel.anchor_left = 0.5
@@ -48,8 +68,8 @@ func _build_ui() -> void:
 
 	# StyleBox
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.05, 0.08, 0.88)
-	style.border_color = Color(0.8, 0.65, 0.3, 0.7)
+	style.bg_color = Color(0.035, 0.030, 0.048, 0.64)
+	style.border_color = Color(0.8, 0.65, 0.3, 0.32)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(8)
@@ -120,10 +140,18 @@ func _display_toast(text: String, type: ToastType) -> void:
 	var base_top: float = -80.0
 	_panel.offset_top = base_top + SLIDE_DISTANCE
 	_panel.offset_bottom = -50.0 + SLIDE_DISTANCE
+	if _frame:
+		_frame.offset_top = base_top + SLIDE_DISTANCE - 12.0
+		_frame.offset_bottom = -50.0 + SLIDE_DISTANCE + 12.0
+		_frame.modulate.a = 0.0
 
 	# Fade in + slide up
 	var tween := create_tween()
 	tween.set_parallel(true)
+	if _frame:
+		tween.tween_property(_frame, "modulate:a", 0.76, FADE_IN_TIME)
+		tween.tween_property(_frame, "offset_top", base_top - 12.0, FADE_IN_TIME).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(_frame, "offset_bottom", -38.0, FADE_IN_TIME).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(_panel, "modulate:a", 1.0, FADE_IN_TIME)
 	tween.tween_property(_panel, "offset_top", base_top, FADE_IN_TIME).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(_panel, "offset_bottom", -50.0, FADE_IN_TIME).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
@@ -133,6 +161,8 @@ func _display_toast(text: String, type: ToastType) -> void:
 
 	# Fade out
 	tween.chain().tween_property(_panel, "modulate:a", 0.0, FADE_OUT_TIME)
+	if _frame:
+		tween.parallel().tween_property(_frame, "modulate:a", 0.0, FADE_OUT_TIME)
 
 	# Next in queue
 	tween.chain().tween_callback(_process_queue)

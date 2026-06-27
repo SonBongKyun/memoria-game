@@ -3,6 +3,8 @@
 ## MemoryUI(Tab/M) 안에서 "Constellation" 버튼으로 토글.
 extends CanvasLayer
 
+const CONSTELLATION_BACKDROP_PATH: String = "res://assets/cg/generated/ui_memory_constellation_backdrop.png"
+
 const GRADE_RADIUS: Dictionary = {
 	0: 380.0,  # GRADE_5 (최외곽)
 	1: 320.0,
@@ -35,7 +37,8 @@ var _root: Control
 var _canvas: Control  # 커스텀 _draw
 var _tooltip: PanelContainer
 var _tooltip_label: RichTextLabel
-var _bg: ColorRect
+var _bg: TextureRect
+var _shade: ColorRect
 var _close_btn: Button
 var _node_positions: Dictionary = {}  # memory_id → Vector2
 var _hovered_id: String = ""
@@ -53,15 +56,24 @@ func _build_ui() -> void:
 	_root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_root)
 
-	_bg = ColorRect.new()
+	_bg = TextureRect.new()
 	_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_bg.color = Color(0.02, 0.015, 0.025, 0.96)
-	_bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(CONSTELLATION_BACKDROP_PATH):
+		_bg.texture = load(CONSTELLATION_BACKDROP_PATH)
 	_root.add_child(_bg)
+
+	_shade = ColorRect.new()
+	_shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_shade.color = Color(0.01, 0.008, 0.02, 0.28)
+	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(_shade)
 
 	# 타이틀
 	var title = Label.new()
-	title.text = "Memory Constellation"
+	title.text = "기억 성좌" if GameManager.current_locale == "ko" else "MEMORY CONSTELLATION"
 	title.anchor_left = 0.0
 	title.anchor_right = 1.0
 	title.anchor_top = 0.0
@@ -70,10 +82,11 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UITheme.apply_title_font(title)
 	_root.add_child(title)
 
 	var subtitle = Label.new()
-	subtitle.text = "What you carry. What you have spent."
+	subtitle.text = "지닌 것과 태워버린 것이 같은 하늘에 남는다." if GameManager.current_locale == "ko" else "What you carry. What you have spent."
 	subtitle.anchor_left = 0.0
 	subtitle.anchor_right = 1.0
 	subtitle.offset_top = 58
@@ -116,7 +129,7 @@ func _build_ui() -> void:
 
 	# 닫기 버튼
 	_close_btn = Button.new()
-	_close_btn.text = "Close (Esc)"
+	_close_btn.text = "닫기 (Esc)" if GameManager.current_locale == "ko" else "Close (Esc)"
 	_close_btn.anchor_left = 1.0
 	_close_btn.anchor_right = 1.0
 	_close_btn.anchor_top = 0.0
@@ -124,6 +137,11 @@ func _build_ui() -> void:
 	_close_btn.offset_right = -20
 	_close_btn.offset_top = 20
 	_close_btn.offset_bottom = 52
+	var close_style := UITheme.make_button_style(Color(0.045, 0.038, 0.06, 0.84), Color(0.5, 0.4, 0.25, 0.68))
+	_close_btn.add_theme_stylebox_override("normal", close_style)
+	_close_btn.add_theme_stylebox_override("hover", UITheme.make_hover_style(close_style))
+	_close_btn.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+	_close_btn.add_theme_color_override("font_hover_color", UITheme.TEXT_ACCENT)
 	_close_btn.pressed.connect(close)
 	_root.add_child(_close_btn)
 
@@ -131,6 +149,7 @@ func _build_ui() -> void:
 	var legend = Label.new()
 	legend.anchor_left = 0.0
 	legend.anchor_right = 1.0
+	legend.anchor_top = 1.0
 	legend.anchor_bottom = 1.0
 	legend.offset_top = -70
 	legend.offset_bottom = -20
@@ -138,7 +157,7 @@ func _build_ui() -> void:
 	legend.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	legend.text = "Rings: Grade 5 (sensory) outer → Grade 1 (core) center.   Lines: shared bonds (NPC) or shared category.   Cracked nodes: burned nearby.   X: burned & gone."
+	legend.text = ("바깥 고리: 감각 기억  →  중심: 핵심 기억    선: 인물·범주의 연결    균열: 연소의 흔적    X: 완전 소실" if GameManager.current_locale == "ko" else "Rings: sensory memories outside → core memories within.   Lines: shared bonds.   Cracks: burn residue.   X: gone.")
 	_root.add_child(legend)
 
 func open() -> void:
@@ -147,6 +166,9 @@ func open() -> void:
 	is_open = true
 	visible = true
 	set_process(true)
+	_root.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(_root, "modulate:a", 1.0, 0.32).set_ease(Tween.EASE_OUT)
 	_compute_positions()
 	_canvas.queue_redraw()
 	# MemoryUI가 열려 있으면 겹침 방지 위해 잠깐 가림
@@ -184,6 +206,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## ===================== 레이아웃 =====================
 
+func _scaled_grade_radius(grade: int) -> float:
+	# 1280x720의 실제 캔버스 높이에서도 바깥 등급이 화면 밖으로 잘리지 않게 맞춘다.
+	var max_radius := minf(_canvas.size.x * 0.42, _canvas.size.y * 0.42)
+	var normalized := float(GRADE_RADIUS.get(grade, 250.0)) / float(GRADE_RADIUS[0])
+	return maxf(46.0, max_radius * normalized)
+
 func _compute_positions() -> void:
 	_node_positions.clear()
 	var center = _canvas.size / 2.0
@@ -209,10 +237,13 @@ func _compute_positions() -> void:
 
 	for grade in by_grade.keys():
 		var group: Array = by_grade[grade]
-		var radius = GRADE_RADIUS.get(grade, 250.0)
+		var radius := _scaled_grade_radius(int(grade))
 		var count = group.size()
+		# 각 등급이 모두 12시 방향에서 시작하면 적은 수의 기억이 한 줄로 겹친다.
+		# 등급마다 위상을 돌려 성좌가 화면 전체에 자연스럽게 펼쳐지게 한다.
+		var grade_phase := -PI / 2.0 + float(int(grade)) * 0.78
 		for i in range(count):
-			var angle = TAU * float(i) / float(count) - PI / 2.0
+			var angle := grade_phase if count == 1 else grade_phase + TAU * float(i) / float(count)
 			# NPC가 같으면 서로 약간 가깝게 몰기 — 간단히 id 해시 오프셋
 			var npc_offset = 0.0
 			if group[i].related_npc != "":
@@ -228,7 +259,7 @@ func _on_draw() -> void:
 
 	# 배경 링 (등급 가이드)
 	for grade_key in GRADE_RADIUS.keys():
-		var r = GRADE_RADIUS[grade_key]
+		var r := _scaled_grade_radius(int(grade_key))
 		_canvas.draw_arc(center, r, 0, TAU, 64, Color(0.3, 0.28, 0.25, 0.18), 1.0, false)
 
 	# 연결선 먼저 (노드 아래에 깔림)

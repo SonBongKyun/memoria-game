@@ -85,7 +85,8 @@ var player_defending: bool = false
 var enemy_shielded: bool = false    # 적 방어 상태
 var battle_bg_image: String = ""    # 전투 배경 이미지 경로
 var enemy_image: String = ""        # 적 이미지 경로
-const ART_KAIROS_FULLBODY: String = "res://assets/cg/game_image/kairos_fullbody.png"
+const ART_KAIROS_FULLBODY: String = "res://assets/cg/generated/cinematic_kairos_watcher_confrontation.png"
+const ART_KAIROS_FALLBACK: String = "res://assets/cg/game_image/kairos_fullbody.png"
 const ART_NERA_FULLBODY: String = "res://assets/cg/game_image/nera_fullbody.png"
 const ART_TOBIAS_FULLBODY: String = "res://assets/cg/game_image/tobias_fullbody.png"
 const ART_VEIL_FULLBODY: String = "res://assets/cg/game_image/veil_fullbody.png"
@@ -126,6 +127,7 @@ signal enemy_scanned(enemy_name: String, weakness: String, resistance: String)
 signal break_changed(value: float, max_value: float)
 signal enemy_broken(enemy_name: String)
 signal tactical_objective_changed(objective: Dictionary)
+signal momentum_changed(value: float, rank: int, label: String)
 
 # --- 아군 조작 모드 ---
 var ally_command: String = ""  # 플레이어가 선택한 세이블 행동 ("", "heal", "strike", "weaken", "guard")
@@ -169,6 +171,15 @@ const ENV_BONUSES: Dictionary = {
 	"forgotten_forest": {"name": "Forgotten Forest", "desc": "+8% poison damage", "poison_boost": 0.08},
 	"colorless_waste": {"name": "Colorless Waste", "desc": "-5% all damage (muted)", "dmg_reduce": 0.05},
 	"bl07_void": {"name": "BL-07 Void", "desc": "+15% void damage, -10% healing", "void_boost": 0.15, "heal_reduce": 0.10},
+}
+
+const ENEMY_PRESETS: Dictionary = {
+	"ash_crawler": {"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	"forest_shade": {"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": ""},
+	"void_beast": {"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	"threshold_shade": {"name": "Threshold Shade", "hp": 120, "atk": 20, "is_void": true, "abilities": ["drain", "stun", "reflect"], "weakness": "fire"},
+	"shade_sentinel": {"name": "Shade Sentinel", "hp": 180, "atk": 24, "is_void": true, "is_boss": true, "abilities": ["drain", "shield", "multi_hit", "summon"], "weakness": "void", "resistance": "fire", "bg": "res://assets/cg/generated/chapter_splash_the_seam.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	"kairos": {"name": "Kairos, Authority Editor", "hp": 450, "atk": 38, "is_void": true, "is_boss": true, "abilities": ["void_pulse", "drain", "stun", "reflect", "charge", "despair"], "weakness": "physical", "resistance": "void", "bg": "res://assets/cg/generated/memory_compass_resonance_cinematic.png", "img": "res://assets/cg/generated/cinematic_kairos_watcher_confrontation.png"},
 }
 
 ## 맵 씬 경로에서 환경 이름 추출
@@ -222,6 +233,22 @@ var _objective_failed: bool = false
 var _memory_burns_this_battle: int = 0
 var _max_combo_this_battle: int = 0
 var _breaks_this_battle: int = 0
+var _stance_switches_this_battle: int = 0
+var _limit_breaks_this_battle: int = 0
+var _items_used_this_battle: int = 0
+var _echoes_activated_this_battle: int = 0
+var _ally_actions_this_battle: int = 0
+var _player_actions_this_battle: int = 0
+
+# --- Combat Resonance / Momentum ---
+const MOMENTUM_MAX: float = 100.0
+const MOMENTUM_RANK_THRESHOLDS: Array[float] = [25.0, 50.0, 75.0, 100.0]
+const MOMENTUM_RANK_LABELS: Array[String] = ["Cold", "Kindled", "Burning", "Resonant", "Overbright"]
+const MOMENTUM_RANK_LABELS_KO: Array[String] = ["냉각", "점화", "연소", "공명", "과휘"]
+var momentum: float = 0.0
+var momentum_rank: int = 0
+var _best_momentum_rank: int = 0
+var _last_stand_triggered_this_battle: bool = false
 
 # --- Limit Break 시스템 ---
 var limit_gauge: float = 0.0        # 0.0 ~ 100.0
@@ -245,6 +272,72 @@ func _add_limit(amount: float) -> void:
 	limit_gauge = minf(limit_gauge + amount, LIMIT_MAX)
 	limit_changed.emit(limit_gauge)
 
+func _reset_momentum() -> void:
+	momentum = 0.0
+	momentum_rank = 0
+	_best_momentum_rank = 0
+	momentum_changed.emit(momentum, momentum_rank, _get_momentum_label())
+
+func _get_momentum_rank(value: float) -> int:
+	var rank := 0
+	for threshold in MOMENTUM_RANK_THRESHOLDS:
+		if value >= threshold:
+			rank += 1
+	return clampi(rank, 0, MOMENTUM_RANK_LABELS.size() - 1)
+
+func _get_momentum_label(rank_override: int = -1) -> String:
+	var rank := momentum_rank if rank_override < 0 else rank_override
+	rank = clampi(rank, 0, MOMENTUM_RANK_LABELS.size() - 1)
+	if GameManager.current_locale == "ko":
+		return MOMENTUM_RANK_LABELS_KO[rank]
+	return MOMENTUM_RANK_LABELS[rank]
+
+func _get_momentum_damage_mult() -> float:
+	match momentum_rank:
+		1:
+			return 1.04
+		2:
+			return 1.08
+		3:
+			return 1.13
+		4:
+			return 1.20
+	return 1.0
+
+func _apply_momentum_damage_bonus(damage: int) -> int:
+	var mult := _get_momentum_damage_mult()
+	if mult <= 1.0:
+		return damage
+	return maxi(1, int(damage * mult))
+
+func _add_momentum(amount: float, reason: String = "") -> void:
+	if amount <= 0.0:
+		return
+	var old_rank := momentum_rank
+	momentum = clampf(momentum + amount, 0.0, MOMENTUM_MAX)
+	momentum_rank = _get_momentum_rank(momentum)
+	_best_momentum_rank = maxi(_best_momentum_rank, momentum_rank)
+	momentum_changed.emit(momentum, momentum_rank, _get_momentum_label())
+	if reason != "":
+		battle_log.emit("[RESONANCE] %s +%d" % [reason, int(amount)])
+	if momentum_rank > old_rank:
+		battle_log.emit("[RESONANCE] %s state reached. Damage momentum rises." % _get_momentum_label())
+		GameManager.max_stat("highest_momentum_rank", momentum_rank)
+		if momentum_rank >= 3:
+			GameManager.add_stat("momentum_surges")
+			if AchievementManager:
+				AchievementManager.unlock("resonance_master")
+			TutorialHints.show_hint("first_resonance")
+	_check_tactical_objective("momentum")
+
+func _get_momentum_grains_bonus() -> int:
+	if _best_momentum_rank <= 0:
+		return 0
+	var bonus := _best_momentum_rank * 2
+	if _best_momentum_rank >= 4:
+		bonus += 4
+	return bonus
+
 # --- 시그널 ---
 signal battle_started(enemy: Enemy)
 signal player_turn_started()
@@ -255,6 +348,7 @@ signal battle_ended(result: BattleState)
 signal battle_log(message: String)
 signal status_changed()
 signal guard_focus(trigger: String, value: int)
+signal last_stand_resonance(lethal: bool)
 signal victory_rewards_ready(rewards: Dictionary)  # S58: structured reward data
 var _victory_dismissed: bool = false  # S58: wait for player to dismiss rewards
 
@@ -274,11 +368,17 @@ func dismiss_victory() -> void:
 	_victory_dismissed = true
 
 ## 전투 시작
-func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", e_image: String = "") -> void:
+func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String = "", e_image: String = "") -> void:
+	var enemy: Enemy = _coerce_enemy(enemy_ref)
+	if enemy == null:
+		push_error("[BattleManager] Invalid battle enemy: %s" % str(enemy_ref))
+		return
 	current_enemy = enemy
 	return_scene = from_scene
-	battle_bg_image = bg_image
-	enemy_image = e_image if e_image != "" and ResourceLoader.exists(e_image) else resolve_enemy_image_by_name(enemy.name)
+	var preset_art := _get_enemy_preset_art(enemy_ref)
+	battle_bg_image = bg_image if bg_image != "" else String(preset_art.get("bg", ""))
+	var requested_enemy_image := e_image if e_image != "" else String(preset_art.get("img", ""))
+	enemy_image = requested_enemy_image if requested_enemy_image != "" and ResourceLoader.exists(requested_enemy_image) else resolve_enemy_image_by_name(enemy.name)
 	player_defending = false
 	enemy_shielded = false
 	player_statuses.clear()
@@ -300,9 +400,17 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 	_memory_burns_this_battle = 0
 	_max_combo_this_battle = 0
 	_breaks_this_battle = 0
+	_stance_switches_this_battle = 0
+	_limit_breaks_this_battle = 0
+	_items_used_this_battle = 0
+	_echoes_activated_this_battle = 0
+	_ally_actions_this_battle = 0
+	_player_actions_this_battle = 0
+	_last_stand_triggered_this_battle = false
 	_objective_completed = false
 	_objective_failed = false
 	tactical_objective.clear()
+	_reset_momentum()
 	# Detect battle environment from return scene
 	battle_environment = _detect_environment(from_scene)
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
@@ -383,10 +491,52 @@ func start_battle(enemy: Enemy, from_scene: String = "", bg_image: String = "", 
 
 	player_turn_started.emit()
 
+func _coerce_enemy(enemy_ref: Variant) -> Enemy:
+	if enemy_ref is Enemy:
+		return enemy_ref
+	if enemy_ref is Dictionary:
+		return _enemy_from_dictionary(enemy_ref)
+	if enemy_ref is String:
+		var key := _normalize_enemy_key(String(enemy_ref))
+		if ENEMY_PRESETS.has(key):
+			return _enemy_from_dictionary(ENEMY_PRESETS[key])
+		return Enemy.new(String(enemy_ref), 70, 14, String(enemy_ref).to_lower().contains("void"))
+	return null
+
+func _enemy_from_dictionary(data: Dictionary) -> Enemy:
+	var enemy := Enemy.new(
+		String(data.get("name", "Unknown Enemy")),
+		int(data.get("hp", 70)),
+		int(data.get("atk", data.get("attack", 14))),
+		bool(data.get("is_void", data.get("is_void_beast", false)))
+	)
+	enemy.is_boss = bool(data.get("is_boss", false))
+	enemy.abilities = data.get("abilities", []).duplicate(true)
+	if data.has("weakness"):
+		enemy.weakness = String(data.weakness)
+	if data.has("resistance"):
+		enemy.resistance = String(data.resistance)
+	return enemy
+
+func _normalize_enemy_key(enemy_id: String) -> String:
+	return enemy_id.strip_edges().to_lower().replace(" ", "_").replace("-", "_")
+
+func _get_enemy_preset_art(enemy_ref: Variant) -> Dictionary:
+	if enemy_ref is Dictionary:
+		return {"bg": String(enemy_ref.get("bg", "")), "img": String(enemy_ref.get("img", ""))}
+	if enemy_ref is String:
+		var key := _normalize_enemy_key(String(enemy_ref))
+		if ENEMY_PRESETS.has(key):
+			var data: Dictionary = ENEMY_PRESETS[key]
+			return {"bg": String(data.get("bg", "")), "img": String(data.get("img", ""))}
+	return {"bg": "", "img": ""}
+
 func resolve_enemy_image_by_name(enemy_name: String) -> String:
 	var lower_name: String = enemy_name.to_lower()
 	if "kairos" in lower_name or "authority editor" in lower_name or "watcher" in lower_name:
-		return ART_KAIROS_FULLBODY if ResourceLoader.exists(ART_KAIROS_FULLBODY) else ""
+		if ResourceLoader.exists(ART_KAIROS_FULLBODY):
+			return ART_KAIROS_FULLBODY
+		return ART_KAIROS_FALLBACK if ResourceLoader.exists(ART_KAIROS_FALLBACK) else ""
 	if "nera" in lower_name:
 		return ART_NERA_FULLBODY if ResourceLoader.exists(ART_NERA_FULLBODY) else ""
 	if "tobias" in lower_name:
@@ -425,6 +575,15 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 			"desc": "Trigger BREAK before victory.",
 			"reward_grains": 6,
 			"reward_item": "firebomb",
+			"reward_heal": 0,
+		})
+		pool.append({
+			"id": "limit_release",
+			"title": "Cascade Window",
+			"desc": "Use Memory Cascade before victory.",
+			"reward_grains": 8,
+			"reward_item": "hi_potion",
+			"reward_heal": 0,
 		})
 	if not enemy.is_boss:
 		pool.append({
@@ -433,6 +592,15 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 			"desc": "Win without burning a memory.",
 			"reward_grains": 5,
 			"reward_item": "potion",
+			"reward_heal": 0,
+		})
+		pool.append({
+			"id": "swift_finish",
+			"title": "Before It Learns",
+			"desc": "Win within 4 player actions.",
+			"reward_grains": 7,
+			"reward_item": "firebomb",
+			"reward_heal": 0,
 		})
 	pool.append({
 		"id": "scan_first",
@@ -440,6 +608,7 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 		"desc": "Scan or analyze the enemy before victory.",
 		"reward_grains": 4,
 		"reward_item": "antidote",
+		"reward_heal": 0,
 	})
 	pool.append({
 		"id": "combo_three",
@@ -447,7 +616,51 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 		"desc": "Reach Combo x3 before victory.",
 		"reward_grains": 5,
 		"reward_item": "",
+		"reward_heal": 5,
 	})
+	pool.append({
+		"id": "kindle_momentum",
+		"title": "Resonance Climb",
+		"desc": "Reach Burning resonance before victory.",
+		"reward_grains": 7,
+		"reward_item": "",
+		"reward_heal": 12,
+	})
+	pool.append({
+		"id": "no_items",
+		"title": "Bare Hands",
+		"desc": "Win without using battle items.",
+		"reward_grains": 4,
+		"reward_item": "potion",
+		"reward_heal": 0,
+	})
+	if GameManager.current_chapter >= 4:
+		pool.append({
+			"id": "stance_shift",
+			"title": "Three Forms",
+			"desc": "Switch stance twice before victory.",
+			"reward_grains": 6,
+			"reward_item": "",
+			"reward_heal": 8,
+		})
+	if MemoryManager.get_available_memories().size() >= 2:
+		pool.append({
+			"id": "echo_weave",
+			"title": "Echo Weave",
+			"desc": "Activate 2 Memory Echoes before victory.",
+			"reward_grains": 8,
+			"reward_item": "hi_potion",
+			"reward_heal": 0,
+		})
+	if sable_in_party or tobias_in_party:
+		pool.append({
+			"id": "ally_coordination",
+			"title": "Shared Rhythm",
+			"desc": "Trigger 2 companion support actions.",
+			"reward_grains": 6,
+			"reward_item": "antidote",
+			"reward_heal": 10,
+		})
 
 	var seed_text := "%s:%s:%d" % [enemy.name, return_scene, GameManager.play_stats.get("total_battles", 0)]
 	var index: int = int(abs(hash(seed_text)) % pool.size())
@@ -496,23 +709,55 @@ func _check_tactical_objective(event_id: String = "") -> void:
 		"keep_memory":
 			if event_id == "memory_burned":
 				_fail_tactical_objective("A memory was burned.")
+		"stance_shift":
+			if _stance_switches_this_battle >= 2:
+				_complete_tactical_objective("Two stance shifts completed.")
+		"kindle_momentum":
+			if _best_momentum_rank >= 3:
+				_complete_tactical_objective("Burning resonance reached.")
+		"echo_weave":
+			if _echoes_activated_this_battle >= 2:
+				_complete_tactical_objective("Two echoes are active.")
+		"no_items":
+			if event_id == "item_used":
+				_fail_tactical_objective("A battle item was used.")
+		"swift_finish":
+			if _player_actions_this_battle > 4:
+				_fail_tactical_objective("The fight dragged on too long.")
+		"limit_release":
+			if _limit_breaks_this_battle > 0:
+				_complete_tactical_objective("Memory Cascade released.")
+		"ally_coordination":
+			if _ally_actions_this_battle >= 2:
+				_complete_tactical_objective("Companion rhythm established.")
 
 func _finalize_tactical_objective() -> Dictionary:
 	if tactical_objective.is_empty():
-		return {"grains": 0, "item": "", "title": ""}
+		return {"grains": 0, "item": "", "title": "", "heal": 0}
 	if tactical_objective.get("id", "") == "keep_memory" and not _objective_failed and _memory_burns_this_battle == 0:
 		_complete_tactical_objective("No memories burned.")
+	if tactical_objective.get("id", "") == "no_items" and not _objective_failed and _items_used_this_battle == 0:
+		_complete_tactical_objective("No items used.")
+	if tactical_objective.get("id", "") == "swift_finish" and not _objective_failed and _player_actions_this_battle <= 4:
+		_complete_tactical_objective("Finished before it adapted.")
+	if tactical_objective.get("id", "") == "kindle_momentum" and not _objective_failed and _best_momentum_rank >= 3:
+		_complete_tactical_objective("Burning resonance reached.")
 	if not _objective_completed:
-		return {"grains": 0, "item": "", "title": tactical_objective.get("title", "")}
+		return {"grains": 0, "item": "", "title": tactical_objective.get("title", ""), "heal": 0}
 
 	var bonus_grains: int = int(tactical_objective.get("reward_grains", 0))
 	var bonus_item: String = tactical_objective.get("reward_item", "")
+	var bonus_heal: int = int(tactical_objective.get("reward_heal", 0))
 	if bonus_item != "" and GameManager.ITEMS.has(bonus_item):
 		GameManager.add_item(bonus_item, 1)
+	GameManager.add_stat("objectives_completed")
+	if AchievementManager:
+		AchievementManager.unlock("perfect_tactics")
 	return {
 		"grains": bonus_grains,
 		"item": bonus_item,
 		"title": tactical_objective.get("title", ""),
+		"heal": bonus_heal,
 	}
 
 func _apply_opening_choice_battle_trait() -> void:
@@ -542,6 +787,8 @@ func player_attack() -> void:
 	if state != BattleState.PLAYER_TURN or current_enemy == null:
 		return
 
+	_player_actions_this_battle += 1
+	_check_tactical_objective("action")
 	_burn_chain = 0  # S53: 체인 리셋
 	# 콤보 빌드
 	if _last_action == "attack":
@@ -588,7 +835,9 @@ func player_attack() -> void:
 		enemy_shielded = false
 		AudioManager.play_combat_sfx("shield_break")  # S58: 방패 파괴 레이어드 SFX
 		battle_log.emit("The barrier absorbs some damage!")
+	var hit_broken_enemy := enemy_broken_turns > 0
 	base_dmg = _apply_break_damage_bonus(base_dmg)
+	base_dmg = _apply_momentum_damage_bonus(base_dmg)
 	# S58: Anticipation — signal before damage, await wind-up
 	pre_attack.emit("Arrel", current_enemy.name, "Attack")
 	await get_tree().create_timer(0.23).timeout  # anticipation + strike duration
@@ -599,6 +848,12 @@ func player_attack() -> void:
 	battle_log.emit("Arrel strikes! %d damage.%s" % [actual, combo_text])
 	_log_element_effect(atk_element)
 	_register_break_pressure(atk_element)
+	if hit_broken_enemy:
+		_add_momentum(6.0, "Punished BREAK")
+	elif combo_count >= 2:
+		_add_momentum(5.0, "Combo maintained")
+	else:
+		_add_momentum(3.0, "Clean strike")
 	damage_dealt.emit(current_enemy.name, actual, "Attack")
 	_add_limit(LIMIT_GAIN_ATTACK)
 	_check_combo_milestone()
@@ -659,11 +914,13 @@ func _register_break_pressure(attack_element: String) -> void:
 	break_changed.emit(enemy_break_gauge, BREAK_MAX)
 	if current_enemy.weakness == attack_element:
 		battle_log.emit("[BREAK] Weakness pressure +%d" % int(gain))
+		_add_momentum(8.0, "Weakness pressure")
 	if enemy_break_gauge >= BREAK_MAX:
 		enemy_break_gauge = 0.0
 		enemy_broken_turns = 1
 		_breaks_this_battle += 1
 		battle_log.emit("[BREAK] %s is staggered!" % current_enemy.name)
+		_add_momentum(18.0, "BREAK triggered")
 		TutorialHints.show_hint("first_break")
 		break_changed.emit(enemy_break_gauge, BREAK_MAX)
 		enemy_broken.emit(current_enemy.name)
@@ -730,6 +987,8 @@ func player_burn(memory_id: String) -> void:
 		battle_log.emit("That memory is already gone.")
 		return
 
+	_player_actions_this_battle += 1
+	_check_tactical_objective("action")
 	_reset_combo("burn")
 	_memory_burns_this_battle += 1
 	_check_tactical_objective("memory_burned")
@@ -764,6 +1023,7 @@ func player_burn(memory_id: String) -> void:
 		enemy_shielded = false
 		battle_log.emit("The barrier weakens the flames!")
 	dmg = _apply_break_damage_bonus(dmg)
+	dmg = _apply_momentum_damage_bonus(dmg)
 	# S58: Anticipation — signal before burn damage
 	pre_attack.emit("Arrel", current_enemy.name, skill.name)
 	await get_tree().create_timer(0.23).timeout
@@ -773,6 +1033,10 @@ func player_burn(memory_id: String) -> void:
 	battle_log.emit("%d damage to %s!" % [actual, current_enemy.name])
 	_log_element_effect(burn_element)
 	_register_break_pressure(burn_element)
+	var burn_momentum := 10.0 + float(memory.grade) * 3.0
+	if _burn_chain >= 2:
+		burn_momentum += 6.0
+	_add_momentum(burn_momentum, "Memory burn")
 	damage_dealt.emit(current_enemy.name, actual, skill.name)
 
 	# 고등급 기억 연소 시 적에게 화상 DoT 부여 (Grade 2=Identity 이상)
@@ -803,6 +1067,8 @@ func player_use_elia_skill(skill_id: String) -> void:
 		battle_log.emit(result["msg"])
 		return
 
+	_player_actions_this_battle += 1
+	_check_tactical_objective("action")
 	AudioManager.play_combat_sfx("heal_layered")  # S58: 레이어드 힐 SFX
 	battle_log.emit("[ELIA] %s" % result["name"])
 	battle_log.emit(result["msg"])
@@ -824,6 +1090,7 @@ func player_use_elia_skill(skill_id: String) -> void:
 				dmg = maxi(1, int(dmg * 0.7))
 				enemy_shielded = false
 			dmg = _apply_break_damage_bonus(dmg)
+			dmg = _apply_momentum_damage_bonus(dmg)
 			var actual = current_enemy.take_damage(dmg)
 			_register_break_pressure("void")
 			damage_dealt.emit(current_enemy.name, actual, result["name"])
@@ -836,6 +1103,7 @@ func player_use_elia_skill(skill_id: String) -> void:
 			battle_log.emit("Healed %d HP and cured all ailments." % heal)
 
 	_add_limit(5.0)
+	_add_momentum(7.0, "Anchor technique")
 	_check_enemy_defeated()
 
 func _soften_player_statuses() -> bool:
@@ -860,27 +1128,34 @@ func player_defend() -> void:
 	if state != BattleState.PLAYER_TURN:
 		return
 
+	_player_actions_this_battle += 1
+	_check_tactical_objective("action")
 	_burn_chain = 0  # S53: 체인 리셋
 
 	player_defending = true
 	_reset_combo("defend")
 	var focus_gain: float = LIMIT_GAIN_DEFEND + 7.0
+	var momentum_gain: float = 6.0
 	if _soften_player_statuses():
 		focus_gain += 4.0
+		momentum_gain += 4.0
 		guard_focus.emit("status", 1)
 		battle_log.emit("Guard Focus steadies Arrel. Status pressure weakens.")
 	elif GameManager.player_data.hp < GameManager.player_data.max_hp:
 		var heal_amount: int = maxi(3, int(GameManager.player_data.max_hp * 0.05))
 		var actual_heal: int = mini(heal_amount, GameManager.player_data.max_hp - GameManager.player_data.hp)
 		GameManager.player_data.hp += actual_heal
+		momentum_gain += 2.0
 		damage_dealt.emit("Arrel", -actual_heal, "Guard Focus")
 		guard_focus.emit("heal", actual_heal)
 		battle_log.emit("Guard Focus restores %d HP." % actual_heal)
 	else:
 		focus_gain += 4.0
+		momentum_gain += 2.0
 		guard_focus.emit("limit", int(focus_gain))
 		battle_log.emit("Guard Focus primes the Limit gauge.")
 	_add_limit(focus_gain)
+	_add_momentum(momentum_gain, "Guard Focus")
 	_end_player_turn()
 
 ## 플레이어 행동: 아이템 사용
@@ -897,6 +1172,10 @@ func player_use_item(item_id: String) -> void:
 		battle_log.emit("No %s left." % item_def["name"])
 		return
 
+	_player_actions_this_battle += 1
+	_items_used_this_battle += 1
+	_check_tactical_objective("action")
+	_check_tactical_objective("item_used")
 	AudioManager.play_sfx("ui_select")
 	AchievementManager.record_item_used()
 	GameManager.add_stat("items_used")
@@ -1316,6 +1595,8 @@ func get_next_turn_hint() -> String:
 ## 플레이어 사망 체크
 func _check_player_defeated() -> void:
 	if GameManager.player_data.hp <= 0:
+		if _try_last_stand_resonance(true):
+			return
 		state = BattleState.DEFEAT
 		AudioManager.play_sfx("defeat")
 		InputManager.vibrate("game_over")
@@ -1328,6 +1609,8 @@ func _check_player_defeated() -> void:
 	if not player_statuses.is_empty():
 		_process_statuses("player")
 		if GameManager.player_data.hp <= 0:
+			if _try_last_stand_resonance(true):
+				return
 			state = BattleState.DEFEAT
 			AudioManager.play_sfx("defeat")
 			InputManager.vibrate("game_over")
@@ -1335,6 +1618,8 @@ func _check_player_defeated() -> void:
 			battle_ended.emit(BattleState.DEFEAT)
 			_cleanup()
 			return
+
+	_try_last_stand_resonance(false)
 
 	# 스턴 체크: 플레이어 턴 스킵
 	if _player_stunned:
@@ -1353,6 +1638,32 @@ func _check_player_defeated() -> void:
 	# 다시 플레이어 턴
 	state = BattleState.PLAYER_TURN
 	player_turn_started.emit()
+
+func _try_last_stand_resonance(lethal: bool) -> bool:
+	if _last_stand_triggered_this_battle:
+		return false
+	var max_hp: int = maxi(int(GameManager.player_data.get("max_hp", 100)), 1)
+	var hp: int = int(GameManager.player_data.get("hp", 0))
+	var low_hp := float(hp) / float(max_hp) <= 0.25
+	if not lethal and not low_hp:
+		return false
+
+	_last_stand_triggered_this_battle = true
+	if hp <= 0:
+		GameManager.player_data.hp = 1
+	player_defending = true
+	_add_limit(22.0)
+	_add_momentum(16.0, "Last Stand")
+	last_stand_resonance.emit(lethal)
+	battle_log.emit("[LAST STAND] Arrel refuses to vanish. HP holds at %d, next blow guarded." % int(GameManager.player_data.hp))
+	if has_node("/root/NotificationToast"):
+		NotificationToast.show_toast("Last Stand Resonance", NotificationToast.ToastType.WARNING)
+	if AchievementManager:
+		AchievementManager.unlock("survivor")
+	if lethal:
+		state = BattleState.PLAYER_TURN
+		player_turn_started.emit()
+	return true
 
 func _check_enemy_defeated() -> void:
 	if current_enemy and not current_enemy.is_alive():
@@ -1373,6 +1684,17 @@ func _end_player_turn() -> void:
 	# S51: 턴 카운터 + 수정자 처리
 	_total_turns += 1
 	_process_modifier_effects()
+	if state == BattleState.DEFEAT or state == BattleState.VICTORY or state == BattleState.FLED:
+		return
+	if GameManager.player_data.hp <= 0:
+		_check_player_defeated()
+		return
+	if current_enemy and not current_enemy.is_alive():
+		state = BattleState.VICTORY
+		battle_log.emit("%s is defeated!" % current_enemy.name)
+		battle_ended.emit(BattleState.VICTORY)
+		_cleanup()
+		return
 	# Memory Echo 턴 처리 (힐 틱 등)
 	_process_echoes_turn()
 	# S46: 세이블 행동 — Sable Shadow 에코 시 100%, 아니면 40%/명령
@@ -1426,6 +1748,9 @@ func set_ally_command(command: String) -> void:
 
 ## 세이블 지원 행동 (S46: 명령 지정 가능)
 func _sable_support_action(forced_action: String = "") -> void:
+	_ally_actions_this_battle += 1
+	_add_momentum(4.0, "Sable support")
+	_check_tactical_objective("ally")
 	var actions = ["heal", "strike", "weaken"]
 	var action = forced_action if forced_action != "" else actions[randi_range(0, actions.size() - 1)]
 	match action:
@@ -1458,6 +1783,9 @@ func set_tobias_command(command: String) -> void:
 
 ## 토비아스 지원 행동 (S53: 분석/기록/방어)
 func _tobias_support_action(forced_action: String = "") -> void:
+	_ally_actions_this_battle += 1
+	_add_momentum(4.0, "Tobias support")
+	_check_tactical_objective("ally")
 	var actions = ["analyze", "archive", "protect"]
 	var action = forced_action if forced_action != "" else actions[randi_range(0, actions.size() - 1)]
 	match action:
@@ -1472,6 +1800,7 @@ func _tobias_support_action(forced_action: String = "") -> void:
 				if current_enemy.name not in scanned_enemies:
 					scanned_enemies.append(current_enemy.name)
 				enemy_scanned.emit(current_enemy.name, weakness_text, resist_text)
+				_add_momentum(8.0, "Enemy analyzed")
 				_check_tactical_objective("scan")
 				# Record scan data permanently in Codex bestiary
 				if Codex.enemy_entries.has(current_enemy.name):
@@ -1522,6 +1851,9 @@ func _process_modifier_effects() -> void:
 		"turn_limit":
 			if _total_turns >= value:
 				battle_log.emit("[CORRUPTION] The Watcher's patience ends. You are recalled.")
+				if _try_last_stand_resonance(true):
+					_total_turns = 0
+					return
 				state = BattleState.DEFEAT
 				battle_ended.emit(BattleState.DEFEAT)
 				_cleanup()
@@ -1579,6 +1911,8 @@ func _apply_memory_echo(memory: MemoryManager.Memory) -> void:
 			echo["turns"] = 2
 			battle_log.emit("[ECHO] Total Erasure — next 2 attacks deal double damage!")
 	active_echoes.append(echo)
+	_echoes_activated_this_battle += 1
+	_check_tactical_objective("echo")
 	echo_activated.emit(echo["type"], "")
 
 func _process_echoes_turn() -> void:
@@ -1623,8 +1957,11 @@ func switch_stance(new_stance: Stance) -> void:
 	if new_stance == current_stance:
 		return
 	current_stance = new_stance
+	_stance_switches_this_battle += 1
 	stance_changed.emit(new_stance)
 	battle_log.emit("Switched to %s stance." % info["name"])
+	_add_momentum(7.0, "%s stance" % info["name"])
+	_check_tactical_objective("stance")
 
 func get_stance_atk_mult() -> float:
 	return STANCE_INFO[current_stance]["atk_mult"]
@@ -1651,7 +1988,15 @@ func _cleanup() -> void:
 		var tactical_bonus: int = _get_tactical_bonus()
 		var objective_reward := _finalize_tactical_objective()
 		var objective_bonus: int = int(objective_reward.get("grains", 0))
-		grains += tactical_bonus + objective_bonus
+		var objective_heal: int = int(objective_reward.get("heal", 0))
+		if objective_heal > 0:
+			var actual_objective_heal: int = mini(objective_heal, GameManager.player_data.max_hp - GameManager.player_data.hp)
+			GameManager.player_data.hp += actual_objective_heal
+			heal += actual_objective_heal
+			battle_log.emit("[OBJECTIVE BONUS] Restored %d extra HP." % actual_objective_heal)
+			damage_dealt.emit("Arrel", -actual_objective_heal, "Objective Heal")
+		var momentum_bonus: int = _get_momentum_grains_bonus()
+		grains += tactical_bonus + objective_bonus + momentum_bonus
 		GameManager.player_data.grains += grains
 		GameManager.add_stat("total_grains_earned", grains)  # S55
 		battle_log.emit("Gained %d Grains." % grains)
@@ -1659,6 +2004,8 @@ func _cleanup() -> void:
 			battle_log.emit("[CODEX BONUS] Tactical record +%d Grains." % tactical_bonus)
 		if objective_bonus > 0:
 			battle_log.emit("[OBJECTIVE BONUS] %s +%d Grains." % [objective_reward.get("title", "Objective"), objective_bonus])
+		if momentum_bonus > 0:
+			battle_log.emit("[RESONANCE BONUS] %s +%d Grains." % [_get_momentum_label(), momentum_bonus])
 		NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
 		AchievementManager.check_grains()
 
@@ -1672,6 +2019,10 @@ func _cleanup() -> void:
 			"objective_bonus": objective_bonus,
 			"objective_title": objective_reward.get("title", ""),
 			"objective_item": objective_reward.get("item", ""),
+			"objective_heal": objective_heal,
+			"momentum_bonus": momentum_bonus,
+			"momentum_rank": _best_momentum_rank,
+			"momentum_label": _get_momentum_label(_best_momentum_rank),
 			"heal": heal,
 			"item": dropped_item,
 			"enemy_name": current_enemy.name if current_enemy else "Unknown",
@@ -1847,6 +2198,10 @@ func player_limit_break() -> void:
 		battle_log.emit("Limit gauge not full yet.")
 		return
 
+	_player_actions_this_battle += 1
+	_limit_breaks_this_battle += 1
+	_check_tactical_objective("action")
+	_check_tactical_objective("limit")
 	_reset_combo("limit")
 	limit_gauge = 0.0
 	limit_changed.emit(0.0)
@@ -1865,6 +2220,7 @@ func player_limit_break() -> void:
 		dmg = maxi(1, int(dmg * 0.5))
 		enemy_shielded = false
 		battle_log.emit("The barrier cracks under the weight!")
+	dmg = _apply_momentum_damage_bonus(dmg)
 
 	var actual = current_enemy.take_damage(dmg)
 	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
@@ -1873,6 +2229,7 @@ func player_limit_break() -> void:
 	battle_log.emit("All remembered pain converges — %d damage!" % actual)
 	_log_element_effect("void")
 	damage_dealt.emit(current_enemy.name, actual, "Memory Cascade")
+	_add_momentum(15.0, "Limit released")
 
 	# 적에게 약화 부여
 	apply_status("enemy", StatusEffect.WEAKEN, 2, 25)
@@ -1891,6 +2248,8 @@ func player_burn_residue(memory_id: String) -> void:
 		battle_log.emit("That residue is too faint to use.")
 		return
 
+	_player_actions_this_battle += 1
+	_check_tactical_objective("action")
 	_reset_combo("burn")
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
@@ -1904,6 +2263,7 @@ func player_burn_residue(memory_id: String) -> void:
 		dmg = maxi(1, int(dmg * 0.7))
 		enemy_shielded = false
 		battle_log.emit("The barrier weakens the residue flames!")
+	dmg = _apply_momentum_damage_bonus(dmg)
 	var actual = current_enemy.take_damage(dmg)
 
 	battle_log.emit("[RESIDUE] %s — a faded echo of %s" % [skill.name, memory.title])
@@ -1911,6 +2271,7 @@ func player_burn_residue(memory_id: String) -> void:
 	_log_element_effect(burn_element)
 	damage_dealt.emit(current_enemy.name, actual, "Residue: " + skill.name)
 	_add_limit(LIMIT_GAIN_BURN * 0.5)
+	_add_momentum(6.0, "Residue burn")
 
 	_check_enemy_defeated()
 

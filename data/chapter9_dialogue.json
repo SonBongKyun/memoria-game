@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray — the concept of color simply withdrew.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/story_ch9_colorless_compass.png"
       },
       {
         "speaker": "Tobias",
@@ -42,7 +42,8 @@
     "compass_discovery": [
       {
         "speaker": "",
-        "text": "Something pulled at Arrel's chest. Not pain — direction. Like a compass needle that had replaced his sternum."
+        "text": "Something pulled at Arrel's chest. Not pain — direction. Like a compass needle that had replaced his sternum.",
+        "cg": "res://assets/cg/generated/story_ch9_colorless_compass.png"
       },
       {
         "speaker": "Arrel",

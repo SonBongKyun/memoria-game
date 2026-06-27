@@ -354,17 +354,17 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 
 static func _get_chapter_art_path(chapter_num: int) -> String:
 	var art_map := {
-		1: "res://assets/cg/game_image/chapter_sealed_zone.png",
-		2: "res://assets/cg/game_image/env_bureau_spires.png",
-		3: "res://assets/cg/game_image/env_wasteland_city.png",
-		4: "res://assets/cg/game_image/env_frozen_archive.png",
-		5: "res://assets/cg/game_image/sealed_gate_plaza.png",
-		6: "res://assets/cg/game_image/env_memory_hall.png",
-		7: "res://assets/cg/game_image/env_void_cathedral.png",
-		8: "res://assets/cg/game_image/env_memory_hall.png",
-		9: "res://assets/cg/game_image/kairos_sealed_city.png",
-		10: "res://assets/cg/game_image/nera_void_cavern.png",
-		11: "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+		1: "res://assets/cg/generated/chapter_splash_rim_forest.png",
+		2: "res://assets/cg/generated/chapter_splash_verdan_market.png",
+		3: "res://assets/cg/generated/chapter_splash_belt_waystation.png",
+		4: "res://assets/cg/generated/chapter_splash_drift_shelter.png",
+		5: "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
+		6: "res://assets/cg/generated/chapter_splash_the_seam.png",
+		7: "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+		8: "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
+		9: "res://assets/cg/generated/memory_compass_resonance_cinematic.png",
+		10: "res://assets/cg/generated/chapter_splash_bl07_void.png",
+		11: "res://assets/cg/generated/world_rewrite_elia_anchor.png",
 	}
 	return art_map.get(chapter_num, "")
 
@@ -1919,12 +1919,13 @@ static func add_depth_gradient(map: Node2D, intensity: float = 0.08) -> CanvasLa
 	return layer
 
 ## Curated CG plates as subtle in-map atmosphere.
-static func add_illustration_atmosphere(parent: Node, texture_path: String, alpha: float = 0.12, tint: Color = Color(1, 1, 1, 1), layer_index: int = 1) -> CanvasLayer:
+## S133: Never draw these above gameplay. They are background mood only.
+static func add_illustration_atmosphere(parent: Node, texture_path: String, alpha: float = 0.12, tint: Color = Color(1, 1, 1, 1), layer_index: int = -20) -> CanvasLayer:
 	if texture_path == "" or not ResourceLoader.exists(texture_path):
 		return null
 
 	var layer = CanvasLayer.new()
-	layer.layer = layer_index
+	layer.layer = mini(layer_index, -20)
 	layer.follow_viewport_enabled = false
 
 	var plate = TextureRect.new()
@@ -1933,7 +1934,8 @@ static func add_illustration_atmosphere(parent: Node, texture_path: String, alph
 	plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	plate.texture = load(texture_path)
 	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	plate.modulate = Color(tint.r, tint.g, tint.b, alpha)
+	var safe_alpha := clampf(alpha * 0.45, 0.015, 0.055)
+	plate.modulate = Color(tint.r, tint.g, tint.b, safe_alpha)
 	layer.add_child(plate)
 
 	var detail_plate = TextureRect.new()
@@ -1947,32 +1949,17 @@ static func add_illustration_atmosphere(parent: Node, texture_path: String, alph
 	detail_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	detail_plate.texture = load(texture_path)
 	detail_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	detail_plate.modulate = Color(tint.r, tint.g, tint.b, clampf(alpha * 1.15, 0.07, 0.18))
+	detail_plate.modulate = Color(tint.r, tint.g, tint.b, clampf(alpha * 0.35, 0.012, 0.05))
 	layer.add_child(detail_plate)
-
-	var shade = ColorRect.new()
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shade.color = Color(0.0, 0.0, 0.0, clampf(alpha * 0.45, 0.025, 0.1))
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(shade)
-
-	var lower_readability = ColorRect.new()
-	lower_readability.anchor_left = 0.0
-	lower_readability.anchor_right = 1.0
-	lower_readability.anchor_top = 0.58
-	lower_readability.anchor_bottom = 1.0
-	lower_readability.color = Color(0.0, 0.0, 0.0, clampf(alpha * 0.85, 0.05, 0.16))
-	lower_readability.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(lower_readability)
 
 	parent.add_child(layer)
 
 	var tw = plate.create_tween().set_loops()
-	tw.tween_property(plate, "modulate:a", alpha * 0.68, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(plate, "modulate:a", alpha, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(plate, "modulate:a", safe_alpha * 0.65, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(plate, "modulate:a", safe_alpha, 5.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	var detail_tw = detail_plate.create_tween().set_loops()
-	detail_tw.tween_property(detail_plate, "modulate:a", clampf(alpha * 1.38, 0.09, 0.22), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	detail_tw.tween_property(detail_plate, "modulate:a", clampf(alpha * 0.78, 0.05, 0.14), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	detail_tw.tween_property(detail_plate, "modulate:a", clampf(safe_alpha * 1.15, 0.012, 0.06), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	detail_tw.tween_property(detail_plate, "modulate:a", clampf(safe_alpha * 0.7, 0.01, 0.045), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	return layer
 
 ## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)

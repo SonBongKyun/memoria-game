@@ -6,6 +6,7 @@ extends CanvasLayer
 var is_open: bool = false
 
 # ── UI 노드 ──
+var backdrop: TextureRect
 var overlay: ColorRect
 var main_panel: PanelContainer
 var tab_events: Button
@@ -22,6 +23,7 @@ var close_hint: Label
 var journal_summary_label: Label
 
 var _current_tab: String = "events"
+const JOURNAL_BACKDROP_PATH: String = "res://assets/cg/generated/ui_story_journal_backdrop.png"
 
 # ── 저널 엔트리 ──
 # 자동으로 story_flags 기반으로 생성
@@ -122,9 +124,19 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	backdrop = TextureRect.new()
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.modulate = Color(0.86, 0.78, 0.70, 0.94)
+	if ResourceLoader.exists(JOURNAL_BACKDROP_PATH):
+		backdrop.texture = load(JOURNAL_BACKDROP_PATH)
+	root.add_child(backdrop)
+
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = UITheme.BG_OVERLAY
+	overlay.color = Color(0.010, 0.010, 0.015, 0.66)
 	root.add_child(overlay)
 
 	main_panel = PanelContainer.new()
@@ -133,8 +145,8 @@ func _build_ui() -> void:
 	main_panel.anchor_top = 0.04
 	main_panel.anchor_bottom = 0.96
 	main_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.07, 0.06, 0.05, 0.95),
-		Color(0.4, 0.32, 0.22, 0.7),
+		Color(0.050, 0.042, 0.038, 0.90),
+		Color(0.62, 0.45, 0.24, 0.72),
 		2, 6, 16
 	))
 	root.add_child(main_panel)
@@ -448,9 +460,13 @@ func _add_list_button(text: String, color: Color, title: String, desc: String, a
 	item_list.add_child(btn)
 
 func _show_ui() -> void:
+	if backdrop:
+		backdrop.visible = true
 	overlay.visible = true
 	main_panel.visible = true
 
 func _hide_ui() -> void:
+	if backdrop:
+		backdrop.visible = false
 	overlay.visible = false
 	main_panel.visible = false

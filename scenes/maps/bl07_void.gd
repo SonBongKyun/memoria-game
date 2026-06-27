@@ -61,11 +61,11 @@ var _camera: Camera2D = null  # S52
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.6)  # 보이드: 강한 비네트
+	MapEffects.add_vignette(self, 0.46)  # 보이드: 강한 분위기는 유지하되 중심 시야 확보
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.01, 0.01, 0.03), "far": Color(0.05, 0.02, 0.08), "mid": Color(0.08, 0.04, 0.12), "biome": "void", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.3, 0.25, 0.4))
+	MapEffects.add_ambient_lighting(self, Color(0.38, 0.32, 0.48))
 	# 코어와 파편에 보이드 라이트
 	for y in range(MAP_HEIGHT):
 		for x in range(MAP_WIDTH):
@@ -78,7 +78,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CRACK])
 	MapEffects.add_color_grading(self, {"tint": Color(0.2, 0.1, 0.35), "brightness": -0.1})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_void_cathedral.png", 0.16, Color(0.72, 0.62, 0.95))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_bl07_void.png", 0.08, Color(0.76, 0.66, 0.98))
 	_s52_particles = MapEffects.add_void_tendrils(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.6)
 	MapEffects.add_drop_shadow(player)
@@ -90,7 +90,7 @@ func _ready() -> void:
 	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	# S59: 보이드 깊이 그라디언트 (바람/안개 없음 — 이미 heavy_fog 존재)
 	MapEffects.add_depth_gradient(self, 0.1)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.42, 0.24, 0.72, 1.0), "vignette": 0.62, "tint_strength": 0.12, "grain": 0.032, "shafts": 0.10, "glints": 2})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.46, 0.28, 0.76, 1.0), "vignette": 0.48, "tint_strength": 0.10, "grain": 0.03, "shafts": 0.09, "glints": 2})
 	_setup_random_encounters()
 	_setup_interactive_objects()
 	_setup_exploration_events()
@@ -351,7 +351,7 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 				enemy.abilities = ["drain", "multi_hit"]
 				enemy.weakness = "fire"
 				enemy.resistance = "void"
-			BattleManager.start_battle(enemy, "res://scenes/maps/bl07_void.tscn", "res://assets/cg/game_image/nera_void_cavern.png", "res://assets/cg/game_image/void_beast_confrontation.png")
+			BattleManager.start_battle(enemy, "res://scenes/maps/bl07_void.tscn", "res://assets/cg/generated/chapter_splash_bl07_void.png", "res://assets/cg/game_image/void_beast_confrontation.png")
 			SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 	)
 	add_child(area)
@@ -362,9 +362,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Void Fragment", "hp": 75, "atk": 16, "is_void": true, "abilities": ["burn_attack"], "bg": "res://assets/cg/game_image/nera_void_cavern.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/game_image/nera_void_cavern.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Null Wisp", "hp": 60, "atk": 22, "is_void": true, "abilities": ["poison", "burn_attack"], "bg": "res://assets/cg/game_image/nera_void_cavern.png"},
+			{"name": "Void Fragment", "hp": 75, "atk": 16, "is_void": true, "abilities": ["burn_attack"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Null Wisp", "hp": 60, "atk": 22, "is_void": true, "abilities": ["poison", "burn_attack"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png"},
 		],
 		"res://scenes/maps/bl07_void.tscn", "", "", 30, 55
 	)

@@ -83,21 +83,34 @@ func _show_next_line() -> void:
 
 	# 선택지인 경우
 	if line.has("choices"):
-		dialogue_choice.emit(line.choices)
+		dialogue_choice.emit(_localized_choices(line.choices))
 		return
 
 	# 일반 대사
 	var speaker = line.get("speaker", "")
-	var text = line.get("text", "")
+	var text = GameManager.localized_value(line, "text", "")
 	var portrait = line.get("portrait", "")
 
 	# 기억 연소 여부에 따른 대사 변화
 	if line.has("requires_memory"):
 		if MemoryManager.is_memory_burned(line.requires_memory):
-			text = line.get("burned_text", text)
+			text = GameManager.localized_value(line, "burned_text", text)
 			portrait = line.get("burned_portrait", portrait)
 
 	dialogue_line.emit(speaker, text, portrait)
+
+func _localized_choices(choices: Array) -> Array:
+	var localized: Array = []
+	for choice in choices:
+		if choice is Dictionary:
+			var copy: Dictionary = choice.duplicate(true)
+			copy["text"] = GameManager.localized_value(copy, "text", String(copy.get("text", "...")))
+			if copy.has("effect"):
+				copy["effect"] = GameManager.localized_value(copy, "effect", String(copy.effect))
+			localized.append(copy)
+		else:
+			localized.append(choice)
+	return localized
 
 ## 선택지 결과 처리
 func select_choice(choice_index: int) -> void:

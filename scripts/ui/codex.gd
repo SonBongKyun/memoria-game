@@ -5,6 +5,7 @@
 extends CanvasLayer
 
 const SAVE_PATH: String = "user://codex.json"
+const CODEX_BACKDROP_PATH: String = "res://assets/cg/generated/ui_codex_archive_backdrop.png"
 
 var is_open: bool = false
 
@@ -13,6 +14,7 @@ var enemy_entries: Dictionary = {}   # {enemy_name: {encounters: N, defeated: N,
 var memory_entries: Dictionary = {}  # {memory_id: {title, desc, grade, burned: bool}}
 
 # ── UI 노드 ──
+var backdrop: TextureRect
 var overlay: ColorRect
 var main_panel: PanelContainer
 var tab_bestiary: Button
@@ -22,6 +24,7 @@ var item_list: VBoxContainer
 var detail_title: Label
 var detail_body: RichTextLabel
 var close_hint: Label
+var archive_status: Label
 var _current_tab: String = "bestiary"
 
 # S59: Animated reveal tracking
@@ -105,10 +108,20 @@ func close() -> void:
 	codex_closed.emit()
 
 func _show_ui() -> void:
+	backdrop.visible = true
 	overlay.visible = true
 	main_panel.visible = true
+	main_panel.modulate.a = 0.0
+	var resting_y := main_panel.position.y
+	main_panel.position.y += 14.0
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(main_panel, "modulate:a", 1.0, 0.24).set_ease(Tween.EASE_OUT)
+	tween.tween_property(main_panel, "position:y", resting_y, 0.32).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	tween.tween_property(backdrop, "modulate:a", 1.0, 0.35).from(0.0)
 
 func _hide_ui() -> void:
+	if backdrop:
+		backdrop.visible = false
 	if overlay:
 		overlay.visible = false
 	if main_panel:
@@ -122,9 +135,18 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	backdrop = TextureRect.new()
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(CODEX_BACKDROP_PATH):
+		backdrop.texture = load(CODEX_BACKDROP_PATH)
+	root.add_child(backdrop)
+
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0, 0, 0, 0.65)
+	overlay.color = Color(0.015, 0.012, 0.025, 0.46)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(overlay)
 
@@ -134,7 +156,7 @@ func _build_ui() -> void:
 	main_panel.anchor_top = 0.05
 	main_panel.anchor_bottom = 0.95
 	main_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.06, 0.05, 0.08, 0.96), Color(0.45, 0.35, 0.2, 0.7), 2, 6, 16
+		Color(0.035, 0.03, 0.05, 0.82), Color(0.5, 0.38, 0.22, 0.78), 2, 6, 18
 	))
 	root.add_child(main_panel)
 
@@ -145,10 +167,24 @@ func _build_ui() -> void:
 	# 헤더
 	var header = Label.new()
 	header.text = "CODEX"
-	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_font_size_override("font_size", 24)
 	header.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UITheme.apply_title_font(header)
 	vbox.add_child(header)
+
+	var subtitle := Label.new()
+	subtitle.text = "조우한 존재와 잃어버린 기억의 기록" if GameManager.current_locale == "ko" else "Creatures encountered. Memories carried and spent."
+	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_color_override("font_color", Color(0.56, 0.52, 0.49))
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(subtitle)
+
+	archive_status = Label.new()
+	archive_status.add_theme_font_size_override("font_size", 11)
+	archive_status.add_theme_color_override("font_color", Color(0.55, 0.62, 0.72))
+	archive_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(archive_status)
 
 	# 탭 행
 	var tab_row = HBoxContainer.new()
@@ -241,6 +277,8 @@ func _make_tab_btn(text: String, tab_id: String) -> Button:
 ## ===================== 리스트 갱신 =====================
 
 func _refresh_list() -> void:
+	if archive_status:
+		archive_status.text = ("생물 기록 %d  ·  기억 기록 %d" if GameManager.current_locale == "ko" else "CREATURE RECORDS %d  ·  MEMORY RECORDS %d") % [enemy_entries.size(), memory_entries.size()]
 	# 탭 활성 스타일
 	_style_tab(tab_bestiary, _current_tab == "bestiary")
 	_style_tab(tab_memories, _current_tab == "memories")

@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_belt_waystation.png"
       },
       {
         "speaker": "",
@@ -100,7 +100,8 @@
     "blank_book_discovery": [
       {
         "speaker": "",
-        "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges."
+        "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges.",
+        "cg": "res://assets/cg/generated/story_ch3_waystation_blank_book.png"
       },
       {
         "speaker": "Arrel",

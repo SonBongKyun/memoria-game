@@ -47,22 +47,22 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self)
+	MapEffects.add_vignette(self, 0.36)
 	MapEffects.add_burn_desaturation(self)
 	# 완전 탈색 — 무색 황무지
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.12), "far": Color(0.15, 0.15, 0.15), "mid": Color(0.18, 0.18, 0.18), "biome": "waste", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.35, 0.35, 0.35))
+	MapEffects.add_ambient_lighting(self, Color(0.44, 0.44, 0.45))
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.3, 0.3, 0.3, 0.08), 30)
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.35, 0.35), "brightness": -0.05})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/kairos_sealed_city.png", 0.13, Color(0.82, 0.82, 0.88))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/kairos_sealed_city.png", 0.10, Color(0.86, 0.86, 0.92))
 	_s52_particles = MapEffects.add_pollen_particles(self, 20, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.35, 0.35, 0.35, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S59: 무색 안개 (바람 없음) + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.7, Color(0.3, 0.3, 0.3, 0.06), 0.8)
 	MapEffects.add_depth_gradient(self, 0.07)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.64, 0.64, 0.68, 1.0), "vignette": 0.54, "tint_strength": 0.06, "grain": 0.035, "shafts": 0.04, "glints": 1})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.66, 0.66, 0.70, 1.0), "vignette": 0.38, "tint_strength": 0.045, "grain": 0.03, "shafts": 0.035, "glints": 1})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -146,8 +146,8 @@ func _on_kairos_truth_ended() -> void:
 		BattleManager.battle_ended.connect(_on_kairos_battle_ended, CONNECT_ONE_SHOT)
 		SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
-func _on_kairos_battle_ended(victory: bool) -> void:
-	if victory:
+func _on_kairos_battle_ended(result: BattleManager.BattleState) -> void:
+	if result == BattleManager.BattleState.VICTORY:
 		await get_tree().create_timer(1.0).timeout
 		DialogueManager.load_and_start(DIALOGUE_FILE, "kairos_defeated")
 

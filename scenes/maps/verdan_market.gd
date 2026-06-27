@@ -60,12 +60,12 @@ var _fog_layer: Array[ColorRect] = []  # S59: 프로시저럴 안개
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self)
+	MapEffects.add_vignette(self, 0.30)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_heat_haze(self, 0.0015)  # S46: 시장 훈기
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.1, 0.08, 0.12), "far": Color(0.15, 0.12, 0.1), "mid": Color(0.2, 0.16, 0.14), "biome": "market", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.5, 0.45, 0.4))
+	MapEffects.add_ambient_lighting(self, Color(0.58, 0.52, 0.46))
 	# 노점에 따뜻한 라이트
 	for y in range(MAP_HEIGHT):
 		for x in range(MAP_WIDTH):
@@ -75,7 +75,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL])
 	MapEffects.add_color_grading(self, {"tint": Color(0.5, 0.35, 0.2), "brightness": 0.0})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_bureau_spires.png", 0.14, Color(1.0, 0.82, 0.58))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_bureau_spires.png", 0.11, Color(1.0, 0.84, 0.62))
 	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.5, 0.45, 0.35, 0.15))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
@@ -96,7 +96,7 @@ func _ready() -> void:
 	# S59: 분위기 강화 — 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.35, 0.3, 0.28, 0.04), 2.0)
 	MapEffects.add_depth_gradient(self, 0.06)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.88, 0.62, 0.32, 1.0), "vignette": 0.40, "tint_strength": 0.10, "shafts": 0.08, "glints": 3})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.90, 0.64, 0.34, 1.0), "vignette": 0.30, "tint_strength": 0.08, "shafts": 0.075, "glints": 3})
 	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)

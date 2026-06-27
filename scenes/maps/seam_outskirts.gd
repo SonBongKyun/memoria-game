@@ -47,21 +47,21 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self)
+	MapEffects.add_vignette(self, 0.40)
 	MapEffects.add_burn_desaturation(self)
 	MapEffects.add_parallax_background(self, {"sky": Color(0.1, 0.09, 0.12), "far": Color(0.12, 0.1, 0.14), "mid": Color(0.14, 0.12, 0.1), "biome": "void_edge", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.3, 0.28, 0.35))
+	MapEffects.add_ambient_lighting(self, Color(0.38, 0.34, 0.43))
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.4, 0.2, 0.5, 0.12), 25)
 	# S52: 그래픽 업그레이드
 	MapEffects.add_color_grading(self, {"tint": Color(0.25, 0.2, 0.4), "brightness": -0.05})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_void_cathedral.png", 0.14, Color(0.82, 0.7, 1.0))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_seam_outskirts.png", 0.08, Color(0.86, 0.74, 1.0))
 	_s52_particles = MapEffects.add_void_tendrils(self, 4, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.4)
 	MapEffects.add_drop_shadow(player)
 	# S59: 보이드 가장자리 짙은 안개 (바람 없음)
 	_fog_layer = MapEffects.add_fog_layer(self, 0.7, Color(0.2, 0.15, 0.3, 0.07), 1.0)
 	MapEffects.add_depth_gradient(self, 0.08)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.48, 0.88, 1.0), "vignette": 0.52, "tint_strength": 0.11, "shafts": 0.08, "glints": 2})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.66, 0.52, 0.90, 1.0), "vignette": 0.40, "tint_strength": 0.09, "shafts": 0.075, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()
@@ -133,8 +133,8 @@ func _on_trial_dialogue_ended() -> void:
 	BattleManager.battle_ended.connect(_on_trial_battle_ended, CONNECT_ONE_SHOT)
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
-func _on_trial_battle_ended(victory: bool) -> void:
-	if victory:
+func _on_trial_battle_ended(result: BattleManager.BattleState) -> void:
+	if result == BattleManager.BattleState.VICTORY:
 		await get_tree().create_timer(1.0).timeout
 		GameManager.set_flag("ch7_trial_complete")
 		DialogueManager.dialogue_ended.connect(_on_trial_complete_ended, CONNECT_ONE_SHOT)

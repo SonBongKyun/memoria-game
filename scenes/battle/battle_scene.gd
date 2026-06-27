@@ -15,6 +15,7 @@ var enemy_break_label: Label
 var player_hp_bar: ProgressBar
 var player_hp_label: Label
 var log_label: RichTextLabel
+var action_ribbon_art: TextureRect
 var action_container: HBoxContainer
 var burn_list_container: VBoxContainer
 var item_list_container: VBoxContainer
@@ -23,6 +24,19 @@ var enemy_sprite_container: Control  # 적 아이들 모션용 컨테이너
 
 var log_lines: Array = []
 const MAX_LOG_LINES: int = 6
+const UI_COMMAND_RIBBON_PATH: String = "res://assets/cg/generated/ui_battle_command_ribbon.png"
+const UI_TACTICAL_PLATE_PATH: String = "res://assets/cg/generated/ui_battle_tactical_plate.png"
+const UI_VICTORY_PANEL_PATH: String = "res://assets/cg/generated/ui_battle_victory_reward_panel.png"
+const UI_BURN_PREVIEW_PANEL_PATH: String = "res://assets/cg/generated/ui_burn_preview_ritual_panel.png"
+const LAST_STAND_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_last_stand_resonance.png"
+const MEMORY_BURN_CUTIN_PATHS: Dictionary = {
+	"identity_first_sword": "res://assets/cg/generated/memory_burn_first_sword.png",
+	"daily_campfire_song": "res://assets/cg/generated/memory_burn_elia_song.png",
+	"rel_hand_reaching": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+	"core_name_origin": "res://assets/cg/generated/memory_burn_arrel_name.png",
+	"identity_compass": "res://assets/cg/generated/memory_burn_compass.png",
+	"identity_void_walker": "res://assets/cg/generated/memory_burn_void_walker.png",
+}
 var hp_tween_player: Tween
 var hp_tween_enemy: Tween
 var canvas_root: Control  # 전투 UI 루트 (셰이크용)
@@ -85,8 +99,10 @@ var tobias_cmd_container: HBoxContainer  # 토비아스 명령 UI
 var scan_info_container: HBoxContainer  # 스캔 약점/저항 표시 (적 HP 아래)
 var env_label: Label  # 환경 보너스 표시
 var objective_panel: PanelContainer
+var objective_art: TextureRect
 var objective_title_label: Label
 var objective_desc_label: Label
+var objective_meta_label: Label
 
 # S55: Auto Battle
 var auto_label: Label  # [AUTO] 표시
@@ -101,6 +117,7 @@ var _combo_display_label: Label
 
 # S58: Burn Preview Popup — risk/reward decision UI
 var _burn_preview_panel: PanelContainer
+var _burn_preview_art: TextureRect
 var _burn_preview_dimmer: ColorRect
 var _burn_preview_confirm_btn: Button
 var _burn_preview_cancel_btn: Button
@@ -109,6 +126,7 @@ var _pending_burn_id: String = ""  # memory ID waiting for confirmation
 
 # S54: Victory screen
 var _victory_panel: PanelContainer
+var _victory_art: TextureRect
 var _victory_rewards: Array = []  # collected reward lines from battle_log
 
 func _ready() -> void:
@@ -121,6 +139,10 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_idle_time += delta
+	if action_ribbon_art and action_container:
+		action_ribbon_art.visible = action_container.visible
+		if action_ribbon_art.visible:
+			action_ribbon_art.modulate.a = 0.74 + sin(_idle_time * 1.35) * 0.035
 	# 적 아이들 모션 (호흡 — 상하 + 미세 스케일)
 	if enemy_sprite_container and enemy_sprite_container.visible:
 		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
@@ -148,16 +170,16 @@ func _resolve_battle_bg_image() -> String:
 
 	var scene := BattleManager.return_scene
 	var scene_bg_map := {
-		"rim_forest": "res://assets/cg/game_image/chapter_sealed_zone.png",
-		"verdan_market": "res://assets/cg/game_image/env_bureau_spires.png",
-		"belt_waystation": "res://assets/cg/game_image/env_wasteland_city.png",
-		"drift_shelter": "res://assets/cg/game_image/env_frozen_archive.png",
-		"crumbling_coast": "res://assets/cg/game_image/sealed_gate_plaza.png",
-		"the_seam": "res://assets/cg/game_image/tobias_memory_corridor.png",
-		"seam_outskirts": "res://assets/cg/game_image/env_void_cathedral.png",
-		"forgotten_forest": "res://assets/cg/game_image/env_memory_hall.png",
-		"colorless_waste": "res://assets/cg/game_image/kairos_sealed_city.png",
-		"bl07_void": "res://assets/cg/game_image/env_void_cathedral.png",
+		"rim_forest": "res://assets/cg/generated/chapter_splash_rim_forest.png",
+		"verdan_market": "res://assets/cg/generated/chapter_splash_verdan_market.png",
+		"belt_waystation": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
+		"drift_shelter": "res://assets/cg/generated/chapter_splash_drift_shelter.png",
+		"crumbling_coast": "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
+		"the_seam": "res://assets/cg/generated/chapter_splash_the_seam.png",
+		"seam_outskirts": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+		"forgotten_forest": "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
+		"colorless_waste": "res://assets/cg/generated/memory_compass_resonance_cinematic.png",
+		"bl07_void": "res://assets/cg/generated/chapter_splash_bl07_void.png",
 	}
 
 	for key in scene_bg_map.keys():
@@ -473,17 +495,41 @@ func _build_auto_label(root: Control) -> void:
 	auto_label.z_index = 90
 	root.add_child(auto_label)
 
+func _make_interface_texture(path: String, alpha: float = 1.0) -> TextureRect:
+	var art = TextureRect.new()
+	if ResourceLoader.exists(path):
+		art.texture = load(path)
+		art.visible = true
+	else:
+		art.visible = false
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_SCALE
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.modulate = Color(1.0, 0.94, 0.82, alpha)
+	return art
+
 func _build_tactical_objective_panel(root: Control) -> void:
 	objective_panel = PanelContainer.new()
 	objective_panel.anchor_left = 0.02
 	objective_panel.anchor_right = 0.36
 	objective_panel.anchor_top = 0.11
-	objective_panel.anchor_bottom = 0.23
+	objective_panel.anchor_bottom = 0.255
 	objective_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	objective_panel.z_index = 62
+	objective_art = _make_interface_texture(UI_TACTICAL_PLATE_PATH, 0.70)
+	objective_art.anchor_left = objective_panel.anchor_left
+	objective_art.anchor_right = objective_panel.anchor_right
+	objective_art.anchor_top = objective_panel.anchor_top
+	objective_art.anchor_bottom = objective_panel.anchor_bottom
+	objective_art.offset_left = -12
+	objective_art.offset_right = 12
+	objective_art.offset_top = -10
+	objective_art.offset_bottom = 10
+	objective_art.z_index = 61
+	root.add_child(objective_art)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.025, 0.020, 0.030, 0.82)
-	style.border_color = Color(0.72, 0.55, 0.25, 0.52)
+	style.bg_color = Color(0.020, 0.016, 0.026, 0.68)
+	style.border_color = Color(0.72, 0.55, 0.25, 0.42)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(10)
@@ -506,6 +552,12 @@ func _build_tactical_objective_panel(root: Control) -> void:
 	objective_desc_label.add_theme_font_size_override("font_size", 12)
 	objective_desc_label.add_theme_color_override("font_color", Color(0.84, 0.80, 0.70, 0.82))
 	box.add_child(objective_desc_label)
+
+	objective_meta_label = Label.new()
+	objective_meta_label.text = "Resonance: Cold 0%"
+	objective_meta_label.add_theme_font_size_override("font_size", 11)
+	objective_meta_label.add_theme_color_override("font_color", Color(0.58, 0.74, 0.92, 0.82))
+	box.add_child(objective_meta_label)
 
 func _on_auto_battle_changed(enabled: bool) -> void:
 	if auto_label:
@@ -1043,7 +1095,7 @@ func _build_battle_ground() -> void:
 
 ## S44: 플레이어 스프라이트 (왼쪽 — 사이드뷰)
 func _build_battle_stage_art(root: Control) -> void:
-	var left_path := "res://assets/cg/game_image/sheet_arrel_battle_ready.png"
+	var left_path := "res://assets/cg/generated/memory_burn_first_sword.png"
 	var right_path := _resolve_enemy_stage_art()
 
 	_battle_stage_left_wash = _make_stage_wash(true)
@@ -1129,7 +1181,7 @@ func _build_action_cutin(root: Control) -> void:
 	_action_cutin.visible = false
 	root.add_child(_action_cutin)
 
-func _play_action_cutin(path: String, from_left: bool = true, alpha: float = 0.72) -> void:
+func _play_action_cutin(path: String, from_left: bool = true, alpha: float = 0.72, hold_time: float = 0.16) -> void:
 	if path == "" or not ResourceLoader.exists(path) or _action_cutin == null:
 		return
 	if _action_cutin_tween:
@@ -1146,7 +1198,7 @@ func _play_action_cutin(path: String, from_left: bool = true, alpha: float = 0.7
 	_action_cutin_tween.tween_property(_action_cutin, "modulate:a", alpha, 0.12)
 	_action_cutin_tween.tween_property(_action_cutin, "position:x", 0.0, 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_action_cutin_tween.set_parallel(false)
-	_action_cutin_tween.tween_interval(0.16)
+	_action_cutin_tween.tween_interval(hold_time)
 	_action_cutin_tween.set_parallel(true)
 	_action_cutin_tween.tween_property(_action_cutin, "modulate:a", 0.0, 0.18)
 	_action_cutin_tween.tween_property(_action_cutin_wash, "color:a", 0.0, 0.20)
@@ -1157,6 +1209,37 @@ func _play_action_cutin(path: String, from_left: bool = true, alpha: float = 0.7
 		if is_instance_valid(_action_cutin_wash):
 			_action_cutin_wash.visible = false
 	)
+
+func _resolve_memory_burn_cutin(memory_id: String, memory_title: String) -> String:
+	var clean_id := memory_id.strip_edges()
+	if MEMORY_BURN_CUTIN_PATHS.has(clean_id):
+		var exact_path := String(MEMORY_BURN_CUTIN_PATHS[clean_id])
+		if ResourceLoader.exists(exact_path):
+			return exact_path
+
+	var lookup := ("%s %s" % [clean_id, memory_title]).to_lower()
+	var fallback_path := ""
+	if lookup.find("sword") >= 0:
+		fallback_path = "res://assets/cg/generated/memory_burn_first_sword.png"
+	elif lookup.find("song") >= 0 or lookup.find("campfire") >= 0:
+		fallback_path = "res://assets/cg/generated/memory_burn_elia_song.png"
+	elif lookup.find("hand") >= 0 or lookup.find("reach") >= 0:
+		fallback_path = "res://assets/cg/generated/memory_burn_reaching_hand.png"
+	elif lookup.find("name") >= 0 or lookup.find("arrel") >= 0 or lookup.find("origin") >= 0:
+		fallback_path = "res://assets/cg/generated/memory_burn_arrel_name.png"
+	elif lookup.find("compass") >= 0:
+		fallback_path = "res://assets/cg/generated/memory_burn_compass.png"
+	elif lookup.find("void") >= 0 or lookup.find("bl-07") >= 0 or lookup.find("bl07") >= 0:
+		fallback_path = "res://assets/cg/generated/memory_burn_void_walker.png"
+
+	if fallback_path != "" and ResourceLoader.exists(fallback_path):
+		return fallback_path
+	return ""
+
+func _play_memory_burn_cutin(cutin_path: String, memory_grade: int) -> void:
+	var cutin_alpha: float = clampf(0.80 + float(memory_grade) * 0.035, 0.80, 0.94)
+	_play_action_cutin(cutin_path, true, cutin_alpha, 0.46)
+	await get_tree().create_timer(0.78).timeout
 
 func _build_player_sprite(root: Control) -> void:
 	player_sprite_container = Control.new()
@@ -1423,6 +1506,14 @@ func _build_player_panel(root: Control) -> void:
 	vbox.add_child(player_hp_label)
 
 func _build_action_buttons(root: Control) -> void:
+	action_ribbon_art = _make_interface_texture(UI_COMMAND_RIBBON_PATH, 0.74)
+	action_ribbon_art.anchor_left = 0.055
+	action_ribbon_art.anchor_right = 0.945
+	action_ribbon_art.anchor_top = 0.825
+	action_ribbon_art.anchor_bottom = 0.955
+	action_ribbon_art.z_index = 37
+	root.add_child(action_ribbon_art)
+
 	action_container = HBoxContainer.new()
 	action_container.anchor_left = 0.1
 	action_container.anchor_right = 0.9
@@ -1431,6 +1522,7 @@ func _build_action_buttons(root: Control) -> void:
 	action_container.offset_bottom = 50
 	action_container.add_theme_constant_override("separation", 10)
 	action_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	action_container.z_index = 38
 	root.add_child(action_container)
 
 	var actions = [
@@ -1449,22 +1541,22 @@ func _build_action_buttons(root: Control) -> void:
 		btn.custom_minimum_size = Vector2(130, 44)
 
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.1, 0.08, 0.12, 0.92)
-		style.border_color = Color(0.35, 0.28, 0.22, 0.5)
+		style.bg_color = Color(0.055, 0.044, 0.070, 0.82)
+		style.border_color = Color(0.60, 0.45, 0.26, 0.42)
 		style.set_border_width_all(1)
 		style.set_corner_radius_all(4)
 		style.set_content_margin_all(8)
 		btn.add_theme_stylebox_override("normal", style)
 
 		var hover = style.duplicate()
-		hover.bg_color = Color(0.18, 0.14, 0.22, 0.95)
-		hover.border_color = Color(0.75, 0.55, 0.3, 0.8)
+		hover.bg_color = Color(0.18, 0.13, 0.20, 0.92)
+		hover.border_color = Color(0.95, 0.68, 0.34, 0.90)
 		hover.set_border_width_all(2)
 		btn.add_theme_stylebox_override("hover", hover)
 		btn.add_theme_stylebox_override("focus", hover)
 
 		var pressed_s = style.duplicate()
-		pressed_s.bg_color = Color(0.25, 0.18, 0.3, 1.0)
+		pressed_s.bg_color = Color(0.32, 0.20, 0.26, 0.98)
 		pressed_s.border_color = Color(0.9, 0.65, 0.35, 1.0)
 		btn.add_theme_stylebox_override("pressed", pressed_s)
 
@@ -1472,9 +1564,19 @@ func _build_action_buttons(root: Control) -> void:
 		btn.add_theme_color_override("font_color", Color(0.75, 0.7, 0.65))
 		btn.add_theme_color_override("font_hover_color", Color(0.95, 0.8, 0.5))
 		btn.add_theme_color_override("font_pressed_color", Color(1.0, 0.9, 0.6))
+		btn.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.72))
+		btn.add_theme_constant_override("outline_size", 1)
 
 		btn.pressed.connect(action.callback)
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		btn.mouse_entered.connect(func():
+			var tw = create_tween()
+			tw.tween_property(btn, "scale", Vector2(1.035, 1.035), 0.06).set_ease(Tween.EASE_OUT)
+		)
+		btn.mouse_exited.connect(func():
+			var tw = create_tween()
+			tw.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_OUT)
+		)
 		action_container.add_child(btn)
 
 func _build_burn_list(root: Control) -> void:
@@ -1527,11 +1629,14 @@ func _connect_signals() -> void:
 	BattleManager.victory_rewards_ready.connect(_on_victory_rewards_ready)  # S58: animated rewards
 	BattleManager.enemy_ability_telegraph.connect(_on_enemy_ability_telegraph)  # S59: ability warning
 	BattleManager.tactical_objective_changed.connect(_on_tactical_objective_changed)
+	BattleManager.momentum_changed.connect(_on_momentum_changed)
+	BattleManager.last_stand_resonance.connect(_on_last_stand_resonance)
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
 	if not BattleManager.tactical_objective.is_empty():
 		_on_tactical_objective_changed(BattleManager.tactical_objective)
+	_on_momentum_changed(BattleManager.momentum, BattleManager.momentum_rank, BattleManager._get_momentum_label())
 
 func _exit_tree() -> void:
 	# 오토로드 시그널 연결 해제 — 씬 재진입 시 freed 객체 참조 방지
@@ -1571,6 +1676,10 @@ func _exit_tree() -> void:
 		BattleManager.enemy_ability_telegraph.disconnect(_on_enemy_ability_telegraph)
 	if BattleManager.tactical_objective_changed.is_connected(_on_tactical_objective_changed):
 		BattleManager.tactical_objective_changed.disconnect(_on_tactical_objective_changed)
+	if BattleManager.momentum_changed.is_connected(_on_momentum_changed):
+		BattleManager.momentum_changed.disconnect(_on_momentum_changed)
+	if BattleManager.last_stand_resonance.is_connected(_on_last_stand_resonance):
+		BattleManager.last_stand_resonance.disconnect(_on_last_stand_resonance)
 	# S56: Cleanup battle VFX status particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
@@ -1713,6 +1822,34 @@ func _on_guard_focus(trigger: String, value: int) -> void:
 			shield.queue_free()
 	)
 
+func _on_last_stand_resonance(lethal: bool) -> void:
+	_update_status_icons()
+	_play_action_cutin(LAST_STAND_CUTIN_PATH, true, 0.94, 0.82 if lethal else 0.58)
+	_show_turn_indicator("— LAST STAND —", Color(0.62, 0.82, 1.0))
+	_screen_shake(3.2 if lethal else 2.1)
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("phase_change")
+		AudioManager.play_sfx("heal")
+	if hit_flash_rect:
+		hit_flash_rect.color = Color(0.34, 0.64, 1.0, 0.34)
+		var flash_t := create_tween()
+		flash_t.tween_property(hit_flash_rect, "color:a", 0.0, 0.38).set_trans(Tween.TRANS_SINE)
+	if player_sprite_container:
+		var shield = ColorRect.new()
+		shield.size = Vector2(190, 104)
+		shield.position = player_sprite_container.position + Vector2(-95, -96)
+		shield.color = Color(0.34, 0.66, 1.0, 0.16)
+		shield.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shield.z_index = 20
+		add_child(shield)
+		var tw := create_tween().set_parallel(true)
+		tw.tween_property(shield, "scale", Vector2(1.65, 1.65), 0.62).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tw.tween_property(shield, "modulate:a", 0.0, 0.72)
+		tw.finished.connect(func():
+			if is_instance_valid(shield):
+				shield.queue_free()
+		)
+
 func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	_update_hp_displays(true)
 
@@ -1789,7 +1926,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 ## Called BEFORE damage is dealt — BattleManager awaits timer in parallel
 func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
 	if attacker == "Arrel":
-		var cutin_path := "res://assets/cg/game_image/sheet_arrel_battle_ready.png"
+		var cutin_path := "res://assets/cg/generated/memory_burn_first_sword.png"
 		if skill_name != "" and skill_name != "Attack":
 			cutin_path = "res://assets/cg/game_image/memory_loss_warning.png"
 		_play_action_cutin(cutin_path, true, 0.70)
@@ -3506,28 +3643,106 @@ func _on_tactical_objective_changed(objective: Dictionary) -> void:
 	var status: String = objective.get("status", "active")
 	var title: String = objective.get("title", "Objective")
 	var desc: String = objective.get("desc", "")
-	objective_title_label.text = "OBJECTIVE - %s" % title.to_upper()
-	objective_desc_label.text = desc
+	var shown_title := _localized_objective_title(title)
+	objective_title_label.text = ("목표 - %s" % shown_title) if GameManager.current_locale == "ko" else "OBJECTIVE - %s" % title.to_upper()
+	objective_desc_label.text = _localized_objective_desc(desc)
 	var style = objective_panel.get_theme_stylebox("panel") as StyleBoxFlat
 	if style:
 		match status:
 			"complete":
 				style.border_color = Color(0.45, 0.95, 0.58, 0.82)
-				style.bg_color = Color(0.02, 0.09, 0.045, 0.86)
-				objective_desc_label.text = "Complete. Bonus secured."
+				style.bg_color = Color(0.018, 0.072, 0.038, 0.70)
+				objective_desc_label.text = "완료. 보너스 확보." if GameManager.current_locale == "ko" else "Complete. Bonus secured."
 				objective_desc_label.add_theme_color_override("font_color", Color(0.62, 1.0, 0.72, 0.92))
 			"failed":
 				style.border_color = Color(0.80, 0.28, 0.22, 0.76)
-				style.bg_color = Color(0.10, 0.025, 0.025, 0.84)
-				objective_desc_label.text = "Lost. Finish the fight."
+				style.bg_color = Color(0.078, 0.020, 0.022, 0.72)
+				objective_desc_label.text = "실패. 전투를 끝내야 합니다." if GameManager.current_locale == "ko" else "Lost. Finish the fight."
 				objective_desc_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.48, 0.88))
 			_:
 				style.border_color = Color(0.72, 0.55, 0.25, 0.52)
-				style.bg_color = Color(0.025, 0.020, 0.030, 0.82)
+				style.bg_color = Color(0.020, 0.016, 0.026, 0.68)
 				objective_desc_label.add_theme_color_override("font_color", Color(0.84, 0.80, 0.70, 0.82))
 	var tw = create_tween()
 	tw.tween_property(objective_panel, "scale", Vector2(1.03, 1.03), 0.08).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_property(objective_panel, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_CUBIC)
+
+func _on_momentum_changed(value: float, rank: int, label: String) -> void:
+	if objective_meta_label == null:
+		return
+	var meta_prefix := "공명" if GameManager.current_locale == "ko" else "Resonance"
+	objective_meta_label.text = "%s: %s %d%%" % [meta_prefix, label, int(value)]
+	var color := Color(0.58, 0.74, 0.92, 0.82)
+	match rank:
+		1:
+			color = Color(0.78, 0.70, 0.48, 0.90)
+		2:
+			color = Color(0.95, 0.66, 0.38, 0.94)
+		3:
+			color = Color(1.0, 0.47, 0.34, 0.98)
+		4:
+			color = Color(0.88, 0.92, 1.0, 1.0)
+	objective_meta_label.add_theme_color_override("font_color", color)
+	if rank >= 3:
+		var tw = create_tween()
+		tw.tween_property(objective_meta_label, "scale", Vector2(1.05, 1.05), 0.08)
+		tw.tween_property(objective_meta_label, "scale", Vector2(1.0, 1.0), 0.16)
+
+func _localized_objective_title(title: String) -> String:
+	if GameManager.current_locale != "ko":
+		return title
+	match title:
+		"Pressure Point":
+			return "압박 지점"
+		"Cascade Window":
+			return "연쇄 창"
+		"Clean Hands":
+			return "깨끗한 손"
+		"Before It Learns":
+			return "놈이 배우기 전에"
+		"Archivist's Eye":
+			return "기록자의 눈"
+		"Measured Assault":
+			return "계산된 공세"
+		"Resonance Climb":
+			return "공명 상승"
+		"Bare Hands":
+			return "빈손"
+		"Three Forms":
+			return "세 가지 형"
+		"Echo Weave":
+			return "메아리 직조"
+		"Shared Rhythm":
+			return "공유된 리듬"
+	return title
+
+func _localized_objective_desc(desc: String) -> String:
+	if GameManager.current_locale != "ko":
+		return desc
+	match desc:
+		"Trigger BREAK before victory.":
+			return "승리하기 전에 BREAK를 발생시키세요."
+		"Use Memory Cascade before victory.":
+			return "승리하기 전에 Memory Cascade를 사용하세요."
+		"Win without burning a memory.":
+			return "기억을 태우지 않고 승리하세요."
+		"Win within 4 player actions.":
+			return "플레이어 행동 4회 안에 승리하세요."
+		"Scan or analyze the enemy before victory.":
+			return "승리하기 전에 적을 스캔하거나 분석하세요."
+		"Reach Combo x3 before victory.":
+			return "승리하기 전에 콤보 x3에 도달하세요."
+		"Reach Burning resonance before victory.":
+			return "승리하기 전에 연소 공명에 도달하세요."
+		"Win without using battle items.":
+			return "전투 아이템을 사용하지 않고 승리하세요."
+		"Switch stance twice before victory.":
+			return "승리하기 전에 자세를 두 번 전환하세요."
+		"Activate 2 Memory Echoes before victory.":
+			return "승리하기 전에 기억 메아리 2개를 활성화하세요."
+		"Trigger 2 companion support actions.":
+			return "동료 지원 행동을 2번 발동하세요."
+	return desc
 
 ## ===================== S54/S58: Victory Rewards Screen (animated) =====================
 
@@ -3545,6 +3760,10 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var objective_bonus: int = rewards.get("objective_bonus", 0)
 	var objective_title: String = rewards.get("objective_title", "")
 	var objective_item: String = rewards.get("objective_item", "")
+	var objective_heal: int = rewards.get("objective_heal", 0)
+	var momentum_bonus: int = rewards.get("momentum_bonus", 0)
+	var momentum_rank: int = rewards.get("momentum_rank", 0)
+	var momentum_label: String = rewards.get("momentum_label", "Cold")
 	var heal: int = rewards.get("heal", 0)
 	var item_name: String = rewards.get("item", "")
 	var enemy_name: String = rewards.get("enemy_name", "Unknown")
@@ -3566,12 +3785,20 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	_victory_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_victory_panel.offset_left = -210
 	_victory_panel.offset_right = 210
-	_victory_panel.offset_top = -165
-	_victory_panel.offset_bottom = 165
+	_victory_panel.offset_top = -185
+	_victory_panel.offset_bottom = 185
 	_victory_panel.z_index = 85
+	_victory_art = _make_interface_texture(UI_VICTORY_PANEL_PATH, 0.86)
+	_victory_art.set_anchors_preset(Control.PRESET_CENTER)
+	_victory_art.offset_left = -260
+	_victory_art.offset_right = 260
+	_victory_art.offset_top = -225
+	_victory_art.offset_bottom = 225
+	_victory_art.z_index = 84
+	canvas_root.add_child(_victory_art)
 
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.04, 0.035, 0.06, 0.96)
+	panel_style.bg_color = Color(0.035, 0.030, 0.052, 0.80)
 	panel_style.border_color = Color(0.75, 0.6, 0.3, 0.9) if not is_boss else Color(0.9, 0.3, 0.2, 0.9)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(8)
@@ -3687,23 +3914,44 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	vbox.add_child(objective_row)
 
 	var objective_lbl = Label.new()
-	objective_lbl.text = "Objective"
+	objective_lbl.text = "목표" if GameManager.current_locale == "ko" else "Objective"
 	objective_lbl.add_theme_font_size_override("font_size", 11)
 	objective_lbl.add_theme_color_override("font_color", Color(0.72, 0.92, 0.55))
 	objective_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	objective_row.add_child(objective_lbl)
 
 	var objective_val = Label.new()
-	var objective_text := "+%d" % objective_bonus if objective_bonus > 0 else "Missed"
+	var objective_text := "+%d" % objective_bonus if objective_bonus > 0 else ("실패" if GameManager.current_locale == "ko" else "Missed")
 	if objective_bonus > 0 and objective_title != "":
-		objective_text = "%s +%d" % [objective_title, objective_bonus]
+		objective_text = "%s +%d" % [_localized_objective_title(objective_title), objective_bonus]
 	if objective_item != "" and GameManager.ITEMS.has(objective_item):
 		objective_text += " / %s" % GameManager.ITEMS[objective_item]["name"]
+	if objective_heal > 0:
+		objective_text += " / HP +%d" % objective_heal
 	objective_val.text = objective_text
 	objective_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	objective_val.add_theme_font_size_override("font_size", 12)
 	objective_val.add_theme_color_override("font_color", Color(0.74, 1.0, 0.56) if objective_bonus > 0 else Color(0.36, 0.34, 0.32))
 	objective_row.add_child(objective_val)
+
+	var momentum_row = HBoxContainer.new()
+	momentum_row.add_theme_constant_override("separation", 8)
+	momentum_row.modulate.a = 0.0
+	vbox.add_child(momentum_row)
+
+	var momentum_lbl = Label.new()
+	momentum_lbl.text = "공명" if GameManager.current_locale == "ko" else "Resonance"
+	momentum_lbl.add_theme_font_size_override("font_size", 11)
+	momentum_lbl.add_theme_color_override("font_color", Color(0.58, 0.74, 0.92))
+	momentum_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	momentum_row.add_child(momentum_lbl)
+
+	var momentum_val = Label.new()
+	momentum_val.text = "%s R%d +%d" % [momentum_label, momentum_rank, momentum_bonus] if momentum_bonus > 0 else ("냉각" if GameManager.current_locale == "ko" else "Cold")
+	momentum_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	momentum_val.add_theme_font_size_override("font_size", 12)
+	momentum_val.add_theme_color_override("font_color", Color(0.78, 0.88, 1.0) if momentum_bonus > 0 else Color(0.36, 0.34, 0.32))
+	momentum_row.add_child(momentum_val)
 
 	# --- HP RECOVERED ---
 	var heal_row = HBoxContainer.new()
@@ -3778,10 +4026,17 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	vbox.add_child(hint)
 
 	# Panel entrance animation
+	if _victory_art:
+		_victory_art.modulate.a = 0.0
+		_victory_art.scale = Vector2(0.85, 0.85)
+		_victory_art.pivot_offset = Vector2(260, 225)
 	_victory_panel.modulate.a = 0.0
 	_victory_panel.scale = Vector2(0.85, 0.85)
-	_victory_panel.pivot_offset = Vector2(210, 165)
+	_victory_panel.pivot_offset = Vector2(210, 185)
 	var t_panel = create_tween().set_parallel(true)
+	if _victory_art:
+		t_panel.tween_property(_victory_art, "modulate:a", 0.86, 0.3)
+		t_panel.tween_property(_victory_art, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	t_panel.tween_property(_victory_panel, "modulate:a", 1.0, 0.3)
 	t_panel.tween_property(_victory_panel, "scale", Vector2(1.0, 1.0), 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
@@ -3824,6 +4079,13 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 		tw_seq.tween_callback(func(): AudioManager.play_sfx("memory_add"))
 	else:
 		tw_seq.tween_property(objective_row, "modulate:a", 0.45, 0.12)
+
+	tw_seq.tween_interval(0.08)
+	if momentum_bonus > 0:
+		tw_seq.tween_property(momentum_row, "modulate:a", 1.0, 0.18)
+		tw_seq.tween_callback(func(): AudioManager.play_sfx("ui_select"))
+	else:
+		tw_seq.tween_property(momentum_row, "modulate:a", 0.45, 0.12)
 
 	# Heal line
 	tw_seq.tween_interval(0.15)
@@ -3880,6 +4142,10 @@ func _dismiss_rewards() -> void:
 		var tw = create_tween()
 		tw.tween_property(_victory_panel, "modulate:a", 0.0, 0.25)
 		tw.tween_callback(_victory_panel.queue_free)
+	if _victory_art and is_instance_valid(_victory_art):
+		var tw_art = create_tween()
+		tw_art.tween_property(_victory_art, "modulate:a", 0.0, 0.25)
+		tw_art.tween_callback(_victory_art.queue_free)
 
 ## ===================== S58: Burn Preview Popup (Risk/Reward) =====================
 
@@ -3919,9 +4185,21 @@ func _build_burn_preview(root: Control) -> void:
 	_burn_preview_panel.anchor_bottom = 0.82
 	_burn_preview_panel.z_index = 91
 	_burn_preview_panel.visible = false
+	_burn_preview_art = _make_interface_texture(UI_BURN_PREVIEW_PANEL_PATH, 0.86)
+	_burn_preview_art.anchor_left = _burn_preview_panel.anchor_left
+	_burn_preview_art.anchor_right = _burn_preview_panel.anchor_right
+	_burn_preview_art.anchor_top = _burn_preview_panel.anchor_top
+	_burn_preview_art.anchor_bottom = _burn_preview_panel.anchor_bottom
+	_burn_preview_art.offset_left = -28
+	_burn_preview_art.offset_right = 28
+	_burn_preview_art.offset_top = -24
+	_burn_preview_art.offset_bottom = 24
+	_burn_preview_art.z_index = 90
+	_burn_preview_art.visible = false
+	root.add_child(_burn_preview_art)
 
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.04, 0.03, 0.06, 0.97)
+	panel_style.bg_color = Color(0.040, 0.028, 0.052, 0.82)
 	panel_style.border_color = Color(0.7, 0.35, 0.15, 0.85)
 	panel_style.set_border_width_all(2)
 	panel_style.set_corner_radius_all(6)
@@ -4111,6 +4389,11 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 
 	# Show the popup with animation
 	_burn_preview_dimmer.visible = true
+	if _burn_preview_art:
+		_burn_preview_art.visible = true
+		_burn_preview_art.modulate.a = 0.0
+		_burn_preview_art.scale = Vector2(0.85, 0.85)
+		_burn_preview_art.pivot_offset = _burn_preview_art.size / 2.0
 	_burn_preview_panel.visible = true
 	_burn_preview_panel.modulate.a = 0.0
 	_burn_preview_panel.scale = Vector2(0.85, 0.85)
@@ -4119,6 +4402,9 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	var show_tween = create_tween()
 	show_tween.set_parallel(true)
 	show_tween.tween_property(_burn_preview_dimmer, "color:a", 0.6, 0.2)
+	if _burn_preview_art:
+		show_tween.tween_property(_burn_preview_art, "modulate:a", 0.86, 0.25)
+		show_tween.tween_property(_burn_preview_art, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	show_tween.tween_property(_burn_preview_panel, "modulate:a", 1.0, 0.25)
 	show_tween.tween_property(_burn_preview_panel, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
@@ -4167,10 +4453,14 @@ func _hide_burn_preview() -> void:
 	var hide_tween = create_tween()
 	hide_tween.set_parallel(true)
 	hide_tween.tween_property(_burn_preview_dimmer, "color:a", 0.0, 0.15)
+	if _burn_preview_art:
+		hide_tween.tween_property(_burn_preview_art, "modulate:a", 0.0, 0.15)
 	hide_tween.tween_property(_burn_preview_panel, "modulate:a", 0.0, 0.15)
 	hide_tween.chain().tween_callback(func():
 		if is_instance_valid(_burn_preview_dimmer):
 			_burn_preview_dimmer.visible = false
+		if _burn_preview_art and is_instance_valid(_burn_preview_art):
+			_burn_preview_art.visible = false
 		if is_instance_valid(_burn_preview_panel):
 			_burn_preview_panel.visible = false
 	)
@@ -4179,6 +4469,9 @@ func _hide_burn_preview() -> void:
 
 ## Play dramatic burn sequence then execute the actual burn
 func _play_memory_burn_then_execute(memory_id: String, memory_title: String, memory_grade: int) -> void:
+	var cutin_path := _resolve_memory_burn_cutin(memory_id, memory_title)
+	if cutin_path != "":
+		await _play_memory_burn_cutin(cutin_path, memory_grade)
 	if battle_vfx:
 		await battle_vfx.play_memory_burn_sequence(memory_title, memory_grade, player_sprite_container)
 	BattleManager.player_burn(memory_id)

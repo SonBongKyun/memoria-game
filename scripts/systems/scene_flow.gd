@@ -103,8 +103,12 @@ func _run_step() -> void:
 			step = step.duplicate(true)
 			if step.has("distorted_text"):
 				step["text"] = step.distorted_text
+			if step.has("distorted_text_ko"):
+				step["text_ko"] = step.distorted_text_ko
 			if step.has("distorted_narrate"):
 				step["narrate"] = step.distorted_narrate
+			if step.has("distorted_narrate_ko"):
+				step["narrate_ko"] = step.distorted_narrate_ko
 			if step.has("distorted_speaker"):
 				step["speaker"] = step.distorted_speaker
 			if step.has("distorted_portrait"):
@@ -148,10 +152,13 @@ func _handle_action(step: Dictionary) -> void:
 				})
 			_close_vn_ui()
 			is_active = false
-			# TODO: 배틀 호출은 BattleManager API에 의존
 			if has_node("/root/BattleManager"):
-				var enemy_id = step.get("enemy", "")
-				BattleManager.start_battle(enemy_id)
+				var enemy_ref: Variant = step.get("enemy", "void_beast")
+				var return_path: String = step.get("return_scene", step.get("from_scene", ""))
+				var bg_path: String = step.get("bg", step.get("bg_image", ""))
+				var enemy_image_path: String = step.get("img", step.get("enemy_image", ""))
+				BattleManager.start_battle(enemy_ref, return_path, bg_path, enemy_image_path)
+				SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 		"end":
 			_end_scene()
 		"demo_end":
@@ -261,6 +268,8 @@ func _ensure_vn_ui() -> void:
 func _close_vn_ui() -> void:
 	if _vn_ui != null and is_instance_valid(_vn_ui):
 		# 즉시 숨김 + 입력 차단 해제 (queue_free는 다음 프레임이라 그 사이 입력 가로챔 방지)
+		if _vn_ui.has_method("prepare_for_close"):
+			_vn_ui.prepare_for_close()
 		_vn_ui.visible = false
 		_vn_ui.set_process_input(false)
 		_vn_ui.set_process_unhandled_input(false)

@@ -62,12 +62,12 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self)
+	MapEffects.add_vignette(self, 0.36)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 20, Color(0.85, 0.65, 0.3, 0.5))  # S46: Seam 앰버 반딧불
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.06, 0.06, 0.1), "far": Color(0.1, 0.1, 0.15), "mid": Color(0.15, 0.12, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.4, 0.38, 0.45))
+	MapEffects.add_ambient_lighting(self, Color(0.48, 0.45, 0.52))
 	_point_lights = MapEffects.add_tile_lights(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN, Color(1.0, 0.85, 0.5))
 	# S43: 횃불 불꽃 파티클
 	MapEffects.add_fire_particles(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN)
@@ -75,14 +75,14 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CLIFF])
 	MapEffects.add_color_grading(self, {"tint": Color(0.4, 0.3, 0.45), "brightness": -0.03})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/env_memory_hall.png", 0.13, Color(0.9, 0.78, 1.0))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_the_seam.png", 0.08, Color(0.94, 0.82, 1.0))
 	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.7, 0.5, 0.3, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S59: 분위기 강화 — 은은한 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.25, 0.25, 0.35, 0.04), 1.5)
 	MapEffects.add_depth_gradient(self, 0.06)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.88, 0.64, 0.42, 1.0), "vignette": 0.48, "tint_strength": 0.10, "shafts": 0.10, "glints": 3})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.90, 0.66, 0.44, 1.0), "vignette": 0.36, "tint_strength": 0.08, "shafts": 0.09, "glints": 3})
 	_position_player()
 	_setup_effects()
 	_setup_hidden_events()
@@ -402,7 +402,7 @@ func _on_bl07_dialogue_ended() -> void:
 	boss.abilities = ["drain", "shield", "multi_hit", "summon"]
 	boss.weakness = "void"
 	boss.resistance = "fire"
-	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/game_image/nera_void_cavern.png", "res://assets/cg/game_image/void_beast_confrontation.png")
+	BattleManager.start_battle(boss, "res://scenes/maps/the_seam.tscn", "res://assets/cg/generated/chapter_splash_the_seam.png", "res://assets/cg/game_image/void_beast_confrontation.png")
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 
 func _start_ch6_epilogue() -> void:
@@ -428,7 +428,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Wraith", 90, 18, true,
-		"res://assets/cg/game_image/sealed_city_ruins.png", "res://assets/cg/game_image/void_beast_confrontation.png"
+		"res://assets/cg/generated/chapter_splash_the_seam.png", "res://assets/cg/game_image/void_beast_confrontation.png"
 	)
 
 func _setup_puzzle_trigger() -> void:
@@ -460,8 +460,8 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/game_image/sealed_gate_plaza.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/game_image/sealed_gate_plaza.png"},
+			{"name": "Void Wraith", "hp": 90, "atk": 18, "is_void": true, "abilities": ["drain", "weaken"], "bg": "res://assets/cg/generated/chapter_splash_the_seam.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Seam Lurker", "hp": 110, "atk": 20, "is_void": true, "abilities": ["poison", "shield"], "bg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
 		],
 		"res://scenes/maps/the_seam.tscn", "", "", 45, 80
 	)
@@ -600,7 +600,7 @@ func _setup_side_quests() -> void:
 				var enemy = BattleManager.Enemy.new("Void Watcher", 120, 22, true)
 				enemy.abilities = ["drain", "shield"]
 				enemy.weakness = "void"
-				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/game_image/nera_void_cavern.png", "res://assets/cg/game_image/void_beast_confrontation.png")
+				BattleManager.start_battle(enemy, "res://scenes/maps/the_seam.tscn", "res://assets/cg/generated/chapter_splash_the_seam.png", "res://assets/cg/game_image/void_beast_confrontation.png")
 				SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
 		)
 		add_child(vw_area)

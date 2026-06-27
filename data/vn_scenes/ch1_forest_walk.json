@@ -1,86 +1,103 @@
 {
   "id": "ch1_forest_walk",
   "title": "Chapter 1 — Through the Forest",
+  "title_ko": "1장 — 숲을 지나",
   "chapter": 1,
   "steps": [
     {
       "cg": "ch1_twisted_forest",
       "fade": 1.8,
-      "narrate": "Morning came thin and grey. The ash had stopped sometime in the dark, and the forest looked, almost, like a forest again."
+      "narrate": "Morning came thin and grey. The ash had stopped sometime in the dark, and the forest looked, almost, like a forest again.",
+      "narrate_ko": "희고 얇은 아침이 왔다. 밤사이 어느 순간 재는 그쳤고, 숲은 거의 숲처럼 보였다."
     },
     {
-      "narrate": "Almost. The trees still leaned toward something he could not see. The path under his boots remembered other footsteps."
+      "narrate": "Almost. The trees still leaned toward something he could not see. The path under his boots remembered other footsteps.",
+      "narrate_ko": "거의. 나무들은 아직 그가 볼 수 없는 무언가를 향해 기울어 있었고, 발밑의 길은 다른 발자국들을 기억하고 있었다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_neutral",
       "side": "right",
-      "text": "Bureau patrols start at noon. We have until then."
+      "text": "Bureau patrols start at noon. We have until then.",
+      "text_ko": "관리국 순찰은 정오부터야. 그 전까지는 시간이 있어."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_neutral",
       "side": "left",
-      "text": "Long enough."
+      "text": "Long enough.",
+      "text_ko": "충분해."
     },
     {
-      "narrate": "He looked at the clearing. Three things in his memory pulled at him before the fourth — the path forward."
+      "narrate": "He looked at the clearing. Three things in his memory pulled at him before the fourth — the path forward.",
+      "narrate_ko": "그는 공터를 바라보았다. 앞으로 이어진 길보다 먼저, 기억 속 세 가지가 그를 잡아당겼다."
     },
     {
       "choice": [
         {
           "text": "Examine the carved stump.",
+          "text_ko": "글자가 새겨진 그루터기를 살핀다.",
           "set_flag": "fw_visited_stump",
           "goto": 7,
           "requires_not_flag": "fw_visited_stump"
         },
         {
           "text": "Approach the small shrine in the bushes.",
+          "text_ko": "덤불 속 작은 사당에 다가간다.",
           "set_flag": "fw_visited_shrine",
           "goto": 14,
           "requires_not_flag": "fw_visited_shrine"
         },
         {
           "text": "Talk with Elia.",
+          "text_ko": "엘리아와 이야기한다.",
           "set_flag": "fw_talked_elia",
           "goto": 22,
           "requires_not_flag": "fw_talked_elia"
         },
         {
           "text": "Push deeper into the forest.",
+          "text_ko": "숲 깊은 곳으로 나아간다.",
           "requires_flag": "fw_visited_any",
           "goto": 31
         }
       ]
     },
     {
-      "narrate": "[ Filler — the choice block above always jumps past this. ]"
+      "narrate": "[ Filler — the choice block above always jumps past this. ]",
+      "narrate_ko": "[ 더미 — 선택지는 항상 이 줄을 건너뜁니다. ]"
     },
     {
       "cg": "ch1_stump2",
       "fade": 1.0,
-      "narrate": "A tree stump, old enough that its rings had turned to stone."
+      "narrate": "A tree stump, old enough that its rings had turned to stone.",
+      "narrate_ko": "나이테가 돌처럼 굳어버릴 만큼 오래된 그루터기였다."
     },
     {
-      "narrate": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."
+      "narrate": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E.",
+      "narrate_ko": "누군가 오래전에 글자를 새겨두었다. 비가 대부분을 먹어치웠지만 두 글자는 남아 있었다. A. E."
     },
     {
-      "narrate": "His hand moved toward the carving before he could stop it."
+      "narrate": "His hand moved toward the carving before he could stop it.",
+      "narrate_ko": "멈추기도 전에 그의 손이 새겨진 홈을 향해 움직였다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "Arrel?"
+      "text": "Arrel?",
+      "text_ko": "아렐?"
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "...Nothing. Just letters."
+      "text": "...Nothing. Just letters.",
+      "text_ko": "...아무것도 아니야. 그냥 글자야."
     },
     {
       "narrate": "But his fingers traced the grooves one more time before he pulled away.",
+      "narrate_ko": "하지만 그는 손을 떼기 전, 한 번 더 손끝으로 홈을 더듬었다.",
       "set_flag": "fw_visited_any"
     },
     {
@@ -91,34 +108,41 @@
     {
       "cg": "ch1_ash_forest",
       "fade": 1.0,
-      "narrate": "A small shrine, half-swallowed by bushes. Smooth stones stacked into a cairn no taller than his knee."
+      "narrate": "A small shrine, half-swallowed by bushes. Smooth stones stacked into a cairn no taller than his knee.",
+      "narrate_ko": "덤불에 반쯤 삼켜진 작은 사당. 매끈한 돌들이 그의 무릎보다 낮은 돌무더기로 쌓여 있었다."
     },
     {
-      "narrate": "Wax had pooled at the base — old, candle after candle, year after year. Someone had been keeping vigil here."
+      "narrate": "Wax had pooled at the base — old, candle after candle, year after year. Someone had been keeping vigil here.",
+      "narrate_ko": "밑동에는 촛농이 고여 있었다. 오래된 촛농, 해마다 더해진 촛농. 누군가 이곳을 계속 지켜온 것이다."
     },
     {
-      "narrate": "On top of the cairn, a single brass token. A name engraved, worn nearly smooth. He could not read it."
+      "narrate": "On top of the cairn, a single brass token. A name engraved, worn nearly smooth. He could not read it.",
+      "narrate_ko": "돌무더기 위에는 황동 표식 하나가 놓여 있었다. 새겨진 이름은 닳아 거의 매끈해졌고, 그는 읽을 수 없었다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
-      "text": "Burners come here. The ones who don't have a body to bury."
+      "text": "Burners come here. The ones who don't have a body to bury.",
+      "text_ko": "연소자들이 여기 와. 묻어줄 몸조차 없는 사람들."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_calm",
       "side": "right",
-      "text": "They leave a name. Sometimes their own."
+      "text": "They leave a name. Sometimes their own.",
+      "text_ko": "이름을 남겨. 가끔은 자기 이름을."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "...Sometimes someone else's."
+      "text": "...Sometimes someone else's.",
+      "text_ko": "...가끔은 다른 사람의 이름을."
     },
     {
       "narrate": "He did not leave a token. He did not have one to spare.",
+      "narrate_ko": "그는 표식을 남기지 않았다. 남길 만큼 가진 것이 없었다.",
       "set_flag": "fw_visited_any"
     },
     {
@@ -127,48 +151,57 @@
       "start_index": 5
     },
     {
-      "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+      "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
       "fade": 1.0,
-      "narrate": "Elia waited where the path forked, hands loose at her sides, watching him in that careful way she had."
+      "narrate": "Elia waited where the path forked, hands loose at her sides, watching him in that careful way she had.",
+      "narrate_ko": "엘리아는 갈림길에서 기다리고 있었다. 양손을 느슨하게 내린 채, 늘 그렇듯 조심스럽게 그를 바라보며."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "How are you holding up?"
+      "text": "How are you holding up?",
+      "text_ko": "버틸 만해?"
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_neutral",
       "side": "left",
-      "text": "Standing."
+      "text": "Standing.",
+      "text_ko": "서 있잖아."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
-      "text": "That's not what I asked."
+      "text": "That's not what I asked.",
+      "text_ko": "내가 물은 건 그게 아니야."
     },
     {
-      "narrate": "He didn't answer. She did not push."
+      "narrate": "He didn't answer. She did not push.",
+      "narrate_ko": "그는 대답하지 않았다. 그녀도 더 묻지 않았다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_hopeful",
       "side": "right",
       "text": "Whatever happens out there — you don't have to burn anything else today.",
+      "text_ko": "저 밖에서 무슨 일이 있어도, 오늘은 더 태우지 않아도 돼.",
       "distort_if_burned": "daily_campfire_song",
       "distorted_text": "Whatever happens out there — try not to burn the rest of yourself.",
+      "distorted_text_ko": "저 밖에서 무슨 일이 있어도, 남은 너 자신까지 태우지는 마.",
       "distorted_portrait": "elia_sad"
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "...I'll try."
+      "text": "...I'll try.",
+      "text_ko": "...노력해볼게."
     },
     {
       "narrate": "She nodded, once, and looked away.",
+      "narrate_ko": "그녀는 한 번 고개를 끄덕이고 시선을 돌렸다.",
       "set_flag": "fw_visited_any"
     },
     {
@@ -179,43 +212,52 @@
     {
       "cg": "res://assets/cg/game_image/void_beast_confrontation.png",
       "fade": 1.6,
-      "narrate": "The path narrowed. The trees pressed closer."
+      "narrate": "The path narrowed. The trees pressed closer.",
+      "narrate_ko": "길은 좁아졌다. 나무들이 더 가까이 밀려왔다."
     },
     {
-      "narrate": "Something had been here. The ground was wrong — patches of moss bleached white, bark stripped in long parallel grooves."
+      "narrate": "Something had been here. The ground was wrong — patches of moss bleached white, bark stripped in long parallel grooves.",
+      "narrate_ko": "무언가가 이곳에 있었다. 땅이 이상했다. 이끼는 군데군데 하얗게 바랬고, 나무껍질은 길고 평행한 홈으로 벗겨져 있었다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "Arrel."
+      "text": "Arrel.",
+      "text_ko": "아렐."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_determined",
       "side": "left",
-      "text": "I see it."
+      "text": "I see it.",
+      "text_ko": "보여."
     },
     {
-      "narrate": "Ahead, where the canopy opened, something exhaled."
+      "narrate": "Ahead, where the canopy opened, something exhaled.",
+      "narrate_ko": "앞쪽, 나뭇잎 사이가 열린 곳에서 무언가가 숨을 내쉬었다."
     },
     {
-      "narrate": "Not breath. Something that wanted to be breath but had forgotten how."
+      "narrate": "Not breath. Something that wanted to be breath but had forgotten how.",
+      "narrate_ko": "숨은 아니었다. 숨이고 싶었지만 방법을 잊어버린 무언가였다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_determined",
       "side": "right",
-      "text": "It's between us and the road. We can't go around."
+      "text": "It's between us and the road. We can't go around.",
+      "text_ko": "저게 우리와 길 사이에 있어. 돌아갈 수 없어."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_determined",
       "side": "left",
-      "text": "I know."
+      "text": "I know.",
+      "text_ko": "알아."
     },
     {
-      "narrate": "He drew his sword. The grip remembered his hand, even when he did not always remember the grip."
+      "narrate": "He drew his sword. The grip remembered his hand, even when he did not always remember the grip.",
+      "narrate_ko": "그는 검을 뽑았다. 그가 손잡이를 늘 기억하는 것은 아니었지만, 손잡이는 그의 손을 기억하고 있었다."
     },
     {
       "action": "goto_scene",

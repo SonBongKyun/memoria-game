@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "The world ended at the threshold.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png"
       },
       {
         "speaker": "",
@@ -15,7 +15,7 @@
       {
         "speaker": "",
         "text": "Fragments of ground floated in the void. Stone from somewhere that no longer existed. Paths that led between things that weren't there.",
-        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
       },
       {
         "speaker": "Elia",
@@ -41,7 +41,7 @@
       {
         "speaker": "",
         "text": "At the center, the tear widened. Not a hole — a mouth. Open and patient.",
-        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
       },
       {
         "speaker": "",
@@ -69,7 +69,7 @@
         "speaker": "Arrel",
         "text": "I know how to close it.",
         "portrait": "arrel_burn",
-        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
       },
       {
         "speaker": "Elia",
@@ -110,7 +110,7 @@
       {
         "speaker": "",
         "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
       },
       {
         "speaker": "",
@@ -244,7 +244,7 @@
       {
         "speaker": "",
         "text": "The path — if it could be called that — descended in spirals that didn't obey geometry.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
       },
       {
         "speaker": "",
@@ -282,7 +282,7 @@
       {
         "speaker": "",
         "text": "Deeper in, the Void began to speak.",
-        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
       },
       {
         "speaker": "",
@@ -374,7 +374,7 @@
       {
         "speaker": "",
         "text": "The pull was stronger here. Like standing at the edge of a waterfall, except the water was made of forgetting.",
-        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
       },
       {
         "speaker": "Elia",
@@ -443,7 +443,7 @@
         "speaker": "Elia",
         "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
       },
       {
         "speaker": "Arrel",

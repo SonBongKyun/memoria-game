@@ -65,13 +65,14 @@ var _fog_layer: Array[ColorRect] = []  # S59: 프로시저럴 안개
 func _ready() -> void:
 	_build_map()
 	_blend_edges = TilePainter.auto_blend_edges(self, map_data, MAP_WIDTH, MAP_HEIGHT, tile_colors, TILE_SIZE)
-	MapEffects.add_vignette(self)
+	# S131: Opening readability pass — keep the mood, but avoid hiding the first playable screen.
+	MapEffects.add_vignette(self, 0.26)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 12, Color(0.5, 0.85, 0.3, 0.5))  # S46: 숲 반딧불
-	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.06))
+	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.04))
 	# S42: 패럴랙스 배경 + 2D 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.08, 0.12), "far": Color(0.08, 0.12, 0.08), "mid": Color(0.12, 0.18, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.55, 0.55, 0.6))
+	MapEffects.add_ambient_lighting(self, Color(0.66, 0.66, 0.68))
 	# S43: 풀 흔들림 애니메이션
 	_grass_blades = MapEffects.add_grass_sway(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.GRASS)
 	# 버섯 위치에 은은한 초록 라이트
@@ -80,8 +81,8 @@ func _ready() -> void:
 	# S52: 그래픽 업그레이드
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.BUSH])
-	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.45, 0.25), "brightness": -0.02})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/chapter_sealed_zone.png", 0.10, Color(0.8, 0.95, 0.72))
+	MapEffects.add_color_grading(self, {"tint": Color(0.34, 0.48, 0.28), "brightness": 0.02})
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_rim_forest.png", 0.07, Color(0.84, 0.98, 0.76))
 	_pollen = MapEffects.add_pollen_particles(self, 12, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.25))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
@@ -92,7 +93,7 @@ func _ready() -> void:
 	# S57: 시간대 색조 변화
 	_tod_layer = MapEffects.add_time_of_day(self)
 	# S57: 플레이어 포그 오브 워 라이트
-	MapEffects.add_player_fog_light(player, 250.0, 1.0, Color(0.95, 0.9, 0.8))
+	MapEffects.add_player_fog_light(player, 320.0, 1.15, Color(0.98, 0.94, 0.84))
 	# S57: 로어 글로우 포인트 (그루터기/숨겨진 메모)
 	MapEffects.add_lore_glow(self, Vector2(4 * TILE_SIZE, 9 * TILE_SIZE), Color(0.7, 0.85, 0.3, 0.5))
 	MapEffects.add_lore_glow(self, Vector2(20 * TILE_SIZE, 4 * TILE_SIZE), Color(0.85, 0.7, 0.3, 0.5))
@@ -100,10 +101,10 @@ func _ready() -> void:
 	MapEffects.spawn_transition_particles(self, "forest")
 	# S59: 인터랙티브 프롭 + 분위기 강화
 	_setup_interactive_props()
-	_fog_layer = MapEffects.add_fog_layer(self, 0.5, Color(0.2, 0.22, 0.18, 0.05), 2.5)
+	_fog_layer = MapEffects.add_fog_layer(self, 0.38, Color(0.2, 0.22, 0.18, 0.035), 2.5)
 	MapEffects.add_wind_sway(self, 2.0)
-	MapEffects.add_depth_gradient(self, 0.07)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.58, 0.72, 0.38, 1.0), "vignette": 0.46, "tint_strength": 0.08, "shafts": 0.09, "glints": 3})
+	MapEffects.add_depth_gradient(self, 0.045)
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.76, 0.42, 1.0), "vignette": 0.28, "tint_strength": 0.05, "shafts": 0.07, "glints": 3})
 	_position_player()
 	# S66 (A안 — Act I 데모 슬림화):
 	# 보스(Void Beast) 트리거 + 캠프 + 핵심 히든 이벤트만 유지.
@@ -275,7 +276,7 @@ func _on_camp_ended() -> void:
 	print("[RimForest] Chapter 1 complete")
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
-	CgViewer.show_cg("res://assets/cg/game_image/sealed_city_ruins.png", "", 3.0, func():
+	CgViewer.show_cg("res://assets/cg/generated/chapter_splash_rim_forest.png", "", 3.0, func():
 		# S58: Chapter completion screen with stats summary
 		SceneTransition.change_scene_chapter_complete("res://scenes/maps/verdan_market.tscn", 1)
 	)
@@ -686,9 +687,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/game_image/chapter_sealed_zone.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/game_image/chapter_sealed_zone.png", "img": ""},
-			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/game_image/chapter_sealed_zone.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": ""},
+			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
 		],
 		"res://scenes/maps/rim_forest.tscn", "", "", 50, 90
 	)

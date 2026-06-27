@@ -3,6 +3,7 @@ class_name MemoryResonance
 extends RefCounted
 
 const TILE_SIZE: int = 32
+const MEMORY_RESONANCE_CG_PATH: String = "res://assets/cg/generated/memory_compass_resonance_cinematic.png"
 
 const RESONANCE_POINTS: Dictionary = {
 	"rim_forest": [
@@ -200,6 +201,10 @@ static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: 
 	var burned: MemoryManager.Memory = MemoryManager.burn_memory_silent(memory.id)
 	if burned == null:
 		return
+
+	if ResourceLoader.exists(MEMORY_RESONANCE_CG_PATH) and is_instance_valid(CgViewer):
+		var caption := "기억 나침반이 떨린다. 잃어버린 방향이 잠깐 형태를 되찾았다." if GameManager.current_locale == "ko" else "The Memory Compass trembles. A lost direction briefly takes shape."
+		CgViewer.show_cg(MEMORY_RESONANCE_CG_PATH, caption, 2.4)
 
 	match bonus_type:
 		"max_hp":

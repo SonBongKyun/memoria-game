@@ -18,20 +18,36 @@ const MAP_NAMES := {
 	"bl07_void": "BL-07 Void",
 }
 
+const MAP_NAMES_KO := {
+	"rim_forest": "림 숲",
+	"verdan_market": "베르단 시장",
+	"belt_waystation": "벨트 중계소",
+	"drift_shelter": "표류 대피소",
+	"crumbling_coast": "무너지는 해안",
+	"the_seam": "심",
+	"seam_outskirts": "심 외곽",
+	"forgotten_forest": "잊힌 숲",
+	"colorless_waste": "무색 황무지",
+	"bl07_void": "BL-07 보이드",
+}
+
 const MAP_ART := {
-	"rim_forest": "res://assets/cg/game_image/chapter_sealed_zone.png",
-	"verdan_market": "res://assets/cg/game_image/env_bureau_spires.png",
-	"belt_waystation": "res://assets/cg/game_image/env_wasteland_city.png",
-	"drift_shelter": "res://assets/cg/game_image/env_frozen_archive.png",
-	"crumbling_coast": "res://assets/cg/game_image/sealed_gate_plaza.png",
-	"the_seam": "res://assets/cg/game_image/env_memory_hall.png",
-	"seam_outskirts": "res://assets/cg/game_image/env_void_cathedral.png",
-	"forgotten_forest": "res://assets/cg/game_image/env_memory_hall.png",
-	"colorless_waste": "res://assets/cg/game_image/kairos_sealed_city.png",
-	"bl07_void": "res://assets/cg/game_image/nera_void_cavern.png",
+	"rim_forest": "res://assets/cg/generated/chapter_splash_rim_forest.png",
+	"verdan_market": "res://assets/cg/generated/chapter_splash_verdan_market.png",
+	"belt_waystation": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
+	"drift_shelter": "res://assets/cg/generated/chapter_splash_drift_shelter.png",
+	"crumbling_coast": "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
+	"the_seam": "res://assets/cg/generated/chapter_splash_the_seam.png",
+	"seam_outskirts": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+	"forgotten_forest": "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
+	"colorless_waste": "res://assets/cg/generated/memory_compass_resonance_cinematic.png",
+	"bl07_void": "res://assets/cg/generated/chapter_splash_bl07_void.png",
 }
 
 # ── 노드 참조 ──
+const HUD_PLATE_PATH: String = "res://assets/cg/generated/ui_exploration_hud_plate.png"
+
+var hud_plate_art: TextureRect
 var panel: PanelContainer
 var hp_label: Label
 var hp_bar: ProgressBar
@@ -60,6 +76,7 @@ var _memory_glow_tween: Tween  # S57
 var _slide_in_done: bool = false  # S57
 var _last_location_key: String = ""
 var _location_card_tween: Tween
+var _hud_plate_base_pos: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	layer = 10
@@ -71,11 +88,23 @@ func _ready() -> void:
 
 # ── UI 구성 ──
 func _build_ui() -> void:
+	if ResourceLoader.exists(HUD_PLATE_PATH):
+		hud_plate_art = TextureRect.new()
+		hud_plate_art.texture = load(HUD_PLATE_PATH)
+		hud_plate_art.position = Vector2(-2, -4)
+		hud_plate_art.size = Vector2(292, 190)
+		hud_plate_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		hud_plate_art.stretch_mode = TextureRect.STRETCH_SCALE
+		hud_plate_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hud_plate_art.modulate = Color(1.0, 0.92, 0.78, 0.58)
+		_hud_plate_base_pos = hud_plate_art.position
+		add_child(hud_plate_art)
+
 	panel = PanelContainer.new()
 	panel.position = Vector2(12, 12)
 	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.04, 0.03, 0.06, 0.75),  # semi-transparent dark bg
-		UITheme.BORDER,                   # subtle amber border
+		Color(0.030, 0.024, 0.040, 0.58), # semi-transparent dark bg
+		Color(0.70, 0.56, 0.34, 0.42),    # subtle amber border
 		1,                                # thin border
 		4,                                # corner radius
 		8                                 # content margin
@@ -286,6 +315,8 @@ func _connect_signals() -> void:
 # ── 상태 변경 시 표시/숨김 ──
 func _on_state_changed(new_state: GameManager.GameState) -> void:
 	var should_show = (new_state == GameManager.GameState.EXPLORATION)
+	if hud_plate_art:
+		hud_plate_art.visible = should_show
 	panel.visible = should_show
 	# S57: Slide-in animation when entering exploration
 	if should_show and not _slide_in_done:
@@ -305,12 +336,18 @@ func _play_slide_in() -> void:
 		return
 	# Save original positions and animate
 	panel.modulate.a = 0.0
+	if hud_plate_art:
+		hud_plate_art.modulate.a = 0.0
+		hud_plate_art.position.x = _hud_plate_base_pos.x - 80
 	var t = create_tween()
 	t.tween_property(panel, "modulate:a", 1.0, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	# HP slides from left
 	var orig_pos = panel.position
 	panel.position.x = orig_pos.x - 80
 	t.parallel().tween_property(panel, "position:x", orig_pos.x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	if hud_plate_art:
+		t.parallel().tween_property(hud_plate_art, "modulate:a", 0.58, 0.3).set_ease(Tween.EASE_OUT)
+		t.parallel().tween_property(hud_plate_art, "position:x", _hud_plate_base_pos.x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 # ── S57: Memory burn glow effect ──
 func _on_memory_burned(_memory) -> void:
@@ -448,15 +485,15 @@ func _update_hud() -> void:
 	var location_name: String = _get_location_name()
 	var ng_suffix = " (NG+%d)" % GameManager.ng_plus_cycle if GameManager.ng_plus_cycle > 0 else ""
 	if location_name.is_empty():
-		chapter_label.text = "Ch.%d%s" % [chapter_num, ng_suffix]
+		chapter_label.text = ("%d장%s" % [chapter_num, ng_suffix]) if GameManager.current_locale == "ko" else "Ch.%d%s" % [chapter_num, ng_suffix]
 	else:
-		chapter_label.text = "Ch.%d — %s%s" % [chapter_num, location_name, ng_suffix]
+		chapter_label.text = ("%d장 — %s%s" % [chapter_num, location_name, ng_suffix]) if GameManager.current_locale == "ko" else "Ch.%d — %s%s" % [chapter_num, location_name, ng_suffix]
 	_update_location_card()
 
 	# Memories
 	var held: int = MemoryManager.memories.size()
 	var burned: int = MemoryManager.burned_memories.size()
-	memory_label.text = "Memories: %d held, %d burned" % [held, burned]
+	memory_label.text = ("기억: 보유 %d, 연소 %d" % [held, burned]) if GameManager.current_locale == "ko" else "Memories: %d held, %d burned" % [held, burned]
 
 	# S57: Memory burn counter glow (detect change via burned count)
 	if _last_burned >= 0 and burned > _last_burned:
@@ -465,7 +502,7 @@ func _update_hud() -> void:
 
 	# Grains
 	var grains: int = GameManager.player_data.get("grains", 0)
-	grains_label.text = "Grains: %d" % grains
+	grains_label.text = ("%s: %d" % [GameManager.loc("grains"), grains]) if GameManager.current_locale == "ko" else "Grains: %d" % grains
 	# S57: Grains earned popup
 	if _last_grains >= 0 and grains > _last_grains:
 		_show_grains_popup(grains - _last_grains)
@@ -476,7 +513,7 @@ func _update_hud() -> void:
 	var items_dict: Dictionary = GameManager.player_data.get("items", {})
 	for item_id in items_dict:
 		total_items += items_dict[item_id]
-	items_label.text = "Items: %d" % total_items
+	items_label.text = ("아이템: %d" % total_items) if GameManager.current_locale == "ko" else "Items: %d" % total_items
 
 	_update_memory_pulse_status()
 
@@ -485,7 +522,7 @@ func _update_hud() -> void:
 	var wid = GameManager.equipped.get("weapon", "")
 	if wid != "" and GameManager.EQUIPMENT.has(wid):
 		weapon_name = GameManager.EQUIPMENT[wid].name
-	equip_label.text = "Weapon: %s" % weapon_name if weapon_name != "" else ""
+	equip_label.text = (("무기: %s" if GameManager.current_locale == "ko" else "Weapon: %s") % weapon_name) if weapon_name != "" else ""
 	equip_label.visible = weapon_name != ""
 
 	# S41/S57: Active quest tracker with progress bar
@@ -517,16 +554,16 @@ func _update_quest_tracker() -> void:
 	if active_quest == "":
 		var ch = GameManager.current_chapter
 		if ch == 1 and not GameManager.get_flag("met_elia"):
-			active_quest = "Find Elia in the forest"
+			active_quest = "숲에서 엘리아 찾기" if GameManager.current_locale == "ko" else "Find Elia in the forest"
 			quest_step = 0; quest_total = 1
 		elif ch == 2 and not GameManager.get_flag("malet_deal"):
-			active_quest = "Meet Malet at the market"
+			active_quest = "시장에서 말렛 만나기" if GameManager.current_locale == "ko" else "Meet Malet at the market"
 			quest_step = 0; quest_total = 1
 		elif ch == 3 and not GameManager.get_flag("reached_seam"):
-			active_quest = "Reach The Seam"
+			active_quest = "심에 도달하기" if GameManager.current_locale == "ko" else "Reach The Seam"
 			quest_step = 0; quest_total = 1
 		elif ch == 4 and not GameManager.get_flag("shade_sentinel_defeated"):
-			active_quest = "Defeat the Shade Sentinel"
+			active_quest = "셰이드 센티널 처치" if GameManager.current_locale == "ko" else "Defeat the Shade Sentinel"
 			quest_step = 0; quest_total = 1
 
 	if active_quest != "":
@@ -551,7 +588,7 @@ func _update_memory_pulse_status() -> void:
 	pulse_label.visible = true
 	var status: Dictionary = player.get_memory_pulse_status()
 	if bool(status.get("ready", false)):
-		pulse_label.text = "Pulse: Ready [Q]"
+		pulse_label.text = "펄스: 준비 [Q]" if GameManager.current_locale == "ko" else "Pulse: Ready [Q]"
 		pulse_label.add_theme_color_override("font_color", Color(0.86, 0.76, 0.42))
 	else:
 		var cooldown: float = float(status.get("cooldown", 0.0))
@@ -561,7 +598,7 @@ func _update_memory_pulse_status() -> void:
 		var meter := ""
 		for i in range(marks):
 			meter += "|" if i < filled else "."
-		pulse_label.text = "Pulse: %s %.1fs" % [meter, cooldown]
+		pulse_label.text = ("펄스: %s %.1fs" if GameManager.current_locale == "ko" else "Pulse: %s %.1fs") % [meter, cooldown]
 		pulse_label.add_theme_color_override("font_color", Color(0.52, 0.55, 0.64))
 
 func _get_player_node() -> Node:
@@ -583,8 +620,8 @@ func _update_location_card() -> void:
 		return
 
 	location_art.texture = load(art_path)
-	location_title.text = MAP_NAMES.get(key, key.capitalize())
-	location_subtitle.text = "Ch.%d / %s" % [GameManager.current_chapter, "illustrated region"]
+	location_title.text = _get_display_map_name(key)
+	location_subtitle.text = ("%d장 / 기록된 지역" % GameManager.current_chapter) if GameManager.current_locale == "ko" else "Ch.%d / %s" % [GameManager.current_chapter, "illustrated region"]
 
 	if _location_card_tween and _location_card_tween.is_valid():
 		_location_card_tween.kill()
@@ -604,8 +641,13 @@ func _update_location_card() -> void:
 func _get_location_name() -> String:
 	var key := _get_location_key()
 	if key != "":
-		return MAP_NAMES.get(key, "")
+		return _get_display_map_name(key)
 	return ""
+
+func _get_display_map_name(key: String) -> String:
+	if GameManager.current_locale == "ko":
+		return MAP_NAMES_KO.get(key, MAP_NAMES.get(key, key.capitalize()))
+	return MAP_NAMES.get(key, "")
 
 func _get_location_key() -> String:
 	var scene := get_tree().current_scene

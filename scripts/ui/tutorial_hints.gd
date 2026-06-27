@@ -2,6 +2,8 @@
 ## 주요 첫 순간에 팝업 힌트를 표시하고, 이미 본 힌트는 다시 표시하지 않음.
 extends CanvasLayer
 
+const HINT_BANNER_PATH: String = "res://assets/cg/generated/ui_tutorial_hint_banner.png"
+
 var shown_hints: Array = []  # 이미 표시된 힌트 ID 목록 (SaveManager 연동)
 
 # 힌트 정의
@@ -13,9 +15,11 @@ const HINTS: Dictionary = {
 	"first_status_effect": "Status effects last several turns. Use Antidote to cure poison.",
 	"first_pulse": "Press Q to send out a Memory Pulse. Nearby echoes will briefly answer.",
 	"first_break": "Exploit enemy weaknesses to fill BREAK. Broken enemies lose a turn and take heavier damage.",
+	"first_resonance": "Strong tactical play builds Resonance. Higher Resonance boosts damage and post-battle rewards.",
 }
 
 # UI 노드
+var _banner: TextureRect
 var _panel: PanelContainer
 var _label: Label
 var _timer: Timer
@@ -52,11 +56,18 @@ func _show_panel(text: String) -> void:
 	if _dismiss_tween and _dismiss_tween.is_valid():
 		_dismiss_tween.kill()
 	_label.text = text
+	if _banner:
+		_banner.visible = true
+		_banner.modulate.a = 0.0
+		_banner.position.y = -60
 	_panel.visible = true
 	_panel.modulate.a = 0.0
 	_panel.position.y = -60
 	var tw = create_tween().set_parallel(true)
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if _banner:
+		tw.tween_property(_banner, "modulate:a", 0.78, 0.3).set_ease(Tween.EASE_OUT)
+		tw.tween_property(_banner, "position:y", 10.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(_panel, "modulate:a", 1.0, 0.3).set_ease(Tween.EASE_OUT)
 	tw.tween_property(_panel, "position:y", 10.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	_timer.start(4.0)
@@ -69,11 +80,20 @@ func _dismiss() -> void:
 		_dismiss_tween.kill()
 	_dismiss_tween = create_tween().set_parallel(true)
 	_dismiss_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	if _banner:
+		_dismiss_tween.tween_property(_banner, "modulate:a", 0.0, 0.25)
+		_dismiss_tween.tween_property(_banner, "position:y", -60.0, 0.25).set_ease(Tween.EASE_IN)
 	_dismiss_tween.tween_property(_panel, "modulate:a", 0.0, 0.25)
 	_dismiss_tween.tween_property(_panel, "position:y", -60.0, 0.25).set_ease(Tween.EASE_IN)
-	_dismiss_tween.chain().tween_callback(func(): _panel.visible = false)
+	_dismiss_tween.chain().tween_callback(func():
+		if _banner:
+			_banner.visible = false
+		_panel.visible = false
+	)
 
 func _hide_ui() -> void:
+	if _banner:
+		_banner.visible = false
 	if _panel:
 		_panel.visible = false
 
@@ -82,6 +102,21 @@ func _build_ui() -> void:
 	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_root)
+
+	if ResourceLoader.exists(HINT_BANNER_PATH):
+		_banner = TextureRect.new()
+		_banner.texture = load(HINT_BANNER_PATH)
+		_banner.anchor_left = 0.16
+		_banner.anchor_right = 0.84
+		_banner.anchor_top = 0.0
+		_banner.anchor_bottom = 0.0
+		_banner.offset_top = -2
+		_banner.offset_bottom = 78
+		_banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_banner.stretch_mode = TextureRect.STRETCH_SCALE
+		_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_banner.modulate = Color(1.0, 0.92, 0.78, 0.0)
+		_root.add_child(_banner)
 
 	_panel = PanelContainer.new()
 	_panel.anchor_left = 0.20
@@ -92,8 +127,8 @@ func _build_ui() -> void:
 	_panel.offset_bottom = 64
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.026, 0.038, 0.94)
-	style.border_color = Color(0.70, 0.56, 0.34, 0.62)
+	style.bg_color = Color(0.030, 0.026, 0.038, 0.70)
+	style.border_color = Color(0.70, 0.56, 0.34, 0.36)
 	style.set_border_width(SIDE_LEFT, 1)
 	style.set_border_width(SIDE_TOP, 2)
 	style.set_border_width(SIDE_RIGHT, 1)

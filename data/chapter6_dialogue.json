@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
       },
       {
         "speaker": "",
@@ -31,7 +31,7 @@
       {
         "speaker": "",
         "text": "The Seam opened before him like a wound that had healed wrong — but beautifully.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
       },
       {
         "speaker": "",
@@ -61,7 +61,7 @@
       {
         "speaker": "",
         "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
       },
       {
         "speaker": "Sable",
@@ -121,7 +121,7 @@
       {
         "speaker": "",
         "text": "The air changed. Colors drained from the rock. The flowers stopped.",
-        "cg": "res://assets/cg/game_image/nera_void_cavern.png"
+        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png"
       },
       {
         "speaker": "",
@@ -199,7 +199,7 @@
         "speaker": "Sable",
         "text": "The Seam has been here for three years. Before that, we were in a place called Ashbridge.",
         "portrait": "sable_neutral",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png",
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png",
         "requires_memory": "identity_void_walker",
         "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one."
       },
@@ -228,7 +228,7 @@
         "speaker": "Elia",
         "text": "This place... it's different. The air doesn't taste like ash.",
         "portrait": "elia_mature",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
       },
       {
         "speaker": "Arrel",
@@ -266,7 +266,7 @@
       {
         "speaker": "",
         "text": "He knelt beside a flower he didn't recognize.",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
       },
       {
         "speaker": "",
@@ -294,7 +294,7 @@
       {
         "speaker": "",
         "text": "Evening fell over the Seam. The canyon walls caught the last light and held it — amber deepening to copper, then to the color of old blood.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
       },
       {
         "speaker": "",
@@ -337,7 +337,7 @@
       {
         "speaker": "",
         "text": "He found Sable on the porch of her house, staring at maps she'd already memorized.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
       },
       {
         "speaker": "Arrel",
@@ -451,7 +451,7 @@
       {
         "speaker": "",
         "text": "He found Elia on the canyon rim, looking up at stars that were slowly going out.",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
       },
       {
         "speaker": "Elia",

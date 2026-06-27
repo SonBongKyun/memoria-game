@@ -6,6 +6,7 @@ extends CanvasLayer
 var is_open: bool = false
 
 # UI 노드
+var backdrop: TextureRect
 var overlay: ColorRect
 var panel: PanelContainer
 var scroll_container: ScrollContainer
@@ -45,7 +46,8 @@ var settings: Dictionary = {
 	"font_scale": 1.0,           # Legacy (kept for save compat)
 	"screen_shake": true,        # S53/S55: Screen shake toggle
 	"colorblind_mode": 0,        # S55: 0=Off, 1=Deuteranopia, 2=Protanopia, 3=Tritanopia
-	"locale": "en",              # S54: Language (en/ko)
+	"locale": "ko",              # S54/S133: Language (en/ko), Korean first for local build
+	"korean_patch_version": 1,
 	"resolution": 0,             # S55: 0=720p, 1=1080p, 2=1440p
 	# S55: New accessibility settings
 	"dialogue_font_size": 0,     # 0=Normal, 1=Large, 2=Extra Large
@@ -59,6 +61,7 @@ var settings: Dictionary = {
 }
 
 const SETTINGS_PATH: String = "user://settings.json"
+const OPTIONS_BACKDROP_PATH: String = "res://assets/cg/generated/ui_options_observatory_backdrop.png"
 
 func _ready() -> void:
 	layer = 56
@@ -101,6 +104,8 @@ func open() -> void:
 	_update_colorblind_label()
 	_update_quality_label()
 	_update_value_labels()
+	if backdrop:
+		backdrop.visible = true
 	overlay.visible = true
 	panel.visible = true
 	AudioManager.play_sfx("ui_open")
@@ -115,6 +120,8 @@ func close() -> void:
 	_hide_ui()
 
 func _hide_ui() -> void:
+	if backdrop:
+		backdrop.visible = false
 	if overlay:
 		overlay.visible = false
 	if panel:
@@ -198,6 +205,9 @@ func _load_settings() -> void:
 			for key in settings.keys():
 				if data.has(key):
 					settings[key] = data[key]
+			if not data.has("korean_patch_version"):
+				settings["locale"] = "ko"
+				settings["korean_patch_version"] = 1
 
 const DIFFICULTY_LABELS: Dictionary = {0: "Easy", 1: "Normal", 2: "Hard"}
 const DIFFICULTY_COLORS: Dictionary = {
@@ -263,10 +273,20 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
+	if ResourceLoader.exists(OPTIONS_BACKDROP_PATH):
+		backdrop = TextureRect.new()
+		backdrop.texture = load(OPTIONS_BACKDROP_PATH)
+		backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		backdrop.modulate = Color(0.95, 0.90, 0.80, 0.72)
+		root.add_child(backdrop)
+
 	# Dark overlay
 	overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.color = Color(0, 0, 0, 0.6)
+	overlay.color = Color(0, 0, 0, 0.48)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(overlay)
 
@@ -277,8 +297,8 @@ func _build_ui() -> void:
 	panel.anchor_top = 0.05
 	panel.anchor_bottom = 0.95
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.05, 0.08, 0.95)
-	style.border_color = Color(0.4, 0.3, 0.2, 0.7)
+	style.bg_color = Color(0.035, 0.030, 0.045, 0.90)
+	style.border_color = Color(0.72, 0.56, 0.34, 0.76)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(20)
@@ -432,7 +452,7 @@ func _build_ui() -> void:
 	vbox.add_child(lang_row)
 
 	var lang_label = Label.new()
-	lang_label.text = "Language"
+	lang_label.text = GameManager.loc("language")
 	lang_label.add_theme_font_size_override("font_size", 15)
 	lang_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	lang_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL

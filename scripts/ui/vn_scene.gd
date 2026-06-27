@@ -8,19 +8,28 @@ const TYPEWRITER_SPEED: float = 0.025
 const CG_FADE_DURATION: float = 0.8
 const PORTRAIT_DIM: Color = Color(0.45, 0.45, 0.5, 1.0)
 const PORTRAIT_BRIGHT: Color = Color(1, 1, 1, 1)
+const CG_LOWER_WASH_ALPHA: float = 0.18
+const CG_FOCUS_GLOW_ALPHA: float = 0.18
+const CG_VIGNETTE_ALPHA: float = 0.34
+const CG_TEXT_PLATE_VIGNETTE_ALPHA: float = 0.14
+const CG_REFERENCE_CARD_VIGNETTE_ALPHA: float = 0.04
 const CG_ALIAS_FALLBACKS: Dictionary = {
-	"ch1_twisted_forest": "res://assets/cg/game_image/chapter_sealed_zone.png",
-	"ch1_stump2": "res://assets/cg/game_image/sheet_arrel_elia_duo.png",
+	"ch1_twisted_forest": "res://assets/cg/generated/chapter_splash_rim_forest.png",
+	"ch1_stump2": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
 	"ch1_green_tree": "res://assets/cg/game_image/sealed_city_ruins.png",
 }
-const DEFAULT_CG_FALLBACK: String = "res://assets/cg/game_image/chapter_sealed_zone.png"
+const DEFAULT_CG_FALLBACK: String = "res://assets/cg/generated/chapter_splash_rim_forest.png"
 
 # 노드
 var _bg: ColorRect
 var _cg_current: TextureRect
 var _cg_next: TextureRect
 var _cg_detail_top: TextureRect
+var _cg_vignette: TextureRect
+var _cg_focus_glow: TextureRect
 var _cg_lower_wash: ColorRect
+var _portrait_left_frame: PanelContainer
+var _portrait_right_frame: PanelContainer
 var _portrait_left: TextureRect
 var _portrait_right: TextureRect
 var _portrait_left_shadow: TextureRect
@@ -78,6 +87,15 @@ func _ready() -> void:
 	set_process_input(true)
 	set_process(true)
 
+func _exit_tree() -> void:
+	if has_node("/root/SceneFlow"):
+		if SceneFlow.step_changed.is_connected(_on_step_changed):
+			SceneFlow.step_changed.disconnect(_on_step_changed)
+		if SceneFlow.scene_ended.is_connected(_on_scene_ended):
+			SceneFlow.scene_ended.disconnect(_on_scene_ended)
+	if has_node("/root/MemoryManager") and MemoryManager.memory_burned.is_connected(_on_memory_burned):
+		MemoryManager.memory_burned.disconnect(_on_memory_burned)
+
 func _load_portrait_map() -> void:
 	# DialogueBox 오토로드에서 포트레이트 매핑 공유
 	if has_node("/root/DialogueBox") and "PORTRAIT_MAP" in DialogueBox:
@@ -110,14 +128,20 @@ func _build_ui() -> void:
 	_cg_detail_top = _make_cg_detail_rect()
 	root.add_child(_cg_detail_top)
 
+	_cg_focus_glow = _make_focus_glow_rect()
+	root.add_child(_cg_focus_glow)
+
 	_cg_lower_wash = ColorRect.new()
 	_cg_lower_wash.anchor_left = 0.0
 	_cg_lower_wash.anchor_right = 1.0
 	_cg_lower_wash.anchor_top = 0.54
 	_cg_lower_wash.anchor_bottom = 1.0
-	_cg_lower_wash.color = Color(0.018, 0.014, 0.022, 0.38)
+	_cg_lower_wash.color = Color(0.018, 0.014, 0.022, CG_LOWER_WASH_ALPHA)
 	_cg_lower_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(_cg_lower_wash)
+
+	_cg_vignette = _make_cinematic_vignette_rect()
+	root.add_child(_cg_vignette)
 
 	# 레터박스 (연출용)
 	_letterbox_top = ColorRect.new()
@@ -143,10 +167,14 @@ func _build_ui() -> void:
 	# 포트레이트 (좌/우)
 	_portrait_left_shadow = _make_portrait_shadow_rect(true)
 	root.add_child(_portrait_left_shadow)
+	_portrait_left_frame = _make_portrait_frame_rect(true)
+	root.add_child(_portrait_left_frame)
 	_portrait_left = _make_portrait_rect(true)
 	root.add_child(_portrait_left)
 	_portrait_right_shadow = _make_portrait_shadow_rect(false)
 	root.add_child(_portrait_right_shadow)
+	_portrait_right_frame = _make_portrait_frame_rect(false)
+	root.add_child(_portrait_right_frame)
 	_portrait_right = _make_portrait_rect(false)
 	root.add_child(_portrait_right)
 
@@ -177,6 +205,7 @@ func _build_ui() -> void:
 	_text_label.scroll_active = false
 	# S71: 책 같은 가독성 — 사이즈 키우고 행간 넓히기. theme.tres가 serif 폰트 자동 적용
 	_text_label.add_theme_font_size_override("normal_font_size", 21)
+	_text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
 	_text_label.add_theme_constant_override("line_separation", 8)
 	_text_label.add_theme_color_override("default_color", Color(0.94, 0.91, 0.84))
 	# 부드러운 검정 그림자로 어두운 CG 위에서도 가독성 확보
@@ -208,6 +237,7 @@ func _build_ui() -> void:
 
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UITheme.apply_title_font(_name_label)
 	# S71: 화자 이름 — 살짝 더 큼 + letter_spacing 느낌의 voff
 	_name_label.add_theme_font_size_override("font_size", 19)
 	_name_label.add_theme_color_override("font_color", Color(0.97, 0.86, 0.55))
@@ -407,6 +437,54 @@ func _make_cg_detail_rect() -> TextureRect:
 	tr.modulate = Color(0.88, 0.80, 0.68, 0.0)
 	return tr
 
+func _make_focus_glow_rect() -> TextureRect:
+	var tr = TextureRect.new()
+	tr.anchor_left = 0.12
+	tr.anchor_right = 0.88
+	tr.anchor_top = 0.42
+	tr.anchor_bottom = 1.03
+	tr.offset_top = -20
+	tr.offset_bottom = 28
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.modulate = Color(1.0, 0.78, 0.46, CG_FOCUS_GLOW_ALPHA)
+	var grad := Gradient.new()
+	grad.add_point(0.0, Color(0.72, 0.42, 0.16, 0.24))
+	grad.add_point(0.45, Color(0.30, 0.18, 0.10, 0.12))
+	grad.add_point(1.0, Color(0.0, 0.0, 0.0, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.width = 512
+	tex.height = 256
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.76)
+	tex.fill_to = Vector2(0.96, 0.28)
+	tr.texture = tex
+	return tr
+
+func _make_cinematic_vignette_rect() -> TextureRect:
+	var tr = TextureRect.new()
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_SCALE
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.modulate = Color(0.72, 0.64, 0.58, CG_VIGNETTE_ALPHA)
+	var grad := Gradient.new()
+	grad.add_point(0.0, Color(0.0, 0.0, 0.0, 0.0))
+	grad.add_point(0.58, Color(0.0, 0.0, 0.0, 0.03))
+	grad.add_point(0.84, Color(0.0, 0.0, 0.0, 0.22))
+	grad.add_point(1.0, Color(0.0, 0.0, 0.0, 0.42))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.width = 512
+	tex.height = 288
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.48)
+	tex.fill_to = Vector2(1.04, 0.52)
+	tr.texture = tex
+	return tr
+
 func _make_portrait_shadow_rect(is_left: bool) -> TextureRect:
 	var tr = TextureRect.new()
 	tr.custom_minimum_size = Vector2(PORTRAIT_SIZE + 70, 128)
@@ -445,6 +523,42 @@ func _make_portrait_shadow_texture() -> Texture2D:
 	tex.fill_from = Vector2(0.5, 0.5)
 	tex.fill_to = Vector2(0.98, 0.5)
 	return tex
+
+func _make_portrait_frame_rect(is_left: bool) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.anchor_top = 1.0
+	panel.anchor_bottom = 1.0
+	panel.offset_top = -PORTRAIT_SIZE - 188
+	panel.offset_bottom = -172
+	if is_left:
+		panel.anchor_left = 0.0
+		panel.anchor_right = 0.0
+		panel.offset_left = 12
+		panel.offset_right = PORTRAIT_SIZE + 28
+	else:
+		panel.anchor_left = 1.0
+		panel.anchor_right = 1.0
+		panel.offset_left = -PORTRAIT_SIZE - 28
+		panel.offset_right = -12
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.visible = false
+	panel.modulate.a = 0.0
+	panel.add_theme_stylebox_override("panel", _make_portrait_frame_style(Color(0.72, 0.64, 0.46)))
+	return panel
+
+func _make_portrait_frame_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.014, 0.022, 0.30)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.72)
+	style.set_border_width(SIDE_LEFT, 2)
+	style.set_border_width(SIDE_TOP, 1)
+	style.set_border_width(SIDE_RIGHT, 2)
+	style.set_border_width(SIDE_BOTTOM, 2)
+	style.set_corner_radius_all(6)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.50)
+	style.shadow_size = 14
+	style.shadow_offset = Vector2(0, 8)
+	return style
 
 func _make_portrait_rect(is_left: bool) -> TextureRect:
 	var tr = TextureRect.new()
@@ -493,7 +607,7 @@ func _on_step_changed(step: Dictionary) -> void:
 
 	# System log (시스템 메시지)
 	if step.has("system_log"):
-		_show_system_log(step.system_log)
+		_show_system_log(GameManager.localized_value(step, "system_log", String(step.system_log)))
 		_waiting_for_input = true
 		_show_continue(true)
 		return
@@ -505,11 +619,19 @@ func _on_step_changed(step: Dictionary) -> void:
 
 	# 일반 대사 / 나레이션
 	var speaker: String = step.get("speaker", "")
-	var text: String = step.get("text", step.get("narrate", ""))
+	var text: String = ""
+	if step.has("text"):
+		text = GameManager.localized_value(step, "text", "")
+	else:
+		text = GameManager.localized_value(step, "narrate", "")
 	var portrait: String = step.get("portrait", "")
 	var side: String = step.get("side", "")
 
-	if portrait != "" and side != "":
+	if _should_hide_portraits_for_cg_line(step, speaker):
+		_clear_portraits()
+		_active_side = ""
+		_highlight_speaking_side("")
+	elif portrait != "" and side != "":
 		_set_portrait_side(side, portrait)
 		if _uses_single_portrait_composition(speaker):
 			_set_portrait_side(_opposite_side(side), "")
@@ -524,7 +646,26 @@ func _on_step_changed(step: Dictionary) -> void:
 
 func _on_scene_ended(_id: String) -> void:
 	# UI는 SceneFlow가 _close_vn_ui에서 제거
-	pass
+	prepare_for_close()
+
+func prepare_for_close() -> void:
+	_show_continue(false)
+	_waiting_for_input = false
+	_typing_done = true
+	_choice_container.visible = false
+	_choice_header.visible = false
+	_choice_hint.visible = false
+	_text_panel.visible = false
+	_name_panel.visible = false
+	_clear_portraits()
+	for node in [_cg_current, _cg_next, _cg_detail_top, _cg_vignette, _cg_focus_glow, _cg_lower_wash, _glitch_overlay, _chroma_r, _chroma_b, _ember_vignette, _film_grain, _page_turn_overlay]:
+		if node != null and is_instance_valid(node):
+			node.visible = false
+			if node is CanvasItem:
+				(node as CanvasItem).modulate.a = 0.0
+	visible = false
+	set_process(false)
+	set_process_input(false)
 
 ## ===================== CG =====================
 
@@ -540,6 +681,7 @@ func _change_cg(cg_ref: String, fade: float) -> void:
 		return
 
 	# 크로스페이드: next에 새 이미지 올리고 페이드인, 끝나면 current와 교체
+	_apply_cg_presentation_profile(path)
 	_cg_next.texture = tex
 	var tw = create_tween()
 	tw.set_parallel(true)
@@ -557,6 +699,35 @@ func _swap_cg() -> void:
 	# S69: Ken Burns — 정적 일러스트에 미세한 줌+팬으로 생명감
 	_start_ken_burns(_cg_current)
 	_sync_cg_presentation_layers()
+
+func _apply_cg_presentation_profile(path: String) -> void:
+	var key := path.to_lower()
+	var is_reference_card := key.contains("/sheet_") or key.contains("\\sheet_")
+	var is_text_plate := key.contains("chapter_sealed_zone") or key.contains("memory_loss_warning")
+	var is_story_cg := key.contains("/generated/story_") or key.contains("/generated/dialogue_") or key.contains("/generated/chapter_splash_") or key.contains("/generated/cinematic_") or key.contains("/generated/memory_compass_")
+
+	var wash_alpha := CG_LOWER_WASH_ALPHA
+	var glow_alpha := CG_FOCUS_GLOW_ALPHA
+	var vignette_alpha := CG_VIGNETTE_ALPHA
+	if is_reference_card:
+		wash_alpha = 0.06
+		glow_alpha = 0.0
+		vignette_alpha = CG_REFERENCE_CARD_VIGNETTE_ALPHA
+	elif is_text_plate:
+		wash_alpha = 0.08
+		glow_alpha = 0.0
+		vignette_alpha = CG_TEXT_PLATE_VIGNETTE_ALPHA
+	elif is_story_cg:
+		wash_alpha = 0.12
+		glow_alpha = 0.08
+		vignette_alpha = 0.24
+
+	if _cg_lower_wash:
+		_cg_lower_wash.color.a = wash_alpha
+	if _cg_focus_glow:
+		_cg_focus_glow.modulate.a = glow_alpha
+	if _cg_vignette:
+		_cg_vignette.modulate.a = vignette_alpha
 
 func _sync_cg_presentation_layers() -> void:
 	if _cg_detail_top == null:
@@ -625,9 +796,13 @@ func _resolve_cg_path(ref: String) -> String:
 
 func _set_portrait_side(side: String, portrait_id: String) -> void:
 	var target: TextureRect = _portrait_left if side == "left" else _portrait_right
+	var frame: PanelContainer = _portrait_left_frame if side == "left" else _portrait_right_frame
 
 	if portrait_id == "":
 		target.visible = false
+		if frame != null:
+			frame.visible = false
+			frame.modulate.a = 0.0
 		_set_portrait_shadow_alpha(side, 0.0)
 		if side == "left":
 			_left_portrait_id = ""
@@ -644,11 +819,15 @@ func _set_portrait_side(side: String, portrait_id: String) -> void:
 	if path == "" or not ResourceLoader.exists(path):
 		# 폴백
 		target.visible = false
+		if frame != null:
+			frame.visible = false
+			frame.modulate.a = 0.0
 		_set_portrait_shadow_alpha(side, 0.0)
 		return
 
 	target.texture = load(path)
 	target.visible = true
+	_show_portrait_frame(side, portrait_id)
 	var shadow := _portrait_left_shadow if side == "left" else _portrait_right_shadow
 	if shadow != null:
 		shadow.visible = true
@@ -667,6 +846,50 @@ func _set_portrait_side(side: String, portrait_id: String) -> void:
 func _uses_single_portrait_composition(speaker: String) -> bool:
 	return speaker == "Arrel" or speaker == "Elia"
 
+func _show_portrait_frame(side: String, portrait_id: String) -> void:
+	var frame: PanelContainer = _portrait_left_frame if side == "left" else _portrait_right_frame
+	if frame == null:
+		return
+	frame.add_theme_stylebox_override("panel", _make_portrait_frame_style(_portrait_accent_for_id(portrait_id)))
+	frame.visible = true
+	frame.modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(frame, "modulate:a", 0.70, 0.20).set_trans(Tween.TRANS_SINE)
+
+func _portrait_accent_for_id(portrait_id: String) -> Color:
+	var key := portrait_id.to_lower()
+	if key.begins_with("arrel"):
+		return Color(0.72, 0.76, 0.95)
+	if key.begins_with("elia"):
+		return Color(0.62, 0.82, 0.92)
+	if key.begins_with("sable"):
+		return Color(0.74, 0.62, 0.92)
+	if key.begins_with("malet") or key.begins_with("mallet"):
+		return Color(0.92, 0.64, 0.34)
+	if key.begins_with("tobias"):
+		return Color(0.74, 0.68, 0.52)
+	return Color(0.82, 0.68, 0.44)
+
+func _should_hide_portraits_for_cg_line(step: Dictionary, speaker: String) -> bool:
+	if not step.has("cg"):
+		return false
+	var cg_ref := String(step.get("cg", "")).to_lower()
+	if cg_ref == "":
+		return false
+	if _uses_full_scene_story_cg(cg_ref):
+		return true
+	if not _uses_single_portrait_composition(speaker):
+		return false
+	var speaker_key := speaker.to_lower()
+	return cg_ref.contains(speaker_key) or cg_ref.contains("arrel_elia") or cg_ref.contains("duo")
+
+func _uses_full_scene_story_cg(cg_ref: String) -> bool:
+	return cg_ref.contains("/generated/story_") or cg_ref.contains("/generated/dialogue_")
+
+func _clear_portraits() -> void:
+	_set_portrait_side("left", "")
+	_set_portrait_side("right", "")
+
 func _opposite_side(side: String) -> String:
 	return "right" if side == "left" else "left"
 
@@ -674,18 +897,37 @@ func _highlight_speaking_side(side: String) -> void:
 	if side == "left":
 		_portrait_left.modulate = PORTRAIT_BRIGHT
 		_portrait_right.modulate = PORTRAIT_DIM
+		_set_portrait_frame_alpha("left", 0.92)
+		_set_portrait_frame_alpha("right", 0.38)
 		_set_portrait_shadow_alpha("left", 0.42)
 		_set_portrait_shadow_alpha("right", 0.18)
 	elif side == "right":
 		_portrait_right.modulate = PORTRAIT_BRIGHT
 		_portrait_left.modulate = PORTRAIT_DIM
+		_set_portrait_frame_alpha("right", 0.92)
+		_set_portrait_frame_alpha("left", 0.38)
 		_set_portrait_shadow_alpha("right", 0.42)
 		_set_portrait_shadow_alpha("left", 0.18)
 	else:
 		_portrait_left.modulate = PORTRAIT_DIM
 		_portrait_right.modulate = PORTRAIT_DIM
+		_set_portrait_frame_alpha("left", 0.42)
+		_set_portrait_frame_alpha("right", 0.42)
 		_set_portrait_shadow_alpha("left", 0.20)
 		_set_portrait_shadow_alpha("right", 0.20)
+
+func _set_portrait_frame_alpha(side: String, alpha: float) -> void:
+	var frame: PanelContainer = _portrait_left_frame if side == "left" else _portrait_right_frame
+	var portrait: TextureRect = _portrait_left if side == "left" else _portrait_right
+	if frame == null:
+		return
+	if portrait == null or not portrait.visible:
+		frame.visible = false
+		frame.modulate.a = 0.0
+		return
+	frame.visible = true
+	var tw := create_tween()
+	tw.tween_property(frame, "modulate:a", alpha, 0.22).set_trans(Tween.TRANS_SINE)
 
 func _set_portrait_shadow_alpha(side: String, alpha: float) -> void:
 	var shadow := _portrait_left_shadow if side == "left" else _portrait_right_shadow
@@ -802,7 +1044,7 @@ func _display_line(speaker: String, text: String) -> void:
 	if speaker == "":
 		_name_panel.visible = false
 	else:
-		_name_label.text = speaker
+		_name_label.text = GameManager.localized_speaker(speaker)
 		_name_label.add_theme_color_override("font_color", _color_for_speaker(speaker))
 		_name_panel.visible = true
 
@@ -889,7 +1131,7 @@ func _show_continue(on: bool) -> void:
 func _show_system_log(msg: String) -> void:
 	# 대화박스를 시스템 로그 스타일로 표시 (SYSTEM 라벨 + 청록색)
 	_name_panel.visible = true
-	_name_label.text = "SYSTEM"
+	_name_label.text = GameManager.localized_speaker("System")
 	_name_label.add_theme_color_override("font_color", Color(0.5, 0.85, 0.95))
 	_full_text = msg
 	_typed_chars = msg.length()
@@ -906,8 +1148,8 @@ func _show_choices(choices: Array) -> void:
 	_choice_container.visible = true
 	_choice_header.visible = true
 	_choice_hint.visible = true
-	_choice_header.text = _current_step.get("choice_title", "DECISION")
-	_choice_hint.text = _current_step.get("choice_hint", "Some choices change what Arrel can keep, spend, or survive.")
+	_choice_header.text = GameManager.localized_value(_current_step, "choice_title", "결정" if GameManager.current_locale == "ko" else "DECISION")
+	_choice_hint.text = GameManager.localized_value(_current_step, "choice_hint", "어떤 선택은 아렐이 지킬 것, 잃을 것, 살아남는 방식을 바꿉니다." if GameManager.current_locale == "ko" else "Some choices change what Arrel can keep, spend, or survive.")
 	_text_panel.visible = false
 	_name_panel.visible = false
 	_show_continue(false)
@@ -943,11 +1185,12 @@ func _show_choices(choices: Array) -> void:
 				continue
 
 		var btn = Button.new()
-		var label_text = c.get("text", "...")
+		var label_text = GameManager.localized_value(c, "text", String(c.get("text", "...")))
 		if is_cost_choice and cost_mem != null:
-			label_text = "✦  %s\n    [Burn: %s]" % [c.get("text", "..."), cost_mem.title]
+			var burn_label := "연소" if GameManager.current_locale == "ko" else "Burn"
+			label_text = "✦  %s\n    [%s: %s]" % [label_text, burn_label, cost_mem.title]
 		if c.has("effect"):
-			label_text += "\n    %s" % String(c.effect)
+			label_text += "\n    %s" % GameManager.localized_value(c, "effect", String(c.effect))
 		btn.text = label_text
 		var button_height := 76 if c.has("effect") else (64 if is_cost_choice else 54)
 		btn.custom_minimum_size = Vector2(680, button_height)
@@ -981,12 +1224,49 @@ func _show_choices(choices: Array) -> void:
 		btn.scale = Vector2(0.99, 0.99)
 		_choice_container.add_child(btn)
 
+	if _choice_container.get_child_count() == 0:
+		_add_no_available_choice_button()
+		return
+
 	for ci in range(_choice_container.get_child_count()):
 		var child_btn = _choice_container.get_child(ci)
 		var tw = create_tween()
 		tw.set_parallel(true)
 		tw.tween_property(child_btn, "modulate:a", 1.0, 0.16).set_delay(ci * 0.045).set_ease(Tween.EASE_OUT)
 		tw.tween_property(child_btn, "scale", Vector2.ONE, 0.16).set_delay(ci * 0.045).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+
+func _add_no_available_choice_button() -> void:
+	_choice_header.text = "결정 보류" if GameManager.current_locale == "ko" else "DECISION HELD"
+	_choice_hint.text = "지금 고를 수 있는 선택지가 없습니다. 이야기를 계속합니다." if GameManager.current_locale == "ko" else "No available choice can be taken right now. Continue the scene."
+	var btn := Button.new()
+	btn.text = "계속" if GameManager.current_locale == "ko" else "Continue"
+	btn.custom_minimum_size = Vector2(680, 54)
+	btn.add_theme_font_size_override("font_size", 16)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.030, 0.026, 0.038, 0.94)
+	style.border_color = Color(0.62, 0.48, 0.28, 0.62)
+	style.set_border_width_all(1)
+	style.set_content_margin_all(12)
+	style.set_corner_radius_all(4)
+	btn.add_theme_stylebox_override("normal", style)
+	var hover := style.duplicate()
+	hover.bg_color = Color(0.12, 0.092, 0.080, 0.98)
+	hover.border_color = Color(0.9, 0.75, 0.45, 1.0)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("focus", hover)
+	btn.add_theme_color_override("font_color", Color(0.94, 0.9, 0.82))
+	btn.pressed.connect(_on_no_available_choice_continue)
+	_choice_container.add_child(btn)
+
+func _on_no_available_choice_continue() -> void:
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("ui_select")
+	_choice_container.visible = false
+	_choice_header.visible = false
+	_choice_hint.visible = false
+	_text_panel.visible = true
+	_dim_background_for_choice(false)
+	SceneFlow.advance()
 
 func _on_choice_selected(index: int) -> void:
 	if has_node("/root/AudioManager"):

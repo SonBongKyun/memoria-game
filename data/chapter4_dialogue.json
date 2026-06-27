@@ -92,7 +92,7 @@
         "speaker": "Elia",
         "text": "Arrel. Sit down. Give me your hands.",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/game_image/sheet_elia_healing.png"
+        "cg": "res://assets/cg/generated/story_ch4_drift_anchor.png"
       },
       {
         "speaker": "Arrel",
@@ -213,7 +213,7 @@
       {
         "speaker": "",
         "text": "Night fell. Tobias snored softly by the fire. Elia sat with her back against the overpass wall.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/story_ch4_drift_anchor.png"
       },
       {
         "speaker": "Arrel",
@@ -333,7 +333,7 @@
       {
         "speaker": "",
         "text": "A fragment surfaces — unbidden, unwanted.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png"
       },
       {
         "speaker": "???",

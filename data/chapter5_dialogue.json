@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "The Crumbling Coast.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png"
       },
       {
         "speaker": "",
@@ -69,7 +69,7 @@
       {
         "speaker": "",
         "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png"
       },
       {
         "choices": [
@@ -89,7 +89,7 @@
         "speaker": "Elia",
         "text": "...Alright. Together, then.",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png"
       },
       {
         "speaker": "",
@@ -104,7 +104,7 @@
       {
         "speaker": "",
         "text": "Something flickered across her face. Too fast to name.",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png"
       },
       {
         "speaker": "Elia",
@@ -138,7 +138,7 @@
       {
         "speaker": "",
         "text": "A familiar silhouette stood at the Seam's entrance. Windswept. Tired. Alive.",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png"
       },
       {
         "speaker": "Elia",
@@ -202,7 +202,7 @@
       {
         "speaker": "",
         "text": "The colors came first.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png"
       },
       {
         "speaker": "",
@@ -356,7 +356,7 @@
       {
         "speaker": "",
         "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png"
       },
       {
         "speaker": "Elia",
@@ -398,7 +398,7 @@
         "speaker": "Elia",
         "text": "Arrel. If we split up—",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png"
       },
       {
         "speaker": "Arrel",
@@ -461,7 +461,7 @@
         "speaker": "Arrel",
         "text": "A sword. A courtyard. Someone important.",
         "portrait": "arrel_exhausted",
-        "cg": "res://assets/cg/game_image/sheet_elia_profile.png"
+        "cg": "res://assets/cg/generated/memory_burn_first_sword.png"
       },
       {
         "speaker": "Elia",

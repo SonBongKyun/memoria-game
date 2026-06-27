@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "Verdan. The largest settlement in the Gray Belt.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png"
       },
       {
         "speaker": "",
@@ -69,7 +69,7 @@
         "speaker": "Malet",
         "text": "My price: the day you first held a sword.",
         "portrait": "malet_price_revealed",
-        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+        "cg": "res://assets/cg/generated/dialogue_ch2_malet_memory_trade.png"
       },
       {
         "choices": [
@@ -172,7 +172,7 @@
         "speaker": "Elia",
         "text": "Don't linger. People remember faces here, even if they can't remember why.",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png",
+        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png",
         "requires_memory": "daily_market_food",
         "burned_text": "There was this market you mentioned once... You don't remember it at all, do you?"
       },
@@ -193,7 +193,7 @@
       {
         "speaker": "",
         "text": "The market sprawled like a wound that refused to close.",
-        "cg": "res://assets/cg/game_image/sealed_gate_plaza.png"
+        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png"
       },
       {
         "speaker": "",
@@ -233,7 +233,7 @@
       {
         "speaker": "",
         "text": "An old man sat on a crate near the market's edge, staring at nothing.",
-        "cg": "res://assets/cg/game_image/sealed_city_ruins.png"
+        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png"
       },
       {
         "speaker": "",
@@ -342,7 +342,7 @@
         "speaker": "Elia",
         "text": "Arrel. Before we go further.",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/game_image/sheet_arrel_elia_duo.png"
+        "cg": "res://assets/cg/generated/dialogue_ch2_malet_memory_trade.png"
       },
       {
         "speaker": "Arrel",

@@ -300,36 +300,43 @@ func _show_rewrite_art(report: Dictionary) -> void:
 	if art_path == "" or not ResourceLoader.exists(art_path):
 		return
 	var layer := CanvasLayer.new()
-	layer.layer = 22
+	layer.layer = 8
 	layer.name = "WorldRewriteArtFlash"
-	layer.modulate.a = 0.0
 	add_child(layer)
 
+	var root := Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.size = get_viewport().get_visible_rect().size
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.modulate.a = 0.0
+	layer.add_child(root)
+
 	var plate := TextureRect.new()
-	plate.set_anchors_preset(Control.PRESET_FULL_RECT)
+	plate.anchor_left = 0.66
+	plate.anchor_right = 0.985
+	plate.anchor_top = 0.08
+	plate.anchor_bottom = 0.52
 	plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	plate.texture = load(art_path)
 	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(plate)
+	plate.modulate = Color(1.0, 0.92, 0.78, 0.58)
+	root.add_child(plate)
 
 	var wash := ColorRect.new()
-	wash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	wash.anchor_left = plate.anchor_left
+	wash.anchor_right = plate.anchor_right
+	wash.anchor_top = plate.anchor_top
+	wash.anchor_bottom = plate.anchor_bottom
 	var tint: Color = report.get("color", Color(0.86, 0.68, 0.44))
-	wash.color = Color(tint.r, tint.g, tint.b, 0.10)
+	wash.color = Color(tint.r, tint.g, tint.b, 0.08)
 	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(wash)
-
-	var shade := ColorRect.new()
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shade.color = Color(0, 0, 0, 0.28)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(shade)
+	root.add_child(wash)
 
 	var tween := create_tween()
-	tween.tween_property(layer, "modulate:a", 0.82, 0.16)
-	tween.tween_interval(0.62)
-	tween.tween_property(layer, "modulate:a", 0.0, 0.46).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(root, "modulate:a", 0.62, 0.16)
+	tween.tween_interval(0.46)
+	tween.tween_property(root, "modulate:a", 0.0, 0.46).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.finished.connect(func():
 		if is_instance_valid(layer):
 			layer.queue_free()

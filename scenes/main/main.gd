@@ -8,14 +8,17 @@ extends Control
 @onready var quit_btn: Button = $VBoxContainer/QuitButton
 @onready var menu_container: VBoxContainer = $VBoxContainer
 
-const TITLE_BG_PATH: String = "res://assets/cg/game_image/game_start.png"
+const TITLE_BG_PATH: String = "res://assets/cg/generated/ui_title_memoria_premium.png"
 const TITLE_BGM_PATH: String = "res://assets/audio/bgm/title.mp3"
 
 var _bg: TextureRect
+var _shade: ColorRect
+var _title_stack: VBoxContainer
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
 	_build_background()
+	_build_title_copy()
 	_setup_menu()
 	_fade_in_title()
 	_play_title_bgm()
@@ -34,26 +37,78 @@ func _build_background() -> void:
 	add_child(_bg)
 	move_child(_bg, 0)
 
+	_shade = ColorRect.new()
+	_shade.set_anchors_preset(PRESET_FULL_RECT)
+	_shade.color = Color(0.0, 0.0, 0.0, 0.24)
+	_shade.mouse_filter = MOUSE_FILTER_IGNORE
+	_shade.z_index = -1
+	add_child(_shade)
+	move_child(_shade, 1)
+
+func _build_title_copy() -> void:
+	_title_stack = VBoxContainer.new()
+	_title_stack.anchor_left = 0.055
+	_title_stack.anchor_right = 0.54
+	_title_stack.anchor_top = 0.12
+	_title_stack.anchor_bottom = 0.34
+	_title_stack.add_theme_constant_override("separation", 4)
+	_title_stack.mouse_filter = MOUSE_FILTER_IGNORE
+	add_child(_title_stack)
+
+	var title = Label.new()
+	title.text = "MEMORIA"
+	UITheme.apply_title_font(title)
+	title.add_theme_font_size_override("font_size", 54)
+	title.add_theme_color_override("font_color", Color(0.92, 0.78, 0.48))
+	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.82))
+	title.add_theme_constant_override("shadow_outline_size", 4)
+	title.add_theme_constant_override("shadow_offset_x", 2)
+	title.add_theme_constant_override("shadow_offset_y", 3)
+	_title_stack.add_child(title)
+
+	var subtitle = Label.new()
+	subtitle.text = "The Price of Oblivion"
+	UITheme.apply_title_font(subtitle)
+	subtitle.add_theme_font_size_override("font_size", 22)
+	subtitle.add_theme_color_override("font_color", Color(0.86, 0.80, 0.68))
+	subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.82))
+	subtitle.add_theme_constant_override("shadow_outline_size", 3)
+	subtitle.add_theme_constant_override("shadow_offset_x", 1)
+	subtitle.add_theme_constant_override("shadow_offset_y", 2)
+	_title_stack.add_child(subtitle)
+
+	var line = ColorRect.new()
+	line.custom_minimum_size = Vector2(300, 2)
+	line.color = Color(0.82, 0.62, 0.30, 0.64)
+	_title_stack.add_child(line)
+
+	var tag = Label.new()
+	tag.text = "Burn what you remember. Carry what remains."
+	UITheme.apply_body_font(tag)
+	tag.add_theme_font_size_override("font_size", 14)
+	tag.add_theme_color_override("font_color", Color(0.67, 0.62, 0.54))
+	tag.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.70))
+	tag.add_theme_constant_override("shadow_outline_size", 2)
+	_title_stack.add_child(tag)
+
 func _setup_menu() -> void:
-	# The GAME START illustration already contains the visible menu.
-	# Keep these as invisible hit targets only, so the art is not overpainted.
 	menu_container.visible = true
 	menu_container.anchor_left = 0.720
-	menu_container.anchor_top = 0.652
+	menu_container.anchor_top = 0.545
 	menu_container.anchor_right = 0.956
-	menu_container.anchor_bottom = 0.928
+	menu_container.anchor_bottom = 0.875
 	menu_container.offset_left = 0
 	menu_container.offset_top = 0
 	menu_container.offset_right = 0
 	menu_container.offset_bottom = 0
 	menu_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	menu_container.add_theme_constant_override("separation", 10)
-	menu_container.modulate.a = 0.0
+	menu_container.add_theme_constant_override("separation", 11)
+	menu_container.modulate.a = 1.0
 
-	new_game_btn.text = ""
-	continue_btn.text = ""
-	options_btn.text = ""
-	quit_btn.text = ""
+	new_game_btn.text = "New Game"
+	continue_btn.text = "Continue"
+	options_btn.text = "Options"
+	quit_btn.text = "Quit"
 
 	for btn in menu_container.get_children():
 		if btn is Button:
@@ -64,35 +119,40 @@ func _setup_menu() -> void:
 		continue_btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
 
 func _style_title_button(btn: Button) -> void:
-	btn.custom_minimum_size = Vector2(238, 35)
+	btn.custom_minimum_size = Vector2(250, 42)
 	btn.focus_mode = Control.FOCUS_ALL
 
 	var normal = StyleBoxFlat.new()
-	normal.bg_color = Color(0, 0, 0, 0.0)
-	normal.border_color = Color(0.72, 0.58, 0.35, 0.0)
+	normal.bg_color = Color(0.035, 0.030, 0.045, 0.72)
+	normal.border_color = Color(0.58, 0.44, 0.24, 0.55)
 	normal.set_border_width_all(1)
-	normal.set_corner_radius_all(2)
-	normal.set_content_margin_all(5)
+	normal.set_corner_radius_all(4)
+	normal.set_content_margin_all(8)
 	btn.add_theme_stylebox_override("normal", normal)
 
 	var hover = normal.duplicate()
-	hover.bg_color = Color(0, 0, 0, 0.0)
-	hover.border_color = Color(0, 0, 0, 0.0)
+	hover.bg_color = Color(0.12, 0.095, 0.075, 0.86)
+	hover.border_color = Color(0.95, 0.72, 0.36, 0.90)
 	btn.add_theme_stylebox_override("hover", hover)
 	btn.add_theme_stylebox_override("focus", hover)
 
 	var pressed = hover.duplicate()
+	pressed.bg_color = Color(0.16, 0.12, 0.08, 0.94)
 	btn.add_theme_stylebox_override("pressed", pressed)
 
 	var disabled = normal.duplicate()
-	disabled.bg_color = Color(0, 0, 0, 0.0)
+	disabled.bg_color = Color(0.025, 0.025, 0.030, 0.45)
+	disabled.border_color = Color(0.24, 0.22, 0.20, 0.32)
 	btn.add_theme_stylebox_override("disabled", disabled)
 
-	btn.add_theme_color_override("font_color", Color(1, 1, 1, 0.0))
-	btn.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.0))
-	btn.add_theme_color_override("font_focus_color", Color(1, 1, 1, 0.0))
-	btn.add_theme_color_override("font_pressed_color", Color(1, 1, 1, 0.0))
-	btn.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.0))
+	btn.add_theme_font_size_override("font_size", 17)
+	btn.add_theme_color_override("font_color", Color(0.82, 0.76, 0.66, 0.95))
+	btn.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.52, 1.0))
+	btn.add_theme_color_override("font_focus_color", Color(1.0, 0.86, 0.52, 1.0))
+	btn.add_theme_color_override("font_pressed_color", Color(1.0, 0.90, 0.62, 1.0))
+	btn.add_theme_color_override("font_disabled_color", Color(0.38, 0.36, 0.34, 0.85))
+	btn.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
+	btn.add_theme_constant_override("shadow_outline_size", 2)
 
 	btn.mouse_entered.connect(func():
 		if has_node("/root/AudioManager"):
@@ -102,6 +162,12 @@ func _style_title_button(btn: Button) -> void:
 func _fade_in_title() -> void:
 	_bg.modulate.a = 1.0
 	menu_container.modulate.a = 0.0
+	if _title_stack:
+		_title_stack.modulate.a = 0.0
+	var tw = create_tween().set_parallel(true)
+	tw.tween_property(menu_container, "modulate:a", 1.0, 0.45).set_trans(Tween.TRANS_SINE)
+	if _title_stack:
+		tw.tween_property(_title_stack, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_SINE)
 
 func _play_title_bgm() -> void:
 	if has_node("/root/AudioManager") and ResourceLoader.exists(TITLE_BGM_PATH):
