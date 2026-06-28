@@ -107,6 +107,18 @@ static func make_body_font() -> SystemFont:
 	])
 	return font
 
+static func make_ui_font() -> SystemFont:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray([
+		"Segoe UI",
+		"Pretendard",
+		"Noto Sans KR",
+		"Malgun Gothic",
+		"Arial",
+		"sans-serif",
+	])
+	return font
+
 static func apply_title_font(control: Control) -> void:
 	if control:
 		control.add_theme_font_override("font", make_title_font())
@@ -114,6 +126,10 @@ static func apply_title_font(control: Control) -> void:
 static func apply_body_font(control: Control) -> void:
 	if control:
 		control.add_theme_font_override("font", make_body_font())
+
+static func apply_ui_font(control: Control) -> void:
+	if control:
+		control.add_theme_font_override("font", make_ui_font())
 
 ## 화자 이름 색상 가져오기
 static func get_speaker_color(speaker: String) -> Color:

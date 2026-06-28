@@ -447,6 +447,102 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/memory_burn_void_walker.png",
 		"desc": "Battle cut-in for late-game BL-07 and void-walker memory loss."
 	},
+	{
+		"title": "Arrel: Memory Cascade",
+		"type": "Generated Ultimate Cut-In",
+		"path": "res://assets/cg/generated/cinematic_arrel_memory_cascade.png",
+		"desc": "Arrel releases every surviving fragment at once during the Memory Cascade limit break."
+	},
+	{
+		"title": "Elia: Anchor Pulse",
+		"type": "Generated Companion Cut-In",
+		"path": "res://assets/cg/generated/cinematic_elia_anchor_pulse.png",
+		"desc": "Elia stitches fractured memory geometry together with an anchoring pulse."
+	},
+	{
+		"title": "Sable: Echo Strike",
+		"type": "Generated Companion Cut-In",
+		"path": "res://assets/cg/generated/cinematic_sable_echo_strike.png",
+		"desc": "Sable crosses the Seam in a single pale-blue and violet echo strike."
+	},
+	{
+		"title": "Tobias: Record Ward",
+		"type": "Generated Companion Cut-In",
+		"path": "res://assets/cg/generated/cinematic_tobias_record_ward.png",
+		"desc": "Tobias turns archived records into analysis, protection, and battlefield leverage."
+	},
+	{
+		"title": "Void Beast: Memory Devour",
+		"type": "Generated Enemy Cut-In",
+		"path": "res://assets/cg/generated/cinematic_void_beast_memory_devour.png",
+		"desc": "A void beast tears luminous identity fragments out of the battlefield."
+	},
+	{
+		"title": "Shade Sentinel: Second Crown",
+		"type": "Generated Boss Phase Cut-In",
+		"path": "res://assets/cg/generated/cinematic_shade_sentinel_phase2.png",
+		"desc": "The Sentinel opens its second crown and divides across failed memories."
+	},
+	{
+		"title": "Kairos: Authority Edit",
+		"type": "Generated Boss Phase Cut-In",
+		"path": "res://assets/cg/generated/cinematic_kairos_authority_edit.png",
+		"desc": "Kairos calmly cuts, catalogs, and rearranges the battlefield's reality."
+	},
+	{
+		"title": "Act I: Aftermath",
+		"type": "Generated Opening Story CG",
+		"path": "res://assets/cg/generated/story_ch1_opening_aftermath.png",
+		"desc": "Arrel studies the hand that survived after the first void-beast kill."
+	},
+	{
+		"title": "Act I: Elia's Lantern",
+		"type": "Generated Character Story CG",
+		"path": "res://assets/cg/generated/story_ch1_elia_reunion.png",
+		"desc": "Elia finds Arrel in the ash and keeps carefully outside the blade's reach."
+	},
+	{
+		"title": "Act I: Ash Rain",
+		"type": "Generated Story CG",
+		"path": "res://assets/cg/generated/story_ch1_ash_rain_touch.png",
+		"desc": "A stranger's residual warmth dissolves against Arrel's cheek."
+	},
+	{
+		"title": "Act I: The Missing Fire",
+		"type": "Generated Character Story CG",
+		"path": "res://assets/cg/generated/story_ch1_camp_humming.png",
+		"desc": "Elia's melody crosses the dark camp and breaks before it reaches Arrel."
+	},
+	{
+		"title": "Act I: Twisted Path",
+		"type": "Generated Environment CG",
+		"path": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
+		"desc": "The first playable path beneath the rib-like roots of the Rim Forest."
+	},
+	{
+		"title": "Act I: Memory Shrine",
+		"type": "Generated Exploration CG",
+		"path": "res://assets/cg/generated/story_ch1_memory_shrine.png",
+		"desc": "A petrified stump and cairn hold the shape of lives the forest forgot."
+	},
+	{
+		"title": "Act I: It Uncoils",
+		"type": "Generated Boss Introduction CG",
+		"path": "res://assets/cg/generated/story_ch1_void_beast_emergence.png",
+		"desc": "The first Void Beast descends from the canopy above the narrowing path."
+	},
+	{
+		"title": "Act I: The Idea of Heat",
+		"type": "Generated Memory-Burn CG",
+		"path": "res://assets/cg/generated/story_ch1_first_burn_strike.png",
+		"desc": "A sensory memory becomes one pale-gold cut through the void."
+	},
+	{
+		"title": "Act I: One Green Tree",
+		"type": "Generated Chapter Ending CG",
+		"path": "res://assets/cg/generated/story_ch1_green_tree_dawn.png",
+		"desc": "At dawn, one living tree remains where the ash forest ends."
+	},
 ]
 
 func _ready() -> void:

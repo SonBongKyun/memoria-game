@@ -151,7 +151,7 @@
       "start_index": 5
     },
     {
-      "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
+      "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png",
       "fade": 1.0,
       "narrate": "Elia waited where the path forked, hands loose at her sides, watching him in that careful way she had.",
       "narrate_ko": "엘리아는 갈림길에서 기다리고 있었다. 양손을 느슨하게 내린 채, 늘 그렇듯 조심스럽게 그를 바라보며."
@@ -210,7 +210,7 @@
       "start_index": 5
     },
     {
-      "cg": "res://assets/cg/game_image/void_beast_confrontation.png",
+      "cg": "res://assets/cg/generated/story_ch1_void_beast_emergence.png",
       "fade": 1.6,
       "narrate": "The path narrowed. The trees pressed closer.",
       "narrate_ko": "길은 좁아졌다. 나무들이 더 가까이 밀려왔다."

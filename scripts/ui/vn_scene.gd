@@ -14,11 +14,14 @@ const CG_VIGNETTE_ALPHA: float = 0.34
 const CG_TEXT_PLATE_VIGNETTE_ALPHA: float = 0.14
 const CG_REFERENCE_CARD_VIGNETTE_ALPHA: float = 0.04
 const CG_ALIAS_FALLBACKS: Dictionary = {
-	"ch1_twisted_forest": "res://assets/cg/generated/chapter_splash_rim_forest.png",
-	"ch1_stump2": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
-	"ch1_green_tree": "res://assets/cg/game_image/sealed_city_ruins.png",
+	"ch1_twisted_forest": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
+	"ch1_stump2": "res://assets/cg/generated/story_ch1_memory_shrine.png",
+	"ch1_ash_forest": "res://assets/cg/generated/story_ch1_memory_shrine.png",
+	"ch1_green_tree": "res://assets/cg/generated/story_ch1_green_tree_dawn.png",
 }
 const DEFAULT_CG_FALLBACK: String = "res://assets/cg/generated/chapter_splash_rim_forest.png"
+const DIALOGUE_OVERLAY_PATH: String = "res://assets/cg/generated/ui_vn_memory_frame_overlay.png"
+const CHOICE_OVERLAY_PATH: String = "res://assets/cg/generated/ui_vn_choice_archive_overlay.png"
 
 # 노드
 var _bg: ColorRect
@@ -43,6 +46,8 @@ var _continue_tween: Tween
 var _choice_header: Label
 var _choice_hint: Label
 var _choice_container: VBoxContainer
+var _dialogue_frame_art: TextureRect
+var _choice_frame_art: TextureRect
 var _letterbox_top: ColorRect
 var _letterbox_bottom: ColorRect
 
@@ -178,6 +183,12 @@ func _build_ui() -> void:
 	_portrait_right = _make_portrait_rect(false)
 	root.add_child(_portrait_right)
 
+	_dialogue_frame_art = _make_interface_overlay(DIALOGUE_OVERLAY_PATH)
+	root.add_child(_dialogue_frame_art)
+	_choice_frame_art = _make_interface_overlay(CHOICE_OVERLAY_PATH)
+	_choice_frame_art.visible = false
+	root.add_child(_choice_frame_art)
+
 	# 대화 박스 패널
 	_text_panel = PanelContainer.new()
 	_text_panel.anchor_left = 0.08
@@ -204,9 +215,9 @@ func _build_ui() -> void:
 	_text_label.fit_content = false
 	_text_label.scroll_active = false
 	# S71: 책 같은 가독성 — 사이즈 키우고 행간 넓히기. theme.tres가 serif 폰트 자동 적용
-	_text_label.add_theme_font_size_override("normal_font_size", 21)
+	_text_label.add_theme_font_size_override("normal_font_size", 22)
 	_text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
-	_text_label.add_theme_constant_override("line_separation", 8)
+	_text_label.add_theme_constant_override("line_separation", 9)
 	_text_label.add_theme_color_override("default_color", Color(0.94, 0.91, 0.84))
 	# 부드러운 검정 그림자로 어두운 CG 위에서도 가독성 확보
 	_text_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
@@ -221,10 +232,10 @@ func _build_ui() -> void:
 	_name_panel.anchor_right = 0.08
 	_name_panel.anchor_top = 1.0
 	_name_panel.anchor_bottom = 1.0
-	_name_panel.offset_left = 10
-	_name_panel.offset_top = -236
-	_name_panel.offset_bottom = -200
-	_name_panel.offset_right = 180
+	_name_panel.offset_left = -20
+	_name_panel.offset_top = -290
+	_name_panel.offset_bottom = -245
+	_name_panel.offset_right = 208
 	var nstyle = StyleBoxFlat.new()
 	nstyle.bg_color = Color(0.12, 0.09, 0.05, 0.95)
 	nstyle.border_color = Color(0.75, 0.6, 0.35, 0.9)
@@ -239,7 +250,7 @@ func _build_ui() -> void:
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	UITheme.apply_title_font(_name_label)
 	# S71: 화자 이름 — 살짝 더 큼 + letter_spacing 느낌의 voff
-	_name_label.add_theme_font_size_override("font_size", 19)
+	_name_label.add_theme_font_size_override("font_size", 20)
 	_name_label.add_theme_color_override("font_color", Color(0.97, 0.86, 0.55))
 	_name_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	_name_label.add_theme_constant_override("shadow_outline_size", 2)
@@ -251,6 +262,7 @@ func _build_ui() -> void:
 	# 계속 표시 화살표
 	_continue_indicator = Label.new()
 	_continue_indicator.text = "NEXT"
+	UITheme.apply_ui_font(_continue_indicator)
 	_continue_indicator.anchor_left = 1.0
 	_continue_indicator.anchor_right = 1.0
 	_continue_indicator.anchor_top = 1.0
@@ -274,7 +286,8 @@ func _build_ui() -> void:
 	_choice_header.offset_top = -4
 	_choice_header.offset_bottom = 32
 	_choice_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_choice_header.add_theme_font_size_override("font_size", 16)
+	UITheme.apply_title_font(_choice_header)
+	_choice_header.add_theme_font_size_override("font_size", 20)
 	_choice_header.add_theme_color_override("font_color", Color(0.96, 0.78, 0.45, 0.92))
 	_choice_header.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
 	_choice_header.add_theme_constant_override("shadow_outline_size", 2)
@@ -291,6 +304,7 @@ func _build_ui() -> void:
 	_choice_hint.offset_bottom = 28
 	_choice_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UITheme.apply_ui_font(_choice_hint)
 	_choice_hint.add_theme_font_size_override("font_size", 13)
 	_choice_hint.add_theme_color_override("font_color", Color(0.86, 0.82, 0.72, 0.76))
 	_choice_hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
@@ -309,6 +323,18 @@ func _build_ui() -> void:
 	_choice_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	root.add_child(_choice_container)
 	_choice_container.visible = false
+
+func _make_interface_overlay(path: String) -> TextureRect:
+	var overlay := TextureRect.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	overlay.stretch_mode = TextureRect.STRETCH_SCALE
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(path):
+		overlay.texture = load(path)
+	else:
+		overlay.visible = false
+	return overlay
 
 func _build_glitch_layer() -> void:
 	# 색수차 복사본 (CG 위에 R/B 채널 오프셋)
@@ -657,6 +683,8 @@ func prepare_for_close() -> void:
 	_choice_hint.visible = false
 	_text_panel.visible = false
 	_name_panel.visible = false
+	_dialogue_frame_art.visible = false
+	_choice_frame_art.visible = false
 	_clear_portraits()
 	for node in [_cg_current, _cg_next, _cg_detail_top, _cg_vignette, _cg_focus_glow, _cg_lower_wash, _glitch_overlay, _chroma_r, _chroma_b, _ember_vignette, _film_grain, _page_turn_overlay]:
 		if node != null and is_instance_valid(node):
@@ -1029,6 +1057,8 @@ func _scramble_text(source: String) -> String:
 ## ===================== TEXT =====================
 
 func _display_line(speaker: String, text: String) -> void:
+	_dialogue_frame_art.visible = true
+	_choice_frame_art.visible = false
 	# S73: 책 페이지 넘기기 — 이전 줄에서 새 줄로 전환 시 종이 스윕
 	if _last_displayed_text != "" and _last_displayed_text != text:
 		_play_page_turn()
@@ -1129,6 +1159,8 @@ func _show_continue(on: bool) -> void:
 ## ===================== SYSTEM LOG =====================
 
 func _show_system_log(msg: String) -> void:
+	_dialogue_frame_art.visible = true
+	_choice_frame_art.visible = false
 	# 대화박스를 시스템 로그 스타일로 표시 (SYSTEM 라벨 + 청록색)
 	_name_panel.visible = true
 	_name_label.text = GameManager.localized_speaker("System")
@@ -1148,6 +1180,8 @@ func _show_choices(choices: Array) -> void:
 	_choice_container.visible = true
 	_choice_header.visible = true
 	_choice_hint.visible = true
+	_dialogue_frame_art.visible = false
+	_choice_frame_art.visible = true
 	_choice_header.text = GameManager.localized_value(_current_step, "choice_title", "결정" if GameManager.current_locale == "ko" else "DECISION")
 	_choice_hint.text = GameManager.localized_value(_current_step, "choice_hint", "어떤 선택은 아렐이 지킬 것, 잃을 것, 살아남는 방식을 바꿉니다." if GameManager.current_locale == "ko" else "Some choices change what Arrel can keep, spend, or survive.")
 	_text_panel.visible = false
@@ -1194,7 +1228,8 @@ func _show_choices(choices: Array) -> void:
 		btn.text = label_text
 		var button_height := 76 if c.has("effect") else (64 if is_cost_choice else 54)
 		btn.custom_minimum_size = Vector2(680, button_height)
-		btn.add_theme_font_size_override("font_size", 16)
+		UITheme.apply_body_font(btn)
+		btn.add_theme_font_size_override("font_size", 17)
 		var bstyle = StyleBoxFlat.new()
 		bstyle.bg_color = Color(0.030, 0.026, 0.038, 0.94)
 		bstyle.border_color = Color(0.62, 0.48, 0.28, 0.62)
@@ -1241,7 +1276,8 @@ func _add_no_available_choice_button() -> void:
 	var btn := Button.new()
 	btn.text = "계속" if GameManager.current_locale == "ko" else "Continue"
 	btn.custom_minimum_size = Vector2(680, 54)
-	btn.add_theme_font_size_override("font_size", 16)
+	UITheme.apply_body_font(btn)
+	btn.add_theme_font_size_override("font_size", 17)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.030, 0.026, 0.038, 0.94)
 	style.border_color = Color(0.62, 0.48, 0.28, 0.62)
@@ -1265,6 +1301,8 @@ func _on_no_available_choice_continue() -> void:
 	_choice_header.visible = false
 	_choice_hint.visible = false
 	_text_panel.visible = true
+	_dialogue_frame_art.visible = true
+	_choice_frame_art.visible = false
 	_dim_background_for_choice(false)
 	SceneFlow.advance()
 
@@ -1275,6 +1313,8 @@ func _on_choice_selected(index: int) -> void:
 	_choice_header.visible = false
 	_choice_hint.visible = false
 	_text_panel.visible = true
+	_dialogue_frame_art.visible = true
+	_choice_frame_art.visible = false
 	# S69: 선택지 닫히면 배경 복귀
 	_dim_background_for_choice(false)
 	SceneFlow.select_choice(index)

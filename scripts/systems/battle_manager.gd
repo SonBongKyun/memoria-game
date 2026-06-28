@@ -90,7 +90,9 @@ const ART_KAIROS_FALLBACK: String = "res://assets/cg/game_image/kairos_fullbody.
 const ART_NERA_FULLBODY: String = "res://assets/cg/game_image/nera_fullbody.png"
 const ART_TOBIAS_FULLBODY: String = "res://assets/cg/game_image/tobias_fullbody.png"
 const ART_VEIL_FULLBODY: String = "res://assets/cg/game_image/veil_fullbody.png"
-const ART_VOID_BEAST: String = "res://assets/cg/game_image/void_beast_confrontation.png"
+const ART_VOID_BEAST: String = "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"
+const ART_VOID_BEAST_FALLBACK: String = "res://assets/cg/game_image/void_beast_confrontation.png"
+const ART_SHADE_SENTINEL: String = "res://assets/cg/generated/cinematic_shade_sentinel_phase2.png"
 const ART_VOID_CREATURE_SHEET: String = "res://assets/game_image/reference/void_creature_sprite_sheet.png"
 const ART_MEMORY_LOST_SOLDIER: String = "res://assets/game_image/reference/memory_lost_soldier_sprite_sheet.png"
 const ART_FORGOTTEN_GUARDIAN: String = "res://assets/game_image/reference/forgotten_guardian_sheet.png"
@@ -174,11 +176,11 @@ const ENV_BONUSES: Dictionary = {
 }
 
 const ENEMY_PRESETS: Dictionary = {
-	"ash_crawler": {"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-	"forest_shade": {"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": ""},
-	"void_beast": {"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	"ash_crawler": {"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	"forest_shade": {"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
+	"void_beast": {"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"},
 	"threshold_shade": {"name": "Threshold Shade", "hp": 120, "atk": 20, "is_void": true, "abilities": ["drain", "stun", "reflect"], "weakness": "fire"},
-	"shade_sentinel": {"name": "Shade Sentinel", "hp": 180, "atk": 24, "is_void": true, "is_boss": true, "abilities": ["drain", "shield", "multi_hit", "summon"], "weakness": "void", "resistance": "fire", "bg": "res://assets/cg/generated/chapter_splash_the_seam.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	"shade_sentinel": {"name": "Shade Sentinel", "hp": 180, "atk": 24, "is_void": true, "is_boss": true, "abilities": ["drain", "shield", "multi_hit", "summon"], "weakness": "void", "resistance": "fire", "bg": "res://assets/cg/generated/chapter_splash_the_seam.png", "img": "res://assets/cg/generated/cinematic_shade_sentinel_phase2.png"},
 	"kairos": {"name": "Kairos, Authority Editor", "hp": 450, "atk": 38, "is_void": true, "is_boss": true, "abilities": ["void_pulse", "drain", "stun", "reflect", "charge", "despair"], "weakness": "physical", "resistance": "void", "bg": "res://assets/cg/generated/memory_compass_resonance_cinematic.png", "img": "res://assets/cg/generated/cinematic_kairos_watcher_confrontation.png"},
 }
 
@@ -545,12 +547,14 @@ func resolve_enemy_image_by_name(enemy_name: String) -> String:
 		return ART_VEIL_FULLBODY if ResourceLoader.exists(ART_VEIL_FULLBODY) else ""
 	if "guardian" in lower_name:
 		return ART_FORGOTTEN_GUARDIAN if ResourceLoader.exists(ART_FORGOTTEN_GUARDIAN) else ""
+	if "shade sentinel" in lower_name:
+		return ART_SHADE_SENTINEL if ResourceLoader.exists(ART_SHADE_SENTINEL) else (ART_VOID_BEAST_FALLBACK if ResourceLoader.exists(ART_VOID_BEAST_FALLBACK) else "")
 	if "soldier" in lower_name or "crawler" in lower_name:
 		return ART_MEMORY_LOST_SOLDIER if ResourceLoader.exists(ART_MEMORY_LOST_SOLDIER) else ""
 	if "wisp" in lower_name or "wraith" in lower_name or "fragment" in lower_name or "lurker" in lower_name:
 		return ART_VOID_CREATURE_SHEET if ResourceLoader.exists(ART_VOID_CREATURE_SHEET) else ""
 	if "void" in lower_name or "shade" in lower_name or "sentinel" in lower_name or "threshold" in lower_name:
-		return ART_VOID_BEAST if ResourceLoader.exists(ART_VOID_BEAST) else ""
+		return ART_VOID_BEAST if ResourceLoader.exists(ART_VOID_BEAST) else (ART_VOID_BEAST_FALLBACK if ResourceLoader.exists(ART_VOID_BEAST_FALLBACK) else "")
 	return ""
 
 func _get_opening_tactical_hint(enemy: Enemy) -> String:
@@ -1072,6 +1076,7 @@ func player_use_elia_skill(skill_id: String) -> void:
 	AudioManager.play_combat_sfx("heal_layered")  # S58: 레이어드 힐 SFX
 	battle_log.emit("[ELIA] %s" % result["name"])
 	battle_log.emit(result["msg"])
+	ally_action.emit("Elia", skill_id, int(result["power"]))
 
 	match result["effect"]:
 		"defend":

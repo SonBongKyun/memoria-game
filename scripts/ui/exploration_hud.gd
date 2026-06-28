@@ -32,7 +32,7 @@ const MAP_NAMES_KO := {
 }
 
 const MAP_ART := {
-	"rim_forest": "res://assets/cg/generated/chapter_splash_rim_forest.png",
+	"rim_forest": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
 	"verdan_market": "res://assets/cg/generated/chapter_splash_verdan_market.png",
 	"belt_waystation": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
 	"drift_shelter": "res://assets/cg/generated/chapter_splash_drift_shelter.png",
@@ -46,6 +46,7 @@ const MAP_ART := {
 
 # ── 노드 참조 ──
 const HUD_PLATE_PATH: String = "res://assets/cg/generated/ui_exploration_hud_plate.png"
+const HUD_ARCHIVE_OVERLAY_PATH: String = "res://assets/cg/generated/ui_exploration_archive_overlay.png"
 
 var hud_plate_art: TextureRect
 var panel: PanelContainer
@@ -77,6 +78,7 @@ var _slide_in_done: bool = false  # S57
 var _last_location_key: String = ""
 var _location_card_tween: Tween
 var _hud_plate_base_pos: Vector2 = Vector2.ZERO
+var _hud_plate_target_alpha: float = 0.58
 
 func _ready() -> void:
 	layer = 10
@@ -88,7 +90,20 @@ func _ready() -> void:
 
 # ── UI 구성 ──
 func _build_ui() -> void:
-	if ResourceLoader.exists(HUD_PLATE_PATH):
+	if ResourceLoader.exists(HUD_ARCHIVE_OVERLAY_PATH):
+		hud_plate_art = TextureRect.new()
+		hud_plate_art.texture = load(HUD_ARCHIVE_OVERLAY_PATH)
+		hud_plate_art.set_anchors_preset(Control.PRESET_FULL_RECT)
+		hud_plate_art.position = Vector2(-53, -20)
+		hud_plate_art.scale = Vector2(1.0, 0.65)
+		hud_plate_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		hud_plate_art.stretch_mode = TextureRect.STRETCH_SCALE
+		hud_plate_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hud_plate_target_alpha = 0.82
+		hud_plate_art.modulate = Color(1.0, 0.96, 0.90, _hud_plate_target_alpha)
+		_hud_plate_base_pos = hud_plate_art.position
+		add_child(hud_plate_art)
+	elif ResourceLoader.exists(HUD_PLATE_PATH):
 		hud_plate_art = TextureRect.new()
 		hud_plate_art.texture = load(HUD_PLATE_PATH)
 		hud_plate_art.position = Vector2(-2, -4)
@@ -102,6 +117,7 @@ func _build_ui() -> void:
 
 	panel = PanelContainer.new()
 	panel.position = Vector2(12, 12)
+	panel.custom_minimum_size.x = 250
 	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
 		Color(0.030, 0.024, 0.040, 0.58), # semi-transparent dark bg
 		Color(0.70, 0.56, 0.34, 0.42),    # subtle amber border
@@ -123,7 +139,7 @@ func _build_ui() -> void:
 
 	hp_label = Label.new()
 	hp_label.text = "HP:"
-	hp_label.add_theme_font_size_override("font_size", 12)
+	hp_label.add_theme_font_size_override("font_size", 13)
 	hp_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	hp_row.add_child(hp_label)
 
@@ -170,7 +186,7 @@ func _build_ui() -> void:
 	hp_stack.add_child(hp_bar)
 
 	hp_value_label = Label.new()
-	hp_value_label.add_theme_font_size_override("font_size", 12)
+	hp_value_label.add_theme_font_size_override("font_size", 13)
 	hp_value_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	hp_row.add_child(hp_value_label)
 
@@ -181,43 +197,43 @@ func _build_ui() -> void:
 
 	# ── Chapter Row ──
 	chapter_label = Label.new()
-	chapter_label.add_theme_font_size_override("font_size", 12)
+	chapter_label.add_theme_font_size_override("font_size", 13)
 	chapter_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	vbox.add_child(chapter_label)
 
 	# ── Memory Row ──
 	memory_label = Label.new()
-	memory_label.add_theme_font_size_override("font_size", 12)
+	memory_label.add_theme_font_size_override("font_size", 13)
 	memory_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	vbox.add_child(memory_label)
 
 	# ── Grains Row ──
 	grains_label = Label.new()
-	grains_label.add_theme_font_size_override("font_size", 12)
+	grains_label.add_theme_font_size_override("font_size", 13)
 	grains_label.add_theme_color_override("font_color", Color(0.85, 0.7, 0.35))
 	vbox.add_child(grains_label)
 
 	# ── Items Row ──
 	items_label = Label.new()
-	items_label.add_theme_font_size_override("font_size", 12)
+	items_label.add_theme_font_size_override("font_size", 13)
 	items_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 	vbox.add_child(items_label)
 
 	# S92: Memory Pulse status
 	pulse_label = Label.new()
-	pulse_label.add_theme_font_size_override("font_size", 11)
+	pulse_label.add_theme_font_size_override("font_size", 12)
 	pulse_label.add_theme_color_override("font_color", Color(0.72, 0.66, 0.48))
 	vbox.add_child(pulse_label)
 
 	# ── S41: Equipment Row ──
 	equip_label = Label.new()
-	equip_label.add_theme_font_size_override("font_size", 11)
+	equip_label.add_theme_font_size_override("font_size", 12)
 	equip_label.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
 	vbox.add_child(equip_label)
 
 	# ── S41/S57: Active Quest Tracker with progress bar ──
 	quest_label = Label.new()
-	quest_label.add_theme_font_size_override("font_size", 11)
+	quest_label.add_theme_font_size_override("font_size", 12)
 	quest_label.add_theme_color_override("font_color", Color(0.7, 0.6, 0.4))
 	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	quest_label.custom_minimum_size.x = 180
@@ -239,6 +255,9 @@ func _build_ui() -> void:
 	quest_bg_style.set_corner_radius_all(2)
 	quest_progress_bar.add_theme_stylebox_override("background", quest_bg_style)
 	vbox.add_child(quest_progress_bar)
+
+	for label in [hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
+		UITheme.apply_ui_font(label)
 
 func _build_location_card() -> void:
 	location_card = PanelContainer.new()
@@ -280,7 +299,8 @@ func _build_location_card() -> void:
 	hbox.add_child(text_box)
 
 	location_title = Label.new()
-	location_title.add_theme_font_size_override("font_size", 15)
+	UITheme.apply_title_font(location_title)
+	location_title.add_theme_font_size_override("font_size", 16)
 	location_title.add_theme_color_override("font_color", Color(0.93, 0.84, 0.62))
 	location_title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.65))
 	location_title.add_theme_constant_override("shadow_offset_x", 1)
@@ -289,7 +309,8 @@ func _build_location_card() -> void:
 	text_box.add_child(location_title)
 
 	location_subtitle = Label.new()
-	location_subtitle.add_theme_font_size_override("font_size", 11)
+	UITheme.apply_ui_font(location_subtitle)
+	location_subtitle.add_theme_font_size_override("font_size", 12)
 	location_subtitle.add_theme_color_override("font_color", Color(0.62, 0.58, 0.50))
 	location_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD
 	location_subtitle.text = "Area image reference"
@@ -346,7 +367,7 @@ func _play_slide_in() -> void:
 	panel.position.x = orig_pos.x - 80
 	t.parallel().tween_property(panel, "position:x", orig_pos.x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	if hud_plate_art:
-		t.parallel().tween_property(hud_plate_art, "modulate:a", 0.58, 0.3).set_ease(Tween.EASE_OUT)
+		t.parallel().tween_property(hud_plate_art, "modulate:a", _hud_plate_target_alpha, 0.3).set_ease(Tween.EASE_OUT)
 		t.parallel().tween_property(hud_plate_art, "position:x", _hud_plate_base_pos.x, 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
 # ── S57: Memory burn glow effect ──
@@ -364,6 +385,7 @@ func _show_grains_popup(amount: int) -> void:
 		return
 	var popup = Label.new()
 	popup.text = "+%d Grains" % amount
+	UITheme.apply_ui_font(popup)
 	popup.add_theme_font_size_override("font_size", 14)
 	popup.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4))
 	popup.add_theme_color_override("font_outline_color", Color(0.15, 0.1, 0.05))
@@ -385,6 +407,7 @@ func _on_stat_gained(stat_name: String, amount: int) -> void:
 	var prefix = "+" if amount > 0 else ""
 	var popup = Label.new()
 	popup.text = "%s%d %s" % [prefix, amount, stat_name]
+	UITheme.apply_ui_font(popup)
 	popup.add_theme_font_size_override("font_size", 16)
 	var col = Color(0.3, 1.0, 0.5) if amount > 0 else Color(1.0, 0.4, 0.3)
 	popup.add_theme_color_override("font_color", col)

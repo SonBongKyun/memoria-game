@@ -622,7 +622,7 @@ func _build_ui() -> void:
 	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
 	text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
-	text_label.add_theme_constant_override("line_separation", 7)
+	text_label.add_theme_constant_override("line_separation", 8)
 	text_label.add_theme_color_override("default_color", Color(0.9, 0.87, 0.81))
 	text_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.58))
 	text_label.add_theme_constant_override("shadow_offset_x", 1)
@@ -632,6 +632,7 @@ func _build_ui() -> void:
 	# 다음 대사 표시기 (triangle)
 	indicator = Label.new()
 	indicator.text = "NEXT"
+	UITheme.apply_ui_font(indicator)
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	indicator.add_theme_font_size_override("font_size", 10)
 	indicator.add_theme_color_override("font_color", Color(0.74, 0.62, 0.40, 0.76))
@@ -887,6 +888,7 @@ func _on_dialogue_choice(choices: Array) -> void:
 
 		btn.add_theme_color_override("font_color", Color(0.88, 0.84, 0.76))
 		btn.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.55))
+		UITheme.apply_body_font(btn)
 		btn.add_theme_font_size_override("font_size", 15)
 
 		var idx = i

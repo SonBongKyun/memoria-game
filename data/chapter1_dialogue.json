@@ -8,13 +8,13 @@
         "speaker": "",
         "text": "The beast was dead.",
         "text_ko": "괴물은 죽어 있었다.",
-        "cg": "res://assets/cg/game_image/void_beast_confrontation.png"
+        "cg": "res://assets/cg/generated/story_ch1_opening_aftermath.png"
       },
       {
         "speaker": "",
         "text": "Arrel stood over the stain it left behind, sword still raised, though there was nothing left to cut.",
         "text_ko": "아렐은 그것이 남긴 얼룩 앞에 서 있었다. 검은 아직 치켜든 채였지만, 더 이상 벨 것은 없었다.",
-        "cg": "res://assets/cg/game_image/void_beast_confrontation.png"
+        "cg": "res://assets/cg/generated/story_ch1_opening_aftermath.png"
       },
       {
         "speaker": "",
@@ -33,7 +33,7 @@
         "text": "Arrel.",
         "text_ko": "아렐.",
         "portrait": "elia_wind",
-        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
+        "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png"
       },
       {
         "speaker": "",
@@ -73,7 +73,7 @@
         "speaker": "",
         "text": "Something touched his face.",
         "text_ko": "무언가가 그의 얼굴에 닿았다.",
-        "cg": "res://assets/cg/generated/chapter_splash_rim_forest.png"
+        "cg": "res://assets/cg/generated/story_ch1_ash_rain_touch.png"
       },
       {
         "speaker": "",
@@ -107,7 +107,7 @@
         "speaker": "",
         "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.",
         "text_ko": "불은 피우지 않았다. 불은 시선을 끌고, 이곳에서 시선은 기억은 너무 적고 이빨은 너무 많은 것들을 뜻했다.",
-        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
+        "cg": "res://assets/cg/generated/story_ch1_camp_humming.png"
       },
       {
         "speaker": "",
@@ -166,7 +166,7 @@
         "text": "Stay close. The Rim gets worse at night.",
         "text_ko": "가까이 있어. 림은 밤이 되면 더 나빠져.",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png",
+        "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png",
         "requires_memory": "sense_forest_smell",
         "burned_text": "You seem... distant. Like you can't quite smell the rain anymore.",
         "burned_text_ko": "너... 멀어진 것 같아. 더는 비 냄새를 제대로 맡지 못하는 사람처럼."
@@ -196,7 +196,7 @@
       {
         "speaker": "",
         "text": "A tree stump, old enough that its rings had turned to stone.",
-        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+        "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png"
       },
       {
         "speaker": "",
@@ -258,7 +258,7 @@
       {
         "speaker": "",
         "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.",
-        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
+        "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png"
       },
       {
         "speaker": "Elia",
@@ -365,7 +365,7 @@
         "speaker": "Elia",
         "text": "Arrel. Do you know what I am?",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/dialogue_ch1_elia_finds_arrel.png"
+        "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png"
       },
       {
         "speaker": "Arrel",
@@ -411,7 +411,7 @@
       {
         "speaker": "",
         "text": "Between the roots of a dead oak, someone had built a shrine.",
-        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
+        "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png"
       },
       {
         "speaker": "",

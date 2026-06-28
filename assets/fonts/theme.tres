@@ -8,6 +8,10 @@ antialiasing = 2
 font_names = PackedStringArray("Cormorant Garamond", "EB Garamond", "Noto Serif KR", "Georgia", "Cambria", "Constantia", "Palatino Linotype", "Batang", "Times New Roman", "serif")
 antialiasing = 2
 
+[sub_resource type="SystemFont" id="SystemFont_ui"]
+font_names = PackedStringArray("Segoe UI", "Pretendard", "Noto Sans KR", "Malgun Gothic", "Arial", "sans-serif")
+antialiasing = 2
+
 [resource]
 default_font = SubResource("SystemFont_body")
 default_font_size = 16
@@ -17,7 +21,7 @@ Button/colors/font_outline_color = Color(0, 0, 0, 0.62)
 Button/colors/font_pressed_color = Color(1, 0.95, 0.7, 1)
 Button/constants/outline_size = 1
 Button/font_sizes/font_size = 16
-Button/fonts/font = SubResource("SystemFont_title")
+Button/fonts/font = SubResource("SystemFont_ui")
 Label/colors/font_color = Color(0.92, 0.88, 0.8, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 0.6)
 Label/constants/outline_size = 1

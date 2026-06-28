@@ -29,6 +29,20 @@ const UI_TACTICAL_PLATE_PATH: String = "res://assets/cg/generated/ui_battle_tact
 const UI_VICTORY_PANEL_PATH: String = "res://assets/cg/generated/ui_battle_victory_reward_panel.png"
 const UI_BURN_PREVIEW_PANEL_PATH: String = "res://assets/cg/generated/ui_burn_preview_ritual_panel.png"
 const LAST_STAND_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_last_stand_resonance.png"
+const MEMORY_CASCADE_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_arrel_memory_cascade.png"
+const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_sable_echo_strike.png"
+const TOBIAS_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_tobias_record_ward.png"
+const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"
+const ELIA_ACTION_CUTIN_PATHS: Dictionary = {
+	"humming_shield": "res://assets/cg/generated/memory_burn_elia_song.png",
+	"desperate_reach": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+	"remembered_strike": "res://assets/cg/generated/memory_burn_first_sword.png",
+	"anchor_pulse": "res://assets/cg/generated/cinematic_elia_anchor_pulse.png",
+}
+const BOSS_PHASE_CUTIN_PATHS: Dictionary = {
+	"Shade Sentinel": "res://assets/cg/generated/cinematic_shade_sentinel_phase2.png",
+	"Kairos, Authority Editor": "res://assets/cg/generated/cinematic_kairos_authority_edit.png",
+}
 const MEMORY_BURN_CUTIN_PATHS: Dictionary = {
 	"identity_first_sword": "res://assets/cg/generated/memory_burn_first_sword.png",
 	"daily_campfire_song": "res://assets/cg/generated/memory_burn_elia_song.png",
@@ -170,7 +184,7 @@ func _resolve_battle_bg_image() -> String:
 
 	var scene := BattleManager.return_scene
 	var scene_bg_map := {
-		"rim_forest": "res://assets/cg/generated/chapter_splash_rim_forest.png",
+		"rim_forest": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
 		"verdan_market": "res://assets/cg/generated/chapter_splash_verdan_market.png",
 		"belt_waystation": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
 		"drift_shelter": "res://assets/cg/generated/chapter_splash_drift_shelter.png",
@@ -1156,6 +1170,14 @@ func _resolve_enemy_stage_art() -> String:
 		return named_art
 	return _resolved_battle_bg_image
 
+func _resolve_enemy_action_cutin(enemy_name: String) -> String:
+	var lower_name := enemy_name.to_lower()
+	if "void beast" in lower_name and ResourceLoader.exists(VOID_BEAST_ACTION_CUTIN_PATH):
+		return VOID_BEAST_ACTION_CUTIN_PATH
+	if "shade sentinel" in lower_name:
+		return String(BOSS_PHASE_CUTIN_PATHS.get("Shade Sentinel", _resolve_enemy_stage_art()))
+	return _resolve_enemy_stage_art()
+
 func _resolve_enemy_art_by_name(enemy_name: String) -> String:
 	return BattleManager.resolve_enemy_image_by_name(enemy_name)
 
@@ -1193,6 +1215,7 @@ func _play_action_cutin(path: String, from_left: bool = true, alpha: float = 0.7
 	_action_cutin_wash.color.a = 0.0
 	_action_cutin.position.x = -36.0 if from_left else 36.0
 	_action_cutin_tween = create_tween()
+	_action_cutin_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	_action_cutin_tween.set_parallel(true)
 	_action_cutin_tween.tween_property(_action_cutin_wash, "color:a", 0.32, 0.10)
 	_action_cutin_tween.tween_property(_action_cutin, "modulate:a", alpha, 0.12)
@@ -1631,6 +1654,7 @@ func _connect_signals() -> void:
 	BattleManager.tactical_objective_changed.connect(_on_tactical_objective_changed)
 	BattleManager.momentum_changed.connect(_on_momentum_changed)
 	BattleManager.last_stand_resonance.connect(_on_last_stand_resonance)
+	BattleManager.ally_action.connect(_on_ally_action)
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
@@ -1680,6 +1704,8 @@ func _exit_tree() -> void:
 		BattleManager.momentum_changed.disconnect(_on_momentum_changed)
 	if BattleManager.last_stand_resonance.is_connected(_on_last_stand_resonance):
 		BattleManager.last_stand_resonance.disconnect(_on_last_stand_resonance)
+	if BattleManager.ally_action.is_connected(_on_ally_action):
+		BattleManager.ally_action.disconnect(_on_ally_action)
 	# S56: Cleanup battle VFX status particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
@@ -1927,11 +1953,13 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
 	if attacker == "Arrel":
 		var cutin_path := "res://assets/cg/generated/memory_burn_first_sword.png"
-		if skill_name != "" and skill_name != "Attack":
+		if skill_name == "Memory Cascade":
+			cutin_path = MEMORY_CASCADE_CUTIN_PATH
+		elif skill_name != "" and skill_name != "Attack":
 			cutin_path = "res://assets/cg/game_image/memory_loss_warning.png"
 		_play_action_cutin(cutin_path, true, 0.70)
 	else:
-		_play_action_cutin(_resolve_enemy_stage_art(), false, 0.56)
+		_play_action_cutin(_resolve_enemy_action_cutin(attacker), false, 0.62)
 
 	# S59: Battle background parallax shift in attack direction
 	if battle_vfx and bg:
@@ -2813,6 +2841,9 @@ func _on_limit_break() -> void:
 	action_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	_play_action_cutin(MEMORY_CASCADE_CUTIN_PATH, true, 0.94, 0.48)
+	_show_turn_indicator("ARREL / MEMORY CASCADE", Color(0.72, 0.88, 1.0))
+	await get_tree().create_timer(0.42).timeout
 	# S40: Limit Break 색수차 연출
 	_play_chromatic_aberration(2.0)
 	_screen_shake(2.5)
@@ -3176,6 +3207,9 @@ func _apply_status_shader() -> void:
 func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	if phase != 2:
 		return
+	var phase_cutin := String(BOSS_PHASE_CUTIN_PATHS.get(enemy_name, ""))
+	if phase_cutin != "":
+		_play_action_cutin(phase_cutin, false, 0.94, 0.78)
 	# 1. 프리즈 프레임 (0.4초)
 	get_tree().paused = true
 	# 2. 화면 적색 플래시
@@ -3225,6 +3259,25 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	var ft = create_tween()
 	ft.tween_property(flash, "color:a", 0.0, 0.6)
 	ft.tween_callback(flash.queue_free)
+
+func _on_ally_action(ally_name: String, action: String, _value: int) -> void:
+	var cutin_path := ""
+	var accent := Color(0.74, 0.82, 0.94)
+	match ally_name:
+		"Elia":
+			cutin_path = String(ELIA_ACTION_CUTIN_PATHS.get(action, "res://assets/cg/generated/cinematic_elia_anchor_pulse.png"))
+			accent = Color(1.0, 0.80, 0.45)
+		"Sable":
+			cutin_path = SABLE_ACTION_CUTIN_PATH
+			accent = Color(0.66, 0.78, 1.0)
+		"Tobias":
+			cutin_path = TOBIAS_ACTION_CUTIN_PATH
+			accent = Color(0.84, 0.69, 0.45)
+	if cutin_path == "":
+		return
+	_play_action_cutin(cutin_path, true, 0.88, 0.42)
+	_show_turn_indicator("%s / %s" % [ally_name.to_upper(), action.replace("_", " ").to_upper()], accent)
+	_screen_shake(0.45)
 
 ## S46: 상태이상 셰이더 업데이트 (status_changed 시그널에 연동)
 func _update_status_shaders() -> void:

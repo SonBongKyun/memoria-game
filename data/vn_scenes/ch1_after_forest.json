@@ -4,7 +4,7 @@
   "chapter": 1,
   "steps": [
     {
-      "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png",
+      "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
       "fade": 1.5,
       "narrate": "The forest thinned. The air cleared — or rather, it replaced one kind of thickness with another."
     },

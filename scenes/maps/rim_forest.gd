@@ -82,7 +82,7 @@ func _ready() -> void:
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.BUSH])
 	MapEffects.add_color_grading(self, {"tint": Color(0.34, 0.48, 0.28), "brightness": 0.02})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_rim_forest.png", 0.07, Color(0.84, 0.98, 0.76))
+	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/story_ch1_twisted_forest_path.png", 0.08, Color(0.84, 0.98, 0.76))
 	_pollen = MapEffects.add_pollen_particles(self, 12, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.25))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
@@ -276,7 +276,7 @@ func _on_camp_ended() -> void:
 	print("[RimForest] Chapter 1 complete")
 	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
-	CgViewer.show_cg("res://assets/cg/generated/chapter_splash_rim_forest.png", "", 3.0, func():
+	CgViewer.show_cg("res://assets/cg/generated/story_ch1_green_tree_dawn.png", "", 3.0, func():
 		# S58: Chapter completion screen with stats summary
 		SceneTransition.change_scene_chapter_complete("res://scenes/maps/verdan_market.tscn", 1)
 	)
@@ -640,7 +640,7 @@ func _setup_battle_triggers() -> void:
 		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Beast", 80, 15, true,
-		"res://assets/cg/game_image/void_beast_confrontation.png", "res://assets/cg/game_image/void_beast_confrontation.png"
+		"res://assets/cg/generated/story_ch1_twisted_forest_path.png", "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"
 	)
 	# 보스 처치 시 ch1_void_beast_defeated 플래그 (캠프 진행 잠금 해제용)
 	if not BattleManager.battle_ended.is_connected(_on_act1_battle_ended):
@@ -687,9 +687,9 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": ""},
-			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/chapter_splash_rim_forest.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
+			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"},
 		],
 		"res://scenes/maps/rim_forest.tscn", "", "", 50, 90
 	)
