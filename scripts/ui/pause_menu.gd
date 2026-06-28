@@ -543,6 +543,42 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/story_ch1_green_tree_dawn.png",
 		"desc": "At dawn, one living tree remains where the ash forest ends."
 	},
+	{
+		"title": "Act II: Verdan Gate",
+		"type": "Generated Arrival Story CG",
+		"path": "res://assets/cg/generated/story_ch2_verdan_gate.png",
+		"desc": "Arrel and Elia meet the Bureau checkpoint above Verdan's crowded southern stairs."
+	},
+	{
+		"title": "Act II: Memories for Sale",
+		"type": "Generated Environment Story CG",
+		"path": "res://assets/cg/generated/story_ch2_memory_market.png",
+		"desc": "Verdan's merchants bottle affection, grief, and identity beneath smoke-black awnings."
+	},
+	{
+		"title": "Act II: The Nameless Man",
+		"type": "Generated Character Story CG",
+		"path": "res://assets/cg/generated/story_ch2_old_burner.png",
+		"desc": "Arrel faces a quiet mirror of the road ahead at the market's edge."
+	},
+	{
+		"title": "Act II: Malet's Cellar",
+		"type": "Generated Dialogue Story CG",
+		"path": "res://assets/cg/generated/story_ch2_malet_cellar.png",
+		"desc": "Malet names his price beneath Verdan, surrounded by ledgers and borrowed light."
+	},
+	{
+		"title": "Act II: The First Sword",
+		"type": "Generated Memory Extraction CG",
+		"path": "res://assets/cg/generated/story_ch2_first_sword_extraction.png",
+		"desc": "A first lesson becomes a pale filament, then an empty space in Arrel."
+	},
+	{
+		"title": "Act II: Four Days",
+		"type": "Generated Threat Reveal CG",
+		"path": "res://assets/cg/generated/story_ch2_kairos_warning.png",
+		"desc": "Kairos appears as a cold Bureau projection while the distance closes."
+	},
 ]
 
 func _ready() -> void:

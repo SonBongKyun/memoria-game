@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "Verdan. The largest settlement in the Gray Belt.",
-        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png"
+        "cg": "res://assets/cg/generated/story_ch2_verdan_gate.png"
       },
       {
         "speaker": "",
@@ -30,7 +30,7 @@
       {
         "speaker": "",
         "text": "The cellar was three levels below street. The air down here tasted like copper and old paper.",
-        "cg": "res://assets/cg/game_image/malet_bureau_overlook.png"
+        "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png"
       },
       {
         "speaker": "",
@@ -48,7 +48,7 @@
         "speaker": "Malet",
         "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.",
         "portrait": "malet_amused",
-        "cg": "res://assets/cg/game_image/malet_bureau_overlook.png"
+        "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png"
       },
       {
         "speaker": "Malet",
@@ -69,7 +69,7 @@
         "speaker": "Malet",
         "text": "My price: the day you first held a sword.",
         "portrait": "malet_price_revealed",
-        "cg": "res://assets/cg/generated/dialogue_ch2_malet_memory_trade.png"
+        "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png"
       },
       {
         "choices": [
@@ -89,7 +89,7 @@
       {
         "speaker": "",
         "text": "The extractor was civilian-grade. Small. Clean. Almost gentle.",
-        "cg": "res://assets/cg/game_image/memory_crystal_choice.png"
+        "cg": "res://assets/cg/generated/story_ch2_first_sword_extraction.png"
       },
       {
         "speaker": "",
@@ -142,7 +142,7 @@
       {
         "speaker": "",
         "text": "Elia's hand tightened on her cup. Her knuckles went white.",
-        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+        "cg": "res://assets/cg/generated/story_ch2_kairos_warning.png"
       },
       {
         "speaker": "Elia",
@@ -155,7 +155,7 @@
         "speaker": "Malet",
         "text": "Then we have nothing to discuss. The door is behind you.",
         "portrait": "malet_disappointed",
-        "cg": "res://assets/cg/game_image/malet_bureau_overlook.png"
+        "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png"
       },
       {
         "speaker": "",
@@ -193,7 +193,7 @@
       {
         "speaker": "",
         "text": "The market sprawled like a wound that refused to close.",
-        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png"
+        "cg": "res://assets/cg/generated/story_ch2_memory_market.png"
       },
       {
         "speaker": "",
@@ -233,7 +233,7 @@
       {
         "speaker": "",
         "text": "An old man sat on a crate near the market's edge, staring at nothing.",
-        "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png"
+        "cg": "res://assets/cg/generated/story_ch2_old_burner.png"
       },
       {
         "speaker": "",
@@ -281,7 +281,8 @@
     "malet_backstory": [
       {
         "speaker": "",
-        "text": "While they waited for Malet's contact to prepare the route documents, the broker poured something amber into two cups."
+        "text": "While they waited for Malet's contact to prepare the route documents, the broker poured something amber into two cups.",
+        "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png"
       },
       {
         "speaker": "Malet",
@@ -342,7 +343,7 @@
         "speaker": "Elia",
         "text": "Arrel. Before we go further.",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/generated/dialogue_ch2_malet_memory_trade.png"
+        "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png"
       },
       {
         "speaker": "Arrel",
