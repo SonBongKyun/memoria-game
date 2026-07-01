@@ -118,6 +118,18 @@ def main() -> int:
                 continue
             validate_common_fields(file_name, label, step)
 
+            speaker = step.get("speaker")
+            spoken_text = step.get("text")
+            if speaker == "Arrel" and isinstance(spoken_text, str):
+                word_count = len(re.findall(r"[A-Za-z0-9']+", spoken_text))
+                if word_count > 8:
+                    errors.append(f"{file_name} {label}: Arrel line exceeds 8 words ({word_count})")
+            if speaker in ("Kairos", "Kairós") and isinstance(spoken_text, str):
+                if re.search(r"\b[A-Za-z]+['’][A-Za-z]+\b", spoken_text):
+                    errors.append(f"{file_name} {label}: Kairós line uses a contraction")
+            if speaker in ("Han", "Singer") and isinstance(spoken_text, str) and spoken_text.strip():
+                errors.append(f"{file_name} {label}: Han/Singer must communicate without direct speech")
+
             if step.get("action") == "goto_scene":
                 target = step.get("id")
                 if not isinstance(target, str) or target not in documents:

@@ -1,0 +1,138 @@
+{
+  "id": "ch14_confessor_intervention",
+  "title": "Chapter 14 — The Confessor's Hall",
+  "chapter": 14,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch14_confessor_hall.png",
+      "fade": 1.6,
+      "set_chapter": 14,
+      "autosave_chapter_transition": true,
+      "narrate": "The Confessor Hall had no shadows. White light entered the extraction cylinders from every direction and forgave nothing."
+    },
+    {
+      "narrate": "A prisoner sat inside the central frame. Each pulse removed a sequence: a door latch, a daughter's face, the grammar of pain."
+    },
+    {
+      "speaker": "Prisoner",
+      "text": "I had a reason. I know I had a reason."
+    },
+    {
+      "speaker": "Handler",
+      "text": "Reasons are unlicensed memory structures. Continue extraction."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_angry",
+      "side": "left",
+      "text": "Stop."
+    },
+    {
+      "speaker": "Handler",
+      "text": "Your signature is already in the register. Compliance remains statistically preferable."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "Arrel, that frame is anchored to identity memory. Breaking it will answer with yours."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the vow to intervene. Turn its meaning into one decisive slash.",
+          "cost_memory": "identity_intervention_vow",
+          "set_flag": "ch14_burned_intervention_vow",
+          "goto": 9
+        },
+        {
+          "text": "Keep the vow. Trust Tobias to find the apparatus hinge.",
+          "set_flag": "ch14_kept_intervention_vow",
+          "goto": 13
+        }
+      ]
+    },
+    {
+      "narrate": "[ The hall measures the choice. ]"
+    },
+    {
+      "cg": "res://assets/cg/generated/ch14_arrel_burn_slash.png",
+      "fade": 0.4,
+      "narrate": "The vow became heat. Gold crossed the white hall and every restraint forgot it had ever been closed."
+    },
+    {
+      "narrate": "The prisoner fell into Elia's arms. Arrel remembered the action and lost the reason."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_burn",
+      "side": "left",
+      "text": "Open every restraint."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch14_confessor_intervention",
+      "start_index": 17
+    },
+    {
+      "narrate": "Tobias read the machine as if it were a hostile paragraph. His finger stopped on one load-bearing hinge."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Third conduit. Brass collar. It carries every correction back to the frame, which makes it an argument with a very fragile premise."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "Then break the premise."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch14_confessor_intervention",
+      "start_index": 17
+    },
+    {
+      "set_flag": "ch14_confessor_intervention",
+      "narrate": "The register completed Arrel's signature as the hall died. The pursuit estimate collapsed from six days to less than three."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "They know how you burn now."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Worse. They know he chose to interfere when walking away remained possible. Bureaucracies remember exceptions longer than people do."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_cold",
+      "side": "right",
+      "text": "The anomaly has become deliberate. That is not corruption. That is function."
+    },
+    {
+      "set_flag": "signature_registered",
+      "narrate": "Far east, Kairós closed the incident report before Belor's name could enter the recipient field."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_neutral",
+      "side": "right",
+      "text": "A delayed report is not disloyalty. It is arithmetic performed with incomplete variables."
+    },
+    {
+      "set_flag": "kairos_hesitation_1",
+      "narrate": "He did not send it."
+    },
+    {
+      "complete_chapter": 14,
+      "action": "demo_end"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S148: 186 PNG files under `assets/cg/`.
+- Current project baseline after S150: 195 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -109,3 +109,19 @@ All S147 images were generated as clean, text-free 16:9 CGs with explicit exclus
 | `sq_sable_vigil_complete` | Accepts Sable's freely offered oath-memory | `story_ch6_sable_vigil_reward.png` |
 
 All S148 images are clean, text-free 16:9 RGB CGs with the lower 28 percent reserved for dialogue UI. Prompts explicitly excluded film/photo grain, paper/canvas texture, speckle and color noise, dithering, compression artifacts, chromatic aberration, dirty-lens overlays, muddy detail, and oversharpening. The first Chapter 5 cliff and watchtower drafts were rejected for Arrel/Elia identity drift; the shipped images restore short silver-haired Arrel and honey-blonde bob-haired Elia.
+
+## S150 Part II Aftermath vertical slice
+
+| VN scene / status | Story beat | Asset | Source |
+|---|---|---|---|
+| `ch11_departure` | Witnesses an Executor erase an old man's motor memory | `ch11_executor_strike.png` | User-provided 66.png |
+| `ch11_departure` | Sees the Belt as a city-wide prison | `env_gray_belt_panorama.png` | User-provided 67.png |
+| `ch11_departure` | Elia hides the cost of reading the blank notebook | `ch11_elia_bloodwork.png` | GPT Image |
+| `ch12_reader` | Finds Verdan's Sump sealed and emptied | `ch12_sump_closed.png` | GPT Image |
+| `ch13_third_person` | Joins two blank notebooks into a relay map | `ch13_notebook_resonance.png` | User-provided 68.png |
+| `ch14_confessor_intervention` | Enters the Authority's shadowless extraction hall | `ch14_confessor_hall.png` | User-provided 69.png |
+| `ch14_confessor_intervention` | Converts the intervention vow into a golden slash | `ch14_arrel_burn_slash.png` | GPT Image |
+| Reserved for Ch17 | Faces the violet Forgetting Storm | `ch17_oblivion_storm.png` | User-provided 70.png |
+| Reserved for Ch18 | Witnesses the public Living Funeral | `ch18_living_funeral.png` | User-provided 71.png |
+
+The three generated S150 images use the six supplied Part II plates as style and identity references. They are clean, text-free 16:9 RGB CGs with a dark, low-detail lower UI zone and explicit exclusions for grain, speckle/color noise, dithering, paper/canvas overlays, chromatic aberration, and dirty-lens artifacts. Ch17 and Ch18 plates are registered in the Artbook but intentionally not referenced by Ch11-14 story data, preventing later-act imagery from being externalized early.

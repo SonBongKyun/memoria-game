@@ -1,0 +1,130 @@
+{
+  "id": "ch11_departure",
+  "title": "Chapter 11 — Departure",
+  "chapter": 11,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/env_gray_belt_panorama.png",
+      "fade": 1.8,
+      "set_chapter": 11,
+      "autosave_chapter_transition": true,
+      "narrate": "West of the Seam, the Belt no longer looked like a road. It looked like a prison built too wide to see its walls."
+    },
+    {
+      "narrate": "Every tower kept the same distance. Every banner moved in the same exhausted wind."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "We have been followed since dawn. They are not trying to hide it."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "I counted six."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch11_executor_strike.png",
+      "fade": 0.45,
+      "narrate": "In the next square, an Executor lowered a blunt, edgeless blade onto an old man's arm."
+    },
+    {
+      "narrate": "There was no wound. The arm simply forgot the sequence that made fingers close."
+    },
+    {
+      "speaker": "Handler",
+      "text": "Motor memory corrected. The subject may return to productive use."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_angry",
+      "side": "left",
+      "text": "That is not correction."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the pace that carried you west. Cross the square before they can turn.",
+          "cost_memory": "daily_belt_footsteps",
+          "set_flag": "ch11_burned_escape",
+          "goto": 10
+        },
+        {
+          "text": "Keep the memory. Move through the service alleys and accept the delay.",
+          "set_flag": "ch11_evaded_patrol",
+          "goto": 14
+        }
+      ]
+    },
+    {
+      "narrate": "[ The choice settles into the body. ]"
+    },
+    {
+      "narrate": "He burned the cadence of two sets of footsteps becoming one. Speed arrived. The knowledge of how Elia followed him did not."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "You used to slow half a step before corners. You do not know that anymore."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch11_departure",
+      "start_index": 17
+    },
+    {
+      "narrate": "[ Branch return. ]"
+    },
+    {
+      "narrate": "They took the maintenance alleys. It cost forty minutes and left the old man's cry behind them, still audible between identical walls."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "I kept it. Not him."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch11_departure",
+      "start_index": 17
+    },
+    {
+      "cg": "res://assets/cg/generated/ch11_elia_bloodwork.png",
+      "fade": 1.5,
+      "narrate": "That night, Elia opened the blank notebook while Arrel kept watch beyond the broken shelter."
+    },
+    {
+      "narrate": "Blue lines surfaced under her hand. Blood followed them from her nose to the edge of her glove."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "The page is not empty. It is refusing ordinary readers."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "You are bleeding."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_calm",
+      "side": "right",
+      "text": "Paper cut. Keep watching the road."
+    },
+    {
+      "set_flag": "elia_secret_stage1",
+      "narrate": "She closed the book before he could count the lie."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch12_reader"
+    }
+  ]
+}

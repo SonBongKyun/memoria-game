@@ -1047,6 +1047,60 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/story_ch6_sable_vigil_reward.png",
 		"desc": "Sable entrusts Arrel with a memory weighted by years of kept promises."
 	},
+	{
+		"title": "Executor in the Square",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch11_executor_strike.png",
+		"desc": "Arrel witnesses an Authority blade erase the motor memory from an old man's arm."
+	},
+	{
+		"title": "The Gray Belt",
+		"type": "Part II Environment CG",
+		"path": "res://assets/cg/generated/env_gray_belt_panorama.png",
+		"desc": "The road west becomes a city-wide prison of repeating stone and banners."
+	},
+	{
+		"title": "The Blood She Hid",
+		"type": "Generated Part II Character CG",
+		"path": "res://assets/cg/generated/ch11_elia_bloodwork.png",
+		"desc": "Elia pays the private physical cost of reading a notebook that rejects ordinary eyes."
+	},
+	{
+		"title": "The Sump Closed",
+		"type": "Generated Part II Environment CG",
+		"path": "res://assets/cg/generated/ch12_sump_closed.png",
+		"desc": "Authority chains seal Verdan's once-living undercity market."
+	},
+	{
+		"title": "Two Blank Notebooks",
+		"type": "Part II Lore CG",
+		"path": "res://assets/cg/generated/ch13_notebook_resonance.png",
+		"desc": "Two empty books reveal that they are functioning pieces of a buried relay network."
+	},
+	{
+		"title": "The Confessor's Hall",
+		"type": "Part II Environment CG",
+		"path": "res://assets/cg/generated/ch14_confessor_hall.png",
+		"desc": "A shadowless extraction chamber removes memories as administrative corrections."
+	},
+	{
+		"title": "The Vow Becomes Heat",
+		"type": "Generated Part II Action CG",
+		"path": "res://assets/cg/generated/ch14_arrel_burn_slash.png",
+		"desc": "Arrel converts his reason to intervene into one precise golden slash."
+	},
+	{
+		"title": "The Forgetting Storm",
+		"type": "Part II Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch17_oblivion_storm.png",
+		"desc": "A reserved Act IV plate for the violet storm that consumes exposed memories."
+	},
+	{
+		"title": "The Living Funeral",
+		"type": "Part II Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch18_living_funeral.png",
+		"desc": "A reserved Act IV plate for public extraction and the burning of a name."
+	},
 ]
 
 func _ready() -> void:

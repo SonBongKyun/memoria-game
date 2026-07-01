@@ -142,7 +142,10 @@ func _run_step() -> void:
 	if step.has("set_flag"):
 		GameManager.set_flag(step.set_flag)
 	if step.has("set_chapter"):
-		GameManager.current_chapter = int(step.set_chapter)
+		var next_chapter := int(step.set_chapter)
+		if next_chapter != GameManager.current_chapter:
+			GameManager.current_chapter = next_chapter
+			MemoryManager.add_chapter_memories(next_chapter)
 	if step.has("complete_chapter") and has_node("/root/AchievementManager"):
 		AchievementManager.record_chapter_complete(int(step.complete_chapter))
 	if step.get("autosave_chapter_transition", false) and has_node("/root/SaveManager"):

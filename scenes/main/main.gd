@@ -14,6 +14,7 @@ const TITLE_BGM_PATH: String = "res://assets/audio/bgm/title.mp3"
 var _bg: TextureRect
 var _shade: ColorRect
 var _title_stack: VBoxContainer
+var _aftermath_btn: Button
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MENU)
@@ -94,9 +95,9 @@ func _build_title_copy() -> void:
 func _setup_menu() -> void:
 	menu_container.visible = true
 	menu_container.anchor_left = 0.720
-	menu_container.anchor_top = 0.545
+	menu_container.anchor_top = 0.500
 	menu_container.anchor_right = 0.956
-	menu_container.anchor_bottom = 0.875
+	menu_container.anchor_bottom = 0.910
 	menu_container.offset_left = 0
 	menu_container.offset_top = 0
 	menu_container.offset_right = 0
@@ -107,6 +108,13 @@ func _setup_menu() -> void:
 
 	new_game_btn.text = "New Game"
 	continue_btn.text = "Continue"
+	if _aftermath_btn == null:
+		_aftermath_btn = Button.new()
+		_aftermath_btn.name = "AftermathPreviewButton"
+		_aftermath_btn.pressed.connect(_on_aftermath_preview_pressed)
+		menu_container.add_child(_aftermath_btn)
+		menu_container.move_child(_aftermath_btn, 2)
+	_aftermath_btn.text = "Part II: Aftermath"
 	options_btn.text = "Options"
 	quit_btn.text = "Quit"
 
@@ -200,6 +208,28 @@ func _on_new_game_pressed() -> void:
 func _on_continue_pressed() -> void:
 	_play_select_sfx()
 	SaveManager.load_game(1)
+
+func _on_aftermath_preview_pressed() -> void:
+	_play_select_sfx()
+	GameManager.story_flags.clear()
+	GameManager.story_flags["part2_aftershock_preview"] = true
+	GameManager.current_chapter = 11
+	GameManager.ng_plus_cycle = 0
+	GameManager.player_data = {
+		"name": "Arrel",
+		"hp": 100,
+		"max_hp": 100,
+		"grains": 0,
+		"elia_with_party": true,
+		"items": {},
+	}
+	MemoryManager.memories.clear()
+	MemoryManager.burned_memories.clear()
+	MemoryManager._init_starting_memories()
+	MemoryManager.add_chapter_memories(11)
+	SceneFlow.import_data({})
+	SceneFlow.pending_scene_id = "ch11_departure"
+	SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
 
 func _on_options_pressed() -> void:
 	_play_select_sfx()

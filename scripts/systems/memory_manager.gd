@@ -339,6 +339,53 @@ func add_chapter_memories(chapter: int) -> void:
 					MemoryGrade.GRADE_2, 120,
 					"Lose the ability to sense Void Holes. Navigate by instinct alone."
 				))
+		11:
+			if not _has_memory("daily_belt_footsteps"):
+				add_memory(Memory.new(
+					"daily_belt_footsteps",
+					"The Pace That Carried You West",
+					"Elia matched this pace for days without asking you to slow down.",
+					MemoryGrade.GRADE_4, 25,
+					"Lose the shared walking rhythm that lets Elia follow without looking.",
+					"Elia"
+				))
+			if not _has_memory("rel_elia_bloodwork"):
+				add_memory(Memory.new(
+					"rel_elia_bloodwork",
+					"The Blood She Hid",
+					"A red line on Elia's glove. She said the notebook had only cut her.",
+					MemoryGrade.GRADE_3, 50,
+					"Lose the moment you first understood what reading the blank pages cost her.",
+					"Elia"
+				))
+		12:
+			if not _has_memory("rel_verdan_faces"):
+				add_memory(Memory.new(
+					"rel_verdan_faces",
+					"Faces in Verdan's Crowd",
+					"The vendors who looked away, the child who pointed, the hands that opened a path.",
+					MemoryGrade.GRADE_3, 50,
+					"Lose the people of Verdan as individuals. The market becomes only terrain."
+				))
+		13:
+			if not _has_memory("rel_tobias_alliance"):
+				add_memory(Memory.new(
+					"rel_tobias_alliance",
+					"The Third Hand on the Record",
+					"Tobias stopped accusing long enough to place his notebook beside Elia's.",
+					MemoryGrade.GRADE_3, 50,
+					"Lose the exact moment suspicion became an alliance.",
+					"Tobias"
+				))
+		14:
+			if not _has_memory("identity_intervention_vow"):
+				add_memory(Memory.new(
+					"identity_intervention_vow",
+					"The Vow to Intervene",
+					"You decided that witnessing extraction and surviving it were no longer enough.",
+					MemoryGrade.GRADE_2, 100,
+					"Lose the reason you step between the Authority and its victims."
+				))
 
 func _get_memory(memory_id: String) -> Memory:
 	for m in memories:

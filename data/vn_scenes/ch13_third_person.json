@@ -1,0 +1,125 @@
+{
+  "id": "ch13_third_person",
+  "title": "Chapter 13 — The Third Person",
+  "chapter": 13,
+  "steps": [
+    {
+      "set_chapter": 13,
+      "autosave_chapter_transition": true,
+      "narrate": "Tobias found them beneath Arkein's eastern reading wall. He arrived angry enough to forget caution."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Ten years. Ten years I have copied dead margins, and you walked into a sealed city and came out carrying an answer that bleeds when she reads it."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "She is not an answer."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "Good. Then perhaps both of you will stop treating her like one and let me see the notebook."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "Your copy first. On the table. Hands where I can see them."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch13_notebook_resonance.png",
+      "fade": 1.2,
+      "narrate": "The two blank notebooks touched the same table. Blue lines climbed out of both spines and rebuilt a map in the air."
+    },
+    {
+      "narrate": "Ink rearranged itself around buried relay points. The continent had been prepared for this long before any of them were born."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "These are not records of the network. They are pieces of the network, taught to pretend they are books."
+    },
+    {
+      "choice": [
+        {
+          "text": "Trust Tobias with the full pattern.",
+          "set_flag": "ch13_trusted_tobias",
+          "goto": 10
+        },
+        {
+          "text": "Give him the route, but keep Pell's name from him.",
+          "set_flag": "ch13_limited_tobias",
+          "goto": 13
+        }
+      ]
+    },
+    {
+      "narrate": "[ A third hand waits over the record. ]"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "You read. We protect you."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "An appalling division of labor. I accept."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch13_third_person",
+      "start_index": 16
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "You get the route. Nothing else."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Then I will earn the rest by keeping you alive long enough to regret your caution."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch13_third_person",
+      "start_index": 16
+    },
+    {
+      "set_flag": "notebook_resonance_1",
+      "narrate": "The map ended at a Confessor Hall. Beside it, a signature register had already begun writing Arrel's name."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "If that register completes the shape, every Handler in the Belt will know the temperature of your burns."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "Then we reach it first."
+    },
+    {
+      "set_flag": "tobias_joined",
+      "narrate": "Three shadows left Arkein. The wall kept writing."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch14_confessor_intervention"
+    }
+  ]
+}

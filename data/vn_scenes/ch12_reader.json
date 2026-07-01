@@ -1,0 +1,128 @@
+{
+  "id": "ch12_reader",
+  "title": "Chapter 12 — The Reader",
+  "chapter": 12,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch12_sump_closed.png",
+      "fade": 1.8,
+      "set_chapter": 12,
+      "autosave_chapter_transition": true,
+      "narrate": "Verdan still stood. The Sump did not. Authority chains crossed its shutters in a perfect black wheel."
+    },
+    {
+      "narrate": "Malet's desk was gone. So were the shelves, the traders, and every witness who could remember the market as alive."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "They closed it from the inside first. Someone had time to warn the lower stalls."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Malet knew the exits."
+    },
+    {
+      "narrate": "A new sentence had been cut into the wall above the lock: INTERFERENCE WILL BE CATALOGUED."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "That is for us. The patrol is turning back."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the faces of Verdan. Read the crowd only as openings and obstacles.",
+          "cost_memory": "rel_verdan_faces",
+          "set_flag": "ch12_burned_verdan_faces",
+          "goto": 8
+        },
+        {
+          "text": "Keep their faces. Take the flooded service stair beneath the market.",
+          "set_flag": "ch12_kept_verdan_faces",
+          "goto": 12
+        }
+      ]
+    },
+    {
+      "narrate": "[ The market waits for an answer. ]"
+    },
+    {
+      "narrate": "Faces flattened into movement. A frightened child became a gap between two coats. A vendor became cover. Arrel led them through."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Clear path. No people."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch12_reader",
+      "start_index": 15
+    },
+    {
+      "narrate": "[ Branch return. ]"
+    },
+    {
+      "narrate": "The service stair was chest-deep in black water. They kept every face and surrendered three hours to the dark."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_calm",
+      "side": "right",
+      "text": "Slower is still forward."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch12_reader",
+      "start_index": 15
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "There is a name in the notebook. Pell."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "Do you know it?"
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "No. My body does. That is worse."
+    },
+    {
+      "narrate": "The letters vanished when Arrel looked directly at them. Under Elia's thumb, they returned."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "We tell Tobias. Not Cover. Not anyone else."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Agreed."
+    },
+    {
+      "set_flag": "pell_name_found",
+      "narrate": "Outside, the patrol boots stopped above the stair."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch13_third_person"
+    }
+  ]
+}
