@@ -1212,7 +1212,7 @@ func _show_choices(choices: Array) -> void:
 		if cost_mem_id != "":
 			cost_mem = MemoryManager.find_memory(cost_mem_id)
 			# 이미 태워진 기억이면 이 선택지 비활성화 (leverage 불가)
-			if cost_mem != null and cost_mem.is_burned:
+			if cost_mem != null and (cost_mem.is_burned or cost_mem.is_faded):
 				continue
 			if cost_mem == null:
 				# 소실된 기억도 선택 불가

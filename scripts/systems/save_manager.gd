@@ -101,6 +101,7 @@ func save_game(slot: int) -> bool:
 		"scene": _get_current_scene_path(),
 		"game": GameManager.export_data(),
 		"memory": MemoryManager.export_data(),
+		"scene_flow": SceneFlow.export_data(),
 		"elia_diary": EliaDiary.export_data(),
 		"tutorial_hints": TutorialHints.export_data(),
 		"player_pos": player_pos,
@@ -162,6 +163,14 @@ func load_game(slot: int) -> bool:
 	if save_data.has("tutorial_hints"):
 		TutorialHints.import_data(save_data.tutorial_hints)
 
+	# Restore VN identifiers/indices before changing scenes so VNHost can resume safely.
+	var scene_path: String = String(save_data.get("scene", ""))
+	var scene_flow_data: Dictionary = save_data.get("scene_flow", {})
+	if scene_path == "res://scenes/main/vn_host.tscn":
+		SceneFlow.prepare_resume_from_save(scene_flow_data)
+	else:
+		SceneFlow.import_data(scene_flow_data)
+
 	# 플레이어 위치 복원 준비
 	loaded_player_pos = save_data.get("player_pos", {})
 
@@ -169,7 +178,6 @@ func load_game(slot: int) -> bool:
 	_last_save_time = save_data.get("unix_time", Time.get_unix_time_from_system())
 
 	# 씬 전환
-	var scene_path = save_data.get("scene", "")
 	if scene_path != "" and ResourceLoader.exists(scene_path):
 		SceneTransition.change_scene_styled(scene_path)
 
@@ -231,15 +239,13 @@ func _try_parse_json(path: String) -> Variant:
 	return null
 
 ## S72: 구버전 세이브 호환 — 누락 키 보강 + 버전 스탬프 갱신
-const SAVE_VERSION: String = "0.2.0"
+const SAVE_VERSION: String = "0.3.0"
 
 func _migrate_save_data(data: Dictionary) -> Dictionary:
 	var migrated: Dictionary = data.duplicate(true)
 	var version: String = str(migrated.get("version", "0.0.0"))
-	if version == SAVE_VERSION:
-		return migrated
 
-	# 누락 키 기본값 보강
+	# Always normalize the schema, including saves stamped with the current version.
 	if not migrated.has("game") or not (migrated["game"] is Dictionary):
 		migrated["game"] = {}
 	if not migrated.has("memory") or not (migrated["memory"] is Dictionary):
@@ -250,11 +256,14 @@ func _migrate_save_data(data: Dictionary) -> Dictionary:
 		migrated["tutorial_hints"] = {}
 	if not migrated.has("player_pos") or not (migrated["player_pos"] is Dictionary):
 		migrated["player_pos"] = {}
+	if not migrated.has("scene_flow") or not (migrated["scene_flow"] is Dictionary):
+		migrated["scene_flow"] = {}
 	if not migrated.has("scene"):
 		migrated["scene"] = ""
 
 	migrated["version"] = SAVE_VERSION
-	print("[SaveManager] Migrated save from %s to %s" % [version, SAVE_VERSION])
+	if version != SAVE_VERSION:
+		print("[SaveManager] Migrated save from %s to %s" % [version, SAVE_VERSION])
 	return migrated
 
 ## S56: Create .bak backup before overwriting
@@ -307,6 +316,19 @@ func get_save_info(slot: int) -> Dictionary:
 	var location: String = ""
 	if scene_path != "":
 		location = scene_path.get_file().get_basename().replace("_", " ").capitalize()
+	var raw_flow_data: Variant = data.get("scene_flow", {})
+	var flow_data: Dictionary = raw_flow_data if raw_flow_data is Dictionary else {}
+	var vn_scene_id := ""
+	var vn_step := 0
+	if scene_path == "res://scenes/main/vn_host.tscn":
+		if bool(flow_data.get("is_active", false)):
+			vn_scene_id = String(flow_data.get("current_id", ""))
+			vn_step = maxi(0, int(flow_data.get("current_index", 0)))
+		else:
+			vn_scene_id = String(flow_data.get("pending_scene_id", ""))
+			vn_step = maxi(0, int(flow_data.get("pending_start_index", 0)))
+		if vn_scene_id != "":
+			location = vn_scene_id.replace("_", " ").capitalize()
 	var hp_val: int = game_data.get("player_data", {}).get("hp", 0)
 	var max_hp_val: int = game_data.get("player_data", {}).get("max_hp", 100)
 	var grains_val: int = game_data.get("player_data", {}).get("grains", 0)
@@ -316,6 +338,8 @@ func get_save_info(slot: int) -> Dictionary:
 		"chapter": game_data.get("current_chapter", 1),
 		"burn_count": mem_data.get("burned", []).size(),
 		"location": location,
+		"vn_scene_id": vn_scene_id,
+		"vn_step": vn_step,
 		"hp": hp_val,
 		"max_hp": max_hp_val,
 		"grains": grains_val,

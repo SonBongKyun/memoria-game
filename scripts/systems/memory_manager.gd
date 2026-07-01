@@ -175,10 +175,13 @@ func get_erosion_ratio(memory: Memory) -> float:
 	return clampf(float(memory.erosion) / float(memory.burn_power), 0.0, 1.0)
 
 ## 비전투 연소 (탐색 공명 이벤트용 — 소리 없이)
-func burn_memory_silent(memory_id: String) -> Memory:
+func burn_memory_silent(memory_id: String, allow_faded: bool = false) -> Memory:
 	for i in range(memories.size()):
 		if memories[i].id == memory_id and not memories[i].is_burned:
 			var memory = memories[i]
+			if memory.is_faded and not allow_faded:
+				push_warning("[MemoryManager] Refused silent burn of faded memory: %s" % memory_id)
+				return null
 			memory.is_burned = true
 			burned_memories.append(memory)
 			memory_burned.emit(memory)
@@ -421,10 +424,13 @@ func burned_neighbor_count(memory_id: String) -> int:
 	return count
 
 ## 기억 연소
-func burn_memory(memory_id: String) -> Memory:
+func burn_memory(memory_id: String, allow_faded: bool = false) -> Memory:
 	for i in range(memories.size()):
 		if memories[i].id == memory_id and not memories[i].is_burned:
 			var memory = memories[i]
+			if memory.is_faded and not allow_faded:
+				push_warning("[MemoryManager] Refused burn of faded memory: %s" % memory_id)
+				return null
 			memory.is_burned = true
 
 			# 엘리아 동행 시 잔존 가능성
@@ -443,10 +449,10 @@ func burn_memory(memory_id: String) -> Memory:
 	return null
 
 ## 특정 등급의 사용 가능한 기억 목록
-func get_available_memories(min_grade: int = MemoryGrade.GRADE_5) -> Array[Memory]:
+func get_available_memories(min_grade: int = MemoryGrade.GRADE_5, allow_faded: bool = false) -> Array[Memory]:
 	var available: Array[Memory] = []
 	for memory in memories:
-		if not memory.is_burned and memory.grade >= min_grade:
+		if not memory.is_burned and (allow_faded or not memory.is_faded) and memory.grade >= min_grade:
 			available.append(memory)
 	return available
 
