@@ -482,6 +482,40 @@ func is_memory_burned(memory_id: String) -> bool:
 			return true
 	return false
 
+## S146: 기억이 온전한 상태인지 (보유 + 미연소 + 미침식)
+## 대화 선택지 게이팅 및 The Weave 엔딩 판정에 사용.
+func is_intact(memory_id: String) -> bool:
+	var m = find_memory(memory_id)
+	return m != null and not m.is_burned and not m.is_faded
+
+## S146: The Weave 엔딩 앵커 기억 정의
+## PRIMARY(이름)는 반드시 온전해야 하고, SECONDARY 중 3개 이상이 온전하며,
+## 전체 연소 수가 적을 때(보존 플레이) 제3의 길이 열린다.
+const WEAVE_PRIMARY: String = "core_name_origin"
+const WEAVE_SECONDARY: Array = [
+	"identity_first_sword",  # 정체성
+	"rel_hand_reaching",     # 엘리아를 향한 손짓
+	"daily_elia_hands",      # 앵커링 감각
+	"rel_sable_trust",       # 세이블에 대한 신뢰
+]
+const WEAVE_MAX_BURNS: int = 4
+
+## 온전한 SECONDARY 앵커 수
+func intact_anchor_count() -> int:
+	var count := 0
+	for aid in WEAVE_SECONDARY:
+		if is_intact(aid):
+			count += 1
+	return count
+
+## The Weave(제3의 길) 해금 조건 충족 여부
+func weave_unlocked() -> bool:
+	if not is_intact(WEAVE_PRIMARY):
+		return false
+	if get_burn_count() >= WEAVE_MAX_BURNS:
+		return false
+	return intact_anchor_count() >= 3
+
 ## 기억 합성 — 동일 등급 기억 2개 → 상위 등급 1개
 ## 원본은 소실(연소와 다른 방식의 상실). Grade 1(=4)은 최고 등급이므로 합성 불가.
 func synthesize(memory_a_id: String, memory_b_id: String) -> Memory:
@@ -700,7 +734,7 @@ func export_data() -> Dictionary:
 
 ## 세이브 데이터 불러오기
 func import_data(data: Dictionary) -> void:
-	if not data.has("memories"):
+	if not data.has("memories") or not (data.memories is Array):
 		return
 
 	memories.clear()
@@ -709,17 +743,28 @@ func import_data(data: Dictionary) -> void:
 
 	var burned_ids = data.get("burned", [])
 	for m_data in data.memories:
+		if not (m_data is Dictionary) or not m_data.has("id"):
+			continue
+		var memory_id := String(m_data.get("id", ""))
+		if memory_id == "":
+			continue
 		var m = Memory.new(
-			m_data.id, m_data.title, m_data.description,
-			m_data.grade, m_data.burn_power,
+			memory_id,
+			String(m_data.get("title", memory_id)),
+			String(m_data.get("description", "")),
+			int(m_data.get("grade", MemoryGrade.GRADE_5)),
+			int(m_data.get("burn_power", 0)),
 			m_data.get("story_effect", ""), m_data.get("related_npc", "")
 		)
-		m.is_burned = m_data.get("is_burned", false)
+		m.is_burned = bool(m_data.get("is_burned", burned_ids.has(memory_id)))
 		m.is_residue = m_data.get("is_residue", false)
 		m.is_faded = m_data.get("is_faded", false)
 		m.erosion = m_data.get("erosion", 0)
 		memories.append(m)
 		if m.is_burned:
 			burned_memories.append(m)
+	if memories.is_empty():
+		_init_starting_memories()
+	_refresh_connections()
 
 	print("[MemoryManager] Imported — %d memories, %d burned" % [memories.size(), burned_memories.size()])

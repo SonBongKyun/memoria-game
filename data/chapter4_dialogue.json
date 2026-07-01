@@ -5,7 +5,8 @@
     "drift_arrival": [
       {
         "speaker": "",
-        "text": "They found shelter in a collapsed overpass — a bridge that once spanned a river long since dried."
+        "text": "They found shelter in a collapsed overpass — a bridge that once spanned a river long since dried.",
+        "cg": "res://assets/cg/generated/story_ch4_ash_rain_shelter.png"
       },
       {
         "speaker": "",
@@ -40,7 +41,8 @@
     "reading_deterioration": [
       {
         "speaker": "",
-        "text": "Arrel opened the Blank Book. The letters on the first page swam and blurred."
+        "text": "Arrel opened the Blank Book. The letters on the first page swam and blurred.",
+        "cg": "res://assets/cg/generated/story_ch4_reading_deterioration.png"
       },
       {
         "speaker": "Arrel",
@@ -92,7 +94,7 @@
         "speaker": "Elia",
         "text": "Arrel. Sit down. Give me your hands.",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/story_ch4_drift_anchor.png"
+        "cg": "res://assets/cg/generated/story_ch4_night_counting_losses.png"
       },
       {
         "speaker": "Arrel",
@@ -151,7 +153,8 @@
       {
         "speaker": "Tobias",
         "text": "Since we have time — let me explain the classification system.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "cg": "res://assets/cg/generated/story_ch4_burner_classification.png"
       },
       {
         "speaker": "Tobias",
@@ -282,7 +285,8 @@
     "drift_departure": [
       {
         "speaker": "",
-        "text": "Morning. The ash-rain left a thin gray layer on everything. Tobias was already writing in his journal."
+        "text": "Morning. The ash-rain left a thin gray layer on everything. Tobias was already writing in his journal.",
+        "cg": "res://assets/cg/generated/story_ch4_ash_rain_departure.png"
       },
       {
         "speaker": "Tobias",

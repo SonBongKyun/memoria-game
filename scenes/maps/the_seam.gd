@@ -258,7 +258,10 @@ func _start_epilogue() -> void:
 	GameManager.set_flag("epilogue_started")
 
 	var epilogue_key: String
-	if GameManager.get_flag("zero_burn_path"):
+	if GameManager.get_flag("seal_weave"):
+		# S146: The Weave — 끝까지 핵심 기억을 보존하고 제3의 길을 택한 아렐 (진엔딩)
+		epilogue_key = "epilogue_weave"
+	elif GameManager.get_flag("zero_burn_path"):
 		# Zero Burn — 이름을 잃은 아렐
 		epilogue_key = "epilogue_zero_burn"
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
@@ -283,8 +286,12 @@ func _start_epilogue() -> void:
 func _on_epilogue_ended() -> void:
 	GameManager.set_flag("epilogue_complete")
 	# 엔딩별 업적 기록 + S54: Ending Gallery 기록
-	if GameManager.get_flag("zero_burn_path"):
-		AchievementManager.unlock("ending_zero_burn")
+	if GameManager.get_flag("seal_weave"):
+		# S146: The Weave 엔딩
+		AchievementManager.unlock("ending_weave")
+		GameManager.record_ending("weave")
+	elif GameManager.get_flag("zero_burn_path"):
+		AchievementManager.unlock("ending_zero")
 		GameManager.record_ending("zero_burn")
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("tobias_joined") and GameManager.get_flag("ch9_kairos_battle"):
 		AchievementManager.unlock("ending_tobias")

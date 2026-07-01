@@ -247,7 +247,8 @@
     "sq_echoes_ash_frag": [
       {
         "speaker": "",
-        "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch."
+        "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch.",
+        "cg": "res://assets/cg/generated/story_ch1_echo_fragment.png"
       },
       {
         "speaker": "",
@@ -497,7 +498,8 @@
       },
       {
         "speaker": "",
-        "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place."
+        "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place.",
+        "cg": "res://assets/cg/generated/story_ch1_ashen_figure_restored.png"
       },
       {
         "speaker": "Ashen Figure",

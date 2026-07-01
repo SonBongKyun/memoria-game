@@ -44,7 +44,11 @@ const ACHIEVEMENTS: Dictionary = {
 	"ending_zero": {"title": "Nothing Remains", "desc": "Reach the Zero Burn ending.", "icon": "star", "steam_id": "ACH_ENDING_ZERO"},
 	"ending_ash": {"title": "Ash Ending", "desc": "Reach the Ash ending.", "icon": "star", "steam_id": "ACH_ENDING_ASH"},
 	"ending_seam": {"title": "The Seam Holds", "desc": "Reach the Seam ending.", "icon": "star", "steam_id": "ACH_ENDING_SEAM"},
-	"all_endings": {"title": "Every Path", "desc": "See all 4 endings.", "icon": "crown", "steam_id": "ACH_ALL_ENDINGS"},
+	"ending_preservation": {"title": "Preservation", "desc": "Keep your name and continue the search.", "icon": "star", "steam_id": "ACH_ENDING_PRESERVATION"},
+	"ending_tobias": {"title": "The Record Remains", "desc": "Help Tobias carry the record beyond Authority control.", "icon": "star", "steam_id": "ACH_ENDING_TOBIAS"},
+	"ending_hollow": {"title": "Hollow", "desc": "Reach the Hollow ending.", "icon": "star", "steam_id": "ACH_ENDING_HOLLOW"},
+	"ending_weave": {"title": "The Weave", "desc": "Reach the Weave ending — seal BL-07 without burning your name.", "icon": "crown", "steam_id": "ACH_ENDING_WEAVE"},
+	"all_endings": {"title": "Every Path", "desc": "See all 7 endings.", "icon": "crown", "steam_id": "ACH_ALL_ENDINGS"},
 
 	# 경제 관련
 	"merchant": {"title": "Merchant", "desc": "Complete a trade with Malet.", "icon": "coin", "steam_id": "ACH_MERCHANT"},
@@ -312,7 +316,7 @@ func check_quest_complete() -> void:
 		unlock("all_quests")
 
 func _check_all_endings() -> void:
-	var endings = ["ending_seal", "ending_zero", "ending_ash", "ending_seam"]
+	var endings = ["ending_zero", "ending_preservation", "ending_ash", "ending_seam", "ending_tobias", "ending_hollow", "ending_weave"]
 	var all = true
 	for e in endings:
 		if not unlocked.has(e):

@@ -347,12 +347,14 @@ signal enemy_turn_started()
 signal damage_dealt(target: String, amount: int, skill_name: String)
 signal pre_attack(attacker: String, target: String, skill_name: String)  # S58: anticipation signal
 signal battle_ended(result: BattleState)
+signal battle_cleanup_finished(result: BattleState)
 signal battle_log(message: String)
 signal status_changed()
 signal guard_focus(trigger: String, value: int)
 signal last_stand_resonance(lethal: bool)
 signal victory_rewards_ready(rewards: Dictionary)  # S58: structured reward data
 var _victory_dismissed: bool = false  # S58: wait for player to dismiss rewards
+var _battle_started_as_boss_rush: bool = false
 
 ## 난이도별 적 스케일링 (Easy=0.7, Normal=1.0, Hard=1.4)
 func _get_difficulty_scale() -> float:
@@ -376,6 +378,7 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 		push_error("[BattleManager] Invalid battle enemy: %s" % str(enemy_ref))
 		return
 	current_enemy = enemy
+	_battle_started_as_boss_rush = GameManager.boss_rush_mode
 	return_scene = from_scene
 	var preset_art := _get_enemy_preset_art(enemy_ref)
 	battle_bg_image = bg_image if bg_image != "" else String(preset_art.get("bg", ""))
@@ -1975,6 +1978,7 @@ func get_stance_def_mult() -> float:
 	return STANCE_INFO[current_stance]["def_mult"]
 
 func _cleanup() -> void:
+	var completed_state := state
 	active_echoes.clear()
 	if state == BattleState.VICTORY:
 		# 승리 시 HP 20% 회복
@@ -2046,8 +2050,12 @@ func _cleanup() -> void:
 	elif state == BattleState.DEFEAT:
 		battle_log.emit("Darkness closes in...")
 		await get_tree().create_timer(1.5).timeout
-		if GameManager.boss_rush_mode:
-			# Boss rush handles defeat via its own callback
+		if _battle_started_as_boss_rush:
+			current_enemy = null
+			player_statuses.clear()
+			enemy_statuses.clear()
+			_battle_started_as_boss_rush = false
+			battle_cleanup_finished.emit(completed_state)
 			return
 		# 게임 오버 화면으로 전환 (current_enemy/return_scene 유지)
 		await SceneTransition.change_scene("res://scenes/ui/game_over.tscn")
@@ -2057,8 +2065,10 @@ func _cleanup() -> void:
 	current_enemy = null
 	player_statuses.clear()
 	enemy_statuses.clear()
-	# Boss Rush: don't transition scene — GameManager handles next boss
-	if GameManager.boss_rush_mode:
+	# Boss Rush: don't transition scene. GameManager advances after cleanup.
+	if _battle_started_as_boss_rush:
+		_battle_started_as_boss_rush = false
+		battle_cleanup_finished.emit(completed_state)
 		return
 	GameManager.change_state(GameManager.GameState.EXPLORATION)
 	if return_scene != "":

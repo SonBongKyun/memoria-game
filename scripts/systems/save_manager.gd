@@ -298,6 +298,8 @@ func get_save_info(slot: int) -> Dictionary:
 	file.close()
 
 	var data = json.data
+	if not (data is Dictionary):
+		return {}
 	var game_data = data.get("game", {})
 	var mem_data = data.get("memory", {})
 	# S41: 세이브 슬롯에 더 많은 정보 표시

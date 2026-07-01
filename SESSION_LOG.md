@@ -5007,3 +5007,252 @@ S67에서 export 인프라를 깔았지만 사용자가 templates를 직접 설�
 - Direct scene loads passed for `res://scenes/main/vn_host.tscn` and `res://scenes/maps/verdan_market.tscn`.
 - Captured and visually inspected live 1280x720 VN renders for the Verdan guard checkpoint and memory-market entry; character focal points remain clear above the S140 dialogue frame.
 - Existing forced shutdown ObjectDB/resource cleanup noise, CanvasItem RID cleanup warning, and pre-existing VFX/ShaderV import warnings remain unchanged.
+
+## S142 - 2026-06-28 (GPT image midgame illustration continuity pass)
+
+### Done
+- Audited Chapter 3-6 dialogue groups and CG references after the Act I/Chapter 2 passes, prioritizing long text sequences with no illustration and repeated generic environment plates.
+- Used the built-in GPT image generator with the current Arrel/Elia duo sheet, Tobias turnaround, Sable cut-in, Kairos cinematic, and matching chapter environments as explicit identity/style references to create 8 new text-free 16:9 story illustrations:
+  - `story_ch3_tobias_waystation.png` - Tobias startled at his paper-covered waystation desk.
+  - `story_ch3_tobias_joins.png` - the first three-person party image on the Belt road.
+  - `story_ch4_reading_deterioration.png` - Arrel discovers the Blank Book is becoming unreadable to him.
+  - `story_ch4_night_counting_losses.png` - Elia admits she has counted eleven involuntary micro-memory losses.
+  - `story_ch5_kairos_ridge_sighting.png` - Kairos watches from the distant coast ridge without giving chase.
+  - `story_ch5_seam_first_light.png` - the party meets the current short-silver-haired Sable as color returns at The Seam.
+  - `story_ch6_sable_briefing.png` - Sable maps BL-07 and the Shade Sentinel in her workshop.
+  - `story_ch6_stars_forgetting.png` - Arrel and Elia sit above The Seam while the sky loses its stars.
+- Rewired Chapter 3-6 story beats so the illustrations form a continuous visual arc: party formation, cognitive deterioration, quiet loss, Kairos surveillance, sanctuary arrival, mission briefing, and the BL-07 eve.
+- Updated Sable's outdated Chapter 5 entrance description from short dark hair to short silver hair to match the newer battle/story art direction.
+- Preserved solo Seam arrival and hidden-garden branches on their original neutral artwork instead of leaking group-specific imagery into them.
+- Registered all 8 illustrations in the PauseMenu Artbook.
+
+### Verification
+- UTF-8 JSON parse passed for all `data/**/*.json` files.
+- Confirmed every referenced `res://assets/...` path resolves to an existing project file.
+- Ran Godot 4.6.2 `--import`; all 8 PNG files were scanned, imported, and received matching `.import` metadata.
+- Godot 4.6.2 headless project boot passed with no script or parse errors.
+- Direct scene loads passed for Belt Waystation, Drift Shelter, Crumbling Coast, and The Seam.
+- Captured and visually inspected live 1280x720 legacy-dialogue renders for Tobias's introduction and Elia's stars-forgetting conversation; focal subjects remain clear around the dialogue presentation layers.
+- Existing forced shutdown ObjectDB/resource cleanup noise, CanvasItem RID cleanup warning, and pre-existing VFX/ShaderV import warnings remain unchanged.
+
+## S143 - 2026-06-28 (GPT image late-game narrative illustration pass)
+
+### Done
+- Audited the Chapter 7-10 dialogue groups against the current CG tree and targeted repeated environment plates, generic item art, and unillustrated late-game turning points.
+- Used the built-in GPT image generator in `stylized-concept` mode with the latest Arrel/Elia duo, Tobias, short-silver-haired Sable, Kairos, and chapter environment anchors to create 13 new text-free late-game story illustrations:
+  - `story_ch7_fading_names_monument.png` - the first expedition team's names dissolving from the Seam Outskirts memorial.
+  - `story_ch7_sable_confession.png` - Sable admitting why she deserted Authority Memory Disposal.
+  - `story_ch7_echo_shell_whispers.png` - Arrel hearing fragments of consumed lives through the Echo Shell.
+  - `story_ch8_forest_crossing.png` - the four-person party entering the memory-parasitic forest.
+  - `story_ch8_ghost_child.png` - the child remnant cupping the absence of a forgotten name.
+  - `story_ch8_ring_cairn.png` - Tobias discovering BL-07's accelerating consumption rings.
+  - `story_ch9_kairos_confrontation.png` - the full party facing Kairos in the Colorless Waste.
+  - `story_ch9_first_void_memory.png` - Arrel touching the last thought of the first Void Hole's witness.
+  - `story_ch9_bl07_threshold.png` - BL-07 appearing as a door more real than the Waste.
+  - `story_ch10_void_echoes.png` - the Void surrounding Arrel and Elia with fragments of almost-memory.
+  - `story_ch10_orphan_memories.png` - the party finding crystallized lives kept by BL-07.
+  - `story_ch10_seal_complete.png` - Arrel surviving the seal without recognition or identity.
+  - `story_ch10_seal_refused.png` - Arrel pulling back from the final burn and choosing borrowed time.
+- Reworked the Kairos confrontation once with an identity-preserving correction so Sable retains her current chin-length silver hair instead of drifting toward the older long-haired design.
+- Connected all 13 images to their matching Chapter 7-10 dialogue entry points, replacing generic object/environment artwork only where the new scene-specific CG is narratively exact.
+- Preserved the existing Chapter 10 core-choice image and pre-seal Void architecture so the new complete/refused ending plates read as distinct consequences rather than replacements for the decision itself.
+- Registered the complete late-game set in the PauseMenu Artbook as the Act III visual arc.
+
+### Verification
+- UTF-8 JSON parse passed for all `data/**/*.json` files and every referenced `res://assets/...` path resolved.
+- Godot 4.6.2 `--import` scanned and imported all 13 PNG files and generated matching `.import` metadata.
+- Godot 4.6.2 headless project boot passed without script or parse errors.
+- Direct scene loads passed for `forgotten_forest.tscn`, `colorless_waste.tscn`, and `bl07_void.tscn`.
+- Captured and visually inspected live 1280x720 standard-renderer dialogue compositions for Chapter 7 Echo Shell and Chapter 10 Void Echoes; focal faces remain clear above the dialogue presentation layers.
+- `git diff --check` passed before the final log update; only normal CRLF working-copy warnings appeared.
+- Existing forced shutdown ObjectDB/resource cleanup and CanvasItem RID warnings remain unchanged.
+
+## S144 - 2026-06-29 (GPT image ending and epilogue atlas pass)
+
+### Done
+- Audited all 129 existing `assets/cg/**/*.png` files and every dialogue group's current `cg` references before selecting new scenes; exact-file duplicate detection also found no duplicate PNG hashes.
+- Identified the six ending branches and two optional epilogue conversations as the highest-value non-overlapping gap because they still reused generic Seam, core-choice, placeholder rewrite, or item imagery.
+- Used the built-in GPT image generator in `stylized-concept` mode with current Arrel, Elia, Tobias, Sable, ending, and Seam references to create 14 new text-free story illustrations:
+  - `ending_zero_burn_canyon_watch.png` - the unnamed man watching colors he cannot name.
+  - `ending_zero_burn_trying_name.png` - Arrel trying the lost name as a new choice.
+  - `ending_preservation_return.png` - the party returning while BL-07 remains open.
+  - `ending_preservation_building_hands.png` - hands that can build instead of burn.
+  - `ending_ash_hollow_days.png` - correct answers coming from emotional absence.
+  - `ending_ash_sunset_shell.png` - Arrel watching light fade without recognition.
+  - `ending_seam_ordinary_moments.png` - small moments surviving the Void's appetite.
+  - `ending_seam_impossible_garden.png` - a green shoot becoming the first credible answer.
+  - `ending_tobias_night_press.png` - Tobias printing Ring Theory through the night.
+  - `ending_tobias_twelve_archivists.png` - twelve copies escaping Authority suppression.
+  - `ending_hollow_water.png` - Arrel forgetting the taste and meaning of water.
+  - `ending_hollow_name_room.png` - one name echoing through an emptied life.
+  - `epilogue_elia_collective_pattern.png` - Elia connecting private burns to shared-history loss.
+  - `epilogue_sable_eastern_settlement.png` - Sable pointing toward the next settlement in danger.
+- Replaced every generic epilogue CG at its exact narrative beat and added a second visual transition inside each major ending, without replacing the Chapter 10 choice or immediate-consequence art.
+- Corrected the Zero Burn prose from outdated silver-haired Elia to her current honey-blonde design.
+- Updated all six Ending Gallery thumbnails and descriptions to use branch-specific art and accurate outcome text.
+- Added all 14 images to the PauseMenu Artbook.
+- Added `ILLUSTRATION_CATALOG.md` with the verified 143-CG baseline, non-overlap rules, S144 scene-to-file mapping, and a role-based path toward the long-term 1,000-image target.
+
+### Verification
+- UTF-8 JSON parsing passed for all `data/**/*.json` files and all referenced project asset paths resolved.
+- Verified `TOTAL_CG=143`, `NEW_SET=14`, and no exact SHA-256 duplicate PNG files under `assets/cg/`.
+- Godot 4.6.2 `--import` scanned and imported all 14 new PNG files and generated matching `.import` metadata.
+- Godot 4.6.2 headless project boot passed without script or parse errors.
+- Direct scene load passed for `res://scenes/maps/the_seam.tscn`.
+- Captured and visually inspected live 1280x720 standard-renderer dialogue compositions for the Zero Burn and Seam endings; subjects and story details remain legible around the narration/dialogue presentation layers.
+- `git diff --check` passed before the final log update; only normal CRLF working-copy warnings appeared.
+- Existing forced shutdown ObjectDB/resource cleanup and CanvasItem RID warnings remain unchanged.
+
+## S145 - 2026-06-29 (GPT image Chapter 7-9 exploration and choice pass)
+
+### Done
+- Continued directly from the ending atlas by re-auditing all 143 existing CG files and the unillustrated Chapter 7-9 dialogue groups, selecting 16 scenes with distinct story, location, cast, and camera purposes.
+- Used the built-in GPT image generator in `stylized-concept` mode with the current Arrel, Elia, Tobias, Sable, Kairos, and chapter environment references to create 16 new text-free 16:9 illustrations:
+  - `story_ch7_controlled_burn_trial.png` - Sable testing whether Arrel can survive a deliberate burn.
+  - `story_ch7_last_field_preparations.png` - the four travelers preparing below the final ridge.
+  - `story_ch7_paper_forgetting_ink.png` - paper losing the concept of holding a written mark.
+  - `story_ch7_crossing_the_ridgeline.png` - The Seam's last color falling behind the party.
+  - `story_ch8_eighteenth_ring.png` - Tobias tracing the forest's organized consumption rings.
+  - `story_ch8_whispers_as_bait.png` - false familiar faces gathering in the bark around the real party.
+  - `story_ch8_white_stone_shelter.png` - Sable touching the memory-null cairn while the others give her space.
+  - `story_ch8_end_of_color.png` - the forest ending abruptly at the Achromatic Waste.
+  - `story_ch8_forgotten_moss.png` - matter that remembers neither growth nor decay.
+  - `story_ch8_ghost_mother.png` - a mother-shaped remnant cradling an absence.
+  - `story_ch8_parasitic_heart.png` - the party confronting the immense breathing knot at the forest's center.
+  - `story_ch9_human_chain.png` - the party holding one another against direction-erasing wind.
+  - `story_ch9_name_under_pull.png` - BL-07 reeling Arrel inward along a memory tether.
+  - `story_ch9_kairos_withdrawal.png` - Kairos retreating through fractured Authority records.
+  - `story_ch9_memory_depth_markers.png` - compressed lives forming towering depth markers in the Waste.
+  - `story_ch9_final_colorless_view.png` - Arrel and Elia looking back across a world reduced to existence alone.
+- Connected every image to its exact Chapter 7, 8, or 9 dialogue beat and registered all 16 as distinct PauseMenu Artbook entries.
+- Extended `ILLUSTRATION_CATALOG.md` with the full S145 dialogue-to-asset mapping and updated the verified project baseline from 143 to 159 CG PNG files.
+
+### Verification
+- UTF-8 JSON parsing passed for `chapter7_dialogue.json`, `chapter8_dialogue.json`, and `chapter9_dialogue.json`; all 16 new dialogue references and all 16 Artbook references resolve to existing assets.
+- Verified `TOTAL_CG=159`, `NEW_SET=16`, and no exact SHA-256 duplicate PNG files under `assets/cg/`.
+- Godot 4.6.2 `--import` scanned and imported all 16 new PNG files and generated matching `.import` metadata.
+- Godot 4.6.2 headless project boot passed without script or parse errors.
+- Direct scene loads passed for `seam_outskirts.tscn`, `forgotten_forest.tscn`, and `colorless_waste.tscn`.
+- Captured and visually inspected live 1280x720 standard-renderer dialogue compositions for Chapter 8 `forest_whispers` and Chapter 9 `depth_markers`; subjects, environmental storytelling, and the lower-screen UI safety area remain clear.
+- Existing forced shutdown ObjectDB/resource cleanup noise, two pre-existing anchor warnings, and the VFX/ShaderV import warnings remain unchanged.
+
+## S146 - 2026-06-29 (Gameplay + story: The Weave — 7th ending & memory-gated dialogue)
+
+### Done
+- Built a cohesive gameplay-and-story upgrade that reinforces the burn-vs-keep core, designed so the new beats have ready illustration slots for the ongoing GPT/codex image work.
+- **Memory-driven dialogue engine** (`scripts/systems/dialogue_manager.gd`): brought the NPC dialogue runner to parity with the VN SceneFlow system.
+  - Choice/line gating: `requires_memory_intact`, `requires_memory_gone`, `requires_flag`, `requires_not_flag`, `requires_weave`. Failing lines are skipped; failing choices are filtered out, and `select_choice` now operates on the filtered list (`_current_choices`) so indices stay correct.
+  - Memory Leverage: `cost_memory` (semantic burn with a "Memory spent" toast).
+  - Reward parity: `add_item` / `add_item_count` / `heal_player`, plus data-driven `record_ending` and `set_flag` on lines.
+  - Legacy `requires_memory` + `burned_text` text-swap behavior is preserved untouched.
+- **The Weave — 7th ending** (a preservation/"true" path that rewards playing against the burn grain):
+  - `scripts/systems/memory_manager.gd`: added `is_intact()`, anchor constants (`WEAVE_PRIMARY` = the name, `WEAVE_SECONDARY` = sword/Elia-gesture/anchor-hands/Sable-trust), `intact_anchor_count()`, and `weave_unlocked()` (name intact + fewer than 4 total burns + 3 of 4 secondary anchors intact).
+  - `data/chapter10_dialogue.json`: added two `requires_weave` Elia/Arrel hint lines and a gated third seal choice (`seal_weave`), plus the full `seal_weave` resolution group.
+  - `data/epilogue_dialogue.json`: added `epilogue_weave` (Sable realizes preservation can seal a hole; colors return to The Seam).
+  - `scenes/maps/bl07_void.gd`: `_on_seal_decision_ended` now routes `seal_weave` to a new warm-light `_execute_weave()` / `_on_weave_complete()` that keeps the name.
+  - `scenes/maps/the_seam.gd`: highest-priority `epilogue_weave` branch + `record_ending("weave")` / `unlock("ending_weave")`.
+  - Registered the ending everywhere: `GameManager.ENDING_DATA["weave"]`, PauseMenu ending gallery id list, `AchievementManager` `ending_weave`, and two `StoryJournal` entries (major event + choice log).
+- Emergent tie-in (no new code): accepting Malet's early deal burns `identity_first_sword`, which lowers the anchor count — so taking shortcuts quietly forecloses the Weave path.
+
+### New illustration slots (graceful text-only fallback until generated — for codex)
+- `story_ch10_seal_weave.png` — Arrel reaching for every kept memory at once, not just the name.
+- `story_ch10_seal_weave_fire.png` — the seal-fire braided from every color the Seam ever bled.
+- `story_ch10_seal_weave_after.png` — Arrel intact but thinner, anchored, the seal closed behind him.
+- `ending_weave_sealed_gate.png` — the closed BL-07 gate at The Seam.
+- `ending_weave_sable_ledger.png` — Sable's pattern ledger with the impossible new column.
+- `ending_weave_anchor_hand.png` — the steady weight of the part of him now holding the door shut.
+- `ending_weave_colors_return.png` — colors growing back over quiet stone (Ending Gallery thumbnail).
+
+### Verification
+- UTF-8 JSON parse passed for all `data/**/*.json`; confirmed `seal_weave`, `epilogue_weave`, and the three-option weave-gated seal choice are present and correctly flagged.
+- Godot 4.6.2 `--headless --import` completed; the only error is the pre-existing `addons/vfx_lib/plugin.gd:7` dialog-parent noise.
+- Godot 4.6.2 headless boot (`--quit-after 3`): **0** SCRIPT ERROR / Parse Error lines across all edited scripts.
+- Verified the dialogue UI feeds the filtered choice index straight into `select_choice`, so gated choices map correctly.
+- Missing new CG paths are guarded by `ResourceLoader.exists()` in `dialogue_box.gd`, so the build runs today and the art drops in later.
+
+### Balance note (next pass)
+- The Weave gate (<4 burns + 3/4 anchors intact by Ch10) is intentionally a hard "preservation run." Needs a live playthrough to confirm it's reachable without trivializing combat; tune `WEAVE_MAX_BURNS` / anchor threshold if it proves too strict.
+
+## S147 - 2026-06-30 (Code audit + GPT image optional-story and The Weave illustration pass)
+
+### Done
+- Reviewed the complete dirty worktree after the S146 Claude Code handoff instead of treating the new Weave implementation as isolated code.
+- Fixed a boss-rush cleanup race found during the wider audit:
+  - boss-rush progression now listens to `battle_cleanup_finished` rather than the early `battle_ended` signal,
+  - final victory can no longer overwrite the menu state with exploration after asynchronous reward cleanup,
+  - boss-rush defeat returns cleanly to the title instead of falling through to the normal game-over route.
+- Hardened dialogue, VN, save, and memory state boundaries:
+  - rejected negative/stale choice indices,
+  - clamped VN resume indices,
+  - guarded valid-JSON-but-wrong-schema save previews,
+  - made memory import tolerate malformed/legacy records and rebuild an empty pool safely,
+  - repaired the debug store-stat dialogue count to traverse the real `dialogues` dictionary.
+- Reviewed S146's seven-ending registration and fixed the stale four-ending achievement table:
+  - added Preservation, Tobias, and Hollow achievement definitions,
+  - corrected Zero Burn's achievement ID,
+  - updated Every Path to require all seven real endings.
+- Removed the repeated Control anchor warning in `WorldRewriteDirector` by using a full-rect anchors-and-offsets preset without assigning a conflicting explicit size.
+- Used the built-in GPT image generator with current character/environment references to create 11 clean, text-free 16:9 story CGs:
+  - `story_ch1_echo_fragment.png`
+  - `story_ch1_ashen_figure_restored.png`
+  - `story_ch2_sump_breathing_walls.png`
+  - `story_ch2_nervous_trader_ledger.png`
+  - `story_ch10_seal_weave.png`
+  - `story_ch10_seal_weave_fire.png`
+  - `story_ch10_seal_weave_after.png`
+  - `ending_weave_sealed_gate.png`
+  - `ending_weave_sable_ledger.png`
+  - `ending_weave_anchor_hand.png`
+  - `ending_weave_colors_return.png`
+- Every prompt explicitly excluded film/photo grain, paper/canvas texture, speckle and color noise, dithering, compression artifacts, chromatic aberration, dirty overlays, and oversharpening.
+- Rejected and regenerated the first Colors Return image because Sable drifted into a brown-haired male silhouette; the shipped image restores her current chin-length silver-haired identity.
+- Connected the four optional-story images to their exact Chapter 1/2 dialogue beats and filled all seven image slots Claude prepared for `seal_weave` / `epilogue_weave`.
+- Registered all 11 images in the PauseMenu Artbook and updated `ILLUSTRATION_CATALOG.md` to the verified 170-CG baseline.
+
+### Verification
+- Purpose-built boss-rush cleanup test passed for both victory and defeat paths (`BOSS_RUSH_CLEANUP_TEST_OK`).
+- Purpose-built Weave reachability test passed after applying real Chapter 3-10 erosion:
+  - pristine preservation state exposes three seal choices,
+  - one secondary anchor burn still satisfies 3/4,
+  - two secondary anchor burns close the Weave path and reduce the choice list to two (`WEAVE_PATH_TEST_OK`).
+- UTF-8 JSON parsing passed for all `data/**/*.json`; 728 scanned `res://` references resolved with zero missing files.
+- Verified `TOTAL_CG=170`, all 11 new images are RGB 1672x941, all have matching `.import` metadata, and there are zero exact SHA-256 duplicate CG groups.
+- Godot 4.6.2 import scanned and imported all new PNGs. The command still exits nonzero only because of the pre-existing VFX Library editor popup/autoload teardown errors and ShaderV duplicate UID warnings.
+- Godot 4.6.2 headless project boot passed with zero `SCRIPT ERROR` / `Parse Error` lines.
+- Direct scene loads passed for `vn_host.tscn`, `bl07_void.tscn`, and `the_seam.tscn`.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S148 - 2026-06-30 (GPT image Chapter 2-6 optional-story and journey illustration pass)
+
+### Done
+- Re-audited the Chapter 2-6 dialogue files and the complete `assets/cg/` tree, then filled all 16 remaining dialogue groups in that range that had no story CG.
+- Used the built-in GPT image generator with current character and environment references to create 16 clean, text-free 16:9 illustrations:
+  - `story_ch2_ledger_found.png`
+  - `story_ch2_ledger_return.png`
+  - `story_ch2_ledger_burned.png`
+  - `story_ch3_kairos_wall_warning.png`
+  - `story_ch3_dead_belt_road.png`
+  - `story_ch3_tobias_battle_notes.png`
+  - `story_ch4_ash_rain_shelter.png`
+  - `story_ch4_burner_classification.png`
+  - `story_ch4_ash_rain_departure.png`
+  - `story_ch5_warm_cliff_path.png`
+  - `story_ch5_scratched_watchtower.png`
+  - `story_ch6_bl07_after_sentinel.png`
+  - `story_ch6_seam_gardener.png`
+  - `story_ch6_sable_final_preparations.png`
+  - `story_ch6_void_watcher_request.png`
+  - `story_ch6_sable_vigil_reward.png`
+- Explicitly excluded film/photo grain, paper/canvas texture, speckle and color noise, dithering, compression artifacts, chromatic aberration, dirty-lens overlays, muddy detail, and oversharpening from every generation prompt.
+- Rejected the first Chapter 5 cliff and watchtower drafts because Arrel and Elia's identities drifted; edited both against the current short silver-haired Arrel and honey-blonde bob-haired Elia reference before integration.
+- Connected each image to the first line of its exact dialogue group, preserving the lower 28 percent as a quiet dialogue-UI area rather than stacking multiple CG swaps inside one conversation.
+- Registered all 16 illustrations as distinct PauseMenu Artbook entries and updated `ILLUSTRATION_CATALOG.md` to the verified 186-CG baseline.
+
+### Verification
+- UTF-8 JSON parsing passed for all dialogue data; all 16 dialogue mappings resolve to the intended file exactly once.
+- Verified `TOTAL_CG=186`, `NEW_SET=16`, `MISSING_REFS=0`, and zero exact SHA-256 duplicate groups under `assets/cg/`.
+- All 16 new images are RGB 1672x941 and have matching Godot `.import` metadata.
+- Godot 4.6.2 import scanned and imported all 16 files. The pre-existing VFX Library popup/autoload teardown and ShaderV duplicate UID warnings remain unchanged.
+- Godot 4.6.2 headless project boot passed with zero `SCRIPT ERROR` / `Parse Error` lines.
+- Direct scene loads passed for `verdan_market.tscn`, `belt_waystation.tscn`, `drift_shelter.tscn`, `crumbling_coast.tscn`, and `the_seam.tscn`.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.

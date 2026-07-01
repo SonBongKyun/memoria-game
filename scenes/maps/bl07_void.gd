@@ -247,12 +247,44 @@ func _on_core_dialogue_ended() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "seal_decision")
 
 func _on_seal_decision_ended() -> void:
-	if GameManager.get_flag("seal_accepted"):
+	if GameManager.get_flag("seal_weave"):
+		# S146: The Weave — 보존한 기억을 봉인에 엮음 (이름을 태우지 않음)
+		_execute_weave()
+	elif GameManager.get_flag("seal_accepted"):
 		# Grade 1 기억 연소 — The Seal
 		_execute_seal()
 	else:
 		# 거부 — 퇴각
 		_refuse_seal()
+
+## S146: The Weave 연출 — 색이 돌아오는 봉인 (백색 소실이 아닌 다채로운 봉합)
+func _execute_weave() -> void:
+	AudioManager.play_combat_sfx("void_pulse")
+	await get_tree().create_timer(0.5).timeout
+
+	# 이름은 태우지 않는다 — 보존한 기억들이 봉인의 일부가 됨
+	print("[BL07Void] THE WEAVE — name preserved, memories woven into seal")
+
+	# 화면 플래시 — 색이 돌아오는 따뜻한 빛
+	SceneTransition.transition_rect.color = Color(0.95, 0.85, 0.55)
+	SceneTransition.transition_rect.modulate.a = 1.0
+	await get_tree().create_timer(1.2).timeout
+	SceneTransition.transition_rect.color = Color.BLACK
+	var flash_tween = create_tween()
+	flash_tween.tween_property(SceneTransition.transition_rect, "modulate:a", 0.0, 1.5)
+	await flash_tween.finished
+
+	DialogueManager.dialogue_ended.connect(_on_weave_complete, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "seal_weave")
+
+func _on_weave_complete() -> void:
+	GameManager.set_flag("ch10_complete")
+	GameManager.current_chapter = 11
+	SaveManager.autosave_on_chapter_transition()
+	AchievementManager.record_chapter_complete(10)
+	print("[BL07Void] Chapter 10 complete — The Weave (memories preserved)")
+	await get_tree().create_timer(2.0).timeout
+	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 10)
 
 func _execute_seal() -> void:
 	# 씬 암전 연출 — 이름을 태우는 순간

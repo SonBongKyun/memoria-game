@@ -5,7 +5,8 @@
     "forest_arrival": [
       {
         "speaker": "",
-        "text": "The trees began where the path ended. They weren't growing — they were standing still, the way someone stands when they've forgotten why they walked into a room."
+        "text": "The trees began where the path ended. They weren't growing — they were standing still, the way someone stands when they've forgotten why they walked into a room.",
+        "cg": "res://assets/cg/generated/story_ch8_forest_crossing.png"
       },
       {
         "speaker": "Sable",
@@ -87,7 +88,8 @@
       {
         "speaker": "Tobias",
         "text": "I have a theory. The forest isn't random — it's organized.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "cg": "res://assets/cg/generated/story_ch8_eighteenth_ring.png"
       },
       {
         "speaker": "Tobias",
@@ -174,7 +176,8 @@
     "forest_whispers": [
       {
         "speaker": "",
-        "text": "The deeper they went, the louder the forest became. Not sound — pressure. Like the air was trying to speak."
+        "text": "The deeper they went, the louder the forest became. Not sound — pressure. Like the air was trying to speak.",
+        "cg": "res://assets/cg/generated/story_ch8_whispers_as_bait.png"
       },
       {
         "speaker": "Sable",
@@ -219,7 +222,8 @@
     "clearing_rest": [
       {
         "speaker": "",
-        "text": "A clearing. The trees pulled back as if repelled by something in the soil. In the center, a cairn of white stones."
+        "text": "A clearing. The trees pulled back as if repelled by something in the soil. In the center, a cairn of white stones.",
+        "cg": "res://assets/cg/generated/story_ch8_white_stone_shelter.png"
       },
       {
         "speaker": "Tobias",
@@ -294,13 +298,15 @@
       },
       {
         "speaker": "",
-        "text": "They left the cairn behind. The forest closed in one last time, then — abruptly — ended. Ahead: nothing with color."
+        "text": "They left the cairn behind. The forest closed in one last time, then — abruptly — ended. Ahead: nothing with color.",
+        "cg": "res://assets/cg/generated/story_ch8_end_of_color.png"
       }
     ],
     "forest_atmosphere": [
       {
         "speaker": "",
-        "text": "The ground was soft. Not with moss — with something that used to be moss before it forgot what growing meant."
+        "text": "The ground was soft. Not with moss — with something that used to be moss before it forgot what growing meant.",
+        "cg": "res://assets/cg/generated/story_ch8_forgotten_moss.png"
       },
       {
         "speaker": "Tobias",
@@ -327,7 +333,7 @@
       {
         "speaker": "",
         "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence.",
-        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+        "cg": "res://assets/cg/generated/story_ch8_ghost_child.png"
       },
       {
         "speaker": "Arrel",
@@ -362,7 +368,8 @@
       {
         "speaker": "Tobias",
         "text": "I've been mapping the rings. Each one corresponds to a consumption event — but the spacing isn't random.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "cg": "res://assets/cg/generated/story_ch8_ring_cairn.png"
       },
       {
         "speaker": "Tobias",
@@ -383,7 +390,8 @@
     "ghost_mother": [
       {
         "speaker": "",
-        "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over."
+        "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over.",
+        "cg": "res://assets/cg/generated/story_ch8_ghost_mother.png"
       },
       {
         "speaker": "Elia",
@@ -398,7 +406,8 @@
     "forest_heart": [
       {
         "speaker": "",
-        "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing."
+        "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing.",
+        "cg": "res://assets/cg/generated/story_ch8_parasitic_heart.png"
       },
       {
         "speaker": "Tobias",

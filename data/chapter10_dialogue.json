@@ -113,9 +113,26 @@
         "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
       },
       {
+        "speaker": "Elia",
+        "text": "Wait. You're still... you. After all of it, you kept the things that matter. The name. The sword. My hands on yours. Maybe you don't have to choose what to lose. Maybe you offer what you kept.",
+        "portrait": "elia_neutral",
+        "requires_weave": true
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Not the emptiness it wants. The opposite. Everything I refused to burn — given freely, all at once.",
+        "portrait": "arrel_neutral",
+        "requires_weave": true
+      },
+      {
         "speaker": "",
         "text": "What do you do?",
         "choices": [
+          {
+            "text": "Weave the kept memories into the seal",
+            "set_flag": "seal_weave",
+            "requires_weave": true
+          },
           {
             "text": "Burn the Name — Seal BL-07",
             "set_flag": "seal_accepted"
@@ -125,6 +142,64 @@
             "set_flag": "seal_refused"
           }
         ]
+      }
+    ],
+    "seal_weave": [
+      {
+        "speaker": "",
+        "text": "He did not reach for the name. He reached for all of it — every memory he had carried instead of spent.",
+        "cg": "res://assets/cg/generated/story_ch10_seal_weave.png"
+      },
+      {
+        "speaker": "",
+        "text": "The courtyard and the wooden grip. Rain on wet earth. A song with no face. A hand that moved before he understood why."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Not one of you. All of you. Together.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "He did not let them go. He held them out — woven, whole, refusing the Void the single clean wound it wanted."
+      },
+      {
+        "speaker": "",
+        "text": "The fire was not blue. It was every color the Seam had ever bled, braided into one thread.",
+        "cg": "res://assets/cg/generated/story_ch10_seal_weave_fire.png"
+      },
+      {
+        "speaker": "Elia",
+        "text": "It's... it's not collapsing. It's closing. Like something is being mended, not erased.",
+        "portrait": "elia_concern"
+      },
+      {
+        "speaker": "",
+        "text": "BL-07 did not scream. It quieted. A torn thing pulled back together along the lines of a life that refused to come apart."
+      },
+      {
+        "speaker": "",
+        "text": "When the light faded, the man who had been Arrel was still Arrel. Tired. Thinner, somehow, as if part of him now lived in the seal itself. But himself.",
+        "cg": "res://assets/cg/generated/story_ch10_seal_weave_after.png"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I remember. I remember all of it. It's just... shared now. Some of me is holding the door shut.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Then you're not gone. You're load-bearing.",
+        "portrait": "elia_neutral"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "There are worse things to be.",
+        "portrait": "arrel_neutral"
+      },
+      {
+        "speaker": "",
+        "text": "BL-07 was sealed. The Seam would survive. And for the first time, the price had not been a person — only the certainty that he could ever set those memories down again."
       }
     ],
     "seal_complete": [
@@ -164,7 +239,8 @@
       },
       {
         "speaker": "",
-        "text": "The man who had been Arrel opened his eyes. He looked at the woman standing over him."
+        "text": "The man who had been Arrel opened his eyes. He looked at the woman standing over him.",
+        "cg": "res://assets/cg/generated/story_ch10_seal_complete.png"
       },
       {
         "speaker": "",
@@ -196,7 +272,8 @@
     "seal_refused": [
       {
         "speaker": "",
-        "text": "He pulled his hand back from the edge."
+        "text": "He pulled his hand back from the edge.",
+        "cg": "res://assets/cg/generated/story_ch10_seal_refused.png"
       },
       {
         "speaker": "Arrel",
@@ -282,7 +359,7 @@
       {
         "speaker": "",
         "text": "Deeper in, the Void began to speak.",
-        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
+        "cg": "res://assets/cg/generated/story_ch10_void_echoes.png"
       },
       {
         "speaker": "",
@@ -340,7 +417,7 @@
       {
         "speaker": "",
         "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist.",
-        "cg": "res://assets/cg/game_image/memory_crystal_item.png"
+        "cg": "res://assets/cg/generated/story_ch10_orphan_memories.png"
       },
       {
         "speaker": "",

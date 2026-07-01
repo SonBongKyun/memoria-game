@@ -70,6 +70,7 @@ const EVENT_ENTRIES := [
 	{"flag": "ch10_complete", "chapter": 10, "title": "The Seal", "desc": "BL-07's core. A decision: burn everything to close it, or keep your name and find another way."},
 	{"flag": "zero_burn_path", "chapter": 10, "title": "Zero Burn — Name Consumed", "desc": "He burned 'Arrel.' The name that meant something. The Void Hole collapsed. He didn't know who he was anymore."},
 	{"flag": "seal_refused", "chapter": 10, "title": "Preservation — Name Kept", "desc": "He refused to burn his name. BL-07 remains unsolved. But he remembers who he is."},
+	{"flag": "seal_weave", "chapter": 10, "title": "The Weave — Everything Kept", "desc": "He offered every memory he had preserved, all at once. BL-07 sealed without erasing him. Part of him now holds the door shut."},
 	{"flag": "epilogue_complete", "chapter": 11, "title": "Epilogue", "desc": "The Seam. Aftermath. What remains after everything is either burned or saved."},
 ]
 
@@ -359,6 +360,7 @@ func _populate_choices() -> void:
 		{"flag": "elia_stays", "title": "Kept Elia Close", "desc": "Traveled the Coast together. The anchor stayed. Memories burned still left traces."},
 		{"flag": "zero_burn_path", "title": "Burned Your Name", "desc": "Zero Burn. The ultimate sacrifice. BL-07 closed, but the person called 'Arrel' ceased to exist."},
 		{"flag": "seal_refused", "title": "Kept Your Name", "desc": "Refused the Seal. BL-07 remains, but so does the person who remembers."},
+		{"flag": "seal_weave", "title": "Wove the Seal", "desc": "The Weave. Sealed BL-07 by offering every preserved memory at once — name and self kept intact. The price was never being able to set them down."},
 	]
 	for entry in choice_entries:
 		if not GameManager.get_flag(entry.flag):

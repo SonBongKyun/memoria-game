@@ -383,7 +383,8 @@
     "sump_atmosphere": [
       {
         "speaker": "",
-        "text": "The Sump breathed."
+        "text": "The Sump breathed.",
+        "cg": "res://assets/cg/generated/story_ch2_sump_breathing_walls.png"
       },
       {
         "speaker": "",
@@ -409,7 +410,8 @@
     "sq_sump_ledger_start": [
       {
         "speaker": "",
-        "text": "A man pressed against the alley wall, eyes darting between every shadow."
+        "text": "A man pressed against the alley wall, eyes darting between every shadow.",
+        "cg": "res://assets/cg/generated/story_ch2_nervous_trader_ledger.png"
       },
       {
         "speaker": "Nervous Trader",
@@ -427,7 +429,8 @@
     "sq_sump_ledger_found": [
       {
         "speaker": "",
-        "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger."
+        "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger.",
+        "cg": "res://assets/cg/generated/story_ch2_ledger_found.png"
       },
       {
         "speaker": "",
@@ -437,7 +440,8 @@
     "sq_sump_ledger_return": [
       {
         "speaker": "Nervous Trader",
-        "text": "You brought it back. Good. Good. Here — for your trouble."
+        "text": "You brought it back. Good. Good. Here — for your trouble.",
+        "cg": "res://assets/cg/generated/story_ch2_ledger_return.png"
       },
       {
         "speaker": "",
@@ -447,7 +451,8 @@
     "sq_sump_ledger_burn": [
       {
         "speaker": "",
-        "text": "The pages caught fire instantly, as if they wanted to burn."
+        "text": "The pages caught fire instantly, as if they wanted to burn.",
+        "cg": "res://assets/cg/generated/story_ch2_ledger_burned.png"
       },
       {
         "speaker": "",

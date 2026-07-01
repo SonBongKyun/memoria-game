@@ -41,7 +41,7 @@ func play(scene_id: String, start_index: int = 0) -> void:
 	current_id = scene_id
 	current_scene = data
 	current_steps = data.get("steps", [])
-	current_index = start_index
+	current_index = clampi(start_index, 0, current_steps.size())
 	is_active = true
 
 	# BGM
@@ -63,6 +63,8 @@ func advance() -> void:
 
 ## 현재 단계 실행
 func _run_step() -> void:
+	if current_index < 0:
+		current_index = 0
 	if current_index >= current_steps.size():
 		_end_scene()
 		return
@@ -184,6 +186,8 @@ func resume_if_queued() -> bool:
 
 ## 선택지 처리 (VN UI에서 호출)
 func select_choice(choice_index: int) -> void:
+	if not is_active or current_index < 0 or current_index >= current_steps.size():
+		return
 	var step = current_steps[current_index]
 	if not step.has("choice"):
 		return

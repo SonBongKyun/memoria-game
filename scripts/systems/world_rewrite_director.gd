@@ -305,8 +305,7 @@ func _show_rewrite_art(report: Dictionary) -> void:
 	add_child(layer)
 
 	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.size = get_viewport().get_visible_rect().size
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.modulate.a = 0.0
 	layer.add_child(root)

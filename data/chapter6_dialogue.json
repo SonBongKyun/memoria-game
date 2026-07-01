@@ -6,7 +6,7 @@
       {
         "speaker": "",
         "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.",
-        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
+        "cg": "res://assets/cg/generated/story_ch5_seam_first_light.png"
       },
       {
         "speaker": "",
@@ -61,7 +61,7 @@
       {
         "speaker": "",
         "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.",
-        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
+        "cg": "res://assets/cg/generated/story_ch6_sable_briefing.png"
       },
       {
         "speaker": "Sable",
@@ -149,7 +149,8 @@
     "bl07_aftermath": [
       {
         "speaker": "",
-        "text": "The Sentinel dissolved. The Void Hole flickered, contracted — but didn't close."
+        "text": "The Sentinel dissolved. The Void Hole flickered, contracted — but didn't close.",
+        "cg": "res://assets/cg/generated/story_ch6_bl07_after_sentinel.png"
       },
       {
         "speaker": "Arrel",
@@ -415,7 +416,8 @@
     "seam_residents": [
       {
         "speaker": "",
-        "text": "The Seam's residents watched Arrel with careful eyes."
+        "text": "The Seam's residents watched Arrel with careful eyes.",
+        "cg": "res://assets/cg/generated/story_ch6_seam_gardener.png"
       },
       {
         "speaker": "",
@@ -451,7 +453,7 @@
       {
         "speaker": "",
         "text": "He found Elia on the canyon rim, looking up at stars that were slowly going out.",
-        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
+        "cg": "res://assets/cg/generated/story_ch6_stars_forgetting.png"
       },
       {
         "speaker": "Elia",
@@ -529,7 +531,8 @@
       {
         "speaker": "Sable",
         "text": "Tomorrow morning. BL-07.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "cg": "res://assets/cg/generated/story_ch6_sable_final_preparations.png"
       },
       {
         "speaker": "Arrel",
@@ -585,7 +588,8 @@
       {
         "speaker": "Sable",
         "text": "There's something else. A Void Watcher — not a beast, something more deliberate. It's been circling the rift entrance.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "cg": "res://assets/cg/generated/story_ch6_void_watcher_request.png"
       },
       {
         "speaker": "Sable",
@@ -612,7 +616,8 @@
       {
         "speaker": "Sable",
         "text": "It's done? Good. The patrols will be easier for a while.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "cg": "res://assets/cg/generated/story_ch6_sable_vigil_reward.png"
       },
       {
         "speaker": "",

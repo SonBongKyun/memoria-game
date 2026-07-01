@@ -1,15 +1,11 @@
 [gd_resource type="Theme" format=3 uid="uid://c6qls2t12euxu"]
 
-[sub_resource type="SystemFont" id="SystemFont_title"]
-font_names = PackedStringArray("Cinzel", "Trajan Pro", "Cormorant SC", "Cormorant Garamond", "Noto Serif KR", "Georgia", "Cambria", "Constantia", "Palatino Linotype", "Batang", "serif")
+[sub_resource type="SystemFont" id="SystemFont_ui"]
+font_names = PackedStringArray("Segoe UI", "Pretendard", "Noto Sans KR", "Malgun Gothic", "Arial", "sans-serif")
 antialiasing = 2
 
 [sub_resource type="SystemFont" id="SystemFont_body"]
 font_names = PackedStringArray("Cormorant Garamond", "EB Garamond", "Noto Serif KR", "Georgia", "Cambria", "Constantia", "Palatino Linotype", "Batang", "Times New Roman", "serif")
-antialiasing = 2
-
-[sub_resource type="SystemFont" id="SystemFont_ui"]
-font_names = PackedStringArray("Segoe UI", "Pretendard", "Noto Sans KR", "Malgun Gothic", "Arial", "sans-serif")
 antialiasing = 2
 
 [resource]

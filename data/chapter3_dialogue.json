@@ -45,7 +45,8 @@
     "tobias_encounter": [
       {
         "speaker": "",
-        "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers."
+        "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers.",
+        "cg": "res://assets/cg/generated/story_ch3_tobias_waystation.png"
       },
       {
         "speaker": "Tobias",
@@ -164,7 +165,8 @@
     "kairos_wall_writing": [
       {
         "speaker": "",
-        "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall."
+        "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall.",
+        "cg": "res://assets/cg/generated/story_ch3_kairos_wall_warning.png"
       },
       {
         "speaker": "",
@@ -252,13 +254,15 @@
       },
       {
         "speaker": "",
-        "text": "[Tobias has joined the party]"
+        "text": "[Tobias has joined the party]",
+        "cg": "res://assets/cg/generated/story_ch3_tobias_joins.png"
       }
     ],
     "belt_atmosphere": [
       {
         "speaker": "",
-        "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar."
+        "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar.",
+        "cg": "res://assets/cg/generated/story_ch3_dead_belt_road.png"
       },
       {
         "speaker": "",
@@ -284,7 +288,8 @@
       {
         "speaker": "Tobias",
         "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was — let me check — approximately 60 percent retention.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "cg": "res://assets/cg/generated/story_ch3_tobias_battle_notes.png"
       },
       {
         "speaker": "Arrel",
@@ -339,7 +344,8 @@
       },
       {
         "speaker": "",
-        "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot."
+        "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot.",
+        "cg": "res://assets/cg/generated/story_ch3_tobias_joins.png"
       }
     ]
   }

@@ -579,6 +579,474 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/story_ch2_kairos_warning.png",
 		"desc": "Kairos appears as a cold Bureau projection while the distance closes."
 	},
+	{
+		"title": "Act II: The Recorder",
+		"type": "Generated Character Introduction CG",
+		"path": "res://assets/cg/generated/story_ch3_tobias_waystation.png",
+		"desc": "Arrel and Elia interrupt Tobias's solitary accounting at the ruined Belt waystation."
+	},
+	{
+		"title": "Act II: Three on the Belt",
+		"type": "Generated Party Transition CG",
+		"path": "res://assets/cg/generated/story_ch3_tobias_joins.png",
+		"desc": "Tobias shoulders his records and the journey becomes a three-person road."
+	},
+	{
+		"title": "Act II: The Words Move",
+		"type": "Generated Memory Deterioration CG",
+		"path": "res://assets/cg/generated/story_ch4_reading_deterioration.png",
+		"desc": "The Blank Book stays still while Arrel's ability to read it comes apart."
+	},
+	{
+		"title": "Act II: Eleven Small Losses",
+		"type": "Generated Character Story CG",
+		"path": "res://assets/cg/generated/story_ch4_night_counting_losses.png",
+		"desc": "Under the Drift overpass, Elia admits she has counted every involuntary burn."
+	},
+	{
+		"title": "Act II: He Is Classifying",
+		"type": "Generated Threat Sighting CG",
+		"path": "res://assets/cg/generated/story_ch5_kairos_ridge_sighting.png",
+		"desc": "Kairos watches from the coastal ridge without needing to give chase."
+	},
+	{
+		"title": "Act II: The First Color",
+		"type": "Generated Sanctuary Arrival CG",
+		"path": "res://assets/cg/generated/story_ch5_seam_first_light.png",
+		"desc": "The party meets Sable where impossible color survives inside The Seam."
+	},
+	{
+		"title": "Act II: BL-07 on the Map",
+		"type": "Generated Mission Briefing CG",
+		"path": "res://assets/cg/generated/story_ch6_sable_briefing.png",
+		"desc": "Sable marks the forming Void Hole and the Sentinel standing before it."
+	},
+	{
+		"title": "Act II: Stars Forgetting",
+		"type": "Generated Night Story CG",
+		"path": "res://assets/cg/generated/story_ch6_stars_forgetting.png",
+		"desc": "Elia asks only that Arrel return while the sky loses its lights."
+	},
+	{
+		"title": "Act III: The Stone Remembers",
+		"type": "Generated Memorial Story CG",
+		"path": "res://assets/cg/generated/story_ch7_fading_names_monument.png",
+		"desc": "Sable and the party stop before twelve names dissolving from stone."
+	},
+	{
+		"title": "Act III: Everyone Has a Line",
+		"type": "Generated Confession Story CG",
+		"path": "res://assets/cg/generated/story_ch7_sable_confession.png",
+		"desc": "Sable names the order that finally drove her from the Authority."
+	},
+	{
+		"title": "Act III: Voices in the Shell",
+		"type": "Generated Echo Story CG",
+		"path": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png",
+		"desc": "The Echo Shell returns fragments of lives consumed near BL-07."
+	},
+	{
+		"title": "Act III: Say Your Name",
+		"type": "Generated Forest Arrival CG",
+		"path": "res://assets/cg/generated/story_ch8_forest_crossing.png",
+		"desc": "The party enters a forest that feeds on the edges of identity."
+	},
+	{
+		"title": "Act III: The Shape of a Name",
+		"type": "Generated Memory Remnant CG",
+		"path": "res://assets/cg/generated/story_ch8_ghost_child.png",
+		"desc": "A child remembers having known a name that no longer exists."
+	},
+	{
+		"title": "Act III: Hunger in Rings",
+		"type": "Generated Investigation CG",
+		"path": "res://assets/cg/generated/story_ch8_ring_cairn.png",
+		"desc": "Tobias discovers that BL-07 is accelerating rather than merely expanding."
+	},
+	{
+		"title": "Act III: The Convergence",
+		"type": "Generated Kairos Confrontation CG",
+		"path": "res://assets/cg/generated/story_ch9_kairos_confrontation.png",
+		"desc": "Kairos arranges the Colorless Waste around one clinical observation."
+	},
+	{
+		"title": "Act III: The First Opening",
+		"type": "Generated Ancient Memory CG",
+		"path": "res://assets/cg/generated/story_ch9_first_void_memory.png",
+		"desc": "Arrel touches the last thought of someone who saw the first Void Hole."
+	},
+	{
+		"title": "Act III: A Door More Real",
+		"type": "Generated Threshold CG",
+		"path": "res://assets/cg/generated/story_ch9_bl07_threshold.png",
+		"desc": "BL-07 becomes the only absolute shape left in the Waste."
+	},
+	{
+		"title": "Act III: What the Void Shows",
+		"type": "Generated Memory Echo CG",
+		"path": "res://assets/cg/generated/story_ch10_void_echoes.png",
+		"desc": "Borrowed grief surrounds Arrel and Elia in fragments of almost-memory."
+	},
+	{
+		"title": "Act III: Orphaned Beauty",
+		"type": "Generated Void Archive CG",
+		"path": "res://assets/cg/generated/story_ch10_orphan_memories.png",
+		"desc": "The party finds the lives BL-07 kept instead of destroying."
+	},
+	{
+		"title": "Act III: The Cost Was Everything",
+		"type": "Generated Seal Ending CG",
+		"path": "res://assets/cg/generated/story_ch10_seal_complete.png",
+		"desc": "The world closes while the man who was Arrel no longer knows Elia."
+	},
+	{
+		"title": "Act III: Borrowed Time",
+		"type": "Generated Refusal Ending CG",
+		"path": "res://assets/cg/generated/story_ch10_seal_refused.png",
+		"desc": "Arrel steps back from the easy burn and chooses an uncertain future."
+	},
+	{
+		"title": "Epilogue: Colors Without Names",
+		"type": "Generated Zero Burn CG",
+		"path": "res://assets/cg/generated/ending_zero_burn_canyon_watch.png",
+		"desc": "The man who was Arrel watches a dawn whose colors he cannot name."
+	},
+	{
+		"title": "Epilogue: Trying the Name",
+		"type": "Generated Zero Burn CG",
+		"path": "res://assets/cg/generated/ending_zero_burn_trying_name.png",
+		"desc": "A lost name becomes a choice to stay rather than a recovered memory."
+	},
+	{
+		"title": "Epilogue: The Open Wound",
+		"type": "Generated Preservation CG",
+		"path": "res://assets/cg/generated/ending_preservation_return.png",
+		"desc": "Arrel and Elia return while Sable sees that BL-07 is still open."
+	},
+	{
+		"title": "Epilogue: Hands That Build",
+		"type": "Generated Preservation CG",
+		"path": "res://assets/cg/generated/ending_preservation_building_hands.png",
+		"desc": "The hands that burned become hands that can research and build."
+	},
+	{
+		"title": "Epilogue: Correct Answers",
+		"type": "Generated Ash Ending CG",
+		"path": "res://assets/cg/generated/ending_ash_hollow_days.png",
+		"desc": "Arrel answers from the place where a person used to be."
+	},
+	{
+		"title": "Epilogue: Light, Fading",
+		"type": "Generated Ash Ending CG",
+		"path": "res://assets/cg/generated/ending_ash_sunset_shell.png",
+		"desc": "He watches sunset as ash settles behind the surviving name."
+	},
+	{
+		"title": "Epilogue: Too Small to Burn",
+		"type": "Generated Seam Ending CG",
+		"path": "res://assets/cg/generated/ending_seam_ordinary_moments.png",
+		"desc": "Ordinary moments remain beyond the Void's appetite."
+	},
+	{
+		"title": "Epilogue: Something Green",
+		"type": "Generated Seam Ending CG",
+		"path": "res://assets/cg/generated/ending_seam_impossible_garden.png",
+		"desc": "A single shoot in dead stone suggests a different answer."
+	},
+	{
+		"title": "Epilogue: The Night Press",
+		"type": "Generated Tobias Ending CG",
+		"path": "res://assets/cg/generated/ending_tobias_night_press.png",
+		"desc": "Tobias turns Ring Theory into twelve suppressible copies."
+	},
+	{
+		"title": "Epilogue: Twelve Archivists",
+		"type": "Generated Tobias Ending CG",
+		"path": "res://assets/cg/generated/ending_tobias_twelve_archivists.png",
+		"desc": "The record moves beyond the Authority's reach."
+	},
+	{
+		"title": "Epilogue: The Taste of Water",
+		"type": "Generated Hollow Ending CG",
+		"path": "res://assets/cg/generated/ending_hollow_water.png",
+		"desc": "An ordinary glass becomes evidence of a vanished sense."
+	},
+	{
+		"title": "Epilogue: A Word in an Empty Room",
+		"type": "Generated Hollow Ending CG",
+		"path": "res://assets/cg/generated/ending_hollow_name_room.png",
+		"desc": "Elia repeats one name into a life that no longer answers."
+	},
+	{
+		"title": "Epilogue: Collective Forgetting",
+		"type": "Generated Epilogue Theory CG",
+		"path": "res://assets/cg/generated/epilogue_elia_collective_pattern.png",
+		"desc": "Elia connects private burns to the holes in shared history."
+	},
+	{
+		"title": "Epilogue: Three Days East",
+		"type": "Generated Journey Hook CG",
+		"path": "res://assets/cg/generated/epilogue_sable_eastern_settlement.png",
+		"desc": "Sable points toward a settlement forgetting without fire."
+	},
+	{
+		"title": "Act III: A Controlled Flame",
+		"type": "Generated Trial CG",
+		"path": "res://assets/cg/generated/story_ch7_controlled_burn_trial.png",
+		"desc": "Sable asks Arrel to prove that his mind can survive a deliberate burn."
+	},
+	{
+		"title": "Act III: Last Field Preparations",
+		"type": "Generated Party CG",
+		"path": "res://assets/cg/generated/story_ch7_last_field_preparations.png",
+		"desc": "The four travelers prepare beneath the ridge while BL-07 grows toward them."
+	},
+	{
+		"title": "Act III: Paper Forgets Ink",
+		"type": "Generated Threshold CG",
+		"path": "res://assets/cg/generated/story_ch7_paper_forgetting_ink.png",
+		"desc": "Tobias discovers that even paper loses the idea of holding a mark."
+	},
+	{
+		"title": "Act III: Crossing the Ridgeline",
+		"type": "Generated Journey CG",
+		"path": "res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png",
+		"desc": "The Seam's last colors fall behind as the party enters the dead country."
+	},
+	{
+		"title": "Act III: The Eighteenth Ring",
+		"type": "Generated Ring Theory CG",
+		"path": "res://assets/cg/generated/story_ch8_eighteenth_ring.png",
+		"desc": "Tobias traces the forest's hidden order while Sable remembers who was lost."
+	},
+	{
+		"title": "Act III: Whispers as Bait",
+		"type": "Generated Forest CG",
+		"path": "res://assets/cg/generated/story_ch8_whispers_as_bait.png",
+		"desc": "Borrowed faces gather in the bark around the real four travelers."
+	},
+	{
+		"title": "Act III: White Stone Shelter",
+		"type": "Generated Memorial CG",
+		"path": "res://assets/cg/generated/story_ch8_white_stone_shelter.png",
+		"desc": "Sable finds a memory-null cairn and allows herself one quiet touch."
+	},
+	{
+		"title": "Act III: The End of Color",
+		"type": "Generated Boundary CG",
+		"path": "res://assets/cg/generated/story_ch8_end_of_color.png",
+		"desc": "The forest ends without transition and the Achromatic Waste begins."
+	},
+	{
+		"title": "Act III: Forgotten Moss",
+		"type": "Generated Environmental CG",
+		"path": "res://assets/cg/generated/story_ch8_forgotten_moss.png",
+		"desc": "Tobias lifts a remnant that remembers neither growth nor decay."
+	},
+	{
+		"title": "Act III: The Ghost Mother",
+		"type": "Generated Echo CG",
+		"path": "res://assets/cg/generated/story_ch8_ghost_mother.png",
+		"desc": "A translucent mother cradles the shape of someone the forest consumed."
+	},
+	{
+		"title": "Act III: The Parasitic Heart",
+		"type": "Generated Forest Heart CG",
+		"path": "res://assets/cg/generated/story_ch8_parasitic_heart.png",
+		"desc": "The party reaches the immense breathing knot at the forest's center."
+	},
+	{
+		"title": "Act III: Human Chain",
+		"type": "Generated Waste CG",
+		"path": "res://assets/cg/generated/story_ch9_human_chain.png",
+		"desc": "The party holds one another against a wind that erases direction and meaning."
+	},
+	{
+		"title": "Act III: The Pull Beneath a Name",
+		"type": "Generated Compass CG",
+		"path": "res://assets/cg/generated/story_ch9_name_under_pull.png",
+		"desc": "BL-07 reels Arrel inward along a line only memory can feel."
+	},
+	{
+		"title": "Act III: Kairos Withdraws",
+		"type": "Generated Aftermath CG",
+		"path": "res://assets/cg/generated/story_ch9_kairos_withdrawal.png",
+		"desc": "Kairos retreats through fractured records after his composure finally breaks."
+	},
+	{
+		"title": "Act III: Memory Depth Markers",
+		"type": "Generated Lore CG",
+		"path": "res://assets/cg/generated/story_ch9_memory_depth_markers.png",
+		"desc": "Columns of compressed lives mark how deep the travelers have entered the Waste."
+	},
+	{
+		"title": "Act III: Final Colorless View",
+		"type": "Generated Vista CG",
+		"path": "res://assets/cg/generated/story_ch9_final_colorless_view.png",
+		"desc": "Arrel and Elia look back once at a world reduced to existence alone."
+	},
+	{
+		"title": "Act I: The Counting Fragment",
+		"type": "Generated Side-Quest Memory CG",
+		"path": "res://assets/cg/generated/story_ch1_echo_fragment.png",
+		"desc": "A child's counting voice survives inside a warm crystal beneath the ash roots."
+	},
+	{
+		"title": "Act I: A Face in the Ash",
+		"type": "Generated Side-Quest Resolution CG",
+		"path": "res://assets/cg/generated/story_ch1_ashen_figure_restored.png",
+		"desc": "Two returned fragments let the Ashen Figure remember a face for one moment."
+	},
+	{
+		"title": "Act I: The Sump Breathes",
+		"type": "Generated Environment Story CG",
+		"path": "res://assets/cg/generated/story_ch2_sump_breathing_walls.png",
+		"desc": "Verdan's undercity behaves like a living organ around its bottled memories."
+	},
+	{
+		"title": "Act I: The Missing Ledger",
+		"type": "Generated Side-Quest Introduction CG",
+		"path": "res://assets/cg/generated/story_ch2_nervous_trader_ledger.png",
+		"desc": "A frightened trader asks that his forbidden record be returned or burned."
+	},
+	{
+		"title": "The Weave: Everything Kept",
+		"type": "Generated True-Path Climax CG",
+		"path": "res://assets/cg/generated/story_ch10_seal_weave.png",
+		"desc": "Arrel gathers every intact memory instead of offering the Void a wound."
+	},
+	{
+		"title": "The Weave: Every Color",
+		"type": "Generated Seal-Fire CG",
+		"path": "res://assets/cg/generated/story_ch10_seal_weave_fire.png",
+		"desc": "The Seam's colors braid across BL-07 and stitch the tear closed."
+	},
+	{
+		"title": "The Weave: Still Arrel",
+		"type": "Generated Ending Aftermath CG",
+		"path": "res://assets/cg/generated/story_ch10_seal_weave_after.png",
+		"desc": "The gate closes and Arrel still recognizes the hand on his shoulder."
+	},
+	{
+		"title": "The Weave: The Closed Gate",
+		"type": "Generated Epilogue Gate CG",
+		"path": "res://assets/cg/generated/ending_weave_sealed_gate.png",
+		"desc": "Sable faces the first truly silent BL-07 gate while Arrel and Elia return."
+	},
+	{
+		"title": "The Weave: The Twelfth Pattern",
+		"type": "Generated Sable Lore CG",
+		"path": "res://assets/cg/generated/ending_weave_sable_ledger.png",
+		"desc": "Sable finds preservation where eleven burned routes had failed."
+	},
+	{
+		"title": "The Weave: Holding the Door",
+		"type": "Generated Anchor CG",
+		"path": "res://assets/cg/generated/ending_weave_anchor_hand.png",
+		"desc": "Part of Arrel remains load-bearing, made bearable by Elia's steady hand."
+	},
+	{
+		"title": "The Weave: Colors Return",
+		"type": "Generated Ending Gallery CG",
+		"path": "res://assets/cg/generated/ending_weave_colors_return.png",
+		"desc": "Arrel, Elia, and silver-haired Sable watch color grow back across quiet stone."
+	},
+	{
+		"title": "The Ledger Behind Stone",
+		"type": "Generated Side-Quest Discovery CG",
+		"path": "res://assets/cg/generated/story_ch2_ledger_found.png",
+		"desc": "A forbidden ledger waits behind loose stone in Verdan's breathing undercity."
+	},
+	{
+		"title": "The Ledger Returned",
+		"type": "Generated Side-Quest Choice CG",
+		"path": "res://assets/cg/generated/story_ch2_ledger_return.png",
+		"desc": "The nervous trader receives the record he feared would surface."
+	},
+	{
+		"title": "The Ledger Burned",
+		"type": "Generated Memory-Burn CG",
+		"path": "res://assets/cg/generated/story_ch2_ledger_burned.png",
+		"desc": "Forbidden pages catch as though they had been waiting for the flame."
+	},
+	{
+		"title": "Kairos' Wall Warning",
+		"type": "Generated Investigation CG",
+		"path": "res://assets/cg/generated/story_ch3_kairos_wall_warning.png",
+		"desc": "A scratched warning interrupts the climb through the Belt waystation."
+	},
+	{
+		"title": "The Dead Belt Road",
+		"type": "Generated Environment CG",
+		"path": "res://assets/cg/generated/story_ch3_dead_belt_road.png",
+		"desc": "A trade route that joined six settlements survives only as a scar."
+	},
+	{
+		"title": "Tobias' Battle Notes",
+		"type": "Generated Character CG",
+		"path": "res://assets/cg/generated/story_ch3_tobias_battle_notes.png",
+		"desc": "Tobias records the residue left by Arrel's combat burn."
+	},
+	{
+		"title": "Shelter in Ash-Rain",
+		"type": "Generated Chapter Arrival CG",
+		"path": "res://assets/cg/generated/story_ch4_ash_rain_shelter.png",
+		"desc": "The party finds one dry pocket beneath a collapsed overpass."
+	},
+	{
+		"title": "The Burner's Classification",
+		"type": "Generated Lore CG",
+		"path": "res://assets/cg/generated/story_ch4_burner_classification.png",
+		"desc": "Tobias explains the system that turns remembered lives into grades."
+	},
+	{
+		"title": "Departure Under Gray Ash",
+		"type": "Generated Journey CG",
+		"path": "res://assets/cg/generated/story_ch4_ash_rain_departure.png",
+		"desc": "Morning leaves every surface gray as the group prepares to move."
+	},
+	{
+		"title": "The Warmer Cliff Path",
+		"type": "Generated Journey CG",
+		"path": "res://assets/cg/generated/story_ch5_warm_cliff_path.png",
+		"desc": "Arrel and Elia follow a narrow coast path toward a warmer light."
+	},
+	{
+		"title": "The Scratched Watchtower",
+		"type": "Generated Investigation CG",
+		"path": "res://assets/cg/generated/story_ch5_scratched_watchtower.png",
+		"desc": "Lantern light exposes a ruined tower covered in desperate marks."
+	},
+	{
+		"title": "After the Sentinel",
+		"type": "Generated Battle Aftermath CG",
+		"path": "res://assets/cg/generated/story_ch6_bl07_after_sentinel.png",
+		"desc": "The guardian dissolves, but BL-07's wound refuses to close."
+	},
+	{
+		"title": "The Seam's Gardener",
+		"type": "Generated Resident Story CG",
+		"path": "res://assets/cg/generated/story_ch6_seam_gardener.png",
+		"desc": "Impossible flowers outlast names in the hands of two old survivors."
+	},
+	{
+		"title": "Sable's Final Preparations",
+		"type": "Generated Mission Briefing CG",
+		"path": "res://assets/cg/generated/story_ch6_sable_final_preparations.png",
+		"desc": "Sable gives Arrel one real flame to carry into an unreal wound."
+	},
+	{
+		"title": "The Void Watcher",
+		"type": "Generated Side-Quest Briefing CG",
+		"path": "res://assets/cg/generated/story_ch6_void_watcher_request.png",
+		"desc": "A deliberate sentinel studies The Seam from beyond the fractured gate."
+	},
+	{
+		"title": "An Oath Freely Given",
+		"type": "Generated Side-Quest Reward CG",
+		"path": "res://assets/cg/generated/story_ch6_sable_vigil_reward.png",
+		"desc": "Sable entrusts Arrel with a memory weighted by years of kept promises."
+	},
 ]
 
 func _ready() -> void:
@@ -1459,7 +1927,7 @@ func _show_endings_gallery() -> void:
 	grid.add_theme_constant_override("v_separation", 16)
 	vbox.add_child(grid)
 
-	var ending_ids = ["zero_burn", "preservation", "ash", "seam", "tobias", "hollow"]
+	var ending_ids = ["zero_burn", "preservation", "ash", "seam", "tobias", "hollow", "weave"]
 	for eid in ending_ids:
 		var seen = eid in GameManager.seen_endings
 		var data = GameManager.ENDING_DATA.get(eid, {})

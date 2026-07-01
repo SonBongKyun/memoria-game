@@ -4,19 +4,19 @@
   "dialogues": {
     "epilogue_zero_burn": [
       {"speaker": "", "text": "Three days passed. Or maybe it was longer. Time moved differently when you didn't have a name to mark it with."},
-      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
+      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/generated/ending_zero_burn_canyon_watch.png"},
       {"speaker": "", "text": "BL-07 was sealed. The ground was solid. Children played in the gardens where flowers bloomed in impossible seasons."},
       {"speaker": "Elia", "text": "You've been sitting here since dawn.", "portrait": "elia_mature"},
       {"speaker": "???", "text": "Have I? I can't tell.", "portrait": "arrel_exhausted"},
       {"speaker": "Elia", "text": "Do you... want me to tell you? About who you were?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He looked at her. The woman with silver hair. He knew she was important. He just didn't know why."},
+      {"speaker": "", "text": "He looked at her. The woman with honey-blonde hair. He knew she was important. He just didn't know why."},
       {"speaker": "???", "text": "Would it change anything?", "portrait": "arrel_exhausted"},
       {"speaker": "Elia", "text": "It might change everything.", "portrait": "elia_concern"},
       {"speaker": "", "text": "She sat down beside him. Close enough that their shoulders almost touched."},
       {"speaker": "Elia", "text": "Your name was Arrel. You were someone who burned pieces of himself to keep other people warm.", "portrait": "elia_neutral"},
       {"speaker": "Elia", "text": "You were kind. Stubborn. Terrible at cooking.", "portrait": "elia_neutral"},
       {"speaker": "", "text": "Something stirred. Not a memory. Memories were gone. But a feeling — like the shape of a word you've forgotten, still pressing against the inside of your mouth."},
-      {"speaker": "???", "text": "...Arrel.", "portrait": "arrel_wounded"},
+      {"speaker": "???", "text": "...Arrel.", "portrait": "arrel_wounded", "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png"},
       {"speaker": "Elia", "text": "Yes.", "portrait": "elia_concern"},
       {"speaker": "", "text": "He said it again. Not remembering. Just... trying it on."},
       {"speaker": "Arrel", "text": "Arrel.", "portrait": "arrel_neutral"},
@@ -33,7 +33,7 @@
       {"speaker": "", "text": "ZERO BURN ENDING: The name is gone. But the man remains."}
     ],
     "epilogue_preservation": [
-      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"},
+      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/generated/ending_preservation_return.png"},
       {"speaker": "", "text": "Sable was waiting at the entrance. Her face said she already knew."},
       {"speaker": "Sable", "text": "It's still growing.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
@@ -48,7 +48,7 @@
       {"speaker": "Sable", "text": "I don't know. But I've been collecting data. Every Void Hole, every burn, every seal that held and every one that didn't.", "portrait": "sable_neutral"},
       {"speaker": "Sable", "text": "There's a pattern. I just can't see it yet.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "Then we find it.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "He looked at his hands. The hands that could burn. That had burned. That still carried the heat of every memory he'd ever sacrificed."},
+      {"speaker": "", "text": "He looked at his hands. The hands that could burn. That had burned. That still carried the heat of every memory he'd ever sacrificed.", "cg": "res://assets/cg/generated/ending_preservation_building_hands.png"},
       {"speaker": "", "text": "But also hands that could hold. That could build. That could choose NOT to destroy."},
       {"speaker": "Arrel", "text": "My name is Arrel. I remember who gave it to me. And I'm keeping it.", "portrait": "arrel_neutral"},
       {"speaker": "", "text": "Behind them, BL-07 pulsed. Patient. Hungry."},
@@ -57,8 +57,31 @@
       {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
       {"speaker": "", "text": "PRESERVATION ENDING: The hole remains. So does the name. The search continues."}
     ],
+    "epilogue_weave": [
+      {"speaker": "", "text": "They returned to The Seam, and for the first time the gate behind them was closed.", "cg": "res://assets/cg/generated/ending_weave_sealed_gate.png"},
+      {"speaker": "", "text": "Sable was waiting. She looked past them, at the place where BL-07 used to breathe, and went very still."},
+      {"speaker": "Sable", "text": "It's sealed. Actually sealed. And you're... standing here. Talking. Remembering.", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "I didn't burn the name. I didn't run, either.", "portrait": "arrel_neutral"},
+      {"speaker": "Sable", "text": "Then what closed it?", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "All of it. Everything I kept instead of spending. I gave the Void something it had never been offered before — a whole life, intact, refusing to come apart.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "It couldn't eat a clean wound, so we never gave it one.", "portrait": "elia_neutral"},
+      {"speaker": "Sable", "text": "That's not in any of my records. Eleven teams. Eleven. Every one of them burned. None of them tried to hold.", "portrait": "sable_calm"},
+      {"speaker": "", "text": "She pulled out her ledger — the pattern she could never quite see — and stared at the empty column where this had never happened before.", "cg": "res://assets/cg/generated/ending_weave_sable_ledger.png"},
+      {"speaker": "Sable", "text": "Preservation as a weapon. Memory as a seal instead of fuel. Do you understand what this means?", "portrait": "sable_neutral"},
+      {"speaker": "Arrel", "text": "That it can be taught.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "He felt the seal where part of him now lived — a steady weight, like a hand he could never quite let go of. It did not hurt. It anchored.", "cg": "res://assets/cg/generated/ending_weave_anchor_hand.png"},
+      {"speaker": "Elia", "text": "Does it ever get heavy? Carrying the door shut?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Every day. But I remember why I'm carrying it. That's the part that matters. That's the part that's still me.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "Sable was already sketching, fast, the way people do when a thing they thought impossible has just walked through the door."},
+      {"speaker": "Sable", "text": "There are other holes. Other Seams. If this can be done once, deliberately, by someone who refuses to forget...", "portrait": "sable_calm"},
+      {"speaker": "Arrel", "text": "Then nobody else has to lose a name to close one.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "Behind them, where BL-07 had hungered, there was only quiet stone. And on it, faint, the colors of the Seam had begun to grow back."},
+      {"speaker": "", "text": "His name was Arrel. He remembered who gave it to him. He remembered all of it. And now, so would the world.", "cg": "res://assets/cg/generated/ending_weave_colors_return.png"},
+      {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
+      {"speaker": "", "text": "THE WEAVE ENDING: He spent nothing and sealed everything. The price was not a person — only the promise to never set it down."}
+    ],
     "epilogue_ash": [
-      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
+      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/generated/ending_ash_hollow_days.png"},
       {"speaker": "", "text": "But the words came from somewhere hollow. A place where a person used to be."},
       {"speaker": "Elia", "text": "Arrel. Look at me.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "...That name. I know it's mine. I just can't feel it.", "portrait": "arrel_wounded2"},
@@ -71,13 +94,13 @@
       {"speaker": "Sable", "text": "They walk. They eat. They breathe. But the light behind their eyes... it's gone.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "I can still fight. I can still burn.", "portrait": "arrel_wounded2"},
       {"speaker": "Elia", "text": "That's what scares me.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The sun set. He watched it without recognition. Just light, fading."},
+      {"speaker": "", "text": "The sun set. He watched it without recognition. Just light, fading.", "cg": "res://assets/cg/generated/ending_ash_sunset_shell.png"},
       {"speaker": "", "text": "Somewhere inside the shell of Arrel, ash settled where memories used to burn."},
       {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
       {"speaker": "", "text": "ASH ENDING: The name remains. But the man behind it is ash."}
     ],
     "epilogue_seam": [
-      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
+      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/generated/ending_seam_ordinary_moments.png"},
       {"speaker": "", "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch."},
       {"speaker": "Arrel", "text": "Elia. Do you remember the stump in Rim Forest? The one with the new growth?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The one you spent ten minutes staring at? Yes.", "portrait": "elia_neutral"},
@@ -90,13 +113,13 @@
       {"speaker": "Arrel", "text": "They're too small to burn. Too ordinary to matter. And that's exactly why the Void can't touch them.", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "...You might be onto something.", "portrait": "sable_calm"},
       {"speaker": "Elia", "text": "A path forward built on the things no one thought to protect.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "In the garden of The Seam, impossible flowers swayed in a wind that carried no ash."},
+      {"speaker": "", "text": "In the garden of The Seam, impossible flowers swayed in a wind that carried no ash.", "cg": "res://assets/cg/generated/ending_seam_impossible_garden.png"},
       {"speaker": "", "text": "It wasn't a solution. Not yet. But for the first time, it felt like the beginning of one."},
       {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
       {"speaker": "", "text": "SEAM ENDING: In the cracks between loss, something green still grows."}
     ],
     "elia_epilogue_talk": [
-      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"},
+      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/generated/epilogue_elia_collective_pattern.png"},
       {"speaker": "Arrel", "text": "And?", "portrait": "arrel_neutral"},
       {"speaker": "Elia", "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.", "portrait": "elia_neutral"},
       {"speaker": "Elia", "text": "What if the world isn't forgetting on its own? What if we're MAKING it forget?", "portrait": "elia_concern"},
@@ -108,21 +131,21 @@
       {"speaker": "Elia", "text": "We'll figure it out. Together.", "portrait": "elia_neutral"}
     ],
     "epilogue_tobias": [
-      {"speaker": "", "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.", "cg": "res://assets/cg/generated/world_rewrite_tobias_record_tree.png"},
-      {"speaker": "Tobias", "text": "They can burn every copy. I've already sent it to twelve independent archivists across the continent.", "portrait": "tobias_neutral"},
+      {"speaker": "", "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.", "cg": "res://assets/cg/generated/ending_tobias_night_press.png"},
+      {"speaker": "Tobias", "text": "They can burn every copy. I've already sent it to twelve independent archivists across the continent.", "portrait": "tobias_neutral", "cg": "res://assets/cg/generated/ending_tobias_twelve_archivists.png"},
       {"speaker": "", "text": "The Authority responded with a formal censure. Then a warrant. Then silence — the kind of silence that meant they were reading it."},
       {"speaker": "Tobias", "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted — and prevented.", "portrait": "tobias_neutral"},
       {"speaker": "", "text": "TOBIAS ENDING: The pen outlasts the flame. Sometimes the most dangerous weapon is a well-documented truth."}
     ],
     "epilogue_hollow": [
-      {"speaker": "", "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
+      {"speaker": "", "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.", "cg": "res://assets/cg/generated/ending_hollow_water.png"},
       {"speaker": "Elia", "text": "Arrel. Your name is Arrel. Say it back to me.", "portrait": "elia_concern"},
       {"speaker": "Arrel", "text": "...Arrel.", "portrait": "arrel_exhausted"},
       {"speaker": "Elia", "text": "Again.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "HOLLOW ENDING: The name persists. A single word in an empty room, echoing off walls that used to hold a life."}
+      {"speaker": "", "text": "HOLLOW ENDING: The name persists. A single word in an empty room, echoing off walls that used to hold a life.", "cg": "res://assets/cg/generated/ending_hollow_name_room.png"}
     ],
     "sable_epilogue_talk": [
-      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
+      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/generated/epilogue_sable_eastern_settlement.png"},
       {"speaker": "Arrel", "text": "Where else would I go?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Most burners don't stay. The ones who survive... they keep moving. Keep burning. Until there's nothing left.", "portrait": "sable_calm"},
       {"speaker": "Arrel", "text": "I'm not most burners.", "portrait": "arrel_neutral"},

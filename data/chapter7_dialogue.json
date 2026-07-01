@@ -28,7 +28,7 @@
       {"speaker": "", "text": "[Obtained: Echo Shell — Holds the last echoes of the consumed. Protects against involuntary memory loss]"}
     ],
     "sable_trial": [
-      {"speaker": "Sable", "text": "Before we go further — I need to know you can survive in there.", "portrait": "sable_neutral"},
+      {"speaker": "Sable", "text": "Before we go further — I need to know you can survive in there.", "portrait": "sable_neutral", "cg": "res://assets/cg/generated/story_ch7_controlled_burn_trial.png"},
       {"speaker": "Sable", "text": "Not your combat skill. I've seen you fight. I need to know your mind holds.", "portrait": "sable_calm"},
       {"speaker": "Arrel", "text": "What do you mean?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Burn something. Right now. Deliberately. And hold yourself together after.", "portrait": "sable_neutral"},
@@ -50,7 +50,7 @@
       {"speaker": "Sable", "text": "It finds the door.", "portrait": "sable_neutral"}
     ],
     "party_preparation": [
-      {"speaker": "Tobias", "text": "I've been reviewing my records. BL-07's expansion rate has accelerated.", "portrait": "tobias_neutral"},
+      {"speaker": "Tobias", "text": "I've been reviewing my records. BL-07's expansion rate has accelerated.", "portrait": "tobias_neutral", "cg": "res://assets/cg/generated/story_ch7_last_field_preparations.png"},
       {"speaker": "Tobias", "text": "Six months ago it was growing at 0.3 meters per day. Now it's 2.1 meters. Something changed.", "portrait": "tobias_neutral"},
       {"speaker": "Elia", "text": "Could Arrel's burning be feeding it? High-efficiency combustion nearby—", "portrait": "elia_concern"},
       {"speaker": "Tobias", "text": "That's exactly what my data suggests. Class Seven efficiency at this proximity... BL-07 is responding to him.", "portrait": "tobias_neutral"},
@@ -60,13 +60,13 @@
       {"speaker": "Elia", "text": "Then we go. Together.", "portrait": "elia_determined"}
     ],
     "threshold_atmosphere": [
-      {"speaker": "", "text": "The Threshold was a dead zone. Not dead like the Belt — lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil."},
+      {"speaker": "", "text": "The Threshold was a dead zone. Not dead like the Belt — lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil.", "cg": "res://assets/cg/generated/story_ch7_paper_forgetting_ink.png"},
       {"speaker": "Tobias", "text": "Fascinating. My pen won't write here. The ink refuses to adhere to the page.", "portrait": "tobias_neutral"},
       {"speaker": "Elia", "text": "That's not the ink. The paper is forgetting how to hold marks.", "portrait": "elia_concern"},
       {"speaker": "Tobias", "text": "...that is significantly less fascinating and significantly more terrifying.", "portrait": "tobias_neutral"}
     ],
     "echo_shell_discovery": [
-      {"speaker": "", "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then — whispers."},
+      {"speaker": "", "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then — whispers.", "cg": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png"},
       {"speaker": "", "text": "A woman's voice: '—told him not to go past the ridgeline—'"},
       {"speaker": "", "text": "A man's voice: '—can still feel my hands even though I know they're—'"},
       {"speaker": "", "text": "A child's voice: '—mama, I forgot what color blue—'"},
@@ -83,16 +83,16 @@
       {"speaker": "Sable", "text": "Move fast. Don't touch anything. If you feel yourself forgetting, say your name out loud.", "portrait": "sable_neutral"},
       {"speaker": "Arrel", "text": "And if I've forgotten my name?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Then we've already lost.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "They crossed the ridgeline. Behind them, The Seam's colors faded to nothing."}
+      {"speaker": "", "text": "They crossed the ridgeline. Behind them, The Seam's colors faded to nothing.", "cg": "res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png"}
     ],
     "sable_confession": [
-      {"speaker": "Sable", "text": "I wasn't always freelance. Before Ashbridge, before The Seam — I worked for the Authority.", "portrait": "sable_calm"},
+      {"speaker": "Sable", "text": "I wasn't always freelance. Before Ashbridge, before The Seam — I worked for the Authority.", "portrait": "sable_calm", "cg": "res://assets/cg/generated/story_ch7_sable_confession.png"},
       {"speaker": "Arrel", "text": "You were Bureau?", "portrait": "arrel_neutral"},
       {"speaker": "Sable", "text": "Subsection Eleven. Memory Disposal. They called us Cleaners. We made people forget things the Authority didn't want remembered.", "portrait": "sable_intense"},
       {"speaker": "Sable", "text": "I left when they asked me to burn a child's memory of her parents. That was my line. Everyone has one.", "portrait": "sable_calm"}
     ],
     "outskirts_monument": [
-      {"speaker": "", "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water."},
+      {"speaker": "", "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water.", "cg": "res://assets/cg/generated/story_ch7_fading_names_monument.png"},
       {"speaker": "Tobias", "text": "A memorial cairn. Bureau standard. These names... they're the first expedition team. Twelve people. All erased.", "portrait": "tobias_neutral"},
       {"speaker": "Arrel", "text": "The stone remembers them even if nothing else does.", "portrait": "arrel_determined"}
     ],

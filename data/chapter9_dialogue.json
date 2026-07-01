@@ -84,7 +84,7 @@
       {
         "speaker": "",
         "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there — as if the Waste had shaped itself around him.",
-        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+        "cg": "res://assets/cg/generated/story_ch9_kairos_confrontation.png"
       },
       {
         "speaker": "Sable",
@@ -135,7 +135,8 @@
       {
         "speaker": "Kairos",
         "text": "I didn't come to stop you. I came to observe the convergence.",
-        "portrait": "kairos_neutral"
+        "portrait": "kairos_neutral",
+        "cg": "res://assets/cg/generated/story_ch9_kairos_confrontation.png"
       },
       {
         "speaker": "Sable",
@@ -200,7 +201,8 @@
     "waste_atmosphere": [
       {
         "speaker": "",
-        "text": "Walking the Waste was like walking inside a photograph that someone had drained. Shapes existed, but meaning didn't."
+        "text": "Walking the Waste was like walking inside a photograph that someone had drained. Shapes existed, but meaning didn't.",
+        "cg": "res://assets/cg/generated/story_ch9_human_chain.png"
       },
       {
         "speaker": "Tobias",
@@ -235,7 +237,8 @@
     "arrel_compass_pull": [
       {
         "speaker": "",
-        "text": "The pull grew stronger. Not magnetic — hungry. Like something at the end of the line was reeling him in."
+        "text": "The pull grew stronger. Not magnetic — hungry. Like something at the end of the line was reeling him in.",
+        "cg": "res://assets/cg/generated/story_ch9_name_under_pull.png"
       },
       {
         "speaker": "Arrel",
@@ -271,7 +274,8 @@
     "waste_departure": [
       {
         "speaker": "",
-        "text": "BL-07 appeared not as a hole but as a certainty. A point where the Waste's vagueness collapsed into absolute specificity — a door that was more real than anything around it."
+        "text": "BL-07 appeared not as a hole but as a certainty. A point where the Waste's vagueness collapsed into absolute specificity — a door that was more real than anything around it.",
+        "cg": "res://assets/cg/generated/story_ch9_bl07_threshold.png"
       },
       {
         "speaker": "Sable",
@@ -306,7 +310,8 @@
     "kairos_defeated": [
       {
         "speaker": "",
-        "text": "Kairos staggered. For the first time, his composure fractured — a crack in the mask of clinical detachment."
+        "text": "Kairos staggered. For the first time, his composure fractured — a crack in the mask of clinical detachment.",
+        "cg": "res://assets/cg/generated/story_ch9_kairos_withdrawal.png"
       },
       {
         "speaker": "Kairos",
@@ -327,7 +332,8 @@
     "depth_markers": [
       {
         "speaker": "",
-        "text": "Strange markers dotted the Waste — pillars of compressed memory residue, frozen mid-dissolution."
+        "text": "Strange markers dotted the Waste — pillars of compressed memory residue, frozen mid-dissolution.",
+        "cg": "res://assets/cg/generated/story_ch9_memory_depth_markers.png"
       },
       {
         "speaker": "Tobias",
@@ -363,7 +369,8 @@
     "compass_resonance": [
       {
         "speaker": "",
-        "text": "The compass in Arrel's chest flared — not toward BL-07, but sideways. Toward something buried in the colorless soil."
+        "text": "The compass in Arrel's chest flared — not toward BL-07, but sideways. Toward something buried in the colorless soil.",
+        "cg": "res://assets/cg/generated/story_ch9_first_void_memory.png"
       },
       {
         "speaker": "Arrel",
@@ -378,7 +385,8 @@
     "waste_final_view": [
       {
         "speaker": "",
-        "text": "At the edge of the Waste, Arrel turned back. The colorless expanse stretched to the horizon — a world stripped of every quality except existence."
+        "text": "At the edge of the Waste, Arrel turned back. The colorless expanse stretched to the horizon — a world stripped of every quality except existence.",
+        "cg": "res://assets/cg/generated/story_ch9_final_colorless_view.png"
       },
       {
         "speaker": "Elia",

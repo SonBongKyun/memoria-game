@@ -17,12 +17,13 @@ const NG_PLUS_FILE: String = "user://ng_plus.json"
 # --- S54: Ending Gallery — 본 엔딩 추적 ---
 var seen_endings: Array = []  # ["zero_burn", "preservation", ...]
 const ENDING_DATA: Dictionary = {
-	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/game_image/memory_loss_warning.png"},
-	"preservation": {"name": "Preservation", "desc": "He kept his name. The seal held.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
-	"ash": {"name": "Ash", "desc": "What remains is not a man. Just ash, drifting.", "cg": "res://assets/cg/generated/memory_burn_arrel_name.png"},
-	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"},
-	"tobias": {"name": "The Record Remains", "desc": "Tobias finished what he started. Every name accounted for.", "cg": "res://assets/cg/game_image/tobias_memory_corridor.png"},
-	"hollow": {"name": "Hollow", "desc": "A shape where a person used to be.", "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"},
+	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png"},
+	"preservation": {"name": "Preservation", "desc": "He kept his name. The search continues.", "cg": "res://assets/cg/generated/ending_preservation_building_hands.png"},
+	"ash": {"name": "Ash", "desc": "The name remains. The person behind it does not.", "cg": "res://assets/cg/generated/ending_ash_sunset_shell.png"},
+	"seam": {"name": "The Seam Holds", "desc": "In the cracks between loss, something green still grows.", "cg": "res://assets/cg/generated/ending_seam_impossible_garden.png"},
+	"tobias": {"name": "The Record Remains", "desc": "The pen outlasts the flame.", "cg": "res://assets/cg/generated/ending_tobias_night_press.png"},
+	"hollow": {"name": "Hollow", "desc": "A single name echoes in an empty room.", "cg": "res://assets/cg/generated/ending_hollow_name_room.png"},
+	"weave": {"name": "The Weave", "desc": "He spent nothing and sealed everything. The price was only the promise to never set it down.", "cg": "res://assets/cg/generated/ending_weave_colors_return.png"},
 }
 const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
 
@@ -104,6 +105,8 @@ func on_boss_rush_battle_ended(result: int) -> void:
 	elif result == BattleManager.BattleState.DEFEAT:
 		boss_rush_mode = false
 		NotificationToast.show_toast("Boss Rush failed at boss %d/%d." % [boss_rush_index + 1, boss_rush_queue.size()], NotificationToast.ToastType.WARNING)
+		change_state(GameState.MENU)
+		SceneTransition.change_scene("res://scenes/main/main.tscn")
 
 func _boss_rush_complete() -> void:
 	var elapsed = Time.get_unix_time_from_system() - boss_rush_start_time
@@ -477,12 +480,10 @@ func print_store_stats() -> void:
 			if file:
 				var json = JSON.new()
 				if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
-					for key in json.data:
-						var dialogue = json.data[key]
+					var dialogue_groups: Dictionary = json.data.get("dialogues", {})
+					for dialogue in dialogue_groups.values():
 						if dialogue is Array:
 							total_lines += dialogue.size()
-						elif dialogue is Dictionary and dialogue.has("lines"):
-							total_lines += dialogue["lines"].size()
 				file.close()
 
 	var num_endings = ENDING_DATA.size()
@@ -507,7 +508,7 @@ func _ready() -> void:
 	_load_locale_early()  # S55: Load locale before other autoloads build UI
 	_load_seen_endings()
 	_load_boss_rush_record()
-	BattleManager.battle_ended.connect(_on_battle_ended_for_boss_rush)
+	BattleManager.battle_cleanup_finished.connect(_on_battle_ended_for_boss_rush)
 	# S55: 통계 — 전투/연소/적 격파 추적
 	BattleManager.battle_started.connect(func(_e): add_stat("total_battles"))
 	BattleManager.battle_ended.connect(_on_battle_ended_stats)

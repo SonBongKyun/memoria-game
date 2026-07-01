@@ -168,7 +168,7 @@
       {
         "speaker": "",
         "text": "Movement. On the ridge behind them, half a mile back.",
-        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+        "cg": "res://assets/cg/generated/story_ch5_kairos_ridge_sighting.png"
       },
       {
         "speaker": "",
@@ -202,7 +202,7 @@
       {
         "speaker": "",
         "text": "The colors came first.",
-        "cg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png"
+        "cg": "res://assets/cg/generated/story_ch5_seam_first_light.png"
       },
       {
         "speaker": "",
@@ -223,7 +223,7 @@
       },
       {
         "speaker": "",
-        "text": "A woman stood at the entrance. Short dark hair. Eyes that had seen the inside of a Void Hole and come back."
+        "text": "A woman stood at the entrance. Silver hair cut short. Eyes that had seen the inside of a Void Hole and come back."
       },
       {
         "speaker": "Sable",
@@ -239,7 +239,8 @@
     "coast_cliff_walk": [
       {
         "speaker": "",
-        "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years."
+        "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years.",
+        "cg": "res://assets/cg/generated/story_ch5_warm_cliff_path.png"
       },
       {
         "speaker": "Arrel",
@@ -268,7 +269,8 @@
     "coast_watchtower": [
       {
         "speaker": "",
-        "text": "The watchtower stood at the cliff's highest point, gutted and hollow."
+        "text": "The watchtower stood at the cliff's highest point, gutted and hollow.",
+        "cg": "res://assets/cg/generated/story_ch5_scratched_watchtower.png"
       },
       {
         "speaker": "",
@@ -316,7 +318,7 @@
       {
         "speaker": "",
         "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.",
-        "cg": "res://assets/cg/game_image/kairos_sealed_city.png"
+        "cg": "res://assets/cg/generated/story_ch5_kairos_ridge_sighting.png"
       },
       {
         "speaker": "Elia",
