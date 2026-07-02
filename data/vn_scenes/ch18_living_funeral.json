@@ -1,0 +1,141 @@
+{
+  "id": "ch18_living_funeral",
+  "title": "Chapter 18 — Living Funeral",
+  "chapter": 18,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch18_living_funeral.png",
+      "fade": 1.5,
+      "set_chapter": 18,
+      "autosave_chapter_transition": true,
+      "narrate": "The Authority built the funeral before it captured Tobias. That was how certain it had become."
+    },
+    {
+      "narrate": "White stone, black restraints, and a ring of fire waiting to burn a name after the memories were gone."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "The platform is keyed to him. If we break it, the extraction will choose another witness."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_angry",
+      "side": "left",
+      "text": "We move now."
+    },
+    {
+      "narrate": "Tobias stepped onto the platform before the Erasers could drag him there."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch18_tobias_close.png",
+      "fade": 0.8,
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "A record is not the person who writes it. That is the point, Arrel. It must survive my handwriting."
+    },
+    {
+      "narrate": "The first ring took the way he sharpened a pencil. The second reached for Elia's name."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the duty to leave a witness. Break the platform and pull Tobias out alive.",
+          "cost_memory": "identity_witness_record",
+          "set_flag": "tobias_funeral_rescued",
+          "goto": 9
+        },
+        {
+          "text": "Keep the duty. Trust Tobias's record and let his chosen testimony finish.",
+          "set_flag": "tobias_funeral_lost",
+          "goto": 14
+        }
+      ]
+    },
+    {
+      "narrate": "[ The fire waits for a name. ]"
+    },
+    {
+      "narrate": "The duty became one white-gold impact. The platform forgot Tobias was its subject and released every restraint at once."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_burn",
+      "side": "left",
+      "text": "Tobias. Move."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "You absolute illiterate. Remind me to thank you after I relearn gratitude."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch18_living_funeral",
+      "start_index": 18
+    },
+    {
+      "narrate": "[ Branch return. ]"
+    },
+    {
+      "narrate": "Arrel kept the duty. Tobias kept the platform's attention on himself while Elia carried the completed notebook beyond the square."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "Tell the truth badly if you must. Just do not let them become the only editors."
+    },
+    {
+      "narrate": "The last ring took his name. The notebook did not go blank."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch18_living_funeral",
+      "start_index": 18
+    },
+    {
+      "requires_flag": "tobias_funeral_rescued",
+      "narrate": "Tobias stumbled from the broken platform alive, missing several small habits and none of his anger."
+    },
+    {
+      "requires_flag": "tobias_funeral_lost",
+      "narrate": "The crowd remembered that someone had stood on the platform. No one but Arrel and Elia remembered who."
+    },
+    {
+      "set_flag": "tobias_funeral",
+      "narrate": "Beyond the square, a black monolith cut the eastern sky from horizon to cloud."
+    },
+    {
+      "requires_flag": "tobias_funeral_rescued",
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "Still here. Keep writing."
+    },
+    {
+      "requires_flag": "tobias_funeral_lost",
+      "speaker": "Arrel",
+      "portrait": "arrel_angry",
+      "side": "left",
+      "text": "I will remember the anger."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "Then we carry it east. Not as heat. Not yet."
+    },
+    {
+      "set_flag": "anger_max",
+      "narrate": "The monolith answered with a line of violet light."
+    },
+    {
+      "complete_chapter": 18,
+      "action": "demo_end"
+    }
+  ]
+}

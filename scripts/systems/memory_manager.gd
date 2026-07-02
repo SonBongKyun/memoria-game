@@ -386,6 +386,54 @@ func add_chapter_memories(chapter: int) -> void:
 					MemoryGrade.GRADE_2, 100,
 					"Lose the reason you step between the Authority and its victims."
 				))
+		15:
+			if not _has_memory("daily_unfinished_lullaby"):
+				add_memory(Memory.new(
+					"daily_unfinished_lullaby",
+					"The Lullaby Without Its Last Note",
+					"Han hummed around the missing note until Elia recognized the shape of it.",
+					MemoryGrade.GRADE_4, 28,
+					"Lose the melody that first tied Han, Elia, and Celah together.",
+					"Han"
+				))
+			if not _has_memory("rel_han_mneme"):
+				add_memory(Memory.new(
+					"rel_han_mneme",
+					"The Singer Beneath Arkein",
+					"A scarred throat, a slate, and a voice that survived by becoming vibration.",
+					MemoryGrade.GRADE_3, 50,
+					"Lose the resonance that lets Han wake the Echo Shell.",
+					"Han"
+				))
+		16:
+			if not _has_memory("daily_eastward_route"):
+				add_memory(Memory.new(
+					"daily_eastward_route",
+					"The Road Chosen at Dawn",
+					"Tobias marked the safe channels. Elia folded the map. You chose east.",
+					MemoryGrade.GRADE_4, 28,
+					"Lose the route behind you. Only the destination remains."
+				))
+		17:
+			if not _has_memory("daily_three_shadows"):
+				add_memory(Memory.new(
+					"daily_three_shadows",
+					"Three Shadows on the Causeway",
+					"For one morning, the road held three shadows moving at the same pace.",
+					MemoryGrade.GRADE_4, 30,
+					"Lose the ordinary certainty that you crossed the east road together.",
+					"Tobias"
+				))
+		18:
+			if not _has_memory("identity_witness_record"):
+				add_memory(Memory.new(
+					"identity_witness_record",
+					"The Duty to Leave a Witness",
+					"Someone must survive long enough to say what was done here. You accepted that duty.",
+					MemoryGrade.GRADE_2, 110,
+					"Lose the belief that memory becomes responsibility when it is witnessed.",
+					"Tobias"
+				))
 
 func _get_memory(memory_id: String) -> Memory:
 	for m in memories:

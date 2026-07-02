@@ -132,7 +132,8 @@
     },
     {
       "complete_chapter": 14,
-      "action": "demo_end"
+      "action": "goto_scene",
+      "id": "ch15_singer"
     }
   ]
 }

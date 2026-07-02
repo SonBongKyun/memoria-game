@@ -1,0 +1,128 @@
+{
+  "id": "ch16_nera",
+  "title": "Chapter 16 — Nera",
+  "chapter": 16,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch16_eastward_road.png",
+      "fade": 1.8,
+      "set_chapter": 16,
+      "autosave_chapter_transition": true,
+      "narrate": "The east road crossed drowned salt flats where black markers stood for towns the maps no longer admitted had existed."
+    },
+    {
+      "narrate": "A violet bruise waited on the horizon. It had grown wider since dawn."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "That weather is moving against the wind, the tide, and every defensible theory I have."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Storm. East. Patrol behind."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the route chosen at dawn. Cut across the flooded channels before the patrol arrives.",
+          "cost_memory": "daily_eastward_route",
+          "set_flag": "ch16_burned_route",
+          "goto": 6
+        },
+        {
+          "text": "Keep the route. Hold the causeway and face the Authority checkpoint ahead.",
+          "set_flag": "ch16_kept_route",
+          "goto": 10
+        }
+      ]
+    },
+    {
+      "narrate": "[ The road divides without changing direction. ]"
+    },
+    {
+      "narrate": "The map burned cleanly. Arrel found a channel no patrol expected and forgot every safe turn behind them."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_burn",
+      "side": "left",
+      "text": "Destination remains. The road does not."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch16_nera",
+      "start_index": 12
+    },
+    {
+      "narrate": "[ Branch return. ]"
+    },
+    {
+      "narrate": "They kept the map and reached the checkpoint with the patrol visible behind them."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "We have preserved our cartography and misplaced our margin for error."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch16_nera_checkpoint.png",
+      "fade": 1.2,
+      "narrate": "Nera waited beneath the white inspection arch with a closed dossier and no visible escort."
+    },
+    {
+      "narrate": "She recited the warrant without looking down. Every clause offered surrender as though it were a courtesy."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "She left the western channel open. That is not an oversight."
+    },
+    {
+      "narrate": "Nera's eyes moved to the violet horizon for less than a second. The dossier tightened under her fingers."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "She wanted us to refuse."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Then let us disappoint her with an exceptionally precise refusal."
+    },
+    {
+      "set_flag": "nera_introduced",
+      "narrate": "They crossed the open channel. Nera did not order the pylons to fire."
+    },
+    {
+      "set_flag": "mira_subplot_1",
+      "narrate": "Far away, Mira marked a 0.3-degree error in Kairós's last pursuit estimate and opened a second ledger."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "The horizon moved while we were standing still."
+    },
+    {
+      "set_flag": "storm_omen_seen",
+      "narrate": "The violet line rose high enough to erase the islands."
+    },
+    {
+      "narrate": "Behind them, Nera finally opened the dossier. One page was already blank."
+    },
+    {
+      "complete_chapter": 16,
+      "action": "goto_scene",
+      "id": "ch17_forgetting_storm"
+    }
+  ]
+}

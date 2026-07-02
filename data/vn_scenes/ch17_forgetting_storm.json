@@ -1,0 +1,135 @@
+{
+  "id": "ch17_forgetting_storm",
+  "title": "Chapter 17 — The Forgetting Storm",
+  "chapter": 17,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch17_oblivion_storm.png",
+      "fade": 1.5,
+      "set_chapter": 17,
+      "autosave_chapter_transition": true,
+      "narrate": "The storm arrived without rain. Violet sand climbed into the sky and returned carrying pieces of other lives."
+    },
+    {
+      "narrate": "A name struck Tobias's coat and vanished. A childhood room broke against Elia's cheek."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "It is not taking at random. It is testing which memories hold the others in place."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "An excellent observation to survive long enough to publish."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "Stay under me."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the memory of three shadows on the causeway. Turn ordinary companionship into a shield.",
+          "cost_memory": "daily_three_shadows",
+          "set_flag": "ch17_burned_three_shadows",
+          "goto": 7
+        },
+        {
+          "text": "Burn the memory of Han. Force the Echo Shell to sing a shelter into the storm.",
+          "cost_memory": "rel_han_mneme",
+          "set_flag": "ch17_burned_han_resonance",
+          "goto": 11
+        }
+      ]
+    },
+    {
+      "narrate": "[ The storm opens both hands. ]"
+    },
+    {
+      "cg": "res://assets/cg/generated/ch17_memory_fracture.png",
+      "fade": 0.6,
+      "narrate": "Three shadows became blue-white resistance. Arrel held the cape over Elia and Tobias and forgot the morning they had first walked as one group."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_burn",
+      "side": "left",
+      "text": "Names. Keep saying names."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch17_forgetting_storm",
+      "start_index": 14
+    },
+    {
+      "narrate": "[ Branch return. ]"
+    },
+    {
+      "cg": "res://assets/cg/generated/ch17_memory_fracture.png",
+      "fade": 0.6,
+      "narrate": "Han's remembered hum entered the shell and became a shelter. The old woman's face disappeared from Arrel before the last vibration ended."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "We will write her back into the record if we have to use every wall east of here."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch17_forgetting_storm",
+      "start_index": 14
+    },
+    {
+      "narrate": "The storm reached its center. Elia fell first. Tobias followed, both hands locked around the notebook."
+    },
+    {
+      "narrate": "Arrel remained standing. The violet pressure bent around him as if it recognized an older rule."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_void",
+      "side": "right",
+      "text": "It cannot classify you. Arrel, that should be impossible."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Do not name it."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "For once, I agree that ignorance may be tactically useful."
+    },
+    {
+      "set_flag": "storm_survived",
+      "narrate": "The storm passed east. Nothing it touched returned with exactly the same edges."
+    },
+    {
+      "set_flag": "bloodline_hint_storm",
+      "narrate": "Elia looked at Arrel's unbroken silhouette and closed the page before Tobias could read her conclusion."
+    },
+    {
+      "narrate": "An Authority broadcast crossed the clearing: a Living Funeral would begin at noon. The condemned name was Tobias Vale."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "That is inconvenient. I have not finished the footnotes."
+    },
+    {
+      "complete_chapter": 17,
+      "action": "goto_scene",
+      "id": "ch18_living_funeral"
+    }
+  ]
+}

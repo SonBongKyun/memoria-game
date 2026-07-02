@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S150: 195 PNG files under `assets/cg/`.
+- Current project baseline after S151: 204 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -121,7 +121,23 @@ All S148 images are clean, text-free 16:9 RGB CGs with the lower 28 percent rese
 | `ch13_third_person` | Joins two blank notebooks into a relay map | `ch13_notebook_resonance.png` | User-provided 68.png |
 | `ch14_confessor_intervention` | Enters the Authority's shadowless extraction hall | `ch14_confessor_hall.png` | User-provided 69.png |
 | `ch14_confessor_intervention` | Converts the intervention vow into a golden slash | `ch14_arrel_burn_slash.png` | GPT Image |
-| Reserved for Ch17 | Faces the violet Forgetting Storm | `ch17_oblivion_storm.png` | User-provided 70.png |
-| Reserved for Ch18 | Witnesses the public Living Funeral | `ch18_living_funeral.png` | User-provided 71.png |
+| `ch17_forgetting_storm` | Faces the violet Forgetting Storm | `ch17_oblivion_storm.png` | User-provided 70.png |
+| `ch18_living_funeral` | Witnesses the public Living Funeral | `ch18_living_funeral.png` | User-provided 71.png |
 
-The three generated S150 images use the six supplied Part II plates as style and identity references. They are clean, text-free 16:9 RGB CGs with a dark, low-detail lower UI zone and explicit exclusions for grain, speckle/color noise, dithering, paper/canvas overlays, chromatic aberration, and dirty-lens artifacts. Ch17 and Ch18 plates are registered in the Artbook but intentionally not referenced by Ch11-14 story data, preventing later-act imagery from being externalized early.
+The three generated S150 images use the six supplied Part II plates as style and identity references. They are clean, text-free 16:9 RGB CGs with a dark, low-detail lower UI zone and explicit exclusions for grain, speckle/color noise, dithering, paper/canvas overlays, chromatic aberration, and dirty-lens artifacts. The original Ch17 and Ch18 plates entered active story use in S151 after the preceding chapters were implemented.
+
+## S151 Part II Storm vertical slice
+
+| VN scene / status | Story beat | Asset | Source |
+|---|---|---|---|
+| `ch15_singer` | Han hums the Celah-linked lullaby beneath Arkein | `ch15_lullaby_moment.png` | User-provided 72.png |
+| `ch15_singer` | Wakes the Echo Shell through wordless resonance | `ch15_echo_shell_awakening.png` | GPT Image |
+| `ch16_nera` | Crosses the drowned eastern causeway toward the storm | `ch16_eastward_road.png` | GPT Image |
+| `ch16_nera` | Meets Nera at an Authority road checkpoint | `ch16_nera_checkpoint.png` | GPT Image |
+| `ch17_forgetting_storm` | Shields Elia and Tobias as memories fracture | `ch17_memory_fracture.png` | GPT Image |
+| `ch18_living_funeral` | Sees Tobias hold the record through extraction | `ch18_tobias_close.png` | GPT Image |
+| Reserved for Ch19 | Establishes Lumea's white sanctuary | `env_lumea_sanctum.png` | User-provided 73.png |
+| Reserved for Ch20 | Encounters the hollow Monolith archivist | `ch20_archivist_hollow.png` | User-provided 75.png |
+| Reserved for Ch21 | Confronts Kairós at the Editor's Turn | `ch21_kairos_confront.png` | User-provided 74.png |
+
+The five generated S151 images use current character sheets plus the supplied story plates as identity and art-direction references. Every prompt explicitly excludes film/photo grain, paper/canvas overlays, speckle and color noise, dithering, compression artifacts, chromatic aberration, dirty-lens effects, muddy detail, excessive bloom, and oversharpening. The three later-act plates remain Artbook-only storyboards until Chapters 19-21 are implemented, so their reveals do not leak into the Chapter 15-18 runtime sequence.

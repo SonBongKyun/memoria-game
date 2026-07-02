@@ -1,0 +1,127 @@
+{
+  "id": "ch15_singer",
+  "title": "Chapter 15 — The Singer",
+  "chapter": 15,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch15_lullaby_moment.png",
+      "fade": 1.6,
+      "set_chapter": 15,
+      "autosave_chapter_transition": true,
+      "narrate": "The Mneme cell beneath Arkein had no door, only wet stone, candle smoke, and an old woman whose throat carried a closed scar."
+    },
+    {
+      "narrate": "Han greeted them with one hand over her heart. The other held a slate worn white at the edges."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "She says the Authority took her voice and failed to take the song."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "A distinction they will regret leaving undocumented."
+    },
+    {
+      "narrate": "Han tapped the Echo Shell twice, then began a low, wordless hum."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch15_echo_shell_awakening.png",
+      "fade": 1.0,
+      "narrate": "Gold and violet rings crossed the cell. The shell answered her scar with voices that had forgotten how to become words."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_worried",
+      "side": "right",
+      "text": "I know that melody. I should not know it."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "Then we keep the warning."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the unfinished lullaby. Force its hidden pattern through the Echo Shell.",
+          "cost_memory": "daily_unfinished_lullaby",
+          "set_flag": "ch15_burned_lullaby",
+          "goto": 10
+        },
+        {
+          "text": "Keep the melody. Let Han repeat it until the shell answers on its own.",
+          "set_flag": "ch15_kept_lullaby",
+          "goto": 13
+        }
+      ]
+    },
+    {
+      "narrate": "[ The final note waits inside the shell. ]"
+    },
+    {
+      "narrate": "The melody became heat. A buried eastern route opened inside the violet spiral, while its last note vanished from Arrel's mind."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_burn",
+      "side": "left",
+      "text": "The melody is gone. The warning remains."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch15_singer",
+      "start_index": 16
+    },
+    {
+      "narrate": "Han repeated the phrase until dawn. No memory burned, but every repetition gave the patrol another minute to close around them."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "We have a route and considerably less time to admire it."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch15_singer",
+      "start_index": 16
+    },
+    {
+      "set_flag": "han_met",
+      "narrate": "Han wrote three words on the slate: EASTERN ISLES. CELAH. BEFORE."
+    },
+    {
+      "set_flag": "celah_hint_1",
+      "narrate": "Elia covered the name with her thumb as if the letters could see her."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "We leave before they reach the lower channel. I will explain when the road is quiet."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "The road will not be quiet."
+    },
+    {
+      "set_flag": "eastisles_mentioned",
+      "narrate": "Boots entered the sewer two levels above them. Han blew out the first candle."
+    },
+    {
+      "narrate": "The second flame died before the patrol found the stair."
+    },
+    {
+      "complete_chapter": 15,
+      "action": "goto_scene",
+      "id": "ch16_nera"
+    }
+  ]
+}

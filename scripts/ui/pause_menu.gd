@@ -1091,15 +1091,69 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	},
 	{
 		"title": "The Forgetting Storm",
-		"type": "Part II Future Storyboard CG",
+		"type": "Part II Storm Story CG",
 		"path": "res://assets/cg/generated/ch17_oblivion_storm.png",
-		"desc": "A reserved Act IV plate for the violet storm that consumes exposed memories."
+		"desc": "The violet storm tests which memories hold every other memory in place."
 	},
 	{
 		"title": "The Living Funeral",
-		"type": "Part II Future Storyboard CG",
+		"type": "Part II Storm Story CG",
 		"path": "res://assets/cg/generated/ch18_living_funeral.png",
-		"desc": "A reserved Act IV plate for public extraction and the burning of a name."
+		"desc": "Public extraction turns a person's memories and name into an administrative spectacle."
+	},
+	{
+		"title": "The Singer's Lullaby",
+		"type": "Part II Storm Story CG",
+		"path": "res://assets/cg/generated/ch15_lullaby_moment.png",
+		"desc": "Han hums the damaged melody that Elia recognizes before she knows why."
+	},
+	{
+		"title": "The Echo Shell Awakens",
+		"type": "Generated Part II Storm CG",
+		"path": "res://assets/cg/generated/ch15_echo_shell_awakening.png",
+		"desc": "Han's wordless resonance wakes voices buried inside the violet shell."
+	},
+	{
+		"title": "The Eastward Road",
+		"type": "Generated Part II Environment CG",
+		"path": "res://assets/cg/generated/ch16_eastward_road.png",
+		"desc": "Three travelers cross drowned salt flats toward a horizon bruised violet."
+	},
+	{
+		"title": "Nera at the Checkpoint",
+		"type": "Generated Part II Character CG",
+		"path": "res://assets/cg/generated/ch16_nera_checkpoint.png",
+		"desc": "A perfect warrant meets the first fraction of doubt in its author."
+	},
+	{
+		"title": "Memory Fracture",
+		"type": "Generated Part II Storm CG",
+		"path": "res://assets/cg/generated/ch17_memory_fracture.png",
+		"desc": "Arrel holds the storm away while ordinary memories break into glass around the party."
+	},
+	{
+		"title": "The Record Outlives the Hand",
+		"type": "Generated Part II Character CG",
+		"path": "res://assets/cg/generated/ch18_tobias_close.png",
+		"desc": "Tobias keeps hold of the notebook as the Living Funeral reaches for his name."
+	},
+	{
+		"title": "Lumea, White Sanctum",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/env_lumea_sanctum.png",
+		"desc": "A reserved Chapter 19 establishing plate for the Authority's white eastern sanctuary."
+	},
+	{
+		"title": "The Hollow Archivist",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch20_archivist_hollow.png",
+		"desc": "A reserved Chapter 20 plate for the empty keeper inside the Monolith."
+	},
+	{
+		"title": "Kairós at the Editor's Turn",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch21_kairos_confront.png",
+		"desc": "A reserved Chapter 21 confrontation plate for Kairós's final calculation."
 	},
 ]
 
