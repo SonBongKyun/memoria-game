@@ -92,6 +92,8 @@
       "start_index": 16
     },
     {
+      "cg": "res://assets/cg/generated/ch15_han_memory_gift.png",
+      "fade": 0.8,
       "set_flag": "han_met",
       "narrate": "Han wrote three words on the slate: EASTERN ISLES. CELAH. BEFORE."
     },

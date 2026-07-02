@@ -4,13 +4,15 @@
   "chapter": 17,
   "steps": [
     {
-      "cg": "res://assets/cg/generated/ch17_oblivion_storm.png",
+      "cg": "res://assets/cg/generated/ch17_storm_horizon.png",
       "fade": 1.5,
       "set_chapter": 17,
       "autosave_chapter_transition": true,
       "narrate": "The storm arrived without rain. Violet sand climbed into the sky and returned carrying pieces of other lives."
     },
     {
+      "cg": "res://assets/cg/generated/ch17_oblivion_storm.png",
+      "fade": 0.5,
       "narrate": "A name struck Tobias's coat and vanished. A childhood room broke against Elia's cheek."
     },
     {
@@ -89,6 +91,8 @@
       "narrate": "The storm reached its center. Elia fell first. Tobias followed, both hands locked around the notebook."
     },
     {
+      "cg": "res://assets/cg/generated/ch17_arrel_resist.png",
+      "fade": 0.7,
       "narrate": "Arrel remained standing. The violet pressure bent around him as if it recognized an older rule."
     },
     {

@@ -1155,6 +1155,96 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/ch21_kairos_confront.png",
 		"desc": "A reserved Chapter 21 confrontation plate for Kairós's final calculation."
 	},
+	{
+		"title": "The Relay Decoded",
+		"type": "Part II Lore CG",
+		"path": "res://assets/cg/generated/ch13_relay_decoded.png",
+		"desc": "Tobias draws a buried continental relay map from two books trained to look empty."
+	},
+	{
+		"title": "A Register Writes Back",
+		"type": "Part II Lore CG",
+		"path": "res://assets/cg/generated/ch13_relay_breakthrough.png",
+		"desc": "Black ink and white memory-light expose the register already forming Arrel's signature."
+	},
+	{
+		"title": "Han's Memory Gift",
+		"type": "Part II Character CG",
+		"path": "res://assets/cg/generated/ch15_han_memory_gift.png",
+		"desc": "Han lets fragments of the eastern song pass through her scar without becoming words."
+	},
+	{
+		"title": "Storm on the Horizon",
+		"type": "Part II Environment CG",
+		"path": "res://assets/cg/generated/ch17_storm_horizon.png",
+		"desc": "The violet weather crosses an empty world before it reaches the party."
+	},
+	{
+		"title": "Arrel Against Forgetting",
+		"type": "Part II Action CG",
+		"path": "res://assets/cg/generated/ch17_arrel_resist.png",
+		"desc": "Arrel stays upright where the storm expects every memory structure to collapse."
+	},
+	{
+		"title": "Tobias Takes the Platform",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch18_tobias_platform.png",
+		"desc": "Tobias chooses the center of the Living Funeral before the Authority can drag him there."
+	},
+	{
+		"title": "Han's Last Hum",
+		"type": "Part II Alternate Storyboard CG",
+		"path": "res://assets/cg/generated/ch15_han_last_hum.png",
+		"desc": "A reserved quiet Han plate for a later return to the song beneath Arkein."
+	},
+	{
+		"title": "Lumea's Inner Court",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/env_lumea_inner_court.png",
+		"desc": "A reserved Chapter 19 interior approach to the Authority's white sanctuary."
+	},
+	{
+		"title": "The Archivist's Memory Gallery",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch20_archivist_memory_gallery.png",
+		"desc": "A reserved Chapter 20 gallery where preserved lives hang as crystalline exhibits."
+	},
+	{
+		"title": "The Archivist's Offer",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch20_archivist_offer.png",
+		"desc": "A reserved Chapter 20 plate for the hollow keeper's courteous invitation."
+	},
+	{
+		"title": "The Archivist's Warning",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch20_archivist_warning.png",
+		"desc": "A reserved Chapter 20 warning framed by memories that contradict the speaker."
+	},
+	{
+		"title": "Inside the Monolith",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch20_monolith_interior.png",
+		"desc": "A reserved Chapter 20 establishing plate for impossible interior geometry."
+	},
+	{
+		"title": "Celah Preserved",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch20_celah_preserved.png",
+		"desc": "A reserved Chapter 20 reveal of a life held between extraction and memory."
+	},
+	{
+		"title": "Kairós at the Threshold",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch21_kairos_threshold.png",
+		"desc": "A reserved Chapter 21 plate for the calculation before Kairós chooses a side."
+	},
+	{
+		"title": "The Monolith Core",
+		"type": "Part III Future Storyboard CG",
+		"path": "res://assets/cg/generated/ch22_monolith_core.png",
+		"desc": "A reserved Chapter 22 master plate for the light beneath every edited memory."
+	},
 ]
 
 func _ready() -> void:

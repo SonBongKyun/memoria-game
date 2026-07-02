@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S151: 204 PNG files under `assets/cg/`.
+- Current project baseline after S152: 219 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -141,3 +141,25 @@ The three generated S150 images use the six supplied Part II plates as style and
 | Reserved for Ch21 | Confronts Kairós at the Editor's Turn | `ch21_kairos_confront.png` | User-provided 74.png |
 
 The five generated S151 images use current character sheets plus the supplied story plates as identity and art-direction references. Every prompt explicitly excludes film/photo grain, paper/canvas overlays, speckle and color noise, dithering, compression artifacts, chromatic aberration, dirty-lens effects, muddy detail, excessive bloom, and oversharpening. The three later-act plates remain Artbook-only storyboards until Chapters 19-21 are implemented, so their reveals do not leak into the Chapter 15-18 runtime sequence.
+
+## S152 supplied illustration integration
+
+| VN scene / status | Story beat | Asset | Source |
+|---|---|---|---|
+| `ch13_third_person` | Decodes the continental relay map | `ch13_relay_decoded.png` | User-provided 81.png |
+| `ch13_third_person` | Exposes the register writing Arrel's signature | `ch13_relay_breakthrough.png` | User-provided 86.png |
+| `ch15_singer` | Receives Han's eastern memory fragments | `ch15_han_memory_gift.png` | User-provided 76.png |
+| `ch17_forgetting_storm` | Sees the storm erase the horizon | `ch17_storm_horizon.png` | User-provided 87.png |
+| `ch17_forgetting_storm` | Watches Arrel resist the storm's classification | `ch17_arrel_resist.png` | User-provided 77.png |
+| `ch18_living_funeral` | Watches Tobias choose the extraction platform | `ch18_tobias_platform.png` | User-provided 78.png |
+| Artbook alternate | Holds Han's later quiet-song composition | `ch15_han_last_hum.png` | User-provided 82.png |
+| Reserved for Ch19 | Enters Lumea's inner white court | `env_lumea_inner_court.png` | User-provided 83.png |
+| Reserved for Ch20 | Crosses the Monolith's impossible interior | `ch20_monolith_interior.png` | User-provided 89.png |
+| Reserved for Ch20 | Finds Celah held in a preservation apparatus | `ch20_celah_preserved.png` | User-provided 88.png |
+| Reserved for Ch20 | Enters the crystalline memory gallery | `ch20_archivist_memory_gallery.png` | User-provided 80.png |
+| Reserved for Ch20 | Receives the Archivist's invitation | `ch20_archivist_offer.png` | User-provided 84.png |
+| Reserved for Ch20 | Faces the Archivist's warning | `ch20_archivist_warning.png` | User-provided 90.png |
+| Reserved for Ch21 | Meets Kairós at the sabotage threshold | `ch21_kairos_threshold.png` | User-provided 79.png |
+| Reserved for Ch22 | Reaches the Monolith core | `ch22_monolith_core.png` | User-provided 85.png |
+
+All 15 S152 plates are 1672x941 RGB images. Six are placed directly into the existing Chapter 13/15/17/18 VN rhythm; the remaining nine are catalogued in the Artbook without runtime references so Chapters 19-22 retain their reveal order.

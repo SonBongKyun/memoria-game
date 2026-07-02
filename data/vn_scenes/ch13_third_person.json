@@ -38,6 +38,8 @@
       "narrate": "The two blank notebooks touched the same table. Blue lines climbed out of both spines and rebuilt a map in the air."
     },
     {
+      "cg": "res://assets/cg/generated/ch13_relay_decoded.png",
+      "fade": 0.7,
       "narrate": "Ink rearranged itself around buried relay points. The continent had been prepared for this long before any of them were born."
     },
     {
@@ -98,6 +100,8 @@
       "start_index": 16
     },
     {
+      "cg": "res://assets/cg/generated/ch13_relay_breakthrough.png",
+      "fade": 0.8,
       "set_flag": "notebook_resonance_1",
       "narrate": "The map ended at a Confessor Hall. Beside it, a signature register had already begun writing Arrel's name."
     },

@@ -26,6 +26,8 @@
       "text": "We move now."
     },
     {
+      "cg": "res://assets/cg/generated/ch18_tobias_platform.png",
+      "fade": 0.7,
       "narrate": "Tobias stepped onto the platform before the Erasers could drag him there."
     },
     {
