@@ -50,7 +50,7 @@ func _build_ui() -> void:
 
 	# 타이틀 텍스트
 	var title = Label.new()
-	title.text = "You fell."
+	title.text = GameManager.loc("game_over_title")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", Color(0.6, 0.2, 0.2))
@@ -58,7 +58,7 @@ func _build_ui() -> void:
 
 	# 서브 텍스트
 	var sub = Label.new()
-	sub.text = "Something pulls you back from the edge..."
+	sub.text = GameManager.loc("game_over_subtitle")
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.add_theme_font_size_override("font_size", 14)
 	sub.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
@@ -72,9 +72,9 @@ func _build_ui() -> void:
 
 	# 버튼들
 	var buttons = [
-		{"text": "Stagger On (HP 30%)", "callback": _on_retry},
-		{"text": "Load Save", "callback": _on_load},
-		{"text": "Return to Title", "callback": _on_title},
+		{"text": GameManager.loc("retry"), "callback": _on_retry},
+		{"text": GameManager.loc("load_save"), "callback": _on_load},
+		{"text": GameManager.loc("title_return"), "callback": _on_title},
 	]
 
 	var first_btn: Button = null

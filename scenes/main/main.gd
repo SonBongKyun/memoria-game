@@ -68,7 +68,7 @@ func _build_title_copy() -> void:
 	_title_stack.add_child(title)
 
 	var subtitle = Label.new()
-	subtitle.text = "The Price of Oblivion"
+	subtitle.text = GameManager.loc("title_subtitle")
 	UITheme.apply_title_font(subtitle)
 	subtitle.add_theme_font_size_override("font_size", 22)
 	subtitle.add_theme_color_override("font_color", Color(0.86, 0.80, 0.68))
@@ -84,7 +84,7 @@ func _build_title_copy() -> void:
 	_title_stack.add_child(line)
 
 	var tag = Label.new()
-	tag.text = "Burn what you remember. Carry what remains."
+	tag.text = GameManager.loc("title_tagline")
 	UITheme.apply_body_font(tag)
 	tag.add_theme_font_size_override("font_size", 14)
 	tag.add_theme_color_override("font_color", Color(0.67, 0.62, 0.54))
@@ -106,17 +106,17 @@ func _setup_menu() -> void:
 	menu_container.add_theme_constant_override("separation", 11)
 	menu_container.modulate.a = 1.0
 
-	new_game_btn.text = "New Game"
-	continue_btn.text = "Continue"
+	new_game_btn.text = GameManager.loc("new_game")
+	continue_btn.text = GameManager.loc("continue")
 	if _aftermath_btn == null:
 		_aftermath_btn = Button.new()
 		_aftermath_btn.name = "AftermathPreviewButton"
 		_aftermath_btn.pressed.connect(_on_aftermath_preview_pressed)
 		menu_container.add_child(_aftermath_btn)
 		menu_container.move_child(_aftermath_btn, 2)
-	_aftermath_btn.text = "Part II: Aftermath"
-	options_btn.text = "Options"
-	quit_btn.text = "Quit"
+	_aftermath_btn.text = GameManager.loc("aftermath")
+	options_btn.text = GameManager.loc("options")
+	quit_btn.text = GameManager.loc("quit")
 
 	for btn in menu_container.get_children():
 		if btn is Button:

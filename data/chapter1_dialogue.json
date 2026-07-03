@@ -196,118 +196,142 @@
       {
         "speaker": "",
         "text": "A tree stump, old enough that its rings had turned to stone.",
-        "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png"
+        "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png",
+        "text_ko": "고리가 돌로 변할 만큼 오래 된 나무 그루터기."
       },
       {
         "speaker": "",
-        "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E."
+        "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E.",
+        "text_ko": "누군가가 거기에 글자를 새긴 적이 있었습니다. 비는 그들 대부분을 먹어치웠지만 두 명만 남았습니다: A. E."
       },
       {
         "speaker": "",
-        "text": "His hand moved toward the carving before he could stop it."
+        "text": "His hand moved toward the carving before he could stop it.",
+        "text_ko": "그가 멈추기도 전에 그의 손이 조각품 쪽으로 움직였다."
       },
       {
         "speaker": "Elia",
         "text": "Arrel?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "에렐?"
       },
       {
         "speaker": "Arrel",
         "text": "...Nothing. Just letters.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "...아무것도 아니야. 그냥 편지."
       },
       {
         "speaker": "",
-        "text": "But his fingers traced the grooves one more time before he pulled away."
+        "text": "But his fingers traced the grooves one more time before he pulled away.",
+        "text_ko": "그러나 그의 손가락은 그가 떠나기 전에 다시 한번 홈을 따라갔다."
       }
     ],
     "sq_echoes_ash_start": [
       {
         "speaker": "",
         "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.",
-        "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png"
+        "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+        "text_ko": "바람에 흔들리는 촛불처럼 공터 가장자리에 한 형체가 서 있었습니다."
       },
       {
         "speaker": "Ashen Figure",
-        "text": "You... burn, don't you? I can smell it. The smoke of what you've lost."
+        "text": "You... burn, don't you? I can smell it. The smoke of what you've lost.",
+        "text_ko": "너... 불탔지, 그렇지? 냄새가 나요. 당신이 잃어버린 것의 연기."
       },
       {
         "speaker": "Ashen Figure",
-        "text": "I was like you once. But the fragments of what I was are scattered in this forest."
+        "text": "I was like you once. But the fragments of what I was are scattered in this forest.",
+        "text_ko": "나도 한때 당신과 같았습니다. 하지만 나의 존재의 파편들은 이 숲에 흩어져 있습니다."
       },
       {
         "speaker": "Ashen Figure",
-        "text": "Two pieces. Find them. Bring them back. Maybe then I can remember my own name."
+        "text": "Two pieces. Find them. Bring them back. Maybe then I can remember my own name.",
+        "text_ko": "두 조각. 찾아보세요. 다시 가져 오세요. 그러면 나도 내 이름을 기억할 수 있을 것 같아요."
       },
       {
         "speaker": "",
-        "text": "The figure's edges blurred. It was already fading."
+        "text": "The figure's edges blurred. It was already fading.",
+        "text_ko": "그림의 가장자리가 흐려졌습니다. 이미 희미해지고 있었습니다."
       }
     ],
     "sq_echoes_ash_frag": [
       {
         "speaker": "",
         "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch.",
-        "cg": "res://assets/cg/generated/story_ch1_echo_fragment.png"
+        "cg": "res://assets/cg/generated/story_ch1_echo_fragment.png",
+        "text_ko": "땅바닥에서 희미한 빛이 펄럭인다. 결정화된 기억 조각으로, 만지면 따뜻합니다."
       },
       {
         "speaker": "",
-        "text": "It hums with someone else's past — a child's voice, counting."
+        "text": "It hums with someone else's past — a child's voice, counting.",
+        "text_ko": "그것은 다른 사람의 과거, 즉 어린이의 목소리로 윙윙거립니다."
       }
     ],
     "elia_forest_walk": [
       {
         "speaker": "",
         "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.",
-        "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png"
+        "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
+        "text_ko": "그들은 한동안 말없이 걸었다. 숲은 공허한 눈으로 그들을 지켜보았다. 죽은 나무에 난 옹이 구멍은 너무 둥글고 너무 깊어 보였다."
       },
       {
         "speaker": "Elia",
         "text": "You're doing it again.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "또 그런 짓을 하고 있군요."
       },
       {
         "speaker": "Arrel",
         "text": "Doing what?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "무엇을 하고 있나요?"
       },
       {
         "speaker": "Elia",
         "text": "Touching your temple. You always do that after you burn.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신의 관자놀이를 만지세요. 화상을 입은 후에는 항상 그렇게 합니다."
       },
       {
         "speaker": "",
-        "text": "He hadn't noticed. His fingers were pressed against the right side of his skull, tracing circles."
+        "text": "He hadn't noticed. His fingers were pressed against the right side of his skull, tracing circles.",
+        "text_ko": "그는 눈치 채지 못했습니다. 그의 손가락은 그의 두개골 오른쪽에 눌려 원을 그리며 그려졌습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Habit.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "습관."
       },
       {
         "speaker": "Elia",
         "text": "Habits are the last things to go. Did you know that? A man in Verdan burned everything down to Grade 1. Forgot his own children. But every morning he'd set two extra places at the table.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "습관은 가장 나중에 해야 할 일입니다. 알고 계셨나요? 베르단(베르단)의 한 남자가 1등급까지 모든 것을 불태웠습니다. 자신의 자녀도 잊어버렸습니다. 그러나 매일 아침 그는 테이블에 두 자리를 더 마련해 주었습니다."
       },
       {
         "speaker": "",
-        "text": "She said it casually, like weather. But her eyes stayed on his hands."
+        "text": "She said it casually, like weather. But her eyes stayed on his hands.",
+        "text_ko": "그녀는 날씨처럼 아무렇지도 않게 말했다. 그러나 그녀의 시선은 그의 손에 머물렀다."
       },
       {
         "speaker": "Arrel",
         "text": "I'm fine, Elia.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "난 괜찮아, 엘리아."
       },
       {
         "speaker": "Elia",
         "text": "That's what you said last time. And the time before that.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "지난번에 말씀하셨던 게 바로 그거예요. 그리고 그 이전의 시간."
       },
       {
         "speaker": "Elia",
         "text": "One day 'fine' won't mean anything to you. And you won't even notice.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "언젠가는 '괜찮다'는 것이 당신에게 아무런 의미가 없을 것입니다. 그리고 당신은 눈치 채지도 못할 것입니다."
       }
     ],
     "elia_memory_talk": [
@@ -315,50 +339,60 @@
         "speaker": "Elia",
         "text": "Can I ask you something?",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png",
+        "text_ko": "뭐 좀 물어봐도 될까요?"
       },
       {
         "speaker": "Arrel",
         "text": "You're going to anyway.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "어쨌든 당신은 갈 것입니다."
       },
       {
         "speaker": "Elia",
         "text": "What does it feel like? When you burn one.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "어떤 느낌인가요? 하나 태울 때."
       },
       {
         "speaker": "",
-        "text": "He stopped walking."
+        "text": "He stopped walking.",
+        "text_ko": "그는 걷기를 멈췄다."
       },
       {
         "speaker": "Arrel",
         "text": "You know how you walk into a room and forget why you came? That. But the room is your entire life, and the door behind you is gone.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "방에 들어와서 왜 왔는지 잊어버리는 방법을 아시나요? 저것. 하지만 방은 당신의 인생 전체이고, 당신 뒤에 있는 문은 사라졌습니다."
       },
       {
         "speaker": "Elia",
         "text": "...",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "..."
       },
       {
         "speaker": "Arrel",
         "text": "It doesn't hurt. That's the worst part. If it hurt, you'd know what you lost. But it's just... smooth. Like the gap was always there.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "아프지 않아요. 그게 가장 나쁜 부분이에요. 아프면 무엇을 잃었는지 알 수 있을 것이다. 하지만 그건... 부드럽습니다. 늘 공백이 있었던 것처럼."
       },
       {
         "speaker": "Elia",
         "text": "And the power?",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "그리고 힘?"
       },
       {
         "speaker": "Arrel",
         "text": "Like breathing fire. For about three seconds, you are the most dangerous thing in the world. Then the fire goes out, and you're a little less than you were.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "불을 뿜는 것처럼. 약 3초 동안 당신은 세상에서 가장 위험한 존재입니다. 그런 다음 불이 꺼지고 당신은 예전보다 조금 작아집니다."
       },
       {
         "speaker": "",
-        "text": "She was quiet for a long time after that."
+        "text": "She was quiet for a long time after that.",
+        "text_ko": "그 후 그녀는 오랫동안 조용했습니다."
       }
     ],
     "elia_anchor_talk": [
@@ -366,148 +400,178 @@
         "speaker": "Elia",
         "text": "Arrel. Do you know what I am?",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png"
+        "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png",
+        "text_ko": "에렐. 내가 누군지 알아?"
       },
       {
         "speaker": "Arrel",
         "text": "You're Elia.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "당신은 엘리아입니다."
       },
       {
         "speaker": "Elia",
         "text": "I'm your Anchor. That's what the Bureau calls it. A living reference point — someone whose memories overlap with yours enough that when you burn, the gap doesn't collapse entirely.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "나는 당신의 앵커입니다. 관리국에서는 그렇게 부릅니다. 살아있는 기준점 - 당신이 화상을 입었을 때 그 격차가 완전히 무너지지 않을 정도로 당신의 기억과 겹치는 사람."
       },
       {
         "speaker": "Arrel",
         "text": "I know what an Anchor is.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "앵커가 뭔지 알아요"
       },
       {
         "speaker": "Elia",
         "text": "Do you? Because three burns ago, you asked me the same question.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신은? 세 번의 화상 전에도 같은 질문을 하셨거든요."
       },
       {
         "speaker": "",
-        "text": "He had no way to know if that was true. That was the point."
+        "text": "He had no way to know if that was true. That was the point.",
+        "text_ko": "그는 그것이 사실인지 알 방법이 없었습니다. 그것이 요점이었습니다."
       },
       {
         "speaker": "Elia",
         "text": "I'm not trying to scare you. I just need you to understand — if you lose me, if you burn the memories of me, there's no safety net. You fall, and there's no one left who remembers where the ground used to be.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "나는 당신에게 겁을 주려는 것이 아닙니다. 이해해 주시길 바랍니다. 나를 잃으면, 나의 기억을 불태우면 안전망은 없습니다. 당신은 떨어지고, 땅이 어디에 있었는지 기억하는 사람은 아무도 남지 않습니다."
       },
       {
         "speaker": "Arrel",
         "text": "I won't burn you.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "나는 당신을 태우지 않을 것입니다."
       },
       {
         "speaker": "Elia",
         "text": "You won't mean to.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그럴 생각은 없을 겁니다."
       }
     ],
     "forest_shrine": [
       {
         "speaker": "",
         "text": "Between the roots of a dead oak, someone had built a shrine.",
-        "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png"
+        "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png",
+        "text_ko": "죽은 참나무 뿌리 사이에 누군가가 신전을 지은 것이었습니다."
       },
       {
         "speaker": "",
-        "text": "Stones stacked in careful pyramids. Strips of cloth tied to branches. And in the center, a glass bottle filled with something that caught the dim light like liquid amber."
+        "text": "Stones stacked in careful pyramids. Strips of cloth tied to branches. And in the center, a glass bottle filled with something that caught the dim light like liquid amber.",
+        "text_ko": "조심스럽게 피라미드 모양으로 쌓인 돌들. 나뭇가지에 묶인 천 조각. 그리고 중앙에는 액체 호박처럼 희미한 빛을 머금은 무언가가 담긴 유리병이 있었다."
       },
       {
         "speaker": "Elia",
         "text": "A memory shrine. People leave them for the things they've burned. As if placing the container near the place it happened might bring the content back.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "기억의 성지. 사람들은 자신이 태운 물건 때문에 그것을 버립니다. 마치 사건이 일어난 장소 근처에 용기를 놓으면 내용물이 다시 돌아올 수도 있는 것처럼 말입니다."
       },
       {
         "speaker": "Arrel",
         "text": "Does it work?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "작동합니까?"
       },
       {
         "speaker": "Elia",
         "text": "Never.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "결코."
       },
       {
         "speaker": "Elia",
         "text": "But people keep building them.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "하지만 사람들은 계속해서 건물을 짓습니다."
       },
       {
         "speaker": "",
-        "text": "The amber liquid caught the light once more. Then a flake of ash rain dissolved against the glass, and the glow faded."
+        "text": "The amber liquid caught the light once more. Then a flake of ash rain dissolved against the glass, and the glow faded.",
+        "text_ko": "호박색 액체가 다시 한 번 빛을 발했습니다. 그러자 재비가 유리에 녹아 내리면서 빛이 사라졌습니다."
       }
     ],
     "dead_burner": [
       {
         "speaker": "",
         "text": "A body. Or what was left of one.",
-        "cg": "res://assets/cg/generated/chapter_splash_rim_forest.png"
+        "cg": "res://assets/cg/generated/chapter_splash_rim_forest.png",
+        "text_ko": "시체. 아니면 하나 남은 것."
       },
       {
         "speaker": "",
-        "text": "It sat against a tree, arms at its sides, head tilted back as if watching something in the canopy that had long since moved on."
+        "text": "It sat against a tree, arms at its sides, head tilted back as if watching something in the canopy that had long since moved on.",
+        "text_ko": "그것은 나무에 기대어 앉아 팔을 양옆에 두고 머리를 뒤로 젖힌 채 오래 전에 움직였던 천개 속의 무언가를 지켜보는 듯했습니다."
       },
       {
         "speaker": "",
-        "text": "There were no wounds. No signs of struggle. Just a person who had stopped."
+        "text": "There were no wounds. No signs of struggle. Just a person who had stopped.",
+        "text_ko": "상처는 없었습니다. 투쟁의 흔적은 없습니다. 그냥 멈춰 있던 사람."
       },
       {
         "speaker": "Elia",
         "text": "Don't touch it.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "만지지 마세요."
       },
       {
         "speaker": "Arrel",
         "text": "Bureau equipment?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "국 장비?"
       },
       {
         "speaker": "Elia",
         "text": "A burner. Grade 1 burnout. They burned everything — every memory, every sense, every reason to keep breathing. And then they just... sat down.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "버너. 1등급 소진. 그들은 모든 기억, 모든 감각, 숨을 쉬어야 할 모든 이유 등 모든 것을 태워버렸습니다. 그리고 그들은 그냥... 앉았습니다."
       },
       {
         "speaker": "",
-        "text": "The body's eyes were open. Clear. Empty. Like two windows in a house where no one lived."
+        "text": "The body's eyes were open. Clear. Empty. Like two windows in a house where no one lived.",
+        "text_ko": "시체의 눈이 열려 있었습니다. 분명한. 비어 있는. 아무도 살지 않는 집에 창문 두 개가 있는 것과 같습니다."
       },
       {
         "speaker": "Elia",
         "text": "This is what happens when there's nothing left to burn. Remember that.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "태울 것이 아무것도 남지 않았을 때 이런 일이 일어납니다. 기억하세요."
       },
       {
         "speaker": "Arrel",
         "text": "...I will.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "...그럴게요."
       },
       {
         "speaker": "",
-        "text": "He meant it. He hoped he'd still mean it tomorrow."
+        "text": "He meant it. He hoped he'd still mean it tomorrow.",
+        "text_ko": "그는 진심이었습니다. 그는 내일도 여전히 진심이길 바랐다."
       }
     ],
     "sq_echoes_ash_complete": [
       {
         "speaker": "Ashen Figure",
-        "text": "You found them. Both of them."
+        "text": "You found them. Both of them.",
+        "text_ko": "당신이 찾았어요. 둘 다."
       },
       {
         "speaker": "",
         "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place.",
-        "cg": "res://assets/cg/generated/story_ch1_ashen_figure_restored.png"
+        "cg": "res://assets/cg/generated/story_ch1_ashen_figure_restored.png",
+        "text_ko": "그 모습의 윤곽이 잠시 굳어졌다. 당신은 젊고, 피곤하고, 당신이 볼 수 없을 정도로 친숙한 얼굴을 보았습니다."
       },
       {
         "speaker": "Ashen Figure",
-        "text": "I remember now. I was... counting. Always counting. Take this — it's mine, but I don't need it where I'm going."
+        "text": "I remember now. I was... counting. Always counting. Take this — it's mine, but I don't need it where I'm going.",
+        "text_ko": "이제 기억나네요. 난... 계산 중이었어. 항상 계산됩니다. 이것을 가져가세요. 그것은 내 것이지만 내가 가는 곳에서는 필요하지 않습니다."
       },
       {
         "speaker": "",
-        "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand."
+        "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand.",
+        "text_ko": "그 모습은 재로 녹아버렸습니다. 그러나 기억은 결정체로 남아 당신의 손에 따뜻했습니다."
       }
     ]
   }

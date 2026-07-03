@@ -116,6 +116,7 @@ func _on_load_completed(slot: int) -> void:
 		show_toast("Game loaded — Slot %d" % slot, ToastType.INFO)
 
 func show_toast(text: String, type: ToastType = ToastType.INFO) -> void:
+	text = GameManager.localized_runtime_text(text)
 	_queue.append({"text": text, "type": type})
 	if not _showing:
 		_process_queue()

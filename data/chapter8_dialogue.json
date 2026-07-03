@@ -6,82 +6,98 @@
       {
         "speaker": "",
         "text": "The trees began where the path ended. They weren't growing — they were standing still, the way someone stands when they've forgotten why they walked into a room.",
-        "cg": "res://assets/cg/generated/story_ch8_forest_crossing.png"
+        "cg": "res://assets/cg/generated/story_ch8_forest_crossing.png",
+        "text_ko": "길이 끝나는 곳에서 나무가 시작되었다. 그들은 성장하고 있는 것이 아니었습니다. 그들은 가만히 서 있었습니다. 누군가가 왜 방에 들어왔는지 잊어버렸을 때 서 있는 것처럼 말이죠."
       },
       {
         "speaker": "Sable",
         "text": "This is the Memory Forest. The trees are what's left of the first settlement near BL-07.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "This is the Memory Forest. 그 나무들은 BL-07 근처의 첫 번째 정착지에서 남은 것입니다."
       },
       {
         "speaker": "Tobias",
         "text": "A settlement? There's no record of habitation this close to a Void Hole.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "합의? 보이드홀 근처에 이렇게 거주했다는 기록은 없습니다."
       },
       {
         "speaker": "Sable",
         "text": "That's the point. BL-07 ate the records. Ate the people. The trees are what grew in the gap.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "그게 요점입니다. BL-07이 기록을 먹어치웠다. 사람들을 먹었습니다. The trees are what grew in the gap."
       },
       {
         "speaker": "Elia",
         "text": "They're warm.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "따뜻해요."
       },
       {
         "speaker": "",
-        "text": "She was right. The bark was body-temperature. Like pressing your hand against sleeping skin."
+        "text": "She was right. The bark was body-temperature. Like pressing your hand against sleeping skin.",
+        "text_ko": "그녀가 옳았습니다. 나무 껍질은 체온이었습니다. Like pressing your hand against sleeping skin."
       },
       {
         "speaker": "Sable",
         "text": "Don't touch them for long. They'll take what you're feeling and replace it with what they remember.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "Don't touch them for long. 그들은 당신이 느끼는 것을 받아들이고 그것을 그들이 기억하는 것으로 바꿀 것입니다."
       },
       {
         "speaker": "Sable",
         "text": "Walk fast. Say your name if the edges go soft.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "빨리 걸어라. 가장자리가 부드러워지면 이름을 말해보세요."
       }
     ],
     "ghost_encounter": [
       {
         "speaker": "",
         "text": "A shape between the trees. Not shadow — presence. A woman standing perfectly still, her mouth open in a word that had no sound.",
-        "cg": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png"
+        "cg": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png",
+        "text_ko": "A shape between the trees. 그림자가 아니라 존재입니다. 아무 소리도 없이 입을 벌린 채 가만히 서 있는 여자."
       },
       {
         "speaker": "Arrel",
         "text": "Is that—",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "그게—"
       },
       {
         "speaker": "Sable",
         "text": "A remnant. What's left when BL-07 takes everything except the shape.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "남은. BL-07이 모양만 빼고 다 가져가면 무엇이 남나요?"
       },
       {
         "speaker": "Tobias",
         "text": "She's trying to speak. The jaw moves but there's nothing to say — the words were consumed.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "그녀는 말을 하려고 합니다. 턱은 움직이지만 할 말이 없다. 말이 다 소모됐다."
       },
       {
         "speaker": "Elia",
         "text": "Can we help her?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그녀를 도와드릴까요?"
       },
       {
         "speaker": "Sable",
         "text": "She's not suffering. She can't. Suffering requires memory of not suffering.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "그녀는 고통받고 있지 않습니다. 그녀는 할 수 없습니다. Suffering requires memory of not suffering."
       },
       {
         "speaker": "Sable",
         "text": "The kindest thing is to walk past. Don't give her your attention — it feeds the forest.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "The kindest thing is to walk past. 그녀에게 주의를 기울이지 마십시오. 그것은 숲에 영양을 공급합니다."
       },
       {
         "speaker": "",
-        "text": "They walked past. The shape's mouth kept moving. Arrel didn't look back."
+        "text": "They walked past. The shape's mouth kept moving. Arrel didn't look back.",
+        "text_ko": "그들은 지나갔다. 형체의 입은 계속 움직였다. 에릴은 뒤돌아보지 않았다."
       }
     ],
     "tobias_theory": [
@@ -89,37 +105,44 @@
         "speaker": "Tobias",
         "text": "I have a theory. The forest isn't random — it's organized.",
         "portrait": "tobias_neutral",
-        "cg": "res://assets/cg/generated/story_ch8_eighteenth_ring.png"
+        "cg": "res://assets/cg/generated/story_ch8_eighteenth_ring.png",
+        "text_ko": "나에겐 이론이 있다. 숲은 무작위가 아니라 조직되어 있습니다."
       },
       {
         "speaker": "Tobias",
         "text": "These trees are arranged in concentric rings. The oldest are at the center, closest to BL-07.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "이 나무들은 동심원 고리로 배열되어 있습니다. 가장 오래된 것은 BL-07에 가장 가까운 중앙에 있습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Ring growth. Like a real forest.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "링 성장. 진짜 숲같아요."
       },
       {
         "speaker": "Tobias",
         "text": "Exactly. But these rings correspond to consumption events. Each ring is a wave of memories eaten.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "정확합니다. 그러나 이 링은 소비 이벤트에 해당합니다. 각 반지는 먹은 추억의 물결입니다."
       },
       {
         "speaker": "Tobias",
         "text": "If my count is correct... BL-07 has had seventeen major feeding events in the last forty years.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "내 계산이 맞다면... BL-07은 지난 40년 동안 17번의 주요 먹이주기 행사를 가졌습니다."
       },
       {
         "speaker": "Sable",
         "text": "Eighteen. You missed the one that took my team.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "열여덟. 당신은 내 팀을 데려간 사람을 놓쳤습니다."
       },
       {
         "speaker": "Tobias",
         "text": "...noted.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "...알았습니다."
       }
     ],
     "elia_anchor_strain": [
@@ -127,241 +150,288 @@
         "speaker": "Elia",
         "text": "Arrel. Stop.",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png",
+        "text_ko": "에렐. 멈추다."
       },
       {
         "speaker": "Arrel",
         "text": "What?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "무엇?"
       },
       {
         "speaker": "Elia",
         "text": "You just called me 'Elise.' Three times.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "방금 나를 '엘리스'라고 불렀잖아. 세 번."
       },
       {
         "speaker": "Arrel",
         "text": "I... no, I said Elia. I'm sure I—",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "난... 아니, 엘리아라고 말했어요. 나는 확신한다-"
       },
       {
         "speaker": "Elia",
         "text": "The forest is working on you. Hold still.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "숲이 당신을 위해 노력하고 있습니다. 가만히 있어라."
       },
       {
         "speaker": "",
-        "text": "She took his hands again. The anchoring was harder here — like trying to hold a page flat in a gale."
+        "text": "She took his hands again. The anchoring was harder here — like trying to hold a page flat in a gale.",
+        "text_ko": "그녀는 다시 그의 손을 잡았다. 강풍 속에서 페이지를 평평하게 유지하려는 것처럼 여기에서는 고정이 더 어려웠습니다."
       },
       {
         "speaker": "Elia",
         "text": "Think of something real. Something that happened.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "실제적인 것을 생각해보십시오. 일어난 일."
       },
       {
         "speaker": "Arrel",
         "text": "...warm hands on cold palms.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "...차가운 손바닥에 따뜻한 손을 대세요."
       },
       {
         "speaker": "Elia",
         "text": "Good. Hold that.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "좋아요. 잠깐만요."
       },
       {
         "speaker": "",
-        "text": "The edges sharpened. The name returned. But something else — something small and unnamed — slipped away in its place."
+        "text": "The edges sharpened. The name returned. But something else — something small and unnamed — slipped away in its place.",
+        "text_ko": "가장자리가 날카로워졌습니다. 이름이 반환되었습니다. 그러나 다른 것, 즉 작고 이름 없는 것이 그 자리를 대신해 사라졌습니다."
       }
     ],
     "forest_whispers": [
       {
         "speaker": "",
         "text": "The deeper they went, the louder the forest became. Not sound — pressure. Like the air was trying to speak.",
-        "cg": "res://assets/cg/generated/story_ch8_whispers_as_bait.png"
+        "cg": "res://assets/cg/generated/story_ch8_whispers_as_bait.png",
+        "text_ko": "더 깊이 들어갈수록 숲의 소리는 더욱 커졌습니다. 소리가 아니라 압력입니다. 공기가 말을 하려고 하는 것처럼."
       },
       {
         "speaker": "Sable",
         "text": "It's getting denser. We're approaching the inner rings.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "점점 더 촘촘해지고 있어요. 우리는 내부 고리에 접근하고 있습니다."
       },
       {
         "speaker": "Tobias",
         "text": "My pen stopped working three trees ago. I'm writing with charcoal now.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "내 펜은 세 그루 전에 작동을 멈췄습니다. 지금은 숯으로 글을 쓰고 있어요."
       },
       {
         "speaker": "",
-        "text": "Something whispered Arrel's name. Not from a direction — from inside his own memory of hearing his name."
+        "text": "Something whispered Arrel's name. Not from a direction — from inside his own memory of hearing his name.",
+        "text_ko": "무언가가 에릴의 이름을 속삭였습니다. 어느 방향에서가 아니라, 그의 이름을 들었던 그 자신의 기억 속에서 말입니다."
       },
       {
         "speaker": "Arrel",
         "text": "I heard—",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "들었어—"
       },
       {
         "speaker": "Sable",
         "text": "Don't. Don't finish that sentence. Whatever you heard, it wasn't real.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "하지 마십시오. 그 문장을 끝내지 마세요. 당신이 무엇을 들었든 그것은 진짜가 아니었습니다."
       },
       {
         "speaker": "Sable",
         "text": "The forest uses your own memories as bait. It plays back what you expect to hear.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "숲은 당신의 기억을 미끼로 삼는다. 그것은 당신이 듣기를 기대하는 것을 재생합니다."
       },
       {
         "speaker": "Elia",
         "text": "Then how do we know any of us are real right now?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그렇다면 지금 우리 중 누군가가 진짜인지 어떻게 알 수 있습니까?"
       },
       {
         "speaker": "Sable",
         "text": "You don't. That's why you keep walking.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "당신은 그렇지 않습니다. 그렇기 때문에 계속 걷는 것입니다."
       }
     ],
     "clearing_rest": [
       {
         "speaker": "",
         "text": "A clearing. The trees pulled back as if repelled by something in the soil. In the center, a cairn of white stones.",
-        "cg": "res://assets/cg/generated/story_ch8_white_stone_shelter.png"
+        "cg": "res://assets/cg/generated/story_ch8_white_stone_shelter.png",
+        "text_ko": "청산. 나무들은 흙 속에 있는 무언가에 쫓겨난 듯 뒤로 물러났습니다. 중앙에는 흰 돌무더기가 있습니다."
       },
       {
         "speaker": "Tobias",
         "text": "Bureau markers. Standard expedition cairn — someone made it this deep and turned back.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "국 마커. 표준 원정대 케른 — 누군가가 이렇게 깊게 만들고 돌아섰습니다."
       },
       {
         "speaker": "Sable",
         "text": "My team. We built this on the third expedition. It was as far as we got before—",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "내 팀. 우리는 이것을 세 번째 탐험에서 만들었습니다. 우리가 전에 도달한 것만큼은-"
       },
       {
         "speaker": "",
-        "text": "She stopped. For the first time, her composure cracked — just a fissure, quickly sealed."
+        "text": "She stopped. For the first time, her composure cracked — just a fissure, quickly sealed.",
+        "text_ko": "그녀는 멈췄다. 처음으로 그녀의 평정심이 깨졌습니다. 균열이 생겼고 빠르게 봉쇄되었습니다."
       },
       {
         "speaker": "Sable",
         "text": "Rest here. The cairn creates a dead zone. The forest can't reach this spot.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "여기서 쉬세요. 케른은 데드 존을 만듭니다. 숲은 이 지점에 도달할 수 없습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Why not?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "왜 안돼?"
       },
       {
         "speaker": "Sable",
         "text": "Because these stones are from outside BL-07's range. They remember being stones. The forest doesn't know what to do with certainty.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "왜냐하면 이 돌들은 BL-07의 범위 밖에 있기 때문입니다. 그들은 돌이었던 것을 기억합니다. 숲은 확실성을 가지고 무엇을 해야할지 모릅니다."
       },
       {
         "speaker": "Tobias",
         "text": "Fascinating. Memory-null objects as anchoring points. I need to document this.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "매혹적이다. 고정점으로 사용되는 메모리 null 개체입니다. 이것을 문서화해야 합니다."
       },
       {
         "speaker": "Sable",
         "text": "Use charcoal. Ink is dead here.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "숯을 사용하세요. 여기서 잉크가 죽었습니다."
       }
     ],
     "forest_departure": [
       {
         "speaker": "Sable",
         "text": "Beyond the forest, the color drains. Completely.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "숲 너머에는 색이 빠져나갑니다. 완전히."
       },
       {
         "speaker": "Sable",
         "text": "Not gray — absence. The Waste is where even the memory of color was eaten.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "회색이 아님 — 부재. 황무지는 색의 기억마저 먹어치운 곳이다."
       },
       {
         "speaker": "Tobias",
         "text": "The Bureau calls it the Achromatic Zone. No expedition has mapped it.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "국에서는 이를 무색지대(Achromatic Zone)라고 부릅니다. 어떤 탐험도 지도를 작성하지 않았습니다."
       },
       {
         "speaker": "Arrel",
         "text": "How close are we to BL-07?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "우리는 BL-07에 얼마나 가까이 있나요?"
       },
       {
         "speaker": "Sable",
         "text": "Half a day's walk. If we survive the Waste.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "반나절의 산책. 우리가 폐기물에서 살아남는다면."
       },
       {
         "speaker": "Elia",
         "text": "We will.",
-        "portrait": "elia_determined"
+        "portrait": "elia_determined",
+        "text_ko": "우리는 그렇게 할 것입니다."
       },
       {
         "speaker": "",
         "text": "They left the cairn behind. The forest closed in one last time, then — abruptly — ended. Ahead: nothing with color.",
-        "cg": "res://assets/cg/generated/story_ch8_end_of_color.png"
+        "cg": "res://assets/cg/generated/story_ch8_end_of_color.png",
+        "text_ko": "그들은 케른을 남겨두고 떠났습니다. 숲은 마지막으로 닫혔다가 갑자기 사라졌습니다. 앞서 : 색상은 없습니다."
       }
     ],
     "forest_atmosphere": [
       {
         "speaker": "",
         "text": "The ground was soft. Not with moss — with something that used to be moss before it forgot what growing meant.",
-        "cg": "res://assets/cg/generated/story_ch8_forgotten_moss.png"
+        "cg": "res://assets/cg/generated/story_ch8_forgotten_moss.png",
+        "text_ko": "땅은 부드러웠다. 이끼가 아니라, 자라는 것이 무엇을 의미하는지 잊어버리기 전에는 이끼였던 것입니다."
       },
       {
         "speaker": "Tobias",
         "text": "The air composition here is abnormal. It smells like old paper.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "이곳의 공기 구성은 비정상적입니다. 오래된 종이 냄새가 나네요."
       },
       {
         "speaker": "Elia",
         "text": "Like a library left open in the rain.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "비에도 열려 있는 도서관처럼요."
       },
       {
         "speaker": "Tobias",
         "text": "Precisely. Memory residue has a scent — oxidized narrative, if you will.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "정확하게. 기억의 잔여물에는 향기가 있습니다. 산화된 서사입니다."
       },
       {
         "speaker": "Sable",
         "text": "Stop analyzing. Start moving.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "분석을 중지하세요. 움직이기 시작하세요."
       }
     ],
     "ghost_child": [
       {
         "speaker": "",
         "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence.",
-        "cg": "res://assets/cg/generated/story_ch8_ghost_child.png"
+        "cg": "res://assets/cg/generated/story_ch8_ghost_child.png",
+        "text_ko": "이번에는 더 작은 모양입니다. 어린이용. 그것은 무언가를 담고 있었습니다. 또는 무언가를 쥐고 있던 기억을 담고 있었습니다. 그 손은 부재 주위에 컵 모양으로 놓여 있었습니다."
       },
       {
         "speaker": "Arrel",
         "text": "How old...",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "몇 살인지..."
       },
       {
         "speaker": "Sable",
         "text": "Don't. Age doesn't matter here. They're all the same age now — zero.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "하지 마십시오. 여기서 나이는 중요하지 않습니다. 이제 그들은 모두 같은 나이입니다. 0입니다."
       },
       {
         "speaker": "Elia",
         "text": "The Echo Shell is vibrating.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "에코 셸이 진동하고 있습니다."
       },
       {
         "speaker": "",
-        "text": "Arrel held it to his ear. A child's voice, clearer than the others: 'I had a dog. His name was— his name was—'"
+        "text": "Arrel held it to his ear. A child's voice, clearer than the others: 'I had a dog. His name was— his name was—'",
+        "text_ko": "에릴은 그것을 귀에 대고 있었습니다. 다른 아이들보다 또렷한 아이의 목소리: '나에겐 개가 있었어요. 그의 이름은 — 그의 이름은 —'"
       },
       {
         "speaker": "",
-        "text": "The sentence looped. The name was gone. Just the shape of having known it remained."
+        "text": "The sentence looped. The name was gone. Just the shape of having known it remained.",
+        "text_ko": "문장이 반복되었습니다. 이름이 없어졌습니다. 다만 그것을 알고 있었던 모양이 남아 있을 뿐이다."
       },
       {
         "speaker": "Arrel",
         "text": "...we have to seal BL-07. Whatever it takes.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "...BL-07을 봉인해야 해요. 무슨 일이 있어도요."
       }
     ],
     "tobias_ring_theory": [
@@ -369,81 +439,97 @@
         "speaker": "Tobias",
         "text": "I've been mapping the rings. Each one corresponds to a consumption event — but the spacing isn't random.",
         "portrait": "tobias_neutral",
-        "cg": "res://assets/cg/generated/story_ch8_ring_cairn.png"
+        "cg": "res://assets/cg/generated/story_ch8_ring_cairn.png",
+        "text_ko": "나는 반지를 매핑해왔습니다. 각각은 소비 이벤트에 해당하지만 간격은 무작위가 아닙니다."
       },
       {
         "speaker": "Tobias",
         "text": "The intervals are decreasing. Ring one to ring two: eight years. Ring sixteen to seventeen: four months. It's accelerating.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "간격이 줄어들고 있습니다. 1번 울리고 2번 울림: 8년. 16~17세: 4개월. 가속화되고 있습니다."
       },
       {
         "speaker": "Arrel",
         "text": "What does that mean for The Seam?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "The 심에게 이는 무엇을 의미하나요?"
       },
       {
         "speaker": "Tobias",
         "text": "It means BL-07 isn't growing steadily. It's growing like hunger — the more it eats, the faster it needs to eat again. My Ring Theory predicts total collapse within a year.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "이는 BL-07이 꾸준히 성장하지 못하고 있다는 뜻이다. 배고픔처럼 커지고 있습니다. 더 많이 먹을수록 더 빨리 다시 먹어야 합니다. 나의 고리 이론은 1년 안에 완전한 붕괴를 예측합니다."
       }
     ],
     "ghost_mother": [
       {
         "speaker": "",
         "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over.",
-        "cg": "res://assets/cg/generated/story_ch8_ghost_mother.png"
+        "cg": "res://assets/cg/generated/story_ch8_ghost_mother.png",
+        "text_ko": "공터 가장자리에 한 인물이 서 있었다. 반투명한 여자가 보이지 않는 무언가를 팔에 안고 있습니다. 그녀의 입은 계속해서 한 단어를 형성했습니다."
       },
       {
         "speaker": "Elia",
         "text": "She's looking for someone. A child. You can see it in the way her arms are held — muscle memory outlasting everything else.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그녀는 누군가를 찾고 있습니다. 아이. 그녀가 팔을 잡고 있는 방식에서 볼 수 있습니다. 근육 기억은 다른 모든 것보다 오래 지속됩니다."
       },
       {
         "speaker": "",
-        "text": "The ghost turned toward them. For one terrible moment, recognition flickered in her hollow eyes — then faded. She drifted back among the trees, still searching."
+        "text": "The ghost turned toward them. For one terrible moment, recognition flickered in her hollow eyes — then faded. She drifted back among the trees, still searching.",
+        "text_ko": "유령은 그들을 향해 돌아섰다. 끔찍한 순간, 그녀의 텅 빈 눈에 인식이 번쩍였다가 사라졌습니다. 그녀는 나무 사이로 다시 표류하며 여전히 찾고 있었습니다."
       }
     ],
     "forest_heart": [
       {
         "speaker": "",
         "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing.",
-        "cg": "res://assets/cg/generated/story_ch8_parasitic_heart.png"
+        "cg": "res://assets/cg/generated/story_ch8_parasitic_heart.png",
+        "text_ko": "공기가 두꺼워졌습니다. 나무들은 안쪽으로 기울어졌고, 나무껍질은 느린 호흡처럼 리듬에 맞춰 고동쳤다."
       },
       {
         "speaker": "Tobias",
         "text": "We've reached it. The parasitic core. Every tree in this forest is connected to this point — a single organism feeding on memory residue.",
-        "portrait": "tobias_neutral"
+        "portrait": "tobias_neutral",
+        "text_ko": "우리는 도달했습니다. 기생 코어. 이 숲의 모든 나무는 기억의 잔여물을 먹고 사는 단일 유기체인 이 지점에 연결되어 있습니다."
       },
       {
         "speaker": "Sable",
         "text": "It's not just feeding. It's growing. Last time I was here, the core was half this size.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "단순히 먹이만 주는 것이 아닙니다. 성장하고 있습니다. 지난번에 왔을 때 코어는 이 크기의 절반이었어요."
       },
       {
         "speaker": "Arrel",
         "text": "Can it be destroyed?",
-        "portrait": "arrel_determined"
+        "portrait": "arrel_determined",
+        "text_ko": "파괴될 수 있나요?"
       }
     ],
     "arrel_flashback_elia": [
       {
         "speaker": "",
         "text": "The forest whispers a memory you'd almost lost.",
-        "cg": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png"
+        "cg": "res://assets/cg/generated/story_ch8_memory_forest_remnant.png",
+        "text_ko": "숲은 당신이 거의 잃어버릴 뻔한 기억을 속삭인다."
       },
       {
         "speaker": "",
-        "text": "A girl standing in the rain. Translucent. Not quite real."
+        "text": "A girl standing in the rain. Translucent. Not quite real.",
+        "text_ko": "빗속에 서 있는 소녀. 투명한. 별로 현실적이지 않습니다."
       },
       {
         "speaker": "Elia",
         "text": "You can see me?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "나를 볼 수 있나요?"
       },
       {
         "speaker": "",
-        "text": "That was the moment everything changed."
+        "text": "That was the moment everything changed.",
+        "text_ko": "모든 것이 바뀌는 순간이었습니다."
       }
     ]
-  }
+  },
+  "title_ko": "잊혀지는 숲"
 }

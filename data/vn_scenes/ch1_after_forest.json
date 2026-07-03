@@ -6,68 +6,81 @@
     {
       "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
       "fade": 1.5,
-      "narrate": "The forest thinned. The air cleared — or rather, it replaced one kind of thickness with another."
+      "narrate": "The forest thinned. The air cleared — or rather, it replaced one kind of thickness with another.",
+      "narrate_ko": "숲이 얇아졌습니다. 공기가 맑아졌습니다. 오히려 한 종류의 두께를 다른 두께로 대체했습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "You fought through that without burning anything else."
+      "text": "You fought through that without burning anything else.",
+      "text_ko": "당신은 다른 것을 태우지 않고 그것을 극복했습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_exhausted",
       "side": "left",
-      "text": "I know."
+      "text": "I know.",
+      "text_ko": "알아요."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "You're keeping count."
+      "text": "You're keeping count.",
+      "text_ko": "당신은 카운트를 유지하고 있습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "I always keep count."
+      "text": "I always keep count.",
+      "text_ko": "나는 항상 숫자를 세어본다."
     },
     {
       "cg": "ch1_green_tree",
       "fade": 1.8,
-      "narrate": "A single tree, still green, stood at the edge of the clearing like a joke the world had forgotten to finish."
+      "narrate": "A single tree, still green, stood at the edge of the clearing like a joke the world had forgotten to finish.",
+      "narrate_ko": "세상이 끝내는 것을 잊어버린 농담처럼 공터 가장자리에 아직 녹색인 나무 한 그루가 서 있었습니다."
     },
     {
-      "narrate": "Elia stopped. Her hand went to the bark, fingers spread against the living wood as if checking whether it would answer."
+      "narrate": "Elia stopped. Her hand went to the bark, fingers spread against the living wood as if checking whether it would answer.",
+      "narrate_ko": "엘리아는 멈춰섰다. 그녀의 손은 나무껍질로 향했고, 마치 그것이 응답할지 확인하려는 듯 손가락을 살아있는 나무에 대고 펼쳤습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_hopeful",
       "side": "right",
-      "text": "It's still warm."
+      "text": "It's still warm.",
+      "text_ko": "아직 따뜻해요."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "It won't be, by winter."
+      "text": "It won't be, by winter.",
+      "text_ko": "겨울까지는 그렇지 않을 것입니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
-      "text": "No. It won't."
+      "text": "No. It won't.",
+      "text_ko": "아니요. 그렇지 않습니다."
     },
     {
       "cg": "res://assets/cg/game_image/sealed_city_ruins.png",
       "fade": 2.0,
-      "narrate": "Beyond the treeline, far to the south, the Bureau's tower scraped at the clouds like a finger pointing out an accusation."
+      "narrate": "Beyond the treeline, far to the south, the Bureau's tower scraped at the clouds like a finger pointing out an accusation.",
+      "narrate_ko": "수목한계 너머, 멀리 남쪽에는 국의 탑이 비난을 가리키는 손가락처럼 구름을 긁어냈다."
     },
     {
-      "narrate": "That was where the answers were. That was where he would have to go."
+      "narrate": "That was where the answers were. That was where he would have to go.",
+      "narrate_ko": "거기에 답이 있었습니다. 그가 가야 할 곳은 바로 그곳이었다."
     },
     {
-      "narrate": "But first — the Belt. And the man who might know whether his brother was still alive."
+      "narrate": "But first — the Belt. And the man who might know whether his brother was still alive.",
+      "narrate_ko": "하지만 먼저 — 벨트. 그리고 형이 아직 살아 있는지 알 수도 있는 남자."
     },
     {
       "set_flag": "ch1_complete",
@@ -77,5 +90,6 @@
       "action": "goto_scene",
       "id": "ch2_market_arrival"
     }
-  ]
+  ],
+  "title_ko": "1장 — 숲 이후"
 }

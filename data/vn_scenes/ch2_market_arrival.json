@@ -7,13 +7,16 @@
     {
       "cg": "res://assets/cg/generated/story_ch2_verdan_gate.png",
       "fade": 2.0,
-      "narrate": "Verdan Market — the Belt's largest trading hub, and the Bureau's most tolerated black eye."
+      "narrate": "Verdan Market — the Belt's largest trading hub, and the Bureau's most tolerated black eye.",
+      "narrate_ko": "베르단 시장(베르단 Market) — 벨트의 가장 큰 거래 허브이자 관리국에서 가장 용인되는 검은 눈입니다."
     },
     {
-      "narrate": "It sprawled across three old canyons, stitched together with rope-bridges and smoke and the low hum of too many voices at once."
+      "narrate": "It sprawled across three old canyons, stitched together with rope-bridges and smoke and the low hum of too many voices at once.",
+      "narrate_ko": "그것은 세 개의 오래된 협곡을 가로질러 펼쳐져 있었고, 밧줄 다리와 연기, 동시에 너무 많은 목소리의 낮은 웅웅거림이 얽혀 있었습니다."
     },
     {
-      "narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts — including whatever was owed to the name Arrel no longer wanted to say aloud."
+      "narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts — including whatever was owed to the name Arrel no longer wanted to say aloud.",
+      "narrate_ko": "저 아래 어딘가에 말렛는 책상을 보관했습니다. 그리고 말렛는 소문이 사실이라면 아렐이라는 이름에 빚진 모든 것을 포함하여 더 이상 큰 소리로 말하고 싶지 않은 빚을 유지했습니다."
     },
     {
       "cg": "res://assets/cg/generated/story_ch2_verdan_gate.png",
@@ -21,65 +24,77 @@
       "speaker": "Elia",
       "portrait": "elia_calm",
       "side": "right",
-      "text": "Stay close. This place eats travelers."
+      "text": "Stay close. This place eats travelers.",
+      "text_ko": "가까이 있어라. 이곳은 여행자를 잡아먹는다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_neutral",
       "side": "left",
-      "text": "I'll stay close. You keep your hood up."
+      "text": "I'll stay close. You keep your hood up.",
+      "text_ko": "나는 가까이 있을 것이다. 당신은 후드를 유지합니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_hopeful",
       "side": "right",
-      "text": "Worried about me?"
+      "text": "Worried about me?",
+      "text_ko": "나에 대해 걱정 되니?"
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "Worried about what someone might recognize."
+      "text": "Worried about what someone might recognize.",
+      "text_ko": "누군가가 무엇을 알아볼지 걱정됩니다."
     },
     {
-      "narrate": "Below them, the market opened its mouth."
+      "narrate": "Below them, the market opened its mouth.",
+      "narrate_ko": "그 아래에는 시장이 입을 열었다."
     },
     {
       "cg": "res://assets/cg/generated/story_ch2_verdan_gate.png",
       "fade": 1.2,
-      "narrate": "A guard stopped them at the southern stairs. Bureau insignia. Too alert for a Belt posting."
+      "narrate": "A guard stopped them at the southern stairs. Bureau insignia. Too alert for a Belt posting.",
+      "narrate_ko": "경비원이 남쪽 계단에서 그들을 막았습니다. 국 휘장. 벨트 포스팅에 너무 주의하세요."
     },
     {
       "speaker": "Guard",
-      "text": "Names. Purpose. Papers if you have them."
+      "text": "Names. Purpose. Papers if you have them.",
+      "text_ko": "이름. 목적. 서류가 있다면."
     },
     {
       "choice": [
         {
           "text": "Tell him we're hunters tracking rogue Husks.",
-          "set_flag": "guard_lied_to"
+          "set_flag": "guard_lied_to",
+          "text_ko": "우리는 불량 허스크를 추적하는 사냥꾼이라고 전해 주세요."
         },
         {
           "text": "Surface a memory of a bribe. Pay him off with what he wants to hear.",
           "cost_memory": "daily_market_food",
-          "set_flag": "guard_bribed"
+          "set_flag": "guard_bribed",
+          "text_ko": "뇌물을 받은 기억을 떠올려 보세요. 그가 듣고 싶어하는 말로 그에게 보답하십시오."
         },
         {
           "text": "Push past him.",
           "set_flag": "guard_pushed",
-          "requires_memory_intact": "identity_first_sword"
+          "requires_memory_intact": "identity_first_sword",
+          "text_ko": "그를 지나쳐라."
         }
       ]
     },
     {
       "cg": "res://assets/cg/generated/story_ch2_memory_market.png",
       "fade": 1.0,
-      "narrate": "Either way, the market swallowed them whole."
+      "narrate": "Either way, the market swallowed them whole.",
+      "narrate_ko": "어느 쪽이든 시장은 그들을 통째로 삼켰다."
     },
     {
       "set_flag": "ch2_arrival_vn_seen",
       "action": "goto_map",
       "path": "res://scenes/maps/verdan_market.tscn"
     }
-  ]
+  ],
+  "title_ko": "제2장 — 벨트"
 }

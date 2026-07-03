@@ -548,16 +548,12 @@ func resolve_enemy_image_by_name(enemy_name: String) -> String:
 		return ART_TOBIAS_FULLBODY if ResourceLoader.exists(ART_TOBIAS_FULLBODY) else ""
 	if "veil" in lower_name:
 		return ART_VEIL_FULLBODY if ResourceLoader.exists(ART_VEIL_FULLBODY) else ""
-	if "guardian" in lower_name:
-		return ART_FORGOTTEN_GUARDIAN if ResourceLoader.exists(ART_FORGOTTEN_GUARDIAN) else ""
 	if "shade sentinel" in lower_name:
 		return ART_SHADE_SENTINEL if ResourceLoader.exists(ART_SHADE_SENTINEL) else (ART_VOID_BEAST_FALLBACK if ResourceLoader.exists(ART_VOID_BEAST_FALLBACK) else "")
-	if "soldier" in lower_name or "crawler" in lower_name:
-		return ART_MEMORY_LOST_SOLDIER if ResourceLoader.exists(ART_MEMORY_LOST_SOLDIER) else ""
-	if "wisp" in lower_name or "wraith" in lower_name or "fragment" in lower_name or "lurker" in lower_name:
-		return ART_VOID_CREATURE_SHEET if ResourceLoader.exists(ART_VOID_CREATURE_SHEET) else ""
-	if "void" in lower_name or "shade" in lower_name or "sentinel" in lower_name or "threshold" in lower_name:
+	if "void beast" in lower_name:
 		return ART_VOID_BEAST if ResourceLoader.exists(ART_VOID_BEAST) else (ART_VOID_BEAST_FALLBACK if ResourceLoader.exists(ART_VOID_BEAST_FALLBACK) else "")
+	# 일반 몬스터는 콘셉트 시트 전체를 화면에 띄우지 않고
+	# PixelSprite의 이름별 128px 캐릭터 렌더러로 보낸다.
 	return ""
 
 func _get_opening_tactical_hint(enemy: Enemy) -> String:

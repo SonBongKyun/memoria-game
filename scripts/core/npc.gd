@@ -11,10 +11,18 @@ const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 @export var repeat_line: String = ""  # 재대화 시 표시할 대사 (빈칸이면 기본 대사)
 
 var _talked_keys: Dictionary = {}  # 이미 진행한 dialogue_key 추적
-
-@onready var sprite: Sprite2D = $Sprite2D
+var sprite: AnimatedSprite2D
 
 func _ready() -> void:
+	# 맵 위에 얼굴 삽화를 축소해 놓던 구형 표현을 제거하고,
+	# 플레이어/동료와 같은 4방향 캐릭터 애니메이션 규격을 사용한다.
+	if has_node("Sprite2D"):
+		$Sprite2D.queue_free()
+	sprite = AnimatedSprite2D.new()
+	sprite.name = "CharacterSprite"
+	sprite.z_index = 2
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	add_child(sprite)
 	_setup_placeholder_sprite()
 	print("[NPC] %s ready" % npc_name)
 
@@ -32,7 +40,7 @@ func interact() -> void:
 	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
 	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
 		# 이미 대화한 NPC — 짧은 후속 대사
-		var line = repeat_line if repeat_line != "" else "..."
+		var line = GameManager.localized_runtime_text(repeat_line) if repeat_line != "" else "..."
 		DialogueManager.start_dialogue([
 			{"speaker": npc_name, "text": line, "portrait": ""}
 		])
@@ -48,70 +56,67 @@ func _on_first_talk_ended(talk_flag: String) -> void:
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprite() -> void:
-	var portrait_path: String = _get_npc_portrait_sprite_path()
-	if portrait_path != "" and ResourceLoader.exists(portrait_path):
-		var portrait_texture: Texture2D = load(portrait_path) as Texture2D
-		if portrait_texture != null:
-			sprite.texture = portrait_texture
-			sprite.scale = Vector2(0.18, 0.18)
-			sprite.position.y = -4.0
-			sprite.z_index = 2
-			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-			_add_portrait_marker(_get_npc_accent_color())
-			return
+	var config := _get_character_config()
+	sprite.sprite_frames = PixelSprite.create_frames(config)
+	sprite.position = Vector2(0, 2)
+	sprite.scale = Vector2.ONE
+	sprite.play("idle_down")
+	_add_character_grounding(_get_npc_accent_color())
 
-	var config: Dictionary
-	# 이름별 전용 config, 없으면 npc_color 기반 자동 생성
+func _get_character_config() -> Dictionary:
 	match npc_name:
+		"Elia":
+			return PixelSprite.elia_config()
 		"Sable":
-			config = PixelSprite.sable_config()
-		"Malet":
-			config = PixelSprite.npc_config(Color(0.35, 0.32, 0.3))
-			config.eye = Color(0.8, 0.6, 0.2)  # 앰버 눈 (기억 앰플)
+			return PixelSprite.sable_config()
+		"Malet", "Mallet":
+			return {
+				"skin": Color(0.88, 0.78, 0.70),
+				"hair": Color(0.08, 0.07, 0.09),
+				"hair_style": "medium",
+				"coat": Color(0.07, 0.06, 0.10),
+				"shirt": Color(0.24, 0.15, 0.31),
+				"pants": Color(0.06, 0.05, 0.08),
+				"boots": Color(0.03, 0.025, 0.04),
+				"eye": Color(0.88, 0.63, 0.18),
+				"accessory": Color(0.76, 0.58, 0.24),
+				"accessory_type": "brooch",
+			}
+		"Tobias", "Seric":
+			return PixelSprite.npc_scholar_config()
+		"Kairos", "Nera", "Handler":
+			return PixelSprite.npc_bureau_agent_config()
+		"Guard":
+			return PixelSprite.npc_guard_config()
+		"Old Man":
+			return PixelSprite.npc_elder_config()
+		"Nervous Trader":
+			return PixelSprite.npc_merchant_config()
+		"Gardener":
+			return PixelSprite.npc_villager_f_config()
+		"Ashen Figure", "Prisoner", "Han":
+			return PixelSprite.npc_traveler_config()
 		_:
-			config = PixelSprite.npc_config(npc_color)
+			return PixelSprite.npc_config(npc_color)
 
-	# 정면 idle 프레임만 사용 (정적 NPC)
-	var frames = PixelSprite.create_frames(config)
-	var idle_tex = frames.get_frame_texture("idle_down", 0)
-	sprite.texture = idle_tex
-
-func _add_portrait_marker(accent: Color) -> void:
+func _add_character_grounding(accent: Color) -> void:
 	var shadow := Polygon2D.new()
 	shadow.polygon = PackedVector2Array([
-		Vector2(-19, 20), Vector2(-10, 15), Vector2(10, 15), Vector2(19, 20),
-		Vector2(10, 25), Vector2(-10, 25)
+		Vector2(-15, 21), Vector2(-8, 17), Vector2(8, 17), Vector2(15, 21),
+		Vector2(8, 24), Vector2(-8, 24)
 	])
-	shadow.color = Color(0.0, 0.0, 0.0, 0.34)
+	shadow.color = Color(0.0, 0.0, 0.0, 0.30)
 	shadow.z_index = 0
 	add_child(shadow)
 
-	var frame := Line2D.new()
-	frame.closed = true
-	frame.width = 1.6
-	frame.default_color = Color(accent.r, accent.g, accent.b, 0.82)
-	frame.points = PackedVector2Array([
-		Vector2(-24, -30), Vector2(24, -30), Vector2(24, 18), Vector2(-24, 18)
+	var ring := Line2D.new()
+	ring.width = 1.1
+	ring.default_color = Color(accent.r, accent.g, accent.b, 0.30)
+	ring.points = PackedVector2Array([
+		Vector2(-11, 22), Vector2(-6, 25), Vector2(6, 25), Vector2(11, 22)
 	])
-	frame.z_index = 3
-	add_child(frame)
-
-func _get_npc_portrait_sprite_path() -> String:
-	match npc_name:
-		"Malet", "Mallet":
-			return "res://assets/portraits/malet_face_neutral.png"
-		"Sable":
-			return "res://assets/portraits/sable_face_calm.png"
-		"Tobias":
-			return "res://assets/portraits/tobias_face_neutral.png"
-		"Kairos":
-			return "res://assets/portraits/kairos_face_neutral.png"
-		"Nera":
-			return "res://assets/portraits/nera_face_neutral.png"
-		"Seric":
-			return "res://assets/portraits/seric_face_neutral.png"
-		_:
-			return ""
+	ring.z_index = 1
+	add_child(ring)
 
 func _get_npc_accent_color() -> Color:
 	match npc_name:

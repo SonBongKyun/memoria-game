@@ -1208,7 +1208,7 @@ static func _draw_battle_cast_frame(config: Dictionary, who: String) -> Image:
 static func create_battle_enemy(enemy_type: String) -> ImageTexture:
 	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
-	match enemy_type.to_lower():
+	match _enemy_archetype(enemy_type):
 		"void_beast": _draw_battle_void_beast(img)
 		"shadow_wisp": _draw_battle_shadow_wisp(img)
 		"memory_eater": _draw_battle_memory_eater(img)
@@ -1217,6 +1217,22 @@ static func create_battle_enemy(enemy_type: String) -> ImageTexture:
 		_: _draw_battle_generic_enemy(img, enemy_type)
 	_add_outline_n(img, BATTLE_SIZE, Color(0.02, 0.01, 0.04, 0.95))
 	return ImageTexture.create_from_image(img)
+
+## 표시 이름이 달라도 모든 몬스터가 고유 실루엣 계열을 갖도록 정규화한다.
+## 이전에는 "Void Beast"가 "void_beast"와 일치하지 않아 전부 일반형으로 그려졌다.
+static func _enemy_archetype(enemy_type: String) -> String:
+	var normalized := enemy_type.to_lower().replace("-", "_").replace(" ", "_")
+	if "shade_sentinel" in normalized or "void_sentinel" in normalized or "guardian" in normalized:
+		return "shade_sentinel"
+	if "memory_eater" in normalized or "memory_leech" in normalized:
+		return "memory_eater"
+	if "wisp" in normalized or "wraith" in normalized or "phantom" in normalized or "fragment" in normalized or "shade" in normalized:
+		return "shadow_wisp"
+	if "crawler" in normalized or "walker" in normalized or "stalker" in normalized or "lurker" in normalized or "thief" in normalized or "scavenger" in normalized or "rat" in normalized:
+		return "void_stalker"
+	if "void_beast" in normalized or "beast" in normalized:
+		return "void_beast"
+	return normalized
 
 ## N사이즈 아웃라인 (128x128 등 임의 크기)
 static func _add_outline_n(img: Image, s: int, outline_color: Color) -> void:
@@ -1655,7 +1671,7 @@ static func create_enemy_sprite(enemy_type: String) -> ImageTexture:
 	var img = Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
 
-	match enemy_type.to_lower():
+	match _enemy_archetype(enemy_type):
 		"void_beast":
 			_draw_void_beast(img)
 		"shadow_wisp":

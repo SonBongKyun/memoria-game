@@ -109,8 +109,8 @@ const SPEAKER_STAGE_ART: Dictionary = {
 	"Seric": "res://assets/portraits/seric_face_clipboard.png",
 	"Tobias": "res://assets/cg/game_image/tobias_fullbody.png",
 	"Veil": "res://assets/cg/game_image/veil_fullbody.png",
-	"Malet": "res://assets/cg/game_image/malet_bureau_overlook.png",
-	"Mallet": "res://assets/cg/game_image/malet_bureau_overlook.png",
+	"Malet": "res://assets/cg/game_image/malet_fullbody_stage.png",
+	"Mallet": "res://assets/cg/game_image/malet_fullbody_stage.png",
 }
 const SPEAKER_STAGE_SIDE: Dictionary = {
 	"Arrel": "left",

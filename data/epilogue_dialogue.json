@@ -3,156 +3,790 @@
   "title": "Epilogue",
   "dialogues": {
     "epilogue_zero_burn": [
-      {"speaker": "", "text": "Three days passed. Or maybe it was longer. Time moved differently when you didn't have a name to mark it with."},
-      {"speaker": "", "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.", "cg": "res://assets/cg/generated/ending_zero_burn_canyon_watch.png"},
-      {"speaker": "", "text": "BL-07 was sealed. The ground was solid. Children played in the gardens where flowers bloomed in impossible seasons."},
-      {"speaker": "Elia", "text": "You've been sitting here since dawn.", "portrait": "elia_mature"},
-      {"speaker": "???", "text": "Have I? I can't tell.", "portrait": "arrel_exhausted"},
-      {"speaker": "Elia", "text": "Do you... want me to tell you? About who you were?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He looked at her. The woman with honey-blonde hair. He knew she was important. He just didn't know why."},
-      {"speaker": "???", "text": "Would it change anything?", "portrait": "arrel_exhausted"},
-      {"speaker": "Elia", "text": "It might change everything.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "She sat down beside him. Close enough that their shoulders almost touched."},
-      {"speaker": "Elia", "text": "Your name was Arrel. You were someone who burned pieces of himself to keep other people warm.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "You were kind. Stubborn. Terrible at cooking.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "Something stirred. Not a memory. Memories were gone. But a feeling — like the shape of a word you've forgotten, still pressing against the inside of your mouth."},
-      {"speaker": "???", "text": "...Arrel.", "portrait": "arrel_wounded", "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png"},
-      {"speaker": "Elia", "text": "Yes.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He said it again. Not remembering. Just... trying it on."},
-      {"speaker": "Arrel", "text": "Arrel.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "The name didn't fit. Not anymore. But it was a start."},
-      {"speaker": "Sable", "text": "The Seam will hold. Thanks to what he did.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "There are other Void Holes. Other places that need someone who can burn.", "portrait": "sable_neutral"},
-      {"speaker": "Elia", "text": "He's not burning anything else.", "portrait": "elia_concern"},
-      {"speaker": "Sable", "text": "That's his choice. It always was.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "The sun set over The Seam. The colors deepened — amber, crimson, that impossible green."},
-      {"speaker": "", "text": "Somewhere, in the space where a name used to be, something new was beginning to grow."},
-      {"speaker": "", "text": "Not a memory. Something better."},
-      {"speaker": "", "text": "A choice to stay."},
-      {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
-      {"speaker": "", "text": "ZERO BURN ENDING: The name is gone. But the man remains."}
+      {
+        "speaker": "",
+        "text": "Three days passed. Or maybe it was longer. Time moved differently when you didn't have a name to mark it with.",
+        "text_ko": "3일이 지났습니다. 아니면 더 길었을 수도 있습니다. 표시할 이름이 없으면 시간이 다르게 움직였습니다."
+      },
+      {
+        "speaker": "",
+        "text": "The man who had been Arrel sat at the edge of The Seam, watching colors he couldn't name bleed across the canyon walls.",
+        "cg": "res://assets/cg/generated/ending_zero_burn_canyon_watch.png",
+        "text_ko": "아렐이었던 남자는 The 심의 가장자리에 앉아 협곡 벽에 이름을 붙일 수 없는 색이 흘러나오는 것을 지켜보았습니다."
+      },
+      {
+        "speaker": "",
+        "text": "BL-07 was sealed. The ground was solid. Children played in the gardens where flowers bloomed in impossible seasons.",
+        "text_ko": "BL-07은 봉인되었습니다. 땅은 단단했습니다. 불가능한 계절에도 꽃이 피어나는 정원에서 아이들은 놀았다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "You've been sitting here since dawn.",
+        "portrait": "elia_mature",
+        "text_ko": "당신은 새벽부터 여기 앉아 있었어요."
+      },
+      {
+        "speaker": "???",
+        "text": "Have I? I can't tell.",
+        "portrait": "arrel_exhausted",
+        "text_ko": "내가 그랬나요? 나는 말할 수 없다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Do you... want me to tell you? About who you were?",
+        "portrait": "elia_concern",
+        "text_ko": "당신은 ... 내가 당신에게 말하길 원합니까? 당신은 누구였나요?"
+      },
+      {
+        "speaker": "",
+        "text": "He looked at her. The woman with honey-blonde hair. He knew she was important. He just didn't know why.",
+        "text_ko": "그는 그녀를 바라보았다. 꿀 금발 머리를 가진 여자. 그는 그녀가 중요하다는 것을 알았습니다. 그는 단지 이유를 몰랐을 뿐입니다."
+      },
+      {
+        "speaker": "???",
+        "text": "Would it change anything?",
+        "portrait": "arrel_exhausted",
+        "text_ko": "달라지는 게 있을까요?"
+      },
+      {
+        "speaker": "Elia",
+        "text": "It might change everything.",
+        "portrait": "elia_concern",
+        "text_ko": "모든 것이 바뀔 수도 있습니다."
+      },
+      {
+        "speaker": "",
+        "text": "She sat down beside him. Close enough that their shoulders almost touched.",
+        "text_ko": "그녀는 그 옆에 앉았습니다. 어깨가 거의 닿을 정도로 가까워졌다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Your name was Arrel. You were someone who burned pieces of himself to keep other people warm.",
+        "portrait": "elia_neutral",
+        "text_ko": "당신의 이름은 아렐이었습니다. 당신은 다른 사람을 따뜻하게 해주기 위해 자신의 일부를 태운 사람이었습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "You were kind. Stubborn. Terrible at cooking.",
+        "portrait": "elia_neutral",
+        "text_ko": "당신은 친절했어요. 고집스러운. 요리를 정말 못해요."
+      },
+      {
+        "speaker": "",
+        "text": "Something stirred. Not a memory. Memories were gone. But a feeling — like the shape of a word you've forgotten, still pressing against the inside of your mouth.",
+        "text_ko": "뭔가가 흔들렸다. 추억이 아닙니다. 추억은 사라졌습니다. 하지만 잊어버린 단어의 모양과 같은 느낌이 여전히 입 안쪽을 누르고 있습니다."
+      },
+      {
+        "speaker": "???",
+        "text": "...Arrel.",
+        "portrait": "arrel_wounded",
+        "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png",
+        "text_ko": "...어렐."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Yes.",
+        "portrait": "elia_concern",
+        "text_ko": "그렇습니다."
+      },
+      {
+        "speaker": "",
+        "text": "He said it again. Not remembering. Just... trying it on.",
+        "text_ko": "그는 다시 말했다. 기억나지 않습니다. 그냥... 한번 시도해 보세요."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Arrel.",
+        "portrait": "arrel_neutral",
+        "text_ko": "에렐."
+      },
+      {
+        "speaker": "",
+        "text": "The name didn't fit. Not anymore. But it was a start.",
+        "text_ko": "이름이 맞지 않았습니다. 더 이상은 아닙니다. 그러나 그것은 시작이었습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "The Seam will hold. Thanks to what he did.",
+        "portrait": "sable_calm",
+        "text_ko": "솔기가 유지됩니다. 그가 한 일 덕분입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "There are other Void Holes. Other places that need someone who can burn.",
+        "portrait": "sable_neutral",
+        "text_ko": "다른 공허 구멍이 있습니다. 화상을 입을 수 있는 사람이 필요한 다른 장소."
+      },
+      {
+        "speaker": "Elia",
+        "text": "He's not burning anything else.",
+        "portrait": "elia_concern",
+        "text_ko": "그는 다른 것을 태우지 않습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "That's his choice. It always was.",
+        "portrait": "sable_calm",
+        "text_ko": "그것이 그의 선택입니다. 항상 그랬습니다."
+      },
+      {
+        "speaker": "",
+        "text": "The sun set over The Seam. The colors deepened — amber, crimson, that impossible green.",
+        "text_ko": "The 심 위로 해가 졌습니다. 호박색, 진홍색, 불가능한 녹색 등 색상이 더욱 깊어졌습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Somewhere, in the space where a name used to be, something new was beginning to grow.",
+        "text_ko": "어딘가, 이름이 있던 공간에 새로운 것이 자라기 시작했다."
+      },
+      {
+        "speaker": "",
+        "text": "Not a memory. Something better.",
+        "text_ko": "추억이 아닙니다. 더 나은 것."
+      },
+      {
+        "speaker": "",
+        "text": "A choice to stay.",
+        "text_ko": "머물 선택."
+      },
+      {
+        "speaker": "",
+        "text": "— MEMORIA: The Price of Oblivion —",
+        "text_ko": "— MEMORIA: 망각의 대가 —"
+      },
+      {
+        "speaker": "",
+        "text": "ZERO BURN ENDING: The name is gone. But the man remains.",
+        "text_ko": "ZERO BURN ENDING: 이름이 사라졌습니다. 하지만 그 남자는 남아있습니다."
+      }
     ],
     "epilogue_preservation": [
-      {"speaker": "", "text": "They returned to The Seam with the Void Hole still open behind them.", "cg": "res://assets/cg/generated/ending_preservation_return.png"},
-      {"speaker": "", "text": "Sable was waiting at the entrance. Her face said she already knew."},
-      {"speaker": "Sable", "text": "It's still growing.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "I know.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "You could have ended it.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "By ending myself? That's not a solution. That's a transaction.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Everything is a transaction.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "Not this.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Silence. Then Sable did something unexpected. She smiled."},
-      {"speaker": "Sable", "text": "The last team I sent in — they burned everything they had. Grade 5 down to Grade 1. And the hole still opened again six months later.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "Maybe burning isn't the answer. Maybe it never was.", "portrait": "sable_calm"},
-      {"speaker": "Elia", "text": "Then what is?", "portrait": "elia_neutral"},
-      {"speaker": "Sable", "text": "I don't know. But I've been collecting data. Every Void Hole, every burn, every seal that held and every one that didn't.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "There's a pattern. I just can't see it yet.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "Then we find it.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "He looked at his hands. The hands that could burn. That had burned. That still carried the heat of every memory he'd ever sacrificed.", "cg": "res://assets/cg/generated/ending_preservation_building_hands.png"},
-      {"speaker": "", "text": "But also hands that could hold. That could build. That could choose NOT to destroy."},
-      {"speaker": "Arrel", "text": "My name is Arrel. I remember who gave it to me. And I'm keeping it.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Behind them, BL-07 pulsed. Patient. Hungry."},
-      {"speaker": "", "text": "But The Seam was still here. And so was he. All of him."},
-      {"speaker": "", "text": "For now, that was enough."},
-      {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
-      {"speaker": "", "text": "PRESERVATION ENDING: The hole remains. So does the name. The search continues."}
+      {
+        "speaker": "",
+        "text": "They returned to The Seam with the Void Hole still open behind them.",
+        "cg": "res://assets/cg/generated/ending_preservation_return.png",
+        "text_ko": "그들은 뒤에 여전히 공허 구멍이 열려 있는 상태로 The 심으로 돌아왔습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Sable was waiting at the entrance. Her face said she already knew.",
+        "text_ko": "세이블이 입구에서 기다리고 있었다. 그녀의 얼굴은 이미 알고 있다고 말했다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "It's still growing.",
+        "portrait": "sable_neutral",
+        "text_ko": "여전히 성장하고 있습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I know.",
+        "portrait": "arrel_neutral",
+        "text_ko": "알아요."
+      },
+      {
+        "speaker": "Sable",
+        "text": "You could have ended it.",
+        "portrait": "sable_neutral",
+        "text_ko": "당신은 그것을 끝낼 수도 있었습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "By ending myself? That's not a solution. That's a transaction.",
+        "portrait": "arrel_neutral",
+        "text_ko": "나 자신을 끝내는 것으로? 그건 해결책이 아닙니다. 그것은 거래입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Everything is a transaction.",
+        "portrait": "sable_calm",
+        "text_ko": "모든 것은 거래입니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Not this.",
+        "portrait": "arrel_neutral",
+        "text_ko": "이건 아니다."
+      },
+      {
+        "speaker": "",
+        "text": "Silence. Then Sable did something unexpected. She smiled.",
+        "text_ko": "침묵. 그러자 세이블은 예상치 못한 일을 했습니다. 그녀는 미소를 지었다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "The last team I sent in — they burned everything they had. Grade 5 down to Grade 1. And the hole still opened again six months later.",
+        "portrait": "sable_calm",
+        "text_ko": "내가 보낸 마지막 팀은 가지고 있던 모든 것을 불태워버렸어요. 5등급에서 1등급으로 내려갔습니다. 그리고 그 구멍은 6개월 후에도 여전히 다시 열렸습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Maybe burning isn't the answer. Maybe it never was.",
+        "portrait": "sable_calm",
+        "text_ko": "어쩌면 태우는 것이 답이 아닐 수도 있습니다. 어쩌면 그런 적이 없었을 수도 있습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Then what is?",
+        "portrait": "elia_neutral",
+        "text_ko": "그렇다면 무엇입니까?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "I don't know. But I've been collecting data. Every Void Hole, every burn, every seal that held and every one that didn't.",
+        "portrait": "sable_neutral",
+        "text_ko": "모르겠어요. 하지만 저는 데이터를 수집해 왔습니다. 모든 공허의 구멍, 모든 화상, 유지된 모든 봉인과 그렇지 않은 모든 것."
+      },
+      {
+        "speaker": "Sable",
+        "text": "There's a pattern. I just can't see it yet.",
+        "portrait": "sable_neutral",
+        "text_ko": "패턴이 있습니다. 아직 볼 수 없습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Then we find it.",
+        "portrait": "arrel_neutral",
+        "text_ko": "그런 다음 우리는 그것을 찾습니다."
+      },
+      {
+        "speaker": "",
+        "text": "He looked at his hands. The hands that could burn. That had burned. That still carried the heat of every memory he'd ever sacrificed.",
+        "cg": "res://assets/cg/generated/ending_preservation_building_hands.png",
+        "text_ko": "그는 자신의 손을 보았다. 화상을 입을 수 있는 손. 그것은 불타 버렸습니다. 그것은 그가 희생했던 모든 기억의 열기를 여전히 담고 있었습니다."
+      },
+      {
+        "speaker": "",
+        "text": "But also hands that could hold. That could build. That could choose NOT to destroy.",
+        "text_ko": "하지만 잡을 수 있는 손도 있습니다. 그것은 구축될 수 있다. 그것은 파괴하지 않기로 선택할 수 있습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "My name is Arrel. I remember who gave it to me. And I'm keeping it.",
+        "portrait": "arrel_neutral",
+        "text_ko": "내 이름은 에릴이에요. 누가 나한테 주었는지 기억난다. 그리고 나는 그것을 지키고 있습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Behind them, BL-07 pulsed. Patient. Hungry.",
+        "text_ko": "그 뒤에서 BL-07이 진동하고 있었다. 인내심 있는. 배고픈."
+      },
+      {
+        "speaker": "",
+        "text": "But The Seam was still here. And so was he. All of him.",
+        "text_ko": "하지만 The 심은 여전히 여기에 있었습니다. 그도 마찬가지였습니다. 그 사람 모두."
+      },
+      {
+        "speaker": "",
+        "text": "For now, that was enough.",
+        "text_ko": "지금은 그것으로 충분했습니다."
+      },
+      {
+        "speaker": "",
+        "text": "— MEMORIA: The Price of Oblivion —",
+        "text_ko": "— MEMORIA: 망각의 대가 —"
+      },
+      {
+        "speaker": "",
+        "text": "PRESERVATION ENDING: The hole remains. So does the name. The search continues.",
+        "text_ko": "보존 종료: 구멍이 남아 있습니다. 이름도 마찬가지다. 검색은 계속됩니다."
+      }
     ],
     "epilogue_weave": [
-      {"speaker": "", "text": "They returned to The Seam, and for the first time the gate behind them was closed.", "cg": "res://assets/cg/generated/ending_weave_sealed_gate.png"},
-      {"speaker": "", "text": "Sable was waiting. She looked past them, at the place where BL-07 used to breathe, and went very still."},
-      {"speaker": "Sable", "text": "It's sealed. Actually sealed. And you're... standing here. Talking. Remembering.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "I didn't burn the name. I didn't run, either.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Then what closed it?", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "All of it. Everything I kept instead of spending. I gave the Void something it had never been offered before — a whole life, intact, refusing to come apart.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "It couldn't eat a clean wound, so we never gave it one.", "portrait": "elia_neutral"},
-      {"speaker": "Sable", "text": "That's not in any of my records. Eleven teams. Eleven. Every one of them burned. None of them tried to hold.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She pulled out her ledger — the pattern she could never quite see — and stared at the empty column where this had never happened before.", "cg": "res://assets/cg/generated/ending_weave_sable_ledger.png"},
-      {"speaker": "Sable", "text": "Preservation as a weapon. Memory as a seal instead of fuel. Do you understand what this means?", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "That it can be taught.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "He felt the seal where part of him now lived — a steady weight, like a hand he could never quite let go of. It did not hurt. It anchored.", "cg": "res://assets/cg/generated/ending_weave_anchor_hand.png"},
-      {"speaker": "Elia", "text": "Does it ever get heavy? Carrying the door shut?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "Every day. But I remember why I'm carrying it. That's the part that matters. That's the part that's still me.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Sable was already sketching, fast, the way people do when a thing they thought impossible has just walked through the door."},
-      {"speaker": "Sable", "text": "There are other holes. Other Seams. If this can be done once, deliberately, by someone who refuses to forget...", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "Then nobody else has to lose a name to close one.", "portrait": "arrel_neutral"},
-      {"speaker": "", "text": "Behind them, where BL-07 had hungered, there was only quiet stone. And on it, faint, the colors of the Seam had begun to grow back."},
-      {"speaker": "", "text": "His name was Arrel. He remembered who gave it to him. He remembered all of it. And now, so would the world.", "cg": "res://assets/cg/generated/ending_weave_colors_return.png"},
-      {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
-      {"speaker": "", "text": "THE WEAVE ENDING: He spent nothing and sealed everything. The price was not a person — only the promise to never set it down."}
+      {
+        "speaker": "",
+        "text": "They returned to The Seam, and for the first time the gate behind them was closed.",
+        "cg": "res://assets/cg/generated/ending_weave_sealed_gate.png",
+        "text_ko": "그들은 The 심으로 돌아왔고 처음으로 그들 뒤에 있는 문이 닫혔습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Sable was waiting. She looked past them, at the place where BL-07 used to breathe, and went very still.",
+        "text_ko": "세이블이 기다리고 있었어요. 그녀는 그들 너머로 BL-07이 숨 쉬던 곳을 바라보며 아주 가만히 있었습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "It's sealed. Actually sealed. And you're... standing here. Talking. Remembering.",
+        "portrait": "sable_neutral",
+        "text_ko": "밀봉되어 있습니다. 실제로 밀봉되었습니다. 그리고 당신은... 여기 서있습니다. 말하는. 기억하고 있습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I didn't burn the name. I didn't run, either.",
+        "portrait": "arrel_neutral",
+        "text_ko": "이름을 불태우지 않았어요. 나도 뛰지 않았어요."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Then what closed it?",
+        "portrait": "sable_neutral",
+        "text_ko": "그러면 무엇이 그것을 닫았나요?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "All of it. Everything I kept instead of spending. I gave the Void something it had never been offered before — a whole life, intact, refusing to come apart.",
+        "portrait": "arrel_neutral",
+        "text_ko": "모든 것. 지출하는 대신 모든 것을 보관했습니다. 나는 공허에게 이전에 한 번도 제공되지 않았던 것을 제공했습니다. 온전한 삶, 무너지기를 거부하는 것입니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "It couldn't eat a clean wound, so we never gave it one.",
+        "portrait": "elia_neutral",
+        "text_ko": "깨끗한 상처를 먹을 수 없어서 우리는 한 번도 주지 않았습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "That's not in any of my records. Eleven teams. Eleven. Every one of them burned. None of them tried to hold.",
+        "portrait": "sable_calm",
+        "text_ko": "내 기록에는 그런 내용이 없습니다. 11개 팀. 열하나. 그들 모두는 불에 탔습니다. 그들 중 누구도 붙잡으려고 하지 않았습니다."
+      },
+      {
+        "speaker": "",
+        "text": "She pulled out her ledger — the pattern she could never quite see — and stared at the empty column where this had never happened before.",
+        "cg": "res://assets/cg/generated/ending_weave_sable_ledger.png",
+        "text_ko": "그녀는 결코 볼 수 없는 패턴인 장부를 꺼내어 이전에 이런 일이 일어난 적이 없는 빈 기둥을 쳐다보았다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Preservation as a weapon. Memory as a seal instead of fuel. Do you understand what this means?",
+        "portrait": "sable_neutral",
+        "text_ko": "무기로서의 보존. 연료 대신 봉인으로서의 기억. 이것이 무엇을 의미하는지 이해합니까?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "That it can be taught.",
+        "portrait": "arrel_neutral",
+        "text_ko": "가르칠 수 있다는 것입니다."
+      },
+      {
+        "speaker": "",
+        "text": "He felt the seal where part of him now lived — a steady weight, like a hand he could never quite let go of. It did not hurt. It anchored.",
+        "cg": "res://assets/cg/generated/ending_weave_anchor_hand.png",
+        "text_ko": "그는 지금 자신의 일부가 살고 있는 봉인을 느꼈습니다. 마치 결코 놓을 수 없는 손처럼 안정된 무게였습니다. 아프지 않았습니다. 정박했습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Does it ever get heavy? Carrying the door shut?",
+        "portrait": "elia_concern",
+        "text_ko": "무거워질 때도 있나요? 문을 닫고 다니나요?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Every day. But I remember why I'm carrying it. That's the part that matters. That's the part that's still me.",
+        "portrait": "arrel_neutral",
+        "text_ko": "매일. 그런데 왜 들고 있는지 기억이 나네요. 그것이 중요한 부분입니다. 그것이 여전히 나인 부분이다."
+      },
+      {
+        "speaker": "",
+        "text": "Sable was already sketching, fast, the way people do when a thing they thought impossible has just walked through the door.",
+        "text_ko": "세이블은 불가능하다고 생각했던 일이 방금 문을 통과했을 때 사람들이 하는 방식을 이미 빠르게 스케치하고 있었습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "There are other holes. Other Seams. If this can be done once, deliberately, by someone who refuses to forget...",
+        "portrait": "sable_calm",
+        "text_ko": "다른 구멍도 있습니다. 기타 솔기. 잊기를 거부하는 누군가가 고의로 한 번만 이런 일을 할 수 있다면..."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Then nobody else has to lose a name to close one.",
+        "portrait": "arrel_neutral",
+        "text_ko": "그러면 누구도 이름을 닫기 위해 이름을 잃을 필요가 없습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Behind them, where BL-07 had hungered, there was only quiet stone. And on it, faint, the colors of the Seam had begun to grow back.",
+        "text_ko": "BL-07이 굶주린 그들 뒤에는 조용한 돌만이 있었다. 그리고 그 위에 희미하게 솔기의 색깔이 다시 자라기 시작했습니다."
+      },
+      {
+        "speaker": "",
+        "text": "His name was Arrel. He remembered who gave it to him. He remembered all of it. And now, so would the world.",
+        "cg": "res://assets/cg/generated/ending_weave_colors_return.png",
+        "text_ko": "그의 이름은 에릴이었습니다. 그는 그것을 누가 주었는지 기억했습니다. 그는 그 모든 것을 기억했습니다. 그리고 지금, 세계도 마찬가지일 것이다."
+      },
+      {
+        "speaker": "",
+        "text": "— MEMORIA: The Price of Oblivion —",
+        "text_ko": "— MEMORIA: 망각의 대가 —"
+      },
+      {
+        "speaker": "",
+        "text": "THE WEAVE ENDING: He spent nothing and sealed everything. The price was not a person — only the promise to never set it down.",
+        "text_ko": "THE WEAVE ENDING: 그는 한 푼도 쓰지 않고 모든 것을 봉인했습니다. 가격은 사람이 아니라 결코 책정하지 않겠다는 약속일 뿐입니다."
+      }
     ],
     "epilogue_ash": [
-      {"speaker": "", "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.", "cg": "res://assets/cg/generated/ending_ash_hollow_days.png"},
-      {"speaker": "", "text": "But the words came from somewhere hollow. A place where a person used to be."},
-      {"speaker": "Elia", "text": "Arrel. Look at me.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "...That name. I know it's mine. I just can't feel it.", "portrait": "arrel_wounded2"},
-      {"speaker": "Elia", "text": "You burned too much. The memories you gave up — they weren't just fuel. They were YOU.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "I kept my name. Isn't that enough?", "portrait": "arrel_wounded2"},
-      {"speaker": "Elia", "text": "A name without the life behind it is just... letters.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "He tried to remember what the forest smelled like. What his mother's voice sounded like. What it felt like to be afraid."},
-      {"speaker": "", "text": "Nothing. Smooth, clean nothing. Like a wall where a door used to be."},
-      {"speaker": "Sable", "text": "I've seen this before. Burners who kept their names but lost everything the name was attached to.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "They walk. They eat. They breathe. But the light behind their eyes... it's gone.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "I can still fight. I can still burn.", "portrait": "arrel_wounded2"},
-      {"speaker": "Elia", "text": "That's what scares me.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The sun set. He watched it without recognition. Just light, fading.", "cg": "res://assets/cg/generated/ending_ash_sunset_shell.png"},
-      {"speaker": "", "text": "Somewhere inside the shell of Arrel, ash settled where memories used to burn."},
-      {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
-      {"speaker": "", "text": "ASH ENDING: The name remains. But the man behind it is ash."}
+      {
+        "speaker": "",
+        "text": "Days passed. He knew that much. The light changed. People spoke to him. He answered, sometimes.",
+        "cg": "res://assets/cg/generated/ending_ash_hollow_days.png",
+        "text_ko": "며칠이 지났습니다. 그는 그 정도를 알고 있었습니다. 빛이 바뀌었어요. 사람들이 그에게 말했습니다. 그는 가끔 대답했다."
+      },
+      {
+        "speaker": "",
+        "text": "But the words came from somewhere hollow. A place where a person used to be.",
+        "text_ko": "그러나 그 말은 어딘가 공허한 곳에서 나왔다. 사람이 있던 곳."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Look at me.",
+        "portrait": "elia_concern",
+        "text_ko": "에렐. 나를 봐."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...That name. I know it's mine. I just can't feel it.",
+        "portrait": "arrel_wounded2",
+        "text_ko": "...그 이름. 나는 그것이 내 것이라는 것을 압니다. 나는 그것을 느낄 수 없습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "You burned too much. The memories you gave up — they weren't just fuel. They were YOU.",
+        "portrait": "elia_concern",
+        "text_ko": "너무 많이 태웠어요. 당신이 포기한 기억은 단지 연료가 아니었습니다. 그들은 당신이었습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I kept my name. Isn't that enough?",
+        "portrait": "arrel_wounded2",
+        "text_ko": "나는 내 이름을 지켰다. 그거면 충분하지 않아?"
+      },
+      {
+        "speaker": "Elia",
+        "text": "A name without the life behind it is just... letters.",
+        "portrait": "elia_concern",
+        "text_ko": "생명력이 없는 이름은 단지... 글자일 뿐입니다."
+      },
+      {
+        "speaker": "",
+        "text": "He tried to remember what the forest smelled like. What his mother's voice sounded like. What it felt like to be afraid.",
+        "text_ko": "그는 숲의 냄새가 어떤지 기억하려고 노력했습니다. 그의 어머니의 목소리는 어땠는지. 두려운 느낌이 들었습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Nothing. Smooth, clean nothing. Like a wall where a door used to be.",
+        "text_ko": "아무것도. 부드럽고 아무것도 깨끗하지 않습니다. 문이 있던 자리에 벽처럼."
+      },
+      {
+        "speaker": "Sable",
+        "text": "I've seen this before. Burners who kept their names but lost everything the name was attached to.",
+        "portrait": "sable_calm",
+        "text_ko": "나는 이것을 전에 본 적이 있습니다. 이름은 유지했지만 이름에 붙은 모든 것을 잃어버린 버너스."
+      },
+      {
+        "speaker": "Sable",
+        "text": "They walk. They eat. They breathe. But the light behind their eyes... it's gone.",
+        "portrait": "sable_neutral",
+        "text_ko": "그들은 걷는다. 그들은 먹는다. 그들은 숨을 쉰다. 하지만 그들의 눈 뒤에 있는 빛은... 사라졌습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I can still fight. I can still burn.",
+        "portrait": "arrel_wounded2",
+        "text_ko": "나는 아직 싸울 수 있다. 아직 화상을 입을 수 있어요."
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's what scares me.",
+        "portrait": "elia_concern",
+        "text_ko": "그것이 나를 두렵게 합니다."
+      },
+      {
+        "speaker": "",
+        "text": "The sun set. He watched it without recognition. Just light, fading.",
+        "cg": "res://assets/cg/generated/ending_ash_sunset_shell.png",
+        "text_ko": "해가 졌다. 그는 그것을 인식하지 못한 채 지켜보았다. 그냥 가볍고 페이딩."
+      },
+      {
+        "speaker": "",
+        "text": "Somewhere inside the shell of Arrel, ash settled where memories used to burn.",
+        "text_ko": "아렐의 껍질 안쪽 어딘가에 기억이 타오르던 곳에 재가 자리 잡았습니다."
+      },
+      {
+        "speaker": "",
+        "text": "— MEMORIA: The Price of Oblivion —",
+        "text_ko": "— MEMORIA: 망각의 대가 —"
+      },
+      {
+        "speaker": "",
+        "text": "ASH ENDING: The name remains. But the man behind it is ash.",
+        "text_ko": "ASH ENDING: 이름이 남습니다. 하지만 그 뒤에 있는 남자는 재입니다."
+      }
     ],
     "epilogue_seam": [
-      {"speaker": "", "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.", "cg": "res://assets/cg/generated/ending_seam_ordinary_moments.png"},
-      {"speaker": "", "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch."},
-      {"speaker": "Arrel", "text": "Elia. Do you remember the stump in Rim Forest? The one with the new growth?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "The one you spent ten minutes staring at? Yes.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "And the garden here in The Seam. Flowers growing where nothing should grow.", "portrait": "arrel_neutral"},
-      {"speaker": "Arrel", "text": "Those weren't memories I could burn. They were just... moments. Small, useless, beautiful moments.", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "And they're still there. Inside you.", "portrait": "elia_neutral"},
-      {"speaker": "Arrel", "text": "The Void eats memories. It eats names and faces and the weight of years. But it can't eat THIS.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Can't eat what?", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "The moments that don't mean anything. The stump. The garden. The color of light through ash.", "portrait": "arrel_neutral"},
-      {"speaker": "Arrel", "text": "They're too small to burn. Too ordinary to matter. And that's exactly why the Void can't touch them.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "...You might be onto something.", "portrait": "sable_calm"},
-      {"speaker": "Elia", "text": "A path forward built on the things no one thought to protect.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "In the garden of The Seam, impossible flowers swayed in a wind that carried no ash.", "cg": "res://assets/cg/generated/ending_seam_impossible_garden.png"},
-      {"speaker": "", "text": "It wasn't a solution. Not yet. But for the first time, it felt like the beginning of one."},
-      {"speaker": "", "text": "— MEMORIA: The Price of Oblivion —"},
-      {"speaker": "", "text": "SEAM ENDING: In the cracks between loss, something green still grows."}
+      {
+        "speaker": "",
+        "text": "They came back to The Seam with the Void Hole still breathing behind them. But something was different.",
+        "cg": "res://assets/cg/generated/ending_seam_ordinary_moments.png",
+        "text_ko": "그들은 Void Hole이 여전히 숨을 쉬고 있는 상태에서 The 심으로 돌아왔습니다. 하지만 뭔가 달랐습니다."
+      },
+      {
+        "speaker": "",
+        "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch.",
+        "text_ko": "아렐은 그것을 느낄 수 있었습니다. 타는 것과는 아무런 관련이 없는 따뜻함이었습니다. 공허가 건드릴 수 없는 무언가의 파편입니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Elia. Do you remember the stump in Rim Forest? The one with the new growth?",
+        "portrait": "arrel_neutral",
+        "text_ko": "엘리아. 림포레스트의 그루터기를 기억하시나요? 새로운 성장을 한 사람?"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The one you spent ten minutes staring at? Yes.",
+        "portrait": "elia_neutral",
+        "text_ko": "10분 동안 쳐다보던 그 사람? 예."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And the garden here in The Seam. Flowers growing where nothing should grow.",
+        "portrait": "arrel_neutral",
+        "text_ko": "그리고 여기 The 심의 정원도요. 아무것도 자라서는 안 될 곳에 꽃이 피어난다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Those weren't memories I could burn. They were just... moments. Small, useless, beautiful moments.",
+        "portrait": "arrel_neutral",
+        "text_ko": "그것은 내가 태울 수 있는 추억이 아니었습니다. 그것은 단지... 순간이었습니다. 작고 쓸모없고 아름다운 순간들."
+      },
+      {
+        "speaker": "Elia",
+        "text": "And they're still there. Inside you.",
+        "portrait": "elia_neutral",
+        "text_ko": "그리고 그들은 여전히 거기에 있습니다. 당신 안에."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The Void eats memories. It eats names and faces and the weight of years. But it can't eat THIS.",
+        "portrait": "arrel_neutral",
+        "text_ko": "공허는 기억을 먹어치웁니다. 이름과 얼굴, 세월의 무게를 먹어치운다. 하지만 이건 먹을 수 없어요."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Can't eat what?",
+        "portrait": "sable_neutral",
+        "text_ko": "못먹는게 뭐야?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The moments that don't mean anything. The stump. The garden. The color of light through ash.",
+        "portrait": "arrel_neutral",
+        "text_ko": "아무 의미도 없는 순간들. 그루터기. 정원. 재를 통한 빛의 색."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "They're too small to burn. Too ordinary to matter. And that's exactly why the Void can't touch them.",
+        "portrait": "arrel_neutral",
+        "text_ko": "태울 수 없을 정도로 작습니다. 너무 평범해서 중요하지 않습니다. 이것이 바로 공허가 그들을 건드릴 수 없는 이유입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "...You might be onto something.",
+        "portrait": "sable_calm",
+        "text_ko": "...뭔가에 관심이 있을 수도 있습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "A path forward built on the things no one thought to protect.",
+        "portrait": "elia_neutral",
+        "text_ko": "누구도 지키려 하지 않았던 것들 위에 세워진 앞으로의 길."
+      },
+      {
+        "speaker": "",
+        "text": "In the garden of The Seam, impossible flowers swayed in a wind that carried no ash.",
+        "cg": "res://assets/cg/generated/ending_seam_impossible_garden.png",
+        "text_ko": "The 심의 정원에는 재가 없는 바람에 불가능한 꽃들이 흔들리고 있었습니다."
+      },
+      {
+        "speaker": "",
+        "text": "It wasn't a solution. Not yet. But for the first time, it felt like the beginning of one.",
+        "text_ko": "그것은 해결책이 아니었습니다. 아직 아님. 하지만 처음으로 그것은 하나의 시작처럼 느껴졌습니다."
+      },
+      {
+        "speaker": "",
+        "text": "— MEMORIA: The Price of Oblivion —",
+        "text_ko": "— MEMORIA: 망각의 대가 —"
+      },
+      {
+        "speaker": "",
+        "text": "SEAM ENDING: In the cracks between loss, something green still grows.",
+        "text_ko": "SEAM ENDING: 손실 사이의 균열 속에서 여전히 녹색의 무언가가 자라고 있습니다."
+      }
     ],
     "elia_epilogue_talk": [
-      {"speaker": "Elia", "text": "I've been thinking about what Sable said. About the pattern.", "portrait": "elia_mature", "cg": "res://assets/cg/generated/epilogue_elia_collective_pattern.png"},
-      {"speaker": "Arrel", "text": "And?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.", "portrait": "elia_neutral"},
-      {"speaker": "Elia", "text": "What if the world isn't forgetting on its own? What if we're MAKING it forget?", "portrait": "elia_concern"},
-      {"speaker": "", "text": "The implication hung in the air like ash."},
-      {"speaker": "Arrel", "text": "Then every burn I've ever done—", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "Made it worse. Yes. Maybe.", "portrait": "elia_concern"},
-      {"speaker": "Elia", "text": "But you didn't know. None of us did.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "She took his hand. It was the first time she'd done that."},
-      {"speaker": "Elia", "text": "We'll figure it out. Together.", "portrait": "elia_neutral"}
+      {
+        "speaker": "Elia",
+        "text": "I've been thinking about what Sable said. About the pattern.",
+        "portrait": "elia_mature",
+        "cg": "res://assets/cg/generated/epilogue_elia_collective_pattern.png",
+        "text_ko": "나는 Sable이 말한 것을 생각해 보았습니다. 패턴에 대해서."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And?",
+        "portrait": "arrel_neutral",
+        "text_ko": "그리고?"
+      },
+      {
+        "speaker": "Elia",
+        "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.",
+        "portrait": "elia_neutral",
+        "text_ko": "너무 많은 추억이 불태워진 곳에 공허의 구멍이 나타납니다. 개인의 기억뿐만 아니라 집단적인 기억도 있습니다. 공유된 기록."
+      },
+      {
+        "speaker": "Elia",
+        "text": "What if the world isn't forgetting on its own? What if we're MAKING it forget?",
+        "portrait": "elia_concern",
+        "text_ko": "세상이 스스로를 잊지 않는다면 어떨까요? 잊어버리게 만들면 어쩌지?"
+      },
+      {
+        "speaker": "",
+        "text": "The implication hung in the air like ash.",
+        "text_ko": "그 의미는 재처럼 공중에 매달렸다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Then every burn I've ever done—",
+        "portrait": "arrel_pain",
+        "text_ko": "그럼 내가 했던 모든 화상은—"
+      },
+      {
+        "speaker": "Elia",
+        "text": "Made it worse. Yes. Maybe.",
+        "portrait": "elia_concern",
+        "text_ko": "상황을 더욱 악화시켰습니다. 예. 아마도."
+      },
+      {
+        "speaker": "Elia",
+        "text": "But you didn't know. None of us did.",
+        "portrait": "elia_neutral",
+        "text_ko": "하지만 당신은 몰랐어요. 우리 중 누구도 그러지 않았습니다."
+      },
+      {
+        "speaker": "",
+        "text": "She took his hand. It was the first time she'd done that.",
+        "text_ko": "그녀는 그의 손을 잡았습니다. 그녀가 그런 짓을 한 것은 처음이었습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "We'll figure it out. Together.",
+        "portrait": "elia_neutral",
+        "text_ko": "우리가 알아낼 게요. 함께."
+      }
     ],
     "epilogue_tobias": [
-      {"speaker": "", "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.", "cg": "res://assets/cg/generated/ending_tobias_night_press.png"},
-      {"speaker": "Tobias", "text": "They can burn every copy. I've already sent it to twelve independent archivists across the continent.", "portrait": "tobias_neutral", "cg": "res://assets/cg/generated/ending_tobias_twelve_archivists.png"},
-      {"speaker": "", "text": "The Authority responded with a formal censure. Then a warrant. Then silence — the kind of silence that meant they were reading it."},
-      {"speaker": "Tobias", "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted — and prevented.", "portrait": "tobias_neutral"},
-      {"speaker": "", "text": "TOBIAS ENDING: The pen outlasts the flame. Sometimes the most dangerous weapon is a well-documented truth."}
+      {
+        "speaker": "",
+        "text": "Tobias published his findings three weeks after the battle. 'On the Ring Theory of Void Hole Expansion: A Field Study.' The Bureau tried to suppress it within hours.",
+        "cg": "res://assets/cg/generated/ending_tobias_night_press.png",
+        "text_ko": "토비아스는 전투가 있은 지 3주 후에 자신의 연구 결과를 발표했습니다. '공허 구멍 확장의 링 이론: 현장 연구.' 국은 몇 시간 안에 그것을 진압하려고 노력했습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "They can burn every copy. I've already sent it to twelve independent archivists across the continent.",
+        "portrait": "tobias_neutral",
+        "cg": "res://assets/cg/generated/ending_tobias_twelve_archivists.png",
+        "text_ko": "모든 사본을 구울 수 있습니다. 나는 이미 그것을 대륙 전역에 있는 12명의 독립 기록관에게 보냈습니다."
+      },
+      {
+        "speaker": "",
+        "text": "The Authority responded with a formal censure. Then a warrant. Then silence — the kind of silence that meant they were reading it.",
+        "text_ko": "관리국은 공식적인 비난으로 대응했다. 그런 다음 영장. 그런 다음 침묵 – 그들이 그것을 읽고 있다는 것을 의미하는 종류의 침묵."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted — and prevented.",
+        "portrait": "tobias_neutral",
+        "text_ko": "과학은 허가 수준에 관심이 없습니다. 데이터는 데이터입니다. 그리고 데이터에 따르면 보이드 홀은 예측되고 예방될 수 있습니다."
+      },
+      {
+        "speaker": "",
+        "text": "TOBIAS ENDING: The pen outlasts the flame. Sometimes the most dangerous weapon is a well-documented truth.",
+        "text_ko": "토비아스 엔딩: 펜은 불꽃보다 오래갑니다. 때로 가장 위험한 무기는 잘 문서화된 진실입니다."
+      }
     ],
     "epilogue_hollow": [
-      {"speaker": "", "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.", "cg": "res://assets/cg/generated/ending_hollow_water.png"},
-      {"speaker": "Elia", "text": "Arrel. Your name is Arrel. Say it back to me.", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "...Arrel.", "portrait": "arrel_exhausted"},
-      {"speaker": "Elia", "text": "Again.", "portrait": "elia_concern"},
-      {"speaker": "", "text": "HOLLOW ENDING: The name persists. A single word in an empty room, echoing off walls that used to hold a life.", "cg": "res://assets/cg/generated/ending_hollow_name_room.png"}
+      {
+        "speaker": "",
+        "text": "He forgot the taste of water on the fourth day. By the seventh, he forgot what forgetting felt like.",
+        "cg": "res://assets/cg/generated/ending_hollow_water.png",
+        "text_ko": "그는 넷째 날에는 물 맛을 잊어버렸다. 일곱 번째가 되자 그는 망각이 어떤 느낌인지 잊어버렸다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Your name is Arrel. Say it back to me.",
+        "portrait": "elia_concern",
+        "text_ko": "에렐. 당신의 이름은 에릴입니다. 나에게 다시 말해보세요."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...Arrel.",
+        "portrait": "arrel_exhausted",
+        "text_ko": "...어렐."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Again.",
+        "portrait": "elia_concern",
+        "text_ko": "다시."
+      },
+      {
+        "speaker": "",
+        "text": "HOLLOW ENDING: The name persists. A single word in an empty room, echoing off walls that used to hold a life.",
+        "cg": "res://assets/cg/generated/ending_hollow_name_room.png",
+        "text_ko": "HOLLOW ENDING: 이름이 지속됩니다. 텅 빈 방에 한 마디 말, 생명을 품고 있던 벽에 메아리친다."
+      }
     ],
     "sable_epilogue_talk": [
-      {"speaker": "Sable", "text": "You're still here.", "portrait": "sable_neutral", "cg": "res://assets/cg/generated/epilogue_sable_eastern_settlement.png"},
-      {"speaker": "Arrel", "text": "Where else would I go?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Most burners don't stay. The ones who survive... they keep moving. Keep burning. Until there's nothing left.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "I'm not most burners.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "No. You're not.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She paused, looking out over The Seam's impossible gardens."},
-      {"speaker": "Sable", "text": "There's a settlement three days east. They're losing memories faster than normal. Not burning — just... losing them.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "When you're ready.", "portrait": "sable_calm"}
+      {
+        "speaker": "Sable",
+        "text": "You're still here.",
+        "portrait": "sable_neutral",
+        "cg": "res://assets/cg/generated/epilogue_sable_eastern_settlement.png",
+        "text_ko": "당신은 아직 여기 있어요."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Where else would I go?",
+        "portrait": "arrel_neutral",
+        "text_ko": "또 어디로 갈까요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Most burners don't stay. The ones who survive... they keep moving. Keep burning. Until there's nothing left.",
+        "portrait": "sable_calm",
+        "text_ko": "대부분의 버너는 머물지 않습니다. 살아남은 사람들은... 계속 움직입니다. 계속 불타오르세요. 아무것도 남지 않을 때까지."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "I'm not most burners.",
+        "portrait": "arrel_neutral",
+        "text_ko": "나는 대부분의 버너가 아닙니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "No. You're not.",
+        "portrait": "sable_calm",
+        "text_ko": "아뇨. 당신은 그렇지 않아요."
+      },
+      {
+        "speaker": "",
+        "text": "She paused, looking out over The Seam's impossible gardens.",
+        "text_ko": "그녀는 잠시 멈춰 The 심의 불가능한 정원을 바라보았습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "There's a settlement three days east. They're losing memories faster than normal. Not burning — just... losing them.",
+        "portrait": "sable_neutral",
+        "text_ko": "동쪽으로 3일 동안 정착지가 있어요. 그들은 평소보다 더 빠르게 기억을 잃어가고 있습니다. 타는 것이 아니라 단지... 잃어버리는 것뿐입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "When you're ready.",
+        "portrait": "sable_calm",
+        "text_ko": "준비가 되면."
+      }
     ]
-  }
+  },
+  "title_ko": "에필로그"
 }

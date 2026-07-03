@@ -3,103 +3,486 @@
   "title": "The Other Side of the Flame",
   "dialogues": {
     "outskirts_arrival": [
-      {"speaker": "", "text": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static.", "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png"},
-      {"speaker": "Sable", "text": "This is the Threshold. Everything past here belongs to BL-07.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "The Bureau maps end exactly at this ridgeline. Beyond is classified — Level 9 clearance only.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "You've been past this point before.", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Seven times. Seven people went in. I came out alone.", "portrait": "sable_calm"},
-      {"speaker": "", "text": "She said it like reciting a weather report. No emotion. Just fact."},
-      {"speaker": "Elia", "text": "Sable... what happened to the others?", "portrait": "elia_concern"},
-      {"speaker": "Sable", "text": "BL-07 happened. And you need to understand what that means before we go further.", "portrait": "sable_neutral"}
+      {
+        "speaker": "",
+        "text": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static.",
+        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+        "text_ko": "The 심의 벽 너머에는 절벽이 들쭉날쭉한 고원으로 펼쳐져 있었습니다. 공기는 정적의 맛이 났다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "This is the Threshold. Everything past here belongs to BL-07.",
+        "portrait": "sable_neutral",
+        "text_ko": "이것이 임계값입니다. 여기 과거의 모든 것은 BL-07의 것입니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "The Bureau maps end exactly at this ridgeline. Beyond is classified — Level 9 clearance only.",
+        "portrait": "tobias_neutral",
+        "text_ko": "국 지도는 정확히 이 능선에서 끝납니다. Beyond는 기밀입니다. 9등급 허가만 가능합니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You've been past this point before.",
+        "portrait": "arrel_neutral",
+        "text_ko": "당신은 이전에 이 지점을 지나간 적이 있습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Seven times. Seven people went in. I came out alone.",
+        "portrait": "sable_calm",
+        "text_ko": "일곱 번. 7명이 들어갔다. 나 혼자 나왔다."
+      },
+      {
+        "speaker": "",
+        "text": "She said it like reciting a weather report. No emotion. Just fact.",
+        "text_ko": "그녀는 마치 일기예보를 낭송하는 것처럼 말했다. 감정이 없습니다. 그냥 사실."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Sable... what happened to the others?",
+        "portrait": "elia_concern",
+        "text_ko": "세이블... 다른 사람들은 어떻게 됐나요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "BL-07 happened. And you need to understand what that means before we go further.",
+        "portrait": "sable_neutral",
+        "text_ko": "BL-07이 일어났습니다. 더 나아가기 전에 이것이 무엇을 의미하는지 이해해야 합니다."
+      }
     ],
     "sable_truth": [
-      {"speaker": "Sable", "text": "Everyone thinks Void Holes are tears in reality. Places where the world forgot itself.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "That's what the Bureau teaches. That's what the textbooks say. It's wrong.", "portrait": "sable_calm"},
-      {"speaker": "Tobias", "text": "I've read every Bureau publication on Void Holes. What do you mean 'wrong'?", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "BL-07 isn't a hole. It's a mouth.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "Silence. Even the wind stopped."},
-      {"speaker": "Sable", "text": "It doesn't just consume memories that wander in. It calls them. It's hungry.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "The six people I lost — they didn't die. They were eaten. Their memories, their names, their faces. All consumed.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "Then how did you survive?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Because I had already lost everything worth eating.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "She pulled something from her coat. A shell, spiraling inward, its surface covered in faint luminescent veins.", "cg": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png"},
-      {"speaker": "Sable", "text": "This is the only thing I brought back. An Echo Shell. It holds the last words of everyone BL-07 consumed.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Take it. When you're inside, hold it to your ear. It will remind you who you are.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "[Obtained: Echo Shell — Holds the last echoes of the consumed. Protects against involuntary memory loss]"}
+      {
+        "speaker": "Sable",
+        "text": "Everyone thinks Void Holes are tears in reality. Places where the world forgot itself.",
+        "portrait": "sable_neutral",
+        "text_ko": "모두가 보이드 홀이 현실의 눈물이라고 생각합니다. 세상이 자신을 잊은 곳."
+      },
+      {
+        "speaker": "Sable",
+        "text": "That's what the Bureau teaches. That's what the textbooks say. It's wrong.",
+        "portrait": "sable_calm",
+        "text_ko": "그것이 바로 관리국이 가르치는 것입니다. 교과서에는 그렇게 나와 있습니다. 틀렸어."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "I've read every Bureau publication on Void Holes. What do you mean 'wrong'?",
+        "portrait": "tobias_neutral",
+        "text_ko": "나는 Void Holes에 관한 모든 관리국 간행물을 읽었습니다. '틀렸다'는 게 무슨 뜻인가요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "BL-07 isn't a hole. It's a mouth.",
+        "portrait": "sable_neutral",
+        "text_ko": "BL-07은 구멍이 아닙니다. 입이다."
+      },
+      {
+        "speaker": "",
+        "text": "Silence. Even the wind stopped.",
+        "text_ko": "침묵. 바람도 멈췄다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "It doesn't just consume memories that wander in. It calls them. It's hungry.",
+        "portrait": "sable_neutral",
+        "text_ko": "그것은 단지 방황하는 기억을 소비하는 것이 아닙니다. 그것을 불러옵니다. 배고프다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "The six people I lost — they didn't die. They were eaten. Their memories, their names, their faces. All consumed.",
+        "portrait": "sable_calm",
+        "text_ko": "내가 잃은 여섯 사람은 죽지 않았습니다. 그들은 먹었습니다. 그들의 기억, 이름, 얼굴. 모두 소비되었습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Then how did you survive?",
+        "portrait": "arrel_neutral",
+        "text_ko": "그럼 어떻게 살아남았나요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Because I had already lost everything worth eating.",
+        "portrait": "sable_neutral",
+        "text_ko": "왜냐하면 나는 이미 먹을 가치가 있는 모든 것을 잃어버렸기 때문이다."
+      },
+      {
+        "speaker": "",
+        "text": "She pulled something from her coat. A shell, spiraling inward, its surface covered in faint luminescent veins.",
+        "cg": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png",
+        "text_ko": "그녀는 코트에서 뭔가를 꺼냈다. 껍질은 안쪽으로 나선형으로 휘어져 있고 표면은 희미한 발광맥으로 덮여 있습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "This is the only thing I brought back. An Echo Shell. It holds the last words of everyone BL-07 consumed.",
+        "portrait": "sable_neutral",
+        "text_ko": "내가 가져온 것은 이것뿐이다. 에코 셸. 여기에는 BL-07을 먹은 모든 사람의 마지막 말이 담겨 있습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Take it. When you're inside, hold it to your ear. It will remind you who you are.",
+        "portrait": "sable_neutral",
+        "text_ko": "가져가세요. 안에 있을 때는 귀에 대고 들어보세요. 그것은 당신이 누구인지 상기시켜 줄 것입니다."
+      },
+      {
+        "speaker": "",
+        "text": "[Obtained: Echo Shell — Holds the last echoes of the consumed. Protects against involuntary memory loss]",
+        "text_ko": "[Obtained: 에코 셸 — Holds the last echoes of the consumed. Protects against involuntary memory loss]"
+      }
     ],
     "sable_trial": [
-      {"speaker": "Sable", "text": "Before we go further — I need to know you can survive in there.", "portrait": "sable_neutral", "cg": "res://assets/cg/generated/story_ch7_controlled_burn_trial.png"},
-      {"speaker": "Sable", "text": "Not your combat skill. I've seen you fight. I need to know your mind holds.", "portrait": "sable_calm"},
-      {"speaker": "Arrel", "text": "What do you mean?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Burn something. Right now. Deliberately. And hold yourself together after.", "portrait": "sable_neutral"},
-      {"speaker": "Elia", "text": "That's unnecessary. He doesn't need to prove—", "portrait": "elia_concern"},
-      {"speaker": "Sable", "text": "In BL-07, involuntary burns happen every thirty seconds. If he can't handle a controlled burn out here, he dies in there.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "She has a point. The Bureau's survival data for BL-07 entries is... not encouraging.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "Arrel. Show me.", "portrait": "sable_neutral"}
+      {
+        "speaker": "Sable",
+        "text": "Before we go further — I need to know you can survive in there.",
+        "portrait": "sable_neutral",
+        "cg": "res://assets/cg/generated/story_ch7_controlled_burn_trial.png",
+        "text_ko": "더 나아가기 전에 당신이 그곳에서 살아남을 수 있는지 알아야 합니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Not your combat skill. I've seen you fight. I need to know your mind holds.",
+        "portrait": "sable_calm",
+        "text_ko": "당신의 전투 기술이 아닙니다. 나는 당신이 싸우는 것을 보았습니다. 나는 당신의 마음이 유지되는지 알아야합니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What do you mean?",
+        "portrait": "arrel_neutral",
+        "text_ko": "무슨 뜻인가요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Burn something. Right now. Deliberately. And hold yourself together after.",
+        "portrait": "sable_neutral",
+        "text_ko": "무언가를 태워보세요. 지금 바로. 고의로. 그리고 그 후에는 함께 지내십시오."
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's unnecessary. He doesn't need to prove—",
+        "portrait": "elia_concern",
+        "text_ko": "그것은 불필요합니다. 그는 증명할 필요가 없습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "In BL-07, involuntary burns happen every thirty seconds. If he can't handle a controlled burn out here, he dies in there.",
+        "portrait": "sable_neutral",
+        "text_ko": "BL-07에서는 30초마다 비자발적 화상이 발생합니다. 여기서 통제된 화상을 처리할 수 없으면 그는 거기서 죽습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "She has a point. The Bureau's survival data for BL-07 entries is... not encouraging.",
+        "portrait": "tobias_neutral",
+        "text_ko": "그녀는 요점이 있습니다. BL-07 항목에 대한 국의 생존 데이터는... 고무적이지 않습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Arrel. Show me.",
+        "portrait": "sable_neutral",
+        "text_ko": "에렐. 보여주세요."
+      }
     ],
     "trial_complete": [
-      {"speaker": "", "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away — then Elia's hand was on his shoulder.", "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png"},
-      {"speaker": "Elia", "text": "I've got you.", "portrait": "elia_neutral"},
-      {"speaker": "", "text": "The world steadied. The memory was gone, but Arrel knew who he was. Who they all were."},
-      {"speaker": "Sable", "text": "Good. You held. Most people don't.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "Residue retention at approximately 70 percent. Remarkable, given the voluntary nature of the burn.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "One more thing. Inside BL-07, you'll hear voices. Not hallucinations — real voices.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "The memories BL-07 consumed still echo. They'll call your name. They'll sound like people you know.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "Don't answer them.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "What happens if I do?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "It finds the door.", "portrait": "sable_neutral"}
+      {
+        "speaker": "",
+        "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away — then Elia's hand was on his shoulder.",
+        "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+        "text_ko": "화상은 열의 파동처럼 그를 통과했습니다. 잠시 동안 중요한 것이 사라졌습니다. 그리고 엘리아의 손이 그의 어깨 위에 놓였습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "I've got you.",
+        "portrait": "elia_neutral",
+        "text_ko": "나는 당신을 잡았습니다."
+      },
+      {
+        "speaker": "",
+        "text": "The world steadied. The memory was gone, but Arrel knew who he was. Who they all were.",
+        "text_ko": "세상은 안정되었습니다. 기억은 사라졌지만 에릴은 그가 누구인지 알고 있었습니다. 그들은 모두 누구였습니까?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Good. You held. Most people don't.",
+        "portrait": "sable_neutral",
+        "text_ko": "좋아요. 당신은 개최했습니다. 대부분의 사람들은 그렇지 않습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Residue retention at approximately 70 percent. Remarkable, given the voluntary nature of the burn.",
+        "portrait": "tobias_neutral",
+        "text_ko": "잔류물 보유율은 약 70%입니다. 화상의 자발적인 성격을 고려하면 놀랍습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "One more thing. Inside BL-07, you'll hear voices. Not hallucinations — real voices.",
+        "portrait": "sable_calm",
+        "text_ko": "한 가지 더. BL-07 안에서는 목소리가 들립니다. 환각이 아니라 실제 목소리입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "The memories BL-07 consumed still echo. They'll call your name. They'll sound like people you know.",
+        "portrait": "sable_neutral",
+        "text_ko": "BL-07이 소비한 기억은 아직도 메아리친다. 그들은 당신의 이름을 부를 것입니다. 그들은 당신이 아는 사람들처럼 들릴 것입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Don't answer them.",
+        "portrait": "sable_neutral",
+        "text_ko": "대답하지 마세요."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What happens if I do?",
+        "portrait": "arrel_neutral",
+        "text_ko": "그렇게 하면 어떻게 되나요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "It finds the door.",
+        "portrait": "sable_neutral",
+        "text_ko": "문을 찾습니다."
+      }
     ],
     "party_preparation": [
-      {"speaker": "Tobias", "text": "I've been reviewing my records. BL-07's expansion rate has accelerated.", "portrait": "tobias_neutral", "cg": "res://assets/cg/generated/story_ch7_last_field_preparations.png"},
-      {"speaker": "Tobias", "text": "Six months ago it was growing at 0.3 meters per day. Now it's 2.1 meters. Something changed.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "Could Arrel's burning be feeding it? High-efficiency combustion nearby—", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "That's exactly what my data suggests. Class Seven efficiency at this proximity... BL-07 is responding to him.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "Responding how?", "portrait": "arrel_neutral"},
-      {"speaker": "Tobias", "text": "Growing toward you.", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "Which means we're out of time. If we don't seal it now, it reaches The Seam in three weeks.", "portrait": "sable_neutral"},
-      {"speaker": "Elia", "text": "Then we go. Together.", "portrait": "elia_determined"}
+      {
+        "speaker": "Tobias",
+        "text": "I've been reviewing my records. BL-07's expansion rate has accelerated.",
+        "portrait": "tobias_neutral",
+        "cg": "res://assets/cg/generated/story_ch7_last_field_preparations.png",
+        "text_ko": "내 기록을 검토해 봤습니다. BL-07의 확장 속도가 빨라졌습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Six months ago it was growing at 0.3 meters per day. Now it's 2.1 meters. Something changed.",
+        "portrait": "tobias_neutral",
+        "text_ko": "6개월 전에는 하루에 0.3m씩 자라고 있었습니다. 이제 2.1미터입니다. 뭔가 바뀌었어요."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Could Arrel's burning be feeding it? High-efficiency combustion nearby—",
+        "portrait": "elia_concern",
+        "text_ko": "아렐의 불타는 것이 그것을 먹일 수 있습니까? 근처에서 고효율 연소—"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "That's exactly what my data suggests. Class Seven efficiency at this proximity... BL-07 is responding to him.",
+        "portrait": "tobias_neutral",
+        "text_ko": "내 데이터가 시사하는 바가 바로 그것이다. 이 근처에서는 7급 효율성이... BL-07이 그에게 응답합니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Responding how?",
+        "portrait": "arrel_neutral",
+        "text_ko": "어떻게 대응하나요?"
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Growing toward you.",
+        "portrait": "tobias_neutral",
+        "text_ko": "당신을 향해 성장합니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Which means we're out of time. If we don't seal it now, it reaches The Seam in three weeks.",
+        "portrait": "sable_neutral",
+        "text_ko": "그건 시간이 없다는 뜻이에요. 지금 봉인하지 않으면 3주 안에 The 심에 도착합니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Then we go. Together.",
+        "portrait": "elia_determined",
+        "text_ko": "그럼 우리는 간다. 함께."
+      }
     ],
     "threshold_atmosphere": [
-      {"speaker": "", "text": "The Threshold was a dead zone. Not dead like the Belt — lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil.", "cg": "res://assets/cg/generated/story_ch7_paper_forgetting_ink.png"},
-      {"speaker": "Tobias", "text": "Fascinating. My pen won't write here. The ink refuses to adhere to the page.", "portrait": "tobias_neutral"},
-      {"speaker": "Elia", "text": "That's not the ink. The paper is forgetting how to hold marks.", "portrait": "elia_concern"},
-      {"speaker": "Tobias", "text": "...that is significantly less fascinating and significantly more terrifying.", "portrait": "tobias_neutral"}
+      {
+        "speaker": "",
+        "text": "The Threshold was a dead zone. Not dead like the Belt — lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil.",
+        "cg": "res://assets/cg/generated/story_ch7_paper_forgetting_ink.png",
+        "text_ko": "임계값은 데드존이었습니다. 벨트처럼 죽지 않았습니다. 생명이 없습니다. 죽은 것처럼 무언가가 손을 뻗어 '살아있다'는 개념을 흙에서 빼앗아갔습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "Fascinating. My pen won't write here. The ink refuses to adhere to the page.",
+        "portrait": "tobias_neutral",
+        "text_ko": "매혹적이다. 내 펜은 여기에 쓸 수 없습니다. 잉크가 페이지에 달라붙지 않습니다."
+      },
+      {
+        "speaker": "Elia",
+        "text": "That's not the ink. The paper is forgetting how to hold marks.",
+        "portrait": "elia_concern",
+        "text_ko": "그건 잉크가 아닙니다. 종이는 표시를 잡는 방법을 잊어 버렸습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "...that is significantly less fascinating and significantly more terrifying.",
+        "portrait": "tobias_neutral",
+        "text_ko": "...그건 훨씬 덜 흥미롭고 훨씬 더 무섭습니다."
+      }
     ],
     "echo_shell_discovery": [
-      {"speaker": "", "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then — whispers.", "cg": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png"},
-      {"speaker": "", "text": "A woman's voice: '—told him not to go past the ridgeline—'"},
-      {"speaker": "", "text": "A man's voice: '—can still feel my hands even though I know they're—'"},
-      {"speaker": "", "text": "A child's voice: '—mama, I forgot what color blue—'"},
-      {"speaker": "Arrel", "text": "...", "portrait": "arrel_pain"},
-      {"speaker": "Elia", "text": "Arrel?", "portrait": "elia_concern"},
-      {"speaker": "Arrel", "text": "There are people in here. Fragments of people. Dozens of them.", "portrait": "arrel_pain"},
-      {"speaker": "Sable", "text": "Six from my team. The rest from before. The Bureau's first expeditions.", "portrait": "sable_calm"},
-      {"speaker": "Sable", "text": "They can't feel pain anymore. They can't feel anything. But they remember that they used to.", "portrait": "sable_neutral"}
+      {
+        "speaker": "",
+        "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then — whispers.",
+        "cg": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png",
+        "text_ko": "아렐은 에코 셸을 귀에 대었습니다. 처음에는 아무것도 아닙니다. 그런 다음 - 속삭입니다."
+      },
+      {
+        "speaker": "",
+        "text": "A woman's voice: '—told him not to go past the ridgeline—'",
+        "text_ko": "여자의 목소리: '—능선을 넘어가지 말라고 하더군요—'"
+      },
+      {
+        "speaker": "",
+        "text": "A man's voice: '—can still feel my hands even though I know they're—'",
+        "text_ko": "남자의 목소리: '—내 손이라는 걸 알면서도 여전히 손이 느껴지는—'"
+      },
+      {
+        "speaker": "",
+        "text": "A child's voice: '—mama, I forgot what color blue—'",
+        "text_ko": "어린이의 목소리: '—엄마, 파란색이 뭔지 잊어버렸어요—'"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "...",
+        "portrait": "arrel_pain",
+        "text_ko": "..."
+      },
+      {
+        "speaker": "Elia",
+        "text": "Arrel?",
+        "portrait": "elia_concern",
+        "text_ko": "에렐?"
+      },
+      {
+        "speaker": "Arrel",
+        "text": "There are people in here. Fragments of people. Dozens of them.",
+        "portrait": "arrel_pain",
+        "text_ko": "여기에 사람들이 있습니다. 사람들의 단편. 수십 개."
+      },
+      {
+        "speaker": "Sable",
+        "text": "Six from my team. The rest from before. The Bureau's first expeditions.",
+        "portrait": "sable_calm",
+        "text_ko": "우리 팀의 여섯 명. 나머지는 이전부터입니다. 국의 첫 번째 탐험."
+      },
+      {
+        "speaker": "Sable",
+        "text": "They can't feel pain anymore. They can't feel anything. But they remember that they used to.",
+        "portrait": "sable_neutral",
+        "text_ko": "그들은 더 이상 고통을 느낄 수 없습니다. 그들은 아무것도 느낄 수 없습니다. 그러나 그들은 예전에 그랬었다는 것을 기억합니다."
+      }
     ],
     "outskirts_departure": [
-      {"speaker": "Sable", "text": "Past the Threshold, the forest starts. It's not a real forest — it's what's left of one.", "portrait": "sable_neutral"},
-      {"speaker": "Sable", "text": "The trees are memories of trees. They'll try to take yours.", "portrait": "sable_neutral"},
-      {"speaker": "Tobias", "text": "A memory-parasitic ecosystem. The Bureau theorized about this but—", "portrait": "tobias_neutral"},
-      {"speaker": "Sable", "text": "Move fast. Don't touch anything. If you feel yourself forgetting, say your name out loud.", "portrait": "sable_neutral"},
-      {"speaker": "Arrel", "text": "And if I've forgotten my name?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Then we've already lost.", "portrait": "sable_neutral"},
-      {"speaker": "", "text": "They crossed the ridgeline. Behind them, The Seam's colors faded to nothing.", "cg": "res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png"}
+      {
+        "speaker": "Sable",
+        "text": "Past the Threshold, the forest starts. It's not a real forest — it's what's left of one.",
+        "portrait": "sable_neutral",
+        "text_ko": "임계값을 지나면 숲이 시작됩니다. 그것은 실제 숲이 아닙니다. 그것은 숲에서 남겨진 것입니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "The trees are memories of trees. They'll try to take yours.",
+        "portrait": "sable_neutral",
+        "text_ko": "나무는 나무의 추억이다. 그들은 당신의 것을 빼앗으려고 할 것입니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "A memory-parasitic ecosystem. The Bureau theorized about this but—",
+        "portrait": "tobias_neutral",
+        "text_ko": "메모리 기생 생태계. 관리국에서는 이에 대해 이론을 세웠으나—"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Move fast. Don't touch anything. If you feel yourself forgetting, say your name out loud.",
+        "portrait": "sable_neutral",
+        "text_ko": "빨리 움직여라. 아무것도 만지지 마십시오. 잊어버렸다고 느끼면 큰 소리로 이름을 불러보세요."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "And if I've forgotten my name?",
+        "portrait": "arrel_neutral",
+        "text_ko": "내 이름을 잊어버렸다면?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Then we've already lost.",
+        "portrait": "sable_neutral",
+        "text_ko": "그렇다면 우리는 이미 졌습니다."
+      },
+      {
+        "speaker": "",
+        "text": "They crossed the ridgeline. Behind them, The Seam's colors faded to nothing.",
+        "cg": "res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png",
+        "text_ko": "그들은 능선을 넘었습니다. 그 뒤에는 The 심의 색상이 완전히 사라졌습니다."
+      }
     ],
     "sable_confession": [
-      {"speaker": "Sable", "text": "I wasn't always freelance. Before Ashbridge, before The Seam — I worked for the Authority.", "portrait": "sable_calm", "cg": "res://assets/cg/generated/story_ch7_sable_confession.png"},
-      {"speaker": "Arrel", "text": "You were Bureau?", "portrait": "arrel_neutral"},
-      {"speaker": "Sable", "text": "Subsection Eleven. Memory Disposal. They called us Cleaners. We made people forget things the Authority didn't want remembered.", "portrait": "sable_intense"},
-      {"speaker": "Sable", "text": "I left when they asked me to burn a child's memory of her parents. That was my line. Everyone has one.", "portrait": "sable_calm"}
+      {
+        "speaker": "Sable",
+        "text": "I wasn't always freelance. Before Ashbridge, before The Seam — I worked for the Authority.",
+        "portrait": "sable_calm",
+        "cg": "res://assets/cg/generated/story_ch7_sable_confession.png",
+        "text_ko": "나는 항상 프리랜서가 아니었습니다. Ashbridge 이전, The 심 이전에 저는 관리국에서 일했습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "You were Bureau?",
+        "portrait": "arrel_neutral",
+        "text_ko": "당신은 뷰로였나요?"
+      },
+      {
+        "speaker": "Sable",
+        "text": "Subsection Eleven. Memory Disposal. They called us Cleaners. We made people forget things the Authority didn't want remembered.",
+        "portrait": "sable_intense",
+        "text_ko": "하위 섹션 11. 메모리 폐기. 그들은 우리를 청소부라고 불렀습니다. 우리는 관리국이 기억하고 싶지 않은 것들을 사람들이 잊어버리게 만들었습니다."
+      },
+      {
+        "speaker": "Sable",
+        "text": "I left when they asked me to burn a child's memory of her parents. That was my line. Everyone has one.",
+        "portrait": "sable_calm",
+        "text_ko": "나는 아이의 부모에 대한 기억을 태워달라고 요청했을 때 떠났습니다. 그게 내 대사였어. 모두가 하나 가지고 있습니다."
+      }
     ],
     "outskirts_monument": [
-      {"speaker": "", "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water.", "cg": "res://assets/cg/generated/story_ch7_fading_names_monument.png"},
-      {"speaker": "Tobias", "text": "A memorial cairn. Bureau standard. These names... they're the first expedition team. Twelve people. All erased.", "portrait": "tobias_neutral"},
-      {"speaker": "Arrel", "text": "The stone remembers them even if nothing else does.", "portrait": "arrel_determined"}
+      {
+        "speaker": "",
+        "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water.",
+        "cg": "res://assets/cg/generated/story_ch7_fading_names_monument.png",
+        "text_ko": "갈라진 땅에서 튀어나온 돌기둥, 그 표면에는 천천히 희미해지는 이름이 새겨져 있었습니다. 글자는 물에 잉크처럼 녹아내렸습니다."
+      },
+      {
+        "speaker": "Tobias",
+        "text": "A memorial cairn. Bureau standard. These names... they're the first expedition team. Twelve people. All erased.",
+        "portrait": "tobias_neutral",
+        "text_ko": "기념 케른입니다. 국 표준. 이 이름들은... 1차 원정대입니다. 12명. 모두 지워졌습니다."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "The stone remembers them even if nothing else does.",
+        "portrait": "arrel_determined",
+        "text_ko": "다른 어떤 것도 기억하지 못하더라도 돌은 그들을 기억합니다."
+      }
     ],
     "elia_void_edge": [
-      {"speaker": "Elia", "text": "Arrel. Stop walking for a moment.", "portrait": "elia_concern", "cg": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png"},
-      {"speaker": "Arrel", "text": "What's wrong?", "portrait": "arrel_neutral"},
-      {"speaker": "Elia", "text": "I can feel it pulling. Not at you — at me. Like it knows I'm not fully real. Like it's offering to finish what was started.", "portrait": "elia_concern"}
+      {
+        "speaker": "Elia",
+        "text": "Arrel. Stop walking for a moment.",
+        "portrait": "elia_concern",
+        "cg": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png",
+        "text_ko": "에렐. 잠시 걸음을 멈추세요."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "What's wrong?",
+        "portrait": "arrel_neutral",
+        "text_ko": "무슨 일이야?"
+      },
+      {
+        "speaker": "Elia",
+        "text": "I can feel it pulling. Not at you — at me. Like it knows I'm not fully real. Like it's offering to finish what was started.",
+        "portrait": "elia_concern",
+        "text_ko": "당기는 느낌이 듭니다. 당신이 아니라 나에게. 내가 완전히 진짜가 아니라는 걸 아는 것처럼. 마치 시작한 일을 끝내겠다고 제안하는 것과 같습니다."
+      }
     ]
-  }
+  },
+  "title_ko": "불꽃의 반대편"
 }

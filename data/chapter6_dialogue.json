@@ -6,193 +6,232 @@
       {
         "speaker": "",
         "text": "The Seam opened around them like a wound that had healed wrong — but beautifully.",
-        "cg": "res://assets/cg/generated/story_ch5_seam_first_light.png"
+        "cg": "res://assets/cg/generated/story_ch5_seam_first_light.png",
+        "text_ko": "솔기가 잘못 아물었던 상처처럼 그들 주위에 열렸지만, 아름답게 되었습니다."
       },
       {
         "speaker": "",
-        "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist. Amber. Teal. A red so vivid it felt borrowed from a dream."
+        "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist. Amber. Teal. A red so vivid it felt borrowed from a dream.",
+        "text_ko": "회수된 돌과 유목으로 만든 건물은 아직 존재해서는 안 되는 색으로 칠해져 있습니다. 호박색. 물오리. 꿈에서 빌려온 듯한 생생한 빨간색."
       },
       {
         "speaker": "",
-        "text": "People moved through the narrow streets. Not many, but enough. Enough to prove that survival was still possible."
+        "text": "People moved through the narrow streets. Not many, but enough. Enough to prove that survival was still possible.",
+        "text_ko": "사람들은 좁은 길을 따라 이동했습니다. 많지는 않지만 충분합니다. 생존이 여전히 가능하다는 것을 증명하기에 충분합니다."
       },
       {
         "speaker": "Elia",
         "text": "It's real. I wasn't sure it would be.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "그것은 진짜입니다. 나는 그것이 될 것이라고 확신하지 못했습니다."
       },
       {
         "speaker": "Sable",
         "text": "It's real because we make it real. Every day. Come — there's food, and we need to talk.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "우리가 그것을 현실로 만들기 때문에 그것은 진짜입니다. 매일. 오세요. 음식이 있으니 얘기 좀 해야겠습니다."
       }
     ],
     "seam_welcome_solo": [
       {
         "speaker": "",
         "text": "The Seam opened before him like a wound that had healed wrong — but beautifully.",
-        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png",
+        "text_ko": "잘못 아물었던 상처처럼 솔기가 그 앞에 열렸지만, 아름다웠습니다."
       },
       {
         "speaker": "",
-        "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist."
+        "text": "Buildings made of salvaged stone and driftwood, painted in colors that shouldn't still exist.",
+        "text_ko": "회수된 돌과 유목으로 만든 건물은 아직 존재해서는 안 되는 색으로 칠해져 있습니다."
       },
       {
         "speaker": "",
-        "text": "He stood at the entrance. Alone. The silence where Elia's voice should have been was louder than any sound."
+        "text": "He stood at the entrance. Alone. The silence where Elia's voice should have been was louder than any sound.",
+        "text_ko": "그는 입구에 서 있었다. 홀로. 엘리아의 목소리가 있어야 할 침묵은 그 어떤 소리보다도 컸다."
       },
       {
         "speaker": "Sable",
         "text": "You're the one Malet sent. You came alone?",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "말렛이 보낸 사람은 바로 당신이에요. 혼자 오셨나요?"
       },
       {
         "speaker": "Arrel",
         "text": "She's taking the coastal path. She'll be here.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "그녀는 해안길을 택하고 있습니다. 그녀는 여기 있을 것이다."
       },
       {
         "speaker": "Sable",
         "text": "If she's smart, she will. Come inside.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "그녀가 똑똑하다면 그럴 것이다. 안으로 들어오세요."
       }
     ],
     "sable_briefing": [
       {
         "speaker": "",
         "text": "Sable's workshop. Maps covered every wall — routes through dead zones, marked with symbols Arrel didn't recognize.",
-        "cg": "res://assets/cg/generated/story_ch6_sable_briefing.png"
+        "cg": "res://assets/cg/generated/story_ch6_sable_briefing.png",
+        "text_ko": "세이블의 작업장. 지도는 모든 벽을 덮고 있습니다. 아렐이 인식하지 못한 기호가 표시된 데드 존을 통과하는 경로입니다."
       },
       {
         "speaker": "Sable",
         "text": "Malet sent you because of what you can do. The burning.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "말렛트는 당신이 할 수 있는 일 때문에 당신을 보냈습니다. 타는 것."
       },
       {
         "speaker": "Arrel",
         "text": "He sent me because I was useful.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "내가 유용했기 때문에 그는 나를 보냈습니다."
       },
       {
         "speaker": "Sable",
         "text": "Same thing. Listen — there's a Void Hole forming south of here. Designation BL-07.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "같은 것. 들어보세요. 여기 남쪽에 공허 구멍이 형성되어 있습니다. 명칭 BL-07."
       },
       {
         "speaker": "Sable",
         "text": "If it opens fully, The Seam won't survive. This canyon will become another dead zone.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "완전히 열리면 The 심은 살아남지 못할 것입니다. 이 협곡은 또 다른 데드존이 될 것입니다."
       },
       {
         "speaker": "Arrel",
         "text": "And you want me to burn something to close it.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "그리고 당신은 내가 뭔가를 태워서 닫길 원합니다."
       },
       {
         "speaker": "Sable",
         "text": "I want you to investigate it. What I need to know is whether it CAN be closed. Some can. Some... are past that.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "조사해 보셨으면 합니다. 내가 알아야 할 것은 닫힐 수 있는지 여부입니다. 일부는 가능합니다. 일부는... 그 이상입니다."
       },
       {
         "speaker": "Elia",
         "text": "What happens if it can't be closed?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "닫을 수 없으면 어떻게 되나요?"
       },
       {
         "speaker": "Sable",
         "text": "Then we pack. We've done it before.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "그런 다음 짐을 꾸립니다. 우리는 전에 그것을 해본 적이 있습니다."
       },
       {
         "speaker": "",
-        "text": "Her voice was steady. The voice of someone who had lost homes before and expected to lose them again."
+        "text": "Her voice was steady. The voice of someone who had lost homes before and expected to lose them again.",
+        "text_ko": "그녀의 목소리는 안정적이었다. 이전에 집을 잃었고 또 다시 잃을 것이라고 예상했던 사람의 목소리."
       },
       {
         "speaker": "Sable",
         "text": "BL-07 is south, past the garden terraces. You'll know it when you feel the air go thin.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "BL-07은 정원 테라스를 지나 남쪽에 있습니다. 공기가 희박해지는 것을 느끼면 알게 될 것입니다."
       },
       {
         "speaker": "",
-        "text": "A Shade Sentinel guards the entrance. It will need to be dealt with first."
+        "text": "A Shade Sentinel guards the entrance. It will need to be dealt with first.",
+        "text_ko": "셰이드 센티넬이 입구를 지키고 있습니다. 먼저 처리해야합니다."
       }
     ],
     "bl07_entrance": [
       {
         "speaker": "",
         "text": "The air changed. Colors drained from the rock. The flowers stopped.",
-        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png"
+        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+        "text_ko": "공기가 바뀌었다. 바위에서 색이 빠져나갔습니다. 꽃이 멈췄다."
       },
       {
         "speaker": "",
-        "text": "Ahead — a tear in the world. Not large, but growing. The edges flickered between here and nowhere."
+        "text": "Ahead — a tear in the world. Not large, but growing. The edges flickered between here and nowhere.",
+        "text_ko": "앞서 – 세상의 눈물. 크지는 않지만 성장하고 있습니다. 여기와 아무데도 가장자리가 깜박였습니다."
       },
       {
         "speaker": "Elia",
         "text": "I can feel it pulling. Like something trying to remember how to forget.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당기는 느낌이 듭니다. 잊는 방법을 기억하려고 노력하는 것과 같습니다."
       },
       {
         "speaker": "",
-        "text": "Between them and the Void Hole, a shape coalesced. Dark. Wrong. A Shade Sentinel — the Void's immune response."
+        "text": "Between them and the Void Hole, a shape coalesced. Dark. Wrong. A Shade Sentinel — the Void's immune response.",
+        "text_ko": "그들과 공허 구멍 사이에 하나의 형상이 합쳐졌습니다. 어두운. 잘못된. 셰이드 센티넬(Shade Sentinel) — 공허의 면역 반응입니다."
       },
       {
         "speaker": "Arrel",
         "text": "Stay back.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "물러서세요."
       },
       {
         "speaker": "",
-        "text": "He drew his sword. The blade felt heavier than it should."
+        "text": "He drew his sword. The blade felt heavier than it should.",
+        "text_ko": "그는 검을 뽑았다. 칼날이 생각보다 무겁게 느껴졌습니다."
       }
     ],
     "bl07_aftermath": [
       {
         "speaker": "",
         "text": "The Sentinel dissolved. The Void Hole flickered, contracted — but didn't close.",
-        "cg": "res://assets/cg/generated/story_ch6_bl07_after_sentinel.png"
+        "cg": "res://assets/cg/generated/story_ch6_bl07_after_sentinel.png",
+        "text_ko": "센티넬은 해체되었습니다. 공허의 구멍이 깜박이고 수축했지만 닫히지는 않았습니다."
       },
       {
         "speaker": "Arrel",
         "text": "It's still there.",
-        "portrait": "arrel_wounded"
+        "portrait": "arrel_wounded",
+        "text_ko": "아직 거기에 있어요."
       },
       {
         "speaker": "Elia",
         "text": "But smaller. You hurt it.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "그러나 더 작습니다. 당신은 상처를 입혔습니다."
       },
       {
         "speaker": "",
-        "text": "Arrel looked at his hands. The burning had taken something. He couldn't remember what."
+        "text": "Arrel looked at his hands. The burning had taken something. He couldn't remember what.",
+        "text_ko": "에릴은 자신의 손을 바라보았다. 불타는 데 뭔가가 걸렸습니다. 그는 무엇을 기억하지 못했습니다."
       },
       {
         "speaker": "Sable",
         "text": "You're alive. That's more than the last team managed.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "당신은 살아있습니다. 이는 지난 팀이 관리한 것보다 더 많은 것입니다."
       },
       {
         "speaker": "Sable",
         "text": "The Hole responds to Grade 1 burns. We can seal it — but the cost will be significant.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "구멍은 1등급 화상에 반응합니다. 봉인할 수는 있지만 비용이 상당할 것입니다."
       },
       {
         "speaker": "Arrel",
         "text": "How significant?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "얼마나 중요합니까?"
       },
       {
         "speaker": "Sable",
         "text": "That depends on what you're willing to forget.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "그것은 당신이 무엇을 잊고 싶은지에 달려 있습니다."
       },
       {
         "speaker": "",
-        "text": "The wind from the Void Hole carried no sound. Just absence. Just the promise of nothing."
+        "text": "The wind from the Void Hole carried no sound. Just absence. Just the promise of nothing.",
+        "text_ko": "공허의 구멍에서 불어오는 바람은 소리를 전달하지 못했습니다. 그냥 부재. 아무것도 약속하지 않습니다."
       },
       {
         "speaker": "",
-        "text": "Chapter 4 — End. The investigation of BL-07 has begun."
+        "text": "Chapter 4 — End. The investigation of BL-07 has begun.",
+        "text_ko": "4장 — 끝. BL-07에 대한 조사가 시작되었습니다."
       }
     ],
     "sable_talk": [
@@ -202,26 +241,32 @@
         "portrait": "sable_neutral",
         "cg": "res://assets/cg/generated/chapter_splash_the_seam.png",
         "requires_memory": "identity_void_walker",
-        "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one."
+        "burned_text": "You've burned your memory of the Void? Interesting. Most Carriers cling to that one.",
+        "text_ko": "The 심은 이곳에 온 지 3년이 되었습니다. 그 전에 우리는 Ashbridge라는 곳에 있었습니다.",
+        "burned_text_ko": "공허에 대한 기억을 불태웠나요? 흥미로운. 대부분의 캐리어는 그것에 집착합니다."
       },
       {
         "speaker": "Sable",
         "text": "Before that, Thornfield. Before that, somewhere I've chosen not to remember.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "그 전에는 손필드. 그 전에는 내가 기억하지 않기로 선택한 곳이 있었다."
       },
       {
         "speaker": "Arrel",
         "text": "Chosen?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "선택되었나요?"
       },
       {
         "speaker": "Sable",
         "text": "Not everyone who forgets was forced to. Sometimes it's the only kindness left.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "잊어버린 모든 사람이 강제로 잊어버린 것은 아닙니다. 때로는 그것이 유일한 친절로 남을 때도 있습니다."
       },
       {
         "speaker": "",
-        "text": "She turned back to her maps. The conversation was over."
+        "text": "She turned back to her maps. The conversation was over.",
+        "text_ko": "그녀는 지도로 돌아섰다. 대화가 끝났습니다."
       }
     ],
     "elia_seam_talk": [
@@ -229,302 +274,365 @@
         "speaker": "Elia",
         "text": "This place... it's different. The air doesn't taste like ash.",
         "portrait": "elia_mature",
-        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png",
+        "text_ko": "이곳은... 달라요. 공기는 재 맛이 나지 않습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Sable's doing?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "세이블은 지금 뭐하고 있어?"
       },
       {
         "speaker": "Elia",
         "text": "Maybe. Or maybe the world still has places it hasn't given up on.",
         "portrait": "elia_neutral",
         "requires_memory": "rel_hand_reaching",
-        "burned_text": "How many have you burned now, Arrel? Sometimes I look at you and wonder how much is left."
+        "burned_text": "How many have you burned now, Arrel? Sometimes I look at you and wonder how much is left.",
+        "text_ko": "어쩌면. 아니면 세상에는 아직 포기하지 않은 곳이 있을 수도 있습니다.",
+        "burned_text_ko": "지금 몇 개를 불태웠나요, 아렐? 가끔 나는 당신을보고 얼마나 남았는지 궁금해합니다."
       },
       {
         "speaker": "Elia",
         "text": "The flowers in the gardens — have you noticed? They're all from different seasons. They shouldn't bloom at the same time.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "정원에 핀 꽃들 — 눈치채셨나요? 그들은 모두 다른 계절에서 왔습니다. 동시에 꽃을 피우면 안 됩니다."
       },
       {
         "speaker": "Arrel",
         "text": "Memory leakage?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "메모리 누출?"
       },
       {
         "speaker": "Elia",
         "text": "Sable calls it 'bleed-through.' The Seam sits on a crack between what was and what is. Things... slip through.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "Sable은 이를 '블리드 스루(bleed-through)'라고 부릅니다. 솔기는 과거와 현재 사이의 틈새에 자리잡고 있습니다. 일이... 빠져나가는군요."
       },
       {
         "speaker": "",
-        "text": "She smiled. It was the first real smile he'd seen from her since Verdan."
+        "text": "She smiled. It was the first real smile he'd seen from her since Verdan.",
+        "text_ko": "그녀는 미소를 지었다. 그것은 베르단 이후 처음으로 그녀에게서 본 진짜 미소였다."
       }
     ],
     "hidden_garden": [
       {
         "speaker": "",
         "text": "He knelt beside a flower he didn't recognize.",
-        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
+        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png",
+        "text_ko": "그는 자신이 모르는 꽃 옆에 무릎을 꿇었습니다."
       },
       {
         "speaker": "",
-        "text": "White petals, veined with gold. It was warm to the touch, as if remembering sunlight from somewhere that no longer existed."
+        "text": "White petals, veined with gold. It was warm to the touch, as if remembering sunlight from somewhere that no longer existed.",
+        "text_ko": "금빛 줄무늬가 있는 흰색 꽃잎. 더 이상 존재하지 않는 곳에서 햇빛을 기억하는 것처럼 만지면 따뜻했습니다."
       },
       {
         "speaker": "",
-        "text": "A fragment surfaced — not a memory, not quite. A sensation."
+        "text": "A fragment surfaced — not a memory, not quite. A sensation.",
+        "text_ko": "조각이 떠올랐습니다. 기억도 아니고 완전도 아닙니다. 센세이션."
       },
       {
         "speaker": "",
-        "text": "Someone handing him a flower like this one. Small hands. A child's laugh."
+        "text": "Someone handing him a flower like this one. Small hands. A child's laugh.",
+        "text_ko": "누군가 그에게 이런 꽃을 건네주고 있어요. 작은 손. 아이의 웃음."
       },
       {
         "speaker": "Arrel",
         "text": "...",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "..."
       },
       {
         "speaker": "",
-        "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after."
+        "text": "The fragment dissolved before it could become anything more. But the warmth stayed in his palm for a long time after.",
+        "text_ko": "조각은 더 이상 존재하기 전에 용해되었습니다. 하지만 그의 손바닥에는 온기가 오랫동안 남아 있었다."
       }
     ],
     "seam_evening": [
       {
         "speaker": "",
         "text": "Evening fell over the Seam. The canyon walls caught the last light and held it — amber deepening to copper, then to the color of old blood.",
-        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png",
+        "text_ko": "저녁이 솔기 위에 떨어졌습니다. 협곡의 벽은 마지막 빛을 받아 그 빛을 붙잡고 있었습니다. 호박색은 구리색으로 짙어지고, 그 다음에는 오래된 피의 색으로 변했습니다."
       },
       {
         "speaker": "",
-        "text": "Someone was cooking. The smell of actual food — not rations, not preserved emergency supplies, but real vegetables in real broth — drifted through the narrow streets."
+        "text": "Someone was cooking. The smell of actual food — not rations, not preserved emergency supplies, but real vegetables in real broth — drifted through the narrow streets.",
+        "text_ko": "누군가 요리를 하고 있었어요. 배급량도 아니고 보존된 비상용품도 아닌 진짜 국물에 담긴 진짜 채소의 냄새가 좁은 골목길에 풍겨왔다."
       },
       {
         "speaker": "",
-        "text": "Children ran between the buildings. Arrel counted three. Maybe four. It was the first time he'd seen children in weeks."
+        "text": "Children ran between the buildings. Arrel counted three. Maybe four. It was the first time he'd seen children in weeks.",
+        "text_ko": "아이들은 건물 사이를 뛰어다녔습니다. 아렐은 3을 세었습니다. 아마도 4개일 겁니다. 몇 주 만에 처음으로 아이들을 본 것이었습니다."
       },
       {
         "speaker": "Elia",
         "text": "When's the last time you ate something you didn't have to fight for?",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "마지막으로 싸울 필요가 없는 음식을 먹은 때는 언제입니까?"
       },
       {
         "speaker": "Arrel",
         "text": "I don't remember.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "기억이 나지 않습니다."
       },
       {
         "speaker": "Elia",
         "text": "That's either very sad or very funny.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "그것은 매우 슬프거나 매우 재미 있습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Can't it be both?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "둘 다 될 수는 없나요?"
       },
       {
         "speaker": "",
-        "text": "She laughed. Quietly, as if she didn't want the sound to escape. But it did. And the children turned to look, surprised by the unfamiliar noise."
+        "text": "She laughed. Quietly, as if she didn't want the sound to escape. But it did. And the children turned to look, surprised by the unfamiliar noise.",
+        "text_ko": "그녀는 웃었다. 소리가 새어나가지 않기를 바라는 듯 조용히. 하지만 그랬습니다. 그리고 아이들은 낯선 소리에 놀라서 돌아보았습니다."
       },
       {
         "speaker": "",
-        "text": "Laughter. In a world that was forgetting how to have it."
+        "text": "Laughter. In a world that was forgetting how to have it.",
+        "text_ko": "웃음. 그것을 갖는 방법을 잊어버린 세상에서."
       }
     ],
     "sable_past": [
       {
         "speaker": "",
         "text": "He found Sable on the porch of her house, staring at maps she'd already memorized.",
-        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png"
+        "cg": "res://assets/cg/generated/chapter_splash_the_seam.png",
+        "text_ko": "그는 그녀의 집 현관에서 그녀가 이미 외워둔 지도를 바라보고 있는 Sable을 발견했습니다."
       },
       {
         "speaker": "Arrel",
         "text": "You said you were from Ashbridge. What happened there?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "당신은 애쉬브리지 출신이라고 하더군요. 거기서 무슨 일이 일어났나요?"
       },
       {
         "speaker": "Sable",
         "text": "Same thing that happens everywhere. A Void Hole opened. We fought it. We lost.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "어디에서나 똑같은 일이 일어납니다. 공허의 구멍이 열렸습니다. 우리는 싸웠습니다. 우리는졌다."
       },
       {
         "speaker": "Arrel",
         "text": "But you survived.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "하지만 당신은 살아 남았습니다."
       },
       {
         "speaker": "Sable",
         "text": "Surviving and living are different things.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "살아남는 것과 사는 것은 다른 것입니다."
       },
       {
         "speaker": "",
-        "text": "She was quiet for a while. The maps rustled in the evening wind."
+        "text": "She was quiet for a while. The maps rustled in the evening wind.",
+        "text_ko": "그녀는 한동안 조용했습니다. 저녁 바람에 지도가 바스락거렸다."
       },
       {
         "speaker": "Sable",
         "text": "I had a team. Seven people. All burners. All willing to sacrifice whatever it took.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "나에겐 팀이 있었다. 일곱 명. 모든 버너. 모든 사람은 무슨 일이 있어도 기꺼이 희생할 준비가 되어 있습니다."
       },
       {
         "speaker": "Sable",
         "text": "They burned everything. Grade 5 down to Grade 1. Names. Faces. The ability to feel fear. And for six months, the Hole stayed sealed.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "그들은 모든 것을 불태웠습니다. 5학년부터 1학년까지. 이름. 얼굴. 두려움을 느끼는 능력. 그리고 6개월 동안 구멍은 봉인된 상태로 유지되었습니다."
       },
       {
         "speaker": "Sable",
         "text": "Then it opened again. Wider. As if the burns had made it hungrier.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "그런 다음 다시 열렸습니다. 더 넓어졌습니다. 마치 화상으로 인해 배가 더 고파진 것처럼."
       },
       {
         "speaker": "Arrel",
         "text": "What happened to the team?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "팀에 무슨 일이 일어났나요?"
       },
       {
         "speaker": "Sable",
         "text": "Three walked into the Void voluntarily. They'd burned so much they forgot why they shouldn't. Two sat down and didn't get up. The other two...",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "세 명은 자발적으로 공허 속으로 걸어 들어갔습니다. 그들은 너무 많이 태워서 왜 하면 안되는지 잊어버렸습니다. 두 사람은 앉았다가 일어나지 않았습니다. 나머지 두 개는..."
       },
       {
         "speaker": "",
-        "text": "She folded a map. Precisely. Slowly."
+        "text": "She folded a map. Precisely. Slowly.",
+        "text_ko": "그녀는 지도를 접었다. 정확하게. 느리게."
       },
       {
         "speaker": "Sable",
         "text": "I buried them. That's what leaders do. Bury their people and make plans for the next town.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "나는 그들을 묻었다. 그것이 바로 리더들이 하는 일이다. 사람들을 묻어두고 다음 마을에 대한 계획을 세웁니다."
       },
       {
         "speaker": "Arrel",
         "text": "Is that why you haven't sent anyone into BL-07?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "그래서 BL-07에 사람을 보내지 않은 거죠?"
       },
       {
         "speaker": "Sable",
         "text": "I sent you, didn't I?",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "내가 보냈지, 그렇지?"
       },
       {
         "speaker": "",
-        "text": "Her voice didn't break. It didn't need to. The steadiness was the crack."
+        "text": "Her voice didn't break. It didn't need to. The steadiness was the crack.",
+        "text_ko": "그녀의 목소리는 끊어지지 않았습니다. 그럴 필요는 없었습니다. 꾸준함은 균열이었습니다."
       }
     ],
     "seam_residents": [
       {
         "speaker": "",
         "text": "The Seam's residents watched Arrel with careful eyes.",
-        "cg": "res://assets/cg/generated/story_ch6_seam_gardener.png"
+        "cg": "res://assets/cg/generated/story_ch6_seam_gardener.png",
+        "text_ko": "The 심의 주민들은 조심스러운 눈으로 아렐을 지켜보았습니다."
       },
       {
         "speaker": "",
-        "text": "An old woman tending the garden waved him over. Her hands were dark with soil."
+        "text": "An old woman tending the garden waved him over. Her hands were dark with soil.",
+        "text_ko": "정원을 가꾸고 있는 노파가 그에게 손을 흔들었다. 그녀의 손은 흙으로 인해 검어졌습니다."
       },
       {
         "speaker": "Gardener",
-        "text": "You're the burner. Don't deny it — I can smell the smoke on you."
+        "text": "You're the burner. Don't deny it — I can smell the smoke on you.",
+        "text_ko": "당신은 버너입니다. 부정하지 마십시오. 당신에게서 연기 냄새가 납니다."
       },
       {
         "speaker": "Arrel",
         "text": "Smoke?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "연기?"
       },
       {
         "speaker": "Gardener",
-        "text": "Every burner carries it. The smell of things that used to be important. My husband burned three Grade 4 memories to keep us alive during the trek from Ashbridge."
+        "text": "Every burner carries it. The smell of things that used to be important. My husband burned three Grade 4 memories to keep us alive during the trek from Ashbridge.",
+        "text_ko": "모든 버너는 그것을 운반합니다. 소중했던 것들의 냄새. 남편은 Ashbridge에서 트레킹하는 동안 우리를 살려주기 위해 4학년 추억 세 개를 불태웠습니다."
       },
       {
         "speaker": "Gardener",
-        "text": "He can't remember our wedding now. Can't remember our daughter's name. But he remembers how to plant things. How to make things grow."
+        "text": "He can't remember our wedding now. Can't remember our daughter's name. But he remembers how to plant things. How to make things grow.",
+        "text_ko": "그는 이제 우리 결혼식을 기억하지 못합니다. 우리 딸의 이름이 기억나지 않아요. 하지만 그는 식물을 심는 방법을 기억합니다. 일을 성장시키는 방법."
       },
       {
         "speaker": "Gardener",
-        "text": "I tell him our daughter's name every morning. He writes it on his hand. By evening, it's gone again. But the garden gets bigger every day."
+        "text": "I tell him our daughter's name every morning. He writes it on his hand. By evening, it's gone again. But the garden gets bigger every day.",
+        "text_ko": "나는 매일 아침 그에게 우리 딸의 이름을 말한다. 그는 그것을 손에 씁니다. 저녁이 되니 또 없어졌네요. 하지만 정원은 날이 갈수록 커지고 있어요."
       },
       {
         "speaker": "",
-        "text": "She turned back to her flowers. Impossible flowers, blooming in impossible seasons, tended by a man who couldn't remember who they were for."
+        "text": "She turned back to her flowers. Impossible flowers, blooming in impossible seasons, tended by a man who couldn't remember who they were for.",
+        "text_ko": "그녀는 꽃으로 돌아섰습니다. 불가능한 계절에 피어나는 불가능한 꽃, 누구를 위한 것인지 기억하지 못하는 남자가 가꾸는 꽃."
       }
     ],
     "elia_night_talk": [
       {
         "speaker": "",
         "text": "He found Elia on the canyon rim, looking up at stars that were slowly going out.",
-        "cg": "res://assets/cg/generated/story_ch6_stars_forgetting.png"
+        "cg": "res://assets/cg/generated/story_ch6_stars_forgetting.png",
+        "text_ko": "그는 협곡 가장자리에서 천천히 사라지는 별들을 올려다보고 있는 엘리아를 발견했습니다."
       },
       {
         "speaker": "Elia",
         "text": "Can I tell you something selfish?",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "이기적인 말 하나 해도 될까요?"
       },
       {
         "speaker": "Arrel",
         "text": "Since when do you ask permission?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "언제부터 허락을 구한 거야?"
       },
       {
         "speaker": "Elia",
         "text": "I don't want you to go into BL-07.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "나는 당신이 BL-07에 들어가는 것을 원하지 않습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Elia—",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "엘리아—"
       },
       {
         "speaker": "Elia",
         "text": "I know. I KNOW. The Seam needs it. Sable needs it. The world needs someone willing to burn. But I am so TIRED of watching you come back with less of yourself.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "알아요. 알아요. 솔기가 필요합니다. 세이블이 필요합니다. 세상에는 기꺼이 불태울 사람이 필요합니다. 하지만 나는 당신이 자신의 모습을 덜 갖고 돌아오는 것을 보는 것이 너무 지쳤습니다."
       },
       {
         "speaker": "",
-        "text": "Her voice didn't rise. It dropped. The way things drop when they're too heavy to hold."
+        "text": "Her voice didn't rise. It dropped. The way things drop when they're too heavy to hold.",
+        "text_ko": "그녀의 목소리는 높아지지 않았다. 떨어졌다. 물건이 너무 무거워서 잡을 수 없을 때 물건이 떨어지는 방식."
       },
       {
         "speaker": "Elia",
         "text": "Every time you burn, I watch a piece of you go dark. Like a light switching off in a house I used to know. And I keep telling myself — 'this one doesn't matter, it's Grade 5, it's just a smell, it's just a taste.'",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신이 불타오를 때마다 나는 당신의 일부가 어두워지는 것을 지켜봅니다. 내가 알던 집의 불이 꺼지는 것처럼. 그리고 저는 계속해서 스스로에게 '이건 상관없어, 5학년이야, 그냥 냄새일 뿐이고, 맛일 뿐이야'라고 중얼거립니다."
       },
       {
         "speaker": "Elia",
         "text": "But they ALL mattered, Arrel. Every single one was a part of you that loved the world enough to notice it.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "하지만 그것들은 모두 중요했어요, 아렐. 모든 것 하나하나가 세상을 알아차릴 만큼 세상을 사랑하는 당신의 일부였습니다."
       },
       {
         "speaker": "",
-        "text": "The stars were going out. One by one. Like the sky was forgetting them."
+        "text": "The stars were going out. One by one. Like the sky was forgetting them.",
+        "text_ko": "별들이 나가고 있었다. 하나씩. 하늘이 그들을 잊은 것처럼."
       },
       {
         "speaker": "Arrel",
         "text": "If I don't go, the Seam dies. These people die. The children we saw running through the streets—",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "내가 가지 않으면 솔기가 죽는다. 이 사람들은 죽습니다. 우리가 거리를 뛰어다니는 것을 본 아이들은—"
       },
       {
         "speaker": "Elia",
         "text": "I know.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "알아요."
       },
       {
         "speaker": "Arrel",
         "text": "Then what do you want me to do?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "그럼 내가 어떻게 해주기를 바라나요?"
       },
       {
         "speaker": "Elia",
         "text": "Come back. That's all. Whatever you burn in there — whatever you lose — just come back.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "돌아와요. 그게 다야. 거기에 무엇을 태우든, 무엇을 잃어버리든 그냥 돌아오세요."
       },
       {
         "speaker": "",
-        "text": "He didn't promise. They both knew promises were just another kind of memory, waiting to be broken."
+        "text": "He didn't promise. They both knew promises were just another kind of memory, waiting to be broken.",
+        "text_ko": "그는 약속하지 않았습니다. 그들은 둘 다 약속이 깨지기를 기다리는 또 다른 종류의 기억일 뿐이라는 것을 알고 있었습니다."
       },
       {
         "speaker": "",
-        "text": "But he sat with her until the stars finished their forgetting, and that was enough."
+        "text": "But he sat with her until the stars finished their forgetting, and that was enough.",
+        "text_ko": "그러나 그는 별들이 망각을 마칠 때까지 그녀와 함께 앉아 있었고 그것으로 충분했습니다."
       }
     ],
     "sable_preparation": [
@@ -532,56 +640,67 @@
         "speaker": "Sable",
         "text": "Tomorrow morning. BL-07.",
         "portrait": "sable_neutral",
-        "cg": "res://assets/cg/generated/story_ch6_sable_final_preparations.png"
+        "cg": "res://assets/cg/generated/story_ch6_sable_final_preparations.png",
+        "text_ko": "내일 아침. BL-07."
       },
       {
         "speaker": "Arrel",
         "text": "I know.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "알아요."
       },
       {
         "speaker": "Sable",
         "text": "Some tactical information. The inside is not a cave. It's the world's wound turned inside out. Space doesn't work. Direction is a suggestion.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "일부 전술 정보. 내부는 동굴이 아닙니다. 세상의 상처가 뒤집어진 것입니다. 공간이 작동하지 않습니다. 방향은 제안입니다."
       },
       {
         "speaker": "Sable",
         "text": "The creatures there are not protecting the Void. They ARE the Void. Concentrated absence wearing shapes that used to be something else.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "그곳의 생물들은 공허를 보호하지 않습니다. 그들은 공허입니다. 다른 것이었던 형상을 입고 집중된 부재."
       },
       {
         "speaker": "Arrel",
         "text": "You've been inside.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "당신은 안에 있었어요."
       },
       {
         "speaker": "Sable",
         "text": "Once. I lasted forty minutes. Burned a Grade 3 and a Grade 4 just to get back out.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "한 번. 나는 40분 동안 버텼다. 다시 나가기 위해 3등급과 4등급을 태웠습니다."
       },
       {
         "speaker": "Sable",
         "text": "The core is at the center. You'll feel it — a pull, like gravity but wrong. Follow it, but don't let it lead. There's a difference.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "핵심은 중앙에 있습니다. 당신은 그것을 느낄 것입니다. 중력과 같지만 잘못된 당기는 것입니다. 따르되, 그것이 이끌도록 놔두지는 마세요. 차이가 있습니다."
       },
       {
         "speaker": "Arrel",
         "text": "What's the difference?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "차이점은 무엇입니까?"
       },
       {
         "speaker": "Sable",
         "text": "Following means you choose. Leading means it chose for you. If you forget why you went in, you're already lost.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "다음은 선택한다는 의미입니다. 선도한다는 것은 당신을 위해 선택했다는 뜻입니다. 왜 들어갔는지 잊어버리면 이미 길을 잃은 것이다."
       },
       {
         "speaker": "",
-        "text": "She handed him a small lantern. It flickered with a pale, steady light."
+        "text": "She handed him a small lantern. It flickered with a pale, steady light.",
+        "text_ko": "그녀는 그에게 작은 등불을 건네주었습니다. 그것은 창백하고 꾸준한 빛으로 깜박거렸다."
       },
       {
         "speaker": "Sable",
         "text": "This won't illuminate anything. But it burns with a real flame. If you start losing yourself in there, look at the flame. It's real. Hold onto that.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "이것은 아무것도 밝히지 않을 것입니다. 그러나 그것은 진짜 불꽃으로 타오른다. 거기에서 자신을 잃기 시작하면 불꽃을보세요. 그것은 진짜입니다. 잠깐만요."
       }
     ],
     "sq_sable_vigil_start": [
@@ -589,27 +708,32 @@
         "speaker": "Sable",
         "text": "There's something else. A Void Watcher — not a beast, something more deliberate. It's been circling the rift entrance.",
         "portrait": "sable_neutral",
-        "cg": "res://assets/cg/generated/story_ch6_void_watcher_request.png"
+        "cg": "res://assets/cg/generated/story_ch6_void_watcher_request.png",
+        "text_ko": "다른 것이 있습니다. 공허 감시자 — 짐승이 아니라 좀 더 계획적인 존재입니다. 균열 입구를 돌고 있었어요."
       },
       {
         "speaker": "Sable",
         "text": "I'd handle it myself, but I can't leave the defenses unmanned. You've proven you can fight these things.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "내가 직접 처리하겠지만, 방어 시설을 무인으로 남겨둘 수는 없습니다. 당신은 이런 것들과 싸울 수 있다는 것을 증명했습니다."
       },
       {
         "speaker": "Arrel",
         "text": "What's a Void Watcher?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "공허 감시자는 무엇입니까?"
       },
       {
         "speaker": "Sable",
         "text": "A sentinel. Smarter than the beasts. It watches, learns, reports back. If it stays, more will come.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "파수꾼. 짐승보다 똑똑합니다. 보고, 배우고, 보고합니다. 그것이 남아 있으면 더 많은 것이 올 것입니다."
       },
       {
         "speaker": "Sable",
         "text": "Kill it. Come back alive. That's the whole mission.",
-        "portrait": "sable_calm"
+        "portrait": "sable_calm",
+        "text_ko": "죽여라. 살아서 돌아오세요. 그것이 전체 임무입니다."
       }
     ],
     "sq_sable_vigil_complete": [
@@ -617,41 +741,50 @@
         "speaker": "Sable",
         "text": "It's done? Good. The patrols will be easier for a while.",
         "portrait": "sable_calm",
-        "cg": "res://assets/cg/generated/story_ch6_sable_vigil_reward.png"
+        "cg": "res://assets/cg/generated/story_ch6_sable_vigil_reward.png",
+        "text_ko": "끝났나요? 좋은. 순찰은 한동안 더 쉬울 것입니다."
       },
       {
         "speaker": "",
-        "text": "She reached into her coat and pulled out something — a small, cold object that pulsed with faint light."
+        "text": "She reached into her coat and pulled out something — a small, cold object that pulsed with faint light.",
+        "text_ko": "그녀는 코트 안으로 손을 뻗어 무언가를 꺼냈습니다. 희미한 빛으로 진동하는 작고 차가운 물체였습니다."
       },
       {
         "speaker": "Sable",
         "text": "I found this in the rubble of Ashbridge. It's mine, but... you'll make better use of it.",
-        "portrait": "sable_neutral"
+        "portrait": "sable_neutral",
+        "text_ko": "Ashbridge의 잔해에서 이것을 발견했습니다. 그것은 내 것이지만... 당신이 그것을 더 잘 활용하게 될 것입니다."
       },
       {
         "speaker": "",
-        "text": "A memory. Not yours, but offered freely. It carried the weight of an oath kept through years of loss."
+        "text": "A memory. Not yours, but offered freely. It carried the weight of an oath kept through years of loss.",
+        "text_ko": "추억. 귀하의 것이 아니지만 무료로 제공됩니다. 그것은 수년간의 손실을 통해 지켜온 맹세의 무게를 지녔습니다."
       }
     ],
     "arrel_flashback_loss": [
       {
         "speaker": "",
         "text": "The memory bleeds through — a day you've tried to forget.",
-        "cg": "res://assets/cg/game_image/memory_loss_warning.png"
+        "cg": "res://assets/cg/game_image/memory_loss_warning.png",
+        "text_ko": "잊으려고 애썼던 하루가 기억 속에 새어 나옵니다."
       },
       {
         "speaker": "",
-        "text": "Ash falling. Screaming. A hand slipping from yours."
+        "text": "Ash falling. Screaming. A hand slipping from yours.",
+        "text_ko": "재가 떨어지고 있습니다. 외침. 당신의 손에서 미끄러지는 손."
       },
       {
         "speaker": "Arrel",
         "text": "I couldn't hold on.",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "나는 버틸 수 없었다."
       },
       {
         "speaker": "",
-        "text": "That's what started it. The burning. The first memory you chose to destroy."
+        "text": "That's what started it. The burning. The first memory you chose to destroy.",
+        "text_ko": "그것이 시작된 것입니다. 타는 것. 당신이 파괴하기로 선택한 첫 번째 기억."
       }
     ]
-  }
+  },
+  "title_ko": "붙잡고 있는 실"
 }

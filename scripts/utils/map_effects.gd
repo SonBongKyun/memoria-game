@@ -237,6 +237,8 @@ static func add_fog(parent: Node, color: Color = Color(0.2, 0.2, 0.25, 0.08)) ->
 ## 챕터 타이틀 카드 오버레이
 ## 페이드 인 → 홀드 → 페이드 아웃 후 자동 제거. CanvasLayer 반환.
 static func show_chapter_title(parent: Node, chapter_num: int, title: String, subtitle: String = "") -> CanvasLayer:
+	title = GameManager.localized_runtime_text(title)
+	subtitle = GameManager.localized_runtime_text(subtitle)
 	var layer = CanvasLayer.new()
 	layer.layer = 4  # 비네트(3) 위, UI 아래
 

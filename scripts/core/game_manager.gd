@@ -366,6 +366,36 @@ const LOCALIZED_STRINGS: Dictionary = {
 	"grains": {"en": "Grains", "ko": "그레인"},
 	"language": {"en": "Language", "ko": "언어"},
 	"back": {"en": "Back", "ko": "뒤로"},
+	"new_game": {"en": "New Game", "ko": "새 게임"},
+	"continue": {"en": "Continue", "ko": "이어하기"},
+	"aftermath": {"en": "Part II: Aftermath", "ko": "2부: 여파"},
+	"title_subtitle": {"en": "The Price of Oblivion", "ko": "망각의 대가"},
+	"title_tagline": {"en": "Burn what you remember. Carry what remains.", "ko": "기억을 태워라. 남은 것을 짊어져라."},
+	"game_over_title": {"en": "You fell.", "ko": "당신은 쓰러졌다."},
+	"game_over_subtitle": {"en": "Something pulls you back from the edge...", "ko": "무언가가 끝자락에서 당신을 끌어당긴다..."},
+	"retry": {"en": "Stagger On (HP 30%)", "ko": "비틀거리며 계속한다 (HP 30%)"},
+	"load_save": {"en": "Load Save", "ko": "저장 불러오기"},
+	"audio": {"en": "AUDIO", "ko": "오디오"},
+	"gameplay": {"en": "GAMEPLAY", "ko": "게임플레이"},
+	"display": {"en": "DISPLAY", "ko": "화면"},
+	"performance": {"en": "PERFORMANCE", "ko": "성능"},
+	"accessibility": {"en": "ACCESSIBILITY", "ko": "접근성"},
+	"master_volume": {"en": "Master Volume", "ko": "전체 음량"},
+	"bgm_volume": {"en": "BGM Volume", "ko": "배경음악 음량"},
+	"sfx_volume": {"en": "SFX Volume", "ko": "효과음 음량"},
+	"text_speed": {"en": "Text Speed", "ko": "텍스트 속도"},
+	"difficulty": {"en": "Difficulty", "ko": "난이도"},
+	"auto_narration": {"en": "Auto-Advance Narration", "ko": "나레이션 자동 진행"},
+	"fullscreen": {"en": "Fullscreen", "ko": "전체 화면"},
+	"resolution": {"en": "Resolution", "ko": "해상도"},
+	"quality": {"en": "Quality", "ko": "그래픽 품질"},
+	"show_fps": {"en": "Show FPS", "ko": "FPS 표시"},
+	"dialogue_font_size": {"en": "Dialogue Font Size", "ko": "대화 글자 크기"},
+	"high_contrast": {"en": "High Contrast", "ko": "고대비"},
+	"screen_shake": {"en": "Screen Shake", "ko": "화면 흔들림"},
+	"colorblind_mode": {"en": "Colorblind Mode", "ko": "색각 보정"},
+	"reduce_motion": {"en": "Reduce Motion", "ko": "움직임 줄이기"},
+	"options_help": {"en": "Font Size affects dialogue text. High Contrast increases text outlines and UI borders. Reduce Motion disables particles and simplifies animations.", "ko": "글자 크기는 대화문에 적용됩니다. 고대비는 글자 윤곽과 UI 테두리를 강화합니다. 움직임 줄이기는 파티클을 끄고 애니메이션을 단순화합니다."},
 }
 
 const SPEAKER_NAMES_KO: Dictionary = {
@@ -384,7 +414,98 @@ const SPEAKER_NAMES_KO: Dictionary = {
 	"Tobias": "토비아스",
 	"Veil": "베일",
 	"Ashen Figure": "잿빛 형상",
+	"Old Man": "노인",
+	"Nervous Trader": "불안한 상인",
+	"Gardener": "정원사",
+	"Handler": "관리관",
+	"Prisoner": "수감자",
+	"Guard": "경비병",
+	"Han": "한",
+	"Mira": "미라",
 	"???": "???",
+}
+
+const ENEMY_NAMES_KO: Dictionary = {
+	"Alley Rat": "골목쥐",
+	"Ash Crawler": "잿빛 크롤러",
+	"Ash Phantom": "재의 환영",
+	"Ash Walker": "재의 방랑자",
+	"Belt Scavenger": "벨트 약탈자",
+	"Cliff Stalker": "절벽 추적자",
+	"Coastal Void Beast": "해안의 보이드 비스트",
+	"Colorless Wraith": "무색의 망령",
+	"Depth Crawler": "심연 크롤러",
+	"Dust Crawler": "먼지 크롤러",
+	"Forest Shade": "숲의 그림자",
+	"Hollow": "공허체",
+	"Hollow Walker": "빈껍데기 방랑자",
+	"Kairos, Authority Editor": "카이로스 · 관리국 편집관",
+	"Market Thief": "시장 도적",
+	"Memory Eater": "기억 포식자",
+	"Memory Leech": "기억 거머리",
+	"Null Wisp": "무의 도깨비불",
+	"Remnant": "잔존체",
+	"Root Shade": "뿌리 그림자",
+	"Rubble Rat": "잔해쥐",
+	"Seam Lurker": "심 틈새의 잠복자",
+	"Shade Sentinel": "그림자 파수꾼",
+	"Shore Wraith": "해안 망령",
+	"Threshold Crawler": "경계 크롤러",
+	"Threshold Shade": "경계의 그림자",
+	"Void Beast": "보이드 비스트",
+	"Void Fragment": "보이드 파편",
+	"Void Sentinel": "보이드 파수꾼",
+	"Void Watcher": "보이드 감시자",
+	"Void Wisp": "보이드 도깨비불",
+	"Void Wraith": "보이드 망령",
+}
+
+const RUNTIME_TEXT_KO: Dictionary = {
+	"Rim Forest": "림 숲",
+	"The edge of what remains": "남겨진 세계의 끝자락",
+	"Verdan Market": "베르단 시장",
+	"Where memories are currency": "기억이 화폐가 되는 곳",
+	"The Belt": "벨트",
+	"Weight of Pages": "페이지의 무게",
+	"Drift": "드리프트",
+	"The architecture crumbles": "무너져 내리는 구조",
+	"Crumbling Coast": "무너지는 해안",
+	"The ground gives way": "발밑이 무너지는 곳",
+	"The Seam": "심",
+	"Between what was and what will be": "과거와 미래의 사이",
+	"The Threshold": "경계",
+	"The other side of the flame": "불꽃 너머",
+	"The Forest That Forgets": "망각하는 숲",
+	"Memory-parasitic ecosystem": "기억을 기생하는 생태계",
+	"Where Colors Stop": "색이 멎는 곳",
+	"The achromatic zone": "무채색 지대",
+	"The Void stares back": "보이드가 마주 바라본다",
+	"This market smells like rust and regret.": "이 시장에선 녹과 후회의 냄새가 나.",
+	"You know where to find me.": "날 어디서 찾을지는 알겠지.",
+	"Still here? Business never sleeps, even when everything else does.": "아직도 여기 있나? 다른 모든 것이 잠들어도 거래는 잠들지 않아.",
+	"Come back when you have something worth trading.": "거래할 가치가 있는 걸 가져오면 다시 오게.",
+	"This place... it's like the land itself forgot how to live.": "이곳은... 땅 자체가 살아가는 법을 잊은 것 같아.",
+	"Fascinating. Absolutely fascinating. Let me write that down.": "흥미롭군. 정말 흥미로워. 기록해 두겠네.",
+	"I've been cross-referencing the Bureau records. The patterns are... troubling.": "관리국 기록을 교차 검토 중이네. 이 패턴은... 심상치 않아.",
+	"Rest. Please.": "쉬어. 제발.",
+	"The ground shifts. Stay close.": "땅이 움직여. 가까이 있어.",
+	"I'm here. I'm not going anywhere.": "나 여기 있어. 어디에도 가지 않아.",
+	"The Seam holds. For now.": "심은 버티고 있어. 지금은.",
+	"The air feels wrong. Like static before a storm.": "공기가 이상해. 폭풍 전의 정전기 같아.",
+	"Stay focused. Don't let the Threshold get into your head.": "집중해. 경계가 머릿속까지 파고들게 두지 마.",
+	"Say your name. Don't forget it.": "네 이름을 말해. 잊지 마.",
+	"Keep moving. Don't look at the shapes between the trees.": "계속 움직여. 나무 사이의 형체는 보지 마.",
+	"Hold my hand. Don't let go.": "내 손 잡아. 놓지 마.",
+	"Follow the pull. It's the only direction left.": "이끌림을 따라가. 남은 방향은 그것뿐이야.",
+	"I can feel it pulling. Don't let go.": "끌어당기는 게 느껴져. 놓지 마.",
+	"Something blocks the path. Find what hunts these woods.": "무언가 길을 막고 있다. 이 숲에서 사냥하는 존재를 찾아라.",
+	"A faint warmth. A song you no longer know.": "희미한 온기. 이제는 기억나지 않는 노래.",
+	"Find the memory fragments.": "기억 파편을 찾아라.",
+	"Find the ledger in the Sump.": "섬프에서 장부를 찾아라.",
+	"Found a Potion!": "포션을 발견했다!",
+	"The crate is empty.": "상자는 비어 있다.",
+	"Elia wrote in her diary...": "엘리아가 일지에 글을 남겼다...",
+	"No autosave found": "자동 저장을 찾지 못했다",
 }
 
 ## 게임 시작 시 설정 파일에서 locale 조기 로드 (다른 autoload의 _ready보다 먼저)
@@ -415,6 +536,37 @@ func localized_speaker(speaker: String) -> String:
 	if current_locale == "ko":
 		return String(SPEAKER_NAMES_KO.get(speaker, speaker))
 	return speaker
+
+func localized_enemy_name(enemy_name: String) -> String:
+	if current_locale == "ko":
+		return String(ENEMY_NAMES_KO.get(enemy_name, enemy_name))
+	return enemy_name
+
+func localized_runtime_text(text: String) -> String:
+	if current_locale != "ko" or text == "":
+		return text
+	if RUNTIME_TEXT_KO.has(text):
+		return String(RUNTIME_TEXT_KO[text])
+	var result := text
+	result = result.replace("Obtained: ", "획득: ")
+	result = result.replace("Memory acquired: ", "기억 획득: ")
+	result = result.replace("Memory burned: ", "기억 연소: ")
+	result = result.replace("Memory spent: ", "기억 소모: ")
+	result = result.replace("Memory fading: ", "기억 소실 중: ")
+	result = result.replace("Quest Complete: ", "퀘스트 완료: ")
+	result = result.replace("Passive Unlocked: ", "패시브 해금: ")
+	result = result.replace("Elia Technique unlocked: ", "엘리아 기술 해금: ")
+	result = result.replace("Synthesized: ", "합성 완료: ")
+	result = result.replace("Sold: ", "판매: ")
+	result = result.replace("Bought: ", "구매: ")
+	result = result.replace("Equipped: ", "장착: ")
+	result = result.replace("Upgraded: ", "강화: ")
+	result = result.replace(" Grains", " 그레인")
+	result = result.replace("Autosaved", "자동 저장 완료")
+	result = result.replace("Autosave loaded", "자동 저장 불러오기 완료")
+	result = result.replace("Game saved — Slot ", "게임 저장 완료 — 슬롯 ")
+	result = result.replace("Game loaded — Slot ", "게임 불러오기 완료 — 슬롯 ")
+	return result
 
 func localized_value(source: Dictionary, key: String, fallback: String = "") -> String:
 	if source.is_empty():

@@ -6,123 +6,147 @@
       {
         "speaker": "",
         "text": "The world ended at the threshold.",
-        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png"
+        "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+        "text_ko": "세상은 문턱에서 끝났다."
       },
       {
         "speaker": "",
-        "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing."
+        "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing.",
+        "text_ko": "그 너머에는 어둠이 없습니다. 결석. 현실을 긁어내고, 아무것도 없는 원시적인 기질만 남겨둔 공간."
       },
       {
         "speaker": "",
         "text": "Fragments of ground floated in the void. Stone from somewhere that no longer existed. Paths that led between things that weren't there.",
-        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+        "text_ko": "공허 속에 땅의 파편들이 떠다녔다. 더 이상 존재하지 않는 곳에서 나온 돌. 없던 것들 사이를 이어주는 길."
       },
       {
         "speaker": "Elia",
         "text": "The air... it's not thin. There just isn't any.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "공기... 얇지 않아요. 아무것도 없습니다."
       },
       {
         "speaker": "Arrel",
         "text": "I can still breathe.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "아직 숨을 쉴 수 있어요."
       },
       {
         "speaker": "Elia",
         "text": "That's what worries me. You shouldn't be able to.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그것이 제가 걱정하는 것입니다. 당신은 할 수 없어야합니다."
       },
       {
         "speaker": "",
-        "text": "The Void Hole designated BL-07. This is what happens when the world forgets too much in one place."
+        "text": "The Void Hole designated BL-07. This is what happens when the world forgets too much in one place.",
+        "text_ko": "공허 구멍은 BL-07로 지정되었습니다. 세상이 한 곳에서 너무 많은 것을 잊어버리면 이런 일이 일어난다."
       }
     ],
     "void_core": [
       {
         "speaker": "",
         "text": "At the center, the tear widened. Not a hole — a mouth. Open and patient.",
-        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
+        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
+        "text_ko": "중앙에서는 찢어진 부분이 넓어졌습니다. 구멍이 아니라 입입니다. 개방적이고 인내심이 있습니다."
       },
       {
         "speaker": "",
-        "text": "Something pulsed inside it. Not light. Not sound. A rhythm that his bones recognized even if his mind didn't."
+        "text": "Something pulsed inside it. Not light. Not sound. A rhythm that his bones recognized even if his mind didn't.",
+        "text_ko": "그 안에서 무언가 맥동하고 있었습니다. 가볍지 않습니다. 소리가 나지 않습니다. 마음은 인식하지 못하더라도 뼈는 인식하는 리듬."
       },
       {
         "speaker": "Arrel",
         "text": "It's... familiar.",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "그건... 익숙해요."
       },
       {
         "speaker": "Elia",
         "text": "Arrel, don't—",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "아렐, 그러지 마-"
       },
       {
         "speaker": "",
-        "text": "He could feel it now. The Void Hole wasn't destroying. It was forgetting. The world was forgetting itself here, and the hole was what was left."
+        "text": "He could feel it now. The Void Hole wasn't destroying. It was forgetting. The world was forgetting itself here, and the hole was what was left.",
+        "text_ko": "이제 그는 그것을 느낄 수 있었다. 보이드 홀은 파괴되지 않았습니다. 잊고 있었던 것입니다. 세상은 이곳에서 자신을 잊고 있었고, 남은 것은 구멍뿐이었습니다."
       },
       {
         "speaker": "",
-        "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance."
+        "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance.",
+        "text_ko": "그리고 그의 가슴 어딘가에서 1등급의 기억 'The Name 아렐'이 공명하며 윙윙거렸다."
       },
       {
         "speaker": "Arrel",
         "text": "I know how to close it.",
         "portrait": "arrel_burn",
-        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+        "text_ko": "나는 그것을 닫는 방법을 알고 있습니다."
       },
       {
         "speaker": "Elia",
         "text": "How?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "어떻게?"
       },
       {
         "speaker": "Arrel",
         "text": "The same way I do everything. Burn something that matters.",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "내가 모든 일을 하는 것과 같은 방식이다. 중요한 것을 태워보세요."
       }
     ],
     "seal_decision": [
       {
         "speaker": "",
-        "text": "The core of BL-07 pulsed. Waiting."
+        "text": "The core of BL-07 pulsed. Waiting.",
+        "text_ko": "BL-07의 코어가 펄스되었습니다. 대기 중."
       },
       {
         "speaker": "Elia",
         "text": "You're talking about burning your name. Your NAME, Arrel. The last thing that makes you... you.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신은 당신의 이름을 불태우는 것에 대해 이야기하고 있습니다. 당신의 이름, 에릴. 당신을 만드는 마지막 것은 바로 당신입니다."
       },
       {
         "speaker": "Arrel",
         "text": "If The Seam falls, everyone there loses everything. Not just a name.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "The 심이 무너지면 그곳에 있는 모든 사람이 모든 것을 잃게 됩니다. 이름뿐만이 아닙니다."
       },
       {
         "speaker": "Elia",
         "text": "And if you burn it? What's left?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그리고 태워버리면? 무엇이 남았나요?"
       },
       {
         "speaker": "Arrel",
         "text": "I don't know. That's the point.",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "모르겠어요. 그게 요점입니다."
       },
       {
         "speaker": "",
         "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.",
-        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
+        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
+        "text_ko": "보이드 홀이 윙윙거렸다. 인내심 있는. 배고픈. 가장자리에서 이루어지는 선택에 무관심합니다."
       },
       {
         "speaker": "Elia",
         "text": "Wait. You're still... you. After all of it, you kept the things that matter. The name. The sword. My hands on yours. Maybe you don't have to choose what to lose. Maybe you offer what you kept.",
         "portrait": "elia_neutral",
-        "requires_weave": true
+        "requires_weave": true,
+        "text_ko": "잠깐만요. 당신은 아직도... 당신입니다. 결국 당신은 중요한 것을 지켰습니다. 이름. 검. 내 손이 당신 손에 있어요. 어쩌면 무엇을 잃을지 선택할 필요가 없을 수도 있습니다. 어쩌면 당신은 당신이 간직한 것을 제공할 수도 있습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Not the emptiness it wants. The opposite. Everything I refused to burn — given freely, all at once.",
         "portrait": "arrel_neutral",
-        "requires_weave": true
+        "requires_weave": true,
+        "text_ko": "그것이 원하는 공허함이 아닙니다. 그 반대입니다. 내가 불태우기를 거부한 모든 것은 한꺼번에 무료로 주어졌습니다."
       },
       {
         "speaker": "",
@@ -131,388 +155,470 @@
           {
             "text": "Weave the kept memories into the seal",
             "set_flag": "seal_weave",
-            "requires_weave": true
+            "requires_weave": true,
+            "text_ko": "간직한 추억을 봉인에 엮어"
           },
           {
             "text": "Burn the Name — Seal BL-07",
-            "set_flag": "seal_accepted"
+            "set_flag": "seal_accepted",
+            "text_ko": "이름을 불태워라 - 봉인 BL-07"
           },
           {
             "text": "Keep the Name — Find another way",
-            "set_flag": "seal_refused"
+            "set_flag": "seal_refused",
+            "text_ko": "이름 유지 — 다른 방법 찾기"
           }
-        ]
+        ],
+        "text_ko": "당신은 무엇을합니까?"
       }
     ],
     "seal_weave": [
       {
         "speaker": "",
         "text": "He did not reach for the name. He reached for all of it — every memory he had carried instead of spent.",
-        "cg": "res://assets/cg/generated/story_ch10_seal_weave.png"
+        "cg": "res://assets/cg/generated/story_ch10_seal_weave.png",
+        "text_ko": "그는 그 이름에 도달하지 못했습니다. 그는 그 모든 것을 손에 넣었습니다. 그가 소비한 것이 아니라 갖고 있던 모든 기억을 말이죠."
       },
       {
         "speaker": "",
-        "text": "The courtyard and the wooden grip. Rain on wet earth. A song with no face. A hand that moved before he understood why."
+        "text": "The courtyard and the wooden grip. Rain on wet earth. A song with no face. A hand that moved before he understood why.",
+        "text_ko": "안뜰과 나무 손잡이. 젖은 땅에 비. 얼굴이 없는 노래. 이유를 알기도 전에 움직인 손."
       },
       {
         "speaker": "Arrel",
         "text": "Not one of you. All of you. Together.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "당신 중 누구도 아닙니다. 여러분. 함께."
       },
       {
         "speaker": "",
-        "text": "He did not let them go. He held them out — woven, whole, refusing the Void the single clean wound it wanted."
+        "text": "He did not let them go. He held them out — woven, whole, refusing the Void the single clean wound it wanted.",
+        "text_ko": "그는 그들을 놓아주지 않았습니다. 그는 그것들을 내밀었습니다. 공허가 원했던 단 하나의 깨끗한 상처를 거부하면서 전체적으로 짜여진 것이었습니다."
       },
       {
         "speaker": "",
         "text": "The fire was not blue. It was every color the Seam had ever bled, braided into one thread.",
-        "cg": "res://assets/cg/generated/story_ch10_seal_weave_fire.png"
+        "cg": "res://assets/cg/generated/story_ch10_seal_weave_fire.png",
+        "text_ko": "불은 파란색이 아니었습니다. 그것은 솔기가 흘린 모든 색깔이었고, 하나의 실로 땋아졌습니다."
       },
       {
         "speaker": "Elia",
         "text": "It's... it's not collapsing. It's closing. Like something is being mended, not erased.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그건... 무너지지 않아요. 닫힙니다. 뭔가가 지워지는 게 아니라 고쳐지는 것 같아요."
       },
       {
         "speaker": "",
-        "text": "BL-07 did not scream. It quieted. A torn thing pulled back together along the lines of a life that refused to come apart."
+        "text": "BL-07 did not scream. It quieted. A torn thing pulled back together along the lines of a life that refused to come apart.",
+        "text_ko": "BL-07은 비명을 지르지 않았다. 조용해졌습니다. 찢어지기를 거부한 생명의 선을 따라 다시 뭉쳐진 찢어진 것."
       },
       {
         "speaker": "",
         "text": "When the light faded, the man who had been Arrel was still Arrel. Tired. Thinner, somehow, as if part of him now lived in the seal itself. But himself.",
-        "cg": "res://assets/cg/generated/story_ch10_seal_weave_after.png"
+        "cg": "res://assets/cg/generated/story_ch10_seal_weave_after.png",
+        "text_ko": "빛이 사라졌을 때, 아렐이었던 남자는 여전히 아렐이었습니다. 피곤한. 어떻게 든 그의 일부가 이제 인장 자체에 살고있는 것처럼 더 얇아졌습니다. 하지만 그 자신."
       },
       {
         "speaker": "Arrel",
         "text": "I remember. I remember all of it. It's just... shared now. Some of me is holding the door shut.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "나는 기억한다. 나는 그것을 모두 기억합니다. 이제... 공유되었습니다. 나 중 일부는 문을 닫고 있습니다."
       },
       {
         "speaker": "Elia",
         "text": "Then you're not gone. You're load-bearing.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "그렇다면 당신은 떠난 것이 아닙니다. 당신은 하중을 견디고 있습니다."
       },
       {
         "speaker": "Arrel",
         "text": "There are worse things to be.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "더 나쁜 일도 있습니다."
       },
       {
         "speaker": "",
-        "text": "BL-07 was sealed. The Seam would survive. And for the first time, the price had not been a person — only the certainty that he could ever set those memories down again."
+        "text": "BL-07 was sealed. The Seam would survive. And for the first time, the price had not been a person — only the certainty that he could ever set those memories down again.",
+        "text_ko": "BL-07은 봉인되었습니다. 솔기는 살아남을 것입니다. 그리고 처음으로 그 대가는 사람이 아니었습니다. 단지 그 추억을 다시 내려놓을 수 있다는 확신뿐이었습니다."
       }
     ],
     "seal_complete": [
       {
         "speaker": "",
-        "text": "He reached inside. Past the memories of rain and campfires and a hand reaching out. Past the sword and the market and the song."
+        "text": "He reached inside. Past the memories of rain and campfires and a hand reaching out. Past the sword and the market and the song.",
+        "text_ko": "그는 안으로 손을 뻗었다. 비와 모닥불, 손 내밀던 추억을 지나. 검과 시장과 노래를 지나라."
       },
       {
         "speaker": "",
-        "text": "Down to the bottom. To the name."
+        "text": "Down to the bottom. To the name.",
+        "text_ko": "바닥까지. 이름까지."
       },
       {
         "speaker": "",
-        "text": "'Arrel.'"
+        "text": "'Arrel.'",
+        "text_ko": "'어렐.'"
       },
       {
         "speaker": "",
-        "text": "He let it go."
+        "text": "He let it go.",
+        "text_ko": "그는 그것을 놓아주었다."
       },
       {
         "speaker": "",
         "text": "The fire was not blue this time. It was white. Pure. The color of everything and nothing at once.",
-        "cg": "res://assets/cg/game_image/memory_loss_warning.png"
+        "cg": "res://assets/cg/game_image/memory_loss_warning.png",
+        "text_ko": "이번에는 불이 파란색이 아니었습니다. 흰색이었습니다. 순수한. 모든 것의 색깔과 동시에 아무것도 아닌 것."
       },
       {
         "speaker": "",
-        "text": "The Void Hole screamed — a sound that existed only in the space between hearing and remembering — and collapsed inward."
+        "text": "The Void Hole screamed — a sound that existed only in the space between hearing and remembering — and collapsed inward.",
+        "text_ko": "공허의 구멍은 비명을 지르며 — 듣는 것과 기억하는 것 사이에만 존재하는 소리 — 안으로 무너졌다."
       },
       {
         "speaker": "",
-        "text": "The ground beneath them solidified. Color bled back into the stone. The crack sealed like a wound closing."
+        "text": "The ground beneath them solidified. Color bled back into the stone. The crack sealed like a wound closing.",
+        "text_ko": "그들 아래의 땅이 굳어졌습니다. 색깔이 돌에 다시 번졌습니다. 균열은 상처가 닫히는 것처럼 봉인되었습니다."
       },
       {
         "speaker": "Elia",
         "text": "...hey. Hey. Can you hear me?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "...안녕하세요. 여기요. 내 말 들려요?"
       },
       {
         "speaker": "",
         "text": "The man who had been Arrel opened his eyes. He looked at the woman standing over him.",
-        "cg": "res://assets/cg/generated/story_ch10_seal_complete.png"
+        "cg": "res://assets/cg/generated/story_ch10_seal_complete.png",
+        "text_ko": "에릴이었던 남자가 눈을 떴다. 그는 자기 위에 서 있는 여자를 바라보았다."
       },
       {
         "speaker": "",
-        "text": "He did not recognize her."
+        "text": "He did not recognize her.",
+        "text_ko": "그는 그녀를 알아보지 못했습니다."
       },
       {
         "speaker": "",
-        "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important."
+        "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important.",
+        "text_ko": "하지만 기억보다 더 깊고, 이름보다 더 깊은 곳에서 그의 마음속에 있는 무엇인가가 그녀가 중요하다는 것을 알고 있었습니다."
       },
       {
         "speaker": "Elia",
         "text": "Do you... do you know who you are?",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "혹시... 당신이 누구인지 아시나요?"
       },
       {
         "speaker": "",
-        "text": "He thought about it for a long time."
+        "text": "He thought about it for a long time.",
+        "text_ko": "그는 오랫동안 그것에 대해 생각했습니다."
       },
       {
         "speaker": "???",
         "text": "No. But I know I'm supposed to be here.",
-        "portrait": "arrel_exhausted"
+        "portrait": "arrel_exhausted",
+        "text_ko": "아뇨. 하지만 제가 여기 있어야 한다는 건 알아요."
       },
       {
         "speaker": "",
-        "text": "BL-07 was sealed. The Seam would survive. The cost was everything that made the price meaningful."
+        "text": "BL-07 was sealed. The Seam would survive. The cost was everything that made the price meaningful.",
+        "text_ko": "BL-07은 봉인되었습니다. 솔기는 살아남을 것입니다. 가격을 의미있게 만드는 모든 것은 비용이었습니다."
       }
     ],
     "seal_refused": [
       {
         "speaker": "",
         "text": "He pulled his hand back from the edge.",
-        "cg": "res://assets/cg/generated/story_ch10_seal_refused.png"
+        "cg": "res://assets/cg/generated/story_ch10_seal_refused.png",
+        "text_ko": "그는 가장자리에서 손을 뒤로 당겼다."
       },
       {
         "speaker": "Arrel",
         "text": "No.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "아니요."
       },
       {
         "speaker": "Elia",
         "text": "Arrel—",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "에렐—"
       },
       {
         "speaker": "Arrel",
         "text": "There has to be another way. There always is. People just stop looking because burning is easier.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "다른 방법이 있어야 합니다. 항상 존재합니다. 굽기가 더 쉽기 때문에 사람들은 찾는 것을 멈춥니다."
       },
       {
         "speaker": "",
-        "text": "The Void Hole pulsed. Unimpressed. Unchanged."
+        "text": "The Void Hole pulsed. Unimpressed. Unchanged.",
+        "text_ko": "공허의 구멍이 진동했습니다. 인상적이지 않았습니다. 변하지 않은."
       },
       {
         "speaker": "",
-        "text": "They walked back the way they came. The fragments of ground felt less stable than before. Or maybe that was just the weight of a decision unmade."
+        "text": "They walked back the way they came. The fragments of ground felt less stable than before. Or maybe that was just the weight of a decision unmade.",
+        "text_ko": "그들은 왔던 길을 되돌아 갔다. 땅의 파편들이 이전보다 덜 안정감을 느꼈습니다. 아니면 그것은 단지 결정이 내려지지 않은 것의 무게일 수도 있습니다."
       },
       {
         "speaker": "Elia",
         "text": "Sable won't be happy.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "Sable은 행복하지 않을 것입니다."
       },
       {
         "speaker": "Arrel",
         "text": "Sable doesn't have to lose her name.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "Sable은 이름을 잃을 필요가 없습니다."
       },
       {
         "speaker": "",
-        "text": "Behind them, BL-07 continued to grow. Slowly. Patiently."
+        "text": "Behind them, BL-07 continued to grow. Slowly. Patiently.",
+        "text_ko": "그 뒤에는 BL-07이 계속해서 성장해 나갔습니다. 느리게. 꽉."
       },
       {
         "speaker": "",
-        "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't."
+        "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't.",
+        "text_ko": "그들에게는 시간이 있었습니다. 별로. 하지만 일부. 그리고 때로는 '일부'만으로 '항상' 찾을 수 없는 것을 찾기에 충분합니다."
       }
     ],
     "void_descent": [
       {
         "speaker": "",
         "text": "The path — if it could be called that — descended in spirals that didn't obey geometry.",
-        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+        "text_ko": "길은 - 그렇게 부를 수 있다면 - 기하학을 따르지 않는 나선형으로 내려갔습니다."
       },
       {
         "speaker": "",
-        "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction."
+        "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction.",
+        "text_ko": "각 단계는 그들을 더 깊게 만들었습니다. 땅에 들어가지 마세요. 땅이 없는 곳으로. 그들이 걸어온 파편들은 공허의 파괴 습관으로 뭉쳐진 돌의 기억이었습니다."
       },
       {
         "speaker": "Elia",
         "text": "Arrel. Look.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "에렐. 바라보다."
       },
       {
         "speaker": "",
-        "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved."
+        "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved.",
+        "text_ko": "왼쪽에 떠 있는 파편에 문이 있습니다. 아무것도 붙지 않은 채 똑바로 서 있는 것. 보존이 불가능할 정도로 황동 손잡이가 달린 평범한 나무 문입니다."
       },
       {
         "speaker": "Arrel",
         "text": "Someone's home.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "누군가의 집입니다."
       },
       {
         "speaker": "Elia",
         "text": "Was. Before the Void ate the house around it. The door is all that's left.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "했다. 공허가 그 주변의 집을 집어삼키기 전에 말이죠. 이제 남은 것은 문뿐이다."
       },
       {
         "speaker": "",
-        "text": "As they passed, the door swung open. Beyond it — nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering."
+        "text": "As they passed, the door swung open. Beyond it — nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering.",
+        "text_ko": "그들이 지나가자 문이 열렸다. 그 너머에는 아무것도 없습니다. 더 이상 아무것도 없습니다. 그러나 아무 소리도 들리지 않았습니다. 아이가 저녁을 먹으러 오는 소리였습니다. 대답하는 어머니."
       },
       {
         "speaker": "",
-        "text": "Then silence. The door closed itself, gently, as if the memory had finished its performance and was taking a bow."
+        "text": "Then silence. The door closed itself, gently, as if the memory had finished its performance and was taking a bow.",
+        "text_ko": "그런 다음 침묵하십시오. 마치 기억이 수행을 마치고 인사를 하는 것처럼 문이 살며시 닫혔다."
       }
     ],
     "void_echoes": [
       {
         "speaker": "",
         "text": "Deeper in, the Void began to speak.",
-        "cg": "res://assets/cg/generated/story_ch10_void_echoes.png"
+        "cg": "res://assets/cg/generated/story_ch10_void_echoes.png",
+        "text_ko": "더 깊은 곳에서 공허가 말하기 시작했습니다."
       },
       {
         "speaker": "",
-        "text": "Not words. Feelings. Borrowed grief that pressed against his ribs like an unwelcome hand."
+        "text": "Not words. Feelings. Borrowed grief that pressed against his ribs like an unwelcome hand.",
+        "text_ko": "말이 아닙니다. 감정. 반갑지 않은 손처럼 그의 갈비뼈를 누르는 빌린 슬픔."
       },
       {
         "speaker": "",
-        "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important."
+        "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important.",
+        "text_ko": "그는 구리 맛을 느꼈습니다. 그는 나무 연기 냄새를 맡았습니다. 그는 자신이 알지 못하는 목소리로 자신의 이름이 말하는 것을 들었고 그 목소리가 중요하다는 확신을 느꼈습니다."
       },
       {
         "speaker": "Arrel",
         "text": "It's showing me things.",
-        "portrait": "arrel_pain"
+        "portrait": "arrel_pain",
+        "text_ko": "나에게 뭔가를 보여주고 있어요."
       },
       {
         "speaker": "Elia",
         "text": "It shows everyone things. That's how it feeds. You feel the loss, and the feeling makes the loss bigger, and the bigger loss feeds the Void.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그것은 모든 사람에게 보여줍니다. 그것이 먹이가 되는 방식입니다. 당신은 상실감을 느끼고, 그 느낌은 상실을 더 크게 만들고, 더 큰 상실은 공허를 채워줍니다."
       },
       {
         "speaker": "Arrel",
         "text": "What does it show you?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "그것은 당신에게 무엇을 보여줍니까?"
       },
       {
         "speaker": "",
-        "text": "She was quiet for three steps."
+        "text": "She was quiet for three steps.",
+        "text_ko": "그녀는 세 걸음 동안 조용했습니다."
       },
       {
         "speaker": "Elia",
         "text": "You. Before the burns. The person you were when we first met.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신. 화상 전. 우리가 처음 만났을 때의 당신이었던 사람."
       },
       {
         "speaker": "Elia",
         "text": "You laughed more. Did you know that? You used to laugh at terrible things. It drove me insane.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신은 더 많이 웃었습니다. 알고 계셨나요? 당신은 끔찍한 일에도 웃곤 했어요. 그것은 나를 미치게 만들었습니다."
       },
       {
         "speaker": "Arrel",
         "text": "I still laugh.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "나는 아직도 웃는다."
       },
       {
         "speaker": "Elia",
         "text": "You smile. It's not the same thing.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "당신은 미소. 그것은 같은 것이 아닙니다."
       },
       {
         "speaker": "",
-        "text": "The Void hummed around them, drinking the sadness like water."
+        "text": "The Void hummed around them, drinking the sadness like water.",
+        "text_ko": "공허는 슬픔을 물처럼 마시며 그들 주위에서 윙윙거렸다."
       }
     ],
     "void_memory_fragments": [
       {
         "speaker": "",
         "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist.",
-        "cg": "res://assets/cg/generated/story_ch10_orphan_memories.png"
+        "cg": "res://assets/cg/generated/story_ch10_orphan_memories.png",
+        "text_ko": "떠다니는 플랫폼에 흩어져 있습니다. 수십 개의 결정화된 기억이 존재해서는 안 되는 색으로 희미하게 빛나고 있습니다."
       },
       {
         "speaker": "",
-        "text": "Each one was someone's life. A first step. A last breath. A morning so ordinary that no one thought to protect it from being forgotten."
+        "text": "Each one was someone's life. A first step. A last breath. A morning so ordinary that no one thought to protect it from being forgotten.",
+        "text_ko": "하나하나가 누군가의 삶이었습니다. 첫 번째 단계. 마지막 숨. 누구도 잊혀지지 않도록 보호할 생각이 없을 만큼 평범한 아침."
       },
       {
         "speaker": "Elia",
         "text": "These are the memories the Void has consumed. It doesn't destroy them — it KEEPS them. Like a collection.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "공허가 소비한 기억들입니다. 그것은 그들을 파괴하지 않고 유지합니다. 컬렉션처럼."
       },
       {
         "speaker": "Arrel",
         "text": "Can we take them back?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "다시 가져갈 수 있나요?"
       },
       {
         "speaker": "Elia",
         "text": "They don't belong to anyone anymore. The people who lost them have forgotten they ever existed. A memory without an owner is just... light.",
-        "portrait": "elia_neutral"
+        "portrait": "elia_neutral",
+        "text_ko": "그들은 더 이상 누구의 것도 아닙니다. 그것을 잃어버린 사람들은 그것이 존재했다는 사실조차 잊어버렸습니다. 주인 없는 추억은 그저... 가벼울 뿐입니다."
       },
       {
         "speaker": "",
-        "text": "He picked one up. Warm. It showed him a sunset over a city he'd never seen, felt through eyes that were not his own. Beautiful. Meaningless. Orphaned."
+        "text": "He picked one up. Warm. It showed him a sunset over a city he'd never seen, felt through eyes that were not his own. Beautiful. Meaningless. Orphaned.",
+        "text_ko": "그는 하나를 집어 들었습니다. 따뜻한. 그것은 그에게 한 번도 본 적이 없는 도시의 일몰을 보여 주었고, 자신의 것이 아닌 눈을 통해 느껴졌습니다. 아름다운. 무의미한. 고아."
       },
       {
         "speaker": "",
-        "text": "He set it down. Carefully. Even orphaned beauty deserved to be handled gently."
+        "text": "He set it down. Carefully. Even orphaned beauty deserved to be handled gently.",
+        "text_ko": "그는 그것을 내려놓았다. 주의하여. 고아가 된 아름다움조차도 부드럽게 다뤄질 자격이 있습니다."
       }
     ],
     "void_before_core": [
       {
         "speaker": "",
         "text": "The pull was stronger here. Like standing at the edge of a waterfall, except the water was made of forgetting.",
-        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png"
+        "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+        "text_ko": "여기서 당기는 힘이 더 강했습니다. 폭포의 가장자리에 서 있는 것과 같습니다. 단, 물은 망각으로 만들어졌습니다."
       },
       {
         "speaker": "Elia",
         "text": "Arrel. Before we go further. There's something I need to say.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "에렐. 더 나아가기 전에. 할 말이 있어요."
       },
       {
         "speaker": "Arrel",
         "text": "Elia—",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "엘리아—"
       },
       {
         "speaker": "Elia",
         "text": "Let me finish. Please.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "마무리하겠습니다. 제발."
       },
       {
         "speaker": "Elia",
         "text": "Whatever happens in there — whatever you decide — I need you to know that the person you are RIGHT NOW is enough. You don't have to burn anything else to be worth saving.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "그곳에서 무슨 일이 일어나든, 무엇을 결정하든 지금 당장의 당신으로 충분하다는 점을 알아두셨으면 합니다. 절약할 가치가 있기 위해 다른 것을 태울 필요는 없습니다."
       },
       {
         "speaker": "Arrel",
         "text": "It's not about being worth saving. It's about the Seam. The children. Sable's people.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "아낄 가치가 있다는 것이 아닙니다. 솔기에 관한 것입니다. 아이들. 세이블의 사람들."
       },
       {
         "speaker": "Elia",
         "text": "I know. But the world doesn't get to have you AND those children. It shouldn't have to choose. Something is WRONG with a world that makes people pay for survival with themselves.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "알아요. 하지만 세상은 당신과 그 아이들을 가질 수 없습니다. 선택할 필요는 없습니다. 사람들이 생존을 위해 스스로 돈을 지불하게 만드는 세상에는 뭔가 잘못되었습니다."
       },
       {
         "speaker": "",
-        "text": "Her voice echoed in the absence. The Void drank the sound, but the meaning survived."
+        "text": "Her voice echoed in the absence. The Void drank the sound, but the meaning survived.",
+        "text_ko": "그녀의 목소리가 부재 중에 메아리쳤다. 공허는 소리를 마셨지만 의미는 살아남았습니다."
       },
       {
         "speaker": "Arrel",
         "text": "Are you trying to talk me out of it?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "나한테 말을 걸지 않으려고 하는 거야?"
       },
       {
         "speaker": "Elia",
         "text": "I'm trying to make sure that whatever you choose, you choose it as ARREL. Not as a weapon. Not as a tool. As the person who once laughed at terrible things and noticed flowers growing in impossible places.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "나는 당신이 무엇을 선택하든 그것을 ARREL로 선택하도록 노력하고 있습니다. 무기로는 아닙니다. 도구로서가 아닙니다. 끔찍한 일을 보고 웃기도 하고, 말도 안 되는 곳에 꽃이 피어나는 걸 알아차리기도 했던 사람처럼요."
       },
       {
         "speaker": "",
-        "text": "The core of BL-07 waited ahead. Patient as gravity. Hungry as absence."
+        "text": "The core of BL-07 waited ahead. Patient as gravity. Hungry as absence.",
+        "text_ko": "BL-07의 핵심이 기다리고 있었다. 중력으로서의 환자. 부재로 배고프다."
       },
       {
         "speaker": "",
-        "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take — the choice to be here, together, right now."
+        "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take — the choice to be here, together, right now.",
+        "text_ko": "그는 엘리아를 바라보았다. 그녀는 뒤를 돌아보았다. 모든 것의 가장자리에 서서 공허가 받아들일 수 없는 유일한 것, 바로 지금 여기에 함께 있다는 선택을 붙잡고 있는 두 사람."
       },
       {
         "speaker": "Arrel",
         "text": "Let's go.",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "가자."
       },
       {
         "speaker": "",
-        "text": "They went."
+        "text": "They went.",
+        "text_ko": "그들은 갔다."
       }
     ],
     "elia_void_talk": [
@@ -520,27 +626,33 @@
         "speaker": "Elia",
         "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.",
         "portrait": "elia_concern",
-        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png"
+        "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
+        "text_ko": "나는 이 장소가 나에게 무엇을 생각나게 하는지 계속 기억하려고 노력한다. 그러나 기억할 것이 없습니다. 그것은... 새로운 것입니다."
       },
       {
         "speaker": "Arrel",
         "text": "New?",
-        "portrait": "arrel_neutral"
+        "portrait": "arrel_neutral",
+        "text_ko": "새로운?"
       },
       {
         "speaker": "Elia",
         "text": "I've never been in a place that has no past. Everything has a past. Even ruins. Even ash.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "나는 과거가 없는 곳에 가본 적이 없습니다. 모든 것에는 과거가 있습니다. 심지어 폐허. 심지어 재."
       },
       {
         "speaker": "Elia",
         "text": "But this... this is what happens when even the past forgets it was here.",
-        "portrait": "elia_concern"
+        "portrait": "elia_concern",
+        "text_ko": "하지만 이건... 과거조차 이곳에 있었다는 사실을 잊어버렸을 때 일어나는 일이다."
       },
       {
         "speaker": "",
-        "text": "She shivered. Not from cold. There was no temperature here. Only absence."
+        "text": "She shivered. Not from cold. There was no temperature here. Only absence.",
+        "text_ko": "그녀는 몸을 떨었다. 추위가 아닙니다. 여기에는 온도가 없었습니다. 부재만."
       }
     ]
-  }
+  },
+  "title_ko": "인감"
 }

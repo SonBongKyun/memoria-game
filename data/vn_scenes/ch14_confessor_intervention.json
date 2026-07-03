@@ -8,34 +8,41 @@
       "fade": 1.6,
       "set_chapter": 14,
       "autosave_chapter_transition": true,
-      "narrate": "The Confessor Hall had no shadows. White light entered the extraction cylinders from every direction and forgave nothing."
+      "narrate": "The Confessor Hall had no shadows. White light entered the extraction cylinders from every direction and forgave nothing.",
+      "narrate_ko": "참회 홀에는 그림자가 없었습니다. 백색광은 모든 방향에서 추출 실린더로 들어왔고 아무것도 용서하지 않았습니다."
     },
     {
-      "narrate": "A prisoner sat inside the central frame. Each pulse removed a sequence: a door latch, a daughter's face, the grammar of pain."
+      "narrate": "A prisoner sat inside the central frame. Each pulse removed a sequence: a door latch, a daughter's face, the grammar of pain.",
+      "narrate_ko": "죄수는 중앙 프레임 안에 앉았습니다. 각 펄스는 문 걸쇠, 딸의 얼굴, 고통의 문법 등 일련의 순서를 제거했습니다."
     },
     {
       "speaker": "Prisoner",
-      "text": "I had a reason. I know I had a reason."
+      "text": "I had a reason. I know I had a reason.",
+      "text_ko": "나는 이유가 있었다. 나는 이유가 있었다는 것을 안다."
     },
     {
       "speaker": "Handler",
-      "text": "Reasons are unlicensed memory structures. Continue extraction."
+      "text": "Reasons are unlicensed memory structures. Continue extraction.",
+      "text_ko": "이유는 라이센스가 없는 메모리 구조 때문입니다. 추출을 계속합니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_angry",
       "side": "left",
-      "text": "Stop."
+      "text": "Stop.",
+      "text_ko": "중지하세요."
     },
     {
       "speaker": "Handler",
-      "text": "Your signature is already in the register. Compliance remains statistically preferable."
+      "text": "Your signature is already in the register. Compliance remains statistically preferable.",
+      "text_ko": "귀하의 서명은 이미 등록부에 있습니다. 규정 준수는 통계적으로 여전히 선호됩니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",
-      "text": "Arrel, that frame is anchored to identity memory. Breaking it will answer with yours."
+      "text": "Arrel, that frame is anchored to identity memory. Breaking it will answer with yours.",
+      "text_ko": "아렐, 그 프레임은 신원 기억에 고정되어 있습니다. 그것을 깨면 당신의 대답이 나올 것입니다."
     },
     {
       "choice": [
@@ -43,31 +50,37 @@
           "text": "Burn the vow to intervene. Turn its meaning into one decisive slash.",
           "cost_memory": "identity_intervention_vow",
           "set_flag": "ch14_burned_intervention_vow",
-          "goto": 9
+          "goto": 9,
+          "text_ko": "개입하겠다는 맹세를 불태우세요. 그 의미를 하나의 결정적인 슬래시로 바꾸십시오."
         },
         {
           "text": "Keep the vow. Trust Tobias to find the apparatus hinge.",
           "set_flag": "ch14_kept_intervention_vow",
-          "goto": 13
+          "goto": 13,
+          "text_ko": "서약을 지키십시오. 장치 경첩을 찾으려면 토비아스를 믿으십시오."
         }
       ]
     },
     {
-      "narrate": "[ The hall measures the choice. ]"
+      "narrate": "[ The hall measures the choice. ]",
+      "narrate_ko": "[ The hall measures the choice. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch14_arrel_burn_slash.png",
       "fade": 0.4,
-      "narrate": "The vow became heat. Gold crossed the white hall and every restraint forgot it had ever been closed."
+      "narrate": "The vow became heat. Gold crossed the white hall and every restraint forgot it had ever been closed.",
+      "narrate_ko": "맹세는 뜨거워졌습니다. 금은 흰색 홀을 가로질러 지나갔고 모든 구속자들은 그것이 닫힌 적이 있다는 것을 잊어버렸습니다."
     },
     {
-      "narrate": "The prisoner fell into Elia's arms. Arrel remembered the action and lost the reason."
+      "narrate": "The prisoner fell into Elia's arms. Arrel remembered the action and lost the reason.",
+      "narrate_ko": "죄수는 엘리아의 품에 안겼습니다. 아렐은 그 행동을 기억하고 이유를 잃었습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_burn",
       "side": "left",
-      "text": "Open every restraint."
+      "text": "Open every restraint.",
+      "text_ko": "모든 구속을 열어라."
     },
     {
       "action": "goto_scene",
@@ -75,19 +88,22 @@
       "start_index": 17
     },
     {
-      "narrate": "Tobias read the machine as if it were a hostile paragraph. His finger stopped on one load-bearing hinge."
+      "narrate": "Tobias read the machine as if it were a hostile paragraph. His finger stopped on one load-bearing hinge.",
+      "narrate_ko": "토비아스는 그 기계를 마치 적대적인 문단인 것처럼 읽었습니다. 그의 손가락은 하나의 하중을 지탱하는 경첩에서 멈췄습니다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "Third conduit. Brass collar. It carries every correction back to the frame, which makes it an argument with a very fragile premise."
+      "text": "Third conduit. Brass collar. It carries every correction back to the frame, which makes it an argument with a very fragile premise.",
+      "text_ko": "세 번째 도관. 황동 칼라. 그것은 모든 수정 사항을 프레임으로 다시 전달하므로 매우 취약한 전제를 가진 논쟁이 됩니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_determined",
       "side": "left",
-      "text": "Then break the premise."
+      "text": "Then break the premise.",
+      "text_ko": "그럼 전제를 깨세요."
     },
     {
       "action": "goto_scene",
@@ -96,44 +112,52 @@
     },
     {
       "set_flag": "ch14_confessor_intervention",
-      "narrate": "The register completed Arrel's signature as the hall died. The pursuit estimate collapsed from six days to less than three."
+      "narrate": "The register completed Arrel's signature as the hall died. The pursuit estimate collapsed from six days to less than three.",
+      "narrate_ko": "홀이 죽으면서 등록부는 아렐의 서명을 완성했습니다. 추격 예상일은 6일에서 3일 미만으로 축소됐다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
-      "text": "They know how you burn now."
+      "text": "They know how you burn now.",
+      "text_ko": "그들은 당신이 지금 어떻게 타는지 알고 있습니다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "Worse. They know he chose to interfere when walking away remained possible. Bureaucracies remember exceptions longer than people do."
+      "text": "Worse. They know he chose to interfere when walking away remained possible. Bureaucracies remember exceptions longer than people do.",
+      "text_ko": "더 나쁘다. 그들은 그가 떠날 때 방해하기로 결정했다는 것을 알고 있습니다. 관료주의는 사람들보다 예외를 더 오래 기억합니다."
     },
     {
       "speaker": "Kairos",
       "portrait": "kairos_cold",
       "side": "right",
-      "text": "The anomaly has become deliberate. That is not corruption. That is function."
+      "text": "The anomaly has become deliberate. That is not corruption. That is function.",
+      "text_ko": "이 변칙성은 고의적인 것이 되었습니다. 그것은 부패가 아닙니다. 그것이 바로 기능입니다."
     },
     {
       "set_flag": "signature_registered",
-      "narrate": "Far east, Kairós closed the incident report before Belor's name could enter the recipient field."
+      "narrate": "Far east, Kairós closed the incident report before Belor's name could enter the recipient field.",
+      "narrate_ko": "극동 지역인 카이로스는 Belor의 이름이 수신자 필드에 입력되기 전에 사건 보고서를 마감했습니다."
     },
     {
       "speaker": "Kairos",
       "portrait": "kairos_neutral",
       "side": "right",
-      "text": "A delayed report is not disloyalty. It is arithmetic performed with incomplete variables."
+      "text": "A delayed report is not disloyalty. It is arithmetic performed with incomplete variables.",
+      "text_ko": "보고가 늦어지는 것은 불충성한 것이 아닙니다. 불완전한 변수를 사용하여 수행되는 산술입니다."
     },
     {
       "set_flag": "kairos_hesitation_1",
-      "narrate": "He did not send it."
+      "narrate": "He did not send it.",
+      "narrate_ko": "그는 그것을 보내지 않았습니다."
     },
     {
       "complete_chapter": 14,
       "action": "goto_scene",
       "id": "ch15_singer"
     }
-  ]
+  ],
+  "title_ko": "제 14 장 참회자의 홀"
 }

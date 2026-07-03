@@ -8,40 +8,48 @@
       "fade": 1.8,
       "set_chapter": 11,
       "autosave_chapter_transition": true,
-      "narrate": "West of the Seam, the Belt no longer looked like a road. It looked like a prison built too wide to see its walls."
+      "narrate": "West of the Seam, the Belt no longer looked like a road. It looked like a prison built too wide to see its walls.",
+      "narrate_ko": "심 서쪽의 벨트는 더 이상 도로처럼 보이지 않았습니다. 벽이 보이지 않을 정도로 넓게 지어진 감옥처럼 보였습니다."
     },
     {
-      "narrate": "Every tower kept the same distance. Every banner moved in the same exhausted wind."
+      "narrate": "Every tower kept the same distance. Every banner moved in the same exhausted wind.",
+      "narrate_ko": "모든 타워는 같은 거리를 유지했습니다. 모든 깃발은 똑같은 지친 바람에 움직였습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "We have been followed since dawn. They are not trying to hide it."
+      "text": "We have been followed since dawn. They are not trying to hide it.",
+      "text_ko": "우리는 새벽부터 따라왔습니다. 그들은 그것을 숨기려고 하지 않습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "I counted six."
+      "text": "I counted six.",
+      "text_ko": "나는 6을 세었다."
     },
     {
       "cg": "res://assets/cg/generated/ch11_executor_strike.png",
       "fade": 0.45,
-      "narrate": "In the next square, an Executor lowered a blunt, edgeless blade onto an old man's arm."
+      "narrate": "In the next square, an Executor lowered a blunt, edgeless blade onto an old man's arm.",
+      "narrate_ko": "다음 광장에서 집행관이 뭉툭하고 날이 없는 칼날을 노인의 팔에 내려놓았습니다."
     },
     {
-      "narrate": "There was no wound. The arm simply forgot the sequence that made fingers close."
+      "narrate": "There was no wound. The arm simply forgot the sequence that made fingers close.",
+      "narrate_ko": "상처는 없었습니다. 팔은 단순히 손가락을 닫는 순서를 잊어버렸습니다."
     },
     {
       "speaker": "Handler",
-      "text": "Motor memory corrected. The subject may return to productive use."
+      "text": "Motor memory corrected. The subject may return to productive use.",
+      "text_ko": "모터 메모리가 수정되었습니다. 대상이 다시 생산적으로 사용될 수 있습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_angry",
       "side": "left",
-      "text": "That is not correction."
+      "text": "That is not correction.",
+      "text_ko": "그건 교정이 아닙니다."
     },
     {
       "choice": [
@@ -49,26 +57,31 @@
           "text": "Burn the pace that carried you west. Cross the square before they can turn.",
           "cost_memory": "daily_belt_footsteps",
           "set_flag": "ch11_burned_escape",
-          "goto": 10
+          "goto": 10,
+          "text_ko": "당신을 서쪽으로 데려간 속도를 태워보세요. 그들이 회전하기 전에 광장을 건너세요."
         },
         {
           "text": "Keep the memory. Move through the service alleys and accept the delay.",
           "set_flag": "ch11_evaded_patrol",
-          "goto": 14
+          "goto": 14,
+          "text_ko": "기억을 유지하세요. 서비스 골목을 이동하고 지연을 받아들이십시오."
         }
       ]
     },
     {
-      "narrate": "[ The choice settles into the body. ]"
+      "narrate": "[ The choice settles into the body. ]",
+      "narrate_ko": "[ The choice settles into the body. ]"
     },
     {
-      "narrate": "He burned the cadence of two sets of footsteps becoming one. Speed arrived. The knowledge of how Elia followed him did not."
+      "narrate": "He burned the cadence of two sets of footsteps becoming one. Speed arrived. The knowledge of how Elia followed him did not.",
+      "narrate_ko": "그는 두 발자국이 하나가 되는 종지를 불태웠다. 속도가 도착했습니다. 엘리아가 그를 어떻게 따라 갔는지에 대한 지식은 그렇지 않았습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
-      "text": "You used to slow half a step before corners. You do not know that anymore."
+      "text": "You used to slow half a step before corners. You do not know that anymore.",
+      "text_ko": "당신은 코너에 진입하기 전에 반걸음 정도 속도를 늦추곤 했습니다. 당신은 더 이상 그것을 모릅니다."
     },
     {
       "action": "goto_scene",
@@ -76,16 +89,19 @@
       "start_index": 17
     },
     {
-      "narrate": "[ Branch return. ]"
+      "narrate": "[ Branch return. ]",
+      "narrate_ko": "[ Branch return. ]"
     },
     {
-      "narrate": "They took the maintenance alleys. It cost forty minutes and left the old man's cry behind them, still audible between identical walls."
+      "narrate": "They took the maintenance alleys. It cost forty minutes and left the old man's cry behind them, still audible between identical walls.",
+      "narrate_ko": "그들은 유지 보수 골목을 차지했습니다. 40분이 걸렸고 노인의 비명소리가 그들 뒤에 남았고, 똑같은 벽 사이에서 여전히 들리고 있었다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "I kept it. Not him."
+      "text": "I kept it. Not him.",
+      "text_ko": "나는 그것을 지켰다. 그 사람은 아니야."
     },
     {
       "action": "goto_scene",
@@ -95,36 +111,43 @@
     {
       "cg": "res://assets/cg/generated/ch11_elia_bloodwork.png",
       "fade": 1.5,
-      "narrate": "That night, Elia opened the blank notebook while Arrel kept watch beyond the broken shelter."
+      "narrate": "That night, Elia opened the blank notebook while Arrel kept watch beyond the broken shelter.",
+      "narrate_ko": "그날 밤 엘리아는 빈 노트를 열었고 아렐은 부서진 대피소 너머를 지키고 있었습니다."
     },
     {
-      "narrate": "Blue lines surfaced under her hand. Blood followed them from her nose to the edge of her glove."
+      "narrate": "Blue lines surfaced under her hand. Blood followed them from her nose to the edge of her glove.",
+      "narrate_ko": "그녀의 손 아래에는 파란색 선이 떠올랐다. 그녀의 코에서 장갑 끝까지 피가 따라다녔다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "The page is not empty. It is refusing ordinary readers."
+      "text": "The page is not empty. It is refusing ordinary readers.",
+      "text_ko": "페이지가 비어 있지 않습니다. 일반 독자를 거부하고 있습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "You are bleeding."
+      "text": "You are bleeding.",
+      "text_ko": "당신은 피를 흘리고 있습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_calm",
       "side": "right",
-      "text": "Paper cut. Keep watching the road."
+      "text": "Paper cut. Keep watching the road.",
+      "text_ko": "종이 절단. 계속 길을 지켜보세요."
     },
     {
       "set_flag": "elia_secret_stage1",
-      "narrate": "She closed the book before he could count the lie."
+      "narrate": "She closed the book before he could count the lie.",
+      "narrate_ko": "그가 거짓말을 세어보기도 전에 그녀는 책을 덮었습니다."
     },
     {
       "action": "goto_scene",
       "id": "ch12_reader"
     }
-  ]
+  ],
+  "title_ko": "제11장 출발"
 }

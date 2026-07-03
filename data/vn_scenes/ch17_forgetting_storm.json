@@ -8,30 +8,35 @@
       "fade": 1.5,
       "set_chapter": 17,
       "autosave_chapter_transition": true,
-      "narrate": "The storm arrived without rain. Violet sand climbed into the sky and returned carrying pieces of other lives."
+      "narrate": "The storm arrived without rain. Violet sand climbed into the sky and returned carrying pieces of other lives.",
+      "narrate_ko": "폭풍은 비 없이 찾아왔다. 보라색 모래가 하늘로 올라가 다른 생명의 조각을 안고 돌아왔습니다."
     },
     {
       "cg": "res://assets/cg/generated/ch17_oblivion_storm.png",
       "fade": 0.5,
-      "narrate": "A name struck Tobias's coat and vanished. A childhood room broke against Elia's cheek."
+      "narrate": "A name struck Tobias's coat and vanished. A childhood room broke against Elia's cheek.",
+      "narrate_ko": "어떤 이름이 토비아스의 코트에 닿더니 사라졌습니다. 어린 시절의 방이 엘리아의 뺨에 닿았습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",
-      "text": "It is not taking at random. It is testing which memories hold the others in place."
+      "text": "It is not taking at random. It is testing which memories hold the others in place.",
+      "text_ko": "무작위로 복용하는 것이 아닙니다. 어떤 기억이 다른 기억을 제자리에 유지하는지 테스트하는 것입니다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "An excellent observation to survive long enough to publish."
+      "text": "An excellent observation to survive long enough to publish.",
+      "text_ko": "출판될 만큼 오래 살아남을 수 있는 훌륭한 관찰입니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_determined",
       "side": "left",
-      "text": "Stay under me."
+      "text": "Stay under me.",
+      "text_ko": "내 밑에 있어라."
     },
     {
       "choice": [
@@ -39,29 +44,34 @@
           "text": "Burn the memory of three shadows on the causeway. Turn ordinary companionship into a shield.",
           "cost_memory": "daily_three_shadows",
           "set_flag": "ch17_burned_three_shadows",
-          "goto": 7
+          "goto": 7,
+          "text_ko": "둑길에 세 그림자의 기억을 불태워라. 평범한 동료애를 방패로 바꿔보세요."
         },
         {
           "text": "Burn the memory of Han. Force the Echo Shell to sing a shelter into the storm.",
           "cost_memory": "rel_han_mneme",
           "set_flag": "ch17_burned_han_resonance",
-          "goto": 11
+          "goto": 11,
+          "text_ko": "한의 기억을 불태워라. 에코 셸이 폭풍 속에 대피소를 노래하도록 강제합니다."
         }
       ]
     },
     {
-      "narrate": "[ The storm opens both hands. ]"
+      "narrate": "[ The storm opens both hands. ]",
+      "narrate_ko": "[ The storm opens both hands. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch17_memory_fracture.png",
       "fade": 0.6,
-      "narrate": "Three shadows became blue-white resistance. Arrel held the cape over Elia and Tobias and forgot the morning they had first walked as one group."
+      "narrate": "Three shadows became blue-white resistance. Arrel held the cape over Elia and Tobias and forgot the morning they had first walked as one group.",
+      "narrate_ko": "세 개의 그림자가 청백색 저항이 되었습니다. 아렐은 엘리아와 토비아스 위에 곶을 붙잡고 그들이 처음으로 한 그룹으로 걸었던 아침을 잊어 버렸습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_burn",
       "side": "left",
-      "text": "Names. Keep saying names."
+      "text": "Names. Keep saying names.",
+      "text_ko": "이름. 계속해서 이름을 말해주세요."
     },
     {
       "action": "goto_scene",
@@ -69,18 +79,21 @@
       "start_index": 14
     },
     {
-      "narrate": "[ Branch return. ]"
+      "narrate": "[ Branch return. ]",
+      "narrate_ko": "[ Branch return. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch17_memory_fracture.png",
       "fade": 0.6,
-      "narrate": "Han's remembered hum entered the shell and became a shelter. The old woman's face disappeared from Arrel before the last vibration ended."
+      "narrate": "Han's remembered hum entered the shell and became a shelter. The old woman's face disappeared from Arrel before the last vibration ended.",
+      "narrate_ko": "한가 기억하는 콧노래는 껍질 속으로 들어가 안식처가 됐다. 마지막 진동이 끝나기도 전에 노파의 얼굴이 에릴에서 사라졌다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "We will write her back into the record if we have to use every wall east of here."
+      "text": "We will write her back into the record if we have to use every wall east of here.",
+      "text_ko": "여기서 동쪽의 모든 벽을 사용해야 한다면 그녀를 기록에 다시 기록하겠습니다."
     },
     {
       "action": "goto_scene",
@@ -88,52 +101,62 @@
       "start_index": 14
     },
     {
-      "narrate": "The storm reached its center. Elia fell first. Tobias followed, both hands locked around the notebook."
+      "narrate": "The storm reached its center. Elia fell first. Tobias followed, both hands locked around the notebook.",
+      "narrate_ko": "폭풍이 중심에 도달했습니다. 엘리아가 먼저 넘어졌습니다. 토비아스는 양손을 노트북에 쥔 채 뒤따랐습니다."
     },
     {
       "cg": "res://assets/cg/generated/ch17_arrel_resist.png",
       "fade": 0.7,
-      "narrate": "Arrel remained standing. The violet pressure bent around him as if it recognized an older rule."
+      "narrate": "Arrel remained standing. The violet pressure bent around him as if it recognized an older rule.",
+      "narrate_ko": "아렐은 계속 서있었습니다. 오래된 규칙을 인식한 듯 보라색 압력이 그의 주위를 휘감았습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_void",
       "side": "right",
-      "text": "It cannot classify you. Arrel, that should be impossible."
+      "text": "It cannot classify you. Arrel, that should be impossible.",
+      "text_ko": "그것은 당신을 분류할 수 없습니다. 에릴, 그건 불가능할 것 같아요."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "Do not name it."
+      "text": "Do not name it.",
+      "text_ko": "이름을 지정하지 마십시오."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
-      "text": "For once, I agree that ignorance may be tactically useful."
+      "text": "For once, I agree that ignorance may be tactically useful.",
+      "text_ko": "일단 나는 무지가 전술적으로 유용할 수 있다는 점에 동의한다."
     },
     {
       "set_flag": "storm_survived",
-      "narrate": "The storm passed east. Nothing it touched returned with exactly the same edges."
+      "narrate": "The storm passed east. Nothing it touched returned with exactly the same edges.",
+      "narrate_ko": "폭풍은 동쪽으로 지나갔습니다. 그것이 만진 어떤 것도 정확히 동일한 가장자리로 반환되지 않았습니다."
     },
     {
       "set_flag": "bloodline_hint_storm",
-      "narrate": "Elia looked at Arrel's unbroken silhouette and closed the page before Tobias could read her conclusion."
+      "narrate": "Elia looked at Arrel's unbroken silhouette and closed the page before Tobias could read her conclusion.",
+      "narrate_ko": "엘리아는 아렐의 깨지지 않는 실루엣을 보고 토비아스가 자신의 결론을 읽기 전에 페이지를 닫았습니다."
     },
     {
-      "narrate": "An Authority broadcast crossed the clearing: a Living Funeral would begin at noon. The condemned name was Tobias Vale."
+      "narrate": "An Authority broadcast crossed the clearing: a Living Funeral would begin at noon. The condemned name was Tobias Vale.",
+      "narrate_ko": "관리국 방송이 공터를 넘어 정오에 살아있는 장례식이 시작될 것이라고 방송했습니다. 비난받은 이름은 토비아스 베일이었습니다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "That is inconvenient. I have not finished the footnotes."
+      "text": "That is inconvenient. I have not finished the footnotes.",
+      "text_ko": "그건 불편해요. 나는 각주를 끝내지 않았습니다."
     },
     {
       "complete_chapter": 17,
       "action": "goto_scene",
       "id": "ch18_living_funeral"
     }
-  ]
+  ],
+  "title_ko": "17장 망각의 폭풍"
 }

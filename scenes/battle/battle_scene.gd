@@ -598,7 +598,7 @@ func _play_intro() -> void:
 
 	# 1단계: 검은 화면에서 적 이름 표시
 	var name_display = Label.new()
-	name_display.text = enemy.name
+	name_display.text = GameManager.localized_enemy_name(enemy.name)
 	name_display.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_display.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_display.set_anchors_preset(Control.PRESET_CENTER)
@@ -1505,7 +1505,7 @@ func _build_player_panel(root: Control) -> void:
 	hbox.add_child(vbox)
 
 	var name_label = Label.new()
-	name_label.text = "Arrel"
+	name_label.text = GameManager.localized_speaker("Arrel")
 	name_label.add_theme_font_size_override("font_size", 15)
 	name_label.add_theme_color_override("font_color", Color(0.45, 0.55, 0.75))
 	vbox.add_child(name_label)
@@ -1712,7 +1712,7 @@ func _exit_tree() -> void:
 
 func _setup_enemy_display() -> void:
 	var enemy = BattleManager.current_enemy
-	enemy_name_label.text = enemy.name
+	enemy_name_label.text = GameManager.localized_enemy_name(enemy.name)
 	enemy_hp_bar.max_value = enemy.max_hp
 	enemy_hp_bar.value = enemy.hp
 	if enemy_break_bar:

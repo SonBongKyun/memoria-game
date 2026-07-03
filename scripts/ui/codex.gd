@@ -377,7 +377,7 @@ func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
 	# S59: Remove old enemy preview if exists
 	_clear_enemy_preview()
 
-	detail_title.text = enemy_name
+	detail_title.text = GameManager.localized_enemy_name(enemy_name)
 
 	# S59: Add enemy sprite preview at top of detail panel
 	_add_enemy_preview(enemy_name, data)

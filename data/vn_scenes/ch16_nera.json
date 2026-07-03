@@ -8,22 +8,26 @@
       "fade": 1.8,
       "set_chapter": 16,
       "autosave_chapter_transition": true,
-      "narrate": "The east road crossed drowned salt flats where black markers stood for towns the maps no longer admitted had existed."
+      "narrate": "The east road crossed drowned salt flats where black markers stood for towns the maps no longer admitted had existed.",
+      "narrate_ko": "동쪽 도로는 지도에서 더 이상 존재하지 않는다고 인정한 마을을 나타내는 검은색 표시가 서 있는 침수된 소금 평지를 건넜습니다."
     },
     {
-      "narrate": "A violet bruise waited on the horizon. It had grown wider since dawn."
+      "narrate": "A violet bruise waited on the horizon. It had grown wider since dawn.",
+      "narrate_ko": "지평선에는 보라색 멍이 기다리고 있었다. 새벽부터 더 넓어졌다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "That weather is moving against the wind, the tide, and every defensible theory I have."
+      "text": "That weather is moving against the wind, the tide, and every defensible theory I have.",
+      "text_ko": "그 날씨는 바람, 조류, 그리고 내가 가지고 있는 모든 방어 이론에 반대하여 움직이고 있습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "Storm. East. Patrol behind."
+      "text": "Storm. East. Patrol behind.",
+      "text_ko": "폭풍. 동쪽. 뒤에 순찰."
     },
     {
       "choice": [
@@ -31,26 +35,31 @@
           "text": "Burn the route chosen at dawn. Cut across the flooded channels before the patrol arrives.",
           "cost_memory": "daily_eastward_route",
           "set_flag": "ch16_burned_route",
-          "goto": 6
+          "goto": 6,
+          "text_ko": "새벽에 선택한 길을 불태워라. 순찰대가 도착하기 전에 침수된 수로를 건너십시오."
         },
         {
           "text": "Keep the route. Hold the causeway and face the Authority checkpoint ahead.",
           "set_flag": "ch16_kept_route",
-          "goto": 10
+          "goto": 10,
+          "text_ko": "경로를 유지하세요. 둑길을 지키고 전방의 관리국 검문소를 바라보세요."
         }
       ]
     },
     {
-      "narrate": "[ The road divides without changing direction. ]"
+      "narrate": "[ The road divides without changing direction. ]",
+      "narrate_ko": "[ The road divides without changing direction. ]"
     },
     {
-      "narrate": "The map burned cleanly. Arrel found a channel no patrol expected and forgot every safe turn behind them."
+      "narrate": "The map burned cleanly. Arrel found a channel no patrol expected and forgot every safe turn behind them.",
+      "narrate_ko": "지도가 깨끗하게 불탔습니다. 아렐은 순찰이 예상되지 않는 채널을 발견하고 그 뒤에 있는 모든 안전한 방향을 잊어버렸습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_burn",
       "side": "left",
-      "text": "Destination remains. The road does not."
+      "text": "Destination remains. The road does not.",
+      "text_ko": "목적지가 남아있습니다. 길은 그렇지 않습니다."
     },
     {
       "action": "goto_scene",
@@ -58,71 +67,86 @@
       "start_index": 12
     },
     {
-      "narrate": "[ Branch return. ]"
+      "narrate": "[ Branch return. ]",
+      "narrate_ko": "[ Branch return. ]"
     },
     {
-      "narrate": "They kept the map and reached the checkpoint with the patrol visible behind them."
+      "narrate": "They kept the map and reached the checkpoint with the patrol visible behind them.",
+      "narrate_ko": "그들은 지도를 보관하고 순찰대가 뒤에 보이는 검문소에 도달했습니다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
-      "text": "We have preserved our cartography and misplaced our margin for error."
+      "text": "We have preserved our cartography and misplaced our margin for error.",
+      "text_ko": "우리는 지도 제작을 보존했으며 오류에 대한 여유를 잘못 두었습니다."
     },
     {
       "cg": "res://assets/cg/generated/ch16_nera_checkpoint.png",
       "fade": 1.2,
-      "narrate": "Nera waited beneath the white inspection arch with a closed dossier and no visible escort."
+      "narrate": "Nera waited beneath the white inspection arch with a closed dossier and no visible escort.",
+      "narrate_ko": "네라는 서류를 닫은 채 눈에 띄는 호위 없이 흰색 검사용 아치 아래에서 기다렸습니다."
     },
     {
-      "narrate": "She recited the warrant without looking down. Every clause offered surrender as though it were a courtesy."
+      "narrate": "She recited the warrant without looking down. Every clause offered surrender as though it were a courtesy.",
+      "narrate_ko": "그녀는 내려다보지 않고 영장을 낭독했습니다. 모든 조항은 마치 예의인 것처럼 항복을 제공했습니다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "She left the western channel open. That is not an oversight."
+      "text": "She left the western channel open. That is not an oversight.",
+      "text_ko": "그녀는 서부 채널을 열어 두었습니다. 그것은 실수가 아닙니다."
     },
     {
-      "narrate": "Nera's eyes moved to the violet horizon for less than a second. The dossier tightened under her fingers."
+      "narrate": "Nera's eyes moved to the violet horizon for less than a second. The dossier tightened under her fingers.",
+      "narrate_ko": "네라의 눈은 1초도 채 되지 않아 보라색 지평선으로 옮겨갔다. 서류가 그녀의 손가락 아래로 조여졌습니다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "She wanted us to refuse."
+      "text": "She wanted us to refuse.",
+      "text_ko": "그녀는 우리가 거절하기를 원했습니다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
-      "text": "Then let us disappoint her with an exceptionally precise refusal."
+      "text": "Then let us disappoint her with an exceptionally precise refusal.",
+      "text_ko": "그렇다면 유난히 정확한 거절로 그녀를 실망시키자."
     },
     {
       "set_flag": "nera_introduced",
-      "narrate": "They crossed the open channel. Nera did not order the pylons to fire."
+      "narrate": "They crossed the open channel. Nera did not order the pylons to fire.",
+      "narrate_ko": "그들은 열린 수로를 건넜습니다. 네라는 철탑에 발사를 명령하지 않았습니다."
     },
     {
       "set_flag": "mira_subplot_1",
-      "narrate": "Far away, Mira marked a 0.3-degree error in Kairós's last pursuit estimate and opened a second ledger."
+      "narrate": "Far away, Mira marked a 0.3-degree error in Kairós's last pursuit estimate and opened a second ledger.",
+      "narrate_ko": "멀리서 미라는 카이로스의 마지막 추격 추정치에 0.3도의 오차를 기록하고 두 번째 장부를 열었다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",
-      "text": "The horizon moved while we were standing still."
+      "text": "The horizon moved while we were standing still.",
+      "text_ko": "우리가 가만히 서 있는 동안 지평선이 움직였다."
     },
     {
       "set_flag": "storm_omen_seen",
-      "narrate": "The violet line rose high enough to erase the islands."
+      "narrate": "The violet line rose high enough to erase the islands.",
+      "narrate_ko": "보라색 선은 섬을 지울 만큼 높이 솟아올랐다."
     },
     {
-      "narrate": "Behind them, Nera finally opened the dossier. One page was already blank."
+      "narrate": "Behind them, Nera finally opened the dossier. One page was already blank.",
+      "narrate_ko": "그 뒤에서 네라는 마침내 서류를 열었다. 한 페이지는 이미 비어 있었습니다."
     },
     {
       "complete_chapter": 16,
       "action": "goto_scene",
       "id": "ch17_forgetting_storm"
     }
-  ]
+  ],
+  "title_ko": "16장 네라"
 }

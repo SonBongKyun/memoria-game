@@ -209,7 +209,7 @@ func _load_settings() -> void:
 				settings["locale"] = "ko"
 				settings["korean_patch_version"] = 1
 
-const DIFFICULTY_LABELS: Dictionary = {0: "Easy", 1: "Normal", 2: "Hard"}
+const DIFFICULTY_LABELS: Dictionary = {0: ["Easy", "쉬움"], 1: ["Normal", "보통"], 2: ["Hard", "어려움"]}
 const DIFFICULTY_COLORS: Dictionary = {
 	0: Color(0.5, 0.75, 0.5),
 	1: Color(0.85, 0.7, 0.45),
@@ -219,42 +219,47 @@ const DIFFICULTY_COLORS: Dictionary = {
 func _update_difficulty_label() -> void:
 	if difficulty_btn:
 		var diff = settings.get("difficulty", 1)
-		difficulty_btn.text = DIFFICULTY_LABELS.get(diff, "Normal")
+		difficulty_btn.text = _localized_pair(DIFFICULTY_LABELS.get(diff, ["Normal", "보통"]))
 		difficulty_btn.add_theme_color_override("font_color", DIFFICULTY_COLORS.get(diff, Color(0.85, 0.7, 0.45)))
 
 const TEXT_SPEED_LABELS: Dictionary = {
-	1: "Slow",
-	2: "Slow+",
-	3: "Normal",
-	4: "Fast",
-	5: "Instant",
+	1: ["Slow", "느리게"],
+	2: ["Slow+", "조금 느리게"],
+	3: ["Normal", "보통"],
+	4: ["Fast", "빠르게"],
+	5: ["Instant", "즉시"],
 }
 
-const QUALITY_LABELS: Dictionary = {0: "Low", 1: "Medium", 2: "High"}
+const QUALITY_LABELS: Dictionary = {0: ["Low", "낮음"], 1: ["Medium", "중간"], 2: ["High", "높음"]}
 const QUALITY_COLORS: Dictionary = {
 	0: Color(0.6, 0.55, 0.5),
 	1: Color(0.7, 0.65, 0.45),
 	2: Color(0.5, 0.8, 0.5),
 }
 
-const FONT_SIZE_LABELS: Dictionary = {0: "Normal", 1: "Large", 2: "Extra Large"}
-const COLORBLIND_LABELS: Dictionary = {0: "Off", 1: "Deuteranopia", 2: "Protanopia", 3: "Tritanopia"}
+const FONT_SIZE_LABELS: Dictionary = {0: ["Normal", "보통"], 1: ["Large", "크게"], 2: ["Extra Large", "매우 크게"]}
+const COLORBLIND_LABELS: Dictionary = {0: ["Off", "끄기"], 1: ["Deuteranopia", "녹색약"], 2: ["Protanopia", "적색약"], 3: ["Tritanopia", "청색약"]}
+
+func _localized_pair(values: Variant) -> String:
+	if values is Array and values.size() >= 2:
+		return String(values[1] if GameManager.current_locale == "ko" else values[0])
+	return String(values)
 
 func _update_quality_label() -> void:
 	if quality_btn:
 		var level = settings.get("quality_level", 2)
-		quality_btn.text = QUALITY_LABELS.get(level, "High")
+		quality_btn.text = _localized_pair(QUALITY_LABELS.get(level, ["High", "높음"]))
 		quality_btn.add_theme_color_override("font_color", QUALITY_COLORS.get(level, Color(0.5, 0.8, 0.5)))
 
 func _update_font_size_label() -> void:
 	if font_size_btn:
 		var level = settings.get("dialogue_font_size", 0)
-		font_size_btn.text = FONT_SIZE_LABELS.get(level, "Normal")
+		font_size_btn.text = _localized_pair(FONT_SIZE_LABELS.get(level, ["Normal", "보통"]))
 
 func _update_colorblind_label() -> void:
 	if colorblind_btn:
 		var mode = settings.get("colorblind_mode", 0)
-		colorblind_btn.text = COLORBLIND_LABELS.get(mode, "Off")
+		colorblind_btn.text = _localized_pair(COLORBLIND_LABELS.get(mode, ["Off", "끄기"]))
 
 func _update_value_labels() -> void:
 	if master_value_label:
@@ -265,7 +270,7 @@ func _update_value_labels() -> void:
 		sfx_value_label.text = "%d%%" % int(sfx_slider.value)
 	if text_speed_value_label:
 		var spd = int(text_speed_slider.value)
-		text_speed_value_label.text = TEXT_SPEED_LABELS.get(spd, "Normal")
+		text_speed_value_label.text = _localized_pair(TEXT_SPEED_LABELS.get(spd, ["Normal", "보통"]))
 
 func _build_ui() -> void:
 	var root = Control.new()
@@ -319,7 +324,7 @@ func _build_ui() -> void:
 
 	# Title
 	var title = Label.new()
-	title.text = "OPTIONS"
+	title.text = GameManager.loc("options").to_upper()
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 22)
 	title.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
@@ -328,11 +333,11 @@ func _build_ui() -> void:
 	_add_separator(vbox)
 
 	# ========== AUDIO SECTION ==========
-	_add_section_header(vbox, "AUDIO")
+	_add_section_header(vbox, GameManager.loc("audio"))
 
 	# Master Volume
 	master_value_label = Label.new()
-	master_slider = _create_slider_row(vbox, "Master Volume", 80, master_value_label)
+	master_slider = _create_slider_row(vbox, GameManager.loc("master_volume"), 80, master_value_label)
 	master_slider.value_changed.connect(func(val: float):
 		settings.master_volume = int(val)
 		_update_value_labels()
@@ -342,7 +347,7 @@ func _build_ui() -> void:
 
 	# BGM Volume
 	bgm_value_label = Label.new()
-	bgm_slider = _create_slider_row(vbox, "BGM Volume", 70, bgm_value_label)
+	bgm_slider = _create_slider_row(vbox, GameManager.loc("bgm_volume"), 70, bgm_value_label)
 	bgm_slider.value_changed.connect(func(val: float):
 		settings.bgm_volume = int(val)
 		_update_value_labels()
@@ -353,7 +358,7 @@ func _build_ui() -> void:
 
 	# SFX Volume
 	sfx_value_label = Label.new()
-	sfx_slider = _create_slider_row(vbox, "SFX Volume", 80, sfx_value_label)
+	sfx_slider = _create_slider_row(vbox, GameManager.loc("sfx_volume"), 80, sfx_value_label)
 	sfx_slider.value_changed.connect(func(val: float):
 		settings.sfx_volume = int(val)
 		_update_value_labels()
@@ -366,11 +371,11 @@ func _build_ui() -> void:
 	_add_separator(vbox)
 
 	# ========== GAMEPLAY SECTION ==========
-	_add_section_header(vbox, "GAMEPLAY")
+	_add_section_header(vbox, GameManager.loc("gameplay"))
 
 	# Text Speed
 	text_speed_value_label = Label.new()
-	text_speed_slider = _create_speed_slider_row(vbox, "Text Speed", settings.text_speed, text_speed_value_label)
+	text_speed_slider = _create_speed_slider_row(vbox, GameManager.loc("text_speed"), settings.text_speed, text_speed_value_label)
 	text_speed_slider.value_changed.connect(func(val: float):
 		settings.text_speed = int(val)
 		_update_value_labels()
@@ -382,7 +387,7 @@ func _build_ui() -> void:
 	vbox.add_child(diff_row)
 
 	var diff_label = Label.new()
-	diff_label.text = "Difficulty"
+	diff_label.text = GameManager.loc("difficulty")
 	diff_label.add_theme_font_size_override("font_size", 15)
 	diff_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	diff_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -400,7 +405,7 @@ func _build_ui() -> void:
 	diff_row.add_child(difficulty_btn)
 
 	# Auto-advance narration
-	auto_advance_check = _create_toggle_row(vbox, "Auto-Advance Narration", settings.auto_advance_narration)
+	auto_advance_check = _create_toggle_row(vbox, GameManager.loc("auto_narration"), settings.auto_advance_narration)
 	auto_advance_check.toggled.connect(func(toggled: bool):
 		settings.auto_advance_narration = toggled
 	)
@@ -408,10 +413,10 @@ func _build_ui() -> void:
 	_add_separator(vbox)
 
 	# ========== DISPLAY SECTION ==========
-	_add_section_header(vbox, "DISPLAY")
+	_add_section_header(vbox, GameManager.loc("display"))
 
 	# Fullscreen
-	fullscreen_check = _create_toggle_row(vbox, "Fullscreen", settings.fullscreen)
+	fullscreen_check = _create_toggle_row(vbox, GameManager.loc("fullscreen"), settings.fullscreen)
 	fullscreen_check.toggled.connect(func(toggled: bool):
 		settings.fullscreen = toggled
 		if toggled:
@@ -427,7 +432,7 @@ func _build_ui() -> void:
 	vbox.add_child(res_row)
 
 	var res_label = Label.new()
-	res_label.text = "Resolution"
+	res_label.text = GameManager.loc("resolution")
 	res_label.add_theme_font_size_override("font_size", 15)
 	res_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	res_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -477,7 +482,7 @@ func _build_ui() -> void:
 	_add_separator(vbox)
 
 	# ========== PERFORMANCE SECTION (S59) ==========
-	_add_section_header(vbox, "PERFORMANCE")
+	_add_section_header(vbox, GameManager.loc("performance"))
 
 	# Quality Preset
 	var quality_row = HBoxContainer.new()
@@ -485,7 +490,7 @@ func _build_ui() -> void:
 	vbox.add_child(quality_row)
 
 	var quality_label = Label.new()
-	quality_label.text = "Quality"
+	quality_label.text = GameManager.loc("quality")
 	quality_label.add_theme_font_size_override("font_size", 15)
 	quality_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	quality_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -513,7 +518,7 @@ func _build_ui() -> void:
 	)
 
 	# FPS Counter
-	fps_check = _create_toggle_row(vbox, "Show FPS", settings.show_fps)
+	fps_check = _create_toggle_row(vbox, GameManager.loc("show_fps"), settings.show_fps)
 	fps_check.toggled.connect(func(toggled: bool):
 		settings.show_fps = toggled
 		_apply_fps_counter(toggled)
@@ -522,7 +527,7 @@ func _build_ui() -> void:
 	_add_separator(vbox)
 
 	# ========== ACCESSIBILITY SECTION ==========
-	_add_section_header(vbox, "ACCESSIBILITY")
+	_add_section_header(vbox, GameManager.loc("accessibility"))
 
 	# Font Size (3 levels: Normal / Large / Extra Large)
 	var font_row = HBoxContainer.new()
@@ -530,7 +535,7 @@ func _build_ui() -> void:
 	vbox.add_child(font_row)
 
 	var font_label = Label.new()
-	font_label.text = "Dialogue Font Size"
+	font_label.text = GameManager.loc("dialogue_font_size")
 	font_label.add_theme_font_size_override("font_size", 15)
 	font_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	font_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -556,14 +561,14 @@ func _build_ui() -> void:
 	font_row.add_child(font_size_btn)
 
 	# High Contrast Mode
-	high_contrast_check = _create_toggle_row(vbox, "High Contrast", settings.high_contrast)
+	high_contrast_check = _create_toggle_row(vbox, GameManager.loc("high_contrast"), settings.high_contrast)
 	high_contrast_check.toggled.connect(func(toggled: bool):
 		settings.high_contrast = toggled
 		_apply_high_contrast(toggled)
 	)
 
 	# Screen Shake
-	shake_check = _create_toggle_row(vbox, "Screen Shake", settings.screen_shake)
+	shake_check = _create_toggle_row(vbox, GameManager.loc("screen_shake"), settings.screen_shake)
 	shake_check.toggled.connect(func(toggled: bool):
 		settings.screen_shake = toggled
 	)
@@ -574,7 +579,7 @@ func _build_ui() -> void:
 	vbox.add_child(cb_row)
 
 	var cb_label = Label.new()
-	cb_label.text = "Colorblind Mode"
+	cb_label.text = GameManager.loc("colorblind_mode")
 	cb_label.add_theme_font_size_override("font_size", 15)
 	cb_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	cb_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -592,14 +597,14 @@ func _build_ui() -> void:
 	cb_row.add_child(colorblind_btn)
 
 	# Reduce Motion
-	reduce_motion_check = _create_toggle_row(vbox, "Reduce Motion", settings.reduce_motion)
+	reduce_motion_check = _create_toggle_row(vbox, GameManager.loc("reduce_motion"), settings.reduce_motion)
 	reduce_motion_check.toggled.connect(func(toggled: bool):
 		settings.reduce_motion = toggled
 	)
 
 	# Description text for accessibility
 	var desc = Label.new()
-	desc.text = "Font Size affects dialogue text. High Contrast increases text outlines and UI borders. Reduce Motion disables particles and simplifies animations."
+	desc.text = GameManager.loc("options_help")
 	desc.add_theme_font_size_override("font_size", 11)
 	desc.add_theme_color_override("font_color", Color(0.45, 0.42, 0.38, 0.7))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -865,7 +870,7 @@ func _create_speed_slider_row(parent: VBoxContainer, label_text: String, default
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(label)
 
-	value_label.text = TEXT_SPEED_LABELS.get(default_val, "Normal")
+	value_label.text = _localized_pair(TEXT_SPEED_LABELS.get(default_val, ["Normal", "보통"]))
 	value_label.add_theme_font_size_override("font_size", 14)
 	value_label.add_theme_color_override("font_color", Color(0.75, 0.65, 0.45))
 	value_label.custom_minimum_size = Vector2(50, 0)
