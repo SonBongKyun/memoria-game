@@ -821,15 +821,16 @@ static func elia_config() -> Dictionary:
 	}
 
 static func sable_config() -> Dictionary:
+	# S148: 캐논 확정 — 세이블(=할다)은 맹인 노파. 백발 + 뿌옇게 흐린 눈(보이드에 시력을 잃음).
 	return {
-		"skin": Color(0.6, 0.48, 0.38),
-		"hair": Color(0.1, 0.08, 0.1),
+		"skin": Color(0.58, 0.47, 0.39),
+		"hair": Color(0.84, 0.84, 0.8),  # 백발
 		"hair_style": "short",
 		"coat": Color(0.18, 0.16, 0.22),  # 어두운 보라 톤
 		"shirt": Color(0.28, 0.22, 0.26),
 		"pants": Color(0.12, 0.11, 0.15),
 		"boots": Color(0.08, 0.06, 0.08),
-		"eye": Color(0.55, 0.4, 0.2),  # 더 강한 호박색
+		"eye": Color(0.74, 0.77, 0.76),  # 뿌연 회백색 — 맹인
 		"accessory": Color(0.45, 0.35, 0.3),
 		"accessory_type": "scar",
 	}

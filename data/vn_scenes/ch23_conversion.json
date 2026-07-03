@@ -1,0 +1,208 @@
+{
+  "id": "ch23_conversion",
+  "title": "Chapter 23 — Conversion",
+  "title_ko": "제23장 — 변환",
+  "chapter": 23,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch23_conversion_wave.png",
+      "fade": 2.0,
+      "set_chapter": 23,
+      "autosave_chapter_transition": true,
+      "narrate": "The log turned over in its sleep, and the monolith began to change its mind. Extraction slowed. Somewhere in the machinery of three hundred years, a valve that had only ever pulled began, hesitantly, to give.",
+      "narrate_ko": "로그가 잠결에 몸을 뒤척였고, 모노리스가 마음을 바꾸기 시작했다. 추출이 느려졌다. 삼백 년 된 기관 어딘가에서, 오직 빨아들이기만 했던 밸브 하나가 머뭇거리며 내어 주기 시작했다."
+    },
+    {
+      "narrate": "Down in Lumea, two strangers on a white street looked at each other and, for the first time in their lives, felt it happen in the same instant. Neither had a word for it. Both reached for one.",
+      "narrate_ko": "저 아래 루메아에서, 흰 거리의 낯선 두 사람이 서로를 바라보았고, 생애 처음으로 같은 순간에 그것이 일어나는 것을 느꼈다. 둘 다 그것을 부를 단어가 없었다. 둘 다 단어를 향해 손을 뻗었다."
+    },
+    {
+      "narrate": "And at his desk that was not there, the Chief Archivist lifted his head and said his sentence — with one word changed. 'We agreed to REMEMBER together. The record remembers for us.' Three hundred years of erosion, or the first correction. No one would ever be certain.",
+      "narrate_ko": "그리고 존재하지 않는 책상에서, 대기록관이 고개를 들어 자신의 문장을 말했다 — 단어 하나가 바뀐 채로. '우리는 함께 기억하기로 약속했다. 기록이 우리를 대신해 기억한다.' 삼백 년에 걸친 마모인가, 아니면 최초의 정정인가. 누구도 영영 확신하지 못할 것이다.",
+      "set_flag": "archivist_sentence_shifted"
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the name. Give the wave everything.",
+          "text_ko": "이름을 태운다. 파동에 전부를 준다.",
+          "cost_memory": "core_name_origin",
+          "set_flag": "p3_name_burned",
+          "goto": 5
+        },
+        {
+          "text": "Weave everything you kept into the wave.",
+          "text_ko": "간직해 온 모든 것을 파동에 엮는다.",
+          "requires_flag": "p3_weave_ready",
+          "set_flag": "p3_conversion_attempted",
+          "goto": 8
+        },
+        {
+          "text": "Hold the line. Keep the name and push.",
+          "text_ko": "버틴다. 이름을 지킨 채 밀어붙인다.",
+          "set_flag": "p3_conversion_attempted",
+          "goto": 11
+        }
+      ]
+    },
+    {
+      "narrate": "[ The fire waits to be told. ]",
+      "narrate_ko": "[ 불이 명령을 기다린다. ]"
+    },
+    {
+      "narrate": "He reached down past everything, to the name at the bottom, and let it go. The fire was white — the color of everything and nothing at once — and the wave took it and became vast.",
+      "narrate_ko": "그는 모든 것 아래로, 바닥에 있는 이름에까지 손을 뻗어, 그것을 놓아 보냈다. 불은 백색이었다 — 모든 것이면서 동시에 아무것도 아닌 색 — 파동은 그것을 받아 광대해졌다."
+    },
+    {
+      "narrate": "The name 'Arrel' unspooled through the monolith like thread through cloth, and everywhere it passed, extraction reversed into gift. Elia held his hand through all of it. He would not remember that she did. She would remember for both of them.",
+      "narrate_ko": "'아렐'이라는 이름이 천을 지나는 실처럼 모노리스를 통과해 풀려나갔고, 그것이 지나는 모든 곳에서 추출이 증여로 뒤집혔다. 그동안 내내 엘리아가 그의 손을 붙들고 있었다. 그는 그 사실을 기억하지 못할 것이다. 그녀가 두 사람 몫으로 기억할 것이다."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch23_conversion",
+      "start_index": 13
+    },
+    {
+      "narrate": "He did not reach for the name. He reached for all of it — every memory carried instead of spent, offered whole. The fire came out braided, every color the Seam had ever bled, and the wave took the weave and learned its shape.",
+      "narrate_ko": "그는 이름에 손을 뻗지 않았다. 전부에 손을 뻗었다 — 소모하는 대신 짊어지고 온 모든 기억을, 온전한 채로 내밀었다. 불은 땋인 채로 흘러나왔다. 씸이 흘려 온 모든 색깔로. 파동은 그 엮임을 받아 자신의 형태를 배웠다."
+    },
+    {
+      "narrate": "The monolith did not scream. It quieted — a torn thing pulled back together along the lines of a life that refused to come apart. The conversion held, mended instead of erased.",
+      "narrate_ko": "모노리스는 비명을 지르지 않았다. 조용해졌다 — 무너지기를 거부한 한 생애의 결을 따라, 찢어진 것이 다시 봉합되었다. 변환은 버텼다. 지워진 것이 아니라, 기워진 채로."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch23_conversion",
+      "start_index": 13
+    },
+    {
+      "narrate": "He kept the name and pushed with everything else. The wave rose, reached Lumea, reached the near Belt — and thinned. It was not everything. It was a beginning that knew it was a beginning.",
+      "narrate_ko": "그는 이름을 지킨 채 나머지 전부로 밀어붙였다. 파동은 솟아올라 루메아에 닿고, 가까운 벨트에 닿았다 — 그리고 옅어졌다. 전부는 아니었다. 자신이 시작임을 아는, 시작이었다."
+    },
+    {
+      "narrate": "Somewhere east, past the reach of the wave, gray towns kept their gray. But the wave had a shoreline now, and shorelines move.",
+      "narrate_ko": "파동이 닿지 못한 동쪽 어딘가에서, 회색 마을들은 회색인 채로 남았다. 그러나 파동에는 이제 해안선이 생겼고, 해안선은 움직이는 법이다."
+    },
+    {
+      "narrate": "In the control galleries above, Belor watched the arithmetic of his lifetime stop balancing, and withdrew into the dark with the patience of a man who intends to return. The monolith let him go. It had bigger things to remember.",
+      "narrate_ko": "위쪽 제어 회랑에서 벨로르는 필생의 산수가 더는 맞아떨어지지 않는 것을 지켜보다가, 돌아올 작정인 자의 인내를 안고 어둠 속으로 물러났다. 모노리스는 그를 놓아주었다. 기억해야 할 더 큰 것들이 있었으므로.",
+      "set_flag": "belor_survives"
+    },
+    {
+      "action": "resolve_part3_ending"
+    },
+    {
+      "requires_flag": "p3e_zero_burn",
+      "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png",
+      "fade": 2.0,
+      "narrate": "When the light settled, a man with no name stood at the center of a continent learning to feel again. He looked at the woman beside him with the certainty that she was important, and no idea why.",
+      "narrate_ko": "빛이 가라앉았을 때, 이름 없는 남자가 다시 느끼는 법을 배우기 시작한 대륙의 한가운데 서 있었다. 그는 곁의 여인을 바라보았다. 그녀가 소중하다는 확신과 함께. 그 이유는 알지 못한 채."
+    },
+    {
+      "requires_flag": "p3e_zero_burn",
+      "speaker": "Elia",
+      "portrait": "elia_hopeful",
+      "side": "right",
+      "text": "Do you want a new name? I am told I am good at giving them.",
+      "text_ko": "새 이름, 가질래? 내가 이름을 잘 짓는다고 들었거든."
+    },
+    {
+      "requires_flag": "p3e_zero_burn",
+      "speaker": "???",
+      "portrait": "arrel_exhausted",
+      "side": "left",
+      "text": "Yes. A new one.",
+      "text_ko": "응. 새것으로."
+    },
+    {
+      "requires_flag": "p3e_weave",
+      "cg": "res://assets/cg/generated/ending_weave_colors_return.png",
+      "fade": 2.0,
+      "narrate": "When the light settled, the man who had woven himself into the wave was still himself. Thinner, somehow — part of him now lived in every shared memory on the continent — but whole, and still holding.",
+      "narrate_ko": "빛이 가라앉았을 때, 파동에 스스로를 엮어 넣은 남자는 여전히 그 자신이었다. 어딘가 옅어진 채로 — 그의 일부는 이제 대륙의 모든 공유된 기억 속에 살고 있었다 — 그러나 온전했고, 여전히 붙들고 있었다."
+    },
+    {
+      "requires_flag": "p3e_weave",
+      "speaker": "Arrel",
+      "portrait": "arrel_neutral",
+      "side": "left",
+      "text": "I remember all. Now everyone does.",
+      "text_ko": "나는 전부 기억해. 이제는, 모두가 함께."
+    },
+    {
+      "requires_flag": "p3e_preservation",
+      "cg": "res://assets/cg/generated/ending_preservation_return.png",
+      "fade": 2.0,
+      "narrate": "The wave thinned before it reached the far coasts, and the man who kept his name stood at its shoreline, already planning the next tide. The work would take a lifetime. He had kept exactly the memories a lifetime needs.",
+      "narrate_ko": "파동은 먼 해안에 닿기 전에 옅어졌고, 이름을 지킨 남자는 그 해안선에 서서 벌써 다음 밀물을 계획하고 있었다. 그 일에는 한 생애가 걸릴 것이다. 그는 한 생애에 필요한 만큼의 기억을, 정확히 지켜 두었다."
+    },
+    {
+      "requires_flag": "p3e_preservation",
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "My name is Arrel. The search continues.",
+      "text_ko": "내 이름은 아렐. 수색은 계속된다."
+    },
+    {
+      "requires_flag": "p3e_ash",
+      "cg": "res://assets/cg/generated/ending_ash_sunset_shell.png",
+      "fade": 2.0,
+      "narrate": "The conversion held, and the man who paid for it in relationships watched it hold the way one watches weather: accurately, and from very far away. He had kept his name. The name had kept very little else.",
+      "narrate_ko": "변환은 버텼고, 그 대가를 관계로 치른 남자는 날씨를 보듯 그것이 버티는 모습을 지켜보았다. 정확하게, 그리고 아주 먼 곳에서. 그는 이름을 지켰다. 이름은 그 밖의 것을 거의 지키지 못했다."
+    },
+    {
+      "requires_flag": "p3e_ash",
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "The continent is waking up. I keep hoping the noise reaches wherever you went.",
+      "text_ko": "대륙이 깨어나고 있어. 그 소리가 네가 가 있는 곳까지 닿기를, 나는 아직도 바라."
+    },
+    {
+      "requires_flag": "p3e_seam",
+      "cg": "res://assets/cg/generated/ending_seam_impossible_garden.png",
+      "fade": 2.0,
+      "narrate": "The wave found the cracks first — the Seam, the hidden gardens, every place where something had survived by being overlooked. From there it grew outward, the way green grows: quietly, in defiance, through stone.",
+      "narrate_ko": "파동은 균열들을 먼저 찾아냈다 — 씸을, 숨은 정원들을, 간과된 덕분에 살아남은 모든 곳을. 그곳들로부터 파동은 바깥으로 자라났다. 초록이 자라는 방식으로. 조용히, 반항적으로, 돌을 뚫고서."
+    },
+    {
+      "requires_flag": "p3e_seam",
+      "narrate": "In the cracks between loss, something green still grows. It always had. Now the whole continent would learn where to look.",
+      "narrate_ko": "상실과 상실 사이의 균열 속에서, 초록은 여전히 자란다. 언제나 그래 왔다. 이제 온 대륙이 어디를 보아야 하는지 배우게 될 것이다."
+    },
+    {
+      "requires_flag": "p3e_tobias",
+      "cg": "res://assets/cg/generated/ending_tobias_night_press.png",
+      "fade": 2.0,
+      "narrate": "The wave passed, and behind it came the press. Tobias printed through the night — every deleted name, every withheld sighting, every sentence the Authority had unsaid — because a wave recedes, but a record remains.",
+      "narrate_ko": "파동이 지나갔고, 그 뒤로 인쇄기가 왔다. 토비아스는 밤새 찍어 냈다 — 삭제된 모든 이름을, 유보된 모든 목격담을, 관리국이 말해지지 않게 만든 모든 문장을 — 파동은 물러가지만, 기록은 남기 때문에."
+    },
+    {
+      "requires_flag": "p3e_tobias",
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "The pen outlasts the flame. It always did. It simply needed someone unreasonable enough to keep holding it.",
+      "text_ko": "펜은 불꽃보다 오래간다. 언제나 그랬어. 그저 그것을 계속 쥐고 있을 만큼 비합리적인 사람이 필요했을 뿐이지."
+    },
+    {
+      "requires_flag": "p3e_hollow",
+      "cg": "res://assets/cg/generated/ending_hollow_name_room.png",
+      "fade": 2.0,
+      "narrate": "The wave rose and the man who should have shaped it had nothing left to shape it with. It passed through him the way light passes through an empty room, and somewhere in that room, one name echoed with no one left to answer it.",
+      "narrate_ko": "파동이 솟아올랐지만, 그것을 빚어야 했을 남자에게는 빚을 것이 남아 있지 않았다. 파동은 빈방을 지나는 빛처럼 그를 통과했고, 그 방 어딘가에서 하나의 이름이 메아리쳤다. 대답할 사람은 남아 있지 않았다."
+    },
+    {
+      "requires_flag": "p3e_hollow",
+      "narrate": "The continent woke. He did not. The price of oblivion, paid in full, one small memory at a time.",
+      "narrate_ko": "대륙은 깨어났다. 그는 깨어나지 못했다. 망각의 대가는, 작은 기억 하나씩, 전액 지불되었다."
+    },
+    {
+      "complete_chapter": 23,
+      "autosave_chapter_transition": true,
+      "action": "goto_scene",
+      "id": "ch24_testimony"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "id": "ch22_core",
+  "title": "Chapter 22 — The Core",
+  "title_ko": "제22장 — 핵",
+  "chapter": 22,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch22_monolith_core.png",
+      "fade": 2.0,
+      "set_chapter": 22,
+      "autosave_chapter_transition": true,
+      "narrate": "The core of the monolith was not a machine. It was a sentence that had never finished being spoken — the primal log of the First Age, still breathing, still waiting for its readers to come home.",
+      "narrate_ko": "모노리스의 핵은 기계가 아니었다. 그것은 아직 다 말해지지 못한 하나의 문장이었다 — 제1시대의 원초 로그. 여전히 숨 쉬며, 여전히 독자들이 집으로 돌아오기를 기다리는."
+    },
+    {
+      "narrate": "Every extraction, every Confessor Hall, every Blanker dose on the continent drained toward this light. Not to feed it. To keep it asleep.",
+      "narrate_ko": "대륙의 모든 추출이, 모든 고해소가, 모든 블랭커 투약이 이 빛을 향해 흘러들고 있었다. 빛을 먹이기 위해서가 아니라, 재워 두기 위해서."
+    },
+    {
+      "fade": 1.5,
+      "speaker": "Elia",
+      "portrait": "elia_determined",
+      "side": "right",
+      "text": "The book is finishing itself in my hands. It was never a record, Arrel. It is an address. The log needs a reader who can hold everyone at once without breaking. I can be that. Let me be that.",
+      "text_ko": "책이 내 손안에서 스스로를 완성하고 있어. 이건 처음부터 기록이 아니었어, 아렐. 주소였어. 로그에는 부서지지 않고 모두를 한꺼번에 품을 수 있는 독자가 필요해. 내가 그게 될 수 있어. 그렇게 하게 해 줘."
+    },
+    {
+      "choice": [
+        {
+          "text": "Let her choose. Her weight to carry, her hand to offer.",
+          "text_ko": "그녀의 선택에 맡긴다. 그녀가 짊어질 무게, 그녀가 내밀 손이다.",
+          "set_flag": "elia_relay_choice",
+          "goto": 5
+        },
+        {
+          "text": "Refuse. No one becomes a doorway alone. Find another anchor.",
+          "text_ko": "거절한다. 누구도 혼자 문이 되어선 안 된다. 다른 닻을 찾는다.",
+          "set_flag": "elia_relay_refused",
+          "goto": 7
+        }
+      ]
+    },
+    {
+      "narrate": "[ The log waits for an answer. ]",
+      "narrate_ko": "[ 로그가 대답을 기다린다. ]"
+    },
+    {
+      "narrate": "He stepped back. Elia opened the finished book, and the core's light bent toward her like a tide answering its moon. She did not flinch. The quiet around her became the quiet before a first word.",
+      "narrate_ko": "그가 물러섰다. 엘리아가 완성된 책을 펼치자, 핵의 빛이 달을 향하는 조수처럼 그녀에게 기울었다. 그녀는 움츠러들지 않았다. 그녀를 둘러싼 조용함이, 첫 단어가 나오기 직전의 조용함이 되었다."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch22_core",
+      "start_index": 8
+    },
+    {
+      "narrate": "He refused, and she smiled with something that was not agreement. She kept the book open anyway — but her other hand stayed in his, an anchor refusing to let the door forget it was also a person.",
+      "narrate_ko": "그가 거절하자, 그녀는 동의가 아닌 무언가를 담아 미소 지었다. 그래도 그녀는 책을 펼쳐 든 채였다 — 다만 다른 한 손은 그의 손에 남겨 두었다. 문이 되려는 자가 여전히 사람이기도 하다는 것을, 잊지 않게 붙드는 닻으로."
+    },
+    {
+      "fade": 1.5,
+      "narrate": "A figure stepped out of the light's edge, and Arrel's body dropped into the stance again — the guard with the middle burned out. This close, the walk had a face. The face was waiting for him to remember it.",
+      "narrate_ko": "빛의 가장자리에서 인영이 걸어 나왔고, 아렐의 몸이 다시 그 자세로 내려앉았다 — 가운데가 타 버린 방어 자세로. 이만큼 가까우니 그 걸음에는 얼굴이 있었다. 그 얼굴은 그가 자신을 기억해 내기를 기다리고 있었다.",
+      "set_flag": "vael_encounter_2"
+    },
+    {
+      "requires_flag": "opt_vael_speaks",
+      "speaker": "Vael",
+      "text": "...Arrel?",
+      "text_ko": "...아렐?",
+      "set_flag": "vael_recognition"
+    },
+    {
+      "requires_not_flag": "opt_vael_speaks",
+      "narrate": "Vael's mouth formed the shape of a name. The shape never became sound. Some debts are paid by silence, and some silences are the last thing two people still share.",
+      "narrate_ko": "베일의 입이 어떤 이름의 형태를 만들었다. 그 형태는 끝내 소리가 되지 못했다. 어떤 빚은 침묵으로 갚아지고, 어떤 침묵은 두 사람에게 남은 마지막 공유물이다."
+    },
+    {
+      "requires_flag": "celah_reunion",
+      "narrate": "And through the core drifted a lullaby — the preserved woman's melody carried down three hundred years, Han's scarred throat holding the harmony a half-step below. The last song of the First Age, sung by its first and final witnesses.",
+      "narrate_ko": "그리고 핵을 가로질러 자장가가 흘렀다 — 보존된 여인의 선율이 삼백 년을 건너 내려왔고, 한의 흉터 진 목이 반음 아래에서 화음을 받치고 있었다. 제1시대의 마지막 노래가, 그 처음이자 마지막 증인들의 목소리로."
+    },
+    {
+      "narrate": "Above them, the monolith's extraction engines reversed pitch. Belor had reached the control galleries. Whatever was going to happen had to happen now.",
+      "narrate_ko": "머리 위에서 모노리스의 추출 기관이 역회전음을 냈다. 벨로르가 제어 회랑에 도달한 것이다. 일어날 일은, 지금 일어나야 했다."
+    },
+    {
+      "check_weave": true,
+      "cg": "res://assets/cg/generated/ch22_conversion_threshold.png",
+      "fade": 1.5,
+      "narrate": "Arrel stood at the edge of the log and weighed everything he had kept against everything he had spent. The fire waited to be told what it was for.",
+      "narrate_ko": "아렐은 로그의 가장자리에 서서, 자신이 간직해 온 모든 것과 소모해 온 모든 것을 저울에 올렸다. 불은 자신의 쓸모가 무엇인지 말해지기를 기다리고 있었다."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_determined",
+      "side": "left",
+      "text": "Now we decide what fire is for.",
+      "text_ko": "이제 불이 무엇을 위한 것인지 정한다."
+    },
+    {
+      "complete_chapter": 22,
+      "action": "goto_scene",
+      "id": "ch23_conversion"
+    }
+  ]
+}

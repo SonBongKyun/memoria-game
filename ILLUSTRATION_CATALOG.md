@@ -163,3 +163,23 @@ The five generated S151 images use current character sheets plus the supplied st
 | Reserved for Ch22 | Reaches the Monolith core | `ch22_monolith_core.png` | User-provided 85.png |
 
 All 15 S152 plates are 1672x941 RGB images. Six are placed directly into the existing Chapter 13/15/17/18 VN rhythm; the remaining nine are catalogued in the Artbook without runtime references so Chapters 19-22 retain their reveal order.
+
+## S154 Sable canon regeneration and Part III bridge set
+
+| Runtime scene / role | Story beat | Asset | Source |
+|---|---|---|---|
+| Dialogue portraits | Establishes Sable/Halda as the same blind veteran in every expression | `sable_neutral.jpg`, `sable_calm.jpg`, `sable_face_neutral.png`, `sable_face_calm.png` | GPT Image + deterministic size variants |
+| Character reference | Locks Sable's age, scar, clouded eyes, violet coat, and brass pin | `sable_canon_master.png` | GPT Image |
+| `seam_arrival` | Meets the old woman waiting without watching | `story_ch5_seam_first_light.png` | GPT Image regeneration |
+| `sable_briefing` | Reads BL-07's raised route by touch | `story_ch6_sable_briefing.png` | GPT Image regeneration |
+| `epilogue_preservation` | Waits inside the open gate by sound rather than sight | `ending_preservation_return.png` | GPT Image regeneration |
+| `epilogue_weave` | Pricks the eighteenth pattern into her tactile ledger | `ending_weave_sable_ledger.png` | GPT Image regeneration |
+| `ch19_approach` | Sees the Monolith open for a white-robed procession | `ch19_monolith_gates.png` | GPT Image |
+| `ch19_approach` | Recognizes Vael's walk before remembering his name | `ch19_vael_silhouette.png` | GPT Image |
+| `ch20_monolith` | Finds the Chief Archivist at a desk that barely exists | `ch20_archivist_desk.png` | GPT Image |
+| `ch21_editors_turn` | Nera feels her first emotion in nineteen years | `ch21_nera_hesitation.png` | GPT Image + Nera identity reference |
+| `ch22_core` | Reaches the decision threshold at the primal log | `ch22_conversion_threshold.png` | GPT Image |
+| `ch23_conversion` | Watches the extraction current reverse and flow outward | `ch23_conversion_wave.png` | GPT Image |
+| `ch24_testimony` | Leaves the story with a child carrying the last lullaby | `ch24_last_lullaby.png` | GPT Image |
+
+All new story CGs are clean 1672x941 RGB plates with text-free compositions and a quiet lower dialogue zone. Prompts explicitly excluded film/photo grain, paper or canvas overlays, speckles, chromatic noise, compression artifacts, muddy detail, and excessive bloom. Sable's canon LOCK remained: `old blind woman, late 60s, short white hair, weathered coast-stone face, pale clouded eyes, dark violet-toned coat, small scar, composed and unhurried`.

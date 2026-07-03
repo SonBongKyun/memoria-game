@@ -66,10 +66,10 @@ func _ready() -> void:
 	_build_map()
 	_blend_edges = TilePainter.auto_blend_edges(self, map_data, MAP_WIDTH, MAP_HEIGHT, tile_colors, TILE_SIZE)
 	# S131: Opening readability pass — keep the mood, but avoid hiding the first playable screen.
-	MapEffects.add_vignette(self, 0.26)
+	MapEffects.add_vignette(self, 0.14)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 12, Color(0.5, 0.85, 0.3, 0.5))  # S46: 숲 반딧불
-	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.04))
+	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.018))
 	# S42: 패럴랙스 배경 + 2D 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.08, 0.12), "far": Color(0.08, 0.12, 0.08), "mid": Color(0.12, 0.18, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.66, 0.66, 0.68))
@@ -83,7 +83,7 @@ func _ready() -> void:
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.BUSH])
 	MapEffects.add_color_grading(self, {"tint": Color(0.34, 0.48, 0.28), "brightness": 0.02})
 	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/story_ch1_twisted_forest_path.png", 0.08, Color(0.84, 0.98, 0.76))
-	_pollen = MapEffects.add_pollen_particles(self, 12, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.25))
+	_pollen = MapEffects.add_pollen_particles(self, 6, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.16))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S57: 앰비언트 와일드라이프 — 반딧불 + 낙엽
@@ -101,10 +101,10 @@ func _ready() -> void:
 	MapEffects.spawn_transition_particles(self, "forest")
 	# S59: 인터랙티브 프롭 + 분위기 강화
 	_setup_interactive_props()
-	_fog_layer = MapEffects.add_fog_layer(self, 0.38, Color(0.2, 0.22, 0.18, 0.035), 2.5)
+	_fog_layer = MapEffects.add_fog_layer(self, 0.16, Color(0.2, 0.22, 0.18, 0.018), 2.0)
 	MapEffects.add_wind_sway(self, 2.0)
 	MapEffects.add_depth_gradient(self, 0.045)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.76, 0.42, 1.0), "vignette": 0.28, "tint_strength": 0.05, "shafts": 0.07, "glints": 3})
+	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.76, 0.42, 1.0), "vignette": 0.16, "tint_strength": 0.028, "shafts": 0.035, "glints": 1, "grain": 0.0, "letterbox": 0.08})
 	_position_player()
 	# S66 (A안 — Act I 데모 슬림화):
 	# 보스(Void Beast) 트리거 + 캠프 + 핵심 히든 이벤트만 유지.

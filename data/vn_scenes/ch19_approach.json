@@ -1,0 +1,146 @@
+{
+  "id": "ch19_approach",
+  "title": "Chapter 19 — The Approach",
+  "title_ko": "제19장 — 접근",
+  "chapter": 19,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/env_lumea_sanctum.png",
+      "fade": 1.8,
+      "set_chapter": 19,
+      "autosave_chapter_transition": true,
+      "narrate": "Lumea rose out of the flats like a wound that had healed wrong: white, seamless, shadowless. The whitest place on Mnemos, and the quietest.",
+      "narrate_ko": "루메아는 잘못 아문 상처처럼 평원 위로 솟아 있었다. 희고, 이음매 없고, 그림자가 없었다. 므네모스에서 가장 흰 곳, 그리고 가장 조용한 곳."
+    },
+    {
+      "narrate": "Checkpoints stood closer together than the houses did. Above them all, the black monolith held the noon in place.",
+      "narrate_ko": "검문소가 집보다 촘촘하게 서 있었다. 그 모든 것 위에서, 검은 모노리스가 정오를 붙들어 두고 있었다."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Every ledger I ever kept was a rough draft of this place. I find I am not proud of that.",
+      "text_ko": "내가 써 온 모든 장부가 이 도시의 초고였던 셈이군. 그게 자랑스럽지가 않아."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_neutral",
+      "side": "right",
+      "text": "It is so quiet. Not the quiet after something ends. The quiet where nothing is allowed to begin.",
+      "text_ko": "너무 조용해. 무언가 끝난 뒤의 조용함이 아니야. 아무것도 시작되지 못하게 하는 조용함이야."
+    },
+    {
+      "narrate": "A Blanker patrol crossed the plaza with even, dreamless steps. Han's hum flattened into the wind, and the patrol's attention slid past the four of them like water past glass.",
+      "narrate_ko": "블랭커 순찰대가 균일하고 꿈 없는 걸음으로 광장을 가로질렀다. 한의 허밍이 바람 속으로 낮게 깔리자, 순찰대의 주의가 유리를 스치는 물처럼 네 사람을 지나쳐 흘러갔다."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch19_vael_silhouette.png",
+      "fade": 1.2,
+      "narrate": "Across the plaza, a figure stopped mid-stride. Arrel's body dropped into a guard stance before his mind asked why.",
+      "narrate_ko": "광장 건너편에서 한 인영이 걸음을 멈췄다. 아렐의 몸이 먼저 방어 자세로 내려앉았다. 이유를 묻기도 전에."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "My hands know that walk.",
+      "text_ko": "내 손이 저 걸음을 알아."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "Your hands. Not your memory. Arrel, that is a memory with the middle burned out of it.",
+      "text_ko": "네 손이 안다는 거지. 기억이 아니라. 아렐, 그건 가운데가 타 버린 기억이야."
+    },
+    {
+      "narrate": "When the patrol's lantern swung back, the figure was gone. The stance stayed in Arrel's shoulders for a long time.",
+      "narrate_ko": "순찰대의 등불이 되돌아왔을 때, 인영은 사라져 있었다. 자세만이 오래도록 아렐의 어깨에 남아 있었다.",
+      "set_flag": "vael_encounter_1"
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the first white noon. Cross while their eyes recover.",
+          "text_ko": "첫 백색 정오를 태운다. 그들의 눈이 회복되기 전에 건넌다.",
+          "cost_memory": "sense_white_noon",
+          "set_flag": "ch19_burned_crossing",
+          "goto": 11
+        },
+        {
+          "text": "Keep it. Follow Han's held note through the queue.",
+          "text_ko": "간직한다. 한이 길게 끄는 음을 따라 줄을 통과한다.",
+          "set_flag": "ch19_song_crossing",
+          "goto": 14
+        }
+      ]
+    },
+    {
+      "narrate": "[ The checkpoint waits. ]",
+      "narrate_ko": "[ 검문소가 기다린다. ]"
+    },
+    {
+      "narrate": "He burned his first sight of the shadowless city. Light became speed. The checkpoint scanners read a man with no first impression at all, and let him pass as no one.",
+      "narrate_ko": "그는 그림자 없는 도시를 처음 본 순간을 태웠다. 빛이 속도가 되었다. 검문 스캐너는 첫인상이 존재하지 않는 남자를 읽었고, 아무도 아닌 자로 통과시켰다."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "You will never see this city the way it wanted to be seen. Maybe that is a mercy.",
+      "text_ko": "넌 이제 이 도시가 보여 주고 싶어 한 모습을 영영 못 봐. 어쩌면 그게 자비일지도."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch19_approach",
+      "start_index": 16
+    },
+    {
+      "narrate": "They kept everything and moved at the speed of a song. Han's note stretched thin as wire. At the last barrier her scar tore, and the note ended in blood she wiped away before anyone could name it.",
+      "narrate_ko": "그들은 아무것도 태우지 않고 노래의 속도로 움직였다. 한의 음이 철사처럼 가늘게 늘어났다. 마지막 차단벽에서 그녀의 흉터가 찢어졌고, 음은 누구도 이름 붙이기 전에 그녀가 닦아 낸 피로 끝났다."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "Record the price even when it is not ours. Especially then.",
+      "text_ko": "대가는 기록해야 해. 우리 몫이 아닐 때는, 더더욱."
+    },
+    {
+      "narrate": "Inside the outer ring, a runner from the Seam found them — hollow-eyed, carrying a ledger wrapped in oilcloth. Sable's ledger. The Seam's watch post had gone dark nine days ago, and she had gone dark with it.",
+      "narrate_ko": "외곽 순환로 안쪽에서 씸의 전령이 그들을 찾아냈다 — 퀭한 눈에, 기름천으로 감싼 장부를 안고서. 세이블의 장부였다. 씸의 감시초소는 아흐레 전에 어두워졌고, 그녀도 그와 함께 어두워졌다.",
+      "set_flag": "sable_death_notified"
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "Seventeen names in her ledger. She never let herself stop counting them. Now someone has to count her.",
+      "text_ko": "장부에 적힌 열일곱의 이름. 그녀는 한 번도 세는 걸 멈추지 않았어. 이제 누군가 그녀를 세어야 해."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pain",
+      "side": "left",
+      "text": "Add her to the count.",
+      "text_ko": "그녀를 셈에 더해."
+    },
+    {
+      "narrate": "At the inner gate a patrol turned wrong, and there was no room left for quiet. Elia's hand closed on Arrel's shoulder as he burned — and her warmth fed the flame without leaving her. Two people. One fire. The patrol saw a wall of heat and remembered urgent business elsewhere.",
+      "narrate_ko": "안쪽 관문에서 순찰대가 방향을 잘못 틀었고, 더는 조용할 여지가 없었다. 아렐이 연소하는 순간 엘리아의 손이 그의 어깨를 붙잡았다 — 그녀의 온기가 그녀를 잃지 않은 채 불길에 흘러들었다. 두 사람. 하나의 불. 순찰대는 열의 벽을 보았고, 다른 곳의 급한 용무를 기억해 냈다.",
+      "set_flag": "chain_burn_unlocked"
+    },
+    {
+      "cg": "res://assets/cg/generated/ch19_monolith_gates.png",
+      "fade": 1.5,
+      "narrate": "Ahead, the monolith's outer wall opened for a procession of white robes. For six seconds, the way into the heart of the Authority stood unlocked.",
+      "narrate_ko": "전방에서 모노리스의 외벽이 흰 예복의 행렬을 위해 열렸다. 여섯 초 동안, 관리국의 심장으로 들어가는 길이 잠기지 않은 채 서 있었다."
+    },
+    {
+      "complete_chapter": 19,
+      "action": "goto_scene",
+      "id": "ch20_monolith"
+    }
+  ]
+}

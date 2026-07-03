@@ -301,8 +301,8 @@
       },
       {
         "speaker": "",
-        "text": "Sable was waiting. She looked past them, at the place where BL-07 used to breathe, and went very still.",
-        "text_ko": "세이블이 기다리고 있었어요. 그녀는 그들 너머로 BL-07이 숨 쉬던 곳을 바라보며 아주 가만히 있었습니다."
+        "text": "Sable was waiting. Her clouded eyes turned past them, toward the place where BL-07 used to breathe — she had never needed sight to know exactly where it was — and she went very still.",
+        "text_ko": "세이블이 기다리고 있었다. 뿌연 눈이 그들을 지나 BL-07이 숨 쉬던 자리를 향했다 — 그곳이 어디인지 아는 데 그녀는 한 번도 시력이 필요했던 적이 없었다 — 그리고 그녀는 아주 고요해졌다."
       },
       {
         "speaker": "Sable",
@@ -336,15 +336,15 @@
       },
       {
         "speaker": "Sable",
-        "text": "That's not in any of my records. Eleven teams. Eleven. Every one of them burned. None of them tried to hold.",
+        "text": "That's not in any of my records. Seventeen people I sent toward that hole. Seventeen. Every one of them burned. Not one of them tried to hold.",
         "portrait": "sable_calm",
-        "text_ko": "내 기록에는 그런 내용이 없습니다. 11개 팀. 열하나. 그들 모두는 불에 탔습니다. 그들 중 누구도 붙잡으려고 하지 않았습니다."
+        "text_ko": "내 기록 어디에도 없는 일이야. 저 구멍으로 열일곱 명을 보냈어. 열일곱. 전부 태우는 쪽을 택했지. 붙드는 쪽을 시도한 사람은 단 한 명도 없었어."
       },
       {
         "speaker": "",
-        "text": "She pulled out her ledger — the pattern she could never quite see — and stared at the empty column where this had never happened before.",
+        "text": "She pulled out her ledger — pages pricked with pin-holes her fingers read like scripture — and rested them on the empty column where this had never happened before.",
         "cg": "res://assets/cg/generated/ending_weave_sable_ledger.png",
-        "text_ko": "그녀는 결코 볼 수 없는 패턴인 장부를 꺼내어 이전에 이런 일이 일어난 적이 없는 빈 기둥을 쳐다보았다."
+        "text_ko": "그녀가 장부를 꺼냈다 — 손끝이 경전처럼 읽어 내리는, 바늘 구멍이 촘촘히 찍힌 페이지들 — 그리고 그 손가락을, 이런 일이 단 한 번도 기록된 적 없는 빈 항목 위에 얹었다."
       },
       {
         "speaker": "Sable",
@@ -378,8 +378,8 @@
       },
       {
         "speaker": "",
-        "text": "Sable was already sketching, fast, the way people do when a thing they thought impossible has just walked through the door.",
-        "text_ko": "세이블은 불가능하다고 생각했던 일이 방금 문을 통과했을 때 사람들이 하는 방식을 이미 빠르게 스케치하고 있었습니다."
+        "text": "Sable was already pricking new marks into the ledger, fast, the way people do when a thing they thought impossible has just walked through the door.",
+        "text_ko": "세이블은 벌써 장부에 새 표식을 빠르게 찍어 넣고 있었다. 불가능하다고 여겼던 것이 방금 문으로 걸어 들어왔을 때, 사람들이 그러듯이."
       },
       {
         "speaker": "Sable",
@@ -475,9 +475,9 @@
       },
       {
         "speaker": "Sable",
-        "text": "They walk. They eat. They breathe. But the light behind their eyes... it's gone.",
+        "text": "They walk. They eat. They breathe. But listen to them long enough and you hear it — the room behind the voice is empty.",
         "portrait": "sable_neutral",
-        "text_ko": "그들은 걷는다. 그들은 먹는다. 그들은 숨을 쉰다. 하지만 그들의 눈 뒤에 있는 빛은... 사라졌습니다."
+        "text_ko": "걷고. 먹고. 숨도 쉬지. 하지만 오래 들어 보면 들려 — 목소리 뒤의 방이 비어 있는 소리가."
       },
       {
         "speaker": "Arrel",

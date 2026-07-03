@@ -1,0 +1,135 @@
+{
+  "id": "ch21_editors_turn",
+  "title": "Chapter 21 — The Editor's Turn",
+  "title_ko": "제21장 — 편집관의 차례",
+  "chapter": 21,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch21_kairos_confront.png",
+      "fade": 1.8,
+      "set_chapter": 21,
+      "autosave_chapter_transition": true,
+      "narrate": "The records chamber wrote itself around them — walls of moving ink revising the continent one line at a time. Kairós closed his notebook with the care of a man shutting a door he built.",
+      "narrate_ko": "기록의 방이 그들 주위로 스스로를 써 내려가고 있었다 — 움직이는 잉크의 벽이 대륙을 한 줄씩 수정하고 있었다. 카이로스는 자신이 지은 문을 닫는 사람의 조심스러움으로 수첩을 덮었다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_neutral",
+      "side": "right",
+      "text": "You have arrived eleven days ahead of my final projection. I have had occasion, recently, to be grateful for my own errors. That is a new experience. I do not entirely recommend it.",
+      "text_ko": "내 최종 추산보다 열하루 일찍 도착하셨군. 최근 들어 나 자신의 오차에 감사할 일이 생겼지. 새로운 경험이야. 전적으로 권하고 싶지는 않네."
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_cold",
+      "side": "left",
+      "text": "Move or write.",
+      "text_ko": "비키든가, 쓰든가."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_cold",
+      "side": "right",
+      "text": "Neither. I have run both outcomes to the final decimal. Outcome A: the subject is erased and the hole closes for a generation. Outcome B: the subject survives and the hole doubles. I stopped reporting either. That is not loyalty. That is arithmetic.",
+      "text_ko": "둘 다 아니야. 두 결과 모두 마지막 소수점까지 계산을 끝냈네. 결과 A: 대상이 소거되고 구멍은 한 세대 동안 닫힌다. 결과 B: 대상이 생존하고 구멍은 두 배가 된다. 나는 어느 쪽도 보고하기를 그만두었어. 그건 충성이 아니야. 산수지."
+    },
+    {
+      "narrate": "He turned the notebook outward. Page after page of sightings, projections, coordinates — none of them filed, none of them reported. An Editor's entire faith, withheld one line at a time.",
+      "narrate_ko": "그가 수첩을 펼쳐 보였다. 페이지마다 목격 기록, 추산, 좌표 — 그 무엇도 제출되지 않았고, 그 무엇도 보고되지 않았다. 에디터의 신앙 전부가, 한 줄씩 유보되어 있었다.",
+      "set_flag": "kairos_final"
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_neutral",
+      "side": "right",
+      "text": "You have been protecting us with paperwork. That is the strangest kindness anyone has ever shown me.",
+      "text_ko": "당신, 서류로 우리를 지켜 온 거네. 지금껏 받아 본 것 중 가장 이상한 친절이야."
+    },
+    {
+      "fade": 1.2,
+      "narrate": "Boots in the corridor. Nera entered with a warrant held like a shield, her escort two paces behind.",
+      "narrate_ko": "복도에서 군화 소리. 네라가 영장을 방패처럼 들고 들어섰다. 호위대는 두 걸음 뒤였다."
+    },
+    {
+      "speaker": "Nera",
+      "portrait": "nera_bureau",
+      "side": "right",
+      "text": "Warrant for the Editor Kairós, effective immediately, on charges of— of—",
+      "text_ko": "에디터 카이로스에 대한 영장, 즉시 발효, 죄목은— 죄목은—"
+    },
+    {
+      "cg": "res://assets/cg/generated/ch21_nera_hesitation.png",
+      "narrate": "The clause did not come. Her first feeling in nineteen years arrived instead, and it arrived like pain. The warrant shook, very slightly, in a hand that had never shaken.",
+      "narrate_ko": "조항은 나오지 않았다. 대신 십구 년 만의 첫 감정이 도착했고, 그것은 통증처럼 도착했다. 단 한 번도 떨린 적 없는 손안에서, 영장이 아주 조금 떨렸다.",
+      "set_flag": "nera_first_emotion"
+    },
+    {
+      "fade": 1.0,
+      "narrate": "Then the corridor lights died in sequence, approaching. Belor did not enter the chamber so much as the chamber conceded it had always been his.",
+      "narrate_ko": "그때 복도의 불빛이 차례로 죽어 가며 다가왔다. 벨로르는 방에 들어왔다기보다, 방이 처음부터 그의 것이었음을 인정했다.",
+      "set_flag": "belor_intervenes"
+    },
+    {
+      "speaker": "Belor",
+      "text": "Return the record to silence. All of it. Every voice in this room is a clerical error.",
+      "text_ko": "기록을 침묵으로 되돌려라. 전부 다. 이 방의 모든 목소리는 사무적 오류에 지나지 않는다."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn Sable's ledger. Make a wall of seventeen names.",
+          "text_ko": "세이블의 장부를 태운다. 열일곱 이름의 벽을 세운다.",
+          "cost_memory": "rel_sable_ledger",
+          "set_flag": "ch21_ledger_burned",
+          "goto": 13
+        },
+        {
+          "text": "Retreat deeper. Let Kairós's notebook burn instead.",
+          "text_ko": "더 깊이 후퇴한다. 대신 카이로스의 수첩이 타게 둔다.",
+          "set_flag": "ch21_notebook_lost",
+          "goto": 16
+        }
+      ]
+    },
+    {
+      "narrate": "[ The ink on the walls stops moving. ]",
+      "narrate_ko": "[ 벽의 잉크가 움직임을 멈춘다. ]"
+    },
+    {
+      "narrate": "He burned the weight of her ledger, and seventeen names became a wall of heat between Belor and everything still alive. It held exactly as long as seventeen lives deserve.",
+      "narrate_ko": "그는 그녀의 장부가 지닌 무게를 태웠고, 열일곱 개의 이름이 벨로르와 아직 살아 있는 모든 것 사이에서 열의 벽이 되었다. 벽은 열일곱 생애가 마땅히 받을 만큼의 시간 동안, 정확히 그만큼 버텼다."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_sad",
+      "side": "right",
+      "text": "She would have called that a fair trade. That is what frightens me about her. And about you.",
+      "text_ko": "그녀라면 공정한 거래라고 했겠지. 그래서 그녀가 무서웠어. 그리고 너도."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch21_editors_turn",
+      "start_index": 17
+    },
+    {
+      "narrate": "They fell back into the stairwell of violet records. Behind them, Belor's silence reached the notebook, and thirty years of withheld arithmetic went up in white, orderly flame. Kairós watched his life's work burn without changing expression. Almost.",
+      "narrate_ko": "그들은 보랏빛 기록의 계단으로 물러났다. 등 뒤에서 벨로르의 침묵이 수첩에 닿았고, 삼십 년 치의 유보된 산수가 희고 정연한 불꽃으로 타올랐다. 카이로스는 표정을 바꾸지 않은 채 필생의 작업이 타는 것을 지켜보았다. 거의."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_amused",
+      "side": "right",
+      "text": "Go. The stair does not appear in any registry I maintain. I intend to remain here and become a rounding error.",
+      "text_ko": "가게. 저 계단은 내가 관리하는 어떤 대장에도 실려 있지 않아. 나는 여기 남아서 반올림 오차가 될 생각이네."
+    },
+    {
+      "narrate": "Below, past the last shelf of records, a light was breathing. Not violet. Not white. The color a first word makes.",
+      "narrate_ko": "아래쪽, 마지막 기록 선반 너머에서 빛이 숨 쉬고 있었다. 보라색도 아니고 백색도 아닌. 첫 단어가 내는 색."
+    },
+    {
+      "complete_chapter": 21,
+      "action": "goto_scene",
+      "id": "ch22_core"
+    }
+  ]
+}

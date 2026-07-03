@@ -1,0 +1,139 @@
+{
+  "id": "ch20_monolith",
+  "title": "Chapter 20 — Into the Monolith",
+  "title_ko": "제20장 — 모놀리스 안으로",
+  "chapter": 20,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/ch20_monolith_interior.png",
+      "fade": 2.0,
+      "set_chapter": 20,
+      "autosave_chapter_transition": true,
+      "narrate": "Inside, the geometry stopped apologizing. Corridors met themselves. Stairs climbed into their own first step. Time pooled in the corners like standing water.",
+      "narrate_ko": "안으로 들어서자 기하학이 변명을 그만두었다. 복도가 자기 자신과 만났다. 계단이 자신의 첫 단으로 거슬러 올랐다. 시간이 고인 물처럼 구석마다 괴어 있었다."
+    },
+    {
+      "narrate": "Then the walls ended, and the sea began. Three hundred years of extracted memory, given physical space. It moved in slow waves the color of every confession ever surrendered.",
+      "narrate_ko": "그리고 벽이 끝나고, 바다가 시작되었다. 삼백 년 치의 추출된 기억이 물리적 공간을 부여받은 곳. 그것은 지금껏 바쳐진 모든 고해의 색을 띠고 느린 파도로 움직였다."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_void",
+      "side": "right",
+      "text": "They are all still here. Every extracted hour. They were never destroyed — only taken. I can feel all of them at once and I do not know where I end.",
+      "text_ko": "전부 아직 여기 있어. 추출된 모든 시간이. 파괴된 게 아니었어 — 빼앗겼을 뿐이야. 전부가 한꺼번에 느껴져서, 내가 어디서 끝나는지 모르겠어."
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_concerned",
+      "side": "right",
+      "text": "Every confession booth on the continent drains to this room. We are standing inside the ledger itself.",
+      "text_ko": "대륙의 모든 고해소가 이 방으로 흘러든다. 우리는 지금 장부 그 자체의 안쪽에 서 있는 거야."
+    },
+    {
+      "narrate": "Tobias's pocket watch stopped. The memory compass spun once and lay down like something dying. The same stillness BL-07 had worn — but here, it was maintained.",
+      "narrate_ko": "토비아스의 회중시계가 멈췄다. 기억 나침반이 한 바퀴 돌더니 죽어가는 것처럼 드러누웠다. BL-07이 입고 있던 것과 같은 정적 — 그러나 이곳의 정적은 유지되고 있는 것이었다."
+    },
+    {
+      "choice": [
+        {
+          "text": "Burn the three shadows. Wade straight through the sea.",
+          "text_ko": "세 그림자를 태운다. 바다를 곧장 헤치고 나아간다.",
+          "cost_memory": "daily_three_shadows",
+          "set_flag": "ch20_burned_wade",
+          "goto": 7
+        },
+        {
+          "text": "Keep them. Walk the long rim behind Han's low note.",
+          "text_ko": "간직한다. 한의 낮은 음을 따라 긴 가장자리를 돌아간다.",
+          "set_flag": "ch20_rim_walk",
+          "goto": 10
+        }
+      ]
+    },
+    {
+      "narrate": "[ The sea waits to be crossed. ]",
+      "narrate_ko": "[ 바다가 건너지기를 기다린다. ]"
+    },
+    {
+      "narrate": "He burned the memory of three shadows walking beside his own, and the sea parted around the absence. Where he passed, extracted memories drew back — recognizing something emptier than themselves.",
+      "narrate_ko": "그는 자신의 그림자 곁을 걷던 세 그림자의 기억을 태웠고, 바다가 그 부재를 피해 갈라졌다. 그가 지나는 자리마다 추출된 기억들이 물러났다 — 자신들보다 더 텅 빈 무언가를 알아보고서."
+    },
+    {
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "You walked ahead of us the whole way, and you never once looked back to check we were there. You do not remember that we walk behind you.",
+      "text_ko": "너 내내 우리 앞에서 걸었어. 우리가 있는지 한 번도 돌아보지 않고. 우리가 네 뒤를 걷는다는 걸, 이제 기억 못 하는 거야."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch20_monolith",
+      "start_index": 11
+    },
+    {
+      "narrate": "They walked the rim for what felt like a day and cost an hour, or the reverse. Han's low note held the sea back a hand's width — enough. Nobody burned. Everybody carried.",
+      "narrate_ko": "그들은 하루처럼 느껴지고 한 시간이 걸린 — 혹은 그 반대인 — 가장자리를 걸었다. 한의 낮은 음이 바다를 손 한 뼘만큼 밀어냈다. 그거면 충분했다. 아무도 태우지 않았다. 모두가 짊어졌다."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch20_archivist_desk.png",
+      "fade": 1.5,
+      "narrate": "At the heart of the sea stood a desk that was not there, and at the desk sat an old man who barely was. The Chief Archivist. The man who built the cage.",
+      "narrate_ko": "바다의 심장부에 존재하지 않는 책상이 서 있었고, 그 책상에 간신히 존재하는 노인이 앉아 있었다. 대기록관. 우리를 가둔 새장을 지은 사람."
+    },
+    {
+      "speaker": "Chief Archivist",
+      "text": "We agreed to forget together. The record remembers for us.",
+      "text_ko": "우리는 함께 잊기로 약속했다. 기록이 우리를 대신해 기억한다."
+    },
+    {
+      "narrate": "He said it again. Exactly the same words, the same pause, the same small nod at the end. Three hundred years of one sentence.",
+      "narrate_ko": "그가 다시 말했다. 정확히 같은 단어, 같은 쉼, 끝에 붙는 같은 작은 끄덕임. 삼백 년 동안의 단 한 문장.",
+      "set_flag": "archivist_sentence_heard"
+    },
+    {
+      "speaker": "Tobias",
+      "portrait": "tobias_neutral",
+      "side": "right",
+      "text": "He built the cage, and it closed on him first. Write that down, Tobias. Someone has to.",
+      "text_ko": "그가 새장을 지었고, 새장은 그를 가장 먼저 가뒀어. 적어 둬라, 토비아스. 누군가는 해야지."
+    },
+    {
+      "requires_flag": "opt_celah_enabled",
+      "cg": "res://assets/cg/generated/ch20_celah_preserved.png",
+      "fade": 1.5,
+      "narrate": "Beyond the desk, a preservation cell held a figure the sea refused to touch. She turned toward Arrel with the certainty of someone greeting an old friend. He looked back at a stranger.",
+      "narrate_ko": "책상 너머, 바다가 닿기를 거부하는 보존 셀 안에 한 인영이 있었다. 그녀는 오랜 친구를 맞이하는 확신으로 아렐을 향해 돌아섰다. 그는 낯선 사람을 마주 보았다.",
+      "set_flag": "celah_reunion"
+    },
+    {
+      "requires_flag": "opt_celah_enabled",
+      "speaker": "Elia",
+      "portrait": "elia_concern",
+      "side": "right",
+      "text": "That melody she is humming through the glass. It is Han's lullaby. Or Han's is hers.",
+      "text_ko": "유리 너머로 그녀가 흥얼거리는 저 선율. 한의 자장가야. 아니면, 한의 것이 그녀의 것이거나."
+    },
+    {
+      "narrate": "When Elia's hands began to shake against the weight of the sea, Arrel did something no Combustor was supposed to do. He pressed a memory outward — the campfire, the warmth — and it flowed from him into her without burning. Fire, running backward.",
+      "narrate_ko": "바다의 무게에 엘리아의 손이 떨리기 시작했을 때, 아렐은 어떤 연소자도 해서는 안 되는 일을 했다. 기억 하나를 바깥으로 밀어낸 것이다 — 모닥불, 그 온기를 — 그러자 그것은 타오르지 않은 채 그에게서 그녀에게로 흘러들었다. 거꾸로 흐르는 불.",
+      "set_flag": "reverse_burn_unlocked"
+    },
+    {
+      "speaker": "Arrel",
+      "portrait": "arrel_pensive",
+      "side": "left",
+      "text": "Fire can flow backward.",
+      "text_ko": "불은 거꾸로도 흐른다."
+    },
+    {
+      "narrate": "Below the sea, a stair of violet records descended toward a chamber of moving ink. On its threshold stood a figure with a notebook, waiting without impatience. Kairós.",
+      "narrate_ko": "바다 아래로, 보랏빛 기록의 계단이 움직이는 잉크의 방을 향해 내려가고 있었다. 그 문턱에 수첩을 든 인영이 조급함 없이 기다리고 서 있었다. 카이로스."
+    },
+    {
+      "complete_chapter": 20,
+      "action": "goto_scene",
+      "id": "ch21_editors_turn"
+    }
+  ]
+}

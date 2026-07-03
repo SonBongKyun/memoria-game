@@ -152,6 +152,13 @@ func _run_step() -> void:
 		SaveManager.autosave_on_chapter_transition()
 	if step.has("burn_memory"):
 		MemoryManager.burn_memory(step.burn_memory, bool(step.get("allow_faded_burn", false)))
+	# S147: 데이터 주도 엔딩 기록 (DialogueManager 패리티)
+	if step.has("record_ending"):
+		GameManager.record_ending(String(step.record_ending))
+	# S147: Weave 해금 상태를 플래그로 노출 (VN 선택지 requires_flag 필터에서 사용)
+	if step.get("check_weave", false):
+		GameManager.story_flags["p3_weave_ready"] = MemoryManager.weave_unlocked()
+		print("[SceneFlow] check_weave → p3_weave_ready = %s" % MemoryManager.weave_unlocked())
 
 	# 조건부 건너뛰기 (requires_flag / requires_not_flag)
 	if step.has("requires_flag") and not GameManager.story_flags.get(step.requires_flag, false):
@@ -218,6 +225,14 @@ func _handle_action(step: Dictionary) -> void:
 		"goto_battle":
 			# Deprecated after the VN pivot. Never pass a string into the legacy battle API.
 			push_warning("[SceneFlow] Deprecated goto_battle ignored in '%s' at step %d" % [current_id, current_index])
+			advance()
+		"resolve_part3_ending":
+			# S147: Part III 엔딩 허브 — 기억 상태 + 플래그로 최종 엔딩 판정.
+			# p3e_<id> 플래그를 세워 ch23/ch24의 requires_flag 블록이 라우팅되게 함.
+			var ending_id: String = GameManager.evaluate_part3_ending()
+			GameManager.set_flag("p3e_%s" % ending_id)
+			GameManager.record_ending(ending_id)
+			print("[SceneFlow] Part III ending resolved: %s" % ending_id)
 			advance()
 		"end":
 			_end_scene()

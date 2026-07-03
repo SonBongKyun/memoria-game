@@ -62,6 +62,28 @@ func _setup_placeholder_sprite() -> void:
 	sprite.scale = Vector2.ONE
 	sprite.play("idle_down")
 	_add_character_grounding(_get_npc_accent_color())
+	if npc_name in ["Malet", "Mallet"]:
+		_add_malet_details()
+
+func _add_malet_details() -> void:
+	# Two readable memory vials and a fine gold chain give Malet a unique map
+	# silhouette without returning to the old full portrait-card presentation.
+	var chain := Line2D.new()
+	chain.width = 1.0
+	chain.default_color = Color(0.78, 0.58, 0.24, 0.88)
+	chain.points = PackedVector2Array([Vector2(4, 5), Vector2(9, 11), Vector2(12, 18)])
+	chain.z_index = 4
+	add_child(chain)
+	for data in [
+		{"x": 9.0, "c": Color(0.50, 0.22, 0.78, 0.95)},
+		{"x": 13.0, "c": Color(0.16, 0.55, 0.86, 0.92)},
+	]:
+		var vial := Polygon2D.new()
+		var x := float(data.x)
+		vial.polygon = PackedVector2Array([Vector2(x - 1, 11), Vector2(x + 1, 11), Vector2(x + 2, 17), Vector2(x - 2, 17)])
+		vial.color = data.c
+		vial.z_index = 5
+		add_child(vial)
 
 func _get_character_config() -> Dictionary:
 	match npc_name:

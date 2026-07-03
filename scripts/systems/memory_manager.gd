@@ -256,7 +256,7 @@ func add_chapter_memories(chapter: int) -> void:
 				add_memory(Memory.new(
 					"rel_sable_trust",
 					"The Woman Who Came Back",
-					"She walked into a Void Hole and walked out. You don't know how. But when she speaks, you believe her.",
+					"She walked into a Void Hole and walked out. Her eyes stayed behind as the toll. When she speaks, you believe her.",
 					MemoryGrade.GRADE_3, 55,
 					"Lose instinctive trust toward Sable. Her advice feels hollow.",
 					"Sable"
@@ -433,6 +433,73 @@ func add_chapter_memories(chapter: int) -> void:
 					MemoryGrade.GRADE_2, 110,
 					"Lose the belief that memory becomes responsibility when it is witnessed.",
 					"Tobias"
+				))
+		19:
+			# S147 Ch19: The Approach — Lumea 외곽
+			if not _has_memory("sense_white_noon"):
+				add_memory(Memory.new(
+					"sense_white_noon",
+					"The First White Noon",
+					"Your first sight of Lumea: a city so white it casts no shadow, holding noon in place like a held breath.",
+					MemoryGrade.GRADE_5, 14
+				))
+			if not _has_memory("rel_vael_reflex"):
+				add_memory(Memory.new(
+					"rel_vael_reflex",
+					"A Guard Stance With No Owner",
+					"Your body drops into a defensive stance at a stranger's walk. The reflex survived. The person it protected did not.",
+					MemoryGrade.GRADE_3, 55,
+					"Lose the body's warning. Vael can approach unannounced.",
+					"Vael"
+				))
+		20:
+			# S147 Ch20: Into the Monolith — 기억의 바다
+			if not _has_memory("sense_monolith_hum"):
+				add_memory(Memory.new(
+					"sense_monolith_hum",
+					"The Hum Below Hearing",
+					"The monolith's interior vibrates at the pitch of a sentence never finished. Your teeth remember it.",
+					MemoryGrade.GRADE_5, 15
+				))
+			if not _has_memory("rel_sable_ledger"):
+				add_memory(Memory.new(
+					"rel_sable_ledger",
+					"Seventeen Names in Oilcloth",
+					"Sable's ledger, carried out of the dark by a runner. Seventeen names she never stopped counting. Now it counts her.",
+					MemoryGrade.GRADE_3, 55,
+					"Lose the weight of her count. The ledger becomes paper.",
+					"Sable"
+				))
+			if not _has_memory("identity_reverse_burn"):
+				add_memory(Memory.new(
+					"identity_reverse_burn",
+					"Fire Flowing Backward",
+					"You pressed a memory outward and it arrived without burning. Whatever you are, it runs in both directions.",
+					MemoryGrade.GRADE_2, 115,
+					"Lose the knowledge that giving is the same muscle as burning.",
+					""
+				))
+		21:
+			# S147 Ch21: The Editor's Turn
+			if not _has_memory("rel_kairos_doubt"):
+				add_memory(Memory.new(
+					"rel_kairos_doubt",
+					"The Editor Who Stopped Reporting",
+					"Page after page of withheld arithmetic. He protected you with paperwork, and called it an error.",
+					MemoryGrade.GRADE_3, 55,
+					"Lose the proof that the system's own hands can hesitate.",
+					"Kairos"
+				))
+		22:
+			# S147 Ch22: The Core
+			if not _has_memory("identity_relay_promise"):
+				add_memory(Memory.new(
+					"identity_relay_promise",
+					"Her Hand on the Open Book",
+					"Elia at the core, offering to hold everyone at once. Whatever you answered, you will carry having been asked.",
+					MemoryGrade.GRADE_2, 115,
+					"Lose the weight of her offer. The relay becomes machinery.",
+					"Elia"
 				))
 
 func _get_memory(memory_id: String) -> Memory:

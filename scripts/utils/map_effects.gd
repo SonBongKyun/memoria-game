@@ -947,7 +947,9 @@ static func add_premium_map_lens(parent: Node2D, settings: Dictionary = {}) -> C
 		mat.set_shader_parameter("tint_color", settings.get("tint", Color(0.72, 0.58, 0.36, 1.0)))
 		mat.set_shader_parameter("vignette_strength", float(settings.get("vignette", 0.42)))
 		mat.set_shader_parameter("tint_strength", float(settings.get("tint_strength", 0.09)))
-		mat.set_shader_parameter("grain_strength", float(settings.get("grain", 0.025)))
+		# Grain is opt-in. On low-resolution top-down maps it reads as crawling
+		# compression noise and obscures the pixel silhouettes during movement.
+		mat.set_shader_parameter("grain_strength", float(settings.get("grain", 0.0)))
 		mat.set_shader_parameter("letterbox_strength", float(settings.get("letterbox", 0.18)))
 		mat.set_shader_parameter("shaft_strength", float(settings.get("shafts", 0.07)))
 		mat.set_shader_parameter("pulse_speed", float(settings.get("pulse", 0.35)))

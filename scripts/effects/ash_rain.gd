@@ -8,7 +8,7 @@ func _ready() -> void:
 	print("[AshRain] Ash rain started")
 
 func _setup_particles() -> void:
-	amount = 40
+	amount = 18
 	lifetime = 4.0
 	emitting = true
 	z_index = 5
@@ -27,19 +27,19 @@ func _setup_particles() -> void:
 
 	# 좌우 흔들림
 	mat.turbulence_enabled = true
-	mat.turbulence_noise_strength = 3.0
+	mat.turbulence_noise_strength = 1.2
 	mat.turbulence_noise_speed_random = 0.5
 	mat.turbulence_noise_scale = 4.0
 
 	# 크기
 	mat.scale_min = 0.5
-	mat.scale_max = 1.5
+	mat.scale_max = 1.0
 
 	# 색상: 회색 반투명, 서서히 사라짐
-	mat.color = Color(0.6, 0.58, 0.55, 0.4)
+	mat.color = Color(0.6, 0.58, 0.55, 0.24)
 	var color_ramp = GradientTexture1D.new()
 	var grad = Gradient.new()
-	grad.set_color(0, Color(0.65, 0.6, 0.55, 0.5))
+	grad.set_color(0, Color(0.65, 0.6, 0.55, 0.28))
 	grad.set_color(1, Color(0.5, 0.48, 0.45, 0.0))
 	color_ramp.gradient = grad
 	mat.color_ramp = color_ramp
@@ -57,7 +57,7 @@ func _setup_particles() -> void:
 
 ## 강도 조절 (스토리 진행에 따라)
 func set_intensity(level: float) -> void:
-	amount = int(20 + 40 * clampf(level, 0.0, 1.0))
+	amount = int(8 + 18 * clampf(level, 0.0, 1.0))
 
 ## 켜기/끄기
 func start_rain() -> void:

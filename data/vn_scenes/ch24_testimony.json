@@ -1,0 +1,89 @@
+{
+  "id": "ch24_testimony",
+  "title": "Epilogue — Testimony",
+  "title_ko": "에필로그 — 증언",
+  "chapter": 24,
+  "steps": [
+    {
+      "set_chapter": 24,
+      "narrate": "Afterward, the record kept being written. By hands, this time.",
+      "narrate_ko": "그 후로도 기록은 계속 쓰였다. 이번에는, 손으로."
+    },
+    {
+      "requires_flag": "p3e_zero_burn",
+      "cg": "res://assets/cg/generated/ending_zero_burn_canyon_watch.png",
+      "fade": 1.8,
+      "narrate": "A man with a borrowed name watched colors return to a canyon he was seeing for the first time, every time. The woman beside him named each one for him, patiently, like planting seeds.",
+      "narrate_ko": "빌린 이름의 남자가 협곡에 색이 돌아오는 것을 지켜보았다. 그에게는 매번이 처음 보는 풍경이었다. 곁의 여인이 색 하나하나에 이름을 붙여 주었다. 씨앗을 심듯이, 끈기 있게."
+    },
+    {
+      "requires_flag": "p3e_weave",
+      "cg": "res://assets/cg/generated/ending_weave_sable_ledger.png",
+      "fade": 1.8,
+      "narrate": "In a rebuilt watch post at the Seam, a new column was added to Sable's ledger — the first in its history for those who came back whole. It had one name in it. It was not going to stay that way.",
+      "narrate_ko": "재건된 씸의 감시초소에서, 세이블의 장부에 새로운 항목 하나가 추가되었다 — 온전한 채로 돌아온 이들을 위한, 장부 역사상 최초의 항목. 이름은 하나뿐이었다. 하지만 하나로 남지는 않을 것이다."
+    },
+    {
+      "requires_flag": "p3e_preservation",
+      "cg": "res://assets/cg/generated/ending_preservation_building_hands.png",
+      "fade": 1.8,
+      "narrate": "West of the wave's shoreline, hands that could burn chose, day after day, to build instead. The gray towns watched, and one by one, remembered that they had once been other colors.",
+      "narrate_ko": "파동의 해안선 서쪽에서, 태울 수 있는 손이 날마다 짓는 쪽을 택했다. 회색 마을들이 그것을 지켜보았고, 하나둘씩, 자신들이 한때 다른 색이었음을 기억해 냈다."
+    },
+    {
+      "requires_flag": "p3e_ash",
+      "cg": "res://assets/cg/generated/ending_ash_hollow_days.png",
+      "fade": 1.8,
+      "narrate": "The days passed correctly. He answered when spoken to. And on a continent slowly filling with feeling, one hollow room stayed swept, and quiet, and clean.",
+      "narrate_ko": "날들은 올바르게 지나갔다. 말을 걸면 그는 대답했다. 그리고 서서히 감정으로 차오르는 대륙 위에서, 텅 빈 방 하나가 쓸린 채로, 조용한 채로, 깨끗한 채로 남아 있었다."
+    },
+    {
+      "requires_flag": "p3e_seam",
+      "cg": "res://assets/cg/generated/ending_seam_ordinary_moments.png",
+      "fade": 1.8,
+      "narrate": "At the Seam, the ordinary moments kept surviving — meals, arguments, bad songs, mended coats. It turned out that was what the wave had been for all along.",
+      "narrate_ko": "씸에서는 평범한 순간들이 계속 살아남았다 — 식사와 말다툼, 서툰 노래, 기운 외투. 알고 보니 파동은 처음부터 그것들을 위한 것이었다."
+    },
+    {
+      "requires_flag": "p3e_tobias",
+      "cg": "res://assets/cg/generated/ending_tobias_twelve_archivists.png",
+      "fade": 1.8,
+      "narrate": "Twelve copies of the true record left Lumea in twelve directions, carried by twelve people who had each lost someone to the white fire. The Authority's silence had finally met something it could not outlast.",
+      "narrate_ko": "진실한 기록의 사본 열두 부가 열두 방향으로 루메아를 떠났다. 저마다 백색 불꽃에 누군가를 잃은 열두 사람의 손에 들려서. 관리국의 침묵이 마침내, 자신보다 오래가는 것과 마주친 것이다."
+    },
+    {
+      "requires_flag": "p3e_hollow",
+      "cg": "res://assets/cg/generated/ending_hollow_water.png",
+      "fade": 1.8,
+      "narrate": "They cared for him, the way you keep a lamp lit in a window for someone who has already come home and left again. The continent he freed never learned his name. He would not have minded. He no longer knew it either.",
+      "narrate_ko": "사람들은 그를 보살폈다. 이미 돌아왔다가 다시 떠나 버린 이를 위해 창가에 등불을 켜 두는 것처럼. 그가 해방시킨 대륙은 끝내 그의 이름을 알지 못했다. 그는 서운해하지 않았을 것이다. 그 자신도 더는 그 이름을 몰랐으므로."
+    },
+    {
+      "requires_flag": "tobias_funeral",
+      "narrate": "In Arkein, a printing press ran through the nights. The man at the crank had stood on a white platform once and walked off it alive, and he intended to spend the rest of his life making that mean something.",
+      "narrate_ko": "아르케인에서는 인쇄기가 밤마다 돌아갔다. 크랭크를 잡은 남자는 한때 흰 단상 위에 섰다가 살아서 걸어 내려온 사람이었고, 남은 생을 그 일에 의미를 부여하는 데 쓸 작정이었다."
+    },
+    {
+      "narrate": "East of everything, Han's song moved from settlement to settlement, and where it passed, Blanker doses went untaken and nobody reported it. The song did not need a voice anymore. It had everyone else's.",
+      "narrate_ko": "모든 것의 동쪽에서, 한의 노래가 정착지에서 정착지로 옮겨 갔다. 노래가 지나간 곳에서는 블랭커가 복용되지 않은 채 남았고, 아무도 그것을 보고하지 않았다. 노래에는 더 이상 목소리가 필요치 않았다. 다른 모두의 목소리가 있었으므로."
+    },
+    {
+      "narrate": "And on a ridge above the wave's farthest reach, a figure stood alone, practicing the shape of a name like a question they were finally ready to ask. The answer would take another story.",
+      "narrate_ko": "그리고 파동이 닿은 가장 먼 곳 위의 능선에서, 한 인영이 홀로 서서 어떤 이름의 형태를 연습하고 있었다. 마침내 물을 준비가 된 질문처럼. 그 대답에는, 또 하나의 이야기가 필요할 것이다."
+    },
+    {
+      "cg": "res://assets/cg/generated/ch24_last_lullaby.png",
+      "fade": 2.5,
+      "narrate": "Somewhere, a lullaby three hundred years old was being hummed by someone very young, who had no idea where they had learned it. That was the point. That had always been the point.",
+      "narrate_ko": "어딘가에서, 삼백 년 된 자장가를 아주 어린 누군가가 흥얼거리고 있었다. 어디서 배웠는지도 모른 채. 바로 그것이 요점이었다. 언제나 그것이 요점이었다."
+    },
+    {
+      "narrate": "— MEMORIA: The Price of Oblivion —",
+      "narrate_ko": "— MEMORIA: 망각의 대가 —"
+    },
+    {
+      "action": "goto_map",
+      "path": "res://scenes/ui/credits.tscn"
+    }
+  ]
+}

@@ -27,6 +27,35 @@ const ENDING_DATA: Dictionary = {
 }
 const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
 
+## S147: Part III 최종 엔딩 판정 (§7 "남긴 것이 결말을 정한다")
+## ch23_conversion의 resolve_part3_ending 액션에서 호출.
+## 우선순위: 명시적 이름 연소 > 공허 변이 > Weave 보존 > Ash 소진 > Tobias 기록 > Seam 희망 > Preservation.
+func evaluate_part3_ending() -> String:
+	# 1. Zero Burn — 이름을 태우는 명시적 선택 (canon 메인 라인: 변환 성공, 이름 소실)
+	if get_flag("p3_name_burned") or MemoryManager.is_memory_burned("core_name_origin"):
+		return "zero_burn"
+	# 2. Hollow — 태운 것이 너무 많아 사람이 남지 않음
+	if MemoryManager.get_burn_ratio() >= 0.75:
+		return "hollow"
+	# 3. The Weave — 보존 플레이를 끝까지 유지 + 변환 시도
+	if MemoryManager.weave_unlocked() and get_flag("p3_conversion_attempted"):
+		return "weave"
+	# 4. Ash — 이름은 지켰지만 관계 기억이 재가 됨
+	var rel_burned := 0
+	for m in MemoryManager.memories:
+		if m.is_burned and m.id.begins_with("rel_"):
+			rel_burned += 1
+	if rel_burned >= 3 or MemoryManager.get_burn_count() >= 8:
+		return "ash"
+	# 5. Tobias — 증인의 기록이 살아남음
+	if get_flag("tobias_funeral") and MemoryManager.is_intact("identity_witness_record"):
+		return "tobias"
+	# 6. Seam — 숨겨진 희망을 발견한 자 (셀라 재회 / 숨은 정원 계열)
+	if get_flag("celah_reunion") or (get_flag("hidden_ch1_stump") and get_flag("hidden_ch6_garden")):
+		return "seam"
+	# 7. Preservation — 기본: 이름을 지키고 계속 나아감
+	return "preservation"
+
 func record_ending(ending_id: String) -> void:
 	if ending_id not in seen_endings:
 		seen_endings.append(ending_id)
@@ -422,6 +451,9 @@ const SPEAKER_NAMES_KO: Dictionary = {
 	"Guard": "경비병",
 	"Han": "한",
 	"Mira": "미라",
+	"Vael": "바엘",
+	"Belor": "벨로르",
+	"Chief Archivist": "수석 기록관",
 	"???": "???",
 }
 
@@ -594,7 +626,12 @@ const RICH_PRESENCE_CHAPTERS: Dictionary = {
 	1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation",
 	4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam",
 	7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste",
-	10: "BL-07 Void", 11: "Epilogue",
+	10: "BL-07 Void", 11: "Departure",
+	# S147: Part II/III (VN 확장)
+	12: "The Reader", 13: "The Third Person", 14: "The Confessor's Hall",
+	15: "The Singer", 16: "Nera", 17: "The Forgetting Storm",
+	18: "Living Funeral", 19: "The Approach", 20: "Into the Monolith",
+	21: "The Editor's Turn", 22: "The Core", 23: "Conversion", 24: "Testimony",
 }
 
 ## Current rich presence string (for debugging / Steam API)

@@ -721,7 +721,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"title": "Epilogue: The Open Wound",
 		"type": "Generated Preservation CG",
 		"path": "res://assets/cg/generated/ending_preservation_return.png",
-		"desc": "Arrel and Elia return while Sable sees that BL-07 is still open."
+		"desc": "Arrel and Elia return while Sable already knows, without sight, that BL-07 is still open."
 	},
 	{
 		"title": "Epilogue: Hands That Build",
@@ -934,10 +934,10 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Sable faces the first truly silent BL-07 gate while Arrel and Elia return."
 	},
 	{
-		"title": "The Weave: The Twelfth Pattern",
+		"title": "The Weave: The Eighteenth Pattern",
 		"type": "Generated Sable Lore CG",
 		"path": "res://assets/cg/generated/ending_weave_sable_ledger.png",
-		"desc": "Sable finds preservation where eleven burned routes had failed."
+		"desc": "Sable's fingers find preservation in her pin-pricked ledger, where seventeen burned attempts had failed."
 	},
 	{
 		"title": "The Weave: Holding the Door",
@@ -949,7 +949,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"title": "The Weave: Colors Return",
 		"type": "Generated Ending Gallery CG",
 		"path": "res://assets/cg/generated/ending_weave_colors_return.png",
-		"desc": "Arrel, Elia, and silver-haired Sable watch color grow back across quiet stone."
+		"desc": "Arrel and Elia watch color grow back across quiet stone while blind old Sable listens to it happen."
 	},
 	{
 		"title": "The Ledger Behind Stone",
@@ -1244,6 +1244,54 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"type": "Part III Future Storyboard CG",
 		"path": "res://assets/cg/generated/ch22_monolith_core.png",
 		"desc": "A reserved Chapter 22 master plate for the light beneath every edited memory."
+	},
+	{
+		"title": "Sable - Canon Portrait",
+		"type": "Character Identity Reference",
+		"path": "res://assets/game_image/reference/sable_canon_master.png",
+		"desc": "Canonical Sable as Halda: an old blind woman who left her sight inside the Void Hole."
+	},
+	{
+		"title": "The Monolith Opens",
+		"type": "Part III Story CG",
+		"path": "res://assets/cg/generated/ch19_monolith_gates.png",
+		"desc": "A white-robed procession opens Lumea's black wall for six forbidden seconds."
+	},
+	{
+		"title": "A Walk the Body Remembers",
+		"type": "Part III Story CG",
+		"path": "res://assets/cg/generated/ch19_vael_silhouette.png",
+		"desc": "Arrel's guard rises before his missing memory can name the stranger across Lumea's plaza."
+	},
+	{
+		"title": "The First Feeling",
+		"type": "Part III Character CG",
+		"path": "res://assets/cg/generated/ch21_nera_hesitation.png",
+		"desc": "Nera's warrant trembles when nineteen years of disciplined blankness finally breaks."
+	},
+	{
+		"title": "The Desk That Was Not There",
+		"type": "Part III Story CG",
+		"path": "res://assets/cg/generated/ch20_archivist_desk.png",
+		"desc": "The Chief Archivist repeats one sentence at the center of the memory sea."
+	},
+	{
+		"title": "What Fire Is For",
+		"type": "Part III Decision CG",
+		"path": "res://assets/cg/generated/ch22_conversion_threshold.png",
+		"desc": "Arrel reaches the primal log with every kept and burned memory behind him."
+	},
+	{
+		"title": "The First Outward Wave",
+		"type": "Part III Climax CG",
+		"path": "res://assets/cg/generated/ch23_conversion_wave.png",
+		"desc": "Three centuries of extraction hesitate, reverse, and begin to give."
+	},
+	{
+		"title": "The Last Lullaby",
+		"type": "Part III Epilogue CG",
+		"path": "res://assets/cg/generated/ch24_last_lullaby.png",
+		"desc": "A child hums an ancient melody without knowing where it came from."
 	},
 ]
 

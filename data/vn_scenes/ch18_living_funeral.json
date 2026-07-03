@@ -161,7 +161,13 @@
     },
     {
       "complete_chapter": 18,
+      "autosave_chapter_transition": true,
+      "requires_flag": "demo_build",
       "action": "demo_end"
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch19_approach"
     }
   ],
   "title_ko": "제18장 생장례"
