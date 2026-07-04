@@ -123,6 +123,8 @@
       "narrate_ko": "그들은 보랏빛 기록의 계단으로 물러났다. 등 뒤에서 벨로르의 침묵이 수첩에 닿았고, 삼십 년 치의 유보된 산수가 희고 정연한 불꽃으로 타올랐다. 카이로스는 표정을 바꾸지 않은 채 필생의 작업이 타는 것을 지켜보았다. 거의."
     },
     {
+      "cg": "res://assets/cg/generated/ch21_unlisted_stair.png",
+      "fade": 1.0,
       "speaker": "Kairos",
       "portrait": "kairos_amused",
       "side": "right",

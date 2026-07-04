@@ -1419,6 +1419,66 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/ch20_reverse_memory_fire.png",
 		"desc": "At the Monolith's heart, memory stops feeding the archive and begins to flow outward."
 	},
+	{
+		"title": "The Cadence Burned Away",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch11_burned_stride.png",
+		"desc": "Speed arrives as the remembered half-step before each corner disappears."
+	},
+	{
+		"title": "The Long Way Still Hurts",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch11_maintenance_alley.png",
+		"desc": "Keeping the memory means carrying the delay through the Belt's repeating service walls."
+	},
+	{
+		"title": "Three Hours Under Verdan",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch12_black_service_stair.png",
+		"desc": "The party keeps every face and pays for it in black water beneath the patrol."
+	},
+	{
+		"title": "The Third Conduit",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch14_third_conduit.png",
+		"desc": "Tobias finds the load-bearing premise that opens the cradle without burning a vow."
+	},
+	{
+		"title": "The Road That Does Not Remain",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch16_flooded_shortcut.png",
+		"desc": "A burned route reveals one impossible crossing and erases every safe turn behind it."
+	},
+	{
+		"title": "A Witness Without a Name",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch18_witness_without_name.png",
+		"desc": "Tobias's testimony survives in the notebook after the square forgets who gave it."
+	},
+	{
+		"title": "Emptier Than Memory",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch20_absence_parts_sea.png",
+		"desc": "The memory sea parts around the absence left by three burned companion shadows."
+	},
+	{
+		"title": "One Hand's Width",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch20_hans_note_rim.png",
+		"desc": "Han's low note holds the sea back just far enough for all three travelers to carry on."
+	},
+	{
+		"title": "The Stair Outside Every Ledger",
+		"type": "Part III Story CG",
+		"path": "res://assets/cg/generated/ch21_unlisted_stair.png",
+		"desc": "Beyond the last official shelf, an unwritten route descends toward the color of a first word."
+	},
+	{
+		"title": "The Book Was an Address",
+		"type": "Part III Lore CG",
+		"path": "res://assets/cg/generated/ch22_book_becomes_address.png",
+		"desc": "The primal log completes itself as a doorway built for a reader who can hold everyone."
+	},
 ]
 
 func _ready() -> void:

@@ -102,6 +102,8 @@
       "narrate_ko": "[ Branch return. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch18_witness_without_name.png",
+      "fade": 0.9,
       "narrate": "Arrel kept the duty. Tobias kept the platform's attention on himself while Elia carried the completed notebook beyond the square.",
       "narrate_ko": "아렐은 의무를 지켰습니다. 토비아스는 연단의 주의를 자신에게만 집중시켰고, 엘리아는 완성된 노트를 광장 너머로 들고 다녔습니다."
     },

@@ -95,6 +95,8 @@
       "start_index": 17
     },
     {
+      "cg": "res://assets/cg/generated/ch14_third_conduit.png",
+      "fade": 0.8,
       "narrate": "Tobias read the machine as if it were a hostile paragraph. His finger stopped on one load-bearing hinge.",
       "narrate_ko": "토비아스는 그 기계를 마치 적대적인 문단인 것처럼 읽었습니다. 그의 손가락은 하나의 하중을 지탱하는 경첩에서 멈췄습니다."
     },

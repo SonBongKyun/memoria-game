@@ -17,7 +17,8 @@
       "narrate_ko": "대륙의 모든 추출이, 모든 고해소가, 모든 블랭커 투약이 이 빛을 향해 흘러들고 있었다. 빛을 먹이기 위해서가 아니라, 재워 두기 위해서."
     },
     {
-      "fade": 1.5,
+      "cg": "res://assets/cg/generated/ch22_book_becomes_address.png",
+      "fade": 1.0,
       "speaker": "Elia",
       "portrait": "elia_determined",
       "side": "right",

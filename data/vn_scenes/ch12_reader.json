@@ -91,6 +91,8 @@
       "narrate_ko": "[ Branch return. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch12_black_service_stair.png",
+      "fade": 0.8,
       "narrate": "The service stair was chest-deep in black water. They kept every face and surrendered three hours to the dark.",
       "narrate_ko": "서비스 계단은 검은 물 속에 가슴 깊이였습니다. 그들은 모든 얼굴을 유지하고 세 시간 동안 어둠에 항복했습니다."
     },

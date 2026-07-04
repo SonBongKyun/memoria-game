@@ -54,6 +54,8 @@
       "narrate_ko": "[ The road divides without changing direction. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch16_flooded_shortcut.png",
+      "fade": 0.8,
       "narrate": "The map burned cleanly. Arrel found a channel no patrol expected and forgot every safe turn behind them.",
       "narrate_ko": "지도가 깨끗하게 불탔습니다. 아렐은 순찰이 예상되지 않는 채널을 발견하고 그 뒤에 있는 모든 안전한 방향을 잊어버렸습니다."
     },

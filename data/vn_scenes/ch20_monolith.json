@@ -56,6 +56,8 @@
       "narrate_ko": "[ 바다가 건너지기를 기다린다. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch20_absence_parts_sea.png",
+      "fade": 1.0,
       "narrate": "He burned the memory of three shadows walking beside his own, and the sea parted around the absence. Where he passed, extracted memories drew back — recognizing something emptier than themselves.",
       "narrate_ko": "그는 자신의 그림자 곁을 걷던 세 그림자의 기억을 태웠고, 바다가 그 부재를 피해 갈라졌다. 그가 지나는 자리마다 추출된 기억들이 물러났다 — 자신들보다 더 텅 빈 무언가를 알아보고서."
     },
@@ -72,6 +74,8 @@
       "start_index": 11
     },
     {
+      "cg": "res://assets/cg/generated/ch20_hans_note_rim.png",
+      "fade": 1.0,
       "narrate": "They walked the rim for what felt like a day and cost an hour, or the reverse. Han's low note held the sea back a hand's width — enough. Nobody burned. Everybody carried.",
       "narrate_ko": "그들은 하루처럼 느껴지고 한 시간이 걸린 — 혹은 그 반대인 — 가장자리를 걸었다. 한의 낮은 음이 바다를 손 한 뼘만큼 밀어냈다. 그거면 충분했다. 아무도 태우지 않았다. 모두가 짊어졌다."
     },

@@ -73,6 +73,8 @@
       "narrate_ko": "[ The choice settles into the body. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch11_burned_stride.png",
+      "fade": 0.8,
       "narrate": "He burned the cadence of two sets of footsteps becoming one. Speed arrived. The knowledge of how Elia followed him did not.",
       "narrate_ko": "그는 두 발자국이 하나가 되는 종지를 불태웠다. 속도가 도착했습니다. 엘리아가 그를 어떻게 따라 갔는지에 대한 지식은 그렇지 않았습니다."
     },
@@ -93,6 +95,8 @@
       "narrate_ko": "[ Branch return. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch11_maintenance_alley.png",
+      "fade": 0.8,
       "narrate": "They took the maintenance alleys. It cost forty minutes and left the old man's cry behind them, still audible between identical walls.",
       "narrate_ko": "그들은 유지 보수 골목을 차지했습니다. 40분이 걸렸고 노인의 비명소리가 그들 뒤에 남았고, 똑같은 벽 사이에서 여전히 들리고 있었다."
     },

@@ -5736,3 +5736,27 @@ Two complete hand-made sprite sheets were sitting unused in the repo: `assets/sp
 - Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
 - All six new CGs and import metadata passed the 1672x941 RGB asset audit.
 - `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S163 - 2026-07-05 (Branch consequence illustration expansion)
+
+### Done
+- Generated and integrated ten new style-locked CGs across Chapters 11, 12, 14, 16, 18, 20, 21, and 22.
+- Illustrated both sides of the Chapter 11 and Chapter 20 choices, plus major kept-memory, burned-memory, and late-story consequences that previously resolved as text alone.
+- Attached every CG to an existing VN step, so all branch `goto` and `start_index` routing remains unchanged.
+- Registered the complete set in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Kept the compositions environment-led or limited to anonymous silhouettes to avoid introducing new face or costume canon.
+
+### Art direction
+- Used each chapter's active story CG as a direct visual reference for architecture, palette, lighting, and rendering language.
+- Every plate is a clean 1672x941 RGB image with a quiet lower dialogue zone.
+- Prompts explicitly excluded grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.
+
+### Verification
+- Godot 4.6.2 imported all ten CGs and parsed the project without script or parse errors; only the known third-party addon shutdown warnings remain.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- Field Focus smoke passed with `maps=10`, one charge consumed, and battle opening at Resonance 25 / Limit 20.
+- Visual clarity/battle-sheet smoke passed with `fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1`.
+- Direct headless load of `vn_host.tscn` passed without script or parse errors.
+- All 94 path-based active VN CG references resolve; all ten new assets and import metadata passed the 1672x941 RGB audit.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.

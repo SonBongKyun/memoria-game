@@ -239,3 +239,20 @@ All four plates were generated with GPT Image as clean 1672x941 RGB story CGs. E
 | `bl07_void` | The Void bends around one footprint it failed to erase | `resonance_bl07_void_echo.png` | `chapter_splash_bl07_void.png` |
 
 Together with the four S157 plates, all ten `MemoryResonance.RESONANCE_POINTS` maps now have a dedicated first-discovery CG. All six new plates are clean 1672x941 RGB images generated with GPT Image from their live chapter art, with no invented faces and explicit exclusions for film/photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.
+
+## S163 branch consequence illustration set
+
+| Runtime scene / branch | Story beat | Asset | Direct style reference |
+|---|---|---|---|
+| `ch11_departure` / burn | The burned walking cadence opens a fast route through the Belt | `ch11_burned_stride.png` | `env_gray_belt_panorama.png` |
+| `ch11_departure` / keep | The maintenance alleys preserve the memory but prolong the danger | `ch11_maintenance_alley.png` | `env_gray_belt_panorama.png` |
+| `ch12_reader` / keep | The party keeps Verdan's faces and descends into black water | `ch12_black_service_stair.png` | `ch12_hidden_passage.png` |
+| `ch14_confessor_intervention` / keep | Tobias locates the extraction cradle's third conduit | `ch14_third_conduit.png` | `ch14_confessor_hall.png` + `memory_key_confessor_hinge.png` |
+| `ch16_nera` / burn | A sacrificed route reveals the flooded shortcut | `ch16_flooded_shortcut.png` | `ch16_moving_horizon.png` |
+| `ch18_living_funeral` / keep | Tobias remains as an unnamed witness while the notebook escapes | `ch18_witness_without_name.png` | `ch18_living_funeral.png` + `ch18_tobias_platform.png` |
+| `ch20_monolith` / burn | Three companion shadows become an absence that parts the memory sea | `ch20_absence_parts_sea.png` | `ch20_monolith_interior.png` |
+| `ch20_monolith` / keep | Han's note holds the sea back one hand's width | `ch20_hans_note_rim.png` | `ch20_monolith_interior.png` |
+| `ch21_editors_turn` | The party descends a stair absent from every official ledger | `ch21_unlisted_stair.png` | `ch21_kairos_confront.png` |
+| `ch22_core` | The primal log completes itself as an address | `ch22_book_becomes_address.png` | `ch22_monolith_core.png` + `ch22_conversion_threshold.png` |
+
+All ten CGs were generated with GPT Image as clean 1672x941 RGB plates and attached to existing VN steps, preserving every choice and `goto` index. The set remains environment-led or uses anonymous silhouettes so no unfinalized face or costume canon is introduced. Every prompt reserved a quiet lower dialogue zone and explicitly excluded film/photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.
