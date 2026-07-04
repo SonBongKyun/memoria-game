@@ -146,10 +146,21 @@ var _victory_rewards: Array = []  # collected reward lines from battle_log
 func _ready() -> void:
 	_build_ui()
 	_connect_signals()
+	_on_limit_changed(BattleManager.limit_gauge)
+	if BattleManager.field_focus_opening:
+		_present_field_focus_opening.call_deferred()
 	# S56: BattleVFX 초기화 (_build_ui 이후 canvas_root 유효)
 	battle_vfx = BattleVFX.new(self, canvas_root)
 	# 인트로 연출 후 HP 표시
 	_play_intro()
+
+func _present_field_focus_opening() -> void:
+	await get_tree().create_timer(0.55).timeout
+	if not is_inside_tree():
+		return
+	var message := "[현장 집중] 메아리의 방향이 전투에 남았다 · 공명 25 / 리미트 20" if GameManager.current_locale == "ko" else "[FIELD FOCUS] The mapped echo carries into battle · Resonance 25 / Limit 20"
+	_on_battle_log(message)
+	_show_turn_indicator("FIELD FOCUS", Color(0.82, 0.72, 0.42))
 
 func _process(delta: float) -> void:
 	_idle_time += delta

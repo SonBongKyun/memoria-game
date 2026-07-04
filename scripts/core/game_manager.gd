@@ -209,9 +209,11 @@ var player_data: Dictionary = {
 	"hp": 100,
 	"max_hp": 100,
 	"grains": 0,  # 화폐
+	"field_focus": 0,  # Memory Pulse discoveries banked for the next battles
 	"elia_with_party": true,  # 엘리아 동행 여부
 	"items": {},  # 아이템 인벤토리 {"potion": 2, "antidote": 1, ...}
 }
+const FIELD_FOCUS_MAX: int = 3
 
 # --- 아이템 정의 ---
 const ITEMS: Dictionary = {
@@ -329,6 +331,27 @@ func remove_item(item_id: String, count: int = 1) -> bool:
 func get_item_count(item_id: String) -> int:
 	return player_data.items.get(item_id, 0)
 
+func get_field_focus() -> int:
+	return clampi(int(player_data.get("field_focus", 0)), 0, FIELD_FOCUS_MAX)
+
+func add_field_focus(amount: int = 1) -> int:
+	if amount <= 0:
+		return 0
+	var before := get_field_focus()
+	var after := mini(before + amount, FIELD_FOCUS_MAX)
+	player_data["field_focus"] = after
+	if after != before:
+		field_focus_changed.emit(after, FIELD_FOCUS_MAX)
+	return after - before
+
+func consume_field_focus() -> bool:
+	var current := get_field_focus()
+	if current <= 0:
+		return false
+	player_data["field_focus"] = current - 1
+	field_focus_changed.emit(current - 1, FIELD_FOCUS_MAX)
+	return true
+
 # --- S55: Play Statistics ---
 var play_stats: Dictionary = {
 	"play_time_seconds": 0.0,
@@ -342,6 +365,7 @@ var play_stats: Dictionary = {
 	"highest_momentum_rank": 0,
 	"objectives_completed": 0,
 	"momentum_surges": 0,
+	"echoes_mapped": 0,
 	"bosses_defeated": 0,
 	"items_used": 0,
 }
@@ -614,6 +638,7 @@ func localized_value(source: Dictionary, key: String, fallback: String = "") -> 
 
 signal state_changed(new_state: GameState)
 signal stat_gained(stat_name: String, amount: int)  # S58: Progression feedback
+signal field_focus_changed(value: int, maximum: int)
 
 # --- S58: Chapter completion tracking ---
 var _chapter_start_battles: int = 0
@@ -803,6 +828,7 @@ func start_new_game_plus() -> void:
 		"hp": 100,
 		"max_hp": 100,
 		"grains": kept_grains,
+		"field_focus": 0,
 		"elia_with_party": true,
 		"items": kept_items,
 	}
@@ -899,6 +925,8 @@ func export_data() -> Dictionary:
 func import_data(data: Dictionary) -> void:
 	if data.has("player_data"):
 		player_data = data.player_data
+	if not player_data.has("field_focus"):
+		player_data["field_focus"] = 0
 	if data.has("story_flags"):
 		story_flags = data.story_flags
 	if data.has("current_chapter"):

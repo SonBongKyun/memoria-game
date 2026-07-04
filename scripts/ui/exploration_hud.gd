@@ -610,8 +610,11 @@ func _update_memory_pulse_status() -> void:
 
 	pulse_label.visible = true
 	var status: Dictionary = player.get_memory_pulse_status()
+	var focus := int(status.get("field_focus", 0))
+	var focus_max := int(status.get("field_focus_max", 3))
+	var focus_suffix := (" · 집중 %d/%d" if GameManager.current_locale == "ko" else " · Focus %d/%d") % [focus, focus_max]
 	if bool(status.get("ready", false)):
-		pulse_label.text = "펄스: 준비 [Q]" if GameManager.current_locale == "ko" else "Pulse: Ready [Q]"
+		pulse_label.text = ("펄스: 준비 [Q]" if GameManager.current_locale == "ko" else "Pulse: Ready [Q]") + focus_suffix
 		pulse_label.add_theme_color_override("font_color", Color(0.86, 0.76, 0.42))
 	else:
 		var cooldown: float = float(status.get("cooldown", 0.0))
@@ -621,7 +624,7 @@ func _update_memory_pulse_status() -> void:
 		var meter := ""
 		for i in range(marks):
 			meter += "|" if i < filled else "."
-		pulse_label.text = ("펄스: %s %.1fs" if GameManager.current_locale == "ko" else "Pulse: %s %.1fs") % [meter, cooldown]
+		pulse_label.text = (("펄스: %s %.1fs" if GameManager.current_locale == "ko" else "Pulse: %s %.1fs") % [meter, cooldown]) + focus_suffix
 		pulse_label.add_theme_color_override("font_color", Color(0.52, 0.55, 0.64))
 
 func _get_player_node() -> Node:

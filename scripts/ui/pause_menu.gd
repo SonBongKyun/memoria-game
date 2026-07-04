@@ -1293,6 +1293,30 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/ch24_last_lullaby.png",
 		"desc": "A child hums an ancient melody without knowing where it came from."
 	},
+	{
+		"title": "Rim Echo: Footsteps",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_rim_forest_echo.png",
+		"desc": "The Rim forest briefly remembers footsteps that no longer belong to anyone."
+	},
+	{
+		"title": "Verdan Echo: The Last Bowl",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_verdan_market_echo.png",
+		"desc": "A vanished meal leaves warm steam behind in Verdan's night market."
+	},
+	{
+		"title": "Coast Echo: Salt Hand",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_crumbling_coast_echo.png",
+		"desc": "The Crumbling Coast preserves a human handprint in wind-driven salt."
+	},
+	{
+		"title": "Forest Echo: Unfinished Sentence",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_forgotten_forest_echo.png",
+		"desc": "A hollow tree exhales the beginning of a sentence it cannot finish."
+	},
 ]
 
 func _ready() -> void:

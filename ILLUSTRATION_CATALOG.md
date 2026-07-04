@@ -183,3 +183,14 @@ All 15 S152 plates are 1672x941 RGB images. Six are placed directly into the exi
 | `ch24_testimony` | Leaves the story with a child carrying the last lullaby | `ch24_last_lullaby.png` | GPT Image |
 
 All new story CGs are clean 1672x941 RGB plates with text-free compositions and a quiet lower dialogue zone. Prompts explicitly excluded film/photo grain, paper or canvas overlays, speckles, chromatic noise, compression artifacts, muddy detail, and excessive bloom. Sable's canon LOCK remained: `old blind woman, late 60s, short white hair, weathered coast-stone face, pale clouded eyes, dark violet-toned coat, small scar, composed and unhurried`.
+
+## S157 style-locked Field Focus environment set
+
+| Runtime map | Memory echo | Asset | Direct style reference |
+|---|---|---|---|
+| `rim_forest` | Lost footsteps retained by the Rim | `resonance_rim_forest_echo.png` | `story_ch1_twisted_forest_path.png` |
+| `verdan_market` | Warm steam from a vanished market meal | `resonance_verdan_market_echo.png` | `chapter_splash_verdan_market.png` |
+| `crumbling_coast` | A handprint condensed from salt wind | `resonance_crumbling_coast_echo.png` | `chapter_splash_crumbling_coast.png` |
+| `forgotten_forest` | A hollow tree's unfinished sentence | `resonance_forgotten_forest_echo.png` | `chapter_splash_forgotten_forest.png` |
+
+These plates deliberately avoid unfinalized character designs. Each one was generated from its active map CG as a direct style reference, preserving the same environment geometry, palette family, realistic dark-fantasy rendering, contrast, and lower dialogue-safe zone. All four are clean 1672x941 RGB images with no grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, or dirty-lens overlays.

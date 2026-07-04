@@ -435,8 +435,33 @@ func _try_memory_pulse() -> void:
 
 	var title: String = result.get("memory_title", "unknown memory")
 	var paces: int = int(round(float(result.get("distance", 0.0)) / 32.0))
+	var direction: Vector2 = result.get("direction", Vector2.ZERO)
+	var bearing := _format_pulse_direction(direction)
+	var new_discoveries := int(result.get("new_discoveries", 0))
+	if new_discoveries > 0:
+		var gained := GameManager.add_field_focus(new_discoveries)
+		if gained > 0:
+			GameManager.add_stat("echoes_mapped", gained)
+			var focus_text := "현장 집중 +%d · 다음 전투에 공명/리미트 보너스" % gained if GameManager.current_locale == "ko" else "Field Focus +%d · next battle starts with Resonance and Limit" % gained
+			NotificationToast.show_toast(focus_text, NotificationToast.ToastType.SUCCESS)
+			MemoryResonance.show_field_focus_discovery()
+	elif GameManager.get_field_focus() >= GameManager.FIELD_FOCUS_MAX:
+		var full_text := "현장 집중이 가득 찼다 (%d/%d)" % [GameManager.get_field_focus(), GameManager.FIELD_FOCUS_MAX] if GameManager.current_locale == "ko" else "Field Focus is full (%d/%d)" % [GameManager.get_field_focus(), GameManager.FIELD_FOCUS_MAX]
+		NotificationToast.show_toast(full_text, NotificationToast.ToastType.INFO)
 	NotificationToast.show_toast("Memory Pulse: %d echo%s nearby" % [count, "" if count == 1 else "es"], NotificationToast.ToastType.SUCCESS)
-	NotificationToast.show_toast("Nearest echo: %s (%d paces)" % [title, max(paces, 1)], NotificationToast.ToastType.INFO)
+	var echo_text := "가장 가까운 메아리: %s · %s · %d걸음" % [title, bearing, max(paces, 1)] if GameManager.current_locale == "ko" else "Nearest echo: %s · %s · %d paces" % [title, bearing, max(paces, 1)]
+	NotificationToast.show_toast(echo_text, NotificationToast.ToastType.INFO)
+
+func _format_pulse_direction(direction: Vector2) -> String:
+	if direction == Vector2.ZERO:
+		return "여기" if GameManager.current_locale == "ko" else "here"
+	if absf(direction.x) > absf(direction.y):
+		if direction.x > 0.0:
+			return "동쪽" if GameManager.current_locale == "ko" else "east"
+		return "서쪽" if GameManager.current_locale == "ko" else "west"
+	if direction.y > 0.0:
+		return "남쪽" if GameManager.current_locale == "ko" else "south"
+	return "북쪽" if GameManager.current_locale == "ko" else "north"
 
 func _play_memory_pulse_vfx() -> void:
 	_spawn_pulse_ring(MEMORY_PULSE_RADIUS * 0.65, Color(0.85, 0.72, 0.38, 0.78), 0.42)
@@ -474,6 +499,8 @@ func get_memory_pulse_status() -> Dictionary:
 		"cooldown": _memory_pulse_cooldown,
 		"max_cooldown": MEMORY_PULSE_COOLDOWN,
 		"ready": _memory_pulse_cooldown <= 0.0,
+		"field_focus": GameManager.get_field_focus(),
+		"field_focus_max": GameManager.FIELD_FOCUS_MAX,
 	}
 
 ## S41: 현재 지형 타입 감지 (맵 스크립트의 terrain_map 메타 사용)

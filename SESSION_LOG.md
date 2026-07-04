@@ -5465,7 +5465,7 @@ New LOCK phrase (ART_GUIDE §6.3, use verbatim): `old blind woman, late 60s, sho
 - Every generation prompt prohibited film/photo grain, paper/canvas texture, speckles, chromatic noise, compression artifacts, and excessive bloom.
 
 ### Remaining art queue
-- Three future Part III slots remain after S155 completed `ch19_vael_silhouette` and `ch21_nera_hesitation`: `ch21_belor_arrival`, `ch22_elia_relay`, and `ch22_vael_oneword`. Their premature `cg` fields remain removed so the active VN has zero dangling asset references; the lines remain ready for those fields to be restored after generation.
+- Three Part III slots remain open: `ch21_belor_arrival`, `ch22_elia_relay`, and `ch22_vael_oneword`. The first S156 attempts were rejected for style/continuity drift and removed from the project; their VN lines intentionally have no dangling `cg` fields.
 
 ### Verification
 - Korean localization validator passed: 30 files, 1,546 fields, 19 speakers, 0 errors.
@@ -5490,4 +5490,53 @@ New LOCK phrase (ART_GUIDE §6.3, use verbatim): `old blind woman, late 60s, sho
 - Direct headless load of `res://scenes/maps/verdan_market.tscn` passed and initialized Malet plus Elia's new directional companion frames without runtime script errors.
 - Korean localization validator passed: 30 files, 1,546 fields, 19 speakers, 0 errors.
 - VN validator passed: 19 files, 489 steps, 0 errors, 0 warnings.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S156 - 2026-07-04 (Field Focus gameplay loop)
+
+### Done
+- Added the Field Focus loop to connect exploration with combat:
+  - a Memory Pulse that maps a new resonance echo banks one Field Focus charge, up to 3;
+  - mapped echoes persist through story flags and cannot be farmed by reloading a map;
+  - pulses now report the nearest echo's cardinal direction and distance;
+  - the Exploration HUD shows Focus beside Pulse readiness;
+  - the next normal battle consumes one charge and starts at Resonance 25 plus Limit 20;
+  - Boss Rush does not consume exploration charges;
+  - old save files receive a safe zero-charge default and NG+ resets the temporary bank.
+- Added `echoes_mapped` play-stat tracking and a reusable headless regression scene at `scripts/tools/smoke_field_focus.tscn`.
+
+### Verification
+- Field Focus smoke test passed: one nearby echo mapped, one charge gained and consumed, battle opened at Resonance 25 / Limit 20.
+- Korean localization validator passed: 30 files, 1,546 fields, 19 speakers, 0 errors.
+- VN validator passed: 19 files, 489 steps, 0 errors, 0 warnings.
+- Godot 4.6.2 headless editor import/project parse passed with zero `SCRIPT ERROR` / `Parse Error` lines.
+- Direct headless load of `res://scenes/maps/rim_forest.tscn` passed with Player, Elia, HUD, compass, and resonance systems initialized.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S157 - 2026-07-04 (Style-locked Field Focus illustration pass)
+
+### Art consistency audit
+- Rechecked the active art guide and representative map CGs before generation.
+- Preserved the project's intended two-track presentation: pixel characters during exploration and cinematic dark-fantasy paintings for CGs.
+- Did not regenerate Belor, Vael, or other unfinalized new characters. The art guide explicitly forbids temporary renders before their character LOCK phrases are finalized.
+- Chose environment-only memory echoes so no face, costume, age, or silhouette continuity could drift.
+
+### Done
+- Generated four clean 1672x941 RGB Field Focus CGs using each active map illustration as a direct style reference:
+  - `resonance_rim_forest_echo.png` from `story_ch1_twisted_forest_path.png`;
+  - `resonance_verdan_market_echo.png` from `chapter_splash_verdan_market.png`;
+  - `resonance_crumbling_coast_echo.png` from `chapter_splash_crumbling_coast.png`;
+  - `resonance_forgotten_forest_echo.png` from `chapter_splash_forgotten_forest.png`.
+- Matched each source's environment geometry, palette, lighting ratio, realistic concept-art rendering, and dialogue-safe lower zone. Prompts excluded grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens overlays, excessive bloom, and oversharpening.
+- Connected each plate to the first new Field Focus discovery in its map. A persistent map flag prevents repeated CG interruptions while later echoes still grant gameplay charges.
+- Registered all four plates in the PauseMenu Artbook and documented their exact source references in `ILLUSTRATION_CATALOG.md`.
+- Extended the Field Focus regression smoke test to verify every registered CG path resolves before testing echo mapping and battle carry-over.
+
+### Verification
+- Visual inspection confirmed each output remains in the source map's geometry, palette family, material rendering, and contrast range; no unapproved characters appear.
+- Field Focus smoke test passed with all four CG paths resolved, one echo mapped, one charge consumed, and battle opening at Resonance 25 / Limit 20.
+- Korean localization validator passed: 30 files, 1,546 fields, 19 speakers, 0 errors.
+- VN validator passed: 19 files, 489 steps, 0 errors, 0 warnings.
+- Godot 4.6.2 headless editor import/project parse passed with zero `SCRIPT ERROR` / `Parse Error` lines.
+- Direct headless load of `res://scenes/maps/rim_forest.tscn` passed with the exploration stack initialized.
 - `git diff --check` passed; only normal CRLF working-copy notices remain.

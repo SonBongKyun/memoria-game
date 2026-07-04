@@ -4,6 +4,28 @@ extends RefCounted
 
 const TILE_SIZE: int = 32
 const MEMORY_RESONANCE_CG_PATH: String = "res://assets/cg/generated/memory_compass_resonance_cinematic.png"
+const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
+	"rim_forest": {
+		"path": "res://assets/cg/generated/resonance_rim_forest_echo.png",
+		"caption": "The forest remembers a set of footsteps the traveler no longer owns.",
+		"caption_ko": "숲은 여행자가 더는 간직하지 못한 발자국을 기억하고 있다.",
+	},
+	"verdan_market": {
+		"path": "res://assets/cg/generated/resonance_verdan_market_echo.png",
+		"caption": "Warm steam rises from a meal that vanished before anyone finished it.",
+		"caption_ko": "아무도 다 먹지 못한 채 사라진 식사에서 따뜻한 김이 피어오른다.",
+	},
+	"crumbling_coast": {
+		"path": "res://assets/cg/generated/resonance_crumbling_coast_echo.png",
+		"caption": "Salt keeps the shape of a hand after the person has gone.",
+		"caption_ko": "사람이 떠난 뒤에도 소금은 손의 형태를 붙들고 있다.",
+	},
+	"forgotten_forest": {
+		"path": "res://assets/cg/generated/resonance_forgotten_forest_echo.png",
+		"caption": "A hollow tree tries to finish the sentence buried inside it.",
+		"caption_ko": "속이 빈 나무가 제 안에 묻힌 문장을 끝맺으려 한다.",
+	},
+}
 
 const RESONANCE_POINTS: Dictionary = {
 	"rim_forest": [
@@ -140,6 +162,8 @@ static func pulse_scan(map_node: Node, origin: Vector2, radius: float) -> Dictio
 	var nearest: Area2D = null
 	var nearest_distance: float = INF
 	var count: int = 0
+	var new_discoveries: int = 0
+	var discovery_capacity := maxi(GameManager.FIELD_FOCUS_MAX - GameManager.get_field_focus(), 0)
 	for node in map_node.get_tree().get_nodes_in_group("memory_resonance"):
 		if not is_instance_valid(node) or not (node is Area2D):
 			continue
@@ -149,7 +173,13 @@ static func pulse_scan(map_node: Node, origin: Vector2, radius: float) -> Dictio
 		var dist: float = origin.distance_to(area.global_position)
 		if dist <= radius:
 			count += 1
-			_flash_scan_target(area, radius, dist)
+			var point_flag := String(area.get_meta("flag", "echo"))
+			var discovery_flag := "pulse_found_%s" % point_flag
+			var is_new := not GameManager.get_flag(discovery_flag) and new_discoveries < discovery_capacity
+			if is_new:
+				GameManager.set_flag(discovery_flag)
+				new_discoveries += 1
+			_flash_scan_target(area, radius, dist, is_new)
 			if dist < nearest_distance:
 				nearest_distance = dist
 				nearest = area
@@ -165,9 +195,29 @@ static func pulse_scan(map_node: Node, origin: Vector2, radius: float) -> Dictio
 		"distance": nearest_distance,
 		"memory_id": memory_id,
 		"memory_title": memory_title,
+		"direction": nearest.global_position - origin,
+		"new_discoveries": new_discoveries,
 	}
 
-static func _flash_scan_target(area: Area2D, radius: float, distance: float) -> void:
+static func show_field_focus_discovery() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.current_scene == null:
+		return
+	var map_key := tree.current_scene.scene_file_path.get_file().get_basename()
+	if not FIELD_FOCUS_CG_BY_MAP.has(map_key):
+		return
+	var seen_flag := "field_focus_cg_seen_%s" % map_key
+	if GameManager.get_flag(seen_flag):
+		return
+	var entry: Dictionary = FIELD_FOCUS_CG_BY_MAP[map_key]
+	var path := String(entry.get("path", ""))
+	if path == "" or not ResourceLoader.exists(path) or not is_instance_valid(CgViewer):
+		return
+	GameManager.set_flag(seen_flag)
+	var caption_key := "caption_ko" if GameManager.current_locale == "ko" else "caption"
+	CgViewer.show_cg(path, String(entry.get(caption_key, entry.get("caption", ""))), 2.2)
+
+static func _flash_scan_target(area: Area2D, radius: float, distance: float, is_new: bool) -> void:
 	var strength: float = clampf(1.0 - (distance / maxf(radius, 1.0)), 0.25, 1.0)
 	for child in area.get_children():
 		if child is CanvasItem:
@@ -178,7 +228,7 @@ static func _flash_scan_target(area: Area2D, radius: float, distance: float) -> 
 			tw.tween_property(item, "modulate", base_modulate, 0.55).set_trans(Tween.TRANS_SINE)
 
 	var hint = Label.new()
-	hint.text = "ECHO"
+	hint.text = "NEW ECHO" if is_new else "ECHO"
 	hint.add_theme_font_size_override("font_size", 9)
 	hint.add_theme_color_override("font_color", Color(1.0, 0.86, 0.46, 0.92))
 	hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))

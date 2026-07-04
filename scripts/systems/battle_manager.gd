@@ -250,6 +250,7 @@ const MOMENTUM_RANK_LABELS_KO: Array[String] = ["냉각", "점화", "연소", "�
 var momentum: float = 0.0
 var momentum_rank: int = 0
 var _best_momentum_rank: int = 0
+var field_focus_opening: bool = false
 var _last_stand_triggered_this_battle: bool = false
 
 # --- Limit Break 시스템 ---
@@ -416,6 +417,7 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	_objective_failed = false
 	tactical_objective.clear()
 	_reset_momentum()
+	field_focus_opening = false
 	# Detect battle environment from return scene
 	battle_environment = _detect_environment(from_scene)
 	sable_in_party = GameManager.get_flag("sable_joined") and GameManager.current_chapter >= 4
@@ -425,6 +427,10 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 		EliaDiary.reset_cooldowns()
 	limit_gauge = 0.0
 	limit_changed.emit(0.0)
+	if not _battle_started_as_boss_rush and GameManager.consume_field_focus():
+		field_focus_opening = true
+		_add_momentum(25.0)
+		_add_limit(20.0)
 	auto_battle = false
 	auto_battle_changed.emit(false)
 	state = BattleState.PLAYER_TURN
