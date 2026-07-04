@@ -115,6 +115,8 @@
       "text_ko": "유리 너머로 그녀가 흥얼거리는 저 선율. 한의 자장가야. 아니면, 한의 것이 그녀의 것이거나."
     },
     {
+      "cg": "res://assets/cg/generated/ch20_reverse_memory_fire.png",
+      "fade": 1.0,
       "narrate": "When Elia's hands began to shake against the weight of the sea, Arrel did something no Combustor was supposed to do. He pressed a memory outward — the campfire, the warmth — and it flowed from him into her without burning. Fire, running backward.",
       "narrate_ko": "바다의 무게에 엘리아의 손이 떨리기 시작했을 때, 아렐은 어떤 연소자도 해서는 안 되는 일을 했다. 기억 하나를 바깥으로 밀어낸 것이다 — 모닥불, 그 온기를 — 그러자 그것은 타오르지 않은 채 그에게서 그녀에게로 흘러들었다. 거꾸로 흐르는 불.",
       "distort_if_burned": "daily_campfire_song",

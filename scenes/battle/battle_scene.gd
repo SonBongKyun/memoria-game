@@ -2166,8 +2166,9 @@ func _play_actor_anim(actor: CanvasItem, anim: String) -> void:
 		return
 	asp.play(anim)
 	if not asp.sprite_frames.get_animation_loop(anim):
-		if not asp.animation_finished.is_connected(_on_actor_anim_finished):
-			asp.animation_finished.connect(_on_actor_anim_finished.bind(asp))
+		var finished_callback := _on_actor_anim_finished.bind(asp)
+		if not asp.animation_finished.is_connected(finished_callback):
+			asp.animation_finished.connect(finished_callback)
 
 func _on_actor_anim_finished(asp: AnimatedSprite2D) -> void:
 	# down(패배)은 마지막 프레임 유지 — 일어나면 어색함

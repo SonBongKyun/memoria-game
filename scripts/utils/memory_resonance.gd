@@ -15,15 +15,45 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 		"caption": "Warm steam rises from a meal that vanished before anyone finished it.",
 		"caption_ko": "아무도 다 먹지 못한 채 사라진 식사에서 따뜻한 김이 피어오른다.",
 	},
+	"belt_waystation": {
+		"path": "res://assets/cg/generated/resonance_belt_waystation_echo.png",
+		"caption": "The dead earth keeps one footprint while spilled ink points back to the record.",
+		"caption_ko": "죽은 땅은 발자국 하나를 붙들고, 흘러나온 잉크는 기록으로 돌아가는 길을 가리킨다.",
+	},
+	"drift_shelter": {
+		"path": "res://assets/cg/generated/resonance_drift_shelter_echo.png",
+		"caption": "Warmth remains on the table after the hands themselves have moved on.",
+		"caption_ko": "손은 떠났지만 그 온기는 아직 탁자 위에 남아 있다.",
+	},
 	"crumbling_coast": {
 		"path": "res://assets/cg/generated/resonance_crumbling_coast_echo.png",
 		"caption": "Salt keeps the shape of a hand after the person has gone.",
 		"caption_ko": "사람이 떠난 뒤에도 소금은 손의 형태를 붙들고 있다.",
 	},
+	"the_seam": {
+		"path": "res://assets/cg/generated/resonance_the_seam_echo.png",
+		"caption": "Trust survives as a route traced by touch through white flowers.",
+		"caption_ko": "신뢰는 흰 꽃 사이로 손끝이 더듬어 그린 길이 되어 살아남는다.",
+	},
+	"seam_outskirts": {
+		"path": "res://assets/cg/generated/resonance_seam_outskirts_echo.png",
+		"caption": "The Echo Shell bridges a broken road with one remembered note.",
+		"caption_ko": "에코 셸이 기억한 음 하나로 끊어진 길을 잇는다.",
+	},
 	"forgotten_forest": {
 		"path": "res://assets/cg/generated/resonance_forgotten_forest_echo.png",
 		"caption": "A hollow tree tries to finish the sentence buried inside it.",
 		"caption_ko": "속이 빈 나무가 제 안에 묻힌 문장을 끝맺으려 한다.",
+	},
+	"colorless_waste": {
+		"path": "res://assets/cg/generated/resonance_colorless_waste_echo.png",
+		"caption": "The compass gives color back to only the stones it can name.",
+		"caption_ko": "나침반은 이름 붙일 수 있는 돌에만 잠시 색을 돌려준다.",
+	},
+	"bl07_void": {
+		"path": "res://assets/cg/generated/resonance_bl07_void_echo.png",
+		"caption": "The Void bends around one human footprint it failed to erase.",
+		"caption_ko": "보이드는 끝내 지우지 못한 인간의 발자국 하나를 피해 휘어진다.",
 	},
 }
 

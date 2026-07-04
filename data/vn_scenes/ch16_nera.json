@@ -130,6 +130,8 @@
       "narrate_ko": "멀리서 미라는 카이로스의 마지막 추격 추정치에 0.3도의 오차를 기록하고 두 번째 장부를 열었다."
     },
     {
+      "cg": "res://assets/cg/generated/ch16_moving_horizon.png",
+      "fade": 1.1,
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",

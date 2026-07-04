@@ -1318,6 +1318,42 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "A hollow tree exhales the beginning of a sentence it cannot finish."
 	},
 	{
+		"title": "Belt Echo: Ink and Footprint",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_belt_waystation_echo.png",
+		"desc": "Dead soil keeps one footprint while spilled memory-ink returns to an abandoned ledger."
+	},
+	{
+		"title": "Drift Echo: Warm Hands",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_drift_shelter_echo.png",
+		"desc": "A dry circle of warmth remains on the shelter table after Elia's hands are gone."
+	},
+	{
+		"title": "Seam Echo: A Route by Touch",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_the_seam_echo.png",
+		"desc": "White flowers remember a route traced by touch and held in trust."
+	},
+	{
+		"title": "Outskirts Echo: One Clear Note",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_seam_outskirts_echo.png",
+		"desc": "The Echo Shell crystallizes one note into a bridge across the broken road."
+	},
+	{
+		"title": "Waste Echo: Named Color",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_colorless_waste_echo.png",
+		"desc": "A memory compass briefly returns blue and amber to the stones it can still name."
+	},
+	{
+		"title": "BL-07 Echo: The Unerased Step",
+		"type": "Field Focus Environment CG",
+		"path": "res://assets/cg/generated/resonance_bl07_void_echo.png",
+		"desc": "The Void bends around the shape of one human footprint it could not erase."
+	},
+	{
 		"title": "A Regular's Way Through",
 		"type": "Memory Key Environment CG",
 		"path": "res://assets/cg/generated/memory_key_verdan_passage.png",
@@ -1358,6 +1394,30 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"type": "Memory Key Climax CG",
 		"path": "res://assets/cg/generated/memory_key_relay_anchor.png",
 		"desc": "Remembered warmth lets the primal relay open around joined hands without taking from either."
+	},
+	{
+		"title": "The Passage Behind the Stall",
+		"type": "Part II Environment CG",
+		"path": "res://assets/cg/generated/ch12_hidden_passage.png",
+		"desc": "A remembered trace of warmth exposes the Sump route before the Authority patrol turns back."
+	},
+	{
+		"title": "When the Horizon Moved",
+		"type": "Part II Environment CG",
+		"path": "res://assets/cg/generated/ch16_moving_horizon.png",
+		"desc": "The Forgetting Storm advances against wind and tide until the eastern road has nowhere left to go."
+	},
+	{
+		"title": "The Platform Forgot",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch18_broken_funeral_platform.png",
+		"desc": "The Living Funeral releases its restraints while Tobias's written record survives the escape."
+	},
+	{
+		"title": "Fire Running Backward",
+		"type": "Part III Lore CG",
+		"path": "res://assets/cg/generated/ch20_reverse_memory_fire.png",
+		"desc": "At the Monolith's heart, memory stops feeding the archive and begins to flow outward."
 	},
 ]
 

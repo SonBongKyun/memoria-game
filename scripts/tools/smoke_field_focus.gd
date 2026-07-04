@@ -3,7 +3,9 @@ extends Node
 func _ready() -> void:
 	GameManager.player_data["field_focus"] = 0
 	GameManager.story_flags.erase("pulse_found_smoke_echo")
-	assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size() == 4, "Field Focus should register four style-locked map CGs")
+	assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size() == MemoryResonance.RESONANCE_POINTS.size(), "Every resonance map should register a Field Focus CG")
+	for map_key in MemoryResonance.RESONANCE_POINTS:
+		assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.has(map_key), "Field Focus CG missing for %s" % map_key)
 	for entry in MemoryResonance.FIELD_FOCUS_CG_BY_MAP.values():
 		assert(ResourceLoader.exists(String(entry.path)), "Every Field Focus CG path must resolve")
 
@@ -29,5 +31,5 @@ func _ready() -> void:
 	assert(is_equal_approx(BattleManager.momentum, 25.0), "Focus should start at 25 resonance")
 	assert(is_equal_approx(BattleManager.limit_gauge, 20.0), "Focus should start at 20 limit")
 
-	print("FIELD_FOCUS_SMOKE_PASS count=1 resonance=25 limit=20")
+	print("FIELD_FOCUS_SMOKE_PASS maps=%d count=1 resonance=25 limit=20" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
 	get_tree().quit(0)

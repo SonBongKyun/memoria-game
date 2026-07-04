@@ -5684,3 +5684,55 @@ Two complete hand-made sprite sheets were sitting unused in the repo: `assets/sp
 2. **Battle sheets for Sable and Tobias** (same 160px verb layout as arrel_sheet). ⚠ Sable must follow the S148 blind-old-woman LOCK phrase.
 3. **Enemy battle sheets** (void_beast, shade_sentinel, kairos, eraser types) — enemies are still procedural/static images in battle.
 4. **Tilesets** — TilePainter procedural tiles are stylistically acceptable but are the last fully procedural layer.
+
+## S161 - 2026-07-05 (Claude gameplay review + narrative bridge illustrations)
+
+### Code review
+- Audited Claude's latest Memory Key economy, Field Focus, exploration motion, companion follow, chapter ledger, VN archive, and battle-sheet integration commit.
+- Fixed a one-shot battle animation signal bug: `_play_actor_anim()` checked the unbound callback but connected a bound callback, so repeated attack/cast/hurt verbs could attempt duplicate `animation_finished` connections.
+- Extended `smoke_visual_clarity.tscn` to play multiple one-shot verbs and assert that Arrel retains exactly one completion callback.
+
+### Illustration integration
+- Generated and placed four style-locked, environment-led story CGs:
+  - `ch12_hidden_passage.png` when the Sump patrol turns back above Verdan's hidden route;
+  - `ch16_moving_horizon.png` when the Forgetting Storm moves against wind and tide;
+  - `ch18_broken_funeral_platform.png` on the Tobias rescue branch after every restraint opens;
+  - `ch20_reverse_memory_fire.png` when memory-fire first flows outward without burning.
+- Registered all four images in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Preserved every existing choice/goto index by attaching CG fields to existing steps rather than inserting new VN steps.
+- Used the active chapter CGs as direct visual references and avoided unfinalized faces or character redesigns.
+- Every generated plate is a clean 1672x941 RGB image with explicit exclusions for grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.
+
+### Verification
+- Godot 4.6.2 imported all four new images and parsed the project without script or parse errors; only the known third-party addon shutdown warnings remain.
+- Visual clarity/battle-sheet smoke passed with `actor_callbacks=1`; repeated one-shot verbs no longer duplicate their completion signal.
+- Field Focus smoke passed with one charge consumed and battle opening at Resonance 25 / Limit 20.
+- Direct runtime loads passed for `vn_host.tscn` and `belt_waystation.tscn`, exercising the VN host plus Arrel/Elia movement code.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- All 84 path-based active VN CG references resolve; all four new assets imported as 1672x941 RGB plates.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S162 - 2026-07-05 (Complete Field Focus illustration coverage)
+
+### Done
+- Expanded Claude's Field Focus discovery presentation from four illustrated maps to all ten exploration maps.
+- Generated and connected six clean environment-led CGs for Belt Waystation, Drift Shelter, The Seam, Seam Outskirts, Colorless Waste, and BL-07 Void.
+- Added localized English/Korean discovery captions for every new map in `MemoryResonance.FIELD_FOCUS_CG_BY_MAP`.
+- Registered all six images in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Strengthened `smoke_field_focus.gd`: it now requires exact coverage between `RESONANCE_POINTS` and the Field Focus CG map, and verifies every configured resource path.
+
+### Art direction
+- Used each active chapter splash or story plate as a direct reference.
+- Kept the set environment-only to avoid identity drift while still visualizing each map's memory mechanic.
+- Every plate is a clean 1672x941 RGB image with a quiet lower UI zone and no grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, or visibility-blocking fog.
+
+### Verification
+- Godot 4.6.2 imported all six images and parsed `MemoryResonance` without script or parse errors; only known third-party addon shutdown warnings remain.
+- Field Focus smoke passed with `maps=10`, confirming exact coverage for every resonance map and every configured image path.
+- Visual clarity/battle-sheet smoke passed with `actor_callbacks=1`.
+- Direct runtime loads passed for `vn_host.tscn`, Belt Waystation, Seam Outskirts, and BL-07 Void without script, parse, invalid-call, or invalid-access errors.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- All six new CGs and import metadata passed the 1672x941 RGB asset audit.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.

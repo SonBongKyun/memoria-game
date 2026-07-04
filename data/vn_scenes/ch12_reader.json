@@ -34,6 +34,8 @@
       "narrate_ko": "자물쇠 위의 벽에는 새로운 문장이 새겨져 있었습니다. 간섭은 분류될 것입니다."
     },
     {
+      "cg": "res://assets/cg/generated/ch12_hidden_passage.png",
+      "fade": 0.9,
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",

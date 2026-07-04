@@ -29,6 +29,11 @@ func _ready() -> void:
 	await get_tree().process_frame
 	assert(battle_scene.get("_battle_particles") == null, "Clean battle view must suppress ambient dust")
 	assert((battle_scene.get("_battle_parallax_layers") as Array).is_empty(), "Clean battle view must suppress parallax haze")
+	var actor := battle_scene.get("player_sprite") as AnimatedSprite2D
+	assert(actor != null, "Battle smoke must build Arrel's animated sprite")
+	battle_scene.call("_play_actor_anim", actor, "attack")
+	battle_scene.call("_play_actor_anim", actor, "hurt")
+	assert(actor.animation_finished.get_connections().size() == 1, "One-shot battle verbs must share one completion callback")
 
-	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0")
+	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1")
 	get_tree().quit(0)

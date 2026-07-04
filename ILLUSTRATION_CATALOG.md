@@ -215,3 +215,27 @@ The three plates turn hidden kept-memory choices into visible rewards without in
 | `ch22_core` | Remembered warmth opens the relay around an anchor, not a wound | `memory_key_relay_anchor.png` | `ch22_conversion_threshold.png` |
 
 This completes a dedicated visual payoff for all seven S149 Memory Keys. Ch17 and Ch21 remain environment/prop-only; Ch19 and Ch22 use tightly cropped hands with established costume colors, avoiding new faces or character redesigns. Every plate preserves a low-detail lower dialogue zone and excludes film/photo grain, paper or canvas overlays, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, and excessive bloom.
+
+## S161 narrative bridge set
+
+| Runtime scene | Story beat | Asset | Direct style reference |
+|---|---|---|---|
+| `ch12_reader` | Finds the patrol-lit route behind Verdan's abandoned stalls | `ch12_hidden_passage.png` | `ch12_sump_closed.png` |
+| `ch16_nera` | Watches the Forgetting Storm move the horizon itself | `ch16_moving_horizon.png` | `ch16_eastward_road.png` |
+| `ch18_living_funeral` | Escapes after the extraction platform releases every restraint | `ch18_broken_funeral_platform.png` | `ch18_living_funeral.png` + `ch18_tobias_platform.png` |
+| `ch20_monolith` | Discovers memory-fire flowing outward instead of being consumed | `ch20_reverse_memory_fire.png` | `ch20_monolith_interior.png` + `ch20_archivist_desk.png` |
+
+All four plates were generated with GPT Image as clean 1672x941 RGB story CGs. Each keeps the lower dialogue zone quiet, preserves its chapter's established architecture and palette, and avoids introducing unfinalized faces. Prompts explicitly excluded film/photo grain, canvas or paper texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.
+
+## S162 complete Field Focus environment set
+
+| Runtime map | Memory echo | Asset | Direct style reference |
+|---|---|---|---|
+| `belt_waystation` | A dead-soil footprint reconnects to Tobias's abandoned ledger | `resonance_belt_waystation_echo.png` | `chapter_splash_belt_waystation.png` |
+| `drift_shelter` | Elia's remembered warmth leaves one dry circle on the shelter table | `resonance_drift_shelter_echo.png` | `chapter_splash_drift_shelter.png` |
+| `the_seam` | Sable's trust survives as a tactile route through white flowers | `resonance_the_seam_echo.png` | `chapter_splash_the_seam.png` |
+| `seam_outskirts` | The Echo Shell turns one clear note into a bridge | `resonance_seam_outskirts_echo.png` | `chapter_splash_seam_outskirts.png` |
+| `colorless_waste` | The memory compass returns color to named stones | `resonance_colorless_waste_echo.png` | `story_ch9_final_colorless_view.png` |
+| `bl07_void` | The Void bends around one footprint it failed to erase | `resonance_bl07_void_echo.png` | `chapter_splash_bl07_void.png` |
+
+Together with the four S157 plates, all ten `MemoryResonance.RESONANCE_POINTS` maps now have a dedicated first-discovery CG. All six new plates are clean 1672x941 RGB images generated with GPT Image from their live chapter art, with no invented faces and explicit exclusions for film/photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.

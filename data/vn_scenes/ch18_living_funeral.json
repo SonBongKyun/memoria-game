@@ -73,6 +73,8 @@
       "narrate_ko": "[ The fire waits for a name. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch18_broken_funeral_platform.png",
+      "fade": 0.8,
       "narrate": "The duty became one white-gold impact. The platform forgot Tobias was its subject and released every restraint at once.",
       "narrate_ko": "그 의무는 하나의 백금 효과가 되었습니다. 플랫폼은 토비아스가 주제라는 사실을 잊어버리고 모든 구속을 즉시 해제했습니다."
     },
