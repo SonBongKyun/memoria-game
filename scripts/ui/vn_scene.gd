@@ -1195,7 +1195,7 @@ func _show_choices(choices: Array) -> void:
 		var c: Dictionary = choices[i]
 		# 조건부 선택지 (기억 필요 등)
 		if c.has("requires_memory_intact"):
-			if MemoryManager.is_memory_burned(c.requires_memory_intact):
+			if not MemoryManager.is_intact(String(c.requires_memory_intact)):
 				continue
 		# S70: 플래그 게이팅 — 특정 플래그가 set 되어야 노출
 		if c.has("requires_flag"):
@@ -1220,22 +1220,45 @@ func _show_choices(choices: Array) -> void:
 
 		var btn = Button.new()
 		var label_text = GameManager.localized_value(c, "text", String(c.get("text", "...")))
+		var extra_lines := 0
 		if is_cost_choice and cost_mem != null:
+			# S149: 등급 표기 — 무엇을 태우는지 무게가 보이게 (GRADE_5=0 → G5)
+			var grade_num: int = 5 - int(cost_mem.grade)
 			var burn_label := "연소" if GameManager.current_locale == "ko" else "Burn"
-			label_text = "✦  %s\n    [%s: %s]" % [label_text, burn_label, cost_mem.title]
+			label_text = "✦  %s\n    [%s G%d: %s]" % [label_text, burn_label, grade_num, cost_mem.title]
+			# S149: 잃는 것 미리보기 — story_effect가 정의된 기억은 대가를 명시
+			if cost_mem.story_effect != "" and not cost_mem.story_effect.begins_with("ENDING"):
+				var effect_preview: String = cost_mem.story_effect
+				if GameManager.current_locale == "ko":
+					effect_preview = "연소하면 이 기억이 열어 둔 서사적 가능성을 잃습니다."
+				label_text += "\n    — %s" % effect_preview
+				extra_lines += 1
+		elif c.has("requires_memory_intact"):
+			# S149: 기억 열쇠 선택지 — 간직한 기억이 길을 연다는 것을 명시
+			var key_mem = MemoryManager.find_memory(String(c.requires_memory_intact))
+			if key_mem != null:
+				var kept_label := "간직" if GameManager.current_locale == "ko" else "Kept"
+				label_text = "✧  %s\n    [%s: %s]" % [label_text, kept_label, key_mem.title]
+				extra_lines += 1
 		if c.has("effect"):
 			label_text += "\n    %s" % GameManager.localized_value(c, "effect", String(c.effect))
 		btn.text = label_text
 		var button_height := 76 if c.has("effect") else (64 if is_cost_choice else 54)
+		button_height += extra_lines * 18
 		btn.custom_minimum_size = Vector2(680, button_height)
 		UITheme.apply_body_font(btn)
 		btn.add_theme_font_size_override("font_size", 17)
+		var is_key_choice: bool = (not is_cost_choice) and c.has("requires_memory_intact")
 		var bstyle = StyleBoxFlat.new()
 		bstyle.bg_color = Color(0.030, 0.026, 0.038, 0.94)
 		bstyle.border_color = Color(0.62, 0.48, 0.28, 0.62)
 		if is_cost_choice:
 			bstyle.bg_color = Color(0.13, 0.065, 0.052, 0.94)
 			bstyle.border_color = Color(0.9, 0.45, 0.3, 0.84)
+		elif is_key_choice:
+			# S149: 기억 열쇠 — 보존이 열어 준 길 (연소의 적색과 대비되는 청록)
+			bstyle.bg_color = Color(0.045, 0.085, 0.095, 0.94)
+			bstyle.border_color = Color(0.35, 0.78, 0.75, 0.85)
 		bstyle.set_border_width(SIDE_LEFT, 2)
 		bstyle.set_border_width(SIDE_TOP, 1)
 		bstyle.set_border_width(SIDE_RIGHT, 1)
@@ -1248,6 +1271,9 @@ func _show_choices(choices: Array) -> void:
 		if is_cost_choice:
 			hover.bg_color = Color(0.28, 0.12, 0.08, 0.98)
 			hover.border_color = Color(1.0, 0.55, 0.35, 1.0)
+		elif is_key_choice:
+			hover.bg_color = Color(0.07, 0.16, 0.17, 0.98)
+			hover.border_color = Color(0.5, 1.0, 0.95, 1.0)
 		else:
 			hover.border_color = Color(0.9, 0.75, 0.45, 1.0)
 		btn.add_theme_stylebox_override("hover", hover)
@@ -1295,6 +1321,8 @@ func _add_no_available_choice_button() -> void:
 	_choice_container.add_child(btn)
 
 func _on_no_available_choice_continue() -> void:
+	if GameManager.current_state != GameManager.GameState.DIALOGUE:
+		return
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("ui_select")
 	_choice_container.visible = false
@@ -1307,6 +1335,8 @@ func _on_no_available_choice_continue() -> void:
 	SceneFlow.advance()
 
 func _on_choice_selected(index: int) -> void:
+	if GameManager.current_state != GameManager.GameState.DIALOGUE:
+		return
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("ui_select")
 	_choice_container.visible = false
@@ -1340,7 +1370,7 @@ func _dim_background_for_choice(dim: bool) -> void:
 
 func _input(event: InputEvent) -> void:
 	# S61b: VN 런너가 비활성일 때는 입력 처리 안 함 (탐색 맵 DialogueBox에 입력 양보)
-	if not SceneFlow.is_active:
+	if not SceneFlow.is_active or GameManager.current_state != GameManager.GameState.DIALOGUE:
 		return
 	if _choice_container.visible:
 		return  # 선택지 중에는 진행 불가

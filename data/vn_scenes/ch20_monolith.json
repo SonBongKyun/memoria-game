@@ -117,6 +117,9 @@
     {
       "narrate": "When Elia's hands began to shake against the weight of the sea, Arrel did something no Combustor was supposed to do. He pressed a memory outward — the campfire, the warmth — and it flowed from him into her without burning. Fire, running backward.",
       "narrate_ko": "바다의 무게에 엘리아의 손이 떨리기 시작했을 때, 아렐은 어떤 연소자도 해서는 안 되는 일을 했다. 기억 하나를 바깥으로 밀어낸 것이다 — 모닥불, 그 온기를 — 그러자 그것은 타오르지 않은 채 그에게서 그녀에게로 흘러들었다. 거꾸로 흐르는 불.",
+      "distort_if_burned": "daily_campfire_song",
+      "distorted_narrate": "When Elia's hands began to shake against the weight of the sea, Arrel reached for the campfire — and found ash where the song had been. He pressed outward what warmth was left. It arrived. It was thinner than it should have been, and both of them pretended not to notice.",
+      "distorted_narrate_ko": "바다의 무게에 엘리아의 손이 떨리기 시작했을 때, 아렐은 모닥불을 향해 손을 뻗었다 — 그리고 노래가 있던 자리에서 재를 만났다. 그는 남아 있는 온기를 바깥으로 밀어냈다. 온기는 도착했다. 마땅히 그래야 할 것보다 얇았고, 두 사람 모두 그것을 모른 척했다.",
       "set_flag": "reverse_burn_unlocked"
     },
     {

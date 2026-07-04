@@ -5540,3 +5540,147 @@ New LOCK phrase (ART_GUIDE §6.3, use verbatim): `old blind woman, late 60s, sho
 - Godot 4.6.2 headless editor import/project parse passed with zero `SCRIPT ERROR` / `Parse Error` lines.
 - Direct headless load of `res://scenes/maps/rim_forest.tscn` passed with the exploration stack initialized.
 - `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S149 - 2026-07-04 (VN gameplay upgrade: memory as a live resource)
+
+### Goal
+Part II/III is pure VN, so the burn-vs-keep economy needed to LIVE inside the VN layer. Four systems, one loop: keeping memories opens paths (keys), burning them rewrites later scenes (distortion), the ledger makes the invisible economy visible, and keys feed the ending resolver.
+
+### Done
+- **Choice UI legibility** (`vn_scene.gd`): burn choices now show the memory's grade (G5-G1) and its `story_effect` (what you lose) inline; kept-memory-gated choices get a "✧ [Kept: title]" label and a teal style distinct from burn-red. The trade is readable before you take it.
+- **Memory Keys — 7 hidden choices** unlocked only by intact memories (`requires_memory_intact`), each with a distinct payoff line at scene end:
+  - ch12: `daily_market_food` (Part I!) — the vendor row hides a regulars-only gap; being remembered becomes a place to hide.
+  - ch14: `identity_first_sword` (Part I — lost forever if you took Malet's deal in Ch2) — the courtyard grip opens the extraction cradle without a scar.
+  - ch15: `daily_campfire_song` (Part I) — Arrel's song and Han's lullaby share a First-Age refrain ("NOW WE ARE A CHOIR").
+  - ch17: `sense_forest_smell` (Part I) — **the only forced-burn chapter becomes avoidable**: the storm cannot counterfeit rain on forest earth.
+  - ch19: `rel_hand_reaching` — linked hands read as one signature at the Lumea barrier.
+  - ch21: `rel_tobias_alliance` — standing as three lets Tobias save one page of Kairós's notebook.
+  - ch22: `daily_elia_hands` — the relay opens around an anchor instead of a wound (uses new `set_flags` array support in SceneFlow).
+- **Keeper Keys → ending**: `GameManager.KEEPER_KEY_FLAGS` + `count_keeper_keys()`; 3+ keys now qualifies the **seam (hope) ending** in `evaluate_part3_ending()`. Preservation play has a visible destination.
+- **Burn Distortion — 8 new `distort_if_burned` variants** (Part II/III had zero): belt footsteps→ch16 pace loss, intervention vow→ch18 feet that no longer move on their own, Verdan faces→ch18 sliding face, Han→ch19 stranger's hum, campfire song→ch20 reverse-burn finds ash, Sable's ledger→ch24 ledger restarted at one, witness record→ch24 rhythm without reason, unfinished lullaby→ch24 hundred endings for one song.
+- **Chapter Ledger overlay** (`scene_flow.gd::_show_chapter_ledger`): on every `complete_chapter`, a non-blocking 5s panel shows burned-this-chapter (titles), memories still held, anchors k/4 + name status, and the thread line ("The thread still holds / is fraying") — indirect Weave-path feedback, no gauges (rule 4 compliant).
+- **Archive in VN**: Tab/M opens Arrel's Archive during VN scenes (DIALOGUE + SceneFlow active); closing restores the previous game state instead of forcing EXPLORATION.
+
+### Verification
+- Key insertion audit: ALL PASS — 7 key options, 7 payoff steps, every payoff inserted after the scene's max goto/start_index target (no index shifts); key memory ids all exist; KEEPER_KEY_FLAGS matches scene flags 1:1.
+- Distortion audit: 8 new distort steps, all `distort_if_burned` ids exist in the memory catalog.
+- Full 19-scene audit: portraits/goto/scene-chain all pass (ch1/ch2 goto-less inline choices are valid engine syntax, not errors).
+- All 30 data JSON files parse; Godot 4.6.2 headless boot: 0 SCRIPT ERROR / Parse Error.
+
+### Design notes for next pass
+- Key choices deliberately reuse existing branch routes (goto to keep-branch) — Codex can later expand any key branch into its own route by appending steps after the current max-goto index and re-running the audit.
+- The ledger overlay reads at chapter transitions only; if playtests want mid-chapter access, the same data is now one Tab away via the VN archive.
+- Balance watch: 7 keys exist, seam ending needs 3 — reachable by keeping any 3 of the keyed memories; Malet's Ch2 deal still silently costs the ch14 key (long-range consequence preserved).
+
+## S158 - 2026-07-04 (Claude S149 review + Memory Key illustration payoffs)
+
+### Code review fixes
+- Persisted the chapter-ledger burn snapshot through save/load; legacy saves now start from their current burn count instead of reporting all historical losses as new.
+- Made intact-memory choice gates use `MemoryManager.is_intact()` and revalidate them in `SceneFlow.select_choice()`, so faded memories and stale UI choices cannot unlock a key route.
+- Prevented VN input from advancing behind the archive overlay and made the archive genuinely read-only during VN playback by disabling memory synthesis.
+- Replaced raw English `story_effect` leakage in Korean burn-choice previews with a localized consequence message.
+- Decoupled the ledger overlay from the optional AchievementManager presence.
+
+### Illustration integration
+- Generated and placed three environment/lore-only Memory Key payoff CGs:
+  - `memory_key_verdan_passage.png` in the Ch12 market-food key payoff;
+  - `memory_key_confessor_hinge.png` in the Ch14 first-sword key payoff;
+  - `memory_key_first_age_refrain.png` in the Ch15 campfire-song key payoff.
+- Registered all three in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Used active scene CGs as direct references and prohibited grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens overlays, muddy detail, oversharpening, and excessive bloom.
+
+### Verification
+- All three generated CGs are clean 1672x941 RGB plates and every active VN CG reference resolves.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- Godot 4.6.2 headless editor import/project parse passed without script or parse errors; only known addon shutdown warnings remain.
+- Direct headless load of `res://scenes/main/vn_host.tscn` passed without script, parse, invalid-call, or invalid-access errors.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S159 - 2026-07-04 (Memory Key illustration set completion)
+
+### Done
+- Generated and placed the remaining four Memory Key payoff CGs:
+  - `memory_key_forest_rain.png` for Ch17's intact forest-scent route through the Forgetting Storm;
+  - `memory_key_single_signature.png` for Ch19's linked-hands passage through Lumea's scanner;
+  - `memory_key_surviving_page.png` for Ch21's alliance-preserved notebook page;
+  - `memory_key_relay_anchor.png` for Ch22's relay opening around remembered warmth.
+- All seven Memory Keys now have dedicated visual payoff CGs.
+- Registered all four new plates in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Used each chapter's active CG as a direct style reference; avoided new faces and unfinalized character designs.
+- Prompts explicitly prohibited film/photo grain, paper/canvas overlays, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, and excessive bloom.
+
+### Verification
+- All seven Memory Key payoff plates are clean 1672x941 RGB images and all seven key flags resolve to dedicated existing CG paths.
+- Active VN CG reference audit passed with 0 missing files.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- Godot 4.6.2 headless editor import/project parse passed; only known addon shutdown warnings remain.
+- Direct headless load of `res://scenes/main/vn_host.tscn` passed without script, parse, invalid-call, or invalid-access errors.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S160 - 2026-07-04 (Gameplay visual clarity overhaul)
+
+### Done
+- Added `Clear Gameplay View / 게임플레이 시야 선명화` to Options and made it the default for new and existing installs through a one-time settings migration.
+- Defaulted Reduce Motion on and Screen Shake off for the clean-view baseline.
+- Centralized exploration cleanup in `MapEffects`: interactive maps now suppress grain/lens overlays, vignette, fog layers, rain/snow, lightning, foreground pollen/ash/leaves/fireflies, void particles/tendrils, heat haze, burn desaturation, color grading washes, depth gradients, animated atmosphere plates, time-of-day tint, decorative water shimmer, transition particles, ambient camera shake, and dark CanvasModulate lighting while clean view is enabled.
+- Removed Arrel's camera look-ahead, shake, sprint afterimages, and footstep debris in clean view; AshRain is also disabled.
+- Cleaned battle presentation: disabled premium lens grain, vignette, duplicated depth plates, ambient dust, parallax haze, chromatic aberration, speed lines, full-screen flashes, confetti, screen shake, status particles, edge flames, and nonessential skill particle bursts. Damage numbers, status icons, silhouettes, HP, tactical UI, and concise hit feedback remain.
+- Added `smoke_visual_clarity.tscn` regression coverage for exploration and battle obstruction layers.
+
+### Verification
+- Visual clarity smoke passed: `fog=0 particles=0 vignette=0 lens=0 battle_dust=0`.
+- Godot 4.6.2 headless editor/project parse passed without script or parse errors.
+- Direct runtime loads passed for Rim Forest, Forgotten Forest, BL-07 Void, and Verdan Market; no script, parse, invalid-call, or invalid-access errors.
+
+## S150 - 2026-07-04 (Motion naturalness + memory-key CG verification)
+
+### Goal
+Story-first game, but exploration movement should feel alive: character appearance responds to motion, movement reads naturally, and the S149 memory-key payoffs get their art.
+
+### Done — Player (`scripts/core/player.gd`)
+- **Deceleration-aware animation**: walk animation now keyed to actual velocity (>12 px/s), not input — the character no longer foot-slides in an idle pose while momentum carries him.
+- **Speed-scaled animation** (`speed_scale` 0.65–1.85): sprint and decel change stride rate, killing ground-slide; feet finally match the floor.
+- **Diagonal hysteresis**: facing axis only flips when the dominant axis leads by 20% (sign reversals apply immediately) — no more left/up flicker on near-45° movement.
+- **Walk bob + footfall sync**: a single bob phase (integrated from speed) drives a 1.6px body bounce, and dust now spawns exactly on footfall frames (replaces the old random dust timer). One source of truth for "a step happened."
+- **Movement lean**: subtle rotation into horizontal travel (stronger at sprint), lerped back upright on stop.
+
+### Done — Companion (`scripts/core/companion.gd`)
+- **Soft-zone following**: target speed scales with distance (MIN→MIN+70px: 35%→100%), replacing the binary stop/full-speed oscillation that made Elia stutter at the player's heel.
+- **Sprint catch-up**: detects player velocity >130 and raises cap to 1.6× so she arcs after a sprinting Arrel instead of falling behind linearly.
+- **Acceleration (480 px/s²) + slerp direction smoothing**: she now curves into new directions rather than snap-turning.
+- **Same body language as the player**: walk bob, horizontal lean, speed-scaled stride, idle breathing (1.8Hz micro-scale), and the long-distance teleport is masked with a 0.35s fade-in.
+
+### Verified — memory-key art (folder images)
+All 7 `assets/cg/generated/memory_key_*.png` illustrations are correctly wired to their S149 keeper-key payoff steps (ch12 verdan_passage / ch14 confessor_hinge / ch15 first_age_refrain / ch17 forest_rain / ch19 single_signature / ch21 surviving_page / ch22 relay_anchor), files exist with import metadata, and all 7 are registered in the PauseMenu Artbook.
+
+### Verification
+- Godot 4.6.2 headless full boot: 0 SCRIPT ERROR / Parse Error.
+- Live direct-scene run of `belt_waystation.tscn` (Player + Companion instantiated, 8 frames): 0 script errors.
+- 7/7 memory-key CG wiring audit passed.
+
+### Notes
+- Bob is applied via `sprite.offset` and lean via `sprite.rotation`, deliberately orthogonal to the existing squash/stretch (scale) and breathing systems — no tween fights.
+- `clean_gameplay_visuals` option still suppresses dust; bob/lean remain (they're body language, not screen noise). If testers want them under the toggle too, gate the two lerp lines the same way.
+
+## S151 - 2026-07-04 (Placeholder graphics cleanup: real sprite sheets wired into battle)
+
+### Finding
+Two complete hand-made sprite sheets were sitting unused in the repo: `assets/sprites/characters/arrel_sheet/` and `elia_sheet/` — 32 frames each at 160x160 (idle x4, move x4, move_left x4, attack x6, attack_left x6, cast x4, hurt x2, down x2), with zero code references. The battle scene was still rendering procedural pixel-rectangle sprites while this art existed. That mismatch was the single ugliest visible graphic in the game.
+
+### Done
+- **Sheet loader** (`pixel_sprite.gd::load_sheet_frames`): assembles SpriteFrames from per-frame PNGs with a verb table (idle 6fps loop / move 10 / attack 14 one-shot / cast 10 / hurt 8 / down 4, plus `_left` variants when present). Returns null when the sheet is absent → callers fall back to procedural generation, so the game runs identically on repos without the art.
+- **Battle wiring** (`battle_scene.gd`): Arrel uses the real sheet at 0.625 scale (preserves the previous ~100px on-screen size), ally Elia at 0.56; procedural fallback keeps old scales.
+- **Verb playback hooks**: plain attack → `attack`, burn/skill → `cast`, taking damage → `hurt`, defeat → `down` (holds last frame — no getting back up). One-shot verbs auto-return to `idle` via `animation_finished`; on procedural sprites (no such animations) the calls are silent no-ops.
+- **Scale-tween bug fixed**: attack/hurt sequences tweened `player_sprite.scale` to absolute values (ending at 1.0 despite a 0.78 build scale — a pre-existing growth bug, fatal at sheet scale 0.625). Introduced `_player_sprite_base_scale`; all 6 scale tweens are now relative to it.
+
+### Verification
+- `smoke_visual_clarity.tscn` (instantiates the battle scene with a dummy enemy → exercises the sheet loader + build path): 0 errors, no assertion failures.
+- Full headless boot: 0 SCRIPT ERROR / Parse Error.
+
+### Remaining procedural visuals — Codex regeneration queue (priority order)
+1. **Map 4-direction walk sheets** (48px-style, up/down/left/right × idle/walk) for Arrel + Elia — current sheets have no up/down facing, so exploration still uses procedural sprites (deliberate; S150 motion polish applies either way). Wire-up path: extend `load_sheet_frames` verb table once frames exist.
+2. **Battle sheets for Sable and Tobias** (same 160px verb layout as arrel_sheet). ⚠ Sable must follow the S148 blind-old-woman LOCK phrase.
+3. **Enemy battle sheets** (void_beast, shade_sentinel, kairos, eraser types) — enemies are still procedural/static images in battle.
+4. **Tilesets** — TilePainter procedural tiles are stylistically acceptable but are the last fully procedural layer.

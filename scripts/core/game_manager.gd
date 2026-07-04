@@ -27,6 +27,20 @@ const ENDING_DATA: Dictionary = {
 }
 const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
 
+## S149: 기억 열쇠 — 간직한 기억으로 연 숨은 선택지의 수.
+## 열쇠 3개 이상 = 보존 플레이가 세계에 남긴 흔적 → seam(희망) 엔딩 자격.
+const KEEPER_KEY_FLAGS: Array = [
+	"ch12_faces_key", "ch14_sword_key", "ch15_song_key",
+	"ch17_smell_key", "ch19_gesture_key", "ch21_alliance_key", "ch22_hands_key",
+]
+
+func count_keeper_keys() -> int:
+	var count := 0
+	for f in KEEPER_KEY_FLAGS:
+		if get_flag(f):
+			count += 1
+	return count
+
 ## S147: Part III 최종 엔딩 판정 (§7 "남긴 것이 결말을 정한다")
 ## ch23_conversion의 resolve_part3_ending 액션에서 호출.
 ## 우선순위: 명시적 이름 연소 > 공허 변이 > Weave 보존 > Ash 소진 > Tobias 기록 > Seam 희망 > Preservation.
@@ -50,8 +64,8 @@ func evaluate_part3_ending() -> String:
 	# 5. Tobias — 증인의 기록이 살아남음
 	if get_flag("tobias_funeral") and MemoryManager.is_intact("identity_witness_record"):
 		return "tobias"
-	# 6. Seam — 숨겨진 희망을 발견한 자 (셀라 재회 / 숨은 정원 계열)
-	if get_flag("celah_reunion") or (get_flag("hidden_ch1_stump") and get_flag("hidden_ch6_garden")):
+	# 6. Seam — 숨겨진 희망을 발견한 자 (셀라 재회 / 숨은 정원 / S149: 기억 열쇠 3개+)
+	if get_flag("celah_reunion") or (get_flag("hidden_ch1_stump") and get_flag("hidden_ch6_garden")) or count_keeper_keys() >= 3:
 		return "seam"
 	# 7. Preservation — 기본: 이름을 지키고 계속 나아감
 	return "preservation"
@@ -445,10 +459,11 @@ const LOCALIZED_STRINGS: Dictionary = {
 	"show_fps": {"en": "Show FPS", "ko": "FPS 표시"},
 	"dialogue_font_size": {"en": "Dialogue Font Size", "ko": "대화 글자 크기"},
 	"high_contrast": {"en": "High Contrast", "ko": "고대비"},
+	"clean_gameplay_visuals": {"en": "Clear Gameplay View", "ko": "게임플레이 시야 선명화"},
 	"screen_shake": {"en": "Screen Shake", "ko": "화면 흔들림"},
 	"colorblind_mode": {"en": "Colorblind Mode", "ko": "색각 보정"},
 	"reduce_motion": {"en": "Reduce Motion", "ko": "움직임 줄이기"},
-	"options_help": {"en": "Font Size affects dialogue text. High Contrast increases text outlines and UI borders. Reduce Motion disables particles and simplifies animations.", "ko": "글자 크기는 대화문에 적용됩니다. 고대비는 글자 윤곽과 UI 테두리를 강화합니다. 움직임 줄이기는 파티클을 끄고 애니메이션을 단순화합니다."},
+	"options_help": {"en": "Clear Gameplay View removes grain, fog, vignette, weather overlays, decorative particles, lens distortion, and camera shake after the next scene change.", "ko": "게임플레이 시야 선명화는 다음 장면 전환부터 그레인, 안개, 비네트, 날씨 오버레이, 장식 파티클, 렌즈 왜곡, 화면 흔들림을 제거합니다."},
 }
 
 const SPEAKER_NAMES_KO: Dictionary = {

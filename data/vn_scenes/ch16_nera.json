@@ -9,7 +9,10 @@
       "set_chapter": 16,
       "autosave_chapter_transition": true,
       "narrate": "The east road crossed drowned salt flats where black markers stood for towns the maps no longer admitted had existed.",
-      "narrate_ko": "동쪽 도로는 지도에서 더 이상 존재하지 않는다고 인정한 마을을 나타내는 검은색 표시가 서 있는 침수된 소금 평지를 건넜습니다."
+      "narrate_ko": "동쪽 도로는 지도에서 더 이상 존재하지 않는다고 인정한 마을을 나타내는 검은색 표시가 서 있는 침수된 소금 평지를 건넜습니다.",
+      "distort_if_burned": "daily_belt_footsteps",
+      "distorted_narrate": "The east road crossed drowned salt flats where black markers stood for towns the maps no longer admitted had existed. The road asked for a walking rhythm Arrel no longer owned. Elia kept correcting his pace, quietly, without being asked.",
+      "distorted_narrate_ko": "동쪽 도로는 지도가 더는 존재를 인정하지 않는 마을들의 검은 표석이 선 침수된 소금 평원을 가로질렀다. 길은 아렐이 더 이상 갖고 있지 않은 보행의 리듬을 요구했다. 엘리아가 그의 걸음을 계속 바로잡아 주었다. 조용히, 부탁받지 않은 채로."
     },
     {
       "narrate": "A violet bruise waited on the horizon. It had grown wider since dawn.",

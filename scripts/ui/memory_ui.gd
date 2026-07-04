@@ -48,11 +48,18 @@ func _ready() -> void:
 	_hide_ui()
 	print("[MemoryUI] Ready — Arrel's Archive")
 
+# S149: VN 씬 중에도 서고 열람 허용 — 닫을 때 원래 상태로 복원
+var _restore_state: int = GameManager.GameState.EXPLORATION
+var _read_only: bool = false
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("memory_menu"):
 		if is_open:
 			close_archive()
 		elif GameManager.current_state == GameManager.GameState.EXPLORATION:
+			open_archive()
+		elif GameManager.current_state == GameManager.GameState.DIALOGUE and SceneFlow.is_active:
+			# S149: VN 씬 재생 중 열람 (읽기 전용 확인 — 연소/합성은 기존 UI 규칙 그대로)
 			open_archive()
 		get_viewport().set_input_as_handled()
 
@@ -62,14 +69,17 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func open_archive() -> void:
 	is_open = true
+	_restore_state = GameManager.current_state
+	_read_only = _restore_state == GameManager.GameState.DIALOGUE
 	GameManager.change_state(GameManager.GameState.MENU)
 	_refresh_cards()
 	_show_ui()
 
 func close_archive() -> void:
 	is_open = false
-	GameManager.change_state(GameManager.GameState.EXPLORATION)
+	GameManager.change_state(_restore_state)
 	_hide_ui()
+	_read_only = false
 
 ## UI 전체 구축
 func _build_ui() -> void:
@@ -448,6 +458,9 @@ func _add_memory_card(memory) -> void:
 func _show_detail(memory) -> void:
 	# 합성 모드 — 두 번째 기억 선택
 	if synthesis_mode and synthesis_first != null:
+		if _read_only:
+			_exit_synthesis_mode()
+			return
 		if memory.id == synthesis_first.id:
 			return  # 같은 기억 선택 불가
 		if memory.is_burned:
@@ -494,7 +507,7 @@ func _show_detail(memory) -> void:
 		detail_status.add_theme_color_override("font_color", Color(0.5, 0.6, 0.45))
 
 	# 합성 버튼 표시 (미연소 + Grade 1 미만 + 같은 등급 짝이 있을 때)
-	synth_btn.visible = not memory.is_burned and memory.grade < MemoryManager.MemoryGrade.GRADE_1 and _count_same_grade(memory.grade) >= 2
+	synth_btn.visible = not _read_only and not memory.is_burned and memory.grade < MemoryManager.MemoryGrade.GRADE_1 and _count_same_grade(memory.grade) >= 2
 
 func _clear_detail() -> void:
 	detail_title.text = "Select a memory..."
@@ -566,7 +579,7 @@ func _count_same_grade(grade: int) -> int:
 	return count
 
 func _on_synth_pressed() -> void:
-	if selected_memory == null or selected_memory.is_burned:
+	if _read_only or selected_memory == null or selected_memory.is_burned:
 		return
 	synthesis_mode = true
 	synthesis_first = selected_memory

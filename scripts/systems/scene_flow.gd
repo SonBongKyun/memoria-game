@@ -25,6 +25,9 @@ var pending_start_index: int = 0
 # 로드 캐시
 var _cache: Dictionary = {}
 
+# S149: 챕터 원장 — set_chapter 시점의 연소 수 스냅샷
+var _ledger_burn_snapshot: int = 0
+
 # VN UI 인스턴스
 var _vn_ui: Node = null
 
@@ -49,6 +52,7 @@ func export_data() -> Dictionary:
 		"pending_start_index": maxi(0, pending_start_index),
 		"resume_queue": queue_data,
 		"is_active": is_active,
+		"ledger_burn_snapshot": _ledger_burn_snapshot,
 	}
 
 ## Restore serializable flow state without reviving stale JSON or UI objects.
@@ -60,6 +64,13 @@ func import_data(data: Dictionary) -> void:
 	current_index = maxi(0, int(data.get("current_index", 0)))
 	pending_scene_id = String(data.get("pending_scene_id", ""))
 	pending_start_index = maxi(0, int(data.get("pending_start_index", 0)))
+	# Older saves predate the ledger snapshot. Starting from the currently loaded
+	# burn count prevents old chapter losses from being reported as new ones.
+	_ledger_burn_snapshot = clampi(
+		int(data.get("ledger_burn_snapshot", MemoryManager.burned_memories.size())),
+		0,
+		MemoryManager.burned_memories.size()
+	)
 	resume_queue.clear()
 	var saved_queue: Variant = data.get("resume_queue", [])
 	if saved_queue is Array:
@@ -146,8 +157,13 @@ func _run_step() -> void:
 		if next_chapter != GameManager.current_chapter:
 			GameManager.current_chapter = next_chapter
 			MemoryManager.add_chapter_memories(next_chapter)
-	if step.has("complete_chapter") and has_node("/root/AchievementManager"):
-		AchievementManager.record_chapter_complete(int(step.complete_chapter))
+		# S149: 챕터 원장 — 연소 스냅샷 (complete_chapter에서 델타 계산)
+		_ledger_burn_snapshot = MemoryManager.burned_memories.size()
+	if step.has("complete_chapter"):
+		if has_node("/root/AchievementManager"):
+			AchievementManager.record_chapter_complete(int(step.complete_chapter))
+		# S149: 챕터 원장 오버레이 — 이번 장의 대차대조
+		_show_chapter_ledger(int(step.complete_chapter))
 	if step.get("autosave_chapter_transition", false) and has_node("/root/SaveManager"):
 		SaveManager.autosave_on_chapter_transition()
 	if step.has("burn_memory"):
@@ -270,6 +286,15 @@ func select_choice(choice_index: int) -> void:
 		return
 
 	var choice: Dictionary = choices[choice_index]
+	# Re-check gates at selection time. UI filtering alone is not authoritative:
+	# a save/load, test call, or another overlay can change memory state.
+	if choice.has("requires_memory_intact") and not MemoryManager.is_intact(String(choice.requires_memory_intact)):
+		push_warning("[SceneFlow] Choice requires an intact memory: %s" % choice.requires_memory_intact)
+		return
+	if choice.has("requires_flag") and not GameManager.story_flags.get(choice.requires_flag, false):
+		return
+	if choice.has("requires_not_flag") and GameManager.story_flags.get(choice.requires_not_flag, false):
+		return
 
 	# Pay explicit memory costs before applying flags or rewards.
 	if choice.has("cost_memory"):
@@ -279,6 +304,10 @@ func select_choice(choice_index: int) -> void:
 			return
 	if choice.has("set_flag"):
 		GameManager.set_flag(choice.set_flag)
+	# S149: 복수 플래그 지원 (기억 열쇠 선택지 등 — 분기 플래그 + 열쇠 플래그 동시 설정)
+	if choice.has("set_flags") and choice.set_flags is Array:
+		for f in choice.set_flags:
+			GameManager.set_flag(String(f))
 	if choice.has("burn_memory"):
 		MemoryManager.burn_memory(choice.burn_memory, bool(choice.get("allow_faded_burn", false)))
 	_apply_reward_fields(choice)
@@ -307,6 +336,97 @@ func _apply_reward_fields(data: Dictionary) -> void:
 			GameManager.player_data.hp = current_hp + actual
 			if has_node("/root/NotificationToast"):
 				NotificationToast.show_toast("+%d HP" % actual, NotificationToast.ToastType.SUCCESS)
+
+## ===================== S149: 챕터 원장 오버레이 =====================
+## 세이블의 장부 모티프 — 챕터가 끝날 때 이번 장의 대차대조를 잠시 보여준다.
+## 비차단(클릭 무시), 5초 후 자동 소멸. 누적소실률 게이지 금지 규칙 준수(개수/이름만, 바 없음).
+func _show_chapter_ledger(chapter: int) -> void:
+	if not is_inside_tree():
+		return
+	var tree = get_tree()
+	if tree == null or tree.root == null:
+		return
+	var ko := GameManager.current_locale == "ko"
+
+	# 이번 장에서 태운 기억
+	var burned_now: Array = []
+	for i in range(_ledger_burn_snapshot, MemoryManager.burned_memories.size()):
+		burned_now.append(MemoryManager.burned_memories[i])
+	# 남은 온전한 기억 수
+	var held := 0
+	for m in MemoryManager.memories:
+		if not m.is_burned and not m.is_faded:
+			held += 1
+	var anchors := MemoryManager.intact_anchor_count()
+	var name_intact := MemoryManager.is_intact(MemoryManager.WEAVE_PRIMARY)
+
+	var overlay = CanvasLayer.new()
+	overlay.layer = 115
+	tree.root.add_child(overlay)
+
+	var panel = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	panel.position = Vector2(-260, 46)
+	panel.custom_minimum_size = Vector2(520, 0)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var pstyle = StyleBoxFlat.new()
+	pstyle.bg_color = Color(0.035, 0.03, 0.045, 0.92)
+	pstyle.border_color = Color(0.62, 0.5, 0.3, 0.7)
+	pstyle.set_border_width_all(1)
+	pstyle.set_corner_radius_all(4)
+	pstyle.set_content_margin_all(14)
+	panel.add_theme_stylebox_override("panel", pstyle)
+	overlay.add_child(panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 5)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(vbox)
+
+	var title = Label.new()
+	title.text = ("장부 — 제%d장" % chapter) if ko else ("THE LEDGER — CHAPTER %d" % chapter)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(0.9, 0.78, 0.5))
+	vbox.add_child(title)
+
+	var lines: Array[String] = []
+	if burned_now.is_empty():
+		lines.append("이번 장에서 태운 기억: 없음" if ko else "Burned this chapter: nothing")
+	else:
+		var names: Array[String] = []
+		for m in burned_now:
+			names.append(str(m.title))
+		var joined := ", ".join(names) if names.size() <= 3 else (", ".join(names.slice(0, 3)) + (" 외 %d" % (names.size() - 3) if ko else " +%d more" % (names.size() - 3)))
+		lines.append(("이번 장에서 태운 기억 %d — %s" % [burned_now.size(), joined]) if ko else ("Burned this chapter: %d — %s" % [burned_now.size(), joined]))
+	lines.append(("아직 온전한 기억: %d" % held) if ko else ("Still held intact: %d" % held))
+	var anchor_line := ("닻: %d/4 · 이름: %s" % [anchors, "온전" if name_intact else "소실"]) if ko \
+		else ("Anchors: %d/4 · The name: %s" % [anchors, "intact" if name_intact else "gone"])
+	lines.append(anchor_line)
+	# 실(thread) 상태 — Weave 경로 가능 여부의 간접 표현 (게이지 금지 규칙)
+	var thread_ok := MemoryManager.weave_unlocked()
+	lines.append(("실은 아직 이어져 있다." if thread_ok else "실이 닳아 가고 있다.") if ko \
+		else ("The thread still holds." if thread_ok else "The thread is fraying."))
+
+	for lt in lines:
+		var lbl = Label.new()
+		lbl.text = lt
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		lbl.add_theme_font_size_override("font_size", 13)
+		lbl.add_theme_color_override("font_color", Color(0.82, 0.78, 0.72))
+		vbox.add_child(lbl)
+	# 마지막 실 상태 라인만 색 구분
+	var last_lbl: Label = vbox.get_child(vbox.get_child_count() - 1)
+	last_lbl.add_theme_color_override("font_color", Color(0.45, 0.85, 0.8) if thread_ok else Color(0.85, 0.55, 0.4))
+
+	panel.modulate.a = 0.0
+	var tw = overlay.create_tween()
+	tw.tween_property(panel, "modulate:a", 1.0, 0.4).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(4.6)
+	tw.tween_property(panel, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN)
+	tw.tween_callback(overlay.queue_free)
+	print("[SceneFlow] Chapter ledger shown — ch%d, burned %d, held %d, anchors %d/4" % [chapter, burned_now.size(), held, anchors])
 
 ## ===================== 내부 =====================
 

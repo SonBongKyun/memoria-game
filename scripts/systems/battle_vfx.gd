@@ -113,6 +113,8 @@ func show_damage_number(target: String, amount: int, skill_name: String = "", is
 
 ## Screen flash on critical hits (brief white overlay)
 func critical_screen_flash() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var flash = ColorRect.new()
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flash.color = Color(1.0, 1.0, 0.95, 0.45)
@@ -125,6 +127,8 @@ func critical_screen_flash() -> void:
 
 ## Skill-specific particle bursts by element type
 func play_element_particles(element: String, target_pos: Vector2 = Vector2(920, 310)) -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	match element:
 		"physical":
 			_spawn_element_burst(target_pos, Color(0.9, 0.9, 0.95), Color(0.7, 0.7, 0.8), 14, 60.0, 150.0)
@@ -197,7 +201,7 @@ func _spawn_void_wisps(center: Vector2) -> void:
 
 ## Camera shake with intensity scaling by damage
 func damage_screen_shake(amount: int) -> void:
-	if not OptionsMenu.settings.get("screen_shake", true):
+	if OptionsMenu.is_clean_gameplay_visuals() or not OptionsMenu.settings.get("screen_shake", true):
 		return
 	# Scale: 0-30 = mild, 30-100 = medium, 100-200 = strong, 200+ = extreme
 	var intensity = clampf(float(amount) / 50.0, 0.3, 4.0)
@@ -215,6 +219,8 @@ func damage_screen_shake(amount: int) -> void:
 
 ## Victory fanfare visual: confetti particles + golden flash
 func play_victory_fanfare() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	# Golden screen flash
 	var flash = ColorRect.new()
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -336,6 +342,13 @@ func update_status_particles(target: String, sprite_container: Control, sprite_n
 
 func _manage_status_particle(target: String, effect_name: String, active: bool, parent: Control, create_fn: Callable) -> void:
 	var key = "%s_%s" % [target, effect_name]
+	if OptionsMenu.is_clean_gameplay_visuals():
+		if _status_particles.has(key):
+			var existing = _status_particles[key]
+			if is_instance_valid(existing):
+				existing.queue_free()
+			_status_particles.erase(key)
+		return
 	if active and not _status_particles.has(key):
 		var node = create_fn.call()
 		if node:
@@ -523,6 +536,10 @@ func cleanup_status_particles() -> void:
 ## Play the dramatic memory burn sequence (~1.5-2 seconds)
 ## Call this BEFORE the actual damage dealing for maximum impact
 func play_memory_burn_sequence(memory_title: String, memory_grade: int, player_sprite_container: Control) -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		_play_burn_text(memory_title, memory_grade)
+		await _scene.get_tree().create_timer(0.35).timeout
+		return
 	# Step 1: Freeze frame (0.3s)
 	_scene.get_tree().paused = true
 
@@ -571,6 +588,8 @@ func play_memory_burn_sequence(memory_title: String, memory_grade: int, player_s
 
 ## Spawn blue-white fire emanating from player sprite
 func _spawn_memory_fire(origin: Vector2) -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	# GPU particles for the main fire
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
@@ -731,6 +750,8 @@ func _spawn_letter_spark(pos: Vector2) -> void:
 ## Play a cinematic cut-in effect for massive damage (150+)
 ## Screen dims, diagonal slash sweeps, camera zoom punch
 func play_critical_cinematic() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	# Step 1: Screen dim to 50%
 	var dim_overlay = ColorRect.new()
 	dim_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -827,6 +848,8 @@ func show_ability_warning(ability_name: String, enemy_pos: Vector2) -> void:
 ## Shift battle background subtly in attack direction during strikes
 ## direction: -1.0 = shift left (player attacking right), +1.0 = shift right (enemy attacking left)
 func parallax_attack_shift(bg_node: Node, direction: float, amount: float = 8.0) -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	if bg_node == null or not is_instance_valid(bg_node):
 		return
 	var original_x = bg_node.position.x
@@ -838,7 +861,7 @@ func parallax_attack_shift(bg_node: Node, direction: float, amount: float = 8.0)
 
 ## Dedicated screen shake for memory burn (stronger, more dramatic)
 func _screen_shake_burn() -> void:
-	if not OptionsMenu.settings.get("screen_shake", true):
+	if OptionsMenu.is_clean_gameplay_visuals() or not OptionsMenu.settings.get("screen_shake", true):
 		return
 	var original_pos = _canvas.position
 	var t = _scene.create_tween()

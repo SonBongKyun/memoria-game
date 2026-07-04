@@ -10,3 +10,6 @@ desktop.ini
 .vscode/
 *.swp
 *.swo
+
+# fablize goal-tracking state (session tooling)
+.fablize/

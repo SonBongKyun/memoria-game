@@ -67,6 +67,13 @@
           "set_flag": "ch15_kept_lullaby",
           "goto": 13,
           "text_ko": "멜로디를 유지하세요. 쉘이 스스로 응답할 때까지 한이 이를 반복하게 하십시오."
+        },
+        {
+          "text": "Answer her hum with the campfire song you still carry. Two melodies, one fire.",
+          "text_ko": "아직 간직한 모닥불의 노래로 그녀의 허밍에 화답한다. 두 선율, 하나의 불.",
+          "requires_memory_intact": "daily_campfire_song",
+          "set_flag": "ch15_song_key",
+          "goto": 13
         }
       ]
     },
@@ -140,6 +147,13 @@
     {
       "narrate": "The second flame died before the patrol found the stair.",
       "narrate_ko": "두 번째 불꽃은 순찰대가 계단을 발견하기 전에 꺼졌습니다."
+    },
+    {
+      "requires_flag": "ch15_song_key",
+	  "cg": "res://assets/cg/generated/memory_key_first_age_refrain.png",
+	  "fade": 0.8,
+      "narrate": "In the dark, Han pressed two fingers to Arrel's wrist — the old signal for 'again, from the top.' His campfire song and her lullaby shared a refrain neither of them had written. Something in the First Age had sung both. She wrote on her slate: NOW WE ARE A CHOIR.",
+      "narrate_ko": "어둠 속에서 한이 아렐의 손목에 두 손가락을 얹었다 — '처음부터, 다시'라는 오래된 신호. 그의 모닥불 노래와 그녀의 자장가는 둘 중 누구도 쓴 적 없는 후렴을 공유하고 있었다. 제1시대의 무언가가 그 둘을 모두 불렀던 것이다. 그녀가 석판에 적었다: 이제 우리는 합창단이다."
     },
     {
       "complete_chapter": 15,

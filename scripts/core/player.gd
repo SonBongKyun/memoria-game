@@ -56,11 +56,18 @@ var _indicator_bob_time: float = 0.0
 # --- S92: Memory Pulse ---
 var _memory_pulse_cooldown: float = 0.0
 
+# --- S150: 걷기 바운스 / 발딛기 동기 / 기울기 / 방향 히스테리시스 ---
+var _bob_phase: float = 0.0          # 걸음 위상 (속도 비례 진행)
+var _last_footfall: int = 0          # 발이 땅에 닿은 횟수 (먼지 동기용)
+var _sprite_base_offset: Vector2 = Vector2.ZERO
+var _anim_suffix: String = "down"    # 대각선 지터 방지용 최근 방향
+
 func _ready() -> void:
 	add_to_group("player")
 	_setup_placeholder_sprites()
 	if sprite and sprite.sprite_frames:
 		sprite.play("idle_down")
+		_sprite_base_offset = sprite.offset
 	_setup_camera()
 	_setup_interact_indicator()
 	print("[Player] Arrel ready — Camera2D + exploration polish active")
@@ -158,7 +165,8 @@ func _physics_process(delta: float) -> void:
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
-		_update_animation(facing_direction, false)
+		# S150: 감속 중에는 걷기 애니 유지 — 몸이 미끄러지는데 발이 멈추는 어색함 제거
+		_update_animation(facing_direction, velocity.length() > 12.0)
 		# S58: Movement stop stretch — brief elongation when stopping
 		if _was_moving and sprite:
 			_play_move_squash(Vector2(1.05, 0.95), 0.08)
@@ -194,8 +202,10 @@ func _physics_process(delta: float) -> void:
 	# S57: Camera shake
 	_update_camera_shake(delta)
 
+	# S160: clarity mode removes movement trails and footstep debris.
+	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
 	# S57: Afterimage (sprint)
-	if _is_sprinting:
+	if _is_sprinting and not clean_view:
 		_afterimage_timer += delta
 		if _afterimage_timer >= AFTERIMAGE_INTERVAL:
 			_afterimage_timer = 0.0
@@ -203,13 +213,22 @@ func _physics_process(delta: float) -> void:
 	else:
 		_afterimage_timer = 0.0
 
-	# S57: Footstep dust particles
-	if input_vector != Vector2.ZERO:
-		_dust_timer += delta
-		if _dust_timer >= _next_dust_time:
-			_dust_timer = 0.0
-			_next_dust_time = randf_range(DUST_INTERVAL_MIN, DUST_INTERVAL_MAX)
-			_spawn_dust()
+	# S150: 걷기 바운스 + 발딛기 먼지 동기 + 수평 기울기
+	# 바운스 위상이 발걸음의 단일 진실원 — 먼지가 발이 닿는 프레임에 정확히 맞음.
+	if sprite:
+		if velocity.length() > 12.0:
+			_bob_phase += velocity.length() * delta * 0.085
+			sprite.offset.y = _sprite_base_offset.y - absf(sin(_bob_phase)) * 1.6
+			var footfall := int(_bob_phase / PI)
+			if footfall != _last_footfall:
+				_last_footfall = footfall
+				if not clean_view:
+					_spawn_dust()
+			# 수평 이동 시 진행 방향으로 미세하게 기울어짐 (달릴수록 더)
+			sprite.rotation = lerp_angle(sprite.rotation, (velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER)) * 0.055, 10.0 * delta)
+		else:
+			sprite.offset.y = lerpf(sprite.offset.y, _sprite_base_offset.y, 12.0 * delta)
+			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 12.0 * delta)
 
 	# S57: Interaction indicator
 	_update_interact_indicator(delta)
@@ -231,13 +250,17 @@ func _update_camera_look_ahead(delta: float) -> void:
 	if not camera:
 		return
 	var target_offset = Vector2.ZERO
-	if velocity.length() > 10.0:
+	if velocity.length() > 10.0 and not OptionsMenu.is_clean_gameplay_visuals():
 		target_offset = velocity.normalized() * _camera_look_ahead
 	camera.offset = camera.offset.lerp(target_offset, 3.0 * delta)
 
 ## 카메라 셰이크 업데이트
 func _update_camera_shake(delta: float) -> void:
 	if not camera:
+		return
+	if OptionsMenu.is_clean_gameplay_visuals():
+		_shake_intensity = 0.0
+		_shake_timer = 0.0
 		return
 	if _shake_timer > 0.0:
 		_shake_timer -= delta
@@ -248,6 +271,8 @@ func _update_camera_shake(delta: float) -> void:
 
 ## 외부에서 호출 가능한 셰이크 메서드
 func shake(intensity: float = 4.0, duration: float = 0.3) -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	_shake_intensity = intensity
 	_shake_duration = duration
 	_shake_timer = duration
@@ -383,16 +408,36 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 		return
 
 	var anim_prefix = "walk_" if is_moving else "idle_"
-	var dir_suffix: String
 
-	if abs(direction.x) > abs(direction.y):
-		dir_suffix = "right" if direction.x > 0 else "left"
+	# S150: 대각선 지터 방지 — 우세 축이 20% 이상 클 때만 축을 전환하고,
+	# 근사 대각선에서는 기존 방향을 유지 (부호 반전만 즉시 반영)
+	var ax := absf(direction.x)
+	var ay := absf(direction.y)
+	var suffix := _anim_suffix
+	if ax > ay * 1.2:
+		suffix = "right" if direction.x > 0 else "left"
+	elif ay > ax * 1.2:
+		suffix = "down" if direction.y > 0 else "up"
 	else:
-		dir_suffix = "down" if direction.y > 0 else "up"
+		if suffix == "left" and direction.x > 0.01:
+			suffix = "right"
+		elif suffix == "right" and direction.x < -0.01:
+			suffix = "left"
+		elif suffix == "up" and direction.y > 0.01:
+			suffix = "down"
+		elif suffix == "down" and direction.y < -0.01:
+			suffix = "up"
+	_anim_suffix = suffix
 
-	var anim_name = anim_prefix + dir_suffix
+	var anim_name = anim_prefix + suffix
 	if sprite.animation != anim_name:
 		sprite.play(anim_name)
+
+	# S150: 이동 속도 연동 애니 속도 — 질주/감속 시 발과 지면의 미끄러짐 제거
+	if is_moving:
+		sprite.speed_scale = clampf(velocity.length() / BASE_SPEED, 0.65, 1.85)
+	else:
+		sprite.speed_scale = 1.0
 
 ## RayCast 방향 업데이트 (상호작용 감지용)
 func _update_raycast_direction() -> void:

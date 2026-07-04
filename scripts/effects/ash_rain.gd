@@ -8,6 +8,11 @@ func _ready() -> void:
 	print("[AshRain] Ash rain started")
 
 func _setup_particles() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		amount = 1
+		emitting = false
+		visible = false
+		return
 	amount = 18
 	lifetime = 4.0
 	emitting = true
@@ -61,7 +66,8 @@ func set_intensity(level: float) -> void:
 
 ## 켜기/끄기
 func start_rain() -> void:
-	emitting = true
+	emitting = not OptionsMenu.is_clean_gameplay_visuals()
+	visible = emitting
 
 func stop_rain() -> void:
 	emitting = false

@@ -835,6 +835,50 @@ static func sable_config() -> Dictionary:
 		"accessory_type": "scar",
 	}
 
+## ===================== S151: 실사 스프라이트 시트 로더 =====================
+## assets/sprites/characters/<name>_sheet/ 의 개별 프레임 PNG(160x160)를
+## SpriteFrames로 조립. 시트가 없으면 null → 호출부가 절차 생성으로 폴백.
+const SHEET_DIR_FMT: String = "res://assets/sprites/characters/%s_sheet/"
+# anim → [최대 프레임 수, fps, loop]
+const SHEET_ANIMS: Dictionary = {
+	"idle":   [4, 6.0, true],
+	"move":   [4, 10.0, true],
+	"attack": [6, 14.0, false],
+	"cast":   [4, 10.0, false],
+	"hurt":   [2, 8.0, false],
+	"down":   [2, 4.0, false],
+}
+
+static func load_sheet_frames(char_name: String) -> SpriteFrames:
+	var dir := SHEET_DIR_FMT % char_name
+	if not ResourceLoader.exists(dir + "idle_01.png"):
+		return null
+	var frames := SpriteFrames.new()
+	for anim in SHEET_ANIMS:
+		var cfg: Array = SHEET_ANIMS[anim]
+		_add_sheet_anim(frames, dir, anim, anim, cfg)
+		# 좌향 변형 (attack_left, move_left 등 — 존재할 때만)
+		_add_sheet_anim(frames, dir, anim + "_left", anim + "_left", cfg)
+	if not frames.has_animation("idle"):
+		return null
+	# 기본 "default" 애니 제거 (혼동 방지)
+	if frames.has_animation("default"):
+		frames.remove_animation("default")
+	return frames
+
+static func _add_sheet_anim(frames: SpriteFrames, dir: String, file_prefix: String, anim_name: String, cfg: Array) -> void:
+	var added := false
+	for i in range(1, int(cfg[0]) + 1):
+		var path := dir + "%s_%02d.png" % [file_prefix, i]
+		if not ResourceLoader.exists(path):
+			break
+		if not added:
+			frames.add_animation(anim_name)
+			frames.set_animation_speed(anim_name, float(cfg[1]))
+			frames.set_animation_loop(anim_name, bool(cfg[2]))
+			added = true
+		frames.add_frame(anim_name, load(path))
+
 static func npc_config(base_color: Color) -> Dictionary:
 	return {
 		"skin": Color(0.82, 0.72, 0.62),

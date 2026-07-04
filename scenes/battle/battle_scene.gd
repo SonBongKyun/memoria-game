@@ -72,6 +72,8 @@ var limit_btn: Button
 # S44: 사이드뷰 캐릭터 스프라이트
 var player_sprite: CanvasItem  # 아렐 스프라이트
 var player_sprite_container: Control  # 아이들 모션용
+# S151: 스프라이트 기본 스케일 — 시트(0.625)/절차(0.78) 어느 쪽이든 트윈이 이 기준으로 복귀
+var _player_sprite_base_scale: Vector2 = Vector2.ONE
 var ally_sprite: CanvasItem  # 동행자 스프라이트 (엘리아/세이블)
 var ally_sprite_container: Control
 var tobias_sprite_container: Control
@@ -164,30 +166,32 @@ func _present_field_focus_opening() -> void:
 
 func _process(delta: float) -> void:
 	_idle_time += delta
+	var clean_view: bool = OptionsMenu.is_clean_gameplay_visuals()
 	if action_ribbon_art and action_container:
 		action_ribbon_art.visible = action_container.visible
 		if action_ribbon_art.visible:
-			action_ribbon_art.modulate.a = 0.74 + sin(_idle_time * 1.35) * 0.035
+			action_ribbon_art.modulate.a = 0.78 if clean_view else 0.74 + sin(_idle_time * 1.35) * 0.035
 	# 적 아이들 모션 (호흡 — 상하 + 미세 스케일)
-	if enemy_sprite_container and enemy_sprite_container.visible:
+	if enemy_sprite_container and enemy_sprite_container.visible and not clean_view:
 		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
 		enemy_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.5) * 0.008, 1.0 - sin(_idle_time * 1.5) * 0.006)
 	# 플레이어 아이들 모션 (호흡 + 미세 스케일)
-	if player_sprite_container:
+	if player_sprite_container and not clean_view:
 		player_sprite_container.position.y = _player_base_pos.y + sin(_idle_time * 1.8 + 0.5) * 2.0
 		player_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.8 + 0.5) * 0.006, 1.0 - sin(_idle_time * 1.8 + 0.5) * 0.005)
 	# 동행자 아이들
-	if ally_sprite_container and ally_sprite_container.visible:
+	if ally_sprite_container and ally_sprite_container.visible and not clean_view:
 		ally_sprite_container.position.y = _ally_base_pos.y + sin(_idle_time * 1.3 + 1.2) * 2.5
 		ally_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.3 + 1.2) * 0.007, 1.0 - sin(_idle_time * 1.3 + 1.2) * 0.005)
-	if tobias_sprite_container and tobias_sprite_container.visible:
+	if tobias_sprite_container and tobias_sprite_container.visible and not clean_view:
 		tobias_sprite_container.position.y = _tobias_base_pos.y + sin(_idle_time * 1.1 + 2.0) * 2.0
 		tobias_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.1 + 2.0) * 0.005, 1.0 - sin(_idle_time * 1.1 + 2.0) * 0.004)
 	# S53: 전투 패럴랙스 미세 이동
-	for layer in _battle_parallax_layers:
-		if layer and is_instance_valid(layer):
-			var speed = layer.get_meta("parallax_speed", 0.5)
-			layer.position.x = sin(_idle_time * speed * 0.3) * 15 * speed
+	if not clean_view:
+		for layer in _battle_parallax_layers:
+			if layer and is_instance_valid(layer):
+				var speed = layer.get_meta("parallax_speed", 0.5)
+				layer.position.x = sin(_idle_time * speed * 0.3) * 15 * speed
 
 func _resolve_battle_bg_image() -> String:
 	if BattleManager.battle_bg_image != "" and ResourceLoader.exists(BattleManager.battle_bg_image):
@@ -229,9 +233,10 @@ func _build_ui() -> void:
 		bg_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bg_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		bg_tex.texture = load(_resolved_battle_bg_image)
-		bg_tex.modulate = Color(0.62, 0.57, 0.52, 0.82)
+		bg_tex.modulate = Color(0.88, 0.86, 0.84, 0.96) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.62, 0.57, 0.52, 0.82)
 		add_child(bg_tex)
-		_add_battle_art_depth(_resolved_battle_bg_image)
+		if not OptionsMenu.is_clean_gameplay_visuals():
+			_add_battle_art_depth(_resolved_battle_bg_image)
 
 	# 배경 비네트 오버레이
 	_add_battle_vignette()
@@ -372,6 +377,8 @@ func _build_ui() -> void:
 ## ===================== 배경 비네트 =====================
 
 func _add_battle_vignette() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	# 셰이더 기반 원형 비네트 (S40)
 	var vignette = ColorRect.new()
 	vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -442,6 +449,9 @@ func _add_battle_art_depth(texture_path: String) -> void:
 
 ## S53: 전투 배경 패럴랙스 레이어
 func _add_battle_parallax() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		_battle_parallax_layers.clear()
+		return
 	# Layer 1: 먼 실루엣 (느린 이동)
 	var far_layer = ColorRect.new()
 	far_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -469,6 +479,8 @@ func _add_battle_parallax() -> void:
 ## ===================== Auto Battle (S55) =====================
 
 func _add_premium_battle_lens() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var lens = ColorRect.new()
 	lens.set_anchors_preset(Control.PRESET_FULL_RECT)
 	lens.color = Color(0, 0, 0, 0)
@@ -1290,13 +1302,20 @@ func _build_player_sprite(root: Control) -> void:
 	player_sprite_container.add_child(player_shadow)
 
 	var anim_sprite = AnimatedSprite2D.new()
-	anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
+	# S151: 실사 시트 우선 (160px, idle/attack/cast/hurt/down) — 없으면 절차 생성 폴백
+	var arrel_sheet = PixelSprite.load_sheet_frames("arrel")
+	if arrel_sheet:
+		anim_sprite.sprite_frames = arrel_sheet
+		anim_sprite.scale = Vector2(0.625, 0.625)  # 160px 시트 → 기존 표시 크기(~100px) 유지
+	else:
+		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
+		anim_sprite.scale = Vector2(0.78, 0.78)
 	anim_sprite.play("idle")
 	anim_sprite.position = Vector2(100, 95)
-	anim_sprite.scale = Vector2(0.78, 0.78)
 	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	player_sprite_container.add_child(anim_sprite)
 	player_sprite = anim_sprite
+	_player_sprite_base_scale = anim_sprite.scale
 
 	# 발밑 광원 (은은한 파란 빛)
 	var glow = ColorRect.new()
@@ -1334,10 +1353,16 @@ func _build_ally_sprite(root: Control) -> void:
 	var p_path = portrait_map.get(who, "")
 	if who == "elia":
 		var anim_sprite = AnimatedSprite2D.new()
-		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("elia")
+		# S151: 엘리아 실사 시트 우선 — 없으면 절차 생성 폴백
+		var elia_sheet = PixelSprite.load_sheet_frames("elia")
+		if elia_sheet:
+			anim_sprite.sprite_frames = elia_sheet
+			anim_sprite.scale = Vector2(0.56, 0.56)  # 160px 시트 → 기존 표시 크기(~90px) 유지
+		else:
+			anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("elia")
+			anim_sprite.scale = Vector2(0.70, 0.70)
 		anim_sprite.play("idle")
 		anim_sprite.position = Vector2(80, 78)
-		anim_sprite.scale = Vector2(0.70, 0.70)
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
@@ -1912,10 +1937,12 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		impact_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_IN_OUT)
 	# S58: Player squash on getting hit (squash = pain compression)
 	elif target == "Arrel" and player_sprite:
+		# S151: 시트 hurt 동사 재생 + 기본 스케일 기준 상대 스쿼시
+		_play_actor_anim(player_sprite, "hurt")
 		var hurt_squash = create_tween()
-		hurt_squash.tween_property(player_sprite, "scale", Vector2(0.85, 1.15), 0.05).set_ease(Tween.EASE_OUT)
-		hurt_squash.tween_property(player_sprite, "scale", Vector2(1.05, 0.95), 0.07).set_ease(Tween.EASE_OUT)
-		hurt_squash.tween_property(player_sprite, "scale", Vector2(1.0, 1.0), 0.1).set_ease(Tween.EASE_IN_OUT)
+		hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(0.85, 1.15), 0.05).set_ease(Tween.EASE_OUT)
+		hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(1.05, 0.95), 0.07).set_ease(Tween.EASE_OUT)
+		hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale, 0.1).set_ease(Tween.EASE_IN_OUT)
 
 	# S56: Enhanced damage numbers via BattleVFX
 	if battle_vfx:
@@ -1980,17 +2007,20 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		# --- Player attacking enemy ---
 		if not player_sprite or not player_sprite_container:
 			return
+		# S151: 시트 동사 재생 — 평타는 attack, 연소/스킬은 cast
+		var verb := "attack" if (skill_name == "" or skill_name == "Attack") else "cast"
+		_play_actor_anim(player_sprite, verb)
 		var rush_target = Vector2(_enemy_base_pos.x - 180, _player_base_pos.y - 10)
 		# Phase 1: Anticipation — squash (wind-up, lean back)
 		var antic_t = create_tween()
-		antic_t.tween_property(player_sprite, "scale", Vector2(1.1, 0.9), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		antic_t.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(1.1, 0.9), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 		antic_t.set_parallel(true)
 		antic_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x - 8, 0.1).set_ease(Tween.EASE_OUT)
 		await antic_t.finished
 		# Phase 2: Strike — stretch + lunge forward
 		var strike_t = create_tween()
 		strike_t.set_parallel(true)
-		strike_t.tween_property(player_sprite, "scale", Vector2(0.9, 1.1), 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		strike_t.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(0.9, 1.1), 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
 		strike_t.tween_property(player_sprite_container, "position", rush_target, 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
 		await strike_t.finished
 		# Phase 3: Impact freeze (brief hold at contact point — damage applied by BattleManager during this)
@@ -2001,7 +2031,7 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		return_t.tween_property(player_sprite_container, "position", _player_base_pos, 0.08).set_ease(Tween.EASE_IN_OUT)
 		# Scale reset runs in parallel with the position return
 		var scale_t = create_tween()
-		scale_t.tween_property(player_sprite, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
+		scale_t.tween_property(player_sprite, "scale", _player_sprite_base_scale, 0.15).set_ease(Tween.EASE_OUT)
 	else:
 		# --- Enemy attacking player ---
 		if not enemy_sprite or not enemy_sprite_container:
@@ -2119,8 +2149,34 @@ func _on_battle_ended(_result) -> void:
 	# S56: Defeat dramatic slow-motion effect
 	if _result == BattleManager.BattleState.DEFEAT and battle_vfx:
 		battle_vfx.play_defeat_effect()
+	# S151: 패배 시 쓰러짐 동사 (시트 보유 시)
+	if _result == BattleManager.BattleState.DEFEAT:
+		_play_actor_anim(player_sprite, "down")
 	# S58: Victory rewards screen is now built by _on_victory_rewards_ready signal
 	# (emitted from BattleManager._cleanup after rewards are computed)
+
+## ===================== S151: 시트 동사 재생 헬퍼 =====================
+## 시트 프레임(AnimatedSprite2D)일 때만 동사 재생. 논루프 동사는 끝나면 idle 복귀.
+## 절차 생성 스프라이트(해당 애니 없음)에서는 조용히 무시 — 폴백 안전.
+func _play_actor_anim(actor: CanvasItem, anim: String) -> void:
+	if not (actor is AnimatedSprite2D):
+		return
+	var asp: AnimatedSprite2D = actor
+	if not asp.sprite_frames or not asp.sprite_frames.has_animation(anim):
+		return
+	asp.play(anim)
+	if not asp.sprite_frames.get_animation_loop(anim):
+		if not asp.animation_finished.is_connected(_on_actor_anim_finished):
+			asp.animation_finished.connect(_on_actor_anim_finished.bind(asp))
+
+func _on_actor_anim_finished(asp: AnimatedSprite2D) -> void:
+	# down(패배)은 마지막 프레임 유지 — 일어나면 어색함
+	if not is_instance_valid(asp) or not asp.sprite_frames:
+		return
+	if asp.animation == "down":
+		return
+	if asp.sprite_frames.has_animation("idle"):
+		asp.play("idle")
 
 ## ===================== 행동 콜백 =====================
 
@@ -2508,7 +2564,7 @@ func _hit_flash(target: String) -> void:
 ## 스크린 셰이크 (S42 강화: 더 많은 프레임 + 회전 흔들림)
 func _screen_shake(intensity: float = 1.0) -> void:
 	# S53: 접근성 — 화면 흔들림 비활성화 옵션
-	if not OptionsMenu.settings.get("screen_shake", true):
+	if OptionsMenu.is_clean_gameplay_visuals() or not OptionsMenu.settings.get("screen_shake", true):
 		return
 	var original_pos = canvas_root.position
 	var t = create_tween()
@@ -2536,6 +2592,8 @@ func _player_attack_rush() -> void:
 
 ## 속도선 (공격 시 화면에 빗금)
 func _play_speed_lines() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	for i in range(6):
 		var line = ColorRect.new()
 		line.size = Vector2(randf_range(200, 500), 2)
@@ -2647,6 +2705,8 @@ func _play_attack_vfx(skill_name: String) -> void:
 
 ## 불꽃 VFX (S42: GPU 파티클 추가, S52: 화면 가장자리 불꽃)
 func _play_burn_vfx() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	_play_gpu_burn_particles()  # S42: GPU 파티클
 	_burn_edge_flare()  # S52: 화면 가장자리 화염
 	var center = Vector2(920, 310)
@@ -2710,6 +2770,8 @@ func _play_enemy_dissolve() -> void:
 var _chromatic_overlay: ColorRect
 
 func _play_chromatic_aberration(duration: float = 1.5) -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var shader_path = "res://assets/shaders/chromatic_aberration.gdshader"
 	if not ResourceLoader.exists(shader_path):
 		return
@@ -2735,6 +2797,8 @@ func _play_chromatic_aberration(duration: float = 1.5) -> void:
 ## ===================== S40: 보이드 스킬 VFX (보라색 파티클 폭발) =====================
 
 func _play_void_vfx() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	_play_gpu_void_particles()  # S42: GPU 파티클
 	var center = Vector2(920, 310)
 	for i in range(16):
@@ -2866,6 +2930,8 @@ func _on_limit_break() -> void:
 
 ## 배경 분위기 파티클 (떠다니는 먼지/잿가루)
 func _add_battle_atmosphere() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	# 떠다니는 먼지 파티클
 	_battle_particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
@@ -2920,6 +2986,8 @@ func _add_battle_atmosphere() -> void:
 
 ## 물리 공격 GPUParticles2D 이펙트 (S42: 기존 ColorRect 대체)
 func _play_gpu_slash_particles() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var center = Vector2(900, 300)
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
@@ -2960,6 +3028,8 @@ func _play_gpu_slash_particles() -> void:
 
 ## 불꽃 GPUParticles2D (S42)
 func _play_gpu_burn_particles() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var center = Vector2(920, 310)
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
@@ -3009,6 +3079,8 @@ func _play_gpu_burn_particles() -> void:
 
 ## 보이드 GPUParticles2D (S42)
 func _play_gpu_void_particles() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var center = Vector2(920, 310)
 	var particles = GPUParticles2D.new()
 	var mat = ParticleProcessMaterial.new()
@@ -3099,6 +3171,8 @@ func _play_heal_vfx() -> void:
 
 ## 리밋 브레이크 폭발 VFX (S42)
 func _play_limit_burst_vfx() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var center = Vector2(920, 310)
 	# 큰 폭발 파티클
 	var particles = GPUParticles2D.new()
@@ -3619,6 +3693,8 @@ func _critical_zoom_punch() -> void:
 
 ## 연소 임팩트 — 기억 연소 시 화면 가장자리 불타는 효과
 func _burn_edge_flare() -> void:
+	if OptionsMenu.is_clean_gameplay_visuals():
+		return
 	var flare = ColorRect.new()
 	flare.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flare.mouse_filter = Control.MOUSE_FILTER_IGNORE

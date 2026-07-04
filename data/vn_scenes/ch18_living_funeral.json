@@ -33,7 +33,10 @@
       "cg": "res://assets/cg/generated/ch18_tobias_platform.png",
       "fade": 0.7,
       "narrate": "Tobias stepped onto the platform before the Erasers could drag him there.",
-      "narrate_ko": "토비아스는 소거관들가 그를 그곳으로 끌고 가기 전에 플랫폼 위로 올라갔습니다."
+      "narrate_ko": "토비아스는 소거관들가 그를 그곳으로 끌고 가기 전에 플랫폼 위로 올라갔습니다.",
+      "distort_if_burned": "identity_intervention_vow",
+      "distorted_narrate": "Tobias stepped onto the platform before the Erasers could drag him there. Arrel noticed that his own feet had not moved. The pull that used to move them had been spent in a Confessor Hall, and what remained now had to be chosen, by hand, every time.",
+      "distorted_narrate_ko": "토비아스는 소거관들이 끌고 가기 전에 스스로 단상 위에 올라섰다. 아렐은 자신의 발이 움직이지 않았다는 것을 깨달았다. 발을 움직이게 하던 그 끌림은 고해소에서 이미 소모되었고, 남은 것은 이제 매번, 손으로 직접, 선택해야 했다."
     },
     {
       "cg": "res://assets/cg/generated/ch18_tobias_close.png",
@@ -124,7 +127,10 @@
     {
       "requires_flag": "tobias_funeral_lost",
       "narrate": "The crowd remembered that someone had stood on the platform. No one but Arrel and Elia remembered who.",
-      "narrate_ko": "군중은 누군가가 단상에 서 있었다는 것을 기억했습니다. 아렐과 엘리아 외에는 누구도 누구인지 기억하지 못했습니다."
+      "narrate_ko": "군중은 누군가가 단상에 서 있었다는 것을 기억했습니다. 아렐과 엘리아 외에는 누구도 누구인지 기억하지 못했습니다.",
+      "distort_if_burned": "rel_verdan_faces",
+      "distorted_narrate": "The crowd remembered that someone had stood on the platform. Elia remembered who. Arrel remembered that remembering him mattered — but the face itself kept sliding away, one more face in a world he had reduced to openings and obstacles.",
+      "distorted_narrate_ko": "군중은 누군가가 단상에 서 있었다는 것만 기억했다. 엘리아는 그가 누구였는지 기억했다. 아렐은 그를 기억하는 일이 중요하다는 것은 기억했다 — 그러나 얼굴 자체는 자꾸만 미끄러져 나갔다. 그가 통로와 장애물로 축소해 버린 세계 속의, 또 하나의 얼굴로."
     },
     {
       "set_flag": "tobias_funeral",

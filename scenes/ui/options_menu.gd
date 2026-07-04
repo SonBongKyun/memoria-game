@@ -24,6 +24,7 @@ var text_speed_value_label: Label
 # S55: Accessibility UI references
 var font_size_btn: Button
 var high_contrast_check: CheckButton
+var clean_visuals_check: CheckButton
 var shake_check: CheckButton
 var colorblind_btn: Button
 var reduce_motion_check: CheckButton
@@ -44,7 +45,7 @@ var settings: Dictionary = {
 	"difficulty": 1,  # 0=Easy, 1=Normal, 2=Hard
 	"fullscreen": false,
 	"font_scale": 1.0,           # Legacy (kept for save compat)
-	"screen_shake": true,        # S53/S55: Screen shake toggle
+	"screen_shake": false,       # S160: clean gameplay defaults to no camera shake
 	"colorblind_mode": 0,        # S55: 0=Off, 1=Deuteranopia, 2=Protanopia, 3=Tritanopia
 	"locale": "ko",              # S54/S133: Language (en/ko), Korean first for local build
 	"korean_patch_version": 1,
@@ -52,7 +53,9 @@ var settings: Dictionary = {
 	# S55: New accessibility settings
 	"dialogue_font_size": 0,     # 0=Normal, 1=Large, 2=Extra Large
 	"high_contrast": false,      # Increases outlines, brighter borders
-	"reduce_motion": false,      # Disables particles, simplifies animations
+	"reduce_motion": true,       # S160: disable decorative motion by default
+	"clean_gameplay_visuals": true, # Removes screen-space obstruction during play
+	"clarity_patch_version": 1,
 	"auto_advance_narration": true, # Auto-advance narration lines
 	# S59: Quality & Performance settings
 	"quality_level": 2,              # 0=Low, 1=Medium, 2=High
@@ -91,6 +94,8 @@ func open() -> void:
 		shake_check.button_pressed = settings.screen_shake
 	if high_contrast_check:
 		high_contrast_check.button_pressed = settings.high_contrast
+	if clean_visuals_check:
+		clean_visuals_check.button_pressed = settings.clean_gameplay_visuals
 	if reduce_motion_check:
 		reduce_motion_check.button_pressed = settings.reduce_motion
 	if auto_advance_check:
@@ -205,6 +210,13 @@ func _load_settings() -> void:
 			for key in settings.keys():
 				if data.has(key):
 					settings[key] = data[key]
+			# S160: existing installs receive the requested clean-view baseline once.
+			if int(data.get("clarity_patch_version", 0)) < 1:
+				settings["clean_gameplay_visuals"] = true
+				settings["reduce_motion"] = true
+				settings["screen_shake"] = false
+				settings["clarity_patch_version"] = 1
+				_save_settings()
 			if not data.has("korean_patch_version"):
 				settings["locale"] = "ko"
 				settings["korean_patch_version"] = 1
@@ -567,6 +579,19 @@ func _build_ui() -> void:
 		_apply_high_contrast(toggled)
 	)
 
+	# Clear Gameplay View — screen-space atmosphere is opt-in, clarity is default.
+	clean_visuals_check = _create_toggle_row(vbox, GameManager.loc("clean_gameplay_visuals"), settings.clean_gameplay_visuals)
+	clean_visuals_check.toggled.connect(func(toggled: bool):
+		settings.clean_gameplay_visuals = toggled
+		if toggled:
+			settings.reduce_motion = true
+			settings.screen_shake = false
+			if reduce_motion_check:
+				reduce_motion_check.button_pressed = true
+			if shake_check:
+				shake_check.button_pressed = false
+	)
+
 	# Screen Shake
 	shake_check = _create_toggle_row(vbox, GameManager.loc("screen_shake"), settings.screen_shake)
 	shake_check.toggled.connect(func(toggled: bool):
@@ -711,6 +736,12 @@ static func is_reduce_motion() -> bool:
 	if OptionsMenu:
 		return OptionsMenu.settings.get("reduce_motion", false)
 	return false
+
+## S160: gameplay clarity mode removes purely decorative screen-space effects.
+static func is_clean_gameplay_visuals() -> bool:
+	if OptionsMenu:
+		return OptionsMenu.settings.get("clean_gameplay_visuals", true)
+	return true
 
 ## Check if high contrast is enabled
 static func is_high_contrast() -> bool:

@@ -1317,6 +1317,48 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/resonance_forgotten_forest_echo.png",
 		"desc": "A hollow tree exhales the beginning of a sentence it cannot finish."
 	},
+	{
+		"title": "A Regular's Way Through",
+		"type": "Memory Key Environment CG",
+		"path": "res://assets/cg/generated/memory_key_verdan_passage.png",
+		"desc": "A remembered taste reveals the service passage hidden behind Verdan's abandoned stalls."
+	},
+	{
+		"title": "Opened, Not Shattered",
+		"type": "Memory Key Environment CG",
+		"path": "res://assets/cg/generated/memory_key_confessor_hinge.png",
+		"desc": "The memory of a first sword grip opens the extraction cradle with one exact cut."
+	},
+	{
+		"title": "One First-Age Refrain",
+		"type": "Memory Key Lore CG",
+		"path": "res://assets/cg/generated/memory_key_first_age_refrain.png",
+		"desc": "A campfire song and Han's lullaby meet inside the Echo Shell as one ancient refrain."
+	},
+	{
+		"title": "The Weather It Cannot Fake",
+		"type": "Memory Key Environment CG",
+		"path": "res://assets/cg/generated/memory_key_forest_rain.png",
+		"desc": "True rain on forest earth opens a quiet path through the counterfeit storm."
+	},
+	{
+		"title": "One Signature",
+		"type": "Memory Key Story CG",
+		"path": "res://assets/cg/generated/memory_key_single_signature.png",
+		"desc": "Lumea's scanner mistakes two linked hands for one surviving human signature."
+	},
+	{
+		"title": "One Surviving Page",
+		"type": "Memory Key Lore CG",
+		"path": "res://assets/cg/generated/memory_key_surviving_page.png",
+		"desc": "Three people standing together buy one second for a page to escape the fire."
+	},
+	{
+		"title": "An Anchor, Not a Wound",
+		"type": "Memory Key Climax CG",
+		"path": "res://assets/cg/generated/memory_key_relay_anchor.png",
+		"desc": "Remembered warmth lets the primal relay open around joined hands without taking from either."
+	},
 ]
 
 func _ready() -> void:

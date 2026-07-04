@@ -54,6 +54,13 @@
           "set_flag": "ch12_kept_verdan_faces",
           "goto": 12,
           "text_ko": "그들의 얼굴을 유지하십시오. 시장 아래의 물에 잠긴 서비스 계단을 이용하세요."
+        },
+        {
+          "text": "Follow the taste you still carry. The vendor row hides a gap only regulars know.",
+          "text_ko": "아직 간직한 그 맛을 따라간다. 노점 줄에는 단골만 아는 틈이 있다.",
+          "requires_memory_intact": "daily_market_food",
+          "set_flag": "ch12_faces_key",
+          "goto": 12
         }
       ]
     },
@@ -140,6 +147,13 @@
       "set_flag": "pell_name_found",
       "narrate": "Outside, the patrol boots stopped above the stair.",
       "narrate_ko": "밖에서 순찰 부츠가 계단 위에 멈췄습니다."
+    },
+    {
+      "requires_flag": "ch12_faces_key",
+	  "cg": "res://assets/cg/generated/memory_key_verdan_passage.png",
+	  "fade": 0.8,
+      "narrate": "At the mouth of the vendor row, the spice seller met his eyes for half a second — the way you greet a regular you will not name — and tipped her awning toward a shuttered stall with a loose back panel. Being remembered, it turned out, was also a place to hide.",
+      "narrate_ko": "노점 줄 초입에서 향신료 상인이 반 초쯤 그와 눈을 맞췄다 — 이름을 대지 않을 단골을 맞이하는 방식으로 — 그리고 차양을 기울여, 뒤판이 헐거운 셔터 내린 좌판을 가리켰다. 기억된다는 것은, 알고 보니 숨을 곳이기도 했다."
     },
     {
       "action": "goto_scene",

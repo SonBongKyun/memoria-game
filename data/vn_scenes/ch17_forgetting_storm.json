@@ -53,6 +53,13 @@
           "set_flag": "ch17_burned_han_resonance",
           "goto": 11,
           "text_ko": "한의 기억을 불태워라. 에코 셸이 폭풍 속에 대피소를 노래하도록 강제합니다."
+        },
+        {
+          "text": "Hold the smell of rain on forest earth. Walk the storm by the one weather it cannot fake.",
+          "text_ko": "숲의 흙에 내리던 비 냄새를 붙든다. 폭풍이 위조할 수 없는 단 하나의 날씨를 따라 걷는다.",
+          "requires_memory_intact": "sense_forest_smell",
+          "set_flag": "ch17_smell_key",
+          "goto": 14
         }
       ]
     },
@@ -151,6 +158,13 @@
       "side": "right",
       "text": "That is inconvenient. I have not finished the footnotes.",
       "text_ko": "그건 불편해요. 나는 각주를 끝내지 않았습니다."
+    },
+    {
+      "requires_flag": "ch17_smell_key",
+	  "cg": "res://assets/cg/generated/memory_key_forest_rain.png",
+	  "fade": 0.8,
+      "narrate": "They crossed the storm without burning anything at all. The violet wind threw a hundred false weathers at him — and every one of them forgot to smell like rain on forest earth. What the body keeps, the storm cannot counterfeit.",
+      "narrate_ko": "그들은 아무것도 태우지 않고 폭풍을 건넜다. 보랏빛 바람이 백 가지 가짜 날씨를 그에게 퍼부었지만 — 그 무엇도 숲의 흙에 내리는 비 냄새를 흉내 내지는 못했다. 몸이 간직한 것을, 폭풍은 위조하지 못한다."
     },
     {
       "complete_chapter": 17,

@@ -58,6 +58,13 @@
           "set_flag": "ch14_kept_intervention_vow",
           "goto": 13,
           "text_ko": "서약을 지키십시오. 장치 경첩을 찾으려면 토비아스를 믿으십시오."
+        },
+        {
+          "text": "Let the courtyard grip steady your hand. One cut, exact, where the cradle hinges.",
+          "text_ko": "그날의 손잡이가 손을 붙들게 한다. 단 한 번, 정확하게, 요람의 경첩을.",
+          "requires_memory_intact": "identity_first_sword",
+          "set_flag": "ch14_sword_key",
+          "goto": 13
         }
       ]
     },
@@ -152,6 +159,13 @@
       "set_flag": "kairos_hesitation_1",
       "narrate": "He did not send it.",
       "narrate_ko": "그는 그것을 보내지 않았습니다."
+    },
+    {
+      "requires_flag": "ch14_sword_key",
+	  "cg": "res://assets/cg/generated/memory_key_confessor_hinge.png",
+	  "fade": 0.8,
+      "narrate": "In the wreckage of the hall, one detail did not fit the Authority's incident template: the extraction cradle had been opened, not shattered. A hand larger than his had once closed his fingers around a wooden grip, and tonight that grip had freed a stranger without leaving a scar.",
+      "narrate_ko": "홀의 잔해 속에서, 단 하나의 세부가 관리국의 사건 양식에 들어맞지 않았다. 추출 요람은 부서진 것이 아니라 열려 있었다. 언젠가 그의 손가락을 나무 손잡이에 감싸 쥐게 해 준 더 큰 손 — 오늘 밤 그 손잡이가, 흉터 하나 남기지 않고 낯선 이를 풀어 주었다."
     },
     {
       "complete_chapter": 14,

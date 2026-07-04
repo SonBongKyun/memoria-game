@@ -194,3 +194,24 @@ All new story CGs are clean 1672x941 RGB plates with text-free compositions and 
 | `forgotten_forest` | A hollow tree's unfinished sentence | `resonance_forgotten_forest_echo.png` | `chapter_splash_forgotten_forest.png` |
 
 These plates deliberately avoid unfinalized character designs. Each one was generated from its active map CG as a direct style reference, preserving the same environment geometry, palette family, realistic dark-fantasy rendering, contrast, and lower dialogue-safe zone. All four are clean 1672x941 RGB images with no grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, or dirty-lens overlays.
+
+## S158 Memory Key payoff set
+
+| Runtime scene | Kept-memory payoff | Asset | Direct style reference |
+|---|---|---|---|
+| `ch12_reader` | A remembered market taste reveals a regulars-only passage | `memory_key_verdan_passage.png` | `ch12_sump_closed.png` + `chapter_splash_verdan_market.png` |
+| `ch14_confessor_intervention` | The first sword grip opens the extraction cradle without shattering it | `memory_key_confessor_hinge.png` | `ch14_confessor_hall.png` |
+| `ch15_singer` | The campfire song and Han's lullaby resolve into one First-Age refrain | `memory_key_first_age_refrain.png` | `ch15_echo_shell_awakening.png` |
+
+The three plates turn hidden kept-memory choices into visible rewards without introducing any unfinalized character design. Each uses an active scene CG as a direct reference and preserves a quiet lower dialogue zone. Prompts explicitly excluded film/photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens overlays, muddy brush noise, oversharpening, and excessive bloom.
+
+## S159 Memory Key payoff completion set
+
+| Runtime scene | Kept-memory payoff | Asset | Direct style reference |
+|---|---|---|---|
+| `ch17_forgetting_storm` | True rain on forest earth reveals a safe route through false weather | `memory_key_forest_rain.png` | `ch17_oblivion_storm.png` |
+| `ch19_approach` | Linked hands pass Lumea's barrier as one signature | `memory_key_single_signature.png` | `ch19_monolith_gates.png` |
+| `ch21_editors_turn` | Three allies preserve one page from Kairós's burning notebook | `memory_key_surviving_page.png` | `ch21_kairos_confront.png` |
+| `ch22_core` | Remembered warmth opens the relay around an anchor, not a wound | `memory_key_relay_anchor.png` | `ch22_conversion_threshold.png` |
+
+This completes a dedicated visual payoff for all seven S149 Memory Keys. Ch17 and Ch21 remain environment/prop-only; Ch19 and Ch22 use tightly cropped hands with established costume colors, avoiding new faces or character redesigns. Every plate preserves a low-detail lower dialogue zone and excludes film/photo grain, paper or canvas overlays, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, and excessive bloom.

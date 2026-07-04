@@ -32,7 +32,10 @@
     },
     {
       "narrate": "A Blanker patrol crossed the plaza with even, dreamless steps. Han's hum flattened into the wind, and the patrol's attention slid past the four of them like water past glass.",
-      "narrate_ko": "블랭커 순찰대가 균일하고 꿈 없는 걸음으로 광장을 가로질렀다. 한의 허밍이 바람 속으로 낮게 깔리자, 순찰대의 주의가 유리를 스치는 물처럼 네 사람을 지나쳐 흘러갔다."
+      "narrate_ko": "블랭커 순찰대가 균일하고 꿈 없는 걸음으로 광장을 가로질렀다. 한의 허밍이 바람 속으로 낮게 깔리자, 순찰대의 주의가 유리를 스치는 물처럼 네 사람을 지나쳐 흘러갔다.",
+      "distort_if_burned": "rel_han_mneme",
+      "distorted_narrate": "A Blanker patrol crossed the plaza with even, dreamless steps. Beside Arrel, a scarred old stranger hummed, and the patrol's attention slid past them like water past glass. He owed his life to that hum. He could no longer remember why she would spend it on him.",
+      "distorted_narrate_ko": "블랭커 순찰대가 균일하고 꿈 없는 걸음으로 광장을 가로질렀다. 아렐의 곁에서 흉터 진 낯선 노파가 허밍을 흘렸고, 순찰대의 주의가 유리를 스치는 물처럼 그들을 지나쳐 갔다. 그는 그 허밍에 목숨을 빚지고 있었다. 그녀가 왜 그것을 자신에게 써 주는지는, 더 이상 기억나지 않았다."
     },
     {
       "cg": "res://assets/cg/generated/ch19_vael_silhouette.png",
@@ -72,6 +75,13 @@
           "text": "Keep it. Follow Han's held note through the queue.",
           "text_ko": "간직한다. 한이 길게 끄는 음을 따라 줄을 통과한다.",
           "set_flag": "ch19_song_crossing",
+          "goto": 14
+        },
+        {
+          "text": "Reach back for her hand before the queue. The old gesture, older than memory.",
+          "text_ko": "줄에 서기 전에 그녀의 손을 향해 손을 뻗는다. 기억보다 오래된, 그 몸짓으로.",
+          "requires_memory_intact": "rel_hand_reaching",
+          "set_flag": "ch19_gesture_key",
           "goto": 14
         }
       ]
@@ -136,6 +146,13 @@
       "fade": 1.5,
       "narrate": "Ahead, the monolith's outer wall opened for a procession of white robes. For six seconds, the way into the heart of the Authority stood unlocked.",
       "narrate_ko": "전방에서 모노리스의 외벽이 흰 예복의 행렬을 위해 열렸다. 여섯 초 동안, 관리국의 심장으로 들어가는 길이 잠기지 않은 채 서 있었다."
+    },
+    {
+      "requires_flag": "ch19_gesture_key",
+	  "cg": "res://assets/cg/generated/memory_key_single_signature.png",
+	  "fade": 0.8,
+      "narrate": "At the barrier, the scanners read their linked hands as a single signature and waved one person through where two had walked. Elia looked down at their fingers, then up. 'It survived Lumea,' she said quietly. 'The whitest place on the continent, and it is still ours.'",
+      "narrate_ko": "차단벽에서 스캐너는 맞잡은 두 손을 하나의 시그니처로 읽었고, 두 사람이 지나간 자리에 한 사람만을 통과시켰다. 엘리아가 맞잡은 손가락을 내려다보고, 다시 그를 올려다보았다. '루메아에서도 살아남았네.' 그녀가 조용히 말했다. '대륙에서 가장 흰 곳에서도, 이건 아직 우리 거야.'"
     },
     {
       "complete_chapter": 19,

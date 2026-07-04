@@ -7,6 +7,17 @@ const TILE: int = 32
 # S41: 셰이더 캐시 (한번 로드한 셰이더 재사용)
 static var _shader_cache: Dictionary = {}
 
+## S160: gameplay clarity is the default. Story CG/VN presentation is untouched;
+## only screen-space effects layered over interactive maps are suppressed.
+static func _clean_gameplay_view() -> bool:
+	return OptionsMenu == null or OptionsMenu.is_clean_gameplay_visuals()
+
+static func _empty_layer(parent: Node, layer_index: int = 0) -> CanvasLayer:
+	var layer := CanvasLayer.new()
+	layer.layer = layer_index
+	parent.add_child(layer)
+	return layer
+
 static func _get_shader(path: String) -> Shader:
 	if _shader_cache.has(path):
 		return _shader_cache[path]
@@ -20,6 +31,8 @@ static func _get_shader(path: String) -> Shader:
 ## parent에 추가된 ColorRect들을 반환 (caller가 _process에서 업데이트)
 static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, height: int, water_index: int) -> Array[ColorRect]:
 	var shimmers: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return shimmers
 	var shader_path = "res://assets/shaders/water_distortion.gdshader"
 	var shader_res = _get_shader(shader_path)
 	var has_shader = shader_res != null
@@ -132,6 +145,10 @@ static func update_lantern_lights(lights: Array[ColorRect], time: float) -> void
 ## S59 호환: 맵별로 크기/색상/수량 커스터마이즈 가능
 static func add_void_particles(parent: Node2D, map_width: float = 640.0, map_height: float = 640.0, color_override: Color = Color(0, 0, 0, 0), amount: int = 25) -> GPUParticles2D:
 	var particles = GPUParticles2D.new()
+	if _clean_gameplay_view():
+		particles.emitting = false
+		parent.add_child(particles)
+		return particles
 	var mat = ParticleProcessMaterial.new()
 
 	mat.direction = Vector3(0, -0.3, 0)
@@ -192,6 +209,8 @@ static func add_void_particles(parent: Node2D, map_width: float = 640.0, map_hei
 
 ## 맵 비네트 오버레이 — 셰이더 기반 원형 비네트 (S40)
 static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 3)
 	var layer = CanvasLayer.new()
 	layer.layer = 3  # 맵 위, UI 아래
 
@@ -216,6 +235,8 @@ static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 
 ## 안개 효과 (CanvasLayer 기반 — 카메라 독립)
 static func add_fog(parent: Node, color: Color = Color(0.2, 0.2, 0.25, 0.08)) -> Array[ColorRect]:
+	if _clean_gameplay_view():
+		return []
 	var layer = CanvasLayer.new()
 	layer.layer = 2  # 비네트 아래
 
@@ -374,6 +395,8 @@ static func _get_chapter_art_path(chapter_num: int) -> String:
 
 ## 비 효과 (CanvasLayer 기반)
 static func add_rain(parent: Node, intensity: float = 1.0, color: Color = Color(0.6, 0.65, 0.8, 0.3)) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 2)
 	var layer = CanvasLayer.new()
 	layer.layer = 2
 	var particles = GPUParticles2D.new()
@@ -399,6 +422,8 @@ static func add_rain(parent: Node, intensity: float = 1.0, color: Color = Color(
 
 ## 눈 효과 (CanvasLayer 기반)
 static func add_snow(parent: Node, intensity: float = 1.0) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 2)
 	var layer = CanvasLayer.new()
 	layer.layer = 2
 	var particles = GPUParticles2D.new()
@@ -424,6 +449,8 @@ static func add_snow(parent: Node, intensity: float = 1.0) -> CanvasLayer:
 
 ## 짙은 안개 (CanvasLayer 기반, 동적 불투명도)
 static func add_heavy_fog(parent: Node, color: Color = Color(0.3, 0.3, 0.35, 0.12)) -> Array[ColorRect]:
+	if _clean_gameplay_view():
+		return []
 	var layer = CanvasLayer.new()
 	layer.layer = 2
 	var fogs: Array[ColorRect] = []
@@ -470,6 +497,8 @@ static func update_fog(fogs: Array[ColorRect], time: float) -> void:
 ## 풀 타일에 흔들리는 풀잎 오버레이 추가
 static func add_grass_sway(parent: Node2D, map_data: Array, width: int, height: int, grass_index: int) -> Array[ColorRect]:
 	var blades: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return blades
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
@@ -498,6 +527,8 @@ static func update_grass_sway(blades: Array[ColorRect], time: float) -> void:
 ## 횃불/랜턴에 불꽃 파티클 추가
 static func add_fire_particles(parent: Node2D, map_data: Array, width: int, height: int, lantern_index: int) -> Array[GPUParticles2D]:
 	var fires: Array[GPUParticles2D] = []
+	if _clean_gameplay_view():
+		return fires
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
@@ -535,7 +566,7 @@ static func add_fire_particles(parent: Node2D, map_data: Array, width: int, heig
 ## 맵에 환경 조명 추가 (CanvasModulate로 전체 어둡게 + PointLight2D)
 static func add_ambient_lighting(parent: Node2D, ambient_color: Color = Color(0.6, 0.6, 0.7, 1.0)) -> CanvasModulate:
 	var modulate = CanvasModulate.new()
-	modulate.color = ambient_color
+	modulate.color = Color.WHITE if _clean_gameplay_view() else ambient_color
 	parent.add_child(modulate)
 	return modulate
 
@@ -757,6 +788,8 @@ static func _add_crystal_silhouette(layer: ParallaxLayer, pos: Vector2, color: C
 
 ## 반딧불 파티클 (숲/Seam 맵용)
 static func add_fireflies(parent: Node, count: int = 15, color: Color = Color(0.6, 0.9, 0.4, 0.6)) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 2)
 	var layer = CanvasLayer.new()
 	layer.layer = 2
 
@@ -794,6 +827,8 @@ static func add_fireflies(parent: Node, count: int = 15, color: Color = Color(0.
 
 ## 대기 열 왜곡 (해안/시장 맵용 — BackBufferCopy + 셰이더)
 static func add_heat_haze(parent: Node, strength: float = 0.003) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 1)
 	var shader_path = "res://assets/shaders/heat_haze.gdshader"
 	var shader_res = _get_shader(shader_path)
 	if shader_res == null:
@@ -834,6 +869,8 @@ static func update_ambient_pulse(modulate: CanvasModulate, base_color: Color, ti
 ## 기억 연소 비율에 따라 화면 채도를 낮추는 오버레이 (CanvasLayer)
 ## burn_count가 높을수록 세계가 회색으로 빠져감 + 보이드 보라 틴트
 static func add_burn_desaturation(parent: Node) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 3)
 	var burn_count = MemoryManager.get_burn_count()
 	if burn_count <= 0:
 		return null  # 연소 없으면 효과 없음
@@ -901,6 +938,8 @@ static func add_tile_occluders(parent: Node2D, map_data: Array, width: int, heig
 ## ===================== S52: 컬러 그레이딩 포스트프로세스 =====================
 ## 맵별 분위기 색조 보정 (셰이더 기반)
 static func add_color_grading(parent: Node2D, settings: Dictionary) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 4)
 	var layer = CanvasLayer.new()
 	layer.layer = 4  # 비네트(3) 위
 
@@ -931,6 +970,8 @@ static func add_color_grading(parent: Node2D, settings: Dictionary) -> CanvasLay
 ## This is screen-space so every map can gain a stronger authored look without
 ## rewriting tile or prop construction.
 static func add_premium_map_lens(parent: Node2D, settings: Dictionary = {}) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, int(settings.get("layer", 5)))
 	var layer = CanvasLayer.new()
 	layer.layer = int(settings.get("layer", 5))
 
@@ -1018,6 +1059,8 @@ static func add_drop_shadow(character: Node2D) -> ColorRect:
 ## 꽃가루/포자 파티클 (숲 맵)
 static func add_pollen_particles(parent: Node2D, count: int = 15, area: Vector2 = Vector2(800, 600), color: Color = Color(0.8, 0.85, 0.5, 0.3)) -> Array[ColorRect]:
 	var particles: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return particles
 	for i in range(count):
 		var p = ColorRect.new()
 		p.size = Vector2(randf_range(2, 4), randf_range(2, 4))
@@ -1059,6 +1102,8 @@ static func update_pollen(particles: Array, time: float, delta: float) -> void:
 ## 재/잿가루 파티클 (황무지/보이드 맵)
 static func add_ash_particles(parent: Node2D, count: int = 20, area: Vector2 = Vector2(800, 600), color: Color = Color(0.4, 0.35, 0.3, 0.25)) -> Array[ColorRect]:
 	var particles: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return particles
 	for i in range(count):
 		var p = ColorRect.new()
 		var sz = randf_range(1.5, 3.5)
@@ -1099,6 +1144,8 @@ static func update_ash(particles: Array, time: float, delta: float) -> void:
 ## 보이드 촉수/와이프 파티클 (보이드 맵 전용)
 static func add_void_tendrils(parent: Node2D, count: int = 6, area: Vector2 = Vector2(800, 600)) -> Array[ColorRect]:
 	var tendrils: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return tendrils
 	for i in range(count):
 		var t = ColorRect.new()
 		t.size = Vector2(randf_range(2, 4), randf_range(40, 100))
@@ -1132,6 +1179,8 @@ static func update_void_tendrils(tendrils: Array, time: float, _delta: float = 0
 ## ===================== S52: 스무스 카메라 =====================
 ## 카메라 설정 헬퍼 (플레이어에 Camera2D 부착)
 static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient_shake_intensity: float = 0.0) -> Camera2D:
+	if _clean_gameplay_view():
+		ambient_shake_intensity = 0.0
 	# 기존 카메라 체크 — S57: 기존 카메라의 줌을 유지 (player.tscn Camera2D)
 	for child in player.get_children():
 		if child is Camera2D:
@@ -1174,11 +1223,18 @@ static func camera_event_zoom(cam: Camera2D, target_zoom: float, duration: float
 static func camera_ambient_shake(cam: Camera2D, intensity: float = 0.5) -> void:
 	if cam == null:
 		return
+	if _clean_gameplay_view():
+		cam.set_meta("ambient_shake", 0.0)
+		cam.offset = Vector2.ZERO
+		return
 	cam.set_meta("ambient_shake", intensity)
 
 ## 카메라 미세 흔들림 업데이트 (_process에서 호출)
 static func update_camera_shake(cam: Camera2D, time: float) -> void:
 	if cam == null:
+		return
+	if _clean_gameplay_view():
+		cam.offset = Vector2.ZERO
 		return
 	var intensity: float = cam.get_meta("ambient_shake", 0.0)
 	if intensity <= 0.0:
@@ -1251,11 +1307,15 @@ static func add_lightning(parent: Node2D) -> ColorRect:
 	flash.z_index = 10
 	flash.set_meta("next_flash", randf_range(8.0, 25.0))
 	flash.set_meta("timer", 0.0)
+	flash.set_meta("clarity_disabled", _clean_gameplay_view())
 	parent.add_child(flash)
 	return flash
 
 static func update_lightning(flash_rect: ColorRect, delta: float) -> void:
 	if flash_rect == null or not is_instance_valid(flash_rect):
+		return
+	if flash_rect.get_meta("clarity_disabled", false):
+		flash_rect.color.a = 0.0
 		return
 	var timer = flash_rect.get_meta("timer", 0.0) + delta
 	var next = flash_rect.get_meta("next_flash", 15.0)
@@ -1274,6 +1334,8 @@ static func update_lightning(flash_rect: ColorRect, delta: float) -> void:
 ## 4px 밝은 점이 사인파 경로를 따라 천천히 떠다님
 static func add_drifting_fireflies(parent: Node2D, count: int = 10, area: Vector2 = Vector2(800, 576), color: Color = Color(0.6, 0.95, 0.4, 0.6)) -> Array[ColorRect]:
 	var flies: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return flies
 	for i in range(count):
 		var fly = ColorRect.new()
 		fly.size = Vector2(3, 3)
@@ -1318,6 +1380,8 @@ static func update_drifting_fireflies(flies: Array[ColorRect], time: float) -> v
 ## 낙엽 효과 (나무에서 떨어지는 작은 잎사귀)
 static func add_falling_leaves(parent: Node2D, count: int = 8, area: Vector2 = Vector2(800, 576), color: Color = Color(0.45, 0.55, 0.2, 0.5)) -> Array[ColorRect]:
 	var leaves: Array[ColorRect] = []
+	if _clean_gameplay_view():
+		return leaves
 	for i in range(count):
 		var leaf = ColorRect.new()
 		leaf.size = Vector2(randi_range(3, 5), randi_range(3, 5))
@@ -1369,6 +1433,8 @@ static func update_falling_leaves(leaves: Array[ColorRect], time: float, delta: 
 ## 플레이타임 기반 시간대 색상 시프트 (CanvasLayer 오버레이)
 ## ~30분 실시간 주기: 새벽(따뜻) → 낮(중립) → 황혼(차가움) → 밤(어두움)
 static func add_time_of_day(parent: Node2D) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, 5)
 	var layer = CanvasLayer.new()
 	layer.layer = 5
 
@@ -1470,6 +1536,8 @@ static func update_lore_glows(parent: Node2D, time: float) -> void:
 
 ## 맵 진입 시 테마별 파티클 버스트 (자동 소멸)
 static func spawn_transition_particles(parent: Node, biome: String = "forest") -> void:
+	if _clean_gameplay_view():
+		return
 	var layer = CanvasLayer.new()
 	layer.layer = 6
 
@@ -1812,6 +1880,8 @@ static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time:
 ## 맵에 깊이감 있는 프로시저럴 안개 추가 (대형 블러 렉트가 천천히 드리프트)
 ## 바이옴별 밀도/색상/속도 조절
 static func add_fog_layer(map: Node2D, density: float = 0.5, color: Color = Color(0.3, 0.3, 0.35, 0.06), speed: float = 3.0) -> Array[ColorRect]:
+	if _clean_gameplay_view():
+		return []
 	var fog_count = int(3 + density * 3)  # 3~6개 안개 렉트
 	var fogs: Array[ColorRect] = []
 
@@ -1865,6 +1935,8 @@ static func update_fog_layer(fogs: Array[ColorRect], time: float) -> void:
 ## 풀/덤불 타일에 미세한 수평 흔들림 적용 (사인파 x 오프셋)
 ## _process에서 호출할 필요 없음 — 트윈 기반 자동 루프
 static func add_wind_sway(map: Node2D, strength: float = 2.0) -> void:
+	if _clean_gameplay_view():
+		return
 	# 맵의 기존 풀잎 오버레이(ColorRect)에 바람 흔들림 메타 추가
 	# S43 add_grass_sway로 만든 blade들에 적용
 	for child in map.get_children():
@@ -1888,6 +1960,8 @@ static func update_wind_sway(map: Node2D, time: float) -> void:
 ## 맵 상단을 약간 밝게, 하단을 약간 어둡게 하는 수직 그라디언트 오버레이
 ## 머리 위 광원 시뮬레이션 (5~10% 차이)
 static func add_depth_gradient(map: Node2D, intensity: float = 0.08) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(map, 2)
 	var layer = CanvasLayer.new()
 	layer.layer = 2  # 안개와 같은 레이어
 
@@ -1925,6 +1999,8 @@ static func add_depth_gradient(map: Node2D, intensity: float = 0.08) -> CanvasLa
 ## Curated CG plates as subtle in-map atmosphere.
 ## S133: Never draw these above gameplay. They are background mood only.
 static func add_illustration_atmosphere(parent: Node, texture_path: String, alpha: float = 0.12, tint: Color = Color(1, 1, 1, 1), layer_index: int = -20) -> CanvasLayer:
+	if _clean_gameplay_view():
+		return _empty_layer(parent, mini(layer_index, -20))
 	if texture_path == "" or not ResourceLoader.exists(texture_path):
 		return null
 
