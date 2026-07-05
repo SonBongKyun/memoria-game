@@ -225,6 +225,8 @@ func _ready() -> void:
 	_setup_blip_player()
 	_setup_narration_sfx()
 	_connect_signals()
+	if InputManager and not InputManager.input_mode_changed.is_connected(_refresh_indicator_text):
+		InputManager.input_mode_changed.connect(_refresh_indicator_text)
 	hide_box()
 	print("[DialogueBox] Ready")
 
@@ -631,7 +633,7 @@ func _build_ui() -> void:
 
 	# 다음 대사 표시기 (triangle)
 	indicator = Label.new()
-	indicator.text = "NEXT"
+	indicator.text = ""
 	UITheme.apply_ui_font(indicator)
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	indicator.add_theme_font_size_override("font_size", 10)
@@ -783,7 +785,7 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 	text_label.text = ""
 	is_typing = true
 	typewriter_timer = 0.0
-	_set_indicator_visible(false)
+	_set_indicator_visible(true)
 
 ## S54: Parse direction tags from dialogue text
 ## Supports: [shake], [slow], [fast], [pause=N], [zoom=N], [pan=X,Y], [reset]
@@ -859,6 +861,7 @@ func _parse_direction_tags(text: String) -> Dictionary:
 func _on_dialogue_choice(choices: Array) -> void:
 	_clear_choices()
 	_auto_advance_active = false
+	_set_indicator_visible(false)
 	choice_container.visible = true
 
 	for i in range(choices.size()):
@@ -1149,6 +1152,7 @@ func _clear_choices() -> void:
 func _set_indicator_visible(on: bool) -> void:
 	if indicator == null:
 		return
+	_refresh_indicator_text()
 	if _indicator_tween:
 		_indicator_tween.kill()
 	_indicator_tween = null
@@ -1160,6 +1164,14 @@ func _set_indicator_visible(on: bool) -> void:
 	_indicator_tween = create_tween().set_loops()
 	_indicator_tween.tween_property(indicator, "modulate:a", 1.0, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_indicator_tween.tween_property(indicator, "modulate:a", 0.54, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+func _refresh_indicator_text(_mode = null) -> void:
+	if indicator == null or InputManager == null:
+		return
+	var key := InputManager.get_icon("interact")
+	var is_ko := GameManager.current_locale == "ko"
+	var verb := ("건너뛰기" if is_ko else "Skip") if is_typing else ("계속" if is_ko else "Continue")
+	indicator.text = "[%s] %s" % [key, verb]
 
 ## 박스 표시/숨김
 func show_box() -> void:
@@ -1210,6 +1222,13 @@ func hide_box() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not DialogueManager.is_active:
 		return
+
+	if choice_container.visible and event is InputEventKey and event.pressed and not event.echo:
+		var number: int = int(event.keycode) - int(KEY_1)
+		if number >= 0 and number < choice_container.get_child_count():
+			_on_choice_selected(number)
+			get_viewport().set_input_as_handled()
+			return
 
 	if event.is_action_pressed("interact"):
 		# S54: Cancel pause on interact

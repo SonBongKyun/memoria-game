@@ -50,6 +50,8 @@
       "narrate_ko": "[ 불이 명령을 기다린다. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch23_name_unspooled.png",
+      "fade": 1.0,
       "narrate": "He reached down past everything, to the name at the bottom, and let it go. The fire was white — the color of everything and nothing at once — and the wave took it and became vast.",
       "narrate_ko": "그는 모든 것 아래로, 바닥에 있는 이름에까지 손을 뻗어, 그것을 놓아 보냈다. 불은 백색이었다 — 모든 것이면서 동시에 아무것도 아닌 색 — 파동은 그것을 받아 광대해졌다."
     },
@@ -63,6 +65,8 @@
       "start_index": 13
     },
     {
+      "cg": "res://assets/cg/generated/ch23_braided_conversion.png",
+      "fade": 1.0,
       "narrate": "He did not reach for the name. He reached for all of it — every memory carried instead of spent, offered whole. The fire came out braided, every color the Seam had ever bled, and the wave took the weave and learned its shape.",
       "narrate_ko": "그는 이름에 손을 뻗지 않았다. 전부에 손을 뻗었다 — 소모하는 대신 짊어지고 온 모든 기억을, 온전한 채로 내밀었다. 불은 땋인 채로 흘러나왔다. 씸이 흘려 온 모든 색깔로. 파동은 그 엮임을 받아 자신의 형태를 배웠다."
     },
@@ -76,6 +80,8 @@
       "start_index": 13
     },
     {
+      "cg": "res://assets/cg/generated/ch23_partial_shoreline.png",
+      "fade": 1.0,
       "narrate": "He kept the name and pushed with everything else. The wave rose, reached Lumea, reached the near Belt — and thinned. It was not everything. It was a beginning that knew it was a beginning.",
       "narrate_ko": "그는 이름을 지킨 채 나머지 전부로 밀어붙였다. 파동은 솟아올라 루메아에 닿고, 가까운 벨트에 닿았다 — 그리고 옅어졌다. 전부는 아니었다. 자신이 시작임을 아는, 시작이었다."
     },

@@ -108,6 +108,8 @@
       "start_index": 14
     },
     {
+      "cg": "res://assets/cg/generated/ch17_storm_center_fall.png",
+      "fade": 0.9,
       "narrate": "The storm reached its center. Elia fell first. Tobias followed, both hands locked around the notebook.",
       "narrate_ko": "폭풍이 중심에 도달했습니다. 엘리아가 먼저 넘어졌습니다. 토비아스는 양손을 노트북에 쥔 채 뒤따랐습니다."
     },
@@ -140,6 +142,8 @@
     },
     {
       "set_flag": "storm_survived",
+      "cg": "res://assets/cg/generated/ch17_storm_afterimage.png",
+      "fade": 1.6,
       "narrate": "The storm passed east. Nothing it touched returned with exactly the same edges.",
       "narrate_ko": "폭풍은 동쪽으로 지나갔습니다. 그것이 만진 어떤 것도 정확히 동일한 가장자리로 반환되지 않았습니다."
     },

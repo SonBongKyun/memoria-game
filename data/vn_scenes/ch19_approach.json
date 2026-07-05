@@ -91,6 +91,8 @@
       "narrate_ko": "[ 검문소가 기다린다. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch19_blank_first_impression.png",
+      "fade": 0.8,
       "narrate": "He burned his first sight of the shadowless city. Light became speed. The checkpoint scanners read a man with no first impression at all, and let him pass as no one.",
       "narrate_ko": "그는 그림자 없는 도시를 처음 본 순간을 태웠다. 빛이 속도가 되었다. 검문 스캐너는 첫인상이 존재하지 않는 남자를 읽었고, 아무도 아닌 자로 통과시켰다."
     },
@@ -107,6 +109,8 @@
       "start_index": 16
     },
     {
+      "cg": "res://assets/cg/generated/ch19_han_wire_note.png",
+      "fade": 0.8,
       "narrate": "They kept everything and moved at the speed of a song. Han's note stretched thin as wire. At the last barrier her scar tore, and the note ended in blood she wiped away before anyone could name it.",
       "narrate_ko": "그들은 아무것도 태우지 않고 노래의 속도로 움직였다. 한의 음이 철사처럼 가늘게 늘어났다. 마지막 차단벽에서 그녀의 흉터가 찢어졌고, 음은 누구도 이름 붙이기 전에 그녀가 닦아 낸 피로 끝났다."
     },
@@ -120,6 +124,8 @@
     {
       "narrate": "Inside the outer ring, a runner from the Seam found them — hollow-eyed, carrying a ledger wrapped in oilcloth. Sable's ledger. The Seam's watch post had gone dark nine days ago, and she had gone dark with it.",
       "narrate_ko": "외곽 순환로 안쪽에서 씸의 전령이 그들을 찾아냈다 — 퀭한 눈에, 기름천으로 감싼 장부를 안고서. 세이블의 장부였다. 씸의 감시초소는 아흐레 전에 어두워졌고, 그녀도 그와 함께 어두워졌다.",
+      "cg": "res://assets/cg/generated/ch19_sables_ledger_arrives.png",
+      "fade": 0.9,
       "set_flag": "sable_death_notified"
     },
     {

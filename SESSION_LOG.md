@@ -5760,3 +5760,78 @@ Two complete hand-made sprite sheets were sitting unused in the repo: `assets/sp
 - Direct headless load of `vn_host.tscn` passed without script or parse errors.
 - All 94 path-based active VN CG references resolve; all ten new assets and import metadata passed the 1672x941 RGB audit.
 - `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S164 - 2026-07-05 (Choice-result and conversion illustration pass)
+
+### Done
+- Reviewed the current Claude-authored gameplay/VN structure and identified the largest remaining visual gaps immediately after major burn/keep choices.
+- Generated and integrated thirteen new CGs across Chapters 15, 16, 19, 21, 22, and 23.
+- Completed paired visual outcomes for Han's lullaby, Lumea's checkpoint, the Editor chamber, Elia's relay choice, and all three core conversion routes.
+- Added a dedicated story CG for the delivery of Sable's tactile ledger.
+- Attached every image to an existing VN step, preserving all branch indices and scene routing.
+- Registered all thirteen images in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+
+### Art direction
+- Used live chapter CGs as direct references for architecture, lighting, costumes, props, and energy effects.
+- Rejected one draft whose foreground figure drifted from established identity and replaced it with a back-facing, ledger-led composition.
+- Every final image is designed as a clean 1672x941 RGB plate with a quiet lower dialogue zone.
+- Prompts excluded grain, photo noise, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring particles.
+
+### Verification
+- Godot 4.6.2 imported all thirteen CGs and parsed the project without script or parse errors; only the known third-party addon shutdown warnings remain.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- Field Focus smoke passed with `maps=10`, one charge consumed, and battle opening at Resonance 25 / Limit 20.
+- Visual clarity/battle-sheet smoke passed with `fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1`.
+- Direct headless load of `vn_host.tscn` passed without script or parse errors.
+- All 107 path-based active VN CG references resolve; all thirteen new assets and import metadata passed the 1672x941 RGB audit.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S165 - 2026-07-05 (Interface clarity and mid-story illustration pass)
+
+### UI / UX
+- Replaced the full-screen Exploration HUD decoration with the compact plate whenever Clear Gameplay View is active, keeping the playfield unobstructed by default.
+- Added a compact lower-right exploration control strip that switches instantly between keyboard and controller prompts for Interact, Memory Pulse, Archive, and Menu.
+- Added the missing Memory Pulse input glyph mapping (`Q` / `Y`) to `InputManager`.
+- Upgraded dialogue guidance from a generic `NEXT` label to input-aware `Skip / Continue` and localized Korean equivalents.
+- Added direct number-key selection for dialogue choices while retaining controller focus navigation.
+- Added an input-aware Continue chip to standalone CG viewing.
+- Corrected the Pause menu footer so controller mode no longer advertises unsupported shoulder-button quick save/load; keyboard mode retains the real F6/F7 shortcuts.
+- Pause footer hints now refresh on input-mode changes and whenever the menu opens.
+
+### Illustrations
+- Generated and connected six new style-locked CGs for Chapters 13, 14, 17, and 18.
+- Added visual consequences for the completed burn signature, Kairós's unsent report, the storm-center collapse, and both Living Funeral outcomes.
+- Rejected an identity-drift rescue draft and regenerated it with Arrel, Elia, and Tobias's established costume colors locked explicitly.
+- Registered all six images in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Attached every CG to an existing VN step, preserving all branch indices.
+
+### Verification
+- Godot 4.6.2 imported all six new CGs and parsed the expanded UI scripts without script or parse errors; only known third-party addon shutdown warnings remain.
+- Enhanced visual-clarity smoke passed with `ui_hints=1`, covering the compact clean-view HUD, keyboard Memory Pulse prompt, dialogue Skip/Continue distinction, CG continue chip, controller-safe Pause footer, and battle animation callback.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- Field Focus smoke passed with `maps=10`, one charge consumed, and battle opening at Resonance 25 / Limit 20.
+- Direct headless load of `vn_host.tscn` passed without script or parse errors.
+- All 113 path-based active VN CG references resolve; all six new assets and import metadata passed the 1672x941 RGB audit.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S166 - 2026-07-05 (Final illustration placement and session closeout)
+
+### Done
+- Generated and integrated four final style-locked CGs across Chapters 12, 16, 17, and 18.
+- Illustrated Pell's returning name, Nera's blank dossier page, the altered calm after the Forgetting Storm, and the monolith's violet answer.
+- Attached every image to an existing VN step so all choice, `goto`, and `start_index` routing remains unchanged.
+- Registered the complete set in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+- Used prop-led, back-facing, and environment-led compositions to preserve established character identity and costume colors.
+- Every final image is a clean 1672x941 RGB plate with the lower 28 percent reserved for dialogue UI and explicit exclusions for grain, photo noise, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring particles.
+
+### Verification
+- Godot 4.6.2 imported all four CGs and loaded the expanded project without script or parse errors; only the known third-party addon and shutdown cleanup warnings remain.
+- VN validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- Visual clarity smoke passed with `fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1`.
+- Field Focus smoke passed with `maps=10`, one charge consumed, and battle opening at Resonance 25 / Limit 20.
+- Direct headless load of `vn_host.tscn` passed without script or parse errors.
+- All 117 active VN CG references resolve to 105 unique files; all four new assets and import metadata passed the 1672x941 RGB audit.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.

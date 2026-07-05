@@ -4,6 +4,8 @@
   "chapter": 13,
   "steps": [
     {
+      "cg": "res://assets/cg/generated/ch13_tobias_reading_wall.png",
+      "fade": 1.0,
       "set_chapter": 13,
       "autosave_chapter_transition": true,
       "narrate": "Tobias found them beneath Arkein's eastern reading wall. He arrived angry enough to forget caution.",

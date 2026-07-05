@@ -256,3 +256,47 @@ Together with the four S157 plates, all ten `MemoryResonance.RESONANCE_POINTS` m
 | `ch22_core` | The primal log completes itself as an address | `ch22_book_becomes_address.png` | `ch22_monolith_core.png` + `ch22_conversion_threshold.png` |
 
 All ten CGs were generated with GPT Image as clean 1672x941 RGB plates and attached to existing VN steps, preserving every choice and `goto` index. The set remains environment-led or uses anonymous silhouettes so no unfinalized face or costume canon is introduced. Every prompt reserved a quiet lower dialogue zone and explicitly excluded film/photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-blocking fog.
+
+## S164 choice-result and conversion set
+
+| Runtime scene / branch | Story beat | Asset | Direct style reference |
+|---|---|---|---|
+| `ch15_singer` / burn | The final lullaby note becomes a route and disappears | `ch15_burned_last_note.png` | `ch15_echo_shell_awakening.png` |
+| `ch15_singer` / keep | Han repeats the intact refrain until dawn | `ch15_dawn_refrain.png` | `ch15_echo_shell_awakening.png` |
+| `ch16_nera` / keep | The party preserves the map while the patrol closes | `ch16_checkpoint_pursuit.png` | `ch16_nera_checkpoint.png` + `ch16_eastward_road.png` |
+| `ch19_approach` / burn | Arrel crosses Lumea after burning his first impression | `ch19_blank_first_impression.png` | `env_lumea_sanctum.png` + `ch19_monolith_gates.png` |
+| `ch19_approach` / keep | Han stretches one sustaining note across the barrier | `ch19_han_wire_note.png` | `ch19_monolith_gates.png` + `ch15_echo_shell_awakening.png` |
+| `ch19_approach` | Sable's tactile ledger reaches the outer ring | `ch19_sables_ledger_arrives.png` | `ch19_monolith_gates.png` + `ending_weave_sable_ledger.png` |
+| `ch21_editors_turn` / burn | Seventeen ledger names become a wall against Belor | `ch21_seventeen_name_wall.png` | `ch21_kairos_confront.png` + `ending_weave_sable_ledger.png` |
+| `ch21_editors_turn` / retreat | Kairós's notebook burns in orderly white flame | `ch21_notebook_white_flame.png` | `ch21_kairos_confront.png` + `ch21_unlisted_stair.png` |
+| `ch22_core` / accept | Arrel steps back and lets Elia become the reader | `ch22_relay_accepts_elia.png` | `ch22_monolith_core.png` + `ch22_book_becomes_address.png` |
+| `ch22_core` / refuse | Joined hands prevent the doorway from standing alone | `ch22_anchor_refusal.png` | `ch22_monolith_core.png` + `memory_key_relay_anchor.png` |
+| `ch23_conversion` / zero burn | Arrel's name unspools through the Monolith | `ch23_name_unspooled.png` | `ch23_conversion_wave.png` + `ending_zero_burn_trying_name.png` |
+| `ch23_conversion` / weave | Intact memories braid the torn core together | `ch23_braided_conversion.png` | `ch23_conversion_wave.png` + `ending_weave_colors_return.png` |
+| `ch23_conversion` / preservation | The conversion wave forms a shoreline before the far towns | `ch23_partial_shoreline.png` | `ch23_conversion_wave.png` + `ending_preservation_return.png` |
+
+All thirteen plates were generated with built-in GPT Image and attached to existing choice-result steps, so every `goto` and `start_index` remains stable. Direct chapter art locked the architecture, palette, costume silhouettes, and energy language. A draft with character identity drift was rejected and replaced by the final back-facing, prop-led `ch21_seventeen_name_wall.png`. Every final prompt reserved a quiet lower dialogue zone and excluded film/photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring particles.
+
+## S165 mid-story consequence set
+
+| Runtime scene | Story beat | Asset | Direct style reference |
+|---|---|---|---|
+| `ch13_third_person` | Tobias confronts the party beneath Arkein's reading wall | `ch13_tobias_reading_wall.png` | `ch13_relay_decoded.png` |
+| `ch14_confessor_intervention` | The dying hall completes Arrel's burn signature | `ch14_signature_registered.png` | `ch14_confessor_hall.png` + `ch14_arrel_burn_slash.png` |
+| `ch14_confessor_intervention` | Kairós closes an incident report instead of sending it | `ch14_unsent_incident_report.png` | `ch21_kairos_confront.png` + `kairos_reference_turnaround.png` |
+| `ch17_forgetting_storm` | Elia and Tobias fall at the center of the storm | `ch17_storm_center_fall.png` | `ch17_oblivion_storm.png` + `ch17_arrel_resist.png` |
+| `ch18_living_funeral` / rescued | Tobias leaves the broken platform alive | `ch18_tobias_rescued_aftermath.png` | `ch18_living_funeral.png` + `ch18_tobias_close.png` |
+| `ch18_living_funeral` / lost | The crowd remembers an empty human-shaped absence | `ch18_crowd_forgets_tobias.png` | `ch18_witness_without_name.png` + `ch18_broken_funeral_platform.png` |
+
+All six plates were generated with built-in GPT Image and attached to existing VN steps without shifting branch indices. A first rescued-Tobias draft was rejected because it flattened all three costumes into black; the final version restores Arrel's blue armor, Elia's white-gold cloak, and Tobias's dark archivist coat. The common prompt set preserved a quiet lower dialogue zone and excluded grain, photo noise, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring clutter.
+
+## S166 final session illustration set
+
+| Runtime scene | Story beat | Asset | Direct style reference |
+|---|---|---|---|
+| `ch12_reader` | Pell's hidden name returns beneath Elia's thumb | `ch12_pell_name_returns.png` | `ch12_hidden_passage.png` |
+| `ch16_nera` | Nera finds a page already erased from her dossier | `ch16_blank_dossier_page.png` | `ch16_nera_checkpoint.png` |
+| `ch17_forgetting_storm` | The storm recedes and leaves subtly altered edges | `ch17_storm_afterimage.png` | `ch17_storm_center_fall.png` |
+| `ch18_living_funeral` | The eastern monolith answers with violet light | `ch18_monolith_answers.png` | `ch18_living_funeral.png` |
+
+All four plates were generated with built-in GPT Image and attached to existing VN steps, preserving every branch index. The set uses prop-led, back-facing, or environment-led compositions to protect established identities and reserves the lower 28 percent for dialogue UI. Prompts excluded film or photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring particles.

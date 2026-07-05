@@ -124,11 +124,15 @@
       "start_index": 18
     },
     {
+      "cg": "res://assets/cg/generated/ch18_tobias_rescued_aftermath.png",
+      "fade": 0.9,
       "requires_flag": "tobias_funeral_rescued",
       "narrate": "Tobias stumbled from the broken platform alive, missing several small habits and none of his anger.",
       "narrate_ko": "토비아스는 깨진 단상에서 살아서 비틀거리며 몇 가지 작은 습관도 잃어버렸고 분노도 전혀 없었습니다."
     },
     {
+      "cg": "res://assets/cg/generated/ch18_crowd_forgets_tobias.png",
+      "fade": 0.9,
       "requires_flag": "tobias_funeral_lost",
       "narrate": "The crowd remembered that someone had stood on the platform. No one but Arrel and Elia remembered who.",
       "narrate_ko": "군중은 누군가가 단상에 서 있었다는 것을 기억했습니다. 아렐과 엘리아 외에는 누구도 누구인지 기억하지 못했습니다.",
@@ -166,6 +170,8 @@
     },
     {
       "set_flag": "anger_max",
+      "cg": "res://assets/cg/generated/ch18_monolith_answers.png",
+      "fade": 1.8,
       "narrate": "The monolith answered with a line of violet light.",
       "narrate_ko": "기둥은 한 줄의 보라색 빛으로 대답했습니다."
     },

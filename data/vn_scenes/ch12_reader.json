@@ -130,6 +130,8 @@
       "text_ko": "아니요. 내 몸이 그렇습니다. 그게 더 나쁘다."
     },
     {
+      "cg": "res://assets/cg/generated/ch12_pell_name_returns.png",
+      "fade": 1.4,
       "narrate": "The letters vanished when Arrel looked directly at them. Under Elia's thumb, they returned.",
       "narrate_ko": "아렐이 편지를 직접 보았을 때 편지가 사라졌습니다. 엘리아의 손아귀에서 그들은 돌아왔습니다."
     },

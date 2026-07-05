@@ -120,6 +120,8 @@
       "start_index": 17
     },
     {
+      "cg": "res://assets/cg/generated/ch14_signature_registered.png",
+      "fade": 0.9,
       "set_flag": "ch14_confessor_intervention",
       "narrate": "The register completed Arrel's signature as the hall died. The pursuit estimate collapsed from six days to less than three.",
       "narrate_ko": "홀이 죽으면서 등록부는 아렐의 서명을 완성했습니다. 추격 예상일은 6일에서 3일 미만으로 축소됐다."
@@ -146,6 +148,8 @@
       "text_ko": "이 변칙성은 고의적인 것이 되었습니다. 그것은 부패가 아닙니다. 그것이 바로 기능입니다."
     },
     {
+      "cg": "res://assets/cg/generated/ch14_unsent_incident_report.png",
+      "fade": 0.9,
       "set_flag": "signature_registered",
       "narrate": "Far east, Kairós closed the incident report before Belor's name could enter the recipient field.",
       "narrate_ko": "극동 지역인 카이로스는 Belor의 이름이 수신자 필드에 입력되기 전에 사건 보고서를 마감했습니다."

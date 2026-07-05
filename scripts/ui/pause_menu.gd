@@ -14,6 +14,8 @@ var panel: PanelContainer
 var btn_container: VBoxContainer
 var save_info_label: Label
 var title_label: Label
+var pause_hint_label: Label
+var last_saved_label: Label
 
 const PAUSE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_pause_archive_backdrop.png"
 const PAUSE_CONTROL_SLAB_PATH: String = "res://assets/cg/generated/ui_pause_control_slab.png"
@@ -1479,12 +1481,152 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/ch22_book_becomes_address.png",
 		"desc": "The primal log completes itself as a doorway built for a reader who can hold everyone."
 	},
+	{
+		"title": "The Last Note Spent",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch15_burned_last_note.png",
+		"desc": "A buried route opens as the final note of Han's lullaby leaves Arrel forever."
+	},
+	{
+		"title": "Refrain Until Dawn",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch15_dawn_refrain.png",
+		"desc": "Han preserves the melody by repeating it through every candle and into dawn."
+	},
+	{
+		"title": "No Margin at the Checkpoint",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch16_checkpoint_pursuit.png",
+		"desc": "The map survives while the patrol closes on Nera's deliberately open channel."
+	},
+	{
+		"title": "A City Without a First Impression",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch19_blank_first_impression.png",
+		"desc": "Lumea becomes speed after Arrel burns the meaning of seeing it for the first time."
+	},
+	{
+		"title": "A Song Thin as Wire",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch19_han_wire_note.png",
+		"desc": "Han holds one note across the final barrier and pays the price in her own body."
+	},
+	{
+		"title": "Seventeen Names Delivered",
+		"type": "Part III Story CG",
+		"path": "res://assets/cg/generated/ch19_sables_ledger_arrives.png",
+		"desc": "A runner carries Sable's final count into the shadowless city."
+	},
+	{
+		"title": "Seventeen Names Stand",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch21_seventeen_name_wall.png",
+		"desc": "The ledger becomes seventeen lines of heat between Belor and the living."
+	},
+	{
+		"title": "Thirty Years in White Flame",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch21_notebook_white_flame.png",
+		"desc": "Kairós's withheld arithmetic burns with the precision of an official correction."
+	},
+	{
+		"title": "Let Her Be the Reader",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch22_relay_accepts_elia.png",
+		"desc": "Arrel steps back and the primal log bends toward Elia's chosen answer."
+	},
+	{
+		"title": "No Doorway Alone",
+		"type": "Part III Branch CG",
+		"path": "res://assets/cg/generated/ch22_anchor_refusal.png",
+		"desc": "One joined hand keeps the open doorway anchored to a person."
+	},
+	{
+		"title": "The Name at the Bottom",
+		"type": "Part III Climax CG",
+		"path": "res://assets/cg/generated/ch23_name_unspooled.png",
+		"desc": "Arrel releases his own name and the extraction current reverses into gift."
+	},
+	{
+		"title": "A Life Refusing to Come Apart",
+		"type": "Part III Climax CG",
+		"path": "res://assets/cg/generated/ch23_braided_conversion.png",
+		"desc": "Every memory kept whole braids into the line that repairs the conversion."
+	},
+	{
+		"title": "A Shoreline That Can Move",
+		"type": "Part III Climax CG",
+		"path": "res://assets/cg/generated/ch23_partial_shoreline.png",
+		"desc": "The first wave thins at the far towns, leaving a beginning with a visible edge."
+	},
+	{
+		"title": "Anger Under the Reading Wall",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch13_tobias_reading_wall.png",
+		"desc": "Tobias arrives at Arkein carrying ten years of copied margins and one justified accusation."
+	},
+	{
+		"title": "The Register Closes",
+		"type": "Part II Consequence CG",
+		"path": "res://assets/cg/generated/ch14_signature_registered.png",
+		"desc": "The dying Confessor Hall completes a precise record of how Arrel chose to burn."
+	},
+	{
+		"title": "Arithmetic Not Sent",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch14_unsent_incident_report.png",
+		"desc": "Kairós closes the incident report before hesitation can acquire an official name."
+	},
+	{
+		"title": "At the Storm's Center",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch17_storm_center_fall.png",
+		"desc": "Elia and Tobias fall while Arrel remains upright beneath an older rule."
+	},
+	{
+		"title": "Still Angry, Still Here",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch18_tobias_rescued_aftermath.png",
+		"desc": "Tobias leaves the broken platform alive, diminished in habit but not in anger."
+	},
+	{
+		"title": "The Shape the Crowd Forgot",
+		"type": "Part II Branch CG",
+		"path": "res://assets/cg/generated/ch18_crowd_forgets_tobias.png",
+		"desc": "An empty platform holds the public absence that only Arrel and Elia can name."
+	},
+	{
+		"title": "A Name Beneath the Thumb",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch12_pell_name_returns.png",
+		"desc": "A hidden name returns only where Elia's hand keeps contact with the page."
+	},
+	{
+		"title": "The Page Already Gone",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch16_blank_dossier_page.png",
+		"desc": "Nera opens her dossier and finds the first precise absence inside it."
+	},
+	{
+		"title": "Edges After the Storm",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch17_storm_afterimage.png",
+		"desc": "The storm recedes east while the world returns with subtly altered edges."
+	},
+	{
+		"title": "The Monolith Answers",
+		"type": "Part II Story CG",
+		"path": "res://assets/cg/generated/ch18_monolith_answers.png",
+		"desc": "A single violet line turns the distant monolith into a reply."
+	},
 ]
 
 func _ready() -> void:
 	layer = 55  # DialogueBox(50)와 SystemLog(60) 사이
 	_build_ui()
 	_hide_ui()
+	if InputManager and not InputManager.input_mode_changed.is_connected(_on_input_mode_changed):
+		InputManager.input_mode_changed.connect(_on_input_mode_changed)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	print("[PauseMenu] Ready")
 
@@ -1513,6 +1655,7 @@ func _open() -> void:
 	is_open = true
 	get_tree().paused = true
 	_update_save_info()
+	_refresh_footer_hints()
 	if backdrop:
 		backdrop.visible = true
 	if control_slab:
@@ -1729,7 +1872,7 @@ func _build_ui() -> void:
 		btn_container.add_child(btn)
 
 	# S56: Last saved indicator
-	var last_saved_label = Label.new()
+	last_saved_label = Label.new()
 	last_saved_label.name = "LastSavedLabel"
 	last_saved_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	last_saved_label.add_theme_font_size_override("font_size", 11)
@@ -1737,21 +1880,29 @@ func _build_ui() -> void:
 	vbox.add_child(last_saved_label)
 
 	# 하단 조작법 — S56: Dynamic hints based on input mode
-	var hint = Label.new()
-	hint.name = "HintLabel"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 11)
-	hint.add_theme_color_override("font_color", Color(0.4, 0.38, 0.35))
-	vbox.add_child(hint)
-	_update_hint_text(hint, last_saved_label)
+	pause_hint_label = Label.new()
+	pause_hint_label.name = "HintLabel"
+	pause_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pause_hint_label.add_theme_font_size_override("font_size", 11)
+	pause_hint_label.add_theme_color_override("font_color", Color(0.5, 0.47, 0.42))
+	UITheme.apply_ui_font(pause_hint_label)
+	vbox.add_child(pause_hint_label)
+	_update_hint_text(pause_hint_label, last_saved_label)
 
 ## S56: Update hint text based on input mode
 func _update_hint_text(hint_label: Label, last_saved: Label) -> void:
 	if InputManager and InputManager.is_controller_mode():
-		hint_label.text = "[LB] Quick Save  |  [RB] Quick Load  |  [B] Close"
+		hint_label.text = InputManager.get_hint("cancel", "닫기" if GameManager.current_locale == "ko" else "Close")
 	else:
-		hint_label.text = "F6: Quick Save  |  F7: Quick Load"
+		hint_label.text = "F6 빠른 저장  |  F7 빠른 불러오기  |  [Esc] 닫기" if GameManager.current_locale == "ko" else "F6 Quick Save  |  F7 Quick Load  |  [Esc] Close"
 	last_saved.text = SaveManager.get_last_saved_text()
+
+func _on_input_mode_changed(_mode) -> void:
+	_refresh_footer_hints()
+
+func _refresh_footer_hints() -> void:
+	if pause_hint_label and last_saved_label:
+		_update_hint_text(pause_hint_label, last_saved_label)
 
 func _update_save_info() -> void:
 	var chapter_name = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}

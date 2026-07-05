@@ -76,6 +76,8 @@
       "narrate_ko": "[ Branch return. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch16_checkpoint_pursuit.png",
+      "fade": 0.8,
       "narrate": "They kept the map and reached the checkpoint with the patrol visible behind them.",
       "narrate_ko": "그들은 지도를 보관하고 순찰대가 뒤에 보이는 검문소에 도달했습니다."
     },
@@ -146,6 +148,8 @@
       "narrate_ko": "보라색 선은 섬을 지울 만큼 높이 솟아올랐다."
     },
     {
+      "cg": "res://assets/cg/generated/ch16_blank_dossier_page.png",
+      "fade": 1.4,
       "narrate": "Behind them, Nera finally opened the dossier. One page was already blank.",
       "narrate_ko": "그 뒤에서 네라는 마침내 서류를 열었다. 한 페이지는 이미 비어 있었습니다."
     },

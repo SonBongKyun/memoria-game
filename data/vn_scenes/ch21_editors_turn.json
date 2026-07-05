@@ -103,6 +103,8 @@
       "narrate_ko": "[ 벽의 잉크가 움직임을 멈춘다. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch21_seventeen_name_wall.png",
+      "fade": 0.8,
       "narrate": "He burned the weight of her ledger, and seventeen names became a wall of heat between Belor and everything still alive. It held exactly as long as seventeen lives deserve.",
       "narrate_ko": "그는 그녀의 장부가 지닌 무게를 태웠고, 열일곱 개의 이름이 벨로르와 아직 살아 있는 모든 것 사이에서 열의 벽이 되었다. 벽은 열일곱 생애가 마땅히 받을 만큼의 시간 동안, 정확히 그만큼 버텼다."
     },
@@ -119,6 +121,8 @@
       "start_index": 17
     },
     {
+      "cg": "res://assets/cg/generated/ch21_notebook_white_flame.png",
+      "fade": 0.9,
       "narrate": "They fell back into the stairwell of violet records. Behind them, Belor's silence reached the notebook, and thirty years of withheld arithmetic went up in white, orderly flame. Kairós watched his life's work burn without changing expression. Almost.",
       "narrate_ko": "그들은 보랏빛 기록의 계단으로 물러났다. 등 뒤에서 벨로르의 침묵이 수첩에 닿았고, 삼십 년 치의 유보된 산수가 희고 정연한 불꽃으로 타올랐다. 카이로스는 표정을 바꾸지 않은 채 필생의 작업이 타는 것을 지켜보았다. 거의."
     },

@@ -82,6 +82,8 @@
       "narrate_ko": "[ The final note waits inside the shell. ]"
     },
     {
+      "cg": "res://assets/cg/generated/ch15_burned_last_note.png",
+      "fade": 0.8,
       "narrate": "The melody became heat. A buried eastern route opened inside the violet spiral, while its last note vanished from Arrel's mind.",
       "narrate_ko": "멜로디가 뜨거워졌습니다. 보라색 나선 내부에 묻혀 있던 동쪽 길이 열렸고, 그 마지막 음표는 에릴의 마음에서 사라졌습니다."
     },
@@ -98,6 +100,8 @@
       "start_index": 16
     },
     {
+      "cg": "res://assets/cg/generated/ch15_dawn_refrain.png",
+      "fade": 0.9,
       "narrate": "Han repeated the phrase until dawn. No memory burned, but every repetition gave the patrol another minute to close around them.",
       "narrate_ko": "한는 새벽까지 그 말을 반복했다. 기억력이 소진되지는 않았지만 반복할 때마다 순찰대가 주변을 둘러볼 수 있는 시간이 1분씩 늘어났습니다."
     },

@@ -63,6 +63,8 @@ var equip_label: Label    # S41
 var quest_label: Label    # S41
 var quest_progress_bar: ProgressBar  # S57: visual quest progress
 var status_icons_row: HBoxContainer  # S57: status effect icons
+var controls_panel: PanelContainer
+var controls_label: Label
 var location_card: PanelContainer
 var location_art: TextureRect
 var location_title: Label
@@ -79,6 +81,7 @@ var _last_location_key: String = ""
 var _location_card_tween: Tween
 var _hud_plate_base_pos: Vector2 = Vector2.ZERO
 var _hud_plate_target_alpha: float = 0.58
+var _hud_uses_full_overlay: bool = false
 
 func _ready() -> void:
 	layer = 10
@@ -90,7 +93,9 @@ func _ready() -> void:
 
 # ── UI 구성 ──
 func _build_ui() -> void:
-	if ResourceLoader.exists(HUD_ARCHIVE_OVERLAY_PATH):
+	var clean_view := OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals()
+	if not clean_view and ResourceLoader.exists(HUD_ARCHIVE_OVERLAY_PATH):
+		_hud_uses_full_overlay = true
 		hud_plate_art = TextureRect.new()
 		hud_plate_art.texture = load(HUD_ARCHIVE_OVERLAY_PATH)
 		hud_plate_art.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -104,6 +109,7 @@ func _build_ui() -> void:
 		_hud_plate_base_pos = hud_plate_art.position
 		add_child(hud_plate_art)
 	elif ResourceLoader.exists(HUD_PLATE_PATH):
+		_hud_uses_full_overlay = false
 		hud_plate_art = TextureRect.new()
 		hud_plate_art.texture = load(HUD_PLATE_PATH)
 		hud_plate_art.position = Vector2(-2, -4)
@@ -127,6 +133,7 @@ func _build_ui() -> void:
 	))
 	add_child(panel)
 	_build_location_card()
+	_build_controls_strip()
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 3)
@@ -259,6 +266,50 @@ func _build_ui() -> void:
 	for label in [hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
 		UITheme.apply_ui_font(label)
 
+func _build_controls_strip() -> void:
+	controls_panel = PanelContainer.new()
+	controls_panel.anchor_left = 1.0
+	controls_panel.anchor_right = 1.0
+	controls_panel.anchor_top = 1.0
+	controls_panel.anchor_bottom = 1.0
+	controls_panel.offset_left = -548
+	controls_panel.offset_right = -18
+	controls_panel.offset_top = -54
+	controls_panel.offset_bottom = -16
+	controls_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	controls_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.018, 0.016, 0.024, 0.82),
+		Color(0.55, 0.46, 0.32, 0.42),
+		1,
+		5,
+		8
+	))
+	add_child(controls_panel)
+
+	controls_label = Label.new()
+	controls_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	controls_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	controls_label.add_theme_font_size_override("font_size", 12)
+	controls_label.add_theme_color_override("font_color", Color(0.72, 0.69, 0.64))
+	UITheme.apply_ui_font(controls_label)
+	controls_panel.add_child(controls_label)
+	_update_controls_hint()
+
+func _update_controls_hint(_mode = null) -> void:
+	if controls_label == null or InputManager == null:
+		return
+	var is_ko := GameManager.current_locale == "ko"
+	var interact_text := "상호작용" if is_ko else "Interact"
+	var pulse_text := "기억 파동" if is_ko else "Memory Pulse"
+	var archive_text := "기억 서고" if is_ko else "Archive"
+	var menu_text := "메뉴" if is_ko else "Menu"
+	controls_label.text = "  ".join(PackedStringArray([
+		InputManager.get_hint("interact", interact_text),
+		InputManager.get_hint("memory_pulse", pulse_text),
+		InputManager.get_hint("memory_menu", archive_text),
+		InputManager.get_hint("menu", menu_text),
+	]))
+
 func _build_location_card() -> void:
 	location_card = PanelContainer.new()
 	location_card.anchor_left = 1.0
@@ -325,6 +376,8 @@ func _start_timer() -> void:
 
 func _connect_signals() -> void:
 	GameManager.state_changed.connect(_on_state_changed)
+	if InputManager and not InputManager.input_mode_changed.is_connected(_update_controls_hint):
+		InputManager.input_mode_changed.connect(_update_controls_hint)
 	# S57: Listen for memory burned to trigger glow
 	if MemoryManager.has_signal("memory_burned"):
 		MemoryManager.memory_burned.connect(_on_memory_burned)
@@ -336,9 +389,10 @@ func _connect_signals() -> void:
 # ── 상태 변경 시 표시/숨김 ──
 func _on_state_changed(new_state: GameManager.GameState) -> void:
 	var should_show = (new_state == GameManager.GameState.EXPLORATION)
-	if hud_plate_art:
-		hud_plate_art.visible = should_show
 	panel.visible = should_show
+	if controls_panel:
+		controls_panel.visible = should_show
+	_update_decorative_visibility()
 	# S57: Slide-in animation when entering exploration
 	if should_show and not _slide_in_done:
 		_play_slide_in()
@@ -470,6 +524,8 @@ func _update_status_icons() -> void:
 func _update_hud() -> void:
 	if not panel.visible:
 		return
+	_update_controls_hint()
+	_update_decorative_visibility()
 
 	var pd: Dictionary = GameManager.player_data
 	var hp: int = pd.get("hp", 0)
@@ -635,6 +691,12 @@ func _get_player_node() -> Node:
 	if players.is_empty():
 		return null
 	return players[0]
+
+func _update_decorative_visibility() -> void:
+	if hud_plate_art == null:
+		return
+	var suppress_overlay := _hud_uses_full_overlay and OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals()
+	hud_plate_art.visible = panel != null and panel.visible and not suppress_overlay
 
 func _update_location_card() -> void:
 	var key := _get_location_key()

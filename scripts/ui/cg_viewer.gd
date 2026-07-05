@@ -13,6 +13,8 @@ var cg_texture: TextureRect
 var cg_top_wash: ColorRect
 var cg_lower_wash: ColorRect
 var overlay_label: RichTextLabel
+var continue_panel: PanelContainer
+var continue_label: Label
 var tween: Tween
 
 var _closing: bool = false
@@ -27,6 +29,8 @@ func _ready() -> void:
 	_build_ui()
 	_hide_all()
 	DialogueManager.dialogue_line.connect(_on_dialogue_line)
+	if InputManager and not InputManager.input_mode_changed.is_connected(_update_continue_hint):
+		InputManager.input_mode_changed.connect(_update_continue_hint)
 	print("[CgViewer] Ready")
 
 func _build_ui() -> void:
@@ -89,6 +93,35 @@ func _build_ui() -> void:
 	overlay_label.add_theme_color_override("default_color", Color(0.9, 0.87, 0.82))
 	_text_panel.add_child(overlay_label)
 
+	continue_panel = PanelContainer.new()
+	continue_panel.anchor_left = 1.0
+	continue_panel.anchor_right = 1.0
+	continue_panel.anchor_top = 1.0
+	continue_panel.anchor_bottom = 1.0
+	continue_panel.offset_left = -206
+	continue_panel.offset_right = -28
+	continue_panel.offset_top = -62
+	continue_panel.offset_bottom = -24
+	continue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	continue_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.015, 0.013, 0.02, 0.82),
+		Color(0.68, 0.54, 0.33, 0.55),
+		1,
+		5,
+		8
+	))
+	continue_panel.visible = false
+	root.add_child(continue_panel)
+
+	continue_label = Label.new()
+	continue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	continue_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	continue_label.add_theme_font_size_override("font_size", 12)
+	continue_label.add_theme_color_override("font_color", Color(0.86, 0.80, 0.68))
+	UITheme.apply_ui_font(continue_label)
+	continue_panel.add_child(continue_label)
+	_update_continue_hint()
+
 func show_cg(image_path: String, text: String = "", auto_close_sec: float = 0.0, callback: Callable = Callable()) -> void:
 	if not ResourceLoader.exists(image_path):
 		push_error("[CgViewer] Image not found: %s" % image_path)
@@ -118,6 +151,8 @@ func show_cg(image_path: String, text: String = "", auto_close_sec: float = 0.0,
 		close_cg()
 	else:
 		waiting_for_input = true
+		continue_panel.visible = true
+		_update_continue_hint()
 
 func close_cg() -> void:
 	if not is_showing or _closing:
@@ -173,6 +208,8 @@ func _prepare_visible_state(texture_position: Vector2, texture_scale: Vector2) -
 	cg_lower_wash.visible = true
 	is_showing = true
 	waiting_for_input = false
+	if continue_panel:
+		continue_panel.visible = false
 
 func _hide_all() -> void:
 	if bg != null:
@@ -185,6 +222,14 @@ func _hide_all() -> void:
 		cg_lower_wash.visible = false
 	if _text_panel != null:
 		_text_panel.visible = false
+	if continue_panel != null:
+		continue_panel.visible = false
+
+func _update_continue_hint(_mode = null) -> void:
+	if continue_label == null or InputManager == null:
+		return
+	var label := "계속" if GameManager.current_locale == "ko" else "Continue"
+	continue_label.text = InputManager.get_hint("interact", label)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_showing or not waiting_for_input:
