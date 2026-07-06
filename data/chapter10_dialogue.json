@@ -12,7 +12,7 @@
       {
         "speaker": "",
         "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing.",
-        "text_ko": "그 너머에는 어둠이 없습니다. 결석. 현실을 긁어내고, 아무것도 없는 원시적인 기질만 남겨둔 공간."
+        "text_ko": "그 너머 — 어둠이 아니었다. 부재였다. 현실이 긁혀 나간 자리. 무(無)의 맨 기층만 남은 공간."
       },
       {
         "speaker": "",
@@ -41,7 +41,7 @@
       {
         "speaker": "",
         "text": "The Void Hole designated BL-07. This is what happens when the world forgets too much in one place.",
-        "text_ko": "공허 구멍은 BL-07로 지정되었습니다. 세상이 한 곳에서 너무 많은 것을 잊어버리면 이런 일이 일어난다."
+        "text_ko": "보이드 홀, 지정 번호 BL-07. 세계가 한자리에서 너무 많이 잊으면 일어나는 일."
       }
     ],
     "void_core": [
@@ -49,12 +49,12 @@
         "speaker": "",
         "text": "At the center, the tear widened. Not a hole — a mouth. Open and patient.",
         "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
-        "text_ko": "중앙에서는 찢어진 부분이 넓어졌습니다. 구멍이 아니라 입입니다. 개방적이고 인내심이 있습니다."
+        "text_ko": "중심에서 찢어진 틈이 벌어졌다. 구멍이 아니라 — 입이었다. 열린 채, 참을성 있게."
       },
       {
         "speaker": "",
         "text": "Something pulsed inside it. Not light. Not sound. A rhythm that his bones recognized even if his mind didn't.",
-        "text_ko": "그 안에서 무언가 맥동하고 있었습니다. 가볍지 않습니다. 소리가 나지 않습니다. 마음은 인식하지 못하더라도 뼈는 인식하는 리듬."
+        "text_ko": "그 안에서 무언가 맥동했다. 빛이 아니었다. 소리도 아니었다. 정신은 몰라도 뼈는 알아듣는 리듬."
       },
       {
         "speaker": "Arrel",
@@ -71,7 +71,7 @@
       {
         "speaker": "",
         "text": "He could feel it now. The Void Hole wasn't destroying. It was forgetting. The world was forgetting itself here, and the hole was what was left.",
-        "text_ko": "이제 그는 그것을 느낄 수 있었다. 보이드 홀은 파괴되지 않았습니다. 잊고 있었던 것입니다. 세상은 이곳에서 자신을 잊고 있었고, 남은 것은 구멍뿐이었습니다."
+        "text_ko": "이제 느낄 수 있었다. 보이드 홀은 파괴하는 것이 아니었다. 잊고 있는 것이었다. 세계가 이 자리에서 스스로를 잊고 있었고, 그 구멍이 그 나머지였다."
       },
       {
         "speaker": "",
@@ -102,7 +102,7 @@
       {
         "speaker": "",
         "text": "The core of BL-07 pulsed. Waiting.",
-        "text_ko": "BL-07의 코어가 펄스되었습니다. 대기 중."
+        "text_ko": "BL-07의 핵이 맥동했다. 기다리면서."
       },
       {
         "speaker": "Elia",
@@ -132,7 +132,7 @@
         "speaker": "",
         "text": "The Void Hole hummed. Patient. Hungry. Indifferent to the choice being made at its edge.",
         "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
-        "text_ko": "보이드 홀이 윙윙거렸다. 인내심 있는. 배고픈. 가장자리에서 이루어지는 선택에 무관심합니다."
+        "text_ko": "보이드 홀이 웅웅거렸다. 참을성 있게. 굶주린 채. 그 가장자리에서 내려지는 선택에는 무관심하게."
       },
       {
         "speaker": "Elia",
@@ -177,7 +177,7 @@
         "speaker": "",
         "text": "He did not reach for the name. He reached for all of it — every memory he had carried instead of spent.",
         "cg": "res://assets/cg/generated/story_ch10_seal_weave.png",
-        "text_ko": "그는 그 이름에 도달하지 못했습니다. 그는 그 모든 것을 손에 넣었습니다. 그가 소비한 것이 아니라 갖고 있던 모든 기억을 말이죠."
+        "text_ko": "그는 이름에 손을 뻗지 않았다. 전부에 손을 뻗었다 — 소모하는 대신 짊어지고 온 모든 기억에."
       },
       {
         "speaker": "",
@@ -193,13 +193,13 @@
       {
         "speaker": "",
         "text": "He did not let them go. He held them out — woven, whole, refusing the Void the single clean wound it wanted.",
-        "text_ko": "그는 그들을 놓아주지 않았습니다. 그는 그것들을 내밀었습니다. 공허가 원했던 단 하나의 깨끗한 상처를 거부하면서 전체적으로 짜여진 것이었습니다."
+        "text_ko": "그는 그것들을 놓아 보내지 않았다. 내밀었다 — 엮인 채로, 온전한 채로. 보이드가 원하는 단 하나의 깨끗한 상처를 거부하면서."
       },
       {
         "speaker": "",
         "text": "The fire was not blue. It was every color the Seam had ever bled, braided into one thread.",
         "cg": "res://assets/cg/generated/story_ch10_seal_weave_fire.png",
-        "text_ko": "불은 파란색이 아니었습니다. 그것은 솔기가 흘린 모든 색깔이었고, 하나의 실로 땋아졌습니다."
+        "text_ko": "불은 푸르지 않았다. 씸이 흘려 온 모든 색이, 하나의 실로 땋여 있었다."
       },
       {
         "speaker": "Elia",
@@ -210,13 +210,13 @@
       {
         "speaker": "",
         "text": "BL-07 did not scream. It quieted. A torn thing pulled back together along the lines of a life that refused to come apart.",
-        "text_ko": "BL-07은 비명을 지르지 않았다. 조용해졌습니다. 찢어지기를 거부한 생명의 선을 따라 다시 뭉쳐진 찢어진 것."
+        "text_ko": "BL-07은 비명을 지르지 않았다. 조용해졌다. 무너지기를 거부한 한 생애의 결을 따라, 찢어진 것이 다시 봉합되었다."
       },
       {
         "speaker": "",
         "text": "When the light faded, the man who had been Arrel was still Arrel. Tired. Thinner, somehow, as if part of him now lived in the seal itself. But himself.",
         "cg": "res://assets/cg/generated/story_ch10_seal_weave_after.png",
-        "text_ko": "빛이 사라졌을 때, 아렐이었던 남자는 여전히 아렐이었습니다. 피곤한. 어떻게 든 그의 일부가 이제 인장 자체에 살고있는 것처럼 더 얇아졌습니다. 하지만 그 자신."
+        "text_ko": "빛이 잦아들었을 때, 아렐이었던 남자는 여전히 아렐이었다. 지쳐 있었다. 어딘가 옅어져 있었다 — 그의 일부가 이제 봉인 그 자체에 살고 있는 것처럼. 그러나 그 자신이었다."
       },
       {
         "speaker": "Arrel",
@@ -239,7 +239,7 @@
       {
         "speaker": "",
         "text": "BL-07 was sealed. The Seam would survive. And for the first time, the price had not been a person — only the certainty that he could ever set those memories down again.",
-        "text_ko": "BL-07은 봉인되었습니다. 솔기는 살아남을 것입니다. 그리고 처음으로 그 대가는 사람이 아니었습니다. 단지 그 추억을 다시 내려놓을 수 있다는 확신뿐이었습니다."
+        "text_ko": "BL-07은 봉인되었다. 씸은 살아남을 것이다. 그리고 처음으로, 그 대가는 사람이 아니었다 — 다만 그 기억들을 다시는 내려놓을 수 없으리라는 확실함뿐."
       }
     ],
     "seal_complete": [
@@ -267,7 +267,7 @@
         "speaker": "",
         "text": "The fire was not blue this time. It was white. Pure. The color of everything and nothing at once.",
         "cg": "res://assets/cg/game_image/memory_loss_warning.png",
-        "text_ko": "이번에는 불이 파란색이 아니었습니다. 흰색이었습니다. 순수한. 모든 것의 색깔과 동시에 아무것도 아닌 것."
+        "text_ko": "이번의 불은 푸르지 않았다. 백색이었다. 순수한. 모든 것이면서 동시에 아무것도 아닌 색."
       },
       {
         "speaker": "",
@@ -277,7 +277,7 @@
       {
         "speaker": "",
         "text": "The ground beneath them solidified. Color bled back into the stone. The crack sealed like a wound closing.",
-        "text_ko": "그들 아래의 땅이 굳어졌습니다. 색깔이 돌에 다시 번졌습니다. 균열은 상처가 닫히는 것처럼 봉인되었습니다."
+        "text_ko": "발밑의 땅이 굳었다. 색이 돌 속으로 배어 돌아왔다. 균열이 아무는 상처처럼 봉해졌다."
       },
       {
         "speaker": "Elia",
@@ -294,12 +294,12 @@
       {
         "speaker": "",
         "text": "He did not recognize her.",
-        "text_ko": "그는 그녀를 알아보지 못했습니다."
+        "text_ko": "그는 그녀를 알아보지 못했다."
       },
       {
         "speaker": "",
         "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important.",
-        "text_ko": "하지만 기억보다 더 깊고, 이름보다 더 깊은 곳에서 그의 마음속에 있는 무엇인가가 그녀가 중요하다는 것을 알고 있었습니다."
+        "text_ko": "그러나 어딘가 — 기억보다 깊고, 이름보다 깊은 곳에서 — 그의 안의 무언가는 그녀가 소중하다는 것을 알고 있었다."
       },
       {
         "speaker": "Elia",
@@ -310,7 +310,7 @@
       {
         "speaker": "",
         "text": "He thought about it for a long time.",
-        "text_ko": "그는 오랫동안 그것에 대해 생각했습니다."
+        "text_ko": "그는 오래 생각했다."
       },
       {
         "speaker": "???",
@@ -321,7 +321,7 @@
       {
         "speaker": "",
         "text": "BL-07 was sealed. The Seam would survive. The cost was everything that made the price meaningful.",
-        "text_ko": "BL-07은 봉인되었습니다. 솔기는 살아남을 것입니다. 가격을 의미있게 만드는 모든 것은 비용이었습니다."
+        "text_ko": "BL-07은 봉인되었다. 씸은 살아남을 것이다. 그 값은, 값을 값이게 하던 모든 것이었다."
       }
     ],
     "seal_refused": [
@@ -352,12 +352,12 @@
       {
         "speaker": "",
         "text": "The Void Hole pulsed. Unimpressed. Unchanged.",
-        "text_ko": "공허의 구멍이 진동했습니다. 인상적이지 않았습니다. 변하지 않은."
+        "text_ko": "보이드 홀이 맥동했다. 무감하게. 변함없이."
       },
       {
         "speaker": "",
         "text": "They walked back the way they came. The fragments of ground felt less stable than before. Or maybe that was just the weight of a decision unmade.",
-        "text_ko": "그들은 왔던 길을 되돌아 갔다. 땅의 파편들이 이전보다 덜 안정감을 느꼈습니다. 아니면 그것은 단지 결정이 내려지지 않은 것의 무게일 수도 있습니다."
+        "text_ko": "그들은 왔던 길로 되돌아 걸었다. 발밑 조각들이 전보다 덜 단단하게 느껴졌다. 어쩌면 그것은, 내리지 않은 결정의 무게였는지도 모른다."
       },
       {
         "speaker": "Elia",
@@ -374,12 +374,12 @@
       {
         "speaker": "",
         "text": "Behind them, BL-07 continued to grow. Slowly. Patiently.",
-        "text_ko": "그 뒤에는 BL-07이 계속해서 성장해 나갔습니다. 느리게. 꽉."
+        "text_ko": "등 뒤에서 BL-07은 계속 자라고 있었다. 천천히. 참을성 있게."
       },
       {
         "speaker": "",
         "text": "They had time. Not much. But some. And sometimes 'some' is enough to find what 'always' couldn't.",
-        "text_ko": "그들에게는 시간이 있었습니다. 별로. 하지만 일부. 그리고 때로는 '일부'만으로 '항상' 찾을 수 없는 것을 찾기에 충분합니다."
+        "text_ko": "시간은 있었다. 많지는 않았다. 그러나 조금은. 그리고 때로는 '조금'이, '언제나'가 찾지 못한 것을 찾아낸다."
       }
     ],
     "void_descent": [
@@ -387,12 +387,12 @@
         "speaker": "",
         "text": "The path — if it could be called that — descended in spirals that didn't obey geometry.",
         "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
-        "text_ko": "길은 - 그렇게 부를 수 있다면 - 기하학을 따르지 않는 나선형으로 내려갔습니다."
+        "text_ko": "길은 — 그것을 길이라 부를 수 있다면 — 기하학을 따르지 않는 나선으로 내려갔다."
       },
       {
         "speaker": "",
         "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction.",
-        "text_ko": "각 단계는 그들을 더 깊게 만들었습니다. 땅에 들어가지 마세요. 땅이 없는 곳으로. 그들이 걸어온 파편들은 공허의 파괴 습관으로 뭉쳐진 돌의 기억이었습니다."
+        "text_ko": "한 걸음마다 더 깊어졌다. 땅속으로가 아니라, 땅의 부재 속으로. 그들이 밟는 조각들은 돌의 기억이었다. 보이드의 허기가 붙들어 둔."
       },
       {
         "speaker": "Elia",
@@ -403,7 +403,7 @@
       {
         "speaker": "",
         "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved.",
-        "text_ko": "왼쪽에 떠 있는 파편에 문이 있습니다. 아무것도 붙지 않은 채 똑바로 서 있는 것. 보존이 불가능할 정도로 황동 손잡이가 달린 평범한 나무 문입니다."
+        "text_ko": "왼쪽에 떠 있는 파편 위 — 문 하나. 아무것에도 붙지 않은 채 똑바로 서 있었다. 황동 손잡이가 달린 평범한 나무 문. 불가능하게 보존된 채."
       },
       {
         "speaker": "Arrel",
@@ -420,12 +420,12 @@
       {
         "speaker": "",
         "text": "As they passed, the door swung open. Beyond it — nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering.",
-        "text_ko": "그들이 지나가자 문이 열렸다. 그 너머에는 아무것도 없습니다. 더 이상 아무것도 없습니다. 그러나 아무 소리도 들리지 않았습니다. 아이가 저녁을 먹으러 오는 소리였습니다. 대답하는 어머니."
+        "text_ko": "그들이 지나치자 문이 열렸다. 그 너머 — 무(無). 그저 더 많은 무. 그러나 무에서 소리가 났다. 저녁 먹으라고 부르는 아이. 대답하는 어머니."
       },
       {
         "speaker": "",
         "text": "Then silence. The door closed itself, gently, as if the memory had finished its performance and was taking a bow.",
-        "text_ko": "그런 다음 침묵하십시오. 마치 기억이 수행을 마치고 인사를 하는 것처럼 문이 살며시 닫혔다."
+        "text_ko": "그리고 침묵. 문은 스스로 닫혔다. 부드럽게. 기억이 제 공연을 끝내고 인사를 올리는 것처럼."
       }
     ],
     "void_echoes": [
@@ -433,7 +433,7 @@
         "speaker": "",
         "text": "Deeper in, the Void began to speak.",
         "cg": "res://assets/cg/generated/story_ch10_void_echoes.png",
-        "text_ko": "더 깊은 곳에서 공허가 말하기 시작했습니다."
+        "text_ko": "더 깊은 곳에서, 보이드가 말을 걸기 시작했다."
       },
       {
         "speaker": "",
@@ -443,7 +443,7 @@
       {
         "speaker": "",
         "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important.",
-        "text_ko": "그는 구리 맛을 느꼈습니다. 그는 나무 연기 냄새를 맡았습니다. 그는 자신이 알지 못하는 목소리로 자신의 이름이 말하는 것을 들었고 그 목소리가 중요하다는 확신을 느꼈습니다."
+        "text_ko": "구리 맛이 났다. 장작 연기 냄새가 났다. 알아듣지 못하는 목소리가 제 이름을 부르는 것을 들었다 — 그리고 그 목소리가 소중하다는 확신을 느꼈다."
       },
       {
         "speaker": "Arrel",
@@ -466,7 +466,7 @@
       {
         "speaker": "",
         "text": "She was quiet for three steps.",
-        "text_ko": "그녀는 세 걸음 동안 조용했습니다."
+        "text_ko": "그녀는 세 걸음 동안 말이 없었다."
       },
       {
         "speaker": "Elia",
@@ -503,12 +503,12 @@
         "speaker": "",
         "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist.",
         "cg": "res://assets/cg/generated/story_ch10_orphan_memories.png",
-        "text_ko": "떠다니는 플랫폼에 흩어져 있습니다. 수십 개의 결정화된 기억이 존재해서는 안 되는 색으로 희미하게 빛나고 있습니다."
+        "text_ko": "떠 있는 단 위에 흩어진 것 — 수십 개의 결정화된 기억들. 존재해서는 안 될 색으로 희미하게 빛나며."
       },
       {
         "speaker": "",
         "text": "Each one was someone's life. A first step. A last breath. A morning so ordinary that no one thought to protect it from being forgotten.",
-        "text_ko": "하나하나가 누군가의 삶이었습니다. 첫 번째 단계. 마지막 숨. 누구도 잊혀지지 않도록 보호할 생각이 없을 만큼 평범한 아침."
+        "text_ko": "하나하나가 누군가의 생애였다. 첫걸음. 마지막 숨. 잊히지 않게 지켜야겠다고 아무도 생각지 않았을 만큼 평범한 아침."
       },
       {
         "speaker": "Elia",
@@ -531,12 +531,12 @@
       {
         "speaker": "",
         "text": "He picked one up. Warm. It showed him a sunset over a city he'd never seen, felt through eyes that were not his own. Beautiful. Meaningless. Orphaned.",
-        "text_ko": "그는 하나를 집어 들었습니다. 따뜻한. 그것은 그에게 한 번도 본 적이 없는 도시의 일몰을 보여 주었고, 자신의 것이 아닌 눈을 통해 느껴졌습니다. 아름다운. 무의미한. 고아."
+        "text_ko": "그가 하나를 집어 들었다. 따뜻했다. 그것은 그가 본 적 없는 도시 위의 석양을, 그의 것이 아닌 눈을 통해 보여 주었다. 아름다웠다. 무의미했다. 고아가 된 채였다."
       },
       {
         "speaker": "",
         "text": "He set it down. Carefully. Even orphaned beauty deserved to be handled gently.",
-        "text_ko": "그는 그것을 내려놓았다. 주의하여. 고아가 된 아름다움조차도 부드럽게 다뤄질 자격이 있습니다."
+        "text_ko": "그는 그것을 내려놓았다. 조심스럽게. 고아가 된 아름다움이라도, 다정하게 다뤄질 자격은 있으므로."
       }
     ],
     "void_before_core": [
@@ -544,7 +544,7 @@
         "speaker": "",
         "text": "The pull was stronger here. Like standing at the edge of a waterfall, except the water was made of forgetting.",
         "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
-        "text_ko": "여기서 당기는 힘이 더 강했습니다. 폭포의 가장자리에 서 있는 것과 같습니다. 단, 물은 망각으로 만들어졌습니다."
+        "text_ko": "이곳의 당김은 더 강했다. 폭포의 가장자리에 선 것 같았다. 다만 그 물이, 망각으로 되어 있었다."
       },
       {
         "speaker": "Elia",
@@ -585,7 +585,7 @@
       {
         "speaker": "",
         "text": "Her voice echoed in the absence. The Void drank the sound, but the meaning survived.",
-        "text_ko": "그녀의 목소리가 부재 중에 메아리쳤다. 공허는 소리를 마셨지만 의미는 살아남았습니다."
+        "text_ko": "그녀의 목소리가 부재 속에 울렸다. 보이드가 소리를 마셨지만, 의미는 살아남았다."
       },
       {
         "speaker": "Arrel",
@@ -650,7 +650,7 @@
       {
         "speaker": "",
         "text": "She shivered. Not from cold. There was no temperature here. Only absence.",
-        "text_ko": "그녀는 몸을 떨었다. 추위가 아닙니다. 여기에는 온도가 없었습니다. 부재만."
+        "text_ko": "그녀가 몸을 떨었다. 추위 때문이 아니었다. 이곳에는 온도가 없었다. 오직 부재뿐."
       }
     ]
   },

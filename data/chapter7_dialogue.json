@@ -7,7 +7,7 @@
         "speaker": "",
         "text": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static.",
         "cg": "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
-        "text_ko": "The 심의 벽 너머에는 절벽이 들쭉날쭉한 고원으로 펼쳐져 있었습니다. 공기는 정적의 맛이 났다."
+        "text_ko": "씸의 벽 너머, 절벽은 삐죽삐죽한 고원으로 열렸다. 공기에서 정전기 맛이 났다."
       },
       {
         "speaker": "Sable",
@@ -36,7 +36,7 @@
       {
         "speaker": "",
         "text": "She said it like reciting a weather report. No emotion. Just fact.",
-        "text_ko": "그녀는 마치 일기예보를 낭송하는 것처럼 말했다. 감정이 없습니다. 그냥 사실."
+        "text_ko": "일기예보를 읽듯 그녀는 말했다. 감정 없이. 사실만."
       },
       {
         "speaker": "Elia",
@@ -109,7 +109,7 @@
         "speaker": "",
         "text": "She pulled something from her coat. A shell, spiraling inward, its surface covered in faint luminescent veins.",
         "cg": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png",
-        "text_ko": "그녀는 코트에서 뭔가를 꺼냈다. 껍질은 안쪽으로 나선형으로 휘어져 있고 표면은 희미한 발광맥으로 덮여 있습니다."
+        "text_ko": "그녀가 외투에서 무언가를 꺼냈다. 안으로 감겨 들어가는 조가비 — 표면에 희미하게 발광하는 결이 덮여 있었다."
       },
       {
         "speaker": "Sable",
@@ -185,7 +185,7 @@
         "speaker": "",
         "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away — then Elia's hand was on his shoulder.",
         "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
-        "text_ko": "화상은 열의 파동처럼 그를 통과했습니다. 잠시 동안 중요한 것이 사라졌습니다. 그리고 엘리아의 손이 그의 어깨 위에 놓였습니다."
+        "text_ko": "연소가 열파처럼 그를 관통했다. 한순간 중요한 무언가가 미끄러져 나갔다 — 그리고 엘리아의 손이 그의 어깨에 얹혔다."
       },
       {
         "speaker": "Elia",
@@ -196,7 +196,7 @@
       {
         "speaker": "",
         "text": "The world steadied. The memory was gone, but Arrel knew who he was. Who they all were.",
-        "text_ko": "세상은 안정되었습니다. 기억은 사라졌지만 에릴은 그가 누구인지 알고 있었습니다. 그들은 모두 누구였습니까?"
+        "text_ko": "세계가 안정되었다. 기억은 사라졌지만, 아렐은 자신이 누구인지 알고 있었다. 그들 모두가 누구인지도."
       },
       {
         "speaker": "Sable",
@@ -297,7 +297,7 @@
         "speaker": "",
         "text": "The Threshold was a dead zone. Not dead like the Belt — lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil.",
         "cg": "res://assets/cg/generated/story_ch7_paper_forgetting_ink.png",
-        "text_ko": "임계값은 데드존이었습니다. 벨트처럼 죽지 않았습니다. 생명이 없습니다. 죽은 것처럼 무언가가 손을 뻗어 '살아있다'는 개념을 흙에서 빼앗아갔습니다."
+        "text_ko": "문턱은 죽은 지대였다. 벨트처럼 생명이 없는 게 아니라 — 무언가 손을 뻗어 흙에서 '살아 있음'이라는 개념 자체를 꺼내 간 것처럼 죽어 있었다."
       },
       {
         "speaker": "Tobias",
@@ -323,7 +323,7 @@
         "speaker": "",
         "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then — whispers.",
         "cg": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png",
-        "text_ko": "아렐은 에코 셸을 귀에 대었습니다. 처음에는 아무것도 아닙니다. 그런 다음 - 속삭입니다."
+        "text_ko": "아렐이 에코 셸을 귀에 댔다. 처음엔 아무것도. 그리고 — 속삭임들."
       },
       {
         "speaker": "",
@@ -412,7 +412,7 @@
         "speaker": "",
         "text": "They crossed the ridgeline. Behind them, The Seam's colors faded to nothing.",
         "cg": "res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png",
-        "text_ko": "그들은 능선을 넘었습니다. 그 뒤에는 The 심의 색상이 완전히 사라졌습니다."
+        "text_ko": "그들은 능선을 넘었다. 등 뒤에서 씸의 색채가 무(無)로 바래어 갔다."
       }
     ],
     "sable_confession": [
@@ -447,7 +447,7 @@
         "speaker": "",
         "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water.",
         "cg": "res://assets/cg/generated/story_ch7_fading_names_monument.png",
-        "text_ko": "갈라진 땅에서 튀어나온 돌기둥, 그 표면에는 천천히 희미해지는 이름이 새겨져 있었습니다. 글자는 물에 잉크처럼 녹아내렸습니다."
+        "text_ko": "갈라진 땅에서 돌기둥 하나가 솟아 있었다. 표면에 새겨진 이름들이 서서히 바래는 중이었다 — 물에 번지는 잉크처럼 글자들이 풀려 나갔다."
       },
       {
         "speaker": "Tobias",

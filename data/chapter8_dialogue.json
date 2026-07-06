@@ -7,7 +7,7 @@
         "speaker": "",
         "text": "The trees began where the path ended. They weren't growing — they were standing still, the way someone stands when they've forgotten why they walked into a room.",
         "cg": "res://assets/cg/generated/story_ch8_forest_crossing.png",
-        "text_ko": "길이 끝나는 곳에서 나무가 시작되었다. 그들은 성장하고 있는 것이 아니었습니다. 그들은 가만히 서 있었습니다. 누군가가 왜 방에 들어왔는지 잊어버렸을 때 서 있는 것처럼 말이죠."
+        "text_ko": "길이 끝나는 곳에서 나무들이 시작되었다. 자라고 있는 게 아니었다 — 가만히 서 있었다. 방에 왜 들어왔는지 잊은 사람이 서 있는 방식으로."
       },
       {
         "speaker": "Sable",
@@ -36,7 +36,7 @@
       {
         "speaker": "",
         "text": "She was right. The bark was body-temperature. Like pressing your hand against sleeping skin.",
-        "text_ko": "그녀가 옳았습니다. 나무 껍질은 체온이었습니다. Like pressing your hand against sleeping skin."
+        "text_ko": "그녀가 옳았다. 나무껍질은 체온이었다. 잠든 살갗에 손을 대는 것처럼."
       },
       {
         "speaker": "Sable",
@@ -180,7 +180,7 @@
       {
         "speaker": "",
         "text": "She took his hands again. The anchoring was harder here — like trying to hold a page flat in a gale.",
-        "text_ko": "그녀는 다시 그의 손을 잡았다. 강풍 속에서 페이지를 평평하게 유지하려는 것처럼 여기에서는 고정이 더 어려웠습니다."
+        "text_ko": "그녀가 다시 그의 두 손을 잡았다. 이곳의 앵커링은 더 힘들었다 — 돌풍 속에서 페이지를 평평하게 누르고 있으려는 것처럼."
       },
       {
         "speaker": "Elia",
@@ -203,7 +203,7 @@
       {
         "speaker": "",
         "text": "The edges sharpened. The name returned. But something else — something small and unnamed — slipped away in its place.",
-        "text_ko": "가장자리가 날카로워졌습니다. 이름이 반환되었습니다. 그러나 다른 것, 즉 작고 이름 없는 것이 그 자리를 대신해 사라졌습니다."
+        "text_ko": "윤곽이 또렷해졌다. 이름이 돌아왔다. 그러나 그 자리에서 다른 무언가 — 작고 이름 없는 무언가가 미끄러져 나갔다."
       }
     ],
     "forest_whispers": [
@@ -211,7 +211,7 @@
         "speaker": "",
         "text": "The deeper they went, the louder the forest became. Not sound — pressure. Like the air was trying to speak.",
         "cg": "res://assets/cg/generated/story_ch8_whispers_as_bait.png",
-        "text_ko": "더 깊이 들어갈수록 숲의 소리는 더욱 커졌습니다. 소리가 아니라 압력입니다. 공기가 말을 하려고 하는 것처럼."
+        "text_ko": "깊이 들어갈수록 숲은 커졌다. 소리가 아니라 — 압력이. 공기가 말을 하려고 애쓰는 것처럼."
       },
       {
         "speaker": "Sable",
@@ -228,7 +228,7 @@
       {
         "speaker": "",
         "text": "Something whispered Arrel's name. Not from a direction — from inside his own memory of hearing his name.",
-        "text_ko": "무언가가 에릴의 이름을 속삭였습니다. 어느 방향에서가 아니라, 그의 이름을 들었던 그 자신의 기억 속에서 말입니다."
+        "text_ko": "무언가 아렐의 이름을 속삭였다. 방향에서가 아니라 — 제 이름을 들었던 기억 안쪽에서."
       },
       {
         "speaker": "Arrel",
@@ -266,7 +266,7 @@
         "speaker": "",
         "text": "A clearing. The trees pulled back as if repelled by something in the soil. In the center, a cairn of white stones.",
         "cg": "res://assets/cg/generated/story_ch8_white_stone_shelter.png",
-        "text_ko": "청산. 나무들은 흙 속에 있는 무언가에 쫓겨난 듯 뒤로 물러났습니다. 중앙에는 흰 돌무더기가 있습니다."
+        "text_ko": "공터. 흙 속의 무언가에 밀려나듯 나무들이 물러서 있었다. 그 한가운데, 흰 돌들의 돌무덤."
       },
       {
         "speaker": "Tobias",
@@ -283,7 +283,7 @@
       {
         "speaker": "",
         "text": "She stopped. For the first time, her composure cracked — just a fissure, quickly sealed.",
-        "text_ko": "그녀는 멈췄다. 처음으로 그녀의 평정심이 깨졌습니다. 균열이 생겼고 빠르게 봉쇄되었습니다."
+        "text_ko": "그녀가 멈췄다. 처음으로 그 평정에 금이 갔다 — 실금 하나. 곧 다시 봉해졌지만."
       },
       {
         "speaker": "Sable",
@@ -357,7 +357,7 @@
         "speaker": "",
         "text": "They left the cairn behind. The forest closed in one last time, then — abruptly — ended. Ahead: nothing with color.",
         "cg": "res://assets/cg/generated/story_ch8_end_of_color.png",
-        "text_ko": "그들은 케른을 남겨두고 떠났습니다. 숲은 마지막으로 닫혔다가 갑자기 사라졌습니다. 앞서 : 색상은 없습니다."
+        "text_ko": "그들은 돌무덤을 뒤로했다. 숲이 마지막으로 조여들었다가 — 돌연 — 끝났다. 전방: 색이 없는 무엇."
       }
     ],
     "forest_atmosphere": [
@@ -397,7 +397,7 @@
         "speaker": "",
         "text": "A smaller shape this time. Child-sized. It held something — or held the memory of holding something. Its hands were cupped around absence.",
         "cg": "res://assets/cg/generated/story_ch8_ghost_child.png",
-        "text_ko": "이번에는 더 작은 모양입니다. 어린이용. 그것은 무언가를 담고 있었습니다. 또는 무언가를 쥐고 있던 기억을 담고 있었습니다. 그 손은 부재 주위에 컵 모양으로 놓여 있었습니다."
+        "text_ko": "이번엔 더 작은 형상이었다. 아이 크기. 무언가를 안고 있었다 — 혹은 안고 있던 기억을 안고 있었다. 두 손이 부재를 감싸 쥐고 있었다."
       },
       {
         "speaker": "Arrel",
@@ -420,12 +420,12 @@
       {
         "speaker": "",
         "text": "Arrel held it to his ear. A child's voice, clearer than the others: 'I had a dog. His name was— his name was—'",
-        "text_ko": "에릴은 그것을 귀에 대고 있었습니다. 다른 아이들보다 또렷한 아이의 목소리: '나에겐 개가 있었어요. 그의 이름은 — 그의 이름은 —'"
+        "text_ko": "아렐이 그것을 귀에 댔다. 아이의 목소리가, 다른 것들보다 또렷하게: '개가 있었어. 이름은— 이름은—'"
       },
       {
         "speaker": "",
         "text": "The sentence looped. The name was gone. Just the shape of having known it remained.",
-        "text_ko": "문장이 반복되었습니다. 이름이 없어졌습니다. 다만 그것을 알고 있었던 모양이 남아 있을 뿐이다."
+        "text_ko": "문장이 맴돌았다. 이름은 사라졌다. 알고 있었다는 형태만 남아 있었다."
       },
       {
         "speaker": "Arrel",
@@ -466,7 +466,7 @@
         "speaker": "",
         "text": "A figure stood at the edge of the clearing. A woman, translucent, her arms cradling something invisible. Her mouth shaped a single word over and over.",
         "cg": "res://assets/cg/generated/story_ch8_ghost_mother.png",
-        "text_ko": "공터 가장자리에 한 인물이 서 있었다. 반투명한 여자가 보이지 않는 무언가를 팔에 안고 있습니다. 그녀의 입은 계속해서 한 단어를 형성했습니다."
+        "text_ko": "공터 가장자리에 형상이 서 있었다. 반투명한 여인. 두 팔이 보이지 않는 것을 안고 있었다. 입은 같은 단어 하나를 반복해 그리고 있었다."
       },
       {
         "speaker": "Elia",
@@ -477,7 +477,7 @@
       {
         "speaker": "",
         "text": "The ghost turned toward them. For one terrible moment, recognition flickered in her hollow eyes — then faded. She drifted back among the trees, still searching.",
-        "text_ko": "유령은 그들을 향해 돌아섰다. 끔찍한 순간, 그녀의 텅 빈 눈에 인식이 번쩍였다가 사라졌습니다. 그녀는 나무 사이로 다시 표류하며 여전히 찾고 있었습니다."
+        "text_ko": "유령이 그들 쪽으로 돌아섰다. 끔찍한 한순간, 텅 빈 눈에 알아봄이 스쳤다 — 그리고 사그라들었다. 그녀는 여전히 무언가를 찾으며 나무들 사이로 떠갔다."
       }
     ],
     "forest_heart": [
@@ -485,7 +485,7 @@
         "speaker": "",
         "text": "The air thickened. The trees leaned inward, their bark pulsing with a rhythm like slow breathing.",
         "cg": "res://assets/cg/generated/story_ch8_parasitic_heart.png",
-        "text_ko": "공기가 두꺼워졌습니다. 나무들은 안쪽으로 기울어졌고, 나무껍질은 느린 호흡처럼 리듬에 맞춰 고동쳤다."
+        "text_ko": "공기가 짙어졌다. 나무들이 안쪽으로 기울었다. 껍질이 느린 호흡 같은 박동으로 고동치고 있었다."
       },
       {
         "speaker": "Tobias",
@@ -516,7 +516,7 @@
       {
         "speaker": "",
         "text": "A girl standing in the rain. Translucent. Not quite real.",
-        "text_ko": "빗속에 서 있는 소녀. 투명한. 별로 현실적이지 않습니다."
+        "text_ko": "빗속에 서 있는 소녀. 반투명한. 온전히 실재하지 않는."
       },
       {
         "speaker": "Elia",
@@ -527,7 +527,7 @@
       {
         "speaker": "",
         "text": "That was the moment everything changed.",
-        "text_ko": "모든 것이 바뀌는 순간이었습니다."
+        "text_ko": "그 순간, 모든 것이 바뀌었다."
       }
     ]
   },

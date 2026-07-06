@@ -12,12 +12,12 @@
       {
         "speaker": "",
         "text": "The stench hit first — burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared.",
-        "text_ko": "악취가 먼저 났습니다. 향신료와 동물성 지방이 타서 상인이 불을 뿜어내며 결코 지워지지 않는 기름진 연기 기둥을 뿜어냈습니다."
+        "text_ko": "악취가 먼저 닿았다 — 탄 향신료와 짐승 기름. 노점의 불들이 걷힐 줄 모르는 기름진 연기 기둥을 밀어 올리고 있었다."
       },
       {
         "speaker": "",
         "text": "Arrel pulled his scarf higher. Elia did the same, though hers covered something more than anonymity.",
-        "text_ko": "아렐은 스카프를 더 높이 당겼습니다. 엘리아는 익명성 이상의 것을 다루었지만 동일한 작업을 수행했습니다."
+        "text_ko": "아렐이 목도리를 끌어올렸다. 엘리아도 따라 했다. 다만 그녀의 것은 익명 이상의 것을 가리고 있었다."
       },
       {
         "speaker": "Elia",
@@ -28,7 +28,7 @@
       {
         "speaker": "",
         "text": "She moved through the crowd like water through cracks — never touching, never stopping, always finding the gap.",
-        "text_ko": "그녀는 물이 갈라진 틈을 통과하듯 군중 속을 헤쳐나갔습니다. 절대 만지지도, 멈추지도 않고, 항상 틈새를 찾아냈습니다."
+        "text_ko": "그녀는 갈라진 틈을 지나는 물처럼 군중을 통과했다 — 스치지 않고, 멈추지 않고, 언제나 틈을 찾아내면서."
       }
     ],
     "malet_encounter": [
@@ -36,22 +36,22 @@
         "speaker": "",
         "text": "The cellar was three levels below street. The air down here tasted like copper and old paper.",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "지하실은 거리보다 세 층 아래에 있었습니다. 이 아래 공기는 구리와 오래된 종이 맛이 났습니다."
+        "text_ko": "지하실은 거리에서 세 층 아래였다. 이곳 공기에서는 구리와 오래된 종이 맛이 났다."
       },
       {
         "speaker": "",
         "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning.",
-        "text_ko": "그들은 기다렸다. 30분. 아렐은 벽에 등을 대고 앉아 있었습니다. 이는 그가 배운 기억이 없는 오래된 습관이었습니다."
+        "text_ko": "그들은 기다렸다. 삼십 분. 아렐은 벽에 등을 붙이고 앉았다 — 배운 기억이 없는, 오래된 습관이었다."
       },
       {
         "speaker": "",
         "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls.",
-        "text_ko": "말렛은 마치 항상 그 자리에 있었던 것처럼 나타났습니다. 작고 얇으며 벽과 어울리는 회색 옷을 입었습니다."
+        "text_ko": "말렛은 처음부터 그 자리에 있었던 것처럼 나타났다. 작고, 마르고, 벽과 같은 회색 옷차림."
       },
       {
         "speaker": "",
         "text": "His eyes were wrong. Too vivid. Amber that caught light that wasn't there. High-grade Memory Ampoules.",
-        "text_ko": "그의 눈은 틀렸다. 너무 생생합니다. 존재하지 않는 빛을 포착한 호박. 고급 메모리 앰플."
+        "text_ko": "눈이 잘못되어 있었다. 지나치게 선명했다. 있지도 않은 빛을 받아내는 호박색. 고등급 기억 앰풀."
       },
       {
         "speaker": "Malet",
@@ -91,7 +91,7 @@
             "text": "Accept the deal.",
             "set_flag": "malet_deal_accepted",
             "burn_memory": "identity_first_sword",
-            "text_ko": "거래를 수락하세요."
+            "text_ko": "거래를 받아들인다."
           },
           {
             "text": "Refuse.",
@@ -106,7 +106,7 @@
         "speaker": "",
         "text": "The extractor was civilian-grade. Small. Clean. Almost gentle.",
         "cg": "res://assets/cg/generated/story_ch2_first_sword_extraction.png",
-        "text_ko": "추출기는 민간 등급이었습니다. 작은. 깨끗한. 거의 온화합니다."
+        "text_ko": "추출기는 민간용이었다. 작고. 깨끗하고. 거의 다정할 정도로."
       },
       {
         "speaker": "",
@@ -121,7 +121,7 @@
       {
         "speaker": "",
         "text": "Then it left. Silent as a drawer closing. And where it had been — nothing. A space shaped like significance, emptied of content.",
-        "text_ko": "그런 다음 떠났습니다. 서랍이 닫힐 때처럼 조용합니다. 그리고 그것이 있던 곳에는 아무것도 없었습니다. 내용이 없는 의미를 형상화한 공간."
+        "text_ko": "그리고 그것은 떠났다. 서랍이 닫히듯 조용히. 그것이 있던 자리에는 — 아무것도. 의미의 형태를 한, 내용이 비워진 공간만."
       },
       {
         "speaker": "Arrel",
@@ -158,7 +158,7 @@
       {
         "speaker": "",
         "text": "He paused. For the first time, something moved behind those amber eyes.",
-        "text_ko": "그는 잠시 멈췄다. 처음으로 그 호박색 눈 뒤에서 무언가가 움직였습니다."
+        "text_ko": "그가 멈칫했다. 처음으로, 그 호박색 눈 뒤에서 무언가가 움직였다."
       },
       {
         "speaker": "Malet",
@@ -170,7 +170,7 @@
         "speaker": "",
         "text": "Elia's hand tightened on her cup. Her knuckles went white.",
         "cg": "res://assets/cg/generated/story_ch2_kairos_warning.png",
-        "text_ko": "엘리아의 손이 컵을 꽉 잡았습니다. 그녀의 관절이 하얗게 변했다."
+        "text_ko": "엘리아의 손이 잔을 조여 쥐었다. 손마디가 하얗게 질렸다."
       },
       {
         "speaker": "Elia",
@@ -190,7 +190,7 @@
       {
         "speaker": "",
         "text": "His amber eyes didn't blink. The dismissal was absolute.",
-        "text_ko": "그의 호박색 눈은 깜박이지 않았다. 해고는 절대적이었습니다."
+        "text_ko": "호박색 눈은 깜빡이지 않았다. 축객령은 절대적이었다."
       },
       {
         "speaker": "Elia",
@@ -231,7 +231,7 @@
         "speaker": "",
         "text": "The market sprawled like a wound that refused to close.",
         "cg": "res://assets/cg/generated/story_ch2_memory_market.png",
-        "text_ko": "시장은 닫히기를 거부하는 상처처럼 펼쳐졌습니다."
+        "text_ko": "시장은 아물기를 거부하는 상처처럼 펼쳐져 있었다."
       },
       {
         "speaker": "",
@@ -259,7 +259,7 @@
       {
         "speaker": "",
         "text": "A woman at a nearby stall held up a vial of something golden. Her sign read: MOTHER'S LOVE — GRADE 3 — SLIGHTLY USED.",
-        "text_ko": "근처 노점에 있던 한 여자가 금으로 된 약병을 들고 있었습니다. 그녀의 표지판에는 다음과 같이 적혀 있었습니다: 어머니의 사랑 — 3등급 — 약간 사용됨."
+        "text_ko": "근처 좌판의 여자가 금빛 액체가 든 약병을 들어 보였다. 팻말에는 이렇게 적혀 있었다: 어머니의 사랑 — 3등급 — 사용감 약간."
       },
       {
         "speaker": "Arrel",
@@ -279,12 +279,12 @@
         "speaker": "",
         "text": "An old man sat on a crate near the market's edge, staring at nothing.",
         "cg": "res://assets/cg/generated/story_ch2_old_burner.png",
-        "text_ko": "한 노인이 시장 가장자리 근처의 상자 위에 앉아 아무 것도 쳐다보지 않았습니다."
+        "text_ko": "시장 가장자리, 한 노인이 궤짝에 앉아 허공을 응시하고 있었다."
       },
       {
         "speaker": "",
         "text": "His face was placid. Smooth. Not peaceful — empty. Like a mask worn by someone who had forgotten what expressions were for.",
-        "text_ko": "그의 얼굴은 평온했다. 매끄러운. 평화롭지 않습니다. 비어 있습니다. 어떤 표현을 해야 하는지 잊어버린 사람이 쓴 가면처럼."
+        "text_ko": "얼굴은 평온했다. 매끈했다. 평화로운 게 아니라 — 비어 있었다. 표정이 무엇에 쓰이는 물건인지 잊은 사람이 쓴 가면처럼."
       },
       {
         "speaker": "Old Man",
@@ -305,7 +305,7 @@
       {
         "speaker": "",
         "text": "He smiled. The smile didn't reach his eyes. It couldn't. There was nothing behind them for it to reach.",
-        "text_ko": "그는 미소를 지었다. 그의 눈에는 미소가 닿지 않았다. 그럴 수 없었습니다. 그들 뒤에는 그것이 닿을 만한 것이 아무것도 없었습니다."
+        "text_ko": "그가 웃었다. 웃음은 눈까지 닿지 않았다. 닿을 수 없었다. 그 뒤에는 닿을 것이 남아 있지 않았으므로."
       },
       {
         "speaker": "Old Man",
@@ -331,7 +331,7 @@
       {
         "speaker": "",
         "text": "Arrel looked at the old man. The old man looked back. Two mirrors facing each other, one just further along the same road.",
-        "text_ko": "에릴은 노인을 바라보았다. 노인은 뒤를 돌아보았다. 두 개의 거울이 서로 마주보고 있고, 하나는 같은 길을 따라 더 멀리 있습니다."
+        "text_ko": "아렐이 노인을 바라보았다. 노인이 마주 보았다. 마주 놓인 두 개의 거울 — 하나가 같은 길을 조금 더 멀리 갔을 뿐인."
       }
     ],
     "malet_backstory": [
@@ -339,7 +339,7 @@
         "speaker": "",
         "text": "While they waited for Malet's contact to prepare the route documents, the broker poured something amber into two cups.",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "경로 문서를 준비하기 위해 말렛의 연락을 기다리는 동안 브로커는 호박색 무언가를 컵 두 개에 부었습니다."
+        "text_ko": "말렛의 연락책이 경로 문서를 준비하는 동안, 중개인은 호박색 액체를 두 잔에 따랐다."
       },
       {
         "speaker": "Malet",
@@ -403,7 +403,7 @@
       {
         "speaker": "",
         "text": "His amber eyes caught the lamplight. Seventeen people's stolen light, looking out through one man's face.",
-        "text_ko": "그의 호박색 눈이 가로등 불빛을 포착했다. 17명의 사람들이 훔친 빛이 한 남자의 얼굴을 통해 내다보고 있습니다."
+        "text_ko": "그의 호박색 눈이 등불을 받아냈다. 열일곱 사람에게서 훔친 빛이, 한 남자의 얼굴을 통해 바깥을 내다보고 있었다."
       }
     ],
     "elia_sump_concern": [
@@ -466,17 +466,17 @@
       {
         "speaker": "",
         "text": "Not literally — but the walls pulsed with a rhythm that made the torchlight dance. Underground water channels ran beneath the floor, carrying whispers from somewhere deeper.",
-        "text_ko": "말 그대로는 아니지만 벽은 횃불이 춤추게 만드는 리듬으로 고동쳤습니다. 지하 수로는 바닥 아래로 흐르며 더 깊은 곳에서 속삭이는 소리를 전달했습니다."
+        "text_ko": "말 그대로는 아니었지만 — 벽이 횃불을 춤추게 하는 박동으로 고동쳤다. 바닥 밑으로는 지하 수로가 흘렀고, 깊은 어딘가의 속삭임을 실어 날랐다."
       },
       {
         "speaker": "",
         "text": "Alcoves lined the tunnel walls. In each one, someone waited. Buyers. Sellers. People whose faces you forgot the moment you looked away.",
-        "text_ko": "골방은 터널 벽을 따라 늘어서 있습니다. 각각 누군가가 기다렸습니다. 구매자. 판매자. 시선을 돌리는 순간 얼굴을 잊어버린 사람들."
+        "text_ko": "터널 벽을 따라 골방들이 늘어서 있었다. 그 하나하나에서 누군가 기다렸다. 사는 자. 파는 자. 시선을 돌리는 순간 얼굴이 잊히는 사람들."
       },
       {
         "speaker": "",
         "text": "A woman in an alcove held up a vial. Inside, something silver swam in slow circles.",
-        "text_ko": "골방에 누워 있던 한 여자가 약병을 들고 있었습니다. 그 안에는 뭔가 은빛 무언가가 느린 원을 그리며 헤엄치고 있었습니다."
+        "text_ko": "한 골방의 여자가 약병을 들어 보였다. 그 안에서 은빛 무언가가 느린 원을 그리며 헤엄치고 있었다."
       },
       {
         "speaker": "",
@@ -486,7 +486,7 @@
       {
         "speaker": "",
         "text": "Arrel kept walking. He didn't look back. Looking back was how you got lost down here — not in the tunnels, but in other people's pasts.",
-        "text_ko": "아렐은 계속해서 걸었습니다. 그는 뒤를 돌아보지 않았습니다. 뒤를 돌아보면 당신이 어떻게 여기 아래에서 길을 잃었는지가 있었습니다. 터널이 아니라 다른 사람들의 과거에서 말이죠."
+        "text_ko": "아렐은 계속 걸었다. 돌아보지 않았다. 이 아래에서 길을 잃는 방법이 그것이었다 — 터널이 아니라, 타인의 과거 속에서."
       }
     ],
     "sq_sump_ledger_start": [
@@ -517,12 +517,12 @@
         "speaker": "",
         "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger.",
         "cg": "res://assets/cg/generated/story_ch2_ledger_found.png",
-        "text_ko": "느슨한 돌 뒤에는 가죽으로 묶인 장부인 유포로 싸여 있습니다."
+        "text_ko": "헐거운 돌 뒤, 기름천에 싸인 것 — 가죽 장정의 장부였다."
       },
       {
         "speaker": "",
         "text": "Pages of names and numbers. Each entry a memory sold, a price paid. Some names have been crossed out. Permanently.",
-        "text_ko": "이름과 숫자의 페이지입니다. 각 항목마다 메모리가 판매되고 가격이 지불됩니다. 일부 이름은 지워졌습니다. 영구적으로."
+        "text_ko": "이름과 숫자의 페이지들. 항목 하나가 팔린 기억 하나, 치러진 값 하나. 몇몇 이름 위에는 줄이 그어져 있었다. 영구히."
       }
     ],
     "sq_sump_ledger_return": [
@@ -535,7 +535,7 @@
       {
         "speaker": "",
         "text": "He snatched the ledger and disappeared into the crowd before you could respond.",
-        "text_ko": "그는 장부를 낚아채고 당신이 대답하기도 전에 군중 속으로 사라졌습니다."
+        "text_ko": "그는 장부를 낚아채더니, 대답할 새도 없이 군중 속으로 사라졌다."
       }
     ],
     "sq_sump_ledger_burn": [
@@ -543,17 +543,17 @@
         "speaker": "",
         "text": "The pages caught fire instantly, as if they wanted to burn.",
         "cg": "res://assets/cg/generated/story_ch2_ledger_burned.png",
-        "text_ko": "마치 불타오르려는 듯 페이지에 즉시 불이 붙었습니다."
+        "text_ko": "페이지들은 닿자마자 불붙었다. 타고 싶어 했던 것처럼."
       },
       {
         "speaker": "",
         "text": "Names turned to ash. Debts dissolved. And something crystallized in the smoke — a memory that wasn't yours.",
-        "text_ko": "이름이 재로 변했습니다. 부채가 해소되었습니다. 그리고 연기 속에서 무언가 결정체가 생겼습니다. 그것은 당신의 것이 아닌 기억이었습니다."
+        "text_ko": "이름들이 재가 되었다. 빚이 풀렸다. 그리고 연기 속에서 무언가 결정이 맺혔다 — 당신의 것이 아닌 기억이."
       },
       {
         "speaker": "",
         "text": "But it is now.",
-        "text_ko": "하지만 지금은 그렇습니다."
+        "text_ko": "하지만 이제는 당신의 것이다."
       }
     ]
   },

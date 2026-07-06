@@ -7,7 +7,7 @@
         "speaker": "",
         "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray — the concept of color simply withdrew.",
         "cg": "res://assets/cg/generated/story_ch9_colorless_compass.png",
-        "text_ko": "컬러는 짧게 끊어진 문장처럼 끝났다. 한 단계: 차분한 가을 색조. 다음: 아무것도 없습니다. 회색이 아닙니다. 색상 개념이 단순히 철회되었습니다."
+        "text_ko": "색은 도중에 끊긴 문장처럼 끝났다. 한 걸음: 바랜 가을빛. 다음 걸음: 무(無). 회색이 아니라 — 색이라는 개념이 그냥 물러나 버린 것."
       },
       {
         "speaker": "Tobias",
@@ -51,7 +51,7 @@
         "speaker": "",
         "text": "Something pulled at Arrel's chest. Not pain — direction. Like a compass needle that had replaced his sternum.",
         "cg": "res://assets/cg/generated/story_ch9_colorless_compass.png",
-        "text_ko": "무언가가 에릴의 가슴을 잡아당겼습니다. 고통이 아니라 방향. 그의 흉골을 대체한 나침반 바늘처럼."
+        "text_ko": "무언가 아렐의 가슴을 잡아당겼다. 통증이 아니라 — 방향이. 흉골을 대신해 박힌 나침반 바늘처럼."
       },
       {
         "speaker": "Arrel",
@@ -100,7 +100,7 @@
         "speaker": "",
         "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there — as if the Waste had shaped itself around him.",
         "cg": "res://assets/cg/generated/story_ch9_kairos_confrontation.png",
-        "text_ko": "그는 한 번의 깜박임과 다음 깜박임 사이에 나타났습니다. 마치 그가 항상 거기 있었던 것처럼, 마치 황무지가 그의 주위에 형성되어 있는 것처럼 무색의 황무지 위에 서 있었습니다."
+        "text_ko": "눈 깜빡할 사이에 그가 나타났다. 무색의 황무지에 처음부터 있었던 것처럼 — 황무지가 그를 중심으로 스스로를 빚은 것처럼."
       },
       {
         "speaker": "Sable",
@@ -233,7 +233,7 @@
       {
         "speaker": "",
         "text": "He stepped sideways and the Waste swallowed his outline. Gone — or standing in the same place, invisible in the absence of color.",
-        "text_ko": "그는 옆으로 걸어갔고 황무지가 그의 윤곽을 삼켰습니다. 사라지거나 같은 장소에 서 있고 색이 없으면 보이지 않습니다."
+        "text_ko": "그가 옆으로 한 걸음 옮기자 황무지가 그 윤곽을 삼켰다. 사라졌다 — 혹은 같은 자리에 선 채, 색의 부재 속에 보이지 않게 되었거나."
       }
     ],
     "waste_atmosphere": [
@@ -241,7 +241,7 @@
         "speaker": "",
         "text": "Walking the Waste was like walking inside a photograph that someone had drained. Shapes existed, but meaning didn't.",
         "cg": "res://assets/cg/generated/story_ch9_human_chain.png",
-        "text_ko": "황무지를 걷는 것은 누군가가 빼낸 사진 속을 걷는 것과 같았습니다. 모양은 존재했지만 의미는 존재하지 않았습니다."
+        "text_ko": "황무지를 걷는 것은 누군가 색을 빼 버린 사진 안을 걷는 일이었다. 형태는 존재했다. 의미는 존재하지 않았다."
       },
       {
         "speaker": "Tobias",
@@ -258,7 +258,7 @@
       {
         "speaker": "",
         "text": "They walked in a chain. Elia's hand in Arrel's. Arrel's other hand on Sable's shoulder. Tobias gripping Sable's coat.",
-        "text_ko": "그들은 사슬로 걸었습니다. 아렐의 손에 엘리아의 손이 있습니다. 아렐의 다른 손은 Sable의 어깨에 있습니다. 토비아스가 세이블의 코트를 붙잡고 있습니다."
+        "text_ko": "그들은 사슬을 이루어 걸었다. 엘리아의 손은 아렐에게. 아렐의 다른 손은 세이블의 어깨에. 토비아스는 세이블의 외투를 붙들고."
       },
       {
         "speaker": "Sable",
@@ -284,7 +284,7 @@
         "speaker": "",
         "text": "The pull grew stronger. Not magnetic — hungry. Like something at the end of the line was reeling him in.",
         "cg": "res://assets/cg/generated/story_ch9_name_under_pull.png",
-        "text_ko": "당기는 힘이 더 강해졌습니다. 자석이 아니며 배고프다. 마치 줄 끝의 무언가가 그를 끌어당기는 것 같았습니다."
+        "text_ko": "당김이 강해졌다. 자기력이 아니라 — 허기였다. 줄 끝의 무언가가 그를 감아 들이고 있는 것처럼."
       },
       {
         "speaker": "Arrel",
@@ -363,7 +363,7 @@
       {
         "speaker": "",
         "text": "They crossed the threshold. Behind them, the colorless Waste sealed shut like a wound remembering how to close.",
-        "text_ko": "그들은 문지방을 넘었습니다. 그 뒤에는 닫는 방법을 기억하는 상처처럼 봉인된 무색의 폐기물이 닫혀 있었습니다."
+        "text_ko": "그들은 경계를 넘었다. 등 뒤에서 무색의 황무지가 닫히는 법을 기억해 낸 상처처럼 봉해졌다."
       }
     ],
     "kairos_defeated": [
@@ -371,7 +371,7 @@
         "speaker": "",
         "text": "Kairos staggered. For the first time, his composure fractured — a crack in the mask of clinical detachment.",
         "cg": "res://assets/cg/generated/story_ch9_kairos_withdrawal.png",
-        "text_ko": "카이로스는 비틀거렸다. 처음으로 그의 평정심이 깨졌습니다. 임상적 분리라는 가면에 금이 간 것이었습니다."
+        "text_ko": "카이로스가 비틀거렸다. 처음으로 그 평정이 부서졌다 — 임상적 초연함의 가면에 간 금."
       },
       {
         "speaker": "Kairos",
@@ -397,7 +397,7 @@
         "speaker": "",
         "text": "Strange markers dotted the Waste — pillars of compressed memory residue, frozen mid-dissolution.",
         "cg": "res://assets/cg/generated/story_ch9_memory_depth_markers.png",
-        "text_ko": "이상한 표시가 폐기물 곳곳에 흩어져 있습니다. 압축된 기억 찌꺼기의 기둥, 용해 도중 얼어붙은 것입니다."
+        "text_ko": "기이한 표석들이 황무지 곳곳에 서 있었다 — 용해 도중에 얼어붙은, 압축된 기억 잔여물의 기둥들."
       },
       {
         "speaker": "Tobias",
@@ -441,7 +441,7 @@
         "speaker": "",
         "text": "The compass in Arrel's chest flared — not toward BL-07, but sideways. Toward something buried in the colorless soil.",
         "cg": "res://assets/cg/generated/story_ch9_first_void_memory.png",
-        "text_ko": "아렐의 가슴에 있던 나침반이 BL-07을 향하지 않고 옆으로 펼쳐졌습니다. 무색의 흙 속에 묻힌 무언가를 향해."
+        "text_ko": "아렐의 가슴속 나침반이 타올랐다 — BL-07 쪽이 아니라, 옆으로. 무색의 흙 속에 묻힌 무언가를 향해."
       },
       {
         "speaker": "Arrel",
@@ -452,7 +452,7 @@
       {
         "speaker": "",
         "text": "He knelt and pressed his palm to the ground. A fragment surfaced: the last thought of someone who had stood here centuries ago, watching the first Void Hole open.",
-        "text_ko": "그는 무릎을 꿇고 손바닥을 땅에 눌렀다. 파편이 떠올랐습니다. 수세기 전에 이곳에 서서 첫 번째 공허 구멍이 열리는 것을 지켜본 누군가의 마지막 생각이었습니다."
+        "text_ko": "그가 무릎을 꿇고 땅에 손바닥을 댔다. 파편 하나가 떠올랐다. 수백 년 전 이 자리에 서서, 최초의 보이드 홀이 열리는 것을 지켜본 이의 마지막 생각."
       }
     ],
     "waste_final_view": [
@@ -460,7 +460,7 @@
         "speaker": "",
         "text": "At the edge of the Waste, Arrel turned back. The colorless expanse stretched to the horizon — a world stripped of every quality except existence.",
         "cg": "res://assets/cg/generated/story_ch9_final_colorless_view.png",
-        "text_ko": "황무지 가장자리에서 에릴은 돌아섰습니다. 지평선까지 뻗어 있는 무색의 광활한 공간. 존재를 제외한 모든 특성이 제거된 세계."
+        "text_ko": "황무지의 가장자리에서 아렐은 뒤를 돌아보았다. 무색의 벌판이 지평선까지 뻗어 있었다 — 존재라는 성질 하나만 남기고 전부 벗겨진 세계."
       },
       {
         "speaker": "Elia",

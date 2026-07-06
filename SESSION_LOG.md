@@ -5881,3 +5881,20 @@ Story-first game, hours of VN reading, and the runner had zero reading convenien
 
 ### Queued (next dedicated session)
 - **Part I full Korean rewrite pass** (S167-style): ~196 remaining machine-register lines across chapter1-10 + spot-check dialogue lines. Marker query: narration speaker=="" with ~습니다체.
+
+## S170 - 2026-07-07 (Part I Korean narration rewrite: all 235 flagged lines)
+
+### Done
+- Completed the queued Part I Korean pass: **all 235 machine-register narration/choice lines** across chapter1-10 dialogue files + epilogue rewritten to the house literary register (문어체 서술, ~였다/~했다), in four batches:
+  - Batch A: ch1 (3) + ch2 (31) + ch3 (16) — Verdan market, Malet deal, the Sump, Belt waystation, Tobias intro.
+  - Batch B: ch4 (11) + ch5 (27) + ch6 (35) — Drift Shelter, Crumbling Coast, Elia separation branch, the Seam arrival, BL-07 entrance.
+  - Batch C: ch7 (9) + ch8 (17) + ch9 (13) + ch10 (38) + epilogue (35) — Threshold, ghost forest, Colorless Waste, the Seal (all three resolutions incl. seal_weave), all six ending epilogues.
+- Representative fixes: "느슨한 돌 뒤에는 가죽으로 묶인 장부인 유포로 싸여 있습니다" → "헐거운 돌 뒤, 기름천에 싸인 것 — 가죽 장정의 장부였다." / "운동. 그들 뒤의 능선에" was dialogue-side (queued separately).
+- Ending banner lines localized (ZERO BURN/PRESERVATION/WEAVE/ASH/SEAM 엔딩 문구).
+
+### Verification
+- Marker re-scan (narration speaker=="" with ~습니다체 + choice 명령체): **0 remaining** (was 235).
+- 30/30 data JSON parse OK; headless boot 0 SCRIPT ERROR / Parse Error.
+
+### Queued (next dedicated session)
+- **Part I spoken-dialogue Korean pass**: speaker lines are also machine-register in many places (e.g. "Movement."→"운동.", "I've got you."→"나는 당신을 잡았습니다.", "에릴/어렐/에렐" name typos, 존댓말/반말 혼재). Detection needs a dialogue-aware heuristic (name-typo list, 직역 패턴), scope ~500+ lines — largest remaining localization debt.

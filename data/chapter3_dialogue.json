@@ -7,12 +7,12 @@
         "speaker": "",
         "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.",
         "cg": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
-        "text_ko": "벨트는 끝없이 뻗어 있었습니다. 아무 것도 자라지 않은 상처난 흙 조각이었습니다. 아렐과 엘리아는 몇 시간 동안 말없이 걸었습니다."
+        "text_ko": "벨트는 끝없이 뻗어 있었다 — 아무것도 자라지 않는, 흉터 진 땅의 띠. 아렐과 엘리아는 몇 시간을 말없이 걸었다."
       },
       {
         "speaker": "",
         "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry.",
-        "text_ko": "마침내, 안개 사이로 무너져가는 중간역이 나타났습니다. 옆으로 나열된 급수탑, 탱크가 오랫동안 건조되었습니다."
+        "text_ko": "마침내 안개 너머로 무너져 가는 역참이 나타났다. 급수탑은 옆으로 기울었고, 물탱크는 마른 지 오래였다."
       },
       {
         "speaker": "Elia",
@@ -35,7 +35,7 @@
       {
         "speaker": "",
         "text": "She pointed at a faded sign: BUREAU RELAY STATION 14 — AUTHORIZED PERSONNEL ONLY.",
-        "text_ko": "그녀는 빛바랜 표지판을 가리켰습니다: BUREAU RELAY STATION 14 - 승인된 직원 전용."
+        "text_ko": "그녀가 빛바랜 표지판을 가리켰다: 관리국 중계소 14 — 허가 인원 외 출입 금지."
       },
       {
         "speaker": "Arrel",
@@ -55,7 +55,7 @@
         "speaker": "",
         "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers.",
         "cg": "res://assets/cg/generated/story_ch3_tobias_waystation.png",
-        "text_ko": "정거장 내부에는 종이로 뒤덮인 책상 위에 한 인물이 웅크리고 앉아 있었습니다. 안경을 끼고 손가락에 잉크가 묻은 남자."
+        "text_ko": "역참 안, 서류로 뒤덮인 책상 위로 한 사람이 웅크리고 있었다. 안경을 쓰고 손가락에 잉크가 밴 남자."
       },
       {
         "speaker": "Tobias",
@@ -72,7 +72,7 @@
       {
         "speaker": "",
         "text": "The man startled, knocking a stack of bound journals to the floor.",
-        "text_ko": "그 남자는 깜짝 놀랐고, 제본된 일기장 더미를 바닥에 떨어뜨렸습니다."
+        "text_ko": "남자가 소스라치며, 묶어 둔 일지 더미를 바닥에 떨어뜨렸다."
       },
       {
         "speaker": "Tobias",
@@ -122,7 +122,7 @@
         "speaker": "",
         "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges.",
         "cg": "res://assets/cg/generated/story_ch3_waystation_blank_book.png",
-        "text_ko": "뒷방에서 아렐은 뭔가 이상한 점을 발견했습니다. 선반 위에 책 한 권이 있었는데 가장자리가 희미하게 빛나고 있는 것 같았습니다."
+        "text_ko": "뒷방에서 아렐은 이상한 것을 알아차렸다 — 선반 위의 책 한 권. 가장자리가 희미하게 빛나는 듯했다."
       },
       {
         "speaker": "Arrel",
@@ -175,7 +175,7 @@
       {
         "speaker": "",
         "text": "Tobias carefully took the book from the shelf and held it out to Arrel.",
-        "text_ko": "토비아스는 선반에서 책을 조심스럽게 꺼내 아렐에게 내밀었습니다."
+        "text_ko": "토비아스가 선반에서 책을 조심스레 꺼내 아렐에게 내밀었다."
       },
       {
         "speaker": "Tobias",
@@ -186,7 +186,7 @@
       {
         "speaker": "",
         "text": "The book felt warm in Arrel's hands. Like holding something alive.",
-        "text_ko": "책은 아렐의 손에서 따뜻하게 느껴졌습니다. 뭔가를 살려두는 것처럼요."
+        "text_ko": "책은 아렐의 손안에서 따뜻했다. 살아 있는 것을 쥔 것처럼."
       },
       {
         "speaker": "",
@@ -199,12 +199,12 @@
         "speaker": "",
         "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall.",
         "cg": "res://assets/cg/generated/story_ch3_kairos_wall_warning.png",
-        "text_ko": "급수탑으로 이어지는 계단에서는 누군가가 콘크리트 벽에 글자를 긁어 놓았습니다."
+        "text_ko": "급수탑으로 오르는 계단통, 누군가 콘크리트 벽에 글자를 긁어 놓았다."
       },
       {
         "speaker": "",
         "text": "The handwriting was precise, almost mechanical: 'Subject demonstrates Class Seven combustion efficiency.'",
-        "text_ko": "필기체는 정확하고 거의 기계적인 것이었습니다. '대상은 7등급 연소 효율을 보여줍니다.'"
+        "text_ko": "필체는 정밀했다. 거의 기계적이었다: '대상은 7급 연소 효율을 시현함.'"
       },
       {
         "speaker": "Arrel",
@@ -251,7 +251,7 @@
       {
         "speaker": "",
         "text": "A chill ran through the stairwell that had nothing to do with temperature.",
-        "text_ko": "온도와는 관계없는 오한이 계단통을 타고 달렸습니다."
+        "text_ko": "계단통을 타고 오한이 흘렀다. 기온과는 무관한 오한이."
       }
     ],
     "tobias_joins": [
@@ -300,7 +300,7 @@
       {
         "speaker": "",
         "text": "Tobias packed his journals into a battered satchel and slung it over his shoulder.",
-        "text_ko": "토비아스는 낡은 가방에 일기장을 싸서 어깨에 메었습니다."
+        "text_ko": "토비아스는 낡은 가방에 일지들을 챙겨 넣고 어깨에 걸쳤다."
       },
       {
         "speaker": "",
@@ -314,12 +314,12 @@
         "speaker": "",
         "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar.",
         "cg": "res://assets/cg/generated/story_ch3_dead_belt_road.png",
-        "text_ko": "벨트는 한때 6개의 정착지를 연결하는 주요 무역로였습니다. 이제는 흉터가 되었습니다."
+        "text_ko": "벨트는 한때 여섯 정착지를 잇던 주요 교역로였다. 지금은 흉터였다."
       },
       {
         "speaker": "",
         "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned — not by fire, but by memory.",
-        "text_ko": "회색 토양이 양방향으로 뻗어 있습니다. 아무것도 자라지 않았습니다. 땅 자체가 불에 타버린 것이었습니다. 불이 아니라 기억에 의해서였습니다."
+        "text_ko": "회색 흙이 양쪽으로 뻗어 있었다. 아무것도 자라지 않았다. 땅 자체가 타 버린 것이다 — 불이 아니라, 기억에 의해."
       },
       {
         "speaker": "Elia",
@@ -383,7 +383,7 @@
       {
         "speaker": "",
         "text": "Arrel looked back at the waystation one last time. It sat alone on the Belt like a forgotten thought.",
-        "text_ko": "아렐은 마지막으로 중간역을 돌아보았습니다. 그것은 잊혀진 생각처럼 벨트 위에 홀로 앉아 있었습니다."
+        "text_ko": "아렐은 마지막으로 역참을 돌아보았다. 그것은 잊힌 생각처럼 벨트 위에 홀로 앉아 있었다."
       },
       {
         "speaker": "Tobias",
@@ -413,7 +413,7 @@
         "speaker": "",
         "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot.",
         "cg": "res://assets/cg/generated/story_ch3_tobias_joins.png",
-        "text_ko": "세 사람은 벨트를 따라 출발하여 해안을 향해 북쪽으로 향했습니다. 회색 흙이 발 밑에서 바스락거렸다."
+        "text_ko": "세 사람은 벨트를 따라 북쪽 해안으로 출발했다. 회색 흙이 발밑에서 바스러졌다."
       }
     ]
   },

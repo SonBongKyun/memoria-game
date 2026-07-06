@@ -548,7 +548,7 @@
       {
         "speaker": "",
         "text": "He meant it. He hoped he'd still mean it tomorrow.",
-        "text_ko": "그는 진심이었습니다. 그는 내일도 여전히 진심이길 바랐다."
+        "text_ko": "그는 진심이었다. 내일도 여전히 진심이기를, 그는 바랐다."
       }
     ],
     "sq_echoes_ash_complete": [
@@ -561,7 +561,7 @@
         "speaker": "",
         "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place.",
         "cg": "res://assets/cg/generated/story_ch1_ashen_figure_restored.png",
-        "text_ko": "그 모습의 윤곽이 잠시 굳어졌다. 당신은 젊고, 피곤하고, 당신이 볼 수 없을 정도로 친숙한 얼굴을 보았습니다."
+        "text_ko": "형체의 윤곽이 잠시 또렷해졌다. 얼굴이 보였다 — 젊고, 지쳐 있고, 어디서인지 짚을 수 없게 낯익은."
       },
       {
         "speaker": "Ashen Figure",
@@ -571,7 +571,7 @@
       {
         "speaker": "",
         "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand.",
-        "text_ko": "그 모습은 재로 녹아버렸습니다. 그러나 기억은 결정체로 남아 당신의 손에 따뜻했습니다."
+        "text_ko": "형체는 재가 되어 흩어졌다. 그러나 기억은 남았다. 결정이 된 채, 손안에서 따뜻하게."
       }
     ]
   }
