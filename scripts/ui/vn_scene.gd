@@ -73,6 +73,15 @@ var _type_timer: float = 0.0
 var _waiting_for_input: bool = false
 var _active_side: String = ""  # "left" or "right" (말하는 쪽)
 
+# S168: AUTO 모드 + 빨리 감기 (스토리 중심 게임의 표준 편의 레이어)
+const AUTO_BASE_DELAY: float = 0.9     # 텍스트 완성 후 기본 대기
+const AUTO_PER_CHAR: float = 0.032     # 글자당 추가 대기 (읽기 속도)
+const AUTO_MAX_DELAY: float = 4.5
+const FF_ADVANCE_INTERVAL: float = 0.09  # Ctrl 홀드 시 진행 간격
+var _auto_btn: Button
+var _auto_timer: float = 0.0
+var _ff_timer: float = 0.0
+
 # 포트레이트 슬롯 상태
 var _left_portrait_id: String = ""
 var _right_portrait_id: String = ""
@@ -277,6 +286,34 @@ func _build_ui() -> void:
 	_continue_indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
 	_continue_indicator.visible = false
 	root.add_child(_continue_indicator)
+
+	# S168: AUTO 토글 칩 — 대화 진행 표시 왼쪽. 클릭 또는 A키.
+	_auto_btn = Button.new()
+	UITheme.apply_ui_font(_auto_btn)
+	_auto_btn.anchor_left = 1.0
+	_auto_btn.anchor_right = 1.0
+	_auto_btn.anchor_top = 1.0
+	_auto_btn.anchor_bottom = 1.0
+	_auto_btn.offset_left = -210
+	_auto_btn.offset_right = -140
+	_auto_btn.offset_top = -58
+	_auto_btn.offset_bottom = -28
+	_auto_btn.focus_mode = Control.FOCUS_NONE
+	_auto_btn.add_theme_font_size_override("font_size", 10)
+	_auto_btn.pressed.connect(_toggle_auto_mode)
+	var auto_style = StyleBoxFlat.new()
+	auto_style.bg_color = Color(0.03, 0.028, 0.04, 0.85)
+	auto_style.border_color = Color(0.55, 0.45, 0.3, 0.55)
+	auto_style.set_border_width_all(1)
+	auto_style.set_corner_radius_all(3)
+	auto_style.set_content_margin_all(4)
+	_auto_btn.add_theme_stylebox_override("normal", auto_style)
+	var auto_hover = auto_style.duplicate()
+	auto_hover.border_color = Color(0.9, 0.75, 0.45, 0.9)
+	_auto_btn.add_theme_stylebox_override("hover", auto_hover)
+	_auto_btn.add_theme_stylebox_override("pressed", auto_hover)
+	root.add_child(_auto_btn)
+	_refresh_auto_chip()
 
 	_choice_header = Label.new()
 	_choice_header.anchor_left = 0.18
@@ -1068,6 +1105,7 @@ func _display_line(speaker: String, text: String) -> void:
 	_typed_chars = 0
 	_typing_done = false
 	_type_timer = 0.0
+	_auto_timer = 0.0  # S168: 새 텍스트마다 AUTO 대기 재시작
 	_waiting_for_input = false
 	_show_continue(false)
 
@@ -1130,6 +1168,30 @@ func _process(delta: float) -> void:
 	_film_grain_time += delta
 	if _film_grain and _film_grain.material is ShaderMaterial:
 		(_film_grain.material as ShaderMaterial).set_shader_parameter("u_time", _film_grain_time)
+
+	# S168: AUTO 모드 / Ctrl 빨리 감기 — 선택지에서는 절대 자동 진행하지 않음
+	if SceneFlow.is_active and GameManager.current_state == GameManager.GameState.DIALOGUE and not _choice_container.visible:
+		var ff_held := Input.is_key_pressed(KEY_CTRL)
+		if ff_held:
+			# 빨리 감기: 타자 즉시 완성 → 짧은 간격으로 진행
+			if not _typing_done and _full_text != "":
+				_typed_chars = _full_text.length()
+				_text_label.text = _full_text
+				_typing_done = true
+				_waiting_for_input = true
+			if _waiting_for_input:
+				_ff_timer += delta
+				if _ff_timer >= FF_ADVANCE_INTERVAL:
+					_ff_timer = 0.0
+					_advance_step()
+		else:
+			_ff_timer = 0.0
+			if SceneFlow.vn_auto_mode and _typing_done and _waiting_for_input:
+				_auto_timer += delta
+				var wait_needed: float = clampf(AUTO_BASE_DELAY + _full_text.length() * AUTO_PER_CHAR, AUTO_BASE_DELAY, AUTO_MAX_DELAY)
+				if _auto_timer >= wait_needed:
+					_auto_timer = 0.0
+					_advance_step()
 
 	if _typing_done or _full_text == "":
 		return
@@ -1380,6 +1442,9 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ENTER or event.keycode == KEY_SPACE or event.keycode == KEY_E:
 			_try_advance()
+		elif event.keycode == KEY_A:
+			# S168: AUTO 모드 토글
+			_toggle_auto_mode()
 
 func _try_advance() -> void:
 	if not _typing_done:
@@ -1391,6 +1456,28 @@ func _try_advance() -> void:
 		_show_continue(true)
 		return
 	if _waiting_for_input:
-		_waiting_for_input = false
-		_show_continue(false)
-		SceneFlow.advance()
+		_advance_step()
+
+## S168: 공통 진행 경로 — 수동/AUTO/빨리감기가 모두 이 함수를 통과
+func _advance_step() -> void:
+	if not _waiting_for_input:
+		return
+	_waiting_for_input = false
+	_auto_timer = 0.0
+	_show_continue(false)
+	SceneFlow.advance()
+
+## S168: AUTO 모드 토글 + 칩 갱신
+func _toggle_auto_mode() -> void:
+	SceneFlow.vn_auto_mode = not SceneFlow.vn_auto_mode
+	_auto_timer = 0.0
+	_refresh_auto_chip()
+	if has_node("/root/AudioManager"):
+		AudioManager.play_sfx("ui_select")
+
+func _refresh_auto_chip() -> void:
+	if not _auto_btn:
+		return
+	var on := SceneFlow.vn_auto_mode
+	_auto_btn.text = ("AUTO ▶" if on else "AUTO") if GameManager.current_locale != "ko" else ("자동 ▶" if on else "자동")
+	_auto_btn.add_theme_color_override("font_color", Color(0.55, 0.95, 0.85) if on else Color(0.75, 0.65, 0.45))

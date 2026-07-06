@@ -9,29 +9,29 @@
       "set_chapter": 12,
       "autosave_chapter_transition": true,
       "narrate": "Verdan still stood. The Sump did not. Authority chains crossed its shutters in a perfect black wheel.",
-      "narrate_ko": "베르단은 여전히 서 있었다. 섬프는 그렇지 않았습니다. 관리국 봉쇄선은 완벽한 검은 바퀴로 셔터를 넘었습니다."
+      "narrate_ko": "베르단은 여전히 서 있었다. 더 섬프는 아니었다. 관리국의 사슬이 셔터 위에 완벽한 검은 바퀴 모양으로 교차해 있었다."
     },
     {
       "narrate": "Malet's desk was gone. So were the shelves, the traders, and every witness who could remember the market as alive.",
-      "narrate_ko": "말렛의 책상이 없어졌습니다. 진열대, 상인, 그리고 시장이 살아 있는 것으로 기억할 수 있는 모든 증인도 마찬가지였습니다."
+      "narrate_ko": "말렛의 책상은 사라졌다. 선반도, 상인들도, 이 시장이 살아 있었음을 기억할 증인들도 전부."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
       "text": "They closed it from the inside first. Someone had time to warn the lower stalls.",
-      "text_ko": "먼저 안쪽에서 닫았습니다. 누군가가 낮은 포장 마차에 경고 할 시간이있었습니다."
+      "text_ko": "안쪽에서 먼저 닫았어. 누군가 아래쪽 좌판에 경고할 시간이 있었던 거야."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
       "text": "Malet knew the exits.",
-      "text_ko": "말렛은 출구를 알고 있었습니다."
+      "text_ko": "말렛은 출구를 알았지."
     },
     {
       "narrate": "A new sentence had been cut into the wall above the lock: INTERFERENCE WILL BE CATALOGUED.",
-      "narrate_ko": "자물쇠 위의 벽에는 새로운 문장이 새겨져 있었습니다. 간섭은 분류될 것입니다."
+      "narrate_ko": "자물쇠 위 벽에 새 문장이 새겨져 있었다: 개입은 목록화된다."
     },
     {
       "cg": "res://assets/cg/generated/ch12_hidden_passage.png",
@@ -40,7 +40,7 @@
       "portrait": "elia_worried",
       "side": "right",
       "text": "That is for us. The patrol is turning back.",
-      "text_ko": "그것은 우리를 위한 것입니다. 순찰대가 돌아오고 있습니다."
+      "text_ko": "우리 들으라는 거야. 순찰이 되돌아오고 있어."
     },
     {
       "choice": [
@@ -49,13 +49,13 @@
           "cost_memory": "rel_verdan_faces",
           "set_flag": "ch12_burned_verdan_faces",
           "goto": 8,
-          "text_ko": "베르단의 얼굴을 불태우세요. 군중을 개구부와 장애물로만 읽으십시오."
+          "text_ko": "베르단의 얼굴들을 태운다. 군중을 통로와 장애물로만 읽는다."
         },
         {
           "text": "Keep their faces. Take the flooded service stair beneath the market.",
           "set_flag": "ch12_kept_verdan_faces",
           "goto": 12,
-          "text_ko": "그들의 얼굴을 유지하십시오. 시장 아래의 물에 잠긴 서비스 계단을 이용하세요."
+          "text_ko": "얼굴들을 지킨다. 시장 아래 물에 잠긴 정비 계단으로 간다."
         },
         {
           "text": "Follow the taste you still carry. The vendor row hides a gap only regulars know.",
@@ -68,18 +68,18 @@
     },
     {
       "narrate": "[ The market waits for an answer. ]",
-      "narrate_ko": "[ The market waits for an answer. ]"
+      "narrate_ko": "[ 시장이 대답을 기다린다. ]"
     },
     {
       "narrate": "Faces flattened into movement. A frightened child became a gap between two coats. A vendor became cover. Arrel led them through.",
-      "narrate_ko": "얼굴이 납작해져 움직임이 생겼습니다. 겁에 질린 아이는 두 코트 사이의 틈이 되었습니다. 공급 업체가 표지가되었습니다. 아렐이 그들을 안내했습니다."
+      "narrate_ko": "얼굴들이 움직임으로 납작해졌다. 겁에 질린 아이는 외투 두 벌 사이의 틈이 되었고, 상인은 엄폐물이 되었다. 아렐이 앞장서 뚫었다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
       "text": "Clear path. No people.",
-      "text_ko": "명확한 경로. 사람이 없습니다."
+      "text_ko": "길은 뚫렸어. 사람은 없었고."
     },
     {
       "action": "goto_scene",
@@ -88,20 +88,20 @@
     },
     {
       "narrate": "[ Branch return. ]",
-      "narrate_ko": "[ Branch return. ]"
+      "narrate_ko": "[ 분기 합류. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch12_black_service_stair.png",
       "fade": 0.8,
       "narrate": "The service stair was chest-deep in black water. They kept every face and surrendered three hours to the dark.",
-      "narrate_ko": "서비스 계단은 검은 물 속에 가슴 깊이였습니다. 그들은 모든 얼굴을 유지하고 세 시간 동안 어둠에 항복했습니다."
+      "narrate_ko": "정비 계단은 가슴까지 차오른 검은 물이었다. 그들은 모든 얼굴을 지켰고, 어둠에 세 시간을 내주었다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_calm",
       "side": "right",
       "text": "Slower is still forward.",
-      "text_ko": "느린 것은 여전히 ​​앞입니다."
+      "text_ko": "느려도 앞으로는 가고 있어."
     },
     {
       "action": "goto_scene",
@@ -113,51 +113,51 @@
       "portrait": "elia_concern",
       "side": "right",
       "text": "There is a name in the notebook. Pell.",
-      "text_ko": "수첩에 이름이 있습니다. 펠."
+      "text_ko": "노트에 이름이 있어. 펠."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
       "text": "Do you know it?",
-      "text_ko": "당신은 그것을 알고 있나요?"
+      "text_ko": "아는 이름이야?"
     },
     {
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",
       "text": "No. My body does. That is worse.",
-      "text_ko": "아니요. 내 몸이 그렇습니다. 그게 더 나쁘다."
+      "text_ko": "아니. 내 몸이 알아. 그게 더 나빠."
     },
     {
       "cg": "res://assets/cg/generated/ch12_pell_name_returns.png",
       "fade": 1.4,
       "narrate": "The letters vanished when Arrel looked directly at them. Under Elia's thumb, they returned.",
-      "narrate_ko": "아렐이 편지를 직접 보았을 때 편지가 사라졌습니다. 엘리아의 손아귀에서 그들은 돌아왔습니다."
+      "narrate_ko": "아렐이 똑바로 바라보자 글자들이 사라졌다. 엘리아의 엄지 아래에서, 글자들은 돌아왔다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_determined",
       "side": "right",
       "text": "We tell Tobias. Not Cover. Not anyone else.",
-      "text_ko": "우리는 토비아스에게 말합니다. 표지가 아닙니다. 다른 누구도 아닙니다."
+      "text_ko": "토비아스한테만 말해. 커버는 안 돼. 다른 누구도."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
       "text": "Agreed.",
-      "text_ko": "동의했습니다."
+      "text_ko": "동의해."
     },
     {
       "set_flag": "pell_name_found",
       "narrate": "Outside, the patrol boots stopped above the stair.",
-      "narrate_ko": "밖에서 순찰 부츠가 계단 위에 멈췄습니다."
+      "narrate_ko": "밖에서, 순찰의 군화가 계단 위에서 멈췄다."
     },
     {
       "requires_flag": "ch12_faces_key",
-	  "cg": "res://assets/cg/generated/memory_key_verdan_passage.png",
-	  "fade": 0.8,
+      "cg": "res://assets/cg/generated/memory_key_verdan_passage.png",
+      "fade": 0.8,
       "narrate": "At the mouth of the vendor row, the spice seller met his eyes for half a second — the way you greet a regular you will not name — and tipped her awning toward a shuttered stall with a loose back panel. Being remembered, it turned out, was also a place to hide.",
       "narrate_ko": "노점 줄 초입에서 향신료 상인이 반 초쯤 그와 눈을 맞췄다 — 이름을 대지 않을 단골을 맞이하는 방식으로 — 그리고 차양을 기울여, 뒤판이 헐거운 셔터 내린 좌판을 가리켰다. 기억된다는 것은, 알고 보니 숨을 곳이기도 했다."
     },
@@ -166,5 +166,5 @@
       "id": "ch13_third_person"
     }
   ],
-  "title_ko": "제 12 장 — 독자"
+  "title_ko": "제12장 — 독자"
 }

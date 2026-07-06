@@ -202,7 +202,7 @@
       {
         "speaker": "",
         "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E.",
-        "text_ko": "누군가가 거기에 글자를 새긴 적이 있었습니다. 비는 그들 대부분을 먹어치웠지만 두 명만 남았습니다: A. E."
+        "text_ko": "누군가 언젠가 글자를 새겨 두었다. 비가 대부분을 삼켰지만, 둘은 남아 있었다: A. E."
       },
       {
         "speaker": "",
@@ -232,7 +232,7 @@
         "speaker": "",
         "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.",
         "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
-        "text_ko": "바람에 흔들리는 촛불처럼 공터 가장자리에 한 형체가 서 있었습니다."
+        "text_ko": "공터 가장자리에 한 형체가 서 있었다. 바람 앞의 촛불처럼 깜빡이면서."
       },
       {
         "speaker": "Ashen Figure",
@@ -252,7 +252,7 @@
       {
         "speaker": "",
         "text": "The figure's edges blurred. It was already fading.",
-        "text_ko": "그림의 가장자리가 흐려졌습니다. 이미 희미해지고 있었습니다."
+        "text_ko": "형체의 윤곽이 흐려졌다. 이미 지워지는 중이었다."
       }
     ],
     "sq_echoes_ash_frag": [
@@ -260,7 +260,7 @@
         "speaker": "",
         "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch.",
         "cg": "res://assets/cg/generated/story_ch1_echo_fragment.png",
-        "text_ko": "땅바닥에서 희미한 빛이 펄럭인다. 결정화된 기억 조각으로, 만지면 따뜻합니다."
+        "text_ko": "땅에서 희미한 빛이 맥동한다. 결정화된 기억 조각 — 만지면 따뜻하다."
       },
       {
         "speaker": "",
@@ -296,7 +296,7 @@
       {
         "speaker": "",
         "text": "He hadn't noticed. His fingers were pressed against the right side of his skull, tracing circles.",
-        "text_ko": "그는 눈치 채지 못했습니다. 그의 손가락은 그의 두개골 오른쪽에 눌려 원을 그리며 그려졌습니다."
+        "text_ko": "그는 눈치채지 못하고 있었다. 그의 손가락이 두개골 오른쪽을 누른 채, 원을 그리고 있었다."
       },
       {
         "speaker": "Arrel",
@@ -392,7 +392,7 @@
       {
         "speaker": "",
         "text": "She was quiet for a long time after that.",
-        "text_ko": "그 후 그녀는 오랫동안 조용했습니다."
+        "text_ko": "그 뒤로 그녀는 오래 말이 없었다."
       }
     ],
     "elia_anchor_talk": [
@@ -430,7 +430,7 @@
       {
         "speaker": "",
         "text": "He had no way to know if that was true. That was the point.",
-        "text_ko": "그는 그것이 사실인지 알 방법이 없었습니다. 그것이 요점이었습니다."
+        "text_ko": "그 말이 사실인지 확인할 방법은 없었다. 바로 그게 요점이었다."
       },
       {
         "speaker": "Elia",
@@ -456,7 +456,7 @@
         "speaker": "",
         "text": "Between the roots of a dead oak, someone had built a shrine.",
         "cg": "res://assets/cg/generated/story_ch1_memory_shrine.png",
-        "text_ko": "죽은 참나무 뿌리 사이에 누군가가 신전을 지은 것이었습니다."
+        "text_ko": "죽은 참나무 뿌리 사이에, 누군가 작은 사당을 지어 두었다."
       },
       {
         "speaker": "",
@@ -490,7 +490,7 @@
       {
         "speaker": "",
         "text": "The amber liquid caught the light once more. Then a flake of ash rain dissolved against the glass, and the glow faded.",
-        "text_ko": "호박색 액체가 다시 한 번 빛을 발했습니다. 그러자 재비가 유리에 녹아 내리면서 빛이 사라졌습니다."
+        "text_ko": "호박색 액체가 한 번 더 빛을 머금었다. 그리고 잿비 한 조각이 유리에 닿아 녹아내리자, 빛은 사그라들었다."
       }
     ],
     "dead_burner": [
@@ -503,12 +503,12 @@
       {
         "speaker": "",
         "text": "It sat against a tree, arms at its sides, head tilted back as if watching something in the canopy that had long since moved on.",
-        "text_ko": "그것은 나무에 기대어 앉아 팔을 양옆에 두고 머리를 뒤로 젖힌 채 오래 전에 움직였던 천개 속의 무언가를 지켜보는 듯했습니다."
+        "text_ko": "그것은 나무에 기대앉아 있었다. 팔은 양옆에, 고개는 뒤로 젖힌 채 — 이미 오래전에 떠나 버린 우듬지의 무언가를 여태 바라보는 것처럼."
       },
       {
         "speaker": "",
         "text": "There were no wounds. No signs of struggle. Just a person who had stopped.",
-        "text_ko": "상처는 없었습니다. 투쟁의 흔적은 없습니다. 그냥 멈춰 있던 사람."
+        "text_ko": "상처는 없었다. 저항의 흔적도 없었다. 그저, 멈춰 버린 사람이었다."
       },
       {
         "speaker": "Elia",
@@ -531,7 +531,7 @@
       {
         "speaker": "",
         "text": "The body's eyes were open. Clear. Empty. Like two windows in a house where no one lived.",
-        "text_ko": "시체의 눈이 열려 있었습니다. 분명한. 비어 있는. 아무도 살지 않는 집에 창문 두 개가 있는 것과 같습니다."
+        "text_ko": "시신의 눈은 뜨여 있었다. 맑고. 텅 빈. 아무도 살지 않는 집의 창문 두 개처럼."
       },
       {
         "speaker": "Elia",

@@ -155,8 +155,8 @@
     },
     {
       "requires_flag": "ch19_gesture_key",
-	  "cg": "res://assets/cg/generated/memory_key_single_signature.png",
-	  "fade": 0.8,
+      "cg": "res://assets/cg/generated/memory_key_single_signature.png",
+      "fade": 0.8,
       "narrate": "At the barrier, the scanners read their linked hands as a single signature and waved one person through where two had walked. Elia looked down at their fingers, then up. 'It survived Lumea,' she said quietly. 'The whitest place on the continent, and it is still ours.'",
       "narrate_ko": "차단벽에서 스캐너는 맞잡은 두 손을 하나의 시그니처로 읽었고, 두 사람이 지나간 자리에 한 사람만을 통과시켰다. 엘리아가 맞잡은 손가락을 내려다보고, 다시 그를 올려다보았다. '루메아에서도 살아남았네.' 그녀가 조용히 말했다. '대륙에서 가장 흰 곳에서도, 이건 아직 우리 거야.'"
     },

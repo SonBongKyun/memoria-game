@@ -1,7 +1,7 @@
 {
   "id": "ch21_editors_turn",
   "title": "Chapter 21 — The Editor's Turn",
-  "title_ko": "제21장 — 편집관의 차례",
+  "title_ko": "제21장 — 에디터의 선택",
   "chapter": 21,
   "steps": [
     {
@@ -141,8 +141,8 @@
     },
     {
       "requires_flag": "ch21_alliance_key",
-	  "cg": "res://assets/cg/generated/memory_key_surviving_page.png",
-	  "fade": 0.8,
+      "cg": "res://assets/cg/generated/memory_key_surviving_page.png",
+      "fade": 0.8,
       "narrate": "Because three had stood instead of one, Belor's silence had needed three targets — and in that divided second, Tobias palmed a single page from the burning notebook. One page of withheld arithmetic, folded against his chest. The record, it turned out, only needs one surviving line to stay a record.",
       "narrate_ko": "하나가 아니라 셋이 버텨 섰기에, 벨로르의 침묵은 세 개의 표적이 필요했다 — 그 갈라진 일 초 사이, 토비아스가 불타는 수첩에서 한 장을 훔쳐 냈다. 유보된 산수 한 페이지가 그의 가슴에 접혀 들어갔다. 기록은, 알고 보면 기록으로 남기 위해 단 한 줄의 생존만을 필요로 한다."
     },

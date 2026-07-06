@@ -9,31 +9,31 @@
       "set_chapter": 18,
       "autosave_chapter_transition": true,
       "narrate": "The Authority built the funeral before it captured Tobias. That was how certain it had become.",
-      "narrate_ko": "관리국은 토비아스를 붙잡기 전에 장례식을 지었습니다. 그만큼 확실해졌습니다."
+      "narrate_ko": "관리국은 토비아스를 붙잡기도 전에 장례식장부터 지었다. 그만큼 확신하고 있었다는 뜻이다."
     },
     {
       "narrate": "White stone, black restraints, and a ring of fire waiting to burn a name after the memories were gone.",
-      "narrate_ko": "하얀 돌과 검은 속박, 그리고 기억이 사라진 뒤에 이름을 불태우기를 기다리는 불의 고리."
+      "narrate_ko": "흰 돌, 검은 구속구, 그리고 기억이 전부 사라진 뒤에 이름을 태우려 기다리는 불의 고리."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",
       "text": "The platform is keyed to him. If we break it, the extraction will choose another witness.",
-      "text_ko": "플랫폼은 그에게 맞춰져 있습니다. 우리가 그것을 깨면 추출은 다른 증인을 선택할 것입니다."
+      "text_ko": "단상이 그 사람에게 맞춰 고정돼 있어. 부수면 추출이 다른 증인을 고를 거야."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_angry",
       "side": "left",
       "text": "We move now.",
-      "text_ko": "우리는 지금 이동합니다."
+      "text_ko": "지금 움직인다."
     },
     {
       "cg": "res://assets/cg/generated/ch18_tobias_platform.png",
       "fade": 0.7,
       "narrate": "Tobias stepped onto the platform before the Erasers could drag him there.",
-      "narrate_ko": "토비아스는 소거관들가 그를 그곳으로 끌고 가기 전에 플랫폼 위로 올라갔습니다.",
+      "narrate_ko": "토비아스는 소거관들이 끌고 가기 전에 스스로 단상 위에 올라섰다.",
       "distort_if_burned": "identity_intervention_vow",
       "distorted_narrate": "Tobias stepped onto the platform before the Erasers could drag him there. Arrel noticed that his own feet had not moved. The pull that used to move them had been spent in a Confessor Hall, and what remained now had to be chosen, by hand, every time.",
       "distorted_narrate_ko": "토비아스는 소거관들이 끌고 가기 전에 스스로 단상 위에 올라섰다. 아렐은 자신의 발이 움직이지 않았다는 것을 깨달았다. 발을 움직이게 하던 그 끌림은 고해소에서 이미 소모되었고, 남은 것은 이제 매번, 손으로 직접, 선택해야 했다."
@@ -45,11 +45,11 @@
       "portrait": "tobias_concerned",
       "side": "right",
       "text": "A record is not the person who writes it. That is the point, Arrel. It must survive my handwriting.",
-      "text_ko": "기록은 그것을 쓰는 사람이 아니다. 그게 요점이야, 아렐. 내 손글씨에서 살아남아야 합니다."
+      "text_ko": "기록은 그것을 쓴 사람이 아니야. 그게 요점이라네, 아렐. 기록은 내 필적보다 오래 살아남아야 해."
     },
     {
       "narrate": "The first ring took the way he sharpened a pencil. The second reached for Elia's name.",
-      "narrate_ko": "첫 번째 반지는 그가 연필을 깎는 방식을 따랐습니다. 두 번째는 엘리아의 이름에 도달했습니다."
+      "narrate_ko": "첫 번째 고리가 그가 연필을 깎는 방식을 가져갔다. 두 번째 고리가 엘리아의 이름을 향해 뻗었다."
     },
     {
       "choice": [
@@ -58,39 +58,39 @@
           "cost_memory": "identity_witness_record",
           "set_flag": "tobias_funeral_rescued",
           "goto": 9,
-          "text_ko": "증인을 남겨야 한다는 의무를 불태우세요. 플랫폼을 부수고 토비아스를 살아서 끌어내세요."
+          "text_ko": "증인을 남길 의무를 태운다. 단상을 부수고 토비아스를 산 채로 끌어낸다."
         },
         {
           "text": "Keep the duty. Trust Tobias's record and let his chosen testimony finish.",
           "set_flag": "tobias_funeral_lost",
           "goto": 14,
-          "text_ko": "의무를 지키세요. 토비아스의 기록을 신뢰하고 그가 선택한 간증이 끝나도록 하십시오."
+          "text_ko": "의무를 지킨다. 토비아스의 기록과, 그가 선택한 증언이 끝나는 것을 믿는다."
         }
       ]
     },
     {
       "narrate": "[ The fire waits for a name. ]",
-      "narrate_ko": "[ The fire waits for a name. ]"
+      "narrate_ko": "[ 불이 이름을 기다린다. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch18_broken_funeral_platform.png",
       "fade": 0.8,
       "narrate": "The duty became one white-gold impact. The platform forgot Tobias was its subject and released every restraint at once.",
-      "narrate_ko": "그 의무는 하나의 백금 효과가 되었습니다. 플랫폼은 토비아스가 주제라는 사실을 잊어버리고 모든 구속을 즉시 해제했습니다."
+      "narrate_ko": "의무가 한 번의 백금빛 충격이 되었다. 단상은 토비아스가 자신의 대상이라는 것을 잊었고, 모든 구속구를 한꺼번에 풀었다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_burn",
       "side": "left",
       "text": "Tobias. Move.",
-      "text_ko": "토비아스. 이동하다."
+      "text_ko": "토비아스. 움직여."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
       "text": "You absolute illiterate. Remind me to thank you after I relearn gratitude.",
-      "text_ko": "당신은 절대 문맹입니다. 감사를 다시 배운 후에 감사하라고 상기시켜 주세요."
+      "text_ko": "이 지독한 문맹 같으니. 고마움을 다시 배우고 나면, 감사 인사를 하라고 일러 주게."
     },
     {
       "action": "goto_scene",
@@ -99,24 +99,24 @@
     },
     {
       "narrate": "[ Branch return. ]",
-      "narrate_ko": "[ Branch return. ]"
+      "narrate_ko": "[ 분기 합류. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch18_witness_without_name.png",
       "fade": 0.9,
       "narrate": "Arrel kept the duty. Tobias kept the platform's attention on himself while Elia carried the completed notebook beyond the square.",
-      "narrate_ko": "아렐은 의무를 지켰습니다. 토비아스는 연단의 주의를 자신에게만 집중시켰고, 엘리아는 완성된 노트를 광장 너머로 들고 다녔습니다."
+      "narrate_ko": "아렐은 의무를 지켰다. 토비아스가 단상의 주의를 자신에게 붙들어 두는 동안, 엘리아가 완성된 노트를 광장 밖으로 옮겼다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
       "text": "Tell the truth badly if you must. Just do not let them become the only editors.",
-      "text_ko": "꼭 필요한 경우 진실을 나쁘게 말하십시오. 그들이 유일한 편집자가 되도록 놔두지 마십시오."
+      "text_ko": "서툴러도 좋으니 진실을 말하게. 다만 저들이 유일한 편집자가 되게 두지는 말게."
     },
     {
       "narrate": "The last ring took his name. The notebook did not go blank.",
-      "narrate_ko": "마지막 반지는 그의 이름을 따왔습니다. 노트북은 비어 있지 않았습니다."
+      "narrate_ko": "마지막 고리가 그의 이름을 가져갔다. 노트는 비어지지 않았다."
     },
     {
       "action": "goto_scene",
@@ -128,14 +128,14 @@
       "fade": 0.9,
       "requires_flag": "tobias_funeral_rescued",
       "narrate": "Tobias stumbled from the broken platform alive, missing several small habits and none of his anger.",
-      "narrate_ko": "토비아스는 깨진 단상에서 살아서 비틀거리며 몇 가지 작은 습관도 잃어버렸고 분노도 전혀 없었습니다."
+      "narrate_ko": "토비아스는 부서진 단상에서 비틀거리며 걸어 나왔다. 살아서. 자잘한 습관 몇 개를 잃었고, 분노는 하나도 잃지 않은 채."
     },
     {
       "cg": "res://assets/cg/generated/ch18_crowd_forgets_tobias.png",
       "fade": 0.9,
       "requires_flag": "tobias_funeral_lost",
       "narrate": "The crowd remembered that someone had stood on the platform. No one but Arrel and Elia remembered who.",
-      "narrate_ko": "군중은 누군가가 단상에 서 있었다는 것을 기억했습니다. 아렐과 엘리아 외에는 누구도 누구인지 기억하지 못했습니다.",
+      "narrate_ko": "군중은 누군가 단상 위에 서 있었다는 것만 기억했다. 그가 누구였는지는, 아렐과 엘리아 말고는 아무도 기억하지 못했다.",
       "distort_if_burned": "rel_verdan_faces",
       "distorted_narrate": "The crowd remembered that someone had stood on the platform. Elia remembered who. Arrel remembered that remembering him mattered — but the face itself kept sliding away, one more face in a world he had reduced to openings and obstacles.",
       "distorted_narrate_ko": "군중은 누군가가 단상에 서 있었다는 것만 기억했다. 엘리아는 그가 누구였는지 기억했다. 아렐은 그를 기억하는 일이 중요하다는 것은 기억했다 — 그러나 얼굴 자체는 자꾸만 미끄러져 나갔다. 그가 통로와 장애물로 축소해 버린 세계 속의, 또 하나의 얼굴로."
@@ -143,7 +143,7 @@
     {
       "set_flag": "tobias_funeral",
       "narrate": "Beyond the square, a black monolith cut the eastern sky from horizon to cloud.",
-      "narrate_ko": "광장 너머에는 검은 기둥이 동쪽 하늘을 수평선에서 구름까지 가르고 있었습니다."
+      "narrate_ko": "광장 너머에서, 검은 모노리스가 지평선부터 구름까지 동쪽 하늘을 갈랐다."
     },
     {
       "requires_flag": "tobias_funeral_rescued",
@@ -151,7 +151,7 @@
       "portrait": "arrel_pensive",
       "side": "left",
       "text": "Still here. Keep writing.",
-      "text_ko": "아직 여기 있어요. 계속 쓰세요."
+      "text_ko": "아직 여기 있잖아. 계속 써."
     },
     {
       "requires_flag": "tobias_funeral_lost",
@@ -159,21 +159,21 @@
       "portrait": "arrel_angry",
       "side": "left",
       "text": "I will remember the anger.",
-      "text_ko": "분노를 기억하겠습니다."
+      "text_ko": "이 분노를 기억하겠어."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
       "text": "Then we carry it east. Not as heat. Not yet.",
-      "text_ko": "그런 다음 동쪽으로 운반합니다. 열이 아닙니다. 아직 아님."
+      "text_ko": "그럼 동쪽으로 가져가자. 열로는 말고. 아직은."
     },
     {
       "set_flag": "anger_max",
       "cg": "res://assets/cg/generated/ch18_monolith_answers.png",
       "fade": 1.8,
       "narrate": "The monolith answered with a line of violet light.",
-      "narrate_ko": "기둥은 한 줄의 보라색 빛으로 대답했습니다."
+      "narrate_ko": "모노리스가 한 줄의 보랏빛 빛으로 대답했다."
     },
     {
       "complete_chapter": 18,
@@ -186,5 +186,5 @@
       "id": "ch19_approach"
     }
   ],
-  "title_ko": "제18장 생장례"
+  "title_ko": "제18장 — 생장례"
 }

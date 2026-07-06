@@ -5835,3 +5835,49 @@ Two complete hand-made sprite sheets were sitting unused in the repo: `assets/sp
 - Direct headless load of `vn_host.tscn` passed without script or parse errors.
 - All 117 active VN CG references resolve to 105 unique files; all four new assets and import metadata passed the 1672x941 RGB audit.
 - `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S167 - 2026-07-05 (Codex review + Part II Korean literary rewrite)
+
+### Codex work review (0e2a4fb / a78ca66 / 77be80d / fcc430d / fb28511)
+- Verified clean: Field Focus loop complete (Memory Pulse discovery -> banked focus (max 3) -> battle-opening advantage, HUD/artbook integration), style-locked Field Focus echo CGs, Part III art completion, branch-consequence and choice-result CGs wired ch11-23.
+- Audit: smoke_field_focus + smoke_visual_clarity pass, 19-scene structural audit 0 errors, referenced CG files 0 missing, headless boot 0 errors.
+
+### Done — Part II Korean rewrite (default-locale quality gap)
+- Rewrote every machine-translated `text_ko`/`narrate_ko`/choice label in **ch11-ch18** (~156 steps + 16 choices) to the S147+ house literary register, voice-locked per character (Arrel 단문 선언 / Elia 부드러운 정확함 / Tobias 장부 은유·하게체 / Kairos 격식 하게체 / Handler 사무체).
+- Representative: "나는 6을 세었다" → "여섯. 셈은 끝냈어."
+- Preserved all previously authored Korean (canon seeds, memory-key payoffs, distortion variants).
+- Normalized `title_ko` across ch11-ch24 ("제N장 — 이름", 14 scenes).
+
+### Verification
+- Field-by-field structural diff vs HEAD across all 8 rewritten files: **CLEAN** — only `_ko` and `title_ko` changed.
+- 30/30 data JSON parse OK; headless boot 0 SCRIPT ERROR / Parse Error.
+
+## S168 - 2026-07-06 (VN comfort layer: AUTO mode + fast-forward)
+
+### Rationale
+Story-first game, hours of VN reading, and the runner had zero reading conveniences. Coverage audit confirmed Part I dialogue Korean is 100% present (1032/1032 lines), so the highest-value upgrade was the missing comfort layer.
+
+### Done (`vn_scene.gd` + `scene_flow.gd`)
+- **AUTO mode**: toggle with `A` key or the new "자동/AUTO" chip beside the NEXT indicator. After the typewriter finishes, waits a read-time delay (0.9s base + 0.032s/char, capped 4.5s) then advances. Session-persistent across scene instances via `SceneFlow.vn_auto_mode`; chip shows state (teal ▶ when on).
+- **Fast-forward**: hold `Ctrl` — instantly completes the current line and advances every 0.09s while held.
+- **Safety rails**: both modes are hard-gated — never fire during choices (`_choice_container.visible`), never while the VN is inactive or the game state left DIALOGUE (e.g. Tab archive open). All three advance paths (manual/auto/FF) go through one `_advance_step()`.
+- Auto timer resets on every new line and on toggle; manual clicks don't cancel AUTO (standard VN behavior).
+
+### Verification
+- Headless boot + battle smoke scene: 0 SCRIPT ERROR / Parse Error / assertion failures.
+
+### Next debt candidates
+- Mirror a minimal AUTO toggle in the Part I map DialogueBox for parity.
+- Part I dialogue `text_ko` quality spot-audit (coverage is 100%; register quality unverified).
+
+## S169 - 2026-07-06 (DialogueBox AUTO parity + Part I Korean audit)
+
+### Done
+- **DialogueBox AUTO parity**: the Part I map dialogue box now honors the same AUTO mode as the VN runner — `A` key toggles `SceneFlow.vn_auto_mode` (shared state, toast feedback), and when ON every line auto-advances after the same read-time formula (0.9s + 0.032s/char, cap 4.5s). Narration-only auto-advance (S55) remains the fallback when AUTO is off. Choice guard unchanged.
+- **Part I Korean quality audit**: systematic scan found **208 machine-register narration lines** (~습니다 narration, literal artifacts) across chapter1-10 dialogue files. Fixed the 12 worst always-seen Chapter 1 lines (hidden_stump, dead_burner, forest_shrine, sq_echoes_ash, elia talks) to the house literary register.
+
+### Verification
+- 30/30 data JSON parse OK; headless boot 0 SCRIPT ERROR / Parse Error.
+
+### Queued (next dedicated session)
+- **Part I full Korean rewrite pass** (S167-style): ~196 remaining machine-register lines across chapter1-10 + spot-check dialogue lines. Marker query: narration speaker=="" with ~습니다체.

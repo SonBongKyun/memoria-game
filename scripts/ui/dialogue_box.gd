@@ -367,8 +367,15 @@ func _process(delta: float) -> void:
 			viewport.canvas_transform.origin = Vector2.ZERO
 
 ## S55: Start auto-advance countdown if the current line is narration (no speaker)
+## S169: 전체 AUTO 모드(VN과 공유) — 켜져 있으면 모든 라인을 읽기 시간 후 자동 진행
 func _start_auto_advance_if_narration() -> void:
-	if _current_speaker == "" and not choice_container.visible:
+	if choice_container.visible:
+		return
+	if SceneFlow.vn_auto_mode:
+		_auto_advance_active = true
+		_auto_advance_timer = clampf(0.9 + full_text.length() * 0.032, 0.9, 4.5)
+		return
+	if _current_speaker == "":
 		# Check if auto-advance is enabled in options
 		var auto_adv: bool = OptionsMenu.settings.get("auto_advance_narration", true) if OptionsMenu else true
 		if auto_adv:
@@ -1221,6 +1228,16 @@ func hide_box() -> void:
 ## 입력 처리 (타자기 스킵 / 대사 넘기기)
 func _unhandled_input(event: InputEvent) -> void:
 	if not DialogueManager.is_active:
+		return
+
+	# S169: AUTO 모드 토글 (VN과 상태 공유) — A키
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_A and not choice_container.visible:
+		SceneFlow.vn_auto_mode = not SceneFlow.vn_auto_mode
+		_auto_advance_active = false
+		if SceneFlow.vn_auto_mode and not is_typing:
+			_start_auto_advance_if_narration()
+		NotificationToast.show_toast("자동 진행 ON" if SceneFlow.vn_auto_mode else "자동 진행 OFF", NotificationToast.ToastType.INFO)
+		get_viewport().set_input_as_handled()
 		return
 
 	if choice_container.visible and event is InputEventKey and event.pressed and not event.echo:

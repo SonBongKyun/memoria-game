@@ -43,7 +43,10 @@
           "text": "Answer with her own anchor — the warmth of her hands on yours, given back.",
           "text_ko": "그녀 자신의 닻으로 답한다 — 언젠가 내 손을 덮었던 그 온기를, 이번에는 돌려주며.",
           "requires_memory_intact": "daily_elia_hands",
-          "set_flags": ["elia_relay_choice", "ch22_hands_key"],
+          "set_flags": [
+            "elia_relay_choice",
+            "ch22_hands_key"
+          ],
           "goto": 5
         }
       ]
@@ -112,8 +115,8 @@
     },
     {
       "requires_flag": "ch22_hands_key",
-	  "cg": "res://assets/cg/generated/memory_key_relay_anchor.png",
-	  "fade": 0.8,
+      "cg": "res://assets/cg/generated/memory_key_relay_anchor.png",
+      "fade": 0.8,
       "narrate": "When the book's first page turned, it took nothing from her. The warmth he had carried since the Drift Shelter flowed backward through their joined hands, and the relay opened around an anchor instead of a wound. Somewhere in the light, a page was pressed gently back into its binding.",
       "narrate_ko": "책의 첫 페이지가 넘어갈 때, 그것은 그녀에게서 아무것도 가져가지 않았다. 드리프트 셸터에서부터 그가 간직해 온 온기가 맞잡은 손을 타고 거꾸로 흘러들었고, 중계는 상처가 아니라 닻을 중심으로 열렸다. 빛 속 어딘가에서, 한 페이지가 제 장정 속으로 부드럽게 눌러 넣어졌다."
     },

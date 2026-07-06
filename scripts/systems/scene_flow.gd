@@ -28,6 +28,9 @@ var _cache: Dictionary = {}
 # S149: 챕터 원장 — set_chapter 시점의 연소 수 스냅샷
 var _ledger_burn_snapshot: int = 0
 
+# S168: VN AUTO 모드 — 씬 인스턴스가 바뀌어도 유지되는 세션 설정
+var vn_auto_mode: bool = false
+
 # VN UI 인스턴스
 var _vn_ui: Node = null
 

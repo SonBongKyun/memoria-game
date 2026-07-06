@@ -9,29 +9,29 @@
       "set_chapter": 15,
       "autosave_chapter_transition": true,
       "narrate": "The Mneme cell beneath Arkein had no door, only wet stone, candle smoke, and an old woman whose throat carried a closed scar.",
-      "narrate_ko": "아르케인 아래의 므네메 감방에는 문이 없었고, 젖은 돌과 촛불 연기, 그리고 목에 막힌 상처가 있는 노부인만 있었습니다."
+      "narrate_ko": "아르케인 지하의 므네메 은신처에는 문이 없었다. 젖은 돌과 촛불 연기, 그리고 목에 아문 흉터를 지닌 노파뿐."
     },
     {
       "narrate": "Han greeted them with one hand over her heart. The other held a slate worn white at the edges.",
-      "narrate_ko": "한는 가슴에 한 손을 얹고 인사했다. 다른 하나는 가장자리가 흰색으로 닳은 석판을 들고 있었습니다."
+      "narrate_ko": "한은 한 손을 심장 위에 얹어 그들을 맞았다. 다른 손에는 가장자리가 하얗게 닳은 석판이 들려 있었다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
       "text": "She says the Authority took her voice and failed to take the song.",
-      "text_ko": "그녀는 관리국이 그녀의 목소리를 가져갔고 노래를 가져오지 못했다고 말했습니다."
+      "text_ko": "관리국이 목소리는 가져갔지만 노래는 가져가지 못했대."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
       "text": "A distinction they will regret leaving undocumented.",
-      "text_ko": "문서화되지 않은 채로 남겨두면 후회할 구별입니다."
+      "text_ko": "기록으로 남겨 두지 않은 걸 후회하게 될 구분이군."
     },
     {
       "narrate": "Han tapped the Echo Shell twice, then began a low, wordless hum.",
-      "narrate_ko": "한은 에코 셸을 두 번 두드린 다음, 낮고 말 없이 윙윙거리는 소리를 내기 시작했습니다."
+      "narrate_ko": "한이 에코 셸을 두 번 두드리고, 낮고 말 없는 허밍을 시작했다."
     },
     {
       "cg": "res://assets/cg/generated/ch15_echo_shell_awakening.png",
@@ -44,14 +44,14 @@
       "portrait": "elia_worried",
       "side": "right",
       "text": "I know that melody. I should not know it.",
-      "text_ko": "나는 그 멜로디를 안다. 나는 그것을 몰라야합니다."
+      "text_ko": "이 선율, 나 알아. 알면 안 되는 건데."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
       "text": "Then we keep the warning.",
-      "text_ko": "그런 다음 우리는 경고를 유지합니다."
+      "text_ko": "그럼 경고를 지킨다."
     },
     {
       "choice": [
@@ -60,13 +60,13 @@
           "cost_memory": "daily_unfinished_lullaby",
           "set_flag": "ch15_burned_lullaby",
           "goto": 10,
-          "text_ko": "미완성 자장가를 태워보세요. 에코 셸을 통해 숨겨진 패턴을 강제합니다."
+          "text_ko": "미완성 자장가를 태운다. 숨은 패턴을 에코 셸로 강제로 통과시킨다."
         },
         {
           "text": "Keep the melody. Let Han repeat it until the shell answers on its own.",
           "set_flag": "ch15_kept_lullaby",
           "goto": 13,
-          "text_ko": "멜로디를 유지하세요. 쉘이 스스로 응답할 때까지 한이 이를 반복하게 하십시오."
+          "text_ko": "선율을 지킨다. 조가비가 스스로 답할 때까지 한이 반복하게 한다."
         },
         {
           "text": "Answer her hum with the campfire song you still carry. Two melodies, one fire.",
@@ -79,20 +79,20 @@
     },
     {
       "narrate": "[ The final note waits inside the shell. ]",
-      "narrate_ko": "[ The final note waits inside the shell. ]"
+      "narrate_ko": "[ 마지막 음이 조가비 안에서 기다린다. ]"
     },
     {
       "cg": "res://assets/cg/generated/ch15_burned_last_note.png",
       "fade": 0.8,
       "narrate": "The melody became heat. A buried eastern route opened inside the violet spiral, while its last note vanished from Arrel's mind.",
-      "narrate_ko": "멜로디가 뜨거워졌습니다. 보라색 나선 내부에 묻혀 있던 동쪽 길이 열렸고, 그 마지막 음표는 에릴의 마음에서 사라졌습니다."
+      "narrate_ko": "선율이 열이 되었다. 보랏빛 나선 안에서 매장된 동쪽 경로가 열렸고, 그 마지막 음은 아렐의 정신에서 사라졌다."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_burn",
       "side": "left",
       "text": "The melody is gone. The warning remains.",
-      "text_ko": "멜로디가 사라졌습니다. 경고가 남아 있습니다."
+      "text_ko": "선율은 사라졌어. 경고는 남았고."
     },
     {
       "action": "goto_scene",
@@ -103,14 +103,14 @@
       "cg": "res://assets/cg/generated/ch15_dawn_refrain.png",
       "fade": 0.9,
       "narrate": "Han repeated the phrase until dawn. No memory burned, but every repetition gave the patrol another minute to close around them.",
-      "narrate_ko": "한는 새벽까지 그 말을 반복했다. 기억력이 소진되지는 않았지만 반복할 때마다 순찰대가 주변을 둘러볼 수 있는 시간이 1분씩 늘어났습니다."
+      "narrate_ko": "한은 새벽까지 그 악구를 반복했다. 태운 기억은 없었지만, 반복할 때마다 순찰이 조여들 시간을 일 분씩 내주었다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
       "text": "We have a route and considerably less time to admire it.",
-      "text_ko": "우리에게는 경로가 있고 그것을 감상할 시간이 훨씬 적습니다."
+      "text_ko": "경로는 얻었네. 그걸 감상할 시간은 상당히 줄었지만."
     },
     {
       "action": "goto_scene",
@@ -122,40 +122,40 @@
       "fade": 0.8,
       "set_flag": "han_met",
       "narrate": "Han wrote three words on the slate: EASTERN ISLES. CELAH. BEFORE.",
-      "narrate_ko": "한은 석판에 EASTERN ISLES라는 세 단어를 썼습니다. 셀라. 전에."
+      "narrate_ko": "한이 석판에 세 단어를 적었다: 동부 군도. 셀라. 그 전에."
     },
     {
       "set_flag": "celah_hint_1",
       "narrate": "Elia covered the name with her thumb as if the letters could see her.",
-      "narrate_ko": "엘리아는 글자가 그녀를 볼 수 있는 것처럼 엄지손가락으로 이름을 가렸습니다."
+      "narrate_ko": "엘리아가 엄지로 그 이름을 가렸다. 글자가 그녀를 볼 수 있기라도 한 것처럼."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_determined",
       "side": "right",
       "text": "We leave before they reach the lower channel. I will explain when the road is quiet.",
-      "text_ko": "그들이 낮은 채널에 도달하기 전에 우리는 떠납니다. 도로가 조용할 때 설명하겠습니다."
+      "text_ko": "그들이 아래 수로에 닿기 전에 떠나자. 길이 조용해지면 설명할게."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
       "text": "The road will not be quiet.",
-      "text_ko": "길은 조용하지 않을 것이다."
+      "text_ko": "길은 조용해지지 않아."
     },
     {
       "set_flag": "eastisles_mentioned",
       "narrate": "Boots entered the sewer two levels above them. Han blew out the first candle.",
-      "narrate_ko": "부츠는 두 층 위의 하수구로 들어갔습니다. 한는 첫 번째 촛불을 불었다."
+      "narrate_ko": "부츠 소리가 두 층 위 하수구로 들어섰다. 한이 첫 촛불을 껐다."
     },
     {
       "narrate": "The second flame died before the patrol found the stair.",
-      "narrate_ko": "두 번째 불꽃은 순찰대가 계단을 발견하기 전에 꺼졌습니다."
+      "narrate_ko": "두 번째 불꽃은 순찰이 계단을 찾기 전에 죽었다."
     },
     {
       "requires_flag": "ch15_song_key",
-	  "cg": "res://assets/cg/generated/memory_key_first_age_refrain.png",
-	  "fade": 0.8,
+      "cg": "res://assets/cg/generated/memory_key_first_age_refrain.png",
+      "fade": 0.8,
       "narrate": "In the dark, Han pressed two fingers to Arrel's wrist — the old signal for 'again, from the top.' His campfire song and her lullaby shared a refrain neither of them had written. Something in the First Age had sung both. She wrote on her slate: NOW WE ARE A CHOIR.",
       "narrate_ko": "어둠 속에서 한이 아렐의 손목에 두 손가락을 얹었다 — '처음부터, 다시'라는 오래된 신호. 그의 모닥불 노래와 그녀의 자장가는 둘 중 누구도 쓴 적 없는 후렴을 공유하고 있었다. 제1시대의 무언가가 그 둘을 모두 불렀던 것이다. 그녀가 석판에 적었다: 이제 우리는 합창단이다."
     },
@@ -165,5 +165,5 @@
       "id": "ch16_nera"
     }
   ],
-  "title_ko": "제15장 가수"
+  "title_ko": "제15장 — 노래하는 자"
 }

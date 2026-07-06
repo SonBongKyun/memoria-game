@@ -9,54 +9,54 @@
       "set_chapter": 13,
       "autosave_chapter_transition": true,
       "narrate": "Tobias found them beneath Arkein's eastern reading wall. He arrived angry enough to forget caution.",
-      "narrate_ko": "토비아스는 아르케인의 동쪽 독서 벽 아래에서 그것을 발견했습니다. 그는 주의를 잊을 만큼 화가 나서 도착했습니다."
+      "narrate_ko": "토비아스는 아르케인 동쪽 열람벽 아래에서 그들을 찾아냈다. 조심성을 잊을 만큼 화가 난 채로."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
       "text": "Ten years. Ten years I have copied dead margins, and you walked into a sealed city and came out carrying an answer that bleeds when she reads it.",
-      "text_ko": "10년. 10년 동안 나는 죽은 여백을 복사해 왔고, 당신은 봉인된 도시로 걸어 들어가 그녀가 읽을 때마다 피가 흐르는 대답을 들고 나왔습니다."
+      "text_ko": "십 년이야. 십 년 동안 나는 죽은 여백을 베껴 썼는데, 자네들은 봉인된 도시에 걸어 들어갔다가, 그녀가 읽으면 피를 흘리는 답을 들고 걸어 나왔군."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
       "text": "She is not an answer.",
-      "text_ko": "그녀는 대답이 아닙니다."
+      "text_ko": "그녀는 답이 아니야."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
       "text": "Good. Then perhaps both of you will stop treating her like one and let me see the notebook.",
-      "text_ko": "좋아요. 그러면 두 사람 모두 그녀를 더 이상 대하지 않고 나에게 노트를 보여 줄 수도 있습니다."
+      "text_ko": "좋아. 그럼 두 사람도 그녀를 답처럼 다루는 걸 그만두고, 나한테 그 노트를 보여 주게."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_determined",
       "side": "right",
       "text": "Your copy first. On the table. Hands where I can see them.",
-      "text_ko": "귀하의 사본이 먼저입니다. 테이블 위에. 내가 볼 수 있는 손."
+      "text_ko": "당신 것부터. 테이블 위에. 손은 보이는 곳에."
     },
     {
       "cg": "res://assets/cg/generated/ch13_notebook_resonance.png",
       "fade": 1.2,
       "narrate": "The two blank notebooks touched the same table. Blue lines climbed out of both spines and rebuilt a map in the air.",
-      "narrate_ko": "두 개의 빈 공책이 같은 테이블에 닿았습니다. 양쪽 척추에서 파란 선이 솟아올라 공중에 지도를 다시 만들었습니다."
+      "narrate_ko": "두 권의 빈 노트가 같은 테이블에 닿았다. 푸른 선들이 두 책등에서 기어올라 허공에 지도를 다시 지었다."
     },
     {
       "cg": "res://assets/cg/generated/ch13_relay_decoded.png",
       "fade": 0.7,
       "narrate": "Ink rearranged itself around buried relay points. The continent had been prepared for this long before any of them were born.",
-      "narrate_ko": "잉크는 묻혀 있는 중계 지점 주변으로 재배열되었습니다. 대륙은 그들 중 누군가가 태어나기 오래 전부터 이를 위해 준비되어 있었습니다."
+      "narrate_ko": "잉크가 매장된 중계점들을 중심으로 재배열되었다. 대륙은 그들 중 누구도 태어나기 전부터 이 일을 위해 준비되어 있었다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
       "text": "These are not records of the network. They are pieces of the network, taught to pretend they are books.",
-      "text_ko": "이는 네트워크 기록이 아닙니다. 그것들은 네트워크의 일부이며, 책인 척하도록 배웠습니다."
+      "text_ko": "이건 네트워크의 기록이 아니야. 네트워크의 조각이지. 책인 척하도록 가르쳐진."
     },
     {
       "choice": [
@@ -64,33 +64,33 @@
           "text": "Trust Tobias with the full pattern.",
           "set_flag": "ch13_trusted_tobias",
           "goto": 10,
-          "text_ko": "전체 패턴으로 토비아스를 신뢰하십시오."
+          "text_ko": "토비아스에게 전체 패턴을 맡긴다."
         },
         {
           "text": "Give him the route, but keep Pell's name from him.",
           "set_flag": "ch13_limited_tobias",
           "goto": 13,
-          "text_ko": "그에게 경로를 알려주되 펠의 이름은 공개하지 마세요."
+          "text_ko": "경로만 넘긴다. 펠의 이름은 감춘다."
         }
       ]
     },
     {
       "narrate": "[ A third hand waits over the record. ]",
-      "narrate_ko": "[ A third hand waits over the record. ]"
+      "narrate_ko": "[ 세 번째 손이 기록 위에서 기다린다. ]"
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
       "text": "You read. We protect you.",
-      "text_ko": "당신은 읽었습니다. 우리는 당신을 보호합니다."
+      "text_ko": "당신은 읽어. 우리가 지킨다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
       "text": "An appalling division of labor. I accept.",
-      "text_ko": "끔찍한 노동 분업. 동의합니다."
+      "text_ko": "끔찍한 분업이군. 수락하지."
     },
     {
       "action": "goto_scene",
@@ -102,14 +102,14 @@
       "portrait": "arrel_cold",
       "side": "left",
       "text": "You get the route. Nothing else.",
-      "text_ko": "경로를 알 수 있습니다. 다른 것은 없습니다."
+      "text_ko": "경로만이야. 그 이상은 없어."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_concerned",
       "side": "right",
       "text": "Then I will earn the rest by keeping you alive long enough to regret your caution.",
-      "text_ko": "그러면 내가 당신의 조심성을 후회할 만큼 오랫동안 당신을 살려 두어 나머지를 벌겠습니다."
+      "text_ko": "그럼 나머지는, 자네들이 그 신중함을 후회할 만큼 오래 살려 두는 걸로 벌지."
     },
     {
       "action": "goto_scene",
@@ -121,31 +121,31 @@
       "fade": 0.8,
       "set_flag": "notebook_resonance_1",
       "narrate": "The map ended at a Confessor Hall. Beside it, a signature register had already begun writing Arrel's name.",
-      "narrate_ko": "지도는 참회 홀에서 끝났습니다. 그 옆에는 이미 아렐의 이름을 쓰기 시작한 서명 등록부가 있었습니다."
+      "narrate_ko": "지도는 고해소에서 끝났다. 그 옆에서, 시그니처 등록부가 이미 아렐의 이름을 쓰기 시작하고 있었다."
     },
     {
       "speaker": "Tobias",
       "portrait": "tobias_neutral",
       "side": "right",
       "text": "If that register completes the shape, every Handler in the Belt will know the temperature of your burns.",
-      "text_ko": "해당 레지스터가 모양을 완성하면 벨트의 모든 핸들러가 화상 온도를 알게 됩니다."
+      "text_ko": "저 등록부가 형태를 완성하면, 벨트의 모든 핸들러가 자네 연소의 온도를 알게 돼."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_determined",
       "side": "right",
       "text": "Then we reach it first.",
-      "text_ko": "그러면 우리가 먼저 도달합니다."
+      "text_ko": "그럼 우리가 먼저 도착하면 돼."
     },
     {
       "set_flag": "tobias_joined",
       "narrate": "Three shadows left Arkein. The wall kept writing.",
-      "narrate_ko": "세 개의 그림자가 아르케인을 떠났습니다. 벽은 계속 글을 쓰고 있었다."
+      "narrate_ko": "세 개의 그림자가 아르케인을 떠났다. 벽은 계속 쓰고 있었다."
     },
     {
       "action": "goto_scene",
       "id": "ch14_confessor_intervention"
     }
   ],
-  "title_ko": "13장 — 제3자"
+  "title_ko": "제13장 — 세 번째 사람"
 }
