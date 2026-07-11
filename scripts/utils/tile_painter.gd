@@ -112,6 +112,8 @@ static func _paint_tile(img: Image, ox: int, oy: int, base: Color, detail: Strin
 	match detail:
 		"grass":
 			_paint_grass(img, ox, oy, base)
+		"grass_clean":
+			_paint_grass_clean(img, ox, oy, base)
 		"tree":
 			_paint_tree(img, ox, oy, base)
 		"bush":
@@ -189,6 +191,16 @@ static func _paint_grass(img: Image, ox: int, oy: int, base: Color) -> void:
 		_px(img, ox + fx, oy + fy, fc)
 		_px(img, ox + fx + 1, oy + fy, _shift(fc, -0.1))
 		_px(img, ox + fx, oy + fy + 1, _shift(base, 0.05))  # 줄기
+
+static func _paint_grass_clean(img: Image, ox: int, oy: int, base: Color) -> void:
+	# Restrained exploration texture: enough depth to read as grass without
+	# competing with characters, interactables, or navigation silhouettes.
+	var shadow := _shift(base, -0.018)
+	var light := _shift(base, 0.025)
+	var tufts := [Vector2i(5, 10), Vector2i(14, 23), Vector2i(24, 7), Vector2i(28, 27)]
+	for tuft in tufts:
+		_px(img, ox + tuft.x, oy + tuft.y, shadow)
+		_px(img, ox + tuft.x, oy + tuft.y - 1, light)
 
 static func _paint_tree(img: Image, ox: int, oy: int, _base: Color) -> void:
 	# S43: 나무 — 껍질 텍스처 + 풍성한 수관 + 그림자

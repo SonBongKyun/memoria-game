@@ -202,6 +202,9 @@ func _refresh_visibility() -> void:
 	var should_show := not _user_hidden
 	if GameManager:
 		should_show = should_show and GameManager.current_state == GameManager.GameState.EXPLORATION
+	# Keep the large panel event-driven in clean view so the field stays readable.
+	if OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals():
+		should_show = should_show and _pulse_time > 0.0
 	panel.visible = should_show
 	if should_show:
 		var target_alpha := VISIBLE_ALPHA if _pulse_time > 0.0 else 0.86

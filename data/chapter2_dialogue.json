@@ -23,7 +23,7 @@
         "speaker": "Elia",
         "text": "The Sump. Underground. Follow me.",
         "portrait": "elia_neutral",
-        "text_ko": "섬프. 지하철. 나를 따르라."
+        "text_ko": "더 섬프. 지하야. 따라와."
       },
       {
         "speaker": "",
@@ -58,32 +58,32 @@
         "text": "You killed something in the Achen Forest. Three days ago. A Void Beast, Grade... moderate.",
         "portrait": "malet_amused",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "아첸 숲에서 뭔가를 죽였습니다. 3일 전. 공허의 짐승, 등급... 보통."
+        "text_ko": "아켄 숲에서 뭔가를 죽이셨더군요. 사흘 전. 보이드 비스트, 등급은... 중간쯤."
       },
       {
         "speaker": "Malet",
         "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it.",
         "portrait": "malet_warning",
-        "text_ko": "관리국은 연소 신호를 감지했습니다. 그들은 일반 영역에 대한 수정 사항을 가지고 있습니다. 범위를 좁히기까지 이틀, 어쩌면 그보다 짧을 수도 있습니다."
+        "text_ko": "관리국이 연소 시그니처를 감지했습니다. 대략적인 위치는 이미 잡혔고요. 좁혀 오기까지 이틀 — 어쩌면 더 짧을 수도."
       },
       {
         "speaker": "Arrel",
         "text": "I need a route to BL-07.",
         "portrait": "arrel_neutral",
-        "text_ko": "BL-07로 가는 경로가 필요해요."
+        "text_ko": "BL-07로 가는 경로가 필요해."
       },
       {
         "speaker": "Malet",
         "text": "Seventeen people have asked me that question. None of them came back whole.",
         "portrait": "malet_neutral",
-        "text_ko": "17명의 사람들이 나에게 그런 질문을 했습니다. 그들 중 누구도 온전하게 돌아오지 않았습니다."
+        "text_ko": "그 질문을 한 사람이 열일곱이었습니다. 온전하게 돌아온 사람은 없었죠."
       },
       {
         "speaker": "Malet",
         "text": "My price: the day you first held a sword.",
         "portrait": "malet_price_revealed",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "나의 대가 : 당신이 처음으로 검을 잡은 날."
+        "text_ko": "제 값은 — 당신이 처음 검을 잡은 날입니다."
       },
       {
         "choices": [
@@ -111,6 +111,7 @@
       {
         "speaker": "",
         "text": "The memory surfaced as it was pulled: a courtyard, dust in afternoon light, a hand larger than his closing his fingers around a wooden grip.",
+        "cg": "res://assets/cg/generated/story_ch2_lost_instructor_grip.png",
         "text_ko": "끌어당기면서 기억이 떠올랐다. 안뜰, 오후 햇살의 먼지, 나무 손잡이를 잡은 손가락보다 더 큰 손."
       },
       {
@@ -135,25 +136,25 @@
         "speaker": "Malet",
         "text": "Three things. Listen carefully.",
         "portrait": "malet_calculating",
-        "text_ko": "세 가지. 잘 들어보세요."
+        "text_ko": "세 가지입니다. 잘 들으세요."
       },
       {
         "speaker": "Malet",
         "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes.",
         "portrait": "malet_calculating",
-        "text_ko": "첫째, 경로입니다. 무너져가는 해안을 통과합니다. 세 번이나 정찰해 봤습니다. BL-07이 숨쉬는 곳을 아는 누군가에게로 연결됩니다."
+        "text_ko": "첫째 — 경로. 무너지는 해안을 지나는 길입니다. 세 번 직접 정찰했죠. BL-07이 숨 쉬는 곳을 아는 사람에게 닿습니다."
       },
       {
         "speaker": "Malet",
         "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it.",
         "portrait": "malet_calculating",
-        "text_ko": "두 번째 - 이름. 검정색. 여기서 북동쪽에 있는 심에서 그녀를 찾으세요. 색상을 따르십시오. 보시면 이해가 되실 겁니다."
+        "text_ko": "둘째 — 이름. 세이블. 여기서 북동쪽, 씸에서 찾으세요. 색을 따라가면 됩니다. 보면 이해하실 겁니다."
       },
       {
         "speaker": "Malet",
         "text": "Third — a warning.",
         "portrait": "malet_warning",
-        "text_ko": "셋째, 경고입니다."
+        "text_ko": "셋째 — 경고."
       },
       {
         "speaker": "",
@@ -164,7 +165,7 @@
         "speaker": "Malet",
         "text": "An Editor has been dispatched. Name: Kairos. Quiet. Methodical. You have four days before he closes the distance.",
         "portrait": "malet_warning",
-        "text_ko": "편집자가 파견되었습니다. 이름 : 카이로스 조용한. 질서 있는. 그가 거리를 폐쇄하기까지는 4일이 남았습니다."
+        "text_ko": "에디터가 파견됐습니다. 이름은 카이로스. 조용하고. 질서정연하죠. 그가 거리를 봉쇄하기까지 나흘 남았습니다."
       },
       {
         "speaker": "",
@@ -176,7 +177,7 @@
         "speaker": "Elia",
         "text": "We need to leave. Now.",
         "portrait": "elia_concern",
-        "text_ko": "우리는 떠나야 해요. 지금."
+        "text_ko": "떠나야 해. 지금."
       }
     ],
     "malet_refused": [
@@ -185,7 +186,7 @@
         "text": "Then we have nothing to discuss. The door is behind you.",
         "portrait": "malet_disappointed",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "그러면 우리는 논의할 것이 없습니다. 문은 당신 뒤에 있습니다."
+        "text_ko": "그럼 더 나눌 얘기가 없군요. 문은 뒤에 있습니다."
       },
       {
         "speaker": "",
@@ -196,7 +197,7 @@
         "speaker": "Elia",
         "text": "Arrel...",
         "portrait": "elia_concern",
-        "text_ko": "에렐..."
+        "text_ko": "아렐..."
       }
     ],
     "elia_ch2_talk": [
@@ -207,14 +208,14 @@
         "cg": "res://assets/cg/generated/chapter_splash_verdan_market.png",
         "requires_memory": "daily_market_food",
         "burned_text": "There was this market you mentioned once... You don't remember it at all, do you?",
-        "text_ko": "머뭇거리지 마세요. 사람들은 이유를 기억하지 못하더라도 여기에서 얼굴을 기억합니다.",
+        "text_ko": "오래 서 있지 마. 여기 사람들은 얼굴을 기억해. 왜인지는 기억 못 해도.",
         "burned_text_ko": "예전에 말씀하셨던 시장이 있었는데... 전혀 기억나지 않으시죠?"
       },
       {
         "speaker": "Arrel",
         "text": "Ironic.",
         "portrait": "arrel_neutral",
-        "text_ko": "아이러니하다."
+        "text_ko": "아이러니하군."
       },
       {
         "speaker": "Elia",
@@ -222,7 +223,7 @@
         "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",
         "burned_text": "You said someone used to sing by the campfire. But you can't even recall the melody now.",
-        "text_ko": "웃긴 그런 아이러니가 아닙니다.",
+        "text_ko": "웃긴 종류의 아이러니는 아니야.",
         "burned_text_ko": "당신은 어떤 사람이 모닥불 옆에서 노래를 부르곤 했다고 하더군요. 하지만 지금은 그 멜로디조차 기억나지 않습니다."
       }
     ],
@@ -242,19 +243,19 @@
         "speaker": "Elia",
         "text": "Don't stare.",
         "portrait": "elia_neutral",
-        "text_ko": "쳐다보지 마세요."
+        "text_ko": "쳐다보지 마."
       },
       {
         "speaker": "Arrel",
         "text": "They're selling memories.",
         "portrait": "arrel_neutral",
-        "text_ko": "추억을 파는군요."
+        "text_ko": "기억을 팔고 있어."
       },
       {
         "speaker": "Elia",
         "text": "Of course they are. What else is there to sell? Look around — there are no farms, no factories. The only currency that matters here is what you've lost.",
         "portrait": "elia_neutral",
-        "text_ko": "물론 그렇습니다. 팔 수 있는 게 또 뭐가 있나요? 주위를 둘러보세요. 농장도 공장도 없습니다. 여기서 중요한 유일한 통화는 당신이 잃은 것입니다."
+        "text_ko": "당연하지. 팔 게 그것 말고 뭐가 있겠어? 둘러봐 — 농장도, 공장도 없어. 여기서 통하는 유일한 화폐는 잃어버린 것들이야."
       },
       {
         "speaker": "",
@@ -265,13 +266,13 @@
         "speaker": "Arrel",
         "text": "Who buys someone else's mother?",
         "portrait": "arrel_neutral",
-        "text_ko": "누가 다른 사람의 어머니를 사나요?"
+        "text_ko": "남의 어머니를 누가 사지?"
       },
       {
         "speaker": "Elia",
         "text": "Someone who burned their own.",
         "portrait": "elia_concern",
-        "text_ko": "자기 자신을 태운 사람."
+        "text_ko": "자기 어머니를 태운 사람."
       }
     ],
     "verdan_old_burner": [
@@ -289,18 +290,18 @@
       {
         "speaker": "Old Man",
         "text": "Excuse me. Could you... tell me what my name is?",
-        "text_ko": "실례합니다. 혹시... 내 이름이 뭔지 말해줄 수 있나요?"
+        "text_ko": "실례합니다. 혹시... 제 이름이 뭔지 아십니까?"
       },
       {
         "speaker": "Arrel",
         "text": "I don't know your name.",
         "portrait": "arrel_neutral",
-        "text_ko": "나는 당신의 이름을 모릅니다."
+        "text_ko": "당신 이름은 몰라."
       },
       {
         "speaker": "Old Man",
         "text": "That's alright. Neither do I. I've been asking people all morning. No one knows.",
-        "text_ko": "괜찮습니다. 나도 마찬가지다. 아침 내내 사람들에게 물어봤다. 아무도 모릅니다."
+        "text_ko": "괜찮습니다. 저도 모르거든요. 아침 내내 물어보고 다녔는데. 아무도 모르더군요."
       },
       {
         "speaker": "",
@@ -310,7 +311,7 @@
       {
         "speaker": "Old Man",
         "text": "I think I used to be important. I have this feeling — right here—",
-        "text_ko": "예전에는 제가 중요했던 것 같아요. 이런 느낌이 들어요 — 바로 여기 —"
+        "text_ko": "예전엔 제가 중요한 사람이었던 것 같습니다. 이런 느낌이 있어요 — 바로 여기에—"
       },
       {
         "speaker": "",
@@ -320,13 +321,13 @@
       {
         "speaker": "Old Man",
         "text": "—like something should be there. Something heavy. But when I look, it's just ribs and air.",
-        "text_ko": "—무언가 거기에 있어야 할 것 같습니다. 뭔가 무거운 것. 그런데 막상 보면 갈비뼈와 공기뿐이다."
+        "text_ko": "—무언가 있어야 할 것 같은. 무거운 무언가가. 그런데 들여다보면, 갈비뼈와 공기뿐입니다."
       },
       {
         "speaker": "Elia",
         "text": "We should go.",
         "portrait": "elia_concern",
-        "text_ko": "우리는 가야 해요."
+        "text_ko": "가자."
       },
       {
         "speaker": "",
@@ -345,49 +346,49 @@
         "speaker": "Malet",
         "text": "You're wondering about the eyes.",
         "portrait": "malet_amused",
-        "text_ko": "당신은 눈에 대해 궁금해하고 있습니다."
+        "text_ko": "눈이 궁금하신 거죠."
       },
       {
         "speaker": "Arrel",
         "text": "Memory Ampoules. High grade.",
         "portrait": "arrel_neutral",
-        "text_ko": "메모리 앰플. 고급."
+        "text_ko": "기억 앰풀. 고등급이군."
       },
       {
         "speaker": "Malet",
         "text": "Seventeen different people's memories, layered over what's left of my own. I see through borrowed eyes. Literally.",
         "portrait": "malet_neutral",
-        "text_ko": "나 자신의 남은 기억 위에 17명의 서로 다른 사람들의 기억이 겹겹이 쌓여 있습니다. 나는 빌린 눈을 통해 봅니다. 문자 그대로."
+        "text_ko": "열일곱 사람의 기억이, 제게 남은 것 위에 겹겹이 쌓여 있습니다. 저는 빌린 눈으로 봅니다. 말 그대로요."
       },
       {
         "speaker": "Malet",
         "text": "I was Authority once. Did you know that? Bureau of Memory Regulation, Division 3. I classified burns. Decided which memories were acceptable losses.",
         "portrait": "malet_deal_accepted",
-        "text_ko": "나는 한때 권위자였습니다. 알고 계셨나요? 기억 규제국 3과. 나는 화상을 분류했습니다. 어떤 기억이 허용 가능한 손실인지 결정했습니다."
+        "text_ko": "저도 한때 관리국이었습니다. 아셨나요? 기억규제국 제3과. 연소를 분류했죠. 어떤 기억이 허용 가능한 손실인지 결정하는 일이었습니다."
       },
       {
         "speaker": "Arrel",
         "text": "What happened?",
         "portrait": "arrel_neutral",
-        "text_ko": "무슨 일이 일어났나요?"
+        "text_ko": "무슨 일이 있었지?"
       },
       {
         "speaker": "Malet",
         "text": "I found a memory they didn't want classified. Grade 1. Institutional. The kind that, if people remembered it, would unmake the Bureau from the inside out.",
         "portrait": "malet_neutral",
-        "text_ko": "나는 그들이 기밀로 두기를 원하지 않는 기억을 발견했습니다. 1등급. 기관. 사람들이 그것을 기억한다면 관리국을 내부에서부터 해체할 것입니다."
+        "text_ko": "그들이 기밀로 남기고 싶어 하지 않는 기억을 발견했습니다. 1등급. 기관급. 사람들이 기억해 낸다면, 관리국을 안에서부터 해체할 종류의."
       },
       {
         "speaker": "Malet",
         "text": "So they burned ME. Everything I was. Twenty-three years of service, gone in four seconds.",
         "portrait": "malet_amused",
-        "text_ko": "그래서 그들은 나를 불태웠어요. 나의 모든 것. 23년의 복무 기간이 4초 만에 사라졌습니다."
+        "text_ko": "그래서 그들은 '저'를 태웠습니다. 제 전부를요. 이십삼 년의 복무가, 사 초 만에 사라졌죠."
       },
       {
         "speaker": "Malet",
         "text": "I rebuilt myself from other people's fragments. Seventeen donors. Some willing, most not.",
         "portrait": "malet_deal_accepted",
-        "text_ko": "나는 다른 사람의 파편으로 나 자신을 재건했습니다. 17명의 기부자입니다. 일부는 의향이 있지만 대부분은 그렇지 않습니다."
+        "text_ko": "저는 타인의 파편으로 저 자신을 다시 지었습니다. 기증자 열일곱. 자발적인 이도 있었고 — 대부분은 아니었지만."
       },
       {
         "speaker": "",
@@ -398,7 +399,7 @@
         "speaker": "Malet",
         "text": "So when I ask for your memory of a sword — understand that I know exactly what I'm taking. And I don't feel guilty about it.",
         "portrait": "malet_amused",
-        "text_ko": "그러니 내가 당신에게 검에 대한 기억을 물을 때, 내가 무엇을 가져갈 것인지 정확히 알고 있다는 점을 이해해 주십시오. 그리고 나는 그것에 대해 죄책감을 느끼지 않습니다."
+        "text_ko": "그러니 제가 당신의 검의 기억을 요구할 때 — 무엇을 가져가는지 정확히 알고 요구한다는 걸 이해해 주십시오. 그리고 저는, 그것에 죄책감이 없습니다."
       },
       {
         "speaker": "",
@@ -412,19 +413,19 @@
         "text": "Arrel. Before we go further.",
         "portrait": "elia_concern",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "에렐. 더 나아가기 전에."
+        "text_ko": "아렐. 더 들어가기 전에."
       },
       {
         "speaker": "Arrel",
         "text": "What is it?",
         "portrait": "arrel_neutral",
-        "text_ko": "그것은 무엇입니까?"
+        "text_ko": "왜."
       },
       {
         "speaker": "Elia",
         "text": "If he asks for a Grade 2, you say no. If he asks for anything connected to me — to us — you walk away. Promise me.",
         "portrait": "elia_concern",
-        "text_ko": "그가 2등급을 요구하면 당신은 거절합니다. 그가 나, 즉 우리와 관련된 것을 요구하면 당신은 떠나십시오. 약속해요."
+        "text_ko": "그가 2등급을 요구하면, 거절해. 나와 — 우리와 — 이어진 걸 요구하면, 그냥 걸어 나와. 약속해."
       },
       {
         "speaker": "Arrel",
@@ -436,7 +437,7 @@
         "speaker": "Elia",
         "text": "PROMISE me.",
         "portrait": "elia_concern",
-        "text_ko": "약속해 주세요."
+        "text_ko": "약속해. 제대로."
       },
       {
         "speaker": "",
@@ -447,13 +448,13 @@
         "speaker": "Arrel",
         "text": "I promise.",
         "portrait": "arrel_neutral",
-        "text_ko": "약속해요."
+        "text_ko": "약속할게."
       },
       {
         "speaker": "Elia",
         "text": "Good. Because I'm your Anchor, Arrel. If you burn the memories of me, there's no one left to tell you what you've lost.",
         "portrait": "elia_neutral",
-        "text_ko": "좋아요. 내가 당신의 앵커이기 때문이죠, 아렐. 만약 당신이 나의 기억을 불태우면 당신이 무엇을 잃었는지 말해 줄 사람은 아무도 남지 않습니다."
+        "text_ko": "좋아. 나는 네 닻이니까, 아렐. 네가 내 기억을 태우면 — 네가 무엇을 잃었는지 말해 줄 사람이 아무도 남지 않아."
       }
     ],
     "sump_atmosphere": [
@@ -499,17 +500,17 @@
       {
         "speaker": "Nervous Trader",
         "text": "You. You're not Authority? No, you can't be — you smell like combustion.",
-        "text_ko": "당신. 당신은 권위자가 아니신가요? 아니요, 그럴 수 없습니다. 연소 냄새가 납니다."
+        "text_ko": "당신. 관리국은 아니지? 아니, 아닐 거야 — 연소 냄새가 나니까."
       },
       {
         "speaker": "Nervous Trader",
         "text": "Listen. There's a ledger. Hidden in the Sump. Names, transactions, memory trades that were never supposed to happen.",
-        "text_ko": "들어보세요. 장부가 있습니다. 배수조에 숨겨져 있습니다. 결코 일어나서는 안 될 이름, 거래, 기억 거래."
+        "text_ko": "들어 봐. 장부가 하나 있어. 섬프에 숨겨져 있지. 이름들, 거래들 — 일어나선 안 됐던 기억 거래들."
       },
       {
         "speaker": "Nervous Trader",
         "text": "Find it. Bring it back to me. Or burn it. I don't care which — just don't let the Authority find it.",
-        "text_ko": "찾아보세요. 다시 가져오세요. 아니면 태워버리세요. 나는 어느 것이든 상관하지 않습니다. 단지 관리국이 그것을 찾도록 두지 마십시오."
+        "text_ko": "찾아 줘. 나한테 가져오든가. 아니면 태워 버리든가. 어느 쪽이든 상관없어 — 관리국 손에만 넘어가지 않으면 돼."
       }
     ],
     "sq_sump_ledger_found": [
@@ -530,7 +531,7 @@
         "speaker": "Nervous Trader",
         "text": "You brought it back. Good. Good. Here — for your trouble.",
         "cg": "res://assets/cg/generated/story_ch2_ledger_return.png",
-        "text_ko": "당신은 그것을 다시 가져 왔습니다. 좋은. 좋은. 여기 — 당신의 문제를 해결하기 위해."
+        "text_ko": "가져왔군. 좋아. 좋아. 자 — 수고비야."
       },
       {
         "speaker": "",

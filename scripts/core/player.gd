@@ -5,7 +5,8 @@ extends CharacterBody2D
 
 const BASE_SPEED: float = 120.0
 const SPRINT_MULTIPLIER: float = 1.8
-const SHEET_SPRITE_SCALE: Vector2 = Vector2.ONE
+const SHEET_SPRITE_SCALE: Vector2 = Vector2(0.40, 0.40)
+const SHEET_SPRITE_OFFSET: Vector2 = Vector2(0, -52)
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const ACCELERATION: float = 600.0   # px/s^2 — 가속
 const DECELERATION: float = 800.0   # px/s^2 — 감속 (더 빠르게 멈춤)
@@ -396,11 +397,21 @@ func _update_interact_indicator(delta: float) -> void:
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprites() -> void:
-	# The imported side-view sheet reused the same pose for up/down/right, so
-	# exploration movement did not visually turn with the player. The authored
-	# 48px top-down set has true four-direction silhouettes and four walk phases.
-	sprite.sprite_frames = PixelSprite.create_frames(PixelSprite.arrel_config())
-	sprite.scale = Vector2.ONE
+	# Use the authored character sheet in exploration. The sheet has true left
+	# and right motion; vertical movement reuses the neutral/move poses until a
+	# dedicated top-down set exists, which is still markedly clearer than the
+	# procedural rectangle character it replaces.
+	var sheet_path := "res://assets/sprites/characters/arrel_sheet/idle_01.png"
+	if ResourceLoader.exists(sheet_path):
+		sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
+		sprite.scale = SHEET_SPRITE_SCALE
+		sprite.offset = SHEET_SPRITE_OFFSET
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	else:
+		sprite.sprite_frames = PixelSprite.create_frames(PixelSprite.arrel_config())
+		sprite.scale = Vector2.ONE
+		sprite.offset = Vector2.ZERO
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 ## 애니메이션 업데이트
 func _update_animation(direction: Vector2, is_moving: bool) -> void:

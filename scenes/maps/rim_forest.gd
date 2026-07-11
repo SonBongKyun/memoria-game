@@ -438,7 +438,7 @@ func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
 	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	indicator.color = Color(0.6, 0.5, 0.2, 0.2)
+	indicator.color = Color(0.6, 0.5, 0.2, 0.0 if OptionsMenu.is_clean_gameplay_visuals() else 0.2)
 	indicator.z_index = -1
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
@@ -471,7 +471,7 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
 	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	indicator.color = Color(0.2, 0.3, 0.6, 0.2)
+	indicator.color = Color(0.2, 0.3, 0.6, 0.0 if OptionsMenu.is_clean_gameplay_visuals() else 0.2)
 	indicator.z_index = -1
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
@@ -565,7 +565,7 @@ func _add_quest_clue(pos: Vector2, flag_name: String, quest_id: String) -> void:
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE * 0.6, TILE_SIZE * 0.6)
 	indicator.position = -Vector2(TILE_SIZE * 0.3, TILE_SIZE * 0.3)
-	indicator.color = Color(0.8, 0.7, 0.4, 0.35)
+	indicator.color = Color(0.8, 0.7, 0.4, 0.0 if OptionsMenu.is_clean_gameplay_visuals() else 0.35)
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
 		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
@@ -606,8 +606,9 @@ func _setup_map_decorations() -> void:
 ## ===================== 맵 빌드 =====================
 
 func _build_map() -> void:
+	var grass_detail := "grass_clean" if OptionsMenu.is_clean_gameplay_visuals() else "grass"
 	_tile_defs = [
-		{"color": Color(0.18, 0.28, 0.15), "detail": "grass"},   # 0: GRASS
+		{"color": Color(0.18, 0.28, 0.15), "detail": grass_detail},   # 0: GRASS
 		{"color": Color(0.35, 0.28, 0.2), "detail": "path"},     # 1: PATH
 		{"color": Color(0.08, 0.12, 0.08), "detail": "tree"},    # 2: TREE
 		{"color": Color(0.22, 0.32, 0.18), "detail": "bush"},    # 3: BUSH
@@ -667,7 +668,10 @@ func _add_battle_area(pos: Vector2, size: Vector2, enemy_name: String, hp: int, 
 	var indicator = ColorRect.new()
 	indicator.size = size
 	indicator.position = -size / 2.0
-	indicator.color = Color(0.5, 0.1, 0.1, 0.15) if not is_void else Color(0.3, 0.05, 0.3, 0.2)
+	if OptionsMenu.is_clean_gameplay_visuals():
+		indicator.color = Color(0, 0, 0, 0)
+	else:
+		indicator.color = Color(0.5, 0.1, 0.1, 0.15) if not is_void else Color(0.3, 0.05, 0.3, 0.2)
 	indicator.z_index = -1
 	area.add_child(indicator)
 

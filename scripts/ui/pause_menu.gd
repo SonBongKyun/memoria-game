@@ -1619,6 +1619,72 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"path": "res://assets/cg/generated/ch18_monolith_answers.png",
 		"desc": "A single violet line turns the distant monolith into a reply."
 	},
+	{
+		"title": "A Grip Before the Flame",
+		"type": "Part I Memory CG",
+		"path": "res://assets/cg/generated/story_ch2_lost_instructor_grip.png",
+		"desc": "A first sword lesson becomes a gold fragment before Malet's extractor closes the drawer."
+	},
+	{
+		"title": "The Book That Remembers Shape",
+		"type": "Part I Story CG",
+		"path": "res://assets/cg/generated/story_ch3_blank_book_warmth.png",
+		"desc": "The Blank Book warms in Arrel's hands, keeping the contour of what fire removes."
+	},
+	{
+		"title": "One Small Memory Anchored",
+		"type": "Part I Character CG",
+		"path": "res://assets/cg/generated/story_ch4_anchor_binding.png",
+		"desc": "Elia presses the warmth of a remembered bakery back into the architecture of a life."
+	},
+	{
+		"title": "South Along the Cliff",
+		"type": "Part I Branch CG",
+		"path": "res://assets/cg/generated/story_ch5_elia_southbound.png",
+		"desc": "Elia takes the southern path without looking back, leaving the anchor loose behind her."
+	},
+	{
+		"title": "The Map Sable Folded",
+		"type": "Part I Character CG",
+		"path": "res://assets/cg/generated/story_ch6_sable_buried_maps.png",
+		"desc": "Sable folds seven losses into one precise map while the Seam darkens outside."
+	},
+	{
+		"title": "The Mouth Behind BL-07",
+		"type": "Part I Lore CG",
+		"path": "res://assets/cg/generated/story_ch7_hungry_mouth.png",
+		"desc": "The party sees the appetite behind the Void before they understand its cost."
+	},
+	{
+		"title": "The Kindness of Passing By",
+		"type": "Part I Story CG",
+		"path": "res://assets/cg/generated/story_ch8_silent_remnant.png",
+		"desc": "A wordless remnant remains in the forest while the party refuses to feed it attention."
+	},
+	{
+		"title": "A Model Walks Away",
+		"type": "Part I Story CG",
+		"path": "res://assets/cg/generated/story_ch9_kairos_absence.png",
+		"desc": "Kairos leaves the two official outcomes behind him in a landscape without color."
+	},
+	{
+		"title": "What the Void Cannot Take",
+		"type": "Part I Climax CG",
+		"path": "res://assets/cg/generated/story_ch10_choice_at_core.png",
+		"desc": "At BL-07's core, Arrel and Elia hold onto the freedom to choose."
+	},
+	{
+		"title": "Sable - Void-Sense Battle Stance",
+		"type": "Canonical Battle Character",
+		"path": "res://assets/cg/game_image/sable_battle_fullbody.png",
+		"desc": "Blind old Sable listens across the battlefield, knife low and every wasted movement removed."
+	},
+	{
+		"title": "Tobias - Record Ward Stance",
+		"type": "Canonical Battle Character",
+		"path": "res://assets/cg/game_image/tobias_battle_fullbody.png",
+		"desc": "Tobias turns a field record into a precise ward without leaving the battle line."
+	},
 ]
 
 func _ready() -> void:

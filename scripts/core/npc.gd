@@ -57,9 +57,19 @@ func _on_first_talk_ended(talk_flag: String) -> void:
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprite() -> void:
 	var config := _get_character_config()
-	sprite.sprite_frames = PixelSprite.create_frames(config)
-	sprite.position = Vector2(0, 2)
-	sprite.scale = Vector2.ONE
+	var sheet_path := "res://assets/sprites/characters/elia_sheet/idle_01.png"
+	if npc_name == "Elia" and ResourceLoader.exists(sheet_path):
+		sprite.sprite_frames = PixelSprite.create_sheet_frames("elia")
+		sprite.position = Vector2(0, 2)
+		sprite.offset = Vector2(0, -52)
+		sprite.scale = Vector2(0.40, 0.40)
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	else:
+		sprite.sprite_frames = PixelSprite.create_frames(config)
+		sprite.position = Vector2(0, 2)
+		sprite.offset = Vector2.ZERO
+		sprite.scale = Vector2.ONE
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.play("idle_down")
 	_add_character_grounding(_get_npc_accent_color())
 	if npc_name in ["Malet", "Mallet"]:

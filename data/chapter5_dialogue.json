@@ -23,7 +23,7 @@
         "speaker": "Elia",
         "text": "Malet's map says northeast. Through the cliffs, past the old watchtower.",
         "portrait": "elia_neutral",
-        "text_ko": "말렛의 지도에는 북동쪽으로 표시되어 있습니다. 절벽을 지나 오래된 망루를 지나요."
+        "text_ko": "말렛의 지도는 북동쪽이래. 절벽을 지나서, 오래된 감시탑을 지나서."
       },
       {
         "speaker": "Arrel",
@@ -35,7 +35,7 @@
         "speaker": "Elia",
         "text": "Follow the colors. That's what he said.",
         "portrait": "elia_neutral",
-        "text_ko": "색상을 따르십시오. 그가 말한 것이 바로 그것이다."
+        "text_ko": "색을 따라가라고. 그렇게 말했어."
       },
       {
         "speaker": "",
@@ -53,31 +53,31 @@
         "speaker": "Elia",
         "text": "Arrel. That figure on the ridge. If he's classifying us, he's building a pattern.",
         "portrait": "elia_concern",
-        "text_ko": "에렐. 능선에 있는 저 그림. 그가 우리를 분류한다면 그는 패턴을 만들고 있는 것입니다."
+        "text_ko": "아렐. 능선의 저 형상. 우리를 분류하고 있다면, 패턴을 쌓고 있는 거야."
       },
       {
         "speaker": "Elia",
         "text": "Two signatures are easier to track than one.",
         "portrait": "elia_concern",
-        "text_ko": "두 개의 서명이 하나보다 추적하기가 더 쉽습니다."
+        "text_ko": "시그니처 두 개는 하나보다 추적하기 쉬워."
       },
       {
         "speaker": "Arrel",
         "text": "What are you saying?",
         "portrait": "arrel_neutral",
-        "text_ko": "무슨 말을 하는 거야?"
+        "text_ko": "무슨 말이 하고 싶은 거야?"
       },
       {
         "speaker": "Elia",
         "text": "I can take the coastal path. Draw his attention south. Meet you at the Seam.",
         "portrait": "elia_neutral",
-        "text_ko": "해안도로를 택할 수 있어요. 그의 관심을 남쪽으로 끌어당기세요. 심(심)에서 만나보세요."
+        "text_ko": "내가 해안길을 맡을 수 있어. 그의 주의를 남쪽으로 끌게. 씸에서 만나."
       },
       {
         "speaker": "Elia",
         "text": "Or I stay. We go together. But if he catches both of us...",
         "portrait": "elia_concern",
-        "text_ko": "아니면 내가 남습니다. 우리는 함께 간다. 하지만 그 사람이 우리 둘 다 잡으면..."
+        "text_ko": "아니면 남을게. 같이 가는 거야. 하지만 그가 우리 둘 다 잡으면..."
       },
       {
         "speaker": "",
@@ -130,7 +130,7 @@
         "speaker": "Elia",
         "text": "The Seam. Northeast. I'll find it.",
         "portrait": "elia_neutral",
-        "text_ko": "솔기. 북동. 내가 찾아볼게."
+        "text_ko": "씸. 북동쪽. 내가 찾아갈게."
       },
       {
         "speaker": "Arrel",
@@ -142,11 +142,12 @@
         "speaker": "Elia",
         "text": "Don't. If you say something kind, I won't be able to leave.",
         "portrait": "elia_concern",
-        "text_ko": "하지 마십시오. 친절하게 말씀하시면 못 나가겠습니다."
+        "text_ko": "하지 마. 다정한 말을 하면, 못 떠나게 되니까."
       },
       {
         "speaker": "",
         "text": "She turned. Walked south along the cliff edge. Didn't look back.",
+        "cg": "res://assets/cg/generated/story_ch5_elia_southbound.png",
         "text_ko": "그녀는 돌아섰다. 절벽을 따라 남쪽으로 걸었다. 돌아보지 않았다."
       },
       {
@@ -171,13 +172,13 @@
         "speaker": "Elia",
         "text": "You made it.",
         "portrait": "elia_neutral",
-        "text_ko": "당신이 해냈습니다."
+        "text_ko": "해냈구나."
       },
       {
         "speaker": "Arrel",
         "text": "You too.",
         "portrait": "arrel_neutral",
-        "text_ko": "당신도요."
+        "text_ko": "너도."
       },
       {
         "speaker": "",
@@ -188,7 +189,7 @@
         "speaker": "Elia",
         "text": "The coastal path worked. Kairos went south. Bought us time.",
         "portrait": "elia_neutral",
-        "text_ko": "해안길이 효과가 있었습니다. 카이로스는 남쪽으로 갔다. 우리에게 시간을 벌었습니다."
+        "text_ko": "해안길이 통했어. 카이로스는 남쪽으로 갔어. 시간을 벌었지."
       },
       {
         "speaker": "",
@@ -212,7 +213,7 @@
         "speaker": "Elia",
         "text": "Don't look back.",
         "portrait": "elia_concern",
-        "text_ko": "뒤돌아보지 마세요."
+        "text_ko": "돌아보지 마."
       },
       {
         "speaker": "Arrel",
@@ -224,7 +225,7 @@
         "speaker": "Elia",
         "text": "He's not chasing. He's classifying. That's worse.",
         "portrait": "elia_concern",
-        "text_ko": "그는 쫓고 있지 않습니다. 그는 분류 중입니다. 그게 더 나쁘다."
+        "text_ko": "쫓는 게 아니야. 분류하고 있어. 그게 더 나빠."
       },
       {
         "speaker": "",
@@ -257,13 +258,13 @@
       {
         "speaker": "",
         "text": "The Seam. A settlement built in the cracks between what the world was and what it was becoming.",
-        "text_ko": "솔기. 현재의 세계와 현재의 세계 사이의 틈새에 세워진 정착지입니다."
+        "text_ko": "씸. 현재의 세계와 현재의 세계 사이의 틈새에 세워진 정착지입니다."
       },
       {
         "speaker": "Elia",
         "text": "We made it.",
         "portrait": "elia_neutral",
-        "text_ko": "우리가 해냈습니다."
+        "text_ko": "도착했어."
       },
       {
         "speaker": "",
@@ -274,13 +275,13 @@
         "speaker": "Sable",
         "text": "You're the one Malet sent. The one who burns.",
         "portrait": "sable_neutral",
-        "text_ko": "말렛이 보낸 사람은 바로 당신이에요. 불타오르는 사람."
+        "text_ko": "말렛이 보낸 사람이군. 태우는 자."
       },
       {
         "speaker": "Sable",
         "text": "Come inside. We have a lot to discuss. And not much time.",
         "portrait": "sable_calm",
-        "text_ko": "안으로 들어오세요. 우리는 논의할 것이 많습니다. 그리고 시간이 별로 없어요."
+        "text_ko": "들어와라. 나눌 이야기가 많고, 시간은 많지 않으니."
       }
     ],
     "coast_cliff_walk": [
@@ -294,13 +295,13 @@
         "speaker": "Arrel",
         "text": "The stone here. It's warm.",
         "portrait": "arrel_neutral",
-        "text_ko": "여기 돌. 따뜻해요."
+        "text_ko": "여기 돌. 따뜻해."
       },
       {
         "speaker": "Elia",
         "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.",
         "portrait": "elia_neutral",
-        "text_ko": "기억의 잔여물. 이 해안선은 한때 도시였습니다. 수천 명의 사람들의 삶이 기반암에 눌려졌습니다. 공허가 왔을 때 돌은 사람들이 잃은 것을 흡수했습니다."
+        "text_ko": "기억 잔여물이야. 이 해안선은 한때 도시였어. 수천 명의 삶이 기반암에 눌려 있지. 보이드가 왔을 때, 돌이 사람들이 잃은 것을 빨아들였어."
       },
       {
         "speaker": "",
@@ -316,7 +317,7 @@
         "speaker": "Elia",
         "text": "Don't linger. The residue can pull you in. People have walked off cliffs chasing echoes they thought were their own.",
         "portrait": "elia_concern",
-        "text_ko": "머뭇거리지 마세요. 잔류물이 당신을 끌어들일 수 있습니다. 사람들은 자신의 것이라고 생각하는 메아리를 쫓아 절벽을 걸어 나갔습니다."
+        "text_ko": "오래 서 있지 마. 잔여물이 끌어들일 수 있어. 자기 것인 줄 알고 메아리를 쫓다가 절벽에서 걸어 내린 사람들이 있어."
       }
     ],
     "coast_watchtower": [
@@ -341,13 +342,13 @@
         "speaker": "Elia",
         "text": "Bureau outpost. Before the coast crumbled, they monitored combustion signatures from here.",
         "portrait": "elia_neutral",
-        "text_ko": "국 전초기지. 해안이 무너지기 전에 그들은 여기에서 연소 신호를 모니터링했습니다."
+        "text_ko": "관리국 전초기지. 해안이 무너지기 전엔 여기서 연소 시그니처를 감시했어."
       },
       {
         "speaker": "Elia",
         "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.",
         "portrait": "elia_neutral",
-        "text_ko": "집계 표시 - 각각은 감지된 화상입니다. 이 관측소는 반경 50마일 내에서 희생된 모든 메모리를 추적했습니다."
+        "text_ko": "저 바를 정 자국들 — 하나하나가 감지된 연소야. 이 초소는 반경 오십 마일의 모든 태워진 기억을 추적했어."
       },
       {
         "speaker": "",
@@ -358,13 +359,13 @@
         "speaker": "Arrel",
         "text": "How many of them are still alive?",
         "portrait": "arrel_neutral",
-        "text_ko": "그들 중 아직 살아 있는 사람은 몇 명입니까?"
+        "text_ko": "그중 아직 살아 있는 사람은 몇이나 될까."
       },
       {
         "speaker": "Elia",
         "text": "The marks stopped three years ago. Draw your own conclusion.",
         "portrait": "elia_concern",
-        "text_ko": "그 흔적은 3년 전에 멈췄습니다. 스스로 결론을 내리세요."
+        "text_ko": "자국은 삼 년 전에 멈췄어. 결론은 네가 내려."
       },
       {
         "speaker": "",
@@ -388,31 +389,31 @@
         "speaker": "Elia",
         "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.",
         "portrait": "elia_concern",
-        "text_ko": "그는 우리를 읽고 있습니다. 편집자는 쫓는 것이 아니라 컴파일합니다. 화상 패턴, 잔여물 서명, 감정 유발 요인에 대한 프로필을 작성하세요."
+        "text_ko": "우리를 읽고 있는 거야. 에디터는 쫓지 않아 — 수집하지. 연소 패턴, 잔존 시그니처, 감정 유발점의 프로필을 쌓는 거야."
       },
       {
         "speaker": "Arrel",
         "text": "And then?",
         "portrait": "arrel_neutral",
-        "text_ko": "그럼?"
+        "text_ko": "그다음엔?"
       },
       {
         "speaker": "Elia",
         "text": "And then they know exactly which memory to target. The one that holds everything else together. Pull it, and the whole structure collapses.",
         "portrait": "elia_concern",
-        "text_ko": "그런 다음 대상으로 삼을 메모리를 정확히 파악합니다. 다른 모든 것을 하나로 묶는 사람. 당기면 전체 구조가 무너집니다."
+        "text_ko": "그다음엔 정확히 어느 기억을 노려야 하는지 알게 돼. 나머지 전부를 붙들고 있는 그 기억을. 그걸 뽑으면, 구조 전체가 무너져."
       },
       {
         "speaker": "Elia",
         "text": "For you, that would be—",
         "portrait": "elia_concern",
-        "text_ko": "당신에게 그것은—"
+        "text_ko": "너의 경우엔, 그건—"
       },
       {
         "speaker": "Arrel",
         "text": "Don't say it.",
         "portrait": "arrel_neutral",
-        "text_ko": "말하지 마세요."
+        "text_ko": "말하지 마."
       },
       {
         "speaker": "",
@@ -436,7 +437,7 @@
         "speaker": "Elia",
         "text": "Void fissure. Don't step on it.",
         "portrait": "elia_concern",
-        "text_ko": "공허한 균열. 밟지 마세요."
+        "text_ko": "보이드 균열이야. 밟지 마."
       },
       {
         "speaker": "",
@@ -447,31 +448,31 @@
         "speaker": "Arrel",
         "text": "It's calling.",
         "portrait": "arrel_neutral",
-        "text_ko": "전화 중입니다."
+        "text_ko": "부르고 있어."
       },
       {
         "speaker": "Elia",
         "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.",
         "portrait": "elia_neutral",
-        "text_ko": "항상 전화하고 있습니다. 공허는 굶주리지 않습니다. 초대합니다. 그렇기 때문에 사람들은 기꺼이 들어갑니다."
+        "text_ko": "언제나 부르고 있어. 보이드는 굶주리지 않아 — 초대하지. 그래서 사람들이 제 발로 걸어 들어가는 거야."
       },
       {
         "speaker": "Elia",
         "text": "It shows you the memories you've lost. Tells you they're inside, waiting. All you have to do is step through.",
         "portrait": "elia_concern",
-        "text_ko": "당신이 잃어버린 기억을 보여줍니다. 안에서 기다리고 있다고 합니다. 당신이해야 할 일은 단계를 밟는 것뿐입니다."
+        "text_ko": "네가 잃은 기억들을 보여 줘. 안에서 기다리고 있다고 말해. 한 걸음만 내디디면 된다고."
       },
       {
         "speaker": "Arrel",
         "text": "Is it true? Are the memories in there?",
         "portrait": "arrel_neutral",
-        "text_ko": "사실인가요? 거기에 추억이 있나요?"
+        "text_ko": "사실이야? 기억이 그 안에 있어?"
       },
       {
         "speaker": "Elia",
         "text": "Maybe. But the people who go in to find out don't come back to tell us.",
         "portrait": "elia_concern",
-        "text_ko": "어쩌면. 하지만 알아보려고 들어간 사람들은 우리에게 알려주러 돌아오지 않습니다."
+        "text_ko": "어쩌면. 하지만 확인하러 들어간 사람들은, 알려 주러 돌아오지 않아."
       }
     ],
     "elia_before_separation": [
@@ -480,37 +481,37 @@
         "text": "Arrel. If we split up—",
         "portrait": "elia_concern",
         "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png",
-        "text_ko": "에렐. 우리가 헤어지면—"
+        "text_ko": "아렐. 우리가 갈라지면—"
       },
       {
         "speaker": "Arrel",
         "text": "I haven't decided yet.",
         "portrait": "arrel_neutral",
-        "text_ko": "아직 결정하지 않았어요."
+        "text_ko": "아직 결정 안 했어."
       },
       {
         "speaker": "Elia",
         "text": "I know. But if we do... you need to understand what happens to a burner without an Anchor.",
         "portrait": "elia_concern",
-        "text_ko": "알아요. 하지만 그렇다면... 앵커가 없는 버너에 무슨 일이 일어나는지 이해해야 합니다."
+        "text_ko": "알아. 하지만 만약 그렇게 되면... 닻 없는 연소자에게 무슨 일이 일어나는지 알아 둬야 해."
       },
       {
         "speaker": "Elia",
         "text": "Every burn you've done, I've been the reference point. I carry the SHAPE of what you lost, even when the content is gone. Without me, burns become... absolute.",
         "portrait": "elia_neutral",
-        "text_ko": "당신이 화상을 입었을 때마다 나는 기준점이 되었습니다. 콘텐츠가 없어진 경우에도 나는 당신이 잃어버린 것의 모양을 가지고 있습니다. 내가 없으면 화상은... 절대적인 것이 됩니다."
+        "text_ko": "네가 태울 때마다, 내가 기준점이었어. 내용이 사라져도, 나는 네가 잃은 것의 '형태'를 지니고 있어. 내가 없으면 연소는... 절대적인 게 돼."
       },
       {
         "speaker": "Arrel",
         "text": "No residue.",
         "portrait": "arrel_neutral",
-        "text_ko": "잔여물이 없습니다."
+        "text_ko": "잔존이 없다."
       },
       {
         "speaker": "Elia",
         "text": "No residue. No echo. No sense that something used to be there. Just smooth nothing, all the way down.",
         "portrait": "elia_concern",
-        "text_ko": "잔여물이 없습니다. 에코가 없습니다. 거기에 뭔가가 있었던 것 같지 않습니다. 그냥 아무 것도 매끄럽게 하지 마세요."
+        "text_ko": "잔존도 없고. 메아리도 없고. 뭔가 있었다는 느낌조차 없어. 그냥 매끈한 무(無)야, 바닥까지."
       },
       {
         "speaker": "",
@@ -521,19 +522,19 @@
         "speaker": "Elia",
         "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.",
         "portrait": "elia_concern",
-        "text_ko": "하지 말라는 말이 아닙니다. 내 말은 – 확실히 하세요. 내가 없는 동안 무언가를 태우면 그 모양을 되돌릴 수 없기 때문입니다."
+        "text_ko": "하지 말라는 게 아니야. 확실히 하라는 거야. 내가 없는 동안 태우면, 그 형태는 돌려받을 수 없으니까."
       },
       {
         "speaker": "Arrel",
         "text": "I'll be careful.",
         "portrait": "arrel_neutral",
-        "text_ko": "조심하겠습니다."
+        "text_ko": "조심할게."
       },
       {
         "speaker": "Elia",
         "text": "You always say that.",
         "portrait": "elia_concern",
-        "text_ko": "당신은 항상 그렇게 말해요."
+        "text_ko": "넌 항상 그렇게 말하지."
       },
       {
         "speaker": "",
@@ -548,7 +549,7 @@
         "portrait": "elia_concern",
         "requires_memory": "daily_campfire_song",
         "burned_text": "You were humming something earlier. Then you stopped. Like you forgot the tune.",
-        "text_ko": "추출...얼마나 빠졌나요?",
+        "text_ko": "그 추출... 얼마나 잃었어?",
         "burned_text_ko": "아까 뭔가를 흥얼거리고 계셨어요. 그러다가 멈췄어요. 마치 노래를 잊어버린 것처럼요."
       },
       {
@@ -556,19 +557,19 @@
         "text": "A sword. A courtyard. Someone important.",
         "portrait": "arrel_exhausted",
         "cg": "res://assets/cg/generated/memory_burn_first_sword.png",
-        "text_ko": "검. 안뜰. 중요한 사람."
+        "text_ko": "검. 안뜰. 중요한 누군가."
       },
       {
         "speaker": "Elia",
         "text": "Do you miss it?",
         "portrait": "elia_concern",
-        "text_ko": "그리워요?"
+        "text_ko": "그리워?"
       },
       {
         "speaker": "Arrel",
         "text": "I don't know. That's the point.",
         "portrait": "arrel_neutral",
-        "text_ko": "모르겠어요. 그게 요점입니다."
+        "text_ko": "모르겠어. 그게 요점이지."
       },
       {
         "speaker": "",

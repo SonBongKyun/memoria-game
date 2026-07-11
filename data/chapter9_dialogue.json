@@ -204,7 +204,7 @@
         "speaker": "Kairos",
         "text": "Outcome B: BL-07 consumes the combustion. The hole doubles in size. The Seam is gone within a week.",
         "portrait": "kairos_neutral",
-        "text_ko": "결과 B: BL-07은 연소를 소비합니다. 구멍 크기가 두 배로 커집니다. 일주일 안에 솔기가 없어집니다."
+        "text_ko": "결과 B: BL-07은 연소를 소비합니다. 구멍 크기가 두 배로 커집니다. 일주일 안에 씸가 없어집니다."
       },
       {
         "speaker": "Arrel",
@@ -233,6 +233,7 @@
       {
         "speaker": "",
         "text": "He stepped sideways and the Waste swallowed his outline. Gone — or standing in the same place, invisible in the absence of color.",
+        "cg": "res://assets/cg/generated/story_ch9_kairos_absence.png",
         "text_ko": "그가 옆으로 한 걸음 옮기자 황무지가 그 윤곽을 삼켰다. 사라졌다 — 혹은 같은 자리에 선 채, 색의 부재 속에 보이지 않게 되었거나."
       }
     ],

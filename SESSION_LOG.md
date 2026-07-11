@@ -5879,7 +5879,29 @@ Story-first game, hours of VN reading, and the runner had zero reading convenien
 ### Verification
 - 30/30 data JSON parse OK; headless boot 0 SCRIPT ERROR / Parse Error.
 
-### Queued (next dedicated session)
+## S171 - 2026-07-10 (Part I emotional-beat illustration expansion)
+
+### Done
+- Generated and integrated nine new style-locked GPT Image CGs across Chapters 2 through 10.
+- Added second visual beats for the first-sword loss, Blank Book discovery, Elia anchoring, the coast separation branch, Sable buried team, the BL-07 revelation, the silent remnant, Kairos departure, and the core approach.
+- Attached every image to an existing dialogue line only; event keys, dialogue order, flags, branches, and the in-progress Korean rewrite remain untouched.
+- Registered all nine plates in the PauseMenu Artbook and `ILLUSTRATION_CATALOG.md`.
+
+### Art direction
+- Used the active chapter CG nearest each beat as a direct style reference.
+- Reserved the lower dialogue area and used back-facing, prop-led, or silhouette compositions where a new face could weaken established identity.
+- Rejected a face-forward Blank Book draft for identity drift and regenerated the final version with costume-locked hands only.
+- Prompts explicitly excluded grain, image noise, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring particles.
+
+### Verification
+- Godot 4.6.2 imported all nine CGs and booted the project with no script or parse errors; only known third-party addon and shutdown cleanup warnings remain.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- VN structural validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Visual clarity smoke passed with `fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1`.
+- All 154 active dialogue CG references resolve to 117 unique assets; all nine new plates imported with matching metadata.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+### Carried-forward localization work
 - **Part I full Korean rewrite pass** (S167-style): ~196 remaining machine-register lines across chapter1-10 + spot-check dialogue lines. Marker query: narration speaker=="" with ~습니다체.
 
 ## S170 - 2026-07-07 (Part I Korean narration rewrite: all 235 flagged lines)
@@ -5898,3 +5920,44 @@ Story-first game, hours of VN reading, and the runner had zero reading convenien
 
 ### Queued (next dedicated session)
 - **Part I spoken-dialogue Korean pass**: speaker lines are also machine-register in many places (e.g. "Movement."→"운동.", "I've got you."→"나는 당신을 잡았습니다.", "에릴/어렐/에렐" name typos, 존댓말/반말 혼재). Detection needs a dialogue-aware heuristic (name-typo list, 직역 패턴), scope ~500+ lines — largest remaining localization debt.
+
+## S172 - 2026-07-11 (Canonical battle-support illustration correction)
+
+### Done
+- Audited the active illustration tree and story canon before generating more CGs; the clearest live mismatch was the young, sighted Sable battle cut-in left over from the pre-S148 design.
+- Replaced `cinematic_sable_echo_strike.png` in place with canonical blind-old-woman Sable/Halda while preserving the existing support-action runtime path.
+- Replaced ten additional pre-S148 Sable story/ending plates in place across Chapters 6-8 and the epilogue/Weave ending, preserving their existing JSON, Artbook, and ending references.
+- Generated transparent full-body battle-stage characters for Sable and Tobias, replacing Sable's cropped dialogue portrait and Tobias's opaque gray-background full-body card in combat.
+- Connected both new assets in `battle_scene.gd` with safe fallbacks and registered them in the Artbook and illustration catalog.
+
+### Art direction
+- Sable lock: old blind woman, late 60s, short white hair, weathered coast-stone face, pale clouded eyes, dark violet-toned coat, small scar, composed and unhurried.
+- Tobias lock: stern middle-aged recorder, weathered brown hair, short beard, charcoal layered coat, tactile record book, restrained violet ward geometry.
+- Used built-in GPT Image with current canonical portraits, full-body art, battle sheets, and cut-ins as direct references.
+- Generated stage characters on flat chroma backgrounds, removed the backgrounds locally, and rejected any result that did not preserve identity or clean alpha edges.
+
+### Verification
+- Godot 4.6.2 imported both alpha PNGs, the replacement cut-in, and all ten corrected story/ending plates successfully.
+- Project import completed without script or parse errors; only the known VFX Library plugin shutdown noise remains.
+- Enhanced visual-clarity smoke passed with `support_art=2`, confirming the live Sable and Tobias battle TextureRects resolve to the new transparent assets.
+- Field Focus smoke passed with all 10 maps covered and battle opening at Resonance 25 / Limit 20.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- VN structural validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Asset audit passed: 11 landscape replacements are clean 1672x941 RGB plates; Sable and Tobias stage characters are 1024x1536 ARGB PNGs.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S173 - 2026-07-11 (First-exploration character sheets and visual clarity repair)
+
+### Done
+- Traced the missing field art to all three exploration actor paths constructing procedural `PixelSprite` placeholders even though authored Arrel and Elia frame sheets were already imported.
+- Switched Arrel, companion Elia, and opening NPC Elia to their authored directional sheets with consistent scale, grounding offset, filtering, animation names, and safe procedural fallbacks for missing assets and non-Elia actors.
+- Reworked the clean exploration baseline: removed the decorative HUD plate, permanent controls strip, opening location-art card, empty archive-resource rows, and the always-visible Memory Compass. The compass now appears only for a short memory-change event.
+- Added a one-time clarity settings migration that disables a previously saved FPS overlay while retaining clean visuals, reduced motion, and disabled screen shake.
+- Reduced the minimap footprint, suppressed raw map trigger rectangles, shrank low-detail interactive props, and added a restrained grass texture variant for the Rim Forest clean view so characters and paths read before environmental noise.
+- Added a reusable first-exploration capture harness and expanded the visual smoke test to assert authored Arrel/Elia sheets and the compact clean HUD.
+
+### Verification
+- Godot 4.6.2 visual-clarity smoke passed with `exploration_sheets=2 compact_hud=1` plus the existing fog, particle, vignette, battle-dust, input-hint, callback, and support-art checks.
+- Field Focus smoke passed across all 10 maps (`maps=10`, Resonance 25, Limit 20).
+- Live 1280x720 Rim Forest capture passed and resolved Arrel/Elia to `arrel_sheet/idle_01.png` and `elia_sheet/idle_01.png`; screenshot saved to `tmp/visual_audit/rim_forest_first_exploration.png`.
+- Godot emitted only the known shutdown resource-cleanup warnings; no script, parse, or assertion errors occurred.

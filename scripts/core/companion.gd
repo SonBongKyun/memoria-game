@@ -2,7 +2,8 @@
 ## CharacterBody2D 기반. 플레이어를 따라다니며 대화 가능.
 extends CharacterBody2D
 
-const SHEET_SPRITE_SCALE: Vector2 = Vector2.ONE
+const IMPORTED_SHEET_SCALE: Vector2 = Vector2(0.40, 0.40)
+const IMPORTED_SHEET_OFFSET: Vector2 = Vector2(0, -52)
 
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const FOLLOW_SPEED: float = 100.0
@@ -30,6 +31,7 @@ var _breath_time: float = 0.0
 var _bob_phase: float = 0.0
 var _base_offset: Vector2 = Vector2.ZERO
 var _base_offset_captured: bool = false
+var _rest_scale: Vector2 = Vector2.ONE
 
 func _ready() -> void:
 	# Sprite2D → AnimatedSprite2D 교체 (픽셀 스���라이트 지원)
@@ -99,12 +101,12 @@ func _physics_process(delta: float) -> void:
 			sprite.offset.y = _base_offset.y - absf(sin(_bob_phase)) * 1.4
 			sprite.rotation = lerp_angle(sprite.rotation, (velocity.x / (FOLLOW_SPEED * SPRINT_CATCHUP)) * 0.05, 9.0 * delta)
 			_breath_time = 0.0
-			sprite.scale = sprite.scale.lerp(SHEET_SPRITE_SCALE, 10.0 * delta)
+			sprite.scale = sprite.scale.lerp(_rest_scale, 10.0 * delta)
 		else:
 			sprite.offset.y = lerpf(sprite.offset.y, _base_offset.y, 12.0 * delta)
 			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 12.0 * delta)
 			_breath_time += delta
-			sprite.scale = SHEET_SPRITE_SCALE * Vector2(1.0 + sin(_breath_time * 1.8) * 0.008, 1.0 - sin(_breath_time * 1.8) * 0.006)
+			sprite.scale = _rest_scale * Vector2(1.0 + sin(_breath_time * 1.8) * 0.008, 1.0 - sin(_breath_time * 1.8) * 0.006)
 
 ## 상호작용 (Player의 RayCast가 호출)
 func interact() -> void:
@@ -131,12 +133,23 @@ func _setup_placeholder_sprite() -> void:
 	if npc_name == "Sable":
 		config = PixelSprite.sable_config()
 		sprite.sprite_frames = PixelSprite.create_frames(config)
-		sprite.scale = Vector2.ONE
+		_rest_scale = Vector2.ONE
+		sprite.scale = _rest_scale
+		sprite.offset = Vector2.ZERO
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	else:
-		# Match Arrel's true top-down four-direction animation instead of reusing
-		# a side-view frame for three directions.
-		sprite.sprite_frames = PixelSprite.create_frames(PixelSprite.elia_config())
-		sprite.scale = Vector2.ONE
+		var sheet_path := "res://assets/sprites/characters/elia_sheet/idle_01.png"
+		if ResourceLoader.exists(sheet_path):
+			sprite.sprite_frames = PixelSprite.create_sheet_frames("elia")
+			_rest_scale = IMPORTED_SHEET_SCALE
+			sprite.offset = IMPORTED_SHEET_OFFSET
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		else:
+			sprite.sprite_frames = PixelSprite.create_frames(PixelSprite.elia_config())
+			_rest_scale = Vector2.ONE
+			sprite.offset = Vector2.ZERO
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sprite.scale = _rest_scale
 	sprite.play("idle_down")
 
 ## 애니메이션 방향 업데이트

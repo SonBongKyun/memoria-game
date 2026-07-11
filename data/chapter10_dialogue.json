@@ -108,13 +108,13 @@
         "speaker": "Elia",
         "text": "You're talking about burning your name. Your NAME, Arrel. The last thing that makes you... you.",
         "portrait": "elia_concern",
-        "text_ko": "당신은 당신의 이름을 불태우는 것에 대해 이야기하고 있습니다. 당신의 이름, 에릴. 당신을 만드는 마지막 것은 바로 당신입니다."
+        "text_ko": "당신은 당신의 이름을 불태우는 것에 대해 이야기하고 있습니다. 당신의 이름, 아렐. 당신을 만드는 마지막 것은 바로 당신입니다."
       },
       {
         "speaker": "Arrel",
         "text": "If The Seam falls, everyone there loses everything. Not just a name.",
         "portrait": "arrel_neutral",
-        "text_ko": "The 심이 무너지면 그곳에 있는 모든 사람이 모든 것을 잃게 됩니다. 이름뿐만이 아닙니다."
+        "text_ko": "씸이 무너지면 그곳에 있는 모든 사람이 모든 것을 잃게 됩니다. 이름뿐만이 아닙니다."
       },
       {
         "speaker": "Elia",
@@ -256,7 +256,7 @@
       {
         "speaker": "",
         "text": "'Arrel.'",
-        "text_ko": "'어렐.'"
+        "text_ko": "'아렐.'"
       },
       {
         "speaker": "",
@@ -289,7 +289,7 @@
         "speaker": "",
         "text": "The man who had been Arrel opened his eyes. He looked at the woman standing over him.",
         "cg": "res://assets/cg/generated/story_ch10_seal_complete.png",
-        "text_ko": "에릴이었던 남자가 눈을 떴다. 그는 자기 위에 서 있는 여자를 바라보았다."
+        "text_ko": "아렐이었던 남자가 눈을 떴다. 그는 자기 위에 서 있는 여자를 바라보았다."
       },
       {
         "speaker": "",
@@ -341,7 +341,7 @@
         "speaker": "Elia",
         "text": "Arrel—",
         "portrait": "elia_concern",
-        "text_ko": "에렐—"
+        "text_ko": "아렐—"
       },
       {
         "speaker": "Arrel",
@@ -363,13 +363,13 @@
         "speaker": "Elia",
         "text": "Sable won't be happy.",
         "portrait": "elia_neutral",
-        "text_ko": "Sable은 행복하지 않을 것입니다."
+        "text_ko": "세이블은 행복하지 않을 것입니다."
       },
       {
         "speaker": "Arrel",
         "text": "Sable doesn't have to lose her name.",
         "portrait": "arrel_neutral",
-        "text_ko": "Sable은 이름을 잃을 필요가 없습니다."
+        "text_ko": "세이블은 이름을 잃을 필요가 없습니다."
       },
       {
         "speaker": "",
@@ -398,7 +398,7 @@
         "speaker": "Elia",
         "text": "Arrel. Look.",
         "portrait": "elia_concern",
-        "text_ko": "에렐. 바라보다."
+        "text_ko": "아렐. 바라보다."
       },
       {
         "speaker": "",
@@ -550,7 +550,7 @@
         "speaker": "Elia",
         "text": "Arrel. Before we go further. There's something I need to say.",
         "portrait": "elia_concern",
-        "text_ko": "에렐. 더 나아가기 전에. 할 말이 있어요."
+        "text_ko": "아렐. 더 나아가기 전에. 할 말이 있어요."
       },
       {
         "speaker": "Arrel",
@@ -574,7 +574,7 @@
         "speaker": "Arrel",
         "text": "It's not about being worth saving. It's about the Seam. The children. Sable's people.",
         "portrait": "arrel_neutral",
-        "text_ko": "아낄 가치가 있다는 것이 아닙니다. 솔기에 관한 것입니다. 아이들. 세이블의 사람들."
+        "text_ko": "아낄 가치가 있다는 것이 아닙니다. 씸에 관한 것입니다. 아이들. 세이블의 사람들."
       },
       {
         "speaker": "Elia",
@@ -607,6 +607,7 @@
       {
         "speaker": "",
         "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take — the choice to be here, together, right now.",
+        "cg": "res://assets/cg/generated/story_ch10_choice_at_core.png",
         "text_ko": "그는 엘리아를 바라보았다. 그녀는 뒤를 돌아보았다. 모든 것의 가장자리에 서서 공허가 받아들일 수 없는 유일한 것, 바로 지금 여기에 함께 있다는 선택을 붙잡고 있는 두 사람."
       },
       {

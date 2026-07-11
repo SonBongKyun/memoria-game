@@ -81,7 +81,7 @@
         "text": "...Arrel.",
         "portrait": "arrel_wounded",
         "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png",
-        "text_ko": "...어렐."
+        "text_ko": "...아렐."
       },
       {
         "speaker": "Elia",
@@ -98,7 +98,7 @@
         "speaker": "Arrel",
         "text": "Arrel.",
         "portrait": "arrel_neutral",
-        "text_ko": "에렐."
+        "text_ko": "아렐."
       },
       {
         "speaker": "",
@@ -109,7 +109,7 @@
         "speaker": "Sable",
         "text": "The Seam will hold. Thanks to what he did.",
         "portrait": "sable_calm",
-        "text_ko": "솔기가 유지됩니다. 그가 한 일 덕분입니다."
+        "text_ko": "씸가 유지됩니다. 그가 한 일 덕분입니다."
       },
       {
         "speaker": "Sable",
@@ -264,7 +264,7 @@
         "speaker": "Arrel",
         "text": "My name is Arrel. I remember who gave it to me. And I'm keeping it.",
         "portrait": "arrel_neutral",
-        "text_ko": "내 이름은 에릴이에요. 누가 나한테 주었는지 기억난다. 그리고 나는 그것을 지키고 있습니다."
+        "text_ko": "내 이름은 아렐이에요. 누가 나한테 주었는지 기억난다. 그리고 나는 그것을 지키고 있습니다."
       },
       {
         "speaker": "",
@@ -385,7 +385,7 @@
         "speaker": "Sable",
         "text": "There are other holes. Other Seams. If this can be done once, deliberately, by someone who refuses to forget...",
         "portrait": "sable_calm",
-        "text_ko": "다른 구멍도 있습니다. 기타 솔기. 잊기를 거부하는 누군가가 고의로 한 번만 이런 일을 할 수 있다면..."
+        "text_ko": "다른 구멍도 있습니다. 기타 씸. 잊기를 거부하는 누군가가 고의로 한 번만 이런 일을 할 수 있다면..."
       },
       {
         "speaker": "Arrel",
@@ -431,7 +431,7 @@
         "speaker": "Elia",
         "text": "Arrel. Look at me.",
         "portrait": "elia_concern",
-        "text_ko": "에렐. 나를 봐."
+        "text_ko": "아렐. 나를 봐."
       },
       {
         "speaker": "Arrel",
@@ -541,7 +541,7 @@
         "speaker": "Arrel",
         "text": "And the garden here in The Seam. Flowers growing where nothing should grow.",
         "portrait": "arrel_neutral",
-        "text_ko": "그리고 여기 The 심의 정원도요. 아무것도 자라서는 안 될 곳에 꽃이 피어난다."
+        "text_ko": "그리고 여기 씸의 정원도요. 아무것도 자라서는 안 될 곳에 꽃이 피어난다."
       },
       {
         "speaker": "Arrel",
@@ -619,7 +619,7 @@
         "text": "I've been thinking about what Sable said. About the pattern.",
         "portrait": "elia_mature",
         "cg": "res://assets/cg/generated/epilogue_elia_collective_pattern.png",
-        "text_ko": "나는 Sable이 말한 것을 생각해 보았습니다. 패턴에 대해서."
+        "text_ko": "나는 세이블이 말한 것을 생각해 보았습니다. 패턴에 대해서."
       },
       {
         "speaker": "Arrel",
@@ -716,13 +716,13 @@
         "speaker": "Elia",
         "text": "Arrel. Your name is Arrel. Say it back to me.",
         "portrait": "elia_concern",
-        "text_ko": "에렐. 당신의 이름은 에릴입니다. 나에게 다시 말해보세요."
+        "text_ko": "아렐. 당신의 이름은 아렐입니다. 나에게 다시 말해보세요."
       },
       {
         "speaker": "Arrel",
         "text": "...Arrel.",
         "portrait": "arrel_exhausted",
-        "text_ko": "...어렐."
+        "text_ko": "...아렐."
       },
       {
         "speaker": "Elia",

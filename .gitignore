@@ -13,3 +13,6 @@ desktop.ini
 
 # fablize goal-tracking state (session tooling)
 .fablize/
+
+# Local visual-audit captures
+/tmp/

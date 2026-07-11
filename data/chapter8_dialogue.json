@@ -97,7 +97,8 @@
       {
         "speaker": "",
         "text": "They walked past. The shape's mouth kept moving. Arrel didn't look back.",
-        "text_ko": "그들은 지나갔다. 형체의 입은 계속 움직였다. 에릴은 뒤돌아보지 않았다."
+        "cg": "res://assets/cg/generated/story_ch8_silent_remnant.png",
+        "text_ko": "그들은 지나갔다. 형체의 입은 계속 움직였다. 아렐은 뒤돌아보지 않았다."
       }
     ],
     "tobias_theory": [
@@ -151,7 +152,7 @@
         "text": "Arrel. Stop.",
         "portrait": "elia_concern",
         "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png",
-        "text_ko": "에렐. 멈추다."
+        "text_ko": "아렐. 멈추다."
       },
       {
         "speaker": "Arrel",
@@ -452,7 +453,7 @@
         "speaker": "Arrel",
         "text": "What does that mean for The Seam?",
         "portrait": "arrel_neutral",
-        "text_ko": "The 심에게 이는 무엇을 의미하나요?"
+        "text_ko": "씸에게 이는 무엇을 의미하나요?"
       },
       {
         "speaker": "Tobias",

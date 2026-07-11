@@ -3,10 +3,10 @@
 ## CanvasLayer 기반, EXPLORATION에서만 표시.
 class_name Minimap
 
-const MINIMAP_SIZE := Vector2(140, 100)
+const MINIMAP_SIZE := Vector2(112, 80)
 const MINIMAP_MARGIN := Vector2(12, 12)
-const PIXEL_SIZE := 4  # 미니맵에서 타일 1개 크기 (px)
-const PLAYER_SIZE := 6
+const PIXEL_SIZE := 3  # clean, compact map footprint
+const PLAYER_SIZE := 5
 
 # 타일 색상 (공통 매핑)
 const TILE_COLORS := {
@@ -52,7 +52,7 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	# 배경 패널
 	var bg = ColorRect.new()
 	bg.size = MINIMAP_SIZE
-	bg.color = Color(0.04, 0.03, 0.06, 0.75)
+	bg.color = Color(0.04, 0.03, 0.06, 0.58)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(bg)
 

@@ -108,7 +108,7 @@ func _build_ui() -> void:
 		hud_plate_art.modulate = Color(1.0, 0.96, 0.90, _hud_plate_target_alpha)
 		_hud_plate_base_pos = hud_plate_art.position
 		add_child(hud_plate_art)
-	elif ResourceLoader.exists(HUD_PLATE_PATH):
+	elif not clean_view and ResourceLoader.exists(HUD_PLATE_PATH):
 		_hud_uses_full_overlay = false
 		hud_plate_art = TextureRect.new()
 		hud_plate_art.texture = load(HUD_PLATE_PATH)
@@ -265,6 +265,11 @@ func _build_ui() -> void:
 
 	for label in [hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
 		UITheme.apply_ui_font(label)
+	if clean_view:
+		panel.custom_minimum_size.x = 220
+		items_label.visible = false
+		equip_label.visible = false
+		pulse_label.visible = false
 
 func _build_controls_strip() -> void:
 	controls_panel = PanelContainer.new()
@@ -391,7 +396,7 @@ func _on_state_changed(new_state: GameManager.GameState) -> void:
 	var should_show = (new_state == GameManager.GameState.EXPLORATION)
 	panel.visible = should_show
 	if controls_panel:
-		controls_panel.visible = should_show
+		controls_panel.visible = should_show and not OptionsMenu.is_clean_gameplay_visuals()
 	_update_decorative_visibility()
 	# S57: Slide-in animation when entering exploration
 	if should_show and not _slide_in_done:
@@ -572,6 +577,7 @@ func _update_hud() -> void:
 	# Memories
 	var held: int = MemoryManager.memories.size()
 	var burned: int = MemoryManager.burned_memories.size()
+	memory_label.visible = not OptionsMenu.is_clean_gameplay_visuals()
 	memory_label.text = ("기억: 보유 %d, 연소 %d" % [held, burned]) if GameManager.current_locale == "ko" else "Memories: %d held, %d burned" % [held, burned]
 
 	# S57: Memory burn counter glow (detect change via burned count)
@@ -581,6 +587,7 @@ func _update_hud() -> void:
 
 	# Grains
 	var grains: int = GameManager.player_data.get("grains", 0)
+	grains_label.visible = not OptionsMenu.is_clean_gameplay_visuals()
 	grains_label.text = ("%s: %d" % [GameManager.loc("grains"), grains]) if GameManager.current_locale == "ko" else "Grains: %d" % grains
 	# S57: Grains earned popup
 	if _last_grains >= 0 and grains > _last_grains:
@@ -602,7 +609,7 @@ func _update_hud() -> void:
 	if wid != "" and GameManager.EQUIPMENT.has(wid):
 		weapon_name = GameManager.EQUIPMENT[wid].name
 	equip_label.text = (("무기: %s" if GameManager.current_locale == "ko" else "Weapon: %s") % weapon_name) if weapon_name != "" else ""
-	equip_label.visible = weapon_name != ""
+	equip_label.visible = weapon_name != "" and not OptionsMenu.is_clean_gameplay_visuals()
 
 	# S41/S57: Active quest tracker with progress bar
 	_update_quest_tracker()
@@ -664,10 +671,11 @@ func _update_memory_pulse_status() -> void:
 		pulse_label.visible = false
 		return
 
-	pulse_label.visible = true
 	var status: Dictionary = player.get_memory_pulse_status()
 	var focus := int(status.get("field_focus", 0))
 	var focus_max := int(status.get("field_focus_max", 3))
+	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
+	pulse_label.visible = not clean_view or focus > 0 or not bool(status.get("ready", false))
 	var focus_suffix := (" · 집중 %d/%d" if GameManager.current_locale == "ko" else " · Focus %d/%d") % [focus, focus_max]
 	if bool(status.get("ready", false)):
 		pulse_label.text = ("펄스: 준비 [Q]" if GameManager.current_locale == "ko" else "Pulse: Ready [Q]") + focus_suffix
@@ -695,10 +703,14 @@ func _get_player_node() -> Node:
 func _update_decorative_visibility() -> void:
 	if hud_plate_art == null:
 		return
-	var suppress_overlay := _hud_uses_full_overlay and OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals()
+	var suppress_overlay := OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals()
 	hud_plate_art.visible = panel != null and panel.visible and not suppress_overlay
 
 func _update_location_card() -> void:
+	if OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals():
+		if location_card:
+			location_card.visible = false
+		return
 	var key := _get_location_key()
 	if key == "" or key == _last_location_key:
 		return

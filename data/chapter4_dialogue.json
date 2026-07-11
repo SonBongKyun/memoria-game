@@ -18,25 +18,25 @@
         "speaker": "Tobias",
         "text": "Memory rain. Residue from a combustion event somewhere upwind. Harmless, but unpleasant.",
         "portrait": "tobias_neutral",
-        "text_ko": "기억의 비. 바람이 불어오는 방향 어딘가에서 연소로 인한 잔류물. 무해하지만 불쾌합니다."
+        "text_ko": "기억의 비일세. 바람 위쪽 어딘가의 연소에서 나온 잔여물이지. 무해하네만, 불쾌하지."
       },
       {
         "speaker": "Elia",
         "text": "We should rest here. Arrel, you've been walking unevenly for the last hour.",
         "portrait": "elia_concern",
-        "text_ko": "우리는 여기서 쉬어야 해요. 아렐, 당신은 지난 한 시간 동안 불규칙하게 걷고 있었습니다."
+        "text_ko": "여기서 쉬어야겠어. 아렐, 너 한 시간째 걸음이 고르지 않아."
       },
       {
         "speaker": "Arrel",
         "text": "I'm fine.",
         "portrait": "arrel_neutral",
-        "text_ko": "나는 괜찮아요."
+        "text_ko": "괜찮아."
       },
       {
         "speaker": "Elia",
         "text": "You're not fine. You forgot the name of the waystation ten minutes after we left it.",
         "portrait": "elia_concern",
-        "text_ko": "당신은 괜찮지 않습니다. 우리가 떠난 지 10분 뒤에 당신은 정거장 이름을 잊어버렸어요."
+        "text_ko": "안 괜찮아. 역참 떠나고 십 분 만에 그 이름을 잊었잖아."
       },
       {
         "speaker": "Arrel",
@@ -56,13 +56,13 @@
         "speaker": "Arrel",
         "text": "The words are moving.",
         "portrait": "arrel_pain",
-        "text_ko": "말이 움직이고 있습니다."
+        "text_ko": "글자가 움직여."
       },
       {
         "speaker": "Tobias",
         "text": "Let me see.",
         "portrait": "tobias_neutral",
-        "text_ko": "어디 보자."
+        "text_ko": "어디 보세."
       },
       {
         "speaker": "",
@@ -73,37 +73,37 @@
         "speaker": "Tobias",
         "text": "The words aren't moving. Your ability to read them is... deteriorating.",
         "portrait": "tobias_neutral",
-        "text_ko": "말이 움직이지 않네요. 당신의 읽기 능력이... 저하되고 있어요."
+        "text_ko": "글자는 움직이지 않네. 자네의 읽는 능력이... 저하되고 있는 거야."
       },
       {
         "speaker": "Tobias",
         "text": "It's a known side effect of high-efficiency combustion. The brain prioritizes combat processing over literacy functions.",
         "portrait": "tobias_neutral",
-        "text_ko": "고효율 연소의 알려진 부작용입니다. 뇌는 읽고 쓰는 기능보다 전투 처리를 우선시합니다."
+        "text_ko": "고효율 연소의 알려진 부작용일세. 뇌가 읽고 쓰기보다 전투 처리를 우선하는 거지."
       },
       {
         "speaker": "Elia",
         "text": "He's losing the ability to read?",
         "portrait": "elia_concern",
-        "text_ko": "그 사람이 읽는 능력을 잃어가고 있다고요?"
+        "text_ko": "읽는 능력을 잃고 있다고요?"
       },
       {
         "speaker": "Tobias",
         "text": "Temporarily. Probably. The Bureau documentation says 'temporary' but I've seen the footnotes.",
         "portrait": "tobias_neutral",
-        "text_ko": "일시적으로. 아마. 관리국 문서에는 '임시'라고 나와 있지만 각주를 본 적이 있습니다."
+        "text_ko": "일시적으로. 아마도. 관리국 문서엔 '일시적'이라 적혀 있네만 — 나는 각주를 봤거든."
       },
       {
         "speaker": "Arrel",
         "text": "What do the footnotes say?",
         "portrait": "arrel_pain",
-        "text_ko": "각주는 무엇을 말합니까?"
+        "text_ko": "각주엔 뭐라고 적혀 있지?"
       },
       {
         "speaker": "Tobias",
         "text": "'Duration varies. Recovery not guaranteed.'",
         "portrait": "tobias_neutral",
-        "text_ko": "'기간은 다양합니다. 회복은 보장되지 않습니다.'"
+        "text_ko": "'지속 기간은 상이함. 회복은 보장되지 않음.'"
       }
     ],
     "anchoring_session": [
@@ -112,13 +112,13 @@
         "text": "Arrel. Sit down. Give me your hands.",
         "portrait": "elia_neutral",
         "cg": "res://assets/cg/generated/story_ch4_night_counting_losses.png",
-        "text_ko": "에렐. 앉으세요. 손을 주세요."
+        "text_ko": "아렐. 앉아. 손 이리 줘."
       },
       {
         "speaker": "Arrel",
         "text": "What are you—",
         "portrait": "arrel_neutral",
-        "text_ko": "당신은 무엇입니까 -"
+        "text_ko": "뭘 하려는—"
       },
       {
         "speaker": "Elia",
@@ -135,42 +135,43 @@
         "speaker": "Elia",
         "text": "Close your eyes. Tell me something you remember. Not a big memory — something small.",
         "portrait": "elia_neutral",
-        "text_ko": "눈을 감으세요. 당신이 기억하는 것을 말해주세요. 큰 기억은 아니고 작은 것입니다."
+        "text_ko": "눈 감아. 기억나는 걸 하나 말해 줘. 큰 기억 말고 — 작은 걸로."
       },
       {
         "speaker": "Arrel",
         "text": "...I remember the smell of bread. From a shop I passed once. The door was open and the heat came out like a wall.",
         "portrait": "arrel_neutral",
-        "text_ko": "...빵 냄새가 기억난다. 한 번 지나갔던 가게에서. 문은 열려 있었고 벽처럼 열기가 새어 나왔다."
+        "text_ko": "...빵 냄새가 기억나. 한 번 지나쳤던 가게. 문이 열려 있었고, 열기가 벽처럼 흘러나왔어."
       },
       {
         "speaker": "Elia",
         "text": "Good. Hold that. Feel the heat.",
         "portrait": "elia_neutral",
-        "text_ko": "좋아요. 잠깐만요. 열기를 느껴보세요."
+        "text_ko": "좋아. 붙들고 있어. 그 열기를 느껴."
       },
       {
         "speaker": "",
         "text": "Something shifted. Like a loose page being pressed back into its binding.",
+        "cg": "res://assets/cg/generated/story_ch4_anchor_binding.png",
         "text_ko": "무언가 제자리를 찾았다. 헐거워진 페이지가 장정 속으로 다시 눌려 들어가듯."
       },
       {
         "speaker": "Elia",
         "text": "That's an anchor point. A memory too small to burn, too real to forget. I'm tying it to the architecture.",
         "portrait": "elia_neutral",
-        "text_ko": "그것이 앵커 포인트입니다. 불타버리기엔 너무 작은 기억이고, 잊기엔 너무 현실적인 기억. 나는 그것을 건축과 연결하고 있습니다."
+        "text_ko": "그게 앵커 포인트야. 태우기엔 너무 작고, 잊기엔 너무 생생한 기억. 그걸 네 구조에 묶는 거야."
       },
       {
         "speaker": "Tobias",
         "text": "Remarkable. I've read about anchoring but never seen it performed. May I take notes?",
         "portrait": "tobias_neutral",
-        "text_ko": "놀랍습니다. 앵커링에 대해 읽었지만 수행되는 것을 본 적이 없습니다. 메모해도 될까요?"
+        "text_ko": "놀랍군. 앵커링은 글로만 읽었지 실제로 보는 건 처음일세. 기록해도 되겠나?"
       },
       {
         "speaker": "Elia",
         "text": "Quietly.",
         "portrait": "elia_concern",
-        "text_ko": "조용히."
+        "text_ko": "조용히요."
       },
       {
         "speaker": "",
@@ -184,73 +185,73 @@
         "text": "Since we have time — let me explain the classification system.",
         "portrait": "tobias_neutral",
         "cg": "res://assets/cg/generated/story_ch4_burner_classification.png",
-        "text_ko": "시간이 있으니 분류 시스템에 대해 설명하겠습니다."
+        "text_ko": "시간도 있으니 — 분류 체계를 설명해 주지."
       },
       {
         "speaker": "Tobias",
         "text": "The Bureau ranks Burners from Class One to Class Seven. Most never exceed Class Three.",
         "portrait": "tobias_neutral",
-        "text_ko": "국에서는 버너를 클래스 1에서 클래스 7까지 등급을 매깁니다. 대부분은 클래스 3을 초과하지 않습니다."
+        "text_ko": "관리국은 연소자를 1급에서 7급까지 나누네. 대부분은 3급을 넘지 못하지."
       },
       {
         "speaker": "Tobias",
         "text": "Class One: involuntary micro-burns. Forgetting where you put your keys. Everyone does it.",
         "portrait": "tobias_neutral",
-        "text_ko": "1등급: 비자발적인 미세 화상. 열쇠를 어디에 두었는지 잊어버렸습니다. 모두가 그렇게합니다."
+        "text_ko": "1급: 비자발적 미세 연소. 열쇠를 어디 뒀는지 잊는 것. 누구나 하는 일이야."
       },
       {
         "speaker": "Tobias",
         "text": "Class Three: directed combustion. You choose what to burn. Most licensed Burners operate here.",
         "portrait": "tobias_neutral",
-        "text_ko": "클래스 3: 직접 연소. 무엇을 태울지 선택하세요. 대부분의 허가받은 버너가 이곳에서 작동됩니다."
+        "text_ko": "3급: 지향성 연소. 무엇을 태울지 스스로 고르지. 허가받은 연소자 대부분이 여기서 일하네."
       },
       {
         "speaker": "Tobias",
         "text": "Class Five: cascade capability. You can burn multiple memories in sequence. The power scales exponentially.",
         "portrait": "tobias_neutral",
-        "text_ko": "클래스 5: 캐스케이드 기능. 여러 개의 추억을 순차적으로 구울 수 있습니다. 전력은 기하급수적으로 증가합니다."
+        "text_ko": "5급: 연쇄 능력. 여러 기억을 연속으로 태울 수 있어. 위력은 기하급수적으로 커지고."
       },
       {
         "speaker": "Tobias",
         "text": "Class Seven: total architecture access. You can burn memories you don't even know you have. The substructure opens.",
         "portrait": "tobias_neutral",
-        "text_ko": "클래스 7: 전체 아키텍처 액세스. 자신이 가지고 있는지조차 모르는 추억을 태울 수 있습니다. 하부 구조가 열립니다."
+        "text_ko": "7급: 구조 전체 접근. 자신이 가진 줄도 모르는 기억까지 태울 수 있네. 기층이 열리는 거야."
       },
       {
         "speaker": "Arrel",
         "text": "And what happens to a Class Seven?",
         "portrait": "arrel_neutral",
-        "text_ko": "그러면 클래스 7은 어떻게 되나요?"
+        "text_ko": "그래서, 7급은 어떻게 되지?"
       },
       {
         "speaker": "Tobias",
         "text": "Historically? They burn everything. Then they forget how to breathe.",
         "portrait": "tobias_neutral",
-        "text_ko": "역사적으로? 그들은 모든 것을 태운다. 그러면 그들은 숨을 쉬는 방법을 잊어버립니다."
+        "text_ko": "역사적으로는? 전부 태우네. 그리고 숨 쉬는 법을 잊지."
       },
       {
         "speaker": "Tobias",
         "text": "But that's just statistics. You have something they didn't.",
         "portrait": "tobias_neutral",
-        "text_ko": "그러나 그것은 단지 통계일 뿐입니다. 당신은 그들이 가지고 있지 않은 뭔가를 가지고 있습니다."
+        "text_ko": "하지만 그건 통계일 뿐이야. 자네에겐 그들에게 없던 게 있네."
       },
       {
         "speaker": "Arrel",
         "text": "What?",
         "portrait": "arrel_neutral",
-        "text_ko": "무엇?"
+        "text_ko": "뭐가."
       },
       {
         "speaker": "Tobias",
         "text": "An anchor who doesn't charge by the hour.",
         "portrait": "tobias_neutral",
-        "text_ko": "시간당 비용을 청구하지 않는 앵커."
+        "text_ko": "시간당 요금을 받지 않는 닻."
       },
       {
         "speaker": "Elia",
         "text": "I said don't call me that.",
         "portrait": "elia_concern",
-        "text_ko": "나는 그렇게 부르지 말라고 말했다."
+        "text_ko": "그렇게 부르지 말라고 했어요."
       }
     ],
     "night_conversation": [
@@ -264,25 +265,25 @@
         "speaker": "Arrel",
         "text": "How long can you keep doing this? The anchoring.",
         "portrait": "arrel_neutral",
-        "text_ko": "언제까지 이 일을 계속할 수 있나요? 정박."
+        "text_ko": "언제까지 할 수 있어? 앵커링."
       },
       {
         "speaker": "Elia",
         "text": "As long as you need me to.",
         "portrait": "elia_neutral",
-        "text_ko": "당신이 나를 필요로 하는 한."
+        "text_ko": "네가 필요로 하는 만큼."
       },
       {
         "speaker": "Arrel",
         "text": "That's not an answer.",
         "portrait": "arrel_neutral",
-        "text_ko": "그것은 대답이 아닙니다."
+        "text_ko": "그건 대답이 아니야."
       },
       {
         "speaker": "Elia",
         "text": "It's the only one I have.",
         "portrait": "elia_concern",
-        "text_ko": "내가 가진 유일한 것입니다."
+        "text_ko": "내가 가진 유일한 대답이야."
       },
       {
         "speaker": "",
@@ -293,43 +294,43 @@
         "speaker": "Arrel",
         "text": "I'm starting to forget things I didn't burn. Small things. Names of streets. Faces.",
         "portrait": "arrel_pain",
-        "text_ko": "나는 태우지 않은 것들을 잊어버리기 시작했다. 작은 것들. 거리의 이름. 얼굴."
+        "text_ko": "태우지 않은 것들을 잊기 시작했어. 작은 것들. 거리 이름. 얼굴."
       },
       {
         "speaker": "Elia",
         "text": "I know.",
         "portrait": "elia_concern",
-        "text_ko": "알아요."
+        "text_ko": "알아."
       },
       {
         "speaker": "Arrel",
         "text": "You noticed?",
         "portrait": "arrel_pain",
-        "text_ko": "눈치채셨나요?"
+        "text_ko": "눈치챘어?"
       },
       {
         "speaker": "Elia",
         "text": "I've been counting. You've lost eleven micro-memories in the last two days. Involuntary burns.",
         "portrait": "elia_concern",
-        "text_ko": "나는 계산하고 있었다. 지난 이틀 동안 당신은 11개의 마이크로 메모리를 잃었습니다. 비자발적 화상."
+        "text_ko": "세고 있었어. 지난 이틀 동안 너는 미세 기억 열한 개를 잃었어. 비자발적 연소야."
       },
       {
         "speaker": "Elia",
         "text": "The architecture is destabilizing. Each intentional burn makes the walls thinner.",
         "portrait": "elia_concern",
-        "text_ko": "아키텍처가 불안정해졌습니다. 의도적으로 화상을 입을 때마다 벽이 더 얇아집니다."
+        "text_ko": "구조가 불안정해지고 있어. 의도적으로 태울 때마다 벽이 얇아져."
       },
       {
         "speaker": "Arrel",
         "text": "Then I stop burning.",
         "portrait": "arrel_neutral",
-        "text_ko": "그런 다음 타는 것을 멈 춥니 다."
+        "text_ko": "그럼 그만 태우지."
       },
       {
         "speaker": "Elia",
         "text": "Can you?",
         "portrait": "elia_concern",
-        "text_ko": "당신은 할 수 있습니까?"
+        "text_ko": "그럴 수 있어?"
       },
       {
         "speaker": "",
@@ -348,19 +349,19 @@
         "speaker": "Tobias",
         "text": "The coast is close. I can smell salt under the ash.",
         "portrait": "tobias_neutral",
-        "text_ko": "해안이 가깝습니다. 재 밑에서 소금 냄새가 나요."
+        "text_ko": "해안이 가깝네. 재 밑에서 소금 냄새가 나."
       },
       {
         "speaker": "Elia",
         "text": "How are your eyes?",
         "portrait": "elia_concern",
-        "text_ko": "당신의 눈은 안녕하십니까?"
+        "text_ko": "눈은 어때?"
       },
       {
         "speaker": "Arrel",
         "text": "Better. The letters are holding still.",
         "portrait": "arrel_neutral",
-        "text_ko": "더 좋습니다. 편지는 가만히 있습니다."
+        "text_ko": "나아졌어. 글자가 가만히 있어."
       },
       {
         "speaker": "Elia",
@@ -372,25 +373,25 @@
         "speaker": "Tobias",
         "text": "There's something you should know about the coast. The Bureau declared it unstable six months ago.",
         "portrait": "tobias_neutral",
-        "text_ko": "해안에 대해 알아야 할 것이 있습니다. 국은 6개월 전에 불안정하다고 선언했습니다."
+        "text_ko": "해안에 대해 알아 둘 게 있네. 여섯 달 전에 관리국이 불안정 지역으로 선포했어."
       },
       {
         "speaker": "Tobias",
         "text": "The Voidline is eating the cliffs. Whole sections drop into the sea without warning.",
         "portrait": "tobias_neutral",
-        "text_ko": "공허선이 절벽을 먹고 있습니다. 전체 부분이 경고 없이 바다로 떨어집니다."
+        "text_ko": "보이드라인이 절벽을 먹고 있네. 구역 전체가 경고 없이 바다로 떨어지지."
       },
       {
         "speaker": "Arrel",
         "text": "Is there another way?",
         "portrait": "arrel_neutral",
-        "text_ko": "다른 방법이 있나요?"
+        "text_ko": "다른 길은?"
       },
       {
         "speaker": "Tobias",
         "text": "Not if you want to reach The Seam before whoever is following us does.",
         "portrait": "tobias_neutral",
-        "text_ko": "우리를 따라오는 사람보다 먼저 The 심에 도달하고 싶다면 그렇지 않습니다."
+        "text_ko": "우리를 따라오는 자보다 먼저 씸에 닿고 싶다면, 없네."
       },
       {
         "speaker": "",
@@ -409,7 +410,7 @@
         "speaker": "???",
         "text": "...the table was always set for three.",
         "portrait": "arrel_pain",
-        "text_ko": "...테이블은 항상 3인용으로 준비되어 있었어요."
+        "text_ko": "...식탁은 언제나 세 사람 몫으로 차려져 있었지."
       },
       {
         "speaker": "",
@@ -419,7 +420,7 @@
       {
         "speaker": "???",
         "text": "Come inside. It's getting cold.",
-        "text_ko": "안으로 들어오세요. 날씨가 추워지고 있어요."
+        "text_ko": "들어오렴. 날이 차가워지고 있어."
       },
       {
         "speaker": "",

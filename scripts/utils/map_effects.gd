@@ -1646,8 +1646,9 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 
 	# 비주얼
 	var visual = ColorRect.new()
-	visual.size = Vector2(24, 24)
-	visual.position = Vector2(-12, -12)
+	var clean_prop := _clean_gameplay_view()
+	visual.size = Vector2(14, 14) if clean_prop else Vector2(24, 24)
+	visual.position = Vector2(-7, -7) if clean_prop else Vector2(-12, -12)
 	visual.z_index = 1
 	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -1659,14 +1660,14 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 			visual.color = Color(0.45, 0.3, 0.15, 0.7) if not interacted else Color(0.3, 0.25, 0.15, 0.3)
 			# 배럴 디테일 — 수평 줄무늬
 			var stripe = ColorRect.new()
-			stripe.size = Vector2(20, 2)
-			stripe.position = Vector2(-10, -2)
+			stripe.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
+			stripe.position = Vector2(-6, -2) if clean_prop else Vector2(-10, -2)
 			stripe.color = Color(0.35, 0.22, 0.1, 0.5)
 			stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			area.add_child(stripe)
 			var stripe2 = ColorRect.new()
-			stripe2.size = Vector2(20, 2)
-			stripe2.position = Vector2(-10, 5)
+			stripe2.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
+			stripe2.position = Vector2(-6, 3) if clean_prop else Vector2(-10, 5)
 			stripe2.color = Color(0.35, 0.22, 0.1, 0.5)
 			stripe2.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			area.add_child(stripe2)
@@ -1674,14 +1675,14 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 			visual.color = Color(0.4, 0.38, 0.35, 0.7) if not interacted else Color(0.3, 0.28, 0.25, 0.3)
 			# 십자 무늬
 			var cross_h = ColorRect.new()
-			cross_h.size = Vector2(20, 2)
-			cross_h.position = Vector2(-10, -1)
+			cross_h.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
+			cross_h.position = Vector2(-6, -1) if clean_prop else Vector2(-10, -1)
 			cross_h.color = Color(0.3, 0.28, 0.22, 0.6)
 			cross_h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			area.add_child(cross_h)
 			var cross_v = ColorRect.new()
-			cross_v.size = Vector2(2, 20)
-			cross_v.position = Vector2(-1, -10)
+			cross_v.size = Vector2(2, 12) if clean_prop else Vector2(2, 20)
+			cross_v.position = Vector2(-1, -6) if clean_prop else Vector2(-1, -10)
 			cross_v.color = Color(0.3, 0.28, 0.22, 0.6)
 			cross_v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			area.add_child(cross_v)

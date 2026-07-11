@@ -32,6 +32,8 @@ const LAST_STAND_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_last_
 const MEMORY_CASCADE_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_arrel_memory_cascade.png"
 const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_sable_echo_strike.png"
 const TOBIAS_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_tobias_record_ward.png"
+const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/sable_battle_fullbody.png"
+const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/tobias_battle_fullbody.png"
 const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"
 const ELIA_ACTION_CUTIN_PATHS: Dictionary = {
 	"humming_shield": "res://assets/cg/generated/memory_burn_elia_song.png",
@@ -77,6 +79,7 @@ var _player_sprite_base_scale: Vector2 = Vector2.ONE
 var ally_sprite: CanvasItem  # 동행자 스프라이트 (엘리아/세이블)
 var ally_sprite_container: Control
 var tobias_sprite_container: Control
+var tobias_sprite: CanvasItem
 var _player_base_pos: Vector2 = Vector2.ZERO  # 돌진 복귀용
 var _enemy_base_pos: Vector2 = Vector2.ZERO
 var _ally_base_pos: Vector2 = Vector2.ZERO
@@ -1349,7 +1352,7 @@ func _build_ally_sprite(root: Control) -> void:
 	ally_sprite_container.add_child(ally_shadow)
 
 	# 동행자 포트레이트 체크
-	var portrait_map = {"elia": "res://assets/portraits/elia_face_neutral.png", "sable": "res://assets/portraits/sable_face_calm.png"}
+	var portrait_map = {"elia": "res://assets/portraits/elia_face_neutral.png", "sable": SABLE_BATTLE_FULLBODY_PATH}
 	var p_path = portrait_map.get(who, "")
 	if who == "elia":
 		var anim_sprite = AnimatedSprite2D.new()
@@ -1368,12 +1371,12 @@ func _build_ally_sprite(root: Control) -> void:
 		ally_sprite = anim_sprite
 	elif p_path != "" and ResourceLoader.exists(p_path):
 		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(15, 5)
-		tex_rect.size = Vector2(130, 140)
+		tex_rect.position = Vector2(18, -2)
+		tex_rect.size = Vector2(124, 152)
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(p_path)
-		tex_rect.modulate = Color(0.9, 0.9, 0.9, 0.85)
+		tex_rect.modulate = Color.WHITE
 		ally_sprite_container.add_child(tex_rect)
 		ally_sprite = tex_rect
 	else:
@@ -1412,9 +1415,9 @@ func _build_tobias_support_sprite(root: Control) -> void:
 	tobias_shadow.color = Color(0, 0, 0, 0.22)
 	tobias_sprite_container.add_child(tobias_shadow)
 
-	var tobias_path: String = "res://assets/cg/game_image/tobias_fullbody.png"
+	var tobias_path: String = TOBIAS_BATTLE_FULLBODY_PATH
 	if not ResourceLoader.exists(tobias_path):
-		tobias_path = "res://assets/portraits/tobias_face_neutral.png"
+		tobias_path = "res://assets/cg/game_image/tobias_fullbody.png"
 	if ResourceLoader.exists(tobias_path):
 		var tex_rect = TextureRect.new()
 		tex_rect.position = Vector2(12, 0)
@@ -1422,8 +1425,9 @@ func _build_tobias_support_sprite(root: Control) -> void:
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(tobias_path)
-		tex_rect.modulate = Color(0.88, 0.84, 0.74, 0.72)
+		tex_rect.modulate = Color.WHITE
 		tobias_sprite_container.add_child(tex_rect)
+		tobias_sprite = tex_rect
 
 	var glow = ColorRect.new()
 	glow.size = Vector2(104, 12)

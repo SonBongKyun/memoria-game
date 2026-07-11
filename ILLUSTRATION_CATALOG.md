@@ -300,3 +300,31 @@ All six plates were generated with built-in GPT Image and attached to existing V
 | `ch18_living_funeral` | The eastern monolith answers with violet light | `ch18_monolith_answers.png` | `ch18_living_funeral.png` |
 
 All four plates were generated with built-in GPT Image and attached to existing VN steps, preserving every branch index. The set uses prop-led, back-facing, or environment-led compositions to protect established identities and reserves the lower 28 percent for dialogue UI. Prompts excluded film or photo grain, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, dense fog, and visibility-obscuring particles.
+
+## S171 Part I emotional-beat expansion
+
+| Runtime event | Story beat | Asset | Direct style reference |
+|---|---|---|---|
+| `chapter2_dialogue` / `malet_deal` | A teacher's hand closes over Arrel's first wooden sword | `story_ch2_lost_instructor_grip.png` | `story_ch2_first_sword_extraction.png` |
+| `chapter3_dialogue` / `blank_book_discovery` | The Blank Book warms in Arrel's hands | `story_ch3_blank_book_warmth.png` | `story_ch3_waystation_blank_book.png` |
+| `chapter4_dialogue` / `anchoring_session` | Elia anchors one small memory of bread and warmth | `story_ch4_anchor_binding.png` | `story_ch4_night_counting_losses.png` |
+| `chapter5_dialogue` / `elia_separates_response` | Elia walks south without looking back | `story_ch5_elia_southbound.png` | `dialogue_ch5_elia_cliff_choice.png` |
+| `chapter6_dialogue` / `sable_past` | Sable folds the map after naming the team she buried | `story_ch6_sable_buried_maps.png` | `story_ch6_sable_briefing.png` |
+| `chapter7_dialogue` / `sable_truth` | BL-07 is revealed as a mouth, not a hole | `story_ch7_hungry_mouth.png` | `dialogue_ch7_sable_echo_shell.png` |
+| `chapter8_dialogue` / `ghost_encounter` | The party leaves a wordless remnant behind | `story_ch8_silent_remnant.png` | `story_ch8_memory_forest_remnant.png` |
+| `chapter9_dialogue` / `kairos_truth` | Kairos becomes an absence in the Colorless Waste | `story_ch9_kairos_absence.png` | `story_ch9_kairos_confrontation.png` |
+| `chapter10_dialogue` / `void_before_core` | Arrel and Elia face the core with choice intact | `story_ch10_choice_at_core.png` | `chapter_splash_bl07_void.png` |
+
+All nine plates were generated with built-in GPT Image and attached to existing Part I dialogue lines without changing event keys, dialogue ordering, branches, or localization. A face-forward Blank Book draft was rejected for character-identity drift; the final plate uses only costume-locked hands and silhouettes. The common prompt set preserved a quiet lower dialogue zone and excluded film/photo grain, noise, paper or canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, oversharpening, excessive bloom, and visibility-obscuring particles.
+
+## S172 Canon battle-support correction
+
+| Runtime role | Asset | Identity/style references |
+|---|---|---|
+| Sable support action cut-in | `cinematic_sable_echo_strike.png` | `sable_canon_master.png`, previous cut-in composition, Tobias cut-in finish |
+| Sable battle-stage character | `sable_battle_fullbody.png` | `sable_canon_master.png`, Tobias full-body presentation |
+| Tobias battle-stage character | `tobias_battle_fullbody.png` | `tobias_fullbody.png`, `tobias_sprite_sheet_reference.png` |
+| Canon story correction | `story_ch6_sable_final_preparations.png`, `story_ch6_sable_vigil_reward.png`, `story_ch7_fading_names_monument.png`, `story_ch7_sable_confession.png`, `story_ch7_controlled_burn_trial.png`, `story_ch8_eighteenth_ring.png`, `story_ch8_white_stone_shelter.png` | Original scene composition, `sable_canon_master.png`, `story_ch5_seam_first_light.png` |
+| Canon ending correction | `epilogue_sable_eastern_settlement.png`, `ending_weave_sealed_gate.png`, `ending_weave_colors_return.png` | Original ending vista, `sable_canon_master.png`, `story_ch5_seam_first_light.png` |
+
+The outdated young, sighted Sable cut-in and ten remaining high-visibility story/ending plates were replaced in place with the confirmed Halda canon: an old blind woman in her late sixties with short white hair, clouded eyes, a weathered face, a small scar, and a dark violet coat. The two stage characters were generated on flat chroma backgrounds with built-in GPT Image, converted to alpha PNGs locally, visually inspected, and connected to the existing Sable/Tobias battle support paths. Prompts excluded youthful identity drift, opaque stage backgrounds, text, watermarks, heavy particles, grain, paper/canvas texture, and excessive bloom.

@@ -55,7 +55,7 @@ var settings: Dictionary = {
 	"high_contrast": false,      # Increases outlines, brighter borders
 	"reduce_motion": true,       # S160: disable decorative motion by default
 	"clean_gameplay_visuals": true, # Removes screen-space obstruction during play
-	"clarity_patch_version": 1,
+	"clarity_patch_version": 2,
 	"auto_advance_narration": true, # Auto-advance narration lines
 	# S59: Quality & Performance settings
 	"quality_level": 2,              # 0=Low, 1=Medium, 2=High
@@ -210,12 +210,13 @@ func _load_settings() -> void:
 			for key in settings.keys():
 				if data.has(key):
 					settings[key] = data[key]
-			# S160: existing installs receive the requested clean-view baseline once.
-			if int(data.get("clarity_patch_version", 0)) < 1:
+			# Existing installs receive the clean-view baseline once per revision.
+			if int(data.get("clarity_patch_version", 0)) < 2:
 				settings["clean_gameplay_visuals"] = true
 				settings["reduce_motion"] = true
 				settings["screen_shake"] = false
-				settings["clarity_patch_version"] = 1
+				settings["show_fps"] = false
+				settings["clarity_patch_version"] = 2
 				_save_settings()
 			if not data.has("korean_patch_version"):
 				settings["locale"] = "ko"
