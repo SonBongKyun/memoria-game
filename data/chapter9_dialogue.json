@@ -13,37 +13,37 @@
         "speaker": "Tobias",
         "text": "Remarkable. My charcoal still leaves marks, but I can't tell if the marks are darker or lighter than the surface.",
         "portrait": "tobias_neutral",
-        "text_ko": "놀랍습니다. 내 숯은 여전히 ​​자국을 남기지만 그 자국이 표면보다 더 어두운지 밝은지 알 수 없습니다."
+        "text_ko": "놀랍군. 숯 자국은 남는데, 그 자국이 표면보다 어두운지 밝은지 분간할 수가 없어."
       },
       {
         "speaker": "Sable",
         "text": "Welcome to the Waste. Everything here has been equalized.",
         "portrait": "sable_neutral",
-        "text_ko": "폐기물에 오신 것을 환영합니다. 여기의 모든 것이 균등해졌습니다."
+        "text_ko": "황무지에 온 걸 환영한다. 여기서는 모든 것이 균질해졌지."
       },
       {
         "speaker": "Elia",
         "text": "I can still see you all. Your shapes. But the detail is... flattening.",
         "portrait": "elia_concern",
-        "text_ko": "나는 아직도 당신을 모두 볼 수 있습니다. 당신의 모양. 하지만 디테일은... 평탄합니다."
+        "text_ko": "아직 다들 보여. 형태는. 그런데 세부가... 납작해지고 있어."
       },
       {
         "speaker": "Sable",
         "text": "That's the first stage. Lose color, then depth, then distinction. If you reach the fourth stage, you stop recognizing faces.",
         "portrait": "sable_calm",
-        "text_ko": "그것이 첫 번째 단계입니다. 색상을 잃고 깊이를 잃은 다음 구별을 잃습니다. 네 번째 단계에 도달하면 얼굴 인식이 중단됩니다."
+        "text_ko": "첫 단계다. 색을 잃고, 깊이를 잃고, 구별을 잃지. 네 번째 단계에 이르면 얼굴을 알아보지 못하게 된다."
       },
       {
         "speaker": "Arrel",
         "text": "What's the fifth?",
         "portrait": "arrel_neutral",
-        "text_ko": "다섯 번째는 무엇입니까?"
+        "text_ko": "다섯 번째는?"
       },
       {
         "speaker": "Sable",
         "text": "You stop recognizing that you ever could.",
         "portrait": "sable_neutral",
-        "text_ko": "당신은 당신이 할 수 있다는 것을 인식하지 않습니다."
+        "text_ko": "알아볼 수 있었다는 사실 자체를 잊는 거다."
       }
     ],
     "compass_discovery": [
@@ -57,37 +57,37 @@
         "speaker": "Arrel",
         "text": "I can feel where it is. BL-07. It's... that way.",
         "portrait": "arrel_pain",
-        "text_ko": "나는 그것이 어디에 있는지 느낄 수 있다. BL-07. 그건...그렇습니다."
+        "text_ko": "어디 있는지 느껴져. BL-07. 저... 쪽이야."
       },
       {
         "speaker": "Tobias",
         "text": "You're orienting toward the Void Hole? That shouldn't be possible without—",
         "portrait": "tobias_neutral",
-        "text_ko": "보이드 홀 쪽으로 향하고 있나요? 없이는 불가능할 것입니다."
+        "text_ko": "보이드 홀 방향을 감지한다고? 그건 불가능할 텐데, 만약—"
       },
       {
         "speaker": "Sable",
         "text": "Class Seven combustion. BL-07 recognizes him. He's become a compass.",
         "portrait": "sable_neutral",
-        "text_ko": "7급 연소. BL-07은 그를 알아보았다. 그는 나침반이 되었습니다."
+        "text_ko": "7급 연소다. BL-07이 그를 알아본 거야. 나침반이 된 거지."
       },
       {
         "speaker": "Elia",
         "text": "Is that dangerous?",
         "portrait": "elia_concern",
-        "text_ko": "그거 위험한가요?"
+        "text_ko": "위험한 건가요?"
       },
       {
         "speaker": "Sable",
         "text": "Everything here is dangerous. But useful dangerous is better than useless dangerous.",
         "portrait": "sable_neutral",
-        "text_ko": "이곳의 모든 것은 위험합니다. 그러나 유용하고 위험한 것이 쓸모없고 위험한 것보다 낫습니다."
+        "text_ko": "여기선 모든 게 위험하다. 하지만 쓸모 있는 위험이 쓸모없는 위험보다 낫지."
       },
       {
         "speaker": "Sable",
         "text": "Follow the pull. It's the only navigation we have.",
         "portrait": "sable_neutral",
-        "text_ko": "당기기를 따르십시오. 우리가 가지고 있는 유일한 내비게이션입니다."
+        "text_ko": "당김을 따라가라. 우리에게 남은 유일한 항법이다."
       },
       {
         "speaker": "",
@@ -106,7 +106,7 @@
         "speaker": "Sable",
         "text": "Stop.",
         "portrait": "sable_neutral",
-        "text_ko": "중지하세요."
+        "text_ko": "멈춰라."
       },
       {
         "speaker": "",
@@ -117,43 +117,43 @@
         "speaker": "Kairos",
         "text": "Subject ARL-0091. Cumulative combustion events: forty-seven. Efficiency: Class Seven confirmed.",
         "portrait": "kairos_neutral",
-        "text_ko": "대상 ARL-0091. 누적 연소 사건: 47. 효율성: 클래스 7이 확인되었습니다."
+        "text_ko": "대상 ARL-0091. 누적 연소 사건: 사십칠. 효율: 7급 확정."
       },
       {
         "speaker": "Kairos",
         "text": "You've exceeded projections. The Authority is... interested.",
         "portrait": "kairos_neutral",
-        "text_ko": "예상을 초과했습니다. 관리국은... 관심이 있습니다."
+        "text_ko": "추산을 초과했다. 관리국은... 관심을 가지고 있다."
       },
       {
         "speaker": "Arrel",
         "text": "I'm not a subject.",
         "portrait": "arrel_neutral",
-        "text_ko": "나는 주제가 아니다."
+        "text_ko": "나는 대상이 아니야."
       },
       {
         "speaker": "Kairos",
         "text": "You are a phenomenon. Phenomena don't have preferences.",
         "portrait": "kairos_neutral",
-        "text_ko": "당신은 현상입니다. 현상에는 선호도가 없습니다."
+        "text_ko": "당신은 현상이다. 현상에게는 선호가 허락되지 않는다."
       },
       {
         "speaker": "Tobias",
         "text": "Kairos. I know you. Class A Editor, Subsection Nine. You filed the report that—",
         "portrait": "tobias_neutral",
-        "text_ko": "카이로스. 나는 당신을 알고 있습니다. 클래스 A 편집자, 하위 섹션 9. 귀하는 다음과 같은 보고서를 제출했습니다."
+        "text_ko": "카이로스. 나는 자네를 아네. A급 에디터, 제9분과. 자네가 제출한 보고서가—"
       },
       {
         "speaker": "Kairos",
         "text": "Recorder Crane. Your presence here is unauthorized. The Bureau will be informed.",
         "portrait": "kairos_neutral",
-        "text_ko": "레코더 크레인. 당신의 존재는 승인되지 않았습니다. 관리국에서 알려드립니다."
+        "text_ko": "기록관 크레인. 이곳의 체류는 무허가다. 관리국에 보고될 것이다."
       },
       {
         "speaker": "Tobias",
         "text": "Then inform them. I'm already walking dead paper.",
         "portrait": "tobias_neutral",
-        "text_ko": "그런 다음 그들에게 알리십시오. 나는 이미 죽은 종이를 걷고 있습니다."
+        "text_ko": "보고하게. 나는 이미 걸어 다니는 폐지 신세니까."
       }
     ],
     "kairos_truth": [
@@ -162,73 +162,73 @@
         "text": "I didn't come to stop you. I came to observe the convergence.",
         "portrait": "kairos_neutral",
         "cg": "res://assets/cg/generated/story_ch9_kairos_confrontation.png",
-        "text_ko": "나는 당신을 막으러 온 것이 아닙니다. 수렴을 관찰하러 왔습니다."
+        "text_ko": "막으러 온 것이 아니다. 수렴을 관찰하러 왔다."
       },
       {
         "speaker": "Sable",
         "text": "What convergence?",
         "portrait": "sable_neutral",
-        "text_ko": "무슨 수렴?"
+        "text_ko": "무슨 수렴이지?"
       },
       {
         "speaker": "Kairos",
         "text": "BL-07 is not merely growing. It is reaching. Specifically — toward him.",
         "portrait": "kairos_neutral",
-        "text_ko": "BL-07은 단순히 성장하는 것이 아닙니다. 도달하고 있습니다. 구체적으로 - 그를 향해."
+        "text_ko": "BL-07은 단순히 자라는 것이 아니다. 뻗고 있다. 정확히는 — 그를 향해."
       },
       {
         "speaker": "Kairos",
         "text": "Class Seven combustion creates a signature. A beacon. BL-07 has been moving toward that beacon for seventeen months.",
         "portrait": "kairos_neutral",
-        "text_ko": "7등급 연소는 시그니처를 생성합니다. 비콘. BL-07은 17개월 동안 그 비컨을 향해 이동해 왔습니다."
+        "text_ko": "7급 연소는 시그니처를 만든다. 봉화를. BL-07은 열일곱 달 동안 그 봉화를 향해 이동해 왔다."
       },
       {
         "speaker": "Elia",
         "text": "Then if Arrel seals it—",
         "portrait": "elia_concern",
-        "text_ko": "그렇다면 아렐이 그것을 봉인하면—"
+        "text_ko": "그럼 아렐이 그것을 봉인하면—"
       },
       {
         "speaker": "Kairos",
         "text": "If Subject ARL-0091 enters BL-07's core, one of two outcomes occurs.",
         "portrait": "kairos_neutral",
-        "text_ko": "대상 ARL-0091이 BL-07의 코어에 들어가면 두 가지 결과 중 하나가 발생합니다."
+        "text_ko": "대상 ARL-0091이 BL-07의 핵에 진입하면, 두 결과 중 하나가 일어난다."
       },
       {
         "speaker": "Kairos",
         "text": "Outcome A: The combustion collapses BL-07. The hole seals. The subject survives, minus everything that made them a person.",
         "portrait": "kairos_neutral",
-        "text_ko": "결과 A: 연소로 인해 BL-07이 붕괴됩니다. 구멍이 밀봉됩니다. 대상은 자신을 사람으로 만든 모든 것을 제외하고 살아남습니다."
+        "text_ko": "결과 A: 연소가 BL-07을 붕괴시킨다. 구멍은 봉인된다. 대상은 생존한다 — 자신을 사람이게 하던 모든 것을 제외하고."
       },
       {
         "speaker": "Kairos",
         "text": "Outcome B: BL-07 consumes the combustion. The hole doubles in size. The Seam is gone within a week.",
         "portrait": "kairos_neutral",
-        "text_ko": "결과 B: BL-07은 연소를 소비합니다. 구멍 크기가 두 배로 커집니다. 일주일 안에 씸가 없어집니다."
+        "text_ko": "결과 B: BL-07이 연소를 삼킨다. 구멍은 두 배가 된다. 씸은 일주일 안에 사라진다."
       },
       {
         "speaker": "Arrel",
         "text": "Those are the only two?",
         "portrait": "arrel_neutral",
-        "text_ko": "그 둘 뿐인가요?"
+        "text_ko": "그 둘뿐인가?"
       },
       {
         "speaker": "Kairos",
         "text": "Those are the only two the Authority has modeled. Whether reality agrees with models is not my department.",
         "portrait": "kairos_neutral",
-        "text_ko": "이것들은 관리국이 모델로 삼은 유일한 두 가지입니다. 현실이 모델과 일치하는지 여부는 내 부서가 아닙니다."
+        "text_ko": "관리국이 모델링한 것은 그 둘뿐이다. 현실이 모델에 동의하는지는 — 내 부서 소관이 아니다."
       },
       {
         "speaker": "Sable",
         "text": "Then we find a third outcome.",
         "portrait": "sable_neutral",
-        "text_ko": "그러면 우리는 세 번째 결과를 발견합니다."
+        "text_ko": "그럼 우리가 세 번째 결과를 찾지."
       },
       {
         "speaker": "Kairos",
         "text": "I look forward to documenting your attempt.",
         "portrait": "kairos_neutral",
-        "text_ko": "귀하의 시도를 문서화하기를 기대합니다."
+        "text_ko": "당신들의 시도를 기록하게 되기를 기대한다."
       },
       {
         "speaker": "",
@@ -248,13 +248,13 @@
         "speaker": "Tobias",
         "text": "I've lost the ability to distinguish distances. That rock could be ten meters or a hundred.",
         "portrait": "tobias_neutral",
-        "text_ko": "거리를 구별하는 능력을 상실했습니다. 그 바위는 10미터일 수도 있고 100미터일 수도 있습니다."
+        "text_ko": "거리를 분간하는 능력을 잃었네. 저 바위는 십 미터일 수도, 백 미터일 수도 있어."
       },
       {
         "speaker": "Elia",
         "text": "Hold the person in front of you. Don't let go.",
         "portrait": "elia_concern",
-        "text_ko": "앞에 있는 사람을 붙잡으세요. 놓지 마십시오."
+        "text_ko": "앞사람을 붙잡아. 놓지 마."
       },
       {
         "speaker": "",
@@ -265,19 +265,19 @@
         "speaker": "Sable",
         "text": "If you feel someone let go, stop immediately. Don't turn around — just call their name.",
         "portrait": "sable_neutral",
-        "text_ko": "누군가가 놓아주는 느낌이 든다면 즉시 중단하십시오. 돌아서지 말고 이름을 불러보세요."
+        "text_ko": "누군가 놓는 게 느껴지면 즉시 멈춰라. 돌아보지 말고 — 이름을 불러."
       },
       {
         "speaker": "Tobias",
         "text": "What if we've forgotten their name?",
         "portrait": "tobias_neutral",
-        "text_ko": "우리가 그 사람들의 이름을 잊어버렸다면 어떡하지?"
+        "text_ko": "이름을 잊어버렸다면 어떡하나?"
       },
       {
         "speaker": "Sable",
         "text": "Then you're already in stage four. And I'm sorry.",
         "portrait": "sable_calm",
-        "text_ko": "그렇다면 당신은 이미 4단계에 들어섰습니다. 그리고 미안해요."
+        "text_ko": "그럼 이미 4단계에 든 거다. 그리고 — 미안하구나."
       }
     ],
     "arrel_compass_pull": [
@@ -291,37 +291,37 @@
         "speaker": "Arrel",
         "text": "It's close. I can feel it pulling at... not my body. My name. The shape of who I am.",
         "portrait": "arrel_pain",
-        "text_ko": "가깝습니다. 내 몸이 아니라... 당기는 느낌이 들어요. 내 이름. 내가 누구인지의 모양."
+        "text_ko": "가까워. 당기는 게 느껴져... 몸이 아니라. 이름을. 내가 누구인가의 형태를."
       },
       {
         "speaker": "Elia",
         "text": "Then hold your name tighter.",
         "portrait": "elia_determined",
-        "text_ko": "그렇다면 당신의 이름을 더 단단히 붙잡으십시오."
+        "text_ko": "그럼 이름을 더 꽉 붙들어."
       },
       {
         "speaker": "Sable",
         "text": "We're within the final perimeter. BL-07's edge is just ahead.",
         "portrait": "sable_neutral",
-        "text_ko": "우리는 마지막 경계선 안에 있습니다. BL-07의 가장자리가 바로 앞에 있습니다."
+        "text_ko": "최종 경계 안이다. BL-07의 가장자리가 바로 앞이야."
       },
       {
         "speaker": "Sable",
         "text": "Once we cross, there's no coming back to the Waste. We go forward or we don't come out.",
         "portrait": "sable_neutral",
-        "text_ko": "우리가 건너면 황무지로 돌아올 수 없습니다. 우리는 앞으로 나가지 않으면 나오지 않습니다."
+        "text_ko": "건너면 황무지로는 돌아올 수 없다. 앞으로 가거나 — 나오지 못하거나다."
       },
       {
         "speaker": "Tobias",
         "text": "For the record — and I mean that literally, as I'm writing this down — I want to note that this is the furthest anyone from the Bureau has ever documented.",
         "portrait": "tobias_neutral",
-        "text_ko": "기록을 위해 – 말 그대로 제가 이 글을 쓰고 있는 동안 – 저는 이것이 국의 누군가가 기록한 것 중 가장 먼 기록이라는 점에 주목하고 싶습니다."
+        "text_ko": "기록을 위해 말해 두네만 — 지금 이걸 적고 있으니 말 그대로일세 — 이건 관리국의 누구도 기록한 적 없는 최심부라는 점을 남겨 두고 싶군."
       },
       {
         "speaker": "Sable",
         "text": "Document faster. We move in sixty seconds.",
         "portrait": "sable_neutral",
-        "text_ko": "더 빠르게 문서화하세요. 60초 후에 이동합니다."
+        "text_ko": "더 빨리 기록해라. 육십 초 뒤에 움직인다."
       }
     ],
     "waste_departure": [
@@ -335,31 +335,31 @@
         "speaker": "Sable",
         "text": "There it is. The same mouth I walked into seven times.",
         "portrait": "sable_neutral",
-        "text_ko": "거기 있습니다. 일곱 번이나 들어간 같은 입."
+        "text_ko": "저기다. 내가 일곱 번 걸어 들어간, 같은 입이야."
       },
       {
         "speaker": "Arrel",
         "text": "It's different from what I expected.",
         "portrait": "arrel_neutral",
-        "text_ko": "내가 기대했던 것과는 달라요."
+        "text_ko": "생각했던 것과 달라."
       },
       {
         "speaker": "Sable",
         "text": "It always is. BL-07 looks like whatever you're most afraid of losing.",
         "portrait": "sable_calm",
-        "text_ko": "항상 그렇습니다. BL-07은 당신이 잃는 것을 가장 두려워하는 것처럼 보입니다."
+        "text_ko": "언제나 그렇다. BL-07은 네가 잃기를 가장 두려워하는 것의 모습을 하고 있으니."
       },
       {
         "speaker": "Elia",
         "text": "What does it look like to you?",
         "portrait": "elia_concern",
-        "text_ko": "당신에게는 어떤 모습인가요?"
+        "text_ko": "당신에겐 어떻게 보이는데?"
       },
       {
         "speaker": "Sable",
         "text": "Nothing. I already lost it.",
         "portrait": "sable_neutral",
-        "text_ko": "아무것도. 나는 이미 그것을 잃었습니다."
+        "text_ko": "아무것도. 나는 이미 잃었으니까."
       },
       {
         "speaker": "",
@@ -378,19 +378,19 @@
         "speaker": "Kairos",
         "text": "You've exceeded every model. Every projection. The Authority will need to revise their entire framework.",
         "portrait": "kairos_neutral",
-        "text_ko": "당신은 모든 모델을 능가했습니다. 모든 투영. 관리국은 전체 프레임워크를 수정해야 합니다."
+        "text_ko": "당신은 모든 모델을 초과했다. 모든 추산을. 관리국은 프레임워크 전체를 수정해야 할 것이다."
       },
       {
         "speaker": "Kairos",
         "text": "I withdraw — not in defeat, but in acknowledgment. You are no longer a subject. You are a variable we cannot control.",
         "portrait": "kairos_neutral",
-        "text_ko": "나는 물러난다. 패배가 아니라 인정을 받고 물러난다. 당신은 더 이상 주체가 아닙니다. 당신은 우리가 통제할 수 없는 변수입니다."
+        "text_ko": "나는 물러난다 — 패배가 아니라, 인정으로서. 당신은 더 이상 대상이 아니다. 우리가 통제할 수 없는 변수다."
       },
       {
         "speaker": "Arrel",
         "text": "Tell the Authority this: we're coming for the Seal. And no amount of data will stop us.",
         "portrait": "arrel_determined",
-        "text_ko": "관리국에 이렇게 말하세요. 우리는 봉인을 받으러 오고 있습니다. 그리고 어떤 양의 데이터도 우리를 막을 수 없습니다."
+        "text_ko": "관리국에 전해라. 우리가 봉인을 향해 간다고. 어떤 데이터도 우리를 막지 못한다고."
       }
     ],
     "depth_markers": [
@@ -404,37 +404,37 @@
         "speaker": "Tobias",
         "text": "These are depth markers. The closer to BL-07, the more compressed the residue. It's like tree rings but for destruction.",
         "portrait": "tobias_neutral",
-        "text_ko": "이것은 깊이 표시입니다. BL-07에 가까울수록 잔류물이 더 압축됩니다. 그것은 나무의 나이테와 같지만 파괴를 위한 것입니다."
+        "text_ko": "깊이 표석일세. BL-07에 가까울수록 잔여물이 더 압축돼 있어. 나이테와 같지 — 다만 파괴의 나이테야."
       },
       {
         "speaker": "Sable",
         "text": "Seventeen rings. Eighteen, counting mine.",
         "portrait": "sable_calm",
-        "text_ko": "열일곱 개의 반지. 열여덟, 내 것도 세어보자."
+        "text_ko": "열일곱 개의 고리. 내 것까지 세면, 열여덟."
       },
       {
         "speaker": "Arrel",
         "text": "Each ring is a feeding event?",
         "portrait": "arrel_neutral",
-        "text_ko": "각 링은 먹이주기 이벤트인가요?"
+        "text_ko": "고리 하나가 포식 사건 하나인가?"
       },
       {
         "speaker": "Tobias",
         "text": "Each ring is a generation of people who were erased. Their compressed existence is all that's left.",
         "portrait": "tobias_neutral",
-        "text_ko": "각 반지는 지워진 사람들의 세대입니다. 남은 것은 그들의 압축된 존재뿐이다."
+        "text_ko": "고리 하나가 지워진 사람들의 한 세대일세. 그들의 압축된 존재가 — 남은 전부야."
       },
       {
         "speaker": "Elia",
         "text": "We're walking on gravestones.",
         "portrait": "elia_concern",
-        "text_ko": "우리는 묘비 위를 걷고 있습니다."
+        "text_ko": "우리는 묘비 위를 걷고 있는 거네."
       },
       {
         "speaker": "Tobias",
         "text": "...that is unfortunately accurate.",
         "portrait": "tobias_neutral",
-        "text_ko": "...불행히도 정확합니다."
+        "text_ko": "...유감스럽게도, 정확한 표현이군."
       }
     ],
     "compass_resonance": [
@@ -448,7 +448,7 @@
         "speaker": "Arrel",
         "text": "There's something here. A memory. Not mine — older. Much older.",
         "portrait": "arrel_pain",
-        "text_ko": "여기에 뭔가가 있습니다. 추억. 내 것이 아닙니다. 더 오래되었습니다. 훨씬 더 오래되었습니다."
+        "text_ko": "여기 뭔가 있어. 기억이. 내 것이 아니야 — 더 오래됐어. 훨씬."
       },
       {
         "speaker": "",
@@ -467,13 +467,13 @@
         "speaker": "Elia",
         "text": "It's hard to believe there were towns here once. Families. Gardens.",
         "portrait": "elia_concern",
-        "text_ko": "한때 여기에 마을이 있었다는 것을 믿기 어렵습니다. 가족. 정원."
+        "text_ko": "한때 여기 마을들이 있었다는 게 믿기지 않아. 가족들. 정원들."
       },
       {
         "speaker": "Arrel",
         "text": "There will be again. That's what we're fighting for.",
         "portrait": "arrel_determined",
-        "text_ko": "다시있을 것입니다. 그것이 바로 우리가 싸우는 이유입니다."
+        "text_ko": "다시 있게 될 거야. 그러려고 싸우는 거니까."
       }
     ]
   },

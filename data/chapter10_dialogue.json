@@ -24,19 +24,19 @@
         "speaker": "Elia",
         "text": "The air... it's not thin. There just isn't any.",
         "portrait": "elia_concern",
-        "text_ko": "공기... 얇지 않아요. 아무것도 없습니다."
+        "text_ko": "공기가... 옅은 게 아니야. 아예 없어."
       },
       {
         "speaker": "Arrel",
         "text": "I can still breathe.",
         "portrait": "arrel_neutral",
-        "text_ko": "아직 숨을 쉴 수 있어요."
+        "text_ko": "아직 숨은 쉬어져."
       },
       {
         "speaker": "Elia",
         "text": "That's what worries me. You shouldn't be able to.",
         "portrait": "elia_concern",
-        "text_ko": "그것이 제가 걱정하는 것입니다. 당신은 할 수 없어야합니다."
+        "text_ko": "그게 걱정돼. 그럴 수 있으면 안 되는 거야."
       },
       {
         "speaker": "",
@@ -60,13 +60,13 @@
         "speaker": "Arrel",
         "text": "It's... familiar.",
         "portrait": "arrel_pain",
-        "text_ko": "그건... 익숙해요."
+        "text_ko": "이건... 익숙해."
       },
       {
         "speaker": "Elia",
         "text": "Arrel, don't—",
         "portrait": "elia_concern",
-        "text_ko": "아렐, 그러지 마-"
+        "text_ko": "아렐, 그러지 마—"
       },
       {
         "speaker": "",
@@ -76,14 +76,14 @@
       {
         "speaker": "",
         "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance.",
-        "text_ko": "그리고 그의 가슴 어딘가에서 1등급의 기억 'The Name 아렐'이 공명하며 윙윙거렸다."
+        "text_ko": "그리고 그의 가슴 어딘가에서, 1등급 기억 — '아렐이라는 이름' — 이 공명하며 울렸다."
       },
       {
         "speaker": "Arrel",
         "text": "I know how to close it.",
         "portrait": "arrel_burn",
         "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
-        "text_ko": "나는 그것을 닫는 방법을 알고 있습니다."
+        "text_ko": "닫는 법을 알아."
       },
       {
         "speaker": "Elia",
@@ -95,7 +95,7 @@
         "speaker": "Arrel",
         "text": "The same way I do everything. Burn something that matters.",
         "portrait": "arrel_pain",
-        "text_ko": "내가 모든 일을 하는 것과 같은 방식이다. 중요한 것을 태워보세요."
+        "text_ko": "내가 늘 하던 방식으로. 중요한 걸 태우는 거지."
       }
     ],
     "seal_decision": [
@@ -108,25 +108,25 @@
         "speaker": "Elia",
         "text": "You're talking about burning your name. Your NAME, Arrel. The last thing that makes you... you.",
         "portrait": "elia_concern",
-        "text_ko": "당신은 당신의 이름을 불태우는 것에 대해 이야기하고 있습니다. 당신의 이름, 아렐. 당신을 만드는 마지막 것은 바로 당신입니다."
+        "text_ko": "네 이름을 태우겠다는 거잖아. 네 이름을, 아렐. 너를 너로 만드는 마지막 것을."
       },
       {
         "speaker": "Arrel",
         "text": "If The Seam falls, everyone there loses everything. Not just a name.",
         "portrait": "arrel_neutral",
-        "text_ko": "씸이 무너지면 그곳에 있는 모든 사람이 모든 것을 잃게 됩니다. 이름뿐만이 아닙니다."
+        "text_ko": "씸이 무너지면, 그곳 모두가 전부를 잃어. 이름 하나로 끝나는 게 아니야."
       },
       {
         "speaker": "Elia",
         "text": "And if you burn it? What's left?",
         "portrait": "elia_concern",
-        "text_ko": "그리고 태워버리면? 무엇이 남았나요?"
+        "text_ko": "그럼 태우고 나면? 뭐가 남는데?"
       },
       {
         "speaker": "Arrel",
         "text": "I don't know. That's the point.",
         "portrait": "arrel_pain",
-        "text_ko": "모르겠어요. 그게 요점입니다."
+        "text_ko": "몰라. 그게 요점이야."
       },
       {
         "speaker": "",
@@ -139,14 +139,14 @@
         "text": "Wait. You're still... you. After all of it, you kept the things that matter. The name. The sword. My hands on yours. Maybe you don't have to choose what to lose. Maybe you offer what you kept.",
         "portrait": "elia_neutral",
         "requires_weave": true,
-        "text_ko": "잠깐만요. 당신은 아직도... 당신입니다. 결국 당신은 중요한 것을 지켰습니다. 이름. 검. 내 손이 당신 손에 있어요. 어쩌면 무엇을 잃을지 선택할 필요가 없을 수도 있습니다. 어쩌면 당신은 당신이 간직한 것을 제공할 수도 있습니다."
+        "text_ko": "잠깐. 넌 아직도... 너야. 그 모든 걸 겪고도, 중요한 것들을 지켜 냈어. 이름. 검. 네 손을 덮던 내 손. 어쩌면 무엇을 잃을지 고를 필요가 없을지도 몰라. 어쩌면, 지켜 온 것을 내미는 거야."
       },
       {
         "speaker": "Arrel",
         "text": "Not the emptiness it wants. The opposite. Everything I refused to burn — given freely, all at once.",
         "portrait": "arrel_neutral",
         "requires_weave": true,
-        "text_ko": "그것이 원하는 공허함이 아닙니다. 그 반대입니다. 내가 불태우기를 거부한 모든 것은 한꺼번에 무료로 주어졌습니다."
+        "text_ko": "그것이 원하는 공허가 아니라. 그 반대를. 태우기를 거부해 온 모든 것을 — 아낌없이, 한꺼번에."
       },
       {
         "speaker": "",
@@ -156,20 +156,20 @@
             "text": "Weave the kept memories into the seal",
             "set_flag": "seal_weave",
             "requires_weave": true,
-            "text_ko": "간직한 추억을 봉인에 엮어"
+            "text_ko": "간직한 기억들을 봉인에 엮는다"
           },
           {
             "text": "Burn the Name — Seal BL-07",
             "set_flag": "seal_accepted",
-            "text_ko": "이름을 불태워라 - 봉인 BL-07"
+            "text_ko": "이름을 태운다 — BL-07을 봉인한다"
           },
           {
             "text": "Keep the Name — Find another way",
             "set_flag": "seal_refused",
-            "text_ko": "이름 유지 — 다른 방법 찾기"
+            "text_ko": "이름을 지킨다 — 다른 방법을 찾는다"
           }
         ],
-        "text_ko": "당신은 무엇을합니까?"
+        "text_ko": "어떻게 하겠는가?"
       }
     ],
     "seal_weave": [
@@ -188,7 +188,7 @@
         "speaker": "Arrel",
         "text": "Not one of you. All of you. Together.",
         "portrait": "arrel_neutral",
-        "text_ko": "당신 중 누구도 아닙니다. 여러분. 함께."
+        "text_ko": "너희 중 하나가 아니라. 너희 전부. 함께."
       },
       {
         "speaker": "",
@@ -205,7 +205,7 @@
         "speaker": "Elia",
         "text": "It's... it's not collapsing. It's closing. Like something is being mended, not erased.",
         "portrait": "elia_concern",
-        "text_ko": "그건... 무너지지 않아요. 닫힙니다. 뭔가가 지워지는 게 아니라 고쳐지는 것 같아요."
+        "text_ko": "이건... 무너지는 게 아니야. 닫히고 있어. 뭔가 지워지는 게 아니라, 기워지는 것처럼."
       },
       {
         "speaker": "",
@@ -222,19 +222,19 @@
         "speaker": "Arrel",
         "text": "I remember. I remember all of it. It's just... shared now. Some of me is holding the door shut.",
         "portrait": "arrel_neutral",
-        "text_ko": "나는 기억한다. 나는 그것을 모두 기억합니다. 이제... 공유되었습니다. 나 중 일부는 문을 닫고 있습니다."
+        "text_ko": "기억해. 전부 기억해. 그저... 이제 나눠 가진 거야. 내 일부가 문을 붙들고 있어."
       },
       {
         "speaker": "Elia",
         "text": "Then you're not gone. You're load-bearing.",
         "portrait": "elia_neutral",
-        "text_ko": "그렇다면 당신은 떠난 것이 아닙니다. 당신은 하중을 견디고 있습니다."
+        "text_ko": "그럼 넌 사라진 게 아니야. 하중을 떠받치고 있는 거지."
       },
       {
         "speaker": "Arrel",
         "text": "There are worse things to be.",
         "portrait": "arrel_neutral",
-        "text_ko": "더 나쁜 일도 있습니다."
+        "text_ko": "그보다 못한 것이 되는 수도 있으니까."
       },
       {
         "speaker": "",
@@ -283,7 +283,7 @@
         "speaker": "Elia",
         "text": "...hey. Hey. Can you hear me?",
         "portrait": "elia_concern",
-        "text_ko": "...안녕하세요. 여기요. 내 말 들려요?"
+        "text_ko": "...이봐. 이봐. 내 말 들려?"
       },
       {
         "speaker": "",
@@ -305,7 +305,7 @@
         "speaker": "Elia",
         "text": "Do you... do you know who you are?",
         "portrait": "elia_concern",
-        "text_ko": "혹시... 당신이 누구인지 아시나요?"
+        "text_ko": "당신... 당신이 누군지 알아요?"
       },
       {
         "speaker": "",
@@ -316,7 +316,7 @@
         "speaker": "???",
         "text": "No. But I know I'm supposed to be here.",
         "portrait": "arrel_exhausted",
-        "text_ko": "아뇨. 하지만 제가 여기 있어야 한다는 건 알아요."
+        "text_ko": "아니. 하지만 여기 있어야 한다는 건 알아."
       },
       {
         "speaker": "",
@@ -335,7 +335,7 @@
         "speaker": "Arrel",
         "text": "No.",
         "portrait": "arrel_neutral",
-        "text_ko": "아니요."
+        "text_ko": "아니."
       },
       {
         "speaker": "Elia",
@@ -347,7 +347,7 @@
         "speaker": "Arrel",
         "text": "There has to be another way. There always is. People just stop looking because burning is easier.",
         "portrait": "arrel_neutral",
-        "text_ko": "다른 방법이 있어야 합니다. 항상 존재합니다. 굽기가 더 쉽기 때문에 사람들은 찾는 것을 멈춥니다."
+        "text_ko": "다른 방법이 있을 거야. 언제나 있어. 태우는 게 더 쉬우니까, 사람들이 찾기를 그만두는 것뿐이야."
       },
       {
         "speaker": "",
@@ -363,13 +363,13 @@
         "speaker": "Elia",
         "text": "Sable won't be happy.",
         "portrait": "elia_neutral",
-        "text_ko": "세이블은 행복하지 않을 것입니다."
+        "text_ko": "세이블이 좋아하지 않을 거야."
       },
       {
         "speaker": "Arrel",
         "text": "Sable doesn't have to lose her name.",
         "portrait": "arrel_neutral",
-        "text_ko": "세이블은 이름을 잃을 필요가 없습니다."
+        "text_ko": "세이블도 제 이름을 잃을 필요는 없어."
       },
       {
         "speaker": "",
@@ -398,7 +398,7 @@
         "speaker": "Elia",
         "text": "Arrel. Look.",
         "portrait": "elia_concern",
-        "text_ko": "아렐. 바라보다."
+        "text_ko": "아렐. 봐."
       },
       {
         "speaker": "",
@@ -409,13 +409,13 @@
         "speaker": "Arrel",
         "text": "Someone's home.",
         "portrait": "arrel_neutral",
-        "text_ko": "누군가의 집입니다."
+        "text_ko": "누군가의 집이었어."
       },
       {
         "speaker": "Elia",
         "text": "Was. Before the Void ate the house around it. The door is all that's left.",
         "portrait": "elia_concern",
-        "text_ko": "했다. 공허가 그 주변의 집을 집어삼키기 전에 말이죠. 이제 남은 것은 문뿐이다."
+        "text_ko": "였지. 보이드가 그 주위 집을 삼키기 전엔. 남은 건 문뿐이야."
       },
       {
         "speaker": "",
@@ -449,19 +449,19 @@
         "speaker": "Arrel",
         "text": "It's showing me things.",
         "portrait": "arrel_pain",
-        "text_ko": "나에게 뭔가를 보여주고 있어요."
+        "text_ko": "나한테 뭔가를 보여 주고 있어."
       },
       {
         "speaker": "Elia",
         "text": "It shows everyone things. That's how it feeds. You feel the loss, and the feeling makes the loss bigger, and the bigger loss feeds the Void.",
         "portrait": "elia_concern",
-        "text_ko": "그것은 모든 사람에게 보여줍니다. 그것이 먹이가 되는 방식입니다. 당신은 상실감을 느끼고, 그 느낌은 상실을 더 크게 만들고, 더 큰 상실은 공허를 채워줍니다."
+        "text_ko": "누구에게나 보여 줘. 그렇게 먹이를 얻으니까. 네가 상실을 느끼고, 그 느낌이 상실을 더 키우고, 더 큰 상실이 보이드를 채우는 거야."
       },
       {
         "speaker": "Arrel",
         "text": "What does it show you?",
         "portrait": "arrel_neutral",
-        "text_ko": "그것은 당신에게 무엇을 보여줍니까?"
+        "text_ko": "너한테는 뭘 보여 주는데?"
       },
       {
         "speaker": "",
@@ -472,25 +472,25 @@
         "speaker": "Elia",
         "text": "You. Before the burns. The person you were when we first met.",
         "portrait": "elia_concern",
-        "text_ko": "당신. 화상 전. 우리가 처음 만났을 때의 당신이었던 사람."
+        "text_ko": "너. 태우기 전의. 우리가 처음 만났을 때의 너를."
       },
       {
         "speaker": "Elia",
         "text": "You laughed more. Did you know that? You used to laugh at terrible things. It drove me insane.",
         "portrait": "elia_concern",
-        "text_ko": "당신은 더 많이 웃었습니다. 알고 계셨나요? 당신은 끔찍한 일에도 웃곤 했어요. 그것은 나를 미치게 만들었습니다."
+        "text_ko": "넌 더 많이 웃었어. 알았어? 끔찍한 일에도 웃곤 했지. 그게 날 미치게 했어."
       },
       {
         "speaker": "Arrel",
         "text": "I still laugh.",
         "portrait": "arrel_neutral",
-        "text_ko": "나는 아직도 웃는다."
+        "text_ko": "지금도 웃어."
       },
       {
         "speaker": "Elia",
         "text": "You smile. It's not the same thing.",
         "portrait": "elia_concern",
-        "text_ko": "당신은 미소. 그것은 같은 것이 아닙니다."
+        "text_ko": "미소를 짓는 거지. 같은 게 아니야."
       },
       {
         "speaker": "",
@@ -514,19 +514,19 @@
         "speaker": "Elia",
         "text": "These are the memories the Void has consumed. It doesn't destroy them — it KEEPS them. Like a collection.",
         "portrait": "elia_concern",
-        "text_ko": "공허가 소비한 기억들입니다. 그것은 그들을 파괴하지 않고 유지합니다. 컬렉션처럼."
+        "text_ko": "보이드가 삼킨 기억들이야. 파괴하는 게 아니라 — 간직해. 수집품처럼."
       },
       {
         "speaker": "Arrel",
         "text": "Can we take them back?",
         "portrait": "arrel_neutral",
-        "text_ko": "다시 가져갈 수 있나요?"
+        "text_ko": "되찾을 수 있어?"
       },
       {
         "speaker": "Elia",
         "text": "They don't belong to anyone anymore. The people who lost them have forgotten they ever existed. A memory without an owner is just... light.",
         "portrait": "elia_neutral",
-        "text_ko": "그들은 더 이상 누구의 것도 아닙니다. 그것을 잃어버린 사람들은 그것이 존재했다는 사실조차 잊어버렸습니다. 주인 없는 추억은 그저... 가벼울 뿐입니다."
+        "text_ko": "이젠 누구의 것도 아니야. 잃은 사람들은 그게 있었다는 것조차 잊었어. 주인 없는 기억은 그저... 가벼울 뿐이야."
       },
       {
         "speaker": "",
@@ -550,7 +550,7 @@
         "speaker": "Elia",
         "text": "Arrel. Before we go further. There's something I need to say.",
         "portrait": "elia_concern",
-        "text_ko": "아렐. 더 나아가기 전에. 할 말이 있어요."
+        "text_ko": "아렐. 더 들어가기 전에. 해야 할 말이 있어."
       },
       {
         "speaker": "Arrel",
@@ -562,25 +562,25 @@
         "speaker": "Elia",
         "text": "Let me finish. Please.",
         "portrait": "elia_concern",
-        "text_ko": "마무리하겠습니다. 제발."
+        "text_ko": "끝까지 듣게 해 줘. 부탁이야."
       },
       {
         "speaker": "Elia",
         "text": "Whatever happens in there — whatever you decide — I need you to know that the person you are RIGHT NOW is enough. You don't have to burn anything else to be worth saving.",
         "portrait": "elia_concern",
-        "text_ko": "그곳에서 무슨 일이 일어나든, 무엇을 결정하든 지금 당장의 당신으로 충분하다는 점을 알아두셨으면 합니다. 절약할 가치가 있기 위해 다른 것을 태울 필요는 없습니다."
+        "text_ko": "그 안에서 무슨 일이 일어나든 — 무엇을 결정하든 — 지금 이대로의 너로 충분하다는 걸 알았으면 해. 아낄 가치가 있기 위해 다른 걸 태울 필요는 없어."
       },
       {
         "speaker": "Arrel",
         "text": "It's not about being worth saving. It's about the Seam. The children. Sable's people.",
         "portrait": "arrel_neutral",
-        "text_ko": "아낄 가치가 있다는 것이 아닙니다. 씸에 관한 것입니다. 아이들. 세이블의 사람들."
+        "text_ko": "아낄 가치가 있고 없고의 문제가 아니야. 씸 문제야. 아이들. 세이블의 사람들."
       },
       {
         "speaker": "Elia",
         "text": "I know. But the world doesn't get to have you AND those children. It shouldn't have to choose. Something is WRONG with a world that makes people pay for survival with themselves.",
         "portrait": "elia_concern",
-        "text_ko": "알아요. 하지만 세상은 당신과 그 아이들을 가질 수 없습니다. 선택할 필요는 없습니다. 사람들이 생존을 위해 스스로 돈을 지불하게 만드는 세상에는 뭔가 잘못되었습니다."
+        "text_ko": "알아. 하지만 세상이 너와 그 아이들을 둘 다 가질 수는 없다는 법은 없어. 생존을 위해 스스로를 값으로 치르게 만드는 세상은 — 애초에 잘못된 거야."
       },
       {
         "speaker": "",
@@ -591,13 +591,13 @@
         "speaker": "Arrel",
         "text": "Are you trying to talk me out of it?",
         "portrait": "arrel_neutral",
-        "text_ko": "나한테 말을 걸지 않으려고 하는 거야?"
+        "text_ko": "날 말리려는 거야?"
       },
       {
         "speaker": "Elia",
         "text": "I'm trying to make sure that whatever you choose, you choose it as ARREL. Not as a weapon. Not as a tool. As the person who once laughed at terrible things and noticed flowers growing in impossible places.",
         "portrait": "elia_concern",
-        "text_ko": "나는 당신이 무엇을 선택하든 그것을 ARREL로 선택하도록 노력하고 있습니다. 무기로는 아닙니다. 도구로서가 아닙니다. 끔찍한 일을 보고 웃기도 하고, 말도 안 되는 곳에 꽃이 피어나는 걸 알아차리기도 했던 사람처럼요."
+        "text_ko": "네가 무엇을 고르든, '아렐'로서 고르길 바라는 거야. 무기로서가 아니라. 도구로서가 아니라. 끔찍한 일에도 웃던 사람으로서."
       },
       {
         "speaker": "",
@@ -628,25 +628,25 @@
         "text": "I keep trying to remember what this place reminds me of. But there's nothing TO remember. It's... new.",
         "portrait": "elia_concern",
         "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
-        "text_ko": "나는 이 장소가 나에게 무엇을 생각나게 하는지 계속 기억하려고 노력한다. 그러나 기억할 것이 없습니다. 그것은... 새로운 것입니다."
+        "text_ko": "이곳이 뭘 떠올리게 하는지 계속 기억해 내려고 하는데. 떠올릴 게 없어. 이건... 새로워."
       },
       {
         "speaker": "Arrel",
         "text": "New?",
         "portrait": "arrel_neutral",
-        "text_ko": "새로운?"
+        "text_ko": "새롭다고?"
       },
       {
         "speaker": "Elia",
         "text": "I've never been in a place that has no past. Everything has a past. Even ruins. Even ash.",
         "portrait": "elia_concern",
-        "text_ko": "나는 과거가 없는 곳에 가본 적이 없습니다. 모든 것에는 과거가 있습니다. 심지어 폐허. 심지어 재."
+        "text_ko": "과거가 없는 곳엔 와 본 적이 없어. 모든 것엔 과거가 있어. 폐허에도. 재에도."
       },
       {
         "speaker": "Elia",
         "text": "But this... this is what happens when even the past forgets it was here.",
         "portrait": "elia_concern",
-        "text_ko": "하지만 이건... 과거조차 이곳에 있었다는 사실을 잊어버렸을 때 일어나는 일이다."
+        "text_ko": "그런데 이건... 과거조차 자신이 여기 있었다는 걸 잊었을 때 일어나는 일이야."
       },
       {
         "speaker": "",

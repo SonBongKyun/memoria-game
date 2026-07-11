@@ -5961,3 +5961,45 @@ Story-first game, hours of VN reading, and the runner had zero reading convenien
 - Field Focus smoke passed across all 10 maps (`maps=10`, Resonance 25, Limit 20).
 - Live 1280x720 Rim Forest capture passed and resolved Arrel/Elia to `arrel_sheet/idle_01.png` and `elia_sheet/idle_01.png`; screenshot saved to `tmp/visual_audit/rim_forest_first_exploration.png`.
 - Godot emitted only the known shutdown resource-cleanup warnings; no script, parse, or assertion errors occurred.
+
+## S174 - 2026-07-11 (Story-first combat loop: WITNESS and preservation victories)
+
+### Audit finding
+- The project already had broad feature coverage, but its repeatable combat loop returned too little of the player's story decisions. BREAK, resonance, stances, items, allies, and tactical objectives mostly rewarded damage optimization, while the defining promise — deciding what to remember or burn — was felt only in isolated moments.
+- The battle command ribbon also placed seven equal-weight commands in one horizontal row, making the core choice harder to parse as systems accumulated.
+
+### Done
+- Added **WITNESS / 기억 읽기**, a turn-costing story combat action that reads the human memory trapped inside an enemy, reveals scan data, builds Limit and resonance, and guards Arrel while he listens.
+- Ordinary enemies can now be released without killing them or burning a memory after 2 readings (3 for most Void enemies). Each enemy family has authored Korean and English echo lines rather than generic system copy.
+- Story choice echo: listening to Elia's humming or choosing to keep her close reduces non-boss Void readings from 3 to 2. Earlier dialogue decisions now change a repeatable combat strategy.
+- Bosses remain mandatory story confrontations, but completing their 3-step reading fractures the command controlling them and opens a BREAK turn instead of skipping the fight.
+- Preservation victories grant a dedicated Grains bonus and bank one Field Focus for the next encounter. Resolution type, bonus, and focus gain are surfaced on the victory screen; permanent witness stats and category flags are saved.
+- Added the `Hold the Name` tactical objective so the existing objective economy can explicitly reward story-first play.
+- Rebuilt the command ribbon as a readable 4x2 grid: Attack, WITNESS, Burn, Defend / Item, Limit, Auto, Flee. WITNESS progress is visible directly on its command button.
+- Added reusable story-combat smoke and 1280x720 capture harnesses, and expanded visual regression coverage for the command grid and WITNESS route.
+
+### Verification
+- Story combat smoke passed: 2-step reading, nonviolent release, Elia choice echo, +8 preservation Grains, and +1 Field Focus.
+- Visual clarity smoke passed with `command_grid=4x2 witness=1` plus all existing exploration, battle, support-art, and obstruction checks.
+- Field Focus smoke passed across all 10 maps (`maps=10`, Resonance 25, Limit 20).
+- Live 1280x720 battle capture passed with visible `기억 읽기 1/2` and a measured 819x108 command grid; screenshot saved to `tmp/visual_audit/story_combat_witness.png`.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- VN structural validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S171 - 2026-07-08 (Part I spoken-dialogue Korean pass)
+
+### Done
+- Completed the queued **spoken-dialogue** Korean pass across all Part I dialogue (chapter1-10 + epilogue): every character line rewritten from machine-register to voice-locked natural Korean.
+  - **Global fix (50 lines):** name typos 에릴/어렐/에렐→아렐, 말렛트→말렛, The 심/솔기/심(심)→씸, 뷰로→관리국, plus stray romaji (Sable/Elia/Arrel/Tobias/Kairos/Malet, Void Hole, Bureau) folded to Korean.
+  - **Voice lock:** 아렐↔엘리아 반말, 세이블 노파 하대체(S148 canon), 토비아스 학자 하게체, 카이로스 격식 하게체, 말렛 정중 거래체(존댓말 유지), 이름 잃은 노인 경어체.
+  - **Fatal mistranslations fixed:** "전투기"(fighter jet)→싸움꾼, "곰팡이"(mold-fungus)→거푸집, "구운 메모리"→태워진 기억, "그냥 편지"(letters=글자)→글자, "정박"(anchoring)→앵커링, "운동"(Movement)→움직임, seal_decision prompt "당신은 무엇을합니까?"→어떻게 하겠는가? + 3 choice labels, void_core "'The Name 아렐'"→'아렐이라는 이름'.
+  - Batch counts: ch1 35 · ch2 46 · ch3 49 · ch4 54 · ch5 49 · ch6 80 · ch7 62(+echo-shell item) · ch8 64 · ch9 60 · ch10 57 · epilogue 77.
+
+### Verification
+- Typo/romaji scan: **0** remaining (에릴·어렐·에렐·말렛트·솔기·뷰로·Void·Bureau·The Name·굽기 all gone).
+- Residual 존댓말: 14 lines, all legitimate polite-speech characters (Malet the broker, the nameless Old Man) — intentional, not machine-register.
+- 30/30 data JSON parse OK; Godot 4.6.2 headless boot 0 SCRIPT ERROR / Parse Error.
+
+### Status
+- Part I Korean localization (narration S170 + dialogue S171) now fully house-register and voice-locked. Part II/III (VN scenes) were done in S167. Whole-game Korean pass complete.
