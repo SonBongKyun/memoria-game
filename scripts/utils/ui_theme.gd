@@ -74,6 +74,19 @@ static func make_hover_style(base: StyleBoxFlat = null) -> StyleBoxFlat:
 	style.set_content_margin_all(8)
 	return style
 
+# ── 폰트 렌더링 품질 (다크판타지 VN 톤을 위한 부드러운 세리프 렌더) ──
+## SystemFont에 공통 렌더링 설정 적용 — 서브픽셀/라이트 힌팅/밉맵으로
+## 세리프 글자 가장자리를 매끈하게, 스케일 시 뭉개짐 없이.
+static func _tune_font(font: SystemFont) -> SystemFont:
+	font.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+	font.hinting = TextServer.HINTING_LIGHT
+	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
+	font.generate_mipmaps = true
+	font.allow_system_fallback = true
+	return font
+
+## 한국어 우선 스택은 명조(세리프) 계열로 — 분위기의 핵심.
+## Noto Serif KR(Win10+ 기본 탑재) → Batang(항상 존재) → Nanum Myeongjo → 고딕 폴백.
 static func make_title_font() -> SystemFont:
 	var font := SystemFont.new()
 	var latin_names := [
@@ -83,15 +96,13 @@ static func make_title_font() -> SystemFont:
 		"Cormorant Garamond",
 		"Noto Serif KR",
 		"Georgia",
-		"Cambria",
 		"Constantia",
-		"Palatino Linotype",
-		"Batang",
 		"serif",
 	]
-	var korean_names := ["Malgun Gothic", "Noto Sans KR", "Batang", "Segoe UI", "sans-serif"]
+	# 제목: 획이 굵고 고전적인 명조 — Gungsuh(궁서)까지 폴백으로 무게감 부여
+	var korean_names := ["Noto Serif KR", "Batang", "Nanum Myeongjo", "Gungsuh", "Malgun Gothic", "serif"]
 	font.font_names = PackedStringArray(korean_names if GameManager.current_locale == "ko" else latin_names)
-	return font
+	return _tune_font(font)
 
 static func make_body_font() -> SystemFont:
 	var font := SystemFont.new()
@@ -100,28 +111,27 @@ static func make_body_font() -> SystemFont:
 		"EB Garamond",
 		"Noto Serif KR",
 		"Georgia",
-		"Cambria",
 		"Constantia",
 		"Palatino Linotype",
-		"Batang",
-		"Times New Roman",
 		"serif",
 	]
-	var korean_names := ["Malgun Gothic", "Noto Sans KR", "Batang", "Segoe UI", "sans-serif"]
+	# 본문: 가독성 높은 명조 — 시스템 UI 고딕(Malgun) 대신 세리프 우선
+	var korean_names := ["Noto Serif KR", "Batang", "Nanum Myeongjo", "Malgun Gothic", "serif"]
 	font.font_names = PackedStringArray(korean_names if GameManager.current_locale == "ko" else latin_names)
-	return font
+	return _tune_font(font)
 
+## UI(버튼/HUD)는 깔끔한 산세리프 유지 — 정보 가독성 우선.
 static func make_ui_font() -> SystemFont:
 	var font := SystemFont.new()
 	font.font_names = PackedStringArray([
-		"Malgun Gothic",
 		"Pretendard",
+		"Malgun Gothic",
 		"Noto Sans KR",
 		"Segoe UI",
 		"Arial",
 		"sans-serif",
 	])
-	return font
+	return _tune_font(font)
 
 static func apply_title_font(control: Control) -> void:
 	if control:

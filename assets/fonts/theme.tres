@@ -1,8 +1,11 @@
 [gd_resource type="Theme" format=3 uid="uid://c6qls2t12euxu"]
 
 [sub_resource type="SystemFont" id="SystemFont_ui"]
-font_names = PackedStringArray("Malgun Gothic", "Noto Sans KR", "Pretendard", "Segoe UI", "Arial", "sans-serif")
-antialiasing = 2
+font_names = PackedStringArray("Pretendard", "Malgun Gothic", "Noto Sans KR", "Segoe UI", "Arial", "sans-serif")
+antialiasing = 1
+hinting = 1
+subpixel_positioning = 1
+generate_mipmaps = true
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
 content_margin_left = 11.0
@@ -65,8 +68,11 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="SystemFont" id="SystemFont_body"]
-font_names = PackedStringArray("Malgun Gothic", "Noto Sans KR", "Batang", "Cormorant Garamond", "EB Garamond", "Georgia", "Cambria", "serif")
-antialiasing = 2
+font_names = PackedStringArray("Noto Serif KR", "Batang", "Nanum Myeongjo", "Cormorant Garamond", "EB Garamond", "Georgia", "Malgun Gothic", "serif")
+antialiasing = 1
+hinting = 1
+subpixel_positioning = 1
+generate_mipmaps = true
 
 [resource]
 default_font = SubResource("SystemFont_body")
@@ -89,6 +95,6 @@ Label/font_sizes/font_size = 16
 Label/fonts/font = SubResource("SystemFont_ui")
 PanelContainer/styles/panel = SubResource("StylePanel")
 RichTextLabel/colors/default_color = Color(0.92, 0.88, 0.8, 1)
-RichTextLabel/constants/line_separation = 6
-RichTextLabel/font_sizes/normal_font_size = 17
+RichTextLabel/constants/line_separation = 10
+RichTextLabel/font_sizes/normal_font_size = 18
 RichTextLabel/fonts/normal_font = SubResource("SystemFont_body")

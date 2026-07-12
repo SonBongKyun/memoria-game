@@ -6102,3 +6102,46 @@ Story-first game, hours of VN reading, and the runner had zero reading convenien
 - 1280x720 Verdan Market capture shows stable masonry bands and a cleaner Malet/Arrel interaction silhouette.
 - Six-character directional gallery capture passed after runtime reconstruction.
 - Original PNG assets were not overwritten or regenerated.
+
+## S179 - 2026-07-12 (Chapter 1 epic cold open and first-minute agency)
+
+### Audit findings
+- A new game entered a 46-step VN prologue on an aftermath image. The writing and later choices were strong, but the player learned that something grand had happened instead of seeing it happen.
+- The first meaningful input arrived after roughly two dozen lines, so the opening missed the project's 30-second action-feedback-reward loop even though later Chapter 1 choices already changed resources and combat routes.
+- VN presentation still constructed a full-screen procedural grain layer despite the project's clean visual direction and the recent field-noise pass.
+
+### Done
+- Added `ch1_cold_open`, an eight-step prelude that shows the Rim sky fracture, the descending Void Beast, a memory-fire strike, and the original aftermath before handing off to `ch1_prologue` at its second step.
+- Added a first-minute instinct choice with three immediately explained outcomes: keep Arrel's name for 4 Grains, guard Elia's lantern for a Smoke Bomb, or read the beast's rhythm and carry `vb_read` into the next Void Beast confrontation.
+- Generated and integrated `story_ch1_rim_omen.png`, a clean 16:9 establishing CG based directly on the canonical Chapter 1 Arrel, Elia, Void Beast, and Rim Forest plates.
+- Added data-driven VN `cg_motion`, `impact`, and `sfx` cues with pull-back, push-in, strike, violet, memory-fire, and heavy-impact profiles. Reduced Motion and Screen Shake settings suppress camera motion and nudges while preserving readable crossfades.
+- Disabled the dormant VN grain pass so authored CG detail stays clean; scale now comes from composition, light, restrained motion, and sound.
+- Registered the new plate in the Artbook and illustration catalog, and added a reusable cold-open UI/branch capture harness.
+
+### Verification
+- Cold-open runtime smoke passed with three visible routes, `vb_read` carry-over, noise-free VN presentation, and the new CG resolved through Godot's importer.
+- VN structural validator passed: 20 files, 504 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Visual clarity smoke passed with all seven authored field sheets, low-noise terrain, 4x2 battle grid, WITNESS, and obstruction checks unchanged.
+- Gameplay QoL, story-combat, and Field Focus smokes passed unchanged.
+- Godot 4.6.2 imported the new CG and scripts without script or parse errors; only known addon and shutdown cleanup warnings remain.
+
+## S172 - 2026-07-12 (Font & atmosphere upgrade: Korean literary serif)
+
+### Problem
+The whole game ran in Korean using `Malgun Gothic` (a system UI **sans/고딕**) for both titles and body — making a dark-fantasy literary VN read like a generic system dialog. Root cause: `UITheme.make_title_font`/`make_body_font` and `theme.tres` put Malgun Gothic first in the Korean stack.
+
+### Done
+- **Serif-first Korean stacks** (`scripts/utils/ui_theme.gd`): title & body now prefer 명조 세리프 — `Noto Serif KR` (ships on Win10+) → `Batang` (always present) → `Nanum Myeongjo` → Malgun fallback. UI/HUD/buttons keep a clean sans (`Pretendard`/Malgun) for legibility. Latin stacks unchanged (Cinzel/Cormorant).
+- **Render quality helper** `_tune_font()`: grayscale AA + light hinting + auto subpixel positioning + mipmaps → smoother, premium serif edges that don't muddy when scaled.
+- **theme.tres sync**: `SystemFont_body` → Noto Serif KR first; both subresources get hinting/subpixel/mipmaps; RichTextLabel `line_separation` 6→10 and size 17→18 for VN reading elegance.
+- Updated two stale font asserts (capture_dialogue_interface, smoke_visual_clarity) from "Malgun Gothic" → "Noto Serif KR".
+
+### Verification
+- Godot 4.6.2 headless boot: 0 script errors.
+- `smoke_visual_clarity`: **VISUAL_CLARITY_SMOKE_PASS** (font_chain=ko).
+- `capture_dialogue_interface`: rendered live Korean dialogue (Malet line) — confirmed **Noto Serif KR** serif rendering; visually far more literary/atmospheric than the prior sans. Title screen uses the same `apply_title_font` so it inherits the serif.
+
+### Notes
+- Zero repo bloat (no bundled font binary) — relies on Noto Serif KR (Win10+) with Batang serif as guaranteed fallback, so worst case is still a serif, never the old sans.
+- If cross-OS identical rendering is later wanted, bundle Noto Serif KR (OFL-licensed) as a FontFile.

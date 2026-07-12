@@ -32,7 +32,7 @@ func _ready() -> void:
 	DialogueBox.call("_refresh_indicator_text")
 	await get_tree().process_frame
 
-	assert(DialogueBox.text_label.get_theme_font("normal_font").font_names[0] == "Malgun Gothic")
+	assert(DialogueBox.text_label.get_theme_font("normal_font").font_names[0] == "Noto Serif KR")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://tmp/visual_audit"))
 	var image := get_viewport().get_texture().get_image()
 	var result := image.save_png(ProjectSettings.globalize_path(OUTPUT_PATH))

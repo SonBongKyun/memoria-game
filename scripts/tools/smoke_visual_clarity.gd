@@ -88,7 +88,7 @@ func _ready() -> void:
 		assert(is_equal_approx(authored_sprite.scale.x, 0.32), "%s 160px sheet must be normalized to the field cast" % npc_data.name)
 		authored_npc.queue_free()
 		await get_tree().process_frame
-	assert(UITheme.make_body_font().font_names[0] == "Malgun Gothic", "Korean dialogue must use one stable Hangul-first font chain")
+	assert(UITheme.make_body_font().font_names[0] == "Noto Serif KR", "Korean dialogue must use the literary Hangul serif-first font chain")
 	assert("Quick Save" not in PauseMenu.pause_hint_label.text, "Controller footer must not advertise unsupported quick-save buttons")
 	InputManager.current_mode = previous_mode
 	PauseMenu.call("_refresh_footer_hints")
