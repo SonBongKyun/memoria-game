@@ -30,6 +30,7 @@ func _ready() -> void:
 func interact() -> void:
 	if DialogueManager.is_active:
 		return
+	_face_toward_player()
 	print("[NPC] %s — interact triggered" % npc_name)
 	if dialogue_key == "":
 		DialogueManager.start_dialogue([
@@ -57,12 +58,28 @@ func _on_first_talk_ended(talk_flag: String) -> void:
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprite() -> void:
 	var config := _get_character_config()
-	var sheet_path := "res://assets/sprites/characters/elia_sheet/idle_01.png"
-	if npc_name == "Elia" and ResourceLoader.exists(sheet_path):
-		sprite.sprite_frames = PixelSprite.create_sheet_frames("elia")
+	var sheet_keys := {
+		"Elia": "elia",
+		"Malet": "malet",
+		"Mallet": "malet",
+		"Tobias": "tobias",
+		"Kairos": "kairos",
+		"Nera": "nera",
+		"Veil": "veil",
+	}
+	var sheet_key: String = sheet_keys.get(npc_name, "")
+	var sheet_path := "res://assets/sprites/characters/%s_sheet/idle_01.png" % sheet_key
+	var uses_authored_sheet := sheet_key != "" and ResourceLoader.exists(sheet_path)
+	if uses_authored_sheet:
+		sprite.sprite_frames = PixelSprite.create_sheet_frames(sheet_key)
 		sprite.position = Vector2(0, 2)
-		sprite.offset = Vector2(0, -52)
-		sprite.scale = Vector2(0.40, 0.40)
+		# New reference-derived NPC sheets use a 160px canvas while Arrel/Elia
+		# use 128px. Normalize both to the same field footprint and keep their
+		# feet on the interaction baseline.
+		var authored_scale := 0.40 if sheet_key == "elia" else 0.32
+		var authored_offset := -52.0 if sheet_key == "elia" else -65.0
+		sprite.offset = Vector2(0, authored_offset)
+		sprite.scale = Vector2(authored_scale, authored_scale)
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	else:
 		sprite.sprite_frames = PixelSprite.create_frames(config)
@@ -72,8 +89,24 @@ func _setup_placeholder_sprite() -> void:
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.play("idle_down")
 	_add_character_grounding(_get_npc_accent_color())
-	if npc_name in ["Malet", "Mallet"]:
+	if npc_name in ["Malet", "Mallet"] and not uses_authored_sheet:
 		_add_malet_details()
+
+func _face_toward_player() -> void:
+	if sprite == null or sprite.sprite_frames == null:
+		return
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player == null:
+		return
+	var direction := player.global_position - global_position
+	var suffix := "down"
+	if absf(direction.x) > absf(direction.y):
+		suffix = "right" if direction.x > 0.0 else "left"
+	else:
+		suffix = "down" if direction.y > 0.0 else "up"
+	var animation := "idle_" + suffix
+	if sprite.sprite_frames.has_animation(animation):
+		sprite.play(animation)
 
 func _add_malet_details() -> void:
 	# Two readable memory vials and a fine gold chain give Malet a unique map

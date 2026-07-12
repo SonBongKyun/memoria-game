@@ -76,7 +76,7 @@ static func make_hover_style(base: StyleBoxFlat = null) -> StyleBoxFlat:
 
 static func make_title_font() -> SystemFont:
 	var font := SystemFont.new()
-	font.font_names = PackedStringArray([
+	var latin_names := [
 		"Cinzel",
 		"Trajan Pro",
 		"Cormorant SC",
@@ -88,12 +88,14 @@ static func make_title_font() -> SystemFont:
 		"Palatino Linotype",
 		"Batang",
 		"serif",
-	])
+	]
+	var korean_names := ["Malgun Gothic", "Noto Sans KR", "Batang", "Segoe UI", "sans-serif"]
+	font.font_names = PackedStringArray(korean_names if GameManager.current_locale == "ko" else latin_names)
 	return font
 
 static func make_body_font() -> SystemFont:
 	var font := SystemFont.new()
-	font.font_names = PackedStringArray([
+	var latin_names := [
 		"Cormorant Garamond",
 		"EB Garamond",
 		"Noto Serif KR",
@@ -104,16 +106,18 @@ static func make_body_font() -> SystemFont:
 		"Batang",
 		"Times New Roman",
 		"serif",
-	])
+	]
+	var korean_names := ["Malgun Gothic", "Noto Sans KR", "Batang", "Segoe UI", "sans-serif"]
+	font.font_names = PackedStringArray(korean_names if GameManager.current_locale == "ko" else latin_names)
 	return font
 
 static func make_ui_font() -> SystemFont:
 	var font := SystemFont.new()
 	font.font_names = PackedStringArray([
-		"Segoe UI",
+		"Malgun Gothic",
 		"Pretendard",
 		"Noto Sans KR",
-		"Malgun Gothic",
+		"Segoe UI",
 		"Arial",
 		"sans-serif",
 	])

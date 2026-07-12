@@ -7,6 +7,7 @@ class_name PixelSprite
 const SIZE: int = 48
 const HALF: int = 24
 const SHEET_FRAME_ROOT: String = "res://assets/sprites/characters"
+static var _clean_sheet_cache: Dictionary = {}
 
 ## SpriteFrames 생성 (4방향 idle + walk + S57: attack/hurt/death/cast)
 static func create_frames(config: Dictionary) -> SpriteFrames:
@@ -82,12 +83,21 @@ static func create_sheet_frames(who: String) -> SpriteFrames:
 				return create_frames(arrel_config())
 
 	var frames = SpriteFrames.new()
-	_add_loaded_anim(frames, "idle_down", _frame_paths(folder, "idle", 4), 4.0, true)
-	_add_loaded_anim(frames, "idle_up", _frame_paths(folder, "idle", 4), 4.0, true)
-	_add_loaded_anim(frames, "idle_right", _frame_paths(folder, "idle", 4), 4.0, true)
-	_add_loaded_anim(frames, "idle_left", _frame_paths(folder, "idle", 4), 4.0, true)
-	_add_loaded_anim(frames, "walk_down", _frame_paths(folder, "move", 4), 8.0, true)
-	_add_loaded_anim(frames, "walk_up", _frame_paths(folder, "move", 4), 8.0, true)
+	var idle_paths := _frame_paths(folder, "idle", 4)
+	var move_paths := _frame_paths(folder, "move", 4)
+	var left_paths := _frame_paths(folder, "move_left", 4)
+	var right_idle_paths: Array[String] = [move_paths[0]]
+	var left_idle_paths: Array[String] = [left_paths[0]]
+	# The canonical sheets are side-view animation boards. Preserve their real
+	# left/right frames, use the authored neutral pose for front movement, and
+	# derive a restrained back-of-head view for upward movement so turning is
+	# visible without mixing in a different art style.
+	_add_loaded_anim(frames, "idle_down", idle_paths, 4.0, true)
+	_add_loaded_texture_anim(frames, "idle_up", _make_back_facing_textures(idle_paths, who), 4.0, true)
+	_add_loaded_anim(frames, "idle_right", right_idle_paths, 1.0, true)
+	_add_loaded_anim(frames, "idle_left", left_idle_paths, 1.0, true)
+	_add_loaded_anim(frames, "walk_down", idle_paths, 8.0, true)
+	_add_loaded_texture_anim(frames, "walk_up", _make_back_facing_textures(idle_paths, who), 8.0, true)
 	_add_loaded_anim(frames, "walk_right", _frame_paths(folder, "move", 4), 8.0, true)
 	_add_loaded_anim(frames, "walk_left", _frame_paths(folder, "move_left", 4), 8.0, true)
 	_add_loaded_anim(frames, "attack_down", _frame_paths(folder, "attack", 6), 12.0, false)
@@ -108,12 +118,111 @@ static func _frame_paths(folder: String, prefix: String, count: int) -> Array[St
 	return paths
 
 static func _add_loaded_anim(frames: SpriteFrames, anim_name: String, paths: Array[String], speed: float, loop: bool) -> void:
+	var valid_paths: Array[String] = []
+	for path in paths:
+		if ResourceLoader.exists(path):
+			valid_paths.append(path)
+	if valid_paths.is_empty():
+		return
 	frames.add_animation(anim_name)
 	frames.set_animation_speed(anim_name, speed)
 	frames.set_animation_loop(anim_name, loop)
+	for path in valid_paths:
+		frames.add_frame(anim_name, _load_sheet_texture(path))
+
+static func _load_sheet_texture(path: String) -> Texture2D:
+	var source: Texture2D = load(path)
+	if source == null or OptionsMenu == null or not OptionsMenu.is_clean_gameplay_visuals():
+		return source
+	if _clean_sheet_cache.has(path):
+		return _clean_sheet_cache[path]
+	var image := source.get_image()
+	if image == null:
+		return source
+	_soften_sheet_image(image)
+	var texture := ImageTexture.create_from_image(image)
+	texture.resource_name = path
+	_clean_sheet_cache[path] = texture
+	return texture
+
+static func _soften_sheet_image(image: Image) -> void:
+	# AI sprite boards contain sub-pixel linework that shimmers after field
+	# scaling. A single 75% Lanczos reduction and reconstruction removes that
+	# high-frequency noise while retaining the authored silhouette and palette.
+	var original_width := image.get_width()
+	var original_height := image.get_height()
+	var reduced_width := maxi(1, int(original_width * 0.75))
+	var reduced_height := maxi(1, int(original_height * 0.75))
+	image.resize(reduced_width, reduced_height, Image.INTERPOLATE_LANCZOS)
+	image.resize(original_width, original_height, Image.INTERPOLATE_LANCZOS)
+
+static func get_texture_source(texture: Texture2D) -> String:
+	if texture == null:
+		return ""
+	return texture.resource_path if texture.resource_path != "" else texture.resource_name
+
+static func _add_loaded_texture_anim(frames: SpriteFrames, anim_name: String, textures: Array[Texture2D], speed: float, loop: bool) -> void:
+	if textures.is_empty():
+		return
+	frames.add_animation(anim_name)
+	frames.set_animation_speed(anim_name, speed)
+	frames.set_animation_loop(anim_name, loop)
+	for texture in textures:
+		frames.add_frame(anim_name, texture)
+
+static func _make_back_facing_textures(paths: Array[String], who: String) -> Array[Texture2D]:
+	var textures: Array[Texture2D] = []
+	var hair_colors := {
+		"arrel": Color(0.63, 0.68, 0.78),
+		"elia": Color(0.74, 0.62, 0.48),
+		"malet": Color(0.08, 0.07, 0.09),
+	}
+	var hair: Color = hair_colors.get(who, Color(0.20, 0.18, 0.22))
 	for path in paths:
-		if ResourceLoader.exists(path):
-			frames.add_frame(anim_name, load(path))
+		if not ResourceLoader.exists(path):
+			continue
+		var source: Texture2D = load(path)
+		var image := source.get_image()
+		if image == null:
+			continue
+		var min_x := image.get_width()
+		var min_y := image.get_height()
+		var max_x := 0
+		var max_y := 0
+		for py in range(image.get_height()):
+			for px in range(image.get_width()):
+				if image.get_pixel(px, py).a > 0.08:
+					min_x = mini(min_x, px)
+					min_y = mini(min_y, py)
+					max_x = maxi(max_x, px)
+					max_y = maxi(max_y, py)
+		var used := Rect2i(min_x, min_y, maxi(1, max_x - min_x + 1), maxi(1, max_y - min_y + 1))
+		var center_x := used.position.x + used.size.x * 0.5
+		# Keep the authored crown, bangs and outer silhouette intact. Only replace
+		# the face zone with a shaded rear-hair mass; covering the full head made
+		# pale-haired characters read like a flat helmet at gameplay scale.
+		var center_y := used.position.y + used.size.y * 0.33
+		var radius_x := maxf(10.0, used.size.x * 0.29)
+		var radius_y := maxf(10.0, used.size.y * 0.135)
+		var start_x := maxi(0, int(center_x - radius_x))
+		var end_x := mini(image.get_width(), int(center_x + radius_x) + 1)
+		var start_y := maxi(0, int(center_y - radius_y))
+		var end_y := mini(image.get_height(), int(center_y + radius_y) + 1)
+		for y in range(start_y, end_y):
+			for x in range(start_x, end_x):
+				var dx := float(x - center_x) / radius_x
+				var dy := float(y - center_y) / radius_y
+				var radius := dx * dx + dy * dy
+				var original := image.get_pixel(x, y)
+				if radius <= 1.0 and original.a > 0.08:
+					var shade := 0.74 if radius > 0.76 else (1.04 if y < center_y - radius_y * 0.28 else 0.88)
+					image.set_pixel(x, y, Color(hair.r * shade, hair.g * shade, hair.b * shade, original.a))
+		if OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals():
+			_soften_sheet_image(image)
+		var texture := ImageTexture.create_from_image(image)
+		texture.resource_name = path
+		textures.append(texture)
+	return textures
 
 ## S57: Play animation helper — call from other systems
 ## Usage: PixelSprite.play_animation(animated_sprite, "attack_down")

@@ -12,6 +12,7 @@ class EncounterData:
 	var bg_image: String = ""
 	var enemy_image: String = ""
 	var enabled: bool = true
+	var warning_emitted: bool = false
 	var min_steps: int = 40     # 최소 걸음 수
 	var max_steps: int = 80     # 최대 걸음 수
 	var last_player_pos: Vector2 = Vector2.ZERO
@@ -49,10 +50,15 @@ static func update(data: EncounterData, player_pos: Vector2, tile_size: int) -> 
 		return false
 
 	data.step_count += distance
+	if not data.warning_emitted and data.step_count >= data.threshold * 0.72:
+		data.warning_emitted = true
+		var warning := "기억의 소음이 가까워진다… 전투에서 도주는 항상 가능하다." if GameManager.current_locale == "ko" else "Memory noise is closing in… ambient battles can always be fled."
+		NotificationToast.show_toast(warning, NotificationToast.ToastType.WARNING)
 
 	if data.step_count >= data.threshold:
 		data.step_count = 0.0
 		data.threshold = randf_range(data.min_steps, data.max_steps)
+		data.warning_emitted = false
 		_trigger_encounter(data)
 		return true
 
@@ -70,6 +76,7 @@ static func _trigger_encounter(data: EncounterData) -> void:
 		pool_entry["atk"],
 		pool_entry.get("is_void", false)
 	)
+	enemy.is_ambient_encounter = true
 	if pool_entry.has("abilities"):
 		enemy.abilities = pool_entry["abilities"]
 

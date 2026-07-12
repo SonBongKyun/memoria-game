@@ -18,6 +18,17 @@ const HINTS: Dictionary = {
 	"first_resonance": "Strong tactical play builds Resonance. Higher Resonance boosts damage and post-battle rewards.",
 }
 
+const HINTS_KO: Dictionary = {
+	"first_battle": "공격으로 피해를 주거나, 기억을 연소해 강력한 기술을 사용할 수 있습니다.",
+	"first_burn": "연소한 기억은 되돌아오지 않습니다. 힘과 상실 사이에서 신중히 선택하세요.",
+	"first_shop": "그레인으로 기억과 아이템을 거래할 수 있습니다. 필요 없는 물품은 판매하세요.",
+	"first_equipment": "상점에서 장비를 착용하면 능력치가 상승합니다.",
+	"first_status_effect": "상태 이상은 여러 턴 지속됩니다. 독은 해독제로 치료할 수 있습니다.",
+	"first_pulse": "Q를 누르면 기억 파동을 방출합니다. 가까운 메아리가 잠시 응답합니다.",
+	"first_break": "약점을 공략해 BREAK를 채우세요. 붕괴된 적은 한 턴 행동하지 못하고 더 큰 피해를 받습니다.",
+	"first_resonance": "효율적인 전투는 공명을 높입니다. 공명이 높을수록 피해와 전투 보상이 증가합니다.",
+}
+
 # UI 노드
 var _banner: TextureRect
 var _panel: PanelContainer
@@ -49,7 +60,8 @@ func show_hint(hint_id: String) -> void:
 	if not HINTS.has(hint_id):
 		return
 	shown_hints.append(hint_id)
-	_show_panel(HINTS[hint_id])
+	var hint_text: String = HINTS_KO.get(hint_id, HINTS[hint_id]) if GameManager.current_locale == "ko" else HINTS[hint_id]
+	_show_panel(hint_text)
 	print("[TutorialHints] Showing hint: %s" % hint_id)
 
 func _show_panel(text: String) -> void:

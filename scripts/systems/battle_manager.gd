@@ -14,6 +14,7 @@ class Enemy:
 	var attack: int
 	var is_void_beast: bool  # true면 일반 공격 불가, 기억 연소만 유효
 	var is_boss: bool = false  # 보스는 도주 불가 + 특수 패턴
+	var is_ambient_encounter: bool = false  # movement-based repeat battle; always escapable
 	var phase: int = 1  # 보스 페이즈 (HP 50% 이하에서 2)
 	var abilities: Array = []  # 특수 능력 목록 ("drain", "shield", "multi_hit")
 	var weakness: String = ""   # 약점 속성 ("physical", "fire", "void")
@@ -126,6 +127,7 @@ var difficulty_bonus: float = 0.0  # Chapter + NG+ damage multiplier
 # --- Bestiary Scan ---
 var scanned_enemies: Array = []  # 이번 전투에서 스캔된 적 이름 목록
 signal enemy_scanned(enemy_name: String, weakness: String, resistance: String)
+signal witness_changed(progress: int, required: int, echo_line: String, complete: bool)
 signal break_changed(value: float, max_value: float)
 signal enemy_broken(enemy_name: String)
 signal tactical_objective_changed(objective: Dictionary)
@@ -241,6 +243,29 @@ var _items_used_this_battle: int = 0
 var _echoes_activated_this_battle: int = 0
 var _ally_actions_this_battle: int = 0
 var _player_actions_this_battle: int = 0
+var _witness_progress: int = 0
+var _witness_required: int = 2
+var _witness_completed_this_battle: bool = false
+var _resolved_by_witness: bool = false
+var _witness_boss_insight: bool = false
+
+const WITNESS_LINES_EN: Dictionary = {
+	"ash": ["Under the ash, a child's hand still searches for the road home.", "It was never hunting. It was following the last warmth it remembered."],
+	"forest": ["The shade repeats the final patrol of someone who guarded this path.", "The patrol ends when Arrel remembers that it once had a name."],
+	"void": ["Hundreds of erased names overlap inside the creature's cry.", "Arrel does not answer with fire. The stolen voices begin to separate.", "The void loses its shape when every stolen name is heard alone."],
+	"sentinel": ["The Sentinel is not a jailer. It is the last prisoner still obeying.", "A command older than its body cracks. For one breath, it remembers choice.", "The ancient order fails to recognize the person standing inside the armor."],
+	"kairos": ["Behind the Authority's edits is a man terrified of being revised.", "Kairos flinches at the one record he cannot overwrite: a witness who stayed.", "For a heartbeat, the editor sees the ending in which he is remembered truthfully."],
+	"generic": ["The hostile shape is wrapped around a memory that cannot finish.", "Arrel holds the memory still until the violence loosens its grip."],
+}
+
+const WITNESS_LINES_KO: Dictionary = {
+	"ash": ["재 아래에서 아이의 손 하나가 아직도 집으로 가는 길을 더듬는다.", "사냥하던 것이 아니었다. 마지막으로 기억한 온기를 따라가고 있었다."],
+	"forest": ["그림자는 이 길을 지키던 누군가의 마지막 순찰을 반복한다.", "아렐이 그 순찰에도 이름이 있었음을 기억하자 발걸음이 멎는다."],
+	"void": ["짐승의 울음 안에서 지워진 이름 수백 개가 한꺼번에 겹친다.", "아렐은 불로 답하지 않는다. 빼앗긴 목소리들이 하나씩 갈라져 나온다.", "빼앗긴 이름을 하나씩 듣자 공허는 더는 하나의 형상을 유지하지 못한다."],
+	"sentinel": ["파수꾼은 간수가 아니었다. 아직도 명령을 따르는 마지막 죄수였다.", "육체보다 오래된 명령이 갈라진다. 한 호흡 동안, 선택을 기억한다.", "오래된 명령이 갑옷 안에 남은 사람을 알아보지 못하고 멈칫한다."],
+	"kairos": ["관리국의 수정 뒤에는 자신도 고쳐질까 두려운 한 남자가 숨어 있다.", "카이로스가 덮어쓸 수 없는 기록 앞에서 흔들린다. 끝까지 남은 증인이다.", "한순간, 편집자는 자신이 진실하게 기억되는 결말을 본다."],
+	"generic": ["적의 형상은 끝맺지 못한 기억을 감싸고 있다.", "아렐이 그 기억을 붙드는 동안 폭력의 매듭이 천천히 풀린다."],
+}
 
 # --- Combat Resonance / Momentum ---
 const MOMENTUM_MAX: float = 100.0
@@ -412,6 +437,11 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	_echoes_activated_this_battle = 0
 	_ally_actions_this_battle = 0
 	_player_actions_this_battle = 0
+	_witness_progress = 0
+	_witness_completed_this_battle = false
+	_resolved_by_witness = false
+	_witness_boss_insight = false
+	_witness_required = _get_witness_requirement(enemy)
 	_last_stand_triggered_this_battle = false
 	_objective_completed = false
 	_objective_failed = false
@@ -472,6 +502,7 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	battle_log.emit("A %s appears!" % enemy.name)
 	battle_log.emit(_get_opening_tactical_hint(enemy))
 	_setup_tactical_objective(enemy)
+	witness_changed.emit(0, _witness_required, "", false)
 	# S55: Tutorial hint
 	TutorialHints.show_hint("first_battle")
 
@@ -620,6 +651,14 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 		"reward_heal": 0,
 	})
 	pool.append({
+		"id": "witness_echo",
+		"title": "Hold the Name",
+		"desc": "Complete a WITNESS reading before victory.",
+		"reward_grains": 8,
+		"reward_item": "",
+		"reward_heal": 10,
+	})
+	pool.append({
 		"id": "combo_three",
 		"title": "Measured Assault",
 		"desc": "Reach Combo x3 before victory.",
@@ -712,6 +751,9 @@ func _check_tactical_objective(event_id: String = "") -> void:
 		"scan_first":
 			if current_enemy and scanned_enemies.has(current_enemy.name):
 				_complete_tactical_objective("Enemy recorded.")
+		"witness_echo":
+			if _witness_completed_this_battle:
+				_complete_tactical_objective("The trapped name was witnessed.")
 		"combo_three":
 			if _max_combo_this_battle >= 3:
 				_complete_tactical_objective("Combo x3 reached.")
@@ -790,6 +832,112 @@ func _apply_opening_choice_battle_trait() -> void:
 		_add_limit(10.0)
 		battle_log.emit("[ANCHOR] Elia's melody steadies Arrel. Limit +10.")
 		GameManager.set_flag("ch1_humming_focus_spent")
+
+func _get_witness_requirement(enemy: Enemy) -> int:
+	if enemy == null:
+		return 2
+	var required := 3 if enemy.is_void_beast or enemy.is_boss else 2
+	# Earlier relationship choices become a practical advantage: Elia helps
+	# separate a hostile echo from the memory trapped inside it.
+	if enemy.is_void_beast and not enemy.is_boss:
+		if GameManager.get_flag("listened_to_humming") or GameManager.get_flag("elia_stays"):
+			required -= 1
+	return maxi(2, required)
+
+func get_witness_state() -> Dictionary:
+	return {
+		"progress": _witness_progress,
+		"required": _witness_required,
+		"complete": _witness_completed_this_battle,
+		"resolved": _resolved_by_witness,
+	}
+
+func _get_witness_key(enemy_name: String) -> String:
+	var lowered := enemy_name.to_lower()
+	if "kairos" in lowered:
+		return "kairos"
+	if "sentinel" in lowered or "guardian" in lowered:
+		return "sentinel"
+	if "void" in lowered or "threshold" in lowered:
+		return "void"
+	if "forest" in lowered or "shade" in lowered:
+		return "forest"
+	if "ash" in lowered or "crawler" in lowered:
+		return "ash"
+	return "generic"
+
+func _get_witness_line(progress: int) -> String:
+	if current_enemy == null:
+		return ""
+	var key := _get_witness_key(current_enemy.name)
+	var table: Dictionary = WITNESS_LINES_KO if GameManager.current_locale == "ko" else WITNESS_LINES_EN
+	var lines: Array = table.get(key, table["generic"])
+	var index := clampi(progress - 1, 0, lines.size() - 1)
+	return String(lines[index])
+
+func _record_witness_scan() -> void:
+	if current_enemy == null:
+		return
+	var weakness_text := current_enemy.weakness if current_enemy.weakness != "" else "none"
+	var resist_text := current_enemy.resistance if current_enemy.resistance != "" else "none"
+	if current_enemy.name not in scanned_enemies:
+		scanned_enemies.append(current_enemy.name)
+	enemy_scanned.emit(current_enemy.name, weakness_text, resist_text)
+	if Codex.enemy_entries.has(current_enemy.name):
+		Codex.enemy_entries[current_enemy.name]["weakness"] = current_enemy.weakness
+		Codex.enemy_entries[current_enemy.name]["resistance"] = current_enemy.resistance
+		Codex.enemy_entries[current_enemy.name]["scanned"] = true
+		Codex._save_data()
+	_check_tactical_objective("scan")
+
+## Story-first alternative to pure damage. Reading an echo costs a turn, reveals
+## its human residue, and can release ordinary enemies without burning a memory.
+func player_witness() -> void:
+	if state != BattleState.PLAYER_TURN or current_enemy == null:
+		return
+	if _witness_boss_insight:
+		battle_log.emit("[WITNESS] Nothing more can be read while the battle continues.")
+		return
+
+	_player_actions_this_battle += 1
+	_check_tactical_objective("action")
+	_reset_combo("witness")
+	_witness_progress = mini(_witness_progress + 1, _witness_required)
+	var echo_line := _get_witness_line(_witness_progress)
+	_record_witness_scan()
+	_add_limit(8.0)
+	_add_momentum(10.0, "Witnessed echo")
+	player_defending = true
+	battle_log.emit("[WITNESS %d/%d] %s" % [_witness_progress, _witness_required, echo_line])
+
+	if _witness_progress >= _witness_required:
+		_witness_completed_this_battle = true
+		_check_tactical_objective("witness")
+		if current_enemy.is_boss:
+			_witness_boss_insight = true
+			enemy_break_gauge = 0.0
+			enemy_broken_turns = maxi(enemy_broken_turns, 1)
+			_breaks_this_battle += 1
+			_add_limit(20.0)
+			break_changed.emit(enemy_break_gauge, BREAK_MAX)
+			enemy_broken.emit(current_enemy.name)
+			_check_tactical_objective("break")
+			battle_log.emit("[WITNESS] The command inside %s fractures. A BREAK window opens." % current_enemy.name)
+			witness_changed.emit(_witness_progress, _witness_required, echo_line, true)
+			_end_player_turn()
+			return
+
+		_resolved_by_witness = true
+		GameManager.set_flag("witnessed_%s" % _get_witness_key(current_enemy.name))
+		GameManager.add_stat("enemies_witnessed")
+		current_enemy.hp = 0
+		battle_log.emit("[RELEASED] The echo lets go without another memory being burned.")
+		witness_changed.emit(_witness_progress, _witness_required, echo_line, true)
+		_check_enemy_defeated()
+		return
+
+	witness_changed.emit(_witness_progress, _witness_required, echo_line, false)
+	_end_player_turn()
 
 ## 플레이어 행동: 일반 공격
 func player_attack() -> void:
@@ -1240,12 +1388,20 @@ func player_flee() -> void:
 	if state != BattleState.PLAYER_TURN:
 		return
 
-	# 공허수/보스는 도주 불가
-	if current_enemy and (current_enemy.is_void_beast or current_enemy.is_boss):
-		if current_enemy.is_boss:
-			battle_log.emit("There's no running from this.")
-		else:
-			battle_log.emit("You can't run from a Void Beast.")
+	# Mandatory story confrontations remain binding; repeatable movement-based
+	# encounters always respect the player's pacing choice.
+	if current_enemy and current_enemy.is_boss:
+		battle_log.emit("There's no running from this.")
+		return
+	if current_enemy and current_enemy.is_void_beast and not current_enemy.is_ambient_encounter:
+		battle_log.emit("You can't run from this Void Beast.")
+		return
+	if current_enemy and current_enemy.is_ambient_encounter:
+		AudioManager.play_sfx("flee")
+		battle_log.emit("Arrel withdraws before the memory closes around him.")
+		state = BattleState.FLED
+		battle_ended.emit(BattleState.FLED)
+		_cleanup()
 		return
 
 	var chance = randf()
@@ -1678,7 +1834,10 @@ func _try_last_stand_resonance(lethal: bool) -> bool:
 func _check_enemy_defeated() -> void:
 	if current_enemy and not current_enemy.is_alive():
 		state = BattleState.VICTORY
-		battle_log.emit("%s is defeated!" % current_enemy.name)
+		if _resolved_by_witness:
+			battle_log.emit("%s is released from the hostile echo." % current_enemy.name)
+		else:
+			battle_log.emit("%s is defeated!" % current_enemy.name)
 		battle_ended.emit(BattleState.VICTORY)
 		_cleanup()
 	else:
@@ -1996,6 +2155,14 @@ func _cleanup() -> void:
 
 		# Grains 보상
 		var grains = _get_grains_reward()
+		var preservation_bonus := 0
+		var focus_gained := 0
+		if _witness_completed_this_battle:
+			preservation_bonus = 12 if _resolved_by_witness and current_enemy.is_void_beast else (8 if _resolved_by_witness else 6)
+			var focus_before := GameManager.get_field_focus()
+			GameManager.add_field_focus(1)
+			focus_gained = GameManager.get_field_focus() - focus_before
+			battle_log.emit("[PRESERVATION] +%d Grains%s" % [preservation_bonus, " / Field Focus +1" if focus_gained > 0 else ""])
 		var tactical_bonus: int = _get_tactical_bonus()
 		var objective_reward := _finalize_tactical_objective()
 		var objective_bonus: int = int(objective_reward.get("grains", 0))
@@ -2007,7 +2174,7 @@ func _cleanup() -> void:
 			battle_log.emit("[OBJECTIVE BONUS] Restored %d extra HP." % actual_objective_heal)
 			damage_dealt.emit("Arrel", -actual_objective_heal, "Objective Heal")
 		var momentum_bonus: int = _get_momentum_grains_bonus()
-		grains += tactical_bonus + objective_bonus + momentum_bonus
+		grains += tactical_bonus + objective_bonus + momentum_bonus + preservation_bonus
 		GameManager.player_data.grains += grains
 		GameManager.add_stat("total_grains_earned", grains)  # S55
 		battle_log.emit("Gained %d Grains." % grains)
@@ -2034,6 +2201,9 @@ func _cleanup() -> void:
 			"momentum_bonus": momentum_bonus,
 			"momentum_rank": _best_momentum_rank,
 			"momentum_label": _get_momentum_label(_best_momentum_rank),
+			"preservation_bonus": preservation_bonus,
+			"field_focus_gained": focus_gained,
+			"resolution": "witness" if _resolved_by_witness else ("insight" if _witness_completed_this_battle else "defeat"),
 			"heal": heal,
 			"item": dropped_item,
 			"enemy_name": current_enemy.name if current_enemy else "Unknown",

@@ -1843,34 +1843,35 @@ static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time:
 				break
 
 		var dist = player_pos.distance_to(child.global_position)
-		if dist < 48.0:
+		if dist < 52.0:
 			# 접근 — 글로우 생성 또는 업데이트
 			if glow_border == null:
 				glow_border = ColorRect.new()
 				# 트리거 크기 추정 (CollisionShape2D에서)
-				var trigger_size = Vector2(32, 32)
-				for sub in child.get_children():
-					if sub is CollisionShape2D and sub.shape is RectangleShape2D:
-						trigger_size = sub.shape.size
-						break
-				glow_border.size = trigger_size + Vector2(4, 4)
-				glow_border.position = -glow_border.size / 2.0
+				# Use a compact diamond beacon instead of revealing the full invisible
+				# trigger rectangle, which looked like debug geometry in play.
+				var trigger_size = Vector2(8, 8)
+				glow_border.size = trigger_size
+				glow_border.position = Vector2(-4, -18)
+				glow_border.rotation = PI / 4.0
 				glow_border.color = Color(1.0, 1.0, 1.0, 0.0)
 				glow_border.z_index = 3
 				glow_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				glow_border.set_meta("approach_glow", true)
 				# 내부를 투명하게 (테두리만 표시) — 내부 마스크
 				var inner = ColorRect.new()
-				inner.size = trigger_size - Vector2(2, 2)
-				inner.position = Vector2(3, 3)
+				inner.size = Vector2(4, 4)
+				inner.position = Vector2(2, 2)
 				inner.color = Color(0, 0, 0, 0)
 				inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				inner.set_meta("glow_inner", true)
 				glow_border.add_child(inner)
 				child.add_child(glow_border)
 			# 펄싱 알파
-			var pulse = 0.3 + sin(time * 3.0) * 0.2
-			glow_border.color = Color(1.0, 1.0, 1.0, pulse)
+			var pulse = 0.55 + sin(time * 3.4) * 0.18
+			glow_border.color = Color(0.98, 0.78, 0.38, pulse)
+			var beacon_scale := 0.90 + sin(time * 3.4) * 0.10
+			glow_border.scale = Vector2(beacon_scale, beacon_scale)
 		else:
 			# 멀어짐 — 글로우 제거
 			if glow_border != null:

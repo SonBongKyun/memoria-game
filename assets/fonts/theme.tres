@@ -1,11 +1,71 @@
 [gd_resource type="Theme" format=3 uid="uid://c6qls2t12euxu"]
 
 [sub_resource type="SystemFont" id="SystemFont_ui"]
-font_names = PackedStringArray("Segoe UI", "Pretendard", "Noto Sans KR", "Malgun Gothic", "Arial", "sans-serif")
+font_names = PackedStringArray("Malgun Gothic", "Noto Sans KR", "Pretendard", "Segoe UI", "Arial", "sans-serif")
 antialiasing = 2
 
+[sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
+content_margin_left = 11.0
+content_margin_top = 7.0
+content_margin_right = 11.0
+content_margin_bottom = 7.0
+bg_color = Color(0.15, 0.11, 0.17, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.68, 0.34, 0.92)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleButtonNormal"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.065, 0.055, 0.08, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.34, 0.23, 0.72)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleButtonPressed"]
+bg_color = Color(0.24, 0.16, 0.21, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.82, 0.46, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StylePanel"]
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(0.035, 0.03, 0.045, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.34, 0.23, 0.68)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [sub_resource type="SystemFont" id="SystemFont_body"]
-font_names = PackedStringArray("Cormorant Garamond", "EB Garamond", "Noto Serif KR", "Georgia", "Cambria", "Constantia", "Palatino Linotype", "Batang", "Times New Roman", "serif")
+font_names = PackedStringArray("Malgun Gothic", "Noto Sans KR", "Batang", "Cormorant Garamond", "EB Garamond", "Georgia", "Cambria", "serif")
 antialiasing = 2
 
 [resource]
@@ -18,11 +78,16 @@ Button/colors/font_pressed_color = Color(1, 0.95, 0.7, 1)
 Button/constants/outline_size = 1
 Button/font_sizes/font_size = 16
 Button/fonts/font = SubResource("SystemFont_ui")
+Button/styles/focus = SubResource("StyleButtonHover")
+Button/styles/hover = SubResource("StyleButtonHover")
+Button/styles/normal = SubResource("StyleButtonNormal")
+Button/styles/pressed = SubResource("StyleButtonPressed")
 Label/colors/font_color = Color(0.92, 0.88, 0.8, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 0.6)
 Label/constants/outline_size = 1
 Label/font_sizes/font_size = 16
-Label/fonts/font = SubResource("SystemFont_body")
+Label/fonts/font = SubResource("SystemFont_ui")
+PanelContainer/styles/panel = SubResource("StylePanel")
 RichTextLabel/colors/default_color = Color(0.92, 0.88, 0.8, 1)
 RichTextLabel/constants/line_separation = 6
 RichTextLabel/font_sizes/normal_font_size = 17

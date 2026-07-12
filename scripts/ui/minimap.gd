@@ -7,6 +7,7 @@ const MINIMAP_SIZE := Vector2(112, 80)
 const MINIMAP_MARGIN := Vector2(12, 12)
 const PIXEL_SIZE := 3  # clean, compact map footprint
 const PLAYER_SIZE := 5
+const OBJECTIVE_SIZE := 6
 
 # 타일 색상 (공통 매핑)
 const TILE_COLORS := {
@@ -91,6 +92,18 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	elia_marker.visible = false
 	container.add_child(elia_marker)
 
+	# Story objective marker. A rotated gold square stays readable against every
+	# biome palette and does not rely on color alone thanks to its larger shape.
+	var objective_marker := ColorRect.new()
+	objective_marker.size = Vector2(OBJECTIVE_SIZE, OBJECTIVE_SIZE)
+	objective_marker.color = Color(1.0, 0.72, 0.24, 1.0)
+	objective_marker.rotation = PI / 4.0
+	objective_marker.pivot_offset = objective_marker.size / 2.0
+	objective_marker.z_index = 2
+	objective_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	objective_marker.visible = false
+	container.add_child(objective_marker)
+
 	parent.add_child(layer)
 
 	# 가시성 연동 — is_instance_valid 체크 (씬 전환 시 freed 방지)
@@ -105,6 +118,8 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 		"container": container,
 		"player_marker": marker,
 		"elia_marker": elia_marker,
+		"objective_marker": objective_marker,
+		"map_ref": weakref(parent),
 		"map_offset": map_image.position,
 		"map_width": map_width,
 		"map_height": map_height,
@@ -139,6 +154,73 @@ static func update_minimap(data: Dictionary, player_pos: Vector2, tile_size: int
 		)
 	else:
 		em.visible = false
+
+	_update_objective_marker(data, offset, mw, mh, tile_size)
+
+static func _update_objective_marker(data: Dictionary, offset: Vector2, map_width: int, map_height: int, tile_size: int) -> void:
+	var marker := data.get("objective_marker") as ColorRect
+	var map_ref: WeakRef = data.get("map_ref")
+	if marker == null or map_ref == null:
+		return
+	var map_node := map_ref.get_ref() as Node2D
+	if map_node == null:
+		marker.visible = false
+		return
+	var target: Variant = _resolve_story_target(map_node)
+	if target == null:
+		marker.visible = false
+		return
+	marker.visible = true
+	var world_pos: Vector2 = target
+	var norm_x := clampf(world_pos.x / (map_width * tile_size), 0.0, 1.0)
+	var norm_y := clampf(world_pos.y / (map_height * tile_size), 0.0, 1.0)
+	marker.position = Vector2(
+		offset.x + norm_x * map_width * PIXEL_SIZE - OBJECTIVE_SIZE / 2.0,
+		offset.y + norm_y * map_height * PIXEL_SIZE - OBJECTIVE_SIZE / 2.0
+	)
+	var pulse: float = 0.88 + sin(Time.get_ticks_msec() * 0.006) * 0.12
+	marker.scale = Vector2(pulse, pulse)
+
+static func _resolve_story_target(map_node: Node2D) -> Variant:
+	var map_key := map_node.scene_file_path.get_file().get_basename()
+	match map_key:
+		"rim_forest":
+			if not GameManager.get_flag("ch1_elia_appeared"):
+				return _node_position(map_node, "Elia")
+			if not GameManager.get_flag("ch1_void_beast_defeated"):
+				return Vector2(17 * 32, 8 * 32)
+			if not GameManager.get_flag("ch1_camp_done"):
+				return Vector2(12.5 * 32, 16 * 32)
+		"verdan_market":
+			if not GameManager.get_flag("ch2_malet_done"):
+				return _node_position(map_node, "Malet")
+		"belt_waystation":
+			if not GameManager.get_flag("tobias_in_party"):
+				return _node_position(map_node, "Tobias")
+			return Vector2(12 * 32, 1.5 * 32)
+		"drift_shelter":
+			return Vector2(10 * 32, 1.5 * 32)
+		"crumbling_coast":
+			return Vector2(5 * 32, 1.5 * 32)
+		"the_seam":
+			if not GameManager.get_flag("ch6_briefing_done"):
+				return _node_position(map_node, "Sable")
+			return Vector2(12 * 32, 16.5 * 32)
+		"seam_outskirts":
+			if not GameManager.get_flag("ch7_trial_complete"):
+				return _node_position(map_node, "Sable")
+			return Vector2(10 * 32, 1.5 * 32)
+		"forgotten_forest":
+			return Vector2(10 * 32, 1.5 * 32)
+		"colorless_waste":
+			return Vector2(10 * 32, 1.5 * 32)
+		"bl07_void":
+			return Vector2(9.5 * 32, 17 * 32)
+	return null
+
+static func _node_position(parent: Node, node_name: String) -> Variant:
+	var node := parent.get_node_or_null(node_name) as Node2D
+	return node.position if node != null and node.visible else null
 
 ## 맵 텍스처 생성 (ColorRect 그리드)
 static func _create_map_texture(map_data: Array, tile_defs: Array, width: int, height: int) -> Control:

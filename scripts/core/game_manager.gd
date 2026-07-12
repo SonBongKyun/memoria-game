@@ -373,6 +373,7 @@ var play_stats: Dictionary = {
 	"total_burns": 0,
 	"total_grains_earned": 0,
 	"enemies_defeated": 0,
+	"enemies_witnessed": 0,
 	"memories_collected": 0,
 	"steps_taken": 0,
 	"highest_combo": 0,

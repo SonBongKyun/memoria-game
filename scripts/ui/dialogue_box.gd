@@ -511,17 +511,17 @@ func _build_ui() -> void:
 
 	# 패널 (하단 대화 박스)
 	panel = PanelContainer.new()
-	panel.anchor_left = 0.08
-	panel.anchor_right = 0.92
+	panel.anchor_left = 0.06
+	panel.anchor_right = 0.94
 	panel.anchor_top = 1.0
 	panel.anchor_bottom = 1.0
-	panel.offset_top = -178
-	panel.offset_bottom = -22
+	panel.offset_top = -194
+	panel.offset_bottom = -18
 
 	# 스타일 (어두운 반투명 -- 서고 모티프)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.026, 0.038, 0.76)
-	style.border_color = Color(0.70, 0.56, 0.34, 0.42)
+	style.bg_color = Color(0.030, 0.026, 0.038, 0.90)
+	style.border_color = Color(0.78, 0.62, 0.36, 0.62)
 	style.set_border_width(SIDE_LEFT, 1)
 	style.set_border_width(SIDE_TOP, 2)
 	style.set_border_width(SIDE_RIGHT, 1)
@@ -611,7 +611,7 @@ func _build_ui() -> void:
 	speaker_label = Label.new()
 	speaker_label.custom_minimum_size = Vector2(0, 22)
 	UITheme.apply_title_font(speaker_label)
-	speaker_label.add_theme_font_size_override("font_size", 16)
+	speaker_label.add_theme_font_size_override("font_size", 18)
 	speaker_label.add_theme_color_override("font_color", Color(0.82, 0.68, 0.46))
 	speaker_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
 	speaker_label.add_theme_constant_override("outline_size", 1)
@@ -627,12 +627,12 @@ func _build_ui() -> void:
 	text_label.bbcode_enabled = true
 	text_label.fit_content = false
 	text_label.scroll_active = false
-	text_label.custom_minimum_size = Vector2(0, 82)
+	text_label.custom_minimum_size = Vector2(0, 94)
 	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
 	text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
-	text_label.add_theme_constant_override("line_separation", 8)
-	text_label.add_theme_color_override("default_color", Color(0.9, 0.87, 0.81))
+	text_label.add_theme_constant_override("line_separation", 10)
+	text_label.add_theme_color_override("default_color", Color(0.96, 0.94, 0.90))
 	text_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.58))
 	text_label.add_theme_constant_override("shadow_offset_x", 1)
 	text_label.add_theme_constant_override("shadow_offset_y", 1)
@@ -643,7 +643,7 @@ func _build_ui() -> void:
 	indicator.text = ""
 	UITheme.apply_ui_font(indicator)
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	indicator.add_theme_font_size_override("font_size", 10)
+	indicator.add_theme_font_size_override("font_size", 12)
 	indicator.add_theme_color_override("font_color", Color(0.74, 0.62, 0.40, 0.76))
 	indicator.add_theme_constant_override("outline_size", 1)
 	indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
@@ -652,12 +652,12 @@ func _build_ui() -> void:
 
 	# 선택지 컨테이너 (대화 박스 위에 표시)
 	choice_container = VBoxContainer.new()
-	choice_container.anchor_left = 0.23
-	choice_container.anchor_right = 0.77
+	choice_container.anchor_left = 0.16
+	choice_container.anchor_right = 0.84
 	choice_container.anchor_top = 1.0
 	choice_container.anchor_bottom = 1.0
-	choice_container.offset_top = -292
-	choice_container.offset_bottom = -196
+	choice_container.offset_top = -326
+	choice_container.offset_bottom = -210
 	choice_container.add_theme_constant_override("separation", 8)
 	choice_container.visible = false
 	root.add_child(choice_container)
@@ -715,7 +715,7 @@ func _get_dialogue_font_size() -> int:
 	match font_size_level:
 		1: return 20  # Large
 		2: return 24  # Extra Large
-		_: return 16  # Normal
+		_: return 18  # Normal
 
 ## S55: Refresh font size (called when settings change)
 func refresh_font_size() -> void:

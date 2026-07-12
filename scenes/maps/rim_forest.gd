@@ -61,6 +61,7 @@ var _tod_layer: CanvasLayer = null  # S57: 시간대 색조
 var _fog_layer: Array[ColorRect] = []  # S59: 프로시저럴 안개
 
 @onready var player: CharacterBody2D = $Player
+@onready var elia: Node2D = $Elia
 
 func _ready() -> void:
 	_build_map()
@@ -158,7 +159,7 @@ func _process(delta: float) -> void:
 	MapEffects.cull_offscreen_particles(_pollen, vp_rect)
 	MapEffects.cull_offscreen_particles(_grass_blades, vp_rect)
 	# S66: 미니맵·랜덤 인카운터 비활성화 (Act I VN 정체성)
-	# Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE)
+	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia.position, elia.visible)
 	# if _encounter_data:
 	# 	RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
@@ -207,13 +208,13 @@ func _show_tutorial() -> void:
 		return
 	GameManager.set_flag("tutorial_complete")
 	# 이동 안내
-	await _show_tutorial_toast("Move with WASD or Arrow Keys", 3.0)
+	await _show_tutorial_toast("WASD 또는 방향키로 이동합니다" if GameManager.current_locale == "ko" else "Move with WASD or Arrow Keys", 3.0)
 	# 상호작용 안내
-	await _show_tutorial_toast("Press SPACE to interact with NPCs and objects", 3.0)
+	await _show_tutorial_toast("SPACE로 인물 및 사물과 상호작용합니다" if GameManager.current_locale == "ko" else "Press SPACE to interact with NPCs and objects", 3.0)
 	# 기억 안내
-	await _show_tutorial_toast("Press TAB or M to open your Memory Archive", 3.0)
+	await _show_tutorial_toast("TAB 또는 M으로 기억 서고를 엽니다" if GameManager.current_locale == "ko" else "Press TAB or M to open your Memory Archive", 3.0)
 	# 메뉴 안내
-	await _show_tutorial_toast("Press ESC to open the Pause Menu", 2.0)
+	await _show_tutorial_toast("ESC로 일시정지 메뉴를 엽니다" if GameManager.current_locale == "ko" else "Press ESC to open the Pause Menu", 2.0)
 
 func _show_tutorial_toast(text: String, duration: float) -> void:
 	NotificationToast.show_toast(text)

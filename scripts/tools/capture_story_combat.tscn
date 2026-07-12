@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/tools/capture_story_combat.gd" type="Script" id="1"]
+
+[node name="CaptureStoryCombat" type="Node"]
+script = ExtResource("1")

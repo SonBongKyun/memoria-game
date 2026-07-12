@@ -6003,3 +6003,102 @@ Story-first game, hours of VN reading, and the runner had zero reading convenien
 
 ### Status
 - Part I Korean localization (narration S170 + dialogue S171) now fully house-register and voice-locked. Part II/III (VN scenes) were done in S167. Whole-game Korean pass complete.
+
+## S175 - 2026-07-11 (Hangul typography, directional field cast, and Malet sheet)
+
+### Audit findings
+- The global body font preferred Latin display serifs before Hangul-capable fonts, so mixed Korean/Latin lines changed fallback face and baseline glyph by glyph.
+- Authored field sheets were only wired for Arrel and Elia. Their four direction animation names also reused the same front or side source frames, so turning often produced no visible change.
+- Malet, Tobias, Kairos, Nera, and Veil had canonical reference boards but no transparent field-frame folders. Malet therefore still rendered as a procedural placeholder.
+
+### Done
+- Rebuilt the Korean font chains around `Malgun Gothic` / `Noto Sans KR`, retained locale-aware Latin display fonts for English, and standardized UI labels on the Hangul-safe sans face.
+- Improved the shared interface theme with restrained dark panels, gold focus states, clearer hover/pressed buttons, and stronger text contrast.
+- Enlarged and widened the dialogue surface, raised normal body text to 18px, increased line spacing, strengthened the frame, and gave choices and control hints more room.
+- Extracted clean transparent field frames from the canonical Malet reference and added idle, walk-left, walk-right, and cast animation sources.
+- Added matching field-frame sets for Tobias, Kairos, Nera, and Veil; normalized their 160px source canvases to the same exploration footprint as the 128px Arrel/Elia cast.
+- Reworked authored sheet animation mapping so front, rear, left, and right turns read distinctly. Original sheet art is preserved for front and both side directions; a restrained rear-hair view is derived where the source board has no chibi rear frame.
+- Wired authored sheets into all matching NPC names, retained safe procedural fallbacks for characters without reference art, and made NPCs face the player before dialogue. Both canonical `Malet` and legacy `Mallet` keys resolve to the same sheet.
+- Added deterministic extraction tools, seven-character directional smoke coverage, and live captures for the directional cast, Korean dialogue UI, and Malet in Verdan Market.
+- Preserved Claude's committed spoken-dialogue patch without modifying its dialogue data.
+
+### Verification
+- Visual clarity smoke passed with seven authored exploration sheets, four directional turns, Korean-first font chain, and the existing clean-view/combat assertions.
+- Field Focus and story-combat smoke tests passed unchanged.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- VN structural validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Verdan Market headless boot and live Malet capture passed; Malet resolved to `malet_sheet/move_left_01.png` while facing the nearby player.
+- 1280x720 directional-cast and Korean-dialogue captures passed with `Malgun Gothic` as the first runtime face.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S176 - 2026-07-11 (Responsive exploration screen and story-facing HUD)
+
+### Audit finding
+- The clean-gameplay preset correctly removed fog, large overlays, long trails, and raw trigger rectangles, but it also removed nearly every piece of movement anticipation and moment-to-moment visual response. The result was readable but static.
+- The current objective was rendered as another line inside the HP/resource stack, so the player's next story action did not hold enough visual priority.
+- Interaction feedback was a bare `[E]` above Arrel and did not distinguish talking from inspecting.
+
+### Done
+- Restored a restrained 18px camera look-ahead in clean view, keeping movement responsive without hiding more than one tile of upcoming play space.
+- Added a tiny fading Memory-diamond footfall echo for clean exploration. It replaces opaque dust and afterimage trails rather than stacking with them.
+- Rebuilt interaction feedback as a compact gold action chip with keyboard/controller-aware input and localized `Talk/Inspect` intent.
+- Reframed the active quest as a dedicated `STORY OBJECTIVE / 이야기 목표` card with stronger hierarchy and optional multi-step progress, while keeping archive resources and the permanent controls strip suppressed.
+- Replaced large proximity outlines based on invisible Area2D bounds with an 8px pulsing Memory beacon, so discovery reads as game feedback instead of debug geometry.
+- Updated the first-exploration and Malet field captures to exercise the new footfall and interaction states.
+
+### Verification
+- Visual clarity smoke passed with `footfall_echo=1`, `camera_lead=1`, `story_beacon=1`, and `objective_card=1`, plus all existing character-sheet, font, battle, and obstruction assertions.
+- Field Focus and story-combat smoke tests passed unchanged.
+- Verdan Market headless boot passed without script, parse, or assertion errors.
+- 1280x720 Rim Forest and Malet interaction captures passed; only the known Godot shutdown resource-cleanup warnings remain.
+- `git diff --check` passed; only normal CRLF working-copy notices remain.
+
+## S177 - 2026-07-12 (Gameplay and quality-of-life cohesion pass)
+
+### Audit findings
+- The project had many standalone features, but the moment-to-moment route between them was weak: the objective tracker used stale placeholder flags, the minimap showed only party positions, and failure recovery did not use the existing autosave slot.
+- `Retry` on Game Over returned Arrel to the map at 30% HP instead of restoring a dependable checkpoint. New map entries were not guaranteed checkpoints.
+- Movement-based random encounters offered no advance warning and most Void entries blocked escape, allowing repeat combat to override story pacing.
+- Korean play still surfaced English-only tutorial hints and opening control toasts.
+
+### Done
+- Rewrote the main objective fallback for Chapters 1-10 against the actual map progression flags. Chapter 1 now advances from Elia to the mandatory Void Beast to the southern camp instead of permanently showing `Find Elia`.
+- Added a pulsing gold story-target marker to the minimap. It resolves live NPC targets such as Malet, Tobias, and Sable, then switches to the correct chapter exit/core position after their story beat.
+- Restored live minimap updates in Rim Forest so the opening chapter receives the same player, companion, and objective guidance as later maps.
+- Added delayed map-entry checkpoints to SaveManager. A newly entered exploration map autosaves after one second, after position/flag restoration, while returning from battle to the same map does not overwrite the checkpoint.
+- Changed Game Over retry to load the autosave checkpoint when available, surfaced its chapter/location in the defeat panel, retained a safer 50% HP legacy fallback, and made Load fall back to autosave when no manual slot exists.
+- Added advance warning at 72% of a random-encounter threshold. Movement-based ambient encounters are now explicitly tagged and always escapable; mandatory story confrontations and bosses retain their restrictions.
+- Localized all eight contextual tutorial hints and the four Chapter 1 control toasts for Korean play.
+- Added a dedicated gameplay-QoL regression smoke covering objective progression, Malet minimap targeting, checkpoint hook presence, encounter warning, and guaranteed ambient escape.
+- Repaired an unrelated one-character syntax typo (`if show_text:6`) discovered during the full boot gate, restoring the intended `if show_text:` without changing behavior.
+
+### Verification
+- Gameplay QoL smoke passed: `objective_progression=3 minimap_target=1 checkpoint_hook=1 encounter_warning=1 ambient_flee=1`.
+- Visual clarity, Field Focus, and story-combat smoke tests all passed unchanged.
+- Game Over scene booted headlessly with no script, parse, or assertion errors.
+- Korean localization validator passed: 30 files, 1,568 fields, 19 speakers, 0 errors.
+- VN structural validator passed: 19 files, 496 steps, 0 errors, 0 warnings.
+- Live 1280x720 Rim Forest capture shows the updated Void Beast objective and gold minimap target.
+- Godot emitted only the known shutdown resource-cleanup warnings; `git diff --check` passed apart from normal CRLF notices.
+
+## S178 - 2026-07-12 (Field rendering noise reduction)
+
+### Audit findings
+- The authored AI character sheets retain very fine linework and color variation. At field scale those frequencies shimmer and read as edge noise even though the source PNGs are sharp.
+- Most 32px terrain painters added random brightness to every pixel, then repeated four variations across the full map. Path, stone, wall, sand, and Void surfaces therefore competed with character silhouettes.
+- The clean-gameplay preset removed screen-space particles but did not simplify the tile-generation stage or character sampling stage.
+
+### Done
+- Added a cached, non-destructive runtime sheet reconstruction for clean view: character frames are reduced to 75% with Lanczos sampling and reconstructed at their original canvas size. This suppresses sub-pixel AI line noise while preserving source assets, silhouette, scale, palette, and directional animation provenance.
+- Applied the same low-noise reconstruction after derived rear-facing frames are built, so front/back/side directions retain one consistent texture character.
+- Added source provenance names to reconstructed textures and updated visual/capture regression checks to validate the original frame path without requiring destructive file edits.
+- Added a clean terrain routing layer in TilePainter. Grass, path, masonry, sand/cliff/rock, and Void families now use broad value groups and intentional lines instead of per-pixel random brightness when Clear Gameplay View is enabled.
+- Added dedicated low-noise painters for paths, masonry, natural terrain, and Void surfaces; detailed rendering remains available when the user disables Clear Gameplay View.
+- Kept player/NPC filtering, dimensions, collisions, map data, and all original character/tile source files unchanged.
+
+### Verification
+- Visual clarity smoke passed with `sheet_denoise=1 terrain_noise=low` plus all existing directional sheet, HUD, objective, battle, and obstruction assertions.
+- 1280x720 Rim Forest capture shows flat readable ground groups and softened Arrel/Elia edges; the former per-pixel path speckle is removed.
+- 1280x720 Verdan Market capture shows stable masonry bands and a cleaner Malet/Arrel interaction silhouette.
+- Six-character directional gallery capture passed after runtime reconstruction.
+- Original PNG assets were not overwritten or regenerated.

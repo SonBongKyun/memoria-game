@@ -23,6 +23,8 @@ static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height
 		var def = tile_defs[i]
 		var base_color: Color = def.get("color", Color(0.3, 0.3, 0.3))
 		var detail: String = def.get("detail", "flat")
+		if OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals():
+			detail = _clean_detail_name(detail)
 		# 변형 0: 기본
 		_paint_tile(atlas_img, (i * VARIATIONS) * TILE, 0, base_color, detail)
 		# 변형 1~3: 색상/디테일 약간 변형
@@ -114,6 +116,14 @@ static func _paint_tile(img: Image, ox: int, oy: int, base: Color, detail: Strin
 			_paint_grass(img, ox, oy, base)
 		"grass_clean":
 			_paint_grass_clean(img, ox, oy, base)
+		"path_clean":
+			_paint_path_clean(img, ox, oy, base)
+		"masonry_clean":
+			_paint_masonry_clean(img, ox, oy, base)
+		"terrain_clean":
+			_paint_terrain_clean(img, ox, oy, base)
+		"void_clean":
+			_paint_void_clean(img, ox, oy, base)
 		"tree":
 			_paint_tree(img, ox, oy, base)
 		"bush":
@@ -152,6 +162,15 @@ static func _paint_tile(img: Image, ox: int, oy: int, base: Color, detail: Strin
 			_paint_crack(img, ox, oy, base)
 		"core":
 			_paint_core(img, ox, oy, base)
+
+static func _clean_detail_name(detail: String) -> String:
+	match detail:
+		"grass": return "grass_clean"
+		"path": return "path_clean"
+		"stone", "wall", "alley": return "masonry_clean"
+		"sand", "cliff", "rock": return "terrain_clean"
+		"void", "fragment", "crack": return "void_clean"
+	return detail
 
 ## ── 개별 타일 페인팅 ──
 
@@ -201,6 +220,43 @@ static func _paint_grass_clean(img: Image, ox: int, oy: int, base: Color) -> voi
 	for tuft in tufts:
 		_px(img, ox + tuft.x, oy + tuft.y, shadow)
 		_px(img, ox + tuft.x, oy + tuft.y - 1, light)
+
+static func _paint_path_clean(img: Image, ox: int, oy: int, base: Color) -> void:
+	# Large value groups survive camera scaling without turning into speckles.
+	var shade := _shift(base, -0.035)
+	var light := _shift(base, 0.025)
+	_fill(img, ox + 3, oy + 5, 10, 7, light)
+	_fill(img, ox + 18, oy + 19, 11, 8, shade)
+	_fill(img, ox + 1, oy + 28, 7, 2, shade)
+
+static func _paint_masonry_clean(img: Image, ox: int, oy: int, base: Color) -> void:
+	var grout := _shift(base, -0.075)
+	var highlight := _shift(base, 0.018)
+	for x in range(TILE):
+		_px(img, ox + x, oy + 15, grout)
+	for y in range(0, 15):
+		_px(img, ox + 16, oy + y, grout)
+	for y in range(16, TILE):
+		_px(img, ox + 8, oy + y, grout)
+		_px(img, ox + 24, oy + y, grout)
+	_fill(img, ox + 2, oy + 2, 12, 2, highlight)
+	_fill(img, ox + 10, oy + 18, 11, 2, highlight)
+
+static func _paint_terrain_clean(img: Image, ox: int, oy: int, base: Color) -> void:
+	var shade := _shift(base, -0.035)
+	var light := _shift(base, 0.022)
+	_fill(img, ox, oy + 23, TILE, 9, shade)
+	_fill(img, ox + 5, oy + 6, 18, 5, light)
+	for x in range(3, TILE, 8):
+		_px(img, ox + x, oy + 18 + (x % 3), _shift(base, -0.055))
+
+static func _paint_void_clean(img: Image, ox: int, oy: int, base: Color) -> void:
+	var deep := _shift(base, -0.05)
+	var seam := _shift(base, 0.06)
+	_fill(img, ox + 2, oy + 20, 28, 10, deep)
+	for y in range(4, 27):
+		var x := 14 + int(sin(y * 0.45) * 3.0)
+		_px(img, ox + x, oy + y, seam)
 
 static func _paint_tree(img: Image, ox: int, oy: int, _base: Color) -> void:
 	# S43: 나무 — 껍질 텍스처 + 풍성한 수관 + 그림자

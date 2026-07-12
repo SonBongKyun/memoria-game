@@ -16,7 +16,8 @@ var player_hp_bar: ProgressBar
 var player_hp_label: Label
 var log_label: RichTextLabel
 var action_ribbon_art: TextureRect
-var action_container: HBoxContainer
+var action_container: GridContainer
+var witness_btn: Button
 var burn_list_container: VBoxContainer
 var item_list_container: VBoxContainer
 var enemy_sprite: Control  # 적 스프라이트
@@ -1572,36 +1573,37 @@ func _build_action_buttons(root: Control) -> void:
 	action_ribbon_art = _make_interface_texture(UI_COMMAND_RIBBON_PATH, 0.74)
 	action_ribbon_art.anchor_left = 0.055
 	action_ribbon_art.anchor_right = 0.945
-	action_ribbon_art.anchor_top = 0.825
-	action_ribbon_art.anchor_bottom = 0.955
+	action_ribbon_art.anchor_top = 0.785
+	action_ribbon_art.anchor_bottom = 0.975
 	action_ribbon_art.z_index = 37
 	root.add_child(action_ribbon_art)
 
-	action_container = HBoxContainer.new()
-	action_container.anchor_left = 0.1
-	action_container.anchor_right = 0.9
-	action_container.anchor_top = 0.86
-	action_container.anchor_bottom = 0.86
-	action_container.offset_bottom = 50
-	action_container.add_theme_constant_override("separation", 10)
-	action_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	action_container = GridContainer.new()
+	action_container.columns = 4
+	action_container.anchor_left = 0.18
+	action_container.anchor_right = 0.82
+	action_container.anchor_top = 0.815
+	action_container.anchor_bottom = 0.965
+	action_container.add_theme_constant_override("h_separation", 8)
+	action_container.add_theme_constant_override("v_separation", 6)
 	action_container.z_index = 38
 	root.add_child(action_container)
 
 	var actions = [
-		{"text": GameManager.loc("attack"), "callback": _on_attack, "icon": "⚔"},
-		{"text": GameManager.loc("burn"), "callback": _on_burn_menu, "icon": "🔥"},
-		{"text": GameManager.loc("item"), "callback": _on_item_menu, "icon": ""},
-		{"text": GameManager.loc("defend"), "callback": _on_defend, "icon": "🛡"},
-		{"text": GameManager.loc("limit"), "callback": _on_limit_break, "icon": "💥"},
-		{"text": GameManager.loc("auto"), "callback": _on_auto_battle, "icon": ""},
-		{"text": GameManager.loc("flee"), "callback": _on_flee, "icon": "💨"},
+		{"id": "attack", "text": GameManager.loc("attack"), "callback": _on_attack},
+		{"id": "witness", "text": "기억 읽기" if GameManager.current_locale == "ko" else "WITNESS", "callback": _on_witness},
+		{"id": "burn", "text": GameManager.loc("burn"), "callback": _on_burn_menu},
+		{"id": "defend", "text": GameManager.loc("defend"), "callback": _on_defend},
+		{"id": "item", "text": GameManager.loc("item"), "callback": _on_item_menu},
+		{"id": "limit", "text": GameManager.loc("limit"), "callback": _on_limit_break},
+		{"id": "auto", "text": GameManager.loc("auto"), "callback": _on_auto_battle},
+		{"id": "flee", "text": GameManager.loc("flee"), "callback": _on_flee},
 	]
 
 	for action in actions:
 		var btn = Button.new()
 		btn.text = action.text
-		btn.custom_minimum_size = Vector2(130, 44)
+		btn.custom_minimum_size = Vector2(190, 40)
 
 		var style = StyleBoxFlat.new()
 		style.bg_color = Color(0.055, 0.044, 0.070, 0.82)
@@ -1631,6 +1633,9 @@ func _build_action_buttons(root: Control) -> void:
 		btn.add_theme_constant_override("outline_size", 1)
 
 		btn.pressed.connect(action.callback)
+		if action.id == "witness":
+			witness_btn = btn
+			witness_btn.tooltip_text = "적 안에 갇힌 기억을 읽어 비연소 해결을 시도합니다." if GameManager.current_locale == "ko" else "Read the trapped memory and seek a victory without burning."
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		btn.mouse_entered.connect(func():
 			var tw = create_tween()
@@ -1695,12 +1700,15 @@ func _connect_signals() -> void:
 	BattleManager.momentum_changed.connect(_on_momentum_changed)
 	BattleManager.last_stand_resonance.connect(_on_last_stand_resonance)
 	BattleManager.ally_action.connect(_on_ally_action)
+	BattleManager.witness_changed.connect(_on_witness_changed)
 
 	if BattleManager.current_enemy:
 		_setup_enemy_display()
 	if not BattleManager.tactical_objective.is_empty():
 		_on_tactical_objective_changed(BattleManager.tactical_objective)
 	_on_momentum_changed(BattleManager.momentum, BattleManager.momentum_rank, BattleManager._get_momentum_label())
+	var witness_state := BattleManager.get_witness_state()
+	_on_witness_changed(witness_state.progress, witness_state.required, "", witness_state.complete)
 
 func _exit_tree() -> void:
 	# 오토로드 시그널 연결 해제 — 씬 재진입 시 freed 객체 참조 방지
@@ -1746,6 +1754,8 @@ func _exit_tree() -> void:
 		BattleManager.last_stand_resonance.disconnect(_on_last_stand_resonance)
 	if BattleManager.ally_action.is_connected(_on_ally_action):
 		BattleManager.ally_action.disconnect(_on_ally_action)
+	if BattleManager.witness_changed.is_connected(_on_witness_changed):
+		BattleManager.witness_changed.disconnect(_on_witness_changed)
 	# S56: Cleanup battle VFX status particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
@@ -2211,6 +2221,22 @@ func _on_defend() -> void:
 	_hide_burn_list()
 	_hide_item_list()
 	BattleManager.player_defend()
+
+func _on_witness() -> void:
+	AudioManager.play_sfx("ui_select")
+	action_container.visible = false
+	_hide_burn_list()
+	_hide_item_list()
+	BattleManager.player_witness()
+
+func _on_witness_changed(progress: int, required: int, echo_line: String, complete: bool) -> void:
+	if witness_btn == null:
+		return
+	var base := "기억 읽기" if GameManager.current_locale == "ko" else "WITNESS"
+	witness_btn.text = "%s  %d/%d" % [base, progress, required]
+	witness_btn.disabled = complete and BattleManager.current_enemy != null and BattleManager.current_enemy.is_boss
+	if echo_line != "":
+		witness_btn.tooltip_text = echo_line
 
 func _on_auto_battle() -> void:
 	AudioManager.play_sfx("ui_select")
@@ -3847,6 +3873,8 @@ func _localized_objective_title(title: String) -> String:
 			return "놈이 배우기 전에"
 		"Archivist's Eye":
 			return "기록자의 눈"
+		"Hold the Name":
+			return "이름 붙들기"
 		"Measured Assault":
 			return "계산된 공세"
 		"Resonance Climb":
@@ -3875,6 +3903,8 @@ func _localized_objective_desc(desc: String) -> String:
 			return "플레이어 행동 4회 안에 승리하세요."
 		"Scan or analyze the enemy before victory.":
 			return "승리하기 전에 적을 스캔하거나 분석하세요."
+		"Complete a WITNESS reading before victory.":
+			return "승리하기 전에 기억 읽기를 완료하세요."
 		"Reach Combo x3 before victory.":
 			return "승리하기 전에 콤보 x3에 도달하세요."
 		"Reach Burning resonance before victory.":
@@ -3909,6 +3939,9 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var momentum_bonus: int = rewards.get("momentum_bonus", 0)
 	var momentum_rank: int = rewards.get("momentum_rank", 0)
 	var momentum_label: String = rewards.get("momentum_label", "Cold")
+	var preservation_bonus: int = rewards.get("preservation_bonus", 0)
+	var field_focus_gained: int = rewards.get("field_focus_gained", 0)
+	var resolution: String = rewards.get("resolution", "defeat")
 	var heal: int = rewards.get("heal", 0)
 	var item_name: String = rewards.get("item", "")
 	var enemy_name: String = rewards.get("enemy_name", "Unknown")
@@ -3957,7 +3990,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	# --- TITLE ---
 	var title = Label.new()
-	title.text = "BOSS DEFEATED" if is_boss else "VICTORY"
+	title.text = ("메아리 해방" if GameManager.current_locale == "ko" else "ECHO RELEASED") if resolution == "witness" else ("BOSS DEFEATED" if is_boss else "VICTORY")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var title_color = Color(0.95, 0.4, 0.3) if is_boss else Color(0.9, 0.8, 0.5)
 	title.add_theme_color_override("font_color", title_color)
@@ -3974,7 +4007,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	# Defeated enemy subtitle
 	var enemy_line = Label.new()
-	enemy_line.text = "Defeated: %s" % enemy_name
+	enemy_line.text = (("해방: %s" if GameManager.current_locale == "ko" else "Released: %s") % enemy_name) if resolution == "witness" else "Defeated: %s" % enemy_name
 	enemy_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	enemy_line.add_theme_font_size_override("font_size", 11)
 	enemy_line.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.0))
@@ -4040,17 +4073,20 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	vbox.add_child(bonus_row)
 
 	var bonus_lbl = Label.new()
-	bonus_lbl.text = "Codex Bonus"
+	bonus_lbl.text = ("보존 보너스" if GameManager.current_locale == "ko" else "Preservation") if preservation_bonus > 0 else "Codex Bonus"
 	bonus_lbl.add_theme_font_size_override("font_size", 11)
 	bonus_lbl.add_theme_color_override("font_color", Color(0.45, 0.78, 0.9))
 	bonus_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bonus_row.add_child(bonus_lbl)
 
 	var bonus_val = Label.new()
-	bonus_val.text = "+%d" % tactical_bonus if tactical_bonus > 0 else "None"
+	if preservation_bonus > 0:
+		bonus_val.text = "+%d Grains%s" % [preservation_bonus, " / Focus +%d" % field_focus_gained if field_focus_gained > 0 else ""]
+	else:
+		bonus_val.text = "+%d" % tactical_bonus if tactical_bonus > 0 else "None"
 	bonus_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	bonus_val.add_theme_font_size_override("font_size", 12)
-	bonus_val.add_theme_color_override("font_color", Color(0.55, 0.86, 1.0) if tactical_bonus > 0 else Color(0.35, 0.34, 0.33))
+	bonus_val.add_theme_color_override("font_color", Color(0.55, 0.86, 1.0) if tactical_bonus > 0 or preservation_bonus > 0 else Color(0.35, 0.34, 0.33))
 	bonus_row.add_child(bonus_val)
 
 	var objective_row = HBoxContainer.new()

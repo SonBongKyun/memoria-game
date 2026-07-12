@@ -60,6 +60,8 @@ var grains_label: Label
 var items_label: Label
 var pulse_label: Label
 var equip_label: Label    # S41
+var quest_card: PanelContainer
+var quest_tag_label: Label
 var quest_label: Label    # S41
 var quest_progress_bar: ProgressBar  # S57: visual quest progress
 var status_icons_row: HBoxContainer  # S57: status effect icons
@@ -238,13 +240,31 @@ func _build_ui() -> void:
 	equip_label.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
 	vbox.add_child(equip_label)
 
-	# ── S41/S57: Active Quest Tracker with progress bar ──
+	# ── Story objective card ──
+	quest_card = PanelContainer.new()
+	quest_card.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.075, 0.055, 0.080, 0.76),
+		Color(0.72, 0.54, 0.27, 0.58),
+		1, 5, 7
+	))
+	vbox.add_child(quest_card)
+	var quest_box := VBoxContainer.new()
+	quest_box.add_theme_constant_override("separation", 2)
+	quest_card.add_child(quest_box)
+
+	quest_tag_label = Label.new()
+	quest_tag_label.text = "◆  이야기 목표" if GameManager.current_locale == "ko" else "◆  STORY OBJECTIVE"
+	quest_tag_label.add_theme_font_override("font", UITheme.make_ui_font())
+	quest_tag_label.add_theme_font_size_override("font_size", 10)
+	quest_tag_label.add_theme_color_override("font_color", Color(0.88, 0.69, 0.36))
+	quest_box.add_child(quest_tag_label)
+
 	quest_label = Label.new()
-	quest_label.add_theme_font_size_override("font_size", 12)
-	quest_label.add_theme_color_override("font_color", Color(0.7, 0.6, 0.4))
+	quest_label.add_theme_font_size_override("font_size", 13)
+	quest_label.add_theme_color_override("font_color", Color(0.94, 0.88, 0.76))
 	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	quest_label.custom_minimum_size.x = 180
-	vbox.add_child(quest_label)
+	quest_box.add_child(quest_label)
 
 	# S57: Quest progress bar
 	quest_progress_bar = ProgressBar.new()
@@ -261,12 +281,12 @@ func _build_ui() -> void:
 	quest_bg_style.bg_color = Color(0.12, 0.1, 0.08, 0.7)
 	quest_bg_style.set_corner_radius_all(2)
 	quest_progress_bar.add_theme_stylebox_override("background", quest_bg_style)
-	vbox.add_child(quest_progress_bar)
+	quest_box.add_child(quest_progress_bar)
 
 	for label in [hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
 		UITheme.apply_ui_font(label)
 	if clean_view:
-		panel.custom_minimum_size.x = 220
+		panel.custom_minimum_size.x = 236
 		items_label.visible = false
 		equip_label.visible = false
 		pulse_label.visible = false
@@ -636,30 +656,49 @@ func _update_quest_tracker() -> void:
 			quest_total = max(steps.size(), 1) if steps is Array else 1
 			break
 
-	# 스토리 기반 힌트
+	# Main-story fallback synchronized with the flags used by map exits.
 	if active_quest == "":
 		var ch = GameManager.current_chapter
-		if ch == 1 and not GameManager.get_flag("met_elia"):
-			active_quest = "숲에서 엘리아 찾기" if GameManager.current_locale == "ko" else "Find Elia in the forest"
-			quest_step = 0; quest_total = 1
-		elif ch == 2 and not GameManager.get_flag("malet_deal"):
-			active_quest = "시장에서 말렛 만나기" if GameManager.current_locale == "ko" else "Meet Malet at the market"
-			quest_step = 0; quest_total = 1
-		elif ch == 3 and not GameManager.get_flag("reached_seam"):
-			active_quest = "심에 도달하기" if GameManager.current_locale == "ko" else "Reach The Seam"
-			quest_step = 0; quest_total = 1
-		elif ch == 4 and not GameManager.get_flag("shade_sentinel_defeated"):
-			active_quest = "셰이드 센티널 처치" if GameManager.current_locale == "ko" else "Defeat the Shade Sentinel"
-			quest_step = 0; quest_total = 1
+		match ch:
+			1:
+				if not GameManager.get_flag("ch1_elia_appeared"):
+					active_quest = "숲에서 엘리아 찾기" if GameManager.current_locale == "ko" else "Find Elia in the forest"
+				elif not GameManager.get_flag("ch1_void_beast_defeated"):
+					active_quest = "숲을 배회하는 공허수 찾기" if GameManager.current_locale == "ko" else "Find what hunts these woods"
+				elif not GameManager.get_flag("ch1_camp_done"):
+					active_quest = "남쪽 야영지로 이동하기" if GameManager.current_locale == "ko" else "Reach the southern camp"
+			2:
+				if not GameManager.get_flag("ch2_malet_done"):
+					active_quest = "시장에서 말렛 만나기" if GameManager.current_locale == "ko" else "Meet Malet at the market"
+			3:
+				active_quest = ("북쪽 출구로 이동하기" if GameManager.get_flag("tobias_in_party") else "토비아스와 대화하기") if GameManager.current_locale == "ko" else ("Take the north exit" if GameManager.get_flag("tobias_in_party") else "Speak with Tobias")
+			4:
+				active_quest = ("북쪽 출구로 이동하기" if GameManager.get_flag("ch4_anchoring") else "피난처의 기록 조사하기") if GameManager.current_locale == "ko" else ("Take the north exit" if GameManager.get_flag("ch4_anchoring") else "Investigate the shelter records")
+			5:
+				active_quest = "북쪽 균열에서 심에 도달하기" if GameManager.current_locale == "ko" else "Reach the Seam through the northern fracture"
+			6:
+				active_quest = ("남쪽의 BL-07 입구로 이동하기" if GameManager.get_flag("ch6_briefing_done") else "세이블과 대화하기") if GameManager.current_locale == "ko" else ("Enter BL-07 to the south" if GameManager.get_flag("ch6_briefing_done") else "Speak with Sable")
+			7:
+				active_quest = ("북쪽 출구로 이동하기" if GameManager.get_flag("ch7_trial_complete") else "세이블의 시련 완료하기") if GameManager.current_locale == "ko" else ("Take the north exit" if GameManager.get_flag("ch7_trial_complete") else "Complete Sable's trial")
+			8:
+				active_quest = "기억 기생림을 지나 북쪽으로 이동하기" if GameManager.current_locale == "ko" else "Follow the parasite forest north"
+			9:
+				active_quest = "무색 황무지의 북쪽 경계로 이동하기" if GameManager.current_locale == "ko" else "Reach the northern edge of the Waste"
+			10:
+				active_quest = "BL-07의 심장부에 도달하기" if GameManager.current_locale == "ko" else "Reach the heart of BL-07"
+		quest_step = 0
+		quest_total = 1
 
 	if active_quest != "":
-		quest_label.text = "> %s  (%d/%d)" % [active_quest, quest_step, quest_total]
+		quest_tag_label.text = "◆  이야기 목표" if GameManager.current_locale == "ko" else "◆  STORY OBJECTIVE"
+		quest_label.text = active_quest
+		quest_card.visible = true
 		quest_label.visible = true
-		# S57: Progress bar
 		quest_progress_bar.max_value = quest_total
 		quest_progress_bar.value = quest_step
-		quest_progress_bar.visible = true
+		quest_progress_bar.visible = quest_total > 1
 	else:
+		quest_card.visible = false
 		quest_label.visible = false
 		quest_progress_bar.visible = false
 

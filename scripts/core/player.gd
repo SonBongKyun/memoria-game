@@ -106,14 +106,24 @@ func _apply_camera_limits() -> void:
 ## 인터랙션 인디케이터 "E" 아이콘 생성
 func _setup_interact_indicator() -> void:
 	_interact_indicator = Label.new()
-	_interact_indicator.text = "[E]"
-	_interact_indicator.add_theme_font_size_override("font_size", 10)
-	_interact_indicator.add_theme_color_override("font_color", Color(1.0, 0.95, 0.7, 0.95))
+	_interact_indicator.text = "E  대화"
+	_interact_indicator.custom_minimum_size = Vector2(72, 24)
+	_interact_indicator.add_theme_font_override("font", UITheme.make_ui_font())
+	_interact_indicator.add_theme_font_size_override("font_size", 11)
+	_interact_indicator.add_theme_color_override("font_color", Color(1.0, 0.91, 0.64, 0.98))
 	_interact_indicator.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	_interact_indicator.add_theme_constant_override("shadow_offset_x", 1)
 	_interact_indicator.add_theme_constant_override("shadow_offset_y", 1)
 	_interact_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_interact_indicator.position = Vector2(-14, -40)
+	_interact_indicator.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var indicator_style := StyleBoxFlat.new()
+	indicator_style.bg_color = Color(0.035, 0.030, 0.050, 0.92)
+	indicator_style.border_color = Color(0.82, 0.62, 0.30, 0.82)
+	indicator_style.set_border_width_all(1)
+	indicator_style.set_corner_radius_all(6)
+	_interact_indicator.add_theme_stylebox_override("normal", indicator_style)
+	_interact_indicator.position = Vector2(-22, -42)
+	_interact_indicator.scale = Vector2(0.62, 0.62)
 	_interact_indicator.z_index = 10
 	_interact_indicator.visible = false
 	add_child(_interact_indicator)
@@ -223,7 +233,9 @@ func _physics_process(delta: float) -> void:
 			var footfall := int(_bob_phase / PI)
 			if footfall != _last_footfall:
 				_last_footfall = footfall
-				if not clean_view:
+				if clean_view:
+					_spawn_step_echo()
+				else:
 					_spawn_dust()
 			# 수평 이동 시 진행 방향으로 미세하게 기울어짐 (달릴수록 더)
 			sprite.rotation = lerp_angle(sprite.rotation, (velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER)) * 0.055, 10.0 * delta)
@@ -251,8 +263,11 @@ func _update_camera_look_ahead(delta: float) -> void:
 	if not camera:
 		return
 	var target_offset = Vector2.ZERO
-	if velocity.length() > 10.0 and not OptionsMenu.is_clean_gameplay_visuals():
-		target_offset = velocity.normalized() * _camera_look_ahead
+	if velocity.length() > 10.0:
+		# Clean view still needs a little anticipation or movement feels static.
+		# Keep it below one tile so it adds responsiveness without hiding space.
+		var distance := 18.0 if OptionsMenu.is_clean_gameplay_visuals() else _camera_look_ahead
+		target_offset = velocity.normalized() * distance
 	camera.offset = camera.offset.lerp(target_offset, 3.0 * delta)
 
 ## 카메라 셰이크 업데이트
@@ -349,6 +364,26 @@ func _spawn_dust() -> void:
 	t.set_parallel(false)
 	t.tween_callback(dust.queue_free)
 
+## Clean-view footfall: a tiny Memory-colored ground echo keeps walking lively
+## without returning to opaque particles or long afterimage trails.
+func _spawn_step_echo() -> void:
+	var echo := Line2D.new()
+	echo.width = 1.15
+	echo.default_color = Color(0.74, 0.68, 0.48, 0.32)
+	echo.points = PackedVector2Array([
+		Vector2(-6, 0), Vector2(0, -2.5), Vector2(6, 0),
+		Vector2(0, 2.5), Vector2(-6, 0),
+	])
+	echo.global_position = global_position + Vector2(0, 7)
+	echo.z_index = z_index - 2
+	echo.scale = Vector2(0.72, 0.72)
+	get_parent().add_child(echo)
+	var tween := echo.create_tween().set_parallel(true)
+	tween.tween_property(echo, "scale", Vector2(1.28, 1.28), 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(echo, "modulate:a", 0.0, 0.32).set_trans(Tween.TRANS_SINE)
+	tween.set_parallel(false)
+	tween.tween_callback(echo.queue_free)
+
 ## 피젯 애니메이션 (5초 대기 후)
 func _do_fidget() -> void:
 	if not sprite:
@@ -384,23 +419,22 @@ func _update_interact_indicator(delta: float) -> void:
 			var collider = interaction_ray.get_collider()
 			if collider and collider.has_method("interact"):
 				show = true
-				# InputManager 연동: 컨트롤러면 "A", 키보드면 "E"
-				if InputManager.is_controller_mode():
-					_interact_indicator.text = "[A]"
-				else:
-					_interact_indicator.text = "[E]"
+				var key := "A" if InputManager.is_controller_mode() else "E"
+				var is_npc: bool = collider.has_method("_face_toward_player")
+				var action := ("대화" if is_npc else "조사") if GameManager.current_locale == "ko" else ("Talk" if is_npc else "Inspect")
+				_interact_indicator.text = "◆  %s  %s" % [key, action]
 	_interact_indicator.visible = show
 	if show:
-		# 위아래 부유 효과
+		# Restrained float and breath; the pill remains anchored to the actor.
 		_indicator_bob_time += delta * 3.0
-		_interact_indicator.position.y = -40 + sin(_indicator_bob_time) * 3.0
+		_interact_indicator.position.y = -42 + sin(_indicator_bob_time) * 1.5
+		var pulse := 1.0 + sin(_indicator_bob_time * 0.8) * 0.025
+		_interact_indicator.scale = Vector2.ONE * 0.62 * pulse
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprites() -> void:
-	# Use the authored character sheet in exploration. The sheet has true left
-	# and right motion; vertical movement reuses the neutral/move poses until a
-	# dedicated top-down set exists, which is still markedly clearer than the
-	# procedural rectangle character it replaces.
+	# Use the authored character sheet in exploration with visibly distinct
+	# front, rear, left and right mappings supplied by PixelSprite.
 	var sheet_path := "res://assets/sprites/characters/arrel_sheet/idle_01.png"
 	if ResourceLoader.exists(sheet_path):
 		sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")

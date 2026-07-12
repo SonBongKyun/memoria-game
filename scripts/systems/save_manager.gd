@@ -21,6 +21,9 @@ var loaded_player_pos: Dictionary = {}
 ## S56: Autosave timer
 var _autosave_timer: float = 0.0
 var _autosave_enabled: bool = true
+var _checkpoint_scene: String = ""
+var _pending_checkpoint_scene: String = ""
+var _checkpoint_delay: float = 0.0
 
 ## S56: Last save timestamp (unix) for "Last Saved: X minutes ago"
 var _last_save_time: float = 0.0
@@ -39,12 +42,38 @@ func _ready() -> void:
 	print("[SaveManager] Ready — save dir: %s (autosave every %ds)" % [SAVE_DIR, int(AUTOSAVE_INTERVAL)])
 
 func _process(delta: float) -> void:
+	_update_map_checkpoint(delta)
 	# S56: Autosave timer (only during exploration)
 	if _autosave_enabled and GameManager.current_state == GameManager.GameState.EXPLORATION:
 		_autosave_timer += delta
 		if _autosave_timer >= AUTOSAVE_INTERVAL:
 			_autosave_timer = 0.0
 			autosave("timer")
+
+## Every newly entered exploration map becomes a reliable retry point. The
+## short delay lets map scripts restore the loaded position and story state
+## before serialization. Returning from battle to the same map does not save.
+func _update_map_checkpoint(delta: float) -> void:
+	var scene_path := _get_current_scene_path()
+	if scene_path == "res://scenes/main/main.tscn":
+		_checkpoint_scene = ""
+		_pending_checkpoint_scene = ""
+		return
+	if GameManager.current_state != GameManager.GameState.EXPLORATION or not scene_path.begins_with("res://scenes/maps/"):
+		return
+	if scene_path == _checkpoint_scene:
+		_pending_checkpoint_scene = ""
+		return
+	if scene_path != _pending_checkpoint_scene:
+		_pending_checkpoint_scene = scene_path
+		_checkpoint_delay = 1.0
+		return
+	_checkpoint_delay -= delta
+	if _checkpoint_delay > 0.0:
+		return
+	_checkpoint_scene = scene_path
+	_pending_checkpoint_scene = ""
+	autosave("map_checkpoint")
 
 func _connect_autosave_signals() -> void:
 	# Autosave before boss battles

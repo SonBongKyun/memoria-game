@@ -63,6 +63,12 @@ func _build_ui() -> void:
 	sub.add_theme_font_size_override("font_size", 14)
 	sub.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if SaveManager.has_save(SaveManager.AUTOSAVE_SLOT):
+		var checkpoint := SaveManager.get_save_info(SaveManager.AUTOSAVE_SLOT)
+		var location: String = checkpoint.get("location", "")
+		var chapter: int = checkpoint.get("chapter", GameManager.current_chapter)
+		var checkpoint_line := "최근 체크포인트 · %d장 · %s" % [chapter, location] if GameManager.current_locale == "ko" else "Latest checkpoint · Ch.%d · %s" % [chapter, location]
+		sub.text += "\n\n" + checkpoint_line
 	vbox.add_child(sub)
 
 	# 구분선
@@ -72,7 +78,7 @@ func _build_ui() -> void:
 
 	# 버튼들
 	var buttons = [
-		{"text": GameManager.loc("retry"), "callback": _on_retry},
+		{"text": ("체크포인트에서 재개" if GameManager.current_locale == "ko" else "Resume from Checkpoint") if SaveManager.has_save(SaveManager.AUTOSAVE_SLOT) else GameManager.loc("retry"), "callback": _on_retry},
 		{"text": GameManager.loc("load_save"), "callback": _on_load},
 		{"text": GameManager.loc("title_return"), "callback": _on_title},
 	]
@@ -117,8 +123,12 @@ func _reset_battle() -> void:
 	BattleManager.state = BattleManager.BattleState.IDLE
 
 func _on_retry() -> void:
-	# HP 30% 회복 후 맵 복귀
-	GameManager.player_data.hp = int(GameManager.player_data.max_hp * 0.3)
+	if SaveManager.has_save(SaveManager.AUTOSAVE_SLOT):
+		_reset_battle()
+		SaveManager.load_game(SaveManager.AUTOSAVE_SLOT)
+		return
+	# Legacy fallback for old runs that predate checkpoint saves.
+	GameManager.player_data.hp = int(GameManager.player_data.max_hp * 0.5)
 	_reset_battle()
 	GameManager.change_state(GameManager.GameState.EXPLORATION)
 	if return_scene != "":
@@ -130,6 +140,9 @@ func _on_load() -> void:
 	if SaveManager.has_save(1):
 		_reset_battle()
 		SaveManager.load_game(1)
+	elif SaveManager.has_save(SaveManager.AUTOSAVE_SLOT):
+		_reset_battle()
+		SaveManager.load_game(SaveManager.AUTOSAVE_SLOT)
 	else:
 		AudioManager.play_sfx("cancel")
 
