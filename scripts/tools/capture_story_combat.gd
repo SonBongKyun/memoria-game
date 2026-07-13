@@ -6,6 +6,8 @@ func _ready() -> void:
 	OptionsMenu.settings.clean_gameplay_visuals = true
 	OptionsMenu.settings.reduce_motion = true
 	GameManager.current_locale = "ko"
+	# S175: 실제 전투 상태로 전환해야 탐색 HUD가 숨겨진 진짜 전투 화면이 잡힘.
+	GameManager.change_state(GameManager.GameState.BATTLE)
 	GameManager.current_chapter = 1
 	GameManager.player_data.hp = 82
 	GameManager.player_data.max_hp = 100

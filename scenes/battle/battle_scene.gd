@@ -167,7 +167,7 @@ func _present_field_focus_opening() -> void:
 		return
 	var message := "[현장 집중] 메아리의 방향이 전투에 남았다 · 공명 25 / 리미트 20" if GameManager.current_locale == "ko" else "[FIELD FOCUS] The mapped echo carries into battle · Resonance 25 / Limit 20"
 	_on_battle_log(message)
-	_show_turn_indicator("FIELD FOCUS", Color(0.82, 0.72, 0.42))
+	_show_turn_indicator(_bl("FIELD FOCUS", "필드 포커스"), Color(0.82, 0.72, 0.42))
 
 func _process(delta: float) -> void:
 	_idle_time += delta
@@ -583,20 +583,20 @@ func _build_tactical_objective_panel(root: Control) -> void:
 	objective_panel.add_child(box)
 
 	objective_title_label = Label.new()
-	objective_title_label.text = "TACTICAL OBJECTIVE"
+	objective_title_label.text = _bl("TACTICAL OBJECTIVE", "전술 목표")
 	objective_title_label.add_theme_font_size_override("font_size", 11)
 	objective_title_label.add_theme_color_override("font_color", Color(0.92, 0.72, 0.36, 0.90))
 	box.add_child(objective_title_label)
 
 	objective_desc_label = Label.new()
-	objective_desc_label.text = "Awaiting encounter data..."
+	objective_desc_label.text = _bl("Awaiting encounter data...", "교전 데이터 대기 중...")
 	objective_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	objective_desc_label.add_theme_font_size_override("font_size", 12)
 	objective_desc_label.add_theme_color_override("font_color", Color(0.84, 0.80, 0.70, 0.82))
 	box.add_child(objective_desc_label)
 
 	objective_meta_label = Label.new()
-	objective_meta_label.text = "Resonance: Cold 0%"
+	objective_meta_label.text = _bl("Resonance: Cold 0%", "공명: 냉각 0%")
 	objective_meta_label.add_theme_font_size_override("font_size", 11)
 	objective_meta_label.add_theme_color_override("font_color", Color(0.58, 0.74, 0.92, 0.82))
 	box.add_child(objective_meta_label)
@@ -659,13 +659,13 @@ func _play_intro() -> void:
 	sub_label.modulate.a = 0.0
 
 	if enemy.is_boss:
-		sub_label.text = "— BOSS —"
+		sub_label.text = _bl("— BOSS —", "— 보스 —")
 		sub_label.add_theme_color_override("font_color", Color(0.7, 0.2, 0.15))
 	elif enemy.is_void_beast:
-		sub_label.text = "Void Beast"
+		sub_label.text = _bl("Void Beast", "보이드 비스트")
 		sub_label.add_theme_color_override("font_color", Color(0.45, 0.15, 0.5))
 	else:
-		sub_label.text = "Hostile Creature"
+		sub_label.text = _bl("Hostile Creature", "적대적 존재")
 		sub_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 
 	intro_overlay.add_child(sub_label)
@@ -747,15 +747,15 @@ func _play_intro() -> void:
 func _format_enemy_intro_intel(enemy: BattleManager.Enemy) -> String:
 	var parts: Array[String] = []
 	if enemy.weakness != "":
-		parts.append("Weak " + enemy.weakness.to_upper())
+		parts.append(_bl("Weak ", "약점 ") + enemy.weakness.to_upper())
 	if enemy.resistance != "":
-		parts.append("Resist " + enemy.resistance.to_upper())
+		parts.append(_bl("Resist ", "저항 ") + enemy.resistance.to_upper())
 	if enemy.is_boss:
-		parts.append("No Escape")
+		parts.append(_bl("No Escape", "탈출 불가"))
 	elif enemy.is_void_beast:
-		parts.append("Void-Class")
+		parts.append(_bl("Void-Class", "보이드 등급"))
 	if parts.is_empty():
-		return "Read the rhythm. Force BREAK."
+		return _bl("Read the rhythm. Force BREAK.", "리듬을 읽고 BREAK를 강제하라.")
 	return " / ".join(parts)
 
 func _finish_intro() -> void:
@@ -786,6 +786,10 @@ func _build_turn_label(root: Control) -> void:
 	turn_label.z_index = 80
 	turn_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(turn_label)
+
+## S175: 전투 UI 로케일 헬퍼 — ko면 한국어, 아니면 영어.
+func _bl(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _show_turn_indicator(text: String, color: Color = Color(0.85, 0.75, 0.55)) -> void:
 	turn_label.text = text
@@ -845,7 +849,7 @@ func _play_combo_burst(combo: int) -> void:
 	var center = Vector2(400, 200)
 	# 콤보 텍스트 (큰 금색)
 	var lbl = Label.new()
-	lbl.text = "COMBO x%d!" % combo
+	lbl.text = _bl("COMBO x%d!", "콤보 x%d!") % combo
 	lbl.add_theme_font_size_override("font_size", 22 + combo * 2)
 	lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -902,12 +906,14 @@ func _update_turn_preview() -> void:
 	for child in turn_preview_container.get_children():
 		child.queue_free()
 
-	# 현재 턴 + 다음 2턴 예측
+	# 현재 턴 + 다음 2턴 예측 (S175: 로케일 라벨)
+	var ally_tag := _bl("ALLY", "아군")
+	var enemy_tag := _bl("ENEMY", "적")
 	var turns: Array = []
 	if BattleManager.state == BattleManager.BattleState.PLAYER_TURN:
-		turns = ["PLAYER", "ENEMY", "PLAYER"]
+		turns = [ally_tag, enemy_tag, ally_tag]
 	elif BattleManager.state == BattleManager.BattleState.ENEMY_TURN:
-		turns = ["ENEMY", "PLAYER", "ENEMY"]
+		turns = [enemy_tag, ally_tag, enemy_tag]
 	else:
 		return
 
@@ -915,8 +921,8 @@ func _update_turn_preview() -> void:
 		var is_current = (i == 0)
 		var lbl = Label.new()
 		lbl.text = turns[i]
-		lbl.add_theme_font_size_override("font_size", 9 if not is_current else 11)
-		var col = Color(0.5, 0.65, 0.85) if turns[i] == "PLAYER" else Color(0.8, 0.4, 0.35)
+		lbl.add_theme_font_size_override("font_size", 10 if not is_current else 12)
+		var col = Color(0.5, 0.65, 0.85) if turns[i] == ally_tag else Color(0.8, 0.4, 0.35)
 		if not is_current:
 			col = col.darkened(0.4)
 		lbl.add_theme_color_override("font_color", col)
@@ -1637,6 +1643,8 @@ func _build_action_buttons(root: Control) -> void:
 		if action.id == "witness":
 			witness_btn = btn
 			witness_btn.tooltip_text = "적 안에 갇힌 기억을 읽어 비연소 해결을 시도합니다." if GameManager.current_locale == "ko" else "Read the trapped memory and seek a victory without burning."
+		elif action.id == "limit":
+			limit_btn = btn  # S175: 참조 저장 — 로케일 무관 활성/비활성 갱신
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		btn.mouse_entered.connect(func():
 			var tw = create_tween()
@@ -1865,13 +1873,13 @@ func _on_guard_focus(trigger: String, value: int) -> void:
 	var label = Label.new()
 	match trigger:
 		"status":
-			label.text = "GUARD FOCUS\nAilment -1"
+			label.text = _bl("GUARD FOCUS\nAilment -1", "방어 집중\n상태이상 -1")
 		"heal":
-			label.text = "GUARD FOCUS\n+%d HP" % value
+			label.text = _bl("GUARD FOCUS\n+%d HP", "방어 집중\n+%d HP") % value
 		"limit":
-			label.text = "GUARD FOCUS\nLimit +%d" % value
+			label.text = _bl("GUARD FOCUS\nLimit +%d", "방어 집중\n리밋 +%d") % value
 		_:
-			label.text = "GUARD FOCUS"
+			label.text = _bl("GUARD FOCUS", "방어 집중")
 	label.add_theme_font_size_override("font_size", 16)
 	label.add_theme_color_override("font_color", Color(0.72, 0.88, 1.0, 1.0))
 	label.add_theme_color_override("font_outline_color", Color(0.02, 0.04, 0.08, 0.85))
@@ -1902,7 +1910,7 @@ func _on_guard_focus(trigger: String, value: int) -> void:
 func _on_last_stand_resonance(lethal: bool) -> void:
 	_update_status_icons()
 	_play_action_cutin(LAST_STAND_CUTIN_PATH, true, 0.94, 0.82 if lethal else 0.58)
-	_show_turn_indicator("— LAST STAND —", Color(0.62, 0.82, 1.0))
+	_show_turn_indicator(_bl("— LAST STAND —", "— 최후의 저항 —"), Color(0.62, 0.82, 1.0))
 	_screen_shake(3.2 if lethal else 2.1)
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("phase_change")
@@ -2076,12 +2084,12 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 func _on_player_turn() -> void:
 	# S57: Turn transition dim effect
 	_play_turn_dim()
-	_show_turn_indicator("— YOUR TURN —", Color(0.5, 0.65, 0.85))
+	_show_turn_indicator(_bl("— YOUR TURN —", "— 당신의 턴 —"), Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
 	# S59: Show enemy intent hint in battle log
 	var hint = BattleManager.get_next_turn_hint()
 	if hint != "":
-		_on_battle_log("[INTEL] " + hint)
+		_on_battle_log(_bl("[INTEL] ", "[정보] ") + hint)
 	# S57: Enhanced combo counter display (persistent + escalating)
 	if BattleManager.combo_count >= 2:
 		_play_combo_burst(BattleManager.combo_count)
@@ -2111,7 +2119,7 @@ func _on_player_turn() -> void:
 func _on_enemy_turn() -> void:
 	# S57: Turn transition dim effect
 	_play_turn_dim()
-	_show_turn_indicator("— ENEMY TURN —", Color(0.8, 0.4, 0.35))
+	_show_turn_indicator(_bl("— ENEMY TURN —", "— 적의 턴 —"), Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
 	if tobias_cmd_container:
 		tobias_cmd_container.visible = false
@@ -2271,14 +2279,14 @@ func _toggle_burn_list() -> void:
 	var residues = MemoryManager.get_residue_memories()
 	if available.is_empty() and residues.is_empty():
 		var empty_label = Label.new()
-		empty_label.text = "No memories left to burn."
+		empty_label.text = _bl("No memories left to burn.", "태울 기억이 남지 않았다.")
 		empty_label.add_theme_font_size_override("font_size", 13)
 		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
 		burn_list_container.add_child(empty_label)
 	else:
 		if not available.is_empty():
 			var title = Label.new()
-			title.text = "— Select a memory to burn —"
+			title.text = _bl("— Select a memory to burn —", "— 태울 기억을 선택 —")
 			title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			title.add_theme_font_size_override("font_size", 13)
 			title.add_theme_color_override("font_color", Color(0.75, 0.5, 0.35))
@@ -2326,7 +2334,7 @@ func _toggle_burn_list() -> void:
 		# 잔존 기억 (Residue) — 50% 데미지로 재사용
 		if not residues.is_empty():
 			var res_title = Label.new()
-			res_title.text = "— Residue (50% power, no loss) —"
+			res_title.text = _bl("— Residue (50% power, no loss) —", "— 잔존 (위력 50%, 소실 없음) —")
 			res_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			res_title.add_theme_font_size_override("font_size", 12)
 			res_title.add_theme_color_override("font_color", Color(0.5, 0.4, 0.6))
@@ -2422,13 +2430,13 @@ func _toggle_item_list() -> void:
 	var items = GameManager.player_data.items
 	if items.is_empty():
 		var empty_label = Label.new()
-		empty_label.text = "No items."
+		empty_label.text = _bl("No items.", "아이템이 없다.")
 		empty_label.add_theme_font_size_override("font_size", 13)
 		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
 		item_list_container.add_child(empty_label)
 	else:
 		var title = Label.new()
-		title.text = "— Select an item —"
+		title.text = _bl("— Select an item —", "— 아이템을 선택 —")
 		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		title.add_theme_font_size_override("font_size", 13)
 		title.add_theme_color_override("font_color", Color(0.4, 0.65, 0.35))
@@ -2877,12 +2885,13 @@ func _play_void_vfx() -> void:
 ## ===================== Limit Break UI =====================
 
 func _build_limit_gauge(root: Control) -> void:
+	# S175: 명령창 위 26px 띠의 좌측에 배치 — 스탠스 행과 겹치지 않도록.
 	var panel = PanelContainer.new()
-	panel.anchor_left = 0.38
-	panel.anchor_right = 0.62
-	panel.anchor_top = 0.78
-	panel.anchor_bottom = 0.78
-	panel.offset_bottom = 28
+	panel.anchor_left = 0.06
+	panel.anchor_right = 0.40
+	panel.anchor_top = 0.781
+	panel.anchor_bottom = 0.808
+	panel.offset_bottom = 0
 
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.06, 0.04, 0.08, 0.85)
@@ -2898,7 +2907,7 @@ func _build_limit_gauge(root: Control) -> void:
 	panel.add_child(hbox)
 
 	limit_label = Label.new()
-	limit_label.text = "LIMIT"
+	limit_label.text = _bl("LIMIT", "리밋")
 	limit_label.add_theme_font_size_override("font_size", 10)
 	limit_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
 	hbox.add_child(limit_label)
@@ -2936,15 +2945,12 @@ func _on_limit_changed(value: float) -> void:
 	_update_limit_button()
 
 func _update_limit_button() -> void:
-	if not action_container:
+	# S175: 버그 수정 — 예전엔 버튼 텍스트 == "LIMIT"로 비교해 한국어("리밋")에서
+	# 갱신이 전혀 안 됐다. 이제 저장된 참조를 사용.
+	if limit_btn == null or not is_instance_valid(limit_btn):
 		return
-	for child in action_container.get_children():
-		if child is Button and child.text == "LIMIT":
-			child.disabled = BattleManager.limit_gauge < BattleManager.LIMIT_MAX
-			if child.disabled:
-				child.modulate = Color(0.5, 0.5, 0.5, 0.7)
-			else:
-				child.modulate = Color(1.0, 0.8, 1.0, 1.0)
+	limit_btn.disabled = BattleManager.limit_gauge < BattleManager.LIMIT_MAX
+	limit_btn.modulate = Color(0.5, 0.5, 0.5, 0.7) if limit_btn.disabled else Color(1.0, 0.8, 1.0, 1.0)
 
 func _on_limit_break() -> void:
 	if BattleManager.limit_gauge < BattleManager.LIMIT_MAX:
@@ -2955,7 +2961,7 @@ func _on_limit_break() -> void:
 	_hide_burn_list()
 	_hide_item_list()
 	_play_action_cutin(MEMORY_CASCADE_CUTIN_PATH, true, 0.94, 0.48)
-	_show_turn_indicator("ARREL / MEMORY CASCADE", Color(0.72, 0.88, 1.0))
+	_show_turn_indicator(_bl("ARREL / MEMORY CASCADE", "아렐 / 메모리 캐스케이드"), Color(0.72, 0.88, 1.0))
 	await get_tree().create_timer(0.42).timeout
 	# S40: Limit Break 색수차 연출
 	_play_chromatic_aberration(2.0)
@@ -3344,7 +3350,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	canvas_root.add_child(flash)
 	# 3. 경고 텍스트
 	var warn = Label.new()
-	warn.text = "— PHASE 2 —"
+	warn.text = _bl("— PHASE 2 —", "— 페이즈 2 —")
 	warn.add_theme_font_size_override("font_size", 36)
 	warn.add_theme_color_override("font_color", Color(1, 0.3, 0.2))
 	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -3399,7 +3405,16 @@ func _on_ally_action(ally_name: String, action: String, _value: int) -> void:
 	if cutin_path == "":
 		return
 	_play_action_cutin(cutin_path, true, 0.88, 0.42)
-	_show_turn_indicator("%s / %s" % [ally_name.to_upper(), action.replace("_", " ").to_upper()], accent)
+	# S175: 동행 액션 인디케이터 로케일화 (영문 대문자 대신 한국어 이름/기술명)
+	var who := GameManager.localized_speaker(ally_name) if GameManager.current_locale == "ko" else ally_name.to_upper()
+	var act_ko := {
+		"humming_shield": "허밍 방패", "desperate_reach": "절박한 손길",
+		"remembered_strike": "기억의 일격", "anchor_pulse": "닻의 파동",
+		"heal": "치유", "strike": "일격", "weaken": "약화", "guard": "수호",
+		"analyze": "분석", "archive": "기록 개방", "protect": "결계",
+	}
+	var act: String = String(act_ko.get(action, action.replace("_", " "))) if GameManager.current_locale == "ko" else action.replace("_", " ").to_upper()
+	_show_turn_indicator("%s / %s" % [who, act], accent)
 	_screen_shake(0.45)
 
 ## S46: 상태이상 셰이더 업데이트 (status_changed 시그널에 연동)
@@ -3421,7 +3436,7 @@ func _build_ally_command_ui(root: Control) -> void:
 	ally_cmd_container.add_theme_constant_override("separation", 4)
 
 	var lbl = Label.new()
-	lbl.text = "Sable:"
+	lbl.text = _bl("Sable:", "세이블:")
 	lbl.add_theme_font_size_override("font_size", 11)
 	lbl.add_theme_color_override("font_color", Color(0.7, 0.85, 0.95))
 	ally_cmd_container.add_child(lbl)
@@ -3475,7 +3490,7 @@ func _build_tobias_command_ui(root: Control) -> void:
 	tobias_cmd_container.add_theme_constant_override("separation", 4)
 
 	var lbl = Label.new()
-	lbl.text = "Tobias:"
+	lbl.text = _bl("Tobias:", "토비아스:")
 	lbl.add_theme_font_size_override("font_size", 11)
 	lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.55))
 	tobias_cmd_container.add_child(lbl)
@@ -3520,23 +3535,24 @@ var stance_buttons: Array[Button] = []
 
 func _build_stance_ui(root: Control) -> void:
 	stance_container = HBoxContainer.new()
-	stance_container.anchor_left = 0.35
-	stance_container.anchor_right = 0.65
-	stance_container.anchor_top = 0.78
-	stance_container.anchor_bottom = 0.84
+	# S175: 명령창 위 26px 띠의 우측 — 리밋 게이지와 좌우로 분리, 그리드와 안 겹침.
+	stance_container.anchor_left = 0.44
+	stance_container.anchor_right = 0.94
+	stance_container.anchor_top = 0.781
+	stance_container.anchor_bottom = 0.808
 	stance_container.add_theme_constant_override("separation", 6)
 	stance_container.alignment = BoxContainer.ALIGNMENT_CENTER
 
 	var lbl = Label.new()
-	lbl.text = "Stance:"
+	lbl.text = _bl("Stance:", "자세:")
 	lbl.add_theme_font_size_override("font_size", 11)
 	lbl.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
 	stance_container.add_child(lbl)
 
 	var stances = [
-		[BattleManager.Stance.REMNANT, "Remnant", Color(0.6, 0.55, 0.45)],
-		[BattleManager.Stance.PYRE, "Pyre", Color(0.85, 0.4, 0.25)],
-		[BattleManager.Stance.HOLLOW, "Hollow", Color(0.4, 0.35, 0.7)],
+		[BattleManager.Stance.REMNANT, _bl("Remnant", "잔재"), Color(0.6, 0.55, 0.45)],
+		[BattleManager.Stance.PYRE, _bl("Pyre", "화염"), Color(0.85, 0.4, 0.25)],
+		[BattleManager.Stance.HOLLOW, _bl("Hollow", "공허"), Color(0.4, 0.35, 0.7)],
 	]
 
 	for s in stances:
@@ -3613,7 +3629,7 @@ func _refresh_echo_display() -> void:
 	if BattleManager.active_echoes.is_empty():
 		return
 	var header = Label.new()
-	header.text = "— Active Echoes —"
+	header.text = _bl("— Active Echoes —", "— 활성 메아리 —")
 	header.add_theme_font_size_override("font_size", 10)
 	header.add_theme_color_override("font_color", Color(0.7, 0.55, 0.35))
 	echo_display.add_child(header)
@@ -3650,7 +3666,7 @@ func _build_elia_skill_ui(root: Control) -> void:
 	elia_skill_container.add_theme_constant_override("separation", 3)
 
 	var header = Label.new()
-	header.text = "— Elia —"
+	header.text = _bl("— Elia —", "— 엘리아 —")
 	header.add_theme_font_size_override("font_size", 11)
 	header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.85))
 	elia_skill_container.add_child(header)
@@ -3669,7 +3685,7 @@ func _refresh_elia_skills() -> void:
 	var skills = EliaDiary.get_available_skills()
 	if skills.is_empty():
 		var no_skill = Label.new()
-		no_skill.text = "(no techniques)"
+		no_skill.text = _bl("(no techniques)", "(사용 가능한 기술 없음)")
 		no_skill.add_theme_font_size_override("font_size", 9)
 		no_skill.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 		elia_skill_container.add_child(no_skill)
@@ -4037,7 +4053,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	vbox.add_child(growth_row)
 
 	var growth_lbl = Label.new()
-	growth_lbl.text = "Battle Experience"
+	growth_lbl.text = _bl("Battle Experience", "전투 경험")
 	growth_lbl.add_theme_font_size_override("font_size", 12)
 	growth_lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.45, 0.0))
 	growth_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4073,7 +4089,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 		grains_row.add_child(grains_art)
 
 	var grains_icon = Label.new()
-	grains_icon.text = "Grains Earned"
+	grains_icon.text = _bl("Grains Earned", "획득 그레인")
 	grains_icon.add_theme_font_size_override("font_size", 13)
 	grains_icon.add_theme_color_override("font_color", Color(0.85, 0.7, 0.35, 0.0))
 	grains_icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4161,7 +4177,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	vbox.add_child(heal_row)
 
 	var heal_lbl = Label.new()
-	heal_lbl.text = "HP Recovered"
+	heal_lbl.text = _bl("HP Recovered", "HP 회복")
 	heal_lbl.add_theme_font_size_override("font_size", 12)
 	heal_lbl.add_theme_color_override("font_color", Color(0.4, 0.8, 0.45, 0.0))
 	heal_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4188,7 +4204,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 		item_row.add_child(item_art)
 
 	var item_lbl = Label.new()
-	item_lbl.text = "Item Found"
+	item_lbl.text = _bl("Item Found", "획득 아이템")
 	item_lbl.add_theme_font_size_override("font_size", 12)
 	item_lbl.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
 	item_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4215,7 +4231,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	if has_memory_reward:
 		var mem_lbl = Label.new()
-		mem_lbl.text = "Memory Acquired"
+		mem_lbl.text = _bl("Memory Acquired", "기억 획득")
 		mem_lbl.add_theme_font_size_override("font_size", 13)
 		mem_lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
 		mem_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4228,7 +4244,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	# --- CONTINUE hint (hidden initially) ---
 	var hint = Label.new()
-	hint.text = "Press any key to continue"
+	hint.text = _bl("Press any key to continue", "아무 키나 눌러 계속")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_font_size_override("font_size", 10)
 	hint.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.0))
@@ -4484,7 +4500,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	if memory.erosion > 0:
 		var erosion_pct = int(MemoryManager.get_erosion_ratio(memory) * 100)
 		var erosion_label = Label.new()
-		erosion_label.text = "Eroded: %d%% — effective power reduced" % erosion_pct
+		erosion_label.text = _bl("Eroded: %d%% — effective power reduced", "침식: %d%% — 유효 위력 감소") % erosion_pct
 		erosion_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		erosion_label.add_theme_font_size_override("font_size", 11)
 		erosion_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.3))
@@ -4511,7 +4527,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	# --- Story effect hint ---
 	if memory.story_effect != "":
 		var effect_label = Label.new()
-		effect_label.text = "This will change the world around you."
+		effect_label.text = _bl("This will change the world around you.", "이것은 당신을 둘러싼 세계를 바꾼다.")
 		effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		effect_label.add_theme_font_size_override("font_size", 11)
 		effect_label.add_theme_color_override("font_color", Color(0.6, 0.45, 0.7))
@@ -4574,7 +4590,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 
 	# Cancel button
 	_burn_preview_cancel_btn = Button.new()
-	_burn_preview_cancel_btn.text = "Cancel"
+	_burn_preview_cancel_btn.text = _bl("Cancel", "취소")
 	_burn_preview_cancel_btn.custom_minimum_size = Vector2(120, 44)
 
 	var cancel_style = StyleBoxFlat.new()

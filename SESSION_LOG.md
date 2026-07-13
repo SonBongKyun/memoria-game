@@ -6232,3 +6232,23 @@ After S173 localized the combat log, two prominent English labels remained in `b
 
 ### Battle text localization status
 Combat log (S173) + ability warnings + miss (S174) are now Korean. Remaining English in battle is the burn-skill menu names/descs and status-icon codes, whose display lives in `battle_scene.gd` (codex's active file) — deferred to avoid collision.
+
+## S175 - 2026-07-12 (Battle scene handoff: Korean UI + layout cleanup)
+
+### Context
+User asked Claude to take over battle_scene.gd polish (codex had it uncommitted). Confirmed codex stopped; committed codex's WIP + new CG assets as a checkpoint first (clean recovery point, boots clean), then Claude worked on top.
+
+### Done (battle_scene.gd + capture harness)
+- **Localized ~38 English battle-scene UI strings** to Korean via a new `_bl(en,ko)` helper: turn indicators (당신의 턴/적의 턴/최후의 저항/필드 포커스), turn-order pips (아군/적, was PLAYER/ENEMY), stance UI (자세/잔재/화염/공허), limit label (리밋), MEMORY CASCADE indicator, [INTEL]→[정보] prefix, boss/phase tags, burn/residue/item menu titles + empty states, echo/Elia panel headers, (no techniques), guard-focus VFX, ally-action indicator (localized name + technique map), enemy intro intel (약점/저항/탈출 불가/보이드 등급), objective card defaults, enemy subtitles (보이드 비스트/적대적 존재), COMBO→콤보, ally command labels (세이블:/토비아스:), victory reward labels, burn-preview panel (침식/취소/etc.). Kept BREAK/BROKEN/HP as universal mechanic terms.
+- **Bug fix**: `_update_limit_button()` compared `child.text == "LIMIT"`, which never matched in Korean ("리밋") — the LIMIT command button's enabled/disabled state never updated in Korean locale. Now stores and uses a `limit_btn` reference.
+- **Layout fix**: the stance row and limit gauge were both center-anchored at 0.78 — overlapping each other AND the command grid's top. Split them left (limit) / right (stance) within the 26px band above the grid; no more overlap (verified by re-render).
+- **Parse fix**: an `:=` inferred a Variant from `Dictionary.get()` (warnings-as-errors) — explicitly typed as String.
+- **Capture harness**: `capture_story_combat` now sets `GameManager.change_state(BATTLE)` so captures show the real battle (exploration HUD hidden), not a HUD-over-battle artifact.
+
+### Verification
+- `smoke_story_combat`: STORY_COMBAT_SMOKE_PASS (full real battle, all localized paths + limit button exercised).
+- `smoke_visual_clarity`: VISUAL_CLARITY_SMOKE_PASS (font_chain=ko).
+- Live re-renders (3 iterations, grounding loop) confirm: all battle UI Korean, stance/limit no longer overlap the command grid, exploration HUD correctly hidden.
+
+### Notes
+- The framed art mid-right is the enemy sprite showing `enemy_image`; the harness used a wide party-scene CG as a stand-in, so it letterboxes. Real battles use enemy portraits / pixel enemies — not a layout bug.
