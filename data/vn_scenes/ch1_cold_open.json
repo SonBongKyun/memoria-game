@@ -1,0 +1,101 @@
+{
+  "id": "ch1_cold_open",
+  "title": "Chapter 1 — Before the Ash Settled",
+  "title_ko": "1장 — 재가 가라앉기 전",
+  "chapter": 1,
+  "bgm": "res://assets/audio/bgm/dialogue_tense.mp3",
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/story_ch1_rim_omen.png",
+      "fade": 1.8,
+      "cg_motion": "pull_back",
+      "sfx": "void_pulse",
+      "narrate": "Before Arrel remembered the dead beast, he remembered the sky opening.",
+      "narrate_ko": "아렐은 죽은 괴물보다 먼저, 하늘이 열리던 순간을 기억했다."
+    },
+    {
+      "cg": "res://assets/cg/generated/story_ch1_void_beast_emergence.png",
+      "fade": 0.35,
+      "cg_motion": "push_in",
+      "impact": "void",
+      "sfx": "battle_intro",
+      "narrate": "The Rim answered with teeth. A Void Beast descended through the ash, and the forest bent beneath it.",
+      "narrate_ko": "림은 이빨로 대답했다. 보이드 비스트가 재를 가르며 내려왔고, 숲 전체가 그 아래에서 휘었다."
+    },
+    {
+      "choice_title": "WHAT MOVES BEFORE MEMORY?",
+      "choice_title_ko": "기억보다 먼저 움직이는 것은?",
+      "choice_hint": "Your opening instinct leaves a small advantage that survives into the next hunt.",
+      "choice_hint_ko": "첫 본능은 다음 사냥까지 남는 작은 우위가 됩니다.",
+      "choice": [
+        {
+          "text": "Say your name before the dark can take it.",
+          "text_ko": "어둠이 빼앗기 전에 자신의 이름을 말한다.",
+          "set_flag": "opening_named_self",
+          "add_grains": 4,
+          "effect": "Begin with 4 Grains — proof that Arrel still knows what is his.",
+          "effect_ko": "그레인 4개 획득 — 아직 자신의 것을 구분할 수 있다는 증거."
+        },
+        {
+          "text": "Step between the beast and Elia's lantern.",
+          "text_ko": "괴물과 엘리아의 등불 사이로 들어선다.",
+          "set_flag": "opening_guarded_light",
+          "add_item": "smoke_bomb",
+          "effect": "Gain 1 Smoke Bomb from Elia's field kit.",
+          "effect_ko": "엘리아의 야전 장비에서 연막탄 1개 획득."
+        },
+        {
+          "text": "Listen for the gap between its movements.",
+          "text_ko": "놈의 움직임 사이에 난 틈을 듣는다.",
+          "set_flag": "vb_read",
+          "effect": "Carry its rhythm into the next Void Beast fight.",
+          "effect_ko": "놈의 리듬을 다음 보이드 비스트 전투까지 기억."
+        }
+      ]
+    },
+    {
+      "requires_flag": "opening_named_self",
+      "cg": "res://assets/cg/generated/story_ch1_first_burn_strike.png",
+      "fade": 0.28,
+      "cg_motion": "strike",
+      "impact": "memory",
+      "sfx": "burn",
+      "narrate": "Arrel. He spoke it once, then drove the name through the blade like a nail holding the world together.",
+      "narrate_ko": "아렐. 그는 이름을 한 번 입에 올리고, 세계를 붙드는 못처럼 칼날에 박아 넣었다."
+    },
+    {
+      "requires_flag": "opening_guarded_light",
+      "cg": "res://assets/cg/generated/story_ch1_first_burn_strike.png",
+      "fade": 0.28,
+      "cg_motion": "strike",
+      "impact": "memory",
+      "sfx": "burn",
+      "narrate": "He stepped toward the lantern, not away from the beast. The blade ignited where fear should have been.",
+      "narrate_ko": "그는 괴물에게서 물러나는 대신 등불 앞으로 나섰다. 두려움이 있어야 할 자리에서 칼날이 타올랐다."
+    },
+    {
+      "requires_flag": "vb_read",
+      "cg": "res://assets/cg/generated/story_ch1_first_burn_strike.png",
+      "fade": 0.28,
+      "cg_motion": "strike",
+      "impact": "memory",
+      "sfx": "burn",
+      "narrate": "Three limbs high. One low. In the silence between them, Arrel found the place where the monster ended.",
+      "narrate_ko": "팔다리 셋은 높게, 하나는 낮게. 그 사이의 침묵 속에서 아렐은 괴물이 끝나는 자리를 찾아냈다."
+    },
+    {
+      "cg": "res://assets/cg/generated/story_ch1_opening_aftermath.png",
+      "fade": 0.85,
+      "cg_motion": "still",
+      "impact": "heavy",
+      "sfx": "hit",
+      "narrate": "The beast was dead.",
+      "narrate_ko": "괴물은 죽어 있었다."
+    },
+    {
+      "action": "goto_scene",
+      "id": "ch1_prologue",
+      "start_index": 1
+    }
+  ]
+}

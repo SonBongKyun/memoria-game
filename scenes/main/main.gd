@@ -202,7 +202,7 @@ func _on_new_game_pressed() -> void:
 		"elia_with_party": true,
 		"items": {},
 	}
-	SceneFlow.pending_scene_id = "ch1_prologue"
+	SceneFlow.pending_scene_id = "ch1_cold_open"
 	SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
 
 func _on_continue_pressed() -> void:

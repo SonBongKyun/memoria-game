@@ -35,6 +35,7 @@ const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_sab
 const TOBIAS_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_tobias_record_ward.png"
 const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/sable_battle_fullbody.png"
 const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/tobias_battle_fullbody.png"
+const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/elia_battle_anchor_fullbody.png"
 const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"
 const ELIA_ACTION_CUTIN_PATHS: Dictionary = {
 	"humming_shield": "res://assets/cg/generated/memory_burn_elia_song.png",
@@ -1338,7 +1339,7 @@ func _build_ally_sprite(root: Control) -> void:
 	_ally_base_pos = ally_sprite_container.position
 
 	# 동행자가 있는지 확인
-	var has_ally = BattleManager.sable_in_party or GameManager.get_flag("elia_companion")
+	var has_ally = BattleManager.sable_in_party or GameManager.player_data.elia_with_party
 	if not has_ally:
 		return
 
@@ -1353,9 +1354,19 @@ func _build_ally_sprite(root: Control) -> void:
 	ally_sprite_container.add_child(ally_shadow)
 
 	# 동행자 포트레이트 체크
-	var portrait_map = {"elia": "res://assets/portraits/elia_face_neutral.png", "sable": SABLE_BATTLE_FULLBODY_PATH}
+	var portrait_map = {"elia": ELIA_BATTLE_FULLBODY_PATH, "sable": SABLE_BATTLE_FULLBODY_PATH}
 	var p_path = portrait_map.get(who, "")
-	if who == "elia":
+	if p_path != "" and ResourceLoader.exists(p_path):
+		var tex_rect = TextureRect.new()
+		tex_rect.position = Vector2(18, -2)
+		tex_rect.size = Vector2(124, 152)
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.texture = load(p_path)
+		tex_rect.modulate = Color.WHITE
+		ally_sprite_container.add_child(tex_rect)
+		ally_sprite = tex_rect
+	elif who == "elia":
 		var anim_sprite = AnimatedSprite2D.new()
 		# S151: 엘리아 실사 시트 우선 — 없으면 절차 생성 폴백
 		var elia_sheet = PixelSprite.load_sheet_frames("elia")
@@ -1370,16 +1381,6 @@ func _build_ally_sprite(root: Control) -> void:
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
-	elif p_path != "" and ResourceLoader.exists(p_path):
-		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(18, -2)
-		tex_rect.size = Vector2(124, 152)
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = load(p_path)
-		tex_rect.modulate = Color.WHITE
-		ally_sprite_container.add_child(tex_rect)
-		ally_sprite = tex_rect
 	else:
 		# S57: Use AnimatedSprite2D with battle sprite frames for animation support
 		var anim_sprite = AnimatedSprite2D.new()
@@ -2441,6 +2442,12 @@ func _toggle_item_list() -> void:
 			var btn = Button.new()
 			btn.text = "%s x%d — %s" % [item_def["name"], count, item_def["desc"]]
 			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			btn.custom_minimum_size = Vector2(0, 52)
+			var item_icon := GameManager.get_item_icon(item_id)
+			if item_icon:
+				btn.icon = item_icon
+				btn.expand_icon = true
+			btn.tooltip_text = item_def["desc"]
 
 			var s = StyleBoxFlat.new()
 			s.bg_color = Color(0.06, 0.08, 0.05, 0.85)
@@ -3944,6 +3951,12 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var resolution: String = rewards.get("resolution", "defeat")
 	var heal: int = rewards.get("heal", 0)
 	var item_name: String = rewards.get("item", "")
+	var dropped_item_id := ""
+	if item_name != "":
+		for candidate_id in GameManager.ITEMS:
+			if String(GameManager.ITEMS[candidate_id].get("name", "")) == item_name:
+				dropped_item_id = candidate_id
+				break
 	var enemy_name: String = rewards.get("enemy_name", "Unknown")
 	var battles_total: int = rewards.get("battles_total", 0)
 	_rewards_can_dismiss = false
@@ -4050,6 +4063,14 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var grains_row = HBoxContainer.new()
 	grains_row.add_theme_constant_override("separation", 8)
 	vbox.add_child(grains_row)
+	var grains_token = GameManager.get_ui_icon("grains")
+	if grains_token:
+		var grains_art = TextureRect.new()
+		grains_art.custom_minimum_size = Vector2(26, 26)
+		grains_art.texture = grains_token
+		grains_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		grains_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		grains_row.add_child(grains_art)
 
 	var grains_icon = Label.new()
 	grains_icon.text = "Grains Earned"
@@ -4158,6 +4179,13 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	item_row.add_theme_constant_override("separation", 8)
 	item_row.modulate.a = 0.0
 	vbox.add_child(item_row)
+	if dropped_item_id != "":
+		var item_art = TextureRect.new()
+		item_art.custom_minimum_size = Vector2(30, 30)
+		item_art.texture = GameManager.get_item_icon(dropped_item_id)
+		item_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		item_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		item_row.add_child(item_art)
 
 	var item_lbl = Label.new()
 	item_lbl.text = "Item Found"

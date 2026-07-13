@@ -231,11 +231,14 @@ const FIELD_FOCUS_MAX: int = 3
 
 # --- 아이템 정의 ---
 const ITEMS: Dictionary = {
-	"potion": {"name": "Potion", "desc": "Restores 40 HP.", "type": "heal", "power": 40, "price": 12},
-	"hi_potion": {"name": "Hi-Potion", "desc": "Restores 80 HP.", "type": "heal", "power": 80, "price": 25},
-	"antidote": {"name": "Antidote", "desc": "Cures poison and burn.", "type": "cure", "power": 0, "price": 10},
-	"firebomb": {"name": "Firebomb", "desc": "Burns the enemy for 2 turns.", "type": "burn", "power": 15, "price": 18},
-	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15},
+	"potion": {"name": "Potion", "desc": "Restores 40 HP.", "type": "heal", "power": 40, "price": 12, "icon": "res://assets/ui/items/potion.png"},
+	"hi_potion": {"name": "Hi-Potion", "desc": "Restores 80 HP.", "type": "heal", "power": 80, "price": 25, "icon": "res://assets/ui/items/hi_potion.png"},
+	"antidote": {"name": "Antidote", "desc": "Cures poison and burn.", "type": "cure", "power": 0, "price": 10, "icon": "res://assets/ui/items/antidote.png"},
+	"firebomb": {"name": "Firebomb", "desc": "Burns the enemy for 2 turns.", "type": "burn", "power": 15, "price": 18, "icon": "res://assets/ui/items/firebomb.png"},
+	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15, "icon": "res://assets/ui/items/smoke_bomb.png"},
+}
+const UI_ICON_PATHS: Dictionary = {
+	"grains": "res://assets/ui/items/grains.png",
 }
 
 # --- S41: 장비 시스템 ---
@@ -344,6 +347,19 @@ func remove_item(item_id: String, count: int = 1) -> bool:
 
 func get_item_count(item_id: String) -> int:
 	return player_data.items.get(item_id, 0)
+
+func get_item_icon(item_id: String) -> Texture2D:
+	var item_def: Dictionary = ITEMS.get(item_id, {})
+	var icon_path := String(item_def.get("icon", ""))
+	if icon_path != "" and ResourceLoader.exists(icon_path):
+		return load(icon_path) as Texture2D
+	return null
+
+func get_ui_icon(icon_id: String) -> Texture2D:
+	var icon_path := String(UI_ICON_PATHS.get(icon_id, ""))
+	if icon_path != "" and ResourceLoader.exists(icon_path):
+		return load(icon_path) as Texture2D
+	return null
 
 func get_field_focus() -> int:
 	return clampi(int(player_data.get("field_focus", 0)), 0, FIELD_FOCUS_MAX)

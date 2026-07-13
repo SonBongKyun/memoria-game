@@ -492,6 +492,12 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Kairos calmly cuts, catalogs, and rearranges the battlefield's reality."
 	},
 	{
+		"title": "Act I: The Sky Opens",
+		"type": "Generated Opening Establishing CG",
+		"path": "res://assets/cg/generated/story_ch1_rim_omen.png",
+		"desc": "Arrel and Elia face the reversed ashfall, a descending Void Beast, and the distant Bureau road."
+	},
+	{
 		"title": "Act I: Aftermath",
 		"type": "Generated Opening Story CG",
 		"path": "res://assets/cg/generated/story_ch1_opening_aftermath.png",
@@ -570,6 +576,12 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Malet names his price beneath Verdan, surrounded by ledgers and borrowed light."
 	},
 	{
+		"title": "Act II: Seventeen Borrowed Eyes",
+		"type": "Generated Character Revelation CG",
+		"path": "res://assets/cg/generated/story_ch2_malet_seventeen_eyes.png",
+		"desc": "Malet's amber gaze holds the lamplight of seventeen lives he rebuilt himself from."
+	},
+	{
 		"title": "Act II: The First Sword",
 		"type": "Generated Memory Extraction CG",
 		"path": "res://assets/cg/generated/story_ch2_first_sword_extraction.png",
@@ -586,6 +598,12 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"type": "Generated Character Introduction CG",
 		"path": "res://assets/cg/generated/story_ch3_tobias_waystation.png",
 		"desc": "Arrel and Elia interrupt Tobias's solitary accounting at the ruined Belt waystation."
+	},
+	{
+		"title": "Act II: Records in the Air",
+		"type": "Generated Character Moment CG",
+		"path": "res://assets/cg/generated/story_ch3_tobias_fallen_records.png",
+		"desc": "Tobias catches his falling journals as the road's next witness comes into focus."
 	},
 	{
 		"title": "Act II: Three on the Belt",
@@ -610,6 +628,12 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"type": "Generated Threat Sighting CG",
 		"path": "res://assets/cg/generated/story_ch5_kairos_ridge_sighting.png",
 		"desc": "Kairos watches from the coastal ridge without needing to give chase."
+	},
+	{
+		"title": "Act II: The Shape You Keep",
+		"type": "Generated Relationship Story CG",
+		"path": "res://assets/cg/generated/story_ch5_anchorless_horizon.png",
+		"desc": "On the gray coast, Arrel and Elia hold on to the thin anchor that keeps a lost memory from becoming nothing."
 	},
 	{
 		"title": "Act II: The First Color",
@@ -798,6 +822,12 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Sable asks Arrel to prove that his mind can survive a deliberate burn."
 	},
 	{
+		"title": "Act III: What Remains",
+		"type": "Generated Burn Aftermath CG",
+		"path": "res://assets/cg/generated/story_ch7_residue_after_trial.png",
+		"desc": "Elia steadies Arrel while the residue proves that a chosen burn does not have to erase the self."
+	},
+	{
 		"title": "Act III: Last Field Preparations",
 		"type": "Generated Party CG",
 		"path": "res://assets/cg/generated/story_ch7_last_field_preparations.png",
@@ -826,6 +856,12 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"type": "Generated Forest CG",
 		"path": "res://assets/cg/generated/story_ch8_whispers_as_bait.png",
 		"desc": "Borrowed faces gather in the bark around the real four travelers."
+	},
+	{
+		"title": "Act III: Hold the Name",
+		"type": "Generated Anchoring CG",
+		"path": "res://assets/cg/generated/story_ch8_anchor_in_gale.png",
+		"desc": "Elia holds Arrel's hands against the forest and keeps one true name from scattering."
 	},
 	{
 		"title": "Act III: White Stone Shelter",

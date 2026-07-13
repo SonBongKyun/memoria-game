@@ -457,8 +457,15 @@ func _populate_items_list() -> void:
 func _add_item_button(title: String, color: Color, price: int, item_data: Dictionary) -> void:
 	var btn = Button.new()
 	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	btn.custom_minimum_size = Vector2(0, 36)
+	btn.custom_minimum_size = Vector2(0, 46)
 	btn.text = "%s — %d G" % [title, price]
+
+	var item_id := String(item_data.get("item_id", ""))
+	var item_icon := GameManager.get_item_icon(item_id)
+	if item_icon:
+		btn.icon = item_icon
+		btn.expand_icon = true
+		btn.tooltip_text = GameManager.ITEMS[item_id].get("desc", "")
 
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(color.r * 0.25, color.g * 0.25, color.b * 0.25, 0.5)

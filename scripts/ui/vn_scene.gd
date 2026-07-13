@@ -66,6 +66,7 @@ var _last_displayed_text: String = ""
 
 # 상태
 var _current_step: Dictionary = {}
+var _cinematic_cue_generation: int = 0
 var _typing_done: bool = true
 var _typed_chars: int = 0
 var _full_text: String = ""
@@ -445,7 +446,11 @@ void fragment() {
 """
 	var sm = ShaderMaterial.new()
 	sm.shader = grain_shader
+	# A clean digital plate preserves authored CG detail. Grand scale comes from
+	# composition, motion, light, and sound rather than a full-screen noise pass.
+	sm.set_shader_parameter("grain_strength", 0.0)
 	_film_grain.material = sm
+	_film_grain.visible = false
 	add_child(_film_grain)
 
 	# S73: 페이지 넘김 오버레이 — 종이 그림자 + 살짝 밝은 페이지 엣지가 좌→우로 스윕
@@ -652,11 +657,17 @@ func _make_portrait_rect(is_left: bool) -> TextureRect:
 
 func _on_step_changed(step: Dictionary) -> void:
 	_current_step = step
+	_cinematic_cue_generation += 1
 	_is_distorted_line = step.get("_distorted", false)
 
 	# CG 변경
+	var cg_fade := float(step.get("fade", CG_FADE_DURATION))
 	if step.has("cg"):
-		_change_cg(step.cg, float(step.get("fade", CG_FADE_DURATION)))
+		_change_cg(step.cg, cg_fade, String(step.get("cg_motion", "ambient")))
+
+	# S179: Data-driven one-shot cinematic cues for pivotal story beats.
+	if step.has("impact") or step.has("sfx"):
+		_play_cinematic_step(step, cg_fade if step.has("cg") else 0.0, _cinematic_cue_generation)
 
 	# S61: 왜곡 라인은 약한 색수차 + 대사 사전 글리치
 	if _is_distorted_line:
@@ -734,7 +745,7 @@ func prepare_for_close() -> void:
 
 ## ===================== CG =====================
 
-func _change_cg(cg_ref: String, fade: float) -> void:
+func _change_cg(cg_ref: String, fade: float, motion: String = "ambient") -> void:
 	var path = _resolve_cg_path(cg_ref)
 	if path == "":
 		return
@@ -748,22 +759,102 @@ func _change_cg(cg_ref: String, fade: float) -> void:
 	# 크로스페이드: next에 새 이미지 올리고 페이드인, 끝나면 current와 교체
 	_apply_cg_presentation_profile(path)
 	_cg_next.texture = tex
+	_cg_next.position = Vector2.ZERO
+	_cg_next.scale = Vector2.ONE
 	var tw = create_tween()
 	tw.set_parallel(true)
 	tw.tween_property(_cg_next, "modulate:a", 1.0, fade)
 	tw.tween_property(_cg_current, "modulate:a", 0.0, fade)
 	if _cg_detail_top != null:
 		tw.tween_property(_cg_detail_top, "modulate:a", 0.0, minf(0.25, fade))
-	tw.chain().tween_callback(Callable(self, "_swap_cg"))
+	tw.chain().tween_callback(func(): _swap_cg(motion))
 
-func _swap_cg() -> void:
+func _swap_cg(motion: String = "ambient") -> void:
 	_cg_current.texture = _cg_next.texture
 	_cg_current.modulate.a = 1.0
+	_cg_current.position = Vector2.ZERO
+	_cg_current.scale = Vector2.ONE
 	_cg_next.texture = null
 	_cg_next.modulate.a = 0.0
-	# S69: Ken Burns — 정적 일러스트에 미세한 줌+팬으로 생명감
-	_start_ken_burns(_cg_current)
+	_start_cg_motion(_cg_current, motion)
 	_sync_cg_presentation_layers()
+
+func _start_cg_motion(rect: TextureRect, motion: String) -> void:
+	if rect == null or rect.texture == null:
+		return
+	if rect.has_meta("kb_tween"):
+		var previous = rect.get_meta("kb_tween")
+		if previous is Tween and is_instance_valid(previous):
+			previous.kill()
+	rect.pivot_offset = rect.size / 2.0
+	rect.position = Vector2.ZERO
+	rect.scale = Vector2.ONE
+	if OptionsMenu != null and OptionsMenu.is_reduce_motion():
+		return
+
+	var tw := create_tween()
+	match motion:
+		"pull_back":
+			rect.scale = Vector2(1.09, 1.09)
+			tw.tween_property(rect, "scale", Vector2.ONE, 8.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		"push_in":
+			tw.tween_property(rect, "scale", Vector2(1.085, 1.085), 7.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		"strike":
+			rect.scale = Vector2(1.045, 1.045)
+			tw.tween_property(rect, "scale", Vector2.ONE, 1.1).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+		"still":
+			tw.kill()
+			return
+		_:
+			tw.kill()
+			_start_ken_burns(rect)
+			return
+	rect.set_meta("kb_tween", tw)
+
+func _play_cinematic_step(step: Dictionary, delay: float, generation: int) -> void:
+	if delay > 0.0:
+		await get_tree().create_timer(maxf(0.05, delay * 0.72)).timeout
+	if generation != _cinematic_cue_generation:
+		return
+	if not is_instance_valid(_glitch_overlay):
+		return
+
+	var impact := String(step.get("impact", ""))
+	var sfx := String(step.get("sfx", ""))
+	if sfx != "" and has_node("/root/AudioManager"):
+		AudioManager.play_sfx(sfx)
+
+	var flash_color := Color(1.0, 1.0, 1.0, 0.0)
+	var flash_duration := 0.5
+	match impact:
+		"void":
+			flash_color = Color(0.46, 0.22, 0.78, 0.28)
+			flash_duration = 0.65
+		"memory":
+			flash_color = Color(1.0, 0.72, 0.32, 0.52)
+			flash_duration = 0.9
+		"heavy":
+			flash_color = Color(0.92, 0.94, 1.0, 0.38)
+			flash_duration = 0.48
+		_:
+			return
+
+	_glitch_overlay.color = flash_color
+	var flash_tw := create_tween()
+	flash_tw.tween_property(_glitch_overlay, "color:a", 0.0, flash_duration).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	if OptionsMenu != null and (OptionsMenu.is_reduce_motion() or not OptionsMenu.is_shake_enabled()):
+		return
+	_play_cinematic_nudge(impact)
+
+func _play_cinematic_nudge(impact: String) -> void:
+	if _cg_current == null or _cg_current.texture == null:
+		return
+	var strength := 4.0 if impact == "heavy" else 2.5
+	var base := _cg_current.position
+	var tw := create_tween()
+	tw.tween_property(_cg_current, "position", base + Vector2(-strength, strength * 0.35), 0.045)
+	tw.tween_property(_cg_current, "position", base + Vector2(strength, -strength * 0.25), 0.055)
+	tw.tween_property(_cg_current, "position", base, 0.11).set_trans(Tween.TRANS_SINE)
 
 func _apply_cg_presentation_profile(path: String) -> void:
 	var key := path.to_lower()
@@ -818,6 +909,10 @@ func _sync_cg_presentation_layers() -> void:
 ## S69: Ken Burns — 8~12초에 걸쳐 1.0 → 1.05 줌 + ±20px 팬
 func _start_ken_burns(rect: TextureRect) -> void:
 	if rect == null or rect.texture == null:
+		return
+	if OptionsMenu != null and OptionsMenu.is_reduce_motion():
+		rect.position = Vector2.ZERO
+		rect.scale = Vector2.ONE
 		return
 	# 이전 트윈 정리
 	if rect.has_meta("kb_tween"):

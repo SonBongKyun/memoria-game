@@ -15,6 +15,14 @@
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
 
+## S179 Chapter 1 cold open
+
+| VN scene | Story beat | Asset | Source |
+|---|---|---|---|
+| `ch1_cold_open` | Reveals the inverted ashfall, the Void Beast, and the distant Bureau route before the first line of aftermath | `story_ch1_rim_omen.png` | GPT Image built-in |
+
+The new plate uses the live Chapter 1 Arrel, Elia, Void Beast, and Rim Forest CGs as direct identity and style references. It remains a clean, text-free 16:9 image with restrained violet light and no film grain, paper texture, speckle noise, dithering, chromatic noise, muddy detail, or visibility-obscuring fog.
+
 ## S144 ending and epilogue set
 
 | Dialogue group | Story beat | Asset |
@@ -328,3 +336,24 @@ All nine plates were generated with built-in GPT Image and attached to existing 
 | Canon ending correction | `epilogue_sable_eastern_settlement.png`, `ending_weave_sealed_gate.png`, `ending_weave_colors_return.png` | Original ending vista, `sable_canon_master.png`, `story_ch5_seam_first_light.png` |
 
 The outdated young, sighted Sable cut-in and ten remaining high-visibility story/ending plates were replaced in place with the confirmed Halda canon: an old blind woman in her late sixties with short white hair, clouded eyes, a weathered face, a small scar, and a dark violet coat. The two stage characters were generated on flat chroma backgrounds with built-in GPT Image, converted to alpha PNGs locally, visually inspected, and connected to the existing Sable/Tobias battle support paths. Prompts excluded youthful identity drift, opaque stage backgrounds, text, watermarks, heavy particles, grain, paper/canvas texture, and excessive bloom.
+
+## S180 tactile inventory and Malet revelation pass
+
+| Runtime role | Asset | Integration |
+|---|---|---|
+| Consumable inventory family | `assets/ui/items/{potion,hi_potion,antidote,firebomb,smoke_bomb,grains}.png` | Battle item chooser, Malet's item trade tab, victory item drops, and Grains earned row |
+| Elia battle-stage character | `elia_battle_anchor_fullbody.png` | Prioritized for Elia's battle companion frame, with the existing directional sheet retained as a safe fallback |
+| Malet character revelation | `story_ch2_malet_seventeen_eyes.png` | `chapter2_dialogue` / `malet_backstory`, final amber-eye narration; also registered in the Artbook |
+
+The consumables were generated as a single coherent six-icon set on a flat chroma field, split into individual PNGs, and locally converted to alpha. The item family uses a shared gold rim light, deep violet shadows, and clear color-coded silhouettes so choices remain legible at button scale: cobalt healing, ivory-green cleansing, black-gold fire, charcoal smoke, and blue-gold Grains. Elia's staff and navy silhouette are based on the canonical portrait palette. Malet's plate preserves his charcoal coat, amber eyes, violet-black room, and an empty lower dialogue band; it was attached only to the line that reveals the seventeen stolen memories. Prompts excluded text, watermarks, grain, paper/canvas texture, speckles, dithering, chromatic noise, muddy detail, excessive bloom, and visibility-obscuring particles.
+
+## S181 story-turn illustration expansion
+
+| Runtime event | Story beat | Asset | Direct story anchor |
+|---|---|---|---|
+| `chapter3_dialogue` / `tobias_encounter` | Tobias's journals fall before he explains why he records the Belt | `story_ch3_tobias_fallen_records.png` | `story_ch3_tobias_waystation.png` |
+| `chapter5_dialogue` / `elia_before_separation` | Arrel and Elia hold the thread that prevents a burn from becoming absolute nothing | `story_ch5_anchorless_horizon.png` | `dialogue_ch5_elia_cliff_choice.png` |
+| `chapter7_dialogue` / `trial_complete` | Elia steadies Arrel after the controlled burn, and residue proves the self remains | `story_ch7_residue_after_trial.png` | `story_ch7_controlled_burn_trial.png` |
+| `chapter8_dialogue` / `elia_anchor_strain` | Elia holds Arrel's name against the forest's pressure | `story_ch8_anchor_in_gale.png` | `world_rewrite_elia_anchor.png` |
+
+All four plates were generated with built-in GPT Image 2 and attached directly to existing narrative lines without moving event order, choice indexes, or Korean localization. Each uses the established blue-black, warm-amber, and restrained-violet MEMORIA palette with a clean lower dialogue band. Tobias retains his dark hair, wire spectacles, ink-stained archivist look; Arrel retains short silver hair and blue-black gear; Elia retains honey-blonde bobbed hair, white-gold clothing, and navy cape; the S7 plate preserves Sable's elder blind canon. Prompts excluded text, watermarks, film or photo grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, excessive bloom, dense fog, and visibility-obscuring particles.

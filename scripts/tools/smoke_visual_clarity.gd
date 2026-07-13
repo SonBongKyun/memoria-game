@@ -118,6 +118,18 @@ func _ready() -> void:
 	var void_particles := MapEffects.add_void_particles(map)
 	assert(not void_particles.emitting, "Clean view must suppress ambient particles")
 
+	MemoryShop.open_shop("Malet")
+	MemoryShop._current_mode = "items"
+	MemoryShop._refresh_items()
+	var illustrated_shop_buttons := 0
+	for shop_entry in MemoryShop.item_list.get_children():
+		if shop_entry is Button:
+			var shop_button := shop_entry as Button
+			if shop_button.icon != null:
+				illustrated_shop_buttons += 1
+	assert(illustrated_shop_buttons == GameManager.ITEMS.size(), "Malet's item tab must use the shared consumable icon family")
+	MemoryShop.close_shop()
+
 	BattleManager.current_enemy = BattleManager.Enemy.new("Clarity Dummy", 20, 1, false)
 	BattleManager.return_scene = "res://scenes/maps/rim_forest.tscn"
 	BattleManager.sable_in_party = true
@@ -134,6 +146,16 @@ func _ready() -> void:
 	var witness_button := battle_scene.get("witness_btn") as Button
 	assert(command_grid != null and command_grid.columns == 4 and command_grid.get_child_count() == 8, "Battle commands must remain a readable 4x2 grid")
 	assert(witness_button != null and ("WITNESS" in witness_button.text or "기억 읽기" in witness_button.text), "Story combat must expose the WITNESS route")
+	GameManager.player_data.items = {"potion": 1, "firebomb": 1}
+	battle_scene.call("_toggle_item_list")
+	var item_picker := battle_scene.get("item_list_container") as VBoxContainer
+	var illustrated_item_buttons := 0
+	for item_entry in item_picker.get_children():
+		if item_entry is Button:
+			var item_button := item_entry as Button
+			if item_button.icon != null:
+				illustrated_item_buttons += 1
+	assert(illustrated_item_buttons == 2, "Battle items must use the shared consumable icon family")
 	battle_scene.call("_play_actor_anim", actor, "attack")
 	battle_scene.call("_play_actor_anim", actor, "hurt")
 	assert(actor.animation_finished.get_connections().size() == 1, "One-shot battle verbs must share one completion callback")
@@ -149,6 +171,14 @@ func _ready() -> void:
 	await get_tree().process_frame
 	var tobias_stage := tobias_battle.get("tobias_sprite") as TextureRect
 	assert(tobias_stage != null and tobias_stage.texture.resource_path == "res://assets/cg/game_image/tobias_battle_fullbody.png", "Tobias battle support must use the transparent record-ward art")
+	tobias_battle.queue_free()
+	await get_tree().process_frame
+	BattleManager.tobias_in_party = false
+	var elia_battle: Node = battle_packed.instantiate()
+	add_child(elia_battle)
+	await get_tree().process_frame
+	var elia_stage := elia_battle.get("ally_sprite") as TextureRect
+	assert(elia_stage != null and elia_stage.texture.resource_path == "res://assets/cg/game_image/elia_battle_anchor_fullbody.png", "Elia battle support must use the transparent anchor full-body art")
 
-	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1 support_art=2 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1")
+	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1 support_art=3 item_icons=2 shop_icons=5 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1")
 	get_tree().quit(0)
