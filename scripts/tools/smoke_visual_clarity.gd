@@ -35,13 +35,14 @@ func _ready() -> void:
 	var field_player_sprite := field_player.get_node("AnimatedSprite2D") as AnimatedSprite2D
 	assert(field_player_sprite != null and field_player_sprite.sprite_frames != null, "Exploration must build Arrel's sprite")
 	var arrel_texture := field_player_sprite.sprite_frames.get_frame_texture("idle_down", 0)
-	assert(arrel_texture != null and "arrel_sheet" in PixelSprite.get_texture_source(arrel_texture), "Exploration Arrel must use the authored character sheet")
-	assert(arrel_texture.resource_path == "" and arrel_texture.resource_name != "", "Clean exploration must use the reconstructed low-noise sheet texture")
+	assert(arrel_texture != null and "sprites/field/arrel" in PixelSprite.get_texture_source(arrel_texture), "Exploration Arrel must use the four-direction field sprite")
+	assert(arrel_texture.resource_path != "", "Field sprites must resolve as imported project assets")
 	var arrel_right := field_player_sprite.sprite_frames.get_frame_texture("idle_right", 0)
 	var arrel_left := field_player_sprite.sprite_frames.get_frame_texture("idle_left", 0)
 	var arrel_up := field_player_sprite.sprite_frames.get_frame_texture("idle_up", 0)
-	assert("move_01" in PixelSprite.get_texture_source(arrel_right) and "move_left_01" in PixelSprite.get_texture_source(arrel_left), "Arrel must visibly turn left and right using authored sheet poses")
-	assert("idle_01" in PixelSprite.get_texture_source(arrel_up), "Arrel's upward pose must retain its authored sheet provenance")
+	assert("/right.png" in PixelSprite.get_texture_source(arrel_right) and "/left.png" in PixelSprite.get_texture_source(arrel_left), "Arrel must visibly turn left and right using dedicated field poses")
+	assert("/up.png" in PixelSprite.get_texture_source(arrel_up), "Arrel's upward pose must use the dedicated rear-facing frame")
+	assert(PixelSprite.get_texture_source(arrel_texture) != PixelSprite.get_texture_source(arrel_up), "Front and rear silhouettes must not reuse one texture")
 	var interact_chip := field_player.get("_interact_indicator") as Label
 	assert(interact_chip != null and interact_chip.custom_minimum_size.x >= 72.0, "Interaction feedback must use a readable action chip instead of a bare key")
 	field_player.call("_spawn_step_echo")
@@ -64,16 +65,16 @@ func _ready() -> void:
 	await get_tree().process_frame
 	var field_elia_sprite := field_elia.get_node("CharacterSprite") as AnimatedSprite2D
 	var elia_texture := field_elia_sprite.sprite_frames.get_frame_texture("idle_down", 0)
-	assert(elia_texture != null and "elia_sheet" in PixelSprite.get_texture_source(elia_texture), "Opening Elia must use the authored character sheet")
+	assert(elia_texture != null and "sprites/field/elia" in PixelSprite.get_texture_source(elia_texture), "Opening Elia must use the four-direction field sprite")
 	field_elia.queue_free()
 	await get_tree().process_frame
 
 	for npc_data in [
-		{"name": "Malet", "sheet": "malet_sheet"},
-		{"name": "Tobias", "sheet": "tobias_sheet"},
-		{"name": "Kairos", "sheet": "kairos_sheet"},
-		{"name": "Nera", "sheet": "nera_sheet"},
-		{"name": "Veil", "sheet": "veil_sheet"},
+		{"name": "Malet", "sheet": "field/malet"},
+		{"name": "Tobias", "sheet": "field/tobias"},
+		{"name": "Kairos", "sheet": "field/kairos"},
+		{"name": "Nera", "sheet": "field/nera"},
+		{"name": "Veil", "sheet": "field/veil"},
 	]:
 		var authored_npc = npc_scene.instantiate()
 		authored_npc.npc_name = npc_data.name
@@ -84,10 +85,13 @@ func _ready() -> void:
 		var authored_right := authored_sprite.sprite_frames.get_frame_texture("walk_right", 0)
 		var authored_left := authored_sprite.sprite_frames.get_frame_texture("walk_left", 0)
 		assert(npc_data.sheet in PixelSprite.get_texture_source(authored_down), "%s must use its authored field sheet" % npc_data.name)
-		assert("move_01" in PixelSprite.get_texture_source(authored_right) and "move_left_01" in PixelSprite.get_texture_source(authored_left), "%s must expose authored left/right movement" % npc_data.name)
-		assert(is_equal_approx(authored_sprite.scale.x, 0.32), "%s 160px sheet must be normalized to the field cast" % npc_data.name)
+		assert("/right.png" in PixelSprite.get_texture_source(authored_right) and "/left.png" in PixelSprite.get_texture_source(authored_left), "%s must expose dedicated left/right field poses" % npc_data.name)
+		assert(is_equal_approx(authored_sprite.scale.x, 0.36), "%s must share the unified field-cast scale" % npc_data.name)
 		authored_npc.queue_free()
 		await get_tree().process_frame
+	assert(PixelSprite.has_field_sprite_frames("sable"), "Sable must share the same four-direction field-cast contract")
+	for direction in ["down", "up", "left", "right"]:
+		assert(ResourceLoader.exists("res://assets/sprites/field/sable/%s.png" % direction), "Sable is missing a %s field direction" % direction)
 	assert(UITheme.make_body_font().font_names[0] == "Noto Serif KR", "Korean dialogue must use the literary Hangul serif-first font chain")
 	assert("Quick Save" not in PauseMenu.pause_hint_label.text, "Controller footer must not advertise unsupported quick-save buttons")
 	InputManager.current_mode = previous_mode
@@ -180,5 +184,5 @@ func _ready() -> void:
 	var elia_stage := elia_battle.get("ally_sprite") as TextureRect
 	assert(elia_stage != null and elia_stage.texture.resource_path == "res://assets/cg/game_image/elia_battle_anchor_fullbody.png", "Elia battle support must use the transparent anchor full-body art")
 
-	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1 support_art=3 item_icons=2 shop_icons=5 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1")
+	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1 support_art=3 item_icons=2 shop_icons=6 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1")
 	get_tree().quit(0)

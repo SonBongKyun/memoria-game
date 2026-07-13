@@ -621,6 +621,13 @@ func _update_hud() -> void:
 		total_items += items_dict[item_id]
 	items_label.text = ("아이템: %d" % total_items) if GameManager.current_locale == "ko" else "Items: %d" % total_items
 
+	var recovery_stock := int(items_dict.get("potion", 0)) + int(items_dict.get("hi_potion", 0)) + int(items_dict.get("antidote", 0))
+	var tool_stock := int(items_dict.get("firebomb", 0)) + int(items_dict.get("smoke_bomb", 0))
+	var witness_stock := int(items_dict.get("witness_ink", 0))
+	items_label.visible = total_items > 0 and not OptionsMenu.is_clean_gameplay_visuals()
+	items_label.text = ("전술 키트 · 회복 %d · 도구 %d · 증언 %d" % [recovery_stock, tool_stock, witness_stock]) if GameManager.current_locale == "ko" else "TACTICAL KIT · Recovery %d · Tools %d · Witness %d" % [recovery_stock, tool_stock, witness_stock]
+	items_label.add_theme_color_override("font_color", Color(0.74, 0.58, 1.0) if witness_stock > 0 else Color(0.55, 0.75, 0.55))
+
 	_update_memory_pulse_status()
 
 	# S41: Equipment summary

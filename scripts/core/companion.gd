@@ -4,6 +4,8 @@ extends CharacterBody2D
 
 const IMPORTED_SHEET_SCALE: Vector2 = Vector2(0.40, 0.40)
 const IMPORTED_SHEET_OFFSET: Vector2 = Vector2(0, -52)
+const FIELD_SPRITE_SCALE: Vector2 = Vector2(0.36, 0.36)
+const FIELD_SPRITE_OFFSET: Vector2 = Vector2(0, -72)
 
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const FOLLOW_SPEED: float = 100.0
@@ -129,8 +131,14 @@ func interact() -> void:
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprite() -> void:
 	var config = PixelSprite.elia_config()
+	var field_key := "sable" if npc_name == "Sable" else "elia"
+	if PixelSprite.has_field_sprite_frames(field_key):
+		sprite.sprite_frames = PixelSprite.create_sheet_frames(field_key)
+		_rest_scale = FIELD_SPRITE_SCALE
+		sprite.offset = FIELD_SPRITE_OFFSET
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	# npc_name에 따라 다른 config 사용
-	if npc_name == "Sable":
+	elif npc_name == "Sable":
 		config = PixelSprite.sable_config()
 		sprite.sprite_frames = PixelSprite.create_frames(config)
 		_rest_scale = Vector2.ONE

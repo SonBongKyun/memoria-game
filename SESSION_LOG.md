@@ -2,6 +2,68 @@
 
 ---
 
+## S184 - 2026-07-14 (Gameplay balance, tactical items, and presentation cohesion)
+
+### Design pass
+- The field-art overhaul fixed the readability and character identity of exploration, but consumables still read as a flat counter and the preservation route had no tactical bridge between a normal WITNESS action and burning a memory.
+- Antidote and Firebomb were too narrow to be satisfying shop choices: one could waste a turn with no immediate recovery, while the other deferred all value to a delayed tick.
+
+### Done
+- Added **Witness Ink**, a rare illustrated GPT Image 2 consumable with clean alpha: it advances WITNESS by one step, guards the next blow, adds Limit, still obeys boss full-reading rules, and can be purchased, found from void/boss encounters, or used from the opening kit and Boss Rush kit.
+- Rebalanced existing consumables around clear tactical roles: Antidote now purges poison/burn and restores 12 HP; Firebomb now has a 12-damage impact before its two-turn burn.
+- Reframed the battle item selector into category-colored, two-line action cards (RECOVER, PURGE, IGNITE, ESCAPE, WITNESS) so the effect type, illustration, and player decision scan together.
+- Replaced the exploration HUD's generic item total with a live tactical-kit summary: Recovery, Tools, and Witness stock. The Witness count shifts the line to violet, while Clear Gameplay View remains uncluttered.
+- Extended the real combat smoke with antidote recovery, firebomb impact-plus-DoT, Witness Ink progress, turn-flow, and shipped-icon assertions. The visual smoke now expects all six shop icons.
+
+### Verification
+- Built-in GPT Image 2 Witness Ink source was chroma-keyed to RGBA and passed alpha audit (1199x1312, full 0..255 alpha range).
+- Godot 4.6.2 editor import completed for witness_ink.png; only the known VFX Library popup/autoload and ShaderV duplicate-UID shutdown warnings appeared.
+- smoke_story_combat: **STORY_COMBAT_SMOKE_PASS** after exercising Antidote, Firebomb, Witness Ink, normal WITNESS release, preservation reward, and Field Focus.
+- smoke_visual_clarity: **VISUAL_CLARITY_SMOKE_PASS** (item_icons=2, shop_icons=6, unified field cast, clear-view and battle checks).
+- smoke_gameplay_qol and smoke_field_focus both passed; VN validation passed (20 files / 504 steps) and Korean localization passed (31 files / 1,583 fields).
+- git diff --check passed apart from normal CRLF notices.
+
+## S183 - 2026-07-13 (GPT Image 2 playable map canvas overhaul)
+
+### Audit
+- Verified that the first field view and Verdan Market still read as code-generated tile grids even after the field-cast cleanup. Existing story CGs carried the intended dark-fantasy identity, but the gameplay maps only received them as faint atmosphere overlays.
+
+### Done
+- Generated six top-down, low-noise 32-bit environment canvases with GPT Image 2: Rim Forest, Verdan Market, Belt Waystation, Crumbling Coast, The Seam, and BL-07 Void.
+- Added a `MapEffects.add_map_canvas()` layer beneath the live TileMap. It uses the generated art for actual terrain values while retaining the original TileMap collision, interactables, minimap data, and script-controlled map flow.
+- Connected the canvas layer to all ten playable maps. Shared canvases are deliberately palette-tinted for their adjacent narrative variants: Forgotten Forest, Drift Shelter, Seam Outskirts, and Colorless Waste.
+- Suppressed Rim Forest's redundant procedural edge seams and disabled runtime additive point lights when a baked map canvas is present, preventing translucent square patches and preserving the new maps' authored lantern values.
+- Kept the field cast, HUD, NPCs, interaction prompts, and objective markers on top of the canvas. Clean Gameplay View now keeps the environmental artwork instead of falling back to a flat code tile layer.
+
+### Verification
+- Headless construction smoke passed for all 10 map scenes with no `Parse Error` or `SCRIPT ERROR`.
+- Live captures passed for Rim Forest exploration and Verdan Market/Malet interaction after the new layers were attached.
+- Canvas reference audit passed (`maps=10`, `canvases=6`), VN validation passed (20 files / 504 steps), Korean localization passed (31 files / 1,583 fields), and `git diff --check` passed.
+
+## S182 - 2026-07-13 (CG consistency correction and unified field cast)
+
+### Audit
+- Compared the four most recent CG additions against the established Chapter 3, 5, 7, and 8 plates at full screen. The replacements used a flatter cell-rendered finish, an artificial lower dialogue band, and character proportions that split from the existing charcoal-line, muted-painterly direction.
+- Captured the live Rim Forest, Verdan Market, and full directional gallery. The old exploration boards were high-detail AI figures reduced at runtime; at field scale their white halos and fabricated rear head treatment read as noise and did not belong with the 32px map tiles.
+
+### Done
+- Removed the four mismatched S181 CG files and their runtime/Artbook references. Rebuilt the same narrative beats with direct established-plate references and no forced dialogue band:
+  - `story_ch3_tobias_record_spill_v2.png`
+  - `story_ch5_threaded_horizon_v2.png`
+  - `story_ch7_residue_witness_v2.png`
+  - `story_ch8_anchor_under_roots_v2.png`
+- Generated a unified GPT Image 2 field cast for Arrel, Elia, Malet, Tobias, Kairos, Nera, Veil, and Sable. Every cast member now has a clean alpha PNG for down/front, up/back, left, and right under `assets/sprites/field/<name>/`.
+- Made `PixelSprite` prefer those purpose-built field directions non-destructively, including real rear-facing art instead of a synthesized face mask. Player, companion, and NPC setup select nearest-neighbour field art with one shared scale and foot baseline; legacy character sheets remain untouched fallbacks.
+- Replaced Verdan Market's procedural ambient citizens with scaled field-cast variants, so background people no longer use the incompatible square-face placeholder style.
+- Adjusted Clear Gameplay View terrain routing so clean tiles no longer use per-cell color variation or large patch blocks. Also widened the clean-view camera slightly to provide more map context without shrinking the readable field cast.
+- Updated the visual-clarity smoke and live capture harnesses to verify the field paths and every directional frame, including Sable.
+
+### Verification
+- Godot 4.6.2 headless editor import completed for 32 field frames and the four replacement CGs without script or parse failures.
+- `smoke_visual_clarity.tscn` passed after the new cast integration.
+- Normal-render captures passed for Rim Forest, Verdan Market, and the six-character directional gallery; the captures show the new field assets resolving from `assets/sprites/field/`.
+
+
 ## S01 — 2026-04-05 (프로젝트 초기 세팅)
 
 ### 완료

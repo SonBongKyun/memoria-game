@@ -319,6 +319,7 @@ func _build_map() -> void:
 	]
 	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
+	MapEffects.add_map_canvas(self, tilemap, "res://assets/environment/map_canvases/map_rim_forest_canvas_v1.png", Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), {"terrain_alpha": 0.0, "tint": Color(0.62, 0.78, 0.56, 1.0)})
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TRUNK, Tile.CANOPY, Tile.ROOT])
 	for body in bodies:
 		add_child(body)

@@ -200,7 +200,7 @@ func _on_new_game_pressed() -> void:
 		"max_hp": 100,
 		"grains": 0,
 		"elia_with_party": true,
-		"items": {},
+		"items": {"witness_ink": 1},
 	}
 	SceneFlow.pending_scene_id = "ch1_cold_open"
 	SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
@@ -221,7 +221,7 @@ func _on_aftermath_preview_pressed() -> void:
 		"max_hp": 100,
 		"grains": 0,
 		"elia_with_party": true,
-		"items": {},
+		"items": {"witness_ink": 1},
 	}
 	MemoryManager.memories.clear()
 	MemoryManager.burned_memories.clear()

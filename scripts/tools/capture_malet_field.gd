@@ -29,7 +29,7 @@ func _ready() -> void:
 
 	var malet_sprite := malet.get_node("CharacterSprite") as AnimatedSprite2D
 	var texture := malet_sprite.sprite_frames.get_frame_texture(malet_sprite.animation, 0)
-	assert("malet_sheet" in PixelSprite.get_texture_source(texture))
+	assert("sprites/field/malet" in PixelSprite.get_texture_source(texture))
 	assert(malet_sprite.animation == "idle_left")
 	var interaction_chip := player.get("_interact_indicator") as Label
 	assert(interaction_chip.visible and ("대화" in interaction_chip.text or "Talk" in interaction_chip.text))

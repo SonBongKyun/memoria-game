@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vgwjdnkuw6qu"
-path="res://.godot/imported/story_ch8_anchor_in_gale.png-9d37af62a15828d4523bc3b8481acf4d.ctex"
+uid="uid://cqalftv7fwhr6"
+path="res://.godot/imported/map_belt_waystation_canvas_v1.png-be3d3bacbfa2f4a46c518ce8015f8ae8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cg/generated/story_ch8_anchor_in_gale.png"
-dest_files=["res://.godot/imported/story_ch8_anchor_in_gale.png-9d37af62a15828d4523bc3b8481acf4d.ctex"]
+source_file="res://assets/environment/map_canvases/map_belt_waystation_canvas_v1.png"
+dest_files=["res://.godot/imported/map_belt_waystation_canvas_v1.png-be3d3bacbfa2f4a46c518ce8015f8ae8.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dsudcuuauh0bq"
-path="res://.godot/imported/story_ch3_tobias_fallen_records.png-0f11f43b54b91625e5d2280431cac177.ctex"
+uid="uid://bhagtns2g4r2a"
+path="res://.godot/imported/right.png-b7ce5b405c5e9c61e3322ae2dde9717b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cg/generated/story_ch3_tobias_fallen_records.png"
-dest_files=["res://.godot/imported/story_ch3_tobias_fallen_records.png-0f11f43b54b91625e5d2280431cac177.ctex"]
+source_file="res://assets/sprites/field/tobias/right.png"
+dest_files=["res://.godot/imported/right.png-b7ce5b405c5e9c61e3322ae2dde9717b.ctex"]
 
 [params]
 

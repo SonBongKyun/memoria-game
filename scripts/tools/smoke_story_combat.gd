@@ -15,6 +15,34 @@ func _ready() -> void:
 	var boss := BattleManager.Enemy.new("Shade Sentinel", 180, 20, true)
 	boss.is_boss = true
 	assert(BattleManager._get_witness_requirement(boss) == 3, "Story bosses must still require a full reading")
+	assert(GameManager.ITEMS.has("witness_ink"), "The preservation route needs a dedicated tactical item")
+	assert(ResourceLoader.exists(GameManager.ITEMS["witness_ink"]["icon"]), "Witness Ink must resolve to a shipped illustrated icon")
+
+	# Item balance probe: consumables must create a tactical decision rather than
+	# functioning as dead inventory between shop visits.
+	var item_enemy := BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"antidote": 1}
+	GameManager.player_data.hp = 60
+	BattleManager.player_statuses.append(BattleManager.StatusEntry.new(BattleManager.StatusEffect.POISON, 2, 6))
+	BattleManager.player_use_item("antidote")
+	assert(GameManager.player_data.hp == 72 and BattleManager.player_statuses.is_empty(), "Antidote must both clear pressure and restore a small recovery buffer")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"firebomb": 1}
+	BattleManager.player_use_item("firebomb")
+	assert(item_enemy.hp < 105 and not BattleManager.enemy_statuses.is_empty(), "Firebomb must apply immediate impact as well as its first burn tick")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"witness_ink": 1}
+	BattleManager.player_use_item("witness_ink")
+	assert(BattleManager._witness_progress == 1 and GameManager.get_item_count("witness_ink") == 0, "Witness Ink must advance a reading without bypassing it")
+	await _wait_for_player_turn()
+	assert(BattleManager.state == BattleManager.BattleState.PLAYER_TURN, "Witness Ink must preserve the normal turn flow")
 
 	var enemy := BattleManager.Enemy.new("Ash Crawler", 80, 1, false)
 	BattleManager.current_enemy = enemy
@@ -51,6 +79,21 @@ func _wait_for_player_turn() -> void:
 	while BattleManager.state != BattleManager.BattleState.PLAYER_TURN and elapsed < 4.0:
 		await get_tree().create_timer(0.05).timeout
 		elapsed += 0.05
+
+func _prepare_item_probe(enemy: BattleManager.Enemy) -> void:
+	BattleManager.current_enemy = enemy
+	BattleManager.state = BattleManager.BattleState.PLAYER_TURN
+	BattleManager.return_scene = ""
+	BattleManager.tactical_objective = {}
+	BattleManager.player_statuses.clear()
+	BattleManager.enemy_statuses.clear()
+	BattleManager.player_defending = false
+	BattleManager._witness_progress = 0
+	BattleManager._witness_required = BattleManager._get_witness_requirement(enemy)
+	BattleManager._witness_completed_this_battle = false
+	BattleManager._resolved_by_witness = false
+	BattleManager._witness_boss_insight = false
+	BattleManager._battle_started_as_boss_rush = true
 
 func _on_rewards(rewards: Dictionary) -> void:
 	captured_rewards = rewards.duplicate(true)

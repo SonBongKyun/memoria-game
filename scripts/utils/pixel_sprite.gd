@@ -7,6 +7,7 @@ class_name PixelSprite
 const SIZE: int = 48
 const HALF: int = 24
 const SHEET_FRAME_ROOT: String = "res://assets/sprites/characters"
+const FIELD_SPRITE_ROOT: String = "res://assets/sprites/field"
 static var _clean_sheet_cache: Dictionary = {}
 
 ## SpriteFrames 생성 (4방향 idle + walk + S57: attack/hurt/death/cast)
@@ -72,6 +73,14 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 	return frames
 
 static func create_sheet_frames(who: String) -> SpriteFrames:
+	# Field play is deliberately a different fidelity target from portraits and
+	# battle art.  Prefer the purpose-built four-direction pixel sprites when
+	# they exist: they have real front/back/side silhouettes and stay readable
+	# against 32px terrain without the AI-line shimmer of the old reference
+	# boards.  Keep the original boards untouched as a non-destructive fallback.
+	var field_frames := _create_field_sprite_frames(who)
+	if field_frames != null:
+		return field_frames
 	var folder = "%s/%s_sheet" % [SHEET_FRAME_ROOT, who]
 	if not ResourceLoader.exists("%s/idle_01.png" % folder):
 		match who:
@@ -107,6 +116,36 @@ static func create_sheet_frames(who: String) -> SpriteFrames:
 	_add_loaded_anim(frames, "hurt", _frame_paths(folder, "hurt", 2), 8.0, false)
 	_add_loaded_anim(frames, "death", _frame_paths(folder, "down", 2), 4.0, false)
 	_add_loaded_anim(frames, "cast", _frame_paths(folder, "cast", 4), 8.0, false)
+	if frames.has_animation("default"):
+		frames.remove_animation("default")
+	return frames
+
+static func has_field_sprite_frames(who: String) -> bool:
+	for direction in ["down", "up", "left", "right"]:
+		if not ResourceLoader.exists("%s/%s/%s.png" % [FIELD_SPRITE_ROOT, who, direction]):
+			return false
+	return true
+
+static func _create_field_sprite_frames(who: String) -> SpriteFrames:
+	if not has_field_sprite_frames(who):
+		return null
+	var frames := SpriteFrames.new()
+	var direction_textures: Dictionary = {}
+	for direction in ["down", "up", "left", "right"]:
+		var path := "%s/%s/%s.png" % [FIELD_SPRITE_ROOT, who, direction]
+		var texture := load(path) as Texture2D
+		if texture == null:
+			return null
+		direction_textures[direction] = texture
+		_add_loaded_texture_anim(frames, "idle_" + direction, [texture], 4.0, true)
+		# Movement weight comes from the Player/Companion bob and footfall system.
+		# Two held frames keep that timing while avoiding fabricated in-between art.
+		_add_loaded_texture_anim(frames, "walk_" + direction, [texture, texture], 7.0, true)
+	var down_texture: Texture2D = direction_textures["down"]
+	for action in ["attack", "hurt", "death", "cast"]:
+		_add_loaded_texture_anim(frames, action, [down_texture], 6.0, false)
+	for direction in ["down", "up", "left", "right"]:
+		_add_loaded_texture_anim(frames, "attack_" + direction, [direction_textures[direction]], 8.0, false)
 	if frames.has_animation("default"):
 		frames.remove_animation("default")
 	return frames
@@ -1167,8 +1206,27 @@ static func get_npc_preset(preset_name: String) -> Dictionary:
 ## NPC AnimatedSprite2D 생성 헬퍼 (맵에서 바로 사용 가능)
 ## 반환된 AnimatedSprite2D를 NPC Area2D에 add_child하면 됨
 static func create_npc_sprite(preset_name: String) -> AnimatedSprite2D:
-	var config = get_npc_preset(preset_name)
 	var sprite = AnimatedSprite2D.new()
+	# Background citizens share the same purpose-built field language as the
+	# story cast.  The old procedural 48px faces were readable in isolation but
+	# looked like a second game beside the authored cast at camera scale.
+	var ambient_field_keys := {
+		"villager_f": "nera",
+		"fisherman": "tobias",
+		"villager_m": "malet",
+		"elder": "sable",
+		"child": "veil",
+	}
+	var field_key: String = ambient_field_keys.get(preset_name, "")
+	if field_key != "" and has_field_sprite_frames(field_key):
+		sprite.sprite_frames = create_sheet_frames(field_key)
+		sprite.play("idle_down")
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sprite.scale = Vector2(0.24, 0.24)
+		sprite.position = Vector2(0, -38)
+		return sprite
+
+	var config = get_npc_preset(preset_name)
 	sprite.sprite_frames = create_frames(config)
 	sprite.play("idle_down")
 	sprite.scale = Vector2(0.7, 0.7)  # NPC는 약간 작게

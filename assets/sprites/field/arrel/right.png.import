@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ueipy5fmsjwp"
-path="res://.godot/imported/story_ch5_anchorless_horizon.png-ba0706de264654b9537ba7a87b64945f.ctex"
+uid="uid://fjuwt73xw5f"
+path="res://.godot/imported/right.png-5751580affc04d40909cd9662bcac1a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cg/generated/story_ch5_anchorless_horizon.png"
-dest_files=["res://.godot/imported/story_ch5_anchorless_horizon.png-ba0706de264654b9537ba7a87b64945f.ctex"]
+source_file="res://assets/sprites/field/arrel/right.png"
+dest_files=["res://.godot/imported/right.png-5751580affc04d40909cd9662bcac1a0.ctex"]
 
 [params]
 

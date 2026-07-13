@@ -65,7 +65,9 @@ var _fog_layer: Array[ColorRect] = []  # S59: 프로시저럴 안개
 
 func _ready() -> void:
 	_build_map()
-	_blend_edges = TilePainter.auto_blend_edges(self, map_data, MAP_WIDTH, MAP_HEIGHT, tile_colors, TILE_SIZE)
+	# The authored map canvas already owns terrain boundaries.  A second
+	# procedural edge layer creates translucent square seams on top of it.
+	_blend_edges.clear()
 	# S131: Opening readability pass — keep the mood, but avoid hiding the first playable screen.
 	MapEffects.add_vignette(self, 0.14)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
@@ -580,6 +582,10 @@ func _add_quest_clue(pos: Vector2, flag_name: String, quest_id: String) -> void:
 ## ===================== 맵 데코레이션 =====================
 
 func _setup_map_decorations() -> void:
+	# The canvas supplies authored edge scenery; keep code props from stacking
+	# translucent rectangles over it.
+	if ResourceLoader.exists("res://assets/environment/map_canvases/map_rim_forest_canvas_v1.png"):
+		return
 	# 빛나는 버섯 (나무 가장자리 풀밭)
 	var mushroom_positions = [
 		Vector2(3, 5), Vector2(19, 3), Vector2(5, 11), Vector2(21, 9),
@@ -617,6 +623,13 @@ func _build_map() -> void:
 	]
 	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
+	MapEffects.add_map_canvas(
+		self,
+		tilemap,
+		"res://assets/environment/map_canvases/map_rim_forest_canvas_v1.png",
+		Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE),
+		{"terrain_alpha": 0.0}
+	)
 
 	# 충돌 (나무, 물)
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.WATER])

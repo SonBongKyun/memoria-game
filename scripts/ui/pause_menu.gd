@@ -602,8 +602,8 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act II: Records in the Air",
 		"type": "Generated Character Moment CG",
-		"path": "res://assets/cg/generated/story_ch3_tobias_fallen_records.png",
-		"desc": "Tobias catches his falling journals as the road's next witness comes into focus."
+		"path": "res://assets/cg/generated/story_ch3_tobias_record_spill_v2.png",
+		"desc": "Tobias loses his bound journals to the Belt wind as Arrel and Elia cross the ruined station threshold."
 	},
 	{
 		"title": "Act II: Three on the Belt",
@@ -632,8 +632,8 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act II: The Shape You Keep",
 		"type": "Generated Relationship Story CG",
-		"path": "res://assets/cg/generated/story_ch5_anchorless_horizon.png",
-		"desc": "On the gray coast, Arrel and Elia hold on to the thin anchor that keeps a lost memory from becoming nothing."
+		"path": "res://assets/cg/generated/story_ch5_threaded_horizon_v2.png",
+		"desc": "On the gray coast, Arrel and Elia almost let go of the one thin anchor that keeps a memory from becoming nothing."
 	},
 	{
 		"title": "Act II: The First Color",
@@ -824,8 +824,8 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act III: What Remains",
 		"type": "Generated Burn Aftermath CG",
-		"path": "res://assets/cg/generated/story_ch7_residue_after_trial.png",
-		"desc": "Elia steadies Arrel while the residue proves that a chosen burn does not have to erase the self."
+		"path": "res://assets/cg/generated/story_ch7_residue_witness_v2.png",
+		"desc": "Elia steadies Arrel while Sable reads the small residue that proves a chosen burn need not erase the self."
 	},
 	{
 		"title": "Act III: Last Field Preparations",
@@ -860,8 +860,8 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act III: Hold the Name",
 		"type": "Generated Anchoring CG",
-		"path": "res://assets/cg/generated/story_ch8_anchor_in_gale.png",
-		"desc": "Elia holds Arrel's hands against the forest and keeps one true name from scattering."
+		"path": "res://assets/cg/generated/story_ch8_anchor_under_roots_v2.png",
+		"desc": "Elia holds Arrel's hands beneath the watching roots and keeps one true name from scattering."
 	},
 	{
 		"title": "Act III: White Stone Shelter",

@@ -580,6 +580,10 @@ static func add_point_light(parent: Node2D, pos: Vector2, color: Color = Color(1
 	light.texture_scale = 1.0
 	light.shadow_enabled = shadow
 	light.blend_mode = Light2D.BLEND_MODE_ADD
+	# Canvas maps carry their own baked, controlled lantern values. Runtime
+	# additive lights otherwise read as square patches over that pixel art.
+	if parent.get_node_or_null("EnvironmentCanvas") != null:
+		light.visible = false
 	parent.add_child(light)
 	return light
 
@@ -2043,6 +2047,38 @@ static func add_illustration_atmosphere(parent: Node, texture_path: String, alph
 	detail_tw.tween_property(detail_plate, "modulate:a", clampf(safe_alpha * 1.15, 0.012, 0.06), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	detail_tw.tween_property(detail_plate, "modulate:a", clampf(safe_alpha * 0.7, 0.01, 0.045), 6.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	return layer
+
+## A map canvas is the readable, play-space-safe counterpart to a CG overlay.
+## It sits below the live collision/interaction layer and keeps generated
+## environment art visible in Clean Gameplay View, where atmospheric overlays
+## are intentionally suppressed for clarity.
+static func add_map_canvas(parent: Node2D, tilemap: TileMapLayer, texture_path: String, world_size: Vector2, settings: Dictionary = {}) -> Sprite2D:
+	if texture_path == "" or not ResourceLoader.exists(texture_path):
+		return null
+	var texture := load(texture_path) as Texture2D
+	if texture == null or texture.get_size().x <= 0 or texture.get_size().y <= 0:
+		return null
+
+	var canvas := Sprite2D.new()
+	canvas.name = "EnvironmentCanvas"
+	canvas.texture = texture
+	canvas.centered = false
+	canvas.position = Vector2.ZERO
+	canvas.scale = Vector2(world_size.x / texture.get_size().x, world_size.y / texture.get_size().y)
+	canvas.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	canvas.z_index = int(settings.get("z_index", -2))
+	canvas.modulate = settings.get("tint", Color.WHITE)
+	canvas.show_behind_parent = true
+	parent.add_child(canvas)
+
+	# The canvas owns the broad values, paths, and environmental landmarks;
+	# the existing TileMap keeps collision boundaries and interaction placement
+	# legible without covering the generated artwork in a second full map.
+	if tilemap != null:
+		var terrain_alpha := clampf(float(settings.get("terrain_alpha", 0.18)), 0.0, 1.0)
+		tilemap.modulate = Color(1.0, 1.0, 1.0, terrain_alpha)
+		tilemap.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	return canvas
 
 ## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)
 static func update_campfire_glows(map: Node2D, time: float) -> void:

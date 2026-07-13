@@ -115,7 +115,7 @@ func start_boss_rush() -> void:
 	_load_boss_rush_record()
 	# Reset player for boss rush
 	player_data.hp = player_data.max_hp
-	player_data.items = {"potion": 3, "hi_potion": 2, "antidote": 2}
+	player_data.items = {"potion": 3, "hi_potion": 2, "antidote": 2, "witness_ink": 1}
 	print("[GameManager] Boss Rush started — %d bosses" % boss_rush_queue.size())
 	_start_next_boss()
 
@@ -233,9 +233,10 @@ const FIELD_FOCUS_MAX: int = 3
 const ITEMS: Dictionary = {
 	"potion": {"name": "Potion", "desc": "Restores 40 HP.", "type": "heal", "power": 40, "price": 12, "icon": "res://assets/ui/items/potion.png"},
 	"hi_potion": {"name": "Hi-Potion", "desc": "Restores 80 HP.", "type": "heal", "power": 80, "price": 25, "icon": "res://assets/ui/items/hi_potion.png"},
-	"antidote": {"name": "Antidote", "desc": "Cures poison and burn.", "type": "cure", "power": 0, "price": 10, "icon": "res://assets/ui/items/antidote.png"},
-	"firebomb": {"name": "Firebomb", "desc": "Burns the enemy for 2 turns.", "type": "burn", "power": 15, "price": 18, "icon": "res://assets/ui/items/firebomb.png"},
+	"antidote": {"name": "Antidote", "desc": "Cures poison and burn, then restores 12 HP.", "type": "cure", "power": 0, "recovery": 12, "price": 10, "icon": "res://assets/ui/items/antidote.png"},
+	"firebomb": {"name": "Firebomb", "desc": "Deals 12 damage, then burns the enemy for 2 turns.", "type": "burn", "power": 15, "impact": 12, "price": 18, "icon": "res://assets/ui/items/firebomb.png"},
 	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15, "icon": "res://assets/ui/items/smoke_bomb.png"},
+	"witness_ink": {"name": "Witness Ink", "desc": "Advance WITNESS by 1, guard the next blow, and gain Limit.", "type": "witness", "power": 1, "price": 22, "icon": "res://assets/ui/items/witness_ink.png"},
 }
 const UI_ICON_PATHS: Dictionary = {
 	"grains": "res://assets/ui/items/grains.png",

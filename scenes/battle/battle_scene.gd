@@ -2448,9 +2448,11 @@ func _toggle_item_list() -> void:
 			if item_def == null:
 				continue
 			var btn = Button.new()
-			btn.text = "%s x%d — %s" % [item_def["name"], count, item_def["desc"]]
 			btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			btn.custom_minimum_size = Vector2(0, 52)
+			var item_type := String(item_def.get("type", ""))
+			var item_color := _get_item_type_color(item_type)
+			btn.text = "[%s] %s x%d\n%s" % [_get_item_type_label(item_type), item_def["name"], count, item_def["desc"]]
+			btn.custom_minimum_size = Vector2(0, 58)
 			var item_icon := GameManager.get_item_icon(item_id)
 			if item_icon:
 				btn.icon = item_icon
@@ -2458,19 +2460,21 @@ func _toggle_item_list() -> void:
 			btn.tooltip_text = item_def["desc"]
 
 			var s = StyleBoxFlat.new()
-			s.bg_color = Color(0.06, 0.08, 0.05, 0.85)
+			s.bg_color = Color(0.035 + item_color.r * 0.10, 0.035 + item_color.g * 0.10, 0.045 + item_color.b * 0.10, 0.90)
 			s.set_content_margin_all(8)
 			s.set_corner_radius_all(3)
+			s.border_color = Color(item_color.r, item_color.g, item_color.b, 0.28)
+			s.set_border_width_all(1)
 			btn.add_theme_stylebox_override("normal", s)
 			var hover_s = s.duplicate()
-			hover_s.bg_color = Color(0.12, 0.18, 0.1, 0.95)
-			hover_s.border_color = Color(0.4, 0.65, 0.3, 0.7)
+			hover_s.bg_color = Color(0.08 + item_color.r * 0.16, 0.08 + item_color.g * 0.16, 0.09 + item_color.b * 0.16, 0.98)
+			hover_s.border_color = Color(item_color.r, item_color.g, item_color.b, 0.88)
 			hover_s.set_border_width_all(1)
 			btn.add_theme_stylebox_override("hover", hover_s)
 			btn.add_theme_stylebox_override("focus", hover_s)
 			btn.add_theme_font_size_override("font_size", 12)
-			btn.add_theme_color_override("font_color", Color(0.6, 0.7, 0.55))
-			btn.add_theme_color_override("font_hover_color", Color(0.8, 0.95, 0.5))
+			btn.add_theme_color_override("font_color", Color(0.68, 0.68, 0.70))
+			btn.add_theme_color_override("font_hover_color", Color(item_color.r, item_color.g, item_color.b, 1.0))
 
 			var iid = item_id
 			btn.pressed.connect(func():
@@ -2493,6 +2497,24 @@ func _toggle_item_list() -> void:
 	item_list_container.add_child(cancel_btn)
 
 	scroll.visible = true
+
+func _get_item_type_color(item_type: String) -> Color:
+	match item_type:
+		"heal": return Color(0.34, 0.88, 0.60)
+		"cure": return Color(0.34, 0.78, 0.94)
+		"burn": return Color(1.0, 0.48, 0.20)
+		"flee": return Color(0.72, 0.72, 0.78)
+		"witness": return Color(0.70, 0.50, 1.0)
+	return Color(0.72, 0.70, 0.56)
+
+func _get_item_type_label(item_type: String) -> String:
+	match item_type:
+		"heal": return "RECOVER"
+		"cure": return "PURGE"
+		"burn": return "IGNITE"
+		"flee": return "ESCAPE"
+		"witness": return "WITNESS"
+	return "TOOL"
 
 func _hide_item_list() -> void:
 	var scroll = item_list_container.get_meta("scroll_parent") as ScrollContainer

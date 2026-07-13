@@ -7,6 +7,8 @@ const BASE_SPEED: float = 120.0
 const SPRINT_MULTIPLIER: float = 1.8
 const SHEET_SPRITE_SCALE: Vector2 = Vector2(0.40, 0.40)
 const SHEET_SPRITE_OFFSET: Vector2 = Vector2(0, -52)
+const FIELD_SPRITE_SCALE: Vector2 = Vector2(0.36, 0.36)
+const FIELD_SPRITE_OFFSET: Vector2 = Vector2(0, -72)
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const ACCELERATION: float = 600.0   # px/s^2 — 가속
 const DECELERATION: float = 800.0   # px/s^2 — 감속 (더 빠르게 멈춤)
@@ -61,6 +63,7 @@ var _memory_pulse_cooldown: float = 0.0
 var _bob_phase: float = 0.0          # 걸음 위상 (속도 비례 진행)
 var _last_footfall: int = 0          # 발이 땅에 닿은 횟수 (먼지 동기용)
 var _sprite_base_offset: Vector2 = Vector2.ZERO
+var _sprite_rest_scale: Vector2 = SHEET_SPRITE_SCALE
 var _anim_suffix: String = "down"    # 대각선 지터 방지용 최근 방향
 
 func _ready() -> void:
@@ -78,6 +81,10 @@ func _setup_camera() -> void:
 	if not camera:
 		return
 	camera.enabled = true
+	# Clear Gameplay View trades a little magnification for more map context,
+	# keeping the 32px field from reading as a wall of oversized cells.
+	_camera_base_zoom = Vector2(2.0, 2.0) if OptionsMenu.is_clean_gameplay_visuals() else Vector2(2.25, 2.25)
+	camera.zoom = _camera_base_zoom
 	# 픽셀 스내핑 (pixel-perfect for 32px tiles)
 	camera.set_meta("pixel_snap", true)
 	# 맵 한계 — 씬에서 MAP_WIDTH/MAP_HEIGHT 읽기
@@ -172,7 +179,7 @@ func _physics_process(delta: float) -> void:
 			else:
 				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(0.92, 1.08)), 8.0 * delta)
 		elif sprite:
-			sprite.scale = sprite.scale.lerp(SHEET_SPRITE_SCALE, 10.0 * delta)
+			sprite.scale = sprite.scale.lerp(_sprite_rest_scale, 10.0 * delta)
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
@@ -392,7 +399,7 @@ func _do_fidget() -> void:
 	# 미세한 좌우 흔들림
 	t.tween_property(sprite, "scale", _scaled_sprite(Vector2(1.02, 0.98)), 0.08)
 	t.tween_property(sprite, "scale", _scaled_sprite(Vector2(0.98, 1.02)), 0.08)
-	t.tween_property(sprite, "scale", SHEET_SPRITE_SCALE, 0.1)
+	t.tween_property(sprite, "scale", _sprite_rest_scale, 0.1)
 
 ## S58: Movement squash/stretch — brief scale pop on start/stop
 func _play_move_squash(target_scale: Vector2, duration: float) -> void:
@@ -402,10 +409,10 @@ func _play_move_squash(target_scale: Vector2, duration: float) -> void:
 		_move_squash_tween.kill()
 	_move_squash_tween = create_tween()
 	_move_squash_tween.tween_property(sprite, "scale", _scaled_sprite(target_scale), duration * 0.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	_move_squash_tween.tween_property(sprite, "scale", SHEET_SPRITE_SCALE, duration * 0.6).set_ease(Tween.EASE_IN_OUT)
+	_move_squash_tween.tween_property(sprite, "scale", _sprite_rest_scale, duration * 0.6).set_ease(Tween.EASE_IN_OUT)
 
 func _scaled_sprite(multiplier: Vector2) -> Vector2:
-	return Vector2(SHEET_SPRITE_SCALE.x * multiplier.x, SHEET_SPRITE_SCALE.y * multiplier.y)
+	return Vector2(_sprite_rest_scale.x * multiplier.x, _sprite_rest_scale.y * multiplier.y)
 
 ## 인터랙션 인디케이터 업데이트
 func _update_interact_indicator(delta: float) -> void:
@@ -433,17 +440,26 @@ func _update_interact_indicator(delta: float) -> void:
 
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprites() -> void:
-	# Use the authored character sheet in exploration with visibly distinct
-	# front, rear, left and right mappings supplied by PixelSprite.
+	# Field sprites are authored for the camera scale.  The original AI board
+	# remains available as a fallback, but never needs to be blurred into an
+	# ambiguous rear-facing silhouette during normal play.
 	var sheet_path := "res://assets/sprites/characters/arrel_sheet/idle_01.png"
-	if ResourceLoader.exists(sheet_path):
+	if PixelSprite.has_field_sprite_frames("arrel"):
+		sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
+		sprite.scale = FIELD_SPRITE_SCALE
+		_sprite_rest_scale = FIELD_SPRITE_SCALE
+		sprite.offset = FIELD_SPRITE_OFFSET
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	elif ResourceLoader.exists(sheet_path):
 		sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
 		sprite.scale = SHEET_SPRITE_SCALE
+		_sprite_rest_scale = SHEET_SPRITE_SCALE
 		sprite.offset = SHEET_SPRITE_OFFSET
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	else:
 		sprite.sprite_frames = PixelSprite.create_frames(PixelSprite.arrel_config())
 		sprite.scale = Vector2.ONE
+		_sprite_rest_scale = Vector2.ONE
 		sprite.offset = Vector2.ZERO
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 

@@ -15,6 +15,27 @@
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
 
+## S183 playable map canvases
+
+| Canvas | Gameplay coverage | Art direction |
+|---|---|---|
+| `map_rim_forest_canvas_v1.png` | Rim Forest, Forgotten Forest | Thorn-root forest, muted moss, amber memory crystal edges |
+| `map_verdan_market_canvas_v1.png` | Verdan Market | Wet iron cobbles, border stalls, restrained amber lanterns |
+| `map_belt_waystation_canvas_v1.png` | Belt Waystation, Drift Shelter | Ashland platform, weathered station structures, warm refuge accents |
+| `map_crumbling_coast_canvas_v1.png` | Crumbling Coast | Slate coast, collapsed pier, cliff and sea boundaries |
+| `map_the_seam_canvas_v1.png` | The Seam, Seam Outskirts | Twilight refuge, violet roots, bridges and lantern-lit hub |
+| `map_bl07_void_canvas_v1.png` | Colorless Waste, BL-07 Void | Fractured obsidian, pale causeway, restrained violet fissures |
+
+These are orthographic, text-free, low-noise environmental canvases. They sit under the unchanged tile collision and interaction layers, so the map visuals gain authored landmarks while navigation logic remains deterministic.
+
+## S184 tactical item illustration
+
+| Asset | Gameplay role | Art direction |
+|---|---|---|
+| assets/ui/items/witness_ink.png | Advances a WITNESS reading by one step while guarding Arrel and charging Limit | Gunmetal archive vial, violet-blue memory fluid, gold eye seal; transparent UI asset matching the existing faceted potion and Firebomb family |
+
+The item is intentionally a tactical bridge, not a way to bypass the story route: bosses still require a complete reading and ordinary echoes are only released after the reading is finished.
+
 ## S179 Chapter 1 cold open
 
 | VN scene | Story beat | Asset | Source |
@@ -347,13 +368,13 @@ The outdated young, sighted Sable cut-in and ten remaining high-visibility story
 
 The consumables were generated as a single coherent six-icon set on a flat chroma field, split into individual PNGs, and locally converted to alpha. The item family uses a shared gold rim light, deep violet shadows, and clear color-coded silhouettes so choices remain legible at button scale: cobalt healing, ivory-green cleansing, black-gold fire, charcoal smoke, and blue-gold Grains. Elia's staff and navy silhouette are based on the canonical portrait palette. Malet's plate preserves his charcoal coat, amber eyes, violet-black room, and an empty lower dialogue band; it was attached only to the line that reveals the seventeen stolen memories. Prompts excluded text, watermarks, grain, paper/canvas texture, speckles, dithering, chromatic noise, muddy detail, excessive bloom, and visibility-obscuring particles.
 
-## S181 story-turn illustration expansion
+## S182 corrected story-turn illustration expansion
 
 | Runtime event | Story beat | Asset | Direct story anchor |
 |---|---|---|---|
-| `chapter3_dialogue` / `tobias_encounter` | Tobias's journals fall before he explains why he records the Belt | `story_ch3_tobias_fallen_records.png` | `story_ch3_tobias_waystation.png` |
-| `chapter5_dialogue` / `elia_before_separation` | Arrel and Elia hold the thread that prevents a burn from becoming absolute nothing | `story_ch5_anchorless_horizon.png` | `dialogue_ch5_elia_cliff_choice.png` |
-| `chapter7_dialogue` / `trial_complete` | Elia steadies Arrel after the controlled burn, and residue proves the self remains | `story_ch7_residue_after_trial.png` | `story_ch7_controlled_burn_trial.png` |
-| `chapter8_dialogue` / `elia_anchor_strain` | Elia holds Arrel's name against the forest's pressure | `story_ch8_anchor_in_gale.png` | `world_rewrite_elia_anchor.png` |
+| `chapter3_dialogue` / `tobias_encounter` | Tobias's journals spill before he explains why he records the Belt | `story_ch3_tobias_record_spill_v2.png` | `story_ch3_tobias_waystation.png` |
+| `chapter5_dialogue` / `elia_before_separation` | Arrel and Elia almost let their anchor slip above the gray coast | `story_ch5_threaded_horizon_v2.png` | `story_ch5_warm_cliff_path.png` |
+| `chapter7_dialogue` / `trial_complete` | Elia steadies Arrel while Sable witnesses the surviving residue | `story_ch7_residue_witness_v2.png` | `story_ch7_controlled_burn_trial.png` |
+| `chapter8_dialogue` / `elia_anchor_strain` | Elia holds Arrel's name beneath the forest roots | `story_ch8_anchor_under_roots_v2.png` | `story_ch8_eighteenth_ring.png` |
 
-All four plates were generated with built-in GPT Image 2 and attached directly to existing narrative lines without moving event order, choice indexes, or Korean localization. Each uses the established blue-black, warm-amber, and restrained-violet MEMORIA palette with a clean lower dialogue band. Tobias retains his dark hair, wire spectacles, ink-stained archivist look; Arrel retains short silver hair and blue-black gear; Elia retains honey-blonde bobbed hair, white-gold clothing, and navy cape; the S7 plate preserves Sable's elder blind canon. Prompts excluded text, watermarks, film or photo grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, excessive bloom, dense fog, and visibility-obscuring particles.
+The prior four S181 plates were removed after a direct art-style audit. Their replacements were generated with built-in GPT Image 2 against the established in-game plates above: fine charcoal linework, muted iron-blue/umber values, grounded proportions, restrained warm light, and no fabricated dialogue band. All four attach to the same narrative line without changing event order, choice indexes, or Korean localization. Tobias retains his dark hair, wire spectacles, and ink-stained archivist look; Arrel retains short silver hair and blue-black gear; Elia retains her honey-blonde bob, white-gold clothing, and navy cape; Sable remains elderly and blind. Prompts exclude text, watermarks, film or photo grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, excessive bloom, dense fog, and visibility-obscuring particles.

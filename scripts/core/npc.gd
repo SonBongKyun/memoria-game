@@ -66,21 +66,22 @@ func _setup_placeholder_sprite() -> void:
 		"Kairos": "kairos",
 		"Nera": "nera",
 		"Veil": "veil",
+		"Sable": "sable",
 	}
 	var sheet_key: String = sheet_keys.get(npc_name, "")
 	var sheet_path := "res://assets/sprites/characters/%s_sheet/idle_01.png" % sheet_key
-	var uses_authored_sheet := sheet_key != "" and ResourceLoader.exists(sheet_path)
+	var uses_field_sprite := sheet_key != "" and PixelSprite.has_field_sprite_frames(sheet_key)
+	var uses_authored_sheet := uses_field_sprite or (sheet_key != "" and ResourceLoader.exists(sheet_path))
 	if uses_authored_sheet:
 		sprite.sprite_frames = PixelSprite.create_sheet_frames(sheet_key)
 		sprite.position = Vector2(0, 2)
-		# New reference-derived NPC sheets use a 160px canvas while Arrel/Elia
-		# use 128px. Normalize both to the same field footprint and keep their
-		# feet on the interaction baseline.
-		var authored_scale := 0.40 if sheet_key == "elia" else 0.32
-		var authored_offset := -52.0 if sheet_key == "elia" else -65.0
+		# Purpose-built field frames share one 128x160 canvas and foot baseline.
+		# Legacy boards preserve their old normalization as a fallback only.
+		var authored_scale := 0.36 if uses_field_sprite else (0.40 if sheet_key == "elia" else 0.32)
+		var authored_offset := -72.0 if uses_field_sprite else (-52.0 if sheet_key == "elia" else -65.0)
 		sprite.offset = Vector2(0, authored_offset)
 		sprite.scale = Vector2(authored_scale, authored_scale)
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if uses_field_sprite else CanvasItem.TEXTURE_FILTER_LINEAR
 	else:
 		sprite.sprite_frames = PixelSprite.create_frames(config)
 		sprite.position = Vector2(0, 2)

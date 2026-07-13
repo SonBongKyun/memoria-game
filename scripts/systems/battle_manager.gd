@@ -943,6 +943,47 @@ func player_witness() -> void:
 	witness_changed.emit(_witness_progress, _witness_required, echo_line, false)
 	_end_player_turn()
 
+## Rare utility item path for players who want to preserve memories but need
+## one shorter opening to complete a reading. Bosses still require a full read.
+func _use_witness_ink(power: int) -> bool:
+	if current_enemy == null:
+		return false
+	_witness_progress = mini(_witness_progress + maxi(power, 1), _witness_required)
+	var echo_line := _get_witness_line(_witness_progress)
+	_record_witness_scan()
+	_add_limit(10.0)
+	_add_momentum(8.0, "Witness Ink")
+	player_defending = true
+	battle_log.emit(_bl("[WITNESS INK %d/%d] %s", "[기록 잉크 %d/%d] %s") % [_witness_progress, _witness_required, echo_line])
+
+	if _witness_progress < _witness_required:
+		witness_changed.emit(_witness_progress, _witness_required, echo_line, false)
+		return false
+
+	_witness_completed_this_battle = true
+	_check_tactical_objective("witness")
+	if current_enemy.is_boss:
+		_witness_boss_insight = true
+		enemy_break_gauge = 0.0
+		enemy_broken_turns = maxi(enemy_broken_turns, 1)
+		_breaks_this_battle += 1
+		_add_limit(20.0)
+		break_changed.emit(enemy_break_gauge, BREAK_MAX)
+		enemy_broken.emit(current_enemy.name)
+		_check_tactical_objective("break")
+		battle_log.emit(_bl("[WITNESS] The command inside %s fractures. A BREAK window opens.", "[증언] %s 안의 명령이 갈라진다. BREAK 기회가 열린다.") % current_enemy.name)
+		witness_changed.emit(_witness_progress, _witness_required, echo_line, true)
+		return true
+
+	_resolved_by_witness = true
+	GameManager.set_flag("witnessed_%s" % _get_witness_key(current_enemy.name))
+	GameManager.add_stat("enemies_witnessed")
+	current_enemy.hp = 0
+	battle_log.emit(_bl("[RELEASED] The echo lets go without another memory being burned.", "[해방] 메아리가 또 하나의 기억을 태우지 않고 놓아준다."))
+	witness_changed.emit(_witness_progress, _witness_required, echo_line, true)
+	_check_enemy_defeated()
+	return true
+
 ## 플레이어 행동: 일반 공격
 func player_attack() -> void:
 	if state != BattleState.PLAYER_TURN or current_enemy == null:
@@ -1330,6 +1371,10 @@ func player_use_item(item_id: String) -> void:
 		battle_log.emit(_bl("Unknown item.", "알 수 없는 아이템."))
 		return
 
+	if item_def.get("type", "") == "witness" and (current_enemy == null or _witness_boss_insight or _witness_progress >= _witness_required):
+		battle_log.emit(_bl("The ink has nothing left to reveal.", "기록 잉크가 더 드러낼 것은 없다."))
+		return
+
 	if not GameManager.remove_item(item_id):
 		battle_log.emit(_bl("No %s left.", "%s이(가) 남지 않았다.") % item_def["name"])
 		return
@@ -1368,6 +1413,12 @@ func player_use_item(item_id: String) -> void:
 					cured = true
 			for e in to_remove:
 				player_statuses.erase(e)
+			var recovery := int(item_def.get("recovery", 0))
+			var restored := mini(recovery, GameManager.player_data.max_hp - GameManager.player_data.hp)
+			if restored > 0:
+				GameManager.player_data.hp += restored
+				damage_dealt.emit("Arrel", -restored, item_def["name"])
+				battle_log.emit(_bl("%s restores %d HP.", "%s이(가) HP %d 회복.") % [item_def["name"], restored])
 			if cured:
 				status_changed.emit()
 				battle_log.emit(_bl("Used %s — status effects cured!", "%s 사용 — 상태이상 치유!") % item_def["name"])
@@ -1375,8 +1426,22 @@ func player_use_item(item_id: String) -> void:
 				battle_log.emit(_bl("Used %s — but nothing to cure.", "%s 사용 — 그러나 치유할 것이 없다.") % item_def["name"])
 		"burn":
 			if current_enemy:
+				var impact := int(item_def.get("impact", 0))
+				if impact > 0:
+					var actual := current_enemy.take_damage(impact)
+					damage_dealt.emit(current_enemy.name, actual, item_def["name"])
+					battle_log.emit(_bl("%s shatters for %d damage.", "%s이(가) 폭발해 %d 피해.") % [item_def["name"], actual])
+					if not current_enemy.is_alive():
+						_check_enemy_defeated()
+						return
 				apply_status("enemy", StatusEffect.BURN, 2, item_def["power"])
 				battle_log.emit(_bl("Threw %s — enemy is burning!", "%s 투척 — 적이 불타오른다!") % item_def["name"])
+		"witness":
+			var completed := _use_witness_ink(int(item_def.get("power", 1)))
+			if completed:
+				if current_enemy and current_enemy.is_boss:
+					_end_player_turn()
+				return
 		"flee":
 			battle_log.emit(_bl("Used %s — vanished in smoke!", "%s 사용 — 연기 속으로 사라졌다!") % item_def["name"])
 			AudioManager.play_sfx("flee")
@@ -2267,9 +2332,9 @@ func _try_item_drop_return() -> String:
 		return ""
 	var drop_table: Array = ["potion", "potion", "potion", "antidote", "antidote", "firebomb"]
 	if current_enemy and current_enemy.is_void_beast:
-		drop_table.append_array(["firebomb", "hi_potion"])
+		drop_table.append_array(["firebomb", "hi_potion", "witness_ink"])
 	if current_enemy and current_enemy.is_boss:
-		drop_table.append_array(["hi_potion", "hi_potion", "smoke_bomb"])
+		drop_table.append_array(["hi_potion", "hi_potion", "smoke_bomb", "witness_ink"])
 	var drop = drop_table[randi_range(0, drop_table.size() - 1)]
 	GameManager.add_item(drop)
 	battle_log.emit(_bl("Found: %s", "획득: %s") % GameManager.ITEMS[drop]["name"])

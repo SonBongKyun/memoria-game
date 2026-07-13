@@ -487,6 +487,7 @@ func _build_map() -> void:
 	]
 	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
+	MapEffects.add_map_canvas(self, tilemap, "res://assets/environment/map_canvases/map_bl07_void_canvas_v1.png", Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), {"terrain_alpha": 0.0})
 
 	# 충돌 (균열만)
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CRACK])

@@ -88,7 +88,7 @@ func _build_gallery() -> void:
 
 		var frames: SpriteFrames
 		var sheet_key: String = cast_member.sheet
-		var authored: bool = sheet_key != "sable"
+		var authored: bool = PixelSprite.has_field_sprite_frames(sheet_key)
 		if authored:
 			frames = PixelSprite.create_sheet_frames(sheet_key)
 		else:
@@ -104,8 +104,8 @@ func _build_gallery() -> void:
 			sprite.animation = direction.animation
 			sprite.frame = 0
 			sprite.position = Vector2(122, 52)
-			sprite.scale = Vector2(0.43, 0.43) if authored else Vector2(1.15, 1.15)
-			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR if authored else CanvasItem.TEXTURE_FILTER_NEAREST
+			sprite.scale = Vector2(0.36, 0.36) if authored else Vector2(1.15, 1.15)
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			cell.add_child(sprite)
 
 func _add_header(parent: HBoxContainer, text_value: String, width: float) -> void:

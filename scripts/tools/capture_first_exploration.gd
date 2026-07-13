@@ -27,8 +27,8 @@ func _ready() -> void:
 	var elia_sprite := map.get_node("Elia/CharacterSprite") as AnimatedSprite2D
 	var player_texture := player_sprite.sprite_frames.get_frame_texture("idle_down", 0)
 	var elia_texture := elia_sprite.sprite_frames.get_frame_texture("idle_down", 0)
-	assert("arrel_sheet" in PixelSprite.get_texture_source(player_texture))
-	assert("elia_sheet" in PixelSprite.get_texture_source(elia_texture))
+	assert("sprites/field/arrel" in PixelSprite.get_texture_source(player_texture))
+	assert("sprites/field/elia" in PixelSprite.get_texture_source(elia_texture))
 	assert(ExplorationHUD.hud_plate_art == null or not ExplorationHUD.hud_plate_art.visible)
 	assert(not ExplorationHUD.controls_panel.visible)
 	assert(not ExplorationHUD.location_card.visible)

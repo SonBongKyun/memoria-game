@@ -262,7 +262,7 @@ func _setup_puzzle_trigger() -> void:
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
 	indicator.position = -Vector2(TILE_SIZE, TILE_SIZE)
-	indicator.color = Color(0.3, 0.5, 0.3, 0.15)
+	indicator.color = Color(0, 0, 0, 0) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.3, 0.5, 0.3, 0.15)
 	indicator.z_index = -1
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
@@ -302,7 +302,7 @@ func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
 	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	indicator.color = Color(0.6, 0.5, 0.2, 0.2)
+	indicator.color = Color(0, 0, 0, 0) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.6, 0.5, 0.2, 0.2)
 	indicator.z_index = -1
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
@@ -334,7 +334,7 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
 	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	indicator.color = Color(0.2, 0.3, 0.6, 0.2)
+	indicator.color = Color(0, 0, 0, 0) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.2, 0.3, 0.6, 0.2)
 	indicator.z_index = -1
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
@@ -436,7 +436,7 @@ func _setup_side_quests() -> void:
 		var ind = ColorRect.new()
 		ind.size = Vector2(TILE_SIZE * 0.5, TILE_SIZE * 0.5)
 		ind.position = -Vector2(TILE_SIZE * 0.25, TILE_SIZE * 0.25)
-		ind.color = Color(0.7, 0.6, 0.3, 0.3)
+		ind.color = Color(0, 0, 0, 0) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.7, 0.6, 0.3, 0.3)
 		ledger_area.add_child(ind)
 		ledger_area.body_entered.connect(func(body):
 			if body.name == "Player" and not GameManager.get_flag("sq_sump_ledger_found"):
@@ -524,6 +524,7 @@ func _build_map() -> void:
 	]
 	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
+	MapEffects.add_map_canvas(self, tilemap, "res://assets/environment/map_canvases/map_verdan_market_canvas_v1.png", Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), {"terrain_alpha": 0.0})
 
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL])
 	for body in bodies:

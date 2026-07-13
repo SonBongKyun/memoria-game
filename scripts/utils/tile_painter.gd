@@ -13,6 +13,7 @@ const VARIATIONS: int = 4  ## S55: 타일 타입당 변형 수
 static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height: int) -> TileMapLayer:
 	var tilemap = TileMapLayer.new()
 	tilemap.z_index = -1
+	var clean_view := OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals()
 
 	# S55: 아틀라스 이미지 생성 (타일 수 x VARIATIONS)
 	var count = tile_defs.size()
@@ -23,13 +24,16 @@ static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height
 		var def = tile_defs[i]
 		var base_color: Color = def.get("color", Color(0.3, 0.3, 0.3))
 		var detail: String = def.get("detail", "flat")
-		if OptionsMenu != null and OptionsMenu.is_clean_gameplay_visuals():
+		if clean_view:
 			detail = _clean_detail_name(detail)
 		# 변형 0: 기본
 		_paint_tile(atlas_img, (i * VARIATIONS) * TILE, 0, base_color, detail)
 		# 변형 1~3: 색상/디테일 약간 변형
 		for v in range(1, VARIATIONS):
-			var varied_color = _vary_color(base_color, v)
+			# Clear Gameplay View is a composition pass, not just an overlay toggle.
+			# Shared values stop adjacent 32px cells from reading as a checkerboard
+			# while the authored props and character silhouettes stay legible.
+			var varied_color = base_color if clean_view else _vary_color(base_color, v)
 			_paint_tile(atlas_img, (i * VARIATIONS + v) * TILE, 0, varied_color, detail)
 
 	# TileSet 생성
@@ -54,7 +58,7 @@ static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height
 				var tile_idx = map_data[y][x]
 				if tile_idx >= 0 and tile_idx < count:
 					# 위치 기반 시드로 결정론적 변형 선택 (세이브/로드 일관성)
-					var variation = _position_hash(x, y) % VARIATIONS
+					var variation = 0 if clean_view else _position_hash(x, y) % VARIATIONS
 					var atlas_idx = tile_idx * VARIATIONS + variation
 					tilemap.set_cell(Vector2i(x, y), source_id, Vector2i(atlas_idx, 0))
 
@@ -222,16 +226,17 @@ static func _paint_grass_clean(img: Image, ox: int, oy: int, base: Color) -> voi
 		_px(img, ox + tuft.x, oy + tuft.y - 1, light)
 
 static func _paint_path_clean(img: Image, ox: int, oy: int, base: Color) -> void:
-	# Large value groups survive camera scaling without turning into speckles.
-	var shade := _shift(base, -0.035)
-	var light := _shift(base, 0.025)
-	_fill(img, ox + 3, oy + 5, 10, 7, light)
-	_fill(img, ox + 18, oy + 19, 11, 8, shade)
-	_fill(img, ox + 1, oy + 28, 7, 2, shade)
+	# Read the route as one calm surface instead of a repeated patchwork of
+	# bright blocks.  These two low-contrast tread marks survive camera scale
+	# without becoming field noise or fighting the new character silhouettes.
+	var shade := _shift(base, -0.016)
+	var light := _shift(base, 0.012)
+	_fill(img, ox + 6, oy + 11, 18, 1, light)
+	_fill(img, ox + 9, oy + 23, 15, 1, shade)
 
 static func _paint_masonry_clean(img: Image, ox: int, oy: int, base: Color) -> void:
-	var grout := _shift(base, -0.075)
-	var highlight := _shift(base, 0.018)
+	var grout := _shift(base, -0.045)
+	var highlight := _shift(base, 0.010)
 	for x in range(TILE):
 		_px(img, ox + x, oy + 15, grout)
 	for y in range(0, 15):
