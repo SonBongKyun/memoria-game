@@ -6212,3 +6212,23 @@ The game runs in Korean, but the entire in-battle text feed was English-only: th
 ### Notes
 - The `[INTEL]` bracket tag itself is prefixed in `battle_scene.gd` (codex's active file) so it stays English as a stylized label; the message body is fully Korean. When codex localizes the tag it composes cleanly.
 - Remaining battle-scene visual roughness (turn pips, cut-in placement, stance/limit overlap on the command grid, Elia debug sublabel) lives in `battle_scene.gd` — codex is actively editing it, so left to that pass to avoid collision.
+
+## S174 - 2026-07-12 (Battle VFX label localization — continuing Steam readiness)
+
+### Problem
+After S173 localized the combat log, two prominent English labels remained in `battle_vfx.gd` (a clean file, not under codex's active edit):
+- The enemy special-ability **telegraph warning** ("!! Life Drain !!", "!! Dark Barrier !!", etc.) — a big red banner shown every time a boss/enemy telegraphs a special.
+- The floating **"MISS"** combat indicator on dodges/misses.
+
+### Done (battle_vfx.gd only)
+- `show_ability_warning`: 12 ability display names now locale-aware — 생명 흡수 / 어둠의 장벽 / 연격 / 독성 구름 / 작열 / 저주 / 그림자 소환 / 보이드 파동 / 절망 / 기절 일격 / 거울 장벽 / 충전 중... (English retained for en locale).
+- Floating miss indicator: "MISS" → "빗나감" in Korean (matches the combat-log wording from S173 for consistency).
+- Left as-is: decorative "*"/"v" glyphs (symbols, not text) and the burned-memory letter-reveal (uses MemoryManager memory titles — a separate data layer).
+
+### Verification
+- Godot 4.6.2 headless boot: 0 script errors.
+- `smoke_story_combat`: STORY_COMBAT_SMOKE_PASS (real battle runs, telegraph path exercised, no crash).
+- Change isolated to `battle_vfx.gd`; codex's 13 active files untouched.
+
+### Battle text localization status
+Combat log (S173) + ability warnings + miss (S174) are now Korean. Remaining English in battle is the burn-skill menu names/descs and status-icon codes, whose display lives in `battle_scene.gd` (codex's active file) — deferred to avoid collision.

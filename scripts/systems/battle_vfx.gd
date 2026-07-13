@@ -28,7 +28,7 @@ func show_damage_number(target: String, amount: int, skill_name: String = "", is
 	var is_heal = amount < 0
 	var is_miss = (amount == 0 and not is_heal)  # S59: 0 damage = MISS
 	if is_miss:
-		label.text = "MISS"
+		label.text = "빗나감" if GameManager.current_locale == "ko" else "MISS"  # S174: match combat log
 	elif is_heal:
 		label.text = "+%d" % abs(amount)
 	else:
@@ -798,20 +798,21 @@ func play_critical_cinematic() -> void:
 
 ## Show a pulsing red warning text above the enemy sprite before ability executes
 func show_ability_warning(ability_name: String, enemy_pos: Vector2) -> void:
-	# Map internal ability names to display names
+	# Map internal ability names to display names (S174: locale-aware)
+	var is_ko := GameManager.current_locale == "ko"
 	var display_names: Dictionary = {
-		"drain": "Life Drain",
-		"shield": "Dark Barrier",
-		"multi_hit": "Flurry",
-		"poison": "Toxic Cloud",
-		"burn_attack": "Scorch",
-		"weaken": "Curse",
-		"summon": "Shadow Summon",
-		"void_pulse": "Void Pulse",
-		"despair": "Despair",
-		"stun": "Stunning Blow",
-		"reflect": "Mirror Barrier",
-		"charge": "Charging...",
+		"drain": "생명 흡수" if is_ko else "Life Drain",
+		"shield": "어둠의 장벽" if is_ko else "Dark Barrier",
+		"multi_hit": "연격" if is_ko else "Flurry",
+		"poison": "독성 구름" if is_ko else "Toxic Cloud",
+		"burn_attack": "작열" if is_ko else "Scorch",
+		"weaken": "저주" if is_ko else "Curse",
+		"summon": "그림자 소환" if is_ko else "Shadow Summon",
+		"void_pulse": "보이드 파동" if is_ko else "Void Pulse",
+		"despair": "절망" if is_ko else "Despair",
+		"stun": "기절 일격" if is_ko else "Stunning Blow",
+		"reflect": "거울 장벽" if is_ko else "Mirror Barrier",
+		"charge": "충전 중..." if is_ko else "Charging...",
 	}
 	var display = display_names.get(ability_name, ability_name.capitalize())
 
