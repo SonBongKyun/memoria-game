@@ -6145,3 +6145,70 @@ The whole game ran in Korean using `Malgun Gothic` (a system UI **sans/고딕**)
 ### Notes
 - Zero repo bloat (no bundled font binary) — relies on Noto Serif KR (Win10+) with Batang serif as guaranteed fallback, so worst case is still a serif, never the old sans.
 - If cross-OS identical rendering is later wanted, bundle Noto Serif KR (OFL-licensed) as a FontFile.
+
+## S180 - 2026-07-12 (GPT Image 2 tactile inventory and character presentation)
+
+### Audit findings
+- Consumables were mechanically distinct but only appeared as text in battle, Malet's item exchange, and victory rewards; their reward loop had no persistent visual language.
+- Elia's battle-stage support art still depended on a stale `elia_companion` story flag, while her skills and party logic used `player_data.elia_with_party`. This could hide her visual support frame even when she was present.
+- Malet's backstory stated that his eyes contained seventeen borrowed memories, but the final reveal had no dedicated image.
+
+### Done
+- Generated a six-piece consumable family with built-in GPT Image 2: Potion, Hi-Potion, Antidote, Firebomb, Smoke Bomb, and Grains. Split the chroma-key source sheet with `scripts/tools/extract_item_icons.py` and converted the final icons to clean alpha PNGs.
+- Added canonical item icon paths and shared `GameManager` texture helpers. Battle item buttons, Malet's item buy/sell tab, victory drops, and the Grains-earned row now reuse the same assets.
+- Generated `elia_battle_anchor_fullbody.png` and made it Elia's primary battle-stage art, preserving the prior animated sheet as an asset-missing fallback.
+- Replaced the stale Elia companion visibility condition with the live `player_data.elia_with_party` state used by the rest of combat, restoring her stage art whenever she is actually travelling with Arrel.
+- Generated `story_ch2_malet_seventeen_eyes.png`, attached it to the final line of `malet_backstory`, and registered it in the Artbook and illustration catalog.
+- Extended the visual-clarity smoke to assert all five shop items, two battle items, and all three companion-stage images (Sable, Tobias, Elia).
+
+### Verification
+- Alpha audit passed for all six item icons and Elia: all images have RGBA alpha, transparent corners, and no chroma background retained.
+- `smoke_visual_clarity.tscn` passed with `support_art=3 item_icons=2 shop_icons=5`.
+- `smoke_story_combat.tscn` passed with the existing WITNESS, preservation, and Field Focus assertions.
+- VN validator passed: 20 files, 504 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Godot 4.6.2 imported all new PNGs and booted the affected autoload/UI paths. Only the project's known headless resource-cleanup warnings remain after smoke shutdown.
+
+## S181 - 2026-07-12 (GPT Image 2 story-turn illustration expansion)
+
+### Audit findings
+- The Part I dialogue already had broad CG coverage, but several important emotional reversals still reused an establishing plate for their decisive narration.
+- Tobias's transition from isolated recorder to companion, the cost of separating from Elia, the proof of residue after a controlled burn, and the Forgotten Forest anchor strain all benefited from a distinct story image rather than another generic landscape.
+
+### Done
+- Generated and integrated four built-in GPT Image 2 full-screen CGs with clean lower dialogue space:
+  - `story_ch3_tobias_fallen_records.png` — Tobias's first interruption at the Belt waystation.
+  - `story_ch5_anchorless_horizon.png` — the surviving anchor between Arrel and Elia before the coast split.
+  - `story_ch7_residue_after_trial.png` — Elia steadies Arrel after the controlled burn while Sable and Tobias witness the result.
+  - `story_ch8_anchor_in_gale.png` — Elia holds Arrel's name against the Forgotten Forest.
+- Attached each plate to the precise existing narration line in Chapters 3, 5, 7, and 8; dialogue order, event keys, branches, and Korean text are unchanged.
+- Registered all four plates in the Artbook and `ILLUSTRATION_CATALOG.md`, retaining canonical appearance locks for Arrel, Elia, Tobias, and Sable.
+
+### Verification
+- Godot 4.6.2 imported all four new CGs successfully.
+- Direct story wiring audit passed: 4 expected chapter/group/step references resolve to real image files.
+- VN validator passed: 20 files, 504 steps, 0 errors, 0 warnings.
+- Korean localization validator passed: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Full visual clarity smoke passed with battle, shop, companion-stage, clean-view, and WITNESS assertions unchanged.
+- `git diff --check` passed apart from existing CRLF normalization notices; headless shutdown produced only the known resource-cleanup warnings.
+
+## S173 - 2026-07-12 (Battle log Korean localization — Steam readiness)
+
+### Problem
+The game runs in Korean, but the entire in-battle text feed was English-only: the persistent `[INTEL]` telegraph banner (shown every enemy turn), tactical hints, and ~130 `battle_log.emit` lines (damage, burn, break, combo, items, enemy abilities, echoes, corruption, victory/defeat, drops, status). A dark-fantasy Korean VN reading English combat text every turn is a clear "still rough for Steam" blocker. (Objectives and WITNESS lines were already localized by prior passes.)
+
+### Done (battle_manager.gd only — codex's battle_scene.gd left untouched)
+- Added `_bl(en, ko)` locale helper (returns ko in Korean locale, else en).
+- Localized `get_next_turn_hint()` (all 8 branches → the `[INTEL]` banner is now Korean), `_get_opening_tactical_hint()` (`[전술]`), and the Void Beast opener.
+- Localized **all ~130 `battle_log.emit` lines** via wrapped `_bl("en","ko")` — combat damage/burn/break/combo/item/flee/enemy-ability/echo/corruption/last-stand/victory/defeat/drop/status/limit/residue/auto. Korean particles handled with 이(가)/을(를)/은(는).
+- Fixed 3 lines where the Korean draft reordered `%d`↔`%s` relative to the positional args (would crash at runtime) — order realigned to the arg arrays.
+
+### Verification
+- Format-specifier audit: **154 `_bl()` pairs, 0 mismatches** (every KO string keeps the same %s/%d/%% multiset as its EN source).
+- Godot 4.6.2 headless boot: 0 script errors.
+- `smoke_story_combat`: **STORY_COMBAT_SMOKE_PASS** (real battle runs to resolution — no format-crash).
+- Live re-capture: the `[INTEL]` banner now renders `적이 기본 공격을 준비한다.` (was English). Confirmed by screenshot.
+
+### Notes
+- The `[INTEL]` bracket tag itself is prefixed in `battle_scene.gd` (codex's active file) so it stays English as a stylized label; the message body is fully Korean. When codex localizes the tag it composes cleanly.
+- Remaining battle-scene visual roughness (turn pips, cut-in placement, stance/limit overlap on the command grid, Elia debug sublabel) lives in `battle_scene.gd` — codex is actively editing it, so left to that pass to avoid collision.
