@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/maps/optional_memory_site.gd" id="1_site"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/npc.tscn" id="3_npc"]
+
+[node name="RimRootHollow" type="Node2D"]
+script = ExtResource("1_site")
+site_id = "rim_root_hollow"
+return_scene = "res://scenes/maps/rim_forest.tscn"
+canvas_path = "res://assets/environment/map_canvases/map_rim_root_hollow_canvas_v1.png"
+title_en = "Root Hollow"
+title_ko = "기록목 뿌리 공동"
+subtitle_en = "A place the Monolith never learned to read"
+subtitle_ko = "모노리스가 읽는 법을 배우지 못한 곳"
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(400, 464)
+
+[node name="Elia" parent="." instance=ExtResource("3_npc")]
+position = Vector2(375, 479)
+npc_name = "Elia"
+dialogue_file = "res://data/chapter1_dialogue.json"
+dialogue_key = "elia_talk"
+npc_color = Color(0.45, 0.55, 0.65, 1)

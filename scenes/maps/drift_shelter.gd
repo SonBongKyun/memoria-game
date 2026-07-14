@@ -70,6 +70,8 @@ func _ready() -> void:
 	_setup_exploration_events()
 	_setup_map_decorations()
 	_setup_random_encounters()
+	WorldPopulation.populate(self, "drift_shelter")
+	WorldAtlas.add_gateways(self, "drift_shelter")
 	AchievementManager.record_map_visit("drift_shelter")
 	elia.repeat_line = "Rest. Please."
 	print("[DriftShelter] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
@@ -95,9 +97,7 @@ func _process(delta: float) -> void:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, effect_time)
 
 ## ===================== 스토리 시퀀스 =====================
 
@@ -382,7 +382,7 @@ func _build_map() -> void:
 	]
 	var tilemap = TilePainter.create_tilemap(_tile_defs, map_data, MAP_WIDTH, MAP_HEIGHT)
 	add_child(tilemap)
-	MapEffects.add_map_canvas(self, tilemap, "res://assets/environment/map_canvases/map_belt_waystation_canvas_v1.png", Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), {"terrain_alpha": 0.0, "tint": Color(0.78, 0.82, 0.94, 1.0)})
+	MapEffects.add_map_canvas(self, tilemap, "res://assets/environment/map_canvases/map_drift_shelter_canvas_v2.png", Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), {"terrain_alpha": 0.0})
 	var bodies = TilePainter.add_collisions(tilemap, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.WALL, Tile.RUBBLE, Tile.CONCRETE])
 	for body in bodies:
 		add_child(body)

@@ -50,6 +50,7 @@ const HUD_ARCHIVE_OVERLAY_PATH: String = "res://assets/cg/generated/ui_explorati
 
 var hud_plate_art: TextureRect
 var panel: PanelContainer
+var identity_label: Label
 var hp_label: Label
 var hp_bar: ProgressBar
 var hp_ghost_bar: ProgressBar  # S57: ghost drain bar
@@ -125,7 +126,7 @@ func _build_ui() -> void:
 
 	panel = PanelContainer.new()
 	panel.position = Vector2(12, 12)
-	panel.custom_minimum_size.x = 250
+	panel.custom_minimum_size.x = 268
 	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
 		Color(0.030, 0.024, 0.040, 0.58), # semi-transparent dark bg
 		Color(0.70, 0.56, 0.34, 0.42),    # subtle amber border
@@ -138,8 +139,32 @@ func _build_ui() -> void:
 	_build_controls_strip()
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 3)
+	vbox.add_theme_constant_override("separation", 5)
 	panel.add_child(vbox)
+
+	# Keep identity and chapter context together so the persistent HUD answers
+	# the immediate "who / where in the story" question before resources.
+	var header_row := HBoxContainer.new()
+	header_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(header_row)
+
+	identity_label = Label.new()
+	identity_label.text = "ARREL · JOURNEY"
+	identity_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	identity_label.add_theme_font_size_override("font_size", 13)
+	identity_label.add_theme_color_override("font_color", Color(0.94, 0.85, 0.66))
+	header_row.add_child(identity_label)
+
+	chapter_label = Label.new()
+	chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	chapter_label.add_theme_font_size_override("font_size", 11)
+	chapter_label.add_theme_color_override("font_color", Color(0.66, 0.70, 0.82))
+	header_row.add_child(chapter_label)
+
+	var header_rule := HSeparator.new()
+	header_rule.add_theme_constant_override("separation", 2)
+	header_rule.add_theme_color_override("color", Color(0.69, 0.55, 0.32, 0.46))
+	vbox.add_child(header_rule)
 
 	# ── HP Row ──
 	var hp_row := HBoxContainer.new()
@@ -147,21 +172,21 @@ func _build_ui() -> void:
 	vbox.add_child(hp_row)
 
 	hp_label = Label.new()
-	hp_label.text = "HP:"
-	hp_label.add_theme_font_size_override("font_size", 13)
-	hp_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
+	hp_label.text = "HP"
+	hp_label.add_theme_font_size_override("font_size", 11)
+	hp_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.90))
 	hp_row.add_child(hp_label)
 
 	# S57: Stacked HP bars — ghost underneath, real on top
 	var hp_stack := Control.new()
-	hp_stack.custom_minimum_size = Vector2(100, 12)
+	hp_stack.custom_minimum_size = Vector2(118, 12)
 	hp_row.add_child(hp_stack)
 
 	# Ghost bar (lighter, trails behind)
 	hp_ghost_bar = ProgressBar.new()
-	hp_ghost_bar.custom_minimum_size = Vector2(100, 12)
+	hp_ghost_bar.custom_minimum_size = Vector2(118, 12)
 	hp_ghost_bar.position = Vector2.ZERO
-	hp_ghost_bar.size = Vector2(100, 12)
+	hp_ghost_bar.size = Vector2(118, 12)
 	hp_ghost_bar.max_value = 100
 	hp_ghost_bar.value = 100
 	hp_ghost_bar.show_percentage = false
@@ -177,9 +202,9 @@ func _build_ui() -> void:
 
 	# Real HP bar (on top)
 	hp_bar = ProgressBar.new()
-	hp_bar.custom_minimum_size = Vector2(100, 12)
+	hp_bar.custom_minimum_size = Vector2(118, 12)
 	hp_bar.position = Vector2.ZERO
-	hp_bar.size = Vector2(100, 12)
+	hp_bar.size = Vector2(118, 12)
 	hp_bar.max_value = 100
 	hp_bar.value = 100
 	hp_bar.show_percentage = false
@@ -195,7 +220,7 @@ func _build_ui() -> void:
 	hp_stack.add_child(hp_bar)
 
 	hp_value_label = Label.new()
-	hp_value_label.add_theme_font_size_override("font_size", 13)
+	hp_value_label.add_theme_font_size_override("font_size", 12)
 	hp_value_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	hp_row.add_child(hp_value_label)
 
@@ -203,12 +228,6 @@ func _build_ui() -> void:
 	status_icons_row = HBoxContainer.new()
 	status_icons_row.add_theme_constant_override("separation", 2)
 	hp_row.add_child(status_icons_row)
-
-	# ── Chapter Row ──
-	chapter_label = Label.new()
-	chapter_label.add_theme_font_size_override("font_size", 13)
-	chapter_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
-	vbox.add_child(chapter_label)
 
 	# ── Memory Row ──
 	memory_label = Label.new()
@@ -253,7 +272,7 @@ func _build_ui() -> void:
 	quest_card.add_child(quest_box)
 
 	quest_tag_label = Label.new()
-	quest_tag_label.text = "◆  이야기 목표" if GameManager.current_locale == "ko" else "◆  STORY OBJECTIVE"
+	quest_tag_label.text = "◆  이야기 흐름" if GameManager.current_locale == "ko" else "◆  STORY THREAD"
 	quest_tag_label.add_theme_font_override("font", UITheme.make_ui_font())
 	quest_tag_label.add_theme_font_size_override("font_size", 10)
 	quest_tag_label.add_theme_color_override("font_color", Color(0.88, 0.69, 0.36))
@@ -283,7 +302,7 @@ func _build_ui() -> void:
 	quest_progress_bar.add_theme_stylebox_override("background", quest_bg_style)
 	quest_box.add_child(quest_progress_bar)
 
-	for label in [hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
+	for label in [identity_label, hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
 		UITheme.apply_ui_font(label)
 	if clean_view:
 		panel.custom_minimum_size.x = 236
@@ -584,15 +603,17 @@ func _update_hud() -> void:
 
 	hp_value_label.text = "%d/%d" % [hp, max_hp]
 
-	# Chapter & location
+	# Chapter context stays compact in the header; the location art card remains
+	# a one-time flourish in the full presentation mode.
 	var chapter_num: int = GameManager.current_chapter
 	var location_name: String = _get_location_name()
 	var ng_suffix = " (NG+%d)" % GameManager.ng_plus_cycle if GameManager.ng_plus_cycle > 0 else ""
+	identity_label.text = "아렐 · 여정" if GameManager.current_locale == "ko" else "ARREL · JOURNEY"
 	if location_name.is_empty():
-		chapter_label.text = ("%d장%s" % [chapter_num, ng_suffix]) if GameManager.current_locale == "ko" else "Ch.%d%s" % [chapter_num, ng_suffix]
+		chapter_label.text = ("제%d장%s" % [chapter_num, ng_suffix]) if GameManager.current_locale == "ko" else "CH.%02d%s" % [chapter_num, ng_suffix]
 	else:
-		chapter_label.text = ("%d장 — %s%s" % [chapter_num, location_name, ng_suffix]) if GameManager.current_locale == "ko" else "Ch.%d — %s%s" % [chapter_num, location_name, ng_suffix]
-	_update_location_card()
+		chapter_label.text = ("제%d장 · %s%s" % [chapter_num, location_name, ng_suffix]) if GameManager.current_locale == "ko" else "CH.%02d · %s%s" % [chapter_num, location_name, ng_suffix]
+		_update_location_card()
 
 	# Memories
 	var held: int = MemoryManager.memories.size()
@@ -697,7 +718,7 @@ func _update_quest_tracker() -> void:
 		quest_total = 1
 
 	if active_quest != "":
-		quest_tag_label.text = "◆  이야기 목표" if GameManager.current_locale == "ko" else "◆  STORY OBJECTIVE"
+		quest_tag_label.text = "◆  이야기 흐름" if GameManager.current_locale == "ko" else "◆  STORY THREAD"
 		quest_label.text = active_quest
 		quest_card.visible = true
 		quest_label.visible = true

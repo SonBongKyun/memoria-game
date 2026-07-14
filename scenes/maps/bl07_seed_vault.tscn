@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/maps/optional_memory_site.gd" id="1_site"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/npc.tscn" id="3_npc"]
+
+[node name="BL07SeedVault" type="Node2D"]
+script = ExtResource("1_site")
+site_id = "bl07_seed_vault"
+return_scene = "res://scenes/maps/bl07_void.tscn"
+canvas_path = "res://assets/environment/map_canvases/map_bl07_seed_vault_canvas_v1.png"
+title_en = "Seed Vault"
+title_ko = "씨앗 금고"
+subtitle_en = "A promise of rain stored beyond the Seal"
+subtitle_ko = "봉인 너머에 보관된 비의 약속"
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(400, 464)
+
+[node name="Elia" parent="." instance=ExtResource("3_npc")]
+position = Vector2(375, 479)
+npc_name = "Elia"
+npc_color = Color(0.45, 0.55, 0.65, 1)

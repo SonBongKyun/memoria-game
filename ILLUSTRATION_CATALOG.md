@@ -15,6 +15,44 @@
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
 
+## S187 atlas expansion: maps, field roster, and reward items
+
+| Set | Assets | Gameplay coverage | Art direction |
+|---|---|---|---|
+| Chapter-earned atlas canvases | `map_belt_signal_yard_canvas_v1.png`, `map_drift_waymarker_shrine_canvas_v1.png`, `map_coast_cinder_harbor_canvas_v1.png`, `map_seam_lantern_ward_canvas_v1.png`, `map_forest_name_hollow_canvas_v1.png`, `map_waste_grey_caravan_canvas_v1.png`, `map_bl07_seed_vault_canvas_v1.png` | Seven returnable side sites: signal yard, waymarker shrine, Cinder Harbor village, Lantern Ward town, Name Hollow, Grey Caravan camp, and Seed Vault | Text-free orthographic dark-fantasy exploration plates. Broad central routes and visible landmarks remain readable beneath live collision, NPC, threat, and reward layers. |
+| Atlas residents | `harbor_net_mender_field_v1.png`, `seam_baker_field_v1.png`, `drift_route_translator_field_v1.png`, `belt_code_runner_field_v1.png`, `verdan_debt_witness_field_v1.png`, `coast_lantern_child_field_v1.png`, `forest_name_keeper_field_v1.png`, `waste_caravan_quartermaster_field_v1.png`, `bl07_seed_custodian_field_v1.png`, `rim_root_tender_field_v1.png`, `seam_bridge_keeper_field_v1.png`, `ash_weather_listener_field_v1.png` | Twenty-eight named field voices across the seven new sites | Clean 128x160 transparent miniature figures with charcoal outlines, muted clothes, a role prop, and controlled shadows. |
+| Atlas threats | `signal_scavenger_field_v1.png`, `ash_bone_hound_field_v1.png`, `coast_drowned_echo_field_v1.png`, `forest_mimic_shade_field_v1.png`, `waste_glass_crawler_field_v1.png`, `bl07_archive_warden_field_v1.png`, `rail_sentinel_field_v1.png`, `rain_oracle_field_v1.png`, `lantern_leech_field_v1.png`, `root_memory_swarm_field_v1.png`, `caravan_raider_field_v1.png`, `seed_guardian_field_v1.png` | Fourteen visible optional fights, two per new site | Silhouette-first corruption designs whose materials express each biome: torn wire, ash bone, tide cloth, roots, erased glass, and void archive porcelain. |
+| Atlas reward icons | `root_balm.png`, `signal_jammer.png`, `lantern_salve.png`, `name_thread.png`, `compass_shard.png`, `seed_capsule.png` | Seven physical one-time caches introduce six usable tactical items | Crisp illustrated inventory icons with isolated alpha, no text, and the same restrained gold, ember, root, and pale-blue memory palette. |
+
+All S187 sources were made with GPT Image 2 as separate chroma-key contact sheets, then split, despilled, cropped, normalized, and alpha-audited before runtime integration. New maps and item imagery follow the existing low-noise painterly-pixel field language rather than creating a second illustration style.
+
+## S186 world population field roster
+
+| Set | Assets | Gameplay coverage | Art direction |
+|---|---|---|---|
+| Civilian and survivor roster | `rootbark_forager_field_v1.png`, `verdan_debtor_field_v1.png`, `belt_courier_field_v1.png`, `drift_scribe_field_v1.png`, `seam_lanternkeeper_field_v1.png`, `waste_pilgrim_field_v1.png` | 36 interactive witnesses, workers, refugees, and travelers across twelve maps/sites | Grounded miniature dark-fantasy field figures; soot, worn leather, muted rust, oxidized blue, and a single lantern-cyan accent. Each begins from a clean 128x160 RGBA canvas so it sits at the same gameplay scale as the cast. |
+| Visible hostile roster | `ash_hound_field_v1.png`, `belt_scavenger_field_v1.png`, `signal_wisp_field_v1.png`, `rootbound_echo_field_v1.png`, `colorless_wraith_field_v1.png`, `void_fragment_field_v1.png` | 18 optional visible encounters from Rim return routes through BL-07 | Silhouette-first threats with biome-specific memory corruption: ember ash, paper and scrap, signal-blue residue, roots, erased gray, and restrained violet void fractures. No UI text or noisy backdrop. |
+| Specialist civilians | `rim_herbalist_field_v1.png`, `verdan_runner_field_v1.png`, `belt_mechanic_field_v1.png`, `drift_child_archivist_field_v1.png`, `seam_medic_field_v1.png`, `waste_compass_guide_field_v1.png` | Six focal NPC roles now have a unique field identity: Rim scout, sealed-note seller, signal keeper, rain-ledger scribe, healer, and compass pilgrim. | The same muted miniature dark-fantasy language, with one story-prop per figure so their silhouette communicates their role at exploration scale. |
+| Rare hostile silhouettes | `ash_stalker_field_v1.png`, `belt_tag_raider_field_v1.png`, `signal_moth_wisp_field_v1.png`, `fungal_root_sentinel_field_v1.png`, `colorless_husk_field_v1.png`, `echo_shell_field_v1.png` | Six optional battle encounters gain distinct biome silhouettes rather than another repeat of the base hostile body. | Ash plate, debt tags, fragile blue wings, fungal roots, erased-grey body, and BL-07 violet shell; all stay readable on a transparent 128x160 field canvas. |
+
+Both rosters were generated as isolated GPT Image 2 contact sheets on removable magenta, then chroma-keyed, despilled, individually cropped, and normalized. They are intentionally reusable identity archetypes rather than a second portrait style; map placement and dialogue provide the individual character roles.
+
+| Canvas | Gameplay coverage | Art direction |
+|---|---|---|
+| `map_rim_root_hollow_canvas_v1.png` | Root Hollow — Chapter 1 return site | Ancient black roots around a quiet paper shrine, pale fungus, and a wide readable cross-path. |
+| `map_verdan_ledger_cellar_canvas_v1.png` | Verdan Ledger Cellar — Chapter 2 return site | Iron archive shelves, debt ledgers, a collection desk, and a broad central corridor beneath the market. |
+
+## S185 dedicated map canvases
+
+| Canvas | Gameplay coverage | Art direction |
+|---|---|---|
+| `map_drift_shelter_canvas_v2.png` | Drift Shelter | Rain-darkened archive refuge, torn awnings, wet stone plaza, subtle amber sanctuary lights |
+| `map_forgotten_forest_canvas_v2.png` | Forgotten Forest | Root-choked memory forest, pale fungal shelves, cool motes, open moss clearing |
+| `map_colorless_waste_canvas_v2.png` | Colorless Waste | Achromatic ash basin, split monoliths, paper flakes, one muted compass landmark |
+| `map_seam_outskirts_canvas_v2.png` | Seam Outskirts | Rift-edge settlement, worn crossroads, rope bridges, lantern dots, restrained violet fracture |
+
+These four canvases finish the one-map/one-identity exploration set begun in S183. They retain broad central routes and perimeter-only clutter so the player sprite, interactables, and collision map remain readable at game scale.
+
 ## S183 playable map canvases
 
 | Canvas | Gameplay coverage | Art direction |

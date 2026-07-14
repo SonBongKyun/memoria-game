@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/maps/optional_memory_site.gd" id="1_site"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/npc.tscn" id="3_npc"]
+
+[node name="WasteGreyCaravan" type="Node2D"]
+script = ExtResource("1_site")
+site_id = "waste_grey_caravan"
+return_scene = "res://scenes/maps/colorless_waste.tscn"
+canvas_path = "res://assets/environment/map_canvases/map_waste_grey_caravan_canvas_v1.png"
+title_en = "Grey Caravan"
+title_ko = "회색 캐러밴"
+subtitle_en = "A moving town that refuses a ledger"
+subtitle_ko = "장부를 거부하는 이동식 마을"
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(400, 464)
+
+[node name="Elia" parent="." instance=ExtResource("3_npc")]
+position = Vector2(375, 479)
+npc_name = "Elia"
+npc_color = Color(0.45, 0.55, 0.65, 1)

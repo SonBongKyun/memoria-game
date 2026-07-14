@@ -2,6 +2,64 @@
 
 ---
 
+## S187 - 2026-07-14 (Atlas expansion: seven maps, settlements, field roster, and reward caches)
+
+### Story and scale pass
+- Re-read the Belt signal-network danger, Drift's failing route literacy, the coast's returned dead, Seam refuge culture, the forest's mimetic paths, the Colorless Waste's travelling witness economy, and BL-07's record-tree seed truth before placing new content.
+- Kept the ten-chapter route intact. Each expansion map unlocks only after its source chapter's completion, enters from an explicit field gateway, and returns to the source map. This grows exploration without breaking story pacing or creating a second mandatory quest chain.
+
+### Done
+- Added **seven returnable atlas sites**: Belt Signal Yard, Drift Waymarker Shrine, Cinder Harbor, Lantern Ward, Name Hollow, Grey Caravan, and BL-07 Seed Vault. The playable world grows from **12 to 19 maps/sites**.
+- Added a dedicated GPT Image 2 low-noise top-down canvas for every new site. The new coast harbor, Seam ward, and waste caravan are actual settlement-scale destinations rather than a re-tinted existing combat field.
+- Added **28 localized ambient NPC voices**, **14 visible optional threats**, and **7 one-time physical item caches** across the new maps. Total playable field population is now **64 voices, 32 visible threats, and 48 distinct generated field sprites**.
+- Added twelve new civilian/survivor field assets, twelve new hostile field assets, and six alpha-clean tactical item icons. Every asset is used by live population data; no generated roster file remains decorative-only.
+- Added six usable rewards to `GameManager.ITEMS`: Root Balm, Signal Jammer, Lantern Salve, Name Thread, Compass Shard, and Seed Capsule. They extend existing cure, escape, recovery, and WITNESS systems rather than introducing dead inventory types.
+- Added `WorldAtlas` for chapter-gated main-map gateways and `WorldCache` for persistent, interactable, one-time field rewards. Expanded `WorldPopulation` and its smoke to cover map bounds, item registration, icon hookup, and exact totals.
+
+### Verification
+- Godot 4.6.2 editor import completed after all new PNGs were added. No new project parse errors were introduced; the existing VFX Library and ShaderV shutdown notices remain plugin-only noise.
+- `smoke_world_population.tscn`: **WORLD_POPULATION_SMOKE_PASS** (`maps=19`, `voices=64`, `visible_threats=32`, `caches=7`, `atlas_gates=7`, `generated_field_assets=48`).
+- Headless construction passed for all seven new scenes: Belt Signal Yard, Drift Waymarker Shrine, Cinder Harbor, Lantern Ward, Name Hollow, Grey Caravan, and BL-07 Seed Vault.
+- Alpha audit passed for all 61 currently audited field/UI assets with no blank image outputs. Visual contact-sheet review confirmed that new maps, residents, threats, and item icons retain the existing muted charcoal-line dark-fantasy language.
+
+## S186 - 2026-07-14 (World population, visible threats, and social ecology)
+
+### Story and placement pass
+- Re-read the Part 1 manuscript beats together with the worldbuilding rules: Rim's near-absence of surveillance, Verdan's memory-loan economy and mine labor, Belt signal-tower scrutiny, Drift's failing literacy, the Seam's refuge function, the parasitic forest, the Colorless Waste compass motif, and BL-07's record-tree/echo-shell truth.
+- The goal was not to fill routes with anonymous sprites. Each populated map now answers a local question: who survives here, what memory-system pressure shapes them, and which visible threat belongs to that biome.
+
+### Done
+- Added `WorldPopulation`, a chapter-aware placement system used by the ten chapter maps and two optional story sites. It creates **36 localized field NPC voices** with individual English/Korean names and short repeatable story observations, plus **18 visible optional threat encounters** that persist as defeated through story flags.
+- Kept Verdan free of roaming monsters so its crowd, debt, and surveillance remain the gameplay pressure. Rim's Ash Hound is held until Chapter 1 is complete, while later routes gain appropriate Ash Hounds, Belt Scavengers, Signal Wisps, Rootbound Echoes, Colorless Wraiths, and Void Fragments.
+- Generated twenty-four GPT Image 2 field assets in the established miniature dark-fantasy language: twelve civilians/survivors (including a Rim herbalist, Verdan note-runner, Belt mechanic, Drift archivist, Seam medic, and Waste compass guide) and twelve hostile silhouettes. Sources were chroma-keyed, despilled, cropped, normalized to 128x160 RGBA field canvases, and integrated as project assets.
+- Extended NPC support for localized ambient names/lines and static generated field art while retaining all four facing animations. New civilian nodes remain interactable; visible hostiles use non-blocking Area2D contact battles instead of hidden random-trigger rectangles.
+- Added **Root Hollow** (unlocked after Chapter 1) and **Verdan Ledger Cellar** (unlocked after Malet's Chapter 2 transaction): small, returnable side sites that turn the Root Bark and memory-loan economy into explorable spaces rather than background lore. Each has a dedicated generated map canvas, contextual inhabitants, and optional visible battles.
+- Added `smoke_world_population.tscn`, which checks all twelve map hookups, map-bounds and collision-tile placement for chapter maps, 36/18 total counts, generated NPC/hostile asset resolution, and the NPC facing contract.
+
+### Verification
+- Godot 4.6.2 imported all twenty-six new art assets and registered `WorldPopulation`/`MapGateway` with no new project parse errors. Existing VFX Library popup/autoload and ShaderV duplicate-UID shutdown messages remain external plugin noise.
+- `smoke_world_population.tscn`: **WORLD_POPULATION_SMOKE_PASS** (`maps=12`, `voices=36`, `visible_threats=18`, `generated_field_assets=24`). The smoke additionally proves that all six specialist civilians and six rare hostile variants are the assets actually used in play.
+- `smoke_visual_clarity.tscn`: **VISUAL_CLARITY_SMOKE_PASS** with the expanded `map_canvases=12` audit. The alpha audit also passed for all 24 field files (`128x160`, transparent corners).
+- Headless live construction checks: Rim Forest reports `3 voices, 0 visible threats` before its post-Chapter-1 hunt unlock; BL-07 reports `3 voices, 2 visible threats`. Both optional side-site scenes parse and construct with their return gateways.
+
+## S185 - 2026-07-14 (Map identity, exploration HUD, and field-cast refinement)
+
+### Audit
+- The first six GPT Image 2 map canvases established the intended gameplay-map quality, but Drift Shelter, Forgotten Forest, Colorless Waste, and Seam Outskirts still reused nearby locations with palette tints.
+- Exploration HUD information was structurally correct but its chapter, HP, and objective hierarchy read as a stack of unrelated rows. Companion silhouettes also needed a quieter grounding treatment, while ambient NPC breathing needed to preserve each authored field sprite's scale.
+
+### Done
+- Added four dedicated, text-free, top-down GPT Image 2 environment canvases: rain-darkened **Drift Shelter**, root-bound **Forgotten Forest**, achromatic **Colorless Waste**, and violet threshold **Seam Outskirts**. All ten playable maps now have their own environmental identity instead of using a tinted adjacent-map canvas.
+- Reframed the exploration HUD into a compact identity header: Arrel's journey, chapter/location context, a clearer HP rail, divider, then the story-thread card. Clean Gameplay View still hides archive economy noise and location-art overlays.
+- Added an understated companion ground shadow and resonance line so Elia/Sable follow as embodied field characters rather than floating art. Static NPCs now join the NPC group and receive a micro idle breath that preserves their authored 0.36 field-cast scale.
+- Replaced the per-map absolute-scale idle loops with `MapEffects.update_npc_idle_motion()`, preventing NPC sheets from being stretched or shrunk by ambience updates.
+- Extended the visual clarity smoke to check HUD hierarchy, companion grounding, preserved NPC scale, and the complete ten-canvas map set.
+
+### Verification
+- Godot 4.6.2 imported the four new canvases with no project parse failures (only known VFX Library and ShaderV editor shutdown warnings).
+- `smoke_visual_clarity.tscn`: **VISUAL_CLARITY_SMOKE_PASS** with `ui_header=1`, `companion_presence=1`, `npc_scale=preserved`, and `map_canvases=10`.
+- Headless construction audit loaded all ten map scenes with no `Parse Error` or `SCRIPT ERROR`.
+
 ## S184 - 2026-07-14 (Gameplay balance, tactical items, and presentation cohesion)
 
 ### Design pass

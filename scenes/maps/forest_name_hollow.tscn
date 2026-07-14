@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/maps/optional_memory_site.gd" id="1_site"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/npc.tscn" id="3_npc"]
+
+[node name="ForestNameHollow" type="Node2D"]
+script = ExtResource("1_site")
+site_id = "forest_name_hollow"
+return_scene = "res://scenes/maps/forgotten_forest.tscn"
+canvas_path = "res://assets/environment/map_canvases/map_forest_name_hollow_canvas_v1.png"
+title_en = "Name Hollow"
+title_ko = "이름의 골짜기"
+subtitle_en = "Say your name once before the forest borrows it"
+subtitle_ko = "숲이 빌려 가기 전에 이름을 한 번만 말하라"
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(400, 464)
+
+[node name="Elia" parent="." instance=ExtResource("3_npc")]
+position = Vector2(375, 479)
+npc_name = "Elia"
+npc_color = Color(0.45, 0.55, 0.65, 1)

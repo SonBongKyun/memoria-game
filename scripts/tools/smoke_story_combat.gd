@@ -17,6 +17,9 @@ func _ready() -> void:
 	assert(BattleManager._get_witness_requirement(boss) == 3, "Story bosses must still require a full reading")
 	assert(GameManager.ITEMS.has("witness_ink"), "The preservation route needs a dedicated tactical item")
 	assert(ResourceLoader.exists(GameManager.ITEMS["witness_ink"]["icon"]), "Witness Ink must resolve to a shipped illustrated icon")
+	for atlas_item in ["root_balm", "signal_jammer", "lantern_salve", "name_thread", "compass_shard", "seed_capsule"]:
+		assert(GameManager.ITEMS.has(atlas_item), "%s must be a usable atlas reward" % atlas_item)
+		assert(ResourceLoader.exists(GameManager.ITEMS[atlas_item]["icon"]), "%s must resolve to a shipped illustrated icon" % atlas_item)
 
 	# Item balance probe: consumables must create a tactical decision rather than
 	# functioning as dead inventory between shop visits.
@@ -27,6 +30,15 @@ func _ready() -> void:
 	BattleManager.player_statuses.append(BattleManager.StatusEntry.new(BattleManager.StatusEffect.POISON, 2, 6))
 	BattleManager.player_use_item("antidote")
 	assert(GameManager.player_data.hp == 72 and BattleManager.player_statuses.is_empty(), "Antidote must both clear pressure and restore a small recovery buffer")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"root_balm": 1}
+	GameManager.player_data.hp = 40
+	BattleManager.player_statuses.append(BattleManager.StatusEntry.new(BattleManager.StatusEffect.BURN, 2, 8))
+	BattleManager.player_use_item("root_balm")
+	assert(GameManager.player_data.hp == 68 and BattleManager.player_statuses.is_empty(), "Root Balm must be a stronger field-earned cure rather than cosmetic inventory")
 	await _wait_for_player_turn()
 
 	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)

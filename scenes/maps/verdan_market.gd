@@ -86,6 +86,8 @@ func _ready() -> void:
 	_setup_exploration_events()
 	_setup_side_quests()
 	_setup_map_decorations()
+	WorldPopulation.populate(self, "verdan_market")
+	_setup_ledger_cellar_gateway()
 	AchievementManager.record_map_visit("verdan_market")
 	elia.repeat_line = "This market smells like rust and regret."
 	malet_npc.repeat_line = "You know where to find me."
@@ -122,9 +124,7 @@ func _process(delta: float) -> void:
 	MapEffects.cull_offscreen_particles(_s52_particles, vp_rect)
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, _time)
 	# S59: 프로시저럴 안개 + 트리거 접근 글로우 + 캠프파이어
 	MapEffects.update_fog_layer(_fog_layer, _time)
 	MapEffects.update_trigger_approach_glow(self, player.position, _time)
@@ -448,6 +448,18 @@ func _setup_side_quests() -> void:
 		add_child(ledger_area)
 
 ## ===================== S59: 인터랙티브 프롭 =====================
+
+func _setup_ledger_cellar_gateway() -> void:
+	if not GameManager.get_flag("ch2_malet_done"):
+		return
+	var gateway := MapGateway.new()
+	gateway.name = "LedgerCellarGateway"
+	gateway.position = Vector2(22.5 * TILE_SIZE, 15.5 * TILE_SIZE)
+	gateway.destination_scene = "res://scenes/maps/verdan_ledger_cellar.tscn"
+	gateway.label_en = "Ledger Cellar"
+	gateway.label_ko = "기억 대출 지하 장부실"
+	gateway.accent = Color(0.92, 0.62, 0.28)
+	add_child(gateway)
 
 func _setup_interactive_props() -> void:
 	# 노점 옆 나무통 (Grains 보상)

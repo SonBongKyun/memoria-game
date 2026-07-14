@@ -84,6 +84,8 @@ func _ready() -> void:
 	_setup_interactive_objects()
 	_setup_exploration_events()
 	_setup_map_decorations()
+	WorldPopulation.populate(self, "crumbling_coast")
+	WorldAtlas.add_gateways(self, "crumbling_coast")
 	AchievementManager.record_map_visit("crumbling_coast")
 	elia.repeat_line = "The ground shifts. Stay close."
 	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
@@ -117,9 +119,7 @@ func _process(delta: float) -> void:
 		tp.color.a = 0.15 + sin(effect_time * 1.8 + phase) * 0.08
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, effect_time)
 
 ## ===================== 맵 데코레이션 =====================
 

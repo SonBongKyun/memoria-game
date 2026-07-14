@@ -69,6 +69,8 @@ func _ready() -> void:
 	_setup_exploration_events()
 	_setup_map_decorations()
 	_setup_random_encounters()
+	WorldPopulation.populate(self, "belt_waystation")
+	WorldAtlas.add_gateways(self, "belt_waystation")
 	AchievementManager.record_map_visit("belt_waystation")
 	elia.repeat_line = "This place... it's like the land itself forgot how to live."
 	tobias_npc.repeat_line = "Fascinating. Absolutely fascinating. Let me write that down."
@@ -101,9 +103,7 @@ func _process(delta: float) -> void:
 		RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, effect_time)
 
 ## ===================== 스토리 시퀀스 =====================
 

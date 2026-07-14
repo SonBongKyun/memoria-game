@@ -95,6 +95,8 @@ func _ready() -> void:
 	_setup_interactive_objects()
 	_setup_exploration_events()
 	_setup_map_decorations()
+	WorldPopulation.populate(self, "bl07_void")
+	WorldAtlas.add_gateways(self, "bl07_void")
 	AchievementManager.record_map_visit("bl07_void")
 	elia.repeat_line = "I can feel it pulling. Don't let go."
 	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
@@ -132,9 +134,7 @@ func _process(delta: float) -> void:
 		s.color.a = 0.1 + sin(pulse_time * 2.0 + phase) * 0.06
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(pulse_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(pulse_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, pulse_time)
 
 ## ===================== S48: 탐색 이벤트 =====================
 

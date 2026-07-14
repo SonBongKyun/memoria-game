@@ -9,11 +9,15 @@ const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 @export var dialogue_key: String = ""
 @export var npc_color: Color = Color(0.6, 0.3, 0.35)  # 기본: 붉은 톤
 @export var repeat_line: String = ""  # 재대화 시 표시할 대사 (빈칸이면 기본 대사)
+@export var display_name_ko: String = ""  # 월드 인구용 로컬라이즈 이름
+@export var repeat_line_ko: String = ""  # 월드 인구용 로컬라이즈 대사
+@export_file("*.png") var field_art_path: String = ""  # 단방향 월드 NPC 전용 필드 아트
 
 var _talked_keys: Dictionary = {}  # 이미 진행한 dialogue_key 추적
 var sprite: AnimatedSprite2D
 
 func _ready() -> void:
+	add_to_group("npcs")
 	# 맵 위에 얼굴 삽화를 축소해 놓던 구형 표현을 제거하고,
 	# 플레이어/동료와 같은 4방향 캐릭터 애니메이션 규격을 사용한다.
 	if has_node("Sprite2D"):
@@ -33,17 +37,18 @@ func interact() -> void:
 	_face_toward_player()
 	print("[NPC] %s — interact triggered" % npc_name)
 	if dialogue_key == "":
+		var ambient_line := _get_runtime_line()
 		DialogueManager.start_dialogue([
-			{"speaker": npc_name, "text": "...", "portrait": ""}
+			{"speaker": _get_runtime_name(), "text": ambient_line, "portrait": ""}
 		])
 		return
 
 	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
 	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
 		# 이미 대화한 NPC — 짧은 후속 대사
-		var line = GameManager.localized_runtime_text(repeat_line) if repeat_line != "" else "..."
+		var line := _get_runtime_line()
 		DialogueManager.start_dialogue([
-			{"speaker": npc_name, "text": line, "portrait": ""}
+			{"speaker": _get_runtime_name(), "text": line, "portrait": ""}
 		])
 		return
 
@@ -55,9 +60,28 @@ func interact() -> void:
 func _on_first_talk_ended(talk_flag: String) -> void:
 	GameManager.set_flag(talk_flag)
 
+func _get_runtime_name() -> String:
+	if GameManager.current_locale == "ko" and display_name_ko != "":
+		return display_name_ko
+	return npc_name
+
+func _get_runtime_line() -> String:
+	if GameManager.current_locale == "ko" and repeat_line_ko != "":
+		return repeat_line_ko
+	return GameManager.localized_runtime_text(repeat_line) if repeat_line != "" else "..."
+
 ## PixelSprite 유틸리티로 상세한 픽셀아트 스프라이트 생성
 func _setup_placeholder_sprite() -> void:
 	var config := _get_character_config()
+	if field_art_path != "" and ResourceLoader.exists(field_art_path):
+		sprite.sprite_frames = _create_static_field_frames(field_art_path)
+		sprite.position = Vector2(0, 2)
+		sprite.offset = Vector2(0, -72)
+		sprite.scale = Vector2(0.36, 0.36)
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sprite.play("idle_down")
+		_add_character_grounding(_get_npc_accent_color())
+		return
 	var sheet_keys := {
 		"Elia": "elia",
 		"Malet": "malet",
@@ -92,6 +116,17 @@ func _setup_placeholder_sprite() -> void:
 	_add_character_grounding(_get_npc_accent_color())
 	if npc_name in ["Malet", "Mallet"] and not uses_authored_sheet:
 		_add_malet_details()
+
+func _create_static_field_frames(art_path: String) -> SpriteFrames:
+	var frames := SpriteFrames.new()
+	var texture := load(art_path) as Texture2D
+	for direction in ["down", "up", "left", "right"]:
+		var animation: String = "idle_" + String(direction)
+		frames.add_animation(animation)
+		frames.set_animation_speed(animation, 1.0)
+		frames.set_animation_loop(animation, true)
+		frames.add_frame(animation, texture)
+	return frames
 
 func _face_toward_player() -> void:
 	if sprite == null or sprite.sprite_frames == null:

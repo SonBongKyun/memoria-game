@@ -93,6 +93,8 @@ func _ready() -> void:
 	_setup_interactive_objects()
 	_setup_side_quests()
 	_setup_map_decorations()
+	WorldPopulation.populate(self, "the_seam")
+	WorldAtlas.add_gateways(self, "the_seam")
 	AchievementManager.record_map_visit("the_seam")
 	elia.repeat_line = "I'm here. I'm not going anywhere."
 	sable_npc.repeat_line = "The Seam holds. For now."
@@ -154,9 +156,7 @@ func _process(delta: float) -> void:
 		c.color.a = 0.15 + sin(effect_time * 2.5 + phase) * 0.1 + (0.3 if fmod(effect_time + phase, 4.0) < 0.15 else 0.0)
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(effect_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, effect_time)
 
 func _setup_hidden_events() -> void:
 	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)

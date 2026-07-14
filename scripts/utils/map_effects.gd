@@ -2080,6 +2080,26 @@ static func add_map_canvas(parent: Node2D, tilemap: TileMapLayer, texture_path: 
 		tilemap.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	return canvas
 
+## Static NPCs keep their authored field-sprite scale, then receive only a
+## restrained breath. This avoids overwriting four-direction character sheets
+## with an absolute scale during per-map ambience updates.
+static func update_npc_idle_motion(npc: Node, time: float) -> void:
+	if npc == null or not is_instance_valid(npc):
+		return
+	var sprite := npc.get_node_or_null("CharacterSprite") as AnimatedSprite2D
+	if sprite == null:
+		sprite = npc.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	if sprite == null:
+		return
+	if not sprite.has_meta("field_idle_rest_scale"):
+		sprite.set_meta("field_idle_rest_scale", sprite.scale)
+	var rest_scale: Vector2 = sprite.get_meta("field_idle_rest_scale", sprite.scale)
+	var phase := time * 1.5
+	if npc is Node2D:
+		phase += (npc as Node2D).position.x * 0.1
+	var breath := sin(phase)
+	sprite.scale = rest_scale * Vector2(1.0 + breath * 0.008, 1.0 - breath * 0.006)
+
 ## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)
 static func update_campfire_glows(map: Node2D, time: float) -> void:
 	for child in map.get_children():

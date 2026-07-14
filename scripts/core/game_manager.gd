@@ -237,6 +237,12 @@ const ITEMS: Dictionary = {
 	"firebomb": {"name": "Firebomb", "desc": "Deals 12 damage, then burns the enemy for 2 turns.", "type": "burn", "power": 15, "impact": 12, "price": 18, "icon": "res://assets/ui/items/firebomb.png"},
 	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15, "icon": "res://assets/ui/items/smoke_bomb.png"},
 	"witness_ink": {"name": "Witness Ink", "desc": "Advance WITNESS by 1, guard the next blow, and gain Limit.", "type": "witness", "power": 1, "price": 22, "icon": "res://assets/ui/items/witness_ink.png"},
+	"root_balm": {"name": "Root Balm", "desc": "Cures poison and burn, then restores 28 HP.", "type": "cure", "power": 0, "recovery": 28, "price": 24, "icon": "res://assets/ui/items/root_balm.png"},
+	"signal_jammer": {"name": "Signal Jammer", "desc": "Cuts the hostile signal and guarantees escape.", "type": "flee", "power": 0, "price": 30, "icon": "res://assets/ui/items/signal_jammer.png"},
+	"lantern_salve": {"name": "Lantern Salve", "desc": "Restores 65 HP with a steady ember glow.", "type": "heal", "power": 65, "price": 34, "icon": "res://assets/ui/items/lantern_salve.png"},
+	"name_thread": {"name": "Name Thread", "desc": "Advance WITNESS by 1, guard the next blow, and gain Limit.", "type": "witness", "power": 1, "price": 36, "icon": "res://assets/ui/items/name_thread.png"},
+	"compass_shard": {"name": "Compass Shard", "desc": "Advance WITNESS by 2, guard the next blow, and gain Limit.", "type": "witness", "power": 2, "price": 48, "icon": "res://assets/ui/items/compass_shard.png"},
+	"seed_capsule": {"name": "Seed Capsule", "desc": "Restores 110 HP. A single stored promise of rain.", "type": "heal", "power": 110, "price": 60, "icon": "res://assets/ui/items/seed_capsule.png"},
 }
 const UI_ICON_PATHS: Dictionary = {
 	"grains": "res://assets/ui/items/grains.png",

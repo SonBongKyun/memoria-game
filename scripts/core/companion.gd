@@ -34,6 +34,9 @@ var _bob_phase: float = 0.0
 var _base_offset: Vector2 = Vector2.ZERO
 var _base_offset_captured: bool = false
 var _rest_scale: Vector2 = Vector2.ONE
+var _presence_ring: Line2D
+var _presence_shadow: Polygon2D
+var _presence_time: float = 0.0
 
 func _ready() -> void:
 	# Sprite2D → AnimatedSprite2D 교체 (픽셀 스���라이트 지원)
@@ -43,6 +46,7 @@ func _ready() -> void:
 	sprite.name = "AnimatedSprite2D"
 	add_child(sprite)
 	_setup_placeholder_sprite()
+	_add_companion_presence()
 	# 씬 트리에서 Player 찾기
 	await get_tree().process_frame
 	target = get_tree().get_first_node_in_group("player")
@@ -109,6 +113,7 @@ func _physics_process(delta: float) -> void:
 			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 12.0 * delta)
 			_breath_time += delta
 			sprite.scale = _rest_scale * Vector2(1.0 + sin(_breath_time * 1.8) * 0.008, 1.0 - sin(_breath_time * 1.8) * 0.006)
+	_update_companion_presence(delta, visually_moving)
 
 ## 상호작용 (Player의 RayCast가 호출)
 func interact() -> void:
@@ -159,6 +164,35 @@ func _setup_placeholder_sprite() -> void:
 			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		sprite.scale = _rest_scale
 	sprite.play("idle_down")
+
+func _add_companion_presence() -> void:
+	_presence_shadow = Polygon2D.new()
+	_presence_shadow.polygon = PackedVector2Array([
+		Vector2(-14, 18), Vector2(-8, 15), Vector2(8, 15), Vector2(14, 18),
+		Vector2(8, 21), Vector2(-8, 21)
+	])
+	_presence_shadow.color = Color(0.0, 0.0, 0.0, 0.28)
+	_presence_shadow.z_index = -1
+	add_child(_presence_shadow)
+
+	var accent := Color(0.86, 0.68, 0.34, 0.34) if npc_name == "Elia" else Color(0.67, 0.52, 0.84, 0.34)
+	_presence_ring = Line2D.new()
+	_presence_ring.width = 1.1
+	_presence_ring.default_color = accent
+	_presence_ring.points = PackedVector2Array([
+		Vector2(-10, 19), Vector2(-5, 22), Vector2(5, 22), Vector2(10, 19)
+	])
+	_presence_ring.z_index = 0
+	add_child(_presence_ring)
+
+func _update_companion_presence(delta: float, moving: bool) -> void:
+	if _presence_ring == null or not is_instance_valid(_presence_ring):
+		return
+	_presence_time += delta
+	var base_alpha := 0.48 if moving else 0.32
+	var pulse := sin(_presence_time * (3.2 if moving else 1.7)) * 0.06
+	_presence_ring.default_color.a = clampf(base_alpha + pulse, 0.20, 0.56)
+	_presence_ring.scale.x = 1.0 + (0.08 if moving else 0.03) * sin(_presence_time * 2.0)
 
 ## 애니메이션 방향 업데이트
 func _update_animation(direction: Vector2, is_moving: bool) -> void:

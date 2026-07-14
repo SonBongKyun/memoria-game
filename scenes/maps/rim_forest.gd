@@ -119,6 +119,8 @@ func _ready() -> void:
 	# _setup_random_encounters()  # S66: VN 정체성에 맞지 않음 — 비활성
 	# _setup_side_quests()        # S66: 사이드 분기 제거, 본 스토리에 집중
 	_setup_map_decorations()
+	WorldPopulation.populate(self, "rim_forest")
+	_setup_root_hollow_gateway()
 	AchievementManager.record_map_visit("rim_forest")
 	# S64: Perception Drift — daily_campfire_song 태웠으면 엘리아를 창백하게, "Echo of the Song" 오브젝트 표시
 	_setup_perception_nodes()
@@ -166,9 +168,7 @@ func _process(delta: float) -> void:
 	# 	RandomEncounter.update(_encounter_data, player.position, TILE_SIZE)
 	# S53: NPC 아이들 모션
 	for npc in get_tree().get_nodes_in_group("npcs"):
-		if npc.has_node("AnimatedSprite2D"):
-			var spr = npc.get_node("AnimatedSprite2D")
-			spr.scale = Vector2(1.0 + sin(_time * 1.5 + npc.position.x * 0.1) * 0.008, 1.0 - sin(_time * 1.5 + npc.position.x * 0.1) * 0.006)
+		MapEffects.update_npc_idle_motion(npc, _time)
 	# 버섯 빛 애니메이션
 	for m in _mushroom_lights:
 		var phase = m.get_meta("phase", 0.0)
@@ -400,6 +400,18 @@ func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dia
 	add_child(area)
 
 ## ===================== S59: 인터랙티브 프롭 =====================
+
+func _setup_root_hollow_gateway() -> void:
+	if not GameManager.get_flag("ch1_complete"):
+		return
+	var gateway := MapGateway.new()
+	gateway.name = "RootHollowGateway"
+	gateway.position = Vector2(18.5 * TILE_SIZE, 3.5 * TILE_SIZE)
+	gateway.destination_scene = "res://scenes/maps/rim_root_hollow.tscn"
+	gateway.label_en = "Root Hollow"
+	gateway.label_ko = "기록목 공동"
+	gateway.accent = Color(0.48, 0.86, 0.62)
+	add_child(gateway)
 
 func _setup_interactive_props() -> void:
 	# 숲 길가 나무통 (Grains)

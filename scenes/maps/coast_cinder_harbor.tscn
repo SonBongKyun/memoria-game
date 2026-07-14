@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/maps/optional_memory_site.gd" id="1_site"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/npc/npc.tscn" id="3_npc"]
+
+[node name="CoastCinderHarbor" type="Node2D"]
+script = ExtResource("1_site")
+site_id = "coast_cinder_harbor"
+return_scene = "res://scenes/maps/crumbling_coast.tscn"
+canvas_path = "res://assets/environment/map_canvases/map_coast_cinder_harbor_canvas_v1.png"
+title_en = "Cinder Harbor"
+title_ko = "신더 항구"
+subtitle_en = "A village that names what the tide returns"
+subtitle_ko = "조수가 돌려준 것에 이름을 붙이는 마을"
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(400, 464)
+
+[node name="Elia" parent="." instance=ExtResource("3_npc")]
+position = Vector2(375, 479)
+npc_name = "Elia"
+npc_color = Color(0.45, 0.55, 0.65, 1)

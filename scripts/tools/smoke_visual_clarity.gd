@@ -14,6 +14,8 @@ func _ready() -> void:
 	assert(ExplorationHUD.location_card == null or not ExplorationHUD.location_card.visible, "Clean view must not cover the opening screen with a location-art card")
 	ExplorationHUD.call("_update_hud")
 	assert(not ExplorationHUD.memory_label.visible and not ExplorationHUD.grains_label.visible, "Clean view must keep archive resources out of the persistent field HUD")
+	assert(ExplorationHUD.identity_label != null and ("ARREL" in ExplorationHUD.identity_label.text or "아렐" in ExplorationHUD.identity_label.text), "Field HUD must lead with a clear player identity header")
+	assert(ExplorationHUD.chapter_label != null and ExplorationHUD.chapter_label.text.length() > 0, "Field HUD must retain chapter and location context in its header")
 	assert(ExplorationHUD.quest_card != null and ExplorationHUD.quest_tag_label != null, "Exploration HUD must frame the active story objective")
 	assert("STORY" in ExplorationHUD.quest_tag_label.text or "이야기" in ExplorationHUD.quest_tag_label.text, "Story objective card must expose a readable hierarchy label")
 	DialogueBox.is_typing = true
@@ -66,7 +68,18 @@ func _ready() -> void:
 	var field_elia_sprite := field_elia.get_node("CharacterSprite") as AnimatedSprite2D
 	var elia_texture := field_elia_sprite.sprite_frames.get_frame_texture("idle_down", 0)
 	assert(elia_texture != null and "sprites/field/elia" in PixelSprite.get_texture_source(elia_texture), "Opening Elia must use the four-direction field sprite")
+	MapEffects.update_npc_idle_motion(field_elia, 0.5)
+	assert(absf(field_elia_sprite.scale.x - 0.36) < 0.01, "NPC idle motion must preserve the authored field-cast scale")
 	field_elia.queue_free()
+	await get_tree().process_frame
+
+	var companion_scene: PackedScene = load("res://scenes/npc/companion.tscn")
+	var field_companion = companion_scene.instantiate()
+	field_companion.npc_name = "Elia"
+	add_child(field_companion)
+	await get_tree().process_frame
+	assert(field_companion.get("_presence_ring") is Line2D and field_companion.get("_presence_shadow") is Polygon2D, "Companions must use a restrained ground-presence treatment")
+	field_companion.queue_free()
 	await get_tree().process_frame
 
 	for npc_data in [
@@ -93,6 +106,36 @@ func _ready() -> void:
 	for direction in ["down", "up", "left", "right"]:
 		assert(ResourceLoader.exists("res://assets/sprites/field/sable/%s.png" % direction), "Sable is missing a %s field direction" % direction)
 	assert(UITheme.make_body_font().font_names[0] == "Noto Serif KR", "Korean dialogue must use the literary Hangul serif-first font chain")
+	for canvas_path in [
+		"res://assets/environment/map_canvases/map_rim_forest_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_verdan_market_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_belt_waystation_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_crumbling_coast_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_the_seam_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_bl07_void_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_drift_shelter_canvas_v2.png",
+		"res://assets/environment/map_canvases/map_forgotten_forest_canvas_v2.png",
+		"res://assets/environment/map_canvases/map_colorless_waste_canvas_v2.png",
+		"res://assets/environment/map_canvases/map_seam_outskirts_canvas_v2.png",
+		"res://assets/environment/map_canvases/map_rim_root_hollow_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_verdan_ledger_cellar_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_belt_signal_yard_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_drift_waymarker_shrine_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_coast_cinder_harbor_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_seam_lantern_ward_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_forest_name_hollow_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_waste_grey_caravan_canvas_v1.png",
+		"res://assets/environment/map_canvases/map_bl07_seed_vault_canvas_v1.png",
+	]:
+		assert(ResourceLoader.exists(canvas_path), "Map canvas is missing: %s" % canvas_path)
+	for site_scene in [
+		"res://scenes/maps/rim_root_hollow.tscn", "res://scenes/maps/verdan_ledger_cellar.tscn",
+		"res://scenes/maps/belt_signal_yard.tscn", "res://scenes/maps/drift_waymarker_shrine.tscn",
+		"res://scenes/maps/coast_cinder_harbor.tscn", "res://scenes/maps/seam_lantern_ward.tscn",
+		"res://scenes/maps/forest_name_hollow.tscn", "res://scenes/maps/waste_grey_caravan.tscn",
+		"res://scenes/maps/bl07_seed_vault.tscn",
+	]:
+		assert(ResourceLoader.exists(site_scene), "Optional story site is missing: %s" % site_scene)
 	assert("Quick Save" not in PauseMenu.pause_hint_label.text, "Controller footer must not advertise unsupported quick-save buttons")
 	InputManager.current_mode = previous_mode
 	PauseMenu.call("_refresh_footer_hints")
@@ -184,5 +227,5 @@ func _ready() -> void:
 	var elia_stage := elia_battle.get("ally_sprite") as TextureRect
 	assert(elia_stage != null and elia_stage.texture.resource_path == "res://assets/cg/game_image/elia_battle_anchor_fullbody.png", "Elia battle support must use the transparent anchor full-body art")
 
-	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_hints=1 support_art=3 item_icons=2 shop_icons=6 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1")
+	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_header=1 companion_presence=1 npc_scale=preserved map_canvases=19 support_art=3 item_icons=2 shop_icons=12 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1")
 	get_tree().quit(0)
