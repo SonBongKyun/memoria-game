@@ -6,6 +6,8 @@ extends CanvasLayer
 
 var transition_rect: ColorRect
 var tween: Tween
+var _transition_in_progress: bool = false
+var _transition_target: String = ""
 
 # 와이프 효과용
 var wipe_rects: Array = []
@@ -33,15 +35,15 @@ const CHAPTER_NAMES: Dictionary = {
 
 # S59: Gameplay tips for loading screens
 const GAMEPLAY_TIPS: Array = [
-	"Burning Grade 1 memories is irreversible — consider the cost carefully.",
+	"Burning Grade 1 memories is irreversible, consider the cost carefully.",
 	"Hold Shift to sprint through exploration areas.",
 	"Press M to open the Memory Archive and review your memories.",
 	"Burned memories leave behind Residue that can still be used in battle at reduced power.",
 	"Equipment can be upgraded up to 3 times at the Memory Shop.",
-	"Check the Codex for enemy weaknesses — exploiting them deals bonus damage.",
+	"Check the Codex for enemy weaknesses, exploiting them deals bonus damage.",
 	"Side quests reward rare memories and Grains. Talk to every NPC.",
 	"The Bureau tracks your burns. Burn too many and the world changes around you.",
-	"Combo attacks deal increasing bonus damage — chain 5 hits for maximum effect.",
+	"Combo attacks deal increasing bonus damage, chain 5 hits for maximum effect.",
 	"Press F6 to quick save and F7 to quick load at any time during exploration.",
 ]
 
@@ -63,7 +65,50 @@ func _create_transition_rect() -> void:
 	transition_rect.modulate.a = 0.0
 	add_child(transition_rect)
 
-## 기본 페이드 전환 (S54: 맵별 스타일 자동 감지 — styled=true일 때)
+## Scene changes are asynchronous and can be requested by overlapping body-entered,
+## dialogue-ended, and button signals. Only one request may own the transition layer.
+func _begin_scene_transition(scene_path: String) -> bool:
+	if _transition_in_progress:
+		push_warning("[SceneTransition] Ignored overlapping transition to '%s' (already changing to '%s')" % [scene_path, _transition_target])
+		return false
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path, "PackedScene"):
+		push_error("[SceneTransition] Cannot change to missing scene: '%s'" % scene_path)
+		return false
+	_transition_in_progress = true
+	_transition_target = scene_path
+	transition_rect.mouse_filter = Control.MOUSE_FILTER_STOP
+	return true
+
+func _switch_scene(scene_path: String) -> bool:
+	var change_error := get_tree().change_scene_to_file(scene_path)
+	if change_error == OK:
+		return true
+	push_error("[SceneTransition] Failed to change to '%s' (error %d)" % [scene_path, change_error])
+	_abort_scene_transition()
+	return false
+
+func _complete_scene_transition() -> void:
+	_transition_in_progress = false
+	_transition_target = ""
+	if is_instance_valid(transition_rect):
+		transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _abort_scene_transition() -> void:
+	if tween and tween.is_valid():
+		tween.kill()
+	tween = null
+	_clear_wipe_rects()
+	for curtain in [_curtain_left, _curtain_right]:
+		if is_instance_valid(curtain):
+			curtain.queue_free()
+	_curtain_left = null
+	_curtain_right = null
+	if is_instance_valid(transition_rect):
+		transition_rect.color = Color.BLACK
+		transition_rect.modulate = Color(1, 1, 1, 0)
+	_complete_scene_transition()
+
+## 기본 페이드 전환 (S54: 맵별 스타일 자동 감지, styled=true일 때)
 func change_scene(scene_path: String, duration: float = 0.5, styled: bool = false) -> void:
 	# S54: styled 모드에서 맵별 전환 효과 자동 적용
 	if styled:
@@ -71,6 +116,8 @@ func change_scene(scene_path: String, duration: float = 0.5, styled: bool = fals
 		if style != "fade":
 			await change_scene_styled(scene_path, style)
 			return
+	if not _begin_scene_transition(scene_path):
+		return
 	if tween:
 		tween.kill()
 	# S59: Play transition audio sting
@@ -80,17 +127,21 @@ func change_scene(scene_path: String, duration: float = 0.5, styled: bool = fals
 	tween.tween_property(transition_rect, "modulate:a", 1.0, duration)
 	await tween.finished
 
-	get_tree().change_scene_to_file(scene_path)
+	if not _switch_scene(scene_path):
+		return
 
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 0.0, duration)
 	await tween.finished
 
 	# S57: 맵 전환 후 테마 파티클 버스트
+	_complete_scene_transition()
 	_spawn_biome_particles(scene_path)
 
 ## 전투 진입용 다이아몬드 와이프 전환 (S57: 전투 줌 추가, S59: void glow + sting)
 func change_scene_battle(scene_path: String) -> void:
+	if not _begin_scene_transition(scene_path):
+		return
 	# S59: Play battle transition sting
 	_play_transition_sting(scene_path)
 	# S59: Detect if current map is void-themed for purple edge glow
@@ -100,11 +151,13 @@ func change_scene_battle(scene_path: String) -> void:
 	if player and player.has_method("battle_zoom_in"):
 		await player.battle_zoom_in(0.2)
 	await _diamond_wipe_out(0.6, is_void_map)
-	get_tree().change_scene_to_file(scene_path)
+	if not _switch_scene(scene_path):
+		return
 	await _diamond_wipe_in(0.5, is_void_map)
+	_complete_scene_transition()
 	# S57: 줌 리셋 (맵 복귀 시 player가 새로 로드되므로 자동 리셋됨)
 
-## 다이아몬드 와이프 아웃 (화면 덮기) — S59: void glow + elastic easing
+## 다이아몬드 와이프 아웃 (화면 덮기), S59: void glow + elastic easing
 func _diamond_wipe_out(duration: float, void_glow: bool = false) -> void:
 	_clear_wipe_rects()
 
@@ -140,7 +193,7 @@ func _diamond_wipe_out(duration: float, void_glow: bool = false) -> void:
 
 	await get_tree().create_timer(duration).timeout
 
-## 다이아몬드 와이프 인 (화면 열기) — S59: elastic easing
+## 다이아몬드 와이프 인 (화면 열기), S59: elastic easing
 func _diamond_wipe_in(duration: float, _void_glow: bool = false) -> void:
 	if wipe_rects.is_empty():
 		return
@@ -172,11 +225,15 @@ func _clear_wipe_rects() -> void:
 			rect.queue_free()
 	wipe_rects.clear()
 
-## S40: 원형 와이프 전환 (아이리스) — CG/보스전 전환용
+## S40: 원형 와이프 전환 (아이리스), CG/보스전 전환용
 func change_scene_iris(scene_path: String, duration: float = 0.8) -> void:
+	if not _begin_scene_transition(scene_path):
+		return
 	await _iris_wipe_out(duration)
-	get_tree().change_scene_to_file(scene_path)
+	if not _switch_scene(scene_path):
+		return
 	await _iris_wipe_in(duration * 0.7)
+	_complete_scene_transition()
 
 func _iris_wipe_out(duration: float) -> void:
 	var iris = ColorRect.new()
@@ -242,7 +299,7 @@ void fragment() {
 	await t.finished
 	iris.queue_free()
 
-## S54/S57: 맵별 전환 스타일 자동 감지 — curtain added for markets/shelters
+## S54/S57: 맵별 전환 스타일 자동 감지, curtain added for markets/shelters
 const TRANSITION_STYLES: Dictionary = {
 	"bl07_void": "glitch",
 	"seam_outskirts": "glitch",
@@ -256,7 +313,7 @@ const TRANSITION_STYLES: Dictionary = {
 	"the_seam": "mist",
 }
 
-## S54/S57: 맵 전환 스타일 색상/설정 — curtain added
+## S54/S57: 맵 전환 스타일 색상/설정, curtain added
 const STYLE_CONFIGS: Dictionary = {
 	"fade": {"color": Color.BLACK, "duration": 0.5},
 	"glitch": {"color": Color(0.15, 0.0, 0.2, 1.0), "duration": 0.35},
@@ -266,7 +323,7 @@ const STYLE_CONFIGS: Dictionary = {
 	"curtain": {"color": Color(0.03, 0.02, 0.05), "duration": 0.6},
 }
 
-## S54: 스타일 자동 감지 — 씬 경로에서 맵 이름 추출
+## S54: 스타일 자동 감지, 씬 경로에서 맵 이름 추출
 func _detect_style(scene_path: String) -> String:
 	for map_key in TRANSITION_STYLES:
 		if map_key in scene_path:
@@ -277,8 +334,15 @@ func _detect_style(scene_path: String) -> String:
 func change_scene_styled(scene_path: String, style: String = "") -> void:
 	if style == "":
 		style = _detect_style(scene_path)
+	if not STYLE_CONFIGS.has(style):
+		style = "fade"
 	var config = STYLE_CONFIGS.get(style, STYLE_CONFIGS["fade"])
 	var dur: float = config["duration"]
+	if style == "fade":
+		await change_scene(scene_path, dur)
+		return
+	if not _begin_scene_transition(scene_path):
+		return
 
 	# S59: Play transition audio sting
 	_play_transition_sting(scene_path)
@@ -286,17 +350,20 @@ func change_scene_styled(scene_path: String, style: String = "") -> void:
 	if style == "curtain":
 		# S57: Curtain wipe for indoor/market maps
 		await _curtain_close(dur)
-		get_tree().change_scene_to_file(scene_path)
+		if not _switch_scene(scene_path):
+			return
 		await _curtain_open(dur * 0.8)
 	elif style == "glitch":
 		await _glitch_transition_out(dur)
-		get_tree().change_scene_to_file(scene_path)
+		if not _switch_scene(scene_path):
+			return
 		await _glitch_transition_in(dur * 0.8)
 	elif style == "leaves":
 		transition_rect.color = config["color"]
 		transition_rect.modulate = Color(0.6, 1.0, 0.5, 0.0)  # green tint
 		await _tinted_fade_out(dur)
-		get_tree().change_scene_to_file(scene_path)
+		if not _switch_scene(scene_path):
+			return
 		await _tinted_fade_in(dur)
 		transition_rect.color = Color.BLACK
 		transition_rect.modulate = Color(1, 1, 1, 0)
@@ -304,7 +371,8 @@ func change_scene_styled(scene_path: String, style: String = "") -> void:
 		transition_rect.color = config["color"]
 		transition_rect.modulate = Color(1.0, 0.85, 0.6, 0.0)  # sandy tint
 		await _tinted_fade_out(dur)
-		get_tree().change_scene_to_file(scene_path)
+		if not _switch_scene(scene_path):
+			return
 		await _tinted_fade_in(dur)
 		transition_rect.color = Color.BLACK
 		transition_rect.modulate = Color(1, 1, 1, 0)
@@ -312,18 +380,16 @@ func change_scene_styled(scene_path: String, style: String = "") -> void:
 		transition_rect.color = config["color"]
 		transition_rect.modulate = Color(1, 1, 1, 0)
 		await _slow_mist_out(dur)
-		get_tree().change_scene_to_file(scene_path)
+		if not _switch_scene(scene_path):
+			return
 		await _slow_mist_in(dur)
 		transition_rect.color = Color.BLACK
 		transition_rect.modulate = Color(1, 1, 1, 0)
-	else:
-		await change_scene(scene_path, dur)
+	# S57: 전환 완료 후 테마 파티클
+	_complete_scene_transition()
+	_spawn_biome_particles(scene_path)
 
-	# S57: 전환 완료 후 테마 파티클 (change_scene 경유 시 중복 방지 — else만)
-	if style != "fade":
-		_spawn_biome_particles(scene_path)
-
-## S54: Glitch transition — rapid flash/noise for void maps
+## S54: Glitch transition, rapid flash/noise for void maps
 func _glitch_transition_out(duration: float) -> void:
 	transition_rect.color = Color(0.15, 0.0, 0.2)
 	# Rapid flashes
@@ -363,7 +429,7 @@ func _tinted_fade_in(duration: float) -> void:
 	tween.tween_property(transition_rect, "modulate:a", 0.0, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	await tween.finished
 
-## S54: Slow mist fade (shelter/waystation) — slower with easing
+## S54: Slow mist fade (shelter/waystation), slower with easing
 func _slow_mist_out(duration: float) -> void:
 	if tween:
 		tween.kill()
@@ -395,13 +461,17 @@ func fade_in(duration: float = 0.5) -> void:
 	await tween.finished
 
 # ══════════════════════════════════════════════════════════════
-# S57: CURTAIN WIPE — two halves slide apart/together
+# S57: CURTAIN WIPE, two halves slide apart/together
 # ══════════════════════════════════════════════════════════════
 
 func change_scene_curtain(scene_path: String, duration: float = 0.6) -> void:
+	if not _begin_scene_transition(scene_path):
+		return
 	await _curtain_close(duration)
-	get_tree().change_scene_to_file(scene_path)
+	if not _switch_scene(scene_path):
+		return
 	await _curtain_open(duration * 0.8)
+	_complete_scene_transition()
 
 func _curtain_close(duration: float) -> void:
 	_curtain_left = ColorRect.new()
@@ -436,12 +506,14 @@ func _curtain_open(duration: float) -> void:
 		_curtain_right.queue_free()
 
 # ══════════════════════════════════════════════════════════════
-# S57: LOADING SCREEN — stylized chapter name with breathing animation
+# S57: LOADING SCREEN, stylized chapter name with breathing animation
 # ══════════════════════════════════════════════════════════════
 
 ## Show a brief loading screen between major scene transitions.
 ## Displays chapter name with breathing animation, holds 1s minimum.
 func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> void:
+	if not _begin_scene_transition(scene_path):
+		return
 	# Determine chapter from GameManager if not provided
 	if chapter_num < 0:
 		chapter_num = GameManager.current_chapter
@@ -516,7 +588,9 @@ func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> voi
 		Color(0.65, 0.55, 0.4, 0.8), 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 
 	# Actually load scene (during the 1s hold)
-	get_tree().change_scene_to_file(scene_path)
+	if not _switch_scene(scene_path):
+		loading_overlay.queue_free()
+		return
 
 	# Hold for at least 1 second
 	await get_tree().create_timer(1.2).timeout
@@ -533,6 +607,7 @@ func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> voi
 	loading_overlay.queue_free()
 
 	# S57: 맵 전환 후 테마 파티클 버스트
+	_complete_scene_transition()
 	_spawn_biome_particles(scene_path)
 
 ## ===================== S58: Chapter Completion Screen =====================
@@ -540,6 +615,8 @@ func change_scene_with_loading(scene_path: String, chapter_num: int = -1) -> voi
 ## Show a brief "Chapter X Complete" screen with stats before transitioning.
 ## Called from map scripts instead of directly transitioning.
 func change_scene_chapter_complete(scene_path: String, completed_chapter: int) -> void:
+	if not _begin_scene_transition(scene_path):
+		return
 	# Gather chapter stats from GameManager
 	var stats = GameManager.get_chapter_stats()
 	var battles = stats.get("battles", 0)
@@ -600,7 +677,7 @@ func change_scene_chapter_complete(scene_path: String, completed_chapter: int) -
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_child(line)
 
-	# Stats labels — battles, burns, time
+	# Stats labels, battles, burns, time
 	var stats_data: Array = [
 		{"label": "Battles Won", "value": str(battles)},
 		{"label": "Memories Burned", "value": str(burns)},
@@ -676,12 +753,14 @@ func change_scene_chapter_complete(scene_path: String, completed_chapter: int) -
 	GameManager.mark_chapter_start()
 
 	# Now do the actual scene transition
-	get_tree().change_scene_to_file(scene_path)
+	if not _switch_scene(scene_path):
+		return
 
 	tween = create_tween()
 	tween.tween_property(transition_rect, "modulate:a", 0.0, 0.4)
 	await tween.finished
 
+	_complete_scene_transition()
 	_spawn_biome_particles(scene_path)
 
 ## ===================== S57: 맵 전환 테마 파티클 =====================
@@ -707,7 +786,7 @@ func _detect_biome(scene_path: String) -> String:
 	return ""
 
 # ══════════════════════════════════════════════════════════════
-# S59: TRANSITION AUDIO STINGS — procedural biome-matched sounds
+# S59: TRANSITION AUDIO STINGS, procedural biome-matched sounds
 # ══════════════════════════════════════════════════════════════
 
 ## Play a brief audio sting matching the target biome
@@ -738,7 +817,7 @@ func _generate_transition_sting(biome: String) -> PackedFloat32Array:
 
 	match biome:
 		"forest":
-			# Soft wind whoosh — filtered noise with gentle pitch sweep
+			# Soft wind whoosh, filtered noise with gentle pitch sweep
 			var dur = 0.35
 			for i in range(int(sr * dur)):
 				var t = float(i) / sr
@@ -747,7 +826,7 @@ func _generate_transition_sting(biome: String) -> PackedFloat32Array:
 				var wind = sin(t * 120.0 * TAU) * 0.05
 				samples.append((noise + wind) * env)
 		"void":
-			# Deep bass drone — low frequency ominous rumble
+			# Deep bass drone, low frequency ominous rumble
 			var dur = 0.5
 			for i in range(int(sr * dur)):
 				var t = float(i) / sr
@@ -757,7 +836,7 @@ func _generate_transition_sting(biome: String) -> PackedFloat32Array:
 				var noise = randf_range(-0.05, 0.05)
 				samples.append((bass + sub + noise) * env)
 		"shelter", "belt":
-			# Crowd murmur fade — layered low noise with subtle tone
+			# Crowd murmur fade, layered low noise with subtle tone
 			var dur = 0.3
 			for i in range(int(sr * dur)):
 				var t = float(i) / sr
@@ -766,7 +845,7 @@ func _generate_transition_sting(biome: String) -> PackedFloat32Array:
 				var tone = sin(t * 200.0 * TAU) * 0.03
 				samples.append((murmur + tone) * env)
 		"coast":
-			# Wave-like whoosh — rising then fading noise
+			# Wave-like whoosh, rising then fading noise
 			var dur = 0.4
 			for i in range(int(sr * dur)):
 				var t = float(i) / sr
@@ -775,7 +854,7 @@ func _generate_transition_sting(biome: String) -> PackedFloat32Array:
 				var noise = randf_range(-0.15, 0.15)
 				samples.append((noise + wave) * env)
 		_:
-			# Default simple whoosh — clean noise sweep
+			# Default simple whoosh, clean noise sweep
 			var dur = 0.25
 			for i in range(int(sr * dur)):
 				var t = float(i) / sr

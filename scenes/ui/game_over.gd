@@ -1,4 +1,4 @@
-## GameOver — 패배 화면
+## GameOver, 패배 화면
 ## "Arrel falls..." + 재시도 / 로드 / 타이틀 선택.
 extends Control
 

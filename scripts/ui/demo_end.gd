@@ -1,5 +1,5 @@
 ## DemoEnd
-## S66: A안 데모 빌드 — Ch1(Act I — Ash) 종료 후 표시되는 화면.
+## S66: A안 데모 빌드, Ch1(Act I, Ash) 종료 후 표시되는 화면.
 ## 감사 메시지 + 다음 챕터 티저 + 위시리스트 / 타이틀 복귀 CTA.
 extends Control
 
@@ -42,7 +42,7 @@ func _build() -> void:
 
 	# 타이틀
 	var title = Label.new()
-	title.text = "Act I — Ash"
+	title.text = "Act I, Ash"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 48)
 	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
@@ -52,7 +52,7 @@ func _build() -> void:
 
 	# 부제
 	var subtitle = Label.new()
-	subtitle.text = "— End of Demo —"
+	subtitle.text = "End of Demo"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 18)
 	subtitle.add_theme_color_override("font_color", Color(0.7, 0.62, 0.5))
@@ -73,7 +73,7 @@ func _build() -> void:
 	body.custom_minimum_size = Vector2(700, 0)
 	body.add_theme_font_size_override("normal_font_size", 16)
 	body.add_theme_color_override("default_color", Color(0.85, 0.8, 0.72))
-	body.text = "[center]Thank you for playing.\n\nArrel's road continues — through the Belt, the Seam, and the place beyond memory.\nA brother to find. A choice that cannot be unmade.\n\n[i]The full game will release on Steam.[/i][/center]"
+	body.text = "[center]Thank you for playing.\n\nArrel's road continues, through the Belt, the Seam, and the place beyond memory.\nA brother to find. A choice that cannot be unmade.\n\n[i]The full game will release on Steam.[/i][/center]"
 	body.modulate.a = 0.0
 	body.name = "BodyLabel"
 	vbox.add_child(body)
@@ -82,7 +82,7 @@ func _build() -> void:
 	sp2.custom_minimum_size = Vector2(0, 24)
 	vbox.add_child(sp2)
 
-	# 통계 — 플레이어가 태운 기억 수, 잔존 수
+	# 통계, 플레이어가 태운 기억 수, 잔존 수
 	var stats = Label.new()
 	var burned = MemoryManager.burned_memories.size()
 	var residue = 0

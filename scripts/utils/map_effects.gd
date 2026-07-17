@@ -1,4 +1,4 @@
-## MapEffects — 맵 환경 효과 유틸리티
+## MapEffects, 맵 환경 효과 유틸리티
 ## 물 반짝임, 랜턴 빛, 보이드 파티클 등.
 class_name MapEffects
 
@@ -27,7 +27,7 @@ static func _get_shader(path: String) -> Shader:
 		return shader
 	return null
 
-## 물 타일 반짝임 효과 추가 — 셰이더 기반 물 왜곡 (S40)
+## 물 타일 반짝임 효과 추가, 셰이더 기반 물 왜곡 (S40)
 ## parent에 추가된 ColorRect들을 반환 (caller가 _process에서 업데이트)
 static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, height: int, water_index: int) -> Array[ColorRect]:
 	var shimmers: Array[ColorRect] = []
@@ -37,7 +37,7 @@ static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, heigh
 	var shader_res = _get_shader(shader_path)
 	var has_shader = shader_res != null
 
-	# S41: 물 반짝임 최적화 — 5타일마다 1개로 줄여 ColorRect 수 감소
+	# S41: 물 반짝임 최적화, 5타일마다 1개로 줄여 ColorRect 수 감소
 	for y in range(height):
 		for x in range(width):
 			if y < map_data.size() and x < map_data[y].size():
@@ -53,7 +53,7 @@ static func add_water_shimmer(parent: Node2D, map_data: Array, width: int, heigh
 						parent.add_child(rect)
 						shimmers.append(rect)
 
-	# 셰이더 기반 물 오버레이 — 넓은 물 영역에 왜곡 효과
+	# 셰이더 기반 물 오버레이, 넓은 물 영역에 왜곡 효과
 	if has_shader:
 		_add_water_overlay(parent, map_data, width, height, water_index, shader_res)
 
@@ -71,7 +71,7 @@ static func _add_water_overlay(parent: Node2D, map_data: Array, width: int, heig
 			if is_water and start_x < 0:
 				start_x = x
 			elif not is_water and start_x >= 0:
-				# 연속 물 구간 발견 — 오버레이 배치
+				# 연속 물 구간 발견, 오버레이 배치
 				var span = x - start_x
 				if span >= 2:  # 최소 2타일 이상
 					var overlay = ColorRect.new()
@@ -96,7 +96,7 @@ static func update_water_shimmer(shimmers: Array[ColorRect], time: float) -> voi
 			var alpha = (sin(time * 1.5 + phase) + 1.0) * 0.15
 			rect.color.a = alpha
 
-## 랜턴 빛 효과 추가 — 셰이더 글로우 (S40)
+## 랜턴 빛 효과 추가, 셰이더 글로우 (S40)
 static func add_lantern_lights(parent: Node2D, map_data: Array, width: int, height: int, lantern_index: int) -> Array[ColorRect]:
 	var lights: Array[ColorRect] = []
 	var shader_path = "res://assets/shaders/glow_pulse.gdshader"
@@ -207,7 +207,7 @@ static func add_void_particles(parent: Node2D, map_width: float = 640.0, map_hei
 
 	return particles
 
-## 맵 비네트 오버레이 — 셰이더 기반 원형 비네트 (S40)
+## 맵 비네트 오버레이, 셰이더 기반 원형 비네트 (S40)
 static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 	if _clean_gameplay_view():
 		return _empty_layer(parent, 3)
@@ -233,7 +233,7 @@ static func add_vignette(parent: Node, intensity: float = 0.4) -> CanvasLayer:
 	parent.add_child(layer)
 	return layer
 
-## 안개 효과 (CanvasLayer 기반 — 카메라 독립)
+## 안개 효과 (CanvasLayer 기반, 카메라 독립)
 static func add_fog(parent: Node, color: Color = Color(0.2, 0.2, 0.25, 0.08)) -> Array[ColorRect]:
 	if _clean_gameplay_view():
 		return []
@@ -344,7 +344,7 @@ static func show_chapter_title(parent: Node, chapter_num: int, title: String, su
 		sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		container.add_child(sub_label)
 
-	# 초기 투명 — CanvasLayer에는 modulate가 없으므로 bg+container를 조작
+	# 초기 투명, CanvasLayer에는 modulate가 없으므로 bg+container를 조작
 	bg.modulate = Color(1, 1, 1, 0)
 	container.modulate = Color(1, 1, 1, 0)
 	parent.add_child(layer)
@@ -643,7 +643,7 @@ static func add_parallax_background(parent: Node2D, config: Dictionary = {}) -> 
 	sky_rect.color = sky_color
 	sky_rect.z_index = -30
 	sky_layer.add_child(sky_rect)
-	# 하늘 그라디언트 — 위는 밝게, 아래는 어둡게
+	# 하늘 그라디언트, 위는 밝게, 아래는 어둡게
 	for i in range(6):
 		var grad = ColorRect.new()
 		grad.size = Vector2(map_w + 400, 30)
@@ -829,7 +829,7 @@ static func add_fireflies(parent: Node, count: int = 15, color: Color = Color(0.
 	parent.add_child(layer)
 	return layer
 
-## 대기 열 왜곡 (해안/시장 맵용 — BackBufferCopy + 셰이더)
+## 대기 열 왜곡 (해안/시장 맵용, BackBufferCopy + 셰이더)
 static func add_heat_haze(parent: Node, strength: float = 0.003) -> CanvasLayer:
 	if _clean_gameplay_view():
 		return _empty_layer(parent, 1)
@@ -856,7 +856,7 @@ static func add_heat_haze(parent: Node, strength: float = 0.003) -> CanvasLayer:
 	parent.add_child(layer)
 	return layer
 
-## 동적 라이트 펄스 — CanvasModulate 색상을 시간에 따라 미세 변화
+## 동적 라이트 펄스, CanvasModulate 색상을 시간에 따라 미세 변화
 static func update_ambient_pulse(modulate: CanvasModulate, base_color: Color, time: float, intensity: float = 0.03) -> void:
 	if not is_instance_valid(modulate):
 		return
@@ -956,10 +956,10 @@ static func add_color_grading(parent: Node2D, settings: Dictionary) -> CanvasLay
 	var brightness: float = settings.get("brightness", 0.0)
 	var contrast: float = settings.get("contrast", 1.0)
 
-	# tint 블렌드 — 투명 오버레이
+	# tint 블렌드, 투명 오버레이
 	rect.color = Color(tint.r, tint.g, tint.b, tint.a * 0.15)
 
-	# contrast/brightness — CanvasItem modulate
+	# contrast/brightness, CanvasItem modulate
 	if brightness != 0.0:
 		var b = 1.0 + brightness
 		rect.modulate = Color(b, b, b, 1.0)
@@ -1046,7 +1046,7 @@ static func add_drop_shadow(character: Node2D) -> ColorRect:
 	shadow.position = Vector2(-14, 12)  # 발밑
 	shadow.z_index = -1  # 캐릭터 뒤
 
-	# 타원형 느낌 — 모서리 둥글게
+	# 타원형 느낌, 모서리 둥글게
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.0, 0.0, 0.05, 0.3)
 	style.set_corner_radius_all(5)
@@ -1185,7 +1185,7 @@ static func update_void_tendrils(tendrils: Array, time: float, _delta: float = 0
 static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient_shake_intensity: float = 0.0) -> Camera2D:
 	if _clean_gameplay_view():
 		ambient_shake_intensity = 0.0
-	# 기존 카메라 체크 — S57: 기존 카메라의 줌을 유지 (player.tscn Camera2D)
+	# 기존 카메라 체크, S57: 기존 카메라의 줌을 유지 (player.tscn Camera2D)
 	for child in player.get_children():
 		if child is Camera2D:
 			child.position_smoothing_enabled = true
@@ -1242,7 +1242,7 @@ static func update_camera_shake(cam: Camera2D, time: float) -> void:
 		return
 	var intensity: float = cam.get_meta("ambient_shake", 0.0)
 	if intensity <= 0.0:
-		# S55: 픽셀 스냅 — 흔들림 없을 때도 정수 좌표 유지
+		# S55: 픽셀 스냅, 흔들림 없을 때도 정수 좌표 유지
 		if cam.get_meta("pixel_snap", false):
 			cam.offset = Vector2(roundf(cam.offset.x), roundf(cam.offset.y))
 		return
@@ -1250,7 +1250,7 @@ static func update_camera_shake(cam: Camera2D, time: float) -> void:
 		sin(time * 7.3) * intensity + sin(time * 13.1) * intensity * 0.5,
 		cos(time * 5.7) * intensity + cos(time * 11.9) * intensity * 0.5
 	)
-	# S55: 픽셀 퍼펙트 — 카메라 오프셋을 정수로 스냅
+	# S55: 픽셀 퍼펙트, 카메라 오프셋을 정수로 스냅
 	if cam.get_meta("pixel_snap", false):
 		raw_offset = Vector2(roundf(raw_offset.x), roundf(raw_offset.y))
 	cam.offset = raw_offset
@@ -1334,7 +1334,7 @@ static func update_lightning(flash_rect: ColorRect, delta: float) -> void:
 
 ## ===================== S57: 앰비언트 와일드라이프 =====================
 
-## 사인파 궤적 반딧불 (숲/습지 맵 — 개별 이동, GPUParticles2D보다 세밀한 제어)
+## 사인파 궤적 반딧불 (숲/습지 맵, 개별 이동, GPUParticles2D보다 세밀한 제어)
 ## 4px 밝은 점이 사인파 경로를 따라 천천히 떠다님
 static func add_drifting_fireflies(parent: Node2D, count: int = 10, area: Vector2 = Vector2(800, 576), color: Color = Color(0.6, 0.95, 0.4, 0.6)) -> Array[ColorRect]:
 	var flies: Array[ColorRect] = []
@@ -1662,7 +1662,7 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 	match type:
 		"barrel":
 			visual.color = Color(0.45, 0.3, 0.15, 0.7) if not interacted else Color(0.3, 0.25, 0.15, 0.3)
-			# 배럴 디테일 — 수평 줄무늬
+			# 배럴 디테일, 수평 줄무늬
 			var stripe = ColorRect.new()
 			stripe.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
 			stripe.position = Vector2(-6, -2) if clean_prop else Vector2(-10, -2)
@@ -1834,7 +1834,7 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 ## ===================== S59: 트리거 접근 글로우 =====================
 
 ## 스토리 트리거 Area2D에 접근 시 펄싱 글로우 테두리 추가
-## 플레이어 위치 기반 — _process에서 호출
+## 플레이어 위치 기반, _process에서 호출
 static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time: float) -> void:
 	for child in map.get_children():
 		if not (child is Area2D):
@@ -1848,7 +1848,7 @@ static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time:
 
 		var dist = player_pos.distance_to(child.global_position)
 		if dist < 52.0:
-			# 접근 — 글로우 생성 또는 업데이트
+			# 접근, 글로우 생성 또는 업데이트
 			if glow_border == null:
 				glow_border = ColorRect.new()
 				# 트리거 크기 추정 (CollisionShape2D에서)
@@ -1862,7 +1862,7 @@ static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time:
 				glow_border.z_index = 3
 				glow_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				glow_border.set_meta("approach_glow", true)
-				# 내부를 투명하게 (테두리만 표시) — 내부 마스크
+				# 내부를 투명하게 (테두리만 표시), 내부 마스크
 				var inner = ColorRect.new()
 				inner.size = Vector2(4, 4)
 				inner.position = Vector2(2, 2)
@@ -1877,7 +1877,7 @@ static func update_trigger_approach_glow(map: Node2D, player_pos: Vector2, time:
 			var beacon_scale := 0.90 + sin(time * 3.4) * 0.10
 			glow_border.scale = Vector2(beacon_scale, beacon_scale)
 		else:
-			# 멀어짐 — 글로우 제거
+			# 멀어짐, 글로우 제거
 			if glow_border != null:
 				glow_border.queue_free()
 
@@ -1939,7 +1939,7 @@ static func update_fog_layer(fogs: Array[ColorRect], time: float) -> void:
 ## ===================== S59: 바람에 의한 초목 흔들림 =====================
 
 ## 풀/덤불 타일에 미세한 수평 흔들림 적용 (사인파 x 오프셋)
-## _process에서 호출할 필요 없음 — 트윈 기반 자동 루프
+## _process에서 호출할 필요 없음, 트윈 기반 자동 루프
 static func add_wind_sway(map: Node2D, strength: float = 2.0) -> void:
 	if _clean_gameplay_view():
 		return
@@ -1951,7 +1951,7 @@ static func add_wind_sway(map: Node2D, strength: float = 2.0) -> void:
 			child.set_meta("wind_phase_offset", randf() * TAU)
 
 ## 바람 흔들림 업데이트 (_process에서 호출)
-## 기존 update_grass_sway와 함께 사용 — 추가 x 오프셋
+## 기존 update_grass_sway와 함께 사용, 추가 x 오프셋
 static func update_wind_sway(map: Node2D, time: float) -> void:
 	for child in map.get_children():
 		if child is ColorRect and child.has_meta("wind_strength"):
@@ -1989,11 +1989,11 @@ static func add_depth_gradient(map: Node2D, intensity: float = 0.08) -> CanvasLa
 		# 상단(i=0)은 밝게, 하단(i=strip_count-1)은 어둡게
 		var t = float(i) / (strip_count - 1)
 		if t < 0.5:
-			# 상단 반 — 약간 밝게
+			# 상단 반, 약간 밝게
 			var bright = (0.5 - t) * 2.0 * intensity
 			strip.color = Color(1.0, 0.98, 0.92, bright)
 		else:
-			# 하단 반 — 약간 어둡게
+			# 하단 반, 약간 어둡게
 			var dark = (t - 0.5) * 2.0 * intensity
 			strip.color = Color(0.0, 0.0, 0.05, dark)
 

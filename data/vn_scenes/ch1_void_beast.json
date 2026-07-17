@@ -1,7 +1,7 @@
 {
   "id": "ch1_void_beast",
-  "title": "Chapter 1 — The Void Beast",
-  "title_ko": "1장 — 보이드 비스트",
+  "title": "Chapter 1, The Void Beast",
+  "title_ko": "1장, 보이드 비스트",
   "chapter": 1,
   "steps": [
     {
@@ -51,13 +51,13 @@
       ]
     },
     {
-      "narrate": "[ Filler — choice always jumps. ]",
-      "narrate_ko": "[ 더미 — 선택지는 항상 건너뜁니다. ]"
+      "narrate": "[ Filler, choice always jumps. ]",
+      "narrate_ko": "[ 더미, 선택지는 항상 건너뜁니다. ]"
     },
     {
       "cg": "res://assets/cg/generated/story_ch1_void_beast_emergence.png",
       "fade": 0.4,
-      "narrate": "He stepped in. The blade went where it always went — clean, efficient, taught long ago by hands he could no longer name.",
+      "narrate": "He stepped in. The blade went where it always went, clean, efficient, taught long ago by hands he could no longer name.",
       "narrate_ko": "그는 파고들었다. 칼날은 늘 가던 곳으로 갔다. 깔끔하고, 효율적이고, 이제는 이름도 떠올릴 수 없는 손들이 오래전에 가르쳐준 궤적이었다."
     },
     {
@@ -80,7 +80,7 @@
       "narrate_ko": "첫 상처는 얕았다. 승리가 아니라 생존이었다."
     },
     {
-      "narrate": "But it was bleeding now — if grey smoke pouring out of a wound counted as bleeding.",
+      "narrate": "But it was bleeding now, if grey smoke pouring out of a wound counted as bleeding.",
       "narrate_ko": "그래도 이제 피를 흘리고 있었다. 상처에서 회색 연기가 쏟아지는 것을 피라고 부를 수 있다면."
     },
     {
@@ -95,7 +95,7 @@
       "narrate_ko": "창문 너머의 따뜻한 빛. 어디였는지 알 수 없는 방. 그는 그것을 손에 쥐고 놓아주었다."
     },
     {
-      "narrate": "The blade caught fire — not heat, but the *idea* of heat, golden and impossible.",
+      "narrate": "The blade caught fire, not heat, but the *idea* of heat, golden and impossible.",
       "narrate_ko": "칼날에 불이 붙었다. 열이 아니라, 열이라는 생각 그 자체였다. 황금빛이고, 있을 수 없는 불.",
       "cg": "res://assets/cg/generated/story_ch1_first_burn_strike.png",
       "fade": 0.35
@@ -132,7 +132,7 @@
       "narrate_ko": "그는 칼날을 낮게 들고 놈이 오게 두었다."
     },
     {
-      "narrate": "The thing moved in waves — limbs not striking but *flowing*, looking for a way through his guard.",
+      "narrate": "The thing moved in waves, limbs not striking but *flowing*, looking for a way through his guard.",
       "narrate_ko": "그것은 파도처럼 움직였다. 팔다리는 치는 것이 아니라 흘러들었고, 그의 방어를 뚫을 길을 찾고 있었다."
     },
     {
@@ -171,7 +171,7 @@
       "narrate_ko": "괴물은 상처 하나로 죽지 않았다. 그것은 그 상처에서 배웠다."
     },
     {
-      "narrate": "It widened. The hollow at its center opened, and from inside, more grey — older grey, the kind that smelled like other people's losses.",
+      "narrate": "It widened. The hollow at its center opened, and from inside, more grey, older grey, the kind that smelled like other people's losses.",
       "narrate_ko": "몸이 벌어졌다. 중심의 빈 구멍이 열리고, 안쪽에서 더 많은 회색이 흘러나왔다. 더 오래된 회색, 타인의 상실 냄새가 나는 회색이었다."
     },
     {
@@ -231,7 +231,7 @@
     {
       "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
       "fade": 0.5,
-      "narrate": "The smell of wet earth after rainfall. Where, when — gone.",
+      "narrate": "The smell of wet earth after rainfall. Where, when, gone.",
       "narrate_ko": "비가 그친 뒤 젖은 흙 냄새. 어디였는지, 언제였는지. 사라졌다."
     },
     {
@@ -262,7 +262,7 @@
       "start_index": 50
     },
     {
-      "narrate": "He moved as he had read the beast move — not against its rhythm, but *with* it.",
+      "narrate": "He moved as he had read the beast move, not against its rhythm, but *with* it.",
       "narrate_ko": "그는 읽어낸 그대로 움직였다. 놈의 리듬에 맞서지 않고, 그 리듬과 함께."
     },
     {

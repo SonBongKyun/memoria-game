@@ -52,6 +52,8 @@ def main() -> int:
         elif isinstance(node, list):
             for index, value in enumerate(node):
                 walk(path, value, f"{breadcrumb}[{index}]")
+        elif isinstance(node, str) and "\u2014" in node:
+            errors.append(f"{path.name}:{breadcrumb} contains a forbidden em dash")
 
     for path in files:
         walk(path, json.loads(path.read_text(encoding="utf-8")))

@@ -1,4 +1,4 @@
-## RandomEncounter — 랜덤 인카운터 유틸리티
+## RandomEncounter, 랜덤 인카운터 유틸리티
 ## 맵 재방문 시 이동 기반 랜덤 전투 발생.
 ## 각 맵에서 setup() 호출 후 _process에서 update() 호출.
 class_name RandomEncounter
@@ -29,7 +29,7 @@ static func setup(enemy_pool: Array, map_scene: String, bg_img: String = "", e_i
 	data.threshold = randf_range(min_steps, max_steps)
 	return data
 
-## 매 프레임 호출 — 플레이어 이동 거리 기반 인카운터 체크
+## 매 프레임 호출, 플레이어 이동 거리 기반 인카운터 체크
 ## 반환: true면 전투 발생됨
 static func update(data: EncounterData, player_pos: Vector2, tile_size: int) -> bool:
 	if not data.enabled:

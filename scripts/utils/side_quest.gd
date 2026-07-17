@@ -1,4 +1,4 @@
-## SideQuest — 사이드 퀘스트 유틸리티 (class_name, 비-오토로드)
+## SideQuest, 사이드 퀘스트 유틸리티 (class_name, 비-오토로드)
 ## 퀘스트 정의, 상태 확인, 보상 지급. 상태는 GameManager.story_flags에 저장.
 class_name SideQuest
 
@@ -7,6 +7,7 @@ const QUESTS: Array = [
 	{
 		"id": "echoes_ash",
 		"title": "Echoes in the Ash",
+		"art": "res://assets/cg/generated/quest_echoes_ash_v1.png",
 		"desc": "A ghostly figure near the old stump asks you to find scattered memory fragments in the forest.",
 		"map": "rim_forest",
 		"chapter_req": 2,  # Ch1 완료 후 접근 가능
@@ -31,6 +32,7 @@ const QUESTS: Array = [
 	{
 		"id": "sump_ledger",
 		"title": "The Sump Ledger",
+		"art": "res://assets/cg/generated/quest_sump_ledger_v1.png",
 		"desc": "A nervous trader wants a hidden ledger found in the market's back alleys.",
 		"map": "verdan_market",
 		"chapter_req": 3,  # Ch2 완료 후
@@ -54,6 +56,7 @@ const QUESTS: Array = [
 	{
 		"id": "sable_vigil",
 		"title": "Sable's Vigil",
+		"art": "res://assets/cg/generated/quest_sable_vigil_v2.png",
 		"desc": "Sable asks for help clearing a Void Watcher near the BL-07 entrance.",
 		"map": "the_seam",
 		"chapter_req": 4,
@@ -79,6 +82,7 @@ const QUESTS: Array = [
 	{
 		"id": "echo_fragments",
 		"title": "Echoes of the Threshold",
+		"art": "res://assets/cg/generated/quest_echo_threshold_v1.png",
 		"desc": "Collect echo fragments scattered across the Seam Outskirts.",
 		"map": "seam_outskirts",
 		"chapter_req": 7,
@@ -104,6 +108,7 @@ const QUESTS: Array = [
 	{
 		"id": "forest_parasite",
 		"title": "The Parasite's Root",
+		"art": "res://assets/cg/generated/quest_forest_parasite_v1.png",
 		"desc": "Trace the memory-parasitic vines to their source in the Forgotten Forest.",
 		"map": "forgotten_forest",
 		"chapter_req": 8,
@@ -129,7 +134,8 @@ const QUESTS: Array = [
 	{
 		"id": "colorless_compass",
 		"title": "Calibrating the Compass",
-		"desc": "The Memory Compass needs calibration — find three anchor points in the Colorless Waste.",
+		"art": "res://assets/cg/generated/quest_colorless_compass_v2.png",
+		"desc": "The Memory Compass needs calibration, find three anchor points in the Colorless Waste.",
 		"map": "colorless_waste",
 		"chapter_req": 9,
 		"prereq_flag": "ch9_compass",
@@ -253,6 +259,7 @@ static func get_all_quests() -> Array:
 		result.append({
 			"id": qid,
 			"title": quest["title"],
+			"art": quest.get("art", ""),
 			"desc": quest["desc"],
 			"status": status,
 			"step_desc": step_desc,

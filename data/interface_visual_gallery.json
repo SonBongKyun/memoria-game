@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "collection": "Field Archive Interface Expansion",
+  "items": [
+    {
+      "title": "Field Archive / Inventory II",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_inventory_archive_v2.png",
+      "desc": "A clearer carried-supply archive with category tabs, status telemetry, inspection space, and three visual equipment dossiers."
+    },
+    {
+      "title": "Character Dossier",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_character_status_dossier_v1.png",
+      "desc": "Arrel's current resources and long-form play record share a single witnessed status plate."
+    },
+    {
+      "title": "Codex Archive II",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_codex_archive_backdrop_v2.png",
+      "desc": "Bestiary evidence and preserved memory records are organized as one low-noise specimen dossier."
+    },
+    {
+      "title": "Story Journal III",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_story_journal_backdrop_v3.png",
+      "desc": "Events, people, world notes, choices, quests, and losses now rest on one consistent field ledger."
+    },
+    {
+      "title": "Malet's Exchange II",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_memory_shop_backdrop_v2.png",
+      "desc": "The Sump's memory trade receives a unified merchandise index, inspection cradle, merchant ledger, and trade rail."
+    },
+    {
+      "title": "Pause Archive II",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_pause_archive_backdrop_v2.png",
+      "desc": "The pause hub becomes a readable archive desk with calm command space and compact field indicators."
+    },
+    {
+      "title": "Battle Supply Tray III",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_battle_item_tray_v3.png",
+      "desc": "Combat supplies open on a transparent tactical tray that preserves the active battlefield."
+    },
+    {
+      "title": "Root Balm II",
+      "type": "Field Item Art",
+      "path": "res://assets/ui/items/root_balm_v2.png",
+      "desc": "A root-bound amber remedy rendered at the same scale and finish as the core inventory set."
+    },
+    {
+      "title": "Signal Jammer II",
+      "type": "Field Item Art",
+      "path": "res://assets/ui/items/signal_jammer_v2.png",
+      "desc": "A broken-dial Bureau scrap tool that severs hostile encounter signals."
+    },
+    {
+      "title": "Lantern Salve II",
+      "type": "Field Item Art",
+      "path": "res://assets/ui/items/lantern_salve_v2.png",
+      "desc": "A compact caged salve flask holding a stable ember-restorative glow."
+    },
+    {
+      "title": "Name Thread II",
+      "type": "Field Item Art",
+      "path": "res://assets/ui/items/name_thread_v2.png",
+      "desc": "A silver-blue witness thread and blank name plate used to anchor identity under pressure."
+    },
+    {
+      "title": "Compass Shard II",
+      "type": "Field Item Art",
+      "path": "res://assets/ui/items/compass_shard_v2.png",
+      "desc": "A broken memory compass fragment whose surviving needle still points toward testimony."
+    },
+    {
+      "title": "Seed Capsule II",
+      "type": "Field Item Art",
+      "path": "res://assets/ui/items/seed_capsule_v2.png",
+      "desc": "A caged seed and suspended raindrop preserving one future act of recovery."
+    },
+    {
+      "title": "Weapon Record Emblem",
+      "type": "Equipment Interface Art",
+      "path": "res://assets/ui/equipment/slot_weapon_v1.png",
+      "desc": "A memory-cracked blade emblem that makes the equipped weapon record readable at a glance."
+    },
+    {
+      "title": "Armor Record Emblem",
+      "type": "Equipment Interface Art",
+      "path": "res://assets/ui/equipment/slot_armor_v1.png",
+      "desc": "A field-coat armor emblem that anchors defense information inside the loadout dossier."
+    },
+    {
+      "title": "Accessory Record Emblem",
+      "type": "Equipment Interface Art",
+      "path": "res://assets/ui/equipment/slot_accessory_v1.png",
+      "desc": "A witness-knot pendant emblem for the accessory record."
+    }
+  ]
+}

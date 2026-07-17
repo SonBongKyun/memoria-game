@@ -5,14 +5,15 @@
     "drift_arrival": [
       {
         "speaker": "",
-        "text": "They found shelter in a collapsed overpass — a bridge that once spanned a river long since dried.",
+        "text": "They found shelter in a collapsed overpass, a bridge that once spanned a river long since dried.",
         "cg": "res://assets/cg/generated/story_ch4_ash_rain_shelter.png",
-        "text_ko": "무너진 고가도로 아래에서 그들은 몸을 피할 곳을 찾았다 — 마른 지 오래인 강 위에 한때 걸쳐 있던 다리였다."
+        "text_ko": "무너진 고가도로 아래에서 그들은 몸을 피할 곳을 찾았다, 마른 지 오래인 강 위에 한때 걸쳐 있던 다리였다."
       },
       {
         "speaker": "",
         "text": "Rain began to fall. Not water. Ash-colored drops that left gray streaks on skin.",
-        "text_ko": "비가 내리기 시작했다. 물이 아니었다. 피부에 회색 자국을 남기는, 재의 빛깔을 띤 방울들."
+        "text_ko": "비가 내리기 시작했다. 물이 아니었다. 피부에 회색 자국을 남기는, 재의 빛깔을 띤 방울들.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch04_memory_rain_shelter_v1.png"
       },
       {
         "speaker": "Tobias",
@@ -49,14 +50,15 @@
       {
         "speaker": "",
         "text": "Arrel opened the Blank Book. The letters on the first page swam and blurred.",
-        "cg": "res://assets/cg/generated/story_ch4_reading_deterioration.png",
+        "cg": "res://assets/cg/generated/archive_ch4_reading_loss_v1.png",
         "text_ko": "아렐이 빈 책을 펼쳤다. 첫 페이지의 글자들이 헤엄치듯 번져 흐려졌다."
       },
       {
         "speaker": "Arrel",
         "text": "The words are moving.",
         "portrait": "arrel_pain",
-        "text_ko": "글자가 움직여."
+        "text_ko": "글자가 움직여.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch04_words_move_v1.png"
       },
       {
         "speaker": "Tobias",
@@ -91,7 +93,7 @@
         "speaker": "Tobias",
         "text": "Temporarily. Probably. The Bureau documentation says 'temporary' but I've seen the footnotes.",
         "portrait": "tobias_neutral",
-        "text_ko": "일시적으로. 아마도. 관리국 문서엔 '일시적'이라 적혀 있네만 — 나는 각주를 봤거든."
+        "text_ko": "일시적으로. 아마도. 관리국 문서엔 '일시적'이라 적혀 있네만, 나는 각주를 봤거든."
       },
       {
         "speaker": "Arrel",
@@ -116,15 +118,16 @@
       },
       {
         "speaker": "Arrel",
-        "text": "What are you—",
+        "text": "What are you...",
         "portrait": "arrel_neutral",
-        "text_ko": "뭘 하려는—"
+        "text_ko": "뭘 하려는..."
       },
       {
         "speaker": "Elia",
         "text": "Just sit.",
         "portrait": "elia_concern",
-        "text_ko": "그냥 앉아."
+        "text_ko": "그냥 앉아.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch04_anchor_tea_thread_v1.png"
       },
       {
         "speaker": "",
@@ -133,9 +136,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "Close your eyes. Tell me something you remember. Not a big memory — something small.",
+        "text": "Close your eyes. Tell me something you remember. Not a big memory, something small.",
         "portrait": "elia_neutral",
-        "text_ko": "눈 감아. 기억나는 걸 하나 말해 줘. 큰 기억 말고 — 작은 걸로."
+        "text_ko": "눈 감아. 기억나는 걸 하나 말해 줘. 큰 기억 말고, 작은 걸로."
       },
       {
         "speaker": "Arrel",
@@ -182,16 +185,17 @@
     "tobias_explains_classification": [
       {
         "speaker": "Tobias",
-        "text": "Since we have time — let me explain the classification system.",
+        "text": "Since we have time, let me explain the classification system.",
         "portrait": "tobias_neutral",
         "cg": "res://assets/cg/generated/story_ch4_burner_classification.png",
-        "text_ko": "시간도 있으니 — 분류 체계를 설명해 주지."
+        "text_ko": "시간도 있으니, 분류 체계를 설명해 주지."
       },
       {
         "speaker": "Tobias",
         "text": "The Bureau ranks Burners from Class One to Class Seven. Most never exceed Class Three.",
         "portrait": "tobias_neutral",
-        "text_ko": "관리국은 연소자를 1급에서 7급까지 나누네. 대부분은 3급을 넘지 못하지."
+        "text_ko": "관리국은 연소자를 1급에서 7급까지 나누네. 대부분은 3급을 넘지 못하지.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch04_burner_classification_v1.png"
       },
       {
         "speaker": "Tobias",
@@ -402,15 +406,16 @@
     "arrel_flashback_home": [
       {
         "speaker": "",
-        "text": "A fragment surfaces — unbidden, unwanted.",
+        "text": "A fragment surfaces, unbidden, unwanted.",
         "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
-        "text_ko": "조각 표면 — 입찰되지 않은, 원치 않는."
+        "text_ko": "조각 표면, 입찰되지 않은, 원치 않는."
       },
       {
         "speaker": "???",
         "text": "...the table was always set for three.",
         "portrait": "arrel_pain",
-        "text_ko": "...식탁은 언제나 세 사람 몫으로 차려져 있었지."
+        "text_ko": "...식탁은 언제나 세 사람 몫으로 차려져 있었지.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch04_table_for_three_memory_v1.png"
       },
       {
         "speaker": "",

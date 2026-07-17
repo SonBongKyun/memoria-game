@@ -1,12 +1,12 @@
 {
   "id": "ch1_after_forest",
-  "title": "Chapter 1 — After the Forest",
+  "title": "Chapter 1, After the Forest",
   "chapter": 1,
   "steps": [
     {
       "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
       "fade": 1.5,
-      "narrate": "The forest thinned. The air cleared — or rather, it replaced one kind of thickness with another.",
+      "narrate": "The forest thinned. The air cleared, or rather, it replaced one kind of thickness with another.",
       "narrate_ko": "숲이 얇아졌습니다. 공기가 맑아졌습니다. 오히려 한 종류의 두께를 다른 두께로 대체했습니다."
     },
     {
@@ -79,8 +79,8 @@
       "narrate_ko": "거기에 답이 있었습니다. 그가 가야 할 곳은 바로 그곳이었다."
     },
     {
-      "narrate": "But first — the Belt. And the man who might know whether his brother was still alive.",
-      "narrate_ko": "하지만 먼저 — 벨트. 그리고 형이 아직 살아 있는지 알 수도 있는 남자."
+      "narrate": "But first, the Belt. And the man who might know whether his brother was still alive.",
+      "narrate_ko": "하지만 먼저, 벨트. 그리고 형이 아직 살아 있는지 알 수도 있는 남자."
     },
     {
       "set_flag": "ch1_complete",
@@ -91,5 +91,5 @@
       "id": "ch2_market_arrival"
     }
   ],
-  "title_ko": "1장 — 숲 이후"
+  "title_ko": "1장, 숲 이후"
 }

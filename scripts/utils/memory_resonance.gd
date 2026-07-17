@@ -4,6 +4,11 @@ extends RefCounted
 
 const TILE_SIZE: int = 32
 const MEMORY_RESONANCE_CG_PATH: String = "res://assets/cg/generated/memory_compass_resonance_cinematic.png"
+const RESONANCE_CHOICE_ART: Dictionary = {
+	"bind": "res://assets/cg/generated/resonance_choice_bind_v2.png",
+	"kindle": "res://assets/cg/generated/resonance_choice_kindle_v2.png",
+	"leave": "res://assets/cg/generated/resonance_choice_leave_v2.png",
+}
 const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"rim_forest": {
 		"path": "res://assets/cg/generated/resonance_rim_forest_echo.png",
@@ -171,17 +176,19 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 	area.body_entered.connect(func(body):
 		if body.name != "Player" or GameManager.current_state != GameManager.GameState.EXPLORATION:
 			return
-		if GameManager.get_flag(flag):
+		if GameManager.get_flag(flag) or bool(area.get_meta("choice_open", false)):
 			return
 
 		var mem: MemoryManager.Memory = MemoryManager._get_memory(memory_id)
 		if mem == null or mem.is_burned:
 			return
 
-		GameManager.set_flag(flag)
-		tween.kill()
-		area.queue_free()
-		_trigger_resonance_choice(mem, bonus_type, bonus_value, bonus_desc)
+		# Entering an echo must never spend a memory before the player has had a
+		# chance to weigh its cost. The trigger stays in the world on "Leave", so
+		# returning later is a real decision rather than a missed collectible.
+		area.set_meta("choice_open", true)
+		area.set_deferred("monitoring", false)
+		_show_resonance_choice(area, tween, flag, mem, bonus_type, bonus_value, bonus_desc)
 	)
 	map_node.add_child(area)
 
@@ -299,3 +306,251 @@ static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: 
 
 	NotificationToast.show_toast(bonus_desc, NotificationToast.ToastType.SUCCESS)
 	print("[MemoryResonance] Burned '%s' for: %s" % [memory.title, bonus_desc])
+
+static func _show_resonance_choice(area: Area2D, pulse_tween: Tween, flag: String, memory: MemoryManager.Memory, bonus_type: String, bonus_value: Variant, bonus_desc: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		_restore_resonance_trigger(area)
+		return
+
+	GameManager.change_state(GameManager.GameState.DIALOGUE)
+	var is_ko := GameManager.current_locale == "ko"
+	var layer := CanvasLayer.new()
+	layer.name = "MemoryResonanceChoice"
+	layer.layer = 80
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	var root := Control.new()
+	root.name = "ChoiceRoot"
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	layer.add_child(root)
+
+	var veil := ColorRect.new()
+	veil.set_anchors_preset(Control.PRESET_FULL_RECT)
+	veil.color = Color(0.008, 0.007, 0.014, 0.90)
+	veil.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(veil)
+
+	var panel := PanelContainer.new()
+	panel.anchor_left = 0.07
+	panel.anchor_right = 0.93
+	panel.anchor_top = 0.12
+	panel.anchor_bottom = 0.88
+	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.025, 0.023, 0.040, 0.98), Color(0.72, 0.55, 0.30, 0.90), 1, 10, 16
+	))
+	root.add_child(panel)
+
+	var margins := MarginContainer.new()
+	margins.add_theme_constant_override("margin_left", 20)
+	margins.add_theme_constant_override("margin_right", 20)
+	margins.add_theme_constant_override("margin_top", 18)
+	margins.add_theme_constant_override("margin_bottom", 18)
+	panel.add_child(margins)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	margins.add_child(box)
+
+	var kicker := Label.new()
+	kicker.text = "기억 공명" if is_ko else "MEMORY RESONANCE"
+	kicker.add_theme_font_size_override("font_size", 12)
+	kicker.add_theme_color_override("font_color", Color(0.90, 0.70, 0.36))
+	UITheme.apply_ui_font(kicker)
+	box.add_child(kicker)
+
+	var title := Label.new()
+	title.text = ("'%s'이(가) 어둠 속에서 응답합니다." % memory.title) if is_ko else ("%s answers from the dark." % memory.title)
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color(0.95, 0.90, 0.80))
+	UITheme.apply_ui_font(title)
+	box.add_child(title)
+
+	var prompt := Label.new()
+	prompt.text = "한 번의 선택이 이 잔향의 앞날을 정합니다. 힘은 즉시 얻되, 상실은 반드시 스스로 선택해야 합니다." if is_ko else "One decision gives this echo a future. Power is immediate; the loss must be chosen."
+	prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	prompt.add_theme_font_size_override("font_size", 13)
+	prompt.add_theme_color_override("font_color", Color(0.68, 0.66, 0.72))
+	UITheme.apply_ui_font(prompt)
+	box.add_child(prompt)
+
+	var rule := HSeparator.new()
+	rule.add_theme_color_override("separator", Color(0.65, 0.50, 0.28, 0.55))
+	box.add_child(rule)
+
+	var choices := HBoxContainer.new()
+	choices.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	choices.add_theme_constant_override("separation", 12)
+	box.add_child(choices)
+
+	var bind_title := "붙들기" if is_ko else "BIND"
+	var bind_body := "기억을 지킵니다. 다음 전투에 사용할 집중 1을 얻습니다." if is_ko else "Keep the memory. Gain 1 Field Focus for the next battle."
+	var kindle_title := "태우기" if is_ko else "KINDLE"
+	var kindle_body := ("지금 태웁니다. 보상: %s" % bonus_desc) if is_ko else ("Burn it now. Reward: %s" % bonus_desc)
+	var leave_title := "보류하기" if is_ko else "LEAVE"
+	var leave_body := "지금은 떠납니다. 이 잔향은 돌아올 때까지 남아 있습니다." if is_ko else "Walk away. The echo remains here until you return."
+
+	var bind_button := _add_choice_card(
+		choices,
+		bind_title,
+		bind_body,
+		String(RESONANCE_CHOICE_ART["bind"]),
+		Color(0.42, 0.66, 0.96),
+		"기억을 지킨다" if is_ko else "Keep the memory",
+		func() -> void:
+			_resolve_resonance_choice("bind", layer, area, pulse_tween, flag, memory, bonus_type, bonus_value, bonus_desc)
+	)
+	_add_choice_card(
+		choices,
+		kindle_title,
+		kindle_body,
+		String(RESONANCE_CHOICE_ART["kindle"]),
+		Color(0.94, 0.50, 0.22),
+		"보상을 위해 태운다" if is_ko else "Take the reward",
+		func() -> void:
+			_resolve_resonance_choice("kindle", layer, area, pulse_tween, flag, memory, bonus_type, bonus_value, bonus_desc)
+	)
+	_add_choice_card(
+		choices,
+		leave_title,
+		leave_body,
+		String(RESONANCE_CHOICE_ART["leave"]),
+		Color(0.54, 0.60, 0.70),
+		"아직은 아니다" if is_ko else "Not yet",
+		func() -> void:
+			_resolve_resonance_choice("leave", layer, area, pulse_tween, flag, memory, bonus_type, bonus_value, bonus_desc)
+	)
+
+	var footer := Label.new()
+	footer.text = "방향키로 카드를 고르고 Enter로 선택할 수 있습니다." if is_ko else "Use the focused card with Enter, or click a choice."
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer.add_theme_font_size_override("font_size", 11)
+	footer.add_theme_color_override("font_color", Color(0.50, 0.48, 0.54))
+	UITheme.apply_ui_font(footer)
+	box.add_child(footer)
+
+	tree.root.call_deferred("add_child", layer)
+	if bind_button != null:
+		bind_button.call_deferred("grab_focus")
+
+static func _add_choice_card(parent: HBoxContainer, title_text: String, body_text: String, art_path: String, accent: Color, action_text: String, on_pressed: Callable) -> Button:
+	var card := PanelContainer.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(accent.r * 0.07, accent.g * 0.07, accent.b * 0.09, 0.94), Color(accent.r, accent.g, accent.b, 0.72), 1, 7, 8
+	))
+	parent.add_child(card)
+
+	var padding := MarginContainer.new()
+	padding.add_theme_constant_override("margin_left", 8)
+	padding.add_theme_constant_override("margin_right", 8)
+	padding.add_theme_constant_override("margin_top", 8)
+	padding.add_theme_constant_override("margin_bottom", 8)
+	card.add_child(padding)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	padding.add_child(box)
+
+	var art := TextureRect.new()
+	art.custom_minimum_size = Vector2(0, 116)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if art_path != "" and ResourceLoader.exists(art_path):
+		art.texture = load(art_path)
+	box.add_child(art)
+
+	var title := Label.new()
+	title.text = title_text
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", accent.lightened(0.22))
+	UITheme.apply_ui_font(title)
+	box.add_child(title)
+
+	var body := Label.new()
+	body.text = body_text
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.custom_minimum_size = Vector2(0, 54)
+	body.add_theme_font_size_override("font_size", 11)
+	body.add_theme_color_override("font_color", Color(0.76, 0.73, 0.72))
+	UITheme.apply_ui_font(body)
+	box.add_child(body)
+
+	var button := Button.new()
+	button.text = action_text
+	button.custom_minimum_size = Vector2(0, 34)
+	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_color_override("font_color", Color(0.94, 0.92, 0.84))
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
+	button.add_theme_stylebox_override("normal", UITheme.make_button_style(Color(accent.r * 0.24, accent.g * 0.24, accent.b * 0.24, 0.78), Color(accent.r, accent.g, accent.b, 0.68)))
+	button.add_theme_stylebox_override("hover", UITheme.make_button_style(Color(accent.r * 0.44, accent.g * 0.44, accent.b * 0.44, 0.92), accent.lightened(0.20)))
+	button.add_theme_stylebox_override("focus", UITheme.make_button_style(Color(accent.r * 0.44, accent.g * 0.44, accent.b * 0.44, 0.92), Color(1.0, 0.9, 0.58, 0.95)))
+	UITheme.apply_ui_font(button)
+	button.pressed.connect(on_pressed)
+	button.mouse_entered.connect(func() -> void: AudioManager.play_sfx("ui_hover"))
+	box.add_child(button)
+	return button
+
+static func _resolve_resonance_choice(choice: String, layer: CanvasLayer, area: Area2D, pulse_tween: Tween, flag: String, memory: MemoryManager.Memory, bonus_type: String, bonus_value: Variant, bonus_desc: String) -> void:
+	if is_instance_valid(layer):
+		layer.queue_free()
+
+	if choice == "leave":
+		_restore_resonance_trigger(area)
+		GameManager.change_state(GameManager.GameState.EXPLORATION)
+		NotificationToast.show_toast("Echo left intact. Return whenever you are ready.", NotificationToast.ToastType.INFO)
+		return
+
+	GameManager.set_flag(flag)
+	if pulse_tween != null and pulse_tween.is_valid():
+		pulse_tween.kill()
+	if is_instance_valid(area):
+		area.queue_free()
+
+	if choice == "bind":
+		var gained := GameManager.add_field_focus(1)
+		GameManager.set_flag("%s_bound" % flag)
+		var focus_desc := "Field Focus is already full. The memory is still safe." if gained == 0 else "Memory preserved. +1 Field Focus for your next battle."
+		NotificationToast.show_toast(focus_desc, NotificationToast.ToastType.SUCCESS)
+		_show_resonance_outcome(String(RESONANCE_CHOICE_ART["bind"]), "The lantern keeps what the road tried to take.")
+		print("[MemoryResonance] Bound '%s' for Field Focus" % memory.title)
+		return
+
+	var burned: MemoryManager.Memory = MemoryManager.burn_memory_silent(memory.id)
+	if burned == null:
+		GameManager.change_state(GameManager.GameState.EXPLORATION)
+		return
+
+	_apply_resonance_bonus(bonus_type, bonus_value)
+	NotificationToast.show_toast(bonus_desc, NotificationToast.ToastType.SUCCESS)
+	_show_resonance_outcome(String(RESONANCE_CHOICE_ART["kindle"]), "The Memory Compass trembles. A lost direction briefly takes shape.")
+	print("[MemoryResonance] Kindled '%s' for: %s" % [memory.title, bonus_desc])
+
+static func _restore_resonance_trigger(area: Area2D) -> void:
+	if not is_instance_valid(area):
+		return
+	area.set_meta("choice_open", false)
+	area.monitoring = true
+
+static func _apply_resonance_bonus(bonus_type: String, bonus_value: Variant) -> void:
+	match bonus_type:
+		"max_hp":
+			var amount := int(bonus_value)
+			GameManager.player_data.max_hp += amount
+			GameManager.player_data.hp = mini(GameManager.player_data.hp + amount, GameManager.player_data.max_hp)
+		"grains":
+			GameManager.player_data.grains += int(bonus_value)
+		"item":
+			GameManager.add_item(str(bonus_value), 1)
+		"encounter_reduce":
+			GameManager.set_flag("resonance_encounter_reduce")
+
+static func _show_resonance_outcome(art_path: String, caption: String) -> void:
+	if art_path != "" and ResourceLoader.exists(art_path) and is_instance_valid(CgViewer):
+		CgViewer.show_cg(art_path, caption, 2.5, func() -> void:
+			GameManager.change_state(GameManager.GameState.EXPLORATION)
+		)
+		return
+	GameManager.change_state(GameManager.GameState.EXPLORATION)

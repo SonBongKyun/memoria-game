@@ -1,4 +1,4 @@
-## SystemLog (Autoload) — 관리국 감지 로그
+## SystemLog (Autoload), 관리국 감지 로그
 ## 기억 연소 시 화면 상단에 팝업으로 표시.
 ## [COMBUSTION DETECTED: ...] 스타일의 관리국 로그.
 extends CanvasLayer
@@ -37,7 +37,7 @@ func _build_ui() -> void:
 	log_panel.offset_bottom = 104
 	log_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# 관리국 스타일 — 어두운 배경, 청록/녹색 테두리
+	# 관리국 스타일, 어두운 배경, 청록/녹색 테두리
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.018, 0.034, 0.038, 0.94)
 	style.border_color = Color(0.30, 0.62, 0.54, 0.62)
@@ -63,9 +63,9 @@ func _build_ui() -> void:
 ## 기억 연소 시그널 핸들러
 func _on_memory_burned(memory) -> void:
 	var grade_name = GRADE_TYPE_NAMES[memory.grade]
-	var residue_status = "trace detected — fading" if memory.is_residue else "no residue — permanent loss"
+	var residue_status = "trace detected, fading" if memory.is_residue else "no residue, permanent loss"
 
-	var log_text = "[color=#4a9a8a][COMBUSTION DETECTED: Type %d — %s][/color]\n" % [memory.grade + 1, grade_name]
+	var log_text = "[color=#4a9a8a][COMBUSTION DETECTED: Type %d, %s][/color]\n" % [memory.grade + 1, grade_name]
 	log_text += "[color=#3a7a6a][SUBJECT: %s][/color]\n" % memory.title
 	log_text += "[color=#2a6a5a][RESIDUAL RECORD: %s][/color]" % residue_status
 

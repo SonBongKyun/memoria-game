@@ -1,4 +1,4 @@
-## Drift Shelter — 드리프트 쉘터 (Chapter 4: Drift)
+## Drift Shelter, 드리프트 쉘터 (Chapter 4: Drift)
 ## 무너진 고가 아래 임시 야영지. 아렐의 읽기 능력 저하 + 엘리아의 앵커링 세션.
 ## 북쪽으로 나가면 크럼블링 코스트로 이동.
 extends Node2D
@@ -74,7 +74,7 @@ func _ready() -> void:
 	WorldAtlas.add_gateways(self, "drift_shelter")
 	AchievementManager.record_map_visit("drift_shelter")
 	elia.repeat_line = "Rest. Please."
-	print("[DriftShelter] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[DriftShelter] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
@@ -124,9 +124,9 @@ func _on_deterioration_ended() -> void:
 		DialogueManager.load_and_start(DIALOGUE_FILE, "anchoring_session")
 
 func _on_anchoring_ended() -> void:
-	StoryJournal.add_event("anchoring_session", "Elia performed an anchoring session — stabilizing Arrel's memory architecture with small, unforgettable sensations.")
+	StoryJournal.add_event("anchoring_session", "Elia performed an anchoring session, stabilizing Arrel's memory architecture with small, unforgettable sensations.")
 	# 앵커링 후 → 자유 탐색
-	print("[DriftShelter] Anchoring complete — free exploration enabled")
+	print("[DriftShelter] Anchoring complete, free exploration enabled")
 
 ## ===================== 출구 트리거 (북쪽 → Crumbling Coast) =====================
 
@@ -155,7 +155,7 @@ func _depart_shelter() -> void:
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 5
 	SaveManager.autosave_on_chapter_transition()
-	print("[DriftShelter] Chapter 4 complete — heading to Crumbling Coast")
+	print("[DriftShelter] Chapter 4 complete, heading to Crumbling Coast")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/crumbling_coast.tscn", 4)
@@ -232,7 +232,7 @@ func _setup_interactive_objects() -> void:
 	_add_clue(
 		Vector2(10 * TILE_SIZE, 7 * TILE_SIZE),
 		"clue_drift_campfire",
-		"Warm ashes. Someone camped here recently — the fire pit is lined with Bureau-issue kindling."
+		"Warm ashes. Someone camped here recently, the fire pit is lined with Bureau-issue kindling."
 	)
 	_add_clue(
 		Vector2(3 * TILE_SIZE, 13 * TILE_SIZE),

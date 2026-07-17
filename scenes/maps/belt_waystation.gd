@@ -1,4 +1,4 @@
-## Belt Waystation — 벨트 중간역 (Chapter 3: Weight of Pages)
+## Belt Waystation, 벨트 중간역 (Chapter 3: Weight of Pages)
 ## 버려진 무역로 '벨트' 위의 관리국 중간역. 토비아스와의 만남 + 백서 획득.
 ## 남쪽에서 시작 → 북쪽으로 진행하면 Drift Shelter로 이동.
 extends Node2D
@@ -58,7 +58,7 @@ func _ready() -> void:
 	_s52_particles = MapEffects.add_pollen_particles(self, 15, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.45, 0.4, 0.35, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
-	# S59: 분위기 강화 — 황무지 안개 + 깊이 그라디언트
+	# S59: 분위기 강화, 황무지 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.4, Color(0.35, 0.32, 0.3, 0.05), 2.0)
 	MapEffects.add_depth_gradient(self, 0.06)
 	MapEffects.add_premium_map_lens(self, {"tint": Color(0.76, 0.64, 0.44, 1.0), "vignette": 0.32, "tint_strength": 0.06, "shafts": 0.06, "glints": 2})
@@ -78,9 +78,9 @@ func _ready() -> void:
 	if not GameManager.get_flag("ch3_tobias_met"):
 		tobias_npc.visible = false
 		tobias_npc.set_physics_process(false)
-	# S54: NPC Schedule — adjust tobias based on chapter
+	# S54: NPC Schedule, adjust tobias based on chapter
 	_apply_npc_schedules()
-	print("[BeltWaystation] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[BeltWaystation] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
@@ -153,7 +153,7 @@ func _on_tobias_joined() -> void:
 	NotificationToast.show_toast("Tobias joined the party", NotificationToast.ToastType.SUCCESS)
 	# 저널 등록
 	StoryJournal.add_event("tobias_joined", "Met Tobias Crane, a Bureau Recorder, at the Belt waystation. He carries twenty years of memory transaction records.")
-	StoryJournal.add_npc("tobias", "Tobias Crane — Bureau Recorder, Class C. Meticulous, curious, and surprisingly brave for a bureaucrat.")
+	StoryJournal.add_npc("tobias", "Tobias Crane, Bureau Recorder, Class C. Meticulous, curious, and surprisingly brave for a bureaucrat.")
 
 ## ===================== 출구 트리거 (북쪽 → Drift Shelter) =====================
 
@@ -182,7 +182,7 @@ func _depart_waystation() -> void:
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 4
 	SaveManager.autosave_on_chapter_transition()
-	print("[BeltWaystation] Chapter 3 complete — heading to Drift Shelter")
+	print("[BeltWaystation] Chapter 3 complete, heading to Drift Shelter")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/drift_shelter.tscn", 3)
@@ -264,7 +264,7 @@ func _setup_interactive_objects() -> void:
 	_add_clue(
 		Vector2(14 * TILE_SIZE, 6 * TILE_SIZE),
 		"clue_belt_sign",
-		"A faded Bureau sign: 'RELAY STATION 14 — All combustion events must be reported within 72 hours.'"
+		"A faded Bureau sign: 'RELAY STATION 14, All combustion events must be reported within 72 hours.'"
 	)
 
 func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
@@ -355,7 +355,7 @@ func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_
 ## ===================== 맵 데코레이션 =====================
 
 func _setup_map_decorations() -> void:
-	# 물탱크 (기울어진 원통 — 중간역 상징)
+	# 물탱크 (기울어진 원통, 중간역 상징)
 	var tank = ColorRect.new()
 	tank.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 3)
 	tank.position = Vector2(20 * TILE_SIZE, 7 * TILE_SIZE)
@@ -413,7 +413,7 @@ func _position_player() -> void:
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
 
-## S54: NPC Schedule System — adjust tobias based on current chapter
+## S54: NPC Schedule System, adjust tobias based on current chapter
 func _apply_npc_schedules() -> void:
 	var ch = GameManager.current_chapter
 	var tobias_sched = GameManager.get_npc_schedule("tobias", ch)

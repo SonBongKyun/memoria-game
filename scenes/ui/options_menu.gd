@@ -1,6 +1,6 @@
 ## OptionsMenu (Autoload) -- 옵션 메뉴
 ## 볼륨 조절, 풀스크린 토글, 접근성 옵션. PauseMenu/타이틀에서 열기.
-## S55: Accessibility overhaul — font size, high contrast, screen shake, colorblind, reduce motion.
+## S55: Accessibility overhaul, font size, high contrast, screen shake, colorblind, reduce motion.
 extends CanvasLayer
 
 var is_open: bool = false
@@ -580,7 +580,7 @@ func _build_ui() -> void:
 		_apply_high_contrast(toggled)
 	)
 
-	# Clear Gameplay View — screen-space atmosphere is opt-in, clarity is default.
+	# Clear Gameplay View, screen-space atmosphere is opt-in, clarity is default.
 	clean_visuals_check = _create_toggle_row(vbox, GameManager.loc("clean_gameplay_visuals"), settings.clean_gameplay_visuals)
 	clean_visuals_check.toggled.connect(func(toggled: bool):
 		settings.clean_gameplay_visuals = toggled

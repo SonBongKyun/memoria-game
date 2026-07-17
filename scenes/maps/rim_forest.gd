@@ -1,4 +1,4 @@
-## Rim Exterior Forest — 림 외곽 숲 (Chapter 1 시작 맵)
+## Rim Exterior Forest, 림 외곽 숲 (Chapter 1 시작 맵)
 ## 아렐이 공허수를 처치한 직후. 재비가 내리는 숲.
 ## 스토리 시퀀스: opening → elia → ash_rain → 자유탐색 → camp_night
 extends Node2D
@@ -31,7 +31,7 @@ var map_data: Array = [
 	[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
 ]
 
-# S43: 컬러 팔레트 리뉴얼 — 더 풍부한 색상
+# S43: 컬러 팔레트 리뉴얼, 더 풍부한 색상
 var tile_colors: Dictionary = {
 	Tile.GRASS: Color(0.15, 0.32, 0.12),  # 더 진한 초록
 	Tile.PATH: Color(0.38, 0.3, 0.2),  # 더 따뜻한 흙
@@ -68,7 +68,7 @@ func _ready() -> void:
 	# The authored map canvas already owns terrain boundaries.  A second
 	# procedural edge layer creates translucent square seams on top of it.
 	_blend_edges.clear()
-	# S131: Opening readability pass — keep the mood, but avoid hiding the first playable screen.
+	# S131: Opening readability pass, keep the mood, but avoid hiding the first playable screen.
 	MapEffects.add_vignette(self, 0.14)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 12, Color(0.5, 0.85, 0.3, 0.5))  # S46: 숲 반딧불
@@ -89,7 +89,7 @@ func _ready() -> void:
 	_pollen = MapEffects.add_pollen_particles(self, 6, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.16))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
-	# S57: 앰비언트 와일드라이프 — 반딧불 + 낙엽
+	# S57: 앰비언트 와일드라이프, 반딧불 + 낙엽
 	var map_area = Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
 	_drifting_flies = MapEffects.add_drifting_fireflies(self, 8, map_area, Color(0.5, 0.9, 0.35, 0.6))
 	_falling_leaves = MapEffects.add_falling_leaves(self, 6, map_area, Color(0.4, 0.5, 0.18, 0.45))
@@ -109,32 +109,32 @@ func _ready() -> void:
 	MapEffects.add_depth_gradient(self, 0.045)
 	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.76, 0.42, 1.0), "vignette": 0.16, "tint_strength": 0.028, "shafts": 0.035, "glints": 1, "grain": 0.0, "letterbox": 0.08})
 	_position_player()
-	# S66 (A안 — Act I 데모 슬림화):
+	# S66 (A안, Act I 데모 슬림화):
 	# 보스(Void Beast) 트리거 + 캠프 + 핵심 히든 이벤트만 유지.
-	# 비활성: 랜덤 인카운터, 사이드 퀘스트 — 코드 보존, 호출만 차단.
+	# 비활성: 랜덤 인카운터, 사이드 퀘스트, 코드 보존, 호출만 차단.
 	_setup_battle_triggers()
 	_setup_camp_trigger()
 	_setup_hidden_events()
 	_setup_interactive_objects()
-	# _setup_random_encounters()  # S66: VN 정체성에 맞지 않음 — 비활성
+	# _setup_random_encounters()  # S66: VN 정체성에 맞지 않음, 비활성
 	# _setup_side_quests()        # S66: 사이드 분기 제거, 본 스토리에 집중
 	_setup_map_decorations()
 	WorldPopulation.populate(self, "rim_forest")
 	_setup_root_hollow_gateway()
 	AchievementManager.record_map_visit("rim_forest")
-	# S64: Perception Drift — daily_campfire_song 태웠으면 엘리아를 창백하게, "Echo of the Song" 오브젝트 표시
+	# S64: Perception Drift, daily_campfire_song 태웠으면 엘리아를 창백하게, "Echo of the Song" 오브젝트 표시
 	_setup_perception_nodes()
 	PerceptionFilter.apply(self)
-	print("[RimForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[RimForest] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
-	# S60: VN 하이브리드 모드 — VN이 프롤로그를 이미 재생했으면 스토리 건너뛰고
+	# S60: VN 하이브리드 모드, VN이 프롤로그를 이미 재생했으면 스토리 건너뛰고
 	# 자유 탐색 + 남쪽 끝에서 VN 재개(ch1_after_forest).
 	if SceneFlow.resume_queue.size() > 0:
 		GameManager.set_flag("ch1_opening_done")
 		GameManager.set_flag("ch1_elia_appeared")
 		GameManager.set_flag("ch1_ash_rain_seen")
 		_start_ash_rain()
-		print("[RimForest] VN hybrid mode — free exploration, exit south to resume VN")
+		print("[RimForest] VN hybrid mode, free exploration, exit south to resume VN")
 	# 레거시 스토리 시퀀스 (VN 없이 직접 진입 시)
 	elif not GameManager.get_flag("ch1_opening_done"):
 		await MapEffects.show_chapter_title(self, 1, "Rim Forest", "The edge of what remains")
@@ -198,8 +198,8 @@ func _on_elia_ended() -> void:
 
 func _on_ash_rain_ended() -> void:
 	GameManager.set_flag("ch1_ash_rain_seen")
-	# 자유 탐색 모드 — 엘리아 재대화 가능, 전투 트리거 활성
-	print("[RimForest] Free exploration — head south for camp")
+	# 자유 탐색 모드, 엘리아 재대화 가능, 전투 트리거 활성
+	print("[RimForest] Free exploration, head south for camp")
 	# S53: 튜토리얼 프롬프트 표시
 	_show_tutorial()
 
@@ -250,11 +250,11 @@ func _setup_camp_trigger() -> void:
 	area.body_entered.connect(func(body):
 		if body.name != "Player" or GameManager.get_flag("ch1_camp_done"):
 			return
-		# S66 (Act I 데모): 보스(Void Beast) 처치 전에는 진행 불가 — 클라이맥스 필수화
+		# S66 (Act I 데모): 보스(Void Beast) 처치 전에는 진행 불가, 클라이맥스 필수화
 		if not GameManager.get_flag("ch1_void_beast_defeated"):
 			NotificationToast.show_toast("Something blocks the path. Find what hunts these woods.")
 			return
-		# S60: VN 하이브리드 — 복귀 큐가 있으면 VN으로 돌아감 (vn_host._ready가 자동 resume)
+		# S60: VN 하이브리드, 복귀 큐가 있으면 VN으로 돌아감 (vn_host._ready가 자동 resume)
 		if SceneFlow.resume_queue.size() > 0:
 			GameManager.set_flag("ch1_camp_done")
 			SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
@@ -277,7 +277,7 @@ func _on_camp_ended() -> void:
 	AchievementManager.record_chapter_complete(1)
 	GameManager.add_item("potion", 1)
 	print("[RimForest] Chapter 1 complete")
-	# 히든 엔딩 CG — 녹색 나무 (짧게 보여주고 전환)
+	# 히든 엔딩 CG, 녹색 나무 (짧게 보여주고 전환)
 	await get_tree().create_timer(1.0).timeout
 	CgViewer.show_cg("res://assets/cg/generated/story_ch1_green_tree_dawn.png", "", 3.0, func():
 		# S58: Chapter completion screen with stats summary
@@ -289,7 +289,7 @@ func _on_camp_ended() -> void:
 ## daily_campfire_song을 태운 플레이어에게만 보이는 "노래의 잔향"
 ## 태우지 않았으면 일반 인카운터 구역, 태웠으면 흐릿한 빛이 캠프파이어 주변을 맴돈다.
 func _setup_perception_nodes() -> void:
-	# 태운 기억의 잔향 — 캠프 구역 근처 포인트라이트 + 파티클
+	# 태운 기억의 잔향, 캠프 구역 근처 포인트라이트 + 파티클
 	var echo = Node2D.new()
 	echo.name = "SongEcho"
 	echo.position = Vector2(11 * TILE_SIZE, 15 * TILE_SIZE)
@@ -330,7 +330,7 @@ func _setup_perception_nodes() -> void:
 	particles.process_material = pmat
 	echo.add_child(particles)
 
-	# 상호작용 Area — 다가가면 짧은 나레이션 (이미 태운 기억의 흔적)
+	# 상호작용 Area, 다가가면 짧은 나레이션 (이미 태운 기억의 흔적)
 	var area = Area2D.new()
 	area.collision_layer = 0
 	area.collision_mask = 2
@@ -346,7 +346,7 @@ func _setup_perception_nodes() -> void:
 	)
 	echo.add_child(area)
 
-	# 엘리아 창백 틴트 — companions 그룹의 Elia 찾아 modulate 지정
+	# 엘리아 창백 틴트, companions 그룹의 Elia 찾아 modulate 지정
 	for npc in get_tree().get_nodes_in_group("companions"):
 		if "npc_name" in npc and String(npc.npc_name) == "Elia":
 			npc.set_meta("on_burned_tint_memory", "daily_campfire_song")
@@ -356,28 +356,28 @@ func _setup_perception_nodes() -> void:
 ## ===================== 히든 이벤트 =====================
 
 func _setup_hidden_events() -> void:
-	# S66 (Act I 데모): 핵심 3개만 — 기억 사당(테마 강화), 그루터기(A.E. 모멘트), 엘리아 기억 대화
+	# S66 (Act I 데모): 핵심 3개만, 기억 사당(테마 강화), 그루터기(A.E. 모멘트), 엘리아 기억 대화
 	# 제거: dead_burner(잡 분위기), forest_walk(중복), anchor_talk(중복), MemoryResonance(미니게임 잡요소)
 
-	# 그루터기 — 'A. E.' 각인. Act I 정체성 직결.
+	# 그루터기, 'A. E.' 각인. Act I 정체성 직결.
 	_add_hidden_trigger(
 		Vector2(20 * TILE_SIZE, 13 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		DIALOGUE_FILE, "hidden_stump", "hidden_ch1_stump"
 	)
-	# 기억 사당 — 세계관 확립
+	# 기억 사당, 세계관 확립
 	_add_hidden_trigger(
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		DIALOGUE_FILE, "forest_shrine", "ch1_shrine_found"
 	)
-	# 엘리아 — 기억 이야기. 관계성 핵심 비트.
+	# 엘리아, 기억 이야기. 관계성 핵심 비트.
 	_add_hidden_trigger(
 		Vector2(10 * TILE_SIZE, 12 * TILE_SIZE),
 		Vector2(TILE_SIZE * 3, TILE_SIZE * 2),
 		DIALOGUE_FILE, "elia_memory_talk", "ch1_elia_memory"
 	)
-	# Memory Resonance, dead_burner, forest_walk, anchor_talk 비활성 — Act I 흐름 짧고 강하게.
+	# Memory Resonance, dead_burner, forest_walk, anchor_talk 비활성, Act I 흐름 짧고 강하게.
 
 func _add_hidden_trigger(pos: Vector2, size: Vector2, dialogue_file: String, dialogue_key: String, flag_name: String) -> void:
 	var area = Area2D.new()
@@ -418,19 +418,19 @@ func _setup_interactive_props() -> void:
 	MapEffects.add_interactive_prop(self, Vector2(6 * TILE_SIZE, 8 * TILE_SIZE), "barrel")
 	# 쓰러진 나무 옆 상자 (아이템)
 	MapEffects.add_interactive_prop(self, Vector2(16 * TILE_SIZE, 5 * TILE_SIZE), "crate")
-	# 캠프파이어 — 남쪽 길 근처 (HP 회복)
+	# 캠프파이어, 남쪽 길 근처 (HP 회복)
 	MapEffects.add_interactive_prop(self, Vector2(12 * TILE_SIZE, 13 * TILE_SIZE), "campfire", {"heal": 5})
 
 ## ===================== 인터랙티브 오브젝트 =====================
 
 func _setup_interactive_objects() -> void:
-	# 숨겨진 상자 — 덤불 속 (좌측 하단 덤불 근처)
+	# 숨겨진 상자, 덤불 속 (좌측 하단 덤불 근처)
 	_add_chest(
 		Vector2(4 * TILE_SIZE, 13 * TILE_SIZE),
 		"chest_rim_bush",
 		{"items": {"potion": 2}, "grains": 10}
 	)
-	# 기억 단서 — 길 옆 돌무더기 (중앙 하단)
+	# 기억 단서, 길 옆 돌무더기 (중앙 하단)
 	_add_clue(
 		Vector2(10 * TILE_SIZE, 14 * TILE_SIZE),
 		"clue_rim_stone",
@@ -535,7 +535,7 @@ func _add_quest_npc(pos: Vector2, npc_name: String, _color: Color, quest_id: Str
 	rect.size = Vector2(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
 	shape.shape = rect
 	area.add_child(shape)
-	# S55: NPC 비주얼 — PixelSprite 프리셋 사용
+	# S55: NPC 비주얼, PixelSprite 프리셋 사용
 	var sprite = PixelSprite.create_npc_sprite("traveler")
 	area.add_child(sprite)
 	# "!" 퀘스트 마커
@@ -662,7 +662,7 @@ func _position_player() -> void:
 ## ===================== 전투 트리거 =====================
 
 func _setup_battle_triggers() -> void:
-	# S66 (Act I 데모): 보스(Void Beast) 1전만. Ash Crawler 잡몹 제거 — 클라이맥스 집중.
+	# S66 (Act I 데모): 보스(Void Beast) 1전만. Ash Crawler 잡몹 제거, 클라이맥스 집중.
 	_add_battle_area(
 		Vector2(16 * TILE_SIZE, 7 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),

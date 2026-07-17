@@ -17,9 +17,10 @@
       },
       {
         "speaker": "Tobias",
-        "text": "The Bureau maps end exactly at this ridgeline. Beyond is classified — Level 9 clearance only.",
+        "text": "The Bureau maps end exactly at this ridgeline. Beyond is classified, Level 9 clearance only.",
         "portrait": "tobias_neutral",
-        "text_ko": "관리국 지도는 정확히 이 능선에서 끝나네. 그 너머는 기밀이야 — 9등급 허가 전용."
+        "text_ko": "관리국 지도는 정확히 이 능선에서 끝나네. 그 너머는 기밀이야, 9등급 허가 전용.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch07_threshold_ridgeline_v1.png"
       },
       {
         "speaker": "Arrel",
@@ -90,7 +91,7 @@
       },
       {
         "speaker": "Sable",
-        "text": "The six people I lost — they didn't die. They were eaten. Their memories, their names, their faces. All consumed.",
+        "text": "The six people I lost, they didn't die. They were eaten. Their memories, their names, their faces. All consumed.",
         "portrait": "sable_calm",
         "text_ko": "내가 잃은 여섯은 죽은 게 아니다. 먹힌 거야. 기억도, 이름도, 얼굴도. 전부 삼켜졌지."
       },
@@ -110,7 +111,7 @@
         "speaker": "",
         "text": "She pulled something from her coat. A shell, spiraling inward, its surface covered in faint luminescent veins.",
         "cg": "res://assets/cg/generated/dialogue_ch7_sable_echo_shell.png",
-        "text_ko": "그녀가 외투에서 무언가를 꺼냈다. 안으로 감겨 들어가는 조가비 — 표면에 희미하게 발광하는 결이 덮여 있었다."
+        "text_ko": "그녀가 외투에서 무언가를 꺼냈다. 안으로 감겨 들어가는 조가비, 표면에 희미하게 발광하는 결이 덮여 있었다."
       },
       {
         "speaker": "Sable",
@@ -126,23 +127,23 @@
       },
       {
         "speaker": "",
-        "text": "[Obtained: Echo Shell — Holds the last echoes of the consumed. Protects against involuntary memory loss]",
-        "text_ko": "[획득: 에코 셸 — 삼켜진 이들의 마지막 메아리를 담고 있다. 비자발적 기억 상실을 막아 준다]"
+        "text": "[Obtained: Echo Shell, Holds the last echoes of the consumed. Protects against involuntary memory loss]",
+        "text_ko": "[획득: 에코 셸, 삼켜진 이들의 마지막 메아리를 담고 있다. 비자발적 기억 상실을 막아 준다]"
       }
     ],
     "sable_trial": [
       {
         "speaker": "Sable",
-        "text": "Before we go further — I need to know you can survive in there.",
+        "text": "Before we go further, I need to know you can survive in there.",
         "portrait": "sable_neutral",
         "cg": "res://assets/cg/generated/story_ch7_controlled_burn_trial.png",
-        "text_ko": "더 가기 전에 — 네가 그 안에서 살아남을 수 있는지 알아야겠다."
+        "text_ko": "더 가기 전에, 네가 그 안에서 살아남을 수 있는지 알아야겠다."
       },
       {
         "speaker": "Sable",
-        "text": "Not your combat skill. I've heard you fight — what stops, what doesn't. I need to know your mind holds.",
+        "text": "Not your combat skill. I've heard you fight, what stops, what doesn't. I need to know your mind holds.",
         "portrait": "sable_calm",
-        "text_ko": "네 전투 기술이 아니야. 나는 네가 싸우는 소리를 들었어 — 무엇이 멈추고, 무엇이 멈추지 않는지. 내가 알아야 하는 건 네 정신이 버티느냐다."
+        "text_ko": "네 전투 기술이 아니야. 나는 네가 싸우는 소리를 들었어, 무엇이 멈추고, 무엇이 멈추지 않는지. 내가 알아야 하는 건 네 정신이 버티느냐다."
       },
       {
         "speaker": "Arrel",
@@ -154,13 +155,14 @@
         "speaker": "Sable",
         "text": "Burn something. Right now. Deliberately. And hold yourself together after.",
         "portrait": "sable_neutral",
-        "text_ko": "태워 봐라. 지금. 의도적으로. 그리고 그 뒤에 무너지지 말고 버텨 봐."
+        "text_ko": "태워 봐라. 지금. 의도적으로. 그리고 그 뒤에 무너지지 말고 버텨 봐.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch07_controlled_burn_trial_v1.png"
       },
       {
         "speaker": "Elia",
-        "text": "That's unnecessary. He doesn't need to prove—",
+        "text": "That's unnecessary. He doesn't need to prove...",
         "portrait": "elia_concern",
-        "text_ko": "그럴 필요 없어요. 증명하지 않아도—"
+        "text_ko": "그럴 필요 없어요. 증명하지 않아도..."
       },
       {
         "speaker": "Sable",
@@ -184,9 +186,9 @@
     "trial_complete": [
       {
         "speaker": "",
-        "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away — then Elia's hand was on his shoulder.",
+        "text": "The burn passed through him like a wave of heat. For a moment, something important slipped away, then Elia's hand was on his shoulder.",
         "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
-        "text_ko": "연소가 열파처럼 그를 관통했다. 한순간 중요한 무언가가 미끄러져 나갔다 — 그리고 엘리아의 손이 그의 어깨에 얹혔다."
+        "text_ko": "연소가 열파처럼 그를 관통했다. 한순간 중요한 무언가가 미끄러져 나갔다, 그리고 엘리아의 손이 그의 어깨에 얹혔다."
       },
       {
         "speaker": "Elia",
@@ -214,9 +216,9 @@
       },
       {
         "speaker": "Sable",
-        "text": "One more thing. Inside BL-07, you'll hear voices. Not hallucinations — real voices.",
+        "text": "One more thing. Inside BL-07, you'll hear voices. Not hallucinations, real voices.",
         "portrait": "sable_calm",
-        "text_ko": "하나 더. BL-07 안에서는 목소리가 들릴 거다. 환각이 아니라 — 진짜 목소리야."
+        "text_ko": "하나 더. BL-07 안에서는 목소리가 들릴 거다. 환각이 아니라, 진짜 목소리야."
       },
       {
         "speaker": "Sable",
@@ -259,9 +261,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "Could Arrel's burning be feeding it? High-efficiency combustion nearby—",
+        "text": "Could Arrel's burning be feeding it? High-efficiency combustion nearby...",
         "portrait": "elia_concern",
-        "text_ko": "아렐의 연소가 먹이가 되고 있는 걸까요? 근처의 고효율 연소가—"
+        "text_ko": "아렐의 연소가 먹이가 되고 있는 걸까요? 근처의 고효율 연소가..."
       },
       {
         "speaker": "Tobias",
@@ -297,9 +299,9 @@
     "threshold_atmosphere": [
       {
         "speaker": "",
-        "text": "The Threshold was a dead zone. Not dead like the Belt — lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil.",
+        "text": "The Threshold was a dead zone. Not dead like the Belt, lifeless. Dead like something had reached in and taken the concept of 'alive' out of the soil.",
         "cg": "res://assets/cg/generated/story_ch7_paper_forgetting_ink.png",
-        "text_ko": "문턱은 죽은 지대였다. 벨트처럼 생명이 없는 게 아니라 — 무언가 손을 뻗어 흙에서 '살아 있음'이라는 개념 자체를 꺼내 간 것처럼 죽어 있었다."
+        "text_ko": "문턱은 죽은 지대였다. 벨트처럼 생명이 없는 게 아니라, 무언가 손을 뻗어 흙에서 '살아 있음'이라는 개념 자체를 꺼내 간 것처럼 죽어 있었다."
       },
       {
         "speaker": "Tobias",
@@ -323,24 +325,24 @@
     "echo_shell_discovery": [
       {
         "speaker": "",
-        "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then — whispers.",
+        "text": "Arrel held the Echo Shell to his ear. At first, nothing. Then, whispers.",
         "cg": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png",
-        "text_ko": "아렐이 에코 셸을 귀에 댔다. 처음엔 아무것도. 그리고 — 속삭임들."
+        "text_ko": "아렐이 에코 셸을 귀에 댔다. 처음엔 아무것도. 그리고, 속삭임들."
       },
       {
         "speaker": "",
-        "text": "A woman's voice: '—told him not to go past the ridgeline—'",
-        "text_ko": "여자의 목소리: '—능선을 넘어가지 말라고 하더군요—'"
+        "text": "A woman's voice: '...told him not to go past the ridgeline...'",
+        "text_ko": "여자의 목소리: '...능선을 넘어가지 말라고 하더군요...'"
       },
       {
         "speaker": "",
-        "text": "A man's voice: '—can still feel my hands even though I know they're—'",
-        "text_ko": "남자의 목소리: '—내 손이라는 걸 알면서도 여전히 손이 느껴지는—'"
+        "text": "A man's voice: '...can still feel my hands even though I know they're...'",
+        "text_ko": "남자의 목소리: '...내 손이라는 걸 알면서도 여전히 손이 느껴지는...'"
       },
       {
         "speaker": "",
-        "text": "A child's voice: '—mama, I forgot what color blue—'",
-        "text_ko": "어린이의 목소리: '—엄마, 파란색이 뭔지 잊어버렸어요—'"
+        "text": "A child's voice: '...mama, I forgot what color blue...'",
+        "text_ko": "어린이의 목소리: '...엄마, 파란색이 뭔지 잊어버렸어요...'"
       },
       {
         "speaker": "Arrel",
@@ -358,13 +360,14 @@
         "speaker": "Arrel",
         "text": "There are people in here. Fragments of people. Dozens of them.",
         "portrait": "arrel_pain",
-        "text_ko": "이 안에 사람들이 있어. 사람의 파편들이. 수십 명."
+        "text_ko": "이 안에 사람들이 있어. 사람의 파편들이. 수십 명.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch07_echo_shell_voices_v1.png"
       },
       {
         "speaker": "Sable",
         "text": "Six from my team. The rest from before. The Bureau's first expeditions.",
         "portrait": "sable_calm",
-        "text_ko": "여섯은 내 팀이다. 나머지는 그 전 — 관리국의 첫 원정대들."
+        "text_ko": "여섯은 내 팀이다. 나머지는 그 전, 관리국의 첫 원정대들."
       },
       {
         "speaker": "Sable",
@@ -376,9 +379,9 @@
     "outskirts_departure": [
       {
         "speaker": "Sable",
-        "text": "Past the Threshold, the forest starts. It's not a real forest — it's what's left of one.",
+        "text": "Past the Threshold, the forest starts. It's not a real forest, it's what's left of one.",
         "portrait": "sable_neutral",
-        "text_ko": "문턱을 지나면 숲이 시작된다. 진짜 숲이 아니야 — 숲에서 남은 것이지."
+        "text_ko": "문턱을 지나면 숲이 시작된다. 진짜 숲이 아니야, 숲에서 남은 것이지."
       },
       {
         "speaker": "Sable",
@@ -388,9 +391,9 @@
       },
       {
         "speaker": "Tobias",
-        "text": "A memory-parasitic ecosystem. The Bureau theorized about this but—",
+        "text": "A memory-parasitic ecosystem. The Bureau theorized about this but...",
         "portrait": "tobias_neutral",
-        "text_ko": "기억 기생 생태계라니. 관리국이 이론으로만 세웠던 걸 실제로—"
+        "text_ko": "기억 기생 생태계라니. 관리국이 이론으로만 세웠던 걸 실제로..."
       },
       {
         "speaker": "Sable",
@@ -420,10 +423,10 @@
     "sable_confession": [
       {
         "speaker": "Sable",
-        "text": "I wasn't always freelance. Before Ashbridge, before The Seam — I worked for the Authority.",
+        "text": "I wasn't always freelance. Before Ashbridge, before The Seam, I worked for the Authority.",
         "portrait": "sable_calm",
         "cg": "res://assets/cg/generated/story_ch7_sable_confession.png",
-        "text_ko": "나도 처음부터 떠돌이는 아니었다. 애시브리지 전에, 씸 전에 — 관리국에서 일했어."
+        "text_ko": "나도 처음부터 떠돌이는 아니었다. 애시브리지 전에, 씸 전에, 관리국에서 일했어."
       },
       {
         "speaker": "Arrel",
@@ -435,7 +438,8 @@
         "speaker": "Sable",
         "text": "Subsection Eleven. Memory Disposal. They called us Cleaners. We made people forget things the Authority didn't want remembered.",
         "portrait": "sable_intense",
-        "text_ko": "제11분과. 기억 처분. 사람들은 우리를 청소부라고 불렀지. 관리국이 기억되길 원치 않는 것들을, 사람들이 잊게 만들었다."
+        "text_ko": "제11분과. 기억 처분. 사람들은 우리를 청소부라고 불렀지. 관리국이 기억되길 원치 않는 것들을, 사람들이 잊게 만들었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch07_sable_cleaner_confession_v1.png"
       },
       {
         "speaker": "Sable",
@@ -447,15 +451,16 @@
     "outskirts_monument": [
       {
         "speaker": "",
-        "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading — the letters dissolving like ink in water.",
+        "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading, the letters dissolving like ink in water.",
         "cg": "res://assets/cg/generated/story_ch7_fading_names_monument.png",
-        "text_ko": "갈라진 땅에서 돌기둥 하나가 솟아 있었다. 표면에 새겨진 이름들이 서서히 바래는 중이었다 — 물에 번지는 잉크처럼 글자들이 풀려 나갔다."
+        "text_ko": "갈라진 땅에서 돌기둥 하나가 솟아 있었다. 표면에 새겨진 이름들이 서서히 바래는 중이었다, 물에 번지는 잉크처럼 글자들이 풀려 나갔다."
       },
       {
         "speaker": "Tobias",
         "text": "A memorial cairn. Bureau standard. These names... they're the first expedition team. Twelve people. All erased.",
         "portrait": "tobias_neutral",
-        "text_ko": "기념 돌무덤이군. 관리국 표준 양식이야. 이 이름들은... 첫 원정대일세. 열두 명. 전부 바래고 있어."
+        "text_ko": "기념 돌무덤이군. 관리국 표준 양식이야. 이 이름들은... 첫 원정대일세. 열두 명. 전부 바래고 있어.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch07_twelve_names_memorial_v1.png"
       },
       {
         "speaker": "Arrel",
@@ -480,9 +485,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "I can feel it pulling. Not at you — at me. Like it knows I'm not fully real. Like it's offering to finish what was started.",
+        "text": "I can feel it pulling. Not at you, at me. Like it knows I'm not fully real. Like it's offering to finish what was started.",
         "portrait": "elia_concern",
-        "text_ko": "당기는 게 느껴져. 너한테가 아니라 — 나한테. 내가 온전히 실재하지 않는 걸 아는 것처럼. 시작한 일을 끝내 주겠다고 제안하는 것처럼."
+        "text_ko": "당기는 게 느껴져. 너한테가 아니라, 나한테. 내가 온전히 실재하지 않는 걸 아는 것처럼. 시작한 일을 끝내 주겠다고 제안하는 것처럼."
       }
     ]
   },

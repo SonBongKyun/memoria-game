@@ -1,9 +1,11 @@
-## BattleScene — 턴제 전투 화면 (S44: 사이드뷰 오버홀)
+## BattleScene, 턴제 전투 화면 (S44: 사이드뷰 오버홀)
 ## BattleManager의 시그널을 받아 UI 표시.
 ## S44: 사이드뷰 레이아웃, 캐릭터/적 128x128 스프라이트, 전투 애니메이션
 ## S56: BattleVFX 통합 (향상된 데미지 넘버, 상태이상 파티클, 기억 연소 드라마틱 시퀀스)
-## S57: Battle Juice Overhaul — knockback, hit-freeze, screen flash, combo counter, turn dim, death anim, hurt bounce
+## S57: Battle Juice Overhaul, knockback, hit-freeze, screen flash, combo counter, turn dim, death anim, hurt bounce
 extends Node2D
+
+const BATTLE_ITEM_TRAY_PATH: String = "res://assets/cg/generated/ui_battle_item_tray_v3.png"
 
 # UI 노드
 var bg: ColorRect
@@ -31,21 +33,27 @@ const UI_VICTORY_PANEL_PATH: String = "res://assets/cg/generated/ui_battle_victo
 const UI_BURN_PREVIEW_PANEL_PATH: String = "res://assets/cg/generated/ui_burn_preview_ritual_panel.png"
 const LAST_STAND_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_last_stand_resonance.png"
 const MEMORY_CASCADE_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_arrel_memory_cascade.png"
-const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_sable_echo_strike.png"
-const TOBIAS_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_tobias_record_ward.png"
-const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/sable_battle_fullbody.png"
-const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/tobias_battle_fullbody.png"
-const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/cg/game_image/elia_battle_anchor_fullbody.png"
-const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"
+const ARREL_BLADE_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_arrel_blade_arc_v4.png"
+const ARREL_GUARD_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_arrel_guard_v4.png"
+const ARREL_WITNESS_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_arrel_witness_v4.png"
+const ELIA_ANCHOR_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_elia_anchor_v4.png"
+const TOBIAS_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_tobias_faultline_v4.png"
+const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_sable_threadstrike_v4.png"
+const BREAK_FAULTLINE_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_break_faultline_v4.png"
+const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/sable_warden_v3.png"
+const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/tobias_ledger_v3.png"
+const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/elia_anchor_v3.png"
+const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_action_v3.png"
+const ECHO_SHELL_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/echo_shell_reach_v3.png"
 const ELIA_ACTION_CUTIN_PATHS: Dictionary = {
-	"humming_shield": "res://assets/cg/generated/memory_burn_elia_song.png",
+	"humming_shield": ELIA_ANCHOR_CUTIN_PATH,
 	"desperate_reach": "res://assets/cg/generated/memory_burn_reaching_hand.png",
 	"remembered_strike": "res://assets/cg/generated/memory_burn_first_sword.png",
-	"anchor_pulse": "res://assets/cg/generated/cinematic_elia_anchor_pulse.png",
+	"anchor_pulse": ELIA_ANCHOR_CUTIN_PATH,
 }
 const BOSS_PHASE_CUTIN_PATHS: Dictionary = {
-	"Shade Sentinel": "res://assets/cg/generated/cinematic_shade_sentinel_phase2.png",
-	"Kairos, Authority Editor": "res://assets/cg/generated/cinematic_kairos_authority_edit.png",
+	"Shade Sentinel": "res://assets/cg/character_shots/shade_sentinel_guard_v3.png",
+	"Kairos, Authority Editor": "res://assets/cg/character_shots/kairos_ascendant_action_v3.png",
 }
 const MEMORY_BURN_CUTIN_PATHS: Dictionary = {
 	"identity_first_sword": "res://assets/cg/generated/memory_burn_first_sword.png",
@@ -76,7 +84,7 @@ var limit_btn: Button
 # S44: 사이드뷰 캐릭터 스프라이트
 var player_sprite: CanvasItem  # 아렐 스프라이트
 var player_sprite_container: Control  # 아이들 모션용
-# S151: 스프라이트 기본 스케일 — 시트(0.625)/절차(0.78) 어느 쪽이든 트윈이 이 기준으로 복귀
+# S151: 스프라이트 기본 스케일, 시트(0.625)/절차(0.78) 어느 쪽이든 트윈이 이 기준으로 복귀
 var _player_sprite_base_scale: Vector2 = Vector2.ONE
 var ally_sprite: CanvasItem  # 동행자 스프라이트 (엘리아/세이블)
 var ally_sprite_container: Control
@@ -97,6 +105,11 @@ var _battle_stage_right_wash: ColorRect
 var _action_cutin: TextureRect
 var _action_cutin_wash: ColorRect
 var _action_cutin_tween: Tween
+var combat_cue_panel: PanelContainer
+var combat_cue_art: TextureRect
+var combat_cue_title: Label
+var combat_cue_detail: Label
+var _combat_cue_tween: Tween
 var _ground_rect: ColorRect  # 전투 지면
 var player_portrait_rect: TextureRect  # HP 옆 포트레이트
 
@@ -124,6 +137,9 @@ var objective_art: TextureRect
 var objective_title_label: Label
 var objective_desc_label: Label
 var objective_meta_label: Label
+var objective_briefing_overlay: Control
+var objective_briefing_panel: PanelContainer
+var objective_briefing_buttons: VBoxContainer
 
 # S55: Auto Battle
 var auto_label: Label  # [AUTO] 표시
@@ -132,11 +148,11 @@ var auto_btn: Button  # 자동전투 버튼
 # S56: BattleVFX 유틸리티
 var battle_vfx: BattleVFX
 
-# S57: Battle Juice — turn transition dim overlay, combo display
+# S57: Battle Juice, turn transition dim overlay, combo display
 var _turn_dim_overlay: ColorRect
 var _combo_display_label: Label
 
-# S58: Burn Preview Popup — risk/reward decision UI
+# S58: Burn Preview Popup, risk/reward decision UI
 var _burn_preview_panel: PanelContainer
 var _burn_preview_art: TextureRect
 var _burn_preview_dimmer: ColorRect
@@ -176,7 +192,7 @@ func _process(delta: float) -> void:
 		action_ribbon_art.visible = action_container.visible
 		if action_ribbon_art.visible:
 			action_ribbon_art.modulate.a = 0.78 if clean_view else 0.74 + sin(_idle_time * 1.35) * 0.035
-	# 적 아이들 모션 (호흡 — 상하 + 미세 스케일)
+	# 적 아이들 모션 (호흡, 상하 + 미세 스케일)
 	if enemy_sprite_container and enemy_sprite_container.visible and not clean_view:
 		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
 		enemy_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.5) * 0.008, 1.0 - sin(_idle_time * 1.5) * 0.006)
@@ -285,15 +301,16 @@ func _build_ui() -> void:
 
 	_build_battle_stage_art(root)
 	_build_action_cutin(root)
+	_build_combat_cue_panel(root)
 
-	# S44: 사이드뷰 — 플레이어 스프라이트 (왼쪽)
+	# S44: 사이드뷰, 플레이어 스프라이트 (왼쪽)
 	_build_player_sprite(root)
 
-	# S44: 사이드뷰 — 동행자 스프라이트 (왼쪽, 플레이어 뒤)
+	# S44: 사이드뷰, 동행자 스프라이트 (왼쪽, 플레이어 뒤)
 	_build_ally_sprite(root)
 	_build_tobias_support_sprite(root)
 
-	# S44: 적 스프라이트 (오른쪽) — 128x128 대형
+	# S44: 적 스프라이트 (오른쪽), 128x128 대형
 	_build_enemy_sprite(root)
 
 	# 적 이름 + HP (상단 오른쪽)
@@ -347,6 +364,7 @@ func _build_ui() -> void:
 	# S55: Auto Battle 라벨
 	_build_auto_label(root)
 	_build_tactical_objective_panel(root)
+	_build_objective_briefing(root)
 
 	# S58: Burn Preview Popup (hidden by default)
 	_build_burn_preview(root)
@@ -601,6 +619,158 @@ func _build_tactical_objective_panel(root: Control) -> void:
 	objective_meta_label.add_theme_color_override("font_color", Color(0.58, 0.74, 0.92, 0.82))
 	box.add_child(objective_meta_label)
 
+func _build_objective_briefing(root: Control) -> void:
+	objective_briefing_overlay = Control.new()
+	objective_briefing_overlay.name = "DirectiveBriefingOverlay"
+	objective_briefing_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	objective_briefing_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	objective_briefing_overlay.z_index = 108
+	objective_briefing_overlay.visible = false
+	root.add_child(objective_briefing_overlay)
+
+	var dimmer := ColorRect.new()
+	dimmer.name = "DirectiveBriefingDimmer"
+	dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dimmer.color = Color(0.008, 0.006, 0.014, 0.78)
+	dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
+	objective_briefing_overlay.add_child(dimmer)
+
+	objective_briefing_panel = PanelContainer.new()
+	objective_briefing_panel.name = "DirectiveBriefingPanel"
+	objective_briefing_panel.set_anchors_preset(Control.PRESET_CENTER)
+	objective_briefing_panel.offset_left = -300
+	objective_briefing_panel.offset_right = 300
+	objective_briefing_panel.offset_top = -205
+	objective_briefing_panel.offset_bottom = 205
+	objective_briefing_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.026, 0.022, 0.038, 0.97)
+	panel_style.border_color = Color(0.78, 0.60, 0.30, 0.88)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(8)
+	panel_style.set_content_margin_all(22)
+	objective_briefing_panel.add_theme_stylebox_override("panel", panel_style)
+	objective_briefing_overlay.add_child(objective_briefing_panel)
+
+	var briefing_box := VBoxContainer.new()
+	briefing_box.add_theme_constant_override("separation", 9)
+	objective_briefing_panel.add_child(briefing_box)
+
+	var title := Label.new()
+	title.text = _bl("SELECT FIELD DIRECTIVE", "현장 전술 지침 선택")
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 23)
+	title.add_theme_color_override("font_color", Color(0.96, 0.82, 0.50))
+	briefing_box.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = _bl(
+		"Choose how this encounter will be remembered. Complete the directive for bonus rewards.",
+		"이 교전을 어떤 기록으로 남길지 선택하세요. 지침을 달성하면 추가 보상을 얻습니다."
+	)
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.add_theme_font_size_override("font_size", 13)
+	subtitle.add_theme_color_override("font_color", Color(0.78, 0.75, 0.70))
+	briefing_box.add_child(subtitle)
+
+	var chain_label := Label.new()
+	chain_label.name = "DirectiveChainLabel"
+	chain_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chain_label.add_theme_font_size_override("font_size", 12)
+	chain_label.add_theme_color_override("font_color", Color(0.58, 0.76, 0.96))
+	briefing_box.add_child(chain_label)
+
+	objective_briefing_buttons = VBoxContainer.new()
+	objective_briefing_buttons.name = "DirectiveChoiceButtons"
+	objective_briefing_buttons.add_theme_constant_override("separation", 7)
+	briefing_box.add_child(objective_briefing_buttons)
+
+func _on_tactical_objective_options_changed(options: Array) -> void:
+	if objective_briefing_overlay == null or objective_briefing_buttons == null:
+		return
+	for child in objective_briefing_buttons.get_children():
+		child.queue_free()
+
+	if options.is_empty():
+		objective_briefing_overlay.visible = false
+		var intro_finished := intro_overlay == null or not intro_overlay.visible
+		if intro_finished and BattleManager.state == BattleManager.BattleState.PLAYER_TURN:
+			action_container.visible = true
+			if action_container.get_child_count() > 0:
+				action_container.get_child(0).grab_focus()
+		return
+
+	var chain_label := objective_briefing_panel.find_child("DirectiveChainLabel", true, false) as Label
+	if chain_label:
+		var chain := GameManager.get_directive_streak()
+		var focus_note := _bl(" · Field Focus unlocked a third reading", " · 현장 집중이 세 번째 선택지를 열었습니다") if BattleManager.field_focus_opening else ""
+		chain_label.text = _bl("Directive Chain x%d", "전술 연속 달성 x%d") % chain + focus_note
+
+	for i in range(options.size()):
+		var option: Dictionary = options[i]
+		var choice := Button.new()
+		choice.name = "DirectiveChoice%d" % (i + 1)
+		choice.custom_minimum_size = Vector2(0, 72)
+		choice.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		choice.add_theme_font_size_override("font_size", 13)
+		choice.add_theme_color_override("font_color", Color(0.88, 0.84, 0.75))
+		choice.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.58))
+		var reward_parts: Array[String] = ["+%d Grains" % int(option.get("reward_grains", 0))]
+		if int(option.get("reward_heal", 0)) > 0:
+			reward_parts.append("HP +%d" % int(option.get("reward_heal", 0)))
+		var reward_item := String(option.get("reward_item", ""))
+		if reward_item != "" and GameManager.ITEMS.has(reward_item):
+			reward_parts.append(String(GameManager.ITEMS[reward_item].get("name", reward_item)))
+		var shown_title := _localized_objective_title(String(option.get("title", "Objective")))
+		var shown_desc := _localized_objective_desc(String(option.get("desc", "")))
+		choice.text = "%d. %s\n%s  |  %s" % [i + 1, shown_title, shown_desc, " · ".join(reward_parts)]
+		choice.tooltip_text = shown_desc
+		var normal_style := StyleBoxFlat.new()
+		normal_style.bg_color = Color(0.055, 0.048, 0.070, 0.96)
+		normal_style.border_color = Color(0.42, 0.36, 0.28, 0.72)
+		normal_style.set_border_width_all(1)
+		normal_style.set_corner_radius_all(5)
+		normal_style.set_content_margin_all(11)
+		choice.add_theme_stylebox_override("normal", normal_style)
+		var hover_style := normal_style.duplicate()
+		hover_style.bg_color = Color(0.11, 0.085, 0.060, 0.98)
+		hover_style.border_color = Color(0.92, 0.70, 0.34, 0.95)
+		choice.add_theme_stylebox_override("hover", hover_style)
+		choice.add_theme_stylebox_override("focus", hover_style)
+		var chosen_index := i
+		choice.pressed.connect(func(): _choose_tactical_objective(chosen_index))
+		objective_briefing_buttons.add_child(choice)
+
+	var half_height := 205.0 if options.size() >= 3 else 170.0
+	objective_briefing_panel.offset_top = -half_height
+	objective_briefing_panel.offset_bottom = half_height
+	objective_briefing_overlay.visible = true
+	action_container.visible = false
+	if ally_cmd_container:
+		ally_cmd_container.visible = false
+	if tobias_cmd_container:
+		tobias_cmd_container.visible = false
+	if stance_container:
+		stance_container.visible = false
+	if elia_skill_container:
+		elia_skill_container.visible = false
+	objective_briefing_panel.modulate.a = 0.0
+	objective_briefing_panel.scale = Vector2(0.94, 0.94)
+	objective_briefing_panel.pivot_offset = Vector2(300, half_height)
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(objective_briefing_panel, "modulate:a", 1.0, 0.20)
+	tween.tween_property(objective_briefing_panel, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await get_tree().process_frame
+	if objective_briefing_buttons.get_child_count() > 0:
+		objective_briefing_buttons.get_child(0).grab_focus()
+
+func _choose_tactical_objective(index: int) -> void:
+	if not BattleManager.select_tactical_objective(index):
+		return
+	AudioManager.play_sfx("ui_select")
+	_show_turn_indicator(_bl("DIRECTIVE ACCEPTED", "전술 지침 수락"), Color(0.92, 0.72, 0.34))
+
 func _on_auto_battle_changed(enabled: bool) -> void:
 	if auto_label:
 		auto_label.visible = enabled
@@ -659,7 +829,7 @@ func _play_intro() -> void:
 	sub_label.modulate.a = 0.0
 
 	if enemy.is_boss:
-		sub_label.text = _bl("— BOSS —", "— 보스 —")
+		sub_label.text = _bl("BOSS", "보스")
 		sub_label.add_theme_color_override("font_color", Color(0.7, 0.2, 0.15))
 	elif enemy.is_void_beast:
 		sub_label.text = _bl("Void Beast", "보이드 비스트")
@@ -765,6 +935,11 @@ func _finish_intro() -> void:
 	_update_hp_displays()
 	# 약간의 딜레이 후 플레이어 턴 시작
 	await get_tree().create_timer(0.2).timeout
+	if objective_briefing_overlay and objective_briefing_overlay.visible:
+		action_container.visible = false
+		if objective_briefing_buttons and objective_briefing_buttons.get_child_count() > 0:
+			objective_briefing_buttons.get_child(0).grab_focus()
+		return
 	action_container.visible = true
 	if action_container.get_child_count() > 0:
 		action_container.get_child(0).grab_focus()
@@ -787,7 +962,7 @@ func _build_turn_label(root: Control) -> void:
 	turn_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(turn_label)
 
-## S175: 전투 UI 로케일 헬퍼 — ko면 한국어, 아니면 영어.
+## S175: 전투 UI 로케일 헬퍼, ko면 한국어, 아니면 영어.
 func _bl(en: String, ko: String) -> String:
 	return ko if GameManager.current_locale == "ko" else en
 
@@ -988,7 +1163,7 @@ func _update_status_icons() -> void:
 			_add_status_icon(enemy_status_container, "VOID", Color(0.5, 0.15, 0.6, 0.9))
 		if BattleManager.enemy_broken_turns > 0:
 			_add_status_icon(enemy_status_container, "BROKEN", Color(1.0, 0.68, 0.18, 0.95))
-		# 약점/저항 표시 — Ash Sight 패시브 또는 스캔된 적만 상세 표시
+		# 약점/저항 표시, Ash Sight 패시브 또는 스캔된 적만 상세 표시
 		var show_details = MemoryManager.has_passive("ash_sight") or enemy.name in BattleManager.scanned_enemies
 		if show_details:
 			if enemy.weakness != "":
@@ -1114,7 +1289,7 @@ func _build_enemy_panel(root: Control) -> void:
 	enemy_break_bar.add_theme_stylebox_override("background", break_bg)
 	vbox.add_child(enemy_break_bar)
 
-## S44: 전투 지면 (그라운드 플랫폼 — 원근감)
+## S44: 전투 지면 (그라운드 플랫폼, 원근감)
 func _build_battle_ground() -> void:
 	_ground_rect = ColorRect.new()
 	_ground_rect.anchor_left = 0.0
@@ -1141,7 +1316,7 @@ func _build_battle_ground() -> void:
 	gradient.color = Color(0.08, 0.07, 0.12, 0.4)
 	add_child(gradient)
 
-## S44: 플레이어 스프라이트 (왼쪽 — 사이드뷰)
+## S44: 플레이어 스프라이트 (왼쪽, 사이드뷰)
 func _build_battle_stage_art(root: Control) -> void:
 	var left_path := "res://assets/cg/generated/memory_burn_first_sword.png"
 	var right_path := _resolve_enemy_stage_art()
@@ -1210,6 +1385,8 @@ func _resolve_enemy_action_cutin(enemy_name: String) -> String:
 		return VOID_BEAST_ACTION_CUTIN_PATH
 	if "shade sentinel" in lower_name:
 		return String(BOSS_PHASE_CUTIN_PATHS.get("Shade Sentinel", _resolve_enemy_stage_art()))
+	if "echo shell" in lower_name and ResourceLoader.exists(ECHO_SHELL_ACTION_CUTIN_PATH):
+		return ECHO_SHELL_ACTION_CUTIN_PATH
 	return _resolve_enemy_stage_art()
 
 func _resolve_enemy_art_by_name(enemy_name: String) -> String:
@@ -1236,6 +1413,82 @@ func _build_action_cutin(root: Control) -> void:
 	_action_cutin.z_index = 71
 	_action_cutin.visible = false
 	root.add_child(_action_cutin)
+
+## A compact, persistent beat card turns battle information into a readable
+## cadence: threat -> response -> consequence. It remains visible in clean view.
+func _build_combat_cue_panel(root: Control) -> void:
+	combat_cue_panel = PanelContainer.new()
+	combat_cue_panel.anchor_left = 0.37
+	combat_cue_panel.anchor_right = 0.63
+	combat_cue_panel.anchor_top = 0.035
+	combat_cue_panel.anchor_bottom = 0.125
+	combat_cue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	combat_cue_panel.z_index = 66
+	combat_cue_panel.visible = false
+	combat_cue_panel.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.024, 0.040, 0.88)
+	style.border_color = Color(0.54, 0.72, 0.96, 0.76)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	style.set_content_margin_all(6)
+	combat_cue_panel.add_theme_stylebox_override("panel", style)
+	root.add_child(combat_cue_panel)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	combat_cue_panel.add_child(row)
+	combat_cue_art = TextureRect.new()
+	combat_cue_art.custom_minimum_size = Vector2(92, 48)
+	combat_cue_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	combat_cue_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	combat_cue_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(combat_cue_art)
+
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 1)
+	row.add_child(copy)
+	combat_cue_title = Label.new()
+	combat_cue_title.add_theme_font_size_override("font_size", 11)
+	combat_cue_title.add_theme_color_override("font_color", Color(0.80, 0.90, 1.0, 0.96))
+	combat_cue_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	copy.add_child(combat_cue_title)
+	combat_cue_detail = Label.new()
+	combat_cue_detail.add_theme_font_size_override("font_size", 12)
+	combat_cue_detail.add_theme_color_override("font_color", Color(0.88, 0.86, 0.80, 0.92))
+	combat_cue_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	combat_cue_detail.max_lines_visible = 2
+	copy.add_child(combat_cue_detail)
+
+func _show_combat_cue(title: String, detail: String, art_path: String, accent: Color, hold_time: float = 1.1) -> void:
+	if combat_cue_panel == null or combat_cue_title == null or combat_cue_detail == null:
+		return
+	if _combat_cue_tween:
+		_combat_cue_tween.kill()
+	combat_cue_title.text = title
+	combat_cue_detail.text = detail
+	combat_cue_title.add_theme_color_override("font_color", accent)
+	var style := combat_cue_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if style:
+		style.border_color = Color(accent.r, accent.g, accent.b, 0.78)
+	if combat_cue_art:
+		combat_cue_art.texture = load(art_path) if art_path != "" and ResourceLoader.exists(art_path) else null
+		combat_cue_art.visible = combat_cue_art.texture != null
+	combat_cue_panel.visible = true
+	combat_cue_panel.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	combat_cue_panel.scale = Vector2(0.96, 0.96)
+	_combat_cue_tween = create_tween()
+	_combat_cue_tween.set_parallel(true)
+	_combat_cue_tween.tween_property(combat_cue_panel, "modulate:a", 1.0, 0.12)
+	_combat_cue_tween.tween_property(combat_cue_panel, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_combat_cue_tween.set_parallel(false)
+	_combat_cue_tween.tween_interval(hold_time)
+	_combat_cue_tween.tween_property(combat_cue_panel, "modulate:a", 0.0, 0.22)
+	_combat_cue_tween.tween_callback(func():
+		if is_instance_valid(combat_cue_panel):
+			combat_cue_panel.visible = false
+	)
 
 func _play_action_cutin(path: String, from_left: bool = true, alpha: float = 0.72, hold_time: float = 0.16) -> void:
 	if path == "" or not ResourceLoader.exists(path) or _action_cutin == null:
@@ -1313,7 +1566,7 @@ func _build_player_sprite(root: Control) -> void:
 	player_sprite_container.add_child(player_shadow)
 
 	var anim_sprite = AnimatedSprite2D.new()
-	# S151: 실사 시트 우선 (160px, idle/attack/cast/hurt/down) — 없으면 절차 생성 폴백
+	# S151: 실사 시트 우선 (160px, idle/attack/cast/hurt/down), 없으면 절차 생성 폴백
 	var arrel_sheet = PixelSprite.load_sheet_frames("arrel")
 	if arrel_sheet:
 		anim_sprite.sprite_frames = arrel_sheet
@@ -1374,7 +1627,7 @@ func _build_ally_sprite(root: Control) -> void:
 		ally_sprite = tex_rect
 	elif who == "elia":
 		var anim_sprite = AnimatedSprite2D.new()
-		# S151: 엘리아 실사 시트 우선 — 없으면 절차 생성 폴백
+		# S151: 엘리아 실사 시트 우선, 없으면 절차 생성 폴백
 		var elia_sheet = PixelSprite.load_sheet_frames("elia")
 		if elia_sheet:
 			anim_sprite.sprite_frames = elia_sheet
@@ -1406,7 +1659,7 @@ func _build_ally_sprite(root: Control) -> void:
 	glow.color = glow_color
 	ally_sprite_container.add_child(glow)
 
-## S44: 적 스프라이트 (오른쪽 — 128x128 대형)
+## S44: 적 스프라이트 (오른쪽, 128x128 대형)
 func _build_tobias_support_sprite(root: Control) -> void:
 	tobias_sprite_container = Control.new()
 	tobias_sprite_container.position = Vector2(260, 252)
@@ -1425,7 +1678,7 @@ func _build_tobias_support_sprite(root: Control) -> void:
 
 	var tobias_path: String = TOBIAS_BATTLE_FULLBODY_PATH
 	if not ResourceLoader.exists(tobias_path):
-		tobias_path = "res://assets/cg/game_image/tobias_fullbody.png"
+		tobias_path = "res://assets/portraits/character_shots/tobias_story_v2.png"
 	if ResourceLoader.exists(tobias_path):
 		var tex_rect = TextureRect.new()
 		tex_rect.position = Vector2(12, 0)
@@ -1644,7 +1897,7 @@ func _build_action_buttons(root: Control) -> void:
 			witness_btn = btn
 			witness_btn.tooltip_text = "적 안에 갇힌 기억을 읽어 비연소 해결을 시도합니다." if GameManager.current_locale == "ko" else "Read the trapped memory and seek a victory without burning."
 		elif action.id == "limit":
-			limit_btn = btn  # S175: 참조 저장 — 로케일 무관 활성/비활성 갱신
+			limit_btn = btn  # S175: 참조 저장, 로케일 무관 활성/비활성 갱신
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		btn.mouse_entered.connect(func():
 			var tw = create_tween()
@@ -1706,6 +1959,7 @@ func _connect_signals() -> void:
 	BattleManager.victory_rewards_ready.connect(_on_victory_rewards_ready)  # S58: animated rewards
 	BattleManager.enemy_ability_telegraph.connect(_on_enemy_ability_telegraph)  # S59: ability warning
 	BattleManager.tactical_objective_changed.connect(_on_tactical_objective_changed)
+	BattleManager.tactical_objective_options_changed.connect(_on_tactical_objective_options_changed)
 	BattleManager.momentum_changed.connect(_on_momentum_changed)
 	BattleManager.last_stand_resonance.connect(_on_last_stand_resonance)
 	BattleManager.ally_action.connect(_on_ally_action)
@@ -1715,12 +1969,14 @@ func _connect_signals() -> void:
 		_setup_enemy_display()
 	if not BattleManager.tactical_objective.is_empty():
 		_on_tactical_objective_changed(BattleManager.tactical_objective)
+	if not BattleManager.tactical_objective_options.is_empty():
+		_on_tactical_objective_options_changed(BattleManager.tactical_objective_options)
 	_on_momentum_changed(BattleManager.momentum, BattleManager.momentum_rank, BattleManager._get_momentum_label())
 	var witness_state := BattleManager.get_witness_state()
 	_on_witness_changed(witness_state.progress, witness_state.required, "", witness_state.complete)
 
 func _exit_tree() -> void:
-	# 오토로드 시그널 연결 해제 — 씬 재진입 시 freed 객체 참조 방지
+	# 오토로드 시그널 연결 해제, 씬 재진입 시 freed 객체 참조 방지
 	if BattleManager.battle_log.is_connected(_on_battle_log):
 		BattleManager.battle_log.disconnect(_on_battle_log)
 	if BattleManager.damage_dealt.is_connected(_on_damage_dealt):
@@ -1757,6 +2013,8 @@ func _exit_tree() -> void:
 		BattleManager.enemy_ability_telegraph.disconnect(_on_enemy_ability_telegraph)
 	if BattleManager.tactical_objective_changed.is_connected(_on_tactical_objective_changed):
 		BattleManager.tactical_objective_changed.disconnect(_on_tactical_objective_changed)
+	if BattleManager.tactical_objective_options_changed.is_connected(_on_tactical_objective_options_changed):
+		BattleManager.tactical_objective_options_changed.disconnect(_on_tactical_objective_options_changed)
 	if BattleManager.momentum_changed.is_connected(_on_momentum_changed):
 		BattleManager.momentum_changed.disconnect(_on_momentum_changed)
 	if BattleManager.last_stand_resonance.is_connected(_on_last_stand_resonance):
@@ -1802,7 +2060,7 @@ func _update_hp_displays(animate: bool = false) -> void:
 	else:
 		player_hp_bar.value = p_hp
 
-	# 적 HP — Ash Sight 패시브 또는 스캔 시에만 수치 표시
+	# 적 HP, Ash Sight 패시브 또는 스캔 시에만 수치 표시
 	if BattleManager.current_enemy:
 		var e = BattleManager.current_enemy
 		if MemoryManager.has_passive("ash_sight") or e.name in BattleManager.scanned_enemies:
@@ -1850,6 +2108,14 @@ func _on_break_changed(value: float, max_value: float) -> void:
 func _on_enemy_broken(enemy_name: String) -> void:
 	_update_status_icons()
 	_show_turn_indicator("BREAK: %s" % enemy_name, Color(1.0, 0.72, 0.24))
+	_show_combat_cue(
+		_bl("FAULT LINE OPEN", "균열 노출"),
+		_bl("The enemy loses its next turn. Press the opening.", "적이 다음 턴을 잃습니다. 틈을 밀어붙이세요."),
+		BREAK_FAULTLINE_CUTIN_PATH,
+		Color(0.96, 0.76, 0.30),
+		1.4
+	)
+	_play_action_cutin(BREAK_FAULTLINE_CUTIN_PATH, true, 0.80, 0.30)
 	if enemy_sprite_container:
 		var tw = create_tween()
 		tw.tween_property(enemy_sprite_container, "scale", Vector2(1.12, 0.88), 0.08).set_trans(Tween.TRANS_BACK)
@@ -1910,7 +2176,7 @@ func _on_guard_focus(trigger: String, value: int) -> void:
 func _on_last_stand_resonance(lethal: bool) -> void:
 	_update_status_icons()
 	_play_action_cutin(LAST_STAND_CUTIN_PATH, true, 0.94, 0.82 if lethal else 0.58)
-	_show_turn_indicator(_bl("— LAST STAND —", "— 최후의 저항 —"), Color(0.62, 0.82, 1.0))
+	_show_turn_indicator(_bl("LAST STAND", "최후의 저항"), Color(0.62, 0.82, 1.0))
 	_screen_shake(3.2 if lethal else 2.1)
 	if has_node("/root/AudioManager"):
 		AudioManager.play_sfx("phase_change")
@@ -1982,7 +2248,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		var shake_intensity = clampf(float(amount) / 60.0, 0.5, 3.0)
 		_screen_shake(shake_intensity)
 
-	# S57: Screen flash on big hits — white at 80+, red at 150+
+	# S57: Screen flash on big hits, white at 80+, red at 150+
 	if amount >= 80 and target != "Arrel":
 		_play_big_hit_screen_flash(amount)
 
@@ -2010,14 +2276,21 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 
 ## S58: Anticipation + Follow-through attack sequence
 ## Plays wind-up squash, lunge strike, then follow-through return
-## Called BEFORE damage is dealt — BattleManager awaits timer in parallel
+## Called BEFORE damage is dealt, BattleManager awaits timer in parallel
 func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
 	if attacker == "Arrel":
-		var cutin_path := "res://assets/cg/generated/memory_burn_first_sword.png"
+		var cutin_path := ARREL_BLADE_CUTIN_PATH
+		var cue_title := _bl("MEMORY BLADE", "기억의 검격")
+		var cue_detail := _bl("A clean strike creates BREAK pressure.", "정확한 검격이 브레이크 압박을 쌓습니다.")
 		if skill_name == "Memory Cascade":
 			cutin_path = MEMORY_CASCADE_CUTIN_PATH
+			cue_title = _bl("MEMORY CASCADE", "메모리 캐스케이드")
+			cue_detail = _bl("Every remembered wound answers at once.", "기억된 모든 상처가 한꺼번에 응답합니다.")
 		elif skill_name != "" and skill_name != "Attack":
 			cutin_path = "res://assets/cg/game_image/memory_loss_warning.png"
+			cue_title = _bl("MEMORY BURN", "기억 연소")
+			cue_detail = _bl("Power rises. The cost remains after the fight.", "힘은 오르지만, 대가는 전투 뒤에도 남습니다.")
+		_show_combat_cue(cue_title, cue_detail, cutin_path, Color(0.62, 0.82, 1.0), 0.78)
 		_play_action_cutin(cutin_path, true, 0.70)
 	else:
 		_play_action_cutin(_resolve_enemy_action_cutin(attacker), false, 0.62)
@@ -2030,25 +2303,25 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		# --- Player attacking enemy ---
 		if not player_sprite or not player_sprite_container:
 			return
-		# S151: 시트 동사 재생 — 평타는 attack, 연소/스킬은 cast
+		# S151: 시트 동사 재생, 평타는 attack, 연소/스킬은 cast
 		var verb := "attack" if (skill_name == "" or skill_name == "Attack") else "cast"
 		_play_actor_anim(player_sprite, verb)
 		var rush_target = Vector2(_enemy_base_pos.x - 180, _player_base_pos.y - 10)
-		# Phase 1: Anticipation — squash (wind-up, lean back)
+		# Phase 1: Anticipation, squash (wind-up, lean back)
 		var antic_t = create_tween()
 		antic_t.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(1.1, 0.9), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 		antic_t.set_parallel(true)
 		antic_t.tween_property(player_sprite_container, "position:x", _player_base_pos.x - 8, 0.1).set_ease(Tween.EASE_OUT)
 		await antic_t.finished
-		# Phase 2: Strike — stretch + lunge forward
+		# Phase 2: Strike, stretch + lunge forward
 		var strike_t = create_tween()
 		strike_t.set_parallel(true)
 		strike_t.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(0.9, 1.1), 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
 		strike_t.tween_property(player_sprite_container, "position", rush_target, 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
 		await strike_t.finished
-		# Phase 3: Impact freeze (brief hold at contact point — damage applied by BattleManager during this)
+		# Phase 3: Impact freeze (brief hold at contact point, damage applied by BattleManager during this)
 		await get_tree().create_timer(0.05).timeout
-		# Phase 4: Follow-through — return with overshoot
+		# Phase 4: Follow-through, return with overshoot
 		var return_t = create_tween()
 		return_t.tween_property(player_sprite_container, "position", _player_base_pos + Vector2(-5, 0), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		return_t.tween_property(player_sprite_container, "position", _player_base_pos, 0.08).set_ease(Tween.EASE_IN_OUT)
@@ -2059,13 +2332,13 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		# --- Enemy attacking player ---
 		if not enemy_sprite or not enemy_sprite_container:
 			return
-		# Phase 1: Anticipation — enemy squash (coil back)
+		# Phase 1: Anticipation, enemy squash (coil back)
 		var antic_t = create_tween()
 		antic_t.tween_property(enemy_sprite, "scale", Vector2(1.1, 0.9), 0.1).set_ease(Tween.EASE_OUT)
 		antic_t.set_parallel(true)
 		antic_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 8, 0.1).set_ease(Tween.EASE_OUT)
 		await antic_t.finished
-		# Phase 2: Strike — enemy lunges LEFT toward player
+		# Phase 2: Strike, enemy lunges LEFT toward player
 		var strike_t = create_tween()
 		strike_t.set_parallel(true)
 		strike_t.tween_property(enemy_sprite, "scale", Vector2(0.9, 1.1), 0.08).set_ease(Tween.EASE_IN)
@@ -2073,7 +2346,7 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		await strike_t.finished
 		# Phase 3: Hold at impact
 		await get_tree().create_timer(0.05).timeout
-		# Phase 4: Follow-through — enemy returns with overshoot
+		# Phase 4: Follow-through, enemy returns with overshoot
 		var return_t = create_tween()
 		return_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 5, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 		return_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x, 0.08).set_ease(Tween.EASE_IN_OUT)
@@ -2084,23 +2357,35 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 func _on_player_turn() -> void:
 	# S57: Turn transition dim effect
 	_play_turn_dim()
-	_show_turn_indicator(_bl("— YOUR TURN —", "— 당신의 턴 —"), Color(0.5, 0.65, 0.85))
+	_show_turn_indicator(_bl("YOUR TURN", "당신의 턴"), Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
 	# S59: Show enemy intent hint in battle log
 	var hint = BattleManager.get_next_turn_hint()
 	if hint != "":
 		_on_battle_log(_bl("[INTEL] ", "[정보] ") + hint)
+		_show_combat_cue(
+			_bl("READ THE FIELD", "전장 관측"),
+			hint,
+			_resolve_enemy_stage_art(),
+			Color(0.64, 0.80, 0.96),
+			1.15
+		)
 	# S57: Enhanced combo counter display (persistent + escalating)
 	if BattleManager.combo_count >= 2:
 		_play_combo_burst(BattleManager.combo_count)
 		_show_combo_counter(BattleManager.combo_count)
-	# S55: Auto Battle — 자동 행동 (짧은 딜레이 후)
+	# S55: Auto Battle, 자동 행동 (짧은 딜레이 후)
 	if BattleManager.auto_battle:
+		if objective_briefing_overlay and objective_briefing_overlay.visible:
+			return
 		await get_tree().create_timer(0.25).timeout
 		action_container.visible = false
 		BattleManager.auto_battle_action()
 		return
 	await get_tree().create_timer(0.5).timeout
+	if objective_briefing_overlay and objective_briefing_overlay.visible:
+		action_container.visible = false
+		return
 	action_container.visible = true
 	if ally_cmd_container:
 		ally_cmd_container.visible = BattleManager.sable_in_party
@@ -2119,7 +2404,7 @@ func _on_player_turn() -> void:
 func _on_enemy_turn() -> void:
 	# S57: Turn transition dim effect
 	_play_turn_dim()
-	_show_turn_indicator(_bl("— ENEMY TURN —", "— 적의 턴 —"), Color(0.8, 0.4, 0.35))
+	_show_turn_indicator(_bl("ENEMY TURN", "적의 턴"), Color(0.8, 0.4, 0.35))
 	_update_turn_preview()  # S41
 	if tobias_cmd_container:
 		tobias_cmd_container.visible = false
@@ -2128,7 +2413,7 @@ func _on_enemy_turn() -> void:
 	if elia_skill_container:
 		elia_skill_container.visible = false
 
-## S59: Enemy ability telegraph — show warning VFX before special ability
+## S59: Enemy ability telegraph, show warning VFX before special ability
 func _on_enemy_ability_telegraph(ability_name: String, _delay: float) -> void:
 	if battle_vfx and enemy_sprite_container:
 		var enemy_pos = enemy_sprite_container.position
@@ -2137,6 +2422,41 @@ func _on_enemy_ability_telegraph(ability_name: String, _delay: float) -> void:
 	var hint = BattleManager.get_next_turn_hint()
 	if hint != "":
 		_on_battle_log(hint)
+	var enemy_name := BattleManager.current_enemy.name if BattleManager.current_enemy else _bl("Unknown threat", "미확인 위협")
+	_show_combat_cue(
+		_bl("THREAT / ", "위협 / ") + _ability_display_name(ability_name),
+		_ability_response_hint(ability_name),
+		_resolve_enemy_action_cutin(enemy_name),
+		Color(1.0, 0.54, 0.40),
+		1.35
+	)
+
+func _ability_display_name(ability_name: String) -> String:
+	var names_en := {
+		"drain": "DRAIN", "shield": "SHIELD", "multi_hit": "MULTI HIT", "poison": "POISON",
+		"burn_attack": "SCORCH", "weaken": "WEAKEN", "summon": "SUMMON", "void_pulse": "VOID PULSE",
+		"despair": "DESPAIR", "stun": "STUN", "reflect": "REFLECT", "charge": "CHARGE",
+	}
+	var names_ko := {
+		"drain": "흡수", "shield": "방벽", "multi_hit": "연격", "poison": "독", "burn_attack": "작열",
+		"weaken": "약화", "summon": "소환", "void_pulse": "보이드 파동", "despair": "절망",
+		"stun": "기절", "reflect": "반사", "charge": "충전",
+	}
+	return String(names_ko.get(ability_name, ability_name.replace("_", " "))) if GameManager.current_locale == "ko" else String(names_en.get(ability_name, ability_name.replace("_", " ").to_upper()))
+
+func _ability_response_hint(ability_name: String) -> String:
+	match ability_name:
+		"charge":
+			return _bl("Guard, interrupt with BREAK, or end the fight before the release.", "방어하거나 브레이크로 끊거나, 해방 전에 끝내세요.")
+		"shield", "reflect":
+			return _bl("Read the opening before committing your strongest strike.", "강한 일격을 넣기 전에 틈을 읽으세요.")
+		"drain", "summon":
+			return _bl("Pressure the source before it restores itself.", "회복하기 전에 근원을 압박하세요.")
+		"poison", "burn_attack", "weaken":
+			return _bl("A clean guard or item can preserve your next turn.", "방어나 아이템으로 다음 턴을 보존할 수 있습니다.")
+		"stun", "multi_hit", "void_pulse", "despair":
+			return _bl("Do not leave a fragile opening exposed.", "취약한 빈틈을 그대로 두지 마세요.")
+	return _bl("Watch the rhythm, then answer with the right cost.", "리듬을 읽고, 알맞은 대가로 응답하세요.")
 
 func _on_status_changed() -> void:
 	_update_status_icons()
@@ -2162,7 +2482,7 @@ func _on_battle_ended(_result) -> void:
 	# S56: Cleanup status effect particles
 	if battle_vfx:
 		battle_vfx.cleanup_status_particles()
-	# S57: Enhanced enemy death — fade + shrink + particle burst, then dissolve
+	# S57: Enhanced enemy death, fade + shrink + particle burst, then dissolve
 	if _result == BattleManager.BattleState.VICTORY and enemy_sprite:
 		_play_enemy_death_animation()
 		_play_enemy_dissolve()
@@ -2180,7 +2500,7 @@ func _on_battle_ended(_result) -> void:
 
 ## ===================== S151: 시트 동사 재생 헬퍼 =====================
 ## 시트 프레임(AnimatedSprite2D)일 때만 동사 재생. 논루프 동사는 끝나면 idle 복귀.
-## 절차 생성 스프라이트(해당 애니 없음)에서는 조용히 무시 — 폴백 안전.
+## 절차 생성 스프라이트(해당 애니 없음)에서는 조용히 무시, 폴백 안전.
 func _play_actor_anim(actor: CanvasItem, anim: String) -> void:
 	if not (actor is AnimatedSprite2D):
 		return
@@ -2194,7 +2514,7 @@ func _play_actor_anim(actor: CanvasItem, anim: String) -> void:
 			asp.animation_finished.connect(finished_callback)
 
 func _on_actor_anim_finished(asp: AnimatedSprite2D) -> void:
-	# down(패배)은 마지막 프레임 유지 — 일어나면 어색함
+	# down(패배)은 마지막 프레임 유지, 일어나면 어색함
 	if not is_instance_valid(asp) or not asp.sprite_frames:
 		return
 	if asp.animation == "down":
@@ -2229,6 +2549,14 @@ func _on_defend() -> void:
 	action_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	_show_combat_cue(
+		_bl("HOLD THE LINE", "방어 태세"),
+		_bl("Half the next blow and build Limit safely.", "다음 피해를 절반으로 줄이고 리밋을 안전하게 쌓습니다."),
+		ARREL_GUARD_CUTIN_PATH,
+		Color(0.62, 0.82, 1.0),
+		1.0
+	)
+	_play_action_cutin(ARREL_GUARD_CUTIN_PATH, true, 0.80, 0.28)
 	BattleManager.player_defend()
 
 func _on_witness() -> void:
@@ -2236,6 +2564,15 @@ func _on_witness() -> void:
 	action_container.visible = false
 	_hide_burn_list()
 	_hide_item_list()
+	var witness_state := BattleManager.get_witness_state()
+	_show_combat_cue(
+		_bl("READ THE ECHO", "기억 읽기"),
+		_bl("WITNESS %d/%d. Understanding can end a fight without burning.", "기억 읽기 %d/%d. 이해는 연소 없이 전투를 끝낼 수 있습니다.") % [int(witness_state.progress) + 1, int(witness_state.required)],
+		ARREL_WITNESS_CUTIN_PATH,
+		Color(0.82, 0.84, 1.0),
+		1.15
+	)
+	_play_action_cutin(ARREL_WITNESS_CUTIN_PATH, true, 0.82, 0.34)
 	BattleManager.player_witness()
 
 func _on_witness_changed(progress: int, required: int, echo_line: String, complete: bool) -> void:
@@ -2286,7 +2623,7 @@ func _toggle_burn_list() -> void:
 	else:
 		if not available.is_empty():
 			var title = Label.new()
-			title.text = _bl("— Select a memory to burn —", "— 태울 기억을 선택 —")
+			title.text = _bl("Select a memory to burn", "태울 기억을 선택")
 			title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			title.add_theme_font_size_override("font_size", 13)
 			title.add_theme_color_override("font_color", Color(0.75, 0.5, 0.35))
@@ -2298,7 +2635,7 @@ func _toggle_burn_list() -> void:
 				var eff_power = MemoryManager.get_effective_burn_power(memory)
 				var erosion_tag = "" if memory.erosion == 0 else " ⚠"
 				var btn = Button.new()
-				btn.text = "[%s|%s] %s — Grade %d (DMG: %d+%d)%s" % [
+				btn.text = "[%s|%s] %s, Grade %d (DMG: %d+%d)%s" % [
 					skill.name, elem, memory.title,
 					memory.grade,
 					skill.base_damage, eff_power, erosion_tag
@@ -2331,10 +2668,10 @@ func _toggle_burn_list() -> void:
 				btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 				burn_list_container.add_child(btn)
 
-		# 잔존 기억 (Residue) — 50% 데미지로 재사용
+		# 잔존 기억 (Residue), 50% 데미지로 재사용
 		if not residues.is_empty():
 			var res_title = Label.new()
-			res_title.text = _bl("— Residue (50% power, no loss) —", "— 잔존 (위력 50%, 소실 없음) —")
+			res_title.text = _bl("Residue (50% power, no loss)", "잔존 (위력 50%, 소실 없음)")
 			res_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			res_title.add_theme_font_size_override("font_size", 12)
 			res_title.add_theme_color_override("font_color", Color(0.5, 0.4, 0.6))
@@ -2344,7 +2681,7 @@ func _toggle_burn_list() -> void:
 				var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
 				var half_dmg = int((skill.base_damage + memory.burn_power) * 0.5)
 				var btn = Button.new()
-				btn.text = "[RESIDUE] %s — %s (DMG: ~%d)" % [skill.name, memory.title, half_dmg]
+				btn.text = "[RESIDUE] %s, %s (DMG: ~%d)" % [skill.name, memory.title, half_dmg]
 				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 				var style = StyleBoxFlat.new()
@@ -2392,19 +2729,47 @@ func _hide_burn_list() -> void:
 ## ===================== 아이템 목록 =====================
 
 func _build_item_list(root: Control) -> void:
+	var tray_backdrop := TextureRect.new()
+	tray_backdrop.name = "BattleItemTrayBackdrop"
+	tray_backdrop.anchor_left = 0.08
+	tray_backdrop.anchor_right = 0.92
+	tray_backdrop.anchor_top = 0.20
+	tray_backdrop.anchor_bottom = 0.94
+	tray_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tray_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tray_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tray_backdrop.visible = false
+	if ResourceLoader.exists(BATTLE_ITEM_TRAY_PATH):
+		tray_backdrop.texture = load(BATTLE_ITEM_TRAY_PATH)
+	root.add_child(tray_backdrop)
+
+	var tray_title := Label.new()
+	tray_title.name = "BattleItemTrayTitle"
+	tray_title.anchor_left = 0.35
+	tray_title.anchor_right = 0.65
+	tray_title.anchor_top = 0.23
+	tray_title.anchor_bottom = 0.29
+	tray_title.text = _bl("FIELD SUPPLIES", "필드 보급품")
+	tray_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	tray_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	tray_title.add_theme_font_size_override("font_size", 15)
+	tray_title.add_theme_color_override("font_color", Color(0.92, 0.76, 0.45))
+	tray_title.visible = false
+	root.add_child(tray_title)
+
 	var scroll = ScrollContainer.new()
-	scroll.anchor_left = 0.15
-	scroll.anchor_right = 0.85
-	scroll.anchor_top = 0.35
-	scroll.anchor_bottom = 0.78
+	scroll.anchor_left = 0.23
+	scroll.anchor_right = 0.77
+	scroll.anchor_top = 0.33
+	scroll.anchor_bottom = 0.77
 	scroll.visible = false
 
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.08, 0.04, 0.96)
-	style.border_color = Color(0.3, 0.5, 0.2, 0.7)
+	style.bg_color = Color(0.018, 0.022, 0.028, 0.76)
+	style.border_color = Color(0.56, 0.43, 0.24, 0.54)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(12)
@@ -2417,6 +2782,8 @@ func _build_item_list(root: Control) -> void:
 
 	root.add_child(scroll)
 	item_list_container.set_meta("scroll_parent", scroll)
+	item_list_container.set_meta("tray_backdrop", tray_backdrop)
+	item_list_container.set_meta("tray_title", tray_title)
 
 func _toggle_item_list() -> void:
 	var scroll = item_list_container.get_meta("scroll_parent") as ScrollContainer
@@ -2435,13 +2802,6 @@ func _toggle_item_list() -> void:
 		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
 		item_list_container.add_child(empty_label)
 	else:
-		var title = Label.new()
-		title.text = _bl("— Select an item —", "— 아이템을 선택 —")
-		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		title.add_theme_font_size_override("font_size", 13)
-		title.add_theme_color_override("font_color", Color(0.4, 0.65, 0.35))
-		item_list_container.add_child(title)
-
 		for item_id in items:
 			var count = items[item_id]
 			var item_def = GameManager.ITEMS.get(item_id)
@@ -2497,6 +2857,12 @@ func _toggle_item_list() -> void:
 	item_list_container.add_child(cancel_btn)
 
 	scroll.visible = true
+	var tray_backdrop := item_list_container.get_meta("tray_backdrop") as TextureRect
+	if tray_backdrop:
+		tray_backdrop.visible = true
+	var tray_title := item_list_container.get_meta("tray_title") as Label
+	if tray_title:
+		tray_title.visible = true
 
 func _get_item_type_color(item_type: String) -> Color:
 	match item_type:
@@ -2520,10 +2886,16 @@ func _hide_item_list() -> void:
 	var scroll = item_list_container.get_meta("scroll_parent") as ScrollContainer
 	if scroll:
 		scroll.visible = false
+	var tray_backdrop := item_list_container.get_meta("tray_backdrop") as TextureRect
+	if tray_backdrop:
+		tray_backdrop.visible = false
+	var tray_title := item_list_container.get_meta("tray_title") as Label
+	if tray_title:
+		tray_title.visible = false
 
 ## ===================== 시각 피드백 =====================
 
-## 데미지 숫자 표시 (떠오르며 사라짐 — 크기 스케일링)
+## 데미지 숫자 표시 (떠오르며 사라짐, 크기 스케일링)
 func _show_damage_number(target: String, amount: int, skill_name: String = "") -> void:
 	var label = Label.new()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -2606,14 +2978,14 @@ func _hit_flash(target: String) -> void:
 		var flash_t = create_tween()
 		flash_t.tween_property(enemy_sprite, "modulate", Color(3, 3, 3, 1), 0.05)
 		flash_t.tween_property(enemy_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
-		# S57: Attack knockback — enemy slides back 15px then returns (0.15s)
+		# S57: Attack knockback, enemy slides back 15px then returns (0.15s)
 		if enemy_sprite_container:
 			var push_t = create_tween()
 			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 15, 0.06).set_ease(Tween.EASE_OUT)
 			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x - 3, 0.06).set_ease(Tween.EASE_OUT)
 			push_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x, 0.03).set_ease(Tween.EASE_IN_OUT)
 	elif target == "Arrel" and player_sprite:
-		# S57: Enhanced player hurt — red flash 0.3s + bounce
+		# S57: Enhanced player hurt, red flash 0.3s + bounce
 		var flash_t = create_tween()
 		flash_t.tween_property(player_sprite, "modulate", Color(2.5, 0.4, 0.3, 1), 0.05)
 		flash_t.tween_property(player_sprite, "modulate", Color(1.5, 0.6, 0.5, 1), 0.1)
@@ -2631,7 +3003,7 @@ func _hit_flash(target: String) -> void:
 
 ## 스크린 셰이크 (S42 강화: 더 많은 프레임 + 회전 흔들림)
 func _screen_shake(intensity: float = 1.0) -> void:
-	# S53: 접근성 — 화면 흔들림 비활성화 옵션
+	# S53: 접근성, 화면 흔들림 비활성화 옵션
 	if OptionsMenu.is_clean_gameplay_visuals() or not OptionsMenu.settings.get("screen_shake", true):
 		return
 	var original_pos = canvas_root.position
@@ -2714,7 +3086,7 @@ func _play_slash_vfx() -> void:
 	_play_impact_burst(Vector2(900, 320))
 	var center = Vector2(900, 320)  # S44: 사이드뷰 적 위치
 
-	# 메인 슬래시 — 길이 확장 애니메이션
+	# 메인 슬래시, 길이 확장 애니메이션
 	var slash = ColorRect.new()
 	slash.size = Vector2(0, 4)
 	slash.position = center + Vector2(-60, -30)
@@ -2761,7 +3133,7 @@ func _play_slash_vfx() -> void:
 		st.tween_property(spark, "modulate:a", 0.0, 0.25).set_delay(0.08)
 		st.chain().tween_callback(spark.queue_free)
 
-## 기억 연소 VFX — 스킬별 분류 (S40)
+## 기억 연소 VFX, 스킬별 분류 (S40)
 func _play_attack_vfx(skill_name: String) -> void:
 	var sn = skill_name.to_lower()
 	# 보이드 스킬 → 보라 파티클
@@ -2907,7 +3279,7 @@ func _play_void_vfx() -> void:
 ## ===================== Limit Break UI =====================
 
 func _build_limit_gauge(root: Control) -> void:
-	# S175: 명령창 위 26px 띠의 좌측에 배치 — 스탠스 행과 겹치지 않도록.
+	# S175: 명령창 위 26px 띠의 좌측에 배치, 스탠스 행과 겹치지 않도록.
 	var panel = PanelContainer.new()
 	panel.anchor_left = 0.06
 	panel.anchor_right = 0.40
@@ -2967,7 +3339,7 @@ func _on_limit_changed(value: float) -> void:
 	_update_limit_button()
 
 func _update_limit_button() -> void:
-	# S175: 버그 수정 — 예전엔 버튼 텍스트 == "LIMIT"로 비교해 한국어("리밋")에서
+	# S175: 버그 수정, 예전엔 버튼 텍스트 == "LIMIT"로 비교해 한국어("리밋")에서
 	# 갱신이 전혀 안 됐다. 이제 저장된 참조를 사용.
 	if limit_btn == null or not is_instance_valid(limit_btn):
 		return
@@ -3291,7 +3663,7 @@ func _play_limit_burst_vfx() -> void:
 
 ## ===================== S46: 타격감 강화 + VFX Library 셰이더 =====================
 
-## VFX Library — flash_white 피격 셰이더 (적/플레이어 스프라이트에 흰색 플래시)
+## VFX Library, flash_white 피격 셰이더 (적/플레이어 스프라이트에 흰색 플래시)
 func _apply_hit_shader(target: String, amount: int) -> void:
 	var shader_path = "res://addons/vfx_lib/shaders/flash_white.gdshader"
 	if not ResourceLoader.exists(shader_path):
@@ -3319,11 +3691,11 @@ func _apply_hit_shader(target: String, amount: int) -> void:
 			node.material = null
 	)
 
-## VFX Library — 상태이상 셰이더 (독/화상/약화) 적 스프라이트에 적용
+## VFX Library, 상태이상 셰이더 (독/화상/약화) 적 스프라이트에 적용
 func _apply_status_shader() -> void:
 	if not enemy_sprite:
 		return
-	# 독 — poison 셰이더
+	# 독, poison 셰이더
 	if BattleManager.has_status("enemy", BattleManager.StatusEffect.POISON):
 		var shader_path = "res://addons/vfx_lib/shaders/poison.gdshader"
 		if ResourceLoader.exists(shader_path):
@@ -3334,7 +3706,7 @@ func _apply_status_shader() -> void:
 			mat.set_shader_parameter("pulse_speed", 3.0)
 			enemy_sprite.material = mat
 			return
-	# 화상 — burning 셰이더
+	# 화상, burning 셰이더
 	if BattleManager.has_status("enemy", BattleManager.StatusEffect.BURN):
 		var shader_path = "res://addons/vfx_lib/shaders/burning.gdshader"
 		if ResourceLoader.exists(shader_path):
@@ -3346,7 +3718,7 @@ func _apply_status_shader() -> void:
 			mat.set_shader_parameter("distortion_strength", 0.02)
 			enemy_sprite.material = mat
 			return
-	# 약화 — 그레이스케일 틴트 (기존 VFX lib grayscale 사용)
+	# 약화, 그레이스케일 틴트 (기존 VFX lib grayscale 사용)
 	if BattleManager.has_status("enemy", BattleManager.StatusEffect.WEAKEN):
 		enemy_sprite.modulate = Color(0.7, 0.6, 0.8, 1.0)
 		return
@@ -3372,7 +3744,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	canvas_root.add_child(flash)
 	# 3. 경고 텍스트
 	var warn = Label.new()
-	warn.text = _bl("— PHASE 2 —", "— 페이즈 2 —")
+	warn.text = _bl("PHASE 2", "페이즈 2")
 	warn.add_theme_font_size_override("font_size", 36)
 	warn.add_theme_color_override("font_color", Color(1, 0.3, 0.2))
 	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -3387,7 +3759,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	_screen_shake(3.0)
 	# 색수차
 	_play_chromatic_aberration(2.0)
-	# 적 분노 틴트 — outline_glow 셰이더
+	# 적 분노 틴트, outline_glow 셰이더
 	var glow_path = "res://addons/vfx_lib/shaders/outline_glow.gdshader"
 	if enemy_sprite and ResourceLoader.exists(glow_path):
 		var mat = ShaderMaterial.new()
@@ -3436,6 +3808,13 @@ func _on_ally_action(ally_name: String, action: String, _value: int) -> void:
 		"analyze": "분석", "archive": "기록 개방", "protect": "결계",
 	}
 	var act: String = String(act_ko.get(action, action.replace("_", " "))) if GameManager.current_locale == "ko" else action.replace("_", " ").to_upper()
+	_show_combat_cue(
+		"%s / %s" % [who, act],
+		_bl("A companion creates a new line through the pressure.", "동료가 압박 속에 새로운 길을 만듭니다."),
+		cutin_path,
+		accent,
+		1.0
+	)
 	_show_turn_indicator("%s / %s" % [who, act], accent)
 	_screen_shake(0.45)
 
@@ -3489,7 +3868,7 @@ func _build_ally_command_ui(root: Control) -> void:
 func _on_ally_cmd(action: String) -> void:
 	BattleManager.set_ally_command(action)
 	AudioManager.play_sfx("ui_select")
-	# 선택 확인 — 버튼 하이라이트
+	# 선택 확인, 버튼 하이라이트
 	if ally_cmd_container:
 		for i in range(1, ally_cmd_container.get_child_count()):
 			var btn = ally_cmd_container.get_child(i)
@@ -3557,7 +3936,7 @@ var stance_buttons: Array[Button] = []
 
 func _build_stance_ui(root: Control) -> void:
 	stance_container = HBoxContainer.new()
-	# S175: 명령창 위 26px 띠의 우측 — 리밋 게이지와 좌우로 분리, 그리드와 안 겹침.
+	# S175: 명령창 위 26px 띠의 우측, 리밋 게이지와 좌우로 분리, 그리드와 안 겹침.
 	stance_container.anchor_left = 0.44
 	stance_container.anchor_right = 0.94
 	stance_container.anchor_top = 0.781
@@ -3651,7 +4030,7 @@ func _refresh_echo_display() -> void:
 	if BattleManager.active_echoes.is_empty():
 		return
 	var header = Label.new()
-	header.text = _bl("— Active Echoes —", "— 활성 메아리 —")
+	header.text = _bl("Active Echoes", "활성 메아리")
 	header.add_theme_font_size_override("font_size", 10)
 	header.add_theme_color_override("font_color", Color(0.7, 0.55, 0.35))
 	echo_display.add_child(header)
@@ -3688,7 +4067,7 @@ func _build_elia_skill_ui(root: Control) -> void:
 	elia_skill_container.add_theme_constant_override("separation", 3)
 
 	var header = Label.new()
-	header.text = _bl("— Elia —", "— 엘리아 —")
+	header.text = _bl("Elia", "엘리아")
 	header.add_theme_font_size_override("font_size", 11)
 	header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.85))
 	elia_skill_container.add_child(header)
@@ -3745,7 +4124,7 @@ func _on_elia_skill(skill_id: String) -> void:
 
 ## ===================== S52: 전투 VFX 강화 =====================
 
-## 크리티컬 히트 줌 펀치 — 강력한 공격 시 화면 줌인→복귀
+## 크리티컬 히트 줌 펀치, 강력한 공격 시 화면 줌인→복귀
 func _critical_zoom_punch() -> void:
 	# 전투 루트 스케일로 줌 효과 근사
 	var original_scale = canvas_root.scale
@@ -3757,7 +4136,7 @@ func _critical_zoom_punch() -> void:
 	t.tween_property(canvas_root, "scale", Vector2(1.08, 1.08), 0.1).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	t.tween_property(canvas_root, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_ELASTIC)
 
-	# 크리티컬 플래시 — 밝은 임팩트 프레임
+	# 크리티컬 플래시, 밝은 임팩트 프레임
 	var flash = ColorRect.new()
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flash.color = Color(1.0, 0.95, 0.8, 0.35)
@@ -3767,7 +4146,7 @@ func _critical_zoom_punch() -> void:
 	ft.tween_property(flash, "color:a", 0.0, 0.25).set_ease(Tween.EASE_OUT)
 	ft.tween_callback(flash.queue_free)
 
-## 연소 임팩트 — 기억 연소 시 화면 가장자리 불타는 효과
+## 연소 임팩트, 기억 연소 시 화면 가장자리 불타는 효과
 func _burn_edge_flare() -> void:
 	if OptionsMenu.is_clean_gameplay_visuals():
 		return
@@ -3861,7 +4240,10 @@ func _on_tactical_objective_changed(objective: Dictionary) -> void:
 	var desc: String = objective.get("desc", "")
 	var shown_title := _localized_objective_title(title)
 	objective_title_label.text = ("목표 - %s" % shown_title) if GameManager.current_locale == "ko" else "OBJECTIVE - %s" % title.to_upper()
+	var progress_text := String(objective.get("progress_text", ""))
 	objective_desc_label.text = _localized_objective_desc(desc)
+	if progress_text != "" and status == "active":
+		objective_desc_label.text += "  ·  " + progress_text
 	var style = objective_panel.get_theme_stylebox("panel") as StyleBoxFlat
 	if style:
 		match status:
@@ -3969,7 +4351,7 @@ func _localized_objective_desc(desc: String) -> String:
 var _rewards_can_dismiss: bool = false  # S58: true after all reveals done
 
 func _show_victory_screen() -> void:
-	# S58: Now just a placeholder — real rewards screen is built by _on_victory_rewards_ready
+	# S58: Now just a placeholder, real rewards screen is built by _on_victory_rewards_ready
 	pass
 
 ## S58: Animated post-battle rewards screen
@@ -3984,6 +4366,13 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var momentum_bonus: int = rewards.get("momentum_bonus", 0)
 	var momentum_rank: int = rewards.get("momentum_rank", 0)
 	var momentum_label: String = rewards.get("momentum_label", "Cold")
+	var battle_grade: String = rewards.get("battle_grade", "D")
+	var battle_score: int = rewards.get("battle_score", 0)
+	var grade_bonus: int = rewards.get("grade_bonus", 0)
+	var directive_streak: int = rewards.get("directive_streak", 0)
+	var streak_bonus: int = rewards.get("streak_bonus", 0)
+	var streak_focus: int = rewards.get("streak_focus", 0)
+	var streak_item: String = rewards.get("streak_item", "")
 	var preservation_bonus: int = rewards.get("preservation_bonus", 0)
 	var field_focus_gained: int = rewards.get("field_focus_gained", 0)
 	var resolution: String = rewards.get("resolution", "defeat")
@@ -3996,7 +4385,6 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 				dropped_item_id = candidate_id
 				break
 	var enemy_name: String = rewards.get("enemy_name", "Unknown")
-	var battles_total: int = rewards.get("battles_total", 0)
 	_rewards_can_dismiss = false
 
 	# Semi-transparent backdrop
@@ -4069,20 +4457,19 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	sep.add_theme_color_override("separator", Color(0.4, 0.35, 0.25, 0.6))
 	vbox.add_child(sep)
 
-	# --- BATTLE GROWTH BAR (visual progress, battles_total as proxy) ---
+	# --- TACTICAL GRADE (objective, resonance, witness, break, combo, speed) ---
 	var growth_row = HBoxContainer.new()
 	growth_row.add_theme_constant_override("separation", 8)
 	vbox.add_child(growth_row)
 
 	var growth_lbl = Label.new()
-	growth_lbl.text = _bl("Battle Experience", "전투 경험")
+	growth_lbl.text = _bl("Tactical Grade", "전술 등급")
 	growth_lbl.add_theme_font_size_override("font_size", 12)
 	growth_lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.45, 0.0))
-	growth_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	growth_row.add_child(growth_lbl)
 
 	var growth_bar = ProgressBar.new()
-	growth_bar.custom_minimum_size = Vector2(140, 14)
+	growth_bar.custom_minimum_size = Vector2(150, 14)
 	growth_bar.max_value = 100
 	growth_bar.value = 0
 	growth_bar.show_percentage = false
@@ -4096,6 +4483,14 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	growth_bar.add_theme_stylebox_override("background", growth_bg)
 	growth_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	growth_row.add_child(growth_bar)
+
+	var grade_value := Label.new()
+	grade_value.text = "%s  %d" % [battle_grade, battle_score]
+	grade_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	grade_value.custom_minimum_size = Vector2(58, 0)
+	grade_value.add_theme_font_size_override("font_size", 17)
+	grade_value.add_theme_color_override("font_color", Color(0.98, 0.82, 0.38, 0.0))
+	growth_row.add_child(grade_value)
 
 	# --- GRAINS EARNED ---
 	var grains_row = HBoxContainer.new()
@@ -4132,20 +4527,30 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	vbox.add_child(bonus_row)
 
 	var bonus_lbl = Label.new()
-	bonus_lbl.text = ("보존 보너스" if GameManager.current_locale == "ko" else "Preservation") if preservation_bonus > 0 else "Codex Bonus"
+	bonus_lbl.text = _bl("Performance", "전투 성과")
 	bonus_lbl.add_theme_font_size_override("font_size", 11)
 	bonus_lbl.add_theme_color_override("font_color", Color(0.45, 0.78, 0.9))
 	bonus_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bonus_row.add_child(bonus_lbl)
 
 	var bonus_val = Label.new()
+	var performance_parts: Array[String] = []
+	performance_parts.append("%s +%d" % [battle_grade, grade_bonus])
+	if directive_streak > 0:
+		performance_parts.append(_bl("Chain x%d +%d", "연속 x%d +%d") % [directive_streak, streak_bonus])
 	if preservation_bonus > 0:
-		bonus_val.text = "+%d Grains%s" % [preservation_bonus, " / Focus +%d" % field_focus_gained if field_focus_gained > 0 else ""]
-	else:
-		bonus_val.text = "+%d" % tactical_bonus if tactical_bonus > 0 else "None"
+		performance_parts.append(_bl("Preserve +%d", "보존 +%d") % preservation_bonus)
+	var preservation_focus := maxi(field_focus_gained - streak_focus, 0)
+	if preservation_focus > 0:
+		performance_parts.append("Focus +%d" % preservation_focus)
+	if streak_focus > 0:
+		performance_parts.append(_bl("Chain Focus +%d", "연속 Focus +%d") % streak_focus)
+	if streak_item != "" and GameManager.ITEMS.has(streak_item):
+		performance_parts.append(String(GameManager.ITEMS[streak_item].get("name", streak_item)))
+	bonus_val.text = " / ".join(performance_parts)
 	bonus_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	bonus_val.add_theme_font_size_override("font_size", 12)
-	bonus_val.add_theme_color_override("font_color", Color(0.55, 0.86, 1.0) if tactical_bonus > 0 or preservation_bonus > 0 else Color(0.35, 0.34, 0.33))
+	bonus_val.add_theme_color_override("font_color", Color(0.55, 0.86, 1.0))
 	bonus_row.add_child(bonus_val)
 
 	var objective_row = HBoxContainer.new()
@@ -4293,10 +4698,11 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	tw_seq.tween_interval(0.3)
 	tw_seq.tween_property(enemy_line, "theme_override_colors/font_color", Color(0.5, 0.45, 0.4, 0.8), 0.25)
 
-	# 0.6s: Growth bar fills
+	# 0.6s: Tactical grade fills from the battle's actual performance.
 	tw_seq.tween_interval(0.1)
 	tw_seq.tween_property(growth_lbl, "theme_override_colors/font_color", Color(0.6, 0.55, 0.45, 1.0), 0.2)
-	var bar_target = clampf(fmod(float(battles_total), 20.0) / 20.0 * 100.0, 5.0, 100.0)
+	tw_seq.tween_property(grade_value, "theme_override_colors/font_color", Color(0.98, 0.82, 0.38, 1.0), 0.2)
+	var bar_target = clampf(float(battle_score), 0.0, 100.0)
 	tw_seq.tween_property(growth_bar, "value", bar_target, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
 	# 1.0s: Grains count up
@@ -4314,11 +4720,9 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 		tw_seq.tween_callback(func(): grains_value.text = str(grains))
 
 	tw_seq.tween_interval(0.08)
-	if tactical_bonus > 0:
-		tw_seq.tween_property(bonus_row, "modulate:a", 1.0, 0.18)
+	tw_seq.tween_property(bonus_row, "modulate:a", 1.0, 0.18)
+	if grade_bonus > 0 or streak_bonus > 0 or preservation_bonus > 0 or tactical_bonus > 0:
 		tw_seq.tween_callback(func(): AudioManager.play_sfx("ui_select"))
-	else:
-		tw_seq.tween_property(bonus_row, "modulate:a", 0.45, 0.12)
 
 	tw_seq.tween_interval(0.08)
 	if objective_bonus > 0:
@@ -4398,19 +4802,19 @@ func _dismiss_rewards() -> void:
 
 ## Grade color map for the preview
 const GRADE_COLORS: Dictionary = {
-	0: Color(0.5, 0.5, 0.45),   # Grade 5 — gray
-	1: Color(0.4, 0.65, 0.4),   # Grade 4 — green
-	2: Color(0.3, 0.5, 0.85),   # Grade 3 — blue
-	3: Color(0.7, 0.4, 0.85),   # Grade 2 — purple
-	4: Color(0.95, 0.75, 0.2),  # Grade 1 — gold
+	0: Color(0.5, 0.5, 0.45),   # Grade 5, gray
+	1: Color(0.4, 0.65, 0.4),   # Grade 4, green
+	2: Color(0.3, 0.5, 0.85),   # Grade 3, blue
+	3: Color(0.7, 0.4, 0.85),   # Grade 2, purple
+	4: Color(0.95, 0.75, 0.2),  # Grade 1, gold
 }
 
 const GRADE_LABELS: Dictionary = {
-	0: "Grade 5 — Sensory Fragment",
-	1: "Grade 4 — Daily Memory",
-	2: "Grade 3 — Relationship",
-	3: "Grade 2 — Identity",
-	4: "Grade 1 — Core Memory",
+	0: "Grade 5, Sensory Fragment",
+	1: "Grade 4, Daily Memory",
+	2: "Grade 3, Relationship",
+	3: "Grade 2, Identity",
+	4: "Grade 1, Core Memory",
 }
 
 ## Build the burn preview popup (hidden by default, shown on memory selection).
@@ -4522,7 +4926,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	if memory.erosion > 0:
 		var erosion_pct = int(MemoryManager.get_erosion_ratio(memory) * 100)
 		var erosion_label = Label.new()
-		erosion_label.text = _bl("Eroded: %d%% — effective power reduced", "침식: %d%% — 유효 위력 감소") % erosion_pct
+		erosion_label.text = _bl("Eroded: %d%%, effective power reduced", "침식: %d%%, 유효 위력 감소") % erosion_pct
 		erosion_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		erosion_label.add_theme_font_size_override("font_size", 11)
 		erosion_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.3))
@@ -4737,7 +5141,7 @@ func _detect_skill_element(skill_name: String) -> String:
 
 ## ===================== S57: Battle Juice Overhaul =====================
 
-## Screen flash for big hits — white at 80+, red at 150+
+## Screen flash for big hits, white at 80+, red at 150+
 func _play_big_hit_screen_flash(amount: int) -> void:
 	var flash = ColorRect.new()
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -4754,7 +5158,7 @@ func _play_big_hit_screen_flash(amount: int) -> void:
 	t.tween_property(flash, "color:a", 0.0, 0.1).set_ease(Tween.EASE_OUT)
 	t.tween_callback(flash.queue_free)
 
-## Turn transition dim effect — brief darkening between turns (0.2s)
+## Turn transition dim effect, brief darkening between turns (0.2s)
 func _play_turn_dim() -> void:
 	if not _turn_dim_overlay:
 		return
@@ -4763,7 +5167,7 @@ func _play_turn_dim() -> void:
 	t.tween_property(_turn_dim_overlay, "color:a", 0.3, 0.1).set_ease(Tween.EASE_IN)
 	t.tween_property(_turn_dim_overlay, "color:a", 0.0, 0.1).set_ease(Tween.EASE_OUT)
 
-## Combo counter display — escalating size/color (gold at x3, red at x5+)
+## Combo counter display, escalating size/color (gold at x3, red at x5+)
 func _show_combo_counter(combo: int) -> void:
 	if not _combo_display_label:
 		return
@@ -4788,7 +5192,7 @@ func _show_combo_counter(combo: int) -> void:
 	t.tween_interval(0.6)
 	t.tween_property(_combo_display_label, "modulate:a", 0.0, 0.3)
 
-## Enemy death animation — fade + shrink + particle burst before dissolve
+## Enemy death animation, fade + shrink + particle burst before dissolve
 func _play_enemy_death_animation() -> void:
 	if not enemy_sprite_container:
 		return

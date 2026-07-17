@@ -1,21 +1,21 @@
 {
   "id": "ch2_market_arrival",
-  "title": "Chapter 2 — The Belt",
+  "title": "Chapter 2, The Belt",
   "chapter": 2,
   "bgm": "res://assets/audio/bgm/ch2_verdan.mp3",
   "steps": [
     {
       "cg": "res://assets/cg/generated/story_ch2_verdan_gate.png",
       "fade": 2.0,
-      "narrate": "Verdan Market — the Belt's largest trading hub, and the Bureau's most tolerated black eye.",
-      "narrate_ko": "베르단 시장(베르단 Market) — 벨트의 가장 큰 거래 허브이자 관리국에서 가장 용인되는 검은 눈입니다."
+      "narrate": "Verdan Market, the Belt's largest trading hub, and the Bureau's most tolerated black eye.",
+      "narrate_ko": "베르단 시장(베르단 Market), 벨트의 가장 큰 거래 허브이자 관리국에서 가장 용인되는 검은 눈입니다."
     },
     {
       "narrate": "It sprawled across three old canyons, stitched together with rope-bridges and smoke and the low hum of too many voices at once.",
       "narrate_ko": "그것은 세 개의 오래된 협곡을 가로질러 펼쳐져 있었고, 밧줄 다리와 연기, 동시에 너무 많은 목소리의 낮은 웅웅거림이 얽혀 있었습니다."
     },
     {
-      "narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts — including whatever was owed to the name Arrel no longer wanted to say aloud.",
+      "narrate": "Somewhere down there, Malet kept a desk. And Malet, if rumor held, kept debts, including whatever was owed to the name Arrel no longer wanted to say aloud.",
       "narrate_ko": "저 아래 어딘가에 말렛는 책상을 보관했습니다. 그리고 말렛는 소문이 사실이라면 아렐이라는 이름에 빚진 모든 것을 포함하여 더 이상 큰 소리로 말하고 싶지 않은 빚을 유지했습니다."
     },
     {
@@ -96,5 +96,5 @@
       "path": "res://scenes/maps/verdan_market.tscn"
     }
   ],
-  "title_ko": "제2장 — 벨트"
+  "title_ko": "제2장, 벨트"
 }

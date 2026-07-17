@@ -11,8 +11,8 @@
       },
       {
         "speaker": "",
-        "text": "Beyond it — not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing.",
-        "text_ko": "그 너머 — 어둠이 아니었다. 부재였다. 현실이 긁혀 나간 자리. 무(無)의 맨 기층만 남은 공간."
+        "text": "Beyond it, not darkness. Absence. A space where reality had been scraped away, leaving only the raw substrate of nothing.",
+        "text_ko": "그 너머, 어둠이 아니었다. 부재였다. 현실이 긁혀 나간 자리. 무(無)의 맨 기층만 남은 공간."
       },
       {
         "speaker": "",
@@ -47,9 +47,9 @@
     "void_core": [
       {
         "speaker": "",
-        "text": "At the center, the tear widened. Not a hole — a mouth. Open and patient.",
+        "text": "At the center, the tear widened. Not a hole, a mouth. Open and patient.",
         "cg": "res://assets/cg/generated/story_ch10_bl07_core_choice.png",
-        "text_ko": "중심에서 찢어진 틈이 벌어졌다. 구멍이 아니라 — 입이었다. 열린 채, 참을성 있게."
+        "text_ko": "중심에서 찢어진 틈이 벌어졌다. 구멍이 아니라, 입이었다. 열린 채, 참을성 있게."
       },
       {
         "speaker": "",
@@ -64,9 +64,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "Arrel, don't—",
+        "text": "Arrel, don't...",
         "portrait": "elia_concern",
-        "text_ko": "아렐, 그러지 마—"
+        "text_ko": "아렐, 그러지 마..."
       },
       {
         "speaker": "",
@@ -75,8 +75,8 @@
       },
       {
         "speaker": "",
-        "text": "And somewhere in his chest, the Grade 1 memory — 'The Name Arrel' — hummed in resonance.",
-        "text_ko": "그리고 그의 가슴 어딘가에서, 1등급 기억 — '아렐이라는 이름' — 이 공명하며 울렸다."
+        "text": "And somewhere in his chest, the Grade 1 memory, 'The Name Arrel', hummed in resonance.",
+        "text_ko": "그리고 그의 가슴 어딘가에서, 1등급 기억, '아렐이라는 이름', 이 공명하며 울렸다."
       },
       {
         "speaker": "Arrel",
@@ -139,14 +139,15 @@
         "text": "Wait. You're still... you. After all of it, you kept the things that matter. The name. The sword. My hands on yours. Maybe you don't have to choose what to lose. Maybe you offer what you kept.",
         "portrait": "elia_neutral",
         "requires_weave": true,
-        "text_ko": "잠깐. 넌 아직도... 너야. 그 모든 걸 겪고도, 중요한 것들을 지켜 냈어. 이름. 검. 네 손을 덮던 내 손. 어쩌면 무엇을 잃을지 고를 필요가 없을지도 몰라. 어쩌면, 지켜 온 것을 내미는 거야."
+        "text_ko": "잠깐. 넌 아직도... 너야. 그 모든 걸 겪고도, 중요한 것들을 지켜 냈어. 이름. 검. 네 손을 덮던 내 손. 어쩌면 무엇을 잃을지 고를 필요가 없을지도 몰라. 어쩌면, 지켜 온 것을 내미는 거야.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch10_name_or_weave_choice_v1.png"
       },
       {
         "speaker": "Arrel",
-        "text": "Not the emptiness it wants. The opposite. Everything I refused to burn — given freely, all at once.",
+        "text": "Not the emptiness it wants. The opposite. Everything I refused to burn, given freely, all at once.",
         "portrait": "arrel_neutral",
         "requires_weave": true,
-        "text_ko": "그것이 원하는 공허가 아니라. 그 반대를. 태우기를 거부해 온 모든 것을 — 아낌없이, 한꺼번에."
+        "text_ko": "그것이 원하는 공허가 아니라. 그 반대를. 태우기를 거부해 온 모든 것을, 아낌없이, 한꺼번에."
       },
       {
         "speaker": "",
@@ -159,14 +160,14 @@
             "text_ko": "간직한 기억들을 봉인에 엮는다"
           },
           {
-            "text": "Burn the Name — Seal BL-07",
+            "text": "Burn the Name, Seal BL-07",
             "set_flag": "seal_accepted",
-            "text_ko": "이름을 태운다 — BL-07을 봉인한다"
+            "text_ko": "이름을 태운다, BL-07을 봉인한다"
           },
           {
-            "text": "Keep the Name — Find another way",
+            "text": "Keep the Name, Find another way",
             "set_flag": "seal_refused",
-            "text_ko": "이름을 지킨다 — 다른 방법을 찾는다"
+            "text_ko": "이름을 지킨다, 다른 방법을 찾는다"
           }
         ],
         "text_ko": "어떻게 하겠는가?"
@@ -175,9 +176,9 @@
     "seal_weave": [
       {
         "speaker": "",
-        "text": "He did not reach for the name. He reached for all of it — every memory he had carried instead of spent.",
+        "text": "He did not reach for the name. He reached for all of it, every memory he had carried instead of spent.",
         "cg": "res://assets/cg/generated/story_ch10_seal_weave.png",
-        "text_ko": "그는 이름에 손을 뻗지 않았다. 전부에 손을 뻗었다 — 소모하는 대신 짊어지고 온 모든 기억에."
+        "text_ko": "그는 이름에 손을 뻗지 않았다. 전부에 손을 뻗었다, 소모하는 대신 짊어지고 온 모든 기억에."
       },
       {
         "speaker": "",
@@ -192,8 +193,8 @@
       },
       {
         "speaker": "",
-        "text": "He did not let them go. He held them out — woven, whole, refusing the Void the single clean wound it wanted.",
-        "text_ko": "그는 그것들을 놓아 보내지 않았다. 내밀었다 — 엮인 채로, 온전한 채로. 보이드가 원하는 단 하나의 깨끗한 상처를 거부하면서."
+        "text": "He did not let them go. He held them out, woven, whole, refusing the Void the single clean wound it wanted.",
+        "text_ko": "그는 그것들을 놓아 보내지 않았다. 내밀었다, 엮인 채로, 온전한 채로. 보이드가 원하는 단 하나의 깨끗한 상처를 거부하면서."
       },
       {
         "speaker": "",
@@ -216,7 +217,7 @@
         "speaker": "",
         "text": "When the light faded, the man who had been Arrel was still Arrel. Tired. Thinner, somehow, as if part of him now lived in the seal itself. But himself.",
         "cg": "res://assets/cg/generated/story_ch10_seal_weave_after.png",
-        "text_ko": "빛이 잦아들었을 때, 아렐이었던 남자는 여전히 아렐이었다. 지쳐 있었다. 어딘가 옅어져 있었다 — 그의 일부가 이제 봉인 그 자체에 살고 있는 것처럼. 그러나 그 자신이었다."
+        "text_ko": "빛이 잦아들었을 때, 아렐이었던 남자는 여전히 아렐이었다. 지쳐 있었다. 어딘가 옅어져 있었다, 그의 일부가 이제 봉인 그 자체에 살고 있는 것처럼. 그러나 그 자신이었다."
       },
       {
         "speaker": "Arrel",
@@ -238,8 +239,8 @@
       },
       {
         "speaker": "",
-        "text": "BL-07 was sealed. The Seam would survive. And for the first time, the price had not been a person — only the certainty that he could ever set those memories down again.",
-        "text_ko": "BL-07은 봉인되었다. 씸은 살아남을 것이다. 그리고 처음으로, 그 대가는 사람이 아니었다 — 다만 그 기억들을 다시는 내려놓을 수 없으리라는 확실함뿐."
+        "text": "BL-07 was sealed. The Seam would survive. And for the first time, the price had not been a person, only the certainty that he could ever set those memories down again.",
+        "text_ko": "BL-07은 봉인되었다. 씸은 살아남을 것이다. 그리고 처음으로, 그 대가는 사람이 아니었다, 다만 그 기억들을 다시는 내려놓을 수 없으리라는 확실함뿐."
       }
     ],
     "seal_complete": [
@@ -271,8 +272,8 @@
       },
       {
         "speaker": "",
-        "text": "The Void Hole screamed — a sound that existed only in the space between hearing and remembering — and collapsed inward.",
-        "text_ko": "공허의 구멍은 비명을 지르며 — 듣는 것과 기억하는 것 사이에만 존재하는 소리 — 안으로 무너졌다."
+        "text": "The Void Hole screamed, a sound that existed only in the space between hearing and remembering, and collapsed inward.",
+        "text_ko": "공허의 구멍은 비명을 지르며, 듣는 것과 기억하는 것 사이에만 존재하는 소리, 안으로 무너졌다."
       },
       {
         "speaker": "",
@@ -298,8 +299,8 @@
       },
       {
         "speaker": "",
-        "text": "But somewhere — deeper than memory, deeper than names — something in him knew she was important.",
-        "text_ko": "그러나 어딘가 — 기억보다 깊고, 이름보다 깊은 곳에서 — 그의 안의 무언가는 그녀가 소중하다는 것을 알고 있었다."
+        "text": "But somewhere, deeper than memory, deeper than names, something in him knew she was important.",
+        "text_ko": "그러나 어딘가, 기억보다 깊고, 이름보다 깊은 곳에서, 그의 안의 무언가는 그녀가 소중하다는 것을 알고 있었다."
       },
       {
         "speaker": "Elia",
@@ -339,9 +340,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "Arrel—",
+        "text": "Arrel...",
         "portrait": "elia_concern",
-        "text_ko": "아렐—"
+        "text_ko": "아렐..."
       },
       {
         "speaker": "Arrel",
@@ -385,14 +386,15 @@
     "void_descent": [
       {
         "speaker": "",
-        "text": "The path — if it could be called that — descended in spirals that didn't obey geometry.",
+        "text": "The path, if it could be called that, descended in spirals that didn't obey geometry.",
         "cg": "res://assets/cg/generated/chapter_splash_bl07_void.png",
-        "text_ko": "길은 — 그것을 길이라 부를 수 있다면 — 기하학을 따르지 않는 나선으로 내려갔다."
+        "text_ko": "길은, 그것을 길이라 부를 수 있다면, 기하학을 따르지 않는 나선으로 내려갔다."
       },
       {
         "speaker": "",
         "text": "Each step took them deeper. Not into the ground. Into the absence of ground. The fragments they walked on were memories of stone, held together by the Void's habit of destruction.",
-        "text_ko": "한 걸음마다 더 깊어졌다. 땅속으로가 아니라, 땅의 부재 속으로. 그들이 밟는 조각들은 돌의 기억이었다. 보이드의 허기가 붙들어 둔."
+        "text_ko": "한 걸음마다 더 깊어졌다. 땅속으로가 아니라, 땅의 부재 속으로. 그들이 밟는 조각들은 돌의 기억이었다. 보이드의 허기가 붙들어 둔.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch10_absence_path_v1.png"
       },
       {
         "speaker": "Elia",
@@ -402,8 +404,8 @@
       },
       {
         "speaker": "",
-        "text": "On a floating shard to their left — a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved.",
-        "text_ko": "왼쪽에 떠 있는 파편 위 — 문 하나. 아무것에도 붙지 않은 채 똑바로 서 있었다. 황동 손잡이가 달린 평범한 나무 문. 불가능하게 보존된 채."
+        "text": "On a floating shard to their left, a door. Standing upright, attached to nothing. An ordinary wooden door with a brass handle, impossibly preserved.",
+        "text_ko": "왼쪽에 떠 있는 파편 위, 문 하나. 아무것에도 붙지 않은 채 똑바로 서 있었다. 황동 손잡이가 달린 평범한 나무 문. 불가능하게 보존된 채."
       },
       {
         "speaker": "Arrel",
@@ -419,8 +421,8 @@
       },
       {
         "speaker": "",
-        "text": "As they passed, the door swung open. Beyond it — nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering.",
-        "text_ko": "그들이 지나치자 문이 열렸다. 그 너머 — 무(無). 그저 더 많은 무. 그러나 무에서 소리가 났다. 저녁 먹으라고 부르는 아이. 대답하는 어머니."
+        "text": "As they passed, the door swung open. Beyond it, nothing. Just more nothing. But from nothing came a sound: a child calling for dinner. A mother answering.",
+        "text_ko": "그들이 지나치자 문이 열렸다. 그 너머, 무(無). 그저 더 많은 무. 그러나 무에서 소리가 났다. 저녁 먹으라고 부르는 아이. 대답하는 어머니."
       },
       {
         "speaker": "",
@@ -438,12 +440,13 @@
       {
         "speaker": "",
         "text": "Not words. Feelings. Borrowed grief that pressed against his ribs like an unwelcome hand.",
-        "text_ko": "말이 아닙니다. 감정. 반갑지 않은 손처럼 그의 갈비뼈를 누르는 빌린 슬픔."
+        "text_ko": "말이 아닙니다. 감정. 반갑지 않은 손처럼 그의 갈비뼈를 누르는 빌린 슬픔.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch10_borrowed_grief_v1.png"
       },
       {
         "speaker": "",
-        "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize — and felt a certainty that the voice was important.",
-        "text_ko": "구리 맛이 났다. 장작 연기 냄새가 났다. 알아듣지 못하는 목소리가 제 이름을 부르는 것을 들었다 — 그리고 그 목소리가 소중하다는 확신을 느꼈다."
+        "text": "He tasted copper. He smelled woodsmoke. He heard his own name spoken in a voice he didn't recognize, and felt a certainty that the voice was important.",
+        "text_ko": "구리 맛이 났다. 장작 연기 냄새가 났다. 알아듣지 못하는 목소리가 제 이름을 부르는 것을 들었다, 그리고 그 목소리가 소중하다는 확신을 느꼈다."
       },
       {
         "speaker": "Arrel",
@@ -501,9 +504,9 @@
     "void_memory_fragments": [
       {
         "speaker": "",
-        "text": "Scattered across a floating platform — dozens of crystallized memories, glowing faintly in colors that shouldn't exist.",
+        "text": "Scattered across a floating platform, dozens of crystallized memories, glowing faintly in colors that shouldn't exist.",
         "cg": "res://assets/cg/generated/story_ch10_orphan_memories.png",
-        "text_ko": "떠 있는 단 위에 흩어진 것 — 수십 개의 결정화된 기억들. 존재해서는 안 될 색으로 희미하게 빛나며."
+        "text_ko": "떠 있는 단 위에 흩어진 것, 수십 개의 결정화된 기억들. 존재해서는 안 될 색으로 희미하게 빛나며."
       },
       {
         "speaker": "",
@@ -512,9 +515,10 @@
       },
       {
         "speaker": "Elia",
-        "text": "These are the memories the Void has consumed. It doesn't destroy them — it KEEPS them. Like a collection.",
+        "text": "These are the memories the Void has consumed. It doesn't destroy them, it KEEPS them. Like a collection.",
         "portrait": "elia_concern",
-        "text_ko": "보이드가 삼킨 기억들이야. 파괴하는 게 아니라 — 간직해. 수집품처럼."
+        "text_ko": "보이드가 삼킨 기억들이야. 파괴하는 게 아니라, 간직해. 수집품처럼.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch10_orphaned_lives_v1.png"
       },
       {
         "speaker": "Arrel",
@@ -550,13 +554,14 @@
         "speaker": "Elia",
         "text": "Arrel. Before we go further. There's something I need to say.",
         "portrait": "elia_concern",
-        "text_ko": "아렐. 더 들어가기 전에. 해야 할 말이 있어."
+        "text_ko": "아렐. 더 들어가기 전에. 해야 할 말이 있어.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch10_before_core_confession_v1.png"
       },
       {
         "speaker": "Arrel",
-        "text": "Elia—",
+        "text": "Elia...",
         "portrait": "arrel_neutral",
-        "text_ko": "엘리아—"
+        "text_ko": "엘리아..."
       },
       {
         "speaker": "Elia",
@@ -566,9 +571,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "Whatever happens in there — whatever you decide — I need you to know that the person you are RIGHT NOW is enough. You don't have to burn anything else to be worth saving.",
+        "text": "Whatever happens in there, whatever you decide, I need you to know that the person you are RIGHT NOW is enough. You don't have to burn anything else to be worth saving.",
         "portrait": "elia_concern",
-        "text_ko": "그 안에서 무슨 일이 일어나든 — 무엇을 결정하든 — 지금 이대로의 너로 충분하다는 걸 알았으면 해. 아낄 가치가 있기 위해 다른 걸 태울 필요는 없어."
+        "text_ko": "그 안에서 무슨 일이 일어나든, 무엇을 결정하든, 지금 이대로의 너로 충분하다는 걸 알았으면 해. 아낄 가치가 있기 위해 다른 걸 태울 필요는 없어."
       },
       {
         "speaker": "Arrel",
@@ -580,7 +585,7 @@
         "speaker": "Elia",
         "text": "I know. But the world doesn't get to have you AND those children. It shouldn't have to choose. Something is WRONG with a world that makes people pay for survival with themselves.",
         "portrait": "elia_concern",
-        "text_ko": "알아. 하지만 세상이 너와 그 아이들을 둘 다 가질 수는 없다는 법은 없어. 생존을 위해 스스로를 값으로 치르게 만드는 세상은 — 애초에 잘못된 거야."
+        "text_ko": "알아. 하지만 세상이 너와 그 아이들을 둘 다 가질 수는 없다는 법은 없어. 생존을 위해 스스로를 값으로 치르게 만드는 세상은, 애초에 잘못된 거야."
       },
       {
         "speaker": "",
@@ -606,7 +611,7 @@
       },
       {
         "speaker": "",
-        "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take — the choice to be here, together, right now.",
+        "text": "He looked at Elia. She looked back. Two people standing at the edge of everything, holding onto the only thing the Void couldn't take, the choice to be here, together, right now.",
         "cg": "res://assets/cg/generated/story_ch10_choice_at_core.png",
         "text_ko": "그는 엘리아를 바라보았다. 그녀는 뒤를 돌아보았다. 모든 것의 가장자리에 서서 공허가 받아들일 수 없는 유일한 것, 바로 지금 여기에 함께 있다는 선택을 붙잡고 있는 두 사람."
       },

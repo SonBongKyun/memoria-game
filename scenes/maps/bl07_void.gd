@@ -1,4 +1,4 @@
-## BL-07 Void Interior — 보이드 홀 내부 (Chapter 10: The Seal)
+## BL-07 Void Interior, 보이드 홀 내부 (Chapter 10: The Seal)
 ## 현실이 무너져 내리는 공간. The Seal 결정이 이루어지는 곳.
 ## 보이드의 심장부까지 진행 → Grade 1 기억 연소 결정.
 extends Node2D
@@ -88,7 +88,7 @@ func _ready() -> void:
 	void_particles = MapEffects.add_void_particles(self)
 	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
 	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
-	# S59: 보이드 깊이 그라디언트 (바람/안개 없음 — 이미 heavy_fog 존재)
+	# S59: 보이드 깊이 그라디언트 (바람/안개 없음, 이미 heavy_fog 존재)
 	MapEffects.add_depth_gradient(self, 0.1)
 	MapEffects.add_premium_map_lens(self, {"tint": Color(0.46, 0.28, 0.76, 1.0), "vignette": 0.48, "tint_strength": 0.10, "grain": 0.03, "shafts": 0.09, "glints": 2})
 	_setup_random_encounters()
@@ -99,7 +99,7 @@ func _ready() -> void:
 	WorldAtlas.add_gateways(self, "bl07_void")
 	AchievementManager.record_map_visit("bl07_void")
 	elia.repeat_line = "I can feel it pulling. Don't let go."
-	print("[BL07Void] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[BL07Void] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	MemoryManager.add_chapter_memories(10)
 
@@ -214,7 +214,7 @@ func _start_ch10_sequence() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "void_entry")
 
 func _on_entry_ended() -> void:
-	print("[BL07Void] Free exploration — reach the core")
+	print("[BL07Void] Free exploration, reach the core")
 
 ## ===================== 핵심부 트리거 =====================
 
@@ -242,30 +242,30 @@ func _reach_core() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "void_core")
 
 func _on_core_dialogue_ended() -> void:
-	# The Seal 결정 — 선택지 대화
+	# The Seal 결정, 선택지 대화
 	DialogueManager.dialogue_ended.connect(_on_seal_decision_ended, CONNECT_ONE_SHOT)
 	DialogueManager.load_and_start(DIALOGUE_FILE, "seal_decision")
 
 func _on_seal_decision_ended() -> void:
 	if GameManager.get_flag("seal_weave"):
-		# S146: The Weave — 보존한 기억을 봉인에 엮음 (이름을 태우지 않음)
+		# S146: The Weave, 보존한 기억을 봉인에 엮음 (이름을 태우지 않음)
 		_execute_weave()
 	elif GameManager.get_flag("seal_accepted"):
-		# Grade 1 기억 연소 — The Seal
+		# Grade 1 기억 연소, The Seal
 		_execute_seal()
 	else:
-		# 거부 — 퇴각
+		# 거부, 퇴각
 		_refuse_seal()
 
-## S146: The Weave 연출 — 색이 돌아오는 봉인 (백색 소실이 아닌 다채로운 봉합)
+## S146: The Weave 연출, 색이 돌아오는 봉인 (백색 소실이 아닌 다채로운 봉합)
 func _execute_weave() -> void:
 	AudioManager.play_combat_sfx("void_pulse")
 	await get_tree().create_timer(0.5).timeout
 
-	# 이름은 태우지 않는다 — 보존한 기억들이 봉인의 일부가 됨
-	print("[BL07Void] THE WEAVE — name preserved, memories woven into seal")
+	# 이름은 태우지 않는다, 보존한 기억들이 봉인의 일부가 됨
+	print("[BL07Void] THE WEAVE, name preserved, memories woven into seal")
 
-	# 화면 플래시 — 색이 돌아오는 따뜻한 빛
+	# 화면 플래시, 색이 돌아오는 따뜻한 빛
 	SceneTransition.transition_rect.color = Color(0.95, 0.85, 0.55)
 	SceneTransition.transition_rect.modulate.a = 1.0
 	await get_tree().create_timer(1.2).timeout
@@ -282,12 +282,12 @@ func _on_weave_complete() -> void:
 	GameManager.current_chapter = 11
 	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(10)
-	print("[BL07Void] Chapter 10 complete — The Weave (memories preserved)")
+	print("[BL07Void] Chapter 10 complete, The Weave (memories preserved)")
 	await get_tree().create_timer(2.0).timeout
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 10)
 
 func _execute_seal() -> void:
-	# 씬 암전 연출 — 이름을 태우는 순간
+	# 씬 암전 연출, 이름을 태우는 순간
 	AudioManager.play_combat_sfx("void_pulse")  # S58: 레이어드 보이드 SFX
 	await get_tree().create_timer(0.5).timeout
 
@@ -295,9 +295,9 @@ func _execute_seal() -> void:
 	var memory = MemoryManager.burn_memory("core_name_origin")
 	if memory:
 		GameManager.set_flag("zero_burn_path")
-		print("[BL07Void] ZERO BURN — Grade 1 memory burned")
+		print("[BL07Void] ZERO BURN, Grade 1 memory burned")
 
-	# 화면 플래시 — 백색 → 복귀
+	# 화면 플래시, 백색 → 복귀
 	SceneTransition.transition_rect.color = Color.WHITE
 	SceneTransition.transition_rect.modulate.a = 1.0
 	await get_tree().create_timer(1.2).timeout
@@ -321,7 +321,7 @@ func _on_seal_complete() -> void:
 	GameManager.current_chapter = 11
 	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(10)
-	print("[BL07Void] Chapter 10 complete — The Seal executed (Zero Burn path)")
+	print("[BL07Void] Chapter 10 complete, The Seal executed (Zero Burn path)")
 	await get_tree().create_timer(2.0).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 10)
@@ -331,7 +331,7 @@ func _on_refuse_complete() -> void:
 	GameManager.current_chapter = 11
 	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(10)
-	print("[BL07Void] Chapter 10 complete — The Seal refused (Preservation path)")
+	print("[BL07Void] Chapter 10 complete, The Seal refused (Preservation path)")
 	await get_tree().create_timer(2.0).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 10)
@@ -339,13 +339,13 @@ func _on_refuse_complete() -> void:
 ## ===================== 전투 트리거 =====================
 
 func _setup_battle_triggers() -> void:
-	# Void Fragment — 보이드 내부 떠다니는 파편 적
+	# Void Fragment, 보이드 내부 떠다니는 파편 적
 	_add_battle_area(
 		Vector2(3 * TILE_SIZE, 8 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
 		"Void Fragment", 70, 16, true
 	)
-	# Memory Eater — 기억을 먹는 존재
+	# Memory Eater, 기억을 먹는 존재
 	_add_battle_area(
 		Vector2(15 * TILE_SIZE, 11 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
@@ -404,13 +404,13 @@ func _setup_random_encounters() -> void:
 ## ===================== 인터랙티브 오브젝트 =====================
 
 func _setup_interactive_objects() -> void:
-	# 보이드 상자 — 파편 영역 (좌측 파편 근처, 희귀 아이템)
+	# 보이드 상자, 파편 영역 (좌측 파편 근처, 희귀 아이템)
 	_add_chest(
 		Vector2(16 * TILE_SIZE, 2 * TILE_SIZE),
 		"chest_void_fragment",
 		{"items": {"hi_potion": 2, "firebomb": 1}, "grains": 25}
 	)
-	# 단서 — 핵심부 근처 (보이드 본질)
+	# 단서, 핵심부 근처 (보이드 본질)
 	_add_clue(
 		Vector2(5 * TILE_SIZE, 9 * TILE_SIZE),
 		"clue_void_whisper",
@@ -496,7 +496,7 @@ func _build_map() -> void:
 
 	_minimap_data = Minimap.create_minimap(self, map_data, _tile_defs, MAP_WIDTH, MAP_HEIGHT)
 
-	# 핵심부 맥동용 — TileMap 위에 ColorRect 오버레이
+	# 핵심부 맥동용, TileMap 위에 ColorRect 오버레이
 	for y in range(MAP_HEIGHT):
 		for x in range(MAP_WIDTH):
 			if map_data[y][x] == Tile.CORE:

@@ -14,7 +14,7 @@ var story_flags: Dictionary = {}  # "met_elia": true, "malet_deal": false 등
 var ng_plus_cycle: int = 0  # 0 = 일반, 1+ = NG+ 회차
 const NG_PLUS_FILE: String = "user://ng_plus.json"
 
-# --- S54: Ending Gallery — 본 엔딩 추적 ---
+# --- S54: Ending Gallery, 본 엔딩 추적 ---
 var seen_endings: Array = []  # ["zero_burn", "preservation", ...]
 const ENDING_DATA: Dictionary = {
 	"zero_burn": {"name": "Zero Burn", "desc": "He burned everything. Even his name.", "cg": "res://assets/cg/generated/ending_zero_burn_trying_name.png"},
@@ -27,7 +27,7 @@ const ENDING_DATA: Dictionary = {
 }
 const SEEN_ENDINGS_FILE: String = "user://seen_endings.json"
 
-## S149: 기억 열쇠 — 간직한 기억으로 연 숨은 선택지의 수.
+## S149: 기억 열쇠, 간직한 기억으로 연 숨은 선택지의 수.
 ## 열쇠 3개 이상 = 보존 플레이가 세계에 남긴 흔적 → seam(희망) 엔딩 자격.
 const KEEPER_KEY_FLAGS: Array = [
 	"ch12_faces_key", "ch14_sword_key", "ch15_song_key",
@@ -45,29 +45,29 @@ func count_keeper_keys() -> int:
 ## ch23_conversion의 resolve_part3_ending 액션에서 호출.
 ## 우선순위: 명시적 이름 연소 > 공허 변이 > Weave 보존 > Ash 소진 > Tobias 기록 > Seam 희망 > Preservation.
 func evaluate_part3_ending() -> String:
-	# 1. Zero Burn — 이름을 태우는 명시적 선택 (canon 메인 라인: 변환 성공, 이름 소실)
+	# 1. Zero Burn, 이름을 태우는 명시적 선택 (canon 메인 라인: 변환 성공, 이름 소실)
 	if get_flag("p3_name_burned") or MemoryManager.is_memory_burned("core_name_origin"):
 		return "zero_burn"
-	# 2. Hollow — 태운 것이 너무 많아 사람이 남지 않음
+	# 2. Hollow, 태운 것이 너무 많아 사람이 남지 않음
 	if MemoryManager.get_burn_ratio() >= 0.75:
 		return "hollow"
-	# 3. The Weave — 보존 플레이를 끝까지 유지 + 변환 시도
+	# 3. The Weave, 보존 플레이를 끝까지 유지 + 변환 시도
 	if MemoryManager.weave_unlocked() and get_flag("p3_conversion_attempted"):
 		return "weave"
-	# 4. Ash — 이름은 지켰지만 관계 기억이 재가 됨
+	# 4. Ash, 이름은 지켰지만 관계 기억이 재가 됨
 	var rel_burned := 0
 	for m in MemoryManager.memories:
 		if m.is_burned and m.id.begins_with("rel_"):
 			rel_burned += 1
 	if rel_burned >= 3 or MemoryManager.get_burn_count() >= 8:
 		return "ash"
-	# 5. Tobias — 증인의 기록이 살아남음
+	# 5. Tobias, 증인의 기록이 살아남음
 	if get_flag("tobias_funeral") and MemoryManager.is_intact("identity_witness_record"):
 		return "tobias"
-	# 6. Seam — 숨겨진 희망을 발견한 자 (셀라 재회 / 숨은 정원 / S149: 기억 열쇠 3개+)
+	# 6. Seam, 숨겨진 희망을 발견한 자 (셀라 재회 / 숨은 정원 / S149: 기억 열쇠 3개+)
 	if get_flag("celah_reunion") or (get_flag("hidden_ch1_stump") and get_flag("hidden_ch6_garden")) or count_keeper_keys() >= 3:
 		return "seam"
-	# 7. Preservation — 기본: 이름을 지키고 계속 나아감
+	# 7. Preservation, 기본: 이름을 지키고 계속 나아감
 	return "preservation"
 
 func record_ending(ending_id: String) -> void:
@@ -116,7 +116,7 @@ func start_boss_rush() -> void:
 	# Reset player for boss rush
 	player_data.hp = player_data.max_hp
 	player_data.items = {"potion": 3, "hi_potion": 2, "antidote": 2, "witness_ink": 1}
-	print("[GameManager] Boss Rush started — %d bosses" % boss_rush_queue.size())
+	print("[GameManager] Boss Rush started, %d bosses" % boss_rush_queue.size())
 	_start_next_boss()
 
 func _start_next_boss() -> void:
@@ -163,7 +163,7 @@ func _boss_rush_complete() -> void:
 	var secs = int(elapsed) % 60
 	var record_text = " NEW RECORD!" if is_record else ""
 	NotificationToast.show_toast("Boss Rush Complete! Time: %d:%02d%s" % [mins, secs, record_text], NotificationToast.ToastType.SUCCESS)
-	print("[GameManager] Boss Rush complete — %.1fs%s" % [elapsed, record_text])
+	print("[GameManager] Boss Rush complete, %.1fs%s" % [elapsed, record_text])
 	change_state(GameState.MENU)
 	SceneTransition.change_scene("res://scenes/main/main.tscn")
 
@@ -224,6 +224,7 @@ var player_data: Dictionary = {
 	"max_hp": 100,
 	"grains": 0,  # 화폐
 	"field_focus": 0,  # Memory Pulse discoveries banked for the next battles
+	"directive_streak": 0,  # Consecutive player-chosen tactical objectives completed
 	"elia_with_party": true,  # 엘리아 동행 여부
 	"items": {},  # 아이템 인벤토리 {"potion": 2, "antidote": 1, ...}
 }
@@ -237,12 +238,16 @@ const ITEMS: Dictionary = {
 	"firebomb": {"name": "Firebomb", "desc": "Deals 12 damage, then burns the enemy for 2 turns.", "type": "burn", "power": 15, "impact": 12, "price": 18, "icon": "res://assets/ui/items/firebomb.png"},
 	"smoke_bomb": {"name": "Smoke Bomb", "desc": "Guaranteed escape from battle.", "type": "flee", "power": 0, "price": 15, "icon": "res://assets/ui/items/smoke_bomb.png"},
 	"witness_ink": {"name": "Witness Ink", "desc": "Advance WITNESS by 1, guard the next blow, and gain Limit.", "type": "witness", "power": 1, "price": 22, "icon": "res://assets/ui/items/witness_ink.png"},
-	"root_balm": {"name": "Root Balm", "desc": "Cures poison and burn, then restores 28 HP.", "type": "cure", "power": 0, "recovery": 28, "price": 24, "icon": "res://assets/ui/items/root_balm.png"},
-	"signal_jammer": {"name": "Signal Jammer", "desc": "Cuts the hostile signal and guarantees escape.", "type": "flee", "power": 0, "price": 30, "icon": "res://assets/ui/items/signal_jammer.png"},
-	"lantern_salve": {"name": "Lantern Salve", "desc": "Restores 65 HP with a steady ember glow.", "type": "heal", "power": 65, "price": 34, "icon": "res://assets/ui/items/lantern_salve.png"},
-	"name_thread": {"name": "Name Thread", "desc": "Advance WITNESS by 1, guard the next blow, and gain Limit.", "type": "witness", "power": 1, "price": 36, "icon": "res://assets/ui/items/name_thread.png"},
-	"compass_shard": {"name": "Compass Shard", "desc": "Advance WITNESS by 2, guard the next blow, and gain Limit.", "type": "witness", "power": 2, "price": 48, "icon": "res://assets/ui/items/compass_shard.png"},
-	"seed_capsule": {"name": "Seed Capsule", "desc": "Restores 110 HP. A single stored promise of rain.", "type": "heal", "power": 110, "price": 60, "icon": "res://assets/ui/items/seed_capsule.png"},
+	"root_balm": {"name": "Root Balm", "desc": "Cures poison and burn, then restores 28 HP.", "type": "cure", "power": 0, "recovery": 28, "price": 24, "icon": "res://assets/ui/items/root_balm_v2.png"},
+	"signal_jammer": {"name": "Signal Jammer", "desc": "Cuts the hostile signal and guarantees escape.", "type": "flee", "power": 0, "price": 30, "icon": "res://assets/ui/items/signal_jammer_v2.png"},
+	"lantern_salve": {"name": "Lantern Salve", "desc": "Restores 65 HP with a steady ember glow.", "type": "heal", "power": 65, "price": 34, "icon": "res://assets/ui/items/lantern_salve_v2.png"},
+	"name_thread": {"name": "Name Thread", "desc": "Advance WITNESS by 1, guard the next blow, and gain Limit.", "type": "witness", "power": 1, "price": 36, "icon": "res://assets/ui/items/name_thread_v2.png"},
+	"compass_shard": {"name": "Compass Shard", "desc": "Advance WITNESS by 2, guard the next blow, and gain Limit.", "type": "witness", "power": 2, "price": 48, "icon": "res://assets/ui/items/compass_shard_v2.png"},
+	"seed_capsule": {"name": "Seed Capsule", "desc": "Restores 110 HP. A single stored promise of rain.", "type": "heal", "power": 110, "price": 60, "icon": "res://assets/ui/items/seed_capsule_v2.png"},
+	"anchor_lantern": {"name": "Anchor Lantern", "desc": "Guards the next blow and adds 16 Limit.", "type": "guard", "power": 16, "price": 38, "icon": "res://assets/ui/items/anchor_lantern.png"},
+	"ledger_chalk": {"name": "Ledger Chalk", "desc": "Scans the enemy and adds 26 BREAK pressure.", "type": "scan", "power": 26, "price": 42, "icon": "res://assets/ui/items/ledger_chalk.png"},
+	"cinder_vial": {"name": "Cinder Vial", "desc": "Deals 20 damage and burns the enemy for 3 turns.", "type": "burn", "power": 11, "impact": 20, "duration": 3, "price": 34, "icon": "res://assets/ui/items/cinder_vial.png"},
+	"witness_knot": {"name": "Witness Knot", "desc": "Advance WITNESS by 1, restore 14 HP, and add 6 Limit.", "type": "witness", "power": 1, "recovery": 14, "limit_bonus": 6, "price": 46, "icon": "res://assets/ui/items/witness_knot.png"},
 }
 const UI_ICON_PATHS: Dictionary = {
 	"grains": "res://assets/ui/items/grains.png",
@@ -389,6 +394,12 @@ func consume_field_focus() -> bool:
 	field_focus_changed.emit(current - 1, FIELD_FOCUS_MAX)
 	return true
 
+func get_directive_streak() -> int:
+	return maxi(int(player_data.get("directive_streak", 0)), 0)
+
+func set_directive_streak(value: int) -> void:
+	player_data["directive_streak"] = maxi(value, 0)
+
 # --- S55: Play Statistics ---
 var play_stats: Dictionary = {
 	"play_time_seconds": 0.0,
@@ -403,6 +414,9 @@ var play_stats: Dictionary = {
 	"highest_momentum_rank": 0,
 	"objectives_completed": 0,
 	"momentum_surges": 0,
+	"highest_battle_grade": 0,
+	"s_rank_victories": 0,
+	"best_directive_streak": 0,
 	"echoes_mapped": 0,
 	"bosses_defeated": 0,
 	"items_used": 0,
@@ -659,8 +673,8 @@ func localized_runtime_text(text: String) -> String:
 	result = result.replace(" Grains", " 그레인")
 	result = result.replace("Autosaved", "자동 저장 완료")
 	result = result.replace("Autosave loaded", "자동 저장 불러오기 완료")
-	result = result.replace("Game saved — Slot ", "게임 저장 완료 — 슬롯 ")
-	result = result.replace("Game loaded — Slot ", "게임 불러오기 완료 — 슬롯 ")
+	result = result.replace("Game saved, Slot ", "게임 저장 완료, 슬롯 ")
+	result = result.replace("Game loaded, Slot ", "게임 불러오기 완료, 슬롯 ")
 	return result
 
 func localized_value(source: Dictionary, key: String, fallback: String = "") -> String:
@@ -719,7 +733,7 @@ func _get_exploration_presence() -> String:
 	var ch_name = RICH_PRESENCE_CHAPTERS.get(current_chapter, "Unknown")
 	return "Exploring: %s (Ch.%d)" % [ch_name, current_chapter]
 
-## S58: Store page metadata — print game stats to console for store description copy.
+## S58: Store page metadata, print game stats to console for store description copy.
 ## Call from debug console or add to a debug menu. Counts dialogue lines, endings, etc.
 func print_store_stats() -> void:
 	# Count dialogue lines across all chapter JSON files
@@ -744,7 +758,7 @@ func print_store_stats() -> void:
 	var num_maps = 10  # 10 explorable maps
 	var est_hours = "6-10"  # estimated play time range
 
-	print("========== MEMORIA — Steam Store Stats ==========")
+	print("========== MEMORIA, Steam Store Stats ==========")
 	print("  Dialogue lines:    ~%d" % total_lines)
 	print("  Endings:           %d unique endings" % num_endings)
 	print("  Achievements:      %d" % num_achievements)
@@ -762,7 +776,7 @@ func _ready() -> void:
 	_load_seen_endings()
 	_load_boss_rush_record()
 	BattleManager.battle_cleanup_finished.connect(_on_battle_ended_for_boss_rush)
-	# S55: 통계 — 전투/연소/적 격파 추적
+	# S55: 통계, 전투/연소/적 격파 추적
 	BattleManager.battle_started.connect(func(_e): add_stat("total_battles"))
 	BattleManager.battle_ended.connect(_on_battle_ended_stats)
 	BattleManager.combo_changed.connect(func(c): max_stat("highest_combo", c))
@@ -774,9 +788,9 @@ func _ready() -> void:
 	# S58: Initial rich presence + chapter tracking
 	update_rich_presence("In Menu")
 	mark_chapter_start()
-	print("[GameManager] Initialized — MEMORIA v0.1.0 (seen endings: %d)" % seen_endings.size())
+	print("[GameManager] Initialized, MEMORIA v0.1.0 (seen endings: %d)" % seen_endings.size())
 
-## S59: Screenshot mode — F12 to capture
+## S59: Screenshot mode, F12 to capture
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_F12 or event.physical_keycode == KEY_F12:
@@ -868,6 +882,7 @@ func start_new_game_plus() -> void:
 		"max_hp": 100,
 		"grains": kept_grains,
 		"field_focus": 0,
+		"directive_streak": 0,
 		"elia_with_party": true,
 		"items": kept_items,
 	}
@@ -966,6 +981,8 @@ func import_data(data: Dictionary) -> void:
 		player_data = data.player_data
 	if not player_data.has("field_focus"):
 		player_data["field_focus"] = 0
+	if not player_data.has("directive_streak"):
+		player_data["directive_streak"] = 0
 	if data.has("story_flags"):
 		story_flags = data.story_flags
 	if data.has("current_chapter"):

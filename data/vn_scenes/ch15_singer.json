@@ -1,6 +1,6 @@
 {
   "id": "ch15_singer",
-  "title": "Chapter 15 — The Singer",
+  "title": "Chapter 15, The Singer",
   "chapter": 15,
   "steps": [
     {
@@ -36,8 +36,8 @@
     {
       "cg": "res://assets/cg/generated/ch15_echo_shell_awakening.png",
       "fade": 1.0,
-      "narrate": "Gold and violet rings crossed the cell. The shell answered her scar with voices that had forgotten how to become words — Blanker-dulled voices, waking for the length of one held note.",
-      "narrate_ko": "금색과 보라색 고리가 감방을 가로질렀다. 조가비는 말이 되는 법을 잊은 목소리들로 그녀의 흉터에 답했다 — 블랭커에 무뎌진 목소리들이, 하나의 음이 지속되는 동안만 깨어났다."
+      "narrate": "Gold and violet rings crossed the cell. The shell answered her scar with voices that had forgotten how to become words, Blanker-dulled voices, waking for the length of one held note.",
+      "narrate_ko": "금색과 보라색 고리가 감방을 가로질렀다. 조가비는 말이 되는 법을 잊은 목소리들로 그녀의 흉터에 답했다, 블랭커에 무뎌진 목소리들이, 하나의 음이 지속되는 동안만 깨어났다."
     },
     {
       "speaker": "Elia",
@@ -156,8 +156,8 @@
       "requires_flag": "ch15_song_key",
       "cg": "res://assets/cg/generated/memory_key_first_age_refrain.png",
       "fade": 0.8,
-      "narrate": "In the dark, Han pressed two fingers to Arrel's wrist — the old signal for 'again, from the top.' His campfire song and her lullaby shared a refrain neither of them had written. Something in the First Age had sung both. She wrote on her slate: NOW WE ARE A CHOIR.",
-      "narrate_ko": "어둠 속에서 한이 아렐의 손목에 두 손가락을 얹었다 — '처음부터, 다시'라는 오래된 신호. 그의 모닥불 노래와 그녀의 자장가는 둘 중 누구도 쓴 적 없는 후렴을 공유하고 있었다. 제1시대의 무언가가 그 둘을 모두 불렀던 것이다. 그녀가 석판에 적었다: 이제 우리는 합창단이다."
+      "narrate": "In the dark, Han pressed two fingers to Arrel's wrist, the old signal for 'again, from the top.' His campfire song and her lullaby shared a refrain neither of them had written. Something in the First Age had sung both. She wrote on her slate: NOW WE ARE A CHOIR.",
+      "narrate_ko": "어둠 속에서 한이 아렐의 손목에 두 손가락을 얹었다, '처음부터, 다시'라는 오래된 신호. 그의 모닥불 노래와 그녀의 자장가는 둘 중 누구도 쓴 적 없는 후렴을 공유하고 있었다. 제1시대의 무언가가 그 둘을 모두 불렀던 것이다. 그녀가 석판에 적었다: 이제 우리는 합창단이다."
     },
     {
       "complete_chapter": 15,
@@ -165,5 +165,5 @@
       "id": "ch16_nera"
     }
   ],
-  "title_ko": "제15장 — 노래하는 자"
+  "title_ko": "제15장, 노래하는 자"
 }

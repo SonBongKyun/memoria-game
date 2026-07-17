@@ -1,6 +1,6 @@
 {
   "id": "ch17_forgetting_storm",
-  "title": "Chapter 17 — The Forgetting Storm",
+  "title": "Chapter 17, The Forgetting Storm",
   "chapter": 17,
   "steps": [
     {
@@ -167,8 +167,8 @@
       "requires_flag": "ch17_smell_key",
       "cg": "res://assets/cg/generated/memory_key_forest_rain.png",
       "fade": 0.8,
-      "narrate": "They crossed the storm without burning anything at all. The violet wind threw a hundred false weathers at him — and every one of them forgot to smell like rain on forest earth. What the body keeps, the storm cannot counterfeit.",
-      "narrate_ko": "그들은 아무것도 태우지 않고 폭풍을 건넜다. 보랏빛 바람이 백 가지 가짜 날씨를 그에게 퍼부었지만 — 그 무엇도 숲의 흙에 내리는 비 냄새를 흉내 내지는 못했다. 몸이 간직한 것을, 폭풍은 위조하지 못한다."
+      "narrate": "They crossed the storm without burning anything at all. The violet wind threw a hundred false weathers at him, and every one of them forgot to smell like rain on forest earth. What the body keeps, the storm cannot counterfeit.",
+      "narrate_ko": "그들은 아무것도 태우지 않고 폭풍을 건넜다. 보랏빛 바람이 백 가지 가짜 날씨를 그에게 퍼부었지만, 그 무엇도 숲의 흙에 내리는 비 냄새를 흉내 내지는 못했다. 몸이 간직한 것을, 폭풍은 위조하지 못한다."
     },
     {
       "complete_chapter": 17,
@@ -176,5 +176,5 @@
       "id": "ch18_living_funeral"
     }
   ],
-  "title_ko": "제17장 — 망각의 폭풍"
+  "title_ko": "제17장, 망각의 폭풍"
 }

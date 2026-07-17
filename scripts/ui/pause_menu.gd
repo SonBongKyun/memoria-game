@@ -1,4 +1,4 @@
-## PauseMenu (Autoload) — 일시정지 메뉴
+## PauseMenu (Autoload), 일시정지 메뉴
 ## ESC 키로 토글. Resume / Save / Load / Title / Quit.
 extends CanvasLayer
 
@@ -16,13 +16,149 @@ var save_info_label: Label
 var title_label: Label
 var pause_hint_label: Label
 var last_saved_label: Label
+var _active_artbook_items: Array[Dictionary] = []
 
-const PAUSE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_pause_archive_backdrop.png"
+const PAUSE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_pause_archive_backdrop_v2.png"
 const PAUSE_CONTROL_SLAB_PATH: String = "res://assets/cg/generated/ui_pause_control_slab.png"
 const ACHIEVEMENTS_BACKDROP_PATH: String = "res://assets/cg/generated/ui_achievements_chronicle_backdrop.png"
 const ENDING_GALLERY_BACKDROP_PATH: String = "res://assets/cg/generated/ui_ending_gallery_backdrop.png"
+const WORLD_MAP_BACKDROP_PATH: String = "res://assets/cg/generated/ui_world_map_routes_v1.png"
+const INVENTORY_BACKDROP_PATH: String = "res://assets/cg/generated/ui_inventory_archive_v2.png"
+const STATUS_BACKDROP_PATH: String = "res://assets/cg/generated/ui_character_status_dossier_v1.png"
+const INVENTORY_SLOT_ICON_PATHS: Dictionary = {
+	"weapon": "res://assets/ui/equipment/slot_weapon_v1.png",
+	"armor": "res://assets/ui/equipment/slot_armor_v1.png",
+	"accessory": "res://assets/ui/equipment/slot_accessory_v1.png",
+}
+const SAVE_ARCHIVE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_save_archive_v1.png"
+const FIELD_GUIDE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_field_guide_v1.png"
+const EMPTY_SAVE_RECORD_PATH: String = "res://assets/cg/generated/ui_empty_witness_record_v1.png"
 
+const SAVE_CHAPTER_ART := {
+	1: "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
+	2: "res://assets/cg/generated/chapter_splash_verdan_market.png",
+	3: "res://assets/cg/generated/chapter_splash_belt_waystation.png",
+	4: "res://assets/cg/generated/chapter_splash_drift_shelter.png",
+	5: "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
+	6: "res://assets/cg/generated/chapter_splash_the_seam.png",
+	7: "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
+	8: "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
+	9: "res://assets/cg/generated/memory_compass_resonance_cinematic.png",
+	10: "res://assets/cg/generated/chapter_splash_bl07_void.png",
+}
+
+const TRAVEL_DESTINATIONS: Array[Dictionary] = [
+	{"name": "Rim Forest", "scene": "res://scenes/maps/rim_forest.tscn", "chapter": 1, "desc": "The first witnessed route."},
+	{"name": "Verdan Market", "scene": "res://scenes/maps/verdan_market.tscn", "chapter": 2, "desc": "Memory, smoke, and exchange."},
+	{"name": "Belt Waystation", "scene": "res://scenes/maps/belt_waystation.tscn", "chapter": 3, "desc": "Relay Fourteen on the dead road."},
+	{"name": "Drift Shelter", "scene": "res://scenes/maps/drift_shelter.tscn", "chapter": 4, "desc": "A page held against the storm."},
+	{"name": "Crumbling Coast", "scene": "res://scenes/maps/crumbling_coast.tscn", "chapter": 5, "desc": "Two paths above a dissolving sea."},
+	{"name": "The Seam", "scene": "res://scenes/maps/the_seam.tscn", "chapter": 6, "desc": "A refuge held by seven lanterns."},
+	{"name": "Seam Outskirts", "scene": "res://scenes/maps/seam_outskirts.tscn", "chapter": 7, "desc": "The witnessed edge of BL-07."},
+	{"name": "Forgotten Forest", "scene": "res://scenes/maps/forgotten_forest.tscn", "chapter": 8, "desc": "Listening wood and feeding rings."},
+	{"name": "Colorless Waste", "scene": "res://scenes/maps/colorless_waste.tscn", "chapter": 9, "desc": "Where testimony replaces north."},
+	{"name": "BL-07 Void", "scene": "res://scenes/maps/bl07_void.tscn", "chapter": 10, "desc": "The final recorded threshold."},
+]
+
+const CHAPTER_EXPANSION_GALLERY_PATH := "res://data/chapter_expansion_gallery.json"
+const INTERFACE_EXPANSION_GALLERY_PATH := "res://data/interface_visual_gallery.json"
 const ARTBOOK_ITEMS: Array[Dictionary] = [
+	{
+		"title": "The Seam - Reunion at the Threshold",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_ch6_reunion_v1.png",
+		"desc": "The anchor-thread reconnects between Arrel and Elia at the lantern path into the refuge."
+	},
+	{
+		"title": "Witnessed Routes - World Map",
+		"type": "Interface Art",
+		"path": "res://assets/cg/generated/ui_world_map_routes_v1.png",
+		"desc": "A text-safe route atlas connecting all ten playable regions with one amber memory thread."
+	},
+	{
+		"title": "Field Archive - Inventory Panel",
+		"type": "Interface Art",
+		"path": "res://assets/cg/generated/ui_inventory_archive_v1.png",
+		"desc": "The item list, inspection cradle, and equipped record now share one readable archive surface."
+	},
+	{
+		"title": "Witness Archive - Save Records",
+		"type": "Interface Art",
+		"path": "res://assets/cg/generated/ui_save_archive_v1.png",
+		"desc": "Autosave and three manual records are compared as witnessed states before saving or returning."
+	},
+	{
+		"title": "Field Guide - Player Reference",
+		"type": "Interface Art",
+		"path": "res://assets/cg/generated/ui_field_guide_v1.png",
+		"desc": "Controls, exploration reading, battle flow, and memory-burning rules share a quiet reference plate."
+	},
+	{
+		"title": "Drift - Anchoring Session",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_drift_anchoring_v1.png",
+		"desc": "Elia gives a damaged memory a place to settle: warm tea, a blank book, and a thread held by hand."
+	},
+	{
+		"title": "Verdan - The Price of a Memory",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_verdan_memory_price_v1.png",
+		"desc": "Malet turns an ordinary lived moment into a commodity while Arrel decides what he can afford to lose."
+	},
+	{
+		"title": "Belt - A Hand-Copied Route",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_belt_blank_book_v1.png",
+		"desc": "Tobias keeps a route alive in the Blank Book, outside the Authority's official record."
+	},
+	{
+		"title": "The Seam - Lantern Watch",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_seam_lantern_watch_v1.png",
+		"desc": "Sable's refuge is held together by practical rituals: a lit gate, a marked route, and a neighbor expected home."
+	},
+	{
+		"title": "Sable - Void Walker Turnaround",
+		"type": "Character Sheet",
+		"path": "res://assets/game_image/reference/sable_reference_turnaround_v1.png",
+		"desc": "Canonical age, hood, lantern, ward token, palette, equipment, and field-pose reference for Sable."
+	},
+	{
+		"title": "The Seam - Resident Roles",
+		"type": "World Character Sheet",
+		"path": "res://assets/game_image/reference/seam_residents_reference_sheet_v1.png",
+		"desc": "Lantern keeper, witness scribe, impossible-garden tender, and gate scout: the work that keeps a refuge alive."
+	},
+	{
+		"title": "Crumbling Coast - The Parting",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_ch5_coastal_parting_v1.png",
+		"desc": "Arrel and Elia choose separate routes to divide Kairos's attention, placing the anchor itself at risk."
+	},
+	{
+		"title": "The Seam - Seven Lanterns",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_ch7_seven_lanterns_v1.png",
+		"desc": "Seven extinguished lanterns and one survivor turn Sable's warning about BL-07 into a witnessed loss."
+	},
+	{
+		"title": "Colorless Waste - Two Outcomes",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_ch9_kairos_outcomes_v1.png",
+		"desc": "Kairos offers two precise futures while refusing the responsibility of choosing who will pay for either one."
+	},
+	{
+		"title": "BL-07 - A Choice of Burdens",
+		"type": "Generated Story Archive",
+		"path": "res://assets/cg/generated/archive_ch10_burden_choice_v1.png",
+		"desc": "Arrel stands between the fading name, the shared witness, and the open wound at the heart of the Seal."
+	},
+	{
+		"title": "Story Archive - World Atlas Desk",
+		"type": "Interface Art",
+		"path": "res://assets/cg/generated/ui_story_archive_atlas_v2.png",
+		"desc": "The text-safe archive table now framing the Story Journal and its ten-route record."
+	},
 	{
 		"title": "Arrel - Turnaround",
 		"type": "Character Sheet",
@@ -518,7 +654,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act I: The Missing Fire",
 		"type": "Generated Character Story CG",
-		"path": "res://assets/cg/generated/story_ch1_camp_humming.png",
+		"path": "res://assets/cg/generated/archive_ch1_camp_humming_v2.png",
 		"desc": "Elia's melody crosses the dark camp and breaks before it reaches Arrel."
 	},
 	{
@@ -590,8 +726,8 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act II: Four Days",
 		"type": "Generated Threat Reveal CG",
-		"path": "res://assets/cg/generated/story_ch2_kairos_warning.png",
-		"desc": "Kairos appears as a cold Bureau projection while the distance closes."
+		"path": "res://assets/cg/generated/archive_ch2_information_price_v1.png",
+		"desc": "Malet lays out the coast route, Sable's name, and Kairos's warning after the price has been paid."
 	},
 	{
 		"title": "Act II: The Recorder",
@@ -614,7 +750,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act II: The Words Move",
 		"type": "Generated Memory Deterioration CG",
-		"path": "res://assets/cg/generated/story_ch4_reading_deterioration.png",
+		"path": "res://assets/cg/generated/archive_ch4_reading_loss_v1.png",
 		"desc": "The Blank Book stays still while Arrel's ability to read it comes apart."
 	},
 	{
@@ -848,7 +984,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Act III: The Eighteenth Ring",
 		"type": "Generated Ring Theory CG",
-		"path": "res://assets/cg/generated/story_ch8_eighteenth_ring.png",
+		"path": "res://assets/cg/generated/archive_ch8_ring_theory_v1.png",
 		"desc": "Tobias traces the forest's hidden order while Sable remembers who was lost."
 	},
 	{
@@ -1010,7 +1146,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Kairos' Wall Warning",
 		"type": "Generated Investigation CG",
-		"path": "res://assets/cg/generated/story_ch3_kairos_wall_warning.png",
+		"path": "res://assets/cg/generated/archive_ch3_kairos_marks_v1.png",
 		"desc": "A scratched warning interrupts the climb through the Belt waystation."
 	},
 	{
@@ -1712,13 +1848,13 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Sable - Void-Sense Battle Stance",
 		"type": "Canonical Battle Character",
-		"path": "res://assets/cg/game_image/sable_battle_fullbody.png",
+		"path": "res://assets/portraits/character_shots/sable_warden_v3.png",
 		"desc": "Blind old Sable listens across the battlefield, knife low and every wasted movement removed."
 	},
 	{
 		"title": "Tobias - Record Ward Stance",
 		"type": "Canonical Battle Character",
-		"path": "res://assets/cg/game_image/tobias_battle_fullbody.png",
+		"path": "res://assets/portraits/character_shots/tobias_ledger_v3.png",
 		"desc": "Tobias turns a field record into a precise ward without leaving the battle line."
 	},
 ]
@@ -1736,7 +1872,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("menu"):
 		# 메뉴/대화/전투/컷씬 중에는 열지 않음
 		if is_open:
-			_close()
+			if not _close_active_archive_modal():
+				_close()
 			get_viewport().set_input_as_handled()
 		elif _can_open_pause_menu():
 			_open()
@@ -1750,6 +1887,17 @@ func _can_open_pause_menu() -> bool:
 	# S78: Full-VN pivot 이후에는 대부분의 플레이 시간이 DIALOGUE(SceneFlow) 상태다.
 	# Artbook / Save / Options에 접근할 수 있도록 VN 진행 중에도 ESC 메뉴를 허용한다.
 	return GameManager.current_state == GameManager.GameState.DIALOGUE and has_node("/root/SceneFlow") and SceneFlow.is_active
+
+func _close_active_archive_modal() -> bool:
+	# Close the front-most archive surface before dismissing the whole pause
+	# menu. This keeps Esc predictable even while a child button owns focus.
+	for modal_name in ["SaveArchiveOverlay", "FieldGuideOverlay", "InventoryOverlay", "WorldMapOverlay"]:
+		var modal := get_node_or_null(modal_name)
+		if modal != null:
+			AudioManager.play_sfx("ui_close")
+			modal.queue_free()
+			return true
+	return false
 
 func _open() -> void:
 	if is_open:
@@ -1905,16 +2053,25 @@ func _build_ui() -> void:
 	vbox.add_child(sep2)
 
 	# 버튼들
+	var button_scroll := ScrollContainer.new()
+	button_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	button_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(button_scroll)
+
 	btn_container = VBoxContainer.new()
-	btn_container.add_theme_constant_override("separation", 8)
-	vbox.add_child(btn_container)
+	btn_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_container.add_theme_constant_override("separation", 7)
+	button_scroll.add_child(btn_container)
 
 	# S65 (A안 피벗): VN 정체성에 맞게 메뉴 슬림화.
-	# 숨김: Fast Travel, Stats, Load Autosave (RPG 기능 — 스토리 몰입 방해)
+	# 숨김: Fast Travel, Stats, Load Autosave (RPG 기능, 스토리 몰입 방해)
 	# 유지: Resume, Journal, Codex, Achievements (Steam 기대치), Endings, Options, Save/Load, Title, Quit
 	var buttons = [
 		{"text": GameManager.loc("resume"), "callback": _close},
 		{"text": GameManager.loc("journal"), "callback": _on_journal},
+		{"text": "ITEM ARCHIVE", "callback": _on_inventory},
+		{"text": "WORLD MAP", "callback": _on_travel},
+		{"text": "FIELD GUIDE" if GameManager.current_locale != "ko" else "필드 가이드", "callback": _on_field_guide},
 		{"text": GameManager.loc("codex"), "callback": _on_codex},
 		{"text": "Artbook", "callback": _on_artbook},
 		{"text": GameManager.loc("achievements"), "callback": _on_achievements},
@@ -1924,8 +2081,7 @@ func _build_ui() -> void:
 		buttons.append({"text": GameManager.loc("endings"), "callback": _on_endings})
 	buttons.append_array([
 		{"text": GameManager.loc("options"), "callback": _on_options},
-		{"text": GameManager.loc("save"), "callback": _on_save},
-		{"text": GameManager.loc("load"), "callback": _on_load},
+		{"text": "SAVE ARCHIVE" if GameManager.current_locale != "ko" else "저장 기록고", "callback": _on_save_archive},
 		{"text": GameManager.loc("title_return"), "callback": _on_title},
 		{"text": GameManager.loc("quit"), "callback": _on_quit},
 	])
@@ -1981,7 +2137,7 @@ func _build_ui() -> void:
 	last_saved_label.add_theme_color_override("font_color", Color(0.45, 0.55, 0.35))
 	vbox.add_child(last_saved_label)
 
-	# 하단 조작법 — S56: Dynamic hints based on input mode
+	# 하단 조작법, S56: Dynamic hints based on input mode
 	pause_hint_label = Label.new()
 	pause_hint_label.name = "HintLabel"
 	pause_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1993,6 +2149,13 @@ func _build_ui() -> void:
 
 ## S56: Update hint text based on input mode
 func _update_hint_text(hint_label: Label, last_saved: Label) -> void:
+	if GameManager.current_locale == "ko":
+		if InputManager and InputManager.is_controller_mode():
+			hint_label.text = InputManager.get_hint("cancel", "닫기")
+		else:
+			hint_label.text = "F6 빠른 저장  |  F7 빠른 불러오기  |  [Esc] 닫기"
+		last_saved.text = SaveManager.get_last_saved_text()
+		return
 	if InputManager and InputManager.is_controller_mode():
 		hint_label.text = InputManager.get_hint("cancel", "닫기" if GameManager.current_locale == "ko" else "Close")
 	else:
@@ -2018,7 +2181,7 @@ func _update_save_info() -> void:
 	if GameManager.ng_plus_cycle > 0:
 		ng_text = " (NG+%d)" % GameManager.ng_plus_cycle
 	var ch_name = chapter_name.get(ch, "Unknown")
-	var text = "Chapter %d — %s%s\n" % [ch, ch_name, ng_text]
+	var text = "Chapter %d, %s%s\n" % [ch, ch_name, ng_text]
 	text += "HP: %d / %d\n" % [hp, max_hp]
 	text += "Memories: %d held, %d burned" % [memory_count - burn_count, burn_count]
 	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
@@ -2051,7 +2214,359 @@ func _update_save_info() -> void:
 		var a_max_hp = auto_save.get("max_hp", 100)
 		text += "\nAutosave: Ch%d - %s | HP: %d/%d | %s" % [a_ch, a_ch_name, a_hp, a_max_hp, auto_save.get("timestamp", "?")]
 
-	save_info_label.text = text
+	save_info_label.text = text.replace("??", "· ")
+
+func _on_save_archive() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_save_archive_panel()
+
+func _show_save_archive_panel() -> void:
+	if get_node_or_null("SaveArchiveOverlay") != null:
+		return
+	var save_overlay := ColorRect.new()
+	save_overlay.name = "SaveArchiveOverlay"
+	save_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	save_overlay.color = Color(0, 0, 0, 0)
+	save_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(save_overlay)
+	_add_modal_backdrop(save_overlay, SAVE_ARCHIVE_BACKDROP_PATH, Color(0.004, 0.004, 0.009, 0.08))
+
+	var content := Control.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	save_overlay.add_child(content)
+
+	var header := Label.new()
+	header.anchor_left = 0.06
+	header.anchor_right = 0.94
+	header.anchor_top = 0.025
+	header.anchor_bottom = 0.09
+	header.text = _pause_loc("WITNESS ARCHIVE / SAVE RECORDS", "목격 기록고 / 저장 기록")
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44))
+	UITheme.apply_title_font(header)
+	content.add_child(header)
+
+	var slot_list := VBoxContainer.new()
+	slot_list.anchor_left = 0.065
+	slot_list.anchor_right = 0.535
+	slot_list.anchor_top = 0.105
+	slot_list.anchor_bottom = 0.88
+	slot_list.add_theme_constant_override("separation", 6)
+	content.add_child(slot_list)
+
+	var slot_buttons: Array[Button] = []
+	for slot in range(SaveManager.MAX_SLOTS + 1):
+		var slot_btn := Button.new()
+		slot_btn.custom_minimum_size = Vector2(0, 112)
+		slot_btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		slot_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		slot_btn.toggle_mode = true
+		slot_btn.expand_icon = true
+		slot_btn.add_theme_font_size_override("font_size", 13)
+		slot_btn.add_theme_color_override("font_color", Color(0.76, 0.70, 0.61))
+		slot_btn.add_theme_color_override("font_hover_color", Color(1.0, 0.84, 0.52))
+		var slot_style := StyleBoxFlat.new()
+		slot_style.bg_color = Color(0.018, 0.016, 0.024, 0.46)
+		slot_style.border_color = Color(0.36, 0.28, 0.18, 0.42)
+		slot_style.set_border_width_all(1)
+		slot_style.set_corner_radius_all(3)
+		slot_style.set_content_margin_all(10)
+		slot_style.content_margin_left = 16
+		slot_btn.add_theme_stylebox_override("normal", slot_style)
+		var slot_hover := slot_style.duplicate()
+		slot_hover.bg_color = Color(0.08, 0.06, 0.08, 0.72)
+		slot_hover.border_color = Color(0.78, 0.57, 0.28, 0.82)
+		slot_btn.add_theme_stylebox_override("hover", slot_hover)
+		slot_btn.add_theme_stylebox_override("focus", slot_hover)
+		var slot_pressed := slot_hover.duplicate()
+		slot_pressed.bg_color = Color(0.12, 0.085, 0.06, 0.82)
+		slot_btn.add_theme_stylebox_override("pressed", slot_pressed)
+		slot_btn.add_theme_stylebox_override("hover_pressed", slot_pressed)
+		slot_list.add_child(slot_btn)
+		slot_buttons.append(slot_btn)
+
+	var preview_title := Label.new()
+	preview_title.anchor_left = 0.575
+	preview_title.anchor_right = 0.925
+	preview_title.anchor_top = 0.12
+	preview_title.anchor_bottom = 0.18
+	preview_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	preview_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	preview_title.add_theme_font_size_override("font_size", 19)
+	preview_title.add_theme_color_override("font_color", Color(0.92, 0.76, 0.46))
+	content.add_child(preview_title)
+
+	var preview := TextureRect.new()
+	preview.anchor_left = 0.585
+	preview.anchor_right = 0.915
+	preview.anchor_top = 0.19
+	preview.anchor_bottom = 0.53
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview.modulate = Color(0.82, 0.78, 0.74, 0.78)
+	content.add_child(preview)
+
+	var details := RichTextLabel.new()
+	details.anchor_left = 0.585
+	details.anchor_right = 0.915
+	details.anchor_top = 0.55
+	details.anchor_bottom = 0.77
+	details.bbcode_enabled = true
+	details.fit_content = false
+	details.scroll_active = false
+	details.add_theme_font_size_override("normal_font_size", 14)
+	details.add_theme_color_override("default_color", Color(0.76, 0.70, 0.62))
+	content.add_child(details)
+
+	var action_row := HBoxContainer.new()
+	action_row.anchor_left = 0.605
+	action_row.anchor_right = 0.895
+	action_row.anchor_top = 0.80
+	action_row.anchor_bottom = 0.87
+	action_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	action_row.add_theme_constant_override("separation", 12)
+	content.add_child(action_row)
+
+	var save_btn := _make_archive_action_button(_pause_loc("SAVE HERE", "여기에 저장"), Color(0.74, 0.55, 0.28))
+	action_row.add_child(save_btn)
+	var load_btn := _make_archive_action_button(_pause_loc("RETURN HERE", "이 기록으로 돌아가기"), Color(0.42, 0.63, 0.72))
+	action_row.add_child(load_btn)
+
+	var footer := Label.new()
+	footer.anchor_left = 0.565
+	footer.anchor_right = 0.93
+	footer.anchor_top = 0.89
+	footer.anchor_bottom = 0.94
+	footer.text = _pause_loc("Autosave is protected. Manual records keep a backup copy.", "자동 저장은 보호됩니다. 수동 저장은 이전 기록을 백업합니다.")
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	footer.add_theme_font_size_override("font_size", 11)
+	footer.add_theme_color_override("font_color", Color(0.52, 0.48, 0.43))
+	content.add_child(footer)
+
+	var close_btn := Button.new()
+	close_btn.anchor_left = 0.925
+	close_btn.anchor_right = 0.975
+	close_btn.anchor_top = 0.025
+	close_btn.anchor_bottom = 0.085
+	close_btn.text = "X"
+	close_btn.flat = true
+	close_btn.add_theme_font_size_override("font_size", 18)
+	close_btn.add_theme_color_override("font_color", Color(0.68, 0.58, 0.44))
+	close_btn.pressed.connect(func():
+		AudioManager.play_sfx("ui_close")
+		save_overlay.queue_free()
+	)
+	content.add_child(close_btn)
+
+	var state := {"selected": 1, "confirm_slot": -1}
+	for slot in range(slot_buttons.size()):
+		slot_buttons[slot].pressed.connect(_select_save_archive_slot.bind(slot, state, slot_buttons, preview, preview_title, details, save_btn, load_btn))
+		slot_buttons[slot].focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+	save_btn.pressed.connect(_save_archive_write.bind(state, slot_buttons, preview, preview_title, details, save_btn, load_btn))
+	load_btn.pressed.connect(_save_archive_load.bind(state, save_overlay))
+	_refresh_save_archive_buttons(slot_buttons)
+	_select_save_archive_slot(1, state, slot_buttons, preview, preview_title, details, save_btn, load_btn)
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			save_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	save_overlay.gui_input.connect(close_handler)
+
+func _make_archive_action_button(text: String, accent: Color) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.custom_minimum_size = Vector2(172, 42)
+	button.add_theme_font_size_override("font_size", 13)
+	button.add_theme_color_override("font_color", Color(0.84, 0.79, 0.69))
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.035, 0.031, 0.043, 0.88)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.62)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.set_content_margin_all(8)
+	button.add_theme_stylebox_override("normal", style)
+	var hover := style.duplicate()
+	hover.bg_color = Color(accent.r * 0.20, accent.g * 0.20, accent.b * 0.20, 0.95)
+	hover.border_color = Color(accent.r, accent.g, accent.b, 0.95)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("focus", hover)
+	return button
+
+func _refresh_save_archive_buttons(buttons: Array[Button]) -> void:
+	for slot in range(buttons.size()):
+		var info := SaveManager.get_save_info(slot)
+		buttons[slot].text = _save_archive_slot_text(slot, info)
+		var art_path := EMPTY_SAVE_RECORD_PATH if info.is_empty() else _save_archive_art_path(info)
+		buttons[slot].icon = load(art_path) if art_path != "" and ResourceLoader.exists(art_path) else null
+
+func _save_archive_slot_text(slot: int, info: Dictionary) -> String:
+	var slot_name := _pause_loc("AUTOSAVE", "자동 저장") if slot == 0 else _pause_loc("MANUAL RECORD %d" % slot, "수동 기록 %d" % slot)
+	if info.is_empty():
+		return "%s\n%s" % [slot_name, _pause_loc("Empty witness record", "비어 있는 목격 기록")]
+	var chapter := int(info.get("chapter", 1))
+	var location := _save_archive_location_name(info)
+	var stamp := String(info.get("timestamp", "")).replace("T", "  ")
+	return "%s\nCh.%02d  ·  %s\nHP %d/%d  ·  %s" % [slot_name, chapter, location, int(info.get("hp", 0)), int(info.get("max_hp", 100)), stamp]
+
+func _select_save_archive_slot(slot: int, state: Dictionary, buttons: Array[Button], preview: TextureRect, preview_title: Label, details: RichTextLabel, save_btn: Button, load_btn: Button) -> void:
+	state["selected"] = slot
+	state["confirm_slot"] = -1
+	for index in range(buttons.size()):
+		buttons[index].button_pressed = index == slot
+	var info := SaveManager.get_save_info(slot)
+	var slot_label := _pause_loc("AUTOSAVE", "자동 저장") if slot == 0 else _pause_loc("MANUAL RECORD %d" % slot, "수동 기록 %d" % slot)
+	preview_title.text = slot_label
+	var art_path := _save_archive_art_path(info)
+	preview.texture = load(art_path) if art_path != "" and ResourceLoader.exists(art_path) else null
+	if info.is_empty():
+		details.text = "[center][color=#bca77b]%s[/color]\n\n%s[/center]" % [_pause_loc("NO WITNESS RECORDED", "기록된 목격 없음"), _pause_loc("Choose SAVE HERE to preserve the current route.", "현재 경로를 남기려면 여기에 저장을 선택하세요.")]
+	else:
+		var chapter := int(info.get("chapter", 1))
+		details.text = "[color=#d9b76a]%s[/color]\n%s\n\nHP  %d / %d\n%s  %d\n%s  %d\n%s  %s" % [_save_archive_chapter_name(chapter), _save_archive_location_name(info), int(info.get("hp", 0)), int(info.get("max_hp", 100)), _pause_loc("Grains", "그레인"), int(info.get("grains", 0)), _pause_loc("Burned memories", "연소한 기억"), int(info.get("burn_count", 0)), _pause_loc("Recorded", "기록 시각"), String(info.get("timestamp", "")).replace("T", "  ")]
+	save_btn.disabled = slot == 0
+	save_btn.text = _pause_loc("AUTOSAVE PROTECTED", "자동 저장 보호됨") if slot == 0 else (_pause_loc("OVERWRITE RECORD", "기록 덮어쓰기") if not info.is_empty() else _pause_loc("SAVE HERE", "여기에 저장"))
+	load_btn.disabled = info.is_empty()
+
+func _save_archive_write(state: Dictionary, buttons: Array[Button], preview: TextureRect, preview_title: Label, details: RichTextLabel, save_btn: Button, load_btn: Button) -> void:
+	var slot := int(state.get("selected", 1))
+	if slot == 0:
+		return
+	if SaveManager.has_save(slot) and int(state.get("confirm_slot", -1)) != slot:
+		state["confirm_slot"] = slot
+		save_btn.text = _pause_loc("CONFIRM OVERWRITE", "덮어쓰기 확인")
+		NotificationToast.show_toast(_pause_loc("Press again to replace this record", "한 번 더 눌러 이 기록을 교체하세요"), NotificationToast.ToastType.WARNING)
+		return
+	if SaveManager.save_game(slot):
+		AudioManager.play_sfx("confirm")
+		state["confirm_slot"] = -1
+		_refresh_save_archive_buttons(buttons)
+		_select_save_archive_slot(slot, state, buttons, preview, preview_title, details, save_btn, load_btn)
+		_update_save_info()
+
+func _save_archive_load(state: Dictionary, save_overlay: Control) -> void:
+	var slot := int(state.get("selected", 1))
+	if not SaveManager.has_save(slot):
+		return
+	AudioManager.play_sfx("confirm")
+	save_overlay.queue_free()
+	_close()
+	SaveManager.load_game(slot)
+
+func _save_archive_art_path(info: Dictionary) -> String:
+	var chapter := int(info.get("chapter", GameManager.current_chapter)) if not info.is_empty() else GameManager.current_chapter
+	return String(SAVE_CHAPTER_ART.get(clampi(chapter, 1, 10), "res://assets/cg/generated/ui_loss_record_blank_book_v2.png"))
+
+func _save_archive_chapter_name(chapter: int) -> String:
+	var names := {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
+	var names_ko := {1: "림 숲", 2: "베르단 시장", 3: "벨트 중계소", 4: "표류 대피소", 5: "무너지는 해안", 6: "더 심", 7: "심 외곽", 8: "망각의 숲", 9: "무색 황무지", 10: "BL-07 공허", 11: "에필로그"}
+	return String(names_ko.get(chapter, "알 수 없는 경로")) if GameManager.current_locale == "ko" else String(names.get(chapter, "Unknown Route"))
+
+func _save_archive_location_name(info: Dictionary) -> String:
+	var chapter := int(info.get("chapter", 1))
+	var raw := String(info.get("location", _save_archive_chapter_name(chapter)))
+	if GameManager.current_locale != "ko":
+		return raw
+	var localized := {
+		"Rim Forest": "림 숲", "Verdan Market": "베르단 시장", "Belt Waystation": "벨트 중계소",
+		"Drift Shelter": "표류 대피소", "Crumbling Coast": "무너지는 해안", "The Seam": "더 심",
+		"Seam Outskirts": "심 외곽", "Forgotten Forest": "망각의 숲", "Colorless Waste": "무색 황무지",
+		"Bl07 Void": "BL-07 공허", "BL-07 Void": "BL-07 공허",
+	}
+	return String(localized.get(raw, raw))
+
+func _on_field_guide() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_field_guide_panel()
+
+func _show_field_guide_panel() -> void:
+	if get_node_or_null("FieldGuideOverlay") != null:
+		return
+	var guide_overlay := ColorRect.new()
+	guide_overlay.name = "FieldGuideOverlay"
+	guide_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	guide_overlay.color = Color(0, 0, 0, 0)
+	guide_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(guide_overlay)
+	_add_modal_backdrop(guide_overlay, FIELD_GUIDE_BACKDROP_PATH, Color(0.004, 0.004, 0.009, 0.06))
+
+	var header := Label.new()
+	header.anchor_left = 0.19
+	header.anchor_right = 0.81
+	header.anchor_top = 0.035
+	header.anchor_bottom = 0.12
+	header.text = _pause_loc("FIELD GUIDE / HOW TO WITNESS", "필드 가이드 / 목격하는 법")
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44))
+	UITheme.apply_title_font(header)
+	guide_overlay.add_child(header)
+
+	var left_blocks := [
+		{"title": _pause_loc("MOVE & READ THE WORLD", "이동과 세계 읽기"), "body": _pause_loc("WASD / Left Stick  ·  Move\nE / A  ·  Talk, inspect, confirm\nGold diamond on the minimap  ·  Story objective", "WASD / 왼쪽 스틱  ·  이동\nE / A  ·  대화, 조사, 확인\n미니맵의 금빛 마름모  ·  이야기 목표")},
+		{"title": _pause_loc("BATTLE RHYTHM", "전투 리듬"), "body": _pause_loc("Choose a field directive, then shape your stance, combo, BREAK, and WITNESS plan around it.\nHigher grades pay more Grains. Consecutive directives build a reward chain; every third success restores Field Focus.\nItems preserve memories; burning one is powerful but permanent.", "현장 전술 지침을 고른 뒤 자세, 연계 공격, BREAK, 기억 읽기를 그 목표에 맞춰 구성하세요.\n높은 등급은 더 많은 그레인을 주고, 지침 연속 달성 3회마다 현장 집중을 되찾습니다.\n아이템은 기억을 지켜 주며, 기억 연소는 강하지만 영구적입니다.")},
+		{"title": _pause_loc("QUICK ACCESS", "빠른 접근"), "body": _pause_loc("Tab / M  ·  Memory archive\nQ  ·  Memory Pulse toward nearby echoes\nEsc  ·  Pause  |  F6 / F7  ·  Quick save / load", "Tab / M  ·  기억 서고\nQ  ·  가까운 메아리를 찾는 기억 파동\nEsc  ·  일시정지  |  F6 / F7  ·  빠른 저장 / 불러오기")},
+	]
+	var right_blocks := [
+		{"title": _pause_loc("MEMORY IS BOTH POWER AND WOUND", "기억은 힘이자 상처입니다"), "body": _pause_loc("Burning changes battle, dialogue, and the world. Residue can echo after a burn, but the original memory does not return.", "기억 연소는 전투와 대화, 세계를 바꿉니다. 잔존물이 메아리칠 수는 있어도 원래 기억은 돌아오지 않습니다.")},
+		{"title": _pause_loc("FOLLOW WITNESSED ROUTES", "목격된 경로를 따르세요"), "body": _pause_loc("The quest card names the next story thread. The World Map reopens only routes Arrel has already witnessed.", "퀘스트 카드는 다음 이야기 흐름을 알려 줍니다. 월드 맵에서는 아렐이 이미 목격한 경로만 다시 열립니다.")},
+		{"title": _pause_loc("KEEP THE VIEW CLEAR", "시야를 선명하게 유지하세요"), "body": _pause_loc("Options can reduce shake, flashes, particles, fog, grain, and decorative overlays without changing difficulty.", "옵션에서 난이도는 유지한 채 화면 흔들림, 번쩍임, 파티클, 안개, 그레인과 장식 오버레이를 줄일 수 있습니다.")},
+	]
+	for index in range(3):
+		_add_field_guide_block(guide_overlay, left_blocks[index], Rect2(0.075, 0.175 + index * 0.222, 0.38, 0.185))
+		_add_field_guide_block(guide_overlay, right_blocks[index], Rect2(0.555, 0.175 + index * 0.222, 0.37, 0.185))
+
+	var footer := Label.new()
+	footer.anchor_left = 0.20
+	footer.anchor_right = 0.80
+	footer.anchor_top = 0.89
+	footer.anchor_bottom = 0.95
+	footer.text = _pause_loc("The safest route is the one someone remembers with you.  ·  [ESC] Close", "가장 안전한 길은 누군가 함께 기억해 주는 길입니다.  ·  [ESC] 닫기")
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	footer.add_theme_font_size_override("font_size", 12)
+	footer.add_theme_color_override("font_color", Color(0.68, 0.59, 0.45))
+	guide_overlay.add_child(footer)
+
+	var close_btn := Button.new()
+	close_btn.anchor_left = 0.925
+	close_btn.anchor_right = 0.975
+	close_btn.anchor_top = 0.025
+	close_btn.anchor_bottom = 0.085
+	close_btn.text = "X"
+	close_btn.flat = true
+	close_btn.add_theme_font_size_override("font_size", 18)
+	close_btn.add_theme_color_override("font_color", Color(0.68, 0.58, 0.44))
+	close_btn.pressed.connect(func():
+		AudioManager.play_sfx("ui_close")
+		guide_overlay.queue_free()
+	)
+	guide_overlay.add_child(close_btn)
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			guide_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	guide_overlay.gui_input.connect(close_handler)
+
+func _add_field_guide_block(host: Control, data: Dictionary, anchors: Rect2) -> void:
+	var block := RichTextLabel.new()
+	block.anchor_left = anchors.position.x
+	block.anchor_top = anchors.position.y
+	block.anchor_right = anchors.position.x + anchors.size.x
+	block.anchor_bottom = anchors.position.y + anchors.size.y
+	block.bbcode_enabled = true
+	block.fit_content = false
+	block.scroll_active = false
+	block.text = "[color=#d9b76a][font_size=17]%s[/font_size][/color]\n[color=#c6b9a3][font_size=13]%s[/font_size][/color]" % [String(data.get("title", "")), String(data.get("body", ""))]
+	block.add_theme_color_override("default_color", Color(0.78, 0.73, 0.65))
+	host.add_child(block)
+
+func _pause_loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _on_save() -> void:
 	SaveManager.save_game(1)
@@ -2102,12 +2617,34 @@ func _on_artbook() -> void:
 	AudioManager.play_sfx("ui_select")
 	_show_artbook_panel()
 
+func _load_artbook_items() -> Array[Dictionary]:
+	var combined: Array[Dictionary] = []
+	for item in ARTBOOK_ITEMS:
+		combined.append(item.duplicate(true))
+	for manifest_path: String in [CHAPTER_EXPANSION_GALLERY_PATH, INTERFACE_EXPANSION_GALLERY_PATH]:
+		if not FileAccess.file_exists(manifest_path):
+			continue
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
+		if not parsed is Dictionary:
+			push_warning("Artbook expansion manifest is not a dictionary: %s" % manifest_path)
+			continue
+		var expansion_items: Variant = parsed.get("items", [])
+		if not expansion_items is Array:
+			push_warning("Artbook expansion manifest has no item array: %s" % manifest_path)
+			continue
+		for item: Variant in expansion_items:
+			if item is Dictionary:
+				combined.append(item.duplicate(true))
+	return combined
+
 func _show_artbook_panel() -> void:
+	_active_artbook_items = _load_artbook_items()
 	var art_overlay = ColorRect.new()
 	art_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	art_overlay.color = Color(0.01, 0.01, 0.015, 0.88)
 	art_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(art_overlay)
+	_add_modal_backdrop(art_overlay, "res://assets/cg/generated/ui_story_archive_atlas_v2.png", Color(0.01, 0.008, 0.02, 0.62))
 
 	var art_panel = PanelContainer.new()
 	art_panel.anchor_left = 0.05
@@ -2166,10 +2703,18 @@ func _show_artbook_panel() -> void:
 	left_panel.add_child(left_box)
 
 	var list_title = Label.new()
-	list_title.text = "FILES"
+	list_title.text = "FILES · %d" % _active_artbook_items.size()
 	list_title.add_theme_font_size_override("font_size", 14)
 	list_title.add_theme_color_override("font_color", Color(0.74, 0.65, 0.48))
 	left_box.add_child(list_title)
+
+	var search_box := LineEdit.new()
+	search_box.placeholder_text = "Search title or category"
+	search_box.clear_button_enabled = true
+	search_box.add_theme_font_size_override("font_size", 12)
+	search_box.add_theme_color_override("font_color", Color(0.84, 0.78, 0.68))
+	search_box.add_theme_color_override("font_placeholder_color", Color(0.42, 0.39, 0.36))
+	left_box.add_child(search_box)
 
 	var scroll = ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -2223,8 +2768,8 @@ func _show_artbook_panel() -> void:
 	preview_desc.add_theme_color_override("default_color", Color(0.74, 0.69, 0.61))
 	preview_box.add_child(preview_desc)
 
-	for i in range(ARTBOOK_ITEMS.size()):
-		var item := ARTBOOK_ITEMS[i]
+	for i in range(_active_artbook_items.size()):
+		var item := _active_artbook_items[i]
 		var btn = Button.new()
 		btn.text = "%s\n   %s" % [item.get("title", "Untitled"), item.get("type", "Reference")]
 		btn.custom_minimum_size = Vector2(0, 48)
@@ -2248,8 +2793,15 @@ func _show_artbook_panel() -> void:
 		btn.mouse_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		list.add_child(btn)
 
-	if ARTBOOK_ITEMS.size() > 0:
-		_set_artbook_preview(preview, preview_title, preview_type, preview_desc, ARTBOOK_ITEMS[0])
+	search_box.text_changed.connect(func(query: String):
+		var needle := query.strip_edges().to_lower()
+		for child in list.get_children():
+			if child is Button:
+				child.visible = needle == "" or String(child.text).to_lower().contains(needle)
+	)
+
+	if _active_artbook_items.size() > 0:
+		_set_artbook_preview(preview, preview_title, preview_type, preview_desc, _active_artbook_items[0])
 
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
@@ -2278,8 +2830,8 @@ func _set_artbook_preview(preview: TextureRect, title: Label, type_label: Label,
 
 func _on_artbook_item_pressed(index: int, preview: TextureRect, title: Label, type_label: Label, desc: RichTextLabel) -> void:
 	AudioManager.play_sfx("ui_select")
-	if index >= 0 and index < ARTBOOK_ITEMS.size():
-		_set_artbook_preview(preview, title, type_label, desc, ARTBOOK_ITEMS[index])
+	if index >= 0 and index < _active_artbook_items.size():
+		_set_artbook_preview(preview, title, type_label, desc, _active_artbook_items[index])
 
 func _add_modal_backdrop(host: Control, path: String, wash: Color = Color(0.01, 0.008, 0.02, 0.34)) -> void:
 	var art := TextureRect.new()
@@ -2440,7 +2992,7 @@ func _on_travel() -> void:
 	AudioManager.play_sfx("ui_select")
 	_show_travel_panel()
 
-func _show_travel_panel() -> void:
+func _show_travel_panel_legacy() -> void:
 	var travel_overlay = ColorRect.new()
 	travel_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	travel_overlay.color = Color(0, 0, 0, 0.7)
@@ -2482,7 +3034,7 @@ func _show_travel_panel() -> void:
 	desc.add_theme_color_override("font_color", Color(0.5, 0.5, 0.45))
 	vbox.add_child(desc)
 
-	# 맵 목록 — 챕터에 따라 해금
+	# 맵 목록, 챕터에 따라 해금
 	var maps = [
 		{"name": "Rim Forest", "scene": "res://scenes/maps/rim_forest.tscn", "chapter": 1, "desc": "Where it all began."},
 		{"name": "Verdan Market", "scene": "res://scenes/maps/verdan_market.tscn", "chapter": 2, "desc": "A place of trade and memory."},
@@ -2507,14 +3059,14 @@ func _show_travel_panel() -> void:
 		btn_style.set_corner_radius_all(4)
 
 		if unlocked:
-			btn.text = "Ch%d — %s\n    %s" % [map_data["chapter"], map_data["name"], map_data["desc"]]
+			btn.text = "Ch%d, %s\n    %s" % [map_data["chapter"], map_data["name"], map_data["desc"]]
 			btn_style.bg_color = Color(0.08, 0.1, 0.06, 0.9)
 			btn_style.border_color = Color(0.35, 0.45, 0.25, 0.5)
 			btn_style.set_border_width_all(1)
 			btn.add_theme_color_override("font_color", Color(0.65, 0.75, 0.5))
 			btn.add_theme_color_override("font_hover_color", Color(0.85, 0.95, 0.6))
 		else:
-			btn.text = "Ch%d — ???" % map_data["chapter"]
+			btn.text = "Ch%d, ???" % map_data["chapter"]
 			btn_style.bg_color = Color(0.06, 0.06, 0.06, 0.7)
 			btn_style.border_color = Color(0.2, 0.2, 0.2, 0.3)
 			btn_style.set_border_width_all(1)
@@ -2554,6 +3106,588 @@ func _show_travel_panel() -> void:
 			travel_overlay.queue_free()
 			get_viewport().set_input_as_handled()
 	travel_overlay.gui_input.connect(close_handler)
+
+func _show_travel_panel() -> void:
+	if get_node_or_null("WorldMapOverlay") != null:
+		return
+	var travel_overlay := ColorRect.new()
+	travel_overlay.name = "WorldMapOverlay"
+	travel_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	travel_overlay.color = Color(0, 0, 0, 0)
+	travel_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(travel_overlay)
+	_add_modal_backdrop(travel_overlay, WORLD_MAP_BACKDROP_PATH, Color(0.004, 0.004, 0.01, 0.14))
+
+	var travel_panel := PanelContainer.new()
+	travel_panel.name = "WorldMapPanel"
+	travel_panel.anchor_left = 0.025
+	travel_panel.anchor_right = 0.975
+	travel_panel.anchor_top = 0.025
+	travel_panel.anchor_bottom = 0.975
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.008, 0.007, 0.014, 0.12)
+	panel_style.border_color = Color(0.62, 0.47, 0.25, 0.64)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(4)
+	panel_style.set_content_margin_all(8)
+	travel_panel.add_theme_stylebox_override("panel", panel_style)
+	travel_overlay.add_child(travel_panel)
+
+	var content := Control.new()
+	travel_panel.add_child(content)
+	var current_chapter := clampi(GameManager.current_chapter, 1, 10)
+	var witnessed_count := mini(GameManager.current_chapter, TRAVEL_DESTINATIONS.size())
+
+	var header := Label.new()
+	header.anchor_left = 0.045
+	header.anchor_right = 0.77
+	header.anchor_top = 0.025
+	header.anchor_bottom = 0.085
+	header.text = "WITNESSED ROUTES / WORLD MAP"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44))
+	UITheme.apply_title_font(header)
+	content.add_child(header)
+
+	var subtitle := Label.new()
+	subtitle.anchor_left = 0.07
+	subtitle.anchor_right = 0.75
+	subtitle.anchor_top = 0.085
+	subtitle.anchor_bottom = 0.13
+	subtitle.text = "Only places held by witness can be crossed again."
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_color_override("font_color", Color(0.58, 0.53, 0.46))
+	content.add_child(subtitle)
+
+	var map_note := Label.new()
+	map_note.anchor_left = 0.055
+	map_note.anchor_right = 0.72
+	map_note.anchor_top = 0.865
+	map_note.anchor_bottom = 0.94
+	map_note.text = "CURRENT WITNESS  ·  CHAPTER %02d  ·  %d / %d ROUTES RECORDED" % [current_chapter, witnessed_count, TRAVEL_DESTINATIONS.size()]
+	map_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	map_note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	map_note.add_theme_font_size_override("font_size", 12)
+	map_note.add_theme_color_override("font_color", Color(0.72, 0.61, 0.43))
+	content.add_child(map_note)
+
+	var route_panel := PanelContainer.new()
+	route_panel.anchor_left = 0.795
+	route_panel.anchor_right = 0.975
+	route_panel.anchor_top = 0.075
+	route_panel.anchor_bottom = 0.925
+	var route_style := StyleBoxFlat.new()
+	route_style.bg_color = Color(0.01, 0.009, 0.016, 0.52)
+	route_style.border_color = Color(0.48, 0.36, 0.2, 0.48)
+	route_style.set_border_width_all(1)
+	route_style.set_corner_radius_all(3)
+	route_style.set_content_margin_all(8)
+	route_panel.add_theme_stylebox_override("panel", route_style)
+	content.add_child(route_panel)
+
+	var route_root := VBoxContainer.new()
+	route_root.add_theme_constant_override("separation", 7)
+	route_panel.add_child(route_root)
+	var route_title := Label.new()
+	route_title.text = "ROUTE INDEX"
+	route_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	route_title.add_theme_font_size_override("font_size", 14)
+	route_title.add_theme_color_override("font_color", Color(0.82, 0.68, 0.43))
+	route_root.add_child(route_title)
+
+	var route_scroll := ScrollContainer.new()
+	route_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	route_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	route_root.add_child(route_scroll)
+	var route_list := VBoxContainer.new()
+	route_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	route_list.add_theme_constant_override("separation", 5)
+	route_scroll.add_child(route_list)
+
+	for map_data in TRAVEL_DESTINATIONS:
+		var btn := Button.new()
+		var chapter := int(map_data.get("chapter", 1))
+		var unlocked := GameManager.current_chapter >= chapter
+		btn.custom_minimum_size = Vector2(0, 54)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.tooltip_text = String(map_data.get("desc", ""))
+		btn.clip_text = true
+		var btn_style := StyleBoxFlat.new()
+		btn_style.set_content_margin_all(7)
+		btn_style.set_corner_radius_all(3)
+		btn_style.set_border_width_all(1)
+		if unlocked:
+			var here := "  ·  HERE" if chapter == current_chapter else ""
+			btn.text = "%02d  %s%s\n%s" % [chapter, map_data.get("name", "Unknown"), here, map_data.get("desc", "")]
+			btn_style.bg_color = Color(0.035, 0.031, 0.045, 0.64)
+			btn_style.border_color = Color(0.38, 0.29, 0.17, 0.5)
+			btn.add_theme_color_override("font_color", Color(0.76, 0.7, 0.59))
+			btn.add_theme_color_override("font_hover_color", Color(1.0, 0.84, 0.49))
+		else:
+			btn.text = "%02d  UNWITNESSED ROUTE" % chapter
+			btn_style.bg_color = Color(0.018, 0.017, 0.022, 0.5)
+			btn_style.border_color = Color(0.18, 0.16, 0.15, 0.35)
+			btn.add_theme_color_override("font_color", Color(0.31, 0.3, 0.29))
+			btn.disabled = true
+		btn.add_theme_stylebox_override("normal", btn_style)
+		var hover_style := btn_style.duplicate()
+		hover_style.bg_color = Color(0.12, 0.09, 0.06, 0.88)
+		hover_style.border_color = Color(0.78, 0.57, 0.28, 0.85)
+		btn.add_theme_stylebox_override("hover", hover_style)
+		btn.add_theme_stylebox_override("focus", hover_style)
+		btn.add_theme_font_size_override("font_size", 11)
+		if unlocked:
+			var scene_path := String(map_data.get("scene", ""))
+			btn.pressed.connect(func():
+				AudioManager.play_sfx("confirm")
+				travel_overlay.queue_free()
+				_close()
+				SceneTransition.change_scene_styled(scene_path)
+			)
+			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		route_list.add_child(btn)
+
+	var close_label := Label.new()
+	close_label.text = "[ESC] Close"
+	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	close_label.add_theme_font_size_override("font_size", 11)
+	close_label.add_theme_color_override("font_color", Color(0.45, 0.4, 0.35))
+	route_root.add_child(close_label)
+
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			travel_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	travel_overlay.gui_input.connect(close_handler)
+	_animate_modal_panel(travel_panel)
+
+func _on_inventory() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_inventory_panel()
+
+func _show_inventory_panel() -> void:
+	if get_node_or_null("InventoryOverlay") != null:
+		return
+	var inventory_overlay := ColorRect.new()
+	inventory_overlay.name = "InventoryOverlay"
+	inventory_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	inventory_overlay.color = Color(0, 0, 0, 0)
+	inventory_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(inventory_overlay)
+	_add_modal_backdrop(inventory_overlay, INVENTORY_BACKDROP_PATH, Color(0.006, 0.005, 0.012, 0.22))
+
+	var inventory_panel := PanelContainer.new()
+	inventory_panel.name = "InventoryPanel"
+	inventory_panel.anchor_left = 0.035
+	inventory_panel.anchor_right = 0.965
+	inventory_panel.anchor_top = 0.04
+	inventory_panel.anchor_bottom = 0.96
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.012, 0.01, 0.018, 0.18)
+	panel_style.border_color = Color(0.62, 0.47, 0.25, 0.66)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(5)
+	panel_style.set_content_margin_all(8)
+	inventory_panel.add_theme_stylebox_override("panel", panel_style)
+	inventory_overlay.add_child(inventory_panel)
+
+	var content := Control.new()
+	inventory_panel.add_child(content)
+
+	var header := Label.new()
+	header.anchor_left = 0.39
+	header.anchor_right = 0.95
+	header.anchor_top = 0.012
+	header.anchor_bottom = 0.058
+	header.text = "FIELD ARCHIVE / CARRIED WITNESSES"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 21)
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.45))
+	UITheme.apply_title_font(header)
+	content.add_child(header)
+
+	var item_ids: Array[String] = []
+	var total_units := 0
+	for item_id_value in GameManager.ITEMS.keys():
+		var item_id := String(item_id_value)
+		var count := GameManager.get_item_count(item_id)
+		if count > 0:
+			item_ids.append(item_id)
+			total_units += count
+	item_ids.sort_custom(_inventory_item_less)
+
+	var intact_memories := 0
+	for memory in MemoryManager.memories:
+		if not memory.is_burned and not memory.is_faded:
+			intact_memories += 1
+	var status_strip := Label.new()
+	status_strip.name = "InventoryStatusStrip"
+	status_strip.anchor_left = 0.39
+	status_strip.anchor_right = 0.95
+	status_strip.anchor_top = 0.057
+	status_strip.anchor_bottom = 0.093
+	status_strip.text = "HP %d/%d  |  GRAINS %d  |  MEMORIES %d INTACT / %d BURNED  |  CHAPTER %02d" % [
+		int(GameManager.player_data.get("hp", 0)),
+		int(GameManager.player_data.get("max_hp", 0)),
+		int(GameManager.player_data.get("grains", 0)),
+		intact_memories,
+		MemoryManager.get_burn_count(),
+		GameManager.current_chapter,
+	]
+	status_strip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_strip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	status_strip.add_theme_font_size_override("font_size", 12)
+	status_strip.add_theme_color_override("font_color", Color(0.80, 0.84, 0.82))
+	content.add_child(status_strip)
+
+	var list_panel := PanelContainer.new()
+	list_panel.anchor_left = 0.045
+	list_panel.anchor_right = 0.35
+	list_panel.anchor_top = 0.095
+	list_panel.anchor_bottom = 0.895
+	var list_style := StyleBoxFlat.new()
+	list_style.bg_color = Color(0.018, 0.016, 0.024, 0.56)
+	list_style.border_color = Color(0.45, 0.34, 0.19, 0.48)
+	list_style.set_border_width_all(1)
+	list_style.set_corner_radius_all(3)
+	list_style.set_content_margin_all(10)
+	list_panel.add_theme_stylebox_override("panel", list_style)
+	content.add_child(list_panel)
+
+	var list_root := VBoxContainer.new()
+	list_root.add_theme_constant_override("separation", 8)
+	list_panel.add_child(list_root)
+
+	var list_title := Label.new()
+	list_title.text = "CARRIED  |  %d TYPES  |  %d TOTAL" % [item_ids.size(), total_units]
+	list_title.add_theme_font_size_override("font_size", 13)
+	list_title.add_theme_color_override("font_color", Color(0.91, 0.75, 0.46))
+	list_root.add_child(list_title)
+
+	var item_scroll := ScrollContainer.new()
+	item_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	item_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list_root.add_child(item_scroll)
+
+	var item_list := VBoxContainer.new()
+	item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_list.add_theme_constant_override("separation", 5)
+	item_scroll.add_child(item_list)
+	var item_buttons: Array[Button] = []
+
+	var detail_panel := PanelContainer.new()
+	detail_panel.anchor_left = 0.385
+	detail_panel.anchor_right = 0.95
+	detail_panel.anchor_top = 0.095
+	detail_panel.anchor_bottom = 0.64
+	var detail_style := StyleBoxFlat.new()
+	detail_style.bg_color = Color(0.014, 0.013, 0.02, 0.48)
+	detail_style.border_color = Color(0.42, 0.32, 0.18, 0.46)
+	detail_style.set_border_width_all(1)
+	detail_style.set_corner_radius_all(4)
+	detail_style.set_content_margin_all(18)
+	detail_panel.add_theme_stylebox_override("panel", detail_style)
+	content.add_child(detail_panel)
+
+	var detail_root := HBoxContainer.new()
+	detail_root.add_theme_constant_override("separation", 20)
+	detail_panel.add_child(detail_root)
+
+	var preview := TextureRect.new()
+	preview.custom_minimum_size = Vector2(148, 148)
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	detail_root.add_child(preview)
+
+	var copy := VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 8)
+	detail_root.add_child(copy)
+
+	var detail_title := Label.new()
+	detail_title.text = "No carried supply"
+	detail_title.add_theme_font_size_override("font_size", 22)
+	detail_title.add_theme_color_override("font_color", Color(0.94, 0.79, 0.49))
+	copy.add_child(detail_title)
+
+	var detail_type := Label.new()
+	detail_type.text = "FIELD RECORD"
+	detail_type.add_theme_font_size_override("font_size", 12)
+	detail_type.add_theme_color_override("font_color", Color(0.76, 0.72, 0.66))
+	copy.add_child(detail_type)
+
+	var detail_body := RichTextLabel.new()
+	detail_body.bbcode_enabled = true
+	detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_body.scroll_active = false
+	detail_body.text = "Nothing is currently recorded in the field satchel."
+	detail_body.add_theme_font_size_override("normal_font_size", 14)
+	detail_body.add_theme_color_override("default_color", Color(0.88, 0.82, 0.73))
+	copy.add_child(detail_body)
+
+	var detail_meta := Label.new()
+	detail_meta.add_theme_font_size_override("font_size", 12)
+	detail_meta.add_theme_color_override("font_color", Color(0.81, 0.74, 0.63))
+	copy.add_child(detail_meta)
+
+	for item_id in item_ids:
+		var item_data: Dictionary = GameManager.ITEMS[item_id]
+		var count := GameManager.get_item_count(item_id)
+		var btn := Button.new()
+		btn.text = "%s\n  x%d" % [item_data.get("name", item_id), count]
+		btn.tooltip_text = String(item_data.get("desc", ""))
+		btn.custom_minimum_size = Vector2(0, 50)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.icon = GameManager.get_item_icon(item_id)
+		btn.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.expand_icon = true
+		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_color_override("font_color", Color(0.90, 0.85, 0.75))
+		btn.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.52))
+		var btn_style := StyleBoxFlat.new()
+		btn_style.bg_color = Color(0.035, 0.031, 0.045, 0.62)
+		btn_style.border_color = Color(0.32, 0.24, 0.14, 0.48)
+		btn_style.set_border_width_all(1)
+		btn_style.set_corner_radius_all(3)
+		btn_style.set_content_margin_all(7)
+		btn.add_theme_stylebox_override("normal", btn_style)
+		var hover_style := btn_style.duplicate()
+		hover_style.bg_color = Color(0.12, 0.09, 0.065, 0.86)
+		hover_style.border_color = Color(0.78, 0.57, 0.28, 0.85)
+		btn.add_theme_stylebox_override("hover", hover_style)
+		btn.add_theme_stylebox_override("focus", hover_style)
+		btn.pressed.connect(_on_inventory_item_pressed.bind(item_id, preview, detail_title, detail_type, detail_body, detail_meta))
+		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		btn.set_meta("inventory_category", _inventory_item_category(item_id))
+		item_list.add_child(btn)
+		item_buttons.append(btn)
+
+	var filter_empty := Label.new()
+	filter_empty.text = "No carried supply in this category."
+	filter_empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	filter_empty.add_theme_font_size_override("font_size", 12)
+	filter_empty.add_theme_color_override("font_color", Color(0.48, 0.44, 0.4))
+	filter_empty.visible = false
+	item_list.add_child(filter_empty)
+
+	if item_ids.is_empty():
+		var empty_label := Label.new()
+		empty_label.text = "No supplies carried.\nField rewards and purchases appear here."
+		empty_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty_label.add_theme_font_size_override("font_size", 13)
+		empty_label.add_theme_color_override("font_color", Color(0.48, 0.44, 0.4))
+		item_list.add_child(empty_label)
+	else:
+		_set_inventory_detail(item_ids[0], preview, detail_title, detail_type, detail_body, detail_meta)
+
+	var filter_row := HBoxContainer.new()
+	filter_row.name = "InventoryFilters"
+	filter_row.anchor_left = 0.045
+	filter_row.anchor_right = 0.35
+	filter_row.anchor_top = 0.025
+	filter_row.anchor_bottom = 0.086
+	filter_row.add_theme_constant_override("separation", 5)
+	content.add_child(filter_row)
+	var filter_group := ButtonGroup.new()
+	for filter_data in [
+		{"id": "all", "label": "ALL"},
+		{"id": "recovery", "label": "RECOVER"},
+		{"id": "tactical", "label": "TACTIC"},
+		{"id": "witness", "label": "WITNESS"},
+	]:
+		var filter_button := Button.new()
+		filter_button.name = "InventoryFilter_%s" % String(filter_data.id).to_upper()
+		filter_button.text = String(filter_data.label)
+		filter_button.toggle_mode = true
+		filter_button.button_group = filter_group
+		filter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		filter_button.add_theme_font_size_override("font_size", 9)
+		filter_button.add_theme_color_override("font_color", Color(0.76, 0.72, 0.65))
+		filter_button.add_theme_color_override("font_pressed_color", Color(0.98, 0.81, 0.49))
+		filter_button.pressed.connect(_apply_inventory_filter.bind(item_buttons, String(filter_data.id), filter_empty))
+		filter_row.add_child(filter_button)
+		if String(filter_data.id) == "all":
+			filter_button.button_pressed = true
+
+	var equipment_panel := PanelContainer.new()
+	equipment_panel.anchor_left = 0.385
+	equipment_panel.anchor_right = 0.95
+	equipment_panel.anchor_top = 0.665
+	equipment_panel.anchor_bottom = 0.895
+	var equipment_style := StyleBoxFlat.new()
+	equipment_style.bg_color = Color(0.016, 0.014, 0.022, 0.48)
+	equipment_style.border_color = Color(0.46, 0.35, 0.19, 0.52)
+	equipment_style.set_border_width_all(1)
+	equipment_style.set_corner_radius_all(4)
+	equipment_style.set_content_margin_all(12)
+	equipment_panel.add_theme_stylebox_override("panel", equipment_style)
+	content.add_child(equipment_panel)
+
+	var equipment_root := VBoxContainer.new()
+	equipment_root.add_theme_constant_override("separation", 8)
+	equipment_panel.add_child(equipment_root)
+	var equipment_title := Label.new()
+	equipment_title.text = "EQUIPPED RECORD  |  ATK +%d  |  DEF +%d" % [GameManager.get_equip_bonus("atk"), GameManager.get_equip_bonus("def")]
+	equipment_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	equipment_title.add_theme_font_size_override("font_size", 13)
+	equipment_title.add_theme_color_override("font_color", Color(0.91, 0.75, 0.46))
+	equipment_root.add_child(equipment_title)
+
+	var slots := HBoxContainer.new()
+	slots.add_theme_constant_override("separation", 10)
+	equipment_root.add_child(slots)
+	for slot_name in ["weapon", "armor", "accessory"]:
+		var slot_card := PanelContainer.new()
+		slot_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var slot_style := StyleBoxFlat.new()
+		slot_style.bg_color = Color(0.025, 0.022, 0.032, 0.66)
+		slot_style.border_color = Color(0.35, 0.27, 0.16, 0.48)
+		slot_style.set_border_width_all(1)
+		slot_style.set_corner_radius_all(3)
+		slot_style.set_content_margin_all(8)
+		slot_card.add_theme_stylebox_override("panel", slot_style)
+		slots.add_child(slot_card)
+
+		var slot_row := HBoxContainer.new()
+		slot_row.add_theme_constant_override("separation", 8)
+		slot_card.add_child(slot_row)
+		var slot_icon := TextureRect.new()
+		slot_icon.name = "InventorySlotIcon_%s" % String(slot_name).capitalize()
+		slot_icon.custom_minimum_size = Vector2(46, 46)
+		slot_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		slot_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		slot_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var slot_icon_path := String(INVENTORY_SLOT_ICON_PATHS.get(slot_name, ""))
+		if slot_icon_path != "" and ResourceLoader.exists(slot_icon_path):
+			slot_icon.texture = load(slot_icon_path)
+		slot_row.add_child(slot_icon)
+
+		var slot_copy := VBoxContainer.new()
+		slot_copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slot_row.add_child(slot_copy)
+		var slot_label := Label.new()
+		slot_label.text = String(slot_name).to_upper()
+		slot_label.add_theme_font_size_override("font_size", 10)
+		slot_label.add_theme_color_override("font_color", Color(0.69, 0.65, 0.58))
+		slot_copy.add_child(slot_label)
+		var equipped_id := String(GameManager.equipped.get(slot_name, ""))
+		var equipped_label := Label.new()
+		if equipped_id != "" and GameManager.EQUIPMENT.has(equipped_id):
+			var equip_data: Dictionary = GameManager.EQUIPMENT[equipped_id]
+			var upgrade_level := GameManager.get_upgrade_level(equipped_id)
+			equipped_label.text = "%s%s\nATK +%d  DEF +%d" % [
+				equip_data.get("name", equipped_id),
+				" +%d" % upgrade_level if upgrade_level > 0 else "",
+				GameManager.get_upgraded_bonus(equipped_id, "atk"),
+				GameManager.get_upgraded_bonus(equipped_id, "def"),
+			]
+		else:
+			equipped_label.text = "Unbound\nNo recorded bonus"
+		equipped_label.add_theme_font_size_override("font_size", 11)
+		equipped_label.add_theme_color_override("font_color", Color(0.86, 0.81, 0.71))
+		slot_copy.add_child(equipped_label)
+
+	var footer := Label.new()
+	footer.anchor_left = 0.39
+	footer.anchor_right = 0.95
+	footer.anchor_top = 0.91
+	footer.anchor_bottom = 0.97
+	footer.text = "Items are consumed from battle commands  |  [ESC] Close"
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	footer.add_theme_font_size_override("font_size", 11)
+	footer.add_theme_color_override("font_color", Color(0.68, 0.63, 0.55))
+	content.add_child(footer)
+
+	var close_handler = func(event: InputEvent):
+		if event.is_action_pressed("cancel") or event.is_action_pressed("menu"):
+			inventory_overlay.queue_free()
+			get_viewport().set_input_as_handled()
+	inventory_overlay.gui_input.connect(close_handler)
+	_animate_modal_panel(inventory_panel)
+
+func _inventory_item_category(item_id: String) -> String:
+	var item_data: Dictionary = GameManager.ITEMS.get(item_id, {})
+	var item_type := String(item_data.get("type", ""))
+	match item_type:
+		"heal", "cure":
+			return "recovery"
+		"witness":
+			return "witness"
+	return "tactical"
+
+func _inventory_item_less(item_a: String, item_b: String) -> bool:
+	var order := {"heal": 0, "cure": 1, "witness": 2, "guard": 3, "scan": 4, "burn": 5, "flee": 6}
+	var data_a: Dictionary = GameManager.ITEMS.get(item_a, {})
+	var data_b: Dictionary = GameManager.ITEMS.get(item_b, {})
+	var rank_a := int(order.get(String(data_a.get("type", "")), 99))
+	var rank_b := int(order.get(String(data_b.get("type", "")), 99))
+	if rank_a != rank_b:
+		return rank_a < rank_b
+	return String(data_a.get("name", item_a)).naturalnocasecmp_to(String(data_b.get("name", item_b))) < 0
+
+func _apply_inventory_filter(item_buttons: Array[Button], category: String, empty_label: Label) -> void:
+	var visible_count := 0
+	for item_button in item_buttons:
+		var visible_for_filter := category == "all" or String(item_button.get_meta("inventory_category", "")) == category
+		item_button.visible = visible_for_filter
+		if visible_for_filter:
+			visible_count += 1
+	empty_label.visible = visible_count == 0 and not item_buttons.is_empty()
+	AudioManager.play_sfx("ui_hover")
+
+func _inventory_effect_text(item_data: Dictionary) -> String:
+	var item_type := String(item_data.get("type", ""))
+	match item_type:
+		"heal":
+			return "RESTORE %d HP" % int(item_data.get("power", 0))
+		"cure":
+			return "CLEANSE STATUS / RESTORE %d HP" % int(item_data.get("recovery", 0))
+		"burn":
+			return "IMPACT %d / BURN %d TURNS" % [int(item_data.get("impact", 0)), int(item_data.get("duration", 2))]
+		"flee":
+			return "GUARANTEED ESCAPE"
+		"witness":
+			var witness_copy := "WITNESS +%d / GUARD" % int(item_data.get("power", 1))
+			if int(item_data.get("recovery", 0)) > 0:
+				witness_copy += " / RESTORE %d HP" % int(item_data.get("recovery", 0))
+			return witness_copy
+		"guard":
+			return "GUARD NEXT BLOW / LIMIT +%d" % int(item_data.get("power", 0))
+		"scan":
+			return "SCAN TARGET / BREAK +%d" % int(item_data.get("power", 0))
+	return "FIELD-READY SUPPLY"
+
+func _on_inventory_item_pressed(item_id: String, preview: TextureRect, title: Label, type_label: Label, body: RichTextLabel, meta: Label) -> void:
+	AudioManager.play_sfx("ui_select")
+	_set_inventory_detail(item_id, preview, title, type_label, body, meta)
+
+func _set_inventory_detail(item_id: String, preview: TextureRect, title: Label, type_label: Label, body: RichTextLabel, meta: Label) -> void:
+	var item_data: Dictionary = GameManager.ITEMS.get(item_id, {})
+	if item_data.is_empty():
+		return
+	var type_names := {
+		"heal": "RESTORATIVE",
+		"cure": "REMEDY",
+		"burn": "INCENDIARY",
+		"flee": "EVASION TOOL",
+		"witness": "WITNESS RELIC",
+		"guard": "ANCHOR TOOL",
+		"scan": "RECORDING TOOL",
+	}
+	preview.texture = GameManager.get_item_icon(item_id)
+	title.text = String(item_data.get("name", item_id))
+	type_label.text = "%s  |  %s" % [
+		String(type_names.get(String(item_data.get("type", "")), "FIELD SUPPLY")),
+		_inventory_effect_text(item_data),
+	]
+	body.text = "[color=#e1cda5]%s[/color]\n\n[color=#b5aa98]A carried object is useful because someone remembered to prepare it.[/color]" % String(item_data.get("desc", "No field note recorded."))
+	meta.text = "CARRIED x%d    |    TRADE VALUE %d GRAINS" % [GameManager.get_item_count(item_id), int(item_data.get("price", 0))]
 
 ## S54: Ending Gallery
 func _on_endings() -> void:
@@ -2652,7 +3786,7 @@ func _show_endings_gallery() -> void:
 				thumb.color = Color(0.15, 0.12, 0.18)
 				card.add_child(thumb)
 		else:
-			# Locked — dark with lock icon
+			# Locked, dark with lock icon
 			thumb.color = Color(0.06, 0.05, 0.07)
 			card.add_child(thumb)
 			var lock_label = Label.new()
@@ -2712,20 +3846,56 @@ func _on_stats() -> void:
 
 func _show_stats_panel() -> void:
 	var stats_overlay = ColorRect.new()
+	stats_overlay.name = "CharacterStatusOverlay"
 	stats_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	stats_overlay.color = Color(0, 0, 0, 0.7)
+	stats_overlay.color = Color(0, 0, 0, 0)
 	stats_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(stats_overlay)
+	_add_modal_backdrop(stats_overlay, STATUS_BACKDROP_PATH, Color(0.006, 0.005, 0.012, 0.24))
+
+	var status_portrait := TextureRect.new()
+	status_portrait.name = "CharacterStatusPortrait"
+	status_portrait.anchor_left = 0.105
+	status_portrait.anchor_right = 0.29
+	status_portrait.anchor_top = 0.18
+	status_portrait.anchor_bottom = 0.60
+	status_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	status_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	status_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var status_portrait_path := "res://assets/portraits/character_shots/arrel_story_v2.png"
+	if ResourceLoader.exists(status_portrait_path):
+		status_portrait.texture = load(status_portrait_path)
+	stats_overlay.add_child(status_portrait)
+
+	var status_resources := Label.new()
+	status_resources.name = "CharacterStatusResources"
+	status_resources.anchor_left = 0.105
+	status_resources.anchor_right = 0.29
+	status_resources.anchor_top = 0.63
+	status_resources.anchor_bottom = 0.84
+	status_resources.text = "HP  %d / %d\nGRAINS  %d\nMEMORIES  %d\nBURNED  %d" % [
+		int(GameManager.player_data.get("hp", 0)),
+		int(GameManager.player_data.get("max_hp", 0)),
+		int(GameManager.player_data.get("grains", 0)),
+		MemoryManager.memories.size(),
+		MemoryManager.get_burn_count(),
+	]
+	status_resources.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_resources.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	status_resources.add_theme_font_size_override("font_size", 13)
+	status_resources.add_theme_color_override("font_color", Color(0.84, 0.86, 0.81))
+	stats_overlay.add_child(status_resources)
 
 	var stats_panel = PanelContainer.new()
-	stats_panel.anchor_left = 0.2
-	stats_panel.anchor_right = 0.8
-	stats_panel.anchor_top = 0.05
-	stats_panel.anchor_bottom = 0.95
+	stats_panel.name = "CharacterStatusPanel"
+	stats_panel.anchor_left = 0.31
+	stats_panel.anchor_right = 0.91
+	stats_panel.anchor_top = 0.09
+	stats_panel.anchor_bottom = 0.88
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.05, 0.08, 0.98)
-	style.border_color = Color(0.45, 0.55, 0.35, 0.7)
-	style.set_border_width_all(2)
+	style.bg_color = Color(0.025, 0.021, 0.032, 0.42)
+	style.border_color = Color(0.55, 0.43, 0.24, 0.42)
+	style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(20)
 	stats_panel.add_theme_stylebox_override("panel", style)
@@ -2737,10 +3907,11 @@ func _show_stats_panel() -> void:
 
 	# Header
 	var header = Label.new()
-	header.text = "PLAY STATISTICS"
+	header.text = "CHARACTER DOSSIER / PLAY STATISTICS"
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_theme_font_size_override("font_size", 20)
-	header.add_theme_color_override("font_color", Color(0.75, 0.85, 0.55))
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.45))
+	UITheme.apply_title_font(header)
 	vbox.add_child(header)
 
 	var sep = HSeparator.new()
@@ -2760,6 +3931,8 @@ func _show_stats_panel() -> void:
 	var stats = GameManager.play_stats
 	# S56: Completion percentage
 	var completion = AchievementManager.get_completion_percentage()
+	var grade_labels := ["D", "C", "B", "A", "S"]
+	var best_grade_rank := clampi(int(stats.get("highest_battle_grade", 0)), 0, grade_labels.size() - 1)
 	var stat_display = [
 		{"label": "Play Time", "value": GameManager.format_play_time()},
 		{"label": "Completion", "value": "%.1f%%" % completion},
@@ -2777,6 +3950,10 @@ func _show_stats_panel() -> void:
 		{"label": "Highest Resonance", "value": str(int(stats.get("highest_momentum_rank", 0)))},
 		{"label": "Objectives Completed", "value": str(int(stats.get("objectives_completed", 0)))},
 		{"label": "Resonance Surges", "value": str(int(stats.get("momentum_surges", 0)))},
+		{"label": "Best Battle Grade", "value": grade_labels[best_grade_rank]},
+		{"label": "S-Rank Victories", "value": str(int(stats.get("s_rank_victories", 0)))},
+		{"label": "Best Directive Chain", "value": "x%d" % int(stats.get("best_directive_streak", 0))},
+		{"label": "Current Directive Chain", "value": "x%d" % GameManager.get_directive_streak()},
 		{"label": "Items Used", "value": str(int(stats.items_used))},
 		{"label": "", "value": ""},
 		{"label": "Current Chapter", "value": str(GameManager.current_chapter)},
@@ -2793,14 +3970,14 @@ func _show_stats_panel() -> void:
 		name_label.text = entry.label
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_label.add_theme_font_size_override("font_size", 15)
-		name_label.add_theme_color_override("font_color", Color(0.6, 0.58, 0.52))
+		name_label.add_theme_color_override("font_color", Color(0.80, 0.78, 0.72))
 		row.add_child(name_label)
 
 		var val_label = Label.new()
 		val_label.text = entry.value
 		val_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		val_label.add_theme_font_size_override("font_size", 15)
-		val_label.add_theme_color_override("font_color", Color(0.9, 0.8, 0.5))
+		val_label.add_theme_color_override("font_color", Color(0.96, 0.82, 0.49))
 		val_label.custom_minimum_size = Vector2(120, 0)
 		row.add_child(val_label)
 
@@ -2808,7 +3985,7 @@ func _show_stats_panel() -> void:
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
 	close_label.add_theme_font_size_override("font_size", 11)
-	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
+	close_label.add_theme_color_override("font_color", Color(0.68, 0.63, 0.55))
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_label)
 
@@ -2818,6 +3995,7 @@ func _show_stats_panel() -> void:
 			stats_overlay.queue_free()
 			get_viewport().set_input_as_handled()
 	stats_overlay.gui_input.connect(close_handler)
+	_animate_modal_panel(stats_panel)
 
 ## S59: Quit confirmation dialog
 func _on_quit() -> void:

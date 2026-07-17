@@ -1,4 +1,4 @@
-## EliaDiary (Autoload) — 엘리아의 일지
+## EliaDiary (Autoload), 엘리아의 일지
 ## 기억 연소 시 엘리아의 반응을 기록. 특정 기억 연소 시 전투 기술 해금.
 ## MemoryUI에서 Diary 탭으로 접근.
 extends Node
@@ -15,7 +15,7 @@ var skills: Dictionary = {}
 # --- 엔트리 정의 ---
 const DIARY_ENTRIES: Dictionary = {
 	"sense_forest_smell": {
-		"text": "He burned the smell of rain on earth today. I watched his face — he didn't even flinch. I wonder if he knows what he just lost. The forest after rain. That quiet, breathing moment. Gone.\n\nI still remember it. I'll hold it for him.",
+		"text": "He burned the smell of rain on earth today. I watched his face, he didn't even flinch. I wonder if he knows what he just lost. The forest after rain. That quiet, breathing moment. Gone.\n\nI still remember it. I'll hold it for him.",
 		"unlock_skill": "",
 	},
 	"daily_campfire_song": {
@@ -27,23 +27,23 @@ const DIARY_ENTRIES: Dictionary = {
 		"unlock_skill": "",
 	},
 	"rel_hand_reaching": {
-		"text": "His hand stopped reaching for me today. Just stopped. Mid-gesture, his arm went slack, and he looked confused — like he couldn't remember why his hand was there.\n\nI caught it. I held it. He let me.\n\nBut next time, will there be a hand to catch?",
+		"text": "His hand stopped reaching for me today. Just stopped. Mid-gesture, his arm went slack, and he looked confused, like he couldn't remember why his hand was there.\n\nI caught it. I held it. He let me.\n\nBut next time, will there be a hand to catch?",
 		"unlock_skill": "desperate_reach",
 	},
 	"identity_first_sword": {
-		"text": "The sword memory. Malet's price. Whether he sold it or burned it himself — either way, his stance changed. Subtly. The grip shifted, the footwork simplified.\n\nHe fights now like someone who learned fighting from a manual, not from a hand guiding his.",
+		"text": "The sword memory. Malet's price. Whether he sold it or burned it himself, either way, his stance changed. Subtly. The grip shifted, the footwork simplified.\n\nHe fights now like someone who learned fighting from a manual, not from a hand guiding his.",
 		"unlock_skill": "remembered_strike",
 	},
 	"rel_sable_trust": {
-		"text": "He burned his trust in Sable. I saw it happen — one moment he was listening to her, the next he was just... hearing words. No weight behind them.\n\nSable noticed. She didn't say anything. She's used to being forgotten.",
+		"text": "He burned his trust in Sable. I saw it happen, one moment he was listening to her, the next he was just... hearing words. No weight behind them.\n\nSable noticed. She didn't say anything. She's used to being forgotten.",
 		"unlock_skill": "",
 	},
 	"daily_elia_hands": {
-		"text": "He burned the anchoring memory. My hands on his. The warmth.\n\nI can still anchor him — the technique doesn't need his memory of it. But it's harder now. Like pressing a page into a book that's forgotten it was a book.\n\nI'll press harder.",
+		"text": "He burned the anchoring memory. My hands on his. The warmth.\n\nI can still anchor him, the technique doesn't need his memory of it. But it's harder now. Like pressing a page into a book that's forgotten it was a book.\n\nI'll press harder.",
 		"unlock_skill": "anchor_pulse",
 	},
 	"identity_compass": {
-		"text": "The compass is gone. The pull that guided him through the Waste — he burned it for power. Now we navigate by guess and prayer.\n\nBut there's something strange. His body still turns toward BL-07. The muscle memory remains even when the memory doesn't.\n\nIs that hope? Or habit?",
+		"text": "The compass is gone. The pull that guided him through the Waste, he burned it for power. Now we navigate by guess and prayer.\n\nBut there's something strange. His body still turns toward BL-07. The muscle memory remains even when the memory doesn't.\n\nIs that hope? Or habit?",
 		"unlock_skill": "",
 	},
 }
@@ -86,7 +86,7 @@ signal skill_unlocked(skill_id: String, skill_name: String)
 func _ready() -> void:
 	# 기억 연소 시그널 연결
 	MemoryManager.memory_burned.connect(_on_memory_burned)
-	print("[EliaDiary] Ready — %d potential entries" % DIARY_ENTRIES.size())
+	print("[EliaDiary] Ready, %d potential entries" % DIARY_ENTRIES.size())
 
 func _on_memory_burned(memory: MemoryManager.Memory) -> void:
 	# 엘리아가 파티에 없으면 기록 안 함
@@ -133,7 +133,7 @@ func use_skill(skill_id: String) -> Dictionary:
 		"defend":
 			result["msg"] = "Elia hums softly. The melody shields you."
 		"stun_enemy":
-			result["msg"] = "A hand reaches through absence — the enemy freezes."
+			result["msg"] = "A hand reaches through absence, the enemy freezes."
 		"damage":
 			# 데미지 = 10 + (연소 수 * 8)
 			var burn_dmg = 10 + MemoryManager.get_burn_count() * 8
@@ -219,4 +219,4 @@ func import_data(data: Dictionary) -> void:
 						"current_cooldown": data.get("skills", {}).get(skill_id, {}).get("current_cooldown", 0),
 						"effect": sd["effect"], "power": sd["power"],
 					}
-	print("[EliaDiary] Imported — %d entries, %d skills" % [entries.size(), skills.size()])
+	print("[EliaDiary] Imported, %d entries, %d skills" % [entries.size(), skills.size()])

@@ -1,4 +1,4 @@
-## AshRain — 재비 파티클 이펙트
+## AshRain, 재비 파티클 이펙트
 ## 회색 반투명 플레이크가 느리게 내려오는 환경 효과.
 ## Player 노드에 부착하여 카메라를 따라다님.
 extends GPUParticles2D

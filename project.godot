@@ -70,7 +70,7 @@ window/stretch/mode="viewport"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dialogic/plugin.cfg", "res://addons/shaderV/plugin.cfg", "res://addons/vfx_lib/plugin.cfg")
+enabled=PackedStringArray("res://addons/dialogic/plugin.cfg", "res://addons/shaderV/plugin.cfg")
 
 [gui]
 

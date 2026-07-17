@@ -1,7 +1,7 @@
 {
   "id": "ch1_prologue",
-  "title": "Chapter 1 — Ash",
-  "title_ko": "1장 — 재",
+  "title": "Chapter 1, Ash",
+  "title_ko": "1장, 재",
   "chapter": 1,
   "bgm": "res://assets/audio/bgm/ch1_forest.mp3",
   "steps": [
@@ -26,8 +26,8 @@
       "narrate_ko": "그는 한참 동안 자기 손을 바라본 뒤에야 그것이 자신의 손이라는 걸 알아보았다."
     },
     {
-      "system_log": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]",
-      "system_log_ko": "[연소 감지: 유형 1 — 감각 파편]\n[위치 추정: 림 외곽, 아켄 숲]\n[잔류 기록: 흔적 감지 — 소실 중]"
+      "system_log": "[COMBUSTION DETECTED: Type 1, Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected, fading]",
+      "system_log_ko": "[연소 감지: 유형 1, 감각 파편]\n[위치 추정: 림 외곽, 아켄 숲]\n[잔류 기록: 흔적 감지, 소실 중]"
     },
     {
       "cg": "res://assets/cg/generated/story_ch1_elia_reunion.png",
@@ -121,7 +121,7 @@
     {
       "cg": "res://assets/cg/generated/story_ch1_void_beast_emergence.png",
       "fade": 1.2,
-      "narrate": "The ash thickened. Between the trees, something moved in the gray — too many limbs, too little shape.",
+      "narrate": "The ash thickened. Between the trees, something moved in the gray, too many limbs, too little shape.",
       "narrate_ko": "재가 짙어졌다. 나무들 사이, 회색 속에서 무언가가 움직였다. 팔다리는 너무 많고, 형체는 너무 적었다."
     },
     {
@@ -194,7 +194,7 @@
       "text_ko": "우릴 통과시켰잖아."
     },
     {
-      "cg": "res://assets/cg/generated/story_ch1_camp_humming.png",
+      "cg": "res://assets/cg/generated/archive_ch1_camp_humming_v2.png",
       "fade": 1.6,
       "requires_flag": "refused_to_burn",
       "narrate": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.",
@@ -265,7 +265,7 @@
       "text_ko": "그보다 더 조용해."
     },
     {
-      "cg": "res://assets/cg/generated/story_ch1_camp_humming.png",
+      "cg": "res://assets/cg/generated/archive_ch1_camp_humming_v2.png",
       "fade": 1.2,
       "narrate": "After a while she began to hum. A low melody, threadbare at the edges.",
       "narrate_ko": "잠시 후 그녀가 흥얼거리기 시작했다. 낮고, 가장자리가 해진 선율이었다.",

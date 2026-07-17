@@ -1,4 +1,4 @@
-## NPC — 범용 NPC 스크립트
+## NPC, 범용 NPC 스크립트
 ## StaticBody2D 기반. interact() 호출 시 대화 시작.
 extends StaticBody2D
 
@@ -35,7 +35,7 @@ func interact() -> void:
 	if DialogueManager.is_active:
 		return
 	_face_toward_player()
-	print("[NPC] %s — interact triggered" % npc_name)
+	print("[NPC] %s, interact triggered" % npc_name)
 	if dialogue_key == "":
 		var ambient_line := _get_runtime_line()
 		DialogueManager.start_dialogue([
@@ -45,7 +45,7 @@ func interact() -> void:
 
 	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
 	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
-		# 이미 대화한 NPC — 짧은 후속 대사
+		# 이미 대화한 NPC, 짧은 후속 대사
 		var line := _get_runtime_line()
 		DialogueManager.start_dialogue([
 			{"speaker": _get_runtime_name(), "text": line, "portrait": ""}
@@ -75,10 +75,8 @@ func _setup_placeholder_sprite() -> void:
 	var config := _get_character_config()
 	if field_art_path != "" and ResourceLoader.exists(field_art_path):
 		sprite.sprite_frames = _create_static_field_frames(field_art_path)
-		sprite.position = Vector2(0, 2)
-		sprite.offset = Vector2(0, -72)
-		sprite.scale = Vector2(0.36, 0.36)
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var field_texture := sprite.sprite_frames.get_frame_texture("idle_down", 0)
+		PixelSprite.apply_field_profile(sprite, field_texture, _field_target_height())
 		sprite.play("idle_down")
 		_add_character_grounding(_get_npc_accent_color())
 		return
@@ -98,14 +96,18 @@ func _setup_placeholder_sprite() -> void:
 	var uses_authored_sheet := uses_field_sprite or (sheet_key != "" and ResourceLoader.exists(sheet_path))
 	if uses_authored_sheet:
 		sprite.sprite_frames = PixelSprite.create_sheet_frames(sheet_key)
-		sprite.position = Vector2(0, 2)
 		# Purpose-built field frames share one 128x160 canvas and foot baseline.
 		# Legacy boards preserve their old normalization as a fallback only.
-		var authored_scale := 0.36 if uses_field_sprite else (0.40 if sheet_key == "elia" else 0.32)
-		var authored_offset := -72.0 if uses_field_sprite else (-52.0 if sheet_key == "elia" else -65.0)
-		sprite.offset = Vector2(0, authored_offset)
-		sprite.scale = Vector2(authored_scale, authored_scale)
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if uses_field_sprite else CanvasItem.TEXTURE_FILTER_LINEAR
+		if uses_field_sprite:
+			var field_texture := sprite.sprite_frames.get_frame_texture("idle_down", 0)
+			PixelSprite.apply_field_profile(sprite, field_texture, _field_target_height())
+		else:
+			sprite.position = Vector2(0, 2)
+			var authored_scale := 0.40 if sheet_key == "elia" else 0.32
+			var authored_offset := -52.0 if sheet_key == "elia" else -65.0
+			sprite.offset = Vector2(0, authored_offset)
+			sprite.scale = Vector2(authored_scale, authored_scale)
+			sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	else:
 		sprite.sprite_frames = PixelSprite.create_frames(config)
 		sprite.position = Vector2(0, 2)
@@ -127,6 +129,10 @@ func _create_static_field_frames(art_path: String) -> SpriteFrames:
 		frames.set_animation_loop(animation, true)
 		frames.add_frame(animation, texture)
 	return frames
+
+func _field_target_height() -> float:
+	var lowered := npc_name.to_lower()
+	return PixelSprite.FIELD_CHILD_HEIGHT if "child" in lowered else PixelSprite.FIELD_ADULT_HEIGHT
 
 func _face_toward_player() -> void:
 	if sprite == null or sprite.sprite_frames == null:
@@ -203,8 +209,8 @@ func _get_character_config() -> Dictionary:
 func _add_character_grounding(accent: Color) -> void:
 	var shadow := Polygon2D.new()
 	shadow.polygon = PackedVector2Array([
-		Vector2(-15, 21), Vector2(-8, 17), Vector2(8, 17), Vector2(15, 21),
-		Vector2(8, 24), Vector2(-8, 24)
+		Vector2(-15, 2), Vector2(-8, -1), Vector2(8, -1), Vector2(15, 2),
+		Vector2(8, 5), Vector2(-8, 5)
 	])
 	shadow.color = Color(0.0, 0.0, 0.0, 0.30)
 	shadow.z_index = 0
@@ -214,7 +220,7 @@ func _add_character_grounding(accent: Color) -> void:
 	ring.width = 1.1
 	ring.default_color = Color(accent.r, accent.g, accent.b, 0.30)
 	ring.points = PackedVector2Array([
-		Vector2(-11, 22), Vector2(-6, 25), Vector2(6, 25), Vector2(11, 22)
+		Vector2(-11, 2), Vector2(-6, 5), Vector2(6, 5), Vector2(11, 2)
 	])
 	ring.z_index = 1
 	add_child(ring)

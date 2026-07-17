@@ -1,6 +1,13 @@
 # MEMORIA 폰트 시스템
 
-S71 기준. **현재 시스템 폰트 자동 매칭으로 작동.** 추가 다운로드 없이 빌드 가능.
+S199 기준. **현재 글꼴은 프로젝트에 직접 포함되어 모든 PC에서 동일하게 렌더링된다.**
+
+- 대화·나레이션·제목: `NotoSerifKR-VF.ttf`
+- 버튼·HUD·안내: `NotoSansKR-VF.ttf`
+- 렌더링: 회색조 안티앨리어싱 + 일반 힌팅, 밉맵/서브픽셀 위치 비활성화
+- 라이선스: Noto Fonts, SIL Open Font License 1.1
+
+아래 시스템 폰트 체인 내용은 이전 구현을 기록하기 위한 참고 자료다.
 
 ## 자동 폰트 체인 (theme.tres 기준)
 
@@ -104,6 +111,6 @@ font_data = preload("res://assets/fonts/Pretendard-Regular.ttf")
 
 ## 권장 다음 단계
 
-1. **현재 (S71)**: SystemFont 자동 매칭 — 이미 작동 중. 일단 이대로 빌드.
-2. **테스터 피드백 수집 후**: 친구가 "폰트가 여전히 약하다"고 하면 위 임베드로 업그레이드.
-3. **Steam 출시 전**: 반드시 임베드. 플레이어 PC에 폰트 없으면 fallback 깨질 수 있음.
+1. **현재 (S199)**: Noto Serif KR / Noto Sans KR 임베드 완료.
+2. 배포 빌드에서 `assets/fonts/`가 포함되는지만 확인한다.
+3. 폰트 교체 시 `UITheme`의 번들 경로와 시각 스모크 테스트를 함께 갱신한다.

@@ -1,6 +1,6 @@
-## EncounterModifier — 보이드 부패 인카운터 수정자
+## EncounterModifier, 보이드 부패 인카운터 수정자
 ## 기억 연소 횟수에 따라 랜덤 전투에 수정자 부여.
-## 많이 태울수록 세계가 반응 — 전투가 더 예측 불가해짐.
+## 많이 태울수록 세계가 반응, 전투가 더 예측 불가해짐.
 class_name EncounterModifier
 extends RefCounted
 
@@ -11,20 +11,20 @@ const MODIFIERS: Dictionary = {
 	# 3-5번 연소: 가벼운 수정자
 	"mid": [
 		{"id": "memory_fog", "name": "Memory Fog", "desc": "The fog of burned memories clouds your aim.", "effect": "player_miss", "value": 20},
-		{"id": "residue_storm", "name": "Residue Storm", "desc": "Residue burns surge — echoes amplified.", "effect": "echo_boost", "value": 50},
+		{"id": "residue_storm", "name": "Residue Storm", "desc": "Residue burns surge, echoes amplified.", "effect": "echo_boost", "value": 50},
 		{"id": "void_whisper", "name": "Void Whisper", "desc": "The void notices you. Enemy attacks have a sting.", "effect": "enemy_atk_up", "value": 15},
 	],
 	# 6-8번 연소: 중간 수정자
 	"high": [
-		{"id": "void_surge", "name": "Void Surge", "desc": "Dark energy surges — enemies gain new abilities.", "effect": "enemy_ability_add", "value": 1},
+		{"id": "void_surge", "name": "Void Surge", "desc": "Dark energy surges, enemies gain new abilities.", "effect": "enemy_ability_add", "value": 1},
 		{"id": "fractured_time", "name": "Fractured Time", "desc": "Time fractures. The enemy acts twice every 3rd round.", "effect": "enemy_double_turn", "value": 3},
 		{"id": "burning_ground", "name": "Burning Ground", "desc": "The ground smolders with memory residue.", "effect": "dot_both", "value": 5},
 		{"id": "memory_weight", "name": "Memory Weight", "desc": "Unburned memories drag you down.", "effect": "player_def_down", "value": 20},
 	],
 	# 9+번 연소: 위험 수정자
 	"extreme": [
-		{"id": "reality_tear", "name": "Reality Tear", "desc": "Reality fractures — the enemy becomes a Void Beast.", "effect": "void_convert", "value": 0},
-		{"id": "echo_overload", "name": "Echo Overload", "desc": "Echoes cascade — memory burns trigger double echoes.", "effect": "double_echo", "value": 0},
+		{"id": "reality_tear", "name": "Reality Tear", "desc": "Reality fractures, the enemy becomes a Void Beast.", "effect": "void_convert", "value": 0},
+		{"id": "echo_overload", "name": "Echo Overload", "desc": "Echoes cascade, memory burns trigger double echoes.", "effect": "double_echo", "value": 0},
 		{"id": "the_watcher", "name": "The Watcher", "desc": "The Bureau observes. End the fight in 6 turns.", "effect": "turn_limit", "value": 6},
 		{"id": "void_hunger", "name": "Void Hunger", "desc": "BL-07 reaches for you. Lose HP each turn.", "effect": "player_dot", "value": 8},
 	],

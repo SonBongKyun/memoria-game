@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/tools/capture_battle_item_tray.gd" type="Script" id="1"]
+
+[node name="CaptureBattleItemTray" type="Node"]
+script = ExtResource("1")

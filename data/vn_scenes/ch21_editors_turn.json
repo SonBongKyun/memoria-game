@@ -1,7 +1,7 @@
 {
   "id": "ch21_editors_turn",
-  "title": "Chapter 21 — The Editor's Turn",
-  "title_ko": "제21장 — 에디터의 선택",
+  "title": "Chapter 21, The Editor's Turn",
+  "title_ko": "제21장, 에디터의 선택",
   "chapter": 21,
   "steps": [
     {
@@ -9,8 +9,8 @@
       "fade": 1.8,
       "set_chapter": 21,
       "autosave_chapter_transition": true,
-      "narrate": "The records chamber wrote itself around them — walls of moving ink revising the continent one line at a time. Kairós closed his notebook with the care of a man shutting a door he built.",
-      "narrate_ko": "기록의 방이 그들 주위로 스스로를 써 내려가고 있었다 — 움직이는 잉크의 벽이 대륙을 한 줄씩 수정하고 있었다. 카이로스는 자신이 지은 문을 닫는 사람의 조심스러움으로 수첩을 덮었다."
+      "narrate": "The records chamber wrote itself around them, walls of moving ink revising the continent one line at a time. Kairós closed his notebook with the care of a man shutting a door he built.",
+      "narrate_ko": "기록의 방이 그들 주위로 스스로를 써 내려가고 있었다, 움직이는 잉크의 벽이 대륙을 한 줄씩 수정하고 있었다. 카이로스는 자신이 지은 문을 닫는 사람의 조심스러움으로 수첩을 덮었다."
     },
     {
       "speaker": "Kairos",
@@ -34,8 +34,8 @@
       "text_ko": "둘 다 아니야. 두 결과 모두 마지막 소수점까지 계산을 끝냈네. 결과 A: 대상이 소거되고 구멍은 한 세대 동안 닫힌다. 결과 B: 대상이 생존하고 구멍은 두 배가 된다. 나는 어느 쪽도 보고하기를 그만두었어. 그건 충성이 아니야. 산수지."
     },
     {
-      "narrate": "He turned the notebook outward. Page after page of sightings, projections, coordinates — none of them filed, none of them reported. An Editor's entire faith, withheld one line at a time.",
-      "narrate_ko": "그가 수첩을 펼쳐 보였다. 페이지마다 목격 기록, 추산, 좌표 — 그 무엇도 제출되지 않았고, 그 무엇도 보고되지 않았다. 에디터의 신앙 전부가, 한 줄씩 유보되어 있었다.",
+      "narrate": "He turned the notebook outward. Page after page of sightings, projections, coordinates, none of them filed, none of them reported. An Editor's entire faith, withheld one line at a time.",
+      "narrate_ko": "그가 수첩을 펼쳐 보였다. 페이지마다 목격 기록, 추산, 좌표, 그 무엇도 제출되지 않았고, 그 무엇도 보고되지 않았다. 에디터의 신앙 전부가, 한 줄씩 유보되어 있었다.",
       "set_flag": "kairos_final"
     },
     {
@@ -54,8 +54,8 @@
       "speaker": "Nera",
       "portrait": "nera_bureau",
       "side": "right",
-      "text": "Warrant for the Editor Kairós, effective immediately, on charges of— of—",
-      "text_ko": "에디터 카이로스에 대한 영장, 즉시 발효, 죄목은— 죄목은—"
+      "text": "Warrant for the Editor Kairós, effective immediately, on charges of,  of...",
+      "text_ko": "에디터 카이로스에 대한 영장, 즉시 발효, 죄목은,  죄목은..."
     },
     {
       "cg": "res://assets/cg/generated/ch21_nera_hesitation.png",
@@ -143,8 +143,8 @@
       "requires_flag": "ch21_alliance_key",
       "cg": "res://assets/cg/generated/memory_key_surviving_page.png",
       "fade": 0.8,
-      "narrate": "Because three had stood instead of one, Belor's silence had needed three targets — and in that divided second, Tobias palmed a single page from the burning notebook. One page of withheld arithmetic, folded against his chest. The record, it turned out, only needs one surviving line to stay a record.",
-      "narrate_ko": "하나가 아니라 셋이 버텨 섰기에, 벨로르의 침묵은 세 개의 표적이 필요했다 — 그 갈라진 일 초 사이, 토비아스가 불타는 수첩에서 한 장을 훔쳐 냈다. 유보된 산수 한 페이지가 그의 가슴에 접혀 들어갔다. 기록은, 알고 보면 기록으로 남기 위해 단 한 줄의 생존만을 필요로 한다."
+      "narrate": "Because three had stood instead of one, Belor's silence had needed three targets, and in that divided second, Tobias palmed a single page from the burning notebook. One page of withheld arithmetic, folded against his chest. The record, it turned out, only needs one surviving line to stay a record.",
+      "narrate_ko": "하나가 아니라 셋이 버텨 섰기에, 벨로르의 침묵은 세 개의 표적이 필요했다, 그 갈라진 일 초 사이, 토비아스가 불타는 수첩에서 한 장을 훔쳐 냈다. 유보된 산수 한 페이지가 그의 가슴에 접혀 들어갔다. 기록은, 알고 보면 기록으로 남기 위해 단 한 줄의 생존만을 필요로 한다."
     },
     {
       "complete_chapter": 21,

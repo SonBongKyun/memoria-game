@@ -1,4 +1,4 @@
-## The Seam — 더 씸 (Chapter 6: Thread That Holds)
+## The Seam, 더 씸 (Chapter 6: Thread That Holds)
 ## 절벽 사이 숨겨진 컬러풀한 정착촌. 세이블의 거점.
 ## 세이블과의 대화 → BL-07 탐사 계획 → 보이드 홀 조사.
 extends Node2D
@@ -79,7 +79,7 @@ func _ready() -> void:
 	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.7, 0.5, 0.3, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
-	# S59: 분위기 강화 — 은은한 안개 + 깊이 그라디언트
+	# S59: 분위기 강화, 은은한 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.25, 0.25, 0.35, 0.04), 1.5)
 	MapEffects.add_depth_gradient(self, 0.06)
 	MapEffects.add_premium_map_lens(self, {"tint": Color(0.90, 0.66, 0.44, 1.0), "vignette": 0.36, "tint_strength": 0.08, "shafts": 0.09, "glints": 3})
@@ -98,10 +98,10 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("the_seam")
 	elia.repeat_line = "I'm here. I'm not going anywhere."
 	sable_npc.repeat_line = "The Seam holds. For now."
-	print("[TheSeam] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[TheSeam] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	if GameManager.current_chapter >= 11 and GameManager.get_flag("ch10_complete"):
-		# 에필로그 — Ch10 완료 후 복귀
+		# 에필로그, Ch10 완료 후 복귀
 		AudioManager.play_bgm("res://assets/audio/bgm/epilogue.mp3")
 		await get_tree().create_timer(1.0).timeout
 		_start_epilogue()
@@ -109,17 +109,17 @@ func _ready() -> void:
 		# 보스전 후 복귀
 		_setup_battle_triggers()
 		if GameManager.player_data.hp > int(GameManager.player_data.max_hp * 0.3):
-			# 승리로 복귀 — 에필로그 시작
+			# 승리로 복귀, 에필로그 시작
 			await get_tree().create_timer(1.0).timeout
 			_start_ch6_epilogue()
 		else:
-			# 패배로 복귀 — 보스전 재도전 가능하도록 플래그 리셋
+			# 패배로 복귀, 보스전 재도전 가능하도록 플래그 리셋
 			GameManager.set_flag("ch6_bl07_entered", false)
 			_setup_bl07_trigger()
 	elif not GameManager.get_flag("ch6_arrived"):
 		_setup_battle_triggers()
 		_setup_bl07_trigger()
-		# 엘리아 분리 상태 체크 — 분리 시 Seam 도착 전 재합류
+		# 엘리아 분리 상태 체크, 분리 시 Seam 도착 전 재합류
 		if GameManager.get_flag("elia_separates") and not GameManager.get_flag("elia_reunited"):
 			elia.visible = false
 			elia.set_physics_process(false)
@@ -159,7 +159,7 @@ func _process(delta: float) -> void:
 		MapEffects.update_npc_idle_motion(npc, effect_time)
 
 func _setup_hidden_events() -> void:
-	# 숨겨진 정원 — 좌상단 정원 타일 영역 (3,2 근처)
+	# 숨겨진 정원, 좌상단 정원 타일 영역 (3,2 근처)
 	var area = Area2D.new()
 	area.position = Vector2(3.5 * TILE_SIZE, 2.5 * TILE_SIZE)
 	area.collision_layer = 0
@@ -233,7 +233,7 @@ func _on_reunion_ended() -> void:
 	elia.visible = true
 	elia.set_physics_process(true)
 	elia.position = player.position + Vector2(-30, 20)
-	print("[TheSeam] Elia reunited — anchor restored")
+	print("[TheSeam] Elia reunited, anchor restored")
 	await get_tree().create_timer(0.5).timeout
 	_start_ch6_sequence()
 
@@ -252,32 +252,32 @@ func _start_ch6_sequence() -> void:
 
 func _start_epilogue() -> void:
 	if GameManager.get_flag("epilogue_started"):
-		# 에필로그 이미 완료 — NPC 대화만 활성화
+		# 에필로그 이미 완료, NPC 대화만 활성화
 		_setup_epilogue_npcs()
 		return
 	GameManager.set_flag("epilogue_started")
 
 	var epilogue_key: String
 	if GameManager.get_flag("seal_weave"):
-		# S146: The Weave — 끝까지 핵심 기억을 보존하고 제3의 길을 택한 아렐 (진엔딩)
+		# S146: The Weave, 끝까지 핵심 기억을 보존하고 제3의 길을 택한 아렐 (진엔딩)
 		epilogue_key = "epilogue_weave"
 	elif GameManager.get_flag("zero_burn_path"):
-		# Zero Burn — 이름을 잃은 아렐
+		# Zero Burn, 이름을 잃은 아렐
 		epilogue_key = "epilogue_zero_burn"
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
-		# Ash — 기억을 너무 많이 태운 아렐 (이름은 지켰지만 껍데기만 남음)
+		# Ash, 기억을 너무 많이 태운 아렐 (이름은 지켰지만 껍데기만 남음)
 		epilogue_key = "epilogue_ash"
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
-		# Seam — 숨겨진 아름다움을 발견한 아렐 (희망의 비밀 엔딩)
+		# Seam, 숨겨진 아름다움을 발견한 아렐 (희망의 비밀 엔딩)
 		epilogue_key = "epilogue_seam"
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("tobias_joined") and GameManager.get_flag("ch9_kairos_battle"):
-		# Tobias — 토비아스가 연구를 완성하는 엔딩
+		# Tobias, 토비아스가 연구를 완성하는 엔딩
 		epilogue_key = "epilogue_tobias"
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 8:
-		# Hollow — 아렐이 거의 텅 빈 엔딩
+		# Hollow, 아렐이 거의 텅 빈 엔딩
 		epilogue_key = "epilogue_hollow"
 	else:
-		# Preservation — 이름을 지킨 아렐 (기본 보존 엔딩)
+		# Preservation, 이름을 지킨 아렐 (기본 보존 엔딩)
 		epilogue_key = "epilogue_preservation"
 
 	DialogueManager.dialogue_ended.connect(_on_epilogue_ended, CONNECT_ONE_SHOT)
@@ -309,7 +309,7 @@ func _on_epilogue_ended() -> void:
 		AchievementManager.unlock("ending_preservation")
 		GameManager.record_ending("preservation")
 	_setup_epilogue_npcs()
-	print("[TheSeam] Epilogue complete — talk to Elia or Sable")
+	print("[TheSeam] Epilogue complete, talk to Elia or Sable")
 
 func _setup_epilogue_npcs() -> void:
 	# 대화 종료 시 크레딧 체크 (매 대화마다, 중복 연결 방지)
@@ -365,8 +365,8 @@ func _on_arrival_ended() -> void:
 func _on_briefing_ended() -> void:
 	# 세이블 파티 합류
 	GameManager.set_flag("sable_joined")
-	# 자유 탐색 — BL-07 입구 트리거 활성
-	print("[TheSeam] Briefing complete — Sable joined. Explore or head to BL-07")
+	# 자유 탐색, BL-07 입구 트리거 활성
+	print("[TheSeam] Briefing complete, Sable joined. Explore or head to BL-07")
 
 ## ===================== BL-07 탐사 트리거 (남쪽 중앙) =====================
 
@@ -382,7 +382,7 @@ func _setup_bl07_trigger() -> void:
 	shape.shape = rect
 	area.add_child(shape)
 
-	# 시각적 표시 — 어두운 보라색 (보이드 에너지)
+	# 시각적 표시, 어두운 보라색 (보이드 에너지)
 	var indicator = ColorRect.new()
 	indicator.size = Vector2(TILE_SIZE * 3, TILE_SIZE)
 	indicator.position = Vector2(-TILE_SIZE * 1.5, -TILE_SIZE * 0.5)
@@ -422,7 +422,7 @@ func _start_ch6_epilogue() -> void:
 func _on_ch6_ended() -> void:
 	GameManager.current_chapter = 7
 	SaveManager.autosave_on_chapter_transition()
-	print("[TheSeam] Chapter 6 complete — heading to Seam Outskirts")
+	print("[TheSeam] Chapter 6 complete, heading to Seam Outskirts")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/seam_outskirts.tscn", 6)
@@ -430,7 +430,7 @@ func _on_ch6_ended() -> void:
 ## ===================== 전투 트리거 (마을 외곽) =====================
 
 func _setup_battle_triggers() -> void:
-	# Void Wraith — 마을 외곽 순찰하는 약한 적
+	# Void Wraith, 마을 외곽 순찰하는 약한 적
 	_add_battle_area(
 		Vector2(3 * TILE_SIZE, 3 * TILE_SIZE),
 		Vector2(TILE_SIZE * 2, TILE_SIZE * 2),
@@ -476,13 +476,13 @@ func _setup_random_encounters() -> void:
 ## ===================== 인터랙티브 오브젝트 =====================
 
 func _setup_interactive_objects() -> void:
-	# 상자 — 정원 구석 (우상단 오두막 뒤)
+	# 상자, 정원 구석 (우상단 오두막 뒤)
 	_add_chest(
 		Vector2(21 * TILE_SIZE, 3 * TILE_SIZE),
 		"chest_seam_garden",
 		{"items": {"hi_potion": 1, "smoke_bomb": 1}, "grains": 20}
 	)
-	# 단서 — 개울 옆 (세이블 관련)
+	# 단서, 개울 옆 (세이블 관련)
 	_add_clue(
 		Vector2(10 * TILE_SIZE, 8 * TILE_SIZE),
 		"clue_seam_stream",
@@ -597,7 +597,7 @@ func _setup_side_quests() -> void:
 		vr.size = Vector2(TILE_SIZE * 2, TILE_SIZE * 2)
 		vs.shape = vr
 		vw_area.add_child(vs)
-		# S55: NPC 비주얼 — PixelSprite 프리셋 사용 (보이드 요원)
+		# S55: NPC 비주얼, PixelSprite 프리셋 사용 (보이드 요원)
 		var v_sprite = PixelSprite.create_npc_sprite("bureau_agent")
 		v_sprite.modulate = Color(0.6, 0.3, 0.8, 0.8)  # 보이드 보라색 틴트
 		vw_area.add_child(v_sprite)
@@ -663,7 +663,7 @@ func _build_map() -> void:
 
 func _position_player() -> void:
 	if GameManager.current_chapter >= 11:
-		# 에필로그 — The Seam 절벽 가장자리
+		# 에필로그, The Seam 절벽 가장자리
 		player.position = Vector2(10 * TILE_SIZE, 8 * TILE_SIZE)
 		elia.position = Vector2(10 * TILE_SIZE - 30, 8 * TILE_SIZE + 20)
 	else:

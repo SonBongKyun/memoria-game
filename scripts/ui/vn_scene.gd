@@ -1,4 +1,4 @@
-## VNScene — 비주얼 노벨 씬 UI
+## VNScene, 비주얼 노벨 씬 UI
 ## S60: SceneFlow 오토로드가 구동하는 CG + 포트레이트 + 텍스트 렌더러.
 ## 클릭/Enter/Space/E로 진행. 선택지는 마우스 클릭.
 extends CanvasLayer
@@ -60,7 +60,7 @@ var _is_distorted_line: bool = false    # 현재 대사가 왜곡 상태인지
 var _ember_vignette: TextureRect
 var _film_grain: ColorRect
 var _film_grain_time: float = 0.0
-# S73: 책 페이지 넘기기 — 대사 advance 시 종이 휨 효과
+# S73: 책 페이지 넘기기, 대사 advance 시 종이 휨 효과
 var _page_turn_overlay: TextureRect
 var _last_displayed_text: String = ""
 
@@ -131,7 +131,7 @@ func _build_ui() -> void:
 	_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(_bg)
 
-	# CG 레이어 — 현재 + 다음(크로스페이드)
+	# CG 레이어, 현재 + 다음(크로스페이드)
 	_cg_current = _make_cg_rect()
 	_cg_current.modulate = Color(1, 1, 1, 0)
 	root.add_child(_cg_current)
@@ -224,7 +224,7 @@ func _build_ui() -> void:
 	_text_label.bbcode_enabled = true
 	_text_label.fit_content = false
 	_text_label.scroll_active = false
-	# S71: 책 같은 가독성 — 사이즈 키우고 행간 넓히기. theme.tres가 serif 폰트 자동 적용
+	# S71: 책 같은 가독성, 사이즈 키우고 행간 넓히기. theme.tres가 serif 폰트 자동 적용
 	_text_label.add_theme_font_size_override("normal_font_size", 22)
 	_text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
 	_text_label.add_theme_constant_override("line_separation", 9)
@@ -259,7 +259,7 @@ func _build_ui() -> void:
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	UITheme.apply_title_font(_name_label)
-	# S71: 화자 이름 — 살짝 더 큼 + letter_spacing 느낌의 voff
+	# S71: 화자 이름, 살짝 더 큼 + letter_spacing 느낌의 voff
 	_name_label.add_theme_font_size_override("font_size", 20)
 	_name_label.add_theme_color_override("font_color", Color(0.97, 0.86, 0.55))
 	_name_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
@@ -281,14 +281,14 @@ func _build_ui() -> void:
 	_continue_indicator.offset_right = -90
 	_continue_indicator.offset_top = -55
 	_continue_indicator.offset_bottom = -25
-	_continue_indicator.add_theme_font_size_override("font_size", 10)
+	_continue_indicator.add_theme_font_size_override("font_size", 12)
 	_continue_indicator.add_theme_color_override("font_color", Color(0.82, 0.68, 0.42, 0.78))
 	_continue_indicator.add_theme_constant_override("outline_size", 1)
 	_continue_indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
 	_continue_indicator.visible = false
 	root.add_child(_continue_indicator)
 
-	# S168: AUTO 토글 칩 — 대화 진행 표시 왼쪽. 클릭 또는 A키.
+	# S168: AUTO 토글 칩, 대화 진행 표시 왼쪽. 클릭 또는 A키.
 	_auto_btn = Button.new()
 	UITheme.apply_ui_font(_auto_btn)
 	_auto_btn.anchor_left = 1.0
@@ -300,7 +300,7 @@ func _build_ui() -> void:
 	_auto_btn.offset_top = -58
 	_auto_btn.offset_bottom = -28
 	_auto_btn.focus_mode = Control.FOCUS_NONE
-	_auto_btn.add_theme_font_size_override("font_size", 10)
+	_auto_btn.add_theme_font_size_override("font_size", 12)
 	_auto_btn.pressed.connect(_toggle_auto_mode)
 	var auto_style = StyleBoxFlat.new()
 	auto_style.bg_color = Color(0.03, 0.028, 0.04, 0.85)
@@ -343,7 +343,7 @@ func _build_ui() -> void:
 	_choice_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UITheme.apply_ui_font(_choice_hint)
-	_choice_hint.add_theme_font_size_override("font_size", 13)
+	_choice_hint.add_theme_font_size_override("font_size", 14)
 	_choice_hint.add_theme_color_override("font_color", Color(0.86, 0.82, 0.72, 0.76))
 	_choice_hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
 	_choice_hint.add_theme_constant_override("shadow_outline_size", 1)
@@ -394,7 +394,7 @@ func _build_glitch_layer() -> void:
 	_glitch_overlay.z_index = 2
 	add_child(_glitch_overlay)
 
-	# S69: 연소 잔열 비네트 — 가장자리에 타고 난 듯한 따뜻한 그라디언트
+	# S69: 연소 잔열 비네트, 가장자리에 타고 난 듯한 따뜻한 그라디언트
 	_ember_vignette = TextureRect.new()
 	_ember_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_ember_vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -417,7 +417,7 @@ func _build_glitch_layer() -> void:
 	_ember_vignette.texture = gtex
 	add_child(_ember_vignette)
 
-	# S69: 필름 그레인 — 셰이더 노이즈 오버레이 (전체 화면 위에 살짝)
+	# S69: 필름 그레인, 셰이더 노이즈 오버레이 (전체 화면 위에 살짝)
 	_film_grain = ColorRect.new()
 	_film_grain.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_film_grain.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -440,7 +440,7 @@ void fragment() {
 	vec2 uv = UV * vec2(640.0, 360.0);
 	float t = floor(u_time * time_scale);
 	float n = hash21(uv + vec2(t * 0.137, t * 0.731));
-	// 회색 노이즈, 알파만 살짝 깜빡이게 — 색조엔 영향 X
+	// 회색 노이즈, 알파만 살짝 깜빡이게, 색조엔 영향 X
 	COLOR = vec4(n, n, n, grain_strength);
 }
 """
@@ -453,7 +453,7 @@ void fragment() {
 	_film_grain.visible = false
 	add_child(_film_grain)
 
-	# S73: 페이지 넘김 오버레이 — 종이 그림자 + 살짝 밝은 페이지 엣지가 좌→우로 스윕
+	# S73: 페이지 넘김 오버레이, 종이 그림자 + 살짝 밝은 페이지 엣지가 좌→우로 스윕
 	_page_turn_overlay = TextureRect.new()
 	_page_turn_overlay.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	_page_turn_overlay.offset_top = -260
@@ -712,7 +712,7 @@ func _on_step_changed(step: Dictionary) -> void:
 		_active_side = side
 		_highlight_speaking_side(side)
 	elif speaker == "":
-		# 나레이션 — 양쪽 포트레이트 어둡게
+		# 나레이션, 양쪽 포트레이트 어둡게
 		_active_side = ""
 		_highlight_speaking_side("")
 
@@ -906,7 +906,7 @@ func _sync_cg_presentation_layers() -> void:
 	detail_tw.tween_property(_cg_detail_top, "modulate:a", 0.10, 5.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_cg_detail_top.set_meta("detail_tween", detail_tw)
 
-## S69: Ken Burns — 8~12초에 걸쳐 1.0 → 1.05 줌 + ±20px 팬
+## S69: Ken Burns, 8~12초에 걸쳐 1.0 → 1.05 줌 + ±20px 팬
 func _start_ken_burns(rect: TextureRect) -> void:
 	if rect == null or rect.texture == null:
 		return
@@ -1104,7 +1104,7 @@ func _set_portrait_shadow_alpha(side: String, alpha: float) -> void:
 
 ## ===================== S61: 기억 왜곡 VFX =====================
 
-## 기억 연소 순간 — 강한 글리치 (붉은 플래시 + 색수차 분리 + 셰이크)
+## 기억 연소 순간, 강한 글리치 (붉은 플래시 + 색수차 분리 + 셰이크)
 func _on_memory_burned(_memory) -> void:
 	if not visible:
 		return
@@ -1117,7 +1117,7 @@ func _play_burn_glitch() -> void:
 	var tw_flash = create_tween()
 	tw_flash.tween_property(_glitch_overlay, "color:a", 0.0, 0.9).set_trans(Tween.TRANS_EXPO)
 
-	# S69: 연소 잔열 — 가장자리 비네트가 천천히 차오르고 더 천천히 식음
+	# S69: 연소 잔열, 가장자리 비네트가 천천히 차오르고 더 천천히 식음
 	if _ember_vignette:
 		var tw_ember = create_tween()
 		tw_ember.tween_property(_ember_vignette, "modulate:a", 0.85, 0.5).set_trans(Tween.TRANS_QUAD)
@@ -1191,7 +1191,7 @@ func _scramble_text(source: String) -> String:
 func _display_line(speaker: String, text: String) -> void:
 	_dialogue_frame_art.visible = true
 	_choice_frame_art.visible = false
-	# S73: 책 페이지 넘기기 — 이전 줄에서 새 줄로 전환 시 종이 스윕
+	# S73: 책 페이지 넘기기, 이전 줄에서 새 줄로 전환 시 종이 스윕
 	if _last_displayed_text != "" and _last_displayed_text != text:
 		_play_page_turn()
 	_last_displayed_text = text
@@ -1213,18 +1213,18 @@ func _display_line(speaker: String, text: String) -> void:
 
 	_text_label.text = ""
 
-## S73: 페이지 넘김 효과 — 종이 엣지 + 그림자가 좌→우로 약 0.32s 스윕
+## S73: 페이지 넘김 효과, 종이 엣지 + 그림자가 좌→우로 약 0.32s 스윕
 func _play_page_turn() -> void:
 	if _page_turn_overlay == null:
 		return
-	# CanvasLayer는 get_viewport_rect를 직접 못 씀 — viewport 노드 경유
+	# CanvasLayer는 get_viewport_rect를 직접 못 씀, viewport 노드 경유
 	var vp = get_viewport().get_visible_rect().size
 	var span = vp.x  # 화면 가로 전체를 횡단
 	# 시작: 화면 왼쪽 밖
 	_page_turn_overlay.position.x = -span * 0.4
 	_page_turn_overlay.position.x = -span * 0.4
 	_page_turn_overlay.modulate.a = 0.0
-	# 위쪽으로 살짝 휘어진 듯한 인상 — 회전 -3도
+	# 위쪽으로 살짝 휘어진 듯한 인상, 회전 -3도
 	_page_turn_overlay.rotation_degrees = -2.0
 	_page_turn_overlay.rotation_degrees = -2.0
 	var tw = create_tween()
@@ -1234,7 +1234,7 @@ func _play_page_turn() -> void:
 	# 알파: 페이드인 → 페이드아웃 (peak at 50%)
 	tw.tween_property(_page_turn_overlay, "modulate:a", 0.85, 0.12).set_trans(Tween.TRANS_SINE)
 	tw.chain().tween_property(_page_turn_overlay, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_SINE)
-	# 페이지 휨 — 회전 살짝 변화
+	# 페이지 휨, 회전 살짝 변화
 	tw.parallel().tween_property(_page_turn_overlay, "rotation_degrees", 1.5, 0.32).set_trans(Tween.TRANS_SINE)
 	# 종이 사운드 (있으면)
 	tw.parallel().tween_property(_page_turn_overlay, "rotation_degrees", 1.5, 0.32).set_trans(Tween.TRANS_SINE)
@@ -1264,7 +1264,7 @@ func _process(delta: float) -> void:
 	if _film_grain and _film_grain.material is ShaderMaterial:
 		(_film_grain.material as ShaderMaterial).set_shader_parameter("u_time", _film_grain_time)
 
-	# S168: AUTO 모드 / Ctrl 빨리 감기 — 선택지에서는 절대 자동 진행하지 않음
+	# S168: AUTO 모드 / Ctrl 빨리 감기, 선택지에서는 절대 자동 진행하지 않음
 	if SceneFlow.is_active and GameManager.current_state == GameManager.GameState.DIALOGUE and not _choice_container.visible:
 		var ff_held := Input.is_key_pressed(KEY_CTRL)
 		if ff_held:
@@ -1345,7 +1345,7 @@ func _show_choices(choices: Array) -> void:
 	_name_panel.visible = false
 	_show_continue(false)
 
-	# S69: 선택지 등장 시 배경 CG/포트레이트 덤 — 결정 무게 강조
+	# S69: 선택지 등장 시 배경 CG/포트레이트 덤, 결정 무게 강조
 	_dim_background_for_choice(true)
 
 	for i in range(choices.size()):
@@ -1354,7 +1354,7 @@ func _show_choices(choices: Array) -> void:
 		if c.has("requires_memory_intact"):
 			if not MemoryManager.is_intact(String(c.requires_memory_intact)):
 				continue
-		# S70: 플래그 게이팅 — 특정 플래그가 set 되어야 노출
+		# S70: 플래그 게이팅, 특정 플래그가 set 되어야 노출
 		if c.has("requires_flag"):
 			if not GameManager.story_flags.get(c.requires_flag, false):
 				continue
@@ -1362,7 +1362,7 @@ func _show_choices(choices: Array) -> void:
 			if GameManager.story_flags.get(c.requires_not_flag, false):
 				continue
 
-		# S63: Memory Leverage — cost_memory 필드가 있으면 태울 기억 상태 체크
+		# S63: Memory Leverage, cost_memory 필드가 있으면 태울 기억 상태 체크
 		var cost_mem_id: String = c.get("cost_memory", c.get("burn_memory", ""))
 		var cost_mem = null
 		var is_cost_choice: bool = c.has("cost_memory")  # 명시적 cost (UI 하이라이트용)
@@ -1379,19 +1379,19 @@ func _show_choices(choices: Array) -> void:
 		var label_text = GameManager.localized_value(c, "text", String(c.get("text", "...")))
 		var extra_lines := 0
 		if is_cost_choice and cost_mem != null:
-			# S149: 등급 표기 — 무엇을 태우는지 무게가 보이게 (GRADE_5=0 → G5)
+			# S149: 등급 표기, 무엇을 태우는지 무게가 보이게 (GRADE_5=0 → G5)
 			var grade_num: int = 5 - int(cost_mem.grade)
 			var burn_label := "연소" if GameManager.current_locale == "ko" else "Burn"
 			label_text = "✦  %s\n    [%s G%d: %s]" % [label_text, burn_label, grade_num, cost_mem.title]
-			# S149: 잃는 것 미리보기 — story_effect가 정의된 기억은 대가를 명시
+			# S149: 잃는 것 미리보기, story_effect가 정의된 기억은 대가를 명시
 			if cost_mem.story_effect != "" and not cost_mem.story_effect.begins_with("ENDING"):
 				var effect_preview: String = cost_mem.story_effect
 				if GameManager.current_locale == "ko":
 					effect_preview = "연소하면 이 기억이 열어 둔 서사적 가능성을 잃습니다."
-				label_text += "\n    — %s" % effect_preview
+				label_text += "\n   , %s" % effect_preview
 				extra_lines += 1
 		elif c.has("requires_memory_intact"):
-			# S149: 기억 열쇠 선택지 — 간직한 기억이 길을 연다는 것을 명시
+			# S149: 기억 열쇠 선택지, 간직한 기억이 길을 연다는 것을 명시
 			var key_mem = MemoryManager.find_memory(String(c.requires_memory_intact))
 			if key_mem != null:
 				var kept_label := "간직" if GameManager.current_locale == "ko" else "Kept"
@@ -1413,7 +1413,7 @@ func _show_choices(choices: Array) -> void:
 			bstyle.bg_color = Color(0.13, 0.065, 0.052, 0.94)
 			bstyle.border_color = Color(0.9, 0.45, 0.3, 0.84)
 		elif is_key_choice:
-			# S149: 기억 열쇠 — 보존이 열어 준 길 (연소의 적색과 대비되는 청록)
+			# S149: 기억 열쇠, 보존이 열어 준 길 (연소의 적색과 대비되는 청록)
 			bstyle.bg_color = Color(0.045, 0.085, 0.095, 0.94)
 			bstyle.border_color = Color(0.35, 0.78, 0.75, 0.85)
 		bstyle.set_border_width(SIDE_LEFT, 2)
@@ -1553,7 +1553,7 @@ func _try_advance() -> void:
 	if _waiting_for_input:
 		_advance_step()
 
-## S168: 공통 진행 경로 — 수동/AUTO/빨리감기가 모두 이 함수를 통과
+## S168: 공통 진행 경로, 수동/AUTO/빨리감기가 모두 이 함수를 통과
 func _advance_step() -> void:
 	if not _waiting_for_input:
 		return

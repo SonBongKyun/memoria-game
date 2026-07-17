@@ -22,7 +22,7 @@ const ACHIEVEMENTS: Dictionary = {
 	"first_burn": {"title": "First Burn", "desc": "Burn your first memory.", "icon": "flame", "steam_id": "ACH_FIRST_BURN"},
 	"pyromaniac": {"title": "Pyromaniac", "desc": "Burn 5 memories.", "icon": "flame", "steam_id": "ACH_PYROMANIAC"},
 	"identity_crisis": {"title": "Identity Crisis", "desc": "Burn a Grade 2 (Identity) memory.", "icon": "flame", "steam_id": "ACH_IDENTITY_CRISIS"},
-	"zero_burn": {"title": "Zero Burn", "desc": "Burn the Core memory — your name.", "icon": "skull", "steam_id": "ACH_ZERO_BURN"},
+	"zero_burn": {"title": "Zero Burn", "desc": "Burn the Core memory, your name.", "icon": "skull", "steam_id": "ACH_ZERO_BURN"},
 
 	# 탐색 관련
 	"hidden_stump": {"title": "Old Growth", "desc": "Find the hidden stump in Rim Forest.", "icon": "eye", "steam_id": "ACH_OLD_GROWTH"},
@@ -47,7 +47,7 @@ const ACHIEVEMENTS: Dictionary = {
 	"ending_preservation": {"title": "Preservation", "desc": "Keep your name and continue the search.", "icon": "star", "steam_id": "ACH_ENDING_PRESERVATION"},
 	"ending_tobias": {"title": "The Record Remains", "desc": "Help Tobias carry the record beyond Authority control.", "icon": "star", "steam_id": "ACH_ENDING_TOBIAS"},
 	"ending_hollow": {"title": "Hollow", "desc": "Reach the Hollow ending.", "icon": "star", "steam_id": "ACH_ENDING_HOLLOW"},
-	"ending_weave": {"title": "The Weave", "desc": "Reach the Weave ending — seal BL-07 without burning your name.", "icon": "crown", "steam_id": "ACH_ENDING_WEAVE"},
+	"ending_weave": {"title": "The Weave", "desc": "Reach the Weave ending, seal BL-07 without burning your name.", "icon": "crown", "steam_id": "ACH_ENDING_WEAVE"},
 	"all_endings": {"title": "Every Path", "desc": "See all 7 endings.", "icon": "crown", "steam_id": "ACH_ALL_ENDINGS"},
 
 	# 경제 관련
@@ -85,7 +85,7 @@ func _ready() -> void:
 	_load_data()
 	_connect_signals()
 	_build_achievement_popup()
-	print("[AchievementManager] Ready — %d/%d unlocked" % [unlocked.size(), ACHIEVEMENTS.size()])
+	print("[AchievementManager] Ready, %d/%d unlocked" % [unlocked.size(), ACHIEVEMENTS.size()])
 
 func _connect_signals() -> void:
 	BattleManager.battle_ended.connect(_on_battle_ended)
@@ -117,7 +117,7 @@ func unlock(id: String) -> void:
 func is_unlocked(id: String) -> bool:
 	return unlocked.has(id)
 
-## S56: Steam API placeholder — will be replaced with actual GodotSteam calls
+## S56: Steam API placeholder, will be replaced with actual GodotSteam calls
 func _steam_set_achievement(steam_id: String) -> void:
 	if steam_id == "":
 		return

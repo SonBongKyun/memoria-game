@@ -1,4 +1,4 @@
-## Crumbling Coast — 크럼블링 코스트 (Chapter 5: The Classifier)
+## Crumbling Coast, 크럼블링 코스트 (Chapter 5: The Classifier)
 ## 땅이 무너져 내리는 해안 절벽. 카이로스의 추적이 시작되는 곳.
 ## 남쪽에서 시작 → 북쪽 The Seam으로 이동.
 extends Node2D
@@ -88,7 +88,7 @@ func _ready() -> void:
 	WorldAtlas.add_gateways(self, "crumbling_coast")
 	AchievementManager.record_map_visit("crumbling_coast")
 	elia.repeat_line = "The ground shifts. Stay close."
-	print("[CrumblingCoast] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[CrumblingCoast] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
@@ -198,7 +198,7 @@ func _on_separation_response_ended() -> void:
 		if elia:
 			elia.visible = false
 			elia.set_physics_process(false)
-		print("[CrumblingCoast] Elia separated — memories burn without residue")
+		print("[CrumblingCoast] Elia separated, memories burn without residue")
 
 ## ===================== The Seam 도착 트리거 (북쪽) =====================
 
@@ -230,7 +230,7 @@ func _arrive_at_seam() -> void:
 func _on_seam_ended() -> void:
 	GameManager.current_chapter = 6
 	SaveManager.autosave_on_chapter_transition()
-	print("[CrumblingCoast] Chapter 5 complete — The Seam reached")
+	print("[CrumblingCoast] Chapter 5 complete, The Seam reached")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/the_seam.tscn", 5)
@@ -250,19 +250,19 @@ func _setup_random_encounters() -> void:
 ## ===================== 인터랙티브 오브젝트 =====================
 
 func _setup_interactive_objects() -> void:
-	# 상자 — 모래밭 사이 (우측 중단)
+	# 상자, 모래밭 사이 (우측 중단)
 	_add_chest(
 		Vector2(19 * TILE_SIZE, 6 * TILE_SIZE),
 		"chest_coast_sand",
 		{"items": {"hi_potion": 1}, "grains": 12}
 	)
-	# 단서 — 절벽 근처 (카이로스 관련)
+	# 단서, 절벽 근처 (카이로스 관련)
 	_add_clue(
 		Vector2(7 * TILE_SIZE, 11 * TILE_SIZE),
 		"clue_coast_tracks",
 		"Footprints that end abruptly. Whoever walked here... stopped existing."
 	)
-	# 상자 — 남쪽 길 옆
+	# 상자, 남쪽 길 옆
 	_add_chest(
 		Vector2(14 * TILE_SIZE, 14 * TILE_SIZE),
 		"chest_coast_path",

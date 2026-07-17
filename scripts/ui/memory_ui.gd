@@ -1,4 +1,4 @@
-## MemoryUI (Autoload) — 아렐의 서고
+## MemoryUI (Autoload), 아렐의 서고
 ## 보유 기억을 서고(書庫) 모티프로 표시하는 인벤토리 화면.
 ## Tab/M 키로 토글.
 extends CanvasLayer
@@ -32,13 +32,13 @@ var synthesis_first = null           # 합성 첫 번째 기억
 var synth_btn: Button                # 합성 버튼
 var synth_status_label: Label        # 합성 모드 상태 표시
 
-const GRADE_NAMES = ["Grade 5 — Sensory", "Grade 4 — Daily", "Grade 3 — Relational", "Grade 2 — Identity", "Grade 1 — Core"]
+const GRADE_NAMES = ["Grade 5, Sensory", "Grade 4, Daily", "Grade 3, Relational", "Grade 2, Identity", "Grade 1, Core"]
 const GRADE_COLORS = [
-	Color(0.5, 0.5, 0.45),     # Grade 5 — 회색
-	Color(0.55, 0.5, 0.35),    # Grade 4 — 갈색
-	Color(0.4, 0.5, 0.6),      # Grade 3 — 청색
-	Color(0.6, 0.45, 0.55),    # Grade 2 — 보라
-	Color(0.7, 0.55, 0.3),     # Grade 1 — 금색
+	Color(0.5, 0.5, 0.45),     # Grade 5, 회색
+	Color(0.55, 0.5, 0.35),    # Grade 4, 갈색
+	Color(0.4, 0.5, 0.6),      # Grade 3, 청색
+	Color(0.6, 0.45, 0.55),    # Grade 2, 보라
+	Color(0.7, 0.55, 0.3),     # Grade 1, 금색
 ]
 const ARCHIVE_BACKDROP_PATH: String = "res://assets/cg/generated/ui_memory_archive_backdrop.png"
 
@@ -46,9 +46,9 @@ func _ready() -> void:
 	layer = 40
 	_build_ui()
 	_hide_ui()
-	print("[MemoryUI] Ready — Arrel's Archive")
+	print("[MemoryUI] Ready, Arrel's Archive")
 
-# S149: VN 씬 중에도 서고 열람 허용 — 닫을 때 원래 상태로 복원
+# S149: VN 씬 중에도 서고 열람 허용, 닫을 때 원래 상태로 복원
 var _restore_state: int = GameManager.GameState.EXPLORATION
 var _read_only: bool = false
 
@@ -59,7 +59,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif GameManager.current_state == GameManager.GameState.EXPLORATION:
 			open_archive()
 		elif GameManager.current_state == GameManager.GameState.DIALOGUE and SceneFlow.is_active:
-			# S149: VN 씬 재생 중 열람 (읽기 전용 확인 — 연소/합성은 기존 UI 규칙 그대로)
+			# S149: VN 씬 재생 중 열람 (읽기 전용 확인, 연소/합성은 기존 UI 규칙 그대로)
 			open_archive()
 		get_viewport().set_input_as_handled()
 
@@ -193,7 +193,7 @@ func _create_title_bar() -> HBoxContainer:
 	bar.add_child(title)
 
 	var subtitle = Label.new()
-	subtitle.text = "— The things you carry. The things you've lost."
+	subtitle.text = "The things you carry. The things you've lost."
 	subtitle.add_theme_font_size_override("font_size", 11)
 	subtitle.add_theme_color_override("font_color", Color(0.45, 0.4, 0.35))
 	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
@@ -408,7 +408,7 @@ func _add_memory_card(memory) -> void:
 	btn.custom_minimum_size = Vector2(0, 40)
 
 	# 카드 텍스트
-	var grade_label = GRADE_NAMES[memory.grade].split(" — ")[0]  # "Grade 5"
+	var grade_label = GRADE_NAMES[memory.grade].split(", ")[0]  # "Grade 5"
 	var status_mark = ""
 	if memory.is_burned:
 		status_mark = " [BURNED]" if not memory.is_residue else " [RESIDUE]"
@@ -456,7 +456,7 @@ func _add_memory_card(memory) -> void:
 
 ## 상세 정보 표시
 func _show_detail(memory) -> void:
-	# 합성 모드 — 두 번째 기억 선택
+	# 합성 모드, 두 번째 기억 선택
 	if synthesis_mode and synthesis_first != null:
 		if _read_only:
 			_exit_synthesis_mode()
@@ -466,7 +466,7 @@ func _show_detail(memory) -> void:
 		if memory.is_burned:
 			return
 		if memory.grade != synthesis_first.grade:
-			synth_status_label.text = "Must be same grade! (%s ≠ %s)" % [GRADE_NAMES[synthesis_first.grade].split(" — ")[0], GRADE_NAMES[memory.grade].split(" — ")[0]]
+			synth_status_label.text = "Must be same grade! (%s ≠ %s)" % [GRADE_NAMES[synthesis_first.grade].split(", ")[0], GRADE_NAMES[memory.grade].split(", ")[0]]
 			return
 		# 합성 실행
 		var result = MemoryManager.synthesize(synthesis_first.id, memory.id)
@@ -497,10 +497,10 @@ func _show_detail(memory) -> void:
 	# 상태 표시
 	if memory.is_burned:
 		if memory.is_residue:
-			detail_status.text = "RESIDUE — A faint trace remains."
+			detail_status.text = "RESIDUE, A faint trace remains."
 			detail_status.add_theme_color_override("font_color", Color(0.5, 0.55, 0.65))
 		else:
-			detail_status.text = "BURNED — Gone forever."
+			detail_status.text = "BURNED, Gone forever."
 			detail_status.add_theme_color_override("font_color", Color(0.6, 0.3, 0.25))
 	else:
 		detail_status.text = "INTACT"
@@ -583,7 +583,7 @@ func _on_synth_pressed() -> void:
 		return
 	synthesis_mode = true
 	synthesis_first = selected_memory
-	synth_status_label.text = "SYNTHESIS: Select second memory (same grade: %s)" % GRADE_NAMES[synthesis_first.grade].split(" — ")[0]
+	synth_status_label.text = "SYNTHESIS: Select second memory (same grade: %s)" % GRADE_NAMES[synthesis_first.grade].split(", ")[0]
 	synth_status_label.visible = true
 	synth_btn.visible = false
 	AudioManager.play_sfx("ui_select")

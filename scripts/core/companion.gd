@@ -1,4 +1,4 @@
-## Companion — 동행 NPC (엘리아)
+## Companion, 동행 NPC (엘리아)
 ## CharacterBody2D 기반. 플레이어를 따라다니며 대화 가능.
 extends CharacterBody2D
 
@@ -11,7 +11,7 @@ const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 const FOLLOW_SPEED: float = 100.0
 const MIN_DISTANCE: float = 40.0   # 이 거리 이내면 멈춤
 const MAX_DISTANCE: float = 200.0  # 이 거리 넘으면 텔레포트
-# S150: 자연스러운 추적 — 소프트존/가속/방향 스무딩
+# S150: 자연스러운 추적, 소프트존/가속/방향 스무딩
 const SOFT_ZONE: float = 70.0        # MIN~MIN+SOFT 구간에서 속도가 거리 비례로 상승
 const FOLLOW_ACCEL: float = 480.0    # px/s^2
 const SPRINT_CATCHUP: float = 1.6    # 플레이어 질주 시 최대 배속
@@ -57,7 +57,7 @@ func _ready() -> void:
 			var parent = get_parent()
 			if parent and parent.has_node("Player"):
 				target = parent.get_node("Player")
-	print("[Companion] %s ready — following %s" % [npc_name, target.name if target else "nobody"])
+	print("[Companion] %s ready, following %s" % [npc_name, target.name if target else "nobody"])
 
 func _physics_process(delta: float) -> void:
 	if not target or GameManager.current_state != GameManager.GameState.EXPLORATION:
@@ -80,7 +80,7 @@ func _physics_process(delta: float) -> void:
 			tw.tween_property(sprite, "modulate:a", 1.0, 0.35).set_ease(Tween.EASE_OUT)
 		return
 
-	# S150: 소프트존 — 거리 비례 목표 속도 (이진 정지/출발로 인한 덜컹거림 제거)
+	# S150: 소프트존, 거리 비례 목표 속도 (이진 정지/출발로 인한 덜컹거림 제거)
 	# MIN 이내: 0 / MIN~MIN+SOFT: 선형 상승 / 그 위: 최대 (플레이어 질주 시 추가 가속)
 	var raw_dir := (target.position - position).normalized()
 	var target_speed := 0.0
@@ -122,7 +122,7 @@ func interact() -> void:
 
 	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
 	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
-		# 이미 대화한 동행 — 짧은 후속 대사
+		# 이미 대화한 동행, 짧은 후속 대사
 		var line = repeat_line if repeat_line != "" else "..."
 		DialogueManager.start_dialogue([
 			{"speaker": npc_name, "text": line, "portrait": ""}
@@ -139,9 +139,8 @@ func _setup_placeholder_sprite() -> void:
 	var field_key := "sable" if npc_name == "Sable" else "elia"
 	if PixelSprite.has_field_sprite_frames(field_key):
 		sprite.sprite_frames = PixelSprite.create_sheet_frames(field_key)
-		_rest_scale = FIELD_SPRITE_SCALE
-		sprite.offset = FIELD_SPRITE_OFFSET
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var field_texture := sprite.sprite_frames.get_frame_texture("idle_down", 0)
+		_rest_scale = PixelSprite.apply_field_profile(sprite, field_texture)
 	# npc_name에 따라 다른 config 사용
 	elif npc_name == "Sable":
 		config = PixelSprite.sable_config()
@@ -168,8 +167,8 @@ func _setup_placeholder_sprite() -> void:
 func _add_companion_presence() -> void:
 	_presence_shadow = Polygon2D.new()
 	_presence_shadow.polygon = PackedVector2Array([
-		Vector2(-14, 18), Vector2(-8, 15), Vector2(8, 15), Vector2(14, 18),
-		Vector2(8, 21), Vector2(-8, 21)
+		Vector2(-14, 2), Vector2(-8, -1), Vector2(8, -1), Vector2(14, 2),
+		Vector2(8, 5), Vector2(-8, 5)
 	])
 	_presence_shadow.color = Color(0.0, 0.0, 0.0, 0.28)
 	_presence_shadow.z_index = -1
@@ -180,7 +179,7 @@ func _add_companion_presence() -> void:
 	_presence_ring.width = 1.1
 	_presence_ring.default_color = accent
 	_presence_ring.points = PackedVector2Array([
-		Vector2(-10, 19), Vector2(-5, 22), Vector2(5, 22), Vector2(10, 19)
+		Vector2(-10, 2), Vector2(-5, 5), Vector2(5, 5), Vector2(10, 2)
 	])
 	_presence_ring.z_index = 0
 	add_child(_presence_ring)
@@ -207,7 +206,7 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 	var anim = prefix + suffix
 	if sprite.animation != anim:
 		sprite.play(anim)
-	# S150: 이동 속도 연동 애니 속도 — 따라잡기 가속 시 발 미끄러짐 제거
+	# S150: 이동 속도 연동 애니 속도, 따라잡기 가속 시 발 미끄러짐 제거
 	if is_moving:
 		sprite.speed_scale = clampf(velocity.length() / FOLLOW_SPEED, 0.6, 1.7)
 	else:

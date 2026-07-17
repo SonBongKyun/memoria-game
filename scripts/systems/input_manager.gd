@@ -1,5 +1,5 @@
 ## InputManager (Autoload)
-## S56: Controller support — input detection, button icons, vibration feedback.
+## S56: Controller support, input detection, button icons, vibration feedback.
 ## Tracks whether last input was keyboard or controller, provides icon hints.
 extends Node
 
@@ -9,7 +9,7 @@ var current_mode: InputMode = InputMode.KEYBOARD
 
 signal input_mode_changed(mode: InputMode)
 
-# Controller button icon map (Xbox layout — most common on PC)
+# Controller button icon map (Xbox layout, most common on PC)
 const GAMEPAD_ICONS: Dictionary = {
 	"confirm": "A",
 	"cancel": "B",
@@ -53,7 +53,7 @@ func _ready() -> void:
 	# Detect connected controllers at startup
 	if Input.get_connected_joypads().size() > 0:
 		print("[InputManager] Controller detected: %s" % Input.get_joy_name(0))
-	print("[InputManager] Ready — current mode: KEYBOARD")
+	print("[InputManager] Ready, current mode: KEYBOARD")
 
 func _input(event: InputEvent) -> void:
 	var new_mode = current_mode

@@ -19,12 +19,13 @@
       {
         "speaker": "",
         "text": "His skull throbbed. Not the clean pain of a headache but a deeper pressure, as if someone had scooped out a piece of his brain and left the cavity unsealed.",
-        "text_ko": "두개골이 욱신거렸다. 깨끗한 두통이 아니라, 뇌의 한 조각을 도려낸 뒤 그 빈자리를 봉합하지 않은 듯한 깊은 압박이었다."
+        "text_ko": "두개골이 욱신거렸다. 깨끗한 두통이 아니라, 뇌의 한 조각을 도려낸 뒤 그 빈자리를 봉합하지 않은 듯한 깊은 압박이었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch01_burn_afterimage_v1.png"
       },
       {
         "speaker": "system_log",
-        "text": "[COMBUSTION DETECTED: Type 1 — Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected — fading]",
-        "text_ko": "[연소 감지: 유형 1 — 감각 파편]\n[위치 추정: 림 외곽, 아켄 숲]\n[잔류 기록: 흔적 감지 — 소실 중]"
+        "text": "[COMBUSTION DETECTED: Type 1, Sensory Fragment]\n[LOCATION EST.: Rim Exterior, Achen Forest]\n[RESIDUAL RECORD: trace detected, fading]",
+        "text_ko": "[연소 감지: 유형 1, 감각 파편]\n[위치 추정: 림 외곽, 아켄 숲]\n[잔류 기록: 흔적 감지, 소실 중]"
       }
     ],
     "elia_appears": [
@@ -43,7 +44,8 @@
       {
         "speaker": "",
         "text": "His right hand twitched. It moved toward her before he could stop it, fingers uncurling from the sword grip, reaching for something his muscles remembered but his mind did not.",
-        "text_ko": "오른손이 움찔했다. 멈추기도 전에 그녀를 향해 움직였고, 검 손잡이를 쥔 손가락이 풀리며 머리는 잊었지만 근육은 기억하는 무언가를 향해 뻗었다."
+        "text_ko": "오른손이 움찔했다. 멈추기도 전에 그녀를 향해 움직였고, 검 손잡이를 쥔 손가락이 풀리며 머리는 잊었지만 근육은 기억하는 무언가를 향해 뻗었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch01_muscle_memory_reach_v1.png"
       },
       {
         "speaker": "Elia",
@@ -78,7 +80,8 @@
       {
         "speaker": "",
         "text": "A gray flake, lighter than dust, dissolving against his skin with a faint warmth that was not his own.",
-        "text_ko": "먼지보다 가벼운 회색 조각 하나가 피부 위에서 녹아들었다. 희미한 온기가 있었지만, 그의 것은 아니었다."
+        "text_ko": "먼지보다 가벼운 회색 조각 하나가 피부 위에서 녹아들었다. 희미한 온기가 있었지만, 그의 것은 아니었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch01_ash_touch_v1.png"
       },
       {
         "speaker": "",
@@ -107,7 +110,7 @@
         "speaker": "",
         "text": "No fire. Fire drew attention, and attention out here meant things with too few memories and too many teeth.",
         "text_ko": "불은 피우지 않았다. 불은 시선을 끌고, 이곳에서 시선은 기억은 너무 적고 이빨은 너무 많은 것들을 뜻했다.",
-        "cg": "res://assets/cg/generated/story_ch1_camp_humming.png"
+        "cg": "res://assets/cg/generated/archive_ch1_camp_humming_v2.png"
       },
       {
         "speaker": "",
@@ -202,7 +205,8 @@
       {
         "speaker": "",
         "text": "Someone had carved letters into it once. The rain had eaten most of them, but two remained: A. E.",
-        "text_ko": "누군가 언젠가 글자를 새겨 두었다. 비가 대부분을 삼켰지만, 둘은 남아 있었다: A. E."
+        "text_ko": "누군가 언젠가 글자를 새겨 두었다. 비가 대부분을 삼켰지만, 둘은 남아 있었다: A. E.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch01_hidden_initials_v1.png"
       },
       {
         "speaker": "",
@@ -260,18 +264,18 @@
         "speaker": "",
         "text": "A faint glow pulses from the ground. A crystallized memory fragment, warm to the touch.",
         "cg": "res://assets/cg/generated/story_ch1_echo_fragment.png",
-        "text_ko": "땅에서 희미한 빛이 맥동한다. 결정화된 기억 조각 — 만지면 따뜻하다."
+        "text_ko": "땅에서 희미한 빛이 맥동한다. 결정화된 기억 조각, 만지면 따뜻하다."
       },
       {
         "speaker": "",
-        "text": "It hums with someone else's past — a child's voice, counting.",
+        "text": "It hums with someone else's past, a child's voice, counting.",
         "text_ko": "그것은 다른 사람의 과거, 즉 어린이의 목소리로 윙윙거립니다."
       }
     ],
     "elia_forest_walk": [
       {
         "speaker": "",
-        "text": "They walked in silence for a while. The forest watched them with hollow eyes — knotholes in dead trees that looked too round, too deep.",
+        "text": "They walked in silence for a while. The forest watched them with hollow eyes, knotholes in dead trees that looked too round, too deep.",
         "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
         "text_ko": "그들은 한동안 말없이 걸었다. 숲은 공허한 눈으로 그들을 지켜보았다. 죽은 나무에 난 옹이 구멍은 너무 둥글고 너무 깊어 보였다."
       },
@@ -411,9 +415,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "I'm your Anchor. That's what the Bureau calls it. A living reference point — someone whose memories overlap with yours enough that when you burn, the gap doesn't collapse entirely.",
+        "text": "I'm your Anchor. That's what the Bureau calls it. A living reference point, someone whose memories overlap with yours enough that when you burn, the gap doesn't collapse entirely.",
         "portrait": "elia_neutral",
-        "text_ko": "나는 네 닻이야. 관리국은 그렇게 불러. 살아 있는 기준점 — 네가 태울 때 그 틈이 완전히 무너지지 않도록, 너와 기억이 겹쳐 있는 사람."
+        "text_ko": "나는 네 닻이야. 관리국은 그렇게 불러. 살아 있는 기준점, 네가 태울 때 그 틈이 완전히 무너지지 않도록, 너와 기억이 겹쳐 있는 사람."
       },
       {
         "speaker": "Arrel",
@@ -434,9 +438,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "I'm not trying to scare you. I just need you to understand — if you lose me, if you burn the memories of me, there's no safety net. You fall, and there's no one left who remembers where the ground used to be.",
+        "text": "I'm not trying to scare you. I just need you to understand, if you lose me, if you burn the memories of me, there's no safety net. You fall, and there's no one left who remembers where the ground used to be.",
         "portrait": "elia_concern",
-        "text_ko": "겁주려는 게 아니야. 이해해 줬으면 해서 그래 — 나를 잃으면, 나에 대한 기억을 태우면, 안전망은 없어. 넌 떨어지고, 땅이 어디였는지 기억하는 사람은 아무도 남지 않아."
+        "text_ko": "겁주려는 게 아니야. 이해해 줬으면 해서 그래, 나를 잃으면, 나에 대한 기억을 태우면, 안전망은 없어. 넌 떨어지고, 땅이 어디였는지 기억하는 사람은 아무도 남지 않아."
       },
       {
         "speaker": "Arrel",
@@ -461,7 +465,8 @@
       {
         "speaker": "",
         "text": "Stones stacked in careful pyramids. Strips of cloth tied to branches. And in the center, a glass bottle filled with something that caught the dim light like liquid amber.",
-        "text_ko": "조심스럽게 피라미드 모양으로 쌓인 돌들. 나뭇가지에 묶인 천 조각. 그리고 중앙에는 액체 호박처럼 희미한 빛을 머금은 무언가가 담긴 유리병이 있었다."
+        "text_ko": "조심스럽게 피라미드 모양으로 쌓인 돌들. 나뭇가지에 묶인 천 조각. 그리고 중앙에는 액체 호박처럼 희미한 빛을 머금은 무언가가 담긴 유리병이 있었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch01_memory_shrine_amber_v1.png"
       },
       {
         "speaker": "Elia",
@@ -503,7 +508,7 @@
       {
         "speaker": "",
         "text": "It sat against a tree, arms at its sides, head tilted back as if watching something in the canopy that had long since moved on.",
-        "text_ko": "그것은 나무에 기대앉아 있었다. 팔은 양옆에, 고개는 뒤로 젖힌 채 — 이미 오래전에 떠나 버린 우듬지의 무언가를 여태 바라보는 것처럼."
+        "text_ko": "그것은 나무에 기대앉아 있었다. 팔은 양옆에, 고개는 뒤로 젖힌 채, 이미 오래전에 떠나 버린 우듬지의 무언가를 여태 바라보는 것처럼."
       },
       {
         "speaker": "",
@@ -524,9 +529,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "A burner. Grade 1 burnout. They burned everything — every memory, every sense, every reason to keep breathing. And then they just... sat down.",
+        "text": "A burner. Grade 1 burnout. They burned everything, every memory, every sense, every reason to keep breathing. And then they just... sat down.",
         "portrait": "elia_concern",
-        "text_ko": "연소자야. 1등급 소진. 전부 태운 거야 — 모든 기억, 모든 감각, 숨을 계속 쉴 모든 이유까지. 그리고 그냥... 앉은 거지."
+        "text_ko": "연소자야. 1등급 소진. 전부 태운 거야, 모든 기억, 모든 감각, 숨을 계속 쉴 모든 이유까지. 그리고 그냥... 앉은 거지."
       },
       {
         "speaker": "",
@@ -559,14 +564,14 @@
       },
       {
         "speaker": "",
-        "text": "The figure's outline solidified, just for a moment. You saw a face — young, tired, familiar in a way you couldn't place.",
+        "text": "The figure's outline solidified, just for a moment. You saw a face, young, tired, familiar in a way you couldn't place.",
         "cg": "res://assets/cg/generated/story_ch1_ashen_figure_restored.png",
-        "text_ko": "형체의 윤곽이 잠시 또렷해졌다. 얼굴이 보였다 — 젊고, 지쳐 있고, 어디서인지 짚을 수 없게 낯익은."
+        "text_ko": "형체의 윤곽이 잠시 또렷해졌다. 얼굴이 보였다, 젊고, 지쳐 있고, 어디서인지 짚을 수 없게 낯익은."
       },
       {
         "speaker": "Ashen Figure",
-        "text": "I remember now. I was... counting. Always counting. Take this — it's mine, but I don't need it where I'm going.",
-        "text_ko": "이제 기억나. 나는... 세고 있었어. 언제나 세고 있었지. 이걸 가져가라 — 내 것이지만, 내가 가는 곳엔 필요 없으니."
+        "text": "I remember now. I was... counting. Always counting. Take this, it's mine, but I don't need it where I'm going.",
+        "text_ko": "이제 기억나. 나는... 세고 있었어. 언제나 세고 있었지. 이걸 가져가라, 내 것이지만, 내가 가는 곳엔 필요 없으니."
       },
       {
         "speaker": "",

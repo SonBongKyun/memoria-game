@@ -10,10 +10,7 @@ These files were copied into the Godot project so they are included in editor im
 
 `assets/cg/game_image/`
 
-- `tobias_fullbody.png`
-- `nera_fullbody.png`
 - `kairos_fullbody.png`
-- `veil_fullbody.png`
 - `env_frost_city.png`
 - `env_memory_hall.png`
 - `env_wasteland_city.png`
@@ -41,6 +38,10 @@ These files were copied into the Godot project so they are included in editor im
 - `world_map_memoria.png`
 
 These are safe to reference directly from VN JSON using full `res://` paths.
+
+Current named-character presentation art lives under
+`assets/portraits/character_shots/`. The older Tobias, Nera, and Veil
+full-body drafts were retired after the field/battle style-unification pass.
 
 ## Reference Sheets
 

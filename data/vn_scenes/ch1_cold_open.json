@@ -1,7 +1,7 @@
 {
   "id": "ch1_cold_open",
-  "title": "Chapter 1 — Before the Ash Settled",
-  "title_ko": "1장 — 재가 가라앉기 전",
+  "title": "Chapter 1, Before the Ash Settled",
+  "title_ko": "1장, 재가 가라앉기 전",
   "chapter": 1,
   "bgm": "res://assets/audio/bgm/dialogue_tense.mp3",
   "steps": [
@@ -33,8 +33,8 @@
           "text_ko": "어둠이 빼앗기 전에 자신의 이름을 말한다.",
           "set_flag": "opening_named_self",
           "add_grains": 4,
-          "effect": "Begin with 4 Grains — proof that Arrel still knows what is his.",
-          "effect_ko": "그레인 4개 획득 — 아직 자신의 것을 구분할 수 있다는 증거."
+          "effect": "Begin with 4 Grains, proof that Arrel still knows what is his.",
+          "effect_ko": "그레인 4개 획득, 아직 자신의 것을 구분할 수 있다는 증거."
         },
         {
           "text": "Step between the beast and Elia's lantern.",

@@ -1,4 +1,4 @@
-## MapGateway — a compact interactable route marker for optional exploration sites.
+## MapGateway, a compact interactable route marker for optional exploration sites.
 class_name MapGateway
 extends StaticBody2D
 

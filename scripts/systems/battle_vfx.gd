@@ -1,4 +1,4 @@
-## BattleVFX — S56: Advanced Battle Visual Effects
+## BattleVFX, S56: Advanced Battle Visual Effects
 ## Handles: enhanced damage numbers, skill-specific particles, status effect visuals,
 ## memory burn dramatic sequence, victory fanfare, defeat slow-motion.
 ## Used as a utility instantiated by BattleScene.
@@ -232,7 +232,7 @@ func play_victory_fanfare() -> void:
 	ft.tween_property(flash, "color:a", 0.0, 0.8).set_ease(Tween.EASE_OUT)
 	ft.tween_callback(flash.queue_free)
 
-	# Confetti burst — multi-colored particles raining down
+	# Confetti burst, multi-colored particles raining down
 	var confetti_colors = [
 		Color(1.0, 0.85, 0.2),   # gold
 		Color(0.3, 0.85, 1.0),   # cyan
@@ -563,7 +563,7 @@ func play_memory_burn_sequence(memory_title: String, memory_grade: int, player_s
 	if player_sprite_container:
 		_spawn_memory_fire(player_sprite_container.position + Vector2(60, 40))
 
-	# Step 4: Memory name text "burns away" — letter-by-letter dissolve
+	# Step 4: Memory name text "burns away", letter-by-letter dissolve
 	_play_burn_text(memory_title, memory_grade)
 
 	# Step 5: Screen shake + flash (at peak of sequence)
@@ -580,7 +580,7 @@ func play_memory_burn_sequence(memory_title: String, memory_grade: int, player_s
 	ft.tween_property(burn_flash, "color:a", 0.0, 0.3).set_ease(Tween.EASE_OUT)
 	ft.tween_callback(burn_flash.queue_free)
 
-	# Step 6: Color returns — fade out desaturation
+	# Step 6: Color returns, fade out desaturation
 	await _scene.get_tree().create_timer(0.4).timeout
 	var t_restore = _scene.create_tween()
 	t_restore.tween_property(desat_overlay, "color:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)
@@ -706,7 +706,7 @@ func _play_burn_text(memory_title: String, grade: int) -> void:
 		var t = _scene.create_tween()
 		t.tween_property(letter, "modulate:a", 1.0, 0.05).set_delay(appear_delay)
 
-	# Phase B: After appearing, each letter "burns away" — dissolve from left to right
+	# Phase B: After appearing, each letter "burns away", dissolve from left to right
 	# Start dissolve 0.4s after first appearance
 	for i in range(letter_labels.size()):
 		var letter = letter_labels[i]

@@ -1,5 +1,5 @@
 ## MemoryConstellation (Autoload)
-## S62: 기억 성좌 UI — 기억들을 네트워크 노드로 시각화. 연결된 기억 간 선, 태워진 기억 금/잠금.
+## S62: 기억 성좌 UI, 기억들을 네트워크 노드로 시각화. 연결된 기억 간 선, 태워진 기억 금/잠금.
 ## MemoryUI(Tab/M) 안에서 "Constellation" 버튼으로 토글.
 extends CanvasLayer
 
@@ -244,7 +244,7 @@ func _compute_positions() -> void:
 		var grade_phase := -PI / 2.0 + float(int(grade)) * 0.78
 		for i in range(count):
 			var angle := grade_phase if count == 1 else grade_phase + TAU * float(i) / float(count)
-			# NPC가 같으면 서로 약간 가깝게 몰기 — 간단히 id 해시 오프셋
+			# NPC가 같으면 서로 약간 가깝게 몰기, 간단히 id 해시 오프셋
 			var npc_offset = 0.0
 			if group[i].related_npc != "":
 				npc_offset = sin(group[i].related_npc.hash() * 0.001) * 0.15

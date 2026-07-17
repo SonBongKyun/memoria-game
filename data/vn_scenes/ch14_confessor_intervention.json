@@ -1,6 +1,6 @@
 {
   "id": "ch14_confessor_intervention",
-  "title": "Chapter 14 — The Confessor's Hall",
+  "title": "Chapter 14, The Confessor's Hall",
   "chapter": 14,
   "steps": [
     {
@@ -171,7 +171,7 @@
       "cg": "res://assets/cg/generated/memory_key_confessor_hinge.png",
       "fade": 0.8,
       "narrate": "In the wreckage of the hall, one detail did not fit the Authority's incident template: the extraction cradle had been opened, not shattered. A hand larger than his had once closed his fingers around a wooden grip, and tonight that grip had freed a stranger without leaving a scar.",
-      "narrate_ko": "홀의 잔해 속에서, 단 하나의 세부가 관리국의 사건 양식에 들어맞지 않았다. 추출 요람은 부서진 것이 아니라 열려 있었다. 언젠가 그의 손가락을 나무 손잡이에 감싸 쥐게 해 준 더 큰 손 — 오늘 밤 그 손잡이가, 흉터 하나 남기지 않고 낯선 이를 풀어 주었다."
+      "narrate_ko": "홀의 잔해 속에서, 단 하나의 세부가 관리국의 사건 양식에 들어맞지 않았다. 추출 요람은 부서진 것이 아니라 열려 있었다. 언젠가 그의 손가락을 나무 손잡이에 감싸 쥐게 해 준 더 큰 손, 오늘 밤 그 손잡이가, 흉터 하나 남기지 않고 낯선 이를 풀어 주었다."
     },
     {
       "complete_chapter": 14,
@@ -179,5 +179,5 @@
       "id": "ch15_singer"
     }
   ],
-  "title_ko": "제14장 — 고해소"
+  "title_ko": "제14장, 고해소"
 }

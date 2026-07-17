@@ -1,6 +1,6 @@
-## TilePainter — 픽셀아트 타일셋 생성 + TileMapLayer 세팅 유틸리티
+## TilePainter, 픽셀아트 타일셋 생성 + TileMapLayer 세팅 유틸리티
 ## Image.set_pixel()로 상세한 타일을 그려서 TileSet 아틀라스를 만듦.
-## S55: 타일 변형 시스템 — 타일 타입당 4 변형으로 시각적 반복 감소
+## S55: 타일 변형 시스템, 타일 타입당 4 변형으로 시각적 반복 감소
 class_name TilePainter
 
 const TILE: int = 32
@@ -64,7 +64,7 @@ static func create_tilemap(tile_defs: Array, map_data: Array, width: int, height
 
 	return tilemap
 
-## S55: 색상 변형 생성 — 미세한 색조/명도 변화
+## S55: 색상 변형 생성, 미세한 색조/명도 변화
 static func _vary_color(base: Color, variation_index: int) -> Color:
 	# 각 변형은 고유한 오프셋 패턴을 가짐
 	var offsets = [
@@ -82,7 +82,7 @@ static func _vary_color(base: Color, variation_index: int) -> Color:
 		base.a
 	)
 
-## S55: 위치 기반 해시 (결정론적 변형 — 같은 위치는 항상 같은 변형)
+## S55: 위치 기반 해시 (결정론적 변형, 같은 위치는 항상 같은 변형)
 static func _position_hash(x: int, y: int) -> int:
 	# 간단한 해시: 큰 소수로 혼합
 	return absi((x * 73856093) ^ (y * 19349663)) % 2147483647
@@ -112,7 +112,7 @@ static func _paint_tile(img: Image, ox: int, oy: int, base: Color, detail: Strin
 	# 기본 채우기
 	_fill(img, ox, oy, TILE, TILE, base)
 
-	# 엣지 셰이딩 (깊이감) — detail 페인팅 전에 적용
+	# 엣지 셰이딩 (깊이감), detail 페인팅 전에 적용
 	_paint_edge_shading(img, ox, oy, base, detail)
 
 	match detail:
@@ -179,7 +179,7 @@ static func _clean_detail_name(detail: String) -> String:
 ## ── 개별 타일 페인팅 ──
 
 static func _paint_grass(img: Image, ox: int, oy: int, base: Color) -> void:
-	# S43: 풍부한 풀 텍스처 — 다층 노이즈 + 풀잎 다수
+	# S43: 풍부한 풀 텍스처, 다층 노이즈 + 풀잎 다수
 	var dark_grass = _shift(base, -0.04)
 	var light_grass = _shift(base, 0.06)
 	for y in range(TILE):
@@ -264,7 +264,7 @@ static func _paint_void_clean(img: Image, ox: int, oy: int, base: Color) -> void
 		_px(img, ox + x, oy + y, seam)
 
 static func _paint_tree(img: Image, ox: int, oy: int, _base: Color) -> void:
-	# S43: 나무 — 껍질 텍스처 + 풍성한 수관 + 그림자
+	# S43: 나무, 껍질 텍스처 + 풍성한 수관 + 그림자
 	# 줄기 (껍질 텍스처)
 	var trunk = Color(0.38, 0.24, 0.14)
 	var trunk_dark = _shift(trunk, -0.06)
@@ -281,7 +281,7 @@ static func _paint_tree(img: Image, ox: int, oy: int, _base: Color) -> void:
 	for y in range(18, 32):
 		_px(img, ox + 12, oy + y, _shift(trunk, -0.08))
 		_px(img, ox + 13, oy + y, trunk_dark)
-	# 수관 (다층 원형 — 3겹)
+	# 수관 (다층 원형, 3겹)
 	var canopy = Color(0.15, 0.38, 0.18)
 	var canopy_dark = Color(0.08, 0.28, 0.1)
 	var canopy_light = Color(0.22, 0.48, 0.25)
@@ -301,7 +301,7 @@ static func _paint_tree(img: Image, ox: int, oy: int, _base: Color) -> void:
 				var leaf_var = randf_range(-0.03, 0.03)
 				var c = canopy if randi_range(0, 2) != 0 else canopy_dark
 				_px(img, ox + x, oy + y, _shift(c, leaf_var))
-	# 하이라이트 (상단 좌측 — 빛)
+	# 하이라이트 (상단 좌측, 빛)
 	for y in range(3, 11):
 		for x in range(8, 17):
 			var dx = x - 12.0
@@ -335,7 +335,7 @@ static func _paint_bush(img: Image, ox: int, oy: int, base: Color) -> void:
 		_px(img, ox + x, oy + TILE - 2, _shift(base, -0.05))
 
 static func _paint_water(img: Image, ox: int, oy: int, base: Color) -> void:
-	# S43: 풍부한 물 텍스처 — 깊이감 + 다층 파도 + 반짝임
+	# S43: 풍부한 물 텍스처, 깊이감 + 다층 파도 + 반짝임
 	var deep = _shift(base, -0.06)
 	var shallow = _shift(base, 0.04)
 	for y in range(TILE):
@@ -362,7 +362,7 @@ static func _paint_water(img: Image, ox: int, oy: int, base: Color) -> void:
 		_px(img, ox + sx, oy + sy, Color(0.5, 0.65, 0.8, 0.6))
 
 static func _paint_path(img: Image, ox: int, oy: int, base: Color) -> void:
-	# S43: 길 — 자갈 다수 + 발자국 흔적 + 가장자리 풀
+	# S43: 길, 자갈 다수 + 발자국 흔적 + 가장자리 풀
 	for y in range(TILE):
 		for x in range(TILE):
 			var v = randf_range(-0.03, 0.03) + sin(x * 0.6) * 0.01
@@ -391,7 +391,7 @@ static func _paint_path(img: Image, ox: int, oy: int, base: Color) -> void:
 		_px(img, ox + ex, oy + ey, _shift(base, 0.06))
 
 static func _paint_stone(img: Image, ox: int, oy: int, base: Color) -> void:
-	# S43: 돌바닥 — 균열 + 이끼 + 풍화
+	# S43: 돌바닥, 균열 + 이끼 + 풍화
 	for y in range(TILE):
 		for x in range(TILE):
 			var v = randf_range(-0.03, 0.03) + sin(x * 0.5 + y * 0.3) * 0.015
@@ -478,7 +478,7 @@ static func _paint_alley(img: Image, ox: int, oy: int, base: Color) -> void:
 				_px(img, ox + px + dx, oy + py + dy, _shift(base, -0.05))
 
 static func _paint_sand(img: Image, ox: int, oy: int, base: Color) -> void:
-	# S43: 모래 — 물결 패턴 + 조개/조약돌 + 바람 자국
+	# S43: 모래, 물결 패턴 + 조개/조약돌 + 바람 자국
 	for y in range(TILE):
 		for x in range(TILE):
 			var wave = sin(x * 0.4 + y * 0.3) * 0.03 + sin(x * 0.15 - y * 0.2) * 0.02
@@ -564,7 +564,7 @@ static func _paint_lantern(img: Image, ox: int, oy: int, base: Color) -> void:
 	# 빛
 	var glow = Color(0.9, 0.7, 0.3)
 	_fill(img, ox + 13, oy + 8, 6, 5, glow)
-	# 후광 (반투명 느낌 — 밝은 색으로)
+	# 후광 (반투명 느낌, 밝은 색으로)
 	for y in range(4, 18):
 		for x in range(8, 24):
 			var dx = x - 16.0
@@ -576,7 +576,7 @@ static func _paint_lantern(img: Image, ox: int, oy: int, base: Color) -> void:
 				_px(img, ox + x, oy + y, current.lerp(glow, blend))
 
 static func _paint_void(img: Image, ox: int, oy: int, base: Color) -> void:
-	# S43: 보이드 — 맥동 에너지 패턴 + 별빛
+	# S43: 보이드, 맥동 에너지 패턴 + 별빛
 	for y in range(TILE):
 		for x in range(TILE):
 			var dist = sqrt(pow(x - 16.0, 2) + pow(y - 16.0, 2)) / 22.0
@@ -616,7 +616,7 @@ static func _paint_crack(img: Image, ox: int, oy: int, base: Color) -> void:
 		_px(img, ox + cx - 1, oy + y, _shift(crack_c, -0.02))
 
 static func _paint_core(img: Image, ox: int, oy: int, base: Color) -> void:
-	# 맥동 코어 — 중심으로 갈수록 밝아지는 패턴
+	# 맥동 코어, 중심으로 갈수록 밝아지는 패턴
 	for y in range(TILE):
 		for x in range(TILE):
 			var dx = x - 16.0

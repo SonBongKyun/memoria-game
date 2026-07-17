@@ -1,4 +1,4 @@
-## Player — 아렐
+## Player, 아렐
 ## 탑다운 2D 이동, 상호작용, 기본 상태 관리.
 ## S57: Camera2D 시스템 + 탐색 폴리시 (대시, 가속, 먼지, 인터랙션 인디케이터, 피젯)
 extends CharacterBody2D
@@ -10,8 +10,8 @@ const SHEET_SPRITE_OFFSET: Vector2 = Vector2(0, -52)
 const FIELD_SPRITE_SCALE: Vector2 = Vector2(0.36, 0.36)
 const FIELD_SPRITE_OFFSET: Vector2 = Vector2(0, -72)
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
-const ACCELERATION: float = 600.0   # px/s^2 — 가속
-const DECELERATION: float = 800.0   # px/s^2 — 감속 (더 빠르게 멈춤)
+const ACCELERATION: float = 600.0   # px/s^2, 가속
+const DECELERATION: float = 800.0   # px/s^2, 감속 (더 빠르게 멈춤)
 const MEMORY_PULSE_RADIUS: float = 150.0
 const MEMORY_PULSE_COOLDOWN: float = 6.0
 
@@ -74,7 +74,7 @@ func _ready() -> void:
 		_sprite_base_offset = sprite.offset
 	_setup_camera()
 	_setup_interact_indicator()
-	print("[Player] Arrel ready — Camera2D + exploration polish active")
+	print("[Player] Arrel ready, Camera2D + exploration polish active")
 
 ## Camera2D 초기 설정
 func _setup_camera() -> void:
@@ -87,7 +87,7 @@ func _setup_camera() -> void:
 	camera.zoom = _camera_base_zoom
 	# 픽셀 스내핑 (pixel-perfect for 32px tiles)
 	camera.set_meta("pixel_snap", true)
-	# 맵 한계 — 씬에서 MAP_WIDTH/MAP_HEIGHT 읽기
+	# 맵 한계, 씬에서 MAP_WIDTH/MAP_HEIGHT 읽기
 	_apply_camera_limits()
 
 ## 현재 맵의 크기를 읽어서 카메라 리밋 적용
@@ -169,10 +169,10 @@ func _physics_process(delta: float) -> void:
 		facing_direction = input_vector
 		_update_animation(input_vector, true)
 		_update_raycast_direction()
-		# S58: Movement start squash — brief compression when beginning to walk
+		# S58: Movement start squash, brief compression when beginning to walk
 		if not _was_moving and sprite:
 			_play_move_squash(Vector2(0.95, 1.05), 0.05)
-		# S58: Sprint stretch — elongate in movement direction while sprinting
+		# S58: Sprint stretch, elongate in movement direction while sprinting
 		if _is_sprinting and sprite:
 			if abs(input_vector.x) > abs(input_vector.y):
 				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(1.08, 0.92)), 8.0 * delta)
@@ -183,9 +183,9 @@ func _physics_process(delta: float) -> void:
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
-		# S150: 감속 중에는 걷기 애니 유지 — 몸이 미끄러지는데 발이 멈추는 어색함 제거
+		# S150: 감속 중에는 걷기 애니 유지, 몸이 미끄러지는데 발이 멈추는 어색함 제거
 		_update_animation(facing_direction, velocity.length() > 12.0)
-		# S58: Movement stop stretch — brief elongation when stopping
+		# S58: Movement stop stretch, brief elongation when stopping
 		if _was_moving and sprite:
 			_play_move_squash(Vector2(1.05, 0.95), 0.08)
 		# S52: 정지 시 호흡 미세 스케일 + S57: 피젯
@@ -232,7 +232,7 @@ func _physics_process(delta: float) -> void:
 		_afterimage_timer = 0.0
 
 	# S150: 걷기 바운스 + 발딛기 먼지 동기 + 수평 기울기
-	# 바운스 위상이 발걸음의 단일 진실원 — 먼지가 발이 닿는 프레임에 정확히 맞음.
+	# 바운스 위상이 발걸음의 단일 진실원, 먼지가 발이 닿는 프레임에 정확히 맞음.
 	if sprite:
 		if velocity.length() > 12.0:
 			_bob_phase += velocity.length() * delta * 0.085
@@ -259,7 +259,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 
-	# 상호작용 (Space / Enter) — 탐색 모드에서만
+	# 상호작용 (Space / Enter), 탐색 모드에서만
 	if event.is_action_pressed("interact") and GameManager.current_state == GameManager.GameState.EXPLORATION:
 		_try_interact()
 
@@ -337,7 +337,7 @@ func _spawn_afterimage() -> void:
 	t.tween_property(ghost, "modulate:a", 0.0, 0.25)
 	t.tween_callback(ghost.queue_free)
 
-## 발밑 먼지 파티클 — S59: terrain-specific dust colors
+## 발밑 먼지 파티클, S59: terrain-specific dust colors
 func _spawn_dust() -> void:
 	var dust = ColorRect.new()
 	var size = randf_range(2.0, 3.5)
@@ -401,7 +401,7 @@ func _do_fidget() -> void:
 	t.tween_property(sprite, "scale", _scaled_sprite(Vector2(0.98, 1.02)), 0.08)
 	t.tween_property(sprite, "scale", _sprite_rest_scale, 0.1)
 
-## S58: Movement squash/stretch — brief scale pop on start/stop
+## S58: Movement squash/stretch, brief scale pop on start/stop
 func _play_move_squash(target_scale: Vector2, duration: float) -> void:
 	if not sprite:
 		return
@@ -446,10 +446,8 @@ func _setup_placeholder_sprites() -> void:
 	var sheet_path := "res://assets/sprites/characters/arrel_sheet/idle_01.png"
 	if PixelSprite.has_field_sprite_frames("arrel"):
 		sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
-		sprite.scale = FIELD_SPRITE_SCALE
-		_sprite_rest_scale = FIELD_SPRITE_SCALE
-		sprite.offset = FIELD_SPRITE_OFFSET
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		var field_texture := sprite.sprite_frames.get_frame_texture("idle_down", 0)
+		_sprite_rest_scale = PixelSprite.apply_field_profile(sprite, field_texture)
 	elif ResourceLoader.exists(sheet_path):
 		sprite.sprite_frames = PixelSprite.create_sheet_frames("arrel")
 		sprite.scale = SHEET_SPRITE_SCALE
@@ -470,7 +468,7 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 
 	var anim_prefix = "walk_" if is_moving else "idle_"
 
-	# S150: 대각선 지터 방지 — 우세 축이 20% 이상 클 때만 축을 전환하고,
+	# S150: 대각선 지터 방지, 우세 축이 20% 이상 클 때만 축을 전환하고,
 	# 근사 대각선에서는 기존 방향을 유지 (부호 반전만 즉시 반영)
 	var ax := absf(direction.x)
 	var ay := absf(direction.y)
@@ -494,7 +492,7 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 	if sprite.animation != anim_name:
 		sprite.play(anim_name)
 
-	# S150: 이동 속도 연동 애니 속도 — 질주/감속 시 발과 지면의 미끄러짐 제거
+	# S150: 이동 속도 연동 애니 속도, 질주/감속 시 발과 지면의 미끄러짐 제거
 	if is_moving:
 		sprite.speed_scale = clampf(velocity.length() / BASE_SPEED, 0.65, 1.85)
 	else:

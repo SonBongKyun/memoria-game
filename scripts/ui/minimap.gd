@@ -1,13 +1,14 @@
-## Minimap — 우상단 미니맵 오버레이
+## Minimap, 우상단 미니맵 오버레이
 ## 현재 맵 레이아웃 + 플레이어 위치 표시.
 ## CanvasLayer 기반, EXPLORATION에서만 표시.
 class_name Minimap
 
-const MINIMAP_SIZE := Vector2(112, 80)
+const MINIMAP_SIZE := Vector2(108, 96)
 const MINIMAP_MARGIN := Vector2(12, 12)
 const PIXEL_SIZE := 3  # clean, compact map footprint
 const PLAYER_SIZE := 5
 const OBJECTIVE_SIZE := 6
+const MINIMAP_FRAME_PATH := "res://assets/cg/generated/ui_minimap_compass_frame_v1.png"
 
 # 타일 색상 (공통 매핑)
 const TILE_COLORS := {
@@ -40,7 +41,7 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	var layer = CanvasLayer.new()
 	layer.layer = 9  # ExplorationHUD(10) 바로 아래
 
-	# 컨테이너 — 우상단
+	# 컨테이너, 우상단
 	var container = Control.new()
 	container.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	container.offset_left = -(MINIMAP_SIZE.x + MINIMAP_MARGIN.x)
@@ -67,6 +68,19 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	container.add_child(border)
 
 	# 맵 이미지 (타일 기반)
+	# Compact Memory Compass plate. Its center stays quiet so route pixels and
+	# objective markers remain the strongest information layer.
+	if ResourceLoader.exists(MINIMAP_FRAME_PATH):
+		var frame := TextureRect.new()
+		frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		frame.stretch_mode = TextureRect.STRETCH_SCALE
+		frame.texture = load(MINIMAP_FRAME_PATH)
+		frame.position = Vector2.ZERO
+		frame.size = MINIMAP_SIZE
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.modulate = Color(0.82, 0.78, 0.74, 0.88)
+		container.add_child(frame)
+
 	var map_image = _create_map_texture(map_data, tile_defs, map_width, map_height)
 	map_image.position = Vector2(
 		(MINIMAP_SIZE.x - map_width * PIXEL_SIZE) / 2.0,
@@ -106,7 +120,7 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 
 	parent.add_child(layer)
 
-	# 가시성 연동 — is_instance_valid 체크 (씬 전환 시 freed 방지)
+	# 가시성 연동, is_instance_valid 체크 (씬 전환 시 freed 방지)
 	GameManager.state_changed.connect(func(state):
 		if is_instance_valid(container):
 			container.visible = (state == GameManager.GameState.EXPLORATION)

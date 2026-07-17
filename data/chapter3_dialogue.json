@@ -5,14 +5,15 @@
     "waystation_arrival": [
       {
         "speaker": "",
-        "text": "The Belt stretched endlessly — a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.",
+        "text": "The Belt stretched endlessly, a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.",
         "cg": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
-        "text_ko": "벨트는 끝없이 뻗어 있었다 — 아무것도 자라지 않는, 흉터 진 땅의 띠. 아렐과 엘리아는 몇 시간을 말없이 걸었다."
+        "text_ko": "벨트는 끝없이 뻗어 있었다, 아무것도 자라지 않는, 흉터 진 땅의 띠. 아렐과 엘리아는 몇 시간을 말없이 걸었다."
       },
       {
         "speaker": "",
         "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry.",
-        "text_ko": "마침내 안개 너머로 무너져 가는 역참이 나타났다. 급수탑은 옆으로 기울었고, 물탱크는 마른 지 오래였다."
+        "text_ko": "마침내 안개 너머로 무너져 가는 역참이 나타났다. 급수탑은 옆으로 기울었고, 물탱크는 마른 지 오래였다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch03_waystation_haze_v1.png"
       },
       {
         "speaker": "Elia",
@@ -28,14 +29,14 @@
       },
       {
         "speaker": "Elia",
-        "text": "Not since the soil went dead. Look—",
+        "text": "Not since the soil went dead. Look...",
         "portrait": "elia_concern",
-        "text_ko": "흙이 죽은 뒤로는. 봐—"
+        "text_ko": "흙이 죽은 뒤로는. 봐..."
       },
       {
         "speaker": "",
-        "text": "She pointed at a faded sign: BUREAU RELAY STATION 14 — AUTHORIZED PERSONNEL ONLY.",
-        "text_ko": "그녀가 빛바랜 표지판을 가리켰다: 관리국 중계소 14 — 허가 인원 외 출입 금지."
+        "text": "She pointed at a faded sign: BUREAU RELAY STATION 14, AUTHORIZED PERSONNEL ONLY.",
+        "text_ko": "그녀가 빛바랜 표지판을 가리켰다: 관리국 중계소 14, 허가 인원 외 출입 금지."
       },
       {
         "speaker": "Arrel",
@@ -59,9 +60,10 @@
       },
       {
         "speaker": "Tobias",
-        "text": "...seven-point-three Grains per unit, adjusted for residue decay... no, that can't be right—",
+        "text": "...seven-point-three Grains per unit, adjusted for residue decay... no, that can't be right...",
         "portrait": "tobias_neutral",
-        "text_ko": "...단위당 7.3그레인, 잔존 감쇠 보정하면... 아니, 이게 맞을 리가 없는데—"
+        "text_ko": "...단위당 7.3그레인, 잔존 감쇠 보정하면... 아니, 이게 맞을 리가 없는데...",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch03_tobias_accounting_v1.png"
       },
       {
         "speaker": "Elia",
@@ -77,9 +79,9 @@
       },
       {
         "speaker": "Tobias",
-        "text": "Oh! Travelers? On the Belt? That's — well, that's unusual. I'm Tobias. Tobias Crane.",
+        "text": "Oh! Travelers? On the Belt? That's, well, that's unusual. I'm Tobias. Tobias Crane.",
         "portrait": "tobias_neutral",
-        "text_ko": "오! 여행자? 벨트에? 그건 — 음, 드문 일이군. 나는 토비아스. 토비아스 크레인이라고 하네."
+        "text_ko": "오! 여행자? 벨트에? 그건, 음, 드문 일이군. 나는 토비아스. 토비아스 크레인이라고 하네."
       },
       {
         "speaker": "Arrel",
@@ -91,13 +93,13 @@
         "speaker": "Tobias",
         "text": "Recording. I record things. Transactions, mostly. Memory transactions.",
         "portrait": "tobias_neutral",
-        "text_ko": "기록. 나는 기록을 하네. 주로 거래를 — 기억 거래 말일세."
+        "text_ko": "기록. 나는 기록을 하네. 주로 거래를, 기억 거래 말일세."
       },
       {
         "speaker": "Tobias",
-        "text": "The Bureau calls me a Recorder — Class C, if you care about rank. I document combustion events for the official ledger.",
+        "text": "The Bureau calls me a Recorder, Class C, if you care about rank. I document combustion events for the official ledger.",
         "portrait": "tobias_neutral",
-        "text_ko": "관리국은 나를 기록관이라고 부르지 — 계급이 궁금하다면 C급일세. 공식 원장에 연소 사건을 기록하는 일이야."
+        "text_ko": "관리국은 나를 기록관이라고 부르지, 계급이 궁금하다면 C급일세. 공식 원장에 연소 사건을 기록하는 일이야."
       },
       {
         "speaker": "Elia",
@@ -121,9 +123,9 @@
     "blank_book_discovery": [
       {
         "speaker": "",
-        "text": "In the back room, Arrel noticed something odd — a book on a shelf that seemed to glow faintly at its edges.",
+        "text": "In the back room, Arrel noticed something odd, a book on a shelf that seemed to glow faintly at its edges.",
         "cg": "res://assets/cg/generated/story_ch3_waystation_blank_book.png",
-        "text_ko": "뒷방에서 아렐은 이상한 것을 알아차렸다 — 선반 위의 책 한 권. 가장자리가 희미하게 빛나는 듯했다."
+        "text_ko": "뒷방에서 아렐은 이상한 것을 알아차렸다, 선반 위의 책 한 권. 가장자리가 희미하게 빛나는 듯했다."
       },
       {
         "speaker": "Arrel",
@@ -135,13 +137,14 @@
         "speaker": "Tobias",
         "text": "Ah. You can see it too? Most people walk right past. That's a Blank Book.",
         "portrait": "tobias_neutral",
-        "text_ko": "아. 자네도 보이나? 대부분은 그냥 지나치는데. 저건 빈 책일세."
+        "text_ko": "아. 자네도 보이나? 대부분은 그냥 지나치는데. 저건 빈 책일세.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch03_blank_book_warmth_v1.png"
       },
       {
         "speaker": "Tobias",
-        "text": "Record-tree fiber. Incredibly rare. It absorbs memory resonance — not the memory itself, but the shape of it.",
+        "text": "Record-tree fiber. Incredibly rare. It absorbs memory resonance, not the memory itself, but the shape of it.",
         "portrait": "tobias_neutral",
-        "text_ko": "기록목 섬유야. 믿을 수 없을 만큼 희귀하지. 기억의 공명을 흡수하네 — 기억 그 자체가 아니라, 기억의 '형태'를."
+        "text_ko": "기록목 섬유야. 믿을 수 없을 만큼 희귀하지. 기억의 공명을 흡수하네, 기억 그 자체가 아니라, 기억의 '형태'를."
       },
       {
         "speaker": "Arrel",
@@ -182,7 +185,7 @@
         "speaker": "Tobias",
         "text": "Take it. You're a Burner, aren't you? Class Seven efficiency, if I had to guess. You'll need this more than I will.",
         "portrait": "tobias_neutral",
-        "text_ko": "가져가게. 자네, 연소자지? 짐작해야 한다면 — 7급 효율. 나보다 자네에게 더 필요할 걸세."
+        "text_ko": "가져가게. 자네, 연소자지? 짐작해야 한다면, 7급 효율. 나보다 자네에게 더 필요할 걸세."
       },
       {
         "speaker": "",
@@ -192,21 +195,22 @@
       },
       {
         "speaker": "",
-        "text": "[Obtained: Blank Book — Records the contours of burned memories]",
-        "text_ko": "[Obtained: Blank Book — Records the contours of burned memories]"
+        "text": "[Obtained: Blank Book, Records the contours of burned memories]",
+        "text_ko": "[Obtained: Blank Book, Records the contours of burned memories]"
       }
     ],
     "kairos_wall_writing": [
       {
         "speaker": "",
         "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall.",
-        "cg": "res://assets/cg/generated/story_ch3_kairos_wall_warning.png",
+        "cg": "res://assets/cg/generated/archive_ch3_kairos_marks_v1.png",
         "text_ko": "급수탑으로 오르는 계단통, 누군가 콘크리트 벽에 글자를 긁어 놓았다."
       },
       {
         "speaker": "",
         "text": "The handwriting was precise, almost mechanical: 'Subject demonstrates Class Seven combustion efficiency.'",
-        "text_ko": "필체는 정밀했다. 거의 기계적이었다: '대상은 7급 연소 효율을 시현함.'"
+        "text_ko": "필체는 정밀했다. 거의 기계적이었다: '대상은 7급 연소 효율을 시현함.'",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch03_class_seven_wall_v1.png"
       },
       {
         "speaker": "Arrel",
@@ -259,9 +263,9 @@
     "tobias_joins": [
       {
         "speaker": "Tobias",
-        "text": "Listen — I know I'm not a fighter. I can barely swing a pen without getting ink on my face.",
+        "text": "Listen, I know I'm not a fighter. I can barely swing a pen without getting ink on my face.",
         "portrait": "tobias_neutral",
-        "text_ko": "들어 보게 — 나도 내가 싸움꾼이 아닌 건 아네. 얼굴에 잉크를 묻히지 않고는 펜도 못 휘두르는 사람이야."
+        "text_ko": "들어 보게, 나도 내가 싸움꾼이 아닌 건 아네. 얼굴에 잉크를 묻히지 않고는 펜도 못 휘두르는 사람이야."
       },
       {
         "speaker": "Tobias",
@@ -320,14 +324,14 @@
       },
       {
         "speaker": "",
-        "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned — not by fire, but by memory.",
-        "text_ko": "회색 흙이 양쪽으로 뻗어 있었다. 아무것도 자라지 않았다. 땅 자체가 타 버린 것이다 — 불이 아니라, 기억에 의해."
+        "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned, not by fire, but by memory.",
+        "text_ko": "회색 흙이 양쪽으로 뻗어 있었다. 아무것도 자라지 않았다. 땅 자체가 타 버린 것이다, 불이 아니라, 기억에 의해."
       },
       {
         "speaker": "Elia",
-        "text": "Forty years ago, a Burner lost control here. Burned everything — including the land's memory of how to grow things.",
+        "text": "Forty years ago, a Burner lost control here. Burned everything, including the land's memory of how to grow things.",
         "portrait": "elia_neutral",
-        "text_ko": "사십 년 전, 여기서 한 연소자가 통제를 잃었어. 전부 태웠지 — 작물을 기르는 법에 대한 땅의 기억까지."
+        "text_ko": "사십 년 전, 여기서 한 연소자가 통제를 잃었어. 전부 태웠지, 작물을 기르는 법에 대한 땅의 기억까지."
       },
       {
         "speaker": "Arrel",
@@ -345,10 +349,10 @@
     "tobias_records": [
       {
         "speaker": "Tobias",
-        "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was — let me check — approximately 60 percent retention.",
+        "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was, let me check, approximately 60 percent retention.",
         "portrait": "tobias_neutral",
         "cg": "res://assets/cg/generated/story_ch3_tobias_battle_notes.png",
-        "text_ko": "흥미롭군. 전투에서 4등급 기억을 태웠는데 잔존율이 — 잠깐 확인하지 — 약 60퍼센트야."
+        "text_ko": "흥미롭군. 전투에서 4등급 기억을 태웠는데 잔존율이, 잠깐 확인하지, 약 60퍼센트야."
       },
       {
         "speaker": "Arrel",
@@ -385,13 +389,14 @@
       {
         "speaker": "",
         "text": "Arrel looked back at the waystation one last time. It sat alone on the Belt like a forgotten thought.",
-        "text_ko": "아렐은 마지막으로 역참을 돌아보았다. 그것은 잊힌 생각처럼 벨트 위에 홀로 앉아 있었다."
+        "text_ko": "아렐은 마지막으로 역참을 돌아보았다. 그것은 잊힌 생각처럼 벨트 위에 홀로 앉아 있었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch03_three_on_belt_v1.png"
       },
       {
         "speaker": "Tobias",
-        "text": "The Crumbling Coast is two days north. There's a fishing village — or what's left of one — where we can resupply.",
+        "text": "The Crumbling Coast is two days north. There's a fishing village, or what's left of one, where we can resupply.",
         "portrait": "tobias_neutral",
-        "text_ko": "무너지는 해안은 북쪽으로 이틀 거리야. 어촌이 하나 있네 — 남은 것이 어촌이라면 말이지만 — 거기서 보급할 수 있어."
+        "text_ko": "무너지는 해안은 북쪽으로 이틀 거리야. 어촌이 하나 있네, 남은 것이 어촌이라면 말이지만, 거기서 보급할 수 있어."
       },
       {
         "speaker": "Elia",

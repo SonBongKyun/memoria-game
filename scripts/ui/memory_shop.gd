@@ -36,7 +36,7 @@ var _shop_inventory: Array[Dictionary] = []  # 상점 구매 가능 아이템
 var _selected_item: Dictionary = {}
 var _merchant_name: String = "Merchant"
 
-const GRADE_NAMES = ["Grade 5 — Sensory", "Grade 4 — Daily", "Grade 3 — Relational", "Grade 2 — Identity", "Grade 1 — Core"]
+const GRADE_NAMES = ["Grade 5, Sensory", "Grade 4, Daily", "Grade 3, Relational", "Grade 2, Identity", "Grade 1, Core"]
 const GRADE_COLORS = [
 	Color(0.5, 0.5, 0.45),
 	Color(0.55, 0.5, 0.35),
@@ -48,7 +48,7 @@ const GRADE_COLORS = [
 # ── 기억 등급별 판매/구매 가격 ──
 const SELL_PRICES := {0: 5, 1: 15, 2: 30, 3: 60, 4: 150}   # 판매가 (플레이어→상인)
 const BUY_PRICES := {0: 10, 1: 25, 2: 50, 3: 100, 4: 300}   # 구매가 (상인→플레이어)
-const SHOP_BACKDROP_PATH: String = "res://assets/cg/generated/ui_memory_shop_backdrop.png"
+const SHOP_BACKDROP_PATH: String = "res://assets/cg/generated/ui_memory_shop_backdrop_v2.png"
 
 signal shop_closed()
 signal grains_changed(amount: int)
@@ -66,7 +66,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		close_shop()
 		get_viewport().set_input_as_handled()
 
-## 상점 열기 — merchant_name: 상인 이름, inventory: 구매 가능 아이템
+## 상점 열기, merchant_name: 상인 이름, inventory: 구매 가능 아이템
 func open_shop(merchant_name: String = "Merchant", inventory: Array[Dictionary] = []) -> void:
 	if is_open:
 		return
@@ -76,7 +76,7 @@ func open_shop(merchant_name: String = "Merchant", inventory: Array[Dictionary] 
 	_current_mode = "sell"
 	GameManager.change_state(GameManager.GameState.MENU)
 	AudioManager.play_sfx("ui_open")
-	shop_title.text = "%s — Memory Exchange" % merchant_name
+	shop_title.text = "%s, Memory Exchange" % merchant_name
 	_update_merchant_portrait(merchant_name)
 	_update_grains()
 	_refresh_items()
@@ -414,7 +414,7 @@ func _populate_buy_list() -> void:
 func _populate_items_list() -> void:
 	# 구매 가능한 아이템
 	var buy_header = Label.new()
-	buy_header.text = "— Buy Items —"
+	buy_header.text = "Buy Items"
 	buy_header.add_theme_font_size_override("font_size", 12)
 	buy_header.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 	buy_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -428,7 +428,7 @@ func _populate_items_list() -> void:
 
 	# 판매 가능한 아이템
 	var sell_header = Label.new()
-	sell_header.text = "— Sell Items —"
+	sell_header.text = "Sell Items"
 	sell_header.add_theme_font_size_override("font_size", 12)
 	sell_header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.4))
 	sell_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -458,7 +458,7 @@ func _add_item_button(title: String, color: Color, price: int, item_data: Dictio
 	var btn = Button.new()
 	btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	btn.custom_minimum_size = Vector2(0, 46)
-	btn.text = "%s — %d G" % [title, price]
+	btn.text = "%s, %d G" % [title, price]
 
 	var item_id := String(item_data.get("item_id", ""))
 	var item_icon := GameManager.get_item_icon(item_id)
@@ -681,7 +681,7 @@ func _execute_buy_equip() -> void:
 func _populate_equip_list() -> void:
 	# 현재 장비 표시
 	var equip_header = Label.new()
-	equip_header.text = "— Current Equipment —"
+	equip_header.text = "Current Equipment"
 	equip_header.add_theme_font_size_override("font_size", 12)
 	equip_header.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
 	equip_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -689,7 +689,7 @@ func _populate_equip_list() -> void:
 
 	for slot in ["weapon", "armor", "accessory"]:
 		var eid = GameManager.equipped.get(slot, "")
-		var label_text = "%s: %s" % [slot.capitalize(), "—"]
+		var label_text = "%s: %s" % [slot.capitalize(), "..."]
 		if eid != "" and GameManager.EQUIPMENT.has(eid):
 			var lvl = GameManager.get_upgrade_level(eid)
 			var lvl_str = " +%d" % lvl if lvl > 0 else ""
@@ -731,7 +731,7 @@ func _populate_equip_list() -> void:
 
 	# 구매 가능한 장비
 	var shop_header = Label.new()
-	shop_header.text = "— Buy & Equip —"
+	shop_header.text = "Buy & Equip"
 	shop_header.add_theme_font_size_override("font_size", 12)
 	shop_header.add_theme_color_override("font_color", Color(0.55, 0.65, 0.8))
 	shop_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

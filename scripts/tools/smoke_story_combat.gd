@@ -20,6 +20,9 @@ func _ready() -> void:
 	for atlas_item in ["root_balm", "signal_jammer", "lantern_salve", "name_thread", "compass_shard", "seed_capsule"]:
 		assert(GameManager.ITEMS.has(atlas_item), "%s must be a usable atlas reward" % atlas_item)
 		assert(ResourceLoader.exists(GameManager.ITEMS[atlas_item]["icon"]), "%s must resolve to a shipped illustrated icon" % atlas_item)
+	for field_item in ["anchor_lantern", "ledger_chalk", "cinder_vial", "witness_knot"]:
+		assert(GameManager.ITEMS.has(field_item), "%s must be a usable illustrated exploration reward" % field_item)
+		assert(ResourceLoader.exists(GameManager.ITEMS[field_item]["icon"]), "%s must resolve to a shipped illustrated icon" % field_item)
 
 	# Item balance probe: consumables must create a tactical decision rather than
 	# functioning as dead inventory between shop visits.
@@ -46,6 +49,43 @@ func _ready() -> void:
 	GameManager.player_data.items = {"firebomb": 1}
 	BattleManager.player_use_item("firebomb")
 	assert(item_enemy.hp < 105 and not BattleManager.enemy_statuses.is_empty(), "Firebomb must apply immediate impact as well as its first burn tick")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"cinder_vial": 1}
+	BattleManager.player_use_item("cinder_vial")
+	var has_long_cinder_burn := false
+	for status in BattleManager.enemy_statuses:
+		# Items resolve the first burn tick as the turn closes, so two queued
+		# ticks means the authored three-turn effect is still intact.
+		if status.effect == BattleManager.StatusEffect.BURN and status.turns_left >= 2 and status.power == 11:
+			has_long_cinder_burn = true
+	assert(item_enemy.hp < 100 and has_long_cinder_burn, "Cinder Vial must trade a field discovery for stronger three-turn burn pressure")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"anchor_lantern": 1}
+	var prior_limit := BattleManager.limit_gauge
+	BattleManager.player_use_item("anchor_lantern")
+	assert(BattleManager.player_defending and BattleManager.limit_gauge >= prior_limit + 16.0, "Anchor Lantern must create a defensive timing option instead of a cosmetic pickup")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"ledger_chalk": 1}
+	BattleManager.player_use_item("ledger_chalk")
+	assert(BattleManager.scanned_enemies.has("Item Probe") and BattleManager.enemy_break_gauge >= 26.0, "Ledger Chalk must expose the target and create immediate BREAK pressure")
+	await _wait_for_player_turn()
+
+	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
+	_prepare_item_probe(item_enemy)
+	GameManager.player_data.items = {"witness_knot": 1}
+	GameManager.player_data.hp = 60
+	prior_limit = BattleManager.limit_gauge
+	BattleManager.player_use_item("witness_knot")
+	assert(GameManager.player_data.hp == 74 and BattleManager._witness_progress == 1 and BattleManager.limit_gauge >= prior_limit + 6.0, "Witness Knot must combine preservation progress with a small recovery window")
 	await _wait_for_player_turn()
 
 	item_enemy = BattleManager.Enemy.new("Item Probe", 120, 0, false)
@@ -99,6 +139,10 @@ func _prepare_item_probe(enemy: BattleManager.Enemy) -> void:
 	BattleManager.tactical_objective = {}
 	BattleManager.player_statuses.clear()
 	BattleManager.enemy_statuses.clear()
+	BattleManager.enemy_break_gauge = 0.0
+	BattleManager.enemy_broken_turns = 0
+	BattleManager.scanned_enemies.clear()
+	BattleManager.limit_gauge = 0.0
 	BattleManager.player_defending = false
 	BattleManager._witness_progress = 0
 	BattleManager._witness_required = BattleManager._get_witness_requirement(enemy)

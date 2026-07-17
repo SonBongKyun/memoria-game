@@ -1,6 +1,6 @@
 {
   "id": "ch11_departure",
-  "title": "Chapter 11 — Departure",
+  "title": "Chapter 11, Departure",
   "chapter": 11,
   "steps": [
     {
@@ -12,8 +12,8 @@
       "narrate_ko": "씸의 서쪽에서 벨트는 더 이상 길처럼 보이지 않았다. 벽이 보이지 않을 만큼 넓게 지어진 감옥처럼 보였다."
     },
     {
-      "narrate": "Every tower kept the same distance. Every banner moved in the same exhausted wind. This was Record Authority land — the Bureau, people on the Rim still called it, as if a smaller name could make it smaller.",
-      "narrate_ko": "모든 탑이 같은 간격을 지켰다. 모든 깃발이 같은 지친 바람에 흔들렸다. 이곳은 기록 관리국의 땅이었다 — 림 사람들은 아직도 '뷰로'라 불렀다. 이름을 줄이면 그것도 작아지기라도 하는 것처럼."
+      "narrate": "Every tower kept the same distance. Every banner moved in the same exhausted wind. This was Record Authority land, the Bureau, people on the Rim still called it, as if a smaller name could make it smaller.",
+      "narrate_ko": "모든 탑이 같은 간격을 지켰다. 모든 깃발이 같은 지친 바람에 흔들렸다. 이곳은 기록 관리국의 땅이었다, 림 사람들은 아직도 '뷰로'라 불렀다. 이름을 줄이면 그것도 작아지기라도 하는 것처럼."
     },
     {
       "speaker": "Elia",
@@ -153,5 +153,5 @@
       "id": "ch12_reader"
     }
   ],
-  "title_ko": "제11장 — 출발"
+  "title_ko": "제11장, 출발"
 }

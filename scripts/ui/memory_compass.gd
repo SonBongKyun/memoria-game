@@ -65,8 +65,8 @@ func _build_ui() -> void:
 	art_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_plate.modulate = Color(0.62, 0.54, 0.42, 0.16)
-	if ResourceLoader.exists("res://assets/cg/generated/ui_memory_compass_close.png"):
-		art_plate.texture = load("res://assets/cg/generated/ui_memory_compass_close.png")
+	if ResourceLoader.exists("res://assets/cg/generated/ui_memory_compass_close_v2.png"):
+		art_plate.texture = load("res://assets/cg/generated/ui_memory_compass_close_v2.png")
 	panel.add_child(art_plate)
 
 	var shade := ColorRect.new()

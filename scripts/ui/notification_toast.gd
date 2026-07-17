@@ -104,16 +104,26 @@ func _on_memory_burned(memory) -> void:
 	show_toast("Memory burned: %s" % memory.title, ToastType.WARNING)
 
 func _on_save_completed(slot: int) -> void:
+	var clean_text := "자동 저장 완료" if GameManager.current_locale == "ko" else "Autosaved"
+	if slot != 0:
+		clean_text = ("슬롯 %d 저장 완료" % slot) if GameManager.current_locale == "ko" else ("Game saved - Slot %d" % slot)
+	show_toast(clean_text, ToastType.INFO if slot == 0 else ToastType.SUCCESS)
+	return
 	if slot == 0:
 		show_toast("Autosaved", ToastType.INFO)
 	else:
-		show_toast("Game saved — Slot %d" % slot, ToastType.SUCCESS)
+		show_toast("Game saved, Slot %d" % slot, ToastType.SUCCESS)
 
 func _on_load_completed(slot: int) -> void:
+	var clean_text := "자동 저장 불러오기 완료" if GameManager.current_locale == "ko" else "Autosave loaded"
+	if slot != 0:
+		clean_text = ("슬롯 %d 불러오기 완료" % slot) if GameManager.current_locale == "ko" else ("Game loaded - Slot %d" % slot)
+	show_toast(clean_text, ToastType.INFO)
+	return
 	if slot == 0:
 		show_toast("Autosave loaded", ToastType.INFO)
 	else:
-		show_toast("Game loaded — Slot %d" % slot, ToastType.INFO)
+		show_toast("Game loaded, Slot %d" % slot, ToastType.INFO)
 
 func show_toast(text: String, type: ToastType = ToastType.INFO) -> void:
 	text = GameManager.localized_runtime_text(text)
@@ -132,6 +142,14 @@ func _process_queue() -> void:
 func _display_toast(text: String, type: ToastType) -> void:
 	var icon: String = TOAST_ICONS.get(type, "")
 	var color: Color = TOAST_COLORS.get(type, Color.WHITE)
+	# ASCII markers avoid missing-glyph squares on fallback Korean fonts.
+	match type:
+		ToastType.SUCCESS:
+			icon = "[+] "
+		ToastType.WARNING:
+			icon = "[!] "
+		_:
+			icon = "[i] "
 
 	_label.text = icon + text
 	_label.add_theme_color_override("font_color", color)

@@ -1,4 +1,4 @@
-## Verdan Market — 베르단 시장 (Chapter 2)
+## Verdan Market, 베르단 시장 (Chapter 2)
 ## 회색 벨트 최대 도시. 말렛과의 거래가 이루어지는 곳.
 extends Node2D
 
@@ -91,15 +91,15 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("verdan_market")
 	elia.repeat_line = "This market smells like rust and regret."
 	malet_npc.repeat_line = "You know where to find me."
-	# S54: NPC Schedule — adjust malet position/dialogue based on chapter
+	# S54: NPC Schedule, adjust malet position/dialogue based on chapter
 	_apply_npc_schedules()
 	# S59: 인터랙티브 프롭 배치
 	_setup_interactive_props()
-	# S59: 분위기 강화 — 안개 + 깊이 그라디언트
+	# S59: 분위기 강화, 안개 + 깊이 그라디언트
 	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.35, 0.3, 0.28, 0.04), 2.0)
 	MapEffects.add_depth_gradient(self, 0.06)
 	MapEffects.add_premium_map_lens(self, {"tint": Color(0.90, 0.64, 0.34, 1.0), "vignette": 0.30, "tint_strength": 0.08, "shafts": 0.075, "glints": 3})
-	print("[VerdenMarket] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[VerdenMarket] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 
 	# Ch2 도착 대화 (첫 진입)
 	if not GameManager.get_flag("ch2_arrived"):
@@ -155,11 +155,11 @@ func _start_ch2_free_exploration_after_vn() -> void:
 	print("[VerdenMarket] Free exploration after VN arrival - talk to Malet in the Sump")
 
 func _on_arrival_ended() -> void:
-	# 자유 탐색 — 말렛 대화 종료 감지
+	# 자유 탐색, 말렛 대화 종료 감지
 	DialogueManager.dialogue_ended.connect(_on_any_dialogue_ended)
-	print("[VerdenMarket] Free exploration — talk to Malet in the Sump")
+	print("[VerdenMarket] Free exploration, talk to Malet in the Sump")
 
-## 대화 종료 감지 — 말렛 거래 흐름 자동 연결
+## 대화 종료 감지, 말렛 거래 흐름 자동 연결
 func _on_any_dialogue_ended() -> void:
 	# malet_encounter 끝나면 → malet_deal 시작
 	if GameManager.get_flag("malet_deal_accepted") or GameManager.get_flag("malet_deal_refused"):
@@ -180,7 +180,7 @@ func _on_deal_ended() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "malet_reward")
 
 func _on_refused_ended() -> void:
-	# 거절해도 재대화로 다시 시도 가능 — 플래그 초기화
+	# 거절해도 재대화로 다시 시도 가능, 플래그 초기화
 	GameManager.story_flags.erase("malet_deal_refused")
 	GameManager.story_flags.erase("talked_Malet_malet_encounter")
 	malet_npc._talked_keys.erase("malet_encounter")
@@ -195,7 +195,7 @@ func _on_reward_ended() -> void:
 	# 보상 대화 후 상점 오픈 (Grains 거래 기회)
 	_open_malet_shop()
 
-## 말렛 상점 — 기억 매매 + 완료 시 Ch3 전환
+## 말렛 상점, 기억 매매 + 완료 시 Ch3 전환
 func _open_malet_shop() -> void:
 	# 말렛 상점 재고: 구매 가능한 기억 (정보 기억)
 	var shop_items: Array[Dictionary] = [
@@ -227,7 +227,7 @@ func _on_shop_closed() -> void:
 	SaveManager.autosave_on_chapter_transition()
 	AchievementManager.record_chapter_complete(2)
 	AchievementManager.unlock("merchant")
-	print("[VerdenMarket] Chapter 2 complete — transitioning to Belt Waystation")
+	print("[VerdenMarket] Chapter 2 complete, transitioning to Belt Waystation")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/belt_waystation.tscn", 2)
@@ -274,13 +274,13 @@ func _setup_puzzle_trigger() -> void:
 ## ===================== 인터랙티브 오브젝트 =====================
 
 func _setup_interactive_objects() -> void:
-	# 골목 숨겨진 상자 — 좌하단 노점 뒤
+	# 골목 숨겨진 상자, 좌하단 노점 뒤
 	_add_chest(
 		Vector2(3 * TILE_SIZE, 15 * TILE_SIZE),
 		"chest_verdan_alley",
 		{"items": {"firebomb": 1}, "grains": 15}
 	)
-	# 단서 — 문 근처 (썸프 입구)
+	# 단서, 문 근처 (썸프 입구)
 	_add_clue(
 		Vector2(14 * TILE_SIZE, 14 * TILE_SIZE),
 		"clue_verdan_sump",
@@ -397,7 +397,7 @@ func _setup_side_quests() -> void:
 		rect.size = Vector2(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
 		shape.shape = rect
 		area.add_child(shape)
-		# S55: NPC 비주얼 — PixelSprite 프리셋 사용
+		# S55: NPC 비주얼, PixelSprite 프리셋 사용
 		var sprite = PixelSprite.create_npc_sprite("merchant")
 		area.add_child(sprite)
 		var marker = Label.new()
@@ -467,10 +467,10 @@ func _setup_interactive_props() -> void:
 	# 골목 입구 상자 (아이템 가능)
 	MapEffects.add_interactive_prop(self, Vector2(11 * TILE_SIZE, 9 * TILE_SIZE), "crate")
 	# 시장 안내판 (텍스트)
-	MapEffects.add_interactive_prop(self, Vector2(8 * TILE_SIZE, 2 * TILE_SIZE), "sign", {"text": "Verdan Market — Trade at your own risk."})
+	MapEffects.add_interactive_prop(self, Vector2(8 * TILE_SIZE, 2 * TILE_SIZE), "sign", {"text": "Verdan Market, Trade at your own risk."})
 	# 골목 깊숙한 곳 캠프파이어 (HP 회복)
 	MapEffects.add_interactive_prop(self, Vector2(13 * TILE_SIZE, 11 * TILE_SIZE), "campfire", {"heal": 5})
-	# S59: NPC 배회 — 배경 NPC 2명에게 적용 (시장 활기)
+	# S59: NPC 배회, 배경 NPC 2명에게 적용 (시장 활기)
 	# _setup_map_decorations에서 생성된 NPC 스프라이트에 적용하려면
 	# decorations 이후 호출이므로, 기존 NPC 노드에서 검색
 	call_deferred("_apply_npc_wander")
@@ -553,7 +553,7 @@ func _position_player() -> void:
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
 
-## S54: NPC Schedule System — reposition NPCs based on current chapter
+## S54: NPC Schedule System, reposition NPCs based on current chapter
 func _apply_npc_schedules() -> void:
 	var ch = GameManager.current_chapter
 	var malet_sched = GameManager.get_npc_schedule("malet", ch)

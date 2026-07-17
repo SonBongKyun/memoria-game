@@ -5,9 +5,9 @@
     "waste_arrival": [
       {
         "speaker": "",
-        "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray — the concept of color simply withdrew.",
+        "text": "Color ended like a sentence cut short. One step: muted autumn hues. The next: nothing. Not gray, the concept of color simply withdrew.",
         "cg": "res://assets/cg/generated/story_ch9_colorless_compass.png",
-        "text_ko": "색은 도중에 끊긴 문장처럼 끝났다. 한 걸음: 바랜 가을빛. 다음 걸음: 무(無). 회색이 아니라 — 색이라는 개념이 그냥 물러나 버린 것."
+        "text_ko": "색은 도중에 끊긴 문장처럼 끝났다. 한 걸음: 바랜 가을빛. 다음 걸음: 무(無). 회색이 아니라, 색이라는 개념이 그냥 물러나 버린 것."
       },
       {
         "speaker": "Tobias",
@@ -19,7 +19,8 @@
         "speaker": "Sable",
         "text": "Welcome to the Waste. Everything here has been equalized.",
         "portrait": "sable_neutral",
-        "text_ko": "황무지에 온 걸 환영한다. 여기서는 모든 것이 균질해졌지."
+        "text_ko": "황무지에 온 걸 환영한다. 여기서는 모든 것이 균질해졌지.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png"
       },
       {
         "speaker": "Elia",
@@ -49,21 +50,22 @@
     "compass_discovery": [
       {
         "speaker": "",
-        "text": "Something pulled at Arrel's chest. Not pain — direction. Like a compass needle that had replaced his sternum.",
+        "text": "Something pulled at Arrel's chest. Not pain, direction. Like a compass needle that had replaced his sternum.",
         "cg": "res://assets/cg/generated/story_ch9_colorless_compass.png",
-        "text_ko": "무언가 아렐의 가슴을 잡아당겼다. 통증이 아니라 — 방향이. 흉골을 대신해 박힌 나침반 바늘처럼."
+        "text_ko": "무언가 아렐의 가슴을 잡아당겼다. 통증이 아니라, 방향이. 흉골을 대신해 박힌 나침반 바늘처럼."
       },
       {
         "speaker": "Arrel",
         "text": "I can feel where it is. BL-07. It's... that way.",
         "portrait": "arrel_pain",
-        "text_ko": "어디 있는지 느껴져. BL-07. 저... 쪽이야."
+        "text_ko": "어디 있는지 느껴져. BL-07. 저... 쪽이야.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch09_living_compass_v1.png"
       },
       {
         "speaker": "Tobias",
-        "text": "You're orienting toward the Void Hole? That shouldn't be possible without—",
+        "text": "You're orienting toward the Void Hole? That shouldn't be possible without...",
         "portrait": "tobias_neutral",
-        "text_ko": "보이드 홀 방향을 감지한다고? 그건 불가능할 텐데, 만약—"
+        "text_ko": "보이드 홀 방향을 감지한다고? 그건 불가능할 텐데, 만약..."
       },
       {
         "speaker": "Sable",
@@ -91,16 +93,16 @@
       },
       {
         "speaker": "",
-        "text": "[Obtained: Memory Compass — Arrel's body resonates with BL-07's pull. Navigation through the Waste becomes possible.]",
-        "text_ko": "[Obtained: Memory Compass — 아렐's body resonates with BL-07's pull. Navigation through the Waste becomes possible.]"
+        "text": "[Obtained: Memory Compass, Arrel's body resonates with BL-07's pull. Navigation through the Waste becomes possible.]",
+        "text_ko": "[Obtained: Memory Compass, 아렐's body resonates with BL-07's pull. Navigation through the Waste becomes possible.]"
       }
     ],
     "kairos_confrontation": [
       {
         "speaker": "",
-        "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there — as if the Waste had shaped itself around him.",
+        "text": "He appeared between one blink and the next. Standing in the colorless waste as if he'd always been there, as if the Waste had shaped itself around him.",
         "cg": "res://assets/cg/generated/story_ch9_kairos_confrontation.png",
-        "text_ko": "눈 깜빡할 사이에 그가 나타났다. 무색의 황무지에 처음부터 있었던 것처럼 — 황무지가 그를 중심으로 스스로를 빚은 것처럼."
+        "text_ko": "눈 깜빡할 사이에 그가 나타났다. 무색의 황무지에 처음부터 있었던 것처럼, 황무지가 그를 중심으로 스스로를 빚은 것처럼."
       },
       {
         "speaker": "Sable",
@@ -110,8 +112,9 @@
       },
       {
         "speaker": "",
-        "text": "Kairos. Taller than his silhouette on the coastal ridge. Dark coat, Bureau insignia — but modified. Gold thread where standard silver should be.",
-        "text_ko": "카이로스. 해안 능선에 있는 그의 실루엣보다 키가 더 크다. 어두운 코트, 국 휘장 – 수정됨. 표준 은이 있어야 할 곳에 금실."
+        "text": "Kairos. Taller than his silhouette on the coastal ridge. Dark coat, Bureau insignia, but modified. Gold thread where standard silver should be.",
+        "text_ko": "카이로스. 해안 능선에 있는 그의 실루엣보다 키가 더 크다. 어두운 코트, 국 휘장 – 수정됨. 표준 은이 있어야 할 곳에 금실.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch09_kairos_convergence_model_v1.png"
       },
       {
         "speaker": "Kairos",
@@ -139,9 +142,9 @@
       },
       {
         "speaker": "Tobias",
-        "text": "Kairos. I know you. Class A Editor, Subsection Nine. You filed the report that—",
+        "text": "Kairos. I know you. Class A Editor, Subsection Nine. You filed the report that...",
         "portrait": "tobias_neutral",
-        "text_ko": "카이로스. 나는 자네를 아네. A급 에디터, 제9분과. 자네가 제출한 보고서가—"
+        "text_ko": "카이로스. 나는 자네를 아네. A급 에디터, 제9분과. 자네가 제출한 보고서가..."
       },
       {
         "speaker": "Kairos",
@@ -172,9 +175,9 @@
       },
       {
         "speaker": "Kairos",
-        "text": "BL-07 is not merely growing. It is reaching. Specifically — toward him.",
+        "text": "BL-07 is not merely growing. It is reaching. Specifically, toward him.",
         "portrait": "kairos_neutral",
-        "text_ko": "BL-07은 단순히 자라는 것이 아니다. 뻗고 있다. 정확히는 — 그를 향해."
+        "text_ko": "BL-07은 단순히 자라는 것이 아니다. 뻗고 있다. 정확히는, 그를 향해."
       },
       {
         "speaker": "Kairos",
@@ -184,9 +187,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "Then if Arrel seals it—",
+        "text": "Then if Arrel seals it...",
         "portrait": "elia_concern",
-        "text_ko": "그럼 아렐이 그것을 봉인하면—"
+        "text_ko": "그럼 아렐이 그것을 봉인하면..."
       },
       {
         "speaker": "Kairos",
@@ -198,7 +201,7 @@
         "speaker": "Kairos",
         "text": "Outcome A: The combustion collapses BL-07. The hole seals. The subject survives, minus everything that made them a person.",
         "portrait": "kairos_neutral",
-        "text_ko": "결과 A: 연소가 BL-07을 붕괴시킨다. 구멍은 봉인된다. 대상은 생존한다 — 자신을 사람이게 하던 모든 것을 제외하고."
+        "text_ko": "결과 A: 연소가 BL-07을 붕괴시킨다. 구멍은 봉인된다. 대상은 생존한다, 자신을 사람이게 하던 모든 것을 제외하고."
       },
       {
         "speaker": "Kairos",
@@ -216,7 +219,7 @@
         "speaker": "Kairos",
         "text": "Those are the only two the Authority has modeled. Whether reality agrees with models is not my department.",
         "portrait": "kairos_neutral",
-        "text_ko": "관리국이 모델링한 것은 그 둘뿐이다. 현실이 모델에 동의하는지는 — 내 부서 소관이 아니다."
+        "text_ko": "관리국이 모델링한 것은 그 둘뿐이다. 현실이 모델에 동의하는지는, 내 부서 소관이 아니다."
       },
       {
         "speaker": "Sable",
@@ -232,9 +235,9 @@
       },
       {
         "speaker": "",
-        "text": "He stepped sideways and the Waste swallowed his outline. Gone — or standing in the same place, invisible in the absence of color.",
+        "text": "He stepped sideways and the Waste swallowed his outline. Gone, or standing in the same place, invisible in the absence of color.",
         "cg": "res://assets/cg/generated/story_ch9_kairos_absence.png",
-        "text_ko": "그가 옆으로 한 걸음 옮기자 황무지가 그 윤곽을 삼켰다. 사라졌다 — 혹은 같은 자리에 선 채, 색의 부재 속에 보이지 않게 되었거나."
+        "text_ko": "그가 옆으로 한 걸음 옮기자 황무지가 그 윤곽을 삼켰다. 사라졌다, 혹은 같은 자리에 선 채, 색의 부재 속에 보이지 않게 되었거나."
       }
     ],
     "waste_atmosphere": [
@@ -263,9 +266,9 @@
       },
       {
         "speaker": "Sable",
-        "text": "If you feel someone let go, stop immediately. Don't turn around — just call their name.",
+        "text": "If you feel someone let go, stop immediately. Don't turn around, just call their name.",
         "portrait": "sable_neutral",
-        "text_ko": "누군가 놓는 게 느껴지면 즉시 멈춰라. 돌아보지 말고 — 이름을 불러."
+        "text_ko": "누군가 놓는 게 느껴지면 즉시 멈춰라. 돌아보지 말고, 이름을 불러."
       },
       {
         "speaker": "Tobias",
@@ -277,15 +280,15 @@
         "speaker": "Sable",
         "text": "Then you're already in stage four. And I'm sorry.",
         "portrait": "sable_calm",
-        "text_ko": "그럼 이미 4단계에 든 거다. 그리고 — 미안하구나."
+        "text_ko": "그럼 이미 4단계에 든 거다. 그리고, 미안하구나."
       }
     ],
     "arrel_compass_pull": [
       {
         "speaker": "",
-        "text": "The pull grew stronger. Not magnetic — hungry. Like something at the end of the line was reeling him in.",
+        "text": "The pull grew stronger. Not magnetic, hungry. Like something at the end of the line was reeling him in.",
         "cg": "res://assets/cg/generated/story_ch9_name_under_pull.png",
-        "text_ko": "당김이 강해졌다. 자기력이 아니라 — 허기였다. 줄 끝의 무언가가 그를 감아 들이고 있는 것처럼."
+        "text_ko": "당김이 강해졌다. 자기력이 아니라, 허기였다. 줄 끝의 무언가가 그를 감아 들이고 있는 것처럼."
       },
       {
         "speaker": "Arrel",
@@ -309,13 +312,13 @@
         "speaker": "Sable",
         "text": "Once we cross, there's no coming back to the Waste. We go forward or we don't come out.",
         "portrait": "sable_neutral",
-        "text_ko": "건너면 황무지로는 돌아올 수 없다. 앞으로 가거나 — 나오지 못하거나다."
+        "text_ko": "건너면 황무지로는 돌아올 수 없다. 앞으로 가거나, 나오지 못하거나다."
       },
       {
         "speaker": "Tobias",
-        "text": "For the record — and I mean that literally, as I'm writing this down — I want to note that this is the furthest anyone from the Bureau has ever documented.",
+        "text": "For the record, and I mean that literally, as I'm writing this down, I want to note that this is the furthest anyone from the Bureau has ever documented.",
         "portrait": "tobias_neutral",
-        "text_ko": "기록을 위해 말해 두네만 — 지금 이걸 적고 있으니 말 그대로일세 — 이건 관리국의 누구도 기록한 적 없는 최심부라는 점을 남겨 두고 싶군."
+        "text_ko": "기록을 위해 말해 두네만, 지금 이걸 적고 있으니 말 그대로일세, 이건 관리국의 누구도 기록한 적 없는 최심부라는 점을 남겨 두고 싶군."
       },
       {
         "speaker": "Sable",
@@ -327,7 +330,7 @@
     "waste_departure": [
       {
         "speaker": "",
-        "text": "BL-07 appeared not as a hole but as a certainty. A point where the Waste's vagueness collapsed into absolute specificity — a door that was more real than anything around it.",
+        "text": "BL-07 appeared not as a hole but as a certainty. A point where the Waste's vagueness collapsed into absolute specificity, a door that was more real than anything around it.",
         "cg": "res://assets/cg/generated/story_ch9_bl07_threshold.png",
         "text_ko": "BL-07은 구멍이 아닌 확실함으로 나타났다. 황무지의 모호함이 절대적인 구체적성으로 무너진 지점, 주변의 어떤 것보다 더 실제적인 문."
       },
@@ -370,9 +373,9 @@
     "kairos_defeated": [
       {
         "speaker": "",
-        "text": "Kairos staggered. For the first time, his composure fractured — a crack in the mask of clinical detachment.",
+        "text": "Kairos staggered. For the first time, his composure fractured, a crack in the mask of clinical detachment.",
         "cg": "res://assets/cg/generated/story_ch9_kairos_withdrawal.png",
-        "text_ko": "카이로스가 비틀거렸다. 처음으로 그 평정이 부서졌다 — 임상적 초연함의 가면에 간 금."
+        "text_ko": "카이로스가 비틀거렸다. 처음으로 그 평정이 부서졌다, 임상적 초연함의 가면에 간 금."
       },
       {
         "speaker": "Kairos",
@@ -382,9 +385,9 @@
       },
       {
         "speaker": "Kairos",
-        "text": "I withdraw — not in defeat, but in acknowledgment. You are no longer a subject. You are a variable we cannot control.",
+        "text": "I withdraw, not in defeat, but in acknowledgment. You are no longer a subject. You are a variable we cannot control.",
         "portrait": "kairos_neutral",
-        "text_ko": "나는 물러난다 — 패배가 아니라, 인정으로서. 당신은 더 이상 대상이 아니다. 우리가 통제할 수 없는 변수다."
+        "text_ko": "나는 물러난다, 패배가 아니라, 인정으로서. 당신은 더 이상 대상이 아니다. 우리가 통제할 수 없는 변수다."
       },
       {
         "speaker": "Arrel",
@@ -396,15 +399,16 @@
     "depth_markers": [
       {
         "speaker": "",
-        "text": "Strange markers dotted the Waste — pillars of compressed memory residue, frozen mid-dissolution.",
+        "text": "Strange markers dotted the Waste, pillars of compressed memory residue, frozen mid-dissolution.",
         "cg": "res://assets/cg/generated/story_ch9_memory_depth_markers.png",
-        "text_ko": "기이한 표석들이 황무지 곳곳에 서 있었다 — 용해 도중에 얼어붙은, 압축된 기억 잔여물의 기둥들."
+        "text_ko": "기이한 표석들이 황무지 곳곳에 서 있었다, 용해 도중에 얼어붙은, 압축된 기억 잔여물의 기둥들."
       },
       {
         "speaker": "Tobias",
         "text": "These are depth markers. The closer to BL-07, the more compressed the residue. It's like tree rings but for destruction.",
         "portrait": "tobias_neutral",
-        "text_ko": "깊이 표석일세. BL-07에 가까울수록 잔여물이 더 압축돼 있어. 나이테와 같지 — 다만 파괴의 나이테야."
+        "text_ko": "깊이 표석일세. BL-07에 가까울수록 잔여물이 더 압축돼 있어. 나이테와 같지, 다만 파괴의 나이테야.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch09_depth_markers_v1.png"
       },
       {
         "speaker": "Sable",
@@ -422,7 +426,7 @@
         "speaker": "Tobias",
         "text": "Each ring is a generation of people who were erased. Their compressed existence is all that's left.",
         "portrait": "tobias_neutral",
-        "text_ko": "고리 하나가 지워진 사람들의 한 세대일세. 그들의 압축된 존재가 — 남은 전부야."
+        "text_ko": "고리 하나가 지워진 사람들의 한 세대일세. 그들의 압축된 존재가, 남은 전부야."
       },
       {
         "speaker": "Elia",
@@ -440,28 +444,29 @@
     "compass_resonance": [
       {
         "speaker": "",
-        "text": "The compass in Arrel's chest flared — not toward BL-07, but sideways. Toward something buried in the colorless soil.",
+        "text": "The compass in Arrel's chest flared, not toward BL-07, but sideways. Toward something buried in the colorless soil.",
         "cg": "res://assets/cg/generated/story_ch9_first_void_memory.png",
-        "text_ko": "아렐의 가슴속 나침반이 타올랐다 — BL-07 쪽이 아니라, 옆으로. 무색의 흙 속에 묻힌 무언가를 향해."
+        "text_ko": "아렐의 가슴속 나침반이 타올랐다, BL-07 쪽이 아니라, 옆으로. 무색의 흙 속에 묻힌 무언가를 향해."
       },
       {
         "speaker": "Arrel",
-        "text": "There's something here. A memory. Not mine — older. Much older.",
+        "text": "There's something here. A memory. Not mine, older. Much older.",
         "portrait": "arrel_pain",
-        "text_ko": "여기 뭔가 있어. 기억이. 내 것이 아니야 — 더 오래됐어. 훨씬."
+        "text_ko": "여기 뭔가 있어. 기억이. 내 것이 아니야, 더 오래됐어. 훨씬."
       },
       {
         "speaker": "",
         "text": "He knelt and pressed his palm to the ground. A fragment surfaced: the last thought of someone who had stood here centuries ago, watching the first Void Hole open.",
-        "text_ko": "그가 무릎을 꿇고 땅에 손바닥을 댔다. 파편 하나가 떠올랐다. 수백 년 전 이 자리에 서서, 최초의 보이드 홀이 열리는 것을 지켜본 이의 마지막 생각."
+        "text_ko": "그가 무릎을 꿇고 땅에 손바닥을 댔다. 파편 하나가 떠올랐다. 수백 년 전 이 자리에 서서, 최초의 보이드 홀이 열리는 것을 지켜본 이의 마지막 생각.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch09_first_void_witness_v1.png"
       }
     ],
     "waste_final_view": [
       {
         "speaker": "",
-        "text": "At the edge of the Waste, Arrel turned back. The colorless expanse stretched to the horizon — a world stripped of every quality except existence.",
+        "text": "At the edge of the Waste, Arrel turned back. The colorless expanse stretched to the horizon, a world stripped of every quality except existence.",
         "cg": "res://assets/cg/generated/story_ch9_final_colorless_view.png",
-        "text_ko": "황무지의 가장자리에서 아렐은 뒤를 돌아보았다. 무색의 벌판이 지평선까지 뻗어 있었다 — 존재라는 성질 하나만 남기고 전부 벗겨진 세계."
+        "text_ko": "황무지의 가장자리에서 아렐은 뒤를 돌아보았다. 무색의 벌판이 지평선까지 뻗어 있었다, 존재라는 성질 하나만 남기고 전부 벗겨진 세계."
       },
       {
         "speaker": "Elia",

@@ -2,6 +2,108 @@
 
 ---
 
+## S192 - 2026-07-15 (Meaningful resonance choices, quest dossiers, and HUD repair)
+
+### Gameplay and UX pass
+- Reframed Memory Resonance around the game's central promise: crossing an echo no longer silently spends a memory. The player now sees the cost, the immediate reward, and the preservation route before committing.
+- Kept the pressure meaningful without making exploration punitive. Preserving an echo gives a capped Field Focus charge for the next battle; kindling it grants the original permanent/local reward; leaving it consumes nothing and lets the player return when ready.
+
+### Done
+- Generated nine cohesive GPT Image 2 illustrations in the established low-noise charcoal, navy, and antique-gold art direction: three Memory Resonance choice cards (Bind, Kindle, Leave) and six unique side-quest dossier plates.
+- Rebuilt the Memory Resonance interaction as a full keyboard/mouse choice layer with Korean and English copy, readable cost/reward descriptions, focus handling, backdrop, hover feedback, and a short illustrative outcome for Bind or Kindle.
+- Made Leave non-destructive: it restores exploration state, re-enables the echo trigger, and does not set the resonance flag. Bind and Kindle intentionally consume the site only after the player chooses.
+- Added all six quest plates to `SideQuest` data and the Story Journal quest detail panel, so the active/available/completed quest entry opens with a distinct in-world image instead of plain text alone.
+- Repaired the exploration HUD's active side-quest tracker: it now reads the actual `title` field rather than a nonexistent `name`, so active quests no longer resolve to an empty objective.
+- Added dedicated smoke scenes for the resonance choice lifecycle and for all six quest-art contracts; Field Focus smoke now also verifies all three choice images resolve.
+
+### Character continuity correction
+- Audited the generated art against the current canonical portrait sheets before keeping it. The first Kindle/Leave cards used a generic dark-haired traveller, the Sable quest plate used a young black-haired fighter, and the compass plate gave Elia the wrong hair silhouette.
+- Regenerated five replacement plates with the canonical portrait sheets supplied as identity references: object-only Bind, silver-haired blue-eyed Arrel for Kindle and Leave, silver-gray hooded Sable for Sable's Vigil, and short-haired blonde Elia for Compass Calibration.
+- Updated live references to the v2 paths and deleted all five mismatched v1 image/import pairs. The other four object/anonymous-echo quest plates remain unchanged because they do not depict a named cast member.
+
+### Verification
+- Godot 4.6.2 imported all nine PNGs and completed a headless editor boot without project script or parse errors.
+- `smoke_resonance_choice.tscn`: **RESONANCE_CHOICE_SMOKE_PASS** (`options=3`, `leave_persists=true`).
+- `smoke_quest_illustrations.tscn`: **QUEST_ILLUSTRATION_SMOKE_PASS** (`quests=6`, `unique_art=6`); `smoke_field_focus.tscn`: **FIELD_FOCUS_SMOKE_PASS**.
+- `smoke_visual_clarity.tscn`: **VISUAL_CLARITY_SMOKE_PASS**; `smoke_story_combat.tscn`: **STORY_COMBAT_SMOKE_PASS**; VN validation: **20 files, 504 steps, 0 errors, 0 warnings**; `git diff --check` passed.
+- Existing VFX Library/ShaderV headless cleanup notices remain external plugin shutdown noise only; validation reported no gameplay script error.
+
+## S191 - 2026-07-15 (Battle rhythm, tactical reads, and illustrated action beats)
+
+### Combat presentation pass
+- Shifted the battle screen away from a repeated command-log loop. Each turn now follows a readable cadence: the field is read, a threat is telegraphed, the player or companion answers, and a visible consequence opens or closes the next decision.
+- Kept the story mechanic at the center: ordinary pressure can be answered with swordplay, guard, and items, while WITNESS remains the explicit non-burning route and memory burn continues to state its lasting cost.
+
+### Done
+- Generated seven cohesive GPT Image 2, low-noise charcoal-line battle cut-ins: Arrel's blade arc, guard, and WITNESS reach; Elia's anchoring knot; Tobias's fault-line reading; Sable's lantern-thread strike; and the universal BREAK rupture.
+- Replaced the generic player attack, defend, WITNESS, Elia anchor, Tobias support, and Sable support images with their corresponding action art. BREAK now gets its own rupture cut-in instead of reading as a small bar-state change.
+- Added a central **Combat Beat** card that briefly pairs illustrative art with actionable information: `READ THE FIELD` on player turns, explicit threat/response guidance for enemy abilities, a preservation reminder for WITNESS, defensive timing for Guard, and the opening created by BREAK.
+- Added localized response hints for charge, shields/reflection, recovery abilities, status pressure, and aggressive special attacks. The card remains available in Clean Gameplay View because it communicates gameplay rather than decoration.
+- Extended visual smoke to verify all seven generated cut-ins and prove the Combat Beat card displays its assigned authored art in a constructed battle scene.
+
+### Verification
+- Godot 4.6.2 headless editor imported all seven PNGs without project parse errors.
+- `smoke_visual_clarity.tscn`: **VISUAL_CLARITY_SMOKE_PASS** with Combat Beat construction and image-resolution checks.
+- `smoke_story_combat.tscn`: **STORY_COMBAT_SMOKE_PASS**; `smoke_world_population.tscn`: **WORLD_POPULATION_SMOKE_PASS** (`maps=19`, `voices=64`, `visible_threats=32`, `caches=11`).
+- VN validation passed: **20 files, 504 steps, 0 errors, 0 warnings**. `git diff --check` passed. Editor-only VFX Library/ShaderV shutdown notices remain pre-existing plugin cleanup noise; no gameplay script or parse error was reported.
+
+## S190 - 2026-07-15 (Memory-rewrite illustrations and tactical relic discoveries)
+
+### Story and gameplay pass
+- Treated memory loss as a playable, visible cost rather than a separate gallery. The four new images belong to real Chapter 1, 8, 9, and 10 memories, so burning them now changes the world-rewrite flash and the Losses Journal entry that follows.
+- Kept exploration rewards tied to a local pressure: the Rim gives an aggressive ash tool after the Void Beast, Verdan gives a record-reading tool after Malet's trade, Drift gives a defensive anchor after its stability arc, and the Colorless Waste gives a WITNESS/recovery knot once the route is reached.
+
+### Done
+- Generated and integrated four cohesive GPT Image 2 memory-rewrite CGs: **Forest Scent Thinned**, **Ghost Words Silenced**, **Compass Identity Unmapped**, and **Void Walker Blurred**. They use the established low-noise charcoal-line/painterly dark-fantasy direction and Arrel's current character-shot identity.
+- Added the four memory IDs to `WorldRewriteDirector`, including distinct flags, loss text, compass fallout, colors, fullscreen art, and automatic Losses Journal support.
+- Generated four alpha-clean illustrated tactical relics: **Cinder Vial**, **Ledger Chalk**, **Anchor Lantern**, and **Witness Knot**. They are live GameManager items, appear in the normal shop/inventory pipeline, and add separate combat decisions: immediate three-turn burn pressure, scan plus BREAK pressure, a guarded Limit window, and a WITNESS/recovery/Limit bridge.
+- Placed the relics as one-time, chapter-gated physical caches on the Rim trail, in Verdan Market, at Drift Shelter, and in the Colorless Waste. The Drift cache was moved onto a verified walkable tile during placement validation.
+- Expanded visual, combat, and world-population smoke coverage so the new CG paths, item icon paths, combat effects, cache coordinates, and shipped world totals are checked automatically.
+
+### Verification
+- Godot 4.6.2 headless visual smoke: **VISUAL_CLARITY_SMOKE_PASS** (`map_canvases=19`, `character_shots=24`, `dialogue_variants=11`, `boss_action_cutins=3`).
+- `smoke_story_combat.tscn`: **STORY_COMBAT_SMOKE_PASS**; `smoke_world_population.tscn`: **WORLD_POPULATION_SMOKE_PASS** (`maps=19`, `voices=64`, `visible_threats=32`, `caches=11`).
+- VN validation passed: **20 files, 504 steps, 0 errors, 0 warnings**. `git diff --check` passed. The remaining Godot shutdown resource notices are the pre-existing external-plugin cleanup noise only; no parse or script error was reported.
+
+## S189 - 2026-07-15 (Character-expression pass: GPT Image 2 poses, costumes, and live placement)
+
+### Story and placement pass
+- Reused the three S188 master character sheets as visual identity anchors instead of producing a disconnected art direction. Each new pose serves an authored story pressure: Arrel's unarmored resolve, Elia's anchoring ritual, Tobias's field-ledger focus, Sable's lantern-watcher duty, the Bureau's different modes of control, and the four boss attack identities.
+- Kept baseline portraits and canonical boss shots intact for readable conversation and Bestiary staging. Variant art appears only when the dialogue emotional state, journal record, or battle action earns the escalation.
+
+### Done
+- Generated and integrated twelve cohesive GPT Image 2 variants: eight 627px character portraits with distinct travel/formal/field outfits, expressions, props, and action poses, plus four boss action cut-ins.
+- Mapped eleven high-tension DialogueBox portrait routes to their corresponding variants. The same selection now drives the dim speaker-stage image, so the portrait and conversation background no longer contradict each other during a reveal, confrontation, or ritual.
+- Added the new action variants to five gated Story Journal event records and four key NPC records, giving the player a second contextual place to revisit the character work after a scene.
+- Updated Void Beast, Shade Sentinel, Kairos Ascendant, and Echo Shell battle-action cut-ins while preserving their calmer v2 shots for ordinary battle staging and Codex previews.
+- Extended visual smoke coverage for all 24 current character/boss shots, the eleven dialogue-stage variant contracts, Journal art resolution, and the three dynamic boss action-cutin paths.
+
+### Verification
+- Godot 4.6.2 headless editor import completed for all twelve v3 PNGs without project parse errors.
+- `smoke_visual_clarity.tscn`: **VISUAL_CLARITY_SMOKE_PASS** (`character_shots=24`, `dialogue_variants=11`, `boss_action_cutins=3`, `world_records=10`).
+- `smoke_story_combat.tscn`: **STORY_COMBAT_SMOKE_PASS**; VN validation passed: **20 files, 504 steps, 0 errors, 0 warnings**. `git diff --check` passed.
+- Existing VFX Library/ShaderV shutdown resource notices remain external-plugin cleanup noise only; the validation runs reported no script or parse error.
+
+## S188 - 2026-07-15 (Part I world atlas and refined character shots)
+
+### Story and art pass
+- Re-anchored the Part I expansion in the existing manuscript rules: memory can be traded but only lived memories burn; combustion is a tracked signature; Ash Rain is broken-memory residue; record-tree paper is off-grid but physically fragile; and refuge survives through mutual witness.
+- Kept the ten-chapter route spoiler-safe. Each in-game world record unlocks only after its corresponding story discovery, so the journal clarifies a present pressure without pre-explaining later answers.
+
+### Done
+- Added `docs/PART1_STORY_WORLD_ATLAS.md`: a practical canon atlas covering memory rules, all ten route identities, character stakes, boss narrative contracts, and presentation rules. It links the expanded atlas sites back to the original Rim → BL-07 story rather than treating them as disconnected content.
+- Added a chapter-gated **World** tab to Story Journal with ten illustrated records: Ash Rain, memory debt, Belt surveillance, record-tree paper, anchoring, the Seam refuge pact, Void returns, the Listening Wood, paired witnesses in the Colorless Waste, and the Seal's burden.
+- Generated and integrated **twelve GPT Image 2 character shots** in one unified, low-noise charcoal-line/painterly dark-fantasy direction. Dialogue and speaker-stage defaults now use the refined Arrel, Elia, Tobias, Sable, Kairos, Nera, Seric, and Veil portraits.
+- Added four readable boss shots — Void Beast, Shade Sentinel, Kairos Ascendant, and Echo Shell. Canonical boss encounters now prefer these shots for battle-stage visibility and Bestiary previews while retaining existing wide cinematic CGs for action cut-ins.
+- Extended visual smoke coverage to verify all eight portrait routes, all twelve generated character/boss shot assets, Story Journal World-tab construction, all ten gated records and art paths, and canonical boss image resolution.
+
+### Verification
+- Godot 4.6.2 headless editor import completed for all 12 new PNGs with no project parse errors.
+- `smoke_visual_clarity.tscn`: **VISUAL_CLARITY_SMOKE_PASS** (`character_shots=12`, `world_records=10`) including a real two-record World-tab construction check.
+- `smoke_story_combat.tscn`: **STORY_COMBAT_SMOKE_PASS** (WITNESS release, preservation bonus, tactical-item flow unchanged).
+- `smoke_world_population.tscn`: **WORLD_POPULATION_SMOKE_PASS** (`maps=19`, `voices=64`, `visible_threats=32`, `caches=7`).
+- VN validation passed: **20 files, 504 steps, 0 errors, 0 warnings**. `git diff --check` passed. Existing VFX Library/ShaderV shutdown cleanup notices remain external plugin noise only.
+
 ## S187 - 2026-07-14 (Atlas expansion: seven maps, settlements, field roster, and reward caches)
 
 ### Story and scale pass
@@ -6372,3 +6474,250 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 
 ### Notes
 - The framed art mid-right is the enemy sprite showing `enemy_image`; the harness used a wide party-scene CG as a stand-in, so it letterboxes. Real battles use enemy portraits / pixel enemies — not a layout bug.
+
+## S193 - 2026-07-15 (Story archive illustration expansion)
+
+### Done
+- Generated and visually audited four 16:9 narrative archive plates with current character-shot references as identity anchors: Arrel + Elia at Drift, Arrel + Malet in Verdan, Tobias at the Belt Waystation, and Sable on The Seam's lantern watch.
+- Connected every plate to its unlocked Story Journal event and the Artbook without replacing existing asset files.
+- Preserved the clean charcoal-line, muted painterly palette; every output was inspected before import for identity, hands, props, and visual noise.
+
+## S194 - 2026-07-15 (World atlas, character sheets, and illustrated interface expansion)
+
+### Done
+- Added seven reference-anchored images: Sable's canonical turnaround, four practical Seam resident roles, four major Part I story CGs, and a text-safe Story Journal atlas backdrop.
+- Illustrated the Ch5 coastal separation, Ch7 seven-lantern confession, Ch9 Kairos outcomes, and Ch10 burden choice in Events and Choices.
+- Expanded the World Journal from 10 to 14 chapter-gated records with new lore about information delay, coast witnesses, refuge labor, and editorial responsibility.
+- Added every new image to the Artbook, added title/category search, and exposed illustrated-event progress in the Journal header.
+- Corrected Sable's Journal description to match her established older Void-walker design.
+
+### Assets
+- `sable_reference_turnaround_v1.png`
+- `seam_residents_reference_sheet_v1.png`
+- `archive_ch5_coastal_parting_v1.png`
+- `archive_ch7_seven_lanterns_v1.png`
+- `archive_ch9_kairos_outcomes_v1.png`
+- `archive_ch10_burden_choice_v1.png`
+- `ui_story_archive_atlas_v2.png`
+
+### Verification
+- Godot 4.6.2 headless editor import completed for all seven new images with no `SCRIPT ERROR` or `Parse Error`.
+- `smoke_visual_clarity`: `VISUAL_CLARITY_SMOKE_PASS`, including 14 world records and all new Artbook paths.
+- Representative `verdan_market.tscn` headless load completed successfully through NPC population and dialogue startup.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
+
+## S202 - 2026-07-17 (Player-chosen directives, battle grades, and reward chains)
+
+### Design goal
+- Turn the existing combo, BREAK, WITNESS, stance, item, ally, and Resonance mechanics into one readable combat loop with agency at the start, progress during the fight, and a clear payoff after victory.
+
+### Done
+- Replaced automatic tactical-objective assignment with a player-facing field-directive briefing. Every encounter offers two deterministic, valid objectives; a banked Field Focus charge opens a third choice in addition to its existing Resonance and Limit opening.
+- Added compact reward previews, keyboard/controller focus, Korean/English copy, and an input-blocking briefing layer that hands control back only after the player chooses.
+- Added live objective progress for BREAK, scan, WITNESS, combo, memory preservation, stance changes, Resonance, echoes, item restraint, speed, Limit, and companion coordination.
+- Added a 100-point post-battle grade using objective completion, Resonance, WITNESS, BREAK, combo, and action efficiency. Grades D-S now award modest extra Grains and replace the old proxy battle-experience bar on the victory screen.
+- Added a saved Directive Chain. Consecutive completions add a capped Grains bonus, every third success restores Field Focus, every fifth grants Witness Ink, and a failed objective or defeat resets the chain.
+- Added grade, S-rank, and Directive Chain records to the character dossier; documented the new loop in the Field Guide; covered new-game, NG+, and old-save defaults.
+- Added focused tactical-directive smoke and real-render capture tools.
+
+### Verification
+- `TACTICAL_DIRECTIVES_SMOKE_PASS options=2 choice=1 grade=S score=100 chain=3 focus=1 save=1 victory_ui=1`.
+- `FIELD_FOCUS_SMOKE_PASS maps=10 count=1 resonance=25 limit=20 directives=3`.
+- `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`.
+- Real OpenGL capture inspected at 1280x720: `tmp/visual_audit/tactical_directive_briefing.png`.
+- `git diff --check` passed and the shipped runtime em-dash scan remained at zero.
+
+## S201 - 2026-07-17 (GPT Image archive UI, inventory, item, and battle-supply upgrade)
+
+### Goal
+- Expand the game's usable visual library while making inventory, status, archive, shop, and battle-item interactions feel like one polished story-RPG interface.
+
+### Done
+- Generated and visually audited 16 final GPT Image assets in the existing charcoal/bronze/pale-memory archive language:
+  - seven runtime UI surfaces for pause, inventory, character statistics, Codex, Story Journal, Memory Shop, and the transparent battle supply tray;
+  - six high-resolution replacements for the lower-detail atlas reward items;
+  - three transparent equipment-slot emblems.
+- Used current inventory, pause, Codex, Journal, shop, potion, lantern, and witness-item assets as direct style references. All interface backgrounds contain no generated text; all isolated icons were chroma-keyed, despilled, and alpha-audited.
+- Upgraded `FIELD ARCHIVE` with four filters, type-based ordering, HP/Grains/intact/burned/chapter telemetry, mechanical effect summaries, brighter text contrast, and illustrated weapon/armor/accessory records.
+- Fixed an inventory UI bug where the equipped item copy was only added to the scene tree for empty slots.
+- Rebuilt play statistics as a character dossier using Arrel's canonical portrait and current resource summary.
+- Upgraded the Pause hub, Codex, Story Journal, and Malet's exchange to the new coherent background family.
+- Added a transparent tactical battle-item tray. Repositioned and resized it through two real battle captures so it no longer buries the objective card, enemy state, or lower command grid.
+- Added `data/interface_visual_gallery.json`, extended the Artbook loader to merge both expansion manifests, and exposed all 16 final assets in the Artbook.
+- Added focused interface smoke and real-render capture scenes for inventory, character dossier, and battle item tray.
+
+### Verification
+- Image audit: seven UI plates at 1672x941; nine isolated icons at 1254x1254; all alpha icons reported `alpha=0-255` with 0 visible magenta pixels.
+- `INTERFACE_VISUAL_UPGRADE_SMOKE_PASS`: all 16 assets, Artbook paths, filters, telemetry, equipped copy, equipment icons, portrait, and resource summary passed.
+- Real OpenGL captures inspected at 1280x720:
+  - `memoria_inventory_visual_upgrade.png`
+  - `memoria_character_dossier_upgrade.png`
+  - `tmp/visual_audit/battle_item_tray_v3.png`
+- `VISUAL_CLARITY_SMOKE_PASS` remained green, including battle items, shops, portraits, field cast, map canvases, and Korean font checks.
+- Representative `verdan_market.tscn` boot completed through world population, companion initialization, and checkpoint autosave.
+- Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- Godot's known forced-exit ObjectDB/resource cleanup notices and ShaderV duplicate-UID editor warnings remain shutdown/add-on noise; no parse, script, assertion, or gameplay runtime error occurred.
+
+## S200 - 2026-07-16 (GPT Image chapter expansion, 50 integrated story CGs)
+
+### Goal
+- Expand every existing Part I chapter with at least five additional illustrations while preserving the established cast identities, low-noise dark-fantasy style, and story pacing.
+
+### Done
+- Generated and visually inspected 50 final 16:9 story CGs, exactly five for each of Chapters 1-10, under `assets/cg/generated/chapter_expansion/`.
+- Held the visual language to clean anime-painterly ink linework, black-blue and ash-gray surfaces, restrained gold memory accents, and controlled violet-white Void light.
+- Used the canonical character shots as identity references. Regenerated the Ch8 Ring Theory support cast, two Ch9 Arrel shots, and four Ch10 Arrel/Elia shots after detecting wrong hair color or length; only corrected results were copied into the project.
+- Added `data/chapter_expansion_gallery.json` as a 50-entry source of truth for chapter, title, asset path, dialogue id, and exact narrative anchor.
+- Inserted every CG into an existing story beat without changing dialogue order, English text, Korean text, choices, or flags.
+- Extended the Artbook to merge the expansion manifest at runtime, so all 50 images are searchable and previewable without adding another large hard-coded constant.
+- Added `smoke_chapter_expansion` to validate chapter quotas, uniqueness, 16:9 presentation resolution, resource loading, exact dialogue placement, and Artbook exposure.
+
+### Verification
+- Godot 4.6.2 headless import completed successfully for all 50 new PNGs.
+- `CHAPTER_EXPANSION_SMOKE_PASS chapters=10 assets=50 placed=50`.
+- `VISUAL_CLARITY_SMOKE_PASS` remained green after the Artbook loader change.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- Korean localization validation: 31 files, 1583 fields, 19 speakers, 0 errors.
+- Representative `verdan_market.tscn` booted through world population and companion initialization without parse, script, or runtime access errors.
+- `git diff --check` passed; known ObjectDB/resource cleanup and ShaderV duplicate-UID messages remain shutdown/editor-plugin noise.
+
+## S199 - 2026-07-16 (Em-dash cleanup and deterministic font rendering)
+
+### Audit findings
+- Shipped dialogue JSON, VN data, and runtime UI/gameplay strings still contained 1,439 em dashes across 88 files, including interrupted speech, decorative headers, battle logs, journals, and map dialogue.
+- The project theme and `UITheme` created `SystemFont` resources at runtime. Font selection therefore varied by player PC, while mipmaps plus automatic subpixel positioning made thin Hangul strokes look split or fuzzy at small sizes.
+
+### Done
+- Removed every em dash from shipped dialogue data and runtime game strings. Interrupted lines now use ellipses, decorative wrappers are removed, and mid-sentence joins use commas so timing and meaning remain readable.
+- Added an em-dash rejection check to the Korean localization validator to prevent the punctuation from returning in dialogue or VN JSON.
+- Bundled `NotoSerifKR-VF.ttf` for dialogue/narration/titles and `NotoSansKR-VF.ttf` for buttons/HUD, then rewired both the project theme and `UITheme` to those deterministic resources.
+- Switched fonts to grayscale antialiasing with normal hinting and disabled mipmaps/subpixel positioning for cleaner small Hangul glyphs. Raised the VN continue/auto/choice-hint text from 10-13px to 12-14px.
+- Updated font-focused visual smoke and capture assertions to verify the bundled resource paths and crisp-glyph profile.
+
+### Verification
+- Runtime em-dash scan: 0 remaining across `data/`, `scripts/`, and `scenes/`.
+- Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors. VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- `VISUAL_CLARITY_SMOKE_PASS` and `STORY_COMBAT_SMOKE_PASS` completed with the bundled fonts and updated text.
+- Real OpenGL capture `tmp/visual_audit/dialogue_interface_ko.png` confirmed clean Korean dialogue rendering at 1280x720.
+- Representative `verdan_market.tscn` booted through Arrel, Malet, Elia, four ambient civilians, and world-population setup without script, parse, or assertion errors.
+- `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
+
+## S198 - 2026-07-16 (Field character scale/texture and illustration style unification)
+
+### Audit findings
+- Major field characters shared 128x160 canvases, but runtime scale was hard-coded while actual alpha silhouettes varied; ambient civilian silhouettes ranged from roughly 104px to 144px high inside the same canvas. That produced visibly different body sizes and floating foot baselines.
+- Player, companion, named NPC, and ambient NPC paths mixed nearest and linear filtering, amplifying high-frequency noise on some characters.
+- World population data mixed twenty-four one-off NPC treatments. The six primary civilian archetypes already matched each other, while several specialist/optional-site variants shifted toward realistic miniature painting or clean anime.
+- The live loss-record book and Memory Compass close-up used flat brown vector/bokeh styling that did not match the newer gothic archive interface.
+- Battle support and named-character resolution still referenced six older transparent full-body drafts instead of the current canonical character-shot family.
+
+### Done
+- Added `PixelSprite.apply_field_profile()`: imported field sprites are now normalized by visible alpha bounds to a shared 50px adult height (42px for child civilians), horizontally centered, aligned to one foot baseline, and rendered with one low-noise linear sampling profile.
+- Applied the profile to Arrel, companions, all named field NPCs, and every ambient world-population civilian. Ground shadows and presence rings now sit on the actual shared foot baseline instead of 17-25px below it.
+- Consolidated all 64 ambient civilians into six established adult archetypes plus one newly generated lantern-child archetype. Role matching preserves courier, debtor, scribe, lantern-keeper, pilgrim, forager, and child silhouettes while removing the inconsistent one-off art from live placement.
+- Generated and integrated `ui_loss_record_blank_book_v2.png`, `ui_memory_compass_close_v2.png`, and `coast_lantern_child_field_v2.png` with built-in GPT Image, using the current field cast, archive, and world-map art as references.
+- Rewired Elia, Sable, Tobias, Nera, and Veil battle/Artbook images to the current `_v3` character-shot family.
+- Removed the two rejected flat UI drafts and six obsolete full-body character drafts (including their Godot import metadata) after confirming that no live code/data references remained.
+- Extended visual/world-population smoke coverage to assert apparent height, common foot baseline, texture filtering, seven civilian archetypes, regenerated UI paths, and removal of rejected UI assets.
+
+### Verification
+- Godot 4.6.2 headless import completed for all three new images with no parse or script error.
+- `WORLD_POPULATION_SMOKE_PASS`: 19 maps, 64 civilian voices, 32 visible threats, 11 caches, seven atlas gates, and 31 live field assets.
+- `VISUAL_CLARITY_SMOKE_PASS`: all seven named directional field sheets, common scale/filter profile, three battle-support images, 24 character shots, and regenerated archive UI assertions passed.
+- Representative `verdan_market.tscn` booted through Arrel, Malet, Elia, four ambient civilians, population setup, and checkpoint autosave without a script/parse/runtime-access error.
+- Real OpenGL capture `tmp/visual_audit/verdan_malet_field.png` confirmed the normalized Arrel/Malet/civilian silhouettes and corrected grounding in the live map.
+
+## S197 - 2026-07-16 (Progression crash audit and transition hardening)
+
+### Audit findings
+- No Godot script stack trace, access violation, Windows application crash event, or damaged current autosave could be recovered. The retained logs only contained the known forced-shutdown resource cleanup notices.
+- All 19 playable maps and the nine existing gameplay/UI smoke scenes booted without a parse, script, invalid-call, or freed-instance error.
+- Scene changes had no ownership guard. Overlapping body-entry, dialogue-end, save-load, or button signals could start multiple asynchronous wipes, replace their shared tween/curtain state, and request competing scene loads.
+- `SaveManager.load_game()` imported game, memory, diary, and tutorial state before proving that the saved destination scene still existed, allowing an obsolete save to leave the live session partially loaded.
+- The enabled third-party VFX editor plugin pointed at a nonexistent `addons/vfx_library` tree (the installed folder is `addons/vfx_lib`) and emitted editor startup/shutdown errors despite no gameplay code using its autoloads.
+
+### Done
+- Added a single-owner transition guard to every scene-change style, including battle, iris, curtain, loading, and chapter-complete routes. Active transitions now block pointer input, reject competing requests, validate PackedScene destinations, inspect Godot's scene-change result, and reliably reset overlays and ownership on failure.
+- Made save loading transactional with respect to its destination: missing/obsolete scene paths now emit `save_failed`, show a warning, and return before any mutable runtime state is imported.
+- Extended the VN validator to check every `goto_map` PackedScene path.
+- Disabled the unused broken VFX editor plugin while retaining the game's own battle/map VFX implementation.
+- Added `smoke_crash_guards` to exercise helper cleanup, real public transition contention, input restoration, and invalid-save non-mutation.
+
+### Verification
+- `CRASH_GUARDS_SMOKE_PASS transition_mutex=true public_transition=true transactional_load=true`.
+- All nine smoke scenes passed: ancillary archive, crash guards, field focus, gameplay QoL, quest illustrations, resonance choice, story combat, visual clarity, and world population.
+- All 30 gameplay scene references resolve; VN validation passed with 20 files, 504 steps, 0 errors, and 0 warnings.
+- Representative `verdan_market.tscn` ran for 600 frames through world population and dialogue entry without script/parse/runtime-access errors.
+- Godot editor scan no longer emits the broken VFX plugin popup/autoload errors. ShaderV duplicate-UID and forced-headless-exit cleanup notices remain editor/add-on shutdown noise rather than a gameplay exception.
+
+## S196 - 2026-07-16 (GPT Image 2 ancillary UI and save/archive usability pass)
+
+### Audit findings
+- The pause menu still exposed save and load as immediate one-click actions, despite `SaveManager` already supporting an autosave plus three manual slots and backup recovery.
+- There was no persistent in-game reference for movement, exploration markers, battle rhythm, memory-burning consequences, or visual-clarity options.
+- The minimap still used a plain translucent rectangle, and several Korean-facing HUD/toast strings could expose legacy mojibake or missing-glyph markers.
+
+### Done
+- Generated and visually audited four built-in GPT Image 2 ancillary assets against the current archive UI references:
+  - `ui_save_archive_v1.png` - full autosave/manual-slot comparison and detail surface.
+  - `ui_field_guide_v1.png` - text-safe six-block gameplay reference surface.
+  - `ui_minimap_compass_frame_v1.png` - compact low-noise exploration frame.
+  - `ui_empty_witness_record_v1.png` - matching Blank Book thumbnail for empty manual records.
+- Replaced the pause menu's separate Save/Load buttons with `SAVE ARCHIVE` / `저장 기록고`:
+  - compares autosave and manual slots 1-3;
+  - shows chapter art, route, HP, Grains, burned-memory count, and timestamp;
+  - protects autosave from manual overwrite;
+  - requires a second confirmation before overwriting an occupied manual slot;
+  - loads any occupied record through the existing safe `SaveManager` path.
+- Added `FIELD GUIDE` / `필드 가이드` to the pause menu with concise controls, objective reading, battle rhythm, memory-burn permanence, witnessed-route, and accessibility guidance.
+- Integrated the generated minimap frame at a restrained 108x96 footprint. Corrected the first runtime sizing pass so the 1024px source never expands beyond the compact top-right container.
+- Routed Esc through named archive overlays first, so Save Archive, Field Guide, Item Archive, and World Map close before the underlying pause menu.
+- Replaced font-risky toast symbols with ASCII-safe markers and supplied clean Korean map names, Memory Pulse text, save-record labels, toast messages, and pause footer hints.
+- Registered the Save Archive and Field Guide plates in the Artbook and added `smoke_ancillary_archive` as a focused runtime regression test.
+
+### Verification
+- Inspected every final generated image before import; the older flat empty-slot book was rejected in context and replaced with the matching `ui_empty_witness_record_v1.png` asset.
+- Captured Save Archive, Korean Field Guide, and minimap through Godot's real OpenGL renderer at 1280x720. Final layouts are readable, text-safe, and do not block the playfield.
+- `ANCILLARY_ARCHIVE_SMOKE_PASS`: all four assets resolve, all four save rows and actions build, occupied and empty slot selection paths render, the Field Guide creates six reference blocks, and the generated minimap frame remains compact.
+- `VISUAL_CLARITY_SMOKE_PASS` remained green with the new Artbook and ancillary asset assertions.
+- Representative `verdan_market.tscn` headless boot reached population, checkpoint autosave, and Chapter 2 dialogue startup without parse/script errors.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- `git diff --check` passed; only the known Godot/VFX shutdown cleanup warnings remain.
+
+## S195 - 2026-07-15 (GPT Image 2 story CG, Item Archive, and World Map expansion)
+
+### Audit findings
+- The pause menu still hid the existing fast-travel route list, so the ten-map journey had no player-facing world-map screen.
+- `GameManager.ITEMS` already contained sixteen illustrated supplies and live quantities, but there was no dedicated inventory surface for reviewing them outside battle.
+- Six key story beats still reused older plates or remained text-only in the archive: the fireless Ch1 camp, Malet's three clues, Kairos's Belt marks, reading deterioration, the Seam reunion, and Tobias's Ring Theory.
+
+### Done
+- Generated and visually audited six canonical-character 16:9 story CGs with built-in GPT Image 2. The first camp draft conflicted with the line `No fire`; it was corrected to a fireless `v2`, and the mismatched draft was removed.
+- Replaced the exact CG step in Chapters 1, 2, 3, 4, 5, and 8 without changing dialogue order, branching, English text, or Claude's Korean text.
+- Registered all six story plates in the Event Journal and Artbook; the Malet-information and Ring-Theory plates also illustrate their matching World records.
+- Generated `ui_world_map_routes_v1.png`: a text-safe ten-region route atlas matching the actual Rim-to-BL-07 journey instead of the older unrelated high-fantasy map.
+- Upgraded Fast Travel into `WITNESSED ROUTES / WORLD MAP`: ten chapter-gated destinations, current-route witness status, story descriptions, scrollable route index, and the existing safe scene-transition behavior.
+- Generated `ui_inventory_archive_v1.png` and built `FIELD ARCHIVE`: live carried counts, existing item icons, item description/type/value inspection, and the equipped weapon/armor/accessory record with upgraded ATK/DEF bonuses.
+- Restored `ITEM ARCHIVE` and `WORLD MAP` to the pause-menu navigation and placed the longer button list inside a scroll container so 720p layouts remain usable.
+- Extended `smoke_visual_clarity` to verify all new assets, Artbook discovery, six Event art overrides, ten destination scenes, and runtime construction of both new panels.
+
+### Final assets
+- `archive_ch1_camp_humming_v2.png`
+- `archive_ch2_information_price_v1.png`
+- `archive_ch3_kairos_marks_v1.png`
+- `archive_ch4_reading_loss_v1.png`
+- `archive_ch6_reunion_v1.png`
+- `archive_ch8_ring_theory_v1.png`
+- `ui_world_map_routes_v1.png`
+- `ui_inventory_archive_v1.png`
+
+### Verification
+- Inspected every final generated image with the local image viewer before project import; canonical faces, clothing, hands, props, story facts, and low-noise art direction passed.
+- Captured both panels through Godot's real OpenGL renderer at 1280x720 and confirmed list/detail/equipment and map/route-index alignment with no view-blocking overlap.
+- Godot 4.6.2 headless editor import completed with no `SCRIPT ERROR` or `Parse Error`.
+- `smoke_visual_clarity`: `VISUAL_CLARITY_SMOKE_PASS`, including runtime construction of `InventoryOverlay/InventoryPanel` and `WorldMapOverlay/WorldMapPanel`.
+- Representative `verdan_market.tscn` headless boot completed through population, autosave, and Chapter 2 dialogue startup.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- `git diff --check` passed; only normal CRLF working-copy warnings were emitted.

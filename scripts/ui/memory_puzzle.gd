@@ -37,7 +37,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## ===================== 열기/닫기 =====================
 
-## 퍼즐 시작 — pair_count: 매칭할 쌍 수 (3~6), reward: 클리어 보상 Grains
+## 퍼즐 시작, pair_count: 매칭할 쌍 수 (3~6), reward: 클리어 보상 Grains
 func open_puzzle(pair_count: int = 4, reward: int = 15) -> void:
 	if is_open:
 		return
@@ -223,7 +223,7 @@ func _check_match() -> void:
 		if _matches_found >= _total_pairs:
 			_on_puzzle_complete()
 	else:
-		# 매칭 실패 — 다시 뒤집기
+		# 매칭 실패, 다시 뒤집기
 		_hide_card(_first_pick)
 		_hide_card(_second_pick)
 		a["flipped"] = false

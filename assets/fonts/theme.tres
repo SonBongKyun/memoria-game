@@ -1,11 +1,7 @@
-[gd_resource type="Theme" format=3 uid="uid://c6qls2t12euxu"]
+[gd_resource load_steps=6 type="Theme" format=3 uid="uid://c6qls2t12euxu"]
 
-[sub_resource type="SystemFont" id="SystemFont_ui"]
-font_names = PackedStringArray("Pretendard", "Malgun Gothic", "Noto Sans KR", "Segoe UI", "Arial", "sans-serif")
-antialiasing = 1
-hinting = 1
-subpixel_positioning = 1
-generate_mipmaps = true
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansKR-VF.ttf" id="1_ui"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifKR-VF.ttf" id="2_body"]
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
 content_margin_left = 11.0
@@ -67,15 +63,8 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="SystemFont" id="SystemFont_body"]
-font_names = PackedStringArray("Noto Serif KR", "Batang", "Nanum Myeongjo", "Cormorant Garamond", "EB Garamond", "Georgia", "Malgun Gothic", "serif")
-antialiasing = 1
-hinting = 1
-subpixel_positioning = 1
-generate_mipmaps = true
-
 [resource]
-default_font = SubResource("SystemFont_body")
+default_font = ExtResource("2_body")
 default_font_size = 16
 Button/colors/font_color = Color(0.78, 0.72, 0.6, 1)
 Button/colors/font_hover_color = Color(0.98, 0.88, 0.55, 1)
@@ -83,7 +72,7 @@ Button/colors/font_outline_color = Color(0, 0, 0, 0.62)
 Button/colors/font_pressed_color = Color(1, 0.95, 0.7, 1)
 Button/constants/outline_size = 1
 Button/font_sizes/font_size = 16
-Button/fonts/font = SubResource("SystemFont_ui")
+Button/fonts/font = ExtResource("1_ui")
 Button/styles/focus = SubResource("StyleButtonHover")
 Button/styles/hover = SubResource("StyleButtonHover")
 Button/styles/normal = SubResource("StyleButtonNormal")
@@ -92,9 +81,9 @@ Label/colors/font_color = Color(0.92, 0.88, 0.8, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 0.6)
 Label/constants/outline_size = 1
 Label/font_sizes/font_size = 16
-Label/fonts/font = SubResource("SystemFont_ui")
+Label/fonts/font = ExtResource("1_ui")
 PanelContainer/styles/panel = SubResource("StylePanel")
 RichTextLabel/colors/default_color = Color(0.92, 0.88, 0.8, 1)
 RichTextLabel/constants/line_separation = 10
 RichTextLabel/font_sizes/normal_font_size = 18
-RichTextLabel/fonts/normal_font = SubResource("SystemFont_body")
+RichTextLabel/fonts/normal_font = ExtResource("2_body")

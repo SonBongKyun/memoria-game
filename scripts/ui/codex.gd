@@ -1,11 +1,11 @@
 ## Codex (Autoload)
-## 도감 시스템 — Bestiary (만난 적) + Memory Archive (수집한 기억)
+## 도감 시스템, Bestiary (만난 적) + Memory Archive (수집한 기억)
 ## PauseMenu에서 접근. 영구 저장 (user://codex.json)
-## S59: Visual overhaul — enemy sprite preview, star ratings, defeat badges, animated reveal
+## S59: Visual overhaul, enemy sprite preview, star ratings, defeat badges, animated reveal
 extends CanvasLayer
 
 const SAVE_PATH: String = "user://codex.json"
-const CODEX_BACKDROP_PATH: String = "res://assets/cg/generated/ui_codex_archive_backdrop.png"
+const CODEX_BACKDROP_PATH: String = "res://assets/cg/generated/ui_codex_archive_backdrop_v2.png"
 
 var is_open: bool = false
 
@@ -28,7 +28,7 @@ var archive_status: Label
 var _current_tab: String = "bestiary"
 
 # S59: Animated reveal tracking
-var _revealed_entries: Dictionary = {}  # {entry_key: true} — already-seen entries
+var _revealed_entries: Dictionary = {}  # {entry_key: true}, already-seen entries
 var _detail_vbox: VBoxContainer  # reference to detail panel vbox for sprite preview
 var _enemy_preview: Control  # current enemy sprite preview node
 
@@ -45,7 +45,7 @@ func _ready() -> void:
 	BattleManager.battle_ended.connect(_on_battle_ended)
 	MemoryManager.memory_added.connect(_on_memory_added)
 	MemoryManager.memory_burned.connect(_on_memory_burned)
-	print("[Codex] Ready — %d enemies, %d memories" % [enemy_entries.size(), memory_entries.size()])
+	print("[Codex] Ready, %d enemies, %d memories" % [enemy_entries.size(), memory_entries.size()])
 
 func _unhandled_input(event: InputEvent) -> void:
 	if is_open and event.is_action_pressed("cancel"):
@@ -404,7 +404,7 @@ func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
 		lines += "Weakness: %s\n" % (weakness.to_upper() if weakness != "" else "None")
 		lines += "Resistance: %s\n" % (resistance.to_upper() if resistance != "" else "None")
 	else:
-		lines += "\n[Not yet scanned — use Tobias: Analyze]\n"
+		lines += "\n[Not yet scanned, use Tobias: Analyze]\n"
 	detail_body.text = lines
 
 	# S59: Animated entry reveal for first-time views
@@ -415,7 +415,7 @@ func _show_memory_detail(mem_id: String, data: Dictionary) -> void:
 	_clear_enemy_preview()
 
 	detail_title.text = data.get("title", "???")
-	const GRADE_NAMES_LOCAL = ["Grade 5 — Sensory", "Grade 4 — Daily", "Grade 3 — Relational", "Grade 2 — Identity", "Grade 1 — Core"]
+	const GRADE_NAMES_LOCAL = ["Grade 5, Sensory", "Grade 4, Daily", "Grade 3, Relational", "Grade 2, Identity", "Grade 1, Core"]
 	var grade = data.get("grade", 0)
 	var grade_name = GRADE_NAMES_LOCAL[grade] if grade < GRADE_NAMES_LOCAL.size() else "Unknown"
 	var status = "BURNED" if data.get("burned", false) else "Held"
@@ -504,7 +504,7 @@ func _clear_enemy_preview() -> void:
 		_enemy_preview.queue_free()
 		_enemy_preview = null
 
-## Animated entry reveal — slide in from right with flash on first view
+## Animated entry reveal, slide in from right with flash on first view
 func _animate_entry_reveal(entry_key: String) -> void:
 	if _revealed_entries.has(entry_key):
 		return  # Already seen, no animation

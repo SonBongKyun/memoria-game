@@ -1,6 +1,6 @@
 ## ExplorationHUD (Autoload)
 ## 탐색 중 좌상단에 HP/챕터/기억 정보를 표시하는 HUD.
-## S57: Steam-quality upgrade — ghost HP bar, status icons, quest progress bar,
+## S57: Steam-quality upgrade, ghost HP bar, status icons, quest progress bar,
 ##      memory burn glow, grains popup, slide-in animation.
 extends CanvasLayer
 
@@ -42,6 +42,21 @@ const MAP_ART := {
 	"forgotten_forest": "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
 	"colorless_waste": "res://assets/cg/generated/memory_compass_resonance_cinematic.png",
 	"bl07_void": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+}
+
+# Clean runtime labels kept separate from the legacy source block above so
+# Korean UI never exposes mojibake inherited from older editor encodings.
+const MAP_NAMES_KO_CLEAN := {
+	"rim_forest": "림 숲",
+	"verdan_market": "베르단 시장",
+	"belt_waystation": "벨트 중계소",
+	"drift_shelter": "표류 대피소",
+	"crumbling_coast": "무너지는 해안",
+	"the_seam": "더 심",
+	"seam_outskirts": "심 외곽",
+	"forgotten_forest": "망각의 숲",
+	"colorless_waste": "무색 황무지",
+	"bl07_void": "BL-07 공허",
 }
 
 # ── 노드 참조 ──
@@ -177,7 +192,7 @@ func _build_ui() -> void:
 	hp_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.90))
 	hp_row.add_child(hp_label)
 
-	# S57: Stacked HP bars — ghost underneath, real on top
+	# S57: Stacked HP bars, ghost underneath, real on top
 	var hp_stack := Control.new()
 	hp_stack.custom_minimum_size = Vector2(118, 12)
 	hp_row.add_child(hp_stack)
@@ -575,7 +590,7 @@ func _update_hud() -> void:
 	var hp: int = pd.get("hp", 0)
 	var max_hp: int = pd.get("max_hp", 100)
 
-	# HP bar — S57: ghost drain effect
+	# HP bar, S57: ghost drain effect
 	hp_bar.max_value = max_hp
 	hp_ghost_bar.max_value = max_hp
 	if hp != _last_hp:
@@ -676,7 +691,7 @@ func _update_quest_tracker() -> void:
 	for q in all_quests:
 		var qid = q.get("id", "")
 		if SideQuest.is_active(qid):
-			active_quest = q.get("name", "")
+			active_quest = q.get("title", "")
 			quest_step = SideQuest.get_current_step(qid)
 			var quest_data = q
 			# Get total steps from quest steps array
@@ -742,6 +757,21 @@ func _update_memory_pulse_status() -> void:
 	var focus := int(status.get("field_focus", 0))
 	var focus_max := int(status.get("field_focus_max", 3))
 	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
+	if GameManager.current_locale == "ko":
+		var focus_suffix_ko := " · 집중 %d/%d" % [focus, focus_max]
+		if bool(status.get("ready", false)):
+			pulse_label.text = "파동: 준비 [Q]" + focus_suffix_ko
+			pulse_label.add_theme_color_override("font_color", Color(0.86, 0.76, 0.42))
+		else:
+			var cooldown_ko: float = float(status.get("cooldown", 0.0))
+			var max_cooldown_ko: float = maxf(float(status.get("max_cooldown", 1.0)), 1.0)
+			var filled_ko := int(round((1.0 - cooldown_ko / max_cooldown_ko) * 5.0))
+			var meter_ko := ""
+			for i in range(5):
+				meter_ko += "|" if i < filled_ko else "."
+			pulse_label.text = "파동: %s %.1fs" % [meter_ko, cooldown_ko] + focus_suffix_ko
+			pulse_label.add_theme_color_override("font_color", Color(0.52, 0.55, 0.64))
+		return
 	pulse_label.visible = not clean_view or focus > 0 or not bool(status.get("ready", false))
 	var focus_suffix := (" · 집중 %d/%d" if GameManager.current_locale == "ko" else " · Focus %d/%d") % [focus, focus_max]
 	if bool(status.get("ready", false)):
@@ -790,6 +820,9 @@ func _update_location_card() -> void:
 	location_title.text = _get_display_map_name(key)
 	location_subtitle.text = ("%d장 / 기록된 지역" % GameManager.current_chapter) if GameManager.current_locale == "ko" else "Ch.%d / %s" % [GameManager.current_chapter, "illustrated region"]
 
+	if GameManager.current_locale == "ko":
+		location_subtitle.text = "제%d장 / 기록된 지역" % GameManager.current_chapter
+
 	if _location_card_tween and _location_card_tween.is_valid():
 		_location_card_tween.kill()
 	location_card.visible = true
@@ -813,7 +846,7 @@ func _get_location_name() -> String:
 
 func _get_display_map_name(key: String) -> String:
 	if GameManager.current_locale == "ko":
-		return MAP_NAMES_KO.get(key, MAP_NAMES.get(key, key.capitalize()))
+		return MAP_NAMES_KO_CLEAN.get(key, MAP_NAMES.get(key, key.capitalize()))
 	return MAP_NAMES.get(key, "")
 
 func _get_location_key() -> String:

@@ -1,4 +1,4 @@
-## PixelSprite — 픽셀아트 캐릭터 스프라이트 생성 유틸리티
+## PixelSprite, 픽셀아트 캐릭터 스프라이트 생성 유틸리티
 ## Image.set_pixel()로 상세한 픽셀아트 캐릭터를 생성.
 ## S42: 48x48 프레임으로 업그레이드, 디테일 대폭 강화.
 ## 4방향 x (idle + 4 walk) 애니메이션.
@@ -8,6 +8,9 @@ const SIZE: int = 48
 const HALF: int = 24
 const SHEET_FRAME_ROOT: String = "res://assets/sprites/characters"
 const FIELD_SPRITE_ROOT: String = "res://assets/sprites/field"
+const FIELD_ADULT_HEIGHT: float = 50.0
+const FIELD_CHILD_HEIGHT: float = 42.0
+const FIELD_FOOT_Y: float = 1.5
 static var _clean_sheet_cache: Dictionary = {}
 
 ## SpriteFrames 생성 (4방향 idle + walk + S57: attack/hurt/death/cast)
@@ -43,7 +46,7 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_swing))
 		frames.add_frame(attack_name, ImageTexture.create_from_image(attack_follow))
 
-	# S57: Hurt frame (1 frame, direction-independent — slight lean back)
+	# S57: Hurt frame (1 frame, direction-independent, slight lean back)
 	var hurt_name = "hurt"
 	frames.add_animation(hurt_name)
 	frames.set_animation_speed(hurt_name, 1)
@@ -51,7 +54,7 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 	var hurt_img = _draw_hurt_frame(config)
 	frames.add_frame(hurt_name, ImageTexture.create_from_image(hurt_img))
 
-	# S57: Death frame (1 frame — collapsed position)
+	# S57: Death frame (1 frame, collapsed position)
 	var death_name = "death"
 	frames.add_animation(death_name)
 	frames.set_animation_speed(death_name, 1)
@@ -59,7 +62,7 @@ static func create_frames(config: Dictionary) -> SpriteFrames:
 	var death_img = _draw_death_frame(config)
 	frames.add_frame(death_name, ImageTexture.create_from_image(death_img))
 
-	# S57: Cast/Burn frame (1 frame — arms raised, blue-white glow)
+	# S57: Cast/Burn frame (1 frame, arms raised, blue-white glow)
 	var cast_name = "cast"
 	frames.add_animation(cast_name)
 	frames.set_animation_speed(cast_name, 1)
@@ -200,6 +203,36 @@ static func get_texture_source(texture: Texture2D) -> String:
 		return ""
 	return texture.resource_path if texture.resource_path != "" else texture.resource_name
 
+## Normalize imported field art by its visible alpha bounds instead of canvas
+## dimensions.  This keeps authored characters, ambient NPCs, and future art
+## on one apparent-height and foot-baseline contract even when their source
+## canvases or transparent margins differ.
+static func apply_field_profile(sprite: AnimatedSprite2D, texture: Texture2D, target_height: float = FIELD_ADULT_HEIGHT) -> Vector2:
+	if sprite == null or texture == null:
+		return Vector2.ONE
+	var image := texture.get_image()
+	if image == null or image.is_empty():
+		return Vector2.ONE
+	var used := image.get_used_rect()
+	if used.size.y <= 0:
+		return Vector2.ONE
+	var uniform_scale := target_height / float(used.size.y)
+	var image_width := float(image.get_width())
+	var image_height := float(image.get_height())
+	var visible_center_x := float(used.position.x) + float(used.size.x) * 0.5
+	var visible_bottom_y := float(used.position.y + used.size.y)
+	sprite.position = Vector2.ZERO
+	sprite.scale = Vector2(uniform_scale, uniform_scale)
+	sprite.offset = Vector2(
+		image_width * 0.5 - visible_center_x,
+		FIELD_FOOT_Y / uniform_scale - (visible_bottom_y - image_height * 0.5)
+	)
+	# All authored field art is reduced for the 32px world grid. Linear sampling
+	# removes the inconsistent high-frequency shimmer caused by mixing tiny
+	# generated sprites and larger painterly source canvases.
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	return sprite.scale
+
 static func _add_loaded_texture_anim(frames: SpriteFrames, anim_name: String, textures: Array[Texture2D], speed: float, loop: bool) -> void:
 	if textures.is_empty():
 		return
@@ -263,7 +296,7 @@ static func _make_back_facing_textures(paths: Array[String], who: String) -> Arr
 		textures.append(texture)
 	return textures
 
-## S57: Play animation helper — call from other systems
+## S57: Play animation helper, call from other systems
 ## Usage: PixelSprite.play_animation(animated_sprite, "attack_down")
 static func play_animation(sprite: AnimatedSprite2D, anim_name: String) -> void:
 	if not sprite or not sprite.sprite_frames:
@@ -419,7 +452,7 @@ static func _draw_front(img: Image, c: Dictionary, by: int, walk: int, step: int
 		_fill_rect(img, hx + 11, ty, 4, 2, acc_color)  # 검자루
 		_set_px(img, hx + 12, ty - 1, _lighten(acc_color, 0.15))
 	elif acc_type == "staff":
-		# S59: Staff accessory — vertical line on character's side
+		# S59: Staff accessory, vertical line on character's side
 		var staff_color = _darken(acc_color, 0.1)
 		_fill_rect(img, hx + 13, ty - 3, 1, 14, staff_color)
 		_set_px(img, hx + 13, ty - 4, _lighten(acc_color, 0.3))  # staff tip glow
@@ -486,7 +519,7 @@ static func _draw_back(img: Image, c: Dictionary, by: int, walk: int, step: int)
 
 	var hx = 17; var hy = by
 
-	# ── 머리카락 (뒷면 — 더 많이 보임) ──
+	# ── 머리카락 (뒷면, 더 많이 보임) ──
 	_fill_rect(img, hx, hy, 12, 3, hair)
 	_fill_rect(img, hx - 1, hy + 1, 14, 2, hair)
 	_fill_rect(img, hx - 2, hy + 3, 16, 8, hair)
@@ -649,7 +682,7 @@ static func _draw_side(img: Image, c: Dictionary, by: int, walk: int, step: int,
 
 ## ========== S57: 특수 애니메이션 프레임 ==========
 
-## Attack frame — arm swung forward with 3px white slash line
+## Attack frame, arm swung forward with 3px white slash line
 static func _draw_attack_frame(config: Dictionary, direction: String) -> Image:
 	# Start from base idle frame, then modify arm position + add slash
 	var img = _draw_character(config, direction, 0)
@@ -689,7 +722,7 @@ static func _draw_attack_frame(config: Dictionary, direction: String) -> Image:
 	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
 	return img
 
-## S59: Attack frame 1 — Wind-up (arm pulled back)
+## S59: Attack frame 1, Wind-up (arm pulled back)
 static func _draw_attack_frame_windup(config: Dictionary, direction: String) -> Image:
 	var img = _draw_character(config, direction, 0)
 	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
@@ -715,7 +748,7 @@ static func _draw_attack_frame_windup(config: Dictionary, direction: String) -> 
 	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
 	return img
 
-## S59: Attack frame 3 — Follow-through (arm extended, slight lean, slash trail)
+## S59: Attack frame 3, Follow-through (arm extended, slight lean, slash trail)
 static func _draw_attack_frame_followthrough(config: Dictionary, direction: String) -> Image:
 	var img = _draw_character(config, direction, 0)
 	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
@@ -747,7 +780,7 @@ static func _draw_attack_frame_followthrough(config: Dictionary, direction: Stri
 	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
 	return img
 
-## Hurt frame — slight lean back, eyes squinted, red flash overlay
+## Hurt frame, slight lean back, eyes squinted, red flash overlay
 static func _draw_hurt_frame(config: Dictionary) -> Image:
 	var img = _draw_character(config, "down", 0)
 	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
@@ -755,14 +788,14 @@ static func _draw_hurt_frame(config: Dictionary) -> Image:
 	var hx = 17
 	var by = 3
 
-	# Squint eyes — overwrite eye area with narrower shape
+	# Squint eyes, overwrite eye area with narrower shape
 	var fy = by + 3
 	_fill_rect(img, hx + 2, fy + 3, 2, 1, _darken(eye, 0.15))  # squinted left eye
 	_set_px(img, hx + 2, fy + 4, skin)  # close lower part
 	_fill_rect(img, hx + 8, fy + 3, 2, 1, _darken(eye, 0.15))  # squinted right eye
 	_set_px(img, hx + 8, fy + 4, skin)  # close lower part
 
-	# Shift body pixels slightly right (lean back effect — 1px)
+	# Shift body pixels slightly right (lean back effect, 1px)
 	# Apply red tint overlay
 	var red_tint = Color(1.0, 0.3, 0.2, 0.25)
 	for y in range(SIZE):
@@ -779,7 +812,7 @@ static func _draw_hurt_frame(config: Dictionary) -> Image:
 	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
 	return img
 
-## Death frame — collapsed / fallen position (body rotated, lying on ground)
+## Death frame, collapsed / fallen position (body rotated, lying on ground)
 static func _draw_death_frame(config: Dictionary) -> Image:
 	var img = Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
@@ -790,7 +823,7 @@ static func _draw_death_frame(config: Dictionary) -> Image:
 	var hair = config.get("hair", Color(0.25, 0.28, 0.4))
 	var c_s = _darken(coat, 0.12)
 
-	# Draw collapsed body — lying on the ground (horizontal orientation)
+	# Draw collapsed body, lying on the ground (horizontal orientation)
 	var gy = 32  # ground Y level
 
 	# Hair (head on ground, facing right)
@@ -798,7 +831,7 @@ static func _draw_death_frame(config: Dictionary) -> Image:
 	# Head
 	_fill_rect(img, 11, gy - 1, 5, 4, skin)
 	_set_px(img, 14, gy, _darken(skin, 0.2))  # closed eye
-	# Body (lying flat — horizontal torso)
+	# Body (lying flat, horizontal torso)
 	_fill_rect(img, 16, gy, 14, 5, coat)
 	_fill_rect(img, 16, gy + 1, 14, 3, c_s)
 	# Arms (splayed)
@@ -820,7 +853,7 @@ static func _draw_death_frame(config: Dictionary) -> Image:
 	_add_outline(img, Color(0.03, 0.02, 0.05, 0.9))
 	return img
 
-## Cast/Burn frame — arms raised, blue-white glow around hands
+## Cast/Burn frame, arms raised, blue-white glow around hands
 static func _draw_cast_frame(config: Dictionary) -> Image:
 	var img = _draw_character(config, "down", 0)
 	var skin = config.get("skin", Color(0.85, 0.72, 0.6))
@@ -828,7 +861,7 @@ static func _draw_cast_frame(config: Dictionary) -> Image:
 	var hx = 17
 	var c_s = _darken(coat, 0.12)
 
-	# Raise arms — overwrite arm area (arms pointing up)
+	# Raise arms, overwrite arm area (arms pointing up)
 	var ty = 16  # torso y (approx)
 	# Left arm raised up
 	_fill_rect(img, hx - 5, ty - 6, 3, 8, coat)
@@ -894,7 +927,7 @@ static func _lighten(color: Color, amount: float) -> Color:
 		color.a
 	)
 
-## S43: 1px 아웃라인 — 불투명 픽셀 주변에 어두운 테두리 추가
+## S43: 1px 아웃라인, 불투명 픽셀 주변에 어두운 테두리 추가
 static func _add_outline(img: Image, outline_color: Color) -> void:
 	# 원본 알파를 먼저 복사
 	var alpha_map: Array = []
@@ -938,7 +971,7 @@ static func _flip_horizontal(img: Image) -> void:
 
 ## ========== 프리셋 캐릭터 설정 ==========
 
-## S43: 컬러 팔레트 리뉴얼 — 채도/대비 강화
+## S43: 컬러 팔레트 리뉴얼, 채도/대비 강화
 
 static func arrel_config() -> Dictionary:
 	return {
@@ -969,7 +1002,7 @@ static func elia_config() -> Dictionary:
 	}
 
 static func sable_config() -> Dictionary:
-	# S148: 캐논 확정 — 세이블(=할다)은 맹인 노파. 백발 + 뿌옇게 흐린 눈(보이드에 시력을 잃음).
+	# S148: 캐논 확정, 세이블(=할다)은 맹인 노파. 백발 + 뿌옇게 흐린 눈(보이드에 시력을 잃음).
 	return {
 		"skin": Color(0.58, 0.47, 0.39),
 		"hair": Color(0.84, 0.84, 0.8),  # 백발
@@ -978,7 +1011,7 @@ static func sable_config() -> Dictionary:
 		"shirt": Color(0.28, 0.22, 0.26),
 		"pants": Color(0.12, 0.11, 0.15),
 		"boots": Color(0.08, 0.06, 0.08),
-		"eye": Color(0.74, 0.77, 0.76),  # 뿌연 회백색 — 맹인
+		"eye": Color(0.74, 0.77, 0.76),  # 뿌연 회백색, 맹인
 		"accessory": Color(0.45, 0.35, 0.3),
 		"accessory_type": "scar",
 	}
@@ -1005,7 +1038,7 @@ static func load_sheet_frames(char_name: String) -> SpriteFrames:
 	for anim in SHEET_ANIMS:
 		var cfg: Array = SHEET_ANIMS[anim]
 		_add_sheet_anim(frames, dir, anim, anim, cfg)
-		# 좌향 변형 (attack_left, move_left 등 — 존재할 때만)
+		# 좌향 변형 (attack_left, move_left 등, 존재할 때만)
 		_add_sheet_anim(frames, dir, anim + "_left", anim + "_left", cfg)
 	if not frames.has_animation("idle"):
 		return null
@@ -1042,7 +1075,7 @@ static func npc_config(base_color: Color) -> Dictionary:
 
 ## ========== S55: NPC 프리셋 10종 (맵별 다양한 NPC 외형) ==========
 
-## 상인 — 따뜻한 갈색 코트, 금색 브로치, 통통한 느낌
+## 상인, 따뜻한 갈색 코트, 금색 브로치, 통통한 느낌
 static func npc_merchant_config() -> Dictionary:
 	return {
 		"skin": Color(0.84, 0.74, 0.62),
@@ -1057,7 +1090,7 @@ static func npc_merchant_config() -> Dictionary:
 		"accessory_type": "brooch",
 	}
 
-## 경비병 — 짙은 남색 갑옷, 검 휴대
+## 경비병, 짙은 남색 갑옷, 검 휴대
 static func npc_guard_config() -> Dictionary:
 	return {
 		"skin": Color(0.78, 0.65, 0.55),
@@ -1072,7 +1105,7 @@ static func npc_guard_config() -> Dictionary:
 		"accessory_type": "sword",
 	}
 
-## 장로 — 흰 머리, 긴 로브, 품위있는 느낌
+## 장로, 흰 머리, 긴 로브, 품위있는 느낌
 static func npc_elder_config() -> Dictionary:
 	return {
 		"skin": Color(0.8, 0.7, 0.6),
@@ -1087,7 +1120,7 @@ static func npc_elder_config() -> Dictionary:
 		"accessory_type": "brooch",
 	}
 
-## 아이 — 작은 체형(색상으로 표현), 밝은 옷
+## 아이, 작은 체형(색상으로 표현), 밝은 옷
 static func npc_child_config() -> Dictionary:
 	return {
 		"skin": Color(0.88, 0.78, 0.68),
@@ -1101,7 +1134,7 @@ static func npc_child_config() -> Dictionary:
 		"accessory_type": "none",
 	}
 
-## 학자 — 안경 대신 브로치, 짙은 녹색 로브
+## 학자, 안경 대신 브로치, 짙은 녹색 로브
 static func npc_scholar_config() -> Dictionary:
 	return {
 		"skin": Color(0.82, 0.72, 0.62),
@@ -1116,7 +1149,7 @@ static func npc_scholar_config() -> Dictionary:
 		"accessory_type": "brooch",
 	}
 
-## 여성 마을주민 — 밝은 색 드레스, 긴 머리
+## 여성 마을주민, 밝은 색 드레스, 긴 머리
 static func npc_villager_f_config() -> Dictionary:
 	return {
 		"skin": Color(0.86, 0.76, 0.66),
@@ -1130,7 +1163,7 @@ static func npc_villager_f_config() -> Dictionary:
 		"accessory_type": "none",
 	}
 
-## 남성 마을주민 — 수수한 작업복
+## 남성 마을주민, 수수한 작업복
 static func npc_villager_m_config() -> Dictionary:
 	return {
 		"skin": Color(0.8, 0.68, 0.58),
@@ -1144,7 +1177,7 @@ static func npc_villager_m_config() -> Dictionary:
 		"accessory_type": "none",
 	}
 
-## 어부 — 바다색 톤, 거친 피부
+## 어부, 바다색 톤, 거친 피부
 static func npc_fisherman_config() -> Dictionary:
 	return {
 		"skin": Color(0.75, 0.62, 0.52),
@@ -1158,7 +1191,7 @@ static func npc_fisherman_config() -> Dictionary:
 		"accessory_type": "none",
 	}
 
-## 관리국 요원 — 검은 코트, 차가운 느낌
+## 관리국 요원, 검은 코트, 차가운 느낌
 static func npc_bureau_agent_config() -> Dictionary:
 	return {
 		"skin": Color(0.78, 0.68, 0.6),
@@ -1173,7 +1206,7 @@ static func npc_bureau_agent_config() -> Dictionary:
 		"accessory_type": "brooch",
 	}
 
-## 여행자 — 먼지투성이, 망토/두건 느낌
+## 여행자, 먼지투성이, 망토/두건 느낌
 static func npc_traveler_config() -> Dictionary:
 	return {
 		"skin": Color(0.76, 0.65, 0.55),
@@ -1279,7 +1312,7 @@ static func create_battle_sprite_frames(who: String) -> SpriteFrames:
 	_add_outline_n(idle_img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
 	frames.add_frame(idle_name, ImageTexture.create_from_image(idle_img))
 
-	# Attack frame — arm thrust forward + slash arc
+	# Attack frame, arm thrust forward + slash arc
 	var attack_name = "attack"
 	frames.add_animation(attack_name)
 	frames.set_animation_speed(attack_name, 1)
@@ -1287,7 +1320,7 @@ static func create_battle_sprite_frames(who: String) -> SpriteFrames:
 	var attack_img = _draw_battle_attack_frame(config, who)
 	frames.add_frame(attack_name, ImageTexture.create_from_image(attack_img))
 
-	# Hurt frame — red tint + lean back
+	# Hurt frame, red tint + lean back
 	var hurt_name = "hurt"
 	frames.add_animation(hurt_name)
 	frames.set_animation_speed(hurt_name, 1)
@@ -1295,7 +1328,7 @@ static func create_battle_sprite_frames(who: String) -> SpriteFrames:
 	var hurt_img = _draw_battle_hurt_frame(config, who)
 	frames.add_frame(hurt_name, ImageTexture.create_from_image(hurt_img))
 
-	# Cast frame — arms raised with glow
+	# Cast frame, arms raised with glow
 	var cast_name = "cast"
 	frames.add_animation(cast_name)
 	frames.set_animation_speed(cast_name, 1)
@@ -1320,7 +1353,7 @@ static func _create_sheet_battle_sprite_frames(who: String) -> SpriteFrames:
 		frames.remove_animation("default")
 	return frames
 
-## S57: Battle attack frame (128x128) — arm extended forward + slash arc
+## S57: Battle attack frame (128x128), arm extended forward + slash arc
 static func _draw_battle_attack_frame(config: Dictionary, who: String) -> Image:
 	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
@@ -1331,7 +1364,7 @@ static func _draw_battle_attack_frame(config: Dictionary, who: String) -> Image:
 	var c_h = _lighten(coat, 0.06)
 	var ay = 34 + 3  # arm Y from battle_character
 
-	# Overwrite front arm — extended further right (attack thrust)
+	# Overwrite front arm, extended further right (attack thrust)
 	_bfill(img, bx + 60, ay - 4, 8, 18, coat)
 	_bfill(img, bx + 64, ay - 2, 3, 18, c_h)
 	_bfill(img, bx + 62, ay + 14, 8, 5, skin)
@@ -1353,7 +1386,7 @@ static func _draw_battle_attack_frame(config: Dictionary, who: String) -> Image:
 	_add_outline_n(img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
 	return img
 
-## S57: Battle hurt frame (128x128) — red tint + lean
+## S57: Battle hurt frame (128x128), red tint + lean
 static func _draw_battle_hurt_frame(config: Dictionary, who: String) -> Image:
 	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
@@ -1372,7 +1405,7 @@ static func _draw_battle_hurt_frame(config: Dictionary, who: String) -> Image:
 	_add_outline_n(img, BATTLE_SIZE, Color(0.03, 0.02, 0.05, 0.92))
 	return img
 
-## S57: Battle cast frame (128x128) — arms raised + blue-white glow
+## S57: Battle cast frame (128x128), arms raised + blue-white glow
 static func _draw_battle_cast_frame(config: Dictionary, who: String) -> Image:
 	var img = Image.create(BATTLE_SIZE, BATTLE_SIZE, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0, 0, 0, 0))
@@ -1383,7 +1416,7 @@ static func _draw_battle_cast_frame(config: Dictionary, who: String) -> Image:
 	var c_s = _darken(coat, 0.1)
 	var ty = 34  # torso Y
 
-	# Overwrite arms — both raised upward
+	# Overwrite arms, both raised upward
 	# Back arm raised
 	_bfill(img, bx + 14, ty - 12, 6, 16, coat)
 	_bfill(img, bx + 14, ty - 12, 2, 16, c_s)
@@ -1546,7 +1579,7 @@ static func _draw_battle_character(img: Image, c: Dictionary, who: String) -> vo
 	_bfill(img, bx + 24, fy, 3, 18, sk_s)
 	# 얼굴 하이라이트 (오른쪽)
 	_bfill(img, bx + 48, fy + 3, 3, 8, sk_h)
-	# 눈 (사이드뷰 — 오른쪽 바라보는 방향, 앞쪽 눈 크게)
+	# 눈 (사이드뷰, 오른쪽 바라보는 방향, 앞쪽 눈 크게)
 	# 앞쪽 눈 (4x4)
 	_bfill(img, bx + 40, fy + 6, 5, 5, Color(0.95, 0.97, 1.0))  # 흰자
 	_bfill(img, bx + 41, fy + 7, 3, 3, eye)  # 홍채
@@ -1604,7 +1637,7 @@ static func _draw_battle_character(img: Image, c: Dictionary, who: String) -> vo
 	_bfill(img, bx + 14, ay, 2, 18, c_s)
 	_bfill(img, bx + 14, ay + 18, 6, 4, skin)
 
-	# 앞팔 (오른쪽) — 전투 포즈: 앞으로 뻗은 자세
+	# 앞팔 (오른쪽), 전투 포즈: 앞으로 뻗은 자세
 	if who == "arrel":
 		# 검을 들고 있는 팔
 		_bfill(img, bx + 56, ay - 2, 6, 16, coat)
@@ -1901,7 +1934,7 @@ static func create_enemy_sprite(enemy_type: String) -> ImageTexture:
 	_add_outline_64(img, Color(0.02, 0.01, 0.04, 0.95))
 	return ImageTexture.create_from_image(img)
 
-## 보이드 비스트 — 네발짐승, 보라+검정
+## 보이드 비스트, 네발짐승, 보라+검정
 static func _draw_void_beast(img: Image) -> void:
 	var body = Color(0.15, 0.08, 0.2)
 	var body_h = Color(0.25, 0.12, 0.35)
@@ -1943,7 +1976,7 @@ static func _draw_void_beast(img: Image) -> void:
 		_px64(img, sx, sy, Color(0.3, 0.1, 0.4, 0.3))
 		_px64(img, sx + 1, sy, Color(0.25, 0.08, 0.35, 0.2))
 
-## 셰도우 위스프 — 떠다니는 유령
+## 셰도우 위스프, 떠다니는 유령
 static func _draw_shadow_wisp(img: Image) -> void:
 	var body = Color(0.12, 0.1, 0.18)
 	var glow = Color(0.4, 0.2, 0.6)
@@ -1963,7 +1996,7 @@ static func _draw_shadow_wisp(img: Image) -> void:
 	_px64(img, 27, 22, Color(0.8, 0.6, 1.0))
 	_px64(img, 36, 22, Color(0.8, 0.6, 1.0))
 
-## 메모리 이터 — 기억을 먹는 곤충형
+## 메모리 이터, 기억을 먹는 곤충형
 static func _draw_memory_eater(img: Image) -> void:
 	var body = Color(0.2, 0.15, 0.12)
 	var shell = Color(0.3, 0.22, 0.18)
@@ -1992,7 +2025,7 @@ static func _draw_memory_eater(img: Image) -> void:
 	_fill64(img, 28, 17, 3, 4, Color(0.15, 0.1, 0.08))
 	_fill64(img, 33, 17, 3, 4, Color(0.15, 0.1, 0.08))
 
-## 쉐이드 센티넬 — 보스, 거대 갑옷 형태
+## 쉐이드 센티넬, 보스, 거대 갑옷 형태
 static func _draw_shade_sentinel(img: Image) -> void:
 	var armor = Color(0.15, 0.12, 0.2)
 	var armor_h = Color(0.25, 0.2, 0.35)
@@ -2026,7 +2059,7 @@ static func _draw_shade_sentinel(img: Image) -> void:
 		for sy in range(randi_range(5, 15), randi_range(20, 30)):
 			_px64(img, sx, sy, Color(void_c.r, void_c.g, void_c.b, 0.25))
 
-## 보이드 스토커 — 날씬한 인간형
+## 보이드 스토커, 날씬한 인간형
 static func _draw_void_stalker(img: Image) -> void:
 	var body = Color(0.08, 0.06, 0.12)
 	var glow = Color(0.5, 0.2, 0.7)

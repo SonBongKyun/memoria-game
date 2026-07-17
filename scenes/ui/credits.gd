@@ -1,4 +1,4 @@
-## Credits — 엔딩 크레딧 화면
+## Credits, 엔딩 크레딧 화면
 ## 스크롤 텍스트 + 분기별 에필로그 한 줄 + 타이틀 복귀
 extends Control
 
@@ -22,14 +22,14 @@ const CREDITS_DATA: Array = [
 	{"type": "name", "text": "with Claude (Anthropic)"},
 	{"type": "spacer"},
 	{"type": "heading", "text": "Art"},
-	{"type": "name", "text": "Leonardo AI — CG & Portraits"},
-	{"type": "name", "text": "Procedural Pixel Art — Code Generated"},
+	{"type": "name", "text": "Leonardo AI, CG & Portraits"},
+	{"type": "name", "text": "Procedural Pixel Art, Code Generated"},
 	{"type": "spacer"},
 	{"type": "heading", "text": "Music"},
 	{"type": "name", "text": "Suno / Udio AI"},
 	{"type": "spacer"},
 	{"type": "heading", "text": "Sound Effects"},
-	{"type": "name", "text": "Procedural Audio — Code Generated"},
+	{"type": "name", "text": "Procedural Audio, Code Generated"},
 	{"type": "spacer"},
 	{"type": "spacer"},
 	{"type": "heading", "text": "Engine"},
@@ -81,7 +81,7 @@ func _build_ui() -> void:
 	# 분기별 에필로그 한 줄 추가
 	if GameManager.get_flag("zero_burn_path"):
 		credits.append({"type": "quote", "text": "He burned everything. Even his name."})
-		credits.append({"type": "quote_sub", "text": "But something remained — a shape where a person used to be."})
+		credits.append({"type": "quote_sub", "text": "But something remained, a shape where a person used to be."})
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
 		credits.append({"type": "quote", "text": "What remains is not a man. Just ash, drifting."})
 		credits.append({"type": "quote_sub", "text": "The name survived. Nothing else did."})
@@ -101,7 +101,7 @@ func _build_ui() -> void:
 	credits.append({"type": "heading", "text": "Special Thanks"})
 	credits.append({"type": "name", "text": "The Godot Community"})
 	credits.append({"type": "name", "text": "Everyone who playtested and gave feedback"})
-	credits.append({"type": "name", "text": "To The Moon & LISA — for the inspiration"})
+	credits.append({"type": "name", "text": "To The Moon & LISA, for the inspiration"})
 	credits.append({"type": "name", "text": "All memory keepers who refuse to forget"})
 	credits.append({"type": "spacer"})
 	credits.append({"type": "divider"})

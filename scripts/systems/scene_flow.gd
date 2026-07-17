@@ -1,4 +1,4 @@
-## SceneFlow (Autoload) — VN/Hybrid Scene Runner
+## SceneFlow (Autoload), VN/Hybrid Scene Runner
 ## S60: 삽화 중심 VN 시퀀스 재생기. CG + 포트레이트 + 나레이션으로 스토리를 흐름.
 ## 핵심 앵커(goto_map / goto_battle)에서 탐색/전투 씬으로 핸드오프 후 복귀.
 extends Node
@@ -25,10 +25,10 @@ var pending_start_index: int = 0
 # 로드 캐시
 var _cache: Dictionary = {}
 
-# S149: 챕터 원장 — set_chapter 시점의 연소 수 스냅샷
+# S149: 챕터 원장, set_chapter 시점의 연소 수 스냅샷
 var _ledger_burn_snapshot: int = 0
 
-# S168: VN AUTO 모드 — 씬 인스턴스가 바뀌어도 유지되는 세션 설정
+# S168: VN AUTO 모드, 씬 인스턴스가 바뀌어도 유지되는 세션 설정
 var vn_auto_mode: bool = false
 
 # VN UI 인스턴스
@@ -112,7 +112,7 @@ func prepare_resume_from_save(data: Dictionary) -> void:
 	current_scene = {}
 	current_steps = []
 
-## 외부 진입점 — scene id로 시퀀스 재생
+## 외부 진입점, scene id로 시퀀스 재생
 func play(scene_id: String, start_index: int = 0) -> void:
 	var data = _load_scene(scene_id)
 	if data.is_empty():
@@ -160,12 +160,12 @@ func _run_step() -> void:
 		if next_chapter != GameManager.current_chapter:
 			GameManager.current_chapter = next_chapter
 			MemoryManager.add_chapter_memories(next_chapter)
-		# S149: 챕터 원장 — 연소 스냅샷 (complete_chapter에서 델타 계산)
+		# S149: 챕터 원장, 연소 스냅샷 (complete_chapter에서 델타 계산)
 		_ledger_burn_snapshot = MemoryManager.burned_memories.size()
 	if step.has("complete_chapter"):
 		if has_node("/root/AchievementManager"):
 			AchievementManager.record_chapter_complete(int(step.complete_chapter))
-		# S149: 챕터 원장 오버레이 — 이번 장의 대차대조
+		# S149: 챕터 원장 오버레이, 이번 장의 대차대조
 		_show_chapter_ledger(int(step.complete_chapter))
 	if step.get("autosave_chapter_transition", false) and has_node("/root/SaveManager"):
 		SaveManager.autosave_on_chapter_transition()
@@ -194,7 +194,7 @@ func _run_step() -> void:
 		_handle_action(step)
 		return
 
-	# S61: 기억 왜곡 (Katana ZERO 패턴) — 태운 기억이 있으면 이 씬의 텍스트/CG/포트레이트 교체
+	# S61: 기억 왜곡 (Katana ZERO 패턴), 태운 기억이 있으면 이 씬의 텍스트/CG/포트레이트 교체
 	if step.has("distort_if_burned"):
 		var mid: String = step.distort_if_burned
 		if MemoryManager.is_memory_burned(mid):
@@ -215,7 +215,7 @@ func _run_step() -> void:
 				step["cg"] = step.distorted_cg
 			step["_distorted"] = true  # VN UI에 왜곡 상태 신호
 
-	# 일반 스텝 — VN UI에 위임
+	# 일반 스텝, VN UI에 위임
 	step_changed.emit(step)
 
 ## 액션 (goto_map / goto_battle / goto_scene / end)
@@ -246,7 +246,7 @@ func _handle_action(step: Dictionary) -> void:
 			push_warning("[SceneFlow] Deprecated goto_battle ignored in '%s' at step %d" % [current_id, current_index])
 			advance()
 		"resolve_part3_ending":
-			# S147: Part III 엔딩 허브 — 기억 상태 + 플래그로 최종 엔딩 판정.
+			# S147: Part III 엔딩 허브, 기억 상태 + 플래그로 최종 엔딩 판정.
 			# p3e_<id> 플래그를 세워 ch23/ch24의 requires_flag 블록이 라우팅되게 함.
 			var ending_id: String = GameManager.evaluate_part3_ending()
 			GameManager.set_flag("p3e_%s" % ending_id)
@@ -256,7 +256,7 @@ func _handle_action(step: Dictionary) -> void:
 		"end":
 			_end_scene()
 		"demo_end":
-			# S66: A안 데모 빌드 종료 — 위시리스트 CTA 화면으로
+			# S66: A안 데모 빌드 종료, 위시리스트 CTA 화면으로
 			_close_vn_ui()
 			is_active = false
 			GameManager.change_state(GameManager.GameState.MENU)
@@ -307,7 +307,7 @@ func select_choice(choice_index: int) -> void:
 			return
 	if choice.has("set_flag"):
 		GameManager.set_flag(choice.set_flag)
-	# S149: 복수 플래그 지원 (기억 열쇠 선택지 등 — 분기 플래그 + 열쇠 플래그 동시 설정)
+	# S149: 복수 플래그 지원 (기억 열쇠 선택지 등, 분기 플래그 + 열쇠 플래그 동시 설정)
 	if choice.has("set_flags") and choice.set_flags is Array:
 		for f in choice.set_flags:
 			GameManager.set_flag(String(f))
@@ -341,7 +341,7 @@ func _apply_reward_fields(data: Dictionary) -> void:
 				NotificationToast.show_toast("+%d HP" % actual, NotificationToast.ToastType.SUCCESS)
 
 ## ===================== S149: 챕터 원장 오버레이 =====================
-## 세이블의 장부 모티프 — 챕터가 끝날 때 이번 장의 대차대조를 잠시 보여준다.
+## 세이블의 장부 모티프, 챕터가 끝날 때 이번 장의 대차대조를 잠시 보여준다.
 ## 비차단(클릭 무시), 5초 후 자동 소멸. 누적소실률 게이지 금지 규칙 준수(개수/이름만, 바 없음).
 func _show_chapter_ledger(chapter: int) -> void:
 	if not is_inside_tree():
@@ -387,7 +387,7 @@ func _show_chapter_ledger(chapter: int) -> void:
 	panel.add_child(vbox)
 
 	var title = Label.new()
-	title.text = ("장부 — 제%d장" % chapter) if ko else ("THE LEDGER — CHAPTER %d" % chapter)
+	title.text = ("장부, 제%d장" % chapter) if ko else ("THE LEDGER, CHAPTER %d" % chapter)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 16)
 	title.add_theme_color_override("font_color", Color(0.9, 0.78, 0.5))
@@ -401,12 +401,12 @@ func _show_chapter_ledger(chapter: int) -> void:
 		for m in burned_now:
 			names.append(str(m.title))
 		var joined := ", ".join(names) if names.size() <= 3 else (", ".join(names.slice(0, 3)) + (" 외 %d" % (names.size() - 3) if ko else " +%d more" % (names.size() - 3)))
-		lines.append(("이번 장에서 태운 기억 %d — %s" % [burned_now.size(), joined]) if ko else ("Burned this chapter: %d — %s" % [burned_now.size(), joined]))
+		lines.append(("이번 장에서 태운 기억 %d, %s" % [burned_now.size(), joined]) if ko else ("Burned this chapter: %d, %s" % [burned_now.size(), joined]))
 	lines.append(("아직 온전한 기억: %d" % held) if ko else ("Still held intact: %d" % held))
 	var anchor_line := ("닻: %d/4 · 이름: %s" % [anchors, "온전" if name_intact else "소실"]) if ko \
 		else ("Anchors: %d/4 · The name: %s" % [anchors, "intact" if name_intact else "gone"])
 	lines.append(anchor_line)
-	# 실(thread) 상태 — Weave 경로 가능 여부의 간접 표현 (게이지 금지 규칙)
+	# 실(thread) 상태, Weave 경로 가능 여부의 간접 표현 (게이지 금지 규칙)
 	var thread_ok := MemoryManager.weave_unlocked()
 	lines.append(("실은 아직 이어져 있다." if thread_ok else "실이 닳아 가고 있다.") if ko \
 		else ("The thread still holds." if thread_ok else "The thread is fraying."))
@@ -429,7 +429,7 @@ func _show_chapter_ledger(chapter: int) -> void:
 	tw.tween_interval(4.6)
 	tw.tween_property(panel, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN)
 	tw.tween_callback(overlay.queue_free)
-	print("[SceneFlow] Chapter ledger shown — ch%d, burned %d, held %d, anchors %d/4" % [chapter, burned_now.size(), held, anchors])
+	print("[SceneFlow] Chapter ledger shown, ch%d, burned %d, held %d, anchors %d/4" % [chapter, burned_now.size(), held, anchors])
 
 ## ===================== 내부 =====================
 
@@ -447,7 +447,7 @@ func _load_scene(scene_id: String) -> Dictionary:
 	file.close()
 
 	if err != OK:
-		push_error("[SceneFlow] JSON parse error: %s — %s" % [path, json.get_error_message()])
+		push_error("[SceneFlow] JSON parse error: %s, %s" % [path, json.get_error_message()])
 		return {}
 
 	var data = json.data

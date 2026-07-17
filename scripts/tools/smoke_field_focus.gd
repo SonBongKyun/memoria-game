@@ -4,6 +4,9 @@ func _ready() -> void:
 	GameManager.player_data["field_focus"] = 0
 	GameManager.story_flags.erase("pulse_found_smoke_echo")
 	assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size() == MemoryResonance.RESONANCE_POINTS.size(), "Every resonance map should register a Field Focus CG")
+	assert(MemoryResonance.RESONANCE_CHOICE_ART.size() == 3, "Resonance should expose every meaningful player choice")
+	for choice_art in MemoryResonance.RESONANCE_CHOICE_ART.values():
+		assert(ResourceLoader.exists(String(choice_art)), "Resonance choice art must resolve: %s" % choice_art)
 	for map_key in MemoryResonance.RESONANCE_POINTS:
 		assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.has(map_key), "Field Focus CG missing for %s" % map_key)
 	for entry in MemoryResonance.FIELD_FOCUS_CG_BY_MAP.values():
@@ -30,6 +33,8 @@ func _ready() -> void:
 	assert(BattleManager.field_focus_opening, "Battle should mark the focus opening")
 	assert(is_equal_approx(BattleManager.momentum, 25.0), "Focus should start at 25 resonance")
 	assert(is_equal_approx(BattleManager.limit_gauge, 20.0), "Focus should start at 20 limit")
+	assert(BattleManager.tactical_objective.is_empty(), "A field directive must remain player-chosen before the first action")
+	assert(BattleManager.tactical_objective_options.size() == 3, "Field Focus must unlock a third directive reading")
 
-	print("FIELD_FOCUS_SMOKE_PASS maps=%d count=1 resonance=25 limit=20" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
+	print("FIELD_FOCUS_SMOKE_PASS maps=%d count=1 resonance=25 limit=20 directives=3" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
 	get_tree().quit(0)

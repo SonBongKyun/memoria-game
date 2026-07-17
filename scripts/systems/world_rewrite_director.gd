@@ -69,6 +69,38 @@ const MEMORY_REWRITE_RULES := {
 		"color": Color(0.62, 0.54, 0.72),
 		"art": "res://assets/cg/generated/world_rewrite_sable_witness.png"
 	},
+	"sense_forest_smell": {
+		"flag": "world_rewrite_forest_scent_thinned",
+		"title": "Forest Scent Thinned",
+		"line": "The rain still darkens the roots, but the trail no longer has a smell to lead him home.",
+		"compass": "Rim weather contour unmoored.",
+		"color": Color(0.52, 0.70, 0.88),
+		"art": "res://assets/cg/generated/memory_rewrite_forest_scent_v2.png"
+	},
+	"rel_ghost_words": {
+		"flag": "world_rewrite_ghost_words_silenced",
+		"title": "Ghost Words Silenced",
+		"line": "The hollow keeps its shape, but the unfinished voice has lost the way back to him.",
+		"compass": "Forest witness contour hollowed.",
+		"color": Color(0.74, 0.64, 0.86),
+		"art": "res://assets/cg/generated/memory_rewrite_ghost_words_v2.png"
+	},
+	"identity_compass": {
+		"flag": "world_rewrite_compass_unmapped",
+		"title": "Compass Identity Unmapped",
+		"line": "The pull remains beneath his sternum, but the direction now feels like a question asked in someone else's voice.",
+		"compass": "Colorless route no longer confirms north.",
+		"color": Color(0.56, 0.78, 0.96),
+		"art": "res://assets/cg/generated/memory_rewrite_compass_v2.png"
+	},
+	"identity_void_walker": {
+		"flag": "world_rewrite_void_walker_blurred",
+		"title": "Void Walker Blurred",
+		"line": "One footprint survives the Void's pressure, but he no longer remembers why he knew to place it there.",
+		"compass": "BL-07 passage contour weakened.",
+		"color": Color(0.62, 0.48, 0.90),
+		"art": "res://assets/cg/generated/memory_rewrite_void_walker_v2.png"
+	},
 }
 
 const DEFAULT_LINES := {
@@ -356,7 +388,7 @@ func _grade_color(grade: int) -> Color:
 func _fallback_art_for_grade(grade: int) -> String:
 	if grade >= MemoryManager.MemoryGrade.GRADE_2:
 		return "res://assets/cg/generated/memory_burn_arrel_name.png"
-	return "res://assets/cg/generated/ui_loss_record_blank_book.png"
+	return "res://assets/cg/generated/ui_loss_record_blank_book_v2.png"
 
 func _grade_name(grade: int) -> String:
 	match grade:

@@ -199,6 +199,8 @@ func _on_new_game_pressed() -> void:
 		"hp": 100,
 		"max_hp": 100,
 		"grains": 0,
+		"field_focus": 0,
+		"directive_streak": 0,
 		"elia_with_party": true,
 		"items": {"witness_ink": 1},
 	}
@@ -220,6 +222,8 @@ func _on_aftermath_preview_pressed() -> void:
 		"hp": 100,
 		"max_hp": 100,
 		"grains": 0,
+		"field_focus": 0,
+		"directive_streak": 0,
 		"elia_with_party": true,
 		"items": {"witness_ink": 1},
 	}

@@ -11,53 +11,53 @@ const DIALOGUE_FRAME_PATH: String = "res://assets/cg/generated/ui_dialogue_ornat
 
 # 포트레이트 이미지 매핑 (portrait 키 -> 파일 경로)
 const PORTRAIT_MAP: Dictionary = {
-	"arrel_neutral": "res://assets/portraits/arrel_face_neutral.png",
-	"arrel_side": "res://assets/portraits/arrel_face_neutral.png",
+	"arrel_neutral": "res://assets/portraits/character_shots/arrel_story_v2.png",
+	"arrel_side": "res://assets/portraits/character_shots/arrel_story_v2.png",
 	"arrel_wounded": "res://assets/portraits/arrel_face_memory_fading.png",
 	"arrel_angry": "res://assets/portraits/arrel_face_angry.png",
 	"arrel_pain": "res://assets/portraits/arrel_face_shocked.png",
 	"arrel_determined": "res://assets/portraits/arrel_face_determined.png",
 	"arrel_sad": "res://assets/portraits/arrel_face_sad.png",
 	"arrel_cold": "res://assets/portraits/arrel_face_memory_fading.png",
-	"arrel_rage": "res://assets/portraits/arrel_face_angry.png",
-	"arrel_pensive": "res://assets/portraits/arrel_face_neutral.png",
-	"arrel_battle": "res://assets/portraits/arrel_face_battle_ready.png",
+	"arrel_rage": "res://assets/portraits/character_shots/arrel_battle_v3.png",
+	"arrel_pensive": "res://assets/portraits/character_shots/arrel_story_v2.png",
+	"arrel_battle": "res://assets/portraits/character_shots/arrel_battle_v3.png",
 	"arrel_shocked": "res://assets/portraits/arrel_face_shocked.png",
 	"arrel_soft_smile": "res://assets/portraits/arrel_face_soft_smile.png",
-	"elia_neutral": "res://assets/portraits/elia_face_neutral.png",
+	"elia_neutral": "res://assets/portraits/character_shots/elia_story_v2.png",
 	"elia_concern": "res://assets/portraits/elia_face_worried.png",
 	"elia_worried": "res://assets/portraits/elia_face_worried.png",
 	"elia_hopeful": "res://assets/portraits/elia_face_gentle_smile.png",
 	"elia_gentle_smile": "res://assets/portraits/elia_face_gentle_smile.png",
 	"elia_sad": "res://assets/portraits/elia_face_sad.png",
-	"elia_determined": "res://assets/portraits/elia_face_determined.png",
-	"elia_calm": "res://assets/portraits/elia_face_neutral.png",
-	"elia_side": "res://assets/portraits/elia_face_neutral.png",
-	"elia_void": "res://assets/portraits/elia_face_healing_focus.png",
+	"elia_determined": "res://assets/portraits/character_shots/elia_anchor_v3.png",
+	"elia_calm": "res://assets/portraits/character_shots/elia_story_v2.png",
+	"elia_side": "res://assets/portraits/character_shots/elia_story_v2.png",
+	"elia_void": "res://assets/portraits/character_shots/elia_anchor_v3.png",
 	"malet_neutral": "res://assets/portraits/malet_face_neutral.png",
 	"malet_desk": "res://assets/portraits/malet_face_calculating.png",
 	"mallet_neutral": "res://assets/portraits/malet_face_neutral.png",
 	"mallet_desk": "res://assets/portraits/malet_face_calculating.png",
-	"kairos_neutral": "res://assets/portraits/kairos_face_neutral.png",
-	"sable_neutral": "res://assets/portraits/sable_face_neutral.png",
-	"sable_calm": "res://assets/portraits/sable_face_calm.png",
-	"nera_neutral": "res://assets/portraits/nera_face_neutral.png",
-	"seric_neutral": "res://assets/portraits/seric_face_neutral.png",
-	"tobias_neutral": "res://assets/portraits/tobias_face_neutral.png",
+	"kairos_neutral": "res://assets/portraits/character_shots/kairos_story_v2.png",
+	"sable_neutral": "res://assets/portraits/character_shots/sable_story_v2.png",
+	"sable_calm": "res://assets/portraits/character_shots/sable_story_v2.png",
+	"nera_neutral": "res://assets/portraits/character_shots/nera_story_v2.png",
+	"seric_neutral": "res://assets/portraits/character_shots/seric_story_v2.png",
+	"tobias_neutral": "res://assets/portraits/character_shots/tobias_story_v2.png",
 	# S47: 신규 포트레이트 19장
-	"arrel_default2": "res://assets/portraits/arrel_face_neutral.png",
+	"arrel_default2": "res://assets/portraits/character_shots/arrel_story_v2.png",
 	"arrel_cold2": "res://assets/portraits/arrel_face_memory_fading.png",
-	"arrel_heroic": "res://assets/portraits/arrel_face_battle_ready.png",
+	"arrel_heroic": "res://assets/portraits/character_shots/arrel_battle_v3.png",
 	"arrel_wounded2": "res://assets/portraits/arrel_face_memory_fading.png",
 	"arrel_burn": "res://assets/portraits/arrel_face_memory_fading.png",
 	"arrel_exhausted": "res://assets/portraits/arrel_face_sad.png",
 	"elia_wind": "res://assets/portraits/elia_face_gentle_smile.png",
-	"elia_default2": "res://assets/portraits/elia_face_neutral.png",
-	"elia_void2": "res://assets/portraits/elia_face_healing_focus.png",
-	"elia_calm2": "res://assets/portraits/elia_face_neutral.png",
+	"elia_default2": "res://assets/portraits/character_shots/elia_story_v2.png",
+	"elia_void2": "res://assets/portraits/character_shots/elia_anchor_v3.png",
+	"elia_calm2": "res://assets/portraits/character_shots/elia_story_v2.png",
 	"elia_wind2": "res://assets/portraits/elia_face_gentle_smile.png",
 	"elia_mature": "res://assets/portraits/elia_face_memory_restoration.png",
-	"nera_bureau": "res://assets/portraits/nera_face_bureau.png",
+	"nera_bureau": "res://assets/portraits/character_shots/nera_dossier_v3.png",
 	"malet_smirk": "res://assets/portraits/malet_face_amused.png",
 	"malet_casual": "res://assets/portraits/malet_face_smile.png",
 	"malet_smile": "res://assets/portraits/malet_face_smile.png",
@@ -76,17 +76,17 @@ const PORTRAIT_MAP: Dictionary = {
 	"mallet_warning": "res://assets/portraits/malet_face_warning.png",
 	"mallet_deal_accepted": "res://assets/portraits/malet_face_deal_accepted.png",
 	"mallet_price_revealed": "res://assets/portraits/malet_face_price_revealed.png",
-	"seric_clipboard": "res://assets/portraits/seric_face_clipboard.png",
-	"sable_portrait": "res://assets/portraits/sable_face_neutral.png",
-	"sable_determined": "res://assets/portraits/sable_face_calm.png",
-	"kairos_portrait": "res://assets/portraits/kairos_face_neutral.png",
-	"tobias_uniform": "res://assets/portraits/tobias_face_uniform.png",
-	"veil_neutral": "res://assets/cg/game_image/veil_fullbody.png",
-	"veil_portrait": "res://assets/cg/game_image/veil_fullbody.png",
+	"seric_clipboard": "res://assets/portraits/character_shots/seric_handler_v3.png",
+	"sable_portrait": "res://assets/portraits/character_shots/sable_story_v2.png",
+	"sable_determined": "res://assets/portraits/character_shots/sable_warden_v3.png",
+	"kairos_portrait": "res://assets/portraits/character_shots/kairos_story_v2.png",
+	"tobias_uniform": "res://assets/portraits/character_shots/tobias_ledger_v3.png",
+	"veil_neutral": "res://assets/portraits/character_shots/veil_story_v2.png",
+	"veil_portrait": "res://assets/portraits/character_shots/veil_recon_v3.png",
 	# S53: 카이로스/토비아스 추가 포트레이트
-	"kairos_cold": "res://assets/portraits/kairos_face_neutral.png",
-	"kairos_amused": "res://assets/portraits/kairos_face_neutral.png",
-	"tobias_concerned": "res://assets/portraits/tobias_face_neutral.png",
+	"kairos_cold": "res://assets/portraits/character_shots/kairos_edit_v3.png",
+	"kairos_amused": "res://assets/portraits/character_shots/kairos_edit_v3.png",
+	"tobias_concerned": "res://assets/portraits/character_shots/tobias_ledger_v3.png",
 }
 const DEFAULT_PORTRAITS: Dictionary = {
 	"Arrel": "arrel_neutral",
@@ -101,14 +101,14 @@ const DEFAULT_PORTRAITS: Dictionary = {
 	"Veil": "veil_neutral",
 }
 const SPEAKER_STAGE_ART: Dictionary = {
-	"Arrel": "res://assets/portraits/arrel_face_neutral.png",
-	"Elia": "res://assets/portraits/elia_face_neutral.png",
-	"Sable": "res://assets/portraits/sable_face_calm.png",
-	"Kairos": "res://assets/cg/game_image/kairos_fullbody.png",
-	"Nera": "res://assets/cg/game_image/nera_fullbody.png",
-	"Seric": "res://assets/portraits/seric_face_clipboard.png",
-	"Tobias": "res://assets/cg/game_image/tobias_fullbody.png",
-	"Veil": "res://assets/cg/game_image/veil_fullbody.png",
+	"Arrel": "res://assets/portraits/character_shots/arrel_story_v2.png",
+	"Elia": "res://assets/portraits/character_shots/elia_story_v2.png",
+	"Sable": "res://assets/portraits/character_shots/sable_story_v2.png",
+	"Kairos": "res://assets/portraits/character_shots/kairos_story_v2.png",
+	"Nera": "res://assets/portraits/character_shots/nera_story_v2.png",
+	"Seric": "res://assets/portraits/character_shots/seric_story_v2.png",
+	"Tobias": "res://assets/portraits/character_shots/tobias_story_v2.png",
+	"Veil": "res://assets/portraits/character_shots/veil_story_v2.png",
 	"Malet": "res://assets/cg/game_image/malet_fullbody_stage.png",
 	"Mallet": "res://assets/cg/game_image/malet_fullbody_stage.png",
 }
@@ -123,6 +123,22 @@ const SPEAKER_STAGE_SIDE: Dictionary = {
 	"Seric": "right",
 	"Tobias": "right",
 	"Veil": "right",
+}
+const STAGE_VARIANT_ART: Dictionary = {
+	"arrel_rage": "res://assets/portraits/character_shots/arrel_battle_v3.png",
+	"arrel_battle": "res://assets/portraits/character_shots/arrel_battle_v3.png",
+	"arrel_heroic": "res://assets/portraits/character_shots/arrel_battle_v3.png",
+	"elia_determined": "res://assets/portraits/character_shots/elia_anchor_v3.png",
+	"elia_void": "res://assets/portraits/character_shots/elia_anchor_v3.png",
+	"elia_void2": "res://assets/portraits/character_shots/elia_anchor_v3.png",
+	"tobias_uniform": "res://assets/portraits/character_shots/tobias_ledger_v3.png",
+	"tobias_concerned": "res://assets/portraits/character_shots/tobias_ledger_v3.png",
+	"sable_determined": "res://assets/portraits/character_shots/sable_warden_v3.png",
+	"kairos_cold": "res://assets/portraits/character_shots/kairos_edit_v3.png",
+	"kairos_amused": "res://assets/portraits/character_shots/kairos_edit_v3.png",
+	"nera_bureau": "res://assets/portraits/character_shots/nera_dossier_v3.png",
+	"seric_clipboard": "res://assets/portraits/character_shots/seric_handler_v3.png",
+	"veil_portrait": "res://assets/portraits/character_shots/veil_recon_v3.png",
 }
 const DISABLE_STAGE_ART_SPEAKERS: Dictionary = {
 	"Arrel": true,
@@ -367,7 +383,7 @@ func _process(delta: float) -> void:
 			viewport.canvas_transform.origin = Vector2.ZERO
 
 ## S55: Start auto-advance countdown if the current line is narration (no speaker)
-## S169: 전체 AUTO 모드(VN과 공유) — 켜져 있으면 모든 라인을 읽기 시간 후 자동 진행
+## S169: 전체 AUTO 모드(VN과 공유), 켜져 있으면 모든 라인을 읽기 시간 후 자동 진행
 func _start_auto_advance_if_narration() -> void:
 	if choice_container.visible:
 		return
@@ -622,7 +638,7 @@ func _build_ui() -> void:
 	divider.color = Color(0.55, 0.45, 0.3, 0.28)
 	text_area.add_child(divider)
 
-	# 대사 텍스트 — S55: BBCode enabled for emphasis
+	# 대사 텍스트, S55: BBCode enabled for emphasis
 	text_label = RichTextLabel.new()
 	text_label.bbcode_enabled = true
 	text_label.fit_content = false
@@ -952,6 +968,8 @@ func _on_choice_selected(index: int) -> void:
 func _get_stage_art_path(speaker: String, portrait_key: String) -> String:
 	if DISABLE_STAGE_ART_SPEAKERS.has(speaker):
 		return ""
+	if portrait_key != "" and STAGE_VARIANT_ART.has(portrait_key):
+		return String(STAGE_VARIANT_ART[portrait_key])
 	if SPEAKER_STAGE_ART.has(speaker):
 		return SPEAKER_STAGE_ART[speaker]
 	if portrait_key != "" and PORTRAIT_MAP.has(portrait_key):
@@ -1230,7 +1248,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not DialogueManager.is_active:
 		return
 
-	# S169: AUTO 모드 토글 (VN과 상태 공유) — A키
+	# S169: AUTO 모드 토글 (VN과 상태 공유), A키
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_A and not choice_container.visible:
 		SceneFlow.vn_auto_mode = not SceneFlow.vn_auto_mode
 		_auto_advance_active = false

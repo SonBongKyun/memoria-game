@@ -15,6 +15,39 @@
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
 
+## S200 chapter-by-chapter story expansion
+
+Fifty new 16:9 story CGs were generated with built-in GPT Image and integrated as five additional illustrated beats in every existing Part I chapter. All final images live under `assets/cg/generated/chapter_expansion/`; rejected identity-drift drafts remain outside the project.
+
+| Chapter | New story CGs | Narrative coverage |
+|---|---|---|
+| 1 | `ch01_burn_afterimage_v1.png`, `ch01_ash_touch_v1.png`, `ch01_muscle_memory_reach_v1.png`, `ch01_hidden_initials_v1.png`, `ch01_memory_shrine_amber_v1.png` | First burn, ash memory, Elia recognition, A/E initials, amber shrine |
+| 2 | `ch02_bottled_memories_market_v1.png`, `ch02_sump_waiting_alcoves_v1.png`, `ch02_malet_from_gray_v1.png`, `ch02_first_sword_empty_space_v1.png`, `ch02_nameless_burner_v1.png` | Memory commerce, Sump atmosphere, Malet, first sale, burnout cost |
+| 3 | `ch03_waystation_haze_v1.png`, `ch03_tobias_accounting_v1.png`, `ch03_blank_book_warmth_v1.png`, `ch03_class_seven_wall_v1.png`, `ch03_three_on_belt_v1.png` | Waystation arrival, Tobias, Blank Book, Bureau classification, party departure |
+| 4 | `ch04_memory_rain_shelter_v1.png`, `ch04_words_move_v1.png`, `ch04_anchor_tea_thread_v1.png`, `ch04_burner_classification_v1.png`, `ch04_table_for_three_memory_v1.png` | Memory rain, reading loss, anchoring, Burner classes, home flashback |
+| 5 | `ch05_city_in_bedrock_v1.png`, `ch05_kairos_ridge_observer_v1.png`, `ch05_warm_stone_echo_v1.png`, `ch05_anchor_parting_paths_v1.png`, `ch05_first_impossible_color_v1.png` | Buried city, Kairos sighting, coastal residue, separation, restored color |
+| 6 | `ch06_seam_living_streets_v1.png`, `ch06_sable_map_briefing_v1.png`, `ch06_impossible_garden_v1.png`, `ch06_stars_forgetting_v1.png`, `ch06_bl07_wound_edge_v1.png` | Living refuge, Sable briefing, remembered flower, night plea, BL-07 wound |
+| 7 | `ch07_threshold_ridgeline_v1.png`, `ch07_sable_cleaner_confession_v1.png`, `ch07_controlled_burn_trial_v1.png`, `ch07_twelve_names_memorial_v1.png`, `ch07_echo_shell_voices_v1.png` | Map boundary, Cleaner past, burn trial, memorial, Echo Shell voices |
+| 8 | `ch08_memory_forest_entry_v1.png`, `ch08_ghost_child_name_v1.png`, `ch08_ring_acceleration_v1.png`, `ch08_ghost_mother_search_v1.png`, `ch08_parasitic_heart_v1.png` | Forest entry, nameless child, Ring Theory, searching mother, parasitic core |
+| 9 | `ch09_equalized_waste_v1.png`, `ch09_living_compass_v1.png`, `ch09_kairos_convergence_model_v1.png`, `ch09_depth_markers_v1.png`, `ch09_first_void_witness_v1.png` | Flattened Waste, living compass, Kairos model, depth rings, first Void memory |
+| 10 | `ch10_absence_path_v1.png`, `ch10_borrowed_grief_v1.png`, `ch10_orphaned_lives_v1.png`, `ch10_before_core_confession_v1.png`, `ch10_name_or_weave_choice_v1.png` | Remembered stone, borrowed grief, preserved lives, core confession, final choice |
+
+`data/chapter_expansion_gallery.json` is the single placement and Artbook manifest. It records each image's chapter, story anchor, and presentation metadata so additions can be validated without expanding the pause menu's compiled constant.
+
+## S201 archive interface and field-item visual upgrade
+
+Sixteen final GPT Image assets extend the established charcoal, black-blue, aged-bronze, muted-gold, pale-cyan memory, and restrained-violet interface language. Every background is text-free and reserves calm surfaces for runtime typography. Every isolated icon was generated on flat magenta, converted to RGBA, despilled, and audited for visible key-color pixels.
+
+| Runtime role | Final assets | Integration |
+|---|---|---|
+| Core archive surfaces | `ui_pause_archive_backdrop_v2.png`, `ui_inventory_archive_v2.png`, `ui_character_status_dossier_v1.png` | Pause hub, carried-supply archive, and character/play-statistics dossier |
+| Records and trade | `ui_codex_archive_backdrop_v2.png`, `ui_story_journal_backdrop_v3.png`, `ui_memory_shop_backdrop_v2.png` | Codex, Story Journal, and Malet's memory exchange |
+| Battle supply surface | `ui_battle_item_tray_v3.png` | Transparent tactical item tray that preserves the battlefield, objective card, enemy state, and command grid |
+| Upgraded atlas rewards | `root_balm_v2.png`, `signal_jammer_v2.png`, `lantern_salve_v2.png`, `name_thread_v2.png`, `compass_shard_v2.png`, `seed_capsule_v2.png` | Replaces the lower-resolution S187 item icons in inventory, shop, drops, and combat |
+| Equipment dossier emblems | `slot_weapon_v1.png`, `slot_armor_v1.png`, `slot_accessory_v1.png` | Weapon, armor, and accessory records in the inventory loadout row |
+
+`data/interface_visual_gallery.json` is the 16-entry Artbook manifest. The inventory now supplies four category filters, deterministic type ordering, HP/Grains/memory/chapter telemetry, concise mechanical effect copy, and icon-led equipment cards. The character dossier reuses Arrel's canonical story portrait. The first opaque battle-tray layout was not connected to gameplay; the live v3 tray uses isolated alpha so the scene behind it remains visible.
+
 ## S187 atlas expansion: maps, field roster, and reward items
 
 | Set | Assets | Gameplay coverage | Art direction |
@@ -416,3 +449,15 @@ The consumables were generated as a single coherent six-icon set on a flat chrom
 | `chapter8_dialogue` / `elia_anchor_strain` | Elia holds Arrel's name beneath the forest roots | `story_ch8_anchor_under_roots_v2.png` | `story_ch8_eighteenth_ring.png` |
 
 The prior four S181 plates were removed after a direct art-style audit. Their replacements were generated with built-in GPT Image 2 against the established in-game plates above: fine charcoal linework, muted iron-blue/umber values, grounded proportions, restrained warm light, and no fabricated dialogue band. All four attach to the same narrative line without changing event order, choice indexes, or Korean localization. Tobias retains his dark hair, wire spectacles, and ink-stained archivist look; Arrel retains short silver hair and blue-black gear; Elia retains her honey-blonde bob, white-gold clothing, and navy cape; Sable remains elderly and blind. Prompts exclude text, watermarks, film or photo grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, excessive bloom, dense fog, and visibility-obscuring particles.
+
+## S198 field-cast and interface style unification
+
+| Runtime role | Replacement | Integration |
+|---|---|---|
+| Child civilian field archetype | `coast_lantern_child_field_v2.png` | All world-population names containing `Child`; shared 42px apparent-height profile |
+| Loss-record fallback | `ui_loss_record_blank_book_v2.png` | World-rewrite loss plate and save-record chapter fallback |
+| Memory Compass close-up | `ui_memory_compass_close_v2.png` | Exploration Memory Compass art plate |
+| Battle support cast | `elia_anchor_v3.png`, `sable_warden_v3.png`, `tobias_ledger_v3.png` | Battle-stage portraits and Artbook |
+| Bureau/recon enemy cast | `nera_dossier_v3.png`, `tobias_ledger_v3.png`, `veil_recon_v3.png` | BattleManager named-character image resolution |
+
+The two flat brown UI drafts and six mismatched transparent anime-style full-body drafts were removed after all live references moved to the established charcoal, iron-blue, antique-brass, and violet-memory visual language. Ambient civilians now resolve through seven coherent field archetypes instead of mixing twenty-four unrelated texture treatments. Imported player, companion, named-NPC, and ambient-NPC art is normalized from its alpha bounds to a common visible height, centered silhouette, foot baseline, and linear low-noise sampling profile.

@@ -39,7 +39,7 @@ func _ready() -> void:
 	_build_save_indicator()
 	# Connect to chapter transitions and boss battles for autosave
 	_connect_autosave_signals()
-	print("[SaveManager] Ready — save dir: %s (autosave every %ds)" % [SAVE_DIR, int(AUTOSAVE_INTERVAL)])
+	print("[SaveManager] Ready, save dir: %s (autosave every %ds)" % [SAVE_DIR, int(AUTOSAVE_INTERVAL)])
 
 func _process(delta: float) -> void:
 	_update_map_checkpoint(delta)
@@ -176,8 +176,18 @@ func load_game(slot: int) -> bool:
 	if save_data == null:
 		return false
 
-	# S72: Codex 살린 부분 — 구버전 세이브 마이그레이션
+	# S72: Codex 살린 부분, 구버전 세이브 마이그레이션
 	save_data = _migrate_save_data(save_data)
+
+	# Validate the destination before importing mutable game state. A damaged or
+	# obsolete path must not leave the current session only partially loaded.
+	var scene_path: String = String(save_data.get("scene", ""))
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path, "PackedScene"):
+		var scene_error := "Save slot %d points to a missing scene: %s" % [slot, scene_path]
+		push_warning("[SaveManager] %s" % scene_error)
+		save_failed.emit(scene_error)
+		NotificationToast.show_toast("Save could not be loaded: missing scene", NotificationToast.ToastType.WARNING)
+		return false
 
 	# 게임 데이터 복원
 	if save_data.has("game"):
@@ -193,7 +203,6 @@ func load_game(slot: int) -> bool:
 		TutorialHints.import_data(save_data.tutorial_hints)
 
 	# Restore VN identifiers/indices before changing scenes so VNHost can resume safely.
-	var scene_path: String = String(save_data.get("scene", ""))
 	var scene_flow_data: Dictionary = save_data.get("scene_flow", {})
 	if scene_path == "res://scenes/main/vn_host.tscn":
 		SceneFlow.prepare_resume_from_save(scene_flow_data)
@@ -207,28 +216,27 @@ func load_game(slot: int) -> bool:
 	_last_save_time = save_data.get("unix_time", Time.get_unix_time_from_system())
 
 	# 씬 전환
-	if scene_path != "" and ResourceLoader.exists(scene_path):
-		SceneTransition.change_scene_styled(scene_path)
+	SceneTransition.change_scene_styled(scene_path)
 
 	print("[SaveManager] Loaded slot %d (saved: %s)" % [slot, save_data.get("timestamp", "?")])
 	load_completed.emit(slot)
 	return true
 
-## S56: Load JSON with corruption recovery — tries .bak if main fails
+## S56: Load JSON with corruption recovery, tries .bak if main fails
 func _load_json_with_recovery(path: String, slot: int) -> Variant:
 	# Try primary file first
 	var data = _try_parse_json(path)
 	if data != null:
 		return data
 
-	# Primary file failed — try backup
+	# Primary file failed, try backup
 	var bak_path = path + ".bak"
 	push_warning("[SaveManager] Primary save corrupted for slot %d, trying backup..." % slot)
 
 	if FileAccess.file_exists(bak_path):
 		data = _try_parse_json(bak_path)
 		if data != null:
-			# Recovery successful — notify player
+			# Recovery successful, notify player
 			NotificationToast.show_toast("Save recovered from backup (slot %d)" % slot, NotificationToast.ToastType.WARNING)
 			# Restore the backup as the primary save
 			var bak_file = FileAccess.open(bak_path, FileAccess.READ)
@@ -245,7 +253,7 @@ func _load_json_with_recovery(path: String, slot: int) -> Variant:
 
 	# Both failed
 	NotificationToast.show_toast("Save data corrupted (slot %d)" % slot, NotificationToast.ToastType.WARNING)
-	push_error("[SaveManager] Failed to load slot %d — both primary and backup corrupted" % slot)
+	push_error("[SaveManager] Failed to load slot %d, both primary and backup corrupted" % slot)
 	return null
 
 ## S56: Try to parse a JSON file, return null on failure
@@ -267,7 +275,7 @@ func _try_parse_json(path: String) -> Variant:
 		return json.data
 	return null
 
-## S72: 구버전 세이브 호환 — 누락 키 보강 + 버전 스탬프 갱신
+## S72: 구버전 세이브 호환, 누락 키 보강 + 버전 스탬프 갱신
 const SAVE_VERSION: String = "0.3.0"
 
 func _migrate_save_data(data: Dictionary) -> Dictionary:
@@ -500,7 +508,7 @@ func cloud_save(slot: int) -> bool:
 	#         push_warning("[SaveManager] Cloud save failed for slot %d" % slot)
 	#     return success
 
-	print("[SaveManager] Cloud save stub — local save only (slot %d)" % slot)
+	print("[SaveManager] Cloud save stub, local save only (slot %d)" % slot)
 	return local_ok
 
 ## Load save data from Steam Cloud (falls back to local if unavailable).
@@ -529,10 +537,10 @@ func cloud_load(slot: int) -> bool:
 	# print("[SaveManager] Cloud load slot %d synced (%d bytes)" % [slot, file_size])
 	# return load_game(slot)
 
-	print("[SaveManager] Cloud load stub — local load only (slot %d)" % slot)
+	print("[SaveManager] Cloud load stub, local load only (slot %d)" % slot)
 	return load_game(slot)
 
-## Get cloud save info (for save slot UI — show cloud icon if synced).
+## Get cloud save info (for save slot UI, show cloud icon if synced).
 func has_cloud_save(slot: int) -> bool:
 	if not is_cloud_available():
 		return false

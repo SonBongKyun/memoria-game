@@ -1,4 +1,4 @@
-## Colorless Waste — 무색 황무지 (Chapter 9: Where Colors Stop)
+## Colorless Waste, 무색 황무지 (Chapter 9: Where Colors Stop)
 ## 색이 사라진 BL-07 경계. 카이로스 대면 + 메모리 나침반 획득.
 ## 북쪽으로 진행하면 BL-07 내부(Ch10)로 이동.
 extends Node2D
@@ -49,7 +49,7 @@ func _ready() -> void:
 	_build_map()
 	MapEffects.add_vignette(self, 0.36)
 	MapEffects.add_burn_desaturation(self)
-	# 완전 탈색 — 무색 황무지
+	# 완전 탈색, 무색 황무지
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.12), "far": Color(0.15, 0.15, 0.15), "mid": Color(0.18, 0.18, 0.18), "biome": "waste", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	MapEffects.add_ambient_lighting(self, Color(0.44, 0.44, 0.45))
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.3, 0.3, 0.3, 0.08), 30)
@@ -75,7 +75,7 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("colorless_waste")
 	elia.repeat_line = "Hold my hand. Don't let go."
 	sable_npc.repeat_line = "Follow the pull. It's the only direction left."
-	print("[ColorlessWaste] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[ColorlessWaste] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
@@ -178,7 +178,7 @@ func _depart_waste() -> void:
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 10
 	SaveManager.autosave_on_chapter_transition()
-	print("[ColorlessWaste] Chapter 9 complete — entering BL-07")
+	print("[ColorlessWaste] Chapter 9 complete, entering BL-07")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/bl07_void.tscn", 9)

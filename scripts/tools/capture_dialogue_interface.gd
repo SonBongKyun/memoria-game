@@ -32,10 +32,11 @@ func _ready() -> void:
 	DialogueBox.call("_refresh_indicator_text")
 	await get_tree().process_frame
 
-	assert(DialogueBox.text_label.get_theme_font("normal_font").font_names[0] == "Noto Serif KR")
+	var dialogue_font := DialogueBox.text_label.get_theme_font("normal_font") as FontFile
+	assert(dialogue_font != null and dialogue_font.resource_path == UITheme.BODY_FONT_PATH)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://tmp/visual_audit"))
 	var image := get_viewport().get_texture().get_image()
 	var result := image.save_png(ProjectSettings.globalize_path(OUTPUT_PATH))
 	assert(result == OK)
-	print("DIALOGUE_INTERFACE_CAPTURE_PASS path=%s font=%s" % [OUTPUT_PATH, DialogueBox.text_label.get_theme_font("normal_font").font_names[0]])
+	print("DIALOGUE_INTERFACE_CAPTURE_PASS path=%s font=%s" % [OUTPUT_PATH, dialogue_font.resource_path])
 	get_tree().quit(0)

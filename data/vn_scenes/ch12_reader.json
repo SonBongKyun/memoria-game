@@ -1,6 +1,6 @@
 {
   "id": "ch12_reader",
-  "title": "Chapter 12 — The Reader",
+  "title": "Chapter 12, The Reader",
   "chapter": 12,
   "steps": [
     {
@@ -158,13 +158,13 @@
       "requires_flag": "ch12_faces_key",
       "cg": "res://assets/cg/generated/memory_key_verdan_passage.png",
       "fade": 0.8,
-      "narrate": "At the mouth of the vendor row, the spice seller met his eyes for half a second — the way you greet a regular you will not name — and tipped her awning toward a shuttered stall with a loose back panel. Being remembered, it turned out, was also a place to hide.",
-      "narrate_ko": "노점 줄 초입에서 향신료 상인이 반 초쯤 그와 눈을 맞췄다 — 이름을 대지 않을 단골을 맞이하는 방식으로 — 그리고 차양을 기울여, 뒤판이 헐거운 셔터 내린 좌판을 가리켰다. 기억된다는 것은, 알고 보니 숨을 곳이기도 했다."
+      "narrate": "At the mouth of the vendor row, the spice seller met his eyes for half a second, the way you greet a regular you will not name, and tipped her awning toward a shuttered stall with a loose back panel. Being remembered, it turned out, was also a place to hide.",
+      "narrate_ko": "노점 줄 초입에서 향신료 상인이 반 초쯤 그와 눈을 맞췄다, 이름을 대지 않을 단골을 맞이하는 방식으로, 그리고 차양을 기울여, 뒤판이 헐거운 셔터 내린 좌판을 가리켰다. 기억된다는 것은, 알고 보니 숨을 곳이기도 했다."
     },
     {
       "action": "goto_scene",
       "id": "ch13_third_person"
     }
   ],
-  "title_ko": "제12장 — 독자"
+  "title_ko": "제12장, 독자"
 }

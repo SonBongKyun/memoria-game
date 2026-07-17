@@ -59,7 +59,7 @@ func load_and_start(file_path: String, dialogue_key: String) -> void:
 
 	start_dialogue(dialogues[dialogue_key])
 
-## 대화 시작 — dialogue_data는 Array of Dictionary
+## 대화 시작, dialogue_data는 Array of Dictionary
 ## [{"speaker": "Elia", "text": "How bad?", "portrait": "elia_concern"}, ...]
 func start_dialogue(dialogue_data: Array) -> void:
 	current_dialogue = dialogue_data
@@ -84,7 +84,7 @@ func _show_next_line() -> void:
 
 	var line = current_dialogue[current_index]
 
-	# S146: 조건부 라인 — 조건 불충족 시 통째로 건너뜀 (분위기/힌트 라인 게이팅)
+	# S146: 조건부 라인, 조건 불충족 시 통째로 건너뜀 (분위기/힌트 라인 게이팅)
 	if not _line_condition_met(line):
 		advance()
 		return
@@ -166,7 +166,7 @@ func _localized_choices(choices: Array) -> Array:
 			localized.append(choice)
 	return localized
 
-## 선택지 결과 처리 — _current_choices(필터링된 목록) 기준
+## 선택지 결과 처리, _current_choices(필터링된 목록) 기준
 func select_choice(choice_index: int) -> void:
 	if not is_active or current_index < 0 or current_index >= current_dialogue.size():
 		return
@@ -180,7 +180,7 @@ func select_choice(choice_index: int) -> void:
 		# 기억 연소 트리거
 		if choice.has("burn_memory"):
 			MemoryManager.burn_memory(choice.burn_memory)
-		# S146: Memory Leverage — cost_memory는 burn_memory의 의미적 별칭 (대가성 강조)
+		# S146: Memory Leverage, cost_memory는 burn_memory의 의미적 별칭 (대가성 강조)
 		if choice.has("cost_memory"):
 			var lost = MemoryManager.burn_memory(String(choice.cost_memory))
 			if lost != null:

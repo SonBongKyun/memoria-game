@@ -1,4 +1,4 @@
-## Forgotten Forest — 잊힌 숲 (Chapter 8: The Forest That Forgets)
+## Forgotten Forest, 잊힌 숲 (Chapter 8: The Forest That Forgets)
 ## 기억을 먹는 숲. 유령 NPC, 기억 침식 환경.
 ## 북쪽으로 진행하면 무색 황무지로 이동.
 extends Node2D
@@ -75,7 +75,7 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("forgotten_forest")
 	elia.repeat_line = "Say your name. Don't forget it."
 	sable_npc.repeat_line = "Keep moving. Don't look at the shapes between the trees."
-	print("[ForgottenForest] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[ForgottenForest] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
@@ -148,7 +148,7 @@ func _depart_forest() -> void:
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 9
 	SaveManager.autosave_on_chapter_transition()
-	print("[ForgottenForest] Chapter 8 complete — entering Colorless Waste")
+	print("[ForgottenForest] Chapter 8 complete, entering Colorless Waste")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/colorless_waste.tscn", 8)
@@ -209,8 +209,8 @@ func _setup_random_encounters() -> void:
 func _setup_interactive_objects() -> void:
 	_add_chest(Vector2(5 * TILE_SIZE, 5 * TILE_SIZE), "chest_forest_cairn", {"items": {"hi_potion": 2, "antidote": 2}, "grains": 20})
 	_add_chest(Vector2(20 * TILE_SIZE, 3 * TILE_SIZE), "chest_forest_canopy", {"items": {"firebomb": 2, "smoke_bomb": 1}, "grains": 10})
-	_add_clue(Vector2(14 * TILE_SIZE, 6 * TILE_SIZE), "clue_forest_roots", "The roots pulse faintly. Not with sap — with residue. These trees are digesting someone's childhood.")
-	_add_clue(Vector2(6 * TILE_SIZE, 13 * TILE_SIZE), "clue_forest_carving", "Scratches in the bark. Someone tried to carve their name. The letters stop halfway — they forgot the rest.")
+	_add_clue(Vector2(14 * TILE_SIZE, 6 * TILE_SIZE), "clue_forest_roots", "The roots pulse faintly. Not with sap, with residue. These trees are digesting someone's childhood.")
+	_add_clue(Vector2(6 * TILE_SIZE, 13 * TILE_SIZE), "clue_forest_carving", "Scratches in the bark. Someone tried to carve their name. The letters stop halfway, they forgot the rest.")
 
 func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
 	if GameManager.get_flag(flag_name):

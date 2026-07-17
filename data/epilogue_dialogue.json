@@ -73,8 +73,8 @@
       },
       {
         "speaker": "",
-        "text": "Something stirred. Not a memory. Memories were gone. But a feeling — like the shape of a word you've forgotten, still pressing against the inside of your mouth.",
-        "text_ko": "무언가 일렁였다. 기억이 아니었다. 기억은 사라졌다. 그러나 느낌이 — 잊어버린 단어의 형태가 아직 입안을 누르고 있는 것 같은."
+        "text": "Something stirred. Not a memory. Memories were gone. But a feeling, like the shape of a word you've forgotten, still pressing against the inside of your mouth.",
+        "text_ko": "무언가 일렁였다. 기억이 아니었다. 기억은 사라졌다. 그러나 느낌이, 잊어버린 단어의 형태가 아직 입안을 누르고 있는 것 같은."
       },
       {
         "speaker": "???",
@@ -131,8 +131,8 @@
       },
       {
         "speaker": "",
-        "text": "The sun set over The Seam. The colors deepened — amber, crimson, that impossible green.",
-        "text_ko": "씸 위로 해가 졌다. 색들이 깊어졌다 — 호박색, 진홍, 그 불가능한 초록."
+        "text": "The sun set over The Seam. The colors deepened, amber, crimson, that impossible green.",
+        "text_ko": "씸 위로 해가 졌다. 색들이 깊어졌다, 호박색, 진홍, 그 불가능한 초록."
       },
       {
         "speaker": "",
@@ -151,8 +151,8 @@
       },
       {
         "speaker": "",
-        "text": "— MEMORIA: The Price of Oblivion —",
-        "text_ko": "— MEMORIA: 망각의 대가 —"
+        "text": "MEMORIA: The Price of Oblivion",
+        "text_ko": "MEMORIA: 망각의 대가"
       },
       {
         "speaker": "",
@@ -215,9 +215,9 @@
       },
       {
         "speaker": "Sable",
-        "text": "The last team I sent in — they burned everything they had. Grade 5 down to Grade 1. And the hole still opened again six months later.",
+        "text": "The last team I sent in, they burned everything they had. Grade 5 down to Grade 1. And the hole still opened again six months later.",
         "portrait": "sable_calm",
-        "text_ko": "내가 마지막으로 들여보낸 팀은 — 가진 걸 전부 태웠어. 5등급부터 1등급까지. 그런데도 여섯 달 뒤에 구멍은 다시 열렸지."
+        "text_ko": "내가 마지막으로 들여보낸 팀은, 가진 걸 전부 태웠어. 5등급부터 1등급까지. 그런데도 여섯 달 뒤에 구멍은 다시 열렸지."
       },
       {
         "speaker": "Sable",
@@ -283,8 +283,8 @@
       },
       {
         "speaker": "",
-        "text": "— MEMORIA: The Price of Oblivion —",
-        "text_ko": "— MEMORIA: 망각의 대가 —"
+        "text": "MEMORIA: The Price of Oblivion",
+        "text_ko": "MEMORIA: 망각의 대가"
       },
       {
         "speaker": "",
@@ -301,8 +301,8 @@
       },
       {
         "speaker": "",
-        "text": "Sable was waiting. Her clouded eyes turned past them, toward the place where BL-07 used to breathe — she had never needed sight to know exactly where it was — and she went very still.",
-        "text_ko": "세이블이 기다리고 있었다. 뿌연 눈이 그들을 지나 BL-07이 숨 쉬던 자리를 향했다 — 그곳이 어디인지 아는 데 그녀는 한 번도 시력이 필요했던 적이 없었다 — 그리고 그녀는 아주 고요해졌다."
+        "text": "Sable was waiting. Her clouded eyes turned past them, toward the place where BL-07 used to breathe, she had never needed sight to know exactly where it was, and she went very still.",
+        "text_ko": "세이블이 기다리고 있었다. 뿌연 눈이 그들을 지나 BL-07이 숨 쉬던 자리를 향했다, 그곳이 어디인지 아는 데 그녀는 한 번도 시력이 필요했던 적이 없었다, 그리고 그녀는 아주 고요해졌다."
       },
       {
         "speaker": "Sable",
@@ -324,9 +324,9 @@
       },
       {
         "speaker": "Arrel",
-        "text": "All of it. Everything I kept instead of spending. I gave the Void something it had never been offered before — a whole life, intact, refusing to come apart.",
+        "text": "All of it. Everything I kept instead of spending. I gave the Void something it had never been offered before, a whole life, intact, refusing to come apart.",
         "portrait": "arrel_neutral",
-        "text_ko": "전부요. 소모하는 대신 지켜 온 모든 것. 보이드에게 한 번도 내밀어진 적 없는 걸 준 거예요 — 온전한 삶, 무너지기를 거부하는 삶을."
+        "text_ko": "전부요. 소모하는 대신 지켜 온 모든 것. 보이드에게 한 번도 내밀어진 적 없는 걸 준 거예요, 온전한 삶, 무너지기를 거부하는 삶을."
       },
       {
         "speaker": "Elia",
@@ -342,9 +342,9 @@
       },
       {
         "speaker": "",
-        "text": "She pulled out her ledger — pages pricked with pin-holes her fingers read like scripture — and rested them on the empty column where this had never happened before.",
+        "text": "She pulled out her ledger, pages pricked with pin-holes her fingers read like scripture, and rested them on the empty column where this had never happened before.",
         "cg": "res://assets/cg/generated/ending_weave_sable_ledger.png",
-        "text_ko": "그녀가 장부를 꺼냈다 — 손끝이 경전처럼 읽어 내리는, 바늘 구멍이 촘촘히 찍힌 페이지들 — 그리고 그 손가락을, 이런 일이 단 한 번도 기록된 적 없는 빈 항목 위에 얹었다."
+        "text_ko": "그녀가 장부를 꺼냈다, 손끝이 경전처럼 읽어 내리는, 바늘 구멍이 촘촘히 찍힌 페이지들, 그리고 그 손가락을, 이런 일이 단 한 번도 기록된 적 없는 빈 항목 위에 얹었다."
       },
       {
         "speaker": "Sable",
@@ -360,9 +360,9 @@
       },
       {
         "speaker": "",
-        "text": "He felt the seal where part of him now lived — a steady weight, like a hand he could never quite let go of. It did not hurt. It anchored.",
+        "text": "He felt the seal where part of him now lived, a steady weight, like a hand he could never quite let go of. It did not hurt. It anchored.",
         "cg": "res://assets/cg/generated/ending_weave_anchor_hand.png",
-        "text_ko": "그는 제 일부가 이제 살고 있는 봉인을 느꼈다 — 흔들림 없는 무게. 영영 놓을 수 없는 손 같은. 아프지 않았다. 닻이 되어 주었다."
+        "text_ko": "그는 제 일부가 이제 살고 있는 봉인을 느꼈다, 흔들림 없는 무게. 영영 놓을 수 없는 손 같은. 아프지 않았다. 닻이 되어 주었다."
       },
       {
         "speaker": "Elia",
@@ -406,13 +406,13 @@
       },
       {
         "speaker": "",
-        "text": "— MEMORIA: The Price of Oblivion —",
-        "text_ko": "— MEMORIA: 망각의 대가 —"
+        "text": "MEMORIA: The Price of Oblivion",
+        "text_ko": "MEMORIA: 망각의 대가"
       },
       {
         "speaker": "",
-        "text": "THE WEAVE ENDING: He spent nothing and sealed everything. The price was not a person — only the promise to never set it down.",
-        "text_ko": "위브 엔딩: 그는 아무것도 소모하지 않고 모든 것을 봉인했다. 대가는 사람이 아니었다 — 다만 그것을 결코 내려놓지 않겠다는 약속뿐."
+        "text": "THE WEAVE ENDING: He spent nothing and sealed everything. The price was not a person, only the promise to never set it down.",
+        "text_ko": "위브 엔딩: 그는 아무것도 소모하지 않고 모든 것을 봉인했다. 대가는 사람이 아니었다, 다만 그것을 결코 내려놓지 않겠다는 약속뿐."
       }
     ],
     "epilogue_ash": [
@@ -441,9 +441,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "You burned too much. The memories you gave up — they weren't just fuel. They were YOU.",
+        "text": "You burned too much. The memories you gave up, they weren't just fuel. They were YOU.",
         "portrait": "elia_concern",
-        "text_ko": "너무 많이 태웠어. 네가 내준 기억들은 — 그냥 연료가 아니었어. 그게 너였어."
+        "text_ko": "너무 많이 태웠어. 네가 내준 기억들은, 그냥 연료가 아니었어. 그게 너였어."
       },
       {
         "speaker": "Arrel",
@@ -475,9 +475,9 @@
       },
       {
         "speaker": "Sable",
-        "text": "They walk. They eat. They breathe. But listen to them long enough and you hear it — the room behind the voice is empty.",
+        "text": "They walk. They eat. They breathe. But listen to them long enough and you hear it, the room behind the voice is empty.",
         "portrait": "sable_neutral",
-        "text_ko": "걷고. 먹고. 숨도 쉬지. 하지만 오래 들어 보면 들려 — 목소리 뒤의 방이 비어 있는 소리가."
+        "text_ko": "걷고. 먹고. 숨도 쉬지. 하지만 오래 들어 보면 들려, 목소리 뒤의 방이 비어 있는 소리가."
       },
       {
         "speaker": "Arrel",
@@ -504,8 +504,8 @@
       },
       {
         "speaker": "",
-        "text": "— MEMORIA: The Price of Oblivion —",
-        "text_ko": "— MEMORIA: 망각의 대가 —"
+        "text": "MEMORIA: The Price of Oblivion",
+        "text_ko": "MEMORIA: 망각의 대가"
       },
       {
         "speaker": "",
@@ -522,8 +522,8 @@
       },
       {
         "speaker": "",
-        "text": "Arrel could feel it — a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch.",
-        "text_ko": "아렐은 그것을 느낄 수 있었다 — 연소와는 무관한 온기. 보이드가 건드리지 못한 무언가의 파편들."
+        "text": "Arrel could feel it, a warmth that had nothing to do with burning. Fragments of something the Void couldn't touch.",
+        "text_ko": "아렐은 그것을 느낄 수 있었다, 연소와는 무관한 온기. 보이드가 건드리지 못한 무언가의 파편들."
       },
       {
         "speaker": "Arrel",
@@ -604,8 +604,8 @@
       },
       {
         "speaker": "",
-        "text": "— MEMORIA: The Price of Oblivion —",
-        "text_ko": "— MEMORIA: 망각의 대가 —"
+        "text": "MEMORIA: The Price of Oblivion",
+        "text_ko": "MEMORIA: 망각의 대가"
       },
       {
         "speaker": "",
@@ -629,9 +629,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "The Void Holes appear where too many memories have been burned. Not just individual memories — collective ones. Shared histories.",
+        "text": "The Void Holes appear where too many memories have been burned. Not just individual memories, collective ones. Shared histories.",
         "portrait": "elia_neutral",
-        "text_ko": "보이드 홀은 너무 많은 기억이 태워진 곳에 나타나. 개인의 기억만이 아니라 — 집단의 기억도. 공유된 기록 말이야."
+        "text_ko": "보이드 홀은 너무 많은 기억이 태워진 곳에 나타나. 개인의 기억만이 아니라, 집단의 기억도. 공유된 기록 말이야."
       },
       {
         "speaker": "Elia",
@@ -646,9 +646,9 @@
       },
       {
         "speaker": "Arrel",
-        "text": "Then every burn I've ever done—",
+        "text": "Then every burn I've ever done...",
         "portrait": "arrel_pain",
-        "text_ko": "그럼 내가 해 온 모든 연소가—"
+        "text_ko": "그럼 내가 해 온 모든 연소가..."
       },
       {
         "speaker": "Elia",
@@ -690,14 +690,14 @@
       },
       {
         "speaker": "",
-        "text": "The Authority responded with a formal censure. Then a warrant. Then silence — the kind of silence that meant they were reading it.",
+        "text": "The Authority responded with a formal censure. Then a warrant. Then silence, the kind of silence that meant they were reading it.",
         "text_ko": "관리국은 공식적인 비난으로 대응했다. 그런 다음 영장. 그런 다음 침묵 – 그들이 그것을 읽고 있다는 것을 의미하는 종류의 침묵."
       },
       {
         "speaker": "Tobias",
-        "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted — and prevented.",
+        "text": "Science doesn't care about clearance levels. The data is the data. And the data says Void Holes can be predicted, and prevented.",
         "portrait": "tobias_neutral",
-        "text_ko": "과학은 허가 등급에 관심이 없어. 데이터는 데이터야. 그리고 데이터가 말하네 — 보이드 홀은 예측할 수 있고, 예방할 수 있다고."
+        "text_ko": "과학은 허가 등급에 관심이 없어. 데이터는 데이터야. 그리고 데이터가 말하네, 보이드 홀은 예측할 수 있고, 예방할 수 있다고."
       },
       {
         "speaker": "",
@@ -776,7 +776,7 @@
       },
       {
         "speaker": "Sable",
-        "text": "There's a settlement three days east. They're losing memories faster than normal. Not burning — just... losing them.",
+        "text": "There's a settlement three days east. They're losing memories faster than normal. Not burning, just... losing them.",
         "portrait": "sable_neutral",
         "text_ko": "동쪽으로 사흘 거리에 정착지가 있다. 평소보다 빠르게 기억을 잃고 있어. 태우는 게 아니라 그냥... 잃는 거야."
       },

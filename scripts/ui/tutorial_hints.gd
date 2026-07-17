@@ -1,4 +1,4 @@
-## TutorialHints (Autoload) — 첫 경험 시 컨텍스트 힌트 표시
+## TutorialHints (Autoload), 첫 경험 시 컨텍스트 힌트 표시
 ## 주요 첫 순간에 팝업 힌트를 표시하고, 이미 본 힌트는 다시 표시하지 않음.
 extends CanvasLayer
 
@@ -16,6 +16,7 @@ const HINTS: Dictionary = {
 	"first_pulse": "Press Q to send out a Memory Pulse. Nearby echoes will briefly answer.",
 	"first_break": "Exploit enemy weaknesses to fill BREAK. Broken enemies lose a turn and take heavier damage.",
 	"first_resonance": "Strong tactical play builds Resonance. Higher Resonance boosts damage and post-battle rewards.",
+	"first_directive": "Choose a field directive before fighting. Completing it raises your battle grade and extends the reward chain.",
 }
 
 const HINTS_KO: Dictionary = {
@@ -27,6 +28,7 @@ const HINTS_KO: Dictionary = {
 	"first_pulse": "Q를 누르면 기억 파동을 방출합니다. 가까운 메아리가 잠시 응답합니다.",
 	"first_break": "약점을 공략해 BREAK를 채우세요. 붕괴된 적은 한 턴 행동하지 못하고 더 큰 피해를 받습니다.",
 	"first_resonance": "효율적인 전투는 공명을 높입니다. 공명이 높을수록 피해와 전투 보상이 증가합니다.",
+	"first_directive": "전투 전에 현장 지침을 선택하세요. 달성하면 전술 등급이 오르고 연속 보상도 이어집니다.",
 }
 
 # UI 노드

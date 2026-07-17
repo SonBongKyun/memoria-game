@@ -1,4 +1,4 @@
-## Seam Outskirts — 이음새 외곽 (Chapter 7: The Other Side of the Flame)
+## Seam Outskirts, 이음새 외곽 (Chapter 7: The Other Side of the Flame)
 ## BL-07 경계의 황폐한 고원. 세이블의 진실 + 에코 셸 획득 + 시련.
 ## 북쪽으로 진행하면 잊힌 숲으로 이동.
 extends Node2D
@@ -72,7 +72,7 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("seam_outskirts")
 	elia.repeat_line = "The air feels wrong. Like static before a storm."
 	sable_npc.repeat_line = "Stay focused. Don't let the Threshold get into your head."
-	print("[SeamOutskirts] Map loaded — %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
+	print("[SeamOutskirts] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
@@ -115,7 +115,7 @@ func _on_arrival_ended() -> void:
 func _on_truth_ended() -> void:
 	GameManager.set_flag("has_echo_shell")
 	NotificationToast.show_toast("Obtained: Echo Shell", NotificationToast.ToastType.SUCCESS)
-	StoryJournal.add_event("echo_shell", "Sable gave Arrel the Echo Shell — a spiraling shell that holds the last echoes of those consumed by BL-07.")
+	StoryJournal.add_event("echo_shell", "Sable gave Arrel the Echo Shell, a spiraling shell that holds the last echoes of those consumed by BL-07.")
 	await get_tree().create_timer(2.0).timeout
 	# 시련 시작
 	if not GameManager.get_flag("ch7_trial"):
@@ -124,7 +124,7 @@ func _on_truth_ended() -> void:
 		DialogueManager.load_and_start(DIALOGUE_FILE, "sable_trial")
 
 func _on_trial_dialogue_ended() -> void:
-	# 시련 전투 — Threshold Shade (자기 자신의 그림자)
+	# 시련 전투, Threshold Shade (자기 자신의 그림자)
 	var enemy = BattleManager.Enemy.new("Threshold Shade", 120, 20, true)
 	enemy.abilities = ["drain", "stun", "reflect"]
 	enemy.weakness = "fire"
@@ -171,7 +171,7 @@ func _depart_outskirts() -> void:
 func _on_departure_ended() -> void:
 	GameManager.current_chapter = 8
 	SaveManager.autosave_on_chapter_transition()
-	print("[SeamOutskirts] Chapter 7 complete — entering Forgotten Forest")
+	print("[SeamOutskirts] Chapter 7 complete, entering Forgotten Forest")
 	await get_tree().create_timer(1.5).timeout
 	# S58: Chapter completion screen with stats summary
 	SceneTransition.change_scene_chapter_complete("res://scenes/maps/forgotten_forest.tscn", 7)
@@ -231,8 +231,8 @@ func _setup_random_encounters() -> void:
 
 func _setup_interactive_objects() -> void:
 	_add_chest(Vector2(21 * TILE_SIZE, 4 * TILE_SIZE), "chest_outskirts_ledge", {"items": {"hi_potion": 2, "firebomb": 1}, "grains": 15})
-	_add_clue(Vector2(7 * TILE_SIZE, 14 * TILE_SIZE), "clue_outskirts_bones", "Scattered equipment. Bureau-issue. The name tags have been scoured clean — not by weather, but by absence.")
-	_add_clue(Vector2(16 * TILE_SIZE, 11 * TILE_SIZE), "clue_outskirts_mark", "A carved symbol on the void rock — Sable's mark. She left it here to remember the path back.")
+	_add_clue(Vector2(7 * TILE_SIZE, 14 * TILE_SIZE), "clue_outskirts_bones", "Scattered equipment. Bureau-issue. The name tags have been scoured clean, not by weather, but by absence.")
+	_add_clue(Vector2(16 * TILE_SIZE, 11 * TILE_SIZE), "clue_outskirts_mark", "A carved symbol on the void rock, Sable's mark. She left it here to remember the path back.")
 
 func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
 	if GameManager.get_flag(flag_name):

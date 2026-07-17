@@ -4,14 +4,14 @@
 ##
 ## 사용법:
 ##   노드에 다음 메타를 설정:
-##     requires_memory_intact: "memory_id"  — 이 기억이 태워지면 노드 숨김
-##     requires_memory_burned: "memory_id"  — 이 기억이 태워져야 노드 표시
-##     on_burned_replace_dialogue: "new_dialogue_key"  — NPC에 한해 기억 태움 시 대화 키 교체
-##     on_burned_tint: Color                — 기억 태움 시 sprite에 color tint 적용 (창백함 등)
+##     requires_memory_intact: "memory_id" , 이 기억이 태워지면 노드 숨김
+##     requires_memory_burned: "memory_id" , 이 기억이 태워져야 노드 표시
+##     on_burned_replace_dialogue: "new_dialogue_key" , NPC에 한해 기억 태움 시 대화 키 교체
+##     on_burned_tint: Color               , 기억 태움 시 sprite에 color tint 적용 (창백함 등)
 ##
 ##   또는 그룹으로:
-##     "perception_intact_<memory_id>" — 태워지면 숨김
-##     "perception_burned_<memory_id>" — 태워져야 표시
+##     "perception_intact_<memory_id>", 태워지면 숨김
+##     "perception_burned_<memory_id>", 태워져야 표시
 class_name PerceptionFilter
 extends RefCounted
 

@@ -28,7 +28,7 @@ func _ready() -> void:
 	var image := get_viewport().get_texture().get_image()
 	var result := image.save_png(ProjectSettings.globalize_path(OUTPUT_PATH))
 	assert(result == OK)
-	print("DIRECTIONAL_CAST_CAPTURE_PASS path=%s cast=%d directions=%d font=%s" % [OUTPUT_PATH, CAST.size(), DIRECTIONS.size(), UITheme.make_body_font().font_names[0]])
+	print("DIRECTIONAL_CAST_CAPTURE_PASS path=%s cast=%d directions=%d font=%s" % [OUTPUT_PATH, CAST.size(), DIRECTIONS.size(), UITheme.make_body_font().resource_path])
 	get_tree().quit(0)
 
 func _build_gallery() -> void:

@@ -12,12 +12,13 @@
       {
         "speaker": "",
         "text": "Where the land forgot how to hold itself together. Cliffs sheared clean as if something had bitten through the bedrock.",
-        "text_ko": "땅이 스스로를 붙드는 법을 잊은 곳. 절벽은 무언가 기반암을 물어뜯고 지나간 듯 매끈하게 잘려 있었다."
+        "text_ko": "땅이 스스로를 붙드는 법을 잊은 곳. 절벽은 무언가 기반암을 물어뜯고 지나간 듯 매끈하게 잘려 있었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png"
       },
       {
         "speaker": "",
-        "text": "The air tasted of salt and something older — the mineral residue of dissolved memory, leaching into the sea.",
-        "text_ko": "공기에서 소금과, 그보다 오래된 맛이 났다 — 바다로 녹아드는, 용해된 기억의 광물 잔여물."
+        "text": "The air tasted of salt and something older, the mineral residue of dissolved memory, leaching into the sea.",
+        "text_ko": "공기에서 소금과, 그보다 오래된 맛이 났다, 바다로 녹아드는, 용해된 기억의 광물 잔여물."
       },
       {
         "speaker": "Elia",
@@ -47,7 +48,8 @@
       {
         "speaker": "",
         "text": "Elia stopped. Her eyes traced the cliff edge, then snapped back to the ridge behind them.",
-        "text_ko": "엘리아가 멈춰 섰다. 시선이 절벽 가장자리를 훑고, 등 뒤 능선으로 홱 돌아갔다."
+        "text_ko": "엘리아가 멈춰 섰다. 시선이 절벽 가장자리를 훑고, 등 뒤 능선으로 홱 돌아갔다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch05_anchor_parting_paths_v1.png"
       },
       {
         "speaker": "Elia",
@@ -81,9 +83,9 @@
       },
       {
         "speaker": "",
-        "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia — at the anchor that kept his memories from scattering like ash.",
+        "text": "The wind off the cliffs carried the smell of dissolving stone. Arrel looked at Elia, at the anchor that kept his memories from scattering like ash.",
         "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png",
-        "text_ko": "절벽에서 불어온 바람이 녹아내리는 돌 냄새를 실어 왔다. 아렐은 엘리아를 보았다 — 그의 기억이 재처럼 흩어지지 않게 붙들어 주는 닻을."
+        "text_ko": "절벽에서 불어온 바람이 녹아내리는 돌 냄새를 실어 왔다. 아렐은 엘리아를 보았다, 그의 기억이 재처럼 흩어지지 않게 붙들어 주는 닻을."
       },
       {
         "choices": [
@@ -134,9 +136,9 @@
       },
       {
         "speaker": "Arrel",
-        "text": "Elia—",
+        "text": "Elia...",
         "portrait": "arrel_pain",
-        "text_ko": "엘리아—"
+        "text_ko": "엘리아..."
       },
       {
         "speaker": "Elia",
@@ -165,7 +167,7 @@
       {
         "speaker": "",
         "text": "A familiar silhouette stood at the Seam's entrance. Windswept. Tired. Alive.",
-        "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png",
+        "cg": "res://assets/cg/generated/archive_ch6_reunion_v1.png",
         "text_ko": "심의 입구에 낯익은 실루엣이 서 있었다. 바람에 휩싸인. 피곤한. 살아 있는."
       },
       {
@@ -207,7 +209,8 @@
       {
         "speaker": "",
         "text": "A figure. Still as stone. Watching.",
-        "text_ko": "그림. 아직도 돌처럼. 보고 있다."
+        "text_ko": "그림. 아직도 돌처럼. 보고 있다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch05_kairos_ridge_observer_v1.png"
       },
       {
         "speaker": "Elia",
@@ -248,7 +251,8 @@
       {
         "speaker": "",
         "text": "Between the gray cliffs, in a canyon that shouldn't have existed, light fell in shades that hadn't been seen since the Collapse.",
-        "text_ko": "회색 절벽 사이, 존재해서는 안 될 협곡 안에서, 붕괴 이후 본 적 없는 빛깔들이 쏟아지고 있었다."
+        "text_ko": "회색 절벽 사이, 존재해서는 안 될 협곡 안에서, 붕괴 이후 본 적 없는 빛깔들이 쏟아지고 있었다.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch05_first_impossible_color_v1.png"
       },
       {
         "speaker": "",
@@ -268,8 +272,8 @@
       },
       {
         "speaker": "",
-        "text": "An old woman stood at the entrance, waiting without watching. White hair, a face weathered like coast stone, eyes clouded pale. Eyes that had gone into a Void Hole — and left their sight there as the toll.",
-        "text_ko": "입구에 한 노파가 서 있었다. 지켜보지 않으면서 기다리고 있었다. 흰 머리, 해안 바위처럼 풍화된 얼굴, 뿌옇게 흐려진 눈. 보이드 홀에 들어갔던 눈 — 그리고 통행료로 시력을 그곳에 두고 온 눈."
+        "text": "An old woman stood at the entrance, waiting without watching. White hair, a face weathered like coast stone, eyes clouded pale. Eyes that had gone into a Void Hole, and left their sight there as the toll.",
+        "text_ko": "입구에 한 노파가 서 있었다. 지켜보지 않으면서 기다리고 있었다. 흰 머리, 해안 바위처럼 풍화된 얼굴, 뿌옇게 흐려진 눈. 보이드 홀에 들어갔던 눈, 그리고 통행료로 시력을 그곳에 두고 온 눈."
       },
       {
         "speaker": "Sable",
@@ -287,9 +291,9 @@
     "coast_cliff_walk": [
       {
         "speaker": "",
-        "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end — just faded into white mist that tasted like dissolved years.",
+        "text": "The path narrowed. On the left, cliff wall. On the right, a drop that didn't end, just faded into white mist that tasted like dissolved years.",
         "cg": "res://assets/cg/generated/story_ch5_warm_cliff_path.png",
-        "text_ko": "길이 좁아졌다. 왼쪽은 절벽 벽. 오른쪽은 끝나지 않는 낙하 — 녹아 버린 세월의 맛이 나는 흰 안개 속으로 그저 사라질 뿐인."
+        "text_ko": "길이 좁아졌다. 왼쪽은 절벽 벽. 오른쪽은 끝나지 않는 낙하, 녹아 버린 세월의 맛이 나는 흰 안개 속으로 그저 사라질 뿐인."
       },
       {
         "speaker": "Arrel",
@@ -301,12 +305,13 @@
         "speaker": "Elia",
         "text": "Memory residue. This coastline was a city once. Thousands of people's lives, pressed into the bedrock. When the Void came, the stone absorbed what the people lost.",
         "portrait": "elia_neutral",
-        "text_ko": "기억 잔여물이야. 이 해안선은 한때 도시였어. 수천 명의 삶이 기반암에 눌려 있지. 보이드가 왔을 때, 돌이 사람들이 잃은 것을 빨아들였어."
+        "text_ko": "기억 잔여물이야. 이 해안선은 한때 도시였어. 수천 명의 삶이 기반암에 눌려 있지. 보이드가 왔을 때, 돌이 사람들이 잃은 것을 빨아들였어.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch05_warm_stone_echo_v1.png"
       },
       {
         "speaker": "",
-        "text": "He pressed his hand against the cliff face. For a moment — just a flash — he heard laughter. Children's voices. The clatter of a market that no longer existed.",
-        "text_ko": "그가 절벽 면에 손을 댔다. 한순간 — 섬광처럼 — 웃음소리가 들렸다. 아이들의 목소리. 더는 존재하지 않는 시장의 소란."
+        "text": "He pressed his hand against the cliff face. For a moment, just a flash, he heard laughter. Children's voices. The clatter of a market that no longer existed.",
+        "text_ko": "그가 절벽 면에 손을 댔다. 한순간, 섬광처럼, 웃음소리가 들렸다. 아이들의 목소리. 더는 존재하지 않는 시장의 소란."
       },
       {
         "speaker": "",
@@ -329,8 +334,8 @@
       },
       {
         "speaker": "",
-        "text": "Its roof was gone. Its walls were covered in scratches — thousands of tally marks, carved by someone counting something obsessively.",
-        "text_ko": "지붕은 사라졌다. 벽은 긁힌 자국으로 뒤덮여 있었다 — 수천 개의 바를 정(正) 자국. 무언가를 강박적으로 세던 누군가가 새긴 것."
+        "text": "Its roof was gone. Its walls were covered in scratches, thousands of tally marks, carved by someone counting something obsessively.",
+        "text_ko": "지붕은 사라졌다. 벽은 긁힌 자국으로 뒤덮여 있었다, 수천 개의 바를 정(正) 자국. 무언가를 강박적으로 세던 누군가가 새긴 것."
       },
       {
         "speaker": "Arrel",
@@ -346,9 +351,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "The tally marks — each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.",
+        "text": "The tally marks, each one is a detected burn. This station tracked every memory sacrificed in a fifty-mile radius.",
         "portrait": "elia_neutral",
-        "text_ko": "저 바를 정 자국들 — 하나하나가 감지된 연소야. 이 초소는 반경 오십 마일의 모든 태워진 기억을 추적했어."
+        "text_ko": "저 바를 정 자국들, 하나하나가 감지된 연소야. 이 초소는 반경 오십 마일의 모든 태워진 기억을 추적했어."
       },
       {
         "speaker": "",
@@ -381,15 +386,15 @@
       },
       {
         "speaker": "",
-        "text": "Not visible — but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.",
+        "text": "Not visible, but the air had changed. A subtle wrongness, like the moment before a headache becomes pain.",
         "cg": "res://assets/cg/generated/story_ch5_kairos_ridge_sighting.png",
-        "text_ko": "보이지는 않았다 — 그러나 공기가 달라져 있었다. 두통이 통증이 되기 직전의 순간 같은, 미묘한 어긋남."
+        "text_ko": "보이지는 않았다, 그러나 공기가 달라져 있었다. 두통이 통증이 되기 직전의 순간 같은, 미묘한 어긋남."
       },
       {
         "speaker": "Elia",
-        "text": "He's reading us. Editors don't chase — they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.",
+        "text": "He's reading us. Editors don't chase, they compile. Build a profile of your burn patterns, your residue signature, your emotional triggers.",
         "portrait": "elia_concern",
-        "text_ko": "우리를 읽고 있는 거야. 에디터는 쫓지 않아 — 수집하지. 연소 패턴, 잔존 시그니처, 감정 유발점의 프로필을 쌓는 거야."
+        "text_ko": "우리를 읽고 있는 거야. 에디터는 쫓지 않아, 수집하지. 연소 패턴, 잔존 시그니처, 감정 유발점의 프로필을 쌓는 거야."
       },
       {
         "speaker": "Arrel",
@@ -405,9 +410,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "For you, that would be—",
+        "text": "For you, that would be...",
         "portrait": "elia_concern",
-        "text_ko": "너의 경우엔, 그건—"
+        "text_ko": "너의 경우엔, 그건..."
       },
       {
         "speaker": "Arrel",
@@ -429,9 +434,9 @@
     "coast_void_crack": [
       {
         "speaker": "",
-        "text": "A fissure in the ground. Thin as a hair, but deep — impossibly deep. The darkness inside it moved.",
+        "text": "A fissure in the ground. Thin as a hair, but deep, impossibly deep. The darkness inside it moved.",
         "cg": "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
-        "text_ko": "땅의 균열. 머리카락처럼 가늘지만 깊었다 — 불가능할 만큼 깊었다. 그 안의 어둠이 움직였다."
+        "text_ko": "땅의 균열. 머리카락처럼 가늘지만 깊었다, 불가능할 만큼 깊었다. 그 안의 어둠이 움직였다."
       },
       {
         "speaker": "Elia",
@@ -452,9 +457,9 @@
       },
       {
         "speaker": "Elia",
-        "text": "It's always calling. The Void doesn't hunger — it INVITES. That's why people walk in willingly.",
+        "text": "It's always calling. The Void doesn't hunger, it INVITES. That's why people walk in willingly.",
         "portrait": "elia_neutral",
-        "text_ko": "언제나 부르고 있어. 보이드는 굶주리지 않아 — 초대하지. 그래서 사람들이 제 발로 걸어 들어가는 거야."
+        "text_ko": "언제나 부르고 있어. 보이드는 굶주리지 않아, 초대하지. 그래서 사람들이 제 발로 걸어 들어가는 거야."
       },
       {
         "speaker": "Elia",
@@ -478,10 +483,10 @@
     "elia_before_separation": [
       {
         "speaker": "Elia",
-        "text": "Arrel. If we split up—",
+        "text": "Arrel. If we split up...",
         "portrait": "elia_concern",
         "cg": "res://assets/cg/generated/dialogue_ch5_elia_cliff_choice.png",
-        "text_ko": "아렐. 우리가 갈라지면—"
+        "text_ko": "아렐. 우리가 갈라지면..."
       },
       {
         "speaker": "Arrel",
@@ -521,7 +526,7 @@
       },
       {
         "speaker": "Elia",
-        "text": "I'm not saying don't do it. I'm saying — be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.",
+        "text": "I'm not saying don't do it. I'm saying, be sure. Because if you burn something while I'm gone, I can't bring the shape of it back.",
         "portrait": "elia_concern",
         "text_ko": "하지 말라는 게 아니야. 확실히 하라는 거야. 내가 없는 동안 태우면, 그 형태는 돌려받을 수 없으니까."
       },

@@ -1,7 +1,7 @@
 {
   "id": "ch22_core",
-  "title": "Chapter 22 — The Core",
-  "title_ko": "제22장 — 핵",
+  "title": "Chapter 22, The Core",
+  "title_ko": "제22장, 핵",
   "chapter": 22,
   "steps": [
     {
@@ -9,8 +9,8 @@
       "fade": 2.0,
       "set_chapter": 22,
       "autosave_chapter_transition": true,
-      "narrate": "The core of the monolith was not a machine. It was a sentence that had never finished being spoken — the primal log of the First Age, still breathing, still waiting for its readers to come home.",
-      "narrate_ko": "모노리스의 핵은 기계가 아니었다. 그것은 아직 다 말해지지 못한 하나의 문장이었다 — 제1시대의 원초 로그. 여전히 숨 쉬며, 여전히 독자들이 집으로 돌아오기를 기다리는."
+      "narrate": "The core of the monolith was not a machine. It was a sentence that had never finished being spoken, the primal log of the First Age, still breathing, still waiting for its readers to come home.",
+      "narrate_ko": "모노리스의 핵은 기계가 아니었다. 그것은 아직 다 말해지지 못한 하나의 문장이었다, 제1시대의 원초 로그. 여전히 숨 쉬며, 여전히 독자들이 집으로 돌아오기를 기다리는."
     },
     {
       "narrate": "Every extraction, every Confessor Hall, every Blanker dose on the continent drained toward this light. Not to feed it. To keep it asleep.",
@@ -40,8 +40,8 @@
           "goto": 7
         },
         {
-          "text": "Answer with her own anchor — the warmth of her hands on yours, given back.",
-          "text_ko": "그녀 자신의 닻으로 답한다 — 언젠가 내 손을 덮었던 그 온기를, 이번에는 돌려주며.",
+          "text": "Answer with her own anchor, the warmth of her hands on yours, given back.",
+          "text_ko": "그녀 자신의 닻으로 답한다, 언젠가 내 손을 덮었던 그 온기를, 이번에는 돌려주며.",
           "requires_memory_intact": "daily_elia_hands",
           "set_flags": [
             "elia_relay_choice",
@@ -69,13 +69,13 @@
     {
       "cg": "res://assets/cg/generated/ch22_anchor_refusal.png",
       "fade": 1.0,
-      "narrate": "He refused, and she smiled with something that was not agreement. She kept the book open anyway — but her other hand stayed in his, an anchor refusing to let the door forget it was also a person.",
-      "narrate_ko": "그가 거절하자, 그녀는 동의가 아닌 무언가를 담아 미소 지었다. 그래도 그녀는 책을 펼쳐 든 채였다 — 다만 다른 한 손은 그의 손에 남겨 두었다. 문이 되려는 자가 여전히 사람이기도 하다는 것을, 잊지 않게 붙드는 닻으로."
+      "narrate": "He refused, and she smiled with something that was not agreement. She kept the book open anyway, but her other hand stayed in his, an anchor refusing to let the door forget it was also a person.",
+      "narrate_ko": "그가 거절하자, 그녀는 동의가 아닌 무언가를 담아 미소 지었다. 그래도 그녀는 책을 펼쳐 든 채였다, 다만 다른 한 손은 그의 손에 남겨 두었다. 문이 되려는 자가 여전히 사람이기도 하다는 것을, 잊지 않게 붙드는 닻으로."
     },
     {
       "fade": 1.5,
-      "narrate": "A figure stepped out of the light's edge, and Arrel's body dropped into the stance again — the guard with the middle burned out. This close, the walk had a face. The face was waiting for him to remember it.",
-      "narrate_ko": "빛의 가장자리에서 인영이 걸어 나왔고, 아렐의 몸이 다시 그 자세로 내려앉았다 — 가운데가 타 버린 방어 자세로. 이만큼 가까우니 그 걸음에는 얼굴이 있었다. 그 얼굴은 그가 자신을 기억해 내기를 기다리고 있었다.",
+      "narrate": "A figure stepped out of the light's edge, and Arrel's body dropped into the stance again, the guard with the middle burned out. This close, the walk had a face. The face was waiting for him to remember it.",
+      "narrate_ko": "빛의 가장자리에서 인영이 걸어 나왔고, 아렐의 몸이 다시 그 자세로 내려앉았다, 가운데가 타 버린 방어 자세로. 이만큼 가까우니 그 걸음에는 얼굴이 있었다. 그 얼굴은 그가 자신을 기억해 내기를 기다리고 있었다.",
       "set_flag": "vael_encounter_2"
     },
     {
@@ -92,8 +92,8 @@
     },
     {
       "requires_flag": "celah_reunion",
-      "narrate": "And through the core drifted a lullaby — the preserved woman's melody carried down three hundred years, Han's scarred throat holding the harmony a half-step below. The last song of the First Age, sung by its first and final witnesses.",
-      "narrate_ko": "그리고 핵을 가로질러 자장가가 흘렀다 — 보존된 여인의 선율이 삼백 년을 건너 내려왔고, 한의 흉터 진 목이 반음 아래에서 화음을 받치고 있었다. 제1시대의 마지막 노래가, 그 처음이자 마지막 증인들의 목소리로."
+      "narrate": "And through the core drifted a lullaby, the preserved woman's melody carried down three hundred years, Han's scarred throat holding the harmony a half-step below. The last song of the First Age, sung by its first and final witnesses.",
+      "narrate_ko": "그리고 핵을 가로질러 자장가가 흘렀다, 보존된 여인의 선율이 삼백 년을 건너 내려왔고, 한의 흉터 진 목이 반음 아래에서 화음을 받치고 있었다. 제1시대의 마지막 노래가, 그 처음이자 마지막 증인들의 목소리로."
     },
     {
       "narrate": "Above them, the monolith's extraction engines reversed pitch. Belor had reached the control galleries. Whatever was going to happen had to happen now.",

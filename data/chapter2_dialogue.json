@@ -11,8 +11,8 @@
       },
       {
         "speaker": "",
-        "text": "The stench hit first — burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared.",
-        "text_ko": "악취가 먼저 닿았다 — 탄 향신료와 짐승 기름. 노점의 불들이 걷힐 줄 모르는 기름진 연기 기둥을 밀어 올리고 있었다."
+        "text": "The stench hit first, burnt spice and animal fat, vendor fires sending up columns of greasy smoke that never quite cleared.",
+        "text_ko": "악취가 먼저 닿았다, 탄 향신료와 짐승 기름. 노점의 불들이 걷힐 줄 모르는 기름진 연기 기둥을 밀어 올리고 있었다."
       },
       {
         "speaker": "",
@@ -27,8 +27,8 @@
       },
       {
         "speaker": "",
-        "text": "She moved through the crowd like water through cracks — never touching, never stopping, always finding the gap.",
-        "text_ko": "그녀는 갈라진 틈을 지나는 물처럼 군중을 통과했다 — 스치지 않고, 멈추지 않고, 언제나 틈을 찾아내면서."
+        "text": "She moved through the crowd like water through cracks, never touching, never stopping, always finding the gap.",
+        "text_ko": "그녀는 갈라진 틈을 지나는 물처럼 군중을 통과했다, 스치지 않고, 멈추지 않고, 언제나 틈을 찾아내면서."
       }
     ],
     "malet_encounter": [
@@ -40,13 +40,14 @@
       },
       {
         "speaker": "",
-        "text": "They waited. Thirty minutes. Arrel sat with his back to the wall — an old habit he could not remember learning.",
-        "text_ko": "그들은 기다렸다. 삼십 분. 아렐은 벽에 등을 붙이고 앉았다 — 배운 기억이 없는, 오래된 습관이었다."
+        "text": "They waited. Thirty minutes. Arrel sat with his back to the wall, an old habit he could not remember learning.",
+        "text_ko": "그들은 기다렸다. 삼십 분. 아렐은 벽에 등을 붙이고 앉았다, 배운 기억이 없는, 오래된 습관이었다."
       },
       {
         "speaker": "",
         "text": "Malet appeared as if he had always been there. Small, thin, dressed in gray that matched the walls.",
-        "text_ko": "말렛은 처음부터 그 자리에 있었던 것처럼 나타났다. 작고, 마르고, 벽과 같은 회색 옷차림."
+        "text_ko": "말렛은 처음부터 그 자리에 있었던 것처럼 나타났다. 작고, 마르고, 벽과 같은 회색 옷차림.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch02_malet_from_gray_v1.png"
       },
       {
         "speaker": "",
@@ -64,7 +65,7 @@
         "speaker": "Malet",
         "text": "The Authority detected the combustion signature. They have a fix on the general area. Two days, maybe less, before they narrow it.",
         "portrait": "malet_warning",
-        "text_ko": "관리국이 연소 시그니처를 감지했습니다. 대략적인 위치는 이미 잡혔고요. 좁혀 오기까지 이틀 — 어쩌면 더 짧을 수도."
+        "text_ko": "관리국이 연소 시그니처를 감지했습니다. 대략적인 위치는 이미 잡혔고요. 좁혀 오기까지 이틀, 어쩌면 더 짧을 수도."
       },
       {
         "speaker": "Arrel",
@@ -83,7 +84,7 @@
         "text": "My price: the day you first held a sword.",
         "portrait": "malet_price_revealed",
         "cg": "res://assets/cg/generated/story_ch2_malet_cellar.png",
-        "text_ko": "제 값은 — 당신이 처음 검을 잡은 날입니다."
+        "text_ko": "제 값은, 당신이 처음 검을 잡은 날입니다."
       },
       {
         "choices": [
@@ -121,8 +122,9 @@
       },
       {
         "speaker": "",
-        "text": "Then it left. Silent as a drawer closing. And where it had been — nothing. A space shaped like significance, emptied of content.",
-        "text_ko": "그리고 그것은 떠났다. 서랍이 닫히듯 조용히. 그것이 있던 자리에는 — 아무것도. 의미의 형태를 한, 내용이 비워진 공간만."
+        "text": "Then it left. Silent as a drawer closing. And where it had been, nothing. A space shaped like significance, emptied of content.",
+        "text_ko": "그리고 그것은 떠났다. 서랍이 닫히듯 조용히. 그것이 있던 자리에는, 아무것도. 의미의 형태를 한, 내용이 비워진 공간만.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch02_first_sword_empty_space_v1.png"
       },
       {
         "speaker": "Arrel",
@@ -140,21 +142,21 @@
       },
       {
         "speaker": "Malet",
-        "text": "First — a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes.",
+        "text": "First, a route. Through the Crumbling Coast. I've scouted it three times. It leads to someone who knows where BL-07 breathes.",
         "portrait": "malet_calculating",
-        "text_ko": "첫째 — 경로. 무너지는 해안을 지나는 길입니다. 세 번 직접 정찰했죠. BL-07이 숨 쉬는 곳을 아는 사람에게 닿습니다."
+        "text_ko": "첫째, 경로. 무너지는 해안을 지나는 길입니다. 세 번 직접 정찰했죠. BL-07이 숨 쉬는 곳을 아는 사람에게 닿습니다."
       },
       {
         "speaker": "Malet",
-        "text": "Second — a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it.",
+        "text": "Second, a name. Sable. Find her at the Seam, northeast of here. Follow the colors. You'll understand when you see it.",
         "portrait": "malet_calculating",
-        "text_ko": "둘째 — 이름. 세이블. 여기서 북동쪽, 씸에서 찾으세요. 색을 따라가면 됩니다. 보면 이해하실 겁니다."
+        "text_ko": "둘째, 이름. 세이블. 여기서 북동쪽, 씸에서 찾으세요. 색을 따라가면 됩니다. 보면 이해하실 겁니다."
       },
       {
         "speaker": "Malet",
-        "text": "Third — a warning.",
+        "text": "Third, a warning.",
         "portrait": "malet_warning",
-        "text_ko": "셋째 — 경고."
+        "text_ko": "셋째, 경고."
       },
       {
         "speaker": "",
@@ -170,7 +172,7 @@
       {
         "speaker": "",
         "text": "Elia's hand tightened on her cup. Her knuckles went white.",
-        "cg": "res://assets/cg/generated/story_ch2_kairos_warning.png",
+        "cg": "res://assets/cg/generated/archive_ch2_information_price_v1.png",
         "text_ko": "엘리아의 손이 잔을 조여 쥐었다. 손마디가 하얗게 질렸다."
       },
       {
@@ -236,8 +238,9 @@
       },
       {
         "speaker": "",
-        "text": "Stalls selling things that shouldn't exist — bottled laughter, crystallized grief, a child's first word trapped in resin and going for forty Grains.",
-        "text_ko": "존재해서는 안 되는 것들을 파는 노점상. 병에 담긴 웃음, 결정화된 슬픔, 송진에 갇힌 아이의 첫 마디, 그리고 40곡을 사들이는 것."
+        "text": "Stalls selling things that shouldn't exist, bottled laughter, crystallized grief, a child's first word trapped in resin and going for forty Grains.",
+        "text_ko": "존재해서는 안 되는 것들을 파는 노점상. 병에 담긴 웃음, 결정화된 슬픔, 송진에 갇힌 아이의 첫 마디, 그리고 40곡을 사들이는 것.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch02_bottled_memories_market_v1.png"
       },
       {
         "speaker": "Elia",
@@ -253,14 +256,14 @@
       },
       {
         "speaker": "Elia",
-        "text": "Of course they are. What else is there to sell? Look around — there are no farms, no factories. The only currency that matters here is what you've lost.",
+        "text": "Of course they are. What else is there to sell? Look around, there are no farms, no factories. The only currency that matters here is what you've lost.",
         "portrait": "elia_neutral",
-        "text_ko": "당연하지. 팔 게 그것 말고 뭐가 있겠어? 둘러봐 — 농장도, 공장도 없어. 여기서 통하는 유일한 화폐는 잃어버린 것들이야."
+        "text_ko": "당연하지. 팔 게 그것 말고 뭐가 있겠어? 둘러봐, 농장도, 공장도 없어. 여기서 통하는 유일한 화폐는 잃어버린 것들이야."
       },
       {
         "speaker": "",
-        "text": "A woman at a nearby stall held up a vial of something golden. Her sign read: MOTHER'S LOVE — GRADE 3 — SLIGHTLY USED.",
-        "text_ko": "근처 좌판의 여자가 금빛 액체가 든 약병을 들어 보였다. 팻말에는 이렇게 적혀 있었다: 어머니의 사랑 — 3등급 — 사용감 약간."
+        "text": "A woman at a nearby stall held up a vial of something golden. Her sign read: MOTHER'S LOVE, GRADE 3, SLIGHTLY USED.",
+        "text_ko": "근처 좌판의 여자가 금빛 액체가 든 약병을 들어 보였다. 팻말에는 이렇게 적혀 있었다: 어머니의 사랑, 3등급, 사용감 약간."
       },
       {
         "speaker": "Arrel",
@@ -284,8 +287,9 @@
       },
       {
         "speaker": "",
-        "text": "His face was placid. Smooth. Not peaceful — empty. Like a mask worn by someone who had forgotten what expressions were for.",
-        "text_ko": "얼굴은 평온했다. 매끈했다. 평화로운 게 아니라 — 비어 있었다. 표정이 무엇에 쓰이는 물건인지 잊은 사람이 쓴 가면처럼."
+        "text": "His face was placid. Smooth. Not peaceful, empty. Like a mask worn by someone who had forgotten what expressions were for.",
+        "text_ko": "얼굴은 평온했다. 매끈했다. 평화로운 게 아니라, 비어 있었다. 표정이 무엇에 쓰이는 물건인지 잊은 사람이 쓴 가면처럼.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch02_nameless_burner_v1.png"
       },
       {
         "speaker": "Old Man",
@@ -310,8 +314,8 @@
       },
       {
         "speaker": "Old Man",
-        "text": "I think I used to be important. I have this feeling — right here—",
-        "text_ko": "예전엔 제가 중요한 사람이었던 것 같습니다. 이런 느낌이 있어요 — 바로 여기에—"
+        "text": "I think I used to be important. I have this feeling, right here...",
+        "text_ko": "예전엔 제가 중요한 사람이었던 것 같습니다. 이런 느낌이 있어요, 바로 여기에..."
       },
       {
         "speaker": "",
@@ -320,8 +324,8 @@
       },
       {
         "speaker": "Old Man",
-        "text": "—like something should be there. Something heavy. But when I look, it's just ribs and air.",
-        "text_ko": "—무언가 있어야 할 것 같은. 무거운 무언가가. 그런데 들여다보면, 갈비뼈와 공기뿐입니다."
+        "text": "...like something should be there. Something heavy. But when I look, it's just ribs and air.",
+        "text_ko": "...무언가 있어야 할 것 같은. 무거운 무언가가. 그런데 들여다보면, 갈비뼈와 공기뿐입니다."
       },
       {
         "speaker": "Elia",
@@ -332,7 +336,7 @@
       {
         "speaker": "",
         "text": "Arrel looked at the old man. The old man looked back. Two mirrors facing each other, one just further along the same road.",
-        "text_ko": "아렐이 노인을 바라보았다. 노인이 마주 보았다. 마주 놓인 두 개의 거울 — 하나가 같은 길을 조금 더 멀리 갔을 뿐인."
+        "text_ko": "아렐이 노인을 바라보았다. 노인이 마주 보았다. 마주 놓인 두 개의 거울, 하나가 같은 길을 조금 더 멀리 갔을 뿐인."
       }
     ],
     "malet_backstory": [
@@ -388,7 +392,7 @@
         "speaker": "Malet",
         "text": "I rebuilt myself from other people's fragments. Seventeen donors. Some willing, most not.",
         "portrait": "malet_deal_accepted",
-        "text_ko": "저는 타인의 파편으로 저 자신을 다시 지었습니다. 기증자 열일곱. 자발적인 이도 있었고 — 대부분은 아니었지만."
+        "text_ko": "저는 타인의 파편으로 저 자신을 다시 지었습니다. 기증자 열일곱. 자발적인 이도 있었고, 대부분은 아니었지만."
       },
       {
         "speaker": "",
@@ -397,9 +401,9 @@
       },
       {
         "speaker": "Malet",
-        "text": "So when I ask for your memory of a sword — understand that I know exactly what I'm taking. And I don't feel guilty about it.",
+        "text": "So when I ask for your memory of a sword, understand that I know exactly what I'm taking. And I don't feel guilty about it.",
         "portrait": "malet_amused",
-        "text_ko": "그러니 제가 당신의 검의 기억을 요구할 때 — 무엇을 가져가는지 정확히 알고 요구한다는 걸 이해해 주십시오. 그리고 저는, 그것에 죄책감이 없습니다."
+        "text_ko": "그러니 제가 당신의 검의 기억을 요구할 때, 무엇을 가져가는지 정확히 알고 요구한다는 걸 이해해 주십시오. 그리고 저는, 그것에 죄책감이 없습니다."
       },
       {
         "speaker": "",
@@ -424,15 +428,15 @@
       },
       {
         "speaker": "Elia",
-        "text": "If he asks for a Grade 2, you say no. If he asks for anything connected to me — to us — you walk away. Promise me.",
+        "text": "If he asks for a Grade 2, you say no. If he asks for anything connected to me, to us, you walk away. Promise me.",
         "portrait": "elia_concern",
-        "text_ko": "그가 2등급을 요구하면, 거절해. 나와 — 우리와 — 이어진 걸 요구하면, 그냥 걸어 나와. 약속해."
+        "text_ko": "그가 2등급을 요구하면, 거절해. 나와, 우리와, 이어진 걸 요구하면, 그냥 걸어 나와. 약속해."
       },
       {
         "speaker": "Arrel",
-        "text": "Elia—",
+        "text": "Elia...",
         "portrait": "arrel_neutral",
-        "text_ko": "엘리아—"
+        "text_ko": "엘리아..."
       },
       {
         "speaker": "Elia",
@@ -455,7 +459,7 @@
         "speaker": "Elia",
         "text": "Good. Because I'm your Anchor, Arrel. If you burn the memories of me, there's no one left to tell you what you've lost.",
         "portrait": "elia_neutral",
-        "text_ko": "좋아. 나는 네 닻이니까, 아렐. 네가 내 기억을 태우면 — 네가 무엇을 잃었는지 말해 줄 사람이 아무도 남지 않아."
+        "text_ko": "좋아. 나는 네 닻이니까, 아렐. 네가 내 기억을 태우면, 네가 무엇을 잃었는지 말해 줄 사람이 아무도 남지 않아."
       }
     ],
     "sump_atmosphere": [
@@ -467,13 +471,14 @@
       },
       {
         "speaker": "",
-        "text": "Not literally — but the walls pulsed with a rhythm that made the torchlight dance. Underground water channels ran beneath the floor, carrying whispers from somewhere deeper.",
-        "text_ko": "말 그대로는 아니었지만 — 벽이 횃불을 춤추게 하는 박동으로 고동쳤다. 바닥 밑으로는 지하 수로가 흘렀고, 깊은 어딘가의 속삭임을 실어 날랐다."
+        "text": "Not literally, but the walls pulsed with a rhythm that made the torchlight dance. Underground water channels ran beneath the floor, carrying whispers from somewhere deeper.",
+        "text_ko": "말 그대로는 아니었지만, 벽이 횃불을 춤추게 하는 박동으로 고동쳤다. 바닥 밑으로는 지하 수로가 흘렀고, 깊은 어딘가의 속삭임을 실어 날랐다."
       },
       {
         "speaker": "",
         "text": "Alcoves lined the tunnel walls. In each one, someone waited. Buyers. Sellers. People whose faces you forgot the moment you looked away.",
-        "text_ko": "터널 벽을 따라 골방들이 늘어서 있었다. 그 하나하나에서 누군가 기다렸다. 사는 자. 파는 자. 시선을 돌리는 순간 얼굴이 잊히는 사람들."
+        "text_ko": "터널 벽을 따라 골방들이 늘어서 있었다. 그 하나하나에서 누군가 기다렸다. 사는 자. 파는 자. 시선을 돌리는 순간 얼굴이 잊히는 사람들.",
+        "cg": "res://assets/cg/generated/chapter_expansion/ch02_sump_waiting_alcoves_v1.png"
       },
       {
         "speaker": "",
@@ -487,8 +492,8 @@
       },
       {
         "speaker": "",
-        "text": "Arrel kept walking. He didn't look back. Looking back was how you got lost down here — not in the tunnels, but in other people's pasts.",
-        "text_ko": "아렐은 계속 걸었다. 돌아보지 않았다. 이 아래에서 길을 잃는 방법이 그것이었다 — 터널이 아니라, 타인의 과거 속에서."
+        "text": "Arrel kept walking. He didn't look back. Looking back was how you got lost down here, not in the tunnels, but in other people's pasts.",
+        "text_ko": "아렐은 계속 걸었다. 돌아보지 않았다. 이 아래에서 길을 잃는 방법이 그것이었다, 터널이 아니라, 타인의 과거 속에서."
       }
     ],
     "sq_sump_ledger_start": [
@@ -500,26 +505,26 @@
       },
       {
         "speaker": "Nervous Trader",
-        "text": "You. You're not Authority? No, you can't be — you smell like combustion.",
-        "text_ko": "당신. 관리국은 아니지? 아니, 아닐 거야 — 연소 냄새가 나니까."
+        "text": "You. You're not Authority? No, you can't be, you smell like combustion.",
+        "text_ko": "당신. 관리국은 아니지? 아니, 아닐 거야, 연소 냄새가 나니까."
       },
       {
         "speaker": "Nervous Trader",
         "text": "Listen. There's a ledger. Hidden in the Sump. Names, transactions, memory trades that were never supposed to happen.",
-        "text_ko": "들어 봐. 장부가 하나 있어. 섬프에 숨겨져 있지. 이름들, 거래들 — 일어나선 안 됐던 기억 거래들."
+        "text_ko": "들어 봐. 장부가 하나 있어. 섬프에 숨겨져 있지. 이름들, 거래들, 일어나선 안 됐던 기억 거래들."
       },
       {
         "speaker": "Nervous Trader",
-        "text": "Find it. Bring it back to me. Or burn it. I don't care which — just don't let the Authority find it.",
-        "text_ko": "찾아 줘. 나한테 가져오든가. 아니면 태워 버리든가. 어느 쪽이든 상관없어 — 관리국 손에만 넘어가지 않으면 돼."
+        "text": "Find it. Bring it back to me. Or burn it. I don't care which, just don't let the Authority find it.",
+        "text_ko": "찾아 줘. 나한테 가져오든가. 아니면 태워 버리든가. 어느 쪽이든 상관없어, 관리국 손에만 넘어가지 않으면 돼."
       }
     ],
     "sq_sump_ledger_found": [
       {
         "speaker": "",
-        "text": "Behind a loose stone, wrapped in oilcloth — a leather-bound ledger.",
+        "text": "Behind a loose stone, wrapped in oilcloth, a leather-bound ledger.",
         "cg": "res://assets/cg/generated/story_ch2_ledger_found.png",
-        "text_ko": "헐거운 돌 뒤, 기름천에 싸인 것 — 가죽 장정의 장부였다."
+        "text_ko": "헐거운 돌 뒤, 기름천에 싸인 것, 가죽 장정의 장부였다."
       },
       {
         "speaker": "",
@@ -530,9 +535,9 @@
     "sq_sump_ledger_return": [
       {
         "speaker": "Nervous Trader",
-        "text": "You brought it back. Good. Good. Here — for your trouble.",
+        "text": "You brought it back. Good. Good. Here, for your trouble.",
         "cg": "res://assets/cg/generated/story_ch2_ledger_return.png",
-        "text_ko": "가져왔군. 좋아. 좋아. 자 — 수고비야."
+        "text_ko": "가져왔군. 좋아. 좋아. 자, 수고비야."
       },
       {
         "speaker": "",
@@ -549,8 +554,8 @@
       },
       {
         "speaker": "",
-        "text": "Names turned to ash. Debts dissolved. And something crystallized in the smoke — a memory that wasn't yours.",
-        "text_ko": "이름들이 재가 되었다. 빚이 풀렸다. 그리고 연기 속에서 무언가 결정이 맺혔다 — 당신의 것이 아닌 기억이."
+        "text": "Names turned to ash. Debts dissolved. And something crystallized in the smoke, a memory that wasn't yours.",
+        "text_ko": "이름들이 재가 되었다. 빚이 풀렸다. 그리고 연기 속에서 무언가 결정이 맺혔다, 당신의 것이 아닌 기억이."
       },
       {
         "speaker": "",

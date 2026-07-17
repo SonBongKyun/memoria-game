@@ -142,6 +142,11 @@ def main() -> int:
                             f"{file_name} {label}: start_index '{start_index}' is outside {target}.steps"
                         )
 
+            if step.get("action") == "goto_map":
+                map_path = step.get("path")
+                if not isinstance(map_path, str) or not resource_path_exists(map_path):
+                    errors.append(f"{file_name} {label}: goto_map resource '{map_path}' does not exist")
+
             if "choice" not in step:
                 continue
             choices = step["choice"]

@@ -1,15 +1,15 @@
 extends Node
 
 const MAPS := [
-	{"id": "rim_forest", "width": 25, "height": 18, "voices": 3, "hunts": 1},
-	{"id": "verdan_market", "width": 30, "height": 20, "voices": 4, "hunts": 0},
+	{"id": "rim_forest", "width": 25, "height": 18, "voices": 3, "hunts": 1, "caches": 1},
+	{"id": "verdan_market", "width": 30, "height": 20, "voices": 4, "hunts": 0, "caches": 1},
 	{"id": "belt_waystation", "width": 25, "height": 18, "voices": 3, "hunts": 2},
-	{"id": "drift_shelter", "width": 25, "height": 18, "voices": 3, "hunts": 1},
+	{"id": "drift_shelter", "width": 25, "height": 18, "voices": 3, "hunts": 1, "caches": 1},
 	{"id": "crumbling_coast", "width": 25, "height": 18, "voices": 3, "hunts": 2},
 	{"id": "the_seam", "width": 25, "height": 18, "voices": 3, "hunts": 1},
 	{"id": "seam_outskirts", "width": 25, "height": 18, "voices": 3, "hunts": 2},
 	{"id": "forgotten_forest", "width": 25, "height": 18, "voices": 3, "hunts": 2},
-	{"id": "colorless_waste", "width": 25, "height": 18, "voices": 3, "hunts": 2},
+	{"id": "colorless_waste", "width": 25, "height": 18, "voices": 3, "hunts": 2, "caches": 1},
 	{"id": "bl07_void", "width": 20, "height": 20, "voices": 3, "hunts": 2},
 	{"id": "rim_root_hollow", "width": 25, "height": 18, "voices": 2, "hunts": 2, "optional_site": true},
 	{"id": "verdan_ledger_cellar", "width": 25, "height": 18, "voices": 3, "hunts": 1, "optional_site": true},
@@ -104,6 +104,15 @@ func _ready() -> void:
 				assert(field_sprite != null and field_sprite.sprite_frames != null, "%s world voice needs a field sprite" % actor.name)
 				var texture := field_sprite.sprite_frames.get_frame_texture("idle_down", 0)
 				assert(texture != null and texture.resource_path.contains("world_population/npcs"), "%s must resolve a generated NPC field asset" % actor.name)
+				var source_image := texture.get_image()
+				var used_rect := source_image.get_used_rect()
+				var is_child := "child" in String(actor.get("npc_name")).to_lower()
+				var expected_height := PixelSprite.FIELD_CHILD_HEIGHT if is_child else PixelSprite.FIELD_ADULT_HEIGHT
+				var visible_height := float(used_rect.size.y) * field_sprite.scale.y
+				var visible_foot := (float(used_rect.position.y + used_rect.size.y) - float(source_image.get_height()) * 0.5 + field_sprite.offset.y) * field_sprite.scale.y + field_sprite.position.y
+				assert(absf(visible_height - expected_height) < 0.5, "%s must use the unified apparent-height profile" % actor.name)
+				assert(absf(visible_foot - PixelSprite.FIELD_FOOT_Y) < 0.5, "%s must share the unified foot baseline" % actor.name)
+				assert(field_sprite.texture_filter == CanvasItem.TEXTURE_FILTER_LINEAR, "%s must use the unified low-noise texture filter" % actor.name)
 				field_asset_paths[texture.resource_path] = true
 				var voice_id := String(actor.name).trim_prefix("WorldVoice_")
 				if WorldPopulation.SPECIAL_VOICE_ART.has(voice_id):
@@ -150,8 +159,9 @@ func _ready() -> void:
 		atlas_gate_count += 1
 		gate_map.free()
 
-	assert(total_voices == 64 and total_hunts == 32 and total_caches == 7, "World expansion totals must remain deliberate")
-	assert(field_asset_paths.size() == 48, "Every generated civilian and hostile field asset must appear in the playable population")
+	assert(total_voices == 64 and total_hunts == 32 and total_caches == 11, "World expansion totals must remain deliberate")
+	print("[WorldPopulationSmoke] unique live field assets: %d" % field_asset_paths.size())
+	assert(field_asset_paths.size() == 31, "The seven unified civilian archetypes and all hostile field assets must appear in the playable population")
 	assert(special_voice_count == 6 and special_hunt_count == 6, "Specialist and rare variants must remain wired")
 	assert(atlas_gate_count == 7, "Every earned atlas destination needs a story-safe return route")
 	GameManager.story_flags = previous_flags

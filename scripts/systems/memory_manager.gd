@@ -42,7 +42,7 @@ var burned_memories: Array[Memory] = []  # 연소된 기억 기록
 const SYNTHESIS_NAMES: Dictionary = {
 	# grade_value → 합성 결과 제목/설명 템플릿
 	MemoryGrade.GRADE_4: {"title": "Blended Sensation", "desc": "Two fading impressions fused into something richer. The detail is sharper now."},
-	MemoryGrade.GRADE_3: {"title": "Woven Routine", "desc": "Daily fragments entwined — a habit you didn't know you had."},
+	MemoryGrade.GRADE_3: {"title": "Woven Routine", "desc": "Daily fragments entwined, a habit you didn't know you had."},
 	MemoryGrade.GRADE_2: {"title": "Bound Connection", "desc": "Relationships compressed into a single ache. Heavier, but clearer."},
 	MemoryGrade.GRADE_1: {"title": "Forged Identity", "desc": "The core of who you are, distilled from what you chose to keep."},
 }
@@ -69,11 +69,11 @@ signal passive_unlocked(passive_name: String)
 
 func _ready() -> void:
 	_init_starting_memories()
-	print("[MemoryManager] Initialized — %d memories loaded" % memories.size())
+	print("[MemoryManager] Initialized, %d memories loaded" % memories.size())
 
 ## 초기 기억 세팅 (Chapter 1 시작 시)
 func _init_starting_memories() -> void:
-	# Grade 5 — 감각 잔편
+	# Grade 5, 감각 잔편
 	add_memory(Memory.new(
 		"sense_forest_smell",
 		"Forest After Rain",
@@ -87,7 +87,7 @@ func _init_starting_memories() -> void:
 		MemoryGrade.GRADE_5, 10
 	))
 
-	# Grade 4 — 일상 기억
+	# Grade 4, 일상 기억
 	add_memory(Memory.new(
 		"daily_market_food",
 		"Street Food in a Market",
@@ -104,7 +104,7 @@ func _init_starting_memories() -> void:
 		"Elia"
 	))
 
-	# Grade 3 — 관계 기억
+	# Grade 3, 관계 기억
 	add_memory(Memory.new(
 		"rel_hand_reaching",
 		"A Hand Reaching Out",
@@ -114,7 +114,7 @@ func _init_starting_memories() -> void:
 		"Elia"
 	))
 
-	# Grade 2 — 정체성 기억
+	# Grade 2, 정체성 기억
 	add_memory(Memory.new(
 		"identity_first_sword",
 		"The Day You First Held a Sword",
@@ -124,7 +124,7 @@ func _init_starting_memories() -> void:
 		"Unknown"
 	))
 
-	# Grade 1 — 핵심 기억 (게임 후반부)
+	# Grade 1, 핵심 기억 (게임 후반부)
 	add_memory(Memory.new(
 		"core_name_origin",
 		"The Name 'Arrel'",
@@ -134,7 +134,7 @@ func _init_starting_memories() -> void:
 		"Elia"
 	))
 
-## 기억 침식 — 챕터 진행 시 미연소 기억이 서서히 바래짐
+## 기억 침식, 챕터 진행 시 미연소 기억이 서서히 바래짐
 ## Grade 1(핵심)과 엘리아 관련 기억(동행 시)은 침식 내성
 func apply_erosion(chapter: int) -> void:
 	var base_amount = chapter * 1  # S53: 침식 속도 완화 (chapter*2 → chapter*1)
@@ -162,7 +162,7 @@ func apply_erosion(chapter: int) -> void:
 			print("[MemoryManager] FADED: %s (erosion %d/%d)" % [m.title, m.erosion, m.burn_power])
 	if eroded_count > 0:
 		memories_eroded.emit(eroded_count)
-		print("[MemoryManager] Erosion applied — %d memories affected (ch%d, +%d)" % [eroded_count, chapter, base_amount])
+		print("[MemoryManager] Erosion applied, %d memories affected (ch%d, +%d)" % [eroded_count, chapter, base_amount])
 
 ## 유효 연소력 계산 (침식 반영)
 func get_effective_burn_power(memory: Memory) -> int:
@@ -174,7 +174,7 @@ func get_erosion_ratio(memory: Memory) -> float:
 		return 0.0
 	return clampf(float(memory.erosion) / float(memory.burn_power), 0.0, 1.0)
 
-## 비전투 연소 (탐색 공명 이벤트용 — 소리 없이)
+## 비전투 연소 (탐색 공명 이벤트용, 소리 없이)
 func burn_memory_silent(memory_id: String, allow_faded: bool = false) -> Memory:
 	for i in range(memories.size()):
 		if memories[i].id == memory_id and not memories[i].is_burned:
@@ -197,7 +197,7 @@ func add_chapter_memories(chapter: int) -> void:
 		apply_erosion(chapter)
 	match chapter:
 		3:
-			# Ch3: Belt Waystation — Weight of Pages
+			# Ch3: Belt Waystation, Weight of Pages
 			if not _has_memory("sense_dead_soil"):
 				add_memory(Memory.new(
 					"sense_dead_soil",
@@ -215,7 +215,7 @@ func add_chapter_memories(chapter: int) -> void:
 					"Tobias"
 				))
 		4:
-			# Ch4: Drift Shelter — Drift
+			# Ch4: Drift Shelter, Drift
 			if not _has_memory("sense_ash_rain"):
 				add_memory(Memory.new(
 					"sense_ash_rain",
@@ -233,7 +233,7 @@ func add_chapter_memories(chapter: int) -> void:
 					"Elia"
 				))
 		5:
-			# Ch5: Crumbling Coast — The Classifier
+			# Ch5: Crumbling Coast, The Classifier
 			if not _has_memory("sense_salt_wind"):
 				add_memory(Memory.new(
 					"sense_salt_wind",
@@ -251,7 +251,7 @@ func add_chapter_memories(chapter: int) -> void:
 					"Elia"
 				))
 		6:
-			# Ch6: The Seam — Thread That Holds
+			# Ch6: The Seam, Thread That Holds
 			if not _has_memory("rel_sable_trust"):
 				add_memory(Memory.new(
 					"rel_sable_trust",
@@ -272,12 +272,12 @@ func add_chapter_memories(chapter: int) -> void:
 				add_memory(Memory.new(
 					"daily_garden_flowers",
 					"Flowers From Every Season",
-					"They bloom together — spring and autumn sharing the same soil. Time doesn't work right here.",
+					"They bloom together, spring and autumn sharing the same soil. Time doesn't work right here.",
 					MemoryGrade.GRADE_4, 28,
 					"The Seam's gardens appear monochrome"
 				))
 		7:
-			# Ch7: Seam Outskirts — The Other Side of the Flame
+			# Ch7: Seam Outskirts, The Other Side of the Flame
 			if not _has_memory("sense_static_air"):
 				add_memory(Memory.new(
 					"sense_static_air",
@@ -295,7 +295,7 @@ func add_chapter_memories(chapter: int) -> void:
 					"Sable"
 				))
 		8:
-			# Ch8: Forgotten Forest — The Forest That Forgets
+			# Ch8: Forgotten Forest, The Forest That Forgets
 			if not _has_memory("sense_hollow_trees"):
 				add_memory(Memory.new(
 					"sense_hollow_trees",
@@ -307,18 +307,18 @@ func add_chapter_memories(chapter: int) -> void:
 				add_memory(Memory.new(
 					"rel_ghost_words",
 					"A Ghost's Last Sentence",
-					"'I was—' That's all they could say. The rest was eaten. You wonder how many sentences you've already lost.",
+					"'I was...' That's all they could say. The rest was eaten. You wonder how many sentences you've already lost.",
 					MemoryGrade.GRADE_4, 30,
 					"Lose awareness of incomplete thoughts. Gaps in speech go unnoticed.",
 					""
 				))
 		9:
-			# Ch9: Colorless Waste — Where Colors Stop
+			# Ch9: Colorless Waste, Where Colors Stop
 			if not _has_memory("sense_no_color"):
 				add_memory(Memory.new(
 					"sense_no_color",
 					"The Place Where Color Stopped",
-					"Gray that isn't gray — it's the absence of the concept. Even memory of color feels distant here.",
+					"Gray that isn't gray, it's the absence of the concept. Even memory of color feels distant here.",
 					MemoryGrade.GRADE_5, 15
 				))
 			if not _has_memory("identity_compass"):
@@ -435,7 +435,7 @@ func add_chapter_memories(chapter: int) -> void:
 					"Tobias"
 				))
 		19:
-			# S147 Ch19: The Approach — Lumea 외곽
+			# S147 Ch19: The Approach, Lumea 외곽
 			if not _has_memory("sense_white_noon"):
 				add_memory(Memory.new(
 					"sense_white_noon",
@@ -453,7 +453,7 @@ func add_chapter_memories(chapter: int) -> void:
 					"Vael"
 				))
 		20:
-			# S147 Ch20: Into the Monolith — 기억의 바다
+			# S147 Ch20: Into the Monolith, 기억의 바다
 			if not _has_memory("sense_monolith_hum"):
 				add_memory(Memory.new(
 					"sense_monolith_hum",
@@ -523,7 +523,7 @@ func add_memory(memory: Memory) -> void:
 		AudioManager.play_sfx("memory_add")
 	_refresh_connections()  # S62: 새 기억 추가 시 연결 자동 재계산
 
-## S62: Memory Constellation — 기억 간 연결 자동 생성
+## S62: Memory Constellation, 기억 간 연결 자동 생성
 ## 규칙: (1) 같은 related_npc 끼리 연결, (2) 인접 등급의 같은 주제 키워드 연결
 func _refresh_connections() -> void:
 	# 초기화
@@ -684,7 +684,7 @@ func weave_unlocked() -> bool:
 		return false
 	return intact_anchor_count() >= 3
 
-## 기억 합성 — 동일 등급 기억 2개 → 상위 등급 1개
+## 기억 합성, 동일 등급 기억 2개 → 상위 등급 1개
 ## 원본은 소실(연소와 다른 방식의 상실). Grade 1(=4)은 최고 등급이므로 합성 불가.
 func synthesize(memory_a_id: String, memory_b_id: String) -> Memory:
 	var mem_a: Memory = null
@@ -713,7 +713,7 @@ func synthesize(memory_a_id: String, memory_b_id: String) -> Memory:
 		template["desc"] + "\n(From: %s + %s)" % [mem_a.title, mem_b.title],
 		new_grade,
 		new_power,
-		"Synthesized — cannot be undone"
+		"Synthesized, cannot be undone"
 	)
 
 	# 원본 제거
@@ -752,7 +752,7 @@ func check_unlock_passives() -> void:
 			passive_unlocked.emit(passive["name"])
 			NotificationToast.show_toast("Passive Unlocked: %s" % passive["name"], NotificationToast.ToastType.SUCCESS)
 			print("[MemoryManager] PASSIVE UNLOCKED: %s (burns: %d)" % [passive["name"], total])
-			# S58: Power milestone — dramatic screen effect
+			# S58: Power milestone, dramatic screen effect
 			_play_power_milestone(passive["name"], total)
 
 ## 활성 패시브 목록 반환
@@ -766,7 +766,7 @@ func get_active_passives() -> Array:
 func has_passive(passive_id: String) -> bool:
 	return burn_passives.has(passive_id)
 
-## S58: Power milestone dramatic effect — screen flash + particle burst + text
+## S58: Power milestone dramatic effect, screen flash + particle burst + text
 func _play_power_milestone(passive_name: String, burn_count: int) -> void:
 	if not is_inside_tree():
 		return
@@ -830,7 +830,7 @@ func _play_power_milestone(passive_name: String, burn_count: int) -> void:
 	count_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_child(count_lbl)
 
-	# Particle burst — radial gold particles
+	# Particle burst, radial gold particles
 	var particles = GPUParticles2D.new()
 	particles.position = Vector2(640, 360)  # Screen center
 	particles.emitting = false
@@ -879,7 +879,7 @@ func _play_power_milestone(passive_name: String, burn_count: int) -> void:
 	tw4.tween_interval(2.0)
 	tw4.tween_property(overlay, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN)
 	tw4.tween_callback(overlay.queue_free)
-	print("[MemoryManager] S58: Power milestone displayed — %s (%d burns)" % [passive_name, burn_count])
+	print("[MemoryManager] S58: Power milestone displayed, %s (%d burns)" % [passive_name, burn_count])
 
 ## 세이브용 데이터 내보내기
 func export_data() -> Dictionary:
@@ -935,4 +935,4 @@ func import_data(data: Dictionary) -> void:
 		_init_starting_memories()
 	_refresh_connections()
 
-	print("[MemoryManager] Imported — %d memories, %d burned" % [memories.size(), burned_memories.size()])
+	print("[MemoryManager] Imported, %d memories, %d burned" % [memories.size(), burned_memories.size()])

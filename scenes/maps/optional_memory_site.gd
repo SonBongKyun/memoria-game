@@ -1,4 +1,4 @@
-## OptionalMemorySite — two compact, returnable story pockets that extend the
+## OptionalMemorySite, two compact, returnable story pockets that extend the
 ## Rim and Verdan without interrupting the Part 1 chapter chain.
 extends Node2D
 

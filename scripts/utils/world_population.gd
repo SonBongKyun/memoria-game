@@ -1,4 +1,4 @@
-## WorldPopulation — Chapter-aware field inhabitants and visible memory threats.
+## WorldPopulation, Chapter-aware field inhabitants and visible memory threats.
 ## Each map receives a small social ecology: witnesses, workers, refugees, and
 ## optional hostile echoes.  This keeps the journey populated without turning
 ## every encounter into a mandatory combat interruption.
@@ -15,6 +15,7 @@ const NPC_ART := {
 	"scribe": "res://assets/sprites/world_population/npcs/drift_scribe_field_v1.png",
 	"lantern": "res://assets/sprites/world_population/npcs/seam_lanternkeeper_field_v1.png",
 	"pilgrim": "res://assets/sprites/world_population/npcs/waste_pilgrim_field_v1.png",
+	"child": "res://assets/sprites/world_population/npcs/coast_lantern_child_field_v2.png",
 }
 
 const HUNT_ART := {
@@ -27,12 +28,14 @@ const HUNT_ART := {
 }
 
 const SPECIAL_VOICE_ART := {
-	"rim_scout": "res://assets/sprites/world_population/npcs/rim_herbalist_field_v1.png",
-	"sealed_note_seller": "res://assets/sprites/world_population/npcs/verdan_runner_field_v1.png",
-	"signal_keeper": "res://assets/sprites/world_population/npcs/belt_mechanic_field_v1.png",
-	"rain_ledger_scribe": "res://assets/sprites/world_population/npcs/drift_child_archivist_field_v1.png",
-	"quiet_healer": "res://assets/sprites/world_population/npcs/seam_medic_field_v1.png",
-	"compass_pilgrim": "res://assets/sprites/world_population/npcs/waste_compass_guide_field_v1.png",
+	# Specialists deliberately reuse the same six painterly field archetypes.
+	# The old one-off files mixed realistic, anime, and pixel treatments.
+	"rim_scout": NPC_ART.forager,
+	"sealed_note_seller": NPC_ART.debtor,
+	"signal_keeper": NPC_ART.courier,
+	"rain_ledger_scribe": NPC_ART.scribe,
+	"quiet_healer": NPC_ART.lantern,
+	"compass_pilgrim": NPC_ART.pilgrim,
 }
 
 const SPECIAL_HUNT_ART := {
@@ -54,6 +57,7 @@ const POPULATIONS := {
 		"hunts": [
 			{"id": "rim_ash_hound", "tile": [18, 10], "art": HUNT_ART.ash_hound, "name": "Ash Hound", "name_ko": "재 사냥개", "hp": 42, "atk": 9, "abilities": ["poison"], "requires": "ch1_complete", "weakness": "fire"},
 		],
+		"caches": [{"id": "rim_cinder_vial", "tile": [14, 12], "item": "cinder_vial", "count": 1, "requires": "ch1_void_beast_defeated"}],
 	},
 	"verdan_market": {
 		"voices": [
@@ -63,6 +67,7 @@ const POPULATIONS := {
 			{"id": "sealed_note_seller", "tile": [27, 16], "art": NPC_ART.debtor, "name": "Sealed-Note Seller", "name_ko": "봉인 증서 상인", "line": "A loan note is only paper until it decides which face you can no longer picture.", "line_ko": "대출 증서는 종이일 뿐이야. 더는 떠올릴 수 없는 얼굴을 고르기 전까진."},
 		],
 		"hunts": [],
+		"caches": [{"id": "verdan_ledger_chalk", "tile": [20, 15], "item": "ledger_chalk", "count": 1, "requires": "ch2_malet_done"}],
 	},
 	"belt_waystation": {
 		"voices": [
@@ -84,6 +89,7 @@ const POPULATIONS := {
 		"hunts": [
 			{"id": "drift_signal_wisp", "tile": [8, 13], "art": HUNT_ART.signal_wisp, "name": "Signal Wisp", "name_ko": "신호 도깨비불", "hp": 54, "atk": 14, "is_void": true, "abilities": ["drain", "weaken"], "requires": "ch4_complete", "weakness": "void"},
 		],
+		"caches": [{"id": "drift_anchor_lantern", "tile": [14, 10], "item": "anchor_lantern", "count": 1, "requires": "ch4_complete"}],
 	},
 	"crumbling_coast": {
 		"voices": [
@@ -98,7 +104,7 @@ const POPULATIONS := {
 	},
 	"the_seam": {
 		"voices": [
-			{"id": "lantern_keeper", "tile": [4, 10], "art": NPC_ART.lantern, "name": "Seam Lantern Keeper", "name_ko": "심의 등불지기", "line": "Light the lantern before you cross. Not for the dark—for the part of you that likes it.", "line_ko": "건너기 전에 등불부터 밝혀. 어둠 때문이 아니라, 어둠을 좋아하는 네 안의 부분 때문에."},
+			{"id": "lantern_keeper", "tile": [4, 10], "art": NPC_ART.lantern, "name": "Seam Lantern Keeper", "name_ko": "심의 등불지기", "line": "Light the lantern before you cross. Not for the dark, for the part of you that likes it.", "line_ko": "건너기 전에 등불부터 밝혀. 어둠 때문이 아니라, 어둠을 좋아하는 네 안의 부분 때문에."},
 			{"id": "quiet_healer", "tile": [18, 7], "art": NPC_ART.scribe, "name": "Quiet Healer", "name_ko": "고요한 치료사", "line": "Here, we ask what hurts before we ask what you lost.", "line_ko": "여기서는 무엇을 잃었는지보다 무엇이 아픈지부터 물어."},
 			{"id": "gully_child", "tile": [20, 12], "art": NPC_ART.courier, "name": "Gully Child", "name_ko": "골짜기 아이", "line": "The color begins over there. I thought it was a story until it touched my sleeve.", "line_ko": "색은 저쪽에서 시작돼. 난 소문인 줄 알았는데 내 소매를 만졌어."},
 		],
@@ -138,6 +144,7 @@ const POPULATIONS := {
 			{"id": "waste_colorless_wraith", "tile": [10, 10], "art": HUNT_ART.colorless_wraith, "name": "Colorless Wraith", "name_ko": "무색 망령", "hp": 120, "atk": 26, "is_void": true, "abilities": ["drain", "stun"], "weakness": "physical"},
 			{"id": "waste_void_fragment", "tile": [16, 5], "art": HUNT_ART.void_fragment, "name": "Hollow Fragment", "name_ko": "속 빈 파편", "hp": 105, "atk": 23, "is_void": true, "abilities": ["charge", "reflect"], "weakness": "void"},
 		],
+		"caches": [{"id": "waste_witness_knot", "tile": [14, 15], "item": "witness_knot", "count": 1, "requires": "ch9_arrived"}],
 	},
 	"bl07_void": {
 		"voices": [
@@ -396,7 +403,22 @@ static func _tile_position(tile: Variant) -> Vector2:
 
 static func _art_for_voice(data: Dictionary) -> String:
 	var id := String(data.get("id", ""))
-	return String(SPECIAL_VOICE_ART.get(id, data.get("art", "")))
+	if SPECIAL_VOICE_ART.has(id):
+		return String(SPECIAL_VOICE_ART[id])
+	var source := (id + " " + String(data.get("name", "")) + " " + String(data.get("art", ""))).to_lower()
+	if "child" in source:
+		return String(NPC_ART.child)
+	if "courier" in source or "runner" in source or "mechanic" in source or "code_" in source:
+		return String(NPC_ART.courier)
+	if "debt" in source or "debtor" in source or "clerk" in source or "miner" in source:
+		return String(NPC_ART.debtor)
+	if "scribe" in source or "archiv" in source or "translator" in source or "witness" in source or "name_keeper" in source or "listener" in source:
+		return String(NPC_ART.scribe)
+	if "lantern" in source or "medic" in source or "healer" in source or "baker" in source or "bridge_keeper" in source or "pathkeeper" in source:
+		return String(NPC_ART.lantern)
+	if "pilgrim" in source or "compass" in source or "quartermaster" in source or "caravan" in source or "walker" in source:
+		return String(NPC_ART.pilgrim)
+	return String(NPC_ART.forager)
 
 static func _art_for_hunt(data: Dictionary) -> String:
 	var id := String(data.get("id", ""))

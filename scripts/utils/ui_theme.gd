@@ -1,4 +1,4 @@
-## UITheme — MEMORIA 공통 UI 색상/스타일 상수
+## UITheme, MEMORIA 공통 UI 색상/스타일 상수
 ## 모든 UI에서 일관된 테마 사용을 위한 유틸리티.
 class_name UITheme
 
@@ -29,11 +29,11 @@ const SPEAKER_DEFAULT := Color(0.75, 0.6, 0.4)
 
 # ── 등급 색상 ──
 const GRADE_COLORS := [
-	Color(0.5, 0.5, 0.45),     # Grade 5 — 회색
-	Color(0.55, 0.5, 0.35),    # Grade 4 — 갈색
-	Color(0.4, 0.5, 0.6),      # Grade 3 — 청색
-	Color(0.6, 0.45, 0.55),    # Grade 2 — 보라
-	Color(0.7, 0.55, 0.3),     # Grade 1 — 금색
+	Color(0.5, 0.5, 0.45),     # Grade 5, 회색
+	Color(0.55, 0.5, 0.35),    # Grade 4, 갈색
+	Color(0.4, 0.5, 0.6),      # Grade 3, 청색
+	Color(0.6, 0.45, 0.55),    # Grade 2, 보라
+	Color(0.7, 0.55, 0.3),     # Grade 1, 금색
 ]
 
 # ── 전투 색상 ──
@@ -74,64 +74,40 @@ static func make_hover_style(base: StyleBoxFlat = null) -> StyleBoxFlat:
 	style.set_content_margin_all(8)
 	return style
 
-# ── 폰트 렌더링 품질 (다크판타지 VN 톤을 위한 부드러운 세리프 렌더) ──
-## SystemFont에 공통 렌더링 설정 적용 — 서브픽셀/라이트 힌팅/밉맵으로
-## 세리프 글자 가장자리를 매끈하게, 스케일 시 뭉개짐 없이.
-static func _tune_font(font: SystemFont) -> SystemFont:
+# ── 폰트 렌더링 품질 ──
+## 폰트를 프로젝트에 포함해 PC별 폴백 차이와 일부 한글 글리프 깨짐을 없앤다.
+## 작은 UI에서는 밉맵과 서브픽셀 위치가 획을 갈라 보이게 할 수 있어 비활성화한다.
+const TITLE_FONT_PATH := "res://assets/fonts/NotoSerifKR-VF.ttf"
+const BODY_FONT_PATH := "res://assets/fonts/NotoSerifKR-VF.ttf"
+const UI_FONT_PATH := "res://assets/fonts/NotoSansKR-VF.ttf"
+
+static var _title_font: FontFile
+static var _body_font: FontFile
+static var _ui_font: FontFile
+
+static func _load_bundled_font(path: String) -> FontFile:
+	var font := load(path) as FontFile
+	assert(font != null, "Bundled font is missing: %s" % path)
 	font.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
-	font.hinting = TextServer.HINTING_LIGHT
-	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
-	font.generate_mipmaps = true
-	font.allow_system_fallback = true
+	font.hinting = TextServer.HINTING_NORMAL
+	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	font.generate_mipmaps = false
 	return font
 
-## 한국어 우선 스택은 명조(세리프) 계열로 — 분위기의 핵심.
-## Noto Serif KR(Win10+ 기본 탑재) → Batang(항상 존재) → Nanum Myeongjo → 고딕 폴백.
-static func make_title_font() -> SystemFont:
-	var font := SystemFont.new()
-	var latin_names := [
-		"Cinzel",
-		"Trajan Pro",
-		"Cormorant SC",
-		"Cormorant Garamond",
-		"Noto Serif KR",
-		"Georgia",
-		"Constantia",
-		"serif",
-	]
-	# 제목: 획이 굵고 고전적인 명조 — Gungsuh(궁서)까지 폴백으로 무게감 부여
-	var korean_names := ["Noto Serif KR", "Batang", "Nanum Myeongjo", "Gungsuh", "Malgun Gothic", "serif"]
-	font.font_names = PackedStringArray(korean_names if GameManager.current_locale == "ko" else latin_names)
-	return _tune_font(font)
+static func make_title_font() -> Font:
+	if _title_font == null:
+		_title_font = _load_bundled_font(TITLE_FONT_PATH)
+	return _title_font
 
-static func make_body_font() -> SystemFont:
-	var font := SystemFont.new()
-	var latin_names := [
-		"Cormorant Garamond",
-		"EB Garamond",
-		"Noto Serif KR",
-		"Georgia",
-		"Constantia",
-		"Palatino Linotype",
-		"serif",
-	]
-	# 본문: 가독성 높은 명조 — 시스템 UI 고딕(Malgun) 대신 세리프 우선
-	var korean_names := ["Noto Serif KR", "Batang", "Nanum Myeongjo", "Malgun Gothic", "serif"]
-	font.font_names = PackedStringArray(korean_names if GameManager.current_locale == "ko" else latin_names)
-	return _tune_font(font)
+static func make_body_font() -> Font:
+	if _body_font == null:
+		_body_font = _load_bundled_font(BODY_FONT_PATH)
+	return _body_font
 
-## UI(버튼/HUD)는 깔끔한 산세리프 유지 — 정보 가독성 우선.
-static func make_ui_font() -> SystemFont:
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray([
-		"Pretendard",
-		"Malgun Gothic",
-		"Noto Sans KR",
-		"Segoe UI",
-		"Arial",
-		"sans-serif",
-	])
-	return _tune_font(font)
+static func make_ui_font() -> Font:
+	if _ui_font == null:
+		_ui_font = _load_bundled_font(UI_FONT_PATH)
+	return _ui_font
 
 static func apply_title_font(control: Control) -> void:
 	if control:

@@ -1,4 +1,4 @@
-## VNHost — VN 씬 전용 빈 컨테이너
+## VNHost, VN 씬 전용 빈 컨테이너
 ## S60: SceneFlow가 VN을 구동할 때 '배경'이 될 빈 씬. VN UI가 CanvasLayer로 덮음.
 ## 탐색 맵이 아닌 순수 VN 구간에서 사용.
 extends Node2D
