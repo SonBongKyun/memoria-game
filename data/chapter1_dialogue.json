@@ -235,7 +235,7 @@
       {
         "speaker": "",
         "text": "A figure stood at the edge of the clearing, flickering like a candle in wind.",
-        "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+        "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
         "text_ko": "공터 가장자리에 한 형체가 서 있었다. 바람 앞의 촛불처럼 깜빡이면서."
       },
       {
@@ -343,7 +343,7 @@
         "speaker": "Elia",
         "text": "Can I ask you something?",
         "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/world_rewrite_elia_anchor.png",
+        "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png",
         "text_ko": "하나 물어봐도 돼?"
       },
       {

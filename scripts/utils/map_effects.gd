@@ -387,7 +387,7 @@ static func _get_chapter_art_path(chapter_num: int) -> String:
 		8: "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
 		9: "res://assets/cg/generated/memory_compass_resonance_cinematic.png",
 		10: "res://assets/cg/generated/chapter_splash_bl07_void.png",
-		11: "res://assets/cg/generated/world_rewrite_elia_anchor.png",
+		11: "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png",
 	}
 	return art_map.get(chapter_num, "")
 

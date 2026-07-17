@@ -21,7 +21,7 @@
       "narrate_ko": "두개골이 욱신거렸다. 깨끗한 두통이 아니라, 뇌의 한 조각을 도려낸 뒤 그 빈자리를 봉합하지 않은 듯한 깊은 압박이었다."
     },
     {
-      "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
       "narrate": "He watched his own hand for a long moment before he recognized it.",
       "narrate_ko": "그는 한참 동안 자기 손을 바라본 뒤에야 그것이 자신의 손이라는 걸 알아보았다."
     },
@@ -171,7 +171,7 @@
       ]
     },
     {
-      "cg": "res://assets/cg/generated/memory_burn_elia_song.png",
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png",
       "fade": 1.2,
       "requires_flag": "burned_for_passage",
       "narrate": "He let the melody catch. For one breath, the forest smelled of smoke and old wood. Then the song was heat, then ash, then nothing.",

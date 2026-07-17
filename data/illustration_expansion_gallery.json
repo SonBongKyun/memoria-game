@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "collection": "Witnessed Worlds Illustration Expansion",
+  "items": [
+    {
+      "title": "The Page Refuses Ordinary Readers",
+      "type": "Part II Story Moment",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/part2_ch12_reader_hidden_ink_v1.png",
+      "desc": "Elia, Arrel, and Tobias discover the cost hidden inside a blank notebook."
+    },
+    {
+      "title": "One Step Behind Himself",
+      "type": "Part II Story Moment",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/part2_ch13_third_person_detachment_v1.png",
+      "desc": "Arrel's reflection falls behind while Elia waits for him to recognize the distance."
+    },
+    {
+      "title": "The Restraints Opened",
+      "type": "Part II Story Moment",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/part2_ch14_prisoner_release_v1.png",
+      "desc": "A stranger survives the Confessor Hall because three people choose a precise rescue."
+    },
+    {
+      "title": "Again, From the Beginning",
+      "type": "Part II Story Moment",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/part2_ch15_shared_refrain_v1.png",
+      "desc": "Han, Arrel, and Elia braid two inherited melodies into one living refrain."
+    },
+    {
+      "title": "The Gate Nera Did Not Close",
+      "type": "Part II Story Moment",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/part2_ch16_nera_service_gate_v1.png",
+      "desc": "Nera turns a ledger sideways and leaves a service route unreported."
+    },
+
+    {
+      "title": "Name Thread in the Storm",
+      "type": "Character Bond",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_elia_storm_thread_v1.png",
+      "desc": "Arrel and Elia hold one shared name against a storm of borrowed lives."
+    },
+    {
+      "title": "The Record Needs a Lantern",
+      "type": "Character Bond",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_tobias_record_tree_v1.png",
+      "desc": "Tobias writes what the Authority erased while Arrel keeps the light steady."
+    },
+    {
+      "title": "The Eighteenth Lantern",
+      "type": "Character Bond",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_sable_watch_v1.png",
+      "desc": "Sable and Arrel share a watch shift above the refuge they refuse to lose."
+    },
+    {
+      "title": "Two Readers, Two Ledgers",
+      "type": "Character Bond",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/bond_elia_nera_mirror_v1.png",
+      "desc": "Elia and Nera recognize the same gift shaped by opposite institutions."
+    },
+    {
+      "title": "The Missing Outcome",
+      "type": "Character Bond",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_kairos_missing_piece_v1.png",
+      "desc": "Arrel and Kairos reach toward the same future from incompatible maps."
+    },
+
+    {
+      "title": "Memory Chain Burn",
+      "type": "Battle Cut-in",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_arrel_chain_burn_v5.png",
+      "desc": "Consecutive burns braid three surviving memory colors into one accelerating strike."
+    },
+    {
+      "title": "Humming Shield",
+      "type": "Battle Cut-in",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_elia_humming_shield_v5.png",
+      "desc": "Elia turns a held note into a shelter of overlapping remembered pages."
+    },
+    {
+      "title": "Archive Countermeasure",
+      "type": "Battle Cut-in",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_tobias_archive_counter_v5.png",
+      "desc": "Tobias finds the single premise that makes a hostile pattern fail."
+    },
+    {
+      "title": "Warden's Intercept",
+      "type": "Battle Cut-in",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_sable_warden_intercept_v5.png",
+      "desc": "Seventeen witnessed names become a wall between the Void and the party."
+    },
+    {
+      "title": "Editor's Redaction",
+      "type": "Battle Cut-in",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_kairos_redaction_v5.png",
+      "desc": "Kairos removes unwanted outcomes from the battlefield with one exact line."
+    },
+
+    {
+      "title": "Campfire Song Unmoored",
+      "type": "World Rewrite",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png",
+      "desc": "The melody survives, but no longer remembers where it was meant to land."
+    },
+    {
+      "title": "The Reaching Hand Removed",
+      "type": "World Rewrite",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
+      "desc": "The body begins a familiar answer and finds a clean absence where the gesture lived."
+    },
+    {
+      "title": "First Sword Excised",
+      "type": "World Rewrite",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
+      "desc": "The stance remains exact after the guiding hand and every reason for it are gone."
+    },
+    {
+      "title": "Name Origin Consumed",
+      "type": "World Rewrite",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png",
+      "desc": "The reflection keeps the armor and loses the person who once answered from inside it."
+    },
+    {
+      "title": "Anchor Warmth Thinned",
+      "type": "World Rewrite",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png",
+      "desc": "Warm hands remain visible while the reason to trust them becomes almost transparent."
+    },
+
+    {
+      "title": "Rim Forest, Converging Footsteps",
+      "type": "Deep Field Resonance",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/resonance_rim_forest_deep_v2.png",
+      "desc": "A second mapped echo reveals that companionship once functioned as direction."
+    },
+    {
+      "title": "Verdan, The Hidden Courtyard",
+      "type": "Deep Field Resonance",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/resonance_verdan_market_deep_v2.png",
+      "desc": "A vendor's remembered kindness points toward the sealed place where a sword began."
+    },
+    {
+      "title": "Waystation, Soil to Record",
+      "type": "Deep Field Resonance",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/resonance_belt_waystation_deep_v2.png",
+      "desc": "One footprint, a spill of ink, and an unwritten tree reconnect the dead road."
+    },
+    {
+      "title": "The Seam, Eighteenth Lantern",
+      "type": "Deep Field Resonance",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/resonance_the_seam_deep_v2.png",
+      "desc": "A fresh lantern and a witness thread turn the impossible garden into a route."
+    },
+    {
+      "title": "Forgotten Forest, Sentence Completed",
+      "type": "Deep Field Resonance",
+      "path": "res://assets/cg/generated/illustration_expansion_v2/resonance_forgotten_forest_deep_v2.png",
+      "desc": "The listening wood supplies a second hand to finish an interrupted witness."
+    }
+  ]
+}

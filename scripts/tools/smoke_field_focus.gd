@@ -9,8 +9,13 @@ func _ready() -> void:
 		assert(ResourceLoader.exists(String(choice_art)), "Resonance choice art must resolve: %s" % choice_art)
 	for map_key in MemoryResonance.RESONANCE_POINTS:
 		assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.has(map_key), "Field Focus CG missing for %s" % map_key)
+	var deep_field_count := 0
 	for entry in MemoryResonance.FIELD_FOCUS_CG_BY_MAP.values():
 		assert(ResourceLoader.exists(String(entry.path)), "Every Field Focus CG path must resolve")
+		if entry.has("deep_path"):
+			deep_field_count += 1
+			assert(ResourceLoader.exists(String(entry.deep_path)), "Every Deep Field CG path must resolve")
+	assert(deep_field_count == 5, "Five maps should unlock a second-layer Field Focus illustration")
 
 	var map := Node2D.new()
 	map.name = "FieldFocusSmokeMap"
@@ -36,5 +41,5 @@ func _ready() -> void:
 	assert(BattleManager.tactical_objective.is_empty(), "A field directive must remain player-chosen before the first action")
 	assert(BattleManager.tactical_objective_options.size() == 3, "Field Focus must unlock a third directive reading")
 
-	print("FIELD_FOCUS_SMOKE_PASS maps=%d count=1 resonance=25 limit=20 directives=3" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
+	print("FIELD_FOCUS_SMOKE_PASS maps=%d deep=5 count=1 resonance=25 limit=20 directives=3" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
 	get_tree().quit(0)

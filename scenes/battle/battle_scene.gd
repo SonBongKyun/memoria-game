@@ -36,9 +36,14 @@ const MEMORY_CASCADE_CUTIN_PATH: String = "res://assets/cg/generated/cinematic_a
 const ARREL_BLADE_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_arrel_blade_arc_v4.png"
 const ARREL_GUARD_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_arrel_guard_v4.png"
 const ARREL_WITNESS_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_arrel_witness_v4.png"
+const ARREL_CHAIN_BURN_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_arrel_chain_burn_v5.png"
 const ELIA_ANCHOR_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_elia_anchor_v4.png"
 const TOBIAS_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_tobias_faultline_v4.png"
 const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_sable_threadstrike_v4.png"
+const ELIA_HUMMING_SHIELD_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_elia_humming_shield_v5.png"
+const TOBIAS_ARCHIVE_COUNTER_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_tobias_archive_counter_v5.png"
+const SABLE_WARDEN_INTERCEPT_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_sable_warden_intercept_v5.png"
+const KAIROS_REDACTION_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_kairos_redaction_v5.png"
 const BREAK_FAULTLINE_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_break_faultline_v4.png"
 const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/sable_warden_v3.png"
 const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/tobias_ledger_v3.png"
@@ -46,20 +51,32 @@ const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shot
 const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_action_v3.png"
 const ECHO_SHELL_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/echo_shell_reach_v3.png"
 const ELIA_ACTION_CUTIN_PATHS: Dictionary = {
-	"humming_shield": ELIA_ANCHOR_CUTIN_PATH,
-	"desperate_reach": "res://assets/cg/generated/memory_burn_reaching_hand.png",
-	"remembered_strike": "res://assets/cg/generated/memory_burn_first_sword.png",
+	"humming_shield": ELIA_HUMMING_SHIELD_CUTIN_PATH,
+	"desperate_reach": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
+	"remembered_strike": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
 	"anchor_pulse": ELIA_ANCHOR_CUTIN_PATH,
+}
+const TOBIAS_ACTION_CUTIN_PATHS: Dictionary = {
+	"archive": TOBIAS_ARCHIVE_COUNTER_CUTIN_PATH,
+	"protect": TOBIAS_ACTION_CUTIN_PATH,
+	"analyze": TOBIAS_ACTION_CUTIN_PATH,
+}
+const SABLE_ACTION_CUTIN_PATHS: Dictionary = {
+	"protect": SABLE_WARDEN_INTERCEPT_CUTIN_PATH,
+	"guard": SABLE_WARDEN_INTERCEPT_CUTIN_PATH,
+	"strike": SABLE_ACTION_CUTIN_PATH,
+	"weaken": SABLE_ACTION_CUTIN_PATH,
 }
 const BOSS_PHASE_CUTIN_PATHS: Dictionary = {
 	"Shade Sentinel": "res://assets/cg/character_shots/shade_sentinel_guard_v3.png",
-	"Kairos, Authority Editor": "res://assets/cg/character_shots/kairos_ascendant_action_v3.png",
+	"Kairos, Authority Editor": KAIROS_REDACTION_CUTIN_PATH,
 }
 const MEMORY_BURN_CUTIN_PATHS: Dictionary = {
-	"identity_first_sword": "res://assets/cg/generated/memory_burn_first_sword.png",
-	"daily_campfire_song": "res://assets/cg/generated/memory_burn_elia_song.png",
-	"rel_hand_reaching": "res://assets/cg/generated/memory_burn_reaching_hand.png",
-	"core_name_origin": "res://assets/cg/generated/memory_burn_arrel_name.png",
+	"identity_first_sword": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
+	"daily_campfire_song": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png",
+	"rel_hand_reaching": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
+	"core_name_origin": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png",
+	"daily_elia_hands": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png",
 	"identity_compass": "res://assets/cg/generated/memory_burn_compass.png",
 	"identity_void_walker": "res://assets/cg/generated/memory_burn_void_walker.png",
 }
@@ -1318,7 +1335,7 @@ func _build_battle_ground() -> void:
 
 ## S44: 플레이어 스프라이트 (왼쪽, 사이드뷰)
 func _build_battle_stage_art(root: Control) -> void:
-	var left_path := "res://assets/cg/generated/memory_burn_first_sword.png"
+	var left_path := "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png"
 	var right_path := _resolve_enemy_stage_art()
 
 	_battle_stage_left_wash = _make_stage_wash(true)
@@ -1530,13 +1547,13 @@ func _resolve_memory_burn_cutin(memory_id: String, memory_title: String) -> Stri
 	var lookup := ("%s %s" % [clean_id, memory_title]).to_lower()
 	var fallback_path := ""
 	if lookup.find("sword") >= 0:
-		fallback_path = "res://assets/cg/generated/memory_burn_first_sword.png"
+		fallback_path = "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png"
 	elif lookup.find("song") >= 0 or lookup.find("campfire") >= 0:
-		fallback_path = "res://assets/cg/generated/memory_burn_elia_song.png"
+		fallback_path = "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png"
 	elif lookup.find("hand") >= 0 or lookup.find("reach") >= 0:
-		fallback_path = "res://assets/cg/generated/memory_burn_reaching_hand.png"
+		fallback_path = "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png"
 	elif lookup.find("name") >= 0 or lookup.find("arrel") >= 0 or lookup.find("origin") >= 0:
-		fallback_path = "res://assets/cg/generated/memory_burn_arrel_name.png"
+		fallback_path = "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png"
 	elif lookup.find("compass") >= 0:
 		fallback_path = "res://assets/cg/generated/memory_burn_compass.png"
 	elif lookup.find("void") >= 0 or lookup.find("bl-07") >= 0 or lookup.find("bl07") >= 0:
@@ -2286,6 +2303,10 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 			cutin_path = MEMORY_CASCADE_CUTIN_PATH
 			cue_title = _bl("MEMORY CASCADE", "메모리 캐스케이드")
 			cue_detail = _bl("Every remembered wound answers at once.", "기억된 모든 상처가 한꺼번에 응답합니다.")
+		elif skill_name != "" and skill_name != "Attack" and BattleManager._burn_chain >= 2:
+			cutin_path = ARREL_CHAIN_BURN_CUTIN_PATH
+			cue_title = _bl("MEMORY CHAIN x%d" % BattleManager._burn_chain, "기억 연쇄 x%d" % BattleManager._burn_chain)
+			cue_detail = _bl("One sacrifice ignites the next before the ash can settle.", "첫 희생의 재가 가라앉기 전에 다음 기억이 불붙습니다.")
 		elif skill_name != "" and skill_name != "Attack":
 			cutin_path = "res://assets/cg/game_image/memory_loss_warning.png"
 			cue_title = _bl("MEMORY BURN", "기억 연소")
@@ -3791,10 +3812,10 @@ func _on_ally_action(ally_name: String, action: String, _value: int) -> void:
 			cutin_path = String(ELIA_ACTION_CUTIN_PATHS.get(action, "res://assets/cg/generated/cinematic_elia_anchor_pulse.png"))
 			accent = Color(1.0, 0.80, 0.45)
 		"Sable":
-			cutin_path = SABLE_ACTION_CUTIN_PATH
+			cutin_path = String(SABLE_ACTION_CUTIN_PATHS.get(action, SABLE_ACTION_CUTIN_PATH))
 			accent = Color(0.66, 0.78, 1.0)
 		"Tobias":
-			cutin_path = TOBIAS_ACTION_CUTIN_PATH
+			cutin_path = String(TOBIAS_ACTION_CUTIN_PATHS.get(action, TOBIAS_ACTION_CUTIN_PATH))
 			accent = Color(0.84, 0.69, 0.45)
 	if cutin_path == "":
 		return

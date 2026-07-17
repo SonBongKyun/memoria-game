@@ -6507,6 +6507,38 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
 
+## S203 - 2026-07-17 (GPT Image five-category illustration expansion)
+
+### Audit findings
+- The project already had broad chapter coverage, so a volume-only batch would have duplicated existing scenes instead of improving play.
+- Chapters 12-16 still had room for one additional turning-point image each, while character relationships were underrepresented in the Story Journal.
+- Battle support actions reused generic plates, and five core memory-loss illustrations were visibly more abstract and textural than the current charcoal/iron-blue canon.
+- Field Focus stopped at the first mapped echo even on maps with multiple resonance points, leaving exploration illustration rewards shallow.
+
+### Done
+- Generated and visually audited 25 clean 1672x941 GPT Image plates, exactly five per category:
+  - Part II story moments for Chapters 12-16.
+  - Character-bond records for Arrel/Elia, Arrel/Tobias, Arrel/Sable, Elia/Nera, and Arrel/Kairos.
+  - Battle cut-ins for Arrel, Elia, Tobias, Sable, and Kairos.
+  - World-rewrite consequences for the campfire song, reaching hand, first sword, Arrel's name, and Elia's anchor warmth.
+  - Deep Field Resonance discoveries for Rim Forest, Verdan Market, Belt Waystation, The Seam, and Forgotten Forest.
+- Added `data/illustration_expansion_gallery.json` and connected it to the PauseMenu Artbook; every one of the 25 images also has a live story, journal, battle, rewrite, or exploration consumer.
+- Added a second-layer Field Focus discovery: after the first map CG, mapping a second echo on the five expanded maps unlocks a distinct follow-up illustration and caption.
+- Added a dedicated Arrel memory-chain cut-in at chain two or higher and action-specific plates for Elia's Humming Shield, Tobias's Archive Countermeasure, Sable's intercept, and Kairos's redaction phase.
+- Replaced every live reference to the five older mismatched memory-loss plates with the new canon-consistent world-rewrite set.
+- Extended Story Journal chapter labels through Chapter 24 and registered all five relationship plates as story-flag-gated records.
+- Added `smoke_illustration_expansion` to enforce 25 unique decodable images, five entries per category, cinematic aspect ratio, and a live game consumer for every path.
+- Updated `ILLUSTRATION_CATALOG.md` to the verified 425-CG baseline and documented the full set.
+
+### Verification
+- Godot 4.6.2 headless editor import/project parse passed with no `SCRIPT ERROR` or `Parse Error`.
+- All 13 smoke scenes passed, including the new `ILLUSTRATION_EXPANSION_SMOKE_PASS total=25 categories=5 live_consumers=25` and extended `FIELD_FOCUS_SMOKE_PASS maps=10 deep=5`.
+- Representative `verdan_market.tscn` boot reached Arrel, Elia, Malet, four ambient NPCs, checkpoint autosave, and dialogue initialization without script/parse/runtime-access errors.
+- VN validation passed: 20 files, 504 steps, 0 errors, 0 warnings.
+- Korean localization validation passed: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Manifest audit passed: 25 PNGs, five entries in each category, 64,718,616 total bytes.
+- `git diff --check` passed; only normal CRLF working-copy notices and the existing Godot resource-cleanup warnings remain.
+
 ## S202 - 2026-07-17 (Player-chosen directives, battle grades, and reward chains)
 
 ### Design goal

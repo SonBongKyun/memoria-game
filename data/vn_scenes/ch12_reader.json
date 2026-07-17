@@ -123,6 +123,8 @@
       "text_ko": "아는 이름이야?"
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/part2_ch12_reader_hidden_ink_v1.png",
+      "fade": 1.0,
       "speaker": "Elia",
       "portrait": "elia_worried",
       "side": "right",

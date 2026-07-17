@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S152: 219 PNG files under `assets/cg/`.
+- Current project baseline after S203: 425 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -14,6 +14,20 @@
 4. Environment plates, dialogue story CGs, battle cinematics, memory-burn images, and ending plates are separate asset roles.
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
+
+## S203 five-category illustration expansion
+
+Twenty-five final 1672x941 GPT Image plates were generated as five complete, story-linked sets. All assets live under `assets/cg/generated/illustration_expansion_v2/`; `data/illustration_expansion_gallery.json` is their Artbook manifest and placement audit.
+
+| Category | Count | Runtime use |
+|---|---:|---|
+| Part II story moments | 5 | Chapters 12-16 now each gain one additional illustrated turn without changing branch indices or dialogue text |
+| Character bonds | 5 | Story Journal records for Arrel/Elia, Arrel/Tobias, Arrel/Sable, Elia/Nera, and Arrel/Kairos |
+| Battle cut-ins | 5 | Arrel chain burn, Elia Humming Shield, Tobias Archive Countermeasure, Sable Warden Intercept, and Kairos redaction phase |
+| World rewrites | 5 | Campfire song, reaching hand, first sword, name origin, and Elia-anchor burns replace the older abstract plates in every live consumer |
+| Deep Field Resonance | 5 | A second discovered echo unlocks a follow-up CG in Rim Forest, Verdan Market, Belt Waystation, The Seam, and Forgotten Forest |
+
+The set was anchored to the active Part II chapter plates, character-shot canon, current battle cut-ins, and the established resonance family. Every final prompt excluded generated lettering, watermarks, film or photo grain, paper/canvas texture, speckles, dithering, chromatic noise, compression artifacts, dirty-lens effects, muddy detail, excessive bloom, dense fog, and playfield-obscuring clutter. All 25 final images were visually inspected before import, and every manifest path has a live story, combat, journal, rewrite, or exploration consumer.
 
 ## S200 chapter-by-chapter story expansion
 

@@ -139,6 +139,8 @@
     },
     {
       "set_flag": "tobias_joined",
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/part2_ch13_third_person_detachment_v1.png",
+      "fade": 1.0,
       "narrate": "Three shadows left Arkein. The wall kept writing.",
       "narrate_ko": "세 개의 그림자가 아르케인을 떠났다. 벽은 계속 쓰고 있었다."
     },

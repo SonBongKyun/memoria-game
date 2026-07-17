@@ -62,6 +62,7 @@ const TRAVEL_DESTINATIONS: Array[Dictionary] = [
 
 const CHAPTER_EXPANSION_GALLERY_PATH := "res://data/chapter_expansion_gallery.json"
 const INTERFACE_EXPANSION_GALLERY_PATH := "res://data/interface_visual_gallery.json"
+const ILLUSTRATION_EXPANSION_GALLERY_PATH := "res://data/illustration_expansion_gallery.json"
 const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "The Seam - Reunion at the Threshold",
@@ -300,13 +301,13 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Memory Burn - Reaching Hand",
 		"type": "Generated Memory CG",
-		"path": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
 		"desc": "Act I relationship-memory illustration now used in early story and burn-residue beats."
 	},
 	{
 		"title": "Memory Burn - Name Origin",
 		"type": "Generated Memory CG",
-		"path": "res://assets/cg/generated/memory_burn_arrel_name.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png",
 		"desc": "Identity-loss illustration for high-cost burns and the Ash ending gallery."
 	},
 	{
@@ -330,7 +331,7 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Memory Burn - First Sword",
 		"type": "Generated Battle CG",
-		"path": "res://assets/cg/generated/memory_burn_first_sword.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
 		"desc": "Battle-stage and memory-burn illustration replacing the old battle-ready sheet plate."
 	},
 	{
@@ -552,25 +553,25 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "Burn Cut-In: First Sword",
 		"type": "Generated Battle Cut-In",
-		"path": "res://assets/cg/generated/memory_burn_first_sword.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
 		"desc": "Battle cut-in for burning the memory of first holding a sword."
 	},
 	{
 		"title": "Burn Cut-In: Campfire Song",
 		"type": "Generated Battle Cut-In",
-		"path": "res://assets/cg/generated/memory_burn_elia_song.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png",
 		"desc": "Battle cut-in for burning the campfire song tied to Elia."
 	},
 	{
 		"title": "Burn Cut-In: Reaching Hand",
 		"type": "Generated Battle Cut-In",
-		"path": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
 		"desc": "Battle cut-in for burning the memory of a hand reaching out."
 	},
 	{
 		"title": "Burn Cut-In: Arrel's Name",
 		"type": "Generated Battle Cut-In",
-		"path": "res://assets/cg/generated/memory_burn_arrel_name.png",
+		"path": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png",
 		"desc": "Battle cut-in for the dangerous core-name memory."
 	},
 	{
@@ -2621,7 +2622,11 @@ func _load_artbook_items() -> Array[Dictionary]:
 	var combined: Array[Dictionary] = []
 	for item in ARTBOOK_ITEMS:
 		combined.append(item.duplicate(true))
-	for manifest_path: String in [CHAPTER_EXPANSION_GALLERY_PATH, INTERFACE_EXPANSION_GALLERY_PATH]:
+	for manifest_path: String in [
+		CHAPTER_EXPANSION_GALLERY_PATH,
+		INTERFACE_EXPANSION_GALLERY_PATH,
+		ILLUSTRATION_EXPANSION_GALLERY_PATH,
+	]:
 		if not FileAccess.file_exists(manifest_path):
 			continue
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))

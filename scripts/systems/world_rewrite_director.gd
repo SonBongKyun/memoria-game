@@ -19,7 +19,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "Elia's humming still exists, but it no longer knows where to land.",
 		"compass": "Anchor melody destabilized.",
 		"color": Color(0.68, 0.74, 0.92),
-		"art": "res://assets/cg/generated/memory_burn_elia_song.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png"
 	},
 	"rel_hand_reaching": {
 		"flag": "world_rewrite_reaching_hand_absent",
@@ -27,7 +27,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "When someone reaches for him, the world hesitates before drawing the hand.",
 		"compass": "Relationship contour torn.",
 		"color": Color(0.80, 0.66, 0.94),
-		"art": "res://assets/cg/generated/memory_burn_reaching_hand.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png"
 	},
 	"identity_first_sword": {
 		"flag": "world_rewrite_first_sword_cut",
@@ -35,7 +35,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "The body remembers the stance. The self no longer remembers why.",
 		"compass": "Identity architecture fractured.",
 		"color": Color(0.95, 0.38, 0.26),
-		"art": "res://assets/cg/generated/memory_burn_first_sword.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png"
 	},
 	"core_name_origin": {
 		"flag": "world_rewrite_name_origin_void",
@@ -43,7 +43,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "The sound 'Arrel' keeps its letters and loses its owner.",
 		"compass": "Name-bearing thread severed.",
 		"color": Color(1.00, 0.28, 0.22),
-		"art": "res://assets/cg/generated/memory_burn_arrel_name.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png"
 	},
 	"rel_tobias_records": {
 		"flag": "world_rewrite_record_ink_fades",
@@ -59,7 +59,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "Warm hands remain in the scene like heat after a body has left.",
 		"compass": "Elia anchor pressure reduced.",
 		"color": Color(0.72, 0.78, 0.96),
-		"art": "res://assets/cg/generated/world_rewrite_elia_anchor.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png"
 	},
 	"rel_sable_voidwalk": {
 		"flag": "world_rewrite_sable_witness_dimmed",
@@ -387,7 +387,7 @@ func _grade_color(grade: int) -> Color:
 
 func _fallback_art_for_grade(grade: int) -> String:
 	if grade >= MemoryManager.MemoryGrade.GRADE_2:
-		return "res://assets/cg/generated/memory_burn_arrel_name.png"
+		return "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png"
 	return "res://assets/cg/generated/ui_loss_record_blank_book_v2.png"
 
 func _grade_name(grade: int) -> String:

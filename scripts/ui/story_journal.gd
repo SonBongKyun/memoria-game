@@ -28,7 +28,14 @@ const JOURNAL_BACKDROP_PATH: String = "res://assets/cg/generated/ui_story_journa
 
 # ── 저널 엔트리 ──
 # 자동으로 story_flags 기반으로 생성
-const CHAPTER_NAMES := {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
+const CHAPTER_NAMES := {
+	1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter",
+	5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest",
+	9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue", 12: "Verdan Underlock",
+	13: "Eastern Reading Wall", 14: "Confessor Hall", 15: "Mneme Cell", 16: "East Road",
+	17: "Forgetting Storm", 18: "Living Funeral", 19: "Lumea Approach", 20: "Monolith",
+	21: "Records Chamber", 22: "The Core", 23: "Conversion", 24: "Testimony",
+}
 
 const EVENT_ART_BY_FLAG: Dictionary = {
 	"ch1_camp_done": "res://assets/cg/generated/archive_ch1_camp_humming_v2.png",
@@ -65,6 +72,7 @@ const EVENT_ENTRIES := [
 	{"flag": "elia_reunited", "chapter": 6, "title": "Reunion", "desc": "Elia stood at the Seam's entrance. The coastal path worked, Kairos went south. The anchor tightened."},
 	{"flag": "hidden_ch6_garden", "chapter": 6, "title": "[Hidden] The Impossible Garden", "desc": "White petals veined with gold. Warm to the touch. A fragment of someone handing a flower, small hands, a child's laugh."},
 	{"flag": "ch6_briefing_done", "chapter": 6, "title": "Sable's Briefing", "desc": "BL-07 forming south. If it opens, the Seam dies. A Shade Sentinel guards the entrance. Investigation required.", "art": "res://assets/cg/generated/archive_seam_lantern_watch_v1.png"},
+	{"flag": "ch6_briefing_done", "chapter": 6, "title": "The Warden's Watch", "desc": "Sable never promised safety. She stood beside Arrel anyway, keeping watch while the Seam slept.", "art": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_sable_watch_v1.png"},
 	{"flag": "ch6_bl07_entered", "chapter": 6, "title": "The Shade Sentinel", "desc": "Dark. Wrong. The Void's immune response. Between them and BL-07, it coalesced."},
 	{"flag": "ch7_arrived", "chapter": 7, "title": "The Threshold", "desc": "Beyond The Seam's walls, the cliffs opened into a jagged plateau. The air tasted of static."},
 	{"flag": "ch7_sable_truth", "chapter": 7, "title": "Sable's Truth", "art": "res://assets/cg/generated/archive_ch7_seven_lanterns_v1.png", "desc": "BL-07 isn't a hole. It's a mouth. It calls memories. It's hungry. Seven people went in with Sable. She came out alone."},
@@ -82,6 +90,10 @@ const EVENT_ENTRIES := [
 	{"flag": "seal_refused", "chapter": 10, "title": "Preservation, Name Kept", "desc": "He refused to burn his name. BL-07 remains unsolved. But he remembers who he is."},
 	{"flag": "seal_weave", "chapter": 10, "title": "The Weave, Everything Kept", "desc": "He offered every memory he had preserved, all at once. BL-07 sealed without erasing him. Part of him now holds the door shut."},
 	{"flag": "epilogue_complete", "chapter": 11, "title": "Epilogue", "desc": "The Seam. Aftermath. What remains after everything is either burned or saved."},
+	{"flag": "ch13_trusted_tobias", "chapter": 13, "title": "The Record Tree Between Them", "desc": "Arrel trusted Tobias with the shape of a memory neither man could safely carry alone.", "art": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_tobias_record_tree_v1.png"},
+	{"flag": "storm_survived", "chapter": 17, "title": "A Thread Through the Storm", "desc": "When the forgetting storm took the road, Arrel and Elia kept one another present by touch and voice.", "art": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_elia_storm_thread_v1.png"},
+	{"flag": "nera_first_emotion", "chapter": 21, "title": "The Mirror Refused Its Order", "desc": "Elia recognized the first human hesitation beneath Nera's immaculate Authority mask.", "art": "res://assets/cg/generated/illustration_expansion_v2/bond_elia_nera_mirror_v1.png"},
+	{"flag": "kairos_final", "chapter": 21, "title": "The Missing Piece", "desc": "Arrel and Kairos faced the same broken record and chose opposite meanings for its empty space.", "art": "res://assets/cg/generated/illustration_expansion_v2/bond_arrel_kairos_missing_piece_v1.png"},
 ]
 
 # NPC 엔트리

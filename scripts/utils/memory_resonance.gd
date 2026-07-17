@@ -13,16 +13,25 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"rim_forest": {
 		"path": "res://assets/cg/generated/resonance_rim_forest_echo.png",
 		"caption": "The forest remembers a set of footsteps the traveler no longer owns.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v2/resonance_rim_forest_deep_v2.png",
+		"deep_caption": "Two trails converge. The forest remembers companionship as direction.",
+		"deep_caption_ko": "두 발자국이 합쳐진다. 숲은 동행을 방향으로 기억한다.",
 		"caption_ko": "숲은 여행자가 더는 간직하지 못한 발자국을 기억하고 있다.",
 	},
 	"verdan_market": {
 		"path": "res://assets/cg/generated/resonance_verdan_market_echo.png",
 		"caption": "Warm steam rises from a meal that vanished before anyone finished it.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v2/resonance_verdan_market_deep_v2.png",
+		"deep_caption": "A remembered kindness points toward the courtyard where the sword began.",
+		"deep_caption_ko": "기억된 친절이 검이 시작된 안뜰을 가리킨다.",
 		"caption_ko": "아무도 다 먹지 못한 채 사라진 식사에서 따뜻한 김이 피어오른다.",
 	},
 	"belt_waystation": {
 		"path": "res://assets/cg/generated/resonance_belt_waystation_echo.png",
 		"caption": "The dead earth keeps one footprint while spilled ink points back to the record.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v2/resonance_belt_waystation_deep_v2.png",
+		"deep_caption": "Dead soil, spilled ink, and an unwritten tree reconnect the record.",
+		"deep_caption_ko": "죽은 흙과 흘린 잉크, 쓰이지 않은 나무가 기록을 다시 잇는다.",
 		"caption_ko": "죽은 땅은 발자국 하나를 붙들고, 흘러나온 잉크는 기록으로 돌아가는 길을 가리킨다.",
 	},
 	"drift_shelter": {
@@ -38,6 +47,9 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"the_seam": {
 		"path": "res://assets/cg/generated/resonance_the_seam_echo.png",
 		"caption": "Trust survives as a route traced by touch through white flowers.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v2/resonance_the_seam_deep_v2.png",
+		"deep_caption": "The eighteenth lantern turns trust into a route through the flowers.",
+		"deep_caption_ko": "열여덟 번째 등불이 꽃 사이의 신뢰를 길로 바꾼다.",
 		"caption_ko": "신뢰는 흰 꽃 사이로 손끝이 더듬어 그린 길이 되어 살아남는다.",
 	},
 	"seam_outskirts": {
@@ -48,6 +60,9 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"forgotten_forest": {
 		"path": "res://assets/cg/generated/resonance_forgotten_forest_echo.png",
 		"caption": "A hollow tree tries to finish the sentence buried inside it.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v2/resonance_forgotten_forest_deep_v2.png",
+		"deep_caption": "A second hand rises from the roots to finish the witness.",
+		"deep_caption_ko": "뿌리에서 두 번째 손이 올라와 증언을 끝맺는다.",
 		"caption_ko": "속이 빈 나무가 제 안에 묻힌 문장을 끝맺으려 한다.",
 	},
 	"colorless_waste": {
@@ -243,15 +258,23 @@ static func show_field_focus_discovery() -> void:
 	var map_key := tree.current_scene.scene_file_path.get_file().get_basename()
 	if not FIELD_FOCUS_CG_BY_MAP.has(map_key):
 		return
-	var seen_flag := "field_focus_cg_seen_%s" % map_key
+	var entry: Dictionary = FIELD_FOCUS_CG_BY_MAP[map_key]
+	var base_seen_flag := "field_focus_cg_seen_%s" % map_key
+	var deep_seen_flag := "field_focus_cg_deep_seen_%s" % map_key
+	var discovered_count := 0
+	for point: Dictionary in RESONANCE_POINTS.get(map_key, []):
+		if GameManager.get_flag("pulse_found_%s" % String(point.get("flag", ""))):
+			discovered_count += 1
+	var show_deep := GameManager.get_flag(base_seen_flag) and discovered_count >= 2 and entry.has("deep_path")
+	var seen_flag := deep_seen_flag if show_deep else base_seen_flag
 	if GameManager.get_flag(seen_flag):
 		return
-	var entry: Dictionary = FIELD_FOCUS_CG_BY_MAP[map_key]
-	var path := String(entry.get("path", ""))
+	var path_key := "deep_path" if show_deep else "path"
+	var path := String(entry.get(path_key, ""))
 	if path == "" or not ResourceLoader.exists(path) or not is_instance_valid(CgViewer):
 		return
 	GameManager.set_flag(seen_flag)
-	var caption_key := "caption_ko" if GameManager.current_locale == "ko" else "caption"
+	var caption_key := ("deep_caption_ko" if GameManager.current_locale == "ko" else "deep_caption") if show_deep else ("caption_ko" if GameManager.current_locale == "ko" else "caption")
 	CgViewer.show_cg(path, String(entry.get(caption_key, entry.get("caption", ""))), 2.2)
 
 static func _flash_scan_target(area: Area2D, radius: float, distance: float, is_new: bool) -> void:

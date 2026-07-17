@@ -79,6 +79,8 @@
       "narrate_ko": "서약이 열이 되었다. 금빛이 백색 홀을 가로질렀고, 모든 구속구가 자신이 잠겨 있었다는 사실을 잊었다."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/part2_ch14_prisoner_release_v1.png",
+      "fade": 1.0,
       "narrate": "The prisoner fell into Elia's arms. Arrel remembered the action and lost the reason.",
       "narrate_ko": "수감자가 엘리아의 품으로 쓰러졌다. 아렐은 행동을 기억했고, 이유를 잃었다."
     },

@@ -89,7 +89,7 @@
       "start_index": 28
     },
     {
-      "cg": "res://assets/cg/generated/memory_burn_first_sword.png",
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
       "fade": 0.5,
       "narrate": "Warm light through a window. A room he could not place. He held it in his hand and let it go.",
       "narrate_ko": "창문 너머의 따뜻한 빛. 어디였는지 알 수 없는 방. 그는 그것을 손에 쥐고 놓아주었다."
@@ -229,7 +229,7 @@
       "start_index": 50
     },
     {
-      "cg": "res://assets/cg/generated/memory_burn_reaching_hand.png",
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
       "fade": 0.5,
       "narrate": "The smell of wet earth after rainfall. Where, when, gone.",
       "narrate_ko": "비가 그친 뒤 젖은 흙 냄새. 어디였는지, 언제였는지. 사라졌다."

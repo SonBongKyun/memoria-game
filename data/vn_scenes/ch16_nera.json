@@ -125,6 +125,8 @@
     },
     {
       "set_flag": "nera_introduced",
+      "cg": "res://assets/cg/generated/illustration_expansion_v2/part2_ch16_nera_service_gate_v1.png",
+      "fade": 1.0,
       "narrate": "They crossed the open channel. Nera did not order the pylons to fire.",
       "narrate_ko": "그들은 열린 수로를 건넜다. 네라는 철탑에 발포를 명령하지 않았다."
     },
