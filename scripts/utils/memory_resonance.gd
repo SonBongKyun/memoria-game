@@ -4,6 +4,24 @@ extends RefCounted
 
 const TILE_SIZE: int = 32
 const MEMORY_RESONANCE_CG_PATH: String = "res://assets/cg/generated/memory_compass_resonance_cinematic.png"
+
+## S210: 공명 지점의 원형 광원 텍스처 (한 번만 만들어 모든 지점이 공유).
+const GLOW_TEXTURE_SIZE: int = 64
+static var _glow_texture: ImageTexture = null
+
+static func _make_radial_glow_texture() -> ImageTexture:
+	if _glow_texture != null:
+		return _glow_texture
+	var img := Image.create(GLOW_TEXTURE_SIZE, GLOW_TEXTURE_SIZE, false, Image.FORMAT_RGBA8)
+	var center := float(GLOW_TEXTURE_SIZE) * 0.5
+	for y in range(GLOW_TEXTURE_SIZE):
+		for x in range(GLOW_TEXTURE_SIZE):
+			var d := Vector2(float(x) - center + 0.5, float(y) - center + 0.5).length() / center
+			# 가장자리로 갈수록 부드럽게 0이 되도록 제곱 감쇠를 쓴다.
+			var falloff: float = clampf(1.0 - d, 0.0, 1.0)
+			img.set_pixel(x, y, Color(1.0, 1.0, 1.0, falloff * falloff))
+	_glow_texture = ImageTexture.create_from_image(img)
+	return _glow_texture
 const RESONANCE_CHOICE_ART: Dictionary = {
 	"bind": "res://assets/cg/generated/resonance_choice_bind_v2.png",
 	"kindle": "res://assets/cg/generated/resonance_choice_kindle_v2.png",
@@ -166,39 +184,47 @@ static func _create_resonance_trigger(map_node: Node2D, pos: Vector2, point: Dic
 	shape.shape = rect
 	area.add_child(shape)
 
-	var glow = ColorRect.new()
-	glow.size = Vector2(TILE_SIZE * 1.7, TILE_SIZE * 1.7)
-	glow.position = -glow.size * 0.5
-	glow.pivot_offset = glow.size * 0.5
-	glow.color = Color(0.7, 0.55, 0.3, 0.16)
+	# S210: 공명 지점은 여태 54x54 사각형 ColorRect였다. 손으로 그린 맵 캔버스 위에
+	# 각진 반투명 갈색 네모가 얹혀 있어서, 배경 그림과 전혀 다른 레이어처럼 보였다.
+	# 부드럽게 사라지는 원형 광원으로 바꿔 지면에 스며들게 한다.
+	var glow = Sprite2D.new()
+	glow.texture = _make_radial_glow_texture()
+	glow.scale = Vector2.ONE * (TILE_SIZE * 2.0 / float(GLOW_TEXTURE_SIZE))
+	glow.modulate = Color(0.86, 0.70, 0.40, 0.34)
 	glow.z_index = -1
 	area.add_child(glow)
 
-	var core = ColorRect.new()
-	core.size = Vector2(8, 8)
-	core.position = -core.size * 0.5
-	core.pivot_offset = core.size * 0.5
-	core.color = Color(1.0, 0.8, 0.35, 0.72)
+	var core = Sprite2D.new()
+	core.texture = _make_radial_glow_texture()
+	core.scale = Vector2.ONE * (14.0 / float(GLOW_TEXTURE_SIZE))
+	core.modulate = Color(1.0, 0.88, 0.52, 0.85)
 	core.z_index = 2
 	area.add_child(core)
 
+	# 주변 불티. 예전에는 3x10 ColorRect를 회전시켜서, 확대된 화면에서는
+	# 각진 노란 막대 네 개로 보였다. 작은 원형 광점이 잔광에 더 가깝다.
 	for i in range(4):
-		var spark = ColorRect.new()
-		spark.size = Vector2(3, 10)
-		var angle = float(i) * TAU / 4.0
-		spark.position = Vector2(cos(angle), sin(angle)) * 20.0 - spark.size * 0.5
-		spark.rotation = angle
-		spark.color = Color(0.95, 0.72, 0.28, 0.42)
+		var spark = Sprite2D.new()
+		spark.texture = _make_radial_glow_texture()
+		spark.scale = Vector2.ONE * (7.0 / float(GLOW_TEXTURE_SIZE))
+		var angle = float(i) * TAU / 4.0 + PI * 0.25
+		spark.position = Vector2(cos(angle), sin(angle)) * 20.0
+		spark.modulate = Color(0.98, 0.80, 0.38, 0.50)
 		spark.z_index = 1
 		area.add_child(spark)
 
+	# 맥동은 각 스프라이트의 기준 스케일에 대한 배수로 준다.
+	# (예전 ColorRect는 스케일 1.0이 기준이라 절대값을 그대로 썼지만,
+	#  이제 기준 스케일이 텍스처 크기에 따라 달라진다.)
+	var glow_rest: Vector2 = glow.scale
+	var core_rest: Vector2 = core.scale
 	var tween = map_node.create_tween().set_loops().set_parallel(true)
-	tween.tween_property(glow, "color:a", 0.32, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(glow, "scale", Vector2(1.12, 1.12), 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(core, "scale", Vector2(1.35, 1.35), 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.chain().tween_property(glow, "color:a", 0.1, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(glow, "scale", Vector2.ONE, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(core, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(glow, "modulate:a", 0.46, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(glow, "scale", glow_rest * 1.12, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(core, "scale", core_rest * 1.35, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.chain().tween_property(glow, "modulate:a", 0.22, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(glow, "scale", glow_rest, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(core, "scale", core_rest, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	var flag: String = str(point["flag"])
 	var memory_id: String = str(point["memory_id"])

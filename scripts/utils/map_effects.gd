@@ -1815,10 +1815,14 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 	var move_dist: float = npc_node.position.distance_to(target_position)
 	var duration: float = maxf(move_dist / 26.0, 0.45)
 	var travel_direction: Vector2 = target_position - npc_node.position
-	_set_wander_animation(npc_node, travel_direction, true)
+	# S210: 걸음 속도를 실제 이동 속도에 맞춘다.
+	# 배회 NPC는 초당 약 26px로 움직이는데 다리는 플레이어와 같은 속도로 돌고 있었다.
+	# 발이 지면을 긁으며 미끄러지던 원인. 평균 속도를 기준으로 보폭 주기를 낮춘다.
+	_set_wander_animation(npc_node, travel_direction, true, move_dist / duration)
 
 	var tween = npc_node.create_tween()
-	tween.tween_property(npc_node, "position", target_position, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
+	# QUAD 가감속은 시작과 끝에서 속도가 크게 흔들려 발이 미끄러진다. SINE이 더 완만하다.
+	tween.tween_property(npc_node, "position", target_position, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
 		if npc_node != null and is_instance_valid(npc_node):
 			_set_wander_animation(npc_node, travel_direction, false)
@@ -1833,7 +1837,12 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 			_start_wander_step(node)
 	)
 
-static func _set_wander_animation(npc_node: Node2D, direction: Vector2, moving: bool) -> void:
+## 배회 NPC의 방향/재생 애니메이션을 맞춘다.
+## `travel_speed`(px/s)가 주어지면 걸음 주기를 실제 이동 속도에 비례시켜, 발이
+## 지면을 긁는 미끄러짐을 없앤다. 기준은 플레이어의 보행 속도(WANDER_GAIT_REFERENCE).
+const WANDER_GAIT_REFERENCE: float = 120.0
+
+static func _set_wander_animation(npc_node: Node2D, direction: Vector2, moving: bool, travel_speed: float = 0.0) -> void:
 	var animated := npc_node as AnimatedSprite2D
 	if animated == null or animated.sprite_frames == null:
 		return
@@ -1843,8 +1852,13 @@ static func _set_wander_animation(npc_node: Node2D, direction: Vector2, moving: 
 	else:
 		suffix = "down" if direction.y > 0.0 else "up"
 	var animation := ("walk_" if moving else "idle_") + suffix
-	if animated.sprite_frames.has_animation(animation):
-		animated.play(animation)
+	if not animated.sprite_frames.has_animation(animation):
+		return
+	if moving and travel_speed > 0.0:
+		animated.speed_scale = clampf(travel_speed / WANDER_GAIT_REFERENCE, 0.25, 1.6)
+	else:
+		animated.speed_scale = 1.0
+	animated.play(animation)
 
 ## ===================== S59: 트리거 접근 글로우 =====================
 

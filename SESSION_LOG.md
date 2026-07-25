@@ -6507,6 +6507,30 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
 
+## S210 - 2026-07-26 (Text sharpness, real walk cycles, and field scale consistency)
+
+### Audit findings
+Three player-reported symptoms, each traced to a specific cause rather than treated cosmetically:
+- **"폰트가 깨진다."** `project.godot` used `window/stretch/mode="viewport"`. That renders the entire game into a fixed 1280x720 framebuffer and then upscales it as a bitmap to the window: 1.5x at 1080p, 2x at 1440p. Every glyph was a stretched 720p glyph. Measured directly — at a 1920x1080 window the captured framebuffer came back 1280x720. Earlier sessions never saw it because headless captures run at exactly 1280x720, where no scaling occurs.
+- **"걸을 때 팔다리가 안 움직인다."** `_create_field_sprite_frames` built `walk_<dir>` as `[texture, texture]` — the same static PNG listed twice. A prior session chose this deliberately to avoid fabricating in-between art, but the result was a cast that slid across the ground with frozen limbs. Field art is one authored pose per direction (128x160), with no walk frames anywhere in the project.
+- **"NPC 크기와 움직임이 부자연스럽다."** `PixelSprite.create_npc_sprite` hardcoded `scale = 0.24` and a `-38px` foot offset, giving ambient citizens a ~35px visible height while the story cast is normalized to 50px by `apply_field_profile`. Background people read as 30% shorter adults on the wrong ground line, and used NEAREST filtering against the cast's LINEAR. Their wander gait also ran at the player's cadence while they moved at a fifth of his speed, so their feet scraped.
+- While auditing the market, the last flat placeholders surfaced: Memory Resonance points were 54x54 `ColorRect`s plus four rotated 3x10 bars, sitting on the painted map canvases as hard-edged tan blocks and yellow sticks.
+
+### Done
+- **Text.** Switched to `window/stretch/mode="canvas_items"` with `aspect="keep"`. Glyphs now rasterize at the window's native resolution while the logical coordinate system stays 1280x720, so absolute-position layouts (the battle stage in particular) are untouched. The Options resolution setting now actually increases sharpness instead of enlarging the same 720p image.
+- **Walk cycles.** Added `PixelSprite._build_walk_cycle`, a cached four-frame cycle generated from the single authored pose. `_detect_leg_top` scans the silhouette for where it narrows below the coat or skirt, so only real legs move — a fixed ratio tore the tabard down the middle. Legs get a squared ramp of horizontal stride plus opposite vertical lift; the upper body moves as one piece with a bob and counter-phase sway. An arm-band pass was built and then removed: slicing the shoulder columns left black bars where the pauldrons and back-slung sword were cut, and arm swing is invisible at 50px anyway.
+- **Ambient scale.** Both branches of `create_npc_sprite` now route through `apply_field_profile`, using the child height for child presets. Wander gait is scaled by real travel speed against a 120px/s reference, and the position tween moved from `TRANS_QUAD` to `TRANS_SINE` so acceleration no longer outruns the stride.
+- **Resonance markers.** Replaced with a shared radial-falloff texture: one soft ground glow, one bright core, four small spark points. The pulse tween was rewritten against each sprite's base scale instead of the old absolute `1.0`.
+- Added `smoke_field_animation` and `capture_font_scaling`.
+
+### Verification
+- `FIELD_ANIMATION_SMOKE_PASS walk_frames=4 distinct=24 cast_height=50 stretch=canvas_items`. It asserts walk frames differ in pixel data (not just in count), differ from idle, keep foot and centre drift within 6px, advance on screen under real movement input, hold seven ambient presets within 1px of the 50/42 contract, leave no `ColorRect` under a resonance point, and preserve the `canvas_items` stretch contract.
+- **Falsifiability checked:** restoring the old `[texture, texture]` stub makes the guard fail with `arrel/walk_down의 프레임이 전부 동일하다` and `distinct=0`.
+- The live-playback assertion first failed against a defect in the test itself — driving the sprite with `play()` is overridden by the player's animation state machine on the next frame — so it was rewritten to press real movement input.
+- `FONT_SCALING_CAPTURE_PASS framebuffer=1920x1080 viewport=(1280, 720) canvas_scale=1.50`, with 12/14/16px Korean glyphs inspected at 1080p.
+- All 21 smoke scenes pass with zero `SCRIPT ERROR` or `Parse Error`. VN validation: 20 files, 504 steps, 0 errors. Korean localization: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+- Renders inspected before and after: `rim_forest_first_exploration.png`, `verdan_malet_field.png`, `font_scaling_1080p.png`, `dialogue_interface_ko.png`, plus walk-cycle contact sheets for the down and left facings at each iteration.
+
 ## S209 - 2026-07-25 (Battle stage repair, battle tempo, story log, and field prop art)
 
 ### Audit findings

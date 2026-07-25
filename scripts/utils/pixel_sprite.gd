@@ -141,9 +141,9 @@ static func _create_field_sprite_frames(who: String) -> SpriteFrames:
 			return null
 		direction_textures[direction] = texture
 		_add_loaded_texture_anim(frames, "idle_" + direction, [texture], 4.0, true)
-		# Movement weight comes from the Player/Companion bob and footfall system.
-		# Two held frames keep that timing while avoiding fabricated in-between art.
-		_add_loaded_texture_anim(frames, "walk_" + direction, [texture, texture], 7.0, true)
+		# S210: 예전에는 walk가 같은 정지 그림 두 장이라, 팔다리는 완전히 굳은 채
+		# 캐릭터가 미끄러지듯 이동했다. 이제 한 장의 원화에서 걸음 프레임을 만든다.
+		_add_loaded_texture_anim(frames, "walk_" + direction, _build_walk_cycle(texture, direction), 9.0, true)
 	var down_texture: Texture2D = direction_textures["down"]
 	for action in ["attack", "hurt", "death", "cast"]:
 		_add_loaded_texture_anim(frames, action, [down_texture], 6.0, false)
@@ -152,6 +152,141 @@ static func _create_field_sprite_frames(who: String) -> SpriteFrames:
 	if frames.has_animation("default"):
 		frames.remove_animation("default")
 	return frames
+
+## ===================== S210: 절차적 걸음 사이클 =====================
+## 필드 캐릭터는 방향당 한 장의 원화(128x160)뿐이다. 사이 프레임 원화가 없다고 해서
+## 걸음을 포기하면, 다리가 굳은 채 미끄러지는 인형이 된다. 그래서 원화를 자르지 않고
+## "구역별로 다르게 움직여" 걸음을 만든다.
+##
+##   다리: 아래로 갈수록 커지는 수평 이동 → 허리에서 발끝으로 이어지는 보폭
+##   팔:   몸통 바깥쪽 열을 다리와 반대 위상으로 → 자연스러운 반대팔 스윙
+##   몸통: 1~3px 상하 흔들림 → 체중 이동
+##
+## 값은 원본 캔버스 기준이다. 필드에서는 약 0.34배로 축소되므로, 7px 보폭이
+## 화면에서 2~3px로 읽힌다.
+const WALK_FRAME_COUNT: int = 4
+const WALK_LEG_SWING: float = 4.0
+const WALK_LEG_LIFT: int = 2
+const WALK_BODY_BOB: Array[int] = [0, -3, 0, -2]
+const WALK_BODY_SWAY: float = 1.0
+
+## 실루엣에서 다리가 시작하는 행을 찾는다.
+## 고정 비율로 자르면 캐릭터마다 갑옷 자락/치마 한가운데가 갈라져 몸이 찢어진 것처럼
+## 보인다. 아래에서 위로 올라가며 "몸통보다 확실히 좁은" 구간이 끝나는 지점을 찾으면,
+## 자락 아래 실제 다리만 움직일 수 있다.
+static func _detect_leg_top(img: Image, used: Rect2i) -> int:
+	var widths: Array[int] = []
+	var max_width: int = 0
+	for y in range(used.position.y, used.position.y + used.size.y):
+		var row_width: int = 0
+		for x in range(used.position.x, used.position.x + used.size.x):
+			if img.get_pixel(x, y).a > 0.35:
+				row_width += 1
+		widths.append(row_width)
+		max_width = maxi(max_width, row_width)
+	if max_width <= 0:
+		return used.position.y + int(round(float(used.size.y) * 0.72))
+
+	# 발끝에서 위로 올라가며, 폭이 몸통의 62%를 넘는 첫 행이 자락의 아랫변이다.
+	var threshold: int = int(round(float(max_width) * 0.62))
+	var leg_top: int = used.position.y + used.size.y
+	for i in range(widths.size() - 1, -1, -1):
+		if widths[i] > threshold:
+			leg_top = used.position.y + i + 1
+			break
+	# 다리 구간이 지나치게 길거나 짧으면 안전한 범위로 되돌린다.
+	var min_top: int = used.position.y + int(round(float(used.size.y) * 0.62))
+	var max_top: int = used.position.y + int(round(float(used.size.y) * 0.88))
+	return clampi(leg_top, min_top, max_top)
+
+static var _walk_cycle_cache: Dictionary = {}
+
+## 한 장의 원화에서 걸음 프레임 배열을 만든다 (캐시됨).
+static func _build_walk_cycle(source: Texture2D, direction: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	if source == null:
+		return frames
+	var cache_key := "%s|%s" % [get_texture_source(source), direction]
+	if _walk_cycle_cache.has(cache_key):
+		return _walk_cycle_cache[cache_key]
+
+	var base := source.get_image()
+	if base == null or base.is_empty():
+		return frames
+	if base.is_compressed():
+		base.decompress()
+	base.convert(Image.FORMAT_RGBA8)
+	var used := base.get_used_rect()
+	if used.size.x <= 4 or used.size.y <= 8:
+		# 실루엣이 너무 작으면 절차적 변형이 노이즈로 보인다. 원화를 그대로 쓴다.
+		frames.append(source)
+		_walk_cycle_cache[cache_key] = frames
+		return frames
+
+	var is_side := direction == "left" or direction == "right"
+	var leg_top := _detect_leg_top(base, used)
+	for phase in range(WALK_FRAME_COUNT):
+		var image := _make_walk_frame(base, used, leg_top, phase, is_side)
+		var texture := ImageTexture.create_from_image(image)
+		texture.resource_name = "%s#walk%d" % [cache_key, phase]
+		frames.append(texture)
+	_walk_cycle_cache[cache_key] = frames
+	return frames
+
+static func _make_walk_frame(src: Image, used: Rect2i, legs_top: int, phase: int, is_side: bool) -> Image:
+	var out := Image.create(src.get_width(), src.get_height(), false, Image.FORMAT_RGBA8)
+	out.fill(Color(0, 0, 0, 0))
+
+	# 위상: 0과 2는 두 발이 모인 중립, 1과 3은 좌우가 뒤바뀐 최대 보폭.
+	var stride: float = [0.0, 1.0, 0.0, -1.0][phase]
+	var bob: int = WALK_BODY_BOB[phase]
+
+	var top: int = used.position.y
+	var bottom: int = used.position.y + used.size.y
+	var left: int = used.position.x
+	var right: int = used.position.x + used.size.x
+	var center_x: int = left + int(round(float(used.size.x) * 0.5))
+
+	# --- 1. 상체 (머리 ~ 다리 시작) ---
+	# 팔만 따로 잘라 세로로 흔들어 보았지만, 어깨 갑옷과 등에 멘 검이 함께 잘리면서
+	# 어깨선에 검은 띠가 남았다. 50px로 축소되면 팔 스윙은 어차피 거의 보이지 않는다.
+	# 그래서 상체는 자르지 않고 통째로 옮긴다. 체중 이동은 다리와 반대 위상의
+	# 좌우 흔들림 1px로 표현한다. 잘린 자국이 전혀 남지 않는다.
+	var sway: int = int(round(-stride * WALK_BODY_SWAY))
+	var upper_height: int = maxi(legs_top - top, 0)
+	if upper_height > 0:
+		out.blend_rect(
+			src,
+			Rect2i(0, top, src.get_width(), upper_height),
+			Vector2i(sway, top + bob)
+		)
+
+	# --- 3. 다리 ---
+	# 수평으로만 벌리면 두 다리 사이가 갈라져 몸이 찢어진 것처럼 보인다.
+	# 앞으로 나가는 다리는 살짝 들고(수직), 뒤에 남는 다리는 내린다. 수직 성분이
+	# 보폭의 대부분을 만들기 때문에 수평 이동은 작게 유지할 수 있다.
+	# 측면에서는 보폭이 앞뒤(수평)로 그대로 보이므로 수평 성분을 키우고 들어올림을
+	# 줄인다. 정면/후면에서는 반대로, 수직 성분이 걸음을 더 잘 읽히게 한다.
+	var swing: float = WALK_LEG_SWING * (1.6 if is_side else 1.0)
+	var lift_scale: float = float(WALK_LEG_LIFT) * (0.5 if is_side else 1.0)
+	var leg_height: int = maxi(bottom - legs_top, 1)
+	for y in range(legs_top, bottom):
+		var t: float = float(y - legs_top) / float(leg_height)
+		# 제곱 곡선: 무릎 위쪽은 거의 붙어 있고 발끝에서 가장 크게 움직인다.
+		var ramp: float = t * t
+		var dx: int = int(round(stride * swing * ramp))
+		var lift: int = int(round(stride * lift_scale * ramp))
+		out.blend_rect(
+			src,
+			Rect2i(left, y, maxi(center_x - left, 1), 1),
+			Vector2i(left - dx, y + bob - lift)
+		)
+		out.blend_rect(
+			src,
+			Rect2i(center_x, y, maxi(right - center_x, 1), 1),
+			Vector2i(center_x + dx, y + bob + lift)
+		)
+	return out
 
 static func _frame_paths(folder: String, prefix: String, count: int) -> Array[String]:
 	var paths: Array[String] = []
@@ -1250,20 +1385,24 @@ static func create_npc_sprite(preset_name: String) -> AnimatedSprite2D:
 		"elder": "sable",
 		"child": "veil",
 	}
+	# S210: 배경 시민도 주역 캐스트와 같은 "보이는 키" 계약을 따른다.
+	# 예전에는 scale 0.24를 손으로 박아 두어 실제 표시 높이가 약 35px이었다.
+	# 주역은 apply_field_profile로 50px에 맞춰지므로, 같은 시장 안에서 배경 시민이
+	# 일제히 30% 작은 사람들처럼 보였다. 발 높이 보정(-38px)도 알파 경계와 무관한
+	# 고정값이라 지면에 붙지 않았고, 텍스처 필터도 주역(LINEAR)과 달라 따로 놀았다.
+	var target_height: float = FIELD_CHILD_HEIGHT if preset_name == "child" else FIELD_ADULT_HEIGHT
 	var field_key: String = ambient_field_keys.get(preset_name, "")
 	if field_key != "" and has_field_sprite_frames(field_key):
 		sprite.sprite_frames = create_sheet_frames(field_key)
 		sprite.play("idle_down")
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		sprite.scale = Vector2(0.24, 0.24)
-		sprite.position = Vector2(0, -38)
+		apply_field_profile(sprite, sprite.sprite_frames.get_frame_texture("idle_down", 0), target_height)
 		return sprite
 
 	var config = get_npc_preset(preset_name)
 	sprite.sprite_frames = create_frames(config)
 	sprite.play("idle_down")
-	sprite.scale = Vector2(0.7, 0.7)  # NPC는 약간 작게
-	sprite.position = Vector2(0, -8)  # 발 위치 보정
+	apply_field_profile(sprite, sprite.sprite_frames.get_frame_texture("idle_down", 0), target_height)
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # 절차 생성 픽셀아트는 선명하게
 	return sprite
 
 ## ========== S44: 전투 전용 대형 캐릭터 스프라이트 (128x128) ==========
