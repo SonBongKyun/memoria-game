@@ -149,6 +149,8 @@
     },
     {
       "set_flag": "bloodline_hint_storm",
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/late_ch17_bloodline_page_closed_v1.png",
+      "fade": 1.2,
       "narrate": "Elia looked at Arrel's unbroken silhouette and closed the page before Tobias could read her conclusion.",
       "narrate_ko": "엘리아는 아렐의 부서지지 않은 실루엣을 바라보다가, 토비아스가 그녀의 결론을 읽기 전에 페이지를 덮었다."
     },

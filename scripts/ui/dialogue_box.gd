@@ -227,6 +227,11 @@ var _auto_advance_timer: float = 0.0
 var _auto_advance_active: bool = false
 const AUTO_ADVANCE_DELAY: float = 3.0
 
+# S209: Ctrl 홀드 빨리감기 (VN 씬과 동일한 간격)
+const FF_ADVANCE_INTERVAL: float = 0.09
+var _ff_timer: float = 0.0
+var _skip_blocked_shown: bool = false
+
 # S55: Track current speaker for auto-advance
 var _current_speaker: String = ""
 
@@ -361,6 +366,10 @@ func _process(delta: float) -> void:
 			_line_shake = false
 			_start_auto_advance_if_narration()
 
+	# S209: Ctrl 홀드 빨리감기. VN 씬에만 있던 기능을 필드 대화에도 맞춘다.
+	# 선택지 앞에서는 절대 진행하지 않고, 처음 보는 문장 앞에서도 멈춘다.
+	_update_fast_forward(delta)
+
 	# S55: Auto-advance timer for narration lines
 	if _auto_advance_active:
 		_auto_advance_timer -= delta
@@ -381,6 +390,50 @@ func _process(delta: float) -> void:
 		var viewport = get_viewport()
 		if viewport and not is_typing:
 			viewport.canvas_transform.origin = Vector2.ZERO
+
+## ===================== S209: 빨리감기 =====================
+
+## Ctrl을 누르고 있는 동안 타자 연출을 즉시 끝내고 짧은 간격으로 다음 줄로 넘긴다.
+## `skip_read_only`(기본 켜짐)가 켜져 있으면 처음 보는 문장 앞에서 멈춘다. 빨리감기가
+## 새 이야기를 삼키면 되돌릴 방법이 없기 때문이다.
+func _update_fast_forward(delta: float) -> void:
+	if not DialogueManager.is_active or choice_container.visible:
+		_ff_timer = 0.0
+		_set_skip_indicator(false)
+		return
+	if not Input.is_key_pressed(KEY_CTRL):
+		_ff_timer = 0.0
+		_set_skip_indicator(false)
+		return
+	if is_typing:
+		displayed_chars = full_text.length()
+		text_label.text = _bbcode_text
+		is_typing = false
+		_line_shake = false
+		_set_indicator_visible(true)
+	var may_skip: bool = StoryLog == null or StoryLog.can_fast_forward()
+	_set_skip_indicator(not may_skip)
+	if not may_skip:
+		_ff_timer = 0.0
+		return
+	_auto_advance_active = false
+	_ff_timer += delta
+	if _ff_timer >= FF_ADVANCE_INTERVAL:
+		_ff_timer = 0.0
+		DialogueManager.advance()
+
+func _set_skip_indicator(blocked: bool) -> void:
+	if indicator == null or not is_instance_valid(indicator):
+		return
+	if blocked == _skip_blocked_shown:
+		return
+	_skip_blocked_shown = blocked
+	if blocked:
+		indicator.text = "처음 보는 대사" if GameManager.current_locale == "ko" else "New text"
+		indicator.add_theme_color_override("font_color", Color(0.94, 0.78, 0.44, 0.95))
+	else:
+		_refresh_indicator_text()
+		indicator.add_theme_color_override("font_color", Color(0.74, 0.62, 0.40, 0.76))
 
 ## S55: Start auto-advance countdown if the current line is narration (no speaker)
 ## S169: 전체 AUTO 모드(VN과 공유), 켜져 있으면 모든 라인을 읽기 시간 후 자동 진행
@@ -800,6 +853,10 @@ func _on_dialogue_line(speaker: String, text: String, portrait: String) -> void:
 			_hide_speaker_stage()
 		else:
 			_update_speaker_stage(speaker, portrait)
+
+	# S209: 회상 기록에 남긴다 (연출 태그를 제거한 최종 문장 기준).
+	if StoryLog:
+		StoryLog.record(speaker, clean_text, "field")
 
 	# S55: Apply emphasis and store both plain and formatted text
 	full_text = clean_text

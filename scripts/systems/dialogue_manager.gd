@@ -173,6 +173,10 @@ func select_choice(choice_index: int) -> void:
 	if choice_index >= 0 and choice_index < _current_choices.size():
 		var choice = _current_choices[choice_index]
 
+		# S209: 회상 기록에 플레이어의 선택을 남긴다.
+		if StoryLog and choice is Dictionary:
+			StoryLog.record_choice(GameManager.localized_value(choice, "text", String(choice.get("text", ""))))
+
 		# 플래그 설정
 		if choice.has("set_flag"):
 			GameManager.set_flag(choice.set_flag)

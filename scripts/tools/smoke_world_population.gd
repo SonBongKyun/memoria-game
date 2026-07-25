@@ -57,6 +57,7 @@ func _ready() -> void:
 	var total_voices := 0
 	var total_hunts := 0
 	var total_caches := 0
+	var total_curios := 0
 	var field_asset_paths: Dictionary = {}
 	var special_voice_count := 0
 	var special_hunt_count := 0
@@ -86,6 +87,7 @@ func _ready() -> void:
 		var voices := 0
 		var hunts := 0
 		var caches := 0
+		var curios := 0
 		for actor in population.get_children():
 			assert(actor is Node2D and (actor as Node2D).position.x > 0.0 and (actor as Node2D).position.y > 0.0 and (actor as Node2D).position.x < float(map_data.width) * 32.0 and (actor as Node2D).position.y < float(map_data.height) * 32.0, "%s must be placed inside its map bounds" % actor.name)
 			if not is_optional_site:
@@ -98,6 +100,11 @@ func _ready() -> void:
 				var cache_sprite := actor.get_node_or_null("ItemIcon") as Sprite2D
 				assert(cache_sprite != null and cache_sprite.texture != null, "%s cache needs an item icon" % actor.name)
 				assert(cache_sprite.texture.resource_path.contains("assets/ui/items"), "%s cache must use an authored item icon" % actor.name)
+			elif actor is WorldCurio:
+				curios += 1
+				assert(WorldPopulation.CURIOS_BY_MAP.has(map_data.id), "%s must belong to a registered core-region curio" % actor.name)
+				assert(ResourceLoader.exists(String(actor.art_path)), "%s needs an illustrated discovery plate" % actor.name)
+				assert(GameManager.ITEMS.has(String(actor.salvage_item)), "%s salvage choice must grant a registered item" % actor.name)
 			elif actor is StaticBody2D:
 				voices += 1
 				var field_sprite := actor.get_node_or_null("CharacterSprite") as AnimatedSprite2D
@@ -137,9 +144,12 @@ func _ready() -> void:
 		assert(voices == int(map_data.voices), "%s expected %d world voices, got %d" % [map_data.id, map_data.voices, voices])
 		assert(hunts == int(map_data.hunts), "%s expected %d visible threats, got %d" % [map_data.id, map_data.hunts, hunts])
 		assert(caches == int(map_data.get("caches", 0)), "%s expected %d caches, got %d" % [map_data.id, int(map_data.get("caches", 0)), caches])
+		var expected_curios := 1 if WorldPopulation.CURIOS_BY_MAP.has(map_data.id) else 0
+		assert(curios == expected_curios, "%s expected %d regional curios, got %d" % [map_data.id, expected_curios, curios])
 		total_voices += voices
 		total_hunts += hunts
 		total_caches += caches
+		total_curios += curios
 		map.free()
 		if layout != null:
 			layout.free()
@@ -160,6 +170,7 @@ func _ready() -> void:
 		gate_map.free()
 
 	assert(total_voices == 64 and total_hunts == 32 and total_caches == 11, "World expansion totals must remain deliberate")
+	assert(total_curios == 10, "Every core region should contain one choice-driven illustrated landmark")
 	print("[WorldPopulationSmoke] unique live field assets: %d" % field_asset_paths.size())
 	assert(field_asset_paths.size() == 31, "The seven unified civilian archetypes and all hostile field assets must appear in the playable population")
 	assert(special_voice_count == 6 and special_hunt_count == 6, "Specialist and rare variants must remain wired")
@@ -168,5 +179,5 @@ func _ready() -> void:
 	GameManager.current_chapter = previous_chapter
 	GameManager.current_locale = previous_locale
 	GameManager.change_state(previous_state)
-	print("WORLD_POPULATION_SMOKE_PASS maps=19 voices=%d visible_threats=%d caches=%d atlas_gates=%d generated_field_assets=%d" % [total_voices, total_hunts, total_caches, atlas_gate_count, field_asset_paths.size()])
+	print("WORLD_POPULATION_SMOKE_PASS maps=19 voices=%d visible_threats=%d caches=%d curios=%d atlas_gates=%d generated_field_assets=%d" % [total_voices, total_hunts, total_caches, total_curios, atlas_gate_count, field_asset_paths.size()])
 	get_tree().quit(0)

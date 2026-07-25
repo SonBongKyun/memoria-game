@@ -47,6 +47,22 @@ const SPECIAL_HUNT_ART := {
 	"outskirts_void_fragment": "res://assets/sprites/world_population/hostiles/echo_shell_field_v1.png",
 }
 
+## One illustrated, choice-driven landmark per core region. These are sparse by
+## design: a single readable point of interest is more valuable than another
+## layer of decorative clutter, and every choice changes battle preparation.
+const CURIOS_BY_MAP: Dictionary = {
+	"rim_forest": {"id": "cinder_nest", "tile": [9, 12], "title": "Cinder Nest", "title_ko": "잿불 둥지", "lore": "Roots have grown around a burner tag that is still warm enough to remember a hand.", "lore_ko": "뿌리가 아직 손의 온기를 기억하는 연소자 표식을 감싸고 있다.", "art": "res://assets/cg/generated/illustration_expansion_v2/resonance_rim_forest_deep_v2.png", "item": "firebomb"},
+	"verdan_market": {"id": "blank_price_bell", "tile": [25, 15], "title": "Blank Price Bell", "title_ko": "빈 가격의 종", "lore": "The market bell rings for a debt whose owner and price have both been erased.", "lore_ko": "주인과 가격이 함께 지워진 빚을 위해 시장의 종이 울린다.", "art": "res://assets/cg/generated/illustration_expansion_v2/resonance_verdan_market_deep_v2.png", "item": "ledger_chalk"},
+	"belt_waystation": {"id": "signal_orrery", "tile": [12, 15], "title": "Signal Orrery", "title_ko": "신호 천구의", "lore": "A broken tower model continues to predict funerals more accurately than weather.", "lore_ko": "부서진 신호탑 모형이 날씨보다 장례를 더 정확히 예측한다.", "art": "res://assets/cg/generated/illustration_expansion_v2/resonance_belt_waystation_deep_v2.png", "item": "smoke_bomb"},
+	"drift_shelter": {"id": "rain_written_bedroll", "tile": [12, 13], "title": "Rain-Written Bedroll", "title_ko": "비가 쓴 침낭", "lore": "Every fold remembers a different traveler, but all of them dreamed of the same dry room.", "lore_ko": "접힌 자리마다 다른 여행자를 기억하지만, 모두 같은 마른 방을 꿈꾸었다.", "art": "res://assets/cg/generated/illustration_expansion_v3/resonance_drift_shelter_deep_v3.png", "item": "anchor_lantern"},
+	"crumbling_coast": {"id": "salt_hand_cairn", "tile": [21, 12], "title": "Salt-Hand Cairn", "title_ko": "소금 손 돌무덤", "lore": "Travelers leave one handprint here so the coast cannot claim they arrived alone.", "lore_ko": "여행자들은 혼자 도착했다는 거짓말을 해안이 삼키지 못하도록 손자국 하나를 남긴다.", "art": "res://assets/cg/generated/illustration_expansion_v3/resonance_crumbling_coast_deep_v3.png", "item": "antidote", "count": 2},
+	"the_seam": {"id": "eighteenth_lantern", "tile": [12, 15], "title": "Eighteenth Lantern", "title_ko": "열여덟 번째 등불", "lore": "Seventeen lights name the lost. This one is kept for whoever returns changed but whole.", "lore_ko": "열일곱 불빛은 사라진 이를 부른다. 이 등불은 달라졌지만 온전히 돌아온 이를 위해 남겨졌다.", "art": "res://assets/cg/generated/illustration_expansion_v2/resonance_the_seam_deep_v2.png", "item": "witness_knot"},
+	"seam_outskirts": {"id": "echo_shell_gate", "tile": [14, 13], "title": "Echo-Shell Gate", "title_ko": "에코 셸 관문", "lore": "The shell repeats only the footsteps that chose to turn back for someone else.", "lore_ko": "에코 셸은 누군가를 위해 되돌아간 발걸음만 반복한다.", "art": "res://assets/cg/generated/illustration_expansion_v3/resonance_seam_outskirts_deep_v3.png", "item": "firebomb"},
+	"forgotten_forest": {"id": "name_hollow_root", "tile": [3, 14], "title": "Name-Hollow Root", "title_ko": "이름이 빈 뿌리", "lore": "The root has kept the pause between two syllables after losing the name itself.", "lore_ko": "뿌리는 이름을 잃고도 두 음절 사이의 멈춤만은 간직했다.", "art": "res://assets/cg/generated/illustration_expansion_v2/resonance_forgotten_forest_deep_v2.png", "item": "cinder_vial"},
+	"colorless_waste": {"id": "color_bearing_stone", "tile": [22, 14], "title": "Color-Bearing Stone", "title_ko": "색을 나르는 돌", "lore": "A thumb-sized stone carries enough blue to make the horizon remember distance.", "lore_ko": "엄지손가락만 한 돌이 수평선에 거리를 되돌릴 만큼의 파랑을 품고 있다.", "art": "res://assets/cg/generated/illustration_expansion_v3/resonance_colorless_waste_deep_v3.png", "item": "hi_potion"},
+	"bl07_void": {"id": "rain_memory_seed", "tile": [15, 14], "title": "Seed That Remembers Rain", "title_ko": "비를 기억하는 씨앗", "lore": "Nothing grows here, yet the seed opens whenever someone remembers the sound of rain.", "lore_ko": "아무것도 자라지 않는 곳이지만, 누군가 빗소리를 기억할 때마다 씨앗이 열린다.", "art": "res://assets/cg/generated/illustration_expansion_v3/resonance_bl07_void_deep_v3.png", "item": "seed_capsule"},
+}
+
 const POPULATIONS := {
 	"rim_forest": {
 		"voices": [
@@ -289,16 +305,19 @@ static func populate(map: Node2D, map_id: String) -> void:
 	var voice_count := 0
 	var hunt_count := 0
 	var cache_count := 0
+	var curio_count := 0
 	for cache_data in data.get("caches", []):
 		if _spawn_cache(root, map_id, cache_data):
 			cache_count += 1
+	if CURIOS_BY_MAP.has(map_id) and _spawn_curio(root, map_id, CURIOS_BY_MAP[map_id]):
+		curio_count += 1
 	for voice_data in data.get("voices", []):
 		if _spawn_voice(root, voice_data):
 			voice_count += 1
 	for hunt_data in data.get("hunts", []):
 		if _spawn_hunt(root, map_id, hunt_data):
 			hunt_count += 1
-	print("[WorldPopulation] %s populated: %d voices, %d visible threats, %d caches" % [map_id, voice_count, hunt_count, cache_count])
+	print("[WorldPopulation] %s populated: %d voices, %d visible threats, %d caches, %d curios" % [map_id, voice_count, hunt_count, cache_count, curio_count])
 
 static func _population_for(map_id: String) -> Dictionary:
 	if POPULATIONS.has(map_id):
@@ -317,6 +336,25 @@ static func _spawn_cache(root: Node2D, map_id: String, data: Dictionary) -> bool
 	cache.quantity = int(data.get("count", 1))
 	cache.position = _tile_position(data.get("tile", [1, 1]))
 	root.add_child(cache)
+	return true
+
+static func _spawn_curio(root: Node2D, map_id: String, data: Dictionary) -> bool:
+	var required_flag := String(data.get("requires", ""))
+	if required_flag != "" and not GameManager.get_flag(required_flag):
+		return false
+	var curio := WorldCurio.new()
+	curio.name = "WorldCurio_%s" % String(data.get("id", "relic"))
+	curio.map_id = map_id
+	curio.curio_id = String(data.get("id", "relic"))
+	curio.title = String(data.get("title", "Field Relic"))
+	curio.title_ko = String(data.get("title_ko", "현장 유물"))
+	curio.lore = String(data.get("lore", "A memory has settled here."))
+	curio.lore_ko = String(data.get("lore_ko", "기억 하나가 이곳에 가라앉아 있다."))
+	curio.art_path = String(data.get("art", ""))
+	curio.salvage_item = String(data.get("item", "potion"))
+	curio.salvage_count = int(data.get("count", 1))
+	curio.position = _tile_position(data.get("tile", [1, 1]))
+	root.add_child(curio)
 	return true
 
 static func _spawn_voice(root: Node2D, data: Dictionary) -> bool:

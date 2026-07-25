@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S203: 425 PNG files under `assets/cg/`.
+- Current project baseline after S204: 450 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -14,6 +14,20 @@
 4. Environment plates, dialogue story CGs, battle cinematics, memory-burn images, and ending plates are separate asset roles.
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
+
+## S204 late-story, field, and RPG landmark expansion
+
+Twenty-five final 1672x941 GPT Image plates were generated as five matched sets under `assets/cg/generated/illustration_expansion_v3/`. `data/illustration_gapfill_gallery.json` is the placement and Artbook manifest.
+
+| Category | Count | Runtime use |
+|---|---:|---|
+| Late story interstitials | 5 | New illustrated turns in Chapters 17-21: the closed bloodline page, living-funeral second ring, chain-burn gate, fallen compass, and Belor's corridor arrival |
+| Testimony epilogue | 5 | Chapter 24 now illustrates the many-handed record, Tobias's night press, Han's traveling song, Vael beyond the wave, and the closing page |
+| Deep Field Resonance | 5 | Drift Shelter, Crumbling Coast, Seam Outskirts, Colorless Waste, and BL-07 complete the second-discovery visual layer across all ten core maps |
+| Enemy action cut-ins | 5 | Ash Crawler, Forest Shade, Threshold Shade, Void Watcher, and Memory Eater no longer fall back to generic stage art during attacks |
+| World rewrites | 5 | Verdan taste, Tobias's record ink, Sable's witness, the memory compass, and the Void-walker burn consequences use new story-specific plates |
+
+The ten deep-resonance plates also serve the new regional-curio encounters: one sparse landmark per core map opens its local illustration and lets the player choose Field Focus, a biome-specific item, or recovery. This gives the art a repeatable gameplay role without adding another layer of playfield-obscuring decoration. Every final image was inspected against active story CGs, character canon, creature sheets, or the established resonance family before import. The full set is text-free, low-noise, cinematic 16:9 art with a live story, combat, exploration, or world-rewrite consumer.
 
 ## S203 five-category illustration expansion
 

@@ -143,6 +143,8 @@
       "text_ko": "그녀를 셈에 더해."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/late_ch19_chain_burn_gate_v1.png",
+      "fade": 0.9,
       "narrate": "At the inner gate a patrol turned wrong, and there was no room left for quiet. Elia's hand closed on Arrel's shoulder as he burned, and her warmth fed the flame without leaving her. Two people. One fire. The patrol saw a wall of heat and remembered urgent business elsewhere.",
       "narrate_ko": "안쪽 관문에서 순찰대가 방향을 잘못 틀었고, 더는 조용할 여지가 없었다. 아렐이 연소하는 순간 엘리아의 손이 그의 어깨를 붙잡았다, 그녀의 온기가 그녀를 잃지 않은 채 불길에 흘러들었다. 두 사람. 하나의 불. 순찰대는 열의 벽을 보았고, 다른 곳의 급한 용무를 기억해 냈다.",
       "set_flag": "chain_burn_unlocked"

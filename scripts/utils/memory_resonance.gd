@@ -37,11 +37,17 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"drift_shelter": {
 		"path": "res://assets/cg/generated/resonance_drift_shelter_echo.png",
 		"caption": "Warmth remains on the table after the hands themselves have moved on.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v3/resonance_drift_shelter_deep_v3.png",
+		"deep_caption": "Ash-rain footsteps and remembered warmth meet at one cup left for a stranger.",
+		"deep_caption_ko": "재비 속 발자국과 기억된 온기가 낯선 이를 위해 남겨 둔 잔 하나에서 만난다.",
 		"caption_ko": "손은 떠났지만 그 온기는 아직 탁자 위에 남아 있다.",
 	},
 	"crumbling_coast": {
 		"path": "res://assets/cg/generated/resonance_crumbling_coast_echo.png",
 		"caption": "Salt keeps the shape of a hand after the person has gone.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v3/resonance_crumbling_coast_deep_v3.png",
+		"deep_caption": "Two lost trails answer the salt hand and reveal one safe crossing.",
+		"deep_caption_ko": "길을 잃은 두 흔적이 소금 손자국에 응답해 하나의 안전한 길을 드러낸다.",
 		"caption_ko": "사람이 떠난 뒤에도 소금은 손의 형태를 붙들고 있다.",
 	},
 	"the_seam": {
@@ -55,6 +61,9 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"seam_outskirts": {
 		"path": "res://assets/cg/generated/resonance_seam_outskirts_echo.png",
 		"caption": "The Echo Shell bridges a broken road with one remembered note.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v3/resonance_seam_outskirts_deep_v3.png",
+		"deep_caption": "A shell's single note turns static and two separate trails into a bridge.",
+		"deep_caption_ko": "에코 셸의 음 하나가 잡음과 갈라진 두 흔적을 다리로 바꾼다.",
 		"caption_ko": "에코 셸이 기억한 음 하나로 끊어진 길을 잇는다.",
 	},
 	"forgotten_forest": {
@@ -68,11 +77,17 @@ const FIELD_FOCUS_CG_BY_MAP: Dictionary = {
 	"colorless_waste": {
 		"path": "res://assets/cg/generated/resonance_colorless_waste_echo.png",
 		"caption": "The compass gives color back to only the stones it can name.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v3/resonance_colorless_waste_deep_v3.png",
+		"deep_caption": "Two named stones lend the compass enough color to draw a road.",
+		"deep_caption_ko": "이름을 되찾은 두 돌이 나침반에 길을 그릴 만큼의 색을 빌려준다.",
 		"caption_ko": "나침반은 이름 붙일 수 있는 돌에만 잠시 색을 돌려준다.",
 	},
 	"bl07_void": {
 		"path": "res://assets/cg/generated/resonance_bl07_void_echo.png",
 		"caption": "The Void bends around one human footprint it failed to erase.",
+		"deep_path": "res://assets/cg/generated/illustration_expansion_v3/resonance_bl07_void_deep_v3.png",
+		"deep_caption": "A seam-colored thread joins two footprints the Void could not edit apart.",
+		"deep_caption_ko": "경계의 색을 띤 실이 보이드도 갈라놓지 못한 두 발자국을 잇는다.",
 		"caption_ko": "보이드는 끝내 지우지 못한 인간의 발자국 하나를 피해 휘어진다.",
 	},
 }
@@ -92,6 +107,7 @@ const RESONANCE_POINTS: Dictionary = {
 	],
 	"drift_shelter": [
 		{"pos_x": 10, "pos_y": 8, "memory_id": "daily_elia_hands", "bonus_type": "max_hp", "bonus_value": 15, "bonus_desc": "Warmth remembered. Your body strengthens. +15 Max HP.", "flag": "resonance_drift_hands"},
+		{"pos_x": 18, "pos_y": 5, "memory_id": "sense_ash_rain", "bonus_type": "item", "bonus_value": "anchor_lantern", "bonus_desc": "Ash-rain folds around a steady light. Found an Anchor Lantern.", "flag": "resonance_drift_ash"},
 	],
 	"crumbling_coast": [
 		{"pos_x": 14, "pos_y": 4, "memory_id": "sense_salt_wind", "bonus_type": "item", "bonus_value": "hi_potion", "bonus_desc": "Salt crystallizes into medicine. Found a Hi-Potion.", "flag": "resonance_coast_salt"},
@@ -103,6 +119,7 @@ const RESONANCE_POINTS: Dictionary = {
 	],
 	"seam_outskirts": [
 		{"pos_x": 12, "pos_y": 8, "memory_id": "rel_echo_shell", "bonus_type": "grains", "bonus_value": 35, "bonus_desc": "Echoes crystallize. +35 Grains.", "flag": "resonance_outskirts_shell"},
+		{"pos_x": 7, "pos_y": 12, "memory_id": "sense_static_air", "bonus_type": "encounter_reduce", "bonus_value": 50, "bonus_desc": "Static outlines the safer road. Encounters reduced.", "flag": "resonance_outskirts_static"},
 	],
 	"forgotten_forest": [
 		{"pos_x": 8, "pos_y": 6, "memory_id": "sense_hollow_trees", "bonus_type": "encounter_reduce", "bonus_value": 50, "bonus_desc": "The forest recognizes you. Encounters reduced.", "flag": "resonance_forest_trees"},
@@ -114,6 +131,7 @@ const RESONANCE_POINTS: Dictionary = {
 	],
 	"bl07_void": [
 		{"pos_x": 12, "pos_y": 8, "memory_id": "identity_void_walker", "bonus_type": "max_hp", "bonus_value": 25, "bonus_desc": "What you saw strengthens you. +25 Max HP.", "flag": "resonance_bl07_void"},
+		{"pos_x": 6, "pos_y": 13, "memory_id": "sense_seam_colors", "bonus_type": "item", "bonus_value": "seed_capsule", "bonus_desc": "The remembered colors protect one impossible seed. Found a Seed Capsule.", "flag": "resonance_bl07_colors"},
 	],
 }
 

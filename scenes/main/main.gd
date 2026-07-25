@@ -203,6 +203,8 @@ func _on_new_game_pressed() -> void:
 		"directive_streak": 0,
 		"elia_with_party": true,
 		"items": {"witness_ink": 1},
+		"item_quick_slots": ["witness_ink", "potion", "antidote"],
+		"recent_items": [],
 	}
 	SceneFlow.pending_scene_id = "ch1_cold_open"
 	SceneTransition.change_scene_styled("res://scenes/main/vn_host.tscn")
@@ -226,6 +228,8 @@ func _on_aftermath_preview_pressed() -> void:
 		"directive_streak": 0,
 		"elia_with_party": true,
 		"items": {"witness_ink": 1},
+		"item_quick_slots": ["witness_ink", "potion", "antidote"],
+		"recent_items": [],
 	}
 	MemoryManager.memories.clear()
 	MemoryManager.burned_memories.clear()

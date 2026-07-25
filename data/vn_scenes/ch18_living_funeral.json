@@ -48,6 +48,8 @@
       "text_ko": "기록은 그것을 쓴 사람이 아니야. 그게 요점이라네, 아렐. 기록은 내 필적보다 오래 살아남아야 해."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/late_ch18_second_ring_elia_name_v1.png",
+      "fade": 1.1,
       "narrate": "The first ring took the way he sharpened a pencil. The second reached for Elia's name.",
       "narrate_ko": "첫 번째 고리가 그가 연필을 깎는 방식을 가져갔다. 두 번째 고리가 엘리아의 이름을 향해 뻗었다."
     },

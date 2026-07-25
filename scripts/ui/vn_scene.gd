@@ -82,6 +82,12 @@ const FF_ADVANCE_INTERVAL: float = 0.09  # Ctrl 홀드 시 진행 간격
 var _auto_btn: Button
 var _auto_timer: float = 0.0
 var _ff_timer: float = 0.0
+var _skip_hint_label: Label  # S209: 빨리감기 중단 안내
+
+## S209: 빨리감기가 새 문장 앞에서 멈췄음을 알린다.
+func _set_skip_hint(active: bool) -> void:
+	if _skip_hint_label and is_instance_valid(_skip_hint_label):
+		_skip_hint_label.visible = active
 
 # 포트레이트 슬롯 상태
 var _left_portrait_id: String = ""
@@ -315,6 +321,30 @@ func _build_ui() -> void:
 	_auto_btn.add_theme_stylebox_override("pressed", auto_hover)
 	root.add_child(_auto_btn)
 	_refresh_auto_chip()
+
+	# S209: 빨리감기가 처음 보는 문장 앞에서 멈췄다는 안내.
+	_skip_hint_label = Label.new()
+	UITheme.apply_ui_font(_skip_hint_label)
+	_skip_hint_label.anchor_left = 1.0
+	_skip_hint_label.anchor_right = 1.0
+	_skip_hint_label.anchor_top = 1.0
+	_skip_hint_label.anchor_bottom = 1.0
+	_skip_hint_label.offset_left = -420
+	_skip_hint_label.offset_right = -215
+	_skip_hint_label.offset_top = -56
+	_skip_hint_label.offset_bottom = -30
+	_skip_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_skip_hint_label.add_theme_font_size_override("font_size", 12)
+	_skip_hint_label.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44, 0.92))
+	_skip_hint_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	_skip_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skip_hint_label.visible = false
+	_skip_hint_label.text = (
+		"새 대사에서 멈춤"
+		if GameManager.current_locale == "ko"
+		else "Stopped at new text"
+	)
+	root.add_child(_skip_hint_label)
 
 	_choice_header = Label.new()
 	_choice_header.anchor_left = 0.18
@@ -1196,6 +1226,10 @@ func _display_line(speaker: String, text: String) -> void:
 		_play_page_turn()
 	_last_displayed_text = text
 
+	# S209: 회상 기록. VN 씬은 파트 II 이후 이야기의 대부분을 차지한다.
+	if StoryLog:
+		StoryLog.record(speaker, text, "vn")
+
 	_full_text = text
 	_typed_chars = 0
 	_typing_done = false
@@ -1274,13 +1308,18 @@ func _process(delta: float) -> void:
 				_text_label.text = _full_text
 				_typing_done = true
 				_waiting_for_input = true
-			if _waiting_for_input:
+			# S209: 처음 보는 문장 앞에서는 멈춘다. 빨리감기가 새 이야기를 삼키면
+			# 되돌릴 방법이 없기 때문. (옵션에서 전체 빨리감기로 바꿀 수 있다.)
+			var may_skip: bool = StoryLog == null or StoryLog.can_fast_forward()
+			_set_skip_hint(not may_skip)
+			if _waiting_for_input and may_skip:
 				_ff_timer += delta
 				if _ff_timer >= FF_ADVANCE_INTERVAL:
 					_ff_timer = 0.0
 					_advance_step()
 		else:
 			_ff_timer = 0.0
+			_set_skip_hint(false)
 			if SceneFlow.vn_auto_mode and _typing_done and _waiting_for_input:
 				_auto_timer += delta
 				var wait_needed: float = clampf(AUTO_BASE_DELAY + _full_text.length() * AUTO_PER_CHAR, AUTO_BASE_DELAY, AUTO_MAX_DELAY)

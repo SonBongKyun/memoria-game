@@ -3,9 +3,16 @@
 ## S44: 사이드뷰 레이아웃, 캐릭터/적 128x128 스프라이트, 전투 애니메이션
 ## S56: BattleVFX 통합 (향상된 데미지 넘버, 상태이상 파티클, 기억 연소 드라마틱 시퀀스)
 ## S57: Battle Juice Overhaul, knockback, hit-freeze, screen flash, combo counter, turn dim, death anim, hurt bounce
-extends Node2D
+extends Control
 
 const BATTLE_ITEM_TRAY_PATH: String = "res://assets/cg/generated/ui_battle_item_tray_v3.png"
+
+## S209: 무대 기준선.
+## 아군/지원/적 스프라이트의 발과 그림자는 모두 이 y좌표(1280x720 기준)에 맞춘다.
+## 예전에는 각 컨테이너가 제각기 다른 높이에 그림자를 두어 엘리아는 지면보다
+## 48px 위에 떠 있었고, 캐릭터 전체가 배경 위에 붙인 스티커처럼 보였다.
+const STAGE_BASELINE_Y: float = 424.0
+const STAGE_FLOOR_ANCHOR: float = 0.60
 
 # UI 노드
 var bg: ColorRect
@@ -17,17 +24,24 @@ var enemy_break_label: Label
 var player_hp_bar: ProgressBar
 var player_hp_label: Label
 var log_label: RichTextLabel
+var field_readout_art: TextureRect
+var field_readout_header: Label
 var action_ribbon_art: TextureRect
 var action_container: GridContainer
 var witness_btn: Button
 var burn_list_container: VBoxContainer
 var item_list_container: VBoxContainer
+var _battle_quick_item_buttons: Array[Button] = []
 var enemy_sprite: Control  # 적 스프라이트
 var enemy_sprite_container: Control  # 적 아이들 모션용 컨테이너
 
 var log_lines: Array = []
-const MAX_LOG_LINES: int = 6
+var _last_battle_message: String = ""
+var _action_buttons: Dictionary = {}
+const MAX_LOG_LINES: int = 2
 const UI_COMMAND_RIBBON_PATH: String = "res://assets/cg/generated/ui_battle_command_ribbon.png"
+const UI_COMMAND_DECK_PATH: String = "res://assets/cg/generated/ui_battle_command_deck_v4.png"
+const UI_FIELD_READOUT_PATH: String = "res://assets/cg/generated/ui_battle_field_readout_v4.png"
 const UI_TACTICAL_PLATE_PATH: String = "res://assets/cg/generated/ui_battle_tactical_plate.png"
 const UI_VICTORY_PANEL_PATH: String = "res://assets/cg/generated/ui_battle_victory_reward_panel.png"
 const UI_BURN_PREVIEW_PANEL_PATH: String = "res://assets/cg/generated/ui_burn_preview_ritual_panel.png"
@@ -50,6 +64,13 @@ const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_sh
 const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/elia_anchor_v3.png"
 const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_action_v3.png"
 const ECHO_SHELL_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/echo_shell_reach_v3.png"
+const ENEMY_ACTION_CUTIN_PATHS: Dictionary = {
+	"ash crawler": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_ash_crawler_v1.png",
+	"forest shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_forest_shade_v1.png",
+	"threshold shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_threshold_shade_v1.png",
+	"void watcher": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_void_watcher_v1.png",
+	"memory eater": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_memory_eater_v1.png",
+}
 const ELIA_ACTION_CUTIN_PATHS: Dictionary = {
 	"humming_shield": ELIA_HUMMING_SHIELD_CUTIN_PATH,
 	"desperate_reach": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
@@ -111,14 +132,15 @@ var _player_base_pos: Vector2 = Vector2.ZERO  # 돌진 복귀용
 var _enemy_base_pos: Vector2 = Vector2.ZERO
 var _ally_base_pos: Vector2 = Vector2.ZERO
 var _tobias_base_pos: Vector2 = Vector2.ZERO
-var player_shadow: ColorRect
-var enemy_shadow: ColorRect
-var ally_shadow: ColorRect
-var tobias_shadow: ColorRect
+var player_shadow: Polygon2D
+var enemy_shadow: Polygon2D
+var ally_shadow: Polygon2D
+var tobias_shadow: Polygon2D
 var _battle_stage_left: TextureRect
 var _battle_stage_right: TextureRect
 var _battle_stage_left_wash: ColorRect
 var _battle_stage_right_wash: ColorRect
+var _hybrid_depth_stage: HybridDepthStage
 var _action_cutin: TextureRect
 var _action_cutin_wash: ColorRect
 var _action_cutin_tween: Tween
@@ -162,6 +184,9 @@ var objective_briefing_buttons: VBoxContainer
 var auto_label: Label  # [AUTO] 표시
 var auto_btn: Button  # 자동전투 버튼
 
+# S209: 전투 배속 칩
+var _battle_speed_btn: Button
+
 # S56: BattleVFX 유틸리티
 var battle_vfx: BattleVFX
 
@@ -195,7 +220,7 @@ func _ready() -> void:
 	_play_intro()
 
 func _present_field_focus_opening() -> void:
-	await get_tree().create_timer(0.55).timeout
+	await BattleManager.pace_timer(0.55).timeout
 	if not is_inside_tree():
 		return
 	var message := "[현장 집중] 메아리의 방향이 전투에 남았다 · 공명 25 / 리미트 20" if GameManager.current_locale == "ko" else "[FIELD FOCUS] The mapped echo carries into battle · Resonance 25 / Limit 20"
@@ -208,7 +233,7 @@ func _process(delta: float) -> void:
 	if action_ribbon_art and action_container:
 		action_ribbon_art.visible = action_container.visible
 		if action_ribbon_art.visible:
-			action_ribbon_art.modulate.a = 0.78 if clean_view else 0.74 + sin(_idle_time * 1.35) * 0.035
+			action_ribbon_art.modulate.a = 0.92 if clean_view else 0.94 + sin(_idle_time * 1.15) * 0.018
 	# 적 아이들 모션 (호흡, 상하 + 미세 스케일)
 	if enemy_sprite_container and enemy_sprite_container.visible and not clean_view:
 		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
@@ -271,10 +296,15 @@ func _build_ui() -> void:
 		bg_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bg_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		bg_tex.texture = load(_resolved_battle_bg_image)
-		bg_tex.modulate = Color(0.88, 0.86, 0.84, 0.96) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.62, 0.57, 0.52, 0.82)
+		# S209: 배경 후퇴.
+		# 전투 배경은 인물이 그려진 풀 일러스트라, 거의 원본 밝기로 깔면 전투원보다
+		# 배경 속 사람이 더 크고 선명하게 읽혔다. 밝기와 채도를 낮춰 무대 뒤로 물린다.
+		bg_tex.modulate = Color(0.60, 0.58, 0.62, 0.94) if OptionsMenu.is_clean_gameplay_visuals() else Color(0.50, 0.47, 0.52, 0.88)
 		add_child(bg_tex)
+		_add_background_recession()
 		if not OptionsMenu.is_clean_gameplay_visuals():
 			_add_battle_art_depth(_resolved_battle_bg_image)
+	_build_hybrid_depth_stage()
 
 	# 배경 비네트 오버레이
 	_add_battle_vignette()
@@ -380,6 +410,8 @@ func _build_ui() -> void:
 
 	# S55: Auto Battle 라벨
 	_build_auto_label(root)
+	# S209: 전투 배속 칩
+	_build_battle_speed_chip(root)
 	_build_tactical_objective_panel(root)
 	_build_objective_briefing(root)
 
@@ -487,6 +519,13 @@ func _add_battle_art_depth(texture_path: String) -> void:
 	horizon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(horizon)
 
+func _build_hybrid_depth_stage() -> void:
+	var profile := HybridDepthStage.profile_from_scene(BattleManager.return_scene)
+	_hybrid_depth_stage = HybridDepthStage.create_stage(profile, HybridDepthStage.StageMode.BATTLE)
+	_hybrid_depth_stage.name = "HybridDepthStage"
+	_hybrid_depth_stage.modulate.a = 0.36 if OptionsMenu.is_clean_gameplay_visuals() else 0.48
+	add_child(_hybrid_depth_stage)
+
 ## S53: 전투 배경 패럴랙스 레이어
 func _add_battle_parallax() -> void:
 	if OptionsMenu.is_clean_gameplay_visuals():
@@ -495,7 +534,7 @@ func _add_battle_parallax() -> void:
 	# Layer 1: 먼 실루엣 (느린 이동)
 	var far_layer = ColorRect.new()
 	far_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	far_layer.color = Color(0.05, 0.03, 0.08, 0.3)
+	far_layer.color = Color(0.05, 0.03, 0.08, 0.08)
 	far_layer.z_index = -2
 	far_layer.set_meta("parallax_speed", 0.3)
 	far_layer.set_meta("base_x", 0.0)
@@ -506,7 +545,7 @@ func _add_battle_parallax() -> void:
 	# Layer 2: 안개/먼지 (중간 이동)
 	var mid_layer = ColorRect.new()
 	mid_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	mid_layer.color = Color(0.1, 0.08, 0.12, 0.15)
+	mid_layer.color = Color(0.1, 0.08, 0.12, 0.045)
 	mid_layer.z_index = -1
 	mid_layer.set_meta("parallax_speed", 0.8)
 	mid_layer.set_meta("base_x", 0.0)
@@ -535,11 +574,11 @@ func _add_premium_battle_lens() -> void:
 		if "void" in enemy_name or "shade" in enemy_name or "kairos" in enemy_name:
 			tint = Color(0.46, 0.30, 0.82, 1.0)
 		mat.set_shader_parameter("tint_color", tint)
-		mat.set_shader_parameter("vignette_strength", 0.46)
-		mat.set_shader_parameter("tint_strength", 0.075)
-		mat.set_shader_parameter("grain_strength", 0.02)
-		mat.set_shader_parameter("letterbox_strength", 0.20)
-		mat.set_shader_parameter("shaft_strength", 0.06)
+		mat.set_shader_parameter("vignette_strength", 0.28)
+		mat.set_shader_parameter("tint_strength", 0.028)
+		mat.set_shader_parameter("grain_strength", 0.006)
+		mat.set_shader_parameter("letterbox_strength", 0.10)
+		mat.set_shader_parameter("shaft_strength", 0.035)
 		lens.material = mat
 	add_child(lens)
 
@@ -585,12 +624,73 @@ func _make_interface_texture(path: String, alpha: float = 1.0) -> TextureRect:
 	art.modulate = Color(1.0, 0.94, 0.82, alpha)
 	return art
 
+func _make_interface_texture_region(path: String, region: Rect2, alpha: float = 1.0) -> TextureRect:
+	var art := _make_interface_texture(path, alpha)
+	if art.texture != null:
+		var atlas := AtlasTexture.new()
+		atlas.atlas = art.texture
+		atlas.region = region
+		art.texture = atlas
+	return art
+
+## ===================== S209: 전투 배속 =====================
+
+## 24챕터를 재주행하거나 랜덤 인카운터를 반복할 때, 결과는 이미 아는데 연출 대기만
+## 남는 구간이 있다. 배속은 판정/피해/확률을 전혀 건드리지 않고 "기다리는 시간"만 줄인다.
+func _build_battle_speed_chip(root: Control) -> void:
+	_battle_speed_btn = Button.new()
+	_battle_speed_btn.name = "BattleSpeedChip"
+	_battle_speed_btn.anchor_left = 0.014
+	_battle_speed_btn.anchor_right = 0.128
+	_battle_speed_btn.anchor_top = 0.0
+	_battle_speed_btn.offset_top = 6
+	_battle_speed_btn.offset_bottom = 32
+	_battle_speed_btn.focus_mode = Control.FOCUS_NONE
+	_battle_speed_btn.z_index = 63
+	_battle_speed_btn.add_theme_font_size_override("font_size", 11)
+	_battle_speed_btn.add_theme_color_override("font_color", Color(0.80, 0.82, 0.90))
+	_battle_speed_btn.add_theme_color_override("font_hover_color", Color(0.96, 0.86, 0.58))
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.030, 0.028, 0.044, 0.88)
+	style.border_color = Color(0.46, 0.42, 0.56, 0.52)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.set_content_margin_all(4)
+	_battle_speed_btn.add_theme_stylebox_override("normal", style)
+	var hover := style.duplicate()
+	hover.border_color = Color(0.92, 0.70, 0.36, 0.85)
+	_battle_speed_btn.add_theme_stylebox_override("hover", hover)
+	_battle_speed_btn.add_theme_stylebox_override("pressed", hover)
+
+	_battle_speed_btn.pressed.connect(_on_battle_speed_pressed)
+	root.add_child(_battle_speed_btn)
+	_update_battle_speed_chip()
+
+func _update_battle_speed_chip() -> void:
+	if _battle_speed_btn == null or not is_instance_valid(_battle_speed_btn):
+		return
+	var label := BattleManager.get_battle_speed_label()
+	_battle_speed_btn.text = _bl("SPEED %s  [Tab]", "속도 %s  [Tab]") % label
+	_battle_speed_btn.tooltip_text = _bl(
+		"Shortens presentation waits only. Damage, hit chance, and rewards never change.",
+		"연출 대기 시간만 줄입니다. 피해량, 명중, 보상은 달라지지 않습니다."
+	)
+	var accent := Color(0.80, 0.82, 0.90) if BattleManager.get_battle_speed() <= 1.0 else Color(0.96, 0.84, 0.52)
+	_battle_speed_btn.add_theme_color_override("font_color", accent)
+
+func _on_battle_speed_pressed() -> void:
+	AudioManager.play_sfx("ui_select")
+	BattleManager.cycle_battle_speed()
+	_update_battle_speed_chip()
+	_on_battle_log(_bl("Battle speed %s.", "전투 속도 %s.") % BattleManager.get_battle_speed_label())
+
 func _build_tactical_objective_panel(root: Control) -> void:
 	objective_panel = PanelContainer.new()
 	objective_panel.anchor_left = 0.02
-	objective_panel.anchor_right = 0.36
-	objective_panel.anchor_top = 0.11
-	objective_panel.anchor_bottom = 0.255
+	objective_panel.anchor_right = 0.32
+	objective_panel.anchor_top = 0.095
+	objective_panel.anchor_bottom = 0.225
 	objective_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	objective_panel.z_index = 62
 	objective_art = _make_interface_texture(UI_TACTICAL_PLATE_PATH, 0.70)
@@ -791,6 +891,11 @@ func _choose_tactical_objective(index: int) -> void:
 func _on_auto_battle_changed(enabled: bool) -> void:
 	if auto_label:
 		auto_label.visible = enabled
+	if auto_btn:
+		auto_btn.text = _format_action_button(
+			"auto",
+			"7 · " + (_bl("AUTO: ON", "자동: 켬") if enabled else GameManager.loc("auto"))
+		)
 
 ## ===================== 인트로 시스템 =====================
 
@@ -951,7 +1056,7 @@ func _finish_intro() -> void:
 		intro_overlay.visible = false
 	_update_hp_displays()
 	# 약간의 딜레이 후 플레이어 턴 시작
-	await get_tree().create_timer(0.2).timeout
+	await BattleManager.pace_timer(0.2).timeout
 	if objective_briefing_overlay and objective_briefing_overlay.visible:
 		action_container.visible = false
 		if objective_briefing_buttons and objective_briefing_buttons.get_child_count() > 0:
@@ -987,7 +1092,8 @@ func _show_turn_indicator(text: String, color: Color = Color(0.85, 0.75, 0.55)) 
 	turn_label.text = text
 	turn_label.add_theme_color_override("font_color", color)
 	turn_label.modulate.a = 0.0
-	turn_label.position = Vector2(0, 0)
+	# S209: 예전에는 여기서 position을 (0,0)으로 덮어써서, 중앙 배너로 설계된 턴 표시가
+	# 매번 화면 좌상단으로 튀어나갔다. 앵커가 정한 중앙 위치를 그대로 쓴다.
 
 	var t = create_tween()
 	t.tween_property(turn_label, "modulate:a", 0.9, 0.15)
@@ -1085,7 +1191,8 @@ func _build_turn_preview(root: Control) -> void:
 	turn_preview_container.anchor_left = 0.3
 	turn_preview_container.anchor_right = 0.7
 	turn_preview_container.anchor_top = 0.0
-	turn_preview_container.offset_top = 4
+	# S209: 전투 큐 패널 상단선(y≈25)과 겹치지 않는 좁은 띠 안에서 가독성만 올린다.
+	turn_preview_container.offset_top = 2
 	turn_preview_container.offset_bottom = 24
 	turn_preview_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	turn_preview_container.add_theme_constant_override("separation", 8)
@@ -1113,7 +1220,7 @@ func _update_turn_preview() -> void:
 		var is_current = (i == 0)
 		var lbl = Label.new()
 		lbl.text = turns[i]
-		lbl.add_theme_font_size_override("font_size", 10 if not is_current else 12)
+		lbl.add_theme_font_size_override("font_size", 11 if not is_current else 13)
 		var col = Color(0.5, 0.65, 0.85) if turns[i] == ally_tag else Color(0.8, 0.4, 0.35)
 		if not is_current:
 			col = col.darkened(0.4)
@@ -1122,11 +1229,11 @@ func _update_turn_preview() -> void:
 
 		var panel = PanelContainer.new()
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.05, 0.04, 0.07, 0.7 if is_current else 0.4)
-		style.border_color = col * Color(1, 1, 1, 0.5 if is_current else 0.2)
+		style.bg_color = Color(0.05, 0.04, 0.07, 0.86 if is_current else 0.62)
+		style.border_color = col * Color(1, 1, 1, 0.6 if is_current else 0.28)
 		style.set_border_width_all(1)
-		style.set_corner_radius_all(2)
-		style.set_content_margin_all(3)
+		style.set_corner_radius_all(3)
+		style.set_content_margin_all(4)
 		panel.add_theme_stylebox_override("panel", style)
 		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(lbl)
@@ -1242,8 +1349,8 @@ func _add_status_icon(container: HBoxContainer, text: String, color: Color) -> v
 
 func _build_enemy_panel(root: Control) -> void:
 	var panel = PanelContainer.new()
-	panel.anchor_left = 0.55
-	panel.anchor_right = 0.95
+	panel.anchor_left = 0.66
+	panel.anchor_right = 0.96
 	panel.anchor_top = 0.02
 	panel.anchor_bottom = 0.02
 	panel.offset_bottom = 70
@@ -1307,31 +1414,61 @@ func _build_enemy_panel(root: Control) -> void:
 	vbox.add_child(enemy_break_bar)
 
 ## S44: 전투 지면 (그라운드 플랫폼, 원근감)
+## S209: 배경과 무대 사이의 공기 원근.
+## 화면 위쪽(먼 배경)일수록 짙게, 전투원이 서는 대역은 그대로 두어
+## 배경 일러스트를 지우지 않으면서도 깊이를 만든다.
+func _add_background_recession() -> void:
+	var steps: int = 5
+	for i in range(steps):
+		var t: float = float(i) / float(steps)
+		var band = ColorRect.new()
+		band.anchor_left = 0.0
+		band.anchor_right = 1.0
+		band.anchor_top = 0.0 + 0.40 * t
+		band.anchor_bottom = 0.0 + 0.40 * (t + 1.0 / float(steps))
+		band.color = Color(0.020, 0.018, 0.032, 0.30 - 0.05 * t)
+		band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		band.z_index = -8
+		add_child(band)
+
+## S209: 무대 바닥.
+## 예전 구현은 화면 폭 전체를 가로지르는 단색 띠 + 2px 밝은 선이라 배경 그림 위에
+## 자를 대고 그은 UI 이음매처럼 보였고, 전투원들은 그 선 위에 떠 있었다.
+## 이제는 위로 갈수록 투명해지는 다층 그라데이션과 전투원 발밑의 타원 무대광으로
+## 지면을 암시한다. 직선 경계선은 없다.
 func _build_battle_ground() -> void:
 	_ground_rect = ColorRect.new()
 	_ground_rect.anchor_left = 0.0
 	_ground_rect.anchor_right = 1.0
-	_ground_rect.anchor_top = 0.58
+	_ground_rect.anchor_top = STAGE_FLOOR_ANCHOR
 	_ground_rect.anchor_bottom = 1.0
-	_ground_rect.color = Color(0.06, 0.05, 0.08, 0.85)
+	_ground_rect.color = Color(0.035, 0.030, 0.052, 0.62)
+	_ground_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_ground_rect)
-	# 지면 경계선 (밝은 라인)
-	var line = ColorRect.new()
-	line.anchor_left = 0.0
-	line.anchor_right = 1.0
-	line.anchor_top = 0.58
-	line.anchor_bottom = 0.58
-	line.offset_bottom = 2
-	line.color = Color(0.2, 0.18, 0.25, 0.6)
-	add_child(line)
-	# 지면 그라데이션 (위에서 아래로 점점 밝아짐)
-	var gradient = ColorRect.new()
-	gradient.anchor_left = 0.0
-	gradient.anchor_right = 1.0
-	gradient.anchor_top = 0.58
-	gradient.anchor_bottom = 0.72
-	gradient.color = Color(0.08, 0.07, 0.12, 0.4)
-	add_child(gradient)
+
+	# 지면 진입부: 위(먼 곳)에서 아래(가까운 곳)로 점점 짙어지는 6단 페이드.
+	# 단색 띠의 윗변을 지워 배경 일러스트와 자연스럽게 이어지게 한다.
+	var fade_steps: int = 6
+	for i in range(fade_steps):
+		var t: float = float(i) / float(fade_steps)
+		var band = ColorRect.new()
+		band.anchor_left = 0.0
+		band.anchor_right = 1.0
+		band.anchor_top = STAGE_FLOOR_ANCHOR - 0.085 + 0.085 * t
+		band.anchor_bottom = STAGE_FLOOR_ANCHOR - 0.085 + 0.085 * (t + 1.0 / float(fade_steps))
+		band.color = Color(0.035, 0.030, 0.052, 0.10 + 0.09 * t)
+		band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(band)
+
+	# 무대 중앙 광원: 전투원이 서는 지면 대역만 아주 옅게 들어올린다.
+	var stage_pool = _make_battle_ellipse(
+		Vector2(640, STAGE_BASELINE_Y + 6.0),
+		Vector2(560, 54),
+		Color(0.30, 0.27, 0.38, 0.055),
+		48
+	)
+	stage_pool.z_index = -1
+	add_child(stage_pool)
 
 ## S44: 플레이어 스프라이트 (왼쪽, 사이드뷰)
 func _build_battle_stage_art(root: Control) -> void:
@@ -1365,9 +1502,14 @@ func _make_stage_art_rect(is_left: bool) -> TextureRect:
 		rect.anchor_left = 0.60
 		rect.anchor_right = 1.02
 	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rect.modulate = Color(1.0, 0.92, 0.78, 0.20)
+	rect.modulate = Color(1.0, 0.92, 0.82, 0.12 if OptionsMenu.is_clean_gameplay_visuals() else 0.15)
+	var blend_shader_path := "res://assets/shaders/battle_stage_blend.gdshader"
+	if ResourceLoader.exists(blend_shader_path):
+		var blend_material := ShaderMaterial.new()
+		blend_material.shader = load(blend_shader_path)
+		rect.material = blend_material
 	rect.z_index = -4
 	rect.visible = false
 	return rect
@@ -1398,6 +1540,11 @@ func _resolve_enemy_stage_art() -> String:
 
 func _resolve_enemy_action_cutin(enemy_name: String) -> String:
 	var lower_name := enemy_name.to_lower()
+	for enemy_key: String in ENEMY_ACTION_CUTIN_PATHS:
+		if enemy_key in lower_name:
+			var cutin_path := String(ENEMY_ACTION_CUTIN_PATHS[enemy_key])
+			if ResourceLoader.exists(cutin_path):
+				return cutin_path
 	if "void beast" in lower_name and ResourceLoader.exists(VOID_BEAST_ACTION_CUTIN_PATH):
 		return VOID_BEAST_ACTION_CUTIN_PATH
 	if "shade sentinel" in lower_name:
@@ -1435,8 +1582,8 @@ func _build_action_cutin(root: Control) -> void:
 ## cadence: threat -> response -> consequence. It remains visible in clean view.
 func _build_combat_cue_panel(root: Control) -> void:
 	combat_cue_panel = PanelContainer.new()
-	combat_cue_panel.anchor_left = 0.37
-	combat_cue_panel.anchor_right = 0.63
+	combat_cue_panel.anchor_left = 0.36
+	combat_cue_panel.anchor_right = 0.64
 	combat_cue_panel.anchor_top = 0.035
 	combat_cue_panel.anchor_bottom = 0.125
 	combat_cue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1566,20 +1713,47 @@ func _resolve_memory_burn_cutin(memory_id: String, memory_title: String) -> Stri
 func _play_memory_burn_cutin(cutin_path: String, memory_grade: int) -> void:
 	var cutin_alpha: float = clampf(0.80 + float(memory_grade) * 0.035, 0.80, 0.94)
 	_play_action_cutin(cutin_path, true, cutin_alpha, 0.46)
-	await get_tree().create_timer(0.78).timeout
+	await BattleManager.pace_timer(0.78).timeout
+
+## S209: 전투원 일러스트 판을 "실제로 그려지는 크기"로 맞춰 발끝을 기준선에 세운다.
+## TextureRect의 KEEP_ASPECT_CENTERED는 16:9 일러스트를 정사각형에 가까운 상자 안에서
+## 세로 가운데 정렬한다. 그래서 적 그림의 아랫변이 상자 바닥보다 60~70px 위에 뜨고,
+## 그림자만 지면에 남아 적이 공중에 떠 있는 것처럼 보였다.
+func _fit_battle_plate(rect: TextureRect, max_size: Vector2, center_x: float, feet_y: float) -> void:
+	var tex := rect.texture
+	if tex == null:
+		return
+	var tex_size := Vector2(float(tex.get_width()), float(tex.get_height()))
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return
+	var fit: float = minf(max_size.x / tex_size.x, max_size.y / tex_size.y)
+	var fitted: Vector2 = tex_size * fit
+	rect.size = fitted
+	rect.position = Vector2(center_x - fitted.x * 0.5, feet_y - fitted.y)
+
+## S209: AnimatedSprite2D의 중심 y를 계산해 프레임 아랫변이 `feet_y`에 오게 한다.
+## 스프라이트는 중앙 정렬로 그려지므로, 스케일을 바꾸면 발끝도 같이 내려간다.
+func _feet_anchored_y(sprite: AnimatedSprite2D, feet_y: float) -> float:
+	var frame_height: float = 160.0
+	var frames := sprite.sprite_frames
+	if frames and frames.has_animation("idle") and frames.get_frame_count("idle") > 0:
+		var tex := frames.get_frame_texture("idle", 0)
+		if tex:
+			frame_height = float(tex.get_height())
+	return feet_y - frame_height * sprite.scale.y * 0.5
 
 func _build_player_sprite(root: Control) -> void:
 	player_sprite_container = Control.new()
-	player_sprite_container.position = Vector2(120, 260)
+	# S209: 주인공이 화면에서 가장 작게 읽히던 문제 수정.
+	# 컨테이너 원점은 발끝 기준선에서 200px 위. 그림자는 정확히 기준선에 놓인다.
+	player_sprite_container.position = Vector2(126, STAGE_BASELINE_Y - 200.0)
 	player_sprite_container.size = Vector2(200, 200)
 	root.add_child(player_sprite_container)
 	_player_base_pos = player_sprite_container.position
 
 	# 그림자
-	player_shadow = ColorRect.new()
-	player_shadow.size = Vector2(120, 16)
-	player_shadow.position = Vector2(40, 188)
-	player_shadow.color = Color(0, 0, 0, 0.3)
+	player_shadow = _make_battle_ellipse(Vector2(100, 200), Vector2(66, 11), Color(0, 0, 0, 0.36))
+	player_shadow.z_index = -2
 	player_sprite_container.add_child(player_shadow)
 
 	var anim_sprite = AnimatedSprite2D.new()
@@ -1587,28 +1761,29 @@ func _build_player_sprite(root: Control) -> void:
 	var arrel_sheet = PixelSprite.load_sheet_frames("arrel")
 	if arrel_sheet:
 		anim_sprite.sprite_frames = arrel_sheet
-		anim_sprite.scale = Vector2(0.625, 0.625)  # 160px 시트 → 기존 표시 크기(~100px) 유지
+		# S209: 아렐은 무대의 시선 기준. 동행자/적보다 확실히 크게 세운다.
+		anim_sprite.scale = Vector2(1.34, 1.34)
 	else:
 		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
-		anim_sprite.scale = Vector2(0.78, 0.78)
+		anim_sprite.scale = Vector2(1.02, 1.02)
 	anim_sprite.play("idle")
-	anim_sprite.position = Vector2(100, 95)
+	# 프레임 높이에서 발끝 위치를 역산해 기준선에 세운다 (스케일이 바뀌어도 뜨지 않는다).
+	anim_sprite.position = Vector2(100, _feet_anchored_y(anim_sprite, 197.0))
 	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	player_sprite_container.add_child(anim_sprite)
 	player_sprite = anim_sprite
 	_player_sprite_base_scale = anim_sprite.scale
 
 	# 발밑 광원 (은은한 파란 빛)
-	var glow = ColorRect.new()
-	glow.size = Vector2(140, 20)
-	glow.position = Vector2(30, 176)
-	glow.color = Color(0.2, 0.35, 0.6, 0.15)
+	var glow := _make_battle_ellipse(Vector2(100, 198), Vector2(80, 14), Color(0.20, 0.38, 0.68, 0.11))
+	glow.z_index = -1
 	player_sprite_container.add_child(glow)
 
 ## S44: 동행자 스프라이트 (왼쪽 뒤)
 func _build_ally_sprite(root: Control) -> void:
 	ally_sprite_container = Control.new()
-	ally_sprite_container.position = Vector2(20, 230)
+	# S209: 동행자는 아렐보다 한 걸음 뒤. 그림자는 기준선보다 12px 위(원근).
+	ally_sprite_container.position = Vector2(30, STAGE_BASELINE_Y - 12.0 - 160.0)
 	ally_sprite_container.size = Vector2(160, 160)
 	ally_sprite_container.visible = false
 	root.add_child(ally_sprite_container)
@@ -1623,10 +1798,8 @@ func _build_ally_sprite(root: Control) -> void:
 	var who = "sable" if BattleManager.sable_in_party else "elia"
 
 	# 그림자
-	ally_shadow = ColorRect.new()
-	ally_shadow.size = Vector2(90, 12)
-	ally_shadow.position = Vector2(35, 150)
-	ally_shadow.color = Color(0, 0, 0, 0.25)
+	ally_shadow = _make_battle_ellipse(Vector2(80, 160), Vector2(46, 8), Color(0, 0, 0, 0.27))
+	ally_shadow.z_index = -2
 	ally_sprite_container.add_child(ally_shadow)
 
 	# 동행자 포트레이트 체크
@@ -1634,12 +1807,12 @@ func _build_ally_sprite(root: Control) -> void:
 	var p_path = portrait_map.get(who, "")
 	if p_path != "" and ResourceLoader.exists(p_path):
 		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(18, -2)
-		tex_rect.size = Vector2(124, 152)
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(p_path)
-		tex_rect.modulate = Color.WHITE
+		tex_rect.modulate = Color(1.0, 0.98, 0.95, 0.94)
+		_fit_battle_plate(tex_rect, Vector2(140, 158), 80.0, 158.0)
+		_apply_battle_portrait_blend(tex_rect, 0.24, 0.86)
 		ally_sprite_container.add_child(tex_rect)
 		ally_sprite = tex_rect
 	elif who == "elia":
@@ -1648,12 +1821,12 @@ func _build_ally_sprite(root: Control) -> void:
 		var elia_sheet = PixelSprite.load_sheet_frames("elia")
 		if elia_sheet:
 			anim_sprite.sprite_frames = elia_sheet
-			anim_sprite.scale = Vector2(0.56, 0.56)  # 160px 시트 → 기존 표시 크기(~90px) 유지
+			anim_sprite.scale = Vector2(0.92, 0.92)  # 아렐(1.34)보다 작게 두어 원근을 만든다
 		else:
 			anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("elia")
-			anim_sprite.scale = Vector2(0.70, 0.70)
+			anim_sprite.scale = Vector2(0.86, 0.86)
 		anim_sprite.play("idle")
-		anim_sprite.position = Vector2(80, 78)
+		anim_sprite.position = Vector2(80, _feet_anchored_y(anim_sprite, 158.0))
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
@@ -1662,24 +1835,23 @@ func _build_ally_sprite(root: Control) -> void:
 		var anim_sprite = AnimatedSprite2D.new()
 		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames(who)
 		anim_sprite.play("idle")
-		anim_sprite.position = Vector2(80, 70)
-		anim_sprite.scale = Vector2(0.74, 0.74)
+		anim_sprite.scale = Vector2(0.86, 0.86)
+		anim_sprite.position = Vector2(80, _feet_anchored_y(anim_sprite, 158.0))
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
 
 	# 발밑 광원
-	var glow = ColorRect.new()
-	glow.size = Vector2(100, 14)
-	glow.position = Vector2(30, 142)
-	var glow_color = Color(0.5, 0.3, 0.6, 0.12) if who == "sable" else Color(0.6, 0.5, 0.2, 0.12)
-	glow.color = glow_color
+	var glow_color = Color(0.5, 0.3, 0.6, 0.08) if who == "sable" else Color(0.6, 0.5, 0.2, 0.08)
+	var glow := _make_battle_ellipse(Vector2(80, 158), Vector2(54, 10), glow_color)
+	glow.z_index = -1
 	ally_sprite_container.add_child(glow)
 
 ## S44: 적 스프라이트 (오른쪽, 128x128 대형)
 func _build_tobias_support_sprite(root: Control) -> void:
 	tobias_sprite_container = Control.new()
-	tobias_sprite_container.position = Vector2(260, 252)
+	# S209: 지원 인원도 같은 기준선에. 아군 대열에서 가장 뒤(-20px 원근).
+	tobias_sprite_container.position = Vector2(272, STAGE_BASELINE_Y - 20.0 - 158.0)
 	tobias_sprite_container.size = Vector2(150, 170)
 	tobias_sprite_container.visible = BattleManager.tobias_in_party
 	root.add_child(tobias_sprite_container)
@@ -1687,10 +1859,8 @@ func _build_tobias_support_sprite(root: Control) -> void:
 	if not BattleManager.tobias_in_party:
 		return
 
-	tobias_shadow = ColorRect.new()
-	tobias_shadow.size = Vector2(96, 12)
-	tobias_shadow.position = Vector2(27, 150)
-	tobias_shadow.color = Color(0, 0, 0, 0.22)
+	tobias_shadow = _make_battle_ellipse(Vector2(75, 158), Vector2(48, 8), Color(0, 0, 0, 0.24))
+	tobias_shadow.z_index = -2
 	tobias_sprite_container.add_child(tobias_shadow)
 
 	var tobias_path: String = TOBIAS_BATTLE_FULLBODY_PATH
@@ -1698,44 +1868,45 @@ func _build_tobias_support_sprite(root: Control) -> void:
 		tobias_path = "res://assets/portraits/character_shots/tobias_story_v2.png"
 	if ResourceLoader.exists(tobias_path):
 		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(12, 0)
-		tex_rect.size = Vector2(126, 148)
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(tobias_path)
-		tex_rect.modulate = Color.WHITE
+		tex_rect.modulate = Color(0.98, 0.96, 0.93, 0.92)
+		_fit_battle_plate(tex_rect, Vector2(136, 154), 75.0, 156.0)
+		_apply_battle_portrait_blend(tex_rect, 0.24, 0.86)
 		tobias_sprite_container.add_child(tex_rect)
 		tobias_sprite = tex_rect
 
-	var glow = ColorRect.new()
-	glow.size = Vector2(104, 12)
-	glow.position = Vector2(23, 145)
-	glow.color = Color(0.55, 0.48, 0.30, 0.10)
+	var glow := _make_battle_ellipse(Vector2(75, 156), Vector2(54, 9), Color(0.55, 0.48, 0.30, 0.08))
+	glow.z_index = -1
 	tobias_sprite_container.add_child(glow)
 
 func _build_enemy_sprite(root: Control) -> void:
 	enemy_sprite_container = Control.new()
-	enemy_sprite_container.position = Vector2(820, 180)
-	enemy_sprite_container.size = Vector2(260, 260)
+	# S209: 적도 같은 기준선. 컨테이너 높이 300 → 그림자가 정확히 기준선에 온다.
+	enemy_sprite_container.position = Vector2(828, STAGE_BASELINE_Y - 300.0)
+	enemy_sprite_container.size = Vector2(340, 300)
 	root.add_child(enemy_sprite_container)
 	_enemy_base_pos = enemy_sprite_container.position
 
 	# 그림자
-	enemy_shadow = ColorRect.new()
-	enemy_shadow.size = Vector2(160, 18)
-	enemy_shadow.position = Vector2(50, 240)
-	enemy_shadow.color = Color(0, 0, 0, 0.35)
+	enemy_shadow = _make_battle_ellipse(Vector2(170, 300), Vector2(100, 13), Color(0, 0, 0, 0.40))
+	enemy_shadow.z_index = -2
 	enemy_sprite_container.add_child(enemy_shadow)
 
 	var enemy_name: String = BattleManager.current_enemy.name if BattleManager.current_enemy else ""
 	var enemy_art_path: String = BattleManager.enemy_image if BattleManager.enemy_image != "" and ResourceLoader.exists(BattleManager.enemy_image) else _resolve_enemy_art_by_name(enemy_name)
 	if enemy_art_path != "":
 		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(10, 10)
-		tex_rect.size = Vector2(240, 230)
+		# S209: 예전에는 240x230 안에 16:9 장면 일러스트가 들어가면서 실제로는
+		# 240x135짜리 작은 카드로 그려졌고, 사각 테두리가 그대로 보였다.
+		# 표시 면적을 키우고 타원 마스크로 테두리를 지운다.
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(enemy_art_path)
+		tex_rect.modulate = Color(1.0, 0.97, 0.96, 0.96)
+		_fit_battle_plate(tex_rect, Vector2(336, 292), 170.0, 296.0)
+		_apply_battle_portrait_blend(tex_rect, 0.30, 0.80)
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 	else:
@@ -1743,48 +1914,107 @@ func _build_enemy_sprite(root: Control) -> void:
 		var enemy_type = BattleManager.current_enemy.name if BattleManager.current_enemy else "generic"
 		var tex = PixelSprite.create_battle_enemy(enemy_type)
 		var tex_rect = TextureRect.new()
-		tex_rect.position = Vector2(20, 10)
-		tex_rect.size = Vector2(220, 220)
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = tex
 		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_fit_battle_plate(tex_rect, Vector2(276, 276), 170.0, 296.0)
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 
 	# 발밑 광원 (적은 빨간/보라 톤)
 	var enemy_lower_name: String = enemy_name.to_lower()
-	var glow_c = Color(0.5, 0.15, 0.5, 0.15) if "void" in enemy_lower_name or "shade" in enemy_lower_name else Color(0.5, 0.2, 0.15, 0.12)
-	var glow = ColorRect.new()
-	glow.size = Vector2(180, 22)
-	glow.position = Vector2(40, 232)
-	glow.color = glow_c
+	var glow_c = Color(0.5, 0.15, 0.5, 0.10) if "void" in enemy_lower_name or "shade" in enemy_lower_name else Color(0.5, 0.2, 0.15, 0.08)
+	var glow := _make_battle_ellipse(Vector2(170, 296), Vector2(108, 16), glow_c)
+	glow.z_index = -1
 	enemy_sprite_container.add_child(glow)
 
-func _build_log_panel(root: Control) -> void:
-	var panel = PanelContainer.new()
-	# S44: 로그를 화면 하단 중앙으로 이동
-	panel.anchor_left = 0.28
-	panel.anchor_right = 0.72
-	panel.anchor_top = 0.62
-	panel.anchor_bottom = 0.78
+func _make_battle_ellipse(center: Vector2, radii: Vector2, color: Color, segments: int = 32) -> Polygon2D:
+	var ellipse := Polygon2D.new()
+	var points := PackedVector2Array()
+	for i in range(segments):
+		var angle := TAU * float(i) / float(segments)
+		points.append(center + Vector2(cos(angle) * radii.x, sin(angle) * radii.y))
+	ellipse.polygon = points
+	ellipse.color = color
+	return ellipse
 
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.04, 0.06, 0.88)
-	style.set_content_margin_all(10)
-	style.set_corner_radius_all(4)
-	style.border_color = Color(0.2, 0.18, 0.15, 0.35)
-	style.set_border_width_all(1)
+func _apply_battle_portrait_blend(rect: TextureRect, edge_softness: float = 0.20, oval_mask: float = 0.0) -> void:
+	var shader_path := "res://assets/shaders/battle_stage_blend.gdshader"
+	if not ResourceLoader.exists(shader_path):
+		return
+	var blend_material := ShaderMaterial.new()
+	blend_material.shader = load(shader_path)
+	blend_material.set_shader_parameter("edge_softness", edge_softness)
+	blend_material.set_shader_parameter("lower_fade", 0.92)
+	blend_material.set_shader_parameter("oval_mask", oval_mask)
+	rect.material = blend_material
+	# S209: 상태이상/보스 페이즈 VFX가 material을 교체한 뒤 null로 되돌리면 무대 블렌드가
+	# 사라져 사각 테두리가 다시 드러난다. 원본을 노드에 보관해 복구할 수 있게 한다.
+	rect.set_meta("stage_blend_material", blend_material)
+
+## S209: VFX 셰이더를 벗길 때 null 대신 무대 블렌드로 되돌린다.
+func _restore_plate_material(node: CanvasItem) -> void:
+	if node == null or not is_instance_valid(node):
+		return
+	node.material = node.get_meta("stage_blend_material", null)
+
+func _build_log_panel(root: Control) -> void:
+	field_readout_art = _make_interface_texture_region(
+		UI_FIELD_READOUT_PATH,
+		Rect2(34, 282, 1894, 226),
+		0.94
+	)
+	field_readout_art.name = "BattleFieldReadoutArt"
+	field_readout_art.anchor_left = 0.35
+	field_readout_art.anchor_right = 0.85
+	field_readout_art.anchor_top = 0.665
+	field_readout_art.anchor_bottom = 0.772
+	field_readout_art.z_index = 35
+	root.add_child(field_readout_art)
+
+	var panel := PanelContainer.new()
+	panel.name = "BattleFieldReadout"
+	panel.anchor_left = 0.385
+	panel.anchor_right = 0.815
+	panel.anchor_top = 0.688
+	panel.anchor_bottom = 0.748
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.z_index = 36
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.015, 0.020, 0.030, 0.28)
+	style.set_content_margin_all(4)
 	panel.add_theme_stylebox_override("panel", style)
 	root.add_child(panel)
 
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	panel.add_child(row)
+
+	field_readout_header = Label.new()
+	field_readout_header.name = "BattleFieldReadoutHeader"
+	field_readout_header.text = _bl("FIELD READ", "전장 판독")
+	field_readout_header.custom_minimum_size = Vector2(98, 0)
+	field_readout_header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	field_readout_header.add_theme_font_size_override("font_size", 11)
+	field_readout_header.add_theme_color_override("font_color", Color(0.48, 0.78, 1.0))
+	row.add_child(field_readout_header)
+
 	log_label = RichTextLabel.new()
+	log_label.name = "BattleFieldReadoutText"
 	log_label.bbcode_enabled = true
 	log_label.scroll_active = false
-	log_label.fit_content = false
+	log_label.fit_content = true
+	log_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	log_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	log_label.add_theme_font_size_override("normal_font_size", 13)
-	log_label.add_theme_color_override("default_color", Color(0.7, 0.65, 0.6))
-	panel.add_child(log_label)
+	log_label.add_theme_color_override("default_color", Color(0.82, 0.80, 0.76))
+	row.add_child(log_label)
+	_set_field_readout(
+		_bl("FIELD READ", "전장 판독"),
+		_bl("Choose an action to preview its purpose and cost.", "행동을 가리키면 목적과 대가를 미리 읽을 수 있습니다."),
+		Color(0.48, 0.78, 1.0)
+	)
 
 func _build_player_panel(root: Control) -> void:
 	var panel = PanelContainer.new()
@@ -1847,22 +2077,27 @@ func _build_player_panel(root: Control) -> void:
 	vbox.add_child(player_hp_label)
 
 func _build_action_buttons(root: Control) -> void:
-	action_ribbon_art = _make_interface_texture(UI_COMMAND_RIBBON_PATH, 0.74)
-	action_ribbon_art.anchor_left = 0.055
-	action_ribbon_art.anchor_right = 0.945
-	action_ribbon_art.anchor_top = 0.785
-	action_ribbon_art.anchor_bottom = 0.975
+	action_ribbon_art = _make_interface_texture_region(
+		UI_COMMAND_DECK_PATH,
+		Rect2(8, 284, 1656, 356),
+		0.96
+	)
+	action_ribbon_art.name = "BattleCommandDeckArt"
+	action_ribbon_art.anchor_left = 0.035
+	action_ribbon_art.anchor_right = 0.965
+	action_ribbon_art.anchor_top = 0.758
+	action_ribbon_art.anchor_bottom = 0.995
 	action_ribbon_art.z_index = 37
 	root.add_child(action_ribbon_art)
 
 	action_container = GridContainer.new()
 	action_container.columns = 4
-	action_container.anchor_left = 0.18
-	action_container.anchor_right = 0.82
-	action_container.anchor_top = 0.815
-	action_container.anchor_bottom = 0.965
-	action_container.add_theme_constant_override("h_separation", 8)
-	action_container.add_theme_constant_override("v_separation", 6)
+	action_container.anchor_left = 0.145
+	action_container.anchor_right = 0.855
+	action_container.anchor_top = 0.802
+	action_container.anchor_bottom = 0.978
+	action_container.add_theme_constant_override("h_separation", 10)
+	action_container.add_theme_constant_override("v_separation", 7)
 	action_container.z_index = 38
 	root.add_child(action_container)
 
@@ -1878,12 +2113,17 @@ func _build_action_buttons(root: Control) -> void:
 	]
 
 	for action in actions:
-		var btn = Button.new()
-		btn.text = action.text
-		btn.custom_minimum_size = Vector2(190, 40)
+		var action_id := String(action.id)
+		var command_number := action_container.get_child_count() + 1
+		var btn := Button.new()
+		btn.name = "BattleAction_" + action_id.capitalize()
+		btn.text = _format_action_button(action_id, "%d · %s" % [command_number, String(action.text)])
+		btn.custom_minimum_size = Vector2(205, 48)
+		btn.set_meta("action_id", action_id)
+		btn.tooltip_text = _action_description(action_id)
 
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.055, 0.044, 0.070, 0.82)
+		style.bg_color = _action_base_color(action_id)
 		style.border_color = Color(0.60, 0.45, 0.26, 0.42)
 		style.set_border_width_all(1)
 		style.set_corner_radius_all(4)
@@ -1902,29 +2142,149 @@ func _build_action_buttons(root: Control) -> void:
 		pressed_s.border_color = Color(0.9, 0.65, 0.35, 1.0)
 		btn.add_theme_stylebox_override("pressed", pressed_s)
 
+		# S209: 비활성 상태도 불투명 배경을 유지해야 커맨드 덱 장식이 글자를 관통하지 않는다.
+		var disabled_s = style.duplicate()
+		disabled_s.bg_color = Color(0.030, 0.026, 0.038, 0.96)
+		disabled_s.border_color = Color(0.34, 0.28, 0.20, 0.40)
+		btn.add_theme_stylebox_override("disabled", disabled_s)
+		btn.add_theme_color_override("font_disabled_color", Color(0.60, 0.55, 0.50, 0.92))
+
 		btn.add_theme_font_size_override("font_size", 14)
-		btn.add_theme_color_override("font_color", Color(0.75, 0.7, 0.65))
+		btn.add_theme_color_override("font_color", Color(0.86, 0.82, 0.76))
 		btn.add_theme_color_override("font_hover_color", Color(0.95, 0.8, 0.5))
 		btn.add_theme_color_override("font_pressed_color", Color(1.0, 0.9, 0.6))
 		btn.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.72))
 		btn.add_theme_constant_override("outline_size", 1)
 
 		btn.pressed.connect(action.callback)
-		if action.id == "witness":
+		_action_buttons[action_id] = btn
+		if action_id == "witness":
 			witness_btn = btn
 			witness_btn.tooltip_text = "적 안에 갇힌 기억을 읽어 비연소 해결을 시도합니다." if GameManager.current_locale == "ko" else "Read the trapped memory and seek a victory without burning."
-		elif action.id == "limit":
+		elif action_id == "limit":
 			limit_btn = btn  # S175: 참조 저장, 로케일 무관 활성/비활성 갱신
-		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
-		btn.mouse_entered.connect(func():
-			var tw = create_tween()
-			tw.tween_property(btn, "scale", Vector2(1.035, 1.035), 0.06).set_ease(Tween.EASE_OUT)
-		)
-		btn.mouse_exited.connect(func():
-			var tw = create_tween()
-			tw.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_OUT)
-		)
+		elif action_id == "auto":
+			auto_btn = btn
+		btn.focus_entered.connect(_on_action_focus.bind(action_id))
+		btn.focus_exited.connect(_restore_field_readout)
+		btn.mouse_entered.connect(_on_action_hover.bind(btn, action_id))
+		btn.mouse_exited.connect(_on_action_hover_exit.bind(btn))
 		action_container.add_child(btn)
+	_update_limit_button()
+
+func _action_base_color(action_id: String) -> Color:
+	match action_id:
+		"witness":
+			return Color(0.035, 0.075, 0.105, 0.90)
+		"burn":
+			return Color(0.115, 0.038, 0.060, 0.91)
+		"defend":
+			return Color(0.040, 0.070, 0.090, 0.90)
+		"limit":
+			return Color(0.092, 0.050, 0.112, 0.91)
+	return Color(0.045, 0.040, 0.058, 0.88)
+
+func _format_action_button(action_id: String, title: String) -> String:
+	var role := ""
+	match action_id:
+		"attack": role = _bl("Damage + BREAK", "피해 + 브레이크")
+		"witness": role = _bl("Preserve identity", "정체성 보존")
+		"burn": role = _bl("Power / permanent cost", "화력 / 영구 대가")
+		"defend": role = _bl("Half damage + Limit", "피해 절반 + 리밋")
+		"item": role = _bl("Use a field kit", "전투 도구 사용")
+		"limit": role = _bl("Memory Cascade", "메모리 캐스케이드")
+		"auto": role = _bl("Delegate this fight", "전투 위임")
+		"flee": role = _bl("Leave encounter", "전투 이탈")
+	return "%s\n%s" % [title, role]
+
+func _on_action_focus(action_id: String) -> void:
+	AudioManager.play_sfx("ui_hover")
+	_show_action_forecast(action_id)
+
+func _on_action_hover(btn: Button, action_id: String) -> void:
+	_show_action_forecast(action_id)
+	var tw := create_tween()
+	tw.tween_property(btn, "scale", Vector2(1.025, 1.025), 0.06).set_ease(Tween.EASE_OUT)
+
+func _on_action_hover_exit(btn: Button) -> void:
+	var tw := create_tween()
+	tw.tween_property(btn, "scale", Vector2.ONE, 0.08).set_ease(Tween.EASE_OUT)
+	if not btn.has_focus():
+		_restore_field_readout()
+
+func _show_action_forecast(action_id: String) -> void:
+	_set_field_readout(
+		_action_forecast_title(action_id),
+		_action_description(action_id),
+		_action_forecast_color(action_id)
+	)
+
+func _action_forecast_title(action_id: String) -> String:
+	match action_id:
+		"attack": return _bl("STEEL FORECAST", "검격 예측")
+		"witness": return _bl("PRESERVATION ROUTE", "보존 경로")
+		"burn": return _bl("IRREVERSIBLE COST", "되돌릴 수 없는 대가")
+		"defend": return _bl("SAFE TEMPO", "안전한 박자")
+		"item": return _bl("FIELD KIT", "전투 도구")
+		"limit": return _bl("CASCADE STATUS", "캐스케이드 상태")
+		"auto": return _bl("AUTO TACTIC", "자동 전술")
+		"flee": return _bl("EXIT CHECK", "이탈 판정")
+	return _bl("FIELD READ", "전장 판독")
+
+func _action_forecast_color(action_id: String) -> Color:
+	match action_id:
+		"burn": return Color(1.0, 0.44, 0.36)
+		"witness": return Color(0.56, 0.84, 1.0)
+		"limit": return Color(0.92, 0.62, 1.0)
+		"defend": return Color(0.60, 0.82, 1.0)
+		"flee": return Color(0.72, 0.68, 0.62)
+	return Color(0.96, 0.74, 0.36)
+
+func _action_description(action_id: String) -> String:
+	match action_id:
+		"attack":
+			var break_left := maxi(0, ceili(BattleManager.BREAK_MAX - BattleManager.enemy_break_gauge))
+			var weakness := String(BattleManager.current_enemy.weakness).to_upper() if BattleManager.current_enemy and BattleManager.current_enemy.weakness != "" else _bl("unknown", "미확인")
+			return _bl("Build BREAK. %d pressure remains; weakness: %s.", "브레이크를 쌓습니다. 남은 압박 %d, 약점: %s.") % [break_left, weakness]
+		"witness":
+			var witness_state := BattleManager.get_witness_state()
+			return _bl("Read the trapped echo %d/%d. Ordinary foes can be released without burning.", "갇힌 메아리를 읽습니다 %d/%d. 일반 적은 연소 없이 해방할 수 있습니다.") % [int(witness_state.progress), int(witness_state.required)]
+		"burn":
+			var available_count := MemoryManager.get_available_memories().filter(func(memory): return not memory.is_faded).size()
+			return _bl("%d memories available. High power, but the chosen memory is gone after battle.", "태울 수 있는 기억 %d개. 강력하지만 선택한 기억은 전투 뒤에도 돌아오지 않습니다.") % available_count
+		"defend":
+			return _bl("Halve the next blow, steady ailments, and build Limit without sacrificing memory.", "다음 피해를 절반으로 줄이고 상태이상을 다스리며 기억 희생 없이 리밋을 쌓습니다.")
+		"item":
+			var item_total := 0
+			for count in GameManager.player_data.items.values():
+				item_total += int(count)
+			return _bl("%d carried tools. Heal, cleanse, disrupt, or create an opening.", "보유 도구 %d개. 회복, 정화, 방해로 틈을 만듭니다.") % item_total
+		"limit":
+			return _bl("Memory Cascade charge: %d/100. No memory is burned.", "메모리 캐스케이드 충전: %d/100. 기억은 연소하지 않습니다.") % int(BattleManager.limit_gauge)
+		"auto":
+			return _bl("Use the current stance, items, and preservation rules automatically.", "현재 자세, 아이템, 보존 규칙을 기준으로 자동 행동합니다.")
+		"flee":
+			if BattleManager.current_enemy and BattleManager.current_enemy.is_boss:
+				return _bl("This threshold is sealed. Boss encounters cannot be abandoned.", "이 경계는 봉쇄되었습니다. 보스 전투에서는 이탈할 수 없습니다.")
+			return _bl("Attempt to leave. Failure gives the enemy the rhythm.", "전투 이탈을 시도합니다. 실패하면 적에게 흐름을 내줍니다.")
+	return ""
+
+func _set_field_readout(header: String, detail: String, accent: Color) -> void:
+	if field_readout_header:
+		field_readout_header.text = header
+		field_readout_header.add_theme_color_override("font_color", accent)
+	if log_label:
+		log_label.text = detail
+
+func _restore_field_readout() -> void:
+	if _last_battle_message != "":
+		_set_field_readout(_bl("LAST BEAT", "최근 전황"), _last_battle_message, Color(0.74, 0.72, 0.68))
+	else:
+		_set_field_readout(
+			_bl("FIELD READ", "전장 판독"),
+			_bl("Choose an action to preview its purpose and cost.", "행동을 가리키면 목적과 대가를 미리 읽을 수 있습니다."),
+			Color(0.48, 0.78, 1.0)
+		)
 
 func _build_burn_list(root: Control) -> void:
 	var scroll = ScrollContainer.new()
@@ -2123,6 +2483,8 @@ func _on_break_changed(value: float, max_value: float) -> void:
 		enemy_break_label.text = "BROKEN" if BattleManager.enemy_broken_turns > 0 else "BREAK"
 
 func _on_enemy_broken(enemy_name: String) -> void:
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		_hybrid_depth_stage.set_battle_focus("enemy_break")
 	_update_status_icons()
 	_show_turn_indicator("BREAK: %s" % enemy_name, Color(1.0, 0.72, 0.24))
 	_show_combat_cue(
@@ -2143,7 +2505,8 @@ func _on_battle_log(message: String) -> void:
 	log_lines.append(message)
 	if log_lines.size() > MAX_LOG_LINES:
 		log_lines = log_lines.slice(-MAX_LOG_LINES)
-	log_label.text = "\n".join(log_lines)
+	_last_battle_message = message
+	_set_field_readout(_bl("LAST BEAT", "최근 전황"), message, Color(0.74, 0.72, 0.68))
 	# S54: 보상 메시지 수집 (승리 화면용)
 	if "Gained" in message or "Recovered" in message or "Found:" in message:
 		_victory_rewards.append(message)
@@ -2232,7 +2595,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 	if hit_stop_dur > 0:
 		var prev_scale = Engine.time_scale
 		Engine.time_scale = 0.0
-		await get_tree().create_timer(hit_stop_dur, true, false, true).timeout
+		await BattleManager.pace_timer(hit_stop_dur, true, false, true).timeout
 		Engine.time_scale = prev_scale
 
 	# S58: Impact squash on enemy hit (stretch vertically = getting compressed by blow)
@@ -2295,6 +2658,10 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 ## Plays wind-up squash, lunge strike, then follow-through return
 ## Called BEFORE damage is dealt, BattleManager awaits timer in parallel
 func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		var depth_direction := 1.0 if attacker == "Arrel" else -1.0
+		var depth_strength := 1.2 if skill_name == "Memory Cascade" else 0.82
+		_hybrid_depth_stage.pulse_impact(depth_direction, depth_strength)
 	if attacker == "Arrel":
 		var cutin_path := ARREL_BLADE_CUTIN_PATH
 		var cue_title := _bl("MEMORY BLADE", "기억의 검격")
@@ -2341,7 +2708,7 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		strike_t.tween_property(player_sprite_container, "position", rush_target, 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
 		await strike_t.finished
 		# Phase 3: Impact freeze (brief hold at contact point, damage applied by BattleManager during this)
-		await get_tree().create_timer(0.05).timeout
+		await BattleManager.pace_timer(0.05).timeout
 		# Phase 4: Follow-through, return with overshoot
 		var return_t = create_tween()
 		return_t.tween_property(player_sprite_container, "position", _player_base_pos + Vector2(-5, 0), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
@@ -2366,7 +2733,7 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		strike_t.tween_property(enemy_sprite_container, "position:x", _player_base_pos.x + 200, 0.08).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
 		await strike_t.finished
 		# Phase 3: Hold at impact
-		await get_tree().create_timer(0.05).timeout
+		await BattleManager.pace_timer(0.05).timeout
 		# Phase 4: Follow-through, enemy returns with overshoot
 		var return_t = create_tween()
 		return_t.tween_property(enemy_sprite_container, "position:x", _enemy_base_pos.x + 5, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
@@ -2376,6 +2743,8 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		scale_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
 
 func _on_player_turn() -> void:
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		_hybrid_depth_stage.set_battle_focus("player")
 	# S57: Turn transition dim effect
 	_play_turn_dim()
 	_show_turn_indicator(_bl("YOUR TURN", "당신의 턴"), Color(0.5, 0.65, 0.85))
@@ -2399,11 +2768,11 @@ func _on_player_turn() -> void:
 	if BattleManager.auto_battle:
 		if objective_briefing_overlay and objective_briefing_overlay.visible:
 			return
-		await get_tree().create_timer(0.25).timeout
+		await BattleManager.pace_timer(0.25).timeout
 		action_container.visible = false
 		BattleManager.auto_battle_action()
 		return
-	await get_tree().create_timer(0.5).timeout
+	await BattleManager.pace_timer(0.5).timeout
 	if objective_briefing_overlay and objective_briefing_overlay.visible:
 		action_container.visible = false
 		return
@@ -2423,6 +2792,8 @@ func _on_player_turn() -> void:
 		action_container.get_child(0).grab_focus()
 
 func _on_enemy_turn() -> void:
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		_hybrid_depth_stage.set_battle_focus("enemy")
 	# S57: Turn transition dim effect
 	_play_turn_dim()
 	_show_turn_indicator(_bl("ENEMY TURN", "적의 턴"), Color(0.8, 0.4, 0.35))
@@ -2600,7 +2971,7 @@ func _on_witness_changed(progress: int, required: int, echo_line: String, comple
 	if witness_btn == null:
 		return
 	var base := "기억 읽기" if GameManager.current_locale == "ko" else "WITNESS"
-	witness_btn.text = "%s  %d/%d" % [base, progress, required]
+	witness_btn.text = "2 · %s  %d/%d\n%s" % [base, progress, required, _bl("Preserve identity", "정체성 보존")]
 	witness_btn.disabled = complete and BattleManager.current_enemy != null and BattleManager.current_enemy.is_boss
 	if echo_line != "":
 		witness_btn.tooltip_text = echo_line
@@ -2814,6 +3185,48 @@ func _toggle_item_list() -> void:
 
 	for child in item_list_container.get_children():
 		child.queue_free()
+	_battle_quick_item_buttons.clear()
+
+	var quick_header := Label.new()
+	quick_header.text = _bl("QUICK KIT  /  KEYS 1-3", "퀵 키트  /  단축키 1-3")
+	quick_header.add_theme_font_size_override("font_size", 11)
+	quick_header.add_theme_color_override("font_color", Color(0.88, 0.72, 0.42))
+	item_list_container.add_child(quick_header)
+	var quick_row := HBoxContainer.new()
+	quick_row.name = "BattleQuickItemRow"
+	quick_row.add_theme_constant_override("separation", 6)
+	item_list_container.add_child(quick_row)
+	var quick_slots := GameManager.get_item_quick_slots()
+	for slot_index in range(GameManager.ITEM_QUICK_SLOT_COUNT):
+		var quick_button := Button.new()
+		quick_button.name = "BattleQuickItem_%d" % (slot_index + 1)
+		quick_button.custom_minimum_size = Vector2(0, 50)
+		quick_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		quick_button.add_theme_font_size_override("font_size", 10)
+		if slot_index < quick_slots.size():
+			var quick_id := quick_slots[slot_index]
+			var quick_def: Dictionary = GameManager.ITEMS.get(quick_id, {})
+			var quick_count := GameManager.get_item_count(quick_id)
+			quick_button.text = "%d · %s\nx%d" % [slot_index + 1, String(quick_def.get("name", quick_id)), quick_count]
+			quick_button.icon = GameManager.get_item_icon(quick_id)
+			quick_button.expand_icon = true
+			quick_button.disabled = quick_count <= 0
+			quick_button.tooltip_text = String(quick_def.get("desc", ""))
+			quick_button.set_meta("item_id", quick_id)
+			quick_button.pressed.connect(_use_battle_item.bind(quick_id))
+		else:
+			quick_button.text = "%d · EMPTY" % (slot_index + 1)
+			quick_button.disabled = true
+			quick_button.set_meta("item_id", "")
+		quick_button.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		quick_row.add_child(quick_button)
+		_battle_quick_item_buttons.append(quick_button)
+
+	var supplies_header := Label.new()
+	supplies_header.text = _bl("ALL CARRIED SUPPLIES", "전체 소지품")
+	supplies_header.add_theme_font_size_override("font_size", 10)
+	supplies_header.add_theme_color_override("font_color", Color(0.58, 0.56, 0.54))
+	item_list_container.add_child(supplies_header)
 
 	var items = GameManager.player_data.items
 	if items.is_empty():
@@ -2823,7 +3236,22 @@ func _toggle_item_list() -> void:
 		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
 		item_list_container.add_child(empty_label)
 	else:
-		for item_id in items:
+		var ordered_items: Array[String] = []
+		for item_id_value in items.keys():
+			if GameManager.ITEMS.has(String(item_id_value)) and int(items[item_id_value]) > 0:
+				ordered_items.append(String(item_id_value))
+		ordered_items.sort_custom(func(item_a: String, item_b: String) -> bool:
+			var slot_a := quick_slots.find(item_a)
+			var slot_b := quick_slots.find(item_b)
+			if slot_a >= 0 or slot_b >= 0:
+				if slot_a < 0:
+					return false
+				if slot_b < 0:
+					return true
+				return slot_a < slot_b
+			return String(GameManager.ITEMS[item_a].get("name", item_a)).naturalnocasecmp_to(String(GameManager.ITEMS[item_b].get("name", item_b))) < 0
+		)
+		for item_id in ordered_items:
 			var count = items[item_id]
 			var item_def = GameManager.ITEMS.get(item_id)
 			if item_def == null:
@@ -2857,13 +3285,7 @@ func _toggle_item_list() -> void:
 			btn.add_theme_color_override("font_color", Color(0.68, 0.68, 0.70))
 			btn.add_theme_color_override("font_hover_color", Color(item_color.r, item_color.g, item_color.b, 1.0))
 
-			var iid = item_id
-			btn.pressed.connect(func():
-				AudioManager.play_sfx("ui_select")
-				action_container.visible = false
-				_hide_item_list()
-				BattleManager.player_use_item(iid)
-			)
+			btn.pressed.connect(_use_battle_item.bind(item_id))
 			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 			item_list_container.add_child(btn)
 
@@ -2878,12 +3300,23 @@ func _toggle_item_list() -> void:
 	item_list_container.add_child(cancel_btn)
 
 	scroll.visible = true
+	if not _battle_quick_item_buttons.is_empty() and not _battle_quick_item_buttons[0].disabled:
+		_battle_quick_item_buttons[0].grab_focus()
 	var tray_backdrop := item_list_container.get_meta("tray_backdrop") as TextureRect
 	if tray_backdrop:
 		tray_backdrop.visible = true
 	var tray_title := item_list_container.get_meta("tray_title") as Label
 	if tray_title:
 		tray_title.visible = true
+
+func _use_battle_item(item_id: String) -> void:
+	if item_id == "" or GameManager.get_item_count(item_id) <= 0:
+		AudioManager.play_sfx("cancel")
+		return
+	AudioManager.play_sfx("ui_select")
+	action_container.visible = false
+	_hide_item_list()
+	BattleManager.player_use_item(item_id)
 
 func _get_item_type_color(item_type: String) -> Color:
 	match item_type:
@@ -3300,12 +3733,13 @@ func _play_void_vfx() -> void:
 ## ===================== Limit Break UI =====================
 
 func _build_limit_gauge(root: Control) -> void:
-	# S175: 명령창 위 26px 띠의 좌측에 배치, 스탠스 행과 겹치지 않도록.
+	# The Limit rail belongs to Arrel's status cluster, not the command deck.
 	var panel = PanelContainer.new()
+	panel.name = "BattleLimitRail"
 	panel.anchor_left = 0.06
-	panel.anchor_right = 0.40
-	panel.anchor_top = 0.781
-	panel.anchor_bottom = 0.808
+	panel.anchor_right = 0.34
+	panel.anchor_top = 0.724
+	panel.anchor_bottom = 0.755
 	panel.offset_bottom = 0
 
 	var style = StyleBoxFlat.new()
@@ -3323,8 +3757,11 @@ func _build_limit_gauge(root: Control) -> void:
 
 	limit_label = Label.new()
 	limit_label.text = _bl("LIMIT", "리밋")
-	limit_label.add_theme_font_size_override("font_size", 10)
+	limit_label.add_theme_font_size_override("font_size", 11)
 	limit_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
+	# S209: 가변 폰트 메트릭 때문에 마지막 글자("밋")가 잘려 "리미"로 보이던 문제 수정.
+	limit_label.custom_minimum_size = Vector2(46, 0)
+	limit_label.clip_text = false
 	hbox.add_child(limit_label)
 
 	limit_bar = ProgressBar.new()
@@ -3365,7 +3802,13 @@ func _update_limit_button() -> void:
 	if limit_btn == null or not is_instance_valid(limit_btn):
 		return
 	limit_btn.disabled = BattleManager.limit_gauge < BattleManager.LIMIT_MAX
-	limit_btn.modulate = Color(0.5, 0.5, 0.5, 0.7) if limit_btn.disabled else Color(1.0, 0.8, 1.0, 1.0)
+	# S209: 예전에는 버튼 전체를 modulate로 반투명하게 만들어, 아래 커맨드 덱 장식이
+	# 글자 사이로 비쳐 "6 · 리밋"이 읽히지 않았다. 이제 배경은 불투명하게 유지하고
+	# 글자색만 낮춘다.
+	limit_btn.modulate = Color(1, 1, 1, 1) if not limit_btn.disabled else Color(1, 1, 1, 1)
+	limit_btn.self_modulate = Color(1.0, 0.86, 1.0, 1.0) if not limit_btn.disabled else Color(1, 1, 1, 1)
+	limit_btn.add_theme_color_override("font_disabled_color", Color(0.62, 0.56, 0.66, 0.95))
+	limit_btn.text = "6 · %s  %d%%\n%s" % [GameManager.loc("limit"), int(BattleManager.limit_gauge), _bl("Memory Cascade", "메모리 캐스케이드")]
 
 func _on_limit_break() -> void:
 	if BattleManager.limit_gauge < BattleManager.LIMIT_MAX:
@@ -3377,7 +3820,7 @@ func _on_limit_break() -> void:
 	_hide_item_list()
 	_play_action_cutin(MEMORY_CASCADE_CUTIN_PATH, true, 0.94, 0.48)
 	_show_turn_indicator(_bl("ARREL / MEMORY CASCADE", "아렐 / 메모리 캐스케이드"), Color(0.72, 0.88, 1.0))
-	await get_tree().create_timer(0.42).timeout
+	await BattleManager.pace_timer(0.42).timeout
 	# S40: Limit Break 색수차 연출
 	_play_chromatic_aberration(2.0)
 	_screen_shake(2.5)
@@ -3438,9 +3881,9 @@ func _add_battle_atmosphere() -> void:
 	_color_grade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_color_grade_rect.z_index = -2
 	if "void" in enemy_name or "shade" in enemy_name:
-		_color_grade_rect.color = Color(0.1, 0.05, 0.15, 0.15)
+		_color_grade_rect.color = Color(0.1, 0.05, 0.15, 0.06)
 	else:
-		_color_grade_rect.color = Color(0.05, 0.03, 0.0, 0.1)
+		_color_grade_rect.color = Color(0.05, 0.03, 0.0, 0.04)
 	add_child(_color_grade_rect)
 
 ## 물리 공격 GPUParticles2D 이펙트 (S42: 기존 ColorRect 대체)
@@ -3482,7 +3925,7 @@ func _play_gpu_slash_particles() -> void:
 	particles.emitting = true
 
 	# 자동 정리
-	var timer = get_tree().create_timer(1.0)
+	var timer = BattleManager.pace_timer(1.0)
 	timer.timeout.connect(particles.queue_free)
 
 ## 불꽃 GPUParticles2D (S42)
@@ -3533,7 +3976,7 @@ func _play_gpu_burn_particles() -> void:
 	ht.tween_property(heat, "color:a", 0.0, 0.5)
 	ht.tween_callback(heat.queue_free)
 
-	var timer = get_tree().create_timer(1.5)
+	var timer = BattleManager.pace_timer(1.5)
 	timer.timeout.connect(particles.queue_free)
 
 ## 보이드 GPUParticles2D (S42)
@@ -3588,7 +4031,7 @@ func _play_gpu_void_particles() -> void:
 	rt.tween_property(ring, "color:a", 0.0, 0.4)
 	rt.chain().tween_callback(ring.queue_free)
 
-	var timer = get_tree().create_timer(1.5)
+	var timer = BattleManager.pace_timer(1.5)
 	timer.timeout.connect(particles.queue_free)
 
 ## 힐 GPUParticles2D (S42: 새로운 힐 이펙트)
@@ -3625,7 +4068,7 @@ func _play_heal_vfx() -> void:
 	canvas_root.add_child(particles)
 	particles.emitting = true
 
-	var timer = get_tree().create_timer(1.5)
+	var timer = BattleManager.pace_timer(1.5)
 	timer.timeout.connect(particles.queue_free)
 
 ## 리밋 브레이크 폭발 VFX (S42)
@@ -3679,7 +4122,7 @@ func _play_limit_burst_vfx() -> void:
 	ft.tween_property(flash, "color:a", 0.0, 0.8).set_ease(Tween.EASE_OUT)
 	ft.tween_callback(flash.queue_free)
 
-	var timer = get_tree().create_timer(2.0)
+	var timer = BattleManager.pace_timer(2.0)
 	timer.timeout.connect(particles.queue_free)
 
 ## ===================== S46: 타격감 강화 + VFX Library 셰이더 =====================
@@ -3744,7 +4187,7 @@ func _apply_status_shader() -> void:
 		enemy_sprite.modulate = Color(0.7, 0.6, 0.8, 1.0)
 		return
 	# 상태이상 없으면 클리어
-	enemy_sprite.material = null
+	_restore_plate_material(enemy_sprite)
 	enemy_sprite.modulate = Color.WHITE
 
 ## 보스 페이즈 2 드라마틱 전환 (프리즈 프레임 + 화면 변색 + 적 분노 광원)
@@ -3774,7 +4217,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	warn.z_index = 96
 	canvas_root.add_child(warn)
 	# 프리즈 해제 후 페이드
-	await get_tree().create_timer(0.4, true, false, true).timeout
+	await BattleManager.pace_timer(0.4, true, false, true).timeout
 	get_tree().paused = false
 	# 강한 셰이크
 	_screen_shake(3.0)
@@ -3793,8 +4236,7 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 		var gt = create_tween()
 		gt.tween_interval(2.0)
 		gt.tween_callback(func():
-			if is_instance_valid(enemy_sprite):
-				enemy_sprite.material = null
+			_restore_plate_material(enemy_sprite)
 		)
 	# 경고 페이드아웃
 	var wt = create_tween()
@@ -3849,12 +4291,10 @@ func _build_ally_command_ui(root: Control) -> void:
 	if not BattleManager.sable_in_party:
 		return
 	ally_cmd_container = HBoxContainer.new()
-	ally_cmd_container.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	ally_cmd_container.anchor_left = 0.0
-	ally_cmd_container.anchor_right = 0.35
-	ally_cmd_container.anchor_top = 0.78
-	ally_cmd_container.anchor_bottom = 0.84
-	ally_cmd_container.offset_left = 10
+	ally_cmd_container.anchor_left = 0.32
+	ally_cmd_container.anchor_right = 0.68
+	ally_cmd_container.anchor_top = 0.18
+	ally_cmd_container.anchor_bottom = 0.225
 	ally_cmd_container.add_theme_constant_override("separation", 4)
 
 	var lbl = Label.new()
@@ -3903,12 +4343,10 @@ func _build_tobias_command_ui(root: Control) -> void:
 	if not BattleManager.tobias_in_party:
 		return
 	tobias_cmd_container = HBoxContainer.new()
-	tobias_cmd_container.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	tobias_cmd_container.anchor_left = 0.0
-	tobias_cmd_container.anchor_right = 0.35
-	tobias_cmd_container.anchor_top = 0.84
-	tobias_cmd_container.anchor_bottom = 0.90
-	tobias_cmd_container.offset_left = 10
+	tobias_cmd_container.anchor_left = 0.32
+	tobias_cmd_container.anchor_right = 0.68
+	tobias_cmd_container.anchor_top = 0.225
+	tobias_cmd_container.anchor_bottom = 0.27
 	tobias_cmd_container.add_theme_constant_override("separation", 4)
 
 	var lbl = Label.new()
@@ -3957,11 +4395,11 @@ var stance_buttons: Array[Button] = []
 
 func _build_stance_ui(root: Control) -> void:
 	stance_container = HBoxContainer.new()
-	# S175: 명령창 위 26px 띠의 우측, 리밋 게이지와 좌우로 분리, 그리드와 안 겹침.
-	stance_container.anchor_left = 0.44
-	stance_container.anchor_right = 0.94
-	stance_container.anchor_top = 0.781
-	stance_container.anchor_bottom = 0.808
+	stance_container.name = "BattleStanceRail"
+	stance_container.anchor_left = 0.34
+	stance_container.anchor_right = 0.66
+	stance_container.anchor_top = 0.13
+	stance_container.anchor_bottom = 0.17
 	stance_container.add_theme_constant_override("separation", 6)
 	stance_container.alignment = BoxContainer.ALIGNMENT_CENTER
 
@@ -4074,18 +4512,19 @@ func _refresh_echo_display() -> void:
 
 ## ===================== S51: 엘리아 기술 UI =====================
 
-var elia_skill_container: VBoxContainer
+var elia_skill_container: HBoxContainer
 
 func _build_elia_skill_ui(root: Control) -> void:
 	if not GameManager.player_data.elia_with_party:
 		return
-	elia_skill_container = VBoxContainer.new()
-	elia_skill_container.anchor_left = 0.0
-	elia_skill_container.anchor_right = 0.22
-	elia_skill_container.anchor_top = 0.42
-	elia_skill_container.anchor_bottom = 0.68
-	elia_skill_container.offset_left = 10
-	elia_skill_container.add_theme_constant_override("separation", 3)
+	elia_skill_container = HBoxContainer.new()
+	elia_skill_container.name = "EliaTechniqueRail"
+	elia_skill_container.anchor_left = 0.26
+	elia_skill_container.anchor_right = 0.74
+	elia_skill_container.anchor_top = 0.225 if BattleManager.sable_in_party else 0.18
+	elia_skill_container.anchor_bottom = 0.27 if BattleManager.sable_in_party else 0.225
+	elia_skill_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	elia_skill_container.add_theme_constant_override("separation", 5)
 
 	var header = Label.new()
 	header.text = _bl("Elia", "엘리아")
@@ -4106,19 +4545,18 @@ func _refresh_elia_skills() -> void:
 
 	var skills = EliaDiary.get_available_skills()
 	if skills.is_empty():
-		var no_skill = Label.new()
-		no_skill.text = _bl("(no techniques)", "(사용 가능한 기술 없음)")
-		no_skill.add_theme_font_size_override("font_size", 9)
-		no_skill.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
-		elia_skill_container.add_child(no_skill)
+		# S209: 쓸 기술이 없으면 레일 자체를 감춘다. 예전에는 무대 한가운데에
+		# "엘리아 (사용 가능한 기술 없음)"이라는 죽은 라벨이 상시 떠 있었다.
+		elia_skill_container.visible = false
 		return
+	elia_skill_container.visible = true
 
 	for skill in skills:
 		var btn = Button.new()
 		var cd_text = " [READY]" if skill["ready"] else " [%dT]" % skill["cooldown"]
 		btn.text = "%s%s" % [skill["name"], cd_text]
 		btn.tooltip_text = skill["desc"]
-		btn.custom_minimum_size = Vector2(140, 24)
+		btn.custom_minimum_size = Vector2(118, 26)
 		btn.add_theme_font_size_override("font_size", 10)
 		btn.disabled = not skill["ready"]
 
@@ -4796,6 +5234,20 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	t_hint.tween_property(hint, "modulate:a", 1.0, 0.6)
 
 ## S58: Handle input to dismiss the rewards screen
+## S209: Tab 배속 전환은 `_input`에서 가로챈다.
+## `_unhandled_input`까지 내려오면 Godot의 포커스 이동(ui_focus_next)이 먼저
+## 이벤트를 소비해 버려서, 커맨드 버튼에 포커스가 있을 때 동작하지 않는다.
+func _input(event: InputEvent) -> void:
+	if not (event is InputEventKey):
+		return
+	var key := event as InputEventKey
+	if not key.pressed or key.echo or key.keycode != KEY_TAB:
+		return
+	if _victory_panel != null and is_instance_valid(_victory_panel):
+		return
+	_on_battle_speed_pressed()
+	get_viewport().set_input_as_handled()
+
 func _unhandled_input(event: InputEvent) -> void:
 	if _victory_panel and _rewards_can_dismiss:
 		if event is InputEventKey and event.pressed:
@@ -4804,6 +5256,58 @@ func _unhandled_input(event: InputEvent) -> void:
 			_dismiss_rewards()
 		elif event is InputEventJoypadButton and event.pressed:
 			_dismiss_rewards()
+		return
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	if _handle_battle_quick_item_key(event as InputEventKey):
+		return
+	if action_container == null or not action_container.visible or _is_command_modal_open():
+		return
+	var command_index := int(event.keycode) - int(KEY_1)
+	if command_index < 0 or command_index >= action_container.get_child_count():
+		return
+	var button := action_container.get_child(command_index) as Button
+	if button == null or button.disabled:
+		AudioManager.play_sfx("cancel")
+		return
+	button.grab_focus()
+	button.pressed.emit()
+	get_viewport().set_input_as_handled()
+
+func _handle_battle_quick_item_key(event: InputEventKey) -> bool:
+	if item_list_container == null:
+		return false
+	var item_scroll := item_list_container.get_meta("scroll_parent") as ScrollContainer
+	if item_scroll == null or not item_scroll.visible:
+		return false
+	var slot_index := int(event.keycode) - int(KEY_1)
+	if slot_index < 0 or slot_index >= _battle_quick_item_buttons.size():
+		return false
+	var button := _battle_quick_item_buttons[slot_index]
+	if button.disabled:
+		AudioManager.play_sfx("cancel")
+	else:
+		button.grab_focus()
+		button.pressed.emit()
+	get_viewport().set_input_as_handled()
+	return true
+
+func _is_command_modal_open() -> bool:
+	if intro_overlay and intro_overlay.visible:
+		return true
+	if objective_briefing_overlay and objective_briefing_overlay.visible:
+		return true
+	if _burn_preview_panel and _burn_preview_panel.visible:
+		return true
+	if burn_list_container:
+		var burn_scroll := burn_list_container.get_meta("scroll_parent") as ScrollContainer
+		if burn_scroll and burn_scroll.visible:
+			return true
+	if item_list_container:
+		var item_scroll := item_list_container.get_meta("scroll_parent") as ScrollContainer
+		if item_scroll and item_scroll.visible:
+			return true
+	return false
 
 func _dismiss_rewards() -> void:
 	_rewards_can_dismiss = false
@@ -5087,7 +5591,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 
 	# 0.5s delay before Burn button becomes clickable (prevent accidental burns)
 	_burn_preview_confirm_btn.disabled = true
-	get_tree().create_timer(0.5).timeout.connect(func():
+	BattleManager.pace_timer(0.5).timeout.connect(func():
 		if is_instance_valid(_burn_preview_confirm_btn):
 			_burn_preview_confirm_btn.disabled = false
 			AudioManager.play_sfx("ui_hover")  # subtle audio cue that button is now active

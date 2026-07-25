@@ -279,6 +279,11 @@ func _ready() -> void:
 	var battle_scene: Node = battle_packed.instantiate()
 	add_child(battle_scene)
 	await get_tree().process_frame
+	assert(battle_scene is Control and (battle_scene as Control).size == get_viewport().get_visible_rect().size, "Battle root must own the viewport-sized Control coordinate system")
+	var battle_background := battle_scene.get("bg") as ColorRect
+	var battle_relief := battle_scene.get("_hybrid_depth_stage") as HybridDepthStage
+	assert(battle_background != null and battle_background.size == get_viewport().get_visible_rect().size, "Battle backdrop must cover the full viewport instead of exposing the engine clear color")
+	assert(battle_relief != null and battle_relief.size == get_viewport().get_visible_rect().size, "The 3D depth stage must share the 2D battle viewport")
 	assert(battle_scene.call("_resolve_enemy_action_cutin", "Void Beast") == "res://assets/cg/character_shots/void_beast_action_v3.png", "Void Beast attacks must use the new action cut-in")
 	assert(battle_scene.call("_resolve_enemy_action_cutin", "Shade Sentinel") == "res://assets/cg/character_shots/shade_sentinel_guard_v3.png", "Shade Sentinel phase cut-ins must use the new guard shot")
 	assert(battle_scene.call("_resolve_enemy_action_cutin", "Echo Shell") == "res://assets/cg/character_shots/echo_shell_reach_v3.png", "Echo Shell attacks must use the new reach cut-in")
@@ -329,5 +334,5 @@ func _ready() -> void:
 	var elia_stage := elia_battle.get("ally_sprite") as TextureRect
 	assert(elia_stage != null and elia_stage.texture.resource_path == "res://assets/portraits/character_shots/elia_anchor_v3.png", "Elia battle support must use the unified canonical character shot")
 
-	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 actor_callbacks=1 ui_header=1 companion_presence=1 npc_scale=preserved map_canvases=19 support_art=3 item_icons=2 shop_icons=12 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1 character_shots=24 world_records=14 dialogue_variants=11 boss_action_cutins=3")
+	print("VISUAL_CLARITY_SMOKE_PASS fog=0 particles=0 vignette=0 lens=0 battle_dust=0 battle_canvas=full hybrid_depth=1 actor_callbacks=1 ui_header=1 companion_presence=1 npc_scale=preserved map_canvases=19 support_art=3 item_icons=2 shop_icons=12 exploration_sheets=7 sheet_denoise=1 terrain_noise=low directional_turns=4 footfall_echo=1 camera_lead=1 story_beacon=1 objective_card=1 font_chain=ko command_grid=4x2 witness=1 character_shots=24 world_records=14 dialogue_variants=11 boss_action_cutins=3")
 	get_tree().quit(0)

@@ -11,7 +11,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "A vendor's face slips out of every market smell.",
 		"compass": "Verdan taste map erased.",
 		"color": Color(0.95, 0.62, 0.30),
-		"art": "res://assets/cg/generated/world_rewrite_verdan_market.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_verdan_taste_v3.png"
 	},
 	"daily_campfire_song": {
 		"flag": "world_rewrite_elia_hum_unmoored",
@@ -51,7 +51,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "Tobias can still write the facts. The meaning dries before the ink does.",
 		"compass": "Record-tree contour retained.",
 		"color": Color(0.75, 0.62, 0.48),
-		"art": "res://assets/cg/generated/world_rewrite_tobias_record_tree.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png"
 	},
 	"daily_elia_hands": {
 		"flag": "world_rewrite_elia_anchor_thinned",
@@ -67,7 +67,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "Sable's certainty loses one scar's worth of weight.",
 		"compass": "Void-walker witness weakened.",
 		"color": Color(0.62, 0.54, 0.72),
-		"art": "res://assets/cg/generated/world_rewrite_sable_witness.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png"
 	},
 	"sense_forest_smell": {
 		"flag": "world_rewrite_forest_scent_thinned",
@@ -91,7 +91,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "The pull remains beneath his sternum, but the direction now feels like a question asked in someone else's voice.",
 		"compass": "Colorless route no longer confirms north.",
 		"color": Color(0.56, 0.78, 0.96),
-		"art": "res://assets/cg/generated/memory_rewrite_compass_v2.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_compass_unmapped_v3.png"
 	},
 	"identity_void_walker": {
 		"flag": "world_rewrite_void_walker_blurred",
@@ -99,7 +99,7 @@ const MEMORY_REWRITE_RULES := {
 		"line": "One footprint survives the Void's pressure, but he no longer remembers why he knew to place it there.",
 		"compass": "BL-07 passage contour weakened.",
 		"color": Color(0.62, 0.48, 0.90),
-		"art": "res://assets/cg/generated/memory_rewrite_void_walker_v2.png"
+		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_void_walker_v3.png"
 	},
 }
 

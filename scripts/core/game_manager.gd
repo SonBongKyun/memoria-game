@@ -227,8 +227,11 @@ var player_data: Dictionary = {
 	"directive_streak": 0,  # Consecutive player-chosen tactical objectives completed
 	"elia_with_party": true,  # 엘리아 동행 여부
 	"items": {},  # 아이템 인벤토리 {"potion": 2, "antidote": 1, ...}
+	"item_quick_slots": ["potion", "antidote", "witness_ink"],
+	"recent_items": [],
 }
 const FIELD_FOCUS_MAX: int = 3
+const ITEM_QUICK_SLOT_COUNT: int = 3
 
 # --- 아이템 정의 ---
 const ITEMS: Dictionary = {
@@ -346,6 +349,8 @@ func add_item(item_id: String, count: int = 1) -> void:
 		return
 	var current = player_data.items.get(item_id, 0)
 	player_data.items[item_id] = current + count
+	_record_recent_item(item_id)
+	inventory_changed.emit(item_id)
 	NotificationToast.show_toast("+%d %s" % [count, ITEMS[item_id]["name"]], NotificationToast.ToastType.SUCCESS)
 
 func remove_item(item_id: String, count: int = 1) -> bool:
@@ -355,10 +360,121 @@ func remove_item(item_id: String, count: int = 1) -> bool:
 	player_data.items[item_id] = current - count
 	if player_data.items[item_id] <= 0:
 		player_data.items.erase(item_id)
+	inventory_changed.emit(item_id)
 	return true
 
 func get_item_count(item_id: String) -> int:
 	return player_data.items.get(item_id, 0)
+
+func get_item_quick_slots() -> Array[String]:
+	var normalized: Array[String] = []
+	var raw_slots: Variant = player_data.get("item_quick_slots", [])
+	if raw_slots is Array:
+		for value in raw_slots:
+			var item_id := String(value)
+			if ITEMS.has(item_id) and item_id not in normalized:
+				normalized.append(item_id)
+			if normalized.size() >= ITEM_QUICK_SLOT_COUNT:
+				break
+	player_data["item_quick_slots"] = normalized.duplicate()
+	return normalized
+
+func is_item_quick_slotted(item_id: String) -> bool:
+	return item_id in get_item_quick_slots()
+
+func toggle_item_quick_slot(item_id: String) -> bool:
+	if not ITEMS.has(item_id):
+		return false
+	var slots := get_item_quick_slots()
+	if item_id in slots:
+		slots.erase(item_id)
+		player_data["item_quick_slots"] = slots
+		inventory_changed.emit(item_id)
+		return false
+	if slots.size() >= ITEM_QUICK_SLOT_COUNT:
+		slots.pop_back()
+	slots.push_front(item_id)
+	player_data["item_quick_slots"] = slots
+	inventory_changed.emit(item_id)
+	return true
+
+func get_recent_items() -> Array[String]:
+	var result: Array[String] = []
+	var raw_recent: Variant = player_data.get("recent_items", [])
+	if raw_recent is Array:
+		for value in raw_recent:
+			var item_id := String(value)
+			if ITEMS.has(item_id) and item_id not in result:
+				result.append(item_id)
+			if result.size() >= 5:
+				break
+	return result
+
+func _record_recent_item(item_id: String) -> void:
+	var recent := get_recent_items()
+	recent.erase(item_id)
+	recent.push_front(item_id)
+	if recent.size() > 5:
+		recent.resize(5)
+	player_data["recent_items"] = recent
+
+func can_use_field_item(item_id: String) -> bool:
+	if current_state in [GameState.BATTLE, GameState.DIALOGUE, GameState.CUTSCENE] or get_item_count(item_id) <= 0:
+		return false
+	var item_data: Dictionary = ITEMS.get(item_id, {})
+	var item_type := String(item_data.get("type", ""))
+	if item_type not in ["heal", "cure"]:
+		return false
+	return int(player_data.get("hp", 0)) < int(player_data.get("max_hp", 0))
+
+func use_field_item(item_id: String) -> Dictionary:
+	if not can_use_field_item(item_id):
+		return {"success": false, "healed": 0, "item_id": item_id}
+	var item_data: Dictionary = ITEMS[item_id]
+	var recovery := int(item_data.get("power", 0)) if String(item_data.get("type", "")) == "heal" else int(item_data.get("recovery", 0))
+	var before := int(player_data.get("hp", 0))
+	if recovery <= 0 or not remove_item(item_id, 1):
+		return {"success": false, "healed": 0, "item_id": item_id}
+	player_data["hp"] = mini(before + recovery, int(player_data.get("max_hp", before)))
+	var healed := int(player_data["hp"]) - before
+	NotificationToast.show_toast("%s  +%d HP" % [String(item_data.get("name", item_id)), healed], NotificationToast.ToastType.SUCCESS)
+	return {"success": true, "healed": healed, "item_id": item_id}
+
+func get_best_field_recovery() -> String:
+	var missing := int(player_data.get("max_hp", 0)) - int(player_data.get("hp", 0))
+	if missing <= 0:
+		return ""
+	var candidate_ids: Array[String] = get_item_quick_slots()
+	for value in ITEMS.keys():
+		var item_id := String(value)
+		if item_id not in candidate_ids:
+			candidate_ids.append(item_id)
+	var covering_id := ""
+	var covering_power := 1000000
+	var fallback_id := ""
+	var fallback_power := -1
+	for item_id in candidate_ids:
+		if get_item_count(item_id) <= 0:
+			continue
+		var item_data: Dictionary = ITEMS.get(item_id, {})
+		var item_type := String(item_data.get("type", ""))
+		if item_type not in ["heal", "cure"]:
+			continue
+		var recovery := int(item_data.get("power", 0)) if item_type == "heal" else int(item_data.get("recovery", 0))
+		if recovery >= missing and recovery < covering_power:
+			covering_id = item_id
+			covering_power = recovery
+		if recovery > fallback_power:
+			fallback_id = item_id
+			fallback_power = recovery
+	return covering_id if covering_id != "" else fallback_id
+
+func use_best_field_recovery() -> Dictionary:
+	var item_id := get_best_field_recovery()
+	if item_id == "":
+		NotificationToast.show_toast("No field recovery available.", NotificationToast.ToastType.INFO)
+		return {"success": false, "healed": 0, "item_id": ""}
+	return use_field_item(item_id)
 
 func get_item_icon(item_id: String) -> Texture2D:
 	var item_def: Dictionary = ITEMS.get(item_id, {})
@@ -692,6 +808,7 @@ func localized_value(source: Dictionary, key: String, fallback: String = "") -> 
 signal state_changed(new_state: GameState)
 signal stat_gained(stat_name: String, amount: int)  # S58: Progression feedback
 signal field_focus_changed(value: int, maximum: int)
+signal inventory_changed(item_id: String)
 
 # --- S58: Chapter completion tracking ---
 var _chapter_start_battles: int = 0
@@ -869,6 +986,7 @@ func mark_game_completed() -> void:
 func start_new_game_plus() -> void:
 	var kept_grains = player_data.get("grains", 0)
 	var kept_items = player_data.get("items", {}).duplicate()
+	var kept_quick_slots = get_item_quick_slots().duplicate()
 	var prev_cycle = ng_plus_cycle
 
 	# 스토리/기억 초기화
@@ -885,6 +1003,8 @@ func start_new_game_plus() -> void:
 		"directive_streak": 0,
 		"elia_with_party": true,
 		"items": kept_items,
+		"item_quick_slots": kept_quick_slots,
+		"recent_items": [],
 	}
 
 	MemoryManager.memories.clear()
@@ -983,6 +1103,11 @@ func import_data(data: Dictionary) -> void:
 		player_data["field_focus"] = 0
 	if not player_data.has("directive_streak"):
 		player_data["directive_streak"] = 0
+	if not player_data.has("item_quick_slots"):
+		player_data["item_quick_slots"] = ["potion", "antidote", "witness_ink"]
+	if not player_data.has("recent_items"):
+		player_data["recent_items"] = []
+	get_item_quick_slots()
 	if data.has("story_flags"):
 		story_flags = data.story_flags
 	if data.has("current_chapter"):

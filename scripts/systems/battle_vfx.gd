@@ -5,14 +5,14 @@
 class_name BattleVFX
 extends RefCounted
 
-var _scene: Node2D  # battle_scene reference
+var _scene: Node  # battle_scene reference; the battle root owns full-screen Control layout
 var _canvas: Control  # canvas_root reference
 
 ## Store references for status particle overlays (keyed by "player"/"enemy" + effect)
 var _status_particles: Dictionary = {}  # {"player_POISON": GPUParticles2D, ...}
 var _status_icon_bars: Dictionary = {}  # {"player": HBoxContainer, "enemy": HBoxContainer}
 
-func _init(scene: Node2D, canvas: Control) -> void:
+func _init(scene: Node, canvas: Control) -> void:
 	_scene = scene
 	_canvas = canvas
 

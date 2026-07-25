@@ -4,14 +4,19 @@
 extends CharacterBody2D
 
 const BASE_SPEED: float = 120.0
-const SPRINT_MULTIPLIER: float = 1.8
+const SPRINT_MULTIPLIER: float = 1.62
 const SHEET_SPRITE_SCALE: Vector2 = Vector2(0.40, 0.40)
 const SHEET_SPRITE_OFFSET: Vector2 = Vector2(0, -52)
 const FIELD_SPRITE_SCALE: Vector2 = Vector2(0.36, 0.36)
 const FIELD_SPRITE_OFFSET: Vector2 = Vector2(0, -72)
 const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
-const ACCELERATION: float = 600.0   # px/s^2, 가속
-const DECELERATION: float = 800.0   # px/s^2, 감속 (더 빠르게 멈춤)
+const ACCELERATION: float = 1100.0
+const TURN_ACCELERATION: float = 1550.0
+const DECELERATION: float = 1350.0
+const SPRINT_BLEND_SPEED: float = 7.5
+const MOVE_VISUAL_THRESHOLD: float = 7.0
+const WALK_STEP_DISTANCE: float = 26.0
+const SPRINT_STEP_DISTANCE: float = 32.0
 const MEMORY_PULSE_RADIUS: float = 150.0
 const MEMORY_PULSE_COOLDOWN: float = 6.0
 
@@ -21,21 +26,24 @@ const MEMORY_PULSE_COOLDOWN: float = 6.0
 
 var facing_direction: Vector2 = Vector2.DOWN
 var can_move: bool = true
-var _step_timer: float = 0.0
+var _step_distance: float = 0.0
 var _breath_time: float = 0.0  # S52: 호흡 애니메이션
-const STEP_INTERVAL: float = 0.25
 
 # --- S57: Camera ---
 var _camera_base_zoom: Vector2 = Vector2(2.25, 2.25)
-var _camera_look_ahead: float = 50.0  # 이동 방향으로 미리보기 px
+var _camera_look_ahead: float = 28.0
+var _camera_look_offset: Vector2 = Vector2.ZERO
+var _camera_event_shake_offset: Vector2 = Vector2.ZERO
+var _shake_phase: float = 0.0
 var _shake_intensity: float = 0.0
 var _shake_duration: float = 0.0
 var _shake_timer: float = 0.0
 
 # --- S57: Sprint & Afterimage ---
 var _is_sprinting: bool = false
+var _sprint_blend: float = 0.0
 var _afterimage_timer: float = 0.0
-const AFTERIMAGE_INTERVAL: float = 0.06  # 잔상 생성 간격
+const AFTERIMAGE_INTERVAL: float = 0.14
 
 # --- S57: Footstep particles ---
 var _dust_timer: float = 0.0
@@ -61,13 +69,18 @@ var _memory_pulse_cooldown: float = 0.0
 
 # --- S150: 걷기 바운스 / 발딛기 동기 / 기울기 / 방향 히스테리시스 ---
 var _bob_phase: float = 0.0          # 걸음 위상 (속도 비례 진행)
-var _last_footfall: int = 0          # 발이 땅에 닿은 횟수 (먼지 동기용)
 var _sprite_base_offset: Vector2 = Vector2.ZERO
 var _sprite_rest_scale: Vector2 = SHEET_SPRITE_SCALE
 var _anim_suffix: String = "down"    # 대각선 지터 방지용 최근 방향
+var _actual_speed: float = 0.0
+var _last_move_direction: Vector2 = Vector2.DOWN
+var _ground_shadow: Node2D = null
 
 func _ready() -> void:
 	add_to_group("player")
+	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
+	max_slides = 5
+	safe_margin = 0.08
 	_setup_placeholder_sprites()
 	if sprite and sprite.sprite_frames:
 		sprite.play("idle_down")
@@ -85,8 +98,12 @@ func _setup_camera() -> void:
 	# keeping the 32px field from reading as a wall of oversized cells.
 	_camera_base_zoom = Vector2(2.0, 2.0) if OptionsMenu.is_clean_gameplay_visuals() else Vector2(2.25, 2.25)
 	camera.zoom = _camera_base_zoom
-	# 픽셀 스내핑 (pixel-perfect for 32px tiles)
-	camera.set_meta("pixel_snap", true)
+	camera.position_smoothing_enabled = true
+	camera.position_smoothing_speed = 8.0
+	camera.drag_horizontal_enabled = false
+	camera.drag_vertical_enabled = false
+	camera.set_meta("pixel_snap", false)
+	camera.set_meta("ambient_camera_offset", Vector2.ZERO)
 	# 맵 한계, 씬에서 MAP_WIDTH/MAP_HEIGHT 읽기
 	_apply_camera_limits()
 
@@ -141,54 +158,56 @@ func _physics_process(delta: float) -> void:
 
 	if not can_move or GameManager.current_state != GameManager.GameState.EXPLORATION:
 		velocity = Vector2.ZERO
+		_actual_speed = 0.0
+		_sprint_blend = move_toward(_sprint_blend, 0.0, SPRINT_BLEND_SPEED * delta)
 		_idle_time = 0.0
 		return
 
-	# 입력 처리
-	var input_vector = Vector2.ZERO
-	input_vector.x = Input.get_axis("move_left", "move_right")
-	input_vector.y = Input.get_axis("move_up", "move_down")
-	input_vector = input_vector.normalized()
+	# Input.get_vector preserves controller pressure while normalizing keyboard diagonals.
+	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	var has_intent := input_vector.length_squared() > 0.0004
+	if has_intent:
+		_last_move_direction = input_vector.normalized()
 
-	# S57: Sprint
-	_is_sprinting = Input.is_action_pressed("sprint") and input_vector != Vector2.ZERO
-	var speed = BASE_SPEED * (SPRINT_MULTIPLIER if _is_sprinting else 1.0)
-
-	# S57: Acceleration / Deceleration (lerp velocity)
-	var target_velocity = input_vector * speed
-	if input_vector != Vector2.ZERO:
-		velocity = velocity.move_toward(target_velocity, ACCELERATION * delta)
+	var wants_sprint := Input.is_action_pressed("sprint") and has_intent
+	_sprint_blend = move_toward(_sprint_blend, 1.0 if wants_sprint else 0.0, SPRINT_BLEND_SPEED * delta)
+	var sprint_curve := _sprint_blend * _sprint_blend * (3.0 - 2.0 * _sprint_blend)
+	var speed := BASE_SPEED * lerpf(1.0, SPRINT_MULTIPLIER, sprint_curve)
+	var target_velocity := input_vector * speed
+	if has_intent:
+		var reversing := velocity.length_squared() > 16.0 and velocity.dot(target_velocity) < 0.0
+		var acceleration := TURN_ACCELERATION if reversing else ACCELERATION
+		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, DECELERATION * delta)
 
+	var position_before_move := global_position
 	move_and_slide()
+	var moved_distance := global_position.distance_to(position_before_move)
+	_actual_speed = moved_distance / maxf(delta, 0.0001)
+	_is_sprinting = _sprint_blend > 0.45 and _actual_speed > BASE_SPEED * 1.12
 
-	# 애니메이션 방향
-	var is_moving = input_vector != Vector2.ZERO
-	if is_moving:
-		facing_direction = input_vector
-		_update_animation(input_vector, true)
+	# Direction comes from intent, but locomotion feedback comes from real travel.
+	var visually_moving := _actual_speed > MOVE_VISUAL_THRESHOLD
+	if has_intent:
+		_update_animation(input_vector, visually_moving)
+		facing_direction = _cardinal_direction(_anim_suffix)
 		_update_raycast_direction()
-		# S58: Movement start squash, brief compression when beginning to walk
-		if not _was_moving and sprite:
+		if visually_moving and not _was_moving and sprite:
 			_play_move_squash(Vector2(0.95, 1.05), 0.05)
-		# S58: Sprint stretch, elongate in movement direction while sprinting
 		if _is_sprinting and sprite:
 			if abs(input_vector.x) > abs(input_vector.y):
-				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(1.08, 0.92)), 8.0 * delta)
+				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(1.045, 0.965)), 8.0 * delta)
 			else:
-				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(0.92, 1.08)), 8.0 * delta)
+				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(0.965, 1.045)), 8.0 * delta)
 		elif sprite:
 			sprite.scale = sprite.scale.lerp(_sprite_rest_scale, 10.0 * delta)
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
-		# S150: 감속 중에는 걷기 애니 유지, 몸이 미끄러지는데 발이 멈추는 어색함 제거
-		_update_animation(facing_direction, velocity.length() > 12.0)
-		# S58: Movement stop stretch, brief elongation when stopping
+		_update_animation(_last_move_direction, visually_moving)
 		if _was_moving and sprite:
 			_play_move_squash(Vector2(1.05, 0.95), 0.08)
-		# S52: 정지 시 호흡 미세 스케일 + S57: 피젯
 		_idle_time += delta
 		_breath_time += delta
 		if sprite:
@@ -201,18 +220,10 @@ func _physics_process(delta: float) -> void:
 			# Only apply breathing if no active squash tween
 			if not _move_squash_tween or not _move_squash_tween.is_running():
 				sprite.scale = _scaled_sprite(Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008))
-	_was_moving = is_moving
+	_was_moving = visually_moving
 
-	# S41: 지형별 발걸음 SFX
-	if input_vector != Vector2.ZERO:
-		_step_timer += delta
-		if _step_timer >= STEP_INTERVAL:
-			_step_timer = 0.0
-			var terrain = _get_terrain_type()
-			AudioManager.play_step(terrain)
-			GameManager.add_stat("steps_taken")  # S55: 걸음 수 추적
-	else:
-		_step_timer = 0.0
+	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
+	_update_footfalls(moved_distance, clean_view)
 
 	# S57: Camera look-ahead
 	_update_camera_look_ahead(delta)
@@ -220,9 +231,7 @@ func _physics_process(delta: float) -> void:
 	# S57: Camera shake
 	_update_camera_shake(delta)
 
-	# S160: clarity mode removes movement trails and footstep debris.
-	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
-	# S57: Afterimage (sprint)
+	# A restrained sprint echo reads as speed without becoming a constant trail.
 	if _is_sprinting and not clean_view:
 		_afterimage_timer += delta
 		if _afterimage_timer >= AFTERIMAGE_INTERVAL:
@@ -231,24 +240,20 @@ func _physics_process(delta: float) -> void:
 	else:
 		_afterimage_timer = 0.0
 
-	# S150: 걷기 바운스 + 발딛기 먼지 동기 + 수평 기울기
-	# 바운스 위상이 발걸음의 단일 진실원, 먼지가 발이 닿는 프레임에 정확히 맞음.
 	if sprite:
-		if velocity.length() > 12.0:
-			_bob_phase += velocity.length() * delta * 0.085
-			sprite.offset.y = _sprite_base_offset.y - absf(sin(_bob_phase)) * 1.6
-			var footfall := int(_bob_phase / PI)
-			if footfall != _last_footfall:
-				_last_footfall = footfall
-				if clean_view:
-					_spawn_step_echo()
-				else:
-					_spawn_dust()
-			# 수평 이동 시 진행 방향으로 미세하게 기울어짐 (달릴수록 더)
-			sprite.rotation = lerp_angle(sprite.rotation, (velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER)) * 0.055, 10.0 * delta)
+		if visually_moving:
+			var stride_distance := SPRINT_STEP_DISTANCE if _is_sprinting else WALK_STEP_DISTANCE
+			_bob_phase += moved_distance * PI / stride_distance
+			var gait := sin(_bob_phase)
+			sprite.offset.y = _sprite_base_offset.y - absf(gait) * (1.15 if _is_sprinting else 0.85)
+			sprite.offset.x = _sprite_base_offset.x + gait * (0.50 if absf(_last_move_direction.y) > 0.5 else 0.24)
+			var lean := (velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER)) * 0.036
+			sprite.rotation = lerp_angle(sprite.rotation, lean, 10.0 * delta)
 		else:
+			sprite.offset.x = lerpf(sprite.offset.x, _sprite_base_offset.x, 12.0 * delta)
 			sprite.offset.y = lerpf(sprite.offset.y, _sprite_base_offset.y, 12.0 * delta)
 			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 12.0 * delta)
+	_update_ground_shadow(delta, visually_moving)
 
 	# S57: Interaction indicator
 	_update_interact_indicator(delta)
@@ -269,13 +274,15 @@ func _input(event: InputEvent) -> void:
 func _update_camera_look_ahead(delta: float) -> void:
 	if not camera:
 		return
-	var target_offset = Vector2.ZERO
+	var target_offset := Vector2.ZERO
 	if velocity.length() > 10.0:
-		# Clean view still needs a little anticipation or movement feels static.
-		# Keep it below one tile so it adds responsiveness without hiding space.
-		var distance := 18.0 if OptionsMenu.is_clean_gameplay_visuals() else _camera_look_ahead
-		target_offset = velocity.normalized() * distance
-	camera.offset = camera.offset.lerp(target_offset, 3.0 * delta)
+		var distance := 16.0 if OptionsMenu.is_clean_gameplay_visuals() else _camera_look_ahead
+		var speed_ratio := clampf(velocity.length() / (BASE_SPEED * SPRINT_MULTIPLIER), 0.0, 1.0)
+		var anticipation := speed_ratio * speed_ratio * (3.0 - 2.0 * speed_ratio)
+		target_offset = velocity.normalized() * distance * anticipation
+	var response := 1.0 - exp(-6.5 * delta)
+	_camera_look_offset = _camera_look_offset.lerp(target_offset, response)
+	_apply_camera_offset()
 
 ## 카메라 셰이크 업데이트
 func _update_camera_shake(delta: float) -> void:
@@ -284,13 +291,29 @@ func _update_camera_shake(delta: float) -> void:
 	if OptionsMenu.is_clean_gameplay_visuals():
 		_shake_intensity = 0.0
 		_shake_timer = 0.0
+		_camera_event_shake_offset = Vector2.ZERO
+		_apply_camera_offset()
 		return
 	if _shake_timer > 0.0:
 		_shake_timer -= delta
-		var shake_amount = _shake_intensity * (_shake_timer / _shake_duration)
-		camera.offset += Vector2(randf_range(-shake_amount, shake_amount), randf_range(-shake_amount, shake_amount))
+		_shake_phase += delta * 34.0
+		var shake_amount := _shake_intensity * (_shake_timer / maxf(_shake_duration, 0.001))
+		_camera_event_shake_offset = Vector2(
+			sin(_shake_phase * 1.13) * shake_amount,
+			cos(_shake_phase * 0.91) * shake_amount * 0.72
+		)
 	elif _shake_intensity > 0.0:
 		_shake_intensity = 0.0
+		_camera_event_shake_offset = Vector2.ZERO
+	else:
+		_camera_event_shake_offset = _camera_event_shake_offset.lerp(Vector2.ZERO, 1.0 - exp(-14.0 * delta))
+	_apply_camera_offset()
+
+func _apply_camera_offset() -> void:
+	if not camera:
+		return
+	var ambient: Vector2 = camera.get_meta("ambient_camera_offset", Vector2.ZERO)
+	camera.offset = _camera_look_offset + ambient + _camera_event_shake_offset
 
 ## 외부에서 호출 가능한 셰이크 메서드
 func shake(intensity: float = 4.0, duration: float = 0.3) -> void:
@@ -330,12 +353,37 @@ func _spawn_afterimage() -> void:
 	ghost.frame = sprite.frame
 	ghost.global_position = global_position
 	ghost.scale = sprite.scale
-	ghost.modulate = Color(0.4, 0.5, 0.8, 0.5)
+	ghost.modulate = Color(0.42, 0.50, 0.72, 0.24)
 	ghost.z_index = z_index - 1
 	get_parent().add_child(ghost)
 	var t = ghost.create_tween()
-	t.tween_property(ghost, "modulate:a", 0.0, 0.25)
+	t.tween_property(ghost, "modulate:a", 0.0, 0.18)
 	t.tween_callback(ghost.queue_free)
+
+func _update_footfalls(moved_distance: float, clean_view: bool) -> void:
+	if moved_distance <= 0.01:
+		return
+	_step_distance += moved_distance
+	var stride_distance := SPRINT_STEP_DISTANCE if _is_sprinting else WALK_STEP_DISTANCE
+	while _step_distance >= stride_distance:
+		_step_distance -= stride_distance
+		AudioManager.play_step(_get_terrain_type())
+		GameManager.add_stat("steps_taken")
+		if clean_view:
+			_spawn_step_echo()
+		else:
+			_spawn_dust()
+
+func _update_ground_shadow(delta: float, moving: bool) -> void:
+	if _ground_shadow == null or not is_instance_valid(_ground_shadow):
+		_ground_shadow = get_node_or_null("GroundShadow") as Node2D
+	if _ground_shadow == null:
+		return
+	var lift := absf(sin(_bob_phase)) if moving else 0.0
+	var target_scale := Vector2(1.0 - lift * 0.055, 1.0 - lift * 0.08)
+	_ground_shadow.scale = _ground_shadow.scale.lerp(target_scale, 1.0 - exp(-12.0 * delta))
+	var target_x := -velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER) * 0.8 if moving else 0.0
+	_ground_shadow.position.x = lerpf(_ground_shadow.position.x, target_x, 1.0 - exp(-10.0 * delta))
 
 ## 발밑 먼지 파티클, S59: terrain-specific dust colors
 func _spawn_dust() -> void:
@@ -497,6 +545,17 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 		sprite.speed_scale = clampf(velocity.length() / BASE_SPEED, 0.65, 1.85)
 	else:
 		sprite.speed_scale = 1.0
+
+func _cardinal_direction(suffix: String) -> Vector2:
+	match suffix:
+		"left":
+			return Vector2.LEFT
+		"right":
+			return Vector2.RIGHT
+		"up":
+			return Vector2.UP
+		_:
+			return Vector2.DOWN
 
 ## RayCast 방향 업데이트 (상호작용 감지용)
 func _update_raycast_direction() -> void:

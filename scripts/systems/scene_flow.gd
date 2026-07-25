@@ -299,6 +299,10 @@ func select_choice(choice_index: int) -> void:
 	if choice.has("requires_not_flag") and GameManager.story_flags.get(choice.requires_not_flag, false):
 		return
 
+	# S209: 회상 기록에 플레이어의 선택을 남긴다 (게이트를 모두 통과한 뒤).
+	if StoryLog:
+		StoryLog.record_choice(GameManager.localized_value(choice, "text", String(choice.get("text", ""))))
+
 	# Pay explicit memory costs before applying flags or rewards.
 	if choice.has("cost_memory"):
 		var burned = MemoryManager.burn_memory(choice.cost_memory, bool(choice.get("allow_faded_burn", false)))

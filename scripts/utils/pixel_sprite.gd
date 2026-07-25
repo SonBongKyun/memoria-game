@@ -2145,3 +2145,214 @@ static func _add_outline_64(img: Image, outline_color: Color) -> void:
 					break
 			if has_neighbor:
 				img.set_pixel(x, y, outline_color)
+
+## ===================== S209: 필드 상호작용 오브젝트 스프라이트 =====================
+## 통, 상자, 모닥불, 표지판, 보물상자, 기억 단서는 여태 색깔 사각형(ColorRect)이었다.
+## 첫 탐색 화면에서 갈색/회색 네모가 타일 위에 떠 있는 것이 그대로 보였다.
+## 캐릭터와 같은 방식(Image.set_pixel)으로 32x32 픽셀아트를 만들어 대체한다.
+
+const PROP_SIZE: int = 32
+static var _prop_cache: Dictionary = {}
+
+## 상호작용 오브젝트 텍스처. `used`는 이미 사용한(빈) 상태.
+static func create_prop_texture(prop_type: String, used: bool = false) -> ImageTexture:
+	var cache_key := "%s|%s" % [prop_type, used]
+	if _prop_cache.has(cache_key):
+		return _prop_cache[cache_key]
+	var img := Image.create(PROP_SIZE, PROP_SIZE, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0, 0, 0, 0))
+	match prop_type:
+		"barrel":
+			_draw_prop_barrel(img, used)
+		"crate":
+			_draw_prop_crate(img, used)
+		"campfire":
+			_draw_prop_campfire(img, used)
+		"sign":
+			_draw_prop_sign(img)
+		"chest":
+			_draw_prop_chest(img, used)
+		"clue":
+			_draw_prop_clue(img)
+		_:
+			_draw_prop_crate(img, used)
+	_prop_outline(img, Color(0.05, 0.04, 0.06, 0.85))
+	var tex := ImageTexture.create_from_image(img)
+	_prop_cache[cache_key] = tex
+	return tex
+
+static func _prop_px(img: Image, x: int, y: int, color: Color) -> void:
+	if x >= 0 and x < PROP_SIZE and y >= 0 and y < PROP_SIZE:
+		img.set_pixel(x, y, color)
+
+static func _prop_rect(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
+	for py in range(h):
+		for px in range(w):
+			_prop_px(img, x + px, y + py, color)
+
+## 바닥 접지 그림자 (타원 근사)
+static func _prop_ground_shadow(img: Image, cx: int, cy: int, rx: int, ry: int) -> void:
+	for py in range(-ry, ry + 1):
+		for px in range(-rx, rx + 1):
+			var nx := float(px) / float(rx)
+			var ny := float(py) / float(ry)
+			if nx * nx + ny * ny <= 1.0:
+				_prop_px(img, cx + px, cy + py, Color(0.0, 0.0, 0.0, 0.28))
+
+static func _prop_outline(img: Image, outline_color: Color) -> void:
+	var solid: Array = []
+	for y in range(PROP_SIZE):
+		var row: Array = []
+		for x in range(PROP_SIZE):
+			row.append(img.get_pixel(x, y).a > 0.45)
+		solid.append(row)
+	for y in range(PROP_SIZE):
+		for x in range(PROP_SIZE):
+			if solid[y][x] or img.get_pixel(x, y).a > 0.05:
+				continue
+			var touching := false
+			for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var nx: int = x + d.x
+				var ny: int = y + d.y
+				if nx >= 0 and nx < PROP_SIZE and ny >= 0 and ny < PROP_SIZE and solid[ny][nx]:
+					touching = true
+					break
+			if touching:
+				img.set_pixel(x, y, outline_color)
+
+static func _draw_prop_barrel(img: Image, used: bool) -> void:
+	var wood := Color(0.42, 0.28, 0.15) if not used else Color(0.26, 0.20, 0.14)
+	var wood_dark := _darken(wood, 0.11)
+	var wood_light := _lighten(wood, 0.10)
+	var band := Color(0.36, 0.33, 0.28) if not used else Color(0.24, 0.22, 0.20)
+	_prop_ground_shadow(img, 16, 27, 9, 3)
+	# 배흘림 몸통
+	for y in range(8, 28):
+		var t: float = float(y - 8) / 19.0
+		var bulge: int = 1 if (t > 0.25 and t < 0.78) else 0
+		var half: int = 6 + bulge
+		var shade := wood
+		if t < 0.18:
+			shade = wood_light
+		elif t > 0.82:
+			shade = wood_dark
+		_prop_rect(img, 16 - half, y, half * 2, 1, shade)
+	# 세로 널판 이음매
+	for y in range(9, 27):
+		_prop_px(img, 13, y, wood_dark)
+		_prop_px(img, 19, y, wood_dark)
+	# 금속 테
+	_prop_rect(img, 9, 12, 14, 2, band)
+	_prop_rect(img, 9, 22, 14, 2, band)
+	# 상단 뚜껑
+	_prop_rect(img, 10, 7, 12, 2, _lighten(wood, 0.16))
+	if used:
+		# 뚜껑이 열린 채 기울어져 있다
+		_prop_rect(img, 10, 6, 12, 1, Color(0.10, 0.08, 0.07, 0.9))
+
+static func _draw_prop_crate(img: Image, used: bool) -> void:
+	var wood := Color(0.46, 0.36, 0.22) if not used else Color(0.28, 0.24, 0.18)
+	var wood_dark := _darken(wood, 0.13)
+	var wood_light := _lighten(wood, 0.11)
+	_prop_ground_shadow(img, 16, 27, 10, 3)
+	_prop_rect(img, 7, 8, 18, 18, wood)
+	# 상단 면 (약간 밝게)
+	_prop_rect(img, 7, 8, 18, 3, wood_light)
+	# 아래쪽 그늘
+	_prop_rect(img, 7, 23, 18, 3, wood_dark)
+	# 대각 보강목
+	for i in range(16):
+		_prop_px(img, 8 + i, 9 + i, wood_dark)
+		_prop_px(img, 23 - i, 9 + i, wood_dark)
+	# 테두리 판
+	_prop_rect(img, 7, 8, 18, 1, wood_dark)
+	_prop_rect(img, 7, 25, 18, 1, wood_dark)
+	_prop_rect(img, 7, 8, 1, 18, wood_dark)
+	_prop_rect(img, 24, 8, 1, 18, wood_dark)
+	if used:
+		_prop_rect(img, 10, 11, 12, 5, Color(0.06, 0.05, 0.06, 0.85))
+
+static func _draw_prop_campfire(img: Image, used: bool) -> void:
+	var stone := Color(0.36, 0.35, 0.34)
+	var stone_dark := _darken(stone, 0.12)
+	var log_c := Color(0.32, 0.22, 0.13)
+	var log_dark := _darken(log_c, 0.10)
+	_prop_ground_shadow(img, 16, 25, 11, 4)
+	# 돌 고리
+	for i in range(6):
+		var angle: float = TAU * float(i) / 6.0
+		var sx: int = 16 + int(round(cos(angle) * 9.0))
+		var sy: int = 24 + int(round(sin(angle) * 4.0))
+		_prop_rect(img, sx - 2, sy - 2, 4, 3, stone)
+		_prop_rect(img, sx - 2, sy, 4, 1, stone_dark)
+	# 장작 (X자)
+	for i in range(12):
+		_prop_px(img, 10 + i, 22 + int(i / 4), log_c)
+		_prop_px(img, 22 - i, 22 + int(i / 4), log_dark)
+	_prop_rect(img, 12, 20, 8, 2, log_c)
+	if not used:
+		# 잔불. 위로 갈수록 좁아지는 불꽃 (파티클은 런타임에서 별도로 올라간다)
+		_prop_rect(img, 13, 19, 6, 2, Color(1.0, 0.52, 0.16, 0.94))
+		_prop_rect(img, 14, 17, 4, 2, Color(1.0, 0.68, 0.24, 0.92))
+		_prop_rect(img, 15, 15, 2, 2, Color(1.0, 0.84, 0.42, 0.88))
+		_prop_px(img, 16, 13, Color(1.0, 0.92, 0.60, 0.70))
+		_prop_px(img, 13, 16, Color(1.0, 0.60, 0.22, 0.55))
+		_prop_px(img, 18, 16, Color(1.0, 0.60, 0.22, 0.55))
+	else:
+		_prop_rect(img, 14, 19, 4, 2, Color(0.22, 0.18, 0.16, 0.9))
+
+static func _draw_prop_sign(img: Image) -> void:
+	var post := Color(0.34, 0.25, 0.15)
+	var board := Color(0.46, 0.36, 0.23)
+	_prop_ground_shadow(img, 16, 28, 6, 2)
+	_prop_rect(img, 15, 14, 2, 14, post)
+	_prop_rect(img, 8, 6, 16, 9, board)
+	_prop_rect(img, 8, 6, 16, 1, _lighten(board, 0.12))
+	_prop_rect(img, 8, 14, 16, 1, _darken(board, 0.14))
+	# 지워진 글씨의 흔적
+	_prop_rect(img, 11, 9, 8, 1, _darken(board, 0.20))
+	_prop_rect(img, 11, 11, 5, 1, _darken(board, 0.20))
+
+static func _draw_prop_chest(img: Image, used: bool) -> void:
+	var wood := Color(0.34, 0.23, 0.14) if not used else Color(0.22, 0.17, 0.12)
+	var wood_dark := _darken(wood, 0.10)
+	var gold := Color(0.72, 0.56, 0.26) if not used else Color(0.36, 0.31, 0.22)
+	_prop_ground_shadow(img, 16, 26, 10, 3)
+	# 몸통
+	_prop_rect(img, 7, 16, 18, 9, wood)
+	_prop_rect(img, 7, 23, 18, 2, wood_dark)
+	if used:
+		# 뚜껑이 뒤로 젖혀진 상태
+		_prop_rect(img, 7, 10, 18, 4, wood_dark)
+		_prop_rect(img, 9, 17, 14, 5, Color(0.05, 0.04, 0.05, 0.9))
+	else:
+		# 둥근 뚜껑
+		for y in range(10, 16):
+			var t: float = float(y - 10) / 5.0
+			var half: int = 6 + int(round(t * 3.0))
+			_prop_rect(img, 16 - half, y, half * 2, 1, wood if y > 11 else _lighten(wood, 0.10))
+	# 금속 띠 + 잠금
+	_prop_rect(img, 15, 10, 2, 15, gold)
+	_prop_rect(img, 13, 18, 6, 4, gold)
+	_prop_px(img, 16, 20, _darken(gold, 0.28))
+
+static func _draw_prop_clue(img: Image) -> void:
+	var stone := Color(0.40, 0.40, 0.44)
+	var stone_dark := _darken(stone, 0.13)
+	var glow := Color(0.44, 0.62, 0.86, 0.55)
+	_prop_ground_shadow(img, 16, 26, 8, 3)
+	# 기울어진 돌
+	for y in range(12, 26):
+		var t: float = float(y - 12) / 13.0
+		var half: int = 2 + int(round(t * 5.0))
+		_prop_rect(img, 16 - half, y, half * 2, 1, stone if t > 0.3 else _lighten(stone, 0.10))
+	_prop_rect(img, 11, 24, 10, 2, stone_dark)
+	# 새겨진 자국
+	_prop_px(img, 14, 17, stone_dark)
+	_prop_px(img, 16, 17, stone_dark)
+	_prop_px(img, 18, 17, stone_dark)
+	_prop_px(img, 15, 20, stone_dark)
+	_prop_px(img, 17, 20, stone_dark)
+	# 기억의 잔광
+	_prop_rect(img, 14, 8, 4, 2, glow)
+	_prop_rect(img, 15, 6, 2, 2, Color(glow.r, glow.g, glow.b, 0.34))

@@ -8,6 +8,8 @@ const REQUIRED_INTERFACE_ART: Array[String] = [
 	"res://assets/cg/generated/ui_memory_shop_backdrop_v2.png",
 	"res://assets/cg/generated/ui_pause_archive_backdrop_v2.png",
 	"res://assets/cg/generated/ui_battle_item_tray_v3.png",
+	"res://assets/cg/generated/ui_battle_command_deck_v4.png",
+	"res://assets/cg/generated/ui_battle_field_readout_v4.png",
 	"res://assets/ui/items/root_balm_v2.png",
 	"res://assets/ui/items/signal_jammer_v2.png",
 	"res://assets/ui/items/lantern_salve_v2.png",
@@ -61,6 +63,8 @@ func _ready() -> void:
 	assert(inventory_overlay.get_node_or_null("InventoryPanel") != null, "Inventory panel did not build")
 	assert(inventory_overlay.find_child("InventoryStatusStrip", true, false) != null, "Inventory status telemetry is missing")
 	assert(inventory_overlay.find_child("InventoryFilters", true, false) != null, "Inventory category filters are missing")
+	for control_name in ["InventoryQuickKit", "InventorySearch", "InventorySort", "InventoryUseNow", "InventoryPinQuick"]:
+		assert(inventory_overlay.find_child(control_name, true, false) != null, "Inventory QoL control is missing: " + control_name)
 	for filter_id in ["ALL", "RECOVERY", "TACTICAL", "WITNESS"]:
 		assert(inventory_overlay.find_child("InventoryFilter_" + filter_id, true, false) != null, "Inventory filter is missing: " + filter_id)
 	for slot_name in ["Weapon", "Armor", "Accessory"]:

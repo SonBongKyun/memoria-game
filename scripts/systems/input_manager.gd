@@ -16,6 +16,7 @@ const GAMEPAD_ICONS: Dictionary = {
 	"interact": "A",
 	"sprint": "LB",
 	"memory_pulse": "Y",
+	"quick_item": "X",
 	"menu": "Start",
 	"memory_menu": "Select",
 	"move_up": "D-Up",
@@ -30,6 +31,7 @@ const KEYBOARD_ICONS: Dictionary = {
 	"interact": "Space/Enter",
 	"sprint": "Shift",
 	"memory_pulse": "Q",
+	"quick_item": "H",
 	"menu": "Esc",
 	"memory_menu": "Tab/M",
 	"move_up": "W",
@@ -56,6 +58,12 @@ func _ready() -> void:
 	print("[InputManager] Ready, current mode: KEYBOARD")
 
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("quick_item") and not (event is InputEventKey and event.echo):
+		if GameManager.current_state == GameManager.GameState.EXPLORATION and not get_tree().paused:
+			var result := GameManager.use_best_field_recovery()
+			if bool(result.get("success", false)):
+				vibrate("heal")
+			get_viewport().set_input_as_handled()
 	var new_mode = current_mode
 
 	if event is InputEventKey or event is InputEventMouse or event is InputEventMouseButton or event is InputEventMouseMotion:

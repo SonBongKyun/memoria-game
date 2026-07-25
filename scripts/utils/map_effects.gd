@@ -1039,24 +1039,29 @@ static func _make_linear_gradient_texture(left: Color, mid: Color, right: Color)
 	tex.fill_to = Vector2(1.0, 0.5)
 	return tex
 
-static func add_drop_shadow(character: Node2D) -> ColorRect:
-	var shadow = ColorRect.new()
-	shadow.color = Color(0.0, 0.0, 0.05, 0.35)
-	shadow.size = Vector2(28, 10)
-	shadow.position = Vector2(-14, 12)  # 발밑
-	shadow.z_index = -1  # 캐릭터 뒤
-
-	# 타원형 느낌, 모서리 둥글게
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.05, 0.3)
-	style.set_corner_radius_all(5)
-	# ColorRect에는 StyleBox 직접 적용 불가 → 대안: 스프라이트
-	# 간단히 알파 블렌딩된 사각형으로 근사
-	shadow.pivot_offset = shadow.size / 2.0
-	shadow.scale = Vector2(1.0, 0.5)  # 수직 압축으로 타원 효과
-
-	character.add_child(shadow)
-	return shadow
+static func add_drop_shadow(character: Node2D) -> Node2D:
+	var existing := character.get_node_or_null("GroundShadow") as Node2D
+	if existing != null:
+		return existing
+	var shadow_root := Node2D.new()
+	shadow_root.name = "GroundShadow"
+	shadow_root.position = Vector2(0, 4)
+	shadow_root.z_index = -2
+	for layer_data in [
+		{"radius": Vector2(15.0, 5.0), "alpha": 0.11},
+		{"radius": Vector2(11.5, 3.5), "alpha": 0.17},
+	]:
+		var ellipse := Polygon2D.new()
+		var points := PackedVector2Array()
+		var radius: Vector2 = layer_data["radius"]
+		for i in range(20):
+			var angle := TAU * float(i) / 20.0
+			points.append(Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
+		ellipse.polygon = points
+		ellipse.color = Color(0.015, 0.018, 0.028, float(layer_data["alpha"]))
+		shadow_root.add_child(ellipse)
+	character.add_child(shadow_root)
+	return shadow_root
 
 ## ===================== S52: 향상된 바이옴 파티클 =====================
 
@@ -1189,7 +1194,10 @@ static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient
 	for child in player.get_children():
 		if child is Camera2D:
 			child.position_smoothing_enabled = true
-			child.position_smoothing_speed = 5.0
+			child.position_smoothing_speed = 8.0
+			child.drag_horizontal_enabled = false
+			child.drag_vertical_enabled = false
+			child.set_meta("ambient_camera_offset", Vector2.ZERO)
 			# S57: 기존 카메라가 있으면 줌 유지 (player.gd에서 관리)
 			if ambient_shake_intensity > 0.0:
 				child.set_meta("ambient_shake", ambient_shake_intensity)
@@ -1201,16 +1209,12 @@ static func setup_smooth_camera(player: Node2D, zoom_level: float = 1.0, ambient
 	var cam = Camera2D.new()
 	cam.enabled = true
 	cam.position_smoothing_enabled = true
-	cam.position_smoothing_speed = 5.0
-	cam.drag_horizontal_enabled = true
-	cam.drag_vertical_enabled = true
-	cam.drag_left_margin = 0.15
-	cam.drag_right_margin = 0.15
-	cam.drag_top_margin = 0.15
-	cam.drag_bottom_margin = 0.15
+	cam.position_smoothing_speed = 8.0
+	cam.drag_horizontal_enabled = false
+	cam.drag_vertical_enabled = false
 	cam.zoom = Vector2(zoom_level, zoom_level)
-	# S55: 픽셀 퍼펙트 스냅 (정수 좌표로 카메라 정렬)
-	cam.set_meta("pixel_snap", true)
+	cam.set_meta("pixel_snap", false)
+	cam.set_meta("ambient_camera_offset", Vector2.ZERO)
 	if ambient_shake_intensity > 0.0:
 		cam.set_meta("ambient_shake", ambient_shake_intensity)
 	player.add_child(cam)
@@ -1229,7 +1233,7 @@ static func camera_ambient_shake(cam: Camera2D, intensity: float = 0.5) -> void:
 		return
 	if _clean_gameplay_view():
 		cam.set_meta("ambient_shake", 0.0)
-		cam.offset = Vector2.ZERO
+		cam.set_meta("ambient_camera_offset", Vector2.ZERO)
 		return
 	cam.set_meta("ambient_shake", intensity)
 
@@ -1238,22 +1242,18 @@ static func update_camera_shake(cam: Camera2D, time: float) -> void:
 	if cam == null:
 		return
 	if _clean_gameplay_view():
-		cam.offset = Vector2.ZERO
+		cam.set_meta("ambient_camera_offset", Vector2.ZERO)
 		return
 	var intensity: float = cam.get_meta("ambient_shake", 0.0)
 	if intensity <= 0.0:
-		# S55: 픽셀 스냅, 흔들림 없을 때도 정수 좌표 유지
-		if cam.get_meta("pixel_snap", false):
-			cam.offset = Vector2(roundf(cam.offset.x), roundf(cam.offset.y))
+		cam.set_meta("ambient_camera_offset", Vector2.ZERO)
 		return
 	var raw_offset = Vector2(
 		sin(time * 7.3) * intensity + sin(time * 13.1) * intensity * 0.5,
 		cos(time * 5.7) * intensity + cos(time * 11.9) * intensity * 0.5
 	)
-	# S55: 픽셀 퍼펙트, 카메라 오프셋을 정수로 스냅
-	if cam.get_meta("pixel_snap", false):
-		raw_offset = Vector2(roundf(raw_offset.x), roundf(raw_offset.y))
-	cam.offset = raw_offset
+	# Player composes anticipation, ambience and event shake once per frame.
+	cam.set_meta("ambient_camera_offset", raw_offset)
 
 ## S53: 파티클 오브젝트 풀
 static var _particle_pool: Array[ColorRect] = []
@@ -1648,64 +1648,31 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 	shape.shape = rect_shape
 	area.add_child(shape)
 
-	# 비주얼
-	var visual = ColorRect.new()
-	var clean_prop := _clean_gameplay_view()
-	visual.size = Vector2(14, 14) if clean_prop else Vector2(24, 24)
-	visual.position = Vector2(-7, -7) if clean_prop else Vector2(-12, -12)
-	visual.z_index = 1
-	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
 	var flag_name = "prop_%s_%d_%d" % [type, int(pos.x), int(pos.y)]
 	var interacted = GameManager.get_flag(flag_name)
 
+	# S209: 비주얼.
+	# 예전에는 갈색/회색 ColorRect 사각형이 타일 위에 그대로 떠 있었다.
+	# 이제 캐릭터와 같은 절차적 픽셀아트 스프라이트를 쓴다.
+	var visual = Sprite2D.new()
+	visual.texture = PixelSprite.create_prop_texture(type, interacted)
+	visual.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	visual.z_index = 1
+	# 스프라이트는 32x32 캔버스에 바닥이 아래쪽에 그려져 있다. 발밑을 타일에 맞춘다.
+	visual.position = Vector2(0, -2)
+	visual.set_meta("prop_type", type)
+
 	match type:
-		"barrel":
-			visual.color = Color(0.45, 0.3, 0.15, 0.7) if not interacted else Color(0.3, 0.25, 0.15, 0.3)
-			# 배럴 디테일, 수평 줄무늬
-			var stripe = ColorRect.new()
-			stripe.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
-			stripe.position = Vector2(-6, -2) if clean_prop else Vector2(-10, -2)
-			stripe.color = Color(0.35, 0.22, 0.1, 0.5)
-			stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			area.add_child(stripe)
-			var stripe2 = ColorRect.new()
-			stripe2.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
-			stripe2.position = Vector2(-6, 3) if clean_prop else Vector2(-10, 5)
-			stripe2.color = Color(0.35, 0.22, 0.1, 0.5)
-			stripe2.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			area.add_child(stripe2)
-		"crate":
-			visual.color = Color(0.4, 0.38, 0.35, 0.7) if not interacted else Color(0.3, 0.28, 0.25, 0.3)
-			# 십자 무늬
-			var cross_h = ColorRect.new()
-			cross_h.size = Vector2(12, 2) if clean_prop else Vector2(20, 2)
-			cross_h.position = Vector2(-6, -1) if clean_prop else Vector2(-10, -1)
-			cross_h.color = Color(0.3, 0.28, 0.22, 0.6)
-			cross_h.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			area.add_child(cross_h)
-			var cross_v = ColorRect.new()
-			cross_v.size = Vector2(2, 12) if clean_prop else Vector2(2, 20)
-			cross_v.position = Vector2(-1, -6) if clean_prop else Vector2(-1, -10)
-			cross_v.color = Color(0.3, 0.28, 0.22, 0.6)
-			cross_v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			area.add_child(cross_v)
 		"sign":
-			visual.size = Vector2(8, 20)
-			visual.position = Vector2(-4, -10)
-			visual.color = Color(0.35, 0.28, 0.2, 0.8)
 			# "!" 텍스트 마커
 			var marker = Label.new()
 			marker.text = "!"
 			marker.add_theme_font_size_override("font_size", 12)
 			marker.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
-			marker.position = Vector2(-3, -20)
+			marker.position = Vector2(-3, -30)
 			marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			area.add_child(marker)
 		"campfire":
-			visual.size = Vector2(20, 12)
-			visual.position = Vector2(-10, -2)
-			visual.color = Color(0.3, 0.2, 0.1, 0.6)
 			# 불꽃 파티클
 			var fire = GPUParticles2D.new()
 			var fire_mat = ParticleProcessMaterial.new()
@@ -1759,7 +1726,7 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 					GameManager.player_data.grains += grains
 					NotificationToast.show_toast("+%d Grains" % grains, NotificationToast.ToastType.SUCCESS)
 					AudioManager.play_sfx("ui_select")
-					visual.color = Color(0.3, 0.25, 0.15, 0.3)
+					visual.texture = PixelSprite.create_prop_texture("barrel", true)
 				"crate":
 					var roll = randi() % 100
 					if roll < 40:
@@ -1772,7 +1739,7 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 					else:
 						NotificationToast.show_toast("The crate is empty.", NotificationToast.ToastType.INFO)
 					AudioManager.play_sfx("ui_select")
-					visual.color = Color(0.3, 0.28, 0.25, 0.3)
+					visual.texture = PixelSprite.create_prop_texture("crate", true)
 				"sign":
 					var text = config.get("text", "A faded sign. The words are gone.")
 					NotificationToast.show_toast(text, NotificationToast.ToastType.INFO)
@@ -1785,6 +1752,35 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 
 	map.add_child(area)
 	return area
+
+## ===================== S209: 발견물 마커 =====================
+
+## 숨은 상자 / 기억 단서 마커.
+## 예전에는 32x32 ColorRect였고, 기본값인 Clean Gameplay View에서는 알파가 0이라
+## 화면에 아무것도 없었다. 즉 "숨겨진 보상"이 우연히 밟기 전에는 존재조차 알 수 없었다.
+## 이제는 절차적 픽셀아트로 그리되, 눈에 띄는 정도는 억제해 탐색의 재미를 남긴다.
+## `kind`는 "chest" 또는 "clue".
+static func make_discovery_marker(kind: String) -> Node2D:
+	var holder := Node2D.new()
+	holder.name = "DiscoveryMarker"
+	holder.z_index = 0
+
+	var sprite := Sprite2D.new()
+	sprite.texture = PixelSprite.create_prop_texture(kind, false)
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.position = Vector2(0, -2)
+	sprite.modulate = Color(1, 1, 1, 0.92)
+	holder.add_child(sprite)
+
+	# 아주 옅은 발밑 광원. Clean View에서도 남겨서 "여기 뭔가 있다"는 신호는 유지한다.
+	var glow := ColorRect.new()
+	glow.size = Vector2(30, 12)
+	glow.position = Vector2(-15, 4)
+	glow.color = Color(0.72, 0.58, 0.28, 0.10) if kind == "chest" else Color(0.42, 0.58, 0.86, 0.10)
+	glow.z_index = -1
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(glow)
+	return holder
 
 ## ===================== S59: NPC 배회 시스템 =====================
 
@@ -1810,18 +1806,24 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 	var radius: float = npc_node.get_meta("wander_radius", 48.0)
 
 	# 반경 내 랜덤 목표 지점
-	var angle = randf() * TAU
-	var dist = randf_range(radius * 0.2, radius)
-	var target = spawn + Vector2(cos(angle) * dist, sin(angle) * dist)
+	var angle: float = randf() * TAU
+	var dist: float = randf_range(radius * 0.2, radius)
+	var target_position: Vector2 = spawn + Vector2(cos(angle) * dist, sin(angle) * dist)
 
-	# 이동 시간 (20px/s)
-	var move_dist = npc_node.position.distance_to(target)
-	var duration = maxf(move_dist / 20.0, 0.5)
+	# Keep market walkers restrained and readable: the authored gait plays while
+	# translation eases in and out, then returns to the matching idle direction.
+	var move_dist: float = npc_node.position.distance_to(target_position)
+	var duration: float = maxf(move_dist / 26.0, 0.45)
+	var travel_direction: Vector2 = target_position - npc_node.position
+	_set_wander_animation(npc_node, travel_direction, true)
 
 	var tween = npc_node.create_tween()
-	tween.tween_property(npc_node, "position", target, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
-	# 대기 2~5초
-	var wait = randf_range(2.0, 5.0)
+	tween.tween_property(npc_node, "position", target_position, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_callback(func():
+		if npc_node != null and is_instance_valid(npc_node):
+			_set_wander_animation(npc_node, travel_direction, false)
+	)
+	var wait = randf_range(1.8, 4.2)
 	tween.tween_interval(wait)
 	# 반복
 	var npc_ref: WeakRef = weakref(npc_node)
@@ -1830,6 +1832,19 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 		if node != null and is_instance_valid(node):
 			_start_wander_step(node)
 	)
+
+static func _set_wander_animation(npc_node: Node2D, direction: Vector2, moving: bool) -> void:
+	var animated := npc_node as AnimatedSprite2D
+	if animated == null or animated.sprite_frames == null:
+		return
+	var suffix := "down"
+	if absf(direction.x) > absf(direction.y):
+		suffix = "right" if direction.x > 0.0 else "left"
+	else:
+		suffix = "down" if direction.y > 0.0 else "up"
+	var animation := ("walk_" if moving else "idle_") + suffix
+	if animated.sprite_frames.has_animation(animation):
+		animated.play(animation)
 
 ## ===================== S59: 트리거 접근 글로우 =====================
 

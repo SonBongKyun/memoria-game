@@ -64,6 +64,7 @@
       "set_flag": "nera_first_emotion"
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/late_ch21_belor_corridor_dark_v1.png",
       "fade": 1.0,
       "narrate": "Then the corridor lights died in sequence, approaching. Belor did not enter the chamber so much as the chamber conceded it had always been his.",
       "narrate_ko": "그때 복도의 불빛이 차례로 죽어 가며 다가왔다. 벨로르는 방에 들어왔다기보다, 방이 처음부터 그의 것이었음을 인정했다.",

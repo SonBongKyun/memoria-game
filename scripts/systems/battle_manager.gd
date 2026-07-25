@@ -118,6 +118,48 @@ var _burn_chain: int = 0  # S53: 연속 연소 카운터
 # S55: Auto Battle
 var auto_battle: bool = false
 signal auto_battle_changed(enabled: bool)
+
+# --- S209: 전투 템포 ---
+## 전투 연출 대기 시간을 배속으로 나눈다. 판정/확률/피해량은 건드리지 않고
+## "기다리는 시간"만 줄이므로, 24챕터 분량을 재플레이할 때만 체감된다.
+const BATTLE_SPEED_STEPS: Array[float] = [1.0, 1.5, 2.0]
+const BATTLE_SPEED_LABELS: Array[String] = ["x1.0", "x1.5", "x2.0"]
+signal battle_speed_changed(multiplier: float)
+
+func get_battle_speed() -> float:
+	var idx := 0
+	if OptionsMenu:
+		idx = int(OptionsMenu.settings.get("battle_speed", 0))
+	idx = clampi(idx, 0, BATTLE_SPEED_STEPS.size() - 1)
+	return BATTLE_SPEED_STEPS[idx]
+
+func get_battle_speed_label() -> String:
+	var idx := 0
+	if OptionsMenu:
+		idx = int(OptionsMenu.settings.get("battle_speed", 0))
+	idx = clampi(idx, 0, BATTLE_SPEED_LABELS.size() - 1)
+	return BATTLE_SPEED_LABELS[idx]
+
+## 다음 배속 단계로 순환하고 새 배수를 반환한다.
+func cycle_battle_speed() -> float:
+	if OptionsMenu == null:
+		return 1.0
+	var idx := int(OptionsMenu.settings.get("battle_speed", 0))
+	idx = (idx + 1) % BATTLE_SPEED_STEPS.size()
+	OptionsMenu.settings["battle_speed"] = idx
+	OptionsMenu.save_settings()
+	var mult := BATTLE_SPEED_STEPS[idx]
+	battle_speed_changed.emit(mult)
+	return mult
+
+## 연출 대기 시간(초)을 현재 배속으로 환산한다.
+func paced(seconds: float) -> float:
+	return seconds / maxf(get_battle_speed(), 0.25)
+
+## 배속이 적용된 SceneTreeTimer.
+func pace_timer(seconds: float, process_always: bool = true, process_in_physics: bool = false, ignore_time_scale: bool = false) -> SceneTreeTimer:
+	return get_tree().create_timer(paced(seconds), process_always, process_in_physics, ignore_time_scale)
+
 signal combo_changed(count: int)
 signal ally_action(ally_name: String, action: String, value: int)
 signal phase_changed(enemy_name: String, phase: int)
@@ -1231,7 +1273,7 @@ func player_attack() -> void:
 	base_dmg = _apply_momentum_damage_bonus(base_dmg)
 	# S58: Anticipation, signal before damage, await wind-up
 	pre_attack.emit("Arrel", current_enemy.name, "Attack")
-	await get_tree().create_timer(0.23).timeout  # anticipation + strike duration
+	await pace_timer(0.23).timeout  # anticipation + strike duration
 	var actual = current_enemy.take_damage(base_dmg)
 	AudioManager.play_combat_sfx("sword_slash")  # S58: 레이어드 전투 SFX
 	InputManager.vibrate("battle_hit")
@@ -1434,7 +1476,7 @@ func player_burn(memory_id: String) -> void:
 	dmg = _apply_momentum_damage_bonus(dmg)
 	# S58: Anticipation, signal before burn damage
 	pre_attack.emit("Arrel", current_enemy.name, skill.name)
-	await get_tree().create_timer(0.23).timeout
+	await pace_timer(0.23).timeout
 	var actual = current_enemy.take_damage(dmg)
 
 	battle_log.emit(_bl("[BURN] %s, %s", "[연소] %s, %s") % [skill.name, skill.desc])
@@ -1729,7 +1771,7 @@ func _enemy_turn() -> void:
 		enemy_broken_turns -= 1
 		battle_log.emit(_bl("%s is broken and loses the turn!", "%s이(가) 브레이크되어 턴을 잃는다!") % current_enemy.name)
 		break_changed.emit(enemy_break_gauge, BREAK_MAX)
-		await get_tree().create_timer(0.35).timeout
+		await pace_timer(0.35).timeout
 		if state == BattleState.ENEMY_TURN:
 			state = BattleState.PLAYER_TURN
 			player_turn_started.emit()
@@ -1789,7 +1831,7 @@ func _enemy_turn() -> void:
 
 	# S58: Enemy anticipation, signal before enemy damage
 	pre_attack.emit(current_enemy.name, "Arrel", "")
-	await get_tree().create_timer(0.2).timeout
+	await pace_timer(0.2).timeout
 	# 플레이어 HP 감소
 	GameManager.player_data.hp = maxi(0, GameManager.player_data.hp - base_dmg)
 	battle_log.emit(_bl("%s attacks! %d damage to Arrel.", "%s의 공격! 아렐에게 %d 피해.") % [current_enemy.name, base_dmg])
@@ -1825,7 +1867,7 @@ func _try_enemy_ability() -> bool:
 
 	# S59: Telegraph, warn player before special ability (0.5s delay)
 	enemy_ability_telegraph.emit(ability, 0.5)
-	await get_tree().create_timer(0.5).timeout
+	await pace_timer(0.5).timeout
 
 	match ability:
 		"drain":
@@ -2092,7 +2134,7 @@ func _check_player_defeated() -> void:
 		_player_stunned = false
 		battle_log.emit(_bl("Arrel shakes off the stun...", "아렐이 기절을 떨쳐낸다..."))
 		state = BattleState.PLAYER_TURN
-		await get_tree().create_timer(0.6).timeout
+		await pace_timer(0.6).timeout
 		_end_player_turn()
 		return
 
@@ -2207,7 +2249,7 @@ func _end_player_turn() -> void:
 		EliaDiary.tick_cooldowns()
 	# 짧은 딜레이 후 적 턴 (UI 갱신 시간), S55: 자동전투 시 0.5x 대기
 	var wait_time = 0.4 if auto_battle else 0.8
-	await get_tree().create_timer(wait_time).timeout
+	await pace_timer(wait_time).timeout
 	_enemy_turn()
 
 ## S46: 플레이어 세이블 명령 설정
@@ -2538,13 +2580,13 @@ func _cleanup() -> void:
 		# S58: Wait for player to dismiss the rewards screen (max 15s safety)
 		var wait_time: float = 0.0
 		while not _victory_dismissed and wait_time < 15.0:
-			await get_tree().create_timer(0.1).timeout
+			await pace_timer(0.1).timeout
 			wait_time += 0.1
 
 	elif state == BattleState.DEFEAT:
 		GameManager.set_directive_streak(0)
 		battle_log.emit(_bl("Darkness closes in...", "어둠이 조여든다..."))
-		await get_tree().create_timer(1.5).timeout
+		await pace_timer(1.5).timeout
 		if _battle_started_as_boss_rush:
 			current_enemy = null
 			player_statuses.clear()
@@ -2556,7 +2598,7 @@ func _cleanup() -> void:
 		await SceneTransition.change_scene("res://scenes/ui/game_over.tscn")
 		return
 
-	await get_tree().create_timer(0.3).timeout
+	await pace_timer(0.3).timeout
 	current_enemy = null
 	player_statuses.clear()
 	enemy_statuses.clear()

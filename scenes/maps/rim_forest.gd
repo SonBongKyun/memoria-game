@@ -450,11 +450,9 @@ func _add_chest(pos: Vector2, flag_name: String, rewards: Dictionary) -> void:
 	shape.shape = rect
 	area.add_child(shape)
 	# 금색 인디케이터
-	var indicator = ColorRect.new()
-	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
-	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	indicator.color = Color(0.6, 0.5, 0.2, 0.0 if OptionsMenu.is_clean_gameplay_visuals() else 0.2)
-	indicator.z_index = -1
+	# S209: 색깔 사각형 대신 절차적 픽셀아트 마커.
+	# Clean Gameplay View에서 알파 0으로 완전히 사라지던 문제도 함께 해결한다.
+	var indicator := MapEffects.make_discovery_marker("chest")
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
 		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):
@@ -483,11 +481,9 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 	shape.shape = rect
 	area.add_child(shape)
 	# 청색 인디케이터
-	var indicator = ColorRect.new()
-	indicator.size = Vector2(TILE_SIZE, TILE_SIZE)
-	indicator.position = -Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-	indicator.color = Color(0.2, 0.3, 0.6, 0.0 if OptionsMenu.is_clean_gameplay_visuals() else 0.2)
-	indicator.z_index = -1
+	# S209: 색깔 사각형 대신 절차적 픽셀아트 마커.
+	# Clean Gameplay View에서 알파 0으로 완전히 사라지던 문제도 함께 해결한다.
+	var indicator := MapEffects.make_discovery_marker("clue")
 	area.add_child(indicator)
 	area.body_entered.connect(func(body):
 		if body.name == "Player" and GameManager.current_state == GameManager.GameState.EXPLORATION and not GameManager.get_flag(flag_name):

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "collection": "Late Witnesses and Field Relics",
+  "items": [
+    {"title": "The Page Elia Closed", "type": "Late Story Interstitial", "path": "res://assets/cg/generated/illustration_expansion_v3/late_ch17_bloodline_page_closed_v1.png", "desc": "Elia protects a conclusion about Arrel until the storm has passed."},
+    {"title": "The Second Ring Reaches", "type": "Late Story Interstitial", "path": "res://assets/cg/generated/illustration_expansion_v3/late_ch18_second_ring_elia_name_v1.png", "desc": "Tobias loses an ordinary motion before the living funeral reaches for Elia's name."},
+    {"title": "Two People, One Fire", "type": "Late Story Interstitial", "path": "res://assets/cg/generated/illustration_expansion_v3/late_ch19_chain_burn_gate_v1.png", "desc": "Arrel and Elia discover chain burn together at Lumea's inner gate."},
+    {"title": "The Compass Lies Down", "type": "Late Story Interstitial", "path": "res://assets/cg/generated/illustration_expansion_v3/late_ch20_compass_lays_down_v1.png", "desc": "A stopped watch and fallen compass announce the maintained stillness inside the Monolith."},
+    {"title": "The Corridor Belonged to Belor", "type": "Late Story Interstitial", "path": "res://assets/cg/generated/illustration_expansion_v3/late_ch21_belor_corridor_dark_v1.png", "desc": "Nera's warrant darkens as Belor takes control of the chamber."},
+
+    {"title": "Written by Hands", "type": "Testimony Epilogue", "path": "res://assets/cg/generated/illustration_expansion_v3/testimony_hands_write_record_v1.png", "desc": "Many hands continue the record after the Authority loses ownership of it."},
+    {"title": "Tobias at the Night Press", "type": "Testimony Epilogue", "path": "res://assets/cg/generated/illustration_expansion_v3/testimony_tobias_night_press_v1.png", "desc": "A survivor turns the press until private testimony becomes public memory."},
+    {"title": "Han's Song Goes East", "type": "Testimony Epilogue", "path": "res://assets/cg/generated/illustration_expansion_v3/testimony_han_song_road_v1.png", "desc": "One unfinished song travels farther than its first singer."},
+    {"title": "A Name Beyond the Wave", "type": "Testimony Epilogue", "path": "res://assets/cg/generated/illustration_expansion_v3/testimony_vael_name_ridge_v1.png", "desc": "Vael practices a name on a ridge where color has started to return."},
+    {"title": "The Page Closes, the Thread Continues", "type": "Testimony Epilogue", "path": "res://assets/cg/generated/illustration_expansion_v3/testimony_final_page_closes_v1.png", "desc": "The book ends while its memory thread reaches another hand."},
+
+    {"title": "Warmth Under Ash-Rain", "type": "Deep Field Resonance", "path": "res://assets/cg/generated/illustration_expansion_v3/resonance_drift_shelter_deep_v3.png", "desc": "Two field echoes converge on the cup left inside Drift Shelter."},
+    {"title": "The Salt Hand Crossing", "type": "Deep Field Resonance", "path": "res://assets/cg/generated/illustration_expansion_v3/resonance_crumbling_coast_deep_v3.png", "desc": "Separate trails reveal a safe route across the broken coast."},
+    {"title": "One Note Across the Threshold", "type": "Deep Field Resonance", "path": "res://assets/cg/generated/illustration_expansion_v3/resonance_seam_outskirts_deep_v3.png", "desc": "The Echo Shell turns static into a bridge through the outskirts."},
+    {"title": "The Compass Restores a Road", "type": "Deep Field Resonance", "path": "res://assets/cg/generated/illustration_expansion_v3/resonance_colorless_waste_deep_v3.png", "desc": "Named stones lend a narrow ribbon of color to the waste."},
+    {"title": "Footprints the Void Could Not Divide", "type": "Deep Field Resonance", "path": "res://assets/cg/generated/illustration_expansion_v3/resonance_bl07_void_deep_v3.png", "desc": "A seam-colored thread proves that identity can persist inside BL-07."},
+
+    {"title": "Ash Crawler Ambush", "type": "Enemy Action Cut-in", "path": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_ash_crawler_v1.png", "desc": "An armored larva erupts through roots with a cloud of poisonous ash."},
+    {"title": "Forest Shade Lunge", "type": "Enemy Action Cut-in", "path": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_forest_shade_v1.png", "desc": "A forgotten patrol attacks as its memory breaks into violet fragments."},
+    {"title": "Threshold Counter", "type": "Enemy Action Cut-in", "path": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_threshold_shade_v1.png", "desc": "Arrel's hollow reflection turns a strike back on its source."},
+    {"title": "The Void Watcher Opens", "type": "Enemy Action Cut-in", "path": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_void_watcher_v1.png", "desc": "A pilgrim-shaped watcher opens the eye inside its relic lantern."},
+    {"title": "Memory Eater Feeding", "type": "Enemy Action Cut-in", "path": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_memory_eater_v1.png", "desc": "A segmented devourer pulls a warm memory shard into the Void."},
+
+    {"title": "Verdan Taste Blurred", "type": "World Rewrite", "path": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_verdan_taste_v3.png", "desc": "The meal keeps its shape while the vendor disappears from the smell."},
+    {"title": "Record Ink Fades", "type": "World Rewrite", "path": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png", "desc": "Tobias can preserve the marks even as their meaning dries away."},
+    {"title": "Sable's Witness Dimmed", "type": "World Rewrite", "path": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png", "desc": "One thread on Sable's witness staff loses its light."},
+    {"title": "Compass Identity Unmapped", "type": "World Rewrite", "path": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_compass_unmapped_v3.png", "desc": "The compass remembers Arrel but no longer recognizes a route."},
+    {"title": "Void Walker Blurred", "type": "World Rewrite", "path": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_void_walker_v3.png", "desc": "One footprint remains where the next step has been edited away."}
+  ]
+}

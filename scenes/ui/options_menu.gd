@@ -35,6 +35,9 @@ var quality_btn: Button
 var vsync_check: CheckButton
 var fps_check: CheckButton
 var _fps_label: Label  # FPS counter overlay (top-left)
+# S209: 전투/독서 템포
+var battle_speed_btn: Button
+var skip_read_only_check: CheckButton
 
 # 설정 기본값
 var settings: Dictionary = {
@@ -61,6 +64,9 @@ var settings: Dictionary = {
 	"quality_level": 2,              # 0=Low, 1=Medium, 2=High
 	"vsync": true,                   # VSync toggle
 	"show_fps": false,               # FPS counter toggle
+	# S209: 전투/독서 템포
+	"battle_speed": 0,               # 0=x1.0, 1=x1.5, 2=x2.0 (연출 대기 시간만 단축)
+	"skip_read_only": true,          # 빨리감기가 이미 읽은 대사만 건너뛰도록 제한
 }
 
 const SETTINGS_PATH: String = "user://settings.json"
@@ -195,6 +201,10 @@ func _save_settings() -> void:
 		file.store_string(JSON.stringify(settings, "\t"))
 		file.close()
 
+## S209: 전투 화면처럼 메뉴 밖에서 설정을 바꾸는 곳을 위한 공개 저장 경로.
+func save_settings() -> void:
+	_save_settings()
+
 func _load_settings() -> void:
 	if not FileAccess.file_exists(SETTINGS_PATH):
 		return
@@ -234,6 +244,12 @@ func _update_difficulty_label() -> void:
 		var diff = settings.get("difficulty", 1)
 		difficulty_btn.text = _localized_pair(DIFFICULTY_LABELS.get(diff, ["Normal", "보통"]))
 		difficulty_btn.add_theme_color_override("font_color", DIFFICULTY_COLORS.get(diff, Color(0.85, 0.7, 0.45)))
+
+## S209: 전투 배속 표기 (x1.0 / x1.5 / x2.0)
+func _update_battle_speed_label() -> void:
+	if battle_speed_btn:
+		var idx: int = clampi(int(settings.get("battle_speed", 0)), 0, 2)
+		battle_speed_btn.text = ["x1.0", "x1.5", "x2.0"][idx]
 
 const TEXT_SPEED_LABELS: Dictionary = {
 	1: ["Slow", "느리게"],
@@ -417,10 +433,48 @@ func _build_ui() -> void:
 	)
 	diff_row.add_child(difficulty_btn)
 
+	# S209: Battle speed (연출 대기 시간만 단축)
+	var speed_row = HBoxContainer.new()
+	speed_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(speed_row)
+
+	var speed_label = Label.new()
+	speed_label.text = "전투 속도" if GameManager.current_locale == "ko" else "Battle Speed"
+	speed_label.add_theme_font_size_override("font_size", 15)
+	speed_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	speed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	speed_row.add_child(speed_label)
+
+	battle_speed_btn = Button.new()
+	battle_speed_btn.custom_minimum_size = Vector2(100, 30)
+	battle_speed_btn.tooltip_text = (
+		"연출 대기 시간만 줄입니다. 피해량과 보상은 그대로입니다."
+		if GameManager.current_locale == "ko"
+		else "Shortens presentation waits only. Damage and rewards are unchanged."
+	)
+	_style_cycle_button(battle_speed_btn)
+	_update_battle_speed_label()
+	battle_speed_btn.pressed.connect(func():
+		settings["battle_speed"] = (int(settings.get("battle_speed", 0)) + 1) % 3
+		_update_battle_speed_label()
+		AudioManager.play_sfx("ui_select")
+	)
+	speed_row.add_child(battle_speed_btn)
+
 	# Auto-advance narration
 	auto_advance_check = _create_toggle_row(vbox, GameManager.loc("auto_narration"), settings.auto_advance_narration)
 	auto_advance_check.toggled.connect(func(toggled: bool):
 		settings.auto_advance_narration = toggled
+	)
+
+	# S209: 빨리감기 범위 (이미 읽은 대사만 / 전부)
+	skip_read_only_check = _create_toggle_row(
+		vbox,
+		"읽은 대사만 빨리감기" if GameManager.current_locale == "ko" else "Fast-forward read text only",
+		settings.get("skip_read_only", true)
+	)
+	skip_read_only_check.toggled.connect(func(toggled: bool):
+		settings["skip_read_only"] = toggled
 	)
 
 	_add_separator(vbox)

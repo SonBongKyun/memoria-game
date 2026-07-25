@@ -63,6 +63,7 @@ const TRAVEL_DESTINATIONS: Array[Dictionary] = [
 const CHAPTER_EXPANSION_GALLERY_PATH := "res://data/chapter_expansion_gallery.json"
 const INTERFACE_EXPANSION_GALLERY_PATH := "res://data/interface_visual_gallery.json"
 const ILLUSTRATION_EXPANSION_GALLERY_PATH := "res://data/illustration_expansion_gallery.json"
+const ILLUSTRATION_GAPFILL_GALLERY_PATH := "res://data/illustration_gapfill_gallery.json"
 const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "The Seam - Reunion at the Threshold",
@@ -1883,6 +1884,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _can_open_pause_menu() -> bool:
 	if MemoryUI.is_open:
 		return false
+	# S209: 회상 기록이 열려 있으면(게임패드 Start 등 cancel이 아닌 입력으로도) 겹치지 않게 한다.
+	if has_node("/root/StoryLog") and StoryLog.is_open:
+		return false
 	if GameManager.current_state == GameManager.GameState.EXPLORATION:
 		return true
 	# S78: Full-VN pivot 이후에는 대부분의 플레이 시간이 DIALOGUE(SceneFlow) 상태다.
@@ -2070,6 +2074,8 @@ func _build_ui() -> void:
 	var buttons = [
 		{"text": GameManager.loc("resume"), "callback": _close},
 		{"text": GameManager.loc("journal"), "callback": _on_journal},
+		# S209: 회상 기록 (지나간 대사 되짚기). 게임 중에는 L 키로도 열린다.
+		{"text": "STORY LOG" if GameManager.current_locale != "ko" else "회상 기록", "callback": _on_story_log},
 		{"text": "ITEM ARCHIVE", "callback": _on_inventory},
 		{"text": "WORLD MAP", "callback": _on_travel},
 		{"text": "FIELD GUIDE" if GameManager.current_locale != "ko" else "필드 가이드", "callback": _on_field_guide},
@@ -2606,6 +2612,11 @@ func _on_journal() -> void:
 	AudioManager.play_sfx("ui_select")
 	StoryJournal.open_journal()
 
+## S209: 회상 기록 열기.
+func _on_story_log() -> void:
+	AudioManager.play_sfx("ui_select")
+	StoryLog.open_log()
+
 func _on_options() -> void:
 	AudioManager.play_sfx("ui_select")
 	OptionsMenu.open()
@@ -2626,6 +2637,7 @@ func _load_artbook_items() -> Array[Dictionary]:
 		CHAPTER_EXPANSION_GALLERY_PATH,
 		INTERFACE_EXPANSION_GALLERY_PATH,
 		ILLUSTRATION_EXPANSION_GALLERY_PATH,
+		ILLUSTRATION_GAPFILL_GALLERY_PATH,
 	]:
 		if not FileAccess.file_exists(manifest_path):
 			continue
@@ -3122,6 +3134,14 @@ func _show_travel_panel() -> void:
 	travel_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(travel_overlay)
 	_add_modal_backdrop(travel_overlay, WORLD_MAP_BACKDROP_PATH, Color(0.004, 0.004, 0.01, 0.14))
+	var depth_stage := HybridDepthStage.create_stage("world_map", HybridDepthStage.StageMode.ATLAS)
+	depth_stage.name = "RouteDepthDiorama"
+	depth_stage.anchor_left = 0.055
+	depth_stage.anchor_right = 0.745
+	depth_stage.anchor_top = 0.14
+	depth_stage.anchor_bottom = 0.855
+	depth_stage.modulate = Color(0.92, 0.88, 0.82, 0.74)
+	travel_overlay.add_child(depth_stage)
 
 	var travel_panel := PanelContainer.new()
 	travel_panel.name = "WorldMapPanel"
@@ -3167,12 +3187,25 @@ func _show_travel_panel() -> void:
 	subtitle.add_theme_color_override("font_color", Color(0.58, 0.53, 0.46))
 	content.add_child(subtitle)
 
+	var depth_caption := Label.new()
+	depth_caption.name = "DepthCaption"
+	depth_caption.anchor_left = 0.07
+	depth_caption.anchor_right = 0.74
+	depth_caption.anchor_top = 0.14
+	depth_caption.anchor_bottom = 0.18
+	depth_caption.text = _pause_loc("LIVE MEMORY RELIEF  /  SELECT A WITNESSED LANDMARK", "기억 입체도  /  목격한 지점을 선택하세요")
+	depth_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	depth_caption.add_theme_font_size_override("font_size", 10)
+	depth_caption.add_theme_color_override("font_color", Color(0.68, 0.58, 0.42, 0.88))
+	depth_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(depth_caption)
+
 	var map_note := Label.new()
 	map_note.anchor_left = 0.055
 	map_note.anchor_right = 0.72
 	map_note.anchor_top = 0.865
 	map_note.anchor_bottom = 0.94
-	map_note.text = "CURRENT WITNESS  ·  CHAPTER %02d  ·  %d / %d ROUTES RECORDED" % [current_chapter, witnessed_count, TRAVEL_DESTINATIONS.size()]
+	map_note.text = "CURRENT WITNESS  /  CHAPTER %02d  /  %d OF %d ROUTES RECORDED" % [current_chapter, witnessed_count, TRAVEL_DESTINATIONS.size()]
 	map_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	map_note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	map_note.add_theme_font_size_override("font_size", 12)
@@ -3246,13 +3279,18 @@ func _show_travel_panel() -> void:
 		btn.add_theme_font_size_override("font_size", 11)
 		if unlocked:
 			var scene_path := String(map_data.get("scene", ""))
+			var route_chapter := chapter
 			btn.pressed.connect(func():
 				AudioManager.play_sfx("confirm")
 				travel_overlay.queue_free()
 				_close()
 				SceneTransition.change_scene_styled(scene_path)
 			)
-			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+			btn.focus_entered.connect(func():
+				AudioManager.play_sfx("ui_hover")
+				depth_stage.focus_route(route_chapter)
+			)
+			btn.mouse_entered.connect(func(): depth_stage.focus_route(route_chapter))
 		route_list.add_child(btn)
 
 	var close_label := Label.new()
@@ -3282,6 +3320,8 @@ func _show_inventory_panel() -> void:
 	inventory_overlay.color = Color(0, 0, 0, 0)
 	inventory_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(inventory_overlay)
+	inventory_overlay.set_meta("inventory_state", {"category": "all", "query": "", "sort": 0})
+	inventory_overlay.set_meta("inventory_selected_id", "")
 	_add_modal_backdrop(inventory_overlay, INVENTORY_BACKDROP_PATH, Color(0.006, 0.005, 0.012, 0.22))
 
 	var inventory_panel := PanelContainer.new()
@@ -3368,10 +3408,55 @@ func _show_inventory_panel() -> void:
 	list_panel.add_child(list_root)
 
 	var list_title := Label.new()
+	list_title.name = "InventoryListTitle"
 	list_title.text = "CARRIED  |  %d TYPES  |  %d TOTAL" % [item_ids.size(), total_units]
 	list_title.add_theme_font_size_override("font_size", 13)
 	list_title.add_theme_color_override("font_color", Color(0.91, 0.75, 0.46))
 	list_root.add_child(list_title)
+
+	var quick_root := VBoxContainer.new()
+	quick_root.name = "InventoryQuickKit"
+	quick_root.add_theme_constant_override("separation", 3)
+	list_root.add_child(quick_root)
+	var quick_label := Label.new()
+	quick_label.text = "QUICK KIT  /  BATTLE KEYS 1-3"
+	quick_label.add_theme_font_size_override("font_size", 10)
+	quick_label.add_theme_color_override("font_color", Color(0.72, 0.66, 0.55))
+	quick_root.add_child(quick_label)
+	var quick_row := HBoxContainer.new()
+	quick_row.add_theme_constant_override("separation", 5)
+	quick_root.add_child(quick_row)
+	for slot_index in range(GameManager.ITEM_QUICK_SLOT_COUNT):
+		var quick_button := Button.new()
+		quick_button.name = "InventoryQuickSlot_%d" % (slot_index + 1)
+		quick_button.text = "%d  EMPTY" % (slot_index + 1)
+		quick_button.custom_minimum_size = Vector2(0, 38)
+		quick_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		quick_button.add_theme_font_size_override("font_size", 10)
+		quick_button.pressed.connect(_on_inventory_quick_pressed.bind(quick_button, inventory_overlay))
+		quick_row.add_child(quick_button)
+
+	var search_row := HBoxContainer.new()
+	search_row.name = "InventorySearchTools"
+	search_row.add_theme_constant_override("separation", 5)
+	list_root.add_child(search_row)
+	var search := LineEdit.new()
+	search.name = "InventorySearch"
+	search.placeholder_text = "Search supply..."
+	search.clear_button_enabled = true
+	search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	search.custom_minimum_size = Vector2(0, 32)
+	search.add_theme_font_size_override("font_size", 11)
+	search.text_changed.connect(_on_inventory_search_changed.bind(inventory_overlay))
+	search_row.add_child(search)
+	var sort_menu := OptionButton.new()
+	sort_menu.name = "InventorySort"
+	sort_menu.custom_minimum_size = Vector2(92, 32)
+	sort_menu.add_item("TYPE")
+	sort_menu.add_item("NAME")
+	sort_menu.add_item("COUNT")
+	sort_menu.item_selected.connect(_on_inventory_sort_changed.bind(inventory_overlay))
+	search_row.add_child(sort_menu)
 
 	var item_scroll := ScrollContainer.new()
 	item_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -3403,6 +3488,7 @@ func _show_inventory_panel() -> void:
 	detail_panel.add_child(detail_root)
 
 	var preview := TextureRect.new()
+	preview.name = "InventoryPreview"
 	preview.custom_minimum_size = Vector2(148, 148)
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -3415,18 +3501,21 @@ func _show_inventory_panel() -> void:
 	detail_root.add_child(copy)
 
 	var detail_title := Label.new()
+	detail_title.name = "InventoryDetailTitle"
 	detail_title.text = "No carried supply"
 	detail_title.add_theme_font_size_override("font_size", 22)
 	detail_title.add_theme_color_override("font_color", Color(0.94, 0.79, 0.49))
 	copy.add_child(detail_title)
 
 	var detail_type := Label.new()
+	detail_type.name = "InventoryDetailType"
 	detail_type.text = "FIELD RECORD"
 	detail_type.add_theme_font_size_override("font_size", 12)
 	detail_type.add_theme_color_override("font_color", Color(0.76, 0.72, 0.66))
 	copy.add_child(detail_type)
 
 	var detail_body := RichTextLabel.new()
+	detail_body.name = "InventoryDetailBody"
 	detail_body.bbcode_enabled = true
 	detail_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	detail_body.scroll_active = false
@@ -3436,15 +3525,36 @@ func _show_inventory_panel() -> void:
 	copy.add_child(detail_body)
 
 	var detail_meta := Label.new()
+	detail_meta.name = "InventoryDetailMeta"
 	detail_meta.add_theme_font_size_override("font_size", 12)
 	detail_meta.add_theme_color_override("font_color", Color(0.81, 0.74, 0.63))
 	copy.add_child(detail_meta)
+
+	var action_row := HBoxContainer.new()
+	action_row.name = "InventoryActions"
+	action_row.add_theme_constant_override("separation", 8)
+	copy.add_child(action_row)
+	var use_button := Button.new()
+	use_button.name = "InventoryUseNow"
+	use_button.text = "USE NOW"
+	use_button.custom_minimum_size = Vector2(145, 38)
+	use_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	use_button.pressed.connect(_on_inventory_use_now.bind(inventory_overlay))
+	action_row.add_child(use_button)
+	var pin_button := Button.new()
+	pin_button.name = "InventoryPinQuick"
+	pin_button.text = "PIN TO QUICK KIT"
+	pin_button.custom_minimum_size = Vector2(165, 38)
+	pin_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pin_button.pressed.connect(_on_inventory_pin_quick.bind(inventory_overlay))
+	action_row.add_child(pin_button)
 
 	for item_id in item_ids:
 		var item_data: Dictionary = GameManager.ITEMS[item_id]
 		var count := GameManager.get_item_count(item_id)
 		var btn := Button.new()
-		btn.text = "%s\n  x%d" % [item_data.get("name", item_id), count]
+		btn.name = "InventoryItem_%s" % item_id
+		btn.text = _inventory_item_button_text(item_id)
 		btn.tooltip_text = String(item_data.get("desc", ""))
 		btn.custom_minimum_size = Vector2(0, 50)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -3466,14 +3576,18 @@ func _show_inventory_panel() -> void:
 		hover_style.border_color = Color(0.78, 0.57, 0.28, 0.85)
 		btn.add_theme_stylebox_override("hover", hover_style)
 		btn.add_theme_stylebox_override("focus", hover_style)
-		btn.pressed.connect(_on_inventory_item_pressed.bind(item_id, preview, detail_title, detail_type, detail_body, detail_meta))
+		btn.pressed.connect(_on_inventory_item_pressed.bind(item_id, inventory_overlay))
 		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+		btn.set_meta("inventory_id", item_id)
 		btn.set_meta("inventory_category", _inventory_item_category(item_id))
+		btn.set_meta("inventory_name", String(item_data.get("name", item_id)).to_lower())
+		btn.set_meta("inventory_search", (String(item_data.get("name", item_id)) + " " + String(item_data.get("desc", "")) + " " + _inventory_effect_text(item_data)).to_lower())
 		item_list.add_child(btn)
 		item_buttons.append(btn)
 
 	var filter_empty := Label.new()
-	filter_empty.text = "No carried supply in this category."
+	filter_empty.name = "InventoryFilterEmpty"
+	filter_empty.text = "No carried supply matches this view."
 	filter_empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	filter_empty.add_theme_font_size_override("font_size", 12)
 	filter_empty.add_theme_color_override("font_color", Color(0.48, 0.44, 0.4))
@@ -3488,6 +3602,7 @@ func _show_inventory_panel() -> void:
 		empty_label.add_theme_color_override("font_color", Color(0.48, 0.44, 0.4))
 		item_list.add_child(empty_label)
 	else:
+		inventory_overlay.set_meta("inventory_selected_id", item_ids[0])
 		_set_inventory_detail(item_ids[0], preview, detail_title, detail_type, detail_body, detail_meta)
 
 	var filter_row := HBoxContainer.new()
@@ -3514,7 +3629,7 @@ func _show_inventory_panel() -> void:
 		filter_button.add_theme_font_size_override("font_size", 9)
 		filter_button.add_theme_color_override("font_color", Color(0.76, 0.72, 0.65))
 		filter_button.add_theme_color_override("font_pressed_color", Color(0.98, 0.81, 0.49))
-		filter_button.pressed.connect(_apply_inventory_filter.bind(item_buttons, String(filter_data.id), filter_empty))
+		filter_button.pressed.connect(_set_inventory_category.bind(inventory_overlay, String(filter_data.id)))
 		filter_row.add_child(filter_button)
 		if String(filter_data.id) == "all":
 			filter_button.button_pressed = true
@@ -3602,7 +3717,7 @@ func _show_inventory_panel() -> void:
 	footer.anchor_right = 0.95
 	footer.anchor_top = 0.91
 	footer.anchor_bottom = 0.97
-	footer.text = "Items are consumed from battle commands  |  [ESC] Close"
+	footer.text = "[H] Smart Heal  |  Quick Kit = battle keys 1-3  |  [ESC] Close"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	footer.add_theme_font_size_override("font_size", 11)
@@ -3614,6 +3729,7 @@ func _show_inventory_panel() -> void:
 			inventory_overlay.queue_free()
 			get_viewport().set_input_as_handled()
 	inventory_overlay.gui_input.connect(close_handler)
+	_refresh_inventory_overlay(inventory_overlay)
 	_animate_modal_panel(inventory_panel)
 
 func _inventory_item_category(item_id: String) -> String:
@@ -3636,16 +3752,187 @@ func _inventory_item_less(item_a: String, item_b: String) -> bool:
 		return rank_a < rank_b
 	return String(data_a.get("name", item_a)).naturalnocasecmp_to(String(data_b.get("name", item_b))) < 0
 
-func _apply_inventory_filter(item_buttons: Array[Button], category: String, empty_label: Label) -> void:
-	var visible_count := 0
-	for item_button in item_buttons:
-		var visible_for_filter := category == "all" or String(item_button.get_meta("inventory_category", "")) == category
-		item_button.visible = visible_for_filter
-		if visible_for_filter:
-			visible_count += 1
-	empty_label.visible = visible_count == 0 and not item_buttons.is_empty()
+func _inventory_buttons(overlay: Control) -> Array[Button]:
+	var result: Array[Button] = []
+	for node in overlay.find_children("InventoryItem_*", "Button", true, false):
+		if node is Button:
+			result.append(node as Button)
+	return result
+
+func _inventory_item_button_text(item_id: String) -> String:
+	var item_data: Dictionary = GameManager.ITEMS.get(item_id, {})
+	var tags: Array[String] = []
+	var quick_slot := GameManager.get_item_quick_slots().find(item_id)
+	if quick_slot >= 0:
+		tags.append("Q%d" % (quick_slot + 1))
+	if item_id in GameManager.get_recent_items():
+		tags.append("NEW")
+	var prefix := "[%s] " % " · ".join(tags) if not tags.is_empty() else ""
+	return "%s%s\n  x%d" % [prefix, String(item_data.get("name", item_id)), GameManager.get_item_count(item_id)]
+
+func _set_inventory_category(overlay: Control, category: String) -> void:
+	var state: Dictionary = overlay.get_meta("inventory_state", {"category": "all", "query": "", "sort": 0})
+	state["category"] = category
+	overlay.set_meta("inventory_state", state)
+	_apply_inventory_view_overlay(overlay)
 	AudioManager.play_sfx("ui_hover")
 
+func _on_inventory_search_changed(query: String, overlay: Control) -> void:
+	var state: Dictionary = overlay.get_meta("inventory_state", {"category": "all", "query": "", "sort": 0})
+	state["query"] = query.strip_edges().to_lower()
+	overlay.set_meta("inventory_state", state)
+	_apply_inventory_view_overlay(overlay)
+
+func _on_inventory_sort_changed(index: int, overlay: Control) -> void:
+	var state: Dictionary = overlay.get_meta("inventory_state", {"category": "all", "query": "", "sort": 0})
+	state["sort"] = index
+	overlay.set_meta("inventory_state", state)
+	_apply_inventory_view_overlay(overlay)
+	AudioManager.play_sfx("ui_hover")
+
+func _apply_inventory_view_overlay(overlay: Control) -> void:
+	if not is_instance_valid(overlay):
+		return
+	var state: Dictionary = overlay.get_meta("inventory_state", {"category": "all", "query": "", "sort": 0})
+	var category := String(state.get("category", "all"))
+	var query := String(state.get("query", ""))
+	var sort_mode := int(state.get("sort", 0))
+	var buttons := _inventory_buttons(overlay)
+	buttons.sort_custom(func(a: Button, b: Button) -> bool:
+		var item_a := String(a.get_meta("inventory_id", ""))
+		var item_b := String(b.get_meta("inventory_id", ""))
+		if sort_mode == 1:
+			return String(a.get_meta("inventory_name", item_a)).naturalnocasecmp_to(String(b.get_meta("inventory_name", item_b))) < 0
+		if sort_mode == 2:
+			var count_a := GameManager.get_item_count(item_a)
+			var count_b := GameManager.get_item_count(item_b)
+			if count_a != count_b:
+				return count_a > count_b
+			return String(a.get_meta("inventory_name", item_a)).naturalnocasecmp_to(String(b.get_meta("inventory_name", item_b))) < 0
+		return _inventory_item_less(item_a, item_b)
+	)
+	if not buttons.is_empty():
+		var list_parent := buttons[0].get_parent()
+		for index in range(buttons.size()):
+			list_parent.move_child(buttons[index], index)
+	var visible_count := 0
+	for item_button in buttons:
+		var item_id := String(item_button.get_meta("inventory_id", ""))
+		var owned := GameManager.get_item_count(item_id) > 0
+		var category_match := category == "all" or String(item_button.get_meta("inventory_category", "")) == category
+		var query_match := query == "" or String(item_button.get_meta("inventory_search", "")).contains(query)
+		item_button.visible = owned and category_match and query_match
+		if item_button.visible:
+			visible_count += 1
+	var empty_label := overlay.find_child("InventoryFilterEmpty", true, false) as Label
+	if empty_label:
+		empty_label.visible = visible_count == 0
+
+func _on_inventory_quick_pressed(button: Button, overlay: Control) -> void:
+	var item_id := String(button.get_meta("inventory_id", ""))
+	if item_id == "" or GameManager.get_item_count(item_id) <= 0:
+		AudioManager.play_sfx("cancel")
+		return
+	_on_inventory_item_pressed(item_id, overlay)
+
+func _on_inventory_use_now(overlay: Control) -> void:
+	var item_id := String(overlay.get_meta("inventory_selected_id", ""))
+	var result := GameManager.use_field_item(item_id)
+	if not bool(result.get("success", false)):
+		AudioManager.play_sfx("cancel")
+		return
+	AudioManager.play_sfx("ui_select")
+	_refresh_inventory_overlay(overlay)
+
+func _on_inventory_pin_quick(overlay: Control) -> void:
+	var item_id := String(overlay.get_meta("inventory_selected_id", ""))
+	if item_id == "":
+		AudioManager.play_sfx("cancel")
+		return
+	GameManager.toggle_item_quick_slot(item_id)
+	AudioManager.play_sfx("ui_select")
+	_refresh_inventory_overlay(overlay)
+
+func _refresh_inventory_overlay(overlay: Control) -> void:
+	if not is_instance_valid(overlay):
+		return
+	var buttons := _inventory_buttons(overlay)
+	var total_units := 0
+	var type_count := 0
+	for item_button in buttons:
+		var item_id := String(item_button.get_meta("inventory_id", ""))
+		var count := GameManager.get_item_count(item_id)
+		item_button.text = _inventory_item_button_text(item_id)
+		item_button.disabled = count <= 0
+		if count > 0:
+			type_count += 1
+			total_units += count
+	var list_title := overlay.find_child("InventoryListTitle", true, false) as Label
+	if list_title:
+		list_title.text = "CARRIED  |  %d TYPES  |  %d TOTAL" % [type_count, total_units]
+	var quick_slots := GameManager.get_item_quick_slots()
+	for slot_index in range(GameManager.ITEM_QUICK_SLOT_COUNT):
+		var quick_button := overlay.find_child("InventoryQuickSlot_%d" % (slot_index + 1), true, false) as Button
+		if quick_button == null:
+			continue
+		if slot_index < quick_slots.size():
+			var item_id := quick_slots[slot_index]
+			var item_data: Dictionary = GameManager.ITEMS.get(item_id, {})
+			var count := GameManager.get_item_count(item_id)
+			quick_button.text = "%d · %s\nx%d" % [slot_index + 1, String(item_data.get("name", item_id)), count]
+			quick_button.icon = GameManager.get_item_icon(item_id)
+			quick_button.expand_icon = true
+			quick_button.disabled = count <= 0
+			quick_button.tooltip_text = String(item_data.get("desc", ""))
+			quick_button.set_meta("inventory_id", item_id)
+		else:
+			quick_button.text = "%d · EMPTY" % (slot_index + 1)
+			quick_button.icon = null
+			quick_button.disabled = true
+			quick_button.tooltip_text = "Pin a carried supply from the detail panel."
+			quick_button.set_meta("inventory_id", "")
+	var selected_id := String(overlay.get_meta("inventory_selected_id", ""))
+	if not GameManager.ITEMS.has(selected_id) or GameManager.get_item_count(selected_id) <= 0:
+		selected_id = ""
+		for item_button in buttons:
+			var candidate := String(item_button.get_meta("inventory_id", ""))
+			if GameManager.get_item_count(candidate) > 0:
+				selected_id = candidate
+				break
+		overlay.set_meta("inventory_selected_id", selected_id)
+	var preview := overlay.find_child("InventoryPreview", true, false) as TextureRect
+	var title := overlay.find_child("InventoryDetailTitle", true, false) as Label
+	var type_label := overlay.find_child("InventoryDetailType", true, false) as Label
+	var body := overlay.find_child("InventoryDetailBody", true, false) as RichTextLabel
+	var meta := overlay.find_child("InventoryDetailMeta", true, false) as Label
+	var use_button := overlay.find_child("InventoryUseNow", true, false) as Button
+	var pin_button := overlay.find_child("InventoryPinQuick", true, false) as Button
+	if selected_id != "" and preview and title and type_label and body and meta:
+		_set_inventory_detail(selected_id, preview, title, type_label, body, meta)
+	if use_button:
+		var usable := selected_id != "" and GameManager.can_use_field_item(selected_id)
+		use_button.disabled = not usable
+		if usable:
+			use_button.text = "USE NOW"
+		elif selected_id != "" and String(GameManager.ITEMS.get(selected_id, {}).get("type", "")) in ["heal", "cure"]:
+			use_button.text = "HP FULL"
+		else:
+			use_button.text = "BATTLE USE ONLY"
+	if pin_button:
+		pin_button.disabled = selected_id == ""
+		pin_button.text = "REMOVE FROM QUICK KIT" if GameManager.is_item_quick_slotted(selected_id) else "PIN TO QUICK KIT"
+	var status_strip := overlay.find_child("InventoryStatusStrip", true, false) as Label
+	if status_strip:
+		var intact_memories := 0
+		for memory in MemoryManager.memories:
+			if not memory.is_burned and not memory.is_faded:
+				intact_memories += 1
+		status_strip.text = "HP %d/%d  |  GRAINS %d  |  MEMORIES %d INTACT / %d BURNED  |  CHAPTER %02d" % [
+			int(GameManager.player_data.get("hp", 0)), int(GameManager.player_data.get("max_hp", 0)),
+			int(GameManager.player_data.get("grains", 0)), intact_memories,
+			MemoryManager.get_burn_count(), GameManager.current_chapter,
+		]
+	_apply_inventory_view_overlay(overlay)
 func _inventory_effect_text(item_data: Dictionary) -> String:
 	var item_type := String(item_data.get("type", ""))
 	match item_type:
@@ -3668,9 +3955,10 @@ func _inventory_effect_text(item_data: Dictionary) -> String:
 			return "SCAN TARGET / BREAK +%d" % int(item_data.get("power", 0))
 	return "FIELD-READY SUPPLY"
 
-func _on_inventory_item_pressed(item_id: String, preview: TextureRect, title: Label, type_label: Label, body: RichTextLabel, meta: Label) -> void:
+func _on_inventory_item_pressed(item_id: String, overlay: Control) -> void:
 	AudioManager.play_sfx("ui_select")
-	_set_inventory_detail(item_id, preview, title, type_label, body, meta)
+	overlay.set_meta("inventory_selected_id", item_id)
+	_refresh_inventory_overlay(overlay)
 
 func _set_inventory_detail(item_id: String, preview: TextureRect, title: Label, type_label: Label, body: RichTextLabel, meta: Label) -> void:
 	var item_data: Dictionary = GameManager.ITEMS.get(item_id, {})

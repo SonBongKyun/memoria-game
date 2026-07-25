@@ -45,6 +45,18 @@
       "desc": "Combat supplies open on a transparent tactical tray that preserves the active battlefield."
     },
     {
+      "title": "Battle Command Deck IV",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_battle_command_deck_v4.png",
+      "desc": "A low-profile command deck groups eight actions by tactical role while leaving the combatants and arena readable."
+    },
+    {
+      "title": "Battle Field Readout IV",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_battle_field_readout_v4.png",
+      "desc": "A compact forecast strip replaces the obstructive battle log with one current consequence, cost, or threat response."
+    },
+    {
       "title": "Root Balm II",
       "type": "Field Item Art",
       "path": "res://assets/ui/items/root_balm_v2.png",

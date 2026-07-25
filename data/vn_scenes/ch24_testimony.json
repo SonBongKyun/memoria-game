@@ -6,6 +6,8 @@
   "steps": [
     {
       "set_chapter": 24,
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/testimony_hands_write_record_v1.png",
+      "fade": 1.8,
       "narrate": "Afterward, the record kept being written. By hands, this time.",
       "narrate_ko": "그 후로도 기록은 계속 쓰였다. 이번에는, 손으로."
     },
@@ -63,6 +65,8 @@
     },
     {
       "requires_flag": "tobias_funeral",
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/testimony_tobias_night_press_v1.png",
+      "fade": 1.4,
       "narrate": "In Arkein, a printing press ran through the nights. The man at the crank had stood on a white platform once and walked off it alive, and he intended to spend the rest of his life making that mean something.",
       "narrate_ko": "아르케인에서는 인쇄기가 밤마다 돌아갔다. 크랭크를 잡은 남자는 한때 흰 단상 위에 섰다가 살아서 걸어 내려온 사람이었고, 남은 생을 그 일에 의미를 부여하는 데 쓸 작정이었다.",
       "distort_if_burned": "identity_witness_record",
@@ -70,6 +74,8 @@
       "distorted_narrate_ko": "아르케인에서는 인쇄기가 밤마다 돌아갔다. 크랭크를 잡은 남자는 이 일이 왜 중요한지 더는 말할 수 없었다, 그 이유를 알던 의무는 이미 태워졌으므로. 그러나 손은 동작을 기억했고, 페이지는 계속 나왔다. 어쩌면 그것이 이유를 잃은 의무의 최후 형태인지도 모른다. 멈추기를 거부하는 리듬."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/testimony_han_song_road_v1.png",
+      "fade": 1.4,
       "narrate": "East of everything, Han's song moved from settlement to settlement, and where it passed, Blanker doses went untaken and nobody reported it. The song did not need a voice anymore. It had everyone else's.",
       "narrate_ko": "모든 것의 동쪽에서, 한의 노래가 정착지에서 정착지로 옮겨 갔다. 노래가 지나간 곳에서는 블랭커가 복용되지 않은 채 남았고, 아무도 그것을 보고하지 않았다. 노래에는 더 이상 목소리가 필요치 않았다. 다른 모두의 목소리가 있었으므로.",
       "distort_if_burned": "daily_unfinished_lullaby",
@@ -77,6 +83,8 @@
       "distorted_narrate_ko": "모든 것의 동쪽에서, 한의 노래가 정착지에서 정착지로 옮겨 갔다, 마지막 음이 빠진 채로. 그 음은 아르케인 지하 어딘가에서 태워졌다. 그래서 노래를 배운 마을마다 저마다의 방식으로 끝을 맺었다. 하나의 노래에 백 가지 결말. 한은 지금의 노래를 더 좋아한다고들 한다."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/testimony_vael_name_ridge_v1.png",
+      "fade": 1.4,
       "narrate": "And on a ridge above the wave's farthest reach, a figure stood alone, practicing the shape of a name like a question they were finally ready to ask. The answer would take another story.",
       "narrate_ko": "그리고 파동이 닿은 가장 먼 곳 위의 능선에서, 한 인영이 홀로 서서 어떤 이름의 형태를 연습하고 있었다. 마침내 물을 준비가 된 질문처럼. 그 대답에는, 또 하나의 이야기가 필요할 것이다."
     },
@@ -87,6 +95,8 @@
       "narrate_ko": "어딘가에서, 삼백 년 된 자장가를 아주 어린 누군가가 흥얼거리고 있었다. 어디서 배웠는지도 모른 채. 바로 그것이 요점이었다. 언제나 그것이 요점이었다."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/testimony_final_page_closes_v1.png",
+      "fade": 1.8,
       "narrate": "MEMORIA: The Price of Oblivion",
       "narrate_ko": "MEMORIA: 망각의 대가"
     },

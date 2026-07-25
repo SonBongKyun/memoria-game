@@ -1,7 +1,7 @@
-[gd_resource load_steps=6 type="Theme" format=3 uid="uid://c6qls2t12euxu"]
+[gd_resource type="Theme" format=3 uid="uid://c6qls2t12euxu"]
 
-[ext_resource type="FontFile" path="res://assets/fonts/NotoSansKR-VF.ttf" id="1_ui"]
-[ext_resource type="FontFile" path="res://assets/fonts/NotoSerifKR-VF.ttf" id="2_body"]
+[ext_resource type="FontFile" uid="uid://bihlpv4od4vfb" path="res://assets/fonts/NotoSansKR-VF.ttf" id="1_ui"]
+[ext_resource type="FontFile" uid="uid://cbmgs2w2nsjpp" path="res://assets/fonts/NotoSerifKR-VF.ttf" id="2_body"]
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
 content_margin_left = 11.0

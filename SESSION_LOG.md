@@ -6507,6 +6507,157 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
 
+## S209 - 2026-07-25 (Battle stage repair, battle tempo, story log, and field prop art)
+
+### Audit findings
+Grounded in real 1280x720 OpenGL captures taken before any change, not a code read:
+- The battle stage was the weakest screen in the game. `battle_scene.tscn` drew a full-width solid ground band with a 2px highlight line at 58% height, which read as a ruled UI seam across the battle art. Battler shadows sat at four different heights, so Elia floated 48px above that line.
+- `TextureRect.STRETCH_KEEP_ASPECT_CENTERED` centers a 16:9 enemy illustration inside a near-square box. Most enemy plates therefore drew as a small hard-edged card whose visible bottom stopped ~70px above its own contact shadow.
+- Arrel rendered smaller than both his companion and the enemy, so the protagonist was not the visual anchor of his own fight. The battle background image ran at 0.88 luminance, and the figures painted inside it competed with the actual battlers.
+- `_show_turn_indicator()` overwrote `turn_label.position` with `(0, 0)`, which cancelled the centered anchors and threw the turn banner into the screen's top-left corner on every turn.
+- The Limit rail label was clipped to "리미" by variable-font metrics, and the disabled Limit command used a whole-button `modulate` alpha, so the command deck ornament showed through its text. Elia's technique rail displayed a permanent dead "(사용 가능한 기술 없음)" label mid-stage.
+- Status-effect and boss-phase VFX set `enemy_sprite.material = null`, which would have stripped any stage-blend material mid-fight.
+- The game had no dialogue backlog of any kind. Across 20 VN files (504 steps) and ~1,400 field lines, a mis-timed keypress lost the line permanently. There was no read-line tracking, so the VN's Ctrl fast-forward skipped unread story just as fast as re-read story, and field dialogue had no fast-forward at all.
+- Field interactive props (barrel, crate, campfire, sign) were still stacked `ColorRect` placeholders. The first exploration capture showed brown and grey squares sitting on the tiles. Chest and clue markers were `ColorRect`s set to alpha 0 under the default Clean Gameplay View, so hidden rewards had no on-screen affordance whatsoever.
+
+### Done
+- **Battle stage.** Introduced a shared `STAGE_BASELINE_Y`; player, companion, Tobias, and enemy now derive their positions from it with deliberate perspective offsets. `_fit_battle_plate()` sizes each illustration to its actual drawn dimensions and stands it on the baseline, and `_feet_anchored_y()` keeps sheet-based sprites grounded when their scale changes. Replaced the solid ground band with a six-step gradient plus one soft stage pool (no straight edge anywhere). Receded the background image and added a five-band aerial-perspective wash that darkens distance without hiding the art. Scaled Arrel to 1.34 so he leads the frame.
+- **Plate blending.** Added an `oval_mask` uniform to `battle_stage_blend.gdshader` so rectangular scene plates dissolve into the stage, and cached the blend material on the node so status and boss VFX restore it instead of nulling it.
+- **Battle tempo.** Added `BATTLE_SPEED_STEPS` (x1.0 / x1.5 / x2.0) with `paced()` and `pace_timer()`. All 26 presentation waits in `battle_scene.gd` and `battle_manager.gd` route through it, so only waiting time changes: damage, hit chance, BREAK, and rewards are untouched. Surfaced as a top-left chip, a Tab hotkey handled in `_input` (`_unhandled_input` is too late; focus navigation eats Tab first), and an options row. Persists in `settings.json`.
+- **Story log.** New `StoryLog` autoload records every DialogueBox line, every VN line, and both choice paths, grouped by chapter and capped at 300 entries. Opens on `L` or from the pause menu, closes on `L`/`Esc` ahead of the pause menu, and refuses to stack under it.
+- **Read-aware fast-forward.** A persistent registry in `user://read_lines.json` backs `can_fast_forward()`. The VN's Ctrl fast-forward now halts at unread text with an on-screen notice, and field dialogue gained the same Ctrl fast-forward it never had. "읽은 대사만 빨리감기" is on by default and can be turned off.
+- **Field prop art.** `PixelSprite.create_prop_texture()` draws cached 32x32 procedural pixel art for barrel, crate, campfire, sign, chest, and clue, each with a ground shadow and a distinct used state. `MapEffects.add_interactive_prop()` now spawns a `Sprite2D`, and `MapEffects.make_discovery_marker()` replaced the invisible chest/clue indicators in all ten maps.
+- **Smaller repairs.** Centered the turn banner, gave the Limit label room for its last glyph, made disabled commands opaque and legible, hid Elia's rail when she has no technique, moved the turn-order chips clear of the combat-cue border, and softened the footprint glows that read as flat discs.
+- Added `smoke_story_qol` and `capture_story_log` for focused regression and visual audit.
+
+### Verification
+- All 20 gameplay/UI smoke scenes pass with zero `SCRIPT ERROR` or `Parse Error`, including the new `STORY_QOL_SMOKE_PASS log=300 read=327 speed_steps=3 props=6`.
+- `BATTLE_COMMAND_DECK_SMOKE_PASS actions=8 readout_height=77.0 player_scale=(1.34, 1.34)`; `STORY_COMBAT_SMOKE_PASS`; `HYBRID_DEPTH_SMOKE_PASS`; `VISUAL_CLARITY_SMOKE_PASS`; `WORLD_POPULATION_SMOKE_PASS`; `MOVEMENT_NATURALISM_SMOKE_PASS`.
+- Real OpenGL captures inspected at 1280x720 before and after: `story_combat_witness.png`, `hybrid_battle_stage.png`, `rim_forest_first_exploration.png`, `story_log_ko.png`. The battle enemy now stands on the baseline at roughly twice its former size with dissolved edges; barrel, crate, campfire, chest, and clue read as objects instead of squares.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- 300-frame `verdan_market.tscn` boot completed with no script, parse, or runtime-access error. `git diff --check` passed.
+- Confirmed the smoke run leaves no residue: `suppress_persistence` keeps synthetic lines out of `read_lines.json`, and `battle_speed` is restored and re-saved.
+
+## S208 - 2026-07-22 (Quick Kit inventory, Smart Heal, and battle-supply flow)
+
+### Audit findings
+- The illustrated inventory already exposed filters, item art, effects, trade values, and equipment, but it remained a read-only archive. Players could not use field recovery, search a large collection, change sort order, or carry an explicit battle loadout.
+- The battle item tray rebuilt every owned item in dictionary order. It did not share selection intent with the archive and its modal had no fast keyboard path.
+- The exploration HUD counted only the original six consumables, so later recovery relics and tactical tools were omitted from the carried-kit summary.
+
+### Done
+- Added a save-compatible three-slot Quick Kit stored in `player_data`, preserved through New Game+, normalized on legacy save import, and surfaced consistently in both the field archive and battle item tray.
+- Reworked the inventory archive around live use: Quick Kit cards, recent-acquisition badges, text search over name/description/effect, Type/Name/Count sorting, refreshed item counts, and clear `USE NOW`, `HP FULL`, or battle-only action states.
+- Added field recovery without opening a menu. `H` on keyboard or `X` on controller invokes Smart Heal, which prioritizes the smallest carried recovery that fully covers missing HP and falls back to the strongest available item when necessary.
+- Added 1-3 Quick Kit shortcuts inside the battle item modal. The full supply list remains available underneath and sorts pinned supplies first, so the feature shortens common turns without removing tactical choice.
+- Updated the exploration HUD to classify every current item dynamically and reveal the Smart Heal hint only while Arrel is injured and a recovery supply is carried.
+- Reused the existing `ui_inventory_archive_v2` backdrop and generated item icon set rather than introducing a competing visual style. Added dedicated inventory-QoL smoke coverage and extended the interface visual contract.
+
+### Verification
+- `INVENTORY_QOL_SMOKE_PASS quick=3 search=1 smart_heal=75`, including legacy-save defaults, recent acquisition, pin order, field use, and mirrored battle slots.
+- `INTERFACE_VISUAL_UPGRADE_SMOKE_PASS`; the real OpenGL inventory capture was refreshed at `tmp/visual_audit/inventory_qol_final.png`.
+- `BATTLE_COMMAND_DECK_SMOKE_PASS actions=8 readout_height=77.0 player_scale=(1.0, 1.0)`; `HYBRID_DEPTH_SMOKE_PASS battle=127 atlas=96 relic=47 route_markers=10`; `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`.
+- `VISUAL_CLARITY_SMOKE_PASS`; representative `verdan_market.tscn` boot completed through population, companion, and autosave startup.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1583 fields, 19 speakers, 0 errors. `git diff --check` passed.
+- Godot's forced-exit ObjectDB/resource notices remain the known external-plugin shutdown noise; no `SCRIPT ERROR`, `Parse Error`, or failed gameplay assertion remained.
+## S207 - 2026-07-22 (Battle command deck, consequence forecast, and reactive 3D arena)
+
+### Audit findings
+- The battle system already had WITNESS, BREAK, stances, Limit, items, companion commands, directives, intent reads, and illustrated action beats, but their information was split across five competing panels. The six-line center log and ornate lower ribbon covered too much of the combat stage.
+- The upper objective, cue, and enemy panels overlapped at 1280x720. Limit, stance, and companion controls also occupied the same lower strip as the primary command grid.
+- Arrel's current sheet rendered smaller than the painterly enemy/support art, while rectangular shadow and glow blocks made every battler appear pasted over the scene.
+- The hybrid 3D stage reacted to impacts but did not tell the player whose turn currently owned the arena.
+
+### Done
+- Generated and selected two project-bound GPT Image interface assets against the existing MEMORIA command ribbon and tactical-plate materials: `ui_battle_command_deck_v4.png` and `ui_battle_field_readout_v4.png`. Both are text-free charcoal iron, antique-gold, and restrained memory-blue surfaces; the chroma-key sources were removed, despilled, alpha-audited, and cropped at runtime through `AtlasTexture` regions.
+- Rebuilt the lower battle interface as a quiet 4x2 command deck. All eight actions now show their tactical role and stable 1-8 keyboard shortcut; action focus previews current BREAK pressure, known weakness, WITNESS progress, available memories, permanent burn cost, carried tools, Limit charge, and boss escape restrictions.
+- Replaced the six-line blocking combat log with a 77px field-read strip that preserves only the two most recent messages and foregrounds the latest consequence. Hover/focus forecasts temporarily take over the strip, then restore the last live battle beat.
+- Separated upper information into left objective, center combat cue/stance/companion rails, and right enemy status zones. Limit now belongs to Arrel's status cluster instead of floating on the command deck.
+- Enlarged Arrel's battle-sheet presentation and replaced player, ally, Tobias, and enemy rectangular ground blocks with elliptical contact shadows and restrained footprint glows.
+- Added separate real-time 3D player and enemy focus rings. Player turns pan and illuminate the left relief, enemy turns focus the right, and BREAK converts the hostile ring to a brighter gold rupture state without transferring character identity or input into 3D.
+- Registered both new frames in the interface Artbook manifest and added focused smoke coverage for the command-deck asset contract, eight action identities, consequences, short log, contact shadows, and numeric hotkeys.
+
+### Verification
+- `BATTLE_COMMAND_DECK_SMOKE_PASS actions=8 readout_height=77.0 player_scale=(1.0, 1.0)`.
+- `HYBRID_DEPTH_SMOKE_PASS battle=127 atlas=96 relic=47 route_markers=10`, including player/enemy turn focus assertions.
+- `INTERFACE_VISUAL_UPGRADE_SMOKE_PASS`, with both new interface frames loading through the Artbook manifest.
+- `VISUAL_CLARITY_SMOKE_PASS`, including full-screen battle canvas, 4x2 command grid, WITNESS route, canonical support art, generated item icons, and bundled Korean font chain.
+- `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`.
+- Real OpenGL captures passed and were inspected at 1280x720: `tmp/visual_audit/hybrid_battle_stage.png` and `tmp/visual_audit/story_combat_witness.png` (`witness=1/2`, `grid=4x2`).
+- `git diff --check` passed. Godot's existing forced-exit ObjectDB/resource cleanup notices remain shutdown noise; no parse, script, assertion, or gameplay runtime error occurred.
+
+## S206 - 2026-07-21 (Hybrid 2D/3D memory relief and full-screen battle repair)
+
+### Audit findings
+- MEMORIA had no live `Node3D` presentation even where depth would help: battles, the witnessed-route atlas, and regional memory-curio decisions were all flat 2D surfaces.
+- The first procedural 3D pass proved the renderer worked, but large opaque ground cylinders covered the authored illustrations instead of complementing them.
+- A deeper battle audit exposed a long-standing layout fault: `battle_scene.tscn` used a `Node2D` root while its full-screen backgrounds and overlays relied on Control anchors. Their runtime size remained `(0, 0)`, leaving the engine clear color exposed across most of the screen.
+- Default battle presentation stacked strong haze, tint, grain, side plates, and hard-edged character images, which made the 2D art and tactical UI compete with one another.
+
+### Done
+- Added `HybridDepthStage`, a reusable real-time 3D `SubViewport` system with isolated `World3D`, perspective camera, low-cost lighting, transparent compositing, and no 3D shadows.
+- Built three purpose-specific modes: biome-aware battle reliefs for all ten regions, a ten-stop interactive route atlas that focuses the selected chapter, and a floating memory-relic construct for World Curio choices.
+- Kept gameplay identity in 2D while assigning depth and motion to 3D. Battle impacts nudge the 3D camera, map hover/focus moves the relief, and relic rings orbit unless Reduce Motion is enabled.
+- Replaced opaque 3D ground discs with sparse contour traces, route pads, landmark silhouettes, lanterns, roots, thresholds, and memory shards so generated illustrations remain visible.
+- Integrated the relief into battle backgrounds, the pause-menu World Map, and all ten regional Curio choice screens. Clean Gameplay View lowers its intensity and Reduce Motion freezes ambient orbit/drift.
+- Converted the battle scene root to a viewport-sized `Control`, updated `BattleVFX` to accept the new root type, and added a regression assertion that the 2D backdrop and 3D relief both cover the full 1280x720 canvas.
+- Reduced non-clean battle haze, tint, grain, letterboxing, and color-grade strength. Added a soft-edge shader for stage and character art so canonical 2D portraits blend into the scene instead of appearing as hard rectangular cards.
+- Added focused hybrid smoke plus real-render capture harnesses for battle, world map, relic choice, and the three isolated 3D modes.
+
+### Verification
+- `HYBRID_DEPTH_SMOKE_PASS`: battle `59` meshes, atlas `96`, relic `47`, and all `10` route markers.
+- `VISUAL_CLARITY_SMOKE_PASS` now includes `battle_canvas=full` and `hybrid_depth=1`; story combat, World Curios, movement naturalism, crash guards, gameplay QoL, Field Focus, and world population smoke all passed.
+- Real OpenGL captures were inspected at 1280x720: `hybrid_battle_stage.png`, `hybrid_world_map.png`, `hybrid_relic_choice.png`, and `hybrid_depth_board.png`.
+- VN validation passed with 20 files and 504 steps; Korean localization passed with 31 files, 1,583 fields, and 19 speakers.
+- A 180-frame `verdan_market.tscn` boot reached Arrel, Malet, Elia, four civilians, the regional Curio, population setup, and autosave with no parse, script, assertion, or invalid-access error.
+- `git diff --check` passed; the known forced-exit ObjectDB/resource cleanup messages remained unaccompanied by gameplay errors.
+
+## S205 - 2026-07-21 (Natural exploration locomotion and companion pathing)
+
+### Audit findings
+- Arrel needed roughly a third of a second to reach sprint speed, so the first input felt soft while a reversal retained too much previous momentum.
+- Directional art was four-way, but movement intent, animation state, and interaction facing did not share one stable cardinal direction. Footsteps were timed from held input rather than travelled distance, including when pushing into a wall.
+- Camera drag, smoothing, look-ahead, ambient motion, and event shake all wrote overlapping motion into the same camera offset, producing delayed framing and small jitter.
+- Companions chased the player's current position instead of the route the player took, which caused corner cutting, overlap, oscillation against collision, and a visible short-distance teleport. Market background walkers translated while remaining in an idle pose.
+- The first-exploration render exposed a rectangular `ColorRect` beneath Arrel as the moving ground shadow.
+
+### Done
+- Rebuilt Arrel locomotion around `Input.get_vector`, preserved analog input strength, added responsive acceleration and stronger reversal braking, blended sprint entry/exit, reduced excessive sprint trails, and enabled floating top-down collision sliding.
+- Unified actual travel, animation, gait, footfalls, dust/echoes, and movement statistics around distance moved. Near-diagonal input now uses cardinal hysteresis, and the interaction ray follows the same stable facing pose.
+- Replaced the layered camera lag with one composed offset: damped speed-scaled anticipation plus metadata-owned ambience plus deterministic event shake. Camera drag is disabled and smoothing is tightened.
+- Replaced direct companion chasing with a sampled breadcrumb trail and formation distance. Elia/Sable now follow turns the player actually took, accelerate to close large gaps, preserve personal space, and use a hidden path-point recovery only when genuinely stuck or far away.
+- Added companion gait sway and direction hysteresis, directional walk/idle switching for market walkers, and a layered oval shadow that subtly reacts to Arrel's stride instead of rendering as a grey rectangle.
+- Added `smoke_movement_naturalism.tscn`, covering real 60 Hz acceleration, reversal, stopping, pose hysteresis, distance footfalls, breadcrumb cornering, camera ownership, ambient gait, and grounded-shadow contracts.
+
+### Verification
+- `smoke_movement_naturalism.tscn`: **MOVEMENT_NATURALISM_SMOKE_PASS**.
+- `smoke_visual_clarity.tscn`, `smoke_crash_guards.tscn`, `smoke_gameplay_qol.tscn`, `smoke_field_focus.tscn`, `smoke_world_population.tscn`, and `smoke_story_combat.tscn` all passed.
+- A 120-frame `verdan_market.tscn` boot completed through Arrel, Malet, Elia, population, and ambient walkers without a gameplay script or runtime-access error.
+- The first-exploration render passed and was visually inspected after the shadow replacement. Existing forced-exit ObjectDB/resource cleanup notices remained unaccompanied by `SCRIPT ERROR` or `Parse Error`.
+
+## S204 - 2026-07-21 (Late-story illustrations and choice-driven regional RPG landmarks)
+
+### Audit findings
+- Chapters 17-21 still had five high-value dramatic turns presented as text between existing CGs, while Chapter 24's testimony sequence left its opening record, Tobias, Han, Vael, and final title beat visually unsupported.
+- Only five of the ten core exploration maps had a second-discovery Field Focus plate. Drift Shelter, Seam Outskirts, and BL-07 also had only one resonance point, so a deeper discovery could never unlock there.
+- Ash Crawler, Forest Shade, Threshold Shade, Void Watcher, and Memory Eater attacks fell back to their stage background instead of displaying enemy-specific action art.
+- Five live memory-rewrite rules still used older flat or less specific art. Existing maps already contained chests, clues, NPCs, and hunts, but lacked a consistent region-wide landmark that asked the player to make a small RPG resource choice.
+
+### Done
+- Generated and visually audited 25 cohesive 1672x941 GPT Image plates in five sets: late-story interstitials, Testimony epilogue scenes, deep Field Resonance discoveries, recurring-enemy action cut-ins, and story-specific world rewrites.
+- Integrated the late-story set into the exact Chapter 17-21 beats and the Testimony set into Chapter 24 without changing dialogue order, branch requirements, English copy, or Korean copy.
+- Completed the deep discovery layer for all ten core maps. Added a second authored resonance point to Drift Shelter, Seam Outskirts, and BL-07 so every deep plate has a reachable play condition.
+- Added named action-cutin routing for five recurring enemy archetypes and replaced the Verdan taste, Tobias record, Sable witness, compass, and Void-walker rewrite plates in their live rules.
+- Added `WorldCurio`: one sparse illustrated landmark in each core region. The player can study it for Field Focus, salvage a biome-specific tactical item, attune for recovery, or leave it untouched and return later. Choices persist independently and the overlay safely restores exploration pause state.
+- Added the 25-entry `illustration_gapfill_gallery.json` Artbook manifest, updated the illustration catalog baseline from 425 to 450 CG PNGs, and added focused smoke coverage for image consumers, aspect ratio, curio choices, rewards, pause lifecycle, and collision-safe map placement.
+
+### Verification
+- Godot 4.6.2 headless import completed for all 25 new PNGs with no project script or parse error.
+- All 15 gameplay/UI smoke scenes passed, including `ILLUSTRATION_GAPFILL_SMOKE_PASS` (`25` assets, `5` categories), `FIELD_FOCUS_SMOKE_PASS` (`10` maps, `10` deep plates), `WORLD_CURIOS_SMOKE_PASS` (`10` landmarks, `4` choices), and `WORLD_POPULATION_SMOKE_PASS` (`19` maps, `64` voices, `32` visible threats, `11` caches, `10` curios).
+- VN validation passed with 20 files and 504 steps; Korean localization passed with 31 files, 1,583 fields, and 19 speakers.
+- Representative `verdan_market.tscn` booted through Arrel, Malet, Elia, four ambient civilians, the new regional curio, autosave, and dialogue start without a script, parse, or runtime-access error.
+- Godot's existing ObjectDB/resource cleanup notices remain forced-headless-exit noise; no gameplay error accompanied them.
+
 ## S203 - 2026-07-17 (GPT Image five-category illustration expansion)
 
 ### Audit findings

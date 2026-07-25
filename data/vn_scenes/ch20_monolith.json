@@ -31,6 +31,8 @@
       "text_ko": "대륙의 모든 고해소가 이 방으로 흘러든다. 우리는 지금 장부 그 자체의 안쪽에 서 있는 거야."
     },
     {
+      "cg": "res://assets/cg/generated/illustration_expansion_v3/late_ch20_compass_lays_down_v1.png",
+      "fade": 1.0,
       "narrate": "Tobias's pocket watch stopped. The memory compass spun once and lay down like something dying. The same stillness BL-07 had worn, but here, it was maintained.",
       "narrate_ko": "토비아스의 회중시계가 멈췄다. 기억 나침반이 한 바퀴 돌더니 죽어가는 것처럼 드러누웠다. BL-07이 입고 있던 것과 같은 정적, 그러나 이곳의 정적은 유지되고 있는 것이었다."
     },
