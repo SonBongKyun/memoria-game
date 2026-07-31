@@ -3,6 +3,7 @@ extends Node
 const OUTPUT_PATH := "res://tmp/visual_audit/hybrid_battle_stage.png"
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	OptionsMenu.settings["clean_gameplay_visuals"] = false
 	OptionsMenu.settings["reduce_motion"] = false
 	GameManager.current_locale = "ko"

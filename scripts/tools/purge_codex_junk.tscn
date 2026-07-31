@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/tools/purge_codex_junk.gd" id="1_purge"]
+
+[node name="PurgeCodexJunk" type="Node"]
+script = ExtResource("1_purge")

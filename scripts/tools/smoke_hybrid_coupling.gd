@@ -5,6 +5,7 @@
 extends Node
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	var previous_reduce: Variant = OptionsMenu.settings.get("reduce_motion", true)
 	OptionsMenu.settings["reduce_motion"] = true
 	OptionsMenu.settings["clean_gameplay_visuals"] = true

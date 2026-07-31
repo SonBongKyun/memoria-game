@@ -3,6 +3,7 @@ extends Node
 const OUTPUT_PATH := "res://tmp/visual_audit/battle_item_tray_v3.png"
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	OptionsMenu.settings.clean_gameplay_visuals = true
 	OptionsMenu.settings.reduce_motion = true
 	GameManager.current_locale = "en"

@@ -1,6 +1,7 @@
 extends Node
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	assert(UITheme.BODY_FONT_PATH.ends_with("NotoSansKR-VF.ttf"), "Body copy must use the screen-readable Korean sans font")
 	assert(UITheme.make_body_font() is FontVariation and (UITheme.make_body_font() as FontVariation).variation_embolden >= 0.3, "Body copy needs a medium screen weight")
 	assert(UITheme.make_ui_font() is FontVariation and (UITheme.make_ui_font() as FontVariation).variation_embolden >= 0.4, "Compact UI copy needs a firm screen weight")

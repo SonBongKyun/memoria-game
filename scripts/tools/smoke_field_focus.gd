@@ -1,6 +1,7 @@
 extends Node
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	GameManager.player_data["field_focus"] = 0
 	GameManager.story_flags.erase("pulse_found_smoke_echo")
 	assert(MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size() == MemoryResonance.RESONANCE_POINTS.size(), "Every resonance map should register a Field Focus CG")

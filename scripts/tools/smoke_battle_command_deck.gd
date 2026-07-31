@@ -1,6 +1,7 @@
 extends Node
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	OptionsMenu.settings["clean_gameplay_visuals"] = false
 	OptionsMenu.settings["reduce_motion"] = true
 	GameManager.current_locale = "en"

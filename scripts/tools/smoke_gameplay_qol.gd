@@ -1,6 +1,7 @@
 extends Node
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	var previous_flags := GameManager.story_flags.duplicate(true)
 	var previous_chapter := GameManager.current_chapter
 	var previous_state := GameManager.current_state

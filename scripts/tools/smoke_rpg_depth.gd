@@ -2,6 +2,7 @@
 extends Node
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 도감 저장을 건드리지 않는다
 	var prev_flags := GameManager.story_flags.duplicate(true)
 	var prev_locale := GameManager.current_locale
 	var prev_grains: int = GameManager.player_data.get("grains", 0)
@@ -71,6 +72,26 @@ func _check_bestiary_hints() -> void:
 		if String(roster[entry_name]) != "":
 			with_region += 1
 	assert(with_region >= 3, "지역이 확인되는 적은 그 지역을 힌트로 줘야 한다")
+
+	# S218: 명단은 게임이 한국어 이름을 붙여 둔 모든 적을 담아야 한다.
+	# 이 명단이 빠지면 purge_unknown_entries()가 진짜 적을 지운다 (실제로 겪었다).
+	for enemy_name: String in GameManager.ENEMY_NAMES_KO:
+		assert(roster.has(enemy_name),
+			"'%s' 는 실제 게임 적인데 도감 명단에 없다. 정리 기능이 이 항목을 지운다." % enemy_name)
+
+	# 정리 기능은 진짜 적을 건드리면 안 된다.
+	# suppress_recording이 켜져 있으므로 이 조작은 저장 파일에 닿지 않는다.
+	assert(Codex.suppress_recording, "테스트는 도감 저장을 건드리면 안 된다")
+	var saved_entries := Codex.enemy_entries.duplicate(true)
+	Codex.enemy_entries = {
+		"Void Wraith": {"encounters": 1, "defeated": 0},
+		"Cleanup Victory": {"encounters": 1, "defeated": 0},
+	}
+	var purged := Codex.purge_unknown_entries()
+	assert(Codex.enemy_entries.has("Void Wraith"), "실제 적을 정리 대상으로 삼으면 안 된다")
+	assert(not Codex.enemy_entries.has("Cleanup Victory"), "테스트 항목은 정리되어야 한다")
+	assert(purged.size() == 1, "정리 대상은 테스트 항목 하나여야 한다")
+	Codex.enemy_entries = saved_entries
 
 	var hint_known: String = Codex.call("_unmet_hint", "림 숲")
 	assert("림 숲" in hint_known, "지역이 있으면 힌트에 지역이 들어가야 한다: %s" % hint_known)

@@ -5,6 +5,7 @@ extends Node
 const OUTPUT_PATH := "res://tmp/visual_audit/burn_arena_compare.png"
 
 func _ready() -> void:
+	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
 	OptionsMenu.settings["reduce_motion"] = false
 	OptionsMenu.settings["clean_gameplay_visuals"] = true
 	GameManager.current_locale = "ko"

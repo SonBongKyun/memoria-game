@@ -11,6 +11,14 @@ var is_open: bool = false
 
 # ── 도감 데이터 ──
 var enemy_entries: Dictionary = {}   # {enemy_name: {encounters: N, defeated: N, is_void: bool, max_hp: int, atk: int}}
+
+## S218: 기록 차단 스위치.
+## 스모크/캡처 씬은 "Cleanup Victory", "Field Focus Dummy" 같은 가짜 적으로 전투를
+## 띄운다. Codex는 battle_started마다 user://codex.json에 기록하므로, 검증을 돌릴수록
+## 개발자의 도감에 존재하지 않는 적이 쌓였다. 배포본은 영향이 없지만(플레이어는 이
+## 씬들을 실행하지 않는다) 개발 중에는 도감이 못 쓰게 된다.
+## 테스트 하네스는 이 값을 켜고 시작할 것.
+var suppress_recording: bool = false
 var memory_entries: Dictionary = {}  # {memory_id: {title, desc, grade, burned: bool}}
 
 # ── UI 노드 ──
@@ -55,6 +63,8 @@ func _unhandled_input(event: InputEvent) -> void:
 ## ===================== 데이터 기록 =====================
 
 func _on_battle_started(enemy: BattleManager.Enemy) -> void:
+	if suppress_recording:
+		return
 	if not enemy_entries.has(enemy.name):
 		enemy_entries[enemy.name] = {"encounters": 0, "defeated": 0, "is_void": enemy.is_void_beast, "max_hp": enemy.max_hp, "atk": enemy.attack, "is_boss": enemy.is_boss}
 	enemy_entries[enemy.name]["encounters"] += 1
@@ -67,6 +77,8 @@ func _on_battle_started(enemy: BattleManager.Enemy) -> void:
 	_save_data()
 
 func _on_battle_ended(result: BattleManager.BattleState) -> void:
+	if suppress_recording:
+		return
 	if result == BattleManager.BattleState.VICTORY and BattleManager.current_enemy:
 		var name = BattleManager.current_enemy.name
 		if enemy_entries.has(name):
@@ -74,6 +86,8 @@ func _on_battle_ended(result: BattleManager.BattleState) -> void:
 			_save_data()
 
 func _on_memory_added(memory: MemoryManager.Memory) -> void:
+	if suppress_recording:
+		return
 	if not memory_entries.has(memory.id):
 		memory_entries[memory.id] = {
 			"title": memory.title,
@@ -84,9 +98,29 @@ func _on_memory_added(memory: MemoryManager.Memory) -> void:
 		_save_data()
 
 func _on_memory_burned(memory: MemoryManager.Memory) -> void:
+	if suppress_recording:
+		return
 	if memory_entries.has(memory.id):
 		memory_entries[memory.id]["burned"] = true
 		_save_data()
+
+## S218: 명단에 없는 항목 정리 (개발용, 자동 호출하지 않는다).
+## 저장 데이터를 지우는 동작이므로 자동으로 돌지 않는다. 무엇을 지웠는지 반환한다.
+func purge_unknown_entries() -> Array[String]:
+	var roster := _known_enemy_roster()
+	var removed: Array[String] = []
+	for entry_name: String in enemy_entries.keys():
+		if not roster.has(entry_name):
+			removed.append(entry_name)
+	for entry_name: String in removed:
+		enemy_entries.erase(entry_name)
+	# S218: 억제 중에는 저장하지 않는다.
+	# 예전 구현은 억제를 잠시 꺼서라도 저장했는데, 그 탓에 이 함수를 부르는 스모크가
+	# 플레이어의 codex.json을 실제로 덮어써 버렸다. 기록을 막아 달라고 켜 둔 스위치가
+	# 오히려 데이터를 지우는 통로가 되어서는 안 된다.
+	if not removed.is_empty() and not suppress_recording:
+		_save_data()
+	return removed
 
 ## ===================== 열기/닫기 =====================
 
@@ -310,12 +344,18 @@ func _style_tab(btn: Button, active: bool) -> void:
 ## 게임이 아는 전체 적 명단 → {표시명: 지역 라벨(없으면 "")}
 func _known_enemy_roster() -> Dictionary:
 	var roster: Dictionary = {}
+	# 기준은 GameManager.ENEMY_NAMES_KO다. 한국어 이름이 붙어 있다는 것은
+	# 그 적이 실제 게임 콘텐츠라는 뜻이며, 맵 스크립트 안에 인라인으로 정의된
+	# 인카운터 풀까지 포함한다. WorldPopulation과 ENEMY_PRESETS만 훑으면
+	# "해안의 보이드 비스트"처럼 맵에만 있는 적을 통째로 놓친다.
+	for enemy_name: String in GameManager.ENEMY_NAMES_KO:
+		roster[enemy_name] = ""
 	for map_id: String in WorldPopulation.POPULATIONS:
 		var data: Dictionary = WorldPopulation.POPULATIONS[map_id]
 		for hunt: Dictionary in data.get("hunts", []):
 			var hunt_name := String(hunt.get("name", ""))
 			if hunt_name != "":
-				roster[hunt_name] = _map_label(map_id)
+				roster[hunt_name] = _map_label(map_id)  # 지역이 확실한 항목만 덮어쓴다
 	for key: String in BattleManager.ENEMY_PRESETS:
 		var preset: Dictionary = BattleManager.ENEMY_PRESETS[key]
 		var preset_name := String(preset.get("name", ""))
@@ -624,6 +664,8 @@ func _animate_entry_reveal(entry_key: String) -> void:
 ## ===================== 영구 저장 =====================
 
 func _save_data() -> void:
+	if suppress_recording:
+		return
 	var data = {"enemies": enemy_entries.duplicate(true), "memories": memory_entries.duplicate(true)}
 	var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:

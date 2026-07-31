@@ -6642,6 +6642,29 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S218 - 2026-07-26 (Codex recording switch — and two mistakes it exposed)
+
+### Done
+- `Codex.suppress_recording` gates every record path (`battle_started`, `battle_ended`, memory added/burned) **and** `_save_data()` itself, so nothing slips through another route. All 20 test harnesses that fabricate battles now set it in `_ready()`.
+- `Codex.purge_unknown_entries()` cleans entries outside the known roster. It is never called automatically, reports exactly what it removed, and does not write while recording is suppressed.
+
+### Two mistakes made and corrected in this session
+Both are worth recording because the second was caused by the fix for the first.
+
+**1. The purge deleted real enemies.** Running it removed 11 entries, and two of them — `Coastal Void Beast` and `Void Wraith` — are genuine content defined inline in `crumbling_coast.gd` and `the_seam.gd` encounter pools. The S217 roster was built from `WorldPopulation` hunts plus `ENEMY_PRESETS`, which misses every enemy declared inside a map script.
+The roster is now based on `GameManager.ENEMY_NAMES_KO` — a Korean name existing for an enemy is exactly the signal that it is real content — with hunt data layered on top for region hints. The deleted entries were restored (encounter counts could not be recovered). The smoke now asserts every name in `ENEMY_NAMES_KO` is in the roster, with the failure message stating the consequence: *"정리 기능이 이 항목을 지운다."*
+
+**2. The new test then wiped the codex down to one entry.** `purge_unknown_entries()` was written to temporarily disable suppression so it could always save. The smoke called it with synthetic data and that bypass wrote the test's scratch state straight into `user://codex.json` — a switch added to *prevent* writes became the path that destroyed them. It now refuses to save while suppressed, and the test asserts suppression is on before touching anything.
+
+### Also fixed
+`smoke_movement_naturalism` was genuinely flaky, not load noise: three identical runs with no code change gave 1 failure. It asserted the player exceeds 110 px/s within exactly 8 physics frames, which is timing-dependent when engine launches are stacked. It now polls up to 20 frames for the same condition — the guarantee ("responsive") is unchanged, the timing sensitivity is gone. Four consecutive runs pass.
+
+### Verification
+- Full smoke suite (24 scenes) passes, then `codex.json` compared byte-for-byte before and after: **unchanged**. The same check was repeated across all 14 capture harnesses: **unchanged**.
+- **Falsifiability checked:** removing the canonical roster base fails with `'Alley Rat' 는 실제 게임 적인데 도감 명단에 없다`.
+- VN: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. `verdan_market.tscn` boot clean.
+- Developer codex left at 6 real entries.
+
 ## S217 - 2026-07-26 (RPG depth: equipment comparison, bestiary hints, shop rates, journal leads)
 
 ### Audit findings
