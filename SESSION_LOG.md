@@ -6642,6 +6642,30 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S214 - 2026-07-26 (Battle presentation: a hit-flash bug, shared lighting, plate filtering)
+
+### Audit findings
+Previous sessions judged the battle from idle frames. This one captured the fight **in motion** — a four-shot sheet of idle, lunge, impact, and 2.5 seconds later — which immediately exposed something no still frame could show:
+- **The enemy plate lost its stage blend on every hit.** `_apply_hit_shader` swapped in a flash shader and its fade-out callback set `material = null`, discarding the oval mask and edge fade. Since it fires on every basic attack, the enemy spent essentially the whole fight as a hard-edged rectangular card. This is the third instance of the same "clear to null" pattern; S209 fixed two others.
+- **The cast was lit independently of the arena.** The 3D stage has a warm key light and a biome accent; the 2D battlers were drawn at their source brightness. No matter how good the stage got, the characters read as pasted onto it.
+- **Painterly plates were downscaled with nearest-neighbour filtering.** The project default is `default_texture_filter=0`, and the ally/support/enemy illustration plates never overrode it, so 1672px artwork reduced to roughly 300px threw away pixels. Elia's dithered alpha turned into speckle — visible in every capture since S209 and wrongly assumed to be source-art quality.
+
+### Done
+- **Fixed the hit-flash material clear.** The fade-out now calls `_restore_plate_material` instead of nulling. After the last remaining `material = null` was removed, none are left in the battle scene or `BattleVFX`.
+- **Shared stage lighting.** `battle_stage_blend.gdshader` gained a key-light rim and a biome ambient tint, driven from `STAGE_KEY_DIRECTION`/`STAGE_KEY_COLOR` that mirror the 3D key light. The rim finds the silhouette from the alpha gradient and lights only the side facing the key.
+  **The rim is applied only to crisply cut sprites.** The first attempt put it on everything and turned Elia's feathered portrait edge into gold speckle — the two art styles cannot take the same treatment, so painterly plates receive the ambient tint alone.
+- **Mipmapped downscaling** on the ally, support, and enemy illustration plates. The procedural pixel-art enemy fallback keeps nearest, which is correct for it.
+
+### Verification
+- `HYBRID_COUPLING_SMOKE_PASS ... plate_restore=1`, with new assertions that plates use mipmapped filtering, that the stage lighting parameters are present on both a plate and the hero sprite, and that the stage blend survives a hit.
+- **Falsifiability checked:** reintroducing `node.material = null` in the flash callback fails the guard with `피격 연출이 끝난 뒤 무대 블렌드가 복구되지 않았다`.
+- The action-moment sheet was re-shot after the fix: the enemy returns to its soft-edged plate 2.5s after impact instead of staying a rectangle.
+- All 21 smoke scenes pass. VN: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+- Added `capture_battle_moments` so future sessions judge the battle in motion rather than at rest.
+
+### Still open
+The full-screen enemy action cut-in plays at 0.72 alpha on ordinary attacks, covering the arena and cast for a beat. It does clear correctly, so it is a pacing/design question rather than a bug, but it works against the depth work of the last four sessions and is worth revisiting.
+
 ## S213 - 2026-07-26 (Foreground parallax and a stage that reacts to burning)
 
 ### Audit findings

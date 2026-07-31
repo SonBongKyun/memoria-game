@@ -1927,6 +1927,9 @@ func _build_player_sprite(root: Control) -> void:
 	# 프레임 높이에서 발끝 위치를 역산해 기준선에 세운다 (스케일이 바뀌어도 뜨지 않는다).
 	anim_sprite.position = Vector2(100, _feet_anchored_y(anim_sprite, 197.0))
 	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	# S214: 주인공도 무대의 빛을 받는다. 타원 마스크와 가장자리 페이드는 끄고
+	# (스프라이트는 이미 알파로 잘려 있다) 조명 성분만 쓴다.
+	_apply_battle_portrait_blend(anim_sprite, 0.02, 0.0, 0.42)
 	player_sprite_container.add_child(anim_sprite)
 	player_sprite = anim_sprite
 	_player_sprite_base_scale = anim_sprite.scale
@@ -1967,6 +1970,10 @@ func _build_ally_sprite(root: Control) -> void:
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(p_path)
+		# S214: 원화 판은 선형 + 밉맵으로 축소한다.
+		# 프로젝트 기본 필터가 Nearest라, 1672px 원화를 300px대로 줄이는 동안 픽셀이
+		# 그대로 버려져 엘리아의 머리카락 같은 디더 알파가 점점이 튀었다.
+		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		tex_rect.modulate = Color(1.0, 0.98, 0.95, 0.94)
 		_fit_battle_plate(tex_rect, Vector2(140, 158), 80.0, 158.0)
 		_apply_battle_portrait_blend(tex_rect, 0.24, 0.86)
@@ -2028,6 +2035,7 @@ func _build_tobias_support_sprite(root: Control) -> void:
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(tobias_path)
+		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		tex_rect.modulate = Color(0.98, 0.96, 0.93, 0.92)
 		_fit_battle_plate(tex_rect, Vector2(136, 154), 75.0, 156.0)
 		_apply_battle_portrait_blend(tex_rect, 0.24, 0.86)
@@ -2061,6 +2069,7 @@ func _build_enemy_sprite(root: Control) -> void:
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = load(enemy_art_path)
+		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		tex_rect.modulate = Color(1.0, 0.97, 0.96, 0.96)
 		_fit_battle_plate(tex_rect, Vector2(336, 292), 170.0, 296.0)
 		_apply_battle_portrait_blend(tex_rect, 0.30, 0.80)
@@ -2096,7 +2105,40 @@ func _make_battle_ellipse(center: Vector2, radii: Vector2, color: Color, segment
 	ellipse.color = color
 	return ellipse
 
-func _apply_battle_portrait_blend(rect: TextureRect, edge_softness: float = 0.20, oval_mask: float = 0.0) -> void:
+## S214: 무대 조명을 전투원 머티리얼에 심는다.
+##
+## 3D 무대에는 따뜻한 키라이트와 바이옴 색 보조광이 있는데 2D 전투원만 자기 원화
+## 밝기 그대로 그려져서, 무대를 아무리 손봐도 "배경 위에 붙인 그림"으로 읽혔다.
+## 키라이트 방향의 림라이트와 옅은 바이옴 물들임만 얹는다. 원화의 명암은 건드리지
+## 않으므로 그림 자체는 망가지지 않는다.
+##
+## 방향은 HybridDepthStage의 키라이트(rotation -52, -28)와 맞춘 화면 좌표계 값이다.
+## 둘 중 하나만 바꾸면 빛이 어긋나므로 함께 조정할 것.
+const STAGE_KEY_DIRECTION: Vector2 = Vector2(-0.55, -0.83)
+const STAGE_KEY_COLOR: Color = Color(1.0, 0.82, 0.58)
+
+## `rim`은 선명하게 잘린 스프라이트에만 준다.
+## 원화 포트레이트(엘리아/토비아스 등)는 알파 가장자리가 흐리고 점점이 흩어져 있어서,
+## 림라이트를 얹으면 실루엣이 지직거리는 노이즈로 변한다. 두 아트 스타일을 같은
+## 조명으로 다룰 수 없다는 뜻이므로, 판에는 바이옴 물들임만 적용한다.
+func _apply_stage_lighting(material: ShaderMaterial, rim: float) -> void:
+	if material == null:
+		return
+	material.set_shader_parameter("key_direction", STAGE_KEY_DIRECTION)
+	material.set_shader_parameter("key_color", STAGE_KEY_COLOR)
+	material.set_shader_parameter("rim_strength", rim)
+	material.set_shader_parameter("ambient_tint", _stage_ambient_tint())
+	material.set_shader_parameter("ambient_strength", 0.10)
+
+## 현재 전장의 바이옴 색. 전투원을 그 색으로 아주 살짝 물들여 무대와 묶는다.
+func _stage_ambient_tint() -> Color:
+	var profile := HybridDepthStage.profile_from_scene(BattleManager.return_scene)
+	var data: Dictionary = HybridDepthStage.PROFILE_DATA.get(profile, {})
+	var accent: Color = data.get("accent", Color(0.72, 0.58, 0.32))
+	# 원본 색을 유지하면서 색조만 얹도록 흰색 쪽으로 끌어올린다.
+	return Color(1, 1, 1).lerp(accent, 0.35)
+
+func _apply_battle_portrait_blend(rect: CanvasItem, edge_softness: float = 0.20, oval_mask: float = 0.0, rim: float = 0.0) -> void:
 	var shader_path := "res://assets/shaders/battle_stage_blend.gdshader"
 	if not ResourceLoader.exists(shader_path):
 		return
@@ -2105,6 +2147,7 @@ func _apply_battle_portrait_blend(rect: TextureRect, edge_softness: float = 0.20
 	blend_material.set_shader_parameter("edge_softness", edge_softness)
 	blend_material.set_shader_parameter("lower_fade", 0.92)
 	blend_material.set_shader_parameter("oval_mask", oval_mask)
+	_apply_stage_lighting(blend_material, rim)
 	rect.material = blend_material
 	# S209: 상태이상/보스 페이즈 VFX가 material을 교체한 뒤 null로 되돌리면 무대 블렌드가
 	# 사라져 사각 테두리가 다시 드러난다. 원본을 노드에 보관해 복구할 수 있게 한다.
@@ -4347,9 +4390,11 @@ func _apply_hit_shader(target: String, amount: int) -> void:
 	var t = create_tween()
 	t.tween_method(func(val): mat.set_shader_parameter("flash_amount", val), flash_strength, 0.0, 0.25)
 	t.tween_callback(func():
+		# S214: null로 지우면 무대 블렌드(타원 마스크, 가장자리 페이드)까지 함께
+		# 사라져서, 한 대 맞은 뒤부터 적이 각진 사각형 카드로 변한다.
+		# 기본 공격마다 발생하므로 사실상 전투 내내 그 상태로 남았다.
 		var node: CanvasItem = sprite_ref.get_ref() as CanvasItem
-		if node != null and is_instance_valid(node):
-			node.material = null
+		_restore_plate_material(node)
 	)
 
 ## VFX Library, 상태이상 셰이더 (독/화상/약화) 적 스프라이트에 적용

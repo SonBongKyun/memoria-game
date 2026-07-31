@@ -102,8 +102,38 @@ func _ready() -> void:
 	assert(stage._burn_flare < flare_at_burn,
 		"연소 반응은 시간이 지나면 잦아들어야 한다 (%.2f -> %.2f)" % [flare_at_burn, stage._burn_flare])
 
+	# --- S214: 전투원 프레젠테이션 ---
+	var enemy_plate: CanvasItem = battle.get("enemy_sprite")
+	assert(enemy_plate != null, "적 표시가 있어야 한다")
+
+	# 원화 판은 선형+밉맵으로 축소해야 한다. 프로젝트 기본 필터(Nearest)로 1672px
+	# 원화를 300px대로 줄이면 디더 알파가 점점이 튄다.
+	if enemy_plate is TextureRect:
+		assert(enemy_plate.texture_filter == CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS,
+			"원화 전투원 판은 밉맵 축소를 써야 한다")
+
+	# 무대 조명이 머티리얼에 실려 있어야 한다.
+	var plate_material := enemy_plate.material as ShaderMaterial
+	assert(plate_material != null, "적 판에 무대 블렌드 머티리얼이 있어야 한다")
+	assert(float(plate_material.get_shader_parameter("ambient_strength")) > 0.0,
+		"전투원이 무대의 바이옴 색을 받아야 한 장면으로 읽힌다")
+	var hero_material := (battle.get("player_sprite") as CanvasItem).material as ShaderMaterial
+	assert(hero_material != null and float(hero_material.get_shader_parameter("rim_strength")) > 0.0,
+		"선명하게 잘린 주인공 스프라이트는 키라이트 림을 받아야 한다")
+
+	# 피격 후에도 무대 블렌드가 살아남아야 한다.
+	# 예전에는 히트 플래시가 끝나며 material을 null로 지워서, 기본 공격 한 번이면
+	# 적이 각진 사각형 카드로 변한 채 전투 내내 남았다.
+	var blend_before := enemy_plate.material
+	battle.call("_apply_hit_shader", "enemy", 30)
+	assert(enemy_plate.material != blend_before, "히트 플래시가 실제로 적용되어야 한다")
+	for _f in range(60):
+		await get_tree().process_frame
+	assert(enemy_plate.material == blend_before,
+		"피격 연출이 끝난 뒤 무대 블렌드가 복구되지 않았다. 적이 각진 카드로 남는다.")
+
 	OptionsMenu.settings["reduce_motion"] = previous_reduce
-	print("HYBRID_COUPLING_SMOKE_PASS anchors=%d projected=(%.0f, %.0f) pan_shift=%.2f foreground=1 burn_reaction=1" % [
+	print("HYBRID_COUPLING_SMOKE_PASS anchors=%d projected=(%.0f, %.0f) pan_shift=%.2f foreground=1 burn_reaction=1 plate_restore=1" % [
 		anchors.size(), projected.x, projected.y, moved,
 	])
 	get_tree().quit(0)
