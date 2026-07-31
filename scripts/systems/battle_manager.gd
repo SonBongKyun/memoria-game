@@ -96,6 +96,16 @@ const ART_VOID_BEAST_FALLBACK: String = "res://assets/cg/game_image/void_beast_c
 const ART_SHADE_SENTINEL: String = "res://assets/cg/character_shots/shade_sentinel_shot_v2.png"
 const ART_KAIROS_ASCENDANT: String = "res://assets/cg/character_shots/kairos_ascendant_shot_v2.png"
 const ART_ECHO_SHELL: String = "res://assets/cg/character_shots/echo_shell_shot_v2.png"
+
+## S212: 반복 등장 잡몹의 무대 아트 (S204 액션 컷인 원화 재사용).
+## 이름은 소문자로 비교하며, 먼저 걸리는 항목이 이긴다.
+const RECURRING_ENEMY_ART: Dictionary = {
+	"ash crawler": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_ash_crawler_v1.png",
+	"forest shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_forest_shade_v1.png",
+	"threshold shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_threshold_shade_v1.png",
+	"memory eater": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_memory_eater_v1.png",
+	"void watcher": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_void_watcher_v1.png",
+}
 const ART_VOID_CREATURE_SHEET: String = "res://assets/game_image/reference/void_creature_sprite_sheet.png"
 const ART_MEMORY_LOST_SOLDIER: String = "res://assets/game_image/reference/memory_lost_soldier_sprite_sheet.png"
 const ART_FORGOTTEN_GUARDIAN: String = "res://assets/game_image/reference/forgotten_guardian_sheet.png"
@@ -706,8 +716,16 @@ func resolve_enemy_image_by_name(enemy_name: String) -> String:
 		return ART_VOID_BEAST if ResourceLoader.exists(ART_VOID_BEAST) else (ART_VOID_BEAST_FALLBACK if ResourceLoader.exists(ART_VOID_BEAST_FALLBACK) else "")
 	if "echo shell" in lower_name:
 		return ART_ECHO_SHELL if ResourceLoader.exists(ART_ECHO_SHELL) else ""
-	# 일반 몬스터는 콘셉트 시트 전체를 화면에 띄우지 않고
-	# PixelSprite의 이름별 128px 캐릭터 렌더러로 보낸다.
+	# S212: 자주 만나는 잡몹도 그려진 아트로 세운다.
+	# 여기서 ""를 돌려주면 BattleScene이 PixelSprite의 절차 생성 128px 스프라이트로
+	# 넘어가는데, 그건 대각선 빗금이 들어간 보라색 마름모 수준이다. 무대를 3D로
+	# 올려 놓고 그 위에 그 도형이 서 있으면 공들인 무대가 오히려 더 초라해 보인다.
+	# S204에서 이미 다섯 종의 액션 컷인 원화를 만들어 두었으므로 그것을 쓴다.
+	for enemy_key: String in RECURRING_ENEMY_ART:
+		if enemy_key in lower_name:
+			var art_path := String(RECURRING_ENEMY_ART[enemy_key])
+			if ResourceLoader.exists(art_path):
+				return art_path
 	return ""
 
 func _uses_canonical_character_shot(enemy_name: String) -> bool:

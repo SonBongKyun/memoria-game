@@ -137,6 +137,13 @@ var ally_sprite: CanvasItem  # 동행자 스프라이트 (엘리아/세이블)
 var ally_sprite_container: Control
 var tobias_sprite_container: Control
 var tobias_sprite: CanvasItem
+## S212: 전투원 앵커 (3D 카메라 결합).
+## 1.0이어야 한다. 접지 그림자와 포커스 링은 3D 무대 안에 있어서 카메라와 함께
+## 온전히 움직이는데, 캐릭터만 감쇠시키면 자기 그림자에서 미끄러져 나온다.
+## 원근 시차는 이미 앵커의 깊이(z)에서 나온다. 앞에 선 캐릭터는 뒤쪽 기둥보다
+## 자연히 더 많이 움직이므로, 여기서 따로 줄일 필요가 없다.
+const BATTLER_PARALLAX: float = 1.0
+var _battler_anchors: Array[Control] = []
 var _player_base_pos: Vector2 = Vector2.ZERO  # 돌진 복귀용
 var _enemy_base_pos: Vector2 = Vector2.ZERO
 var _ally_base_pos: Vector2 = Vector2.ZERO
@@ -270,6 +277,7 @@ func _present_field_entry() -> void:
 
 func _process(delta: float) -> void:
 	_idle_time += delta
+	_update_battler_anchors()
 	var clean_view: bool = OptionsMenu.is_clean_gameplay_visuals()
 	if action_ribbon_art and action_container:
 		action_ribbon_art.visible = action_container.visible
@@ -486,6 +494,9 @@ func _build_ui() -> void:
 
 	# 인트로 오버레이 (최상단)
 	_build_intro_overlay(root)
+
+	# S212: 전투원 배치가 모두 끝난 뒤, 3D 표식을 2D 발 위치에 맞춘다.
+	_sync_battler_anchors_to_stage()
 
 ## ===================== 배경 비네트 =====================
 
@@ -955,6 +966,10 @@ func _build_intro_overlay(root: Control) -> void:
 func _play_intro() -> void:
 	# 액션 버튼 숨김
 	action_container.visible = false
+
+	# S212: 전투 시작 시 3D 무대를 한 번 밀어 넣어 공간을 보여 준다.
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		_hybrid_depth_stage.play_entrance()
 
 	var enemy = BattleManager.current_enemy
 	if not enemy:
@@ -1779,6 +1794,59 @@ func _play_memory_burn_cutin(cutin_path: String, memory_grade: int) -> void:
 	_play_action_cutin(cutin_path, true, cutin_alpha, 0.46)
 	await BattleManager.pace_timer(0.78).timeout
 
+## ===================== S212: 전투원의 3D 결합 =====================
+## 전투원 컨테이너를 앵커 노드로 한 번 감싼다. 기존 코드는 컨테이너의 위치를
+## 그대로 트윈하고(_player_base_pos 등 절대 좌표 대상), 앵커만 카메라 이동량을
+## 받는다. 기준 자세에서 오프셋은 0이므로 지금 레이아웃은 조금도 달라지지 않고,
+## 카메라가 흔들리거나 좌우 포커스를 옮길 때만 캐릭터가 무대와 함께 움직인다.
+## S212: 3D 바닥 그림자가 접지를 담당하면, 화면에 붙어 있던 2D 타원은 보조로 낮춘다.
+## 노드는 남긴다 (스프라이트 이동 트윈과 기존 계약이 이 참조를 쓴다).
+func _flat_shadow_alpha(base: float) -> float:
+	return base * 0.35 if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage) else base
+
+func _make_battler_anchor(root: Control, anchor_name: String, world_anchor: Vector3) -> Control:
+	var anchor := Control.new()
+	anchor.name = anchor_name
+	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	anchor.set_meta("world_anchor", world_anchor)
+	root.add_child(anchor)
+	_battler_anchors.append(anchor)
+	return anchor
+
+## S212: 3D 앵커를 2D 발 위치에서 역산해 두 좌표계를 일치시킨다.
+##
+## 앵커를 손으로 적어 두면 2D 배치를 조금만 손봐도 접지 그림자와 포커스 링이
+## 캐릭터에서 떨어져 나간다. 각 전투원이 실제로 발을 딛는 화면 지점을 무대
+## 바닥에 역투영해서, 3D 쪽 표식이 언제나 같은 자리를 가리키게 한다.
+func _sync_battler_anchors_to_stage() -> void:
+	if _hybrid_depth_stage == null or not is_instance_valid(_hybrid_depth_stage):
+		return
+	var feet := {
+		"PlayerAnchor": {"key": "player", "point": Vector2(226.0, STAGE_BASELINE_Y)},
+		"AllyAnchor": {"key": "ally", "point": Vector2(110.0, STAGE_BASELINE_Y - 12.0)},
+		"SupportAnchor": {"key": "support", "point": Vector2(347.0, STAGE_BASELINE_Y - 20.0)},
+		"EnemyAnchor": {"key": "enemy", "point": Vector2(998.0, STAGE_BASELINE_Y)},
+	}
+	for anchor: Control in _battler_anchors:
+		if anchor == null or not is_instance_valid(anchor):
+			continue
+		var entry: Dictionary = feet.get(anchor.name, {})
+		if entry.is_empty():
+			continue
+		var world: Vector3 = _hybrid_depth_stage.canvas_to_floor(entry["point"])
+		anchor.set_meta("world_anchor", world)
+		_hybrid_depth_stage.place_battler_anchor(String(entry["key"]), world)
+
+## 카메라가 움직인 만큼 전투원 앵커를 따라 옮긴다.
+func _update_battler_anchors() -> void:
+	if _hybrid_depth_stage == null or not is_instance_valid(_hybrid_depth_stage):
+		return
+	for anchor: Control in _battler_anchors:
+		if anchor == null or not is_instance_valid(anchor):
+			continue
+		var world_anchor: Vector3 = anchor.get_meta("world_anchor", Vector3.ZERO)
+		anchor.position = _hybrid_depth_stage.anchor_offset(world_anchor) * BATTLER_PARALLAX
+
 ## S209: 전투원 일러스트 판을 "실제로 그려지는 크기"로 맞춰 발끝을 기준선에 세운다.
 ## TextureRect의 KEEP_ASPECT_CENTERED는 16:9 일러스트를 정사각형에 가까운 상자 안에서
 ## 세로 가운데 정렬한다. 그래서 적 그림의 아랫변이 상자 바닥보다 60~70px 위에 뜨고,
@@ -1812,11 +1880,11 @@ func _build_player_sprite(root: Control) -> void:
 	# 컨테이너 원점은 발끝 기준선에서 200px 위. 그림자는 정확히 기준선에 놓인다.
 	player_sprite_container.position = Vector2(126, STAGE_BASELINE_Y - 200.0)
 	player_sprite_container.size = Vector2(200, 200)
-	root.add_child(player_sprite_container)
+	_make_battler_anchor(root, "PlayerAnchor", HybridDepthStage.ANCHOR_PLAYER).add_child(player_sprite_container)
 	_player_base_pos = player_sprite_container.position
 
 	# 그림자
-	player_shadow = _make_battle_ellipse(Vector2(100, 200), Vector2(66, 11), Color(0, 0, 0, 0.36))
+	player_shadow = _make_battle_ellipse(Vector2(100, 200), Vector2(66, 11), Color(0, 0, 0, _flat_shadow_alpha(0.36)))
 	player_shadow.z_index = -2
 	player_sprite_container.add_child(player_shadow)
 
@@ -1850,7 +1918,7 @@ func _build_ally_sprite(root: Control) -> void:
 	ally_sprite_container.position = Vector2(30, STAGE_BASELINE_Y - 12.0 - 160.0)
 	ally_sprite_container.size = Vector2(160, 160)
 	ally_sprite_container.visible = false
-	root.add_child(ally_sprite_container)
+	_make_battler_anchor(root, "AllyAnchor", HybridDepthStage.ANCHOR_ALLY).add_child(ally_sprite_container)
 	_ally_base_pos = ally_sprite_container.position
 
 	# 동행자가 있는지 확인
@@ -1862,7 +1930,7 @@ func _build_ally_sprite(root: Control) -> void:
 	var who = "sable" if BattleManager.sable_in_party else "elia"
 
 	# 그림자
-	ally_shadow = _make_battle_ellipse(Vector2(80, 160), Vector2(46, 8), Color(0, 0, 0, 0.27))
+	ally_shadow = _make_battle_ellipse(Vector2(80, 160), Vector2(46, 8), Color(0, 0, 0, _flat_shadow_alpha(0.27)))
 	ally_shadow.z_index = -2
 	ally_sprite_container.add_child(ally_shadow)
 
@@ -1918,12 +1986,12 @@ func _build_tobias_support_sprite(root: Control) -> void:
 	tobias_sprite_container.position = Vector2(272, STAGE_BASELINE_Y - 20.0 - 158.0)
 	tobias_sprite_container.size = Vector2(150, 170)
 	tobias_sprite_container.visible = BattleManager.tobias_in_party
-	root.add_child(tobias_sprite_container)
+	_make_battler_anchor(root, "SupportAnchor", HybridDepthStage.ANCHOR_SUPPORT).add_child(tobias_sprite_container)
 	_tobias_base_pos = tobias_sprite_container.position
 	if not BattleManager.tobias_in_party:
 		return
 
-	tobias_shadow = _make_battle_ellipse(Vector2(75, 158), Vector2(48, 8), Color(0, 0, 0, 0.24))
+	tobias_shadow = _make_battle_ellipse(Vector2(75, 158), Vector2(48, 8), Color(0, 0, 0, _flat_shadow_alpha(0.24)))
 	tobias_shadow.z_index = -2
 	tobias_sprite_container.add_child(tobias_shadow)
 
@@ -1950,11 +2018,11 @@ func _build_enemy_sprite(root: Control) -> void:
 	# S209: 적도 같은 기준선. 컨테이너 높이 300 → 그림자가 정확히 기준선에 온다.
 	enemy_sprite_container.position = Vector2(828, STAGE_BASELINE_Y - 300.0)
 	enemy_sprite_container.size = Vector2(340, 300)
-	root.add_child(enemy_sprite_container)
+	_make_battler_anchor(root, "EnemyAnchor", HybridDepthStage.ANCHOR_ENEMY).add_child(enemy_sprite_container)
 	_enemy_base_pos = enemy_sprite_container.position
 
 	# 그림자
-	enemy_shadow = _make_battle_ellipse(Vector2(170, 300), Vector2(100, 13), Color(0, 0, 0, 0.40))
+	enemy_shadow = _make_battle_ellipse(Vector2(170, 300), Vector2(100, 13), Color(0, 0, 0, _flat_shadow_alpha(0.40)))
 	enemy_shadow.z_index = -2
 	enemy_sprite_container.add_child(enemy_shadow)
 

@@ -6642,6 +6642,29 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S212 - 2026-07-26 (Coupling the 2D cast to the 3D arena)
+
+### Audit findings
+S211 gave the battle a real 3D arena, but the hybrid was still **2D over 3D wallpaper**: battlers were `Control` nodes at fixed screen coordinates while the 3D moved behind them. Two specific consequences:
+- When the camera panned on a turn change, the space moved and the characters did not. Nothing tied the layers together.
+- The 3D focus rings sat at hand-written coordinates (±2.85) chosen independently of where the 2D characters actually stand, so the ring under Arrel was never really under Arrel.
+- The turn focus pan was ±0.22 world units — under 2px of on-screen movement. Even after coupling, nobody would have perceived it.
+
+### Done
+- **Battlers now live in the arena.** `world_to_canvas` / `anchor_offset` project a 3D anchor into the logical canvas and return how far it moved from the camera's rest pose. Each battler container is wrapped in an anchor `Control` that receives that offset. At the rest pose the offset is exactly zero, so the existing layout and every position tween (which target absolute `_player_base_pos` values) are untouched — the coupling only expresses itself while the camera moves.
+- **One coordinate system.** `canvas_to_floor` unprojects each battler's 2D feet position onto the arena floor plane, so the 3D anchor is *derived from* the 2D layout rather than written by hand. Contact shadows and focus rings are then placed at that exact point. Moving a battler in 2D now moves its 3D marks automatically.
+- **3D contact shadows** (`arena_contact_shadow.gdshader`) lie on the floor plane, so they compress with perspective and pan with the stage. The old screen-space 2D ellipses are kept but dropped to 35% — the nodes stay because existing contracts reference them.
+- **`BATTLER_PARALLAX` is 1.0, deliberately.** The first attempt damped character movement to 0.62 to keep them from "sticking to the background". That was wrong: the contact shadow and focus ring live inside the 3D layer and move at the full camera rate, so damping the character slid it off its own shadow. Perspective parallax already comes from the anchor's depth — a battler standing nearer moves more than the far pillars without any extra factor.
+- **Battle-opening dolly.** `play_entrance` pushes the camera in from above and behind over 1.15s, skipped under Reduce Motion. Turn focus pan raised to ±0.85/0.92.
+- **Unrelated defect found while capturing:** ordinary enemies fall back to `PixelSprite.create_battle_enemy` — flat purple diagonally-hatched diamonds — because `resolve_enemy_image_by_name` deliberately returns empty for non-bosses. That is what stands in the new arena during most encounters. Routed the five recurring archetypes (Ash Crawler, Forest Shade, Threshold Shade, Memory Eater, Void Watcher) to the S204 action-cutin plates already in the repo. An explicitly requested enemy image still wins.
+
+### Verification
+- `HYBRID_COUPLING_SMOKE_PASS anchors=4 projected=(226, 424) pan_shift=12.02`. It asserts the player's 3D anchor reprojects onto the 2D feet position, the focus ring sits within 0.05 world units of that anchor, the rest-pose offset is under 0.5px, the camera pan actually moves the character, and the character stays locked to its own contact shadow.
+- **Falsifiability checked:** restoring the 0.62 damping fails the guard with `캐릭터가 자기 접지 그림자에서 벗어났다 (7.45 vs 12.02)`.
+- One test defect was found and fixed along the way: comparing the anchor offset against a freshly computed one while the camera was still easing produced a false failure, so the test now lets the camera settle before measuring.
+- All 21 smoke scenes pass. VN validation: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+- New `capture_hybrid_pan` stacks the player-turn and enemy-turn frames so the coupling is visible as an image. Also inspected `story_combat_witness.png`, `hybrid_battle_stage.png` and the four-biome arena sheet.
+
 ## S211 - 2026-07-26 (Battle arena in real 3D)
 
 ### Audit findings

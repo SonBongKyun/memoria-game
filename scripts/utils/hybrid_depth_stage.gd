@@ -12,6 +12,17 @@ enum StageMode { BATTLE, ATLAS, RELIC }
 const ARENA_FLOOR_Y: float = -1.12
 const ARENA_FLOOR_SIZE: float = 64.0
 
+## S212: 2D 전투원이 서 있는 3D 지점.
+## 무대 바닥의 포커스 링, 3D 접지 그림자, 그리고 2D 스프라이트의 카메라 결합이
+## 모두 같은 좌표를 쓴다. 세 가지가 어긋나면 캐릭터가 공간에서 떠 버린다.
+const ANCHOR_PLAYER: Vector3 = Vector3(-2.85, ARENA_FLOOR_Y, 0.55)
+const ANCHOR_ALLY: Vector3 = Vector3(-4.35, ARENA_FLOOR_Y, -0.35)
+const ANCHOR_SUPPORT: Vector3 = Vector3(-1.35, ARENA_FLOOR_Y, -0.95)
+const ANCHOR_ENEMY: Vector3 = Vector3(2.85, ARENA_FLOOR_Y, 0.55)
+
+## 무대가 그려지는 논리 캔버스. S210 이후 뷰포트는 1280x720으로 고정된다.
+const CANVAS_SIZE: Vector2 = Vector2(1280.0, 720.0)
+
 const PROFILE_DATA: Dictionary = {
 	"rim_forest": {"accent": Color(0.57, 0.72, 0.38), "stone": Color(0.11, 0.15, 0.12), "motif": "roots"},
 	"verdan_market": {"accent": Color(0.86, 0.58, 0.25), "stone": Color(0.19, 0.13, 0.10), "motif": "stalls"},
@@ -48,6 +59,11 @@ var _time: float = 0.0
 var _atlas_markers: Array[MeshInstance3D] = []
 var _atlas_materials: Array[StandardMaterial3D] = []
 var arena_floor: MeshInstance3D
+var _rest_projection_cache: Dictionary = {}
+var _contact_shadows: Dictionary = {}
+const ENTRANCE_DURATION: float = 1.15
+var _entrance_active: bool = false
+var _entrance_progress: float = 0.0
 var battle_player_focus_root: Node3D
 var battle_enemy_focus_root: Node3D
 var _battle_player_focus_material: StandardMaterial3D
@@ -252,7 +268,38 @@ func _build_battle_diorama() -> void:
 		var shard_angle := TAU * float(i) / 9.0
 		var shard_pos := Vector3(cos(shard_angle) * 5.6, 0.35 + float(i % 3) * 0.62, sin(shard_angle) * 2.6 - 3.1)
 		_add_box(motion_root, shard_pos, Vector3(0.08, 0.38 + float(i % 2) * 0.18, 0.08), ghost_material, Vector3(shard_angle * 0.15, shard_angle, shard_angle * 0.08))
+
+	# S212: 전투원의 접지 그림자를 3D 바닥 위에 눕힌다.
+	# 2D 타원은 화면에 붙어 있어서 카메라가 움직이면 캐릭터와 함께 미끄러졌다.
+	# 바닥면에 놓인 그림자는 원근을 따라 눌리고 함께 패닝되므로, 캐릭터가 그 지점에
+	# "닿아 있다"는 인상이 생긴다.
+	_contact_shadows["player"] = _add_contact_shadow(ANCHOR_PLAYER, 1.05, 0.42)
+	_contact_shadows["ally"] = _add_contact_shadow(ANCHOR_ALLY, 0.82, 0.34)
+	_contact_shadows["support"] = _add_contact_shadow(ANCHOR_SUPPORT, 0.82, 0.32)
+	_contact_shadows["enemy"] = _add_contact_shadow(ANCHOR_ENEMY, 1.30, 0.46)
 	set_battle_focus("neutral")
+
+## S212: 바닥에 눕는 원형 접지 그림자.
+func _add_contact_shadow(anchor: Vector3, radius: float, strength: float) -> MeshInstance3D:
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(radius * 2.0, radius * 2.0)
+	var instance := MeshInstance3D.new()
+	instance.name = "ContactShadow"
+	instance.mesh = plane
+	# 바닥면과 z-fighting 하지 않도록 아주 살짝 띄운다.
+	instance.position = Vector3(anchor.x, ARENA_FLOOR_Y + 0.012, anchor.z)
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	var shader_path := "res://assets/shaders/arena_contact_shadow.gdshader"
+	if ResourceLoader.exists(shader_path):
+		var material := ShaderMaterial.new()
+		material.shader = load(shader_path)
+		material.set_shader_parameter("shadow_strength", strength)
+		instance.material_override = material
+	else:
+		instance.material_override = _make_material(Color.BLACK, Color.BLACK, strength)
+	scene_root.add_child(instance)
+	return instance
 
 ## S211: 무대 바닥면. 가까울수록 진하고 지평선 쪽으로 사라진다.
 func _add_arena_floor() -> void:
@@ -324,7 +371,10 @@ func set_battle_focus(side: String) -> void:
 		var tween := create_tween().set_parallel(true)
 		tween.tween_property(battle_player_focus_root, "scale", player_target, 0.24).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_property(battle_enemy_focus_root, "scale", enemy_target, 0.24).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_focus_pan = -0.22 if player_active else (0.24 if enemy_active else 0.0)
+	# S212: 턴 포커스 이동량.
+	# 0.22는 화면에서 2px도 안 되는 이동이라, 3D와 결합해 놓아도 아무도 알아채지
+	# 못했다. 공간이 실제로 움직였다고 읽히는 최소치까지 올린다.
+	_focus_pan = -0.85 if player_active else (0.92 if enemy_active else 0.0)
 
 func _set_battle_focus_material(material: StandardMaterial3D, accent: Color, active: bool, broken: bool) -> void:
 	if material == null:
@@ -487,6 +537,29 @@ func focus_route(chapter: int) -> void:
 			tween.tween_property(marker, "scale", target_scale, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_focus_pan = lerpf(-0.32, 0.32, float(focus_index) / maxf(float(_atlas_markers.size() - 1), 1.0))
 
+## S212: 전투 시작 돌리 인.
+## 카메라를 뒤/위에서 기준 자세로 밀어 넣어 공간을 한 번 보여 준다. 정지 화면만
+## 보면 3D인지 알기 어렵지만, 이 짧은 이동 한 번이면 깊이가 즉시 읽힌다.
+## Reduce Motion에서는 건너뛴다.
+func play_entrance() -> void:
+	if stage_mode != StageMode.BATTLE or camera == null or not is_instance_valid(camera):
+		return
+	if OptionsMenu != null and OptionsMenu.is_reduce_motion():
+		return
+	_entrance_progress = 0.0
+	_entrance_active = true
+
+## 돌리 인 진행 중이면 카메라 기준 자세에 더해질 오프셋을 돌려준다.
+func _entrance_offset(delta: float) -> Vector3:
+	if not _entrance_active:
+		return Vector3.ZERO
+	_entrance_progress = minf(_entrance_progress + delta / ENTRANCE_DURATION, 1.0)
+	if _entrance_progress >= 1.0:
+		_entrance_active = false
+	# 감속 곡선. 뒤(+z)와 위(+y)에서 부드럽게 내려앉는다.
+	var remaining := 1.0 - ease(_entrance_progress, 0.35)
+	return Vector3(0.0, 1.5 * remaining, 4.2 * remaining)
+
 func pulse_impact(direction: float, strength: float = 1.0) -> void:
 	if OptionsMenu != null and OptionsMenu.is_reduce_motion():
 		return
@@ -508,9 +581,94 @@ func _process(delta: float) -> void:
 	_impact_offset = move_toward(_impact_offset, 0.0, delta * 3.4)
 	_impact_lift = move_toward(_impact_lift, 0.0, delta * 1.8)
 	var drift := sin(_time * 0.31) * 0.06 if not reduce_motion else 0.0
-	var target_position := _base_camera_position + Vector3(_impact_offset + _focus_pan + drift, _impact_lift, absf(_impact_offset) * 0.12)
+	var target_position := _base_camera_position + Vector3(_impact_offset + _focus_pan + drift, _impact_lift, absf(_impact_offset) * 0.12) + _entrance_offset(delta)
 	camera.position = camera.position.lerp(target_position, 1.0 - exp(-9.0 * delta))
 	camera.look_at(_camera_look_target + Vector3(_focus_pan * 0.24, 0, 0), Vector3.UP)
+
+## ===================== S212: 3D ↔ 2D 결합 =====================
+## 지금까지 하이브리드는 사실상 "3D 배경 위에 2D를 얹은" 구조였다. 카메라가 패닝해도
+## 캐릭터는 화면에 못 박힌 듯 가만히 있어서, 두 층이 각자 놀았다.
+##
+## 여기서는 각 전투원에게 3D 앵커를 주고, 카메라가 움직였을 때 그 앵커가 화면에서
+## 얼마나 이동했는지를 2D 오프셋으로 돌려준다. 기준 자세에서는 오프셋이 정확히
+## 0이므로 기존 레이아웃과 트윈은 그대로 유지되고, 카메라가 흔들리거나 좌우로
+## 포커스를 옮길 때만 캐릭터가 공간과 함께 움직인다.
+
+## 캔버스 좌표(2D 발 위치)를 무대 바닥면 위의 3D 좌표로 되돌린다.
+##
+## 3D 앵커를 손으로 적어 두면 2D 배치를 조금만 바꿔도 그림자와 캐릭터가 어긋난다.
+## 대신 "2D에서 발이 닿는 화면 지점"을 바닥 평면에 역투영해서 3D 좌표를 얻으면,
+## 두 좌표계가 언제나 같은 자리를 가리킨다.
+func canvas_to_floor(canvas_point: Vector2) -> Vector3:
+	if camera == null or not is_instance_valid(camera) or viewport == null:
+		return Vector3(0, ARENA_FLOOR_Y, 0)
+	var viewport_size := Vector2(viewport.size)
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return Vector3(0, ARENA_FLOOR_Y, 0)
+	var viewport_point := Vector2(
+		canvas_point.x / CANVAS_SIZE.x * viewport_size.x,
+		canvas_point.y / CANVAS_SIZE.y * viewport_size.y
+	)
+	# 기준 자세에서 역산해야 패닝 중에 앵커가 흔들리지 않는다.
+	var saved_transform := camera.transform
+	camera.look_at_from_position(_base_camera_position, _camera_look_target, Vector3.UP)
+	var ray_origin := camera.project_ray_origin(viewport_point)
+	var ray_direction := camera.project_ray_normal(viewport_point)
+	camera.transform = saved_transform
+
+	if absf(ray_direction.y) < 0.0001:
+		return Vector3(0, ARENA_FLOOR_Y, 0)
+	var distance := (ARENA_FLOOR_Y - ray_origin.y) / ray_direction.y
+	if distance <= 0.0:
+		return Vector3(0, ARENA_FLOOR_Y, 0)
+	var hit := ray_origin + ray_direction * distance
+	return Vector3(hit.x, ARENA_FLOOR_Y, hit.z)
+
+## 전투 무대의 접지 그림자/포커스 링을 실제 전투원 위치로 옮긴다.
+func place_battler_anchor(key: String, world_position: Vector3) -> void:
+	var shadow: MeshInstance3D = _contact_shadows.get(key, null)
+	if shadow != null and is_instance_valid(shadow):
+		shadow.position = Vector3(world_position.x, ARENA_FLOOR_Y + 0.012, world_position.z)
+	match key:
+		"player":
+			if battle_player_focus_root != null and is_instance_valid(battle_player_focus_root):
+				battle_player_focus_root.position = Vector3(world_position.x, 0.0, world_position.z)
+		"enemy":
+			if battle_enemy_focus_root != null and is_instance_valid(battle_enemy_focus_root):
+				battle_enemy_focus_root.position = Vector3(world_position.x, 0.0, world_position.z)
+
+## 3D 월드 좌표를 논리 캔버스(1280x720) 좌표로 변환한다.
+func world_to_canvas(world_position: Vector3) -> Vector2:
+	if camera == null or not is_instance_valid(camera) or viewport == null:
+		return Vector2.ZERO
+	var viewport_size := Vector2(viewport.size)
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return Vector2.ZERO
+	var point := camera.unproject_position(world_position)
+	return Vector2(
+		point.x / viewport_size.x * CANVAS_SIZE.x,
+		point.y / viewport_size.y * CANVAS_SIZE.y
+	)
+
+## 카메라 기준 자세 대비, 이 앵커가 화면에서 이동한 양.
+## 2D 전투원 컨테이너의 부모에 그대로 더하면 3D 공간과 함께 움직인다.
+func anchor_offset(world_position: Vector3) -> Vector2:
+	if camera == null or not is_instance_valid(camera):
+		return Vector2.ZERO
+	var current := world_to_canvas(world_position)
+	var rest: Vector2 = _rest_projection_cache.get(world_position, Vector2.INF)
+	if rest == Vector2.INF:
+		rest = _compute_rest_projection(world_position)
+		_rest_projection_cache[world_position] = rest
+	return current - rest
+
+## 카메라를 기준 자세로 되돌려 놓고 한 번만 투영해 둔다 (앵커별 캐시).
+func _compute_rest_projection(world_position: Vector3) -> Vector2:
+	var saved_transform := camera.transform
+	camera.look_at_from_position(_base_camera_position, _camera_look_target, Vector3.UP)
+	var rest := world_to_canvas(world_position)
+	camera.transform = saved_transform
+	return rest
 
 func _make_material(albedo: Color, emission_color: Color, alpha: float = 1.0, emission_energy: float = 0.0) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
