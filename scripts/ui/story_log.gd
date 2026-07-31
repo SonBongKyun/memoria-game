@@ -12,6 +12,7 @@ extends CanvasLayer
 const MAX_ENTRIES: int = 300
 const READ_REGISTRY_PATH: String = "user://read_lines.json"
 const MAX_READ_KEYS: int = 8000
+const BACKDROP_PATH: String = "res://assets/cg/generated/ui_story_log_archive_v1.png"
 
 ## [{speaker, text, chapter, source}]
 var entries: Array = []
@@ -31,7 +32,6 @@ var _panel: PanelContainer
 var _scroll: ScrollContainer
 var _list: VBoxContainer
 var _empty_label: Label
-var _restore_state: int = GameManager.GameState.EXPLORATION
 var _was_paused: bool = false
 
 func _ready() -> void:
@@ -155,9 +155,19 @@ func _build_ui() -> void:
 	_overlay.visible = false
 	add_child(_overlay)
 
+	var backdrop := TextureRect.new()
+	backdrop.name = "StoryLogBackdrop"
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	backdrop.texture = load(BACKDROP_PATH) as Texture2D
+	backdrop.modulate = Color(0.82, 0.84, 0.90, 0.92)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlay.add_child(backdrop)
+
 	var dimmer := ColorRect.new()
 	dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dimmer.color = Color(0.012, 0.010, 0.020, 0.88)
+	dimmer.color = Color(0.012, 0.010, 0.020, 0.22)
 	dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
 	_overlay.add_child(dimmer)
 
@@ -168,9 +178,9 @@ func _build_ui() -> void:
 	_panel.anchor_top = 0.07
 	_panel.anchor_bottom = 0.93
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.026, 0.040, 0.97)
-	style.border_color = Color(0.62, 0.48, 0.26, 0.72)
-	style.set_border_width_all(2)
+	style.bg_color = Color(0.018, 0.017, 0.026, 0.78)
+	style.border_color = Color(0.62, 0.48, 0.26, 0.34)
+	style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(18)
 	_panel.add_theme_stylebox_override("panel", style)
@@ -221,11 +231,14 @@ func _build_ui() -> void:
 func open_log() -> void:
 	if is_open:
 		return
+	# 필드에서 L로 직접 열어도 뒤에서 플레이어/NPC/대사가 계속 진행되면 기록을
+	# 읽는 동안 위치와 이야기 상태가 바뀐다. 기존 일시정지 상태를 기억한 뒤 항상
+	# 정지하고, PauseMenu 위에서 열었던 경우에는 닫을 때 그 정지를 그대로 보존한다.
+	_was_paused = get_tree().paused
+	get_tree().paused = true
 	is_open = true
 	_rebuild_list()
 	_overlay.visible = true
-	_was_paused = get_tree().paused
-	_restore_state = GameManager.current_state
 	AudioManager.play_sfx("ui_open")
 	# 목록 맨 아래(가장 최근 대사)에서 시작한다.
 	await get_tree().process_frame
@@ -238,6 +251,7 @@ func close_log() -> void:
 	is_open = false
 	_overlay.visible = false
 	_save_read_registry()
+	get_tree().paused = _was_paused
 	AudioManager.play_sfx("ui_close")
 
 func _rebuild_list() -> void:

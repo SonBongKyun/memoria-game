@@ -75,16 +75,25 @@ var _anim_suffix: String = "down"    # 대각선 지터 방지용 최근 방향
 var _actual_speed: float = 0.0
 var _last_move_direction: Vector2 = Vector2.DOWN
 var _ground_shadow: Node2D = null
+var _turn_lean: float = 0.0
+var _step_impact: float = 0.0
+var _foot_side: float = -1.0
+var _field_flow: FieldFlow = null
 
 func _ready() -> void:
 	add_to_group("player")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	max_slides = 5
 	safe_margin = 0.08
+	_field_flow = FieldFlow.new()
+	_field_flow.name = "FieldFlow"
+	add_child(_field_flow)
 	_setup_placeholder_sprites()
 	if sprite and sprite.sprite_frames:
 		sprite.play("idle_down")
 		_sprite_base_offset = sprite.offset
+		FieldActorVisuals.apply_finish(sprite, Color(0.34, 0.60, 0.92), 0.78, 0.13)
+	_ground_shadow = MapEffects.add_drop_shadow(self, Color(0.34, 0.60, 0.92))
 	_setup_camera()
 	_setup_interact_indicator()
 	print("[Player] Arrel ready, Camera2D + exploration polish active")
@@ -159,8 +168,19 @@ func _physics_process(delta: float) -> void:
 	if not can_move or GameManager.current_state != GameManager.GameState.EXPLORATION:
 		velocity = Vector2.ZERO
 		_actual_speed = 0.0
+		if _field_flow:
+			_field_flow.update_motion(delta, 0.0, false, false, 0.0)
 		_sprint_blend = move_toward(_sprint_blend, 0.0, SPRINT_BLEND_SPEED * delta)
 		_idle_time = 0.0
+		_turn_lean = move_toward(_turn_lean, 0.0, delta * 0.9)
+		_step_impact = move_toward(_step_impact, 0.0, delta * 9.0)
+		_update_animation(_last_move_direction, false)
+		if sprite:
+			sprite.offset = sprite.offset.lerp(_sprite_base_offset, 1.0 - exp(-12.0 * delta))
+			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 1.0 - exp(-12.0 * delta))
+			sprite.scale = sprite.scale.lerp(_sprite_rest_scale, 1.0 - exp(-12.0 * delta))
+		_update_ground_shadow(delta, false)
+		_was_moving = false
 		return
 
 	# Input.get_vector preserves controller pressure while normalizing keyboard diagonals.
@@ -169,14 +189,27 @@ func _physics_process(delta: float) -> void:
 	if has_intent:
 		_last_move_direction = input_vector.normalized()
 
+	if Input.is_action_just_pressed("field_dash") and _field_flow:
+		var step_direction := input_vector if has_intent else _last_move_direction
+		if _field_flow.try_phase_step(step_direction):
+			_last_move_direction = _field_flow.dash_direction
+			_play_phase_step_vfx()
+
+	var dash_active := _field_flow != null and _field_flow.is_dashing()
+	if dash_active:
+		input_vector = _field_flow.dash_direction
+		has_intent = true
+
 	var wants_sprint := Input.is_action_pressed("sprint") and has_intent
-	_sprint_blend = move_toward(_sprint_blend, 1.0 if wants_sprint else 0.0, SPRINT_BLEND_SPEED * delta)
+	_sprint_blend = move_toward(_sprint_blend, 1.0 if wants_sprint or dash_active else 0.0, SPRINT_BLEND_SPEED * delta)
 	var sprint_curve := _sprint_blend * _sprint_blend * (3.0 - 2.0 * _sprint_blend)
 	var speed := BASE_SPEED * lerpf(1.0, SPRINT_MULTIPLIER, sprint_curve)
+	if dash_active:
+		speed *= _field_flow.get_speed_multiplier()
 	var target_velocity := input_vector * speed
 	if has_intent:
 		var reversing := velocity.length_squared() > 16.0 and velocity.dot(target_velocity) < 0.0
-		var acceleration := TURN_ACCELERATION if reversing else ACCELERATION
+		var acceleration := 4200.0 if dash_active else (TURN_ACCELERATION if reversing else ACCELERATION)
 		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, DECELERATION * delta)
@@ -185,7 +218,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	var moved_distance := global_position.distance_to(position_before_move)
 	_actual_speed = moved_distance / maxf(delta, 0.0001)
-	_is_sprinting = _sprint_blend > 0.45 and _actual_speed > BASE_SPEED * 1.12
+	_is_sprinting = dash_active or (_sprint_blend > 0.45 and _actual_speed > BASE_SPEED * 1.12)
 
 	# Direction comes from intent, but locomotion feedback comes from real travel.
 	var visually_moving := _actual_speed > MOVE_VISUAL_THRESHOLD
@@ -195,13 +228,6 @@ func _physics_process(delta: float) -> void:
 		_update_raycast_direction()
 		if visually_moving and not _was_moving and sprite:
 			_play_move_squash(Vector2(0.95, 1.05), 0.05)
-		if _is_sprinting and sprite:
-			if abs(input_vector.x) > abs(input_vector.y):
-				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(1.045, 0.965)), 8.0 * delta)
-			else:
-				sprite.scale = sprite.scale.lerp(_scaled_sprite(Vector2(0.965, 1.045)), 8.0 * delta)
-		elif sprite:
-			sprite.scale = sprite.scale.lerp(_sprite_rest_scale, 10.0 * delta)
 		_idle_time = 0.0
 		_fidget_timer = 0.0
 	else:
@@ -221,6 +247,8 @@ func _physics_process(delta: float) -> void:
 			if not _move_squash_tween or not _move_squash_tween.is_running():
 				sprite.scale = _scaled_sprite(Vector2(1.0 + sin(_breath_time * 2.0) * 0.01, 1.0 - sin(_breath_time * 2.0) * 0.008))
 	_was_moving = visually_moving
+	if _field_flow:
+		_field_flow.update_motion(delta, moved_distance, visually_moving, wants_sprint, _actual_speed)
 
 	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
 	_update_footfalls(moved_distance, clean_view)
@@ -234,12 +262,15 @@ func _physics_process(delta: float) -> void:
 	# A restrained sprint echo reads as speed without becoming a constant trail.
 	if _is_sprinting and not clean_view:
 		_afterimage_timer += delta
-		if _afterimage_timer >= AFTERIMAGE_INTERVAL:
+		var echo_interval := 0.052 if dash_active else AFTERIMAGE_INTERVAL
+		if _afterimage_timer >= echo_interval:
 			_afterimage_timer = 0.0
 			_spawn_afterimage()
 	else:
 		_afterimage_timer = 0.0
 
+	_turn_lean = move_toward(_turn_lean, 0.0, delta * 0.58)
+	_step_impact = move_toward(_step_impact, 0.0, delta * 7.5)
 	if sprite:
 		if visually_moving:
 			var stride_distance := SPRINT_STEP_DISTANCE if _is_sprinting else WALK_STEP_DISTANCE
@@ -247,8 +278,16 @@ func _physics_process(delta: float) -> void:
 			var gait := sin(_bob_phase)
 			sprite.offset.y = _sprite_base_offset.y - absf(gait) * (1.15 if _is_sprinting else 0.85)
 			sprite.offset.x = _sprite_base_offset.x + gait * (0.50 if absf(_last_move_direction.y) > 0.5 else 0.24)
-			var lean := (velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER)) * 0.036
+			var lean := (velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER)) * 0.036 + _turn_lean
 			sprite.rotation = lerp_angle(sprite.rotation, lean, 10.0 * delta)
+			if not _move_squash_tween or not _move_squash_tween.is_running():
+				var movement_shape := Vector2.ONE
+				if dash_active:
+					movement_shape = Vector2(1.16, 0.84) if absf(input_vector.x) > absf(input_vector.y) else Vector2(0.84, 1.16)
+				elif _is_sprinting:
+					movement_shape = Vector2(1.045, 0.965) if absf(input_vector.x) > absf(input_vector.y) else Vector2(0.965, 1.045)
+				movement_shape *= Vector2(1.0 + _step_impact * 0.018, 1.0 - _step_impact * 0.024)
+				sprite.scale = sprite.scale.lerp(_scaled_sprite(movement_shape), 1.0 - exp(-10.0 * delta))
 		else:
 			sprite.offset.x = lerpf(sprite.offset.x, _sprite_base_offset.x, 12.0 * delta)
 			sprite.offset.y = lerpf(sprite.offset.y, _sprite_base_offset.y, 12.0 * delta)
@@ -282,6 +321,10 @@ func _update_camera_look_ahead(delta: float) -> void:
 		target_offset = velocity.normalized() * distance * anticipation
 	var response := 1.0 - exp(-6.5 * delta)
 	_camera_look_offset = _camera_look_offset.lerp(target_offset, response)
+	var dash_active := _field_flow != null and _field_flow.is_dashing()
+	var zoom_factor := 0.90 if dash_active else (0.965 if _is_sprinting else 1.0)
+	var zoom_response := 1.0 - exp(-(13.0 if dash_active else 5.5) * delta)
+	camera.zoom = camera.zoom.lerp(_camera_base_zoom * zoom_factor, zoom_response)
 	_apply_camera_offset()
 
 ## 카메라 셰이크 업데이트
@@ -353,12 +396,50 @@ func _spawn_afterimage() -> void:
 	ghost.frame = sprite.frame
 	ghost.global_position = global_position
 	ghost.scale = sprite.scale
-	ghost.modulate = Color(0.42, 0.50, 0.72, 0.24)
+	ghost.offset = sprite.offset
+	ghost.rotation = sprite.rotation
+	ghost.texture_filter = sprite.texture_filter
+	var dash_active := _field_flow != null and _field_flow.is_dashing()
+	ghost.modulate = Color(0.52, 0.80, 1.0, 0.42) if dash_active else Color(0.42, 0.50, 0.72, 0.24)
 	ghost.z_index = z_index - 1
 	get_parent().add_child(ghost)
 	var t = ghost.create_tween()
+	t.set_parallel(true)
 	t.tween_property(ghost, "modulate:a", 0.0, 0.18)
-	t.tween_callback(ghost.queue_free)
+	if dash_active:
+		t.tween_property(ghost, "scale", ghost.scale * Vector2(0.92, 1.06), 0.18)
+	t.chain().tween_callback(ghost.queue_free)
+
+func _play_phase_step_vfx() -> void:
+	shake(1.25, 0.14)
+	_spawn_pulse_ring(30.0, Color(0.48, 0.82, 1.0, 0.62), 0.22)
+	_spawn_afterimage()
+	var parent := get_parent()
+	if parent:
+		for side in [-1.0, 1.0]:
+			var rail := Line2D.new()
+			rail.name = "PhaseStepRail"
+			rail.width = 1.4
+			rail.default_color = Color(0.58, 0.86, 1.0, 0.72)
+			rail.z_index = z_index - 1
+			var direction := _field_flow.dash_direction if _field_flow else _last_move_direction
+			var normal := Vector2(-direction.y, direction.x)
+			rail.points = PackedVector2Array([
+				normal * side * 7.0,
+				-direction * 22.0 + normal * side * 10.0,
+				-direction * 48.0 + normal * side * 5.0,
+			])
+			rail.global_position = global_position
+			parent.add_child(rail)
+			var rail_tween := rail.create_tween()
+			rail_tween.set_parallel(true)
+			rail_tween.tween_property(rail, "modulate:a", 0.0, 0.24)
+			rail_tween.tween_property(rail, "width", 0.2, 0.24)
+			rail_tween.chain().tween_callback(rail.queue_free)
+	if sprite:
+		var sprite_tween := create_tween()
+		sprite_tween.tween_property(sprite, "modulate", Color(1.22, 1.38, 1.55, 1.0), 0.055)
+		sprite_tween.tween_property(sprite, "modulate", Color.WHITE, 0.18)
 
 func _update_footfalls(moved_distance: float, clean_view: bool) -> void:
 	if moved_distance <= 0.01:
@@ -367,6 +448,8 @@ func _update_footfalls(moved_distance: float, clean_view: bool) -> void:
 	var stride_distance := SPRINT_STEP_DISTANCE if _is_sprinting else WALK_STEP_DISTANCE
 	while _step_distance >= stride_distance:
 		_step_distance -= stride_distance
+		_step_impact = 1.0
+		_foot_side *= -1.0
 		AudioManager.play_step(_get_terrain_type())
 		GameManager.add_stat("steps_taken")
 		if clean_view:
@@ -376,20 +459,21 @@ func _update_footfalls(moved_distance: float, clean_view: bool) -> void:
 
 func _update_ground_shadow(delta: float, moving: bool) -> void:
 	if _ground_shadow == null or not is_instance_valid(_ground_shadow):
-		_ground_shadow = get_node_or_null("GroundShadow") as Node2D
+		_ground_shadow = get_node_or_null("FieldGrounding") as Node2D
 	if _ground_shadow == null:
 		return
-	var lift := absf(sin(_bob_phase)) if moving else 0.0
-	var target_scale := Vector2(1.0 - lift * 0.055, 1.0 - lift * 0.08)
-	_ground_shadow.scale = _ground_shadow.scale.lerp(target_scale, 1.0 - exp(-12.0 * delta))
-	var target_x := -velocity.x / (BASE_SPEED * SPRINT_MULTIPLIER) * 0.8 if moving else 0.0
-	_ground_shadow.position.x = lerpf(_ground_shadow.position.x, target_x, 1.0 - exp(-10.0 * delta))
+	FieldActorVisuals.update_grounding(
+		_ground_shadow,
+		velocity,
+		_bob_phase,
+		moving,
+		delta,
+		BASE_SPEED * SPRINT_MULTIPLIER
+	)
 
 ## 발밑 먼지 파티클, S59: terrain-specific dust colors
 func _spawn_dust() -> void:
-	var dust = ColorRect.new()
-	var size = randf_range(2.0, 3.5)
-	dust.size = Vector2(size, size)
+	var dust := Node2D.new()
 	# S59: Terrain-specific dust color
 	var terrain = _get_terrain_type()
 	var dust_color: Color
@@ -407,15 +491,27 @@ func _spawn_dust() -> void:
 				dust_color = Color(0.42, 0.23, 0.54, 0.6)  # purple void dust
 			else:
 				dust_color = Color(0.65, 0.55, 0.4, 0.6)  # default earth
-	dust.color = dust_color
-	# 발밑 랜덤 위치
-	dust.global_position = global_position + Vector2(randf_range(-6, 6), randf_range(4, 10))
+	for i in range(2):
+		var wisp := Line2D.new()
+		wisp.width = 1.1
+		wisp.default_color = dust_color
+		var spread := 3.0 + float(i) * 2.0
+		wisp.points = PackedVector2Array([
+			Vector2(_foot_side * (1.5 + float(i)), 0),
+			Vector2(_foot_side * spread, -randf_range(1.0, 2.5)),
+			Vector2(_foot_side * (spread + 2.0), -randf_range(0.5, 1.5)),
+		])
+		dust.add_child(wisp)
+	# A paired, direction-aware wisp reads as a footfall instead of a UI square.
+	var lateral := Vector2(-facing_direction.y, facing_direction.x) * _foot_side * 3.0
+	dust.global_position = global_position + lateral + Vector2(0, 7)
 	dust.z_index = z_index - 1
 	get_parent().add_child(dust)
-	var t = dust.create_tween()
+	var t := dust.create_tween()
 	t.set_parallel(true)
 	t.tween_property(dust, "modulate:a", 0.0, 0.3)
 	t.tween_property(dust, "global_position:y", dust.global_position.y - randf_range(3, 7), 0.3)
+	t.tween_property(dust, "scale", Vector2(1.24, 1.24), 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	t.set_parallel(false)
 	t.tween_callback(dust.queue_free)
 
@@ -534,6 +630,8 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 			suffix = "down"
 		elif suffix == "down" and direction.y < -0.01:
 			suffix = "up"
+	if is_moving and suffix != _anim_suffix:
+		_register_turn_pivot(_anim_suffix, suffix)
 	_anim_suffix = suffix
 
 	var anim_name = anim_prefix + suffix
@@ -545,6 +643,20 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 		sprite.speed_scale = clampf(velocity.length() / BASE_SPEED, 0.65, 1.85)
 	else:
 		sprite.speed_scale = 1.0
+
+## A cardinal turn carries a very short counter-lean.  It makes direction
+## changes read as a planted pivot instead of swapping one paper-doll pose for
+## another while the body keeps gliding.
+func _register_turn_pivot(from_suffix: String, to_suffix: String) -> void:
+	var from_direction := _cardinal_direction(from_suffix)
+	var to_direction := _cardinal_direction(to_suffix)
+	var turn_sign := signf(from_direction.cross(to_direction))
+	if is_zero_approx(turn_sign):
+		turn_sign = signf(to_direction.x)
+		if is_zero_approx(turn_sign):
+			turn_sign = -1.0 if to_direction.y < 0.0 else 1.0
+	_turn_lean = turn_sign * 0.052
+	_step_impact = maxf(_step_impact, 0.42)
 
 func _cardinal_direction(suffix: String) -> Vector2:
 	match suffix:
@@ -583,6 +695,8 @@ func _try_memory_pulse() -> void:
 		return
 
 	_memory_pulse_cooldown = MEMORY_PULSE_COOLDOWN
+	if _field_flow:
+		_field_flow.open_witness_window()
 	_play_memory_pulse_vfx()
 	if has_node("/root/AudioManager"):
 		AudioManager.play_combat_sfx("void_pulse")
@@ -665,6 +779,42 @@ func get_memory_pulse_status() -> Dictionary:
 		"field_focus": GameManager.get_field_focus(),
 		"field_focus_max": GameManager.FIELD_FOCUS_MAX,
 	}
+
+func get_field_flow_status() -> Dictionary:
+	if _field_flow == null:
+		return {
+			"flow": 0.0,
+			"maximum": FieldFlow.FLOW_MAX,
+			"pressure": 0.0,
+			"mode": "neutral",
+			"dashing": false,
+			"dash_ready": false,
+			"dash_cost": FieldFlow.PHASE_STEP_COST,
+		}
+	return _field_flow.get_status()
+
+func set_field_threat_source(source_id: String, pressure: float) -> void:
+	if _field_flow:
+		_field_flow.set_threat_source(source_id, pressure)
+
+func clear_field_threat_source(source_id: String) -> void:
+	if _field_flow:
+		_field_flow.clear_threat_source(source_id)
+
+func prepare_field_entry_for_battle(source: String = "ambient") -> Dictionary:
+	var entry := {
+		"mode": "neutral",
+		"power": 0,
+		"pressure": 0.0,
+		"source": source,
+	}
+	if _field_flow:
+		entry = _field_flow.consume_battle_entry(source)
+	BattleManager.prepare_field_entry(String(entry.mode), int(entry.power))
+	return entry
+
+func is_field_dashing() -> bool:
+	return _field_flow != null and _field_flow.is_dashing()
 
 ## S41: 현재 지형 타입 감지 (맵 스크립트의 terrain_map 메타 사용)
 func _get_terrain_type() -> String:

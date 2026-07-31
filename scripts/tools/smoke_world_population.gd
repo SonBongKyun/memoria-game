@@ -129,12 +129,15 @@ func _ready() -> void:
 				assert(String(actor.call("_get_runtime_name")) != "", "%s must expose a localized talk name" % actor.name)
 			elif actor is Area2D:
 				hunts += 1
+				assert(actor is FieldThreat, "%s must use the readable FieldThreat approach controller" % actor.name)
 				var threat_sprite: Sprite2D = null
 				for component in actor.get_children():
 					if component is Sprite2D:
 						threat_sprite = component as Sprite2D
 						break
 				assert(threat_sprite != null and threat_sprite.texture != null, "%s visible threat needs a sprite" % actor.name)
+				assert(actor.get_node_or_null("ThreatAura") is Line2D and actor.get_node_or_null("ThreatSight") is Line2D, "%s needs pressure aura and sight-line telegraphs" % actor.name)
+				assert(String((actor as FieldThreat).hunt_data.get("_resolved_field_art", "")) == threat_sprite.texture.resource_path, "%s must carry the same authored hostile art into battle" % actor.name)
 				assert(threat_sprite.texture.resource_path.contains("world_population/hostiles"), "%s must resolve a generated hostile field asset" % actor.name)
 				field_asset_paths[threat_sprite.texture.resource_path] = true
 				var hunt_id := String(actor.name).trim_prefix("WorldThreat_")

@@ -177,6 +177,7 @@ signal enemy_broken(enemy_name: String)
 signal tactical_objective_changed(objective: Dictionary)
 signal tactical_objective_options_changed(options: Array)
 signal momentum_changed(value: float, rank: int, label: String)
+signal field_entry_applied(mode: String, power: int)
 
 # --- 아군 조작 모드 ---
 var ally_command: String = ""  # 플레이어가 선택한 세이블 행동 ("", "heal", "strike", "weaken", "guard")
@@ -326,6 +327,10 @@ var momentum: float = 0.0
 var momentum_rank: int = 0
 var _best_momentum_rank: int = 0
 var field_focus_opening: bool = false
+var pending_field_entry_mode: String = "neutral"
+var pending_field_entry_power: int = 0
+var field_entry_mode: String = "neutral"
+var field_entry_power: int = 0
 var _last_stand_triggered_this_battle: bool = false
 
 # --- Limit Break 시스템 ---
@@ -426,6 +431,7 @@ signal battle_ended(result: BattleState)
 signal battle_cleanup_finished(result: BattleState)
 signal battle_log(message: String)
 signal status_changed()
+signal item_used(item_id: String, item_type: String)
 signal guard_focus(trigger: String, value: int)
 signal last_stand_resonance(lethal: bool)
 signal victory_rewards_ready(rewards: Dictionary)  # S58: structured reward data
@@ -447,12 +453,61 @@ func _ready() -> void:
 func dismiss_victory() -> void:
 	_victory_dismissed = true
 
+func prepare_field_entry(mode: String, power: int = 0) -> void:
+	pending_field_entry_mode = mode if mode in ["ambush", "guarded", "witness"] else "neutral"
+	pending_field_entry_power = clampi(power, 0, 100)
+
+func get_field_entry_summary() -> Dictionary:
+	return {
+		"mode": field_entry_mode,
+		"power": field_entry_power,
+	}
+
+func _apply_field_entry_bonuses() -> void:
+	match field_entry_mode:
+		"ambush":
+			var momentum_gain := 30.0 + floorf(float(field_entry_power) / 12.0)
+			_add_momentum(momentum_gain, _bl("Phase Ambush", "위상 기습"))
+			enemy_break_gauge = minf(BREAK_MAX - 1.0, 24.0 + float(field_entry_power) * 0.16)
+			break_changed.emit(enemy_break_gauge, BREAK_MAX)
+			_add_limit(12.0)
+			battle_log.emit(_bl(
+				"[APPROACH: AMBUSH] Arrel crosses the contact line first. BREAK pressure and Limit rise.",
+				"[접근: 기습] 아렐이 먼저 접촉선을 가른다. BREAK 압력과 리미트가 오른다."
+			))
+		"guarded":
+			player_defending = true
+			_add_momentum(15.0, _bl("Held Nerve", "고정된 호흡"))
+			_add_limit(18.0)
+			battle_log.emit(_bl(
+				"[APPROACH: GUARDED] Arrel reads the collision and braces. The first hostile blow is guarded.",
+				"[접근: 대비] 아렐이 충돌을 읽고 버틴다. 적의 첫 일격을 막는다."
+			))
+		"witness":
+			_witness_progress = mini(1, _witness_required - 1)
+			var echo_line := _get_witness_line(_witness_progress)
+			_record_witness_scan()
+			_add_momentum(18.0, _bl("Witness Approach", "증언 접근"))
+			_add_limit(10.0)
+			witness_changed.emit(_witness_progress, _witness_required, echo_line, false)
+			battle_log.emit(_bl(
+				"[APPROACH: WITNESS] The pulse finds the memory inside the threat before blades meet.",
+				"[접근: 증언] 칼날이 닿기 전, 파동이 위협 안의 기억을 찾아낸다."
+			))
+			battle_log.emit(echo_line)
+	if field_entry_mode != "neutral":
+		field_entry_applied.emit(field_entry_mode, field_entry_power)
+
 ## 전투 시작
 func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String = "", e_image: String = "") -> void:
 	var enemy: Enemy = _coerce_enemy(enemy_ref)
 	if enemy == null:
 		push_error("[BattleManager] Invalid battle enemy: %s" % str(enemy_ref))
 		return
+	field_entry_mode = pending_field_entry_mode
+	field_entry_power = pending_field_entry_power
+	pending_field_entry_mode = "neutral"
+	pending_field_entry_power = 0
 	current_enemy = enemy
 	_battle_started_as_boss_rush = GameManager.boss_rush_mode
 	return_scene = from_scene
@@ -560,6 +615,7 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	battle_log.emit(_get_opening_tactical_hint(enemy))
 	_setup_tactical_objective(enemy)
 	witness_changed.emit(0, _witness_required, "", false)
+	_apply_field_entry_bonuses()
 	# S55: Tutorial hint
 	TutorialHints.show_hint("first_battle")
 
@@ -1635,6 +1691,7 @@ func player_use_item(item_id: String) -> void:
 	AchievementManager.record_item_used()
 	GameManager.add_stat("items_used")
 	_reset_combo("item")
+	item_used.emit(item_id, String(item_def.get("type", "")))
 
 	match item_def["type"]:
 		"heal":

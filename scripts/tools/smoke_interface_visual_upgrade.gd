@@ -5,6 +5,7 @@ const REQUIRED_INTERFACE_ART: Array[String] = [
 	"res://assets/cg/generated/ui_character_status_dossier_v1.png",
 	"res://assets/cg/generated/ui_codex_archive_backdrop_v2.png",
 	"res://assets/cg/generated/ui_story_journal_backdrop_v3.png",
+	"res://assets/cg/generated/ui_story_log_archive_v1.png",
 	"res://assets/cg/generated/ui_memory_shop_backdrop_v2.png",
 	"res://assets/cg/generated/ui_pause_archive_backdrop_v2.png",
 	"res://assets/cg/generated/ui_battle_item_tray_v3.png",
@@ -19,17 +20,28 @@ const REQUIRED_INTERFACE_ART: Array[String] = [
 	"res://assets/ui/equipment/slot_weapon_v1.png",
 	"res://assets/ui/equipment/slot_armor_v1.png",
 	"res://assets/ui/equipment/slot_accessory_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_recover_cutin_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_cure_cutin_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_ignite_cutin_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_withdraw_cutin_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_witness_cutin_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_anchor_guard_cutin_v1.png",
+	"res://assets/cg/generated/gameplay_moments/item_fault_scan_cutin_v1.png",
 ]
 
 func _ready() -> void:
 	for art_path in REQUIRED_INTERFACE_ART:
 		assert(ResourceLoader.exists(art_path), "Interface visual is missing: " + art_path)
+		if "/gameplay_moments/" in art_path:
+			var moment_texture := load(art_path) as Texture2D
+			assert(moment_texture != null and moment_texture.get_width() == 1672 and moment_texture.get_height() == 941, "Gameplay moment must keep the authored 16:9 plate: " + art_path)
 
 	assert(PauseMenu.INVENTORY_BACKDROP_PATH.ends_with("ui_inventory_archive_v2.png"))
 	assert(PauseMenu.STATUS_BACKDROP_PATH.ends_with("ui_character_status_dossier_v1.png"))
 	assert(PauseMenu.PAUSE_BACKDROP_PATH.ends_with("ui_pause_archive_backdrop_v2.png"))
 	assert(Codex.CODEX_BACKDROP_PATH.ends_with("ui_codex_archive_backdrop_v2.png"))
 	assert(StoryJournal.JOURNAL_BACKDROP_PATH.ends_with("ui_story_journal_backdrop_v3.png"))
+	assert(StoryLog.BACKDROP_PATH.ends_with("ui_story_log_archive_v1.png"))
 	assert(MemoryShop.SHOP_BACKDROP_PATH.ends_with("ui_memory_shop_backdrop_v2.png"))
 
 	var gallery_items: Array[Dictionary] = PauseMenu.call("_load_artbook_items")

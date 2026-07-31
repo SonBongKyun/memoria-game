@@ -181,7 +181,7 @@ func _build_ui() -> void:
 	vbox.add_child(subtitle)
 
 	archive_status = Label.new()
-	archive_status.add_theme_font_size_override("font_size", 11)
+	archive_status.add_theme_font_size_override("font_size", 12)
 	archive_status.add_theme_color_override("font_color", Color(0.55, 0.62, 0.72))
 	archive_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(archive_status)
@@ -251,7 +251,7 @@ func _build_ui() -> void:
 	# 닫기 힌트
 	close_hint = Label.new()
 	close_hint.text = "[ESC] Close"
-	close_hint.add_theme_font_size_override("font_size", 11)
+	close_hint.add_theme_font_size_override("font_size", 12)
 	close_hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_hint)

@@ -48,9 +48,42 @@ func _ready() -> void:
 	assert((battle.get("log_lines") as Array).size() == 2, "The field readout must not accumulate an obstructive wall of text")
 	assert(battle.get("_last_battle_message") == "Third beat", "The newest combat consequence must remain readable")
 
-	print("BATTLE_COMMAND_DECK_SMOKE_PASS actions=%d readout_height=%.1f player_scale=%s" % [
+	var item_feedback_cases: Array[Dictionary] = [
+		{"id": "potion", "type": "heal", "suffix": "item_recover_cutin_v1.png"},
+		{"id": "antidote", "type": "cure", "suffix": "item_cure_cutin_v1.png"},
+		{"id": "firebomb", "type": "burn", "suffix": "item_ignite_cutin_v1.png"},
+		{"id": "smoke_bomb", "type": "flee", "suffix": "item_withdraw_cutin_v1.png"},
+		{"id": "witness_ink", "type": "witness", "suffix": "item_witness_cutin_v1.png"},
+		{"id": "anchor_lantern", "type": "guard", "suffix": "item_anchor_guard_cutin_v1.png"},
+		{"id": "ledger_chalk", "type": "scan", "suffix": "item_fault_scan_cutin_v1.png"},
+	]
+	var action_cutin := battle.get("_action_cutin") as TextureRect
+	var combat_cue_title := battle.get("combat_cue_title") as Label
+	assert(BattleManager.item_used.is_connected(Callable(battle, "_on_item_used")), "Battle scene must consume item feedback events")
+	if DisplayServer.get_name() != "headless":
+		await get_tree().create_timer(2.1).timeout
+	for feedback: Dictionary in item_feedback_cases:
+		BattleManager.item_used.emit(String(feedback["id"]), String(feedback["type"]))
+		assert(action_cutin.texture != null and action_cutin.texture.resource_path.ends_with(String(feedback["suffix"])), "Item type must resolve to its generated action art: " + String(feedback["type"]))
+		assert(combat_cue_title.text != "", "Item feedback must pair art with a tactical cue")
+		await get_tree().create_timer(0.16).timeout
+		_save_viewport("res://tmp/visual_audit/item_moment_%s.png" % String(feedback["type"]))
+
+	print("BATTLE_COMMAND_DECK_SMOKE_PASS actions=%d item_moments=%d readout_height=%.1f player_scale=%s" % [
 		action_buttons.size(),
+		item_feedback_cases.size(),
 		readout_art.size.y,
 		str((battle.get("player_sprite") as AnimatedSprite2D).scale),
 	])
 	get_tree().quit(0)
+
+func _save_viewport(path: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var output_dir := ProjectSettings.globalize_path("res://tmp/visual_audit")
+	var mkdir_error := DirAccess.make_dir_recursive_absolute(output_dir)
+	assert(mkdir_error == OK or mkdir_error == ERR_ALREADY_EXISTS, "Could not create gameplay moment capture directory")
+	var image := get_viewport().get_texture().get_image()
+	assert(image != null and not image.is_empty(), "Gameplay moment capture is empty: " + path)
+	var save_error := image.save_png(ProjectSettings.globalize_path(path))
+	assert(save_error == OK, "Could not save gameplay moment capture: " + path)

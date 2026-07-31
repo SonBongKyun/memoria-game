@@ -101,6 +101,15 @@ const MEMORY_BURN_CUTIN_PATHS: Dictionary = {
 	"identity_compass": "res://assets/cg/generated/memory_burn_compass.png",
 	"identity_void_walker": "res://assets/cg/generated/memory_burn_void_walker.png",
 }
+const ITEM_ACTION_CUTIN_PATHS: Dictionary = {
+	"heal": "res://assets/cg/generated/gameplay_moments/item_recover_cutin_v1.png",
+	"cure": "res://assets/cg/generated/gameplay_moments/item_cure_cutin_v1.png",
+	"burn": "res://assets/cg/generated/gameplay_moments/item_ignite_cutin_v1.png",
+	"flee": "res://assets/cg/generated/gameplay_moments/item_withdraw_cutin_v1.png",
+	"witness": "res://assets/cg/generated/gameplay_moments/item_witness_cutin_v1.png",
+	"guard": "res://assets/cg/generated/gameplay_moments/item_anchor_guard_cutin_v1.png",
+	"scan": "res://assets/cg/generated/gameplay_moments/item_fault_scan_cutin_v1.png",
+}
 var hp_tween_player: Tween
 var hp_tween_enemy: Tween
 var canvas_root: Control  # 전투 UI 루트 (셰이크용)
@@ -207,25 +216,57 @@ var _pending_burn_id: String = ""  # memory ID waiting for confirmation
 var _victory_panel: PanelContainer
 var _victory_art: TextureRect
 var _victory_rewards: Array = []  # collected reward lines from battle_log
+var _opening_carryovers_presented: bool = false
 
 func _ready() -> void:
 	_build_ui()
 	_connect_signals()
 	_on_limit_changed(BattleManager.limit_gauge)
-	if BattleManager.field_focus_opening:
-		_present_field_focus_opening.call_deferred()
 	# S56: BattleVFX 초기화 (_build_ui 이후 canvas_root 유효)
 	battle_vfx = BattleVFX.new(self, canvas_root)
 	# 인트로 연출 후 HP 표시
 	_play_intro()
 
 func _present_field_focus_opening() -> void:
-	await BattleManager.pace_timer(0.55).timeout
+	var opening_delay := 0.82 if BattleManager.field_entry_mode != "neutral" else 0.30
+	await BattleManager.pace_timer(opening_delay).timeout
 	if not is_inside_tree():
 		return
 	var message := "[현장 집중] 메아리의 방향이 전투에 남았다 · 공명 25 / 리미트 20" if GameManager.current_locale == "ko" else "[FIELD FOCUS] The mapped echo carries into battle · Resonance 25 / Limit 20"
 	_on_battle_log(message)
 	_show_turn_indicator(_bl("FIELD FOCUS", "필드 포커스"), Color(0.82, 0.72, 0.42))
+
+func _present_field_entry() -> void:
+	await BattleManager.pace_timer(0.08).timeout
+	if not is_inside_tree():
+		return
+	var mode := BattleManager.field_entry_mode
+	var title := ""
+	var detail := ""
+	var cutin_path := ""
+	var accent := Color(0.58, 0.82, 1.0)
+	match mode:
+		"ambush":
+			title = _bl("PHASE AMBUSH", "위상 기습")
+			detail = _bl("First contact seized · BREAK pressure primed", "접촉 주도권 확보 · BREAK 압력 예열")
+			cutin_path = ARREL_BLADE_CUTIN_PATH
+			accent = Color(1.0, 0.62, 0.30)
+		"guarded":
+			title = _bl("GUARDED ENTRY", "대비 진입")
+			detail = _bl("Collision read · first hostile blow guarded", "충돌 예측 완료 · 적의 첫 일격 방어")
+			cutin_path = ARREL_GUARD_CUTIN_PATH
+			accent = Color(0.48, 0.84, 0.96)
+		"witness":
+			title = _bl("WITNESS ENTRY", "증언 진입")
+			detail = _bl("The memory inside the threat is already exposed", "위협 안의 기억을 전투 전에 드러냄")
+			cutin_path = ARREL_WITNESS_CUTIN_PATH
+			accent = Color(0.78, 0.64, 1.0)
+		_:
+			return
+	_on_battle_log("[APPROACH] %s" % detail)
+	_show_turn_indicator(title, accent)
+	_show_combat_cue(title, detail, cutin_path, accent, 1.05)
+	_play_action_cutin(cutin_path, true, 0.78, 0.28)
 
 func _process(delta: float) -> void:
 	_idle_time += delta
@@ -523,7 +564,10 @@ func _build_hybrid_depth_stage() -> void:
 	var profile := HybridDepthStage.profile_from_scene(BattleManager.return_scene)
 	_hybrid_depth_stage = HybridDepthStage.create_stage(profile, HybridDepthStage.StageMode.BATTLE)
 	_hybrid_depth_stage.name = "HybridDepthStage"
-	_hybrid_depth_stage.modulate.a = 0.36 if OptionsMenu.is_clean_gameplay_visuals() else 0.48
+	# S211: 3D 무대가 실제로 보이는 밝기.
+	# 0.36에서는 저폴리 기둥 몇 개가 어두운 배경에 묻혀 3D가 켜져 있다는 사실조차
+	# 알 수 없었다. 이제 바닥과 깊이 레이어가 무대 공간을 실제로 만들어 준다.
+	_hybrid_depth_stage.modulate.a = 0.72 if OptionsMenu.is_clean_gameplay_visuals() else 0.82
 	add_child(_hybrid_depth_stage)
 
 ## S53: 전투 배경 패럴랙스 레이어
@@ -647,12 +691,12 @@ func _build_battle_speed_chip(root: Control) -> void:
 	_battle_speed_btn.offset_bottom = 32
 	_battle_speed_btn.focus_mode = Control.FOCUS_NONE
 	_battle_speed_btn.z_index = 63
-	_battle_speed_btn.add_theme_font_size_override("font_size", 11)
-	_battle_speed_btn.add_theme_color_override("font_color", Color(0.80, 0.82, 0.90))
+	_battle_speed_btn.add_theme_font_size_override("font_size", 12)
+	_battle_speed_btn.add_theme_color_override("font_color", Color(0.90, 0.92, 1.0))
 	_battle_speed_btn.add_theme_color_override("font_hover_color", Color(0.96, 0.86, 0.58))
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.028, 0.044, 0.88)
+	style.bg_color = Color(0.024, 0.022, 0.036, 0.96)
 	style.border_color = Color(0.46, 0.42, 0.56, 0.52)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(3)
@@ -705,8 +749,8 @@ func _build_tactical_objective_panel(root: Control) -> void:
 	objective_art.z_index = 61
 	root.add_child(objective_art)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.020, 0.016, 0.026, 0.68)
-	style.border_color = Color(0.72, 0.55, 0.25, 0.42)
+	style.bg_color = Color(0.020, 0.016, 0.026, 0.94)
+	style.border_color = Color(0.82, 0.64, 0.34, 0.72)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(10)
@@ -719,21 +763,21 @@ func _build_tactical_objective_panel(root: Control) -> void:
 
 	objective_title_label = Label.new()
 	objective_title_label.text = _bl("TACTICAL OBJECTIVE", "전술 목표")
-	objective_title_label.add_theme_font_size_override("font_size", 11)
-	objective_title_label.add_theme_color_override("font_color", Color(0.92, 0.72, 0.36, 0.90))
+	objective_title_label.add_theme_font_size_override("font_size", 13)
+	objective_title_label.add_theme_color_override("font_color", Color(0.98, 0.78, 0.42, 1.0))
 	box.add_child(objective_title_label)
 
 	objective_desc_label = Label.new()
 	objective_desc_label.text = _bl("Awaiting encounter data...", "교전 데이터 대기 중...")
 	objective_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective_desc_label.add_theme_font_size_override("font_size", 12)
-	objective_desc_label.add_theme_color_override("font_color", Color(0.84, 0.80, 0.70, 0.82))
+	objective_desc_label.add_theme_font_size_override("font_size", 14)
+	objective_desc_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	box.add_child(objective_desc_label)
 
 	objective_meta_label = Label.new()
 	objective_meta_label.text = _bl("Resonance: Cold 0%", "공명: 냉각 0%")
-	objective_meta_label.add_theme_font_size_override("font_size", 11)
-	objective_meta_label.add_theme_color_override("font_color", Color(0.58, 0.74, 0.92, 0.82))
+	objective_meta_label.add_theme_font_size_override("font_size", 12)
+	objective_meta_label.add_theme_color_override("font_color", Color(0.72, 0.86, 1.0, 1.0))
 	box.add_child(objective_meta_label)
 
 func _build_objective_briefing(root: Control) -> void:
@@ -787,15 +831,15 @@ func _build_objective_briefing(root: Control) -> void:
 	)
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	subtitle.add_theme_font_size_override("font_size", 13)
-	subtitle.add_theme_color_override("font_color", Color(0.78, 0.75, 0.70))
+	subtitle.add_theme_font_size_override("font_size", 15)
+	subtitle.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	briefing_box.add_child(subtitle)
 
 	var chain_label := Label.new()
 	chain_label.name = "DirectiveChainLabel"
 	chain_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	chain_label.add_theme_font_size_override("font_size", 12)
-	chain_label.add_theme_color_override("font_color", Color(0.58, 0.76, 0.96))
+	chain_label.add_theme_font_size_override("font_size", 13)
+	chain_label.add_theme_color_override("font_color", Color(0.72, 0.86, 1.0))
 	briefing_box.add_child(chain_label)
 
 	objective_briefing_buttons = VBoxContainer.new()
@@ -816,6 +860,7 @@ func _on_tactical_objective_options_changed(options: Array) -> void:
 			action_container.visible = true
 			if action_container.get_child_count() > 0:
 				action_container.get_child(0).grab_focus()
+			_present_opening_carryovers.call_deferred()
 		return
 
 	var chain_label := objective_briefing_panel.find_child("DirectiveChainLabel", true, false) as Label
@@ -830,8 +875,8 @@ func _on_tactical_objective_options_changed(options: Array) -> void:
 		choice.name = "DirectiveChoice%d" % (i + 1)
 		choice.custom_minimum_size = Vector2(0, 72)
 		choice.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		choice.add_theme_font_size_override("font_size", 13)
-		choice.add_theme_color_override("font_color", Color(0.88, 0.84, 0.75))
+		choice.add_theme_font_size_override("font_size", 15)
+		choice.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 		choice.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.58))
 		var reward_parts: Array[String] = ["+%d Grains" % int(option.get("reward_grains", 0))]
 		if int(option.get("reward_heal", 0)) > 0:
@@ -1025,16 +1070,19 @@ func _play_intro() -> void:
 
 	t.set_parallel(false)
 
-	# 잠시 유지
-	t.tween_interval(1.0)
+	# The old sequence faded every label out one after another, turning every
+	# ordinary encounter into a 3+ second interruption.  Keep the dramatic
+	# identification beat, then clear all elements together.
+	t.tween_interval(0.55)
 
 	# 전체 페이드 아웃
+	t.set_parallel(true)
 	t.tween_property(intro_overlay, "color:a", 0.0, 0.5).set_ease(Tween.EASE_IN)
-	t.tween_property(name_display, "modulate:a", 0.0, 0.4)
-	t.tween_property(sub_label, "modulate:a", 0.0, 0.4)
-	t.tween_property(art_preview, "modulate:a", 0.0, 0.35)
-	t.tween_property(intel_label, "modulate:a", 0.0, 0.35)
-	t.tween_callback(_finish_intro)
+	t.tween_property(name_display, "modulate:a", 0.0, 0.34)
+	t.tween_property(sub_label, "modulate:a", 0.0, 0.34)
+	t.tween_property(art_preview, "modulate:a", 0.0, 0.30)
+	t.tween_property(intel_label, "modulate:a", 0.0, 0.30)
+	t.chain().tween_callback(_finish_intro)
 
 func _format_enemy_intro_intel(enemy: BattleManager.Enemy) -> String:
 	var parts: Array[String] = []
@@ -1062,9 +1110,23 @@ func _finish_intro() -> void:
 		if objective_briefing_buttons and objective_briefing_buttons.get_child_count() > 0:
 			objective_briefing_buttons.get_child(0).grab_focus()
 		return
+	_present_opening_carryovers()
 	action_container.visible = true
 	if action_container.get_child_count() > 0:
 		action_container.get_child(0).grab_focus()
+
+func _present_opening_carryovers() -> void:
+	if _opening_carryovers_presented:
+		return
+	if intro_overlay and intro_overlay.visible:
+		return
+	if objective_briefing_overlay and objective_briefing_overlay.visible:
+		return
+	_opening_carryovers_presented = true
+	if BattleManager.field_entry_mode != "neutral":
+		_present_field_entry.call_deferred()
+	if BattleManager.field_focus_opening:
+		_present_field_focus_opening.call_deferred()
 
 ## ===================== 턴 표시 =====================
 
@@ -1220,10 +1282,10 @@ func _update_turn_preview() -> void:
 		var is_current = (i == 0)
 		var lbl = Label.new()
 		lbl.text = turns[i]
-		lbl.add_theme_font_size_override("font_size", 11 if not is_current else 13)
-		var col = Color(0.5, 0.65, 0.85) if turns[i] == ally_tag else Color(0.8, 0.4, 0.35)
+		lbl.add_theme_font_size_override("font_size", 12 if not is_current else 14)
+		var col = Color(0.72, 0.84, 1.0) if turns[i] == ally_tag else Color(1.0, 0.60, 0.52)
 		if not is_current:
-			col = col.darkened(0.4)
+			col = col.darkened(0.24)
 		lbl.add_theme_color_override("font_color", col)
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -1243,8 +1305,8 @@ func _update_turn_preview() -> void:
 			# 현재 턴 표시자에 화살표
 			var arrow = Label.new()
 			arrow.text = ">"
-			arrow.add_theme_font_size_override("font_size", 9)
-			arrow.add_theme_color_override("font_color", col.darkened(0.2))
+			arrow.add_theme_font_size_override("font_size", 12)
+			arrow.add_theme_color_override("font_color", col)
 			arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			turn_preview_container.add_child(arrow)
 
@@ -1331,13 +1393,13 @@ func _get_status_display(effect: int) -> Dictionary:
 func _add_status_icon(container: HBoxContainer, text: String, color: Color) -> void:
 	var label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 10)
+	label.add_theme_font_size_override("font_size", 12)
 	label.add_theme_color_override("font_color", color)
 
 	var panel = PanelContainer.new()
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(color.r, color.g, color.b, 0.15)
-	style.border_color = Color(color.r, color.g, color.b, 0.4)
+	style.bg_color = Color(0.025, 0.022, 0.034, 0.94)
+	style.border_color = Color(color.r, color.g, color.b, 0.72)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(3)
 	style.set_content_margin_all(3)
@@ -1369,8 +1431,8 @@ func _build_enemy_panel(root: Control) -> void:
 	panel.add_child(vbox)
 
 	enemy_name_label = Label.new()
-	enemy_name_label.add_theme_font_size_override("font_size", 15)
-	enemy_name_label.add_theme_color_override("font_color", Color(0.85, 0.4, 0.35))
+	enemy_name_label.add_theme_font_size_override("font_size", 17)
+	enemy_name_label.add_theme_color_override("font_color", Color(1.0, 0.62, 0.54))
 	vbox.add_child(enemy_name_label)
 
 	enemy_hp_bar = ProgressBar.new()
@@ -1387,15 +1449,15 @@ func _build_enemy_panel(root: Control) -> void:
 	vbox.add_child(enemy_hp_bar)
 
 	enemy_hp_label = Label.new()
-	enemy_hp_label.add_theme_font_size_override("font_size", 11)
-	enemy_hp_label.add_theme_color_override("font_color", Color(0.6, 0.35, 0.3))
+	enemy_hp_label.add_theme_font_size_override("font_size", 13)
+	enemy_hp_label.add_theme_color_override("font_color", Color(0.96, 0.76, 0.72))
 	enemy_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(enemy_hp_label)
 
 	enemy_break_label = Label.new()
 	enemy_break_label.text = "BREAK"
-	enemy_break_label.add_theme_font_size_override("font_size", 10)
-	enemy_break_label.add_theme_color_override("font_color", Color(0.82, 0.66, 0.38))
+	enemy_break_label.add_theme_font_size_override("font_size", 12)
+	enemy_break_label.add_theme_color_override("font_color", Color(0.98, 0.80, 0.48))
 	vbox.add_child(enemy_break_label)
 
 	enemy_break_bar = ProgressBar.new()
@@ -1442,7 +1504,9 @@ func _build_battle_ground() -> void:
 	_ground_rect.anchor_right = 1.0
 	_ground_rect.anchor_top = STAGE_FLOOR_ANCHOR
 	_ground_rect.anchor_bottom = 1.0
-	_ground_rect.color = Color(0.035, 0.030, 0.052, 0.62)
+	# S211: 3D 무대가 지면을 담당하므로, 2D 바닥 띠는 대비를 잡아 주는 정도로만 남긴다.
+	# 예전 값(0.62)은 3D 바닥의 원근 격자를 그대로 덮어 버렸다.
+	_ground_rect.color = Color(0.035, 0.030, 0.052, 0.34)
 	_ground_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_ground_rect)
 
@@ -1591,7 +1655,7 @@ func _build_combat_cue_panel(root: Control) -> void:
 	combat_cue_panel.visible = false
 	combat_cue_panel.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.018, 0.024, 0.040, 0.88)
+	style.bg_color = Color(0.016, 0.022, 0.038, 0.97)
 	style.border_color = Color(0.54, 0.72, 0.96, 0.76)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(5)
@@ -1614,13 +1678,13 @@ func _build_combat_cue_panel(root: Control) -> void:
 	copy.add_theme_constant_override("separation", 1)
 	row.add_child(copy)
 	combat_cue_title = Label.new()
-	combat_cue_title.add_theme_font_size_override("font_size", 11)
+	combat_cue_title.add_theme_font_size_override("font_size", 13)
 	combat_cue_title.add_theme_color_override("font_color", Color(0.80, 0.90, 1.0, 0.96))
 	combat_cue_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	copy.add_child(combat_cue_title)
 	combat_cue_detail = Label.new()
-	combat_cue_detail.add_theme_font_size_override("font_size", 12)
-	combat_cue_detail.add_theme_color_override("font_color", Color(0.88, 0.86, 0.80, 0.92))
+	combat_cue_detail.add_theme_font_size_override("font_size", 13)
+	combat_cue_detail.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	combat_cue_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	combat_cue_detail.max_lines_visible = 2
 	copy.add_child(combat_cue_detail)
@@ -1982,7 +2046,7 @@ func _build_log_panel(root: Control) -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.z_index = 36
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.015, 0.020, 0.030, 0.28)
+	style.bg_color = Color(0.012, 0.018, 0.028, 0.88)
 	style.set_content_margin_all(4)
 	panel.add_theme_stylebox_override("panel", style)
 	root.add_child(panel)
@@ -1996,8 +2060,8 @@ func _build_log_panel(root: Control) -> void:
 	field_readout_header.text = _bl("FIELD READ", "전장 판독")
 	field_readout_header.custom_minimum_size = Vector2(98, 0)
 	field_readout_header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	field_readout_header.add_theme_font_size_override("font_size", 11)
-	field_readout_header.add_theme_color_override("font_color", Color(0.48, 0.78, 1.0))
+	field_readout_header.add_theme_font_size_override("font_size", 13)
+	field_readout_header.add_theme_color_override("font_color", Color(0.66, 0.86, 1.0))
 	row.add_child(field_readout_header)
 
 	log_label = RichTextLabel.new()
@@ -2007,8 +2071,7 @@ func _build_log_panel(root: Control) -> void:
 	log_label.fit_content = true
 	log_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	log_label.add_theme_font_size_override("normal_font_size", 13)
-	log_label.add_theme_color_override("default_color", Color(0.82, 0.80, 0.76))
+	UITheme.apply_readability_finish(log_label, 15, UITheme.TEXT_PRIMARY, true)
 	row.add_child(log_label)
 	_set_field_readout(
 		_bl("FIELD READ", "전장 판독"),
@@ -2054,8 +2117,8 @@ func _build_player_panel(root: Control) -> void:
 
 	var name_label = Label.new()
 	name_label.text = GameManager.localized_speaker("Arrel")
-	name_label.add_theme_font_size_override("font_size", 15)
-	name_label.add_theme_color_override("font_color", Color(0.45, 0.55, 0.75))
+	name_label.add_theme_font_size_override("font_size", 17)
+	name_label.add_theme_color_override("font_color", Color(0.72, 0.84, 1.0))
 	vbox.add_child(name_label)
 
 	player_hp_bar = ProgressBar.new()
@@ -2072,8 +2135,8 @@ func _build_player_panel(root: Control) -> void:
 	vbox.add_child(player_hp_bar)
 
 	player_hp_label = Label.new()
-	player_hp_label.add_theme_font_size_override("font_size", 11)
-	player_hp_label.add_theme_color_override("font_color", Color(0.35, 0.45, 0.6))
+	player_hp_label.add_theme_font_size_override("font_size", 13)
+	player_hp_label.add_theme_color_override("font_color", Color(0.78, 0.86, 1.0))
 	vbox.add_child(player_hp_label)
 
 func _build_action_buttons(root: Control) -> void:
@@ -2149,8 +2212,8 @@ func _build_action_buttons(root: Control) -> void:
 		btn.add_theme_stylebox_override("disabled", disabled_s)
 		btn.add_theme_color_override("font_disabled_color", Color(0.60, 0.55, 0.50, 0.92))
 
-		btn.add_theme_font_size_override("font_size", 14)
-		btn.add_theme_color_override("font_color", Color(0.86, 0.82, 0.76))
+		btn.add_theme_font_size_override("font_size", 15)
+		btn.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 		btn.add_theme_color_override("font_hover_color", Color(0.95, 0.8, 0.5))
 		btn.add_theme_color_override("font_pressed_color", Color(1.0, 0.9, 0.6))
 		btn.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.72))
@@ -2318,6 +2381,7 @@ func _build_burn_list(root: Control) -> void:
 func _connect_signals() -> void:
 	BattleManager.battle_log.connect(_on_battle_log)
 	BattleManager.damage_dealt.connect(_on_damage_dealt)
+	BattleManager.item_used.connect(_on_item_used)
 	BattleManager.player_turn_started.connect(_on_player_turn)
 	BattleManager.enemy_turn_started.connect(_on_enemy_turn)
 	BattleManager.battle_ended.connect(_on_battle_ended)
@@ -2358,6 +2422,8 @@ func _exit_tree() -> void:
 		BattleManager.battle_log.disconnect(_on_battle_log)
 	if BattleManager.damage_dealt.is_connected(_on_damage_dealt):
 		BattleManager.damage_dealt.disconnect(_on_damage_dealt)
+	if BattleManager.item_used.is_connected(_on_item_used):
+		BattleManager.item_used.disconnect(_on_item_used)
 	if BattleManager.player_turn_started.is_connected(_on_player_turn):
 		BattleManager.player_turn_started.disconnect(_on_player_turn)
 	if BattleManager.enemy_turn_started.is_connected(_on_enemy_turn):
@@ -2510,6 +2576,40 @@ func _on_battle_log(message: String) -> void:
 	# S54: 보상 메시지 수집 (승리 화면용)
 	if "Gained" in message or "Recovered" in message or "Found:" in message:
 		_victory_rewards.append(message)
+
+func _on_item_used(item_id: String, item_type: String) -> void:
+	var cutin_path := String(ITEM_ACTION_CUTIN_PATHS.get(item_type, ""))
+	if cutin_path == "" or not ResourceLoader.exists(cutin_path):
+		return
+	var item_def: Dictionary = GameManager.ITEMS.get(item_id, {})
+	var item_name := String(item_def.get("name", item_id))
+	var cue_title := ""
+	var cue_detail := ""
+	var accent := _get_item_type_color(item_type)
+	match item_type:
+		"heal":
+			cue_title = _bl("FIELD RECOVERY", "현장 회복")
+			cue_detail = _bl("%s stitches strength back into the present.", "%s이(가) 현재에 힘을 다시 꿰맨다.") % item_name
+		"cure":
+			cue_title = _bl("STATUS PURGED", "상태 정화")
+			cue_detail = _bl("%s washes poison and cinders from the body.", "%s이(가) 독과 잿불을 씻어낸다.") % item_name
+		"burn":
+			cue_title = _bl("CINDER RELEASE", "잿불 방출")
+			cue_detail = _bl("%s turns one opening into a burning threat.", "%s이(가) 빈틈을 불타는 위협으로 바꾼다.") % item_name
+		"flee":
+			cue_title = _bl("TACTICAL WITHDRAWAL", "전술 철수")
+			cue_detail = _bl("%s breaks the hostile line before it closes.", "%s이(가) 적의 포위선이 닫히기 전에 끊어낸다.") % item_name
+		"witness":
+			cue_title = _bl("WITNESS TRACE", "증언 추적")
+			cue_detail = _bl("%s reveals what force alone would erase.", "%s이(가) 힘만으로는 지워질 진실을 드러낸다.") % item_name
+		"guard":
+			cue_title = _bl("ANCHOR SET", "앵커 고정")
+			cue_detail = _bl("%s seals the next impact and steadies resolve.", "%s이(가) 다음 충격을 봉인하고 의지를 붙든다.") % item_name
+		"scan":
+			cue_title = _bl("FAULT MAPPED", "균열 분석")
+			cue_detail = _bl("%s turns a hidden fracture into BREAK pressure.", "%s이(가) 숨은 균열을 브레이크 압박으로 바꾼다.") % item_name
+	_show_combat_cue(cue_title, cue_detail, cutin_path, accent, 0.92)
+	_play_action_cutin(cutin_path, true, 0.82, 0.34)
 
 func _on_guard_focus(trigger: String, value: int) -> void:
 	_update_status_icons()
@@ -3189,8 +3289,8 @@ func _toggle_item_list() -> void:
 
 	var quick_header := Label.new()
 	quick_header.text = _bl("QUICK KIT  /  KEYS 1-3", "퀵 키트  /  단축키 1-3")
-	quick_header.add_theme_font_size_override("font_size", 11)
-	quick_header.add_theme_color_override("font_color", Color(0.88, 0.72, 0.42))
+	quick_header.add_theme_font_size_override("font_size", 13)
+	quick_header.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	item_list_container.add_child(quick_header)
 	var quick_row := HBoxContainer.new()
 	quick_row.name = "BattleQuickItemRow"
@@ -3202,7 +3302,7 @@ func _toggle_item_list() -> void:
 		quick_button.name = "BattleQuickItem_%d" % (slot_index + 1)
 		quick_button.custom_minimum_size = Vector2(0, 50)
 		quick_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		quick_button.add_theme_font_size_override("font_size", 10)
+		quick_button.add_theme_font_size_override("font_size", 12)
 		if slot_index < quick_slots.size():
 			var quick_id := quick_slots[slot_index]
 			var quick_def: Dictionary = GameManager.ITEMS.get(quick_id, {})
@@ -3224,8 +3324,8 @@ func _toggle_item_list() -> void:
 
 	var supplies_header := Label.new()
 	supplies_header.text = _bl("ALL CARRIED SUPPLIES", "전체 소지품")
-	supplies_header.add_theme_font_size_override("font_size", 10)
-	supplies_header.add_theme_color_override("font_color", Color(0.58, 0.56, 0.54))
+	supplies_header.add_theme_font_size_override("font_size", 12)
+	supplies_header.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	item_list_container.add_child(supplies_header)
 
 	var items = GameManager.player_data.items
@@ -3233,7 +3333,7 @@ func _toggle_item_list() -> void:
 		var empty_label = Label.new()
 		empty_label.text = _bl("No items.", "아이템이 없다.")
 		empty_label.add_theme_font_size_override("font_size", 13)
-		empty_label.add_theme_color_override("font_color", Color(0.5, 0.4, 0.35))
+		empty_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		item_list_container.add_child(empty_label)
 	else:
 		var ordered_items: Array[String] = []
@@ -3281,8 +3381,8 @@ func _toggle_item_list() -> void:
 			hover_s.set_border_width_all(1)
 			btn.add_theme_stylebox_override("hover", hover_s)
 			btn.add_theme_stylebox_override("focus", hover_s)
-			btn.add_theme_font_size_override("font_size", 12)
-			btn.add_theme_color_override("font_color", Color(0.68, 0.68, 0.70))
+			btn.add_theme_font_size_override("font_size", 14)
+			btn.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 			btn.add_theme_color_override("font_hover_color", Color(item_color.r, item_color.g, item_color.b, 1.0))
 
 			btn.pressed.connect(_use_battle_item.bind(item_id))
@@ -3291,8 +3391,8 @@ func _toggle_item_list() -> void:
 
 	var cancel_btn = Button.new()
 	cancel_btn.text = "[ Cancel ]"
-	cancel_btn.add_theme_font_size_override("font_size", 12)
-	cancel_btn.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
+	cancel_btn.add_theme_font_size_override("font_size", 14)
+	cancel_btn.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	cancel_btn.pressed.connect(func():
 		AudioManager.play_sfx("cancel")
 		_hide_item_list()
@@ -3325,6 +3425,8 @@ func _get_item_type_color(item_type: String) -> Color:
 		"burn": return Color(1.0, 0.48, 0.20)
 		"flee": return Color(0.72, 0.72, 0.78)
 		"witness": return Color(0.70, 0.50, 1.0)
+		"guard": return Color(0.96, 0.76, 0.34)
+		"scan": return Color(0.38, 0.82, 0.94)
 	return Color(0.72, 0.70, 0.56)
 
 func _get_item_type_label(item_type: String) -> String:
@@ -3334,6 +3436,8 @@ func _get_item_type_label(item_type: String) -> String:
 		"burn": return "IGNITE"
 		"flee": return "ESCAPE"
 		"witness": return "WITNESS"
+		"guard": return "ANCHOR"
+		"scan": return "SCAN"
 	return "TOOL"
 
 func _hide_item_list() -> void:
@@ -3757,8 +3861,8 @@ func _build_limit_gauge(root: Control) -> void:
 
 	limit_label = Label.new()
 	limit_label.text = _bl("LIMIT", "리밋")
-	limit_label.add_theme_font_size_override("font_size", 11)
-	limit_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
+	limit_label.add_theme_font_size_override("font_size", 13)
+	limit_label.add_theme_color_override("font_color", Color(0.84, 0.68, 0.96))
 	# S209: 가변 폰트 메트릭 때문에 마지막 글자("밋")가 잘려 "리미"로 보이던 문제 수정.
 	limit_label.custom_minimum_size = Vector2(46, 0)
 	limit_label.clip_text = false
@@ -4299,16 +4403,16 @@ func _build_ally_command_ui(root: Control) -> void:
 
 	var lbl = Label.new()
 	lbl.text = _bl("Sable:", "세이블:")
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.7, 0.85, 0.95))
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_color_override("font_color", Color(0.78, 0.90, 1.0))
 	ally_cmd_container.add_child(lbl)
 
 	var cmds = [["Heal", "heal"], ["Strike", "strike"], ["Weaken", "weaken"], ["Guard", "guard"]]
 	for cmd in cmds:
 		var btn = Button.new()
 		btn.text = cmd[0]
-		btn.custom_minimum_size = Vector2(52, 22)
-		btn.add_theme_font_size_override("font_size", 10)
+		btn.custom_minimum_size = Vector2(56, 28)
+		btn.add_theme_font_size_override("font_size", 12)
 		var style = StyleBoxFlat.new()
 		style.bg_color = Color(0.15, 0.18, 0.25, 0.9)
 		style.border_color = Color(0.4, 0.55, 0.7, 0.7)
@@ -4351,16 +4455,16 @@ func _build_tobias_command_ui(root: Control) -> void:
 
 	var lbl = Label.new()
 	lbl.text = _bl("Tobias:", "토비아스:")
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 0.55))
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_color_override("font_color", Color(0.96, 0.84, 0.62))
 	tobias_cmd_container.add_child(lbl)
 
 	var cmds = [["Analyze", "analyze"], ["Archive", "archive"], ["Protect", "protect"]]
 	for cmd in cmds:
 		var btn = Button.new()
 		btn.text = cmd[0]
-		btn.custom_minimum_size = Vector2(52, 22)
-		btn.add_theme_font_size_override("font_size", 10)
+		btn.custom_minimum_size = Vector2(56, 28)
+		btn.add_theme_font_size_override("font_size", 12)
 		var style = StyleBoxFlat.new()
 		style.bg_color = Color(0.2, 0.18, 0.12, 0.9)
 		style.border_color = Color(0.6, 0.5, 0.3, 0.7)
@@ -4405,8 +4509,8 @@ func _build_stance_ui(root: Control) -> void:
 
 	var lbl = Label.new()
 	lbl.text = _bl("Stance:", "자세:")
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_color_override("font_color", Color(0.96, 0.84, 0.64))
 	stance_container.add_child(lbl)
 
 	var stances = [
@@ -4418,8 +4522,8 @@ func _build_stance_ui(root: Control) -> void:
 	for s in stances:
 		var btn = Button.new()
 		btn.text = s[1]
-		btn.custom_minimum_size = Vector2(65, 24)
-		btn.add_theme_font_size_override("font_size", 10)
+		btn.custom_minimum_size = Vector2(70, 28)
+		btn.add_theme_font_size_override("font_size", 12)
 		var style = StyleBoxFlat.new()
 		style.bg_color = Color(s[2].r * 0.3, s[2].g * 0.3, s[2].b * 0.3, 0.9)
 		style.border_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.6)
@@ -4490,8 +4594,8 @@ func _refresh_echo_display() -> void:
 		return
 	var header = Label.new()
 	header.text = _bl("Active Echoes", "활성 메아리")
-	header.add_theme_font_size_override("font_size", 10)
-	header.add_theme_color_override("font_color", Color(0.7, 0.55, 0.35))
+	header.add_theme_font_size_override("font_size", 12)
+	header.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	echo_display.add_child(header)
 	var echo_colors = {
 		"fading_warmth": Color(0.4, 0.7, 0.4),
@@ -4506,7 +4610,7 @@ func _refresh_echo_display() -> void:
 		var lbl = Label.new()
 		var echo_name = echo["type"].replace("_", " ").capitalize()
 		lbl.text = "%s (%dt)" % [echo_name, echo.get("turns", 0)]
-		lbl.add_theme_font_size_override("font_size", 9)
+		lbl.add_theme_font_size_override("font_size", 12)
 		lbl.add_theme_color_override("font_color", echo_colors.get(echo["type"], Color(0.6, 0.6, 0.6)))
 		echo_display.add_child(lbl)
 
@@ -4528,8 +4632,8 @@ func _build_elia_skill_ui(root: Control) -> void:
 
 	var header = Label.new()
 	header.text = _bl("Elia", "엘리아")
-	header.add_theme_font_size_override("font_size", 11)
-	header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.85))
+	header.add_theme_font_size_override("font_size", 13)
+	header.add_theme_color_override("font_color", Color(0.88, 0.78, 1.0))
 	elia_skill_container.add_child(header)
 
 	elia_skill_container.visible = false
@@ -4557,7 +4661,7 @@ func _refresh_elia_skills() -> void:
 		btn.text = "%s%s" % [skill["name"], cd_text]
 		btn.tooltip_text = skill["desc"]
 		btn.custom_minimum_size = Vector2(118, 26)
-		btn.add_theme_font_size_override("font_size", 10)
+		btn.add_theme_font_size_override("font_size", 12)
 		btn.disabled = not skill["ready"]
 
 		var style = StyleBoxFlat.new()
@@ -4679,8 +4783,8 @@ func _on_environment_info(env_name: String, bonus_text: String) -> void:
 	lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	lbl.offset_top = 28
 	lbl.offset_bottom = 48
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.55, 0.7, 0.5, 0.9))
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.add_theme_color_override("font_color", Color(0.72, 0.92, 0.78, 1.0))
 	lbl.modulate.a = 0.0
 	lbl.z_index = 60
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -4708,18 +4812,18 @@ func _on_tactical_objective_changed(objective: Dictionary) -> void:
 		match status:
 			"complete":
 				style.border_color = Color(0.45, 0.95, 0.58, 0.82)
-				style.bg_color = Color(0.018, 0.072, 0.038, 0.70)
+				style.bg_color = Color(0.018, 0.072, 0.038, 0.94)
 				objective_desc_label.text = "완료. 보너스 확보." if GameManager.current_locale == "ko" else "Complete. Bonus secured."
 				objective_desc_label.add_theme_color_override("font_color", Color(0.62, 1.0, 0.72, 0.92))
 			"failed":
 				style.border_color = Color(0.80, 0.28, 0.22, 0.76)
-				style.bg_color = Color(0.078, 0.020, 0.022, 0.72)
+				style.bg_color = Color(0.078, 0.020, 0.022, 0.94)
 				objective_desc_label.text = "실패. 전투를 끝내야 합니다." if GameManager.current_locale == "ko" else "Lost. Finish the fight."
 				objective_desc_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.48, 0.88))
 			_:
 				style.border_color = Color(0.72, 0.55, 0.25, 0.52)
-				style.bg_color = Color(0.020, 0.016, 0.026, 0.68)
-				objective_desc_label.add_theme_color_override("font_color", Color(0.84, 0.80, 0.70, 0.82))
+				style.bg_color = Color(0.020, 0.016, 0.026, 0.94)
+				objective_desc_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	var tw = create_tween()
 	tw.tween_property(objective_panel, "scale", Vector2(1.03, 1.03), 0.08).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_property(objective_panel, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_CUBIC)
@@ -4907,7 +5011,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var enemy_line = Label.new()
 	enemy_line.text = (("해방: %s" if GameManager.current_locale == "ko" else "Released: %s") % enemy_name) if resolution == "witness" else "Defeated: %s" % enemy_name
 	enemy_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	enemy_line.add_theme_font_size_override("font_size", 11)
+	enemy_line.add_theme_font_size_override("font_size", 13)
 	enemy_line.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.0))
 	vbox.add_child(enemy_line)
 
@@ -4987,7 +5091,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	var bonus_lbl = Label.new()
 	bonus_lbl.text = _bl("Performance", "전투 성과")
-	bonus_lbl.add_theme_font_size_override("font_size", 11)
+	bonus_lbl.add_theme_font_size_override("font_size", 13)
 	bonus_lbl.add_theme_color_override("font_color", Color(0.45, 0.78, 0.9))
 	bonus_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bonus_row.add_child(bonus_lbl)
@@ -5019,7 +5123,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	var objective_lbl = Label.new()
 	objective_lbl.text = "목표" if GameManager.current_locale == "ko" else "Objective"
-	objective_lbl.add_theme_font_size_override("font_size", 11)
+	objective_lbl.add_theme_font_size_override("font_size", 13)
 	objective_lbl.add_theme_color_override("font_color", Color(0.72, 0.92, 0.55))
 	objective_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	objective_row.add_child(objective_lbl)
@@ -5045,7 +5149,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 
 	var momentum_lbl = Label.new()
 	momentum_lbl.text = "공명" if GameManager.current_locale == "ko" else "Resonance"
-	momentum_lbl.add_theme_font_size_override("font_size", 11)
+	momentum_lbl.add_theme_font_size_override("font_size", 13)
 	momentum_lbl.add_theme_color_override("font_color", Color(0.58, 0.74, 0.92))
 	momentum_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	momentum_row.add_child(momentum_lbl)
@@ -5132,7 +5236,7 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	var hint = Label.new()
 	hint.text = _bl("Press any key to continue", "아무 키나 눌러 계속")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 10)
+	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4, 0.0))
 	vbox.add_child(hint)
 
@@ -5453,8 +5557,8 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		var erosion_label = Label.new()
 		erosion_label.text = _bl("Eroded: %d%%, effective power reduced", "침식: %d%%, 유효 위력 감소") % erosion_pct
 		erosion_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		erosion_label.add_theme_font_size_override("font_size", 11)
-		erosion_label.add_theme_color_override("font_color", Color(0.7, 0.5, 0.3))
+		erosion_label.add_theme_font_size_override("font_size", 13)
+		erosion_label.add_theme_color_override("font_color", Color(0.94, 0.72, 0.46))
 		vbox.add_child(erosion_label)
 
 	# --- COST: What you lose ---
@@ -5471,8 +5575,8 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	var desc_label = Label.new()
 	desc_label.text = memory.description
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc_label.add_theme_font_size_override("font_size", 12)
-	desc_label.add_theme_color_override("font_color", Color(0.6, 0.55, 0.5))
+	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	vbox.add_child(desc_label)
 
 	# --- Story effect hint ---
@@ -5480,8 +5584,8 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		var effect_label = Label.new()
 		effect_label.text = _bl("This will change the world around you.", "이것은 당신을 둘러싼 세계를 바꾼다.")
 		effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		effect_label.add_theme_font_size_override("font_size", 11)
-		effect_label.add_theme_color_override("font_color", Color(0.6, 0.45, 0.7))
+		effect_label.add_theme_font_size_override("font_size", 13)
+		effect_label.add_theme_color_override("font_color", Color(0.84, 0.72, 0.96))
 		vbox.add_child(effect_label)
 
 	# --- Irreplaceable warning for Grade 1-2 (high value memories) ---

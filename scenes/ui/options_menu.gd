@@ -685,7 +685,7 @@ func _build_ui() -> void:
 	# Description text for accessibility
 	var desc = Label.new()
 	desc.text = GameManager.loc("options_help")
-	desc.add_theme_font_size_override("font_size", 11)
+	desc.add_theme_font_size_override("font_size", 12)
 	desc.add_theme_color_override("font_color", Color(0.45, 0.42, 0.38, 0.7))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc)

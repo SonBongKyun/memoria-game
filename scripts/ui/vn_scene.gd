@@ -215,8 +215,8 @@ func _build_ui() -> void:
 	_text_panel.offset_bottom = -30
 	_text_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	var tstyle = StyleBoxFlat.new()
-	tstyle.bg_color = Color(0.025, 0.023, 0.032, 0.90)
-	tstyle.border_color = Color(0.82, 0.66, 0.40, 0.62)
+	tstyle.bg_color = Color(0.022, 0.020, 0.030, 0.97)
+	tstyle.border_color = Color(0.86, 0.69, 0.40, 0.82)
 	tstyle.set_border_width(SIDE_LEFT, 1)
 	tstyle.set_border_width(SIDE_TOP, 2)
 	tstyle.set_border_width(SIDE_RIGHT, 1)
@@ -231,12 +231,14 @@ func _build_ui() -> void:
 	_text_label.fit_content = false
 	_text_label.scroll_active = false
 	# S71: 책 같은 가독성, 사이즈 키우고 행간 넓히기. theme.tres가 serif 폰트 자동 적용
-	_text_label.add_theme_font_size_override("normal_font_size", 22)
+	_text_label.add_theme_font_size_override("normal_font_size", 23)
 	_text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
 	_text_label.add_theme_constant_override("line_separation", 9)
-	_text_label.add_theme_color_override("default_color", Color(0.94, 0.91, 0.84))
+	_text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
+	_text_label.add_theme_color_override("font_outline_color", UITheme.TEXT_OUTLINE)
+	_text_label.add_theme_constant_override("outline_size", 1)
 	# 부드러운 검정 그림자로 어두운 CG 위에서도 가독성 확보
-	_text_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	_text_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 	_text_label.add_theme_constant_override("shadow_offset_x", 1)
 	_text_label.add_theme_constant_override("shadow_offset_y", 1)
 	_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -288,7 +290,7 @@ func _build_ui() -> void:
 	_continue_indicator.offset_top = -55
 	_continue_indicator.offset_bottom = -25
 	_continue_indicator.add_theme_font_size_override("font_size", 12)
-	_continue_indicator.add_theme_color_override("font_color", Color(0.82, 0.68, 0.42, 0.78))
+	_continue_indicator.add_theme_color_override("font_color", Color(0.94, 0.78, 0.48, 0.94))
 	_continue_indicator.add_theme_constant_override("outline_size", 1)
 	_continue_indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
 	_continue_indicator.visible = false
@@ -374,7 +376,7 @@ func _build_ui() -> void:
 	_choice_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UITheme.apply_ui_font(_choice_hint)
 	_choice_hint.add_theme_font_size_override("font_size", 14)
-	_choice_hint.add_theme_color_override("font_color", Color(0.86, 0.82, 0.72, 0.76))
+	_choice_hint.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	_choice_hint.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
 	_choice_hint.add_theme_constant_override("shadow_outline_size", 1)
 	_choice_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE

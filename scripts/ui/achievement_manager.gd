@@ -178,7 +178,7 @@ func _build_achievement_popup() -> void:
 	# "ACHIEVEMENT UNLOCKED" header
 	var header = Label.new()
 	header.text = "ACHIEVEMENT UNLOCKED"
-	header.add_theme_font_size_override("font_size", 10)
+	header.add_theme_font_size_override("font_size", 12)
 	header.add_theme_color_override("font_color", Color(0.6, 0.55, 0.4))
 	vbox.add_child(header)
 
@@ -190,7 +190,7 @@ func _build_achievement_popup() -> void:
 
 	# Achievement description
 	_popup_desc_label = Label.new()
-	_popup_desc_label.add_theme_font_size_override("font_size", 11)
+	_popup_desc_label.add_theme_font_size_override("font_size", 12)
 	_popup_desc_label.add_theme_color_override("font_color", Color(0.55, 0.5, 0.45))
 	vbox.add_child(_popup_desc_label)
 

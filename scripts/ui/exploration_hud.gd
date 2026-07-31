@@ -83,6 +83,14 @@ var quest_progress_bar: ProgressBar  # S57: visual quest progress
 var status_icons_row: HBoxContainer  # S57: status effect icons
 var controls_panel: PanelContainer
 var controls_label: Label
+var flow_panel: PanelContainer
+var flow_bar: ProgressBar
+var pressure_bar: ProgressBar
+var flow_value_label: Label
+var approach_label: Label
+var flow_hint_label: Label
+var _flow_fill_style: StyleBoxFlat
+var _pressure_fill_style: StyleBoxFlat
 var location_card: PanelContainer
 var location_art: TextureRect
 var location_title: Label
@@ -108,6 +116,10 @@ func _ready() -> void:
 	_connect_signals()
 	_update_hud()
 	print("[ExplorationHUD] Ready")
+
+func _process(_delta: float) -> void:
+	if flow_panel and flow_panel.visible:
+		_update_field_flow_hud()
 
 # ── UI 구성 ──
 func _build_ui() -> void:
@@ -143,8 +155,8 @@ func _build_ui() -> void:
 	panel.position = Vector2(12, 12)
 	panel.custom_minimum_size.x = 268
 	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.030, 0.024, 0.040, 0.58), # semi-transparent dark bg
-		Color(0.70, 0.56, 0.34, 0.42),    # subtle amber border
+		Color(0.026, 0.022, 0.036, 0.90), # readable dark backing
+		Color(0.78, 0.62, 0.38, 0.68),    # clear amber border
 		1,                                # thin border
 		4,                                # corner radius
 		8                                 # content margin
@@ -152,6 +164,7 @@ func _build_ui() -> void:
 	add_child(panel)
 	_build_location_card()
 	_build_controls_strip()
+	_build_field_flow_panel()
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 5)
@@ -166,14 +179,14 @@ func _build_ui() -> void:
 	identity_label = Label.new()
 	identity_label.text = "ARREL · JOURNEY"
 	identity_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	identity_label.add_theme_font_size_override("font_size", 13)
-	identity_label.add_theme_color_override("font_color", Color(0.94, 0.85, 0.66))
+	identity_label.add_theme_font_size_override("font_size", 14)
+	identity_label.add_theme_color_override("font_color", Color(0.98, 0.88, 0.68))
 	header_row.add_child(identity_label)
 
 	chapter_label = Label.new()
 	chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	chapter_label.add_theme_font_size_override("font_size", 11)
-	chapter_label.add_theme_color_override("font_color", Color(0.66, 0.70, 0.82))
+	chapter_label.add_theme_font_size_override("font_size", 12)
+	chapter_label.add_theme_color_override("font_color", Color(0.78, 0.84, 0.98))
 	header_row.add_child(chapter_label)
 
 	var header_rule := HSeparator.new()
@@ -188,8 +201,8 @@ func _build_ui() -> void:
 
 	hp_label = Label.new()
 	hp_label.text = "HP"
-	hp_label.add_theme_font_size_override("font_size", 11)
-	hp_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.90))
+	hp_label.add_theme_font_size_override("font_size", 12)
+	hp_label.add_theme_color_override("font_color", Color(0.82, 0.88, 1.0))
 	hp_row.add_child(hp_label)
 
 	# S57: Stacked HP bars, ghost underneath, real on top
@@ -235,7 +248,7 @@ func _build_ui() -> void:
 	hp_stack.add_child(hp_bar)
 
 	hp_value_label = Label.new()
-	hp_value_label.add_theme_font_size_override("font_size", 12)
+	hp_value_label.add_theme_font_size_override("font_size", 13)
 	hp_value_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	hp_row.add_child(hp_value_label)
 
@@ -246,39 +259,39 @@ func _build_ui() -> void:
 
 	# ── Memory Row ──
 	memory_label = Label.new()
-	memory_label.add_theme_font_size_override("font_size", 13)
+	memory_label.add_theme_font_size_override("font_size", 14)
 	memory_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	vbox.add_child(memory_label)
 
 	# ── Grains Row ──
 	grains_label = Label.new()
-	grains_label.add_theme_font_size_override("font_size", 13)
-	grains_label.add_theme_color_override("font_color", Color(0.85, 0.7, 0.35))
+	grains_label.add_theme_font_size_override("font_size", 14)
+	grains_label.add_theme_color_override("font_color", Color(0.96, 0.80, 0.46))
 	vbox.add_child(grains_label)
 
 	# ── Items Row ──
 	items_label = Label.new()
-	items_label.add_theme_font_size_override("font_size", 13)
-	items_label.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
+	items_label.add_theme_font_size_override("font_size", 14)
+	items_label.add_theme_color_override("font_color", Color(0.72, 0.90, 0.72))
 	vbox.add_child(items_label)
 
 	# S92: Memory Pulse status
 	pulse_label = Label.new()
-	pulse_label.add_theme_font_size_override("font_size", 12)
-	pulse_label.add_theme_color_override("font_color", Color(0.72, 0.66, 0.48))
+	pulse_label.add_theme_font_size_override("font_size", 13)
+	pulse_label.add_theme_color_override("font_color", Color(0.88, 0.80, 0.60))
 	vbox.add_child(pulse_label)
 
 	# ── S41: Equipment Row ──
 	equip_label = Label.new()
-	equip_label.add_theme_font_size_override("font_size", 12)
-	equip_label.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
+	equip_label.add_theme_font_size_override("font_size", 13)
+	equip_label.add_theme_color_override("font_color", Color(0.82, 0.74, 0.98))
 	vbox.add_child(equip_label)
 
 	# ── Story objective card ──
 	quest_card = PanelContainer.new()
 	quest_card.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.075, 0.055, 0.080, 0.76),
-		Color(0.72, 0.54, 0.27, 0.58),
+		Color(0.060, 0.045, 0.070, 0.92),
+		Color(0.78, 0.60, 0.34, 0.72),
 		1, 5, 7
 	))
 	vbox.add_child(quest_card)
@@ -289,13 +302,13 @@ func _build_ui() -> void:
 	quest_tag_label = Label.new()
 	quest_tag_label.text = "◆  이야기 흐름" if GameManager.current_locale == "ko" else "◆  STORY THREAD"
 	quest_tag_label.add_theme_font_override("font", UITheme.make_ui_font())
-	quest_tag_label.add_theme_font_size_override("font_size", 10)
-	quest_tag_label.add_theme_color_override("font_color", Color(0.88, 0.69, 0.36))
+	quest_tag_label.add_theme_font_size_override("font_size", 12)
+	quest_tag_label.add_theme_color_override("font_color", Color(0.96, 0.78, 0.44))
 	quest_box.add_child(quest_tag_label)
 
 	quest_label = Label.new()
-	quest_label.add_theme_font_size_override("font_size", 13)
-	quest_label.add_theme_color_override("font_color", Color(0.94, 0.88, 0.76))
+	quest_label.add_theme_font_size_override("font_size", 14)
+	quest_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	quest_label.custom_minimum_size.x = 180
 	quest_box.add_child(quest_label)
@@ -333,12 +346,12 @@ func _build_controls_strip() -> void:
 	controls_panel.anchor_bottom = 1.0
 	controls_panel.offset_left = -548
 	controls_panel.offset_right = -18
-	controls_panel.offset_top = -54
+	controls_panel.offset_top = -58
 	controls_panel.offset_bottom = -16
 	controls_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	controls_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.018, 0.016, 0.024, 0.82),
-		Color(0.55, 0.46, 0.32, 0.42),
+		Color(0.018, 0.016, 0.024, 0.94),
+		Color(0.62, 0.54, 0.40, 0.62),
 		1,
 		5,
 		8
@@ -348,11 +361,99 @@ func _build_controls_strip() -> void:
 	controls_label = Label.new()
 	controls_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	controls_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	controls_label.add_theme_font_size_override("font_size", 12)
-	controls_label.add_theme_color_override("font_color", Color(0.72, 0.69, 0.64))
+	controls_label.add_theme_font_size_override("font_size", 13)
+	controls_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	UITheme.apply_ui_font(controls_label)
 	controls_panel.add_child(controls_label)
 	_update_controls_hint()
+
+func _build_field_flow_panel() -> void:
+	flow_panel = PanelContainer.new()
+	flow_panel.name = "FieldFlowPanel"
+	flow_panel.anchor_left = 0.5
+	flow_panel.anchor_right = 0.5
+	flow_panel.anchor_top = 1.0
+	flow_panel.anchor_bottom = 1.0
+	flow_panel.offset_left = -250
+	flow_panel.offset_right = 250
+	flow_panel.offset_top = -140
+	flow_panel.offset_bottom = -62
+	flow_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flow_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
+		Color(0.016, 0.023, 0.038, 0.96),
+		Color(0.46, 0.72, 0.94, 0.78),
+		1,
+		7,
+		8
+	))
+	add_child(flow_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 3)
+	flow_panel.add_child(vbox)
+	var header := HBoxContainer.new()
+	vbox.add_child(header)
+	var title := Label.new()
+	title.text = "FIELD FLOW"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.add_theme_font_size_override("font_size", 12)
+	title.add_theme_color_override("font_color", Color(0.72, 0.88, 1.0))
+	UITheme.apply_ui_font(title)
+	header.add_child(title)
+	approach_label = Label.new()
+	approach_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	approach_label.add_theme_font_size_override("font_size", 13)
+	approach_label.add_theme_color_override("font_color", Color(0.84, 0.90, 1.0))
+	UITheme.apply_ui_font(approach_label)
+	header.add_child(approach_label)
+
+	var flow_row := HBoxContainer.new()
+	flow_row.add_theme_constant_override("separation", 7)
+	vbox.add_child(flow_row)
+	flow_bar = ProgressBar.new()
+	flow_bar.name = "FlowBar"
+	flow_bar.custom_minimum_size = Vector2(392, 8)
+	flow_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	flow_bar.max_value = FieldFlow.FLOW_MAX
+	flow_bar.show_percentage = false
+	_flow_fill_style = StyleBoxFlat.new()
+	_flow_fill_style.bg_color = Color(0.40, 0.76, 1.0, 0.94)
+	_flow_fill_style.set_corner_radius_all(3)
+	flow_bar.add_theme_stylebox_override("fill", _flow_fill_style)
+	var flow_bg := StyleBoxFlat.new()
+	flow_bg.bg_color = Color(0.04, 0.07, 0.12, 0.90)
+	flow_bg.set_corner_radius_all(3)
+	flow_bar.add_theme_stylebox_override("background", flow_bg)
+	flow_row.add_child(flow_bar)
+	flow_value_label = Label.new()
+	flow_value_label.custom_minimum_size.x = 76
+	flow_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	flow_value_label.add_theme_font_size_override("font_size", 12)
+	flow_value_label.add_theme_color_override("font_color", Color(0.82, 0.88, 1.0))
+	UITheme.apply_ui_font(flow_value_label)
+	flow_row.add_child(flow_value_label)
+
+	pressure_bar = ProgressBar.new()
+	pressure_bar.name = "ThreatPressureBar"
+	pressure_bar.custom_minimum_size = Vector2(0, 3)
+	pressure_bar.max_value = 1.0
+	pressure_bar.show_percentage = false
+	_pressure_fill_style = StyleBoxFlat.new()
+	_pressure_fill_style.bg_color = Color(0.94, 0.32, 0.25, 0.88)
+	_pressure_fill_style.set_corner_radius_all(2)
+	pressure_bar.add_theme_stylebox_override("fill", _pressure_fill_style)
+	var pressure_bg := StyleBoxFlat.new()
+	pressure_bg.bg_color = Color(0.15, 0.04, 0.05, 0.46)
+	pressure_bg.set_corner_radius_all(2)
+	pressure_bar.add_theme_stylebox_override("background", pressure_bg)
+	vbox.add_child(pressure_bar)
+
+	flow_hint_label = Label.new()
+	flow_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	flow_hint_label.add_theme_font_size_override("font_size", 12)
+	flow_hint_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+	UITheme.apply_ui_font(flow_hint_label)
+	vbox.add_child(flow_hint_label)
 
 func _update_controls_hint(_mode = null) -> void:
 	if controls_label == null or InputManager == null:
@@ -360,10 +461,12 @@ func _update_controls_hint(_mode = null) -> void:
 	var is_ko := GameManager.current_locale == "ko"
 	var interact_text := "상호작용" if is_ko else "Interact"
 	var pulse_text := "기억 파동" if is_ko else "Memory Pulse"
+	var dash_text := "위상 이동" if is_ko else "Phase Step"
 	var archive_text := "기억 서고" if is_ko else "Archive"
 	var menu_text := "메뉴" if is_ko else "Menu"
 	controls_label.text = "  ".join(PackedStringArray([
 		InputManager.get_hint("interact", interact_text),
+		InputManager.get_hint("field_dash", dash_text),
 		InputManager.get_hint("memory_pulse", pulse_text),
 		InputManager.get_hint("memory_menu", archive_text),
 		InputManager.get_hint("menu", menu_text),
@@ -410,8 +513,8 @@ func _build_location_card() -> void:
 
 	location_title = Label.new()
 	UITheme.apply_title_font(location_title)
-	location_title.add_theme_font_size_override("font_size", 16)
-	location_title.add_theme_color_override("font_color", Color(0.93, 0.84, 0.62))
+	location_title.add_theme_font_size_override("font_size", 17)
+	location_title.add_theme_color_override("font_color", Color(0.98, 0.88, 0.68))
 	location_title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.65))
 	location_title.add_theme_constant_override("shadow_offset_x", 1)
 	location_title.add_theme_constant_override("shadow_offset_y", 1)
@@ -420,8 +523,8 @@ func _build_location_card() -> void:
 
 	location_subtitle = Label.new()
 	UITheme.apply_ui_font(location_subtitle)
-	location_subtitle.add_theme_font_size_override("font_size", 12)
-	location_subtitle.add_theme_color_override("font_color", Color(0.62, 0.58, 0.50))
+	location_subtitle.add_theme_font_size_override("font_size", 13)
+	location_subtitle.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	location_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD
 	location_subtitle.text = "Area image reference"
 	text_box.add_child(location_subtitle)
@@ -451,6 +554,8 @@ func _on_state_changed(new_state: GameManager.GameState) -> void:
 	panel.visible = should_show
 	if controls_panel:
 		controls_panel.visible = should_show and not OptionsMenu.is_clean_gameplay_visuals()
+	if flow_panel:
+		flow_panel.visible = should_show
 	_update_decorative_visibility()
 	# S57: Slide-in animation when entering exploration
 	if should_show and not _slide_in_done:
@@ -579,11 +684,63 @@ func _update_status_icons() -> void:
 		pulse_tween.tween_property(icon, "modulate:a", 0.4, 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 		pulse_tween.tween_property(icon, "modulate:a", 1.0, 0.6).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 
+func _update_field_flow_hud() -> void:
+	if flow_panel == null:
+		return
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not player.has_method("get_field_flow_status"):
+		flow_panel.modulate.a = 0.46
+		flow_bar.value = 0.0
+		pressure_bar.value = 0.0
+		approach_label.text = "NO FIELD LINK"
+		flow_value_label.text = "—"
+		return
+	flow_panel.modulate.a = 1.0
+	var status: Dictionary = player.call("get_field_flow_status")
+	var flow := float(status.get("flow", 0.0))
+	var maximum := float(status.get("maximum", FieldFlow.FLOW_MAX))
+	var pressure := float(status.get("pressure", 0.0))
+	var mode := String(status.get("mode", "neutral"))
+	var dash_ready := bool(status.get("dash_ready", false))
+	flow_bar.max_value = maximum
+	flow_bar.value = flow
+	pressure_bar.value = pressure
+	flow_value_label.text = "%03d / %03d" % [int(round(flow)), int(round(maximum))]
+
+	var is_ko := GameManager.current_locale == "ko"
+	var mode_copy := {
+		"neutral": "이동해 흐름 축적" if is_ko else "MOVE TO BUILD",
+		"ambush_ready": "기습 준비" if is_ko else "AMBUSH READY",
+		"ambush": "위상 기습" if is_ko else "PHASE AMBUSH",
+		"guarded": "대비 진입" if is_ko else "GUARDED ENTRY",
+		"witness": "증언 진입" if is_ko else "WITNESS ENTRY",
+	}
+	var accent := Color(0.40, 0.76, 1.0)
+	match mode:
+		"ambush_ready", "ambush":
+			accent = Color(1.0, 0.62, 0.28)
+		"guarded":
+			accent = Color(0.46, 0.88, 0.95)
+		"witness":
+			accent = Color(0.78, 0.62, 1.0)
+	approach_label.text = String(mode_copy.get(mode, mode.to_upper()))
+	approach_label.add_theme_color_override("font_color", accent)
+	_flow_fill_style.bg_color = Color(accent, 0.94)
+	var dash_icon := InputManager.get_icon("field_dash") if InputManager else "Ctrl"
+	var pulse_icon := InputManager.get_icon("memory_pulse") if InputManager else "Q"
+	if is_ko:
+		flow_hint_label.text = "[%s] 위상 이동 %d · [%s] 위협 속 기억 증언" % [dash_icon, int(status.get("dash_cost", 42)), pulse_icon]
+	else:
+		flow_hint_label.text = "[%s] PHASE STEP %d · [%s] WITNESS THE THREAT" % [dash_icon, int(status.get("dash_cost", 42)), pulse_icon]
+	flow_hint_label.add_theme_color_override("font_color", accent.lightened(0.08) if dash_ready or pressure > 0.0 else UITheme.TEXT_DIM)
+	_pressure_fill_style.bg_color = Color(1.0, lerpf(0.44, 0.16, pressure), 0.18, 0.88)
+
 # ── HUD 갱신 ──
 func _update_hud() -> void:
 	if not panel.visible:
 		return
 	_update_controls_hint()
+	_update_field_flow_hud()
 	_update_decorative_visibility()
 
 	var pd: Dictionary = GameManager.player_data

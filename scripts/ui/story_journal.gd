@@ -306,7 +306,7 @@ func _build_ui() -> void:
 	# ── 하단 ──
 	close_hint = Label.new()
 	close_hint.text = "[ESC] Close Journal"
-	close_hint.add_theme_font_size_override("font_size", 11)
+	close_hint.add_theme_font_size_override("font_size", 12)
 	close_hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	main_vbox.add_child(close_hint)

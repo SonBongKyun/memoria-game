@@ -1396,6 +1396,7 @@ static func create_npc_sprite(preset_name: String) -> AnimatedSprite2D:
 		sprite.sprite_frames = create_sheet_frames(field_key)
 		sprite.play("idle_down")
 		apply_field_profile(sprite, sprite.sprite_frames.get_frame_texture("idle_down", 0), target_height)
+		_finish_ambient_npc(sprite, preset_name)
 		return sprite
 
 	var config = get_npc_preset(preset_name)
@@ -1403,7 +1404,17 @@ static func create_npc_sprite(preset_name: String) -> AnimatedSprite2D:
 	sprite.play("idle_down")
 	apply_field_profile(sprite, sprite.sprite_frames.get_frame_texture("idle_down", 0), target_height)
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST  # 절차 생성 픽셀아트는 선명하게
+	_finish_ambient_npc(sprite, preset_name)
 	return sprite
+
+## S213: 배경 시민도 주역과 같은 외곽선·접지·미세 보행 규칙을 사용한다.
+## 스프라이트 자체가 맵의 직접 자식인 기존 API는 유지하고, 작은 드라이버를 자식으로
+## 붙여 트윈 이동 거리에서 실제 발딛기 위상을 계산한다.
+static func _finish_ambient_npc(sprite: AnimatedSprite2D, preset_name: String) -> void:
+	var accent := FieldActorVisuals.ambient_accent(preset_name)
+	FieldActorVisuals.apply_finish(sprite, accent, 0.62, 0.075)
+	FieldActorVisuals.add_grounding(sprite, accent)
+	FieldActorVisuals.attach_ambient_driver(sprite)
 
 ## ========== S44: 전투 전용 대형 캐릭터 스프라이트 (128x128) ==========
 

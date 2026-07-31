@@ -6507,6 +6507,164 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
 
+## S215 - 2026-07-28 (Korean typography and readability overhaul)
+
+### Audit findings
+- The bundled Korean fonts and `canvas_items` scaling already prevented most missing-glyph and bitmap-upscale failures, but normal dialogue still used a thin 18px serif face. At 1280x720, this made long Korean strokes look fragile even when the glyph itself was technically correct.
+- Primary, narration, system, and hint colors were all intentionally muted. Combined with 48-68% translucent archive panels and illustrated backdrops, this pushed important copy below a comfortable reading contrast.
+- Battle and exploration screens still contained many explicit 9-11px labels, so changing the global theme alone could not repair objectives, HP/BREAK values, command rails, Field Flow hints, or inventory metadata.
+
+### Done
+- Rebuilt the shared typography contract around bundled `NotoSansKR-VF.ttf` for body and UI copy while preserving `NotoSerifKR-VF.ttf` for large authored titles. Added medium `FontVariation` emboldening, grayscale antialiasing, normal hinting, disabled subpixel positioning, and disabled mipmaps for stable Korean strokes.
+- Raised the global default to 17px, normal body copy to 20px, and established 12px metadata / 13px compact UI / 20px body minimums. Removed every remaining explicit 8-11px size from gameplay UI, archive menus, options, achievements, codex, shop, puzzle, credits, and battle controls.
+- Brightened the common text palette and speaker colors, strengthened one-pixel outlines, and increased panel opacity so copy reads on the first pass without flattening the charcoal-and-amber art direction.
+- Reworked field dialogue to a 20/23/26px accessibility scale, enlarged speaker names and choices, expanded the reading panel, and gave dialogue/VN copy a stronger outline, shadow, and line spacing.
+- Upgraded exploration HUD, Field Flow, Memory Compass, tactical objective, combat cue, turn order, HP/BREAK, field readout, command deck, item tray, companion commands, stance/echo rails, victory report, and memory-burn preview to the new minimum-size and contrast contract.
+- Raised inventory panel opacity and copy contrast while keeping the generated archive frame and item art visible. Equipment cards, filters, Quick Kit, field notes, and footer hints now share the same readable sans weight.
+- Added `smoke_text_readability.tscn`, covering font source/weight, palette contrast, dialogue size/outline, opaque reading surfaces, Field Flow/Compass minimums, battle objective/HP/readout sizes, and the 15px command floor.
+
+### Verification
+- `TEXT_READABILITY_SMOKE_PASS body=20 ui_floor=12 battle=15 contrast=high weight=medium`.
+- All 23 gameplay/UI smoke scenes passed with no `SCRIPT ERROR`, `Parse Error`, invalid access, or assertion failure.
+- OpenGL captures were regenerated and visually inspected at native output:
+  - `tmp/visual_audit/dialogue_interface_ko.png`
+  - `tmp/visual_audit/hybrid_battle_stage.png`
+  - `tmp/visual_audit/field_flow_approach.png`
+  - `tmp/visual_audit/font_scaling_1080p.png` (1920x1080 framebuffer, 1280x720 logical viewport, 1.50 canvas scale)
+  - `memoria_inventory_visual_upgrade.png` in the Godot user-data capture directory.
+- VN validation passed: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization passed: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Isolated 300-frame `belt_waystation.tscn` boot passed through Arrel, Elia, Tobias, world population, visible threats, and autosave. `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
+- Godot's known forced-exit ObjectDB/resource cleanup notices remain shutdown noise; no gameplay script or runtime-access error occurred.
+
+## S214 - 2026-07-28 (Field Flow foundation overhaul)
+
+### Audit findings
+- MEMORIA had many combat systems, but the field still resolved to `walk -> warning toast -> forced scene change`. Movement quality, visible hunts, random pursuit, and the first battle turn did not influence one another.
+- Visible world hunts were anonymous `Area2D` contact triggers. Their small floor mark did not communicate detection pressure, and touching one immediately discarded the player's approach.
+- Random encounters warned at 72% but offered no active field response beyond waiting for combat and fleeing there.
+- Field Focus and the new approach cue initially played underneath the long battle-identification overlay. The intro also faded its labels one after another, making ordinary encounters wait more than three seconds before control.
+- Authored hostile field paintings were discarded at battle start, so many visible hunts became an unrelated generic procedural enemy on the combat stage.
+
+### Done
+- Added `FieldFlow`, a persistent exploration controller on Arrel. Real travelled distance builds a 0-100 Flow bank; standing still releases it, while moving under threat builds it faster.
+- Added `PHASE STEP` on Ctrl / RB. It spends 42 Flow for a short committed burst with directional body stretch, denser live-frame afterimages, memory-blue fracture rails, pulse ring, planted dash direction, and adaptive camera zoom-out.
+- Added `FieldThreat` and converted all 32 visible hunts across 19 populated maps. Distance now drives pressure, hostile lean/color response, a pulsing detection aura, sight line, contact core, and the shared bottom-center field readout.
+- Rebuilt random pursuit into an active field problem. The warning feeds the same pressure readout, and a timed Phase Step can break the trail and reduce encounter progress instead of merely postponing a forced battle.
+- Added three field-to-battle approach routes:
+  - `AMBUSH`: cross contact during Phase Step or reach a visible threat with high Flow; starts with Resonance, Limit, and BREAK pressure.
+  - `GUARDED`: hold composure as pressure closes; starts with Resonance/Limit and guards the first hostile blow.
+  - `WITNESS`: answer pressure with Memory Pulse; reveals the first WITNESS record and enemy scan before blades meet.
+- Added a persistent `FIELD FLOW` HUD with live Flow, pressure, approach forecast, Phase Step cost/readiness, and localized keyboard/controller hints.
+- Carried the selected approach through `BattleManager` into the combat scene. The opening is now presented after enemy identification and field-directive selection, so it is a visible tactical handoff rather than a hidden bonus.
+- Shortened the ordinary battle intro by holding briefly and fading all elements in parallel instead of sequentially. Existing tactical identification remains, but repeated encounters return control substantially sooner.
+- Preserved visual identity by sending every visible hunt's authored field hostile image into its battle stage. No new face art or disconnected flat CG was added; this pass upgrades the live rendering and interaction path.
+- Added `smoke_field_flow` and repeatable OpenGL captures for approach, live Phase Step, and the resulting battle opening. Extended world-population smoke coverage for `FieldThreat`, aura/sight telegraphs, and field-to-battle art continuity.
+
+### Verification
+- `FIELD_FLOW_SMOKE_PASS routes=3 phase_step=active pursuit_break=active battle_handoff=active`.
+- All 22 gameplay/UI smoke scenes passed in three parallel groups with no `SCRIPT ERROR`, `Parse Error`, invalid access, or assertion failure.
+- `WORLD_POPULATION_SMOKE_PASS`: 19 maps, 64 voices, 32 converted visible threats, 11 caches, 10 curios, seven atlas gates, and 31 authored field assets.
+- OpenGL 1280x720 captures were inspected:
+  - `tmp/visual_audit/field_flow_approach.png`
+  - `tmp/visual_audit/field_flow_phase_step.png`
+  - `tmp/visual_audit/field_flow_battle_handoff.png`
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Isolated 300-frame `belt_waystation.tscn` boot passed through Arrel, Elia, Tobias, world population, and both live visible threats.
+- Godot's known forced-exit ObjectDB/resource cleanup notices remain shutdown noise; no gameplay script or runtime-access error occurred.
+
+## S213 - 2026-07-26 (Unified field-character motion and presentation)
+
+### Audit findings
+- S210 had already replaced the frozen sliding pose with a real four-frame procedural walk cycle, and S150/S57 supplied responsive acceleration, breadcrumb following, camera lead, sprinting, and travel-distance footsteps. The remaining weakness was presentation consistency rather than missing authored frames.
+- Player, companion, story NPC, and ambient walker code used separate shadow/ring rules. Static characters breathed, but background walkers still translated as a scaled sprite root without matching body weight, and entering dialogue could leave the player or companion frozen in a moving pose.
+- The current field paintings already preserve the cast identities. Replacing them with newly generated faces would introduce drift, so this pass keeps every authored Arrel/Elia/Sable/NPC frame and improves the live rendering layer around it.
+
+### Done
+- Added `FieldActorVisuals`, a shared field-character presentation helper used by Arrel, companions, story NPCs, and procedural ambient citizens. It supplies two-layer oval contact shadows, a restrained role-colored Memory contact edge, scale compensation for direct-root ambient sprites, and a small live motion driver.
+- Added `field_actor_finish.gdshader`: a low-noise dark silhouette edge, subtle cool grade, and character-specific upper-edge accent. The shader preserves the original illustration palette and remains compatible with map lighting.
+- Upgraded Arrel and companion locomotion with planted cardinal pivots, brief step compression synchronized to real travelled distance, adaptive shadow lift/offset, and movement-state settling when dialogue or menus interrupt exploration.
+- Replaced square footstep dust blocks with alternating, terrain-colored direction-aware wisps. Sprint echoes now copy the live frame offset, tilt, scale, and texture filter so they trail the rendered body rather than a detached default pose.
+- Upgraded ambient market walkers with distance-driven bob, lean, foot plant, idle weight transfer, shared silhouette finishing, and scale-compensated grounding. Static story NPCs now use the same finish and receive a restrained offset/rotation weight shift without changing their authored foot baseline.
+- Added `capture_field_motion.tscn` for a repeatable live 1280x720 sprint composition and expanded movement/visual clarity smoke contracts for shared finishing, pivot planting, dialogue settling, ambient motion drivers, and layered grounding.
+
+### Verification
+- Godot 4.6.2 headless editor import completed with no `SCRIPT ERROR` or `Parse Error`.
+- All 21 gameplay/UI smoke scenes passed. `MOVEMENT_NATURALISM_SMOKE_PASS` reports planted turns, distance footsteps, breadcrumb following, ambient gait, shared finish, and grounding; `FIELD_ANIMATION_SMOKE_PASS` still reports 24 distinct walk-direction cycles and the 50px cast-height contract.
+- OpenGL 1280x720 captures for Rim Forest, Malet interaction, and the new Verdan sprint composition were inspected. The first overly dark shader iteration was corrected; final captures preserve the authored palette while improving silhouette separation and floor contact.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Isolated 300-frame `verdan_market.tscn` boot passed through player, Malet, Elia companion, world population, and checkpoint autosave.
+- `git diff --check` passed; only normal Windows LF-to-CRLF working-copy notices were emitted.
+
+## S212 - 2026-07-26 (GPT Image battle-supply moments)
+
+### Audit findings
+- The S200-S211 passes already cover the major story, map, memory-loss, resonance, archive, and character beats with live illustration consumers. Adding more narrative interstitials here would repeat existing scenes.
+- The repeatable item loop remained visually thin: sixteen usable battle items shared small inventory icons and combat-log text, even when their outcomes were mechanically distinct.
+- Grouping by effect keeps feedback readable and avoids seven near-duplicate versions of the same potion or relic. The live item families are recovery, cure, burn, withdrawal, witness, guard, and scan.
+
+### Done
+- Used the built-in GPT Image skill in `stylized-concept` mode to generate seven cohesive 1672x941, prop-led battle action plates under `assets/cg/generated/gameplay_moments/`.
+- Preserved cast identity by showing tools, black-gloved hands, back-facing silhouettes, memory threads, fire arcs, smoke, anchor rings, and chalk fault lines instead of inventing new character faces.
+- Added `BattleManager.item_used(item_id, item_type)` and connected it to the battle scene. Every successful item use now resolves the correct generated art, a type-specific accent, and a short localized Combat Beat cue before the normal mechanical result.
+- Covered all sixteen current items through the seven live types: Potion/Hi-Potion/Lantern Salve/Seed Capsule; Antidote/Root Balm; Firebomb/Cinder Vial; Smoke Bomb/Signal Jammer; Witness Ink/Name Thread/Compass Shard/Witness Knot; Anchor Lantern; and Ledger Chalk.
+- Added explicit `ANCHOR` and `SCAN` labels/colors to the battle supply tray, registered all seven images in the interface Artbook manifest, and extended battle/interface smoke contracts for every path and consumer.
+- Added optional real-render capture output to `smoke_battle_command_deck.gd`; it records each effect after the battle intro finishes so future art changes can be compared in the actual 1280x720 composition.
+
+### Verification
+- Godot 4.6.2 editor imported all seven PNGs with no `SCRIPT ERROR` or `Parse Error`.
+- All 21 gameplay/UI smoke scenes passed. `BATTLE_COMMAND_DECK_SMOKE_PASS` reports `actions=8`, `item_moments=7`; `INTERFACE_VISUAL_UPGRADE_SMOKE_PASS` verifies all seven Artbook paths.
+- OpenGL 1280x720 captures in `tmp/visual_audit/item_moment_*.png` were inspected for all seven types. The generated action remains readable behind the tactical cue and clears after a short cut-in instead of obscuring the ongoing battle.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Isolated 300-frame `verdan_market.tscn` boot passed through player, four ambient voices, Malet, Elia companion startup, world population, and checkpoint autosave.
+- `git diff --check` passed; only normal Windows LF-to-CRLF working-copy notices were emitted.
+
+## S211 - 2026-07-26 (Post-Claude upgrade audit and Story Log witness ledger)
+
+### Audit findings
+- Reviewed the S203-S210 change set through the committed diffs, live asset consumers, current manifests, and the latest 1280x720 OpenGL captures. The battle-stage grounding, x1.0/x1.5/x2.0 tempo, Quick Kit/Smart Heal flow, native-resolution text rendering, procedural walk cycles, ambient field scale, and 50 new late-story/combat/rewrite plates are all connected to active runtime paths.
+- The current CG library already covers the meaningful story gaps. Another narrative batch would duplicate live beats rather than improve the playable build.
+- The new Story Log was the clear presentation exception: dense recalled dialogue still used a plain near-black panel while Pause, Journal, Codex, Inventory, and Shop used a coherent iron-bound archive family.
+- Opening Story Log directly with `L` did not pause the scene. Player, ambient NPC, and dialogue state could continue changing underneath the full-screen reading overlay; the existing `_was_paused` field was captured too late and never restored.
+
+### Done
+- Generated and visually inspected `ui_story_log_archive_v1.png` with built-in GPT Image, using the current Story Journal and Pause Archive surfaces as style references.
+- Integrated the 1672x941, text-free witness-ledger backdrop through `StoryLog.BACKDROP_PATH`. The center remains a quiet single reading surface; quill, compass, closed records, gold inlay, and restrained memory-thread detail stay at the margins.
+- Registered the new interface asset in `data/interface_visual_gallery.json` and the Artbook/interface smoke contract.
+- Story Log now pauses when opened from live exploration or dialogue and restores the exact prior pause state on close. Opening it from the already-paused Pause Menu therefore remains paused, while direct `L` use safely resumes play afterward.
+- Extended Story QoL smoke coverage for the generated backdrop path, live TextureRect consumer, pause-on-open behavior, and prior-state restoration.
+- Preserved the two missing Godot UID sidecars generated for S210's `capture_font_scaling.gd` and `smoke_field_animation.gd`.
+
+### Verification
+- Godot 4.6.2 headless editor import completed for the new PNG with no `SCRIPT ERROR` or `Parse Error`.
+- All 21 gameplay/UI smoke scenes passed. Focused results include `STORY_QOL_SMOKE_PASS`, `INTERFACE_VISUAL_UPGRADE_SMOKE_PASS`, `FIELD_ANIMATION_SMOKE_PASS`, `BATTLE_COMMAND_DECK_SMOKE_PASS`, `VISUAL_CLARITY_SMOKE_PASS`, and both 25-asset illustration consumer suites.
+- Real OpenGL capture `tmp/visual_audit/story_log_ko.png` was inspected at 1280x720; Korean dialogue remains readable while the new archive frame is visible without competing with text.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
+- `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
+
+## S211 - 2026-07-26 (Battle arena in real 3D)
+
+### Audit findings
+The player reported the game reads as flat 2D. It already had a real-time 3D system — `HybridDepthStage` from S206, rendering an isolated `World3D` through a `SubViewport` into battles, the pause-menu world map, and Curio relic screens. Capturing it in isolation showed why nobody noticed:
+- The battle diorama was **dashed elliptical floor traces plus nine identical boxes in one row**. There was no ground surface, so the 2D battlers had no space to stand in — the 3D added a few sticks, not depth.
+- It composited at **alpha 0.36**, and the 2D ground band above it ran at 0.62, so what little geometry existed was painted over.
+- Everything sat between z −0.2 and −2.3, one flat slab of depth. There was no far distance and no atmospheric falloff, so the low-poly boxes read as low-poly boxes.
+- Four biome motifs (`roots`, `threshold`, `void`, `markers`) placed an **emissive accent box at x = 0, immediately in front of the camera** — invisible at 0.36 alpha, but a glowing object parked between the two combatants the moment the stage became visible.
+
+### Done
+- **A real arena floor.** New `arena_floor.gdshader` draws a ground plane that is solid near the camera and dissolves toward the horizon, with a perspective grid that fades on the same curve. This is the compromise S206 was missing: the ground exists where the characters stand, and gives way to the painted illustration above the baseline. The plane is parented to `scene_root`, not the swaying `motion_root`, so the ground never rocks under the cast.
+- **Three depth layers.** Pillar rows at z −3.4, −7.2 and −12.5 with widening spread and height. Camera moves now produce parallax between layers instead of sliding one flat row.
+- **Depth fog** on the battle environment. Far geometry melts into the stone colour, which is what converts identical boxes into distance for free.
+- **Made it visible.** Composite alpha 0.36 → 0.72 (0.82 outside Clean View), and the 2D ground band dropped 0.62 → 0.34 so the 3D floor is the floor.
+- **Cleared the centre.** `_add_flanking_landmarks` replaces the four centred accent totems with a symmetric pair set back at z −7.4, so the biome's colour still reads while the space between the combatants stays empty.
+- Existing camera reactions — impact pulse on damage, side focus on turn change, gold rupture on BREAK — now land on a stage where they can actually be seen. 2D keeps ownership of collision, character identity, text and input, unchanged.
+
+### Verification
+- `HYBRID_DEPTH_SMOKE_PASS battle=147 atlas=96 relic=47 route_markers=10` (battle geometry 127 → 147). Added assertions that the arena has a real `PlaneMesh` floor, that the floor is parented outside the swaying root, that depth fog is enabled, and that the floor recedes past 30 units.
+- All 21 smoke scenes pass. **Note:** the first full-suite run reported `smoke_illustration_gapfill` and `smoke_movement_naturalism` as failures; both passed standalone and the full re-run was clean, so those were transient under back-to-back engine launches, not regressions.
+- VN validation: 20 files, 504 steps, 0 errors. Korean localization: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+- Renders inspected: `story_combat_witness.png` before and after (the centred glowing box was caught and fixed this way), `hybrid_depth_board.png`, `hybrid_world_map.png`, `hybrid_relic_choice.png`, and a new `capture_arena_biomes` contact sheet confirming rim_forest, verdan_market, bl07_void and crumbling_coast each produce a distinct arena.
+
 ## S210 - 2026-07-26 (Text sharpness, real walk cycles, and field scale consistency)
 
 ### Audit findings

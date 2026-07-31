@@ -1039,29 +1039,14 @@ static func _make_linear_gradient_texture(left: Color, mid: Color, right: Color)
 	tex.fill_to = Vector2(1.0, 0.5)
 	return tex
 
-static func add_drop_shadow(character: Node2D) -> Node2D:
-	var existing := character.get_node_or_null("GroundShadow") as Node2D
-	if existing != null:
-		return existing
-	var shadow_root := Node2D.new()
-	shadow_root.name = "GroundShadow"
-	shadow_root.position = Vector2(0, 4)
-	shadow_root.z_index = -2
-	for layer_data in [
-		{"radius": Vector2(15.0, 5.0), "alpha": 0.11},
-		{"radius": Vector2(11.5, 3.5), "alpha": 0.17},
-	]:
-		var ellipse := Polygon2D.new()
-		var points := PackedVector2Array()
-		var radius: Vector2 = layer_data["radius"]
-		for i in range(20):
-			var angle := TAU * float(i) / 20.0
-			points.append(Vector2(cos(angle) * radius.x, sin(angle) * radius.y))
-		ellipse.polygon = points
-		ellipse.color = Color(0.015, 0.018, 0.028, float(layer_data["alpha"]))
-		shadow_root.add_child(ellipse)
-	character.add_child(shadow_root)
-	return shadow_root
+static func add_drop_shadow(
+		character: Node2D,
+		accent: Color = Color(0.38, 0.56, 0.82, 1.0)
+	) -> Node2D:
+	# S213: one grounding contract for player, companions, story NPCs and
+	# ambient walkers.  The old call sites keep working while the shared helper
+	# supplies a two-layer contact shadow and a restrained Memory-color edge.
+	return FieldActorVisuals.add_grounding(character, accent)
 
 ## ===================== S52: 향상된 바이옴 파티클 =====================
 
@@ -2122,12 +2107,26 @@ static func update_npc_idle_motion(npc: Node, time: float) -> void:
 		return
 	if not sprite.has_meta("field_idle_rest_scale"):
 		sprite.set_meta("field_idle_rest_scale", sprite.scale)
+		sprite.set_meta("field_idle_rest_offset", sprite.offset)
+		sprite.set_meta("field_idle_rest_rotation", sprite.rotation)
 	var rest_scale: Vector2 = sprite.get_meta("field_idle_rest_scale", sprite.scale)
+	var rest_offset: Vector2 = sprite.get_meta("field_idle_rest_offset", sprite.offset)
+	var rest_rotation: float = float(sprite.get_meta("field_idle_rest_rotation", sprite.rotation))
 	var phase := time * 1.5
 	if npc is Node2D:
 		phase += (npc as Node2D).position.x * 0.1
 	var breath := sin(phase)
 	sprite.scale = rest_scale * Vector2(1.0 + breath * 0.008, 1.0 - breath * 0.006)
+	# S213: a slow weight transfer keeps static story characters alive while
+	# preserving their authored foot baseline and readable interaction pose.
+	sprite.offset = rest_offset + Vector2(sin(phase * 0.43) * 0.28, -absf(sin(phase * 0.51)) * 0.16)
+	sprite.rotation = rest_rotation + sin(phase * 0.37) * 0.0035
+	var grounding := npc.get_node_or_null("FieldGrounding") as Node2D
+	if grounding != null:
+		var previous_time := float(npc.get_meta("field_idle_previous_time", time))
+		var idle_delta := clampf(time - previous_time, 0.0, 0.1)
+		npc.set_meta("field_idle_previous_time", time)
+		FieldActorVisuals.update_grounding(grounding, Vector2.ZERO, phase * 0.35, false, idle_delta)
 
 ## 캠프파이어 글로우 업데이트 (인터랙티브 프롭용, _process에서 호출)
 static func update_campfire_glows(map: Node2D, time: float) -> void:

@@ -14,7 +14,10 @@ func _ready() -> void:
 	var camera := player.get_node("Camera2D") as Camera2D
 	assert(camera.position_smoothing_speed >= 8.0 and not camera.drag_horizontal_enabled and not camera.drag_vertical_enabled, "Camera smoothing must not stack drag lag on top of look-ahead")
 	var ground_shadow := MapEffects.add_drop_shadow(player)
-	assert(ground_shadow.get_child_count() == 2 and ground_shadow.get_child(0) is Polygon2D, "Moving characters must use a layered oval ground shadow, not a rectangular UI block")
+	assert(ground_shadow.name == "FieldGrounding", "Every exploration character must use the shared field grounding contract")
+	assert(ground_shadow.get_child_count() >= 3 and ground_shadow.get_node_or_null("MemoryContact") is Line2D, "Moving characters need layered contact shadows plus a restrained Memory-color edge")
+	var player_sprite := player.get_node("AnimatedSprite2D") as AnimatedSprite2D
+	assert(player_sprite.material is ShaderMaterial and player_sprite.has_meta("field_actor_finish"), "Arrel must use the shared silhouette finish")
 
 	player.global_position = Vector2(100, 100)
 	Input.action_press("move_right")
@@ -37,6 +40,8 @@ func _ready() -> void:
 	var held_suffix := String(player.get("_anim_suffix"))
 	player.call("_update_animation", Vector2(0.69, 0.72), true)
 	assert(String(player.get("_anim_suffix")) == held_suffix, "Near-diagonal input must not flicker between cardinal poses")
+	player.call("_register_turn_pivot", "down", "right")
+	assert(absf(float(player.get("_turn_lean"))) > 0.04 and float(player.get("_step_impact")) >= 0.4, "Cardinal turns must visibly plant and counter-lean")
 	player.set("_step_distance", 0.0)
 	player.call("_update_footfalls", 25.0, true)
 	assert(is_equal_approx(float(player.get("_step_distance")), 25.0), "Footfalls must wait for real travelled distance")
@@ -58,12 +63,26 @@ func _ready() -> void:
 	var follow_point: Vector2 = companion.call("_get_trail_follow_point")
 	assert(absf(follow_point.x - 100.0) < 0.1 and absf(follow_point.y - 132.0) < 1.0, "Companion must follow the player's breadcrumb path through corners")
 	assert(follow_point.distance_to(player.global_position) >= 46.0, "Companion formation must preserve personal space")
+	assert(companion.get_node_or_null("FieldGrounding") != null, "Companions must share the same grounding as Arrel")
+	var companion_sprite := companion.get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+	assert(companion_sprite != null and companion_sprite.material is ShaderMaterial, "Companions must share the field silhouette finish")
 
 	var ambient := PixelSprite.create_npc_sprite("villager_f")
 	add_child(ambient)
 	MapEffects.add_npc_wander(ambient, 20.0)
 	assert(String(ambient.animation).begins_with("walk_"), "Ambient walkers must play a directional gait while translating")
+	assert(ambient.get_node_or_null("FieldMotionDriver") != null and ambient.get_node_or_null("FieldGrounding") != null, "Ambient walkers need live body motion and compensated grounding")
+	assert(ambient.material is ShaderMaterial, "Ambient citizens must use the same silhouette finish as the story cast")
 	ambient.set_meta("wander_active", false)
+
+	player.set("_turn_lean", 0.05)
+	player_sprite.rotation = 0.05
+	GameManager.change_state(GameManager.GameState.DIALOGUE)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert(player_sprite.animation.begins_with("idle_"), "Dialogue must settle Arrel out of a frozen mid-stride pose")
+	assert(companion_sprite.animation.begins_with("idle_"), "Dialogue must settle companions out of a frozen mid-stride pose")
+	assert(absf(player_sprite.rotation) < 0.05, "Dialogue entry must release the movement lean")
 
 	Input.action_release("move_up")
 	Input.action_release("move_down")
@@ -71,5 +90,5 @@ func _ready() -> void:
 	Input.action_release("move_right")
 	OptionsMenu.settings["clean_gameplay_visuals"] = previous_clean_view
 	GameManager.change_state(previous_state)
-	print("MOVEMENT_NATURALISM_SMOKE_PASS acceleration=responsive turn=decisive stop=settled direction_hysteresis=1 distance_footfalls=1 breadcrumb_corner=1 camera_single_lag=1 ambient_gait=1 grounded_shadow=1")
+	print("MOVEMENT_NATURALISM_SMOKE_PASS acceleration=responsive turn=planted stop=settled direction_hysteresis=1 distance_footfalls=1 breadcrumb_corner=1 camera_single_lag=1 ambient_gait=1 shared_finish=1 grounded_shadow=1")
 	get_tree().quit(0)

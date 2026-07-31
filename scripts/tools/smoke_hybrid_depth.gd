@@ -11,6 +11,20 @@ func _ready() -> void:
 	assert(battle_stage.camera != null and battle_stage.camera.current, "Hybrid stage must own a live perspective camera")
 	assert(_count_meshes(battle_stage.scene_root) >= 16, "Battle hybrid must contain a readable low-poly diorama")
 	assert(battle_stage.battle_player_focus_root != null and battle_stage.battle_enemy_focus_root != null, "Battle diorama must anchor both sides with reactive focus rings")
+
+	# S211: the battle arena must read as a space, not a few floating sticks.
+	assert(battle_stage.arena_floor != null and battle_stage.arena_floor.mesh is PlaneMesh,
+		"Battle arena needs a real ground plane, not only dashed traces")
+	assert(battle_stage.arena_floor.get_parent() == battle_stage.scene_root,
+		"The floor must sit outside the swaying motion root, or the ground rocks under the characters")
+	var battle_environment: Environment = null
+	for child in battle_stage.scene_root.get_children():
+		if child is WorldEnvironment:
+			battle_environment = (child as WorldEnvironment).environment
+	assert(battle_environment != null and battle_environment.fog_enabled,
+		"Depth fog is what turns identical low-poly boxes into distance")
+	var floor_depth: float = absf(battle_stage.arena_floor.position.z) + HybridDepthStage.ARENA_FLOOR_SIZE * 0.5
+	assert(floor_depth > 30.0, "The arena floor must recede far enough to build a horizon")
 	battle_stage.set_battle_focus("player")
 	assert(battle_stage._focus_pan < 0.0 and battle_stage._battle_player_focus_material.emission_energy_multiplier > 1.0, "Player turns must focus the left arena without moving 2D actors")
 	battle_stage.set_battle_focus("enemy")

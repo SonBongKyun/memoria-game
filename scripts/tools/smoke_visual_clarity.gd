@@ -166,7 +166,9 @@ func _ready() -> void:
 	field_companion.npc_name = "Elia"
 	add_child(field_companion)
 	await get_tree().process_frame
-	assert(field_companion.get("_presence_ring") is Line2D and field_companion.get("_presence_shadow") is Polygon2D, "Companions must use a restrained ground-presence treatment")
+	var companion_grounding := field_companion.get_node_or_null("FieldGrounding") as Node2D
+	assert(field_companion.get("_presence_ring") is Line2D and companion_grounding != null, "Companions must use the shared restrained ground-presence treatment")
+	assert(companion_grounding.get_node_or_null("SoftShadow") is Polygon2D and companion_grounding.get_node_or_null("ContactShadow") is Polygon2D, "Companion grounding must keep layered oval shadows")
 	field_companion.queue_free()
 	await get_tree().process_frame
 
@@ -195,9 +197,9 @@ func _ready() -> void:
 	assert(PixelSprite.has_field_sprite_frames("sable"), "Sable must share the same four-direction field-cast contract")
 	for direction in ["down", "up", "left", "right"]:
 		assert(ResourceLoader.exists("res://assets/sprites/field/sable/%s.png" % direction), "Sable is missing a %s field direction" % direction)
-	var body_font := UITheme.make_body_font() as FontFile
-	var ui_font := UITheme.make_ui_font() as FontFile
-	assert(body_font != null and body_font.resource_path == UITheme.BODY_FONT_PATH, "Dialogue must use the bundled Noto Serif KR font")
+	var body_font := UITheme.get_font_file(UITheme.make_body_font())
+	var ui_font := UITheme.get_font_file(UITheme.make_ui_font())
+	assert(body_font != null and body_font.resource_path == UITheme.BODY_FONT_PATH, "Dialogue must use the bundled screen-readable Noto Sans KR font")
 	assert(ui_font != null and ui_font.resource_path == UITheme.UI_FONT_PATH, "HUD and controls must use the bundled Noto Sans KR font")
 	assert(not body_font.generate_mipmaps and body_font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED, "Dialogue font must use the crisp small-glyph profile")
 	for canvas_path in [

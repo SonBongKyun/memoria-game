@@ -433,7 +433,7 @@ func _set_skip_indicator(blocked: bool) -> void:
 		indicator.add_theme_color_override("font_color", Color(0.94, 0.78, 0.44, 0.95))
 	else:
 		_refresh_indicator_text()
-		indicator.add_theme_color_override("font_color", Color(0.74, 0.62, 0.40, 0.76))
+		indicator.add_theme_color_override("font_color", Color(0.94, 0.78, 0.48, 0.94))
 
 ## S55: Start auto-advance countdown if the current line is narration (no speaker)
 ## S169: 전체 AUTO 모드(VN과 공유), 켜져 있으면 모든 라인을 읽기 시간 후 자동 진행
@@ -584,13 +584,13 @@ func _build_ui() -> void:
 	panel.anchor_right = 0.94
 	panel.anchor_top = 1.0
 	panel.anchor_bottom = 1.0
-	panel.offset_top = -194
+	panel.offset_top = -208
 	panel.offset_bottom = -18
 
 	# 스타일 (어두운 반투명 -- 서고 모티프)
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.026, 0.038, 0.90)
-	style.border_color = Color(0.78, 0.62, 0.36, 0.62)
+	style.bg_color = Color(0.024, 0.021, 0.032, 0.97)
+	style.border_color = Color(0.86, 0.69, 0.40, 0.82)
 	style.set_border_width(SIDE_LEFT, 1)
 	style.set_border_width(SIDE_TOP, 2)
 	style.set_border_width(SIDE_RIGHT, 1)
@@ -680,9 +680,9 @@ func _build_ui() -> void:
 	speaker_label = Label.new()
 	speaker_label.custom_minimum_size = Vector2(0, 22)
 	UITheme.apply_title_font(speaker_label)
-	speaker_label.add_theme_font_size_override("font_size", 18)
-	speaker_label.add_theme_color_override("font_color", Color(0.82, 0.68, 0.46))
-	speaker_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
+	speaker_label.add_theme_font_size_override("font_size", 20)
+	speaker_label.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
+	speaker_label.add_theme_color_override("font_outline_color", UITheme.TEXT_OUTLINE)
 	speaker_label.add_theme_constant_override("outline_size", 1)
 	text_area.add_child(speaker_label)
 
@@ -700,9 +700,11 @@ func _build_ui() -> void:
 	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_label.add_theme_font_size_override("normal_font_size", _get_dialogue_font_size())
 	text_label.add_theme_font_override("normal_font", UITheme.make_body_font())
-	text_label.add_theme_constant_override("line_separation", 10)
-	text_label.add_theme_color_override("default_color", Color(0.96, 0.94, 0.90))
-	text_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.58))
+	text_label.add_theme_constant_override("line_separation", 11)
+	text_label.add_theme_color_override("default_color", UITheme.TEXT_PRIMARY)
+	text_label.add_theme_color_override("font_outline_color", UITheme.TEXT_OUTLINE)
+	text_label.add_theme_constant_override("outline_size", 1)
+	text_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.90))
 	text_label.add_theme_constant_override("shadow_offset_x", 1)
 	text_label.add_theme_constant_override("shadow_offset_y", 1)
 	text_area.add_child(text_label)
@@ -712,8 +714,8 @@ func _build_ui() -> void:
 	indicator.text = ""
 	UITheme.apply_ui_font(indicator)
 	indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	indicator.add_theme_font_size_override("font_size", 12)
-	indicator.add_theme_color_override("font_color", Color(0.74, 0.62, 0.40, 0.76))
+	indicator.add_theme_font_size_override("font_size", 13)
+	indicator.add_theme_color_override("font_color", Color(0.94, 0.78, 0.44, 0.94))
 	indicator.add_theme_constant_override("outline_size", 1)
 	indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
 	_set_indicator_visible(false)
@@ -782,9 +784,9 @@ func _get_dialogue_font_size() -> int:
 	if OptionsMenu:
 		font_size_level = OptionsMenu.settings.get("dialogue_font_size", 0)
 	match font_size_level:
-		1: return 20  # Large
-		2: return 24  # Extra Large
-		_: return 18  # Normal
+		1: return 23  # Large
+		2: return 26  # Extra Large
+		_: return UITheme.MIN_BODY_FONT_SIZE  # Normal
 
 ## S55: Refresh font size (called when settings change)
 func refresh_font_size() -> void:
@@ -950,7 +952,7 @@ func _on_dialogue_choice(choices: Array) -> void:
 		var choice_text := GameManager.localized_value(choice, "text", String(choice.get("text", "..."))) if choice is Dictionary else "..."
 		btn.text = "%d. %s" % [i + 1, choice_text]
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.custom_minimum_size = Vector2(0, 46)
+		btn.custom_minimum_size = Vector2(0, 50)
 
 		var btn_style = StyleBoxFlat.new()
 		btn_style.bg_color = Color(0.026, 0.024, 0.034, 0.96)
@@ -969,10 +971,12 @@ func _on_dialogue_choice(choices: Array) -> void:
 		btn.add_theme_stylebox_override("hover", hover_style)
 		btn.add_theme_stylebox_override("focus", hover_style)
 
-		btn.add_theme_color_override("font_color", Color(0.88, 0.84, 0.76))
+		btn.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 		btn.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.55))
-		UITheme.apply_body_font(btn)
-		btn.add_theme_font_size_override("font_size", 15)
+		UITheme.apply_ui_font(btn)
+		btn.add_theme_font_size_override("font_size", 17)
+		btn.add_theme_color_override("font_outline_color", UITheme.TEXT_OUTLINE)
+		btn.add_theme_constant_override("outline_size", 1)
 
 		var idx = i
 		btn.pressed.connect(func():

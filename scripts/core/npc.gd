@@ -207,23 +207,8 @@ func _get_character_config() -> Dictionary:
 			return PixelSprite.npc_config(npc_color)
 
 func _add_character_grounding(accent: Color) -> void:
-	var shadow := Polygon2D.new()
-	shadow.polygon = PackedVector2Array([
-		Vector2(-15, 2), Vector2(-8, -1), Vector2(8, -1), Vector2(15, 2),
-		Vector2(8, 5), Vector2(-8, 5)
-	])
-	shadow.color = Color(0.0, 0.0, 0.0, 0.30)
-	shadow.z_index = 0
-	add_child(shadow)
-
-	var ring := Line2D.new()
-	ring.width = 1.1
-	ring.default_color = Color(accent.r, accent.g, accent.b, 0.30)
-	ring.points = PackedVector2Array([
-		Vector2(-11, 2), Vector2(-6, 5), Vector2(6, 5), Vector2(11, 2)
-	])
-	ring.z_index = 1
-	add_child(ring)
+	FieldActorVisuals.apply_finish(sprite, accent, 0.68, 0.085)
+	FieldActorVisuals.add_grounding(self, accent)
 
 func _get_npc_accent_color() -> Color:
 	match npc_name:

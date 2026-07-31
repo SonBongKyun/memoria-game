@@ -27,6 +27,12 @@
       "desc": "Events, people, world notes, choices, quests, and losses now rest on one consistent field ledger."
     },
     {
+      "title": "Story Log / Witness Ledger",
+      "type": "Interface Art",
+      "path": "res://assets/cg/generated/ui_story_log_archive_v1.png",
+      "desc": "A quiet iron-bound witness ledger gives dense recalled dialogue a dedicated, readable archive surface."
+    },
+    {
       "title": "Malet's Exchange II",
       "type": "Interface Art",
       "path": "res://assets/cg/generated/ui_memory_shop_backdrop_v2.png",
@@ -109,6 +115,48 @@
       "type": "Equipment Interface Art",
       "path": "res://assets/ui/equipment/slot_accessory_v1.png",
       "desc": "A witness-knot pendant emblem for the accessory record."
+    },
+    {
+      "title": "Field Recovery / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_recover_cutin_v1.png",
+      "desc": "Potions, lantern salve, and seed capsules stitch warm memory-light back into the present when used in battle."
+    },
+    {
+      "title": "Status Purge / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_cure_cutin_v1.png",
+      "desc": "Antidotes and root balm visibly wash poison thorns and cinder traces from the active field record."
+    },
+    {
+      "title": "Cinder Release / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_ignite_cutin_v1.png",
+      "desc": "Firebombs and cinder vials fracture into a single readable arc of pressure and flame."
+    },
+    {
+      "title": "Tactical Withdrawal / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_withdraw_cutin_v1.png",
+      "desc": "Smoke bombs and signal jammers turn escape into a deliberate break in the hostile line."
+    },
+    {
+      "title": "Witness Trace / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_witness_cutin_v1.png",
+      "desc": "Ink, thread, knots, and compass shards reveal the testimony hidden inside an enemy's silhouette."
+    },
+    {
+      "title": "Anchor Set / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_anchor_guard_cutin_v1.png",
+      "desc": "The anchor lantern catches the next impact in concentric rings of steady resolve."
+    },
+    {
+      "title": "Fault Mapped / Supply Moment",
+      "type": "Gameplay Action Art",
+      "path": "res://assets/cg/generated/gameplay_moments/item_fault_scan_cutin_v1.png",
+      "desc": "Ledger chalk converts a concealed fracture into visible BREAK pressure."
     }
   ]
 }

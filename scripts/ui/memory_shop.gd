@@ -196,7 +196,7 @@ func _build_ui() -> void:
 
 	merchant_caption = Label.new()
 	merchant_caption.text = "Memory trader"
-	merchant_caption.add_theme_font_size_override("font_size", 11)
+	merchant_caption.add_theme_font_size_override("font_size", 12)
 	merchant_caption.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	title_stack.add_child(merchant_caption)
 
@@ -250,7 +250,7 @@ func _build_ui() -> void:
 	# ── 하단: 닫기 힌트 ──
 	close_hint = Label.new()
 	close_hint.text = "[ESC] Close Shop"
-	close_hint.add_theme_font_size_override("font_size", 11)
+	close_hint.add_theme_font_size_override("font_size", 12)
 	close_hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	main_vbox.add_child(close_hint)
@@ -298,7 +298,7 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	vbox.add_child(detail_price)
 
 	detail_effect = Label.new()
-	detail_effect.add_theme_font_size_override("font_size", 11)
+	detail_effect.add_theme_font_size_override("font_size", 12)
 	detail_effect.add_theme_color_override("font_color", Color(0.6, 0.45, 0.4))
 	detail_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(detail_effect)
@@ -710,7 +710,7 @@ func _populate_equip_list() -> void:
 				var upg_btn = Button.new()
 				upg_btn.text = "Upgrade (%dG)" % cost
 				upg_btn.custom_minimum_size = Vector2(100, 24)
-				upg_btn.add_theme_font_size_override("font_size", 11)
+				upg_btn.add_theme_font_size_override("font_size", 12)
 				var upg_style = UITheme.make_button_style(Color(0.12, 0.1, 0.06, 0.9), Color(0.5, 0.4, 0.2, 0.7))
 				upg_btn.add_theme_stylebox_override("normal", upg_style)
 				upg_btn.add_theme_stylebox_override("hover", UITheme.make_hover_style(upg_style))

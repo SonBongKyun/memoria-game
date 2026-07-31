@@ -2,9 +2,9 @@
 ## Reads memory density and makes world rewrites visible during exploration.
 extends CanvasLayer
 
-const PANEL_SIZE := Vector2(284, 118)
+const PANEL_SIZE := Vector2(304, 132)
 const HIDDEN_ALPHA := 0.12
-const VISIBLE_ALPHA := 0.94
+const VISIBLE_ALPHA := 1.0
 
 var panel: PanelContainer
 var compass_title: Label
@@ -51,8 +51,8 @@ func _build_ui() -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.modulate.a = 0.0
 	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style(
-		Color(0.018, 0.016, 0.026, 0.9),
-		Color(0.66, 0.52, 0.31, 0.62),
+		Color(0.016, 0.014, 0.024, 0.98),
+		Color(0.76, 0.62, 0.38, 0.82),
 		1,
 		5,
 		10
@@ -64,14 +64,14 @@ func _build_ui() -> void:
 	art_plate.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art_plate.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_plate.modulate = Color(0.62, 0.54, 0.42, 0.16)
+	art_plate.modulate = Color(0.62, 0.54, 0.42, 0.10)
 	if ResourceLoader.exists("res://assets/cg/generated/ui_memory_compass_close_v2.png"):
 		art_plate.texture = load("res://assets/cg/generated/ui_memory_compass_close_v2.png")
 	panel.add_child(art_plate)
 
 	var shade := ColorRect.new()
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	shade.color = Color(0.0, 0.0, 0.0, 0.34)
+	shade.color = Color(0.0, 0.0, 0.0, 0.56)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(shade)
 
@@ -122,27 +122,27 @@ func _build_ui() -> void:
 
 	compass_title = Label.new()
 	compass_title.text = "MEMORY COMPASS"
-	compass_title.add_theme_font_size_override("font_size", 11)
-	compass_title.add_theme_color_override("font_color", Color(0.92, 0.79, 0.52))
+	compass_title.add_theme_font_size_override("font_size", 12)
+	compass_title.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	text_box.add_child(compass_title)
 
 	status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 15)
+	status_label.add_theme_font_size_override("font_size", 16)
 	status_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	text_box.add_child(status_label)
 
 	lore_label = Label.new()
 	lore_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	lore_label.custom_minimum_size.x = 184
-	lore_label.add_theme_font_size_override("font_size", 11)
-	lore_label.add_theme_color_override("font_color", Color(0.62, 0.59, 0.52))
+	lore_label.add_theme_font_size_override("font_size", 13)
+	lore_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	text_box.add_child(lore_label)
 
 	burn_label = Label.new()
 	burn_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	burn_label.custom_minimum_size.x = 184
-	burn_label.add_theme_font_size_override("font_size", 11)
-	burn_label.add_theme_color_override("font_color", Color(0.86, 0.58, 0.42))
+	burn_label.add_theme_font_size_override("font_size", 13)
+	burn_label.add_theme_color_override("font_color", Color(0.98, 0.72, 0.52))
 	text_box.add_child(burn_label)
 
 func _connect_signals() -> void:
@@ -207,7 +207,7 @@ func _refresh_visibility() -> void:
 		should_show = should_show and _pulse_time > 0.0
 	panel.visible = should_show
 	if should_show:
-		var target_alpha := VISIBLE_ALPHA if _pulse_time > 0.0 else 0.86
+		var target_alpha := VISIBLE_ALPHA if _pulse_time > 0.0 else 0.98
 		panel.modulate.a = lerpf(panel.modulate.a, target_alpha, 0.3)
 	else:
 		panel.modulate.a = 0.0

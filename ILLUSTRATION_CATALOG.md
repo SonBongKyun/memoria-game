@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S204: 450 PNG files under `assets/cg/`.
+- Current project baseline after S212: 460 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -14,6 +14,28 @@
 4. Environment plates, dialogue story CGs, battle cinematics, memory-burn images, and ending plates are separate asset roles.
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
+
+## S211 post-upgrade audit and Story Log witness ledger
+
+The S203-S210 work already gives the story, battle, world-rewrite, resonance, and archive systems broad live illustration coverage, so this review did not add another duplicate narrative-CG batch. The visible gap was the new S209 Story Log: its dense dialogue backlog still sat on a plain near-black panel while the adjacent Pause, Journal, Codex, Inventory, and Shop surfaces used one coherent archive family.
+
+`ui_story_log_archive_v1.png` is a new 1672x941, text-free witness-ledger backdrop generated with the current Story Journal and Pause Archive surfaces as style references. It keeps one uninterrupted dark reading field for long Korean and English dialogue, confines the quill, compass, ledgers, gold inlay, and restrained memory thread to the margins, and introduces no character identity risk. `StoryLog.BACKDROP_PATH` is the live consumer, while `data/interface_visual_gallery.json` exposes the asset in the Artbook and the interface/story smoke suites enforce both paths.
+
+## S212 battle-supply action illustration set
+
+The story archive already had broad CG coverage, but the repeatable battle-supply loop still resolved sixteen usable items through small icons and combat-log text alone. Seven new 1672x941 GPT Image plates therefore represent the live item-effect families rather than duplicating individual props: recovery, cure, burn, withdrawal, witness, guard, and scan.
+
+| Runtime item type | Generated asset | Live coverage |
+|---|---|---|
+| `heal` | `gameplay_moments/item_recover_cutin_v1.png` | Potion, Hi-Potion, Lantern Salve, Seed Capsule |
+| `cure` | `gameplay_moments/item_cure_cutin_v1.png` | Antidote, Root Balm |
+| `burn` | `gameplay_moments/item_ignite_cutin_v1.png` | Firebomb, Cinder Vial |
+| `flee` | `gameplay_moments/item_withdraw_cutin_v1.png` | Smoke Bomb, Signal Jammer |
+| `witness` | `gameplay_moments/item_witness_cutin_v1.png` | Witness Ink, Name Thread, Compass Shard, Witness Knot |
+| `guard` | `gameplay_moments/item_anchor_guard_cutin_v1.png` | Anchor Lantern |
+| `scan` | `gameplay_moments/item_fault_scan_cutin_v1.png` | Ledger Chalk |
+
+All seven were generated in `stylized-concept` mode from the current BREAK and WITNESS battle cut-ins. The shared final prompt direction was a prop-led 16:9 gameplay action cut-in with weathered black gloves, deep charcoal/navy fields, antique-brass equipment, one effect-specific color accent, a crisp diagonal focal action, dark crop-safe corners, no visible face, no identity-specific character features, no border or UI, no generated text, no watermark, no gore, and restrained edge particles. `BattleManager.item_used` is the live trigger; the battle scene pairs each image with a localized tactical cue and a brief full-field cut-in. `data/interface_visual_gallery.json` also exposes every plate in the Artbook.
 
 ## S204 late-story, field, and RPG landmark expansion
 
@@ -74,7 +96,7 @@ Sixteen final GPT Image assets extend the established charcoal, black-blue, aged
 | Upgraded atlas rewards | `root_balm_v2.png`, `signal_jammer_v2.png`, `lantern_salve_v2.png`, `name_thread_v2.png`, `compass_shard_v2.png`, `seed_capsule_v2.png` | Replaces the lower-resolution S187 item icons in inventory, shop, drops, and combat |
 | Equipment dossier emblems | `slot_weapon_v1.png`, `slot_armor_v1.png`, `slot_accessory_v1.png` | Weapon, armor, and accessory records in the inventory loadout row |
 
-`data/interface_visual_gallery.json` is the 16-entry Artbook manifest. The inventory now supplies four category filters, deterministic type ordering, HP/Grains/memory/chapter telemetry, concise mechanical effect copy, and icon-led equipment cards. The character dossier reuses Arrel's canonical story portrait. The first opaque battle-tray layout was not connected to gameplay; the live v3 tray uses isolated alpha so the scene behind it remains visible.
+`data/interface_visual_gallery.json` is the current 19-entry Artbook manifest. The inventory now supplies four category filters, deterministic type ordering, HP/Grains/memory/chapter telemetry, concise mechanical effect copy, and icon-led equipment cards. The character dossier reuses Arrel's canonical story portrait. The first opaque battle-tray layout was not connected to gameplay; the live v3 tray uses isolated alpha so the scene behind it remains visible.
 
 ## S187 atlas expansion: maps, field roster, and reward items
 

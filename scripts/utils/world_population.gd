@@ -382,8 +382,11 @@ static func _spawn_hunt(root: Node2D, map_id: String, data: Dictionary) -> bool:
 	var defeated_flag := "world_hunt_%s_%s" % [map_id, hunt_id]
 	if GameManager.get_flag(defeated_flag):
 		return false
-	var area := Area2D.new()
+	var runtime_data := data.duplicate(true)
+	runtime_data["_resolved_field_art"] = _art_for_hunt(data)
+	var area := FieldThreat.new()
 	area.name = "WorldThreat_%s" % hunt_id
+	area.configure(map_id, runtime_data, defeated_flag)
 	area.position = _tile_position(data.get("tile", [1, 1]))
 	area.collision_layer = 0
 	area.collision_mask = 2
@@ -395,42 +398,50 @@ static func _spawn_hunt(root: Node2D, map_id: String, data: Dictionary) -> bool:
 	collision.position = Vector2(0, -5)
 	area.add_child(collision)
 	var shadow := Polygon2D.new()
+	shadow.name = "ThreatShadow"
 	shadow.polygon = PackedVector2Array([Vector2(-17, 2), Vector2(-9, -1), Vector2(9, -1), Vector2(17, 2), Vector2(9, 5), Vector2(-9, 5)])
 	shadow.color = Color(0.0, 0.0, 0.0, 0.34)
 	shadow.z_index = -1
 	area.add_child(shadow)
 	var sprite := Sprite2D.new()
-	sprite.texture = load(_art_for_hunt(data)) as Texture2D
+	sprite.name = "ThreatSprite"
+	sprite.texture = load(String(runtime_data["_resolved_field_art"])) as Texture2D
 	sprite.position = Vector2(0, -29)
 	sprite.scale = Vector2(0.38, 0.38)
-	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	sprite.z_index = 1
 	area.add_child(sprite)
 	var ring := Line2D.new()
+	ring.name = "ThreatRing"
 	ring.points = PackedVector2Array([Vector2(-13, 2), Vector2(-7, 5), Vector2(7, 5), Vector2(13, 2)])
 	ring.width = 1.0
 	ring.default_color = _threat_color(hunt_id)
 	ring.z_index = 0
 	area.add_child(ring)
-	area.body_entered.connect(func(body: Node2D) -> void:
-		if body == null or body.name != "Player":
-			return
-		if GameManager.current_state != GameManager.GameState.EXPLORATION or GameManager.get_flag(defeated_flag):
-			return
-		GameManager.set_flag(defeated_flag)
-		var enemy := BattleManager.Enemy.new(
-			String(data.get("name", "Memory Echo")),
-			int(data.get("hp", 70)),
-			int(data.get("atk", 14)),
-			bool(data.get("is_void", false))
-		)
-		enemy.abilities = Array(data.get("abilities", [])).duplicate()
-		enemy.weakness = String(data.get("weakness", ""))
-		enemy.resistance = String(data.get("resistance", ""))
-		BattleManager.start_battle(enemy, "res://scenes/maps/%s.tscn" % map_id)
-		SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
-		area.call_deferred("queue_free")
-	)
+	var aura := Line2D.new()
+	aura.name = "ThreatAura"
+	aura.closed = true
+	aura.width = 1.0
+	aura.default_color = Color(_threat_color(hunt_id), 0.50)
+	aura.z_index = -1
+	for point_index in range(33):
+		var angle := TAU * float(point_index) / 32.0
+		aura.add_point(Vector2(cos(angle), sin(angle) * 0.58) * 30.0 + Vector2(0, -10))
+	area.add_child(aura)
+	var sight := Line2D.new()
+	sight.name = "ThreatSight"
+	sight.points = PackedVector2Array([Vector2(0, -15), Vector2(0, -15)])
+	sight.width = 1.0
+	sight.default_color = Color(_threat_color(hunt_id), 0.72)
+	sight.z_index = -1
+	sight.modulate.a = 0.0
+	area.add_child(sight)
+	var core := Polygon2D.new()
+	core.name = "ThreatCore"
+	core.polygon = PackedVector2Array([Vector2(0, -18), Vector2(4, -13), Vector2(0, -8), Vector2(-4, -13)])
+	core.color = Color(_threat_color(hunt_id), 0.76)
+	core.z_index = 3
+	area.add_child(core)
 	root.add_child(area)
 	return true
 

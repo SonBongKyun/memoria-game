@@ -178,7 +178,7 @@ func _build_ui() -> void:
 
 	close_hint = Label.new()
 	close_hint.text = "[Tab / M] Close    [ESC] Close"
-	close_hint.add_theme_font_size_override("font_size", 11)
+	close_hint.add_theme_font_size_override("font_size", 12)
 	close_hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	bottom_bar.add_child(close_hint)
 
@@ -194,7 +194,7 @@ func _create_title_bar() -> HBoxContainer:
 
 	var subtitle = Label.new()
 	subtitle.text = "The things you carry. The things you've lost."
-	subtitle.add_theme_font_size_override("font_size", 11)
+	subtitle.add_theme_font_size_override("font_size", 12)
 	subtitle.add_theme_color_override("font_color", Color(0.45, 0.4, 0.35))
 	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	bar.add_child(subtitle)
@@ -331,13 +331,13 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 
 	# 스토리 효과
 	detail_effect = Label.new()
-	detail_effect.add_theme_font_size_override("font_size", 11)
+	detail_effect.add_theme_font_size_override("font_size", 12)
 	detail_effect.add_theme_color_override("font_color", Color(0.6, 0.45, 0.4))
 	detail_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(detail_effect)
 
 	detail_rewrite = Label.new()
-	detail_rewrite.add_theme_font_size_override("font_size", 11)
+	detail_rewrite.add_theme_font_size_override("font_size", 12)
 	detail_rewrite.add_theme_color_override("font_color", Color(0.72, 0.58, 0.42))
 	detail_rewrite.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_rewrite.visible = false

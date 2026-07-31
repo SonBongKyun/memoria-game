@@ -37,12 +37,16 @@ var _base_offset: Vector2 = Vector2.ZERO
 var _base_offset_captured: bool = false
 var _rest_scale: Vector2 = Vector2.ONE
 var _presence_ring: Line2D
-var _presence_shadow: Polygon2D
+var _presence_grounding: Node2D
 var _presence_time: float = 0.0
 var _trail_points: Array[Vector2] = []
 var _anim_suffix: String = "down"
 var _actual_speed: float = 0.0
 var _stuck_time: float = 0.0
+var _turn_lean: float = 0.0
+var _step_impact: float = 0.0
+var _step_distance: float = 0.0
+var _was_moving: bool = false
 
 func _ready() -> void:
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
@@ -73,6 +77,15 @@ func _physics_process(delta: float) -> void:
 	if not target or GameManager.current_state != GameManager.GameState.EXPLORATION:
 		velocity = Vector2.ZERO
 		_actual_speed = 0.0
+		_turn_lean = move_toward(_turn_lean, 0.0, delta * 0.9)
+		_step_impact = move_toward(_step_impact, 0.0, delta * 9.0)
+		_update_animation(_smooth_dir, false)
+		if sprite and _base_offset_captured:
+			sprite.offset = sprite.offset.lerp(_base_offset, 1.0 - exp(-12.0 * delta))
+			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 1.0 - exp(-12.0 * delta))
+			sprite.scale = sprite.scale.lerp(_rest_scale, 1.0 - exp(-12.0 * delta))
+		_update_companion_presence(delta, false)
+		_was_moving = false
 		return
 	if sprite and not _base_offset_captured:
 		_base_offset = sprite.offset
@@ -118,6 +131,15 @@ func _physics_process(delta: float) -> void:
 
 	var visually_moving := _actual_speed > 6.0
 	_update_animation(_smooth_dir if visually_moving else raw_dir, visually_moving)
+	if visually_moving and not _was_moving:
+		_step_impact = 0.72
+	if visually_moving:
+		_step_distance += moved_distance
+		while _step_distance >= 28.0:
+			_step_distance -= 28.0
+			_step_impact = 1.0
+	_turn_lean = move_toward(_turn_lean, 0.0, delta * 0.58)
+	_step_impact = move_toward(_step_impact, 0.0, delta * 7.5)
 
 	# S150: 걷기 바운스 + 정지 호흡 (플레이어와 같은 문법)
 	if sprite:
@@ -126,9 +148,10 @@ func _physics_process(delta: float) -> void:
 			var gait := sin(_bob_phase)
 			sprite.offset.y = _base_offset.y - absf(gait) * 0.80
 			sprite.offset.x = _base_offset.x + gait * (0.42 if absf(_smooth_dir.y) > 0.5 else 0.20)
-			sprite.rotation = lerp_angle(sprite.rotation, (velocity.x / (FOLLOW_SPEED * SPRINT_CATCHUP)) * 0.032, 9.0 * delta)
+			sprite.rotation = lerp_angle(sprite.rotation, (velocity.x / (FOLLOW_SPEED * SPRINT_CATCHUP)) * 0.032 + _turn_lean, 9.0 * delta)
 			_breath_time = 0.0
-			sprite.scale = sprite.scale.lerp(_rest_scale, 10.0 * delta)
+			var movement_shape := Vector2(1.0 + _step_impact * 0.016, 1.0 - _step_impact * 0.021)
+			sprite.scale = sprite.scale.lerp(_rest_scale * movement_shape, 1.0 - exp(-10.0 * delta))
 		else:
 			sprite.offset.x = lerpf(sprite.offset.x, _base_offset.x, 12.0 * delta)
 			sprite.offset.y = lerpf(sprite.offset.y, _base_offset.y, 12.0 * delta)
@@ -136,6 +159,7 @@ func _physics_process(delta: float) -> void:
 			_breath_time += delta
 			sprite.scale = _rest_scale * Vector2(1.0 + sin(_breath_time * 1.8) * 0.008, 1.0 - sin(_breath_time * 1.8) * 0.006)
 	_update_companion_presence(delta, visually_moving)
+	_was_moving = visually_moving
 
 func _reset_target_trail() -> void:
 	_trail_points.clear()
@@ -237,38 +261,31 @@ func _setup_placeholder_sprite() -> void:
 	sprite.play("idle_down")
 
 func _add_companion_presence() -> void:
-	_presence_shadow = Polygon2D.new()
-	_presence_shadow.polygon = PackedVector2Array([
-		Vector2(-14, 2), Vector2(-8, -1), Vector2(8, -1), Vector2(14, 2),
-		Vector2(8, 5), Vector2(-8, 5)
-	])
-	_presence_shadow.color = Color(0.0, 0.0, 0.0, 0.28)
-	_presence_shadow.z_index = -1
-	add_child(_presence_shadow)
-
-	var accent := Color(0.86, 0.68, 0.34, 0.34) if npc_name == "Elia" else Color(0.67, 0.52, 0.84, 0.34)
-	_presence_ring = Line2D.new()
-	_presence_ring.width = 1.1
-	_presence_ring.default_color = accent
-	_presence_ring.points = PackedVector2Array([
-		Vector2(-10, 2), Vector2(-5, 5), Vector2(5, 5), Vector2(10, 2)
-	])
-	_presence_ring.z_index = 0
-	add_child(_presence_ring)
+	var accent := Color(0.88, 0.68, 0.30) if npc_name == "Elia" else Color(0.70, 0.54, 0.88)
+	FieldActorVisuals.apply_finish(sprite, accent, 0.72, 0.11)
+	_presence_grounding = FieldActorVisuals.add_grounding(self, accent)
+	_presence_ring = _presence_grounding.get_node_or_null("MemoryContact") as Line2D
 
 func _update_companion_presence(delta: float, moving: bool) -> void:
-	if _presence_ring == null or not is_instance_valid(_presence_ring):
+	if _presence_grounding == null or not is_instance_valid(_presence_grounding):
 		return
 	_presence_time += delta
-	var base_alpha := 0.48 if moving else 0.32
-	var pulse := sin(_presence_time * (3.2 if moving else 1.7)) * 0.06
-	_presence_ring.default_color.a = clampf(base_alpha + pulse, 0.20, 0.56)
-	_presence_ring.scale.x = 1.0 + (0.08 if moving else 0.03) * sin(_presence_time * 2.0)
+	FieldActorVisuals.update_grounding(
+		_presence_grounding,
+		velocity,
+		_bob_phase,
+		moving,
+		delta,
+		FOLLOW_SPEED * SPRINT_CATCHUP
+	)
+	if _presence_ring != null:
+		_presence_ring.scale.x = 1.0 + (0.045 if moving else 0.02) * sin(_presence_time * 2.0)
 
 ## 애니메이션 방향 업데이트
 func _update_animation(direction: Vector2, is_moving: bool) -> void:
 	if not sprite or not sprite.sprite_frames:
 		return
+	var previous_suffix := _anim_suffix
 	var prefix = "walk_" if is_moving else "idle_"
 	var ax := absf(direction.x)
 	var ay := absf(direction.y)
@@ -284,6 +301,16 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 		_anim_suffix = "down"
 	elif _anim_suffix == "down" and direction.y < -0.05:
 		_anim_suffix = "up"
+	if is_moving and previous_suffix != _anim_suffix:
+		var old_direction := _cardinal_direction(previous_suffix)
+		var new_direction := _cardinal_direction(_anim_suffix)
+		var turn_sign := signf(old_direction.cross(new_direction))
+		if is_zero_approx(turn_sign):
+			turn_sign = signf(new_direction.x)
+			if is_zero_approx(turn_sign):
+				turn_sign = -1.0 if new_direction.y < 0.0 else 1.0
+		_turn_lean = turn_sign * 0.045
+		_step_impact = maxf(_step_impact, 0.38)
 	var anim = prefix + _anim_suffix
 	if sprite.animation != anim:
 		sprite.play(anim)
@@ -291,3 +318,14 @@ func _update_animation(direction: Vector2, is_moving: bool) -> void:
 		sprite.speed_scale = clampf(_actual_speed / FOLLOW_SPEED, 0.65, 1.55)
 	else:
 		sprite.speed_scale = 1.0
+
+func _cardinal_direction(suffix: String) -> Vector2:
+	match suffix:
+		"left":
+			return Vector2.LEFT
+		"right":
+			return Vector2.RIGHT
+		"up":
+			return Vector2.UP
+		_:
+			return Vector2.DOWN

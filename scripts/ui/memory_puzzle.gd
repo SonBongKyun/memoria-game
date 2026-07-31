@@ -326,7 +326,7 @@ func _build_ui() -> void:
 	# 닫기 힌트
 	var hint = Label.new()
 	hint.text = "[ESC] Close"
-	hint.add_theme_font_size_override("font_size", 11)
+	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(hint)

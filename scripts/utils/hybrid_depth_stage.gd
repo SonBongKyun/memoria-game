@@ -6,6 +6,12 @@ extends Control
 
 enum StageMode { BATTLE, ATLAS, RELIC }
 
+## S211: 전투 무대 지면 기준.
+## 2D 전투원의 발끝(battle_scene.STAGE_BASELINE_Y)과 3D 지평선이 같은 높이에서
+## 만나야 "2D 캐릭터가 3D 공간에 서 있다"로 읽힌다. 두 값은 함께 조정할 것.
+const ARENA_FLOOR_Y: float = -1.12
+const ARENA_FLOOR_SIZE: float = 64.0
+
 const PROFILE_DATA: Dictionary = {
 	"rim_forest": {"accent": Color(0.57, 0.72, 0.38), "stone": Color(0.11, 0.15, 0.12), "motif": "roots"},
 	"verdan_market": {"accent": Color(0.86, 0.58, 0.25), "stone": Color(0.19, 0.13, 0.10), "motif": "stalls"},
@@ -41,6 +47,7 @@ var _focus_pan: float = 0.0
 var _time: float = 0.0
 var _atlas_markers: Array[MeshInstance3D] = []
 var _atlas_materials: Array[StandardMaterial3D] = []
+var arena_floor: MeshInstance3D
 var battle_player_focus_root: Node3D
 var battle_enemy_focus_root: Node3D
 var _battle_player_focus_material: StandardMaterial3D
@@ -127,6 +134,18 @@ func _add_environment() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.42, 0.45, 0.55)
 	environment.ambient_light_energy = 0.78
+	# S211: 공기 원근.
+	# 먼 기둥이 배경 색으로 녹아들면, 같은 저폴리 상자들도 "깊이가 있는 공간"으로
+	# 읽힌다. 3D를 늘리지 않고 깊이감만 얻는 가장 저렴한 방법이다.
+	if stage_mode == StageMode.BATTLE:
+		environment.fog_enabled = true
+		environment.fog_mode = Environment.FOG_MODE_DEPTH
+		environment.fog_light_color = _stone.lightened(0.06)
+		environment.fog_light_energy = 0.9
+		environment.fog_density = 0.0
+		environment.fog_depth_begin = 9.0
+		environment.fog_depth_end = 34.0
+		environment.fog_depth_curve = 1.35
 	world_environment.environment = environment
 	scene_root.add_child(world_environment)
 
@@ -173,17 +192,43 @@ func _build_battle_diorama() -> void:
 	var floor_trace := _make_material(_stone.lightened(0.08), _accent.darkened(0.18), 0.20, 0.46)
 	var memory_trace := _make_material(_accent.darkened(0.34), _accent, 0.42, 0.74)
 
-	# A transparent traced arena preserves the illustration and character silhouettes.
-	# The previous opaque disc covered most of the 2D battle frame.
-	_add_floor_trace(motion_root, 5.65, 2.65, -1.12, 26, floor_trace, 3)
-	_add_floor_trace(motion_root, 3.75, 1.72, -1.105, 22, memory_trace, 5)
+	# S211: 실제 바닥면.
+	# 점선 타원만 있던 시절에는 3D가 켜져 있어도 캐릭터가 "어떤 공간"에 서 있는지
+	# 읽히지 않았다. 카메라 쪽은 진하고 지평선 쪽은 사라지는 바닥을 깔아, 배경
+	# 일러스트를 덮지 않으면서도 발밑에 땅이 생기게 한다.
+	_add_arena_floor()
+
+	# 무대 경계를 나타내던 기존 궤적은 바닥 위의 은은한 표식으로 남긴다.
+	_add_floor_trace(motion_root, 5.65, 2.65, ARENA_FLOOR_Y + 0.02, 26, floor_trace, 3)
+	_add_floor_trace(motion_root, 3.75, 1.72, ARENA_FLOOR_Y + 0.03, 22, memory_trace, 5)
 	_build_battle_focus_rings()
-	for i in range(9):
-		var x := -5.0 + float(i) * 1.25
-		var depth := -2.25 + float((i * 7) % 5) * 0.72
-		var height := 1.25 + float((i * 11) % 7) * 0.27
-		var width := 0.16 + float(i % 3) * 0.05
-		_add_box(motion_root, Vector3(x, -1.05 + height * 0.5, depth), Vector3(width, height, width), mid_material, Vector3(0.0, 0.0, sin(float(i)) * 0.08))
+
+	# S211: 깊이 레이어.
+	# 예전에는 기둥 9개가 한 줄로만 서 있어서 평면적이었다. 세 겹으로 나눠 배치하면
+	# 카메라가 움직일 때 레이어끼리 시차가 생기고, 안개가 먼 열을 배경으로 녹인다.
+	var depth_layers := [
+		{"z": -3.4, "count": 11, "spread": 8.4, "height": 2.1, "width": 0.34, "material": mid_material},
+		{"z": -7.2, "count": 9, "spread": 13.0, "height": 3.4, "width": 0.52, "material": dark_material},
+		{"z": -12.5, "count": 7, "spread": 19.0, "height": 5.2, "width": 0.78, "material": dark_material},
+	]
+	for layer: Dictionary in depth_layers:
+		var count: int = int(layer["count"])
+		var spread: float = float(layer["spread"])
+		var z: float = float(layer["z"])
+		for i in range(count):
+			var t: float = float(i) / float(maxi(count - 1, 1))
+			var x: float = lerp(-spread, spread, t)
+			# 결정적 흔들림. 매번 같은 배치를 만들어 캡처 비교가 가능하다.
+			var jitter: float = sin(float(i) * 2.39 + z) * 0.55
+			var height: float = float(layer["height"]) * (0.78 + absf(sin(float(i) * 1.7)) * 0.42)
+			var width: float = float(layer["width"])
+			_add_box(
+				motion_root,
+				Vector3(x + jitter, ARENA_FLOOR_Y + height * 0.5, z + cos(float(i) * 1.3) * 0.8),
+				Vector3(width, height, width),
+				layer["material"],
+				Vector3(0.0, sin(float(i)) * 0.2, 0.0)
+			)
 
 	match _motif:
 		"roots":
@@ -205,9 +250,45 @@ func _build_battle_diorama() -> void:
 
 	for i in range(9):
 		var shard_angle := TAU * float(i) / 9.0
-		var shard_pos := Vector3(cos(shard_angle) * 4.4, 0.15 + float(i % 3) * 0.55, sin(shard_angle) * 2.4 - 0.7)
+		var shard_pos := Vector3(cos(shard_angle) * 5.6, 0.35 + float(i % 3) * 0.62, sin(shard_angle) * 2.6 - 3.1)
 		_add_box(motion_root, shard_pos, Vector3(0.08, 0.38 + float(i % 2) * 0.18, 0.08), ghost_material, Vector3(shard_angle * 0.15, shard_angle, shard_angle * 0.08))
 	set_battle_focus("neutral")
+
+## S211: 무대 바닥면. 가까울수록 진하고 지평선 쪽으로 사라진다.
+func _add_arena_floor() -> void:
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(ARENA_FLOOR_SIZE, ARENA_FLOOR_SIZE)
+	plane.subdivide_width = 1
+	plane.subdivide_depth = 1
+
+	var instance := MeshInstance3D.new()
+	instance.name = "ArenaFloor"
+	instance.mesh = plane
+	# 바닥 중심을 카메라 앞쪽으로 당겨, 화면 아래 절반이 지면으로 채워지게 한다.
+	instance.position = Vector3(0, ARENA_FLOOR_Y, -ARENA_FLOOR_SIZE * 0.5 + 12.0)
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	var shader_path := "res://assets/shaders/arena_floor.gdshader"
+	if ResourceLoader.exists(shader_path):
+		var material := ShaderMaterial.new()
+		material.shader = load(shader_path)
+		material.set_shader_parameter("floor_color", Color(_stone.r, _stone.g, _stone.b))
+		material.set_shader_parameter("grid_color", _accent.darkened(0.25))
+		material.set_shader_parameter("near_alpha", 0.80)
+		material.set_shader_parameter("fade_start", 5.0)
+		material.set_shader_parameter("fade_end", 30.0)
+		material.set_shader_parameter("grid_spacing", 2.2)
+		material.set_shader_parameter("grid_width", 0.035)
+		material.set_shader_parameter("grid_strength", 0.50)
+		material.set_shader_parameter("side_fade", 16.0)
+		instance.material_override = material
+	else:
+		instance.material_override = _make_material(_stone, Color.BLACK, 0.55)
+	# 바닥은 흔들리는 motion_root가 아니라 고정된 scene_root에 붙인다.
+	# 배경 기둥이 미묘하게 흔들리는 것은 공기감이지만, 지면이 함께 흔들리면
+	# 캐릭터가 딛고 선 땅이 출렁이는 것처럼 보인다.
+	scene_root.add_child(instance)
+	arena_floor = instance
 
 func _build_battle_focus_rings() -> void:
 	battle_player_focus_root = Node3D.new()
@@ -309,11 +390,25 @@ func _build_relic() -> void:
 		var position := Vector3(cos(angle) * 2.0, 0.1 + float(i % 3) * 0.48, sin(angle) * 1.2)
 		_add_box(orbit_root, position, Vector3(0.11, 0.42, 0.11), ghost_material, Vector3(angle * 0.12, angle, angle * 0.08))
 
+## S211: 바이옴 색을 지닌 배경 랜드마크.
+## 예전에는 x=0에 밝은 기둥 하나를 세웠는데, 그 자리는 두 전투원 사이의 시선이
+## 모이는 지점이라 3D를 켜는 순간 정체불명의 발광 상자가 화면 중앙에 떠 버렸다.
+## 좌우로 갈라 안개 속에 세우면 같은 색 정보를 주면서 무대 중앙을 비워 둔다.
+func _add_flanking_landmarks(accent_material: StandardMaterial3D, size: Vector3) -> void:
+	for side: float in [-1.0, 1.0]:
+		_add_box(
+			motion_root,
+			Vector3(side * 5.4, ARENA_FLOOR_Y + size.y * 0.5, -7.4),
+			size,
+			accent_material,
+			Vector3(0, side * 0.35, 0)
+		)
+
 func _add_root_motif(dark: StandardMaterial3D, accent_material: StandardMaterial3D) -> void:
 	for side: float in [-1.0, 1.0]:
 		_add_box(motion_root, Vector3(side * 3.45, 0.05, -0.45), Vector3(0.52, 3.0, 0.52), dark, Vector3(0, 0, side * 0.18))
 		_add_beam_between(motion_root, Vector3(side * 3.4, 1.0, -0.45), Vector3(side * 1.8, -0.88, 0.2), 0.12, dark)
-	_add_box(motion_root, Vector3(0, -0.78, -0.2), Vector3(0.18, 0.72, 0.18), accent_material, Vector3(0, 0, PI * 0.25))
+	_add_flanking_landmarks(accent_material, Vector3(0.34, 1.6, 0.34))
 
 func _add_market_motif(dark: StandardMaterial3D, accent_material: StandardMaterial3D) -> void:
 	for side: float in [-1.0, 1.0]:
@@ -344,7 +439,7 @@ func _add_threshold_motif(dark: StandardMaterial3D, accent_material: StandardMat
 	_add_box(motion_root, Vector3(-2.8, 0.15, -0.8), Vector3(0.36, 3.0, 0.50), dark)
 	_add_box(motion_root, Vector3(2.8, 0.15, -0.8), Vector3(0.36, 3.0, 0.50), dark)
 	_add_box(motion_root, Vector3(0, 1.52, -0.8), Vector3(5.9, 0.28, 0.50), dark)
-	_add_box(motion_root, Vector3(0, 0.25, -0.75), Vector3(0.13, 2.25, 0.13), accent_material, Vector3(0, 0, PI * 0.25))
+	_add_flanking_landmarks(accent_material, Vector3(0.26, 4.0, 0.26))
 
 func _add_void_motif(ghost: StandardMaterial3D, accent_material: StandardMaterial3D) -> void:
 	orbit_root = Node3D.new()
@@ -354,7 +449,7 @@ func _add_void_motif(ghost: StandardMaterial3D, accent_material: StandardMateria
 		var radius := 1.25 + float(i % 4) * 0.55
 		var position := Vector3(cos(angle) * radius, -0.25 + float(i % 5) * 0.52, sin(angle) * 1.4 - 0.4)
 		_add_box(orbit_root, position, Vector3(0.16, 0.62 + float(i % 3) * 0.18, 0.16), ghost, Vector3(angle * 0.08, angle, angle * 0.12))
-	_add_box(motion_root, Vector3(0, 0.35, -0.3), Vector3(0.38, 2.7, 0.38), accent_material, Vector3(0, PI * 0.25, PI * 0.25))
+	_add_flanking_landmarks(accent_material, Vector3(0.55, 4.4, 0.55))
 
 func _add_marker_motif(mid: StandardMaterial3D, accent_material: StandardMaterial3D) -> void:
 	for side: float in [-1.0, 1.0]:
@@ -362,7 +457,7 @@ func _add_marker_motif(mid: StandardMaterial3D, accent_material: StandardMateria
 			var x := side * (2.15 + float(row) * 0.72)
 			var height := 1.4 + float(row) * 0.55
 			_add_box(motion_root, Vector3(x, -1.0 + height * 0.5, -0.55), Vector3(0.36, height, 0.36), mid, Vector3(0, side * 0.12, side * 0.04))
-	_add_box(motion_root, Vector3(0, -0.15, -0.2), Vector3(0.20, 1.72, 0.20), accent_material, Vector3(0, PI * 0.25, PI * 0.25))
+	_add_flanking_landmarks(accent_material, Vector3(0.36, 3.0, 0.36))
 
 func _add_atlas_landmarks(points: Array[Vector3], base: StandardMaterial3D, accent_material: StandardMaterial3D) -> void:
 	for i in range(points.size()):

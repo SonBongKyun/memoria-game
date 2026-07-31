@@ -63,27 +63,37 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="FontVariation" id="FontVariation_UI"]
+base_font = ExtResource("1_ui")
+variation_embolden = 0.42
+
+[sub_resource type="FontVariation" id="FontVariation_Body"]
+base_font = ExtResource("1_ui")
+variation_embolden = 0.32
+
 [resource]
-default_font = ExtResource("2_body")
-default_font_size = 16
-Button/colors/font_color = Color(0.78, 0.72, 0.6, 1)
+default_font = SubResource("FontVariation_UI")
+default_font_size = 17
+Button/colors/font_color = Color(0.92, 0.89, 0.84, 1)
 Button/colors/font_hover_color = Color(0.98, 0.88, 0.55, 1)
 Button/colors/font_outline_color = Color(0, 0, 0, 0.62)
 Button/colors/font_pressed_color = Color(1, 0.95, 0.7, 1)
 Button/constants/outline_size = 1
 Button/font_sizes/font_size = 16
-Button/fonts/font = ExtResource("1_ui")
+Button/fonts/font = SubResource("FontVariation_UI")
 Button/styles/focus = SubResource("StyleButtonHover")
 Button/styles/hover = SubResource("StyleButtonHover")
 Button/styles/normal = SubResource("StyleButtonNormal")
 Button/styles/pressed = SubResource("StyleButtonPressed")
-Label/colors/font_color = Color(0.92, 0.88, 0.8, 1)
-Label/colors/font_outline_color = Color(0, 0, 0, 0.6)
+Label/colors/font_color = Color(0.96, 0.94, 0.91, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 0.9)
 Label/constants/outline_size = 1
 Label/font_sizes/font_size = 16
-Label/fonts/font = ExtResource("1_ui")
+Label/fonts/font = SubResource("FontVariation_UI")
 PanelContainer/styles/panel = SubResource("StylePanel")
-RichTextLabel/colors/default_color = Color(0.92, 0.88, 0.8, 1)
+RichTextLabel/colors/default_color = Color(0.96, 0.94, 0.91, 1)
+RichTextLabel/colors/font_outline_color = Color(0, 0, 0, 0.9)
+RichTextLabel/constants/outline_size = 1
 RichTextLabel/constants/line_separation = 10
-RichTextLabel/font_sizes/normal_font_size = 18
-RichTextLabel/fonts/normal_font = ExtResource("2_body")
+RichTextLabel/font_sizes/normal_font_size = 20
+RichTextLabel/fonts/normal_font = SubResource("FontVariation_Body")

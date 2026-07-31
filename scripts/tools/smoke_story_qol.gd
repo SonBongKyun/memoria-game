@@ -65,12 +65,18 @@ func _check_story_log() -> void:
 	assert(String(StoryLog.entries[StoryLog.entries.size() - 1].get("text", "")).ends_with(str(StoryLog.MAX_ENTRIES + 19)), "가장 최근 대사가 남아야 한다")
 
 	# 오버레이가 실제로 구성되는지 (목록 + 장 구분 헤더).
+	var was_paused := get_tree().paused
 	StoryLog.open_log()
 	var panel := StoryLog.get_node_or_null("StoryLogOverlay/StoryLogPanel")
 	assert(panel != null, "회상 기록 패널이 생성되어야 한다")
+	var backdrop := StoryLog.get_node_or_null("StoryLogOverlay/StoryLogBackdrop") as TextureRect
+	assert(backdrop != null and backdrop.texture != null, "회상 기록은 전용 아카이브 배경을 사용해야 한다")
+	assert(backdrop.texture.resource_path == StoryLog.BACKDROP_PATH, "회상 기록 배경 경로가 선택된 에셋과 일치해야 한다")
 	assert(StoryLog.is_open, "회상 기록이 열려야 한다")
+	assert(get_tree().paused, "필드에서 회상 기록을 열면 뒤의 게임 진행이 멈춰야 한다")
 	StoryLog.close_log()
 	assert(not StoryLog.is_open, "회상 기록이 닫혀야 한다")
+	assert(get_tree().paused == was_paused, "회상 기록을 닫으면 기존 일시정지 상태가 복원되어야 한다")
 
 # ===================== 빨리감기 범위 =====================
 
