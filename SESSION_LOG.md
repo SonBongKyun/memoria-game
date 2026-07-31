@@ -6642,6 +6642,32 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S215 - 2026-07-26 (Removing the noise: nearest-neighbour downscaling of painted art)
+
+### Audit findings
+Rather than eyeballing, noise was **measured**: a high-frequency energy map (image minus its own 1px Gaussian blur, averaged over an 80px grid) run over real renders, which separates pixel-level speckle from authored detail.
+
+The battle stage band scored a mean of **2.07**, with hotspots on the companion, the enemy plate, and the background. Zooming those cells showed the cause plainly: Elia's hair and robe were riddled with bright dithered dots, and the background spires broke into stair-stepped crunch.
+
+One root cause explains all of it. `project.godot` sets `textures/canvas_textures/default_texture_filter=0` — **Nearest**. That is correct for the pixel-art tiles and character sheets the setting was chosen for, but every hand-painted illustration inherits it too. Reducing a 1672px painting to roughly 300px by throwing pixels away turns dithered alpha into speckle and clean silhouettes into staircases.
+
+S214 set `LINEAR_WITH_MIPMAPS` on the battler plates and the measurement did not move at all. The reason: `mipmaps/generate=false` in the `.import` files, so there were no mipmaps for the filter to use and it silently degraded to plain linear. Worse, `--headless --quit` does not run the import pipeline, so the flag change appeared to do nothing until `--headless --import` was run explicitly.
+
+### Done
+- **Enabled mipmap generation** on 57 large illustration textures: `assets/cg/game_image`, `assets/cg/character_shots`, `assets/portraits/character_shots`, and the five recurring enemy cut-ins. Pixel-art directories (`assets/sprites`, tilesets) were deliberately left alone — Nearest is right for them.
+- **Set linear filtering on the illustration consumers** that were silently inheriting Nearest: the battle background, the two side stage plates, the VN CG layers (current, next, detail), and the full-screen `CgViewer`.
+- Left Arrel on his existing profile. He scores high on the noise metric, but zooming confirms that is authored line art, not artifact — blurring him would be the wrong fix.
+
+### Verification
+- Battle stage band: mean **2.07 → 1.50** (−28%). The companion hotspot (6.18) dropped out of the top eight entirely; the enemy/background hotspot fell 8.04 → 3.92 (−51%).
+- VN CG region: mean **2.97 → 2.35** (−21%).
+- Zoomed before/after crops confirm the numbers: Elia's speckle is gone and reads as painted hair, and the background spires are smooth.
+- New `smoke_texture_filtering` guards both directions of the contract — illustrations must be linear, pixel-art tilemaps must not be blurred — and additionally asserts `mipmaps/generate=true` in the `.import` files, because the filter alone is meaningless without them. **Falsifiability checked:** removing the battle background's filter line fails it with `전투 배경은 선형 축소를 써야 한다 (현재 0)`.
+- All 22 smoke scenes pass. VN: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+
+### Note for future sessions
+The VN film grain is already disabled by default and `capture_ch1_cold_open` asserts it stays that way, so the remaining noise was never an overlay — it was always the sampling filter. If art ever looks speckled again, check `texture_filter` on the consumer **and** `mipmaps/generate` in the `.import`, then reimport with `--headless --import`.
+
 ## S214 - 2026-07-26 (Battle presentation: a hit-flash bug, shared lighting, plate filtering)
 
 ### Audit findings

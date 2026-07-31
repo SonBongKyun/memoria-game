@@ -49,6 +49,8 @@ func _build_ui() -> void:
 	cg_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
 	cg_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	cg_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	# S215: 풀스크린 CG도 원화다. 기본 Nearest 축소를 쓰면 가장자리가 부서진다.
+	cg_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	cg_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(cg_texture)
 

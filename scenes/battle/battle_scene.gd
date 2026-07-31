@@ -346,6 +346,9 @@ func _build_ui() -> void:
 		bg_tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		bg_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		bg_tex.texture = load(_resolved_battle_bg_image)
+		# S215: 전투 배경은 손으로 그린 큰 일러스트다. 프로젝트 기본 필터가 Nearest라
+		# 축소하면서 바위와 첨탑 가장자리가 지직거렸다. 픽셀아트가 아니므로 선형으로 줄인다.
+		bg_tex.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		# S209: 배경 후퇴.
 		# 전투 배경은 인물이 그려진 풀 일러스트라, 거의 원본 밝기로 깔면 전투원보다
 		# 배경 속 사람이 더 크고 선명하게 읽혔다. 밝기와 채도를 낮춰 무대 뒤로 물린다.
@@ -1587,6 +1590,8 @@ func _make_stage_art_rect(is_left: bool) -> TextureRect:
 	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# S215: 무대 양옆 배경판도 큰 원화다. 기본 Nearest로 축소하면 가장자리가 지직거린다.
+	rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	rect.modulate = Color(1.0, 0.92, 0.82, 0.12 if OptionsMenu.is_clean_gameplay_visuals() else 0.15)
 	var blend_shader_path := "res://assets/shaders/battle_stage_blend.gdshader"
 	if ResourceLoader.exists(blend_shader_path):

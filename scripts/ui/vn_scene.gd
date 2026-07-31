@@ -521,6 +521,9 @@ func _make_cg_rect() -> TextureRect:
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# S215: 손으로 그린 CG는 픽셀아트가 아니다. 프로젝트 기본 필터(Nearest)로
+	# 축소하면 구름과 실루엣 가장자리가 계단처럼 부서진다.
+	tr.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	return tr
 
 func _make_cg_detail_rect() -> TextureRect:
@@ -534,6 +537,7 @@ func _make_cg_detail_rect() -> TextureRect:
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	tr.modulate = Color(0.88, 0.80, 0.68, 0.0)
 	return tr
 
