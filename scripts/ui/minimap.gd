@@ -8,6 +8,13 @@ const MINIMAP_MARGIN := Vector2(12, 12)
 const PIXEL_SIZE := 3  # clean, compact map footprint
 const PLAYER_SIZE := 5
 const OBJECTIVE_SIZE := 6
+
+## S216: 관심 지점(POI) 마커.
+## 미니맵에는 여태 플레이어/동행자/이야기 목표 세 개뿐이라, 맵에 실제로 놓여 있는
+## 은닉 상자·유물·주민을 전혀 알려 주지 않았다. 그렇다고 전부 표시하면 탐색이
+## 사라지므로, 플레이어 주변만 드러난다. 기억 파동으로 주변을 감지한다는 설정과도 맞다.
+const POI_REVEAL_TILES := 6.0
+const POI_SIZE := 4
 const MINIMAP_FRAME_PATH := "res://assets/cg/generated/ui_minimap_compass_frame_v1.png"
 
 # 타일 색상 (공통 매핑)
@@ -118,6 +125,33 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	objective_marker.visible = false
 	container.add_child(objective_marker)
 
+	# S216: POI 마커 풀 + 범례.
+	# 맵에 놓인 은닉 상자, 유물, 주민을 플레이어 주변에서만 드러낸다.
+	# 마커 풀은 첫 갱신 때 실제 배치 결과를 보고 채운다 (_update_poi_markers 참고).
+	var poi_points: Array = []
+	var poi_markers: Array = []
+
+	# 범례는 단어마다 마커와 같은 색을 입힌다.
+	# 흰 글씨로 "발견물 · 유물 · 주민"만 적어 두면 어떤 색이 무엇인지 알 수 없다.
+	var legend := RichTextLabel.new()
+	legend.bbcode_enabled = true
+	legend.fit_content = true
+	legend.scroll_active = false
+	legend.size = Vector2(MINIMAP_SIZE.x, 14)
+	legend.position = Vector2(2, MINIMAP_SIZE.y + 1)
+	legend.add_theme_font_size_override("normal_font_size", 9)
+	legend.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	legend.add_theme_constant_override("outline_size", 3)
+	var is_ko := GameManager.current_locale == "ko"
+	legend.text = "[color=#%s]%s[/color] [color=#%s]%s[/color] [color=#%s]%s[/color]" % [
+		_poi_color("cache").to_html(false), "발견물" if is_ko else "Cache",
+		_poi_color("curio").to_html(false), "유물" if is_ko else "Relic",
+		_poi_color("voice").to_html(false), "주민" if is_ko else "Local",
+	]
+	legend.visible = false
+	legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.add_child(legend)
+
 	parent.add_child(layer)
 
 	# 가시성 연동, is_instance_valid 체크 (씬 전환 시 freed 방지)
@@ -134,10 +168,131 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 		"elia_marker": elia_marker,
 		"objective_marker": objective_marker,
 		"map_ref": weakref(parent),
+		"poi_points": poi_points,
+		"poi_markers": poi_markers,
+		"legend": legend,
 		"map_offset": map_image.position,
 		"map_width": map_width,
 		"map_height": map_height,
 	}
+
+## 맵에 실제로 배치된 관심 지점을 모은다. 종류별로 모양과 색이 다르다.
+static func _collect_points_of_interest(map_node: Node2D) -> Array:
+	var points: Array = []
+	if map_node == null or not is_instance_valid(map_node):
+		return points
+	# 월드 인구(주민/발견물/유물)는 맵 바로 아래가 아니라 "WorldPopulation" 컨테이너
+	# 안에 들어간다. 맵 직속 자식만 훑으면 대부분을 놓친다.
+	var sources: Array[Node] = [map_node]
+	var population := map_node.get_node_or_null("WorldPopulation")
+	if population != null:
+		sources.append(population)
+	for source: Node in sources:
+		points.append_array(_scan_children_for_poi(source))
+	return points
+
+static func _scan_children_for_poi(parent: Node) -> Array:
+	var points: Array = []
+	for child in parent.get_children():
+		if not (child is Node2D):
+			continue
+		var node2d := child as Node2D
+		var name := String(child.name)
+		if child is WorldCurio:
+			points.append({"pos": node2d.position, "kind": "curio"})
+		elif name.begins_with("WorldCache_"):
+			points.append({"pos": node2d.position, "kind": "cache"})
+		elif name.begins_with("WorldVoice_"):
+			points.append({"pos": node2d.position, "kind": "voice"})
+		elif child is Area2D and child.get_node_or_null("DiscoveryMarker") != null:
+			# S209에서 만든 은닉 상자 / 기억 단서 마커.
+			points.append({"pos": node2d.position, "kind": "cache"})
+	return points
+
+static func _poi_color(kind: String) -> Color:
+	match kind:
+		"curio":
+			return Color(0.72, 0.56, 0.94, 0.95)
+		"voice":
+			return Color(0.58, 0.80, 0.92, 0.90)
+		_:
+			# 목표 마커(주황 금색 마름모)와 헷갈리지 않도록 옅은 호박색으로 띄운다.
+			return Color(0.96, 0.90, 0.55, 0.95)
+
+## POI 개수에 맞춰 마커 풀을 채운다.
+static func _ensure_poi_markers(data: Dictionary, container: Control) -> void:
+	var points: Array = data.get("poi_points", [])
+	var markers: Array = data.get("poi_markers", [])
+	while markers.size() < points.size():
+		var poi := ColorRect.new()
+		poi.size = Vector2(POI_SIZE, POI_SIZE)
+		poi.z_index = 1
+		poi.visible = false
+		poi.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		container.add_child(poi)
+		markers.append(poi)
+	# 종류가 바뀌었을 수 있으므로 색과 모양을 매번 맞춘다.
+	for i in range(points.size()):
+		var marker := markers[i] as ColorRect
+		if marker == null or not is_instance_valid(marker):
+			continue
+		var kind := String((points[i] as Dictionary).get("kind", "cache"))
+		marker.color = _poi_color(kind)
+		# 색만으로 구분하지 않는다. 유물은 마름모로 돌려 형태로도 읽히게 한다.
+		marker.rotation = PI / 4.0 if kind == "curio" else 0.0
+		marker.pivot_offset = marker.size / 2.0
+	data["poi_markers"] = markers
+
+## POI 마커를 갱신한다. 플레이어 반경 밖은 감춘다.
+static func _update_poi_markers(data: Dictionary, player_pos: Vector2, tile_size: int) -> void:
+	var container := data.get("container") as Control
+	var map_ref: WeakRef = data.get("map_ref")
+	if container == null or map_ref == null:
+		return
+	var map_node := map_ref.get_ref() as Node2D
+	if map_node == null:
+		return
+
+	# S216: 지연 스캔.
+	# 월드 인구(주민/발견물/유물)는 맵 _ready 이후에 배치되므로, 미니맵 생성 시점에
+	# 한 번만 훑으면 대부분을 놓친다. 자식 수가 달라졌으면 다시 훑고 마커를 보충한다.
+	var child_count := map_node.get_child_count()
+	if int(data.get("poi_scan_children", -1)) != child_count:
+		data["poi_scan_children"] = child_count
+		data["poi_points"] = _collect_points_of_interest(map_node)
+		_ensure_poi_markers(data, container)
+
+	var points: Array = data.get("poi_points", [])
+	var markers: Array = data.get("poi_markers", [])
+	var offset: Vector2 = data.map_offset
+	var mw: int = data.map_width
+	var mh: int = data.map_height
+	var reveal := POI_REVEAL_TILES * float(tile_size)
+
+	var shown := 0
+	for i in range(markers.size()):
+		var marker := markers[i] as ColorRect
+		if marker == null or not is_instance_valid(marker):
+			continue
+		if i >= points.size():
+			marker.visible = false
+			continue
+		var point: Dictionary = points[i]
+		var world: Vector2 = point.get("pos", Vector2.ZERO)
+		if world.distance_to(player_pos) > reveal:
+			marker.visible = false
+			continue
+		marker.visible = true
+		shown += 1
+		var nx := clampf(world.x / float(mw * tile_size), 0.0, 1.0)
+		var ny := clampf(world.y / float(mh * tile_size), 0.0, 1.0)
+		marker.position = Vector2(
+			offset.x + nx * mw * PIXEL_SIZE - POI_SIZE / 2.0,
+			offset.y + ny * mh * PIXEL_SIZE - POI_SIZE / 2.0
+		)
+	var legend := data.get("legend") as Control
+	if legend != null and is_instance_valid(legend):
+		legend.visible = shown > 0
 
 ## 미니맵 플레이어 마커 업데이트 (맵 _process에서 호출)
 static func update_minimap(data: Dictionary, player_pos: Vector2, tile_size: int, elia_pos: Vector2 = Vector2.ZERO, elia_visible: bool = false) -> void:
@@ -170,6 +325,7 @@ static func update_minimap(data: Dictionary, player_pos: Vector2, tile_size: int
 		em.visible = false
 
 	_update_objective_marker(data, offset, mw, mh, tile_size)
+	_update_poi_markers(data, player_pos, tile_size)
 
 static func _update_objective_marker(data: Dictionary, offset: Vector2, map_width: int, map_height: int, tile_size: int) -> void:
 	var marker := data.get("objective_marker") as ColorRect

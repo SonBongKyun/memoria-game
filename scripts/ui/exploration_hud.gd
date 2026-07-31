@@ -80,6 +80,7 @@ var quest_card: PanelContainer
 var quest_tag_label: Label
 var quest_label: Label    # S41
 var quest_progress_bar: ProgressBar  # S57: visual quest progress
+var quest_side_label: Label  # S216: 진행 중인 의뢰
 var status_icons_row: HBoxContainer  # S57: status effect icons
 var controls_panel: PanelContainer
 var controls_label: Label
@@ -328,6 +329,18 @@ func _build_ui() -> void:
 	quest_bg_style.bg_color = Color(0.12, 0.1, 0.08, 0.7)
 	quest_bg_style.set_corner_radius_all(2)
 	quest_progress_bar.add_theme_stylebox_override("background", quest_bg_style)
+
+	# S216: 사이드 퀘스트 줄.
+	# 예전에는 사이드 퀘스트가 이야기 목표를 "대체"해 버려서, 퀘스트를 하나 수락하면
+	# 메인 목표가 화면에서 사라졌다. 게다가 태그는 계속 "이야기 흐름"이라 잘못 읽혔다.
+	# 이제 이야기 목표는 항상 남고, 진행 중인 의뢰가 그 아래에 따로 붙는다.
+	quest_side_label = Label.new()
+	quest_side_label.add_theme_font_size_override("font_size", 12)
+	quest_side_label.add_theme_color_override("font_color", Color(0.72, 0.82, 0.94))
+	quest_side_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	quest_side_label.custom_minimum_size.x = 180
+	quest_side_label.visible = false
+	quest_box.add_child(quest_side_label)
 	quest_box.add_child(quest_progress_bar)
 
 	for label in [identity_label, hp_label, hp_value_label, chapter_label, memory_label, grains_label, items_label, pulse_label, equip_label, quest_label]:
@@ -853,21 +866,27 @@ func _update_quest_tracker() -> void:
 	var quest_step: int = 0
 	var quest_total: int = 1
 
-	# SideQuest에서 활성 퀘스트 검색
-	var all_quests = SideQuest.get_all_quests()
-	for q in all_quests:
-		var qid = q.get("id", "")
-		if SideQuest.is_active(qid):
-			active_quest = q.get("title", "")
-			quest_step = SideQuest.get_current_step(qid)
-			var quest_data = q
-			# Get total steps from quest steps array
-			var steps = q.get("steps", [])
-			quest_total = max(steps.size(), 1) if steps is Array else 1
-			break
+	# S216: 진행 중인 의뢰는 이야기 목표와 나란히 보여 준다.
+	# 예전에는 사이드 퀘스트를 찾으면 곧바로 break하고 이야기 목표 계산을 건너뛰어서,
+	# 의뢰를 하나 수락하는 순간 메인 목표가 화면에서 사라졌다.
+	var side_lines: Array[String] = []
+	for q: Dictionary in SideQuest.get_all_quests():
+		var qid := String(q.get("id", ""))
+		if not SideQuest.is_active(qid):
+			continue
+		var title := SideQuest.loc(q, "title")
+		var step_text := SideQuest.get_current_step_text(qid)
+		var steps_array: Array = q.get("steps", [])
+		var total := maxi(steps_array.size(), 1)
+		var done := SideQuest.get_current_step(qid)
+		if step_text != "":
+			side_lines.append("· %s (%d/%d)
+   %s" % [title, done, total, step_text])
+		else:
+			side_lines.append("· %s (%d/%d)" % [title, done, total])
 
-	# Main-story fallback synchronized with the flags used by map exits.
-	if active_quest == "":
+	# Main-story objective, synchronized with the flags used by map exits.
+	if true:
 		var ch = GameManager.current_chapter
 		match ch:
 			1:
@@ -899,18 +918,32 @@ func _update_quest_tracker() -> void:
 		quest_step = 0
 		quest_total = 1
 
+	var is_ko := GameManager.current_locale == "ko"
 	if active_quest != "":
-		quest_tag_label.text = "◆  이야기 흐름" if GameManager.current_locale == "ko" else "◆  STORY THREAD"
+		quest_tag_label.text = "◆  이야기 흐름" if is_ko else "◆  STORY THREAD"
 		quest_label.text = active_quest
-		quest_card.visible = true
 		quest_label.visible = true
 		quest_progress_bar.max_value = quest_total
 		quest_progress_bar.value = quest_step
 		quest_progress_bar.visible = quest_total > 1
 	else:
-		quest_card.visible = false
 		quest_label.visible = false
 		quest_progress_bar.visible = false
+
+	if quest_side_label != null:
+		if side_lines.is_empty():
+			quest_side_label.visible = false
+		else:
+			var header := "진행 중인 의뢰" if is_ko else "ACTIVE REQUESTS"
+			quest_side_label.text = "%s
+%s" % [header, "
+".join(side_lines)]
+			quest_side_label.visible = true
+			# 의뢰만 남고 이야기 목표가 없을 때도 카드는 떠 있어야 한다.
+			if active_quest == "":
+				quest_tag_label.text = "◆  %s" % header
+
+	quest_card.visible = active_quest != "" or not side_lines.is_empty()
 
 func _update_memory_pulse_status() -> void:
 	if pulse_label == null:

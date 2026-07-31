@@ -6642,6 +6642,29 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S216 - 2026-07-26 (RPG systems outside battle: quest tracker, quest Korean, minimap POIs)
+
+### Audit findings
+Zooming the minimap and HUD in real renders turned up three concrete defects, all in systems that already existed but were half-wired:
+- **Side quests had no Korean at all.** `grep -c "title_ko\|desc_ko"` returned 0 across the whole quest file. The game defaults to Korean, so accepting a quest put `Echoes in the Ash` and English step text into an otherwise Korean HUD.
+- **A side quest replaced the story objective.** `_update_quest_tracker` looped over quests, `break`ing on the first active one and skipping the story calculation entirely. Accepting one request made the main objective vanish — and the card still read `◆ 이야기 흐름` while showing a side quest.
+- **The minimap showed nothing that exists in the world.** It drew the player, the companion and the story objective. The chests, caches, regional curios and residents actually placed in every map were invisible on it.
+
+A fourth defect surfaced while fixing the first: `SideQuest.get_all_quests()` builds a *new* dictionary per quest, copying a fixed key list. Adding `title_ko` to the data was not enough — the accessor silently dropped it, along with `steps`, so callers could never localize or read step counts.
+
+### Done
+- **Korean for all six side quests** — titles, descriptions and all 22 step lines — plus `SideQuest.loc()` and `get_current_step_text()`. `get_all_quests()` now carries the localized fields and the step array through instead of discarding them.
+- **The tracker shows both threads.** The story objective always stays; active requests are listed under an `진행 중인 의뢰` header with per-quest progress `(1/4)` and the current step text, so the player can see what to do next without opening the journal. The card header no longer mislabels a request as the story thread.
+- **Minimap points of interest.** Caches, regional relics and residents now appear, each with its own colour *and* shape (relics are rotated diamonds, so the map does not depend on colour alone). They reveal only within six tiles of the player, which keeps exploration meaningful and matches the memory-pulse fiction. The legend is a `RichTextLabel` whose words are tinted to match their markers — a plain white word list would not have told anyone which colour meant what.
+- Nudged the cache marker to pale amber so it no longer reads as the orange-gold objective diamond.
+
+### Verification
+- `RPG_SYSTEMS_SMOKE_PASS quests=6`, asserting: every quest title and step is Hangul under `ko` and stays English under `en`; the story objective survives accepting a request; the request line carries title, progress and next step; POIs are collected from the map; distant POIs stay hidden and near ones reveal; the legend appears with them.
+- **Falsifiability checked:** removing `title_ko` from `get_all_quests()` fails with `한국어 로케일에서 'Echoes in the Ash' 는 번역되어야 한다`.
+- One real bug was found by the test itself: POIs were collected once at minimap creation, but `WorldPopulation` parents its actors under a `WorldPopulation` container *after* the map's `_ready`. The collector now scans that container too and rescans lazily when the child count changes — market POIs went 2 → 7.
+- All 23 smoke scenes pass. VN: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+- New `capture_rpg_hud` renders the tracker and minimap together for visual audit.
+
 ## S215 - 2026-07-26 (Removing the noise: nearest-neighbour downscaling of painted art)
 
 ### Audit findings
