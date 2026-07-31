@@ -15,6 +15,7 @@ var tab_world: Button
 var tab_choices: Button
 var tab_quests_btn: Button
 var tab_losses_btn: Button
+var tab_leads_btn: Button
 var item_list: VBoxContainer
 var item_scroll: ScrollContainer
 var detail_title: Label
@@ -241,6 +242,10 @@ func _build_ui() -> void:
 	tab_row.add_child(tab_quests_btn)
 	tab_losses_btn = _create_tab("Losses", "losses")
 	tab_row.add_child(tab_losses_btn)
+	# S217: 미해결 단서. 저널은 "끝난 일"만 기록해서, 지역에 무엇이 남았는지
+	# 알려 주지 않았다. 남은 것을 세어 주는 탭이 하나 필요하다.
+	tab_leads_btn = _create_tab("미해결" if GameManager.current_locale == "ko" else "Leads", "leads")
+	tab_row.add_child(tab_leads_btn)
 
 	# 구분선
 	var sep = HSeparator.new()
@@ -357,6 +362,8 @@ func _refresh_list() -> void:
 			_populate_quests()
 		"losses":
 			_populate_losses()
+		"leads":
+			_populate_leads()
 
 func _update_journal_summary() -> void:
 	if not journal_summary_label:
@@ -480,7 +487,7 @@ func _populate_quests() -> void:
 			"complete":
 				color = Color(0.4, 0.7, 0.4)
 				prefix = "[DONE] "
-				desc_text = q["desc"]
+				desc_text = SideQuest.loc(q, "desc")
 			"active":
 				color = Color(0.85, 0.7, 0.4)
 				prefix = ""
@@ -489,7 +496,9 @@ func _populate_quests() -> void:
 				color = Color(0.55, 0.5, 0.45)
 				prefix = "[NEW] "
 				desc_text = q["desc"] + "\n\nTalk to %s at %s." % [q["npc"], q["map"].replace("_", " ").capitalize()]
-		_add_list_button(prefix + q["title"], color, q["title"], desc_text, String(q.get("art", "")))
+		# S217: 로케일 반영. 데이터에 한국어가 생겼으니 저널도 그것을 쓴다.
+		var quest_title := SideQuest.loc(q, "title")
+		_add_list_button(prefix + quest_title, color, quest_title, desc_text, String(q.get("art", "")))
 
 	if not has_any:
 		var empty = Label.new()
@@ -497,6 +506,75 @@ func _populate_quests() -> void:
 		empty.add_theme_font_size_override("font_size", 13)
 		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		item_list.add_child(empty)
+
+## ===================== S217: 미해결 단서 =====================
+## 지역마다 아직 손대지 않은 발견물, 유물, 공명 지점이 몇 개인지 세어 준다.
+## 위치를 콕 집어 주지는 않는다. "여기 아직 남았다"까지만 알려주는 것이
+## 탐색을 대신해 주지 않으면서도 길을 잃지 않게 해 준다.
+func _populate_leads() -> void:
+	var is_ko := GameManager.current_locale == "ko"
+	var map_ids: Array = []
+	for map_id: String in WorldPopulation.POPULATIONS:
+		map_ids.append(map_id)
+	map_ids.sort()
+
+	var total_open := 0
+	for map_id: String in map_ids:
+		var open_lines: Array[String] = []
+		var population: Dictionary = WorldPopulation.POPULATIONS.get(map_id, {})
+
+		var caches_left := 0
+		for cache: Dictionary in population.get("caches", []):
+			if not GameManager.get_flag("world_cache_%s_%s" % [map_id, String(cache.get("id", ""))]):
+				caches_left += 1
+		if caches_left > 0:
+			open_lines.append(("· 발견물 %d" if is_ko else "· %d cache(s)") % caches_left)
+
+		var curios_left := 0
+		for curio: Dictionary in _curios_for(map_id):
+			if not GameManager.get_flag("world_curio_%s_%s" % [map_id, String(curio.get("id", ""))]):
+				curios_left += 1
+		if curios_left > 0:
+			open_lines.append(("· 지역 유물 %d" if is_ko else "· %d relic(s)") % curios_left)
+
+		var resonance_left := 0
+		for point: Dictionary in MemoryResonance.RESONANCE_POINTS.get(map_id, []):
+			if not GameManager.get_flag(String(point.get("flag", ""))):
+				resonance_left += 1
+		if resonance_left > 0:
+			open_lines.append(("· 기억 공명 %d" if is_ko else "· %d resonance") % resonance_left)
+
+		if open_lines.is_empty():
+			continue
+		total_open += open_lines.size()
+		var region := String(ExplorationHUD.MAP_NAMES_KO.get(map_id, map_id)) if is_ko else String(ExplorationHUD.MAP_NAMES.get(map_id, map_id))
+		_add_list_button(
+			region,
+			Color(0.62, 0.74, 0.88),
+			region,
+			("아직 손대지 않은 것들:
+
+%s" if is_ko else "Still untouched here:
+
+%s") % "
+".join(open_lines)
+		)
+
+	if total_open == 0:
+		var empty := Label.new()
+		empty.text = "남은 단서가 없습니다." if is_ko else "No open leads."
+		empty.add_theme_font_size_override("font_size", 13)
+		empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		item_list.add_child(empty)
+
+## 해당 맵의 지역 유물 목록. CURIOS_BY_MAP은 맵당 하나를 담는다.
+func _curios_for(map_id: String) -> Array:
+	var entry: Variant = WorldPopulation.CURIOS_BY_MAP.get(map_id, null)
+	if entry == null:
+		return []
+	if entry is Array:
+		return entry
+	return [entry]
 
 func _populate_losses() -> void:
 	var records: Array[Dictionary] = []

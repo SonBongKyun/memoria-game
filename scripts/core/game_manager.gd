@@ -301,6 +301,50 @@ func equip_item(equip_id: String) -> String:
 	TutorialHints.show_hint("first_equipment")
 	return old
 
+## S217: 장비 비교.
+## 지금까지 상점은 "ATK +8"처럼 절대값만 보여 줬다. 이미 ATK +15짜리를 차고 있는데도
+## 그 숫자가 이득인지 손해인지 알 수 없어서, 사고 나서야 능력치가 내려간 걸 알게 됐다.
+## 슬롯에 이미 있는 장비와의 차이를 돌려준다.
+func compare_equipment(equip_id: String) -> Dictionary:
+	if not EQUIPMENT.has(equip_id):
+		return {}
+	var data: Dictionary = EQUIPMENT[equip_id]
+	var slot := String(data.get("slot", ""))
+	var current_id := String(equipped.get(slot, ""))
+	var current_atk := get_upgraded_bonus(current_id, "atk") if current_id != "" else 0
+	var current_def := get_upgraded_bonus(current_id, "def") if current_id != "" else 0
+	# 새 장비는 아직 강화되지 않은 기본 성능으로 비교한다.
+	var new_atk := int(data.get("atk", 0))
+	var new_def := int(data.get("def", 0))
+	return {
+		"slot": slot,
+		"replaces": current_id,
+		"replaces_name": String(EQUIPMENT[current_id].get("name", current_id)) if current_id != "" and EQUIPMENT.has(current_id) else "",
+		"atk_delta": new_atk - current_atk,
+		"def_delta": new_def - current_def,
+		"is_upgrade": (new_atk - current_atk) + (new_def - current_def) > 0,
+		"is_sidegrade": (new_atk - current_atk) + (new_def - current_def) == 0,
+	}
+
+## 비교 결과를 사람이 읽는 한 줄로. 예: "ATK +7  DEF -3  (녹슨 검 교체)"
+func format_equipment_delta(equip_id: String) -> String:
+	var cmp := compare_equipment(equip_id)
+	if cmp.is_empty():
+		return ""
+	var is_ko := current_locale == "ko"
+	var parts: Array[String] = []
+	for stat: String in ["atk", "def"]:
+		var delta := int(cmp.get(stat + "_delta", 0))
+		if delta != 0:
+			parts.append("%s %+d" % [stat.to_upper(), delta])
+	if parts.is_empty():
+		parts.append("변화 없음" if is_ko else "No change")
+	var line := "  ".join(parts)
+	var replaces := String(cmp.get("replaces_name", ""))
+	if replaces != "":
+		line += ("  (%s 교체)" if is_ko else "  (replaces %s)") % replaces
+	return line
+
 func upgrade_equipment(equip_id: String) -> bool:
 	if not EQUIPMENT.has(equip_id):
 		return false

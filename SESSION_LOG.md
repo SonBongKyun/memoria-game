@@ -6642,6 +6642,33 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S217 - 2026-07-26 (RPG depth: equipment comparison, bestiary hints, shop rates, journal leads)
+
+### Audit findings
+- **The shop showed absolute stats only.** `ATK +8` on a blade means nothing when you are already wearing `ATK +15`; players found out a purchase was a downgrade only after buying. There was also no owned-but-unequipped pool, so the shop is the one place a comparison can happen.
+- **Prices were bare numbers.** `Price: 80 Grains` never said whether 80 was steep, whether you could afford it, or how it compared to similar goods.
+- **The bestiary only contained enemies already met.** Unmet enemies did not exist in the UI at all, so there was no sense of completeness and nothing to chase. The unscanned message — `[Not yet scanned, use Tobias: Analyze]` — named a character but not the action, the condition, or the alternative, and was English in a Korean-first game.
+- **The journal recorded only finished things.** Nothing told the player which regions still held untouched caches, relics or resonance points.
+
+### Done
+- **Equipment comparison.** `GameManager.compare_equipment()` / `format_equipment_delta()` compute the delta against the slot's current item, correctly accounting for its upgrade level. The shop detail shows the delta line and colours it green for an upgrade, red for a downgrade, violet for a sidegrade.
+- **Shop rates.** Prices now carry two contexts: affordability (`잔액 420` or `20 부족`) and a market label (`시세 이하 / 수준 / 이상`) computed against the average price of comparable goods — the same slot for equipment, all consumables for items.
+- **Bestiary roster and hints.** The codex now shows every enemy the game knows about, with a `기록 N / M` header. Unmet entries appear as `???` with the region where they are actually reported. **Locations are never invented:** the roster is built from `WorldPopulation` hunt data (which carries real map assignments) plus `ENEMY_PRESETS`, and any enemy without location data says only "아직 마주치지 않았습니다". The unscanned text now states what is missing, how to get it, and both routes to it, in Korean.
+- **Journal leads tab.** A new `미해결` tab counts per region what remains untouched — caches, regional relics, resonance points — derived from the live flag state. It reports counts, not coordinates, so it orients without replacing exploration.
+- Localized the journal's quest entries now that the quest data carries Korean.
+
+### Verification
+- `RPG_DEPTH_SMOKE_PASS compare=1 bestiary=1 rates=1 leads=1`, asserting: an empty slot makes the item's stats the gain; a worse weapon reports negative and is not flagged an upgrade; upgrade levels shift the baseline; the price line distinguishes affordable from short; cheap and expensive goods get different rate labels; the roster gathers at least eight enemies with real regions; hints never fabricate a region; the leads tab lists open regions and reports empty once everything is flagged.
+- **Falsifiability checked:** zeroing the comparison baseline fails with `더 나쁜 무기는 하락으로 표시되어야 한다 (3)`.
+- **Two defects were caught by rendering rather than by the tests:**
+  - `_create_tab()` only builds a button and returns it; the caller must parent it. The new `미해결` tab was created but never added, so the feature existed and was unreachable. The smoke now asserts the button has a parent.
+  - The bestiary header counted only roster members while the list showed everything, so the numbers disagreed. The denominator is now roster ∪ recorded.
+- All 24 smoke scenes pass. VN: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. `verdan_market.tscn` boot clean.
+- New `capture_rpg_depth` renders shop, codex and journal in one sheet.
+
+### Note
+The bestiary on this machine contains entries like `Cleanup Victory` and `Field Focus Dummy` — enemies invented by smoke scenes and written into the persistent codex, since `Codex` records on `battle_started` and saves to `user://`. Players never run those scenes, so shipped saves are unaffected, but a developer's codex accumulates test junk. Worth a `suppress_recording` switch if it becomes annoying.
+
 ## S216 - 2026-07-26 (RPG systems outside battle: quest tracker, quest Korean, minimap POIs)
 
 ### Audit findings

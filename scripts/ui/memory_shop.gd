@@ -500,7 +500,7 @@ func _select_item(item: Dictionary) -> void:
 		detail_grade.text = GRADE_NAMES[memory.grade]
 		detail_grade.add_theme_color_override("font_color", GRADE_COLORS[memory.grade])
 		detail_desc.text = memory.description
-		detail_price.text = "Sell Price: %d Grains" % item.price
+		detail_price.text = "%s   %s" % [_price_line(int(item.price)), _market_rate_label(item)]
 		if memory.story_effect != "":
 			detail_effect.text = "Warning: %s" % memory.story_effect
 			detail_effect.visible = true
@@ -516,7 +516,7 @@ func _select_item(item: Dictionary) -> void:
 		detail_grade.text = GRADE_NAMES[grade]
 		detail_grade.add_theme_color_override("font_color", GRADE_COLORS[grade])
 		detail_desc.text = data.get("description", "")
-		detail_price.text = "Buy Price: %d Grains" % item.price
+		detail_price.text = "%s   %s" % [_price_line(int(item.price)), _market_rate_label(item)]
 		detail_effect.visible = false
 		var can_afford = GameManager.player_data.grains >= item.price
 		action_btn.text = "Buy for %d G" % item.price if can_afford else "Not enough Grains"
@@ -528,7 +528,7 @@ func _select_item(item: Dictionary) -> void:
 		detail_grade.text = "Consumable Item"
 		detail_grade.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 		detail_desc.text = def.get("desc", "")
-		detail_price.text = "Buy Price: %d Grains" % item.price
+		detail_price.text = "%s   %s" % [_price_line(int(item.price)), _market_rate_label(item)]
 		detail_effect.visible = false
 		var can_afford = GameManager.player_data.get("grains", 0) >= item.price
 		action_btn.text = "Buy for %d G" % item.price if can_afford else "Not enough Grains"
@@ -540,7 +540,7 @@ func _select_item(item: Dictionary) -> void:
 		detail_grade.text = "Consumable Item (×%d owned)" % item.get("count", 0)
 		detail_grade.add_theme_color_override("font_color", Color(0.65, 0.55, 0.35))
 		detail_desc.text = def.get("desc", "")
-		detail_price.text = "Sell Price: %d Grains" % item.price
+		detail_price.text = "%s   %s" % [_price_line(int(item.price)), _market_rate_label(item)]
 		detail_effect.visible = false
 		action_btn.text = "Sell for %d G" % item.price
 		action_btn.disabled = false
@@ -551,10 +551,25 @@ func _select_item(item: Dictionary) -> void:
 		var stats_text = "Slot: %s" % def.get("slot", "?").capitalize()
 		if def.get("atk", 0) > 0: stats_text += " | ATK +%d" % def.atk
 		if def.get("def", 0) > 0: stats_text += " | DEF +%d" % def.get("def", 0)
+		# S217: 지금 차고 있는 것과의 차이를 함께 보여 준다.
+		# 절대값만 보면 이미 더 좋은 걸 차고 있어도 이득처럼 읽힌다.
+		var delta_line := GameManager.format_equipment_delta(String(item.equip_id))
+		if delta_line != "":
+			stats_text += "
+%s" % delta_line
 		detail_grade.text = stats_text
-		detail_grade.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
+		var cmp := GameManager.compare_equipment(String(item.equip_id))
+		if cmp.get("is_upgrade", false):
+			detail_grade.add_theme_color_override("font_color", Color(0.55, 0.85, 0.60))
+		elif cmp.get("is_sidegrade", true):
+			detail_grade.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
+		else:
+			detail_grade.add_theme_color_override("font_color", Color(0.88, 0.52, 0.45))
 		detail_desc.text = def.get("desc", "")
-		detail_price.text = "Price: %d Grains" % item.price
+		detail_price.text = "%s   %s" % [
+			_price_line(int(item.price)),
+			_market_rate_label(item),
+		]
 		if def.has("effect"):
 			detail_effect.text = "Special: %s" % def.effect.replace("_", " ").capitalize()
 			detail_effect.visible = true
@@ -564,6 +579,63 @@ func _select_item(item: Dictionary) -> void:
 		action_btn.text = "Buy & Equip (%d G)" % item.price if can_afford else "Not enough Grains"
 		action_btn.disabled = not can_afford
 		action_btn.visible = true
+
+## ===================== S217: 시세 =====================
+## 상점은 "Price: 80 Grains"만 보여 줬다. 80이 비싼지 싼지, 지금 가진 돈으로
+## 감당이 되는지, 같은 등급 물건에 비해 어떤지는 전혀 알 수 없었다.
+## 가격 옆에 (1) 보유 그레인 대비 부담, (2) 같은 부류의 평균 대비 시세를 붙인다.
+
+## 가격 + 보유량 대비 표기.
+func _price_line(price: int) -> String:
+	var is_ko := GameManager.current_locale == "ko"
+	var grains := int(GameManager.player_data.get("grains", 0))
+	var head := ("%d 그레인" if is_ko else "%d Grains") % price
+	if price <= 0:
+		return head
+	if grains < price:
+		var short := price - grains
+		return head + (("  (%d 부족)" if is_ko else "  (%d short)") % short)
+	return head + (("  (잔액 %d)" if is_ko else "  (%d left)") % (grains - price))
+
+## 같은 부류 평균과 비교한 시세 라벨.
+func _market_rate_label(item: Dictionary) -> String:
+	var baseline := _baseline_price(item)
+	if baseline <= 0:
+		return ""
+	var price := float(item.get("price", 0))
+	var ratio := price / float(baseline)
+	var is_ko := GameManager.current_locale == "ko"
+	if ratio <= 0.85:
+		return "· 시세 이하" if is_ko else "· below rate"
+	if ratio >= 1.18:
+		return "· 시세 이상" if is_ko else "· above rate"
+	return "· 시세 수준" if is_ko else "· at rate"
+
+## 같은 부류(장비 슬롯 / 소모품 / 기억 등급)의 평균 가격.
+func _baseline_price(item: Dictionary) -> int:
+	var kind := String(item.get("type", ""))
+	var total := 0
+	var count := 0
+	match kind:
+		"buy_equip":
+			var slot := String(GameManager.EQUIPMENT.get(item.get("equip_id", ""), {}).get("slot", ""))
+			for eid: String in GameManager.EQUIPMENT:
+				var data: Dictionary = GameManager.EQUIPMENT[eid]
+				if String(data.get("slot", "")) == slot:
+					total += int(data.get("price", 0))
+					count += 1
+		"buy_item", "sell_item":
+			for iid: String in GameManager.ITEMS:
+				var idata: Dictionary = GameManager.ITEMS[iid]
+				var base := int(idata.get("price", 0))
+				if base > 0:
+					total += base
+					count += 1
+		_:
+			return 0
+	if count == 0:
+		return 0
+	return int(round(float(total) / float(count)))
 
 func _clear_detail() -> void:
 	detail_title.text = "Select a memory..."

@@ -300,14 +300,72 @@ func _style_tab(btn: Button, active: bool) -> void:
 	else:
 		btn.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 
+## ===================== S217: 도감 미조우 항목 =====================
+## 도감은 "만난 적"만 담고 있었다. 아직 만나지 않은 적은 목록에 아예 없어서,
+## 플레이어는 도감이 얼마나 찼는지도, 무엇을 더 찾아야 하는지도 알 수 없었다.
+##
+## 위치 정보는 지어내지 않는다. WorldPopulation의 사냥 대상 데이터에 실제로 적힌
+## 지역만 힌트로 쓰고, 근거가 없는 적은 지역 없이 "미조우"로만 표시한다.
+
+## 게임이 아는 전체 적 명단 → {표시명: 지역 라벨(없으면 "")}
+func _known_enemy_roster() -> Dictionary:
+	var roster: Dictionary = {}
+	for map_id: String in WorldPopulation.POPULATIONS:
+		var data: Dictionary = WorldPopulation.POPULATIONS[map_id]
+		for hunt: Dictionary in data.get("hunts", []):
+			var hunt_name := String(hunt.get("name", ""))
+			if hunt_name != "":
+				roster[hunt_name] = _map_label(map_id)
+	for key: String in BattleManager.ENEMY_PRESETS:
+		var preset: Dictionary = BattleManager.ENEMY_PRESETS[key]
+		var preset_name := String(preset.get("name", ""))
+		if preset_name != "" and not roster.has(preset_name):
+			roster[preset_name] = ""
+	return roster
+
+func _map_label(map_id: String) -> String:
+	if GameManager.current_locale == "ko":
+		return String(ExplorationHUD.MAP_NAMES_KO.get(map_id, map_id))
+	return String(ExplorationHUD.MAP_NAMES.get(map_id, map_id))
+
+## 아직 만나지 않은 적을 위한 한 줄 힌트.
+func _unmet_hint(region: String) -> String:
+	var is_ko := GameManager.current_locale == "ko"
+	if region == "":
+		return "아직 마주치지 않았습니다." if is_ko else "Not yet encountered."
+	return ("%s 일대에서 마주칠 수 있습니다." if is_ko else "Reported around %s.") % region
+
+## 미조우 항목 상세. 이름은 밝히지 않고 어디서 찾을 수 있는지만 알려 준다.
+func _show_unmet_detail(region: String) -> void:
+	_clear_enemy_preview()
+	var is_ko := GameManager.current_locale == "ko"
+	detail_title.text = "???"
+	detail_body.text = "%s
+
+%s" % [
+		_unmet_hint(region),
+		"교전을 시작하면 기본 정보가 기록되고, 스캔하면 약점까지 드러납니다." if is_ko
+			else "Engaging records the basics. Scanning reveals the weakness.",
+	]
+
 func _populate_bestiary() -> void:
-	if enemy_entries.is_empty():
-		var lbl = Label.new()
-		lbl.text = "No enemies encountered yet."
-		lbl.add_theme_font_size_override("font_size", 13)
-		lbl.add_theme_color_override("font_color", UITheme.TEXT_DIM)
-		item_list.add_child(lbl)
-		return
+	var is_ko := GameManager.current_locale == "ko"
+	var roster := _known_enemy_roster()
+
+	# S217: 진행도를 먼저 보여 준다. 도감의 목적은 "얼마나 남았는가"이기 때문이다.
+	#
+	# 분모는 "명단 ∪ 실제로 기록된 것"이다. 명단만 세면, 명단에 없는 적(스토리 전용
+	# 보스 등)을 만났을 때 목록에는 있는데 분모에는 안 잡혀 숫자가 어긋난다.
+	var total_known: Dictionary = roster.duplicate()
+	for entry_name: String in enemy_entries:
+		if not total_known.has(entry_name):
+			total_known[entry_name] = ""
+	var recorded := enemy_entries.size()
+	var progress := Label.new()
+	progress.text = ("기록 %d / %d" if is_ko else "Recorded %d / %d") % [recorded, total_known.size()]
+	progress.add_theme_font_size_override("font_size", 12)
+	progress.add_theme_color_override("font_color", Color(0.80, 0.72, 0.48))
+	item_list.add_child(progress)
 
 	for enemy_name in enemy_entries:
 		var data = enemy_entries[enemy_name]
@@ -320,6 +378,24 @@ func _populate_bestiary() -> void:
 		var btn = _make_list_btn(display_name, color)
 		btn.pressed.connect(func(): _show_enemy_detail(enemy_name, data))
 		item_list.add_child(btn)
+
+	# S217: 아직 만나지 않은 항목. 이름은 가리되 존재와 단서는 알려 준다.
+	var unmet: Array[String] = []
+	for entry_name: String in roster:
+		if not enemy_entries.has(entry_name):
+			unmet.append(entry_name)
+	if not unmet.is_empty():
+		var divider := Label.new()
+		divider.text = ("미조우 %d" if is_ko else "Unrecorded %d") % unmet.size()
+		divider.add_theme_font_size_override("font_size", 12)
+		divider.add_theme_color_override("font_color", UITheme.TEXT_DIM)
+		item_list.add_child(divider)
+		for entry_name: String in unmet:
+			var region := String(roster.get(entry_name, ""))
+			var locked := _make_list_btn("??? " + (("· %s" % region) if region != "" else ""), Color(0.34, 0.32, 0.36))
+			var captured_region := region
+			locked.pressed.connect(func(): _show_unmet_detail(captured_region))
+			item_list.add_child(locked)
 
 func _populate_memory_archive() -> void:
 	if memory_entries.is_empty():
@@ -404,7 +480,23 @@ func _show_enemy_detail(enemy_name: String, data: Dictionary) -> void:
 		lines += "Weakness: %s\n" % (weakness.to_upper() if weakness != "" else "None")
 		lines += "Resistance: %s\n" % (resistance.to_upper() if resistance != "" else "None")
 	else:
-		lines += "\n[Not yet scanned, use Tobias: Analyze]\n"
+		# S217: 무엇을 하라는 건지 알려 준다. 예전 문구는 방법도 조건도 없었다.
+		if GameManager.current_locale == "ko":
+			lines += "
+--- 미스캔 ---
+"
+			lines += "약점과 저항이 아직 기록되지 않았습니다.
+"
+			lines += "전투 중 토비아스에게 [분석]을 지시하거나, 스캔 도구를 쓰면 기록됩니다.
+"
+		else:
+			lines += "
+--- UNSCANNED ---
+"
+			lines += "Weakness and resistance are not recorded yet.
+"
+			lines += "Order Tobias to Analyze in battle, or use a scanning tool.
+"
 	detail_body.text = lines
 
 	# S59: Animated entry reveal for first-time views
