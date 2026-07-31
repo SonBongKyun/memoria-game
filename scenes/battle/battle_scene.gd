@@ -144,6 +144,7 @@ var tobias_sprite: CanvasItem
 ## 자연히 더 많이 움직이므로, 여기서 따로 줄일 필요가 없다.
 const BATTLER_PARALLAX: float = 1.0
 var _battler_anchors: Array[Control] = []
+var _foreground_depth_stage: HybridDepthStage = null
 var _player_base_pos: Vector2 = Vector2.ZERO  # 돌진 복귀용
 var _enemy_base_pos: Vector2 = Vector2.ZERO
 var _ally_base_pos: Vector2 = Vector2.ZERO
@@ -497,6 +498,9 @@ func _build_ui() -> void:
 
 	# S212: 전투원 배치가 모두 끝난 뒤, 3D 표식을 2D 발 위치에 맞춘다.
 	_sync_battler_anchors_to_stage()
+
+	# S213: 전경 3D 레이어. 전투원 "위"에 합성되므로 마지막에 올린다.
+	_build_foreground_depth(root)
 
 ## ===================== 배경 비네트 =====================
 
@@ -1803,6 +1807,27 @@ func _play_memory_burn_cutin(cutin_path: String, memory_grade: int) -> void:
 ## 노드는 남긴다 (스프라이트 이동 트윈과 기존 계약이 이 참조를 쓴다).
 func _flat_shadow_alpha(base: float) -> float:
 	return base * 0.35 if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage) else base
+
+## S213: 전경 3D 레이어.
+##
+## 시차는 가까운 물체에서 가장 크게 읽힌다. 지금까지 3D는 전부 캐릭터 뒤에 있어서
+## 깊이의 절반만 쓰고 있었다. 카메라 앞쪽 기둥을 캐릭터 위에 겹치면, 카메라가 조금만
+## 움직여도 공간이 확실히 살아난다.
+##
+## 전투는 정보를 읽는 화면이므로 화면 양쪽 가장자리(한쪽 7.2%)에만 둔다. 전투원은
+## 화면의 18%와 78% 지점에 서고, 커맨드 덱과 각 패널은 더 높은 z_index로 그 위에
+## 그려지므로 정보가 가려지지 않는다.
+##
+## Clean Gameplay View에서도 끄지 않는다. 기본값이 켜짐이라, 거기서 빼면 대부분의
+## 플레이어는 이 레이어를 평생 못 본다. 대신 강도를 낮춰 그 옵션의 취지를 지킨다.
+func _build_foreground_depth(root: Control) -> void:
+	var profile := HybridDepthStage.profile_from_scene(BattleManager.return_scene)
+	_foreground_depth_stage = HybridDepthStage.create_stage(profile, HybridDepthStage.StageMode.FOREGROUND)
+	_foreground_depth_stage.name = "ForegroundDepthStage"
+	_foreground_depth_stage.modulate.a = 0.26 if OptionsMenu.is_clean_gameplay_visuals() else 0.42
+	_foreground_depth_stage.z_index = 30
+	_foreground_depth_stage.follow_stage = _hybrid_depth_stage
+	root.add_child(_foreground_depth_stage)
 
 func _make_battler_anchor(root: Control, anchor_name: String, world_anchor: Vector3) -> Control:
 	var anchor := Control.new()
@@ -5818,6 +5843,9 @@ func _hide_burn_preview() -> void:
 ## Play dramatic burn sequence then execute the actual burn
 func _play_memory_burn_then_execute(memory_id: String, memory_title: String, memory_grade: int) -> void:
 	var cutin_path := _resolve_memory_burn_cutin(memory_id, memory_title)
+	# S213: 되돌릴 수 없는 대가를 치르는 순간, 무대 자체가 반응한다.
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		_hybrid_depth_stage.play_memory_burn(memory_grade)
 	if cutin_path != "":
 		await _play_memory_burn_cutin(cutin_path, memory_grade)
 	if battle_vfx:

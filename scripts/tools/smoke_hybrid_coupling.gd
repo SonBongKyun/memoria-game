@@ -75,8 +75,35 @@ func _ready() -> void:
 	assert(absf(player_world.z - enemy_world.z) < 2.0,
 		"두 앵커가 비슷한 깊이에 있어야 좌우 구도가 유지된다")
 
+	# --- S213: 전경 레이어 ---
+	var foreground: HybridDepthStage = battle.get("_foreground_depth_stage")
+	assert(foreground != null, "전경 3D 레이어가 있어야 한다 (Clean View에서도 켜진다)")
+	assert(foreground.follow_stage == stage,
+		"전경이 전투 무대의 카메라를 따라가지 않으면 시차가 어긋난다")
+	assert(foreground.z_index > 0,
+		"전경은 2D 전투원 위에 합성되어야 한다")
+	# 기하는 화면 양 끝에만 있어야 한다. 안쪽으로 들어오면 전투 정보를 가린다.
+	var innermost: float = 99.0
+	for child in foreground.motion_root.get_children():
+		var mesh := child as MeshInstance3D
+		if mesh != null:
+			innermost = minf(innermost, absf(mesh.position.x))
+	assert(innermost > 2.9,
+		"전경 기둥이 화면 안쪽으로 들어왔다 (가장 안쪽 x=%.2f). 전투원과 UI를 가린다." % innermost)
+
+	# --- S213: 기억 연소에 무대가 반응하는가 ---
+	assert(stage._burn_flare <= 0.01, "연소 전에는 무대가 평온해야 한다")
+	stage.play_memory_burn(2)
+	assert(stage._burn_flare > 0.5,
+		"기억 연소는 이 게임의 심장이다. 무대가 반응하지 않으면 3D는 장식으로 남는다.")
+	var flare_at_burn: float = stage._burn_flare
+	for _f in range(40):
+		await get_tree().process_frame
+	assert(stage._burn_flare < flare_at_burn,
+		"연소 반응은 시간이 지나면 잦아들어야 한다 (%.2f -> %.2f)" % [flare_at_burn, stage._burn_flare])
+
 	OptionsMenu.settings["reduce_motion"] = previous_reduce
-	print("HYBRID_COUPLING_SMOKE_PASS anchors=%d projected=(%.0f, %.0f) pan_shift=%.2f" % [
+	print("HYBRID_COUPLING_SMOKE_PASS anchors=%d projected=(%.0f, %.0f) pan_shift=%.2f foreground=1 burn_reaction=1" % [
 		anchors.size(), projected.x, projected.y, moved,
 	])
 	get_tree().quit(0)

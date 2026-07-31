@@ -30,7 +30,8 @@ func _ready() -> void:
 	var right := get_viewport().get_texture().get_image()
 
 	# 위: 플레이어 턴 / 아래: 적 턴. 전투원 주변만 잘라 비교한다.
-	var crop := Rect2i(60, 230, 1160, 230)
+	# 전경은 화면 양 끝에 있으므로 전체 폭을 그대로 담는다.
+	var crop := Rect2i(0, 210, 1280, 250)
 	var sheet := Image.create(crop.size.x, crop.size.y * 2, false, Image.FORMAT_RGBA8)
 	sheet.blit_rect(left, crop, Vector2i(0, 0))
 	sheet.blit_rect(right, crop, Vector2i(0, crop.size.y))

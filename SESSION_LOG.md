@@ -6642,6 +6642,26 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Isolated 300-frame `verdan_market.tscn` boot passed through four ambient voices, Elia companion startup, world population, and checkpoint autosave with no script, parse, invalid-access, or invalid-call error.
 - `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
 
+## S213 - 2026-07-26 (Foreground parallax and a stage that reacts to burning)
+
+### Audit findings
+After S212 the cast lived in the arena, but two things were still missing:
+- **All 3D sat behind the characters.** Parallax reads strongest on near objects, so half the available depth was unused. Nothing ever passed in front.
+- **The 3D was inert with respect to the game.** It reacted to camera events (turn, impact, BREAK) but not to memory burning — the mechanic the whole game is built around, and the one moment where an irreversible price is paid.
+
+### Done
+- **Foreground layer.** A new `FOREGROUND` stage mode: a second `HybridDepthStage` sharing the battle camera rig, composited *above* the 2D cast, with `follow_stage` copying the leader's pan/impact state each frame so the two layers agree.
+  Placement was **measured rather than eyeballed.** A throwaway probe rendered the layer alone over a flat background and reported screen coverage per side: `x=±3.2 → 12%`, `x=±3.5 → 7.2%`, `x=±3.9 → 0.8%`. Chose ±3.5. Battlers stand at 18% and 78% of the frame and every panel has a higher `z_index`, so no information is covered.
+  It stays enabled under Clean Gameplay View at lower alpha (0.26 vs 0.42). Gating it off there would have hidden the feature from most players, since that option defaults on.
+- **The arena burns when a memory burns.** `play_memory_burn` ignites the floor grid toward ember colour and spawns rising 3D embers, scaled by memory grade and decaying over about a second. Hooked into `_play_memory_burn_then_execute`, so it fires on the real burn rather than on a menu action. Embers are skipped under Reduce Motion. This is the point where the 3D stops being decoration and starts serving the mechanic.
+
+### Verification
+- `HYBRID_COUPLING_SMOKE_PASS anchors=4 projected=(226, 424) pan_shift=12.02 foreground=1 burn_reaction=1`. New assertions: the foreground exists, follows the battle stage, composites above the cast, keeps its innermost geometry beyond `x=2.9`, and the burn flare rises on burn then decays.
+- `BURN_ARENA_CAPTURE_PASS flare=0.91` with a before/after sheet showing the perspective floor grid igniting amber with embers rising.
+- **A misread was caught and corrected mid-session.** An early pan capture looked like the foreground was swallowing the frame; a probe rendering the layer in isolation showed it was drawing *nothing* — the pillars were outside the frustum entirely. The darkening came from the capture harness disabling Clean Gameplay View, which re-enables haze, grain and tint. The placement sweep above replaced guesswork after that.
+- All 21 smoke scenes pass. VN: 20 files, 504 steps, 0 errors. Korean: 31 files, 1,583 fields, 0 errors. 300-frame `verdan_market.tscn` boot clean.
+- **Cost note:** this adds a second `SubViewport` with its own `World3D` during battle. Its content is eight boxes at 640x360, so the added draw cost is small, but it is a real second 3D render and worth remembering if battle performance is ever profiled.
+
 ## S212 - 2026-07-26 (Coupling the 2D cast to the 3D arena)
 
 ### Audit findings

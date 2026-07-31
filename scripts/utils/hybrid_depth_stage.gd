@@ -4,7 +4,7 @@
 class_name HybridDepthStage
 extends Control
 
-enum StageMode { BATTLE, ATLAS, RELIC }
+enum StageMode { BATTLE, ATLAS, RELIC, FOREGROUND }
 
 ## S211: 전투 무대 지면 기준.
 ## 2D 전투원의 발끝(battle_scene.STAGE_BASELINE_Y)과 3D 지평선이 같은 높이에서
@@ -62,6 +62,12 @@ var arena_floor: MeshInstance3D
 var _rest_projection_cache: Dictionary = {}
 var _contact_shadows: Dictionary = {}
 const ENTRANCE_DURATION: float = 1.15
+var _burn_flare: float = 0.0
+var _burn_ember_root: Node3D = null
+var _burn_ember_life: float = 0.0
+## S213: 전경 레이어는 전투 무대의 카메라 상태를 그대로 따라간다.
+## 리그가 어긋나면 전경과 배경의 시차가 맞지 않아 한 공간으로 읽히지 않는다.
+var follow_stage: HybridDepthStage = null
 var _entrance_active: bool = false
 var _entrance_progress: float = 0.0
 var battle_player_focus_root: Node3D
@@ -120,6 +126,8 @@ func _build_stage() -> void:
 			_build_atlas()
 		StageMode.RELIC:
 			_build_relic()
+		StageMode.FOREGROUND:
+			_build_foreground()
 		_:
 			_build_battle_diorama()
 
@@ -194,6 +202,8 @@ func _add_camera() -> void:
 			_camera_look_target = Vector3(0, 0.45, 0)
 			camera.fov = 34.0
 		_:
+			# FOREGROUND는 전투 무대와 같은 카메라 리그를 쓴다. 리그가 다르면
+			# 전경과 배경의 시차가 어긋나 한 공간으로 읽히지 않는다.
 			_base_camera_position = Vector3(0, 4.1, 10.6)
 			_camera_look_target = Vector3(0, 0.35, 0)
 			camera.fov = 45.0
@@ -384,6 +394,38 @@ func _set_battle_focus_material(material: StandardMaterial3D, accent: Color, act
 	material.emission = Color(1.0, 0.76, 0.24) if broken else accent
 	material.emission_energy_multiplier = 1.65 if broken else (1.10 if active else 0.20)
 
+## S213: 전경 레이어.
+##
+## 시차는 가까운 물체에서 가장 강하게 읽힌다. 지금까지 3D는 전부 캐릭터 뒤에 있어서
+## 깊이의 절반만 쓰고 있었다. 카메라 앞쪽에 몇 개를 두고 2D 캐릭터 "위"에 합성하면
+## 카메라가 조금만 움직여도 공간감이 크게 살아난다.
+##
+## 다만 전투는 정보를 읽어야 하는 화면이다. 그래서 화면 양쪽 가장자리에만 세우고,
+## 초점이 나간 것처럼 어둡고 흐릿하게 둔다. 가운데(전투원과 UI)는 절대 가리지 않는다.
+func _build_foreground() -> void:
+	var near_material := _make_material(_stone.darkened(0.55), Color.BLACK, 0.44)
+	# 화면 양쪽 가장자리만 걸치게 한다.
+	# 배치는 눈대중이 아니라 실측으로 잡았다 (probe로 화면 점유율을 재서 결정):
+	#   x=±3.2 -> 한쪽 12%  (너무 많이 먹는다)
+	#   x=±3.5 -> 한쪽 7.2% (채택)
+	#   x=±3.9 -> 한쪽 0.8% (거의 안 보인다)
+	# 전투원은 화면의 18%와 78% 지점에 서므로 어느 쪽도 가리지 않는다.
+	for side: float in [-1.0, 1.0]:
+		_add_box(
+			motion_root,
+			Vector3(side * 3.50, 1.2, 7.2),
+			Vector3(1.5, 9.0, 1.0),
+			near_material,
+			Vector3(0.0, side * 0.16, side * 0.03)
+		)
+		_add_box(
+			motion_root,
+			Vector3(side * 3.15, 0.6, 8.4),
+			Vector3(2.0, 11.0, 1.0),
+			near_material,
+			Vector3(0.0, side * -0.12, 0.0)
+		)
+
 func _build_atlas() -> void:
 	var base_material := _make_material(_stone, Color.BLACK, 0.70)
 	var route_material := _make_material(_accent.darkened(0.32), _accent, 0.94, 0.82)
@@ -537,6 +579,72 @@ func focus_route(chapter: int) -> void:
 			tween.tween_property(marker, "scale", target_scale, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_focus_pan = lerpf(-0.32, 0.32, float(focus_index) / maxf(float(_atlas_markers.size() - 1), 1.0))
 
+## ===================== S213: 기억 연소에 반응하는 무대 =====================
+## 기억 연소는 이 게임의 심장이고, 되돌릴 수 없는 대가를 치르는 순간이다.
+## 그 순간에 무대 전체가 반응하면, 3D는 장식이 아니라 메카닉의 일부가 된다.
+##
+## 바닥 격자가 한 번 타오르고, 잔불이 지면에서 솟았다가 사그라든다.
+## 연소 등급이 높을수록 오래, 강하게 남는다.
+func play_memory_burn(grade: int) -> void:
+	if stage_mode != StageMode.BATTLE:
+		return
+	var intensity: float = clampf(0.55 + float(grade) * 0.22, 0.55, 1.4)
+	_burn_flare = intensity
+	_spawn_burn_embers(intensity)
+
+func _spawn_burn_embers(intensity: float) -> void:
+	if OptionsMenu != null and OptionsMenu.is_reduce_motion():
+		return
+	if _burn_ember_root != null and is_instance_valid(_burn_ember_root):
+		_burn_ember_root.queue_free()
+	_burn_ember_root = Node3D.new()
+	_burn_ember_root.name = "BurnEmbers"
+	scene_root.add_child(_burn_ember_root)
+
+	var ember_material := _make_material(Color(0.92, 0.44, 0.16), Color(1.0, 0.62, 0.22), 0.85, 2.4)
+	var count: int = int(round(14.0 * intensity))
+	for i in range(count):
+		var angle := TAU * float(i) / float(maxi(count, 1))
+		var radius := 1.2 + float(i % 5) * 0.62
+		var ember := _add_box(
+			_burn_ember_root,
+			Vector3(cos(angle) * radius, ARENA_FLOOR_Y + 0.05, sin(angle) * radius * 0.55 + 0.3),
+			Vector3(0.075, 0.075, 0.075),
+			ember_material
+		)
+		# 각 잔불은 서로 다른 속도로 솟는다. _process에서 이 메타를 읽는다.
+		ember.set_meta("rise_speed", 1.05 + float(i % 4) * 0.42)
+		ember.set_meta("drift", Vector3(cos(angle) * 0.22, 0.0, sin(angle) * 0.14))
+	_burn_ember_life = 1.0
+
+func _update_burn(delta: float) -> void:
+	if _burn_flare > 0.0:
+		_burn_flare = maxf(_burn_flare - delta * 1.25, 0.0)
+		if arena_floor != null and is_instance_valid(arena_floor):
+			var material := arena_floor.material_override as ShaderMaterial
+			if material != null:
+				# 연소 순간 격자가 타오르고, 색이 잔불 쪽으로 밀린다.
+				material.set_shader_parameter("grid_strength", 0.50 + _burn_flare * 1.15)
+				material.set_shader_parameter("grid_color", _accent.darkened(0.25).lerp(Color(1.0, 0.58, 0.20), minf(_burn_flare, 1.0)))
+
+	if _burn_ember_root == null or not is_instance_valid(_burn_ember_root):
+		return
+	_burn_ember_life = maxf(_burn_ember_life - delta * 0.62, 0.0)
+	if _burn_ember_life <= 0.0:
+		_burn_ember_root.queue_free()
+		_burn_ember_root = null
+		return
+	for child in _burn_ember_root.get_children():
+		var ember := child as MeshInstance3D
+		if ember == null:
+			continue
+		var rise: float = float(ember.get_meta("rise_speed", 1.0))
+		var drift: Vector3 = ember.get_meta("drift", Vector3.ZERO)
+		ember.position += (Vector3(0, rise, 0) + drift) * delta
+		# 위로 갈수록 작아지며 사라진다.
+		var scale_factor: float = maxf(_burn_ember_life, 0.05)
+		ember.scale = Vector3.ONE * scale_factor
+
 ## S212: 전투 시작 돌리 인.
 ## 카메라를 뒤/위에서 기준 자세로 밀어 넣어 공간을 한 번 보여 준다. 정지 화면만
 ## 보면 3D인지 알기 어렵지만, 이 짧은 이동 한 번이면 깊이가 즉시 읽힌다.
@@ -578,6 +686,12 @@ func _process(delta: float) -> void:
 			focus_root.position.y = sin(_time * 1.15) * 0.08
 		if motion_root != null and is_instance_valid(motion_root):
 			motion_root.rotation.y = sin(_time * 0.24) * (0.035 if stage_mode == StageMode.BATTLE else 0.018)
+	_update_burn(delta)
+	if follow_stage != null and is_instance_valid(follow_stage):
+		# 리더의 카메라 상태를 복사한 뒤, 아래 공통 경로가 그대로 카메라를 옮긴다.
+		_focus_pan = follow_stage._focus_pan
+		_impact_offset = follow_stage._impact_offset
+		_impact_lift = follow_stage._impact_lift
 	_impact_offset = move_toward(_impact_offset, 0.0, delta * 3.4)
 	_impact_lift = move_toward(_impact_lift, 0.0, delta * 1.8)
 	var drift := sin(_time * 0.31) * 0.06 if not reduce_motion else 0.0
