@@ -90,6 +90,10 @@ func autosave_on_chapter_transition() -> void:
 
 ## S56: Autosave logic
 func autosave(reason: String = "auto") -> void:
+	# Headless smoke/capture scenes mark themselves as synthetic. Never let
+	# developer validation overwrite a player's real autosave.
+	if Codex.suppress_recording:
+		return
 	if GameManager.current_state == GameManager.GameState.MENU:
 		return  # Don't autosave on title screen
 	var success = save_game(AUTOSAVE_SLOT)

@@ -39,8 +39,9 @@ func _ready() -> void:
 	assert(BattleManager.field_focus_opening, "Battle should mark the focus opening")
 	assert(is_equal_approx(BattleManager.momentum, 25.0), "Focus should start at 25 resonance")
 	assert(is_equal_approx(BattleManager.limit_gauge, 20.0), "Focus should start at 20 limit")
-	assert(BattleManager.tactical_objective.is_empty(), "A field directive must remain player-chosen before the first action")
-	assert(BattleManager.tactical_objective_options.size() == 3, "Field Focus must unlock a third directive reading")
+	assert(not BattleManager.tactical_objective.is_empty(), "Field Focus battles must still begin with one readable objective")
+	assert(BattleManager.tactical_objective_options.is_empty(), "Field Focus must not restore the old directive choice modal")
+	assert(bool(BattleManager.tactical_objective.get("focus_boosted", false)), "Field Focus must strengthen the objective payoff")
 
-	print("FIELD_FOCUS_SMOKE_PASS maps=%d deep=10 count=1 resonance=25 limit=20 directives=3" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
+	print("FIELD_FOCUS_SMOKE_PASS maps=%d deep=10 count=1 resonance=25 limit=20 objective=1 payoff_boost=1" % MemoryResonance.FIELD_FOCUS_CG_BY_MAP.size())
 	get_tree().quit(0)

@@ -91,10 +91,10 @@ const ART_KAIROS_FALLBACK: String = "res://assets/cg/game_image/kairos_fullbody.
 const ART_NERA_FULLBODY: String = "res://assets/portraits/character_shots/nera_dossier_v3.png"
 const ART_TOBIAS_FULLBODY: String = "res://assets/portraits/character_shots/tobias_ledger_v3.png"
 const ART_VEIL_FULLBODY: String = "res://assets/portraits/character_shots/veil_recon_v3.png"
-const ART_VOID_BEAST: String = "res://assets/cg/character_shots/void_beast_shot_v2.png"
+const ART_VOID_BEAST: String = "res://assets/cg/character_shots/void_beast_occult_rite_v1.png"
 const ART_VOID_BEAST_FALLBACK: String = "res://assets/cg/game_image/void_beast_confrontation.png"
-const ART_SHADE_SENTINEL: String = "res://assets/cg/character_shots/shade_sentinel_shot_v2.png"
-const ART_KAIROS_ASCENDANT: String = "res://assets/cg/character_shots/kairos_ascendant_shot_v2.png"
+const ART_SHADE_SENTINEL: String = "res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png"
+const ART_KAIROS_ASCENDANT: String = "res://assets/cg/character_shots/kairos_occult_editor_v1.png"
 const ART_ECHO_SHELL: String = "res://assets/cg/character_shots/echo_shell_shot_v2.png"
 
 ## S212: 반복 등장 잡몹의 무대 아트 (S204 액션 컷인 원화 재사용).
@@ -305,6 +305,8 @@ var _witness_required: int = 2
 var _witness_completed_this_battle: bool = false
 var _resolved_by_witness: bool = false
 var _witness_boss_insight: bool = false
+var _burn_aftershock_turns: int = 0
+var _burn_aftershock_memory: String = ""
 
 const WITNESS_LINES_EN: Dictionary = {
 	"ash": ["Under the ash, a child's hand still searches for the road home.", "It was never hunting. It was following the last warmth it remembered."],
@@ -562,6 +564,8 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	_witness_completed_this_battle = false
 	_resolved_by_witness = false
 	_witness_boss_insight = false
+	_burn_aftershock_turns = 0
+	_burn_aftershock_memory = ""
 	_witness_required = _get_witness_requirement(enemy)
 	_last_stand_triggered_this_battle = false
 	_objective_completed = false
@@ -830,15 +834,8 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 			"reward_item": "",
 			"reward_heal": 8,
 		})
-	if MemoryManager.get_available_memories().size() >= 2:
-		pool.append({
-			"id": "echo_weave",
-			"title": "Echo Weave",
-			"desc": "Activate 2 Memory Echoes before victory.",
-			"reward_grains": 8,
-			"reward_item": "hi_potion",
-			"reward_heal": 0,
-		})
+	# Echo Weave remains supported for authored encounters, but is not assigned
+	# automatically because it would prescribe two irreversible memory burns.
 	if sable_in_party or tobias_in_party:
 		pool.append({
 			"id": "ally_coordination",
@@ -859,24 +856,23 @@ func _setup_tactical_objective(enemy: Enemy) -> void:
 		return int(a.get("_sort_key", 0)) < int(b.get("_sort_key", 0))
 	)
 
-	var option_count := 3 if field_focus_opening else 2
-	option_count = mini(option_count, ranked_pool.size())
+	# One encounter, one readable thread. The compact objective card now carries
+	# the fight instead of a 2-3 choice briefing that stops the opening rhythm.
 	tactical_objective_options.clear()
-	for i in range(option_count):
-		var option: Dictionary = ranked_pool[i].duplicate(true)
-		option.erase("_sort_key")
-		option["status"] = "offered"
-		option["complete"] = false
-		option["failed"] = false
-		tactical_objective_options.append(option)
+	if ranked_pool.is_empty():
+		return
+	var objective: Dictionary = ranked_pool[0].duplicate(true)
+	objective.erase("_sort_key")
+	if field_focus_opening:
+		objective["reward_grains"] = int(objective.get("reward_grains", 0)) + 2
+		objective["focus_boosted"] = true
+	objective["status"] = "offered"
+	objective["complete"] = false
+	objective["failed"] = false
+	tactical_objective_options.append(objective)
+	select_tactical_objective(0, false)
 
-	battle_log.emit(_bl(
-		"[DIRECTIVE] Choose how this encounter will be remembered.",
-		"[전술 지침] 이 교전을 어떤 기록으로 남길지 선택하라."
-	))
-	tactical_objective_options_changed.emit(tactical_objective_options.duplicate(true))
-
-func select_tactical_objective(index: int) -> bool:
+func select_tactical_objective(index: int, show_tutorial: bool = true) -> bool:
 	if not tactical_objective.is_empty():
 		return false
 	if index < 0 or index >= tactical_objective_options.size():
@@ -892,7 +888,8 @@ func select_tactical_objective(index: int) -> bool:
 		tactical_objective.get("desc", ""),
 	])
 	_emit_tactical_objective_update()
-	TutorialHints.show_hint("first_directive")
+	if show_tutorial:
+		TutorialHints.show_hint("first_directive")
 	return true
 
 func _ensure_tactical_objective_selected() -> void:
@@ -1524,6 +1521,7 @@ func player_burn(memory_id: String) -> void:
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
 	InputManager.vibrate("memory_burn")
+	_apply_burn_aftershock(memory)
 	# 침식 반영, 유효 연소력
 	var effective_power = MemoryManager.get_effective_burn_power(memory)
 	var dmg = skill.base_damage + effective_power
@@ -1848,6 +1846,7 @@ func _enemy_turn() -> void:
 		break_changed.emit(enemy_break_gauge, BREAK_MAX)
 		await pace_timer(0.35).timeout
 		if state == BattleState.ENEMY_TURN:
+			_advance_burn_aftershock()
 			state = BattleState.PLAYER_TURN
 			player_turn_started.emit()
 		return
@@ -1855,16 +1854,19 @@ func _enemy_turn() -> void:
 	# 특수 능력 선택 (보스 페이즈 2 또는 확률적)
 	var used_ability = await _try_enemy_ability()
 	if used_ability:
+		_advance_burn_aftershock()
 		_check_player_defeated()
 		return
 
 	# Environment evasion/miss check
 	if _check_env_evasion():
 		battle_log.emit(_bl("The forest's cover grants evasion, DODGE!", "숲의 엄폐가 회피를 준다, 회피!"))
+		_advance_burn_aftershock()
 		_check_player_defeated()
 		return
 	if _check_env_enemy_miss():
 		battle_log.emit(_bl("Rain obscures the enemy's aim, MISS!", "빗줄기가 적의 조준을 가린다, 빗나감!"))
+		_advance_burn_aftershock()
 		_check_player_defeated()
 		return
 
@@ -1913,6 +1915,7 @@ func _enemy_turn() -> void:
 	damage_dealt.emit("Arrel", base_dmg, current_enemy.name)
 	_add_limit(LIMIT_GAIN_HIT)
 
+	_advance_burn_aftershock()
 	_check_player_defeated()
 
 ## 적 특수 능력 시도, 전술적 AI
@@ -1940,8 +1943,15 @@ func _try_enemy_ability() -> bool:
 	if difficulty_bonus > 0.0:
 		rage_bonus *= (1.0 + difficulty_bonus)
 
-	# S59: Telegraph, warn player before special ability (0.5s delay)
-	enemy_ability_telegraph.emit(ability, 0.5)
+	# High-grade burns buy overwhelming power by obscuring the next responses.
+	# The enemy still gets its anticipation beat, but its answer is unreadable.
+	if _burn_aftershock_turns > 0:
+		battle_log.emit(_bl(
+			"[BURN AFTERIMAGE] Enemy intent is unreadable.",
+			"[연소 잔상] 적의 의도를 읽을 수 없다."
+		))
+	else:
+		enemy_ability_telegraph.emit(ability, 0.5)
 	await pace_timer(0.5).timeout
 
 	match ability:
@@ -2150,6 +2160,11 @@ func _select_ability() -> String:
 func get_next_turn_hint() -> String:
 	if current_enemy == null or not current_enemy.is_alive():
 		return ""
+	if _burn_aftershock_turns > 0:
+		return _bl(
+			"Burn afterimage obscures the enemy's intent. %d response(s) remain unreadable.",
+			"연소 잔상이 적의 의도를 가린다. 앞으로 %d회의 대응을 읽을 수 없다."
+		) % _burn_aftershock_turns
 	if current_enemy.abilities.is_empty():
 		return _bl("The enemy readies a basic attack.", "적이 기본 공격을 준비한다.")
 
@@ -2174,6 +2189,53 @@ func get_next_turn_hint() -> String:
 		_bl("The air grows tense...", "공기가 팽팽해진다..."),
 	]
 	return hints[randi_range(0, hints.size() - 1)]
+
+func get_burn_aftershock_preview(memory_grade: int) -> Dictionary:
+	var raw_turns := maxi(memory_grade - MemoryManager.MemoryGrade.GRADE_4, 0)
+	var elia_anchored := bool(GameManager.player_data.get("elia_with_party", false)) and raw_turns >= 2
+	var turns := raw_turns - 1 if elia_anchored else raw_turns
+	return {
+		"turns": maxi(turns, 0),
+		"raw_turns": raw_turns,
+		"elia_anchored": elia_anchored,
+	}
+
+func get_burn_aftershock_state() -> Dictionary:
+	return {
+		"turns": _burn_aftershock_turns,
+		"memory_title": _burn_aftershock_memory,
+		"active": _burn_aftershock_turns > 0,
+	}
+
+func _apply_burn_aftershock(memory: MemoryManager.Memory) -> void:
+	var preview := get_burn_aftershock_preview(memory.grade)
+	var turns := int(preview.get("turns", 0))
+	if turns <= 0:
+		return
+	_burn_aftershock_turns = maxi(_burn_aftershock_turns, turns)
+	_burn_aftershock_memory = memory.title
+	battle_log.emit(_bl(
+		"[COST] %s floods Arrel's sight. Enemy intent is hidden for %d response(s).",
+		"[대가] %s의 잔상이 아렐의 시야를 덮는다. 적의 의도가 %d회 동안 가려진다."
+	) % [memory.title, _burn_aftershock_turns])
+	if bool(preview.get("elia_anchored", false)):
+		battle_log.emit(_bl(
+			"[ELIA] I cannot hold the memory. I can hold one edge.",
+			"[엘리아] 기억까지 붙들 수는 없어. 한 겹은 내가 맡을게."
+		))
+	momentum_changed.emit(momentum, momentum_rank, _get_momentum_label())
+
+func _advance_burn_aftershock() -> void:
+	if _burn_aftershock_turns <= 0:
+		return
+	_burn_aftershock_turns -= 1
+	if _burn_aftershock_turns <= 0:
+		_burn_aftershock_memory = ""
+		battle_log.emit(_bl(
+			"[AFTERIMAGE CLEARED] The battlefield resolves into focus.",
+			"[잔상 소멸] 전장의 윤곽이 다시 또렷해진다."
+		))
+	momentum_changed.emit(momentum, momentum_rank, _get_momentum_label())
 
 ## 플레이어 사망 체크
 func _check_player_defeated() -> void:

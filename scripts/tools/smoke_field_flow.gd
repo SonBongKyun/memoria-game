@@ -8,6 +8,7 @@ func _ready() -> void:
 	var previous_locale := GameManager.current_locale
 	var previous_chapter := GameManager.current_chapter
 	var previous_flags := GameManager.story_flags.duplicate(true)
+	var previous_grains := int(GameManager.player_data.get("grains", 0))
 	var previous_clean := bool(OptionsMenu.settings.get("clean_gameplay_visuals", false))
 	var previous_reduce := bool(OptionsMenu.settings.get("reduce_motion", false))
 	GameManager.current_locale = "en"
@@ -85,6 +86,11 @@ func _ready() -> void:
 	await get_tree().process_frame
 	assert(threat.is_in_group("field_threat"), "Visible hunts must register as FieldThreat actors")
 	assert(threat.source_id.begins_with("visible:"), "Visible threats need a stable pressure source identity")
+	var grains_before_bypass := int(GameManager.player_data.get("grains", 0))
+	threat.call("_on_body_entered", player)
+	assert(bool(threat.get("_engaged")), "Phase Step contact must resolve as an active bypass")
+	assert(GameManager.get_flag("world_hunt_smoke"), "A successful phase skim must persistently resolve the visible threat")
+	assert(int(GameManager.player_data.get("grains", 0)) == grains_before_bypass + FieldThreat.PHASE_BYPASS_GRAINS, "A risky phase skim must grant a small field reward")
 
 	# The field decision changes the first turn numerically and visually.
 	BattleManager.prepare_field_entry("ambush", 82)
@@ -98,8 +104,6 @@ func _ready() -> void:
 	var battle: Node = load("res://scenes/battle/battle_scene.tscn").instantiate()
 	add_child(battle)
 	await get_tree().create_timer(BattleManager.paced(1.82)).timeout
-	battle.call("_choose_tactical_objective", 0)
-	await get_tree().create_timer(BattleManager.paced(0.28)).timeout
 	var cue_title := battle.get("combat_cue_title") as Label
 	assert(cue_title != null and "AMBUSH" in cue_title.text, "Battle scene must present the carried approach as an opening beat")
 
@@ -109,7 +113,6 @@ func _ready() -> void:
 	assert(ExplorationHUD.get("pressure_bar") is ProgressBar, "Threat pressure must be readable before contact")
 
 	battle.queue_free()
-	threat.queue_free()
 	player.queue_free()
 	guard_flow.queue_free()
 	witness_flow.queue_free()
@@ -118,10 +121,11 @@ func _ready() -> void:
 	BattleManager.field_entry_mode = "neutral"
 	BattleManager.field_entry_power = 0
 	GameManager.story_flags = previous_flags
+	GameManager.player_data["grains"] = previous_grains
 	GameManager.current_locale = previous_locale
 	GameManager.current_chapter = previous_chapter
 	OptionsMenu.settings["clean_gameplay_visuals"] = previous_clean
 	OptionsMenu.settings["reduce_motion"] = previous_reduce
 	GameManager.change_state(previous_state)
-	print("FIELD_FLOW_SMOKE_PASS routes=3 phase_step=active pursuit_break=active battle_handoff=active")
+	print("FIELD_FLOW_SMOKE_PASS routes=3 phase_step=active phase_bypass=rewarded pursuit_break=active battle_handoff=active")
 	get_tree().quit(0)

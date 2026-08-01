@@ -63,8 +63,6 @@ func _ready() -> void:
 	var battle: Node = (load("res://scenes/battle/battle_scene.tscn") as PackedScene).instantiate()
 	add_child(battle)
 	await get_tree().create_timer(BattleManager.paced(1.82)).timeout
-	battle.call("_choose_tactical_objective", 0)
-	await get_tree().create_timer(BattleManager.paced(0.34)).timeout
 	await RenderingServer.frame_post_draw
 	_save_viewport(BATTLE_OUTPUT)
 

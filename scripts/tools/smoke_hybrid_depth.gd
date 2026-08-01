@@ -11,6 +11,30 @@ func _ready() -> void:
 	assert(battle_stage.camera != null and battle_stage.camera.current, "Hybrid stage must own a live perspective camera")
 	assert(_count_meshes(battle_stage.scene_root) >= 16, "Battle hybrid must contain a readable low-poly diorama")
 	assert(battle_stage.battle_player_focus_root != null and battle_stage.battle_enemy_focus_root != null, "Battle diorama must anchor both sides with reactive focus rings")
+	var generated_paths: Array[String] = [
+		HybridDepthStage.ROOT_SPIRE_PATH,
+		HybridDepthStage.RELAY_OBELISK_PATH,
+		HybridDepthStage.MEMORY_LANTERN_PATH,
+		HybridDepthStage.WRECKED_MAST_PATH,
+		HybridDepthStage.VOID_MONOLITH_PATH,
+	]
+	for path in generated_paths:
+		assert(ResourceLoader.exists(path), "GPT Image 2 depth landmark is missing: %s" % path)
+		var import_text := FileAccess.get_file_as_string(path + ".import")
+		assert("mipmaps/generate=true" in import_text and "process/size_limit=1024" in import_text,
+			"3D billboard art must use bounded mipmapped imports: %s" % path)
+	assert(battle_stage.illustrated_landmarks.size() == 2,
+		"Rim Forest battle must gain two painterly Sprite3D root landmarks")
+	var illustrated_probe := battle_stage.illustrated_landmarks[0]
+	assert(illustrated_probe.texture != null and not illustrated_probe.shaded,
+		"Painterly Sprite3D art must preserve its authored light instead of blackening under stage light")
+	assert(illustrated_probe.texture_filter == BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS,
+		"Depth landmark downscaling must remain mipmapped")
+	var landmark_before_burn := illustrated_probe.modulate
+	battle_stage.play_memory_burn(3)
+	battle_stage._process(0.016)
+	assert(illustrated_probe.modulate != landmark_before_burn,
+		"Generated depth art must share the memory-burn reaction with the live arena")
 
 	# S211: the battle arena must read as a space, not a few floating sticks.
 	assert(battle_stage.arena_floor != null and battle_stage.arena_floor.mesh is PlaneMesh,
@@ -35,6 +59,8 @@ func _ready() -> void:
 	add_child(atlas_stage)
 	await get_tree().process_frame
 	assert(atlas_stage._atlas_markers.size() == 10, "Atlas relief must represent all ten Part I routes")
+	assert(atlas_stage.illustrated_landmarks.size() == 5,
+		"World atlas must use five illustrated route landmarks without replacing its live 3D route")
 	assert(_count_meshes(atlas_stage.scene_root) >= 30, "Atlas relief must contain route, landmark and contour geometry")
 	atlas_stage.focus_route(7)
 	assert(atlas_stage._focus_pan > 0.0, "Selecting a later route must pan the live 3D camera")
@@ -44,13 +70,18 @@ func _ready() -> void:
 	add_child(relic_stage)
 	await get_tree().process_frame
 	assert(relic_stage.focus_root != null and relic_stage.orbit_root != null, "Relic relief must have a floating core and orbit")
+	assert(relic_stage.illustrated_landmarks.size() == 1,
+		"Relic relief must place one profile-matched generated centerpiece in the live orbit")
 	assert(_count_meshes(relic_stage.scene_root) >= 35, "Relic relief must contain a layered memory construct")
 	OptionsMenu.settings["reduce_motion"] = previous_reduce
-	print("HYBRID_DEPTH_SMOKE_PASS battle=%d atlas=%d relic=%d route_markers=%d" % [
+	print("HYBRID_DEPTH_SMOKE_PASS battle=%d atlas=%d relic=%d route_markers=%d illustrated=%d/%d/%d burn_tint=1" % [
 		_count_meshes(battle_stage.scene_root),
 		_count_meshes(atlas_stage.scene_root),
 		_count_meshes(relic_stage.scene_root),
 		atlas_stage._atlas_markers.size(),
+		battle_stage.illustrated_landmarks.size(),
+		atlas_stage.illustrated_landmarks.size(),
+		relic_stage.illustrated_landmarks.size(),
 	])
 	get_tree().quit(0)
 

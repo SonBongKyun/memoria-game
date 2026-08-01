@@ -37,6 +37,26 @@ const PROFILE_DATA: Dictionary = {
 	"world_map": {"accent": Color(0.88, 0.65, 0.30), "stone": Color(0.10, 0.09, 0.13), "motif": "routes"},
 }
 
+## GPT Image 2 환경 컷아웃은 평면 배경 장식이 아니라 실제 3D 월드의
+## 깊이 표식으로 사용한다. 같은 Texture2D를 재사용해 드로우/메모리 비용을
+## 억제하면서도, 절차적 박스만으로는 전달되지 않던 지역의 정체성을 보강한다.
+const ILLUSTRATED_LANDMARK_PATHS: Dictionary = {
+	"roots": "res://assets/environment/hybrid_depth/motif_root_spire_v1.png",
+	"stalls": "res://assets/environment/hybrid_depth/motif_relay_obelisk_v1.png",
+	"signals": "res://assets/environment/hybrid_depth/motif_relay_obelisk_v1.png",
+	"markers": "res://assets/environment/hybrid_depth/motif_relay_obelisk_v1.png",
+	"masts": "res://assets/environment/hybrid_depth/motif_wrecked_mast_v1.png",
+	"lanterns": "res://assets/environment/hybrid_depth/motif_memory_lantern_v1.png",
+	"threshold": "res://assets/environment/hybrid_depth/motif_void_monolith_v1.png",
+	"void": "res://assets/environment/hybrid_depth/motif_void_monolith_v1.png",
+	"routes": "res://assets/environment/hybrid_depth/motif_relay_obelisk_v1.png",
+}
+const MEMORY_LANTERN_PATH := "res://assets/environment/hybrid_depth/motif_memory_lantern_v1.png"
+const ROOT_SPIRE_PATH := "res://assets/environment/hybrid_depth/motif_root_spire_v1.png"
+const RELAY_OBELISK_PATH := "res://assets/environment/hybrid_depth/motif_relay_obelisk_v1.png"
+const WRECKED_MAST_PATH := "res://assets/environment/hybrid_depth/motif_wrecked_mast_v1.png"
+const VOID_MONOLITH_PATH := "res://assets/environment/hybrid_depth/motif_void_monolith_v1.png"
+
 var profile_id: String = "rim_forest"
 var stage_mode: StageMode = StageMode.BATTLE
 var viewport: SubViewport
@@ -74,6 +94,7 @@ var battle_player_focus_root: Node3D
 var battle_enemy_focus_root: Node3D
 var _battle_player_focus_material: StandardMaterial3D
 var _battle_enemy_focus_material: StandardMaterial3D
+var illustrated_landmarks: Array[Sprite3D] = []
 
 static func create_stage(profile: String, mode: StageMode) -> HybridDepthStage:
 	var stage := HybridDepthStage.new()
@@ -273,6 +294,7 @@ func _build_battle_diorama() -> void:
 			_add_void_motif(ghost_material, accent_material)
 		_:
 			_add_marker_motif(mid_material, accent_material)
+	_build_illustrated_battle_layer()
 
 	for i in range(9):
 		var shard_angle := TAU * float(i) / 9.0
@@ -425,6 +447,7 @@ func _build_foreground() -> void:
 			near_material,
 			Vector3(0.0, side * -0.12, 0.0)
 		)
+	_build_illustrated_foreground_layer()
 
 func _build_atlas() -> void:
 	var base_material := _make_material(_stone, Color.BLACK, 0.70)
@@ -453,6 +476,7 @@ func _build_atlas() -> void:
 		_atlas_materials.append(marker_material)
 		_add_box(motion_root, route_points[i] + Vector3(0, height + 0.10, 0), Vector3(0.16, 0.16, 0.16), route_material, Vector3(0, PI * 0.25, PI * 0.25))
 	_add_atlas_landmarks(route_points, base_material, route_material)
+	_add_illustrated_atlas_landmarks(route_points)
 	focus_route(clampi(GameManager.current_chapter, 1, 10))
 
 func _build_relic() -> void:
@@ -467,6 +491,7 @@ func _build_relic() -> void:
 	motion_root.add_child(focus_root)
 	_add_box(focus_root, Vector3(0, 0.38, 0), Vector3(0.78, 2.15, 0.78), base_material, Vector3(0.05, PI * 0.25, 0.0))
 	_add_box(focus_root, Vector3(0, 1.62, 0), Vector3(0.46, 0.46, 0.46), accent_material, Vector3(0.0, PI * 0.25, PI * 0.25))
+	_add_illustrated_relic()
 	orbit_root = Node3D.new()
 	orbit_root.name = "MemoryOrbit"
 	motion_root.add_child(orbit_root)
@@ -550,6 +575,130 @@ func _add_marker_motif(mid: StandardMaterial3D, accent_material: StandardMateria
 			var height := 1.4 + float(row) * 0.55
 			_add_box(motion_root, Vector3(x, -1.0 + height * 0.5, -0.55), Vector3(0.36, height, 0.36), mid, Vector3(0, side * 0.12, side * 0.04))
 	_add_flanking_landmarks(accent_material, Vector3(0.36, 3.0, 0.36))
+
+func _primary_landmark_path() -> String:
+	return String(ILLUSTRATED_LANDMARK_PATHS.get(_motif, RELAY_OBELISK_PATH))
+
+func _add_illustrated_landmark(
+	parent: Node3D,
+	texture_path: String,
+	world_position: Vector3,
+	pixel_scale: float,
+	tint: Color,
+	flip_h: bool = false,
+	landmark_name: String = "IllustratedLandmark"
+) -> Sprite3D:
+	if parent == null or not ResourceLoader.exists(texture_path):
+		return null
+	var texture := load(texture_path) as Texture2D
+	if texture == null:
+		return null
+	var sprite := Sprite3D.new()
+	sprite.name = landmark_name
+	sprite.texture = texture
+	sprite.position = world_position
+	sprite.pixel_size = pixel_scale
+	sprite.centered = true
+	sprite.flip_h = flip_h
+	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sprite.double_sided = true
+	# 에셋 자체에 이미 완성된 회화적 광원이 있으므로 3D 조명을 다시 곱하지 않는다.
+	# stage tint와 기억 연소 tint만 공유해 검게 뭉개지지 않게 한다.
+	sprite.shaded = false
+	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	sprite.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	sprite.modulate = tint
+	sprite.set_meta("base_position", world_position)
+	sprite.set_meta("base_modulate", tint)
+	sprite.set_meta("landmark_path", texture_path)
+	parent.add_child(sprite)
+	illustrated_landmarks.append(sprite)
+	return sprite
+
+func _add_illustrated_pair(texture_path: String, half_span: float, depth: float, center_y: float, pixel_scale: float, tint: Color) -> void:
+	_add_illustrated_landmark(
+		motion_root, texture_path, Vector3(-half_span, center_y, depth), pixel_scale,
+		tint, false, "IllustratedLandmarkLeft"
+	)
+	_add_illustrated_landmark(
+		motion_root, texture_path, Vector3(half_span, center_y, depth - 0.65), pixel_scale,
+		tint.darkened(0.08), true, "IllustratedLandmarkRight"
+	)
+
+## 전투 중앙은 캐릭터와 명령 판독을 위해 비워 둔다. 삽화는 좌우 원근층에만 배치해
+## 실루엣과 카메라 패닝으로 깊이를 전달한다.
+func _build_illustrated_battle_layer() -> void:
+	match _motif:
+		"roots":
+			_add_illustrated_pair(ROOT_SPIRE_PATH, 4.75, -5.7, 1.88, 0.0039, Color(0.92, 0.98, 0.94, 0.84))
+		"stalls":
+			_add_illustrated_pair(RELAY_OBELISK_PATH, 4.60, -6.2, 1.60, 0.00355, Color(1.0, 0.92, 0.80, 0.80))
+			_add_illustrated_lanterns(3, 3.1, -4.2, 0.12, 0.00134, 0.84)
+		"signals":
+			_add_illustrated_pair(RELAY_OBELISK_PATH, 4.55, -5.5, 1.60, 0.00355, Color(0.96, 0.92, 0.84, 0.84))
+		"masts":
+			_add_illustrated_pair(WRECKED_MAST_PATH, 4.80, -6.0, 1.88, 0.0039, Color(0.90, 0.98, 1.0, 0.84))
+		"lanterns":
+			_add_illustrated_lanterns(7, 5.15, -5.0, 0.12, 0.00134, 0.94)
+		"threshold":
+			_add_illustrated_pair(VOID_MONOLITH_PATH, 4.75, -6.4, 1.60, 0.00355, Color(0.94, 0.88, 1.0, 0.82))
+			_add_illustrated_lanterns(2, 3.0, -4.4, 0.08, 0.00124, 0.72)
+		"void":
+			_add_illustrated_pair(VOID_MONOLITH_PATH, 4.65, -5.8, 1.60, 0.00355, Color(0.94, 0.86, 1.0, 0.88))
+		_:
+			_add_illustrated_pair(RELAY_OBELISK_PATH, 4.65, -6.0, 1.60, 0.00355, Color(0.94, 0.92, 0.88, 0.78))
+
+func _add_illustrated_lanterns(count: int, half_span: float, depth: float, center_y: float, pixel_scale: float, alpha: float) -> void:
+	for i in range(maxi(count, 1)):
+		var ratio: float = 0.5 if count <= 1 else float(i) / float(count - 1)
+		var x := lerpf(-half_span, half_span, ratio)
+		var arc := 1.0 - absf(ratio * 2.0 - 1.0)
+		_add_illustrated_landmark(
+			motion_root,
+			MEMORY_LANTERN_PATH,
+			Vector3(x, center_y + arc * 0.28, depth - arc * 0.85),
+			pixel_scale * (0.92 + arc * 0.12),
+			Color(1.0, 0.94, 0.82, alpha * (0.78 + arc * 0.22)),
+			i % 2 == 1,
+			"MemoryLantern%02d" % i
+		)
+
+func _build_illustrated_foreground_layer() -> void:
+	var path := _primary_landmark_path()
+	var scale := 0.00175 if path == MEMORY_LANTERN_PATH else 0.0043
+	var center_y := 0.22 if path == MEMORY_LANTERN_PATH else 2.18
+	var tint := Color(Color.WHITE.lerp(_accent.lightened(0.10), 0.18), 0.42)
+	_add_illustrated_landmark(motion_root, path, Vector3(-3.62, center_y, 7.35), scale, tint, false, "IllustratedForegroundLeft")
+	_add_illustrated_landmark(motion_root, path, Vector3(3.62, center_y, 7.70), scale * 1.08, tint.darkened(0.10), true, "IllustratedForegroundRight")
+
+func _add_illustrated_atlas_landmarks(points: Array[Vector3]) -> void:
+	var route_art := [
+		{"index": 0, "path": ROOT_SPIRE_PATH},
+		{"index": 2, "path": RELAY_OBELISK_PATH},
+		{"index": 4, "path": WRECKED_MAST_PATH},
+		{"index": 5, "path": MEMORY_LANTERN_PATH},
+		{"index": 9, "path": VOID_MONOLITH_PATH},
+	]
+	for entry: Dictionary in route_art:
+		var index: int = int(entry["index"])
+		if index < 0 or index >= points.size():
+			continue
+		var path := String(entry["path"])
+		var scale := 0.00034 if path == MEMORY_LANTERN_PATH else 0.00048
+		var center_y := 0.28 if path == MEMORY_LANTERN_PATH else 0.40
+		_add_illustrated_landmark(
+			motion_root, path, points[index] + Vector3(0.0, center_y, -0.08), scale,
+			Color(1.0, 0.96, 0.88, 0.76), index % 2 == 0, "AtlasLandmark%02d" % index
+		)
+
+func _add_illustrated_relic() -> void:
+	var path := _primary_landmark_path()
+	var scale := 0.00180 if path == MEMORY_LANTERN_PATH else 0.00218
+	var center_y := 0.44 if path == MEMORY_LANTERN_PATH else 0.78
+	_add_illustrated_landmark(
+		focus_root, path, Vector3(0.0, center_y, 0.22), scale,
+		Color(1.0, 0.98, 1.0, 0.96), false, "IllustratedMemoryRelic"
+	)
 
 func _add_atlas_landmarks(points: Array[Vector3], base: StandardMaterial3D, accent_material: StandardMaterial3D) -> void:
 	for i in range(points.size()):
@@ -692,12 +841,30 @@ func _process(delta: float) -> void:
 		_focus_pan = follow_stage._focus_pan
 		_impact_offset = follow_stage._impact_offset
 		_impact_lift = follow_stage._impact_lift
+		_burn_flare = follow_stage._burn_flare
+	_update_illustrated_landmarks(reduce_motion)
 	_impact_offset = move_toward(_impact_offset, 0.0, delta * 3.4)
 	_impact_lift = move_toward(_impact_lift, 0.0, delta * 1.8)
 	var drift := sin(_time * 0.31) * 0.06 if not reduce_motion else 0.0
 	var target_position := _base_camera_position + Vector3(_impact_offset + _focus_pan + drift, _impact_lift, absf(_impact_offset) * 0.12) + _entrance_offset(delta)
 	camera.position = camera.position.lerp(target_position, 1.0 - exp(-9.0 * delta))
 	camera.look_at(_camera_look_target + Vector3(_focus_pan * 0.24, 0, 0), Vector3.UP)
+
+func _update_illustrated_landmarks(reduce_motion: bool) -> void:
+	for i in range(illustrated_landmarks.size()):
+		var sprite := illustrated_landmarks[i]
+		if sprite == null or not is_instance_valid(sprite):
+			continue
+		var base_position: Vector3 = sprite.get_meta("base_position", sprite.position)
+		if not reduce_motion and stage_mode in [StageMode.BATTLE, StageMode.FOREGROUND]:
+			var phase := _time * 0.62 + float(i) * 0.77
+			sprite.position = base_position + Vector3(0.0, sin(phase) * 0.028, 0.0)
+		else:
+			sprite.position = base_position
+		var base_modulate: Color = sprite.get_meta("base_modulate", sprite.modulate)
+		var burn_mix := clampf(_burn_flare * 0.30, 0.0, 0.34)
+		var burn_tint := Color(1.0, 0.58, 0.24, base_modulate.a)
+		sprite.modulate = base_modulate.lerp(burn_tint, burn_mix)
 
 ## ===================== S212: 3D ↔ 2D 결합 =====================
 ## 지금까지 하이브리드는 사실상 "3D 배경 위에 2D를 얹은" 구조였다. 카메라가 패닝해도

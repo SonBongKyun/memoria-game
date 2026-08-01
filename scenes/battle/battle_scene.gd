@@ -57,12 +57,13 @@ const SABLE_ACTION_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_
 const ELIA_HUMMING_SHIELD_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_elia_humming_shield_v5.png"
 const TOBIAS_ARCHIVE_COUNTER_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_tobias_archive_counter_v5.png"
 const SABLE_WARDEN_INTERCEPT_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_sable_warden_intercept_v5.png"
-const KAIROS_REDACTION_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_kairos_redaction_v5.png"
+const KAIROS_REDACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/kairos_occult_editor_v1.png"
+const LEGACY_KAIROS_REDACTION_CUTIN_PATH: String = "res://assets/cg/generated/illustration_expansion_v2/battle_cutin_kairos_redaction_v5.png"
 const BREAK_FAULTLINE_CUTIN_PATH: String = "res://assets/cg/generated/battle_cutin_break_faultline_v4.png"
 const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/sable_warden_v3.png"
 const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/tobias_ledger_v3.png"
 const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/elia_anchor_v3.png"
-const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_action_v3.png"
+const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_occult_rite_v1.png"
 const ECHO_SHELL_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/echo_shell_reach_v3.png"
 const ENEMY_ACTION_CUTIN_PATHS: Dictionary = {
 	"ash crawler": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_ash_crawler_v1.png",
@@ -89,7 +90,7 @@ const SABLE_ACTION_CUTIN_PATHS: Dictionary = {
 	"weaken": SABLE_ACTION_CUTIN_PATH,
 }
 const BOSS_PHASE_CUTIN_PATHS: Dictionary = {
-	"Shade Sentinel": "res://assets/cg/character_shots/shade_sentinel_guard_v3.png",
+	"Shade Sentinel": "res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png",
 	"Kairos, Authority Editor": KAIROS_REDACTION_CUTIN_PATH,
 }
 const MEMORY_BURN_CUTIN_PATHS: Dictionary = {
@@ -3267,11 +3268,20 @@ func _toggle_burn_list() -> void:
 				var elem = skill.get("element", "fire").to_upper()
 				var eff_power = MemoryManager.get_effective_burn_power(memory)
 				var erosion_tag = "" if memory.erosion == 0 else " ⚠"
+				var display_grade := 5 - int(memory.grade)
+				var aftershock := BattleManager.get_burn_aftershock_preview(memory.grade)
+				var aftershock_turns := int(aftershock.get("turns", 0))
+				var risk_tag := ""
+				if aftershock_turns > 0:
+					risk_tag = (" · 잔상 %d회" if GameManager.current_locale == "ko" else " · AFTERIMAGE %d") % aftershock_turns
 				var btn = Button.new()
-				btn.text = "[%s|%s] %s, Grade %d (DMG: %d+%d)%s" % [
+				btn.text = _bl(
+					"[%s|%s] LOSE: %s · G%d · DMG %d+%d%s%s",
+					"[%s|%s] 소실: %s · 등급 %d · 피해 %d+%d%s%s"
+				) % [
 					skill.name, elem, memory.title,
-					memory.grade,
-					skill.base_damage, eff_power, erosion_tag
+					display_grade,
+					skill.base_damage, eff_power, erosion_tag, risk_tag
 				]
 				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
@@ -4950,6 +4960,14 @@ func _on_tactical_objective_changed(objective: Dictionary) -> void:
 	objective_desc_label.text = _localized_objective_desc(desc)
 	if progress_text != "" and status == "active":
 		objective_desc_label.text += "  ·  " + progress_text
+	if status == "active":
+		var payoff_parts: Array[String] = ["+%dG" % int(objective.get("reward_grains", 0))]
+		if int(objective.get("reward_heal", 0)) > 0:
+			payoff_parts.append("HP+%d" % int(objective.get("reward_heal", 0)))
+		var payoff_item := String(objective.get("reward_item", ""))
+		if payoff_item != "" and GameManager.ITEMS.has(payoff_item):
+			payoff_parts.append(String(GameManager.ITEMS[payoff_item].get("name", payoff_item)))
+		objective_desc_label.text += ("  ·  보상 " if GameManager.current_locale == "ko" else "  ·  PAYOFF ") + "/".join(payoff_parts)
 	var style = objective_panel.get_theme_stylebox("panel") as StyleBoxFlat
 	if style:
 		match status:
@@ -4976,6 +4994,10 @@ func _on_momentum_changed(value: float, rank: int, label: String) -> void:
 		return
 	var meta_prefix := "공명" if GameManager.current_locale == "ko" else "Resonance"
 	objective_meta_label.text = "%s: %s %d%%" % [meta_prefix, label, int(value)]
+	var aftershock := BattleManager.get_burn_aftershock_state()
+	if bool(aftershock.get("active", false)):
+		var aftershock_text := "연소 잔상 %d회" if GameManager.current_locale == "ko" else "Burn afterimage %d"
+		objective_meta_label.text += "  ·  " + (aftershock_text % int(aftershock.get("turns", 0)))
 	var color := Color(0.58, 0.74, 0.92, 0.82)
 	match rank:
 		1:
@@ -4986,6 +5008,8 @@ func _on_momentum_changed(value: float, rank: int, label: String) -> void:
 			color = Color(1.0, 0.47, 0.34, 0.98)
 		4:
 			color = Color(0.88, 0.92, 1.0, 1.0)
+	if bool(aftershock.get("active", false)):
+		color = Color(1.0, 0.48, 0.34, 1.0)
 	objective_meta_label.add_theme_color_override("font_color", color)
 	if rank >= 3:
 		var tw = create_tween()
@@ -5694,6 +5718,21 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	power_label.add_theme_color_override("font_color", Color(0.3, 0.9, 0.4))
 	vbox.add_child(power_label)
 
+	var aftershock := BattleManager.get_burn_aftershock_preview(memory.grade)
+	var aftershock_turns := int(aftershock.get("turns", 0))
+	if aftershock_turns > 0:
+		var aftershock_label = Label.new()
+		aftershock_label.text = _bl(
+			"AFTERSHOCK: Enemy intent hidden for %d response(s).",
+			"후유증: 적의 의도가 %d회 동안 가려집니다."
+		) % aftershock_turns
+		if bool(aftershock.get("elia_anchored", false)):
+			aftershock_label.text += _bl(" Elia anchors one layer.", " 엘리아가 한 겹을 붙듭니다.")
+		aftershock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		aftershock_label.add_theme_font_size_override("font_size", 13)
+		aftershock_label.add_theme_color_override("font_color", Color(1.0, 0.48, 0.34))
+		vbox.add_child(aftershock_label)
+
 	# Erosion warning if applicable
 	if memory.erosion > 0:
 		var erosion_pct = int(MemoryManager.get_erosion_ratio(memory) * 100)
@@ -5710,7 +5749,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	vbox.add_child(spacer2)
 
 	var cost_header = Label.new()
-	cost_header.text = "COST:"
+	cost_header.text = _bl("COST — LOST FOREVER: %s", "대가 — 영구 소실: %s") % memory.title
 	cost_header.add_theme_font_size_override("font_size", 13)
 	cost_header.add_theme_color_override("font_color", Color(0.85, 0.35, 0.3))
 	vbox.add_child(cost_header)

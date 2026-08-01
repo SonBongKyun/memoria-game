@@ -14,7 +14,9 @@ const OBJECTIVE_SIZE := 6
 ## 은닉 상자·유물·주민을 전혀 알려 주지 않았다. 그렇다고 전부 표시하면 탐색이
 ## 사라지므로, 플레이어 주변만 드러난다. 기억 파동으로 주변을 감지한다는 설정과도 맞다.
 const POI_REVEAL_TILES := 6.0
+const THREAT_REVEAL_TILES := 10.0
 const POI_SIZE := 4
+const THREAT_SIZE := 5
 const MINIMAP_FRAME_PATH := "res://assets/cg/generated/ui_minimap_compass_frame_v1.png"
 
 # 타일 색상 (공통 매핑)
@@ -137,9 +139,9 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	legend.bbcode_enabled = true
 	legend.fit_content = true
 	legend.scroll_active = false
-	legend.size = Vector2(MINIMAP_SIZE.x, 14)
-	legend.position = Vector2(2, MINIMAP_SIZE.y + 1)
-	legend.add_theme_font_size_override("normal_font_size", 9)
+	legend.size = Vector2(MINIMAP_SIZE.x, 24)
+	legend.position = Vector2(2, MINIMAP_SIZE.y - 3)
+	legend.add_theme_font_size_override("normal_font_size", 8)
 	legend.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	legend.add_theme_constant_override("outline_size", 3)
 	var is_ko := GameManager.current_locale == "ko"
@@ -148,6 +150,7 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 		_poi_color("curio").to_html(false), "유물" if is_ko else "Relic",
 		_poi_color("voice").to_html(false), "주민" if is_ko else "Local",
 	]
+	legend.text += "\n[color=#%s]▲[/color] %s" % [_poi_color("threat").to_html(false), ("위협" if is_ko else "Threat")]
 	legend.visible = false
 	legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	container.add_child(legend)
@@ -204,6 +207,8 @@ static func _scan_children_for_poi(parent: Node) -> Array:
 			points.append({"pos": node2d.position, "kind": "cache"})
 		elif name.begins_with("WorldVoice_"):
 			points.append({"pos": node2d.position, "kind": "voice"})
+		elif name.begins_with("WorldThreat_"):
+			points.append({"pos": node2d.position, "kind": "threat"})
 		elif child is Area2D and child.get_node_or_null("DiscoveryMarker") != null:
 			# S209에서 만든 은닉 상자 / 기억 단서 마커.
 			points.append({"pos": node2d.position, "kind": "cache"})
@@ -215,6 +220,8 @@ static func _poi_color(kind: String) -> Color:
 			return Color(0.72, 0.56, 0.94, 0.95)
 		"voice":
 			return Color(0.58, 0.80, 0.92, 0.90)
+		"threat":
+			return Color(0.98, 0.38, 0.30, 0.96)
 		_:
 			# 목표 마커(주황 금색 마름모)와 헷갈리지 않도록 옅은 호박색으로 띄운다.
 			return Color(0.96, 0.90, 0.55, 0.95)
@@ -237,9 +244,10 @@ static func _ensure_poi_markers(data: Dictionary, container: Control) -> void:
 		if marker == null or not is_instance_valid(marker):
 			continue
 		var kind := String((points[i] as Dictionary).get("kind", "cache"))
+		marker.size = Vector2(THREAT_SIZE, THREAT_SIZE) if kind == "threat" else Vector2(POI_SIZE, POI_SIZE)
 		marker.color = _poi_color(kind)
 		# 색만으로 구분하지 않는다. 유물은 마름모로 돌려 형태로도 읽히게 한다.
-		marker.rotation = PI / 4.0 if kind == "curio" else 0.0
+		marker.rotation = PI / 4.0 if kind in ["curio", "threat"] else 0.0
 		marker.pivot_offset = marker.size / 2.0
 	data["poi_markers"] = markers
 
@@ -279,7 +287,9 @@ static func _update_poi_markers(data: Dictionary, player_pos: Vector2, tile_size
 			continue
 		var point: Dictionary = points[i]
 		var world: Vector2 = point.get("pos", Vector2.ZERO)
-		if world.distance_to(player_pos) > reveal:
+		var kind := String(point.get("kind", "cache"))
+		var point_reveal := THREAT_REVEAL_TILES * float(tile_size) if kind == "threat" else reveal
+		if world.distance_to(player_pos) > point_reveal:
 			marker.visible = false
 			continue
 		marker.visible = true
@@ -287,8 +297,8 @@ static func _update_poi_markers(data: Dictionary, player_pos: Vector2, tile_size
 		var nx := clampf(world.x / float(mw * tile_size), 0.0, 1.0)
 		var ny := clampf(world.y / float(mh * tile_size), 0.0, 1.0)
 		marker.position = Vector2(
-			offset.x + nx * mw * PIXEL_SIZE - POI_SIZE / 2.0,
-			offset.y + ny * mh * PIXEL_SIZE - POI_SIZE / 2.0
+			offset.x + nx * mw * PIXEL_SIZE - marker.size.x / 2.0,
+			offset.y + ny * mh * PIXEL_SIZE - marker.size.y / 2.0
 		)
 	var legend := data.get("legend") as Control
 	if legend != null and is_instance_valid(legend):

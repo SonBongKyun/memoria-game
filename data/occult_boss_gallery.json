@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "collection": "Occult Boss Archive",
+  "items": [
+    {
+      "title": "Kairos - Occult Redaction",
+      "type": "Occult Boss Archive",
+      "path": "res://assets/cg/character_shots/kairos_occult_editor_v1.png",
+      "desc": "Kairos edits a living record inside a broken ledger circle, turning bureaucratic erasure into ritual."
+    },
+    {
+      "title": "Shade Sentinel - Ritual Seal",
+      "type": "Occult Boss Archive",
+      "path": "res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png",
+      "desc": "The condemned guardian stands inside the ancient seal it can no longer choose to break."
+    },
+    {
+      "title": "Void Beast - Bone Rite",
+      "type": "Occult Boss Archive",
+      "path": "res://assets/cg/character_shots/void_beast_occult_rite_v1.png",
+      "desc": "A memory-eating organism gathers its bone circle around a violet core that remembers nothing human."
+    }
+  ]
+}

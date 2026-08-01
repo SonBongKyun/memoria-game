@@ -1,0 +1,136 @@
+{
+  "items": [
+    {
+      "title": "Lantern Cartographer",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/lantern_cartographer_field_v1.png",
+      "desc": "A route witness who maps the places where rain and memory stop agreeing."
+    },
+    {
+      "title": "Root Tender",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/root_tender_field_v1.png",
+      "desc": "A memory gardener pruning roots that repeat erased names."
+    },
+    {
+      "title": "Cinder Antler",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v1.png",
+      "desc": "An ash-and-bone grazer whose broken antler still remembers fire."
+    },
+    {
+      "title": "Ledger Moth Swarm",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v1.png",
+      "desc": "Paper-winged moths orbiting a ledger core full of unfiled names."
+    },
+    {
+      "title": "Route Map Seller",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/verdan_route_map_seller_field_v1.png",
+      "desc": "A market route seller carrying maps that the ledgers refuse to acknowledge."
+    },
+    {
+      "title": "Rail Root Tender",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/belt_rail_root_tender_field_v1.png",
+      "desc": "A railway gardener keeping memory-roots from swallowing the abandoned line."
+    },
+    {
+      "title": "Edge Cartographer",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/outskirts_edge_cartographer_field_v1.png",
+      "desc": "A hooded scout mapping roads that forget how to continue at the Seam."
+    },
+    {
+      "title": "Void Root Tender",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/bl07_void_root_tender_field_v1.png",
+      "desc": "A quiet gardener preserving one living seed beside the BL-07 vault."
+    },
+    {
+      "title": "Cinder Antler Variant",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+      "desc": "An ash-bone deer with a void-lit rib cage and a burnt branching crown."
+    },
+    {
+      "title": "Ledger Moth Swarm Variant",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v2.png",
+      "desc": "Parchment moths circling a bound memory ledger like a living warning."
+    },
+    {
+      "title": "Sealed-Note Seller",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/verdan_sealed_note_seller_field_v2.png",
+      "desc": "A Verdan broker whose sealed notes, brass key, and worn coat carry the market's quiet debt."
+    },
+    {
+      "title": "Rain-Ledger Scribe",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/drift_rain_ledger_scribe_field_v2.png",
+      "desc": "A route scribe keeping two records at once: the written road and the one rain leaves behind."
+    },
+    {
+      "title": "Ash Netter",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/coast_ash_netter_field_v2.png",
+      "desc": "A salt-coast forager with a memory net, weathered pack, and a name for every piece the tide returns."
+    },
+    {
+      "title": "Quiet Healer",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/seam_quiet_healer_field_v2.png",
+      "desc": "A Seam medic carrying a small lantern and folded remedies for wounds no ledger can classify."
+    },
+    {
+      "title": "Threshold Warden",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/outskirts_threshold_warden_field_v2.png",
+      "desc": "A boundary watcher reading the first signs of a voice that has learned to wear a fear."
+    },
+    {
+      "title": "Root Listener",
+      "type": "Field Population",
+      "path": "res://assets/sprites/world_population/npcs/forest_root_listener_field_v2.png",
+      "desc": "A forest witness listening for the unfinished story inside the memory-roots."
+    },
+    {
+      "title": "Belt Scavenger",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/belt_scavenger_field_v2.png",
+      "desc": "An iron-clad rail scavenger assembled from straps, hooks, and the last useful things left on the line."
+    },
+    {
+      "title": "Signal Wisp",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+      "desc": "A violet signal-flame caught in a torn cloak, calling travelers toward routes that no longer exist."
+    },
+    {
+      "title": "Ash Hound",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/ash_hound_field_v2.png",
+      "desc": "A lean charcoal hound with ember eyes and a rib-lit memory of the road it once guarded."
+    },
+    {
+      "title": "Rootbound Echo",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/rootbound_echo_field_v2.png",
+      "desc": "A broken figure held upright by roots, repeating a borrowed gesture from someone already erased."
+    },
+    {
+      "title": "Colorless Wraith",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/colorless_wraith_field_v2.png",
+      "desc": "A pale, hollow wraith whose missing color gathers at the face like a memory refusing to resolve."
+    },
+    {
+      "title": "Void Fragment",
+      "type": "Field Threat",
+      "path": "res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png",
+      "desc": "A sharp shard of the Void wrapped in a torn shell, pulsing with restrained violet pressure."
+    }
+  ]
+}

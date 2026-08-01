@@ -7,6 +7,7 @@ extends Area2D
 
 const DETECTION_RADIUS: float = 132.0
 const CONTACT_RADIUS: float = 24.0
+const PHASE_BYPASS_GRAINS: int = 3
 
 var map_id: String = ""
 var hunt_data: Dictionary = {}
@@ -96,8 +97,15 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if defeated_flag != "" and GameManager.get_flag(defeated_flag):
 		return
-	_engaged = true
 	_player = body
+	var contact_pressure := maxf(
+		_last_pressure,
+		clampf(1.0 - (global_position.distance_to(body.global_position) - CONTACT_RADIUS) / (DETECTION_RADIUS - CONTACT_RADIUS), 0.0, 1.0)
+	)
+	if contact_pressure >= 0.7 and body.has_method("is_field_dashing") and bool(body.call("is_field_dashing")):
+		_resolve_phase_bypass()
+		return
+	_engaged = true
 	if body.has_method("prepare_field_entry_for_battle"):
 		body.call("prepare_field_entry_for_battle", "visible")
 	_clear_player_pressure()
@@ -116,6 +124,22 @@ func _on_body_entered(body: Node2D) -> void:
 	var battle_art := String(hunt_data.get("battle_art", hunt_data.get("_resolved_field_art", hunt_data.get("art", ""))))
 	BattleManager.start_battle(enemy, "res://scenes/maps/%s.tscn" % map_id, "", battle_art)
 	SceneTransition.change_scene_battle("res://scenes/battle/battle_scene.tscn")
+	call_deferred("queue_free")
+
+
+func _resolve_phase_bypass() -> void:
+	_engaged = true
+	monitoring = false
+	_clear_player_pressure()
+	if defeated_flag != "":
+		GameManager.set_flag(defeated_flag)
+	GameManager.player_data["grains"] = int(GameManager.player_data.get("grains", 0)) + PHASE_BYPASS_GRAINS
+	AudioManager.play_sfx("flee")
+	var threat_name := String(hunt_data.get("name", "Memory Echo"))
+	var message := "PHASE SKIM — %s bypassed. +%d Grains" % [threat_name, PHASE_BYPASS_GRAINS]
+	if GameManager.current_locale == "ko":
+		message = "위상 스침 — %s 회피. +%d 그레인" % [threat_name, PHASE_BYPASS_GRAINS]
+	NotificationToast.show_toast(message, NotificationToast.ToastType.SUCCESS)
 	call_deferred("queue_free")
 
 

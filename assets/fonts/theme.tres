@@ -1,7 +1,10 @@
 [gd_resource type="Theme" format=3 uid="uid://c6qls2t12euxu"]
 
 [ext_resource type="FontFile" uid="uid://bihlpv4od4vfb" path="res://assets/fonts/NotoSansKR-VF.ttf" id="1_ui"]
-[ext_resource type="FontFile" uid="uid://cbmgs2w2nsjpp" path="res://assets/fonts/NotoSerifKR-VF.ttf" id="2_body"]
+
+[sub_resource type="FontVariation" id="FontVariation_UI"]
+base_font = ExtResource("1_ui")
+variation_embolden = 0.42
 
 [sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
 content_margin_left = 11.0
@@ -63,10 +66,6 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="FontVariation" id="FontVariation_UI"]
-base_font = ExtResource("1_ui")
-variation_embolden = 0.42
-
 [sub_resource type="FontVariation" id="FontVariation_Body"]
 base_font = ExtResource("1_ui")
 variation_embolden = 0.32
@@ -93,7 +92,7 @@ Label/fonts/font = SubResource("FontVariation_UI")
 PanelContainer/styles/panel = SubResource("StylePanel")
 RichTextLabel/colors/default_color = Color(0.96, 0.94, 0.91, 1)
 RichTextLabel/colors/font_outline_color = Color(0, 0, 0, 0.9)
-RichTextLabel/constants/outline_size = 1
 RichTextLabel/constants/line_separation = 10
+RichTextLabel/constants/outline_size = 1
 RichTextLabel/font_sizes/normal_font_size = 20
 RichTextLabel/fonts/normal_font = SubResource("FontVariation_Body")

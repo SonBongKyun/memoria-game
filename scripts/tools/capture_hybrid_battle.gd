@@ -19,9 +19,6 @@ func _ready() -> void:
 	var battle: Node = load("res://scenes/battle/battle_scene.tscn").instantiate()
 	add_child(battle)
 	await get_tree().create_timer(3.2).timeout
-	if battle.objective_briefing_overlay != null and battle.objective_briefing_overlay.visible and battle.objective_briefing_buttons.get_child_count() > 0:
-		battle.call("_choose_tactical_objective", 0)
-		await get_tree().create_timer(0.45).timeout
 	battle.call("_on_player_turn")
 	var relief := battle.get_node_or_null("HybridDepthStage") as HybridDepthStage
 	assert(relief != null and relief.profile_id == "the_seam", "Battle must resolve the returning map into the correct 3D biome")

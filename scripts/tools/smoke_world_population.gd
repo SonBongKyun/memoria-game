@@ -1,16 +1,16 @@
 extends Node
 
 const MAPS := [
-	{"id": "rim_forest", "width": 25, "height": 18, "voices": 3, "hunts": 1, "caches": 1},
-	{"id": "verdan_market", "width": 30, "height": 20, "voices": 4, "hunts": 0, "caches": 1},
-	{"id": "belt_waystation", "width": 25, "height": 18, "voices": 3, "hunts": 2},
-	{"id": "drift_shelter", "width": 25, "height": 18, "voices": 3, "hunts": 1, "caches": 1},
-	{"id": "crumbling_coast", "width": 25, "height": 18, "voices": 3, "hunts": 2},
-	{"id": "the_seam", "width": 25, "height": 18, "voices": 3, "hunts": 1},
-	{"id": "seam_outskirts", "width": 25, "height": 18, "voices": 3, "hunts": 2},
-	{"id": "forgotten_forest", "width": 25, "height": 18, "voices": 3, "hunts": 2},
-	{"id": "colorless_waste", "width": 25, "height": 18, "voices": 3, "hunts": 2, "caches": 1},
-	{"id": "bl07_void", "width": 20, "height": 20, "voices": 3, "hunts": 2},
+	{"id": "rim_forest", "width": 25, "height": 18, "voices": 5, "hunts": 3, "caches": 1},
+	{"id": "verdan_market", "width": 30, "height": 20, "voices": 6, "hunts": 0, "caches": 1},
+	{"id": "belt_waystation", "width": 25, "height": 18, "voices": 5, "hunts": 4},
+	{"id": "drift_shelter", "width": 25, "height": 18, "voices": 5, "hunts": 3, "caches": 1},
+	{"id": "crumbling_coast", "width": 25, "height": 18, "voices": 5, "hunts": 4},
+	{"id": "the_seam", "width": 25, "height": 18, "voices": 5, "hunts": 3},
+	{"id": "seam_outskirts", "width": 25, "height": 18, "voices": 5, "hunts": 4},
+	{"id": "forgotten_forest", "width": 25, "height": 18, "voices": 5, "hunts": 4},
+	{"id": "colorless_waste", "width": 25, "height": 18, "voices": 5, "hunts": 4, "caches": 1},
+	{"id": "bl07_void", "width": 20, "height": 20, "voices": 5, "hunts": 4},
 	{"id": "rim_root_hollow", "width": 25, "height": 18, "voices": 2, "hunts": 2, "optional_site": true},
 	{"id": "verdan_ledger_cellar", "width": 25, "height": 18, "voices": 3, "hunts": 1, "optional_site": true},
 	{"id": "belt_signal_yard", "width": 25, "height": 18, "voices": 4, "hunts": 2, "caches": 1, "optional_site": true, "scene": "res://scenes/maps/belt_signal_yard.tscn"},
@@ -146,6 +146,12 @@ func _ready() -> void:
 					special_hunt_count += 1
 		assert(voices == int(map_data.voices), "%s expected %d world voices, got %d" % [map_data.id, map_data.voices, voices])
 		assert(hunts == int(map_data.hunts), "%s expected %d visible threats, got %d" % [map_data.id, map_data.hunts, hunts])
+		var minimap_points := Minimap._collect_points_of_interest(map)
+		var minimap_threats := 0
+		for minimap_point: Dictionary in minimap_points:
+			if String(minimap_point.get("kind", "")) == "threat":
+				minimap_threats += 1
+		assert(minimap_threats == hunts, "%s minimap must expose every live field threat" % map_data.id)
 		assert(caches == int(map_data.get("caches", 0)), "%s expected %d caches, got %d" % [map_data.id, int(map_data.get("caches", 0)), caches])
 		var expected_curios := 1 if WorldPopulation.CURIOS_BY_MAP.has(map_data.id) else 0
 		assert(curios == expected_curios, "%s expected %d regional curios, got %d" % [map_data.id, expected_curios, curios])
@@ -172,10 +178,39 @@ func _ready() -> void:
 		atlas_gate_count += 1
 		gate_map.free()
 
-	assert(total_voices == 64 and total_hunts == 32 and total_caches == 11, "World expansion totals must remain deliberate")
+	assert(total_voices == 84 and total_hunts == 50 and total_caches == 11, "World expansion totals must remain deliberate")
 	assert(total_curios == 10, "Every core region should contain one choice-driven illustrated landmark")
 	print("[WorldPopulationSmoke] unique live field assets: %d" % field_asset_paths.size())
-	assert(field_asset_paths.size() == 31, "The seven unified civilian archetypes and all hostile field assets must appear in the playable population")
+	assert(field_asset_paths.size() >= 54, "The expanded civilian and hostile field roster must appear in the playable population")
+	for expanded_asset in [
+		"res://assets/sprites/world_population/npcs/lantern_cartographer_field_v1.png",
+		"res://assets/sprites/world_population/npcs/root_tender_field_v1.png",
+		"res://assets/sprites/world_population/npcs/verdan_route_map_seller_field_v1.png",
+		"res://assets/sprites/world_population/npcs/belt_rail_root_tender_field_v1.png",
+		"res://assets/sprites/world_population/npcs/outskirts_edge_cartographer_field_v1.png",
+		"res://assets/sprites/world_population/npcs/bl07_void_root_tender_field_v1.png",
+		"res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v2.png",
+		"res://assets/sprites/world_population/npcs/verdan_sealed_note_seller_field_v2.png",
+		"res://assets/sprites/world_population/npcs/drift_rain_ledger_scribe_field_v2.png",
+		"res://assets/sprites/world_population/npcs/coast_ash_netter_field_v2.png",
+		"res://assets/sprites/world_population/npcs/seam_quiet_healer_field_v2.png",
+		"res://assets/sprites/world_population/npcs/outskirts_threshold_warden_field_v2.png",
+		"res://assets/sprites/world_population/npcs/forest_root_listener_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/belt_scavenger_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/ash_hound_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/rootbound_echo_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/colorless_wraith_field_v2.png",
+		"res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png",
+	]:
+		assert(field_asset_paths.has(expanded_asset), "Expanded generated field asset must be live: %s" % expanded_asset)
+	for override_art in WorldPopulation.FIELD_ART_OVERRIDES.values():
+		assert(ResourceLoader.exists(String(override_art)), "Every population art override must resolve: %s" % override_art)
+	assert(WorldPopulation.FIELD_ART_OVERRIDES.get("verdan_map_seller", "") == "res://assets/sprites/world_population/npcs/verdan_route_map_seller_field_v1.png", "Verdan route seller must use its dedicated generated illustration")
+	assert(WorldPopulation.FIELD_ART_OVERRIDES.get("vault_cinder_antler", "") == "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png", "BL-07 cinder antler must use its dedicated generated illustration")
+	assert(WorldPopulation.FIELD_ART_OVERRIDES.get("sealed_note_seller", "") == "res://assets/sprites/world_population/npcs/verdan_sealed_note_seller_field_v2.png", "Sealed-note seller must use its dedicated generated illustration")
+	assert(WorldPopulation.FIELD_ART_OVERRIDES.get("void_fragment", "") == "res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png", "Void fragment must use its dedicated generated illustration")
 	assert(special_voice_count == 6 and special_hunt_count == 6, "Specialist and rare variants must remain wired")
 	assert(atlas_gate_count == 7, "Every earned atlas destination needs a story-safe return route")
 	GameManager.story_flags = previous_flags

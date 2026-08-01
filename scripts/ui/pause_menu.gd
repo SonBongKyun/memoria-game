@@ -64,6 +64,8 @@ const CHAPTER_EXPANSION_GALLERY_PATH := "res://data/chapter_expansion_gallery.js
 const INTERFACE_EXPANSION_GALLERY_PATH := "res://data/interface_visual_gallery.json"
 const ILLUSTRATION_EXPANSION_GALLERY_PATH := "res://data/illustration_expansion_gallery.json"
 const ILLUSTRATION_GAPFILL_GALLERY_PATH := "res://data/illustration_gapfill_gallery.json"
+const WORLD_POPULATION_GALLERY_PATH := "res://data/world_population_visual_gallery.json"
+const OCCULT_BOSS_GALLERY_PATH := "res://data/occult_boss_gallery.json"
 const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
 		"title": "The Seam - Reunion at the Threshold",
@@ -2638,6 +2640,8 @@ func _load_artbook_items() -> Array[Dictionary]:
 		INTERFACE_EXPANSION_GALLERY_PATH,
 		ILLUSTRATION_EXPANSION_GALLERY_PATH,
 		ILLUSTRATION_GAPFILL_GALLERY_PATH,
+		WORLD_POPULATION_GALLERY_PATH,
+		OCCULT_BOSS_GALLERY_PATH,
 	]:
 		if not FileAccess.file_exists(manifest_path):
 			continue

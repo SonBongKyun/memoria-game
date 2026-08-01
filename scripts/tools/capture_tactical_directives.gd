@@ -1,6 +1,6 @@
 extends Node
 
-const OUTPUT_PATH := "res://tmp/visual_audit/tactical_directive_briefing.png"
+const OUTPUT_PATH := "res://tmp/visual_audit/tactical_objective_card.png"
 
 func _ready() -> void:
 	Codex.suppress_recording = true  # S218: 가짜 적을 개발자 도감에 남기지 않는다
@@ -34,12 +34,18 @@ func _ready() -> void:
 
 	var briefing := battle.find_child("DirectiveBriefingOverlay", true, false) as Control
 	var choices := battle.find_child("DirectiveChoiceButtons", true, false) as VBoxContainer
-	assert(briefing != null and briefing.visible, "Directive briefing must remain visible after the battle intro")
-	assert(choices != null and choices.get_child_count() == 2, "Normal battle capture must show two directive choices")
+	var objective_panel := battle.get("objective_panel") as PanelContainer
+	assert(briefing != null and not briefing.visible, "The obsolete directive briefing must remain hidden")
+	assert(choices != null and choices.get_child_count() == 0, "Normal battle capture must not show directive choices")
+	assert(objective_panel != null and objective_panel.visible, "The compact objective card must stay visible in combat")
 
+	if DisplayServer.get_name() == "headless":
+		print("TACTICAL_DIRECTIVE_CAPTURE_SKIP renderer=headless objective=1 modal=0")
+		get_tree().quit(0)
+		return
 	var image := get_viewport().get_texture().get_image()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://tmp/visual_audit"))
 	var result := image.save_png(OUTPUT_PATH)
 	assert(result == OK, "Tactical directive capture must save")
-	print("TACTICAL_DIRECTIVE_CAPTURE_PASS path=%s choices=2 chain=2" % OUTPUT_PATH)
+	print("TACTICAL_DIRECTIVE_CAPTURE_PASS path=%s objective=1 modal=0 chain=2" % OUTPUT_PATH)
 	get_tree().quit(0)

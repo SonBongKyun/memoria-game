@@ -51,6 +51,15 @@ func _ready() -> void:
 		"res://assets/cg/generated/battle_cutin_break_faultline_v4.png",
 	]:
 		assert(ResourceLoader.exists(combat_cutin), "Battle beat cut-in is missing: %s" % combat_cutin)
+	for occult_boss_art in [
+		"res://assets/cg/character_shots/kairos_occult_editor_v1.png",
+		"res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png",
+		"res://assets/cg/character_shots/void_beast_occult_rite_v1.png",
+	]:
+		assert(ResourceLoader.exists(occult_boss_art), "Occult boss illustration is missing: %s" % occult_boss_art)
+	assert(BattleManager.resolve_enemy_image_by_name("Kairos, Authority Editor").ends_with("kairos_occult_editor_v1.png"), "Kairos must use the occult editor battle art")
+	assert(BattleManager.resolve_enemy_image_by_name("Shade Sentinel").ends_with("shade_sentinel_ritual_seal_v1.png"), "Shade Sentinel must use the ritual seal battle art")
+	assert(BattleManager.resolve_enemy_image_by_name("Void Beast").ends_with("void_beast_occult_rite_v1.png"), "Void Beast must use the occult rite battle art")
 	assert(StoryJournal.tab_world != null and StoryJournal.WORLD_ENTRIES.size() == 14, "Story Journal must expose fourteen chapter-gated world records")
 	assert(StoryJournal.JOURNAL_BACKDROP_PATH.ends_with("ui_story_journal_backdrop_v3.png") and ResourceLoader.exists(StoryJournal.JOURNAL_BACKDROP_PATH), "Story Journal must use the upgraded illustrated field-ledger backdrop")
 	for world_entry in StoryJournal.WORLD_ENTRIES:
@@ -82,6 +91,17 @@ func _ready() -> void:
 	assert(ResourceLoader.exists(PauseMenu.WORLD_MAP_BACKDROP_PATH) and ResourceLoader.exists(PauseMenu.INVENTORY_BACKDROP_PATH), "Pause panels must ship with their generated archive art")
 	assert(ResourceLoader.exists(PauseMenu.SAVE_ARCHIVE_BACKDROP_PATH) and ResourceLoader.exists(PauseMenu.FIELD_GUIDE_BACKDROP_PATH), "Ancillary pause panels must ship with their generated archive art")
 	assert(ResourceLoader.exists(Minimap.MINIMAP_FRAME_PATH), "Exploration minimap must ship with its compact generated compass frame")
+	var population_gallery := JSON.parse_string(FileAccess.get_file_as_string(PauseMenu.WORLD_POPULATION_GALLERY_PATH)) as Dictionary
+	assert(population_gallery.size() > 0 and population_gallery.get("items", []).size() == 22, "World population artbook manifest must expose all twenty-two field illustrations")
+	for population_item: Dictionary in population_gallery.get("items", []):
+		assert(ResourceLoader.exists(String(population_item.get("path", ""))), "World population illustration is missing: %s" % population_item.get("title", ""))
+	var occult_boss_gallery := JSON.parse_string(FileAccess.get_file_as_string(PauseMenu.OCCULT_BOSS_GALLERY_PATH)) as Dictionary
+	for occult_boss_art in [
+		"res://assets/cg/character_shots/kairos_occult_editor_v1.png",
+		"res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png",
+		"res://assets/cg/character_shots/void_beast_occult_rite_v1.png",
+	]:
+		assert(occult_boss_gallery.get("items", []).any(func(item: Dictionary) -> bool: return String(item.get("path", "")) == occult_boss_art), "Occult boss illustration must be discoverable in the Artbook: %s" % occult_boss_art)
 	for destination in PauseMenu.TRAVEL_DESTINATIONS:
 		assert(ResourceLoader.exists(String(destination.get("scene", ""))), "World Map destination scene is missing: %s" % destination.get("name", ""))
 	var saved_items: Dictionary = GameManager.player_data.get("items", {}).duplicate(true)
@@ -109,9 +129,9 @@ func _ready() -> void:
 	GameManager.story_flags = saved_story_flags
 	StoryJournal._current_tab = "events"
 	StoryJournal._refresh_list()
-	assert(BattleManager.resolve_enemy_image_by_name("Void Beast") == "res://assets/cg/character_shots/void_beast_shot_v2.png", "Void Beast must use its refined boss shot")
-	assert(BattleManager.resolve_enemy_image_by_name("Shade Sentinel") == "res://assets/cg/character_shots/shade_sentinel_shot_v2.png", "Shade Sentinel must use its refined boss shot")
-	assert(BattleManager.resolve_enemy_image_by_name("Kairos, Authority Editor") == "res://assets/cg/character_shots/kairos_ascendant_shot_v2.png", "Kairos must use the refined ascendant shot")
+	assert(BattleManager.resolve_enemy_image_by_name("Void Beast") == "res://assets/cg/character_shots/void_beast_occult_rite_v1.png", "Void Beast must use its occult rite boss shot")
+	assert(BattleManager.resolve_enemy_image_by_name("Shade Sentinel") == "res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png", "Shade Sentinel must use its ritual seal boss shot")
+	assert(BattleManager.resolve_enemy_image_by_name("Kairos, Authority Editor") == "res://assets/cg/character_shots/kairos_occult_editor_v1.png", "Kairos must use the occult editor boss shot")
 	assert(CgViewer.continue_panel != null and CgViewer.continue_label != null, "CG viewer must expose an input-aware continue chip")
 	var previous_mode = InputManager.current_mode
 	InputManager.current_mode = InputManager.InputMode.CONTROLLER
@@ -287,8 +307,8 @@ func _ready() -> void:
 	var battle_relief := battle_scene.get("_hybrid_depth_stage") as HybridDepthStage
 	assert(battle_background != null and battle_background.size == get_viewport().get_visible_rect().size, "Battle backdrop must cover the full viewport instead of exposing the engine clear color")
 	assert(battle_relief != null and battle_relief.size == get_viewport().get_visible_rect().size, "The 3D depth stage must share the 2D battle viewport")
-	assert(battle_scene.call("_resolve_enemy_action_cutin", "Void Beast") == "res://assets/cg/character_shots/void_beast_action_v3.png", "Void Beast attacks must use the new action cut-in")
-	assert(battle_scene.call("_resolve_enemy_action_cutin", "Shade Sentinel") == "res://assets/cg/character_shots/shade_sentinel_guard_v3.png", "Shade Sentinel phase cut-ins must use the new guard shot")
+	assert(battle_scene.call("_resolve_enemy_action_cutin", "Void Beast") == "res://assets/cg/character_shots/void_beast_occult_rite_v1.png", "Void Beast attacks must use the occult rite cut-in")
+	assert(battle_scene.call("_resolve_enemy_action_cutin", "Shade Sentinel") == "res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png", "Shade Sentinel phase cut-ins must use the ritual seal shot")
 	assert(battle_scene.call("_resolve_enemy_action_cutin", "Echo Shell") == "res://assets/cg/character_shots/echo_shell_reach_v3.png", "Echo Shell attacks must use the new reach cut-in")
 	assert(battle_scene.get("_battle_particles") == null, "Clean battle view must suppress ambient dust")
 	assert((battle_scene.get("_battle_parallax_layers") as Array).is_empty(), "Clean battle view must suppress parallax haze")

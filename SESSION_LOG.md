@@ -2,6 +2,132 @@
 
 ---
 
+## S224 - 2026-08-01 (Core-loop compression: objective, burn cost, and field tension)
+
+### Audit findings
+- The requested gameplay loop already existed in pieces: Field Flow carried three encounter approaches into battle, BattleManager tracked combo/BREAK/WITNESS/burn and tactical objectives, and memory burn already had strong audiovisual feedback plus persistent world rewrites.
+- The main rhythm break was the full-screen 2-3 directive selection shown at every battle start. High-grade burn stated its permanent story cost but did not create a short, readable combat-information cost. Visible FieldThreat contact had no rewarded evasion outcome.
+
+### Done
+- Replaced the battle-opening directive selection with one deterministic objective that activates immediately on the existing compact card. The card now keeps objective progress and payoff visible; Field Focus strengthens that single payoff instead of adding a third menu choice.
+- Added grade-scaled Burn Afterimage to Grade 3-1 memories. It obscures enemy intent and special-ability telegraphs for 1-3 enemy responses; Elia's presence anchors one response for Grade 2-1 without erasing the cost. Burn lists and confirmation previews now state the lost memory, correct display grade, damage, and afterimage duration before confirmation.
+- Added a Phase Skim route to visible FieldThreat contact. Crossing the contact line during an active Phase Step resolves the threat without battle and grants 3 Grains; ordinary contact still carries the existing neutral/guarded/witness/ambush approach into combat.
+- Prevented synthetic smoke/capture scenes from overwriting the player's autosave when Codex.suppress_recording is active. The temporary capture autosave created during validation was restored from its pre-run backup; manual slots were untouched.
+- Updated tactical-directive, Field Focus, Field Flow, and capture contracts for the one-card battle opening.
+
+### Verification
+- Godot 4.6.2 headless editor parse completed with no project Parse Error or SCRIPT ERROR.
+- TACTICAL_DIRECTIVES_SMOKE_PASS objective=1 modal=0 payoff=1 aftershock=2 elia_anchor=1 grade=S score=100 chain=3 focus=1 save=1 victory_ui=1.
+- FIELD_FLOW_SMOKE_PASS routes=3 phase_step=active phase_bypass=rewarded pursuit_break=active battle_handoff=active.
+- FIELD_FOCUS_SMOKE_PASS maps=10 deep=10 count=1 resonance=25 limit=20 objective=1 payoff_boost=1.
+- STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1.
+- WORLD_POPULATION_SMOKE_PASS maps=19 voices=84 visible_threats=50 caches=11 curios=10 atlas_gates=7 generated_field_assets=54.
+- VISUAL_CLARITY_SMOKE_PASS passed with the existing hybrid stage, objective card, character shots, world records, and boss cut-ins.
+- TACTICAL_DIRECTIVE_CAPTURE_SKIP renderer=headless objective=1 modal=0; AUTOSAVE_GUARD_PASS unchanged=True. Real screenshot saving remains reserved for a non-headless renderer.
+- git diff --check passed. Existing forced-shutdown ObjectDB/resource and ShaderV duplicate-UID notices remain.
+
+## S223 - 2026-08-01 (Occult villain and high-tier monster battle art)
+
+### Audit findings
+- The existing boss art already had strong character silhouettes: Kairos's black ceremonial coat, the Shade Sentinel's faceless iron armor, and the Void Beast's shard-and-bone anatomy.
+- The new occult direction was added as an in-world extension of those identities: bureaucratic memory rites for Kairos, a condemned guardian seal for the Sentinel, and a bone-circle rite for the Void Beast.
+
+### Done
+- Generated three new canonical boss battle illustrations using the existing boss shots as direct identity and style references:
+  - `kairos_occult_editor_v1.png` — sealed memory pages, antique-gold ledger sigils, and a redaction circle.
+  - `shade_sentinel_ritual_seal_v1.png` — chained ritual mandala, engraved ward marks, and a violet helm fissure.
+  - `void_beast_occult_rite_v1.png` — bone-circle rite, reversed antler frame, and a violet memory core.
+- Connected the new illustrations to the live battle image resolver and boss phase/action cut-ins for Kairos, Shade Sentinel, and Void Beast. Previous images remain in the project as preserved fallbacks/archive art.
+- Added the three images to a dedicated `Occult Boss Archive` Artbook manifest so the existing 25-image cinematic illustration manifest keeps its original framing contract.
+- Extended visual smoke coverage to assert file existence, live battle resolution, and Artbook discoverability for all three occult boss images.
+
+### Verification
+- Inspected all three generated images; the silhouettes, restrained charcoal/navy/antique-gold palette, violet void accents, and occult motifs remain coherent with the existing boss archive.
+- `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`.
+- `VISUAL_CLARITY_SMOKE_PASS` passed with live boss image resolution and action-cutin checks.
+- `ILLUSTRATION_EXPANSION_SMOKE_PASS total=25 categories=5 live_consumers=25`; the separate Occult Boss Archive manifest also resolves all three new images.
+- `git diff --check` passed. Only the existing Godot forced-headless ObjectDB cleanup and ShaderV duplicate-UID notices remain.
+
+## S222 - 2026-08-01 (Style-matched population illustration expansion)
+
+### Audit findings
+- The existing field population art already established a consistent low-noise painterly language: charcoal and navy silhouettes, worn practical props, restrained antique-gold warmth, and selective memory-blue/violet accents.
+- Twelve additional generated images were therefore made against four existing field-art references rather than as isolated new concepts. Existing v1 files were preserved; the new images are v2 field variants for named population records.
+
+### Done
+- Generated and alpha-cleaned six dedicated NPC illustrations:
+  - `verdan_sealed_note_seller_field_v2.png`
+  - `drift_rain_ledger_scribe_field_v2.png`
+  - `coast_ash_netter_field_v2.png`
+  - `seam_quiet_healer_field_v2.png`
+  - `outskirts_threshold_warden_field_v2.png`
+  - `forest_root_listener_field_v2.png`
+- Generated and alpha-cleaned six dedicated monster illustrations:
+  - `belt_scavenger_field_v2.png`
+  - `signal_wisp_field_v2.png`
+  - `ash_hound_field_v2.png`
+  - `rootbound_echo_field_v2.png`
+  - `colorless_wraith_field_v2.png`
+  - `void_fragment_field_v2.png`
+- Wired all twelve assets through `FIELD_ART_OVERRIDES`, including every relevant regional variant ID, so the field sprite and authored hostile art sent into battle use the same generated source.
+- Updated the World Population Artbook manifest from ten to twenty-two field illustrations. Existing files were not overwritten.
+
+### Verification
+- Inspected all twelve final transparent PNGs after chroma-key removal; no visible green fringe was found in the reviewed silhouettes.
+- Godot 4.6.2 headless import reimported all twelve new PNGs successfully.
+- `WORLD_POPULATION_SMOKE_PASS maps=19 voices=84 visible_threats=50 caches=11 curios=10 atlas_gates=7 generated_field_assets=54`.
+- `VISUAL_CLARITY_SMOKE_PASS` passed with the twenty-two-entry population Artbook manifest.
+- `git diff --check` passed. Existing ShaderV duplicate-UID and forced-headless ObjectDB/resource cleanup notices remain; no gameplay `SCRIPT ERROR` or `Parse Error` occurred.
+
+## S221 - 2026-08-01 (Dedicated NPC and monster field illustrations)
+
+### Audit findings
+- The expanded population records already had dedicated art for many named roles, but several newly added records reused four broad archetypes: Lantern Cartographer, Root Tender, Cinder Antler, and Ledger Moth Swarm.
+- The user asked for images for the added NPCs and monsters themselves, so the missing role-specific variants were generated without overwriting the existing dedicated field art.
+
+### Done
+- Generated six additional full-body field cutouts with the built-in image-generation workflow, then removed the flat green chroma key with soft matte/despill processing:
+  - `verdan_route_map_seller_field_v1.png`
+  - `belt_rail_root_tender_field_v1.png`
+  - `outskirts_edge_cartographer_field_v1.png`
+  - `bl07_void_root_tender_field_v1.png`
+  - `cinder_antler_field_v2.png`
+  - `ledger_moth_swarm_field_v2.png`
+- Added ID-based `FIELD_ART_OVERRIDES` so the new assets are used by the Verdan, Belt, Seam, Outskirts, Forgotten Forest, Colorless Waste, BL-07, and optional seed-vault population entries while preserving their existing story data.
+- Extended the World Population Artbook manifest from four to ten field illustrations.
+- Extended population smoke coverage to assert all six new asset paths are live; the generated roster now reports 54 unique live field assets.
+
+### Verification
+- Inspected all six final alpha PNGs; silhouettes, props, transparent corners, and chroma-edge cleanup passed.
+- Godot 4.6.2 headless import completed and reimported all six final assets.
+- `WORLD_POPULATION_SMOKE_PASS maps=19 voices=84 visible_threats=50 caches=11 curios=10 atlas_gates=7 generated_field_assets=54`.
+- `VISUAL_CLARITY_SMOKE_PASS` passed with the ten-entry population Artbook manifest.
+- Only the existing ShaderV duplicate-UID and forced-headless ObjectDB/resource cleanup notices remain; no `SCRIPT ERROR` or `Parse Error` occurred.
+
+## S219 - 2026-08-01 (GPT Image 2 illustrated landmarks inside the live 3D stage)
+
+### Audit findings
+- The post-Claude checkout was clean at `6e85c58` and already contained a real `SubViewport` / `Camera3D` / `MeshInstance3D` hybrid arena, camera coupling, foreground parallax, and memory-burn reactions. The missing piece was not another 3D foundation: the distant biome landmarks were still mostly single-colour boxes, so their silhouettes read as debug geometry over the painted battle plates.
+- The project already carried 424 generated CG files. Adding more full-screen story art would have duplicated broad existing coverage, while the live 3D consumer had no dedicated painterly environment cutouts at all.
+- Early capture after integration showed that authored dark paintings became nearly invisible when stage lighting was multiplied over them. The generated `Sprite3D` art therefore preserves its own painted light and shares only biome tint, camera depth, and memory-burn tint.
+
+### Done
+- Generated five new canonical-environment motifs with the built-in GPT Image 2 workflow: charred memory-root spire, Belt relay obelisk, suspended memory lantern, wrecked coastal mast, and fractured void monolith.
+- Converted the flat chroma-key sources to audited alpha PNGs with the installed imagegen helper. The final assets live in `assets/environment/hybrid_depth/`; prompts and the runtime contract are recorded beside them in `README.md`.
+- Integrated the art into `HybridDepthStage` as real billboarded `Sprite3D` landmarks rather than screen overlays. Battle stages now select profile-specific silhouettes, the foreground layer uses the same camera rig for close parallax, the world atlas gains five illustrated route anchors, and Curio relics gain a profile-matched painterly centerpiece inside the existing 3D orbit.
+- Kept the battle centre clear for actors and commands. The Seam uses exactly seven repeated lantern instances; other profiles use symmetric side landmarks. Shared textures are reused, shadows are disabled, and all imports are capped at 1024 px with mipmaps for the 640x360 subviewports.
+- Connected generated landmarks to the game mechanic: memory burning warms the floor, embers, and painted `Sprite3D` landmarks together; Reduce Motion still removes landmark drift.
+- Extended `smoke_hybrid_depth` to guard all five asset paths, alpha-art lighting, mipmapped imports, battle/atlas/relic instance counts, and the memory-burn tint response.
+
+### Verification
+- Inspected all five generated alpha PNGs locally; silhouettes, padding, chroma removal, story-safe motifs, and edge cleanup passed.
+- Godot 4.6.2 headless import completed and respected `mipmaps/generate=true` plus `process/size_limit=1024` on all five assets.
+- `HYBRID_DEPTH_SMOKE_PASS battle=151 atlas=96 relic=47 route_markers=10 illustrated=2/5/1 burn_tint=1`.
+- All 27 smoke scenes passed with no `SCRIPT ERROR`, `Parse Error`, invalid access, or assertion failure.
+- Real OpenGL 3.3 captures were regenerated and inspected: `arena_biomes.png`, `hybrid_depth_board.png`, `hybrid_relic_choice.png`, and `hybrid_battle_stage.png`.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,583 fields, 19 speakers, 0 errors.
+- A 300-frame `verdan_market.tscn` boot completed through population, companion spawn, and autosave. Remaining ObjectDB/resource notices occur only during forced test shutdown and contained no gameplay script failure.
+
 ## S192 - 2026-07-15 (Meaningful resonance choices, quest dossiers, and HUD repair)
 
 ### Gameplay and UX pass
@@ -6506,6 +6632,31 @@ User asked Claude to take over battle_scene.gd polish (codex had it uncommitted)
 - Representative `verdan_market.tscn` headless load completed successfully through NPC population and dialogue startup.
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
+
+## S220 - 2026-08-01 (Field population expansion, generated illustrations, and threat-aware minimap)
+
+### Audit findings
+- The existing world population system already supported NPCs, visible threats, caches, curios, and an Artbook, but the ten core maps were sparse and the minimap did not surface hostile encounters.
+- Several explicit NPC field-art paths existed in the population data but were being collapsed to base archetypes instead of being used as live illustrations.
+- The current thread did not expose a direct Luna-mode image-generation control, so the requested field art was produced through the available built-in image-generation path and locally audited before import.
+
+### Done
+- Generated and placed four story-consistent full-body field illustrations with transparent cutouts:
+  - `lantern_cartographer_field_v1.png` - Rim Forest mapmaker with brass compass and rolled route map.
+  - `root_tender_field_v1.png` - moss-hooded memory gardener with seed vial and pruning knife.
+  - `cinder_antler_field_v1.png` - ash-and-bone deer with an ember antler.
+  - `ledger_moth_swarm_field_v1.png` - paper-wing moth swarm around a ledger-like core.
+- Expanded the ten core region populations with new route witnesses and hostile variants, while preserving story-gated access and collision-safe tile placement.
+- Restored explicit NPC illustration paths as live art when present, so existing and newly generated field assets are actually used by spawned population actors.
+- Added red diamond threat markers to the minimap with a ten-tile reveal range and a two-line legend alongside cache, relic, and local markers.
+- Added `world_population_visual_gallery.json` to the Pause-menu Artbook so the new NPC/monster illustrations are discoverable in-game.
+- Extended the population and visual-clarity smoke checks to validate live generated assets, minimap threat counts, and Artbook paths.
+
+### Verification
+- `WORLD_POPULATION_SMOKE_PASS maps=19 voices=84 visible_threats=50 caches=11 curios=10 atlas_gates=7 generated_field_assets=50`.
+- `VISUAL_CLARITY_SMOKE_PASS` passed with the new population gallery and all existing visual assertions.
+- Godot 4.6.2 headless import completed without `SCRIPT ERROR` or `Parse Error`; only the known ObjectDB/resource cleanup notices remain at forced headless exit.
+- `git diff --check` passed; normal CRLF working-copy warnings remain.
 
 ## S215 - 2026-07-28 (Korean typography and readability overhaul)
 

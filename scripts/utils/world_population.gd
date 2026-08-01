@@ -31,20 +31,20 @@ const SPECIAL_VOICE_ART := {
 	# Specialists deliberately reuse the same six painterly field archetypes.
 	# The old one-off files mixed realistic, anime, and pixel treatments.
 	"rim_scout": NPC_ART.forager,
-	"sealed_note_seller": NPC_ART.debtor,
+	"sealed_note_seller": "res://assets/sprites/world_population/npcs/verdan_sealed_note_seller_field_v2.png",
 	"signal_keeper": NPC_ART.courier,
-	"rain_ledger_scribe": NPC_ART.scribe,
-	"quiet_healer": NPC_ART.lantern,
+	"rain_ledger_scribe": "res://assets/sprites/world_population/npcs/drift_rain_ledger_scribe_field_v2.png",
+	"quiet_healer": "res://assets/sprites/world_population/npcs/seam_quiet_healer_field_v2.png",
 	"compass_pilgrim": NPC_ART.pilgrim,
 }
 
 const SPECIAL_HUNT_ART := {
-	"coast_ash_hound": "res://assets/sprites/world_population/hostiles/ash_stalker_field_v1.png",
-	"belt_scavenger": "res://assets/sprites/world_population/hostiles/belt_tag_raider_field_v1.png",
-	"belt_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_moth_wisp_field_v1.png",
-	"forest_rootbound_echo": "res://assets/sprites/world_population/hostiles/fungal_root_sentinel_field_v1.png",
-	"waste_colorless_wraith": "res://assets/sprites/world_population/hostiles/colorless_husk_field_v1.png",
-	"outskirts_void_fragment": "res://assets/sprites/world_population/hostiles/echo_shell_field_v1.png",
+	"coast_ash_hound": "res://assets/sprites/world_population/hostiles/ash_hound_field_v2.png",
+	"belt_scavenger": "res://assets/sprites/world_population/hostiles/belt_scavenger_field_v2.png",
+	"belt_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"forest_rootbound_echo": "res://assets/sprites/world_population/hostiles/rootbound_echo_field_v2.png",
+	"waste_colorless_wraith": "res://assets/sprites/world_population/hostiles/colorless_wraith_field_v2.png",
+	"outskirts_void_fragment": "res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png",
 }
 
 ## One illustrated, choice-driven landmark per core region. These are sparse by
@@ -292,6 +292,164 @@ const ATLAS_POPULATIONS := {
 	},
 }
 
+## S220: A second field pass for the ten core regions.  These are small,
+## discoverable additions rather than a wall of actors: two extra witnesses
+## per region and two optional threats where the route can support them.
+## Explicit art paths are intentional.  The population resolver preserves the
+## authored role silhouette instead of collapsing every specialist to a base
+## civilian archetype.
+const FIELD_EXPANSION := {
+	"rim_forest": {
+		"voices": [
+			{"id": "rim_lantern_cartographer", "tile": [21, 6], "art": "res://assets/sprites/world_population/npcs/lantern_cartographer_field_v1.png", "name": "Lantern Cartographer", "name_ko": "등불 지도제작자", "line": "The safest route is the one a witness can still describe after the rain.", "line_ko": "가장 안전한 길은 비가 그친 뒤에도 증인이 설명할 수 있는 길이에요."},
+			{"id": "rim_root_tender", "tile": [3, 15], "art": "res://assets/sprites/world_population/npcs/root_tender_field_v1.png", "name": "Root Tender", "name_ko": "뿌리 돌보미", "line": "I prune the roots that repeat a name too loudly.", "line_ko": "이름을 너무 크게 반복하는 뿌리를 잘라내요."},
+		],
+		"hunts": [
+			{"id": "rim_cinder_antler", "tile": [6, 10], "art": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v1.png", "name": "Cinder Antler", "name_ko": "신더 뿔짐승", "hp": 62, "atk": 12, "abilities": ["burn_attack", "charge"], "requires": "ch1_complete", "weakness": "fire"},
+			{"id": "rim_ash_bone_hound", "tile": [22, 8], "art": "res://assets/sprites/world_population/hostiles/ash_bone_hound_field_v1.png", "name": "Ash Bone Hound", "name_ko": "재뼈 사냥개", "hp": 58, "atk": 11, "abilities": ["poison"], "requires": "ch1_complete", "weakness": "fire"},
+		],
+	},
+	"verdan_market": {
+		"voices": [
+			{"id": "verdan_map_seller", "tile": [9, 14], "art": "res://assets/sprites/world_population/npcs/lantern_cartographer_field_v1.png", "name": "Route Map Seller", "name_ko": "경로 지도 상인", "line": "A map is a promise until the market decides who paid for the road.", "line_ko": "지도는 시장이 누가 길값을 냈는지 정하기 전까지만 약속이에요."},
+			{"id": "verdan_debt_witness", "tile": [17, 17], "art": "res://assets/sprites/world_population/npcs/verdan_debt_witness_field_v1.png", "name": "Debt Witness", "name_ko": "채무 증인", "line": "I remember the exchange because the ledger does not remember me.", "line_ko": "장부가 나를 기억하지 않아서 내가 거래를 기억해요."},
+		],
+	},
+	"belt_waystation": {
+		"voices": [
+			{"id": "belt_root_tender", "tile": [8, 12], "art": "res://assets/sprites/world_population/npcs/rim_root_tender_field_v1.png", "name": "Rail Root Tender", "name_ko": "철로 뿌리 돌보미", "line": "Every dead rail grows toward the same erased station.", "line_ko": "죽은 철로는 모두 같은 지워진 역을 향해 자라요."},
+			{"id": "belt_mechanic", "tile": [15, 15], "art": "res://assets/sprites/world_population/npcs/belt_mechanic_field_v1.png", "name": "Relay Mechanic", "name_ko": "릴레이 정비공", "line": "The tower can copy a signal, but not the hand that sent it.", "line_ko": "탑은 신호를 복사할 수 있어도 보낸 손까지 복사하진 못해요."},
+		],
+		"hunts": [
+			{"id": "belt_cinder_antler", "tile": [10, 10], "art": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v1.png", "name": "Cinder Antler", "name_ko": "신더 뿔짐승", "hp": 78, "atk": 16, "abilities": ["burn_attack", "charge"], "requires": "ch3_complete", "weakness": "fire"},
+			{"id": "belt_rail_sentinel", "tile": [22, 10], "art": "res://assets/sprites/world_population/hostiles/rail_sentinel_field_v1.png", "name": "Rail Sentinel", "name_ko": "철로 감시병", "hp": 86, "atk": 18, "is_void": true, "abilities": ["shield", "stun"], "requires": "ch3_complete", "weakness": "void"},
+		],
+	},
+	"drift_shelter": {
+		"voices": [
+			{"id": "drift_child_archivist", "tile": [7, 4], "art": "res://assets/sprites/world_population/npcs/drift_child_archivist_field_v1.png", "name": "Shelter Archivist", "name_ko": "피난처 기록 아이", "line": "I keep the pages that rain cannot read anymore.", "line_ko": "비가 더는 읽지 못하는 페이지를 내가 간직해요."},
+			{"id": "drift_route_translator", "tile": [22, 13], "art": "res://assets/sprites/world_population/npcs/drift_route_translator_field_v1.png", "name": "Route Translator", "name_ko": "경로 번역가", "line": "A road changes its language before it changes its shape.", "line_ko": "길은 모양이 바뀌기 전에 언어부터 바꿔요."},
+		],
+		"hunts": [
+			{"id": "drift_ledger_moth", "tile": [16, 6], "art": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v1.png", "name": "Ledger Moth Swarm", "name_ko": "장부나방 군집", "hp": 72, "atk": 17, "is_void": true, "abilities": ["drain", "weaken"], "requires": "ch4_complete", "weakness": "void"},
+			{"id": "drift_rain_oracle", "tile": [21, 14], "art": "res://assets/sprites/world_population/hostiles/rain_oracle_field_v1.png", "name": "Rain Oracle", "name_ko": "비의 신탁", "hp": 68, "atk": 16, "is_void": true, "abilities": ["drain", "weaken"], "requires": "ch4_complete", "weakness": "void"},
+		],
+	},
+	"crumbling_coast": {
+		"voices": [
+			{"id": "coast_net_mender", "tile": [10, 15], "art": "res://assets/sprites/world_population/npcs/harbor_net_mender_field_v1.png", "name": "Cinder Net Mender", "name_ko": "신더 그물 수선공", "line": "We mend names with the same knots we use for the tide.", "line_ko": "우리는 조수에 쓰는 매듭으로 이름도 꿰매요."},
+			{"id": "coast_lantern_child", "tile": [22, 6], "art": "res://assets/sprites/world_population/npcs/coast_lantern_child_field_v1.png", "name": "Tide Lantern Child", "name_ko": "조수 등불 아이", "line": "The coast returns whatever the living are willing to name.", "line_ko": "해안은 산 자가 이름 붙일 마음이 있는 것만 돌려줘요."},
+		],
+		"hunts": [
+			{"id": "coast_ledger_moth", "tile": [7, 10], "art": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v1.png", "name": "Ledger Moth Swarm", "name_ko": "장부나방 군집", "hp": 88, "atk": 20, "is_void": true, "abilities": ["drain", "poison"], "requires": "ch5_complete", "weakness": "void"},
+			{"id": "coast_drowned_echo", "tile": [21, 10], "art": "res://assets/sprites/world_population/hostiles/coast_drowned_echo_field_v1.png", "name": "Drowned Echo", "name_ko": "익사한 메아리", "hp": 92, "atk": 20, "is_void": true, "abilities": ["drain", "poison"], "requires": "ch5_complete", "weakness": "fire"},
+		],
+	},
+	"the_seam": {
+		"voices": [
+			{"id": "seam_medic", "tile": [8, 14], "art": "res://assets/sprites/world_population/npcs/seam_medic_field_v1.png", "name": "Seam Medic", "name_ko": "심의 치료사", "line": "A wound is easier to carry when someone remembers where it began.", "line_ko": "누군가 상처가 시작된 곳을 기억하면 상처를 들고 가기 쉬워져요."},
+			{"id": "seam_bridge_keeper", "tile": [22, 9], "art": "res://assets/sprites/world_population/npcs/seam_bridge_keeper_field_v1.png", "name": "Lantern Bridge Keeper", "name_ko": "등불 다리 지기", "line": "Cross once for the road. Cross twice for the person waiting there.", "line_ko": "길을 위해 한 번 건너고, 거기서 기다리는 사람을 위해 두 번 건너요."},
+		],
+		"hunts": [
+			{"id": "seam_cinder_antler", "tile": [13, 10], "art": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v1.png", "name": "Cinder Antler", "name_ko": "신더 뿔짐승", "hp": 104, "atk": 22, "abilities": ["burn_attack", "charge"], "requires": "ch6_complete", "weakness": "fire"},
+			{"id": "seam_lantern_leech", "tile": [22, 14], "art": "res://assets/sprites/world_population/hostiles/lantern_leech_field_v1.png", "name": "Lantern Leech", "name_ko": "등불 거머리", "hp": 94, "atk": 21, "abilities": ["poison", "shield"], "requires": "ch6_complete", "weakness": "fire"},
+		],
+	},
+	"seam_outskirts": {
+		"voices": [
+			{"id": "outskirts_name_keeper", "tile": [8, 12], "art": "res://assets/sprites/world_population/npcs/forest_name_keeper_field_v1.png", "name": "Name Hollow Keeper", "name_ko": "이름 골짜기 지기", "line": "The threshold repeats names until one of them answers back.", "line_ko": "경계는 이름 하나가 대답할 때까지 계속 반복해요."},
+			{"id": "outskirts_cartographer", "tile": [22, 14], "art": "res://assets/sprites/world_population/npcs/lantern_cartographer_field_v1.png", "name": "Edge Cartographer", "name_ko": "경계 지도제작자", "line": "I draw the places where a road forgets to continue.", "line_ko": "길이 이어지는 걸 잊어버린 곳을 그려요."},
+		],
+		"hunts": [
+			{"id": "outskirts_ledger_moth", "tile": [6, 10], "art": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v1.png", "name": "Ledger Moth Swarm", "name_ko": "장부나방 군집", "hp": 112, "atk": 24, "is_void": true, "abilities": ["drain", "weaken"], "requires": "ch7_complete", "weakness": "void"},
+			{"id": "outskirts_signal_scavenger", "tile": [18, 10], "art": "res://assets/sprites/world_population/hostiles/signal_scavenger_field_v1.png", "name": "Signal Scavenger", "name_ko": "신호 약탈자", "hp": 108, "atk": 23, "abilities": ["weaken", "charge"], "requires": "ch7_complete", "weakness": "fire"},
+		],
+	},
+	"forgotten_forest": {
+		"voices": [
+			{"id": "forest_name_keeper", "tile": [8, 14], "art": "res://assets/sprites/world_population/npcs/forest_name_keeper_field_v1.png", "name": "Name Hollow Keeper", "name_ko": "이름 골짜기 지기", "line": "Write your name once. The bark will keep the pause between syllables.", "line_ko": "이름을 한 번만 써요. 나무껍질은 음절 사이의 멈춤을 간직할 거예요."},
+			{"id": "forest_root_tender", "tile": [20, 6], "art": "res://assets/sprites/world_population/npcs/root_tender_field_v1.png", "name": "Root Tender", "name_ko": "뿌리 돌보미", "line": "The trees copy us because they are lonely, not because they are cruel.", "line_ko": "나무가 우리를 베끼는 건 잔인해서가 아니라 외로워서예요."},
+		],
+		"hunts": [
+			{"id": "forest_cinder_antler", "tile": [16, 10], "art": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v1.png", "name": "Cinder Antler", "name_ko": "신더 뿔짐승", "hp": 132, "atk": 28, "is_void": true, "abilities": ["burn_attack", "charge"], "requires": "ch8_complete", "weakness": "fire"},
+			{"id": "forest_mimic_shade", "tile": [22, 11], "art": "res://assets/sprites/world_population/hostiles/forest_mimic_shade_field_v1.png", "name": "Mimic Shade", "name_ko": "모방 그림자", "hp": 126, "atk": 27, "is_void": true, "abilities": ["drain", "reflect"], "requires": "ch8_complete", "weakness": "fire"},
+		],
+	},
+	"colorless_waste": {
+		"voices": [
+			{"id": "waste_compass_guide", "tile": [8, 13], "art": "res://assets/sprites/world_population/npcs/waste_compass_guide_field_v1.png", "name": "Compass Guide", "name_ko": "나침반 길잡이", "line": "North is a story the waste tells when it wants you to stop looking inward.", "line_ko": "북쪽은 황무지가 네 안쪽을 보지 못하게 할 때 들려주는 이야기예요."},
+			{"id": "waste_cartographer", "tile": [23, 7], "art": "res://assets/sprites/world_population/npcs/lantern_cartographer_field_v1.png", "name": "Grey Cartographer", "name_ko": "회색 지도제작자", "line": "I map the blue pieces before the dust edits them away.", "line_ko": "먼지가 파란 조각을 지우기 전에 그려 둬요."},
+		],
+		"hunts": [
+			{"id": "waste_ledger_moth", "tile": [6, 11], "art": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v1.png", "name": "Ledger Moth Swarm", "name_ko": "장부나방 군집", "hp": 146, "atk": 31, "is_void": true, "abilities": ["drain", "stun"], "requires": "ch9_arrived", "weakness": "void"},
+			{"id": "waste_glass_crawler", "tile": [18, 11], "art": "res://assets/sprites/world_population/hostiles/waste_glass_crawler_field_v1.png", "name": "Glass Crawler", "name_ko": "유리 기어다님", "hp": 142, "atk": 30, "abilities": ["reflect", "charge"], "requires": "ch9_arrived", "weakness": "physical"},
+		],
+	},
+	"bl07_void": {
+		"voices": [
+			{"id": "vault_root_tender", "tile": [4, 15], "art": "res://assets/sprites/world_population/npcs/root_tender_field_v1.png", "name": "Void Root Tender", "name_ko": "보이드 뿌리 돌보미", "line": "Even here, a root searches for rain it has never seen.", "line_ko": "여기서도 뿌리는 한 번도 본 적 없는 비를 찾아요."},
+			{"id": "vault_seed_custodian", "tile": [17, 8], "art": "res://assets/sprites/world_population/npcs/bl07_seed_custodian_field_v1.png", "name": "Seed Vault Custodian", "name_ko": "씨앗 금고 관리자", "line": "A seed can survive without a world if someone remembers its shape.", "line_ko": "누군가 씨앗의 모양을 기억하면 세계가 없어도 살아남을 수 있어요."},
+		],
+		"hunts": [
+			{"id": "vault_cinder_antler", "tile": [6, 12], "art": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v1.png", "name": "Cinder Antler", "name_ko": "신더 뿔짐승", "hp": 188, "atk": 38, "is_void": true, "abilities": ["burn_attack", "charge"], "requires": "ch10_void_entered", "weakness": "fire"},
+			{"id": "vault_archive_warden", "tile": [15, 12], "art": "res://assets/sprites/world_population/hostiles/bl07_archive_warden_field_v1.png", "name": "Archive Warden", "name_ko": "기록 보관자", "hp": 176, "atk": 36, "is_void": true, "abilities": ["burn_attack", "shield", "charge"], "requires": "ch10_void_entered", "weakness": "void"},
+		],
+	},
+}
+
+const FIELD_ART_OVERRIDES := {
+	"vault_root_tender": "res://assets/sprites/world_population/npcs/bl07_void_root_tender_field_v1.png",
+	"rim_cinder_antler": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+	"verdan_map_seller": "res://assets/sprites/world_population/npcs/verdan_route_map_seller_field_v1.png",
+	"belt_root_tender": "res://assets/sprites/world_population/npcs/belt_rail_root_tender_field_v1.png",
+	"belt_cinder_antler": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+	"drift_ledger_moth": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v2.png",
+	"coast_ledger_moth": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v2.png",
+	"seam_cinder_antler": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+	"outskirts_cartographer": "res://assets/sprites/world_population/npcs/outskirts_edge_cartographer_field_v1.png",
+	"outskirts_ledger_moth": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v2.png",
+	"forest_cinder_antler": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+	"waste_cartographer": "res://assets/sprites/world_population/npcs/outskirts_edge_cartographer_field_v1.png",
+	"waste_ledger_moth": "res://assets/sprites/world_population/hostiles/ledger_moth_swarm_field_v2.png",
+	"vault_cinder_antler": "res://assets/sprites/world_population/hostiles/cinder_antler_field_v2.png",
+	"sealed_note_seller": "res://assets/sprites/world_population/npcs/verdan_sealed_note_seller_field_v2.png",
+	"rain_ledger_scribe": "res://assets/sprites/world_population/npcs/drift_rain_ledger_scribe_field_v2.png",
+	"ash_netter": "res://assets/sprites/world_population/npcs/coast_ash_netter_field_v2.png",
+	"quiet_healer": "res://assets/sprites/world_population/npcs/seam_quiet_healer_field_v2.png",
+	"threshold_warden": "res://assets/sprites/world_population/npcs/outskirts_threshold_warden_field_v2.png",
+	"root_listener": "res://assets/sprites/world_population/npcs/forest_root_listener_field_v2.png",
+	"belt_scavenger": "res://assets/sprites/world_population/hostiles/belt_scavenger_field_v2.png",
+	"coast_belt_scavenger": "res://assets/sprites/world_population/hostiles/belt_scavenger_field_v2.png",
+	"cellar_collection_warden": "res://assets/sprites/world_population/hostiles/belt_scavenger_field_v2.png",
+	"signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"belt_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"drift_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"seam_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"outskirts_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"forest_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"hollow_signal_wisp": "res://assets/sprites/world_population/hostiles/signal_wisp_field_v2.png",
+	"ash_hound": "res://assets/sprites/world_population/hostiles/ash_hound_field_v2.png",
+	"rim_ash_hound": "res://assets/sprites/world_population/hostiles/ash_hound_field_v2.png",
+	"coast_ash_hound": "res://assets/sprites/world_population/hostiles/ash_hound_field_v2.png",
+	"rootbound_echo": "res://assets/sprites/world_population/hostiles/rootbound_echo_field_v2.png",
+	"forest_rootbound_echo": "res://assets/sprites/world_population/hostiles/rootbound_echo_field_v2.png",
+	"hollow_rootbound_echo": "res://assets/sprites/world_population/hostiles/rootbound_echo_field_v2.png",
+	"colorless_wraith": "res://assets/sprites/world_population/hostiles/colorless_wraith_field_v2.png",
+	"waste_colorless_wraith": "res://assets/sprites/world_population/hostiles/colorless_wraith_field_v2.png",
+	"void_colorless_wraith": "res://assets/sprites/world_population/hostiles/colorless_wraith_field_v2.png",
+	"void_fragment": "res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png",
+	"outskirts_void_fragment": "res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png",
+	"waste_void_fragment": "res://assets/sprites/world_population/hostiles/void_fragment_field_v2.png",
+}
+
+static func _apply_field_art_override(data: Dictionary) -> Dictionary:
+	var art_path := String(FIELD_ART_OVERRIDES.get(String(data.get("id", "")), ""))
+	if art_path == "":
+		return data
+	var result: Dictionary = data.duplicate()
+	result["art"] = art_path
+	return result
+
 static func populate(map: Node2D, map_id: String) -> void:
 	if map == null or _population_for(map_id).is_empty():
 		return
@@ -312,10 +470,17 @@ static func populate(map: Node2D, map_id: String) -> void:
 	if CURIOS_BY_MAP.has(map_id) and _spawn_curio(root, map_id, CURIOS_BY_MAP[map_id]):
 		curio_count += 1
 	for voice_data in data.get("voices", []):
-		if _spawn_voice(root, voice_data):
+		if _spawn_voice(root, _apply_field_art_override(voice_data)):
 			voice_count += 1
 	for hunt_data in data.get("hunts", []):
-		if _spawn_hunt(root, map_id, hunt_data):
+		if _spawn_hunt(root, map_id, _apply_field_art_override(hunt_data)):
+			hunt_count += 1
+	var expansion: Dictionary = FIELD_EXPANSION.get(map_id, {})
+	for voice_data in expansion.get("voices", []):
+		if _spawn_voice(root, _apply_field_art_override(voice_data)):
+			voice_count += 1
+	for hunt_data in expansion.get("hunts", []):
+		if _spawn_hunt(root, map_id, _apply_field_art_override(hunt_data)):
 			hunt_count += 1
 	print("[WorldPopulation] %s populated: %d voices, %d visible threats, %d caches, %d curios" % [map_id, voice_count, hunt_count, cache_count, curio_count])
 
@@ -452,8 +617,13 @@ static func _tile_position(tile: Variant) -> Vector2:
 
 static func _art_for_voice(data: Dictionary) -> String:
 	var id := String(data.get("id", ""))
+	if FIELD_ART_OVERRIDES.has(id):
+		return String(FIELD_ART_OVERRIDES[id])
 	if SPECIAL_VOICE_ART.has(id):
 		return String(SPECIAL_VOICE_ART[id])
+	var explicit_art := String(data.get("art", ""))
+	if explicit_art.contains("assets/sprites/world_population/npcs/") and ResourceLoader.exists(explicit_art):
+		return explicit_art
 	var source := (id + " " + String(data.get("name", "")) + " " + String(data.get("art", ""))).to_lower()
 	if "child" in source:
 		return String(NPC_ART.child)
@@ -471,6 +641,8 @@ static func _art_for_voice(data: Dictionary) -> String:
 
 static func _art_for_hunt(data: Dictionary) -> String:
 	var id := String(data.get("id", ""))
+	if FIELD_ART_OVERRIDES.has(id):
+		return String(FIELD_ART_OVERRIDES[id])
 	return String(SPECIAL_HUNT_ART.get(id, data.get("art", "")))
 
 static func _threat_color(hunt_id: String) -> Color:
