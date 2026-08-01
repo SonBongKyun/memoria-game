@@ -562,6 +562,26 @@
         "text": "But it is now.",
         "text_ko": "하지만 이제는 당신의 것이다."
       }
+    ],
+    "malet_taste_burned": [
+      {
+        "speaker": "Malet",
+        "text": "You walked past the skewer stall. You never walk past the skewer stall.",
+        "portrait": "malet_neutral",
+        "text_ko": "꼬치 가판을 그냥 지나쳤더군. 자네가 그럴 사람이 아닌데."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Nothing there for me.",
+        "portrait": "arrel_neutral",
+        "text_ko": "거기 내 것은 없어."
+      },
+      {
+        "speaker": "Malet",
+        "text": "There was. That is the part you sold me.",
+        "portrait": "malet_calculating",
+        "text_ko": "있었지. 그 부분을 나한테 판 거고."
+      }
     ]
   },
   "title_ko": "가격"

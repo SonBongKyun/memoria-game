@@ -134,11 +134,16 @@ func _resolve_phase_bypass() -> void:
 	if defeated_flag != "":
 		GameManager.set_flag(defeated_flag)
 	GameManager.player_data["grains"] = int(GameManager.player_data.get("grains", 0)) + PHASE_BYPASS_GRAINS
+	# S226: Part of the step returns, so the escape leaves the player able to act.
+	var flow_back := 0
+	if _player and is_instance_valid(_player) and _player.has_method("reward_field_bypass"):
+		_player.call("reward_field_bypass")
+		flow_back = int(round(FieldFlow.PHASE_STEP_COST * 0.5))
 	AudioManager.play_sfx("flee")
 	var threat_name := String(hunt_data.get("name", "Memory Echo"))
-	var message := "PHASE SKIM — %s bypassed. +%d Grains" % [threat_name, PHASE_BYPASS_GRAINS]
+	var message := "PHASE SKIM: %s bypassed. +%d Grains, Flow +%d" % [threat_name, PHASE_BYPASS_GRAINS, flow_back]
 	if GameManager.current_locale == "ko":
-		message = "위상 스침 — %s 회피. +%d 그레인" % [threat_name, PHASE_BYPASS_GRAINS]
+		message = "위상 스침: %s 회피. +%d 그레인, 흐름 +%d" % [threat_name, PHASE_BYPASS_GRAINS, flow_back]
 	NotificationToast.show_toast(message, NotificationToast.ToastType.SUCCESS)
 	call_deferred("queue_free")
 

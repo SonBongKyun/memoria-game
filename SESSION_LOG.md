@@ -2,6 +2,56 @@
 
 ---
 
+## S226 - 2026-08-02 (Early-loop sharpening: burn stakes, directive clarity, lingering absence)
+
+### Audit findings
+- The five-beat core loop (threat -> objective -> burn temptation -> payoff and cost -> lingering consequence) was already implemented across FieldFlow, BattleManager, and WorldRewriteDirector, but three of the five beats were invisible at the moment of decision.
+- The burn preview showed damage, grade, and afterimage, yet replaced the actual authored world consequence with the generic line "This will change the world around you", never named the person the memory belonged to, and never mentioned that the active directive forbade burning.
+- Approach bonuses (BREAK pre-fill, Resonance, Limit) were applied silently, so an ambush entry felt identical to a plain one.
+- World rewrites fired one toast at burn time and then only lived in the archive; nothing on the early route showed the absence a second time.
+- The forbidden em dash returned in one shipped battle string (`COST — LOST FOREVER`), which the real-render capture exposed.
+
+### Done
+- **Burn stakes.** The preview now leads with the directive conflict, names the tied character, prints the authored world-rewrite line, states "This cannot be restored" on every grade, and adds an Elia line for memories that matter (relationship grade or an authored rewrite). The frame is now sized by its content instead of a fixed rectangle, so it neither clips nor leaves half the screen empty.
+- **Clean Hands pressure.** `BattleManager.get_objective_action_relation()` is one source of truth for advance/risk/fail. The burn command wears a red border and the failure text before it is pressed, the burn list repeats the warning, and losing a directive now fires its own cue, sound, and shake instead of one log line.
+- **Forecast priority.** Every command forecast leads with its relation to the objective, then the immediate effect, then the permanent cost.
+- **Approach payoff.** Ambush/Guarded/Witness entries state the opening they bought (`BREAK 38 open · Resonance +37 · Limit +12`) in the battle banner and log. Field Flow HUD stays quiet at rest and gains border, pulse, and a thicker pressure bar as a threat closes. A Phase Skim now returns half the Phase Step cost, so evasion is a play rather than a skipped fight.
+- **Lingering absence.** Twelve rewrite rules gained Korean titles and lines. Five early memories gained authored map-revisit lines; returning to the map spends one and states it once. Three one-time NPC reactions (Elia on the campfire song and the first sword, Malet on the market taste) reuse the existing `PerceptionFilter` metadata convention through a new `take_burn_reaction()` helper that validates the dialogue exists before consuming its flag. A short desaturation wash holds after a burn in both battle and field, scaled by grade, never blocking input.
+- **Victory closes on cost.** One aftermath line above the loot rows states what the fight took, what it preserved, or what it released.
+- **Early tutorial focus.** The first three hints now teach only burn cost, directive, and approach; a new `first_approach` hint fires on the first non-neutral entry.
+
+### Intentionally not done
+- No new mechanic, gauge, status, attribute, map, or autoload. No new UI hub. No chapter or VN expansion. The one-card battle opening from S224 was kept; the obsolete directive briefing overlay stays hidden.
+- Memory titles and descriptions remain English-only in Korean play; `MemoryManager.Memory` has no localized fields, which is a data-model change beyond this pass.
+- Two pre-existing em dashes remain in `exploration_hud.gd:711` and `story_log.gd:267`; they predate this session and were left rather than widening scope.
+
+### Verification
+- Godot 4.6.2 headless project parse: no `Parse Error` or `SCRIPT ERROR`.
+- New `EARLY_LOOP_SMOKE_PASS preview=1 conflict=1 forecast=1 approach=1 bypass=1 revisit=3 npc_reaction=1 aftermath=1`.
+- 25 existing smoke scenes rerun green, including `TACTICAL_DIRECTIVES_SMOKE_PASS`, `STORY_COMBAT_SMOKE_PASS`, `FIELD_FLOW_SMOKE_PASS`, `CRASH_GUARDS_SMOKE_PASS`, `VISUAL_CLARITY_SMOKE_PASS`, and `TEXT_READABILITY_SMOKE_PASS`.
+- Real OpenGL 1280x720 captures inspected: `tmp/visual_audit/burn_preview_stakes.png`, `burn_preview_stakes_ko.png`, `approach_entry_banner.png`, `burn_afterglow.png`. Preview overflow measured at -40px in both locales; afterglow desaturation measured at 0.44.
+- `rim_forest.tscn` and `verdan_market.tscn` booted 400 frames each with no script, parse, or null-access error.
+- Korean localization: 31 files, 1,592 fields, 19 speakers, 0 errors. VN validation: 20 files, 504 steps, 0 errors. Runtime em-dash scan of new strings: 0.
+
+## S225 - 2026-08-02 (Cinematic title-screen grandeur pass)
+
+### Audit findings
+- The live premium title painting already had the strongest available composition: Arrel's silhouette on the left, the memory rupture in the centre, and dark negative space for commands on the right. Replacing it would have weakened continuity with the existing painterly CG archive.
+- The flat full-screen image, small wordmark, and unframed command stack were the limiting factors; the start screen needed depth, scale, and entrance rhythm rather than another menu or a disconnected new illustration.
+
+### Done
+- Rebuilt the live title composition around the existing key art with a slow oversized parallax drift, an additive memory-rift pulse, sparse drifting ash, a shaped vignette, and restrained cinematic letterbox framing.
+- Raised the MEMORIA wordmark to the primary focal tier with the bundled Noto Serif KR font, an eyebrow, gold rail, subtitle, divider ornament, and more legible tagline hierarchy.
+- Framed all five existing destinations inside a dark archival command panel with ordered labels, clearer focus/hover states, keyboard guidance, and staged right-side entrance animation. New Game, Continue, Part 2 aftermath preview, Options, and Quit behavior remain unchanged.
+- Made all ambient title motion respond live to the existing Reduce Motion option; particles, parallax, pulse, and breathing scale settle into a static composition when enabled.
+- Added a focused title smoke scene and a real-render capture scene for future visual regression checks.
+
+### Verification
+- `TITLE_GRANDEUR_SMOKE_PASS layers=7 commands=5 reduce_motion=1 title_size=78` under Godot 4.6.2 headless.
+- Real OpenGL 1280x720 capture passed at `tmp/visual_audit/title_grandeur.png`; the title, Arrel silhouette, central rupture, and five-command panel remain visually separated.
+- `VISUAL_CLARITY_SMOKE_PASS`, `TEXT_READABILITY_SMOKE_PASS`, and `CRASH_GUARDS_SMOKE_PASS` all remained green.
+- `git diff --check` passed. Existing forced-shutdown ObjectDB/resource cleanup notices remain; no title `Parse Error` or `SCRIPT ERROR` occurred.
+
 ## S224 - 2026-08-01 (Core-loop compression: objective, burn cost, and field tension)
 
 ### Audit findings

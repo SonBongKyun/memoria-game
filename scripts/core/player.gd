@@ -816,6 +816,13 @@ func prepare_field_entry_for_battle(source: String = "ambient") -> Dictionary:
 func is_field_dashing() -> bool:
 	return _field_flow != null and _field_flow.is_dashing()
 
+## S226: A clean bypass is a played choice, so part of the Phase Step comes back
+## and the next threat can still be answered.
+func reward_field_bypass() -> float:
+	if _field_flow == null:
+		return 0.0
+	return _field_flow.reward_phase_bypass()
+
 ## S41: 현재 지형 타입 감지 (맵 스크립트의 terrain_map 메타 사용)
 func _get_terrain_type() -> String:
 	var scene = get_tree().current_scene

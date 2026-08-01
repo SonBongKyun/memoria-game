@@ -92,6 +92,7 @@ var approach_label: Label
 var flow_hint_label: Label
 var _flow_fill_style: StyleBoxFlat
 var _pressure_fill_style: StyleBoxFlat
+var _flow_pulse_time: float = 0.0  # S226: threat-pressure emphasis clock
 var location_card: PanelContainer
 var location_art: TextureRect
 var location_title: Label
@@ -118,7 +119,8 @@ func _ready() -> void:
 	_update_hud()
 	print("[ExplorationHUD] Ready")
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_flow_pulse_time += delta
 	if flow_panel and flow_panel.visible:
 		_update_field_flow_hud()
 
@@ -739,6 +741,21 @@ func _update_field_flow_hud() -> void:
 	approach_label.text = String(mode_copy.get(mode, mode.to_upper()))
 	approach_label.add_theme_color_override("font_color", accent)
 	_flow_fill_style.bg_color = Color(accent, 0.94)
+	# S226: Quiet when nothing is hunting, loud the moment something is.
+	# Panel presence, not new UI, carries the pressure.
+	var alarm := maxf(pressure, 0.85 if mode in ["ambush_ready", "guarded", "witness"] else 0.0)
+	var pulse := 0.0
+	if alarm >= 0.45:
+		pulse = (sin(_flow_pulse_time * (5.0 + alarm * 3.5)) * 0.5 + 0.5) * (alarm - 0.45) * 0.5
+	flow_panel.modulate.a = clampf(0.62 + alarm * 0.38 + pulse * 0.25, 0.0, 1.0)
+	var panel_style := flow_panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if panel_style:
+		var border := accent if alarm >= 0.45 else Color(0.46, 0.72, 0.94)
+		if pressure >= 0.45:
+			border = Color(1.0, lerpf(0.46, 0.24, pressure), 0.22)
+		panel_style.border_color = Color(border.r, border.g, border.b, clampf(0.42 + alarm * 0.52 + pulse, 0.0, 1.0))
+		panel_style.set_border_width_all(2 if alarm >= 0.7 else 1)
+	pressure_bar.custom_minimum_size.y = 5.0 if pressure >= 0.45 else 3.0
 	var dash_icon := InputManager.get_icon("field_dash") if InputManager else "Ctrl"
 	var pulse_icon := InputManager.get_icon("memory_pulse") if InputManager else "Q"
 	if is_ko:

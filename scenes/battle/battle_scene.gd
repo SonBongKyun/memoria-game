@@ -222,6 +222,9 @@ var _burn_preview_timer: SceneTreeTimer  # delay before buttons become clickable
 var _pending_burn_id: String = ""  # memory ID waiting for confirmation
 
 # S54: Victory screen
+var _last_objective_status: String = ""  # S226: fires the complete/fail cue exactly once
+const BURN_AFTERGLOW_SHADER_PATH: String = "res://assets/shaders/desaturation.gdshader"
+var _burn_afterglow_rect: ColorRect  # S226: lingering absence wash after a burn
 var _victory_panel: PanelContainer
 var _victory_art: TextureRect
 var _victory_rewards: Array = []  # collected reward lines from battle_log
@@ -272,10 +275,15 @@ func _present_field_entry() -> void:
 			accent = Color(0.78, 0.64, 1.0)
 		_:
 			return
+	# S226: The opening the approach bought is stated, not implied.
+	var bonus_text := BattleManager.get_field_entry_bonus_text()
+	if bonus_text != "":
+		detail = "%s\n%s" % [detail, bonus_text]
 	_on_battle_log("[APPROACH] %s" % detail)
 	_show_turn_indicator(title, accent)
-	_show_combat_cue(title, detail, cutin_path, accent, 1.05)
+	_show_combat_cue(title, detail, cutin_path, accent, 1.45)
 	_play_action_cutin(cutin_path, true, 0.78, 0.28)
+	TutorialHints.show_hint("first_approach")
 
 func _process(delta: float) -> void:
 	_idle_time += delta
@@ -1671,10 +1679,12 @@ func _build_action_cutin(root: Control) -> void:
 ## cadence: threat -> response -> consequence. It remains visible in clean view.
 func _build_combat_cue_panel(root: Control) -> void:
 	combat_cue_panel = PanelContainer.new()
-	combat_cue_panel.anchor_left = 0.36
-	combat_cue_panel.anchor_right = 0.64
-	combat_cue_panel.anchor_top = 0.035
-	combat_cue_panel.anchor_bottom = 0.125
+	# S226: the approach banner now carries a second line with the concrete
+	# opening it bought, so the cue frame has to hold two lines without clipping.
+	combat_cue_panel.anchor_left = 0.320
+	combat_cue_panel.anchor_right = 0.680
+	combat_cue_panel.anchor_top = 0.030
+	combat_cue_panel.anchor_bottom = 0.155
 	combat_cue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	combat_cue_panel.z_index = 66
 	combat_cue_panel.visible = false
@@ -1711,7 +1721,7 @@ func _build_combat_cue_panel(root: Control) -> void:
 	combat_cue_detail.add_theme_font_size_override("font_size", 13)
 	combat_cue_detail.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 	combat_cue_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	combat_cue_detail.max_lines_visible = 2
+	combat_cue_detail.max_lines_visible = 3
 	copy.add_child(combat_cue_detail)
 
 func _show_combat_cue(title: String, detail: String, art_path: String, accent: Color, hold_time: float = 1.1) -> void:
@@ -2322,7 +2332,9 @@ func _build_action_buttons(root: Control) -> void:
 		var command_number := action_container.get_child_count() + 1
 		var btn := Button.new()
 		btn.name = "BattleAction_" + action_id.capitalize()
-		btn.text = _format_action_button(action_id, "%d · %s" % [command_number, String(action.text)])
+		var command_label := "%d · %s" % [command_number, String(action.text)]
+		btn.set_meta("command_label", command_label)
+		btn.text = _format_action_button(action_id, command_label)
 		btn.custom_minimum_size = Vector2(205, 48)
 		btn.set_meta("action_id", action_id)
 		btn.tooltip_text = _action_description(action_id)
@@ -2376,6 +2388,29 @@ func _build_action_buttons(root: Control) -> void:
 		btn.mouse_exited.connect(_on_action_hover_exit.bind(btn))
 		action_container.add_child(btn)
 	_update_limit_button()
+	_update_objective_action_warnings()
+
+## S226: A command that would lose the active directive wears the warning before
+## it is pressed, not after.
+func _update_objective_action_warnings() -> void:
+	for action_id in _action_buttons:
+		var btn: Button = _action_buttons[action_id]
+		if btn == null or not is_instance_valid(btn):
+			continue
+		var relation := BattleManager.get_objective_action_relation(String(action_id))
+		var conflicts := String(relation.get("kind", "")) == "fail"
+		var normal := btn.get_theme_stylebox("normal") as StyleBoxFlat
+		if normal:
+			normal.border_color = Color(0.95, 0.30, 0.24, 0.92) if conflicts else Color(0.60, 0.45, 0.26, 0.42)
+			normal.set_border_width_all(2 if conflicts else 1)
+		btn.add_theme_color_override("font_color", Color(1.0, 0.64, 0.54) if conflicts else UITheme.TEXT_PRIMARY)
+		var command_label := String(btn.get_meta("command_label", btn.text))
+		if conflicts:
+			btn.text = "%s\n%s" % [command_label, String(relation.get("text", ""))]
+			btn.tooltip_text = String(relation.get("text", ""))
+		else:
+			btn.text = _format_action_button(String(action_id), command_label)
+			btn.tooltip_text = _action_description(String(action_id))
 
 func _action_base_color(action_id: String) -> Color:
 	match action_id:
@@ -2417,12 +2452,20 @@ func _on_action_hover_exit(btn: Button) -> void:
 	if not btn.has_focus():
 		_restore_field_readout()
 
+## S226: Forecast priority is fixed: what this does to the objective, then the
+## immediate effect, then the permanent cost.
 func _show_action_forecast(action_id: String) -> void:
-	_set_field_readout(
-		_action_forecast_title(action_id),
-		_action_description(action_id),
-		_action_forecast_color(action_id)
-	)
+	var relation := BattleManager.get_objective_action_relation(action_id)
+	var relation_kind := String(relation.get("kind", ""))
+	var detail := _action_description(action_id)
+	var header := _action_forecast_title(action_id)
+	var accent := _action_forecast_color(action_id)
+	if relation_kind != "":
+		detail = "%s\n%s" % [String(relation.get("text", "")), detail]
+		if relation_kind == "fail":
+			header = _bl("OBJECTIVE AT RISK", "목표 위험")
+			accent = _objective_relation_color(relation_kind)
+	_set_field_readout(header, detail, accent)
 
 func _action_forecast_title(action_id: String) -> String:
 	match action_id:
@@ -2435,6 +2478,17 @@ func _action_forecast_title(action_id: String) -> String:
 		"auto": return _bl("AUTO TACTIC", "자동 전술")
 		"flee": return _bl("EXIT CHECK", "이탈 판정")
 	return _bl("FIELD READ", "전장 판독")
+
+## S226: One colour language for "this helps / this costs / this loses the objective".
+func _objective_relation_color(kind: String) -> Color:
+	match kind:
+		"advance":
+			return Color(0.62, 0.98, 0.66)
+		"risk":
+			return Color(1.0, 0.78, 0.36)
+		"fail":
+			return Color(1.0, 0.36, 0.30)
+	return UITheme.TEXT_PRIMARY
 
 func _action_forecast_color(action_id: String) -> Color:
 	match action_id:
@@ -2991,6 +3045,7 @@ func _on_player_turn() -> void:
 	_play_turn_dim()
 	_show_turn_indicator(_bl("YOUR TURN", "당신의 턴"), Color(0.5, 0.65, 0.85))
 	_update_turn_preview()  # S41
+	_update_objective_action_warnings()  # S226: directive conflicts read before the choice
 	# S59: Show enemy intent hint in battle log
 	var hint = BattleManager.get_next_turn_hint()
 	if hint != "":
@@ -3262,6 +3317,16 @@ func _toggle_burn_list() -> void:
 			title.add_theme_font_size_override("font_size", 13)
 			title.add_theme_color_override("font_color", Color(0.75, 0.5, 0.35))
 			burn_list_container.add_child(title)
+
+			# S226: If the active directive forbids burning, say so above the list.
+			var burn_relation := BattleManager.get_objective_action_relation("burn")
+			if String(burn_relation.get("kind", "")) == "fail":
+				var conflict = Label.new()
+				conflict.text = String(burn_relation.get("text", ""))
+				conflict.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				conflict.add_theme_font_size_override("font_size", 13)
+				conflict.add_theme_color_override("font_color", _objective_relation_color("fail"))
+				burn_list_container.add_child(conflict)
 
 			for memory in available:
 				var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
@@ -4988,6 +5053,37 @@ func _on_tactical_objective_changed(objective: Dictionary) -> void:
 	var tw = create_tween()
 	tw.tween_property(objective_panel, "scale", Vector2(1.03, 1.03), 0.08).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_property(objective_panel, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_CUBIC)
+	_announce_objective_resolution(status, shown_title, objective)
+	_update_objective_action_warnings()
+
+## S226: Completing or losing the directive is a moment, not a log line.
+func _announce_objective_resolution(status: String, shown_title: String, objective: Dictionary) -> void:
+	if status == _last_objective_status:
+		return
+	_last_objective_status = status
+	match status:
+		"complete":
+			var payoff_parts: Array[String] = ["+%dG" % int(objective.get("reward_grains", 0))]
+			if int(objective.get("reward_heal", 0)) > 0:
+				payoff_parts.append("HP+%d" % int(objective.get("reward_heal", 0)))
+			_show_combat_cue(
+				_bl("DIRECTIVE COMPLETE", "지침 달성"),
+				"%s  ·  %s" % [shown_title, "/".join(payoff_parts)],
+				"",
+				Color(0.52, 0.98, 0.62),
+				1.25
+			)
+			AudioManager.play_sfx("memory_add")
+		"failed":
+			_show_combat_cue(
+				_bl("DIRECTIVE LOST", "지침 실패"),
+				_bl("%s cannot be recovered in this fight.", "%s은(는) 이 전투에서 되돌릴 수 없다.") % shown_title,
+				"",
+				Color(1.0, 0.36, 0.30),
+				1.35
+			)
+			AudioManager.play_sfx("cancel")
+			_screen_shake(0.5)
 
 func _on_momentum_changed(value: float, rank: int, label: String) -> void:
 	if objective_meta_label == null:
@@ -5016,65 +5112,13 @@ func _on_momentum_changed(value: float, rank: int, label: String) -> void:
 		tw.tween_property(objective_meta_label, "scale", Vector2(1.05, 1.05), 0.08)
 		tw.tween_property(objective_meta_label, "scale", Vector2(1.0, 1.0), 0.16)
 
+## S226: One translation table lives in BattleManager so the card, the forecast,
+## the burn warning, and the victory panel never drift apart.
 func _localized_objective_title(title: String) -> String:
-	if GameManager.current_locale != "ko":
-		return title
-	match title:
-		"Pressure Point":
-			return "압박 지점"
-		"Cascade Window":
-			return "연쇄 창"
-		"Clean Hands":
-			return "깨끗한 손"
-		"Before It Learns":
-			return "놈이 배우기 전에"
-		"Archivist's Eye":
-			return "기록자의 눈"
-		"Hold the Name":
-			return "이름 붙들기"
-		"Measured Assault":
-			return "계산된 공세"
-		"Resonance Climb":
-			return "공명 상승"
-		"Bare Hands":
-			return "빈손"
-		"Three Forms":
-			return "세 가지 형"
-		"Echo Weave":
-			return "메아리 직조"
-		"Shared Rhythm":
-			return "공유된 리듬"
-	return title
+	return BattleManager.localize_objective_title(title)
 
 func _localized_objective_desc(desc: String) -> String:
-	if GameManager.current_locale != "ko":
-		return desc
-	match desc:
-		"Trigger BREAK before victory.":
-			return "승리하기 전에 BREAK를 발생시키세요."
-		"Use Memory Cascade before victory.":
-			return "승리하기 전에 Memory Cascade를 사용하세요."
-		"Win without burning a memory.":
-			return "기억을 태우지 않고 승리하세요."
-		"Win within 4 player actions.":
-			return "플레이어 행동 4회 안에 승리하세요."
-		"Scan or analyze the enemy before victory.":
-			return "승리하기 전에 적을 스캔하거나 분석하세요."
-		"Complete a WITNESS reading before victory.":
-			return "승리하기 전에 기억 읽기를 완료하세요."
-		"Reach Combo x3 before victory.":
-			return "승리하기 전에 콤보 x3에 도달하세요."
-		"Reach Burning resonance before victory.":
-			return "승리하기 전에 연소 공명에 도달하세요."
-		"Win without using battle items.":
-			return "전투 아이템을 사용하지 않고 승리하세요."
-		"Switch stance twice before victory.":
-			return "승리하기 전에 자세를 두 번 전환하세요."
-		"Activate 2 Memory Echoes before victory.":
-			return "승리하기 전에 기억 메아리 2개를 활성화하세요."
-		"Trigger 2 companion support actions.":
-			return "동료 지원 행동을 2번 발동하세요."
-	return desc
+	return BattleManager.localize_objective_desc(desc)
 
 ## ===================== S54/S58: Victory Rewards Screen (animated) =====================
 
@@ -5132,15 +5176,16 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	_victory_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_victory_panel.offset_left = -210
 	_victory_panel.offset_right = 210
-	_victory_panel.offset_top = -185
-	_victory_panel.offset_bottom = 185
+	# S226: room for the one consequence line that closes the fight.
+	_victory_panel.offset_top = -205
+	_victory_panel.offset_bottom = 205
 	_victory_panel.z_index = 85
 	_victory_art = _make_interface_texture(UI_VICTORY_PANEL_PATH, 0.86)
 	_victory_art.set_anchors_preset(Control.PRESET_CENTER)
 	_victory_art.offset_left = -260
 	_victory_art.offset_right = 260
-	_victory_art.offset_top = -225
-	_victory_art.offset_bottom = 225
+	_victory_art.offset_top = -245
+	_victory_art.offset_bottom = 245
 	_victory_art.z_index = 84
 	canvas_root.add_child(_victory_art)
 
@@ -5328,6 +5373,20 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	momentum_val.add_theme_color_override("font_color", Color(0.78, 0.88, 1.0) if momentum_bonus > 0 else Color(0.36, 0.34, 0.32))
 	momentum_row.add_child(momentum_val)
 
+	# --- S226: WHAT THIS FIGHT LEFT BEHIND (one line, always last word) ---
+	var aftermath_text: String = rewards.get("aftermath", "")
+	var aftermath_label = Label.new()
+	aftermath_label.text = aftermath_text
+	aftermath_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	aftermath_label.max_lines_visible = 2
+	aftermath_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	aftermath_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	aftermath_label.add_theme_font_size_override("font_size", 13)
+	aftermath_label.add_theme_color_override("font_color", Color(0.84, 0.72, 0.96))
+	aftermath_label.modulate.a = 0.0
+	aftermath_label.visible = aftermath_text != ""
+	vbox.add_child(aftermath_label)
+
 	# --- HP RECOVERED ---
 	var heal_row = HBoxContainer.new()
 	heal_row.add_theme_constant_override("separation", 8)
@@ -5411,10 +5470,10 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 	if _victory_art:
 		_victory_art.modulate.a = 0.0
 		_victory_art.scale = Vector2(0.85, 0.85)
-		_victory_art.pivot_offset = Vector2(260, 225)
+		_victory_art.pivot_offset = Vector2(260, 245)
 	_victory_panel.modulate.a = 0.0
 	_victory_panel.scale = Vector2(0.85, 0.85)
-	_victory_panel.pivot_offset = Vector2(210, 185)
+	_victory_panel.pivot_offset = Vector2(210, 205)
 	var t_panel = create_tween().set_parallel(true)
 	if _victory_art:
 		t_panel.tween_property(_victory_art, "modulate:a", 0.86, 0.3)
@@ -5467,6 +5526,11 @@ func _on_victory_rewards_ready(rewards: Dictionary) -> void:
 		tw_seq.tween_callback(func(): AudioManager.play_sfx("ui_select"))
 	else:
 		tw_seq.tween_property(momentum_row, "modulate:a", 0.45, 0.12)
+
+	# S226: The consequence line lands before the loot lines.
+	if aftermath_text != "":
+		tw_seq.tween_interval(0.12)
+		tw_seq.tween_property(aftermath_label, "modulate:a", 1.0, 0.28)
 
 	# Heal line
 	tw_seq.tween_interval(0.15)
@@ -5625,25 +5689,28 @@ func _build_burn_preview(root: Control) -> void:
 	root.add_child(_burn_preview_dimmer)
 
 	# Main panel
-	_burn_preview_panel = PanelContainer.new()
-	_burn_preview_panel.anchor_left = 0.15
-	_burn_preview_panel.anchor_right = 0.85
-	_burn_preview_panel.anchor_top = 0.18
-	_burn_preview_panel.anchor_bottom = 0.82
-	_burn_preview_panel.z_index = 91
-	_burn_preview_panel.visible = false
+	# S226: The preview now carries the world consequence and the directive
+	# conflict as well as the numbers, and each memory brings a different number
+	# of those lines, so the frame is sized by its content instead of by a fixed
+	# rectangle that either clips or leaves half the screen empty.
 	_burn_preview_art = _make_interface_texture(UI_BURN_PREVIEW_PANEL_PATH, 0.86)
-	_burn_preview_art.anchor_left = _burn_preview_panel.anchor_left
-	_burn_preview_art.anchor_right = _burn_preview_panel.anchor_right
-	_burn_preview_art.anchor_top = _burn_preview_panel.anchor_top
-	_burn_preview_art.anchor_bottom = _burn_preview_panel.anchor_bottom
-	_burn_preview_art.offset_left = -28
-	_burn_preview_art.offset_right = 28
-	_burn_preview_art.offset_top = -24
-	_burn_preview_art.offset_bottom = 24
+	_burn_preview_art.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_burn_preview_art.z_index = 90
 	_burn_preview_art.visible = false
 	root.add_child(_burn_preview_art)
+
+	var preview_center = CenterContainer.new()
+	preview_center.name = "BurnPreviewCenter"
+	preview_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	preview_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview_center.z_index = 91
+	root.add_child(preview_center)
+
+	_burn_preview_panel = PanelContainer.new()
+	_burn_preview_panel.name = "BurnPreviewPanel"
+	_burn_preview_panel.custom_minimum_size = Vector2(700, 0)
+	_burn_preview_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_burn_preview_panel.visible = false
 
 	var panel_style = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.040, 0.028, 0.052, 0.82)
@@ -5653,7 +5720,21 @@ func _build_burn_preview(root: Control) -> void:
 	panel_style.set_content_margin_all(20)
 	_burn_preview_panel.add_theme_stylebox_override("panel", panel_style)
 
-	root.add_child(_burn_preview_panel)
+	preview_center.add_child(_burn_preview_panel)
+	_burn_preview_panel.resized.connect(_sync_burn_preview_frame)
+
+## S226: Keeps the decorative plate wrapped around whatever height the preview
+## content settled on, and keeps the pop-in animation centred on it.
+func _sync_burn_preview_frame() -> void:
+	if _burn_preview_panel == null or not is_instance_valid(_burn_preview_panel):
+		return
+	_burn_preview_panel.pivot_offset = _burn_preview_panel.size / 2.0
+	if _burn_preview_art == null or not is_instance_valid(_burn_preview_art):
+		return
+	var pad := Vector2(28, 24)
+	_burn_preview_art.position = _burn_preview_panel.position - pad
+	_burn_preview_art.size = _burn_preview_panel.size + pad * 2.0
+	_burn_preview_art.pivot_offset = _burn_preview_art.size / 2.0
 
 ## Show the burn preview popup for a memory before confirming the burn.
 func _show_burn_preview(memory: MemoryManager.Memory) -> void:
@@ -5664,12 +5745,12 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		child.queue_free()
 
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", 6)
 	_burn_preview_panel.add_child(vbox)
 
 	# --- Header: "BURN MEMORY?" ---
 	var header = Label.new()
-	header.text = "BURN THIS MEMORY?"
+	header.text = _bl("BURN THIS MEMORY?", "이 기억을 태울까?")
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_theme_font_size_override("font_size", 18)
 	header.add_theme_color_override("font_color", Color(0.9, 0.55, 0.2))
@@ -5693,10 +5774,29 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 
 	var grade_lbl = Label.new()
 	grade_lbl.text = grade_label_text
+	if memory.related_npc != "" and memory.related_npc != "Unknown":
+		grade_lbl.text += _bl("  ·  Tied to %s", "  ·  %s와(과) 얽힘") % GameManager.localized_speaker(memory.related_npc)
 	grade_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	grade_lbl.add_theme_font_size_override("font_size", 12)
 	grade_lbl.add_theme_color_override("font_color", Color(grade_color.r * 0.7, grade_color.g * 0.7, grade_color.b * 0.7))
 	vbox.add_child(grade_lbl)
+
+	# --- DIRECTIVE CONFLICT (read before anything else that tempts you) ---
+	var burn_relation := BattleManager.get_objective_action_relation("burn")
+	if String(burn_relation.get("kind", "")) != "":
+		var relation_label = Label.new()
+		var relation_kind := String(burn_relation.get("kind", ""))
+		relation_label.text = String(burn_relation.get("text", ""))
+		if relation_kind == "fail":
+			relation_label.text = _bl("OBJECTIVE: %s", "목표: %s") % relation_label.text
+		relation_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		relation_label.add_theme_font_size_override("font_size", 14)
+		relation_label.add_theme_color_override("font_color", _objective_relation_color(relation_kind))
+		vbox.add_child(relation_label)
+		if relation_kind == "fail":
+			var relation_pulse = create_tween().set_loops()
+			relation_pulse.tween_property(relation_label, "modulate:a", 0.45, 0.45)
+			relation_pulse.tween_property(relation_label, "modulate:a", 1.0, 0.45)
 
 	# --- Spacer ---
 	var spacer1 = Control.new()
@@ -5712,7 +5812,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		total_dmg = int(total_dmg * 1.1)
 
 	var power_label = Label.new()
-	power_label.text = "POWER GAINED:  +%d damage  (%s)" % [total_dmg, skill.name]
+	power_label.text = _bl("POWER GAINED:  +%d damage  (%s)", "얻는 힘:  피해 +%d  (%s)") % [total_dmg, skill.name]
 	power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	power_label.add_theme_font_size_override("font_size", 14)
 	power_label.add_theme_color_override("font_color", Color(0.3, 0.9, 0.4))
@@ -5749,7 +5849,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	vbox.add_child(spacer2)
 
 	var cost_header = Label.new()
-	cost_header.text = _bl("COST — LOST FOREVER: %s", "대가 — 영구 소실: %s") % memory.title
+	cost_header.text = _bl("COST, LOST FOREVER: %s", "대가, 영구 소실: %s") % memory.title
 	cost_header.add_theme_font_size_override("font_size", 13)
 	cost_header.add_theme_color_override("font_color", Color(0.85, 0.35, 0.3))
 	vbox.add_child(cost_header)
@@ -5757,23 +5857,51 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	var desc_label = Label.new()
 	desc_label.text = memory.description
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.max_lines_visible = 3
+	desc_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	desc_label.add_theme_font_size_override("font_size", 14)
 	desc_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	vbox.add_child(desc_label)
 
-	# --- Story effect hint ---
-	if memory.story_effect != "":
+	# --- Where the world changes: the authored rewrite, not a generic promise ---
+	var rewrite_report := WorldRewriteDirector.get_rewrite_report(memory.id)
+	var rewrite_line := String(rewrite_report.get("line", ""))
+	if rewrite_line != "":
 		var effect_label = Label.new()
-		effect_label.text = _bl("This will change the world around you.", "이것은 당신을 둘러싼 세계를 바꾼다.")
-		effect_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		effect_label.text = _bl("WORLD: %s", "세계: %s") % rewrite_line
+		effect_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		effect_label.max_lines_visible = 2
+		effect_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		effect_label.add_theme_font_size_override("font_size", 13)
 		effect_label.add_theme_color_override("font_color", Color(0.84, 0.72, 0.96))
 		vbox.add_child(effect_label)
 
+	# --- Elia does not stop him. She marks the moment. ---
+	if memory.related_npc == "Elia" and GameManager.player_data.get("elia_with_party", false) \
+			and BattleManager.is_significant_memory(memory):
+		var elia_label = Label.new()
+		elia_label.text = _bl(
+			"ELIA: I know you can. I am asking whether you want to.",
+			"엘리아: 할 수 있다는 건 알아. 하고 싶은지를 묻는 거야."
+		)
+		elia_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		elia_label.max_lines_visible = 2
+		elia_label.add_theme_font_size_override("font_size", 13)
+		elia_label.add_theme_color_override("font_color", Color(0.72, 0.86, 1.0))
+		vbox.add_child(elia_label)
+
+	# --- Irreversibility is stated every time, not only for high grades ---
+	var restore_label = Label.new()
+	restore_label.text = _bl("This cannot be restored.", "이것은 복구할 수 없습니다.")
+	restore_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	restore_label.add_theme_font_size_override("font_size", 13)
+	restore_label.add_theme_color_override("font_color", Color(0.86, 0.52, 0.42))
+	vbox.add_child(restore_label)
+
 	# --- Irreplaceable warning for Grade 1-2 (high value memories) ---
 	if memory.grade >= MemoryManager.MemoryGrade.GRADE_2:  # Grade 2 or Grade 1
 		var warn_label = Label.new()
-		warn_label.text = "WARNING: This memory is irreplaceable"
+		warn_label.text = _bl("WARNING: This memory is irreplaceable", "경고: 이 기억은 대체할 수 없습니다")
 		warn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		warn_label.add_theme_font_size_override("font_size", 13)
 		warn_label.add_theme_color_override("font_color", Color(0.95, 0.25, 0.2))
@@ -5797,7 +5925,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 
 	# Burn button
 	_burn_preview_confirm_btn = Button.new()
-	_burn_preview_confirm_btn.text = "BURN"
+	_burn_preview_confirm_btn.text = _bl("BURN", "연소")
 	_burn_preview_confirm_btn.custom_minimum_size = Vector2(140, 44)
 	_burn_preview_confirm_btn.disabled = true  # Enabled after 0.5s delay
 
@@ -5855,11 +5983,10 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		_burn_preview_art.visible = true
 		_burn_preview_art.modulate.a = 0.0
 		_burn_preview_art.scale = Vector2(0.85, 0.85)
-		_burn_preview_art.pivot_offset = _burn_preview_art.size / 2.0
 	_burn_preview_panel.visible = true
 	_burn_preview_panel.modulate.a = 0.0
 	_burn_preview_panel.scale = Vector2(0.85, 0.85)
-	_burn_preview_panel.pivot_offset = _burn_preview_panel.size / 2.0
+	_sync_burn_preview_frame()
 
 	var show_tween = create_tween()
 	show_tween.set_parallel(true)
@@ -5939,7 +6066,49 @@ func _play_memory_burn_then_execute(memory_id: String, memory_title: String, mem
 		await _play_memory_burn_cutin(cutin_path, memory_grade)
 	if battle_vfx:
 		await battle_vfx.play_memory_burn_sequence(memory_title, memory_grade, player_sprite_container)
+	# S226: The cinematic ends on time; the emptiness it left does not.
+	_play_burn_afterglow(memory_grade)
 	BattleManager.player_burn(memory_id)
+
+## S226: A short-lived wash that keeps the fight fully playable while the colour
+## the memory used to carry stays gone.  Never blocks input or the command deck.
+func _play_burn_afterglow(memory_grade: int) -> void:
+	if canvas_root == null or not is_instance_valid(canvas_root):
+		return
+	if _burn_afterglow_rect != null and is_instance_valid(_burn_afterglow_rect):
+		_burn_afterglow_rect.queue_free()
+		_burn_afterglow_rect = null
+	if not ResourceLoader.exists(BURN_AFTERGLOW_SHADER_PATH):
+		return
+	var rect := ColorRect.new()
+	rect.name = "MemoryBurnAfterglow"
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(1, 1, 1, 1)
+	rect.z_index = 70
+	var material := ShaderMaterial.new()
+	material.shader = load(BURN_AFTERGLOW_SHADER_PATH)
+	material.set_shader_parameter("desaturation", 0.0)
+	material.set_shader_parameter("tint_color", Color(0.13, 0.11, 0.17, 1.0))
+	material.set_shader_parameter("tint_strength", 0.0)
+	rect.material = material
+	canvas_root.add_child(rect)
+	_burn_afterglow_rect = rect
+
+	var peak := clampf(0.26 + float(memory_grade) * 0.06, 0.26, 0.50)
+	var hold := 3.4 + float(memory_grade) * 1.1  # ~3.4s for a fragment, ~7.8s for a core memory
+	var tween := create_tween()
+	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), 0.0, peak, 0.35)
+	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), 0.0, peak * 0.20, 0.35)
+	tween.tween_interval(hold)
+	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), peak, 0.0, 1.5)
+	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), peak * 0.20, 0.0, 1.5)
+	tween.tween_callback(func():
+		if is_instance_valid(rect):
+			rect.queue_free()
+		if _burn_afterglow_rect == rect:
+			_burn_afterglow_rect = null
+	)
 
 ## ===================== S56: Skill Element Detection Helper =====================
 

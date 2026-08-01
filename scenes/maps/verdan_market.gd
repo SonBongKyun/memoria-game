@@ -91,6 +91,11 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("verdan_market")
 	elia.repeat_line = "This market smells like rust and regret."
 	malet_npc.repeat_line = "You know where to find me."
+	# S226: 초반 동선에서 연소의 대가를 사람의 입으로 한 번 더 만난다.
+	# 엘리아의 반응 대사는 Ch1 파일에 있으므로 파일을 명시해 재사용한다.
+	malet_npc.set_meta("burn_reaction_daily_market_food", "malet_taste_burned")
+	elia.set_meta("burn_reaction_daily_campfire_song", "res://data/chapter1_dialogue.json::elia_song_burned")
+	elia.set_meta("burn_reaction_identity_first_sword", "res://data/chapter1_dialogue.json::elia_sword_burned")
 	# S54: NPC Schedule, adjust malet position/dialogue based on chapter
 	_apply_npc_schedules()
 	# S59: 인터랙티브 프롭 배치

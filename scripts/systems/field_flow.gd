@@ -81,6 +81,14 @@ func try_phase_step(direction: Vector2) -> bool:
 	return true
 
 
+## S226: Half of the Phase Step comes back when the step actually slipped a
+## threat, so evasion reads as a play instead of a skipped fight.
+func reward_phase_bypass() -> float:
+	_set_flow(flow + PHASE_STEP_COST * 0.5)
+	_emit_if_changed(true)
+	return flow
+
+
 func open_witness_window() -> void:
 	_witness_window = 1.05
 	_emit_if_changed(true)

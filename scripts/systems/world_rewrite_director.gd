@@ -9,6 +9,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_verdan_taste_blurred",
 		"title": "Verdan Taste Blurred",
 		"line": "A vendor's face slips out of every market smell.",
+		"title_ko": "베르단 미각 흐려짐",
+		"line_ko": "시장의 모든 냄새에서 상인의 얼굴이 빠져나간다.",
 		"compass": "Verdan taste map erased.",
 		"color": Color(0.95, 0.62, 0.30),
 		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_verdan_taste_v3.png"
@@ -17,6 +19,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_elia_hum_unmoored",
 		"title": "Campfire Song Unmoored",
 		"line": "Elia's humming still exists, but it no longer knows where to land.",
+		"title_ko": "모닥불 노래 표류",
+		"line_ko": "엘리아의 흥얼거림은 남았지만, 이제 내려앉을 곳을 모른다.",
 		"compass": "Anchor melody destabilized.",
 		"color": Color(0.68, 0.74, 0.92),
 		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png"
@@ -25,6 +29,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_reaching_hand_absent",
 		"title": "The Reaching Hand Removed",
 		"line": "When someone reaches for him, the world hesitates before drawing the hand.",
+		"title_ko": "뻗던 손 삭제",
+		"line_ko": "누군가 손을 뻗으면, 세계가 그 손을 그리기 전에 잠시 망설인다.",
 		"compass": "Relationship contour torn.",
 		"color": Color(0.80, 0.66, 0.94),
 		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png"
@@ -33,6 +39,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_first_sword_cut",
 		"title": "First Sword Excised",
 		"line": "The body remembers the stance. The self no longer remembers why.",
+		"title_ko": "첫 검 절제",
+		"line_ko": "몸은 자세를 기억한다. 자신은 그 이유를 더 기억하지 못한다.",
 		"compass": "Identity architecture fractured.",
 		"color": Color(0.95, 0.38, 0.26),
 		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png"
@@ -41,6 +49,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_name_origin_void",
 		"title": "Name Origin Consumed",
 		"line": "The sound 'Arrel' keeps its letters and loses its owner.",
+		"title_ko": "이름의 기원 소각",
+		"line_ko": "'아렐'이라는 소리는 글자를 지키고 주인을 잃는다.",
 		"compass": "Name-bearing thread severed.",
 		"color": Color(1.00, 0.28, 0.22),
 		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png"
@@ -49,6 +59,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_record_ink_fades",
 		"title": "Record Ink Fades",
 		"line": "Tobias can still write the facts. The meaning dries before the ink does.",
+		"title_ko": "기록의 잉크 바램",
+		"line_ko": "토비아스는 사실을 적을 수 있다. 다만 잉크보다 의미가 먼저 마른다.",
 		"compass": "Record-tree contour retained.",
 		"color": Color(0.75, 0.62, 0.48),
 		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png"
@@ -57,6 +69,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_elia_anchor_thinned",
 		"title": "Anchor Warmth Thinned",
 		"line": "Warm hands remain in the scene like heat after a body has left.",
+		"title_ko": "앵커의 온기 희박",
+		"line_ko": "따뜻한 손은 몸이 떠난 자리에 남은 열처럼 장면에 머문다.",
 		"compass": "Elia anchor pressure reduced.",
 		"color": Color(0.72, 0.78, 0.96),
 		"art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png"
@@ -65,6 +79,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_sable_witness_dimmed",
 		"title": "Witness Dimmed",
 		"line": "Sable's certainty loses one scar's worth of weight.",
+		"title_ko": "증인 흐려짐",
+		"line_ko": "세이블의 확신에서 흉터 하나만큼의 무게가 빠진다.",
 		"compass": "Void-walker witness weakened.",
 		"color": Color(0.62, 0.54, 0.72),
 		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png"
@@ -73,6 +89,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_forest_scent_thinned",
 		"title": "Forest Scent Thinned",
 		"line": "The rain still darkens the roots, but the trail no longer has a smell to lead him home.",
+		"title_ko": "숲 냄새 희박",
+		"line_ko": "비는 여전히 뿌리를 적시지만, 그 길에는 그를 집으로 이끌 냄새가 없다.",
 		"compass": "Rim weather contour unmoored.",
 		"color": Color(0.52, 0.70, 0.88),
 		"art": "res://assets/cg/generated/memory_rewrite_forest_scent_v2.png"
@@ -81,6 +99,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_ghost_words_silenced",
 		"title": "Ghost Words Silenced",
 		"line": "The hollow keeps its shape, but the unfinished voice has lost the way back to him.",
+		"title_ko": "유령의 말 소거",
+		"line_ko": "공동은 형태를 지켰지만, 끝맺지 못한 목소리가 그에게 돌아올 길을 잃었다.",
 		"compass": "Forest witness contour hollowed.",
 		"color": Color(0.74, 0.64, 0.86),
 		"art": "res://assets/cg/generated/memory_rewrite_ghost_words_v2.png"
@@ -89,6 +109,8 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_compass_unmapped",
 		"title": "Compass Identity Unmapped",
 		"line": "The pull remains beneath his sternum, but the direction now feels like a question asked in someone else's voice.",
+		"title_ko": "나침반 정체성 미상",
+		"line_ko": "가슴뼈 아래의 이끌림은 남았지만, 그 방향이 이제 남의 목소리로 던진 질문처럼 느껴진다.",
 		"compass": "Colorless route no longer confirms north.",
 		"color": Color(0.56, 0.78, 0.96),
 		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_compass_unmapped_v3.png"
@@ -97,9 +119,56 @@ const MEMORY_REWRITE_RULES := {
 		"flag": "world_rewrite_void_walker_blurred",
 		"title": "Void Walker Blurred",
 		"line": "One footprint survives the Void's pressure, but he no longer remembers why he knew to place it there.",
+		"title_ko": "보이드 보행자 흐려짐",
+		"line_ko": "발자국 하나는 보이드의 압력을 견뎠지만, 왜 거기에 두어야 했는지는 남지 않았다.",
 		"compass": "BL-07 passage contour weakened.",
 		"color": Color(0.62, 0.48, 0.90),
 		"art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_void_walker_v3.png"
+	},
+}
+
+## S226: What the player meets again after the loss, on the route they are
+## already walking.  Each entry is keyed by the map the absence shows up in, so
+## an early burn is answered a second time inside the same chapter instead of
+## only in the archive.
+const MEMORY_REVISIT_LINES := {
+	"daily_campfire_song": {
+		"rim_forest": {
+			"en": "Elia hums at the fire. The tune arrives, but nothing in him leans toward it.",
+			"ko": "엘리아가 불가에서 흥얼거린다. 가락은 닿는데, 그의 안에서 기울어지는 것이 없다.",
+		},
+		"verdan_market": {
+			"en": "Someone whistles between the stalls. It is not the song. It could not be.",
+			"ko": "가판 사이로 누군가 휘파람을 분다. 그 노래는 아니다. 그럴 수가 없다.",
+		},
+	},
+	"sense_forest_smell": {
+		"rim_forest": {
+			"en": "Rain has soaked the roots again. The forest smells like nothing that leads home.",
+			"ko": "비가 다시 뿌리를 적셨다. 숲에서는 집으로 이어지는 냄새가 나지 않는다.",
+		},
+	},
+	"daily_market_food": {
+		"verdan_market": {
+			"en": "The spice smoke reaches him first, and stops. No vendor's face comes with it.",
+			"ko": "향신료 연기가 먼저 닿고, 거기서 멈춘다. 함께 따라오던 상인의 얼굴이 없다.",
+		},
+	},
+	"identity_first_sword": {
+		"rim_forest": {
+			"en": "His grip settles on its own. He no longer knows whose hand taught it that.",
+			"ko": "손아귀가 저절로 자리를 잡는다. 누구의 손이 그렇게 가르쳤는지는 남아 있지 않다.",
+		},
+		"verdan_market": {
+			"en": "A guard's drill rhythm passes by. His body answers it. His memory does not.",
+			"ko": "경비병의 훈련 박자가 지나간다. 몸은 답하고, 기억은 답하지 않는다.",
+		},
+	},
+	"rel_hand_reaching": {
+		"rim_forest": {
+			"en": "Elia stumbles beside him. His hand stays exactly where it was.",
+			"ko": "엘리아가 옆에서 휘청인다. 그의 손은 있던 자리에 그대로 있다.",
+		},
 	},
 }
 
@@ -111,8 +180,21 @@ const DEFAULT_LINES := {
 	MemoryManager.MemoryGrade.GRADE_1: "The core thread burns white. Reality pauses before continuing.",
 }
 
+## S226: 연소 미리보기와 승리 화면이 이 문장을 정면에 세우므로, 한국어 플레이에서도
+## 대가가 영어로 남지 않아야 한다.
+const DEFAULT_LINES_KO := {
+	MemoryManager.MemoryGrade.GRADE_5: "작은 감각 하나가 방의 공기에서 빠져나간다.",
+	MemoryManager.MemoryGrade.GRADE_4: "일상의 습관이 사라지고, 세계가 조용히 그 주위를 고쳐 쓴다.",
+	MemoryManager.MemoryGrade.GRADE_3: "관계의 윤곽이 잔상으로 무너진다.",
+	MemoryManager.MemoryGrade.GRADE_2: "정체성의 한 조각이 몸과 어긋난다.",
+	MemoryManager.MemoryGrade.GRADE_1: "핵심 가닥이 하얗게 탄다. 현실이 잠시 멈췄다가 이어진다.",
+}
+
+const AFTERGLOW_SHADER_PATH := "res://assets/shaders/desaturation.gdshader"
+
 var _last_scene_path := ""
 var _scene_residue_cooldown := 0.0
+var _afterglow_layer: CanvasLayer = null
 
 func _ready() -> void:
 	if MemoryManager and MemoryManager.has_signal("memory_burned"):
@@ -149,14 +231,18 @@ func _build_report(memory, faded: bool) -> Dictionary:
 	var id := String(memory.id) if memory != null else ""
 	var grade := int(memory.grade) if memory != null else MemoryManager.MemoryGrade.GRADE_5
 	var rule: Dictionary = MEMORY_REWRITE_RULES.get(id, {})
+	var is_ko := GameManager.current_locale == "ko"
 	var title := String(rule.get("title", "Uncatalogued Absence"))
 	var line := String(rule.get("line", DEFAULT_LINES.get(grade, "A contour vanished.")))
+	if is_ko:
+		title = String(rule.get("title_ko", "기록되지 않은 공백"))
+		line = String(rule.get("line_ko", DEFAULT_LINES_KO.get(grade, "윤곽 하나가 사라졌다.")))
 	var compass := String(rule.get("compass", _default_compass_line(memory, faded)))
 	var color: Color = rule.get("color", _grade_color(grade))
 	if faded:
-		title = "Fading: " + title
-		line = "Before it burns, it thins: " + line
-		compass = "Erosion warning: " + compass
+		title = ("바래는 중: " if is_ko else "Fading: ") + title
+		line = ("타기도 전에 얇아진다: " if is_ko else "Before it burns, it thins: ") + line
+		compass = ("Erosion warning: ") + compass
 	return {
 		"id": id,
 		"flag": String(rule.get("flag", "world_rewrite_" + id)),
@@ -231,8 +317,51 @@ func _manifest_rewrite(memory, report: Dictionary) -> void:
 	PerceptionFilter.apply(scene)
 	_show_rewrite_art(report)
 	_spawn_echo_cluster(scene, report, _find_manifest_origin(scene), memory)
+	_play_absence_afterglow(int(report.get("grade", MemoryManager.MemoryGrade.GRADE_5)))
 	if NotificationToast:
-		NotificationToast.show_toast("World rewrite: %s" % String(report.title), NotificationToast.ToastType.WARNING)
+		var prefix := "세계 재기록" if GameManager.current_locale == "ko" else "World rewrite"
+		NotificationToast.show_toast("%s: %s" % [prefix, String(report.title)], NotificationToast.ToastType.WARNING)
+
+## S226: The seconds right after a loss.  The world keeps running and the player
+## keeps control, but the colour does not come back immediately.
+func _play_absence_afterglow(grade: int) -> void:
+	if _afterglow_layer != null and is_instance_valid(_afterglow_layer):
+		_afterglow_layer.queue_free()
+		_afterglow_layer = null
+	var shader := load(AFTERGLOW_SHADER_PATH) if ResourceLoader.exists(AFTERGLOW_SHADER_PATH) else null
+	if shader == null:
+		return
+	var layer := CanvasLayer.new()
+	layer.name = "MemoryAbsenceAfterglow"
+	layer.layer = 7
+	var rect := ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rect.color = Color(1, 1, 1, 1)
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("desaturation", 0.0)
+	material.set_shader_parameter("tint_color", Color(0.13, 0.11, 0.17, 1.0))
+	material.set_shader_parameter("tint_strength", 0.0)
+	rect.material = material
+	layer.add_child(rect)
+	add_child(layer)
+	_afterglow_layer = layer
+
+	var peak := clampf(0.34 + float(grade) * 0.07, 0.34, 0.62)
+	var hold := 4.2 + float(grade) * 0.9  # 4.2s for a sensation, ~8s for a core memory
+	var tween := create_tween()
+	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), 0.0, peak, 0.45)
+	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), 0.0, peak * 0.22, 0.45)
+	tween.tween_interval(hold)
+	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), peak, 0.0, 1.6)
+	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), peak * 0.22, 0.0, 1.6)
+	tween.tween_callback(func():
+		if is_instance_valid(layer):
+			layer.queue_free()
+		if _afterglow_layer == layer:
+			_afterglow_layer = null
+	)
 
 func _manifest_scene_residue() -> void:
 	if not GameManager or GameManager.current_state != GameManager.GameState.EXPLORATION:
@@ -242,11 +371,56 @@ func _manifest_scene_residue() -> void:
 	var scene := get_tree().current_scene
 	if scene == null:
 		return
-	var memory = MemoryManager.burned_memories.back()
+	var map_id := get_map_id_for_scene(scene.scene_file_path)
+	var memory = _pick_revisit_memory(map_id)
+	var authored := ""
+	if memory != null:
+		authored = get_revisit_line(String(memory.id), map_id)
+	if memory == null:
+		memory = MemoryManager.burned_memories.back()
 	var report := _build_report(memory, false)
-	report["line"] = "This place has adjusted around %s." % String(memory.title)
-	report["title"] = "Residual Absence"
+	if authored != "":
+		GameManager.set_flag(revisit_flag(String(memory.id), map_id), true)
+		report["line"] = authored
+		report["title"] = "기억이 빠져나간 자리" if GameManager.current_locale == "ko" else "Where the Memory Was"
+		if NotificationToast:
+			NotificationToast.show_toast(authored, NotificationToast.ToastType.WARNING)
+	else:
+		report["line"] = ("이 장소는 %s 없이 다시 맞춰졌다." if GameManager.current_locale == "ko" else "This place has adjusted around %s.") % String(memory.title)
+		report["title"] = "잔여 공백" if GameManager.current_locale == "ko" else "Residual Absence"
 	_spawn_echo_cluster(scene, report, _find_manifest_origin(scene) + Vector2(0, -18), memory, 1)
+
+## S226: Map key used by the revisit table (`res://scenes/maps/rim_forest.tscn` -> `rim_forest`).
+func get_map_id_for_scene(scene_path: String) -> String:
+	if scene_path == "":
+		return ""
+	return scene_path.get_file().get_basename()
+
+func revisit_flag(memory_id: String, map_id: String) -> String:
+	return "world_revisit_%s_%s" % [memory_id, map_id]
+
+## S226: The authored second exposure for a burned memory on this map, if any.
+func get_revisit_line(memory_id: String, map_id: String) -> String:
+	if map_id == "" or not MEMORY_REVISIT_LINES.has(memory_id):
+		return ""
+	var by_map: Dictionary = MEMORY_REVISIT_LINES[memory_id]
+	if not by_map.has(map_id):
+		return ""
+	var entry: Dictionary = by_map[map_id]
+	return String(entry.get("ko", entry.get("en", ""))) if GameManager.current_locale == "ko" else String(entry.get("en", ""))
+
+## The first burned memory whose absence this map can still show for the first time.
+func _pick_revisit_memory(map_id: String):
+	if map_id == "":
+		return null
+	for memory in MemoryManager.burned_memories:
+		var mid := String(memory.id)
+		if get_revisit_line(mid, map_id) == "":
+			continue
+		if GameManager.get_flag(revisit_flag(mid, map_id)):
+			continue
+		return memory
+	return null
 
 func _find_manifest_origin(scene: Node) -> Vector2:
 	var players := get_tree().get_nodes_in_group("player")

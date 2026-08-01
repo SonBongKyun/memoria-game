@@ -578,6 +578,46 @@
         "text": "The figure dissolved into ash. But the memory remained, crystallized and warm in your hand.",
         "text_ko": "형체는 재가 되어 흩어졌다. 그러나 기억은 남았다. 결정이 된 채, 손안에서 따뜻하게."
       }
+    ],
+    "elia_song_burned": [
+      {
+        "speaker": "Elia",
+        "text": "You were humming with me last night. Half a bar, then you stopped.",
+        "portrait": "elia_concern",
+        "text_ko": "어젯밤엔 나랑 같이 흥얼거렸잖아. 반 마디 하다가 멈췄지만."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "Was I.",
+        "portrait": "arrel_neutral",
+        "text_ko": "그랬나."
+      },
+      {
+        "speaker": "Elia",
+        "text": "It is still my song. It just does not have anywhere to land now.",
+        "portrait": "elia_sad",
+        "text_ko": "여전히 내 노래야. 이제 내려앉을 자리가 없을 뿐이지."
+      }
+    ],
+    "elia_sword_burned": [
+      {
+        "speaker": "Elia",
+        "text": "Your guard changed. Same hands, different person holding them.",
+        "portrait": "elia_concern",
+        "text_ko": "자세가 달라졌어. 같은 손인데, 그 손을 쥔 사람이 달라."
+      },
+      {
+        "speaker": "Arrel",
+        "text": "It still works.",
+        "portrait": "arrel_neutral",
+        "text_ko": "쓰는 데는 문제없어."
+      },
+      {
+        "speaker": "Elia",
+        "text": "That is not what I said.",
+        "portrait": "elia_sad",
+        "text_ko": "그런 얘기가 아니잖아."
+      }
     ]
   }
 }

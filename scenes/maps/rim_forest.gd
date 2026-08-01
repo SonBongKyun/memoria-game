@@ -351,6 +351,10 @@ func _setup_perception_nodes() -> void:
 		if "npc_name" in npc and String(npc.npc_name) == "Elia":
 			npc.set_meta("on_burned_tint_memory", "daily_campfire_song")
 			npc.set_meta("on_burned_tint", Color(0.75, 0.8, 0.85, 0.85))
+			# S226: 연소한 기억은 알림 한 번으로 끝나지 않는다.
+			# 다음에 엘리아에게 말을 걸면 그녀가 그 빈자리를 짚는다.
+			npc.set_meta("burn_reaction_daily_campfire_song", "elia_song_burned")
+			npc.set_meta("burn_reaction_identity_first_sword", "elia_sword_burned")
 			break
 
 ## ===================== 히든 이벤트 =====================

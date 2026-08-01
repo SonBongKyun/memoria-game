@@ -307,6 +307,9 @@ var _resolved_by_witness: bool = false
 var _witness_boss_insight: bool = false
 var _burn_aftershock_turns: int = 0
 var _burn_aftershock_memory: String = ""
+## S226: One companion reaction per person per battle, so an important loss lands
+## without turning every burn into the same scripted speech.
+var _burn_reactions_this_battle: Array[String] = []
 
 const WITNESS_LINES_EN: Dictionary = {
 	"ash": ["Under the ash, a child's hand still searches for the road home.", "It was never hunting. It was following the last warmth it remembered."],
@@ -566,6 +569,7 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	_witness_boss_insight = false
 	_burn_aftershock_turns = 0
 	_burn_aftershock_memory = ""
+	_burn_reactions_this_battle.clear()
 	_witness_required = _get_witness_requirement(enemy)
 	_last_stand_triggered_this_battle = false
 	_objective_completed = false
@@ -995,7 +999,7 @@ func _check_tactical_objective(event_id: String = "") -> void:
 				_complete_tactical_objective("Combo x3 reached.")
 		"keep_memory":
 			if event_id == "memory_burned":
-				_fail_tactical_objective("A memory was burned.")
+				_fail_tactical_objective(_bl("A memory was burned.", "기억을 태웠다."))
 		"stance_shift":
 			if _stance_switches_this_battle >= 2:
 				_complete_tactical_objective("Two stance shifts completed.")
@@ -1007,10 +1011,10 @@ func _check_tactical_objective(event_id: String = "") -> void:
 				_complete_tactical_objective("Two echoes are active.")
 		"no_items":
 			if event_id == "item_used":
-				_fail_tactical_objective("A battle item was used.")
+				_fail_tactical_objective(_bl("A battle item was used.", "전투 아이템을 사용했다."))
 		"swift_finish":
 			if _player_actions_this_battle > 4:
-				_fail_tactical_objective("The fight dragged on too long.")
+				_fail_tactical_objective(_bl("The fight dragged on too long.", "전투가 너무 길어졌다."))
 		"limit_release":
 			if _limit_breaks_this_battle > 0:
 				_complete_tactical_objective("Memory Cascade released.")
@@ -1019,6 +1023,192 @@ func _check_tactical_objective(event_id: String = "") -> void:
 				_complete_tactical_objective("Companion rhythm established.")
 	if not _objective_completed and not _objective_failed:
 		_emit_tactical_objective_update()
+
+## S226: Korean display names for the directive card, forecasts, and warnings.
+## Kept here so every surface (battle card, action forecast, burn preview,
+## victory panel) reads the objective with exactly the same words.
+const OBJECTIVE_TITLES_KO: Dictionary = {
+	"Pressure Point": "압박 지점",
+	"Cascade Window": "연쇄 창",
+	"Clean Hands": "깨끗한 손",
+	"Before It Learns": "놈이 배우기 전에",
+	"Archivist's Eye": "기록자의 눈",
+	"Hold the Name": "이름 붙들기",
+	"Measured Assault": "계산된 공세",
+	"Resonance Climb": "공명 상승",
+	"Bare Hands": "빈손",
+	"Three Forms": "세 가지 형",
+	"Echo Weave": "메아리 직조",
+	"Shared Rhythm": "공유된 리듬",
+}
+
+const OBJECTIVE_DESCS_KO: Dictionary = {
+	"Trigger BREAK before victory.": "승리하기 전에 BREAK를 발생시키세요.",
+	"Use Memory Cascade before victory.": "승리하기 전에 Memory Cascade를 사용하세요.",
+	"Win without burning a memory.": "기억을 태우지 않고 승리하세요.",
+	"Win within 4 player actions.": "플레이어 행동 4회 안에 승리하세요.",
+	"Scan or analyze the enemy before victory.": "승리하기 전에 적을 스캔하거나 분석하세요.",
+	"Complete a WITNESS reading before victory.": "승리하기 전에 기억 읽기를 완료하세요.",
+	"Reach Combo x3 before victory.": "승리하기 전에 콤보 x3에 도달하세요.",
+	"Reach Burning resonance before victory.": "승리하기 전에 연소 공명에 도달하세요.",
+	"Win without using battle items.": "전투 아이템을 사용하지 않고 승리하세요.",
+	"Switch stance twice before victory.": "승리하기 전에 자세를 두 번 전환하세요.",
+	"Activate 2 Memory Echoes before victory.": "승리하기 전에 기억 메아리 2개를 활성화하세요.",
+	"Trigger 2 companion support actions.": "동료 지원 행동을 2번 발동하세요.",
+}
+
+func localize_objective_title(title: String) -> String:
+	if GameManager.current_locale != "ko":
+		return title
+	return String(OBJECTIVE_TITLES_KO.get(title, title))
+
+func localize_objective_desc(desc: String) -> String:
+	if GameManager.current_locale != "ko":
+		return desc
+	return String(OBJECTIVE_DESCS_KO.get(desc, desc))
+
+## S226: How a chosen command relates to the directive the player is carrying.
+## Returned first by every forecast so the objective, not the raw numbers,
+## is the first thing read before committing to an action.
+##   kind: "advance" (progress), "risk" (costs progress), "fail" (loses it), "" (nothing)
+func get_objective_action_relation(action_id: String) -> Dictionary:
+	var empty := {"kind": "", "text": "", "title": ""}
+	if tactical_objective.is_empty() or _objective_completed or _objective_failed:
+		return empty
+	var objective_id := String(tactical_objective.get("id", ""))
+	var title := localize_objective_title(String(tactical_objective.get("title", "")))
+	var kind := ""
+	var text := ""
+	match objective_id:
+		"keep_memory":
+			if action_id == "burn":
+				kind = "fail"
+				text = _bl("Fails %s", "%s 실패") % title
+		"no_items":
+			if action_id == "item":
+				kind = "fail"
+				text = _bl("Fails %s", "%s 실패") % title
+		"swift_finish":
+			var left := maxi(4 - _player_actions_this_battle, 0)
+			kind = "risk" if left <= 1 else "advance"
+			text = _bl("%s: %d action(s) left", "%s: 남은 행동 %d회") % [title, left]
+		"force_break":
+			if action_id in ["attack", "burn"]:
+				kind = "advance"
+				text = _bl("Advances %s (BREAK pressure)", "%s 진행 (BREAK 압력)") % title
+		"limit_release":
+			if action_id == "limit":
+				kind = "advance"
+				text = _bl("Advances %s", "%s 진행") % title
+		"scan_first", "witness_echo":
+			if action_id == "witness":
+				kind = "advance"
+				text = _bl("Advances %s", "%s 진행") % title
+		"combo_three":
+			if action_id == "attack":
+				kind = "advance"
+				text = _bl("Advances %s (combo x%d)", "%s 진행 (콤보 x%d)") % [title, combo_count]
+			elif action_id in ["burn", "item", "defend"]:
+				kind = "risk"
+				text = _bl("Resets the combo %s needs", "%s에 필요한 콤보가 초기화됩니다") % title
+		"kindle_momentum":
+			if action_id in ["attack", "burn", "witness"]:
+				kind = "advance"
+				text = _bl("Advances %s (resonance)", "%s 진행 (공명)") % title
+	if kind == "":
+		return empty
+	return {"kind": kind, "text": text, "title": title}
+
+## S226: The concrete opening the approach bought, stated in the first seconds
+## of battle instead of being buried in passive stat changes.
+func get_field_entry_bonus_text() -> String:
+	match field_entry_mode:
+		"ambush":
+			var break_open := int(round(minf(BREAK_MAX - 1.0, 24.0 + float(field_entry_power) * 0.16)))
+			var momentum_gain := int(30.0 + floorf(float(field_entry_power) / 12.0))
+			return _bl(
+				"BREAK %d open · Resonance +%d · Limit +12",
+				"BREAK %d 선점 · 공명 +%d · 리미트 +12"
+			) % [break_open, momentum_gain]
+		"guarded":
+			return _bl(
+				"First blow guarded · Resonance +15 · Limit +18",
+				"첫 일격 방어 · 공명 +15 · 리미트 +18"
+			)
+		"witness":
+			return _bl(
+				"Reading %d/%d held · Resonance +18 · Limit +10",
+				"읽기 %d/%d 선취 · 공명 +18 · 리미트 +10"
+			) % [mini(1, maxi(_witness_required - 1, 0)), _witness_required]
+	return ""
+
+## S226: One line of consequence on the victory panel. What was paid for this
+## win outranks what the win paid out.
+func _build_battle_aftermath_line() -> String:
+	if _memory_burns_this_battle > 0 and MemoryManager and not MemoryManager.burned_memories.is_empty():
+		var memory = MemoryManager.burned_memories.back()
+		var report: Dictionary = WorldRewriteDirector.get_rewrite_report(String(memory.id))
+		var line := String(report.get("line", ""))
+		if line != "":
+			return line
+		return _bl(
+			"%s does not come back with you.",
+			"%s은(는) 당신과 함께 돌아오지 않는다."
+		) % String(memory.title)
+	if _objective_failed:
+		return _bl(
+			"The directive is gone, but every memory you carried in came back out.",
+			"지침은 잃었지만, 안고 들어간 기억은 모두 그대로 돌아왔다."
+		)
+	if _resolved_by_witness:
+		return _bl(
+			"Nothing was burned here. The name went back where it belonged.",
+			"이곳에서 태운 것은 없다. 이름은 제자리로 돌아갔다."
+		)
+	if _objective_completed:
+		return _bl(
+			"Held the directive, kept the archive intact.",
+			"지침을 지켰고, 서고도 그대로다."
+		)
+	return ""
+
+## S226: "Important" means a relationship-grade memory or one the world has an
+## authored rewrite for. Everything else stays a quiet resource, so the
+## companion reaction keeps its weight.
+func is_significant_memory(memory: MemoryManager.Memory) -> bool:
+	if memory == null:
+		return false
+	if memory.grade >= MemoryManager.MemoryGrade.GRADE_3:
+		return true
+	return WorldRewriteDirector.MEMORY_REWRITE_RULES.has(memory.id)
+
+## S226: A companion answers an important loss once, then lets it stand.
+func _emit_companion_burn_reaction(memory: MemoryManager.Memory) -> void:
+	if not is_significant_memory(memory):
+		return
+	var npc := String(memory.related_npc)
+	if npc == "" or npc in _burn_reactions_this_battle:
+		return
+	if npc == "Elia":
+		if not bool(GameManager.player_data.get("elia_with_party", false)):
+			return
+		_burn_reactions_this_battle.append(npc)
+		if memory.grade >= MemoryManager.MemoryGrade.GRADE_1:
+			battle_log.emit(_bl(
+				"[ELIA] That one had my name in it. Arrel. Look at me.",
+				"[엘리아] 그건 내 이름이 걸린 기억이었어. 아렐. 날 봐."
+			))
+		else:
+			battle_log.emit(_bl(
+				"[ELIA] You just went quiet in a place I used to be.",
+				"[엘리아] 내가 있던 자리가 방금 조용해졌어."
+			))
+		return
+	_burn_reactions_this_battle.append(npc)
+	battle_log.emit(_bl(
+		"[ABSENCE] %s is still there. The reason you knew them is not.",
+		"[공백] %s은(는) 여전히 거기 있다. 그를 알던 이유만 사라졌다."
+	) % npc)
 
 func _finalize_tactical_objective() -> Dictionary:
 	_ensure_tactical_objective_selected()
@@ -1522,6 +1712,7 @@ func player_burn(memory_id: String) -> void:
 	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
 	InputManager.vibrate("memory_burn")
 	_apply_burn_aftershock(memory)
+	_emit_companion_burn_reaction(memory)
 	# 침식 반영, 유효 연소력
 	var effective_power = MemoryManager.get_effective_burn_power(memory)
 	var dmg = skill.base_damage + effective_power
@@ -2710,6 +2901,7 @@ func _cleanup() -> void:
 			"enemy_name": current_enemy.name if current_enemy else "Unknown",
 			"is_boss": current_enemy.is_boss if current_enemy else false,
 			"battles_total": GameManager.play_stats.get("total_battles", 0),
+			"aftermath": _build_battle_aftermath_line(),
 		}
 		_victory_dismissed = false
 		victory_rewards_ready.emit(reward_data)

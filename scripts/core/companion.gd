@@ -216,6 +216,12 @@ func interact() -> void:
 	if DialogueManager.is_active:
 		return
 
+	# S226: 연소한 기억에 대한 일회성 반응이 우선한다.
+	var burn_reaction = PerceptionFilter.take_burn_reaction(self, dialogue_file)
+	if not burn_reaction.is_empty():
+		DialogueManager.load_and_start(String(burn_reaction.file), String(burn_reaction.key))
+		return
+
 	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
 	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
 		# 이미 대화한 동행, 짧은 후속 대사

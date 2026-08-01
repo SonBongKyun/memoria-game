@@ -7,28 +7,32 @@ const HINT_BANNER_PATH: String = "res://assets/cg/generated/ui_tutorial_hint_ban
 var shown_hints: Array = []  # 이미 표시된 힌트 ID 목록 (SaveManager 연동)
 
 # 힌트 정의
+## S226: The opening hours teach three things and nothing else: what a burn
+## costs, what the directive asks, and what the approach bought.
 const HINTS: Dictionary = {
-	"first_battle": "Press Attack to strike, or Burn a memory for powerful skills.",
-	"first_burn": "Burning memories is powerful but permanent. Choose wisely.",
+	"first_battle": "Read the objective card first. Attack builds BREAK, Burn buys damage with a memory you will not get back.",
+	"first_burn": "That memory is gone for good. The world and the people in it will adjust around the hole it left.",
+	"first_approach": "How you reached the threat carried into the fight. Phase Step for an ambush, hold your nerve for a guarded entry, pulse for a witness entry.",
 	"first_shop": "Trade Grains for memories and items. Sell what you don't need.",
 	"first_equipment": "Equip gear from the shop to boost your stats.",
 	"first_status_effect": "Status effects last several turns. Use Antidote to cure poison.",
 	"first_pulse": "Press Q to send out a Memory Pulse. Nearby echoes will briefly answer.",
 	"first_break": "Exploit enemy weaknesses to fill BREAK. Broken enemies lose a turn and take heavier damage.",
 	"first_resonance": "Strong tactical play builds Resonance. Higher Resonance boosts damage and post-battle rewards.",
-	"first_directive": "Choose a field directive before fighting. Completing it raises your battle grade and extends the reward chain.",
+	"first_directive": "Every encounter carries one directive. Completing it raises your battle grade and extends the reward chain; some directives forbid burning.",
 }
 
 const HINTS_KO: Dictionary = {
-	"first_battle": "공격으로 피해를 주거나, 기억을 연소해 강력한 기술을 사용할 수 있습니다.",
-	"first_burn": "연소한 기억은 되돌아오지 않습니다. 힘과 상실 사이에서 신중히 선택하세요.",
+	"first_battle": "먼저 목표 카드를 읽으세요. 공격은 BREAK를 쌓고, 연소는 돌아오지 않는 기억으로 화력을 삽니다.",
+	"first_burn": "그 기억은 영영 사라집니다. 세계와 사람들은 그 빈자리에 맞춰 다시 정렬됩니다.",
+	"first_approach": "위협에 다가간 방식이 전투로 이어집니다. 위상 이동은 기습, 버티며 접촉하면 대비 진입, 기억 파동은 증언 진입입니다.",
 	"first_shop": "그레인으로 기억과 아이템을 거래할 수 있습니다. 필요 없는 물품은 판매하세요.",
 	"first_equipment": "상점에서 장비를 착용하면 능력치가 상승합니다.",
 	"first_status_effect": "상태 이상은 여러 턴 지속됩니다. 독은 해독제로 치료할 수 있습니다.",
 	"first_pulse": "Q를 누르면 기억 파동을 방출합니다. 가까운 메아리가 잠시 응답합니다.",
 	"first_break": "약점을 공략해 BREAK를 채우세요. 붕괴된 적은 한 턴 행동하지 못하고 더 큰 피해를 받습니다.",
 	"first_resonance": "효율적인 전투는 공명을 높입니다. 공명이 높을수록 피해와 전투 보상이 증가합니다.",
-	"first_directive": "전투 전에 현장 지침을 선택하세요. 달성하면 전술 등급이 오르고 연속 보상도 이어집니다.",
+	"first_directive": "모든 교전에는 지침이 하나 붙습니다. 달성하면 전술 등급과 연속 보상이 오르고, 일부 지침은 연소를 금지합니다.",
 }
 
 # UI 노드

@@ -36,6 +36,13 @@ func interact() -> void:
 		return
 	_face_toward_player()
 	print("[NPC] %s, interact triggered" % npc_name)
+
+	# S226: 연소한 기억에 대한 일회성 반응이 우선한다.
+	var burn_reaction := PerceptionFilter.take_burn_reaction(self, dialogue_file)
+	if not burn_reaction.is_empty():
+		DialogueManager.load_and_start(String(burn_reaction.file), String(burn_reaction.key))
+		return
+
 	if dialogue_key == "":
 		var ambient_line := _get_runtime_line()
 		DialogueManager.start_dialogue([
