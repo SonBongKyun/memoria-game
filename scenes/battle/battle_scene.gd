@@ -219,12 +219,13 @@ var _burn_preview_dimmer: ColorRect
 var _burn_preview_confirm_btn: Button
 var _burn_preview_cancel_btn: Button
 var _burn_preview_timer: SceneTreeTimer  # delay before buttons become clickable
+var _burn_preview_transition_tween: Tween
+var _burn_preview_pulse_tween: Tween
+var _burn_preview_generation: int = 0
 var _pending_burn_id: String = ""  # memory ID waiting for confirmation
 
 # S54: Victory screen
 var _last_objective_status: String = ""  # S226: fires the complete/fail cue exactly once
-const BURN_AFTERGLOW_SHADER_PATH: String = "res://assets/shaders/desaturation.gdshader"
-var _burn_afterglow_rect: ColorRect  # S226: lingering absence wash after a burn
 var _victory_panel: PanelContainer
 var _victory_art: TextureRect
 var _victory_rewards: Array = []  # collected reward lines from battle_log
@@ -2613,6 +2614,7 @@ func _connect_signals() -> void:
 	_on_witness_changed(witness_state.progress, witness_state.required, "", witness_state.complete)
 
 func _exit_tree() -> void:
+	_stop_burn_preview_motion()
 	# 오토로드 시그널 연결 해제, 씬 재진입 시 freed 객체 참조 방지
 	if BattleManager.battle_log.is_connected(_on_battle_log):
 		BattleManager.battle_log.disconnect(_on_battle_log)
@@ -5738,6 +5740,7 @@ func _sync_burn_preview_frame() -> void:
 
 ## Show the burn preview popup for a memory before confirming the burn.
 func _show_burn_preview(memory: MemoryManager.Memory) -> void:
+	_stop_burn_preview_motion()
 	_pending_burn_id = memory.id
 
 	# Clear previous content
@@ -5794,7 +5797,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		relation_label.add_theme_color_override("font_color", _objective_relation_color(relation_kind))
 		vbox.add_child(relation_label)
 		if relation_kind == "fail":
-			var relation_pulse = create_tween().set_loops()
+			var relation_pulse = create_tween().bind_node(relation_label).set_loops()
 			relation_pulse.tween_property(relation_label, "modulate:a", 0.45, 0.45)
 			relation_pulse.tween_property(relation_label, "modulate:a", 1.0, 0.45)
 
@@ -5908,7 +5911,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		vbox.add_child(warn_label)
 
 		# Pulse animation on the warning
-		var pulse_tween = create_tween().set_loops()
+		var pulse_tween = create_tween().bind_node(warn_label).set_loops()
 		pulse_tween.tween_property(warn_label, "modulate:a", 0.5, 0.6)
 		pulse_tween.tween_property(warn_label, "modulate:a", 1.0, 0.6)
 
@@ -5988,25 +5991,32 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	_burn_preview_panel.scale = Vector2(0.85, 0.85)
 	_sync_burn_preview_frame()
 
-	var show_tween = create_tween()
-	show_tween.set_parallel(true)
-	show_tween.tween_property(_burn_preview_dimmer, "color:a", 0.6, 0.2)
+	_burn_preview_transition_tween = create_tween().bind_node(_burn_preview_panel)
+	_burn_preview_transition_tween.set_parallel(true)
+	_burn_preview_transition_tween.tween_property(_burn_preview_dimmer, "color:a", 0.6, 0.2)
 	if _burn_preview_art:
-		show_tween.tween_property(_burn_preview_art, "modulate:a", 0.86, 0.25)
-		show_tween.tween_property(_burn_preview_art, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	show_tween.tween_property(_burn_preview_panel, "modulate:a", 1.0, 0.25)
-	show_tween.tween_property(_burn_preview_panel, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		_burn_preview_transition_tween.tween_property(_burn_preview_art, "modulate:a", 0.86, 0.25)
+		_burn_preview_transition_tween.tween_property(_burn_preview_art, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	_burn_preview_transition_tween.tween_property(_burn_preview_panel, "modulate:a", 1.0, 0.25)
+	_burn_preview_transition_tween.tween_property(_burn_preview_panel, "scale", Vector2(1.0, 1.0), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 
-	# Pulse animation on Burn button (starts after delay)
-	var burn_pulse = create_tween().set_loops()
-	burn_pulse.tween_property(_burn_preview_confirm_btn, "modulate:a", 0.7, 0.5)
-	burn_pulse.tween_property(_burn_preview_confirm_btn, "modulate:a", 1.0, 0.5)
+	# The looping pulse belongs to the current button. Rebuilding the preview
+	# kills it automatically instead of leaving a loop targeting a queued child.
+	_burn_preview_pulse_tween = create_tween().bind_node(_burn_preview_confirm_btn).set_loops()
+	_burn_preview_pulse_tween.tween_property(_burn_preview_confirm_btn, "modulate:a", 0.7, 0.5)
+	_burn_preview_pulse_tween.tween_property(_burn_preview_confirm_btn, "modulate:a", 1.0, 0.5)
 
 	# 0.5s delay before Burn button becomes clickable (prevent accidental burns)
 	_burn_preview_confirm_btn.disabled = true
-	BattleManager.pace_timer(0.5).timeout.connect(func():
-		if is_instance_valid(_burn_preview_confirm_btn):
-			_burn_preview_confirm_btn.disabled = false
+	var preview_generation := _burn_preview_generation
+	var guarded_button := _burn_preview_confirm_btn
+	_burn_preview_timer = BattleManager.pace_timer(0.5)
+	_burn_preview_timer.timeout.connect(func():
+		if preview_generation == _burn_preview_generation \
+				and guarded_button == _burn_preview_confirm_btn \
+				and is_instance_valid(guarded_button) \
+				and _burn_preview_panel.visible:
+			guarded_button.disabled = false
 			AudioManager.play_sfx("ui_hover")  # subtle audio cue that button is now active
 	)
 
@@ -6039,13 +6049,17 @@ func _on_burn_preview_cancelled() -> void:
 func _hide_burn_preview() -> void:
 	if _burn_preview_panel == null or _burn_preview_dimmer == null:
 		return
-	var hide_tween = create_tween()
-	hide_tween.set_parallel(true)
-	hide_tween.tween_property(_burn_preview_dimmer, "color:a", 0.0, 0.15)
+	_stop_burn_preview_motion()
+	_burn_preview_transition_tween = create_tween().bind_node(_burn_preview_panel)
+	_burn_preview_transition_tween.set_parallel(true)
+	_burn_preview_transition_tween.tween_property(_burn_preview_dimmer, "color:a", 0.0, 0.15)
 	if _burn_preview_art:
-		hide_tween.tween_property(_burn_preview_art, "modulate:a", 0.0, 0.15)
-	hide_tween.tween_property(_burn_preview_panel, "modulate:a", 0.0, 0.15)
-	hide_tween.chain().tween_callback(func():
+		_burn_preview_transition_tween.tween_property(_burn_preview_art, "modulate:a", 0.0, 0.15)
+	_burn_preview_transition_tween.tween_property(_burn_preview_panel, "modulate:a", 0.0, 0.15)
+	var hide_generation := _burn_preview_generation
+	_burn_preview_transition_tween.chain().tween_callback(func():
+		if hide_generation != _burn_preview_generation:
+			return
 		if is_instance_valid(_burn_preview_dimmer):
 			_burn_preview_dimmer.visible = false
 		if _burn_preview_art and is_instance_valid(_burn_preview_art):
@@ -6053,6 +6067,18 @@ func _hide_burn_preview() -> void:
 		if is_instance_valid(_burn_preview_panel):
 			_burn_preview_panel.visible = false
 	)
+
+## S227: Every dynamic preview animation has one explicit owner and lifetime.
+## This also invalidates delayed unlock callbacks from an older selection.
+func _stop_burn_preview_motion() -> void:
+	_burn_preview_generation += 1
+	if _burn_preview_transition_tween != null and _burn_preview_transition_tween.is_valid():
+		_burn_preview_transition_tween.kill()
+	_burn_preview_transition_tween = null
+	if _burn_preview_pulse_tween != null and _burn_preview_pulse_tween.is_valid():
+		_burn_preview_pulse_tween.kill()
+	_burn_preview_pulse_tween = null
+	_burn_preview_timer = null
 
 ## ===================== S56: Memory Burn Dramatic Sequence =====================
 
@@ -6066,49 +6092,9 @@ func _play_memory_burn_then_execute(memory_id: String, memory_title: String, mem
 		await _play_memory_burn_cutin(cutin_path, memory_grade)
 	if battle_vfx:
 		await battle_vfx.play_memory_burn_sequence(memory_title, memory_grade, player_sprite_container)
-	# S226: The cinematic ends on time; the emptiness it left does not.
-	_play_burn_afterglow(memory_grade)
+	# MemoryManager.memory_burned hands the single afterglow to
+	# WorldRewriteDirector. Battle and field no longer paint competing washes.
 	BattleManager.player_burn(memory_id)
-
-## S226: A short-lived wash that keeps the fight fully playable while the colour
-## the memory used to carry stays gone.  Never blocks input or the command deck.
-func _play_burn_afterglow(memory_grade: int) -> void:
-	if canvas_root == null or not is_instance_valid(canvas_root):
-		return
-	if _burn_afterglow_rect != null and is_instance_valid(_burn_afterglow_rect):
-		_burn_afterglow_rect.queue_free()
-		_burn_afterglow_rect = null
-	if not ResourceLoader.exists(BURN_AFTERGLOW_SHADER_PATH):
-		return
-	var rect := ColorRect.new()
-	rect.name = "MemoryBurnAfterglow"
-	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rect.color = Color(1, 1, 1, 1)
-	rect.z_index = 70
-	var material := ShaderMaterial.new()
-	material.shader = load(BURN_AFTERGLOW_SHADER_PATH)
-	material.set_shader_parameter("desaturation", 0.0)
-	material.set_shader_parameter("tint_color", Color(0.13, 0.11, 0.17, 1.0))
-	material.set_shader_parameter("tint_strength", 0.0)
-	rect.material = material
-	canvas_root.add_child(rect)
-	_burn_afterglow_rect = rect
-
-	var peak := clampf(0.26 + float(memory_grade) * 0.06, 0.26, 0.50)
-	var hold := 3.4 + float(memory_grade) * 1.1  # ~3.4s for a fragment, ~7.8s for a core memory
-	var tween := create_tween()
-	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), 0.0, peak, 0.35)
-	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), 0.0, peak * 0.20, 0.35)
-	tween.tween_interval(hold)
-	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), peak, 0.0, 1.5)
-	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), peak * 0.20, 0.0, 1.5)
-	tween.tween_callback(func():
-		if is_instance_valid(rect):
-			rect.queue_free()
-		if _burn_afterglow_rect == rect:
-			_burn_afterglow_rect = null
-	)
 
 ## ===================== S56: Skill Element Detection Helper =====================
 

@@ -2,6 +2,28 @@
 
 ---
 
+## S227 - 2026-08-02 (Burn/Directive stabilization)
+
+### Audit findings
+- The burn preview rebuilt labels and buttons while four independent Tweens were still alive: show/hide, directive-failure pulse, high-grade warning pulse, and the confirm-button loop. The label loops were not bound to their dynamic targets, and delayed unlock callbacks could outlive the selection that created them.
+- BattleScene painted its own `MemoryBurnAfterglow` before calling `BattleManager.player_burn()`, while the resulting `MemoryManager.memory_burned` signal also asked `WorldRewriteDirector` to paint `MemoryAbsenceAfterglow`. A real battle burn could therefore stack two washes owned by two systems.
+- `swift_finish` forecasted from the current action count instead of the command being considered, so the fourth action remained a generic risk and the fifth action did not preview immediate failure.
+- The previous smoke workflow accepted a PASS marker even when Godot printed `Infinite loop detected` after it. Re-running the S226 early-loop smoke reproduced exactly that false green from an orphaned preview pulse.
+
+### Done
+- Added one explicit preview-motion lifetime: display/hide and confirm pulse Tweens are tracked, replaced, and killed on reselection, cancellation, or scene exit; the two dynamic label pulses are bound to their labels; delayed button unlocks carry a generation token and can only unlock the current selection.
+- Removed BattleScene's Afterglow implementation. `WorldRewriteDirector` is now the only owner, exposes the active non-blocking wash for validation/capture, kills and detaches the prior wash before replacement, and keeps exactly one grouped Afterglow across battle and field.
+- Corrected `swift_finish` command forecasting to the projected action count: third action `advance`, fourth action `risk` with a finish-now warning, fifth action `fail` before input is committed.
+- Added `smoke_burn_directive_stabilization` with six open/cancel/reselect cycles, stale Tween/timer assertions, the full Swift Finish boundary, and two real `MemoryManager.burn_memory()` calls while a battle scene is alive. The second burn must replace the first WorldRewriteDirector wash without creating a battle-owned duplicate.
+- Added `run_s227_smoke_suite.ps1`. A case now passes only when its marker is present, the process exits successfully, and output contains none of `Infinite loop`, `SCRIPT ERROR`, `Parse Error`, assertion failure, invalid call, or invalid access. Each case also has a hard timeout.
+
+### Verification
+- `S227_SMOKE_SUITE_PASS cases=6 fatal_scan=enabled`: Burn/Directive stabilization, Early Loop, Tactical Directives, Story Combat, Visual Clarity, and Crash Guards all supplied their PASS markers with no fatal diagnostic.
+- `BURN_DIRECTIVE_STABILIZATION_SMOKE_PASS previews=6 swift=advance-risk-fail actual_burns=2 afterglow=1`.
+- Godot 4.6.2 headless editor parse: exit 0 and no `Infinite loop`, `SCRIPT ERROR`, `Parse Error`, assertion failure, invalid call, or invalid access.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. Korean localization: 31 files, 1,592 fields, 19 speakers, 0 errors.
+- `git diff --check` passed.
+
 ## S226 - 2026-08-02 (Early-loop sharpening: burn stakes, directive clarity, lingering absence)
 
 ### Audit findings

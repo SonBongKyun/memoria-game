@@ -84,9 +84,9 @@ func _ready() -> void:
 	GameManager.current_locale = "en"
 	battle.call("_hide_burn_preview")
 	await get_tree().create_timer(0.6).timeout
-	battle.call("_play_burn_afterglow", MemoryManager.MemoryGrade.GRADE_2)
+	WorldRewriteDirector.play_absence_afterglow(MemoryManager.MemoryGrade.GRADE_2)
 	await get_tree().create_timer(0.9).timeout
-	var glow := battle.get("_burn_afterglow_rect") as ColorRect
+	var glow := WorldRewriteDirector.get_active_afterglow_rect()
 	assert(glow != null and is_instance_valid(glow), "The absence wash must exist after a burn")
 	assert(glow.mouse_filter == Control.MOUSE_FILTER_IGNORE, "The wash must never take input")
 	var desaturation: float = glow.material.get_shader_parameter("desaturation")

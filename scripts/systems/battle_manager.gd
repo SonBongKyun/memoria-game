@@ -1089,9 +1089,17 @@ func get_objective_action_relation(action_id: String) -> Dictionary:
 				kind = "fail"
 				text = _bl("Fails %s", "%s 실패") % title
 		"swift_finish":
-			var left := maxi(4 - _player_actions_this_battle, 0)
-			kind = "risk" if left <= 1 else "advance"
-			text = _bl("%s: %d action(s) left", "%s: 남은 행동 %d회") % [title, left]
+			var projected_actions := _player_actions_this_battle + 1
+			var left_after := maxi(4 - projected_actions, 0)
+			if projected_actions > 4:
+				kind = "fail"
+				text = _bl("Fails %s (action limit exceeded)", "%s 실패 (행동 한도 초과)") % title
+			elif projected_actions == 4:
+				kind = "risk"
+				text = _bl("%s: final action, finish now", "%s: 마지막 행동, 지금 끝내기") % title
+			else:
+				kind = "advance"
+				text = _bl("%s: %d action(s) remain after this", "%s: 이 행동 뒤 %d회 남음") % [title, left_after]
 		"force_break":
 			if action_id in ["attack", "burn"]:
 				kind = "advance"

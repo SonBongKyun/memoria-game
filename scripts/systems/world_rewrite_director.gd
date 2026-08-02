@@ -191,10 +191,12 @@ const DEFAULT_LINES_KO := {
 }
 
 const AFTERGLOW_SHADER_PATH := "res://assets/shaders/desaturation.gdshader"
+const AFTERGLOW_GROUP := "memory_absence_afterglow"
 
 var _last_scene_path := ""
 var _scene_residue_cooldown := 0.0
 var _afterglow_layer: CanvasLayer = null
+var _afterglow_tween: Tween = null
 
 func _ready() -> void:
 	if MemoryManager and MemoryManager.has_signal("memory_burned"):
@@ -317,22 +319,21 @@ func _manifest_rewrite(memory, report: Dictionary) -> void:
 	PerceptionFilter.apply(scene)
 	_show_rewrite_art(report)
 	_spawn_echo_cluster(scene, report, _find_manifest_origin(scene), memory)
-	_play_absence_afterglow(int(report.get("grade", MemoryManager.MemoryGrade.GRADE_5)))
+	play_absence_afterglow(int(report.get("grade", MemoryManager.MemoryGrade.GRADE_5)))
 	if NotificationToast:
 		var prefix := "세계 재기록" if GameManager.current_locale == "ko" else "World rewrite"
 		NotificationToast.show_toast("%s: %s" % [prefix, String(report.title)], NotificationToast.ToastType.WARNING)
 
 ## S226: The seconds right after a loss.  The world keeps running and the player
 ## keeps control, but the colour does not come back immediately.
-func _play_absence_afterglow(grade: int) -> void:
-	if _afterglow_layer != null and is_instance_valid(_afterglow_layer):
-		_afterglow_layer.queue_free()
-		_afterglow_layer = null
+func play_absence_afterglow(grade: int) -> void:
+	_clear_absence_afterglow()
 	var shader := load(AFTERGLOW_SHADER_PATH) if ResourceLoader.exists(AFTERGLOW_SHADER_PATH) else null
 	if shader == null:
 		return
 	var layer := CanvasLayer.new()
 	layer.name = "MemoryAbsenceAfterglow"
+	layer.add_to_group(AFTERGLOW_GROUP)
 	layer.layer = 7
 	var rect := ColorRect.new()
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -350,18 +351,38 @@ func _play_absence_afterglow(grade: int) -> void:
 
 	var peak := clampf(0.34 + float(grade) * 0.07, 0.34, 0.62)
 	var hold := 4.2 + float(grade) * 0.9  # 4.2s for a sensation, ~8s for a core memory
-	var tween := create_tween()
-	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), 0.0, peak, 0.45)
-	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), 0.0, peak * 0.22, 0.45)
-	tween.tween_interval(hold)
-	tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), peak, 0.0, 1.6)
-	tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), peak * 0.22, 0.0, 1.6)
-	tween.tween_callback(func():
+	_afterglow_tween = create_tween().bind_node(layer)
+	_afterglow_tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), 0.0, peak, 0.45)
+	_afterglow_tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), 0.0, peak * 0.22, 0.45)
+	_afterglow_tween.tween_interval(hold)
+	_afterglow_tween.tween_method(func(value: float): material.set_shader_parameter("desaturation", value), peak, 0.0, 1.6)
+	_afterglow_tween.parallel().tween_method(func(value: float): material.set_shader_parameter("tint_strength", value), peak * 0.22, 0.0, 1.6)
+	_afterglow_tween.tween_callback(func():
 		if is_instance_valid(layer):
 			layer.queue_free()
 		if _afterglow_layer == layer:
 			_afterglow_layer = null
+			_afterglow_tween = null
 	)
+
+func _clear_absence_afterglow() -> void:
+	if _afterglow_tween != null and _afterglow_tween.is_valid():
+		_afterglow_tween.kill()
+	_afterglow_tween = null
+	if _afterglow_layer != null and is_instance_valid(_afterglow_layer):
+		var parent := _afterglow_layer.get_parent()
+		if parent != null:
+			parent.remove_child(_afterglow_layer)
+		_afterglow_layer.queue_free()
+	_afterglow_layer = null
+
+func get_active_afterglow_rect() -> ColorRect:
+	if _afterglow_layer == null or not is_instance_valid(_afterglow_layer):
+		return null
+	return _afterglow_layer.get_child(0) as ColorRect if _afterglow_layer.get_child_count() > 0 else null
+
+func get_active_afterglow_count() -> int:
+	return get_tree().get_nodes_in_group(AFTERGLOW_GROUP).size()
 
 func _manifest_scene_residue() -> void:
 	if not GameManager or GameManager.current_state != GameManager.GameState.EXPLORATION:
