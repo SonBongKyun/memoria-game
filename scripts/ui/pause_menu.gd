@@ -68,6 +68,54 @@ const WORLD_POPULATION_GALLERY_PATH := "res://data/world_population_visual_galle
 const OCCULT_BOSS_GALLERY_PATH := "res://data/occult_boss_gallery.json"
 const ARTBOOK_ITEMS: Array[Dictionary] = [
 	{
+		"title": "Ash Hound - Cinder Pursuit",
+		"type": "Cinematic Enemy Action Cut-In",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_battle_v1.png",
+		"desc": "A wide combat beat for the recurring ash hound's ember-fissured pursuit."
+	},
+	{
+		"title": "Signal Wisp - Drowned Relay",
+		"type": "Cinematic Enemy Action Cut-In",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_battle_v1.png",
+		"desc": "A wide combat beat for the captive memory flame crossing a drowned relay."
+	},
+	{
+		"title": "Rootbound Echo - The Forest Holds",
+		"type": "Cinematic Enemy Action Cut-In",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_battle_v1.png",
+		"desc": "A wide combat beat for the hooded echo reaching through the roots that bind it."
+	},
+	{
+		"title": "Void Fragment - Suspended Fault",
+		"type": "Cinematic Enemy Action Cut-In",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_battle_v1.png",
+		"desc": "A wide combat beat for a BL-07 fault splitting into orbiting violet shards."
+	},
+	{
+		"title": "Ash Hound - Stage Character",
+		"type": "Cinematic Enemy Stage Character",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+		"desc": "Bone mask, iron charm, and ember fissures remain readable at the live battler scale."
+	},
+	{
+		"title": "Signal Wisp - Stage Character",
+		"type": "Cinematic Enemy Stage Character",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+		"desc": "The lantern cage, torn signal cloth, and captive memory flame form one readable combat silhouette."
+	},
+	{
+		"title": "Rootbound Echo - Stage Character",
+		"type": "Cinematic Enemy Stage Character",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_stage_v1.png",
+		"desc": "Faceless smoke, bark robes, and pale bindings survive the stage blend at gameplay scale."
+	},
+	{
+		"title": "Void Fragment - Stage Character",
+		"type": "Cinematic Enemy Stage Character",
+		"path": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+		"desc": "The suspended crystal and its orbiting shards fill the enemy slot without losing their void silhouette."
+	},
+	{
 		"title": "The Seam - Reunion at the Threshold",
 		"type": "Generated Story Archive",
 		"path": "res://assets/cg/generated/archive_ch6_reunion_v1.png",

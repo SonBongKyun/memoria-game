@@ -3,7 +3,7 @@
 ## Production target
 
 - Long-term target: approximately 1,000 deliberate game illustrations.
-- Current project baseline after S212: 460 PNG files under `assets/cg/`.
+- Current project baseline after S229: 471 PNG files under `assets/cg/`.
 - Each production pass should remain a complete narrative set, not a volume-only batch.
 
 ## Non-overlap rules
@@ -14,6 +14,19 @@
 4. Environment plates, dialogue story CGs, battle cinematics, memory-burn images, and ending plates are separate asset roles.
 5. Character identity anchors are fixed: short silver-haired Arrel, honey-blonde bob-haired Elia, rugged middle-aged Tobias, chin-length silver-haired Sable, and current Authority Kairos.
 6. Dialogue CGs keep the lower screen visually quiet for the live interface and contain no generated text.
+
+## S229 cinematic recurring-enemy battle plates
+
+The S228 battle stage made the canonical party painterly, but several repeatable field threats still carried their field art directly into combat. Four matched GPT Image pairs now preserve those established hostile identities across both the persistent battler slot and their wide action beats.
+
+| Enemy aliases | Stage character / action cut-in | Identity reference | Live integration |
+|---|---|---|---|
+| `Ash Hound`, `Ash Bone Hound` | `enemy_ash_hound_stage_v1.png` / `enemy_ash_hound_battle_v1.png` | `ash_hound_field_v2.png` | Resolver, battle stage, enemy action, Bestiary, Artbook |
+| Signal, Archive, Seam, and Threshold Wisps | `enemy_signal_wisp_stage_v1.png` / `enemy_signal_wisp_battle_v1.png` | `signal_wisp_field_v2.png` | Resolver, battle stage, enemy action, Bestiary, Artbook |
+| `Rootbound Echo` | `enemy_rootbound_echo_stage_v1.png` / `enemy_rootbound_echo_battle_v1.png` | `rootbound_echo_field_v2.png` | Resolver, battle stage, enemy action, Bestiary, Artbook |
+| `Void Fragment`, `Hollow Fragment` | `enemy_void_fragment_stage_v1.png` / `enemy_void_fragment_battle_v1.png` | `void_fragment_field_v2.png` | Resolver, battle stage, enemy action, Bestiary, Artbook |
+
+The 1024x1536 stage characters fill the persistent enemy slot and dissolve into its authored oval blend; their 1672x941 companions leave the player side calm and appear during hostile action beats. Every asset uses the existing Memory Eater cut-in as the finish and lighting reference, retains the field creature's defining silhouette and materials, and remains text-free RGB art with no border, HUD, paper/canvas texture, grain, dirty-lens overlay, excessive bloom, or visibility-blocking fog.
 
 ## S211 post-upgrade audit and Story Log witness ledger
 

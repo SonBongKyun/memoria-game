@@ -132,6 +132,19 @@ func _ready() -> void:
 	assert(BattleManager.resolve_enemy_image_by_name("Void Beast") == "res://assets/cg/character_shots/void_beast_occult_rite_v1.png", "Void Beast must use its occult rite boss shot")
 	assert(BattleManager.resolve_enemy_image_by_name("Shade Sentinel") == "res://assets/cg/character_shots/shade_sentinel_ritual_seal_v1.png", "Shade Sentinel must use its ritual seal boss shot")
 	assert(BattleManager.resolve_enemy_image_by_name("Kairos, Authority Editor") == "res://assets/cg/character_shots/kairos_occult_editor_v1.png", "Kairos must use the occult editor boss shot")
+	var recurring_enemy_plates := {
+		"Ash Hound": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+		"Ash Bone Hound": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+		"Signal Wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+		"Archive Wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+		"Rootbound Echo": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_stage_v1.png",
+		"Void Fragment": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+		"Hollow Fragment": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	}
+	for enemy_name: String in recurring_enemy_plates:
+		var battle_plate := String(recurring_enemy_plates[enemy_name])
+		assert(ResourceLoader.exists(battle_plate), "%s battle-stage plate must exist" % enemy_name)
+		assert(BattleManager.resolve_enemy_image_by_name(enemy_name) == battle_plate, "%s must resolve to its painterly battle-stage plate" % enemy_name)
 	assert(CgViewer.continue_panel != null and CgViewer.continue_label != null, "CG viewer must expose an input-aware continue chip")
 	var previous_mode = InputManager.current_mode
 	InputManager.current_mode = InputManager.InputMode.CONTROLLER

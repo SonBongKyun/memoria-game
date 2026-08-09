@@ -97,9 +97,18 @@ const ART_SHADE_SENTINEL: String = "res://assets/cg/character_shots/shade_sentin
 const ART_KAIROS_ASCENDANT: String = "res://assets/cg/character_shots/kairos_occult_editor_v1.png"
 const ART_ECHO_SHELL: String = "res://assets/cg/character_shots/echo_shell_shot_v2.png"
 
-## S212: 반복 등장 잡몹의 무대 아트 (S204 액션 컷인 원화 재사용).
+## S212/S229: 반복 등장 잡몹의 무대 아트. S229 원화는 세로형 전용 플레이트를 사용한다.
 ## 이름은 소문자로 비교하며, 먼저 걸리는 항목이 이긴다.
 const RECURRING_ENEMY_ART: Dictionary = {
+	"ash bone hound": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"ash hound": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"signal wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+	"archive wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+	"seam wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+	"threshold wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+	"rootbound echo": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_stage_v1.png",
+	"void fragment": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	"hollow fragment": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
 	"ash crawler": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_ash_crawler_v1.png",
 	"forest shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_forest_shade_v1.png",
 	"threshold shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_threshold_shade_v1.png",
@@ -738,7 +747,12 @@ func resolve_enemy_image_by_name(enemy_name: String) -> String:
 
 func _uses_canonical_character_shot(enemy_name: String) -> bool:
 	var lower_name := enemy_name.to_lower()
-	return "kairos" in lower_name or "authority editor" in lower_name or "watcher" in lower_name or "shade sentinel" in lower_name or "void beast" in lower_name or "echo shell" in lower_name
+	if "kairos" in lower_name or "authority editor" in lower_name or "watcher" in lower_name or "shade sentinel" in lower_name or "void beast" in lower_name or "echo shell" in lower_name:
+		return true
+	for enemy_key: String in RECURRING_ENEMY_ART:
+		if enemy_key in lower_name and String(RECURRING_ENEMY_ART[enemy_key]).contains("/battle_stage_v2/"):
+			return true
+	return false
 
 func _get_opening_tactical_hint(enemy: Enemy) -> String:
 	var focus: String = _bl("Watch its rhythm, then force a BREAK.", "리듬을 읽고, BREAK를 강제하라.")

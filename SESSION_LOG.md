@@ -2,6 +2,25 @@
 
 ---
 
+## S229 - 2026-08-09 (Recurring-enemy painterly battle art expansion)
+
+### Audit findings
+- The archive already had broad Memory Compass, Loss Records, World Rewrite, Part III story-CG, and boss-cut-in coverage. Generating another isolated narrative batch would have duplicated existing beats instead of improving the live game.
+- The S228 cinematic battle stage exposed the clearest remaining graphics gap: several repeatable field threats entered the painterly stage through landscape field art, so they appeared smaller and less cohesive than Arrel and the authored bosses.
+- A first live OpenGL pass confirmed that one 16:9 image could not serve both the persistent portrait-shaped battler slot and a wide action beat without sacrificing scale or composition.
+
+### Done
+- Generated four matched, identity-preserving enemy art pairs from the existing field designs and Memory Eater battle finish: Ash Hound, Signal Wisp, Rootbound Echo, and Void Fragment. Each pair contains a 1024x1536 stage character and a 1672x941 action cut-in, for eight new RGB illustrations total.
+- Connected the stage characters to the canonical enemy resolver for all regional aliases (`Ash Bone Hound`, Archive/Seam/Threshold Wisps, and `Hollow Fragment` included). Field-provided landscape art is now intentionally overridden only for these authored S229 combat identities.
+- Connected the wide companions to the live hostile action-cut-in resolver while preserving all existing S204 and boss routes. Added all eight images to the existing Artbook and documented their distinct stage/action roles in `ILLUSTRATION_CATALOG.md`.
+- Added a focused 2x2 real-render capture tool. It enters each battle through `BattleManager`, waits for the real encounter-intro blackout to clear, asserts the canonical portrait plate and separate wide action cut-in, and records the persistent combat tableau.
+
+### Verification
+- Godot 4.6.2 import and headless editor parse: exit 0; fatal diagnostic scan 0. All eight PNG resources import successfully.
+- `VISUAL_CLARITY_SMOKE_PASS` and `CINEMATIC_BATTLE_STAGE_SMOKE_PASS` passed with fatal diagnostic scan 0; the former covers the new canonical resolver aliases and the latter preserves the full S228 painterly/accessibility contract.
+- Real NVIDIA OpenGL 3.3 capture passed: `RECURRING_ENEMY_BATTLE_STAGE_CAPTURE_PASS path=res://tmp/visual_audit/recurring_enemy_battle_stage_v1.png encounters=4 resolver=canonical texture=TextureRect action_cutins=wide`.
+- The final 2560x1440 contact sheet was visually inspected after the intro transition: all four enemies fill their intended stage slot, remain distinct against their biome backgrounds, keep the command deck and tactical panels clear, and preserve restrained ash/violet focal light. Known ShaderV duplicate-UID and shutdown ObjectDB/resource notices remain non-fatal.
+
 ## S228 - 2026-08-09 (Cinematic Battle Stage 2.0)
 
 ### Audit findings

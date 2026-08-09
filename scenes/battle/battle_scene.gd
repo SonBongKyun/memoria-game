@@ -158,6 +158,15 @@ const ARREL_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_sho
 const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_occult_rite_v1.png"
 const ECHO_SHELL_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/echo_shell_reach_v3.png"
 const ENEMY_ACTION_CUTIN_PATHS: Dictionary = {
+	"ash bone hound": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_battle_v1.png",
+	"ash hound": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_battle_v1.png",
+	"signal wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_battle_v1.png",
+	"archive wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_battle_v1.png",
+	"seam wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_battle_v1.png",
+	"threshold wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_battle_v1.png",
+	"rootbound echo": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_battle_v1.png",
+	"void fragment": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_battle_v1.png",
+	"hollow fragment": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_battle_v1.png",
 	"ash crawler": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_ash_crawler_v1.png",
 	"forest shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_forest_shade_v1.png",
 	"threshold shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_threshold_shade_v1.png",
