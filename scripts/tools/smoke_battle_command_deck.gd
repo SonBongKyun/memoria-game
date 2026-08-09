@@ -70,11 +70,13 @@ func _ready() -> void:
 		await get_tree().create_timer(0.16).timeout
 		_save_viewport("res://tmp/visual_audit/item_moment_%s.png" % String(feedback["type"]))
 
-	print("BATTLE_COMMAND_DECK_SMOKE_PASS actions=%d item_moments=%d readout_height=%.1f player_scale=%s" % [
+	var player_plate := battle.get("player_sprite") as TextureRect
+	assert(player_plate != null and player_plate.texture.resource_path.ends_with("arrel_battle_v3.png"), "Command-deck battle must retain canonical painterly Arrel")
+	print("BATTLE_COMMAND_DECK_SMOKE_PASS actions=%d item_moments=%d readout_height=%.1f player_plate=%s" % [
 		action_buttons.size(),
 		item_feedback_cases.size(),
 		readout_art.size.y,
-		str((battle.get("player_sprite") as AnimatedSprite2D).scale),
+		str(player_plate.size),
 	])
 	get_tree().quit(0)
 

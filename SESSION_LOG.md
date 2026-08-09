@@ -2,6 +2,32 @@
 
 ---
 
+## S228 - 2026-08-09 (Cinematic Battle Stage 2.0)
+
+### Audit findings
+- Arrel alone still used an enlarged chibi `AnimatedSprite2D` in the real battle path while allies, support, and enemies had painterly plate paths. That made the protagonist the least cohesive battler on his own stage.
+- Battler containers, flat shadows, and HybridDepthStage contact anchors had independent coordinate lists. A visual fit change could leave a plate, its 2D grounding, and its 3D contact shadow out of agreement.
+- The existing action vocabulary only animated `AnimatedSprite2D` nodes. Painterly plates had no semantic attack, cast, hurt, or persistent down state, and accessibility modes did not fully settle battler drift back to their authored base positions.
+- Follow-up review found two live-path accessibility/cohesion leaks: animated fallback builders could start an idle loop before Reduce Motion took effect, and turn focus used warm/cool RGB shifts instead of neutral brightness-only emphasis.
+- The shared ally slot did not record which companion it displayed, so an Elia action could animate Sable when both were present. Hit/status cleanup also restored plain white instead of a role's authored plate modulation, and Reduced Motion still advanced fallback SpriteFrames.
+
+### Done
+- Replaced the normal Arrel battle path with the existing `arrel_battle_v3.png` canonical painterly `TextureRect`; the existing animated Arrel sheet remains an explicit fallback if that resource is unavailable. Ally, Tobias, and enemy painterly paths now share the same fit/filter/metadata/grounding/blend restoration construction, while their procedural or animated fallbacks remain available.
+- Added one `BATTLE_ROLE_PROFILES` source for player, ally, support, and enemy canvas feet, local feet, container/plate fits, ordering, 3D projection seed, contact-shadow values, and role-specific brightness. Containers and `_sync_battler_anchors_to_stage()` now derive from those profiles.
+- Added painterly semantic states with restrained scale, tint, and tilt; the old lunge/knockback containers remain authoritative. Player/enemy visual emphasis now layers onto `HybridDepthStage.set_battle_focus()` without new positional focus tweens. Temporary materials restore the actor's stage blend material.
+- Reduce Motion now holds static attack/cast/hurt cues briefly, then generation-guards their restoration to the authored idle scale/rotation; down remains persistent. Clean Gameplay Visuals also returns battlers to their profile base while keeping the static hierarchy readable. Command deck, directive card, HP/readout, item/burn, WITNESS, party, and battle mechanics remain intact.
+- The shared ally plate now records and resolves its displayed identity, so only that companion can animate it; Tobias remains independently mapped. Each battler records its authored base modulation, restored after hit/no-status/status-shader cleanup without changing focus/semantic `self_modulate` or blend material. Animated fallbacks now use static semantic frames plus the same generation-guarded Reduce Motion hold/idle lifecycle while normal SpriteFrames playback remains unchanged.
+- Animated fallback registration is now the sole initialization path: Reduce Motion immediately selects and pauses the authored idle frame, while normal mode retains looping idle playback. Focus tinting now uses equal RGB brightness factors for active, inactive, and rear actors without moving battler containers or overwriting semantic tint.
+- Added the focused `smoke_cinematic_battle_stage` scene (and Godot-generated UID) for canonical art, fallback contracts, role/anchor coupling, solo/max-party bounds, UI clearance, focus/material restoration, accessibility, and action semantics. Updated the existing clarity/filter/story/deck checks and both OpenGL capture scripts for the canonical path and six full-frame moment states.
+
+### Verification
+- Godot 4.6.2 headless editor parse: exit 0; no `Infinite loop`, `SCRIPT ERROR`, `Parse Error`, assertion failure, invalid call, or invalid access. Existing ShaderV duplicate-UID and shutdown ObjectDB/resource notices remain non-fatal.
+- `CINEMATIC_BATTLE_STAGE_SMOKE_PASS canonical=TextureRect profiles=4 anchors=4 solo=visible max_party=visible ui_clear=1 focus=player_enemy neutral_brightness=1 material_restore=1 displayed_ally=guarded modulation_restore=1 reduce_motion=static_settle stale_guard=1 normal_mechanics=1 clean_view=1 semantics=attack_cast_hurt_down animated_fallback=static fallback_init=static fallbacks=explicit`; it verifies Sable/Elia/Tobias identity routing, exact player/enemy modulation restoration, static fallback initialization and semantic frames, normal idle playback recovery, neutral focus brightness, real action/damage callbacks, and stale cleanup protection through newer cast/down states.
+- Direct fatal-aware checks passed: `VISUAL_CLARITY_SMOKE_PASS`, `TEXTURE_FILTERING_SMOKE_PASS`, `STORY_QOL_SMOKE_PASS`, and `BATTLE_COMMAND_DECK_SMOKE_PASS` (`actions=8`, `player_plate=(248.0, 248.0)`).
+- `S227_SMOKE_SUITE_PASS cases=6 fatal_scan=enabled`: Burn/Directive stabilization, Early Loop, Tactical Directives, Story Combat, Visual Clarity, and Crash Guards all passed.
+- Real non-headless OpenGL 3.3 captures passed at 1280x720: `HYBRID_BATTLE_CAPTURE_PASS` (`profile=the_seam`, player focus, canonical TextureRect) and `BATTLE_MOMENTS_CAPTURE_PASS` (`shots=6`, `idle_player_enemy_action_hurt_down`). Both final files were visually inspected for hierarchy, grounding, semantic readability, and UI clearance.
+- `git diff --check` passed; the worktree contains only the S228-owned sources plus the Godot-generated UID for the new smoke script. Nothing was staged, committed, or pushed.
+
 ## S227 - 2026-08-02 (Burn/Directive stabilization)
 
 ### Audit findings

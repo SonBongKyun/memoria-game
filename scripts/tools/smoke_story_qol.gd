@@ -183,7 +183,10 @@ func _check_battle_stage() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	var baseline: float = battle.STAGE_BASELINE_Y
+	var profiles: Dictionary = battle.BATTLE_ROLE_PROFILES
+	var player_profile: Dictionary = profiles["player"]
+	var enemy_profile: Dictionary = profiles["enemy"]
+	var baseline: float = player_profile.canvas_foot.y
 	var player_container := battle.get("player_sprite_container") as Control
 	var enemy_container := battle.get("enemy_sprite_container") as Control
 	var ally_container := battle.get("ally_sprite_container") as Control
@@ -191,11 +194,11 @@ func _check_battle_stage() -> void:
 	var enemy_shadow := battle.get("enemy_shadow") as Polygon2D
 
 	# 전투원 그림자는 모두 공통 기준선 근처에 놓인다 (원근 오프셋 20px 이내).
-	var player_feet: float = player_container.position.y + player_shadow.position.y + 200.0
-	var enemy_feet: float = enemy_container.position.y + enemy_shadow.position.y + 300.0
+	var player_feet: float = player_container.position.y + player_profile.local_foot.y
+	var enemy_feet: float = enemy_container.position.y + enemy_profile.local_foot.y
 	assert(absf(player_feet - baseline) < 2.0, "아렐의 발이 무대 기준선에 있어야 한다 (%.1f vs %.1f)" % [player_feet, baseline])
 	assert(absf(enemy_feet - baseline) < 2.0, "적의 발이 무대 기준선에 있어야 한다 (%.1f vs %.1f)" % [enemy_feet, baseline])
-	assert(ally_container.position.y + 160.0 <= baseline, "동행자는 기준선보다 앞으로 나오지 않는다")
+	assert(ally_container.position.y + float(profiles["ally"].local_foot.y) <= baseline, "동행자는 기준선보다 앞으로 나오지 않는다")
 
 	# 적 판이 상자 안에서 세로 가운데 정렬로 떠 있지 않아야 한다.
 	var enemy_plate := battle.get("enemy_sprite") as Control
@@ -204,8 +207,9 @@ func _check_battle_stage() -> void:
 	assert(plate_bottom > 240.0, "적 일러스트 아랫변이 지면 가까이 내려와야 한다 (%.1f)" % plate_bottom)
 
 	# 주인공이 무대에서 가장 큰 전투원이어야 한다.
-	var player_sprite := battle.get("player_sprite") as AnimatedSprite2D
-	assert(player_sprite.scale.x >= 1.3, "아렐이 무대의 시선 기준이어야 한다 (scale %.2f)" % player_sprite.scale.x)
+	var player_sprite := battle.get("player_sprite") as TextureRect
+	assert(player_sprite != null and player_sprite.texture.resource_path.ends_with("arrel_battle_v3.png"), "Arrel must use the canonical painterly battle plate")
+	assert(player_sprite.size.y > ally_container.size.y * 0.7, "Arrel must retain player-primary visual weight")
 
 	# 배속 칩과 리밋 라벨.
 	var speed_chip := battle.get("_battle_speed_btn") as Button

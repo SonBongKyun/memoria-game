@@ -312,8 +312,9 @@ func _ready() -> void:
 	assert(battle_scene.call("_resolve_enemy_action_cutin", "Echo Shell") == "res://assets/cg/character_shots/echo_shell_reach_v3.png", "Echo Shell attacks must use the new reach cut-in")
 	assert(battle_scene.get("_battle_particles") == null, "Clean battle view must suppress ambient dust")
 	assert((battle_scene.get("_battle_parallax_layers") as Array).is_empty(), "Clean battle view must suppress parallax haze")
-	var actor := battle_scene.get("player_sprite") as AnimatedSprite2D
-	assert(actor != null, "Battle smoke must build Arrel's animated sprite")
+	var actor := battle_scene.get("player_sprite") as TextureRect
+	assert(actor != null and actor.texture != null and actor.texture.resource_path == "res://assets/portraits/character_shots/arrel_battle_v3.png", "Battle smoke must build Arrel's canonical painterly stage plate")
+	assert(actor.texture_filter == CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS, "Arrel's painterly battle plate must use mipmapped filtering")
 	var command_grid := battle_scene.get("action_container") as GridContainer
 	var witness_button := battle_scene.get("witness_btn") as Button
 	var combat_cue := battle_scene.get("combat_cue_panel") as PanelContainer
@@ -335,7 +336,7 @@ func _ready() -> void:
 	assert(illustrated_item_buttons == 2, "Battle items must use the shared consumable icon family")
 	battle_scene.call("_play_actor_anim", actor, "attack")
 	battle_scene.call("_play_actor_anim", actor, "hurt")
-	assert(actor.animation_finished.get_connections().size() == 1, "One-shot battle verbs must share one completion callback")
+	assert(actor.get_meta("semantic_state", "") == "hurt", "Painerly battle plates must retain semantic action states when motion is reduced")
 	var sable_stage := battle_scene.get("ally_sprite") as TextureRect
 	assert(sable_stage != null and sable_stage.texture.resource_path == "res://assets/portraits/character_shots/sable_warden_v3.png", "Sable battle support must use the unified canonical character shot")
 

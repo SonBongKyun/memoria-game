@@ -14,6 +14,97 @@ const BATTLE_ITEM_TRAY_PATH: String = "res://assets/cg/generated/ui_battle_item_
 const STAGE_BASELINE_Y: float = 424.0
 const STAGE_FLOOR_ANCHOR: float = 0.60
 
+## S228: Cinematic Battle Stage 2.0 role contract.
+##
+## The tabletop used to keep the 2D container, its contact shadow, and the 3D
+## floor anchor in separate coordinate lists.  A size tweak could therefore
+## leave a battler standing beside its own 3D shadow.  Every battler-facing
+## value now lives here: the canvas foot point, the local container/plate fit,
+## draw order, and the HybridDepthStage projection seed all travel together.
+const BATTLE_ROLE_PROFILES: Dictionary = {
+	"player": {
+		"anchor_name": "PlayerAnchor",
+		"stage_key": "player",
+		"stage_anchor": HybridDepthStage.ANCHOR_PLAYER,
+		"canvas_foot": Vector2(246.0, STAGE_BASELINE_Y),
+		"container_size": Vector2(292.0, 292.0),
+		"local_foot": Vector2(146.0, 278.0),
+		# The portrait begins below the tactical directive band while its feet stay
+		# locked to the primary contact point. It remains substantially larger than
+		# the rear-line plates without competing with the objective readout.
+		"plate_max_size": Vector2(248.0, 248.0),
+		"plate_local_foot": Vector2(146.0, 278.0),
+		"stage_order": -1,
+		"shadow_radii": Vector2(78.0, 12.0),
+		"shadow_alpha": 0.42,
+		"glow_radii": Vector2(91.0, 16.0),
+		"glow_color": Color(0.20, 0.38, 0.68, 0.13),
+		# The Seam tableau is deliberately low-key; a restrained lift preserves
+		# Arrel's face and blade as the first readable player-side silhouette.
+		"plate_modulate": Color(1.10, 1.06, 1.02, 1.0),
+		"edge_softness": 0.12,
+		"oval_mask": 0.16,
+		"rim": 0.0,
+	},
+	"ally": {
+		"anchor_name": "AllyAnchor",
+		"stage_key": "ally",
+		"stage_anchor": HybridDepthStage.ANCHOR_ALLY,
+		"canvas_foot": Vector2(113.0, STAGE_BASELINE_Y - 16.0),
+		"container_size": Vector2(172.0, 202.0),
+		"local_foot": Vector2(86.0, 192.0),
+		"plate_max_size": Vector2(160.0, 184.0),
+		"plate_local_foot": Vector2(86.0, 190.0),
+		"stage_order": -3,
+		"shadow_radii": Vector2(50.0, 8.0),
+		"shadow_alpha": 0.27,
+		"glow_radii": Vector2(58.0, 10.0),
+		"glow_color": Color(0.54, 0.38, 0.68, 0.08),
+		"plate_modulate": Color(1.0, 0.98, 0.95, 0.92),
+		"edge_softness": 0.24,
+		"oval_mask": 0.86,
+		"rim": 0.0,
+	},
+	"support": {
+		"anchor_name": "SupportAnchor",
+		"stage_key": "support",
+		"stage_anchor": HybridDepthStage.ANCHOR_SUPPORT,
+		"canvas_foot": Vector2(364.0, STAGE_BASELINE_Y - 22.0),
+		"container_size": Vector2(170.0, 200.0),
+		"local_foot": Vector2(85.0, 190.0),
+		"plate_max_size": Vector2(154.0, 178.0),
+		"plate_local_foot": Vector2(85.0, 188.0),
+		"stage_order": -2,
+		"shadow_radii": Vector2(50.0, 8.0),
+		"shadow_alpha": 0.24,
+		"glow_radii": Vector2(58.0, 10.0),
+		"glow_color": Color(0.55, 0.48, 0.30, 0.08),
+		"plate_modulate": Color(0.98, 0.96, 0.93, 0.90),
+		"edge_softness": 0.24,
+		"oval_mask": 0.86,
+		"rim": 0.0,
+	},
+	"enemy": {
+		"anchor_name": "EnemyAnchor",
+		"stage_key": "enemy",
+		"stage_anchor": HybridDepthStage.ANCHOR_ENEMY,
+		"canvas_foot": Vector2(1016.0, STAGE_BASELINE_Y),
+		"container_size": Vector2(360.0, 310.0),
+		"local_foot": Vector2(180.0, 300.0),
+		"plate_max_size": Vector2(350.0, 296.0),
+		"plate_local_foot": Vector2(180.0, 296.0),
+		"stage_order": -1,
+		"shadow_radii": Vector2(108.0, 15.0),
+		"shadow_alpha": 0.40,
+		"glow_radii": Vector2(116.0, 17.0),
+		"glow_color": Color(0.50, 0.15, 0.50, 0.10),
+		"plate_modulate": Color(1.0, 0.97, 0.96, 0.96),
+		"edge_softness": 0.30,
+		"oval_mask": 0.80,
+		"rim": 0.0,
+	},
+}
+
 # UI 노드
 var bg: ColorRect
 var enemy_name_label: Label
@@ -32,7 +123,7 @@ var witness_btn: Button
 var burn_list_container: VBoxContainer
 var item_list_container: VBoxContainer
 var _battle_quick_item_buttons: Array[Button] = []
-var enemy_sprite: Control  # 적 스프라이트
+var enemy_sprite: CanvasItem  # 적 스프라이트
 var enemy_sprite_container: Control  # 적 아이들 모션용 컨테이너
 
 var log_lines: Array = []
@@ -63,6 +154,7 @@ const BREAK_FAULTLINE_CUTIN_PATH: String = "res://assets/cg/generated/battle_cut
 const SABLE_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/sable_warden_v3.png"
 const TOBIAS_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/tobias_ledger_v3.png"
 const ELIA_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/elia_anchor_v3.png"
+const ARREL_BATTLE_FULLBODY_PATH: String = "res://assets/portraits/character_shots/arrel_battle_v3.png"
 const VOID_BEAST_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/void_beast_occult_rite_v1.png"
 const ECHO_SHELL_ACTION_CUTIN_PATH: String = "res://assets/cg/character_shots/echo_shell_reach_v3.png"
 const ENEMY_ACTION_CUTIN_PATHS: Dictionary = {
@@ -136,6 +228,7 @@ var player_sprite_container: Control  # 아이들 모션용
 var _player_sprite_base_scale: Vector2 = Vector2.ONE
 var ally_sprite: CanvasItem  # 동행자 스프라이트 (엘리아/세이블)
 var ally_sprite_container: Control
+var _displayed_ally_identity: String = ""
 var tobias_sprite_container: Control
 var tobias_sprite: CanvasItem
 ## S212: 전투원 앵커 (3D 카메라 결합).
@@ -173,6 +266,9 @@ var player_portrait_rect: TextureRect  # HP 옆 포트레이트
 # 적 아이들 모션
 var _idle_time: float = 0.0
 var _enemy_base_y: float = 0.0
+var _painterly_semantic_tweens: Dictionary = {}
+var _painterly_semantic_generations: Dictionary = {}
+var _current_battler_focus: String = "neutral"
 
 # S42: 전투 분위기 컬러 그레이딩
 var _color_grade_rect: ColorRect
@@ -290,23 +386,25 @@ func _process(delta: float) -> void:
 	_idle_time += delta
 	_update_battler_anchors()
 	var clean_view: bool = OptionsMenu.is_clean_gameplay_visuals()
+	var reduce_motion: bool = OptionsMenu.is_reduce_motion()
+	var battler_idle_motion: bool = not clean_view and not reduce_motion
 	if action_ribbon_art and action_container:
 		action_ribbon_art.visible = action_container.visible
 		if action_ribbon_art.visible:
 			action_ribbon_art.modulate.a = 0.92 if clean_view else 0.94 + sin(_idle_time * 1.15) * 0.018
 	# 적 아이들 모션 (호흡, 상하 + 미세 스케일)
-	if enemy_sprite_container and enemy_sprite_container.visible and not clean_view:
+	if enemy_sprite_container and enemy_sprite_container.visible and battler_idle_motion:
 		enemy_sprite_container.position.y = _enemy_base_pos.y + sin(_idle_time * 1.5) * 3.0
 		enemy_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.5) * 0.008, 1.0 - sin(_idle_time * 1.5) * 0.006)
 	# 플레이어 아이들 모션 (호흡 + 미세 스케일)
-	if player_sprite_container and not clean_view:
+	if player_sprite_container and battler_idle_motion:
 		player_sprite_container.position.y = _player_base_pos.y + sin(_idle_time * 1.8 + 0.5) * 2.0
 		player_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.8 + 0.5) * 0.006, 1.0 - sin(_idle_time * 1.8 + 0.5) * 0.005)
 	# 동행자 아이들
-	if ally_sprite_container and ally_sprite_container.visible and not clean_view:
+	if ally_sprite_container and ally_sprite_container.visible and battler_idle_motion:
 		ally_sprite_container.position.y = _ally_base_pos.y + sin(_idle_time * 1.3 + 1.2) * 2.5
 		ally_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.3 + 1.2) * 0.007, 1.0 - sin(_idle_time * 1.3 + 1.2) * 0.005)
-	if tobias_sprite_container and tobias_sprite_container.visible and not clean_view:
+	if tobias_sprite_container and tobias_sprite_container.visible and battler_idle_motion:
 		tobias_sprite_container.position.y = _tobias_base_pos.y + sin(_idle_time * 1.1 + 2.0) * 2.0
 		tobias_sprite_container.scale = Vector2(1.0 + sin(_idle_time * 1.1 + 2.0) * 0.005, 1.0 - sin(_idle_time * 1.1 + 2.0) * 0.004)
 	# S53: 전투 패럴랙스 미세 이동
@@ -315,6 +413,22 @@ func _process(delta: float) -> void:
 			if layer and is_instance_valid(layer):
 				var speed = layer.get_meta("parallax_speed", 0.5)
 				layer.position.x = sin(_idle_time * speed * 0.3) * 15 * speed
+	# Both accessibility modes keep the authored stage hierarchy at its profile
+	# base. Reduce Motion also suppresses semantic transition tweens elsewhere;
+	# Clean View simply removes decorative drift and clutter.
+	if reduce_motion or clean_view:
+		if enemy_sprite_container:
+			enemy_sprite_container.position = _enemy_base_pos
+			enemy_sprite_container.scale = Vector2.ONE
+		if player_sprite_container:
+			player_sprite_container.position = _player_base_pos
+			player_sprite_container.scale = Vector2.ONE
+		if ally_sprite_container:
+			ally_sprite_container.position = _ally_base_pos
+			ally_sprite_container.scale = Vector2.ONE
+		if tobias_sprite_container:
+			tobias_sprite_container.position = _tobias_base_pos
+			tobias_sprite_container.scale = Vector2.ONE
 
 func _resolve_battle_bg_image() -> String:
 	if BattleManager.battle_bg_image != "" and ResourceLoader.exists(BattleManager.battle_bg_image):
@@ -514,6 +628,8 @@ func _build_ui() -> void:
 
 	# S213: 전경 3D 레이어. 전투원 "위"에 합성되므로 마지막에 올린다.
 	_build_foreground_depth(root)
+	var initial_focus := "player" if BattleManager.state == BattleManager.BattleState.PLAYER_TURN else "enemy" if BattleManager.state == BattleManager.BattleState.ENEMY_TURN else "neutral"
+	_set_battle_stage_focus(initial_focus)
 
 ## ===================== 배경 비네트 =====================
 
@@ -1231,7 +1347,7 @@ func _update_enemy_status_visual() -> void:
 		# 약화: 파란 톤
 		enemy_sprite.modulate = Color(0.7, 0.7, 1.2, 1.0)
 	else:
-		enemy_sprite.modulate = Color(1, 1, 1, 1)
+		_restore_battler_base_modulate(enemy_sprite)
 
 ## ===================== S41: 콤보 버스트 VFX =====================
 
@@ -1846,14 +1962,40 @@ func _build_foreground_depth(root: Control) -> void:
 	_foreground_depth_stage.follow_stage = _hybrid_depth_stage
 	root.add_child(_foreground_depth_stage)
 
-func _make_battler_anchor(root: Control, anchor_name: String, world_anchor: Vector3) -> Control:
+func _battle_role_profile(role: String) -> Dictionary:
+	return BATTLE_ROLE_PROFILES.get(role, {})
+
+func _role_canvas_foot(role: String) -> Vector2:
+	return _battle_role_profile(role).get("canvas_foot", Vector2.ZERO)
+
+func _role_local_foot(role: String) -> Vector2:
+	return _battle_role_profile(role).get("local_foot", Vector2.ZERO)
+
+func _role_plate_foot(role: String) -> Vector2:
+	return _battle_role_profile(role).get("plate_local_foot", _role_local_foot(role))
+
+func _make_battler_anchor(root: Control, role: String) -> Control:
+	var profile := _battle_role_profile(role)
 	var anchor := Control.new()
-	anchor.name = anchor_name
+	anchor.name = String(profile.get("anchor_name", role.capitalize() + "Anchor"))
 	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	anchor.set_meta("world_anchor", world_anchor)
+	anchor.z_index = int(profile.get("stage_order", -1))
+	anchor.set_meta("battle_role", role)
+	anchor.set_meta("world_anchor", profile.get("stage_anchor", Vector3.ZERO))
 	root.add_child(anchor)
 	_battler_anchors.append(anchor)
 	return anchor
+
+func _make_role_battler_container(root: Control, role: String) -> Control:
+	var profile := _battle_role_profile(role)
+	var container := Control.new()
+	container.name = "%sBattlerContainer" % role.capitalize()
+	container.size = profile.get("container_size", Vector2.ZERO)
+	container.position = _role_canvas_foot(role) - _role_local_foot(role)
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.set_meta("battle_role", role)
+	_make_battler_anchor(root, role).add_child(container)
+	return container
 
 ## S212: 3D 앵커를 2D 발 위치에서 역산해 두 좌표계를 일치시킨다.
 ##
@@ -1863,21 +2005,16 @@ func _make_battler_anchor(root: Control, anchor_name: String, world_anchor: Vect
 func _sync_battler_anchors_to_stage() -> void:
 	if _hybrid_depth_stage == null or not is_instance_valid(_hybrid_depth_stage):
 		return
-	var feet := {
-		"PlayerAnchor": {"key": "player", "point": Vector2(226.0, STAGE_BASELINE_Y)},
-		"AllyAnchor": {"key": "ally", "point": Vector2(110.0, STAGE_BASELINE_Y - 12.0)},
-		"SupportAnchor": {"key": "support", "point": Vector2(347.0, STAGE_BASELINE_Y - 20.0)},
-		"EnemyAnchor": {"key": "enemy", "point": Vector2(998.0, STAGE_BASELINE_Y)},
-	}
 	for anchor: Control in _battler_anchors:
 		if anchor == null or not is_instance_valid(anchor):
 			continue
-		var entry: Dictionary = feet.get(anchor.name, {})
-		if entry.is_empty():
+		var role := String(anchor.get_meta("battle_role", ""))
+		var profile := _battle_role_profile(role)
+		if profile.is_empty():
 			continue
-		var world: Vector3 = _hybrid_depth_stage.canvas_to_floor(entry["point"])
+		var world: Vector3 = _hybrid_depth_stage.canvas_to_floor(_role_canvas_foot(role))
 		anchor.set_meta("world_anchor", world)
-		_hybrid_depth_stage.place_battler_anchor(String(entry["key"]), world)
+		_hybrid_depth_stage.place_battler_anchor(String(profile.get("stage_key", role)), world)
 
 ## 카메라가 움직인 만큼 전투원 앵커를 따라 옮긴다.
 func _update_battler_anchors() -> void:
@@ -1904,6 +2041,109 @@ func _fit_battle_plate(rect: TextureRect, max_size: Vector2, center_x: float, fe
 	var fitted: Vector2 = tex_size * fit
 	rect.size = fitted
 	rect.position = Vector2(center_x - fitted.x * 0.5, feet_y - fitted.y)
+	rect.pivot_offset = fitted * 0.5
+
+func _fit_role_battle_plate(rect: TextureRect, role: String) -> void:
+	var profile := _battle_role_profile(role)
+	var plate_foot := _role_plate_foot(role)
+	_fit_battle_plate(
+		rect,
+		profile.get("plate_max_size", Vector2(160.0, 160.0)),
+		plate_foot.x,
+		plate_foot.y
+	)
+
+func _register_battler_actor(actor: CanvasItem, role: String, art_kind: String) -> void:
+	if actor == null:
+		return
+	actor.set_meta("battle_role", role)
+	actor.set_meta("battle_art_kind", art_kind)
+	actor.set_meta("semantic_state", "idle")
+	actor.set_meta("semantic_tint", Color.WHITE)
+	actor.set_meta("focus_tint", Color.WHITE)
+	actor.set_meta("semantic_base_scale", actor.scale)
+	actor.set_meta("semantic_base_rotation", actor.rotation)
+	# Keep authored plate/fallback coloration separate from focus and semantic
+	# self_modulate. Hit/status feedback must always restore this exact value.
+	actor.set_meta("battle_base_modulate", actor.modulate)
+	if actor is Control:
+		(actor as Control).pivot_offset = (actor as Control).size * 0.5
+	if actor is AnimatedSprite2D:
+		_initialize_animated_battler_fallback(actor as AnimatedSprite2D)
+
+func _initialize_animated_battler_fallback(asp: AnimatedSprite2D) -> void:
+	# Registration is the sole live fallback initialization path.  It gives
+	# Reduce Motion a static authored idle frame immediately, while normal mode
+	# keeps the pre-existing looping SpriteFrames idle behavior.
+	if asp == null or not is_instance_valid(asp):
+		return
+	if not asp.sprite_frames:
+		asp.stop()
+		return
+	if OptionsMenu.is_reduce_motion():
+		_apply_animated_reduce_motion_semantic_state(asp, "idle")
+		return
+	# This helper may also be used when an already-idle fallback leaves Reduce
+	# Motion.  Never let that accessibility sync erase a persistent down state.
+	if String(asp.get_meta("semantic_state", "idle")) == "down":
+		return
+	var idle_animation := _animated_static_frame_animation(asp, "idle")
+	if idle_animation == "":
+		asp.stop()
+		return
+	_next_painterly_semantic_generation(asp)
+	asp.play(idle_animation)
+
+func _battler_base_modulate(actor: CanvasItem) -> Color:
+	if actor == null or not is_instance_valid(actor):
+		return Color.WHITE
+	var authored: Variant = actor.get_meta("battle_base_modulate", actor.modulate)
+	return authored if authored is Color else actor.modulate
+
+func _restore_battler_base_modulate(actor: CanvasItem) -> void:
+	if actor == null or not is_instance_valid(actor):
+		return
+	actor.modulate = _battler_base_modulate(actor)
+
+func _make_painterly_battle_plate(role: String, texture_path: String) -> TextureRect:
+	if texture_path == "" or not ResourceLoader.exists(texture_path):
+		return null
+	var profile := _battle_role_profile(role)
+	var rect := TextureRect.new()
+	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	rect.texture = load(texture_path)
+	# Painterly RGB character plates are mipmapped. Their stage blend supplies
+	# vignette and ambient tint, while the alpha-gradient rim stays disabled.
+	rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	rect.modulate = profile.get("plate_modulate", Color.WHITE)
+	_fit_role_battle_plate(rect, role)
+	_apply_battle_portrait_blend(
+		rect,
+		float(profile.get("edge_softness", 0.20)),
+		float(profile.get("oval_mask", 0.0)),
+		float(profile.get("rim", 0.0))
+	)
+	_register_battler_actor(rect, role, "painterly")
+	rect.set_meta("canonical_plate_path", texture_path)
+	return rect
+
+func _make_role_shadow(role: String) -> Polygon2D:
+	var profile := _battle_role_profile(role)
+	return _make_battle_ellipse(
+		_role_local_foot(role),
+		profile.get("shadow_radii", Vector2(50.0, 8.0)),
+		Color(0, 0, 0, _flat_shadow_alpha(float(profile.get("shadow_alpha", 0.25))))
+	)
+
+func _make_role_glow(role: String, color_override: Color = Color.TRANSPARENT) -> Polygon2D:
+	var profile := _battle_role_profile(role)
+	var color: Color = color_override if color_override.a > 0.0 else profile.get("glow_color", Color.TRANSPARENT)
+	return _make_battle_ellipse(
+		_role_plate_foot(role),
+		profile.get("glow_radii", Vector2(54.0, 10.0)),
+		color
+	)
 
 ## S209: AnimatedSprite2D의 중심 y를 계산해 프레임 아랫변이 `feet_y`에 오게 한다.
 ## 스프라이트는 중앙 정렬로 그려지므로, 스케일을 바꾸면 발끝도 같이 내려간다.
@@ -1917,18 +2157,25 @@ func _feet_anchored_y(sprite: AnimatedSprite2D, feet_y: float) -> float:
 	return feet_y - frame_height * sprite.scale.y * 0.5
 
 func _build_player_sprite(root: Control) -> void:
-	player_sprite_container = Control.new()
+	player_sprite_container = _make_role_battler_container(root, "player")
 	# S209: 주인공이 화면에서 가장 작게 읽히던 문제 수정.
 	# 컨테이너 원점은 발끝 기준선에서 200px 위. 그림자는 정확히 기준선에 놓인다.
-	player_sprite_container.position = Vector2(126, STAGE_BASELINE_Y - 200.0)
-	player_sprite_container.size = Vector2(200, 200)
-	_make_battler_anchor(root, "PlayerAnchor", HybridDepthStage.ANCHOR_PLAYER).add_child(player_sprite_container)
 	_player_base_pos = player_sprite_container.position
 
 	# 그림자
-	player_shadow = _make_battle_ellipse(Vector2(100, 200), Vector2(66, 11), Color(0, 0, 0, _flat_shadow_alpha(0.36)))
+	player_shadow = _make_role_shadow("player")
 	player_shadow.z_index = -2
 	player_sprite_container.add_child(player_shadow)
+
+	var canonical_plate := _make_painterly_battle_plate("player", ARREL_BATTLE_FULLBODY_PATH)
+	if canonical_plate:
+		player_sprite_container.add_child(canonical_plate)
+		player_sprite = canonical_plate
+		_player_sprite_base_scale = canonical_plate.scale
+		var canonical_glow := _make_role_glow("player")
+		canonical_glow.z_index = -1
+		player_sprite_container.add_child(canonical_glow)
+		return
 
 	var anim_sprite = AnimatedSprite2D.new()
 	# S151: 실사 시트 우선 (160px, idle/attack/cast/hurt/down), 없으면 절차 생성 폴백
@@ -1940,32 +2187,31 @@ func _build_player_sprite(root: Control) -> void:
 	else:
 		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("arrel")
 		anim_sprite.scale = Vector2(1.02, 1.02)
-	anim_sprite.play("idle")
 	# 프레임 높이에서 발끝 위치를 역산해 기준선에 세운다 (스케일이 바뀌어도 뜨지 않는다).
-	anim_sprite.position = Vector2(100, _feet_anchored_y(anim_sprite, 197.0))
-	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	anim_sprite.position = Vector2(_role_plate_foot("player").x, _feet_anchored_y(anim_sprite, _role_plate_foot("player").y))
+	anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	# S214: 주인공도 무대의 빛을 받는다. 타원 마스크와 가장자리 페이드는 끄고
 	# (스프라이트는 이미 알파로 잘려 있다) 조명 성분만 쓴다.
 	_apply_battle_portrait_blend(anim_sprite, 0.02, 0.0, 0.42)
+	_register_battler_actor(anim_sprite, "player", "animated_fallback")
+	anim_sprite.set_meta("canonical_fallback", true)
 	player_sprite_container.add_child(anim_sprite)
 	player_sprite = anim_sprite
 	_player_sprite_base_scale = anim_sprite.scale
 
 	# 발밑 광원 (은은한 파란 빛)
-	var glow := _make_battle_ellipse(Vector2(100, 198), Vector2(80, 14), Color(0.20, 0.38, 0.68, 0.11))
+	var glow := _make_role_glow("player")
 	glow.z_index = -1
 	player_sprite_container.add_child(glow)
 
 ## S44: 동행자 스프라이트 (왼쪽 뒤)
 func _build_ally_sprite(root: Control) -> void:
-	ally_sprite_container = Control.new()
+	ally_sprite_container = _make_role_battler_container(root, "ally")
 	# S209: 동행자는 아렐보다 한 걸음 뒤. 그림자는 기준선보다 12px 위(원근).
-	ally_sprite_container.position = Vector2(30, STAGE_BASELINE_Y - 12.0 - 160.0)
-	ally_sprite_container.size = Vector2(160, 160)
 	ally_sprite_container.visible = false
-	_make_battler_anchor(root, "AllyAnchor", HybridDepthStage.ANCHOR_ALLY).add_child(ally_sprite_container)
 	_ally_base_pos = ally_sprite_container.position
 
+	_displayed_ally_identity = ""
 	# 동행자가 있는지 확인
 	var has_ally = BattleManager.sable_in_party or GameManager.player_data.elia_with_party
 	if not has_ally:
@@ -1973,9 +2219,10 @@ func _build_ally_sprite(root: Control) -> void:
 
 	ally_sprite_container.visible = true
 	var who = "sable" if BattleManager.sable_in_party else "elia"
+	_displayed_ally_identity = who.capitalize()
 
 	# 그림자
-	ally_shadow = _make_battle_ellipse(Vector2(80, 160), Vector2(46, 8), Color(0, 0, 0, _flat_shadow_alpha(0.27)))
+	ally_shadow = _make_role_shadow("ally")
 	ally_shadow.z_index = -2
 	ally_sprite_container.add_child(ally_shadow)
 
@@ -1983,17 +2230,10 @@ func _build_ally_sprite(root: Control) -> void:
 	var portrait_map = {"elia": ELIA_BATTLE_FULLBODY_PATH, "sable": SABLE_BATTLE_FULLBODY_PATH}
 	var p_path = portrait_map.get(who, "")
 	if p_path != "" and ResourceLoader.exists(p_path):
-		var tex_rect = TextureRect.new()
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = load(p_path)
+		var tex_rect := _make_painterly_battle_plate("ally", p_path)
 		# S214: 원화 판은 선형 + 밉맵으로 축소한다.
 		# 프로젝트 기본 필터가 Nearest라, 1672px 원화를 300px대로 줄이는 동안 픽셀이
 		# 그대로 버려져 엘리아의 머리카락 같은 디더 알파가 점점이 튀었다.
-		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		tex_rect.modulate = Color(1.0, 0.98, 0.95, 0.94)
-		_fit_battle_plate(tex_rect, Vector2(140, 158), 80.0, 158.0)
-		_apply_battle_portrait_blend(tex_rect, 0.24, 0.86)
 		ally_sprite_container.add_child(tex_rect)
 		ally_sprite = tex_rect
 	elif who == "elia":
@@ -2006,41 +2246,42 @@ func _build_ally_sprite(root: Control) -> void:
 		else:
 			anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("elia")
 			anim_sprite.scale = Vector2(0.86, 0.86)
-		anim_sprite.play("idle")
-		anim_sprite.position = Vector2(80, _feet_anchored_y(anim_sprite, 158.0))
-		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		anim_sprite.position = Vector2(_role_plate_foot("ally").x, _feet_anchored_y(anim_sprite, _role_plate_foot("ally").y))
+		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_register_battler_actor(anim_sprite, "ally", "animated_fallback")
+		anim_sprite.set_meta("canonical_fallback", true)
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
 	else:
 		# S57: Use AnimatedSprite2D with battle sprite frames for animation support
 		var anim_sprite = AnimatedSprite2D.new()
 		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames(who)
-		anim_sprite.play("idle")
 		anim_sprite.scale = Vector2(0.86, 0.86)
-		anim_sprite.position = Vector2(80, _feet_anchored_y(anim_sprite, 158.0))
+		anim_sprite.position = Vector2(_role_plate_foot("ally").x, _feet_anchored_y(anim_sprite, _role_plate_foot("ally").y))
 		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_register_battler_actor(anim_sprite, "ally", "animated_fallback")
+		anim_sprite.set_meta("canonical_fallback", true)
 		ally_sprite_container.add_child(anim_sprite)
 		ally_sprite = anim_sprite
+	if ally_sprite:
+		ally_sprite.set_meta("displayed_character", _displayed_ally_identity)
 
 	# 발밑 광원
 	var glow_color = Color(0.5, 0.3, 0.6, 0.08) if who == "sable" else Color(0.6, 0.5, 0.2, 0.08)
-	var glow := _make_battle_ellipse(Vector2(80, 158), Vector2(54, 10), glow_color)
+	var glow := _make_role_glow("ally", glow_color)
 	glow.z_index = -1
 	ally_sprite_container.add_child(glow)
 
 ## S44: 적 스프라이트 (오른쪽, 128x128 대형)
 func _build_tobias_support_sprite(root: Control) -> void:
-	tobias_sprite_container = Control.new()
+	tobias_sprite_container = _make_role_battler_container(root, "support")
 	# S209: 지원 인원도 같은 기준선에. 아군 대열에서 가장 뒤(-20px 원근).
-	tobias_sprite_container.position = Vector2(272, STAGE_BASELINE_Y - 20.0 - 158.0)
-	tobias_sprite_container.size = Vector2(150, 170)
 	tobias_sprite_container.visible = BattleManager.tobias_in_party
-	_make_battler_anchor(root, "SupportAnchor", HybridDepthStage.ANCHOR_SUPPORT).add_child(tobias_sprite_container)
 	_tobias_base_pos = tobias_sprite_container.position
 	if not BattleManager.tobias_in_party:
 		return
 
-	tobias_shadow = _make_battle_ellipse(Vector2(75, 158), Vector2(48, 8), Color(0, 0, 0, _flat_shadow_alpha(0.24)))
+	tobias_shadow = _make_role_shadow("support")
 	tobias_shadow.z_index = -2
 	tobias_sprite_container.add_child(tobias_shadow)
 
@@ -2048,48 +2289,43 @@ func _build_tobias_support_sprite(root: Control) -> void:
 	if not ResourceLoader.exists(tobias_path):
 		tobias_path = "res://assets/portraits/character_shots/tobias_story_v2.png"
 	if ResourceLoader.exists(tobias_path):
-		var tex_rect = TextureRect.new()
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = load(tobias_path)
-		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		tex_rect.modulate = Color(0.98, 0.96, 0.93, 0.92)
-		_fit_battle_plate(tex_rect, Vector2(136, 154), 75.0, 156.0)
-		_apply_battle_portrait_blend(tex_rect, 0.24, 0.86)
+		var tex_rect := _make_painterly_battle_plate("support", tobias_path)
 		tobias_sprite_container.add_child(tex_rect)
 		tobias_sprite = tex_rect
+	else:
+		var anim_sprite := AnimatedSprite2D.new()
+		anim_sprite.sprite_frames = PixelSprite.create_battle_sprite_frames("tobias")
+		anim_sprite.scale = Vector2(0.82, 0.82)
+		anim_sprite.position = Vector2(_role_plate_foot("support").x, _feet_anchored_y(anim_sprite, _role_plate_foot("support").y))
+		anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_register_battler_actor(anim_sprite, "support", "animated_fallback")
+		anim_sprite.set_meta("canonical_fallback", true)
+		tobias_sprite_container.add_child(anim_sprite)
+		tobias_sprite = anim_sprite
+	if tobias_sprite:
+		tobias_sprite.set_meta("displayed_character", "Tobias")
 
-	var glow := _make_battle_ellipse(Vector2(75, 156), Vector2(54, 9), Color(0.55, 0.48, 0.30, 0.08))
+	var glow := _make_role_glow("support")
 	glow.z_index = -1
 	tobias_sprite_container.add_child(glow)
 
 func _build_enemy_sprite(root: Control) -> void:
-	enemy_sprite_container = Control.new()
+	enemy_sprite_container = _make_role_battler_container(root, "enemy")
 	# S209: 적도 같은 기준선. 컨테이너 높이 300 → 그림자가 정확히 기준선에 온다.
-	enemy_sprite_container.position = Vector2(828, STAGE_BASELINE_Y - 300.0)
-	enemy_sprite_container.size = Vector2(340, 300)
-	_make_battler_anchor(root, "EnemyAnchor", HybridDepthStage.ANCHOR_ENEMY).add_child(enemy_sprite_container)
 	_enemy_base_pos = enemy_sprite_container.position
 
 	# 그림자
-	enemy_shadow = _make_battle_ellipse(Vector2(170, 300), Vector2(100, 13), Color(0, 0, 0, _flat_shadow_alpha(0.40)))
+	enemy_shadow = _make_role_shadow("enemy")
 	enemy_shadow.z_index = -2
 	enemy_sprite_container.add_child(enemy_shadow)
 
 	var enemy_name: String = BattleManager.current_enemy.name if BattleManager.current_enemy else ""
 	var enemy_art_path: String = BattleManager.enemy_image if BattleManager.enemy_image != "" and ResourceLoader.exists(BattleManager.enemy_image) else _resolve_enemy_art_by_name(enemy_name)
 	if enemy_art_path != "":
-		var tex_rect = TextureRect.new()
+		var tex_rect := _make_painterly_battle_plate("enemy", enemy_art_path)
 		# S209: 예전에는 240x230 안에 16:9 장면 일러스트가 들어가면서 실제로는
 		# 240x135짜리 작은 카드로 그려졌고, 사각 테두리가 그대로 보였다.
 		# 표시 면적을 키우고 타원 마스크로 테두리를 지운다.
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.texture = load(enemy_art_path)
-		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		tex_rect.modulate = Color(1.0, 0.97, 0.96, 0.96)
-		_fit_battle_plate(tex_rect, Vector2(336, 292), 170.0, 296.0)
-		_apply_battle_portrait_blend(tex_rect, 0.30, 0.80)
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 	else:
@@ -2101,14 +2337,16 @@ func _build_enemy_sprite(root: Control) -> void:
 		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tex_rect.texture = tex
 		tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		_fit_battle_plate(tex_rect, Vector2(276, 276), 170.0, 296.0)
+		_fit_role_battle_plate(tex_rect, "enemy")
+		_register_battler_actor(tex_rect, "enemy", "procedural_fallback")
+		tex_rect.set_meta("canonical_fallback", true)
 		enemy_sprite_container.add_child(tex_rect)
 		enemy_sprite = tex_rect
 
 	# 발밑 광원 (적은 빨간/보라 톤)
 	var enemy_lower_name: String = enemy_name.to_lower()
 	var glow_c = Color(0.5, 0.15, 0.5, 0.10) if "void" in enemy_lower_name or "shade" in enemy_lower_name else Color(0.5, 0.2, 0.15, 0.08)
-	var glow := _make_battle_ellipse(Vector2(170, 296), Vector2(108, 16), glow_c)
+	var glow := _make_role_glow("enemy", glow_c)
 	glow.z_index = -1
 	enemy_sprite_container.add_child(glow)
 
@@ -2175,6 +2413,209 @@ func _restore_plate_material(node: CanvasItem) -> void:
 	if node == null or not is_instance_valid(node):
 		return
 	node.material = node.get_meta("stage_blend_material", null)
+
+func _multiply_actor_tints(left: Color, right: Color) -> Color:
+	return Color(left.r * right.r, left.g * right.g, left.b * right.b, left.a * right.a)
+
+func _refresh_battler_actor_tint(actor: CanvasItem) -> void:
+	if actor == null or not is_instance_valid(actor):
+		return
+	var focus: Color = actor.get_meta("focus_tint", Color.WHITE)
+	var semantic: Color = actor.get_meta("semantic_tint", Color.WHITE)
+	actor.self_modulate = _multiply_actor_tints(focus, semantic)
+
+func _set_battler_focus_tint(actor: CanvasItem, tint: Color) -> void:
+	if actor == null or not is_instance_valid(actor):
+		return
+	actor.set_meta("focus_tint", tint)
+	_refresh_battler_actor_tint(actor)
+
+func _apply_battler_focus_emphasis(side: String) -> void:
+	_current_battler_focus = side
+	var player_active := side == "player"
+	var enemy_active := side == "enemy" or side == "enemy_break"
+	# Focus is brightness-only: authored plate color remains in `modulate` and
+	# semantic cues continue to compose through `self_modulate` without a hue
+	# shift that would misrepresent the current actor state.
+	var player_tint := Color(1.12, 1.12, 1.12, 1.0) if player_active else Color(0.82, 0.82, 0.82, 1.0) if enemy_active else Color.WHITE
+	var enemy_tint := Color(1.12, 1.12, 1.12, 1.0) if enemy_active else Color(0.82, 0.82, 0.82, 1.0) if player_active else Color.WHITE
+	var rear_tint := Color(0.80, 0.80, 0.80, 1.0) if player_active or enemy_active else Color(0.94, 0.94, 0.94, 1.0)
+	_set_battler_focus_tint(player_sprite, player_tint)
+	_set_battler_focus_tint(enemy_sprite, enemy_tint)
+	_set_battler_focus_tint(ally_sprite, rear_tint)
+	_set_battler_focus_tint(tobias_sprite, rear_tint)
+
+func _set_battle_stage_focus(side: String) -> void:
+	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
+		_hybrid_depth_stage.set_battle_focus(side)
+	# Visual emphasis is intentionally brightness-only.  HybridDepthStage owns
+	# the camera/floor focus; battler containers never receive focus-position tweens.
+	_apply_battler_focus_emphasis(side)
+
+func _clear_painterly_semantic_tween(actor: CanvasItem) -> void:
+	if actor == null:
+		return
+	var key := actor.get_instance_id()
+	var active := _painterly_semantic_tweens.get(key) as Tween
+	if active and is_instance_valid(active):
+		active.kill()
+	_painterly_semantic_tweens.erase(key)
+
+func _next_painterly_semantic_generation(actor: CanvasItem) -> int:
+	if actor == null or not is_instance_valid(actor):
+		return -1
+	var key := actor.get_instance_id()
+	var generation := int(_painterly_semantic_generations.get(key, 0)) + 1
+	_painterly_semantic_generations[key] = generation
+	actor.set_meta("semantic_generation", generation)
+	return generation
+
+func _painterly_semantic_generation(actor: CanvasItem) -> int:
+	if actor == null or not is_instance_valid(actor):
+		return -1
+	return int(_painterly_semantic_generations.get(actor.get_instance_id(), actor.get_meta("semantic_generation", -1)))
+
+func _reduce_motion_semantic_hold_duration(state: String) -> float:
+	match state:
+		"cast":
+			return 0.22
+		"hurt":
+			return 0.16
+	return 0.18
+
+func _schedule_reduce_motion_semantic_settle(actor: CanvasItem, state: String, generation: int) -> void:
+	# This is deliberately a timer rather than a Tween: Reduce Motion keeps one
+	# readable static cue, then returns to idle without interpolated movement.
+	var settle_timer := get_tree().create_timer(_reduce_motion_semantic_hold_duration(state))
+	settle_timer.timeout.connect(func():
+		_settle_painterly_semantic_state(actor, state, generation)
+	)
+
+func _semantic_tint_for_state(state: String) -> Color:
+	match state:
+		"attack":
+			return Color(1.10, 0.98, 0.92, 1.0)
+		"cast":
+			return Color(0.82, 0.94, 1.14, 1.0)
+		"hurt":
+			return Color(1.14, 0.72, 0.70, 1.0)
+		"down":
+			return Color(0.52, 0.54, 0.62, 0.84)
+	return Color.WHITE
+
+func _apply_painterly_semantic_state(actor: CanvasItem, state: String, hold: bool = false) -> void:
+	if actor == null or not is_instance_valid(actor):
+		return
+	var generation := _next_painterly_semantic_generation(actor)
+	_clear_painterly_semantic_tween(actor)
+	var role := String(actor.get_meta("battle_role", "player"))
+	var base_scale: Vector2 = actor.get_meta("semantic_base_scale", actor.scale)
+	var base_rotation: float = float(actor.get_meta("semantic_base_rotation", actor.rotation))
+	var direction := -1.0 if role == "player" or role == "ally" or role == "support" else 1.0
+	var target_scale := base_scale
+	var target_rotation := base_rotation
+	match state:
+		"attack":
+			target_scale = base_scale * Vector2(1.025, 0.985)
+			target_rotation = base_rotation + direction * 0.045
+		"cast":
+			target_scale = base_scale * Vector2(1.018, 1.035)
+			target_rotation = base_rotation + direction * 0.026
+		"hurt":
+			target_scale = base_scale * Vector2(0.975, 1.025)
+			target_rotation = base_rotation - direction * 0.050
+		"down":
+			target_scale = base_scale * Vector2(1.08, 0.78)
+			target_rotation = base_rotation + direction * 1.12
+	actor.set_meta("semantic_state", state)
+	actor.set_meta("semantic_tint", _semantic_tint_for_state(state))
+	actor.scale = target_scale
+	actor.rotation = target_rotation
+	_refresh_battler_actor_tint(actor)
+	if state == "down" or state == "idle":
+		return
+	if OptionsMenu.is_reduce_motion():
+		_schedule_reduce_motion_semantic_settle(actor, state, generation)
+		return
+	if hold:
+		return
+	var duration := 0.28 if state == "attack" else 0.36 if state == "cast" else 0.22
+	var semantic_tween := create_tween().bind_node(actor).set_parallel(true)
+	_painterly_semantic_tweens[actor.get_instance_id()] = semantic_tween
+	semantic_tween.tween_property(actor, "scale", base_scale, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	semantic_tween.tween_property(actor, "rotation", base_rotation, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	semantic_tween.chain().tween_callback(_settle_painterly_semantic_state.bind(actor, state, generation))
+
+func _settle_painterly_semantic_state(actor: CanvasItem, state: String, generation: int = -1) -> void:
+	# AnimatedSprite2D fallbacks retain their existing animation-finished path.
+	# Painterly action/hurt states clear only after the pre-existing mechanical
+	# tween resolves, so no semantic tween fights the authoritative lunge/squash.
+	if actor == null or not is_instance_valid(actor) or actor is AnimatedSprite2D or state == "down" or state == "idle":
+		return
+	if String(actor.get_meta("semantic_state", "")) != state:
+		return
+	if generation >= 0 and _painterly_semantic_generation(actor) != generation:
+		return
+	_apply_painterly_semantic_state(actor, "idle", true)
+
+func _animated_static_frame_animation(asp: AnimatedSprite2D, requested_state: String) -> String:
+	if asp == null or not is_instance_valid(asp) or not asp.sprite_frames:
+		return ""
+	if asp.sprite_frames.has_animation(requested_state):
+		return requested_state
+	if asp.sprite_frames.has_animation("idle"):
+		return "idle"
+	return ""
+
+func _set_animated_static_frame(asp: AnimatedSprite2D, requested_state: String) -> String:
+	var resolved_state := _animated_static_frame_animation(asp, requested_state)
+	if resolved_state == "":
+		asp.stop()
+		return ""
+	# Pause rather than play: accessibility still shows an authored semantic frame,
+	# but never advances SpriteFrames while Reduce Motion is enabled.
+	asp.pause()
+	asp.animation = StringName(resolved_state)
+	var frame_count := asp.sprite_frames.get_frame_count(resolved_state)
+	if frame_count > 0:
+		if resolved_state == "down":
+			asp.frame = frame_count - 1
+		elif resolved_state == "idle":
+			asp.frame = 0
+		else:
+			asp.frame = int(float(frame_count - 1) * 0.5)
+		asp.frame_progress = 0.0
+	asp.pause()
+	return resolved_state
+
+func _apply_animated_reduce_motion_semantic_state(asp: AnimatedSprite2D, state: String) -> void:
+	if asp == null or not is_instance_valid(asp):
+		return
+	var generation := _next_painterly_semantic_generation(asp)
+	_clear_painterly_semantic_tween(asp)
+	var resolved_state := _set_animated_static_frame(asp, state)
+	var base_scale: Vector2 = asp.get_meta("semantic_base_scale", asp.scale)
+	var base_rotation: float = float(asp.get_meta("semantic_base_rotation", asp.rotation))
+	asp.scale = base_scale
+	asp.rotation = base_rotation
+	asp.set_meta("semantic_state", resolved_state)
+	asp.set_meta("semantic_tint", _semantic_tint_for_state(resolved_state))
+	_refresh_battler_actor_tint(asp)
+	if resolved_state == "" or resolved_state == "idle" or resolved_state == "down":
+		return
+	var settle_timer := get_tree().create_timer(_reduce_motion_semantic_hold_duration(resolved_state))
+	settle_timer.timeout.connect(func():
+		_settle_animated_reduce_motion_semantic_state(asp, resolved_state, generation)
+	)
+
+func _settle_animated_reduce_motion_semantic_state(asp: AnimatedSprite2D, state: String, generation: int) -> void:
+	if asp == null or not is_instance_valid(asp) or state == "idle" or state == "down":
+		return
+	if String(asp.get_meta("semantic_state", "")) != state:
+		return
+	if _painterly_semantic_generation(asp) != generation:
+		return
+	_apply_animated_reduce_motion_semantic_state(asp, "idle")
 
 func _build_log_panel(root: Control) -> void:
 	field_readout_art = _make_interface_texture_region(
@@ -2747,8 +3188,7 @@ func _on_break_changed(value: float, max_value: float) -> void:
 		enemy_break_label.text = "BROKEN" if BattleManager.enemy_broken_turns > 0 else "BREAK"
 
 func _on_enemy_broken(enemy_name: String) -> void:
-	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
-		_hybrid_depth_stage.set_battle_focus("enemy_break")
+	_set_battle_stage_focus("enemy_break")
 	_update_status_icons()
 	_show_turn_indicator("BREAK: %s" % enemy_name, Color(1.0, 0.72, 0.24))
 	_show_combat_cue(
@@ -2890,7 +3330,7 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 		hit_stop_dur = 0.08
 	elif amount >= 30:
 		hit_stop_dur = 0.05
-	if hit_stop_dur > 0:
+	if hit_stop_dur > 0 and not OptionsMenu.is_reduce_motion():
 		var prev_scale = Engine.time_scale
 		Engine.time_scale = 0.0
 		await BattleManager.pace_timer(hit_stop_dur, true, false, true).timeout
@@ -2898,18 +3338,25 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 
 	# S58: Impact squash on enemy hit (stretch vertically = getting compressed by blow)
 	if target != "Arrel" and enemy_sprite:
-		var impact_t = create_tween()
-		impact_t.tween_property(enemy_sprite, "scale", Vector2(1.15, 0.85), 0.04).set_ease(Tween.EASE_OUT)
-		impact_t.tween_property(enemy_sprite, "scale", Vector2(0.95, 1.05), 0.06).set_ease(Tween.EASE_OUT)
-		impact_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_IN_OUT)
+		_play_actor_anim(enemy_sprite, "hurt", true)
+		var enemy_hurt_generation := _painterly_semantic_generation(enemy_sprite)
+		if not OptionsMenu.is_reduce_motion():
+			var impact_t = create_tween()
+			impact_t.tween_property(enemy_sprite, "scale", Vector2(1.15, 0.85), 0.04).set_ease(Tween.EASE_OUT)
+			impact_t.tween_property(enemy_sprite, "scale", Vector2(0.95, 1.05), 0.06).set_ease(Tween.EASE_OUT)
+			impact_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.08).set_ease(Tween.EASE_IN_OUT)
+			impact_t.tween_callback(_settle_painterly_semantic_state.bind(enemy_sprite, "hurt", enemy_hurt_generation))
 	# S58: Player squash on getting hit (squash = pain compression)
 	elif target == "Arrel" and player_sprite:
 		# S151: 시트 hurt 동사 재생 + 기본 스케일 기준 상대 스쿼시
-		_play_actor_anim(player_sprite, "hurt")
-		var hurt_squash = create_tween()
-		hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(0.85, 1.15), 0.05).set_ease(Tween.EASE_OUT)
-		hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(1.05, 0.95), 0.07).set_ease(Tween.EASE_OUT)
-		hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale, 0.1).set_ease(Tween.EASE_IN_OUT)
+		_play_actor_anim(player_sprite, "hurt", true)
+		var player_hurt_generation := _painterly_semantic_generation(player_sprite)
+		if not OptionsMenu.is_reduce_motion():
+			var hurt_squash = create_tween()
+			hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(0.85, 1.15), 0.05).set_ease(Tween.EASE_OUT)
+			hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale * Vector2(1.05, 0.95), 0.07).set_ease(Tween.EASE_OUT)
+			hurt_squash.tween_property(player_sprite, "scale", _player_sprite_base_scale, 0.1).set_ease(Tween.EASE_IN_OUT)
+			hurt_squash.tween_callback(_settle_painterly_semantic_state.bind(player_sprite, "hurt", player_hurt_generation))
 
 	# S56: Enhanced damage numbers via BattleVFX
 	if battle_vfx:
@@ -2956,11 +3403,12 @@ func _on_damage_dealt(target: String, amount: int, skill_name: String) -> void:
 ## Plays wind-up squash, lunge strike, then follow-through return
 ## Called BEFORE damage is dealt, BattleManager awaits timer in parallel
 func _on_pre_attack(attacker: String, target: String, skill_name: String) -> void:
+	var player_attacker := attacker == "Arrel" or attacker.to_lower() == "player"
 	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
-		var depth_direction := 1.0 if attacker == "Arrel" else -1.0
+		var depth_direction := 1.0 if player_attacker else -1.0
 		var depth_strength := 1.2 if skill_name == "Memory Cascade" else 0.82
 		_hybrid_depth_stage.pulse_impact(depth_direction, depth_strength)
-	if attacker == "Arrel":
+	if player_attacker:
 		var cutin_path := ARREL_BLADE_CUTIN_PATH
 		var cue_title := _bl("MEMORY BLADE", "기억의 검격")
 		var cue_detail := _bl("A clean strike creates BREAK pressure.", "정확한 검격이 브레이크 압박을 쌓습니다.")
@@ -2983,15 +3431,18 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 
 	# S59: Battle background parallax shift in attack direction
 	if battle_vfx and bg:
-		var direction = 1.0 if attacker == "Arrel" else -1.0  # player attacks right, enemy attacks left
+		var direction = 1.0 if player_attacker else -1.0  # player attacks right, enemy attacks left
 		battle_vfx.parallax_attack_shift(bg, direction, 8.0)
-	if attacker == "Arrel":
+	if player_attacker:
 		# --- Player attacking enemy ---
 		if not player_sprite or not player_sprite_container:
 			return
 		# S151: 시트 동사 재생, 평타는 attack, 연소/스킬은 cast
 		var verb := "attack" if (skill_name == "" or skill_name == "Attack") else "cast"
-		_play_actor_anim(player_sprite, verb)
+		_play_actor_anim(player_sprite, verb, true)
+		var player_action_generation := _painterly_semantic_generation(player_sprite)
+		if OptionsMenu.is_reduce_motion():
+			return
 		var rush_target = Vector2(_enemy_base_pos.x - 180, _player_base_pos.y - 10)
 		# Phase 1: Anticipation, squash (wind-up, lean back)
 		var antic_t = create_tween()
@@ -3014,9 +3465,15 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		# Scale reset runs in parallel with the position return
 		var scale_t = create_tween()
 		scale_t.tween_property(player_sprite, "scale", _player_sprite_base_scale, 0.15).set_ease(Tween.EASE_OUT)
+		scale_t.tween_callback(_settle_painterly_semantic_state.bind(player_sprite, verb, player_action_generation))
 	else:
 		# --- Enemy attacking player ---
 		if not enemy_sprite or not enemy_sprite_container:
+			return
+		var enemy_verb := "attack" if (skill_name == "" or skill_name == "Attack") else "cast"
+		_play_actor_anim(enemy_sprite, enemy_verb, true)
+		var enemy_action_generation := _painterly_semantic_generation(enemy_sprite)
+		if OptionsMenu.is_reduce_motion():
 			return
 		# Phase 1: Anticipation, enemy squash (coil back)
 		var antic_t = create_tween()
@@ -3039,10 +3496,10 @@ func _on_pre_attack(attacker: String, target: String, skill_name: String) -> voi
 		# Scale reset runs in parallel with the position return
 		var scale_t = create_tween()
 		scale_t.tween_property(enemy_sprite, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
+		scale_t.tween_callback(_settle_painterly_semantic_state.bind(enemy_sprite, enemy_verb, enemy_action_generation))
 
 func _on_player_turn() -> void:
-	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
-		_hybrid_depth_stage.set_battle_focus("player")
+	_set_battle_stage_focus("player")
 	# S57: Turn transition dim effect
 	_play_turn_dim()
 	_show_turn_indicator(_bl("YOUR TURN", "당신의 턴"), Color(0.5, 0.65, 0.85))
@@ -3091,8 +3548,7 @@ func _on_player_turn() -> void:
 		action_container.get_child(0).grab_focus()
 
 func _on_enemy_turn() -> void:
-	if _hybrid_depth_stage != null and is_instance_valid(_hybrid_depth_stage):
-		_hybrid_depth_stage.set_battle_focus("enemy")
+	_set_battle_stage_focus("enemy")
 	# S57: Turn transition dim effect
 	_play_turn_dim()
 	_show_turn_indicator(_bl("ENEMY TURN", "적의 턴"), Color(0.8, 0.4, 0.35))
@@ -3192,17 +3648,28 @@ func _on_battle_ended(_result) -> void:
 ## ===================== S151: 시트 동사 재생 헬퍼 =====================
 ## 시트 프레임(AnimatedSprite2D)일 때만 동사 재생. 논루프 동사는 끝나면 idle 복귀.
 ## 절차 생성 스프라이트(해당 애니 없음)에서는 조용히 무시, 폴백 안전.
-func _play_actor_anim(actor: CanvasItem, anim: String) -> void:
-	if not (actor is AnimatedSprite2D):
+func _play_actor_anim(actor: CanvasItem, anim: String, hold_painterly_state: bool = false) -> void:
+	if actor == null or not is_instance_valid(actor):
 		return
-	var asp: AnimatedSprite2D = actor
-	if not asp.sprite_frames or not asp.sprite_frames.has_animation(anim):
+	if actor is AnimatedSprite2D:
+		var asp: AnimatedSprite2D = actor
+		if OptionsMenu.is_reduce_motion():
+			_apply_animated_reduce_motion_semantic_state(asp, anim)
+			return
+		# A new normal-mode verb invalidates any delayed Reduce Motion settle before
+		# preserving the existing SpriteFrames playback/completion behavior.
+		_next_painterly_semantic_generation(asp)
+		if not asp.sprite_frames or not asp.sprite_frames.has_animation(anim):
+			return
+		asp.play(anim)
+		if not asp.sprite_frames.get_animation_loop(anim):
+			var finished_callback := _on_actor_anim_finished.bind(asp)
+			if not asp.animation_finished.is_connected(finished_callback):
+				asp.animation_finished.connect(finished_callback)
 		return
-	asp.play(anim)
-	if not asp.sprite_frames.get_animation_loop(anim):
-		var finished_callback := _on_actor_anim_finished.bind(asp)
-		if not asp.animation_finished.is_connected(finished_callback):
-			asp.animation_finished.connect(finished_callback)
+	# TextureRect character plates do not have sprite frames.  Give them the same
+	# vocabulary with contained scale, tint, tilt, and persistent defeat state.
+	_apply_painterly_semantic_state(actor, anim, hold_painterly_state)
 
 func _on_actor_anim_finished(asp: AnimatedSprite2D) -> void:
 	# down(패배)은 마지막 프레임 유지, 일어나면 어색함
@@ -3248,6 +3715,7 @@ func _on_defend() -> void:
 		1.0
 	)
 	_play_action_cutin(ARREL_GUARD_CUTIN_PATH, true, 0.80, 0.28)
+	_play_actor_anim(player_sprite, "cast")
 	BattleManager.player_defend()
 
 func _on_witness() -> void:
@@ -3264,6 +3732,7 @@ func _on_witness() -> void:
 		1.15
 	)
 	_play_action_cutin(ARREL_WITNESS_CUTIN_PATH, true, 0.82, 0.34)
+	_play_actor_anim(player_sprite, "cast")
 	BattleManager.player_witness()
 
 func _on_witness_changed(progress: int, required: int, echo_line: String, complete: bool) -> void:
@@ -3753,7 +4222,7 @@ func _hit_flash(target: String) -> void:
 	if target != "Arrel" and enemy_sprite:
 		var flash_t = create_tween()
 		flash_t.tween_property(enemy_sprite, "modulate", Color(3, 3, 3, 1), 0.05)
-		flash_t.tween_property(enemy_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
+		flash_t.tween_property(enemy_sprite, "modulate", _battler_base_modulate(enemy_sprite), 0.15)
 		# S57: Attack knockback, enemy slides back 15px then returns (0.15s)
 		if enemy_sprite_container:
 			var push_t = create_tween()
@@ -3765,7 +4234,7 @@ func _hit_flash(target: String) -> void:
 		var flash_t = create_tween()
 		flash_t.tween_property(player_sprite, "modulate", Color(2.5, 0.4, 0.3, 1), 0.05)
 		flash_t.tween_property(player_sprite, "modulate", Color(1.5, 0.6, 0.5, 1), 0.1)
-		flash_t.tween_property(player_sprite, "modulate", Color(1, 1, 1, 1), 0.15)
+		flash_t.tween_property(player_sprite, "modulate", _battler_base_modulate(player_sprite), 0.15)
 		# S57: 피격 밀림 (왼쪽으로 15px) + bounce back
 		if player_sprite_container:
 			var push_t = create_tween()
@@ -4512,7 +4981,7 @@ func _apply_status_shader() -> void:
 		return
 	# 상태이상 없으면 클리어
 	_restore_plate_material(enemy_sprite)
-	enemy_sprite.modulate = Color.WHITE
+	_restore_battler_base_modulate(enemy_sprite)
 
 ## 보스 페이즈 2 드라마틱 전환 (프리즈 프레임 + 화면 변색 + 적 분노 광원)
 func _on_phase_changed(enemy_name: String, phase: int) -> void:
@@ -4570,6 +5039,13 @@ func _on_phase_changed(enemy_name: String, phase: int) -> void:
 	ft.tween_property(flash, "color:a", 0.0, 0.6)
 	ft.tween_callback(flash.queue_free)
 
+func _displayed_actor_for_ally_action(ally_name: String) -> CanvasItem:
+	if ally_name == "Tobias":
+		return tobias_sprite
+	if ally_name == _displayed_ally_identity:
+		return ally_sprite
+	return null
+
 func _on_ally_action(ally_name: String, action: String, _value: int) -> void:
 	var cutin_path := ""
 	var accent := Color(0.74, 0.82, 0.94)
@@ -4583,6 +5059,10 @@ func _on_ally_action(ally_name: String, action: String, _value: int) -> void:
 		"Tobias":
 			cutin_path = String(TOBIAS_ACTION_CUTIN_PATHS.get(action, TOBIAS_ACTION_CUTIN_PATH))
 			accent = Color(0.84, 0.69, 0.45)
+	var actor := _displayed_actor_for_ally_action(ally_name)
+	var semantic := "attack" if action == "strike" or action == "remembered_strike" else "cast"
+	if actor:
+		_play_actor_anim(actor, semantic)
 	if cutin_path == "":
 		return
 	_play_action_cutin(cutin_path, true, 0.88, 0.42)

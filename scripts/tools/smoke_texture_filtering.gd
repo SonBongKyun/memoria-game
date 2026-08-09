@@ -51,8 +51,9 @@ func _ready() -> void:
 
 	# 절차 생성 픽셀아트 주인공은 반대로 선명해야 한다 (선형이어도 시트 원본이 크므로
 	# 여기서는 Nearest 강제가 아니라 "블러 처리되지 않았는지"만 확인한다).
-	var hero := battle.get("player_sprite") as AnimatedSprite2D
-	assert(hero != null, "주인공 스프라이트가 있어야 한다")
+	var hero := battle.get("player_sprite") as TextureRect
+	assert(hero != null and hero.texture != null and hero.texture.resource_path.ends_with("arrel_battle_v3.png"), "The canonical Arrel battle plate must be active")
+	assert(hero.texture_filter == CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS, "Arrel's painterly plate must use mipmapped linear filtering")
 
 	battle.queue_free()
 	await get_tree().process_frame
