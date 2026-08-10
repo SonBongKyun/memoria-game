@@ -126,6 +126,9 @@ func _setup_placeholder_sprite() -> void:
 	if npc_name in ["Malet", "Mallet"] and not uses_authored_sheet:
 		_add_malet_details()
 
+## 단일 삽화 NPC의 네 "방향"은 모두 같은 그림이다.
+## S235: 그 사실을 표시해 둔다. 자세를 바꿔도 화면이 달라지지 않는 대상이므로,
+## 몸을 돌릴 때 좌우 반전을 써야 한다는 것을 _apply_facing이 이 표식으로 안다.
 func _create_static_field_frames(art_path: String) -> SpriteFrames:
 	var frames := SpriteFrames.new()
 	var texture := load(art_path) as Texture2D
@@ -135,6 +138,8 @@ func _create_static_field_frames(art_path: String) -> SpriteFrames:
 		frames.set_animation_speed(animation, 1.0)
 		frames.set_animation_loop(animation, true)
 		frames.add_frame(animation, texture)
+	if sprite != null:
+		sprite.set_meta("field_static_plate", true)
 	return frames
 
 func _field_target_height() -> float:
@@ -216,6 +221,78 @@ func _get_character_config() -> Dictionary:
 func _add_character_grounding(accent: Color) -> void:
 	FieldActorVisuals.apply_finish(sprite, accent, 0.68, 0.085)
 	FieldActorVisuals.add_grounding(self, accent)
+	_awaken_presence()
+
+## ===================== S235: 서 있는 사람도 살아 있어야 한다 =====================
+##
+## 월드 인구 NPC는 단일 정지 이미지였다. 실측하면 3초 동안 5명 전원이 0.00px 움직였고,
+## 호흡도 무게 이동도 없었다. 시장 배회 NPC만 움직이고 나머지 19개 맵의 주민들은
+## 그대로 굳어 있었다. 걸어 다니게 만드는 것이 아니라, 서 있는 자세에 숨을 넣는다.
+##   - 이미 있는 ambient 드라이버가 호흡/무게/접지 보정을 해 준다 (배회 NPC와 같은 문법).
+##   - 플레이어가 가까이 오면 몸을 돌린다. 지나가면 원래 방향으로 돌아온다.
+const PRESENCE_NOTICE_RADIUS: float = 96.0
+const PRESENCE_RELEASE_RADIUS: float = 132.0  # 경계에서 깜빡이지 않도록 이력을 둔다
+
+var _presence_driver: FieldActorVisuals = null
+var _base_facing: String = "down"
+var _facing_player: bool = false
+var _presence_scan: float = 0.0
+
+func _awaken_presence() -> void:
+	if sprite == null:
+		return
+	_base_facing = _suffix_from_animation(String(sprite.animation))
+	_presence_driver = FieldActorVisuals.attach_ambient_driver(sprite)
+	set_process(true)
+
+func _process(delta: float) -> void:
+	if sprite == null or not is_instance_valid(sprite):
+		return
+	if GameManager.current_state != GameManager.GameState.EXPLORATION:
+		return
+	# 매 프레임 플레이어를 찾을 필요는 없다. 사람이 알아채는 속도면 충분하다.
+	_presence_scan -= delta
+	if _presence_scan > 0.0:
+		return
+	_presence_scan = 0.2
+
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player == null:
+		return
+	var distance := global_position.distance_to(player.global_position)
+	if _facing_player and distance > PRESENCE_RELEASE_RADIUS:
+		_facing_player = false
+		_apply_facing(_base_facing)
+	elif not _facing_player and distance <= PRESENCE_NOTICE_RADIUS:
+		_facing_player = true
+		_apply_facing(_suffix_toward(player.global_position))
+	elif _facing_player:
+		_apply_facing(_suffix_toward(player.global_position))
+
+func _suffix_toward(point: Vector2) -> String:
+	var direction := point - global_position
+	if absf(direction.x) > absf(direction.y):
+		return "right" if direction.x > 0.0 else "left"
+	return "down" if direction.y > 0.0 else "up"
+
+func _suffix_from_animation(animation: String) -> String:
+	var parts := animation.split("_")
+	return String(parts[parts.size() - 1]) if parts.size() > 1 else "down"
+
+## 네 방향 시트를 가진 NPC는 자세를 바꾸고, 단일 삽화 NPC는 좌우 반전으로 몸을 돌린다.
+## 정지 삽화에 없는 방향을 지어내지 않으면서도 "알아챘다"는 신호는 남긴다.
+func _apply_facing(suffix: String) -> void:
+	if sprite == null or sprite.sprite_frames == null:
+		return
+	var animation := "idle_" + suffix
+	var distinct_poses: bool = not bool(sprite.get_meta("field_static_plate", false))
+	if distinct_poses and sprite.sprite_frames.has_animation(animation):
+		if sprite.animation != animation:
+			sprite.play(animation)
+		sprite.flip_h = false
+		return
+	if suffix == "left" or suffix == "right":
+		sprite.flip_h = suffix == "left"
 
 func _get_npc_accent_color() -> Color:
 	match npc_name:

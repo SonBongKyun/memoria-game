@@ -1803,13 +1803,20 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 	# S210: 걸음 속도를 실제 이동 속도에 맞춘다.
 	# 배회 NPC는 초당 약 26px로 움직이는데 다리는 플레이어와 같은 속도로 돌고 있었다.
 	# 발이 지면을 긁으며 미끄러지던 원인. 평균 속도를 기준으로 보폭 주기를 낮춘다.
+	#
+	# S235: 평균만으로는 부족했다. 이동은 SINE 가감속이라 실제 속도가 0에서 평균의
+	# 1.57배까지 오르내리는데 다리는 평균 한 값으로 고정돼 있었다. 실측하면 가장 느린
+	# 순간에 다리가 몸보다 초당 28.9px 앞서 있었다. 걷기 시작과 끝에서 발이 제자리를
+	# 긁는다는 뜻이다. 이제 매 프레임 실제 속도로 보폭을 맞춘다.
 	_set_wander_animation(npc_node, travel_direction, true, move_dist / duration)
+	_attach_wander_gait_sync(npc_node, move_dist, duration)
 
 	var tween = npc_node.create_tween()
 	# QUAD 가감속은 시작과 끝에서 속도가 크게 흔들려 발이 미끄러진다. SINE이 더 완만하다.
 	tween.tween_property(npc_node, "position", target_position, duration).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
 		if npc_node != null and is_instance_valid(npc_node):
+			_detach_wander_gait_sync(npc_node)
 			_set_wander_animation(npc_node, travel_direction, false)
 	)
 	var wait = randf_range(1.8, 4.2)
@@ -1826,6 +1833,54 @@ static func _start_wander_step(npc_node: Node2D) -> void:
 ## `travel_speed`(px/s)가 주어지면 걸음 주기를 실제 이동 속도에 비례시켜, 발이
 ## 지면을 긁는 미끄러짐을 없앤다. 기준은 플레이어의 보행 속도(WANDER_GAIT_REFERENCE).
 const WANDER_GAIT_REFERENCE: float = 120.0
+
+## S235: 이동하는 동안 매 프레임 보폭 주기를 실제 속도에 맞추는 감시자.
+##
+## 위치를 미분해서 속도를 구할 수도 있지만, 그 값은 구조적으로 한 프레임 늦고
+## 떨림을 막으려 필터를 걸면 지연이 더 붙는다. 실측하면 그 지연이 남은 미끄러짐의
+## 대부분이었다. 이동 곡선을 우리가 정했으므로 속도는 그냥 계산하면 된다.
+##
+## SINE 가감속(EASE_IN_OUT)의 위치는 D * (1 - cos(pi*t/d)) / 2 이므로
+## 속도는 D*pi/(2d) * sin(pi*t/d) 다. 지연도 없고 필터도 필요 없다.
+class WanderGaitSync extends Node:
+	var walker: AnimatedSprite2D
+	var distance: float = 0.0
+	var duration: float = 0.0
+	var _elapsed: float = 0.0
+
+	func _process(delta: float) -> void:
+		if walker == null or not is_instance_valid(walker):
+			queue_free()
+			return
+		if duration <= 0.0:
+			return
+		_elapsed = minf(_elapsed + delta, duration)
+		var peak := distance * PI / (2.0 * duration)
+		var speed := peak * sin(PI * _elapsed / duration)
+		walker.speed_scale = clampf(speed / WANDER_GAIT_REFERENCE, 0.0, 1.6)
+
+static func _attach_wander_gait_sync(npc_node: Node2D, distance: float, duration: float) -> void:
+	var walker := npc_node as AnimatedSprite2D
+	if walker == null:
+		return
+	_detach_wander_gait_sync(npc_node)
+	var sync := WanderGaitSync.new()
+	sync.name = "WanderGaitSync"
+	sync.walker = walker
+	sync.distance = distance
+	sync.duration = duration
+	walker.add_child(sync)
+
+static func _detach_wander_gait_sync(npc_node: Node2D) -> void:
+	if npc_node == null or not is_instance_valid(npc_node):
+		return
+	var existing := npc_node.get_node_or_null("WanderGaitSync")
+	if existing != null:
+		npc_node.remove_child(existing)
+		existing.queue_free()
+	var walker := npc_node as AnimatedSprite2D
+	if walker != null:
+		walker.speed_scale = 1.0
 
 static func _set_wander_animation(npc_node: Node2D, direction: Vector2, moving: bool, travel_speed: float = 0.0) -> void:
 	var animated := npc_node as AnimatedSprite2D

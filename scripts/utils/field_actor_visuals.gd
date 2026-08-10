@@ -11,6 +11,11 @@ const FINISH_SHADER: Shader = preload("res://assets/shaders/field_actor_finish.g
 const GROUNDING_NAME: StringName = &"FieldGrounding"
 const AMBIENT_DRIVER_NAME: StringName = &"FieldMotionDriver"
 
+## S235: 서 있는 자세의 진폭 (지면 위 픽셀 기준, 몸 높이 50px 대비).
+## 호흡 0.55px는 카메라 줌 2.25에서 약 1.2 화면 픽셀이다. 읽히되 흔들리지 않는 폭.
+const IDLE_BREATH_PX: float = 0.55
+const IDLE_SWAY_PX: float = 0.26
+
 var _ambient_actor: AnimatedSprite2D
 var _ambient_grounding: Node2D
 var _rest_offset: Vector2 = Vector2.ZERO
@@ -19,6 +24,8 @@ var _last_position: Vector2 = Vector2.ZERO
 var _travel_phase: float = 0.0
 var _idle_phase: float = 0.0
 var _initialized: bool = false
+## 로컬 offset을 "지면 위 픽셀"로 되돌리는 보정. 스프라이트 스케일의 역수다.
+var _amplitude_comp: float = 1.0
 
 
 static func apply_finish(
@@ -152,6 +159,7 @@ static func attach_ambient_driver(sprite: AnimatedSprite2D) -> FieldActorVisuals
 	driver._ambient_grounding = sprite.get_node_or_null(NodePath(String(GROUNDING_NAME))) as Node2D
 	driver._rest_offset = sprite.offset
 	driver._rest_scale = sprite.scale
+	driver._amplitude_comp = 1.0 / maxf(absf(sprite.scale.y), 0.02)
 	driver._last_position = sprite.global_position
 	driver._initialized = true
 	return driver
@@ -200,10 +208,17 @@ func _process(delta: float) -> void:
 	_last_position = current_position
 	_idle_phase += delta
 
+	# S235: 아래 진폭은 "지면 위 픽셀"로 읽어야 한다.
+	# AnimatedSprite2D.offset은 로컬 공간이라 sprite.scale이 다시 곱해진다.
+	# 모든 필드 배우는 apply_field_profile로 표시 높이 50px에 맞춰지므로 scale은
+	# 원본 그림 크기에 따라 제각각이다(실측 0.04 ~ 0.34). 보정 없이 상수를 쓰면
+	# 같은 0.18이 어떤 사람에게는 화면상 0.18px, 어떤 사람에게는 0.02px가 된다.
+	# 실측했더니 서 있는 주민의 호흡은 0.02~0.18 렌더 픽셀, 즉 보이지 않았다.
+	# 이제 진폭을 스케일로 나눠, 누구에게나 같은 픽셀만큼 움직이게 한다.
 	if moving:
 		_travel_phase += travel.length() * PI / 27.0
 		var gait := sin(_travel_phase)
-		_ambient_actor.offset = _rest_offset + Vector2(gait * 0.34, -absf(gait) * 0.68)
+		_ambient_actor.offset = _rest_offset + Vector2(gait * 0.34, -absf(gait) * 0.68) * _amplitude_comp
 		_ambient_actor.rotation = lerp_angle(
 			_ambient_actor.rotation,
 			clampf(velocity.x / 120.0, -1.0, 1.0) * 0.024,
@@ -213,9 +228,10 @@ func _process(delta: float) -> void:
 		var desired_scale := _rest_scale * Vector2(1.0 + foot_plant * 0.008, 1.0 - foot_plant * 0.006)
 		_ambient_actor.scale = _ambient_actor.scale.lerp(desired_scale, 1.0 - exp(-10.0 * delta))
 	else:
+		# 서 있는 사람의 호흡. 몸 높이(50px)의 약 1%가 눈에 띄되 과하지 않은 폭이다.
 		var breath := sin(_idle_phase * 1.45)
 		_ambient_actor.offset = _ambient_actor.offset.lerp(
-			_rest_offset + Vector2(breath * 0.18, -absf(breath) * 0.12),
+			_rest_offset + Vector2(breath * IDLE_SWAY_PX, -absf(breath) * IDLE_BREATH_PX) * _amplitude_comp,
 			1.0 - exp(-5.0 * delta)
 		)
 		_ambient_actor.rotation = lerp_angle(_ambient_actor.rotation, sin(_idle_phase * 0.55) * 0.0035, 1.0 - exp(-5.0 * delta))
