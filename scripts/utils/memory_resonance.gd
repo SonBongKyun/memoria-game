@@ -333,7 +333,7 @@ static func _flash_scan_target(area: Area2D, radius: float, distance: float, is_
 
 	var hint = Label.new()
 	hint.text = "NEW ECHO" if is_new else "ECHO"
-	hint.add_theme_font_size_override("font_size", 9)
+	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(1.0, 0.86, 0.46, 0.92))
 	hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
 	hint.add_theme_constant_override("outline_size", 2)
@@ -422,7 +422,7 @@ static func _show_resonance_choice(area: Area2D, pulse_tween: Tween, flag: Strin
 
 	var kicker := Label.new()
 	kicker.text = "기억 공명" if is_ko else "MEMORY RESONANCE"
-	kicker.add_theme_font_size_override("font_size", 12)
+	kicker.add_theme_font_size_override("font_size", 13)
 	kicker.add_theme_color_override("font_color", Color(0.90, 0.70, 0.36))
 	UITheme.apply_ui_font(kicker)
 	box.add_child(kicker)
@@ -492,7 +492,7 @@ static func _show_resonance_choice(area: Area2D, pulse_tween: Tween, flag: Strin
 	var footer := Label.new()
 	footer.text = "방향키로 카드를 고르고 Enter로 선택할 수 있습니다." if is_ko else "Use the focused card with Enter, or click a choice."
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 11)
+	footer.add_theme_font_size_override("font_size", 13)
 	footer.add_theme_color_override("font_color", Color(0.50, 0.48, 0.54))
 	UITheme.apply_ui_font(footer)
 	box.add_child(footer)
@@ -540,7 +540,7 @@ static func _add_choice_card(parent: HBoxContainer, title_text: String, body_tex
 	body.text = body_text
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.custom_minimum_size = Vector2(0, 54)
-	body.add_theme_font_size_override("font_size", 11)
+	body.add_theme_font_size_override("font_size", 13)
 	body.add_theme_color_override("font_color", Color(0.76, 0.73, 0.72))
 	UITheme.apply_ui_font(body)
 	box.add_child(body)
@@ -548,7 +548,7 @@ static func _add_choice_card(parent: HBoxContainer, title_text: String, body_tex
 	var button := Button.new()
 	button.text = action_text
 	button.custom_minimum_size = Vector2(0, 34)
-	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_font_size_override("font_size", 13)
 	button.add_theme_color_override("font_color", Color(0.94, 0.92, 0.84))
 	button.add_theme_color_override("font_hover_color", Color.WHITE)
 	button.add_theme_stylebox_override("normal", UITheme.make_button_style(Color(accent.r * 0.24, accent.g * 0.24, accent.b * 0.24, 0.78), Color(accent.r, accent.g, accent.b, 0.68)))

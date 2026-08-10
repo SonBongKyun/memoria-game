@@ -90,8 +90,8 @@ func _on_memory_added(memory: MemoryManager.Memory) -> void:
 		return
 	if not memory_entries.has(memory.id):
 		memory_entries[memory.id] = {
-			"title": memory.title,
-			"desc": memory.description,
+			"title": MemoryManager.localized_memory_title(memory),
+			"desc": MemoryManager.localized_memory_description(memory),
 			"grade": memory.grade,
 			"burned": false,
 		}
@@ -209,13 +209,13 @@ func _build_ui() -> void:
 
 	var subtitle := Label.new()
 	subtitle.text = "조우한 존재와 잃어버린 기억의 기록" if GameManager.current_locale == "ko" else "Creatures encountered. Memories carried and spent."
-	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_font_size_override("font_size", 13)
 	subtitle.add_theme_color_override("font_color", Color(0.56, 0.52, 0.49))
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(subtitle)
 
 	archive_status = Label.new()
-	archive_status.add_theme_font_size_override("font_size", 12)
+	archive_status.add_theme_font_size_override("font_size", 13)
 	archive_status.add_theme_color_override("font_color", Color(0.55, 0.62, 0.72))
 	archive_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(archive_status)
@@ -285,7 +285,7 @@ func _build_ui() -> void:
 	# 닫기 힌트
 	close_hint = Label.new()
 	close_hint.text = "[ESC] Close"
-	close_hint.add_theme_font_size_override("font_size", 12)
+	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_hint)
@@ -403,7 +403,7 @@ func _populate_bestiary() -> void:
 	var recorded := enemy_entries.size()
 	var progress := Label.new()
 	progress.text = ("기록 %d / %d" if is_ko else "Recorded %d / %d") % [recorded, total_known.size()]
-	progress.add_theme_font_size_override("font_size", 12)
+	progress.add_theme_font_size_override("font_size", 13)
 	progress.add_theme_color_override("font_color", Color(0.80, 0.72, 0.48))
 	item_list.add_child(progress)
 
@@ -427,7 +427,7 @@ func _populate_bestiary() -> void:
 	if not unmet.is_empty():
 		var divider := Label.new()
 		divider.text = ("미조우 %d" if is_ko else "Unrecorded %d") % unmet.size()
-		divider.add_theme_font_size_override("font_size", 12)
+		divider.add_theme_font_size_override("font_size", 13)
 		divider.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		item_list.add_child(divider)
 		for entry_name: String in unmet:

@@ -434,13 +434,13 @@ func _build_save_indicator() -> void:
 	# Spinning save icon (using text rotation trick)
 	var icon_label = Label.new()
 	icon_label.text = "[ ]"
-	icon_label.add_theme_font_size_override("font_size", 12)
+	icon_label.add_theme_font_size_override("font_size", 13)
 	icon_label.add_theme_color_override("font_color", Color(0.5, 0.75, 0.4))
 	hbox.add_child(icon_label)
 
 	var text_label = Label.new()
 	text_label.text = "Saving..."
-	text_label.add_theme_font_size_override("font_size", 11)
+	text_label.add_theme_font_size_override("font_size", 13)
 	text_label.add_theme_color_override("font_color", Color(0.6, 0.55, 0.5))
 	hbox.add_child(text_label)
 

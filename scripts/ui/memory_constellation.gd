@@ -153,7 +153,7 @@ func _build_ui() -> void:
 	legend.anchor_bottom = 1.0
 	legend.offset_top = -70
 	legend.offset_bottom = -20
-	legend.add_theme_font_size_override("font_size", 12)
+	legend.add_theme_font_size_override("font_size", 13)
 	legend.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	legend.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

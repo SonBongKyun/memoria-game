@@ -202,7 +202,7 @@ func _build_ui() -> void:
 		"Lines you have already seen, newest at the bottom.  [L] or [Esc] to close.",
 		"이미 지나간 대사입니다. 아래쪽이 가장 최근.  [L] 또는 [Esc]로 닫기."
 	)
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	box.add_child(hint)
 
@@ -265,7 +265,7 @@ func _rebuild_list() -> void:
 			last_chapter = chapter
 			var chapter_label := Label.new()
 			chapter_label.text = _loc("— Chapter %d —", "— %d장 —") % chapter
-			chapter_label.add_theme_font_size_override("font_size", 12)
+			chapter_label.add_theme_font_size_override("font_size", 13)
 			chapter_label.add_theme_color_override("font_color", Color(0.58, 0.48, 0.34))
 			_list.add_child(chapter_label)
 		_list.add_child(_make_entry_row(entry))

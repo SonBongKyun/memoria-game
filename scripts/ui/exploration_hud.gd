@@ -85,6 +85,8 @@ var status_icons_row: HBoxContainer  # S57: status effect icons
 var controls_panel: PanelContainer
 var controls_label: Label
 var flow_panel: PanelContainer
+## S230: 어떤 상태에서도 Field Flow 문장은 읽혀야 한다. 이 아래로는 내리지 않는다.
+const FLOW_PANEL_MIN_ALPHA := 0.88
 var flow_bar: ProgressBar
 var pressure_bar: ProgressBar
 var flow_value_label: Label
@@ -188,7 +190,7 @@ func _build_ui() -> void:
 
 	chapter_label = Label.new()
 	chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	chapter_label.add_theme_font_size_override("font_size", 12)
+	chapter_label.add_theme_font_size_override("font_size", 13)
 	chapter_label.add_theme_color_override("font_color", Color(0.78, 0.84, 0.98))
 	header_row.add_child(chapter_label)
 
@@ -204,7 +206,7 @@ func _build_ui() -> void:
 
 	hp_label = Label.new()
 	hp_label.text = "HP"
-	hp_label.add_theme_font_size_override("font_size", 12)
+	hp_label.add_theme_font_size_override("font_size", 13)
 	hp_label.add_theme_color_override("font_color", Color(0.82, 0.88, 1.0))
 	hp_row.add_child(hp_label)
 
@@ -305,7 +307,7 @@ func _build_ui() -> void:
 	quest_tag_label = Label.new()
 	quest_tag_label.text = "◆  이야기 흐름" if GameManager.current_locale == "ko" else "◆  STORY THREAD"
 	quest_tag_label.add_theme_font_override("font", UITheme.make_ui_font())
-	quest_tag_label.add_theme_font_size_override("font_size", 12)
+	quest_tag_label.add_theme_font_size_override("font_size", 13)
 	quest_tag_label.add_theme_color_override("font_color", Color(0.96, 0.78, 0.44))
 	quest_box.add_child(quest_tag_label)
 
@@ -337,7 +339,7 @@ func _build_ui() -> void:
 	# 메인 목표가 화면에서 사라졌다. 게다가 태그는 계속 "이야기 흐름"이라 잘못 읽혔다.
 	# 이제 이야기 목표는 항상 남고, 진행 중인 의뢰가 그 아래에 따로 붙는다.
 	quest_side_label = Label.new()
-	quest_side_label.add_theme_font_size_override("font_size", 12)
+	quest_side_label.add_theme_font_size_override("font_size", 13)
 	quest_side_label.add_theme_color_override("font_color", Color(0.72, 0.82, 0.94))
 	quest_side_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	quest_side_label.custom_minimum_size.x = 180
@@ -376,7 +378,7 @@ func _build_controls_strip() -> void:
 	controls_label = Label.new()
 	controls_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	controls_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	controls_label.add_theme_font_size_override("font_size", 13)
+	controls_label.add_theme_font_size_override("font_size", UITheme.SIZE_LABEL)
 	controls_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	UITheme.apply_ui_font(controls_label)
 	controls_panel.add_child(controls_label)
@@ -411,13 +413,13 @@ func _build_field_flow_panel() -> void:
 	var title := Label.new()
 	title.text = "FIELD FLOW"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_size_override("font_size", 12)
+	title.add_theme_font_size_override("font_size", 13)
 	title.add_theme_color_override("font_color", Color(0.72, 0.88, 1.0))
 	UITheme.apply_ui_font(title)
 	header.add_child(title)
 	approach_label = Label.new()
 	approach_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	approach_label.add_theme_font_size_override("font_size", 13)
+	approach_label.add_theme_font_size_override("font_size", UITheme.SIZE_LABEL)
 	approach_label.add_theme_color_override("font_color", Color(0.84, 0.90, 1.0))
 	UITheme.apply_ui_font(approach_label)
 	header.add_child(approach_label)
@@ -443,7 +445,7 @@ func _build_field_flow_panel() -> void:
 	flow_value_label = Label.new()
 	flow_value_label.custom_minimum_size.x = 76
 	flow_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	flow_value_label.add_theme_font_size_override("font_size", 12)
+	flow_value_label.add_theme_font_size_override("font_size", 13)
 	flow_value_label.add_theme_color_override("font_color", Color(0.82, 0.88, 1.0))
 	UITheme.apply_ui_font(flow_value_label)
 	flow_row.add_child(flow_value_label)
@@ -465,7 +467,7 @@ func _build_field_flow_panel() -> void:
 
 	flow_hint_label = Label.new()
 	flow_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	flow_hint_label.add_theme_font_size_override("font_size", 12)
+	flow_hint_label.add_theme_font_size_override("font_size", 13)
 	flow_hint_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	UITheme.apply_ui_font(flow_hint_label)
 	vbox.add_child(flow_hint_label)
@@ -704,10 +706,10 @@ func _update_field_flow_hud() -> void:
 		return
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null or not player.has_method("get_field_flow_status"):
-		flow_panel.modulate.a = 0.46
+		flow_panel.modulate.a = FLOW_PANEL_MIN_ALPHA
 		flow_bar.value = 0.0
 		pressure_bar.value = 0.0
-		approach_label.text = "NO FIELD LINK"
+		approach_label.text = "필드 연결 없음" if GameManager.current_locale == "ko" else "NO FIELD LINK"
 		flow_value_label.text = "—"
 		return
 	flow_panel.modulate.a = 1.0
@@ -747,7 +749,10 @@ func _update_field_flow_hud() -> void:
 	var pulse := 0.0
 	if alarm >= 0.45:
 		pulse = (sin(_flow_pulse_time * (5.0 + alarm * 3.5)) * 0.5 + 0.5) * (alarm - 0.45) * 0.5
-	flow_panel.modulate.a = clampf(0.62 + alarm * 0.38 + pulse * 0.25, 0.0, 1.0)
+	# S230: 예전에는 조용할 때 패널 전체를 알파 0.62까지 내렸다. 패널 배경(0.96)까지
+	# 같이 흐려져 실효 불투명도가 0.60이 되고, 밝은 숲 캔버스 위에서는 글자 사이로
+	# 지형이 그대로 비쳤다. "조용함"은 테두리 색과 맥동으로 말하고, 읽을 바탕은 남긴다.
+	flow_panel.modulate.a = clampf(FLOW_PANEL_MIN_ALPHA + alarm * 0.12 + pulse * 0.12, 0.0, 1.0)
 	var panel_style := flow_panel.get_theme_stylebox("panel") as StyleBoxFlat
 	if panel_style:
 		var border := accent if alarm >= 0.45 else Color(0.46, 0.72, 0.94)

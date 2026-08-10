@@ -19,10 +19,16 @@ func _ready() -> void:
 	var battle: Node = load("res://scenes/battle/battle_scene.tscn").instantiate()
 	add_child(battle)
 	await get_tree().process_frame
-	await get_tree().process_frame
 
 	var stage: HybridDepthStage = battle.get("_hybrid_depth_stage")
 	assert(stage != null, "전투에 하이브리드 무대가 있어야 한다")
+
+	# S230: S228부터 전투는 플레이어 턴 포커스를 켠 채로 열린다. 그 상태의 카메라는
+	# 기준 자세가 아니므로, "기준 자세" 검사 전에 중립으로 돌리고 정착시켜야 한다.
+	# 카메라는 지수 감쇠로 다가가기 때문에 두 프레임으로는 부족하다.
+	stage.set_battle_focus("neutral")
+	for _f in range(60):
+		await get_tree().process_frame
 
 	# --- 두 좌표계가 같은 자리를 가리키는가 ---
 	var anchors: Array = battle.get("_battler_anchors")
@@ -37,11 +43,18 @@ func _ready() -> void:
 	assert(player_anchor != null and enemy_anchor != null, "플레이어/적 앵커가 있어야 한다")
 
 	# 앵커의 3D 좌표를 다시 화면으로 투영하면 2D 발 위치로 돌아와야 한다.
-	var baseline: float = battle.STAGE_BASELINE_Y
+	# S230: 기대 좌표를 숫자로 박아 두면 안 된다. S228이 아렐의 발 위치를
+	# 226 -> 246으로 옮겼을 때 이 테스트만 옛 숫자를 붙들고 조용히 깨져 있었다.
+	# 이제는 역할 계약(BATTLE_ROLE_PROFILES)에서 직접 읽는다.
+	# canvas_to_floor()는 카메라 "기준 자세"에서 역산한다. 따라서 되돌아오는지 볼 때도
+	# 기준 자세 투영과 비교해야 한다. 살아 있는 카메라 투영에서 anchor_offset(=현재-기준)을
+	# 빼면 그 값이 나온다. 예전에는 살아 있는 투영을 그대로 비교해, 카메라가 조금만
+	# 포커스를 옮겨도 어긋난 값을 재고 있었다.
+	var expected_foot: Vector2 = battle.BATTLE_ROLE_PROFILES["player"]["canvas_foot"]
 	var player_world: Vector3 = player_anchor.get_meta("world_anchor")
-	var projected: Vector2 = stage.world_to_canvas(player_world)
-	assert(absf(projected.x - 226.0) < 6.0 and absf(projected.y - baseline) < 6.0,
-		"플레이어의 3D 앵커는 2D 발 위치로 되돌아와야 한다 (투영 %s)" % str(projected))
+	var projected: Vector2 = stage.world_to_canvas(player_world) - stage.anchor_offset(player_world)
+	assert(absf(projected.x - expected_foot.x) < 6.0 and absf(projected.y - expected_foot.y) < 6.0,
+		"플레이어의 3D 앵커는 2D 발 위치 %s로 되돌아와야 한다 (기준 자세 투영 %s)" % [str(expected_foot), str(projected)])
 
 	# 3D 접지 그림자와 포커스 링도 같은 x에 있어야 한다.
 	var focus_x: float = stage.battle_player_focus_root.position.x
@@ -118,9 +131,16 @@ func _ready() -> void:
 	assert(plate_material != null, "적 판에 무대 블렌드 머티리얼이 있어야 한다")
 	assert(float(plate_material.get_shader_parameter("ambient_strength")) > 0.0,
 		"전투원이 무대의 바이옴 색을 받아야 한 장면으로 읽힌다")
+	# S230: 림 세기는 역할 계약이 정한다. S228이 원화 판 전체를 림 0으로 정리했는데
+	# (그려진 명암을 덧칠하지 않기 위해서다) 이 검사만 "림 > 0"을 붙들고 있었다.
+	# 검사할 것은 림의 값이 아니라, 무대 블렌드가 계약대로 실려 있는가다.
 	var hero_material := (battle.get("player_sprite") as CanvasItem).material as ShaderMaterial
-	assert(hero_material != null and float(hero_material.get_shader_parameter("rim_strength")) > 0.0,
-		"선명하게 잘린 주인공 스프라이트는 키라이트 림을 받아야 한다")
+	assert(hero_material != null, "주인공 판에도 무대 블렌드 머티리얼이 있어야 한다")
+	var authored_rim: float = float(battle.BATTLE_ROLE_PROFILES["player"]["rim"])
+	assert(is_equal_approx(float(hero_material.get_shader_parameter("rim_strength")), authored_rim),
+		"주인공 판의 림 세기가 역할 계약(%f)과 다르다" % authored_rim)
+	assert(float(hero_material.get_shader_parameter("ambient_strength")) > 0.0,
+		"주인공도 무대의 바이옴 색을 받아야 한 장면으로 읽힌다")
 
 	# 피격 후에도 무대 블렌드가 살아남아야 한다.
 	# 예전에는 히트 플래시가 끝나며 material을 null로 지워서, 기본 공격 한 번이면

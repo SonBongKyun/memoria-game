@@ -685,7 +685,7 @@ func _build_ui() -> void:
 	# Description text for accessibility
 	var desc = Label.new()
 	desc.text = GameManager.loc("options_help")
-	desc.add_theme_font_size_override("font_size", 12)
+	desc.add_theme_font_size_override("font_size", 13)
 	desc.add_theme_color_override("font_color", Color(0.45, 0.42, 0.38, 0.7))
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(desc)
@@ -880,7 +880,7 @@ func _apply_fps_counter(show: bool) -> void:
 			_fps_label.name = "FPSCounter"
 			_fps_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
 			_fps_label.position = Vector2(8, 4)
-			_fps_label.add_theme_font_size_override("font_size", 12)
+			_fps_label.add_theme_font_size_override("font_size", 13)
 			_fps_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.4, 0.7))
 			_fps_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 			_fps_label.add_theme_constant_override("outline_size", 2)

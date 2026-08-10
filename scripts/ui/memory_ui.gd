@@ -22,6 +22,7 @@ var detail_effect: Label
 var detail_rewrite: Label
 var detail_status: Label
 var archive_summary_label: Label
+var track_summary_label: Label       # S231: 연소/파수 두 진행축 표시
 var count_label: Label             # 하단 연소 수
 var close_hint: Label
 
@@ -31,8 +32,28 @@ var synthesis_mode: bool = false     # 합성 모드 활성 여부
 var synthesis_first = null           # 합성 첫 번째 기억
 var synth_btn: Button                # 합성 버튼
 var synth_status_label: Label        # 합성 모드 상태 표시
+var guard_btn: Button                # S231: 기억 고정 버튼
+var guard_hint_label: Label          # S231: 고정 슬롯/사유 안내
 
 const GRADE_NAMES = ["Grade 5, Sensory", "Grade 4, Daily", "Grade 3, Relational", "Grade 2, Identity", "Grade 1, Core"]
+## S234: 서고 문구도 기억 텍스트와 같은 언어여야 한다.
+const GRADE_NAMES_KO = ["5등급 · 감각", "4등급 · 일상", "3등급 · 관계", "2등급 · 정체성", "1등급 · 핵심"]
+const GRADE_SHORT_KO = ["5등급", "4등급", "3등급", "2등급", "1등급"]
+
+static func _is_ko() -> bool:
+	return GameManager.current_locale == "ko"
+
+static func grade_name(grade: int) -> String:
+	return GRADE_NAMES_KO[grade] if _is_ko() else GRADE_NAMES[grade]
+
+## "Unknown"처럼 인물이 특정되지 않은 값도 같은 언어로 적는다.
+static func _related_name(npc: String) -> String:
+	if npc.to_lower() == "unknown":
+		return "미상" if _is_ko() else "Unknown"
+	return GameManager.localized_speaker(npc)
+
+static func grade_short(grade: int) -> String:
+	return GRADE_SHORT_KO[grade] if _is_ko() else GRADE_NAMES[grade].split(", ")[0]
 const GRADE_COLORS = [
 	Color(0.5, 0.5, 0.45),     # Grade 5, 회색
 	Color(0.55, 0.5, 0.35),    # Grade 4, 갈색
@@ -130,10 +151,16 @@ func _build_ui() -> void:
 	main_vbox.add_child(title_bar)
 
 	archive_summary_label = Label.new()
-	archive_summary_label.add_theme_font_size_override("font_size", 12)
+	archive_summary_label.add_theme_font_size_override("font_size", 13)
 	archive_summary_label.add_theme_color_override("font_color", Color(0.64, 0.58, 0.48))
 	archive_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	main_vbox.add_child(archive_summary_label)
+
+	# S231: 연소 트리와 파수 트리를 한 줄에 나란히. 자기 빌드를 볼 수 있어야 선택이 성립한다.
+	track_summary_label = Label.new()
+	track_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	UITheme.style_meta_label(track_summary_label, Color(0.72, 0.70, 0.62))
+	main_vbox.add_child(track_summary_label)
 
 	# 내용 영역 (HBox: 등급탭 | 카드목록 | 상세)
 	var content_hbox = HBoxContainer.new()
@@ -155,21 +182,21 @@ func _build_ui() -> void:
 	main_vbox.add_child(bottom_bar)
 
 	count_label = Label.new()
-	count_label.add_theme_font_size_override("font_size", 12)
+	count_label.add_theme_font_size_override("font_size", 13)
 	count_label.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 	count_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom_bar.add_child(count_label)
 
 	synth_status_label = Label.new()
-	synth_status_label.add_theme_font_size_override("font_size", 12)
+	synth_status_label.add_theme_font_size_override("font_size", 13)
 	synth_status_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
 	synth_status_label.visible = false
 	bottom_bar.add_child(synth_status_label)
 
 	# S62: Constellation 토글 버튼
 	var constellation_btn = Button.new()
-	constellation_btn.text = "✦ Constellation"
-	constellation_btn.add_theme_font_size_override("font_size", 12)
+	constellation_btn.text = "✦ 기억 별자리" if _is_ko() else "✦ Constellation"
+	constellation_btn.add_theme_font_size_override("font_size", 13)
 	constellation_btn.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
 	constellation_btn.pressed.connect(func():
 		MemoryConstellation.open()
@@ -177,8 +204,8 @@ func _build_ui() -> void:
 	bottom_bar.add_child(constellation_btn)
 
 	close_hint = Label.new()
-	close_hint.text = "[Tab / M] Close    [ESC] Close"
-	close_hint.add_theme_font_size_override("font_size", 12)
+	close_hint.text = "[Tab / M] 닫기    [ESC] 닫기" if _is_ko() else "[Tab / M] Close    [ESC] Close"
+	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	bottom_bar.add_child(close_hint)
 
@@ -186,15 +213,15 @@ func _create_title_bar() -> HBoxContainer:
 	var bar = HBoxContainer.new()
 
 	var title = Label.new()
-	title.text = "ARREL'S ARCHIVE"
+	title.text = "아렐의 서고" if _is_ko() else "ARREL'S ARCHIVE"
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(0.75, 0.6, 0.4))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bar.add_child(title)
 
 	var subtitle = Label.new()
-	subtitle.text = "The things you carry. The things you've lost."
-	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.text = "지고 가는 것들. 잃어버린 것들." if _is_ko() else "The things you carry. The things you've lost."
+	subtitle.add_theme_font_size_override("font_size", 13)
 	subtitle.add_theme_color_override("font_color", Color(0.45, 0.4, 0.35))
 	subtitle.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	bar.add_child(subtitle)
@@ -218,7 +245,7 @@ func _build_grade_tabs(parent: HBoxContainer) -> void:
 	tab_panel.add_child(grade_tabs)
 
 	# "전체" 탭
-	var all_btn = _create_tab_button("All Memories", -1)
+	var all_btn = _create_tab_button("전체 기억" if _is_ko() else "All Memories", -1)
 	grade_tabs.add_child(all_btn)
 
 	# 구분선
@@ -228,7 +255,7 @@ func _build_grade_tabs(parent: HBoxContainer) -> void:
 
 	# 등급별 탭
 	for i in range(5):
-		var btn = _create_tab_button(GRADE_NAMES[i], i)
+		var btn = _create_tab_button(grade_name(i), i)
 		grade_tabs.add_child(btn)
 
 func _create_tab_button(text: String, grade_filter: int) -> Button:
@@ -249,7 +276,7 @@ func _create_tab_button(text: String, grade_filter: int) -> Button:
 	btn.add_theme_stylebox_override("hover", hover)
 	btn.add_theme_stylebox_override("focus", hover)
 
-	btn.add_theme_font_size_override("font_size", 12)
+	btn.add_theme_font_size_override("font_size", 13)
 	btn.add_theme_color_override("font_color", Color(0.65, 0.55, 0.45))
 	btn.add_theme_color_override("font_hover_color", Color(0.85, 0.7, 0.5))
 
@@ -291,7 +318,7 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 
 	# 등급
 	detail_grade = Label.new()
-	detail_grade.add_theme_font_size_override("font_size", 12)
+	detail_grade.add_theme_font_size_override("font_size", 13)
 	vbox.add_child(detail_grade)
 
 	# 구분선
@@ -319,25 +346,25 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 
 	# 연소력
 	detail_power = Label.new()
-	detail_power.add_theme_font_size_override("font_size", 12)
+	detail_power.add_theme_font_size_override("font_size", 13)
 	detail_power.add_theme_color_override("font_color", Color(0.7, 0.4, 0.3))
 	vbox.add_child(detail_power)
 
 	# 관련 NPC
 	detail_npc = Label.new()
-	detail_npc.add_theme_font_size_override("font_size", 12)
+	detail_npc.add_theme_font_size_override("font_size", 13)
 	detail_npc.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
 	vbox.add_child(detail_npc)
 
 	# 스토리 효과
 	detail_effect = Label.new()
-	detail_effect.add_theme_font_size_override("font_size", 12)
+	detail_effect.add_theme_font_size_override("font_size", 13)
 	detail_effect.add_theme_color_override("font_color", Color(0.6, 0.45, 0.4))
 	detail_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(detail_effect)
 
 	detail_rewrite = Label.new()
-	detail_rewrite.add_theme_font_size_override("font_size", 12)
+	detail_rewrite.add_theme_font_size_override("font_size", 13)
 	detail_rewrite.add_theme_color_override("font_color", Color(0.72, 0.58, 0.42))
 	detail_rewrite.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_rewrite.visible = false
@@ -350,7 +377,7 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 
 	# 합성 버튼
 	synth_btn = Button.new()
-	synth_btn.text = "SYNTHESIZE"
+	synth_btn.text = "합성" if _is_ko() else "SYNTHESIZE"
 	synth_btn.custom_minimum_size = Vector2(0, 36)
 	synth_btn.visible = false
 	var synth_style = StyleBoxFlat.new()
@@ -370,6 +397,37 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	synth_btn.add_theme_color_override("font_hover_color", Color(0.9, 0.7, 1.0))
 	synth_btn.pressed.connect(_on_synth_pressed)
 	vbox.add_child(synth_btn)
+
+	# S231: 기억 고정. 침식을 되돌리고 다음 한 번을 막는다.
+	guard_btn = Button.new()
+	guard_btn.custom_minimum_size = Vector2(0, 34)
+	guard_btn.visible = false
+	var guard_style = StyleBoxFlat.new()
+	guard_style.bg_color = Color(0.10, 0.16, 0.22, 0.90)
+	guard_style.border_color = Color(0.40, 0.62, 0.78, 0.66)
+	guard_style.set_border_width_all(1)
+	guard_style.set_corner_radius_all(4)
+	guard_style.set_content_margin_all(6)
+	guard_btn.add_theme_stylebox_override("normal", guard_style)
+	var guard_hover = guard_style.duplicate()
+	guard_hover.bg_color = Color(0.16, 0.26, 0.36, 0.95)
+	guard_hover.border_color = Color(0.62, 0.84, 1.0, 0.88)
+	guard_btn.add_theme_stylebox_override("hover", guard_hover)
+	guard_btn.add_theme_stylebox_override("focus", guard_hover)
+	var guard_disabled = guard_style.duplicate()
+	guard_disabled.bg_color = Color(0.055, 0.058, 0.070, 0.92)
+	guard_disabled.border_color = Color(0.30, 0.32, 0.36, 0.44)
+	guard_btn.add_theme_stylebox_override("disabled", guard_disabled)
+	UITheme.style_label(guard_btn, UITheme.make_ui_font(), UITheme.SIZE_LABEL, Color(0.74, 0.88, 1.0))
+	guard_btn.add_theme_color_override("font_disabled_color", Color(0.58, 0.60, 0.64, 0.95))
+	guard_btn.pressed.connect(_on_guard_pressed)
+	vbox.add_child(guard_btn)
+
+	guard_hint_label = Label.new()
+	guard_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	guard_hint_label.visible = false
+	UITheme.style_meta_label(guard_hint_label, Color(0.62, 0.72, 0.84))
+	vbox.add_child(guard_hint_label)
 
 	_clear_detail()
 
@@ -391,7 +449,7 @@ func _refresh_cards() -> void:
 			eroding_count += 1
 		if not m.is_burned and not m.is_faded:
 			intact_count += 1
-	count_label.text = "Held: %d    Burned: %d    Fading: %d" % [intact_count, burn_count, faded_count]
+	count_label.text = ("보유 %d    연소 %d    흐려짐 %d" if _is_ko() else "Held: %d    Burned: %d    Fading: %d") % [intact_count, burn_count, faded_count]
 	_update_archive_summary(memories.size(), intact_count, burn_count, faded_count, eroding_count)
 
 	for memory in memories:
@@ -408,15 +466,15 @@ func _add_memory_card(memory) -> void:
 	btn.custom_minimum_size = Vector2(0, 40)
 
 	# 카드 텍스트
-	var grade_label = GRADE_NAMES[memory.grade].split(", ")[0]  # "Grade 5"
+	var grade_label = grade_short(memory.grade)
 	var status_mark = ""
 	if memory.is_burned:
-		status_mark = " [BURNED]" if not memory.is_residue else " [RESIDUE]"
+		status_mark = (" [연소됨]" if not memory.is_residue else " [잔존]") if _is_ko() else (" [BURNED]" if not memory.is_residue else " [RESIDUE]")
 	elif memory.is_faded:
-		status_mark = " [FADED]"
+		status_mark = " [흐려짐]" if _is_ko() else " [FADED]"
 	elif memory.erosion > 0:
-		status_mark = " [ERODING %d%%]" % int(MemoryManager.get_erosion_ratio(memory) * 100)
-	btn.text = "[%s] %s%s" % [grade_label, memory.title, status_mark]
+		status_mark = (" [침식 %d%%]" if _is_ko() else " [ERODING %d%%]") % int(MemoryManager.get_erosion_ratio(memory) * 100)
+	btn.text = "[%s] %s%s" % [grade_label, MemoryManager.localized_memory_title(memory), status_mark]
 
 	# 스타일
 	var card_color = GRADE_COLORS[memory.grade]
@@ -466,7 +524,7 @@ func _show_detail(memory) -> void:
 		if memory.is_burned:
 			return
 		if memory.grade != synthesis_first.grade:
-			synth_status_label.text = "Must be same grade! (%s ≠ %s)" % [GRADE_NAMES[synthesis_first.grade].split(", ")[0], GRADE_NAMES[memory.grade].split(", ")[0]]
+			synth_status_label.text = ("같은 등급이어야 합니다 (%s / %s)" if _is_ko() else "Must be same grade! (%s / %s)") % [grade_short(synthesis_first.grade), grade_short(memory.grade)]
 			return
 		# 합성 실행
 		var result = MemoryManager.synthesize(synthesis_first.id, memory.id)
@@ -479,17 +537,17 @@ func _show_detail(memory) -> void:
 		return
 
 	selected_memory = memory
-	detail_title.text = memory.title
-	detail_grade.text = GRADE_NAMES[memory.grade]
+	detail_title.text = MemoryManager.localized_memory_title(memory)
+	detail_grade.text = grade_name(memory.grade)
 	detail_grade.add_theme_color_override("font_color", GRADE_COLORS[memory.grade])
-	detail_desc.text = memory.description
-	detail_power.text = "Burn Power: %d" % memory.burn_power
-	detail_npc.text = "Related: %s" % memory.related_npc if memory.related_npc != "" else ""
+	detail_desc.text = MemoryManager.localized_memory_description(memory)
+	detail_power.text = ("연소 위력 %d" if _is_ko() else "Burn Power: %d") % memory.burn_power
+	detail_npc.text = (("관련 인물: %s" if _is_ko() else "Related: %s") % _related_name(memory.related_npc)) if memory.related_npc != "" else ""
 	detail_npc.visible = memory.related_npc != ""
 	_apply_memory_art_and_rewrite(memory)
 
 	if memory.story_effect != "":
-		detail_effect.text = "If burned: %s" % memory.story_effect
+		detail_effect.text = ("태우면: %s" if GameManager.current_locale == "ko" else "If burned: %s") % MemoryManager.localized_memory_effect(memory)
 		detail_effect.visible = true
 	else:
 		detail_effect.visible = false
@@ -497,20 +555,59 @@ func _show_detail(memory) -> void:
 	# 상태 표시
 	if memory.is_burned:
 		if memory.is_residue:
-			detail_status.text = "RESIDUE, A faint trace remains."
+			detail_status.text = "잔존 · 희미한 흔적이 남았다." if _is_ko() else "RESIDUE, A faint trace remains."
 			detail_status.add_theme_color_override("font_color", Color(0.5, 0.55, 0.65))
 		else:
-			detail_status.text = "BURNED, Gone forever."
+			detail_status.text = "연소됨 · 영원히 사라졌다." if _is_ko() else "BURNED, Gone forever."
 			detail_status.add_theme_color_override("font_color", Color(0.6, 0.3, 0.25))
 	else:
-		detail_status.text = "INTACT"
+		detail_status.text = "온전함" if _is_ko() else "INTACT"
 		detail_status.add_theme_color_override("font_color", Color(0.5, 0.6, 0.45))
 
 	# 합성 버튼 표시 (미연소 + Grade 1 미만 + 같은 등급 짝이 있을 때)
 	synth_btn.visible = not _read_only and not memory.is_burned and memory.grade < MemoryManager.MemoryGrade.GRADE_1 and _count_same_grade(memory.grade) >= 2
+	_refresh_guard_controls(memory)
+
+## S231: 고정 버튼 상태. 못 누를 때는 왜 못 누르는지까지 적는다.
+func _refresh_guard_controls(memory) -> void:
+	if guard_btn == null or guard_hint_label == null:
+		return
+	var is_ko := GameManager.current_locale == "ko"
+	if _read_only or memory == null or memory.is_burned:
+		guard_btn.visible = false
+		guard_hint_label.visible = false
+		return
+	var availability: Dictionary = MemoryManager.guard_availability(memory)
+	var cost := MemoryManager.erosion_guard_cost(memory)
+	guard_btn.visible = true
+	guard_btn.disabled = not bool(availability.get("ok", false))
+	guard_btn.text = ("고정  %d 그레인" % cost) if is_ko else ("ANCHOR  %d Grains" % cost)
+	guard_btn.tooltip_text = (
+		"침식을 되돌리고 다음 챕터의 침식을 한 번 막는다." if is_ko
+		else "Clears erosion and blocks the next chapter's erosion once."
+	)
+	guard_hint_label.visible = true
+	var slots := MemoryManager.guard_slots_remaining()
+	var slot_line := ("이번 챕터 고정 %d/%d" % [slots, MemoryManager.EROSION_GUARD_SLOTS]) if is_ko else ("Guards left %d/%d" % [slots, MemoryManager.EROSION_GUARD_SLOTS])
+	if MemoryManager.is_guarded(memory.id):
+		slot_line += ("  ·  이 기억은 고정됨" if is_ko else "  ·  This memory is anchored")
+	elif guard_btn.disabled:
+		slot_line += "  ·  " + String(availability.get("reason", ""))
+	guard_hint_label.text = slot_line
+
+func _on_guard_pressed() -> void:
+	if selected_memory == null:
+		return
+	if not MemoryManager.guard_memory(selected_memory.id):
+		AudioManager.play_sfx("cancel")
+		_refresh_guard_controls(selected_memory)
+		return
+	AudioManager.play_sfx("memory_add")
+	_refresh_cards()
+	_show_detail(selected_memory)
 
 func _clear_detail() -> void:
-	detail_title.text = "Select a memory..."
+	detail_title.text = "기억을 고르세요..." if _is_ko() else "Select a memory..."
 	detail_grade.text = ""
 	detail_desc.text = ""
 	detail_power.text = ""
@@ -525,6 +622,10 @@ func _clear_detail() -> void:
 	detail_rewrite.visible = false
 	detail_status.text = ""
 	synth_btn.visible = false
+	if guard_btn:
+		guard_btn.visible = false
+	if guard_hint_label:
+		guard_hint_label.visible = false
 
 func _update_archive_summary(total: int, intact_count: int, burn_count: int, faded_count: int, eroding_count: int) -> void:
 	if not archive_summary_label:
@@ -532,15 +633,59 @@ func _update_archive_summary(total: int, intact_count: int, burn_count: int, fad
 	var rewrite_count := 0
 	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
 		rewrite_count = WorldRewriteDirector.get_loss_records().size()
-	var last_line := "No world rewrite recorded."
+	var last_line := "재기록된 세계 변화 없음." if _is_ko() else "No world rewrite recorded."
 	if MemoryManager.burned_memories.size() > 0 and WorldRewriteDirector and WorldRewriteDirector.has_method("get_rewrite_report"):
 		var last_memory = MemoryManager.burned_memories.back()
 		var report: Dictionary = WorldRewriteDirector.get_rewrite_report(last_memory.id)
 		if not report.is_empty():
-			last_line = "Last rewrite: %s" % String(report.get("title", last_memory.title))
-	archive_summary_label.text = "Archive state: %d total / %d intact / %d burned / %d fading / %d eroding. Loss records: %d. %s" % [
-		total, intact_count, burn_count, faded_count, eroding_count, rewrite_count, last_line
-	]
+			last_line = ("최근 재기록: %s" if _is_ko() else "Last rewrite: %s") % String(report.get("title", MemoryManager.localized_memory_title(last_memory)))
+	if _is_ko():
+		archive_summary_label.text = "서고: 전체 %d · 온전 %d · 연소 %d · 흐려짐 %d · 침식 중 %d.  상실 기록 %d.  %s" % [
+			total, intact_count, burn_count, faded_count, eroding_count, rewrite_count, last_line
+		]
+	else:
+		archive_summary_label.text = "Archive state: %d total / %d intact / %d burned / %d fading / %d eroding. Loss records: %d. %s" % [
+			total, intact_count, burn_count, faded_count, eroding_count, rewrite_count, last_line
+		]
+	_update_track_summary()
+
+## S231: 두 진행축을 나란히 보여 준다.
+## 예전에는 연소 패시브조차 해금 토스트로만 존재해, 플레이어가 자기 빌드를 볼 수 없었다.
+func _update_track_summary() -> void:
+	if track_summary_label == null:
+		return
+	var is_ko := GameManager.current_locale == "ko"
+	var burn_names: Array[String] = []
+	for threshold in MemoryManager.PASSIVE_THRESHOLDS:
+		var passive: Dictionary = MemoryManager.PASSIVE_THRESHOLDS[threshold]
+		if MemoryManager.has_passive(String(passive["id"])):
+			burn_names.append(MemoryManager.localized_passive_name(passive))
+	var anchor_names: Array[String] = []
+	for threshold in MemoryManager.ANCHOR_THRESHOLDS:
+		var passive: Dictionary = MemoryManager.ANCHOR_THRESHOLDS[threshold]
+		if MemoryManager.has_anchor_passive(String(passive["id"])):
+			anchor_names.append(MemoryManager.localized_passive_name(passive))
+	var none := "없음" if is_ko else "none"
+	var next_vigil := MemoryManager.next_anchor_threshold()
+	var vigil_line := ""
+	if next_vigil > 0:
+		vigil_line = ("파수 %d (다음 %d)" % [MemoryManager.anchor_vigil, next_vigil]) if is_ko else ("Vigil %d (next %d)" % [MemoryManager.anchor_vigil, next_vigil])
+	else:
+		vigil_line = ("파수 %d (전부 해금)" % MemoryManager.anchor_vigil) if is_ko else ("Vigil %d (all unlocked)" % MemoryManager.anchor_vigil)
+	if is_ko:
+		track_summary_label.text = "연소 %d회: %s   ·   %s: %s" % [
+			MemoryManager.get_burn_count(),
+			", ".join(burn_names) if not burn_names.is_empty() else none,
+			vigil_line,
+			", ".join(anchor_names) if not anchor_names.is_empty() else none,
+		]
+	else:
+		track_summary_label.text = "Burned %d: %s   ·   %s: %s" % [
+			MemoryManager.get_burn_count(),
+			", ".join(burn_names) if not burn_names.is_empty() else none,
+			vigil_line,
+			", ".join(anchor_names) if not anchor_names.is_empty() else none,
+		]
 
 func _apply_memory_art_and_rewrite(memory) -> void:
 	if not WorldRewriteDirector or not WorldRewriteDirector.has_method("get_rewrite_report"):
@@ -561,7 +706,11 @@ func _apply_memory_art_and_rewrite(memory) -> void:
 	else:
 		detail_art.texture = null
 		detail_art.visible = false
-	var label_prefix := "World consequence" if memory.is_burned or memory.is_faded else "If burned, world consequence"
+	var label_prefix := ""
+	if _is_ko():
+		label_prefix = "세계의 변화" if memory.is_burned or memory.is_faded else "태우면, 세계의 변화"
+	else:
+		label_prefix = "World consequence" if memory.is_burned or memory.is_faded else "If burned, world consequence"
 	detail_rewrite.text = "%s: %s" % [label_prefix, String(report.get("line", ""))]
 	detail_rewrite.visible = detail_rewrite.text != ""
 
@@ -583,7 +732,7 @@ func _on_synth_pressed() -> void:
 		return
 	synthesis_mode = true
 	synthesis_first = selected_memory
-	synth_status_label.text = "SYNTHESIS: Select second memory (same grade: %s)" % GRADE_NAMES[synthesis_first.grade].split(", ")[0]
+	synth_status_label.text = ("합성: 같은 등급의 두 번째 기억을 고르세요 (%s)" if _is_ko() else "SYNTHESIS: Select second memory (same grade: %s)") % grade_short(synthesis_first.grade)
 	synth_status_label.visible = true
 	synth_btn.visible = false
 	AudioManager.play_sfx("ui_select")

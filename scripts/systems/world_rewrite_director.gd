@@ -254,7 +254,7 @@ func _build_report(memory, faded: bool) -> Dictionary:
 		"color": color,
 		"grade": grade,
 		"faded": faded,
-		"memory_title": String(memory.title) if memory != null else "Unknown Memory",
+		"memory_title": MemoryManager.localized_memory_title(memory) if memory != null else "Unknown Memory",
 		"art": String(rule.get("art", _fallback_art_for_grade(grade))),
 	}
 
@@ -494,7 +494,7 @@ func _make_echo_node(line: String, color: Color, grade: int, show_text: bool) ->
 		label.position = Vector2(18, -20)
 		label.custom_minimum_size = Vector2(260, 42)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD
-		label.add_theme_font_size_override("font_size", 12)
+		label.add_theme_font_size_override("font_size", 13)
 		label.add_theme_color_override("font_color", color.lightened(0.28))
 		label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
 		label.add_theme_constant_override("shadow_offset_x", 1)

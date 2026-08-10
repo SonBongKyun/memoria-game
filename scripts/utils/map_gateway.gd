@@ -37,7 +37,7 @@ func _ready() -> void:
 	var marker := Label.new()
 	marker.text = "◆"
 	marker.add_theme_font_override("font", UITheme.make_ui_font())
-	marker.add_theme_font_size_override("font_size", 12)
+	marker.add_theme_font_size_override("font_size", 13)
 	marker.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 0.82))
 	marker.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 	marker.add_theme_constant_override("shadow_offset_x", 1)

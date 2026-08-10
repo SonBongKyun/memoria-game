@@ -233,7 +233,7 @@ func _ready() -> void:
 		assert(ResourceLoader.exists("res://assets/sprites/field/sable/%s.png" % direction), "Sable is missing a %s field direction" % direction)
 	var body_font := UITheme.get_font_file(UITheme.make_body_font())
 	var ui_font := UITheme.get_font_file(UITheme.make_ui_font())
-	assert(body_font != null and body_font.resource_path == UITheme.BODY_FONT_PATH, "Dialogue must use the bundled screen-readable Noto Sans KR font")
+	assert(body_font != null and body_font.resource_path == UITheme.BODY_FONT_PATH, "Story copy must use the bundled Noto Serif KR font")
 	assert(ui_font != null and ui_font.resource_path == UITheme.UI_FONT_PATH, "HUD and controls must use the bundled Noto Sans KR font")
 	assert(not body_font.generate_mipmaps and body_font.subpixel_positioning == TextServer.SUBPIXEL_POSITIONING_DISABLED, "Dialogue font must use the crisp small-glyph profile")
 	for canvas_path in [

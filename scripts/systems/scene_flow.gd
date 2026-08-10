@@ -403,7 +403,7 @@ func _show_chapter_ledger(chapter: int) -> void:
 	else:
 		var names: Array[String] = []
 		for m in burned_now:
-			names.append(str(m.title))
+			names.append(MemoryManager.localized_memory_title(m))
 		var joined := ", ".join(names) if names.size() <= 3 else (", ".join(names.slice(0, 3)) + (" 외 %d" % (names.size() - 3) if ko else " +%d more" % (names.size() - 3)))
 		lines.append(("이번 장에서 태운 기억 %d, %s" % [burned_now.size(), joined]) if ko else ("Burned this chapter: %d, %s" % [burned_now.size(), joined]))
 	lines.append(("아직 온전한 기억: %d" % held) if ko else ("Still held intact: %d" % held))

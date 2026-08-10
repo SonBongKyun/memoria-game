@@ -289,7 +289,7 @@ func _build_ui() -> void:
 	_continue_indicator.offset_right = -90
 	_continue_indicator.offset_top = -55
 	_continue_indicator.offset_bottom = -25
-	_continue_indicator.add_theme_font_size_override("font_size", 12)
+	_continue_indicator.add_theme_font_size_override("font_size", 13)
 	_continue_indicator.add_theme_color_override("font_color", Color(0.94, 0.78, 0.48, 0.94))
 	_continue_indicator.add_theme_constant_override("outline_size", 1)
 	_continue_indicator.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.55))
@@ -308,7 +308,7 @@ func _build_ui() -> void:
 	_auto_btn.offset_top = -58
 	_auto_btn.offset_bottom = -28
 	_auto_btn.focus_mode = Control.FOCUS_NONE
-	_auto_btn.add_theme_font_size_override("font_size", 12)
+	_auto_btn.add_theme_font_size_override("font_size", 13)
 	_auto_btn.pressed.connect(_toggle_auto_mode)
 	var auto_style = StyleBoxFlat.new()
 	auto_style.bg_color = Color(0.03, 0.028, 0.04, 0.85)
@@ -336,7 +336,7 @@ func _build_ui() -> void:
 	_skip_hint_label.offset_top = -56
 	_skip_hint_label.offset_bottom = -30
 	_skip_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_skip_hint_label.add_theme_font_size_override("font_size", 12)
+	_skip_hint_label.add_theme_font_size_override("font_size", 13)
 	_skip_hint_label.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44, 0.92))
 	_skip_hint_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
 	_skip_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE

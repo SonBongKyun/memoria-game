@@ -122,7 +122,7 @@ func _build_ui() -> void:
 
 	compass_title = Label.new()
 	compass_title.text = "MEMORY COMPASS"
-	compass_title.add_theme_font_size_override("font_size", 12)
+	compass_title.add_theme_font_size_override("font_size", 13)
 	compass_title.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	text_box.add_child(compass_title)
 
@@ -134,7 +134,7 @@ func _build_ui() -> void:
 	lore_label = Label.new()
 	lore_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	lore_label.custom_minimum_size.x = 184
-	lore_label.add_theme_font_size_override("font_size", 13)
+	lore_label.add_theme_font_size_override("font_size", UITheme.SIZE_LABEL)
 	lore_label.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	text_box.add_child(lore_label)
 

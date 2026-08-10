@@ -188,7 +188,10 @@ func select_choice(choice_index: int) -> void:
 		if choice.has("cost_memory"):
 			var lost = MemoryManager.burn_memory(String(choice.cost_memory))
 			if lost != null:
-				NotificationToast.show_toast("Memory spent: %s" % lost.title, NotificationToast.ToastType.WARNING)
+				NotificationToast.show_toast(
+					("기억 소모: %s" if GameManager.current_locale == "ko" else "Memory spent: %s") % MemoryManager.localized_memory_title(lost),
+					NotificationToast.ToastType.WARNING
+				)
 
 		# S146: 엔딩 기록 (데이터 주도)
 		if choice.has("record_ending") and GameManager.has_method("record_ending"):

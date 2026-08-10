@@ -190,7 +190,7 @@ func _build_ui() -> void:
 	skip_label.set_anchors_preset(PRESET_BOTTOM_WIDE)
 	skip_label.offset_top = -40
 	skip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	skip_label.add_theme_font_size_override("font_size", 12)
+	skip_label.add_theme_font_size_override("font_size", 13)
 	skip_label.add_theme_color_override("font_color", Color(0.35, 0.3, 0.28, 0.6))
 	add_child(skip_label)
 

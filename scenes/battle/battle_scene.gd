@@ -14,6 +14,35 @@ const BATTLE_ITEM_TRAY_PATH: String = "res://assets/cg/generated/ui_battle_item_
 const STAGE_BASELINE_Y: float = 424.0
 const STAGE_FLOOR_ANCHOR: float = 0.60
 
+## S230: 전투 HUD 레이아웃 계약 (1280x720 기준).
+##
+## 예전에는 목표 카드, 전투 큐, 파티 명령 레일 4종, 적 판독, 플레이어 상태가
+## 각자 앵커 숫자를 들고 같은 띠를 밟았다. 실제로 측정해 보면 겹침이 열 군데였고,
+## 그중 셋은 글자를 잘라 먹었다("그림자 파수꾼" -> "림자 파수꾼", "세이블:" -> "이블:",
+## 커맨드 덱 장식에 먹힌 파티 태그). 이제 열과 띠를 여기서 한 번만 정의한다.
+##
+##   왼쪽 열   : 전술 목표(상단) / 아렐 상태 묶음(하단)
+##   가운데 열 : 턴 순서 칩(최상단) / 전투 큐 / 파티 지시
+##   오른쪽 열 : 적 판독
+##
+## 전투원 판이 서는 대역(플레이어 y 183~433, 적 y 115~411)은 비워 둔다.
+const HUD_CHIP_TOP: float = 6.0
+const HUD_CHIP_BOTTOM: float = 32.0
+const HUD_LEFT_COL_L: float = 0.02
+const HUD_LEFT_COL_R: float = 0.32
+const HUD_CENTER_COL_L: float = 0.36
+const HUD_CENTER_COL_R: float = 0.65
+const HUD_RIGHT_COL_L: float = 0.66
+const HUD_RIGHT_COL_R: float = 0.965
+const HUD_ENEMY_TOP: float = 8.0
+const HUD_CUE_TOP: float = 38.0
+const HUD_PARTY_TOP: float = 140.0
+const HUD_TURN_BANNER_TOP: float = 300.0
+const HUD_COMBO_TOP: float = 352.0
+## 아렐 판의 발끝(424)보다 아래에서 시작해, 커맨드 덱 장식 윗선(545.8) 위에서 끝난다.
+const HUD_PLAYER_CLUSTER_TOP: float = 438.0
+const HUD_DECK_TOP: float = 545.8
+
 ## S228: Cinematic Battle Stage 2.0 role contract.
 ##
 ## The tabletop used to keep the 2D container, its contact shadow, and the 3D
@@ -107,13 +136,21 @@ const BATTLE_ROLE_PROFILES: Dictionary = {
 
 # UI 노드
 var bg: ColorRect
+var enemy_panel: PanelContainer
 var enemy_name_label: Label
+var enemy_scan_chip: Label
 var enemy_hp_bar: ProgressBar
+var enemy_hp_ghost: ProgressBar  # S230: 최근 피해 잔상
 var enemy_hp_label: Label
 var enemy_break_bar: ProgressBar
 var enemy_break_label: Label
+var player_panel: PanelContainer
 var player_hp_bar: ProgressBar
+var player_hp_ghost: ProgressBar
 var player_hp_label: Label
+var party_orders_panel: PanelContainer
+var party_orders_rows: VBoxContainer
+var turn_banner: PanelContainer
 var log_label: RichTextLabel
 var field_readout_art: TextureRect
 var field_readout_header: Label
@@ -214,14 +251,15 @@ const ITEM_ACTION_CUTIN_PATHS: Dictionary = {
 }
 var hp_tween_player: Tween
 var hp_tween_enemy: Tween
+var _hp_display_primed: bool = false
 var canvas_root: Control  # 전투 UI 루트 (셰이크용)
 var hit_flash_rect: ColorRect  # 히트 플래시 오버레이
 
 # 전투 인트로 / VFX
 var intro_overlay: ColorRect
 var turn_label: Label
-var enemy_status_container: HBoxContainer
-var player_status_container: HBoxContainer
+var enemy_status_container: Container
+var player_status_container: Container
 var slash_rect: ColorRect  # 공격 슬래시 VFX
 var burn_vfx_container: Control  # 연소 VFX 컨테이너
 
@@ -271,6 +309,8 @@ var combat_cue_detail: Label
 var _combat_cue_tween: Tween
 var _ground_rect: ColorRect  # 전투 지면
 var player_portrait_rect: TextureRect  # HP 옆 포트레이트
+var _player_readout_column: VBoxContainer  # S230: HP/리밋/상태를 쌓는 한 열
+var limit_value_label: Label
 
 # 적 아이들 모션
 var _idle_time: float = 0.0
@@ -288,8 +328,8 @@ var _resolved_battle_bg_image: String = ""
 # S46: 타격감 강화
 var _enemy_shader_mat: ShaderMaterial  # 적 VFX 셰이더
 var _player_shader_mat: ShaderMaterial  # ��레이어 VFX 셰이더
-var ally_cmd_container: HBoxContainer  # 세이블 명령 UI
-var tobias_cmd_container: HBoxContainer  # 토비아스 명령 UI
+var ally_cmd_container: HFlowContainer  # 세이블 명령 UI
+var tobias_cmd_container: HFlowContainer  # 토비아스 명령 UI
 
 # S55: Scan + Environment display
 var scan_info_container: HBoxContainer  # 스캔 약점/저항 표시 (적 HP 아래)
@@ -549,20 +589,13 @@ func _build_ui() -> void:
 	# 적 이름 + HP (상단 오른쪽)
 	_build_enemy_panel(root)
 
-	# 상태 아이콘 (적 패널 아래)
-	_build_enemy_status(root)
-
 	# 전투 로그 (중앙)
 	_build_log_panel(root)
 
-	# 플레이어 HP (좌하단)
+	# 아렐 상태 묶음 (좌하단): 초상 + HP + 리밋 + 상태 칩을 한 카드로 쌓는다
 	_build_player_panel(root)
-
-	# 플레이어 상태 아이콘 (플레이어 패널 아래)
-	_build_player_status(root)
-
-	# Limit Break 게이지 (플레이어 패널 우측)
 	_build_limit_gauge(root)
+	_build_player_status(root)
 
 	# 행동 버튼 (하단)
 	_build_action_buttons(root)
@@ -579,15 +612,15 @@ func _build_ui() -> void:
 	# S41: 턴 순서 미리보기
 	_build_turn_preview(root)
 
-	# S46: 세이블 명령 UI
-	_build_ally_command_ui(root)
-	# S53: 토비아스 명령 UI
-	_build_tobias_command_ui(root)
-
-	# S51: 스탠스 전환 UI + 에코 표시 + 엘리아 기술 UI
-	_build_stance_ui(root)
+	# S230: 자세 / 엘리아 / 세이블 / 토비아스 지시를 한 카드에 위에서 아래로 쌓는다.
+	# 네 레일이 각자 앵커로 같은 띠를 밟던 문제(엘리아 레일과 토비아스 레일은
+	# 좌표가 완전히 같았다)를 컨테이너 배치로 없앤다.
+	_build_party_orders_panel(root)
+	_build_stance_ui(party_orders_rows)       # S51: 자세
+	_build_elia_skill_ui(party_orders_rows)   # S51: 엘리아 기술
+	_build_ally_command_ui(party_orders_rows) # S46: 세이블 명령
+	_build_tobias_command_ui(party_orders_rows) # S53: 토비아스 명령
 	_build_echo_display(root)
-	_build_elia_skill_ui(root)
 
 	# VFX 레이어 추가
 	root.add_child(burn_vfx_container)
@@ -613,17 +646,19 @@ func _build_ui() -> void:
 	root.add_child(_turn_dim_overlay)
 
 	# S57: 콤보 카운터 디스플레이 (상시 표시용)
+	# S230: 예전 자리(y 30~70)는 전투 큐 패널 한복판이라 두 연출이 겹쳐 읽혔다.
+	# 턴 배너 바로 아래, 무대 가운데 빈 대역으로 내린다.
 	_combo_display_label = Label.new()
+	_combo_display_label.name = "ComboReadout"
 	_combo_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_combo_display_label.anchor_left = 0.5
 	_combo_display_label.anchor_right = 0.5
 	_combo_display_label.anchor_top = 0.0
 	_combo_display_label.offset_left = -120
 	_combo_display_label.offset_right = 120
-	_combo_display_label.offset_top = 30
-	_combo_display_label.offset_bottom = 70
-	_combo_display_label.add_theme_font_size_override("font_size", 24)
-	_combo_display_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+	_combo_display_label.offset_top = HUD_COMBO_TOP
+	_combo_display_label.offset_bottom = HUD_COMBO_TOP + 40.0
+	UITheme.style_label(_combo_display_label, UITheme.make_ui_font(), 24, Color(1.0, 0.85, 0.2))
 	_combo_display_label.modulate.a = 0.0
 	_combo_display_label.z_index = 88
 	_combo_display_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -791,22 +826,37 @@ func _add_premium_battle_lens() -> void:
 	top_rule.z_index = 3
 	add_child(top_rule)
 
+## S230: 자동 전투 표시는 화면 한가운데 최상단(턴 순서 칩 자리)이 아니라
+## 배속 칩 옆, 좌상단 칩 줄에 붙는다.
 func _build_auto_label(root: Control) -> void:
+	var chip := PanelContainer.new()
+	chip.name = "AutoBattleChip"
+	chip.anchor_left = 0.138
+	chip.anchor_right = 0.212
+	chip.anchor_top = 0.0
+	chip.offset_top = HUD_CHIP_TOP
+	chip.offset_bottom = HUD_CHIP_BOTTOM
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.z_index = 63
+	chip.visible = false
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.020, 0.036, 0.024, 0.96)
+	style.border_color = Color(0.36, 0.78, 0.46, 0.72)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.set_content_margin_all(4)
+	chip.add_theme_stylebox_override("panel", style)
+	root.add_child(chip)
+
 	auto_label = Label.new()
-	auto_label.text = "[AUTO]"
-	auto_label.anchor_left = 0.5
-	auto_label.anchor_right = 0.5
-	auto_label.anchor_top = 0.0
-	auto_label.offset_left = -40
-	auto_label.offset_right = 40
-	auto_label.offset_top = 8
-	auto_label.offset_bottom = 30
+	auto_label.text = _bl("AUTO", "자동")
 	auto_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	auto_label.add_theme_font_size_override("font_size", 16)
-	auto_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.5))
+	auto_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UITheme.style_meta_label(auto_label, Color(0.52, 0.92, 0.62))
+	chip.add_child(auto_label)
+	# 기존 코드는 auto_label.visible을 켜고 끈다. 칩 전체가 따라오게 묶는다.
+	auto_label.visibility_changed.connect(func(): chip.visible = auto_label.visible)
 	auto_label.visible = false
-	auto_label.z_index = 90
-	root.add_child(auto_label)
 
 func _make_interface_texture(path: String, alpha: float = 1.0) -> TextureRect:
 	var art = TextureRect.new()
@@ -844,8 +894,7 @@ func _build_battle_speed_chip(root: Control) -> void:
 	_battle_speed_btn.offset_bottom = 32
 	_battle_speed_btn.focus_mode = Control.FOCUS_NONE
 	_battle_speed_btn.z_index = 63
-	_battle_speed_btn.add_theme_font_size_override("font_size", 12)
-	_battle_speed_btn.add_theme_color_override("font_color", Color(0.90, 0.92, 1.0))
+	UITheme.style_label(_battle_speed_btn, UITheme.make_meta_font(), UITheme.SIZE_META, Color(0.90, 0.92, 1.0))
 	_battle_speed_btn.add_theme_color_override("font_hover_color", Color(0.96, 0.86, 0.58))
 
 	var style := StyleBoxFlat.new()
@@ -859,6 +908,7 @@ func _build_battle_speed_chip(root: Control) -> void:
 	hover.border_color = Color(0.92, 0.70, 0.36, 0.85)
 	_battle_speed_btn.add_theme_stylebox_override("hover", hover)
 	_battle_speed_btn.add_theme_stylebox_override("pressed", hover)
+	_battle_speed_btn.add_theme_stylebox_override("disabled", style.duplicate())
 
 	_battle_speed_btn.pressed.connect(_on_battle_speed_pressed)
 	root.add_child(_battle_speed_btn)
@@ -884,23 +934,24 @@ func _on_battle_speed_pressed() -> void:
 
 func _build_tactical_objective_panel(root: Control) -> void:
 	objective_panel = PanelContainer.new()
-	objective_panel.anchor_left = 0.02
-	objective_panel.anchor_right = 0.32
-	objective_panel.anchor_top = 0.095
-	objective_panel.anchor_bottom = 0.225
+	objective_panel.name = "TacticalObjective"
+	objective_panel.anchor_left = HUD_LEFT_COL_L
+	objective_panel.anchor_right = HUD_LEFT_COL_R
+	# S230: 목표 문장은 한 줄일 때도 두 줄일 때도 있다. 높이는 내용이 정하고,
+	# 액자 그림이 그 결과를 따라오게 한다. (예전에는 액자가 고정 띠에 못 박혀 있어
+	# 목표가 길어지면 패널만 아래로 자라 액자 밖으로 삐져나왔다.)
+	objective_panel.anchor_top = 0.0
+	objective_panel.anchor_bottom = 0.0
+	objective_panel.offset_top = 68.0
+	objective_panel.offset_bottom = 68.0
+	objective_panel.grow_vertical = Control.GROW_DIRECTION_END
 	objective_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	objective_panel.z_index = 62
 	objective_art = _make_interface_texture(UI_TACTICAL_PLATE_PATH, 0.70)
-	objective_art.anchor_left = objective_panel.anchor_left
-	objective_art.anchor_right = objective_panel.anchor_right
-	objective_art.anchor_top = objective_panel.anchor_top
-	objective_art.anchor_bottom = objective_panel.anchor_bottom
-	objective_art.offset_left = -12
-	objective_art.offset_right = 12
-	objective_art.offset_top = -10
-	objective_art.offset_bottom = 10
 	objective_art.z_index = 61
 	root.add_child(objective_art)
+	objective_panel.resized.connect(_sync_objective_frame)
+	objective_panel.item_rect_changed.connect(_sync_objective_frame)
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.020, 0.016, 0.026, 0.94)
 	style.border_color = Color(0.82, 0.64, 0.34, 0.72)
@@ -916,22 +967,29 @@ func _build_tactical_objective_panel(root: Control) -> void:
 
 	objective_title_label = Label.new()
 	objective_title_label.text = _bl("TACTICAL OBJECTIVE", "전술 목표")
-	objective_title_label.add_theme_font_size_override("font_size", 13)
-	objective_title_label.add_theme_color_override("font_color", Color(0.98, 0.78, 0.42, 1.0))
+	objective_title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	UITheme.style_ui_label(objective_title_label, Color(0.98, 0.78, 0.42, 1.0), UITheme.SIZE_UI)
 	box.add_child(objective_title_label)
 
 	objective_desc_label = Label.new()
 	objective_desc_label.text = _bl("Awaiting encounter data...", "교전 데이터 대기 중...")
 	objective_desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	objective_desc_label.add_theme_font_size_override("font_size", 14)
-	objective_desc_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
+	UITheme.style_ui_label(objective_desc_label, UITheme.TEXT_PRIMARY, UITheme.SIZE_LABEL)
 	box.add_child(objective_desc_label)
 
 	objective_meta_label = Label.new()
 	objective_meta_label.text = _bl("Resonance: Cold 0%", "공명: 냉각 0%")
-	objective_meta_label.add_theme_font_size_override("font_size", 12)
-	objective_meta_label.add_theme_color_override("font_color", Color(0.72, 0.86, 1.0, 1.0))
+	UITheme.style_meta_label(objective_meta_label, Color(0.72, 0.86, 1.0, 1.0))
 	box.add_child(objective_meta_label)
+	_sync_objective_frame()
+
+## 액자 그림을 목표 카드의 실제 사각형에 맞춘다.
+func _sync_objective_frame() -> void:
+	if objective_panel == null or objective_art == null or not is_instance_valid(objective_art):
+		return
+	objective_art.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	objective_art.position = objective_panel.position - Vector2(12.0, 10.0)
+	objective_art.size = objective_panel.size + Vector2(24.0, 20.0)
 
 func _build_objective_briefing(root: Control) -> void:
 	objective_briefing_overlay = Control.new()
@@ -1287,37 +1345,63 @@ func _present_opening_carryovers() -> void:
 
 ## ===================== 턴 표시 =====================
 
+## S230: 턴/사건 배너는 그림 위에 맨 글자로 떠 있었다.
+## 어두운 무대에서는 배경 대비가 구간마다 달라 "당신의 턴"이 거의 사라졌다.
+## 읽을 바탕을 깔고, 파티 지시 카드 아래 빈 대역으로 내린다.
 func _build_turn_label(root: Control) -> void:
+	turn_banner = PanelContainer.new()
+	turn_banner.name = "TurnBanner"
+	turn_banner.anchor_left = 0.36
+	turn_banner.anchor_right = 0.64
+	turn_banner.anchor_top = 0.0
+	turn_banner.anchor_bottom = 0.0
+	turn_banner.offset_top = HUD_TURN_BANNER_TOP
+	turn_banner.offset_bottom = HUD_TURN_BANNER_TOP
+	turn_banner.grow_vertical = Control.GROW_DIRECTION_END
+	turn_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	turn_banner.z_index = 80
+	turn_banner.modulate.a = 0.0
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.012, 0.010, 0.020, 0.86)
+	style.border_color = Color(0.72, 0.60, 0.38, 0.62)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(4)
+	style.content_margin_left = 14
+	style.content_margin_right = 14
+	style.content_margin_top = 7
+	style.content_margin_bottom = 7
+	turn_banner.add_theme_stylebox_override("panel", style)
+	root.add_child(turn_banner)
+
 	turn_label = Label.new()
 	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	turn_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	turn_label.set_anchors_preset(Control.PRESET_CENTER)
-	turn_label.offset_left = -200
-	turn_label.offset_right = 200
-	turn_label.offset_top = -100
-	turn_label.offset_bottom = -60
-	turn_label.add_theme_font_size_override("font_size", 20)
-	turn_label.add_theme_color_override("font_color", Color(0.85, 0.75, 0.55))
-	turn_label.modulate.a = 0.0
-	turn_label.z_index = 80
+	turn_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UITheme.style_label(turn_label, UITheme.make_ui_font(), UITheme.SIZE_HEADING, Color(0.94, 0.84, 0.62))
 	turn_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(turn_label)
+	turn_banner.add_child(turn_label)
 
 ## S175: 전투 UI 로케일 헬퍼, ko면 한국어, 아니면 영어.
 func _bl(en: String, ko: String) -> String:
 	return ko if GameManager.current_locale == "ko" else en
 
-func _show_turn_indicator(text: String, color: Color = Color(0.85, 0.75, 0.55)) -> void:
+func _show_turn_indicator(text: String, color: Color = Color(0.94, 0.84, 0.62)) -> void:
+	if turn_label == null or turn_banner == null:
+		return
 	turn_label.text = text
 	turn_label.add_theme_color_override("font_color", color)
-	turn_label.modulate.a = 0.0
+	# 테두리도 사건 색을 따라간다. 브레이크/연소/치명타를 색만으로도 구분한다.
+	var style := turn_banner.get_theme_stylebox("panel") as StyleBoxFlat
+	if style:
+		style.border_color = Color(color.r, color.g, color.b, 0.66)
+	turn_banner.modulate.a = 0.0
 	# S209: 예전에는 여기서 position을 (0,0)으로 덮어써서, 중앙 배너로 설계된 턴 표시가
-	# 매번 화면 좌상단으로 튀어나갔다. 앵커가 정한 중앙 위치를 그대로 쓴다.
+	# 매번 화면 좌상단으로 튀어나갔다. 앵커가 정한 위치를 그대로 쓴다.
 
 	var t = create_tween()
-	t.tween_property(turn_label, "modulate:a", 0.9, 0.15)
+	t.tween_property(turn_banner, "modulate:a", 1.0, 0.15)
 	t.tween_interval(0.4)
-	t.tween_property(turn_label, "modulate:a", 0.0, 0.25)
+	t.tween_property(turn_banner, "modulate:a", 0.0, 0.25)
 
 ## ===================== S41: 상태이상 비주얼 (적 스프라이트 틴트) =====================
 
@@ -1407,14 +1491,15 @@ var turn_preview_container: HBoxContainer
 
 func _build_turn_preview(root: Control) -> void:
 	turn_preview_container = HBoxContainer.new()
-	turn_preview_container.anchor_left = 0.3
-	turn_preview_container.anchor_right = 0.7
+	turn_preview_container.name = "TurnOrderStrip"
+	# S230: 좌상단 칩 줄과 같은 높이의 가운데 칸. 전투 큐(y 38~)와 겹치지 않는다.
+	turn_preview_container.anchor_left = 0.36
+	turn_preview_container.anchor_right = 0.64
 	turn_preview_container.anchor_top = 0.0
-	# S209: 전투 큐 패널 상단선(y≈25)과 겹치지 않는 좁은 띠 안에서 가독성만 올린다.
-	turn_preview_container.offset_top = 2
-	turn_preview_container.offset_bottom = 24
+	turn_preview_container.offset_top = HUD_CHIP_TOP
+	turn_preview_container.offset_bottom = HUD_CHIP_BOTTOM
 	turn_preview_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	turn_preview_container.add_theme_constant_override("separation", 8)
+	turn_preview_container.add_theme_constant_override("separation", 6)
 	turn_preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(turn_preview_container)
 
@@ -1439,11 +1524,10 @@ func _update_turn_preview() -> void:
 		var is_current = (i == 0)
 		var lbl = Label.new()
 		lbl.text = turns[i]
-		lbl.add_theme_font_size_override("font_size", 12 if not is_current else 14)
 		var col = Color(0.72, 0.84, 1.0) if turns[i] == ally_tag else Color(1.0, 0.60, 0.52)
 		if not is_current:
 			col = col.darkened(0.24)
-		lbl.add_theme_color_override("font_color", col)
+		UITheme.style_meta_label(lbl, col, UITheme.SIZE_LABEL if is_current else UITheme.SIZE_META)
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 		var panel = PanelContainer.new()
@@ -1462,164 +1546,228 @@ func _update_turn_preview() -> void:
 			# 현재 턴 표시자에 화살표
 			var arrow = Label.new()
 			arrow.text = ">"
-			arrow.add_theme_font_size_override("font_size", 12)
-			arrow.add_theme_color_override("font_color", col)
+			arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			UITheme.style_meta_label(arrow, col)
 			arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			turn_preview_container.add_child(arrow)
 
 ## ===================== 상태 아이콘 =====================
 
-func _build_enemy_status(root: Control) -> void:
-	enemy_status_container = HBoxContainer.new()
-	enemy_status_container.anchor_left = 0.55
-	enemy_status_container.anchor_right = 0.95
-	enemy_status_container.anchor_top = 0.02
-	enemy_status_container.anchor_bottom = 0.02
-	enemy_status_container.offset_top = 75
-	enemy_status_container.offset_bottom = 95
-	enemy_status_container.add_theme_constant_override("separation", 6)
-	root.add_child(enemy_status_container)
-
-func _build_player_status(root: Control) -> void:
-	player_status_container = HBoxContainer.new()
-	player_status_container.anchor_left = 0.05
-	player_status_container.anchor_right = 0.4
-	player_status_container.anchor_top = 0.68
-	player_status_container.anchor_bottom = 0.68
-	player_status_container.offset_top = 74
-	player_status_container.offset_bottom = 94
-	player_status_container.add_theme_constant_override("separation", 6)
-	root.add_child(player_status_container)
+## S230: 상태 칩은 더 이상 떠다니지 않는다.
+## 적 칩은 적 판독 카드 안, 아렐 칩은 아렐 상태 묶음 안에서 만들어진다.
+## (예전에는 각각 적 브레이크 게이지와 커맨드 덱 장식 위에 겹쳐 그려졌다.)
+func _build_player_status(_root: Control) -> void:
+	if player_status_container != null or _player_readout_column == null:
+		return
+	player_status_container = _make_status_flow()
+	_player_readout_column.add_child(player_status_container)
 
 func _update_status_icons() -> void:
 	# 적 상태 아이콘
-	for child in enemy_status_container.get_children():
-		child.queue_free()
+	if enemy_status_container:
+		for child in enemy_status_container.get_children():
+			enemy_status_container.remove_child(child)
+			child.queue_free()
 
-	var enemy = BattleManager.current_enemy
-	if enemy:
-		if BattleManager.enemy_shielded:
-			_add_status_icon(enemy_status_container, "SHIELD", Color(0.3, 0.5, 0.8, 0.9))
-		if enemy.is_boss and enemy.phase > 1:
-			_add_status_icon(enemy_status_container, "PHASE %d" % enemy.phase, Color(0.8, 0.3, 0.2, 0.9))
-		if enemy.is_void_beast:
-			_add_status_icon(enemy_status_container, "VOID", Color(0.5, 0.15, 0.6, 0.9))
-		if BattleManager.enemy_broken_turns > 0:
-			_add_status_icon(enemy_status_container, "BROKEN", Color(1.0, 0.68, 0.18, 0.95))
-		# 약점/저항 표시, Ash Sight 패시브 또는 스캔된 적만 상세 표시
-		var show_details = MemoryManager.has_passive("ash_sight") or enemy.name in BattleManager.scanned_enemies
-		if show_details:
-			if enemy.weakness != "":
-				var w_color = _get_element_color(enemy.weakness)
-				_add_status_icon(enemy_status_container, "Weak: %s" % enemy.weakness.to_upper(), w_color)
-			if enemy.resistance != "":
-				var r_color = _get_element_color(enemy.resistance)
-				_add_status_icon(enemy_status_container, "Resist: %s" % enemy.resistance.to_upper(), r_color)
-		# 적 상태이상
-		for entry in BattleManager.get_statuses("enemy"):
-			var info = _get_status_display(entry.effect)
-			_add_status_icon(enemy_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
+		var enemy = BattleManager.current_enemy
+		if enemy:
+			if BattleManager.enemy_shielded:
+				_add_status_icon(enemy_status_container, _bl("SHIELD", "보호막"), Color(0.42, 0.62, 0.92, 0.95))
+			if enemy.is_boss and enemy.phase > 1:
+				_add_status_icon(enemy_status_container, _bl("PHASE %d", "%d단계") % enemy.phase, Color(0.94, 0.42, 0.30, 0.95))
+			if enemy.is_void_beast:
+				_add_status_icon(enemy_status_container, _bl("VOID", "보이드"), Color(0.72, 0.40, 0.90, 0.95))
+			if BattleManager.enemy_broken_turns > 0:
+				_add_status_icon(enemy_status_container, _bl("BROKEN", "붕괴"), Color(1.0, 0.68, 0.18, 0.95))
+			# 약점/저항 표시, Ash Sight 패시브 또는 스캔된 적만 상세 표시
+			var show_details = MemoryManager.has_passive("ash_sight") or enemy.name in BattleManager.scanned_enemies
+			if show_details:
+				if enemy.weakness != "":
+					var w_color = _get_element_color(enemy.weakness)
+					_add_status_icon(enemy_status_container, _bl("Weak %s", "약점 %s") % _localized_element(enemy.weakness), w_color)
+				if enemy.resistance != "":
+					var r_color = _get_element_color(enemy.resistance)
+					_add_status_icon(enemy_status_container, _bl("Resist %s", "저항 %s") % _localized_element(enemy.resistance), r_color)
+			# 적 상태이상
+			for entry in BattleManager.get_statuses("enemy"):
+				var info = _get_status_display(entry.effect)
+				_add_status_icon(enemy_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
 
 	# 플레이어 상태 아이콘
-	for child in player_status_container.get_children():
-		child.queue_free()
+	if player_status_container:
+		for child in player_status_container.get_children():
+			player_status_container.remove_child(child)
+			child.queue_free()
 
-	for entry in BattleManager.get_statuses("player"):
-		var info = _get_status_display(entry.effect)
-		_add_status_icon(player_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
+		for entry in BattleManager.get_statuses("player"):
+			var info = _get_status_display(entry.effect)
+			_add_status_icon(player_status_container, "%s %d" % [info.text, entry.turns_left], info.color)
 
-	# 콤보 표시
-	if BattleManager.combo_count >= 2:
-		_add_status_icon(player_status_container, "COMBO x%d" % BattleManager.combo_count, Color(0.9, 0.7, 0.2, 0.9))
+		# 콤보 표시
+		if BattleManager.combo_count >= 2:
+			_add_status_icon(player_status_container, _bl("COMBO x%d", "연계 x%d") % BattleManager.combo_count, Color(0.96, 0.78, 0.28, 0.95))
 
-	# 세이블 동행 표시
-	if BattleManager.sable_in_party:
-		_add_status_icon(player_status_container, "SABLE", Color(0.5, 0.6, 0.8, 0.8))
-	if BattleManager.player_defending:
-		_add_status_icon(player_status_container, "GUARD", Color(0.55, 0.75, 0.95, 0.95))
+		# 동행 표시
+		if BattleManager.sable_in_party:
+			_add_status_icon(player_status_container, GameManager.localized_speaker("Sable"), Color(0.62, 0.72, 0.92, 0.9))
+		if BattleManager.tobias_in_party:
+			_add_status_icon(player_status_container, GameManager.localized_speaker("Tobias"), Color(0.90, 0.80, 0.62, 0.9))
+		if BattleManager.player_defending:
+			_add_status_icon(player_status_container, _bl("GUARD", "방어"), Color(0.62, 0.80, 0.98, 0.95))
+
+## 속성 이름은 전투 내내 같은 말로 나와야 한다. (약점 칩 / 판독 리본 / 도감)
+func _localized_element(element: String) -> String:
+	if GameManager.current_locale != "ko":
+		return element.to_upper()
+	match element.to_lower():
+		"fire": return "화염"
+		"void": return "보이드"
+		"physical": return "물리"
+	return element.to_upper()
 
 func _get_status_display(effect: int) -> Dictionary:
 	if effect == BattleManager.StatusEffect.POISON:
-		return {"text": "POISON", "color": Color(0.3, 0.7, 0.2, 0.9)}
+		return {"text": _bl("POISON", "중독"), "color": Color(0.44, 0.84, 0.34, 0.95)}
 	elif effect == BattleManager.StatusEffect.WEAKEN:
-		return {"text": "WEAK", "color": Color(0.7, 0.5, 0.2, 0.9)}
+		return {"text": _bl("WEAK", "약화"), "color": Color(0.88, 0.68, 0.32, 0.95)}
 	elif effect == BattleManager.StatusEffect.BURN:
-		return {"text": "BURN", "color": Color(0.9, 0.4, 0.1, 0.9)}
-	return {"text": "???", "color": Color(0.5, 0.5, 0.5, 0.9)}
+		return {"text": _bl("BURN", "화상"), "color": Color(0.98, 0.54, 0.22, 0.95)}
+	return {"text": "???", "color": Color(0.70, 0.70, 0.70, 0.95)}
 
-func _add_status_icon(container: HBoxContainer, text: String, color: Color) -> void:
+func _add_status_icon(container: Container, text: String, color: Color) -> void:
 	var label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_color", color)
+	UITheme.style_meta_label(label, color)
 
 	var panel = PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.025, 0.022, 0.034, 0.94)
 	style.border_color = Color(color.r, color.g, color.b, 0.72)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(3)
-	style.set_content_margin_all(3)
+	style.content_margin_left = 6
+	style.content_margin_right = 6
+	style.content_margin_top = 2
+	style.content_margin_bottom = 2
 	panel.add_theme_stylebox_override("panel", style)
 	panel.add_child(label)
 	container.add_child(panel)
 
 ## ===================== UI 패널 빌드 =====================
 
+## S230: HP 막대 뒤에 깔리는 "최근 피해" 잔상.
+## 앞 막대는 바로 줄고, 잔상은 잠깐 머물다 따라 내려간다.
+## 숫자를 못 보는 상태(미판독 적)에서도 이번 타격이 얼마나 들어갔는지 읽힌다.
+func _make_hp_bar_stack(height: float, fill_color: Color, ghost_color: Color, track_color: Color) -> Dictionary:
+	var stack := Control.new()
+	stack.custom_minimum_size = Vector2(0, height)
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var ghost := ProgressBar.new()
+	ghost.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ghost.show_percentage = false
+	ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var ghost_fill := StyleBoxFlat.new()
+	ghost_fill.bg_color = ghost_color
+	ghost_fill.set_corner_radius_all(3)
+	ghost.add_theme_stylebox_override("fill", ghost_fill)
+	var track := StyleBoxFlat.new()
+	track.bg_color = track_color
+	track.border_color = Color(0.0, 0.0, 0.0, 0.55)
+	track.set_border_width_all(1)
+	track.set_corner_radius_all(3)
+	ghost.add_theme_stylebox_override("background", track)
+	stack.add_child(ghost)
+
+	var bar := ProgressBar.new()
+	bar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bar.show_percentage = false
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = fill_color
+	fill.set_corner_radius_all(3)
+	bar.add_theme_stylebox_override("fill", fill)
+	bar.add_theme_stylebox_override("background", StyleBoxEmpty.new())
+	stack.add_child(bar)
+
+	return {"stack": stack, "bar": bar, "ghost": ghost}
+
+func _make_status_flow(separation: int = 5) -> HFlowContainer:
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", separation)
+	flow.add_theme_constant_override("v_separation", 3)
+	return flow
+
 func _build_enemy_panel(root: Control) -> void:
-	var panel = PanelContainer.new()
-	panel.anchor_left = 0.66
-	panel.anchor_right = 0.96
-	panel.anchor_top = 0.02
-	panel.anchor_bottom = 0.02
-	panel.offset_bottom = 70
+	# 오른쪽 열 전체를 하나의 판독 카드로 묶는다. 높이는 내용이 정하고,
+	# 위에서 아래로만 자라므로 적 판(y 115~)을 밀고 들어가지 않는다.
+	enemy_panel = PanelContainer.new()
+	enemy_panel.name = "EnemyReadout"
+	enemy_panel.anchor_left = HUD_RIGHT_COL_L
+	enemy_panel.anchor_right = HUD_RIGHT_COL_R
+	enemy_panel.anchor_top = 0.0
+	enemy_panel.anchor_bottom = 0.0
+	enemy_panel.offset_top = HUD_ENEMY_TOP
+	enemy_panel.offset_bottom = HUD_ENEMY_TOP
+	enemy_panel.grow_vertical = Control.GROW_DIRECTION_END
+	enemy_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.06, 0.06, 0.9)
-	style.border_color = Color(0.5, 0.2, 0.2, 0.5)
+	style.bg_color = Color(0.040, 0.022, 0.026, 0.93)
+	style.border_color = Color(0.72, 0.30, 0.28, 0.66)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(8)
-	panel.add_theme_stylebox_override("panel", style)
-	root.add_child(panel)
+	enemy_panel.add_theme_stylebox_override("panel", style)
+	root.add_child(enemy_panel)
 
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 4)
-	panel.add_child(vbox)
+	enemy_panel.add_child(vbox)
+
+	# 1행: 이름 + HP 수치. 긴 이름은 잘리지 않고 말줄임으로 접힌다.
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(name_row)
 
 	enemy_name_label = Label.new()
-	enemy_name_label.add_theme_font_size_override("font_size", 17)
-	enemy_name_label.add_theme_color_override("font_color", Color(1.0, 0.62, 0.54))
-	vbox.add_child(enemy_name_label)
-
-	enemy_hp_bar = ProgressBar.new()
-	enemy_hp_bar.custom_minimum_size = Vector2(0, 18)
-	enemy_hp_bar.show_percentage = false
-	var bar_style = StyleBoxFlat.new()
-	bar_style.bg_color = Color(0.6, 0.15, 0.15)
-	bar_style.set_corner_radius_all(3)
-	enemy_hp_bar.add_theme_stylebox_override("fill", bar_style)
-	var bar_bg = StyleBoxFlat.new()
-	bar_bg.bg_color = Color(0.12, 0.08, 0.08)
-	bar_bg.set_corner_radius_all(3)
-	enemy_hp_bar.add_theme_stylebox_override("background", bar_bg)
-	vbox.add_child(enemy_hp_bar)
+	enemy_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	enemy_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	UITheme.style_label(enemy_name_label, UITheme.make_ui_font(), UITheme.SIZE_UI, Color(1.0, 0.66, 0.58))
+	name_row.add_child(enemy_name_label)
 
 	enemy_hp_label = Label.new()
-	enemy_hp_label.add_theme_font_size_override("font_size", 13)
-	enemy_hp_label.add_theme_color_override("font_color", Color(0.96, 0.76, 0.72))
 	enemy_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	vbox.add_child(enemy_hp_label)
+	enemy_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UITheme.style_ui_label(enemy_hp_label, Color(0.98, 0.82, 0.78), UITheme.SIZE_LABEL)
+	name_row.add_child(enemy_hp_label)
+
+	# 2행: HP 막대 + 피해 잔상.
+	var hp_stack := _make_hp_bar_stack(18.0, UITheme.HP_ENEMY, Color(0.96, 0.62, 0.50, 0.62), Color(0.10, 0.055, 0.055, 0.94))
+	enemy_hp_bar = hp_stack.bar
+	enemy_hp_ghost = hp_stack.ghost
+	vbox.add_child(hp_stack.stack)
+
+	# 3행: 브레이크 라벨 + 게이지 + 판독 상태. 세 줄을 한 줄로 접었다.
+	var break_row := HBoxContainer.new()
+	break_row.add_theme_constant_override("separation", 6)
+	vbox.add_child(break_row)
 
 	enemy_break_label = Label.new()
-	enemy_break_label.text = "BREAK"
-	enemy_break_label.add_theme_font_size_override("font_size", 12)
-	enemy_break_label.add_theme_color_override("font_color", Color(0.98, 0.80, 0.48))
-	vbox.add_child(enemy_break_label)
+	enemy_break_label.text = _bl("BREAK", "브레이크")
+	enemy_break_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	enemy_break_label.custom_minimum_size = Vector2(62, 0)
+	UITheme.style_meta_label(enemy_break_label, Color(0.98, 0.80, 0.48))
+	break_row.add_child(enemy_break_label)
 
 	enemy_break_bar = ProgressBar.new()
 	enemy_break_bar.custom_minimum_size = Vector2(0, 10)
+	enemy_break_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	enemy_break_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	enemy_break_bar.show_percentage = false
+	enemy_break_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	enemy_break_bar.max_value = BattleManager.BREAK_MAX
 	enemy_break_bar.value = BattleManager.enemy_break_gauge
 	var break_fill = StyleBoxFlat.new()
@@ -1627,10 +1775,23 @@ func _build_enemy_panel(root: Control) -> void:
 	break_fill.set_corner_radius_all(2)
 	enemy_break_bar.add_theme_stylebox_override("fill", break_fill)
 	var break_bg = StyleBoxFlat.new()
-	break_bg.bg_color = Color(0.12, 0.09, 0.06)
+	break_bg.bg_color = Color(0.12, 0.09, 0.06, 0.94)
+	break_bg.border_color = Color(0.0, 0.0, 0.0, 0.5)
+	break_bg.set_border_width_all(1)
 	break_bg.set_corner_radius_all(2)
 	enemy_break_bar.add_theme_stylebox_override("background", break_bg)
-	vbox.add_child(enemy_break_bar)
+	break_row.add_child(enemy_break_bar)
+
+	enemy_scan_chip = Label.new()
+	enemy_scan_chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	enemy_scan_chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	enemy_scan_chip.custom_minimum_size = Vector2(58, 0)
+	UITheme.style_meta_label(enemy_scan_chip, Color(0.66, 0.72, 0.82))
+	break_row.add_child(enemy_scan_chip)
+
+	# 4행: 상태 칩. 개수에 따라 줄바꿈되고, 없으면 높이 0으로 접힌다.
+	enemy_status_container = _make_status_flow()
+	vbox.add_child(enemy_status_container)
 
 ## S44: 전투 지면 (그라운드 플랫폼, 원근감)
 ## S209: 배경과 무대 사이의 공기 원근.
@@ -1805,12 +1966,19 @@ func _build_action_cutin(root: Control) -> void:
 ## cadence: threat -> response -> consequence. It remains visible in clean view.
 func _build_combat_cue_panel(root: Control) -> void:
 	combat_cue_panel = PanelContainer.new()
+	combat_cue_panel.name = "CombatCue"
 	# S226: the approach banner now carries a second line with the concrete
 	# opening it bought, so the cue frame has to hold two lines without clipping.
-	combat_cue_panel.anchor_left = 0.320
-	combat_cue_panel.anchor_right = 0.680
-	combat_cue_panel.anchor_top = 0.030
-	combat_cue_panel.anchor_bottom = 0.155
+	# S230: 예전에는 오른쪽 끝(0.68 -> x 870)이 적 판독 카드(x 845~) 위로 넘어가
+	# 적 이름 첫 글자를 덮었다("그림자 파수꾼" -> "림자 파수꾼").
+	# 이제 가운데 열 안에 머물고, 높이는 내용이 정한다.
+	combat_cue_panel.anchor_left = HUD_CENTER_COL_L
+	combat_cue_panel.anchor_right = HUD_CENTER_COL_R
+	combat_cue_panel.anchor_top = 0.0
+	combat_cue_panel.anchor_bottom = 0.0
+	combat_cue_panel.offset_top = HUD_CUE_TOP
+	combat_cue_panel.offset_bottom = HUD_CUE_TOP
+	combat_cue_panel.grow_vertical = Control.GROW_DIRECTION_END
 	combat_cue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	combat_cue_panel.z_index = 66
 	combat_cue_panel.visible = false
@@ -1828,7 +1996,8 @@ func _build_combat_cue_panel(root: Control) -> void:
 	row.add_theme_constant_override("separation", 8)
 	combat_cue_panel.add_child(row)
 	combat_cue_art = TextureRect.new()
-	combat_cue_art.custom_minimum_size = Vector2(92, 48)
+	combat_cue_art.custom_minimum_size = Vector2(84, 46)
+	combat_cue_art.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	combat_cue_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	combat_cue_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	combat_cue_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1836,16 +2005,15 @@ func _build_combat_cue_panel(root: Control) -> void:
 
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	copy.add_theme_constant_override("separation", 1)
+	copy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	copy.add_theme_constant_override("separation", 2)
 	row.add_child(copy)
 	combat_cue_title = Label.new()
-	combat_cue_title.add_theme_font_size_override("font_size", 13)
-	combat_cue_title.add_theme_color_override("font_color", Color(0.80, 0.90, 1.0, 0.96))
+	UITheme.style_meta_label(combat_cue_title, Color(0.80, 0.90, 1.0, 0.96))
 	combat_cue_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	copy.add_child(combat_cue_title)
 	combat_cue_detail = Label.new()
-	combat_cue_detail.add_theme_font_size_override("font_size", 13)
-	combat_cue_detail.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
+	UITheme.style_ui_label(combat_cue_detail, UITheme.TEXT_PRIMARY, UITheme.SIZE_LABEL)
 	combat_cue_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	combat_cue_detail.max_lines_visible = 3
 	copy.add_child(combat_cue_detail)
@@ -2661,10 +2829,9 @@ func _build_log_panel(root: Control) -> void:
 	field_readout_header = Label.new()
 	field_readout_header.name = "BattleFieldReadoutHeader"
 	field_readout_header.text = _bl("FIELD READ", "전장 판독")
-	field_readout_header.custom_minimum_size = Vector2(98, 0)
+	field_readout_header.custom_minimum_size = Vector2(104, 0)
 	field_readout_header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	field_readout_header.add_theme_font_size_override("font_size", 13)
-	field_readout_header.add_theme_color_override("font_color", Color(0.66, 0.86, 1.0))
+	UITheme.style_ui_label(field_readout_header, Color(0.66, 0.86, 1.0), UITheme.SIZE_LABEL)
 	row.add_child(field_readout_header)
 
 	log_label = RichTextLabel.new()
@@ -2674,7 +2841,8 @@ func _build_log_panel(root: Control) -> void:
 	log_label.fit_content = true
 	log_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	UITheme.apply_readability_finish(log_label, 15, UITheme.TEXT_PRIMARY, true)
+	# S230: 전장 판독은 이야기 본문이 아니라 인터페이스 문장이다. 산세리프로 읽는다.
+	UITheme.apply_readability_finish(log_label, 15, UITheme.TEXT_PRIMARY, false)
 	row.add_child(log_label)
 	_set_field_readout(
 		_bl("FIELD READ", "전장 판독"),
@@ -2682,65 +2850,72 @@ func _build_log_panel(root: Control) -> void:
 		Color(0.48, 0.78, 1.0)
 	)
 
+## S230: 아렐의 상태를 한 카드로 모은다.
+## 예전에는 HP 패널, 리밋 레일, 상태 칩이 각자 앵커로 떠 있었고,
+## 상태 칩 줄(y 564~585)은 커맨드 덱 장식(y 546~) 위에 얹혀 "SABLE" 태그가 잘렸다.
+## 이제 하나의 패널이 발판 아래(438)에서 시작해 덱 윗선(546) 전에 끝난다.
 func _build_player_panel(root: Control) -> void:
-	var panel = PanelContainer.new()
-	panel.anchor_left = 0.02
-	panel.anchor_right = 0.35
-	panel.anchor_top = 0.62
-	panel.anchor_bottom = 0.62
-	panel.offset_bottom = 74
+	player_panel = PanelContainer.new()
+	player_panel.name = "PlayerReadout"
+	player_panel.anchor_left = HUD_LEFT_COL_L
+	player_panel.anchor_right = 0.35
+	player_panel.anchor_top = 0.0
+	player_panel.anchor_bottom = 0.0
+	player_panel.offset_top = HUD_PLAYER_CLUSTER_TOP
+	player_panel.offset_bottom = HUD_PLAYER_CLUSTER_TOP
+	player_panel.grow_vertical = Control.GROW_DIRECTION_END
+	player_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.06, 0.1, 0.92)
-	style.border_color = Color(0.2, 0.3, 0.5, 0.5)
+	style.bg_color = Color(0.030, 0.034, 0.052, 0.93)
+	style.border_color = Color(0.36, 0.50, 0.74, 0.62)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.set_content_margin_all(8)
-	panel.add_theme_stylebox_override("panel", style)
-	root.add_child(panel)
+	player_panel.add_theme_stylebox_override("panel", style)
+	root.add_child(player_panel)
 
 	var hbox = HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 10)
-	panel.add_child(hbox)
+	player_panel.add_child(hbox)
 
 	# S44: 미니 포트레이트 (HP 옆)
 	var portrait_path = "res://assets/portraits/arrel_face_neutral.png"
 	if ResourceLoader.exists(portrait_path):
 		player_portrait_rect = TextureRect.new()
-		player_portrait_rect.custom_minimum_size = Vector2(52, 52)
+		player_portrait_rect.custom_minimum_size = Vector2(50, 50)
+		player_portrait_rect.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		player_portrait_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		player_portrait_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		player_portrait_rect.texture = load(portrait_path)
 		hbox.add_child(player_portrait_rect)
 
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 3)
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hbox.add_child(vbox)
+	_player_readout_column = VBoxContainer.new()
+	_player_readout_column.add_theme_constant_override("separation", 4)
+	_player_readout_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hbox.add_child(_player_readout_column)
+
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+	_player_readout_column.add_child(name_row)
 
 	var name_label = Label.new()
 	name_label.text = GameManager.localized_speaker("Arrel")
-	name_label.add_theme_font_size_override("font_size", 17)
-	name_label.add_theme_color_override("font_color", Color(0.72, 0.84, 1.0))
-	vbox.add_child(name_label)
-
-	player_hp_bar = ProgressBar.new()
-	player_hp_bar.custom_minimum_size = Vector2(0, 18)
-	player_hp_bar.show_percentage = false
-	var fill = StyleBoxFlat.new()
-	fill.bg_color = Color(0.2, 0.45, 0.6)
-	fill.set_corner_radius_all(3)
-	player_hp_bar.add_theme_stylebox_override("fill", fill)
-	var bg_s = StyleBoxFlat.new()
-	bg_s.bg_color = Color(0.08, 0.08, 0.12)
-	bg_s.set_corner_radius_all(3)
-	player_hp_bar.add_theme_stylebox_override("background", bg_s)
-	vbox.add_child(player_hp_bar)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	UITheme.style_label(name_label, UITheme.make_ui_font(), UITheme.SIZE_UI, Color(0.76, 0.87, 1.0))
+	name_row.add_child(name_label)
 
 	player_hp_label = Label.new()
-	player_hp_label.add_theme_font_size_override("font_size", 13)
-	player_hp_label.add_theme_color_override("font_color", Color(0.78, 0.86, 1.0))
-	vbox.add_child(player_hp_label)
+	player_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	player_hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UITheme.style_ui_label(player_hp_label, Color(0.82, 0.90, 1.0), UITheme.SIZE_LABEL)
+	name_row.add_child(player_hp_label)
+
+	var hp_stack := _make_hp_bar_stack(18.0, UITheme.HP_PLAYER, Color(0.62, 0.86, 1.0, 0.55), Color(0.055, 0.060, 0.085, 0.94))
+	player_hp_bar = hp_stack.bar
+	player_hp_ghost = hp_stack.ghost
+	_player_readout_column.add_child(hp_stack.stack)
 
 func _build_action_buttons(root: Control) -> void:
 	action_ribbon_art = _make_interface_texture_region(
@@ -3123,6 +3298,9 @@ func _setup_enemy_display() -> void:
 	enemy_name_label.text = GameManager.localized_enemy_name(enemy.name)
 	enemy_hp_bar.max_value = enemy.max_hp
 	enemy_hp_bar.value = enemy.hp
+	if enemy_hp_ghost:
+		enemy_hp_ghost.max_value = enemy.max_hp
+		enemy_hp_ghost.value = enemy.hp
 	if enemy_break_bar:
 		enemy_break_bar.max_value = BattleManager.BREAK_MAX
 		enemy_break_bar.value = BattleManager.enemy_break_gauge
@@ -3132,54 +3310,80 @@ func _setup_enemy_display() -> void:
 	if enemy.is_boss:
 		enemy_name_label.add_theme_color_override("font_color", Color(0.9, 0.35, 0.25))
 
+## S230: 앞 막대는 바로, 잔상은 잠깐 머문 뒤 따라 내려간다.
+## 회복이면 잔상이 먼저 올라가 앞 막대를 기다린다.
+func _drive_hp_pair(bar: ProgressBar, ghost: ProgressBar, value: float, animate: bool) -> Tween:
+	if bar == null:
+		return null
+	if ghost:
+		ghost.max_value = bar.max_value
+	if not animate:
+		bar.value = value
+		if ghost:
+			ghost.value = value
+		return null
+	var tween := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(bar, "value", value, 0.4)
+	if ghost:
+		if value < ghost.value:
+			tween.parallel().tween_property(ghost, "value", value, 0.45).set_delay(0.32)
+		else:
+			ghost.value = value
+	return tween
+
 func _update_hp_displays(animate: bool = false) -> void:
+	# S230: 첫 표시는 절대 애니메이션하지 않는다.
+	# 예전에는 막대가 0에서 현재 HP까지 쓸려 올라가, 전투 시작 순간에
+	# "회복 중"으로 읽히고 피해 잔상과 색이 두 갈래로 갈라졌다.
+	if not _hp_display_primed:
+		animate = false
+		_hp_display_primed = true
 	# 플레이어 HP
 	player_hp_bar.max_value = GameManager.player_data.max_hp
 	var p_hp = GameManager.player_data.hp
-	player_hp_label.text = "HP: %d / %d" % [p_hp, GameManager.player_data.max_hp]
+	player_hp_label.text = "HP %d / %d" % [p_hp, GameManager.player_data.max_hp]
 
 	var p_ratio = float(p_hp) / max(GameManager.player_data.max_hp, 1)
 	var p_fill = player_hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
 	if p_fill:
 		p_fill.bg_color = UITheme.HP_LOW if p_ratio <= 0.25 else UITheme.HP_PLAYER
+	# 위험 구간은 색만이 아니라 수치 색까지 같이 경고한다.
+	player_hp_label.add_theme_color_override("font_color", Color(1.0, 0.66, 0.56) if p_ratio <= 0.25 else Color(0.82, 0.90, 1.0))
 
-	if animate:
-		if hp_tween_player:
-			hp_tween_player.kill()
-		hp_tween_player = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-		hp_tween_player.tween_property(player_hp_bar, "value", float(p_hp), 0.4)
-	else:
-		player_hp_bar.value = p_hp
+	if hp_tween_player:
+		hp_tween_player.kill()
+	hp_tween_player = _drive_hp_pair(player_hp_bar, player_hp_ghost, float(p_hp), animate)
 
 	# 적 HP, Ash Sight 패시브 또는 스캔 시에만 수치 표시
 	if BattleManager.current_enemy:
 		var e = BattleManager.current_enemy
-		if MemoryManager.has_passive("ash_sight") or e.name in BattleManager.scanned_enemies:
-			enemy_hp_label.text = "HP: %d / %d" % [e.hp, e.max_hp]
-		else:
-			enemy_hp_label.text = "HP: ??? / ???"
+		var revealed: bool = MemoryManager.has_passive("ash_sight") or e.name in BattleManager.scanned_enemies
+		enemy_hp_label.text = ("HP %d / %d" % [e.hp, e.max_hp]) if revealed else _bl("HP ? / ?", "HP ? / ?")
+		if enemy_scan_chip:
+			# S230: "HP ??? / ???"만 보여 주면 왜 가려졌는지 알 수 없다.
+			# 판독 여부를 상태로 적어, 스캔이 무엇을 여는지 알린다.
+			enemy_scan_chip.text = _bl("READ", "판독됨") if revealed else _bl("UNREAD", "미판독")
+			enemy_scan_chip.add_theme_color_override("font_color", Color(0.66, 0.88, 0.78) if revealed else Color(0.70, 0.66, 0.62))
 
+		enemy_hp_bar.max_value = e.max_hp
 		var e_ratio = float(e.hp) / max(e.max_hp, 1)
 		var e_fill = enemy_hp_bar.get_theme_stylebox("fill") as StyleBoxFlat
 		if e_fill:
 			e_fill.bg_color = UITheme.HP_LOW if e_ratio <= 0.25 else UITheme.HP_ENEMY
 
-		if animate:
-			if hp_tween_enemy:
-				hp_tween_enemy.kill()
-			hp_tween_enemy = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-			hp_tween_enemy.tween_property(enemy_hp_bar, "value", float(e.hp), 0.4)
-		else:
-			enemy_hp_bar.value = e.hp
+		if hp_tween_enemy:
+			hp_tween_enemy.kill()
+		hp_tween_enemy = _drive_hp_pair(enemy_hp_bar, enemy_hp_ghost, float(e.hp), animate)
 
 	if enemy_break_bar:
 		enemy_break_bar.max_value = BattleManager.BREAK_MAX
 		enemy_break_bar.value = BattleManager.enemy_break_gauge
 	if enemy_break_label:
-		enemy_break_label.text = "BROKEN" if BattleManager.enemy_broken_turns > 0 else "BREAK"
+		var broken := BattleManager.enemy_broken_turns > 0
+		enemy_break_label.text = _bl("BROKEN", "붕괴") if broken else _bl("BREAK", "브레이크")
 		enemy_break_label.add_theme_color_override(
 			"font_color",
-			Color(1.0, 0.82, 0.28) if BattleManager.enemy_broken_turns > 0 else Color(0.82, 0.66, 0.38)
+			Color(1.0, 0.82, 0.28) if broken else Color(0.86, 0.72, 0.44)
 		)
 
 	# 상태 아이콘 업데이트
@@ -3824,7 +4028,7 @@ func _toggle_burn_list() -> void:
 					"[%s|%s] LOSE: %s · G%d · DMG %d+%d%s%s",
 					"[%s|%s] 소실: %s · 등급 %d · 피해 %d+%d%s%s"
 				) % [
-					skill.name, elem, memory.title,
+					skill.name, elem, MemoryManager.localized_memory_title(memory),
 					display_grade,
 					skill.base_damage, eff_power, erosion_tag, risk_tag
 				]
@@ -3869,7 +4073,7 @@ func _toggle_burn_list() -> void:
 				var skill = BattleManager.BURN_SKILLS.get(memory.grade, BattleManager.BURN_SKILLS[0])
 				var half_dmg = int((skill.base_damage + memory.burn_power) * 0.5)
 				var btn = Button.new()
-				btn.text = "[RESIDUE] %s, %s (DMG: ~%d)" % [skill.name, memory.title, half_dmg]
+				btn.text = _bl("[RESIDUE] %s, %s (DMG: ~%d)", "[잔존] %s, %s (피해 ~%d)") % [skill.name, MemoryManager.localized_memory_title(memory), half_dmg]
 				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 				var style = StyleBoxFlat.new()
@@ -4532,67 +4736,68 @@ func _play_void_vfx() -> void:
 
 ## ===================== Limit Break UI =====================
 
-func _build_limit_gauge(root: Control) -> void:
-	# The Limit rail belongs to Arrel's status cluster, not the command deck.
-	var panel = PanelContainer.new()
-	panel.name = "BattleLimitRail"
-	panel.anchor_left = 0.06
-	panel.anchor_right = 0.34
-	panel.anchor_top = 0.724
-	panel.anchor_bottom = 0.755
-	panel.offset_bottom = 0
-
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.04, 0.08, 0.85)
-	style.border_color = Color(0.5, 0.3, 0.6, 0.5)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(3)
-	style.set_content_margin_all(4)
-	panel.add_theme_stylebox_override("panel", style)
-	root.add_child(panel)
-
+## S230: 리밋 게이지는 아렐 상태 카드의 한 줄이 된다.
+## 예전에는 별도 패널이 HP 패널과 어긋난 왼쪽 끝(76.8 vs 25.6)에서 시작했고,
+## 수치가 없어 "언제 차는지"를 게이지 길이로만 짐작해야 했다.
+func _build_limit_gauge(_root: Control) -> void:
+	if _player_readout_column == null:
+		return
 	var hbox = HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 6)
-	panel.add_child(hbox)
+	_player_readout_column.add_child(hbox)
 
 	limit_label = Label.new()
 	limit_label.text = _bl("LIMIT", "리밋")
-	limit_label.add_theme_font_size_override("font_size", 13)
-	limit_label.add_theme_color_override("font_color", Color(0.84, 0.68, 0.96))
+	limit_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	# S209: 가변 폰트 메트릭 때문에 마지막 글자("밋")가 잘려 "리미"로 보이던 문제 수정.
 	limit_label.custom_minimum_size = Vector2(46, 0)
 	limit_label.clip_text = false
+	UITheme.style_meta_label(limit_label, Color(0.86, 0.72, 0.98))
 	hbox.add_child(limit_label)
 
 	limit_bar = ProgressBar.new()
-	limit_bar.custom_minimum_size = Vector2(100, 14)
+	limit_bar.custom_minimum_size = Vector2(80, 12)
 	limit_bar.max_value = 100.0
 	limit_bar.value = 0.0
 	limit_bar.show_percentage = false
+	limit_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	limit_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	limit_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	var fill = StyleBoxFlat.new()
 	fill.bg_color = Color(0.7, 0.3, 0.8)
 	fill.set_corner_radius_all(2)
 	limit_bar.add_theme_stylebox_override("fill", fill)
 	var bg_s = StyleBoxFlat.new()
-	bg_s.bg_color = Color(0.08, 0.06, 0.1)
+	bg_s.bg_color = Color(0.06, 0.045, 0.085, 0.94)
+	bg_s.border_color = Color(0.0, 0.0, 0.0, 0.5)
+	bg_s.set_border_width_all(1)
 	bg_s.set_corner_radius_all(2)
 	limit_bar.add_theme_stylebox_override("background", bg_s)
 	hbox.add_child(limit_bar)
 
+	limit_value_label = Label.new()
+	limit_value_label.text = "0%"
+	limit_value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	limit_value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	limit_value_label.custom_minimum_size = Vector2(42, 0)
+	UITheme.style_meta_label(limit_value_label, Color(0.80, 0.70, 0.92))
+	hbox.add_child(limit_value_label)
+
 func _on_limit_changed(value: float) -> void:
+	var ready_now := value >= BattleManager.LIMIT_MAX
 	if limit_bar:
 		limit_bar.value = value
 		# 게이지 꽉 차면 색상 변경
 		var fill = limit_bar.get_theme_stylebox("fill") as StyleBoxFlat
 		if fill:
-			if value >= BattleManager.LIMIT_MAX:
-				fill.bg_color = Color(1.0, 0.6, 0.9)
-				limit_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.9))
-			else:
-				fill.bg_color = Color(0.7, 0.3, 0.8)
-				limit_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.7))
+			fill.bg_color = Color(1.0, 0.6, 0.9) if ready_now else Color(0.7, 0.3, 0.8)
+	if limit_label:
+		limit_label.add_theme_color_override("font_color", Color(1.0, 0.72, 0.94) if ready_now else Color(0.72, 0.60, 0.84))
+	# S230: 게이지 길이만으로 짐작하던 진행도를 숫자로도 읽게 한다.
+	if limit_value_label:
+		limit_value_label.text = _bl("READY", "준비") if ready_now else "%d%%" % int(value)
+		limit_value_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.96) if ready_now else Color(0.76, 0.68, 0.88))
 	# LIMIT 버튼 활성화/비활성화
 	_update_limit_button()
 
@@ -5100,127 +5305,190 @@ func _update_status_shaders() -> void:
 
 ## ===================== S46: 세이블 명령 UI =====================
 
-func _build_ally_command_ui(root: Control) -> void:
-	if not BattleManager.sable_in_party:
+## ===================== S230: 파티 지시 카드 =====================
+
+## 가운데 열 하나에 자세/엘리아/세이블/토비아스 줄을 세로로 쌓는다.
+## 각 줄은 자신의 visible만 관리하면 되고, 세로 위치는 컨테이너가 정한다.
+func _build_party_orders_panel(root: Control) -> void:
+	party_orders_panel = PanelContainer.new()
+	party_orders_panel.name = "PartyOrders"
+	party_orders_panel.anchor_left = HUD_CENTER_COL_L
+	party_orders_panel.anchor_right = HUD_CENTER_COL_R
+	party_orders_panel.anchor_top = 0.0
+	party_orders_panel.anchor_bottom = 0.0
+	party_orders_panel.offset_top = HUD_PARTY_TOP
+	party_orders_panel.offset_bottom = HUD_PARTY_TOP
+	party_orders_panel.grow_vertical = Control.GROW_DIRECTION_END
+	# 넘치더라도 왼쪽(토비아스 판)이 아니라 오른쪽 빈 무대로만 자라게 한다.
+	party_orders_panel.grow_horizontal = Control.GROW_DIRECTION_END
+	party_orders_panel.visible = false
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.022, 0.020, 0.032, 0.92)
+	style.border_color = Color(0.62, 0.50, 0.32, 0.60)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	style.set_content_margin_all(8)
+	party_orders_panel.add_theme_stylebox_override("panel", style)
+	root.add_child(party_orders_panel)
+
+	party_orders_rows = VBoxContainer.new()
+	party_orders_rows.name = "PartyOrderRows"
+	party_orders_rows.add_theme_constant_override("separation", 5)
+	party_orders_panel.add_child(party_orders_rows)
+
+## 한 줄의 뼈대: [역할 이름][버튼...]. 역할 이름 폭을 고정해 버튼 열이 정렬된다.
+## 흐름 컨테이너를 쓰는 이유: 영어 라벨("Analyze"/"Weaken")은 한국어보다 넓다.
+## 고정 가로 상자였다면 줄이 카드보다 넓어져 패널이 좌우로 부풀고,
+## 왼쪽 토비아스 판 위로 넘어갔을 것이다. 넘치면 아래로 접힌다.
+func _make_party_order_row(role_text: String, role_color: Color) -> HFlowContainer:
+	var row := HFlowContainer.new()
+	row.add_theme_constant_override("h_separation", 5)
+	row.add_theme_constant_override("v_separation", 4)
+	var lbl := Label.new()
+	lbl.text = role_text
+	lbl.custom_minimum_size = Vector2(74, 0)
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	UITheme.style_meta_label(lbl, role_color)
+	row.add_child(lbl)
+	return row
+
+func _make_party_order_button(label_text: String, action_id: String, bg: Color, border: Color, font_color: Color) -> Button:
+	var btn := Button.new()
+	btn.text = label_text
+	# S230: 예전에는 눌린 버튼을 btn.text.to_lower() == action 으로 찾았다.
+	# 한국어 라벨을 달자마자 하이라이트가 영원히 꺼지는 구조여서, 식별자를 메타로 옮긴다.
+	btn.set_meta("party_action", action_id)
+	btn.custom_minimum_size = Vector2(62, 27)
+	btn.focus_mode = Control.FOCUS_NONE
+	UITheme.style_label(btn, UITheme.make_meta_font(), UITheme.SIZE_META, font_color)
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	btn.add_theme_stylebox_override("normal", style)
+	var hover := style.duplicate()
+	hover.bg_color = bg.lightened(0.22)
+	hover.border_color = Color(0.95, 0.74, 0.40, 0.92)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("focus", hover)
+	var pressed := style.duplicate()
+	pressed.bg_color = bg.lightened(0.34)
+	btn.add_theme_stylebox_override("pressed", pressed)
+	# S230: disabled 스타일박스를 지정하지 않으면 Godot 기본 테마의 거의 투명한 판이
+	# 쓰여서, 잠긴 자세 버튼이 통째로 사라진 것처럼 보였다.
+	# 잠긴 칸은 카드 바탕보다 "밝아야" 칸으로 읽힌다. 바탕과 같은 어둠으로 칠하면
+	# 버튼이 사라진 것처럼 보이고, 플레이어는 자기가 뭘 못 쓰는지조차 알 수 없다.
+	var disabled := style.duplicate()
+	disabled.bg_color = Color(0.075, 0.070, 0.090, 0.94)
+	disabled.border_color = Color(0.44, 0.42, 0.48, 0.70)
+	btn.add_theme_stylebox_override("disabled", disabled)
+	btn.add_theme_color_override("font_disabled_color", Color(0.62, 0.59, 0.65, 0.95))
+	return btn
+
+## 선택된 지시에 표시를 남긴다. 라벨이 아니라 메타 식별자로 비교한다.
+func _mark_party_selection(row: Container, action: String) -> void:
+	if row == null:
 		return
-	ally_cmd_container = HBoxContainer.new()
-	ally_cmd_container.anchor_left = 0.32
-	ally_cmd_container.anchor_right = 0.68
-	ally_cmd_container.anchor_top = 0.18
-	ally_cmd_container.anchor_bottom = 0.225
-	ally_cmd_container.add_theme_constant_override("separation", 4)
+	for child in row.get_children():
+		if not (child is Button):
+			continue
+		var btn := child as Button
+		if not btn.has_meta("party_action"):
+			continue
+		var selected := String(btn.get_meta("party_action")) == action
+		btn.modulate = Color(0.62, 1.0, 0.68) if selected else Color.WHITE
+		var style := btn.get_theme_stylebox("normal") as StyleBoxFlat
+		if style:
+			style.set_border_width_all(2 if selected else 1)
 
-	var lbl = Label.new()
-	lbl.text = _bl("Sable:", "세이블:")
-	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(0.78, 0.90, 1.0))
-	ally_cmd_container.add_child(lbl)
+## 표시할 줄이 하나도 없으면 카드 자체를 접는다.
+func _refresh_party_orders_panel() -> void:
+	if party_orders_panel == null or party_orders_rows == null:
+		return
+	var any_visible := false
+	for child in party_orders_rows.get_children():
+		if child is CanvasItem and (child as CanvasItem).visible:
+			any_visible = true
+			break
+	party_orders_panel.visible = any_visible
 
-	var cmds = [["Heal", "heal"], ["Strike", "strike"], ["Weaken", "weaken"], ["Guard", "guard"]]
+func _build_ally_command_ui(rows: Control) -> void:
+	if not BattleManager.sable_in_party or rows == null:
+		return
+	ally_cmd_container = _make_party_order_row(_bl("Sable", "세이블"), Color(0.78, 0.90, 1.0))
+	ally_cmd_container.name = "SableOrders"
+
+	var cmds := [
+		[_bl("Heal", "치유"), "heal"],
+		[_bl("Strike", "일격"), "strike"],
+		[_bl("Weaken", "약화"), "weaken"],
+		[_bl("Guard", "수호"), "guard"],
+	]
 	for cmd in cmds:
-		var btn = Button.new()
-		btn.text = cmd[0]
-		btn.custom_minimum_size = Vector2(56, 28)
-		btn.add_theme_font_size_override("font_size", 12)
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.15, 0.18, 0.25, 0.9)
-		style.border_color = Color(0.4, 0.55, 0.7, 0.7)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(0.25, 0.35, 0.5, 0.95)
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
-		var action_name = cmd[1]
+		var action_name := String(cmd[1])
+		var btn := _make_party_order_button(
+			String(cmd[0]), action_name,
+			Color(0.10, 0.14, 0.22, 0.94), Color(0.42, 0.58, 0.74, 0.72), Color(0.84, 0.90, 0.98)
+		)
 		btn.pressed.connect(func(): _on_ally_cmd(action_name))
 		ally_cmd_container.add_child(btn)
 
 	ally_cmd_container.visible = false
-	root.add_child(ally_cmd_container)
+	ally_cmd_container.visibility_changed.connect(_refresh_party_orders_panel)
+	rows.add_child(ally_cmd_container)
 
 func _on_ally_cmd(action: String) -> void:
 	BattleManager.set_ally_command(action)
 	AudioManager.play_sfx("ui_select")
-	# 선택 확인, 버튼 하이라이트
-	if ally_cmd_container:
-		for i in range(1, ally_cmd_container.get_child_count()):
-			var btn = ally_cmd_container.get_child(i)
-			if btn is Button:
-				var is_selected = (btn.text.to_lower() == action)
-				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE
+	_mark_party_selection(ally_cmd_container, action)
 
 ## ===================== S53: 토비아스 명령 UI =====================
 
-func _build_tobias_command_ui(root: Control) -> void:
-	if not BattleManager.tobias_in_party:
+func _build_tobias_command_ui(rows: Control) -> void:
+	if not BattleManager.tobias_in_party or rows == null:
 		return
-	tobias_cmd_container = HBoxContainer.new()
-	tobias_cmd_container.anchor_left = 0.32
-	tobias_cmd_container.anchor_right = 0.68
-	tobias_cmd_container.anchor_top = 0.225
-	tobias_cmd_container.anchor_bottom = 0.27
-	tobias_cmd_container.add_theme_constant_override("separation", 4)
+	tobias_cmd_container = _make_party_order_row(_bl("Tobias", "토비아스"), Color(0.96, 0.84, 0.62))
+	tobias_cmd_container.name = "TobiasOrders"
 
-	var lbl = Label.new()
-	lbl.text = _bl("Tobias:", "토비아스:")
-	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(0.96, 0.84, 0.62))
-	tobias_cmd_container.add_child(lbl)
-
-	var cmds = [["Analyze", "analyze"], ["Archive", "archive"], ["Protect", "protect"]]
+	var cmds := [
+		[_bl("Analyze", "분석"), "analyze"],
+		[_bl("Archive", "기록"), "archive"],
+		[_bl("Protect", "보호"), "protect"],
+	]
 	for cmd in cmds:
-		var btn = Button.new()
-		btn.text = cmd[0]
-		btn.custom_minimum_size = Vector2(56, 28)
-		btn.add_theme_font_size_override("font_size", 12)
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.2, 0.18, 0.12, 0.9)
-		style.border_color = Color(0.6, 0.5, 0.3, 0.7)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(0.35, 0.3, 0.2, 0.95)
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.9, 0.85, 0.7))
-		var action_name = cmd[1]
+		var action_name := String(cmd[1])
+		var btn := _make_party_order_button(
+			String(cmd[0]), action_name,
+			Color(0.15, 0.12, 0.07, 0.94), Color(0.62, 0.52, 0.32, 0.72), Color(0.94, 0.88, 0.74)
+		)
 		btn.pressed.connect(func(): _on_tobias_cmd(action_name))
 		tobias_cmd_container.add_child(btn)
 
 	tobias_cmd_container.visible = false
-	root.add_child(tobias_cmd_container)
+	tobias_cmd_container.visibility_changed.connect(_refresh_party_orders_panel)
+	rows.add_child(tobias_cmd_container)
 
 func _on_tobias_cmd(action: String) -> void:
 	BattleManager.set_tobias_command(action)
 	AudioManager.play_sfx("ui_select")
-	if tobias_cmd_container:
-		for i in range(1, tobias_cmd_container.get_child_count()):
-			var btn = tobias_cmd_container.get_child(i)
-			if btn is Button:
-				var is_selected = (btn.text.to_lower() == action)
-				btn.modulate = Color(0.5, 1.0, 0.5) if is_selected else Color.WHITE
+	_mark_party_selection(tobias_cmd_container, action)
 
 ## ===================== S51: 스탠스 전환 UI =====================
 
-var stance_container: HBoxContainer
+var stance_container: HFlowContainer
 var stance_buttons: Array[Button] = []
 
-func _build_stance_ui(root: Control) -> void:
-	stance_container = HBoxContainer.new()
+func _build_stance_ui(rows: Control) -> void:
+	if rows == null:
+		return
+	stance_container = _make_party_order_row(_bl("Stance", "자세"), Color(0.96, 0.84, 0.64))
 	stance_container.name = "BattleStanceRail"
-	stance_container.anchor_left = 0.34
-	stance_container.anchor_right = 0.66
-	stance_container.anchor_top = 0.13
-	stance_container.anchor_bottom = 0.17
-	stance_container.add_theme_constant_override("separation", 6)
-	stance_container.alignment = BoxContainer.ALIGNMENT_CENTER
-
-	var lbl = Label.new()
-	lbl.text = _bl("Stance:", "자세:")
-	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(0.96, 0.84, 0.64))
-	stance_container.add_child(lbl)
 
 	var stances = [
 		[BattleManager.Stance.REMNANT, _bl("Remnant", "잔재"), Color(0.6, 0.55, 0.45)],
@@ -5229,35 +5497,31 @@ func _build_stance_ui(root: Control) -> void:
 	]
 
 	for s in stances:
-		var btn = Button.new()
-		btn.text = s[1]
-		btn.custom_minimum_size = Vector2(70, 28)
-		btn.add_theme_font_size_override("font_size", 12)
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(s[2].r * 0.3, s[2].g * 0.3, s[2].b * 0.3, 0.9)
-		style.border_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.6)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(s[2].r * 0.5, s[2].g * 0.5, s[2].b * 0.5, 0.95)
-		hover.border_color = s[2]
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.8, 0.75, 0.7))
+		var accent: Color = s[2]
+		var btn := _make_party_order_button(
+			String(s[1]), "stance_%d" % int(s[0]),
+			Color(accent.r * 0.28, accent.g * 0.28, accent.b * 0.28, 0.94),
+			Color(accent.r * 0.62, accent.g * 0.62, accent.b * 0.62, 0.70),
+			Color(0.90, 0.86, 0.80)
+		)
 		# 해금 체크
 		var stance_val = s[0]
 		var info = BattleManager.STANCE_INFO[stance_val]
 		if GameManager.current_chapter < info["unlock_chapter"]:
 			btn.disabled = true
-			btn.modulate.a = 0.4
+			# S230: 잠김은 modulate로 지우는 게 아니라 disabled 스타일박스로 말한다.
+			# 언제 열리는지도 함께 알려 준다.
+			btn.tooltip_text = _bl("Unlocks in Chapter %d", "%d장에서 해금") % int(info["unlock_chapter"])
 		else:
+			btn.focus_mode = Control.FOCUS_ALL
 			btn.pressed.connect(func(): _on_stance_select(stance_val))
-		btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
+			btn.focus_entered.connect(func(): AudioManager.play_sfx("ui_hover"))
 		stance_container.add_child(btn)
 		stance_buttons.append(btn)
 
 	stance_container.visible = false
-	root.add_child(stance_container)
+	stance_container.visibility_changed.connect(_refresh_party_orders_panel)
+	rows.add_child(stance_container)
 	_update_stance_highlight()
 
 func _on_stance_select(stance: int) -> void:
@@ -5269,14 +5533,19 @@ func _on_stance_changed(_stance: int) -> void:
 	_update_stance_highlight()
 
 func _update_stance_highlight() -> void:
-	var names = ["Remnant", "Pyre", "Hollow"]
 	for i in range(stance_buttons.size()):
 		var btn = stance_buttons[i]
+		if btn.disabled:
+			# S230: 예전에는 잠긴 자세를 알파 0.4로 지웠다. 파티 지시 카드 위에서는
+			# 배경과 구분되지 않아 "버튼이 없다"로 읽혔다. 이제 disabled 스타일박스가
+			# 잠긴 칸을 보여 주므로, 여기서 더 지우지 않는다.
+			btn.modulate = Color.WHITE
+			continue
 		var is_active = (i == BattleManager.current_stance)
-		if is_active:
-			btn.modulate = Color(1.0, 1.0, 0.7) if not btn.disabled else Color(0.4, 0.4, 0.4, 0.4)
-		else:
-			btn.modulate = Color.WHITE if not btn.disabled else Color(0.4, 0.4, 0.4, 0.4)
+		btn.modulate = Color(1.0, 1.0, 0.7) if is_active else Color.WHITE
+		var style := btn.get_theme_stylebox("normal") as StyleBoxFlat
+		if style:
+			style.set_border_width_all(2 if is_active else 1)
 
 ## ===================== S51: 에코 표시 =====================
 
@@ -5325,36 +5594,27 @@ func _refresh_echo_display() -> void:
 
 ## ===================== S51: 엘리아 기술 UI =====================
 
-var elia_skill_container: HBoxContainer
+var elia_skill_container: HFlowContainer
 
-func _build_elia_skill_ui(root: Control) -> void:
-	if not GameManager.player_data.elia_with_party:
+func _build_elia_skill_ui(rows: Control) -> void:
+	if not GameManager.player_data.elia_with_party or rows == null:
 		return
-	elia_skill_container = HBoxContainer.new()
+	# S230: 예전에는 이 레일과 토비아스 레일의 앵커가 완전히 같아서,
+	# 셋이 모두 동행 중이면 두 줄이 정확히 겹쳐 그려졌다.
+	elia_skill_container = _make_party_order_row(_bl("Elia", "엘리아"), Color(0.88, 0.78, 1.0))
 	elia_skill_container.name = "EliaTechniqueRail"
-	elia_skill_container.anchor_left = 0.26
-	elia_skill_container.anchor_right = 0.74
-	elia_skill_container.anchor_top = 0.225 if BattleManager.sable_in_party else 0.18
-	elia_skill_container.anchor_bottom = 0.27 if BattleManager.sable_in_party else 0.225
-	elia_skill_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	elia_skill_container.add_theme_constant_override("separation", 5)
-
-	var header = Label.new()
-	header.text = _bl("Elia", "엘리아")
-	header.add_theme_font_size_override("font_size", 13)
-	header.add_theme_color_override("font_color", Color(0.88, 0.78, 1.0))
-	elia_skill_container.add_child(header)
-
 	elia_skill_container.visible = false
-	root.add_child(elia_skill_container)
+	elia_skill_container.visibility_changed.connect(_refresh_party_orders_panel)
+	rows.add_child(elia_skill_container)
 
 func _refresh_elia_skills() -> void:
 	if not elia_skill_container:
 		return
-	# 헤더 외 기존 버튼 제거
-	while elia_skill_container.get_child_count() > 1:
-		elia_skill_container.get_child(elia_skill_container.get_child_count() - 1).queue_free()
-		elia_skill_container.remove_child(elia_skill_container.get_child(elia_skill_container.get_child_count() - 1))
+	# 헤더(역할 라벨) 외 기존 버튼 제거
+	for i in range(elia_skill_container.get_child_count() - 1, 0, -1):
+		var stale := elia_skill_container.get_child(i)
+		elia_skill_container.remove_child(stale)
+		stale.queue_free()
 
 	var skills = EliaDiary.get_available_skills()
 	if skills.is_empty():
@@ -5365,27 +5625,17 @@ func _refresh_elia_skills() -> void:
 	elia_skill_container.visible = true
 
 	for skill in skills:
-		var btn = Button.new()
-		var cd_text = " [READY]" if skill["ready"] else " [%dT]" % skill["cooldown"]
-		btn.text = "%s%s" % [skill["name"], cd_text]
+		var ready: bool = bool(skill["ready"])
+		var cd_text: String = _bl(" [READY]", " [준비]") if ready else _bl(" [%dT]", " [%d턴]") % skill["cooldown"]
+		var skill_id: String = String(skill["id"])
+		var btn := _make_party_order_button(
+			"%s%s" % [skill["name"], cd_text], skill_id,
+			Color(0.14, 0.09, 0.20, 0.94) if ready else Color(0.075, 0.062, 0.092, 0.90),
+			Color(0.62, 0.46, 0.78, 0.72) if ready else Color(0.30, 0.26, 0.34, 0.44),
+			Color(0.88, 0.80, 0.98) if ready else Color(0.56, 0.52, 0.60)
+		)
 		btn.tooltip_text = skill["desc"]
-		btn.custom_minimum_size = Vector2(118, 26)
-		btn.add_theme_font_size_override("font_size", 12)
-		btn.disabled = not skill["ready"]
-
-		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.18, 0.12, 0.25, 0.9) if skill["ready"] else Color(0.1, 0.08, 0.12, 0.6)
-		style.border_color = Color(0.6, 0.45, 0.75, 0.7) if skill["ready"] else Color(0.3, 0.25, 0.3, 0.4)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(3)
-		btn.add_theme_stylebox_override("normal", style)
-		var hover = style.duplicate()
-		hover.bg_color = Color(0.3, 0.2, 0.4, 0.95)
-		hover.border_color = Color(0.8, 0.6, 0.9, 0.9)
-		btn.add_theme_stylebox_override("hover", hover)
-		btn.add_theme_color_override("font_color", Color(0.85, 0.75, 0.95) if skill["ready"] else Color(0.4, 0.35, 0.4))
-
-		var skill_id = skill["id"]
+		btn.disabled = not ready
 		btn.pressed.connect(func(): _on_elia_skill(skill_id))
 		elia_skill_container.add_child(btn)
 
@@ -6258,7 +6508,7 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	var grade_label_text = GRADE_LABELS.get(memory.grade, "Grade %d" % memory.grade)
 
 	var name_label = Label.new()
-	name_label.text = memory.title
+	name_label.text = MemoryManager.localized_memory_title(memory)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", 16)
 	name_label.add_theme_color_override("font_color", grade_color)
@@ -6341,13 +6591,13 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 	vbox.add_child(spacer2)
 
 	var cost_header = Label.new()
-	cost_header.text = _bl("COST, LOST FOREVER: %s", "대가, 영구 소실: %s") % memory.title
+	cost_header.text = _bl("COST, LOST FOREVER: %s", "대가, 영구 소실: %s") % MemoryManager.localized_memory_title(memory)
 	cost_header.add_theme_font_size_override("font_size", 13)
 	cost_header.add_theme_color_override("font_color", Color(0.85, 0.35, 0.3))
 	vbox.add_child(cost_header)
 
 	var desc_label = Label.new()
-	desc_label.text = memory.description
+	desc_label.text = MemoryManager.localized_memory_description(memory)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.max_lines_visible = 3
 	desc_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -6381,6 +6631,41 @@ func _show_burn_preview(memory: MemoryManager.Memory) -> void:
 		elia_label.add_theme_font_size_override("font_size", 13)
 		elia_label.add_theme_color_override("font_color", Color(0.72, 0.86, 1.0))
 		vbox.add_child(elia_label)
+
+	# --- S233: 연쇄 예보. 무엇이 함께 상하는지 커밋 전에 이름으로 말한다. ---
+	# 숨은 대가를 만들지 않는 것이 이 화면의 원칙이다 (S226).
+	var cascade: Dictionary = MemoryManager.cascade_preview(memory)
+	if int(cascade.get("count", 0)) > 0:
+		var linked: Array = cascade.get("titles", [])
+		var shown_links: Array = linked.slice(0, 3)
+		var suffix := ""
+		if linked.size() > shown_links.size():
+			suffix = _bl(" and %d more", " 외 %d개") % (linked.size() - shown_links.size())
+		var cascade_label = Label.new()
+		# 한국어는 조사가 앞 글자에 따라 바뀐다. "%s이(가)" 같은 표기를 피하려고
+		# 수치를 앞에 두고 이름을 뒤에 붙인다.
+		var linked_names := ", ".join(shown_links) + suffix
+		var erosion_amount := int(cascade.get("amount", 0))
+		if GameManager.current_locale == "ko":
+			cascade_label.text = "연쇄: 침식 %d · %s" % [erosion_amount, linked_names]
+		else:
+			cascade_label.text = "LINKED: %s take %d erosion" % [linked_names, erosion_amount]
+		cascade_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		cascade_label.max_lines_visible = 2
+		cascade_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		UITheme.style_meta_label(cascade_label, Color(0.96, 0.74, 0.44))
+		vbox.add_child(cascade_label)
+	var guarded_links: Array = cascade.get("guarded", [])
+	if not guarded_links.is_empty():
+		var guarded_label = Label.new()
+		guarded_label.text = _bl(
+			"ANCHORED: %s will hold, spending its guard.",
+			"고정됨: 보호를 써서 버팁니다 · %s"
+		) % ", ".join(guarded_links.slice(0, 3))
+		guarded_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		guarded_label.max_lines_visible = 2
+		UITheme.style_meta_label(guarded_label, Color(0.66, 0.86, 0.98))
+		vbox.add_child(guarded_label)
 
 	# --- Irreversibility is stated every time, not only for high grades ---
 	var restore_label = Label.new()
@@ -6520,7 +6805,7 @@ func _on_burn_preview_confirmed() -> void:
 	var mem = MemoryManager._get_memory(mid)
 	if mem:
 		action_container.visible = false
-		_play_memory_burn_then_execute(mid, mem.title, mem.grade)
+		_play_memory_burn_then_execute(mid, MemoryManager.localized_memory_title(mem), mem.grade)
 	else:
 		# Fallback: memory already gone somehow
 		action_container.visible = false

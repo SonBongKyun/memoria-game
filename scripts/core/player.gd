@@ -142,7 +142,7 @@ func _setup_interact_indicator() -> void:
 	_interact_indicator.text = "E  대화"
 	_interact_indicator.custom_minimum_size = Vector2(72, 24)
 	_interact_indicator.add_theme_font_override("font", UITheme.make_ui_font())
-	_interact_indicator.add_theme_font_size_override("font_size", 11)
+	_interact_indicator.add_theme_font_size_override("font_size", 13)
 	_interact_indicator.add_theme_color_override("font_color", Color(1.0, 0.91, 0.64, 0.98))
 	_interact_indicator.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	_interact_indicator.add_theme_constant_override("shadow_offset_x", 1)

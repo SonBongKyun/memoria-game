@@ -60,13 +60,22 @@ func _build_ui() -> void:
 	log_label.add_theme_constant_override("shadow_offset_y", 1)
 	log_panel.add_child(log_label)
 
+## S232: 관리국 기록에 임의 문장을 올린다 (담보 등록, 강제 추출 등).
+## 연소 감지 팝업과 같은 창을 쓰므로, 관리국이 지켜본다는 감각이 한 곳에 모인다.
+func show_log(text: String, accent: String = "4a9a8a") -> void:
+	if text.strip_edges() == "":
+		return
+	queue.append("[color=#%s]%s[/color]" % [accent, text])
+	if not is_showing:
+		_show_next()
+
 ## 기억 연소 시그널 핸들러
 func _on_memory_burned(memory) -> void:
 	var grade_name = GRADE_TYPE_NAMES[memory.grade]
 	var residue_status = "trace detected, fading" if memory.is_residue else "no residue, permanent loss"
 
 	var log_text = "[color=#4a9a8a][COMBUSTION DETECTED: Type %d, %s][/color]\n" % [memory.grade + 1, grade_name]
-	log_text += "[color=#3a7a6a][SUBJECT: %s][/color]\n" % memory.title
+	log_text += "[color=#3a7a6a][SUBJECT: %s][/color]\n" % MemoryManager.localized_memory_title(memory)
 	log_text += "[color=#2a6a5a][RESIDUAL RECORD: %s][/color]" % residue_status
 
 	queue.append(log_text)

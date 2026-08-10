@@ -2190,7 +2190,7 @@ func _build_ui() -> void:
 	last_saved_label = Label.new()
 	last_saved_label.name = "LastSavedLabel"
 	last_saved_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	last_saved_label.add_theme_font_size_override("font_size", 12)
+	last_saved_label.add_theme_font_size_override("font_size", 13)
 	last_saved_label.add_theme_color_override("font_color", Color(0.45, 0.55, 0.35))
 	vbox.add_child(last_saved_label)
 
@@ -2198,7 +2198,7 @@ func _build_ui() -> void:
 	pause_hint_label = Label.new()
 	pause_hint_label.name = "HintLabel"
 	pause_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	pause_hint_label.add_theme_font_size_override("font_size", 12)
+	pause_hint_label.add_theme_font_size_override("font_size", 13)
 	pause_hint_label.add_theme_color_override("font_color", Color(0.5, 0.47, 0.42))
 	UITheme.apply_ui_font(pause_hint_label)
 	vbox.add_child(pause_hint_label)
@@ -2400,7 +2400,7 @@ func _show_save_archive_panel() -> void:
 	footer.text = _pause_loc("Autosave is protected. Manual records keep a backup copy.", "자동 저장은 보호됩니다. 수동 저장은 이전 기록을 백업합니다.")
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 12)
+	footer.add_theme_font_size_override("font_size", 13)
 	footer.add_theme_color_override("font_color", Color(0.52, 0.48, 0.43))
 	content.add_child(footer)
 
@@ -2585,7 +2585,7 @@ func _show_field_guide_panel() -> void:
 	footer.text = _pause_loc("The safest route is the one someone remembers with you.  ·  [ESC] Close", "가장 안전한 길은 누군가 함께 기억해 주는 길입니다.  ·  [ESC] 닫기")
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 12)
+	footer.add_theme_font_size_override("font_size", 13)
 	footer.add_theme_color_override("font_color", Color(0.68, 0.59, 0.45))
 	guide_overlay.add_child(footer)
 
@@ -2743,7 +2743,7 @@ func _show_artbook_panel() -> void:
 	var sub = Label.new()
 	sub.text = "Concept sheets, expression studies, and atmosphere plates"
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", 12)
+	sub.add_theme_font_size_override("font_size", 13)
 	sub.add_theme_color_override("font_color", Color(0.58, 0.52, 0.45))
 	root.add_child(sub)
 
@@ -2780,7 +2780,7 @@ func _show_artbook_panel() -> void:
 	var search_box := LineEdit.new()
 	search_box.placeholder_text = "Search title or category"
 	search_box.clear_button_enabled = true
-	search_box.add_theme_font_size_override("font_size", 12)
+	search_box.add_theme_font_size_override("font_size", 13)
 	search_box.add_theme_color_override("font_color", Color(0.84, 0.78, 0.68))
 	search_box.add_theme_color_override("font_placeholder_color", Color(0.42, 0.39, 0.36))
 	left_box.add_child(search_box)
@@ -2817,7 +2817,7 @@ func _show_artbook_panel() -> void:
 	preview_box.add_child(preview_title)
 
 	var preview_type = Label.new()
-	preview_type.add_theme_font_size_override("font_size", 12)
+	preview_type.add_theme_font_size_override("font_size", 13)
 	preview_type.add_theme_color_override("font_color", Color(0.5, 0.48, 0.42))
 	preview_box.add_child(preview_type)
 
@@ -2843,7 +2843,7 @@ func _show_artbook_panel() -> void:
 		btn.text = "%s\n   %s" % [item.get("title", "Untitled"), item.get("type", "Reference")]
 		btn.custom_minimum_size = Vector2(0, 48)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_font_size_override("font_size", 13)
 		btn.add_theme_color_override("font_color", Color(0.72, 0.68, 0.58))
 		btn.add_theme_color_override("font_hover_color", Color(0.98, 0.84, 0.52))
 		var btn_style = StyleBoxFlat.new()
@@ -2875,7 +2875,7 @@ func _show_artbook_panel() -> void:
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	close_label.add_theme_font_size_override("font_size", 12)
+	close_label.add_theme_font_size_override("font_size", 13)
 	close_label.add_theme_color_override("font_color", Color(0.42, 0.37, 0.31))
 	root.add_child(close_label)
 
@@ -2973,7 +2973,7 @@ func _show_achievements_panel() -> void:
 
 	var progress_label := Label.new()
 	progress_label.text = ("기억 속에 새겨진 이정표  ·  달성률 %.0f%%" if GameManager.current_locale == "ko" else "Milestones engraved in memory  ·  %.0f%% complete") % [float(unlocked_count) / maxf(1.0, float(all_achs.size())) * 100.0]
-	progress_label.add_theme_font_size_override("font_size", 12)
+	progress_label.add_theme_font_size_override("font_size", 13)
 	progress_label.add_theme_color_override("font_color", Color(0.56, 0.54, 0.52))
 	progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(progress_label)
@@ -3025,7 +3025,7 @@ func _show_achievements_panel() -> void:
 		info.add_child(title_lbl)
 
 		var desc_lbl = Label.new()
-		desc_lbl.add_theme_font_size_override("font_size", 12)
+		desc_lbl.add_theme_font_size_override("font_size", 13)
 		info.add_child(desc_lbl)
 
 		if ach["unlocked"]:
@@ -3042,7 +3042,7 @@ func _show_achievements_panel() -> void:
 	# 닫기 힌트
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
-	close_label.add_theme_font_size_override("font_size", 12)
+	close_label.add_theme_font_size_override("font_size", 13)
 	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_label)
@@ -3099,7 +3099,7 @@ func _show_travel_panel_legacy() -> void:
 	var desc = Label.new()
 	desc.text = "Select a destination. Travel is instant."
 	desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	desc.add_theme_font_size_override("font_size", 12)
+	desc.add_theme_font_size_override("font_size", 13)
 	desc.add_theme_color_override("font_color", Color(0.5, 0.5, 0.45))
 	vbox.add_child(desc)
 
@@ -3165,7 +3165,7 @@ func _show_travel_panel_legacy() -> void:
 	# 닫기
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
-	close_label.add_theme_font_size_override("font_size", 12)
+	close_label.add_theme_font_size_override("font_size", 13)
 	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_label)
@@ -3235,7 +3235,7 @@ func _show_travel_panel() -> void:
 	subtitle.anchor_bottom = 0.13
 	subtitle.text = "Only places held by witness can be crossed again."
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_font_size_override("font_size", 13)
 	subtitle.add_theme_color_override("font_color", Color(0.58, 0.53, 0.46))
 	content.add_child(subtitle)
 
@@ -3247,7 +3247,7 @@ func _show_travel_panel() -> void:
 	depth_caption.anchor_bottom = 0.18
 	depth_caption.text = _pause_loc("LIVE MEMORY RELIEF  /  SELECT A WITNESSED LANDMARK", "기억 입체도  /  목격한 지점을 선택하세요")
 	depth_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	depth_caption.add_theme_font_size_override("font_size", 12)
+	depth_caption.add_theme_font_size_override("font_size", 13)
 	depth_caption.add_theme_color_override("font_color", Color(0.68, 0.58, 0.42, 0.88))
 	depth_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(depth_caption)
@@ -3260,7 +3260,7 @@ func _show_travel_panel() -> void:
 	map_note.text = "CURRENT WITNESS  /  CHAPTER %02d  /  %d OF %d ROUTES RECORDED" % [current_chapter, witnessed_count, TRAVEL_DESTINATIONS.size()]
 	map_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	map_note.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	map_note.add_theme_font_size_override("font_size", 12)
+	map_note.add_theme_font_size_override("font_size", 13)
 	map_note.add_theme_color_override("font_color", Color(0.72, 0.61, 0.43))
 	content.add_child(map_note)
 
@@ -3328,7 +3328,7 @@ func _show_travel_panel() -> void:
 		hover_style.border_color = Color(0.78, 0.57, 0.28, 0.85)
 		btn.add_theme_stylebox_override("hover", hover_style)
 		btn.add_theme_stylebox_override("focus", hover_style)
-		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_font_size_override("font_size", 13)
 		if unlocked:
 			var scene_path := String(map_data.get("scene", ""))
 			var route_chapter := chapter
@@ -3348,7 +3348,7 @@ func _show_travel_panel() -> void:
 	var close_label := Label.new()
 	close_label.text = "[ESC] Close"
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	close_label.add_theme_font_size_override("font_size", 12)
+	close_label.add_theme_font_size_override("font_size", 13)
 	close_label.add_theme_color_override("font_color", Color(0.45, 0.4, 0.35))
 	route_root.add_child(close_label)
 
@@ -3437,7 +3437,7 @@ func _show_inventory_panel() -> void:
 	]
 	status_strip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_strip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	status_strip.add_theme_font_size_override("font_size", 12)
+	status_strip.add_theme_font_size_override("font_size", 13)
 	status_strip.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	content.add_child(status_strip)
 
@@ -3472,7 +3472,7 @@ func _show_inventory_panel() -> void:
 	list_root.add_child(quick_root)
 	var quick_label := Label.new()
 	quick_label.text = "QUICK KIT  /  BATTLE KEYS 1-3"
-	quick_label.add_theme_font_size_override("font_size", 12)
+	quick_label.add_theme_font_size_override("font_size", 13)
 	quick_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	quick_root.add_child(quick_label)
 	var quick_row := HBoxContainer.new()
@@ -3484,7 +3484,7 @@ func _show_inventory_panel() -> void:
 		quick_button.text = "%d  EMPTY" % (slot_index + 1)
 		quick_button.custom_minimum_size = Vector2(0, 38)
 		quick_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		quick_button.add_theme_font_size_override("font_size", 12)
+		quick_button.add_theme_font_size_override("font_size", 13)
 		quick_button.pressed.connect(_on_inventory_quick_pressed.bind(quick_button, inventory_overlay))
 		quick_row.add_child(quick_button)
 
@@ -3498,7 +3498,7 @@ func _show_inventory_panel() -> void:
 	search.clear_button_enabled = true
 	search.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	search.custom_minimum_size = Vector2(0, 32)
-	search.add_theme_font_size_override("font_size", 12)
+	search.add_theme_font_size_override("font_size", 13)
 	search.text_changed.connect(_on_inventory_search_changed.bind(inventory_overlay))
 	search_row.add_child(search)
 	var sort_menu := OptionButton.new()
@@ -3562,7 +3562,7 @@ func _show_inventory_panel() -> void:
 	var detail_type := Label.new()
 	detail_type.name = "InventoryDetailType"
 	detail_type.text = "FIELD RECORD"
-	detail_type.add_theme_font_size_override("font_size", 12)
+	detail_type.add_theme_font_size_override("font_size", 13)
 	detail_type.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	copy.add_child(detail_type)
 
@@ -3578,7 +3578,7 @@ func _show_inventory_panel() -> void:
 
 	var detail_meta := Label.new()
 	detail_meta.name = "InventoryDetailMeta"
-	detail_meta.add_theme_font_size_override("font_size", 12)
+	detail_meta.add_theme_font_size_override("font_size", 13)
 	detail_meta.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	copy.add_child(detail_meta)
 
@@ -3613,7 +3613,7 @@ func _show_inventory_panel() -> void:
 		btn.icon = GameManager.get_item_icon(item_id)
 		btn.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.expand_icon = true
-		btn.add_theme_font_size_override("font_size", 12)
+		btn.add_theme_font_size_override("font_size", 13)
 		btn.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 		btn.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.52))
 		var btn_style := StyleBoxFlat.new()
@@ -3641,7 +3641,7 @@ func _show_inventory_panel() -> void:
 	filter_empty.name = "InventoryFilterEmpty"
 	filter_empty.text = "No carried supply matches this view."
 	filter_empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	filter_empty.add_theme_font_size_override("font_size", 12)
+	filter_empty.add_theme_font_size_override("font_size", 13)
 	filter_empty.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	filter_empty.visible = false
 	item_list.add_child(filter_empty)
@@ -3678,7 +3678,7 @@ func _show_inventory_panel() -> void:
 		filter_button.toggle_mode = true
 		filter_button.button_group = filter_group
 		filter_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		filter_button.add_theme_font_size_override("font_size", 12)
+		filter_button.add_theme_font_size_override("font_size", 13)
 		filter_button.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 		filter_button.add_theme_color_override("font_pressed_color", Color(0.98, 0.81, 0.49))
 		filter_button.pressed.connect(_set_inventory_category.bind(inventory_overlay, String(filter_data.id)))
@@ -3744,7 +3744,7 @@ func _show_inventory_panel() -> void:
 		slot_row.add_child(slot_copy)
 		var slot_label := Label.new()
 		slot_label.text = String(slot_name).to_upper()
-		slot_label.add_theme_font_size_override("font_size", 12)
+		slot_label.add_theme_font_size_override("font_size", 13)
 		slot_label.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		slot_copy.add_child(slot_label)
 		var equipped_id := String(GameManager.equipped.get(slot_name, ""))
@@ -3760,7 +3760,7 @@ func _show_inventory_panel() -> void:
 			]
 		else:
 			equipped_label.text = "Unbound\nNo recorded bonus"
-		equipped_label.add_theme_font_size_override("font_size", 12)
+		equipped_label.add_theme_font_size_override("font_size", 13)
 		equipped_label.add_theme_color_override("font_color", UITheme.TEXT_PRIMARY)
 		slot_copy.add_child(equipped_label)
 
@@ -3772,7 +3772,7 @@ func _show_inventory_panel() -> void:
 	footer.text = "[H] Smart Heal  |  Quick Kit = battle keys 1-3  |  [ESC] Close"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	footer.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	footer.add_theme_font_size_override("font_size", 12)
+	footer.add_theme_font_size_override("font_size", 13)
 	footer.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	content.add_child(footer)
 
@@ -4076,7 +4076,7 @@ func _show_endings_gallery() -> void:
 
 	var subtitle := Label.new()
 	subtitle.text = "기억된 결말과 아직 닿지 못한 가능성" if GameManager.current_locale == "ko" else "Remembered conclusions and paths not yet reached."
-	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_font_size_override("font_size", 13)
 	subtitle.add_theme_color_override("font_color", Color(0.56, 0.52, 0.5))
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(subtitle)
@@ -4158,7 +4158,7 @@ func _show_endings_gallery() -> void:
 		# Description (only if seen)
 		var desc_lbl = Label.new()
 		desc_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		desc_lbl.add_theme_font_size_override("font_size", 12)
+		desc_lbl.add_theme_font_size_override("font_size", 13)
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 		desc_lbl.custom_minimum_size = Vector2(236, 0)
 		if seen:
@@ -4172,7 +4172,7 @@ func _show_endings_gallery() -> void:
 	# Close hint
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
-	close_label.add_theme_font_size_override("font_size", 12)
+	close_label.add_theme_font_size_override("font_size", 13)
 	close_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_label)
@@ -4329,7 +4329,7 @@ func _show_stats_panel() -> void:
 	# Close hint
 	var close_label = Label.new()
 	close_label.text = "[ESC] Close"
-	close_label.add_theme_font_size_override("font_size", 12)
+	close_label.add_theme_font_size_override("font_size", 13)
 	close_label.add_theme_color_override("font_color", Color(0.68, 0.63, 0.55))
 	close_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(close_label)
@@ -4382,7 +4382,7 @@ func _show_quit_confirmation() -> void:
 	var hint = Label.new()
 	hint.text = "Unsaved progress will be lost."
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(0.55, 0.45, 0.4, 0.7))
 	vbox.add_child(hint)
 

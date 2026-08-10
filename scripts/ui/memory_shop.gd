@@ -18,6 +18,7 @@ var tab_buy: Button
 var tab_sell: Button
 var tab_items: Button
 var tab_equip: Button  # S41
+var tab_loan: Button   # S232: 기억 대출
 var item_list: VBoxContainer
 var item_scroll: ScrollContainer
 var detail_panel: PanelContainer
@@ -196,7 +197,7 @@ func _build_ui() -> void:
 
 	merchant_caption = Label.new()
 	merchant_caption.text = "Memory trader"
-	merchant_caption.add_theme_font_size_override("font_size", 12)
+	merchant_caption.add_theme_font_size_override("font_size", 13)
 	merchant_caption.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	title_stack.add_child(merchant_caption)
 
@@ -221,6 +222,10 @@ func _build_ui() -> void:
 
 	tab_equip = _create_tab("Equip", "equip")  # S41
 	tab_row.add_child(tab_equip)
+
+	# S232: GDD 2.4의 세 번째 거래. 지금 태우지 않고 미래를 담보로 잡는다.
+	tab_loan = _create_tab("담보 대출" if GameManager.current_locale == "ko" else "Loan", "loan")
+	tab_row.add_child(tab_loan)
 
 	# 구분선
 	var sep = HSeparator.new()
@@ -250,7 +255,7 @@ func _build_ui() -> void:
 	# ── 하단: 닫기 힌트 ──
 	close_hint = Label.new()
 	close_hint.text = "[ESC] Close Shop"
-	close_hint.add_theme_font_size_override("font_size", 12)
+	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	main_vbox.add_child(close_hint)
@@ -276,7 +281,7 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	vbox.add_child(detail_title)
 
 	detail_grade = Label.new()
-	detail_grade.add_theme_font_size_override("font_size", 12)
+	detail_grade.add_theme_font_size_override("font_size", 13)
 	vbox.add_child(detail_grade)
 
 	var sep2 = HSeparator.new()
@@ -298,7 +303,7 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	vbox.add_child(detail_price)
 
 	detail_effect = Label.new()
-	detail_effect.add_theme_font_size_override("font_size", 12)
+	detail_effect.add_theme_font_size_override("font_size", 13)
 	detail_effect.add_theme_color_override("font_color", Color(0.6, 0.45, 0.4))
 	detail_effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(detail_effect)
@@ -347,6 +352,7 @@ func _refresh_items() -> void:
 	_update_tab_style(tab_buy, _current_mode == "buy")
 	_update_tab_style(tab_items, _current_mode == "items")
 	_update_tab_style(tab_equip, _current_mode == "equip")
+	_update_tab_style(tab_loan, _current_mode == "loan")
 
 	# 목록 클리어
 	for child in item_list.get_children():
@@ -359,6 +365,8 @@ func _refresh_items() -> void:
 		_populate_buy_list()
 	elif _current_mode == "equip":
 		_populate_equip_list()  # S41
+	elif _current_mode == "loan":
+		_populate_loan_list()  # S232
 	else:
 		_populate_items_list()
 
@@ -390,7 +398,52 @@ func _populate_sell_list() -> void:
 			continue
 		var price = SELL_PRICES.get(memory.grade, 5)
 		var item = {"type": "sell", "memory": memory, "price": price}
-		_add_item_button(memory.title, GRADE_COLORS[memory.grade], price, item)
+		_add_item_button(MemoryManager.localized_memory_title(memory), GRADE_COLORS[memory.grade], price, item)
+
+## S232: 담보 대출 목록.
+## 대출이 이미 있으면 상환 항목 하나만, 없으면 담보로 잡을 수 있는 기억들을 보여 준다.
+func _populate_loan_list() -> void:
+	var is_ko := GameManager.current_locale == "ko"
+	if MemoryManager.has_active_loan():
+		var loan: Dictionary = MemoryManager.active_loan
+		var pledged = MemoryManager.find_memory(String(loan.get("memory_id", "")))
+		var title: String = String(pledged.title) if pledged != null else "?"
+		var repay := int(loan.get("repay", 0))
+		_add_item_button(
+			("상환: %s" % title) if is_ko else ("Repay: %s" % title),
+			Color(0.92, 0.72, 0.42),
+			repay,
+			{"type": "loan_repay", "loan": loan, "memory": pledged, "price": repay}
+		)
+		var due := Label.new()
+		due.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		due.text = (
+			"%d장까지 갚지 못하면 관리국이 담보를 가져간다. 기억은 사라지고 힘은 남지 않는다." % int(loan.get("due_chapter", 0))
+		) if is_ko else (
+			"If Chapter %d passes unpaid, the Bureau takes the collateral. The memory goes; no power comes back." % int(loan.get("due_chapter", 0))
+		)
+		UITheme.style_meta_label(due, Color(0.92, 0.62, 0.52))
+		item_list.add_child(due)
+		return
+
+	var offered := 0
+	for memory in MemoryManager.get_available_memories():
+		var availability: Dictionary = MemoryManager.loan_availability(memory)
+		if not bool(availability.get("ok", false)):
+			continue
+		var offer: Dictionary = availability["offer"]
+		_add_item_button(
+			MemoryManager.localized_memory_title(memory),
+			GRADE_COLORS[memory.grade],
+			int(offer["principal"]),
+			{"type": "loan_take", "memory": memory, "offer": offer, "price": int(offer["principal"])}
+		)
+		offered += 1
+	if offered == 0:
+		var empty_label := Label.new()
+		empty_label.text = "담보로 잡을 수 있는 기억이 없다." if is_ko else "Nothing here can be pledged."
+		UITheme.style_meta_label(empty_label, UITheme.TEXT_DIM)
+		item_list.add_child(empty_label)
 
 ## 구매 목록 (상점 인벤토리)
 func _populate_buy_list() -> void:
@@ -415,7 +468,7 @@ func _populate_items_list() -> void:
 	# 구매 가능한 아이템
 	var buy_header = Label.new()
 	buy_header.text = "Buy Items"
-	buy_header.add_theme_font_size_override("font_size", 12)
+	buy_header.add_theme_font_size_override("font_size", 13)
 	buy_header.add_theme_color_override("font_color", Color(0.55, 0.75, 0.55))
 	buy_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	item_list.add_child(buy_header)
@@ -429,7 +482,7 @@ func _populate_items_list() -> void:
 	# 판매 가능한 아이템
 	var sell_header = Label.new()
 	sell_header.text = "Sell Items"
-	sell_header.add_theme_font_size_override("font_size", 12)
+	sell_header.add_theme_font_size_override("font_size", 13)
 	sell_header.add_theme_color_override("font_color", Color(0.75, 0.6, 0.4))
 	sell_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	item_list.add_child(sell_header)
@@ -496,13 +549,13 @@ func _select_item(item: Dictionary) -> void:
 
 	if item.type == "sell":
 		var memory = item.memory
-		detail_title.text = memory.title
+		detail_title.text = MemoryManager.localized_memory_title(memory)
 		detail_grade.text = GRADE_NAMES[memory.grade]
 		detail_grade.add_theme_color_override("font_color", GRADE_COLORS[memory.grade])
-		detail_desc.text = memory.description
+		detail_desc.text = MemoryManager.localized_memory_description(memory)
 		detail_price.text = "%s   %s" % [_price_line(int(item.price)), _market_rate_label(item)]
 		if memory.story_effect != "":
-			detail_effect.text = "Warning: %s" % memory.story_effect
+			detail_effect.text = ("경고: %s" if GameManager.current_locale == "ko" else "Warning: %s") % MemoryManager.localized_memory_effect(memory)
 			detail_effect.visible = true
 		else:
 			detail_effect.visible = false
@@ -544,6 +597,43 @@ func _select_item(item: Dictionary) -> void:
 		detail_effect.visible = false
 		action_btn.text = "Sell for %d G" % item.price
 		action_btn.disabled = false
+		action_btn.visible = true
+	elif item.type == "loan_take":  # S232
+		var memory = item.memory
+		var offer: Dictionary = item.offer
+		var is_ko := GameManager.current_locale == "ko"
+		detail_title.text = memory.title
+		detail_grade.text = GRADE_NAMES[memory.grade]
+		detail_grade.add_theme_color_override("font_color", GRADE_COLORS[memory.grade])
+		detail_desc.text = memory.description
+		detail_price.text = (
+			"지금 +%d G   ·   %d장까지 %d G 상환" % [int(offer["principal"]), int(offer["due_chapter"]), int(offer["repay"])]
+		) if is_ko else (
+			"+%d G now   ·   repay %d G by Chapter %d" % [int(offer["principal"]), int(offer["repay"]), int(offer["due_chapter"])]
+		)
+		detail_effect.text = (
+			"담보로 잡힌 동안에는 태울 수 없다. 기한을 넘기면 강제 추출된다."
+		) if is_ko else (
+			"Pledged memories cannot be burned. Miss the term and it is taken by force."
+		)
+		detail_effect.visible = true
+		action_btn.text = ("담보 등록  +%d G" % int(offer["principal"])) if is_ko else ("Pledge for %d G" % int(offer["principal"]))
+		action_btn.disabled = false
+		action_btn.visible = true
+	elif item.type == "loan_repay":  # S232
+		var loan: Dictionary = item.loan
+		var pledged = item.memory
+		var is_ko := GameManager.current_locale == "ko"
+		detail_title.text = pledged.title if pledged != null else "?"
+		detail_grade.text = "담보" if is_ko else "Collateral"
+		detail_grade.add_theme_color_override("font_color", Color(0.92, 0.72, 0.42))
+		detail_desc.text = pledged.description if pledged != null else ""
+		detail_price.text = ("상환 %d G" % int(loan.get("repay", 0))) if is_ko else ("Repay %d G" % int(loan.get("repay", 0)))
+		detail_effect.text = ("기한: %d장" % int(loan.get("due_chapter", 0))) if is_ko else ("Term ends: Chapter %d" % int(loan.get("due_chapter", 0)))
+		detail_effect.visible = true
+		var can_repay := MemoryManager.can_repay_loan()
+		action_btn.text = (("상환하기  %d G" % int(loan.get("repay", 0))) if can_repay else "그레인 부족") if is_ko else (("Repay %d G" % int(loan.get("repay", 0))) if can_repay else "Not enough Grains")
+		action_btn.disabled = not can_repay
 		action_btn.visible = true
 	elif item.type == "buy_equip":  # S41
 		var def = GameManager.EQUIPMENT.get(item.equip_id, {})
@@ -663,6 +753,27 @@ func _on_action_pressed() -> void:
 		_execute_sell_item()
 	elif _selected_item.type == "buy_equip":  # S41
 		_execute_buy_equip()
+	elif _selected_item.type == "loan_take":  # S232
+		_execute_take_loan()
+	elif _selected_item.type == "loan_repay":  # S232
+		_execute_repay_loan()
+
+func _execute_take_loan() -> void:
+	var memory = _selected_item.get("memory")
+	if memory == null or not MemoryManager.take_loan(memory.id):
+		AudioManager.play_sfx("cancel")
+		return
+	AudioManager.play_sfx("memory_add")
+	_update_grains()
+	_refresh_items()
+
+func _execute_repay_loan() -> void:
+	if not MemoryManager.repay_loan():
+		AudioManager.play_sfx("cancel")
+		return
+	AudioManager.play_sfx("memory_add")
+	_update_grains()
+	_refresh_items()
 
 func _execute_sell() -> void:
 	var memory = _selected_item.memory
@@ -676,7 +787,10 @@ func _execute_sell() -> void:
 	grains_changed.emit(GameManager.player_data.grains)
 	AudioManager.play_sfx("confirm")
 
-	NotificationToast.show_toast("Sold: %s (+%d G)" % [memory.title, price], NotificationToast.ToastType.WARNING)
+	NotificationToast.show_toast(
+		("판매: %s (+%d G)" if GameManager.current_locale == "ko" else "Sold: %s (+%d G)") % [MemoryManager.localized_memory_title(memory), price],
+		NotificationToast.ToastType.WARNING
+	)
 	_update_grains()
 	_refresh_items()
 
@@ -754,7 +868,7 @@ func _populate_equip_list() -> void:
 	# 현재 장비 표시
 	var equip_header = Label.new()
 	equip_header.text = "Current Equipment"
-	equip_header.add_theme_font_size_override("font_size", 12)
+	equip_header.add_theme_font_size_override("font_size", 13)
 	equip_header.add_theme_color_override("font_color", Color(0.65, 0.55, 0.8))
 	equip_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	item_list.add_child(equip_header)
@@ -770,7 +884,7 @@ func _populate_equip_list() -> void:
 		row.add_theme_constant_override("separation", 8)
 		var lbl = Label.new()
 		lbl.text = label_text
-		lbl.add_theme_font_size_override("font_size", 12)
+		lbl.add_theme_font_size_override("font_size", 13)
 		lbl.add_theme_color_override("font_color", Color(0.6, 0.55, 0.75))
 		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(lbl)
@@ -782,7 +896,7 @@ func _populate_equip_list() -> void:
 				var upg_btn = Button.new()
 				upg_btn.text = "Upgrade (%dG)" % cost
 				upg_btn.custom_minimum_size = Vector2(100, 24)
-				upg_btn.add_theme_font_size_override("font_size", 12)
+				upg_btn.add_theme_font_size_override("font_size", 13)
 				var upg_style = UITheme.make_button_style(Color(0.12, 0.1, 0.06, 0.9), Color(0.5, 0.4, 0.2, 0.7))
 				upg_btn.add_theme_stylebox_override("normal", upg_style)
 				upg_btn.add_theme_stylebox_override("hover", UITheme.make_hover_style(upg_style))
@@ -804,7 +918,7 @@ func _populate_equip_list() -> void:
 	# 구매 가능한 장비
 	var shop_header = Label.new()
 	shop_header.text = "Buy & Equip"
-	shop_header.add_theme_font_size_override("font_size", 12)
+	shop_header.add_theme_font_size_override("font_size", 13)
 	shop_header.add_theme_color_override("font_color", Color(0.55, 0.65, 0.8))
 	shop_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	item_list.add_child(shop_header)

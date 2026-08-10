@@ -507,7 +507,7 @@ func build_sprite_status_bar(target: String, sprite_container: Control) -> HBoxC
 
 		var lbl = Label.new()
 		lbl.text = icon_text
-		lbl.add_theme_font_size_override("font_size", 9)
+		lbl.add_theme_font_size_override("font_size", 13)
 		lbl.add_theme_color_override("font_color", icon_color)
 		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		icon_panel.add_child(lbl)

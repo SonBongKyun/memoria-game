@@ -1,11 +1,47 @@
 # MEMORIA 폰트 시스템
 
-S199 기준. **현재 글꼴은 프로젝트에 직접 포함되어 모든 PC에서 동일하게 렌더링된다.**
+S230 기준. **글꼴은 프로젝트에 직접 포함되어 모든 PC에서 동일하게 렌더링된다.**
 
-- 대화·나레이션·제목: `NotoSerifKR-VF.ttf`
-- 버튼·HUD·안내: `NotoSansKR-VF.ttf`
-- 렌더링: 회색조 안티앨리어싱 + 일반 힌팅, 밉맵/서브픽셀 위치 비활성화
+## 역할
+
+| 역할 | 서체 | 굵기(wght) | 쓰이는 곳 |
+| --- | --- | --- | --- |
+| Body | `NotoSerifKR-VF.ttf` | 500 | 대사, 나레이션, VN 본문 |
+| Title | `NotoSerifKR-VF.ttf` | 600 | 타이틀, 챕터 카드, 화면 제목 |
+| UI | `NotoSansKR-VF.ttf` | 600 | 버튼, HUD 수치, 판독 리본 |
+| Meta | `NotoSansKR-VF.ttf` | 500 | 칩, 상태 태그, 범례 |
+
+세리프 = 이야기, 산세리프 = 인터페이스. `UITheme.make_body_font()` 계열로만 접근한다.
+
+## 굵기는 반드시 wght 축으로 (S230)
+
+두 파일 모두 **가변 폰트**이고 기본 인스턴스가 **가장 얇은 마스터**다.
+
+```
+NotoSansKR-VF  : wght 100..900, 기본 100 (Thin)
+NotoSerifKR-VF : wght 200..900, 기본 200 (ExtraLight)
+```
+
+S230 이전에는 그 얇은 마스터에 `variation_embolden`(합성 굵기)을 덧씌우고 있었다.
+합성 굵기는 글리프 외곽선을 사방으로 균일하게 밀어내기 때문에, 획이 촘촘한 한글에서
+속공간이 메워지고 가로획이 뭉갠 것처럼 보인다. 이제는 `variation_opentype = {"wght": N}`
+으로 실제 굵기 인스턴스를 요청한다. **`variation_embolden`은 쓰지 않는다** —
+`smoke_text_readability`가 이를 검사한다.
+
+## 타입 스케일 (`UITheme`)
+
+`SIZE_DISPLAY 40 / SIZE_TITLE 26 / SIZE_HEADING 20 / SIZE_BODY 20 / SIZE_UI 16 / SIZE_LABEL 14 / SIZE_META 13`
+
+하한: `MIN_BODY_FONT_SIZE 20`, `MIN_UI_FONT_SIZE 14`, `MIN_META_FONT_SIZE 13`.
+**13px 미만 글자는 만들지 않는다.** (장식 기호는 예외)
+
+## 렌더링
+
+- 회색조 안티앨리어싱 + 일반 힌팅
+- 밉맵/서브픽셀 위치 비활성화 (작은 UI에서 획이 갈라지는 것을 막는다)
 - 라이선스: Noto Fonts, SIL Open Font License 1.1
+
+---
 
 아래 시스템 폰트 체인 내용은 이전 구현을 기록하기 위한 참고 자료다.
 
@@ -111,6 +147,9 @@ font_data = preload("res://assets/fonts/Pretendard-Regular.ttf")
 
 ## 권장 다음 단계
 
-1. **현재 (S199)**: Noto Serif KR / Noto Sans KR 임베드 완료.
+1. **현재 (S230)**: Noto Serif KR / Noto Sans KR 임베드 + 실제 wght 축 + 타입 스케일 완료.
 2. 배포 빌드에서 `assets/fonts/`가 포함되는지만 확인한다.
-3. 폰트 교체 시 `UITheme`의 번들 경로와 시각 스모크 테스트를 함께 갱신한다.
+3. 폰트 교체 시 갱신할 곳: `UITheme`의 경로/굵기 상수, `assets/fonts/theme.tres`
+   (`variation_opentype`), `smoke_text_readability`, `smoke_visual_clarity`.
+4. 새 가변 폰트를 넣을 때는 **기본 인스턴스가 몇인지 먼저 확인한다.** Noto CJK 계열은
+   기본이 Thin/ExtraLight라, 축을 지정하지 않으면 조용히 가장 얇게 렌더된다.

@@ -1652,7 +1652,7 @@ static func add_interactive_prop(map: Node2D, pos: Vector2, type: String, config
 			# "!" 텍스트 마커
 			var marker = Label.new()
 			marker.text = "!"
-			marker.add_theme_font_size_override("font_size", 12)
+			marker.add_theme_font_size_override("font_size", 13)
 			marker.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
 			marker.position = Vector2(-3, -30)
 			marker.mouse_filter = Control.MOUSE_FILTER_IGNORE

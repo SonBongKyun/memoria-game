@@ -291,7 +291,7 @@ func _build_ui() -> void:
 
 	var subtitle = Label.new()
 	subtitle.text = "Find matching pairs of memories"
-	subtitle.add_theme_font_size_override("font_size", 12)
+	subtitle.add_theme_font_size_override("font_size", 13)
 	subtitle.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(subtitle)
@@ -326,7 +326,7 @@ func _build_ui() -> void:
 	# 닫기 힌트
 	var hint = Label.new()
 	hint.text = "[ESC] Close"
-	hint.add_theme_font_size_override("font_size", 12)
+	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(hint)

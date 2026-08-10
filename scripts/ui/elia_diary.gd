@@ -125,7 +125,11 @@ func use_skill(skill_id: String) -> Dictionary:
 		return {"success": false, "msg": "Elia is not with you."}
 
 	# 쿨다운 시작
-	skill["current_cooldown"] = skill["cooldown_max"]
+	# S231: 파수 패시브. 아렐이 자기 기억을 지고 있으면 엘리아가 덜 소모된다.
+	var cooldown: int = int(skill["cooldown_max"])
+	if MemoryManager.has_anchor_passive("shared_burden"):
+		cooldown = maxi(1, cooldown - 1)
+	skill["current_cooldown"] = cooldown
 
 	var result = {"success": true, "msg": "", "effect": skill["effect"], "power": skill["power"], "name": skill["name"]}
 

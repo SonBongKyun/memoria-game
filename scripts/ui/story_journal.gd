@@ -220,7 +220,7 @@ func _build_ui() -> void:
 	main_vbox.add_child(header)
 
 	journal_summary_label = Label.new()
-	journal_summary_label.add_theme_font_size_override("font_size", 12)
+	journal_summary_label.add_theme_font_size_override("font_size", 13)
 	journal_summary_label.add_theme_color_override("font_color", Color(0.64, 0.58, 0.48))
 	journal_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	main_vbox.add_child(journal_summary_label)
@@ -311,7 +311,7 @@ func _build_ui() -> void:
 	# ── 하단 ──
 	close_hint = Label.new()
 	close_hint.text = "[ESC] Close Journal"
-	close_hint.add_theme_font_size_override("font_size", 12)
+	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	main_vbox.add_child(close_hint)
@@ -411,7 +411,7 @@ func _populate_events() -> void:
 			last_chapter = entry.chapter
 			var header = Label.new()
 			header.text = "Chapter %d: %s" % [entry.chapter, CHAPTER_NAMES.get(entry.chapter, "")]
-			header.add_theme_font_size_override("font_size", 12)
+			header.add_theme_font_size_override("font_size", 13)
 			header.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 			item_list.add_child(header)
 		var is_hidden = entry.title.begins_with("[Hidden]")
@@ -436,7 +436,7 @@ func _populate_world() -> void:
 			last_chapter = entry.chapter
 			var header = Label.new()
 			header.text = "Learned in Chapter %d: %s" % [entry.chapter, CHAPTER_NAMES.get(entry.chapter, "")]
-			header.add_theme_font_size_override("font_size", 12)
+			header.add_theme_font_size_override("font_size", 13)
 			header.add_theme_color_override("font_color", Color(0.55, 0.60, 0.78))
 			item_list.add_child(header)
 		_add_list_button(entry.title, Color(0.50, 0.57, 0.78), entry.title, entry.desc, String(entry.get("art", "")))

@@ -118,7 +118,7 @@ func _build_ui() -> void:
 	continue_label = Label.new()
 	continue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	continue_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	continue_label.add_theme_font_size_override("font_size", 12)
+	continue_label.add_theme_font_size_override("font_size", 13)
 	continue_label.add_theme_color_override("font_color", Color(0.86, 0.80, 0.68))
 	UITheme.apply_ui_font(continue_label)
 	continue_panel.add_child(continue_label)

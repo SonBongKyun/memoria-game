@@ -135,15 +135,34 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 
 	# 범례는 단어마다 마커와 같은 색을 입힌다.
 	# 흰 글씨로 "발견물 · 유물 · 주민"만 적어 두면 어떤 색이 무엇인지 알 수 없다.
+	# S230: 범례는 지도 아래 지형 위에 맨 글자로 얹혀 있었다. 숲 캔버스 위에서는
+	# 3px 외곽선만으로는 읽히지 않아, 색 구분표 자체가 무의미했다. 읽을 바탕을 깐다.
+	var legend_plate := PanelContainer.new()
+	legend_plate.name = "MinimapLegend"
+	legend_plate.position = Vector2(0, MINIMAP_SIZE.y - 1)
+	legend_plate.custom_minimum_size = Vector2(MINIMAP_SIZE.x + 4, 0)
+	legend_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var legend_style := StyleBoxFlat.new()
+	legend_style.bg_color = Color(0.020, 0.018, 0.028, 0.96)
+	legend_style.border_color = Color(0.42, 0.36, 0.26, 0.68)
+	legend_style.set_border_width_all(1)
+	legend_style.set_corner_radius_all(3)
+	legend_style.content_margin_left = 5
+	legend_style.content_margin_right = 5
+	legend_style.content_margin_top = 3
+	legend_style.content_margin_bottom = 3
+	legend_plate.add_theme_stylebox_override("panel", legend_style)
+
 	var legend := RichTextLabel.new()
 	legend.bbcode_enabled = true
 	legend.fit_content = true
 	legend.scroll_active = false
-	legend.size = Vector2(MINIMAP_SIZE.x, 24)
-	legend.position = Vector2(2, MINIMAP_SIZE.y - 3)
-	legend.add_theme_font_size_override("normal_font_size", 8)
+	legend.custom_minimum_size = Vector2(MINIMAP_SIZE.x - 6, 0)
+	legend.add_theme_font_size_override("normal_font_size", UITheme.MIN_META_FONT_SIZE)
+	legend.add_theme_font_override("normal_font", UITheme.make_meta_font())
 	legend.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	legend.add_theme_constant_override("outline_size", 3)
+	legend.add_theme_constant_override("outline_size", 1)
+	legend.add_theme_constant_override("line_separation", 2)
 	var is_ko := GameManager.current_locale == "ko"
 	legend.text = "[color=#%s]%s[/color] [color=#%s]%s[/color] [color=#%s]%s[/color]" % [
 		_poi_color("cache").to_html(false), "발견물" if is_ko else "Cache",
@@ -151,9 +170,10 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 		_poi_color("voice").to_html(false), "주민" if is_ko else "Local",
 	]
 	legend.text += "\n[color=#%s]▲[/color] %s" % [_poi_color("threat").to_html(false), ("위협" if is_ko else "Threat")]
-	legend.visible = false
 	legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.add_child(legend)
+	legend_plate.add_child(legend)
+	legend_plate.visible = false
+	container.add_child(legend_plate)
 
 	parent.add_child(layer)
 
@@ -173,7 +193,7 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 		"map_ref": weakref(parent),
 		"poi_points": poi_points,
 		"poi_markers": poi_markers,
-		"legend": legend,
+		"legend": legend_plate,
 		"map_offset": map_image.position,
 		"map_width": map_width,
 		"map_height": map_height,

@@ -1176,7 +1176,7 @@ func _build_battle_aftermath_line() -> String:
 		return _bl(
 			"%s does not come back with you.",
 			"%s은(는) 당신과 함께 돌아오지 않는다."
-		) % String(memory.title)
+		) % MemoryManager.localized_memory_title(memory)
 	if _objective_failed:
 		return _bl(
 			"The directive is gone, but every memory you carried in came back out.",
@@ -1360,6 +1360,9 @@ func _get_witness_requirement(enemy: Enemy) -> int:
 	if enemy.is_void_beast and not enemy.is_boss:
 		if GameManager.get_flag("listened_to_humming") or GameManager.get_flag("elia_stays"):
 			required -= 1
+	# S231: 파수 패시브. 기억을 지켜 온 사람은 그 안의 목소리를 더 빨리 알아듣는다.
+	if MemoryManager.has_anchor_passive("quiet_focus"):
+		required -= 1
 	return maxi(2, required)
 
 func get_witness_state() -> Dictionary:
@@ -1543,8 +1546,14 @@ func player_attack() -> void:
 	base_dmg = int(base_dmg * elem_mult)
 
 	if current_enemy.is_void_beast:
-		base_dmg = maxi(1, int(base_dmg * 0.3))
-		battle_log.emit(_bl("Your blade struggles against the void...", "칼날이 공허에 맞서 버둥거린다..."))
+		# S231: 파수 패시브. 보이드수는 원래 연소를 강요하는 벽이었다.
+		# 지켜 온 플레이어에게는 그 벽이 낮아진다. 사라지지는 않는다.
+		if MemoryManager.has_anchor_passive("unbroken_edge"):
+			base_dmg = maxi(1, int(base_dmg * 0.55))
+			battle_log.emit(_bl("Your blade holds its edge against the void.", "칼날이 공허 앞에서도 날을 잃지 않는다."))
+		else:
+			base_dmg = maxi(1, int(base_dmg * 0.3))
+			battle_log.emit(_bl("Your blade struggles against the void...", "칼날이 공허에 맞서 버둥거린다..."))
 
 	if enemy_shielded:
 		base_dmg = maxi(1, base_dmg / 2)
@@ -1623,6 +1632,9 @@ func _register_break_pressure(attack_element: String) -> void:
 		gain = 0.0
 	if current_enemy.is_boss:
 		gain *= BREAK_BOSS_MULT
+	# S231: 파수 패시브. 태우지 않고 미는 압박이 실제로 더 세다.
+	if MemoryManager.has_anchor_passive("steady_hand"):
+		gain *= 1.30
 	if gain <= 0.0:
 		return
 
@@ -2116,6 +2128,10 @@ func _enemy_turn() -> void:
 	if has_echo("elia_anchor") and randf() < 0.25:
 		base_dmg = maxi(1, base_dmg / 2)
 		battle_log.emit(_bl("[ECHO] Elia's Anchor softens the blow!", "[메아리] 엘리아의 닻이 일격을 누그러뜨린다!"))
+	# S231: 파수 패시브. 온전하게 남은 앵커가 많을수록 아렐이 덜 흔들린다.
+	var anchor_guard := MemoryManager.anchor_damage_reduction()
+	if anchor_guard > 0.0:
+		base_dmg = maxi(1, int(base_dmg * (1.0 - anchor_guard)))
 
 	player_defending = false
 
@@ -2426,11 +2442,11 @@ func _apply_burn_aftershock(memory: MemoryManager.Memory) -> void:
 	if turns <= 0:
 		return
 	_burn_aftershock_turns = maxi(_burn_aftershock_turns, turns)
-	_burn_aftershock_memory = memory.title
+	_burn_aftershock_memory = MemoryManager.localized_memory_title(memory)
 	battle_log.emit(_bl(
 		"[COST] %s floods Arrel's sight. Enemy intent is hidden for %d response(s).",
 		"[대가] %s의 잔상이 아렐의 시야를 덮는다. 적의 의도가 %d회 동안 가려진다."
-	) % [memory.title, _burn_aftershock_turns])
+	) % [MemoryManager.localized_memory_title(memory), _burn_aftershock_turns])
 	if bool(preview.get("elia_anchored", false)):
 		battle_log.emit(_bl(
 			"[ELIA] I cannot hold the memory. I can hold one edge.",
@@ -3169,7 +3185,7 @@ func player_burn_residue(memory_id: String) -> void:
 	dmg = _apply_momentum_damage_bonus(dmg)
 	var actual = current_enemy.take_damage(dmg)
 
-	battle_log.emit(_bl("[RESIDUE] %s, a faded echo of %s", "[잔존] %s, %s의 희미한 메아리") % [skill.name, memory.title])
+	battle_log.emit(_bl("[RESIDUE] %s, a faded echo of %s", "[잔존] %s, %s의 희미한 메아리") % [skill.name, MemoryManager.localized_memory_title(memory)])
 	battle_log.emit(_bl("%d damage to %s. (50%% power)", "%d 피해를 %s에게. (위력 50%%)") % [actual, current_enemy.name])
 	_log_element_effect(burn_element)
 	damage_dealt.emit(current_enemy.name, actual, "Residue: " + skill.name)

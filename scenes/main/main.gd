@@ -364,7 +364,7 @@ func _build_menu_frame() -> void:
 	_menu_kicker.anchor_bottom = 0.450
 	_menu_kicker.text = "MEMORY ARCHIVE  //  00"
 	UITheme.apply_ui_font(_menu_kicker)
-	_menu_kicker.add_theme_font_size_override("font_size", 12)
+	_menu_kicker.add_theme_font_size_override("font_size", 13)
 	_menu_kicker.add_theme_color_override("font_color", Color(0.72, 0.60, 0.44, 0.92))
 	_menu_kicker.mouse_filter = MOUSE_FILTER_IGNORE
 	_menu_kicker.z_index = 3
@@ -405,7 +405,7 @@ func _build_menu_frame() -> void:
 	_menu_footer.anchor_bottom = 0.916
 	_menu_footer.text = "↑ ↓  선택    ENTER  결정" if GameManager.current_locale == "ko" else "↑ ↓  SELECT    ENTER  CONFIRM"
 	UITheme.apply_ui_font(_menu_footer)
-	_menu_footer.add_theme_font_size_override("font_size", 12)
+	_menu_footer.add_theme_font_size_override("font_size", 13)
 	_menu_footer.add_theme_color_override("font_color", Color(0.58, 0.55, 0.52, 0.92))
 	_menu_footer.mouse_filter = MOUSE_FILTER_IGNORE
 	_menu_footer.z_index = 3

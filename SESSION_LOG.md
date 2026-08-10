@@ -2,6 +2,79 @@
 
 ---
 
+## S231-234 - 2026-08-10 (Memory economy: preservation build, loan, cascade, Korean memory text)
+
+네 가지 게임성 업그레이드를 순차 진행했다. 전부 새 시스템을 얹은 것이 아니라, 이미 있던 것들 사이에 뚫려 있던 구멍을 메운 작업이다.
+
+### S231 — 보존 플레이에 진행축을 준다
+
+**발견.** 연소 패시브의 첫 문턱은 5회(`PASSIVE_THRESHOLDS`), The Weave(제3의 길)는 총 연소 4회 미만(`WEAVE_MAX_BURNS`)을 요구했다. 두 숫자가 겹치지 않아서 **보존을 택한 플레이어는 게임 전체에서 패시브를 하나도 얻지 못했다.** 연소는 동시에 주 딜 수단이고 적 HP/ATK는 챕터마다 성장하며, 침식은 대항 수단 없이 매 챕터 깎았다. 주제적으로 가장 풍부한 선택이 기계적으로는 모든 면에서 열등한 빌드였다.
+
+**한 일.**
+- **기억 파수(Anchor Vigil).** 연소 카운터의 거울. 챕터를 넘길 때 온전한 앵커 하나당 2점, 이름(`core_name_origin`)이 온전하면 +3점이 쌓인다. 문턱 8/20/36/56/80에서 패시브 5종이 열린다.
+- 다섯 패시브 모두 실제 수치에 연결했다. 선언만 있는 패시브는 두지 않았다: 고요한 집중(WITNESS 요구 -1), 흔들리지 않는 손(비연소 공격의 BREAK 압력 ×1.3), 무뎌지지 않는 날(보이드수 상대 일반 공격 감쇠 0.3 → 0.55), 나눠 진 무게(엘리아 기술 쿨다운 -1), 깊은 닻(온전한 앵커당 받는 피해 -3%).
+- **기억 고정(Erosion Guard).** 챕터마다 슬롯 2개, 그레인으로 지불. 침식을 되돌리고 다음 한 번을 막는다. 전부는 못 지킨다는 점이 요점이다. 서고에 버튼과 남은 슬롯, 못 누르는 이유까지 표시한다.
+- 침식/파수 적립을 챕터당 한 번으로 고정했다. `add_chapter_memories`는 맵 진입에서도 불려서, 같은 챕터 맵을 다시 밟으면 침식이 또 적용되던 잠재 버그가 있었다.
+- 서고에 두 진행축을 나란히 표시한다. 연소 패시브조차 해금 토스트로만 존재해 플레이어가 자기 빌드를 볼 수 없었다.
+
+### S232 — 기억 대출 (GDD 2.4, 미구현이던 설계)
+
+**발견.** GDD 2.4의 세 거래 중 판매/추출만 구현돼 있고 대출은 코드 어디에도 없었다. 연소 결정에는 "태운다 / 안 태운다" 둘뿐이라 시간 축이 없었다.
+
+**한 일.** 기억을 담보로 잡고 지금 그레인을 받는다. 기한 2챕터, 이자 40%. 갚으면 담보가 풀린다. **기한을 넘기면 관리국이 강제 추출한다.** 이때 기억은 사라지지만 연소 위력도, 패시브 적립도 없다 (`check_unlock_passives`가 `get_voluntary_burn_count`를 쓴다). 스스로 태우는 것과 빼앗기는 것의 차이가 이 시스템의 요점이다. 담보로 잡힌 기억은 연소/판매 후보에서 빠지고 두 연소 경로 모두 거부한다. 상점에 담보 대출 탭을 추가했다.
+
+### S233 — 기억 별자리를 실제 구조로
+
+**발견.** 기억 그래프(`connections`, `burned_neighbor_count`, MemoryConstellation)는 S62부터 있었지만 실제 메카닉 용도는 연쇄 연소 +20% 하나뿐이었다. 그래서 "무엇을 태울까"는 사실상 "제일 싼 걸 태운다"였다.
+
+**한 일.** 태우면 이어진 기억이 함께 침식된다(등급별 2/4/7/11). 엘리아 관련 기억은 서로 묶여 있으므로 그 묶음을 건드리면 묶음 전체가 상하고, 외딴 기억은 싸다. 강제 추출은 1.5배로 번진다. 고정해 둔 기억은 연쇄도 한 번 막고 보호를 소모한다. 핵심 기억은 침식과 같은 규칙으로 면역이다. **연소 확인창이 커밋 전에 무엇이 함께 상하는지 이름으로 예보한다** (S226의 "숨은 대가를 만들지 않는다" 원칙).
+
+### S234 — 기억 텍스트 한국어화
+
+**발견.** S226이 "데이터 모델 변경이라 범위 밖"으로 명시적으로 미뤄 둔 항목. 이 게임의 중심 결정은 "무엇을 태울 것인가"인데, 한국어판에서도 기억의 제목과 설명만 영어였다. 연소 확인창, 전투 로그, 서고, 상점, 관리국 감지 로그까지 전부. 무엇을 잃는지 읽지 못하면 선택의 무게도 없다.
+
+**한 일.** 40개 기억 전부에 한국어 제목/설명/스토리 효과를 썼다(`MEMORY_TEXT_KO`). Memory 클래스에 필드를 늘리는 대신 id로 찾는 표를 둬, 기존 40개 정의를 건드리지 않고 새 기억은 한 줄만 더하면 되게 했다. 표시 함수 세 개를 통해 서고/상점/확인창/연소 목록/전투 로그/관리국 로그/도감/저널/세계 재기록이 모두 같은 경로를 지난다. 서고 UI 문구(제목, 등급 탭, 상태 표시, 요약, 하단 바)도 함께 한국어화했다. 표가 없는 기억은 영어로 떨어질 뿐 빈 문자열이 되지 않는다.
+
+### 그 외 고친 것
+- `_play_power_milestone`이 CanvasLayer의 `modulate`를 트윈하려 했다. CanvasLayer에는 그 속성이 없어 `tween_property`가 null을 돌려주고 페이드아웃과 `queue_free`가 통째로 사라졌다. 결과적으로 5/10/20/30/50번째 연소마다 "POWER AWAKENED" 오버레이가 화면에 영구히 남았다. 페이드 대상 Control을 두고 그 아래에 전부 매달았다.
+- `SystemLog`에 임의 문장을 올리는 `show_log()`를 추가했다. 담보 등록과 강제 추출이 연소 감지와 같은 창을 쓴다.
+
+### Verification
+- **스모크 36/36 통과** (기존 32 + 신규 4). 신규: `BATTLE_ANCHOR_TRACK_SMOKE_PASS preservation_vigil=90 preservation_passives=5/5 burns=0 weave=1`(예전에는 패시브 0개), `MEMORY_LOAN_SMOKE_PASS term=2 interest=0.40 extracted_gives_power=0 collateral_burnable=0`, `MEMORY_CASCADE_SMOKE_PASS grades=5 extraction_mult=1.5 preview=named guard=absorbs core=immune`, `MEMORY_LOCALIZATION_SMOKE_PASS memories=25 translated=40 synthesis_ko=4`.
+- 실제 OpenGL 1280x720 캡처 육안 확인: `burn_preview_stakes_ko.png`(한국어 기억 텍스트 + 이름이 적힌 연쇄 예보), 신규 `memory_archive_ko.png`(두 진행축, 고정 버튼, 한국어 서고). `capture_hybrid_battle` 회귀 없음.
+- VN 검증 20파일 504스텝 0에러. 한국어 로컬라이제이션 31파일 1,592필드 0에러. `git diff --check` 클린. 커밋/푸시 없음.
+
+## S230 - 2026-08-10 (Typography system and battle-screen interface pass)
+
+### Audit findings
+- **Every glyph in the game was rendering from the thinnest master.** Both bundled faces are variable fonts whose default instance is the lightest weight (`NotoSansKR-VF` wght 100 Thin, `NotoSerifKR-VF` wght 200 ExtraLight). `UITheme` and `theme.tres` compensated with `variation_embolden` (synthetic bold), which pushes glyph outlines outward uniformly and fills in the tight counters of Hangul. Korean UI text looked smeared rather than bold.
+- Documentation and code disagreed: `assets/fonts/README.md` claimed prose used the serif, while `BODY_FONT_PATH` pointed at the sans. There was no serif/sans role split in practice.
+- Text sizes were ad hoc (12/13/14/15/17/20 chosen per call site) with 105 labels below 13px.
+- A real-render measurement of the battle screen (new `probe_battle_layout`) found **ten overlapping HUD regions, three of which clipped text**: the combat cue covered the enemy name's first glyph (`그림자 파수꾼` → `림자 파수꾼`), the objective plate art covered the Sable row's label (`세이블:` → `이블:`), and the player status row sat on the command-deck art, cutting the party tag.
+- Elia's technique rail and Tobias's command rail were anchored to **exactly the same band** (0.225–0.27), so with the full party they drew on top of each other. Four party rails, the combat cue, the turn strip, and the combo readout all competed for the same top-centre space.
+- The enemy readout's declared height (70px) was less than its content (~118px), so it silently overflowed and the status chips positioned "below" it landed on the BREAK gauge instead.
+- Party order buttons were English-only in Korean builds, and their selection highlight compared `btn.text.to_lower()` to the action id — that would have broken the moment the labels were localized.
+- Status chips were hard-coded English (`SABLE`, `GUARD`, `BROKEN`, `POISON`, `Weak: VOID`).
+- Two field-HUD readability defects surfaced in the same render pass: the minimap legend was bare text on the forest canvas, and the Field Flow panel dropped its whole `modulate.a` to 0.62 when quiet — the stylebox assertion passed while the copy became unreadable.
+
+### Done
+- **Typography.** `UITheme` now requests real variable-font instances via `variation_opentype = {"wght": N}` (UI sans 600, meta sans 500, body serif 500, title serif 600) and never uses synthetic embolden. Added a shared type scale (`SIZE_DISPLAY` 40 → `SIZE_META` 13) plus `style_label` / `style_ui_label` / `style_meta_label` helpers, raised the floors to 20/14/13, and lifted 105 sub-floor labels across 25 files. `theme.tres` carries the same weight axes so controls without explicit overrides match. Story copy is now serif and interface copy sans, as the README always claimed.
+- **Battle HUD layout contract.** Added named columns and bands (`HUD_*` constants) with a documented rationale. Cards that used to be fixed bands now size to their content and grow in one declared direction, so no card can silently overflow onto another.
+- **Enemy readout.** Rebuilt as one card (y 8–110, clearing the enemy plate at 115.5): name with ellipsis + HP on one row, BREAK label + gauge + read-state on one row, wrapping status chips inside the card. Added a delayed damage-ghost bar so a hit is legible even against an unread `HP ? / ?`, and a `판독됨 / 미판독` chip that explains *why* the numbers are hidden.
+- **Arrel's status cluster.** Portrait, name, HP, Limit gauge (now with a numeric `%` / `준비` readout) and status chips are one card at y 438–540 — below the plate's foot (432.6) and above the deck art (545.8).
+- **Party orders.** Stance, Elia, Sable, and Tobias rows now stack inside a single card that folds away when empty. Rows are wrapping containers so wider English labels push down rather than sideways into Tobias's plate. All labels localized; selection now keys on a `party_action` meta value. Locked stances render as greyed slots (they previously disappeared: no `disabled` stylebox plus `modulate.a = 0.4`).
+- **Transient cues.** The turn banner gained a reading surface tinted by the event colour and moved to the clear mid-stage band; the combo readout moved out from under the combat cue; the auto-battle indicator became a chip beside the speed chip instead of overlapping the turn strip. HP bars no longer sweep up from zero on the first paint.
+- **Field HUD.** The minimap legend gained an opaque plate under the map; Field Flow keeps a readable floor (`FLOW_PANEL_MIN_ALPHA` 0.88) and expresses calm through border colour and pulse instead of erasing its own text. `NO FIELD LINK` localized.
+- **Tests.** New `smoke_battle_interface` asserts, in both locales and in the most crowded state, that no two HUD cards overlap, that no card covers a battler plate, that every label and command clears the type-scale floor with an opaque disabled surface, and that no Korean string stayed in English. `smoke_text_readability` now checks the *effective* panel alpha (stylebox × modulate) and that weights come from the wght axis rather than embolden. New `probe_battle_layout` prints every HUD rect plus a full-element contact sheet.
+- Fixed three stale assertions in `smoke_hybrid_coupling`, which had been failing silently since S228: it hard-coded Arrel's pre-S228 foot position (226 vs 246), compared a live camera projection against a reference-pose value, and demanded `rim_strength > 0` after S228 deliberately set every painterly plate's rim to 0. Each now reads the value from the role contract instead.
+
+### Verification
+- Godot 4.6.2 headless parse/import: exit 0, no `SCRIPT ERROR` / `Parse Error`.
+- **All 32 smoke scenes pass** (31 existing + the new `smoke_battle_interface`), including `BATTLE_INTERFACE_SMOKE_PASS locales=2 cards=9 battlers=4 type_scale=enforced` and the restored `HYBRID_COUPLING_SMOKE_PASS anchors=4 projected=(246, 424)`.
+- `probe_battle_layout` measured overlaps: **10 harmful → 0.** Everything still reported is parent↔child containment or intentional battler depth layering.
+- Real OpenGL 1280x720 captures inspected: `battle_layout_probe.png` (all elements on at once), `hybrid_battle_stage.png`, `battle_moments.png` (6 states), `dialogue_interface_ko.png` (`font=NotoSerifKR-VF.ttf`), `title_grandeur.png`, `rim_forest_first_exploration.png`. Crops at 3x confirm open Hangul counters and even strokes — the smeared synthetic bold is gone.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings. `git diff --check` clean (only the usual CRLF notices). Nothing staged, committed, or pushed.
+
 ## S229 - 2026-08-09 (Recurring-enemy painterly battle art expansion)
 
 ### Audit findings
