@@ -36,6 +36,39 @@ const SILHOUETTE_OUTLINE: Color = Color(0.025, 0.035, 0.060, 0.92)
 const SILHOUETTE_RIM: Color = Color(0.82, 0.88, 0.98, 1.0)
 const SILHOUETTE_RIM_STRENGTH: float = 0.42
 
+## S238: 밝은 테는 어두운 지면에서만 이득이고, **중간 세기는 해롭다.**
+##
+## 실측(알파 마스크 계측기 + 동일 조건 대조군):
+##   - 지면이 어두운 맵에서 밝은 테는 1.18x~3.32x 이득이다.
+##   - 지면이 밝은 colorless_waste(0.342)에서는 0.89x로 손해였다.
+##   - belt_waystation(0.217)은 테를 온전히 주면 1.2~1.33x인데,
+##     절반만 주면(0.24) 0.94x로 오히려 나빠졌다.
+##
+## 마지막 항목이 핵심이다. 테를 약하게 섞으면 그 밝기가 배경 밝기 근처에 앉아
+## 원래 어두운 바깥 테가 갖고 있던 대비까지 지운다. 그래서 세기를 서서히 줄이지 않고
+## 켜거나 끈다. 지면이 이 값보다 밝으면 밝은 테를 포기하고 어두운 바깥 테에 맡긴다.
+const RIM_GROUND_CUTOFF: float = 0.22
+static var _ground_luma: float = 0.15
+static var _finished_actors: Array[WeakRef] = []
+
+## 이 지면 밝기에서 쓸 밝은 테의 세기. 중간값은 두지 않는다.
+static func rim_strength_for_ground(ground_luma: float) -> float:
+	return SILHOUETTE_RIM_STRENGTH if ground_luma < RIM_GROUND_CUTOFF else 0.0
+
+## 맵이 자기 지면 밝기를 알려 준다. 이미 만들어진 배우들도 함께 갱신한다.
+static func set_ground_luma(value: float) -> void:
+	_ground_luma = clampf(value, 0.0, 1.0)
+	var live: Array[WeakRef] = []
+	for reference in _finished_actors:
+		var sprite := reference.get_ref() as CanvasItem
+		if sprite == null or not is_instance_valid(sprite):
+			continue
+		live.append(reference)
+		var material := sprite.material as ShaderMaterial
+		if material != null:
+			material.set_shader_parameter("rim_strength", rim_strength_for_ground(_ground_luma))
+	_finished_actors = live
+
 static func apply_finish(
 		sprite: AnimatedSprite2D,
 		accent: Color,
@@ -51,8 +84,9 @@ static func apply_finish(
 	material.set_shader_parameter("accent_strength", accent_strength)
 	material.set_shader_parameter("outline_color", SILHOUETTE_OUTLINE)
 	material.set_shader_parameter("rim_color", SILHOUETTE_RIM)
-	material.set_shader_parameter("rim_strength", SILHOUETTE_RIM_STRENGTH)
+	material.set_shader_parameter("rim_strength", rim_strength_for_ground(_ground_luma))
 	sprite.material = material
+	_finished_actors.append(weakref(sprite))
 	sprite.set_meta("field_actor_finish", true)
 	sprite.set_meta("field_actor_accent", accent)
 

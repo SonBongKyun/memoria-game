@@ -2287,6 +2287,21 @@ static func add_map_canvas(parent: Node2D, tilemap: TileMapLayer, texture_path: 
 	canvas.show_behind_parent = true
 	parent.add_child(canvas)
 
+	# S238: 이 맵의 지면이 얼마나 밝은지 한 번 재서 실루엣 마감에 알려 준다.
+	# 밝은 테는 어두운 지면에서만 이득이므로, 배우가 자기가 선 땅을 알아야 한다.
+	var canvas_image := texture.get_image()
+	if canvas_image != null and not canvas_image.is_empty():
+		var probe := canvas_image.duplicate() as Image
+		probe.resize(24, 24, Image.INTERPOLATE_BILINEAR)
+		var sum := 0.0
+		for y in range(probe.get_height()):
+			for x in range(probe.get_width()):
+				var pixel := probe.get_pixel(x, y)
+				sum += 0.2126 * pixel.r + 0.7152 * pixel.g + 0.0722 * pixel.b
+		var tint: Color = canvas.modulate
+		var tint_luma := 0.2126 * tint.r + 0.7152 * tint.g + 0.0722 * tint.b
+		FieldActorVisuals.set_ground_luma(sum / float(probe.get_width() * probe.get_height()) * tint_luma)
+
 	# The canvas owns the broad values, paths, and environmental landmarks;
 	# the existing TileMap keeps collision boundaries and interaction placement
 	# legible without covering the generated artwork in a second full map.

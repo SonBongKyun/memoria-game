@@ -272,6 +272,17 @@ func _check_silhouette_rim() -> void:
 		"바깥 테와 안쪽 테의 밝기가 갈라져야 한다 (바깥 %.2f, 안쪽 %.2f)" % [outline_luma, rim_luma])
 	_rim_split = rim_luma - outline_luma
 
+	# S238: 밝은 테는 어두운 지면에서만 켠다. 그리고 중간 세기는 두지 않는다.
+	# 절반만 섞으면 그 밝기가 배경에 붙어 원래 있던 대비까지 지운다 (실측 0.94x).
+	var dark := FieldActorVisuals.rim_strength_for_ground(0.10)
+	var pale := FieldActorVisuals.rim_strength_for_ground(0.40)
+	assert(dark > 0.0, "어두운 지면에서는 밝은 테를 켜야 한다")
+	assert(is_zero_approx(pale), "밝은 지면에서는 밝은 테를 꺼야 한다 (%.2f)" % pale)
+	var boundary_below := FieldActorVisuals.rim_strength_for_ground(FieldActorVisuals.RIM_GROUND_CUTOFF - 0.01)
+	var boundary_above := FieldActorVisuals.rim_strength_for_ground(FieldActorVisuals.RIM_GROUND_CUTOFF + 0.01)
+	assert(is_equal_approx(boundary_below, dark) and is_zero_approx(boundary_above),
+		"세기는 켜짐/꺼짐 둘뿐이어야 한다 (%.2f -> %.2f)" % [boundary_below, boundary_above])
+
 	npc.queue_free()
 	await get_tree().process_frame
 
