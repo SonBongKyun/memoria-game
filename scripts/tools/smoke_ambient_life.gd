@@ -20,6 +20,7 @@ var _slip_measured: bool = false
 var _mean_slip: float = 0.0
 var _breath_ground_px: float = 0.0
 var _threat_drift: float = 0.0
+var _rim_split: float = 0.0
 
 func _ready() -> void:
 	Codex.suppress_recording = true
@@ -33,11 +34,12 @@ func _ready() -> void:
 	await _check_presence_hysteresis()
 	await _check_static_plate_turns_by_flip()
 	await _check_threats_patrol()
+	await _check_silhouette_rim()
 
 	GameManager.change_state(previous_state)
 	var slip_report := ("%.1f" % _mean_slip) if _slip_measured else "not_measured(headless)"
-	print("AMBIENT_LIFE_SMOKE_PASS gait=analytic idle_reset=1 drivers=attached breathing=1 notice=%d release=%d static_plate=flip mean_footslip=%s breath_px=%.2f threat_patrol=%.1fpx" % [
-		int(_notice_radius), int(_release_radius), slip_report, _breath_ground_px, _threat_drift,
+	print("AMBIENT_LIFE_SMOKE_PASS gait=analytic idle_reset=1 drivers=attached breathing=1 notice=%d release=%d static_plate=flip mean_footslip=%s breath_px=%.2f threat_patrol=%.1fpx rim_split=%.2f" % [
+		int(_notice_radius), int(_release_radius), slip_report, _breath_ground_px, _threat_drift, _rim_split,
 	])
 	get_tree().quit(0)
 
@@ -245,6 +247,32 @@ func _check_threats_patrol() -> void:
 
 	player.queue_free()
 	threat.queue_free()
+	await get_tree().process_frame
+
+## S237: 실루엣은 밝은 지형과 어두운 지형 양쪽에서 읽혀야 한다.
+## 어두운 테두리 하나만 쓰면 어두운 맵에서 사라진다(실측: forgotten_forest 0.0014).
+## 바깥은 어둡게, 안쪽은 밝게 두 겹을 갖춰야 배경이 어느 쪽이든 한쪽이 대비를 만든다.
+func _check_silhouette_rim() -> void:
+	var npc := _make_voice("", Vector2(300, 700))
+	await get_tree().process_frame
+	var sprite := npc.get_node_or_null("CharacterSprite") as AnimatedSprite2D
+	assert(sprite != null, "필드 배우 스프라이트가 있어야 한다")
+	var material := sprite.material as ShaderMaterial
+	assert(material != null, "필드 배우는 실루엣 마감 머티리얼을 써야 한다")
+
+	# 마감 헬퍼가 계약을 직접 실어야 한다. 셰이더 기본값에 기대면 조용히 어긋난다.
+	var outline: Color = material.get_shader_parameter("outline_color")
+	var rim: Color = material.get_shader_parameter("rim_color")
+	var rim_strength: float = float(material.get_shader_parameter("rim_strength"))
+	assert(rim_strength > 0.0, "안쪽 밝은 테가 꺼져 있으면 어두운 지형에서 실루엣이 사라진다")
+	# 두 겹이 실제로 반대 방향이어야 의미가 있다. 둘 다 어두우면 한 겹과 다를 바 없다.
+	var outline_luma := 0.2126 * outline.r + 0.7152 * outline.g + 0.0722 * outline.b
+	var rim_luma := 0.2126 * rim.r + 0.7152 * rim.g + 0.0722 * rim.b
+	assert(rim_luma - outline_luma > 0.5,
+		"바깥 테와 안쪽 테의 밝기가 갈라져야 한다 (바깥 %.2f, 안쪽 %.2f)" % [outline_luma, rim_luma])
+	_rim_split = rim_luma - outline_luma
+
+	npc.queue_free()
 	await get_tree().process_frame
 
 ## 존재 감지는 0.2초마다 한 번 돈다. 그 주기를 넘겨 준다.

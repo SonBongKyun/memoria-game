@@ -28,6 +28,14 @@ var _initialized: bool = false
 var _amplitude_comp: float = 1.0
 
 
+## S237: 실루엣은 두 겹으로 읽힌다.
+## 바깥은 어두워서 밝은 지형에서 캐릭터를 떼어 내고, 안쪽은 밝아서 어두운 지형에서
+## 캐릭터를 떠오르게 한다. 어두운 한 겹만으로는 어두운 맵에서 사라진다
+## (실측: forgotten_forest에서 몸통-배경 차이 0.0014).
+const SILHOUETTE_OUTLINE: Color = Color(0.025, 0.035, 0.060, 0.92)
+const SILHOUETTE_RIM: Color = Color(0.82, 0.88, 0.98, 1.0)
+const SILHOUETTE_RIM_STRENGTH: float = 0.42
+
 static func apply_finish(
 		sprite: AnimatedSprite2D,
 		accent: Color,
@@ -41,6 +49,9 @@ static func apply_finish(
 	material.set_shader_parameter("accent_color", accent)
 	material.set_shader_parameter("outline_strength", outline_strength)
 	material.set_shader_parameter("accent_strength", accent_strength)
+	material.set_shader_parameter("outline_color", SILHOUETTE_OUTLINE)
+	material.set_shader_parameter("rim_color", SILHOUETTE_RIM)
+	material.set_shader_parameter("rim_strength", SILHOUETTE_RIM_STRENGTH)
 	sprite.material = material
 	sprite.set_meta("field_actor_finish", true)
 	sprite.set_meta("field_actor_accent", accent)
