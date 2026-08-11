@@ -69,13 +69,25 @@ func _ready() -> void:
 	# procedural edge layer creates translucent square seams on top of it.
 	_blend_edges.clear()
 	# S131: Opening readability pass, keep the mood, but avoid hiding the first playable screen.
-	MapEffects.add_vignette(self, 0.14)
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.34, 0.48, 0.28),
+		"light": Color(0.62, 0.76, 0.42, 1.0),
+		"mood": 0.16,
+		"saturation": 1.0,
+		"brightness": 0.02,
+		"fog": "soft",
+		"splash": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	_fog_layer = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
+	fog_rects = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 12, Color(0.5, 0.85, 0.3, 0.5))  # S46: 숲 반딧불
-	fog_rects = MapEffects.add_fog(self, Color(0.2, 0.22, 0.18, 0.018))
 	# S42: 패럴랙스 배경 + 2D 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.08, 0.12), "far": Color(0.08, 0.12, 0.08), "mid": Color(0.12, 0.18, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.66, 0.66, 0.68))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	# S43: 풀 흔들림 애니메이션
 	_grass_blades = MapEffects.add_grass_sway(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.GRASS)
 	# 버섯 위치에 은은한 초록 라이트
@@ -84,8 +96,6 @@ func _ready() -> void:
 	# S52: 그래픽 업그레이드
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.TREE, Tile.BUSH])
-	MapEffects.add_color_grading(self, {"tint": Color(0.34, 0.48, 0.28), "brightness": 0.02})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/story_ch1_twisted_forest_path.png", 0.08, Color(0.84, 0.98, 0.76))
 	_pollen = MapEffects.add_pollen_particles(self, 6, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.6, 0.8, 0.4, 0.16))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
@@ -104,10 +114,7 @@ func _ready() -> void:
 	MapEffects.spawn_transition_particles(self, "forest")
 	# S59: 인터랙티브 프롭 + 분위기 강화
 	_setup_interactive_props()
-	_fog_layer = MapEffects.add_fog_layer(self, 0.16, Color(0.2, 0.22, 0.18, 0.018), 2.0)
 	MapEffects.add_wind_sway(self, 2.0)
-	MapEffects.add_depth_gradient(self, 0.045)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.62, 0.76, 0.42, 1.0), "vignette": 0.16, "tint_strength": 0.028, "shafts": 0.035, "glints": 1, "grain": 0.0, "letterbox": 0.08})
 	_position_player()
 	# S66 (A안, Act I 데모 슬림화):
 	# 보스(Void Beast) 트리거 + 캠프 + 핵심 히든 이벤트만 유지.

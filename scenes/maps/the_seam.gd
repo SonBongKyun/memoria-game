@@ -62,27 +62,34 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.36)
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.40, 0.30, 0.45),
+		"light": Color(0.90, 0.66, 0.44, 1.0),
+		"mood": 0.36,
+		"saturation": 1.0,
+		"brightness": -0.03,
+		"fog": "none",
+		"splash": "res://assets/cg/generated/chapter_splash_the_seam.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	_fog_layer = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	MapEffects.add_fireflies(self, 20, Color(0.85, 0.65, 0.3, 0.5))  # S46: Seam 앰버 반딧불
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.06, 0.06, 0.1), "far": Color(0.1, 0.1, 0.15), "mid": Color(0.15, 0.12, 0.1), "biome": "forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.48, 0.45, 0.52))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	_point_lights = MapEffects.add_tile_lights(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN, Color(1.0, 0.85, 0.5))
 	# S43: 횃불 불꽃 파티클
 	MapEffects.add_fire_particles(self, map_data, MAP_WIDTH, MAP_HEIGHT, Tile.LANTERN)
 	# S52: 그래픽 업그레이드
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CLIFF])
-	MapEffects.add_color_grading(self, {"tint": Color(0.4, 0.3, 0.45), "brightness": -0.03})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_the_seam.png", 0.08, Color(0.94, 0.82, 1.0))
 	_s52_particles = MapEffects.add_pollen_particles(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.7, 0.5, 0.3, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S59: 분위기 강화, 은은한 안개 + 깊이 그라디언트
-	_fog_layer = MapEffects.add_fog_layer(self, 0.3, Color(0.25, 0.25, 0.35, 0.04), 1.5)
-	MapEffects.add_depth_gradient(self, 0.06)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.90, 0.66, 0.44, 1.0), "vignette": 0.36, "tint_strength": 0.08, "shafts": 0.09, "glints": 3})
 	_position_player()
 	_setup_effects()
 	_setup_hidden_events()

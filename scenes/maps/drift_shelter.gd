@@ -47,22 +47,29 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.34)
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.30, 0.30, 0.45),
+		"light": Color(0.58, 0.64, 0.88, 1.0),
+		"mood": 0.48,
+		"saturation": 1.0,
+		"brightness": -0.05,
+		"fog": "none",
+		"splash": "res://assets/cg/generated/chapter_splash_drift_shelter.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	_fog_layer = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)
 	MapEffects.add_parallax_background(self, {"sky": Color(0.14, 0.13, 0.15), "far": Color(0.16, 0.15, 0.17), "mid": Color(0.18, 0.16, 0.15), "biome": "wasteland", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.43, 0.41, 0.47))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	# 재비 (메모리 레인)
 	MapEffects.add_rain(self, 0.5, Color(0.4, 0.38, 0.42, 0.2))
 	_lightning = MapEffects.add_lightning(self)  # S53: 번개
 	# S52: 그래픽 업그레이드
-	MapEffects.add_color_grading(self, {"tint": Color(0.3, 0.3, 0.45), "brightness": -0.05})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_drift_shelter.png", 0.08, Color(0.80, 0.84, 1.0))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
 	MapEffects.add_drop_shadow(player)
 	# S59: 비에 젖은 안개 + 깊이 그라디언트
-	_fog_layer = MapEffects.add_fog_layer(self, 0.6, Color(0.25, 0.25, 0.3, 0.06), 1.5)
-	MapEffects.add_depth_gradient(self, 0.05)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.58, 0.64, 0.88, 1.0), "vignette": 0.34, "tint_strength": 0.06, "shafts": 0.055, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

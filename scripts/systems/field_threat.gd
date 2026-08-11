@@ -23,6 +23,18 @@ var _aura: Line2D = null
 var _sight: Line2D = null
 var _core: Polygon2D = null
 
+# S236: 위협은 제자리에서 맥동만 했다. 사냥한다고 말하면서 한 발도 움직이지 않으면
+# 지형지물과 구분되지 않는다. 자기 자리 주변을 천천히 돌고, 플레이어를 알아채면
+# 그쪽으로 기운다. 접촉 판정 자체는 건드리지 않는다.
+const PATROL_RADIUS: float = 26.0
+const PATROL_SPEED: float = 0.55
+const LEAN_DISTANCE: float = 14.0
+var _anchor: Vector2 = Vector2.ZERO
+var _patrol_phase: float = 0.0
+var _drift: Vector2 = Vector2.ZERO
+## 이번 프레임이 목표한 자리. 궤도 위상과 무관하게 "어디로 기울려 했는가"를 읽을 수 있다.
+var _patrol_target: Vector2 = Vector2.ZERO
+
 
 func configure(new_map_id: String, data: Dictionary, flag: String) -> void:
 	map_id = new_map_id
@@ -41,6 +53,9 @@ func _ready() -> void:
 	_sight = get_node_or_null("ThreatSight") as Line2D
 	_core = get_node_or_null("ThreatCore") as Polygon2D
 	body_entered.connect(_on_body_entered)
+	# 같은 자리에서 태어난 위협들이 한 몸처럼 움직이지 않도록 위상을 흩는다.
+	_anchor = position
+	_patrol_phase = randf() * TAU
 	set_process(true)
 
 
@@ -57,10 +72,30 @@ func _process(delta: float) -> void:
 	var distance := global_position.distance_to(_player.global_position)
 	var pressure := clampf(1.0 - (distance - CONTACT_RADIUS) / (DETECTION_RADIUS - CONTACT_RADIUS), 0.0, 1.0)
 	_last_pressure = pressure
+	_update_patrol(delta, pressure)
 	if _player.has_method("set_field_threat_source"):
 		_player.call("set_field_threat_source", source_id, pressure)
 	_update_visuals(delta, distance, pressure)
 
+
+## 느린 8자 궤도 + 플레이어 쪽으로의 기울기.
+## 압박이 오를수록 궤도는 좁아지고 기울기는 커진다. 노려보는 것처럼 읽힌다.
+func _update_patrol(delta: float, pressure: float) -> void:
+	_patrol_phase += delta * PATROL_SPEED * (1.0 + pressure * 0.9)
+	var orbit_radius := PATROL_RADIUS * (1.0 - pressure * 0.55)
+	var orbit := Vector2(
+		sin(_patrol_phase) * orbit_radius,
+		sin(_patrol_phase * 2.0) * orbit_radius * 0.42
+	)
+	var lean := Vector2.ZERO
+	if _player != null and is_instance_valid(_player):
+		var toward := _player.global_position - (_anchor + global_position - position)
+		if toward.length() > 0.001:
+			lean = toward.normalized() * LEAN_DISTANCE * pressure
+	# 목표로 곧장 튀지 않고 미끄러지듯 따라간다. 위협은 서두르지 않는다.
+	_patrol_target = orbit + lean
+	_drift = _drift.lerp(_patrol_target, 1.0 - exp(-2.4 * delta))
+	position = _anchor + _drift
 
 func _update_visuals(delta: float, distance: float, pressure: float) -> void:
 	var pulse := 0.5 + sin(_time * (2.8 + pressure * 3.4)) * 0.5

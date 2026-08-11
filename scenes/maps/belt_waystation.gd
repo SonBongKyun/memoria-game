@@ -48,20 +48,27 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.32)
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.45, 0.40, 0.30),
+		"light": Color(0.76, 0.64, 0.44, 1.0),
+		"mood": 0.38,
+		"saturation": 1.0,
+		"brightness": -0.03,
+		"fog": "none",
+		"splash": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	_fog_layer = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)
 	MapEffects.add_parallax_background(self, {"sky": Color(0.18, 0.17, 0.16), "far": Color(0.2, 0.19, 0.18), "mid": Color(0.22, 0.2, 0.18), "biome": "wasteland", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.52, 0.49, 0.45))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	# S52: 그래픽 업그레이드
-	MapEffects.add_color_grading(self, {"tint": Color(0.45, 0.4, 0.3), "brightness": -0.03})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_belt_waystation.png", 0.08, Color(0.94, 0.86, 0.70))
 	_s52_particles = MapEffects.add_pollen_particles(self, 15, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.45, 0.4, 0.35, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S59: 분위기 강화, 황무지 안개 + 깊이 그라디언트
-	_fog_layer = MapEffects.add_fog_layer(self, 0.4, Color(0.35, 0.32, 0.3, 0.05), 2.0)
-	MapEffects.add_depth_gradient(self, 0.06)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.76, 0.64, 0.44, 1.0), "vignette": 0.32, "tint_strength": 0.06, "shafts": 0.06, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

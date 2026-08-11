@@ -47,22 +47,28 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.36)
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.15, 0.20, 0.12),
+		"light": Color(0.50, 0.66, 0.38, 1.0),
+		"mood": 0.55,
+		"saturation": 1.0,
+		"brightness": -0.08,
+		"fog": "soft",
+		"splash": "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	_fog_layer = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)
 	MapEffects.add_parallax_background(self, {"sky": Color(0.05, 0.06, 0.04), "far": Color(0.08, 0.1, 0.06), "mid": Color(0.1, 0.12, 0.08), "biome": "dead_forest", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.34, 0.37, 0.30))
-	MapEffects.add_fog(self, Color(0.15, 0.18, 0.12, 0.3))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	# S52: 그래픽 업그레이드
-	MapEffects.add_color_grading(self, {"tint": Color(0.15, 0.2, 0.12), "brightness": -0.08})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_forgotten_forest.png", 0.07, Color(0.70, 0.90, 0.62))
 	_s52_particles = MapEffects.add_pollen_particles(self, 18, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.4, 0.5, 0.2, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
 	MapEffects.add_drop_shadow(player)
 	# S59: 죽은 숲 짙은 안개 + 바람 + 깊이 그라디언트
-	_fog_layer = MapEffects.add_fog_layer(self, 0.8, Color(0.15, 0.18, 0.12, 0.08), 1.0)
 	MapEffects.add_wind_sway(self, 1.5)
-	MapEffects.add_depth_gradient(self, 0.09)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.50, 0.66, 0.38, 1.0), "vignette": 0.38, "tint_strength": 0.07, "shafts": 0.065, "glints": 2})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

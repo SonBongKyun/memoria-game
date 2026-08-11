@@ -61,11 +61,23 @@ var _camera: Camera2D = null  # S52
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.46)  # 보이드: 강한 분위기는 유지하되 중심 시야 확보
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.20, 0.10, 0.35),
+		"light": Color(0.46, 0.28, 0.76, 1.0),
+		"mood": 1.0,
+		"saturation": 1.0,
+		"brightness": -0.1,
+		"fog": "heavy",
+		"splash": "res://assets/cg/generated/chapter_splash_bl07_void.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	heavy_fog = MapEffects.apply_atmosphere_heavy_fog(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)  # S46: 기억 연소 월드 탈색
 	# S42: 패럴랙스 + 조명
 	MapEffects.add_parallax_background(self, {"sky": Color(0.01, 0.01, 0.03), "far": Color(0.05, 0.02, 0.08), "mid": Color(0.08, 0.04, 0.12), "biome": "void", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.38, 0.32, 0.48))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	# 코어와 파편에 보이드 라이트
 	for y in range(MAP_HEIGHT):
 		for x in range(MAP_WIDTH):
@@ -77,8 +89,6 @@ func _ready() -> void:
 	# S52: 그래픽 업그레이드
 	MapEffects.enable_shadows_on_lights(_point_lights)
 	_occluders = MapEffects.add_tile_occluders(self, map_data, MAP_WIDTH, MAP_HEIGHT, [Tile.CRACK])
-	MapEffects.add_color_grading(self, {"tint": Color(0.2, 0.1, 0.35), "brightness": -0.1})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/generated/chapter_splash_bl07_void.png", 0.08, Color(0.76, 0.66, 0.98))
 	_s52_particles = MapEffects.add_void_tendrils(self, 8, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.6)
 	MapEffects.add_drop_shadow(player)
@@ -87,10 +97,7 @@ func _ready() -> void:
 	_setup_battle_triggers()
 	void_particles = MapEffects.add_void_particles(self)
 	void_particles.position = Vector2(MAP_WIDTH * TILE_SIZE / 2.0, MAP_HEIGHT * TILE_SIZE / 2.0)
-	heavy_fog = MapEffects.add_heavy_fog(self, Color(0.15, 0.08, 0.2, 0.1))
 	# S59: 보이드 깊이 그라디언트 (바람/안개 없음, 이미 heavy_fog 존재)
-	MapEffects.add_depth_gradient(self, 0.1)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.46, 0.28, 0.76, 1.0), "vignette": 0.48, "tint_strength": 0.10, "grain": 0.03, "shafts": 0.09, "glints": 2})
 	_setup_random_encounters()
 	_setup_interactive_objects()
 	_setup_exploration_events()

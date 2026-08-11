@@ -19,6 +19,7 @@ var _release_radius: float = 0.0
 var _slip_measured: bool = false
 var _mean_slip: float = 0.0
 var _breath_ground_px: float = 0.0
+var _threat_drift: float = 0.0
 
 func _ready() -> void:
 	Codex.suppress_recording = true
@@ -31,11 +32,12 @@ func _ready() -> void:
 	await _check_population_is_alive()
 	await _check_presence_hysteresis()
 	await _check_static_plate_turns_by_flip()
+	await _check_threats_patrol()
 
 	GameManager.change_state(previous_state)
 	var slip_report := ("%.1f" % _mean_slip) if _slip_measured else "not_measured(headless)"
-	print("AMBIENT_LIFE_SMOKE_PASS gait=analytic idle_reset=1 drivers=attached breathing=1 notice=%d release=%d static_plate=flip mean_footslip=%s breath_px=%.2f" % [
-		int(_notice_radius), int(_release_radius), slip_report, _breath_ground_px,
+	print("AMBIENT_LIFE_SMOKE_PASS gait=analytic idle_reset=1 drivers=attached breathing=1 notice=%d release=%d static_plate=flip mean_footslip=%s breath_px=%.2f threat_patrol=%.1fpx" % [
+		int(_notice_radius), int(_release_radius), slip_report, _breath_ground_px, _threat_drift,
 	])
 	get_tree().quit(0)
 
@@ -201,6 +203,48 @@ func _check_static_plate_turns_by_flip() -> void:
 
 	player.queue_free()
 	npc.queue_free()
+	await get_tree().process_frame
+
+## S236: 위협은 사냥한다고 말한다. 제자리에 굳어 있으면 지형지물과 구분되지 않는다.
+func _check_threats_patrol() -> void:
+	var threat := FieldThreat.new()
+	threat.configure("probe_map", {"id": "probe"}, "probe_flag")
+	threat.position = Vector2(900, 400)
+	add_child(threat)
+	await get_tree().process_frame
+
+	var player := Node2D.new()
+	player.add_to_group("player")
+	player.global_position = Vector2(1600, 400)  # 감지 밖
+	add_child(player)
+
+	var start := threat.position
+	var far_drift := 0.0
+	for _frame in range(120):
+		await get_tree().process_frame
+		far_drift = maxf(far_drift, threat.position.distance_to(start))
+	assert(far_drift > 3.0, "위협이 제자리에 굳어 있다 (이동 %.2fpx)" % far_drift)
+	assert(far_drift < FieldThreat.PATROL_RADIUS * 2.5,
+		"순찰이 자기 자리를 벗어나면 배치 의도가 깨진다 (%.2fpx)" % far_drift)
+
+	# 플레이어가 다가오면 그쪽으로 기운다.
+	# 순찰 궤도는 진동이므로 한 순간의 좌표를 보면 위상에 따라 답이 뒤집힌다.
+	# (발 미끄러짐 때와 같은 함정이다.) 궤도와 무관한 "이번 프레임의 목표"를 읽어
+	# 기울기 성분만 검사한다.
+	player.global_position = threat.global_position + Vector2(70, 0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var right_target: float = float(threat.get("_patrol_target").x) - sin(float(threat.get("_patrol_phase"))) * FieldThreat.PATROL_RADIUS
+	player.global_position = threat.global_position + Vector2(-70, 0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var left_target: float = float(threat.get("_patrol_target").x) - sin(float(threat.get("_patrol_phase"))) * FieldThreat.PATROL_RADIUS
+	assert(right_target > left_target,
+		"압박이 걸렸는데 플레이어 쪽으로 기울지 않는다 (오른쪽 %.2f, 왼쪽 %.2f)" % [right_target, left_target])
+	_threat_drift = far_drift
+
+	player.queue_free()
+	threat.queue_free()
 	await get_tree().process_frame
 
 ## 존재 감지는 0.2초마다 한 번 돈다. 그 주기를 넘겨 준다.

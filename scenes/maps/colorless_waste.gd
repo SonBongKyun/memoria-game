@@ -47,22 +47,29 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 func _ready() -> void:
 	_build_map()
-	MapEffects.add_vignette(self, 0.36)
+	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
+	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
+	var atmosphere := {
+		"hue": Color(0.35, 0.35, 0.35),
+		"light": Color(0.66, 0.66, 0.70, 1.0),
+		"mood": 0.48,
+		"saturation": 0.1,
+		"brightness": -0.05,
+		"fog": "none",
+		"splash": "res://assets/cg/game_image/kairos_sealed_city.png",
+	}
+	MapEffects.apply_atmosphere(self, atmosphere)
+	_fog_layer = MapEffects.apply_atmosphere_fog_layer(self, atmosphere)
 	MapEffects.add_burn_desaturation(self)
 	# 완전 탈색, 무색 황무지
 	MapEffects.add_parallax_background(self, {"sky": Color(0.12, 0.12, 0.12), "far": Color(0.15, 0.15, 0.15), "mid": Color(0.18, 0.18, 0.18), "biome": "waste", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
-	MapEffects.add_ambient_lighting(self, Color(0.44, 0.44, 0.45))
+	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.3, 0.3, 0.3, 0.08), 30)
 	# S52: 그래픽 업그레이드
-	MapEffects.add_color_grading(self, {"tint": Color(0.35, 0.35, 0.35), "brightness": -0.05})
-	MapEffects.add_illustration_atmosphere(self, "res://assets/cg/game_image/kairos_sealed_city.png", 0.10, Color(0.86, 0.86, 0.92))
 	_s52_particles = MapEffects.add_pollen_particles(self, 20, Vector2(MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE), Color(0.35, 0.35, 0.35, 0.2))
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
 	# S59: 무색 안개 (바람 없음) + 깊이 그라디언트
-	_fog_layer = MapEffects.add_fog_layer(self, 0.7, Color(0.3, 0.3, 0.3, 0.06), 0.8)
-	MapEffects.add_depth_gradient(self, 0.07)
-	MapEffects.add_premium_map_lens(self, {"tint": Color(0.66, 0.66, 0.70, 1.0), "vignette": 0.38, "tint_strength": 0.045, "grain": 0.03, "shafts": 0.035, "glints": 1})
 	_position_player()
 	_setup_battle_triggers()
 	_setup_exit_trigger()

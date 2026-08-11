@@ -973,6 +973,153 @@ static func add_color_grading(parent: Node2D, settings: Dictionary) -> CanvasLay
 ## Premium screen lens: subtle paper grain, cinematic edges, and faint light shafts.
 ## This is screen-space so every map can gain a stronger authored look without
 ## rewriting tile or prop construction.
+## ===================== S236: 대기 예산 (Atmosphere Budget) =====================
+##
+## 맵마다 여섯 겹의 전면 오버레이(비네트, 컬러 그레이딩, 삽화 대기, 안개, 깊이
+## 그라디언트, 프리미엄 렌즈)를 각자 손으로 정한 숫자로 쌓고 있었다. 1장 맵인
+## rim_forest만 공들여 낮게 조정돼 있었고, 나머지는 무거운 기본값을 그대로 들고 갔다.
+##
+## 전 맵을 같은 조건으로 렌더해 재 보니 rim_forest 대비 대비도가 43~53%,
+## bl07_void는 34%였다. 의뢰해서 그린 맵 캔버스가 단색 안개에 덮여 사라지고
+## 캐릭터도 어두운 점이 되어 있었다.
+##
+## 여기서 예산을 한 번만 정한다. 맵은 "이 장소가 어떤 곳인가"만 선언하고,
+## 각 레이어에 얼마를 쓸지는 이 함수가 rim_forest의 검증된 비율에서 파생한다.
+## mood를 올려도 상한이 있으므로, 가장 짓눌린 맵조차 예전 rim_forest의 두 배를
+## 넘지 않는다. 분위기는 색으로 말하고, 읽기는 포기하지 않는다.
+
+## 핵심 규칙: **밝기는 곱셈에서, 분위기는 겹칠에서.**
+##
+## premium_lens 셰이더는 tint_color를 단색으로 칠하고, 그 알파를
+## vignette + letterbox + tint_strength + shaft 의 합으로 정한다.
+## 실측해 보니 verdan_market은 그 합이 0.635였다. 화면의 63%가 단색 한 겹이었고,
+## 그것이 곧 이 맵들이 의존하던 광원이기도 했다. 단색을 덮으면 밝아지지만
+## 그만큼 명암 차이가 지워진다. rim_forest만 그 합이 0.303이라 유일하게 읽혔다.
+##
+## 그래서 밝기는 CanvasModulate(장면 전체 곱셈, 대비 보존)로 옮기고
+## 겹칠은 분위기가 필요한 만큼만 남긴다.
+const ATMOSPHERE_BASE := {
+	"vignette": 0.12,
+	"fog_alpha": 0.016,
+	"fog_density": 0.16,
+	"depth": 0.035,
+	"splash": 0.08,
+	"lens_vignette": 0.10,
+	"lens_tint": 0.020,
+	"lens_shafts": 0.030,
+	"lens_letterbox": 0.06,
+	"ambient": 1.00,
+}
+## mood 1.0(가장 짓눌린 곳)에서의 상한. 겹칠 총량은 여기서도 0.33을 넘지 않는다.
+const ATMOSPHERE_HEAVY := {
+	"vignette": 0.22,
+	"fog_alpha": 0.038,
+	"fog_density": 0.55,
+	"depth": 0.060,
+	"splash": 0.10,
+	"lens_vignette": 0.18,
+	"lens_tint": 0.040,
+	"lens_shafts": 0.050,
+	"lens_letterbox": 0.06,
+	"ambient": 0.82,
+}
+
+static func _atmosphere_value(key: String, mood: float) -> float:
+	return lerpf(float(ATMOSPHERE_BASE[key]), float(ATMOSPHERE_HEAVY[key]), clampf(mood, 0.0, 1.0))
+
+## 맵 하나의 대기를 통째로 세운다.
+##
+## identity:
+##   hue        : 이 장소의 바탕색. 그레이딩과 안개가 여기서 파생한다.
+##   light      : 이 장소에 드는 빛의 색. 바탕색과 다른 것이 정상이다
+##                (보라색 방에 드는 호박색 광선처럼). 예산은 "얼마나"만 정하고
+##                "무슨 색"은 맵이 정한다.
+##   mood       : 0.0 열린 곳 .. 1.0 짓눌린 곳. 오버레이 총량을 정한다.
+##   saturation : 1.0 정상 .. 0.0 무채. colorless_waste 같은 곳의 정체성.
+##   brightness : 그레이딩 밝기 보정 (기본 0.0)
+##   splash     : 삽화 대기 텍스처 경로 (없으면 생략)
+##   fog        : "none"(기본) | "soft" | "heavy". 원래 쓰던 맵에만 준다.
+static func apply_atmosphere(map: Node2D, identity: Dictionary) -> void:
+	if map == null:
+		return
+	var hue: Color = identity.get("hue", Color(0.4, 0.45, 0.4))
+	var mood: float = clampf(float(identity.get("mood", 0.4)), 0.0, 1.0)
+	var saturation: float = clampf(float(identity.get("saturation", 1.0)), 0.0, 1.0)
+	var brightness: float = float(identity.get("brightness", 0.0))
+	var fog_mode: String = String(identity.get("fog", "none"))
+	var light: Color = identity.get("light", Color(hue.r * 1.7, hue.g * 1.7, hue.b * 1.7, 1.0))
+
+	# 그레이딩 색은 채도 선언을 반영한다. 무채 지대는 색조차 회색으로 수렴한다.
+	var grey := (hue.r + hue.g + hue.b) / 3.0
+	var graded := Color(
+		lerpf(grey, hue.r, saturation),
+		lerpf(grey, hue.g, saturation),
+		lerpf(grey, hue.b, saturation),
+		1.0
+	)
+	var fog_color := Color(graded.r, graded.g, graded.b, _atmosphere_value("fog_alpha", mood))
+
+	# 밝기는 여기서 온다. 곱셈이라 명암 관계가 보존된다.
+	# 색조는 빛의 색 쪽으로 살짝만 기울인다. 전부 기울이면 화면이 단색이 된다.
+	var light_peak := maxf(maxf(light.r, light.g), maxf(light.b, 0.001))
+	var ambient_strength := _atmosphere_value("ambient", mood)
+	add_ambient_lighting(map, Color(
+		lerpf(1.0, light.r / light_peak, 0.35) * ambient_strength,
+		lerpf(1.0, light.g / light_peak, 0.35) * ambient_strength,
+		lerpf(1.0, light.b / light_peak, 0.35) * ambient_strength
+	))
+	add_vignette(map, _atmosphere_value("vignette", mood))
+	add_color_grading(map, {"tint": graded, "brightness": brightness})
+	var splash := String(identity.get("splash", ""))
+	if splash != "" and ResourceLoader.exists(splash):
+		# 삽화 대기의 틴트는 색을 덮으라고 있는 것이 아니라 붙잡으라고 있다.
+		# 원본 맵들의 틴트는 0.7~1.0대의 밝은 값이었다. 빛의 색조만 빌려 오고 밝기는 지킨다.
+		var splash_peak := maxf(maxf(light.r, light.g), maxf(light.b, 0.001))
+		var splash_tint := Color(
+			lerpf(1.0, light.r / splash_peak, 0.34),
+			lerpf(1.0, light.g / splash_peak, 0.34),
+			lerpf(1.0, light.b / splash_peak, 0.34),
+			1.0
+		)
+		add_illustration_atmosphere(map, splash, _atmosphere_value("splash", mood), splash_tint)
+	match fog_mode:
+		"heavy":
+			pass  # 맵이 매 프레임 갱신하므로 apply_atmosphere_heavy_fog로 따로 세운다
+		"soft":
+			add_fog(map, fog_color)
+		_:
+			pass
+	add_depth_gradient(map, _atmosphere_value("depth", mood))
+	add_premium_map_lens(map, {
+		"tint": light,
+		"vignette": _atmosphere_value("lens_vignette", mood),
+		"tint_strength": _atmosphere_value("lens_tint", mood),
+		"shafts": _atmosphere_value("lens_shafts", mood),
+		"glints": 1,
+		"grain": 0.0,
+		"letterbox": _atmosphere_value("lens_letterbox", mood),
+	})
+
+## 짙은 안개도 맵이 매 프레임 갱신하므로 참조를 돌려준다.
+static func apply_atmosphere_heavy_fog(map: Node2D, identity: Dictionary) -> Array[ColorRect]:
+	var hue: Color = identity.get("hue", Color(0.4, 0.45, 0.4))
+	var mood: float = clampf(float(identity.get("mood", 0.4)), 0.0, 1.0)
+	return add_heavy_fog(map, Color(hue.r, hue.g, hue.b, _atmosphere_value("fog_alpha", mood) * 1.4))
+
+## 흐르는 안개 띠는 맵이 참조를 들고 있어야 하므로 따로 세운다.
+static func apply_atmosphere_fog_layer(map: Node2D, identity: Dictionary) -> Array[ColorRect]:
+	var hue: Color = identity.get("hue", Color(0.4, 0.45, 0.4))
+	var mood: float = clampf(float(identity.get("mood", 0.4)), 0.0, 1.0)
+	var saturation: float = clampf(float(identity.get("saturation", 1.0)), 0.0, 1.0)
+	var grey := (hue.r + hue.g + hue.b) / 3.0
+	var color := Color(
+		lerpf(grey, hue.r, saturation),
+		lerpf(grey, hue.g, saturation),
+		lerpf(grey, hue.b, saturation),
+		_atmosphere_value("fog_alpha", mood)
+	)
+	return add_fog_layer(map, _atmosphere_value("fog_density", mood), color, 2.0)
+
 static func add_premium_map_lens(parent: Node2D, settings: Dictionary = {}) -> CanvasLayer:
 	if _clean_gameplay_view():
 		return _empty_layer(parent, int(settings.get("layer", 5)))
