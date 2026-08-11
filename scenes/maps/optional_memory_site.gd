@@ -39,8 +39,11 @@ var _camera: Camera2D = null
 func _ready() -> void:
 	map_data = _make_layout(site_id)
 	_build_map()
-	MapEffects.add_vignette(self, 0.22)
-	MapEffects.add_ambient_lighting(self, _ambient_color())
+	# S239: 선택 기억 장소들은 코어 맵과 달리 대기 예산을 받지 못하고 있었다.
+	# 비네트와 주변광뿐이라 그레이딩도, 안개도, 깊이도, 렌즈도 없이 밋밋하게 렌더됐다.
+	# 각 장소는 이미 ambient(바탕색)와 accent(빛의 색)를 선언하고 있으므로,
+	# 새 숫자를 만들지 않고 그대로 정체성으로 넘긴다.
+	MapEffects.apply_atmosphere(self, _atmosphere_identity())
 	MapEffects.add_parallax_background(self, {"sky": _ambient_color().darkened(0.55), "far": _ambient_color().darkened(0.45), "mid": _ambient_color().darkened(0.35), "biome": String(_site_theme().get("biome", "archive")), "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	_camera = MapEffects.setup_smooth_camera(player, 1.0)
 	MapEffects.add_drop_shadow(player)
@@ -136,6 +139,35 @@ func _ambient_color() -> Color:
 
 func _accent_color() -> Color:
 	return _site_theme().get("accent", Color(0.82, 0.62, 0.34))
+
+## 장소가 이미 들고 있는 선언(ambient / accent / biome)에서 대기 정체성을 만든다.
+## mood만 바이옴별로 정한다. 씨앗 금고(BL-07)가 가장 짓눌린 곳이다.
+const BIOME_MOOD := {
+	"dead_forest": 0.52,
+	"archive": 0.34,
+	"wasteland": 0.46,
+	"shrine": 0.40,
+	"harbor": 0.42,
+	"ward": 0.36,
+	"hollow": 0.55,
+	"grey": 0.50,
+	"vault": 0.88,
+}
+
+func _atmosphere_identity() -> Dictionary:
+	var theme := _site_theme()
+	var biome := String(theme.get("biome", "archive"))
+	# 무색 지대의 회색 카라반은 채도 자체가 정체성이다.
+	var saturation := 0.15 if site_id == "waste_grey_caravan" else 1.0
+	return {
+		"hue": _ambient_color(),
+		"light": _accent_color(),
+		"mood": float(BIOME_MOOD.get(biome, 0.42)),
+		"saturation": saturation,
+		"brightness": 0.0,
+		"fog": "none",
+		"splash": "",
+	}
 
 func _site_theme() -> Dictionary:
 	return SITE_THEMES.get(site_id, SITE_THEMES.verdan_ledger_cellar)

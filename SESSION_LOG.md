@@ -2,6 +2,33 @@
 
 ---
 
+## S239 - 2026-08-10 (Optional sites join the atmosphere budget; local rim sampling fails and is reverted)
+
+S238이 남긴 항목(테가 배경을 픽셀 단위로 알게 하기)과 그래픽 확장을 함께 진행했다. 하나는 실패해서 되돌렸고, 하나는 성공했다.
+
+### 실패: 발밑 지면 표본
+rim_forest(지면 0.229)와 belt_waystation(0.217)이 전역 평균으로는 구분되지 않으니, 배우가 **실제로 선 자리**를 표본하면 둘 다 살릴 수 있으리라 보았다. 맵 캔버스를 64x64로 줄여 들고 위치로 표본하는 방식을 구현했다.
+
+**결과는 더 나빴다.** belt_waystation의 테가 꺼지면서, 계측기가 바로 그 위치에서 확인했던 1.31x 이득을 잃었다. 즉 "증명되지 않은" 정도가 아니라 **측정된 지점에서 틀린 판단**을 내렸다.
+
+원인 추정: 캐릭터 실루엣은 발밑 타일이 아니라 화면상 몇 타일 **뒤쪽** 지면을 배경으로 놓고 보인다. 발밑을 표본하면 엉뚱한 영역을 읽는다. 되돌리고 전역 방식을 유지했다.
+
+### 성공: 선택 기억 장소 아홉 곳
+`optional_memory_site`는 손으로 맞춘 오버레이만 남아 있던 마지막 맵이었다. 비네트 + 주변광 + 패럴랙스뿐이고 그레이딩도, 안개도, 깊이도, 렌즈도 없었다. 코어 10개 맵이 S236에서 대기 예산을 받는 동안 여기만 빠져 있었다.
+
+각 장소는 이미 `ambient`(바탕색)와 `accent`(빛의 색)를 선언하고 있어서, 새 숫자를 만들지 않고 그대로 정체성으로 넘겼다. mood만 바이옴별로 정했다(씨앗 금고 0.88이 가장 짓눌린 곳). 무색 카라반은 채도 0.15를 유지한다.
+
+**대비도 9/9 개선 (1.61x ~ 2.56x), 휘도는 약 3배.**
+bl07_seed_vault 2.56x · forest_name_hollow 2.00x · belt_signal_yard 1.96x · waste_grey_caravan 1.95x · drift_waymarker_shrine 1.92x · verdan_ledger_cellar 1.83x · seam_lantern_ward 1.82x · coast_cinder_harbor 1.69x · rim_root_hollow 1.61x.
+휘도 0.032~0.142 → 0.159~0.368. 코어 맵보다도 어두웠던 곳들이다.
+
+### Verification
+- 신규 `capture_site_survey`로 아홉 장소 콘택트 시트를 뽑아 육안 확인: 장부 지하실의 따뜻한 서고, 등불 병동, 회색 카라반의 창백한 황무지, 씨앗 금고의 자주색이 각자 선언한 색을 지키면서 형태가 읽힌다.
+- 스모크 **37/37 통과**. 코어 맵 서베이 재렌더 이상 없음. VN 20파일 0에러. `git diff --check` 클린.
+
+### 남은 것
+rim_forest와 belt_waystation 문제는 그대로다. 발밑 표본은 틀렸고, 남은 정공법은 `hint_screen_texture`로 실루엣 뒤쪽을 픽셀 단위로 읽는 것이다.
+
 ## S238 - 2026-08-10 (The rim learns what it stands on, and S237's numbers are retracted)
 
 S237의 "다음 작업"으로 시작했다. 결과적으로 **S237의 계측 결과를 철회**하고, 계측기를 다시 만든 뒤, 그 위에서 테를 재조정했다.
