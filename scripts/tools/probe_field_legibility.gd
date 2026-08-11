@@ -19,6 +19,10 @@ extends Node
 const MAPS: Array[String] = [
 	"rim_forest", "verdan_market", "belt_waystation", "drift_shelter", "crumbling_coast",
 	"the_seam", "seam_outskirts", "forgotten_forest", "colorless_waste", "bl07_void",
+	# S240: 튜닝에 쓰이지 않은 아홉 장소. 일반화되는지 여기서 본다.
+	"rim_root_hollow", "verdan_ledger_cellar", "belt_signal_yard",
+	"drift_waymarker_shrine", "coast_cinder_harbor", "seam_lantern_ward",
+	"forest_name_hollow", "waste_grey_caravan", "bl07_seed_vault",
 ]
 
 func _ready() -> void:
