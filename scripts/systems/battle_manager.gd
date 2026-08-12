@@ -243,7 +243,11 @@ const ENV_BONUSES: Dictionary = {
 }
 
 const ENEMY_PRESETS: Dictionary = {
-	"ash_crawler": {"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+	# img를 비워 두면 resolve_enemy_image_by_name이 RECURRING_ENEMY_ART에서 전용 컷인을
+	# 찾아 준다. 예전에 박아 둔 void_beast_confrontation은 S204에서 애시 크롤러 컷인을
+	# 그리기 전의 잔재였고, 그 탓에 게임의 첫 정규 전투에서 비-보이드 1장 잡몹이
+	# 보이드수 삽화를 달고 나왔다. 형제 프리셋 forest_shade는 이미 비어 있다.
+	"ash_crawler": {"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
 	"forest_shade": {"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
 	"void_beast": {"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"},
 	"threshold_shade": {"name": "Threshold Shade", "hp": 120, "atk": 20, "is_void": true, "abilities": ["drain", "stun", "reflect"], "weakness": "fire"},

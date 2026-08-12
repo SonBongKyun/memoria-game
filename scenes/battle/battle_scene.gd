@@ -127,7 +127,12 @@ const BATTLE_ROLE_PROFILES: Dictionary = {
 		"shadow_alpha": 0.40,
 		"glow_radii": Vector2(116.0, 17.0),
 		"glow_color": Color(0.50, 0.15, 0.50, 0.10),
-		"plate_modulate": Color(1.0, 0.97, 0.96, 0.96),
+		"plate_modulate": Color(1.50, 1.45, 1.44, 0.96),
+		# S241: 0.14로 내려 봤으나 되돌렸다. edge_softness가 적의 구조를 먹는다는
+		# 가설이었는데, RMS는 0.0391→0.0414로 6%만 올랐고(예측은 0.06 근처) 대신
+		# 밝기가 0.0368→0.0279로 24% 떨어졌다. 판이 불투명해지며 뒤로 비치던 밝은
+		# 무대가 사라진 것일 뿐, 원화의 디테일이 돌아온 게 아니다. 역할별
+		# edge_softness와 RMS 유지율의 상관은 교란이었다.
 		"edge_softness": 0.30,
 		"oval_mask": 0.80,
 		"rim": 0.0,

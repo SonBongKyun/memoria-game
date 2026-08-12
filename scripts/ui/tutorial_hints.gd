@@ -4,6 +4,14 @@ extends CanvasLayer
 
 const HINT_BANNER_PATH: String = "res://assets/cg/generated/ui_tutorial_hint_banner.png"
 
+## 패널 폭을 정하는 값. _show_panel이 라벨에 폭을 알려 줄 때 같은 값을 써야 한다.
+const PANEL_ANCHOR_LEFT: float = 0.20
+const PANEL_ANCHOR_RIGHT: float = 0.80
+const PANEL_MARGIN: float = 16.0
+const PANEL_TOP: float = 10.0
+const PANEL_SLIDE: float = 70.0
+const PANEL_MIN_HEIGHT: float = 54.0
+
 var shown_hints: Array = []  # 이미 표시된 힌트 ID 목록 (SaveManager 연동)
 
 # 힌트 정의
@@ -73,6 +81,12 @@ func show_hint(hint_id: String) -> void:
 func _show_panel(text: String) -> void:
 	if _dismiss_tween and _dismiss_tween.is_valid():
 		_dismiss_tween.kill()
+	# S241: autowrap 라벨은 폭을 모르는 상태로 최소 크기를 물으면 "한 글자 폭으로
+	# 접었을 때의 높이"를 돌려준다. 한국어 힌트 43자가 774px이 되고 여백 32를 더해
+	# PanelContainer가 768x806으로 부풀었다. 720px 화면보다 큰 어두운 띠가 세로로
+	# 내려와 덱의 1·3번 버튼까지 덮은 원인이다. 앵커가 정한 폭을 미리 알려 준다.
+	var usable := get_viewport().get_visible_rect().size.x * (PANEL_ANCHOR_RIGHT - PANEL_ANCHOR_LEFT) - PANEL_MARGIN * 2.0
+	_label.custom_minimum_size.x = maxf(usable, 120.0)
 	_label.text = text
 	if _banner:
 		_banner.visible = true
@@ -80,14 +94,20 @@ func _show_panel(text: String) -> void:
 		_banner.position.y = -60
 	_panel.visible = true
 	_panel.modulate.a = 0.0
-	_panel.position.y = -60
+	# Control.position 세터는 size_cache를 보존하며 offset을 다시 쓴다. 레이아웃이
+	# 확정되기 전의 높이가 그대로 offset_bottom에 굳어, 라벨 최소 크기를 고쳐도
+	# 패널은 계속 806px이었다. 높이를 직접 계산해 offset 두 개를 짝으로 움직인다.
+	var height := maxf(_panel.get_combined_minimum_size().y, PANEL_MIN_HEIGHT)
+	_panel.offset_top = PANEL_TOP - PANEL_SLIDE
+	_panel.offset_bottom = _panel.offset_top + height
 	var tw = create_tween().set_parallel(true)
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	if _banner:
 		tw.tween_property(_banner, "modulate:a", 0.78, 0.3).set_ease(Tween.EASE_OUT)
 		tw.tween_property(_banner, "position:y", 10.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(_panel, "modulate:a", 1.0, 0.3).set_ease(Tween.EASE_OUT)
-	tw.tween_property(_panel, "position:y", 10.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_panel, "offset_top", PANEL_TOP, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_panel, "offset_bottom", PANEL_TOP + height, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	_timer.start(4.0)
 
 func _dismiss() -> void:
@@ -102,7 +122,9 @@ func _dismiss() -> void:
 		_dismiss_tween.tween_property(_banner, "modulate:a", 0.0, 0.25)
 		_dismiss_tween.tween_property(_banner, "position:y", -60.0, 0.25).set_ease(Tween.EASE_IN)
 	_dismiss_tween.tween_property(_panel, "modulate:a", 0.0, 0.25)
-	_dismiss_tween.tween_property(_panel, "position:y", -60.0, 0.25).set_ease(Tween.EASE_IN)
+	var height := _panel.offset_bottom - _panel.offset_top
+	_dismiss_tween.tween_property(_panel, "offset_top", PANEL_TOP - PANEL_SLIDE, 0.25).set_ease(Tween.EASE_IN)
+	_dismiss_tween.tween_property(_panel, "offset_bottom", PANEL_TOP - PANEL_SLIDE + height, 0.25).set_ease(Tween.EASE_IN)
 	_dismiss_tween.chain().tween_callback(func():
 		if _banner:
 			_banner.visible = false
@@ -137,12 +159,12 @@ func _build_ui() -> void:
 		_root.add_child(_banner)
 
 	_panel = PanelContainer.new()
-	_panel.anchor_left = 0.20
-	_panel.anchor_right = 0.80
+	_panel.anchor_left = PANEL_ANCHOR_LEFT
+	_panel.anchor_right = PANEL_ANCHOR_RIGHT
 	_panel.anchor_top = 0.0
 	_panel.anchor_bottom = 0.0
-	_panel.offset_top = 10
-	_panel.offset_bottom = 64
+	_panel.offset_top = PANEL_TOP
+	_panel.offset_bottom = PANEL_TOP + PANEL_MIN_HEIGHT
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.030, 0.026, 0.038, 0.70)
@@ -152,7 +174,7 @@ func _build_ui() -> void:
 	style.set_border_width(SIDE_RIGHT, 1)
 	style.set_border_width(SIDE_BOTTOM, 1)
 	style.set_corner_radius_all(5)
-	style.set_content_margin_all(16)
+	style.set_content_margin_all(PANEL_MARGIN)
 	_panel.add_theme_stylebox_override("panel", style)
 	_root.add_child(_panel)
 
