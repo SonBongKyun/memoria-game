@@ -54,6 +54,10 @@ func open_puzzle(pair_count: int = 4, reward: int = 15) -> void:
 	_update_info()
 	_show_ui()
 
+## S242: 미니게임 안내가 한국어 로케일에서도 영어였다.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
+
 func close_puzzle() -> void:
 	if not is_open:
 		return
@@ -250,7 +254,7 @@ func _on_puzzle_complete() -> void:
 	close_puzzle()
 
 func _update_info() -> void:
-	info_label.text = "Matches: %d / %d  |  Attempts: %d" % [_matches_found, _total_pairs, _attempts]
+	info_label.text = _loc("Matches: %d / %d  |  Attempts: %d", "맞춘 짝 %d / %d  ·  시도 %d회") % [_matches_found, _total_pairs, _attempts]
 	info_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 
 ## ===================== UI 구축 =====================
@@ -283,14 +287,14 @@ func _build_ui() -> void:
 
 	# 타이틀
 	var title = Label.new()
-	title.text = "MEMORY MATCH"
+	title.text = _loc("MEMORY MATCH", "기억 맞추기")
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
 	var subtitle = Label.new()
-	subtitle.text = "Find matching pairs of memories"
+	subtitle.text = _loc("Find matching pairs of memories", "짝이 되는 기억을 찾으세요")
 	subtitle.add_theme_font_size_override("font_size", 13)
 	subtitle.add_theme_color_override("font_color", Color(0.5, 0.45, 0.4))
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -325,7 +329,7 @@ func _build_ui() -> void:
 
 	# 닫기 힌트
 	var hint = Label.new()
-	hint.text = "[ESC] Close"
+	hint.text = _loc("[ESC] Close", "[ESC] 닫기")
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT

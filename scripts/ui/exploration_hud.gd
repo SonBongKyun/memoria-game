@@ -16,6 +16,19 @@ const MAP_NAMES := {
 	"forgotten_forest": "Forgotten Forest",
 	"colorless_waste": "Colorless Waste",
 	"bl07_void": "BL-07 Void",
+	# S242: 선택 기억 장소 아홉 곳. 이름표에 등록된 적이 없어서, 이름을 찾지 못한
+	# 자리는 원시 씬 ID로 되돌아갔다. 도감의 미발견 항목이 플레이어에게
+	# "??? · rim_root_hollow"처럼 내부 식별자를 그대로 보여 주고 있었다.
+	# 값은 각 장소 씬이 이미 선언한 title_en/title_ko를 그대로 옮긴 것이다.
+	"rim_root_hollow": "Root Hollow",
+	"verdan_ledger_cellar": "Ledger Cellar",
+	"belt_signal_yard": "Signal Yard",
+	"drift_waymarker_shrine": "Waymarker Shrine",
+	"coast_cinder_harbor": "Cinder Harbor",
+	"seam_lantern_ward": "Lantern Ward",
+	"forest_name_hollow": "Name Hollow",
+	"waste_grey_caravan": "Grey Caravan",
+	"bl07_seed_vault": "Seed Vault",
 }
 
 const MAP_NAMES_KO := {
@@ -29,6 +42,15 @@ const MAP_NAMES_KO := {
 	"forgotten_forest": "잊힌 숲",
 	"colorless_waste": "무색 황무지",
 	"bl07_void": "BL-07 보이드",
+	"rim_root_hollow": "기록목 뿌리 공동",
+	"verdan_ledger_cellar": "기억 대출 장부실",
+	"belt_signal_yard": "신호 야적장",
+	"drift_waymarker_shrine": "이정표 성소",
+	"coast_cinder_harbor": "신더 항구",
+	"seam_lantern_ward": "랜턴 구역",
+	"forest_name_hollow": "이름의 골짜기",
+	"waste_grey_caravan": "회색 캐러밴",
+	"bl07_seed_vault": "씨앗 금고",
 }
 
 const MAP_ART := {
@@ -57,6 +79,15 @@ const MAP_NAMES_KO_CLEAN := {
 	"forgotten_forest": "망각의 숲",
 	"colorless_waste": "무색 황무지",
 	"bl07_void": "BL-07 공허",
+	"rim_root_hollow": "기록목 뿌리 공동",
+	"verdan_ledger_cellar": "기억 대출 장부실",
+	"belt_signal_yard": "신호 야적장",
+	"drift_waymarker_shrine": "이정표 성소",
+	"coast_cinder_harbor": "신더 항구",
+	"seam_lantern_ward": "랜턴 구역",
+	"forest_name_hollow": "이름의 골짜기",
+	"waste_grey_caravan": "회색 캐러밴",
+	"bl07_seed_vault": "씨앗 금고",
 }
 
 # ── 노드 참조 ──
@@ -411,7 +442,7 @@ func _build_field_flow_panel() -> void:
 	var header := HBoxContainer.new()
 	vbox.add_child(header)
 	var title := Label.new()
-	title.text = "FIELD FLOW"
+	title.text = "필드 흐름" if GameManager.current_locale == "ko" else "FIELD FLOW"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_font_size_override("font_size", 13)
 	title.add_theme_color_override("font_color", Color(0.72, 0.88, 1.0))
@@ -543,7 +574,7 @@ func _build_location_card() -> void:
 	location_subtitle.add_theme_font_size_override("font_size", 13)
 	location_subtitle.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 	location_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD
-	location_subtitle.text = "Area image reference"
+	location_subtitle.text = "지역 이미지 참고" if GameManager.current_locale == "ko" else "Area image reference"
 	text_box.add_child(location_subtitle)
 
 func _start_timer() -> void:

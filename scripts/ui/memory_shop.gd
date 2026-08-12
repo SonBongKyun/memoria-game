@@ -77,7 +77,7 @@ func open_shop(merchant_name: String = "Merchant", inventory: Array[Dictionary] 
 	_current_mode = "sell"
 	GameManager.change_state(GameManager.GameState.MENU)
 	AudioManager.play_sfx("ui_open")
-	shop_title.text = "%s, Memory Exchange" % merchant_name
+	shop_title.text = _loc("%s, Memory Exchange", "%s · 기억 교환소") % GameManager.localized_speaker(merchant_name)
 	_update_merchant_portrait(merchant_name)
 	_update_grains()
 	_refresh_items()
@@ -110,9 +110,13 @@ func _resolve_merchant_caption(merchant_name: String) -> String:
 	var normalized_name: String = merchant_name.to_lower()
 	match normalized_name:
 		"malet", "mallet":
-			return "Bureau-brokered memory trader"
+			return _loc("Bureau-brokered memory trader", "관리국이 중개하는 기억 거래상")
 		_:
-			return "Memory trader"
+			return _loc("Memory trader", "기억 거래상")
+
+## S242: 상점 크롬이 한국어 로케일에서도 영어로 남아 있었다. 기억 이름만 한국어였다.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func close_shop() -> void:
 	if not is_open:
@@ -190,7 +194,7 @@ func _build_ui() -> void:
 	header.add_child(title_stack)
 
 	shop_title = Label.new()
-	shop_title.text = "Memory Exchange"
+	shop_title.text = _loc("Memory Exchange", "기억 교환소")
 	shop_title.add_theme_font_size_override("font_size", 18)
 	shop_title.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	title_stack.add_child(shop_title)
@@ -211,16 +215,16 @@ func _build_ui() -> void:
 	tab_row.add_theme_constant_override("separation", 8)
 	main_vbox.add_child(tab_row)
 
-	tab_sell = _create_tab("Sell Memories", "sell")
+	tab_sell = _create_tab(_loc("Sell Memories", "기억 판매"), "sell")
 	tab_row.add_child(tab_sell)
 
-	tab_buy = _create_tab("Buy Memories", "buy")
+	tab_buy = _create_tab(_loc("Buy Memories", "기억 구매"), "buy")
 	tab_row.add_child(tab_buy)
 
-	tab_items = _create_tab("Items", "items")
+	tab_items = _create_tab(_loc("Items", "물품"), "items")
 	tab_row.add_child(tab_items)
 
-	tab_equip = _create_tab("Equip", "equip")  # S41
+	tab_equip = _create_tab(_loc("Equip", "장비"), "equip")  # S41
 	tab_row.add_child(tab_equip)
 
 	# S232: GDD 2.4의 세 번째 거래. 지금 태우지 않고 미래를 담보로 잡는다.
@@ -254,7 +258,7 @@ func _build_ui() -> void:
 
 	# ── 하단: 닫기 힌트 ──
 	close_hint = Label.new()
-	close_hint.text = "[ESC] Close Shop"
+	close_hint.text = _loc("[ESC] Close Shop", "[ESC] 상점 닫기")
 	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -275,7 +279,7 @@ func _build_detail_panel(parent: HBoxContainer) -> void:
 	detail_panel.add_child(vbox)
 
 	detail_title = Label.new()
-	detail_title.text = "Select a memory..."
+	detail_title.text = _loc("Select a memory...", "기억을 고르세요...")
 	detail_title.add_theme_font_size_override("font_size", 16)
 	detail_title.add_theme_color_override("font_color", Color(0.8, 0.7, 0.55))
 	vbox.add_child(detail_title)
@@ -728,7 +732,7 @@ func _baseline_price(item: Dictionary) -> int:
 	return int(round(float(total) / float(count)))
 
 func _clear_detail() -> void:
-	detail_title.text = "Select a memory..."
+	detail_title.text = _loc("Select a memory...", "기억을 고르세요...")
 	detail_grade.text = ""
 	detail_desc.text = ""
 	detail_price.text = ""
@@ -935,7 +939,7 @@ func _populate_equip_list() -> void:
 		_add_item_button("%s %s" % [def.name, stats], Color(0.55, 0.45, 0.75), def.price, item)
 
 func _update_grains() -> void:
-	grains_label.text = "%d Grains" % GameManager.player_data.grains
+	grains_label.text = _loc("%d Grains", "%d 그레인") % GameManager.player_data.grains
 	AchievementManager.check_grains()
 
 func _show_ui() -> void:

@@ -390,17 +390,19 @@ func get_save_info(slot: int) -> Dictionary:
 
 ## S56: Get "Last Saved: X minutes ago" text
 func get_last_saved_text() -> String:
+	# S242: 일시정지 화면에 그대로 나오는 문자열인데 한국어 로케일에서도 영어였다.
+	var is_ko := GameManager.current_locale == "ko"
 	if _last_save_time <= 0.0:
-		return "Not saved yet"
+		return "아직 저장하지 않음" if is_ko else "Not saved yet"
 	var elapsed = Time.get_unix_time_from_system() - _last_save_time
 	if elapsed < 60:
-		return "Last saved: just now"
+		return "마지막 저장: 방금" if is_ko else "Last saved: just now"
 	elif elapsed < 3600:
 		var mins = int(elapsed / 60)
-		return "Last saved: %d min ago" % mins
+		return ("마지막 저장: %d분 전" if is_ko else "Last saved: %d min ago") % mins
 	else:
 		var hours = int(elapsed / 3600)
-		return "Last saved: %dh ago" % hours
+		return ("마지막 저장: %d시간 전" if is_ko else "Last saved: %dh ago") % hours
 
 ## S56: Build save indicator UI (small icon top-right corner)
 func _build_save_indicator() -> void:

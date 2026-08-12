@@ -121,7 +121,7 @@ func _build_ui() -> void:
 	row.add_child(text_box)
 
 	compass_title = Label.new()
-	compass_title.text = "MEMORY COMPASS"
+	compass_title.text = _loc("MEMORY COMPASS", "기억 나침반")
 	compass_title.add_theme_font_size_override("font_size", 13)
 	compass_title.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	text_box.add_child(compass_title)
@@ -222,7 +222,7 @@ func _refresh_compass(force: bool) -> void:
 	if force or scene_key != _last_scene_key:
 		_last_scene_key = scene_key
 	var profile := _get_place_profile(scene_key, _density)
-	status_label.text = profile.get("status", "THREADS HUM")
+	status_label.text = profile.get("status", _loc("THREADS HUM", "실이 울린다"))
 	lore_label.text = profile.get("line", "The needle listens for what still remembers.")
 	burn_label.text = _last_burn_text
 	_target_angle = profile.get("angle", 0.0)
@@ -247,6 +247,10 @@ func _compute_density() -> float:
 		return 1.0
 	return clampf(intact / total, 0.0, 1.0)
 
+## S242: 나침반 HUD가 한국어 로케일에서도 전부 영어였다.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
+
 func _get_scene_key() -> String:
 	var scene := get_tree().current_scene
 	if scene == null:
@@ -257,35 +261,35 @@ func _get_scene_key() -> String:
 func _get_place_profile(scene_key: String, density: float) -> Dictionary:
 	match scene_key:
 		"rim_forest":
-			return {"status": "NEEDLE SPINS", "line": "Low density. Rim memories scatter like ash.", "angle": PI * 1.72, "color": Color(0.70, 0.83, 0.46)}
+			return {"status": _loc("NEEDLE SPINS", "바늘이 돈다"), "line": _loc("Low density. Rim memories scatter like ash.", "밀도가 낮다. 림의 기억은 재처럼 흩어진다."), "angle": PI * 1.72, "color": Color(0.70, 0.83, 0.46)}
 		"verdan_market":
-			return {"status": "BUREAU INK", "line": "The needle follows recorded debt before it follows north.", "angle": PI * 0.18, "color": Color(0.90, 0.64, 0.34)}
+			return {"status": _loc("BUREAU INK", "관리국의 잉크"), "line": _loc("The needle follows recorded debt before it follows north.", "바늘은 북쪽보다 장부에 적힌 빚을 먼저 따라간다."), "angle": PI * 0.18, "color": Color(0.90, 0.64, 0.34)}
 		"belt_waystation":
-			return {"status": "RECORD HUM", "line": "Paper, soil, stone. Everything here tries to remember.", "angle": PI * 0.38, "color": Color(0.76, 0.62, 0.46)}
+			return {"status": _loc("RECORD HUM", "기록의 울림"), "line": _loc("Paper, soil, stone. Everything here tries to remember.", "종이, 흙, 돌. 이곳의 모든 것이 기억하려 애쓴다."), "angle": PI * 0.38, "color": Color(0.76, 0.62, 0.46)}
 		"drift_shelter":
-			return {"status": "ANCHOR LOW", "line": "Elia's residue holds the page in its binding.", "angle": PI * 0.62, "color": Color(0.62, 0.70, 0.90)}
+			return {"status": _loc("ANCHOR LOW", "앵커 미약"), "line": _loc("Elia's residue holds the page in its binding.", "엘리아의 잔존이 페이지를 제본에 붙들고 있다."), "angle": PI * 0.62, "color": Color(0.62, 0.70, 0.90)}
 		"crumbling_coast":
-			return {"status": "GATE STATIC", "line": "The seal interrupts direction. The needle answers in fragments.", "angle": PI * 0.91, "color": Color(0.70, 0.80, 0.96)}
+			return {"status": _loc("GATE STATIC", "관문 잡음"), "line": _loc("The seal interrupts direction. The needle answers in fragments.", "봉인이 방향을 끊는다. 바늘은 조각으로만 답한다."), "angle": PI * 0.91, "color": Color(0.70, 0.80, 0.96)}
 		"the_seam":
-			return {"status": "THREADS HOLD", "line": "Connection is not memory, but it can carry one across the dark.", "angle": PI * 1.08, "color": Color(0.92, 0.68, 0.42)}
+			return {"status": _loc("THREADS HOLD", "실이 버틴다"), "line": _loc("Connection is not memory, but it can carry one across the dark.", "연결은 기억이 아니지만, 어둠 너머로 기억을 옮길 수는 있다."), "angle": PI * 1.08, "color": Color(0.92, 0.68, 0.42)}
 		"seam_outskirts":
-			return {"status": "ECHO SHELL", "line": "A hollow can still answer if the echo is shaped kindly.", "angle": PI * 1.24, "color": Color(0.74, 0.57, 0.96)}
+			return {"status": _loc("ECHO SHELL", "메아리 껍데기"), "line": _loc("A hollow can still answer if the echo is shaped kindly.", "메아리를 다정하게 빚으면 빈 곳도 답할 수 있다."), "angle": PI * 1.24, "color": Color(0.74, 0.57, 0.96)}
 		"forgotten_forest":
-			return {"status": "NEEDLE LISTENS", "line": "The trees remember being trees. The soil remembers rain.", "angle": PI * 1.44, "color": Color(0.58, 0.76, 0.42)}
+			return {"status": _loc("NEEDLE LISTENS", "바늘이 듣는다"), "line": _loc("The trees remember being trees. The soil remembers rain.", "나무는 나무였음을 기억하고, 흙은 비를 기억한다."), "angle": PI * 1.44, "color": Color(0.58, 0.76, 0.42)}
 		"colorless_waste":
-			return {"status": "NEEDLE BLEEDS", "line": "The Waste has no north. It has hunger.", "angle": PI * 1.64, "color": Color(0.78, 0.78, 0.82)}
+			return {"status": _loc("NEEDLE BLEEDS", "바늘이 번진다"), "line": _loc("The Waste has no north. It has hunger.", "황무지에 북쪽은 없다. 허기만 있다."), "angle": PI * 1.64, "color": Color(0.78, 0.78, 0.82)}
 		"bl07_void":
-			return {"status": "NEEDLE MELTS", "line": "Near BL-07, even direction forgets itself.", "angle": PI * 1.9, "color": Color(0.78, 0.54, 1.0)}
+			return {"status": _loc("NEEDLE MELTS", "바늘이 녹는다"), "line": _loc("Near BL-07, even direction forgets itself.", "BL-07 가까이에서는 방향조차 자기를 잊는다."), "angle": PI * 1.9, "color": Color(0.78, 0.54, 1.0)}
 
 	if density < 0.34:
-		return {"status": "NEEDLE STUTTERS", "line": "Too many burned contours. The world guesses at its own shape.", "angle": PI * 1.58, "color": Color(0.82, 0.52, 0.42)}
+		return {"status": _loc("NEEDLE STUTTERS", "바늘이 더듬는다"), "line": _loc("Too many burned contours. The world guesses at its own shape.", "태워 없앤 윤곽이 너무 많다. 세계가 제 형태를 짐작하고 있다."), "angle": PI * 1.58, "color": Color(0.82, 0.52, 0.42)}
 	if density < 0.62:
-		return {"status": "THREADS THIN", "line": "The compass points toward what the world can still keep.", "angle": PI * 0.84, "color": Color(0.86, 0.72, 0.46)}
-	return {"status": "THREADS HUM", "line": "The needle rests where memory density is strongest.", "angle": PI * 0.12, "color": Color(0.92, 0.78, 0.44)}
+		return {"status": _loc("THREADS THIN", "실이 얇다"), "line": _loc("The compass points toward what the world can still keep.", "나침반은 세계가 아직 지킬 수 있는 쪽을 가리킨다."), "angle": PI * 0.84, "color": Color(0.86, 0.72, 0.46)}
+	return {"status": _loc("THREADS HUM", "실이 울린다"), "line": _loc("The needle rests where memory density is strongest.", "바늘은 기억 밀도가 가장 짙은 곳에 머문다."), "angle": PI * 0.12, "color": Color(0.92, 0.78, 0.44)}
 
 func _make_burn_line(memory) -> String:
 	if memory == null:
-		return "A contour vanished. The world reorders around the gap."
+		return _loc("A contour vanished. The world reorders around the gap.", "윤곽 하나가 사라졌다. 세계가 그 빈자리에 맞춰 다시 정렬된다.")
 	var title := String(memory.title)
 	var npc := String(memory.related_npc)
 	if npc == "Elia":

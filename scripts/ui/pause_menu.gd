@@ -2126,11 +2126,11 @@ func _build_ui() -> void:
 		{"text": GameManager.loc("journal"), "callback": _on_journal},
 		# S209: 회상 기록 (지나간 대사 되짚기). 게임 중에는 L 키로도 열린다.
 		{"text": "STORY LOG" if GameManager.current_locale != "ko" else "회상 기록", "callback": _on_story_log},
-		{"text": "ITEM ARCHIVE", "callback": _on_inventory},
-		{"text": "WORLD MAP", "callback": _on_travel},
+		{"text": _ploc("ITEM ARCHIVE", "소지품 기록고"), "callback": _on_inventory},
+		{"text": _ploc("WORLD MAP", "세계 지도"), "callback": _on_travel},
 		{"text": "FIELD GUIDE" if GameManager.current_locale != "ko" else "필드 가이드", "callback": _on_field_guide},
 		{"text": GameManager.loc("codex"), "callback": _on_codex},
-		{"text": "Artbook", "callback": _on_artbook},
+		{"text": _ploc("Artbook", "삽화집"), "callback": _on_artbook},
 		{"text": GameManager.loc("achievements"), "callback": _on_achievements},
 	]
 	# S54: Endings button (only if at least 1 ending seen)
@@ -2237,41 +2237,45 @@ func _update_save_info() -> void:
 	var ng_text = ""
 	if GameManager.ng_plus_cycle > 0:
 		ng_text = " (NG+%d)" % GameManager.ng_plus_cycle
-	var ch_name = chapter_name.get(ch, "Unknown")
-	var text = "Chapter %d, %s%s\n" % [ch, ch_name, ng_text]
-	text += "HP: %d / %d\n" % [hp, max_hp]
-	text += "Memories: %d held, %d burned" % [memory_count - burn_count, burn_count]
+	var ch_name = GameManager.localized_chapter_name(ch, String(chapter_name.get(ch, "Unknown")))
+	var text = _ploc("Chapter %d, %s%s\n", "%d장 · %s%s\n") % [ch, ch_name, ng_text]
+	text += _ploc("HP: %d / %d\n", "HP %d / %d\n") % [hp, max_hp]
+	text += _ploc("Memories: %d held, %d burned", "기억 %d개 보유 · %d개 연소") % [memory_count - burn_count, burn_count]
 	if WorldRewriteDirector and WorldRewriteDirector.has_method("get_loss_records"):
-		text += "\nLoss records: %d" % WorldRewriteDirector.get_loss_records().size()
+		text += _ploc("\nLoss records: %d", "\n상실 기록 %d건") % WorldRewriteDirector.get_loss_records().size()
 
 	# S57: Enhanced save slot display with chapter name, HP, grains, and playtime
 	var ch_names = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
 
 	var save = SaveManager.get_save_info(1)
 	if save.is_empty():
-		text += "\n\nSlot 1: [Empty]"
+		text += _ploc("\n\nSlot 1: [Empty]", "\n\n슬롯 1 · 비어 있음")
 	else:
 		var s_ch = save.get("chapter", 1)
-		var s_ch_name = ch_names.get(s_ch, "Unknown")
+		var s_ch_name = GameManager.localized_chapter_name(s_ch, String(ch_names.get(s_ch, "Unknown")))
 		var s_hp = save.get("hp", 0)
 		var s_max_hp = save.get("max_hp", 100)
 		var s_grains = save.get("grains", 0)
 		var s_location = save.get("location", "")
-		text += "\n\nSlot 1: Ch%d - %s" % [s_ch, s_ch_name]
+		text += _ploc("\n\nSlot 1: Ch%d - %s", "\n\n슬롯 1 · %d장 %s") % [s_ch, s_ch_name]
 		if s_location != "":
 			text += " (%s)" % s_location
-		text += "\n    HP: %d/%d | Grains: %d | %s" % [s_hp, s_max_hp, s_grains, save.get("timestamp", "?")]
+		text += _ploc("\n    HP: %d/%d | Grains: %d | %s", "\n    HP %d/%d · %d 그레인 · %s") % [s_hp, s_max_hp, s_grains, save.get("timestamp", "?")]
 
 	# S56/S57: Autosave slot info (enhanced)
 	var auto_save = SaveManager.get_save_info(0)
 	if not auto_save.is_empty():
 		var a_ch = auto_save.get("chapter", 1)
-		var a_ch_name = ch_names.get(a_ch, "Unknown")
+		var a_ch_name = GameManager.localized_chapter_name(a_ch, String(ch_names.get(a_ch, "Unknown")))
 		var a_hp = auto_save.get("hp", 0)
 		var a_max_hp = auto_save.get("max_hp", 100)
-		text += "\nAutosave: Ch%d - %s | HP: %d/%d | %s" % [a_ch, a_ch_name, a_hp, a_max_hp, auto_save.get("timestamp", "?")]
+		text += _ploc("\nAutosave: Ch%d - %s | HP: %d/%d | %s", "\n자동 저장 · %d장 %s · HP %d/%d · %s") % [a_ch, a_ch_name, a_hp, a_max_hp, auto_save.get("timestamp", "?")]
 
 	save_info_label.text = text.replace("??", "· ")
+
+## S242: 일시정지 정보 블록과 일부 버튼이 한국어 로케일에서도 영어였다.
+func _ploc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _on_save_archive() -> void:
 	AudioManager.play_sfx("ui_select")

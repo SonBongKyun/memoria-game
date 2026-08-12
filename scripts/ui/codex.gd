@@ -200,7 +200,7 @@ func _build_ui() -> void:
 
 	# 헤더
 	var header = Label.new()
-	header.text = "CODEX"
+	header.text = "도감" if GameManager.current_locale == "ko" else "CODEX"
 	header.add_theme_font_size_override("font_size", 24)
 	header.add_theme_color_override("font_color", Color(0.8, 0.7, 0.5))
 	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -226,9 +226,9 @@ func _build_ui() -> void:
 	tab_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_child(tab_row)
 
-	tab_bestiary = _make_tab_btn("Bestiary", "bestiary")
+	tab_bestiary = _make_tab_btn(_loc("Bestiary", "조우 기록"), "bestiary")
 	tab_row.add_child(tab_bestiary)
-	tab_memories = _make_tab_btn("Memory Archive", "memories")
+	tab_memories = _make_tab_btn(_loc("Memory Archive", "기억 서고"), "memories")
 	tab_row.add_child(tab_memories)
 
 	var sep = HSeparator.new()
@@ -265,7 +265,7 @@ func _build_ui() -> void:
 	_detail_vbox = dvbox  # S59: store reference for sprite preview
 
 	detail_title = Label.new()
-	detail_title.text = "Select an entry..."
+	detail_title.text = _loc("Select an entry...", "항목을 고르세요...")
 	detail_title.add_theme_font_size_override("font_size", 16)
 	detail_title.add_theme_color_override("font_color", Color(0.8, 0.7, 0.55))
 	dvbox.add_child(detail_title)
@@ -284,7 +284,7 @@ func _build_ui() -> void:
 
 	# 닫기 힌트
 	close_hint = Label.new()
-	close_hint.text = "[ESC] Close"
+	close_hint.text = _loc("[ESC] Close", "[ESC] 닫기")
 	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -319,7 +319,7 @@ func _refresh_list() -> void:
 
 	for c in item_list.get_children():
 		c.queue_free()
-	detail_title.text = "Select an entry..."
+	detail_title.text = _loc("Select an entry...", "항목을 고르세요...")
 	detail_body.text = ""
 	_clear_enemy_preview()  # S59: clean up preview on tab switch
 
@@ -362,6 +362,10 @@ func _known_enemy_roster() -> Dictionary:
 		if preset_name != "" and not roster.has(preset_name):
 			roster[preset_name] = ""
 	return roster
+
+## S242: story_log.gd가 쓰는 것과 같은 형태. 한국어를 영어 옆에 두어 문맥에서 읽힌다.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _map_label(map_id: String) -> String:
 	if GameManager.current_locale == "ko":
@@ -414,7 +418,9 @@ func _populate_bestiary() -> void:
 			color = Color(0.7, 0.5, 0.3)
 		# S59: Defeat milestone badge suffix
 		var badge_text = _get_defeat_badge(data.get("defeated", 0))
-		var display_name = enemy_name + badge_text
+		# S242: 전투 화면은 이미 한국어 적 이름을 쓰는데(그림자 파수꾼, 카이로스·관리국
+		# 편집관) 도감만 영어 원문을 그대로 내보내고 있었다. 이름표는 이미 있다.
+		var display_name = GameManager.localized_enemy_name(enemy_name) + badge_text
 		var btn = _make_list_btn(display_name, color)
 		btn.pressed.connect(func(): _show_enemy_detail(enemy_name, data))
 		item_list.add_child(btn)
@@ -440,7 +446,7 @@ func _populate_bestiary() -> void:
 func _populate_memory_archive() -> void:
 	if memory_entries.is_empty():
 		var lbl = Label.new()
-		lbl.text = "No memories collected yet."
+		lbl.text = _loc("No memories collected yet.", "아직 모은 기억이 없습니다.")
 		lbl.add_theme_font_size_override("font_size", 13)
 		lbl.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 		item_list.add_child(lbl)

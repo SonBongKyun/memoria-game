@@ -575,7 +575,7 @@ func _build_ui() -> void:
 	quality_row.add_child(quality_btn)
 
 	# VSync
-	vsync_check = _create_toggle_row(vbox, "VSync", settings.vsync)
+	vsync_check = _create_toggle_row(vbox, "수직 동기화" if GameManager.current_locale == "ko" else "VSync", settings.vsync)
 	vsync_check.toggled.connect(func(toggled: bool):
 		settings.vsync = toggled
 		if toggled:

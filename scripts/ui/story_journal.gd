@@ -214,7 +214,7 @@ func _build_ui() -> void:
 
 	# ── 헤더 ──
 	var header = Label.new()
-	header.text = "JOURNAL, Field Notes of a Memory Carrier"
+	header.text = _loc("JOURNAL, Field Notes of a Memory Carrier", "일지 · 기억 운반자의 현장 기록")
 	header.add_theme_font_size_override("font_size", 18)
 	header.add_theme_color_override("font_color", UITheme.TEXT_ACCENT)
 	main_vbox.add_child(header)
@@ -230,17 +230,17 @@ func _build_ui() -> void:
 	tab_row.add_theme_constant_override("separation", 8)
 	main_vbox.add_child(tab_row)
 
-	tab_events = _create_tab("Events", "events")
+	tab_events = _create_tab(_loc("Events", "사건"), "events")
 	tab_row.add_child(tab_events)
-	tab_npcs = _create_tab("People", "npcs")
+	tab_npcs = _create_tab(_loc("People", "인물"), "npcs")
 	tab_row.add_child(tab_npcs)
-	tab_world = _create_tab("World", "world")
+	tab_world = _create_tab(_loc("World", "세계"), "world")
 	tab_row.add_child(tab_world)
-	tab_choices = _create_tab("Choices", "choices")
+	tab_choices = _create_tab(_loc("Choices", "선택"), "choices")
 	tab_row.add_child(tab_choices)
-	tab_quests_btn = _create_tab("Quests", "quests")
+	tab_quests_btn = _create_tab(_loc("Quests", "의뢰"), "quests")
 	tab_row.add_child(tab_quests_btn)
-	tab_losses_btn = _create_tab("Losses", "losses")
+	tab_losses_btn = _create_tab(_loc("Losses", "상실"), "losses")
 	tab_row.add_child(tab_losses_btn)
 	# S217: 미해결 단서. 저널은 "끝난 일"만 기록해서, 지역에 무엇이 남았는지
 	# 알려 주지 않았다. 남은 것을 세어 주는 탭이 하나 필요하다.
@@ -282,7 +282,7 @@ func _build_ui() -> void:
 	detail_panel.add_child(detail_vbox)
 
 	detail_title = Label.new()
-	detail_title.text = "Select an entry..."
+	detail_title.text = _loc("Select an entry...", "항목을 고르세요...")
 	detail_title.add_theme_font_size_override("font_size", 16)
 	detail_title.add_theme_color_override("font_color", Color(0.8, 0.72, 0.58))
 	detail_vbox.add_child(detail_title)
@@ -310,7 +310,7 @@ func _build_ui() -> void:
 
 	# ── 하단 ──
 	close_hint = Label.new()
-	close_hint.text = "[ESC] Close Journal"
+	close_hint.text = _loc("[ESC] Close Journal", "[ESC] 일지 닫기")
 	close_hint.add_theme_font_size_override("font_size", 13)
 	close_hint.add_theme_color_override("font_color", UITheme.TEXT_DIM)
 	close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -342,7 +342,7 @@ func _refresh_list() -> void:
 	for child in item_list.get_children():
 		child.queue_free()
 
-	detail_title.text = "Select an entry..."
+	detail_title.text = _loc("Select an entry...", "항목을 고르세요...")
 	detail_body.text = ""
 	if detail_art:
 		detail_art.texture = null
@@ -382,10 +382,16 @@ func _update_journal_summary() -> void:
 		var art_path := String(EVENT_ART_BY_FLAG.get(String(entry.get("flag", "")), entry.get("art", "")))
 		if art_path != "" and ResourceLoader.exists(art_path):
 			illustrated_events += 1
-	var ch_name: String = String(CHAPTER_NAMES.get(GameManager.current_chapter, "Unknown"))
-	journal_summary_label.text = "Ch.%d / %s    Held: %d    Burned: %d    Losses: %d    Illustrated: %d/%d" % [
+	var ch_name: String = GameManager.localized_chapter_name(GameManager.current_chapter,
+		String(CHAPTER_NAMES.get(GameManager.current_chapter, "Unknown")))
+	journal_summary_label.text = _loc("Ch.%d / %s    Held: %d    Burned: %d    Losses: %d    Illustrated: %d/%d",
+		"%d장 / %s    보유 %d    연소 %d    상실 %d    삽화 %d/%d") % [
 		GameManager.current_chapter, ch_name, held_count, burn_count, loss_count, illustrated_events, unlocked_events
 	]
+
+## S242: 한국어 로케일인데 저널만 통째로 영어로 남아 있었다.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _update_tab_styles() -> void:
 	for tab_data in [{"btn": tab_events, "name": "events"}, {"btn": tab_npcs, "name": "npcs"}, {"btn": tab_world, "name": "world"}, {"btn": tab_choices, "name": "choices"}, {"btn": tab_quests_btn, "name": "quests"}, {"btn": tab_losses_btn, "name": "losses"}]:
@@ -410,7 +416,8 @@ func _populate_events() -> void:
 		if entry.chapter != last_chapter:
 			last_chapter = entry.chapter
 			var header = Label.new()
-			header.text = "Chapter %d: %s" % [entry.chapter, CHAPTER_NAMES.get(entry.chapter, "")]
+			header.text = _loc("Chapter %d: %s", "%d장 · %s") % [entry.chapter,
+				GameManager.localized_chapter_name(entry.chapter, String(CHAPTER_NAMES.get(entry.chapter, "")))]
 			header.add_theme_font_size_override("font_size", 13)
 			header.add_theme_color_override("font_color", UITheme.TEXT_NARRATION)
 			item_list.add_child(header)

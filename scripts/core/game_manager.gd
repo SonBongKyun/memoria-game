@@ -806,6 +806,30 @@ func localized_speaker(speaker: String) -> String:
 		return String(SPEAKER_NAMES_KO.get(speaker, speaker))
 	return speaker
 
+## S242: 챕터 이름의 한국어 정본.
+##
+## 지금까지 영어 챕터 표가 세 곳에 서로 다른 이름으로 흩어져 있었고(저널의
+## CHAPTER_NAMES, RICH_PRESENCE_CHAPTERS, pause_menu 안의 지역 사전) 한국어는
+## pause_menu에만 1~11장까지 있었다. 그래서 저널 요약줄이 한국어 로케일에서
+## "Ch.5 / Crumbling Coast"로 나왔다.
+##
+## 1~10장은 pause_menu가 쓰던 값, 11~24장은 VN 씬 파일의 title_ko에서 그대로
+## 옮겼다. 두 곳 다 이미 게임에 나오는 정본이므로 새로 지어낸 이름은 없다.
+const CHAPTER_NAMES_KO: Dictionary = {
+	1: "림 숲", 2: "베르단 시장", 3: "벨트 중계소", 4: "표류 대피소",
+	5: "무너지는 해안", 6: "더 심", 7: "심 외곽", 8: "망각의 숲",
+	9: "무색 황무지", 10: "BL-07 공허", 11: "출발", 12: "독자",
+	13: "세 번째 사람", 14: "고해소", 15: "노래하는 자", 16: "네라",
+	17: "망각의 폭풍", 18: "생장례", 19: "접근", 20: "모노리스 진입",
+	21: "에디터의 선택", 22: "핵", 23: "변환", 24: "증언",
+}
+
+## 한국어일 때만 정본 이름을 돌려준다. 그 밖에는 부르는 쪽이 준 영어를 그대로 쓴다.
+func localized_chapter_name(chapter: int, fallback: String = "") -> String:
+	if current_locale == "ko" and CHAPTER_NAMES_KO.has(chapter):
+		return String(CHAPTER_NAMES_KO[chapter])
+	return fallback
+
 func localized_enemy_name(enemy_name: String) -> String:
 	if current_locale == "ko":
 		return String(ENEMY_NAMES_KO.get(enemy_name, enemy_name))
