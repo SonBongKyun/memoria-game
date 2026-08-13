@@ -12,6 +12,17 @@ const PANEL_TOP: float = 10.0
 const PANEL_SLIDE: float = 70.0
 const PANEL_MIN_HEIGHT: float = 54.0
 
+## S245: 전투 화면은 위쪽 띠가 목표 카드·전장 관측·적 정보로 꽉 차 있다. 예전
+## 위치(y=10)에서 힌트는 EnemyReadout 9,677px와 CombatCue 9,651px를 덮었다.
+##
+## 어디로 옮길지는 화면을 훑어서 정했다. 같은 폭의 띠를 10px 간격으로 내리며
+## 겹침을 쟀는데, 그림까지 세면 최소가 y=0이었다. 4초 동안 무대 그림을 가리는
+## 것과 적의 HP를 가리는 것은 값이 다르므로 글자와 막대만 다시 세었더니
+## y 180~250 구간이 유일하게 **겹침 0**이었다. 그 한가운데를 쓴다.
+##
+## 탐색 화면은 위쪽이 비어 있으므로 예전 자리를 그대로 둔다.
+const PANEL_TOP_BATTLE: float = 200.0
+
 var shown_hints: Array = []  # 이미 표시된 힌트 ID 목록 (SaveManager 연동)
 
 # 힌트 정의
@@ -78,6 +89,12 @@ func show_hint(hint_id: String) -> void:
 	_show_panel(hint_text)
 	print("[TutorialHints] Showing hint: %s" % hint_id)
 
+## 전투면 내려간 자리, 그 밖에는 위쪽 띠.
+func _panel_top() -> float:
+	if GameManager.current_state == GameManager.GameState.BATTLE:
+		return PANEL_TOP_BATTLE
+	return PANEL_TOP
+
 func _show_panel(text: String) -> void:
 	if _dismiss_tween and _dismiss_tween.is_valid():
 		_dismiss_tween.kill()
@@ -91,23 +108,26 @@ func _show_panel(text: String) -> void:
 	if _banner:
 		_banner.visible = true
 		_banner.modulate.a = 0.0
-		_banner.position.y = -60
+		_banner.offset_top = _panel_top() - 12.0 - PANEL_SLIDE
+		_banner.offset_bottom = _panel_top() + 68.0 - PANEL_SLIDE
 	_panel.visible = true
 	_panel.modulate.a = 0.0
 	# Control.position 세터는 size_cache를 보존하며 offset을 다시 쓴다. 레이아웃이
 	# 확정되기 전의 높이가 그대로 offset_bottom에 굳어, 라벨 최소 크기를 고쳐도
 	# 패널은 계속 806px이었다. 높이를 직접 계산해 offset 두 개를 짝으로 움직인다.
 	var height := maxf(_panel.get_combined_minimum_size().y, PANEL_MIN_HEIGHT)
-	_panel.offset_top = PANEL_TOP - PANEL_SLIDE
+	var top := _panel_top()
+	_panel.offset_top = top - PANEL_SLIDE
 	_panel.offset_bottom = _panel.offset_top + height
 	var tw = create_tween().set_parallel(true)
 	tw.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	if _banner:
 		tw.tween_property(_banner, "modulate:a", 0.78, 0.3).set_ease(Tween.EASE_OUT)
-		tw.tween_property(_banner, "position:y", 10.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tw.tween_property(_banner, "offset_top", top - 12.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tw.tween_property(_banner, "offset_bottom", top + 68.0, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	tw.tween_property(_panel, "modulate:a", 1.0, 0.3).set_ease(Tween.EASE_OUT)
-	tw.tween_property(_panel, "offset_top", PANEL_TOP, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	tw.tween_property(_panel, "offset_bottom", PANEL_TOP + height, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_panel, "offset_top", top, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_panel, "offset_bottom", top + height, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	_timer.start(4.0)
 
 func _dismiss() -> void:
@@ -120,11 +140,11 @@ func _dismiss() -> void:
 	_dismiss_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	if _banner:
 		_dismiss_tween.tween_property(_banner, "modulate:a", 0.0, 0.25)
-		_dismiss_tween.tween_property(_banner, "position:y", -60.0, 0.25).set_ease(Tween.EASE_IN)
+		_dismiss_tween.tween_property(_banner, "offset_top", _panel_top() - 12.0 - PANEL_SLIDE, 0.25).set_ease(Tween.EASE_IN)
 	_dismiss_tween.tween_property(_panel, "modulate:a", 0.0, 0.25)
 	var height := _panel.offset_bottom - _panel.offset_top
-	_dismiss_tween.tween_property(_panel, "offset_top", PANEL_TOP - PANEL_SLIDE, 0.25).set_ease(Tween.EASE_IN)
-	_dismiss_tween.tween_property(_panel, "offset_bottom", PANEL_TOP - PANEL_SLIDE + height, 0.25).set_ease(Tween.EASE_IN)
+	_dismiss_tween.tween_property(_panel, "offset_top", _panel_top() - PANEL_SLIDE, 0.25).set_ease(Tween.EASE_IN)
+	_dismiss_tween.tween_property(_panel, "offset_bottom", _panel_top() - PANEL_SLIDE + height, 0.25).set_ease(Tween.EASE_IN)
 	_dismiss_tween.chain().tween_callback(func():
 		if _banner:
 			_banner.visible = false
