@@ -59,8 +59,12 @@ const ELEMENT_RESIST: float = 0.7  # 저항 감쇠
 # --- 기억 연소 스킬 ---
 const BURN_SKILLS: Dictionary = {
 	# grade: {name, base_damage, description, element}
-	0: {"name": "Ember", "base_damage": 30, "desc": "A flicker of forgotten warmth.", "element": "fire"},
-	1: {"name": "Blue Flame Slash", "base_damage": 60, "desc": "A blade edged with erased days.", "element": "fire"},
+	# S246: 30/60에서 내렸다. 시뮬레이션 결과 가장 값싼 기억(GRADE_5, 연소력 10)의
+	# 연소가 1장 평타(약 20)의 두 배였고, 그 탓에 모든 교전에서 "잡동사니를 태운다"가
+	# 지배 전략이었다. 턴을 62~73%, 받는 피해를 64~79% 줄이는데 예외가 없었다.
+	# 소중하지 않은 것으로 중심 긴장을 우회하게 두지 않는다.
+	0: {"name": "Ember", "base_damage": 12, "desc": "A flicker of forgotten warmth.", "element": "fire"},
+	1: {"name": "Blue Flame Slash", "base_damage": 30, "desc": "A blade edged with erased days.", "element": "fire"},
 	2: {"name": "Incinerate", "base_damage": 120, "desc": "Bonds severed feed the fire.", "element": "fire"},
 	3: {"name": "Identity Pyre", "base_damage": 250, "desc": "Who you were becomes what you wield.", "element": "void"},
 	4: {"name": "Zero Burn", "base_damage": 999, "desc": "Everything. All of it. Gone.", "element": "void"},
@@ -370,9 +374,16 @@ const LIMIT_GAIN_HIT: float = 15.0      # 피격 시
 const LIMIT_GAIN_DEFEND: float = 5.0    # 방어 시
 const BREAK_MAX: float = 100.0
 const BREAK_WEAKNESS_GAIN: float = 42.0
-const BREAK_NEUTRAL_GAIN: float = 10.0
+## S246: 10.0에서 올렸다. 중립 공격 10씩으로는 100을 채우는 데 열 번(보스는
+## 열네 번)이 걸려서, 평타를 쌓아 BREAK로 갚는 고리가 사실상 닫히지 않았다.
+## 그래서 "공격은 BREAK를 쌓고 연소는 화력을 산다"는 튜토리얼 문장이 실제
+## 플레이에서는 거짓이었고, 평타를 고를 이유가 없었다.
+const BREAK_NEUTRAL_GAIN: float = 16.0
 const BREAK_BOSS_MULT: float = 0.72
-const BREAK_DAMAGE_BONUS: float = 1.35
+const BREAK_DAMAGE_BONUS: float = 1.80
+## 붕괴 지속 턴. 1턴짜리 창은 다음 행동 하나만 받쳐 줬다. 두 턴이면 "평타로
+## 열고 무게 있는 기억을 그 안에 꽂는다"는 순서가 실제로 성립한다.
+const BREAK_STAGGER_TURNS: int = 2
 signal limit_changed(value: float)
 
 ## Limit 게이지 증가 헬퍼
@@ -1649,7 +1660,7 @@ func _register_break_pressure(attack_element: String) -> void:
 		_add_momentum(8.0, "Weakness pressure")
 	if enemy_break_gauge >= BREAK_MAX:
 		enemy_break_gauge = 0.0
-		enemy_broken_turns = 1
+		enemy_broken_turns = BREAK_STAGGER_TURNS
 		_breaks_this_battle += 1
 		battle_log.emit(_bl("[BREAK] %s is staggered!", "[BREAK] %s이(가) 비틀거린다!") % current_enemy.name)
 		_add_momentum(18.0, "BREAK triggered")
@@ -1666,7 +1677,7 @@ func _apply_flat_break_pressure(gain: float) -> void:
 	if enemy_break_gauge < BREAK_MAX:
 		return
 	enemy_break_gauge = 0.0
-	enemy_broken_turns = 1
+	enemy_broken_turns = BREAK_STAGGER_TURNS
 	_breaks_this_battle += 1
 	battle_log.emit("[BREAK] %s is staggered!" % current_enemy.name)
 	_add_momentum(18.0, "BREAK triggered")
@@ -1744,8 +1755,14 @@ func player_burn(memory_id: String) -> void:
 	# S55: Tutorial hint
 	TutorialHints.show_hint("first_burn")
 	GameManager.add_stat("total_burns")
-	# S53: 연속 연소 체인
-	_burn_chain += 1
+	# S53/S246: 연속 연소 체인. 예전에는 등급과 무관하게 쌓여서, 감각 잔편을
+	# 연달아 태우는 것만으로 배율이 붙었다(연쇄가 값싼 연소 지배의 증폭원이었다).
+	# 공명은 무게가 있어야 인다. GRADE_3 이상만 쌓이고, 그보다 가벼운 것을 태우면
+	# 지금까지 쌓은 것이 흩어진다.
+	if memory.grade >= MemoryManager.MemoryGrade.GRADE_3:
+		_burn_chain += 1
+	else:
+		_burn_chain = 0
 	var skill = BURN_SKILLS.get(memory.grade, BURN_SKILLS[0])
 	AudioManager.play_combat_sfx("burn_ignite")  # S58: 레이어드 연소 SFX
 	InputManager.vibrate("memory_burn")

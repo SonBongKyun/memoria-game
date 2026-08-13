@@ -49,7 +49,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 
 	print("BALANCE_HEADER policy preset chapter turns dmg_taken max_hp lethality stalls")
-	for policy in ["attack", "burn"]:
+	for policy in ["attack", "burn_cheap", "burn_weighty"]:
 		for encounter in ENCOUNTERS:
 			await _measure(encounter, policy)
 	print("BATTLE_BALANCE_DONE")
@@ -68,13 +68,13 @@ func _measure(encounter: Dictionary, policy: String) -> void:
 		max_hp = int(result["max_hp"])
 		if bool(result["stalled"]):
 			stalls += 1
-			print("BALANCE_STALL %-6s %-16s run=%d turns=%d" % [policy, encounter["preset"], run, int(result["turns"])])
+			print("BALANCE_STALL %-12s %-16s run=%d turns=%d" % [policy, encounter["preset"], run, int(result["turns"])])
 
 	var turns := float(turns_total) / float(RUNS)
 	var damage := float(damage_total) / float(RUNS)
 	# 받은 피해가 최대 HP의 몇 배인가. 1.0을 넘으면 회복 없이는 못 버틴다.
 	var lethality := damage / maxf(float(max_hp), 1.0)
-	print("BALANCE %-6s %-16s ch%-2d turns=%5.1f dmg=%6.1f max_hp=%3d lethality=%.2f stalls=%d burns=%.1f" % [
+	print("BALANCE %-12s %-16s ch%-2d turns=%5.1f dmg=%6.1f max_hp=%3d lethality=%.2f stalls=%d burns=%.1f" % [
 		policy, encounter["preset"], int(encounter["chapter"]), turns, damage, max_hp, lethality, stalls,
 		float(_burn_total) / float(RUNS)])
 	_burn_total = 0
@@ -115,10 +115,12 @@ func _one_battle(encounter: Dictionary, policy: String) -> Dictionary:
 			continue
 		_turn_ready = false
 		# 연소 정책: 태울 기억이 있으면 태우고, 없으면 벤다. 이 게임의 중심 선택을
-		# 그대로 흉내 낸다. 등급이 높은 것부터 쓴다.
+		# 그대로 흉내 낸다. burn_cheap은 잡동사니부터, burn_weighty는 연쇄가 쌓이는
+		# 등급(GRADE_3 이상)부터 쓴다. 두 줄을 나란히 놓아야 "값싼 연타"와
+		# "무게 있는 것을 쓴다"가 갈린다.
 		var burned := false
-		if policy == "burn":
-			var memory_id := _cheapest_memory()
+		if policy != "attack":
+			var memory_id := _cheapest_memory() if policy == "burn_cheap" else _weighty_memory()
 			if memory_id != "":
 				BattleManager.player_burn(memory_id)
 				_burn_total += 1
@@ -154,6 +156,21 @@ func _one_battle(encounter: Dictionary, policy: String) -> Dictionary:
 ## 자원이 아니다. 계산식은 정상이었고 정책이 틀렸다.
 ##
 ## 실제 플레이어는 값싼 것부터 쓴다. 감각 잔편(GRADE_5)이 가장 싸다.
+## 연쇄가 쌓이는 최저 등급(GRADE_3) 이상 중 가장 값싼 것.
+## "잡동사니 연타"와 "무게 있는 것을 쓴다"를 갈라 보기 위한 정책이다.
+func _weighty_memory() -> String:
+	var best_id := ""
+	var best_grade := 99
+	for memory in MemoryManager.memories:
+		if memory.is_burned or memory.is_faded:
+			continue
+		if memory.grade < MemoryManager.MemoryGrade.GRADE_3:
+			continue
+		if memory.grade < best_grade:
+			best_grade = memory.grade
+			best_id = memory.id
+	return best_id
+
 func _cheapest_memory() -> String:
 	var best_id := ""
 	var best_grade := 99
