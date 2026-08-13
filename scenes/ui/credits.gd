@@ -4,35 +4,37 @@ extends Control
 
 const SCROLL_SPEED: float = 40.0  # px/sec
 const GAME_VERSION: String = "v0.9.0"  # S59: Shown at the end of credits
-const CREDITS_DATA: Array = [
+## S243: 항목 이름이 로케일에 따라 달라지므로 상수로 둘 수 없다. 런타임에 만든다.
+func _credits_data() -> Array:
+	return [
 	{"type": "title", "text": "MEMORIA"},
 	{"type": "subtitle", "text": "The Price of Oblivion"},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Created By"},
+	{"type": "heading", "text": _loc("Created By", "제작")},
 	{"type": "name", "text": "Son Bong Kyun"},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Story & Writing"},
+	{"type": "heading", "text": _loc("Story & Writing", "각본")},
 	{"type": "name", "text": "Son Bong Kyun"},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Game Design"},
+	{"type": "heading", "text": _loc("Game Design", "게임 디자인")},
 	{"type": "name", "text": "Son Bong Kyun"},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Programming"},
+	{"type": "heading", "text": _loc("Programming", "프로그래밍")},
 	{"type": "name", "text": "GDScript / Godot 4.6"},
-	{"type": "name", "text": "with Claude (Anthropic)"},
+	{"type": "name", "text": _loc("with Claude (Anthropic)", "Claude(Anthropic)와 함께")},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Art"},
-	{"type": "name", "text": "Leonardo AI, CG & Portraits"},
-	{"type": "name", "text": "Procedural Pixel Art, Code Generated"},
+	{"type": "heading", "text": _loc("Art", "아트")},
+	{"type": "name", "text": _loc("Leonardo AI, CG & Portraits", "Leonardo AI · CG 및 포트레이트")},
+	{"type": "name", "text": _loc("Procedural Pixel Art, Code Generated", "절차적 픽셀 아트 · 코드 생성")},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Music"},
+	{"type": "heading", "text": _loc("Music", "음악")},
 	{"type": "name", "text": "Suno / Udio AI"},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Sound Effects"},
-	{"type": "name", "text": "Procedural Audio, Code Generated"},
+	{"type": "heading", "text": _loc("Sound Effects", "효과음")},
+	{"type": "name", "text": _loc("Procedural Audio, Code Generated", "절차적 오디오 · 코드 생성")},
 	{"type": "spacer"},
 	{"type": "spacer"},
-	{"type": "heading", "text": "Engine"},
+	{"type": "heading", "text": _loc("Engine", "엔진")},
 	{"type": "name", "text": "Godot Engine 4.6"},
 	{"type": "name", "text": "godotengine.org"},
 	{"type": "spacer"},
@@ -52,6 +54,11 @@ func _ready() -> void:
 	GameManager.mark_game_completed()
 	_record_ending_achievements()
 	_build_ui()
+
+## S243: 크레딧은 전체 플레이의 마지막 화면인데 한국어 로케일에서도 통째로
+## 영어였다. 분기별 에필로그 한 줄까지 포함해서.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _record_ending_achievements() -> void:
 	if GameManager.get_flag("zero_burn_path"):
@@ -76,21 +83,21 @@ func _build_ui() -> void:
 	add_child(scroll_container)
 
 	var y_offset: float = 0.0
-	var credits = CREDITS_DATA.duplicate()
+	var credits = _credits_data()
 
 	# 분기별 에필로그 한 줄 추가
 	if GameManager.get_flag("zero_burn_path"):
-		credits.append({"type": "quote", "text": "He burned everything. Even his name."})
-		credits.append({"type": "quote_sub", "text": "But something remained, a shape where a person used to be."})
+		credits.append({"type": "quote", "text": _loc("He burned everything. Even his name.", "그는 전부 태웠다. 자기 이름까지.")})
+		credits.append({"type": "quote_sub", "text": _loc("But something remained, a shape where a person used to be.", "그래도 무언가는 남았다. 사람이 서 있던 자리의 모양이.")})
 	elif GameManager.get_flag("seal_refused") and MemoryManager.get_burn_count() >= 4:
-		credits.append({"type": "quote", "text": "What remains is not a man. Just ash, drifting."})
-		credits.append({"type": "quote_sub", "text": "The name survived. Nothing else did."})
+		credits.append({"type": "quote", "text": _loc("What remains is not a man. Just ash, drifting.", "남은 것은 사람이 아니다. 떠도는 재일 뿐.")})
+		credits.append({"type": "quote_sub", "text": _loc("The name survived. Nothing else did.", "이름은 살아남았다. 그 밖에는 아무것도.")})
 	elif GameManager.get_flag("seal_refused") and GameManager.get_flag("hidden_ch1_stump") and GameManager.get_flag("hidden_ch6_garden"):
-		credits.append({"type": "quote", "text": "In the cracks between loss, something green still grows."})
-		credits.append({"type": "quote_sub", "text": "The smallest moments became the strongest shield."})
+		credits.append({"type": "quote", "text": _loc("In the cracks between loss, something green still grows.", "상실과 상실 사이의 틈에서, 아직 푸른 것이 자란다.")})
+		credits.append({"type": "quote_sub", "text": _loc("The smallest moments became the strongest shield.", "가장 작은 순간들이 가장 단단한 방패가 되었다.")})
 	else:
-		credits.append({"type": "quote", "text": "He kept his name. The seal held."})
-		credits.append({"type": "quote_sub", "text": "Whether that was enough... only time would tell."})
+		credits.append({"type": "quote", "text": _loc("He kept his name. The seal held.", "그는 이름을 지켰다. 봉인은 버텼다.")})
+		credits.append({"type": "quote_sub", "text": _loc("Whether that was enough... only time would tell.", "그것으로 충분했는지는, 시간만이 답할 것이다.")})
 
 	credits.append({"type": "spacer"})
 	credits.append({"type": "spacer"})
@@ -98,20 +105,20 @@ func _build_ui() -> void:
 	# S59: Special Thanks section
 	credits.append({"type": "divider"})
 	credits.append({"type": "spacer"})
-	credits.append({"type": "heading", "text": "Special Thanks"})
-	credits.append({"type": "name", "text": "The Godot Community"})
-	credits.append({"type": "name", "text": "Everyone who playtested and gave feedback"})
-	credits.append({"type": "name", "text": "To The Moon & LISA, for the inspiration"})
-	credits.append({"type": "name", "text": "All memory keepers who refuse to forget"})
+	credits.append({"type": "heading", "text": _loc("Special Thanks", "감사의 말")})
+	credits.append({"type": "name", "text": _loc("The Godot Community", "Godot 커뮤니티")})
+	credits.append({"type": "name", "text": _loc("Everyone who playtested and gave feedback", "플레이테스트와 피드백을 준 모든 분")})
+	credits.append({"type": "name", "text": _loc("To The Moon & LISA, for the inspiration", "영감을 준 To The Moon과 LISA에게")})
+	credits.append({"type": "name", "text": _loc("All memory keepers who refuse to forget", "잊기를 거부하는 모든 기억 지킴이에게")})
 	credits.append({"type": "spacer"})
 	credits.append({"type": "divider"})
 	credits.append({"type": "spacer"})
 
-	credits.append({"type": "thanks", "text": "Thank you for playing."})
+	credits.append({"type": "thanks", "text": _loc("Thank you for playing.", "플레이해 주셔서 고맙습니다.")})
 	credits.append({"type": "spacer"})
 	# S56: Steam wishlist reminder (subtle, non-intrusive)
-	credits.append({"type": "steam_wishlist", "text": "MEMORIA is coming to Steam"})
-	credits.append({"type": "steam_sub", "text": "Wishlist now to be notified at launch"})
+	credits.append({"type": "steam_wishlist", "text": _loc("MEMORIA is coming to Steam", "MEMORIA가 Steam에 출시됩니다")})
+	credits.append({"type": "steam_sub", "text": _loc("Wishlist now to be notified at launch", "위시리스트에 담으면 출시 알림을 받습니다")})
 	credits.append({"type": "spacer"})
 	# S59: Version number at the end
 	credits.append({"type": "version", "text": "MEMORIA %s" % GAME_VERSION})
@@ -186,7 +193,7 @@ func _build_ui() -> void:
 
 	# 스킵 안내
 	var skip_label = Label.new()
-	skip_label.text = "Press SPACE or ENTER to skip"
+	skip_label.text = _loc("Press SPACE or ENTER to skip", "SPACE 또는 ENTER로 건너뛰기")
 	skip_label.set_anchors_preset(PRESET_BOTTOM_WIDE)
 	skip_label.offset_top = -40
 	skip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

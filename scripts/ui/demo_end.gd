@@ -18,8 +18,12 @@ func _build() -> void:
 	bg.set_anchors_preset(PRESET_FULL_RECT)
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	if ResourceLoader.exists("res://assets/cg/game_image/game_start.png"):
-		bg.texture = load("res://assets/cg/game_image/game_start.png")
+	# S243: 예전에는 game_start.png를 깔았다. 그 그림은 타이틀 화면 목업이라
+	# NEW GAME / CONTINUE / SETTINGS / EXIT와 PRESS ANY KEY가 삽화에 구워져 있고,
+	# 데모 종료 문구 뒤로 가짜 영어 메뉴가 겹쳐 보였다. 본문이 "벨트를 지나"라고
+	# 말하므로 그 다음 목적지의 챕터 스플래시를 깐다. 구운 UI가 없다.
+	if ResourceLoader.exists("res://assets/cg/generated/chapter_splash_belt_waystation.png"):
+		bg.texture = load("res://assets/cg/generated/chapter_splash_belt_waystation.png")
 	bg.modulate = Color(0.55, 0.5, 0.55, 1.0)
 	add_child(bg)
 
@@ -42,7 +46,7 @@ func _build() -> void:
 
 	# 타이틀
 	var title = Label.new()
-	title.text = "Act I, Ash"
+	title.text = _loc("Act I, Ash", "제1부 · 재")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 48)
 	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.55))
@@ -52,7 +56,7 @@ func _build() -> void:
 
 	# 부제
 	var subtitle = Label.new()
-	subtitle.text = "End of Demo"
+	subtitle.text = _loc("End of Demo", "데모 종료")
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 18)
 	subtitle.add_theme_color_override("font_color", Color(0.7, 0.62, 0.5))
@@ -73,7 +77,7 @@ func _build() -> void:
 	body.custom_minimum_size = Vector2(700, 0)
 	body.add_theme_font_size_override("normal_font_size", 16)
 	body.add_theme_color_override("default_color", Color(0.85, 0.8, 0.72))
-	body.text = "[center]Thank you for playing.\n\nArrel's road continues, through the Belt, the Seam, and the place beyond memory.\nA brother to find. A choice that cannot be unmade.\n\n[i]The full game will release on Steam.[/i][/center]"
+	body.text = _loc("[center]Thank you for playing.\n\nArrel's road continues, through the Belt, the Seam, and the place beyond memory.\nA brother to find. A choice that cannot be unmade.\n\n[i]The full game will release on Steam.[/i][/center]", "[center]플레이해 주셔서 고맙습니다.\n\n아렐의 길은 계속됩니다. 벨트를 지나, 심을 지나, 기억 너머의 장소까지.\n찾아야 할 형제. 되돌릴 수 없는 선택.\n\n[i]정식판은 Steam에 출시됩니다.[/i][/center]")
 	body.modulate.a = 0.0
 	body.name = "BodyLabel"
 	vbox.add_child(body)
@@ -89,7 +93,7 @@ func _build() -> void:
 	for m in MemoryManager.burned_memories:
 		if m.is_residue:
 			residue += 1
-	stats.text = "You burned %d memories.   %d remain as residue." % [burned, residue]
+	stats.text = _loc("You burned %d memories.   %d remain as residue.", "기억 %d개를 태웠습니다.   %d개가 잔존으로 남았습니다.") % [burned, residue]
 	stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stats.add_theme_font_size_override("font_size", 13)
 	stats.add_theme_color_override("font_color", Color(0.6, 0.55, 0.45))
@@ -109,14 +113,14 @@ func _build() -> void:
 	btn_box.name = "BtnBox"
 	vbox.add_child(btn_box)
 
-	var wishlist_btn = _make_btn("✦  Wishlist on Steam")
+	var wishlist_btn = _make_btn(_loc("✦  Wishlist on Steam", "✦  Steam 위시리스트에 담기"))
 	wishlist_btn.pressed.connect(func():
 		AudioManager.play_sfx("ui_select")
 		OS.shell_open(STEAM_URL)
 	)
 	btn_box.add_child(wishlist_btn)
 
-	var title_btn = _make_btn("Return to Title")
+	var title_btn = _make_btn(_loc("Return to Title", "타이틀로 돌아가기"))
 	title_btn.pressed.connect(func():
 		AudioManager.play_sfx("ui_select")
 		SceneTransition.change_scene_styled("res://scenes/main/main.tscn")
@@ -129,6 +133,10 @@ func _build() -> void:
 		get_tree().quit()
 	)
 	btn_box.add_child(quit_btn)
+
+## S243: 데모를 끝까지 본 플레이어가 마지막으로 보는 화면인데 통째로 영어였다.
+func _loc(en: String, ko: String) -> String:
+	return ko if GameManager.current_locale == "ko" else en
 
 func _make_btn(label: String) -> Button:
 	var btn = Button.new()

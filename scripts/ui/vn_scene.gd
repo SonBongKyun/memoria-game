@@ -30,7 +30,7 @@ var _cg_next: TextureRect
 var _cg_detail_top: TextureRect
 var _cg_vignette: TextureRect
 var _cg_focus_glow: TextureRect
-var _cg_lower_wash: ColorRect
+var _cg_lower_wash: TextureRect
 var _portrait_left_frame: PanelContainer
 var _portrait_right_frame: PanelContainer
 var _portrait_left: TextureRect
@@ -152,12 +152,21 @@ func _build_ui() -> void:
 	_cg_focus_glow = _make_focus_glow_rect()
 	root.add_child(_cg_focus_glow)
 
-	_cg_lower_wash = ColorRect.new()
+	# S243: 평면 ColorRect였다. 위 변(y=389)에서 어둡기가 뚝 끊겨 CG 위에 가로줄이
+	# 보였다(레이어 발자국 측정에서 세로 도약 0.0275). 위쪽이 투명한 세로
+	# 그라디언트로 바꿔 경계를 없앤다. 아래 절반은 예전 세기를 그대로 유지한다.
+	_cg_lower_wash = TextureRect.new()
 	_cg_lower_wash.anchor_left = 0.0
 	_cg_lower_wash.anchor_right = 1.0
 	_cg_lower_wash.anchor_top = 0.54
 	_cg_lower_wash.anchor_bottom = 1.0
-	_cg_lower_wash.color = Color(0.018, 0.014, 0.022, CG_LOWER_WASH_ALPHA)
+	_cg_lower_wash.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_cg_lower_wash.stretch_mode = TextureRect.STRETCH_SCALE
+	# 기본 필터로 두면 256줄 텍스처가 331px로 늘어나며 계단이 생기고, 첫 계단이
+	# 가로선으로 보인다. 선형 보간으로 매끄럽게 편다.
+	_cg_lower_wash.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_cg_lower_wash.texture = _make_lower_wash_texture()
+	_cg_lower_wash.modulate = Color(1, 1, 1, CG_LOWER_WASH_ALPHA)
 	_cg_lower_wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(_cg_lower_wash)
 
@@ -541,14 +550,18 @@ func _make_cg_detail_rect() -> TextureRect:
 	tr.modulate = Color(0.88, 0.80, 0.68, 0.0)
 	return tr
 
+## S243: 예전에는 앵커 x 0.12~0.88 / y 0.42~1.03 사각형에 그렸다. 그런데 그
+## 그라디언트는 사각형 경계에 닿기 전에 투명해지지 않아서, 네 변이 그대로
+## 보이는 밝은 블록이 CG 위에 얹혔다. 레이어 발자국을 뽑아 보니 위 변(y=282)에서
+## 세로 도약 0.0695, 오른 변(x=1127)에서 가로 도약 0.0287로 화면에서 가장
+## 날카로운 경계였다.
+##
+## 사각형을 화면 전체로 넓혀 경계를 화면 밖으로 보낸다. 광원이 있던 화면상
+## 위치와 크기는 그대로 유지하려고 fill_from/fill_to를 예전 사각형 기준
+## 좌표에서 전체 화면 기준으로 환산했다(중심 (640, 653), 반지름 끝 (1088, 419)).
 func _make_focus_glow_rect() -> TextureRect:
 	var tr = TextureRect.new()
-	tr.anchor_left = 0.12
-	tr.anchor_right = 0.88
-	tr.anchor_top = 0.42
-	tr.anchor_bottom = 1.03
-	tr.offset_top = -20
-	tr.offset_bottom = 28
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
 	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tr.stretch_mode = TextureRect.STRETCH_SCALE
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -562,10 +575,25 @@ func _make_focus_glow_rect() -> TextureRect:
 	tex.width = 512
 	tex.height = 256
 	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.76)
-	tex.fill_to = Vector2(0.96, 0.28)
+	tex.fill_from = Vector2(0.5, 0.907)
+	tex.fill_to = Vector2(0.850, 0.582)
 	tr.texture = tex
 	return tr
+
+## 아래로 갈수록 짙어지는 세로 그라디언트. 위쪽은 완전히 투명해서 경계가 없다.
+func _make_lower_wash_texture() -> Texture2D:
+	var grad := Gradient.new()
+	grad.add_point(0.0, Color(0.018, 0.014, 0.022, 0.0))
+	grad.add_point(0.55, Color(0.018, 0.014, 0.022, 1.0))
+	grad.add_point(1.0, Color(0.018, 0.014, 0.022, 1.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.width = 8
+	tex.height = 512
+	tex.fill = GradientTexture2D.FILL_LINEAR
+	tex.fill_from = Vector2(0.0, 0.0)
+	tex.fill_to = Vector2(0.0, 1.0)
+	return tex
 
 func _make_cinematic_vignette_rect() -> TextureRect:
 	var tr = TextureRect.new()
@@ -915,7 +943,7 @@ func _apply_cg_presentation_profile(path: String) -> void:
 		vignette_alpha = 0.24
 
 	if _cg_lower_wash:
-		_cg_lower_wash.color.a = wash_alpha
+		_cg_lower_wash.modulate.a = wash_alpha
 	if _cg_focus_glow:
 		_cg_focus_glow.modulate.a = glow_alpha
 	if _cg_vignette:
