@@ -634,7 +634,12 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 		enemy.attack = int(enemy.attack * diff_scale)
 
 	# 챕터별 최대 HP 성장
-	var chapter_hp = 100 + (GameManager.current_chapter - 1) * 15
+	# S248: 회차 보정을 여기에 넣는다. 예전에는 NG++ 진입 시 max_hp를 120으로
+	# 올렸지만 이 식이 3장이면 그 위로 올라가 버려 보너스가 흡수됐다. 적은 회당
+	# 1.3배씩 커지는데 플레이어 성장은 사실상 평평했다는 뜻이다(NG++ 전용 장비도
+	# 일반 최고 조합 대비 공격 +3 / 방어 +4뿐이다). 회차당 +20을 상시로 얹어,
+	# 늘어난 벽에 맞는 체력을 들고 가게 한다.
+	var chapter_hp = 100 + (GameManager.current_chapter - 1) * 15 + GameManager.ng_plus_cycle * 20
 	if GameManager.player_data.max_hp < chapter_hp:
 		GameManager.player_data.max_hp = chapter_hp
 		GameManager.player_data.hp = mini(GameManager.player_data.hp + 15, chapter_hp)
@@ -643,8 +648,11 @@ func start_battle(enemy_ref: Variant, from_scene: String = "", bg_image: String 
 	difficulty_bonus = 0.0
 	if GameManager.current_chapter >= 7:
 		difficulty_bonus += 0.15  # Ch7-10: +15% enemy damage
-	if GameManager.ng_plus_cycle >= 1:
-		difficulty_bonus += 0.20  # NG+: additional +20%
+	# S248: 예전에는 여기서 NG+에 +20%를 더 얹었다. 그런데 바로 위 start_battle이
+	# 이미 get_ng_scale()로 적 공격력에 회당 1.3배씩 곱한다. 같은 의도를 두 번 세는
+	# 것이고, 그 탓에 NG+ 난이도가 회차마다 복리로 뛰었다. 장비를 이어받은 NG+2의
+	# 최종 보스 치명도가 2.74로, 첫 회차 맨몸(1.36)의 두 배였다.
+	# 스케일링은 get_ng_scale() 한 곳에서만 한다.
 
 	GameManager.change_state(GameManager.GameState.BATTLE)
 
