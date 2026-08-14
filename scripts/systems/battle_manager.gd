@@ -118,6 +118,38 @@ const RECURRING_ENEMY_ART: Dictionary = {
 	"threshold shade": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_threshold_shade_v1.png",
 	"memory eater": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_memory_eater_v1.png",
 	"void watcher": "res://assets/cg/generated/illustration_expansion_v3/enemy_cutin_void_watcher_v1.png",
+
+	# S250: 로스터 28종을 실제로 렌더해 보니 20종이 삽화 없이 절차 생성
+	# 플레이스홀더로 떨어지고 있었다. 그림이 없어서가 아니라, 위 항목들의 키가
+	# 맵이 쓰는 이름과 달랐기 때문이다(표는 "ash hound", 맵은 "Ash Walker").
+	# 종류가 실제로 맞는 것만 잇는다. 종이 다른 그림을 붙이는 것은 S241/S247이
+	# 두 번 고쳐야 했던 오류와 같은 종류다.
+	# 그리고 세로형 무대 플레이트(battle_stage_v2, 1024x1536)를 쓴다. 16:9 컷인
+	# (1672x941)은 350x296 판에 레터박스로 들어가 생물이 작아진다(S241 계측).
+	# 기어다니는 것들 — 애시 크롤러 컷인
+	"dust crawler": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"threshold crawler": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"depth crawler": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"cliff stalker": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	# 도깨비불 계열 — 시그널 위습
+	"void wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+	"null wisp": "res://assets/cg/generated/battle_stage_v2/enemy_signal_wisp_stage_v1.png",
+	# 망령 계열 — 보이드 워처
+	"void wraith": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	"colorless wraith": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	"shore wraith": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	# 뿌리·숲 계열
+	"root shade": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_stage_v1.png",
+	"ash phantom": "res://assets/cg/generated/battle_stage_v2/enemy_rootbound_echo_stage_v1.png",
+	# 공허 구조물
+	"void sentinel": "res://assets/cg/character_shots/shade_sentinel_guard_v3.png",
+	"seam lurker": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	"hollow walker": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
+	# 재의 짐승과 갉는 것들
+	"ash walker": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"alley rat": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"rubble rat": "res://assets/cg/generated/battle_stage_v2/enemy_ash_hound_stage_v1.png",
+	"memory leech": "res://assets/cg/generated/battle_stage_v2/enemy_void_fragment_stage_v1.png",
 }
 const ART_VOID_CREATURE_SHEET: String = "res://assets/game_image/reference/void_creature_sprite_sheet.png"
 const ART_MEMORY_LOST_SOLDIER: String = "res://assets/game_image/reference/memory_lost_soldier_sprite_sheet.png"
