@@ -1632,10 +1632,17 @@ func _log_element_effect(attack_element: String) -> void:
 		battle_log.emit(_bl("It's not very effective...", "효과가 별로다..."))
 
 ## 콤보 보너스 계수 (S46: 스케일링 강화 + 마일스톤 보상)
-func _apply_break_damage_bonus(damage: int) -> int:
+## S247: 붕괴 창은 **평타의 보상**으로 넓힌 것이다(S246). 그런데 연소까지 같은
+## 배율로 증폭하니, 무게 있는 기억 하나가 창 안에서 300 이상을 내며 보스를 두 턴에
+## 끝냈다. 창을 여는 대가를 치른 쪽은 평타이므로 몫도 평타가 갖는다. 연소는
+## 예전 배율을 그대로 쓴다.
+const BREAK_BURN_BONUS: float = 1.30
+
+func _apply_break_damage_bonus(damage: int, is_burn: bool = false) -> int:
 	if enemy_broken_turns <= 0:
 		return damage
-	return maxi(1, int(damage * BREAK_DAMAGE_BONUS))
+	var bonus := BREAK_BURN_BONUS if is_burn else BREAK_DAMAGE_BONUS
+	return maxi(1, int(damage * bonus))
 
 func _register_break_pressure(attack_element: String) -> void:
 	if current_enemy == null or attack_element == "" or enemy_broken_turns > 0:
@@ -1790,7 +1797,7 @@ func player_burn(memory_id: String) -> void:
 		dmg = maxi(1, int(dmg * 0.7))
 		enemy_shielded = false
 		battle_log.emit(_bl("The barrier weakens the flames!", "장벽이 불길을 약화시킨다!"))
-	dmg = _apply_break_damage_bonus(dmg)
+	dmg = _apply_break_damage_bonus(dmg, true)
 	dmg = _apply_momentum_damage_bonus(dmg)
 	# S58: Anticipation, signal before burn damage
 	pre_attack.emit("Arrel", current_enemy.name, skill.name)

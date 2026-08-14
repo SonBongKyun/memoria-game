@@ -824,10 +824,16 @@ const CHAPTER_NAMES_KO: Dictionary = {
 	21: "에디터의 선택", 22: "핵", 23: "변환", 24: "증언",
 }
 
-## 한국어일 때만 정본 이름을 돌려준다. 그 밖에는 부르는 쪽이 준 영어를 그대로 쓴다.
+## S247: 영어 챕터 이름도 여기로 모았다. 이전에는 저널의 CHAPTER_NAMES,
+## RICH_PRESENCE_CHAPTERS, pause_menu 안의 지역 사전이 서로 다른 이름을 썼다
+## (12장이 "Verdan Underlock"이기도 하고 "The Reader"이기도 했다). 한국어는
+## S242에서 VN 씬의 title_ko를 정본으로 삼아 통일했으므로, 영어도 같은 계열인
+## RICH_PRESENCE_CHAPTERS를 정본으로 쓴다. 그래야 두 언어가 같은 것을 가리킨다.
 func localized_chapter_name(chapter: int, fallback: String = "") -> String:
 	if current_locale == "ko" and CHAPTER_NAMES_KO.has(chapter):
 		return String(CHAPTER_NAMES_KO[chapter])
+	if RICH_PRESENCE_CHAPTERS.has(chapter):
+		return String(RICH_PRESENCE_CHAPTERS[chapter])
 	return fallback
 
 func localized_enemy_name(enemy_name: String) -> String:

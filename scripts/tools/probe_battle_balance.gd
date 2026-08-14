@@ -49,7 +49,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 
 	print("BALANCE_HEADER policy preset chapter turns dmg_taken max_hp lethality stalls")
-	for policy in ["attack", "burn_cheap", "burn_weighty"]:
+	for policy in ["attack", "burn_cheap", "burn_weighty", "break_loop"]:
 		for encounter in ENCOUNTERS:
 			await _measure(encounter, policy)
 	print("BATTLE_BALANCE_DONE")
@@ -119,7 +119,14 @@ func _one_battle(encounter: Dictionary, policy: String) -> Dictionary:
 		# 등급(GRADE_3 이상)부터 쓴다. 두 줄을 나란히 놓아야 "값싼 연타"와
 		# "무게 있는 것을 쓴다"가 갈린다.
 		var burned := false
-		if policy != "attack":
+		# break_loop: S246에서 설계한 고리를 그대로 흉내 낸다. 평타로 BREAK를 열고,
+		# 창이 열린 동안에만 무게 있는 기억을 꽂는다. 앞의 두 연소 정책은 매 턴
+		# 태우느라 평타를 치지 않아 게이지가 차지 않았고, 그래서 창이 한 번도
+		# 열리지 않았다. 그 고리를 재는 정책이 없었던 셈이다.
+		var wants_burn := policy == "burn_cheap" or policy == "burn_weighty"
+		if policy == "break_loop" and BattleManager.enemy_broken_turns > 0:
+			wants_burn = true
+		if wants_burn:
 			var memory_id := _cheapest_memory() if policy == "burn_cheap" else _weighty_memory()
 			if memory_id != "":
 				BattleManager.player_burn(memory_id)

@@ -402,7 +402,7 @@ func _setup_random_encounters() -> void:
 	_encounter_data = RandomEncounter.setup(
 		[
 			{"name": "Void Fragment", "hp": 75, "atk": 16, "is_void": true, "abilities": ["burn_attack"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
-			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Memory Eater", "hp": 95, "atk": 20, "is_void": true, "abilities": ["drain", "multi_hit", "weaken"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png", "img": ""},
 			{"name": "Null Wisp", "hp": 60, "atk": 22, "is_void": true, "abilities": ["poison", "burn_attack"], "bg": "res://assets/cg/generated/chapter_splash_bl07_void.png"},
 		],
 		"res://scenes/maps/bl07_void.tscn", "", "", 30, 55

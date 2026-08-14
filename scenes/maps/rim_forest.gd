@@ -724,9 +724,15 @@ func _setup_random_encounters() -> void:
 		return
 	_encounter_data = RandomEncounter.setup(
 		[
-			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/game_image/void_beast_confrontation.png"},
+			{"name": "Ash Crawler", "hp": 45, "atk": 10, "is_void": false, "abilities": [], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
 			{"name": "Forest Shade", "hp": 55, "atk": 12, "is_void": false, "abilities": ["poison"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
-			{"name": "Void Beast", "hp": 80, "atk": 15, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": "res://assets/cg/generated/cinematic_void_beast_memory_devour.png"},
+			# S247: 여기 있던 Void Beast(80/15)는 로스터 28종 전체를 잰 결과 **유일하게**
+			# 치명도 1.0을 넘었다(1.53, 10.9턴). 보이드 적에게 공격이 30%만 들어가는 것은
+			# 의도된 벽이지만(S231), 1장 플레이어는 최대 HP도 공격력도 가장 낮아 그 벽이
+			# 여기서만 넘을 수 없는 높이가 된다. 스토리에서 만나는 벽과 재방문 중 우연히
+			# 밟는 벽은 다르다. 보이드 적을 빼지 않고 1장에 맞는 크기로 바꾼다.
+			# Void Beast 자체는 프롤로그 시나리오 전투로 그대로 남아 있다.
+			{"name": "Void Wisp", "hp": 50, "atk": 12, "is_void": true, "abilities": ["drain"], "bg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png", "img": ""},
 		],
 		"res://scenes/maps/rim_forest.tscn", "", "", 50, 90
 	)
