@@ -15,10 +15,11 @@ content do not consume it yet.
 - Actor slugs are unique across both actor namespaces because Memory IDs omit
   the actor namespace.
 
-Current actors are `player.arrel` (`Arrel`) and `npc.malet` (`Malet`). Their
-definitions live in `data/world_state/actors.json` with catalog schema version
-`1`. The catalog is the only bootstrap source; load or validation failures do
-not silently fall back to actors embedded in code.
+Current actors are `player.arrel` (`Arrel`), `npc.malet` (`Malet`), and
+`npc.sable` (`Sable`). Their definitions live in
+`data/world_state/actors.json` with catalog schema version `1`. The catalog is
+the only bootstrap source; load or validation failures do not silently fall
+back to actors embedded in code.
 
 ActorRegistry owns identity syntax, registration, display metadata, and
 collision rejection. WorldState owns only runtime state containers for actors
@@ -172,7 +173,7 @@ The official smoke entrypoint exports a temporary PCK, launches that PCK with
 `--smoke-test`, and runs the actor catalog smoke against the real
 `res://data/world_state/actors.json` path. The gate fails if export fails, the
 file is missing from the pack, ActorRegistry cannot parse it, or the runtime
-catalog differs from the two expected actors. The temporary PCK is removed only
+catalog differs from the three expected actors. The temporary PCK is removed only
 after its normalized path is verified beneath the OS temp directory.
 
 ## Read-only consumer probe

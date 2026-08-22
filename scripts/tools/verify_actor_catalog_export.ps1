@@ -87,7 +87,7 @@ try {
         throw "Exported PCK is empty: $packPath"
     }
 
-    $runtimeMarker = "ACTOR_CATALOG_SMOKE_PASS suite=actor_catalog actors=2 schema=1 runtime_path=res://data/world_state/actors.json"
+    $runtimeMarker = "ACTOR_CATALOG_SMOKE_PASS suite=actor_catalog actors=3 schema=1 runtime_path=res://data/world_state/actors.json"
     [void](Invoke-GodotChecked `
         -Arguments "--headless --main-pack `"$escapedPack`" --scene res://scripts/tools/smoke_actor_catalog.tscn -- --smoke-test" `
         -WorkingDirectory $tempRoot `

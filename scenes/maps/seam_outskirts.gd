@@ -7,6 +7,9 @@ const TILE_SIZE: int = 32
 const MAP_WIDTH: int = 25
 const MAP_HEIGHT: int = 18
 const DIALOGUE_FILE: String = "res://data/chapter7_dialogue.json"
+const SABLE_ACTOR_ID: String = "npc.sable"
+const SABLE_CLEANER_FACT_ID: String = "fact.authority.child_memory_erasure_order"
+const SABLE_CLEANER_MEMORY_ID: String = "memory.sable.child_memory_erasure_target"
 
 enum Tile { ASH_GROUND, CRACK, VOID_ROCK, WALL, PATH, LEDGE }
 
@@ -79,6 +82,7 @@ func _ready() -> void:
 	AchievementManager.record_map_visit("seam_outskirts")
 	elia.repeat_line = "The air feels wrong. Like static before a storm."
 	sable_npc.repeat_line = "Stay focused. Don't let the Threshold get into your head."
+	_seed_sable_cleaner_state_if_needed()
 	print("[SeamOutskirts] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
@@ -120,6 +124,7 @@ func _on_arrival_ended() -> void:
 		DialogueManager.load_and_start(DIALOGUE_FILE, "sable_truth")
 
 func _on_truth_ended() -> void:
+	_seed_sable_cleaner_state_if_needed()
 	GameManager.set_flag("has_echo_shell")
 	NotificationToast.show_toast("Obtained: Echo Shell", NotificationToast.ToastType.SUCCESS)
 	StoryJournal.add_event("echo_shell", "Sable gave Arrel the Echo Shell, a spiraling shell that holds the last echoes of those consumed by BL-07.")
@@ -129,6 +134,30 @@ func _on_truth_ended() -> void:
 		GameManager.set_flag("ch7_trial")
 		DialogueManager.dialogue_ended.connect(_on_trial_dialogue_ended, CONNECT_ONE_SHOT)
 		DialogueManager.load_and_start(DIALOGUE_FILE, "sable_trial")
+
+
+## The main Chapter 7 truth scene is the first lifecycle point where Sable's
+## Cleaner history becomes gameplay state. Existing removed/restored records
+## and explicit false knowledge survive re-entry and old-save normalization.
+func _seed_sable_cleaner_state_if_needed() -> void:
+	if not GameManager.get_flag("ch7_sable_truth"):
+		return
+	var actor_state := WorldState.get_actor_state(SABLE_ACTOR_ID)
+	if actor_state.is_empty():
+		return
+	var knowledge: Dictionary = actor_state.get("knowledge", {})
+	if not knowledge.has(SABLE_CLEANER_FACT_ID):
+		MemoryEngine.learn_fact(SABLE_ACTOR_ID, SABLE_CLEANER_FACT_ID)
+	if WorldState.get_memory_record(
+			SABLE_ACTOR_ID, SABLE_CLEANER_MEMORY_ID).is_empty():
+		MemoryEngine.add_memory(SABLE_ACTOR_ID, SABLE_CLEANER_MEMORY_ID, {
+			"fact_ids": [SABLE_CLEANER_FACT_ID],
+			"source_actor_id": SABLE_ACTOR_ID,
+			"content": {
+				"kind": "personal_witness",
+				"subject": "cleaner_child_memory_erasure_target",
+			},
+		})
 
 func _on_trial_dialogue_ended() -> void:
 	# 시련 전투, Threshold Shade (자기 자신의 그림자)
@@ -300,6 +329,8 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(15 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "threshold_atmosphere", "ch7_atmosphere")
 	_add_story_trigger(Vector2(5 * TILE_SIZE, 9 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "echo_shell_discovery", "ch7_echo_listen")
+	# Existing authored twelve-name memorial, now reachable as optional lore.
+	_add_story_trigger(Vector2(18 * TILE_SIZE, 14 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "outskirts_monument", "ch7_monument")
 	# Side quest: Echoes of the Threshold
 	if SideQuest.is_active("echo_fragments"):
 		_add_story_trigger(Vector2(3 * TILE_SIZE, 11 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "echo_shell_discovery", "sq_echo_frag1")

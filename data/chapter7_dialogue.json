@@ -445,7 +445,280 @@
         "speaker": "Sable",
         "text": "I left when they asked me to burn a child's memory of her parents. That was my line. Everyone has one.",
         "portrait": "sable_calm",
-        "text_ko": "아이에게서 제 부모의 기억을 태우라는 명령을 받았을 때 떠났다. 그게 내 선이었어. 누구에게나 하나쯤 있는."
+        "text_ko": "아이에게서 제 부모의 기억을 태우라는 명령을 받았을 때 떠났다. 그게 내 선이었어. 누구에게나 하나쯤 있는.",
+        "condition": {
+          "type": "memory",
+          "actor": "npc.sable",
+          "memory": "memory.sable.child_memory_erasure_target",
+          "status": "active"
+        }
+      },
+      {
+        "speaker": "Sable",
+        "text": "I know an order made me leave. A child was involved. The target itself is missing from my memory.",
+        "portrait": "sable_calm",
+        "text_ko": "어떤 명령 때문에 떠났다는 건 알아. 아이가 관련돼 있었지. 하지만 그 명령이 겨냥한 대상은 내 기억에서 사라졌어.",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.sable",
+              "fact": "fact.authority.child_memory_erasure_order",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.sable",
+              "memory": "memory.sable.child_memory_erasure_target",
+              "status": "removed"
+            }
+          ]
+        }
+      },
+      {
+        "choices": [
+          {
+            "choice_id": "remove_sable_target_memory",
+            "text": "Remove the target from Sable's Cleaner memory.",
+            "text_ko": "세이블의 청소부 기억에서 명령의 대상을 지운다.",
+            "jump_to": 6,
+            "remove_world_memory": {
+              "actor": "npc.sable",
+              "memory": "memory.sable.child_memory_erasure_target"
+            },
+            "condition": {
+              "type": "memory",
+              "actor": "npc.sable",
+              "memory": "memory.sable.child_memory_erasure_target",
+              "status": "active"
+            }
+          },
+          {
+            "choice_id": "restore_sable_target_memory",
+            "text": "Restore the target from the memory's residue.",
+            "text_ko": "기억의 잔존에서 명령의 대상을 복원한다.",
+            "jump_to": 7,
+            "restore_world_memory": {
+              "actor": "npc.sable",
+              "memory": "memory.sable.child_memory_erasure_target"
+            },
+            "condition": {
+              "type": "memory",
+              "actor": "npc.sable",
+              "memory": "memory.sable.child_memory_erasure_target",
+              "status": "removed"
+            }
+          },
+          {
+            "choice_id": "leave_sable_cleaner_memory",
+            "text": "Leave the memory untouched.",
+            "text_ko": "그 기억을 건드리지 않는다.",
+            "jump_to": 8
+          }
+        ]
+      },
+      {
+        "branch_id": "sable_target_removed_feedback",
+        "speaker": "Sable",
+        "text": "The order remains. The child does not. I know why I stopped, but not whom I stopped for.",
+        "portrait": "sable_calm",
+        "text_ko": "명령은 남았고, 아이는 사라졌군. 왜 멈췄는지는 알지만, 누구를 위해 멈췄는지는 모르겠어.",
+        "condition": {
+          "type": "memory",
+          "actor": "npc.sable",
+          "memory": "memory.sable.child_memory_erasure_target",
+          "status": "removed"
+        }
+      },
+      {
+        "branch_id": "sable_target_restored_feedback",
+        "speaker": "Sable",
+        "text": "The child. Her parents. Yes. The line has a face again.",
+        "portrait": "sable_intense",
+        "text_ko": "그 아이. 아이의 부모. 그래. 내 선에 다시 얼굴이 생겼군.",
+        "condition": {
+          "type": "memory",
+          "actor": "npc.sable",
+          "memory": "memory.sable.child_memory_erasure_target",
+          "status": "active",
+          "restored": true
+        }
+      },
+      {
+        "speaker": "Sable",
+        "text": "The Authority called forgetting disposal. I learned to call it a choice.",
+        "portrait": "sable_calm",
+        "text_ko": "관리국은 망각을 처분이라 불렀지. 나는 그걸 선택이라고 부르는 법을 배웠어."
+      }
+    ],
+    "sable_cleaner_memory_followup": [
+      {
+        "branch_id": "sable_combo_a",
+        "speaker": "Sable",
+        "text": "Malet's old note still links your BL-07 request to you. I still remember the child and her parents. Two records, neither clean.",
+        "text_ko": "말렛의 옛 쪽지는 아직 자네와 BL-07 요청을 이어 주고 있어. 나도 그 아이와 부모를 기억하고 있고. 두 기록 모두 깨끗하진 않군.",
+        "portrait": "sable_neutral",
+        "condition": {
+          "all": [
+            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
+            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
+            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
+            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+          ]
+        }
+      },
+      {
+        "branch_id": "sable_combo_b",
+        "speaker": "Sable",
+        "text": "Malet's note still says someone sought BL-07, but no longer who. I still remember the child whose parents they ordered me to erase.",
+        "text_ko": "말렛의 쪽지에는 누군가 BL-07을 찾았다는 사실만 남고, 누군지는 사라졌어. 나는 아직 부모의 기억을 지우라는 명령을 받은 그 아이를 기억하지만.",
+        "portrait": "sable_calm",
+        "condition": {
+          "all": [
+            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
+            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
+            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
+            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+          ]
+        }
+      },
+      {
+        "branch_id": "sable_combo_c",
+        "speaker": "Sable",
+        "text": "Malet's note still names your BL-07 request. I know a child's erasure order made me leave, but the child and her parents are gone from my memory.",
+        "text_ko": "말렛의 쪽지는 아직 자네의 BL-07 요청을 가리켜. 아이의 기억을 지우라는 명령 때문에 내가 떠났다는 건 알지만, 그 아이와 부모는 내 기억에서 사라졌고.",
+        "portrait": "sable_calm",
+        "condition": {
+          "all": [
+            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
+            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
+            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
+            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+          ]
+        }
+      },
+      {
+        "branch_id": "sable_combo_d",
+        "speaker": "Sable",
+        "text": "Malet's request has no source, and my breaking order has no target. The facts remain. The people attached to them do not.",
+        "text_ko": "말렛의 요청에는 출처가 없고, 나를 떠나게 한 명령에는 대상이 없어. 사실은 남았지만, 거기에 연결된 사람들은 남지 않았군.",
+        "portrait": "sable_calm",
+        "condition": {
+          "all": [
+            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
+            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
+            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
+            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+          ]
+        }
+      },
+      {
+        "choices": [
+          {
+            "choice_id": "ask_cleaner_target",
+            "text": "Ask why the twelve fading names matter to her.",
+            "text_ko": "바래는 열두 이름이 왜 세이블에게 중요한지 묻는다.",
+            "jump_to": 5,
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+          },
+          {
+            "choice_id": "ask_cleaner_gap",
+            "text": "Ask what she still knows about the order.",
+            "text_ko": "그 명령에 관해 아직 무엇을 아는지 묻는다.",
+            "jump_to": 7,
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+          },
+          {
+            "choice_id": "ask_malet_provenance",
+            "text": "Ask what Malet's source mark adds to the record.",
+            "text_ko": "말렛의 출처 표식이 기록에 무엇을 더하는지 묻는다.",
+            "jump_to": 9,
+            "condition": {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"}
+          },
+          {
+            "choice_id": "ask_malet_gap",
+            "text": "Ask what survived in Malet's anonymous note.",
+            "text_ko": "말렛의 익명 쪽지에 무엇이 남았는지 묻는다.",
+            "jump_to": 11,
+            "condition": {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"}
+          },
+          {
+            "choice_id": "remove_sable_target_memory",
+            "text": "Remove the target from Sable's Cleaner memory.",
+            "text_ko": "세이블의 청소부 기억에서 명령의 대상을 지운다.",
+            "jump_to": 13,
+            "remove_world_memory": {"actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target"},
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+          },
+          {
+            "choice_id": "restore_sable_target_memory",
+            "text": "Restore the target from the memory's residue.",
+            "text_ko": "기억의 잔존에서 명령의 대상을 복원한다.",
+            "jump_to": 15,
+            "restore_world_memory": {"actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target"},
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+          },
+          {
+            "choice_id": "leave_cleaner_record",
+            "text": "Leave the two records as they are.",
+            "text_ko": "두 기록을 그대로 둔다.",
+            "jump_to": 17
+          }
+        ]
+      },
+      {
+        "branch_id": "cleaner_target_detail",
+        "speaker": "Sable",
+        "text": "Because I once refused to turn a child's parents into fading marks. I won't call twelve erased names expendable.",
+        "text_ko": "나는 한때 아이의 부모를 바래는 표식으로 만들기를 거부했으니까. 지워진 열두 이름도 소모품이라 부르지 않을 거야.",
+        "portrait": "sable_intense"
+      },
+      {"choices": [{"choice_id": "back_from_cleaner_target", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
+      {
+        "branch_id": "cleaner_target_gap",
+        "speaker": "Sable",
+        "text": "I know the Authority issued an order involving a child. I know it made me leave. The person at the center is gone.",
+        "text_ko": "관리국이 아이와 관련된 명령을 내렸고, 그 때문에 내가 떠났다는 건 알아. 하지만 그 중심에 있던 사람은 사라졌어.",
+        "portrait": "sable_calm"
+      },
+      {"choices": [{"choice_id": "back_from_cleaner_gap", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
+      {
+        "branch_id": "malet_provenance_detail",
+        "speaker": "Sable",
+        "text": "It ties the BL-07 request to a named source. The route was always true. The mark tells history who asked.",
+        "text_ko": "그 표식은 BL-07 요청을 이름 있는 출처에 묶어 둬. 경로는 언제나 사실이었고, 표식은 역사에 누가 물었는지를 남기지.",
+        "portrait": "sable_neutral"
+      },
+      {"choices": [{"choice_id": "back_from_malet_provenance", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
+      {
+        "branch_id": "malet_provenance_gap",
+        "speaker": "Sable",
+        "text": "The destination and the request survived. The requester did not. A fact without provenance, like a name fading from stone.",
+        "text_ko": "목적지와 요청은 남았어. 요청자는 남지 않았고. 돌에서 바래는 이름처럼, 출처 없는 사실이지.",
+        "portrait": "sable_calm"
+      },
+      {"choices": [{"choice_id": "back_from_malet_gap", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
+      {
+        "branch_id": "sable_target_removed_feedback",
+        "speaker": "Sable",
+        "text": "The order remains. The child does not. Twelve names on stone, and one more absence in me.",
+        "text_ko": "명령은 남았고, 아이는 사라졌군. 돌 위의 열두 이름, 그리고 내 안에 하나 더 생긴 부재.",
+        "portrait": "sable_calm"
+      },
+      {"choices": [{"choice_id": "back_after_sable_remove", "text": "Read the records again.", "text_ko": "기록을 다시 읽는다.", "jump_to": 4}]},
+      {
+        "branch_id": "sable_target_restored_feedback",
+        "speaker": "Sable",
+        "text": "The child and her parents are back in the order. The facts never moved. The people returned to them.",
+        "text_ko": "명령 속에 그 아이와 부모가 돌아왔어. 사실은 움직이지 않았고, 그 사실에 사람들이 돌아온 거야.",
+        "portrait": "sable_intense"
+      },
+      {"choices": [{"choice_id": "back_after_sable_restore", "text": "Read the records again.", "text_ko": "기록을 다시 읽는다.", "jump_to": 4}]},
+      {
+        "speaker": "Sable",
+        "text": "Names fade. Records fail. That is why choices have to survive both.",
+        "text_ko": "이름은 바래고, 기록은 실패하지. 그래서 선택은 둘보다 오래 남아야 해.",
+        "portrait": "sable_calm"
       }
     ],
     "outskirts_monument": [
@@ -467,6 +740,50 @@
         "text": "The stone remembers them even if nothing else does.",
         "portrait": "arrel_determined",
         "text_ko": "다른 무엇도 기억하지 못해도, 돌은 그들을 기억하는군."
+      },
+      {
+        "branch_id": "monument_combo_a",
+        "speaker": "Sable",
+        "text": "Malet's note still names your request, and I still remember the child who made me stop erasing people. These twelve deserve both fact and witness.",
+        "portrait": "sable_intense",
+        "text_ko": "말렛의 쪽지는 아직 자네의 요청을 가리키고, 나도 사람을 지우는 일을 멈추게 한 아이를 기억해. 이 열둘에게는 사실과 증언이 모두 필요해.",
+        "condition": {"all": [
+          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
+          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+        ]}
+      },
+      {
+        "branch_id": "monument_combo_b",
+        "speaker": "Sable",
+        "text": "Malet's route has lost its requester. I still remember the child who made me stop. One record has a witness. The other does not.",
+        "portrait": "sable_calm",
+        "text_ko": "말렛의 경로는 요청자를 잃었어. 나는 아직 나를 멈추게 한 아이를 기억하고 있고. 한 기록에는 증인이 있고, 다른 기록에는 없군.",
+        "condition": {"all": [
+          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
+          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+        ]}
+      },
+      {
+        "branch_id": "monument_combo_c",
+        "speaker": "Sable",
+        "text": "Malet's note still names you. I know why I left the Cleaners, but not who stood at that line. The stone is holding more people than I am.",
+        "portrait": "sable_calm",
+        "text_ko": "말렛의 쪽지는 아직 자네 이름을 남기고 있어. 내가 왜 청소부를 떠났는지는 알지만, 그 선에 누가 서 있었는지는 몰라. 이 돌이 나보다 더 많은 사람을 붙들고 있군.",
+        "condition": {"all": [
+          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
+          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+        ]}
+      },
+      {
+        "branch_id": "monument_combo_d",
+        "speaker": "Sable",
+        "text": "Malet's request has no requester. My last Cleaner order has no target. Twelve names fade between two facts that can no longer name their people.",
+        "portrait": "sable_calm",
+        "text_ko": "말렛의 요청에는 요청자가 없고, 내 마지막 청소부 명령에는 대상이 없어. 사람을 부를 수 없게 된 두 사실 사이에서 열두 이름이 바래는군.",
+        "condition": {"all": [
+          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
+          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+        ]}
       }
     ],
     "elia_void_edge": [

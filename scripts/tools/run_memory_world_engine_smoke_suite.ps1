@@ -140,6 +140,14 @@ $cases = @(
         ExpectedExit = 0
         RequiredLog = "downstream=sable_route_option"
         ExtraArgs = ""
+    },
+    [pscustomobject]@{
+        Name = "sable_memory_gameplay"
+        Scene = "res://scripts/tools/smoke_sable_memory_gameplay.tscn"
+        Marker = "SABLE_MEMORY_GAMEPLAY_SMOKE_PASS"
+        ExpectedExit = 0
+        RequiredLog = "combinations=4"
+        ExtraArgs = ""
     }
 )
 

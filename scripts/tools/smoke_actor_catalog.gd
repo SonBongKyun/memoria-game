@@ -16,12 +16,15 @@ func _ready() -> void:
 		"Actor catalog is unavailable through the runtime res:// filesystem")
 	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog file failed to load")
 	_expect(ActorRegistry.is_catalog_loaded(), "ActorRegistry did not mark the catalog as loaded")
-	_expect(ActorRegistry.get_actor_ids() == PackedStringArray(["npc.malet", "player.arrel"]),
-		"Catalog must contain only player.arrel and npc.malet")
+	_expect(ActorRegistry.get_actor_ids() == PackedStringArray([
+		"npc.malet", "npc.sable", "player.arrel"]),
+		"Catalog must contain player.arrel, npc.malet, and npc.sable")
 	_expect(String(ActorRegistry.get_actor("player.arrel").get("actor_id", "")) == "player.arrel",
 		"Persistent identity must come from actor_id")
 	_expect(ActorRegistry.get_display_name("npc.malet") == "Malet",
 		"Display metadata did not load from the catalog")
+	_expect(ActorRegistry.get_display_name("npc.sable") == "Sable",
+		"Sable display metadata did not load from the catalog")
 
 	var baseline := ActorRegistry.get_actor_ids()
 	_runner.begin_test("catalog_failure_is_visible_and_atomic")
@@ -70,7 +73,7 @@ func _ready() -> void:
 	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog could not be restored after rejection tests")
 	WorldState.reset_to_defaults()
 	_runner.finish(get_tree(),
-		"actors=2 schema=1 runtime_path=res://data/world_state/actors.json atomic_rejection=true")
+		"actors=3 schema=1 runtime_path=res://data/world_state/actors.json atomic_rejection=true")
 
 
 func _expect(condition: bool, reason: String) -> bool:

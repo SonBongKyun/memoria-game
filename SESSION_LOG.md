@@ -2,6 +2,32 @@
 
 ---
 
+## S257 - 2026-08-22 (Memory Gameplay v0.3 Sable combined memory state)
+
+### 기준점
+- S256 Malet -> Sable downstream ripple을 공식 Memory World Engine suite 12/12, Story QoL/Combat, VN/한국어 validation으로 재검토한 뒤 `b33c13c feat(world): add malet sable memory ripple`로 로컬 체크포인트 커밋했다. 푸시는 하지 않았다.
+
+### 플레이 경험
+- Chapter 7 Seam Outskirts의 기존 Sable Cleaner 고백을 선택 기억 조작 지점으로 연결했다. 관리국이 아이에게서 부모의 기억을 지우라는 명령을 내렸다는 사실과, 그 명령의 구체적 대상인 아이와 부모에 대한 Sable의 기억을 분리했다.
+- 새 상태는 `fact.authority.child_memory_erasure_order`와 `memory.sable.child_memory_erasure_target`이다. memory를 remove해도 order knowledge는 유지된다.
+- 기존 `memory.malet.bl07_request_source`와 Sable memory의 active/removed 조합을 함께 읽어 A/B/C/D 네 가지 반응을 만든다. Sable 재대화에서 Cleaner 대상 질문과 Malet 출처 질문이 각 memory 상태에 따라 교체된다.
+- 원고에 있지만 맵에 연결되지 않았던 12인 추모비 `outskirts_monument`를 비핵심 optional story trigger로 연결했다. 추모비의 Sable 후속 반응도 두 memory 조합에 따라 네 가지로 달라진다.
+
+### 상태와 보호 경계
+- `npc.sable`을 actor catalog에 추가했다. Sable 상태는 `ch7_sable_truth`가 성립한 첫 필요 시점에 MemoryEngine API로만 seed되며, 기존 active/removed/restored record와 explicit false knowledge를 덮어쓰지 않는다.
+- 조작은 DialogueManager의 기존 `remove_world_memory` / `restore_world_memory` choice 계약을 재사용한다. WorldState dictionary, story_flags, MemoryManager를 직접 쓰지 않는다.
+- 기존 `outskirts_arrival -> sable_truth -> sable_trial -> trial_complete`과 Chapter 7 exit, 엔딩, 필수 아이템, Quest/SceneFlow는 변경하지 않았다.
+
+### 검증
+- Godot 4.6.2 headless editor import exit 0, fatal scan 0.
+- 실제 `seam_outskirts.tscn` Sable NPC `interact()`와 `chapter7_dialogue.json` 추모비를 실행하는 live smoke에서 A -> C -> save/load C -> D -> B -> A 조합, 선택지 교체, 추모비 반응을 검증했다.
+- `SABLE_MEMORY_GAMEPLAY_SMOKE_PASS`: combinations 4, round trip 1, deterministic mutation events 8개 각 1회, no-op event 0, story_flags delta 0, MemoryManager delta 0, production slots 0.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=13 fatal_scan=enabled save_isolation=guarded export_catalog=verified`. export PCK에서 actors.json과 actor 3명을 재검증했다.
+- `STORY_QOL_SMOKE_PASS`, `STORY_COMBAT_SMOKE_PASS`, VN 20 files/504 steps/0 errors/0 warnings, 한국어 31 files/1,650 fields/0 errors 통과.
+- sandbox save -> WorldState reset -> load 후 combination C가 유지됐고 load event replay는 0이다. StoryLog/read registry fingerprint는 불변이다.
+- headless import가 재생성한 기존 tool `.uid` 20개는 working tree에서 제외했다. 새 Sable smoke script UID만 작업 소유 파일로 유지했다.
+- v0.3 변경은 검토를 위해 커밋하지 않고 working tree에 남겼다.
+
 ## S256 - 2026-08-22 (Memory Gameplay v0.2 downstream Sable consequence)
 
 ### 기준점
