@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "development_only": true,
+  "dialogues": {
+    "malet_memory_world_probe": [
+      {
+        "branch_id": "active",
+        "speaker": "Malet",
+        "text": "The Veil exists. Arrel told me himself.",
+        "text_ko": "Veil은 존재해. 아렐에게 직접 들었거든.",
+        "portrait": "malet_neutral",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.malet",
+              "fact": "fact.veil.exists",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.veil_revelation_source",
+              "status": "active",
+              "restored": false
+            }
+          ]
+        }
+      },
+      {
+        "branch_id": "removed",
+        "speaker": "Malet",
+        "text": "I know the Veil exists. But... I cannot remember who told me.",
+        "text_ko": "Veil이 존재한다는 건 알아. 그런데... 누가 말해줬는지는 기억이 안 나.",
+        "portrait": "malet_warning",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.malet",
+              "fact": "fact.veil.exists",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.veil_revelation_source",
+              "status": "removed"
+            }
+          ]
+        }
+      },
+      {
+        "branch_id": "restored",
+        "speaker": "Malet",
+        "text": "Right. It was Arrel. I remember now.",
+        "text_ko": "맞아. 아렐이었어. 이제 기억나.",
+        "portrait": "malet_amused",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.malet",
+              "fact": "fact.veil.exists",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.veil_revelation_source",
+              "status": "active",
+              "restored": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

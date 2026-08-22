@@ -1,7 +1,8 @@
 # Memory World Engine data contract
 
-This contract covers the deterministic engine layer only. Story scenes,
-DialogueManager, SceneFlow, quests, and live NPC content do not consume it yet.
+This contract covers the deterministic engine layer and one development-only
+Malet dialogue vertical slice. Story scenes, SceneFlow, quests, and live NPC
+content do not consume it yet.
 
 ## Persistent IDs
 
@@ -61,6 +62,30 @@ the latest removal:
 A successful restore commits exactly one `memory.restored` event. Restoring an
 active or missing memory returns `false`, changes no state, and commits no
 event.
+
+## Structured dialogue conditions
+
+DialogueManager evaluates Memory World Engine state only when a line or choice
+contains a Dictionary-valued `condition` field. The existing
+`requires_memory_intact`, `requires_memory_gone`, `requires_flag`,
+`requires_not_flag`, `requires_weave`, and legacy
+`requires_memory + burned_text` behavior remains unchanged. If structured and
+legacy conditions coexist, both must pass.
+
+Structured conditions support `all`, `any`, `not`, `knowledge`, and `memory`.
+The optional `restored` Boolean on a memory condition reads the existing
+deterministic `restored_revision > 0` audit metadata; it creates no new status
+or state. Unsupported or malformed structured conditions fail closed.
+
+The only current consumer data is
+`data/development/malet_memory_world_dialogue.json`. Its three mutually
+exclusive development branches are:
+
+- `active`: knowledge true, memory active, `restored=false`;
+- `removed`: knowledge true, memory tombstone removed;
+- `restored`: knowledge true, memory active, `restored=true`.
+
+No gameplay progression file references the development scene or dialogue.
 
 ## Committed event payload schema
 
@@ -127,6 +152,11 @@ target and terminates the process with exit code `1` before filesystem access.
 Test directories are intentionally safe to leave behind after a crash or
 timeout; no cleanup path ever targets production saves.
 
+The Malet development scene writes a normal save payload only after an isolated
+root is configured. `reload_test_world_state` is smoke-only and restores just
+the WorldState portion from that guarded slot; it does not import GameManager,
+MemoryManager, SceneFlow, or change scenes.
+
 The focused PowerShell suite also scans every `smoke_*.gd` source before launch
 and rejects production save literals or direct FileAccess writes outside the
 shared sandbox helper.
@@ -172,4 +202,5 @@ Run the focused suite with:
 This is the single official Memory World Engine smoke entrypoint. It always
 enables `--smoke-test`, production save guards, the isolated write sandbox,
 fatal-output scanning, actor catalog export/runtime verification, schema v1
-coverage, and the read-only consumer probe.
+coverage, the read-only consumer probe, and the development-only Malet dialogue
+vertical slice.

@@ -24,3 +24,4 @@ npc_name = "Malet"
 dialogue_file = "res://data/chapter2_dialogue.json"
 dialogue_key = "malet_encounter"
 npc_color = Color(0.4, 0.38, 0.35, 1.0)
+repeat_dialogue_key = "malet_memory_world_followup"

@@ -1,0 +1,136 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/tools/malet_memory_world_development.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/portraits/malet_face_neutral.png" id="2_portrait"]
+
+[node name="MaletMemoryWorldDevelopment" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.035, 0.027, 0.045, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 56.0
+offset_top = 42.0
+offset_right = -56.0
+offset_bottom = -42.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "MEMORY WORLD ENGINE — MALET DEVELOPMENT SLICE"
+
+[node name="Scope" type="Label" parent="Margin/Content"]
+layout_mode = 2
+text = "Development-only. Not referenced by gameplay progression. Saves require the smoke sandbox."
+
+[node name="Divider" type="HSeparator" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="ActorRow" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Portrait" type="TextureRect" parent="Margin/Content/ActorRow"]
+custom_minimum_size = Vector2(112, 112)
+layout_mode = 2
+texture = ExtResource("2_portrait")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ActorDetails" type="VBoxContainer" parent="Margin/Content/ActorRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ActorId" type="Label" parent="Margin/Content/ActorRow/ActorDetails"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "npc.malet"
+
+[node name="StateLabel" type="Label" parent="Margin/Content/ActorRow/ActorDetails"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Knowledge: ? | Memory: ?"
+autowrap_mode = 2
+
+[node name="BranchLabel" type="Label" parent="Margin/Content/ActorRow/ActorDetails"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Resolved dialogue branch: ?"
+
+[node name="EventLabel" type="Label" parent="Margin/Content/ActorRow/ActorDetails"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Last committed event: none"
+
+[node name="MutationButtons" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResetButton" type="Button" parent="Margin/Content/MutationButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset test state"
+
+[node name="RemoveButton" type="Button" parent="Margin/Content/MutationButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Remove source memory"
+
+[node name="RestoreButton" type="Button" parent="Margin/Content/MutationButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Restore source memory"
+
+[node name="TalkButton" type="Button" parent="Margin/Content/MutationButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Talk to Malet"
+
+[node name="PersistenceButtons" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SaveButton" type="Button" parent="Margin/Content/PersistenceButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Save test state"
+
+[node name="ReloadButton" type="Button" parent="Margin/Content/PersistenceButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reload test state"
+
+[node name="FeedbackLabel" type="Label" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ready."
+autowrap_mode = 2
+
+[node name="Instructions" type="Label" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Expected branches:\nA — knowledge true + active + never restored\nB — knowledge true + removed tombstone\nC — knowledge true + active + restored_revision > 0"
+vertical_alignment = 2

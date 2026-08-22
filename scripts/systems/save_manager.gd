@@ -407,6 +407,26 @@ func get_save_path_for_test(slot: int) -> String:
 	return _get_save_path(slot)
 
 
+## Reloads only WorldState from an isolated smoke slot. This deliberately does
+## not import GameManager, MemoryManager, SceneFlow, or change scenes. It exists
+## for development slices that must exercise the real save schema and guarded
+## filesystem without producing gameplay side effects.
+func reload_test_world_state(slot: int) -> bool:
+	if not _smoke_test_mode or not _test_save_root_configured:
+		push_warning("[SaveManager] Test WorldState reload rejected without an isolated root")
+		return false
+	if slot < 0 or slot > MAX_SLOTS:
+		return false
+	var path := _get_save_path(slot)
+	if path == "" or not FileAccess.file_exists(path):
+		return false
+	var save_data: Variant = _load_json_with_recovery(path, slot)
+	if not (save_data is Dictionary):
+		return false
+	var migrated := _migrate_save_data(save_data)
+	return _restore_world_state_from_save_data(migrated)
+
+
 ## Every synthetic helper must call this immediately before a direct write.
 ## SaveManager's own slot operations pass through the same path validator.
 func guard_test_write_target(target_path: String) -> bool:

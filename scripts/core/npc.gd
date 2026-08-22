@@ -9,6 +9,7 @@ const SPRITE_SIZE: int = 48  # S42: 48x48 업그레이드
 @export var dialogue_key: String = ""
 @export var npc_color: Color = Color(0.6, 0.3, 0.35)  # 기본: 붉은 톤
 @export var repeat_line: String = ""  # 재대화 시 표시할 대사 (빈칸이면 기본 대사)
+@export var repeat_dialogue_key: String = ""  # opt-in authored 재대화 (빈칸이면 기존 한 줄 대사)
 @export var display_name_ko: String = ""  # 월드 인구용 로컬라이즈 이름
 @export var repeat_line_ko: String = ""  # 월드 인구용 로컬라이즈 대사
 @export_file("*.png") var field_art_path: String = ""  # 단방향 월드 NPC 전용 필드 아트
@@ -52,7 +53,11 @@ func interact() -> void:
 
 	var talk_flag = "talked_%s_%s" % [npc_name, dialogue_key]
 	if _talked_keys.has(dialogue_key) or GameManager.get_flag(talk_flag):
-		# 이미 대화한 NPC, 짧은 후속 대사
+		# 이미 대화한 NPC. 명시적으로 authored 재대화를 지정한 NPC만
+		# DialogueManager를 다시 사용하고, 나머지는 기존 한 줄 동작을 유지한다.
+		if repeat_dialogue_key != "":
+			DialogueManager.load_and_start(dialogue_file, repeat_dialogue_key)
+			return
 		var line := _get_runtime_line()
 		DialogueManager.start_dialogue([
 			{"speaker": _get_runtime_name(), "text": line, "portrait": ""}

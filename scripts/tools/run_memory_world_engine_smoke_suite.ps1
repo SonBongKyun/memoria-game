@@ -124,6 +124,22 @@ $cases = @(
         ExpectedExit = 0
         RequiredLog = "state_writes=0"
         ExtraArgs = ""
+    },
+    [pscustomobject]@{
+        Name = "malet_memory_world_vertical_slice"
+        Scene = "res://scripts/tools/smoke_malet_memory_world_vertical_slice.tscn"
+        Marker = "MALET_MEMORY_WORLD_VERTICAL_SLICE_SMOKE_PASS"
+        ExpectedExit = 0
+        RequiredLog = "round_trip=1"
+        ExtraArgs = ""
+    },
+    [pscustomobject]@{
+        Name = "malet_live_integration"
+        Scene = "res://scripts/tools/smoke_malet_live_integration.tscn"
+        Marker = "MALET_LIVE_INTEGRATION_SMOKE_PASS"
+        ExpectedExit = 0
+        RequiredLog = "consequence=source_detail_toggle"
+        ExtraArgs = ""
     }
 )
 

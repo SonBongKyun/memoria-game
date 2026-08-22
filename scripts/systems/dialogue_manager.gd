@@ -119,6 +119,15 @@ func _show_next_line() -> void:
 ## requires_memory_intact / requires_memory_gone / requires_flag / requires_not_flag / requires_weave
 ## (legacy requires_memory + burned_text 조합은 라인을 건너뛰지 않으므로 여기서 제외)
 func _condition_met(data: Dictionary) -> bool:
+	# Memory World Engine conditions are opt-in. Legacy dialogue dictionaries do
+	# not contain this structured field and therefore retain their exact path.
+	if data.has("condition"):
+		var structured_condition: Variant = data["condition"]
+		if not (structured_condition is Dictionary) \
+				or not DialogueConditionSystem.evaluate(structured_condition, {
+					"consumer": "DialogueManager",
+				}):
+			return false
 	if data.has("requires_memory_intact") and not MemoryManager.is_intact(String(data.requires_memory_intact)):
 		return false
 	if data.has("requires_memory_gone") and MemoryManager.is_intact(String(data.requires_memory_gone)):
@@ -133,7 +142,9 @@ func _condition_met(data: Dictionary) -> bool:
 
 func _line_condition_met(line: Dictionary) -> bool:
 	# legacy requires_memory(+burned_text) 라인은 항상 표시 (텍스트만 교체)
-	if line.has("requires_memory") and line.has("burned_text"):
+	# 단, 새 structured condition을 명시한 경우에는 그 opt-in 조건만 추가로
+	# 통과해야 한다. 기존 데이터에는 condition 필드가 없어 결과가 동일하다.
+	if line.has("requires_memory") and line.has("burned_text") and not line.has("condition"):
 		return true
 	return _condition_met(line)
 
@@ -193,6 +204,10 @@ func select_choice(choice_index: int) -> void:
 					NotificationToast.ToastType.WARNING
 				)
 
+		# Memory World Engine mutation은 새 필드가 있는 선택지만 opt-in한다.
+		# DialogueManager는 WorldState를 직접 쓰지 않고 공개 API만 호출한다.
+		_apply_memory_world_choice_effects(choice)
+
 		# S146: 엔딩 기록 (데이터 주도)
 		if choice.has("record_ending") and GameManager.has_method("record_ending"):
 			GameManager.record_ending(String(choice.record_ending))
@@ -220,6 +235,23 @@ func select_choice(choice_index: int) -> void:
 
 	_current_choices = []
 	advance()
+
+
+func _apply_memory_world_choice_effects(choice: Dictionary) -> void:
+	if choice.has("remove_world_memory"):
+		var removal: Variant = choice.get("remove_world_memory")
+		if removal is Dictionary:
+			MemoryEngine.remove_memory(
+				String(removal.get("actor", "")),
+				String(removal.get("memory", ""))
+			)
+	if choice.has("restore_world_memory"):
+		var restoration: Variant = choice.get("restore_world_memory")
+		if restoration is Dictionary:
+			MemoryEngine.restore_memory(
+				String(restoration.get("actor", "")),
+				String(restoration.get("memory", ""))
+			)
 
 ## 대화 종료
 func end_dialogue() -> void:

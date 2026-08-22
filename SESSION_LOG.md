@@ -2,6 +2,68 @@
 
 ---
 
+## S255 - 2026-08-22 (Malet Memory World live gameplay integration)
+
+### 플레이 가능한 흐름
+- Chapter 2 말렛 거래가 완료되면 `npc.malet`에게 `fact.arrel.seeks_bl07`과 `memory.malet.bl07_request_source`를 최초 1회 seed한다. 기존 save의 active/removed/restored record와 explicit false knowledge는 덮어쓰지 않는다.
+- Chapter 3 이후 베르단 시장으로 돌아와 말렛에게 다시 말을 걸면 기존 한 줄 repeat 대신 실제 `chapter2_dialogue.json`의 structured dialogue가 열린다. 첫 `malet_encounter`와 거래/보상/전환 플래그는 그대로 유지한다.
+- 출처 기억이 active이면 말렛은 BL-07 요청자가 아렐임을 기억하며 `그 요청에서 무엇을 알아냈는지 묻는다` 선택지로 추가 정보를 제공한다.
+- 플레이어가 `말렛의 기억에서 출처 표식을 태운다`를 고르면 `MemoryEngine.remove_memory()`가 tombstone을 남긴다. 말렛은 BL-07을 찾는 사람이 있다는 knowledge는 유지하지만 요청자의 얼굴을 잃고, 출처 상세 질문이 사라진다.
+- `잔존에서 출처 표식을 다시 엮는다`를 고르면 `MemoryEngine.restore_memory()`가 가장 최근 제거 직전 record를 복원한다. restored 전용 대사와 출처 상세 질문이 돌아온다.
+
+### 연결과 경계
+- 범용 NPC는 `repeat_dialogue_key`가 명시된 경우에만 authored repeat dialogue를 사용한다. 다른 NPC의 기존 repeat line 동작은 그대로다.
+- DialogueManager의 새 `remove_world_memory` / `restore_world_memory` 선택지 필드는 MemoryEngine 공개 API만 호출한다. WorldState dictionary와 story_flags를 직접 쓰지 않는다.
+- 실제 actor identity는 이미 `data/world_state/actors.json`에 등록된 `npc.malet`을 그대로 사용한다. 표시 이름 `Malet`은 identity로 쓰지 않는다.
+- SaveManager의 기존 `world_state` payload를 그대로 사용하며 새 save schema나 migration은 추가하지 않았다.
+
+### 검증
+- Godot 4.6.2 headless import: exit 0, 새 Parse/SCRIPT ERROR 없음.
+- 실제 `verdan_market.tscn`에서 Malet 인스턴스를 로드한 live smoke PASS: active/removed/restored, source-detail choice toggle, lifecycle seed no-op, events once, sandbox save/reset/load, story_flags delta 0, MemoryManager delta 0, production slots 0.
+- 공식 `MEMORY_WORLD_ENGINE_SUITE_PASS cases=12`: export actor catalog, production/outside-temp guard, migration, event schema/consumer, 이전 vertical slice, live integration 모두 fatal scan과 함께 통과.
+- 기존 `STORY_QOL_SMOKE_PASS`, `STORY_COMBAT_SMOKE_PASS` 통과. VN validation 20 files/504 steps, 전체 data JSON 44개 parse, `git diff --check` 통과.
+- 테스트는 StoryLog persistence를 종료까지 suppress하고 `read_lines.json` fingerprint 불변을 검증했다. 이전 세션에서 이미 182개로 보이던 registry count는 이번 테스트에서 증가하지 않았다.
+
+### 경고
+- Godot editor import에서 기존 ShaderV duplicate UID 경고가 출력됐다. headless 종료 시 기존 ObjectDB/resource cleanup 경고도 남지만 exit code, PASS marker, fatal scan은 정상이다.
+- 전체 베르단 맵 `_ready()` 실행은 AchievementManager의 실제 사용자 파일 쓰기 가능성이 있어 자동 테스트에서 피했다. 대신 실제 map PackedScene의 Malet node, map seed 함수, production dialogue file과 DialogueManager interaction을 함께 실행했다.
+- 변경은 검토를 위해 커밋하지 않고 working tree에 남겼다.
+
+## S254 - 2026-08-22 (Malet Memory World dialogue vertical slice)
+
+### 기준점
+- S253 infrastructure gate 변경 14개 파일을 export/runtime catalog 검증과 공식 suite 10/10으로 다시 검토한 뒤 `f17646c feat(world): finalize engine gate` 체크포인트로 로컬 커밋했다. 푸시는 하지 않았다.
+
+### DialogueManager opt-in 연결
+- 기존 `_condition_met` 경로에 Dictionary-valued `condition`이 있을 때만 DialogueConditionSystem을 추가 평가한다. 기존 `requires_*`와 `requires_memory + burned_text` 데이터는 같은 코드 경로와 결과를 유지한다.
+- Memory condition에 optional `restored` Boolean을 추가했다. 새 상태를 만들지 않고 기존 `restored_revision > 0` audit metadata만 읽어 최초 active와 restore 이후 active를 구분한다.
+- 실제 chapter/VN JSON은 수정하거나 migration하지 않았다. repository 검색상 structured `condition`은 개발용 Malet JSON에만 존재한다.
+
+### 개발 전용 Malet slice
+- progression에서 참조되지 않는 `malet_memory_world_development.tscn`과 전용 JSON을 추가했다. Reset, Remove, Restore, Talk, sandbox Save, sandbox Reload 버튼을 제공한다.
+- 초기 상태는 `npc.malet`, `fact.veil.exists=true`, active `memory.malet.veil_revelation_source`, source `player.arrel`이다.
+- 실제 DialogueManager/DialogueBox pipeline은 active, removed, restored 세 문구 중 정확히 하나를 표시한다. removed에서도 knowledge는 유지된다.
+- 모든 runtime mutation은 MemoryEngine API를 사용한다. 명시적인 reset만 WorldState의 public reset API를 사용하며 dictionary/internal store를 직접 변경하지 않는다.
+
+### Event와 persistence
+- Malet 전용 read-only consumer는 schema v1을 먼저 검증하고 actor/target을 좁힌 뒤 `memory.removed`, `memory.restored`, `knowledge.learned`, `knowledge.forgotten`에만 반응한다. 매-frame polling이나 state write는 없다.
+- SaveManager의 주입된 smoke root에 일반 save payload를 쓴다. `reload_test_world_state`는 같은 guarded slot에서 WorldState만 복원하며 GameManager, MemoryManager, SceneFlow, scene 전환을 건드리지 않는다.
+- save -> reset -> reload는 removed tombstone과 동일 dialogue branch를 복원하고 event replay는 0이다.
+
+### 검증
+- Godot 4.6.2 headless editor import: exit 0, Parse/SCRIPT ERROR 없음.
+- 개발 scene 자체 headless load: exit 0, isolated test root 활성, development JSON 1 dialogue 로드.
+- `MALET_MEMORY_WORLD_VERTICAL_SLICE_SMOKE_PASS`: active/removed/restored, events once 5, no-op events 0, round trip 1, consumer refreshes 4, direct state writes 0, production slots 0.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=11 fatal_scan=enabled save_isolation=guarded export_catalog=verified`.
+- 기존 `STORY_QOL_SMOKE_PASS`, `STORY_COMBAT_SMOKE_PASS`는 exit/marker/full fatal scan으로 통과했다.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- save migration fixtures와 production/outside-temp guard는 공식 suite에서 재통과했다. `git diff --check` 통과.
+
+### 발견한 부수 효과와 보호
+- 최초 vertical smoke에서 실제 DialogueBox가 개발 문구를 StoryLog에 전달해 read registry count가 179에서 182로 증가했다. production save slot은 아니며 실제 progression에서 도달할 수 없는 세 개발 문구지만, 실제 user persistent file이므로 자동 삭제하지 않았다.
+- 이후 개발 scene은 StoryLog entries/read keys/dirty/persistence 상태를 snapshot/restore한다. 재실행과 개발 scene load에서 count 182가 더 증가하지 않았고 StoryLog persistence mode도 복원됨을 smoke로 검증했다.
+- 실제 Story/NPC/VN/Quest/SceneFlow/MemoryManager/WorldRewriteDirector 콘텐츠는 수정하지 않았다.
+
 ## S253 - 2026-08-22 (Memory World Engine final infrastructure gate)
 
 ### 기준점

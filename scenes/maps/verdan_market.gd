@@ -6,6 +6,10 @@ const TILE_SIZE: int = 32
 const MAP_WIDTH: int = 30
 const MAP_HEIGHT: int = 20
 const DIALOGUE_FILE: String = "res://data/chapter2_dialogue.json"
+const MALET_ACTOR_ID: String = "npc.malet"
+const MALET_ROUTE_FACT_ID: String = "fact.arrel.seeks_bl07"
+const MALET_ROUTE_MEMORY_ID: String = "memory.malet.bl07_request_source"
+const ARREL_ACTOR_ID: String = "player.arrel"
 
 enum Tile { STONE, WALL, STALL, DOOR, ALLEY }
 
@@ -108,6 +112,7 @@ func _ready() -> void:
 	elia.set_meta("burn_reaction_identity_first_sword", "res://data/chapter1_dialogue.json::elia_sword_burned")
 	# S54: NPC Schedule, adjust malet position/dialogue based on chapter
 	_apply_npc_schedules()
+	_seed_malet_memory_world_state_if_needed()
 	# S59: 인터랙티브 프롭 배치
 	_setup_interactive_props()
 	# S59: 분위기 강화, 안개 + 깊이 그라디언트
@@ -200,12 +205,36 @@ func _on_refused_ended() -> void:
 
 func _on_reward_ended() -> void:
 	GameManager.set_flag("ch2_malet_done")
+	_seed_malet_memory_world_state_if_needed()
 	# 말렛 거래 보상: 아이템 지급
 	GameManager.add_item("potion", 2)
 	GameManager.add_item("antidote", 1)
 	GameManager.add_item("firebomb", 1)
 	# 보상 대화 후 상점 오픈 (Grains 거래 기회)
 	_open_malet_shop()
+
+
+## 첫 거래가 끝난 뒤에만 말렛의 정보 상태를 만든다. 기존 세이브의
+## active/removed/restored memory나 명시적으로 잊은 knowledge는 덮어쓰지 않는다.
+## scene 재진입과 save load 뒤에는 누락된 레코드가 없으므로 완전한 no-op이다.
+func _seed_malet_memory_world_state_if_needed() -> void:
+	if not GameManager.get_flag("ch2_malet_done"):
+		return
+	var actor_state := WorldState.get_actor_state(MALET_ACTOR_ID)
+	if actor_state.is_empty():
+		return
+	var knowledge: Dictionary = actor_state.get("knowledge", {})
+	if not knowledge.has(MALET_ROUTE_FACT_ID):
+		MemoryEngine.learn_fact(MALET_ACTOR_ID, MALET_ROUTE_FACT_ID)
+	if WorldState.get_memory_record(MALET_ACTOR_ID, MALET_ROUTE_MEMORY_ID).is_empty():
+		MemoryEngine.add_memory(MALET_ACTOR_ID, MALET_ROUTE_MEMORY_ID, {
+			"fact_ids": [MALET_ROUTE_FACT_ID],
+			"source_actor_id": ARREL_ACTOR_ID,
+			"content": {
+				"kind": "information_source",
+				"subject": "bl07_route_request",
+			},
+		})
 
 ## 말렛 상점, 기억 매매 + 완료 시 Ch3 전환
 func _open_malet_shop() -> void:

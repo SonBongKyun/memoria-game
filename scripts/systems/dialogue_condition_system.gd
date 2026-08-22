@@ -1,6 +1,6 @@
 ## DialogueConditionSystem (Autoload)
 ## Read-only condition evaluator for Memory World Engine state.
-## It is intentionally not wired into existing dialogue/VN pipelines in MVP 1.
+## DialogueManager calls it only for the opt-in structured `condition` field.
 extends Node
 
 
@@ -41,15 +41,25 @@ func _evaluate_memory(condition: Dictionary) -> bool:
 	var memory_id := String(condition.get("memory", ""))
 	var expected_status := String(condition.get("status", WorldState.MEMORY_STATUS_ACTIVE))
 	var record := WorldState.get_memory_record(actor_id, memory_id)
+	var status_matches := false
 	match expected_status:
 		WorldState.MEMORY_STATUS_ACTIVE:
-			return MemoryEngine.check_memory(actor_id, memory_id)
+			status_matches = MemoryEngine.check_memory(actor_id, memory_id)
 		WorldState.MEMORY_STATUS_REMOVED:
-			return not record.is_empty() and String(record.get("status", "")) == WorldState.MEMORY_STATUS_REMOVED
+			status_matches = not record.is_empty() \
+				and String(record.get("status", "")) == WorldState.MEMORY_STATUS_REMOVED
 		"missing":
-			return record.is_empty()
+			status_matches = record.is_empty()
 		_:
 			return false
+	if not status_matches:
+		return false
+	# Optional restored matching reads existing deterministic audit metadata. It
+	# does not introduce another memory status or mutate the record.
+	if condition.has("restored"):
+		var was_restored := int(record.get("restored_revision", 0)) > 0
+		return was_restored == bool(condition.get("restored", false))
+	return true
 
 
 func _evaluate_knowledge(condition: Dictionary) -> bool:

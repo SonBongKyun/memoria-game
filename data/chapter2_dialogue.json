@@ -563,6 +563,200 @@
         "text_ko": "하지만 이제는 당신의 것이다."
       }
     ],
+    "malet_memory_world_followup": [
+      {
+        "branch_id": "active",
+        "speaker": "Malet",
+        "text": "You asked me for a route to BL-07. I remember the request, and exactly who made it.",
+        "text_ko": "자네가 BL-07로 가는 길을 물었지. 그 요청도, 누가 했는지도 정확히 기억하고 있어.",
+        "portrait": "malet_neutral",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.malet",
+              "fact": "fact.arrel.seeks_bl07",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source",
+              "status": "active",
+              "restored": false
+            }
+          ]
+        }
+      },
+      {
+        "branch_id": "removed",
+        "speaker": "Malet",
+        "text": "I know someone is looking for BL-07. The request remains, but the face attached to it is gone.",
+        "text_ko": "누군가 BL-07을 찾고 있다는 건 알아. 요청은 남았지만, 거기에 붙어 있던 얼굴은 사라졌군.",
+        "portrait": "malet_warning",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.malet",
+              "fact": "fact.arrel.seeks_bl07",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source",
+              "status": "removed"
+            }
+          ]
+        }
+      },
+      {
+        "branch_id": "restored",
+        "speaker": "Malet",
+        "text": "Arrel. Right. The request was yours. The source mark has returned.",
+        "text_ko": "아렐. 맞아. 그 요청은 자네 것이었지. 출처 표식이 돌아왔군.",
+        "portrait": "malet_amused",
+        "condition": {
+          "all": [
+            {
+              "type": "knowledge",
+              "actor": "npc.malet",
+              "fact": "fact.arrel.seeks_bl07",
+              "equals": true
+            },
+            {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source",
+              "status": "active",
+              "restored": true
+            }
+          ]
+        }
+      },
+      {
+        "choices": [
+          {
+            "choice_id": "source_detail",
+            "text": "Ask what the request revealed.",
+            "text_ko": "그 요청에서 무엇을 알아냈는지 묻는다.",
+            "jump_to": 4,
+            "condition": {
+              "all": [
+                {
+                  "type": "knowledge",
+                  "actor": "npc.malet",
+                  "fact": "fact.arrel.seeks_bl07",
+                  "equals": true
+                },
+                {
+                  "type": "memory",
+                  "actor": "npc.malet",
+                  "memory": "memory.malet.bl07_request_source",
+                  "status": "active"
+                }
+              ]
+            }
+          },
+          {
+            "choice_id": "remove_source_memory",
+            "text": "Burn the source mark from Malet's memory.",
+            "text_ko": "말렛의 기억에서 출처 표식을 태운다.",
+            "jump_to": 6,
+            "remove_world_memory": {
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source"
+            },
+            "condition": {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source",
+              "status": "active"
+            }
+          },
+          {
+            "choice_id": "restore_source_memory",
+            "text": "Reweave the source mark from its residue.",
+            "text_ko": "잔존에서 출처 표식을 다시 엮는다.",
+            "jump_to": 8,
+            "restore_world_memory": {
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source"
+            },
+            "condition": {
+              "type": "memory",
+              "actor": "npc.malet",
+              "memory": "memory.malet.bl07_request_source",
+              "status": "removed"
+            }
+          },
+          {
+            "choice_id": "leave",
+            "text": "Leave the ledger closed.",
+            "text_ko": "장부를 닫아 둔다.",
+            "jump_to": 10
+          }
+        ]
+      },
+      {
+        "branch_id": "source_detail",
+        "speaker": "Malet",
+        "text": "You named BL-07 without asking whether it was real. That told me you had already seen enough to be dangerous.",
+        "text_ko": "자네는 BL-07이 실재하는지 묻지도 않고 이름부터 댔지. 이미 위험할 만큼 봤다는 뜻이었어.",
+        "portrait": "malet_calculating"
+      },
+      {
+        "choices": [
+          {
+            "choice_id": "back_from_source_detail",
+            "text": "Return to the ledger.",
+            "text_ko": "장부 이야기로 돌아간다.",
+            "jump_to": 3
+          }
+        ]
+      },
+      {
+        "branch_id": "removed_consequence",
+        "speaker": "Malet",
+        "text": "The destination remains. The source does not. Clean work, Arrel... whoever you are.",
+        "text_ko": "목적지는 남고, 출처는 사라졌군. 깔끔한 솜씨야, 아렐... 아니, 누구였더라.",
+        "portrait": "malet_warning"
+      },
+      {
+        "choices": [
+          {
+            "choice_id": "back_after_remove",
+            "text": "Check the ledger again.",
+            "text_ko": "장부를 다시 확인한다.",
+            "jump_to": 3
+          }
+        ]
+      },
+      {
+        "branch_id": "restored_consequence",
+        "speaker": "Malet",
+        "text": "There. Your name sits beside the request again. The knowledge never moved; only its source disappeared and returned.",
+        "text_ko": "됐군. 요청 옆에 자네 이름이 다시 놓였어. 지식은 움직이지 않았고, 출처만 사라졌다 돌아왔지.",
+        "portrait": "malet_amused"
+      },
+      {
+        "choices": [
+          {
+            "choice_id": "back_after_restore",
+            "text": "Check the ledger again.",
+            "text_ko": "장부를 다시 확인한다.",
+            "jump_to": 3
+          }
+        ]
+      },
+      {
+        "speaker": "Malet",
+        "text": "Information keeps its own hours. Come back when yours changes.",
+        "text_ko": "정보에는 정보만의 시간이 있지. 자네 쪽 시간이 바뀌면 다시 오게.",
+        "portrait": "malet_neutral"
+      }
+    ],
     "malet_taste_burned": [
       {
         "speaker": "Malet",
