@@ -2,6 +2,38 @@
 
 ---
 
+## S256 - 2026-08-22 (Memory Gameplay v0.2 downstream Sable consequence)
+
+### 기준점
+- S255 Malet live integration을 공식 Memory World Engine suite 12/12, Story QoL/Combat, VN validation, staged diff check로 재검토한 뒤 `2c59212 feat(world): integrate malet memory gameplay` 체크포인트로 로컬 커밋했다. 푸시는 하지 않았다.
+
+### 플레이 가능한 downstream 흐름
+- Chapter 3 이후 베르단 시장의 Malet 재대화에서 `memory.malet.bl07_request_source`를 제거하거나 복원하는 기존 실제 플레이어 행동을 그대로 사용한다.
+- Chapter 6 The Seam에서 Sable의 기존 첫 대화 `sable_talk`를 마친 뒤 다시 말을 걸면 `sable_malet_route_followup`이 열린다. 메인 도착/브리핑/BL-07 progression은 변경하지 않았다.
+- active 상태에서는 Malet의 쪽지가 Arrel을 요청자로 지목하고, Sable에게 쪽지 전체를 읽어 달라는 선택지와 기존 원고의 `북동쪽 -> 절벽 -> 오래된 감시탑 -> 색을 따라감` 경로 정보가 열린다.
+- removed 상태에서는 `fact.arrel.seeks_bl07` knowledge가 남아 누군가 BL-07을 찾았다는 사실과 경로의 실재성은 유지되지만, 발신자 표식이 비어 완전한 경로 선택지 대신 불완전한 쪽지에 남은 내용만 물을 수 있다.
+- restored 상태에서는 source mark가 돌아왔다는 전용 대사와 전체 경로 선택지가 복구된다. 새 fact/memory/actor나 story flag는 만들지 않았다.
+
+### 변경 경계
+- `the_seam.tscn`의 Sable에 이미 존재하는 범용 NPC `repeat_dialogue_key`만 지정했다. 기존 `dialogue_key=sable_talk`, `seam_welcome`, `sable_briefing`은 그대로다.
+- downstream dialogue는 DialogueConditionSystem으로 WorldState를 읽기만 하며 mutation, polling, event consumer, 새 UI/framework를 추가하지 않는다.
+- MemoryEngine, MemoryManager, Quest, SceneFlow, WorldRewriteDirector, ActorRegistry, SaveManager production code는 수정하지 않았다.
+- 별도 presentation framework는 추가하지 않았다. Malet remove/restore 선택 직후의 authored 텍스트와 기존 DialogueBox 선택 SFX를 player-facing feedback으로 유지했다.
+
+### 검증
+- Godot 4.6.2 headless editor import exit 0. 새 Parse/SCRIPT ERROR 없음.
+- 확장한 실제 scene-node smoke PASS: `verdan_market.tscn` Malet과 `the_seam.tscn` Sable을 instantiate하고 실제 NPC `interact()`/DialogueManager pipeline으로 active, removed, loaded-removed, restored branch와 선택지를 실행했다.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=12 fatal_scan=enabled save_isolation=guarded export_catalog=verified`.
+- sandbox save -> WorldState reset -> load 뒤 removed Sable branch/제한 선택지가 유지되고, load event replay는 0, restore event는 정확히 1회였다.
+- knowledge 유지, 총 mutation event 4회 각 1회, no-op event 0, story_flags delta 0, MemoryManager delta 0, StoryLog/read_lines fingerprint 불변, production slots 0을 검증했다.
+- `STORY_QOL_SMOKE_PASS`, `STORY_COMBAT_SMOKE_PASS`, VN 20 files/504 steps/0 errors/0 warnings, 한국어 localization 31 files/1,615 fields/0 errors 통과.
+- `git diff --check` 통과. v0.2 변경은 검토를 위해 working tree에 남겼다.
+
+### 실패와 기존 경고
+- 첫 확장 smoke는 Sable 검증이 DialogueManager의 현재 선택지 context를 교체해 뒤이은 Malet restore 선택지를 찾지 못하면서 exit 1로 실패했다. Sable read-only 검증 뒤 Malet removed interaction을 다시 여는 실제 UI 순서로 수정했고 재실행과 공식 suite가 통과했다.
+- headless editor import가 이번 기능과 무관한 기존 tool script `.uid` 20개를 cache에서 재생성했다. 모두 working tree에서 제외했다.
+- 기존 ShaderV duplicate UID와 ObjectDB/resource cleanup 경고는 유지되지만 fatal scan 대상 오류는 없었다.
+
 ## S255 - 2026-08-22 (Malet Memory World live gameplay integration)
 
 ### 플레이 가능한 흐름

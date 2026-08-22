@@ -138,7 +138,7 @@ $cases = @(
         Scene = "res://scripts/tools/smoke_malet_live_integration.tscn"
         Marker = "MALET_LIVE_INTEGRATION_SMOKE_PASS"
         ExpectedExit = 0
-        RequiredLog = "consequence=source_detail_toggle"
+        RequiredLog = "downstream=sable_route_option"
         ExtraArgs = ""
     }
 )
