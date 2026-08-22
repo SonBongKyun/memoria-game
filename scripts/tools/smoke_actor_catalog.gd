@@ -8,6 +8,12 @@ var _runner = SmokeTestRunner.new("actor_catalog", "ACTOR_CATALOG_SMOKE_PASS")
 func _ready() -> void:
 	Codex.suppress_recording = true
 	_runner.begin_test("catalog_file_load")
+	_expect(SaveManager.is_smoke_test_mode(),
+		"Actor catalog smoke must run with --smoke-test save guards active")
+	_expect(ActorRegistry.CATALOG_PATH == "res://data/world_state/actors.json",
+		"ActorRegistry catalog path contract changed")
+	_expect(FileAccess.file_exists(ActorRegistry.CATALOG_PATH),
+		"Actor catalog is unavailable through the runtime res:// filesystem")
 	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog file failed to load")
 	_expect(ActorRegistry.is_catalog_loaded(), "ActorRegistry did not mark the catalog as loaded")
 	_expect(ActorRegistry.get_actor_ids() == PackedStringArray(["npc.malet", "player.arrel"]),
@@ -63,7 +69,8 @@ func _ready() -> void:
 
 	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog could not be restored after rejection tests")
 	WorldState.reset_to_defaults()
-	_runner.finish(get_tree(), "actors=2 schema=1 atomic_rejection=true")
+	_runner.finish(get_tree(),
+		"actors=2 schema=1 runtime_path=res://data/world_state/actors.json atomic_rejection=true")
 
 
 func _expect(condition: bool, reason: String) -> bool:

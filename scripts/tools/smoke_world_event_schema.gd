@@ -33,7 +33,7 @@ func _ready() -> void:
 	_validate_nondeterministic_field_rejection()
 	_validate_no_op_and_load_contract()
 	WorldState.reset_to_defaults()
-	_runner.finish(get_tree(), "types=5 deterministic_ids=true replay_on_load=0")
+	_runner.finish(get_tree(), "schema_v1=true types=5 deterministic_ids=true replay_on_load=0")
 
 
 func _validate_event_contract() -> void:
@@ -57,6 +57,8 @@ func _validate_event_contract() -> void:
 			])
 		_expect(event.size() == EventBus.COMMON_FIELDS.size(),
 			"Event must contain only the stable common fields")
+		_expect(int(event.get("schema_version", 0)) == EventBus.WORLD_EVENT_SCHEMA_VERSION,
+			"Event must declare the supported schema version")
 		_expect(String(event.get("event_id", "")) == "world.%08d" % sequence,
 			"event_id must derive only from event_sequence")
 		_expect(int(event.get("event_sequence", 0)) == sequence,
@@ -98,6 +100,11 @@ func _validate_nondeterministic_field_rejection() -> void:
 	wrong_id["event_id"] = "world.99999999"
 	_expect(not EventBus.validate_world_event(wrong_id),
 		"event_id must be derived from event_sequence")
+
+	var future_version := _events[0].duplicate(true)
+	future_version["schema_version"] = EventBus.WORLD_EVENT_SCHEMA_VERSION + 1
+	_expect(not EventBus.validate_world_event(future_version),
+		"A v1 validator must reject an unsupported future schema")
 
 
 func _validate_no_op_and_load_contract() -> void:

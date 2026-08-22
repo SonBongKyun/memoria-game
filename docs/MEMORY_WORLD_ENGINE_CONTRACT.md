@@ -64,10 +64,12 @@ event.
 
 ## Committed event payload schema
 
-Every `world_event_committed` event contains exactly these common fields:
+The current committed event schema is **version 1**. Every
+`world_event_committed` event contains exactly these common fields:
 
 | Field | Type | Contract |
 | --- | --- | --- |
+| `schema_version` | int | Exactly `1` for the current envelope |
 | `event_id` | String | `world.%08d` derived only from `event_sequence` |
 | `event_type` | String | One of the five supported mutation types |
 | `event_sequence` | int | Positive, monotonic WorldState sequence |
@@ -89,6 +91,12 @@ Type-specific payloads:
 The schema rejects extra common or payload fields. Events contain no wall-clock
 time, random values, or nonce. A successful mutation emits once; a no-op emits
 nothing. Importing or restoring WorldState never re-emits historical events.
+
+Consumers must validate `schema_version` before reading type-specific payloads.
+A v1 consumer rejects unsupported future versions without changing gameplay
+state. Additive or breaking envelope/payload changes require a new schema
+version and either parallel validation or an explicit adapter; producers must
+not silently reinterpret a v1 payload under newer semantics.
 
 ## Save compatibility
 
@@ -123,6 +131,32 @@ The focused PowerShell suite also scans every `smoke_*.gd` source before launch
 and rejects production save literals or direct FileAccess writes outside the
 shared sandbox helper.
 
+## Actor catalog export availability
+
+The Windows export preset uses `export_filter="all_resources"` and also names
+`data/world_state/actors.json` in `include_filter`. The explicit include keeps
+the catalog packaged even though ActorRegistry opens it through a runtime
+string path rather than a preloaded Resource dependency.
+
+The official smoke entrypoint exports a temporary PCK, launches that PCK with
+`--smoke-test`, and runs the actor catalog smoke against the real
+`res://data/world_state/actors.json` path. The gate fails if export fails, the
+file is missing from the pack, ActorRegistry cannot parse it, or the runtime
+catalog differs from the two expected actors. The temporary PCK is removed only
+after its normalized path is verified beneath the OS temp directory.
+
+## Read-only consumer probe
+
+`world_event_consumer_probe.gd` is development-only and is not an autoload or a
+gameplay consumer. It subscribes to `world_event_committed`, validates schema
+v1, checks event sequence order and actor/target identity, reads an immutable
+payload copy, and records diagnostics. It has no mutation API.
+
+Its smoke compares an identical five-mutation run with and without the probe.
+The final WorldState snapshots must match, while MemoryManager and legacy
+story_flags remain unchanged. Each of the five v1 event types must be observed
+exactly once.
+
 ## Smoke contract
 
 Memory World Engine smoke scenes use `smoke_test_runner.gd`. Each failure logs
@@ -134,3 +168,8 @@ Run the focused suite with:
 ```powershell
 ./scripts/tools/run_memory_world_engine_smoke_suite.ps1 -GodotPath <godot-console-exe>
 ```
+
+This is the single official Memory World Engine smoke entrypoint. It always
+enables `--smoke-test`, production save guards, the isolated write sandbox,
+fatal-output scanning, actor catalog export/runtime verification, schema v1
+coverage, and the read-only consumer probe.

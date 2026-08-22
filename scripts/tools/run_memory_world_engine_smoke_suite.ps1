@@ -36,6 +36,14 @@ foreach ($sourceFile in $smokeSources) {
 }
 Write-Host "SAVE_PATH_ISOLATION_STATIC_PASS smoke_sources=$($smokeSources.Count) direct_write_helpers=1"
 
+# The official entrypoint verifies the catalog in an exported PCK as well as
+# the editor project. The exported runtime is launched with --smoke-test, so
+# SaveManager's production root remains guarded there too.
+& (Join-Path $PSScriptRoot "verify_actor_catalog_export.ps1") `
+    -GodotPath $GodotPath `
+    -ProjectRoot $projectRoot `
+    -TimeoutSeconds ([Math]::Max($TimeoutSeconds, 180))
+
 $cases = @(
     [pscustomobject]@{
         Name = "smoke_test_runner_contract"
@@ -106,7 +114,15 @@ $cases = @(
         Scene = "res://scripts/tools/smoke_world_event_schema.tscn"
         Marker = "WORLD_EVENT_SCHEMA_SMOKE_PASS"
         ExpectedExit = 0
-        RequiredLog = "replay_on_load=0"
+        RequiredLog = "schema_v1=true"
+        ExtraArgs = ""
+    },
+    [pscustomobject]@{
+        Name = "world_event_consumer_probe"
+        Scene = "res://scripts/tools/smoke_world_event_consumer_probe.tscn"
+        Marker = "WORLD_EVENT_CONSUMER_PROBE_SMOKE_PASS"
+        ExpectedExit = 0
+        RequiredLog = "state_writes=0"
         ExtraArgs = ""
     }
 )
@@ -168,4 +184,4 @@ foreach ($case in $cases) {
     Write-Host "[SMOKE][PASS][$($case.Name)] marker=$($case.Marker)"
 }
 
-Write-Host "MEMORY_WORLD_ENGINE_SUITE_PASS cases=$($cases.Count) fatal_scan=enabled save_isolation=guarded"
+Write-Host "MEMORY_WORLD_ENGINE_SUITE_PASS cases=$($cases.Count) fatal_scan=enabled save_isolation=guarded export_catalog=verified"

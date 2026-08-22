@@ -5,6 +5,7 @@ extends Node
 
 signal world_event_committed(event: Dictionary)
 
+const WORLD_EVENT_SCHEMA_VERSION: int = 1
 const EVENT_TYPES: PackedStringArray = [
 	"memory.added",
 	"memory.removed",
@@ -13,6 +14,7 @@ const EVENT_TYPES: PackedStringArray = [
 	"knowledge.forgotten",
 ]
 const COMMON_FIELDS: PackedStringArray = [
+	"schema_version",
 	"event_id",
 	"event_type",
 	"event_sequence",
@@ -45,6 +47,9 @@ func get_validation_error(event: Dictionary) -> String:
 	for field in COMMON_FIELDS:
 		if not event.has(field):
 			return "missing common field=%s" % field
+	if not (event.get("schema_version") is int) \
+			or int(event.schema_version) != WORLD_EVENT_SCHEMA_VERSION:
+		return "unsupported schema_version=%s" % event.get("schema_version", "<missing>")
 
 	var event_type := String(event.get("event_type", ""))
 	if event_type not in EVENT_TYPES:

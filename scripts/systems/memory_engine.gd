@@ -148,6 +148,7 @@ func _commit_event(event_type: String, actor_id: String, target_id: String,
 		revision: int, payload: Dictionary) -> bool:
 	var sequence := WorldState._next_event_sequence()
 	var event := {
+		"schema_version": EventBus.WORLD_EVENT_SCHEMA_VERSION,
 		"event_id": "world.%08d" % sequence,
 		"event_type": event_type,
 		"event_sequence": sequence,

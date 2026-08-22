@@ -2,6 +2,39 @@
 
 ---
 
+## S253 - 2026-08-22 (Memory World Engine final infrastructure gate)
+
+### 기준점
+- S252의 save 격리/Event schema/actor catalog 변경 22개 파일을 공식 suite 9/9와 staged diff check로 다시 검토한 뒤 `2ba20dd feat(world): gate engine infrastructure` 체크포인트로 로컬 커밋했다. 푸시는 하지 않았다.
+
+### Event schema v1
+- committed event envelope에 `schema_version = 1`을 추가했다. 공통 필드는 `schema_version`, `event_id`, `event_type`, `event_sequence`, `revision`, `actor_id`, `target_id`, `payload`의 정확한 8개다.
+- v1 validator는 누락/추가 필드와 지원하지 않는 미래 version을 거부한다. timestamp/random/nonce 금지, sequence 기반 event ID, mutation당 1 event, no-op 0 event, load replay 0 계약은 유지한다.
+- 향후 schema 변화는 version 증가와 병렬 validator 또는 명시적 adapter가 필요하며, v1 payload를 새 의미로 암묵 재해석하지 않는다고 문서화했다.
+
+### Actor catalog export gate
+- Windows Desktop (Demo) preset은 기존 `export_filter="all_resources"`를 유지하고, runtime string path로 읽는 `data/world_state/actors.json`을 `include_filter`에 명시했다.
+- 새 export verifier는 OS temp 하위의 GUID directory에 PCK를 만들고, export된 PCK를 `--smoke-test`로 실행해 `res://data/world_state/actors.json`과 정확히 두 actor를 실제 runtime에서 읽는다. 정규화한 cleanup target이 OS temp 직계 하위가 아니면 삭제를 거부한다.
+- pack construction은 exit code와 생성된 PCK의 존재/크기를 검사하고, export된 runtime에는 전체 fatal scan을 적용한다. 기존 plugin/resource의 pack-time engine diagnostics는 별도 error count로 노출한다.
+
+### 공식 smoke entrypoint와 read-only probe
+- `run_memory_world_engine_smoke_suite.ps1`을 Memory World Engine의 공식 단일 진입점으로 확정했다. 모든 runtime case에 `--smoke-test`, SaveManager production guard, temp save sandbox, timeout/exit/marker/fatal scan이 적용되며 export/runtime catalog 검증도 선행한다.
+- 개발 전용 `world_event_consumer_probe.gd`를 추가했다. 오토로드나 gameplay consumer가 아니며 committed event의 복사본만 받아 schema, sequence, actor/target identity와 payload를 읽고 진단을 기록한다.
+- probe smoke는 5개 event type을 각 1회 수신하고 payload 10개 필드를 읽은 뒤, probe 없는 동일 mutation 결과와 WorldState가 정확히 같고 MemoryManager/story_flags도 불변임을 검증한다.
+
+### 검증
+- Godot 4.6.2 headless editor import: exit 0, Parse/SCRIPT ERROR 없음.
+- 임시 Windows PCK 1,185,303,672 bytes export 후 catalog runtime load 통과. 최종 export의 pack-time `ERROR:` count는 0, runtime fatal scan 활성 상태였다.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=10 fatal_scan=enabled save_isolation=guarded export_catalog=verified`.
+- `WORLD_EVENT_SCHEMA_SMOKE_PASS`: schema v1, 5종, deterministic IDs, load replay 0.
+- `WORLD_EVENT_CONSUMER_PROBE_SMOKE_PASS`: events 5, types once 5, payload fields read 10, state writes 0.
+- save migration fixtures, production/outside-temp path guard, isolated crash guard, save/reset/load round-trip, actor catalog/registry 모두 통과했다. production save slot은 읽거나 쓰지 않았다.
+- 첫 전체 suite 시도는 잘못 지정한 Godot executable path 때문에 테스트 시작 전에 exit 1이었다. 다음 export 시도는 uncached ShaderV/VFX resource diagnostics가 pack-construction fatal scan과 충돌해 중단됐고, pack 생성 판정과 exported-runtime fatal 판정을 분리한 뒤 최종 suite가 통과했다.
+- `git diff --check` 통과. 직접 Godot smoke 종료 시 기존 ObjectDB/resource-in-use cleanup 경고는 계속 발생한다.
+
+### 범위 보호
+- 실제 Story/NPC/DialogueManager/SceneFlow/Quest/MemoryManager/WorldRewriteDirector 콘텐츠나 consumer는 수정/연결하지 않았다.
+
 ## S252 - 2026-08-22 (Smoke save 완전 격리 + Event/Actor 정적 계약)
 
 ### 기준점
