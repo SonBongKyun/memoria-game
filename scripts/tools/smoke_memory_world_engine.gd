@@ -175,7 +175,8 @@ func _check_save_reset_load_round_trip() -> void:
 
 
 func _has_single_event(event_type: String) -> bool:
-	return _committed_events.size() == 1 and String(_committed_events[0].get("type", "")) == event_type
+	return _committed_events.size() == 1 \
+		and String(_committed_events[0].get("event_type", "")) == event_type
 
 
 func _on_world_event_committed(event: Dictionary) -> void:

@@ -7,7 +7,7 @@ var _runner = SmokeTestRunner.new("actor_registry", "ACTOR_REGISTRY_SMOKE_PASS")
 
 func _ready() -> void:
 	Codex.suppress_recording = true
-	ActorRegistry.reset_to_defaults()
+	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog must load before collision checks")
 	WorldState.reset_to_defaults()
 
 	_runner.begin_test("default_actor_contract")
@@ -44,7 +44,7 @@ func _ready() -> void:
 	_expect(not ActorRegistry.register_actor("npc.Bad_ID", "Bad"),
 		"Invalid persistent IDs must be rejected")
 
-	ActorRegistry.reset_to_defaults()
+	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog must reload after collision checks")
 	WorldState.reset_to_defaults()
 	_runner.finish(get_tree(), "defaults=2 collisions=2 unknown_access=validated")
 

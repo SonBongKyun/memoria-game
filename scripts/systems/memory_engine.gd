@@ -43,7 +43,11 @@ func add_memory(actor_id: String, memory_id: String, payload: Dictionary = {}) -
 	var revision := WorldState._store_memory_record(actor_id, memory_id, record)
 	if revision < 0:
 		return false
-	return _commit_event("memory.added", actor_id, memory_id, revision)
+	return _commit_event("memory.added", actor_id, memory_id, revision, {
+		"status": WorldState.MEMORY_STATUS_ACTIVE,
+		"fact_ids": fact_ids.duplicate(),
+		"source_actor_id": source_actor_id,
+	})
 
 
 func remove_memory(actor_id: String, memory_id: String) -> bool:
@@ -58,7 +62,10 @@ func remove_memory(actor_id: String, memory_id: String) -> bool:
 	var revision := WorldState._store_memory_record(actor_id, memory_id, record)
 	if revision < 0:
 		return false
-	return _commit_event("memory.removed", actor_id, memory_id, revision)
+	return _commit_event("memory.removed", actor_id, memory_id, revision, {
+		"previous_status": WorldState.MEMORY_STATUS_ACTIVE,
+		"status": WorldState.MEMORY_STATUS_REMOVED,
+	})
 
 
 ## Restores the latest valid pre-removal record kept inside the tombstone.
@@ -79,7 +86,11 @@ func restore_memory(actor_id: String, memory_id: String) -> bool:
 	var revision := WorldState._store_memory_record(actor_id, memory_id, record)
 	if revision < 0:
 		return false
-	return _commit_event("memory.restored", actor_id, memory_id, revision)
+	return _commit_event("memory.restored", actor_id, memory_id, revision, {
+		"previous_status": WorldState.MEMORY_STATUS_REMOVED,
+		"status": WorldState.MEMORY_STATUS_ACTIVE,
+		"last_removed_revision": int(record.get("last_removed_revision", 0)),
+	})
 
 
 func check_memory(actor_id: String, memory_id: String) -> bool:
@@ -95,7 +106,7 @@ func learn_fact(actor_id: String, fact_id: String) -> bool:
 	var revision := WorldState._store_knowledge_value(actor_id, fact_id, true)
 	if revision < 0:
 		return false
-	return _commit_event("knowledge.learned", actor_id, fact_id, revision, "fact_id")
+	return _commit_event("knowledge.learned", actor_id, fact_id, revision, {"value": true})
 
 
 func forget_fact(actor_id: String, fact_id: String) -> bool:
@@ -104,7 +115,7 @@ func forget_fact(actor_id: String, fact_id: String) -> bool:
 	var revision := WorldState._store_knowledge_value(actor_id, fact_id, false)
 	if revision < 0:
 		return false
-	return _commit_event("knowledge.forgotten", actor_id, fact_id, revision, "fact_id")
+	return _commit_event("knowledge.forgotten", actor_id, fact_id, revision, {"value": false})
 
 
 func knows_fact(actor_id: String, fact_id: String) -> bool:
@@ -133,15 +144,16 @@ func _valid_knowledge_target(actor_id: String, fact_id: String) -> bool:
 	return true
 
 
-func _commit_event(event_type: String, actor_id: String, subject_id: String, revision: int,
-		subject_key: String = "memory_id") -> bool:
+func _commit_event(event_type: String, actor_id: String, target_id: String,
+		revision: int, payload: Dictionary) -> bool:
 	var sequence := WorldState._next_event_sequence()
 	var event := {
 		"event_id": "world.%08d" % sequence,
-		"sequence": sequence,
-		"type": event_type,
+		"event_type": event_type,
+		"event_sequence": sequence,
+		"revision": revision,
 		"actor_id": actor_id,
-		"world_revision": revision,
+		"target_id": target_id,
+		"payload": payload.duplicate(true),
 	}
-	event[subject_key] = subject_id
 	return EventBus.emit_world_event_committed(event)

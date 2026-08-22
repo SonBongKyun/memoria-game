@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "actors": [
+    {
+      "actor_id": "player.arrel",
+      "display_name": "Arrel"
+    },
+    {
+      "actor_id": "npc.malet",
+      "display_name": "Malet"
+    }
+  ]
+}

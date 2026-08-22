@@ -5,7 +5,11 @@
 ## S58: Steam Cloud save hooks (GodotSteam integration-ready)
 extends Node
 
-const SAVE_DIR: String = "user://saves/"
+const PRODUCTION_SAVE_ROOT: String = "user://saves"
+const TEST_SAVE_ROOT_PREFIX: String = "user://test_tmp/smoke_saves"
+# Kept for existing callers and comments. Runtime path resolution uses
+# _active_save_root so production and synthetic test storage cannot overlap.
+const SAVE_DIR: String = PRODUCTION_SAVE_ROOT + "/"
 const MAX_SLOTS: int = 3
 const AUTOSAVE_SLOT: int = 0  # Dedicated autosave slot
 const AUTOSAVE_INTERVAL: float = 300.0  # 5 minutes
@@ -32,14 +36,31 @@ var _last_save_time: float = 0.0
 var _save_indicator: Control = null
 var _save_indicator_tween: Tween = null
 
+## Save-path dependency injection. Production retains the historical
+## user://saves root. Smoke processes start with no usable root and must inject
+## a descendant of TEST_SAVE_ROOT_PREFIX before any save read or write.
+var _active_save_root: String = PRODUCTION_SAVE_ROOT
+var _smoke_test_mode: bool = false
+var _test_save_root_configured: bool = false
+var _save_path_guard_failed: bool = false
+
 func _ready() -> void:
-	# 세이브 디렉토리 생성
-	if not DirAccess.dir_exists_absolute(SAVE_DIR):
-		DirAccess.make_dir_recursive_absolute(SAVE_DIR)
+	_smoke_test_mode = _detect_smoke_test_mode()
+	if _smoke_test_mode:
+		# A smoke process must not even create or probe the production directory.
+		_active_save_root = ""
+		_autosave_enabled = false
+		print("[SaveManager] Smoke path guard active; test save root not configured")
+	else:
+		_active_save_root = PRODUCTION_SAVE_ROOT
+		_ensure_save_root(_active_save_root)
 	_build_save_indicator()
 	# Connect to chapter transitions and boss battles for autosave
 	_connect_autosave_signals()
-	print("[SaveManager] Ready, save dir: %s (autosave every %ds)" % [SAVE_DIR, int(AUTOSAVE_INTERVAL)])
+	print("[SaveManager] Ready, save root: %s (autosave every %ds)" % [
+		_active_save_root if not _smoke_test_mode else "<smoke-guarded>",
+		int(AUTOSAVE_INTERVAL),
+	])
 
 func _process(delta: float) -> void:
 	_update_map_checkpoint(delta)
@@ -143,6 +164,8 @@ func save_game(slot: int) -> bool:
 	}
 
 	var path = _get_save_path(slot)
+	if path == "":
+		return false
 
 	# S56: Create backup of existing save before overwriting
 	_create_backup(path)
@@ -173,6 +196,8 @@ func load_game(slot: int) -> bool:
 		return false
 
 	var path = _get_save_path(slot)
+	if path == "":
+		return false
 	if not FileAccess.file_exists(path):
 		print("[SaveManager] No save in slot %d" % slot)
 		return false
@@ -231,6 +256,8 @@ func load_game(slot: int) -> bool:
 
 ## S56: Load JSON with corruption recovery, tries .bak if main fails
 func _load_json_with_recovery(path: String, slot: int) -> Variant:
+	if not _guard_save_path(path, "load_with_recovery"):
+		return null
 	# Try primary file first
 	var data = _try_parse_json(path)
 	if data != null:
@@ -265,6 +292,8 @@ func _load_json_with_recovery(path: String, slot: int) -> Variant:
 
 ## S56: Try to parse a JSON file, return null on failure
 func _try_parse_json(path: String) -> Variant:
+	if not _guard_save_path(path, "read_json"):
+		return null
 	if not FileAccess.file_exists(path):
 		return null
 	var file = FileAccess.open(path, FileAccess.READ)
@@ -338,8 +367,136 @@ func _compatible_world_state_or_default(value: Variant) -> Dictionary:
 		return WorldState.make_default_data()
 	return snapshot.duplicate(true)
 
+
+## Injects a save root only for a smoke process. The target must be a strict
+## descendant of user://test_tmp/smoke_saves after absolute-path normalization.
+## Invalid targets trigger the fatal path guard before any filesystem access.
+func configure_test_save_root(root: String) -> bool:
+	if not _smoke_test_mode:
+		push_warning("[SaveManager] Test save root injection rejected outside smoke mode")
+		return false
+	var normalized_root := _normalize_virtual_root(root)
+	if not _is_descendant_path(normalized_root, TEST_SAVE_ROOT_PREFIX):
+		_fail_save_path_guard("configure_test_root", root)
+		return false
+	_active_save_root = normalized_root
+	_test_save_root_configured = true
+	if not _ensure_save_root(_active_save_root):
+		_fail_save_path_guard("create_test_root", _active_save_root)
+		return false
+	print("[SaveManager] Isolated test save root: %s" % _active_save_root)
+	return true
+
+
+func is_smoke_test_mode() -> bool:
+	return _smoke_test_mode
+
+
+func is_test_save_root_configured() -> bool:
+	return _smoke_test_mode and _test_save_root_configured
+
+
+func get_active_save_root() -> String:
+	return _active_save_root
+
+
+func get_save_path_for_test(slot: int) -> String:
+	if not _smoke_test_mode:
+		push_warning("[SaveManager] Test save path requested outside smoke mode")
+		return ""
+	return _get_save_path(slot)
+
+
+## Every synthetic helper must call this immediately before a direct write.
+## SaveManager's own slot operations pass through the same path validator.
+func guard_test_write_target(target_path: String) -> bool:
+	if not _smoke_test_mode or not _is_allowed_test_path(target_path):
+		_fail_save_path_guard("test_write", target_path)
+		return false
+	return true
+
+
+func has_save_path_guard_failed() -> bool:
+	return _save_path_guard_failed
+
+
+func _detect_smoke_test_mode() -> bool:
+	if "--smoke-test" in OS.get_cmdline_user_args():
+		return true
+	# Protect direct `--scene res://scripts/tools/smoke_*.tscn` invocations even
+	# when a developer forgets the explicit user argument.
+	for argument in OS.get_cmdline_args():
+		var normalized := String(argument).replace("\\", "/").to_lower()
+		if "/scripts/tools/smoke_" in normalized or normalized.begins_with("res://scripts/tools/smoke_"):
+			return true
+	return false
+
+
+func _ensure_save_root(root: String) -> bool:
+	if root == "":
+		return false
+	if DirAccess.dir_exists_absolute(root):
+		return true
+	return DirAccess.make_dir_recursive_absolute(root) == OK
+
+
+func _join_root(root: String, filename: String) -> String:
+	if root == "":
+		return filename
+	return root.trim_suffix("/") + "/" + filename
+
+
+func _normalize_virtual_root(path: String) -> String:
+	return path.strip_edges().replace("\\", "/").simplify_path().trim_suffix("/")
+
+
+func _normalized_absolute_path(path: String) -> String:
+	var resolved := ProjectSettings.globalize_path(path)
+	return resolved.replace("\\", "/").simplify_path().trim_suffix("/").to_lower()
+
+
+func _is_descendant_path(candidate: String, root: String) -> bool:
+	var candidate_absolute := _normalized_absolute_path(candidate)
+	var root_absolute := _normalized_absolute_path(root)
+	return candidate_absolute.begins_with(root_absolute + "/")
+
+
+func _is_allowed_test_path(path: String) -> bool:
+	if not _smoke_test_mode or not _test_save_root_configured or path == "":
+		return false
+	var resolved := _normalized_absolute_path(path)
+	var production := _normalized_absolute_path(PRODUCTION_SAVE_ROOT)
+	var active_root := _normalized_absolute_path(_active_save_root)
+	var allowed_prefix := _normalized_absolute_path(TEST_SAVE_ROOT_PREFIX)
+	if resolved == production or resolved.begins_with(production + "/"):
+		return false
+	return resolved.begins_with(active_root + "/") and active_root.begins_with(allowed_prefix + "/")
+
+
+func _guard_save_path(path: String, operation: String) -> bool:
+	if not _smoke_test_mode:
+		return true
+	if _is_allowed_test_path(path):
+		return true
+	_fail_save_path_guard(operation, path)
+	return false
+
+
+func _fail_save_path_guard(operation: String, target_path: String) -> void:
+	_save_path_guard_failed = true
+	var resolved := _normalized_absolute_path(target_path) if target_path != "" else "<empty>"
+	push_error("[SAVE_PATH_GUARD][FATAL] operation=%s target=%s resolved=%s" % [
+		operation,
+		target_path if target_path != "" else "<empty>",
+		resolved,
+	])
+	if is_inside_tree():
+		get_tree().quit(1)
+
 ## S56: Create .bak backup before overwriting
 func _create_backup(path: String) -> void:
+	if not _guard_save_path(path, "backup"):
+		return
 	if not FileAccess.file_exists(path):
 		return  # Nothing to back up
 	var file = FileAccess.open(path, FileAccess.READ)
@@ -357,17 +514,22 @@ func _create_backup(path: String) -> void:
 
 ## S56: Get save file path for a slot
 func _get_save_path(slot: int) -> String:
-	if slot == AUTOSAVE_SLOT:
-		return SAVE_DIR + "autosave.json"
-	return SAVE_DIR + "save_%d.json" % slot
+	var filename := "autosave.json" if slot == AUTOSAVE_SLOT else "save_%d.json" % slot
+	var path := _join_root(_active_save_root, filename)
+	if not _guard_save_path(path, "resolve_slot_%d" % slot):
+		return ""
+	return path
 
 ## 슬롯에 세이브가 있는지 확인
 func has_save(slot: int) -> bool:
-	return FileAccess.file_exists(_get_save_path(slot))
+	var path := _get_save_path(slot)
+	return path != "" and FileAccess.file_exists(path)
 
 ## 세이브 정보 가져오기 (슬롯 선택 UI용)
 func get_save_info(slot: int) -> Dictionary:
 	var path = _get_save_path(slot)
+	if path == "":
+		return {}
 	if not FileAccess.file_exists(path):
 		return {}
 

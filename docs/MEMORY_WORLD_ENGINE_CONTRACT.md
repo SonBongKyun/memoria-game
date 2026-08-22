@@ -14,11 +14,19 @@ DialogueManager, SceneFlow, quests, and live NPC content do not consume it yet.
 - Actor slugs are unique across both actor namespaces because Memory IDs omit
   the actor namespace.
 
-Current actors are `player.arrel` (`Arrel`) and `npc.malet` (`Malet`).
+Current actors are `player.arrel` (`Arrel`) and `npc.malet` (`Malet`). Their
+definitions live in `data/world_state/actors.json` with catalog schema version
+`1`. The catalog is the only bootstrap source; load or validation failures do
+not silently fall back to actors embedded in code.
 
 ActorRegistry owns identity syntax, registration, display metadata, and
 collision rejection. WorldState owns only runtime state containers for actors
 already registered in ActorRegistry.
+
+Catalog replacement is atomic. Duplicate actor IDs, invalid IDs, empty display
+names, and actor-slug collisions across namespaces reject the entire candidate
+catalog and leave the previously loaded registry unchanged. Display names may
+be duplicated because only `actor_id` is persistent identity.
 
 ## Knowledge
 
@@ -54,6 +62,34 @@ A successful restore commits exactly one `memory.restored` event. Restoring an
 active or missing memory returns `false`, changes no state, and commits no
 event.
 
+## Committed event payload schema
+
+Every `world_event_committed` event contains exactly these common fields:
+
+| Field | Type | Contract |
+| --- | --- | --- |
+| `event_id` | String | `world.%08d` derived only from `event_sequence` |
+| `event_type` | String | One of the five supported mutation types |
+| `event_sequence` | int | Positive, monotonic WorldState sequence |
+| `revision` | int | Positive WorldState revision created by the mutation |
+| `actor_id` | String | Actor whose state changed |
+| `target_id` | String | Memory ID or Fact ID changed by the event |
+| `payload` | Dictionary | Exact type-specific payload described below |
+
+Type-specific payloads:
+
+| `event_type` | `target_id` | Exact payload |
+| --- | --- | --- |
+| `memory.added` | Memory ID | `status`, `fact_ids`, `source_actor_id` |
+| `memory.removed` | Memory ID | `previous_status="active"`, `status="removed"` |
+| `memory.restored` | Memory ID | `previous_status="removed"`, `status="active"`, `last_removed_revision` |
+| `knowledge.learned` | Fact ID | `value=true` |
+| `knowledge.forgotten` | Fact ID | `value=false` |
+
+The schema rejects extra common or payload fields. Events contain no wall-clock
+time, random values, or nonce. A successful mutation emits once; a no-op emits
+nothing. Importing or restoring WorldState never re-emits historical events.
+
 ## Save compatibility
 
 SaveManager remains at save version `0.4.0`; WorldState schema version is `1`.
@@ -64,6 +100,28 @@ legacy `story_flags` or the existing player-card `MemoryManager` data.
 
 Migration fixtures live under `data/test_fixtures/save_migrations` and are read
 from `res://`; tests never write to `user://saves/`.
+
+## Save path isolation for smoke processes
+
+Production continues to use `user://saves`. A smoke process is detected by the
+explicit `--smoke-test` user argument or a direct `scripts/tools/smoke_*` scene
+launch. In that mode SaveManager starts with no usable save root, disables
+autosave, and does not create or probe the production directory.
+
+A save-writing smoke must inject a process-specific descendant of
+`user://test_tmp/smoke_saves` through `configure_test_save_root`. All
+SaveManager slot operations then validate their normalized absolute target.
+The shared `smoke_save_sandbox.gd` helper applies the same validation before a
+test performs direct fixture writes. Missing injection, path traversal, the
+production root, or any target outside the active test root logs the attempted
+target and terminates the process with exit code `1` before filesystem access.
+
+Test directories are intentionally safe to leave behind after a crash or
+timeout; no cleanup path ever targets production saves.
+
+The focused PowerShell suite also scans every `smoke_*.gd` source before launch
+and rejects production save literals or direct FileAccess writes outside the
+shared sandbox helper.
 
 ## Smoke contract
 

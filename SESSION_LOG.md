@@ -2,6 +2,43 @@
 
 ---
 
+## S252 - 2026-08-22 (Smoke save 완전 격리 + Event/Actor 정적 계약)
+
+### 기준점
+- S251 변경 27개 파일을 공통 suite 4/4와 staged diff check로 다시 검토한 뒤 `a41a24f feat(world): strengthen engine contracts` 체크포인트로 로컬 커밋했다. 푸시는 하지 않았다.
+
+### Save 격리
+- SaveManager의 production root `user://saves`와 smoke test root를 분리했다. production 실행은 기존 root를 그대로 사용하지만, `--smoke-test` 또는 smoke scene 실행은 usable root 없이 시작하고 autosave도 비활성화한다.
+- smoke write는 `user://test_tmp/smoke_saves/<suite>_<pid>` 하위 root를 명시적으로 주입해야 한다. 정규화한 OS 절대 경로가 허용 root 밖이거나 production root이면 target/resolved path를 출력하고 filesystem 접근 전에 exit code 1로 종료한다.
+- `smoke_save_sandbox.gd`가 직접 fixture write에도 같은 guard를 적용한다. crash/timeout 후 temp 데이터가 남아도 production slot에는 접근하지 않으며 production 경로를 대상으로 하는 cleanup도 없다.
+- `smoke_crash_guards.gd`의 `user://saves/save_3.json` 직접 접근을 제거했다. SaveManager 자체 write/read와 invalid-save transactional load를 모두 주입된 temp slot 3에서만 검증하며 공통 smoke runner를 사용한다.
+- PowerShell suite는 47개 `smoke_*.gd` 전체를 정적 검사해 production save literal을 거부하고, 공통 sandbox helper 밖의 직접 FileAccess write가 다시 들어오면 실행 전에 실패한다.
+
+### Event payload schema
+- committed event 공통 필드를 `event_id`, `event_type`, `event_sequence`, `revision`, `actor_id`, `target_id`, `payload`로 고정했다.
+- `event_id`는 `event_sequence`를 `world.%08d` 형식으로 포맷한 값이며 시간/난수/nonce 및 extra field를 허용하지 않는다. 5개 event type별 payload 필드를 EventBus에서 검증한다.
+- 성공 mutation은 정확히 1 event, no-op은 0 event, save/load는 event를 재발행하지 않는 계약을 별도 smoke로 검증했다. 실제 Dialogue/NPC/Quest consumer는 연결하지 않았다.
+
+### Actor catalog
+- `player.arrel`과 `npc.malet`을 `data/world_state/actors.json` schema v1로 외부화했다.
+- ActorRegistry는 catalog를 임시 dictionary에 전부 검증한 뒤 원자적으로 교체한다. missing/invalid/duplicate/cross-namespace slug collision은 명확한 오류를 남기며 기존 registry를 보존하고 silent fallback하지 않는다.
+
+### 검증
+- Godot 4.6.2 headless editor import: exit 0, 새 Parse/SCRIPT ERROR 없음.
+- 공통 runner 강제 실패: exit 1, named failure 출력, PASS marker 없음.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=9 fatal_scan=enabled save_isolation=guarded`.
+  - runner contract, production path expected failure, outside-temp expected failure, isolated crash guards, Memory World Engine, save migration fixtures, actor catalog, actor collision, world event schema 모두 통과.
+- save migration fixture 5종과 save/reset/load round-trip 통과. 실제 production save slot은 검증 과정에서 읽거나 쓰지 않았다.
+- `git diff --check` 통과.
+
+### 기존 synthetic slot 3
+- S251에서 확인한 actual `save_3.json`의 synthetic `crash-guard-smoke` 상태는 이번 세션에서 읽거나 변경하지 않았다. 당시 같은 경로의 `.bak`은 발견되지 않았다.
+- 원래 데이터 존재 여부를 확인할 근거가 없으므로 자동 삭제/덮어쓰기는 금지한다. 처리하려면 먼저 파일을 active save 경로 밖으로 보존 복사한 뒤, 사용자 확인을 거쳐 quarantine 또는 휴지통 이동을 별도 작업으로 수행한다.
+
+### 기존 경고
+- ShaderV duplicate UID와 headless 종료 ObjectDB/resource cleanup 경고는 기존 환경에서 계속 발생한다.
+- Story/NPC/DialogueManager/SceneFlow/Quest/MemoryManager/WorldRewriteDirector 실제 consumer는 수정하거나 연결하지 않았다.
+
 ## S251 - 2026-08-22 (Memory World Engine 계약/테스트 인프라 강화)
 
 ### 기준점
