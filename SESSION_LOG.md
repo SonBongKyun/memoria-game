@@ -2,6 +2,40 @@
 
 ---
 
+## S251 - 2026-08-22 (Memory World Engine 계약/테스트 인프라 강화)
+
+### 기준점
+- S250 MVP 변경 16개 파일을 재검토하고 `MEMORY_WORLD_ENGINE_SMOKE_PASS`와 staged diff check를 다시 통과시킨 뒤 `7bfa3a3 feat(world): add memory world engine MVP`로 로컬 체크포인트 커밋했다. 푸시는 하지 않았다.
+
+### 구현
+- 공통 `smoke_test_runner.gd`를 추가했다. suite/test 이름과 실패 원인을 분리해 출력하고, 실패가 하나라도 있으면 PASS marker 없이 process exit code 1로 끝난다.
+- `run_memory_world_engine_smoke_suite.ps1`은 각 smoke를 별도 프로세스로 실행해 timeout, exit code, PASS marker, fatal diagnostics를 함께 검증한다.
+- `data/test_fixtures/save_migrations`에 legacy 0.3.0, current 0.4.0, WorldState 누락, 손상 payload, 지원하지 않는 schema 5개 JSON fixture를 추가했다. 전부 `res://` read-only이며 실사용 `user://saves/`를 쓰지 않는다.
+- SaveManager는 유효한 schema v1 snapshot을 보존하고, 누락/손상/미지원 WorldState는 deterministic defaults로 복구한다. legacy `story_flags`와 기존 `MemoryManager` data는 계속 마이그레이션하지 않는다.
+- `ActorRegistry` 오토로드를 추가해 `player.arrel`/`npc.malet`, 표시 이름, ID 문법, exact duplicate, player/npc를 가로지르는 actor slug 충돌을 중앙 관리한다. WorldState는 registry actor의 runtime container만 소유한다.
+- `MemoryEngine`에 `learn_fact`, `forget_fact`, `knows_fact`, `restore_memory`를 추가했다. knowledge false record를 삭제하지 않아 explicit forgetting과 missing record를 구분한다.
+- restore는 최신 tombstone이 보존한 content/fact/source/created revision을 유지하고, `removed_revision`을 `last_removed_revision`으로 옮긴 뒤 active 상태와 `restored_revision`을 기록한다. 성공 이벤트는 `memory.restored` 정확히 1회이며 재복원은 no-op이다.
+- ID, knowledge, restore, save recovery 계약을 `docs/MEMORY_WORLD_ENGINE_CONTRACT.md`에 문서화했다. 실제 스토리, DialogueManager, SceneFlow, Quest, NPC 콘텐츠 소비자는 연결하지 않았다.
+
+### 검증
+- Godot 4.6.2 headless editor import: exit 0, 새 Parse/SCRIPT ERROR 없음.
+- 공통 runner 강제 실패 probe: 명시적 suite/test/reason 로그, PASS marker 없음, exit code 1.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=4 fatal_scan=enabled`.
+  - `SMOKE_TEST_RUNNER_CONTRACT_PASS`
+  - `MEMORY_WORLD_ENGINE_SMOKE_PASS`: learn/forget, remove/restore, memory/knowledge 독립, 이벤트 단일 발행, save/reset/load 동일 복원.
+  - `SAVE_MIGRATION_FIXTURES_SMOKE_PASS`: fixtures=5, user slots touched=0, unsupported direct import non-mutation.
+  - `ACTOR_REGISTRY_SMOKE_PASS`: defaults=2, exact/cross-namespace slug collisions, unknown access.
+- fixture JSON 5/5 PowerShell parse 통과.
+- 기존 `STORY_QOL_SMOKE_PASS`, `QUEST_ILLUSTRATION_SMOKE_PASS` 통과.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- `git diff --check` 통과.
+
+### 남은 기존 경고/오류
+- `smoke_burn_directive_stabilization`은 marker를 출력하지만 `Lambda capture at index 1 was freed`를 11회 출력한다. S250과 동일하게 재현되며 새 suite fatal pattern은 이 문구를 실패로 처리한다.
+- 기존 `smoke_crash_guards.gd`는 `CRASH_GUARDS_SMOKE_PASS`를 출력했지만 실제 `user://saves/save_3.json`을 직접 덮어쓰고 원본을 복구하지 않는 것을 실행 후 확인했다. 따라서 이 실행 결과는 무효 처리했다. 현재 해당 파일은 synthetic `crash-guard-smoke` 데이터이며 같은 경로의 `.bak`은 발견되지 않았다. 추가 삭제나 덮어쓰기는 하지 않았다.
+- ActorRegistry collision smoke의 duplicate/slug/invalid-ID 경고 3개는 거부 계약을 검증하기 위해 의도적으로 발생한다.
+- ShaderV duplicate UID와 headless 종료 ObjectDB/resource cleanup 메시지는 기존 환경 경고로 남아 있다.
+
 ## S250 - 2026-08-22 (Memory World Engine MVP 1 — 기억과 지식의 분리 저장)
 
 ### ID 계약
@@ -23,7 +57,7 @@
 - 첫 MVP smoke는 JSON 왕복 뒤 memory revision 숫자 타입 정규화가 빠져 동일성 비교에 실패했다. 또한 Godot `assert()`가 실행을 중단하지 않아 잘못된 PASS까지 출력하는 테스트 문제를 확인했다.
 - memory record import 타입을 정규화했고, 새 smoke는 실패 누적 시 반드시 종료 코드 1을 반환하도록 고쳤다.
 - `MEMORY_WORLD_ENGINE_SMOKE_PASS`: Malet knowledge 유지, memory tombstone, memory=false/knowledge=true 조건, 제거 이벤트 정확히 1회와 재제거 no-op, save/reset/load 완전 복원, legacy save 기본값 보강, 기존 시스템 상태 불변을 확인했다.
-- `CRASH_GUARDS_SMOKE_PASS`, `QUEST_ILLUSTRATION_SMOKE_PASS`, `STORY_QOL_SMOKE_PASS` 통과.
+- `QUEST_ILLUSTRATION_SMOKE_PASS`, `STORY_QOL_SMOKE_PASS` 통과. 당시 `CRASH_GUARDS_SMOKE_PASS` marker도 확인했으나, S251에서 실사용 slot 3 덮어쓰기가 드러나 해당 결과를 소급 무효 처리했다.
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - Godot 4.6.2 headless editor import와 `git diff --check` 통과. ShaderV duplicate UID 및 headless 종료 cleanup 경고는 기존 환경에서 계속 발생한다.
 - 기존 `smoke_burn_directive_stabilization`은 기능 marker를 출력하지만 `Lambda capture at index 1 was freed` 오류를 11회 출력한다. 단독 실행에서도 재현되며 이번 변경 범위에서는 수정하지 않았다.

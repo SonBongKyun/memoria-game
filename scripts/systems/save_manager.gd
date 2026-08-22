@@ -294,8 +294,7 @@ func _migrate_save_data(data: Dictionary) -> Dictionary:
 		migrated["game"] = {}
 	if not migrated.has("memory") or not (migrated["memory"] is Dictionary):
 		migrated["memory"] = {}
-	if not migrated.has("world_state") or not (migrated["world_state"] is Dictionary):
-		migrated["world_state"] = WorldState.make_default_data()
+	migrated["world_state"] = _compatible_world_state_or_default(migrated.get("world_state", null))
 	if not migrated.has("elia_diary") or not (migrated["elia_diary"] is Dictionary):
 		migrated["elia_diary"] = {}
 	if not migrated.has("tutorial_hints") or not (migrated["tutorial_hints"] is Dictionary):
@@ -320,10 +319,24 @@ func _export_world_state_for_save() -> Dictionary:
 
 
 func _restore_world_state_from_save_data(save_data: Dictionary) -> bool:
-	var world_data: Variant = save_data.get("world_state", {})
-	if not (world_data is Dictionary):
-		world_data = {}
+	var world_data := _compatible_world_state_or_default(save_data.get("world_state", null))
 	return WorldState.import_data(world_data)
+
+
+## Current MVP has one supported WorldState schema and no prior world-state
+## payload to transform. Missing, corrupt, or unknown schemas therefore recover
+## to deterministic defaults without touching legacy story_flags or memory.
+func _compatible_world_state_or_default(value: Variant) -> Dictionary:
+	if value == null:
+		return WorldState.make_default_data()
+	if not (value is Dictionary):
+		push_warning("[SaveManager] Corrupt WorldState payload; using schema v%d defaults" % WorldState.SCHEMA_VERSION)
+		return WorldState.make_default_data()
+	var snapshot: Dictionary = value
+	if not WorldState.is_supported_snapshot(snapshot):
+		push_warning("[SaveManager] Unsupported WorldState schema; using schema v%d defaults" % WorldState.SCHEMA_VERSION)
+		return WorldState.make_default_data()
+	return snapshot.duplicate(true)
 
 ## S56: Create .bak backup before overwriting
 func _create_backup(path: String) -> void:

@@ -13,39 +13,14 @@
 extends Node
 
 const SCHEMA_VERSION: int = 1
-const CANONICAL_PLAYER_ACTOR_ID: String = "player.arrel"
 const MEMORY_STATUS_ACTIVE: String = "active"
 const MEMORY_STATUS_REMOVED: String = "removed"
 
-const DEFAULT_STATE: Dictionary = {
+const DEFAULT_STATE_BASE: Dictionary = {
 	"schema_version": SCHEMA_VERSION,
 	"revision": 0,
 	"event_sequence": 0,
-	"actors": {
-		"player.arrel": {
-			"location": {},
-			"memories": {},
-			"knowledge": {},
-			"relationships": {},
-			"emotions": {},
-			"quest_state": {},
-			"flags": {},
-		},
-		"npc.malet": {
-			"location": {},
-			"memories": {},
-			"knowledge": {
-				"fact.veil.exists": {
-					"fact_id": "fact.veil.exists",
-					"value": true,
-				},
-			},
-			"relationships": {},
-			"emotions": {},
-			"quest_state": {},
-			"flags": {},
-		},
-	},
+	"actors": {},
 	"world_flags": {},
 	"quest_states": {},
 }
@@ -63,7 +38,17 @@ func reset_to_defaults() -> void:
 
 
 func make_default_data() -> Dictionary:
-	return DEFAULT_STATE.duplicate(true)
+	var default_state := DEFAULT_STATE_BASE.duplicate(true)
+	for actor_id in ActorRegistry.get_actor_ids():
+		default_state["actors"][actor_id] = _make_empty_actor_state()
+	var malet: Dictionary = default_state["actors"].get("npc.malet", {})
+	if not malet.is_empty():
+		malet["knowledge"]["fact.veil.exists"] = {
+			"fact_id": "fact.veil.exists",
+			"value": true,
+			"updated_revision": 0,
+		}
+	return default_state
 
 
 func export_data() -> Dictionary:
@@ -71,12 +56,18 @@ func export_data() -> Dictionary:
 
 
 func import_data(data: Dictionary) -> bool:
+	if not is_supported_snapshot(data):
+		return false
 	_state = _normalize_state(data)
 	return true
 
 
+func is_supported_snapshot(data: Dictionary) -> bool:
+	return int(data.get("schema_version", -1)) == SCHEMA_VERSION and data.get("actors", null) is Dictionary
+
+
 func has_actor(actor_id: String) -> bool:
-	return is_valid_actor_id(actor_id) and _state.get("actors", {}).has(actor_id)
+	return ActorRegistry.has_actor(actor_id) and _state.get("actors", {}).has(actor_id)
 
 
 func get_actor_state(actor_id: String) -> Dictionary:
@@ -125,6 +116,24 @@ func _store_memory_record(actor_id: String, memory_id: String, record: Dictionar
 	return get_revision()
 
 
+## MemoryEngine 전용 knowledge mutation boundary. Missing knowledge and an
+## explicit false value remain distinguishable in the serialized snapshot.
+func _store_knowledge_value(actor_id: String, fact_id: String, value: bool) -> int:
+	if not has_actor(actor_id) or not is_valid_fact_id(fact_id):
+		return -1
+	var actor: Dictionary = _state["actors"][actor_id]
+	var knowledge: Dictionary = actor.get("knowledge", {})
+	var revision := get_revision() + 1
+	knowledge[fact_id] = {
+		"fact_id": fact_id,
+		"value": value,
+		"updated_revision": revision,
+	}
+	actor["knowledge"] = knowledge
+	_state["revision"] = revision
+	return revision
+
+
 ## MemoryEngine 전용 deterministic sequence allocator.
 func _next_event_sequence() -> int:
 	_state["event_sequence"] = get_event_sequence() + 1
@@ -132,18 +141,17 @@ func _next_event_sequence() -> int:
 
 
 func is_valid_actor_id(actor_id: String) -> bool:
-	var parts := actor_id.split(".")
-	return parts.size() == 2 and parts[0] in ["player", "npc"] and _is_valid_slug(parts[1])
+	return ActorRegistry.is_valid_actor_id(actor_id)
 
 
 func is_valid_memory_id(memory_id: String) -> bool:
 	var parts := memory_id.split(".")
-	return parts.size() == 3 and parts[0] == "memory" and _is_valid_slug(parts[1]) and _is_valid_slug(parts[2])
+	return parts.size() == 3 and parts[0] == "memory" and ActorRegistry.is_valid_slug(parts[1]) and ActorRegistry.is_valid_slug(parts[2])
 
 
 func is_valid_fact_id(fact_id: String) -> bool:
 	var parts := fact_id.split(".")
-	return parts.size() == 3 and parts[0] == "fact" and _is_valid_slug(parts[1]) and _is_valid_slug(parts[2])
+	return parts.size() == 3 and parts[0] == "fact" and ActorRegistry.is_valid_slug(parts[1]) and ActorRegistry.is_valid_slug(parts[2])
 
 
 func memory_belongs_to_actor(memory_id: String, actor_id: String) -> bool:
@@ -151,26 +159,7 @@ func memory_belongs_to_actor(memory_id: String, actor_id: String) -> bool:
 		return false
 	return memory_id.split(".")[1] == actor_id.split(".")[1]
 
-
-func _is_valid_slug(value: String) -> bool:
-	if value == "" or value.ends_with("_") or "__" in value:
-		return false
-	var first_code := value.unicode_at(0)
-	if first_code < 97 or first_code > 122:
-		return false
-	for i in range(value.length()):
-		var code := value.unicode_at(i)
-		var is_lower_ascii := code >= 97 and code <= 122
-		var is_digit := code >= 48 and code <= 57
-		if not is_lower_ascii and not is_digit and code != 95:
-			return false
-	return true
-
-
 func _normalize_state(data: Dictionary) -> Dictionary:
-	if data.is_empty():
-		return make_default_data()
-
 	var normalized := make_default_data()
 	normalized["schema_version"] = SCHEMA_VERSION
 	normalized["revision"] = maxi(0, int(data.get("revision", 0)))
@@ -183,22 +172,19 @@ func _normalize_state(data: Dictionary) -> Dictionary:
 		for actor_key in imported_actors:
 			var actor_id := String(actor_key)
 			var actor_data: Variant = imported_actors[actor_key]
-			if not is_valid_actor_id(actor_id) or not (actor_data is Dictionary):
+			if not ActorRegistry.has_actor(actor_id) or not (actor_data is Dictionary):
 				continue
 			normalized["actors"][actor_id] = _normalize_actor(actor_id, actor_data)
 	return normalized
 
 
 func _normalize_actor(actor_id: String, actor_data: Dictionary) -> Dictionary:
-	var actor := {
-		"location": _dictionary_copy(actor_data.get("location", {})),
-		"memories": {},
-		"knowledge": {},
-		"relationships": _dictionary_copy(actor_data.get("relationships", {})),
-		"emotions": _dictionary_copy(actor_data.get("emotions", {})),
-		"quest_state": _dictionary_copy(actor_data.get("quest_state", {})),
-		"flags": _dictionary_copy(actor_data.get("flags", {})),
-	}
+	var actor := _make_empty_actor_state()
+	actor["location"] = _dictionary_copy(actor_data.get("location", {}))
+	actor["relationships"] = _dictionary_copy(actor_data.get("relationships", {}))
+	actor["emotions"] = _dictionary_copy(actor_data.get("emotions", {}))
+	actor["quest_state"] = _dictionary_copy(actor_data.get("quest_state", {}))
+	actor["flags"] = _dictionary_copy(actor_data.get("flags", {}))
 
 	var imported_memories: Variant = actor_data.get("memories", {})
 	if imported_memories is Dictionary:
@@ -216,10 +202,11 @@ func _normalize_actor(actor_id: String, actor_data: Dictionary) -> Dictionary:
 			var knowledge_record: Variant = imported_knowledge[fact_key]
 			if not is_valid_fact_id(fact_id) or not (knowledge_record is Dictionary):
 				continue
-			var normalized_knowledge: Dictionary = knowledge_record.duplicate(true)
-			normalized_knowledge["fact_id"] = fact_id
-			normalized_knowledge["value"] = bool(normalized_knowledge.get("value", false))
-			actor["knowledge"][fact_id] = normalized_knowledge
+			actor["knowledge"][fact_id] = {
+				"fact_id": fact_id,
+				"value": bool(knowledge_record.get("value", false)),
+				"updated_revision": maxi(0, int(knowledge_record.get("updated_revision", 0))),
+			}
 	return actor
 
 
@@ -237,7 +224,7 @@ func _normalize_memory_record(actor_id: String, memory_id: String, record: Dicti
 				fact_ids.append(fact_id)
 
 	var source_actor_id := String(record.get("source_actor_id", ""))
-	if source_actor_id != "" and not is_valid_actor_id(source_actor_id):
+	if source_actor_id != "" and not ActorRegistry.has_actor(source_actor_id):
 		source_actor_id = ""
 
 	return {
@@ -249,6 +236,20 @@ func _normalize_memory_record(actor_id: String, memory_id: String, record: Dicti
 		"content": _dictionary_copy(record.get("content", {})),
 		"created_revision": maxi(0, int(record.get("created_revision", 0))),
 		"removed_revision": maxi(0, int(record.get("removed_revision", 0))),
+		"last_removed_revision": maxi(0, int(record.get("last_removed_revision", 0))),
+		"restored_revision": maxi(0, int(record.get("restored_revision", 0))),
+	}
+
+
+func _make_empty_actor_state() -> Dictionary:
+	return {
+		"location": {},
+		"memories": {},
+		"knowledge": {},
+		"relationships": {},
+		"emotions": {},
+		"quest_state": {},
+		"flags": {},
 	}
 
 

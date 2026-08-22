@@ -1,0 +1,29 @@
+{
+  "version": "0.4.0",
+  "scene": "res://scenes/main/main.tscn",
+  "game": {},
+  "world_state": {
+    "schema_version": 999,
+    "revision": 99,
+    "event_sequence": 99,
+    "actors": {
+      "npc.malet": {
+        "knowledge": {
+          "fact.veil.exists": {
+            "fact_id": "fact.veil.exists",
+            "value": false
+          }
+        }
+      }
+    },
+    "world_flags": {
+      "fixture.unsupported_schema_should_not_survive": true
+    },
+    "quest_states": {}
+  },
+  "memory": {},
+  "scene_flow": {},
+  "elia_diary": {},
+  "tutorial_hints": {},
+  "player_pos": {}
+}

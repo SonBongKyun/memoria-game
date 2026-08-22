@@ -1,11 +1,12 @@
 extends Node
 
+const SmokeTestRunner = preload("res://scripts/tools/smoke_test_runner.gd")
 const ACTOR_ID: String = "npc.malet"
 const FACT_ID: String = "fact.veil.exists"
 const MEMORY_ID: String = "memory.malet.veil_revelation_source"
 
+var _runner = SmokeTestRunner.new("memory_world_engine", "MEMORY_WORLD_ENGINE_SMOKE_PASS")
 var _committed_events: Array[Dictionary] = []
-var _failures: PackedStringArray = []
 
 
 func _ready() -> void:
@@ -15,136 +16,171 @@ func _ready() -> void:
 	var dialogue_active_before := DialogueManager.is_active
 	var rewrite_afterglow_before := WorldRewriteDirector.get_active_afterglow_count()
 
+	EventBus.world_event_committed.connect(_on_world_event_committed)
 	_check_id_contract()
-	_check_memory_and_knowledge_separation()
+	_check_knowledge_lifecycle()
+	_check_memory_remove_restore_lifecycle()
+	_check_conditions_and_independence()
 	_check_save_reset_load_round_trip()
-	_check_legacy_save_compatibility()
 
-	_require(MemoryManager.export_data() == legacy_memory_before,
+	_runner.begin_test("legacy_system_isolation")
+	_expect(MemoryManager.export_data() == legacy_memory_before,
 		"Memory World Engine smoke changed the existing MemoryManager")
-	_require(GameManager.story_flags == legacy_flags_before,
+	_expect(GameManager.story_flags == legacy_flags_before,
 		"Memory World Engine smoke changed legacy story_flags")
-	_require(DialogueManager.is_active == dialogue_active_before,
+	_expect(DialogueManager.is_active == dialogue_active_before,
 		"Memory World Engine smoke changed DialogueManager state")
-	_require(WorldRewriteDirector.get_active_afterglow_count() == rewrite_afterglow_before,
+	_expect(WorldRewriteDirector.get_active_afterglow_count() == rewrite_afterglow_before,
 		"Memory World Engine smoke triggered WorldRewriteDirector presentation")
 
-	if not _failures.is_empty():
-		push_error("MEMORY_WORLD_ENGINE_SMOKE_FAIL count=%d failures=%s" % [_failures.size(), _failures])
-		get_tree().quit(1)
-		return
-	print("MEMORY_WORLD_ENGINE_SMOKE_PASS actor=%s fact_kept=1 tombstone=1 committed_once=1 save_round_trip=1 legacy_save=1" % ACTOR_ID)
-	get_tree().quit(0)
+	_runner.finish(get_tree(),
+		"actor=%s knowledge_cycle=1 restore_once=1 tombstone=1 round_trip=1" % ACTOR_ID)
 
 
 func _check_id_contract() -> void:
-	_require(WorldState.CANONICAL_PLAYER_ACTOR_ID == "player.arrel",
+	_runner.begin_test("id_contract")
+	_expect(ActorRegistry.CANONICAL_PLAYER_ACTOR_ID == "player.arrel",
 		"Canonical player actor ID must be player.arrel")
-	_require(WorldState.is_valid_actor_id(WorldState.CANONICAL_PLAYER_ACTOR_ID),
-		"Canonical player actor ID must satisfy the actor ID grammar")
-	_require(WorldState.has_actor(WorldState.CANONICAL_PLAYER_ACTOR_ID),
-		"Canonical player actor must exist in the default WorldState")
-	_require(not WorldState.has_actor("player.arell"),
-		"The misspelled player.arell ID must not be registered as the canonical actor")
-	_require(WorldState.is_valid_actor_id(ACTOR_ID), "Test actor ID is invalid")
-	_require(WorldState.is_valid_memory_id(MEMORY_ID), "Test memory ID is invalid")
-	_require(WorldState.is_valid_fact_id(FACT_ID), "Test fact ID is invalid")
-	_require(WorldState.memory_belongs_to_actor(MEMORY_ID, ACTOR_ID), "Memory owner slug does not match actor")
-	_require(not WorldState.is_valid_actor_id("npc.Malet"), "Persistent IDs must be lowercase")
-	_require(not WorldState.is_valid_actor_id("npc.2malet"), "Persistent ID slugs must begin with a letter")
-	_require(not WorldState.is_valid_fact_id("fact.veil.double__gap"),
+	_expect(ActorRegistry.has_actor(ActorRegistry.CANONICAL_PLAYER_ACTOR_ID),
+		"Canonical player actor must exist in ActorRegistry")
+	_expect(ActorRegistry.has_actor(ACTOR_ID), "Test actor must exist in ActorRegistry")
+	_expect(WorldState.has_actor(ACTOR_ID), "Test actor must have a WorldState container")
+	_expect(WorldState.is_valid_memory_id(MEMORY_ID), "Test memory ID is invalid")
+	_expect(WorldState.is_valid_fact_id(FACT_ID), "Test fact ID is invalid")
+	_expect(WorldState.memory_belongs_to_actor(MEMORY_ID, ACTOR_ID),
+		"Memory owner slug does not match actor")
+	_expect(not ActorRegistry.is_valid_actor_id("npc.Malet"), "Persistent IDs must be lowercase")
+	_expect(not ActorRegistry.is_valid_actor_id("npc.2malet"),
+		"Persistent ID slugs must begin with a letter")
+	_expect(not WorldState.is_valid_fact_id("fact.veil.double__gap"),
 		"Persistent ID slugs must use single underscores")
 
 
-func _check_memory_and_knowledge_separation() -> void:
+func _check_knowledge_lifecycle() -> void:
+	_runner.begin_test("knowledge_learn_forget")
 	WorldState.reset_to_defaults()
-	_require(WorldState.knows_fact(ACTOR_ID, FACT_ID), "Malet must know that the Veil exists")
-	_require(MemoryEngine.add_memory(ACTOR_ID, MEMORY_ID, {
+	_expect(MemoryEngine.knows_fact(ACTOR_ID, FACT_ID),
+		"Malet must initially know that the Veil exists")
+
+	_committed_events.clear()
+	_expect(MemoryEngine.forget_fact(ACTOR_ID, FACT_ID), "Known fact could not be forgotten")
+	_expect(not MemoryEngine.knows_fact(ACTOR_ID, FACT_ID), "Forgotten fact must evaluate false")
+	_expect(_has_single_event("knowledge.forgotten"),
+		"forget_fact must commit exactly one knowledge.forgotten event")
+	_expect(not MemoryEngine.forget_fact(ACTOR_ID, FACT_ID),
+		"Forgetting an already false fact must be a no-op")
+	_expect(_committed_events.size() == 1,
+		"Repeated forget_fact must not commit another event")
+
+	_committed_events.clear()
+	_expect(MemoryEngine.learn_fact(ACTOR_ID, FACT_ID), "Forgotten fact could not be learned again")
+	_expect(MemoryEngine.knows_fact(ACTOR_ID, FACT_ID), "Learned fact must evaluate true")
+	_expect(_has_single_event("knowledge.learned"),
+		"learn_fact must commit exactly one knowledge.learned event")
+	_expect(not MemoryEngine.learn_fact(ACTOR_ID, FACT_ID),
+		"Learning an already true fact must be a no-op")
+	_expect(_committed_events.size() == 1,
+		"Repeated learn_fact must not commit another event")
+
+
+func _check_memory_remove_restore_lifecycle() -> void:
+	_runner.begin_test("memory_remove_restore")
+	_committed_events.clear()
+	_expect(MemoryEngine.add_memory(ACTOR_ID, MEMORY_ID, {
 		"fact_ids": [FACT_ID],
 		"source_actor_id": "player.arrel",
 		"content": {"kind": "revelation_source"},
 	}), "Test memory could not be added")
-	_require(MemoryEngine.check_memory(ACTOR_ID, MEMORY_ID), "Added memory must be active")
+	var original := WorldState.get_memory_record(ACTOR_ID, MEMORY_ID)
+	_expect(MemoryEngine.check_memory(ACTOR_ID, MEMORY_ID), "Added memory must be active")
 
-	EventBus.world_event_committed.connect(_on_world_event_committed)
 	_committed_events.clear()
-	_require(MemoryEngine.remove_memory(ACTOR_ID, MEMORY_ID), "Active memory could not be removed")
-	_require(_committed_events.size() == 1, "remove_memory must commit exactly one world event")
-	if _committed_events.size() == 1:
-		_require(String(_committed_events[0].get("type", "")) == "memory.removed",
-			"Committed event must describe the removal")
-	_require(not MemoryEngine.check_memory(ACTOR_ID, MEMORY_ID), "Removed memory must not pass check_memory")
-	_require(not MemoryEngine.remove_memory(ACTOR_ID, MEMORY_ID),
-		"Removing an existing tombstone must be a no-op")
-	_require(_committed_events.size() == 1,
-		"A repeated remove_memory call must not commit another world event")
-
+	_expect(MemoryEngine.remove_memory(ACTOR_ID, MEMORY_ID), "Active memory could not be removed")
+	_expect(_has_single_event("memory.removed"),
+		"remove_memory must commit exactly one memory.removed event")
 	var tombstone := WorldState.get_memory_record(ACTOR_ID, MEMORY_ID)
-	_require(not tombstone.is_empty(), "remove_memory deleted the memory instead of retaining a tombstone")
-	_require(String(tombstone.get("status", "")) == WorldState.MEMORY_STATUS_REMOVED,
+	_expect(not tombstone.is_empty(), "remove_memory deleted the memory instead of retaining a tombstone")
+	_expect(String(tombstone.get("status", "")) == WorldState.MEMORY_STATUS_REMOVED,
 		"Removed memory tombstone has the wrong status")
-	_require(WorldState.knows_fact(ACTOR_ID, FACT_ID), "Removing source memory also removed knowledge")
+	_expect(not MemoryEngine.check_memory(ACTOR_ID, MEMORY_ID),
+		"Removed memory must not pass check_memory")
 
+	_committed_events.clear()
+	_expect(MemoryEngine.restore_memory(ACTOR_ID, MEMORY_ID), "Removed memory could not be restored")
+	_expect(_has_single_event("memory.restored"),
+		"restore_memory must commit exactly one memory.restored event")
+	var restored := WorldState.get_memory_record(ACTOR_ID, MEMORY_ID)
+	_expect(MemoryEngine.check_memory(ACTOR_ID, MEMORY_ID), "Restored memory must be active")
+	_expect(restored.get("content", {}) == original.get("content", {}),
+		"restore_memory must preserve the pre-removal content")
+	_expect(restored.get("fact_ids", []) == original.get("fact_ids", []),
+		"restore_memory must preserve the pre-removal fact links")
+	_expect(String(restored.get("source_actor_id", "")) == String(original.get("source_actor_id", "")),
+		"restore_memory must preserve the pre-removal source actor")
+	_expect(int(restored.get("created_revision", -1)) == int(original.get("created_revision", -2)),
+		"restore_memory must preserve created_revision")
+	_expect(int(restored.get("removed_revision", -1)) == 0,
+		"An active restored memory must clear removed_revision")
+	_expect(int(restored.get("last_removed_revision", 0)) == int(tombstone.get("removed_revision", -1)),
+		"restore_memory must retain the latest tombstone revision as audit metadata")
+	_expect(int(restored.get("restored_revision", 0)) > 0,
+		"restore_memory must record restored_revision")
+	_expect(not MemoryEngine.restore_memory(ACTOR_ID, MEMORY_ID),
+		"Restoring an active memory must be a no-op")
+	_expect(_committed_events.size() == 1,
+		"Repeated restore_memory must not commit another event")
+
+	# Leave a tombstone for condition and save/load coverage.
+	_committed_events.clear()
+	_expect(MemoryEngine.remove_memory(ACTOR_ID, MEMORY_ID),
+		"Restored memory could not be removed for final tombstone coverage")
+	_expect(_has_single_event("memory.removed"),
+		"Second valid removal must still commit exactly one event")
+
+
+func _check_conditions_and_independence() -> void:
+	_runner.begin_test("memory_knowledge_independence")
+	_expect(MemoryEngine.knows_fact(ACTOR_ID, FACT_ID),
+		"Removing source memory must not delete related knowledge")
 	var memory_condition := {
 		"type": "memory", "actor": ACTOR_ID, "memory": MEMORY_ID, "status": "active",
 	}
 	var knowledge_condition := {
 		"type": "knowledge", "actor": ACTOR_ID, "fact": FACT_ID, "equals": true,
 	}
-	_require(not DialogueConditionSystem.evaluate(memory_condition), "Removed memory condition must be false")
-	_require(DialogueConditionSystem.evaluate(knowledge_condition), "Knowledge condition must remain true")
+	_expect(not DialogueConditionSystem.evaluate(memory_condition),
+		"Removed memory condition must be false")
+	_expect(DialogueConditionSystem.evaluate(knowledge_condition),
+		"Knowledge condition must remain true")
 
 
 func _check_save_reset_load_round_trip() -> void:
+	_runner.begin_test("save_reset_load_round_trip")
 	var expected := SaveManager._export_world_state_for_save()
+	var event_count_before := _committed_events.size()
 	var encoded := JSON.stringify({"world_state": expected})
 	var parsed: Variant = JSON.parse_string(encoded)
-	if not _require(parsed is Dictionary, "Serialized WorldState did not parse as a Dictionary"):
+	if not _expect(parsed is Dictionary, "Serialized WorldState did not parse as a Dictionary"):
 		return
 
 	WorldState.reset_to_defaults()
-	_require(WorldState.get_memory_record(ACTOR_ID, MEMORY_ID).is_empty(),
+	_expect(WorldState.get_memory_record(ACTOR_ID, MEMORY_ID).is_empty(),
 		"WorldState reset did not clear the runtime test memory")
-	_require(SaveManager._restore_world_state_from_save_data(parsed),
+	_expect(SaveManager._restore_world_state_from_save_data(parsed),
 		"SaveManager WorldState restore failed")
-	_require(WorldState.export_data() == expected,
+	_expect(WorldState.export_data() == expected,
 		"Save -> reset -> load did not restore an identical WorldState")
-	_require(_committed_events.size() == 1,
+	_expect(_committed_events.size() == event_count_before,
 		"Save/reset/load must not replay world_event_committed")
 
 
-func _check_legacy_save_compatibility() -> void:
-	var legacy_save := {
-		"version": "0.3.0",
-		"scene": "res://scenes/main/main.tscn",
-		"game": {},
-		"memory": {},
-		"scene_flow": {},
-		"elia_diary": {},
-		"tutorial_hints": {},
-		"player_pos": {},
-	}
-	var migrated := SaveManager._migrate_save_data(legacy_save)
-	_require(String(migrated.get("version", "")) == SaveManager.SAVE_VERSION,
-		"Legacy save version was not migrated")
-	_require(migrated.get("world_state", null) is Dictionary,
-		"Legacy save migration did not add a WorldState snapshot")
-	WorldState.reset_to_defaults()
-	_require(SaveManager._restore_world_state_from_save_data(migrated),
-		"Migrated legacy save could not restore WorldState")
-	_require(WorldState.knows_fact(ACTOR_ID, FACT_ID),
-		"Legacy save default WorldState lost Malet's test knowledge")
-	_require(_committed_events.size() == 1,
-		"Legacy save migration/restore must not commit a world event")
+func _has_single_event(event_type: String) -> bool:
+	return _committed_events.size() == 1 and String(_committed_events[0].get("type", "")) == event_type
 
 
 func _on_world_event_committed(event: Dictionary) -> void:
 	_committed_events.append(event.duplicate(true))
 
 
-func _require(condition: bool, message: String) -> bool:
-	if condition:
-		return true
-	_failures.append(message)
-	push_error("[MemoryWorldEngineSmoke] %s" % message)
-	return false
+func _expect(condition: bool, reason: String) -> bool:
+	return _runner.expect(condition, reason)

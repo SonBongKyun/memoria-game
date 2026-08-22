@@ -56,4 +56,4 @@ func _evaluate_knowledge(condition: Dictionary) -> bool:
 	var actor_id := String(condition.get("actor", ""))
 	var fact_id := String(condition.get("fact", ""))
 	var expected := bool(condition.get("equals", true))
-	return WorldState.knows_fact(actor_id, fact_id) == expected
+	return MemoryEngine.knows_fact(actor_id, fact_id) == expected
