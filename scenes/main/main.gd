@@ -589,6 +589,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_new_game_pressed() -> void:
 	_play_select_sfx()
+	WorldState.reset_to_defaults()
 	MemoryManager.memories.clear()
 	MemoryManager.burned_memories.clear()
 	MemoryManager._init_starting_memories()
@@ -616,6 +617,7 @@ func _on_continue_pressed() -> void:
 
 func _on_aftermath_preview_pressed() -> void:
 	_play_select_sfx()
+	WorldState.reset_to_defaults()
 	GameManager.story_flags.clear()
 	GameManager.story_flags["part2_aftershock_preview"] = true
 	GameManager.current_chapter = 11

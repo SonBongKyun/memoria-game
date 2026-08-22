@@ -133,6 +133,7 @@ func save_game(slot: int) -> bool:
 		"unix_time": Time.get_unix_time_from_system(),
 		"scene": _get_current_scene_path(),
 		"game": GameManager.export_data(),
+		"world_state": _export_world_state_for_save(),
 		"memory": MemoryManager.export_data(),
 		"scene_flow": SceneFlow.export_data(),
 		"elia_diary": EliaDiary.export_data(),
@@ -196,6 +197,8 @@ func load_game(slot: int) -> bool:
 	# 게임 데이터 복원
 	if save_data.has("game"):
 		GameManager.import_data(save_data.game)
+
+	_restore_world_state_from_save_data(save_data)
 
 	if save_data.has("memory"):
 		MemoryManager.import_data(save_data.memory)
@@ -280,7 +283,7 @@ func _try_parse_json(path: String) -> Variant:
 	return null
 
 ## S72: 구버전 세이브 호환, 누락 키 보강 + 버전 스탬프 갱신
-const SAVE_VERSION: String = "0.3.0"
+const SAVE_VERSION: String = "0.4.0"
 
 func _migrate_save_data(data: Dictionary) -> Dictionary:
 	var migrated: Dictionary = data.duplicate(true)
@@ -291,6 +294,8 @@ func _migrate_save_data(data: Dictionary) -> Dictionary:
 		migrated["game"] = {}
 	if not migrated.has("memory") or not (migrated["memory"] is Dictionary):
 		migrated["memory"] = {}
+	if not migrated.has("world_state") or not (migrated["world_state"] is Dictionary):
+		migrated["world_state"] = WorldState.make_default_data()
 	if not migrated.has("elia_diary") or not (migrated["elia_diary"] is Dictionary):
 		migrated["elia_diary"] = {}
 	if not migrated.has("tutorial_hints") or not (migrated["tutorial_hints"] is Dictionary):
@@ -306,6 +311,19 @@ func _migrate_save_data(data: Dictionary) -> Dictionary:
 	if version != SAVE_VERSION:
 		print("[SaveManager] Migrated save from %s to %s" % [version, SAVE_VERSION])
 	return migrated
+
+
+## Memory World Engine save boundary. Kept small so headless validation can
+## exercise the same export/import path without changing a player's save slot.
+func _export_world_state_for_save() -> Dictionary:
+	return WorldState.export_data()
+
+
+func _restore_world_state_from_save_data(save_data: Dictionary) -> bool:
+	var world_data: Variant = save_data.get("world_state", {})
+	if not (world_data is Dictionary):
+		world_data = {}
+	return WorldState.import_data(world_data)
 
 ## S56: Create .bak backup before overwriting
 func _create_backup(path: String) -> void:

@@ -1064,6 +1064,7 @@ func start_new_game_plus() -> void:
 	var prev_cycle = ng_plus_cycle
 
 	# 스토리/기억 초기화
+	WorldState.reset_to_defaults()
 	story_flags.clear()
 	current_chapter = 1
 	ng_plus_cycle = prev_cycle + 1

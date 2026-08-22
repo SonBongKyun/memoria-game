@@ -2,6 +2,36 @@
 
 ---
 
+## S250 - 2026-08-22 (Memory World Engine MVP 1 — 기억과 지식의 분리 저장)
+
+### ID 계약
+- 영속 Actor ID는 `player.<slug>` 또는 `npc.<slug>`, Memory ID는 `memory.<actor_slug>.<memory_slug>`, Fact ID는 `fact.<domain_slug>.<fact_slug>`로 제한했다.
+- 모든 slug는 영문 소문자로 시작하고, 소문자 ASCII 문자·숫자와 비어 있지 않은 구간 사이의 단일 `_`만 사용한다. 화면 표시명과 씬 노드명은 영속 ID로 사용하지 않는다.
+- 저장소의 실제 주인공 표기가 `Arrel/arrel`이므로 정식 플레이어 ID는 권장안의 `player.arell` 대신 `player.arrel`로 확정했다.
+- MVP 테스트 actor/fact/memory는 각각 `npc.malet`, `fact.veil.exists`, `memory.malet.veil_revelation_source`다.
+
+### 구현
+- 기존 `MemoryManager`와 분리된 오토로드 `EventBus`, `WorldState`, `MemoryEngine`, `DialogueConditionSystem`을 추가했다.
+- `WorldState`는 Malet의 Veil 존재 지식과 actor별 memory/knowledge/relationship/emotion/location/quest/flag 컨테이너를 JSON-safe snapshot으로 소유한다.
+- `MemoryEngine`에 `add_memory`, `remove_memory`, `check_memory`를 추가했다. 제거는 레코드를 삭제하지 않고 `status="removed"` tombstone과 제거 revision을 남긴다.
+- memory 추가/제거는 저장되는 단조 증가 sequence를 가진 `world_event_committed`를 각각 한 번만 발행한다. 실패하거나 이미 제거된 memory에는 이벤트를 발행하지 않는다.
+- `DialogueConditionSystem`은 기존 대화에 연결하지 않은 read-only evaluator로 memory/knowledge 및 `all`/`any`/`not` 조건을 지원한다.
+- SaveManager v0.4.0 payload에 `world_state`를 추가했다. 누락된 구버전 세이브는 기존 `story_flags`나 `memory`를 옮기지 않고 기본 WorldState만 보강한다.
+- 일반 New Game, Part 2 Aftermath Preview, New Game+ 시작 시 WorldState만 기본값으로 reset한다. 기존 스토리/퀘스트/NPC 분기는 새 시스템을 아직 소비하지 않는다.
+
+### 검증
+- 첫 MVP smoke는 JSON 왕복 뒤 memory revision 숫자 타입 정규화가 빠져 동일성 비교에 실패했다. 또한 Godot `assert()`가 실행을 중단하지 않아 잘못된 PASS까지 출력하는 테스트 문제를 확인했다.
+- memory record import 타입을 정규화했고, 새 smoke는 실패 누적 시 반드시 종료 코드 1을 반환하도록 고쳤다.
+- `MEMORY_WORLD_ENGINE_SMOKE_PASS`: Malet knowledge 유지, memory tombstone, memory=false/knowledge=true 조건, 제거 이벤트 정확히 1회와 재제거 no-op, save/reset/load 완전 복원, legacy save 기본값 보강, 기존 시스템 상태 불변을 확인했다.
+- `CRASH_GUARDS_SMOKE_PASS`, `QUEST_ILLUSTRATION_SMOKE_PASS`, `STORY_QOL_SMOKE_PASS` 통과.
+- VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
+- Godot 4.6.2 headless editor import와 `git diff --check` 통과. ShaderV duplicate UID 및 headless 종료 cleanup 경고는 기존 환경에서 계속 발생한다.
+- 기존 `smoke_burn_directive_stabilization`은 기능 marker를 출력하지만 `Lambda capture at index 1 was freed` 오류를 11회 출력한다. 단독 실행에서도 재현되며 이번 변경 범위에서는 수정하지 않았다.
+
+### 범위 보호
+- `MemoryManager`, `DialogueManager`, SideQuest/quest 데이터, `WorldRewriteDirector`, 실제 NPC/스토리/대화 데이터는 수정하지 않았다.
+- AI/LLM, 기존 `story_flags` 마이그레이션, 실제 대화 조건 연결, quest/world event 소비자는 추가하지 않았다.
+
 ## S249 - 2026-08-14 (전투가 시작되면 장소가 지워진다 — 계측은 남기고, 고치지는 못했다)
 
 S241에서 전투 화면의 빈 무대를 밝기 0.102로 쟀지만, 그건 적의 대비를 재기 위한 **바닥**으로만 썼다. 그 바닥 자체가 낮은지는 물은 적이 없었다.
