@@ -3,7 +3,6 @@ extends Node
 const SmokeTestRunner = preload("res://scripts/tools/smoke_test_runner.gd")
 const SmokeSaveSandbox = preload("res://scripts/tools/smoke_save_sandbox.gd")
 const VERDAN_MARKET_SCENE = preload("res://scenes/maps/verdan_market.tscn")
-const THE_SEAM_SCENE = preload("res://scenes/maps/the_seam.tscn")
 const ACTOR_ID: String = "npc.malet"
 const FACT_ID: String = "fact.arrel.seeks_bl07"
 const MEMORY_ID: String = "memory.malet.bl07_request_source"
@@ -40,7 +39,6 @@ func _ready() -> void:
 	GameManager.set_flag("ch2_malet_done")
 	GameManager.set_flag("ch2_complete")
 	GameManager.set_flag("talked_Malet_malet_encounter")
-	GameManager.set_flag("talked_Sable_sable_talk")
 	var progression_flags := GameManager.story_flags.duplicate(true)
 
 	var live_map = VERDAN_MARKET_SCENE.instantiate()
@@ -55,38 +53,15 @@ func _ready() -> void:
 			progression_flags, story_registry_before)
 		return
 	add_child(malet)
-	var seam_map = THE_SEAM_SCENE.instantiate()
-	var sable = seam_map.get_node_or_null("Sable")
-	_check_downstream_scene_contract(seam_map, sable)
-	if sable != null:
-		seam_map.remove_child(sable)
-	seam_map.free()
-	if sable != null:
-		add_child(sable)
-
-	_check_downstream_interaction(sable, "downstream_active",
-		"malet_route_detail", "downstream_route_detail")
 	_check_active_interaction_and_remove(malet)
-	_check_downstream_interaction(sable, "downstream_removed",
-		"malet_route_gap", "downstream_route_gap")
 	_check_removed_interaction_and_round_trip(malet)
-	_check_downstream_interaction(sable, "downstream_removed",
-		"malet_route_gap", "downstream_route_gap")
-	# The downstream probe is read-only, but it necessarily owns the current
-	# DialogueManager choice context while it runs. Re-open Malet's removed
-	# branch before exercising the actual restoration choice.
-	_start_live_interaction(malet, "removed")
-	_advance_to_root_choices()
 	_check_restore_and_recovered_consequence(malet)
-	_check_downstream_interaction(sable, "downstream_restored",
-		"malet_route_detail", "downstream_route_detail")
+	_check_canon_callback_boundary()
 	_check_mutation_boundaries()
 
 	if DialogueManager.is_active:
 		DialogueManager.end_dialogue()
 	malet.free()
-	if sable != null:
-		sable.free()
 	_finish(game_before, game_state_before, legacy_memory_before,
 		progression_flags, story_registry_before)
 
@@ -139,58 +114,20 @@ func _check_lifecycle_seed(live_map: Node) -> void:
 		"Scene re-entry seed emitted events for existing state")
 
 
-func _check_downstream_scene_contract(seam_map: Node, sable: Node) -> void:
-	_runner.begin_test("actual_seam_sable_scene_contract")
-	_expect(seam_map != null, "The Seam scene could not be instantiated")
-	_expect(sable != null, "The Seam scene does not contain its Sable NPC")
-	if sable == null:
-		return
-	_expect(String(sable.get("dialogue_file")) == "res://data/chapter6_dialogue.json",
-		"Live Sable must keep the authored chapter 6 dialogue file")
-	_expect(String(sable.get("dialogue_key")) == "sable_talk",
-		"The legacy first Sable interaction must remain configured")
-	_expect(String(sable.get("repeat_dialogue_key")) == "sable_malet_route_followup",
-		"Live Sable repeat interaction is not connected to the downstream branch")
-	_expect(DialogueManager.load_dialogue_file("res://data/chapter6_dialogue.json"),
-		"Chapter 6 dialogue file could not be loaded")
-	var chapter_dialogues: Dictionary = DialogueManager.loaded_dialogues.get(
-		"res://data/chapter6_dialogue.json", {})
-	_expect(chapter_dialogues.has("seam_welcome") \
-		and chapter_dialogues.has("sable_briefing") \
-		and chapter_dialogues.has("sable_talk") \
-		and chapter_dialogues.has("sable_malet_route_followup"),
-		"Downstream addition displaced existing Chapter 6 progression dialogue")
-
-
-func _check_downstream_interaction(sable: Node, expected_branch: String,
-		expected_choice: String, expected_detail: String) -> void:
-	_runner.begin_test("sable_%s_consequence" % expected_branch)
-	if sable == null:
-		_expect(false, "Cannot test Sable downstream interaction without the live NPC")
-		return
-	var events_before := _events.size()
-	_start_npc_interaction(sable, "Sable", expected_branch)
-	_last_choices = []
-	DialogueManager.advance()
-	_expect(not _last_choices.is_empty(),
-		"Sable downstream interaction did not reach its conditional options")
-	var expected_index := _choice_index(expected_choice)
-	_expect(expected_index >= 0,
-		"Sable downstream state did not expose %s" % expected_choice)
-	var other_choice := "malet_route_gap" \
-		if expected_choice == "malet_route_detail" else "malet_route_detail"
-	_expect(_choice_index(other_choice) < 0,
-		"Sable downstream state exposed the contradictory route option")
-	if expected_index >= 0:
-		DialogueManager.select_choice(expected_index)
-		_expect(String(_last_line.get("branch_id", "")) == expected_detail,
-			"Sable route option did not reach %s" % expected_detail)
-	_expect(_events.size() == events_before,
-		"Read-only Sable interaction emitted a world mutation event")
-	_expect(MemoryEngine.knows_fact(ACTOR_ID, FACT_ID),
-		"Sable interaction changed Malet's retained BL-07 knowledge")
-	if DialogueManager.is_active:
-		DialogueManager.end_dialogue()
+func _check_canon_callback_boundary() -> void:
+	_runner.begin_test("malet_callback_matches_latest_chapter21_canon")
+	var chapter6_source := _read_source("res://data/chapter6_dialogue.json")
+	var seam_scene_source := _read_source("res://scenes/maps/the_seam.tscn")
+	_expect(not chapter6_source.contains("sable_malet_route_followup") \
+		and not seam_scene_source.contains("sable_malet_route_followup"),
+		"The non-canon Malet note read by Sable is still live")
+	var verdan_return_source := _read_source("res://data/vn_scenes/ch12_reader.json")
+	_expect(verdan_return_source.contains("Malet's desk was gone") \
+		and verdan_return_source.contains("Malet knew the exits"),
+		"The existing Verdan return no longer preserves Malet's later callback")
+	# The latest manuscript places the full Malet-record reveal in Chapter 21.
+	# The current compressed VN has only the setup; a WorldState-conditioned
+	# payoff belongs to the eventual Chapter 21 migration, not to Sable.
 
 
 func _check_active_interaction_and_remove(malet: Node) -> void:
@@ -422,8 +359,8 @@ func _finish(game_before: Dictionary, game_state_before: int,
 	# therefore cannot flush synthetic read keys after the PASS marker.
 	StoryLog.suppress_persistence = true
 	_runner.finish(get_tree(),
-		"scenes=verdan_market,the_seam actor=npc.malet branches=active_removed_restored " +
-		"consequence=source_detail_toggle downstream=sable_route_option round_trip=1 events_once=4 " +
+		"scene=verdan_market actor=npc.malet branches=active_removed_restored " +
+		"consequence=source_detail_toggle canon=malet_record_ch21 round_trip=1 events_once=4 " +
 		"story_flags_delta=0 memory_manager_delta=0 production_slots=0")
 
 

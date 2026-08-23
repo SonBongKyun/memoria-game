@@ -842,18 +842,6 @@ const ARTBOOK_ITEMS: Array[Dictionary] = [
 		"desc": "Elia asks only that Arrel return while the sky loses its lights."
 	},
 	{
-		"title": "Act III: The Stone Remembers",
-		"type": "Generated Memorial Story CG",
-		"path": "res://assets/cg/generated/story_ch7_fading_names_monument.png",
-		"desc": "Sable and the party stop before twelve names dissolving from stone."
-	},
-	{
-		"title": "Act III: Everyone Has a Line",
-		"type": "Generated Confession Story CG",
-		"path": "res://assets/cg/generated/story_ch7_sable_confession.png",
-		"desc": "Sable names the order that finally drove her from the Authority."
-	},
-	{
 		"title": "Act III: Voices in the Shell",
 		"type": "Generated Echo Story CG",
 		"path": "res://assets/cg/generated/story_ch7_echo_shell_whispers.png",

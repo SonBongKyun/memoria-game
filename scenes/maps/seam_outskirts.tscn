@@ -23,5 +23,5 @@ position = Vector2(320, 288)
 npc_name = "Sable"
 dialogue_file = "res://data/chapter7_dialogue.json"
 dialogue_key = "sable_confession"
-repeat_dialogue_key = "sable_cleaner_memory_followup"
+repeat_dialogue_key = "sable_seeker_memory_followup"
 npc_color = Color(0.35, 0.3, 0.45, 1.0)

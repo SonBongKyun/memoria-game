@@ -138,7 +138,7 @@ $cases = @(
         Scene = "res://scripts/tools/smoke_malet_live_integration.tscn"
         Marker = "MALET_LIVE_INTEGRATION_SMOKE_PASS"
         ExpectedExit = 0
-        RequiredLog = "downstream=sable_route_option"
+        RequiredLog = "canon=malet_record_ch21"
         ExtraArgs = ""
     },
     [pscustomobject]@{
@@ -146,7 +146,7 @@ $cases = @(
         Scene = "res://scripts/tools/smoke_sable_memory_gameplay.tscn"
         Marker = "SABLE_MEMORY_GAMEPLAY_SMOKE_PASS"
         ExpectedExit = 0
-        RequiredLog = "combinations=4"
+        RequiredLog = "canon=vessa_seventeen"
         ExtraArgs = ""
     }
 )

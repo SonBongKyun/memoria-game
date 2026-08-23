@@ -423,367 +423,244 @@
     "sable_confession": [
       {
         "speaker": "Sable",
-        "text": "I wasn't always freelance. Before Ashbridge, before The Seam, I worked for the Authority.",
+        "text": "Seventeen people came through my house asking for the city that isn't on maps. The ones I sent on did not come back. None of them.",
         "portrait": "sable_calm",
-        "cg": "res://assets/cg/generated/story_ch7_sable_confession.png",
-        "text_ko": "나도 처음부터 떠돌이는 아니었다. 애시브리지 전에, 씸 전에, 관리국에서 일했어."
+        "cg": "res://assets/cg/generated/quest_sable_vigil_v2.png",
+        "text_ko": "지도에 없는 도시를 찾아 열일곱 명이 이 집을 거쳐 갔어. 내가 길을 알려 준 이들은 돌아오지 않았지. 한 명도."
       },
       {
-        "speaker": "Arrel",
-        "text": "You were Bureau?",
-        "portrait": "arrel_neutral",
-        "text_ko": "관리국이었다고?"
-      },
-      {
+        "branch_id": "sable_vessa_active",
         "speaker": "Sable",
-        "text": "Subsection Eleven. Memory Disposal. They called us Cleaners. We made people forget things the Authority didn't want remembered.",
+        "text": "One of them was my daughter. Vessa. Her name is the deepest groove in the box because I cut it twice.",
         "portrait": "sable_intense",
-        "text_ko": "제11분과. 기억 처분. 사람들은 우리를 청소부라고 불렀지. 관리국이 기억되길 원치 않는 것들을, 사람들이 잊게 만들었다.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch07_sable_cleaner_confession_v1.png"
-      },
-      {
-        "speaker": "Sable",
-        "text": "I left when they asked me to burn a child's memory of her parents. That was my line. Everyone has one.",
-        "portrait": "sable_calm",
-        "text_ko": "아이에게서 제 부모의 기억을 태우라는 명령을 받았을 때 떠났다. 그게 내 선이었어. 누구에게나 하나쯤 있는.",
+        "text_ko": "그중 한 명은 내 딸이었다. 베사. 상자에서 그 아이 이름의 홈이 가장 깊어. 내가 두 번 새겼으니까.",
         "condition": {
           "type": "memory",
           "actor": "npc.sable",
-          "memory": "memory.sable.child_memory_erasure_target",
-          "status": "active"
+          "memory": "memory.sable.vessa_daughter_bond",
+          "status": "active",
+          "restored": false
         }
       },
       {
+        "branch_id": "sable_vessa_removed",
         "speaker": "Sable",
-        "text": "I know an order made me leave. A child was involved. The target itself is missing from my memory.",
+        "text": "I know seventeen people went and none returned. The deepest groove says Vessa, but I no longer know why my hand cut that name twice.",
         "portrait": "sable_calm",
-        "text_ko": "어떤 명령 때문에 떠났다는 건 알아. 아이가 관련돼 있었지. 하지만 그 명령이 겨냥한 대상은 내 기억에서 사라졌어.",
+        "text_ko": "열일곱 명이 떠났고 아무도 돌아오지 않았다는 건 알아. 가장 깊은 홈에는 베사라고 적혀 있지만, 내 손이 왜 그 이름을 두 번 새겼는지는 이제 모르겠군.",
         "condition": {
           "all": [
             {
               "type": "knowledge",
               "actor": "npc.sable",
-              "fact": "fact.authority.child_memory_erasure_order",
+              "fact": "fact.bl07.seventeen_seekers_never_returned",
               "equals": true
             },
             {
               "type": "memory",
               "actor": "npc.sable",
-              "memory": "memory.sable.child_memory_erasure_target",
+              "memory": "memory.sable.vessa_daughter_bond",
               "status": "removed"
             }
           ]
         }
       },
       {
+        "branch_id": "sable_vessa_restored",
+        "speaker": "Sable",
+        "text": "Vessa. My daughter. Yes. The count did not change, but the deepest groove belongs to someone again.",
+        "portrait": "sable_intense",
+        "text_ko": "베사. 내 딸. 그래. 숫자는 바뀌지 않았지만, 가장 깊은 홈이 다시 누군가의 것이 되었군.",
+        "condition": {
+          "type": "memory",
+          "actor": "npc.sable",
+          "memory": "memory.sable.vessa_daughter_bond",
+          "status": "active",
+          "restored": true
+        }
+      },
+      {
         "choices": [
           {
-            "choice_id": "remove_sable_target_memory",
-            "text": "Remove the target from Sable's Cleaner memory.",
-            "text_ko": "세이블의 청소부 기억에서 명령의 대상을 지운다.",
-            "jump_to": 6,
+            "choice_id": "remove_sable_vessa_memory",
+            "text": "Remove the bond attached to Vessa's name.",
+            "text_ko": "베사의 이름에 이어진 관계의 기억을 지운다.",
+            "jump_to": 5,
             "remove_world_memory": {
               "actor": "npc.sable",
-              "memory": "memory.sable.child_memory_erasure_target"
+              "memory": "memory.sable.vessa_daughter_bond"
             },
             "condition": {
               "type": "memory",
               "actor": "npc.sable",
-              "memory": "memory.sable.child_memory_erasure_target",
+              "memory": "memory.sable.vessa_daughter_bond",
               "status": "active"
             }
           },
           {
-            "choice_id": "restore_sable_target_memory",
-            "text": "Restore the target from the memory's residue.",
-            "text_ko": "기억의 잔존에서 명령의 대상을 복원한다.",
-            "jump_to": 7,
+            "choice_id": "restore_sable_vessa_memory",
+            "text": "Restore Vessa's place from the memory's residue.",
+            "text_ko": "기억의 잔존에서 베사의 자리를 복원한다.",
+            "jump_to": 6,
             "restore_world_memory": {
               "actor": "npc.sable",
-              "memory": "memory.sable.child_memory_erasure_target"
+              "memory": "memory.sable.vessa_daughter_bond"
             },
             "condition": {
               "type": "memory",
               "actor": "npc.sable",
-              "memory": "memory.sable.child_memory_erasure_target",
+              "memory": "memory.sable.vessa_daughter_bond",
               "status": "removed"
             }
           },
           {
-            "choice_id": "leave_sable_cleaner_memory",
+            "choice_id": "leave_sable_seeker_memory",
             "text": "Leave the memory untouched.",
             "text_ko": "그 기억을 건드리지 않는다.",
-            "jump_to": 8
+            "jump_to": 7
           }
         ]
       },
       {
-        "branch_id": "sable_target_removed_feedback",
+        "branch_id": "sable_vessa_removed_feedback",
         "speaker": "Sable",
-        "text": "The order remains. The child does not. I know why I stopped, but not whom I stopped for.",
+        "text": "Seventeen are still missing. Vessa is still written. Only the part that made her mine is gone.",
         "portrait": "sable_calm",
-        "text_ko": "명령은 남았고, 아이는 사라졌군. 왜 멈췄는지는 알지만, 누구를 위해 멈췄는지는 모르겠어.",
+        "text_ko": "열일곱 명은 여전히 실종됐고, 베사라는 이름도 남아 있어. 그 아이를 내 사람으로 만들던 부분만 사라졌군.",
         "condition": {
           "type": "memory",
           "actor": "npc.sable",
-          "memory": "memory.sable.child_memory_erasure_target",
+          "memory": "memory.sable.vessa_daughter_bond",
           "status": "removed"
         }
       },
       {
-        "branch_id": "sable_target_restored_feedback",
+        "branch_id": "sable_vessa_restored_feedback",
         "speaker": "Sable",
-        "text": "The child. Her parents. Yes. The line has a face again.",
+        "text": "Vessa. My daughter. The fact never left; now the person has returned to it.",
         "portrait": "sable_intense",
-        "text_ko": "그 아이. 아이의 부모. 그래. 내 선에 다시 얼굴이 생겼군.",
+        "text_ko": "베사. 내 딸. 사실은 한 번도 떠나지 않았어. 이제 그 사실에 사람이 돌아왔군.",
         "condition": {
           "type": "memory",
           "actor": "npc.sable",
-          "memory": "memory.sable.child_memory_erasure_target",
+          "memory": "memory.sable.vessa_daughter_bond",
           "status": "active",
           "restored": true
         }
       },
       {
         "speaker": "Sable",
-        "text": "The Authority called forgetting disposal. I learned to call it a choice.",
+        "text": "I cut Arrel's name on the next piece of bark. I have not burned the hole. Not seventeen.",
         "portrait": "sable_calm",
-        "text_ko": "관리국은 망각을 처분이라 불렀지. 나는 그걸 선택이라고 부르는 법을 배웠어."
+        "text_ko": "다음 나무껍질에는 아렐의 이름을 새겼어. 구멍은 아직 태우지 않았다. 열일곱으로 끝나진 않아."
       }
     ],
-    "sable_cleaner_memory_followup": [
+    "sable_seeker_memory_followup": [
       {
-        "branch_id": "sable_combo_a",
+        "branch_id": "sable_vessa_active",
         "speaker": "Sable",
-        "text": "Malet's old note still links your BL-07 request to you. I still remember the child and her parents. Two records, neither clean.",
-        "text_ko": "말렛의 옛 쪽지는 아직 자네와 BL-07 요청을 이어 주고 있어. 나도 그 아이와 부모를 기억하고 있고. 두 기록 모두 깨끗하진 않군.",
-        "portrait": "sable_neutral",
-        "condition": {
-          "all": [
-            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
-            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
-            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
-            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
-          ]
-        }
+        "text": "Seventeen bark pieces carry seventeen names. Vessa's groove is deepest. She was my daughter.",
+        "text_ko": "열일곱 조각의 나무껍질에 열일곱 이름이 새겨져 있어. 베사의 홈이 가장 깊지. 그 아이는 내 딸이었다.",
+        "portrait": "sable_intense",
+        "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "active", "restored": false}
       },
       {
-        "branch_id": "sable_combo_b",
+        "branch_id": "sable_vessa_removed",
         "speaker": "Sable",
-        "text": "Malet's note still says someone sought BL-07, but no longer who. I still remember the child whose parents they ordered me to erase.",
-        "text_ko": "말렛의 쪽지에는 누군가 BL-07을 찾았다는 사실만 남고, 누군지는 사라졌어. 나는 아직 부모의 기억을 지우라는 명령을 받은 그 아이를 기억하지만.",
+        "text": "The count is still seventeen. The box still says Vessa. It cannot tell me why that name is cut deepest.",
+        "text_ko": "숫자는 여전히 열일곱이야. 상자에는 아직 베사라고 적혀 있지. 하지만 그 이름이 왜 가장 깊은지는 상자가 말해 주지 못해.",
         "portrait": "sable_calm",
-        "condition": {
-          "all": [
-            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
-            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
-            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
-            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
-          ]
-        }
+        "condition": {"all": [
+          {"type": "knowledge", "actor": "npc.sable", "fact": "fact.bl07.seventeen_seekers_never_returned", "equals": true},
+          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "removed"}
+        ]}
       },
       {
-        "branch_id": "sable_combo_c",
+        "branch_id": "sable_vessa_restored",
         "speaker": "Sable",
-        "text": "Malet's note still names your BL-07 request. I know a child's erasure order made me leave, but the child and her parents are gone from my memory.",
-        "text_ko": "말렛의 쪽지는 아직 자네의 BL-07 요청을 가리켜. 아이의 기억을 지우라는 명령 때문에 내가 떠났다는 건 알지만, 그 아이와 부모는 내 기억에서 사라졌고.",
-        "portrait": "sable_calm",
-        "condition": {
-          "all": [
-            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
-            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
-            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
-            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
-          ]
-        }
-      },
-      {
-        "branch_id": "sable_combo_d",
-        "speaker": "Sable",
-        "text": "Malet's request has no source, and my breaking order has no target. The facts remain. The people attached to them do not.",
-        "text_ko": "말렛의 요청에는 출처가 없고, 나를 떠나게 한 명령에는 대상이 없어. 사실은 남았지만, 거기에 연결된 사람들은 남지 않았군.",
-        "portrait": "sable_calm",
-        "condition": {
-          "all": [
-            {"type": "knowledge", "actor": "npc.malet", "fact": "fact.arrel.seeks_bl07", "equals": true},
-            {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
-            {"type": "knowledge", "actor": "npc.sable", "fact": "fact.authority.child_memory_erasure_order", "equals": true},
-            {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
-          ]
-        }
+        "text": "Vessa is mine again. Not as a possession. As the daughter I helped pack before the forest took her.",
+        "text_ko": "베사가 다시 내 사람이 되었군. 소유물이라는 뜻이 아니야. 숲으로 떠나기 전 내가 짐을 꾸려 준 딸이라는 뜻이지.",
+        "portrait": "sable_intense",
+        "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "active", "restored": true}
       },
       {
         "choices": [
           {
-            "choice_id": "ask_cleaner_target",
-            "text": "Ask why the twelve fading names matter to her.",
-            "text_ko": "바래는 열두 이름이 왜 세이블에게 중요한지 묻는다.",
-            "jump_to": 5,
-            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
+            "choice_id": "ask_vessa_detail",
+            "text": "Ask about Vessa and the deepest groove.",
+            "text_ko": "베사와 가장 깊은 홈에 관해 묻는다.",
+            "jump_to": 4,
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "active"}
           },
           {
-            "choice_id": "ask_cleaner_gap",
-            "text": "Ask what she still knows about the order.",
-            "text_ko": "그 명령에 관해 아직 무엇을 아는지 묻는다.",
-            "jump_to": 7,
-            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
+            "choice_id": "ask_seventeen_record",
+            "text": "Ask what the seventeen bark records still prove.",
+            "text_ko": "열일곱 나무껍질 기록이 아직 무엇을 증명하는지 묻는다.",
+            "jump_to": 6,
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "removed"}
           },
           {
-            "choice_id": "ask_malet_provenance",
-            "text": "Ask what Malet's source mark adds to the record.",
-            "text_ko": "말렛의 출처 표식이 기록에 무엇을 더하는지 묻는다.",
-            "jump_to": 9,
-            "condition": {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"}
+            "choice_id": "remove_sable_vessa_memory",
+            "text": "Remove the bond attached to Vessa's name.",
+            "text_ko": "베사의 이름에 이어진 관계의 기억을 지운다.",
+            "jump_to": 8,
+            "remove_world_memory": {"actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond"},
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "active"}
           },
           {
-            "choice_id": "ask_malet_gap",
-            "text": "Ask what survived in Malet's anonymous note.",
-            "text_ko": "말렛의 익명 쪽지에 무엇이 남았는지 묻는다.",
-            "jump_to": 11,
-            "condition": {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"}
+            "choice_id": "restore_sable_vessa_memory",
+            "text": "Restore Vessa's place from the memory's residue.",
+            "text_ko": "기억의 잔존에서 베사의 자리를 복원한다.",
+            "jump_to": 10,
+            "restore_world_memory": {"actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond"},
+            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.vessa_daughter_bond", "status": "removed"}
           },
           {
-            "choice_id": "remove_sable_target_memory",
-            "text": "Remove the target from Sable's Cleaner memory.",
-            "text_ko": "세이블의 청소부 기억에서 명령의 대상을 지운다.",
-            "jump_to": 13,
-            "remove_world_memory": {"actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target"},
-            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
-          },
-          {
-            "choice_id": "restore_sable_target_memory",
-            "text": "Restore the target from the memory's residue.",
-            "text_ko": "기억의 잔존에서 명령의 대상을 복원한다.",
-            "jump_to": 15,
-            "restore_world_memory": {"actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target"},
-            "condition": {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
-          },
-          {
-            "choice_id": "leave_cleaner_record",
-            "text": "Leave the two records as they are.",
-            "text_ko": "두 기록을 그대로 둔다.",
-            "jump_to": 17
+            "choice_id": "leave_seeker_box",
+            "text": "Close the box.",
+            "text_ko": "상자를 닫는다.",
+            "jump_to": 12
           }
         ]
       },
       {
-        "branch_id": "cleaner_target_detail",
+        "branch_id": "vessa_personal_detail",
         "speaker": "Sable",
-        "text": "Because I once refused to turn a child's parents into fading marks. I won't call twelve erased names expendable.",
-        "text_ko": "나는 한때 아이의 부모를 바래는 표식으로 만들기를 거부했으니까. 지워진 열두 이름도 소모품이라 부르지 않을 거야.",
-        "portrait": "sable_intense"
-      },
-      {"choices": [{"choice_id": "back_from_cleaner_target", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
-      {
-        "branch_id": "cleaner_target_gap",
-        "speaker": "Sable",
-        "text": "I know the Authority issued an order involving a child. I know it made me leave. The person at the center is gone.",
-        "text_ko": "관리국이 아이와 관련된 명령을 내렸고, 그 때문에 내가 떠났다는 건 알아. 하지만 그 중심에 있던 사람은 사라졌어.",
-        "portrait": "sable_calm"
-      },
-      {"choices": [{"choice_id": "back_from_cleaner_gap", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
-      {
-        "branch_id": "malet_provenance_detail",
-        "speaker": "Sable",
-        "text": "It ties the BL-07 request to a named source. The route was always true. The mark tells history who asked.",
-        "text_ko": "그 표식은 BL-07 요청을 이름 있는 출처에 묶어 둬. 경로는 언제나 사실이었고, 표식은 역사에 누가 물었는지를 남기지.",
-        "portrait": "sable_neutral"
-      },
-      {"choices": [{"choice_id": "back_from_malet_provenance", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
-      {
-        "branch_id": "malet_provenance_gap",
-        "speaker": "Sable",
-        "text": "The destination and the request survived. The requester did not. A fact without provenance, like a name fading from stone.",
-        "text_ko": "목적지와 요청은 남았어. 요청자는 남지 않았고. 돌에서 바래는 이름처럼, 출처 없는 사실이지.",
-        "portrait": "sable_calm"
-      },
-      {"choices": [{"choice_id": "back_from_malet_gap", "text": "Return to the two records.", "text_ko": "두 기록 이야기로 돌아간다.", "jump_to": 4}]},
-      {
-        "branch_id": "sable_target_removed_feedback",
-        "speaker": "Sable",
-        "text": "The order remains. The child does not. Twelve names on stone, and one more absence in me.",
-        "text_ko": "명령은 남았고, 아이는 사라졌군. 돌 위의 열두 이름, 그리고 내 안에 하나 더 생긴 부재.",
-        "portrait": "sable_calm"
-      },
-      {"choices": [{"choice_id": "back_after_sable_remove", "text": "Read the records again.", "text_ko": "기록을 다시 읽는다.", "jump_to": 4}]},
-      {
-        "branch_id": "sable_target_restored_feedback",
-        "speaker": "Sable",
-        "text": "The child and her parents are back in the order. The facts never moved. The people returned to them.",
-        "text_ko": "명령 속에 그 아이와 부모가 돌아왔어. 사실은 움직이지 않았고, 그 사실에 사람들이 돌아온 거야.",
-        "portrait": "sable_intense"
-      },
-      {"choices": [{"choice_id": "back_after_sable_restore", "text": "Read the records again.", "text_ko": "기록을 다시 읽는다.", "jump_to": 4}]},
-      {
-        "speaker": "Sable",
-        "text": "Names fade. Records fail. That is why choices have to survive both.",
-        "text_ko": "이름은 바래고, 기록은 실패하지. 그래서 선택은 둘보다 오래 남아야 해.",
-        "portrait": "sable_calm"
-      }
-    ],
-    "outskirts_monument": [
-      {
-        "speaker": "",
-        "text": "A stone pillar jutted from the cracked earth, its surface etched with names that were slowly fading, the letters dissolving like ink in water.",
-        "cg": "res://assets/cg/generated/story_ch7_fading_names_monument.png",
-        "text_ko": "갈라진 땅에서 돌기둥 하나가 솟아 있었다. 표면에 새겨진 이름들이 서서히 바래는 중이었다, 물에 번지는 잉크처럼 글자들이 풀려 나갔다."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "A memorial cairn. Bureau standard. These names... they're the first expedition team. Twelve people. All erased.",
-        "portrait": "tobias_neutral",
-        "text_ko": "기념 돌무덤이군. 관리국 표준 양식이야. 이 이름들은... 첫 원정대일세. 열두 명. 전부 바래고 있어.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch07_twelve_names_memorial_v1.png"
-      },
-      {
-        "speaker": "Arrel",
-        "text": "The stone remembers them even if nothing else does.",
-        "portrait": "arrel_determined",
-        "text_ko": "다른 무엇도 기억하지 못해도, 돌은 그들을 기억하는군."
-      },
-      {
-        "branch_id": "monument_combo_a",
-        "speaker": "Sable",
-        "text": "Malet's note still names your request, and I still remember the child who made me stop erasing people. These twelve deserve both fact and witness.",
+        "text": "She was twenty-two. I agreed with why she went, helped her pack, and listened to the trees take her at dawn.",
+        "text_ko": "베사는 스물둘이었다. 나는 그 아이가 떠나려는 이유에 동의했고, 짐을 꾸려 주었고, 새벽에 숲이 아이를 데려가는 소리를 들었지.",
         "portrait": "sable_intense",
-        "text_ko": "말렛의 쪽지는 아직 자네의 요청을 가리키고, 나도 사람을 지우는 일을 멈추게 한 아이를 기억해. 이 열둘에게는 사실과 증언이 모두 필요해.",
-        "condition": {"all": [
-          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
-          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
-        ]}
+        "cg": "res://assets/cg/generated/story_ch7_sable_confession.png"
       },
+      {"choices": [{"choice_id": "back_from_vessa_detail", "text": "Return to the bark box.", "text_ko": "나무껍질 상자로 돌아간다.", "jump_to": 3}]},
       {
-        "branch_id": "monument_combo_b",
+        "branch_id": "seventeen_record_detail",
         "speaker": "Sable",
-        "text": "Malet's route has lost its requester. I still remember the child who made me stop. One record has a witness. The other does not.",
-        "portrait": "sable_calm",
-        "text_ko": "말렛의 경로는 요청자를 잃었어. 나는 아직 나를 멈추게 한 아이를 기억하고 있고. 한 기록에는 증인이 있고, 다른 기록에는 없군.",
-        "condition": {"all": [
-          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
-          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "active"}
-        ]}
+        "text": "The records still prove that seventeen went toward BL-07 and none returned. A name can survive after its relationship is gone.",
+        "text_ko": "기록은 열일곱 명이 BL-07을 향해 떠났고 아무도 돌아오지 않았음을 여전히 증명해. 관계가 사라진 뒤에도 이름은 남을 수 있지.",
+        "portrait": "sable_calm"
       },
+      {"choices": [{"choice_id": "back_from_seventeen_record", "text": "Return to the bark box.", "text_ko": "나무껍질 상자로 돌아간다.", "jump_to": 3}]},
       {
-        "branch_id": "monument_combo_c",
+        "branch_id": "sable_vessa_removed_feedback",
         "speaker": "Sable",
-        "text": "Malet's note still names you. I know why I left the Cleaners, but not who stood at that line. The stone is holding more people than I am.",
-        "portrait": "sable_calm",
-        "text_ko": "말렛의 쪽지는 아직 자네 이름을 남기고 있어. 내가 왜 청소부를 떠났는지는 알지만, 그 선에 누가 서 있었는지는 몰라. 이 돌이 나보다 더 많은 사람을 붙들고 있군.",
-        "condition": {"all": [
-          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "active"},
-          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
-        ]}
+        "text": "Seventeen remain. Vessa remains. Daughter does not.",
+        "text_ko": "열일곱은 남았고, 베사도 남았어. 딸이라는 자리는 남지 않았군.",
+        "portrait": "sable_calm"
       },
+      {"choices": [{"choice_id": "back_after_vessa_remove", "text": "Read the bark records again.", "text_ko": "나무껍질 기록을 다시 읽는다.", "jump_to": 3}]},
       {
-        "branch_id": "monument_combo_d",
+        "branch_id": "sable_vessa_restored_feedback",
         "speaker": "Sable",
-        "text": "Malet's request has no requester. My last Cleaner order has no target. Twelve names fade between two facts that can no longer name their people.",
-        "portrait": "sable_calm",
-        "text_ko": "말렛의 요청에는 요청자가 없고, 내 마지막 청소부 명령에는 대상이 없어. 사람을 부를 수 없게 된 두 사실 사이에서 열두 이름이 바래는군.",
-        "condition": {"all": [
-          {"type": "memory", "actor": "npc.malet", "memory": "memory.malet.bl07_request_source", "status": "removed"},
-          {"type": "memory", "actor": "npc.sable", "memory": "memory.sable.child_memory_erasure_target", "status": "removed"}
-        ]}
+        "text": "Vessa. My daughter. The deepest groove has its reason again.",
+        "text_ko": "베사. 내 딸. 가장 깊은 홈에 다시 이유가 생겼군.",
+        "portrait": "sable_intense"
+      },
+      {"choices": [{"choice_id": "back_after_vessa_restore", "text": "Read the bark records again.", "text_ko": "나무껍질 기록을 다시 읽는다.", "jump_to": 3}]},
+      {
+        "speaker": "Sable",
+        "text": "I have not burned the hole beneath Arrel's name. Not seventeen.",
+        "text_ko": "아렐의 이름 아래에는 아직 구멍을 태우지 않았어. 열일곱으로 끝나진 않아.",
+        "portrait": "sable_calm"
       }
     ],
     "elia_void_edge": [

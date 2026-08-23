@@ -23,5 +23,4 @@ position = Vector2(384, 288)
 npc_name = "Sable"
 dialogue_file = "res://data/chapter6_dialogue.json"
 dialogue_key = "sable_talk"
-repeat_dialogue_key = "sable_malet_route_followup"
 npc_color = Color(0.35, 0.3, 0.45, 1.0)
