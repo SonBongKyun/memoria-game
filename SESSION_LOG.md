@@ -2,6 +2,58 @@
 
 ---
 
+## S259 - 2026-08-23 (Season 1 canon progression rebuild plan)
+
+### 실제 progression과 canon mapping
+- runtime scene/script/dialogue/VN 조건을 따라 New Game의 Ch1 VN bundle → Ch2 Verdan → Ch3~10 map chain → legacy epilogue/Credits와, Title의 별도 Aftermath 버튼 → Ch11~24 VN → Credits라는 두 진입 경로를 확인했다.
+- 최신 영문 Chapter 01~46을 `KEEP`, `MOVE`, `REWRITE`, `REPLACE`, `REMOVE`, `MISSING`, `SPLIT`, `MERGE`로 1:1 매핑하고 current-only 제거 대상을 별도 inventory로 분리했다.
+- Tobias 조기 합류, Kairós/Malet report 누락, Sable trial·사망·ledger, Singer/Nera 조기 등장, Ch10 조기 finale, 선택형 Name Burn, 7-way Conversion/ending을 핵심 blocker로 확정했다.
+
+### 실행 계획과 자산 경계
+- `docs/SEASON1_GAME_PROGRESSION.md`에 5 Act / 13 game segment의 canonical progression, map/character/dialogue/VN/combat/UI 자산 재사용 판정, 6개 migration wave, 16개 Memory 후보의 배치를 기록했다.
+- 첫 실제 migration 단위는 Ch2 Malet baseline을 보존한 채 Ch3~4에서 Tobias를 제거하고 Blank Book/Elia anchoring만 canon 순서로 복구하는 Wave 1이다.
+- `docs/SEASON1_MEMORY_MAP.md`와 양방향 링크를 추가하고 한국어 원고 가용 범위를 현재 1~32장(Ch32 진행 중)으로 바로잡았다.
+- runtime progression, Memory Engine/API, story flags, scene, dialogue, asset 파일은 이번 plan에서 수정하지 않았다. 실제 consumer가 없는 새 이미지도 생성하지 않았다.
+
+### 검증
+- Godot 4.6.2 headless editor import exit 0. 새 Parse/SCRIPT ERROR 없음. 기존 ShaderV duplicate UID 3건과 종료 ObjectDB cleanup warning만 유지된다.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=13 fatal_scan=enabled save_isolation=guarded export_catalog=verified`.
+- `STORY_QOL_SMOKE_PASS log=300 read=554 speed_steps=3 props=6`, `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`.
+- VN validation 20 files/504 steps/0 errors/0 warnings. 한국어 validation 31 files/1,626 fields/19 speakers/0 errors. data JSON 44개 parse 통과.
+- 테스트 전후 production save, autosave, `save_3.json`, `read_lines.json`, settings의 SHA-256과 크기가 모두 동일하다. `git diff --check` 통과.
+- 문서 변경은 staging/commit하지 않고 기존 working tree와 함께 검토 상태로 남겼다.
+
+## S258 - 2026-08-22 (Season 1 46장 canon remap + Sable Vessa correction)
+
+### 기준점과 원고 재검토
+- Memory Gameplay v0.3을 공식 suite 13/13, Story QoL/Combat, VN/한국어/JSON validation으로 재검토한 뒤 `b811d3b feat(world): add sable multi-memory gameplay` 체크포인트로 로컬 커밋했다. 푸시는 하지 않았다.
+- `../원고/수정본_txt`의 영문 원고가 Chapter 01~46까지 번호 누락 없이 존재함을 확인하고, 46개 파일의 실제 본문·인물·기억 사건·후속 callback을 다시 읽었다. Chapter 39 파일은 `The Registrars Hand DRAFT` 표기를 유지한다.
+- 한국어판 폴더는 작업 중 갱신되었고 최종 조사 시점에 1~20장 파일이 존재했다. 1~19장은 대응 영문과 끝 문장이 맞았고 20장은 영문 158줄 중 76줄인 진행 중 번역이었다. 안정적으로 완성된 영문 46장을 narrative source of truth로 삼았다.
+- 최신 원고와 현재 24장 압축형 game/VN의 A~E gap, player-manipulable 후보 16개, ripple top 5를 `docs/SEASON1_MEMORY_MAP.md`에 기록했다.
+
+### canon 교정과 플레이 경험
+- Malet의 `fact.arrel.seeks_bl07` / `memory.malet.bl07_request_source`는 Ch2 거래와 일치한다. 다만 정식 downstream은 Sable이 아니라 `Ch5 Kairós의 Malet 보고 -> Ch21 Kairós가 확보한 Malet 기록`이다.
+- 최신 원고에 없는 Chapter 6 Sable의 Malet 쪽지 소비를 제거했다. The Seam Sable은 기존 `sable_talk`와 일반 repeat line으로 돌아가며, Malet의 live active/removed/restored gameplay 자체는 유지된다.
+- 최신 Ch7 Sable은 Cleaner가 아니다. 12인 추모비와 아이/부모 삭제 명령을 제거하고, `fact.bl07.seventeen_seekers_never_returned`와 `memory.sable.vessa_daughter_bond`로 대체했다.
+- active에서는 Sable이 Vessa를 자기 딸이자 가장 깊은 나무껍질 홈의 주인으로 기억해 개인 질문이 열린다. removed에서는 열일곱 명이 돌아오지 않았다는 knowledge와 Vessa라는 기록은 남지만 딸 관계가 사라지고, 질문이 열일곱 기록의 증거로 교체된다. restore하면 관계·개인 대사·질문이 돌아온다.
+- seed는 기존 Ch7 lifecycle에서 MemoryEngine API로만 최초 1회 실행하며 scene 재진입, tombstone, restored record, explicit false knowledge를 덮어쓰지 않는다.
+- 구버전 Cleaner/12인 CG 두 장은 라이브 대화와 Artbook manifest에서 분리하고, 기존 범용 Sable 이미지 두 장을 정사 대사에 재배치했다. 원본 파일은 삭제하지 않았다.
+
+### 검증
+- Godot 4.6.2 headless editor import exit 0, 새 Parse/SCRIPT ERROR 없음. 기존 ShaderV duplicate UID 및 종료 cleanup warning만 유지된다.
+- `MEMORY_WORLD_ENGINE_SUITE_PASS cases=13 fatal_scan=enabled save_isolation=guarded export_catalog=verified`.
+- Malet live smoke: active/removed/restored, knowledge 유지, save/reset/load, mutation event 4개 각 1회, no-op event 0, Ch6 비정사 Sable 소비 제거 guard, production slot 0.
+- Sable live smoke: 실제 `seam_outskirts.tscn` Sable NPC와 DialogueManager로 active -> removed -> save/load removed -> restored, choice/lore consequence, knowledge 유지, event 4개 각 1회, no-op event 0, story_flags/MemoryManager/StoryLog delta 0, production slot 0.
+- `CHAPTER_EXPANSION_SMOKE_PASS`, `STORY_QOL_SMOKE_PASS`, `STORY_COMBAT_SMOKE_PASS` 모두 exit 0/marker 1/fatal 0.
+- VN validation 20 files/504 steps/0 errors/0 warnings. 한국어 validation 31 files/1,626 fields/19 speakers/0 errors. data JSON 44개 parse 통과. `git diff --check` 통과.
+- headless import가 재생성한 task 무관 tool `.gd.uid` 20개는 working tree에서 제외했다.
+
+### 남은 canon 위험
+- 현재 game progression은 최신 46장의 순차 구현이 아니라 Ch1~10 탐색 + 구버전 24장 VN 압축 구조다. Tobias 조기 합류, Ch10 BL-07 결말, Ch19 Sable 죽음/ledger, Ch23 선택형 Conversion 등이 최신 원고와 충돌한다.
+- 현 Ch12 VN의 Verdan 재방문은 Malet 실종 setup만 포함한다. `memory.malet.bl07_request_source`의 정식 Ch21 consumer는 최신 Chapter 21 migration 때 연결해야 한다.
+- 다음 신규 Memory Arc 우선순위는 Elia의 Ch14 -> 15 -> 30 lullaby source, Kairós의 Ch25 -> 26 -> 33 selfless-burn hesitation, 마지막으로 Arrel의 Ch10 -> 43 -> 46 name source다.
+- 이번 canon 교정과 문서는 검토를 위해 working tree에 남겼다.
+
 ## S257 - 2026-08-22 (Memory Gameplay v0.3 Sable combined memory state)
 
 ### 기준점
