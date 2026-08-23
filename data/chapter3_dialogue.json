@@ -1,428 +1,53 @@
 {
   "chapter": 3,
   "title": "Weight of Pages",
+  "title_ko": "페이지의 무게",
   "dialogues": {
     "waystation_arrival": [
-      {
-        "speaker": "",
-        "text": "The Belt stretched endlessly, a scarred strip of earth where nothing grew. Arrel and Elia walked for hours in silence.",
-        "cg": "res://assets/cg/generated/chapter_splash_belt_waystation.png",
-        "text_ko": "벨트는 끝없이 뻗어 있었다, 아무것도 자라지 않는, 흉터 진 땅의 띠. 아렐과 엘리아는 몇 시간을 말없이 걸었다."
-      },
-      {
-        "speaker": "",
-        "text": "Finally, a crumbling waystation appeared through the haze. A water tower listed sideways, its tank long dry.",
-        "text_ko": "마침내 안개 너머로 무너져 가는 역참이 나타났다. 급수탑은 옆으로 기울었고, 물탱크는 마른 지 오래였다.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch03_waystation_haze_v1.png"
-      },
-      {
-        "speaker": "Elia",
-        "text": "This was a relay point. Traders used the Belt before the Voidline shifted.",
-        "portrait": "elia_neutral",
-        "text_ko": "여긴 중계 지점이었어. 보이드라인이 이동하기 전엔 상인들이 벨트를 썼거든."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Nobody uses it now?",
-        "portrait": "arrel_neutral",
-        "text_ko": "지금은 아무도 안 쓰나?"
-      },
-      {
-        "speaker": "Elia",
-        "text": "Not since the soil went dead. Look...",
-        "portrait": "elia_concern",
-        "text_ko": "흙이 죽은 뒤로는. 봐..."
-      },
-      {
-        "speaker": "",
-        "text": "She pointed at a faded sign: BUREAU RELAY STATION 14, AUTHORIZED PERSONNEL ONLY.",
-        "text_ko": "그녀가 빛바랜 표지판을 가리켰다: 관리국 중계소 14, 허가 인원 외 출입 금지."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Bureau built this?",
-        "portrait": "arrel_neutral",
-        "text_ko": "관리국이 지은 건가?"
-      },
-      {
-        "speaker": "Elia",
-        "text": "They built everything out here. And abandoned it when the cost exceeded the yield.",
-        "portrait": "elia_neutral",
-        "text_ko": "여기 있는 건 전부 그들이 지었어. 그리고 비용이 수익을 넘어서자 버렸지."
-      }
-    ],
-    "tobias_encounter": [
-      {
-        "speaker": "",
-        "text": "Inside the waystation, a figure sat hunched over a desk covered in papers. A man with spectacles and ink-stained fingers.",
-        "cg": "res://assets/cg/generated/story_ch3_tobias_waystation.png",
-        "text_ko": "역참 안, 서류로 뒤덮인 책상 위로 한 사람이 웅크리고 있었다. 안경을 쓰고 손가락에 잉크가 밴 남자."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "...seven-point-three Grains per unit, adjusted for residue decay... no, that can't be right...",
-        "portrait": "tobias_neutral",
-        "text_ko": "...단위당 7.3그레인, 잔존 감쇠 보정하면... 아니, 이게 맞을 리가 없는데...",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch03_tobias_accounting_v1.png"
-      },
-      {
-        "speaker": "Elia",
-        "text": "Hello?",
-        "portrait": "elia_neutral",
-        "text_ko": "저기요?"
-      },
-      {
-        "speaker": "",
-        "text": "The man startled, knocking a stack of bound journals to the floor.",
-        "cg": "res://assets/cg/generated/story_ch3_tobias_record_spill_v2.png",
-        "text_ko": "남자가 소스라치며, 묶어 둔 일지 더미를 바닥에 떨어뜨렸다."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Oh! Travelers? On the Belt? That's, well, that's unusual. I'm Tobias. Tobias Crane.",
-        "portrait": "tobias_neutral",
-        "text_ko": "오! 여행자? 벨트에? 그건, 음, 드문 일이군. 나는 토비아스. 토비아스 크레인이라고 하네."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "What are you doing out here alone?",
-        "portrait": "arrel_neutral",
-        "text_ko": "여기서 혼자 뭘 하고 있지?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Recording. I record things. Transactions, mostly. Memory transactions.",
-        "portrait": "tobias_neutral",
-        "text_ko": "기록. 나는 기록을 하네. 주로 거래를, 기억 거래 말일세."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "The Bureau calls me a Recorder, Class C, if you care about rank. I document combustion events for the official ledger.",
-        "portrait": "tobias_neutral",
-        "text_ko": "관리국은 나를 기록관이라고 부르지, 계급이 궁금하다면 C급일세. 공식 원장에 연소 사건을 기록하는 일이야."
-      },
-      {
-        "speaker": "Elia",
-        "text": "A bureaucrat. Out here.",
-        "portrait": "elia_concern",
-        "text_ko": "관료가. 이런 곳에."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Voluntarily! Well... mostly voluntarily. The Belt waystation records haven't been updated in six months. Someone had to come.",
-        "portrait": "tobias_neutral",
-        "text_ko": "자발적으로! 뭐... 대체로 자발적으로. 벨트 역참 기록이 여섯 달째 갱신되지 않았거든. 누군가는 와야 했지."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Though I admit, the solitude has been... educational.",
-        "portrait": "tobias_neutral",
-        "text_ko": "인정하네만, 고독은... 교육적이었어."
-      }
+      {"speaker": "", "text": "The Belt was trying to forget it had ever been green.", "text_ko": "벨트는 자신이 한때 푸르렀다는 사실을 잊으려 하고 있었다.", "cg": "res://assets/cg/generated/chapter_splash_belt_waystation.png"},
+      {"speaker": "", "text": "Arrel and Elia had left Verdan at dawn. Malet's last words still sat behind Arrel's ribs: Someone is already going where you're looking.", "text_ko": "아렐과 엘리아는 새벽에 베르단을 떠났다. 말렛의 마지막 말은 여전히 아렐의 갈비뼈 뒤에 박혀 있었다. '누군가 이미 당신이 찾는 곳으로 가고 있어.'"},
+      {"speaker": "Arrel", "text": "Going. Not gone. Whoever it is, they're still moving toward BL-07.", "text_ko": "갔다는 게 아니라, 가고 있다고 했어. 누구든 아직 BL-07로 이동 중이야.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "He unfolded the map. The warning at its edge would not become words. Every letter was familiar; together, they meant nothing.", "text_ko": "그는 지도를 펼쳤다. 가장자리의 경고문은 단어가 되지 않았다. 글자 하나하나는 익숙했지만, 함께 놓이면 아무 뜻도 되지 않았다."},
+      {"speaker": "Elia", "text": "The route passes an old waystation. We can rest there.", "text_ko": "길은 오래된 역참을 지나. 거기서 쉴 수 있어.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Two hours later they passed a Blanker dispensary. A child swallowed the white pill dry. Arrel waited to feel anger. Nothing arrived.", "text_ko": "두 시간 뒤 그들은 블랭커 배급소를 지났다. 한 아이가 하얀 알약을 물도 없이 삼켰다. 아렐은 분노가 오기를 기다렸다. 아무것도 오지 않았다."},
+      {"speaker": "", "text": "By early afternoon, an abandoned one-room stone waystation appeared where two overgrown paths met.", "text_ko": "이른 오후, 잡초가 무성한 두 길의 교차점에 버려진 단칸 석조 역참이 나타났다.", "cg": "res://assets/cg/generated/chapter_expansion/ch03_waystation_haze_v1.png"},
+      {"speaker": "Arrel", "text": "Door is intact. Dust is undisturbed. Nobody's here.", "text_ko": "문은 멀쩡해. 먼지도 흐트러지지 않았고. 아무도 없어.", "portrait": "arrel_neutral"}
     ],
     "blank_book_discovery": [
-      {
-        "speaker": "",
-        "text": "In the back room, Arrel noticed something odd, a book on a shelf that seemed to glow faintly at its edges.",
-        "cg": "res://assets/cg/generated/story_ch3_waystation_blank_book.png",
-        "text_ko": "뒷방에서 아렐은 이상한 것을 알아차렸다, 선반 위의 책 한 권. 가장자리가 희미하게 빛나는 듯했다."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "What's that?",
-        "portrait": "arrel_neutral",
-        "text_ko": "저건 뭐지?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Ah. You can see it too? Most people walk right past. That's a Blank Book.",
-        "portrait": "tobias_neutral",
-        "text_ko": "아. 자네도 보이나? 대부분은 그냥 지나치는데. 저건 빈 책일세.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch03_blank_book_warmth_v1.png"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Record-tree fiber. Incredibly rare. It absorbs memory resonance, not the memory itself, but the shape of it.",
-        "portrait": "tobias_neutral",
-        "text_ko": "기록목 섬유야. 믿을 수 없을 만큼 희귀하지. 기억의 공명을 흡수하네, 기억 그 자체가 아니라, 기억의 '형태'를."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "The shape?",
-        "portrait": "arrel_neutral",
-        "text_ko": "형태?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Think of it as... a mold. The memory fills it once, and the book remembers the contour even after the memory burns.",
-        "portrait": "tobias_neutral",
-        "text_ko": "거푸집이라고 생각하게. 기억이 한 번 그것을 채우면, 기억이 다 타 버린 뒤에도 책은 그 윤곽을 기억하지."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "In theory, you could rebuild a burned memory from its contour. In theory.",
-        "portrait": "tobias_neutral",
-        "text_ko": "이론상으로는, 그 윤곽에서 태워진 기억을 재건할 수도 있어. 이론상으로는."
-      },
-      {
-        "speaker": "Elia",
-        "text": "That's impossible. Burned memories are gone. Everyone knows that.",
-        "portrait": "elia_concern",
-        "text_ko": "그건 불가능해요. 태워진 기억은 사라져요. 모두가 아는 사실이에요."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Everyone knows a lot of things that aren't entirely true.",
-        "portrait": "tobias_neutral",
-        "text_ko": "모두가 아는 것 중에는, 온전한 사실이 아닌 게 많다네."
-      },
-      {
-        "speaker": "",
-        "text": "Tobias carefully took the book from the shelf and held it out to Arrel.",
-        "text_ko": "토비아스가 선반에서 책을 조심스레 꺼내 아렐에게 내밀었다."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Take it. You're a Burner, aren't you? Class Seven efficiency, if I had to guess. You'll need this more than I will.",
-        "portrait": "tobias_neutral",
-        "text_ko": "가져가게. 자네, 연소자지? 짐작해야 한다면, 7급 효율. 나보다 자네에게 더 필요할 걸세."
-      },
-      {
-        "speaker": "",
-        "text": "The book felt warm in Arrel's hands. Like holding something alive.",
-        "cg": "res://assets/cg/generated/story_ch3_blank_book_warmth.png",
-        "text_ko": "책은 아렐의 손안에서 따뜻했다. 살아 있는 것을 쥔 것처럼."
-      },
-      {
-        "speaker": "",
-        "text": "[Obtained: Blank Book, Records the contours of burned memories]",
-        "text_ko": "[Obtained: Blank Book, Records the contours of burned memories]"
-      }
+      {"speaker": "", "text": "In the corner sat an Authority canvas satchel. Its dust was only a few weeks old.", "text_ko": "구석에는 관리국 규격의 캔버스 가방이 놓여 있었다. 쌓인 먼지는 길어야 몇 주 된 것이었다."},
+      {"speaker": "", "text": "Inside were rancid provisions, bandages, three Grain spheres, and a small leather-bound book with no title, seal, or registration stamp.", "text_ko": "안에는 상한 식량과 붕대, 세 개의 그레인 구체, 그리고 제목도 봉인도 등록 도장도 없는 작은 가죽 책이 있었다."},
+      {"speaker": "Arrel", "text": "Blank. Every page.", "text_ko": "비어 있어. 모든 페이지가.", "portrait": "arrel_neutral", "cg": "res://assets/cg/generated/story_ch3_blank_book_warmth.png"},
+      {"speaker": "Elia", "text": "No. Not blank. Unwritten.", "text_ko": "아니. 빈 게 아니야. 쓰이지 않은 거야.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "Elia took the book. Her breath shortened, and her fingers tightened around its spine.", "text_ko": "엘리아가 책을 받아 들었다. 숨이 짧아졌고, 책등을 쥔 손가락에 힘이 들어갔다."},
+      {"speaker": "Elia", "text": "There's residue under the surface. A whole life's weight. This is record-tree fiber, a Blank Book.", "text_ko": "표면 아래에 잔존이 있어. 한 생애 전체의 무게야. 기록목 섬유로 만든 백서야.", "portrait": "elia_concern"},
+      {"speaker": "Elia", "text": "I can't read it, but I can feel the pattern. The Authority burned every one they could find.", "text_ko": "읽을 수는 없지만 패턴이 느껴져. 관리국은 찾는 족족 전부 태웠어.", "portrait": "elia_neutral"},
+      {"speaker": "Arrel", "text": "Useful?", "text_ko": "쓸모는 있고?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "I don't know yet. Let me carry it.", "text_ko": "아직은 몰라. 내가 들게 해 줘.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "[Obtained: Blank Book]", "text_ko": "[획득: 백서]"}
     ],
-    "kairos_wall_writing": [
-      {
-        "speaker": "",
-        "text": "In the stairwell leading to the water tower, someone had scratched words into the concrete wall.",
-        "cg": "res://assets/cg/generated/archive_ch3_kairos_marks_v1.png",
-        "text_ko": "급수탑으로 오르는 계단통, 누군가 콘크리트 벽에 글자를 긁어 놓았다."
-      },
-      {
-        "speaker": "",
-        "text": "The handwriting was precise, almost mechanical: 'Subject demonstrates Class Seven combustion efficiency.'",
-        "text_ko": "필체는 정밀했다. 거의 기계적이었다: '대상은 7급 연소 효율을 시현함.'",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch03_class_seven_wall_v1.png"
-      },
-      {
-        "speaker": "Arrel",
-        "text": "...",
-        "portrait": "arrel_pain",
-        "text_ko": "..."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Arrel? What is it?",
-        "portrait": "elia_concern",
-        "text_ko": "아렐? 왜 그래?"
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Someone was here. Watching. Recording.",
-        "portrait": "arrel_pain",
-        "text_ko": "누가 있었어. 지켜보면서. 기록하면서."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "That writing wasn't there a week ago. I use these stairs every day.",
-        "portrait": "tobias_neutral",
-        "text_ko": "저 글은 일주일 전엔 없었네. 나는 이 계단을 매일 쓰거든."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Class Seven... the Bureau's classification system for Burners?",
-        "portrait": "elia_concern",
-        "text_ko": "7급이라니... 연소자에 대한 관리국 분류 체계 말인가요?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Yes. And Class Seven is the highest recorded efficiency. The Bureau has only ever documented three.",
-        "portrait": "tobias_neutral",
-        "text_ko": "그렇다네. 그리고 7급은 기록된 최고 효율이야. 관리국이 문서화한 사례는 단 셋뿐일세."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Whoever wrote this... they're tracking you.",
-        "portrait": "tobias_neutral",
-        "text_ko": "이걸 쓴 자가 누구든... 자네를 추적하고 있어."
-      },
-      {
-        "speaker": "",
-        "text": "A chill ran through the stairwell that had nothing to do with temperature.",
-        "text_ko": "계단통을 타고 오한이 흘렀다. 기온과는 무관한 오한이."
-      }
+    "waystation_night": [
+      {"speaker": "", "text": "They ate from their own provisions. Arrel took the floor by the door, his sword across his knees.", "text_ko": "둘은 자신들이 가져온 식량을 먹었다. 아렐은 문 옆 바닥에 앉아 무릎 위에 검을 놓았다."},
+      {"speaker": "", "text": "The night had no insects, no birds, no wind. The silence came not from sleep, but from absence.", "text_ko": "밤에는 벌레도 새도 바람도 없었다. 그 침묵은 잠이 아니라 부재에서 왔다."},
+      {"speaker": "", "text": "Past midnight, Elia's fingers curled around the Blank Book. She hummed three quiet notes from a lullaby neither of them could source.", "text_ko": "자정이 지난 뒤, 엘리아의 손가락이 백서를 감쌌다. 그녀는 둘 중 누구도 출처를 찾지 못하는 자장가의 세 음을 낮게 흥얼거렸다."},
+      {"speaker": "", "text": "Arrel's hand twitched in answer. His body held something his mind had already dropped.", "text_ko": "아렐의 손이 대답하듯 떨렸다. 그의 몸은 정신이 이미 놓쳐 버린 무언가를 붙들고 있었다."},
+      {"speaker": "Arrel", "text": "...", "text_ko": "...", "portrait": "arrel_pain"}
     ],
-    "tobias_joins": [
-      {
-        "speaker": "Tobias",
-        "text": "Listen, I know I'm not a fighter. I can barely swing a pen without getting ink on my face.",
-        "portrait": "tobias_neutral",
-        "text_ko": "들어 보게, 나도 내가 싸움꾼이 아닌 건 아네. 얼굴에 잉크를 묻히지 않고는 펜도 못 휘두르는 사람이야."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "But I've spent twenty years recording memory transactions. I know the Bureau's classification system inside and out.",
-        "portrait": "tobias_neutral",
-        "text_ko": "하지만 이십 년을 기억 거래 기록에 바쳤네. 관리국의 분류 체계라면 속속들이 알아."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "If someone is tracking you as a Class Seven, you need someone who understands what that means.",
-        "portrait": "tobias_neutral",
-        "text_ko": "누군가 자네를 7급으로 추적하고 있다면, 그게 무엇을 의미하는지 아는 사람이 필요할 걸세."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "You want to come with us?",
-        "portrait": "arrel_neutral",
-        "text_ko": "같이 가겠다는 건가?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "I want to record what happens. That's what I do.",
-        "portrait": "tobias_neutral",
-        "text_ko": "무슨 일이 일어나는지 기록하고 싶네. 그게 내가 하는 일이니."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Can you keep up?",
-        "portrait": "elia_neutral",
-        "text_ko": "따라올 수는 있겠어요?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "I walked the Belt alone for three days to get here. I can keep up.",
-        "portrait": "tobias_neutral",
-        "text_ko": "여기까지 벨트를 사흘간 혼자 걸어왔네. 따라갈 수 있어."
-      },
-      {
-        "speaker": "",
-        "text": "Tobias packed his journals into a battered satchel and slung it over his shoulder.",
-        "text_ko": "토비아스는 낡은 가방에 일지들을 챙겨 넣고 어깨에 걸쳤다."
-      },
-      {
-        "speaker": "",
-        "text": "[Tobias has joined the party]",
-        "cg": "res://assets/cg/generated/story_ch3_tobias_joins.png",
-        "text_ko": "[토비아스 has joined the party]"
-      }
+    "class_seven_wall_message": [
+      {"speaker": "", "text": "At dawn, Arrel stepped outside and stopped. Yesterday, the outer wall had been blank.", "text_ko": "새벽, 밖으로 나온 아렐이 멈춰 섰다. 어제까지만 해도 바깥벽은 비어 있었다.", "cg": "res://assets/cg/generated/archive_ch3_kairos_marks_v1.png"},
+      {"speaker": "", "text": "Now a single line of Authority-standard script was embedded in the stone as if the wall itself had been edited.", "text_ko": "이제는 관리국 표준 서체의 한 문장이, 벽 자체가 편집된 것처럼 돌 속에 박혀 있었다."},
+      {"speaker": "", "text": "Subject demonstrates Class Seven combustion efficiency.", "text_ko": "대상은 7급 연소 효율을 시현함.", "cg": "res://assets/cg/generated/chapter_expansion/ch03_class_seven_wall_v1.png"},
+      {"speaker": "Arrel", "text": "It wasn't here yesterday.", "text_ko": "어제는 없었어.", "portrait": "arrel_pain"},
+      {"speaker": "", "text": "Elia read the sentence twice. Her jaw tightened. She did not ask who had written it.", "text_ko": "엘리아는 문장을 두 번 읽었다. 턱에 힘이 들어갔다. 누가 썼는지는 묻지 않았다."},
+      {"speaker": "Arrel", "text": "We need to move.", "text_ko": "움직여야 해.", "portrait": "arrel_neutral"}
     ],
     "belt_atmosphere": [
-      {
-        "speaker": "",
-        "text": "The Belt was once a major trade route connecting six settlements. Now it was a scar.",
-        "cg": "res://assets/cg/generated/story_ch3_dead_belt_road.png",
-        "text_ko": "벨트는 한때 여섯 정착지를 잇던 주요 교역로였다. 지금은 흉터였다."
-      },
-      {
-        "speaker": "",
-        "text": "Gray soil stretched in both directions. Nothing grew. The earth itself had been burned, not by fire, but by memory.",
-        "text_ko": "회색 흙이 양쪽으로 뻗어 있었다. 아무것도 자라지 않았다. 땅 자체가 타 버린 것이다, 불이 아니라, 기억에 의해."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Forty years ago, a Burner lost control here. Burned everything, including the land's memory of how to grow things.",
-        "portrait": "elia_neutral",
-        "text_ko": "사십 년 전, 여기서 한 연소자가 통제를 잃었어. 전부 태웠지, 작물을 기르는 법에 대한 땅의 기억까지."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "The land has memories?",
-        "portrait": "arrel_neutral",
-        "text_ko": "땅에도 기억이 있나?"
-      },
-      {
-        "speaker": "Elia",
-        "text": "Everything remembers. Soil remembers rain. Stone remembers pressure. When those memories burn, the world... forgets.",
-        "portrait": "elia_concern",
-        "text_ko": "모든 것이 기억해. 흙은 비를 기억하고. 돌은 압력을 기억하지. 그 기억들이 타면, 세계는... 잊는 거야."
-      }
-    ],
-    "tobias_records": [
-      {
-        "speaker": "Tobias",
-        "text": "Interesting. You burned a Grade 4 memory in combat and the residue rate was, let me check, approximately 60 percent retention.",
-        "portrait": "tobias_neutral",
-        "cg": "res://assets/cg/generated/story_ch3_tobias_battle_notes.png",
-        "text_ko": "흥미롭군. 전투에서 4등급 기억을 태웠는데 잔존율이, 잠깐 확인하지, 약 60퍼센트야."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "You were writing during the fight?",
-        "portrait": "arrel_neutral",
-        "text_ko": "싸우는 동안 기록하고 있었나?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Force of habit. The Bureau requires real-time documentation of all combustion events.",
-        "portrait": "tobias_neutral",
-        "text_ko": "습관의 힘일세. 관리국은 모든 연소 사건의 실시간 문서화를 요구하거든."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Your anchor's influence is remarkable, by the way. Most Burners retain less than 30 percent as residue.",
-        "portrait": "tobias_neutral",
-        "text_ko": "그건 그렇고, 자네 닻의 영향력은 놀랍군. 대부분의 연소자는 잔존율이 30퍼센트도 안 되는데."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Don't call me his anchor.",
-        "portrait": "elia_concern",
-        "text_ko": "저를 저 사람 닻이라고 부르지 마세요."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Apologies. Occupational terminology.",
-        "portrait": "tobias_neutral",
-        "text_ko": "미안하네. 직업병 같은 용어라서."
-      }
+      {"speaker": "", "text": "Grey trees stood around the waystation. Nothing moved beyond them.", "text_ko": "회색 나무들이 역참 주위에 서 있었다. 그 너머에서는 아무것도 움직이지 않았다."},
+      {"speaker": "Elia", "text": "This silence isn't empty. It's waiting.", "text_ko": "이 침묵은 비어 있는 게 아니야. 기다리고 있어.", "portrait": "elia_concern"}
     ],
     "waystation_departure": [
-      {
-        "speaker": "",
-        "text": "Arrel looked back at the waystation one last time. It sat alone on the Belt like a forgotten thought.",
-        "text_ko": "아렐은 마지막으로 역참을 돌아보았다. 그것은 잊힌 생각처럼 벨트 위에 홀로 앉아 있었다.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch03_three_on_belt_v1.png"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "The Crumbling Coast is two days north. There's a fishing village, or what's left of one, where we can resupply.",
-        "portrait": "tobias_neutral",
-        "text_ko": "무너지는 해안은 북쪽으로 이틀 거리야. 어촌이 하나 있네, 남은 것이 어촌이라면 말이지만, 거기서 보급할 수 있어."
-      },
-      {
-        "speaker": "Elia",
-        "text": "And whoever wrote on that wall?",
-        "portrait": "elia_concern",
-        "text_ko": "그리고 그 벽에 글을 쓴 자는요?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Will probably be following us. But I'd rather know that than not.",
-        "portrait": "tobias_neutral",
-        "text_ko": "아마 우리를 따라오고 있겠지. 하지만 모르는 것보단 아는 게 낫네."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Let's move.",
-        "portrait": "arrel_neutral",
-        "text_ko": "움직이자."
-      },
-      {
-        "speaker": "",
-        "text": "The three of them set out along the Belt, heading north toward the coast. The gray soil crunched underfoot.",
-        "cg": "res://assets/cg/generated/story_ch3_tobias_joins.png",
-        "text_ko": "세 사람은 벨트를 따라 북쪽 해안으로 출발했다. 회색 흙이 발밑에서 바스러졌다."
-      }
+      {"speaker": "", "text": "They packed in under a minute and left the waystation heading east.", "text_ko": "둘은 1분도 되지 않아 짐을 꾸리고 역참을 떠나 동쪽으로 향했다."},
+      {"speaker": "", "text": "Behind them, the seven words stayed on the wall like a scar that had always been there.", "text_ko": "뒤편 벽에는 일곱 단어가 마치 처음부터 그곳에 있던 흉터처럼 남았다."},
+      {"speaker": "Elia", "text": "Keep the map close. I'll read the markers.", "text_ko": "지도는 가까이 둬. 이정표는 내가 읽을게.", "portrait": "elia_neutral"}
     ]
-  },
-  "title_ko": "페이지 무게"
+  }
 }

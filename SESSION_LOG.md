@@ -2,6 +2,37 @@
 
 ---
 
+## S260 - 2026-08-23 (Season 1 Canon Migration Wave 1: Chapter 3~4)
+
+### 기준점 체크포인트
+- S258의 Sable/Vessa canon correction을 회귀 검증한 뒤 `2eb5d33 fix(story): align sable memory gameplay with season one canon`으로 로컬 커밋했다.
+- Season 1 Ch1~46 progression/memory mapping 문서를 `d3c9992 docs(story): map season one canon progression`으로 별도 로컬 커밋했다. 두 커밋 모두 push하지 않았다.
+
+### 실제 플레이 progression
+- Ch2 Verdan의 Malet 거래와 Memory World State를 그대로 보존하고, 기존 Verdan 출구가 Ch3 Belt Waystation으로 이어지는 route를 유지했다.
+- Ch3 첫 방문에서 조기 Tobias NPC/대화/합류/출구 의존을 제거했다. Arrel과 Elia는 빈 역참에서 Blank Book을 발견하고, 밤의 세 음과 신체 반응을 겪은 뒤 아침 벽의 Class Seven 문장을 확인하고 동쪽으로 떠난다.
+- 재사용 map shell의 기존 북쪽 출구를 원고의 실제 이동과 맞는 동쪽 출구로 열고 Ch3/Ch4 trigger, HUD objective, minimap target을 함께 이동했다.
+- Ch4에서는 지나간 Ash Rain의 잔여물, Arrel의 읽기 저하, Elia의 anchoring과 그 대가, 지워진 아침 식사 기억, watcher/loop animal, cave meal, Elia의 nosebleed를 최신 영문 Chapter 04 순서로 연결했다.
+- Ch4를 마치면 `canon_ch5_classifier_ready`를 기록하고 동일 SaveManager autosave 계약을 사용하지만, 아직 비정사인 legacy Crumbling Coast로 이동하지 않는다. 현재 chapter는 4에 머물며 Chapter 5 `The Classifier`가 다음 개발 경계임을 HUD/toast로 명시한다.
+
+### 호환과 자산 경계
+- legacy development save가 canonical Ch3/4 scene에 들어오면 `ch3_tobias_met`, `ch3_tobias_records`, `tobias_in_party`, `tobias_joined`, `ch4_classification`만 좁게 false로 정리하고 BattleManager의 조기 Tobias party 상태를 해제한다.
+- old Ch3/4 완료 save는 새 story sequence를 다시 재생하지 않고 Class Seven/Classifier boundary 상태로 수렴한다. save schema와 WorldState data는 변경하지 않았다.
+- Tobias portrait/sprite/CG 원본은 Ch23 재사용을 위해 보존했다. live Ch3/4 scene/dialogue와 chapter expansion manifest에서만 조기 연결을 제거했다.
+- 첫 canonical 방문의 Ch3/4 fixed combat, random encounter, ambient population, reward object와 Ch4 active rain/lightning을 비활성화했다. legacy revisit content 파일 자체는 삭제하지 않았다.
+- 새 이미지나 범용 infrastructure를 만들지 않았고, 기존 scene shell, DialogueManager, SceneFlow, SaveManager, MemoryManager, Memory World Engine을 재사용했다.
+
+### 자동 검증
+- 기존 `SmokeTestRunner`와 `SmokeSaveSandbox`를 사용하는 `smoke_canon_wave1`을 공식 Memory World Engine suite에 14번째 case로 추가했다.
+- smoke는 New Game → Ch1 VN → Ch2 arrival/실제 Verdan scene → Ch3 Belt → Ch4 Drift route와 실제 Verdan/Belt/Drift scene instantiate 및 `_ready()`, Tobias 미도달/legacy flag 정리, Malet WorldState 보존, 실제 Drift departure와 Ch5 boundary, sandbox save/reset/load, event replay 0을 검증한다.
+- 테스트 동안 MemoryManager, story flags의 비대상 영역, StoryLog/read registry, achievement persistent file, production save slot이 변하지 않는지 fingerprint와 snapshot으로 확인한다.
+- 첫 한국어 validation에서 Ch3/4 root `title_ko` 누락 2건이 실제로 실패했고, 두 title을 추가한 뒤 재실행해 0 errors로 통과시켰다.
+- 최종 Godot 4.6.2 headless import는 exit 0/fatal 0이다. 공식 suite는 `MEMORY_WORLD_ENGINE_SUITE_PASS cases=14 fatal_scan=enabled save_isolation=guarded export_catalog=verified`로 통과했다.
+- `CHAPTER_EXPANSION_SMOKE_PASS chapters=10 assets=50 placed=50`, `STORY_QOL_SMOKE_PASS log=300 read=554 speed_steps=3 props=6`, `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`을 확인했다.
+- VN validation 20 files/504 steps/0 errors/0 warnings, Korean localization 31 files/1,559 fields/19 speakers/0 errors, data JSON 44개 parse를 통과했다.
+- 기존 ShaderV duplicate UID 3건과 Godot 종료 시 ObjectDB/resource cleanup warning은 남아 있으나 새 parse/script/assert/invalid-call 오류는 없다.
+- Wave 1 구현 변경은 후속 검토를 위해 커밋하지 않고 working tree에 남겼다.
+
 ## S259 - 2026-08-23 (Season 1 canon progression rebuild plan)
 
 ### 실제 progression과 canon mapping

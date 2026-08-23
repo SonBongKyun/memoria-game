@@ -1,6 +1,6 @@
 ## Belt Waystation, 벨트 중간역 (Chapter 3: Weight of Pages)
-## 버려진 무역로 '벨트' 위의 관리국 중간역. 토비아스와의 만남 + 백서 획득.
-## 남쪽에서 시작 → 북쪽으로 진행하면 Drift Shelter로 이동.
+## 버려진 무역로 '벨트' 위의 빈 중간역. 아렐과 엘리아가 백서를 발견한다.
+## 남쪽에서 시작 → 역참을 조사한 뒤 동쪽으로 나가 Drift Shelter로 이동.
 extends Node2D
 
 const TILE_SIZE: int = 32
@@ -20,9 +20,9 @@ var map_data: Array = [
 	[3,0,0,0,0,0,1,1,1,1,1,1,4,1,1,1,1,1,0,0,0,0,0,0,3],
 	[3,0,0,0,0,0,1,0,0,0,0,0,4,0,0,0,0,1,0,0,0,0,0,0,3],
 	[3,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,3,5,5,5,5,5,5,3,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,3,5,5,5,5,5,5,3,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,0,0,0,3,5,5,5,5,5,5,3,0,0,0,0,0,0,0,0,3],
+	[3,0,0,0,0,0,0,0,3,5,5,5,5,5,5,3,0,0,0,0,0,0,0,0,4],
+	[3,0,0,0,0,0,0,0,3,5,5,5,5,5,5,3,0,0,0,0,0,0,0,0,4],
+	[3,0,0,0,0,0,0,0,3,5,5,5,5,5,5,3,0,0,0,0,0,0,0,0,4],
 	[3,0,0,0,0,0,0,0,3,3,3,4,4,3,3,3,0,0,0,0,0,0,0,0,3],
 	[3,0,0,0,0,0,1,1,1,1,1,4,4,1,1,1,1,1,0,0,0,0,0,0,3],
 	[3,0,0,2,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,2,0,0,0,3],
@@ -44,9 +44,9 @@ var _fog_layer: Array[ColorRect] = []  # S59
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
-@onready var tobias_npc: StaticBody2D = $Tobias
 
 func _ready() -> void:
+	_retire_legacy_tobias_progression()
 	_build_map()
 	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
 	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
@@ -70,23 +70,19 @@ func _ready() -> void:
 	MapEffects.add_drop_shadow(player)
 	# S59: 분위기 강화, 황무지 안개 + 깊이 그라디언트
 	_position_player()
-	_setup_battle_triggers()
+	if GameManager.get_flag("ch3_complete"):
+		_setup_battle_triggers()
 	_setup_exit_trigger()
-	_setup_interactive_objects()
+	if GameManager.get_flag("ch3_complete"):
+		_setup_interactive_objects()
 	_setup_exploration_events()
 	_setup_map_decorations()
 	_setup_random_encounters()
-	WorldPopulation.populate(self, "belt_waystation")
+	if GameManager.get_flag("ch3_complete"):
+		WorldPopulation.populate(self, "belt_waystation")
 	WorldAtlas.add_gateways(self, "belt_waystation")
 	AchievementManager.record_map_visit("belt_waystation")
-	elia.repeat_line = "This place... it's like the land itself forgot how to live."
-	tobias_npc.repeat_line = "Fascinating. Absolutely fascinating. Let me write that down."
-	# 토비아스는 만나기 전에는 숨김
-	if not GameManager.get_flag("ch3_tobias_met"):
-		tobias_npc.visible = false
-		tobias_npc.set_physics_process(false)
-	# S54: NPC Schedule, adjust tobias based on chapter
-	_apply_npc_schedules()
+	elia.repeat_line = "The pages still feel warm. Let me carry them."
 	print("[BeltWaystation] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
@@ -95,6 +91,12 @@ func _ready_sequence() -> void:
 		await MapEffects.show_chapter_title(self, 3, "The Belt", "Weight of Pages")
 		await get_tree().create_timer(0.3).timeout
 		_start_ch3_sequence()
+	elif not GameManager.get_flag("ch3_blank_book"):
+		_start_blank_book_sequence()
+	elif not GameManager.get_flag("ch3_waystation_night"):
+		_start_waystation_night_sequence()
+	elif not GameManager.get_flag("ch3_class_seven_message"):
+		_start_class_seven_message_sequence()
 
 func _process(delta: float) -> void:
 	effect_time += delta
@@ -121,61 +123,53 @@ func _start_ch3_sequence() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "waystation_arrival")
 
 func _on_arrival_ended() -> void:
-	# 웨이스테이션 도착 후 → 토비아스 만남
-	await get_tree().create_timer(1.5).timeout
-	if not GameManager.get_flag("ch3_tobias_met"):
-		GameManager.set_flag("ch3_tobias_met")
-		tobias_npc.visible = true
-		tobias_npc.set_physics_process(true)
-		DialogueManager.dialogue_ended.connect(_on_tobias_met, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(DIALOGUE_FILE, "tobias_encounter")
+	await get_tree().create_timer(1.0).timeout
+	_start_blank_book_sequence()
 
-func _on_tobias_met() -> void:
-	# 토비아스 만남 후 → 백서 발견
-	await get_tree().create_timer(2.0).timeout
-	if not GameManager.get_flag("ch3_blank_book"):
-		GameManager.set_flag("ch3_blank_book")
-		DialogueManager.dialogue_ended.connect(_on_blank_book_found, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(DIALOGUE_FILE, "blank_book_discovery")
+func _start_blank_book_sequence() -> void:
+	if GameManager.get_flag("ch3_blank_book"):
+		return
+	GameManager.set_flag("ch3_blank_book")
+	DialogueManager.dialogue_ended.connect(_on_blank_book_found, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "blank_book_discovery")
 
 func _on_blank_book_found() -> void:
-	# 백서 획득 → 카이로스 벽 낙서 발견
 	GameManager.set_flag("has_blank_book")
 	NotificationToast.show_toast("Obtained: Blank Book", NotificationToast.ToastType.SUCCESS)
-	await get_tree().create_timer(2.0).timeout
-	if not GameManager.get_flag("ch3_kairos_writing"):
-		GameManager.set_flag("ch3_kairos_writing")
-		DialogueManager.dialogue_ended.connect(_on_writing_found, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(DIALOGUE_FILE, "kairos_wall_writing")
+	await get_tree().create_timer(1.0).timeout
+	_start_waystation_night_sequence()
 
-func _on_writing_found() -> void:
-	# 낙서 발견 → 토비아스 합류
-	await get_tree().create_timer(1.5).timeout
-	DialogueManager.dialogue_ended.connect(_on_tobias_joined, CONNECT_ONE_SHOT)
-	DialogueManager.load_and_start(DIALOGUE_FILE, "tobias_joins")
+func _start_waystation_night_sequence() -> void:
+	if GameManager.get_flag("ch3_waystation_night"):
+		return
+	GameManager.set_flag("ch3_waystation_night")
+	DialogueManager.dialogue_ended.connect(_on_waystation_night_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "waystation_night")
 
-func _on_tobias_joined() -> void:
-	GameManager.set_flag("tobias_in_party")
-	GameManager.set_flag("tobias_joined", true)
-	NotificationToast.show_toast("Tobias joined the party", NotificationToast.ToastType.SUCCESS)
-	# 저널 등록
-	StoryJournal.add_event("tobias_joined", "Met Tobias Crane, a Bureau Recorder, at the Belt waystation. He carries twenty years of memory transaction records.")
-	StoryJournal.add_npc("tobias", "Tobias Crane, Bureau Recorder, Class C. Meticulous, curious, and surprisingly brave for a bureaucrat.")
+func _on_waystation_night_ended() -> void:
+	await get_tree().create_timer(1.0).timeout
+	_start_class_seven_message_sequence()
 
-## ===================== 출구 트리거 (북쪽 → Drift Shelter) =====================
+func _start_class_seven_message_sequence() -> void:
+	if GameManager.get_flag("ch3_class_seven_message"):
+		return
+	GameManager.set_flag("ch3_class_seven_message")
+	DialogueManager.load_and_start(DIALOGUE_FILE, "class_seven_wall_message")
+
+## ===================== 출구 트리거 (동쪽 → Drift Shelter) =====================
 
 func _setup_exit_trigger() -> void:
 	var area = Area2D.new()
-	area.position = Vector2(12 * TILE_SIZE, 1.5 * TILE_SIZE)
+	area.position = Vector2(23.5 * TILE_SIZE, 9 * TILE_SIZE)
 	area.collision_layer = 0
 	area.collision_mask = 2
 	var shape = CollisionShape2D.new()
 	var rect = RectangleShape2D.new()
-	rect.size = Vector2(TILE_SIZE * 3, TILE_SIZE)
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE * 3)
 	shape.shape = rect
 	area.add_child(shape)
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.get_flag("tobias_in_party") and not GameManager.get_flag("ch3_complete"):
+		if body.name == "Player" and GameManager.get_flag("ch3_class_seven_message") and not GameManager.get_flag("ch3_complete"):
 			_depart_waystation()
 	)
 	add_child(area)
@@ -332,9 +326,8 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 
 func _setup_exploration_events() -> void:
 	_add_story_trigger(Vector2(3 * TILE_SIZE, 12 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "belt_atmosphere", "ch3_belt_walk")
-	_add_story_trigger(Vector2(19 * TILE_SIZE, 13 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "tobias_records", "ch3_tobias_records")
-	# S51: 기억 공명 지점
-	MemoryResonance.setup_points(self, "belt_waystation")
+	if GameManager.get_flag("ch3_complete"):
+		MemoryResonance.setup_points(self, "belt_waystation")
 
 func _add_story_trigger(pos: Vector2, size: Vector2, dialogue_key: String, flag_name: String) -> void:
 	if GameManager.get_flag(flag_name):
@@ -374,17 +367,19 @@ func _setup_map_decorations() -> void:
 		crack.color = Color(0.1, 0.08, 0.07, 0.3)
 		crack.z_index = -1
 		add_child(crack)
-	# S55: 중간역 배경 NPC (여행자/관리국 요원)
-	var ambient_npcs = [
-		{"pos": Vector2(8, 6), "preset": "traveler"},
-		{"pos": Vector2(14, 8), "preset": "bureau_agent"},
-		{"pos": Vector2(18, 5), "preset": "guard"},
-	]
-	for npc_data in ambient_npcs:
-		var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
-		npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-		npc_sprite.z_index = 1
-		add_child(npc_sprite)
+	# The first canonical visit is abandoned. Revisit ambience stays available
+	# only after Chapter 3 has been completed.
+	if GameManager.get_flag("ch3_complete"):
+		var ambient_npcs = [
+			{"pos": Vector2(8, 6), "preset": "traveler"},
+			{"pos": Vector2(14, 8), "preset": "bureau_agent"},
+			{"pos": Vector2(18, 5), "preset": "guard"},
+		]
+		for npc_data in ambient_npcs:
+			var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
+			npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+			npc_sprite.z_index = 1
+			add_child(npc_sprite)
 
 	# 먼지 파티클
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.4, 0.38, 0.35, 0.15), 15)
@@ -416,23 +411,17 @@ func _position_player() -> void:
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
 
-## S54: NPC Schedule System, adjust tobias based on current chapter
-func _apply_npc_schedules() -> void:
-	var ch = GameManager.current_chapter
-	var tobias_sched = GameManager.get_npc_schedule("tobias", ch)
-	if not tobias_sched.is_empty():
-		var is_vis: bool = tobias_sched.get("visible", true)
-		# Ch4-6: tobias is traveling with party, not at waystation
-		if not is_vis and GameManager.get_flag("ch3_tobias_met"):
-			tobias_npc.visible = false
-			tobias_npc.set_physics_process(false)
-		elif is_vis and GameManager.get_flag("ch3_tobias_met"):
-			tobias_npc.visible = true
-			tobias_npc.set_physics_process(true)
-			var tile_pos: Vector2 = tobias_sched.get("pos", Vector2(11, 9))
-			tobias_npc.position = Vector2(tile_pos.x * TILE_SIZE, tile_pos.y * TILE_SIZE)
-		# Update repeat line based on chapter
-		if ch >= 7:
-			tobias_npc.repeat_line = "I've been cross-referencing the Bureau records. The patterns are... troubling."
-		elif ch >= 4:
-			tobias_npc.repeat_line = ""  # not visible anyway
+## Compatibility for development saves created by the retired ten-chapter route.
+## This touches only legacy story/party flags when the save enters canonical Ch3.
+func _retire_legacy_tobias_progression() -> void:
+	for flag_name in ["ch3_tobias_met", "ch3_tobias_records", "tobias_in_party", "tobias_joined"]:
+		if GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name, false)
+	BattleManager.tobias_in_party = false
+	if GameManager.get_flag("ch3_kairos_writing") and not GameManager.get_flag("ch3_class_seven_message"):
+		GameManager.set_flag("ch3_class_seven_message")
+	if GameManager.get_flag("ch3_complete"):
+		if not GameManager.get_flag("ch3_waystation_night"):
+			GameManager.set_flag("ch3_waystation_night")
+		if not GameManager.get_flag("ch3_class_seven_message"):
+			GameManager.set_flag("ch3_class_seven_message")

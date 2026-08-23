@@ -1,6 +1,6 @@
 ## Drift Shelter, 드리프트 쉘터 (Chapter 4: Drift)
 ## 무너진 고가 아래 임시 야영지. 아렐의 읽기 능력 저하 + 엘리아의 앵커링 세션.
-## 북쪽으로 나가면 크럼블링 코스트로 이동.
+## Canon migration Wave 1 ends here, immediately before Chapter 5: The Classifier.
 extends Node2D
 
 const TILE_SIZE: int = 32
@@ -20,9 +20,9 @@ var map_data: Array = [
 	[3,0,0,0,0,0,2,2,2,2,4,2,2,2,2,0,0,0,0,0,0,0,0,0,3],
 	[3,0,0,0,0,2,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0,0,3],
 	[3,0,0,0,0,2,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,2,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0,0,3],
-	[3,0,0,0,0,2,5,5,5,5,5,5,5,5,5,2,0,0,0,1,0,0,0,0,3],
-	[3,0,0,0,0,0,2,2,4,4,4,4,2,2,0,0,0,0,1,1,0,0,0,0,3],
+	[3,0,0,0,0,2,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0,0,4],
+	[3,0,0,0,0,2,5,5,5,5,5,5,5,5,5,2,0,0,0,1,0,0,0,0,4],
+	[3,0,0,0,0,0,2,2,4,4,4,4,2,2,0,0,0,0,1,1,0,0,0,0,4],
 	[3,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
 	[3,0,0,1,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,1,0,0,3],
 	[3,0,1,1,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,1,1,0,0,3],
@@ -39,13 +39,13 @@ var effect_time: float = 0.0
 var _occluders: Array[LightOccluder2D] = []  # S52
 var _s52_particles: Array[ColorRect] = []  # S52
 var _camera: Camera2D = null  # S52
-var _lightning: ColorRect = null  # S53: 번개
 var _fog_layer: Array[ColorRect] = []  # S59
 
 @onready var player: CharacterBody2D = $Player
 @onready var elia: CharacterBody2D = $Elia
 
 func _ready() -> void:
+	_retire_legacy_tobias_progression()
 	_build_map()
 	# S236: 대기 예산. 이 장소가 어떤 곳인지만 선언하고,
 	# 여섯 겹 오버레이의 배분은 MapEffects.apply_atmosphere가 정한다.
@@ -63,32 +63,40 @@ func _ready() -> void:
 	MapEffects.add_burn_desaturation(self)
 	MapEffects.add_parallax_background(self, {"sky": Color(0.14, 0.13, 0.15), "far": Color(0.16, 0.15, 0.17), "mid": Color(0.18, 0.16, 0.15), "biome": "wasteland", "width": MAP_WIDTH * TILE_SIZE, "height": MAP_HEIGHT * TILE_SIZE})
 	# S236: 주변광은 대기 예산이 소유한다 (apply_atmosphere).
-	# 재비 (메모리 레인)
-	MapEffects.add_rain(self, 0.5, Color(0.4, 0.38, 0.42, 0.2))
-	_lightning = MapEffects.add_lightning(self)  # S53: 번개
 	# S52: 그래픽 업그레이드
 	_camera = MapEffects.setup_smooth_camera(player, 1.0, 0.3)
 	MapEffects.add_drop_shadow(player)
 	# S59: 비에 젖은 안개 + 깊이 그라디언트
 	_position_player()
-	_setup_battle_triggers()
+	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+		_setup_battle_triggers()
 	_setup_exit_trigger()
-	_setup_interactive_objects()
-	_setup_exploration_events()
+	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+		_setup_interactive_objects()
+		_setup_exploration_events()
 	_setup_map_decorations()
-	_setup_random_encounters()
-	WorldPopulation.populate(self, "drift_shelter")
-	WorldAtlas.add_gateways(self, "drift_shelter")
+	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+		_setup_random_encounters()
+		WorldPopulation.populate(self, "drift_shelter")
+		WorldAtlas.add_gateways(self, "drift_shelter")
 	AchievementManager.record_map_visit("drift_shelter")
 	elia.repeat_line = "Rest. Please."
 	print("[DriftShelter] Map loaded, %dx%d tiles" % [MAP_WIDTH, MAP_HEIGHT])
 	_ready_sequence()
 
 func _ready_sequence() -> void:
+	if GameManager.get_flag("canon_ch5_classifier_ready"):
+		return
 	if not GameManager.get_flag("ch4_arrived"):
 		await MapEffects.show_chapter_title(self, 4, "Drift", "The architecture crumbles")
 		await get_tree().create_timer(0.3).timeout
 		_start_ch4_sequence()
+	elif not GameManager.get_flag("ch4_reading_loss"):
+		_start_reading_loss_sequence()
+	elif not GameManager.get_flag("ch4_anchoring"):
+		_start_anchoring_sequence()
+	elif not GameManager.get_flag("ch4_night_watch"):
+		_start_night_watch_sequence()
 
 func _process(delta: float) -> void:
 	effect_time += delta
@@ -96,7 +104,6 @@ func _process(delta: float) -> void:
 	var elia_pos = elia.position if elia else Vector2.ZERO
 	Minimap.update_minimap(_minimap_data, player.position, TILE_SIZE, elia_pos, elia_vis)
 	MapEffects.update_camera_shake(_camera, effect_time)
-	MapEffects.update_lightning(_lightning, delta)  # S53: 번개
 	# S59: 안개 + 트리거 글로우
 	MapEffects.update_fog_layer(_fog_layer, effect_time)
 	MapEffects.update_trigger_approach_glow(self, player.position, effect_time)
@@ -115,40 +122,52 @@ func _start_ch4_sequence() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "drift_arrival")
 
 func _on_arrival_ended() -> void:
-	# 도착 후 → 읽기 능력 저하 대화
-	await get_tree().create_timer(2.0).timeout
-	if not GameManager.get_flag("ch4_reading_loss"):
-		GameManager.set_flag("ch4_reading_loss")
-		DialogueManager.dialogue_ended.connect(_on_deterioration_ended, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(DIALOGUE_FILE, "reading_deterioration")
+	await get_tree().create_timer(1.0).timeout
+	_start_reading_loss_sequence()
+
+func _start_reading_loss_sequence() -> void:
+	if GameManager.get_flag("ch4_reading_loss"):
+		return
+	GameManager.set_flag("ch4_reading_loss")
+	DialogueManager.dialogue_ended.connect(_on_deterioration_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "reading_deterioration")
 
 func _on_deterioration_ended() -> void:
-	# 읽기 저하 → 앵커링 세션
-	await get_tree().create_timer(2.0).timeout
-	if not GameManager.get_flag("ch4_anchoring"):
-		GameManager.set_flag("ch4_anchoring")
-		DialogueManager.dialogue_ended.connect(_on_anchoring_ended, CONNECT_ONE_SHOT)
-		DialogueManager.load_and_start(DIALOGUE_FILE, "anchoring_session")
+	await get_tree().create_timer(1.0).timeout
+	_start_anchoring_sequence()
+
+func _start_anchoring_sequence() -> void:
+	if GameManager.get_flag("ch4_anchoring"):
+		return
+	GameManager.set_flag("ch4_anchoring")
+	DialogueManager.dialogue_ended.connect(_on_anchoring_ended, CONNECT_ONE_SHOT)
+	DialogueManager.load_and_start(DIALOGUE_FILE, "anchoring_session")
 
 func _on_anchoring_ended() -> void:
 	StoryJournal.add_event("anchoring_session", "Elia performed an anchoring session, stabilizing Arrel's memory architecture with small, unforgettable sensations.")
-	# 앵커링 후 → 자유 탐색
-	print("[DriftShelter] Anchoring complete, free exploration enabled")
+	await get_tree().create_timer(1.0).timeout
+	_start_night_watch_sequence()
 
-## ===================== 출구 트리거 (북쪽 → Crumbling Coast) =====================
+func _start_night_watch_sequence() -> void:
+	if GameManager.get_flag("ch4_night_watch"):
+		return
+	GameManager.set_flag("ch4_night_watch")
+	DialogueManager.load_and_start(DIALOGUE_FILE, "night_watch")
+
+## ===================== 출구 트리거 (Chapter 5 migration boundary) =====================
 
 func _setup_exit_trigger() -> void:
 	var area = Area2D.new()
-	area.position = Vector2(10 * TILE_SIZE, 1.5 * TILE_SIZE)
+	area.position = Vector2(23.5 * TILE_SIZE, 9 * TILE_SIZE)
 	area.collision_layer = 0
 	area.collision_mask = 2
 	var shape = CollisionShape2D.new()
 	var rect = RectangleShape2D.new()
-	rect.size = Vector2(TILE_SIZE * 4, TILE_SIZE)
+	rect.size = Vector2(TILE_SIZE, TILE_SIZE * 3)
 	shape.shape = rect
 	area.add_child(shape)
 	area.body_entered.connect(func(body):
-		if body.name == "Player" and GameManager.get_flag("ch4_anchoring") and not GameManager.get_flag("ch4_complete"):
+		if body.name == "Player" and GameManager.get_flag("ch4_night_watch") and not GameManager.get_flag("ch4_complete"):
 			_depart_shelter()
 	)
 	add_child(area)
@@ -160,12 +179,14 @@ func _depart_shelter() -> void:
 	DialogueManager.load_and_start(DIALOGUE_FILE, "drift_departure")
 
 func _on_departure_ended() -> void:
-	GameManager.current_chapter = 5
+	GameManager.current_chapter = 4
+	GameManager.set_flag("canon_ch5_classifier_ready")
 	SaveManager.autosave_on_chapter_transition()
-	print("[DriftShelter] Chapter 4 complete, heading to Crumbling Coast")
-	await get_tree().create_timer(1.5).timeout
-	# S58: Chapter completion screen with stats summary
-	SceneTransition.change_scene_chapter_complete("res://scenes/maps/crumbling_coast.tscn", 4)
+	var boundary_text := "Season 1 migration boundary reached. Chapter 5: The Classifier is next."
+	if GameManager.current_locale == "ko":
+		boundary_text = "시즌 1 마이그레이션 경계에 도달했습니다. 다음은 5장: 분류자입니다."
+	NotificationToast.show_toast(boundary_text, NotificationToast.ToastType.INFO)
+	print("[DriftShelter] Canon Wave 1 complete; Chapter 5: The Classifier is not live yet")
 
 ## ===================== 전투 트리거 =====================
 
@@ -304,10 +325,6 @@ func _add_clue(pos: Vector2, flag_name: String, clue_text: String) -> void:
 ## ===================== 탐색 이벤트 =====================
 
 func _setup_exploration_events() -> void:
-	_add_story_trigger(Vector2(8 * TILE_SIZE, 8 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "tobias_explains_classification", "ch4_classification")
-	_add_story_trigger(Vector2(13 * TILE_SIZE, 7 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "night_conversation", "ch4_night_talk")
-	# 플래시백: 아렐의 집 기억
-	_add_story_trigger(Vector2(5 * TILE_SIZE, 5 * TILE_SIZE), Vector2(TILE_SIZE * 2, TILE_SIZE * 2), "arrel_flashback_home", "ch4_flashback_home")
 	# S51: 기억 공명 지점
 	MemoryResonance.setup_points(self, "drift_shelter")
 
@@ -357,17 +374,17 @@ func _setup_map_decorations() -> void:
 		rubble.color = Color(0.2, 0.18, 0.16, 0.25)
 		rubble.z_index = -1
 		add_child(rubble)
-	# S55: 피난처 배경 NPC (마을주민/학자)
-	var ambient_npcs = [
-		{"pos": Vector2(8, 7), "preset": "villager_f"},
-		{"pos": Vector2(13, 6), "preset": "scholar"},
-		{"pos": Vector2(16, 9), "preset": "villager_m"},
-	]
-	for npc_data in ambient_npcs:
-		var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
-		npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
-		npc_sprite.z_index = 1
-		add_child(npc_sprite)
+	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+		var ambient_npcs = [
+			{"pos": Vector2(8, 7), "preset": "villager_f"},
+			{"pos": Vector2(13, 6), "preset": "scholar"},
+			{"pos": Vector2(16, 9), "preset": "villager_m"},
+		]
+		for npc_data in ambient_npcs:
+			var npc_sprite = PixelSprite.create_npc_sprite(npc_data["preset"])
+			npc_sprite.position = npc_data["pos"] * TILE_SIZE + Vector2(TILE_SIZE / 2.0, TILE_SIZE / 2.0)
+			npc_sprite.z_index = 1
+			add_child(npc_sprite)
 
 	# 재비 파티클
 	MapEffects.add_void_particles(self, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, Color(0.35, 0.33, 0.38, 0.12), 20)
@@ -398,3 +415,13 @@ func _position_player() -> void:
 		player.position = Vector2(SaveManager.loaded_player_pos.x, SaveManager.loaded_player_pos.y)
 		elia.position = player.position + Vector2(-30, 20)
 		SaveManager.loaded_player_pos = {}
+
+## Compatibility for development saves created by the retired ten-chapter route.
+func _retire_legacy_tobias_progression() -> void:
+	for flag_name in ["ch3_tobias_met", "ch3_tobias_records", "tobias_in_party", "tobias_joined", "ch4_classification"]:
+		if GameManager.get_flag(flag_name):
+			GameManager.set_flag(flag_name, false)
+	BattleManager.tobias_in_party = false
+	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+		GameManager.set_flag("canon_ch5_classifier_ready")
+		GameManager.current_chapter = 4

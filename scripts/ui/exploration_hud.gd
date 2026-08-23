@@ -953,9 +953,12 @@ func _update_quest_tracker() -> void:
 				if not GameManager.get_flag("ch2_malet_done"):
 					active_quest = "시장에서 말렛 만나기" if GameManager.current_locale == "ko" else "Meet Malet at the market"
 			3:
-				active_quest = ("북쪽 출구로 이동하기" if GameManager.get_flag("tobias_in_party") else "토비아스와 대화하기") if GameManager.current_locale == "ko" else ("Take the north exit" if GameManager.get_flag("tobias_in_party") else "Speak with Tobias")
+				active_quest = ("동쪽 출구로 이동하기" if GameManager.get_flag("ch3_class_seven_message") else "빈 역참 조사하기") if GameManager.current_locale == "ko" else ("Take the east exit" if GameManager.get_flag("ch3_class_seven_message") else "Search the abandoned waystation")
 			4:
-				active_quest = ("북쪽 출구로 이동하기" if GameManager.get_flag("ch4_anchoring") else "피난처의 기록 조사하기") if GameManager.current_locale == "ko" else ("Take the north exit" if GameManager.get_flag("ch4_anchoring") else "Investigate the shelter records")
+				if GameManager.get_flag("canon_ch5_classifier_ready"):
+					active_quest = "정식 5장 구현 대기: 분류자" if GameManager.current_locale == "ko" else "Canon boundary: Chapter 5, The Classifier"
+				else:
+					active_quest = ("동쪽 경계에서 4장 마무리하기" if GameManager.get_flag("ch4_night_watch") else "엘리아와 드리프트 안정시키기") if GameManager.current_locale == "ko" else ("Conclude Chapter 4 at the east edge" if GameManager.get_flag("ch4_night_watch") else "Stabilize the drift with Elia")
 			5:
 				active_quest = "북쪽 균열에서 심에 도달하기" if GameManager.current_locale == "ko" else "Reach the Seam through the northern fracture"
 			6:

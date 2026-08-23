@@ -14,5 +14,5 @@ position = Vector2(384, 512)
 position = Vector2(354, 532)
 npc_name = "Elia"
 dialogue_file = "res://data/chapter4_dialogue.json"
-dialogue_key = "night_conversation"
+dialogue_key = "night_watch"
 npc_color = Color(0.45, 0.55, 0.65, 1.0)

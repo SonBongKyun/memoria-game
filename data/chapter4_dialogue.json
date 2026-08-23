@@ -1,438 +1,54 @@
 {
   "chapter": 4,
   "title": "Drift",
+  "title_ko": "표류",
   "dialogues": {
     "drift_arrival": [
-      {
-        "speaker": "",
-        "text": "They found shelter in a collapsed overpass, a bridge that once spanned a river long since dried.",
-        "cg": "res://assets/cg/generated/story_ch4_ash_rain_shelter.png",
-        "text_ko": "무너진 고가도로 아래에서 그들은 몸을 피할 곳을 찾았다, 마른 지 오래인 강 위에 한때 걸쳐 있던 다리였다."
-      },
-      {
-        "speaker": "",
-        "text": "Rain began to fall. Not water. Ash-colored drops that left gray streaks on skin.",
-        "text_ko": "비가 내리기 시작했다. 물이 아니었다. 피부에 회색 자국을 남기는, 재의 빛깔을 띤 방울들.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch04_memory_rain_shelter_v1.png"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Memory rain. Residue from a combustion event somewhere upwind. Harmless, but unpleasant.",
-        "portrait": "tobias_neutral",
-        "text_ko": "기억의 비일세. 바람 위쪽 어딘가의 연소에서 나온 잔여물이지. 무해하네만, 불쾌하지."
-      },
-      {
-        "speaker": "Elia",
-        "text": "We should rest here. Arrel, you've been walking unevenly for the last hour.",
-        "portrait": "elia_concern",
-        "text_ko": "여기서 쉬어야겠어. 아렐, 너 한 시간째 걸음이 고르지 않아."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "I'm fine.",
-        "portrait": "arrel_neutral",
-        "text_ko": "괜찮아."
-      },
-      {
-        "speaker": "Elia",
-        "text": "You're not fine. You forgot the name of the waystation ten minutes after we left it.",
-        "portrait": "elia_concern",
-        "text_ko": "안 괜찮아. 역참 떠나고 십 분 만에 그 이름을 잊었잖아."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "...did I?",
-        "portrait": "arrel_pain",
-        "text_ko": "...그랬나?"
-      }
+      {"speaker": "", "text": "The trail markers had words on them. Elia read each one aloud as they passed.", "text_ko": "이정표에는 글자가 적혀 있었다. 엘리아는 지나칠 때마다 하나씩 소리 내어 읽었다.", "cg": "res://assets/cg/generated/chapter_splash_drift_shelter.png"},
+      {"speaker": "Elia", "text": "South toward the Rim border. Fourteen kilometers to the next waypoint.", "text_ko": "남쪽은 림 경계. 다음 경유지까지 14킬로미터.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Arrel saw every letter, but they refused to connect. The part where shapes became a word was broken.", "text_ko": "아렐은 모든 글자를 보았지만 서로 이어지지 않았다. 형상이 단어가 되는 부분이 망가져 있었다."},
+      {"speaker": "", "text": "A recent Ash Rain had left a fine grey film over the Belt's edge. The rain itself was gone; grit remained on his tongue.", "text_ko": "최근 지나간 재비가 벨트 가장자리에 얇은 회색 막을 남겼다. 비는 이미 그쳤고, 혀 위에는 모래만 남았다."},
+      {"speaker": "Elia", "text": "Arrel. What does that marker say?", "text_ko": "아렐. 저 이정표에 뭐라고 쓰여 있어?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "The letters aren't holding.", "text_ko": "글자가 붙어 있지 않아.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "We're stopping.", "text_ko": "멈출 거야.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "She led him to a hollow screened by the collapsed wall of an old shepherd's shelter.", "text_ko": "그녀는 무너진 옛 목동 쉼터의 벽이 가려 주는 바위 웅덩이로 그를 이끌었다."}
     ],
     "reading_deterioration": [
-      {
-        "speaker": "",
-        "text": "Arrel opened the Blank Book. The letters on the first page swam and blurred.",
-        "cg": "res://assets/cg/generated/archive_ch4_reading_loss_v1.png",
-        "text_ko": "아렐이 빈 책을 펼쳤다. 첫 페이지의 글자들이 헤엄치듯 번져 흐려졌다."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "The words are moving.",
-        "portrait": "arrel_pain",
-        "text_ko": "글자가 움직여.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch04_words_move_v1.png"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Let me see.",
-        "portrait": "tobias_neutral",
-        "text_ko": "어디 보세."
-      },
-      {
-        "speaker": "",
-        "text": "Tobias took the book, examined it, then handed it back.",
-        "text_ko": "토비아스가 책을 받아 살펴보고는, 도로 건네주었다."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "The words aren't moving. Your ability to read them is... deteriorating.",
-        "portrait": "tobias_neutral",
-        "text_ko": "글자는 움직이지 않네. 자네의 읽는 능력이... 저하되고 있는 거야."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "It's a known side effect of high-efficiency combustion. The brain prioritizes combat processing over literacy functions.",
-        "portrait": "tobias_neutral",
-        "text_ko": "고효율 연소의 알려진 부작용일세. 뇌가 읽고 쓰기보다 전투 처리를 우선하는 거지."
-      },
-      {
-        "speaker": "Elia",
-        "text": "He's losing the ability to read?",
-        "portrait": "elia_concern",
-        "text_ko": "읽는 능력을 잃고 있다고요?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Temporarily. Probably. The Bureau documentation says 'temporary' but I've seen the footnotes.",
-        "portrait": "tobias_neutral",
-        "text_ko": "일시적으로. 아마도. 관리국 문서엔 '일시적'이라 적혀 있네만, 나는 각주를 봤거든."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "What do the footnotes say?",
-        "portrait": "arrel_pain",
-        "text_ko": "각주엔 뭐라고 적혀 있지?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "'Duration varies. Recovery not guaranteed.'",
-        "portrait": "tobias_neutral",
-        "text_ko": "'지속 기간은 상이함. 회복은 보장되지 않음.'"
-      }
+      {"speaker": "Arrel", "text": "V. E. R. I know the shapes. They won't become a word.", "text_ko": "V. E. R. 모양은 알아. 그런데 단어가 되지 않아.", "portrait": "arrel_pain", "cg": "res://assets/cg/generated/chapter_expansion/ch04_words_move_v1.png"},
+      {"speaker": "Elia", "text": "Since when?", "text_ko": "언제부터였어?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "A couple of days. Maybe longer. It wasn't urgent.", "text_ko": "이틀쯤. 어쩌면 더 오래. 급한 일은 아니었어.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Your mind eating itself is urgent. Sit down. Give me your hands.", "text_ko": "네 정신이 스스로를 먹어 치우는 건 급한 일이야. 앉아. 손 줘.", "portrait": "elia_concern"}
     ],
     "anchoring_session": [
-      {
-        "speaker": "Elia",
-        "text": "Arrel. Sit down. Give me your hands.",
-        "portrait": "elia_neutral",
-        "cg": "res://assets/cg/generated/story_ch4_night_counting_losses.png",
-        "text_ko": "아렐. 앉아. 손 이리 줘."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "What are you...",
-        "portrait": "arrel_neutral",
-        "text_ko": "뭘 하려는..."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Just sit.",
-        "portrait": "elia_concern",
-        "text_ko": "그냥 앉아.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch04_anchor_tea_thread_v1.png"
-      },
-      {
-        "speaker": "",
-        "text": "She took his hands, palms up. Her fingers were warm against his wrists.",
-        "text_ko": "그녀는 그의 손을 잡고 손바닥을 위로 올렸다. 그의 손목에 닿는 그녀의 손가락은 따뜻했다."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Close your eyes. Tell me something you remember. Not a big memory, something small.",
-        "portrait": "elia_neutral",
-        "text_ko": "눈 감아. 기억나는 걸 하나 말해 줘. 큰 기억 말고, 작은 걸로."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "...I remember the smell of bread. From a shop I passed once. The door was open and the heat came out like a wall.",
-        "portrait": "arrel_neutral",
-        "text_ko": "...빵 냄새가 기억나. 한 번 지나쳤던 가게. 문이 열려 있었고, 열기가 벽처럼 흘러나왔어."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Good. Hold that. Feel the heat.",
-        "portrait": "elia_neutral",
-        "text_ko": "좋아. 붙들고 있어. 그 열기를 느껴."
-      },
-      {
-        "speaker": "",
-        "text": "Something shifted. Like a loose page being pressed back into its binding.",
-        "cg": "res://assets/cg/generated/story_ch4_anchor_binding.png",
-        "text_ko": "무언가 제자리를 찾았다. 헐거워진 페이지가 장정 속으로 다시 눌려 들어가듯."
-      },
-      {
-        "speaker": "Elia",
-        "text": "That's an anchor point. A memory too small to burn, too real to forget. I'm tying it to the architecture.",
-        "portrait": "elia_neutral",
-        "text_ko": "그게 앵커 포인트야. 태우기엔 너무 작고, 잊기엔 너무 생생한 기억. 그걸 네 구조에 묶는 거야."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Remarkable. I've read about anchoring but never seen it performed. May I take notes?",
-        "portrait": "tobias_neutral",
-        "text_ko": "놀랍군. 앵커링은 글로만 읽었지 실제로 보는 건 처음일세. 기록해도 되겠나?"
-      },
-      {
-        "speaker": "Elia",
-        "text": "Quietly.",
-        "portrait": "elia_concern",
-        "text_ko": "조용히요."
-      },
-      {
-        "speaker": "",
-        "text": "The world steadied. The letters in the Blank Book stopped swimming. For now.",
-        "text_ko": "세계가 안정되었다. 빈 책의 글자들이 헤엄치기를 멈췄다. 당분간은."
-      }
+      {"speaker": "", "text": "Arrel placed his palms on hers. Elia's fingers were cold. Her ability always pulled warmth inward.", "text_ko": "아렐은 그녀의 손바닥 위에 손을 얹었다. 엘리아의 손가락은 차가웠다. 그녀의 능력은 언제나 온기를 안으로 끌어당겼다.", "cg": "res://assets/cg/generated/chapter_expansion/ch04_anchor_tea_thread_v1.png"},
+      {"speaker": "Elia", "text": "Close your eyes.", "text_ko": "눈 감아.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Her thumbs pressed hard into his palms. The constant hum of deterioration went quiet, as if someone had put a hand on a cracked wall and said: not yet.", "text_ko": "그녀의 엄지손가락이 그의 손바닥을 세게 눌렀다. 끊임없던 붕괴의 웅웅거림이 잦아들었다. 누군가 금 간 벽에 손을 대고 '아직은 안 돼'라고 말한 것처럼."},
+      {"speaker": "Elia", "text": "Stay with me. What's your name?", "text_ko": "여기 있어. 네 이름은?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Arrel.", "text_ko": "아렐.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "Where are we?", "text_ko": "여긴 어디지?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "The Belt's edge. East of the waystation. Heading south for the Rim.", "text_ko": "벨트 가장자리. 역참 동쪽. 림을 향해 남쪽으로 가는 중.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "What did you have for breakfast?", "text_ko": "아침으로 뭘 먹었어?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I ate. I don't remember what.", "text_ko": "먹기는 했어. 뭘 먹었는지는 기억 안 나.", "portrait": "arrel_pain"},
+      {"speaker": "Elia", "text": "The reading should return. I patched the bridge between symbol processing and language recall. The breakfast was adjacent. It tore away.", "text_ko": "읽기는 돌아올 거야. 기호 처리와 언어 회상 사이의 다리를 덧댔어. 아침 기억은 바로 옆에 있었고, 찢겨 나갔어.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "How long will the patch hold?", "text_ko": "그 덧댄 건 얼마나 버티지?", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Depends on how often you burn.", "text_ko": "네가 얼마나 자주 태우느냐에 달렸어.", "portrait": "elia_concern"},
+      {"speaker": "", "text": "Arrel read the faded Authority warning on the fallen wall. The words assembled themselves. For now.", "text_ko": "아렐은 무너진 벽의 빛바랜 관리국 경고문을 읽었다. 단어들이 서로 맞물렸다. 지금은.", "cg": "res://assets/cg/generated/archive_drift_anchoring_v1.png"}
     ],
-    "tobias_explains_classification": [
-      {
-        "speaker": "Tobias",
-        "text": "Since we have time, let me explain the classification system.",
-        "portrait": "tobias_neutral",
-        "cg": "res://assets/cg/generated/story_ch4_burner_classification.png",
-        "text_ko": "시간도 있으니, 분류 체계를 설명해 주지."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "The Bureau ranks Burners from Class One to Class Seven. Most never exceed Class Three.",
-        "portrait": "tobias_neutral",
-        "text_ko": "관리국은 연소자를 1급에서 7급까지 나누네. 대부분은 3급을 넘지 못하지.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch04_burner_classification_v1.png"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Class One: involuntary micro-burns. Forgetting where you put your keys. Everyone does it.",
-        "portrait": "tobias_neutral",
-        "text_ko": "1급: 비자발적 미세 연소. 열쇠를 어디 뒀는지 잊는 것. 누구나 하는 일이야."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Class Three: directed combustion. You choose what to burn. Most licensed Burners operate here.",
-        "portrait": "tobias_neutral",
-        "text_ko": "3급: 지향성 연소. 무엇을 태울지 스스로 고르지. 허가받은 연소자 대부분이 여기서 일하네."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Class Five: cascade capability. You can burn multiple memories in sequence. The power scales exponentially.",
-        "portrait": "tobias_neutral",
-        "text_ko": "5급: 연쇄 능력. 여러 기억을 연속으로 태울 수 있어. 위력은 기하급수적으로 커지고."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Class Seven: total architecture access. You can burn memories you don't even know you have. The substructure opens.",
-        "portrait": "tobias_neutral",
-        "text_ko": "7급: 구조 전체 접근. 자신이 가진 줄도 모르는 기억까지 태울 수 있네. 기층이 열리는 거야."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "And what happens to a Class Seven?",
-        "portrait": "arrel_neutral",
-        "text_ko": "그래서, 7급은 어떻게 되지?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Historically? They burn everything. Then they forget how to breathe.",
-        "portrait": "tobias_neutral",
-        "text_ko": "역사적으로는? 전부 태우네. 그리고 숨 쉬는 법을 잊지."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "But that's just statistics. You have something they didn't.",
-        "portrait": "tobias_neutral",
-        "text_ko": "하지만 그건 통계일 뿐이야. 자네에겐 그들에게 없던 게 있네."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "What?",
-        "portrait": "arrel_neutral",
-        "text_ko": "뭐가."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "An anchor who doesn't charge by the hour.",
-        "portrait": "tobias_neutral",
-        "text_ko": "시간당 요금을 받지 않는 닻."
-      },
-      {
-        "speaker": "Elia",
-        "text": "I said don't call me that.",
-        "portrait": "elia_concern",
-        "text_ko": "그렇게 부르지 말라고 했어요."
-      }
-    ],
-    "night_conversation": [
-      {
-        "speaker": "",
-        "text": "Night fell. Tobias snored softly by the fire. Elia sat with her back against the overpass wall.",
-        "cg": "res://assets/cg/generated/story_ch4_drift_anchor.png",
-        "text_ko": "밤이 내렸다. 토비아스는 모닥불 곁에서 나직이 코를 골았다. 엘리아는 고가도로 벽에 등을 기대고 앉아 있었다."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "How long can you keep doing this? The anchoring.",
-        "portrait": "arrel_neutral",
-        "text_ko": "언제까지 할 수 있어? 앵커링."
-      },
-      {
-        "speaker": "Elia",
-        "text": "As long as you need me to.",
-        "portrait": "elia_neutral",
-        "text_ko": "네가 필요로 하는 만큼."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "That's not an answer.",
-        "portrait": "arrel_neutral",
-        "text_ko": "그건 대답이 아니야."
-      },
-      {
-        "speaker": "Elia",
-        "text": "It's the only one I have.",
-        "portrait": "elia_concern",
-        "text_ko": "내가 가진 유일한 대답이야."
-      },
-      {
-        "speaker": "",
-        "text": "They sat in silence for a while. The ash-rain had stopped, but the sky stayed gray.",
-        "text_ko": "그들은 한동안 말없이 앉아 있었다. 화산재비는 그쳤지만 하늘은 회색으로 남아 있었다."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "I'm starting to forget things I didn't burn. Small things. Names of streets. Faces.",
-        "portrait": "arrel_pain",
-        "text_ko": "태우지 않은 것들을 잊기 시작했어. 작은 것들. 거리 이름. 얼굴."
-      },
-      {
-        "speaker": "Elia",
-        "text": "I know.",
-        "portrait": "elia_concern",
-        "text_ko": "알아."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "You noticed?",
-        "portrait": "arrel_pain",
-        "text_ko": "눈치챘어?"
-      },
-      {
-        "speaker": "Elia",
-        "text": "I've been counting. You've lost eleven micro-memories in the last two days. Involuntary burns.",
-        "portrait": "elia_concern",
-        "text_ko": "세고 있었어. 지난 이틀 동안 너는 미세 기억 열한 개를 잃었어. 비자발적 연소야."
-      },
-      {
-        "speaker": "Elia",
-        "text": "The architecture is destabilizing. Each intentional burn makes the walls thinner.",
-        "portrait": "elia_concern",
-        "text_ko": "구조가 불안정해지고 있어. 의도적으로 태울 때마다 벽이 얇아져."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Then I stop burning.",
-        "portrait": "arrel_neutral",
-        "text_ko": "그럼 그만 태우지."
-      },
-      {
-        "speaker": "Elia",
-        "text": "Can you?",
-        "portrait": "elia_concern",
-        "text_ko": "그럴 수 있어?"
-      },
-      {
-        "speaker": "",
-        "text": "Arrel didn't answer. He wasn't sure he could.",
-        "text_ko": "아렐은 대답하지 않았다. 대답할 수 있을지, 스스로도 확신이 없었다."
-      }
+    "night_watch": [
+      {"speaker": "", "text": "They returned to the trail. Elia moved half a beat behind her own rhythm, hiding the cost of the anchoring.", "text_ko": "둘은 길로 돌아갔다. 엘리아는 자신의 리듬보다 반 박자 늦게 움직이며 앵커링의 대가를 숨겼다."},
+      {"speaker": "", "text": "Behind them, the wind stopped all at once. A pressure settled against the back of Arrel's neck. The empty trail seemed to be paying attention.", "text_ko": "뒤에서 바람이 단숨에 멎었다. 아렐의 목덜미에 압박감이 내려앉았다. 빈 길이 그들을 지켜보는 듯했다.", "cg": "res://assets/cg/generated/resonance_drift_shelter_echo.png"},
+      {"speaker": "Elia", "text": "What is it?", "text_ko": "왜 그래?", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "Nothing.", "text_ko": "아무것도 아니야.", "portrait": "arrel_neutral"},
+      {"speaker": "", "text": "They passed a dead loop animal frozen mid-run and did not slow.", "text_ko": "둘은 달리던 자세로 굳어 죽은 루프 동물을 지나쳤고, 속도를 늦추지 않았다."},
+      {"speaker": "", "text": "At a shallow cave, Arrel ate dried meat, stale bread, and cold mineral water. He committed every texture and taste to memory.", "text_ko": "얕은 동굴에서 아렐은 말린 고기와 묵은 빵, 차가운 광물 맛의 물을 먹었다. 그는 모든 질감과 맛을 의식적으로 기억에 새겼다."},
+      {"speaker": "Elia", "text": "Tell me when the letters slide again. Don't wait.", "text_ko": "글자가 다시 미끄러지면 바로 말해. 기다리지 말고.", "portrait": "elia_concern"},
+      {"speaker": "Arrel", "text": "I won't.", "text_ko": "그러지 않을게.", "portrait": "arrel_neutral"},
+      {"speaker": "Elia", "text": "Get some sleep. I'll take first watch.", "text_ko": "좀 자. 첫 불침번은 내가 설게.", "portrait": "elia_neutral"},
+      {"speaker": "", "text": "Sleep took him at once. Elia waited until his breathing evened, then touched her upper lip. Her fingers came back dark.", "text_ko": "잠은 즉시 그를 데려갔다. 엘리아는 그의 숨이 고르게 될 때까지 기다린 뒤 윗입술을 만졌다. 손가락에 검은 피가 묻어났다."}
     ],
     "drift_departure": [
-      {
-        "speaker": "",
-        "text": "Morning. The ash-rain left a thin gray layer on everything. Tobias was already writing in his journal.",
-        "cg": "res://assets/cg/generated/story_ch4_ash_rain_departure.png",
-        "text_ko": "아침. 잿비가 모든 것 위에 얇은 회색 막을 남겼다. 토비아스는 벌써 일지를 쓰고 있었다."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "The coast is close. I can smell salt under the ash.",
-        "portrait": "tobias_neutral",
-        "text_ko": "해안이 가깝네. 재 밑에서 소금 냄새가 나."
-      },
-      {
-        "speaker": "Elia",
-        "text": "How are your eyes?",
-        "portrait": "elia_concern",
-        "text_ko": "눈은 어때?"
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Better. The letters are holding still.",
-        "portrait": "arrel_neutral",
-        "text_ko": "나아졌어. 글자가 가만히 있어."
-      },
-      {
-        "speaker": "Elia",
-        "text": "For now.",
-        "portrait": "elia_concern",
-        "text_ko": "지금은."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "There's something you should know about the coast. The Bureau declared it unstable six months ago.",
-        "portrait": "tobias_neutral",
-        "text_ko": "해안에 대해 알아 둘 게 있네. 여섯 달 전에 관리국이 불안정 지역으로 선포했어."
-      },
-      {
-        "speaker": "Tobias",
-        "text": "The Voidline is eating the cliffs. Whole sections drop into the sea without warning.",
-        "portrait": "tobias_neutral",
-        "text_ko": "보이드라인이 절벽을 먹고 있네. 구역 전체가 경고 없이 바다로 떨어지지."
-      },
-      {
-        "speaker": "Arrel",
-        "text": "Is there another way?",
-        "portrait": "arrel_neutral",
-        "text_ko": "다른 길은?"
-      },
-      {
-        "speaker": "Tobias",
-        "text": "Not if you want to reach The Seam before whoever is following us does.",
-        "portrait": "tobias_neutral",
-        "text_ko": "우리를 따라오는 자보다 먼저 씸에 닿고 싶다면, 없네."
-      },
-      {
-        "speaker": "",
-        "text": "They packed up and moved north. The air grew colder. Salt began to creep into the ash.",
-        "text_ko": "그들은 짐을 꾸려 북쪽으로 움직였다. 공기가 차가워졌다. 재 속으로 소금기가 스며들기 시작했다."
-      }
-    ],
-    "arrel_flashback_home": [
-      {
-        "speaker": "",
-        "text": "A fragment surfaces, unbidden, unwanted.",
-        "cg": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
-        "text_ko": "조각 표면, 입찰되지 않은, 원치 않는."
-      },
-      {
-        "speaker": "???",
-        "text": "...the table was always set for three.",
-        "portrait": "arrel_pain",
-        "text_ko": "...식탁은 언제나 세 사람 몫으로 차려져 있었지.",
-        "cg": "res://assets/cg/generated/chapter_expansion/ch04_table_for_three_memory_v1.png"
-      },
-      {
-        "speaker": "",
-        "text": "Warmth. The smell of bread. A voice calling your name.",
-        "text_ko": "따뜻함. 빵 냄새. 당신의 이름을 부르는 목소리."
-      },
-      {
-        "speaker": "???",
-        "text": "Come inside. It's getting cold.",
-        "text_ko": "들어오렴. 날이 차가워지고 있어."
-      },
-      {
-        "speaker": "",
-        "text": "The image fractures. You can't remember whose voice that was.",
-        "text_ko": "영상이 갈라진다. 그 목소리가 누구의 것이었는지, 기억나지 않는다."
-      }
+      {"speaker": "", "text": "Elia wiped the blood on the inside of her cloak where the stain would not show.", "text_ko": "엘리아는 얼룩이 보이지 않도록 망토 안쪽에 피를 닦았다."},
+      {"speaker": "", "text": "Then she folded her hands in her lap and stared out at the darkening trail. Inside her cloak, the stain was already drying.", "text_ko": "그러고는 무릎 위에 두 손을 모으고 어두워지는 길을 바라보았다. 망토 안쪽의 얼룩은 이미 마르고 있었다."}
     ]
-  },
-  "title_ko": "드리프트"
+  }
 }

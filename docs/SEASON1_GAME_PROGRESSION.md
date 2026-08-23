@@ -2,7 +2,7 @@
 
 기준일: 2026-08-23
 
-상태: migration plan, runtime rewrite 전
+상태: migration 진행 중. Wave 1 Ch1~4 runtime 연결 완료, Wave 2 대기
 
 연동 문서: [Season 1 Memory Map](SEASON1_MEMORY_MAP.md)
 
@@ -65,8 +65,8 @@ TITLE
 | 4 | Ch1 VN: `ch1_void_beast` | Void Beast와 기억 연소 전투를 VN 선택으로 처리 | 실제 battle scene이 아니라 VN 분기. `ch1_void_beast_defeated` 설정 | `goto_scene ch1_after_forest` |
 | 5 | Ch1→2 VN | forest 이탈, BL-07와 형제 동기, Verdan 진입 | `ch1_complete`, `current_chapter = 2` | `ch2_market_arrival` → Verdan map |
 | 6 | Game Ch2, Verdan Market | Malet 대화 → 거래 수락 → 추출 → 3개 정보 → shop | 거절은 루프되어 결국 수락해야 진행. shop을 닫아야 `ch2_complete`. Malet WorldState seed 발생 | Belt Waystation |
-| 7 | Game Ch3, Belt Waystation | Tobias 즉시 등장 → Blank Book → Kairós 벽글 → Tobias 합류 | `has_blank_book`; 출구는 `tobias_in_party` 필요. 필수 item 소비 gate는 아님 | Drift Shelter |
-| 8 | Game Ch4, Drift Shelter | reading deterioration → Elia anchoring | 출구는 `ch4_anchoring` 필요. Tobias가 모든 핵심 대화에 이미 동행 | Crumbling Coast |
+| 7 | Canon Ch3, Belt Waystation | Arrel/Elia가 빈 역참에서 Blank Book 발견 → 밤의 세 음 → Class Seven 벽 문장 확인 | `has_blank_book`; 출구는 `ch3_class_seven_message` 필요. Tobias 없음 | Drift Shelter |
+| 8 | Canon Ch4, Drift Shelter | reading deterioration → Elia anchoring → breakfast memory loss → watcher/loop animal → cave night watch | 출구는 `ch4_night_watch` 필요. 완료 시 `canon_ch5_classifier_ready`와 autosave | Ch5 Classifier 개발 경계 |
 | 9 | Game Ch5, Crumbling Coast | Kairós 목격 → Elia 분리/유지 선택 → Seam 도착 | 필수 boss 없음. `elia_separates` 또는 `elia_stays` | The Seam |
 | 10 | Game Ch6, The Seam | 필요 시 Elia 재합류 → Sable briefing → Sable 합류 → BL-07 입구 | `ch6_briefing_done` 후 Shade Sentinel 필수 boss. 승리 복귀 후 `ch6_complete` | Seam Outskirts |
 | 11 | Game Ch7, Seam Outskirts | Sable truth → Echo Shell 획득 → controlled burn trial | `has_echo_shell`; Threshold Shade 필수 trial. 출구는 `ch7_trial_complete` 필요. Sable Vessa WorldState seed | Forgotten Forest |
@@ -78,7 +78,8 @@ TITLE
 중요한 구조적 사실:
 
 - `rim_forest.tscn`에는 legacy/hybrid Ch1 progression이 남아 있지만 현재 New Game은 그 맵을 방문하지 않고 Ch1을 전부 VN으로 처리한다.
-- Ch2~10 map chain은 `current_chapter`와 `chN_*` story flag에 강하게 결합되어 있다.
+- Wave 1 이후 New Game main route는 Ch4의 saveable Classifier 경계에서 멈춘다. 위 표의 9~15행은 파일로 보존된 pre-Wave 1 legacy inventory이며 현재 New Game에서 접근할 수 없다.
+- legacy Ch5~10 map chain은 `current_chapter`와 `chN_*` story flag에 강하게 결합되어 있어 Wave 2 이후에도 파일을 즉시 삭제하지 않는다.
 - Blank Book, Echo Shell, Memory Compass는 획득 알림/flag는 있으나 inventory object를 소비하는 main gate는 아니다.
 - Fast Travel은 `current_chapter >= destination.chapter`만으로 10개 맵을 연다. Aftermath의 Ch11 이상 상태에서는 이전 map 전체가 자동 해금된다.
 - Save/Load는 scene과 flag뿐 아니라 VN scene ID/index와 WorldState를 보존한다. Migration에서 기존 scene path와 `chN_*` 의미를 바꾸면 old save 호환 레이어가 필요하다.
@@ -356,3 +357,18 @@ ID와 memory/knowledge 의미는 `SEASON1_MEMORY_MAP.md`를 따른다. 아래 �
 - 이미 교정된 Malet/Sable Memory gameplay는 기준점으로 유지한다.
 - 이미지 생성과 asset 삭제를 하지 않았다.
 - 실제 migration은 Wave 1부터 별도 검토 가능한 working set으로 진행한다.
+
+## 10. Wave 1 구현 상태 (2026-08-23)
+
+9절은 계획 체크포인트 당시의 변경 경계다. 그 뒤 첫 실제 migration working set으로 Canon Ch3~4를 구현했다.
+
+- Ch2 Verdan의 Malet 거래와 `fact.arrel.seeks_bl07` / `memory.malet.bl07_request_source`는 변경하지 않았다.
+- Ch2 완료 후 기존 scene route로 Belt Waystation에 진입하며, Ch3는 Arrel과 Elia만 등장한다.
+- Ch3 첫 방문은 전투와 배경 NPC가 없는 빈 역참이다. Blank Book 발견, 밤의 세 음, 다음 날의 `Subject demonstrates Class Seven combustion efficiency.` 벽 문장을 순서대로 진행한다.
+- Tobias scene node, 조기 dialogue, party join, journal 등록, exit dependency를 live Ch3에서 제거했다. Tobias의 portrait/sprite/CG 원본은 Ch23 재배치를 위해 삭제하지 않았다.
+- Ch4는 지나간 Ash Rain의 잔여물, 읽기 저하, Elia의 anchoring, 사라진 아침 기억, watcher/loop animal, cave meal과 nosebleed로 구성했다. 첫 방문 중 비정사 전투·NPC·활성 rain/lightning은 실행되지 않는다.
+- Ch4 출구에서는 `ch4_complete`와 `canon_ch5_classifier_ready`를 기록하고 autosave하되 `current_chapter`를 4로 유지한다. Chapter 5 `The Classifier` scene이 canonical하게 이식되기 전에는 legacy Crumbling Coast로 전환하지 않는다.
+- old development save가 Ch3/4에 들어올 경우 조기 Tobias story/party flag만 false로 정리한다. 이미 완료된 old Ch3/4 save는 새 sequence를 재생하지 않고 새 Ch5 경계로 deterministic하게 수렴한다.
+- legacy Ch5 이후 scene/dialogue와 Tobias assets는 삭제하지 않았지만 New Game의 Canon Wave 1 progression에서는 접근할 수 없다.
+- save schema, DialogueManager, SceneFlow, MemoryManager, Memory World Engine API는 변경하지 않았다. 검증은 기존 smoke runner와 save sandbox만 확장했다.
+- 이 Wave 1 변경은 다음 검토를 위해 checkpoint commit에 포함하지 않고 working tree에 남긴다.

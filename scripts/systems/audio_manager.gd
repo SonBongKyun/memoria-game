@@ -47,7 +47,7 @@ const SCENE_AMBIENT: Dictionary = {
 	"res://scenes/maps/the_seam.tscn": "wind_heavy",
 	"res://scenes/maps/bl07_void.tscn": "void_hum",
 	"res://scenes/maps/belt_waystation.tscn": "wind_light",
-	"res://scenes/maps/drift_shelter.tscn": "rain",
+	"res://scenes/maps/drift_shelter.tscn": "wind_light",
 	"res://scenes/maps/seam_outskirts.tscn": "wind_heavy",
 	"res://scenes/maps/forgotten_forest.tscn": "wind_forest",
 	"res://scenes/maps/colorless_waste.tscn": "void_hum",

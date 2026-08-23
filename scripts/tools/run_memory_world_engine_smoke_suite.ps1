@@ -148,6 +148,14 @@ $cases = @(
         ExpectedExit = 0
         RequiredLog = "canon=vessa_seventeen"
         ExtraArgs = ""
+    },
+    [pscustomobject]@{
+        Name = "canon_wave1"
+        Scene = "res://scripts/tools/smoke_canon_wave1.tscn"
+        Marker = "CANON_WAVE1_SMOKE_PASS"
+        ExpectedExit = 0
+        RequiredLog = "boundary=ch5_classifier"
+        ExtraArgs = ""
     }
 )
 

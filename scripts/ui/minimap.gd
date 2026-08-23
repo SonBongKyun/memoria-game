@@ -395,11 +395,13 @@ static func _resolve_story_target(map_node: Node2D) -> Variant:
 			if not GameManager.get_flag("ch2_malet_done"):
 				return _node_position(map_node, "Malet")
 		"belt_waystation":
-			if not GameManager.get_flag("tobias_in_party"):
-				return _node_position(map_node, "Tobias")
-			return Vector2(12 * 32, 1.5 * 32)
+			if not GameManager.get_flag("ch3_class_seven_message"):
+				return Vector2(12 * 32, 9 * 32)
+			return Vector2(23.5 * 32, 9 * 32)
 		"drift_shelter":
-			return Vector2(10 * 32, 1.5 * 32)
+			if GameManager.get_flag("canon_ch5_classifier_ready"):
+				return null
+			return Vector2(23.5 * 32, 9 * 32)
 		"crumbling_coast":
 			return Vector2(5 * 32, 1.5 * 32)
 		"the_seam":
