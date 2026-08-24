@@ -1,5 +1,9 @@
 # VN Demo Scope Report
 
+> **LEGACY / PRE-REBUILD SCOPE DOCUMENT**
+>
+> This report describes an earlier Chapter 1 VN/demo stabilization slice. Do not use its runtime criticality, demo boundary, archive recommendations, or progression assumptions as the current 46-chapter Season 1 canon contract. See `docs/CANON_STATUS.md`, `docs/SEASON1_GAME_PROGRESSION.md`, and `docs/SEASON1_MEMORY_MAP.md`.
+
 This pass keeps the current visual-novel demo intact and removes no legacy RPG files or autoloads.
 
 ## Confirmed current flow

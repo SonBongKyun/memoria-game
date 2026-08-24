@@ -1,5 +1,9 @@
 # MEMORIA Demo — 테스터 가이드
 
+> **LEGACY / PRE-REBUILD TEST DOCUMENT**
+>
+> The feedback questions may be reused, but the old demo executable, ending point, chapter labels, boss, playtime, and scope are not the current canon or current test contract. See `docs/CANON_STATUS.md`, `docs/SEASON1_GAME_PROGRESSION.md`, and `docs/SEASON1_MEMORY_MAP.md`.
+
 플레이해줘서 고마워. 약 30분 걸려.
 다 하고 나서 아래 양식에 답해서 보내주면 돼. **솔직하게** 답하는 게 가장 큰 도움이야.
 

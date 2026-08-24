@@ -1,6 +1,6 @@
 # MEMORIA Season 1 Canon Game Progression
 
-기준일: 2026-08-23
+기준일: 2026-08-24
 
 상태: migration 진행 중. Wave 1 Ch1~4 및 Wave 2A Ch5 runtime 연결 완료, Wave 2B Ch6 대기
 
@@ -12,12 +12,12 @@
 
 우선순위는 다음과 같다.
 
-1. `../원고/수정본_txt/Chapter 01 - Ash.txt` ~ `Chapter 46 - Residue.txt`
+1. `../원고/시즌1/Chapter 01 - Ash.txt` ~ `Chapter 46 - Residue.txt`
 2. `docs/SEASON1_MEMORY_MAP.md`
 3. 실제 런타임 진입점, scene, script, dialogue/VN JSON, flag와 gate
 4. 이전 문서와 세션 기록
 
-Chapter 39는 파일명에 `DRAFT`가 남아 있다. 사건 순서는 Season 1에 포함하되, 대사 고정과 Memory mutation은 원고가 잠긴 뒤에 한다. 한국어 원고는 현재 1~32장 파일이 있으나 32장은 영문 269줄 대비 139줄로 진행 중이다. 따라서 migration 계약은 완성된 영문 46장을 기준으로 한다.
+2026-08-24 재확인 결과 영문 Season 1 원고는 `../원고/시즌1/`에 Chapter 01~46이 번호 누락 없이 존재한다. 한국어 Season 1 파일도 01~46이 존재하지만, canon 판정과 migration 계약은 완성 영문 원고를 기준으로 한다.
 
 분류는 다음 의미로 사용한다.
 
@@ -377,4 +377,4 @@ ID와 memory/knowledge 의미는 `SEASON1_MEMORY_MAP.md`를 따른다. 아래 �
 - 완료 시 `canon_ch6_seam_ready`를 autosave하고 Drift shell로 돌아온다. legacy Ch5 이후 scene/dialogue와 Tobias/Kairós boss assets는 삭제하지 않았지만 canonical New Game progression에서는 접근할 수 없다.
 - `ch5_classifier_started`가 있는 canonical save에서는 Fast Travel의 legacy Crumbling Coast 목적지를 숨긴다. 이 flag가 없는 legacy save의 기존 travel destination은 호환을 위해 유지한다.
 - save schema, DialogueManager, SceneFlow, MemoryManager, Memory World Engine API는 변경하지 않았다. 검증은 기존 smoke runner와 save sandbox만 확장했다.
-- Wave 1은 `7abd36d feat(story): rebuild canon chapters 3 and 4`로 checkpoint했다. Wave 2A 변경은 다음 검토를 위해 working tree에 남긴다.
+- Wave 1은 `7abd36d feat(story): rebuild canon chapters 3 and 4`로 checkpoint했다. Wave 2A는 `84684ae feat(story): implement canonical chapter 5 classifier`로 commit되어 `canon-rebuild-season1`에 push되었다.

@@ -1,5 +1,9 @@
 # MEMORIA — Steam Store Page Kit
 
+> **LEGACY / PRE-REBUILD MARKETING DOCUMENT**
+>
+> This file predates the 46-chapter Season 1 canon rebuild. Its playtime, ending count, demo scope, version names, and release assumptions are stale marketing references, not current product or narrative commitments. See `docs/CANON_STATUS.md`, `docs/SEASON1_GAME_PROGRESSION.md`, and `docs/SEASON1_MEMORY_MAP.md`.
+
 마지막 업데이트: 2026-04-24 (S67)
 빌드 버전: v0.9.0-demo (Act I — Ash)
 
