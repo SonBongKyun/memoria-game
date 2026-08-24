@@ -23,11 +23,11 @@ Use this order for narrative decisions:
 4. Current canonical runtime implementation
 5. Legacy project docs only as historical/reference material
 
-The Korean manuscript/translation is incomplete and does not override the completed English Season 1 manuscript for canon decisions.
+The English Season 1 manuscript remains authoritative for canon decisions. Translations may assist localization but do not override it.
 
 ## Important project files
 
-- `AGENTS.md` / `CLAUDE.md`: development-agent guidance; being updated to the 46-chapter canon
+- `AGENTS.md` / `CLAUDE.md`: development-agent guidance aligned to the 46-chapter canon
 - `SESSION_LOG.md`: historical development log
 - `docs/CANON_STATUS.md`: concise canon guardrails and current checkpoint
 - `docs/SEASON1_GAME_PROGRESSION.md`: current Season 1 game-progression rebuild map

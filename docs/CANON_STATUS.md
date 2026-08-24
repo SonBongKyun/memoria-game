@@ -12,7 +12,7 @@ Use this priority order:
 4. Current canonical runtime implementation on `canon-rebuild-season1`
 5. Legacy documentation only as historical/reference material
 
-The Korean manuscript/translation is incomplete and must not override the completed English Season 1 manuscript for canon decisions.
+The English Season 1 manuscript remains authoritative for canon decisions. Translations may assist localization but do not override it.
 
 ## Canonical development branch
 

@@ -1,3 +1,68 @@
+# CURRENT CANON AND DEVELOPMENT CONTRACT
+
+> **Highest-priority project guidance.** This section overrides conflicting chapter counts, routes, character placements, ending assumptions, and development-status claims in the historical sections below.
+
+## Narrative source of truth
+
+Use this order for canon decisions:
+
+1. Latest completed English Season 1 manuscript, Chapters 01–46. The verified local manuscript set is `../원고/시즌1/Chapter 01 - Ash.txt` through `../원고/시즌1/Chapter 46 - Residue.txt`.
+2. `docs/SEASON1_GAME_PROGRESSION.md`
+3. `docs/SEASON1_MEMORY_MAP.md`
+4. Current canonical runtime implementation on `canon-rebuild-season1`
+5. Legacy documentation and old runtime only as historical/reference material
+
+Season 1 has 46 chapters. Use the completed English manuscript when resolving canon; translations may assist localization but do not override it.
+
+## Current canonical gameplay checkpoint
+
+Current canonical route:
+
+`New Game → Ch1 → Ch2 Malet → Ch3 Blank Book / Class Seven → Ch4 Drift / Anchoring → Ch5 The Classifier → Ch6 boundary`
+
+The current checkpoint is `84684ae` (`feat(story): implement canonical chapter 5 classifier`). The next gameplay migration is **Canon Migration Wave 2B — Chapter 6**, and it must not begin until Season 2 manuscript writing is complete.
+
+## Core canon guardrails
+
+- Sable is **not** a Cleaner.
+- The old Cleaner backstory, child erasure order, and 12-person memorial are non-canon.
+- Sable knowledge: `fact.bl07.seventeen_seekers_never_returned`.
+- Sable relationship memory: `memory.sable.vessa_daughter_bond`.
+- Malet knowledge: `fact.bl07.route_request_received`.
+- Malet requester-identity memory: `memory.malet.bl07_request_source`.
+- Old `fact.arrel.seeks_bl07` exists for legacy-save compatibility only.
+- Tobias does not join in early Chapter 3. Existing Tobias assets may remain for later canonical reuse.
+- The old Malet → Sable note ripple is non-canon.
+- Chapter 43 Name Burn is a required canon event.
+- Old 7-way ending logic does not define the current canon.
+
+## Memory World Engine contract
+
+- `WorldState` is the explicit persistent source of truth.
+- Memory and Knowledge are separate state categories.
+- Removed memory uses tombstone semantics; do not force-delete legacy IDs.
+- `MemoryEngine` owns state mutation. `EventBus` notifies consumers and is not state storage.
+- Save/load normalization must not replay mutation events.
+- Present memory changes must not retroactively rewrite a historical outcome.
+
+Chapter 5 resolves exactly one historical Kairós report fact at report time:
+
+- `fact.kairos.malet_report_identified_arrel`, or
+- `fact.kairos.malet_report_requester_unknown`.
+
+Restoring Malet's requester memory after the report must not change that recorded outcome.
+
+## Development rules
+
+- Do not infer current canon from old chapter numbers, assets, scenes, dialogue, or session summaries.
+- Do not resurrect superseded story material merely because its code or assets remain.
+- Reuse existing assets and systems where possible; classify affected material as `KEEP`, `EDIT`, `MOVE`, `DISABLE`, or `REPURPOSE`.
+- Do not introduce a broad infrastructure redesign unless the task explicitly requires it.
+- Do not begin Chapter 6+ gameplay migration until the writing pause ends.
+- Never run migration tests against production saves.
+- Preserve the S01+ history below as a development record; it is not the current narrative contract.
+
+
 # MEMORIA: The Price of Oblivion — Game Project
 
 ## 프로젝트 개요
@@ -5,9 +70,12 @@
 기억을 태워 싸우는 남자의 이야기. 투 더 문 / LISA 스타일.
 
 ## 핵심 문서
-- **GDD (게임 디자인 문서):** `../각종 문서/MEMORIA_GDD_v1.md` — 메카닉, 구조, 로드맵 전체
-- **세션 로그:** `SESSION_LOG.md` — 세션별 작업 기록. 이전에 뭘 했고 다음에 뭘 할지 여기서 확인
-- **원고 (영문):** `../원고/Chapter1.md`, `../원고/Chapter2.md`
+- **현재 canon 상태:** `docs/CANON_STATUS.md`
+- **게임 progression:** `docs/SEASON1_GAME_PROGRESSION.md`
+- **Memory/Knowledge 지도:** `docs/SEASON1_MEMORY_MAP.md`
+- **완성 영문 Season 1 원고:** `../원고/시즌1/Chapter 01 - Ash.txt` ~ `Chapter 46 - Residue.txt`
+- **세션 로그:** `SESSION_LOG.md` — 역사적 개발 기록. 현재 canon 판단은 위 계약을 우선한다.
+- **구 GDD:** `../각종 문서/MEMORIA_GDD_v1.md` — pre-rebuild 참고 자료이며 현재 canon을 덮어쓰지 않는다.
 - **세계관:** `../각종 문서/Memoriasupplement v3.md`, `../각종 문서/MEMORIA_WORLDBUILDING_SUPPLEMENT_v2.md`
 - **설정집:** `../메모리아 설정집 + 세계관.docx`, `../메모리아 정보집.docx`
 - **이미지 에셋:** `../이미지/` — 캐릭터 컨셉, 배경, 커버 등
@@ -75,7 +143,9 @@ Game/
 - `EncounterModifier` — 보이드 부패 인카운터 수정자 (연소 횟수 기반 전투 변형 12종)
 - `MemoryResonance` — 기억 공명 탐색 이벤트 (10맵 18지점, 비전투 연소 보너스)
 
-## 현재 진행 상태
+## 역사적 진행 기록 (LEGACY / HISTORICAL)
+
+아래 세션 목록은 구현의 연대기다. 오래된 chapter 배치, Tobias/Sable 역할, ending 수와 route를 현재 canon 지침으로 사용하지 않는다.
 - **S01 완료 (2026-04-05):** 프로젝트 세팅, 코어 시스템 4개, 기억 6개, 테스트 씬 동작 확인
 - **S02 완료 (2026-04-05):** 플레이스홀더 스프라이트(코드 동적 생성), 아렐 4방향 걷기 애니메이션, 림 외곽 숲 맵, S01 버그 수정
 - **S03 완료 (2026-04-05):** NPC 시스템, 대화 UI(DialogueBox 오토로드), JSON 로더, 엘리아 NPC 배치
@@ -130,7 +200,7 @@ Game/
 - **S52 완료 (2026-04-12):** 그래픽 대규모 업그레이드 — 2D 그림자(PointLight2D shadow+LightOccluder2D), 맵별 컬러 그레이딩(10맵), 캐릭터 드롭 섀도우+호흡, 바이옴 파티클(꽃가루/재/보이드 촉수), 스무스 카메라(추적+환경 흔들림), 전투 크리티컬 줌+연소 화면 이펙트
 - **S53 완료 (2026-04-12):** 20대 업그레이드 — 토비아스 전투동행(Ch3-6), 기억 체인번(+20%), NG++ 보스강화, 장비 강화(0-3단계), 사이드퀘스트 3종(Ch7-9), 엔딩 2종 추가(총6종), 카이로스 보스전, 대화 9종+플래시백 3종, NPC 아이들 애니메이션, 타일 블렌딩, 동적 날씨+번개, 파티클 풀링/컬링, 대화상자·메뉴 애니메이션, 접근성 옵션 3종, Windows 내보내기
 - **S54 완료 (2026-04-12):** 16대 업그레이드 — 캐릭터 블립SFX, 엔딩 갤러리, NPC 스케줄, 대화 연출태그, 번 패시브 스킬트리(5종), 도감 스캔 강화, 전투 환경효과(10맵), 보스 러시 모드, 맵 전환 다양화(4스타일), 승리 화면, 감정 포트레이트 전환, 대화 카메라 효과, 튜토리얼 힌트, 자동 전투, 통계 화면, 다국어 기반(en/ko)
-- **상태:** Part 1 완전체. 10개 맵, 포트레이트 49장, CG ~130장, 셰이더 7종, 대화 ~1400줄, 업적 28종, 엔딩 6종, 사이드퀘스트 6종, 번 패시브 5종, 보스러시, 자동전투, 통계, 다국어, 튜토리얼. F5 테스트 권장.
+- **상태(LEGACY S54 기준):** 당시 Part 1/10-chapter 구현 요약이다. 현재 Season 1 canon과 gameplay checkpoint는 문서 최상단 계약을 따른다.
 
 ## 개발 규칙
 1. 1세션 = 1완결 태스크. SESSION_LOG.md에 기록.
@@ -140,6 +210,6 @@ Game/
 
 ## 세션 시작 방법
 1. SESSION_LOG.md 읽어서 현재 진행 상태 확인
-2. GDD에서 해당 세션 태스크 확인
+2. `docs/CANON_STATUS.md`와 해당 canon map에서 세션 태스크 확인
 3. 작업 실행
 4. SESSION_LOG.md에 결과 기록

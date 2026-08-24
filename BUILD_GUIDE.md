@@ -1,5 +1,9 @@
 # MEMORIA Demo — 빌드 가이드 (S68)
 
+> **LEGACY / PRE-REBUILD BUILD DOCUMENT**
+>
+> The general export commands may remain useful, but this file's demo scope, version naming, output filenames, asset counts, and release assumptions predate the 46-chapter Season 1 canon rebuild. Verify them before use. See `docs/CANON_STATUS.md`, `docs/SEASON1_GAME_PROGRESSION.md`, and `docs/SEASON1_MEMORY_MAP.md`.
+
 데모(Act I — Ash) Windows 빌드를 만들고 친구한테 보내기까지.
 
 소요 시간: **30~45분** (다운로드 시간 포함).

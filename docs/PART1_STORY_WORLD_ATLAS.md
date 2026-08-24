@@ -1,5 +1,9 @@
 # MEMORIA — Part I Story World Atlas
 
+> **LEGACY / PRE-REBUILD DOCUMENT**
+>
+> This file predates the 46-chapter Season 1 canon rebuild. Keep its worldbuilding ideas for historical/reference use only. Do not use its ten-chapter route, character placement, ending structure, or progression assumptions as current canon. See `docs/CANON_STATUS.md`, `docs/SEASON1_GAME_PROGRESSION.md`, and `docs/SEASON1_MEMORY_MAP.md`.
+
 ## Purpose and canon boundary
 
 This atlas is the playable Part I reference for the ten-chapter route from Rim Forest to BL-07. It expands the world only where that expansion sharpens an existing choice, relationship, or encounter. It does not replace the Master Bible or reveal Part II answers early.
