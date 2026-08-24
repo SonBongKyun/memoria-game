@@ -178,10 +178,14 @@ static func create_minimap(parent: Node, map_data: Array, tile_defs: Array, map_
 	parent.add_child(layer)
 
 	# 가시성 연동, is_instance_valid 체크 (씬 전환 시 freed 방지)
-	GameManager.state_changed.connect(func(state):
+	var state_changed_callback := func(state):
 		if is_instance_valid(container):
 			container.visible = (state == GameManager.GameState.EXPLORATION)
-	)
+	GameManager.state_changed.connect(state_changed_callback)
+	layer.tree_exiting.connect(func():
+		if GameManager.state_changed.is_connected(state_changed_callback):
+			GameManager.state_changed.disconnect(state_changed_callback)
+	, CONNECT_ONE_SHOT)
 	container.visible = (GameManager.current_state == GameManager.GameState.EXPLORATION)
 
 	return {
@@ -399,7 +403,8 @@ static func _resolve_story_target(map_node: Node2D) -> Variant:
 				return Vector2(12 * 32, 9 * 32)
 			return Vector2(23.5 * 32, 9 * 32)
 		"drift_shelter":
-			if GameManager.get_flag("canon_ch5_classifier_ready"):
+			if GameManager.get_flag("canon_ch5_classifier_ready") \
+					or GameManager.get_flag("canon_ch6_seam_ready"):
 				return null
 			return Vector2(23.5 * 32, 9 * 32)
 		"crumbling_coast":

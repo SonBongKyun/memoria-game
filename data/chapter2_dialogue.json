@@ -575,7 +575,7 @@
             {
               "type": "knowledge",
               "actor": "npc.malet",
-              "fact": "fact.arrel.seeks_bl07",
+              "fact": "fact.bl07.route_request_received",
               "equals": true
             },
             {
@@ -599,7 +599,7 @@
             {
               "type": "knowledge",
               "actor": "npc.malet",
-              "fact": "fact.arrel.seeks_bl07",
+              "fact": "fact.bl07.route_request_received",
               "equals": true
             },
             {
@@ -622,7 +622,7 @@
             {
               "type": "knowledge",
               "actor": "npc.malet",
-              "fact": "fact.arrel.seeks_bl07",
+              "fact": "fact.bl07.route_request_received",
               "equals": true
             },
             {
@@ -647,7 +647,7 @@
                 {
                   "type": "knowledge",
                   "actor": "npc.malet",
-                  "fact": "fact.arrel.seeks_bl07",
+                  "fact": "fact.bl07.route_request_received",
                   "equals": true
                 },
                 {

@@ -36,7 +36,7 @@
 | 2 | **Rules of Deal** / Arrel, Elia, Malet | Arrel이 BL-07 경로를 묻고 첫 검의 기원 기억을 Malet에게 판다. Malet은 요청자와 거래를 직접 목격하며 Kairós에게 보고한다. 5, 21장에서 회수된다. | **A/E**. 거래는 정사에 가깝지만 후속 재방문 시점은 압축됨. |
 | 3 | **Weight of Pages** / Arrel, Elia | 읽기 능력의 틈, 버려진 역참, 쓰이지 않은 책, Editor의 문장이 처음 결합한다. 책의 정체와 기능은 17~18, 22장으로 이어진다. | **D**. 게임 Ch3에는 아직 만나지 않은 Tobias와 후대 사건이 앞당겨져 있음. |
 | 4 | **Drift** / Arrel, Elia | 색·단어·어린 시절이 흔들리고 Elia가 자기 몸을 대가로 anchoring한다. Arrel은 이름을 묻는 순간 주변 기억까지 잃는다. 11~15, 41장에 누적된다. | **A/D**. drift와 anchoring은 있으나 Tobias 동행 등 인물 시점이 충돌. |
-| 5 | **The Classifier** / Kairós | Kairós가 연소 자국과 Elia의 anchor를 분류한다. 공식 검은 수첩과 사적 붉은 수첩, Malet 보고가 이후 8, 26, 31, 33, 45장의 축이 된다. | **D**. 게임 Ch5는 해안·분리·Kairós 목격으로 다른 사건. |
+| 5 | **The Classifier** / Kairós | Kairós가 연소 자국과 Elia의 anchor를 분류한다. 공식 검은 수첩과 사적 붉은 수첩, Malet 보고가 이후 8, 26, 31, 33, 45장의 축이 된다. | **A**. Ch4 뒤 Kairós POV VN으로 구현. Malet 보고의 provenance는 persistent WorldState로 한 번 고정됨. |
 | 6 | **The Seam** / Arrel, Elia, Sable, Haren | 살아 있는 색의 Seam, 늙고 눈먼 Sable, Arrel의 남은 시간을 묻는 Elia. Sable의 지도와 인물상은 7, 15~16장으로 이어진다. | **A/D**. 장소와 만남은 있으나 party/briefing 성격과 일부 Sable 설정은 구버전. |
 | 7 | **Sable** / Sable, Arrel, Elia | Sable은 BL-07을 찾아간 17명이 한 명도 돌아오지 않았음을 안다. 그중 Vessa가 자신의 딸이라는 개인 기억을 가진다. 17개 나무껍질과 아직 구멍을 태우지 않은 Arrel의 18번째 조각이 핵심이다. Vessa라는 이름의 직접 언급은 이 장에 집중된다. | **D → 부분 A**. Cleaner·아이 삭제 명령·12인 추모비는 삭제했고 Vessa/17 상태를 라이브 Memory gameplay로 교정. trial/outskirts 구조는 여전히 구버전. |
 | 8 | **The Listening Wood** / Arrel, Elia, Sable, Kairós | 숲이 친숙한 목소리로 유인하고 다섯 번째 시간을 빼앗는다. Sable의 규칙과 Kairós의 추적이 9~10장으로 이어진다. | **C/D**. 망각 숲은 있으나 유령·Tobias 이론이 섞이고 실제 사건 순서가 다름. |
@@ -88,12 +88,13 @@
 ### Malet
 
 - `npc.malet`: 정사 인물과 일치.
-- `fact.arrel.seeks_bl07`: Ch2 거래에서 Malet이 직접 안 사실이므로 정사.
+- `fact.bl07.route_request_received`: Ch2에서 누군가 BL-07 경로를 요청했다는 identity-free 사건 knowledge. 정사 canonical ID.
+- `fact.arrel.seeks_bl07`: 이전 구현이 요청 사건과 Arrel identity를 한 ID에 묶었던 legacy ID. 기존 save에서 삭제하지 않고 import 시 canonical fact를 덧붙인다.
 - `memory.malet.bl07_request_source`: 요청자가 Arrel이었다는 거래 출처 기억으로 정사.
 - Chapter 2 거래와 active/removed/restored 재대화: 게임화된 선택으로 허용 가능.
 - Chapter 3 이후 Verdan 재방문: 최신 원고의 실제 회수 시점은 **Ch21**이므로 **E**.
 - Malet 쪽지를 Sable이 읽는 Chapter 6 ripple: 최신 원고 근거가 없어 **D**. 라이브 연결을 제거했다.
-- 정식 장기 ripple은 `Ch2 거래 → Ch5 Kairós의 Malet 보고 → Ch21 Kairós가 확보한 Malet 기록`이다. 현 게임 Ch12 VN에 Sump 봉인과 Malet 실종 setup은 있으나 WorldState 소비는 아직 없다.
+- 정식 장기 ripple은 `Ch2 거래 → Ch5 Kairós의 Malet 보고 → Ch21 Kairós가 확보한 Malet 기록`이다. Ch5는 보고 당시 상태를 `fact.kairos.malet_report_identified_arrel` 또는 `fact.kairos.malet_report_requester_unknown`으로 정확히 한 번 고정한다. 현 게임 Ch12 VN에 Sump 봉인과 Malet 실종 setup은 있으나 Ch21 consumer는 아직 구현하지 않는다.
 
 ### Sable
 
@@ -112,7 +113,7 @@
 | 우선 | Memory ID 후보 / Actor / 최초 Ch | 남는 Fact와 source | 개인 Memory | remove → restore | 이후 참조 / 영향 / consequence | Ripple / 위험 |
 |---:|---|---|---|---|---|---|
 | 1 | `memory.elia.lullaby_source_name` / `npc.elia` / 14 | `fact.relay.seven_note_lullaby`는 Elia 자신의 몸과 Hannah의 노래가 증명 | 일곱 음을 누가 가르쳤는지와 `Sleep small`에 붙은 source | 음과 기능은 남고 가르친 사람만 사라짐 → 이름·관계가 돌아옴 | 15, 30, 41 / Elia, Hannah, Sable / 질문·고백의 깊이, relay 정보 신뢰 | **Very High / Medium** |
-| 2 | `memory.malet.bl07_request_source` / `npc.malet` / 2 | `fact.arrel.seeks_bl07`; Arrel의 직접 요청 | 요청자가 Arrel인 거래 기억 | 요청 사실·경로는 남고 요청자만 사라짐 → provenance 복귀 | 5, 21 / Malet, Kairós, Arrel / Ch21 기록의 증거 강도 | **High / Low-Med** |
+| 2 | `memory.malet.bl07_request_source` / `npc.malet` / 2 | `fact.bl07.route_request_received`; BL-07 경로 요청 사건 | 요청자가 Arrel인 거래 기억 | 요청 사실·경로는 남고 요청자만 사라짐 → provenance 복귀 | 5, 21 / Malet, Kairós, Arrel / Ch21 기록의 증거 강도 | **High / Low-Med**; Ch5 consumer 구현 |
 | 3 | `memory.kairos.arrel_selfless_burn` / `npc.kairos` / 25 | `fact.arrel.burn_detected`; 분류 계기판 | Arrel이 도주가 아니라 타인을 구하려 기억을 썼다는 목격 해석 | burn 수치는 남고 동기만 사라짐 → hesitation의 인간적 원인 복귀 | 26, 33, 45 / Kairós, Vael / 추적 유보·사적 기록 반응 | **Very High / High** |
 | 4 | `memory.elia.relay_body_cost_warning` / `npc.elia` / 17 | `fact.relay.requires_body_cost`; 책의 절차 | 비용을 읽고 Arrel에게 숨기기로 한 순간 | 규칙은 알지만 언제·왜 숨겼는지 상실 → 41장 고백 복구 | 18, 41~43 / Elia, Arrel / 신뢰 대화·선택 문맥 | **Very High / High** |
 | 5 | `memory.arrel.name_given_by_elia` / `player.arrel` / 10 이전, 43 확정 | `fact.arrel.current_name_is_arrel`; 일행의 호칭 | Elia가 그 이름을 준 관계와 origin | 이름을 기능적으로 쓰되 giver/source를 잃음 → 관계 의미 복귀 | 10, 14~15, 43, 46 / Arrel, Elia / 이름 연소와 새 이름 결말 | **Very High / Very High** |
@@ -168,7 +169,7 @@ Fact는 계속 relay를 작동시키지만 source memory 유무가 Sable/Hannah 
 → `Ch5: Malet의 coded report를 Kairós가 분류`
 → `Ch21: Kairós가 Malet의 전체 Arrel record를 확보`
 
-요청과 거래 사실은 남아도 `memory.malet.bl07_request_source`가 없으면 record의 provenance 강도가 달라진다. Sable은 이 graph의 consumer가 아니다.
+`fact.bl07.route_request_received`는 요청 사건을 유지하고 `memory.malet.bl07_request_source`만 requester identity를 소유한다. Ch5 report 시점에 memory가 active/restored면 `fact.kairos.malet_report_identified_arrel`, removed면 `fact.kairos.malet_report_requester_unknown`이 생성된다. 이 historical result는 이후 Malet memory 변화와 독립적이며 Ch21의 future consumer가 읽는다. Sable은 이 graph의 consumer가 아니다.
 
 ### 3. Kairós가 본 selfless burn
 
@@ -199,10 +200,10 @@ burn telemetry라는 knowledge와, 그 burn을 인간적 선택으로 기억하�
 
 ## 7. 구현 순서 권고
 
-1. 현재 구현된 Sable Vessa/17 local arc를 안정화한다.
-2. 최신 Ch21이 게임 progression에 자리 잡을 때 Malet record consumer를 연결한다.
+1. 현재 구현된 Sable Vessa/17 local arc와 Ch5 Malet report historical consequence를 안정화한다.
+2. 최신 Ch21이 게임 progression에 자리 잡을 때 두 Kairós report fact 중 하나를 Malet record consumer에 연결한다.
 3. Elia의 Ch14→15→30 lullaby source arc를 첫 다중-chapter 핵심 memory로 구현한다.
 4. Kairós의 Ch25→26→33 hesitation arc를 read-only/optional consequence부터 연결한다.
 5. Arrel name arc는 최신 Ch41~46 progression이 고정된 뒤에만 다룬다.
 
-현재 ActorRegistry에는 `player.arrel`, `npc.malet`, `npc.sable`만 유지한다. 후보 인물을 catalog에 미리 대량 등록하지 않는다.
+현재 ActorRegistry에는 실제 consumer가 있는 `player.arrel`, `npc.malet`, `npc.sable`, `npc.kairos`만 유지한다. 다른 후보 인물을 catalog에 미리 대량 등록하지 않는다.

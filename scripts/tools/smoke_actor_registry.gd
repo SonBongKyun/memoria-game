@@ -14,6 +14,7 @@ func _ready() -> void:
 	_expect(ActorRegistry.has_actor("player.arrel"), "player.arrel must be registered")
 	_expect(ActorRegistry.has_actor("npc.malet"), "npc.malet must be registered")
 	_expect(ActorRegistry.has_actor("npc.sable"), "npc.sable must be registered")
+	_expect(ActorRegistry.has_actor("npc.kairos"), "npc.kairos must be registered")
 	_expect(ActorRegistry.get_display_name("player.arrel") == "Arrel",
 		"Persistent player ID and display name must remain separate")
 	_expect(String(ActorRegistry.get_actor("npc.malet").get("namespace", "")) == "npc",
@@ -24,7 +25,7 @@ func _ready() -> void:
 		"An exact duplicate actor ID must be rejected")
 	_expect(not ActorRegistry.register_actor("player.malet", "Player Malet"),
 		"The same actor slug across namespaces must be rejected because memory IDs omit namespace")
-	_expect(ActorRegistry.get_actor_ids().size() == 3,
+	_expect(ActorRegistry.get_actor_ids().size() == 4,
 		"Rejected registrations must not mutate the registry")
 
 	_runner.begin_test("display_name_is_not_identity")
@@ -47,7 +48,7 @@ func _ready() -> void:
 
 	_expect(ActorRegistry.reset_to_defaults(), "Actor catalog must reload after collision checks")
 	WorldState.reset_to_defaults()
-	_runner.finish(get_tree(), "defaults=3 collisions=2 unknown_access=validated")
+	_runner.finish(get_tree(), "defaults=4 collisions=2 unknown_access=validated")
 
 
 func _expect(condition: bool, reason: String) -> bool:

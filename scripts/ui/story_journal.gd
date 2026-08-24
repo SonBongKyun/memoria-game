@@ -31,7 +31,7 @@ const JOURNAL_BACKDROP_PATH: String = "res://assets/cg/generated/ui_story_journa
 # 자동으로 story_flags 기반으로 생성
 const CHAPTER_NAMES := {
 	1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter",
-	5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest",
+	5: "The Classifier", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest",
 	9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue", 12: "Verdan Underlock",
 	13: "Eastern Reading Wall", 14: "Confessor Hall", 15: "Mneme Cell", 16: "East Road",
 	17: "Forgetting Storm", 18: "Living Funeral", 19: "Lumea Approach", 20: "Monolith",

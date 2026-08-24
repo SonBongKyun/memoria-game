@@ -16,6 +16,12 @@ const SCHEMA_VERSION: int = 1
 const MEMORY_STATUS_ACTIVE: String = "active"
 const MEMORY_STATUS_REMOVED: String = "removed"
 
+# Canon Migration Wave 2A compatibility. The retired fact encoded Arrel's
+# identity even when Malet's source memory had been removed. Old records stay
+# intact; import only adds the identity-free canonical event fact beside them.
+const LEGACY_MALET_ROUTE_FACT_ID: String = "fact.arrel.seeks_bl07"
+const CANONICAL_MALET_ROUTE_FACT_ID: String = "fact.bl07.route_request_received"
+
 const DEFAULT_STATE_BASE: Dictionary = {
 	"schema_version": SCHEMA_VERSION,
 	"revision": 0,
@@ -207,6 +213,7 @@ func _normalize_actor(actor_id: String, actor_data: Dictionary) -> Dictionary:
 				"value": bool(knowledge_record.get("value", false)),
 				"updated_revision": maxi(0, int(knowledge_record.get("updated_revision", 0))),
 			}
+	_apply_malet_route_fact_compatibility(actor_id, actor)
 	return actor
 
 
@@ -222,6 +229,10 @@ func _normalize_memory_record(actor_id: String, memory_id: String, record: Dicti
 			var fact_id := String(fact_value)
 			if is_valid_fact_id(fact_id) and fact_id not in fact_ids:
 				fact_ids.append(fact_id)
+	if actor_id == "npc.malet" \
+			and LEGACY_MALET_ROUTE_FACT_ID in fact_ids \
+			and CANONICAL_MALET_ROUTE_FACT_ID not in fact_ids:
+		fact_ids.append(CANONICAL_MALET_ROUTE_FACT_ID)
 
 	var source_actor_id := String(record.get("source_actor_id", ""))
 	if source_actor_id != "" and not ActorRegistry.has_actor(source_actor_id):
@@ -251,6 +262,27 @@ func _make_empty_actor_state() -> Dictionary:
 		"quest_state": {},
 		"flags": {},
 	}
+
+
+## Additive compatibility for saves written before the BL-07 request event and
+## requester identity were separated. No revision/event is allocated and the
+## legacy key remains available to older code or development saves.
+func _apply_malet_route_fact_compatibility(actor_id: String, actor: Dictionary) -> void:
+	if actor_id != "npc.malet":
+		return
+	var knowledge: Dictionary = actor.get("knowledge", {})
+	if not knowledge.has(LEGACY_MALET_ROUTE_FACT_ID) \
+			or knowledge.has(CANONICAL_MALET_ROUTE_FACT_ID):
+		return
+	var legacy_record: Variant = knowledge[LEGACY_MALET_ROUTE_FACT_ID]
+	if not (legacy_record is Dictionary):
+		return
+	knowledge[CANONICAL_MALET_ROUTE_FACT_ID] = {
+		"fact_id": CANONICAL_MALET_ROUTE_FACT_ID,
+		"value": bool(legacy_record.get("value", false)),
+		"updated_revision": maxi(0, int(legacy_record.get("updated_revision", 0))),
+	}
+	actor["knowledge"] = knowledge
 
 
 func _dictionary_copy(value: Variant) -> Dictionary:

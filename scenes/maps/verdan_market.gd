@@ -7,7 +7,7 @@ const MAP_WIDTH: int = 30
 const MAP_HEIGHT: int = 20
 const DIALOGUE_FILE: String = "res://data/chapter2_dialogue.json"
 const MALET_ACTOR_ID: String = "npc.malet"
-const MALET_ROUTE_FACT_ID: String = "fact.arrel.seeks_bl07"
+const MALET_ROUTE_FACT_ID: String = "fact.bl07.route_request_received"
 const MALET_ROUTE_MEMORY_ID: String = "memory.malet.bl07_request_source"
 const ARREL_ACTOR_ID: String = "player.arrel"
 

@@ -956,11 +956,14 @@ func _update_quest_tracker() -> void:
 				active_quest = ("동쪽 출구로 이동하기" if GameManager.get_flag("ch3_class_seven_message") else "빈 역참 조사하기") if GameManager.current_locale == "ko" else ("Take the east exit" if GameManager.get_flag("ch3_class_seven_message") else "Search the abandoned waystation")
 			4:
 				if GameManager.get_flag("canon_ch5_classifier_ready"):
-					active_quest = "정식 5장 구현 대기: 분류자" if GameManager.current_locale == "ko" else "Canon boundary: Chapter 5, The Classifier"
+					active_quest = "분류자의 시선으로 전환 중" if GameManager.current_locale == "ko" else "Entering Chapter 5, The Classifier"
 				else:
 					active_quest = ("동쪽 경계에서 4장 마무리하기" if GameManager.get_flag("ch4_night_watch") else "엘리아와 드리프트 안정시키기") if GameManager.current_locale == "ko" else ("Conclude Chapter 4 at the east edge" if GameManager.get_flag("ch4_night_watch") else "Stabilize the drift with Elia")
 			5:
-				active_quest = "북쪽 균열에서 심에 도달하기" if GameManager.current_locale == "ko" else "Reach the Seam through the northern fracture"
+				if GameManager.get_flag("canon_ch6_seam_ready"):
+					active_quest = "다음 여정: 6장, 심" if GameManager.current_locale == "ko" else "Next: Chapter 6, The Seam"
+				else:
+					active_quest = "카이로스의 분류 기록" if GameManager.current_locale == "ko" else "Kairos's classification record"
 			6:
 				active_quest = ("남쪽의 BL-07 입구로 이동하기" if GameManager.get_flag("ch6_briefing_done") else "세이블과 대화하기") if GameManager.current_locale == "ko" else ("Enter BL-07 to the south" if GameManager.get_flag("ch6_briefing_done") else "Speak with Sable")
 			7:

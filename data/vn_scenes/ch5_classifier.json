@@ -1,0 +1,129 @@
+{
+  "id": "ch5_classifier",
+  "title": "Chapter 5, The Classifier",
+  "title_ko": "5장, 분류자",
+  "chapter": 5,
+  "steps": [
+    {
+      "cg": "res://assets/cg/generated/cinematic_kairos_authority_edit.png",
+      "fade": 1.8,
+      "narrate": "Two days after the Void Beast died, a traveling clerk entered the clearing alone.",
+      "narrate_ko": "공허수가 죽은 지 이틀 뒤, 행상 서기 차림의 남자가 홀로 공터에 들어섰다."
+    },
+    {
+      "narrate": "His coat was drab, his face forgettable. Only the black Authority notebook in his hand refused to disappear into the ash.",
+      "narrate_ko": "외투는 칙칙했고 얼굴은 기억에 남지 않았다. 손에 든 검은 관리국 수첩만이 잿빛 풍경에 묻히기를 거부했다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_neutral",
+      "side": "right",
+      "text": "Combustion residue. Two days old.",
+      "text_ko": "연소 잔재. 이틀 전의 것."
+    },
+    {
+      "narrate": "Kairós set a brass instrument against the scar in the ground. Its needle climbed past the calibrated scale.",
+      "narrate_ko": "카이로스는 땅의 상흔에 황동 측정기를 댔다. 바늘은 보정된 눈금을 넘어 치솟았다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_cold",
+      "side": "right",
+      "text": "Yield exceeds projection by a factor of ten.",
+      "text_ko": "산출량이 예측치의 열 배를 넘는다."
+    },
+    {
+      "narrate": "He touched a blade of white grass with the bone pen. Green returned for three breaths, then drained away.",
+      "narrate_ko": "그가 뼈로 만든 펜을 흰 풀잎에 대자 세 번의 숨 동안 초록이 돌아왔다가 다시 빠져나갔다."
+    },
+    {
+      "narrate": "A burned splinter became an unburned cylinder. The correction was small, exact, and temporary.",
+      "narrate_ko": "탄 나뭇조각은 타지 않은 원통으로 바뀌었다. 수정은 작고 정확했으며 일시적이었다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_cold",
+      "side": "right",
+      "text": "Class Seven. Confirmed.",
+      "text_ko": "7등급. 확인."
+    },
+    {
+      "narrate": "The black notebook received the official measurements. The red notebook received what the Authority would not.",
+      "narrate_ko": "검은 수첩에는 공식 측정값이 적혔다. 붉은 수첩에는 관리국에 보내지 않을 내용이 적혔다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_neutral",
+      "side": "right",
+      "text": "Withhold classification. Preserve the specimen.",
+      "text_ko": "분류 결과는 보류한다. 표본을 보존한다."
+    },
+    {
+      "narrate": "The decision violated Directive Four. Kairós wrote it without hesitation.",
+      "narrate_ko": "그 결정은 지침 4호를 위반했다. 카이로스는 망설임 없이 적었다."
+    },
+    {
+      "narrate": "A coded report from Verdan waited beneath the field measurements: a buyer had traded the memory of a first sword for the route to BL-07.",
+      "narrate_ko": "현장 측정값 아래에는 베르단에서 온 암호 보고가 기다리고 있었다. 한 구매자가 첫 검의 기억을 BL-07 경로와 맞바꾸었다."
+    },
+    {
+      "requires_flag": "ch5_malet_report_identified_arrel",
+      "narrate": "The public line called him nameless. Malet's private source mark still resolved the requester: Arrel.",
+      "narrate_ko": "공식 문구는 그를 이름 없는 구매자라 불렀다. 하지만 말렛의 비공개 출처 표식은 요청자를 가리켰다. 아렐."
+    },
+    {
+      "requires_flag": "ch5_malet_report_identified_arrel",
+      "speaker": "Kairos",
+      "portrait": "kairos_cold",
+      "side": "right",
+      "text": "The buyer and the subject are one.",
+      "text_ko": "구매자와 대상은 동일 인물이다."
+    },
+    {
+      "requires_flag": "ch5_malet_report_requester_unknown",
+      "narrate": "The request remained in Malet's report. The requester did not. Its source field ended in a clean omission.",
+      "narrate_ko": "말렛의 보고에는 요청이 남아 있었다. 요청자는 남아 있지 않았다. 출처란은 깨끗한 누락으로 끝났다."
+    },
+    {
+      "requires_flag": "ch5_malet_report_requester_unknown",
+      "speaker": "Kairos",
+      "portrait": "kairos_neutral",
+      "side": "right",
+      "text": "The market retained the event, not the name.",
+      "text_ko": "시장은 사건은 보존했지만 이름은 보존하지 못했다."
+    },
+    {
+      "narrate": "A woman occupied half a sentence in the same report. Malet had circled the phrase twice: she made burned memories leave a residue.",
+      "narrate_ko": "같은 보고에서 한 여자는 반 문장만을 차지했다. 말렛은 그 구절에 두 번 동그라미를 쳤다. 그녀는 탄 기억이 잔재를 남기게 했다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_cold",
+      "side": "right",
+      "text": "An anchor. More interesting than the route.",
+      "text_ko": "앵커인가. 경로보다 흥미롭군."
+    },
+    {
+      "narrate": "Arrel and Elia were already days east. The Classifier did not follow. He revised the distance between them into a schedule.",
+      "narrate_ko": "아렐과 엘리아는 이미 며칠 거리만큼 동쪽에 있었다. 분류자는 뒤쫓지 않았다. 그는 그 거리를 일정표로 고쳐 적었다."
+    },
+    {
+      "speaker": "Kairos",
+      "portrait": "kairos_neutral",
+      "side": "right",
+      "text": "Observation concluded. Contact initiated. Patient approach.",
+      "text_ko": "관찰 종료. 접촉 개시. 신중히 접근한다."
+    },
+    {
+      "narrate": "He closed the red notebook. Behind him, the corrected grass turned white again.",
+      "narrate_ko": "그가 붉은 수첩을 덮었다. 등 뒤에서 수정되었던 풀잎이 다시 하얗게 변했다."
+    },
+    {
+      "set_flag": "canon_ch6_seam_ready",
+      "complete_chapter": 5,
+      "autosave_chapter_transition": true,
+      "action": "goto_map",
+      "path": "res://scenes/maps/drift_shelter.tscn"
+    }
+  ]
+}

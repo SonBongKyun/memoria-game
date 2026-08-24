@@ -6,7 +6,7 @@ const VERDAN_SCENE = preload("res://scenes/maps/verdan_market.tscn")
 const BELT_SCENE = preload("res://scenes/maps/belt_waystation.tscn")
 const DRIFT_SCENE = preload("res://scenes/maps/drift_shelter.tscn")
 const ACTOR_ID := "npc.malet"
-const FACT_ID := "fact.arrel.seeks_bl07"
+const FACT_ID := "fact.bl07.route_request_received"
 const MEMORY_ID := "memory.malet.bl07_request_source"
 const TEST_SAVE_SLOT := 2
 
@@ -78,8 +78,8 @@ func _check_authored_route_contract() -> void:
 	_expect(not drift_source.contains("res://scenes/maps/crumbling_coast.tscn"),
 		"Chapter 4 still exposes the superseded Crumbling Coast transition")
 	_expect(drift_source.contains("canon_ch5_classifier_ready") \
-		and drift_source.contains("Chapter 5: The Classifier"),
-		"Chapter 4 has no explicit saveable Classifier boundary")
+		and drift_source.contains("ch5_classifier_entry.tscn"),
+		"Chapter 4 has no transition into the canonical Classifier entry")
 	_expect(not belt_source.contains("WorldState.") \
 		and not drift_source.contains("WorldState."),
 		"Wave 1 map code writes or reads WorldState directly")
@@ -154,6 +154,7 @@ func _check_drift_scene_and_boundary() -> void:
 	GameManager.set_flag("canon_ch5_classifier_ready", false)
 
 	var drift := DRIFT_SCENE.instantiate()
+	drift.set("launch_classifier_on_ready", false)
 	_expect(drift.get_node_or_null("Tobias") == null,
 		"Canonical Drift scene unexpectedly instantiates Tobias")
 	add_child(drift)
@@ -167,7 +168,7 @@ func _check_drift_scene_and_boundary() -> void:
 	_expect(not DialogueManager.is_active,
 		"Canonical Chapter 4 departure dialogue did not terminate")
 	_expect(GameManager.current_chapter == 4,
-		"Chapter 4 boundary unlocked the superseded Chapter 5 runtime")
+		"Chapter 4 departure changed chapter before the saveable boundary")
 	_expect(GameManager.get_flag("ch4_complete") \
 		and GameManager.get_flag("canon_ch5_classifier_ready"),
 		"Chapter 4 did not reach its explicit Classifier boundary")

@@ -156,6 +156,14 @@ $cases = @(
         ExpectedExit = 0
         RequiredLog = "boundary=ch5_classifier"
         ExtraArgs = ""
+    },
+    [pscustomobject]@{
+        Name = "canon_wave2a"
+        Scene = "res://scripts/tools/smoke_canon_wave2a.tscn"
+        Marker = "CANON_WAVE2A_SMOKE_PASS"
+        ExpectedExit = 0
+        RequiredLog = "ch21_hook=ready"
+        ExtraArgs = ""
     }
 )
 

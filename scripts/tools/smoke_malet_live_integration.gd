@@ -4,7 +4,7 @@ const SmokeTestRunner = preload("res://scripts/tools/smoke_test_runner.gd")
 const SmokeSaveSandbox = preload("res://scripts/tools/smoke_save_sandbox.gd")
 const VERDAN_MARKET_SCENE = preload("res://scenes/maps/verdan_market.tscn")
 const ACTOR_ID: String = "npc.malet"
-const FACT_ID: String = "fact.arrel.seeks_bl07"
+const FACT_ID: String = "fact.bl07.route_request_received"
 const MEMORY_ID: String = "memory.malet.bl07_request_source"
 const TEST_SAVE_SLOT: int = 2
 
@@ -101,7 +101,7 @@ func _check_lifecycle_seed(live_map: Node) -> void:
 	_expect(_count_event("memory.added") == 1,
 		"Lifecycle seed must add the source memory exactly once")
 	_expect(MemoryEngine.knows_fact(ACTOR_ID, FACT_ID),
-		"Malet did not learn that Arrel seeks BL-07")
+		"Malet did not retain that a BL-07 route request occurred")
 	var record := WorldState.get_memory_record(ACTOR_ID, MEMORY_ID)
 	_expect(String(record.get("status", "")) == WorldState.MEMORY_STATUS_ACTIVE,
 		"Seeded source memory is not active")

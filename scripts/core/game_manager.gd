@@ -738,6 +738,7 @@ const RUNTIME_TEXT_KO: Dictionary = {
 	"Weight of Pages": "페이지의 무게",
 	"Drift": "드리프트",
 	"The architecture crumbles": "무너져 내리는 구조",
+	"The Classifier": "분류자",
 	"Crumbling Coast": "무너지는 해안",
 	"The ground gives way": "발밑이 무너지는 곳",
 	"The Seam": "심",
@@ -817,7 +818,7 @@ func localized_speaker(speaker: String) -> String:
 ## 옮겼다. 두 곳 다 이미 게임에 나오는 정본이므로 새로 지어낸 이름은 없다.
 const CHAPTER_NAMES_KO: Dictionary = {
 	1: "림 숲", 2: "베르단 시장", 3: "벨트 중계소", 4: "표류 대피소",
-	5: "무너지는 해안", 6: "더 심", 7: "심 외곽", 8: "망각의 숲",
+	5: "분류자", 6: "더 심", 7: "심 외곽", 8: "망각의 숲",
 	9: "무색 황무지", 10: "BL-07 공허", 11: "출발", 12: "독자",
 	13: "세 번째 사람", 14: "고해소", 15: "노래하는 자", 16: "네라",
 	17: "망각의 폭풍", 18: "생장례", 19: "접근", 20: "모노리스 진입",
@@ -893,7 +894,7 @@ var _chapter_start_time: float = 0.0
 ## Map chapter numbers to human-readable names for Steam Rich Presence.
 const RICH_PRESENCE_CHAPTERS: Dictionary = {
 	1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation",
-	4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam",
+	4: "Drift Shelter", 5: "The Classifier", 6: "The Seam",
 	7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste",
 	10: "BL-07 Void", 11: "Departure",
 	# S147: Part II/III (VN 확장)

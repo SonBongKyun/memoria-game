@@ -39,7 +39,7 @@ const SAVE_CHAPTER_ART := {
 	2: "res://assets/cg/generated/chapter_splash_verdan_market.png",
 	3: "res://assets/cg/generated/chapter_splash_belt_waystation.png",
 	4: "res://assets/cg/generated/chapter_splash_drift_shelter.png",
-	5: "res://assets/cg/generated/chapter_splash_crumbling_coast.png",
+	5: "res://assets/cg/generated/cinematic_kairos_authority_edit.png",
 	6: "res://assets/cg/generated/chapter_splash_the_seam.png",
 	7: "res://assets/cg/generated/chapter_splash_seam_outskirts.png",
 	8: "res://assets/cg/generated/chapter_splash_forgotten_forest.png",
@@ -2215,7 +2215,7 @@ func _refresh_footer_hints() -> void:
 		_update_hint_text(pause_hint_label, last_saved_label)
 
 func _update_save_info() -> void:
-	var chapter_name = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
+	var chapter_name = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "The Classifier", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
 	var ch = GameManager.current_chapter
 	var hp = GameManager.player_data.hp
 	var max_hp = GameManager.player_data.max_hp
@@ -2233,7 +2233,7 @@ func _update_save_info() -> void:
 		text += _ploc("\nLoss records: %d", "\n상실 기록 %d건") % WorldRewriteDirector.get_loss_records().size()
 
 	# S57: Enhanced save slot display with chapter name, HP, grains, and playtime
-	var ch_names = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
+	var ch_names = {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "The Classifier", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
 
 	var save = SaveManager.get_save_info(1)
 	if save.is_empty():
@@ -2510,8 +2510,8 @@ func _save_archive_art_path(info: Dictionary) -> String:
 	return String(SAVE_CHAPTER_ART.get(clampi(chapter, 1, 10), "res://assets/cg/generated/ui_loss_record_blank_book_v2.png"))
 
 func _save_archive_chapter_name(chapter: int) -> String:
-	var names := {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "Crumbling Coast", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
-	var names_ko := {1: "림 숲", 2: "베르단 시장", 3: "벨트 중계소", 4: "표류 대피소", 5: "무너지는 해안", 6: "더 심", 7: "심 외곽", 8: "망각의 숲", 9: "무색 황무지", 10: "BL-07 공허", 11: "에필로그"}
+	var names := {1: "Rim Forest", 2: "Verdan Market", 3: "Belt Waystation", 4: "Drift Shelter", 5: "The Classifier", 6: "The Seam", 7: "Seam Outskirts", 8: "Forgotten Forest", 9: "Colorless Waste", 10: "BL-07 Void", 11: "Epilogue"}
+	var names_ko := {1: "림 숲", 2: "베르단 시장", 3: "벨트 중계소", 4: "표류 대피소", 5: "분류자", 6: "더 심", 7: "심 외곽", 8: "망각의 숲", 9: "무색 황무지", 10: "BL-07 공허", 11: "에필로그"}
 	return String(names_ko.get(chapter, "알 수 없는 경로")) if GameManager.current_locale == "ko" else String(names.get(chapter, "Unknown Route"))
 
 func _save_archive_location_name(info: Dictionary) -> String:
@@ -3290,6 +3290,12 @@ func _show_travel_panel() -> void:
 	route_scroll.add_child(route_list)
 
 	for map_data in TRAVEL_DESTINATIONS:
+		# Canon Wave 2A retires the old Chapter 5 coast from the witnessed route
+		# once The Classifier has begun. Legacy saves without this flag retain
+		# their old destination until their later progression is migrated.
+		if String(map_data.get("scene", "")) == "res://scenes/maps/crumbling_coast.tscn" \
+				and GameManager.get_flag("ch5_classifier_started"):
+			continue
 		var btn := Button.new()
 		var chapter := int(map_data.get("chapter", 1))
 		var unlocked := GameManager.current_chapter >= chapter

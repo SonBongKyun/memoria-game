@@ -4,6 +4,8 @@
 ## S59: transition audio stings, void edge glow, elastic easing.
 extends CanvasLayer
 
+signal transition_finished
+
 var transition_rect: ColorRect
 var tween: Tween
 var _transition_in_progress: bool = false
@@ -25,7 +27,7 @@ const CHAPTER_NAMES: Dictionary = {
 	2: "Chapter II\nVerdan Market",
 	3: "Chapter III\nBelt Waystation",
 	4: "Chapter IV\nDrift Shelter",
-	5: "Chapter V\nCrumbling Coast",
+	5: "Chapter V\nThe Classifier",
 	6: "Chapter VI\nThe Seam",
 	7: "Chapter VII\nSeam Outskirts",
 	8: "Chapter VIII\nForgotten Forest",
@@ -88,10 +90,17 @@ func _switch_scene(scene_path: String) -> bool:
 	return false
 
 func _complete_scene_transition() -> void:
+	var completed_transition := _transition_in_progress
 	_transition_in_progress = false
 	_transition_target = ""
 	if is_instance_valid(transition_rect):
 		transition_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if completed_transition:
+		transition_finished.emit()
+
+
+func is_transition_in_progress() -> bool:
+	return _transition_in_progress
 
 func _abort_scene_transition() -> void:
 	if tween and tween.is_valid():

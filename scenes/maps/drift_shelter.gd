@@ -7,6 +7,9 @@ const TILE_SIZE: int = 32
 const MAP_WIDTH: int = 25
 const MAP_HEIGHT: int = 18
 const DIALOGUE_FILE: String = "res://data/chapter4_dialogue.json"
+const CLASSIFIER_ENTRY_SCENE: String = "res://scenes/story/ch5_classifier_entry.tscn"
+
+@export var launch_classifier_on_ready: bool = true
 
 enum Tile { MUD, RUBBLE, CONCRETE, WALL, PATH, SHELTER }
 
@@ -68,14 +71,14 @@ func _ready() -> void:
 	MapEffects.add_drop_shadow(player)
 	# S59: 비에 젖은 안개 + 깊이 그라디언트
 	_position_player()
-	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+	if _can_resume_ch4_exploration():
 		_setup_battle_triggers()
 	_setup_exit_trigger()
-	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+	if _can_resume_ch4_exploration():
 		_setup_interactive_objects()
 		_setup_exploration_events()
 	_setup_map_decorations()
-	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+	if _can_resume_ch4_exploration():
 		_setup_random_encounters()
 		WorldPopulation.populate(self, "drift_shelter")
 		WorldAtlas.add_gateways(self, "drift_shelter")
@@ -85,7 +88,11 @@ func _ready() -> void:
 	_ready_sequence()
 
 func _ready_sequence() -> void:
+	if GameManager.get_flag("canon_ch6_seam_ready"):
+		return
 	if GameManager.get_flag("canon_ch5_classifier_ready"):
+		if launch_classifier_on_ready:
+			call_deferred("_enter_classifier")
 		return
 	if not GameManager.get_flag("ch4_arrived"):
 		await MapEffects.show_chapter_title(self, 4, "Drift", "The architecture crumbles")
@@ -182,11 +189,26 @@ func _on_departure_ended() -> void:
 	GameManager.current_chapter = 4
 	GameManager.set_flag("canon_ch5_classifier_ready")
 	SaveManager.autosave_on_chapter_transition()
-	var boundary_text := "Season 1 migration boundary reached. Chapter 5: The Classifier is next."
+	var boundary_text := "Elsewhere, someone is measuring the trail you left behind."
 	if GameManager.current_locale == "ko":
-		boundary_text = "시즌 1 마이그레이션 경계에 도달했습니다. 다음은 5장: 분류자입니다."
+		boundary_text = "어딘가에서 누군가 당신이 남긴 흔적을 측정하고 있습니다."
 	NotificationToast.show_toast(boundary_text, NotificationToast.ToastType.INFO)
-	print("[DriftShelter] Canon Wave 1 complete; Chapter 5: The Classifier is not live yet")
+	print("[DriftShelter] Chapter 4 complete; entering Chapter 5: The Classifier")
+	if launch_classifier_on_ready:
+		_enter_classifier()
+
+
+func _enter_classifier() -> void:
+	if not GameManager.get_flag("canon_ch5_classifier_ready") \
+			or GameManager.get_flag("canon_ch6_seam_ready"):
+		return
+	SceneTransition.change_scene_styled(CLASSIFIER_ENTRY_SCENE)
+
+
+func _can_resume_ch4_exploration() -> bool:
+	return GameManager.get_flag("ch4_complete") \
+		and not GameManager.get_flag("canon_ch5_classifier_ready") \
+		and not GameManager.get_flag("canon_ch6_seam_ready")
 
 ## ===================== 전투 트리거 =====================
 
@@ -374,7 +396,7 @@ func _setup_map_decorations() -> void:
 		rubble.color = Color(0.2, 0.18, 0.16, 0.25)
 		rubble.z_index = -1
 		add_child(rubble)
-	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+	if _can_resume_ch4_exploration():
 		var ambient_npcs = [
 			{"pos": Vector2(8, 7), "preset": "villager_f"},
 			{"pos": Vector2(13, 6), "preset": "scholar"},
@@ -422,6 +444,8 @@ func _retire_legacy_tobias_progression() -> void:
 		if GameManager.get_flag(flag_name):
 			GameManager.set_flag(flag_name, false)
 	BattleManager.tobias_in_party = false
-	if GameManager.get_flag("ch4_complete") and not GameManager.get_flag("canon_ch5_classifier_ready"):
+	if GameManager.get_flag("ch4_complete") \
+			and not GameManager.get_flag("canon_ch5_classifier_ready") \
+			and not GameManager.get_flag("canon_ch6_seam_ready"):
 		GameManager.set_flag("canon_ch5_classifier_ready")
 		GameManager.current_chapter = 4

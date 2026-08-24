@@ -2,7 +2,7 @@
 
 기준일: 2026-08-23
 
-상태: migration 진행 중. Wave 1 Ch1~4 runtime 연결 완료, Wave 2 대기
+상태: migration 진행 중. Wave 1 Ch1~4 및 Wave 2A Ch5 runtime 연결 완료, Wave 2B Ch6 대기
 
 연동 문서: [Season 1 Memory Map](SEASON1_MEMORY_MAP.md)
 
@@ -66,19 +66,20 @@ TITLE
 | 5 | Ch1→2 VN | forest 이탈, BL-07와 형제 동기, Verdan 진입 | `ch1_complete`, `current_chapter = 2` | `ch2_market_arrival` → Verdan map |
 | 6 | Game Ch2, Verdan Market | Malet 대화 → 거래 수락 → 추출 → 3개 정보 → shop | 거절은 루프되어 결국 수락해야 진행. shop을 닫아야 `ch2_complete`. Malet WorldState seed 발생 | Belt Waystation |
 | 7 | Canon Ch3, Belt Waystation | Arrel/Elia가 빈 역참에서 Blank Book 발견 → 밤의 세 음 → Class Seven 벽 문장 확인 | `has_blank_book`; 출구는 `ch3_class_seven_message` 필요. Tobias 없음 | Drift Shelter |
-| 8 | Canon Ch4, Drift Shelter | reading deterioration → Elia anchoring → breakfast memory loss → watcher/loop animal → cave night watch | 출구는 `ch4_night_watch` 필요. 완료 시 `canon_ch5_classifier_ready`와 autosave | Ch5 Classifier 개발 경계 |
-| 9 | Game Ch5, Crumbling Coast | Kairós 목격 → Elia 분리/유지 선택 → Seam 도착 | 필수 boss 없음. `elia_separates` 또는 `elia_stays` | The Seam |
-| 10 | Game Ch6, The Seam | 필요 시 Elia 재합류 → Sable briefing → Sable 합류 → BL-07 입구 | `ch6_briefing_done` 후 Shade Sentinel 필수 boss. 승리 복귀 후 `ch6_complete` | Seam Outskirts |
-| 11 | Game Ch7, Seam Outskirts | Sable truth → Echo Shell 획득 → controlled burn trial | `has_echo_shell`; Threshold Shade 필수 trial. 출구는 `ch7_trial_complete` 필요. Sable Vessa WorldState seed | Forgotten Forest |
-| 12 | Game Ch8, Forgotten Forest | ghost encounter → Tobias ring theory | 도착 시퀀스 뒤 출구 가능. 필수 boss/item gate 없음 | Colorless Waste |
-| 13 | Game Ch9, Colorless Waste | Memory Compass 획득 → Kairós 대면/진실 → Kairós 전투 | Kairós가 필수 boss 의도로 연결됨. `ch9_kairos`가 전투 전에 설정되어 gate 의미가 약함 | BL-07 Void |
-| 14 | Game Ch10, BL-07 Void | core 도달 → Weave / Seal / Refuse | Weave는 legacy MemoryManager 보존 상태, Seal은 `core_name_origin` 연소, Refuse는 별도 flag | The Seam |
-| 15 | Legacy epilogue | burn 수, hidden flags, Tobias/Kairós flags로 7개 ending 중 하나 선택 | Elia와 Sable 양쪽 epilogue 대화를 모두 봐야 Credits | Credits |
+| 8 | Canon Ch4, Drift Shelter | reading deterioration → Elia anchoring → breakfast memory loss → watcher/loop animal → cave night watch | 출구는 `ch4_night_watch` 필요. 완료 시 `canon_ch5_classifier_ready`와 autosave | Canon Ch5 entry |
+| 9 | Canon Ch5, `ch5_classifier` VN | Kairós가 forest burn trace를 측정하고 black/red notebook과 Malet report를 분류 | 전투 없음. report 당시 Malet source memory에 따라 Kairós historical fact 1개를 확정 | `canon_ch6_seam_ready` save boundary |
+| Legacy 5 | Crumbling Coast | Kairós 목격 → Elia 분리/유지 선택 → Seam 도착 | main route reference 제거. 파일과 자산은 future repurpose용 보존 | legacy only |
+| Legacy 6 | The Seam | 필요 시 Elia 재합류 → Sable briefing → Sable 합류 → BL-07 입구 | Shade Sentinel gate 포함, 현재 canonical route에서 미도달 | legacy only |
+| Legacy 7 | Seam Outskirts | Sable truth → Echo Shell 획득 → controlled burn trial | Sable Vessa WorldState 구현은 보존, route migration은 Wave 2B 이후 | legacy only |
+| Legacy 8 | Forgotten Forest | ghost encounter → Tobias ring theory | 최신 Ch8과 충돌 | legacy only |
+| Legacy 9 | Colorless Waste | Memory Compass → Kairós 대면과 전투 | Kairós boss 파일/asset 보존, canonical route reference 없음 | legacy only |
+| Legacy 10 | BL-07 Void | core 도달 → Weave / Seal / Refuse | 최신 canon보다 이른 finale | legacy only |
+| Legacy epilogue | The Seam | 7개 ending 중 하나 선택 | canonical route reference 없음 | legacy only |
 
 중요한 구조적 사실:
 
 - `rim_forest.tscn`에는 legacy/hybrid Ch1 progression이 남아 있지만 현재 New Game은 그 맵을 방문하지 않고 Ch1을 전부 VN으로 처리한다.
-- Wave 1 이후 New Game main route는 Ch4의 saveable Classifier 경계에서 멈춘다. 위 표의 9~15행은 파일로 보존된 pre-Wave 1 legacy inventory이며 현재 New Game에서 접근할 수 없다.
+- Wave 2A 이후 New Game main route는 Ch5 `The Classifier`를 완료한 뒤 `canon_ch6_seam_ready`가 기록된 saveable boundary에서 멈춘다. 위 표의 Legacy 행은 파일로 보존되지만 현재 New Game에서 접근할 수 없다.
 - legacy Ch5~10 map chain은 `current_chapter`와 `chN_*` story flag에 강하게 결합되어 있어 Wave 2 이후에도 파일을 즉시 삭제하지 않는다.
 - Blank Book, Echo Shell, Memory Compass는 획득 알림/flag는 있으나 inventory object를 소비하는 main gate는 아니다.
 - Fast Travel은 `current_chapter >= destination.chapter`만으로 10개 맵을 연다. Aftermath의 Ch11 이상 상태에서는 이전 map 전체가 자동 해금된다.
@@ -98,7 +99,7 @@ TITLE
 | 2 | Rules of Deal | Verdan에서 Malet에게 첫 검 memory를 팔고 BL-07 route/Kairós 경고를 얻음 | Ch2 Verdan/Malet 거래 | `KEEP` | 거래, Malet fact/memory, 시장 map 유지. 후속만 Ch5/21로 연결 |
 | 3 | Weight of Pages | Belt, 버려진 waystation, 읽기 틈, blank book, Editor 문장. Arrel/Elia만 이동 | Game Ch3 waystation이 Tobias를 조기 등장·합류시킴 | `REWRITE` | map/book/wall 자산은 유지하고 Tobias를 제거. Elia와 책 중심으로 재작성 |
 | 4 | Drift | 단어·색·어린 시절 drift, Elia의 body anchoring | Game Ch4 Drift Shelter | `REWRITE` | shelter/anchoring 유지, Tobias 대사와 조기 classification 설명 제거 |
-| 5 | The Classifier | Kairós POV, forest burn trace, black/red notebooks, Malet report | Game Ch5는 coast와 Elia 분리 | `REPLACE` | 현 Ch5 story를 뒤로 옮기고 Kairós 조사 intercut으로 교체 |
+| 5 | The Classifier | Kairós POV, forest burn trace, black/red notebooks, Malet report | `ch5_classifier` VN과 전용 entry | `KEEP` | Wave 2A 완료. historical report facts는 Ch21에서 소비 예정 |
 | 6 | The Seam | 살아 있는 색의 settlement, Sable/Haren, Elia가 남은 시간을 질문 | Game Ch6 The Seam | `REWRITE` | map/노년 Sable 유지. 즉시 BL-07 briefing·party/boss gate를 제거 |
 | 7 | Sable | 17 seekers, Vessa, 17 bark pieces와 Arrel의 18번째 조각 | Game Ch7에 Vessa/17은 교정됐으나 outskirts trial이 결합 | `REWRITE` | Vessa gameplay 유지. controlled-burn trial/Echo Shell 보상 순서를 canon에 맞게 재배치 |
 | 8 | The Listening Wood | Sable 동행, 친숙한 목소리, forest가 다섯 번째 시간을 빼앗음 | Game Ch8 forest, ghost/Tobias ring theory | `REWRITE` | forest map 유지, ghost family와 조기 Tobias를 borrowed-voice 규칙으로 교체 |
@@ -240,7 +241,7 @@ TITLE
 | Malet | `KEEP AS-IS` | Ch2 및 Ch21 record consumer에 그대로 사용 |
 | Sable | `KEEP AS-IS` | canonical old blind Sable assets만 사용. 젊은 Sable draft는 live 복귀 금지 |
 | Tobias | `MOVE` | portrait/sprite는 유지하되 첫 field appearance를 Ch23으로 이동 |
-| Kairós | `MOVE` / `EDIT` | portrait/CG 유지. Ch5/12/26/33/45 POV/encounter로 이동하고 Ch9 boss identity는 폐기 |
+| Kairós | `KEEP` / `MOVE` | portrait/CG를 Ch5 첫 POV에 재사용. Ch9 boss 파일/asset은 보존하되 main route에서 분리 |
 | Nera | `MOVE` | 현 asset을 Ch36 이후로 이동 |
 | Vael | `EDIT` | silhouette CG 2장은 존재하지만 portrait/field identity는 부족 |
 | Haren, Hannah, Mira, Telos, Driver, Velor, Grand Archivist | `MISSING` | progression이 해당 wave에 도달할 때만 필요한 자산을 제작. 이번 plan에서는 생성하지 않음 |
@@ -254,7 +255,8 @@ TITLE
 | `chapter2_dialogue.json` | `KEEP AS-IS` | Malet 거래와 current WorldState vertical slice 유지 |
 | `chapter3_dialogue.json` | `EDIT` / `MOVE` | book/wall은 Ch3, Tobias material은 Ch23으로 이동 |
 | `chapter4_dialogue.json` | `EDIT` | Tobias를 제거하고 anchoring의 body cost를 강화 |
-| current Ch5~10 dialogue | `REPURPOSE` / `DEPRECATE` | map atmosphere는 재사용, separation/trial/Kairós boss/early finale는 main canon에서 제거 |
+| `ch5_classifier.json` | `KEEP` | Wave 2A canonical POV VN. Malet report outcome 두 branch와 Ch6 boundary 소유 |
+| legacy Ch5~10 dialogue | `REPURPOSE` / `DEPRECATE` | map atmosphere는 재사용, separation/trial/Kairós boss/early finale는 main canon에서 제거 |
 | `ch12_reader.json` | `SPLIT` | canon 17/18/21/22로 분리 |
 | `ch13_third_person.json` | `MOVE` / `SPLIT` | canon 23/24로 이동 |
 | `ch14_confessor_intervention.json` | `MOVE` / `EDIT` | canon 25로 이동 |
@@ -284,7 +286,8 @@ TITLE
 | Wave | 수정 범위 | dependency | 주요 위험 | 필수 regression |
 |---:|---|---|---|---|
 | 1 | Canon Ch1~4: New Game Ch1 단일화, Ch2 유지, Ch3 Tobias 제거, Ch4 anchoring 정리 | 현재 Ch1 VN/Ch2 Malet baseline | old save의 `tobias_in_party`, Ch3 exit gate, battle party assumptions | New Game→Ch4 실제 run, Malet live/sandbox persistence, Ch1 VN, story flags, save/load |
-| 2 | Canon Ch5~10: Kairós Classifier, Seam/Sable, Listening Wood, Price | Wave 1의 book/anchor 상태 | current Ch5 separation, Ch6 boss, Ch7 trial, Ch8 Tobias 의존 제거 | map chain Ch5~10, Sable Vessa branches, forest choices, no mandatory legacy boss |
+| 2A | Canon Ch5: Kairós Classifier와 Malet historical report | Wave 1의 Ch5 boundary, Malet source state | requester identity와 event knowledge 분리, 과거 report 불변성 | Ch1→5, active/removed/restore timing, save/load, Ch21 hook, no legacy boss |
+| 2B | Canon Ch6~10: Seam/Sable, Listening Wood, Price | Wave 2A의 `canon_ch6_seam_ready` | current Ch6 boss, Ch7 trial, Ch8 Tobias 의존 제거 | map chain Ch6~10, Sable Vessa branches, forest choices, no mandatory legacy boss |
 | 3 | Canon Ch11~20: threshold/Editor, lullaby return, Reader/Pell, Mira, Gray Cage | Wave 2의 Echo Shell/lullaby setup | current Ch10 ending 제거 시 save destination 변경, new Haren/Mira assets | Ch10→Ch11 continuous transition, Editor noncombat gate, reader secret persistence, old save redirect |
 | 4 | Canon Ch21~31: Verdan revisit, Malet record, Tobias first appearance, Confessor, Hannah | Wave 3의 books/Gray Cage | current Ch12~15 JSON 분할, Tobias party unlock 재번호, Singer identity | Malet Ch2→5→21 ripple, Tobias first-seen ordering, Confessor consequence, song/lullaby callbacks |
 | 5 | Canon Ch32~39: Driver, face, Nera, storm, Echo Shell, Vael | Wave 4 underground network | new cast/location coverage, Ch39 DRAFT, current Ch16/17 flags | road/cart flow, Nera first appearance, storm survival, event order, no Ch39 mutation before lock |
@@ -358,17 +361,20 @@ ID와 memory/knowledge 의미는 `SEASON1_MEMORY_MAP.md`를 따른다. 아래 �
 - 이미지 생성과 asset 삭제를 하지 않았다.
 - 실제 migration은 Wave 1부터 별도 검토 가능한 working set으로 진행한다.
 
-## 10. Wave 1 구현 상태 (2026-08-23)
+## 10. Wave 1 및 Wave 2A 구현 상태 (2026-08-23)
 
 9절은 계획 체크포인트 당시의 변경 경계다. 그 뒤 첫 실제 migration working set으로 Canon Ch3~4를 구현했다.
 
-- Ch2 Verdan의 Malet 거래와 `fact.arrel.seeks_bl07` / `memory.malet.bl07_request_source`는 변경하지 않았다.
+- Ch2 Verdan의 Malet 거래는 유지하되 knowledge를 identity-free `fact.bl07.route_request_received`로 교정했다. `memory.malet.bl07_request_source`만 requester identity를 소유하며 old `fact.arrel.seeks_bl07` save는 additive import compatibility로 보존된다.
 - Ch2 완료 후 기존 scene route로 Belt Waystation에 진입하며, Ch3는 Arrel과 Elia만 등장한다.
 - Ch3 첫 방문은 전투와 배경 NPC가 없는 빈 역참이다. Blank Book 발견, 밤의 세 음, 다음 날의 `Subject demonstrates Class Seven combustion efficiency.` 벽 문장을 순서대로 진행한다.
 - Tobias scene node, 조기 dialogue, party join, journal 등록, exit dependency를 live Ch3에서 제거했다. Tobias의 portrait/sprite/CG 원본은 Ch23 재배치를 위해 삭제하지 않았다.
 - Ch4는 지나간 Ash Rain의 잔여물, 읽기 저하, Elia의 anchoring, 사라진 아침 기억, watcher/loop animal, cave meal과 nosebleed로 구성했다. 첫 방문 중 비정사 전투·NPC·활성 rain/lightning은 실행되지 않는다.
-- Ch4 출구에서는 `ch4_complete`와 `canon_ch5_classifier_ready`를 기록하고 autosave하되 `current_chapter`를 4로 유지한다. Chapter 5 `The Classifier` scene이 canonical하게 이식되기 전에는 legacy Crumbling Coast로 전환하지 않는다.
+- Ch4 출구에서는 `ch4_complete`와 `canon_ch5_classifier_ready`를 기록하고 autosave한 뒤 전용 entry가 이를 소비해 `current_chapter = 5`와 `ch5_classifier` VN으로 전환한다. legacy Crumbling Coast는 참조하지 않는다.
 - old development save가 Ch3/4에 들어올 경우 조기 Tobias story/party flag만 false로 정리한다. 이미 완료된 old Ch3/4 save는 새 sequence를 재생하지 않고 새 Ch5 경계로 deterministic하게 수렴한다.
-- legacy Ch5 이후 scene/dialogue와 Tobias assets는 삭제하지 않았지만 New Game의 Canon Wave 1 progression에서는 접근할 수 없다.
+- Ch5는 Kairós POV VN으로 burn trace 측정, Class Seven 분류, black/red notebook, Malet coded report, Elia anchor 관측을 구현했다. boss나 Arrel 직접 조우는 없다.
+- report는 당시 Malet source가 active/restored이면 `fact.kairos.malet_report_identified_arrel`, removed이면 `fact.kairos.malet_report_requester_unknown`을 Kairós knowledge로 정확히 한 번 기록한다. 이후 restore/remove는 이 historical result를 바꾸지 않으며 Ch21 future consumer의 hook이다.
+- 완료 시 `canon_ch6_seam_ready`를 autosave하고 Drift shell로 돌아온다. legacy Ch5 이후 scene/dialogue와 Tobias/Kairós boss assets는 삭제하지 않았지만 canonical New Game progression에서는 접근할 수 없다.
+- `ch5_classifier_started`가 있는 canonical save에서는 Fast Travel의 legacy Crumbling Coast 목적지를 숨긴다. 이 flag가 없는 legacy save의 기존 travel destination은 호환을 위해 유지한다.
 - save schema, DialogueManager, SceneFlow, MemoryManager, Memory World Engine API는 변경하지 않았다. 검증은 기존 smoke runner와 save sandbox만 확장했다.
-- 이 Wave 1 변경은 다음 검토를 위해 checkpoint commit에 포함하지 않고 working tree에 남긴다.
+- Wave 1은 `7abd36d feat(story): rebuild canon chapters 3 and 4`로 checkpoint했다. Wave 2A 변경은 다음 검토를 위해 working tree에 남긴다.

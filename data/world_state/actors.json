@@ -12,6 +12,10 @@
     {
       "actor_id": "npc.sable",
       "display_name": "Sable"
+    },
+    {
+      "actor_id": "npc.kairos",
+      "display_name": "Kairós"
     }
   ]
 }

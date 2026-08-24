@@ -2,6 +2,48 @@
 
 ---
 
+## S261 - 2026-08-23 (Season 1 Canon Migration Wave 2A: The Classifier)
+
+### 기준점
+- 사용자의 수동 F5 확인 뒤 Wave 1 Ch1~4를 import, 공식 Memory World Engine suite, Story QoL/Combat, VN/한국어/JSON validation으로 다시 검증했다.
+- task-owned Wave 1 파일만 `7abd36d feat(story): rebuild canon chapters 3 and 4`로 로컬 checkpoint했고 push하지 않았다. 사용자 수정 `assets/fonts/theme.tres`와 기존 tool UID 파일은 제외했다.
+
+### 플레이 경험과 canon Ch5
+- Drift Shelter의 Ch4 종료 autosave 뒤 legacy Crumbling Coast가 아니라 전용 Chapter 5 entry와 `ch5_classifier` VN으로 이어진다.
+- Kairós가 Void Beast 사망 이틀 뒤의 연소 흔적을 측정하고 작은 reality Edit를 시험한 뒤 `Class Seven`으로 분류한다. 검은 공식 수첩과 붉은 사적 수첩, Directive Four 위반, Elia anchor 관찰, patient approach를 최신 영문 Ch5 순서로 압축했다.
+- 기존 `cinematic_kairos_authority_edit.png`와 `kairos_story_v2.png`가 초기 관찰자 표현에 맞아 재사용했다. 직접 추격을 암시하는 old coast CG와 Ch9 boss presentation은 연결하지 않았다.
+
+### Malet knowledge와 historical consequence
+- canonical knowledge를 identity-free `fact.bl07.route_request_received`로 교정했다. 요청자가 Arrel이라는 identity는 `memory.malet.bl07_request_source`에만 남는다.
+- old `fact.arrel.seeks_bl07` save는 import normalization에서 old key를 삭제하지 않고 canonical fact/reference를 덧붙인다. revision과 event sequence는 변하지 않고 load event도 발생하지 않는다.
+- Ch5 report 시 source memory가 active/restored면 `fact.kairos.malet_report_identified_arrel`, removed면 `fact.kairos.malet_report_requester_unknown`을 `npc.kairos`에 정확히 한 번 기록한다. report 이후 Malet memory를 복원해도 과거 outcome은 바뀌지 않는다.
+- Ch21 본문은 수정하지 않았다. 두 Kairós fact와 문서 계약만 future Malet-record consumer hook으로 남겼다.
+
+### Progression과 보호 경계
+- `canon_ch5_classifier_ready`는 entry에서 소비되고 current chapter가 5가 된다. Ch5 마지막은 `canon_ch6_seam_ready`를 기록하고 autosave한 뒤 Drift shell의 안전한 Ch6 migration boundary로 돌아온다.
+- legacy Crumbling Coast, The Seam route, Colorless Waste Kairós boss 파일과 asset은 삭제하지 않았으나 canonical main route에서는 접근할 수 없다.
+- canonical Ch5가 시작된 save에서는 World Map/Fast Travel의 legacy Crumbling Coast 목적지도 숨긴다. 기존 `ch5_classifier_started`가 없는 legacy save는 원래 destination을 유지한다.
+- 새 cutscene/memory framework를 만들지 않고 기존 SceneFlow, VNHost, SaveManager, WorldState, MemoryEngine만 사용했다. MemoryManager와 Ch21 content는 변경하지 않았다.
+
+### 자동 검증
+- 기존 official runner에 focused `smoke_canon_wave2a` case만 추가했다. canonical Ch1→5 source route, entry boundary 소비, old Ch5 unreachable, Kairós VN load, active/removed/restore-before/restore-after report, historical immutability, old fact compatibility, sandbox save/load, Ch21 hook, Ch6 boundary를 검증한다.
+- smoke는 production save guard, StoryLog/read registry fingerprint, MemoryManager snapshot, deterministic event count를 함께 확인한다.
+- Godot 4.6.2 headless import는 exit 0/fatal 0으로 완료했다. ShaderV duplicate UID 3건과 종료 시 ObjectDB/resource cleanup warning 1묶음은 기존 editor/forced-exit noise로 남는다.
+- 공식 suite는 `MEMORY_WORLD_ENGINE_SUITE_PASS cases=15 fatal_scan=enabled save_isolation=guarded export_catalog=verified`로 통과했다. export PCK에서도 `actors.json` 4개 actor를 로드했다.
+- `CANON_WAVE2A_SMOKE_PASS`는 네 report 상태, historical immutability, old fact compatibility, Ch21 hook, 실제 sandbox autosave/Ch6 boundary를 통과했다. production slot 접근은 0이다.
+- `STORY_QOL_SMOKE_PASS log=300 read=554 speed_steps=3 props=6`, `STORY_COMBAT_SMOKE_PASS witness=2 release=1 choice_echo=1 preservation_bonus=8 focus=1`, `CHAPTER_EXPANSION_SMOKE_PASS chapters=10 assets=50 placed=50`을 확인했다.
+- VN validation은 21 files/526 steps/0 errors/0 warnings, Korean validation은 32 files/1,581 fields/19 speakers/0 errors, data JSON 45개 parse를 통과했다. `git diff --check`는 CRLF working-copy warning만 내고 exit 0이다.
+
+### Repository sync 재검증과 실제 F5 수정
+- GitHub 보존 전 실제 Godot F5와 격리된 수동 Ch4→Ch5 GUI 흐름을 다시 실행했다. 첫 실행에서 Drift→Ch5 entry 전환이 끝나기 전에 entry가 VNHost 전환을 요청해 transition mutex가 이를 거부하는 문제를 발견했다.
+- 기존 `SceneTransition`에 완료 signal/read-only 상태 조회만 추가하고, Ch5 entry가 Drift 전환 해제를 기다린 뒤 VNHost를 요청하도록 수정했다. 별도 cutscene framework는 만들지 않았다.
+- 실제 장면 전환 중 맵이 해제된 뒤에도 Minimap의 익명 `state_changed` callback이 남아 `Lambda capture ... was freed` 오류를 내는 문제를 발견했다. 맵 CanvasLayer의 `tree_exiting`에서 callback을 명시적으로 해제해 해결했다.
+- 격리된 smoke save root에서 ACTIVE report의 `The buyer and the subject are one.`, REMOVED report의 `The market retained the event, not the name.`을 실제 VN 화면으로 확인했다. restore-before는 identified, restore-after는 memory가 active로 돌아와도 historical unknown, sandbox autosave reload 뒤에도 unknown을 유지했다.
+- Ch5 마지막 실제 입력 뒤 `canon_ch6_seam_ready = true`, Chapter 5 HUD의 Chapter 6/The Seam 대기 objective, chapter-transition autosave, Drift Shelter 복귀를 확인했다. canonical 실행 중 legacy Crumbling Coast/boss route는 노출되지 않았다.
+- 수정 후 Godot 4.6.2 import exit 0, 공식 `MEMORY_WORLD_ENGINE_SUITE_PASS cases=15 fatal_scan=enabled save_isolation=guarded export_catalog=verified`를 최종 tree에서 재통과했다.
+- focused marker는 `event_replay=0 story_registry_delta=0 memory_manager_delta=0 production_slots=0`을 포함한다. Story QoL/Combat, Chapter Expansion, VN 21 files/526 steps, Korean 32 files/1,581 fields, JSON 45개도 모두 통과했다.
+- 기존 ShaderV duplicate UID 3건과 강제 headless 종료 시 ObjectDB/resource cleanup 경고만 남았으며, 새 parse/script/assert/invalid-call/lambda 오류는 없다.
+
 ## S260 - 2026-08-23 (Season 1 Canon Migration Wave 1: Chapter 3~4)
 
 ### 기준점 체크포인트
