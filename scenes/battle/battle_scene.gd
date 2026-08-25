@@ -1374,7 +1374,7 @@ func _build_turn_label(root: Control) -> void:
 	turn_banner.modulate.a = 0.0
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.012, 0.010, 0.020, 0.86)
-	style.border_color = Color(0.72, 0.60, 0.38, 0.62)
+	style.border_color = Color(0.82, 0.70, 0.46, 0.85)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
 	style.content_margin_left = 14
@@ -1388,7 +1388,10 @@ func _build_turn_label(root: Control) -> void:
 	turn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	turn_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	turn_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UITheme.style_label(turn_label, UITheme.make_ui_font(), UITheme.SIZE_HEADING, Color(0.94, 0.84, 0.62))
+	UITheme.style_label(turn_label, UITheme.make_ui_font(), UITheme.SIZE_HEADING, Color(1.0, 0.92, 0.70))
+	# 어두운 무대 위에서도 배너 문구가 즉시 읽히도록 외곽선을 얹는다.
+	turn_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	turn_label.add_theme_constant_override("outline_size", 4)
 	turn_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	turn_banner.add_child(turn_label)
 
@@ -2333,6 +2336,88 @@ func _make_role_glow(role: String, color_override: Color = Color.TRANSPARENT) ->
 		color
 	)
 
+## 적 정체성에 맞는 역광 색. 보이드 계열은 차가운 청보라, 보스는 진홍보라,
+## 재/불꽃 계열은 엠버, 나머지는 창백한 달빛으로 윤곽을 분리한다.
+func _enemy_presence_color(enemy_name: String, enemy: Variant) -> Color:
+	var lower := enemy_name.to_lower()
+	var is_void: bool = (enemy != null and enemy.get("is_void_beast") == true) \
+		or lower.contains("void") or lower.contains("shade") or lower.contains("kairos") \
+		or lower.contains("echo") or lower.contains("wraith")
+	var is_boss: bool = enemy != null and enemy.get("is_boss") == true
+	if is_boss:
+		return Color(0.66, 0.20, 0.34)
+	if is_void:
+		return Color(0.42, 0.30, 0.82)
+	if lower.contains("crawler") or lower.contains("ash") or lower.contains("cinder") \
+			or lower.contains("ember") or lower.contains("hound"):
+		return Color(0.82, 0.42, 0.18)
+	return Color(0.55, 0.52, 0.72)
+
+## 방사 그러디언트 역광 스프라이트. 새 그림 없이 코드만으로 만들고,
+## 가산 블렌드로 배경과 섞어 "빛"으로 읽히게 한다.
+func _make_presence_backlight(center: Vector2, radii: Vector2, color: Color) -> Sprite2D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(color.r, color.g, color.b, 1.0))
+	gradient.set_color(1, Color(color.r, color.g, color.b, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = gradient
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(0.5, 0.0)
+	tex.width = 256
+	tex.height = 256
+	var sprite := Sprite2D.new()
+	sprite.name = "PresenceBacklight"
+	sprite.texture = tex
+	var blend := CanvasItemMaterial.new()
+	blend.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	sprite.material = blend
+	sprite.position = center
+	sprite.scale = Vector2(radii.x * 2.0 / 256.0, radii.y * 2.0 / 256.0)
+	sprite.modulate = Color(1, 1, 1, 0)
+	return sprite
+
+## 적 판 뒤에 역광을 깔고, 아주 느린 호흡으로 존재감을 유지한다.
+## 보스는 한 겹 더 큰 바깥 후광을 얹어 위계를 만든다.
+func _spawn_enemy_presence_backlight(enemy_name: String, enemy: Variant) -> void:
+	if enemy_sprite == null or not is_instance_valid(enemy_sprite):
+		return
+	var plate := enemy_sprite as Control
+	var body_center := _role_plate_foot("enemy") - Vector2(0.0, plate.size.y * 0.42)
+	var color := _enemy_presence_color(enemy_name, enemy)
+	# 보이드 계열 원화는 거의 검은 덩어리라 같은 알파로는 부족하다. 조금 더 밝게,
+	# 약간 더 크게 붙여 실루엣 분리를 보장한다.
+	var base_alpha := 0.26 if color.b > color.r else 0.20
+	var backlight := _make_presence_backlight(body_center, Vector2(plate.size.x * 0.62, plate.size.y * 0.52), color)
+	backlight.z_index = -3
+	enemy_sprite_container.add_child(backlight)
+	if enemy != null and enemy.get("is_boss") == true:
+		var halo := _make_presence_backlight(body_center, Vector2(plate.size.x * 0.95, plate.size.y * 0.80), color)
+		halo.z_index = -4
+		halo.modulate.a = 0.0
+		enemy_sprite_container.add_child(halo)
+		_fade_presence_in(halo, base_alpha * 0.55)
+	if OptionsMenu.is_reduce_motion():
+		_fade_presence_in(backlight, base_alpha)
+		return
+	var pulse := backlight.create_tween().set_loops()
+	pulse.tween_interval(randf_range(0.0, 0.8))
+	pulse.tween_property(backlight, "modulate:a", base_alpha, 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	pulse.tween_property(backlight, "modulate:a", base_alpha * 0.62, 1.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	# 보이드 계열은 '불안정함'을 아주 옅은 흔들림으로 곁들인다. 같은 색을 쓰지 않는
+	# 보이드 시각 언어의 일부: 차갑고, 불안정하고, 잘못된 빛.
+	# pulse는 modulate, flicker는 self_modulate로 곱해져 서로 간섭하지 않는다.
+	if color.b > color.r and not OptionsMenu.is_clean_gameplay_visuals():
+		backlight.self_modulate.a = 1.0
+		var flicker := backlight.create_tween().set_loops()
+		flicker.tween_interval(randf_range(1.2, 2.6))
+		flicker.tween_property(backlight, "self_modulate:a", 0.5, 0.09).set_trans(Tween.TRANS_SINE)
+		flicker.tween_property(backlight, "self_modulate:a", 1.0, 0.22).set_trans(Tween.TRANS_SINE)
+
+func _fade_presence_in(sprite: Sprite2D, target_alpha: float) -> void:
+	var tween := sprite.create_tween()
+	tween.tween_property(sprite, "modulate:a", target_alpha, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
 ## S209: AnimatedSprite2D의 중심 y를 계산해 프레임 아랫변이 `feet_y`에 오게 한다.
 ## 스프라이트는 중앙 정렬로 그려지므로, 스케일을 바꾸면 발끝도 같이 내려간다.
 func _feet_anchored_y(sprite: AnimatedSprite2D, feet_y: float) -> float:
@@ -2537,6 +2622,11 @@ func _build_enemy_sprite(root: Control) -> void:
 	var glow := _make_role_glow("enemy", glow_c)
 	glow.z_index = -1
 	enemy_sprite_container.add_child(glow)
+
+	# 존재 후광: 어둠 위의 어두운 적(보이드/보스 계열)은 배경과 뒤섞여 실루엣이
+	# 사라진다. 밝기를 더 곱해도 검은 원화는 검게 남으므로, 반대로 등 뒤에
+	# 부드러운 역광을 깔아 윤곽을 떼어 낸다. 색은 정체성(보이드/보스/화염)을 따른다.
+	_spawn_enemy_presence_backlight(enemy_name, BattleManager.current_enemy)
 
 func _make_battle_ellipse(center: Vector2, radii: Vector2, color: Color, segments: int = 32) -> Polygon2D:
 	var ellipse := Polygon2D.new()
