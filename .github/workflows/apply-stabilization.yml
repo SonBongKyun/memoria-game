@@ -1,0 +1,42 @@
+name: Apply MEMORIA Stabilization
+
+on:
+  push:
+    branches:
+      - chore/memoria-stabilization-20260826
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout stabilization branch
+        uses: actions/checkout@v4
+        with:
+          ref: chore/memoria-stabilization-20260826
+          fetch-depth: 0
+
+      - name: Apply guarded migrations
+        run: python3 tools/stabilization_guard.py --fix
+
+      - name: Verify guarded invariants
+        run: python3 tools/stabilization_guard.py --check
+
+      - name: Show stabilization diff
+        run: git diff --check && git diff --stat && git diff
+
+      - name: Commit stabilized code
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No stabilization changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add project.godot scripts/ui/memory_ui.gd scripts/systems/memory_manager.gd scripts/systems/save_manager.gd
+          git commit -m "fix: align gameplay canon and save schema"
+          git push origin HEAD:chore/memoria-stabilization-20260826
