@@ -619,6 +619,23 @@ static func _create_light_texture(radius: int) -> ImageTexture:
 			img.set_pixel(x, y, Color(1, 1, 1, alpha))
 	return ImageTexture.create_from_image(img)
 
+## 플레이어가 지닌 기억 잔광. 어두운 바이옴에서 아바타를 읽게 해 주고,
+## "기억을 태우는 자"라는 정체성을 필드에서도 옅게 깔아 준다.
+## 반환된 라이트의 energy를 호출자가 호흡시킨다.
+static func add_carried_light(target: Node2D, offset: Vector2 = Vector2(0, -18), radius: float = 110.0) -> PointLight2D:
+	var light = PointLight2D.new()
+	light.name = "MemoryCarriedLight"
+	light.position = offset
+	light.color = Color(1.0, 0.80, 0.52)
+	light.energy = 0.5
+	light.texture = _create_light_texture(int(radius))
+	light.texture_scale = 1.0
+	light.shadow_enabled = false
+	light.blend_mode = Light2D.BLEND_MODE_ADD
+	light.set_meta("base_energy", light.energy)
+	target.add_child(light)
+	return light
+
 ## ===================== S42: 패럴랙스 배경 =====================
 
 ## 맵에 패럴랙스 배경 추가 (깊이감 레이어)

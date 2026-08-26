@@ -80,6 +80,10 @@ var _step_impact: float = 0.0
 var _foot_side: float = -1.0
 var _field_flow: FieldFlow = null
 
+# --- 기억 잔광: 플레이어가 지닌 은은한 캐리드 라이트 ---
+var _memory_light: PointLight2D = null
+var _light_time: float = randf() * TAU
+
 func _ready() -> void:
 	add_to_group("player")
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
@@ -94,6 +98,7 @@ func _ready() -> void:
 		_sprite_base_offset = sprite.offset
 		FieldActorVisuals.apply_finish(sprite, Color(0.34, 0.60, 0.92), 0.78, 0.13)
 	_ground_shadow = MapEffects.add_drop_shadow(self, Color(0.34, 0.60, 0.92))
+	_memory_light = MapEffects.add_carried_light(self)
 	_setup_camera()
 	_setup_interact_indicator()
 	print("[Player] Arrel ready, Camera2D + exploration polish active")
@@ -293,9 +298,54 @@ func _physics_process(delta: float) -> void:
 			sprite.offset.y = lerpf(sprite.offset.y, _sprite_base_offset.y, 12.0 * delta)
 			sprite.rotation = lerp_angle(sprite.rotation, 0.0, 12.0 * delta)
 	_update_ground_shadow(delta, visually_moving)
+	_update_memory_light(delta)
 
 	# S57: Interaction indicator
 	_update_interact_indicator(delta)
+
+## 기억 잔광 호흡. 메모리 펄스 직후에는 잠깐 밝아졌다가 가라앉는다.
+func _update_memory_light(delta: float) -> void:
+	if _memory_light == null or not is_instance_valid(_memory_light):
+		return
+	_light_time += delta
+	var base: float = _memory_light.get_meta("base_energy", 0.5)
+	if OptionsMenu.is_clean_gameplay_visuals():
+		base *= 0.62
+	var breath := sin(_light_time * 1.7) * 0.05 + sin(_light_time * 4.3) * 0.02
+	_memory_light.energy = lerpf(_memory_light.energy, base + breath, 1.0 - exp(-6.0 * delta))
+
+## 메모리 펄스가 메아리를 찾았을 때, 방향으로 떠나가는 따뜻한 기억 입자.
+## 토스트 텍스트보다 먼저 "어느 쪽인지"를 세계 안에서 읽게 한다.
+func _spawn_pulse_motes(direction: Vector2) -> void:
+	var parent := get_parent()
+	if parent == null:
+		return
+	var clean_view := OptionsMenu.is_clean_gameplay_visuals()
+	var count := 7 if clean_view else 12
+	var base_angle := direction.angle() if direction != Vector2.ZERO else 0.0
+	for i in range(count):
+		var mote := Line2D.new()
+		mote.width = 1.6
+		mote.default_color = Color(0.94, 0.80, 0.46, 0.85)
+		var spread := randf_range(-0.42, 0.42)
+		mote.points = PackedVector2Array([
+			Vector2.ZERO,
+			Vector2(-4.0, -1.2),
+			Vector2(-8.5, 0.0),
+		])
+		var travel := randf_range(46.0, 92.0)
+		var target := Vector2.from_angle(base_angle + spread) * travel
+		mote.global_position = global_position + Vector2(randf_range(-6, 6), randf_range(-14, -4))
+		mote.rotation = base_angle + spread
+		mote.z_index = z_index + 6
+		parent.add_child(mote)
+		var tw := mote.create_tween()
+		tw.set_parallel(true)
+		tw.tween_property(mote, "global_position", mote.global_position + target, randf_range(0.55, 0.95)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tw.tween_property(mote, "modulate:a", 0.0, randf_range(0.5, 0.9)).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(mote, "scale", Vector2(0.5, 0.5), 0.8)
+		tw.set_parallel(false)
+		tw.tween_callback(mote.queue_free)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("memory_pulse") and GameManager.current_state == GameManager.GameState.EXPLORATION:
@@ -713,6 +763,7 @@ func _try_memory_pulse() -> void:
 	var title: String = result.get("memory_title", "unknown memory")
 	var paces: int = int(round(float(result.get("distance", 0.0)) / 32.0))
 	var direction: Vector2 = result.get("direction", Vector2.ZERO)
+	_spawn_pulse_motes(direction)
 	var bearing := _format_pulse_direction(direction)
 	var new_discoveries := int(result.get("new_discoveries", 0))
 	if new_discoveries > 0:
