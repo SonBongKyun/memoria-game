@@ -3,6 +3,32 @@
 ---
 
 
+## S263 - 2026-08-26 (자유도 축 1+3: 기억의 무게 + 여정 맹세 통합)
+
+### 배경과 설계 결정
+- 이전 중단 세션에서 논의한 자유도 축 중 **1(캐리 자유도) + 3(맹세 자유도)**만 작업하기로 확정. `journey_oath.gd`가 이전 세션에서 미연결 파일로 존재했고, 캐리 시스템은 미착공이었다.
+- 설계 원칙: 하드 슬롯 캡 대신 **소프트 압박(침식 가속)**. 챕터 기억 자동 지급 흐름을 깨지 않으면서 "태울지, 팔지, 지닐지"를 실질 결정으로 만든다. 무게는 보유 기억에서 항상 계산되므로 **세이브 스키마 변경이 없다**(S259~261 보호 경계와 충돌 없음).
+- 맹세 파기는 S226 원칙(대가는 미리 이름 붙여 보여 준다)을 따른다: 파기 시 토스트로 이유를 명명하고, 숨은 벌칙은 없다. 선택 불가능한 컷씬 스크립트 연소(scene_flow step.burn_memory)는 "아렐의 손"이 아니므로 고요한 손 위반에서 제외했다.
+
+### 기억의 무게 (MemoryManager)
+- 등급별 무게 `[1,2,3,4,6]`(GRADE_5→GRADE_1), 용량 = `14 + (챕터-1)*2`(최대 34). 과부하 배율 = `1 + clamp(과부하 비율, 0, 1)`을 apply_erosion base_amount에 곱한다(최대 침식 ×2).
+- 담보로 넘긴 기억과 연소된 기억은 짐에서 제외. `add_memory`/`burn_memory`/`burn_memory_silent`에서 `carry_state_changed` 방출.
+- 과부하 상태로 챕터 침식이 적용되면 이름 붙은 경고 토스트("짐이 무겁다…") 출력.
+- UI: 서고(Archive) 상단 무게 라인 — 여유 시 잿빛, 과부하 시 경고색 + 배율 문구. ExplorationHUD 필드 흐름 패널에 과부하 전용 칩(clean gameplay visuals 모드에서는 숨김).
+
+### 여정 맹세 (JourneyOath 통합)
+- **잿불의 맹세**: 기억 판매 시 파기(`memory_shop._execute_sell`). 유지 챕터마다 Grains +40(`add_chapter_memories` once-per-chapter 블록에서 정산).
+- **증인의 맹세**: 위상 스침 우회 시 파기(`field_threat._resolve_phase_bypass`). 유지 중 FieldFlow 이동/위험/속도 축적 ×1.15(`update_motion`).
+- **고요한 손**: 엘리아 관련 기억 직접 연소 금지 — 전투 연소(battle_manager), 대화 선택지(dialogue_manager), SceneFlow 선택지 대가(cost/burn_memory), 공명 선택(memory_resonance) 4경로 보고. 지키는 동안 apply_erosion에서 엘리아 기억 완전 면역.
+- PauseMenu에 **OATHS/맹세** 버튼 + 오버레이 패널: 서약 3종의 서약문/보상/상태(미맹세·지키는 중·깨졌다), SWEAR 버튼은 상태 갱신형(재빌드 없이 라벨/테두리/버튼 가시성만 갱신 — 신호 도중 노드 해제 문제 회피). Esc 아카이브 모달 체인에 OathsOverlay 등록.
+- NG+: story_flags.clear()로 서약 플래그 자연 리셋, swear()가 chapters_kept를 재초기화.
+
+### 코드 검증
+- 신규 `smoke_freedom_axes`(9 케이스): 맹세 수명주기/파기, 증인 배율, 고요한 손 보고+침식 면역(파기 후 면역 해제 확인), 잿불 정산(+40G/깨면 0G), 무게 산수(등급별/담보 제외/연소 제외), 과부하 침식 가속(경량 +3 vs 과부하 +6, 클램프 1.0), PauseMenu 패널 렌더링+SWEAR 버튼 실제 누르기, 세이브 왕복 보존, 소스 레벨 8개 통합 지점 검증. `FREEDOM_AXES_SMOKE_PASS` exit 0.
+- 회귀 스모크 16종 전부 exit 0: field_flow, tactical_directives, story_combat, memory_loan, resonance_choice, memory_world_engine, sable_memory_gameplay, malet_live_integration, early_loop, gameplay_qol, burn_directive_stabilization, memory_cascade, interface_visual_upgrade, visual_clarity, canon_wave1, canon_wave2a.
+- Godot 4.6.2 headless import exit 0. `git diff --check` 통과(CRLF working-copy 경고만 존재).
+- 작업물은 커밋하지 않고 working tree에 남겨 둠 (검토 후 커밋).
+
 ## S262 - 2026-08-26 (Overnight gameplay & visual polish pass)
 
 ### 기본 체크인

@@ -55,9 +55,11 @@ func update_motion(
 	if GameManager.current_state == GameManager.GameState.EXPLORATION and not is_dashing():
 		var pressure := get_pressure()
 		if moving:
-			var distance_gain := moved_distance * (0.11 if sprinting else 0.058)
-			var danger_gain := pressure * delta * 8.0
-			var speed_gain := clampf(actual_speed / 220.0, 0.0, 1.0) * delta * 2.0
+			# S263: 여정 맹세 '증인의 맹세' — 지키는 동안 모든 흐름 축적이 15% 빨라진다.
+			var oath_mult := JourneyOath.witness_flow_multiplier()
+			var distance_gain := moved_distance * (0.11 if sprinting else 0.058) * oath_mult
+			var danger_gain := pressure * delta * 8.0 * oath_mult
+			var speed_gain := clampf(actual_speed / 220.0, 0.0, 1.0) * delta * 2.0 * oath_mult
 			_set_flow(flow + distance_gain + danger_gain + speed_gain)
 		else:
 			var decay := (3.4 if pressure < 0.35 else 1.2) * delta

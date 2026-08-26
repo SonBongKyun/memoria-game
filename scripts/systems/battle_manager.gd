@@ -1794,6 +1794,9 @@ func player_burn(memory_id: String) -> void:
 		battle_log.emit(_bl("That memory is already gone.", "그 기억은 이미 사라졌다."))
 		return
 
+	# S263: 여정 맹세 '고요한 손' — 엘리아와 얽힌 기억을 내 손으로 태우면 깨진다.
+	JourneyOath.on_player_burn(memory)
+
 	_player_actions_this_battle += 1
 	_check_tactical_objective("action")
 	_reset_combo("burn")

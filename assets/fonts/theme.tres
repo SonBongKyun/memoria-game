@@ -3,8 +3,6 @@
 [ext_resource type="FontFile" uid="uid://bihlpv4od4vfb" path="res://assets/fonts/NotoSansKR-VF.ttf" id="1_ui"]
 [ext_resource type="FontFile" uid="uid://cbmgs2w2nsjpp" path="res://assets/fonts/NotoSerifKR-VF.ttf" id="2_body"]
 
-; S230: 두 폰트 모두 가변 폰트이고 기본 인스턴스가 가장 얇은 마스터(Sans 100 / Serif 200)다.
-; variation_embolden으로 가짜 굵기를 씌우면 한글 속공간이 메워지므로 wght 축을 직접 지정한다.
 [sub_resource type="FontVariation" id="FontVariation_UI"]
 base_font = ExtResource("1_ui")
 variation_opentype = {

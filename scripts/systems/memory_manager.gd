@@ -407,7 +407,9 @@ func _init_starting_memories() -> void:
 ## 기억 침식, 챕터 진행 시 미연소 기억이 서서히 바래짐
 ## Grade 1(핵심)과 엘리아 관련 기억(동행 시)은 침식 내성
 func apply_erosion(chapter: int) -> void:
-	var base_amount = chapter * 1  # S53: 침식 속도 완화 (chapter*2 → chapter*1)
+	# S263: 서고가 무거우면 모든 기억이 평소보다 빨리 흐려진다.
+	var overload := clampf(get_carry_overload_ratio(), 0.0, 1.0)
+	var base_amount = maxi(1, int(round(chapter * (1.0 + overload))))  # S53: 침식 속도 완화 (chapter*2 → chapter*1)
 	var eroded_count = 0
 	for m in memories:
 		if m.is_burned or m.is_faded:
@@ -419,6 +421,9 @@ func apply_erosion(chapter: int) -> void:
 		if erosion_guarded.has(m.id):
 			erosion_guarded.erase(m.id)
 			print("[MemoryManager] Guard held: %s" % m.title)
+			continue
+		# 여정 맹세 '고요한 손': 지키는 동안 엘리아와 얽힌 기억은 침식되지 않는다.
+		if JourneyOath.still_hands_shields(m):
 			continue
 		# 엘리아 동행 시 관련 기억은 침식 절반
 		var amount = base_amount
@@ -440,7 +445,14 @@ func apply_erosion(chapter: int) -> void:
 			print("[MemoryManager] FADED: %s (erosion %d/%d)" % [m.title, m.erosion, m.burn_power])
 	if eroded_count > 0:
 		memories_eroded.emit(eroded_count)
-		print("[MemoryManager] Erosion applied, %d memories affected (ch%d, +%d)" % [eroded_count, chapter, base_amount])
+		if overload > 0.0:
+			# S263: 대가는 항상 이름을 붙여 보여 준다. 무게 때문에 빨라진 침식이다.
+			NotificationToast.show_toast(
+				"짐이 무겁다. 기억이 평소보다 빨리 흐려진다." if GameManager.current_locale == "ko"
+				else "The load is heavy. Memories are fading faster than usual.",
+				NotificationToast.ToastType.WARNING
+			)
+		print("[MemoryManager] Erosion applied, %d memories affected (ch%d, +%d, overload %.2f)" % [eroded_count, chapter, base_amount, overload])
 
 ## 유효 연소력 계산 (침식 반영)
 func get_effective_burn_power(memory: Memory) -> int:
@@ -451,6 +463,49 @@ func get_erosion_ratio(memory: Memory) -> float:
 	if memory.burn_power <= 0:
 		return 0.0
 	return clampf(float(memory.erosion) / float(memory.burn_power), 0.0, 1.0)
+
+# --- S263: 기억의 무게 (Carry) ---
+#
+# 모든 기억은 무겁다. 등급이 높을수록 더 무겁고, 서고가 감당보다 무거우면
+# 챕터가 넘어갈 때 침식이 빨라진다. "태울지, 팔지, 지닐지"가 매 챕터의
+# 실질 결정이 되도록 하는 자유도 축. 무게는 보유 기억에서 항상 계산되므로
+# 세이브 스키마 변경이 없다.
+const CARRY_WEIGHTS_BY_GRADE: Array[int] = [1, 2, 3, 4, 6]  # GRADE_5..GRADE_1 순
+const CARRY_BASE_CAPACITY: int = 14
+const CARRY_CAPACITY_PER_CHAPTER: int = 2
+const CARRY_CAPACITY_MAX: int = 34
+
+signal carry_state_changed(weight: int, capacity: int)
+
+func _carry_weight_of(memory: Memory) -> int:
+	return CARRY_WEIGHTS_BY_GRADE[clampi(memory.grade, 0, CARRY_WEIGHTS_BY_GRADE.size() - 1)]
+
+## 지니고 있는 기억의 총무게. 연소/판매된 것과 담보로 넘긴 것은 이미 짐이 아니다.
+func get_carry_weight() -> int:
+	var weight := 0
+	for m in memories:
+		if m.is_burned or is_collateral(m.id):
+			continue
+		weight += _carry_weight_of(m)
+	return weight
+
+## 서고가 감당할 수 있는 무게. 여정이 길어질수록 조금씩 넓어진다.
+func get_carry_capacity() -> int:
+	var capacity := CARRY_BASE_CAPACITY + maxi(0, GameManager.current_chapter - 1) * CARRY_CAPACITY_PER_CHAPTER
+	return mini(capacity, CARRY_CAPACITY_MAX)
+
+## 과부하 비율. 0.0이면 여유, 1.0 이상이면 감당의 두 배를 지닌 것이다.
+func get_carry_overload_ratio() -> float:
+	var capacity := get_carry_capacity()
+	if capacity <= 0:
+		return 0.0
+	return maxf(0.0, float(get_carry_weight() - capacity) / float(capacity))
+
+func is_carry_overloaded() -> bool:
+	return get_carry_weight() > get_carry_capacity()
+
+func _notify_carry() -> void:
+	carry_state_changed.emit(get_carry_weight(), get_carry_capacity())
 
 ## 비전투 연소 (탐색 공명 이벤트용, 소리 없이)
 func burn_memory_silent(memory_id: String, allow_faded: bool = false) -> Memory:
@@ -467,6 +522,7 @@ func burn_memory_silent(memory_id: String, allow_faded: bool = false) -> Memory:
 			burned_memories.append(memory)
 			_apply_burn_cascade(memory)
 			memory_burned.emit(memory)
+			_notify_carry()
 			check_unlock_passives()
 			print("[MemoryManager] SILENT BURN: %s" % memory.title)
 			return memory
@@ -488,6 +544,8 @@ func add_chapter_memories(chapter: int) -> void:
 		guard_slots_changed.emit(guard_slots_remaining())
 		# S232: 상환 기한이 지난 담보는 여기서 회수된다.
 		check_loan_maturity(chapter)
+		# S263: 여정 맹세 정산 — 잿불의 맹세는 챕터를 지킬 때마다 보상을 얻는다.
+		JourneyOath.on_chapter_advanced(chapter)
 	match chapter:
 		3:
 			# Ch3: Belt Waystation, Weight of Pages
@@ -811,6 +869,7 @@ func _has_memory(memory_id: String) -> bool:
 func add_memory(memory: Memory) -> void:
 	memories.append(memory)
 	memory_added.emit(memory)
+	_notify_carry()
 	GameManager.add_stat("memories_collected")  # S55
 	if is_inside_tree():
 		AudioManager.play_sfx("memory_add")
@@ -904,6 +963,7 @@ func burn_memory(memory_id: String, allow_faded: bool = false) -> Memory:
 			# S233: 이어진 기억이 함께 상한다. 어느 것을 태우는지가 중요해지는 지점.
 			_apply_burn_cascade(memory)
 			memory_burned.emit(memory)
+			_notify_carry()
 			check_unlock_passives()
 			return memory
 

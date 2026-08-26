@@ -786,6 +786,9 @@ func _execute_sell() -> void:
 	# 기억 연소 (거래는 연소와 동일한 효과)
 	MemoryManager.burn_memory(memory.id)
 
+	# S263: 여정 맹세 '잿불의 맹세' — 기억을 팔면 깨진다.
+	JourneyOath.on_memory_sold()
+
 	# Grains 지급
 	GameManager.player_data.grains += price
 	grains_changed.emit(GameManager.player_data.grains)

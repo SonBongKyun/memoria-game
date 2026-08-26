@@ -194,10 +194,12 @@ func select_choice(choice_index: int) -> void:
 
 		# 기억 연소 트리거
 		if choice.has("burn_memory"):
-			MemoryManager.burn_memory(choice.burn_memory)
+			# S263: 여정 맹세 '고요한 손' — 선택지로 태운 것도 아렐의 손이다.
+			JourneyOath.on_player_burn(MemoryManager.burn_memory(choice.burn_memory))
 		# S146: Memory Leverage, cost_memory는 burn_memory의 의미적 별칭 (대가성 강조)
 		if choice.has("cost_memory"):
 			var lost = MemoryManager.burn_memory(String(choice.cost_memory))
+			JourneyOath.on_player_burn(lost)
 			if lost != null:
 				NotificationToast.show_toast(
 					("기억 소모: %s" if GameManager.current_locale == "ko" else "Memory spent: %s") % MemoryManager.localized_memory_title(lost),

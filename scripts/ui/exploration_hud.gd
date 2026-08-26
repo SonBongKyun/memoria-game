@@ -123,6 +123,7 @@ var pressure_bar: ProgressBar
 var flow_value_label: Label
 var approach_label: Label
 var flow_hint_label: Label
+var carry_overload_label: Label  # S263: 서고 과부하 경고 칩
 var _flow_fill_style: StyleBoxFlat
 var _pressure_fill_style: StyleBoxFlat
 var _flow_pulse_time: float = 0.0  # S226: threat-pressure emphasis clock
@@ -503,6 +504,16 @@ func _build_field_flow_panel() -> void:
 	UITheme.apply_ui_font(flow_hint_label)
 	vbox.add_child(flow_hint_label)
 
+	# S263: 서고가 감당보다 무거울 때만 나타나는 칩. 태우거나 팔면 사라진다.
+	carry_overload_label = Label.new()
+	carry_overload_label.name = "CarryOverloadChip"
+	carry_overload_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	carry_overload_label.add_theme_font_size_override("font_size", 12)
+	carry_overload_label.add_theme_color_override("font_color", Color(0.94, 0.62, 0.36))
+	UITheme.apply_ui_font(carry_overload_label)
+	carry_overload_label.visible = false
+	vbox.add_child(carry_overload_label)
+
 func _update_controls_hint(_mode = null) -> void:
 	if controls_label == null or InputManager == null:
 		return
@@ -858,6 +869,15 @@ func _update_hud() -> void:
 	var burned: int = MemoryManager.burned_memories.size()
 	memory_label.visible = not OptionsMenu.is_clean_gameplay_visuals()
 	memory_label.text = ("기억: 보유 %d, 연소 %d" % [held, burned]) if GameManager.current_locale == "ko" else "Memories: %d held, %d burned" % [held, burned]
+
+	# S263: 서고 과부하 칩. 무게가 감당을 넘으면 챕터마다 침식이 빨라진다.
+	if carry_overload_label != null:
+		carry_overload_label.visible = false
+		if MemoryManager.is_carry_overloaded() and not OptionsMenu.is_clean_gameplay_visuals():
+			carry_overload_label.text = (
+				"짐이 무겁다 (%d/%d)" if GameManager.current_locale == "ko" else "Heavy load (%d/%d)"
+				) % [MemoryManager.get_carry_weight(), MemoryManager.get_carry_capacity()]
+			carry_overload_label.visible = true
 
 	# S57: Memory burn counter glow (detect change via burned count)
 	if _last_burned >= 0 and burned > _last_burned:

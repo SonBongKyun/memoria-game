@@ -169,6 +169,8 @@ func _resolve_phase_bypass() -> void:
 	if defeated_flag != "":
 		GameManager.set_flag(defeated_flag)
 	GameManager.player_data["grains"] = int(GameManager.player_data.get("grains", 0)) + PHASE_BYPASS_GRAINS
+	# S263: 여정 맹세 '증인의 맹세' — 목격한 위협을 건너뛰면 깨진다.
+	JourneyOath.on_threat_bypassed()
 	# S226: Part of the step returns, so the escape leaves the player able to act.
 	var flow_back := 0
 	if _player and is_instance_valid(_player) and _player.has_method("reward_field_bypass"):

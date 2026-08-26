@@ -23,6 +23,7 @@ var detail_rewrite: Label
 var detail_status: Label
 var archive_summary_label: Label
 var track_summary_label: Label       # S231: 연소/파수 두 진행축 표시
+var carry_weight_label: Label        # S263: 지닌 기억의 무게 (캐리 시스템)
 var count_label: Label             # 하단 연소 수
 var close_hint: Label
 
@@ -161,6 +162,13 @@ func _build_ui() -> void:
 	track_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	UITheme.style_meta_label(track_summary_label, Color(0.72, 0.70, 0.62))
 	main_vbox.add_child(track_summary_label)
+
+	# S263: 기억의 무게. 서고가 감당보다 무거우면 침식이 빨라진다는 것을
+	# 태우기 전에 알 수 있어야 "태울지 팔지 지닐지"가 선택이 된다.
+	carry_weight_label = Label.new()
+	carry_weight_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	UITheme.style_meta_label(carry_weight_label, Color(0.72, 0.70, 0.62))
+	main_vbox.add_child(carry_weight_label)
 
 	# 내용 영역 (HBox: 등급탭 | 카드목록 | 상세)
 	var content_hbox = HBoxContainer.new()
@@ -450,6 +458,7 @@ func _refresh_cards() -> void:
 		if not m.is_burned and not m.is_faded:
 			intact_count += 1
 	count_label.text = ("보유 %d    연소 %d    흐려짐 %d" if _is_ko() else "Held: %d    Burned: %d    Fading: %d") % [intact_count, burn_count, faded_count]
+	_update_carry_weight_label()
 	_update_archive_summary(memories.size(), intact_count, burn_count, faded_count, eroding_count)
 
 	for memory in memories:
@@ -626,6 +635,28 @@ func _clear_detail() -> void:
 		guard_btn.visible = false
 	if guard_hint_label:
 		guard_hint_label.visible = false
+
+## S263: 지닌 기억의 무게 표시. 과부하면 경고색으로 바꾸고 다음 침식에 붙는
+## 배율을 함께 보여 준다 — 대가는 항상 미리 이름을 붙여 보여 준다.
+func _update_carry_weight_label() -> void:
+	if carry_weight_label == null:
+		return
+	var weight := MemoryManager.get_carry_weight()
+	var capacity := MemoryManager.get_carry_capacity()
+	var overloaded := MemoryManager.is_carry_overloaded()
+	if overloaded:
+		var pct := int(round(MemoryManager.get_carry_overload_ratio() * 100.0))
+		carry_weight_label.text = (
+			"짐이 무겁다 — 지닌 무게 %d / %d (+%d%%). 서고가 감당보다 무거우면 챕터마다 침식이 빨라진다." if _is_ko()
+			else "The load is heavy — carrying %d / %d (+%d%%). An overloaded archive erodes faster each chapter."
+		) % [weight, capacity, pct]
+		carry_weight_label.add_theme_color_override("font_color", Color(0.82, 0.5, 0.32))
+	else:
+		carry_weight_label.text = (
+			"지닌 무게 %d / %d — 여유로운 서고. 기억은 태우거나, 팔거나, 지닌다." if _is_ko()
+			else "Carrying %d / %d — the archive breathes. Burn, sell, or bear each memory."
+		) % [weight, capacity]
+		carry_weight_label.add_theme_color_override("font_color", Color(0.72, 0.70, 0.62))
 
 func _update_archive_summary(total: int, intact_count: int, burn_count: int, faded_count: int, eroding_count: int) -> void:
 	if not archive_summary_label:

@@ -356,6 +356,9 @@ static func _trigger_resonance_choice(memory: MemoryManager.Memory, bonus_type: 
 	if burned == null:
 		return
 
+	# S263: 여정 맹세 '고요한 손' — 공명의 불꽃도 아렐이 붙인 것이다.
+	JourneyOath.on_player_burn(burned)
+
 	if ResourceLoader.exists(MEMORY_RESONANCE_CG_PATH) and is_instance_valid(CgViewer):
 		var caption := "기억 나침반이 떨린다. 잃어버린 방향이 잠깐 형태를 되찾았다." if GameManager.current_locale == "ko" else "The Memory Compass trembles. A lost direction briefly takes shape."
 		CgViewer.show_cg(MEMORY_RESONANCE_CG_PATH, caption, 2.4)
@@ -590,6 +593,8 @@ static func _resolve_resonance_choice(choice: String, layer: CanvasLayer, area: 
 		GameManager.change_state(GameManager.GameState.EXPLORATION)
 		return
 
+	# S263: 여정 맹세 '고요한 손' — 공명의 불꽃도 아렐이 붙인 것이다.
+	JourneyOath.on_player_burn(burned)
 	_apply_resonance_bonus(bonus_type, bonus_value)
 	NotificationToast.show_toast(bonus_desc, NotificationToast.ToastType.SUCCESS)
 	_show_resonance_outcome(String(RESONANCE_CHOICE_ART["kindle"]), "The Memory Compass trembles. A lost direction briefly takes shape.")

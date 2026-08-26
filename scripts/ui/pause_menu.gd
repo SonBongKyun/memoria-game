@@ -1934,7 +1934,7 @@ func _can_open_pause_menu() -> bool:
 func _close_active_archive_modal() -> bool:
 	# Close the front-most archive surface before dismissing the whole pause
 	# menu. This keeps Esc predictable even while a child button owns focus.
-	for modal_name in ["SaveArchiveOverlay", "FieldGuideOverlay", "InventoryOverlay", "WorldMapOverlay"]:
+	for modal_name in ["OathsOverlay", "SaveArchiveOverlay", "FieldGuideOverlay", "InventoryOverlay", "WorldMapOverlay"]:
 		var modal := get_node_or_null(modal_name)
 		if modal != null:
 			AudioManager.play_sfx("ui_close")
@@ -2117,6 +2117,8 @@ func _build_ui() -> void:
 		{"text": _ploc("ITEM ARCHIVE", "소지품 기록고"), "callback": _on_inventory},
 		{"text": _ploc("WORLD MAP", "세계 지도"), "callback": _on_travel},
 		{"text": "FIELD GUIDE" if GameManager.current_locale != "ko" else "필드 가이드", "callback": _on_field_guide},
+		# S263: 여정 맹세 — 자기부여 제약과 그 대가를 한눈에 보는 곳.
+		{"text": _ploc("OATHS", "맹세"), "callback": _on_oaths},
 		{"text": GameManager.loc("codex"), "callback": _on_codex},
 		{"text": _ploc("Artbook", "삽화집"), "callback": _on_artbook},
 		{"text": GameManager.loc("achievements"), "callback": _on_achievements},
@@ -2917,6 +2919,204 @@ func _animate_modal_panel(target: Control) -> void:
 	var tween := create_tween().set_parallel(true)
 	tween.tween_property(target, "modulate:a", 1.0, 0.24).set_ease(Tween.EASE_OUT)
 	tween.tween_property(target, "position:y", resting_y, 0.32).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+
+## S263: 여정 맹세 패널. 세 가지 자기부여 제약의 서약/이행/파기를 보여 준다.
+func _on_oaths() -> void:
+	AudioManager.play_sfx("ui_select")
+	_show_oaths_panel()
+
+func _show_oaths_panel() -> void:
+	if get_node_or_null("OathsOverlay") != null:
+		return
+	var oaths_overlay := ColorRect.new()
+	oaths_overlay.name = "OathsOverlay"
+	oaths_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	oaths_overlay.color = Color(0, 0, 0, 0)
+	oaths_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(oaths_overlay)
+
+	var oaths_panel := PanelContainer.new()
+	oaths_panel.anchor_left = 0.18
+	oaths_panel.anchor_right = 0.82
+	oaths_panel.anchor_top = 0.06
+	oaths_panel.anchor_bottom = 0.94
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.035, 0.03, 0.05, 0.88)
+	panel_style.border_color = Color(0.55, 0.42, 0.25, 0.78)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(6)
+	panel_style.set_content_margin_all(18)
+	oaths_panel.add_theme_stylebox_override("panel", panel_style)
+	oaths_overlay.add_child(oaths_panel)
+
+	var is_ko := GameManager.current_locale == "ko"
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	oaths_panel.add_child(vbox)
+
+	var header := Label.new()
+	header.text = _ploc("JOURNEY OATHS", "여정 맹세")
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", 22)
+	header.add_theme_color_override("font_color", Color(0.92, 0.76, 0.44))
+	UITheme.apply_title_font(header)
+	vbox.add_child(header)
+
+	var intro := Label.new()
+	intro.text = _ploc(
+		"A vow binds no one but yourself. Keep it, and the road pays you back. Break it, and it stays broken for this journey.",
+		"맹세는 나 이외의 누구도 묶지 않는다. 지키면 길이 갚아 주고, 깨면 이 여정에서 되돌릴 수 없다."
+	)
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD
+	intro.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UITheme.style_meta_label(intro, Color(0.6, 0.55, 0.48))
+	vbox.add_child(intro)
+
+	var dyn_rows: Array[Dictionary] = []
+	for oath in JourneyOath.OATHS:
+		var built := _build_oath_row(oath)
+		vbox.add_child(built.node)
+		dyn_rows.append(built)
+
+	var refresh_states := func() -> void:
+		var fresh := JourneyOath.get_status()
+		for built_row in dyn_rows:
+			_refresh_oath_row_state(built_row, fresh)
+
+	var statuses := JourneyOath.get_status()
+	for built_row in dyn_rows:
+		_refresh_oath_row_state(built_row, statuses)
+		var action_slot: Control = built_row.action_slot
+		var oath_id := String(built_row.oath_id)
+		var swear_btn := Button.new()
+		swear_btn.text = _ploc("SWEAR", "맹세하기")
+		swear_btn.custom_minimum_size = Vector2(110, 30)
+		swear_btn.add_theme_font_size_override("font_size", 13)
+		swear_btn.visible = not bool(built_row.sworn)
+		swear_btn.pressed.connect(func():
+			AudioManager.play_sfx("ui_select")
+			if JourneyOath.swear(oath_id):
+				refresh_states.call()
+		)
+		built_row.refresh_button = swear_btn
+		action_slot.add_child(swear_btn)
+
+	vbox.add_child(Control.new())  # 남는 공간 밀어내기
+
+	var footer := Label.new()
+	footer.text = "[ESC] " + _ploc("Close", "닫기")
+	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UITheme.style_meta_label(footer, Color(0.5, 0.47, 0.42))
+	vbox.add_child(footer)
+
+	_animate_modal_panel(oaths_panel)
+
+## 맹세 행 하나를 만든다. 상태 갱신에 필요한 노드 참조를 사전으로 돌려준다.
+func _build_oath_row(oath: Dictionary) -> Dictionary:
+	var is_ko := GameManager.current_locale == "ko"
+
+	var row := PanelContainer.new()
+	var row_style := StyleBoxFlat.new()
+	row_style.bg_color = Color(0.06, 0.05, 0.07, 0.85)
+	row_style.border_color = Color(0.35, 0.28, 0.2, 0.6)
+	row_style.set_border_width_all(1)
+	row_style.set_corner_radius_all(4)
+	row_style.set_content_margin_all(12)
+	row.add_theme_stylebox_override("panel", row_style)
+
+	var row_vbox := VBoxContainer.new()
+	row_vbox.add_theme_constant_override("separation", 4)
+	row.add_child(row_vbox)
+
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 10)
+	row_vbox.add_child(name_row)
+
+	var name_label := Label.new()
+	name_label.text = String(oath.name_ko) if is_ko else String(oath.name_en)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.add_theme_font_size_override("font_size", 16)
+	name_label.add_theme_color_override("font_color", Color(0.9, 0.78, 0.52))
+	UITheme.apply_ui_font(name_label)
+	name_row.add_child(name_label)
+
+	var state_label := Label.new()
+	state_label.add_theme_font_size_override("font_size", 12)
+	name_row.add_child(state_label)
+
+	var vow_label := Label.new()
+	vow_label.text = "“%s”" % (String(oath.vow_ko) if is_ko else String(oath.vow_en))
+	vow_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	vow_label.add_theme_font_size_override("font_size", 13)
+	vow_label.add_theme_color_override("font_color", Color(0.78, 0.73, 0.64))
+	UITheme.apply_ui_font(vow_label)
+	row_vbox.add_child(vow_label)
+
+	var bottom_row := HBoxContainer.new()
+	bottom_row.add_theme_constant_override("separation", 8)
+	row_vbox.add_child(bottom_row)
+
+	var reward_label := Label.new()
+	reward_label.text = _ploc("Kept:", "유지 시:") + " " + (String(oath.reward_ko) if is_ko else String(oath.reward_en))
+	reward_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	reward_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	reward_label.add_theme_font_size_override("font_size", 12)
+	reward_label.add_theme_color_override("font_color", Color(0.6, 0.68, 0.44))
+	UITheme.apply_ui_font(reward_label)
+	bottom_row.add_child(reward_label)
+
+	var action_slot := HBoxContainer.new()
+	action_slot.add_theme_constant_override("separation", 8)
+	bottom_row.add_child(action_slot)
+
+	var kept_label := Label.new()
+	kept_label.add_theme_font_size_override("font_size", 12)
+	action_slot.add_child(kept_label)
+
+	return {
+		"node": row,
+		"panel": row,
+		"style": row_style,
+		"state_label": state_label,
+		"kept_label": kept_label,
+		"action_slot": action_slot,
+		"oath_id": String(oath.id),
+		"sworn": false,
+		"refresh_button": null,
+	}
+
+## 맹세 행의 상태 표시를 최신 서약 상태로 맞춘다.
+func _refresh_oath_row_state(row: Dictionary, statuses: Array[Dictionary]) -> void:
+	var is_ko := GameManager.current_locale == "ko"
+	var status: Dictionary = {}
+	for entry in statuses:
+		if String(entry.id) == String(row.oath_id):
+			status = entry
+			break
+
+	var broken := bool(status.get("broken", false))
+	var sworn := bool(status.get("sworn", false))
+	row.sworn = sworn
+
+	var state_label: Label = row.state_label
+	state_label.text = _ploc("BROKEN", "깨졌다") if broken else (_ploc("KEPT", "지키는 중") if sworn else _ploc("UNSWORN", "미맹세"))
+	state_label.add_theme_color_override(
+		"font_color",
+		Color(0.78, 0.36, 0.28) if broken else (Color(0.62, 0.74, 0.4) if sworn else Color(0.45, 0.42, 0.38))
+	)
+
+	var row_style: StyleBoxFlat = row.style
+	row_style.border_color = Color(0.62, 0.26, 0.2, 0.8) if broken else (Color(0.72, 0.58, 0.3, 0.85) if sworn else Color(0.35, 0.28, 0.2, 0.6))
+
+	var kept_label: Label = row.kept_label
+	var kept := int(status.get("chapters_kept", 0))
+	kept_label.visible = kept > 0
+	kept_label.text = _ploc("Chapters kept: %d" % kept, "지킨 챕터: %d" % kept)
+	kept_label.add_theme_color_override("font_color", Color(0.62, 0.74, 0.4))
+
+	var btn = row.get("refresh_button")
+	if btn != null:
+		btn.visible = not sworn
 
 func _on_achievements() -> void:
 	AudioManager.play_sfx("ui_select")

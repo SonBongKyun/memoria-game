@@ -309,14 +309,16 @@ func select_choice(choice_index: int) -> void:
 		if burned == null:
 			push_warning("[SceneFlow] Memory cost could not be paid: %s" % choice.cost_memory)
 			return
+		# S263: 여정 맹세 '고요한 손' — 대가로 지불한 것도 아렐의 손에서 탔다.
+		JourneyOath.on_player_burn(burned)
 	if choice.has("set_flag"):
 		GameManager.set_flag(choice.set_flag)
-	# S149: 복수 플래그 지원 (기억 열쇠 선택지 등, 분기 플래그 + 열쇠 플래그 동시 설정)
+	# S149: 분기 결과 처리 (선택지 플래그 처리 후, 분기 플래그 + 이동 처리와 순서 무관)
 	if choice.has("set_flags") and choice.set_flags is Array:
 		for f in choice.set_flags:
 			GameManager.set_flag(String(f))
 	if choice.has("burn_memory"):
-		MemoryManager.burn_memory(choice.burn_memory, bool(choice.get("allow_faded_burn", false)))
+		JourneyOath.on_player_burn(MemoryManager.burn_memory(choice.burn_memory, bool(choice.get("allow_faded_burn", false))))
 	_apply_reward_fields(choice)
 	if choice.has("goto"):
 		current_index = int(choice.goto) - 1
