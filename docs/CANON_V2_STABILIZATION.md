@@ -101,18 +101,21 @@ Saves are a release boundary. Any change to persisted semantic meaning must incl
 
 ## Repository policy
 
-- New binary art, audio, video, and archives are tracked with Git LFS.
-- Existing history is not rewritten during this stabilization pass.
+- Generated exports (`build/`, `.exe`, `.pck`) stay out of source control.
+- Do **not** enable broad Git LFS tracking over the existing media tree until a dedicated migration/renormalization pass is performed. The repository already contains a large body of binary assets committed as normal Git blobs; simply adding LFS attributes can create pointer and dirty-working-tree problems.
+- When LFS migration is scheduled, measure the largest file classes first, choose whether to migrate current state only or rewrite history, and test on a disposable clone before force-updating shared refs.
 - Version metadata in `project.godot`, `export_presets.cfg`, and demo artifact names must remain synchronized.
 - Every pull request should pass the repository contract check and Godot headless import.
-- Main-branch builds should produce a Windows demo artifact.
+- Main-branch builds should produce a Windows demo artifact and publish the current demo prerelease.
 
 ## Definition of done for the stabilization pass
 
 - Canon conflicts are documented and guarded from accidental regression.
 - Release version metadata is synchronized.
-- New large media uses LFS.
+- Generated builds are excluded from Git.
+- LFS migration is deferred until it can be performed safely instead of partially.
 - Godot imports headlessly in CI.
 - Windows demo exports in CI.
+- Main builds publish a GitHub demo prerelease.
 - No new gameplay subsystem is introduced merely to increase feature count.
 - Remaining gameplay work is prioritized around Memory Burn consequence density and vertical-slice polish.
