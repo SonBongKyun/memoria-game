@@ -28,6 +28,10 @@ jobs:
         with:
           lfs: true
 
+      - name: Verify stabilization invariants
+        shell: bash
+        run: python3 tools/stabilization_guard.py --check
+
       - name: Prepare Godot paths
         shell: bash
         run: |
