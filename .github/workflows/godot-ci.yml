@@ -1,0 +1,70 @@
+name: Godot CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GODOT_VERSION: 4.6.2
+  EXPORT_PRESET: Windows Desktop (Demo)
+  EXPORT_NAME: MEMORIA-Demo-v0.9.0.exe
+
+jobs:
+  validate-and-export-windows:
+    name: Validate and export Windows demo
+    runs-on: ubuntu-24.04
+    container:
+      image: barichello/godot-ci:4.6.2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Prepare Godot paths
+        shell: bash
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates
+          mkdir -p ~/.config
+          if [ -d /root/.config/godot ]; then
+            rm -rf ~/.config/godot
+            mv /root/.config/godot ~/.config/godot
+          fi
+          if [ -d "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" ]; then
+            rm -rf "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+            mv "/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable" "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          fi
+          godot --version
+
+      - name: Headless import and script parse
+        shell: bash
+        run: |
+          godot --headless --path . --import
+          godot --headless --path . --editor --quit
+
+      - name: Export Windows demo
+        shell: bash
+        run: |
+          mkdir -p build/ci
+          godot --headless --path . --export-release "$EXPORT_PRESET" "build/ci/$EXPORT_NAME"
+
+      - name: Verify build output
+        shell: bash
+        run: |
+          test -s "build/ci/$EXPORT_NAME"
+          ls -lah build/ci
+
+      - name: Upload Windows demo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: memoria-windows-demo
+          path: build/ci/
+          if-no-files-found: error
+          retention-days: 14
