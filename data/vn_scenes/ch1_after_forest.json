@@ -6,81 +6,91 @@
     {
       "cg": "res://assets/cg/generated/story_ch1_twisted_forest_path.png",
       "fade": 1.5,
-      "narrate": "The forest thinned. The air cleared, or rather, it replaced one kind of thickness with another.",
-      "narrate_ko": "숲이 얇아졌습니다. 공기가 맑아졌습니다. 오히려 한 종류의 두께를 다른 두께로 대체했습니다."
+      "narrate": "The forest thinned. Rain still clung to the roots, carrying the smell of wet earth behind them.",
+      "narrate_ko": "숲이 성겨졌다. 뒤쪽 뿌리에는 아직 빗물이 맺혀 있었고, 젖은 흙 냄새가 따라왔다.",
+      "distort_if_burned": "sense_forest_smell",
+      "distorted_narrate": "The forest thinned. Rain darkened the roots behind them, but the wet earth carried no scent at all.",
+      "distorted_narrate_ko": "숲이 성겨졌다. 뒤쪽 뿌리는 비에 젖어 검었지만, 젖은 흙에서는 아무 냄새도 나지 않았다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "You fought through that without burning anything else.",
-      "text_ko": "당신은 다른 것을 태우지 않고 그것을 극복했습니다."
+      "text": "You made it through.",
+      "text_ko": "빠져나오긴 했네."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_exhausted",
       "side": "left",
-      "text": "I know.",
-      "text_ko": "알아요."
+      "text": "Barely.",
+      "text_ko": "간신히."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_concern",
       "side": "right",
-      "text": "You're keeping count.",
-      "text_ko": "당신은 카운트를 유지하고 있습니다."
+      "text": "You're counting again.",
+      "text_ko": "또 세고 있지."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_cold",
       "side": "left",
-      "text": "I always keep count.",
-      "text_ko": "나는 항상 숫자를 세어본다."
+      "text": "I always count.",
+      "text_ko": "늘 세어."
     },
     {
       "cg": "ch1_green_tree",
       "fade": 1.8,
       "narrate": "A single tree, still green, stood at the edge of the clearing like a joke the world had forgotten to finish.",
-      "narrate_ko": "세상이 끝내는 것을 잊어버린 농담처럼 공터 가장자리에 아직 녹색인 나무 한 그루가 서 있었습니다."
+      "narrate_ko": "공터 끝에 아직 푸른 나무 한 그루가 서 있었다. 세상이 끝맺는 걸 잊은 농담 같았다."
     },
     {
-      "narrate": "Elia stopped. Her hand went to the bark, fingers spread against the living wood as if checking whether it would answer.",
-      "narrate_ko": "엘리아는 멈춰섰다. 그녀의 손은 나무껍질로 향했고, 마치 그것이 응답할지 확인하려는 듯 손가락을 살아있는 나무에 대고 펼쳤습니다."
+      "narrate": "Elia stopped. She pressed a hand to the bark, fingers spread against the living wood as if waiting for an answer.",
+      "narrate_ko": "엘리아가 멈춰 나무껍질에 손을 댔다. 살아 있는 나무가 대답이라도 하길 기다리는 듯 손가락을 펼쳤다."
+    },
+    {
+      "narrate": "Her lantern warmed the side of his hand. For a moment, it was enough.",
+      "narrate_ko": "엘리아의 등불이 그의 손등을 데웠다. 잠깐은, 그걸로 충분했다.",
+      "distort_if_burned": "sense_warm_light",
+      "distorted_narrate": "Her lantern painted gold across his hand. He saw the light. The warmth never arrived.",
+      "distorted_narrate_ko": "엘리아의 등불이 그의 손등을 금빛으로 물들였다. 빛은 보였다. 온기는 오지 않았다."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_hopeful",
       "side": "right",
       "text": "It's still warm.",
-      "text_ko": "아직 따뜻해요."
+      "text_ko": "아직 따뜻해."
     },
     {
       "speaker": "Arrel",
       "portrait": "arrel_pensive",
       "side": "left",
-      "text": "It won't be, by winter.",
-      "text_ko": "겨울까지는 그렇지 않을 것입니다."
+      "text": "For now.",
+      "text_ko": "지금은."
     },
     {
       "speaker": "Elia",
       "portrait": "elia_sad",
       "side": "right",
-      "text": "No. It won't.",
-      "text_ko": "아니요. 그렇지 않습니다."
+      "text": "For now.",
+      "text_ko": "응. 지금은."
     },
     {
       "cg": "res://assets/cg/game_image/sealed_city_ruins.png",
       "fade": 2.0,
       "narrate": "Beyond the treeline, far to the south, the Bureau's tower scraped at the clouds like a finger pointing out an accusation.",
-      "narrate_ko": "수목한계 너머, 멀리 남쪽에는 국의 탑이 비난을 가리키는 손가락처럼 구름을 긁어냈다."
+      "narrate_ko": "수목선 너머 남쪽 멀리, 관리국의 탑이 고발하듯 구름을 긁고 있었다."
     },
     {
-      "narrate": "That was where the answers were. That was where he would have to go.",
-      "narrate_ko": "거기에 답이 있었습니다. 그가 가야 할 곳은 바로 그곳이었다."
+      "narrate": "The answers were there. So was the danger of being noticed.",
+      "narrate_ko": "답은 저기에 있었다. 들킬 위험도 함께."
     },
     {
       "narrate": "But first, the Belt. And the man who might know whether his brother was still alive.",
-      "narrate_ko": "하지만 먼저, 벨트. 그리고 형이 아직 살아 있는지 알 수도 있는 남자."
+      "narrate_ko": "하지만 먼저 벨트로 가야 했다. 형이 아직 살아 있는지 알지도 모르는 남자가 그곳에 있었다."
     },
     {
       "set_flag": "ch1_complete",
