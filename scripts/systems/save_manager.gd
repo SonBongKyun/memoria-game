@@ -280,7 +280,7 @@ func _try_parse_json(path: String) -> Variant:
 	return null
 
 ## S72: 구버전 세이브 호환, 누락 키 보강 + 버전 스탬프 갱신
-const SAVE_VERSION: String = "0.3.0"
+const SAVE_VERSION: String = "0.4.0"
 
 func _migrate_save_data(data: Dictionary) -> Dictionary:
 	var migrated: Dictionary = data.duplicate(true)

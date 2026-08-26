@@ -3,7 +3,8 @@
 extends Node
 
 # --- 기억 등급 ---
-# 값이 클수록 높은 등급: GRADE_5=0(최하) ~ GRADE_1=4(최상). 비교 시 >= 는 "같거나 높은 등급".
+# 레거시 enum 이름은 세이브 호환 때문에 유지한다. 값 0..4는 내부 rank, 플레이어 표시 캐논은 1..5다.
+# UI/직렬화 경계에서는 MemoryGradeCodec을 사용하며 raw 값을 뒤집지 않는다.
 enum MemoryGrade { GRADE_5, GRADE_4, GRADE_3, GRADE_2, GRADE_1 }
 
 # --- 기억 데이터 클래스 ---
@@ -887,6 +888,7 @@ func export_data() -> Dictionary:
 		"memories": [],
 		"burned": [],
 		"burn_passives": burn_passives.duplicate(),
+		"grade_schema": MemoryGradeCodec.INTERNAL_SCHEMA,
 	}
 	for m in memories:
 		data.memories.append({
@@ -908,6 +910,7 @@ func import_data(data: Dictionary) -> void:
 	memories.clear()
 	burned_memories.clear()
 	burn_passives = data.get("burn_passives", {})
+	var grade_schema := String(data.get("grade_schema", MemoryGradeCodec.INTERNAL_SCHEMA))
 
 	var burned_ids = data.get("burned", [])
 	for m_data in data.memories:
@@ -920,7 +923,7 @@ func import_data(data: Dictionary) -> void:
 			memory_id,
 			String(m_data.get("title", memory_id)),
 			String(m_data.get("description", "")),
-			int(m_data.get("grade", MemoryGrade.GRADE_5)),
+			MemoryGradeCodec.normalize_saved_grade(int(m_data.get("grade", MemoryGrade.GRADE_5)), grade_schema),
 			int(m_data.get("burn_power", 0)),
 			m_data.get("story_effect", ""), m_data.get("related_npc", "")
 		)

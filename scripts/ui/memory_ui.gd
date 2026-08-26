@@ -32,7 +32,7 @@ var synthesis_first = null           # 합성 첫 번째 기억
 var synth_btn: Button                # 합성 버튼
 var synth_status_label: Label        # 합성 모드 상태 표시
 
-const GRADE_NAMES = ["Grade 5, Sensory", "Grade 4, Daily", "Grade 3, Relational", "Grade 2, Identity", "Grade 1, Core"]
+const GRADE_NAMES = ["1 Ember, Sensory", "2 Flame, Daily", "3 Blaze, Relational", "4 Sun, Identity", "5 Zero, Core"]
 const GRADE_COLORS = [
 	Color(0.5, 0.5, 0.45),     # Grade 5, 회색
 	Color(0.55, 0.5, 0.35),    # Grade 4, 갈색
