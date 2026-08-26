@@ -1,0 +1,62 @@
+name: MEMORIA Godot CI
+
+on:
+  push:
+    branches: [main, "stabilization/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: memoria-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-export:
+    name: Validate and export Windows demo
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Validate repository contracts
+        run: python3 scripts/validation/repo_contract.py
+
+      - name: Setup Godot 4.6
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.6.0
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project headlessly
+        run: godot --headless --editor --path . --quit-after 120
+
+      - name: Export Windows demo
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-release "Windows Desktop (Demo)" "build/MEMORIA-Demo-v0.1.0.exe"
+
+      - name: Verify exported artifact
+        run: |
+          test -s build/MEMORIA-Demo-v0.1.0.exe
+          ls -lh build/MEMORIA-Demo-v0.1.0.exe
+
+      - name: Upload Windows demo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MEMORIA-Demo-v0.1.0-Windows
+          path: |
+            build/MEMORIA-Demo-v0.1.0.exe
+            build/MEMORIA-Demo-v0.1.0.pck
+          if-no-files-found: error
+          retention-days: 14
