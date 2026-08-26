@@ -4135,20 +4135,27 @@ func _toggle_burn_list() -> void:
 				]
 				btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
+				# 등급이 눈에 먼저 읽히도록: 좌측 등급 액센트 보더 + 제목 톤.
+				# 어떤 기억이 "무거운지"가 목록 단계에서부터 보여야 한다.
+				var grade_color: Color = UITheme.GRADE_COLORS[memory.grade]
 				var style = StyleBoxFlat.new()
 				style.bg_color = Color(0.08, 0.06, 0.1, 0.85)
 				style.set_content_margin_all(8)
 				style.set_corner_radius_all(3)
+				style.border_color = Color(grade_color.r, grade_color.g, grade_color.b, 0.45)
+				style.set_border_width_all(1)
+				style.border_width_left = 3
 				btn.add_theme_stylebox_override("normal", style)
 				var hover_s = style.duplicate()
 				hover_s.bg_color = Color(0.18, 0.1, 0.16, 0.95)
-				hover_s.border_color = Color(0.7, 0.4, 0.3, 0.7)
+				hover_s.border_color = Color(grade_color.r * 1.3, grade_color.g * 1.3, grade_color.b * 1.3, 0.9)
 				hover_s.set_border_width_all(1)
+				hover_s.border_width_left = 3
 				btn.add_theme_stylebox_override("hover", hover_s)
 				btn.add_theme_stylebox_override("focus", hover_s)
 				btn.add_theme_font_size_override("font_size", 12)
-				btn.add_theme_color_override("font_color", Color(0.7, 0.6, 0.55))
-				btn.add_theme_color_override("font_hover_color", Color(0.95, 0.7, 0.4))
+				btn.add_theme_color_override("font_color", Color(grade_color.r * 0.5 + 0.35, grade_color.g * 0.5 + 0.33, grade_color.b * 0.5 + 0.30))
+				btn.add_theme_color_override("font_hover_color", Color(grade_color.r * 0.4 + 0.62, grade_color.g * 0.4 + 0.56, grade_color.b * 0.4 + 0.45))
 
 				var mid = memory.id
 				var mem_ref = memory  # capture reference for preview
@@ -4181,6 +4188,10 @@ func _toggle_burn_list() -> void:
 				style.bg_color = Color(0.06, 0.05, 0.1, 0.85)
 				style.set_content_margin_all(8)
 				style.set_corner_radius_all(3)
+				# 잔존은 이미 사라진 뒤라는 것을 테두리만으로 표시한다(흐린 보라).
+				style.border_color = Color(0.5, 0.3, 0.6, 0.30)
+				style.set_border_width_all(1)
+				style.border_width_left = 3
 				btn.add_theme_stylebox_override("normal", style)
 				var hover_s = style.duplicate()
 				hover_s.bg_color = Color(0.12, 0.08, 0.18, 0.95)
