@@ -217,7 +217,7 @@ func damage_screen_shake(amount: int) -> void:
 		t.tween_property(_canvas, "position", original_pos + offset, 0.025)
 	t.tween_property(_canvas, "position", original_pos, 0.04)
 
-## Victory fanfare visual: confetti particles + golden flash
+## Victory fanfare visual: golden flash + memory embers and ash drift
 func play_victory_fanfare() -> void:
 	if OptionsMenu.is_clean_gameplay_visuals():
 		return
@@ -232,21 +232,24 @@ func play_victory_fanfare() -> void:
 	ft.tween_property(flash, "color:a", 0.0, 0.8).set_ease(Tween.EASE_OUT)
 	ft.tween_callback(flash.queue_free)
 
-	# Confetti burst, multi-colored particles raining down
-	var confetti_colors = [
-		Color(1.0, 0.85, 0.2),   # gold
-		Color(0.3, 0.85, 1.0),   # cyan
-		Color(1.0, 0.4, 0.5),    # pink
-		Color(0.5, 1.0, 0.4),    # lime
-		Color(0.9, 0.5, 1.0),    # lavender
-		Color(1.0, 0.6, 0.2),    # orange
+	# 승리의 색은 이 게임의 언어를 따른다: 기억의 금빛 불티와 잿빛 재.
+	# 무지개 꽃가루는 파티가 아니라 살아남은 것의 무게를 가려야 한다.
+	var ember_colors = [
+		Color(0.95, 0.78, 0.38),   # gold ember
+		Color(0.85, 0.65, 0.35),   # amber
+		Color(0.78, 0.74, 0.68),   # ash
+		Color(0.68, 0.64, 0.60),   # dark ash
+		Color(0.80, 0.86, 1.0),    # pale memory spark (rare, cold)
 	]
 	for i in range(40):
 		var confetti = ColorRect.new()
-		confetti.size = Vector2(randf_range(3, 8), randf_range(6, 14))
+		var is_ember := randf() < 0.45
+		confetti.size = Vector2(randf_range(2, 4), randf_range(5, 11) if is_ember else randf_range(3, 7))
 		confetti.position = Vector2(randf_range(100, 1180), randf_range(-80, -20))
-		confetti.color = confetti_colors[randi_range(0, confetti_colors.size() - 1)]
-		confetti.color.a = randf_range(0.7, 1.0)
+		var pick := randf()
+		var color: Color = ember_colors[0] if pick < 0.4 else (ember_colors[1] if pick < 0.6 else (ember_colors[2] if pick < 0.82 else (ember_colors[3] if pick < 0.94 else ember_colors[4])))
+		confetti.color = color
+		confetti.color.a = randf_range(0.55, 0.9)
 		confetti.rotation = randf_range(-0.5, 0.5)
 		confetti.z_index = 76
 		confetti.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -259,25 +262,31 @@ func play_victory_fanfare() -> void:
 		var t = _scene.create_tween().set_parallel(true)
 		t.tween_property(confetti, "position:y", fall_y, duration).set_delay(delay).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 		t.tween_property(confetti, "position:x", drift_x, duration).set_delay(delay)
-		t.tween_property(confetti, "rotation", confetti.rotation + randf_range(-3.0, 3.0), duration).set_delay(delay)
+		t.tween_property(confetti, "rotation", confetti.rotation + randf_range(-1.4, 1.4), duration).set_delay(delay)
 		t.tween_property(confetti, "modulate:a", 0.0, 0.5).set_delay(delay + duration - 0.5)
 		t.chain().tween_callback(confetti.queue_free)
 
-	# Star sparkles at screen center
+	# Star sparkles at screen center — 작은 십자 반짝임(게임의 모트 언어)
 	for i in range(8):
-		var star = Label.new()
-		star.text = "*"
-		star.add_theme_font_size_override("font_size", randi_range(18, 32))
-		star.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4, 0.9))
-		star.position = Vector2(randf_range(300, 980), randf_range(100, 500))
-		star.z_index = 77
-		star.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		star.modulate.a = 0.0
-		_canvas.add_child(star)
+		var sparkle := Line2D.new()
+		sparkle.width = 1.5
+		sparkle.default_color = Color(1.0, 0.9, 0.4, 0.9)
+		var r := randf_range(4.0, 8.0)
+		sparkle.points = PackedVector2Array([
+			Vector2(-r, 0), Vector2(0, -r), Vector2(r, 0), Vector2(0, r), Vector2(-r, 0),
+		])
+		sparkle.position = Vector2(randf_range(300, 980), randf_range(100, 500))
+		sparkle.z_index = 77
+		sparkle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		sparkle.modulate.a = 0.0
+		_canvas.add_child(sparkle)
 		var st = _scene.create_tween()
-		st.tween_property(star, "modulate:a", 1.0, 0.15).set_delay(randf_range(0, 0.3))
-		st.tween_property(star, "modulate:a", 0.0, 0.4).set_delay(0.2)
-		st.tween_callback(star.queue_free)
+		st.set_parallel(true)
+		st.tween_property(sparkle, "modulate:a", 1.0, 0.15).set_delay(randf_range(0, 0.3))
+		st.tween_property(sparkle, "scale", Vector2(1.5, 1.5), 0.5).set_delay(randf_range(0, 0.3))
+		st.tween_property(sparkle, "rotation", randf_range(-0.4, 0.4), 0.5)
+		st.chain().tween_property(sparkle, "modulate:a", 0.0, 0.4)
+		st.chain().tween_callback(sparkle.queue_free)
 
 ## Defeat slow-motion effect: desaturate + slow + dark vignette
 func play_defeat_effect() -> void:
