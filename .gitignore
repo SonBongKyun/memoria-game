@@ -1,6 +1,11 @@
 # Godot 4.x
 .godot/
 
+# Export/build outputs
+build/
+*.exe
+*.pck
+
 # OS
 .DS_Store
 Thumbs.db
