@@ -3,7 +3,7 @@
 
 This script deliberately avoids importing Godot. It catches cheap, high-value
 regressions before the engine boots: release version drift, save-grade enum
-reordering, and missing large-asset policy.
+reordering, and generated build outputs leaking into source control.
 """
 from __future__ import annotations
 
@@ -83,19 +83,32 @@ def check_memory_storage_contract() -> None:
     print("memory save-storage contract OK")
 
 
-def check_lfs_policy() -> None:
-    attrs = read(".gitattributes")
-    required = ["*.png filter=lfs", "*.wav filter=lfs", "*.mp4 filter=lfs"]
-    missing = [rule for rule in required if rule not in attrs]
+def check_build_hygiene() -> None:
+    ignore = read(".gitignore")
+    required = ["build/", "*.exe", "*.pck"]
+    missing = [rule for rule in required if rule not in ignore.splitlines()]
     if missing:
-        fail("Git LFS policy missing required media rules: " + ", ".join(missing))
-    print("large-asset policy OK")
+        fail(".gitignore is missing generated build-output rules: " + ", ".join(missing))
+
+    # Do not enable broad Git LFS tracking over existing media without a real
+    # migration/renormalization pass. A blanket .gitattributes addition can
+    # leave previously committed binaries marked as LFS but stored as Git blobs.
+    attrs = ROOT / ".gitattributes"
+    if attrs.exists():
+        text = attrs.read_text(encoding="utf-8")
+        broad_media_rules = ["*.png filter=lfs", "*.wav filter=lfs", "*.mp4 filter=lfs"]
+        if any(rule in text for rule in broad_media_rules):
+            warn(
+                "Broad LFS media tracking is enabled. Verify existing assets were migrated/renormalized "
+                "before merging to avoid pointer/dirty-working-tree problems."
+            )
+    print("build-output hygiene OK")
 
 
 def main() -> int:
     check_versions()
     check_memory_storage_contract()
-    check_lfs_policy()
+    check_build_hygiene()
     print("MEMORIA repository contracts passed")
     return 0
 
