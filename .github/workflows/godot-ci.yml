@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: memoria-${{ github.workflow }}-${{ github.ref }}
@@ -49,7 +49,8 @@ jobs:
       - name: Verify exported artifact
         run: |
           test -s build/MEMORIA-Demo-v0.1.0.exe
-          ls -lh build/MEMORIA-Demo-v0.1.0.exe
+          test -s build/MEMORIA-Demo-v0.1.0.pck
+          ls -lh build/MEMORIA-Demo-v0.1.0.exe build/MEMORIA-Demo-v0.1.0.pck
 
       - name: Upload Windows demo artifact
         uses: actions/upload-artifact@v4
@@ -60,3 +61,28 @@ jobs:
             build/MEMORIA-Demo-v0.1.0.pck
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish GitHub demo prerelease
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="demo-v0.1.0"
+          TITLE="MEMORIA Demo v0.1.0"
+          NOTES="Automated Windows demo build from ${GITHUB_SHA}. This is a prerelease build for playtesting, not the final Steam release."
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" \
+              build/MEMORIA-Demo-v0.1.0.exe \
+              build/MEMORIA-Demo-v0.1.0.pck \
+              --clobber \
+              --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" \
+              build/MEMORIA-Demo-v0.1.0.exe \
+              build/MEMORIA-Demo-v0.1.0.pck \
+              --target "$GITHUB_SHA" \
+              --title "$TITLE" \
+              --notes "$NOTES" \
+              --prerelease \
+              --repo "$GITHUB_REPOSITORY"
+          fi
