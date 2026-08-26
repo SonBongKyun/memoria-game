@@ -63,6 +63,7 @@ const SFX_PITCH_VARIATION: Dictionary = {
 	"step_water": 0.1,
 	"ui_hover": 0.06,
 	"ui_select": 0.08,
+	"enemy_die": 0.09,
 }
 
 const FADE_DURATION: float = 1.0
@@ -327,6 +328,15 @@ func _generate_sfx(type: String) -> PackedFloat32Array:
 				var env = (1.0 - t / duration)
 				var f = lerpf(440.0, 110.0, t / duration)
 				samples.append(sin(t * f * TAU) * 0.2 * env)
+		"enemy_die":  # 적 사멸, 힘이 빠지며 무너지는 소리 + 흩어지는 노이즈
+			duration = 0.55
+			for i in range(int(sample_rate * duration)):
+				var t = float(i) / sample_rate
+				var env = pow(1.0 - t / duration, 1.6)
+				var f = lerpf(300.0, 70.0, t / duration)
+				var body = sin(t * f * TAU) * 0.22 + sin(t * f * 1.5 * TAU) * 0.08
+				var ash = randf_range(-0.09, 0.09) * (1.0 - t / duration)
+				samples.append((body + ash) * env)
 		"flee":  # 도주, 빠른 상승음
 			duration = 0.2
 			for i in range(int(sample_rate * duration)):

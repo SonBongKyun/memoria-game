@@ -7040,31 +7040,49 @@ func _show_combo_counter(combo: int) -> void:
 func _play_enemy_death_animation() -> void:
 	if not enemy_sprite_container:
 		return
-	# Particle burst from enemy position
+	var enemy = BattleManager.current_enemy
+	var enemy_name: String = enemy.name if enemy else ""
+	# 정체성 색으로 사멸을 쓴다. 보이드는 차가운 보라로 위로 흩어지고(부정확한
+	# 소멸), 그 외는 정체성 색과 기억의 금빛 불티가 사방으로 터진다.
+	var identity := _enemy_presence_color(enemy_name, enemy)
+	var is_void := identity.b > identity.r
+	var is_boss: bool = enemy != null and enemy.get("is_boss") == true
+	AudioManager.play_sfx("enemy_die")
+	# 역광이 한 번 크게 타오른 뒤 컨테이너와 함께 사라진다.
+	var backlight := enemy_sprite_container.get_node_or_null("PresenceBacklight") as Sprite2D
+	if backlight and not OptionsMenu.is_reduce_motion():
+		var flare := backlight.create_tween()
+		flare.tween_property(backlight, "modulate:a", 0.55, 0.10).set_trans(Tween.TRANS_SINE)
+		flare.tween_property(backlight, "modulate:a", backlight.modulate.a, 0.35).set_trans(Tween.TRANS_SINE)
 	var center = enemy_sprite_container.position + Vector2(130, 120)
-	for i in range(20):
-		var particle = ColorRect.new()
-		var s = randf_range(3, 8)
-		particle.size = Vector2(s, s)
-		particle.position = center + Vector2(randf_range(-30, 30), randf_range(-30, 30))
-		particle.z_index = 65
-		particle.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		# Mix of enemy-colored particles (purple/dark/red)
-		var colors = [
-			Color(0.6, 0.2, 0.8, 0.9), Color(0.8, 0.15, 0.2, 0.85),
-			Color(0.3, 0.1, 0.5, 0.8), Color(0.9, 0.7, 0.2, 0.7),
-		]
-		particle.color = colors[randi_range(0, colors.size() - 1)]
-		canvas_root.add_child(particle)
-		var angle = randf() * TAU
-		var dist = randf_range(60, 160)
-		var target_pos = particle.position + Vector2(cos(angle), sin(angle)) * dist
-		var delay = randf_range(0, 0.15)
-		var pt = create_tween().set_parallel(true)
-		pt.tween_property(particle, "position", target_pos, randf_range(0.4, 0.8)).set_delay(delay).set_ease(Tween.EASE_OUT)
-		pt.tween_property(particle, "modulate:a", 0.0, 0.3).set_delay(delay + 0.2)
-		pt.tween_property(particle, "size", Vector2(1, 1), 0.6).set_delay(delay)
-		pt.chain().tween_callback(particle.queue_free)
+	var count := 26 if is_boss else 18
+	for i in range(count):
+		var mote := Line2D.new()
+		mote.width = randf_range(1.4, 2.6)
+		var use_gold := randf() < 0.28
+		mote.default_color = Color(0.94, 0.80, 0.46, 0.85) if use_gold else Color(identity.r, identity.g, identity.b, 0.88)
+		var streak := Vector2(0, randf_range(5.0, 11.0))
+		mote.points = PackedVector2Array([Vector2.ZERO, streak * 0.6, streak])
+		mote.position = center + Vector2(randf_range(-34, 34), randf_range(-34, 34))
+		mote.z_index = 65
+		mote.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		canvas_root.add_child(mote)
+		var angle: float
+		var dist := randf_range(60, 160)
+		if is_boss:
+			dist = randf_range(90, 210)
+		if is_void:
+			# 위로, 흐느적거리며. 공간에서 풀려나는 느낌.
+			angle = -PI * 0.5 + randf_range(-0.9, 0.9)
+		else:
+			angle = randf() * TAU
+		var drift := Vector2.from_angle(angle) * dist
+		var flight := randf_range(0.45, 0.85)
+		var mt := create_tween().set_parallel(true)
+		mt.tween_property(mote, "position", mote.position + drift, flight).set_delay(randf_range(0, 0.12)).set_ease(Tween.EASE_OUT)
+		mt.tween_property(mote, "rotation", randf_range(-0.6, 0.6), flight)
+		mt.tween_property(mote, "modulate:a", 0.0, randf_range(0.3, 0.55)).set_delay(randf_range(0.15, 0.35))
+		mt.chain().tween_callback(mote.queue_free)
 	# Fade out + shrink the enemy sprite container
 	var dt = create_tween().set_parallel(true)
 	dt.tween_property(enemy_sprite_container, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN)
