@@ -5,7 +5,7 @@ Status: **Phase 1D COMPLETE**. Engine: **UE 5.8.2 / CL 56702186**, directly veri
 - Branch: `unreal-migration/ue58-foundation`.
 - Worktree: `C:\Users\jc\MemoriaMigration\foundation`.
 - Prior technical checkpoint: `b6c632fc83fdbdbe21d26452b2135f4997704988`; Phase 1D began clean at `4edb035360c19d6286fef0e17ca2fc4bda4b492f`.
-- New technical checkpoint: **`__PHASE1D_CHECKPOINT__`**, `feat(unreal): import bounded narrative contracts`; local only, no push.
+- New technical checkpoint: **`ee61269daf5ee20724a02eb51d07d997f26a8474`**, `feat(unreal): import bounded narrative contracts`; local only, no push.
 - Current report: [PHASE_1D_REPORT](PHASE_1D_REPORT.md). [Acceptance](evidence/phase1d/acceptance.json), [canonical narrative IR/workflow](ir/narrative/README.md).
 - Exactly one VN sequence (`ch2_market_arrival`, 13 original steps 0–12) and one Field group (`verdan_arrival`, five original rows 0–4) are source-attested. Separate typed definitions/interpreters preserve gate/effect ordering, ordered original/visible choice indices, costs, jumps and continuation.
 - Typed assets: `/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival` and `/Game/Memoria/Generated/Narrative/DA_Field_VerdanArrival`. First import CREATED; second import and third-process reload UNCHANGED, no saves, identical semantic hashes and observed package bytes. Modified/synthetic IR is rejected by the production path and never saved as a package.

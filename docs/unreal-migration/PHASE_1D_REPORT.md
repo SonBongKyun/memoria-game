@@ -1,7 +1,7 @@
 # Phase 1D — bounded narrative content and execution contracts
 
 Date: 2026-09-06. Status: **COMPLETE**. Technical checkpoint:
-**`__PHASE1D_CHECKPOINT__`**, `feat(unreal): import bounded narrative contracts`.
+**`ee61269daf5ee20724a02eb51d07d997f26a8474`**, `feat(unreal): import bounded narrative contracts`.
 The documentation follow-up records the technical SHA without attempting to
 embed a commit's own hash. Local commits only; no push.
 
