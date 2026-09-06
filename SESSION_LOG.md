@@ -2,6 +2,20 @@
 
 ---
 
+## S267 - 2026-09-06 (Unreal Phase 1B — UE 5.8.2 기반 실제 검증 완료)
+
+- 상태: COMPLETE. 사용자가 5.7을 제품 제약이 아닌 내부 기준으로 판단하고 설치된 5.8.2로 목표를 변경했다. 변경 시 엔진 종속 에셋은 없었다. 이전 보고서·증거는 원문을 유지했다.
+- 분기: clean `a58b1e15fe2fb6c86568b8df45d279c4f0844ca1`에서 `unreal-migration/ue58-foundation`을 생성했다. 원본 Godot checkout은 보존하며 로컬 체크포인트만 생성하고 push하지 않는다. SHA는 PHASE_1B_UE58_REPORT와 MIGRATION_STATE에 기록한다.
+- 엔진: 설치 Build.version에서 5.8.2 / CL56702186을 재확인했다. 실제 UBT/UHT/컴파일/양쪽 모듈 링크와 Editor/렌더링 PIE가 성공했다. 기존 54/54, 전체 57/57 Automation 통과, 오류 0건. 엔진 렌더 스레드 경고 1건은 증거에 남겼다.
+- 런타임: RunSubsystem/UObject 보유·GC 해제, 비기본 SaveGame 전 필드 및 슬롯 0~3 왕복, 대소문자 구분, 명령/이벤트 순서를 검증했다. 실제 L_FoundationTest, 입력 4종·컨텍스트 2종, 제어용 스프라이트·텍스처, UMG 모달 등 패키지 10개를 엔진으로 저장하고 재로드했다.
+- 입력/화면: XY 이동·Z 고정, -Z 직교 카메라·화면축·발 피벗, 비영점 좌표 (137.25,-83.5) -> (137.25,83.5,0), 모달 이동 차단·Confirm·Back·포커스 복귀를 통과했다. 키보드/게임패드 이벤트 재생에서 Back은 누름당 1회 처리된다. 최종 실제 캡처를 확인했으며 USB 장치/캠페인 전체 검증은 주장하지 않는다.
+- 수정: V7 빌드 설정, 생성 UObject의 완전 타입 요구, GetPawn 타입, fixture 생성 함수만의 MSVC 최적화 문제, commandlet 로딩/월드 생성, 대소문자 ID 검증, 스프라이트 회전·화면 투영을 해결했다. 원본 규칙·fixture 기대값은 그대로다. AndroidFileServer의 불필요한 설정 생성을 차단했다.
+- 회귀: 공식 Godot 15/15, native 51/51, host 12/12, static 49/49, 원본 4,217파일 보존. repository/VN/Korean/import 및 actor catalog export PASS, export_log_errors=0. 첫 Godot import 접근 위반 실패를 보존하고 소스 수정 없는 별도 재실행은 성공했다. 메타데이터 1,056파일 복원.
+- 산출물: PHASE_1B_UE58_REPORT, MIGRATION_STATE, 로드맵 부록, evidence/phase1b-ue58의 실행별 보고서·전체 압축 로그·최종 캡처·에셋 해시. Phase 1C, 시작 기억 content asset, Chapter 1/캠페인/전투/대량 아트 이식은 시작하지 않았다.
+- 다음: 실제 시작 기억 카탈로그를 결정적인 버전 IR로 내보내고 typed Unreal catalog asset으로 임포트하여 재임포트 시 ID·소유 순서·의미 데이터 동등성을 원본 해시와 검증한다.
+
+---
+
 ## S266 - 2026-09-06 (Unreal Phase 1B — 검증기 보강, 5.7 실행 차단 기록)
 
 - 상태: PARTIAL. 실제 UE5.7이 없어 UBT/UHT/컴파일/링크/에디터/54개 Unreal Automation/맵·입력·모달 검증은 실행하지 못했다. 5.8.2로 대체하거나 엔진을 설치하지 않았다.

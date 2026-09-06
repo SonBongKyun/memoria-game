@@ -7,12 +7,12 @@ import subprocess
 import sys
 import unittest
 
-from validate_ue57 import ROOT, expected_test_paths, inspect_automation_report
+from validate_unreal import ROOT, expected_test_paths, inspect_automation_report, matches_required_version
 
 
 class AutomationReportTests(unittest.TestCase):
     def setUp(self):
-        self.expected = expected_test_paths()
+        self.expected = expected_test_paths(include_runtime=False)
         self.report = {'tests': [{'fullTestPath': path, 'state': 'Success'} for path in sorted(self.expected)], 'failed': 0}
 
     def inspect(self, report):
@@ -22,6 +22,22 @@ class AutomationReportTests(unittest.TestCase):
         result = self.inspect(self.report)
         self.assertTrue(result['passed'])
         self.assertEqual((result['discovered'], result['source_parity_discovered']), (54, 51))
+
+    def test_all_expanded_tests_are_required(self):
+        expected = expected_test_paths()
+        self.assertEqual(len(expected), 57)
+        self.assertTrue(self.expected < expected)
+        report = {'tests': [{'fullTestPath': p, 'state': 'Success'} for p in sorted(expected)], 'failed': 0}
+        self.assertTrue(inspect_automation_report(report, expected)['passed'])
+        self.assertFalse(inspect_automation_report(self.report, expected)['passed'])
+        report['tests'].append(report['tests'][0])
+        self.assertFalse(inspect_automation_report(report, expected)['passed'])
+
+    def test_exact_patch_version_is_required(self):
+        self.assertTrue(matches_required_version(dict(MajorVersion=5, MinorVersion=8, PatchVersion=2)))
+        for major, minor, patch in ((5, 8, 1), (5, 8, 3), (5, 7, 2), (5, 9, 2), (6, 8, 2)):
+            self.assertFalse(matches_required_version(dict(MajorVersion=major, MinorVersion=minor, PatchVersion=patch)))
+        self.assertFalse(matches_required_version({}))
 
     def test_duplicate_memory_case_cannot_replace_missing_case(self):
         changed = deepcopy(self.report)
@@ -64,14 +80,16 @@ class AutomationReportTests(unittest.TestCase):
 
 class EvidenceIntegrityTests(unittest.TestCase):
     def test_historical_evidence_destination_rejected(self):
-        for tool in ('validate_ue57.py', 'validate_foundation.py', 'validate_native_memory.py', 'validate_godot_baseline.py'):
-            with self.subTest(tool=tool):
-                command = [sys.executable, str(ROOT / 'Unreal/Tools' / tool), '--evidence-dir', str(ROOT / 'docs/unreal-migration/evidence/phase1a')]
-                if tool == 'validate_godot_baseline.py':
-                    command.extend(['--godot', 'unused.exe'])
-                result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', timeout=30)
-                self.assertEqual(result.returncode, 2)
-                self.assertIn('Phase 1A evidence is immutable', result.stderr)
+        for phase in ('phase0', 'phase1a', 'phase1b'):
+            for tool in ('validate_unreal.py', 'validate_foundation.py', 'validate_native_memory.py', 'validate_godot_baseline.py'):
+                with self.subTest(tool=tool, phase=phase):
+                    command = [sys.executable, str(ROOT / 'Unreal/Tools' / tool), '--evidence-dir', str(ROOT / 'docs/unreal-migration/evidence' / phase)]
+                    if tool == 'validate_godot_baseline.py':
+                        command.extend(['--godot', 'unused.exe'])
+                    result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', timeout=30)
+                    self.assertEqual(result.returncode, 2)
+                    self.assertIn('Historical evidence is immutable', result.stderr)
+
 
     def test_git_checkout_preserves_attested_fixture_bytes(self):
         provenance = json.loads((ROOT / 'docs/unreal-migration/fixtures/player_memory_provenance.json').read_text(encoding='utf-8'))

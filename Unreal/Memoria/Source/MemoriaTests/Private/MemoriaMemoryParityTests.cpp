@@ -1,5 +1,10 @@
 #include "Misc/AutomationTest.h"
+// Large attested fixture builders exceed MSVC's optimizer limit (C4883).
+// Only immutable test-data construction is unoptimized; production rules keep
+// the Editor target's normal optimization and every oracle assertion is intact.
+UE_DISABLE_OPTIMIZATION_SHIP
 #include "MemoryParityFixtures.h"
+UE_ENABLE_OPTIMIZATION_SHIP
 
 #if WITH_DEV_AUTOMATION_TESTS
 IMPLEMENT_COMPLEX_AUTOMATION_TEST(FMemoriaMemoryParityTest, "Memoria.Memory.SourceParity",

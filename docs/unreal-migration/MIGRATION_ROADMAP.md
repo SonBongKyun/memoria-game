@@ -176,3 +176,16 @@ Actual Phase 1B work: exact-engine reinspection; corrected Automation report acc
 UE5.7 was not found in the inspected Launcher/registry/environment/common locations; only Build.version-confirmed UE5.8.2 / CL 56702186 is present. Therefore UBT, UHT, compile/link, editor launch, all 54 Unreal Automation cases, SaveGame/GC proof, real test-map/input/modal creation, rendered plane/pivot checks and Back consumption remain unexecuted. No production C++, Godot gameplay, oracle expectation or campaign asset was changed. No substitute engine, installation or remote push was used.
 
 The next action remains completion of Phase 1B with actual UE5.7. Phase 1C is gated: begin with deterministic starting-memory catalog IR/import and repeated-import equivalence only after the real foundation tests and map/input/modal proof pass. See [PHASE_1B_REPORT](PHASE_1B_REPORT.md) and [MIGRATION_STATE](MIGRATION_STATE.md) for exact evidence, checkpoints and commands.
+
+
+## Phase 1B UE 5.8.2 progress appendix — 2026-09-06
+
+Status: **COMPLETE** for the bounded engine foundation. The user intentionally changed **UE 5.7 -> UE 5.8.2** on 2026-09-06 because 5.7 was an internal baseline rather than a product constraint, 5.8.2 was installed, and no engine-bound migration assets had yet been produced. Earlier roadmap text and reports above remain historical; this appendix and MIGRATION_STATE define the current target.
+
+The dedicated branch is `unreal-migration/ue58-foundation`, from clean `a58b1e15fe2fb6c86568b8df45d279c4f0844ca1`. Build.version was re-read at `C:\Program Files\Epic Games\UE_5.8`: **5.8.2 / CL 56702186**. Real UBT/UHT/C++/module links, Editor load and rendered PIE pass. The exact legacy Automation suite passes **54/54** and the expanded suite **57/57**, including retained UObject/GC lifetime, nondefault SaveGame fields, real map/Enhanced Input/UMG behavior, XY/Z/camera/foot-pivot checks, source-coordinate restoration and one Back dispatch per simulated physical-key press.
+
+Ten genuine packages now exist under `/Game/Tests/Foundation`, including `L_FoundationTest` and `WBP_FoundationModal`. Final captures were visually inspected. Godot official **15/15**, native **51/51**, host validator **12/12**, static **49/49** pass; **4,217 original files** remain preserved. Failed intermediate attempts and one nonblocking engine render-thread warning are retained. No USB hardware or packaged/campaign certification is claimed.
+
+The generalized exact-patch validator replaces validate_ue57.py and preserves exact-name, provenance, historical evidence and line-ending guards. The new report records compiler/runtime defects and fixes without changing oracle expectations. No 5.7 installation, original-checkout changes or push occurred. The technical checkpoint SHA is recorded in the current report/state by a documentation follow-up.
+
+**Phase 1C has not started.** Its exact next task is deterministic starting-memory catalog export into versioned IR, typed Unreal catalog import and repeated-import equivalence for IDs, owned order and semantic content against source hashes. No Chapter 1, Verdan, campaign dialogue, BattleManager or bulk art/audio was migrated. See [PHASE_1B_UE58_REPORT](PHASE_1B_UE58_REPORT.md) and [MIGRATION_STATE](MIGRATION_STATE.md).

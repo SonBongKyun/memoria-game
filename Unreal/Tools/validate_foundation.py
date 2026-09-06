@@ -15,8 +15,8 @@ parser.add_argument('--original-manifest', type=Path)
 parser.add_argument('--evidence-dir', type=Path)
 args = parser.parse_args()
 evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('foundation-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
-if evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence/phase1a'):
-    parser.error('Phase 1A evidence is immutable; choose a new output directory')
+if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b')):
+    parser.error('Historical evidence is immutable; choose a new output directory')
 errors = []
 checks = []
 
@@ -33,13 +33,13 @@ def git(*args):
 
 project = ROOT / 'Unreal/Memoria'
 config = json.loads((project / 'Memoria.uproject').read_text(encoding='utf-8'))
-check('engine pinned to 5.7', config['EngineAssociation'] == '5.7')
-check('minimal plugins', {(p['Name'], p['Enabled']) for p in config['Plugins']} == {('Paper2D', True), ('EnhancedInput', True)})
+check('engine association 5.8', config['EngineAssociation'] == '5.8')
+check('minimal plugins', {(p['Name'], p['Enabled']) for p in config['Plugins']} == {('Paper2D', True), ('EnhancedInput', True), ('AndroidFileServer', False)})
 for module in config['Modules']:
     check(f"module rules: {module['Name']}", (project / 'Source' / module['Name'] / (module['Name'] + '.Build.cs')).is_file())
 for target in ('Memoria', 'MemoriaEditor'):
     source = (project / 'Source' / (target + '.Target.cs')).read_text(encoding='utf-8')
-    check(f'{target} pinned settings', 'BuildSettingsVersion.V6' in source and 'EngineIncludeOrderVersion.Unreal5_7' in source)
+    check(f'{target} pinned settings', 'BuildSettingsVersion.V7' in source and 'EngineIncludeOrderVersion.Unreal5_8' in source)
 for file in (project / 'Source').rglob('*.h'):
     source = file.read_text(encoding='utf-8')
     if 'GENERATED_BODY()' in source:
@@ -48,7 +48,10 @@ for file in (project / 'Source').rglob('*.h'):
 for folder, prefix in (('Public', 'Framework'),):
     for name in ('MemoriaGameInstance', 'MemoriaGameMode', 'MemoriaPlayerController', 'MemoriaFieldPawn'):
         check(f'configured class declaration: {name}', (project / f'Source/Memoria/{folder}/{prefix}/{name}.h').is_file())
-check('no fabricated binary content', not list((project / 'Content').rglob('*.umap')) and not list((project / 'Content').rglob('*.uasset')))
+asset_root = project / 'Content/Tests/Foundation'
+asset_names = [name + '.uasset' for name in ('IA_Move', 'IA_Confirm', 'IA_Back', 'IA_Menu', 'IMC_Foundation', 'IMC_Modal', 'T_FootPivot', 'SPR_FootPivot', 'WBP_FoundationModal')] + ['L_FoundationTest.umap']
+check('all ten foundation packages have Unreal binary headers (runtime load tested separately)',
+      all((asset_root / name).is_file() and (asset_root / name).read_bytes()[:4] == bytes.fromhex('c1832a9e') for name in asset_names))
 check('Godot scanner boundary', (ROOT / 'Unreal/.gdignore').is_file())
 check('Godot export boundary', 'Unreal/*, Unreal/**' in (ROOT / 'export_presets.cfg').read_text(encoding='utf-8'))
 for relative in ('Unreal/Memoria/Binaries/probe.bin', 'Unreal/Memoria/Intermediate/probe.obj', 'Unreal/Memoria/Saved/probe.log',

@@ -3,9 +3,8 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "Domain/MemoriaMemoryTypes.h"
+#include "Domain/MemoriaMemoryModel.h"
 #include "MemoriaPlayerMemoryDomain.generated.h"
-
-namespace Memoria::Memory { class Model; }
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaMemoryObserved, const FMemoriaMemoryEvent&);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMemoriaMemoryPresentationEvent, const FMemoriaMemoryEvent&, Event);

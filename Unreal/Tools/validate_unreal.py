@@ -1,4 +1,4 @@
-"""Probe exact UE 5.7; optionally build Editor and run real Automation tests.
+"""Probe exact UE 5.8.2; optionally build Editor and run real Automation tests.
 
 No installation, version retargeting, packaging, or source profile access.
 Exit 2 means the requested toolchain is absent. A native CMake build never
@@ -15,19 +15,25 @@ import sys
 import winreg
 
 ROOT = Path(__file__).resolve().parents[2]
-WORK = ROOT / 'Unreal/Memoria/Intermediate/UE57Validation'
+REQUIRED_VERSION = (5, 8, 2)
+WORK = ROOT / 'Unreal/Memoria/Saved/Validation' / ('unreal-run-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
 
 
-def expected_test_paths():
+def matches_required_version(version):
+    return tuple(version.get(key) for key in ('MajorVersion', 'MinorVersion', 'PatchVersion')) == REQUIRED_VERSION
+
+
+def expected_test_paths(include_runtime=True):
     fixtures = json.loads((ROOT / 'docs/unreal-migration/fixtures/player_memory_inputs.json').read_text(encoding='utf-8'))['cases']
     paths = ['Memoria.Memory.SourceParity.' + case['id'] for case in fixtures]
     if len(paths) != 51 or len(set(paths)) != 51:
         raise ValueError('Phase 1B requires the 51 distinct attested memory fixtures')
-    return set(paths) | {
+    legacy = set(paths) | {
         'Memoria.Foundation.MemoryAdapter',
         'Memoria.Foundation.SaveAndDialectBoundaries',
         'Memoria.Foundation.RunOwnership',
     }
+    return legacy | ({'Memoria.Foundation.RuntimeLifetime', 'Memoria.Foundation.NondefaultSaveRoundTrip', 'Memoria.Foundation.MapInputAndModal'} if include_runtime else set())
 
 
 def inspect_automation_report(result, expected):
@@ -64,14 +70,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--engine-root', type=Path)
     parser.add_argument('--build-and-test', action='store_true')
+    parser.add_argument('--create-foundation-assets', action='store_true')
+    parser.add_argument('--rendered', action='store_true')
     parser.add_argument('--evidence-dir', type=Path)
     args = parser.parse_args()
-    evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('ue57-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
-    if evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence/phase1a'):
-        parser.error('Phase 1A evidence is immutable; choose a new output directory')
+    evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('unreal-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
+    if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b')):
+        parser.error('Historical evidence is immutable; choose a new output directory')
     candidates = []
     parents_checked = []
-    for name in ('UE57_ROOT', 'UE_ENGINE_ROOT'):
+    for name in ('UE_ENGINE_ROOT',):
         if os.environ.get(name):
             candidates.append(Path(os.environ[name]))
     for directory in (Path('C:/Program Files/Epic Games'), Path('D:/Epic Games'), Path('G:/Epic Games')):
@@ -85,7 +93,7 @@ def main():
                 candidates.append(Path(item['InstallLocation']))
     registry_checked = []
     for hive, key_name in ((winreg.HKEY_CURRENT_USER, r'Software\Epic Games\Unreal Engine\Builds'),
-                           (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\EpicGames\Unreal Engine\5.7')):
+                           (winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\EpicGames\Unreal Engine\5.8')):
         registry_checked.append(key_name)
         try:
             with winreg.OpenKey(hive, key_name) as key:
@@ -104,39 +112,39 @@ def main():
         if version_file.is_file():
             record['version'] = json.loads(version_file.read_text(encoding='utf-8-sig'))
         detected.append(record)
-    eligible = [d for d in detected if d.get('version', {}).get('MajorVersion') == 5 and d.get('version', {}).get('MinorVersion') == 7]
+    eligible = [d for d in detected if matches_required_version(d.get('version', {}))]
     if args.engine_root:
         eligible = [d for d in eligible if Path(d['path']) == args.engine_root.resolve()]
-    report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'requested_engine': '5.7',
+    report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'requested_engine': '5.8.2',
               'detected': detected, 'registry_checked': registry_checked, 'launcher_checked': str(launcher),
               'installation_parents_checked': parents_checked,
-              'engine_environment': {name: os.environ.get(name) for name in ('UE57_ROOT', 'UE_ENGINE_ROOT')},
-              'scope': 'Launcher, known installation parents, registered builds, UE57_ROOT/UE_ENGINE_ROOT, explicit root; no whole-disk scan',
+              'engine_environment': {name: os.environ.get(name) for name in ('UE_ENGINE_ROOT',)},
+              'scope': 'Launcher, known installation parents, registered builds, UE_ENGINE_ROOT, explicit root; no whole-disk scan',
               'ue_compilation': 'NOT_RUN', 'editor_launch': 'NOT_RUN', 'ue_automation': 'NOT_RUN', 'commands': []}
     evidence.mkdir(parents=True, exist_ok=True)
     WORK.mkdir(parents=True, exist_ok=True)
 
     def save():
-        (evidence / 'ue57_validation.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+        (evidence / 'unreal_validation.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
 
     if not eligible:
-        report['status'] = 'BLOCKED_MISSING_UE_5_7'
+        report['status'] = 'BLOCKED_MISSING_UE_5_8_2'
         save()
-        print('MEMORIA_UE57_BLOCKED: no UE 5.7 toolchain in inspected locations; no build/editor/Automation executed')
+        print('MEMORIA_UNREAL_BLOCKED: no UE 5.8.2 toolchain in inspected locations; no build/editor/Automation executed')
         return 2
     engine = Path(eligible[0]['path']) / 'Engine'
     build = engine / 'Build/BatchFiles/Build.bat'
     editor = engine / 'Binaries/Win64/UnrealEditor-Cmd.exe'
     report['selected_engine'] = str(engine.parent)
     if not build.is_file() or not editor.is_file():
-        report['status'] = 'BLOCKED_INCOMPLETE_UE_5_7'
+        report['status'] = 'BLOCKED_INCOMPLETE_UE_5_8_2'
         save()
-        print('MEMORIA_UE57_BLOCKED: missing Build.bat or UnrealEditor-Cmd.exe in exact 5.7 installation')
+        print('MEMORIA_UNREAL_BLOCKED: missing Build.bat or UnrealEditor-Cmd.exe in exact 5.8.2 installation')
         return 2
     if not args.build_and_test:
-        report['status'] = 'UE_5_7_AVAILABLE_NOT_EXECUTED'
+        report['status'] = 'UE_5_8_2_AVAILABLE_NOT_EXECUTED'
         save()
-        print('MEMORIA_UE57_FOUND; run with --build-and-test to validate')
+        print('MEMORIA_UNREAL_FOUND; run with --build-and-test to validate')
         return 0
 
     def run(name, command, timeout):
@@ -165,17 +173,24 @@ def main():
         return 1
     report['ue_compilation'] = 'RUNNING'
     save()
-    if not run('editor_build', [str(build), 'MemoriaEditor', 'Win64', 'Development', f'-Project={project}', '-WaitMutex', '-NoHotReloadFromIDE'], 3600):
+    if not run('editor_build', [str(build), 'MemoriaEditor', 'Win64', 'Development', f'-Project={project}', '-WaitMutex', '-NoHotReloadFromIDE', '-MaxParallelActions=2'], 3600):
         report.update(status='BUILD_FAILED', ue_compilation='FAIL')
         save()
         return 1
     report['ue_compilation'] = 'PASS'
+    if args.create_foundation_assets:
+        authored = run('foundation_authoring', [str(editor), project, '-run=MemoriaFoundationAssets', '-unattended', '-nop4', '-NullRHI', '-stdout', '-FullStdOutLogOutput'], 600)
+        report['foundation_authoring'] = 'PASS' if authored else 'FAIL'
+        if not authored:
+            report['status'] = 'AUTHORING_FAILED'
+            save()
+            return 1
     # Unique report path prevents a previous green report from masking zero tests.
     test_report = WORK / ('Automation-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
     report['ue_automation'] = 'RUNNING'
     report['editor_launch'] = 'UNATTENDED_CMD'
     save()
-    ran = run('automation', [str(editor), project, '-unattended', '-nop4', '-nosplash', '-NullRHI',
+    ran = run('automation', [str(editor), project, '-unattended', '-nop4', '-nosplash', *(['-RenderOffscreen', '-MemoriaCapture', '-ResX=1280', '-ResY=720'] if args.rendered else ['-NullRHI']),
                             '-ExecCmds=Automation RunTests Memoria.', '-TestExit=Automation Test Queue Empty',
                             f'-ReportExportPath={test_report}', '-stdout', '-FullStdOutLogOutput'], 900)
     index = test_report / 'index.json'
@@ -187,11 +202,14 @@ def main():
     report['automation_report'] = str(index.relative_to(ROOT))
     report['automation_discovered'] = inspection['discovered']
     report['source_parity_discovered'] = inspection['source_parity_discovered']
+    report['legacy_required_total'] = len(expected_test_paths(include_runtime=False))
+    report['current_required_total'] = len(expected_test_paths())
+    report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']
     passed = ran and inspection['passed']
     report.update(status='PASS' if passed else 'AUTOMATION_FAILED', ue_automation='PASS' if passed else 'FAIL')
     save()
-    print(f"MEMORIA_UE57_{report['status']} discovered={inspection['discovered']} source_parity={inspection['source_parity_discovered']}")
+    print(f"MEMORIA_UNREAL_{report['status']} discovered={inspection['discovered']} source_parity={inspection['source_parity_discovered']}")
     return 0 if passed else 1
 
 

@@ -1,4 +1,16 @@
 #include "Run/MemoriaRunTypes.h"
+#include "Misc/Crc.h"
+
+namespace
+{
+// Default FString set keys compare without case; source IDs distinguish case.
+struct FCaseSensitiveStringKeys : BaseKeyFuncs<FString, FString, false>
+{
+    static const FString& GetSetKey(const FString& Value) { return Value; }
+    static bool Matches(const FString& A, const FString& B) { return A.Equals(B, ESearchCase::CaseSensitive); }
+    static uint32 GetKeyHash(const FString& Value) { return FCrc::StrCrc32(*Value); }
+};
+}
 
 bool FMemoriaRunSnapshot::HasFlag(const FString& Id) const
 {
@@ -12,7 +24,7 @@ bool FMemoriaRunSnapshot::GetFlag(const FString& Id) const
 bool FMemoriaRunSnapshot::IsValid() const
 {
     if (!RunId.IsValid() || ContentRevision.IsEmpty()) { return false; }
-    TSet<FString> Ids;
+    TSet<FString, FCaseSensitiveStringKeys> Ids;
     for (const auto& Flag : StoryFlags)
     {
         if (Flag.Id.IsEmpty() || Ids.Contains(Flag.Id)) { return false; }

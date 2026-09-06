@@ -1,14 +1,32 @@
 {
   "FileVersion": 3,
-  "EngineAssociation": "5.7",
+  "EngineAssociation": "5.8",
   "Category": "Games",
   "Description": "MEMORIA: The Price of Oblivion — production 2D migration",
   "Modules": [
-    { "Name": "Memoria", "Type": "Runtime", "LoadingPhase": "Default" },
-    { "Name": "MemoriaTests", "Type": "Editor", "LoadingPhase": "PostEngineInit" }
+    {
+      "Name": "Memoria",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "MemoriaTests",
+      "Type": "Editor",
+      "LoadingPhase": "Default"
+    }
   ],
   "Plugins": [
-    { "Name": "Paper2D", "Enabled": true },
-    { "Name": "EnhancedInput", "Enabled": true }
+    {
+      "Name": "Paper2D",
+      "Enabled": true
+    },
+    {
+      "Name": "EnhancedInput",
+      "Enabled": true
+    },
+    {
+      "Name": "AndroidFileServer",
+      "Enabled": false
+    }
   ]
 }

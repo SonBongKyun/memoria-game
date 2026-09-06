@@ -16,8 +16,8 @@ parser.add_argument('--evidence-dir', type=Path)
 args = parser.parse_args()
 work = ROOT / 'Unreal/Memoria/Intermediate/GodotBaseline'
 evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('godot-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
-if evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence/phase1a'):
-    parser.error('Phase 1A evidence is immutable; choose a new output directory')
+if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b')):
+    parser.error('Historical evidence is immutable; choose a new output directory')
 work.mkdir(parents=True, exist_ok=True)
 evidence.mkdir(parents=True, exist_ok=True)
 env = os.environ.copy()

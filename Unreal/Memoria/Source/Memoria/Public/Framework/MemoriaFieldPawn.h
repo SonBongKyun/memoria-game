@@ -18,6 +18,10 @@ class MEMORIA_API AMemoriaFieldPawn : public APawn
 public:
     AMemoriaFieldPawn();
     virtual UPawnMovementComponent* GetMovementComponent() const override;
+    UCameraComponent* GetFieldCamera() const { return Camera; }
+    UPaperSpriteComponent* GetFieldSprite() const { return Sprite; }
+protected:
+    virtual void BeginPlay() override;
 private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Collision;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UPaperSpriteComponent> Sprite;
