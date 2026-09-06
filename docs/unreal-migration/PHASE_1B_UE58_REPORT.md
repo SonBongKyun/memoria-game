@@ -10,7 +10,7 @@ The user intentionally changed the target **UE 5.7 -> UE 5.8.2** on 2026-09-06. 
 - Branch: `unreal-migration/ue58-foundation`, created from verified clean HEAD `a58b1e15fe2fb6c86568b8df45d279c4f0844ca1`.
 - Phase 1A checkpoint: `2b2a2607296faa1de2f4e8bf94f4eec847bfc8f9`.
 - Previous Phase 1B checkpoint: `d77c566a141441ac8f935871a7756467eb9373de`.
-- New checkpoint: all acceptance checks passed; the local technical commit SHA is recorded by the following documentation commit. No push.
+- New technical checkpoint: **`44d08dde96b352c3f86b770ed11948bcc18f6bb6`** — `feat(unreal): validate foundation on UE 5.8.2`. This SHA is recorded by a documentation-only follow-up so the technical commit need not contain its own hash. No push.
 - Engine root actually used: **`C:\Program Files\Epic Games\UE_5.8`**.
 - Directly read `Engine/Build/Build.version`: **5.8.2, CL 56702186**, compatible CL 55116800, promoted build, branch `++UE5+Release-5.8`.
 

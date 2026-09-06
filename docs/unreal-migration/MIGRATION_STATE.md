@@ -8,7 +8,7 @@ Status: **Phase 1B COMPLETE on UE 5.8.2**. On 2026-09-06 the user intentionally 
 - Previous Phase 1B checkpoint: `d77c566a141441ac8f935871a7756467eb9373de`.
 - Engine root read directly: `C:\Program Files\Epic Games\UE_5.8`.
 - Verified Build.version: **5.8.2 / CL 56702186**, compatible CL 55116800.
-- New technical checkpoint: acceptance passed; the following documentation commit records its SHA.
+- New technical checkpoint: **`44d08dde96b352c3f86b770ed11948bcc18f6bb6`** — `feat(unreal): validate foundation on UE 5.8.2`; followed by a documentation-only commit recording this SHA.
 - Real UBT/UHT/compile/link and rendered Editor/PIE pass. Exact legacy suite **54/54**, total **57/57**, runtime GC ownership, nondefault SaveGame schema 1/slots 0-3, map/input/modal, XY/Z/camera/sprite/foot/coordinate restore and Back single consumption all pass.
 - Godot official **15/15**, native **51/51**, host **12/12**, static **49/49**, original **4,217 files preserved**. Final acceptance: [acceptance.json](evidence/phase1b-ue58/acceptance.json).
 - Actual test map: `/Game/Tests/Foundation/L_FoundationTest`. The same directory holds four Input Actions, two Mapping Contexts, texture/sprite and `WBP_FoundationModal`. Runtime input uses simulated keyboard/gamepad events through real Enhanced Input; hardware and campaign certification are not claimed.
