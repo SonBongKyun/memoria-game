@@ -21,3 +21,18 @@ desktop.ini
 
 # Local visual-audit captures
 /tmp/
+
+# Unreal migration: generated outputs only; existing Godot asset policy is unchanged.
+/Unreal/**/Binaries/
+/Unreal/**/DerivedDataCache/
+/Unreal/**/Intermediate/
+/Unreal/**/Saved/
+/Unreal/**/.vs/
+/Unreal/**/*.sln
+/Unreal/**/*.slnx
+/Unreal/**/*.vcxproj*
+/Unreal/**/*.VC.db
+/Unreal/**/*.VC.opendb
+/Unreal/**/*.suo
+/Unreal/**/*.user
+/Unreal/**/__pycache__/

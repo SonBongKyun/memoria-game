@@ -3,6 +3,34 @@
 ---
 
 
+## S265 - 2026-09-06 (Unreal 5.7 이식 Phase 1A — 코어 기반과 기억 동등성)
+
+- 상태: PARTIAL. 별도 `unreal-migration/foundation` 브랜치/worktree `C:\Users\jc\MemoriaMigration\foundation`에 `Unreal/Memoria` C++ 기반을 구현했다. 원본 checkout의 기존 수정과 Phase 0 문서를 보존했다.
+- 구현: Paper2D/Enhanced Input, XY 평면·직교 카메라, GameInstance 수명의 RunSubsystem과 소유된 PlayerMemoryDomain, 정의/상태/이벤트 DTO, 별도 필드/VN 계약, 버전 1 SaveGame과 슬롯 0~3 경계. NPC 월드 기억 런타임, 원고/맵/전투/UI 일괄 이식은 하지 않았다.
+- 기억 규칙: 원시 등급 0~4 유지, 일반/무음 연소, 잔존·소실·기록, 침식·연쇄·보호, 실효 위력, 캐리 용량/무게/과부하, 자발적 연소 횟수 기반 패시브 5종. 대출·추출·보존 상태 필드는 유지하되 부가 명령은 후속 범위다.
+- 검증: 변경하지 않은 Godot 규칙에서 51사례·95명령·109이벤트 관찰을 추출했다. 같은 C++ 생산 규칙 파일의 MSVC 빌드 및 51/51 동등성, CTest PASS. UE Automation 51사례+기반 3종은 작성했으나 미실행이다.
+- Godot 회귀: repository contract PASS, VN 21파일/526스텝 PASS, 한국어 32파일/1,581필드 PASS, 공식 memory/world 15사례 PASS, export catalog PASS. 첫 cold import의 폰트/Dialogic 파싱 오류는 실패로 보존했고 캐시 생성 후 소스 수정 없는 재임포트는 통과했다. export의 기존 resource 오류 422건은 숨기지 않고 기록했다. 사용자 app-data 격리 및 editor 생성 metadata 복원 완료.
+- 원본 보존: 시작 시 4,217파일 해시를 외부 manifest에 기록하고 재대조했다. Godot GDScript/스토리/에셋과 원본 project.godot는 변경하지 않았다. Git/LFS 정책은 Unreal 하위에 한정하고 기존 export preset에 Unreal 제외만 추가했다.
+- 도구체인: 검사한 설치/Launcher/등록 경로에는 UE5.8.2만 존재했다. 요청된 5.7 컴파일/UHT/에디터/Automation은 미검증이며 5.8 대체, 설치, 패키징, 커밋/푸시는 하지 않았다.
+- 인계: `docs/unreal-migration/PHASE_1A_REPORT.md`, `MIGRATION_STATE.md`, fixtures 및 evidence/phase1a. 다음 Phase 1B는 실제 UE5.7로 Editor 빌드·54개 Automation 통과 후 첫 2D 입력/모달 테스트 맵을 생성하고 Back 1회 소비와 좌표·피벗·충돌을 검증하는 작업이다.
+
+---
+
+
+## S264 - 2026-09-06 (Unreal Engine 5.7 이식 Phase 0 감사·설계)
+
+- 범위: 기존 Godot 구현을 행동 명세로 삼아 저장소·의존성·데이터·에셋·저장 호환·검증 계획을 조사했다. Unreal 구현, 게임 규칙/스토리 수정, 에셋 변환, 커밋/푸시/배포는 수행하지 않았다. 시작 전부터 표시되던 `project.godot` 변경 상태를 보존했다.
+- 산출물: `docs/unreal-migration/`의 AUDIT, ARCHITECTURE, PARITY_MATRIX, ASSET_INVENTORY, DATA_MIGRATION, MIGRATION_ROADMAP, RISK_REGISTER, SYSTEM_MAP 문서 8개. 읽기 전용 원본 스캐너와 소스·시그널·의존성·씬·JSON·에셋 근거 목록도 추가했다.
+- 기준: HEAD `15df72809baa52eec281d8508f495a373e9f5884`, `overnight-gameplay-graphics`. 런타임 GDScript 77개, Autoload 34개, 씬 30개(맵 19), JSON 45개, 에셋/메타데이터 1,816개 약 1.31 GiB. 전체 텍스트 구조 스캔과 주요 구현 경계 검토를 구분해 기록했으며 전체 플레이·전체 서드파티 코드 검증을 주장하지 않는다.
+- 핵심 발견: 현재 Ch1은 VN이며 Verdan에서 필드 탐색으로 이어진다. 현 정사 Ch5 classifier 뒤에는 Drift의 Ch6 준비 경계가 유지된다. 구형 10맵 경로와 Ch11~24 프리뷰는 별도 보존 대상이다. 플레이어 기억 연소와 NPC 세계 기억은 분리된 도메인이며, Malet 보고의 역사적 상태를 보존해야 한다.
+- 설계: C++ 도메인/저장/이벤트, 수명별 Subsystem·UObject·컴포넌트, 2D Paper2D 탐색, UMG 및 Enhanced Input. 원본 에셋은 현재 위치에 두고 별도 `unreal/` 디렉터리와 전용 브랜치를 다음 단계에서 사용하도록 제안했다. 자동 임포터와 관찰 가능한 동등성 검증 48항목을 설계했다.
+- 검증: repository contract PASS(기존 등급 표기 경고 유지), VN 21파일/526스텝 PASS, 한국어 32파일/1,581필드 PASS. 공식 Memory World suite 15사례 PASS, fatal scan 활성, 테스트 저장 경로 가드 및 export actor catalog 확인. 전체 게임 플레이·Unreal 컴파일/패키징·엔진 간 시청각 비교는 아직 미실행이다.
+- 문서 검증: 로컬 링크 184개, 런타임 매핑 77개, 씬 30개, JSON 45개 확인 및 런타임 원본 해시 불변 확인. 감사 CSV가 게임 번역 리소스로 자동 임포트되지 않도록 문서 폴더에 `.gdignore`를 추가하고 감사 폴더에 생성된 메타데이터만 정리했다.
+- 다음 태스크: UE **5.7** 도구체인을 확인한 뒤 격리된 C++ 기반 프로젝트와 2D 입력/모달/저장 테스트 기반만 구현(P1). 검사한 기본 설치/Launcher에는 5.8.2만 확인되어 5.7 빌드 검증은 남아 있다. 첫 통합 구간은 Verdan 도착/거래와 기존 Ch2 완료 후 재방문 전투이며 Ch1에 전투를 새로 삽입하지 않는다.
+
+---
+
+
 ## S263 - 2026-08-26 (자유도 축 1+3: 기억의 무게 + 여정 맹세 통합)
 
 ### 배경과 설계 결정

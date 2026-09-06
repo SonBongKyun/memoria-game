@@ -1,0 +1,15 @@
+using UnrealBuildTool;
+using System.IO;
+
+public class MemoriaTests : ModuleRules
+{
+    public MemoriaTests(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        CppStandard = CppStandardVersion.Cpp20;
+        bUseUnity = false;
+        PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "Memoria" });
+        PrivateIncludePaths.Add(Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../Tests/Shared")));
+        PrivateIncludePaths.Add(Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../Tests/Generated")));
+    }
+}

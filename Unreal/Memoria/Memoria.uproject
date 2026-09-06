@@ -1,0 +1,14 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.7",
+  "Category": "Games",
+  "Description": "MEMORIA: The Price of Oblivion — production 2D migration",
+  "Modules": [
+    { "Name": "Memoria", "Type": "Runtime", "LoadingPhase": "Default" },
+    { "Name": "MemoriaTests", "Type": "Editor", "LoadingPhase": "PostEngineInit" }
+  ],
+  "Plugins": [
+    { "Name": "Paper2D", "Enabled": true },
+    { "Name": "EnhancedInput", "Enabled": true }
+  ]
+}

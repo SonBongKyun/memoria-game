@@ -1,0 +1,2412 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "grade_ordinals_and_weights",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "g0",
+          "grade": 0,
+          "burn_power": 100
+        },
+        {
+          "id": "g1",
+          "grade": 1,
+          "burn_power": 100
+        },
+        {
+          "id": "g2",
+          "grade": 2,
+          "burn_power": 100
+        },
+        {
+          "id": "g3",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "g4",
+          "grade": 4,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_minus_2",
+      "context": {
+        "chapter": -2,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_0",
+      "context": {
+        "chapter": 0,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_1",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_2",
+      "context": {
+        "chapter": 2,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_10",
+      "context": {
+        "chapter": 10,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_11",
+      "context": {
+        "chapter": 11,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_12",
+      "context": {
+        "chapter": 12,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "capacity_chapter_24",
+      "context": {
+        "chapter": 24,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_0_elia_0",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_0_elia_1",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_1_elia_0",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 1,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_1_elia_1",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 1,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_2_elia_0",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_2_elia_1",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_3_elia_0",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 3,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_3_elia_1",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 3,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_4_elia_0",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 4,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_grade_4_elia_1",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 4,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        },
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "silent_has_no_new_residue",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 3,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "silent",
+          "id": "isolated"
+        },
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "silent_preserves_preexisting_residue_bit",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 2,
+          "burn_power": 100,
+          "residue": true
+        }
+      ],
+      "commands": [
+        {
+          "op": "silent",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "normal_does_not_clear_residue_bit_when_elia_absent",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 0,
+          "burn_power": 100,
+          "residue": true
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "faded_rejection_then_explicit_override",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 2,
+          "burn_power": 100,
+          "faded": true,
+          "erosion": 80
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "isolated"
+        },
+        {
+          "op": "silent",
+          "id": "isolated"
+        },
+        {
+          "op": "burn",
+          "id": "missing"
+        },
+        {
+          "op": "burn",
+          "id": "isolated",
+          "allow_faded": true
+        }
+      ]
+    },
+    {
+      "id": "silent_allows_faded_explicitly",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "isolated",
+          "grade": 2,
+          "burn_power": 100,
+          "faded": true
+        }
+      ],
+      "commands": [
+        {
+          "op": "silent",
+          "id": "isolated",
+          "allow_faded": true
+        }
+      ]
+    },
+    {
+      "id": "collateral_rejects_both_burn_modes_and_excludes_weight",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "pledged",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "owned",
+          "grade": 1,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "pledged"
+        },
+        {
+          "op": "silent",
+          "id": "pledged",
+          "allow_faded": true
+        }
+      ],
+      "loan": {
+        "memory_id": "pledged",
+        "principal": 70,
+        "repay": 98,
+        "due_chapter": 3
+      }
+    },
+    {
+      "id": "burn_history_order",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "alpha",
+          "grade": 0,
+          "burn_power": 100
+        },
+        {
+          "id": "beta",
+          "grade": 0,
+          "burn_power": 100
+        },
+        {
+          "id": "gamma",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "gamma"
+        },
+        {
+          "op": "silent",
+          "id": "alpha"
+        },
+        {
+          "op": "burn",
+          "id": "beta"
+        }
+      ]
+    },
+    {
+      "id": "erosion_rank_elia_truncation_and_core_immunity",
+      "context": {
+        "chapter": 8,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "g0",
+          "grade": 0,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "g1",
+          "grade": 1,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "g2",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "g3",
+          "grade": 3,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "g4",
+          "grade": 4,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 3
+        },
+        {
+          "op": "erode",
+          "chapter": 1
+        }
+      ]
+    },
+    {
+      "id": "erosion_skips_burned_and_faded_counts_zero",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "burned",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "faded",
+          "grade": 0,
+          "burn_power": 100,
+          "faded": true
+        },
+        {
+          "id": "elia",
+          "grade": 3,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 1
+        }
+      ],
+      "history": [
+        "burned"
+      ]
+    },
+    {
+      "id": "erosion_guard_before_still_hands",
+      "context": {
+        "chapter": 8,
+        "elia": true,
+        "still": true
+      },
+      "memories": [
+        {
+          "id": "guarded",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "kept",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "other",
+          "grade": 0,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 8
+        },
+        {
+          "op": "erode",
+          "chapter": 8
+        }
+      ],
+      "guards": [
+        "guarded"
+      ],
+      "guard_slots_used": 1
+    },
+    {
+      "id": "core_guard_not_consumed",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "core",
+          "grade": 4,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 8
+        }
+      ],
+      "guards": [
+        "core"
+      ]
+    },
+    {
+      "id": "erosion_collateral_still_erodes",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "pledged",
+          "grade": 1,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 4
+        }
+      ],
+      "loan": {
+        "memory_id": "pledged",
+        "principal": 26,
+        "repay": 36,
+        "due_chapter": 3
+      }
+    },
+    {
+      "id": "fading_threshold_and_effective_power_floor",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "threshold",
+          "grade": 0,
+          "burn_power": 10,
+          "erosion": 6
+        },
+        {
+          "id": "zero",
+          "grade": 1,
+          "burn_power": 0
+        },
+        {
+          "id": "negative",
+          "grade": 0,
+          "burn_power": -5
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 1
+        },
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "overload_fractional_rounding",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "n0",
+          "grade": 2,
+          "burn_power": 100
+        },
+        {
+          "id": "n1",
+          "grade": 2,
+          "burn_power": 100
+        },
+        {
+          "id": "n2",
+          "grade": 2,
+          "burn_power": 100
+        },
+        {
+          "id": "n3",
+          "grade": 2,
+          "burn_power": 100
+        },
+        {
+          "id": "n4",
+          "grade": 2,
+          "burn_power": 100
+        },
+        {
+          "id": "n5",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 3
+        }
+      ]
+    },
+    {
+      "id": "overload_multiplier_caps_at_two",
+      "context": {
+        "chapter": 1,
+        "elia": false,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "n0",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n1",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n2",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n3",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n4",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n5",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n6",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n7",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n8",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n9",
+          "grade": 3,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 5
+        }
+      ]
+    },
+    {
+      "id": "capacity_uses_runtime_chapter_erosion_uses_argument",
+      "context": {
+        "chapter": 10,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "n0",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n1",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n2",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n3",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n4",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "n5",
+          "grade": 3,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 2
+        }
+      ]
+    },
+    {
+      "id": "cascade_group_and_neighbor_order",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "rel_a",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "daily_a",
+          "grade": 1,
+          "burn_power": 10,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "rel_b",
+          "grade": 1,
+          "burn_power": 100,
+          "related_npc": "Other"
+        },
+        {
+          "id": "rel_c",
+          "grade": 0,
+          "burn_power": 100
+        },
+        {
+          "id": "core_z",
+          "grade": 4,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "rel_a"
+        }
+      ]
+    },
+    {
+      "id": "cascade_guard_and_fading_before_burn_notification",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "rel_a",
+          "grade": 3,
+          "burn_power": 100
+        },
+        {
+          "id": "rel_b",
+          "grade": 1,
+          "burn_power": 10
+        },
+        {
+          "id": "daily_c",
+          "grade": 1,
+          "burn_power": 10,
+          "related_npc": "Other"
+        },
+        {
+          "id": "rel_d",
+          "grade": 0,
+          "burn_power": 10,
+          "related_npc": "Other"
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "rel_a"
+        },
+        {
+          "op": "burn",
+          "id": "rel_d"
+        }
+      ],
+      "guards": [
+        "rel_b"
+      ]
+    },
+    {
+      "id": "cascade_affects_collateral_and_still_hand_memory",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": true
+      },
+      "memories": [
+        {
+          "id": "rel_a",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "rel_b",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "rel_a"
+        }
+      ],
+      "loan": {
+        "memory_id": "rel_b",
+        "principal": 44,
+        "repay": 62,
+        "due_chapter": 3
+      }
+    },
+    {
+      "id": "cascade_skips_already_faded_burned_and_core",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "rel_a",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "daily_b",
+          "grade": 1,
+          "burn_power": 100,
+          "faded": true,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "daily_c",
+          "grade": 1,
+          "burn_power": 100,
+          "burned": true,
+          "related_npc": "Elia"
+        },
+        {
+          "id": "core_d",
+          "grade": 4,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        }
+      ],
+      "commands": [
+        {
+          "op": "silent",
+          "id": "rel_a"
+        }
+      ],
+      "history": [
+        "daily_c"
+      ]
+    },
+    {
+      "id": "passive_threshold_5",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "last",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        },
+        {
+          "op": "burn",
+          "id": "last"
+        },
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3"
+      ]
+    },
+    {
+      "id": "passive_threshold_10",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b4",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b5",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b6",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b7",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b8",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "last",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        },
+        {
+          "op": "burn",
+          "id": "last"
+        },
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "b7",
+        "b8"
+      ]
+    },
+    {
+      "id": "passive_threshold_20",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b4",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b5",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b6",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b7",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b8",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b9",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b10",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b11",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b12",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b13",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b14",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b15",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b16",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b17",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b18",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "last",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        },
+        {
+          "op": "burn",
+          "id": "last"
+        },
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "b7",
+        "b8",
+        "b9",
+        "b10",
+        "b11",
+        "b12",
+        "b13",
+        "b14",
+        "b15",
+        "b16",
+        "b17",
+        "b18"
+      ]
+    },
+    {
+      "id": "passive_threshold_30",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b4",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b5",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b6",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b7",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b8",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b9",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b10",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b11",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b12",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b13",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b14",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b15",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b16",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b17",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b18",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b19",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b20",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b21",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b22",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b23",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b24",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b25",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b26",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b27",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b28",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "last",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        },
+        {
+          "op": "burn",
+          "id": "last"
+        },
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "b7",
+        "b8",
+        "b9",
+        "b10",
+        "b11",
+        "b12",
+        "b13",
+        "b14",
+        "b15",
+        "b16",
+        "b17",
+        "b18",
+        "b19",
+        "b20",
+        "b21",
+        "b22",
+        "b23",
+        "b24",
+        "b25",
+        "b26",
+        "b27",
+        "b28"
+      ]
+    },
+    {
+      "id": "passive_threshold_50",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b4",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b5",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b6",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b7",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b8",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b9",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b10",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b11",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b12",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b13",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b14",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b15",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b16",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b17",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b18",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b19",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b20",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b21",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b22",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b23",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b24",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b25",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b26",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b27",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b28",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b29",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b30",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b31",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b32",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b33",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b34",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b35",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b36",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b37",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b38",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b39",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b40",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b41",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b42",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b43",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b44",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b45",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b46",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b47",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b48",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "last",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        },
+        {
+          "op": "burn",
+          "id": "last"
+        },
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "b7",
+        "b8",
+        "b9",
+        "b10",
+        "b11",
+        "b12",
+        "b13",
+        "b14",
+        "b15",
+        "b16",
+        "b17",
+        "b18",
+        "b19",
+        "b20",
+        "b21",
+        "b22",
+        "b23",
+        "b24",
+        "b25",
+        "b26",
+        "b27",
+        "b28",
+        "b29",
+        "b30",
+        "b31",
+        "b32",
+        "b33",
+        "b34",
+        "b35",
+        "b36",
+        "b37",
+        "b38",
+        "b39",
+        "b40",
+        "b41",
+        "b42",
+        "b43",
+        "b44",
+        "b45",
+        "b46",
+        "b47",
+        "b48"
+      ]
+    },
+    {
+      "id": "extractions_excluded_from_passives",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b4",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b5",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5"
+      ],
+      "extracted": [
+        "b0",
+        "b1"
+      ]
+    },
+    {
+      "id": "extraction_count_clamped_not_set_difference",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "a",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "a"
+      ],
+      "extracted": [
+        "a",
+        "unknown"
+      ]
+    },
+    {
+      "id": "passive_key_presence_even_when_false",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "b0",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b1",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b2",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b3",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        },
+        {
+          "id": "b4",
+          "grade": 0,
+          "burn_power": 100,
+          "burned": true
+        }
+      ],
+      "commands": [
+        {
+          "op": "passives"
+        }
+      ],
+      "history": [
+        "b0",
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "passives": {
+        "ember_affinity": false
+      }
+    },
+    {
+      "id": "preservation_fields_survive_memory_command",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "kept",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "query"
+        }
+      ],
+      "anchor_vigil": 36,
+      "anchor_passives": {
+        "quiet_focus": true
+      },
+      "vigil_chapters": [
+        1,
+        2,
+        3
+      ],
+      "guard_slots_used": 2
+    },
+    {
+      "id": "acquisition_notifications_precede_graph_refresh",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "rel_a",
+          "grade": 2,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "add",
+          "memory": {
+            "id": "rel_b",
+            "grade": 1,
+            "burn_power": 100
+          }
+        },
+        {
+          "op": "query"
+        }
+      ]
+    },
+    {
+      "id": "case_sensitive_ids_and_npc_names",
+      "context": {
+        "chapter": 5,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "Id",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "elia"
+        },
+        {
+          "id": "id",
+          "grade": 2,
+          "burn_power": 100,
+          "related_npc": "Elia"
+        }
+      ],
+      "commands": [
+        {
+          "op": "erode",
+          "chapter": 4
+        },
+        {
+          "op": "burn",
+          "id": "ID"
+        },
+        {
+          "op": "silent",
+          "id": "Id"
+        }
+      ]
+    },
+    {
+      "id": "unicode_identity_preserved",
+      "context": {
+        "chapter": 1,
+        "elia": true,
+        "still": false
+      },
+      "memories": [
+        {
+          "id": "기억_하나",
+          "grade": 2,
+          "burn_power": 100,
+          "title": "뻗어 나가던 손",
+          "related_npc": "Elia"
+        },
+        {
+          "id": "기억_둘",
+          "grade": 1,
+          "burn_power": 100
+        }
+      ],
+      "commands": [
+        {
+          "op": "burn",
+          "id": "기억_하나"
+        }
+      ]
+    }
+  ]
+}

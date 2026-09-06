@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "engine_version": "4.6.2.stable.official.71f334935",
+  "reference_head": "15df72809baa52eec281d8508f495a373e9f5884",
+  "source_sha256": {
+    "scripts/systems/memory_manager.gd": "238d6e422ece7e281ca17683b6749e65751342fc3b26f4634aa64cd80b234fa1",
+    "scripts/utils/journey_oath.gd": "fe335cc599fd5e4c1855d8d349d9f56317db6d0a88582bb0d5ef3bb3e2f43830"
+  },
+  "input_sha256": "6a8a4ff65037ebedb9fc0523a0e02115ab3a5e44ed8711bbb684c77a14620eb2",
+  "expected_sha256": "d71446da0e23987c03ddda032c0014a6317f24d073871cb6bedefab33fe44d5e",
+  "harness": "unmodified memory_manager.gd and journey_oath.gd; fixture instance outside tree; no UI/profile listeners",
+  "scope": "player-memory domain only; no GameManager story effects, battle, audio, UI or full Godot-save import certified"
+}
