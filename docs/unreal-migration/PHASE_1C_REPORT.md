@@ -4,7 +4,7 @@ Date: 2026-09-06. Status: **COMPLETE — all Phase 1C acceptance checks passed**
 
 ## Baseline and scope
 
-Branch: `unreal-migration/ue58-foundation`. Worktree: `C:\Users\jc\MemoriaMigration\foundation`. Starting clean HEAD: `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`; accepted Phase 1B technical checkpoint: `44d08dde96b352c3f86b770ed11948bcc18f6bb6`. New technical checkpoint: all acceptance checks passed; its SHA will be recorded by the following documentation-only commit. No push.
+Branch: `unreal-migration/ue58-foundation`. Worktree: `C:\Users\jc\MemoriaMigration\foundation`. Starting clean HEAD: `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`; accepted Phase 1B technical checkpoint: `44d08dde96b352c3f86b770ed11948bcc18f6bb6`. New technical checkpoint: **`b6c632fc83fdbdbe21d26452b2135f4997704988`** — `feat(unreal): import deterministic starting memory catalog`. A documentation-only follow-up records this SHA so the technical commit need not contain its own hash. No push.
 
 Build.version was directly re-read: UE **5.8.2 / CL 56702186**, compatible CL 55116800, at `C:\Program Files\Epic Games\UE_5.8`. Phase 1B's 57 tests, coordinate/input/sprite/map assets, player-memory kernel, SaveGame schema 1 and ownership contracts are preserved. This task adds offline content tooling and explicit memory initialization only.
 

@@ -5,7 +5,7 @@ Status: **Phase 1C COMPLETE**. Current engine is **UE 5.8.2 / CL 56702186**, ver
 - Branch: `unreal-migration/ue58-foundation`.
 - Worktree: `C:\Users\jc\MemoriaMigration\foundation`.
 - Previous technical checkpoint: `44d08dde96b352c3f86b770ed11948bcc18f6bb6`; Phase 1C started clean at documentation follow-up `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`.
-- New technical checkpoint: acceptance passed; the following documentation-only commit records its SHA.
+- New technical checkpoint: **`b6c632fc83fdbdbe21d26452b2135f4997704988`** — `feat(unreal): import deterministic starting memory catalog`, followed by a documentation-only commit recording this SHA.
 - Current report: [PHASE_1C_REPORT](PHASE_1C_REPORT.md). New evidence: [phase1c acceptance](evidence/phase1c/acceptance.json). Prior accepted foundation: [PHASE_1B_UE58_REPORT](PHASE_1B_UE58_REPORT.md).
 - Real source initializer exports **7 ordered memories** into [canonical IR](ir/starting_memory_catalog.v1.json), including the actually initialized `core_name_origin`. Source revision/hashes and exact order are recorded. Mutable state and derived connections remain outside definitions.
 - Typed asset: `/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog`, existing `UMemoriaMemoryCatalog` class. Reimport and third-process reload are **UNCHANGED**, with no save and identical package bytes. Runtime `BeginStartingMemoryRun` loads the asset and initializes owned order without narrative/travel.
