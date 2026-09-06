@@ -6,3 +6,6 @@ Unreal/**/*.umap filter=lfs diff=lfs merge=lfs -text
 # Inputs were written by Python on Windows; outputs were written by Godot.
 docs/unreal-migration/fixtures/player_memory_inputs.json text eol=crlf
 docs/unreal-migration/fixtures/player_memory_expected.json text eol=lf
+
+# Canonical source-derived Phase 1C artifacts remain UTF-8/LF on Windows.
+docs/unreal-migration/ir/*.json text eol=lf

@@ -19,6 +19,9 @@ public:
     virtual void Deinitialize() override;
     // Explicit catalog/starting IDs: no hidden content import or chapter advance.
     EMemoriaMemoryResult BeginRun(const UMemoriaMemoryCatalog& Catalog, const TArray<FString>& InitialIds);
+    // Explicit New Game memory bootstrap from the offline-imported typed asset.
+    // Does not travel, start narrative, or require editor/source tooling.
+    EMemoriaMemoryResult BeginStartingMemoryRun();
     EMemoriaMemoryResult RestoreRun(const FMemoriaRunSnapshot& Run, const TArray<FMemoriaMemoryDefinition>& Definitions, const FMemoriaMemorySnapshot& Memory);
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);

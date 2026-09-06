@@ -1,22 +1,19 @@
-# Migration handoff — UE 5.8.2 foundation
+# Migration handoff — Phase 1C complete on UE 5.8.2
 
-Status: **Phase 1B COMPLETE on UE 5.8.2**. On 2026-09-06 the user intentionally changed the target **UE 5.7 -> UE 5.8.2**: the former baseline was not a product constraint, 5.8.2 is already installed, and no engine-bound migration assets had yet been produced. Historical Phase 0/1A/1B reports retain the original 5.7 target.
+Status: **Phase 1C COMPLETE**. Current engine is **UE 5.8.2 / CL 56702186**, verified directly from `C:\Program Files\Epic Games\UE_5.8\Engine\Build\Build.version`. The user changed the target from 5.7 on 2026-09-06 because the earlier version was an internal baseline, 5.8.2 was installed, and no engine-bound assets then existed. Historical Phase 0/1A/1B reports remain intact.
 
 - Branch: `unreal-migration/ue58-foundation`.
 - Worktree: `C:\Users\jc\MemoriaMigration\foundation`.
-- Starting clean HEAD: `a58b1e15fe2fb6c86568b8df45d279c4f0844ca1`.
-- Previous Phase 1B checkpoint: `d77c566a141441ac8f935871a7756467eb9373de`.
-- Engine root read directly: `C:\Program Files\Epic Games\UE_5.8`.
-- Verified Build.version: **5.8.2 / CL 56702186**, compatible CL 55116800.
-- New technical checkpoint: **`44d08dde96b352c3f86b770ed11948bcc18f6bb6`** — `feat(unreal): validate foundation on UE 5.8.2`; followed by a documentation-only commit recording this SHA.
-- Real UBT/UHT/compile/link and rendered Editor/PIE pass. Exact legacy suite **54/54**, total **57/57**, runtime GC ownership, nondefault SaveGame schema 1/slots 0-3, map/input/modal, XY/Z/camera/sprite/foot/coordinate restore and Back single consumption all pass.
-- Godot official **15/15**, native **51/51**, host **12/12**, static **49/49**, original **4,217 files preserved**. Final acceptance: [acceptance.json](evidence/phase1b-ue58/acceptance.json).
-- Actual test map: `/Game/Tests/Foundation/L_FoundationTest`. The same directory holds four Input Actions, two Mapping Contexts, texture/sprite and `WBP_FoundationModal`. Runtime input uses simulated keyboard/gamepad events through real Enhanced Input; hardware and campaign certification are not claimed.
-- Current report: [PHASE_1B_UE58_REPORT](PHASE_1B_UE58_REPORT.md). All new evidence is under `evidence/phase1b-ue58`; historical evidence is immutable. Failed attempts and the one nonblocking engine render-thread warning are retained.
-- No engine installation and no push. Original Godot checkout remains untouched.
+- Previous technical checkpoint: `44d08dde96b352c3f86b770ed11948bcc18f6bb6`; Phase 1C started clean at documentation follow-up `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`.
+- New technical checkpoint: acceptance passed; the following documentation-only commit records its SHA.
+- Current report: [PHASE_1C_REPORT](PHASE_1C_REPORT.md). New evidence: [phase1c acceptance](evidence/phase1c/acceptance.json). Prior accepted foundation: [PHASE_1B_UE58_REPORT](PHASE_1B_UE58_REPORT.md).
+- Real source initializer exports **7 ordered memories** into [canonical IR](ir/starting_memory_catalog.v1.json), including the actually initialized `core_name_origin`. Source revision/hashes and exact order are recorded. Mutable state and derived connections remain outside definitions.
+- Typed asset: `/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog`, existing `UMemoriaMemoryCatalog` class. Reimport and third-process reload are **UNCHANGED**, with no save and identical package bytes. Runtime `BeginStartingMemoryRun` loads the asset and initializes owned order without narrative/travel.
+- **UBT/UHT/compile/link PASS; previous 57/57 + Phase 1C 3/3 = 60/60 Automation PASS.** Godot **15/15**, native **51/51**, host **23/23**, static **50/50**; **4,217 original files unchanged**. Existing engine render-thread warning remains nonblocking.
+- The 57 accepted tests, player-memory kernel, SaveGame schema 1, coordinate/input behavior, test assets and historical evidence are preserved. Runtime has no Python/Godot/source/importer dependency. No push or original-checkout commit.
 
-## Exact next task — Phase 1C, not started
+## Commands and next task
 
-Deterministically export the actual starting-memory catalog into versioned IR, import it into a typed Unreal catalog asset, and validate repeated-import equivalence for IDs, owned order and semantic content against source hashes. This prepares the established Verdan arrival/trade slice. No catalog content asset, Chapter 1, campaign dialogue, Verdan, BattleManager or bulk art/audio migration was implemented in Phase 1B.
+Use the [IR workflow](ir/README.md) and [report commands](PHASE_1C_REPORT.md#reproducible-commands). The import wrapper executes a check-only source export before importing twice and reloading in separate UE processes. Export without `--check` only for a deliberately reviewed content update. Validation never regenerates expected evidence.
 
-Build and regression commands are in the [current report](PHASE_1B_UE58_REPORT.md#commands-and-next-scope) and [Unreal README](../../Unreal/Memoria/README.md). Normal engine runs load committed test assets; `--create-foundation-assets` is only for an empty test-content directory. No central Phase 1B blocker remains.
+**Phase 1D is not started.** Next: versioned shared narrative provenance/text/step IR with separate `FFieldDialogueLine` and `FVNStoryStep` import contracts. Bound the first fixtures to `data/vn_scenes/ch2_market_arrival.json` and the `verdan_arrival` group in `data/chapter2_dialogue.json`; verify IDs, original indices, choice order, effect/gate phases, VN continuation and unchanged reimport. Then plan the canonical Verdan arrival slice. Do not start full Chapter 1, VN presentation, battle, maps or bulk art/audio as part of this data-contract task.

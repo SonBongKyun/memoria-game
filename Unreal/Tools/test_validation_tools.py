@@ -25,7 +25,8 @@ class AutomationReportTests(unittest.TestCase):
 
     def test_all_expanded_tests_are_required(self):
         expected = expected_test_paths()
-        self.assertEqual(len(expected), 57)
+        self.assertEqual(len(expected_test_paths(include_catalog=False)), 57)
+        self.assertEqual(len(expected), 60)
         self.assertTrue(self.expected < expected)
         report = {'tests': [{'fullTestPath': p, 'state': 'Success'} for p in sorted(expected)], 'failed': 0}
         self.assertTrue(inspect_automation_report(report, expected)['passed'])
@@ -80,7 +81,7 @@ class AutomationReportTests(unittest.TestCase):
 
 class EvidenceIntegrityTests(unittest.TestCase):
     def test_historical_evidence_destination_rejected(self):
-        for phase in ('phase0', 'phase1a', 'phase1b'):
+        for phase in ('phase0', 'phase1a', 'phase1b', 'phase1b-ue58'):
             for tool in ('validate_unreal.py', 'validate_foundation.py', 'validate_native_memory.py', 'validate_godot_baseline.py'):
                 with self.subTest(tool=tool, phase=phase):
                     command = [sys.executable, str(ROOT / 'Unreal/Tools' / tool), '--evidence-dir', str(ROOT / 'docs/unreal-migration/evidence' / phase)]

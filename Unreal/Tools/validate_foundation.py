@@ -15,7 +15,7 @@ parser.add_argument('--original-manifest', type=Path)
 parser.add_argument('--evidence-dir', type=Path)
 args = parser.parse_args()
 evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('foundation-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
-if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b')):
+if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b', 'phase1b-ue58')):
     parser.error('Historical evidence is immutable; choose a new output directory')
 errors = []
 checks = []

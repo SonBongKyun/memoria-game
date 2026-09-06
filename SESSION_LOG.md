@@ -2,6 +2,20 @@
 
 ---
 
+## S268 - 2026-09-06 (Unreal Phase 1C — 결정적 시작 기억 카탈로그 이식 완료)
+
+- 상태: COMPLETE. 기존 `unreal-migration/ue58-foundation`, clean `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`에서 이어서 작업했다. UE5.8.2 / CL56702186을 Build.version으로 재확인했다. 로컬 체크포인트 SHA는 PHASE_1C_REPORT와 MIGRATION_STATE에 기록하며 push하지 않는다.
+- 원본: memory_manager.gd의 실제 초기화 함수를 격리된 Godot 4.6.2에서 실행했다. 초기 기억은 7개이며 후반용 주석이 있어도 실제 생성되는 core_name_origin을 포함했다. 정의·삽입 순서·원시 등급·NPC·영어/한국어 문구를 직접 추출했고, 연결 및 가변 상태는 별도 원본 기대값으로 분리했다.
+- 파이프라인: 버전 1 UTF-8/LF IR, 소스 Git revision/정규화·원시 해시, 엄격한 검증기, editor commandlet, 기존 UMemoriaMemoryCatalog 및 명시적 BeginStartingMemoryRun을 연결했다. check-only는 원본을 재실행해 바이트를 비교하며 기대값을 다시 쓰지 않는다.
+- 실제 에셋: /Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog. 첫 임포트 CREATED, 별도 프로세스의 두 번째 임포트와 세 번째 재로드는 UNCHANGED/saved=false. 의미 SHA256 및 패키지 바이트가 동일했다. 임시 IR 한 필드 변경은 해시 차이로 탐지했고 임시 패키지는 저장하지 않았다.
+- 검증: 실제 UBT/UHT/컴파일/링크 PASS. 기존 Unreal 57/57, 신규 Phase 1C 3/3, 전체 60/60 PASS. 초기 순서·연결·정의·비오염 상태, 일반/무음 연소·침식·잔존·캐리·첫 패시브와 이벤트 순간 상태를 Godot 관찰과 비교했다.
+- 회귀: Godot repository/VN/Korean/import 및 공식 15/15 PASS, export_log_errors=0. native 51/51, host 23/23, static 50/50, 원본 4,217파일 보존. Godot 메타데이터 1,056파일 복원. 기존 렌더 스레드 경고 1건은 남겼으며 신규 3개 테스트는 경고/오류 0건이다.
+- 수정: UE5.8 공유 문자열 JSON 키와 reflection 순회 API 차이로 발생한 신규 importer 컴파일 오류를 해결했다. JSON 타입 강제 변환을 거부하고 대소문자를 명시적으로 비교한다. IR만 LF로 고정하고 이전 UE58 증거도 덮어쓰기 거부 범위에 추가했다. 원본 규칙/기대값/57개 테스트/SaveGame1/입력·좌표/테스트 맵은 변경하지 않았다.
+- 산출물: PHASE_1C_REPORT, MIGRATION_STATE, 로드맵 부록, ir/, evidence/phase1c/, 재현 가능한 추출·임포트 도구, LFS 카탈로그 1개. Phase 1D/Chapter 1/캠페인/맵/전투/대량 아트·오디오 이식은 하지 않았다.
+- 다음: ch2_market_arrival VN 파일과 chapter2_dialogue의 verdan_arrival 그룹만 첫 fixture로 삼아 공통 출처·텍스트·스텝 IR과 별도 필드/VN 계약을 검증한다. 원래 인덱스·선택 순서·효과/조건 단계·계속하기·재임포트 동등성을 확인한 뒤 실제 Verdan 도착 구간을 계획한다.
+
+---
+
 ## S267 - 2026-09-06 (Unreal Phase 1B — UE 5.8.2 기반 실제 검증 완료)
 
 - 상태: COMPLETE. 사용자가 5.7을 제품 제약이 아닌 내부 기준으로 판단하고 설치된 5.8.2로 목표를 변경했다. 변경 시 엔진 종속 에셋은 없었다. 이전 보고서·증거는 원문을 유지했다.

@@ -23,7 +23,7 @@ def matches_required_version(version):
     return tuple(version.get(key) for key in ('MajorVersion', 'MinorVersion', 'PatchVersion')) == REQUIRED_VERSION
 
 
-def expected_test_paths(include_runtime=True):
+def expected_test_paths(include_runtime=True, include_catalog=True):
     fixtures = json.loads((ROOT / 'docs/unreal-migration/fixtures/player_memory_inputs.json').read_text(encoding='utf-8'))['cases']
     paths = ['Memoria.Memory.SourceParity.' + case['id'] for case in fixtures]
     if len(paths) != 51 or len(set(paths)) != 51:
@@ -33,7 +33,8 @@ def expected_test_paths(include_runtime=True):
         'Memoria.Foundation.SaveAndDialectBoundaries',
         'Memoria.Foundation.RunOwnership',
     }
-    return legacy | ({'Memoria.Foundation.RuntimeLifetime', 'Memoria.Foundation.NondefaultSaveRoundTrip', 'Memoria.Foundation.MapInputAndModal'} if include_runtime else set())
+    previous = legacy | ({'Memoria.Foundation.RuntimeLifetime', 'Memoria.Foundation.NondefaultSaveRoundTrip', 'Memoria.Foundation.MapInputAndModal'} if include_runtime else set())
+    return previous | ({'Memoria.Content.StartingCatalogParity', 'Memoria.Content.StartingCatalogRuntime', 'Memoria.Content.StartingCatalogValidation'} if include_runtime and include_catalog else set())
 
 
 def inspect_automation_report(result, expected):
@@ -70,12 +71,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--engine-root', type=Path)
     parser.add_argument('--build-and-test', action='store_true')
+    parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
     parser.add_argument('--evidence-dir', type=Path)
     args = parser.parse_args()
     evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('unreal-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
-    if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b')):
+    if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b', 'phase1b-ue58')):
         parser.error('Historical evidence is immutable; choose a new output directory')
     candidates = []
     parents_checked = []
@@ -141,7 +143,7 @@ def main():
         save()
         print('MEMORIA_UNREAL_BLOCKED: missing Build.bat or UnrealEditor-Cmd.exe in exact 5.8.2 installation')
         return 2
-    if not args.build_and_test:
+    if not args.build_and_test and not args.build_only:
         report['status'] = 'UE_5_8_2_AVAILABLE_NOT_EXECUTED'
         save()
         print('MEMORIA_UNREAL_FOUND; run with --build-and-test to validate')
@@ -178,6 +180,11 @@ def main():
         save()
         return 1
     report['ue_compilation'] = 'PASS'
+    if args.build_only:
+        report['status'] = 'BUILD_PASS_AUTOMATION_NOT_RUN'
+        save()
+        print('MEMORIA_UNREAL_BUILD_PASS_AUTOMATION_NOT_RUN')
+        return 0
     if args.create_foundation_assets:
         authored = run('foundation_authoring', [str(editor), project, '-run=MemoriaFoundationAssets', '-unattended', '-nop4', '-NullRHI', '-stdout', '-FullStdOutLogOutput'], 600)
         report['foundation_authoring'] = 'PASS' if authored else 'FAIL'
@@ -203,6 +210,8 @@ def main():
     report['automation_discovered'] = inspection['discovered']
     report['source_parity_discovered'] = inspection['source_parity_discovered']
     report['legacy_required_total'] = len(expected_test_paths(include_runtime=False))
+    report['phase1b_required_total'] = len(expected_test_paths(include_catalog=False))
+    report['phase1c_required_total'] = len(expected_test_paths() - expected_test_paths(include_catalog=False))
     report['current_required_total'] = len(expected_test_paths())
     report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']

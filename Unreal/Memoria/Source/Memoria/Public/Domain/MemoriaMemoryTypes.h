@@ -106,6 +106,27 @@ struct MEMORIA_API FMemoriaMemoryEvent
     UPROPERTY(BlueprintReadOnly) FString PassiveName;
 };
 
+USTRUCT(BlueprintType)
+struct MEMORIA_API FMemoriaCatalogSource
+{
+    GENERATED_BODY()
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString Path;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString Sha256Utf8Lf;
+};
+
+// Authored localization is catalog content, not mutable run/save state.
+USTRUCT(BlueprintType)
+struct MEMORIA_API FMemoriaMemoryLocalizedText
+{
+    GENERATED_BODY()
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString MemoryId;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString Locale;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString Title;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString Description;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) bool bHasStoryEffect = false;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString StoryEffect;
+};
+
 UCLASS(BlueprintType)
 class MEMORIA_API UMemoriaMemoryCatalog : public UPrimaryDataAsset
 {
@@ -113,6 +134,14 @@ class MEMORIA_API UMemoriaMemoryCatalog : public UPrimaryDataAsset
 public:
     UPROPERTY(EditAnywhere, SaveGame, BlueprintReadOnly) FString ContentRevision;
     UPROPERTY(EditAnywhere, SaveGame, BlueprintReadOnly) TArray<FMemoriaMemoryDefinition> Definitions;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 CatalogSchemaVersion = 0;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString ContentKind;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString ExtractorVersion;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString SourceRepositoryRevision;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FMemoriaCatalogSource> Sources;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString SourceIrSha256;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FString SemanticSha256;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<FMemoriaMemoryLocalizedText> LocalizedText;
 
     virtual FPrimaryAssetId GetPrimaryAssetId() const override
     {

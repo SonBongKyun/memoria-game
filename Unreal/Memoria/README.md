@@ -21,8 +21,18 @@ python -m unittest discover -s Unreal/Tools -p test_validation_tools.py -v
 
 On a fresh checkout without foundation assets, add `--create-foundation-assets` to the first UE invocation. The commandlet saves real packages through installed Unreal tooling and refuses to replace existing packages. Normal validation loads the committed assets; it does not regenerate them. `--rendered` enables the real graphics backend, offscreen Editor/PIE and test screenshots. NullRHI results alone are not visual approval.
 
-The UE runner validates the 51 attested Godot cases plus three original foundation tests and all three explicitly named new runtime tests: **54 legacy / 57 total**. Missing, duplicated, unexpected, malformed, skipped or failed results fail validation. Fixtures are checked before UBT. Compiler errors, fatal diagnostics, timeouts and nonzero subprocess exits fail. Large immutable fixture builders alone are unoptimized to avoid MSVC C4883; production memory rules retain normal optimization and unchanged oracle expectations.
+The UE runner retains the **57 accepted Phase 1B tests** and adds three starting-catalog tests: **60 total**. The original 54-test subset and 51 Godot oracle cases remain explicit. Missing, duplicated, unexpected, malformed, skipped or failed results fail validation. Fixtures are checked before UBT. Compiler errors, fatal diagnostics, timeouts and nonzero subprocess exits fail. Large immutable fixture builders alone are unoptimized to avoid MSVC C4883; production memory rules retain normal optimization and unchanged oracle expectations.
 
-Without an evidence directory, validators write timestamped ignored `Saved/Validation` reports. Historical `evidence/phase0`, `phase1a` and `phase1b` destinations are rejected. Input/output fixture line endings remain pinned to their attested bytes. Godot regression isolates subprocess app-data and restores editor-rewritten metadata. Unreal binaries/caches remain ignored; Git LFS is scoped to Unreal packages. No push or legacy Godot save import is implied.
+Without an evidence directory, validators write timestamped ignored `Saved/Validation` reports. Historical `evidence/phase0`, `phase1a`, `phase1b` and `phase1b-ue58` destinations are rejected. Input/output fixture line endings remain pinned to their attested bytes. Godot regression isolates subprocess app-data and restores editor-rewritten metadata. Unreal binaries/caches remain ignored; Git LFS is scoped to Unreal packages. No push or legacy Godot save import is implied.
 
 AndroidFileServer is explicitly disabled: its default editor module otherwise writes an unrelated generated server token into the Windows foundation config. Paper2D, Enhanced Input and all MEMORIA systems remain enabled.
+
+Phase 1C's [source-derived starting catalog](../../docs/unreal-migration/ir/README.md) lives at `/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog`. `UMemoriaRunSubsystem::BeginStartingMemoryRun()` explicitly loads it and initializes owned memories in source order without travel or narrative. The runtime uses typed definitions and separate localization rows; importer/provenance checking and SHA-256 tooling stay in the editor-only module. SaveGame schema 1 and the original memory rules are unchanged.
+
+```powershell
+python Unreal/Tools/export_starting_memory.py --godot '<Godot-4.6.2-console.exe>' --check
+python Unreal/Tools/import_starting_memory.py --engine-root 'C:\Program Files\Epic Games\UE_5.8' --godot '<Godot-4.6.2-console.exe>' --build --evidence-dir docs/unreal-migration/evidence/phase1c/new-import
+python -m unittest discover -s Unreal/Tools -p 'test_*tools.py' -v
+```
+
+Omit `--check` from the exporter only when deliberately generating a reviewed source revision. The import wrapper always checks source execution first, then performs import, unchanged reimport and check-only reload in separate engine processes. See [PHASE_1C_REPORT](../../docs/unreal-migration/PHASE_1C_REPORT.md).

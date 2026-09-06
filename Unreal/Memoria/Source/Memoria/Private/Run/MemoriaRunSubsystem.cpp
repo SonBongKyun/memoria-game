@@ -1,5 +1,17 @@
 #include "Run/MemoriaRunSubsystem.h"
 
+EMemoriaMemoryResult UMemoriaRunSubsystem::BeginStartingMemoryRun()
+{
+    const auto* Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr,
+        TEXT("/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog.DA_StartingMemoryCatalog"));
+    if (!Catalog || Catalog->CatalogSchemaVersion != 1 ||
+        !Catalog->ContentKind.Equals(TEXT("player_memory.starting_catalog"), ESearchCase::CaseSensitive) || Catalog->Definitions.IsEmpty())
+    { return EMemoriaMemoryResult::InvalidSnapshot; }
+    TArray<FString> Ids;
+    for (const auto& Definition : Catalog->Definitions) { Ids.Add(Definition.Id); }
+    return BeginRun(*Catalog, Ids);
+}
+
 void UMemoriaRunSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
