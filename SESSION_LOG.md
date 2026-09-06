@@ -2,6 +2,19 @@
 
 ---
 
+## S266 - 2026-09-06 (Unreal Phase 1B — 검증기 보강, 5.7 실행 차단 기록)
+
+- 상태: PARTIAL. 실제 UE5.7이 없어 UBT/UHT/컴파일/링크/에디터/54개 Unreal Automation/맵·입력·모달 검증은 실행하지 못했다. 5.8.2로 대체하거나 엔진을 설치하지 않았다.
+- Phase 1A 체크포인트: 변경 88경로 및 기존 파일 인벤토리를 검토하고 정적 47검사·원본 4,217파일 보존·네이티브 기억 51사례 통과 후 `2b2a2607296faa1de2f4e8bf94f4eec847bfc8f9`를 로컬 생성했다. 원본 Godot checkout에는 커밋하지 않았다.
+- 실제 수정: Automation 결과의 개수만 확인하던 판정을 54개 고유 ID 대조로 보강했다. UBT 전 attested fixture 검사, 역사적 Phase 1A 증거 덮어쓰기 거부/별도 출력 경로, 기대 JSON의 정확한 LF 및 입력 JSON의 CRLF 유지 정책을 추가했다. 중복/누락 테스트와 checkout 해시 불일치를 재현했으며 기대값·원본 동작·C++ 생산 코드는 바꾸지 않았다.
+- 검증: 도구용 Python unittest 10/10, 네이티브 C++ 기억 51/51, CTest PASS. repository contract, VN 21파일/526스텝, 한국어 32파일/1,581필드, Godot editor import, 공식 memory/world 15사례 및 exported actor catalog PASS. 이번 export_log_errors=0. app-data 격리 및 editor metadata 1,056파일 복원.
+- 엔진 근거: `C:\Program Files\Epic Games\UE_5.8\Engine\Build\Build.version`은 5.8.2/CL56702186. UE5.7 예상 경로, Launcher, 레지스트리, 환경변수와 추가 공통 설치 경로에는 사용 가능한 5.7이 없었다. 판정기 실제 프로세스는 exit 2로 종료했다.
+- 산출물: PHASE_1B_REPORT, 갱신 MIGRATION_STATE, 로드맵 진행 부록, evidence/phase1b. Phase 0/1A 증거와 원본 콘텐츠는 보존했다. 로컬 체크포인트만 만들고 push하지 않았다.
+- 다음: 5.7에서 실제 Editor/54개 Automation, GC 및 비기본 저장 필드 왕복을 검증하고 실제 2D 맵·Enhanced Input·UMG modal을 생성해 Back 1회 소비/피벗/좌표를 확인한다. 그 전 Phase 1C 콘텐츠 이식은 보류한다.
+
+---
+
+
 
 ## S265 - 2026-09-06 (Unreal 5.7 이식 Phase 1A — 코어 기반과 기억 동등성)
 

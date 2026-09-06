@@ -12,7 +12,11 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
 parser.add_argument('--original-manifest', type=Path)
+parser.add_argument('--evidence-dir', type=Path)
 args = parser.parse_args()
+evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('foundation-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
+if evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence/phase1a'):
+    parser.error('Phase 1A evidence is immutable; choose a new output directory')
 errors = []
 checks = []
 
@@ -66,7 +70,7 @@ for source, expected in provenance['source_sha256'].items():
 header = subprocess.run([sys.executable, str(ROOT / 'Unreal/Tools/generate_memory_test_header.py'), '--check'], capture_output=True, encoding='utf-8')
 check('fixture header matches attested Godot outputs', header.returncode == 0)
 changes = git('diff', '--name-only').splitlines()
-allowed = {'.gitignore', 'export_presets.cfg', 'SESSION_LOG.md', 'docs/unreal-migration/MIGRATION_ROADMAP.md'}
+allowed = {'.gitignore', '.gitattributes', 'export_presets.cfg', 'SESSION_LOG.md', 'docs/unreal-migration/MIGRATION_ROADMAP.md'}
 check('tracked source changes confined to migration boundaries', all(p in allowed or p.startswith(('Unreal/', 'docs/unreal-migration/')) for p in changes))
 check('project.godot unchanged from worktree base', subprocess.run(['git', '-C', str(ROOT), 'diff', '--quiet', 'HEAD', '--', 'project.godot']).returncode == 0)
 protected_count = 0
@@ -85,7 +89,6 @@ if args.original_manifest:
     check('roadmap previous contents preserved as prefix', (ROOT / 'docs/unreal-migration/MIGRATION_ROADMAP.md').read_bytes().startswith(previous))
 report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'kind': 'static structure and file integrity; not UHT/build/editor validation',
           'checks': checks, 'protected_original_files': protected_count, 'errors': errors, 'status': 'PASS' if not errors else 'FAIL'}
-evidence = ROOT / 'docs/unreal-migration/evidence/phase1a'
 evidence.mkdir(parents=True, exist_ok=True)
 (evidence / 'foundation_static.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
 print(f"MEMORIA_FOUNDATION_STATIC_{report['status']} checks={len(checks)} protected_files={protected_count}")

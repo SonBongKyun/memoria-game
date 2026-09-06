@@ -1,3 +1,8 @@
 # New Unreal binary packages only. No history rewrite or Godot renormalization.
 Unreal/**/*.uasset filter=lfs diff=lfs merge=lfs -text
 Unreal/**/*.umap filter=lfs diff=lfs merge=lfs -text
+
+# Preserve the exact bytes attested by the offline Godot oracle on checkout.
+# Inputs were written by Python on Windows; outputs were written by Godot.
+docs/unreal-migration/fixtures/player_memory_inputs.json text eol=crlf
+docs/unreal-migration/fixtures/player_memory_expected.json text eol=lf

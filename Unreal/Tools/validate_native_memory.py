@@ -4,6 +4,7 @@ This provides native C++ evidence only; it cannot validate Unreal headers,
 reflection, module linking, UObject ownership, editor behavior or rendering.
 """
 from pathlib import Path
+import argparse
 import datetime
 import json
 import re
@@ -13,7 +14,12 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 work = ROOT / 'Unreal/Memoria/Intermediate/NativeParity'
 work.mkdir(parents=True, exist_ok=True)
-evidence = ROOT / 'docs/unreal-migration/evidence/phase1a'
+parser = argparse.ArgumentParser()
+parser.add_argument('--evidence-dir', type=Path)
+args = parser.parse_args()
+evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('native-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
+if evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence/phase1a'):
+    parser.error('Phase 1A evidence is immutable; choose a new output directory')
 evidence.mkdir(parents=True, exist_ok=True)
 report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'scope': 'same production C++ memory model; no UE compilation', 'commands': []}
 commands = [

@@ -165,3 +165,14 @@ Status: **PARTIAL, pending exact UE5.7 engine validation**. The isolated worktre
 Only UE5.8.2 was found in the inspected engine locations; no engine install, retarget or UE build was performed. The exact next Phase 1B task is to compile with 5.7 and pass all 54 authored Automation tests, then create the first 2D input/modal test map and validate plane, camera, foot pivots, collision and single Back consumption. No content bulk import or new Ch1 battle is authorized by this milestone.
 
 See [PHASE_1A_REPORT](PHASE_1A_REPORT.md) for implemented rules, evidence and deviations, and [MIGRATION_STATE](MIGRATION_STATE.md) for commands and handoff.
+
+
+## Phase 1B progress appendix — 2026-09-06
+
+Status: **PARTIAL**. Phase 1A was checkpointed locally as `2b2a2607296faa1de2f4e8bf94f4eec847bfc8f9` after review, 47 static/preservation checks and 51 native parity cases passed. The previous roadmap and Phase 0/1A reports/evidence remain intact.
+
+Actual Phase 1B work: exact-engine reinspection; corrected Automation report acceptance to require all 54 unique expected tests; fixture freshness before UBT; separate timestamped/explicit evidence destinations; checkout line-ending attributes preserving the original attested fixture bytes; 10 passing host-side validator regressions. Native memory parity remains 51/51. Godot repository, VN, Korean, editor import and official 15-case memory/world suite pass; exported catalog has zero export-log errors in this run.
+
+UE5.7 was not found in the inspected Launcher/registry/environment/common locations; only Build.version-confirmed UE5.8.2 / CL 56702186 is present. Therefore UBT, UHT, compile/link, editor launch, all 54 Unreal Automation cases, SaveGame/GC proof, real test-map/input/modal creation, rendered plane/pivot checks and Back consumption remain unexecuted. No production C++, Godot gameplay, oracle expectation or campaign asset was changed. No substitute engine, installation or remote push was used.
+
+The next action remains completion of Phase 1B with actual UE5.7. Phase 1C is gated: begin with deterministic starting-memory catalog IR/import and repeated-import equivalence only after the real foundation tests and map/input/modal proof pass. See [PHASE_1B_REPORT](PHASE_1B_REPORT.md) and [MIGRATION_STATE](MIGRATION_STATE.md) for exact evidence, checkpoints and commands.

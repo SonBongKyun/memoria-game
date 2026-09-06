@@ -15,20 +15,67 @@ import sys
 import winreg
 
 ROOT = Path(__file__).resolve().parents[2]
-EVIDENCE = ROOT / 'docs/unreal-migration/evidence/phase1a'
 WORK = ROOT / 'Unreal/Memoria/Intermediate/UE57Validation'
+
+
+def expected_test_paths():
+    fixtures = json.loads((ROOT / 'docs/unreal-migration/fixtures/player_memory_inputs.json').read_text(encoding='utf-8'))['cases']
+    paths = ['Memoria.Memory.SourceParity.' + case['id'] for case in fixtures]
+    if len(paths) != 51 or len(set(paths)) != 51:
+        raise ValueError('Phase 1B requires the 51 distinct attested memory fixtures')
+    return set(paths) | {
+        'Memoria.Foundation.MemoryAdapter',
+        'Memoria.Foundation.SaveAndDialectBoundaries',
+        'Memoria.Foundation.RunOwnership',
+    }
+
+
+def inspect_automation_report(result, expected):
+    """Validate identities as well as counts; repeated/missing tests cannot pass."""
+    errors = []
+    if not isinstance(result, dict) or not isinstance(result.get('tests'), list):
+        return {'passed': False, 'discovered': 0, 'source_parity_discovered': 0, 'errors': ['Missing tests array']}
+    tests = result['tests']
+    paths = []
+    for test in tests:
+        if not isinstance(test, dict) or not isinstance(test.get('fullTestPath'), str):
+            errors.append('Malformed test record')
+            continue
+        paths.append(test['fullTestPath'])
+        if test.get('state') != 'Success':
+            errors.append('Unsuccessful test: ' + test['fullTestPath'])
+    if len(paths) != len(set(paths)):
+        errors.append('Duplicate test identity')
+    missing = expected - set(paths)
+    unexpected = set(paths) - expected
+    if missing:
+        errors.append('Missing tests: ' + ', '.join(sorted(missing)))
+    if unexpected:
+        errors.append('Unexpected tests: ' + ', '.join(sorted(unexpected)))
+    if len(tests) != len(expected):
+        errors.append('Incorrect test count')
+    if result.get('failed', 0) != 0:
+        errors.append('Report declares failed tests')
+    return {'passed': not errors, 'discovered': len(tests),
+            'source_parity_discovered': sum(p.startswith('Memoria.Memory.SourceParity.') for p in paths), 'errors': errors}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--engine-root', type=Path)
     parser.add_argument('--build-and-test', action='store_true')
+    parser.add_argument('--evidence-dir', type=Path)
     args = parser.parse_args()
+    evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('ue57-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
+    if evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence/phase1a'):
+        parser.error('Phase 1A evidence is immutable; choose a new output directory')
     candidates = []
+    parents_checked = []
     for name in ('UE57_ROOT', 'UE_ENGINE_ROOT'):
         if os.environ.get(name):
             candidates.append(Path(os.environ[name]))
     for directory in (Path('C:/Program Files/Epic Games'), Path('D:/Epic Games'), Path('G:/Epic Games')):
+        parents_checked.append({'path': str(directory), 'exists': directory.is_dir()})
         if directory.is_dir():
             candidates.extend(directory.glob('UE_*'))
     launcher = Path(os.environ.get('PROGRAMDATA', 'C:/ProgramData')) / 'Epic/UnrealEngineLauncher/LauncherInstalled.dat'
@@ -62,13 +109,15 @@ def main():
         eligible = [d for d in eligible if Path(d['path']) == args.engine_root.resolve()]
     report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'requested_engine': '5.7',
               'detected': detected, 'registry_checked': registry_checked, 'launcher_checked': str(launcher),
+              'installation_parents_checked': parents_checked,
+              'engine_environment': {name: os.environ.get(name) for name in ('UE57_ROOT', 'UE_ENGINE_ROOT')},
               'scope': 'Launcher, known installation parents, registered builds, UE57_ROOT/UE_ENGINE_ROOT, explicit root; no whole-disk scan',
               'ue_compilation': 'NOT_RUN', 'editor_launch': 'NOT_RUN', 'ue_automation': 'NOT_RUN', 'commands': []}
-    EVIDENCE.mkdir(parents=True, exist_ok=True)
+    evidence.mkdir(parents=True, exist_ok=True)
     WORK.mkdir(parents=True, exist_ok=True)
 
     def save():
-        (EVIDENCE / 'ue57_validation.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+        (evidence / 'ue57_validation.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
 
     if not eligible:
         report['status'] = 'BLOCKED_MISSING_UE_5_7'
@@ -109,6 +158,11 @@ def main():
         return entry['exit_code'] == 0 and not entry.get('timed_out') and not entry['fatal_diagnostics']
 
     project = str(ROOT / 'Unreal/Memoria/Memoria.uproject')
+    # Reject altered or stale attested fixtures before launching the toolchain.
+    if not run('fixture_check', [sys.executable, str(ROOT / 'Unreal/Tools/generate_memory_test_header.py'), '--check'], 60):
+        report['status'] = 'FIXTURE_VALIDATION_FAILED'
+        save()
+        return 1
     report['ue_compilation'] = 'RUNNING'
     save()
     if not run('editor_build', [str(build), 'MemoriaEditor', 'Win64', 'Development', f'-Project={project}', '-WaitMutex', '-NoHotReloadFromIDE'], 3600):
@@ -125,17 +179,19 @@ def main():
                             '-ExecCmds=Automation RunTests Memoria.', '-TestExit=Automation Test Queue Empty',
                             f'-ReportExportPath={test_report}', '-stdout', '-FullStdOutLogOutput'], 900)
     index = test_report / 'index.json'
-    result = json.loads(index.read_text(encoding='utf-8-sig')) if index.is_file() else {}
-    tests = result.get('tests', [])
-    source_tests = [t for t in tests if t.get('fullTestPath', '').startswith('Memoria.Memory.SourceParity.')]
-    expected = len(json.loads((ROOT / 'docs/unreal-migration/fixtures/player_memory_inputs.json').read_text(encoding='utf-8'))['cases'])
+    try:
+        result = json.loads(index.read_text(encoding='utf-8-sig')) if index.is_file() else {}
+        inspection = inspect_automation_report(result, expected_test_paths())
+    except (ValueError, OSError) as error:
+        inspection = {'passed': False, 'discovered': 0, 'source_parity_discovered': 0, 'errors': [str(error)]}
     report['automation_report'] = str(index.relative_to(ROOT))
-    report['automation_discovered'] = len(tests)
-    report['source_parity_discovered'] = len(source_tests)
-    passed = ran and len(source_tests) == expected and len(tests) == expected + 3 and all(t.get('state') == 'Success' for t in tests)
+    report['automation_discovered'] = inspection['discovered']
+    report['source_parity_discovered'] = inspection['source_parity_discovered']
+    report['automation_validation_errors'] = inspection['errors']
+    passed = ran and inspection['passed']
     report.update(status='PASS' if passed else 'AUTOMATION_FAILED', ue_automation='PASS' if passed else 'FAIL')
     save()
-    print(f"MEMORIA_UE57_{report['status']} discovered={len(tests)} source_parity={len(source_tests)}")
+    print(f"MEMORIA_UE57_{report['status']} discovered={inspection['discovered']} source_parity={inspection['source_parity_discovered']}")
     return 0 if passed else 1
 
 
