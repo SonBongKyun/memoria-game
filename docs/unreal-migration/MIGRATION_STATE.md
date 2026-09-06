@@ -1,19 +1,19 @@
-# Migration handoff — Phase 1C complete on UE 5.8.2
+# Migration handoff — Phase 1D complete on UE 5.8.2
 
-Status: **Phase 1C COMPLETE**. Current engine is **UE 5.8.2 / CL 56702186**, verified directly from `C:\Program Files\Epic Games\UE_5.8\Engine\Build\Build.version`. The user changed the target from 5.7 on 2026-09-06 because the earlier version was an internal baseline, 5.8.2 was installed, and no engine-bound assets then existed. Historical Phase 0/1A/1B reports remain intact.
+Status: **Phase 1D COMPLETE**. Engine: **UE 5.8.2 / CL 56702186**, directly verified at `C:\Program Files\Epic Games\UE_5.8`. Historical Phase 0/1A/1B/1C reports and evidence are preserved.
 
 - Branch: `unreal-migration/ue58-foundation`.
 - Worktree: `C:\Users\jc\MemoriaMigration\foundation`.
-- Previous technical checkpoint: `44d08dde96b352c3f86b770ed11948bcc18f6bb6`; Phase 1C started clean at documentation follow-up `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`.
-- New technical checkpoint: **`b6c632fc83fdbdbe21d26452b2135f4997704988`** — `feat(unreal): import deterministic starting memory catalog`, followed by a documentation-only commit recording this SHA.
-- Current report: [PHASE_1C_REPORT](PHASE_1C_REPORT.md). New evidence: [phase1c acceptance](evidence/phase1c/acceptance.json). Prior accepted foundation: [PHASE_1B_UE58_REPORT](PHASE_1B_UE58_REPORT.md).
-- Real source initializer exports **7 ordered memories** into [canonical IR](ir/starting_memory_catalog.v1.json), including the actually initialized `core_name_origin`. Source revision/hashes and exact order are recorded. Mutable state and derived connections remain outside definitions.
-- Typed asset: `/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog`, existing `UMemoriaMemoryCatalog` class. Reimport and third-process reload are **UNCHANGED**, with no save and identical package bytes. Runtime `BeginStartingMemoryRun` loads the asset and initializes owned order without narrative/travel.
-- **UBT/UHT/compile/link PASS; previous 57/57 + Phase 1C 3/3 = 60/60 Automation PASS.** Godot **15/15**, native **51/51**, host **23/23**, static **50/50**; **4,217 original files unchanged**. Existing engine render-thread warning remains nonblocking.
-- The 57 accepted tests, player-memory kernel, SaveGame schema 1, coordinate/input behavior, test assets and historical evidence are preserved. Runtime has no Python/Godot/source/importer dependency. No push or original-checkout commit.
+- Prior technical checkpoint: `b6c632fc83fdbdbe21d26452b2135f4997704988`; Phase 1D began clean at `4edb035360c19d6286fef0e17ca2fc4bda4b492f`.
+- New technical checkpoint: **`__PHASE1D_CHECKPOINT__`**, `feat(unreal): import bounded narrative contracts`; local only, no push.
+- Current report: [PHASE_1D_REPORT](PHASE_1D_REPORT.md). [Acceptance](evidence/phase1d/acceptance.json), [canonical narrative IR/workflow](ir/narrative/README.md).
+- Exactly one VN sequence (`ch2_market_arrival`, 13 original steps 0–12) and one Field group (`verdan_arrival`, five original rows 0–4) are source-attested. Separate typed definitions/interpreters preserve gate/effect ordering, ordered original/visible choice indices, costs, jumps and continuation.
+- Typed assets: `/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival` and `/Game/Memoria/Generated/Narrative/DA_Field_VerdanArrival`. First import CREATED; second import and third-process reload UNCHANGED, no saves, identical semantic hashes and observed package bytes. Modified/synthetic IR is rejected by the production path and never saved as a package.
+- Real source engines and the exact VN renderer filter prefix execute in an isolated Godot oracle. Ten cases match Unreal ordered snapshots/events. Active/pending/FIFO continuation uses the existing SaveGame/DTO schema 1.
+- **UBT/UHT/compile/link PASS; previous 60/60 + Phase 1D 8/8 = 68/68 Automation PASS**, exact identities enforced. Godot 15/15, native 51/51, host 35/35, static 52/52; **4,217 original files unchanged**. Starting-memory Phase 1C source/catalog checks remain green.
+- Initial oracle adapter failures and one Godot editor access violation are retained in evidence. The unchanged-source Godot retry passed. The existing foundation render-thread warning remains; new narrative tests have none.
+- Runtime has no Python/Godot/JSON/editor dependency. Campaign boot, final UI, map/art/audio migration and Phase 1E have not been implemented.
 
-## Commands and next task
+## Exact next task
 
-Use the [IR workflow](ir/README.md) and [report commands](PHASE_1C_REPORT.md#reproducible-commands). The import wrapper executes a check-only source export before importing twice and reloading in separate UE processes. Export without `--check` only for a deliberately reviewed content update. Validation never regenerates expected evidence.
-
-**Phase 1D is not started.** Next: versioned shared narrative provenance/text/step IR with separate `FFieldDialogueLine` and `FVNStoryStep` import contracts. Bound the first fixtures to `data/vn_scenes/ch2_market_arrival.json` and the `verdan_arrival` group in `data/chapter2_dialogue.json`; verify IDs, original indices, choice order, effect/gate phases, VN continuation and unchanged reimport. Then plan the canonical Verdan arrival slice. Do not start full Chapter 1, VN presentation, battle, maps or bulk art/audio as part of this data-contract task.
+Recommend **Phase 1E: minimal `ch2_market_arrival` → Verdan arrival development slice**, imported VN plus existing movement/input/camera and temporary text/choice presentation. Preserve the actual map caller: `ch2_arrival_vn_seen=true` skips `verdan_arrival` and enters free exploration. Verify the imported Field asset via a separate VN-not-seen arrival fixture. Do not force both narratives onto the canonical path. Broader content, save fallback resolution, progression hooks and cook/package validation remain later work; no playable parity claim.

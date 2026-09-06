@@ -9,3 +9,5 @@ docs/unreal-migration/fixtures/player_memory_expected.json text eol=lf
 
 # Canonical source-derived Phase 1C artifacts remain UTF-8/LF on Windows.
 docs/unreal-migration/ir/*.json text eol=lf
+docs/unreal-migration/ir/narrative/** text eol=lf
+docs/unreal-migration/fixtures/narrative/** text eol=lf

@@ -2,6 +2,20 @@
 
 ---
 
+## S269 - 2026-09-06 (Unreal Phase 1D — 제한된 내러티브 데이터·실행 계약 이식)
+
+- 상태: COMPLETE. `unreal-migration/ue58-foundation`의 clean `4edb035`에서 진행. UE5.8.2 / CL56702186 재확인. 로컬 체크포인트는 PHASE_1D_REPORT와 MIGRATION_STATE에 기록하며 push하지 않는다.
+- 범위: ch2_market_arrival VN 13스텝과 chapter2_dialogue의 verdan_arrival 5행만 추출. 원래 0기반 인덱스, 선택지 순서, 빈 화자, 영어·한국어, 출처 revision/해시를 보존했다. Field와 VN을 별도 typed 정의·실행기로 구현했다.
+- 파이프라인: 버전1 canonical IR, 엄격한 타입/출처/인덱스/효과 단계 검증, 실제 Unreal commandlet, DataAsset 2개. 첫 임포트 CREATED, 각각 별도 프로세스의 재임포트·check-only reload는 UNCHANGED/saved=false. 임시 문구 변경의 의미 해시는 달라지며 제작용 임포트는 원본 대조에서 거절된다. 임시 패키지는 저장하지 않았다.
+- 계약: Field gate→effect, 실패한 비용에도 플래그·보상·점프 지속. VN effect→gate→reward, 비용 실패는 선택지에 머묾. 필터 후 Field visible1→original2, VN 원래 [0,2] 중 original2 선택, jump target-1/advance, 현재·대기·FIFO 재개를 원본 실행과 비교했다. SaveGame/continuation schema1 유지.
+- 원본 오라클: 실제 DialogueManager/SceneFlow/MemoryManager/JourneyOath를 바이트 그대로 복사해 앱데이터가 격리된 Godot에서 실행. 실제 VN 필터 분기를 사용하며 화면·오디오·맵 전환만 inert adapter로 대체. 10개 사례를 관찰했고 추가 사례 전후 기존9개 결과는 동일했다.
+- 검증: 실제 UBT/UHT/컴파일/링크 PASS. 기존60/60+신규8/8=전체68/68 Automation PASS, 정확한 테스트 ID 검증 유지. Godot repo/VN/KO/import 및 공식15/15, native51/51·CTest1/1, 기존 시작 기억 카탈로그, host35/35, static52/52, 원본4217파일 보존 PASS. Godot 메타데이터1056파일 복원.
+- 발견: 오라클 adapter 들여쓰기·미사용 singleton 선언 오류를 수정했다. 첫 Godot import 접근 위반은 실패 증거를 남겼고 소스 변경 없는 재실행이 통과했다. 실제 Verdan은 ch2_arrival_vn_seen일 때 Field arrival을 건너뛰므로 다음 단계가 두 대화를 무조건 연속 실행하면 원본 경로를 바꾸게 된다.
+- 산출물: PHASE_1D_REPORT, MIGRATION_STATE, 로드맵 부록, ir/narrative, fixtures/narrative, evidence/phase1d 및 전체 로그. New Game/캠페인/UI/맵/전투/아트/오디오는 연결하지 않았다.
+- 다음: Phase1E 최소 ch2_market_arrival→Verdan 도착 개발 슬라이스. VN을 본 경로는 자유탐색으로 넘기고 Field asset은 VN을 보지 않은 별도 도착 fixture에서 검증한다. 이번 세션에서 구현하지 않았다.
+
+---
+
 ## S268 - 2026-09-06 (Unreal Phase 1C — 결정적 시작 기억 카탈로그 이식 완료)
 
 - 상태: COMPLETE. 기존 `unreal-migration/ue58-foundation`, clean `b06cfbad7488cb5c8b9ea030512e4f7a6c309c16`에서 이어서 작업했다. UE5.8.2 / CL56702186을 Build.version으로 재확인했다. 로컬 체크포인트 SHA는 PHASE_1C_REPORT와 MIGRATION_STATE에 기록하며 push하지 않는다.

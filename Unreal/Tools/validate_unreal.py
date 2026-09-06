@@ -67,6 +67,17 @@ def inspect_automation_report(result, expected):
             'source_parity_discovered': sum(p.startswith('Memoria.Memory.SourceParity.') for p in paths), 'errors': errors}
 
 
+def narrative_test_paths():
+    return {'Memoria.Narrative.'+name for name in (
+        'VNImportParity', 'FieldImportParity', 'DeterministicReimport',
+        'FieldExecutionContract', 'VNExecutionContract', 'OriginalVisibleChoiceIndices',
+        'ContinuationDTO', 'StrictValidationAndSemanticChange')}
+
+
+def current_test_paths():
+    return expected_test_paths() | narrative_test_paths()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--engine-root', type=Path)
@@ -203,7 +214,7 @@ def main():
     index = test_report / 'index.json'
     try:
         result = json.loads(index.read_text(encoding='utf-8-sig')) if index.is_file() else {}
-        inspection = inspect_automation_report(result, expected_test_paths())
+        inspection = inspect_automation_report(result, current_test_paths())
     except (ValueError, OSError) as error:
         inspection = {'passed': False, 'discovered': 0, 'source_parity_discovered': 0, 'errors': [str(error)]}
     report['automation_report'] = str(index.relative_to(ROOT))
@@ -212,7 +223,8 @@ def main():
     report['legacy_required_total'] = len(expected_test_paths(include_runtime=False))
     report['phase1b_required_total'] = len(expected_test_paths(include_catalog=False))
     report['phase1c_required_total'] = len(expected_test_paths() - expected_test_paths(include_catalog=False))
-    report['current_required_total'] = len(expected_test_paths())
+    report['phase1d_required_total'] = len(narrative_test_paths())
+    report['current_required_total'] = len(current_test_paths())
     report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']
     passed = ran and inspection['passed']

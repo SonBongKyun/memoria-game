@@ -36,3 +36,6 @@ desktop.ini
 /Unreal/**/*.suo
 /Unreal/**/*.user
 /Unreal/**/__pycache__/
+
+# Phase 1D raw engine logs are preserved byte-for-byte in full_logs.zip.
+/docs/unreal-migration/evidence/phase1d/**/*.log
