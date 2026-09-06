@@ -8,7 +8,7 @@ Date: 2026-09-06. Status: **PARTIAL**. The exact UE 5.7 installation is still un
 - Branch: `unreal-migration/foundation`.
 - Project: `Unreal/Memoria/Memoria.uproject`, `EngineAssociation` remains **5.7**.
 - Phase 1A checkpoint: **`2b2a2607296faa1de2f4e8bf94f4eec847bfc8f9`**, `chore(unreal): checkpoint Phase 1A foundation`.
-- Phase 1B checkpoint: **pending final checkpoint recording**. Its message will describe the engine blocker and validator work, not imply a successful UE5.7 build.
+- Phase 1B checkpoint: **`d77c566a141441ac8f935871a7756467eb9373de`**, `chore(unreal): harden validation and record UE5.7 blocker`. This records the available validation and engine blocker; it does not certify a UE5.7 build. A documentation-only follow-up records this SHA.
 - No push, engine installation, retargeting, campaign migration or package generation was performed.
 
 Before checkpointing Phase 1A, all 67 inventoried file hashes matched the previous delivered state. The 85 untracked files were inside the intended migration scope; the three tracked modifications were `.gitignore`, `export_presets.cfg` and `SESSION_LOG.md`. All 88 staged paths were reviewed, with no generated Unreal binaries/caches included. Static/preservation checks passed 47/47 and the same production C++ memory model passed all 51 native cases. Phase 0 documents copied by Phase 1A were included in its checkpoint. The original dirty checkout was not staged or committed.

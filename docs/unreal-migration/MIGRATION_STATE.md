@@ -5,7 +5,7 @@ Status: **PARTIAL — UE 5.7 remains unavailable.** Phase 0/1A source work has a
 - Branch/worktree: `unreal-migration/foundation`, `C:\Users\jc\MemoriaMigration\foundation`.
 - Project: `Unreal/Memoria/Memoria.uproject`, target **5.7**.
 - Phase 1A checkpoint: `2b2a2607296faa1de2f4e8bf94f4eec847bfc8f9` — `chore(unreal): checkpoint Phase 1A foundation`.
-- Phase 1B checkpoint: recorded in [PHASE_1B_REPORT](PHASE_1B_REPORT.md) after validation. No push.
+- Phase 1B checkpoint: `d77c566a141441ac8f935871a7756467eb9373de` — `chore(unreal): harden validation and record UE5.7 blocker`; see [PHASE_1B_REPORT](PHASE_1B_REPORT.md). A documentation-only follow-up records the SHA. No push.
 - Original dirty Godot checkout remains at `C:\Users\jc\OneDrive\바탕 화면\메모리아\Game`; migration stays in this worktree.
 
 Completed: reviewed the unchanged 67-file Phase 1A inventory and all 88 staged paths; reran 47 static/preservation checks and 51 native memory cases before checkpointing. Fixed the UE validator's count-only acceptance (now requires all 54 distinct expected identities), added fixture freshness verification before UBT, and isolated new evidence destinations from historical Phase 1A records. Pinned the attested input JSON to CRLF and Godot output JSON to LF so Git checkout preserves their exact hashes; expected values and production C++ were not changed. Host-side validator tests pass 10/10, including both Git autocrlf modes.
