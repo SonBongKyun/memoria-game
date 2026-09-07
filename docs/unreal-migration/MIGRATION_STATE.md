@@ -5,7 +5,7 @@ Engine **5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
 
 - Worktree `C:\Users\jc\MemoriaMigration\foundation`; branch `unreal-migration/ue58-foundation`.
 - Previous technical checkpoint `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`; clean starting documentation HEAD `0f37e58318a749a5d8057a5303c4f18e022f864c`.
-- New technical checkpoint: local follow-up records the accepted feature commit. No push.
+- New technical checkpoint: `361b9039713446957f1da66470881990388762ba`. This documentation follow-up records that accepted feature commit. No push.
 - [Report](PHASE_1G_REPORT.md), [acceptance](evidence/phase1g/acceptance.json), [final82-test report](evidence/phase1g/automation02/automation_index.json), [exact retry trace](evidence/phase1g/retry_exact_trace.txt).
 - Open `/Game/Tests/Campaign/L_Ch2VerdanSlice`. Select original paid VN choice1, travel, walk to Malet, E and finish the accepted3-row reaction. E again starts `malet_encounter` originals0..9. Select original refusal1, wait the source0.3s callback, advance `malet_refused` originals0..2. Cleanup restores exploration and movement; ordinary E retries original0. Acceptance stops there.
 - Both original choices and English/Korean source data are intact. Original Accept0 is visible but host-deferred before interpreter effects: accepted flag absent, sword intact, full run/memory unchanged, no rollback or downstream request.

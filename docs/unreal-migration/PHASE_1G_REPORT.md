@@ -8,7 +8,7 @@ Status: **COMPLETE — bounded refusal/retry acceptance PASS.** Final UE5.8.2 bu
 - Branch: `unreal-migration/ue58-foundation`
 - Previous technical checkpoint: `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`.
 - Clean starting documentation HEAD: `0f37e58318a749a5d8057a5303c4f18e022f864c`.
-- New technical checkpoint: recorded in the local checkpoint follow-up after acceptance.
+- New technical checkpoint: `361b9039713446957f1da66470881990388762ba`; its tree contains the completed implementation and acceptance evidence.
 - Engine: actual UE **5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
 - No push. Phase 1H is a recommendation only.
 
