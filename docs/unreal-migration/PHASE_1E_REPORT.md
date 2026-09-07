@@ -7,8 +7,8 @@ worktree `C:\Users\jc\MemoriaMigration\foundation`.
 Previous technical checkpoint: `ee61269daf5ee20724a02eb51d07d997f26a8474`.
 This phase began clean at documentation follow-up
 `a9dfae9e3c337782ba832c9577319faac5f30152`. Status/diff/diff-check and ten commits
-were inspected before edits. New technical checkpoint: **recorded by the
-documentation follow-up after acceptance**. Local checkpoint only; no push.
+were inspected before edits. New technical checkpoint:
+`e9f781cf3f73ba5949ab9a2af961193d02d3c620`. Local checkpoint only; no push.
 
 ## Developer entry and actual runtime
 
