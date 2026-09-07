@@ -4,8 +4,8 @@
 
 namespace MemoriaNarrativeImport
 {
-FString Package(bool bVN);
-FString ObjectPath(bool bVN);
+FString Package(bool bVN, const FString& Sequence = FString());
+FString ObjectPath(bool bVN, const FString& Sequence = FString());
 FString Fingerprint(const UMemoriaFieldAsset& Asset);
 FString Fingerprint(const UMemoriaVNAsset& Asset);
 bool ReadIr(const FString& Path, UMemoriaFieldAsset& Asset, FString& Error, bool bVerifySources=true);

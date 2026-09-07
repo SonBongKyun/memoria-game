@@ -1,7 +1,9 @@
 # Bounded narrative IR v1
 
-Production inputs are exactly `ch2_market_arrival.vn.v1.json` and
-`verdan_arrival.field.v1.json`. `contract_inputs.v1.json` and
+Reviewed production inputs are `ch2_market_arrival.vn.v1.json`,
+`verdan_arrival.field.v1.json` and Phase1F `malet_taste_burned.field.v1.json`.
+The default pipeline retains the first two; `--group malet_taste_burned`
+selects only three Field rows at authored group position16. `contract_inputs.v1.json` and
 `contract_expected.v1.json` are offline test/oracle artifacts, never assets.
 Additional synthetic/negative IR lives under `../../fixtures/narrative/`.
 
@@ -36,7 +38,7 @@ whole definition except repeated provenance; import metadata is compared
 separately for no-op decisions. Source-index IDs are versioned locations, not
 a promise that arbitrary future source insertion preserves save identity.
 
-The schema is deliberately bounded to these two source shapes/counts. Only
+The schema is deliberately bounded to reviewed VN/Field shapes and explicit group/count pairs. Only
 inspected gates, effects and transition requests are accepted. Unknown fields
 or future opcodes require review and a schema/extractor decision. This is not
 a general importer for every field/VN feature. In particular structured world
@@ -66,5 +68,8 @@ Omit `--check` for a deliberately reviewed new extraction/oracle fixture update.
 Rechecks never rewrite expected results. Generated reflection/codecs contain
 schema fields only, no authored story values. Runtime consumes only typed
 assets and the accepted memory domain, with borrowed run/definition references
-that the caller must keep alive. UI, travel and campaign lifetime wiring belong
-to the next phase. SaveGame and continuation schema remain 1.
+that the caller must keep alive. The Phase1E/F development host owns UI/travel lifetime; broader campaign
+orchestration remains deferred. SaveGame and continuation schema remain 1.
+
+Phase1F NPC oracle and transient negatives live in ../../fixtures/malet/.
+No normal transaction group is part of the reviewed import cohort.

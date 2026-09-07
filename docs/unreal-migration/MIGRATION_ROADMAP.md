@@ -234,3 +234,25 @@ Malet trade pulls in world seeding, rewards, shop and chapter/autosave hooks;
 New Game pulls in reset/profile/inventory and the preceding Ch1 VN chain.
 The smaller first memory-reaction dependency is recommended, with fallback
 dispatch characterized and no silent route change. Phase 1F remains unimplemented.
+
+
+## Phase 1F actual progress — 2026-09-07
+
+Completed paid arrival's first memory consequence: actual VN payment, native
+Verdan handoff, walk/Interact with one Malet placeholder, source reaction priority,
+heard flag before Field.Start, imported `malet_taste_burned` three rows, then
+restored exploration. Reused typed IR/import, memory domain, Field, input and UMG.
+Added only a small interface/component and one NPC presentation boundary.
+
+Seven-case real NPC/PerceptionFilter oracle PASS. Intact/already-heard normal
+targets are recorded/deferred; no transaction group or subsequent chain imported.
+Previous72+new4=76/76 UE tests PASS; UE5.8.2 build/rendered PIE, Godot official15,
+native51, old narrative six-process no-op/10cases, route4, catalog, host45,
+static59 and4217-file protection PASS. Failed attempts/real captures preserved.
+[Report](PHASE_1F_REPORT.md); local checkpoint in MIGRATION_STATE. No push/Phase1G.
+
+Next bounded recommendation: normal first Malet encounter, original refusal,
+source response/cleanup, exploration/retry. Preserve both authored choices;
+characterize Accept in oracle and defer whole selection before partial effects.
+Deal/reward/shop/world seeding/Chapter3/autosave/achievements remain later work.
+Full Malet/Verdan parity is not established.

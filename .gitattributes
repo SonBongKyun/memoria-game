@@ -12,3 +12,4 @@ docs/unreal-migration/ir/*.json text eol=lf
 docs/unreal-migration/ir/narrative/** text eol=lf
 docs/unreal-migration/fixtures/narrative/** text eol=lf
 docs/unreal-migration/fixtures/campaign/** text eol=lf
+docs/unreal-migration/fixtures/malet/** text eol=lf

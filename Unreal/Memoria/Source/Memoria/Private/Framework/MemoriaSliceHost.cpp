@@ -2,7 +2,9 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
 #include "EnhancedInputComponent.h"
+#include "Interaction/MemoriaInteractionComponent.h"
 #include "InputActionValue.h"
+#include "InputKeyEventArgs.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "Run/MemoriaRunSubsystem.h"
@@ -19,6 +21,9 @@ void AMemoriaSliceGameMode::StartPlay()
     else if (Map.EndsWith(TEXT("L_VerdanHost"))) Started = Narrative->EnterVerdan();
     if (!Started) UE_LOG(LogTemp, Error, TEXT("MEMORIA_SLICE entry refused: %s; start from an explicit slice fixture"), *Map);
 }
+AMemoriaSliceController::AMemoriaSliceController()
+{ Interaction = CreateDefaultSubobject<UMemoriaInteractionComponent>(TEXT("Interaction")); }
+FString AMemoriaSliceController::GetInteractionPrompt() const { return Interaction->GetPrompt(); }
 UMemoriaNarrativeSubsystem* AMemoriaSliceController::Host() const
 { return GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>(); }
 void AMemoriaSliceController::SetupInputComponent()
@@ -27,12 +32,33 @@ void AMemoriaSliceController::SetupInputComponent()
     if (auto* Input = Cast<UEnhancedInputComponent>(InputComponent))
         Input->BindAction(MoveAction, ETriggerEvent::Started, this, &AMemoriaSliceController::Navigate);
 }
+bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
+{
+    const bool ConfirmKey = Params.Key == EKeys::E || Params.Key == EKeys::SpaceBar ||
+        Params.Key == EKeys::Enter || Params.Key == EKeys::Gamepad_FaceButton_Bottom;
+    // Modal/context changes flush processed key state. Only a physical release
+    // ends the gesture that crossed a narrative boundary; repeats do not.
+    if (ConfirmKey)
+    {
+        if (Params.Event == IE_Pressed) HeldConfirmKeys.Add(Params.Key);
+        else if (Params.Event == IE_Released)
+        {
+            HeldConfirmKeys.Remove(Params.Key);
+            if (HeldConfirmKeys.IsEmpty()) bAwaitConfirmRelease = false;
+        }
+    }
+    return Super::InputKey(Params);
+}
 void AMemoriaSliceController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds); auto* Narrative = Host();
-    if (!Narrative || Narrative->GetRevision() == LastRevision) return;
-    LastRevision = Narrative->GetRevision();
+    if (!Narrative) return;
     const auto State = Narrative->GetState();
+    Interaction->UpdateTarget(State == EMemoriaSliceState::Exploration && !IsModalOpen() ? GetPawn() : nullptr);
+    const FString Prompt = Interaction->GetPrompt();
+    const bool Changed = Narrative->GetRevision() != LastRevision;
+    if (!Changed && Prompt == LastPrompt) return;
+    LastPrompt = Prompt; LastRevision = Narrative->GetRevision();
     if (State != EMemoriaSliceState::Exploration && StatusWidget) { StatusWidget->RemoveFromParent(); StatusWidget = nullptr; }
     if (State == EMemoriaSliceState::VN || State == EMemoriaSliceState::Field)
     {
@@ -53,13 +79,20 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         if (!StatusWidget)
         {
             StatusWidget = CreateWidget<UMemoriaDevelopmentNarrativeWidget>(this, UMemoriaDevelopmentNarrativeWidget::StaticClass());
-            FMemoriaNarrativeView Status; Status.bCompactStatus = true; Status.Header = TEXT("VERDAN DEVELOPMENT HOST / EXPLORATION READY");
-            const bool Seen = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->GetRunSnapshot().GetFlag(TEXT("ch2_arrival_vn_seen"));
-            Status.Body = FString::Printf(TEXT("VN seen: %s    Field starts: %d    |    Move: WASD / stick"), Seen ? TEXT("true") : TEXT("false"), Narrative->GetFieldInvocationCount());
-            StatusWidget->Display(Status); StatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible); StatusWidget->AddToViewport(10);
         }
-        SetInputMode(FInputModeGameOnly()); bShowMouseCursor = false;
-        FSlateApplication::Get().SetAllUserFocusToGameViewport();
+        FMemoriaNarrativeView Status; Status.bCompactStatus = true; Status.Header = TEXT("VERDAN DEVELOPMENT HOST / EXPLORATION READY");
+        const bool Seen = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->GetRunSnapshot().GetFlag(TEXT("ch2_arrival_vn_seen"));
+        Status.Body = FString::Printf(TEXT("VN seen: %s    Field starts: %d    |    Move: WASD / stick"), Seen ? TEXT("true") : TEXT("false"), Narrative->GetFieldInvocationCount());
+        if (!Prompt.IsEmpty()) Status.Body += TEXT("\n") + Prompt;
+        if (!Narrative->GetDeferredInteraction().IsEmpty())
+            Status.Body += TEXT("\nDevelopment boundary: resolved ") + Narrative->GetDeferredInteraction() + TEXT("; content deferred.");
+        StatusWidget->Display(Status); StatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+        if (!StatusWidget->IsInViewport()) StatusWidget->AddToViewport(10);
+        if (Changed && !IsModalOpen())
+        {
+            SetInputMode(FInputModeGameOnly()); bShowMouseCursor = false;
+            FSlateApplication::Get().SetAllUserFocusToGameViewport();
+        }
     }
 }
 void AMemoriaSliceController::Move(const FInputActionValue& Value)
@@ -74,10 +107,21 @@ void AMemoriaSliceController::Navigate(const FInputActionValue& Value)
         if (FMath::Abs(Y) > 0.5f) NarrativeWidget->Navigate(Y > 0 ? -1 : 1);
     }
 }
-void AMemoriaSliceController::ForwardConfirm(int32 OriginalIndex) { Host()->Confirm(OriginalIndex); }
+void AMemoriaSliceController::ForwardConfirm(int32 OriginalIndex)
+{
+    if (bAwaitConfirmRelease) return;
+    const auto Before = Host()->GetState(); Host()->Confirm(OriginalIndex);
+    if (Before != Host()->GetState()) bAwaitConfirmRelease = true;
+}
 void AMemoriaSliceController::Confirm()
 {
-    if (NarrativeWidget) NarrativeWidget->ConfirmIntent(); else Super::Confirm();
+    if (bAwaitConfirmRelease) return;
+    if (NarrativeWidget) NarrativeWidget->ConfirmIntent();
+    else if (Host()->GetState() == EMemoriaSliceState::Exploration && !IsModalOpen())
+    {
+        if (Interaction->Interact(GetPawn())) bAwaitConfirmRelease = true;
+    }
+    else Super::Confirm();
 }
 void AMemoriaSliceController::Back()
 {

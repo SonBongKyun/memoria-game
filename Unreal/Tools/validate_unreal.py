@@ -75,7 +75,11 @@ def narrative_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths()
+
+
+def malet_test_paths():
+    return {'Memoria.Malet.'+name for name in ('ImportContract', 'SourceDispatch', 'CanonicalInteraction', 'IntactInteraction')}
 
 
 def slice_test_paths():
@@ -230,6 +234,7 @@ def main():
     report['phase1c_required_total'] = len(expected_test_paths() - expected_test_paths(include_catalog=False))
     report['phase1d_required_total'] = len(narrative_test_paths())
     report['phase1e_required_total'] = len(slice_test_paths())
+    report['phase1f_required_total'] = len(malet_test_paths())
     report['current_required_total'] = len(current_test_paths())
     report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']

@@ -174,7 +174,7 @@ func run() -> void:
     get_tree().quit(0)
 '''
 
-def run(args):
+def run(args, project_setup=None):
     ev=args.evidence_dir.resolve()
     if ev.exists(): raise ValueError('Use fresh evidence path')
     ev.mkdir(parents=True)
@@ -220,6 +220,7 @@ SaveManager="*res://unused.gd"
 renderer/rendering_method="gl_compatibility"
 ''',encoding='utf-8')
     (work/'oracle.tscn').write_text('[gd_scene load_steps=2 format=3]\n[ext_resource type="Script" path="res://oracle.gd" id="1"]\n[node name="Oracle" type="Node"]\nscript = ExtResource("1")\n',encoding='utf-8')
+    if project_setup is not None: project_setup(work)
     cases=inputs(); (work/'inputs.json').write_bytes(canonical(cases))
     env=os.environ.copy(); env['APPDATA']=str(work/'Roaming'); env['LOCALAPPDATA']=str(work/'Local')
     for k in ('APPDATA','LOCALAPPDATA'): Path(env[k]).mkdir()

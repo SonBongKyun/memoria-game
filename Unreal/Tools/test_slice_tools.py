@@ -8,7 +8,8 @@ class SliceToolTests(unittest.TestCase):
         self.assertEqual(len(old),68)
         self.assertEqual(len(slice_test_paths()),4)
         self.assertFalse(old & slice_test_paths())
-        self.assertEqual(current_test_paths(),old | slice_test_paths())
+        self.assertEqual(len(old | slice_test_paths()),72)
+        self.assertTrue(old | slice_test_paths() <= current_test_paths())
 
     def test_68_green_cannot_mask_missing_slice(self):
         old=expected_test_paths() | narrative_test_paths()

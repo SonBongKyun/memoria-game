@@ -17,6 +17,19 @@ CASES = {
     'vn': ('data/vn_scenes/ch2_market_arrival.json', 'ch2_market_arrival', 'DA_VN_Ch2MarketArrival'),
     'field': ('data/chapter2_dialogue.json', 'verdan_arrival', 'DA_Field_VerdanArrival'),
 }
+FIELD_CASES = {
+    'verdan_arrival': (5, 0, 'DA_Field_VerdanArrival'),
+    'malet_taste_burned': (3, 16, 'DA_Field_MaletTasteBurned'),
+}
+
+def selected_case(dialect, group=None):
+    if dialect == 'field':
+        group = group or CASES['field'][1]
+        if group not in FIELD_CASES: raise ValueError('Unreviewed Field group')
+        return CASES['field'][0], group, FIELD_CASES[group][2]
+    if dialect != 'vn' or group not in (None, CASES['vn'][1]): raise ValueError('Unreviewed VN sequence')
+    return CASES['vn']
+
 DEPENDENCIES = ('scripts/systems/dialogue_manager.gd', 'scripts/systems/scene_flow.gd',
                 'scripts/ui/vn_scene.gd', 'scenes/main/vn_host.gd', 'scenes/maps/verdan_market.gd',
                 'scripts/systems/memory_manager.gd', 'scripts/utils/journey_oath.gd',
@@ -42,11 +55,11 @@ def parse_source(data):
     return json.loads(source_bytes(data), object_pairs_hook=pairs,
                       parse_constant=lambda x: (_ for _ in ()).throw(ValueError('Nonfinite source number')))
 
-def ir_path(dialect):
-    return BASE / (CASES[dialect][1] + '.' + dialect + '.v1.json')
+def ir_path(dialect, group=None):
+    return BASE / (selected_case(dialect, group)[1] + '.' + dialect + '.v1.json')
 
-def package(dialect):
-    return '/Game/Memoria/Generated/Narrative/' + CASES[dialect][2]
+def package(dialect, group=None):
+    return '/Game/Memoria/Generated/Narrative/' + selected_case(dialect, group)[2]
 
 def fingerprint(value):
     # Include index map, phases and text IDs; provenance hashes/revision excluded.
@@ -84,8 +97,8 @@ def normalize(data, dialect, choice=False):
     if data: raise ValueError('Unhandled authored fields: ' + ','.join(data))
     return out, choices
 
-def extract(dialect, root=ROOT):
-    path, seq, _ = CASES[dialect]
+def extract(dialect, root=ROOT, group=None):
+    path, seq, _ = selected_case(dialect, group)
     paths = (path,) + DEPENDENCIES
     rev = subprocess.check_output(['git', '-C', str(root), 'log', '-1', '--format=%H', '--', *paths], text=True).strip()
     sources = [{'path': p, 'sha256_utf8_lf': sha(source_bytes((root/p).read_bytes()))} for p in paths]
@@ -128,7 +141,10 @@ def validate(value, root=ROOT, verify_sources=True):
     if type(d) is not str or d not in CASES or type(value['schema_version']) is not int or value['schema_version'] != 1 or value['content_kind'] != 'narrative.'+d or value['extractor_version'] != VERSION:
         raise ValueError('Unsupported narrative schema/kind/dialect/extractor')
     if type(value['source_revision']) is not str or not re.fullmatch('[0-9a-f]{40}',value['source_revision']): raise ValueError('Invalid revision')
-    paths = (CASES[d][0],) + DEPENDENCIES
+    definition = value['definition']
+    if type(definition) is not dict: raise ValueError('Invalid definition')
+    source_path, sequence, _ = selected_case(d, definition.get('id'))
+    paths = (source_path,) + DEPENDENCIES
     if type(value['sources']) is not list or len(value['sources']) != len(paths): raise ValueError('Invalid sources')
     for s,p in zip(value['sources'], paths):
         exact(s, ('path','sha256_utf8_lf'), 'Source')
@@ -140,7 +156,7 @@ def validate(value, root=ROOT, verify_sources=True):
             if source_bytes(git) != actual: raise ValueError('Source revision disagrees: '+p)
     definition = value['definition']; key = 'steps' if d == 'vn' else 'rows'
     exact(definition, ('id','index_mapping_version','metadata',key), 'Definition')
-    if definition['id'] != CASES[d][1] or type(definition['index_mapping_version']) is not int or definition['index_mapping_version'] != 1: raise ValueError('Invalid sequence/index map')
+    if definition['id'] != sequence or type(definition['index_mapping_version']) is not int or definition['index_mapping_version'] != 1: raise ValueError('Invalid sequence/index map')
     meta = definition['metadata']
     exact(meta, ('title','title_ko','chapter','bgm') if d == 'vn' else ('title','title_ko','chapter'), 'Metadata')
     for k,v in meta.items():
@@ -148,7 +164,7 @@ def validate(value, root=ROOT, verify_sources=True):
             if type(v) is not int or v != 2: raise ValueError('Invalid chapter')
         else: text(v,k)
     rows = definition[key]
-    if type(rows) is not list or len(rows) != (13 if d == 'vn' else 5): raise ValueError('Bounded source row count changed')
+    if type(rows) is not list or len(rows) != (13 if d == 'vn' else FIELD_CASES[sequence][0]): raise ValueError('Bounded source row count changed')
     ids=set()
     def record(r,i,j=-1):
         choice=j>=0
@@ -159,7 +175,7 @@ def validate(value, root=ROOT, verify_sources=True):
         ids.add(r['id'])
         if type(r['original_index']) is not int or r['original_index'] != (j if choice else i): raise ValueError('Original index/order differs')
         p=r['provenance']
-        expected=dict(source_file=paths[0],source_hash=value['sources'][0]['sha256_utf8_lf'],source_revision=value['source_revision'],dialect=d,group_position=0,original_index=i,original_choice_index=j)
+        expected=dict(source_file=paths[0],source_hash=value['sources'][0]['sha256_utf8_lf'],source_revision=value['source_revision'],dialect=d,group_position=0 if d == 'vn' else FIELD_CASES[sequence][1],original_index=i,original_choice_index=j)
         exact(p,expected,'Provenance')
         if canonical(p)!=canonical(expected): raise ValueError('Invalid provenance/index')
         if r['effect_phase'] != (CHOICE_PHASE[d] if choice else PHASE[d]): raise ValueError('Wrong effect phase')
@@ -208,12 +224,13 @@ def load(path, verify_sources=True):
 def main():
     import argparse
     p=argparse.ArgumentParser(); p.add_argument('--check',action='store_true'); p.add_argument('--evidence-dir',type=Path,required=True)
+    p.add_argument('--group', choices=tuple(FIELD_CASES))
     a=p.parse_args()
     if a.evidence_dir.exists(): p.error('Use fresh evidence directory')
     a.evidence_dir.mkdir(parents=True)
     report={'status':'PASS','cases':{},'check_only':a.check}
-    for d in CASES:
-        value=extract(d); data=canonical(value); target=ir_path(d)
+    for d in (('field',) if a.group else CASES):
+        value=extract(d, group=a.group); data=canonical(value); target=ir_path(d, a.group)
         if a.check:
             load(target)
             if target.read_bytes()!=data: raise ValueError('Source extraction differs: '+d)
@@ -224,6 +241,7 @@ def main():
              'sources':value['sources'],'raw_source_sha256':sha((ROOT/CASES[d][0]).read_bytes()),
              'original_indices':[r['original_index'] for r in rows],
              'choice_indices':[[c['original_index'] for c in r['choices']] for r in rows]}
+    report['selected_group'] = a.group
     (a.evidence_dir/'extraction.json').write_bytes(canonical(report)); print('MEMORIA_NARRATIVE_EXTRACTION_PASS')
 
 if __name__=='__main__': main()

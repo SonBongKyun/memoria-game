@@ -2,6 +2,18 @@
 
 ---
 
+## S271 - 2026-09-07 (Unreal Phase 1F — 첫 Malet 기억 반응 완료)
+
+- 상태: COMPLETE. 기존 unreal-migration/ue58-foundation의 clean d53aaa8에서 진행. UE5.8.2/CL56702186. 체크포인트는 보고서/상태 문서에 기록하며 push하지 않는다.
+- 실제 경로: VN 원래 선택1이 daily_market_food를 연소 → 실제 Verdan 여행·arrival Field 생략 → 키 이동 → (240,-160,0)의 Malet 범위80 진입 → Enhanced Input Interact → 실제 BurnedHistory 판정 → heard를 Field.Start 전에 설정 → 원본 malet_taste_burned 0–2행 → 탐색 복귀.
+- 구조: interface/component로 overlap·거리·가림을 판정하고 NPC는 내러티브 subsystem에 위임. 기존 domain/Field/임시 UMG 재사용. 반응 전후 memory snapshot 동일, run/domain 유지, 모달·컨텍스트 해제·포커스·이동·Z·카메라 복귀 확인.
+- 범위: 새 narrative asset은 3행 하나뿐. 이미 들었거나 온전한 기억의 첫 일반 대화는 malet_encounter, talked 상태는 malet_memory_world_followup임을 원본으로 증명하고 실행은 보류. 거래/보상/상점/세계 기억/Ch3/자동저장/업적/추가 NPC/전투/최종 아트·UI/Phase1G 미구현.
+- 검증: 이전72/72+신규4/4=76/76, UBT/UHT/컴파일/링크/Editor/렌더 PIE PASS. 원본 NPC oracle7/7, route4/4, Phase1D oracle10/10 및 6프로세스 unchanged/no-save, Godot repo/VN/KO/import·공식15/15, native51/51·CTest1/1, catalog, host45/45, static59/59, 원본4217파일·기존15다른패키지 보존 PASS. Godot metadata1056 복원.
+- 수정/증거: UE TObjectPtr 추론 컴파일 오류, 모달 후 길게 누른 Interact의 첫 행 건너뛰기를 실제 release 추적으로 수정. 축소 PIE 창·좌우반전 Malet 라벨 수정. 일시 DLL 잠금은 프로세스 부재 확인 후 같은 소스로 재시도 통과. 모든 실패와 최종 캡처/trace를 evidence/phase1f에 보존.
+- 다음 권고: 일반 첫 Malet 만남 → 원래 거절1 → 거절 응답 → 원본 플래그/대화 캐시 정리 → 탐색·재시도. 수락은 원문 데이터/오라클에 보존하고 전체 선택 효과 전 개발 경계에서 보류. 전체 Malet/Verdan 동등성을 주장하지 않는다.
+
+---
+
 ## S270 - 2026-09-07 (Unreal Phase 1E — 첫 내러티브 개발 슬라이스 완료)
 
 - 상태: COMPLETE. clean a9dfae9에서 기존 unreal-migration/ue58-foundation 작업트리로 진행. UE5.8.2/CL56702186. 로컬 기술 체크포인트는 보고서/상태 문서에 기록하며 push하지 않는다.

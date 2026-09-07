@@ -1,27 +1,25 @@
-# Migration handoff — Phase 1E complete on UE 5.8.2
+# Migration handoff — Phase 1F complete on UE 5.8.2
 
-Status: **Phase 1E COMPLETE**, bounded development slice. Engine **5.8.2 / CL56702186**
-at `C:\Program Files\Epic Games\UE_5.8`. Historical Phase 0–1D evidence is preserved.
+Status: **Phase 1F COMPLETE**, bounded first NPC reaction.
+Engine **5.8.2 / CL56702186** at `C:\Program Files\Epic Games\UE_5.8`.
 
-- Branch: `unreal-migration/ue58-foundation`.
-- Worktree: `C:\Users\jc\MemoriaMigration\foundation`.
-- Previous technical checkpoint: `ee61269daf5ee20724a02eb51d07d997f26a8474`.
-- Clean starting HEAD: `a9dfae9e3c337782ba832c9577319faac5f30152`.
-- New technical checkpoint: `e9f781cf3f73ba5949ab9a2af961193d02d3c620`; no push.
-- [Phase 1E report](PHASE_1E_REPORT.md), [acceptance](evidence/phase1e/acceptance.json), [final Automation](evidence/phase1e/automation05/automation_index.json).
-- Open `/Game/Tests/Campaign/L_Ch2VerdanSlice` and Play: imported VN originals 0–12 execute, terminal 12 sets `ch2_arrival_vn_seen` before requesting Verdan, native OpenLevel reaches `/Game/Tests/Campaign/L_VerdanHost`, Field invocation stays 0, exploration/movement activates.
-- Separate `/Game/Tests/Campaign/L_VerdanUnseenFixture`: imported Field rows 0–4 execute once with VN-seen false, then exploration resumes.
-- `UMemoriaNarrativeSubsystem` owns both separate interpreters/typed assets across travel, borrowing the RunSubsystem aggregate. Temporary `UMemoriaDevelopmentNarrativeWidget` only displays values and forwards original choice IDs. Existing Enhanced Input/modal/pawn/camera reused.
-- Actual rendered replays select original choice 1 (food memory payment) and filtered visible second/original 2. Active-host SaveGame schema1 round-trip preserves current/pending/FIFO semantics; invalid restore is atomic; run replacement cancels stale UI.
-- **Previous 68/68 + Phase 1E 4/4 = 72/72** exact-name Automation PASS; actual UBT/UHT/compile/link/Editor/PIE PASS. Four source route oracle cases and ten retained Phase1D oracle cases pass. Six narrative reimport/reload processes are unchanged with no save.
-- Godot repository/VN/KO/import and official **15/15**, native **51/51**, host **38/38**, static **56/56** PASS. All **4,217 original files**, 13 accepted UE packages, schema1 and historical evidence are unchanged. Godot metadata1,056 restored.
-- Failed compiler/oracle/duplicate-PIE observer attempts are preserved in full_logs.zip. Final source route, state, UI and travel checks pass; one pre-existing engine render-thread warning remains.
-- Scope remains a development slice: no production New Game/Ch1, NPCs/trade/shop, battles, final UI/art/audio, cook/package or full-campaign parity.
+- Branch: `unreal-migration/ue58-foundation`; worktree `C:\Users\jc\MemoriaMigration\foundation`.
+- Previous technical checkpoint: `e9f781cf3f73ba5949ab9a2af961193d02d3c620`.
+- Clean starting HEAD: `d53aaa84efa1a42c0e2078821e10520a998f58cd`.
+- New technical checkpoint: `PENDING_LOCAL_COMMIT`; no push.
+- [Phase1F report](PHASE_1F_REPORT.md), [acceptance](evidence/phase1f/acceptance.json), [final Automation](evidence/phase1f/automation05/automation_index.json).
+- Open `/Game/Tests/Campaign/L_Ch2VerdanSlice`, choose original VN choice1 to burn `daily_market_food`. Real travel skips Field arrival and reaches exploration. Walk within80 units of Malet at(240,-160,0), press E/A.
+- Actual BurnedHistory and source reaction priority drive `malet_taste_burned`. Real heard flag is set before Field.Start. Only originals0–2 execute once, then modal/context/focus/movement/Z/camera restore.
+- `IMemoriaInteractable` and `UMemoriaInteractionComponent` resolve nearby eligible unoccluded actors; NPC delegates to narrative subsystem. Existing input/domain/Field/temporary UMG reused. Explicit physical release prevents held Interact from skipping row0.
+- Second ordinary press and intact press record/defer `malet_encounter`. Persisted normal-talk completion requests `malet_memory_world_followup`. No normal target/chain imported or executed.
+- New typed asset: deterministic source attestation, unchanged/no-save reimport, check-only reload, semantic-change rejection PASS. Old two IR/assets unchanged; six-process narrative pipeline and10 source cases PASS.
+- **Previous72/72 + Phase1F4/4 =76/76** exact-name Automation PASS. Real UBT/UHT/compile/link/Editor/rendered PIE PASS. One retained engine render-thread warning; all new tests clean.
+- NPC source oracle7/7, route4/4, Godot repo/VN/KO/import and official15/15, native51/51+CTest1/1, catalog, host45/45, static59/59 PASS. Original4217 files and15 other UE packages preserved; Verdan map and one new asset changed. Godot metadata1056 restored.
+- Actual before/prompt/first/later/after/moved captures and trace under `evidence/phase1f/automation05/Phase1F`. Failed compile, held-input tests and transient DLL lock attempts retained with full logs.
+- Development slice only: no normal deal/refusal/reward/shop, repeat world-memory group, Chapter3/autosave/achievements, extra NPC/battle/New Game/Ch1/final art/UI/audio/cook/package. No full Malet/Verdan parity.
 
-Recommended **Phase 1F**: paid Verdan arrival → one placeholder Malet interaction →
-the source three-row `malet_taste_burned` memory-loss reaction → exploration.
-Preserve PerceptionFilter priority and `burn_reaction_heard_malet_taste_burned`
-being set before the dialogue. Characterize intact/already-heard fallback dispatch
-without silently redirecting it or expanding into the normal deal/shop/chapter chain.
-This bounded first reaction is the next NPC dependency; it is not implemented here.
-See the report for source dependency analysis and reproduction commands.
+Recommended **Phase1G**, not implemented: normal `malet_encounter` → original
+refusal choice1 → `malet_refused` → source refusal cleanup → exploration/retry.
+Preserve both authored choices; characterize Accept in the oracle and defer the
+whole selection before partial effects in development. Keep deal/reward/shop/
+Chapter3 and repeat world-memory group deferred. See report for exact dependencies.

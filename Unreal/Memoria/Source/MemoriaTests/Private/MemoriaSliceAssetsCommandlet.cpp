@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/WorldSettings.h"
 #include "Framework/MemoriaSliceHost.h"
+#include "Interaction/MemoriaMaletActor.h"
 #include "UObject/SavePackage.h"
 #include "Misc/PackageName.h"
 #include "Engine/TextRenderActor.h"
@@ -22,6 +23,30 @@ int32 UMemoriaSliceAssetsCommandlet::Main(const FString& Params)
 {
     const FString Base = TEXT("/Game/Tests/Campaign/");
     const TArray<FString> Names = {TEXT("L_Ch2VerdanSlice"), TEXT("L_VerdanHost"), TEXT("L_VerdanUnseenFixture")};
+
+    if (FParse::Param(*Params, TEXT("AddMalet")))
+    {
+        const FString Map = Base + TEXT("L_VerdanHost");
+        auto* World = LoadObject<UWorld>(nullptr, *(Map + TEXT(".L_VerdanHost")));
+        if (!World || World->GetWorldSettings()->DefaultGameMode != AMemoriaSliceGameMode::StaticClass()) return 1;
+        int32 Count = 0;
+        for (AActor* Actor : World->PersistentLevel->Actors) if (Cast<AMemoriaMaletActor>(Actor))
+        {
+            if (!Actor->GetActorLocation().Equals(AMemoriaMaletActor::DevelopmentLocation())) return 1;
+            ++Count;
+        }
+        if (Count > 1) return 1;
+        if (Count == 1) { UE_LOG(LogTemp, Display, TEXT("MEMORIA_MALET_ASSET_UNCHANGED")); return 0; }
+        FActorSpawnParameters Spawn; Spawn.Name = TEXT("Malet");
+        auto* Malet = World->SpawnActor<AMemoriaMaletActor>(AMemoriaMaletActor::DevelopmentLocation(), FRotator::ZeroRotator, Spawn);
+        if (!Malet) return 1;
+        Malet->SetActorLabel(TEXT("Malet (development placeholder)"));
+        FSavePackageArgs Args; Args.TopLevelFlags = RF_Public | RF_Standalone;
+        const FString File = FPackageName::LongPackageNameToFilename(Map, FPackageName::GetMapPackageExtension());
+        if (!UPackage::SavePackage(World->GetOutermost(), World, *File, Args)) return 1;
+        UE_LOG(LogTemp, Display, TEXT("MEMORIA_MALET_ASSET_SAVED %s at %s"), *File, *Malet->GetActorLocation().ToString());
+        return 0;
+    }
     const bool Refresh = FParse::Param(*Params, TEXT("Refresh"));
     for (const auto& Name : Names) if (FPackageName::DoesPackageExist(Base + Name) && !Refresh)
     { UE_LOG(LogTemp, Error, TEXT("Refusing to overwrite %s"), *Name); return 1; }

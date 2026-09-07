@@ -27,6 +27,9 @@ public:
     bool StartDevelopmentVN();
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
+    bool InteractWithMalet();
+    const FString& GetDeferredInteraction() const { return DeferredInteraction; }
+    int32 GetMaletReactionCount() const { return MaletReactionCount; }
     void Confirm(int32 OriginalChoice = INDEX_NONE);
     void Back();
     FMemoriaNarrativeView GetView() const;
@@ -45,6 +48,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaRunSubsystem> Run;
     UPROPERTY(Transient) TObjectPtr<UMemoriaVNAsset> VNAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> FieldAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> ActiveFieldAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> MaletAsset;
+    FString DeferredInteraction;
+    int32 MaletReactionCount = 0;
     TUniquePtr<FMemoriaNarrativeContext> Context;
     TUniquePtr<FMemoriaVNInterpreter> VN;
     TUniquePtr<FMemoriaFieldInterpreter> Field;

@@ -1,7 +1,9 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Narrative/MemoriaMaletReaction.h"
 #include "Save/MemoriaRunSaveGame.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
 void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -13,12 +15,13 @@ void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection
 void UMemoriaNarrativeSubsystem::Reset()
 {
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
+    ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
 {
     if (Run) Run->OnRunReplaced.RemoveAll(this);
-    Reset(); VNAsset = nullptr; FieldAsset = nullptr; Run = nullptr;
+    Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; Run = nullptr;
     Super::Deinitialize();
 }
 bool UMemoriaNarrativeSubsystem::LoadContracts()
@@ -63,7 +66,8 @@ bool UMemoriaNarrativeSubsystem::EnterVerdan()
         if (!Seen)
         {
             ++FieldInvocationCount; Record(TEXT("field:start:verdan_arrival"));
-            Field = MakeUnique<FMemoriaFieldInterpreter>(FieldAsset->Definition, *Context);
+            ActiveFieldAsset = FieldAsset;
+            Field = MakeUnique<FMemoriaFieldInterpreter>(ActiveFieldAsset->Definition, *Context);
             State = EMemoriaSliceState::Field; Field->Start(); FlushEvents(TEXT("field")); return true;
         }
         Record(TEXT("field:skip:verdan_arrival"));
@@ -71,9 +75,34 @@ bool UMemoriaNarrativeSubsystem::EnterVerdan()
     else Record(TEXT("arrival:already_arrived"));
     Explore(); return true;
 }
+
+bool UMemoriaNarrativeSubsystem::InteractWithMalet()
+{
+    if (State != EMemoriaSliceState::Exploration || !Context || !GetWorld() ||
+        !GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
+    Record(TEXT("interact:Malet"));
+    MaletAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletTasteBurned.DA_Field_MaletTasteBurned"));
+    const auto Dispatch = MemoriaMaletReaction::Resolve(*Run, false, MaletAsset);
+    for (const auto& Event : Dispatch.Events) Record(Event);
+    if (Dispatch.Group.IsEmpty()) return false;
+    Record(TEXT("request:") + Dispatch.File + TEXT("::") + Dispatch.Group);
+    if (!Dispatch.bReaction)
+    {
+        DeferredInteraction = Dispatch.Group;
+        Record(TEXT("development:deferred:") + Dispatch.Group);
+        ++Revision; return true;
+    }
+    DeferredInteraction.Reset(); ActiveFieldAsset = MaletAsset;
+    ++MaletReactionCount; ++FieldInvocationCount;
+    Field = MakeUnique<FMemoriaFieldInterpreter>(ActiveFieldAsset->Definition, *Context);
+    State = EMemoriaSliceState::Field;
+    // Observed live run value at the actual Field Start boundary.
+    Record(FString::Printf(TEXT("field:start:%s:heard=%s"), *Dispatch.Group, Run->GetRunSnapshot().GetFlag(MemoriaMaletReaction::Heard)?TEXT("true"):TEXT("false")));
+    Field->Start(); FlushEvents(TEXT("field")); return true;
+}
 void UMemoriaNarrativeSubsystem::Explore()
 {
-    Field.Reset(); State = EMemoriaSliceState::Exploration; bPaused = false;
+    Field.Reset(); ActiveFieldAsset = nullptr; State = EMemoriaSliceState::Exploration; bPaused = false;
     Record(TEXT("exploration:ready")); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::AfterVN()
@@ -146,10 +175,10 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     else if (State == EMemoriaSliceState::Field && Field)
     {
         int32 Index = Field->OriginalIndex();
-        View.Header = FString::Printf(TEXT("VN-UNSEEN FIELD FIXTURE   %d / %d"), Index + 1, FieldAsset->Definition.Rows.Num());
-        if (FieldAsset->Definition.Rows.IsValidIndex(Index))
+        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
+        if (ActiveFieldAsset->Definition.Rows.IsValidIndex(Index))
         {
-            const auto& Row = FieldAsset->Definition.Rows[Index]; Text = &Row.Text;
+            const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
             for (int32 I : Field->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Row.Choices[I].Text)});
         }
     }
