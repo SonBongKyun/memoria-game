@@ -73,3 +73,10 @@ bool UMemoriaRunSubsystem::SetStoryFlag(const FString& Id, bool bValue)
     else { FMemoriaStoryFlag Flag; Flag.Id = Id; Flag.bValue = bValue; State.StoryFlags.Add(Flag); }
     return true;
 }
+
+bool UMemoriaRunSubsystem::RemoveStoryFlag(const FString& Id)
+{
+    if (!HasActiveRun() || Id.IsEmpty() || !PlayerMemory || PlayerMemory->IsDispatchingEvent()) return false;
+    State.StoryFlags.RemoveAll([&](const auto& V) { return V.Id.Equals(Id, ESearchCase::CaseSensitive); });
+    return true;
+}

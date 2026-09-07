@@ -1,25 +1,19 @@
-# Migration handoff — Phase 1F complete on UE 5.8.2
+# Migration handoff — Phase 1G complete on UE 5.8.2
 
-Status: **Phase 1F COMPLETE**, bounded first NPC reaction.
-Engine **5.8.2 / CL56702186** at `C:\Program Files\Epic Games\UE_5.8`.
+Status: **Phase 1G COMPLETE**, bounded normal Malet encounter -> refusal -> cleanup/retry.
+Engine **5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
 
-- Branch: `unreal-migration/ue58-foundation`; worktree `C:\Users\jc\MemoriaMigration\foundation`.
-- Previous technical checkpoint: `e9f781cf3f73ba5949ab9a2af961193d02d3c620`.
-- Clean starting HEAD: `d53aaa84efa1a42c0e2078821e10520a998f58cd`.
-- New technical checkpoint: `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`; no push.
-- [Phase1F report](PHASE_1F_REPORT.md), [acceptance](evidence/phase1f/acceptance.json), [final Automation](evidence/phase1f/automation05/automation_index.json).
-- Open `/Game/Tests/Campaign/L_Ch2VerdanSlice`, choose original VN choice1 to burn `daily_market_food`. Real travel skips Field arrival and reaches exploration. Walk within80 units of Malet at(240,-160,0), press E/A.
-- Actual BurnedHistory and source reaction priority drive `malet_taste_burned`. Real heard flag is set before Field.Start. Only originals0–2 execute once, then modal/context/focus/movement/Z/camera restore.
-- `IMemoriaInteractable` and `UMemoriaInteractionComponent` resolve nearby eligible unoccluded actors; NPC delegates to narrative subsystem. Existing input/domain/Field/temporary UMG reused. Explicit physical release prevents held Interact from skipping row0.
-- Second ordinary press and intact press record/defer `malet_encounter`. Persisted normal-talk completion requests `malet_memory_world_followup`. No normal target/chain imported or executed.
-- New typed asset: deterministic source attestation, unchanged/no-save reimport, check-only reload, semantic-change rejection PASS. Old two IR/assets unchanged; six-process narrative pipeline and10 source cases PASS.
-- **Previous72/72 + Phase1F4/4 =76/76** exact-name Automation PASS. Real UBT/UHT/compile/link/Editor/rendered PIE PASS. One retained engine render-thread warning; all new tests clean.
-- NPC source oracle7/7, route4/4, Godot repo/VN/KO/import and official15/15, native51/51+CTest1/1, catalog, host45/45, static59/59 PASS. Original4217 files and15 other UE packages preserved; Verdan map and one new asset changed. Godot metadata1056 restored.
-- Actual before/prompt/first/later/after/moved captures and trace under `evidence/phase1f/automation05/Phase1F`. Failed compile, held-input tests and transient DLL lock attempts retained with full logs.
-- Development slice only: no normal deal/refusal/reward/shop, repeat world-memory group, Chapter3/autosave/achievements, extra NPC/battle/New Game/Ch1/final art/UI/audio/cook/package. No full Malet/Verdan parity.
+- Worktree `C:\Users\jc\MemoriaMigration\foundation`; branch `unreal-migration/ue58-foundation`.
+- Previous technical checkpoint `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`; clean starting documentation HEAD `0f37e58318a749a5d8057a5303c4f18e022f864c`.
+- New technical checkpoint: local follow-up records the accepted feature commit. No push.
+- [Report](PHASE_1G_REPORT.md), [acceptance](evidence/phase1g/acceptance.json), [final82-test report](evidence/phase1g/automation02/automation_index.json), [exact retry trace](evidence/phase1g/retry_exact_trace.txt).
+- Open `/Game/Tests/Campaign/L_Ch2VerdanSlice`. Select original paid VN choice1, travel, walk to Malet, E and finish the accepted3-row reaction. E again starts `malet_encounter` originals0..9. Select original refusal1, wait the source0.3s callback, advance `malet_refused` originals0..2. Cleanup restores exploration and movement; ordinary E retries original0. Acceptance stops there.
+- Both original choices and English/Korean source data are intact. Original Accept0 is visible but host-deferred before interpreter effects: accepted flag absent, sword intact, full run/memory unchanged, no rollback or downstream request.
+- Two new typed Field assets passed first import, fresh-process unchanged reimport, check-only reload, semantic/source attestation and transient rejection probes. All17 accepted packages unchanged.
+- The normal/refusal callback order and source cache/flag erasure match the executable oracle. Final real timer measured300000us. Pending timer cannot mutate a new run; no save-schema/controller/interpreter redesign.
+- Previous76 exact IDs + new6 = **82/82** Automation, real UBT/UHT/compile/link/Editor/rendered PIE PASS. The existing `r.MotionVectorSimulation` warning remains1; new tests have0 warnings/errors.
+- Phase1G oracle7; Phase1F oracle7/import; Phase1E route4; Phase1D oracle10/six-process import; Phase1C catalog; officialGodot15; native51+CTest1; host50; static59 PASS. Original4217 files and historical reports/evidence unchanged.
+- Required7 final PNGs plus Accept view were directly inspected; final capture JSON parses. Failed oracle/build/first evidence-format attempts and full logs remain archived. See report for defects/limits.
+- No deal/reward/repeat-world content, sword payment in the playable route, world seeding/shop/trade/Chapter3/autosave/achievements, extra NPC/battle/NewGame/Ch1/finalart/audio/graphics/cook/package/Steam implementation. No full Malet parity claim.
 
-Recommended **Phase1G**, not implemented: normal `malet_encounter` → original
-refusal choice1 → `malet_refused` → source refusal cleanup → exploration/retry.
-Preserve both authored choices; characterize Accept in the oracle and defer the
-whole selection before partial effects in development. Keep deal/reward/shop/
-Chapter3 and repeat world-memory group deferred. See report for exact dependencies.
+Recommend **Phase1H only if separately authorized**: original Accept0 flag plus one real sword burn -> source0.3s callback -> import/execute only `malet_deal` originals0..4 -> real0.5s callback -> record `malet_reward` request and stop before reward execution. Characterize source first; preserve refusal/retry and82 IDs. Keep reward8/world-memory/items/shop/Chapter3/autosave/achievements/repeat group deferred. **Phase1H has not started.**

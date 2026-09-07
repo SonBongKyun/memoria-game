@@ -125,6 +125,19 @@ bool Groups(const Obj& O,bool V,bool Choice)
         if (Pair.Value->Type==EJson::String && Pair.Value->AsString().IsEmpty() && !Pair.Key.ToView().Equals(TEXT("path"),ESearchCase::CaseSensitive)) return false;
     return true;
 }
+// Reviewed Field cohort only; count, source group position and package travel together.
+struct FFieldCohort { const TCHAR* Id; int32 Count; int32 Position; const TCHAR* Asset; };
+const FFieldCohort* FieldCohort(const FString& Id)
+{
+    static const FFieldCohort Cases[] = {
+        {TEXT("verdan_arrival"),5,0,TEXT("DA_Field_VerdanArrival")},
+        {TEXT("malet_taste_burned"),3,16,TEXT("DA_Field_MaletTasteBurned")},
+        {TEXT("malet_encounter"),10,1,TEXT("DA_Field_MaletEncounter")},
+        {TEXT("malet_refused"),3,4,TEXT("DA_Field_MaletRefused")}
+    };
+    for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
+    return nullptr;
+}
 template<class R> bool ReadRecord(const Obj& O,R& Row,const FMemoriaNarrativeImportMetadata& M,const FString& Seq,int32 I,int32 J,int32 Count)
 {
     const bool V=Same(M.Dialect,TEXT("vn")), Choice=J>=0;
@@ -134,7 +147,7 @@ template<class R> bool ReadRecord(const Obj& O,R& Row,const FMemoriaNarrativeImp
     const FString Phase=Choice ? (V?TEXT("cost_then_flags_burn_rewards_blocking"):TEXT("flags_burn_cost_then_rewards_nonblocking")) : (V?TEXT("effects_then_gate_then_rewards"):TEXT("gate_then_effects"));
     if (!Same(Row.EffectPhase,Phase)) return false;
     Row.Provenance.SourceFile=M.Sources[0].Path; Row.Provenance.SourceHash=M.Sources[0].Sha256Utf8Lf; Row.Provenance.SourceRevision=M.SourceRevision;
-    Row.Provenance.Dialect=M.Dialect; Row.Provenance.GroupPosition=Same(Seq,TEXT("malet_taste_burned"))?16:0; Row.Provenance.OriginalIndex=I; Row.Provenance.OriginalChoiceIndex=J;
+    Row.Provenance.Dialect=M.Dialect; Row.Provenance.GroupPosition=V?0:FieldCohort(Seq)->Position; Row.Provenance.OriginalIndex=I; Row.Provenance.OriginalChoiceIndex=J;
     if (!Object(O,TEXT("provenance")) || !Same(MemoriaCatalogImport::Canonical(Wrap(Object(O,TEXT("provenance")))),MemoriaCatalogImport::Canonical(Wrap(WriteProvenance(Row.Provenance))))) return false;
     if (!ReadText(Object(O,TEXT("text")),Row.Text) || !ReadPresentation(Object(O,TEXT("presentation")),Row.Presentation) || !ReadGate(Object(O,TEXT("gate")),Row.Gate) || !ReadEffects(Object(O,TEXT("effects")),Row.Effects) || !ReadAction(Object(O,TEXT("action")),Row.Action)) return false;
     auto Jump=O->TryGetField(TEXT("jump")); if (!Jump) return false; Row.bHasJump=Jump->Type!=EJson::Null;
@@ -173,10 +186,10 @@ template<class D,class Rows> bool Read(const FString& Path,FMemoriaNarrativeImpo
         M.Sources.Add(P);
     }
     auto D0=Object(O,TEXT("definition"));
-    if (!Keys(D0,{TEXT("id"),TEXT("index_mapping_version"),TEXT("metadata"),V?TEXT("steps"):TEXT("rows")}) || !ReadFString(D0,TEXT("id"),Def.Id) || !(V?Same(Def.Id,TEXT("ch2_market_arrival")):(Same(Def.Id,TEXT("verdan_arrival")) || Same(Def.Id,TEXT("malet_taste_burned")))) || !Readint32(D0,TEXT("index_mapping_version"),Def.IndexMappingVersion) || Def.IndexMappingVersion!=1) return Fail(TEXT("Invalid definition/index map"));
+    if (!Keys(D0,{TEXT("id"),TEXT("index_mapping_version"),TEXT("metadata"),V?TEXT("steps"):TEXT("rows")}) || !ReadFString(D0,TEXT("id"),Def.Id) || !(V?Same(Def.Id,TEXT("ch2_market_arrival")):(FieldCohort(Def.Id)!=nullptr)) || !Readint32(D0,TEXT("index_mapping_version"),Def.IndexMappingVersion) || Def.IndexMappingVersion!=1) return Fail(TEXT("Invalid definition/index map"));
     auto Meta=Object(D0,TEXT("metadata"));
     if (!(V?Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter"),TEXT("bgm")}):Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter")})) || !ReadMetadata(Meta,Def.Metadata) || Def.Metadata.Chapter!=2) return Fail(TEXT("Invalid metadata"));
-    const TArray<Val>* Entries=nullptr; if (!D0->TryGetArrayField(V?TEXT("steps"):TEXT("rows"),Entries) || Entries->Num()!=(V?13:(Same(Def.Id,TEXT("malet_taste_burned"))?3:5))) return Fail(TEXT("Bounded record count differs")); Items.Reset();
+    const TArray<Val>* Entries=nullptr; if (!D0->TryGetArrayField(V?TEXT("steps"):TEXT("rows"),Entries) || Entries->Num()!=(V?13:FieldCohort(Def.Id)->Count)) return Fail(TEXT("Bounded record count differs")); Items.Reset();
     for (int32 I=0;I<Entries->Num();++I)
     {
         Obj R0=(*Entries)[I]->Type==EJson::Object?(*Entries)[I]->AsObject():nullptr; auto& R=Items.AddDefaulted_GetRef();
@@ -214,7 +227,12 @@ template<class A> bool ImportAsset(const FString& Path,bool V,bool Check,Obj& Re
     Report->SetStringField(TEXT("result"),Existing?TEXT("UPDATED"):TEXT("CREATED")); Report->SetBoolField(TEXT("saved"),true); return true;
 }
 }
-FString Package(bool V,const FString& Sequence) { return V?TEXT("/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival"):(Same(Sequence,TEXT("malet_taste_burned"))?TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletTasteBurned"):TEXT("/Game/Memoria/Generated/Narrative/DA_Field_VerdanArrival")); }
+FString Package(bool V,const FString& Sequence)
+{
+    if (V) return TEXT("/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival");
+    const auto* C=FieldCohort(Sequence.IsEmpty()?FString(TEXT("verdan_arrival")):Sequence);
+    return C?FString(TEXT("/Game/Memoria/Generated/Narrative/"))+C->Asset:FString();
+}
 FString ObjectPath(bool V,const FString& Sequence) { auto P=Package(V,Sequence); return P+TEXT(".")+FPackageName::GetLongPackageAssetName(P); }
 FString Fingerprint(const UMemoriaFieldAsset& A) { return Hash(Semantic(A.Definition,A.Definition.Rows,false)); }
 FString Fingerprint(const UMemoriaVNAsset& A) { return Hash(Semantic(A.Definition,A.Definition.Steps,true)); }

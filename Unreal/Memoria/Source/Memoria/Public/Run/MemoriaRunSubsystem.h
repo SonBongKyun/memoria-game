@@ -26,6 +26,7 @@ public:
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);
     EMemoriaMemoryResult ErodeMemories(int64 ChapterArgument);
+    bool RemoveStoryFlag(const FString& Id);
     bool SetStoryFlag(const FString& Id, bool bValue);
     UFUNCTION(BlueprintPure, Category="Memoria|Run") FMemoriaRunSnapshot GetRunSnapshot() const { return State; }
     UFUNCTION(BlueprintPure, Category="Memoria|Run") UMemoriaPlayerMemoryDomain* GetPlayerMemory() const { return PlayerMemory; }

@@ -75,7 +75,11 @@ def narrative_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths()
+
+
+def malet_refusal_test_paths():
+    return {"Memoria.MaletRefusal."+n for n in ("ImportContract","ChoiceEffects","RepeatCache","CanonicalRefusalRetry","AcceptPreEffectDeferred","CallbackCancellation")}
 
 
 def malet_test_paths():
@@ -235,6 +239,7 @@ def main():
     report['phase1d_required_total'] = len(narrative_test_paths())
     report['phase1e_required_total'] = len(slice_test_paths())
     report['phase1f_required_total'] = len(malet_test_paths())
+    report['phase1g_required_total'] = len(malet_refusal_test_paths())
     report['current_required_total'] = len(current_test_paths())
     report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']

@@ -2,7 +2,7 @@
 #include "Narrative/MemoriaNarrativeData.h"
 #include "Run/MemoriaRunSubsystem.h"
 
-FMemoriaMaletDispatch MemoriaMaletReaction::Resolve(UMemoriaRunSubsystem& Run, bool bDialogueActive, const UMemoriaFieldAsset* Reaction)
+FMemoriaMaletDispatch MemoriaMaletReaction::Resolve(UMemoriaRunSubsystem& Run, bool bDialogueActive, const UMemoriaFieldAsset* Reaction, bool bTalkCached)
 {
     FMemoriaMaletDispatch Result;
     if (!Run.HasActiveRun() || bDialogueActive || Run.GetPlayerMemory()->IsDispatchingEvent()) return Result;
@@ -23,9 +23,8 @@ FMemoriaMaletDispatch MemoriaMaletReaction::Resolve(UMemoriaRunSubsystem& Run, b
     else
     {
         Result.Events.Add(TEXT("resolver:none"));
-        // The dev host has never executed a normal talk. Persisted source
-        // talked state selects the authored repeat target from verdan .tscn.
-        Result.Group = Snapshot.GetFlag(TEXT("talked_Malet_malet_encounter"))
+        // Source checks both the NPC cache and the persisted talked flag.
+        Result.Group = bTalkCached || Snapshot.GetFlag(TEXT("talked_Malet_malet_encounter"))
             ? TEXT("malet_memory_world_followup") : TEXT("malet_encounter");
     }
     return Result;

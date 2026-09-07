@@ -232,7 +232,12 @@ renderer/rendering_method="gl_compatibility"
         try:
             r=subprocess.run(command,capture_output=True,encoding='utf-8',errors='replace',env=env,timeout=90)
         except subprocess.TimeoutExpired as error:
-            (ev/(name+'.log')).write_bytes((error.stdout or b'')+(error.stderr or b''))
+            def captured_bytes(value):
+                return value.encode('utf-8') if isinstance(value,str) else (value or b'')
+            (ev/(name+'.log')).write_bytes(captured_bytes(error.stdout)+captured_bytes(error.stderr))
+            report.update(status='FAIL',error=name+' timed out')
+            report['commands'].append(dict(name=name,command=command,exit_code=None,timeout_seconds=90))
+            (ev/'oracle.json').write_bytes(canonical(report))
             raise
         log=r.stdout+r.stderr
         (ev/(name+'.log')).write_text(log,encoding='utf-8')

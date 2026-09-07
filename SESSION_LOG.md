@@ -2,6 +2,15 @@
 
 ---
 
+## S272 - 2026-09-07 (Unreal Phase 1G — Malet 거절과 재시도 완료)
+
+- 별도 migration worktree에서만 구현. 기존 Phase1F 기억 반응 우선순위를 유지하고 일반 대화10행, 원본 거절1, 실제0.3초 콜백, 거절3행, 플래그/캐시 정리, 탐색/이동 복구와 재시도 첫 행까지 검증.
+- 두 원본 선택지는 유지. 플레이 가능한 개발 경로의 Accept0은 interpreter 효과 전에 유예하며 런/메모리 전체가 동일하고 sword는 intact.
+- UE5.8.2/CL56702186 UBT/UHT/compile/link/Editor/rendered PIE 및 기존76+신규6=82/82 PASS. 타이머300000us; 취소 콜백이 새 런을 오염하지 않음.
+- Phase1F/E/D/C 회귀, Godot15, native51+CTest1, host50, static59 PASS. 원본4217파일/기존UE패키지17개 보존. 두 새typed에셋만 추가.
+- 실패한 오라클/컴파일/증거JSON 형식 시도 보존 후 수정. 최종 캡처7장+Accept와 유효JSON/정확한event trace 확인. 기존MotionVectorSimulation 경고1건 유지.
+- 보고서: docs/unreal-migration/PHASE_1G_REPORT.md. 로컬 체크포인트만 생성, push 없음. Phase1H는 권장 범위만 문서화하고 시작하지 않음.
+
 ## S271 - 2026-09-07 (Unreal Phase 1F — 첫 Malet 기억 반응 완료)
 
 - 상태: COMPLETE. 기존 unreal-migration/ue58-foundation의 clean d53aaa8에서 진행. UE5.8.2/CL56702186. 체크포인트는 보고서/상태 문서에 기록하며 push하지 않는다.

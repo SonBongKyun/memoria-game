@@ -20,6 +20,8 @@ CASES = {
 FIELD_CASES = {
     'verdan_arrival': (5, 0, 'DA_Field_VerdanArrival'),
     'malet_taste_burned': (3, 16, 'DA_Field_MaletTasteBurned'),
+    'malet_encounter': (10, 1, 'DA_Field_MaletEncounter'),
+    'malet_refused': (3, 4, 'DA_Field_MaletRefused'),
 }
 
 def selected_case(dialect, group=None):

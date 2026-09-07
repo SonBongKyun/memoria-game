@@ -23,8 +23,8 @@ class MaletToolTests(unittest.TestCase):
         validate(v,verify_sources=False)
         with self.assertRaises(ValueError): validate(v)
         self.assertNotEqual(v['semantic_sha256'],extract('field',group='malet_taste_burned')['semantic_sha256'])
-    def test_normal_content_not_authorized(self):
-        with self.assertRaises(ValueError): extract('field',group='malet_encounter')
+    def test_downstream_content_not_authorized(self):
+        with self.assertRaises(ValueError): extract('field',group='malet_deal')
     def test_npc_observer_keeps_source_priority(self):
         body=npc_methods()
         self.assertLess(body.index('if DialogueManager.is_active'),body.index('PerceptionFilter.take_burn_reaction'))
@@ -36,7 +36,7 @@ class MaletToolTests(unittest.TestCase):
         self.assertEqual(len(previous),72)
         self.assertEqual(len(malet_test_paths()),4)
         self.assertFalse(previous & malet_test_paths())
-        self.assertEqual(current_test_paths(),previous|malet_test_paths())
+        self.assertTrue((previous|malet_test_paths()) <= current_test_paths())
         report={'tests':[dict(fullTestPath=x,state='Success') for x in previous]}
         self.assertFalse(inspect_automation_report(report,current_test_paths())['passed'])
 if __name__=='__main__': unittest.main()

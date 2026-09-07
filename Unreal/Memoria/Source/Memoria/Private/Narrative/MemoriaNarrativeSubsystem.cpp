@@ -11,17 +11,22 @@ void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection
     Collection.InitializeDependency<UMemoriaRunSubsystem>();
     Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
     Run->OnRunReplaced.AddUObject(this, &UMemoriaNarrativeSubsystem::Reset);
+    FWorldDelegates::OnWorldCleanup.AddUObject(this, &UMemoriaNarrativeSubsystem::OnWorldCleanup);
 }
 void UMemoriaNarrativeSubsystem::Reset()
 {
+    CancelMaletDelay();
+    bMaletTalkCached = bMaletFirstTalkPending = bMaletCallbackConnected = false;
+    ChoiceNotice.Reset(); ActualDelaySeconds = 0;
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
     ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
 {
+    FWorldDelegates::OnWorldCleanup.RemoveAll(this);
     if (Run) Run->OnRunReplaced.RemoveAll(this);
-    Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; Run = nullptr;
+    Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; EncounterAsset = nullptr; RefusedAsset = nullptr; Run = nullptr;
     Super::Deinitialize();
 }
 bool UMemoriaNarrativeSubsystem::LoadContracts()
@@ -58,6 +63,7 @@ bool UMemoriaNarrativeSubsystem::EnterVerdan()
 {
     // Source: verdan_market.gd _ready guard and the two _start_ch2_* methods.
     if (!Run->HasActiveRun() || !Context || !LoadContracts()) return false;
+    bMaletCallbackConnected = true;
     Record(TEXT("verdan:enter"));
     if (!Run->State.GetFlag(TEXT("ch2_arrived")))
     {
@@ -82,9 +88,20 @@ bool UMemoriaNarrativeSubsystem::InteractWithMalet()
         !GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
     Record(TEXT("interact:Malet"));
     MaletAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletTasteBurned.DA_Field_MaletTasteBurned"));
-    const auto Dispatch = MemoriaMaletReaction::Resolve(*Run, false, MaletAsset);
+    const auto Dispatch = MemoriaMaletReaction::Resolve(*Run, false, MaletAsset, bMaletTalkCached);
     for (const auto& Event : Dispatch.Events) Record(Event);
     if (Dispatch.Group.IsEmpty()) return false;
+    if (!Dispatch.bReaction && Dispatch.Group == TEXT("malet_encounter"))
+    {
+        EncounterAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletEncounter.DA_Field_MaletEncounter"));
+        RefusedAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletRefused.DA_Field_MaletRefused"));
+        if (!EncounterAsset || !RefusedAsset) { State = EMemoriaSliceState::Failed; Record(TEXT("error:missing_malet_contract")); return false; }
+        // npc.gd registers its cache and first-talk callback before load_and_start.
+        bMaletTalkCached = true; Record(TEXT("cache:set:malet_encounter"));
+        bMaletFirstTalkPending = true; Record(TEXT("callback:npc:connect"));
+        Record(TEXT("request:") + Dispatch.File + TEXT("::") + Dispatch.Group);
+        StartMaletField(EncounterAsset); return true;
+    }
     Record(TEXT("request:") + Dispatch.File + TEXT("::") + Dispatch.Group);
     if (!Dispatch.bReaction)
     {
@@ -146,10 +163,20 @@ void UMemoriaNarrativeSubsystem::Confirm(int32 OriginalChoice)
         {
             const int32 VisibleIndex = Choices.IndexOfByKey(OriginalChoice);
             if (VisibleIndex == INDEX_NONE) return;
+            // Phase 1G authorizes refusal only. Stop before interpreter entry:
+            // no source choice log, set_flag, burn, callback, or rollback occurs.
+            if (ActiveFieldAsset == EncounterAsset && Field->OriginalIndex() == 9 && OriginalChoice == 0)
+            {
+                DeferredInteraction = TEXT("malet_encounter:choice:0");
+                ChoiceNotice = TEXT("This route is unavailable in the current development slice.");
+                Record(TEXT("development:deferred:malet_encounter:choice:0"));
+                ++Revision; return;
+            }
+            ChoiceNotice.Reset(); DeferredInteraction.Reset();
             Record(TEXT("select:field:") + FString::FromInt(OriginalChoice)); Field->SelectFilteredChoice(VisibleIndex);
         }
         else Field->Advance();
-        FlushEvents(TEXT("field")); if (!Field->IsActive()) Explore();
+        FlushEvents(TEXT("field")); if (!Field->IsActive()) FinishField();
     }
 }
 void UMemoriaNarrativeSubsystem::Back()
@@ -175,7 +202,7 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     else if (State == EMemoriaSliceState::Field && Field)
     {
         int32 Index = Field->OriginalIndex();
-        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
+        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
         if (ActiveFieldAsset->Definition.Rows.IsValidIndex(Index))
         {
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
@@ -183,6 +210,7 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
         }
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
+    if (!ChoiceNotice.IsEmpty()) View.Body += TEXT("\n") + ChoiceNotice;
     return View;
 }
 FMemoriaVNContinuation UMemoriaNarrativeSubsystem::GetContinuation() const
@@ -214,4 +242,70 @@ bool UMemoriaNarrativeSubsystem::ResumePrepared()
 {
     if (!VN || !VN->ConsumePendingOrQueue()) return false;
     State = EMemoriaSliceState::VN; AfterVN(); return true;
+}
+
+void UMemoriaNarrativeSubsystem::CancelMaletDelay()
+{
+    if (auto* World = DelayWorld.Get()) World->GetTimerManager().ClearTimer(MaletDelay);
+    DelayWorld.Reset(); MaletDelay.Invalidate();
+}
+void UMemoriaNarrativeSubsystem::OnWorldCleanup(UWorld* World, bool, bool)
+{
+    if (World == DelayWorld.Get())
+    {
+        CancelMaletDelay();
+        bMaletTalkCached = bMaletFirstTalkPending = bMaletCallbackConnected = false;
+    }
+}
+void UMemoriaNarrativeSubsystem::StartMaletField(UMemoriaFieldAsset* Asset)
+{
+    DeferredInteraction.Reset(); ChoiceNotice.Reset(); ActiveFieldAsset = Asset;
+    ++FieldInvocationCount;
+    Field = MakeUnique<FMemoriaFieldInterpreter>(Asset->Definition, *Context);
+    State = EMemoriaSliceState::Field;
+    Record(TEXT("field:start:") + Asset->Definition.Id);
+    Field->Start(); FlushEvents(TEXT("field"));
+}
+void UMemoriaNarrativeSubsystem::FinishField()
+{
+    if (ActiveFieldAsset != EncounterAsset && ActiveFieldAsset != RefusedAsset) { Explore(); return; }
+    const bool bRefused = ActiveFieldAsset == RefusedAsset;
+    Field.Reset(); ActiveFieldAsset = nullptr; State = EMemoriaSliceState::Exploration;
+    Record(TEXT("state:exploration"));
+    if (bRefused)
+    {
+        Record(TEXT("callback:refused:enter"));
+        Run->RemoveStoryFlag(TEXT("malet_deal_refused")); Record(TEXT("erase:flag:malet_deal_refused"));
+        Run->RemoveStoryFlag(TEXT("talked_Malet_malet_encounter")); Record(TEXT("erase:flag:talked_Malet_malet_encounter"));
+        bMaletTalkCached = false; Record(TEXT("erase:cache:malet_encounter"));
+        bMaletCallbackConnected = true; Record(TEXT("callback:normal:connect"));
+        Explore(); return;
+    }
+    // Source map listener runs first, yields at create_timer(0.3), then the
+    // NPC one-shot listener marks the first talk. The gap is exploration.
+    if (bMaletCallbackConnected && Run->GetRunSnapshot().GetFlag(TEXT("malet_deal_refused")))
+    {
+        bMaletCallbackConnected = false; Record(TEXT("callback:normal:disconnect"));
+        Record(TEXT("delay:scheduled:300"));
+        DelayWorld = GetWorld(); DelayStarted = GetWorld()->GetTimeSeconds();
+        GetWorld()->GetTimerManager().SetTimer(MaletDelay, this, &UMemoriaNarrativeSubsystem::RefusalDelayElapsed, .3f, false);
+    }
+    if (bMaletFirstTalkPending)
+    {
+        bMaletFirstTalkPending = false; Record(TEXT("callback:npc:first_talk"));
+        Run->SetStoryFlag(TEXT("talked_Malet_malet_encounter"), true); Record(TEXT("flag:talked_Malet_malet_encounter"));
+    }
+    ++Revision;
+}
+void UMemoriaNarrativeSubsystem::RefusalDelayElapsed()
+{
+    auto* World = DelayWorld.Get();
+    if (!World || World != GetWorld() || !Context || !Run->HasActiveRun()) { CancelMaletDelay(); return; }
+    ActualDelaySeconds = World->GetTimeSeconds() - DelayStarted;
+    DelayWorld.Reset(); MaletDelay.Invalidate();
+    UE_LOG(LogTemp, Display, TEXT("MEMORIA_MALET_DELAY_SECONDS %.6f"), ActualDelaySeconds);
+    Record(TEXT("delay:elapsed:300"));
+    Record(TEXT("callback:refused:connect"));
+    Record(TEXT("request:res://data/chapter2_dialogue.json::malet_refused"));
+    StartMaletField(RefusedAsset);
 }

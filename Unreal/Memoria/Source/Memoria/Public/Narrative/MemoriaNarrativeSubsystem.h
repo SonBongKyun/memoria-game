@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "TimerManager.h"
 #include "Narrative/MemoriaNarrativeRuntime.h"
 #include "MemoriaNarrativeSubsystem.generated.h"
 
@@ -29,6 +30,10 @@ public:
     bool EnterVerdan();
     bool InteractWithMalet();
     const FString& GetDeferredInteraction() const { return DeferredInteraction; }
+    bool IsMaletTalkCached() const { return bMaletTalkCached; }
+    bool IsMaletCallbackConnected() const { return bMaletCallbackConnected; }
+    bool IsMaletDelayPending() const { return DelayWorld.IsValid(); }
+    double GetMaletDelaySeconds() const { return ActualDelaySeconds; }
     int32 GetMaletReactionCount() const { return MaletReactionCount; }
     void Confirm(int32 OriginalChoice = INDEX_NONE);
     void Back();
@@ -50,7 +55,18 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> FieldAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> ActiveFieldAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> MaletAsset;
-    FString DeferredInteraction;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EncounterAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RefusedAsset;
+    FString DeferredInteraction, ChoiceNotice;
+    bool bMaletTalkCached = false, bMaletFirstTalkPending = false, bMaletCallbackConnected = false;
+    FTimerHandle MaletDelay;
+    TWeakObjectPtr<UWorld> DelayWorld;
+    double DelayStarted = 0, ActualDelaySeconds = 0;
+    void CancelMaletDelay();
+    void OnWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources);
+    void StartMaletField(UMemoriaFieldAsset* Asset);
+    void FinishField();
+    void RefusalDelayElapsed();
     int32 MaletReactionCount = 0;
     TUniquePtr<FMemoriaNarrativeContext> Context;
     TUniquePtr<FMemoriaVNInterpreter> VN;

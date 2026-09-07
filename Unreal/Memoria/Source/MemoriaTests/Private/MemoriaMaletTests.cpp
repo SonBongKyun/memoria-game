@@ -169,7 +169,7 @@ namespace
 class FMaletReplay final : public IAutomationLatentCommand
 {
 public:
-    FMaletReplay(FAutomationTestBase* InTest, bool Paid) : Test(InTest), bPaid(Paid), Started(FPlatformTime::Seconds()) {}
+    FMaletReplay(FAutomationTestBase* InTest, bool Paid, FString InMode = FString()) : Test(InTest), bPaid(Paid), Started(FPlatformTime::Seconds()), RefusalMode(InMode) {}
     ~FMaletReplay() override { if (bStarted) { FApp::SetUseFixedTimeStep(bWasFixed); FApp::SetFixedDeltaTime(OldDelta); } }
     bool Update() override
     {
@@ -270,14 +270,13 @@ public:
             {
                 if (!bPaid)
                 {
-                    Test->TestEqual(TEXT("Intact route resolves exact normal target without executing"), Host->GetDeferredInteraction(), FString(TEXT("malet_encounter")));
-                    Test->TestEqual(TEXT("Intact fallback never starts Field"), Host->GetFieldInvocationCount(), 0);
+                    Test->TestEqual(TEXT("Newly authorized normal group starts once"), Host->GetFieldInvocationCount(), 1);
                     Test->TestFalse(TEXT("Intact fallback does not consume heard flag"), Run->GetRunSnapshot().GetFlag(MemoriaMaletReaction::Heard));
-                    Test->TestTrue(TEXT("Fallback stays exploration, no modal"), Host->GetState() == EMemoriaSliceState::Exploration && !PC->IsModalOpen());
-                    TArray<FString> Suffix; for (int32 I = ArrivalTraceCount; I < Host->GetTrace().Num(); ++I) Suffix.Add(Host->GetTrace()[I]);
-                    Test->TestEqual(TEXT("Intact source dispatch trace"), FString::Join(Suffix,TEXT("\n")), FString::Join(Strings(Case(TEXT("intact_unheard"))->GetArrayField(TEXT("events"))),TEXT("\n")));
+                    Test->TestTrue(TEXT("Normal route has actual Field modal"), Host->GetState() == EMemoriaSliceState::Field && PC->IsModalOpen());
+                    Test->TestTrue(TEXT("Normal request retains source resolver priority"), Host->GetTrace().Contains(TEXT("resolver:begin:burned=false:heard=false")) && Host->GetTrace().Contains(TEXT("request:res://data/chapter2_dialogue.json::malet_encounter")));
+                    Test->TestEqual(TEXT("Normal first row remains original zero"), Host->GetView().Body, NormalAsset()->Definition.Rows[0].Text.Text);
                     Test->TestEqual(TEXT("Intact fallback leaves memory unchanged"), StateJson(Run->GetPlayerMemory()->GetSnapshot()), BeforeMemory);
-                    Capture(TEXT("Fallback")); Write(Host, Run, Pawn, TEXT("intact_fallback")); Stage = 4; Frame = -1;
+                    Capture(TEXT("Fallback")); Write(Host, Run, Pawn, TEXT("intact_normal_boundary")); Stage = 9; Frame = -1;
                 }
                 else
                 {
@@ -328,17 +327,7 @@ public:
                 Compare(*Test, Normalize(Host->GetTrace()), Run->GetRunSnapshot(), Run->GetPlayerMemory()->GetSnapshot(), Expected);
                 Capture(TEXT("AfterReaction")); Write(Host, Run, Pawn, TEXT("canonical_complete"));
             }
-            // Supplemental boundary probe after canonical acceptance/capture:
-            // a second ordinary interaction records the source request only.
-            if (Frame == 90) Key(EKeys::E, IE_Pressed);
-            if (Frame == 94) Key(EKeys::E, IE_Released);
-            if (Frame == 102)
-            {
-                Test->TestEqual(TEXT("Already-heard next request recorded exactly"), Host->GetDeferredInteraction(), FString(TEXT("malet_encounter")));
-                Test->TestEqual(TEXT("Second press cannot replay reaction or normal chain"), Host->GetFieldInvocationCount(), 1);
-                AssertExploration(PC, Host, World);
-                Write(Host, Run, Pawn, TEXT("second_press_boundary")); Stage = 4; Frame = -1;
-            }
+            if (Frame == 90) { Stage = 4; Frame = -1; }
         }
         else if (Stage == 4)
         {
@@ -355,8 +344,137 @@ public:
                 Test->TestTrue(TEXT("Accepted camera follows pawn displacement"), (Pawn->GetFieldCamera()->GetComponentLocation()-CameraOrigin).Equals(Pawn->GetActorLocation()-BeforePosition,.001));
             }
             if (Frame == 25) { Capture(TEXT("Moved")); }
-            if (Frame == 32) return true;
+            if (Frame == 32) { Key(EKeys::S, IE_Pressed); }
+            if (Frame == 45) { Key(EKeys::S, IE_Released); }
+            if (Frame == 65)
+            {
+                Test->TestTrue(TEXT("Ordinary next E uses actual range resolver"), PC->GetInteraction()->GetTarget() == Malet.Get());
+                NormalTraceStart = Host->GetTrace().Num(); NormalBeforeRun = StateJson(Run->GetRunSnapshot());
+                Key(EKeys::E, IE_Pressed);
+            }
+            if (Frame == 69) Key(EKeys::E, IE_Released);
+            if (Frame == 76)
+            {
+                Test->TestEqual(TEXT("Already heard starts normal once"), Host->GetFieldInvocationCount(), 2);
+                Test->TestEqual(TEXT("No repeated reaction"), Host->GetMaletReactionCount(), 1);
+                Test->TestEqual(TEXT("Original normal first row"), Host->GetView().Body, NormalAsset()->Definition.Rows[0].Text.Text);
+                Test->TestTrue(TEXT("Normal modal visible"), PC->IsModalOpen() && PC->GetNarrativeWidget()->VisibleText().Contains(NormalAsset()->Definition.Rows[0].Text.Text));
+                Capture(TEXT("NormalEncounter_FirstLine")); Write(Host, Run, Pawn, TEXT("normal_first"));
+                Stage = RefusalMode.IsEmpty() ? 9 : 5; Frame = -1;
+            }
         }
+        else if (Stage == 5)
+        {
+            if (Frame >= 10 && Frame <= 90 && Frame % 10 == 0) Key(EKeys::E, IE_Pressed);
+            if (Frame >= 14 && Frame <= 94 && Frame % 10 == 4) Key(EKeys::E, IE_Released);
+            if (Frame == 100)
+            {
+                const auto View = Host->GetView();
+                Test->TestTrue(TEXT("Both original choices preserved"), View.Choices.Num()==2 && View.Choices[0].OriginalIndex==0 && View.Choices[1].OriginalIndex==1);
+                Test->TestEqual(TEXT("Accept label unchanged"), View.Choices[0].Text, FString(TEXT("Accept the deal.")));
+                Test->TestEqual(TEXT("Refuse label unchanged"), View.Choices[1].Text, FString(TEXT("Refuse.")));
+                Capture(TEXT("NormalEncounter_Choices"));
+                BeforeAcceptRun=StateJson(Run->GetRunSnapshot()); BeforeAcceptMemory=StateJson(Run->GetPlayerMemory()->GetSnapshot()); BeforeAcceptTrace=Host->GetTrace().Num();
+            }
+            if (Frame == 110)
+            {
+                if (RefusalMode==TEXT("AcceptPreEffectDeferred")) Key(EKeys::Gamepad_FaceButton_Bottom, IE_Pressed);
+                else Key(EKeys::Down, IE_Pressed);
+            }
+            if (Frame == 114)
+            {
+                Key(EKeys::Down, IE_Released); Key(EKeys::Gamepad_FaceButton_Bottom, IE_Released);
+            }
+            if (Frame == 120)
+            {
+                if (RefusalMode==TEXT("AcceptPreEffectDeferred"))
+                {
+                    Test->TestEqual(TEXT("Accept preserves entire live run"), StateJson(Run->GetRunSnapshot()), BeforeAcceptRun);
+                    Test->TestEqual(TEXT("Accept preserves entire live memory"), StateJson(Run->GetPlayerMemory()->GetSnapshot()), BeforeAcceptMemory);
+                    Test->TestTrue(TEXT("Sword intact, accepted flag absent, no timer"), Run->GetPlayerMemory()->IsIntact(TEXT("identity_first_sword")) && !Run->GetRunSnapshot().HasFlag(TEXT("malet_deal_accepted")) && !Host->IsMaletDelayPending());
+                    Test->TestEqual(TEXT("Exactly one pre-effect boundary event"), Host->GetTrace().Num(), BeforeAcceptTrace+1);
+                    Test->TestEqual(TEXT("Boundary event before any interpreter choice"), Host->GetTrace().Last(), FString(TEXT("development:deferred:malet_encounter:choice:0")));
+                    Test->TestEqual(TEXT("Both choices remain visible after defer"), Host->GetView().Choices.Num(), 2);
+                    Capture(TEXT("Accept_PreEffectDeferred")); Write(Host,Run,Pawn,TEXT("accept_pre_effect_deferred"));
+                    Stage=9; Frame=-1;
+                }
+                else Capture(TEXT("NormalEncounter_RefusalSelected"));
+            }
+            if (Frame == 130) Key(EKeys::E, IE_Pressed);
+            if (Frame == 134) Key(EKeys::E, IE_Released);
+            if (Frame == 138)
+            {
+                Test->TestTrue(TEXT("Actual callback waiting during source exploration gap"), Host->IsMaletDelayPending() && Host->GetState()==EMemoriaSliceState::Exploration && !PC->IsModalOpen());
+                Test->TestTrue(TEXT("Refused and first-talk flags set before timer"), Run->GetRunSnapshot().GetFlag(TEXT("malet_deal_refused")) && Run->GetRunSnapshot().GetFlag(TEXT("talked_Malet_malet_encounter")));
+                Test->TestFalse(TEXT("Normal callback disconnected while pending"), Host->IsMaletCallbackConnected());
+                Write(Host,Run,Pawn,TEXT("delay_pending"));
+                if (RefusalMode==TEXT("CallbackCancellation"))
+                {
+                    Run->BeginStartingMemoryRun(); CancellationRun=StateJson(Run->GetRunSnapshot());
+                    Test->TestFalse(TEXT("New run cancels pending callback"), Host->IsMaletDelayPending());
+                    Stage=8; Frame=-1;
+                }
+            }
+            if (Frame == 160)
+            {
+                Test->TestTrue(TEXT("Real 0.3 second world timer"), Host->GetMaletDelaySeconds()>=.299 && Host->GetMaletDelaySeconds()<.35);
+                Test->TestEqual(TEXT("Original refused first line"), Host->GetView().Body, RefusalAsset()->Definition.Rows[0].Text.Text);
+                Test->TestTrue(TEXT("Actual refused modal"), PC->IsModalOpen() && PC->GetNarrativeWidget()->VisibleText().Contains(RefusalAsset()->Definition.Rows[0].Text.Text));
+                Capture(TEXT("Refused_FirstLine")); Write(Host,Run,Pawn,TEXT("refused_first"));
+                Stage=6; Frame=-1;
+            }
+        }
+        else if (Stage == 6)
+        {
+            if (Frame == 10 || Frame == 30 || Frame == 60) Key(EKeys::E,IE_Pressed);
+            if (Frame == 14 || Frame == 34 || Frame == 64) Key(EKeys::E,IE_Released);
+            if (Frame == 20) Test->TestEqual(TEXT("Refused original row one"),Host->GetView().Body,RefusalAsset()->Definition.Rows[1].Text.Text);
+            if (Frame == 40)
+            {
+                Test->TestEqual(TEXT("Refused original row two"),Host->GetView().Body,RefusalAsset()->Definition.Rows[2].Text.Text);
+                Capture(TEXT("Refused_LastLine"));
+            }
+            if (Frame == 75)
+            {
+                AssertExploration(PC,Host,World);
+                Test->TestFalse(TEXT("Refusal flag erased, not false entry"),Run->GetRunSnapshot().HasFlag(TEXT("malet_deal_refused")));
+                Test->TestFalse(TEXT("Talked flag erased, not false entry"),Run->GetRunSnapshot().HasFlag(TEXT("talked_Malet_malet_encounter")));
+                Test->TestTrue(TEXT("NPC cache cleared and normal callback reconnected"),!Host->IsMaletTalkCached() && Host->IsMaletCallbackConnected());
+                Test->TestEqual(TEXT("Run restored exactly to pre-normal state"),StateJson(Run->GetRunSnapshot()),NormalBeforeRun);
+                Test->TestEqual(TEXT("No hidden memory/reward mutation"),StateJson(Run->GetPlayerMemory()->GetSnapshot()),BeforeMemory);
+                CompareRefusal(Host,TEXT("cleanup"));
+                Capture(TEXT("Exploration_AfterRefusal")); Write(Host,Run,Pawn,TEXT("refusal_cleanup"));
+                BeforePosition=Pawn->GetActorLocation(); CameraOrigin=Pawn->GetFieldCamera()->GetComponentLocation();
+            }
+            if (Frame == 85) Key(EKeys::W,IE_Pressed);
+            if (Frame == 98)
+            {
+                Key(EKeys::W,IE_Released);
+                Test->TestTrue(TEXT("Actual movement after refusal"),Pawn->GetActorLocation().Y>BeforePosition.Y+5);
+                Test->TestTrue(TEXT("Camera restored after refusal"),(Pawn->GetFieldCamera()->GetComponentLocation()-CameraOrigin).Equals(Pawn->GetActorLocation()-BeforePosition,.001));
+            }
+            if (Frame == 110) Key(EKeys::S,IE_Pressed);
+            if (Frame == 123) Key(EKeys::S,IE_Released);
+            if (Frame == 145) Key(EKeys::E,IE_Pressed);
+            if (Frame == 149) Key(EKeys::E,IE_Released);
+            if (Frame == 158)
+            {
+                Test->TestEqual(TEXT("Retry is ordinary normal request at row zero"),Host->GetView().Body,NormalAsset()->Definition.Rows[0].Text.Text);
+                Test->TestEqual(TEXT("Reaction, normal, refused, retry only"),Host->GetFieldInvocationCount(),4);
+                Test->TestEqual(TEXT("Retry cannot replay memory reaction"),Host->GetMaletReactionCount(),1);
+                CompareRefusal(Host,TEXT("retry"));
+                Capture(TEXT("RetryBoundary")); Write(Host,Run,Pawn,TEXT("retry_boundary"));
+                Stage=9; Frame=-1;
+            }
+        }
+        else if (Stage == 8 && Frame == 40)
+        {
+            Test->TestTrue(TEXT("Cancelled callback cannot start stale dialogue"),Host->GetState()==EMemoriaSliceState::Idle && Host->GetTrace().IsEmpty());
+            Test->TestEqual(TEXT("Cancelled callback cannot mutate replacement run"),StateJson(Run->GetRunSnapshot()),CancellationRun);
+            Write(Host,Run,Pawn,TEXT("cancelled_callback")); return true;
+        }
+        else if (Stage == 9 && Frame == 10) return true;
+
         ++Frame; return false;
     }
 private:
@@ -365,8 +483,25 @@ private:
     FGuid RunId; TWeakObjectPtr<UMemoriaPlayerMemoryDomain> Domain; TWeakObjectPtr<UWorld> OriginalWorld;
     TWeakObjectPtr<AMemoriaMaletActor> Malet; FKey Held; FString BeforeMemory;
     FMemoriaRunSnapshot BeforeRun; FVector BeforePosition, CameraOrigin;
-    FString Mode() const { return bPaid?TEXT("CanonicalInteraction"):TEXT("IntactInteraction"); }
-    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1F"); }
+    FString RefusalMode, NormalBeforeRun, BeforeAcceptRun, BeforeAcceptMemory, CancellationRun;
+    int32 NormalTraceStart=0, BeforeAcceptTrace=0;
+    UMemoriaFieldAsset* NormalAsset() const { return LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_encounter"))); }
+    UMemoriaFieldAsset* RefusalAsset() const { return LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_refused"))); }
+    void CompareRefusal(UMemoriaNarrativeSubsystem* Host,const FString& Label)
+    {
+        auto Cases=Json(Base()/TEXT("fixtures/malet_refusal/contract_expected.v1.json"));
+        for (auto C:Cases->AsArray()) if(C->AsObject()->GetStringField(TEXT("id"))==TEXT("refusal_retry"))
+            for(auto V:C->AsObject()->GetArrayField(TEXT("states"))) if(V->AsObject()->GetStringField(TEXT("label"))==Label)
+            {
+                TArray<FString> Actual;
+                for(int32 I=NormalTraceStart;I<Host->GetTrace().Num();++I) Actual.Add(Host->GetTrace()[I]);
+                Test->TestEqual(TEXT("Exact executable source normal/refusal/retry trace"),FString::Join(Normalize(Actual),TEXT("\n")),FString::Join(Strings(V->AsObject()->GetArrayField(TEXT("events"))),TEXT("\n")));
+                return;
+            }
+        Test->AddError(TEXT("Missing source refusal trace"));
+    }
+    FString Mode() const { if (!RefusalMode.IsEmpty()) return RefusalMode; return bPaid?TEXT("CanonicalInteraction"):TEXT("IntactInteraction"); }
+    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1G"); }
     void AssertExploration(AMemoriaSliceController* PC, UMemoriaNarrativeSubsystem* Host, UWorld* World)
     {
         Test->TestTrue(TEXT("Exploration restored, modal and choices removed"), Host->GetState()==EMemoriaSliceState::Exploration && !PC->IsModalOpen() && !PC->GetNarrativeWidget() && Host->GetView().Choices.IsEmpty());
@@ -384,9 +519,12 @@ private:
         O->SetArrayField(TEXT("trace"),Events); O->SetObjectField(TEXT("run"),FJsonObjectConverter::UStructToJsonObject(Run->GetRunSnapshot()));
         O->SetObjectField(TEXT("memory"),FJsonObjectConverter::UStructToJsonObject(Run->GetPlayerMemory()->GetSnapshot()));
         O->SetStringField(TEXT("state"),Label); O->SetStringField(TEXT("pawn_position"),Pawn->GetActorLocation().ToString());
+        O->SetNumberField(TEXT("actual_delay_microseconds"),FMath::RoundToDouble(Host->GetMaletDelaySeconds()*1000000.0)); O->SetBoolField(TEXT("talk_cache"),Host->IsMaletTalkCached()); O->SetBoolField(TEXT("normal_callback_connected"),Host->IsMaletCallbackConnected());
         O->SetNumberField(TEXT("field_invocations"),Host->GetFieldInvocationCount()); O->SetNumberField(TEXT("reaction_invocations"),Host->GetMaletReactionCount());
         O->SetStringField(TEXT("deferred_target"),Host->GetDeferredInteraction()); IFileManager::Get().MakeDirectory(*Output(),true);
-        FFileHelper::SaveStringToFile(Canon(O)+TEXT("\n"),*(Output()/(Mode()+TEXT("_")+Label+TEXT(".json"))),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+        const FString Serialized = Canon(O)+TEXT("\n"); Obj Parsed;
+        Test->TestTrue(TEXT("Machine-readable evidence JSON parses"),FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Serialized),Parsed));
+        Test->TestTrue(TEXT("Machine-readable evidence saved"),FFileHelper::SaveStringToFile(Serialized,*(Output()/(Mode()+TEXT("_")+Label+TEXT(".json"))),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM));
     }
 };
 }
@@ -397,6 +535,89 @@ bool FMaletRuntime::RunTest(const FString& Parameters)
 {
     if (!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"))) return false;
     FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,Parameters==TEXT("CanonicalInteraction"))));
+    ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRefusalImport,"Memoria.MaletRefusal.ImportContract",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FRefusalImport::RunTest(const FString&)
+{
+    for (const TCHAR* Group:{TEXT("malet_encounter"),TEXT("malet_refused")})
+    {
+        TStrongObjectPtr<UMemoriaFieldAsset> Actual(LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,Group))), Expected(NewObject<UMemoriaFieldAsset>());
+        FString Error; const FString Path=Base()/TEXT("ir/narrative")/(FString(Group)+TEXT(".field.v1.json"));
+        if(!TestNotNull(TEXT("Actual saved Phase 1G asset"),Actual.Get()) || !TestTrue(TEXT("Strict source attestation"),MemoriaNarrativeImport::ReadIr(Path,*Expected,Error))) { AddError(Error); return false; }
+        for(TFieldIterator<FProperty> P(UMemoriaFieldAsset::StaticClass(),EFieldIterationFlags::None);P;++P) TestTrue(*P->GetName(),P->Identical_InContainer(Actual.Get(),Expected.Get()));
+        Obj Report; TestTrue(TEXT("Check-only semantic no-op"),MemoriaNarrativeImport::Import(Path,false,true,Report,Error));
+        TestTrue(TEXT("No package save"),Report && !Report->GetBoolField(TEXT("saved")));
+        for(const TCHAR* Variant:{TEXT("modified"),TEXT("reject_position"),TEXT("reject_choice"),TEXT("reject_downstream")})
+        {
+            const auto Probe=Base()/TEXT("fixtures/malet_refusal")/(FString(Group)+TEXT(".")+Variant+TEXT(".json"));
+            TStrongObjectPtr<UMemoriaFieldAsset> Temporary(NewObject<UMemoriaFieldAsset>());
+            const bool Modified=FString(Variant)==TEXT("modified");
+            TestEqual(TEXT("Transient strict structural validation"),MemoriaNarrativeImport::ReadIr(Probe,*Temporary,Error,false),Modified);
+            if(Modified)
+            {
+                TestTrue(TEXT("Typed semantic change is detected"),MemoriaNarrativeImport::Fingerprint(*Temporary)!=MemoriaNarrativeImport::Fingerprint(*Actual));
+                TestFalse(TEXT("Modified payload cannot enter production"),MemoriaNarrativeImport::ReadIr(Probe,*Temporary,Error,true));
+                TestTrue(TEXT("Probe remains transient"),Temporary->GetOutermost()==GetTransientPackage());
+            }
+        }
+    }
+    return !HasAnyErrors();
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRefusalChoiceEffects,"Memoria.MaletRefusal.ChoiceEffects",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FRefusalChoiceEffects::RunTest(const FString&)
+{
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>()); Game->Init();
+    auto* Run=Game->GetSubsystem<UMemoriaRunSubsystem>();
+    auto* Normal=LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_encounter")));
+    auto Cases=Json(Base()/TEXT("fixtures/malet_refusal/contract_expected.v1.json"));
+    if(!TestNotNull(TEXT("Normal contract"),Normal) || !TestTrue(TEXT("Source cases"),Cases.IsValid())) {Game->Shutdown();return false;}
+    for(const TCHAR* Id:{TEXT("refusal_retry"),TEXT("refusal_ko"),TEXT("accept_source")})
+    {
+        Run->BeginStartingMemoryRun(); Run->BurnMemory(MemoriaMaletReaction::Food);
+        Run->SetStoryFlag(MemoriaMaletReaction::Heard,true); Run->SetStoryFlag(TEXT("ch2_arrived"),true);
+        auto Snapshot=Run->GetRunSnapshot(); FMemoriaNarrativeContext Context(Snapshot,*Run->GetPlayerMemory());
+        Snapshot.CurrentLocale=FString(Id)==TEXT("refusal_ko")?TEXT("ko"):TEXT("en");
+        FMemoriaFieldInterpreter Field(Normal->Definition,Context); Field.Start();
+        for(int32 I=0;I<9;++I) Field.Advance();
+        TestTrue(TEXT("Original choices zero and one"),Field.VisibleOriginalIndices()==TArray<int32>{0,1});
+        Field.SelectFilteredChoice(FString(Id)==TEXT("accept_source")?0:1);
+        TestFalse(TEXT("Source choice ends normal group"),Field.IsActive());
+        for(auto C:Cases->AsArray()) if(C->AsObject()->GetStringField(TEXT("id"))==Id)
+        {
+            auto State=C->AsObject()->GetArrayField(TEXT("states"))[2]->AsObject();
+            auto Events=Strings(State->GetArrayField(TEXT("events")));
+            int32 First=Events.IndexOfByKey(TEXT("visit:0")), Last=Events.IndexOfByKey(TEXT("end"));
+            TArray<FString> Expected; for(int32 I=First;I<=Last;++I) if(!Events[I].StartsWith(TEXT("select:field:"))) Expected.Add(Events[I]);
+            TestEqual(TEXT("Exact interpreter trace through source choice effects"),FString::Join(Context.Events,TEXT("\n")),FString::Join(Expected,TEXT("\n")));
+            TestTrue(TEXT("Source original choice burn history"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory==Strings(State->GetArrayField(TEXT("burned"))));
+        }
+    }
+    Game->Shutdown();return !HasAnyErrors();
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRefusalRepeatCache,"Memoria.MaletRefusal.RepeatCache",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FRefusalRepeatCache::RunTest(const FString&)
+{
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>());Game->Init();
+    auto* Run=Game->GetSubsystem<UMemoriaRunSubsystem>();
+    Run->BeginStartingMemoryRun(); Run->BurnMemory(MemoriaMaletReaction::Food);
+    TestTrue(TEXT("Unheard reaction wins over transient normal cache"),MemoriaMaletReaction::Resolve(*Run,false,Asset(),true).bReaction);
+    TestEqual(TEXT("Heard plus transient cache requests exact authored repeat"),MemoriaMaletReaction::Resolve(*Run,false,Asset(),true).Group,FString(TEXT("malet_memory_world_followup")));
+    TestEqual(TEXT("Heard without either talked state requests ordinary group"),MemoriaMaletReaction::Resolve(*Run,false,Asset(),false).Group,FString(TEXT("malet_encounter")));
+    Run->SetStoryFlag(TEXT("talked_Malet_malet_encounter"),true);
+    TestEqual(TEXT("Persisted talked state requests same repeat"),MemoriaMaletReaction::Resolve(*Run,false,Asset(),false).Group,FString(TEXT("malet_memory_world_followup")));
+    Run->RemoveStoryFlag(TEXT("talked_Malet_malet_encounter"));
+    TestFalse(TEXT("Erase removes record rather than assigning false"),Run->GetRunSnapshot().HasFlag(TEXT("talked_Malet_malet_encounter")));
+    Game->Shutdown();return !HasAnyErrors();
+}
+IMPLEMENT_COMPLEX_AUTOMATION_TEST(FMaletRefusalRuntime, "Memoria.MaletRefusal", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+void FMaletRefusalRuntime::GetTests(TArray<FString>& Names,TArray<FString>& Commands) const
+{ for(const TCHAR* N:{TEXT("CanonicalRefusalRetry"),TEXT("AcceptPreEffectDeferred"),TEXT("CallbackCancellation")}) { Names.Add(N); Commands.Add(N); } }
+bool FMaletRefusalRuntime::RunTest(const FString& Parameters)
+{
+    if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"))) return false;
+    FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,Parameters)));
     ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand()); return true;
 }
 #endif

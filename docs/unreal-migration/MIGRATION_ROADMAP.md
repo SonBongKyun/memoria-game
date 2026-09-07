@@ -256,3 +256,18 @@ source response/cleanup, exploration/retry. Preserve both authored choices;
 characterize Accept in oracle and defer whole selection before partial effects.
 Deal/reward/shop/world seeding/Chapter3/autosave/achievements remain later work.
 Full Malet/Verdan parity is not established.
+
+
+## Phase 1G checkpoint — 2026-09-07
+
+COMPLETE: source-attested malet_encounter10 + malet_refused3; canonical original
+refusal1 through actual0.3s callback, source cleanup, exploration/movement and
+ordinary retry at original0. Accept0 stays visible and is deferred before any
+playable choice effects. Previous76 + new6 =82/82 rendered UE5.8.2 Automation.
+Godot15, native51, host50, static59; original4217 files and17 accepted packages
+preserved. See [Phase1G report](PHASE_1G_REPORT.md) and [current state](MIGRATION_STATE.md).
+No push; failed attempts and raw logs retained.
+
+Next recommendation, not authorized/implemented: Phase1H Accept payment -> only
+malet_deal originals0..4 -> real0.5s completion -> malet_reward request boundary.
+Do not execute reward/world/shop/Chapter3/autosave/achievements/repeat chain.
