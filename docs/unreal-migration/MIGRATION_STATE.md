@@ -6,7 +6,7 @@ Engine **5.8.2 / CL56702186** at `C:\Program Files\Epic Games\UE_5.8`.
 - Branch: `unreal-migration/ue58-foundation`; worktree `C:\Users\jc\MemoriaMigration\foundation`.
 - Previous technical checkpoint: `e9f781cf3f73ba5949ab9a2af961193d02d3c620`.
 - Clean starting HEAD: `d53aaa84efa1a42c0e2078821e10520a998f58cd`.
-- New technical checkpoint: `PENDING_LOCAL_COMMIT`; no push.
+- New technical checkpoint: `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`; no push.
 - [Phase1F report](PHASE_1F_REPORT.md), [acceptance](evidence/phase1f/acceptance.json), [final Automation](evidence/phase1f/automation05/automation_index.json).
 - Open `/Game/Tests/Campaign/L_Ch2VerdanSlice`, choose original VN choice1 to burn `daily_market_food`. Real travel skips Field arrival and reaches exploration. Walk within80 units of Malet at(240,-160,0), press E/A.
 - Actual BurnedHistory and source reaction priority drive `malet_taste_burned`. Real heard flag is set before Field.Start. Only originals0–2 execute once, then modal/context/focus/movement/Z/camera restore.

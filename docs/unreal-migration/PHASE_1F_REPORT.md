@@ -7,7 +7,7 @@ Validated 2026-09-07. This does not establish full Malet or Verdan parity.
 - Worktree: `C:\Users\jc\MemoriaMigration\foundation`.
 - Previous technical checkpoint: `e9f781cf3f73ba5949ab9a2af961193d02d3c620`.
 - Clean starting checkpoint: `d53aaa84efa1a42c0e2078821e10520a998f58cd`.
-- New technical checkpoint: `PENDING_LOCAL_COMMIT`; recorded by the following documentation commit. No push.
+- New technical checkpoint: `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`; recorded by the following documentation commit. No push.
 - [Acceptance](evidence/phase1f/acceptance.json), [final exact-name Automation](evidence/phase1f/automation05/automation_index.json), [build](evidence/phase1f/automation05/unreal_validation.json).
 
 ## Source and deterministic content
