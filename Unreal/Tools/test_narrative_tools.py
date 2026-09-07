@@ -41,7 +41,7 @@ class NarrativeTests(unittest.TestCase):
         for n,v in generated().items(): self.assertEqual((FIXTURES/n).read_bytes(),canonical(v))
     def test_previous_sixty_identities_unchanged(self):
         previous=expected_test_paths(); self.assertEqual(len(previous),60); self.assertEqual(len(narrative_test_paths()),8)
-        self.assertEqual(len(current_test_paths()),68); self.assertTrue(previous<current_test_paths())
+        self.assertEqual(len(previous | narrative_test_paths()),68); self.assertTrue(previous<current_test_paths())
         r={'tests':[{'fullTestPath':s,'state':'Success'} for s in sorted(current_test_paths())]}
         self.assertTrue(inspect_automation_report(r,current_test_paths())['passed']); r['tests'][-1]=r['tests'][0]
         self.assertFalse(inspect_automation_report(r,current_test_paths())['passed'])

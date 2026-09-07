@@ -34,6 +34,9 @@ public:
     // After atomic replacement; restore emits no acquisition/burn rewards.
     FMemoriaRunReplaced OnRunReplaced;
 private:
+    // The interpreter borrows this stable aggregate; the host is a GI subsystem
+    // and cancels its cursors synchronously on OnRunReplaced.
+    friend class UMemoriaNarrativeSubsystem;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPlayerMemoryDomain> PlayerMemory;
     UPROPERTY(Transient) FMemoriaRunSnapshot State;
 };

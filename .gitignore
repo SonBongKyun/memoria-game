@@ -39,3 +39,5 @@ desktop.ini
 
 # Phase 1D raw engine logs are preserved byte-for-byte in full_logs.zip.
 /docs/unreal-migration/evidence/phase1d/**/*.log
+# Phase 1E full logs are likewise retained without newline changes in the archive.
+/docs/unreal-migration/evidence/phase1e/**/*.log

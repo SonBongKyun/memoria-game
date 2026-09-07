@@ -67,8 +67,12 @@ void AMemoriaPlayerController::OpenModal()
     if (Modal) { return; }
     auto* Class = LoadClass<UUserWidget>(nullptr, TEXT("/Game/Tests/Foundation/WBP_FoundationModal.WBP_FoundationModal_C"));
     if (!Class) { return; }
-    Modal = CreateWidget<UUserWidget>(this, Class);
-    if (!Modal) { return; }
+    PresentModal(CreateWidget<UUserWidget>(this, Class));
+}
+void AMemoriaPlayerController::PresentModal(UUserWidget* Widget)
+{
+    if (Modal || !Widget) { return; }
+    Modal = Widget;
     Modal->SetIsFocusable(true);
     Modal->AddToViewport(100);
     SetIgnoreMoveInput(true);
@@ -93,6 +97,10 @@ void AMemoriaPlayerController::OpenModal()
 void AMemoriaPlayerController::Back()
 {
     ++BackDispatchCount;
+    DismissModal();
+}
+void AMemoriaPlayerController::DismissModal()
+{
     if (!Modal) { return; }
     if (auto* Local = GetLocalPlayer())
     {

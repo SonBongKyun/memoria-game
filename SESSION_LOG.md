@@ -2,6 +2,20 @@
 
 ---
 
+## S270 - 2026-09-07 (Unreal Phase 1E — 첫 내러티브 개발 슬라이스 완료)
+
+- 상태: COMPLETE. clean a9dfae9에서 기존 unreal-migration/ue58-foundation 작업트리로 진행. UE5.8.2/CL56702186. 로컬 기술 체크포인트는 보고서/상태 문서에 기록하며 push하지 않는다.
+- 실제 실행: L_Ch2VerdanSlice에서 기존 카탈로그로 시작한 VN 0–12를 UMG에 표시. 원래 선택1은 daily_market_food를 지불하고, 필터된 두 번째 선택은 원래2로 전달된다. 마지막12의 ch2_arrival_vn_seen 설정 후 실제 OpenLevel로 L_VerdanHost에 도착한다.
+- 원본 경로: Verdan guard가 Field를 건너뛴다(호출0). 별도 L_VerdanUnseenFixture만 원본 Field 0–4를 호출1회 실행하고 탐색에 복귀한다. 정상 경로에 두 대화를 강제로 연속 연결하지 않았다.
+- 수명/입력: RunSubsystem과 실제 memory domain을 여행 동안 유지. Field/VN 별도 실행기, typed asset만 런타임 사용. UMG는 값 표시/원래 선택 ID 전달만 담당. 모달 이동 차단, VN Back pause/resume, Field Back 유지, 컨텍스트 해제·포커스 복귀, XY/Z고정·카메라·경계 충돌을 PIE 입력으로 검증했다.
+- 저장: 활성 VN original10에서 SaveGameToMemory/LoadGameFromMemory. current/pending/active/FIFO[3,4], 원래 커서 우선 재개, 잘못된 복원 거부 및 run reset 후 모달 제거. schema1 유지.
+- 검증: 실제 UBT/UHT/compile/link/Editor/렌더 PIE PASS. 이전68/68+신규4/4=72/72. 원본 route oracle4/4, Phase1D oracle10/10 및 6개 UE 재임포트 모두 unchanged/no save. Godot repo/VN/KO/import·공식15/15, native51/51·CTest1/1, catalog check, host38/38, static56/56, 원본4217파일·기존13패키지 보존 PASS. Godot 메타데이터1056복원.
+- 수정/증거: UE 타입/API 컴파일 오류, oracle 들여쓰기, AutomationOpenMap 이후 중복 PIE 시작으로 생긴 테스트의 오래된 포인터 문제를 수정했다. 실제 캡처에서 회전 라벨·미빌드 조명을 발견해 개발 맵/UI만 정리했다. 실패 로그와 최종 실제 VN/선택/탐색/Field 캡처를 evidence/phase1e에 보존했다. 기존 엔진 렌더 스레드 경고1건은 남겼다.
+- 범위: New Game/Ch1/NPC/거래/상점/전투/최종 UI·아트·오디오/cook·package는 미구현. 전체 캠페인 동등성을 주장하지 않는다.
+- 다음 권고: 지불 경로의 음식 기억 소실을 Malet의 첫 상호작용에서 보여 주는 malet_taste_burned 3행과 one-time reaction flag만 다음 의존성으로 연결한다. 일반 거래·상점·챕터 전환은 별도 단계이며 이번 세션에서 Phase1F를 시작하지 않았다.
+
+---
+
 ## S269 - 2026-09-06 (Unreal Phase 1D — 제한된 내러티브 데이터·실행 계약 이식)
 
 - 상태: COMPLETE. `unreal-migration/ue58-foundation`의 clean `4edb035`에서 진행. UE5.8.2 / CL56702186 재확인. 로컬 체크포인트는 PHASE_1D_REPORT와 MIGRATION_STATE에 기록하며 push하지 않는다.

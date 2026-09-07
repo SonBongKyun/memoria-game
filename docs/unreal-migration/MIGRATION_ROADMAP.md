@@ -208,3 +208,29 @@ Phase 1D is COMPLETE on UE5.8.2 / CL56702186. See [PHASE_1D_REPORT](PHASE_1D_REP
 Both assets were CREATED then UNCHANGED without saves in separate reimport/reload processes. Semantic fingerprints and observed package bytes match. Modified/synthetic test IR cannot pass production source attestation. Ten source-authentic oracle cases and eight new Unreal tests pass; previous60/60 + new8/8 = total68/68, exact identities enforced. Real UBT/UHT/compile/link, Godot repo/VN/KO/import and official15/15, native51/51, starting-memory catalog, host35/35, static52/52 and original4217-file preservation pass. Initial oracle adapter failures and a Godot editor access violation are retained; the unchanged-source Godot retry passed. Local technical checkpoint is recorded in PHASE_1D_REPORT/MIGRATION_STATE by a documentation follow-up; no push.
 
 **Next recommended task: Phase 1E, minimum source-faithful ch2_market_arrival → Verdan arrival development slice.** Use the imported VN asset and existing 2D movement/input/camera with minimal temporary presentation. Actual Verdan code skips `verdan_arrival` when `ch2_arrival_vn_seen` is true, so preserve that branch and enter free exploration after VN. Exercise the imported Field asset via a separate arrival fixture with VN-seen false. Do not force VN then Field onto the canonical campaign path; do not expand into Chapter1, Malet/battle, final art/audio, or bulk migration. Phase 1E was not implemented in Phase 1D.
+
+## Phase 1E actual progress — 2026-09-07
+
+Phase 1E COMPLETE: explicit ch2_market_arrival development VN entry now travels
+to a minimal Verdan host. Terminal original 12 sets ch2_arrival_vn_seen before
+travel; the actual arrival guard skips Field (0 invocations), then enables
+exploration. A separate VN-unseen fixture displays all five imported Field rows
+once and returns to exploration. Typed production assets, the existing memory
+catalog/run owner and Enhanced Input/camera are reused. Temporary native UMG
+only displays values/forwards intent; schema1 continuation round-trips in PIE.
+
+Actual UBT/UHT/compile/link/Editor/rendered PIE PASS. Previous68 + new4 = 72/72
+exact Automation identities pass; source route4 and prior narrative10 oracle
+cases, six unchanged narrative imports, Godot official15, native51, host38,
+static56 and original4217-file/13-package protection pass. Failed attempts and
+actual rendered captures are retained. Report/checkpoint: [PHASE_1E_REPORT](PHASE_1E_REPORT.md).
+Local checkpoint only, no push. No production New Game/Ch1, NPC/trade/battle,
+final UI/art/audio or package/cook was added.
+
+Next Phase 1F recommendation after source dependency review: the paid arrival's
+first Malet interaction through `malet_taste_burned` (three authored rows) back
+to exploration, including the source reaction priority/one-time flag. Normal
+Malet trade pulls in world seeding, rewards, shop and chapter/autosave hooks;
+New Game pulls in reset/profile/inventory and the preceding Ch1 VN chain.
+The smaller first memory-reaction dependency is recommended, with fallback
+dispatch characterized and no silent route change. Phase 1F remains unimplemented.

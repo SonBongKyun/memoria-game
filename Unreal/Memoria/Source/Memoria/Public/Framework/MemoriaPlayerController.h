@@ -30,11 +30,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Memoria|Input") TObjectPtr<UInputAction> ConfirmAction;
     UPROPERTY(EditDefaultsOnly, Category="Memoria|Input") TObjectPtr<UInputAction> BackAction;
     UPROPERTY(EditDefaultsOnly, Category="Memoria|Input") TObjectPtr<UInputAction> MenuAction;
+protected:
+    virtual void Move(const FInputActionValue& Value);
+    virtual void OpenModal();
+    virtual void Back();
+    virtual void Confirm();
+    void PresentModal(UUserWidget* Widget);
+    void DismissModal();
 private:
-    void Move(const FInputActionValue& Value);
-    void OpenModal();
-    void Back();
-    void Confirm();
     UPROPERTY(Transient) TObjectPtr<UUserWidget> Modal;
     int32 BackDispatchCount = 0;
     int32 ConfirmCount = 0;
