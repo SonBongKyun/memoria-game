@@ -34,6 +34,8 @@ public:
     bool IsMaletCallbackConnected() const { return bMaletCallbackConnected; }
     bool IsMaletDelayPending() const { return DelayWorld.IsValid(); }
     double GetMaletDelaySeconds() const { return ActualDelaySeconds; }
+    bool IsMaletRewardDelayPending() const { return RewardDelayWorld.IsValid(); }
+    double GetMaletRewardDelaySeconds() const { return ActualRewardDelaySeconds; }
     int32 GetMaletReactionCount() const { return MaletReactionCount; }
     void Confirm(int32 OriginalChoice = INDEX_NONE);
     void Back();
@@ -57,16 +59,19 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> MaletAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EncounterAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RefusedAsset;
-    FString DeferredInteraction, ChoiceNotice;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
+    FString DeferredInteraction;
     bool bMaletTalkCached = false, bMaletFirstTalkPending = false, bMaletCallbackConnected = false;
-    FTimerHandle MaletDelay;
-    TWeakObjectPtr<UWorld> DelayWorld;
+    FTimerHandle MaletDelay, RewardDelay;
+    TWeakObjectPtr<UWorld> DelayWorld, RewardDelayWorld;
     double DelayStarted = 0, ActualDelaySeconds = 0;
+    double RewardDelayStarted = 0, ActualRewardDelaySeconds = 0;
     void CancelMaletDelay();
     void OnWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources);
     void StartMaletField(UMemoriaFieldAsset* Asset);
     void FinishField();
-    void RefusalDelayElapsed();
+    void NormalDelayElapsed();
+    void RewardDelayElapsed();
     int32 MaletReactionCount = 0;
     TUniquePtr<FMemoriaNarrativeContext> Context;
     TUniquePtr<FMemoriaVNInterpreter> VN;

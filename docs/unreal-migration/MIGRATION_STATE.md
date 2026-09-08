@@ -1,19 +1,19 @@
-# Migration handoff — Phase 1G complete on UE 5.8.2
+# Migration handoff — Phase 1H complete on UE 5.8.2
 
-Status: **Phase 1G COMPLETE**, bounded normal Malet encounter -> refusal -> cleanup/retry.
+Status: **Phase1H COMPLETE**, bounded actual sword payment -> five-row deal -> reward request deferred.
 Engine **5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
+Worktree `C:\Users\jc\MemoriaMigration\foundation`; branch `unreal-migration/ue58-foundation`.
 
-- Worktree `C:\Users\jc\MemoriaMigration\foundation`; branch `unreal-migration/ue58-foundation`.
-- Previous technical checkpoint `fea1cdd3c7fc1947e2fa8b55d86f39a21f7a1d24`; clean starting documentation HEAD `0f37e58318a749a5d8057a5303c4f18e022f864c`.
-- New technical checkpoint: `361b9039713446957f1da66470881990388762ba`. This documentation follow-up records that accepted feature commit. No push.
-- [Report](PHASE_1G_REPORT.md), [acceptance](evidence/phase1g/acceptance.json), [final82-test report](evidence/phase1g/automation02/automation_index.json), [exact retry trace](evidence/phase1g/retry_exact_trace.txt).
-- Open `/Game/Tests/Campaign/L_Ch2VerdanSlice`. Select original paid VN choice1, travel, walk to Malet, E and finish the accepted3-row reaction. E again starts `malet_encounter` originals0..9. Select original refusal1, wait the source0.3s callback, advance `malet_refused` originals0..2. Cleanup restores exploration and movement; ordinary E retries original0. Acceptance stops there.
-- Both original choices and English/Korean source data are intact. Original Accept0 is visible but host-deferred before interpreter effects: accepted flag absent, sword intact, full run/memory unchanged, no rollback or downstream request.
-- Two new typed Field assets passed first import, fresh-process unchanged reimport, check-only reload, semantic/source attestation and transient rejection probes. All17 accepted packages unchanged.
-- The normal/refusal callback order and source cache/flag erasure match the executable oracle. Final real timer measured300000us. Pending timer cannot mutate a new run; no save-schema/controller/interpreter redesign.
-- Previous76 exact IDs + new6 = **82/82** Automation, real UBT/UHT/compile/link/Editor/rendered PIE PASS. The existing `r.MotionVectorSimulation` warning remains1; new tests have0 warnings/errors.
-- Phase1G oracle7; Phase1F oracle7/import; Phase1E route4; Phase1D oracle10/six-process import; Phase1C catalog; officialGodot15; native51+CTest1; host50; static59 PASS. Original4217 files and historical reports/evidence unchanged.
-- Required7 final PNGs plus Accept view were directly inspected; final capture JSON parses. Failed oracle/build/first evidence-format attempts and full logs remain archived. See report for defects/limits.
-- No deal/reward/repeat-world content, sword payment in the playable route, world seeding/shop/trade/Chapter3/autosave/achievements, extra NPC/battle/NewGame/Ch1/finalart/audio/graphics/cook/package/Steam implementation. No full Malet parity claim.
+- Previous technical checkpoint `361b9039713446957f1da66470881990388762ba`; clean documentation start `5ea698c41687c54e14f9c4df382a15e111d6adcc`.
+- New technical checkpoint: this feature commit; SHA recorded in the documentation follow-up. Local only; no push.
+- [Report](PHASE_1H_REPORT.md), [90-test result](evidence/phase1h/automation01/automation_index.json), [independent acceptance](evidence/phase1h/acceptance02/acceptance.json), [exact trace](evidence/phase1h/acceptance02/accept_exact_trace.txt).
+- Start `L_Ch2VerdanSlice` -> paid VN original1 -> native travel -> physical walk to Malet -> E/reaction3 -> exploration -> E/normal0..9 -> Accept0 -> actual accepted flag then real sword burn in the same run/domain -> normal end/0.3s -> typed deal0..4 -> end/0.5s -> `malet_reward` request/pre-execution defer -> STOP.
+- Exactly one new production asset: `DA_Field_MaletDeal`. Original English/Korean/speaker/presentation metadata/provenance retained. Three fresh processes: CREATED, UNCHANGED, check-only UNCHANGED; package hash stable. Existing19 packages unchanged.
+- Before Accept sword intact/history food only. Afterward sword burned/residue with Elia; history exactly `[daily_market_food, identity_first_sword]`. HP100/Grains0/items/prior flags/unrelated memory preserved. Actual world timers300000us and500000us, integer telemetry.
+- Already-burned and faded sword still proceed after failed burn as source does. Source state-only replacement retaining its world owner can leave callbacks alive; UE explicitly retains Phase1G reset cancellation and now tests both timers under run replacement and actual world teardown.
+- Previous82 identities retained plus new8 = **90/90**. Historical `AcceptPreEffectDeferred` ID now checks the authorized Accept chain and pre-effect **reward** boundary; no test-only runtime policy. Exact Refuse cleanup/retry and Phase1F reaction remain PASS.
+- UBT/UHT/compile/link/Editor/rendered PIE PASS. Existing `r.MotionVectorSimulation` warning remains1; new tests zero warnings/errors.
+- Source H9/G7/F7/E4/D10/C7, officialGodot15, native51+CTest1, host55, static59/original4217 PASS. All65 capture JSONs parse, six required unmodified PNGs directly inspected. Full logs/failures archived with hashes.
+- Reward asset/start/rows/items/world-memory/shop/trade/Chapter3/autosave/achievement/repeat-world remain unimplemented. No extraNPC/battle/productionNewGame/Chapter1/finalart/UI/audio/graphics/cook/package/Steam. No full Malet parity claim.
 
-Recommend **Phase1H only if separately authorized**: original Accept0 flag plus one real sword burn -> source0.3s callback -> import/execute only `malet_deal` originals0..4 -> real0.5s callback -> record `malet_reward` request and stop before reward execution. Characterize source first; preserve refusal/retry and82 IDs. Keep reward8/world-memory/items/shop/Chapter3/autosave/achievements/repeat group deferred. **Phase1H has not started.**
+Recommend **Phase1I only after separate authorization**: characterize/import/execute only `malet_reward` originals0..7 in this same run, then observe dialogue completion and defer **before any `_on_reward_ended` effect**, including `ch2_malet_done`. Keep world seeding, potion2/antidote1/firebomb1, shop/Chapter3/autosave/achievements deferred. Preserve90 IDs and payment/refusal/reaction/lifetime coverage. **Phase1I has not started.**

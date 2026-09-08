@@ -271,3 +271,17 @@ No push; failed attempts and raw logs retained.
 Next recommendation, not authorized/implemented: Phase1H Accept payment -> only
 malet_deal originals0..4 -> real0.5s completion -> malet_reward request boundary.
 Do not execute reward/world/shop/Chapter3/autosave/achievements/repeat chain.
+
+## Phase 1H accepted — 2026-09-08
+
+The actual paid-VN/reaction/normal Accept0 now sets accepted then burns the sword
+once in the same run/domain. Real0.3s callback starts the only new typed group,
+`malet_deal` originals0..4; its separate0.5s callback requests `malet_reward`
+and stops before execution. UE5.8.2 build/rendered PIE90/90, source/regression
+oracles, Godot15, native51+CTest1, host55, static59/original4217 and existing19
+packages pass. Six required captures and integer-microsecond/full-snapshot
+evidence verified; failures retained. See [Phase1H report](PHASE_1H_REPORT.md).
+
+Next recommendation only: Phase1I may import/execute reward originals0..7 and
+stop before `_on_reward_ended` first effect. World seeding, item grants, shop,
+Chapter3, autosave and achievements remain deferred. No Phase1I implementation.

@@ -2,6 +2,16 @@
 
 ---
 
+## S273 - 2026-09-08 (Unreal Phase 1H — Malet 실제 결제와 reward 요청 경계 완료)
+
+- 별도 migration worktree에서 원본 Accept0을 실제 Field interpreter에 허가. accepted flag 다음 기존 domain의 sword 1회 연소, source0.3초 콜백, 새 typed malet_deal 원본0..4, 별도0.5초 콜백, malet_reward 요청/효과 전 유예에서 종료.
+- 실제 렌더 PIE의 paid VN1·native travel·키 이동·Malet E·reaction3·일반 대화·Accept를 재생. 같은 run/domain, HP100/Grains0/기존 flags/items/다른 기억 보존. history는 food,sword 순서이며 sword는 Elia에 따른 residue 유지.
+- UE5.8.2/CL56702186 UBT/UHT/compile/link/Editor/rendered PIE 기존82+신규8=90/90 PASS. 실제 월드 타이머300000us/500000us. Refuse cleanup/retry와 reaction 회귀 유지. 기존 AcceptPreEffectDeferred ID는 reward 효과 전 경계로 검증 의미를 갱신.
+- 소스 오라클9개로 intact/KO/기연소/faded/다른 상태/두 시점 상태교체·owner teardown을 확인. source state만 지우면 콜백이 남는 차이를 명시하고 UE는 기존 reset 취소 보장 유지.
+- 신규 에셋 한 개만 추가, 재임포트/check-only no-op. source G7/F7/E4/D10/C7, officialGodot15, native51+CTest1, host55, static59/원본4217파일·기존UE19패키지 보존 PASS.
+- 정수µs telemetry·전체 snapshot/정확 trace 대조, 필수6캡처 직접 확인. 관측기 타이밍/문자열/들여쓰기 오류와 PNG 창 크기 검사 오류를 수정하고 실패·전체 로그를 보존. 기존 MotionVectorSimulation 경고1건 유지.
+- 보고서 docs/unreal-migration/PHASE_1H_REPORT.md. reward 실행/보상/세계 기억/상점/Ch3 등은 미구현. 모든 검증 후 로컬 체크포인트만 생성, push 없음. Phase1I 미시작.
+
 ## S272 - 2026-09-07 (Unreal Phase 1G — Malet 거절과 재시도 완료)
 
 - 별도 migration worktree에서만 구현. 기존 Phase1F 기억 반응 우선순위를 유지하고 일반 대화10행, 원본 거절1, 실제0.3초 콜백, 거절3행, 플래그/캐시 정리, 탐색/이동 복구와 재시도 첫 행까지 검증.

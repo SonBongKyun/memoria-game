@@ -133,7 +133,8 @@ const FFieldCohort* FieldCohort(const FString& Id)
         {TEXT("verdan_arrival"),5,0,TEXT("DA_Field_VerdanArrival")},
         {TEXT("malet_taste_burned"),3,16,TEXT("DA_Field_MaletTasteBurned")},
         {TEXT("malet_encounter"),10,1,TEXT("DA_Field_MaletEncounter")},
-        {TEXT("malet_refused"),3,4,TEXT("DA_Field_MaletRefused")}
+        {TEXT("malet_refused"),3,4,TEXT("DA_Field_MaletRefused")},
+        {TEXT("malet_deal"),5,2,TEXT("DA_Field_MaletDeal")}
     };
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;

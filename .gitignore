@@ -47,3 +47,5 @@ desktop.ini
 
 # Phase 1G full logs are archived byte-for-byte.
 docs/unreal-migration/evidence/phase1g/**/*.log
+
+docs/unreal-migration/evidence/phase1h/**/*.log
