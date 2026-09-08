@@ -6,7 +6,7 @@ Branch: `unreal-migration/ue58-foundation`.
 Engine: **UE 5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
 Previous accepted technical checkpoint: `361b9039713446957f1da66470881990388762ba`.
 Clean starting documentation HEAD: `5ea698c41687c54e14f9c4df382a15e111d6adcc`.
-New technical checkpoint: this feature commit; SHA recorded in the documentation follow-up. No push.
+New technical checkpoint: `5010a26ca934047d27160af3672a93a0caaf2e14`. No push.
 
 ## Authorized scope
 

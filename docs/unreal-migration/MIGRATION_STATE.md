@@ -5,7 +5,7 @@ Engine **5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`; branch `unreal-migration/ue58-foundation`.
 
 - Previous technical checkpoint `361b9039713446957f1da66470881990388762ba`; clean documentation start `5ea698c41687c54e14f9c4df382a15e111d6adcc`.
-- New technical checkpoint: this feature commit; SHA recorded in the documentation follow-up. Local only; no push.
+- New technical checkpoint: `5010a26ca934047d27160af3672a93a0caaf2e14`. Local only; no push.
 - [Report](PHASE_1H_REPORT.md), [90-test result](evidence/phase1h/automation01/automation_index.json), [independent acceptance](evidence/phase1h/acceptance02/acceptance.json), [exact trace](evidence/phase1h/acceptance02/accept_exact_trace.txt).
 - Start `L_Ch2VerdanSlice` -> paid VN original1 -> native travel -> physical walk to Malet -> E/reaction3 -> exploration -> E/normal0..9 -> Accept0 -> actual accepted flag then real sword burn in the same run/domain -> normal end/0.3s -> typed deal0..4 -> end/0.5s -> `malet_reward` request/pre-execution defer -> STOP.
 - Exactly one new production asset: `DA_Field_MaletDeal`. Original English/Korean/speaker/presentation metadata/provenance retained. Three fresh processes: CREATED, UNCHANGED, check-only UNCHANGED; package hash stable. Existing19 packages unchanged.
