@@ -2,6 +2,16 @@
 
 ---
 
+## S274 - 2026-09-09 (Unreal Phase 1I — Malet 보상 대화와 효과 전 경계 완료)
+
+- 별도 migration worktree에서만 malet_reward 원본0..7을 기존 deterministic Field IR/typed asset/import/interpreter/UMG 경로로 추가. 첫 import CREATED, 독립 재import/check-only UNCHANGED 및 no-save.
+- 실제 paid VN1/native travel/물리 이동/E/reaction/일반 Accept0/실제 sword payment/0.3초/deal0..4/0.5초/reward0..7 경로 완료. 종료 시 source 탐색 상태 이벤트와 콜백 의도 직후, ch2_malet_done 첫 쓰기 전에 개발용 modal 정지. 보상 후 효과 적용/rollback 없음.
+- 같은 Run ID/domain, food+sword history, accepted/heard flags, 전체 run/inventory/memory 보존. world/item/shop/Ch3/autosave/achievement 실행 없음. 미구현 owner는 증거에서 null로 표시.
+- UE5.8.2 UBT/UHT/compile/link/Editor/rendered PIE 기존90+신규7=97/97, 독립193항목 및 snapshot JSON133개 PASS. 원본 reward oracle8/H9/G7/F7/E4/D10/C7, Godot15, native51+CTest1, host61, static59/원본4217/기존UE20패키지 보존 PASS.
+- reward 도중/완료 뒤 run replacement 및 실제 OpenLevel teardown PASS. source 상태 교체만으로 콜백이 남는 기술적 차이와 이전 테스트명 의미 부채 기록. source0.3/0.5초 타이머와 기존 MotionVectorSimulation 경고 유지.
+- 필수 native 캡처5장 직접 확인. oracle 관측기 의존성/들여쓰기/프레임 초기화와 과거 host 범위 검증 기대치를 수정하고 실패 로그 보존. 보고서 docs/unreal-migration/PHASE_1I_REPORT.md.
+- 모든 acceptance 이후 로컬 checkpoint만 생성, push 없음. Phase1J는 첫 flag 효과만 적용하는 다음 경계로 권장하며 구현하지 않음.
+
 ## S273 - 2026-09-08 (Unreal Phase 1H — Malet 실제 결제와 reward 요청 경계 완료)
 
 - 별도 migration worktree에서 원본 Accept0을 실제 Field interpreter에 허가. accepted flag 다음 기존 domain의 sword 1회 연소, source0.3초 콜백, 새 typed malet_deal 원본0..4, 별도0.5초 콜백, malet_reward 요청/효과 전 유예에서 종료.

@@ -23,6 +23,7 @@ FIELD_CASES = {
     'malet_encounter': (10, 1, 'DA_Field_MaletEncounter'),
     'malet_refused': (3, 4, 'DA_Field_MaletRefused'),
     'malet_deal': (5, 2, 'DA_Field_MaletDeal'),
+    'malet_reward': (8, 3, 'DA_Field_MaletReward'),
 }
 
 def selected_case(dialect, group=None):

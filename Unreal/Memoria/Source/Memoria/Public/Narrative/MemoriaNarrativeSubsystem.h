@@ -7,7 +7,7 @@
 
 class UMemoriaRunSubsystem;
 class UMemoriaRunSaveGame;
-enum class EMemoriaSliceState : uint8 { Idle, VN, Travelling, Field, Exploration, Failed };
+enum class EMemoriaSliceState : uint8 { Idle, VN, Travelling, Field, Exploration, Deferred, Failed };
 struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; };
 // Presentation receives values only. No conditions, effect data or mutable run.
 struct MEMORIA_API FMemoriaNarrativeView
@@ -16,6 +16,7 @@ struct MEMORIA_API FMemoriaNarrativeView
     TArray<FMemoriaPresentedChoice> Choices;
     bool bPaused = false;
     bool bCompactStatus = false;
+    bool bDevelopmentStop = false;
 };
 
 UCLASS()
@@ -36,6 +37,10 @@ public:
     double GetMaletDelaySeconds() const { return ActualDelaySeconds; }
     bool IsMaletRewardDelayPending() const { return RewardDelayWorld.IsValid(); }
     double GetMaletRewardDelaySeconds() const { return ActualRewardDelaySeconds; }
+    bool IsRewardCallbackPending() const { return RewardCallbackWorld.IsValid() && RewardCompletionCount == 0; }
+    int32 GetRewardCompletionCount() const { return RewardCompletionCount; }
+    int32 GetRewardCallbackIntentCount() const { return RewardCallbackIntentCount; }
+    int32 GetRewardFieldInvocationCount() const { return RewardFieldInvocationCount; }
     int32 GetMaletReactionCount() const { return MaletReactionCount; }
     void Confirm(int32 OriginalChoice = INDEX_NONE);
     void Back();
@@ -60,6 +65,13 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EncounterAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RefusedAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
+    // Source reward listener is one-shot and synchronous. This owner binds only
+    // a pre-effect development boundary, never the downstream gameplay handler.
+    TWeakObjectPtr<UWorld> RewardCallbackWorld;
+    FGuid RewardCallbackRunId;
+    int32 RewardCompletionCount = 0, RewardCallbackIntentCount = 0, RewardFieldInvocationCount = 0;
+    void DeferRewardEffects();
     FString DeferredInteraction;
     bool bMaletTalkCached = false, bMaletFirstTalkPending = false, bMaletCallbackConnected = false;
     FTimerHandle MaletDelay, RewardDelay;

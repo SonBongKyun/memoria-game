@@ -24,7 +24,8 @@ class MaletToolTests(unittest.TestCase):
         with self.assertRaises(ValueError): validate(v)
         self.assertNotEqual(v['semantic_sha256'],extract('field',group='malet_taste_burned')['semantic_sha256'])
     def test_downstream_content_not_authorized(self):
-        with self.assertRaises(ValueError): extract('field',group='malet_reward')
+        self.assertEqual(len(extract('field',group='malet_reward')['definition']['rows']),8)
+        with self.assertRaises(ValueError): extract('field',group='malet_memory_world_followup')
     def test_npc_observer_keeps_source_priority(self):
         body=npc_methods()
         self.assertLess(body.index('if DialogueManager.is_active'),body.index('PerceptionFilter.take_burn_reaction'))

@@ -50,7 +50,7 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
         if (!View.Body.IsEmpty()) Text += View.Body + TEXT("\n\n");
         for (int32 I = 0; I < View.Choices.Num(); ++I)
             Text += (I == Selection ? TEXT(">  ") : TEXT("    ")) + View.Choices[I].Text + TEXT("\n\n");
-        Text += View.Choices.IsEmpty() ? TEXT("Enter / E / Space / A: continue") : TEXT("Up / Down / D-pad: select     Enter / A: confirm");
+        Text += View.bDevelopmentStop ? TEXT("Development acceptance boundary reached.") : View.Choices.IsEmpty() ? TEXT("Enter / E / Space / A: continue") : TEXT("Up / Down / D-pad: select     Enter / A: confirm");
     }
     Message->SetText(FText::FromString(Text));
 }

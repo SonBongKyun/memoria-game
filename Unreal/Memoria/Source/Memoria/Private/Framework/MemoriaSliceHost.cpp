@@ -60,7 +60,7 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
     if (!Changed && Prompt == LastPrompt) return;
     LastPrompt = Prompt; LastRevision = Narrative->GetRevision();
     if (State != EMemoriaSliceState::Exploration && StatusWidget) { StatusWidget->RemoveFromParent(); StatusWidget = nullptr; }
-    if (State == EMemoriaSliceState::VN || State == EMemoriaSliceState::Field)
+    if (State == EMemoriaSliceState::VN || State == EMemoriaSliceState::Field || State == EMemoriaSliceState::Deferred)
     {
         if (!NarrativeWidget)
         {

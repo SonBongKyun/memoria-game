@@ -26,7 +26,7 @@ def main():
         if not matches_required_version(v): raise ValueError('Exact UE 5.8.2 required')
         report['engine_version']=v
         run('source_check',[sys.executable,ROOT/'Unreal/Tools/narrative_ir.py','--check',*(['--group',a.group] if a.group else []),'--evidence-dir',ev/'source'],120)
-        run('oracle_check',[sys.executable,ROOT/'Unreal/Tools'/('export_malet_deal_oracle.py' if a.group == 'malet_deal' else 'export_malet_refusal_oracle.py' if a.group in ('malet_encounter','malet_refused') else 'export_malet_oracle.py' if a.group=='malet_taste_burned' else 'export_narrative_oracle.py'),'--godot',a.godot,'--check','--evidence-dir',ev/'oracle'],240)
+        run('oracle_check',[sys.executable,ROOT/'Unreal/Tools'/('export_malet_reward_oracle.py' if a.group == 'malet_reward' else 'export_malet_deal_oracle.py' if a.group == 'malet_deal' else 'export_malet_refusal_oracle.py' if a.group in ('malet_encounter','malet_refused') else 'export_malet_oracle.py' if a.group=='malet_taste_burned' else 'export_narrative_oracle.py'),'--godot',a.godot,'--check','--evidence-dir',ev/'oracle'],240)
         run('fixture_check',[sys.executable,ROOT/'Unreal/Tools/narrative_test_fixtures.py','--check'],120)
         if a.build: run('build',[sys.executable,ROOT/'Unreal/Tools/validate_unreal.py','--engine-root',a.engine_root,'--build-only','--evidence-dir',ev/'build'],3700)
         # Each stage is a different UE process per dialect (six processes total).

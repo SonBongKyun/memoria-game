@@ -75,7 +75,11 @@ def narrative_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths()
+
+
+def malet_reward_test_paths():
+    return {"Memoria.MaletReward."+n for n in ("ImportContract","EnglishKoreanExecution","CanonicalReward","CancelRewardFieldOnRunReplace","CancelRewardFieldOnWorldTeardown","CancelRewardBoundaryOnRunReplace","CancelRewardBoundaryOnWorldTeardown")}
 
 
 def malet_deal_test_paths():
@@ -244,6 +248,7 @@ def main():
     report['phase1e_required_total'] = len(slice_test_paths())
     report['phase1f_required_total'] = len(malet_test_paths())
     report['phase1h_required_total'] = len(malet_deal_test_paths())
+    report['phase1i_required_total'] = len(malet_reward_test_paths())
     report['phase1g_required_total'] = len(malet_refusal_test_paths())
     report['current_required_total'] = len(current_test_paths())
     report['rendered'] = args.rendered

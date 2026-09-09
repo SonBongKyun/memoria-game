@@ -49,3 +49,6 @@ desktop.ini
 docs/unreal-migration/evidence/phase1g/**/*.log
 
 docs/unreal-migration/evidence/phase1h/**/*.log
+
+# Phase 1I raw logs are preserved byte-for-byte in full_logs.zip.
+docs/unreal-migration/evidence/phase1i/**/*.log

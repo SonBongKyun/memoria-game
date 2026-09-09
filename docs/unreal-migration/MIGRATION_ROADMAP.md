@@ -285,3 +285,21 @@ evidence verified; failures retained. See [Phase1H report](PHASE_1H_REPORT.md).
 Next recommendation only: Phase1I may import/execute reward originals0..7 and
 stop before `_on_reward_ended` first effect. World seeding, item grants, shop,
 Chapter3, autosave and achievements remain deferred. No Phase1I implementation.
+
+## Phase 1I accepted — 2026-09-09
+
+COMPLETE: canonical paid VN/native travel/physical walk/reaction/Accept/payment/
+real0.3s/deal/real0.5s now enters the only new typed group `malet_reward` originals0..7.
+Field completion and synchronous source exploration/callback order are recorded;
+the development modal stops before `_on_reward_ended` first effect `ch2_malet_done`.
+No world-memory seeding/items/shop/Chapter3/autosave/achievement executes.
+
+UE5.8.2 build/rendered PIE previous90+new7=97/97; independent193 checks; reward source8
+and H9/G7/F7/E4/D10/C7; Godot15; native51+CTest1; host61; static59/original4217 and old20
+packages PASS. New package import CREATED then two fresh UNCHANGED/no-save passes.
+Full run/domain/memory/flags/inventory preserved. Existing warning and test-name
+semantic debt documented. [Report](PHASE_1I_REPORT.md). Local checkpoint only; no push.
+
+Next recommendation only: separately authorize Phase1J to apply just the first
+`ch2_malet_done` effect and stop before world seeding's first mutation. Preserve97
+identities and lifetime/Refuse/payment/reaction evidence. No Phase1J implementation.

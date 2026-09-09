@@ -21,8 +21,8 @@ class RefusalTools(unittest.TestCase):
             else:
                 with self.assertRaises(ValueError):validate(v,verify_sources=False)
     def test_downstream_groups_rejected(self):
-        self.assertEqual(set(FIELD_CASES),{'verdan_arrival','malet_taste_burned','malet_encounter','malet_refused','malet_deal'})
-        for g in ('malet_reward','malet_memory_world_followup'):
+        self.assertEqual(set(FIELD_CASES),{'verdan_arrival','malet_taste_burned','malet_encounter','malet_refused','malet_deal','malet_reward'})
+        for g in ('malet_memory_world_followup',):
             with self.assertRaises(ValueError):extract('field',group=g)
     def test_real_source_callback_observers(self):
         originals,normal,cleanup,npc=bodies()

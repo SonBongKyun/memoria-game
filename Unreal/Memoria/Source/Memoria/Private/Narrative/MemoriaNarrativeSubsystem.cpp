@@ -16,6 +16,8 @@ void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection
 void UMemoriaNarrativeSubsystem::Reset()
 {
     CancelMaletDelay();
+    RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();
+    RewardCompletionCount = RewardCallbackIntentCount = RewardFieldInvocationCount = 0;
     bMaletTalkCached = bMaletFirstTalkPending = bMaletCallbackConnected = false;
     ActualDelaySeconds = ActualRewardDelaySeconds = 0;
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
@@ -26,7 +28,7 @@ void UMemoriaNarrativeSubsystem::Deinitialize()
 {
     FWorldDelegates::OnWorldCleanup.RemoveAll(this);
     if (Run) Run->OnRunReplaced.RemoveAll(this);
-    Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; EncounterAsset = nullptr; RefusedAsset = nullptr; DealAsset = nullptr; Run = nullptr;
+    Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; EncounterAsset = nullptr; RefusedAsset = nullptr; DealAsset = nullptr; RewardAsset = nullptr; Run = nullptr;
     Super::Deinitialize();
 }
 bool UMemoriaNarrativeSubsystem::LoadContracts()
@@ -96,7 +98,8 @@ bool UMemoriaNarrativeSubsystem::InteractWithMalet()
         EncounterAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletEncounter.DA_Field_MaletEncounter"));
         RefusedAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletRefused.DA_Field_MaletRefused"));
         DealAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletDeal.DA_Field_MaletDeal"));
-        if (!EncounterAsset || !RefusedAsset || !DealAsset) { State = EMemoriaSliceState::Failed; Record(TEXT("error:missing_malet_contract")); return false; }
+        RewardAsset = LoadObject<UMemoriaFieldAsset>(nullptr, TEXT("/Game/Memoria/Generated/Narrative/DA_Field_MaletReward.DA_Field_MaletReward"));
+        if (!EncounterAsset || !RefusedAsset || !DealAsset || !RewardAsset) { State = EMemoriaSliceState::Failed; Record(TEXT("error:missing_malet_contract")); return false; }
         // npc.gd registers its cache and first-talk callback before load_and_start.
         bMaletTalkCached = true; Record(TEXT("cache:set:malet_encounter"));
         bMaletFirstTalkPending = true; Record(TEXT("callback:npc:connect"));
@@ -196,12 +199,18 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     else if (State == EMemoriaSliceState::Field && Field)
     {
         int32 Index = Field->OriginalIndex();
-        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : ActiveFieldAsset == DealAsset ? TEXT("MALET / DEAL") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
+        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : ActiveFieldAsset == DealAsset ? TEXT("MALET / DEAL") : ActiveFieldAsset == RewardAsset ? TEXT("MALET / REWARD") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
         if (ActiveFieldAsset->Definition.Rows.IsValidIndex(Index))
         {
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
             for (int32 I : Field->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Row.Choices[I].Text)});
         }
+    }
+    if (State == EMemoriaSliceState::Deferred)
+    {
+        View.bDevelopmentStop = true;
+        View.Header = TEXT("PHASE 1I / REWARD COMPLETE / DEVELOPMENT STOP");
+        View.Body = TEXT("8 / 8 reward lines completed.\n_on_reward_ended observed; effects deferred before ch2_malet_done.\nNo world memory, inventory, shop or chapter effects applied.");
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
     return View;
@@ -246,6 +255,12 @@ void UMemoriaNarrativeSubsystem::CancelMaletDelay()
 }
 void UMemoriaNarrativeSubsystem::OnWorldCleanup(UWorld* World, bool, bool)
 {
+    if (World == RewardCallbackWorld.Get())
+    {
+        RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();
+        Field.Reset(); ActiveFieldAsset = nullptr; State = EMemoriaSliceState::Idle;
+        DeferredInteraction.Reset(); bPaused = false; ++Revision;
+    }
     if (World == DelayWorld.Get() || World == RewardDelayWorld.Get())
     {
         CancelMaletDelay();
@@ -263,11 +278,19 @@ void UMemoriaNarrativeSubsystem::StartMaletField(UMemoriaFieldAsset* Asset)
 }
 void UMemoriaNarrativeSubsystem::FinishField()
 {
-    if (ActiveFieldAsset != EncounterAsset && ActiveFieldAsset != RefusedAsset && ActiveFieldAsset != DealAsset) { Explore(); return; }
+    if (ActiveFieldAsset != EncounterAsset && ActiveFieldAsset != RefusedAsset && ActiveFieldAsset != DealAsset && ActiveFieldAsset != RewardAsset) { Explore(); return; }
     const bool bRefused = ActiveFieldAsset == RefusedAsset;
     const bool bDeal = ActiveFieldAsset == DealAsset;
+    const bool bReward = ActiveFieldAsset == RewardAsset;
     Field.Reset(); ActiveFieldAsset = nullptr; State = EMemoriaSliceState::Exploration;
     Record(TEXT("state:exploration"));
+    if (bReward)
+    {
+        ++RewardCompletionCount;
+        // end_dialogue switches state before synchronous dialogue_ended. No
+        // frame, timer, gameplay effect or rollback is inserted at this seam.
+        DeferRewardEffects(); return;
+    }
     if (bDeal)
     {
         Record(TEXT("callback:deal:enter")); Record(TEXT("delay:scheduled:500"));
@@ -323,9 +346,25 @@ void UMemoriaNarrativeSubsystem::RewardDelayElapsed()
     RewardDelayWorld.Reset(); RewardDelay.Invalidate();
     UE_LOG(LogTemp, Display, TEXT("MEMORIA_MALET_REWARD_DELAY_US %lld"), int64(FMath::RoundToDouble(ActualRewardDelaySeconds*1000000.0)));
     Record(TEXT("delay:elapsed:500"));
-    // Observe the source continuation connection; do not bind reward effects.
+    RewardCallbackWorld = World; RewardCallbackRunId = Run->GetRunSnapshot().RunId;
     Record(TEXT("callback:reward:connect"));
     Record(TEXT("request:res://data/chapter2_dialogue.json::malet_reward"));
-    DeferredInteraction = TEXT("malet_reward");
-    Record(TEXT("development:deferred:malet_reward")); ++Revision;
+    ++RewardFieldInvocationCount; StartMaletField(RewardAsset);
+}
+
+void UMemoriaNarrativeSubsystem::DeferRewardEffects()
+{
+    if (!RewardCallbackWorld.IsValid() || RewardCallbackWorld.Get() != GetWorld() ||
+        !Run->HasActiveRun() || RewardCallbackRunId != Run->GetRunSnapshot().RunId)
+    {
+        RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();
+        State = EMemoriaSliceState::Idle; ++Revision; return;
+    }
+    // Only callback intent is authorized. There is no executable reward effect
+    // handler or continuation to resume from this development stop.
+    ++RewardCallbackIntentCount; Record(TEXT("callback:reward:enter"));
+    DeferredInteraction = TEXT("_on_reward_ended:before:ch2_malet_done");
+    Record(TEXT("development:deferred:") + DeferredInteraction);
+    State = EMemoriaSliceState::Deferred; ++Revision;
+    // Retain weak ownership of the stopped boundary for cleanup on world exit.
 }
