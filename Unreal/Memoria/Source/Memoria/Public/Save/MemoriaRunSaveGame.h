@@ -7,8 +7,8 @@
 #include "Narrative/MemoriaNarrativeContracts.h"
 #include "MemoriaRunSaveGame.generated.h"
 
-// Opaque deferred sections keep future import data distinct. Phase 1A does not
-// parse/apply these or claim legacy save compatibility. Empty means absent.
+// Existing schema-1 world section now stores native cognition JSON. Empty retains
+// Phase1A-J compatibility (source defaults). No legacy Godot save importer claim.
 USTRUCT()
 struct MEMORIA_API FMemoriaWorldCognitionSaveSection
 {

@@ -16,6 +16,7 @@ void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection
 }
 void UMemoriaNarrativeSubsystem::Reset()
 {
+    SeedObservations.Reset(); PresentedSeedObservation = INDEX_NONE;
     CancelMaletDelay();
     RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();
     RewardCompletionCount = RewardCallbackIntentCount = RewardFieldInvocationCount = 0;
@@ -210,9 +211,17 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     if (State == EMemoriaSliceState::Deferred)
     {
         View.bDevelopmentStop = true;
-        View.Header = TEXT("PHASE 1J / FIRST REWARD EFFECT / DEVELOPMENT STOP");
-        View.Body = FString::Printf(TEXT("8 / 8 reward lines completed.\nch2_malet_done=%s | world seed invocations=0\nStopped before world seed. Inventory, shop and chapter unchanged."),
-            Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")) ? TEXT("true") : TEXT("false"));
+        const auto Snapshot = SeedObservations.IsValidIndex(PresentedSeedObservation) ? SeedObservations[PresentedSeedObservation] : Run->GetWorldCognition()->GetSnapshot();
+        const auto* Actor = Snapshot.Actors.FindByPredicate([](const auto& A){return A.ActorId.Equals(MemoriaWorldIds::Malet,ESearchCase::CaseSensitive);});
+        const auto* Knowledge = Actor ? Actor->Knowledge.FindByPredicate([](const auto& K){return K.FactId.Equals(MemoriaWorldIds::RouteFact,ESearchCase::CaseSensitive);}) : nullptr;
+        const auto* Memory = Actor ? Actor->Memories.FindByPredicate([](const auto& M){return M.Id.Equals(MemoriaWorldIds::RouteMemory,ESearchCase::CaseSensitive);}) : nullptr;
+        const TCHAR* Labels[] = {TEXT("MaletDone_Set"),TEXT("WorldKnowledge_Seeded"),TEXT("WorldMemory_Seeded")};
+        View.Header = TEXT("PHASE 1K / WORLD SEED / PRE-POTION STOP");
+        View.Body = FString::Printf(TEXT("%s\n%s\nch2_malet_done=%s | revision=%lld | event_sequence=%lld\nnpc.malet / route fact=%s / source memory=%s\nInventory unchanged. Potion x2 deferred."),
+            SeedObservations.IsValidIndex(PresentedSeedObservation) ? Labels[PresentedSeedObservation] : TEXT("PotionReward_Deferred"),
+            SeedObservations.IsValidIndex(PresentedSeedObservation) ? TEXT("RECORDED SYNCHRONOUS SNAPSHOT / READ ONLY") : TEXT("LIVE AUTHORITATIVE WORLD STATE"),
+            Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")) ? TEXT("true") : TEXT("false"),Snapshot.Revision,Snapshot.EventSequence,
+            Knowledge ? (Knowledge->bValue ? TEXT("true") : TEXT("forgotten")) : TEXT("absent"),Memory ? *Memory->Status : TEXT("absent"));
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
     return View;
@@ -222,9 +231,8 @@ FMemoriaVNContinuation UMemoriaNarrativeSubsystem::GetContinuation() const
 UMemoriaRunSaveGame* UMemoriaNarrativeSubsystem::CaptureSave() const
 {
     if (!Run->HasActiveRun() || State != EMemoriaSliceState::VN || !VN) return nullptr;
-    auto* Save = NewObject<UMemoriaRunSaveGame>();
-    Save->Run = Run->GetRunSnapshot(); Save->ContentRevision = Save->Run.ContentRevision;
-    Save->MemoryDefinitions = Run->GetPlayerMemory()->GetDefinitions(); Save->PlayerMemory = Run->GetPlayerMemory()->GetSnapshot();
+    auto* Save = Run->CaptureSave();
+    if (!Save) return nullptr;
     Save->SceneFlow = VN->ExportContinuation(); return Save;
 }
 bool UMemoriaNarrativeSubsystem::PrepareRestore(const UMemoriaRunSaveGame& Save)
@@ -237,7 +245,7 @@ bool UMemoriaNarrativeSubsystem::PrepareRestore(const UMemoriaRunSaveGame& Save)
     auto Snapshot = Save.Run; FMemoriaNarrativeContext CheckContext(Snapshot, *Candidate);
     FMemoriaVNInterpreter Check(VNAsset->Definition, CheckContext);
     if (!Check.PrepareResume(Save.SceneFlow)) return false;
-    if (Run->RestoreRun(Save.Run, Save.MemoryDefinitions, Save.PlayerMemory) != EMemoriaMemoryResult::Success) return false;
+    if (!Run->RestoreSave(Save)) return false;
     Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
     VN = MakeUnique<FMemoriaVNInterpreter>(VNAsset->Definition, *Context);
     VN->PrepareResume(Save.SceneFlow); State = EMemoriaSliceState::VN; ++Revision; return true;
@@ -386,8 +394,37 @@ void UMemoriaNarrativeSubsystem::CommitRewardFlagAndDeferSeed()
 #endif
     // A committed old-run flag is never rolled back if a lifecycle observer replaces it.
     if (!HasLiveRewardOwner()) return;
-    // Do not enter the source seed function. No world owner, mutation, or continuation.
-    DeferredInteraction = TEXT("before:world_memory_seed");
+    auto* World = Run->GetWorldCognition();
+    SeedObservations.Reset(); SeedObservations.Add(World->GetSnapshot());
+    Record(TEXT("worldseed:enter"));
+#if WITH_DEV_AUTOMATION_TESTS
+    OnRewardBoundaryObserved.Broadcast(TEXT("before_world_seed"));
+#endif
+    if (!HasLiveRewardOwner()) return;
+    const auto Handle = World->OnCommitted.AddLambda([this](const FMemoriaWorldEvent& E,const FMemoriaWorldSnapshot& S)
+    {
+        Record(FString(E.bKnowledge ? TEXT("world:knowledge:") : TEXT("world:memory:"))+E.ActorId+TEXT(":")+E.TargetId);
+        Record(FString::Printf(TEXT("world:revision:%lld"),E.Revision));
+        SeedObservations.Add(S);
+#if WITH_DEV_AUTOMATION_TESTS
+        OnRewardBoundaryObserved.Broadcast(E.bKnowledge ? TEXT("after_knowledge") : TEXT("after_memory"));
+#endif
+    });
+    World->SeedMaletRoute(Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
+    World->OnCommitted.Remove(Handle);
+    Record(TEXT("worldseed:end"));
+#if WITH_DEV_AUTOMATION_TESTS
+    OnRewardBoundaryObserved.Broadcast(TEXT("world_seed_complete"));
+#endif
+    if (!HasLiveRewardOwner()) return;
+    DeferredInteraction = TEXT("before:item:potion:2");
     Record(TEXT("development:deferred:") + DeferredInteraction);
     State = EMemoriaSliceState::Deferred; ++Revision;
+}
+
+void UMemoriaNarrativeSubsystem::PresentSeedObservation(int32 Index)
+{
+    if(State!=EMemoriaSliceState::Deferred)return;
+    PresentedSeedObservation=SeedObservations.IsValidIndex(Index) ? Index : INDEX_NONE;
+    ++Revision;
 }

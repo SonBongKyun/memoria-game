@@ -60,3 +60,24 @@ Use immutable fixtures, recorded input/choice/random-draw traces, normalized sta
 Accept one bounded slice at a time. Publish its source revision, fixture/input trace, expected and actual normalized snapshots/events, test process exit codes/full-log fatal scan, and paired screenshots/audio notes. All unresolved differences need an ID in the risk register and a disposition; “looks close” cannot waive memory, story, economy or save differences. Preserve a runnable Godot reference until all retained routes and secondary systems have accepted UE results.
 
 No deletion of old content is implied by an unreachable current route. Route availability, implementation completeness, and tests passed are three separate properties. The importer and final checklist must account for all three.
+
+
+## Phase 1K scoped evidence appendix — 2026-09-09
+
+The entire Phase0 matrix above remains byte-identical as a prefix. Its broad planned
+rows are not retroactively marked complete. This appendix records only the bounded
+Malet seed implementation; final125/125 and independent437 checks PASS (static60/original4217 preserved). See [Phase1K report](PHASE_1K_REPORT.md).
+
+| Original row / bounded observation | Phase1K contract and evidence |
+|---|---|
+| P15/P16 Malet knowledge and source memory | Typed separate run-owned world cognition; source13 exact snapshots/events/revisions. Fresh route fact then memory0 ->1 ->2; no player-card mutation. General remove/restore/forget commands and full report/followup are not migrated. |
+| P15 no-op/tombstone/forgotten | Presence guard preserves removed/restored content/history and false fact; repeat/missing actor/false flag quiet no-op. Source13 and new native contract tests. |
+| P37 bounded native SaveGame | Existing schema1 world JSON section; real binary SaveGameToMemory/load/restore compares run/player/world independently. Prior absent world defaults and malformed-native rejection tested. Full legacy import is deferred. |
+| P40/P48 lifetime | Same Run/player/world owner across real native travel; replacement creates clean world owner and cancels old narrative. World actor teardown retains persistent cognition. Source state-only replacement behavior differs as previously documented. |
+| P04/P07/P08 existing canonical path | Real paid VN/food/native travel/physical walk/Malet reaction/Accept/sword/deal/reward through done flag and seed. All107 prior Automation identities retained;18 added. |
+| P31 first inventory boundary | Deferred BEFORE potion2, inventory/recent items unchanged; zero item/signal/toast/shop/chapter/profile calls. No inventory feature expansion. |
+| P45 development evidence only | Four native PNGs; three explicitly recorded read-only synchronous snapshots and final live pre-potion stop. Final art/typography parity is not claimed. |
+| P47 no content change | Existing21 package hashes and80 prior IR/fixture files unchanged. No narrative group, asset, package or dialogue import added. |
+
+Source-derived behavioral expectations remain authoritative. General World Memory,
+Malet trade, Verdan progression and production New Game remain outside this appendix.

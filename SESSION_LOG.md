@@ -2,6 +2,15 @@
 
 ---
 
+## S276 - 2026-09-09 (Unreal Phase 1K — Malet world seed 완료)
+
+- 기존 실제 paid VN/food/native travel/물리 이동/reaction/Accept/sword/0.3초/deal/0.5초/reward 경로에서 done flag 뒤 실제 world seed를 실행하고 potion2 직전에 정지.
+- Player Memory와 분리된 run-owned World Cognition/typed DTO, source revision/event sequence, 기존 SaveGame schema1 world section 저장·복원 구현. 새로운 narrative content/package 없음.
+- 실제 Godot seed13 및 J12/I8/H9/G7/F7/E4/D10/C7, officialGodot15, native51+CTest1, host76 통과. 신규18 집중 및 기존107 포함125/125 최종 rendered PIE 통과. 독립437항목/JSON399개, static60/원본4217, UE21패키지·이전IR/fixture80개 보존 PASS. 기존 MotionVectorSimulation 경고1 유지.
+- removed/restored/forgotten 보존, 반복·missing actor·false flag no-op, Player Memory 전체 및 connections/effective power/definitions/carry 관측 동일. 같은 run/player/world owner travel 유지, run 교체는 새 cognition으로 격리.
+- Json link 의존성 누락, negative test의 TArray self-add, 정수 전용 evidence serializer의 소수값 기록 문제 수정. 실패 로그/캡처 보존; Godot defect 변경 없음.
+- 과거 문서/evidence/원본 보존. 로컬 checkpoint는 모든 acceptance 후에만 생성하며 push/Phase1L 구현 없음. 보고서 docs/unreal-migration/PHASE_1K_REPORT.md.
+
 ## S275 - 2026-09-09 (Unreal Phase 1J — Malet 첫 보상 flag commit 완료)
 
 - 별도 migration worktree의 동일 paid VN/native travel/물리 이동/reaction/Accept/sword/0.3초/deal/0.5초/reward0..7 경로 유지. reward 종료/동기 callback 뒤 기존 authoritative Run API로 ch2_malet_done=true 하나만 commit하고 world seed 함수 진입 전에 개발용 정지.

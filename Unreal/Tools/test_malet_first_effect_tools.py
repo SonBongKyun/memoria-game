@@ -46,6 +46,6 @@ class FirstEffectContract(unittest.TestCase):
         s=p.read_text(encoding='utf-8');body=s[s.index('void UMemoriaNarrativeSubsystem::CommitRewardFlagAndDeferSeed()'):]
         self.assertEqual(body.count('Run->SetStoryFlag(TEXT("ch2_malet_done"), true)'),1)
         self.assertLess(body.index('callback:reward:enter'),body.index('Run->SetStoryFlag'))
-        self.assertLess(body.index('Run->SetStoryFlag'),body.index('before:world_memory_seed'))
+        self.assertLess(body.index('Run->SetStoryFlag'),body.index('before:item:potion:2'))
         for token in ('learn_fact(', 'add_memory(', '_seed_malet_memory_world_state_if_needed(', 'SetTimer(', 'RemoveStoryFlag('):self.assertNotIn(token,body)
 if __name__=='__main__':unittest.main()

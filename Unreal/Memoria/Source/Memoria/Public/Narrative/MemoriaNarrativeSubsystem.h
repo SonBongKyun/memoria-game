@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "TimerManager.h"
+#include "World/MemoriaWorldCognition.h"
 #include "Narrative/MemoriaNarrativeRuntime.h"
 #include "MemoriaNarrativeSubsystem.generated.h"
 
@@ -32,6 +33,8 @@ public:
     // the normal route has no subscriber, injected state or alternate flag authority.
     FMemoriaRewardBoundaryObserved OnRewardBoundaryObserved;
 #endif
+    // Read-only presentation of recorded synchronous seed boundaries, after stop.
+    void PresentSeedObservation(int32 Index);
     bool StartDevelopmentVN();
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
@@ -73,11 +76,13 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
     // Source reward listener is one-shot and synchronous. This owner binds only
-    // the first flag effect, then a pre-seed development boundary.
+    // the flag and world seed, then a pre-potion development boundary.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;
     FGuid RewardCallbackRunId;
     int32 RewardCompletionCount = 0, RewardCallbackIntentCount = 0, RewardFieldInvocationCount = 0;
     void CommitRewardFlagAndDeferSeed();
+    TArray<FMemoriaWorldSnapshot> SeedObservations;
+    int32 PresentedSeedObservation = INDEX_NONE;
     bool HasLiveRewardOwner() const;
     FString DeferredInteraction;
     bool bMaletTalkCached = false, bMaletFirstTalkPending = false, bMaletCallbackConnected = false;

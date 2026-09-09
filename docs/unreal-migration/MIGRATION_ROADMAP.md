@@ -316,3 +316,22 @@ Exact source setter/seed cases, pending-world and run replacement ownership, his
 test-name debt and currentChapter1 fixture debt are documented in PHASE_1J_REPORT.md.
 Phase1K is recommendation only: bounded source seed, stop before potion2. No implementation
 or remote push is included. The local checkpoint is the enclosing first-effect commit.
+
+
+## Phase 1K bounded seed — 2026-09-09
+
+COMPLETE: all bounded acceptance PASS. Same canonical route commits
+only guarded source Malet knowledge then route memory after done=true, then stops
+before potion2. Separate typed run-owned World Cognition survives native travel and
+roundtrips in existing schema1 WorldCognition.SourceJson. Defaults retain four actors
+and fact.veil.exists; source canonical revision/event_sequence0 ->1 ->2. Removed,
+restored and forgotten records persist; repeat/missing actor/false flag no-op.
+
+Source13 + previous J12/I8/H9/G7/F7/E4/D10/C7, Godot15, native51+CTest1 and host76 PASS;
+new18 focused PASS, full prior107+18=125/125 PASS; independent437 checks/399 JSONs; static60/original4217 PASS.21 package bytes and80 prior
+IR/fixture files unchanged; no new narrative content. [Phase1K report](PHASE_1K_REPORT.md).
+Only local checkpoint after acceptance, no push. Full world/Malet parity not claimed.
+
+Phase1L recommendation only: exact first potion2 inventory call (including its own
+recent-items/signal/toast behavior), STOP before antidote1. No further reward/shop/
+chapter/autosave/achievement effects implied; no Phase1L implementation.

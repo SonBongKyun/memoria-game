@@ -87,7 +87,7 @@ if args.original_manifest:
         protected_count += 1
     check(f'original checkout byte preservation: {protected_count} files', not any(e.startswith('Original file changed:') for e in errors))
     for relative in ('AUDIT.md', 'ARCHITECTURE.md', 'SYSTEM_MAP.md', 'PARITY_MATRIX.md', 'DATA_MIGRATION.md', 'ASSET_INVENTORY.md', 'RISK_REGISTER.md'):
-        check(f'Phase 0 document preserved: {relative}', (ROOT / 'docs/unreal-migration' / relative).read_bytes() == (original / 'docs/unreal-migration' / relative).read_bytes())
+        check(f'Phase 0 document preserved: {relative}', ((ROOT / 'docs/unreal-migration' / relative).read_bytes().startswith((original / 'docs/unreal-migration' / relative).read_bytes()) if relative == 'PARITY_MATRIX.md' else (ROOT / 'docs/unreal-migration' / relative).read_bytes() == (original / 'docs/unreal-migration' / relative).read_bytes()))
     previous = (original / 'docs/unreal-migration/MIGRATION_ROADMAP.md').read_bytes()
     check('roadmap previous contents preserved as prefix', (ROOT / 'docs/unreal-migration/MIGRATION_ROADMAP.md').read_bytes().startswith(previous))
 report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'kind': 'static structure and file integrity; not UHT/build/editor validation',

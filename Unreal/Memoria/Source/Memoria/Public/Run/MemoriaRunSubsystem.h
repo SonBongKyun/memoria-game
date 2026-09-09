@@ -4,12 +4,14 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Run/MemoriaRunTypes.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
+#include "World/MemoriaWorldCognition.h"
 #include "MemoriaRunSubsystem.generated.h"
+
+class UMemoriaRunSaveGame;
 
 DECLARE_MULTICAST_DELEGATE(FMemoriaRunReplaced);
 
-// Owns persistent player state. ActorRegistry/WorldState cognition belongs to a
-// different future domain: no player burn -> NPC memory deletion bridge exists.
+// Owns independent player and world cognition domains across map travel.
 UCLASS()
 class MEMORIA_API UMemoriaRunSubsystem : public UGameInstanceSubsystem
 {
@@ -22,7 +24,10 @@ public:
     // Explicit New Game memory bootstrap from the offline-imported typed asset.
     // Does not travel, start narrative, or require editor/source tooling.
     EMemoriaMemoryResult BeginStartingMemoryRun();
-    EMemoriaMemoryResult RestoreRun(const FMemoriaRunSnapshot& Run, const TArray<FMemoriaMemoryDefinition>& Definitions, const FMemoriaMemorySnapshot& Memory);
+    EMemoriaMemoryResult RestoreRun(const FMemoriaRunSnapshot& Run, const TArray<FMemoriaMemoryDefinition>& Definitions, const FMemoriaMemorySnapshot& Memory, const FMemoriaWorldSnapshot& World = UMemoriaWorldCognition::Defaults());
+    UMemoriaWorldCognition* GetWorldCognition() const { return WorldCognition; }
+    UMemoriaRunSaveGame* CaptureSave() const;
+    bool RestoreSave(const UMemoriaRunSaveGame& Save);
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);
     EMemoriaMemoryResult ErodeMemories(int64 ChapterArgument);
@@ -39,5 +44,6 @@ private:
     // and cancels its cursors synchronously on OnRunReplaced.
     friend class UMemoriaNarrativeSubsystem;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPlayerMemoryDomain> PlayerMemory;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaWorldCognition> WorldCognition;
     UPROPERTY(Transient) FMemoriaRunSnapshot State;
 };
