@@ -1,44 +1,45 @@
-# Migration handoff — Phase 1I complete on UE 5.8.2
+# Migration handoff — Phase 1J complete on UE 5.8.2
 
-Status: **Phase1I COMPLETE**, reward8 completed; `_on_reward_ended` deferred before
-its first authoritative effect `ch2_malet_done`.
+Status: **Phase1J COMPLETE**. Same canonical run commits ch2_malet_done=true after
+reward originals0..7 and synchronous reward callback, then stops before entering
+world-memory seed. The flag is the only new authoritative gameplay delta.
 Engine **5.8.2 / CL56702186**, `C:\Program Files\Epic Games\UE_5.8`.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`; branch `unreal-migration/ue58-foundation`.
-Previous technical checkpoint `5010a26ca934047d27160af3672a93a0caaf2e14`;
-clean documentation start `bf75dad`. The new local checkpoint is the enclosing
-`feat(unreal): add Malet reward dialogue boundary` commit; resolve its SHA with
-`git log -1 --format=%H -- docs/unreal-migration/PHASE_1I_REPORT.md`. No push.
+Prior technical/documentation HEAD: `b3308a72d745e144704f7675fd35b78f555b5417`.
+New checkpoint is the enclosing `feat(unreal): commit first Malet reward effect` local
+commit; resolve via `git log -1 --format=%H -- docs/unreal-migration/PHASE_1J_REPORT.md`.
+No push. No Phase1K implementation.
 
-- [Report](PHASE_1I_REPORT.md), [97-test result](evidence/phase1i/automation01/automation_index.json),
-  [193-check independent acceptance](evidence/phase1i/acceptance01/acceptance.json),
-  [full canonical trace](evidence/phase1i/acceptance01/canonical_full_trace.txt).
-- Paid VN original1 -> actual food burn -> native travel -> physical walk/E -> first
-  reaction -> E/normal -> Accept0 -> same-domain sword payment -> real0.3s -> deal0..4
-  -> real0.5s -> reward0..7 -> Field end -> source exploration event -> synchronous
-  reward callback intent -> development pre-effect stop. No canonical fixture reset.
-- Only new production narrative group/package is `malet_reward` / `DA_Field_MaletReward`.
-  English/Korean, original indices, presence and provenance exact. Import CREATED,
-  second and check-only UNCHANGED/no-save.20 existing UE packages preserved.
-- Same live run/domain, food+sword history, accepted/heard flags, full memory,
-  inventory/items/chapter retained. No `ch2_malet_done`, world seeding, reward items,
-  shop, Chapter3 request, autosave or achievement execution. Unimplemented world/shop
-  snapshots are honestly null; actual DTO/trace and static boundary proof accompany them.
-- Source8 cases characterize full reward callback and both completion lifetime cuts.
-  Source state-only replacement can retain callbacks; Unreal deliberately keeps its
-  accepted OnRunReplaced cancellation. No new reward-completion timer. Deferred
-  modal consumes input and remains stable; source exploration is only a traced
-  synchronous transition, not an invented free-exploration frame.
-- Previous90 exact identities + new7 =97/97 PASS. Historical AcceptPreEffectDeferred
-  and payment test names retained; assertions now extend to reward pre-effect stop.
-  Exact H payment/timers, G Refuse cleanup/retry and F reaction regressions preserved.
-- UBT/UHT/compile/link/Editor/rendered PIE PASS. Existing MotionVectorSimulation
-  warning1 remains unchanged. Source H9/G7/F7/E4/D10/C7; officialGodot15; native51+CTest1;
-  host61; static59/original4217; original checkout HEAD/status and old20 packages PASS.
-- Five native reward/completion/deferred PNGs directly inspected,133 valid snapshots.
-  Failure logs retained. Full Malet parity, final visuals/KO typography and Field
-  save-resume are not claimed. All absolute downstream scope bans remain in place.
+- [Report](PHASE_1J_REPORT.md), [UE107](evidence/phase1j/automation03/automation_index.json),
+  [independent358 checks](evidence/phase1j/acceptance01/acceptance.json),
+  [exact trace](evidence/phase1j/acceptance01/canonical_full_trace.txt).
+- Paid VN1 -> actual food burn -> native travel -> physical walk/E -> reaction ->
+  normal Accept0 -> actual sword burn -> real0.3s -> deal0..4 -> real0.5s -> reward0..7
+  -> field:end -> state:exploration -> callback:reward:enter -> flag:ch2_malet_done
+  -> development:deferred:before:world_memory_seed. No canonical fixture reset.
+- Existing case-sensitive run API owns the true flag. Source setter overwrites/logs
+  even already true; no signal. False/true/case/save round-trip verified. No shadow flag.
+- All21 packages and prior76 IR/fixture files unchanged; no new narrative content.
+- Same Run ID/domain, food+sword history, residue/erosion, HP100/Grains0/items/recent
+  items/other flags/currentChapter1 retained. No seed/world revision/knowledge/memory,
+  reward items/shop/ch2_complete/Chapter3/autosave/achievement/next-map execution.
+  Unimplemented world/shop owners are null in evidence, accompanied by static/trace proof.
+- Source12 cases characterize first flag and seed, including existing knowledge/memory,
+  removed/restored/forgotten, missing actor, already true, false/case and repeated handler.
+  Seed is idempotent; full repeated reward is not (items double, shop signal ERROR).
+  That source diagnostic is retained with exact single-line/count acceptance only.
+- UE same-stack before-callback/before-flag/after-flag run replacement and real queued
+  OpenLevel/teardown PASS. Pending outgoing world invalidates callback; committed old
+  flag is not rolled back. Source state-only replacement difference remains explicit.
+- UBT/UHT/compile/link/Editor/rendered PIE old97+new10=107/107, independent358 checks,
+ 287 valid snapshots; four original captures reviewed. Existing MotionVectorSimulation
+  warning1 remains; new10 have zero warnings/errors. Source I8/H9/G7/F7/E4/D10/C7;
+  officialGodot15; native51+CTest1; host69; static59/original4217 PASS.
+- Historical Automation/host names remain with documented new pre-seed meaning.
+  Development chapter metadata, final UI/art/KO typography, Field save-resume and
+  physical USB device certification remain limitations. Full Malet/world parity is not claimed.
 
-**Phase1J has not started.** Recommend only the first authoritative reward effect:
-set `ch2_malet_done` on this same run, then stop before world-memory seeding can mutate.
-Require separate authorization, source characterization,97 retained identities and
-fresh PIE/lifecycle evidence. Items/shop/Chapter3/autosave/achievements remain deferred.
+Next recommendation (requires separate authorization): only source seed's guarded
+missing route knowledge then missing route memory, through authoritative world owners
+with exact revisions/events and tombstone/forgotten preservation, then STOP before
+potion2. Retain107 tests. No item/shop/chapter/profile effects are implied.

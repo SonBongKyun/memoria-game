@@ -7,6 +7,7 @@
 
 class UMemoriaRunSubsystem;
 class UMemoriaRunSaveGame;
+DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaRewardBoundaryObserved, const FString&);
 enum class EMemoriaSliceState : uint8 { Idle, VN, Travelling, Field, Exploration, Deferred, Failed };
 struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; };
 // Presentation receives values only. No conditions, effect data or mutable run.
@@ -26,6 +27,11 @@ class MEMORIA_API UMemoriaNarrativeSubsystem : public UGameInstanceSubsystem
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
+#if WITH_DEV_AUTOMATION_TESTS
+    // Synchronous observation only. Test subscribers may exercise real owner lifetimes;
+    // the normal route has no subscriber, injected state or alternate flag authority.
+    FMemoriaRewardBoundaryObserved OnRewardBoundaryObserved;
+#endif
     bool StartDevelopmentVN();
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
@@ -67,11 +73,12 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
     // Source reward listener is one-shot and synchronous. This owner binds only
-    // a pre-effect development boundary, never the downstream gameplay handler.
+    // the first flag effect, then a pre-seed development boundary.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;
     FGuid RewardCallbackRunId;
     int32 RewardCompletionCount = 0, RewardCallbackIntentCount = 0, RewardFieldInvocationCount = 0;
-    void DeferRewardEffects();
+    void CommitRewardFlagAndDeferSeed();
+    bool HasLiveRewardOwner() const;
     FString DeferredInteraction;
     bool bMaletTalkCached = false, bMaletFirstTalkPending = false, bMaletCallbackConnected = false;
     FTimerHandle MaletDelay, RewardDelay;

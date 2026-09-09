@@ -174,7 +174,7 @@ func run() -> void:
     get_tree().quit(0)
 '''
 
-def run(args, project_setup=None):
+def run(args, project_setup=None, expected_execute_errors=()):
     ev=args.evidence_dir.resolve()
     if ev.exists(): raise ValueError('Use fresh evidence path')
     ev.mkdir(parents=True)
@@ -243,7 +243,14 @@ renderer/rendering_method="gl_compatibility"
         (ev/(name+'.log')).write_text(log,encoding='utf-8')
         report['commands'].append(dict(name=name,command=command,exit_code=r.returncode))
         (ev/'oracle.json').write_bytes(canonical(report))
-        if r.returncode or re.search(r'SCRIPT ERROR|Parse Error|FATAL|CRASH|ERROR:',log,re.I): raise ValueError('Oracle '+name+' failed: '+log[-6000:])
+        fatal_log = log
+        if name == 'execute' and expected_execute_errors:
+            for diagnostic, count in expected_execute_errors:
+                if log.splitlines().count(diagnostic) != count:
+                    raise ValueError('Expected source diagnostic count mismatch: '+diagnostic)
+                fatal_log = fatal_log.replace(diagnostic, '')
+            report['expected_source_diagnostics'] = list(expected_execute_errors)
+        if r.returncode or re.search(r'SCRIPT ERROR|Parse Error|FATAL|CRASH|ERROR:',fatal_log,re.I): raise ValueError('Oracle '+name+' failed: '+log[-6000:])
     if 'MEMORIA_NARRATIVE_ORACLE_PASS' not in log: raise ValueError('Missing oracle marker')
     expected=parse_source((work/'outputs.json').read_bytes())
     for filename,value in [('contract_inputs.v1.json',cases),('contract_expected.v1.json',expected)]:

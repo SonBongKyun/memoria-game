@@ -52,14 +52,16 @@ class RewardTools(unittest.TestCase):
     def test_exact_90_retained_plus_7(self):
         prior=expected_test_paths()|narrative_test_paths()|slice_test_paths()|malet_test_paths()|malet_refusal_test_paths()|malet_deal_test_paths()
         self.assertEqual(len(prior),90);self.assertEqual(len(malet_reward_test_paths()),7);self.assertFalse(prior&malet_reward_test_paths())
-        self.assertEqual(current_test_paths(),prior|malet_reward_test_paths())
+        self.assertTrue((prior|malet_reward_test_paths()).issubset(current_test_paths()))
         report={'tests':[dict(fullTestPath=n,state='Success') for n in sorted(current_test_paths())]}
         self.assertTrue(inspect_automation_report(report,current_test_paths())['passed']);report['tests'].pop();self.assertFalse(inspect_automation_report(report,current_test_paths())['passed'])
     def test_pre_effect_runtime_has_no_downstream_calls(self):
         source=(ROOT/'Unreal/Memoria/Source/Memoria/Private/Narrative/MemoriaNarrativeSubsystem.cpp').read_text(encoding='utf-8')
-        body=source[source.index('void UMemoriaNarrativeSubsystem::DeferRewardEffects()'):]
-        for forbidden in ('SetStoryFlag(', 'BurnMemory(', 'Rewards(', 'OpenLevel(', 'SetTimer(', 'AddItem(', 'SaveGameToSlot(', 'LearnFact(', 'AddMemory('):self.assertNotIn(forbidden,body)
+        body=source[source.index('void UMemoriaNarrativeSubsystem::CommitRewardFlagAndDeferSeed()'):]
+        for forbidden in ('BurnMemory(', 'Rewards(', 'OpenLevel(', 'SetTimer(', 'AddItem(', 'SaveGameToSlot(', 'LearnFact(', 'AddMemory('):self.assertNotIn(forbidden,body)
         self.assertIn('EMemoriaSliceState::Deferred',body)
-        self.assertIn('RewardCallbackRunId != Run->GetRunSnapshot().RunId',body)
+        self.assertIn('RewardCallbackRunId == Run->GetRunSnapshot().RunId',source)
+        self.assertEqual(body.count('Run->SetStoryFlag(TEXT("ch2_malet_done"), true)'),1)
+        self.assertIn('before:world_memory_seed',body)
         self.assertNotIn('malet_memory_world_followup',source)
 if __name__=='__main__':unittest.main()

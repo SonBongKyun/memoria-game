@@ -15,6 +15,7 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Save/MemoriaRunSaveGame.h"
 #include "Import/MemoriaNarrativeImport.h"
 #include "Import/MemoriaStartingCatalogImport.h"
 #include "UObject/StrongObjectPtr.h"
@@ -202,7 +203,7 @@ class FMaletReplay final : public IAutomationLatentCommand
 {
 public:
     FMaletReplay(FAutomationTestBase* InTest, bool Paid, FString InMode = FString()) : Test(InTest), bPaid(Paid), Started(FPlatformTime::Seconds()), RefusalMode(InMode) {}
-    ~FMaletReplay() override { if (bStarted) { FApp::SetUseFixedTimeStep(bWasFixed); FApp::SetFixedDeltaTime(OldDelta); } }
+    ~FMaletReplay() override { if(ObservedHost.IsValid()) ObservedHost->OnRewardBoundaryObserved.Remove(BoundaryObserverHandle); if (bStarted) { FApp::SetUseFixedTimeStep(bWasFixed); FApp::SetFixedDeltaTime(OldDelta); } }
     bool Update() override
     {
         if (LastFrame == GFrameCounter) return false; LastFrame = GFrameCounter;
@@ -219,7 +220,7 @@ public:
             Test->TestFalse(TEXT("World teardown cancels 300 ms timer"), Host->IsMaletDelayPending());
             Test->TestFalse(TEXT("World teardown cancels 500 ms timer"), Host->IsMaletRewardDelayPending());
             Test->TestFalse(TEXT("Reward callback ownership cancelled on teardown"),Host->IsRewardCallbackPending());
-            if(RefusalMode.StartsWith(TEXT("CancelRewardField")) || RefusalMode.StartsWith(TEXT("CancelRewardBoundary")))
+            if(RefusalMode.StartsWith(TEXT("FirstEffectCancel")) || RefusalMode.StartsWith(TEXT("CancelRewardField")) || RefusalMode.StartsWith(TEXT("CancelRewardBoundary")))
                 Test->TestTrue(TEXT("Teardown disposes active or completed reward boundary"),Host->GetState()==EMemoriaSliceState::Idle);
             Test->TestEqual(TEXT("No stale continuation after owner teardown"), FString::Join(Host->GetTrace(),TEXT("\n")), CancellationTrace);
             Test->TestEqual(TEXT("Teardown preserves run"), StateJson(Run->GetRunSnapshot()), CancellationRun);
@@ -572,12 +573,31 @@ public:
                 Test->TestEqual(TEXT("Reaction, normal, deal, reward exactly once"),Host->GetFieldInvocationCount(),4);
                 Test->TestEqual(TEXT("Reward invocation exactly once"),Host->GetRewardFieldInvocationCount(),1);
                 Test->TestTrue(TEXT("Source-like reward listener pending"),Host->IsRewardCallbackPending());
-                RewardBeforeRun=StateJson(Run->GetRunSnapshot()); RewardBeforeMemory=StateJson(Run->GetPlayerMemory()->GetSnapshot());
+                if(RefusalMode==TEXT("FirstEffectPreexistingTrue") || RefusalMode==TEXT("FirstEffectPreexistingFalse"))
+                    Test->TestTrue(TEXT("Supplementary preexisting flag via authoritative API"),Run->SetStoryFlag(TEXT("ch2_malet_done"),RefusalMode==TEXT("FirstEffectPreexistingTrue")));
+                // Read-only synchronous snapshots; cancellation probes use real run/world APIs.
+                {
+                    const FString Point=RefusalMode.Contains(TEXT("BeforeCallback"))?TEXT("before_callback"):(RefusalMode.Contains(TEXT("BeforeFlag"))?TEXT("before_flag"):TEXT("after_flag"));
+                    ObservedHost=Host; BoundaryObserverHandle=Host->OnRewardBoundaryObserved.AddLambda([this,World,Run,Host,Point](const FString& Observed)
+                    {
+                        Write(Host,Run,nullptr,TEXT("synchronous_")+Observed);
+                        const bool Preexisting=RefusalMode==TEXT("FirstEffectPreexistingTrue") || RefusalMode==TEXT("FirstEffectPreexistingFalse");
+                        Test->TestEqual(TEXT("Presence at exact synchronous boundary"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")),Observed==TEXT("after_flag") || Preexisting);
+                        if(Observed==TEXT("after_flag")) Test->TestTrue(TEXT("Committed flag before seed boundary"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
+                        if(!RefusalMode.StartsWith(TEXT("FirstEffectCancel")) || Observed!=Point) return;
+                        Test->TestEqual(TEXT("Exact synchronous flag timing at lifetime boundary"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")),Point==TEXT("after_flag"));
+                        Write(Host,Run,nullptr,TEXT("lifetime_before_cancel"));
+                        Cancel(World,Run,Host);
+                    });
+                }
+                RewardBeforeSnapshot=Run->GetRunSnapshot(); RewardBeforeRun=StateJson(RewardBeforeSnapshot); RewardBeforeMemory=StateJson(Run->GetPlayerMemory()->GetSnapshot());
                 RewardBeforePosition=Pawn->GetActorLocation();
                 auto Preserved=Run->GetRunSnapshot();
                 Preserved.StoryFlags.RemoveAll([](const auto& F){return F.Id==TEXT("malet_deal_accepted") || F.Id==TEXT("talked_Malet_malet_encounter");});
-                Test->TestEqual(TEXT("Entire run outside two source flags unchanged"),StateJson(Preserved),NormalBeforeRun);
-                Test->TestFalse(TEXT("No reward flag on entry"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")));
+                const bool Preexisting=RefusalMode==TEXT("FirstEffectPreexistingTrue") || RefusalMode==TEXT("FirstEffectPreexistingFalse");
+                if(Preexisting) Preserved.StoryFlags.RemoveAll([](const auto& F){return F.Id.Equals(TEXT("ch2_malet_done"),ESearchCase::CaseSensitive);});
+                Test->TestEqual(TEXT("Entire run outside source flags and explicit supplementary setup unchanged"),StateJson(Preserved),NormalBeforeRun);
+                Test->TestEqual(TEXT("Canonical reward flag absent; supplementary entry is explicit"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")),Preexisting);
                 CompareReward(Host,Run,TEXT("reward_first"));
                 Capture(TEXT("Reward_FirstLine")); Write(Host,Run,Pawn,TEXT("before_reward"));
                 Stage=13; Frame=-1;
@@ -606,7 +626,7 @@ public:
                 if(Row==7) { Capture(TEXT("Reward_LastLine")); Write(Host,Run,Pawn,TEXT("reward_last")); }
                 if(Row==3 && RefusalMode.StartsWith(TEXT("CancelRewardField"))) { Cancel(World,Run,Host); return false; }
             }
-            if (Frame<160 && Frame%20==10) Key(EKeys::E,IE_Pressed);
+            if (Frame<160 && Frame%20==10) { Key(EKeys::E,IE_Pressed); if(Stage!=13) return false; }
             if (Frame<160 && Frame%20==14) Key(EKeys::E,IE_Released);
             if(Frame==158)
             {
@@ -614,6 +634,7 @@ public:
                 Capture(TEXT("Reward_Completion")); Write(Host,Run,Pawn,TEXT("reward_completion"));
                 if(RefusalMode.StartsWith(TEXT("CancelRewardBoundary"))) { Cancel(World,Run,Host); return false; }
             }
+            if(Frame==161) { Capture(TEXT("MaletDone_Set")); Write(Host,Run,Pawn,TEXT("after_flag")); }
             if(Frame==164) { Key(EKeys::E,IE_Pressed); Key(EKeys::D,IE_Pressed); }
             if(Frame==168) { Key(EKeys::E,IE_Released); Key(EKeys::D,IE_Released); }
             if(Frame==174)
@@ -621,7 +642,7 @@ public:
                 AssertRewardStop(PC,Host,Run);
                 Test->TestTrue(TEXT("Development stop cannot move pawn"),Pawn->GetActorLocation().Equals(RewardBeforePosition,.01f));
                 CompareReward(Host,Run,TEXT("completion_before_callback"),true);
-                Capture(TEXT("RewardEffects_Deferred")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
+                Capture(TEXT("WorldSeed_Deferred")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
                 Stage=9; Frame=-1;
             }
         }
@@ -644,12 +665,14 @@ private:
     FGuid RunId; TWeakObjectPtr<UMemoriaPlayerMemoryDomain> Domain; TWeakObjectPtr<UWorld> OriginalWorld;
     TWeakObjectPtr<AMemoriaMaletActor> Malet; FKey Held; FString BeforeMemory;
     FMemoriaRunSnapshot BeforeRun; FVector BeforePosition, CameraOrigin;
+    FMemoriaRunSnapshot RewardBeforeSnapshot;
+    FDelegateHandle BoundaryObserverHandle; TWeakObjectPtr<UMemoriaNarrativeSubsystem> ObservedHost;
     FString RewardBeforeRun, RewardBeforeMemory; FVector RewardBeforePosition;
     FString RefusalMode, NormalBeforeRun, BeforeAcceptRun, BeforeAcceptMemory, CancellationRun, CancellationMemory, CancellationTrace;
     TWeakObjectPtr<UWorld> CancelledWorld;
     bool IsDealMode() const
     {
-        return RefusalMode==TEXT("CanonicalReward") || RefusalMode==TEXT("AcceptPreEffectDeferred") || RefusalMode==TEXT("CanonicalPayment") ||
+        return RefusalMode.StartsWith(TEXT("FirstEffect")) || RefusalMode==TEXT("CanonicalReward") || RefusalMode==TEXT("AcceptPreEffectDeferred") || RefusalMode==TEXT("CanonicalPayment") ||
             RefusalMode==TEXT("AlreadyBurnedPayment") || RefusalMode.StartsWith(TEXT("CancelNormal")) || RefusalMode.StartsWith(TEXT("CancelReward"));
     }
     UMemoriaFieldAsset* DealAsset() const { return LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_deal"))); }
@@ -660,10 +683,14 @@ private:
         Test->TestEqual(TEXT("One reward Field completion"),Host->GetRewardCompletionCount(),1);
         Test->TestEqual(TEXT("One synchronous callback intent"),Host->GetRewardCallbackIntentCount(),1);
         Test->TestFalse(TEXT("Completed one-shot no longer pending"),Host->IsRewardCallbackPending());
-        Test->TestEqual(TEXT("Exact pre-effect deferred target"),Host->GetDeferredInteraction(),FString(TEXT("_on_reward_ended:before:ch2_malet_done")));
-        Test->TestEqual(TEXT("Full run/inventory/chapter/flags unchanged from reward entry"),StateJson(Run->GetRunSnapshot()),RewardBeforeRun);
+        Test->TestEqual(TEXT("Exact pre-effect deferred target"),Host->GetDeferredInteraction(),FString(TEXT("before:world_memory_seed")));
+        auto ExpectedRun=RewardBeforeSnapshot;
+        auto* Done=ExpectedRun.StoryFlags.FindByPredicate([](const auto& V){return V.Id.Equals(TEXT("ch2_malet_done"),ESearchCase::CaseSensitive);});
+        if(Done) Done->bValue=true;
+        else { FMemoriaStoryFlag F; F.Id=TEXT("ch2_malet_done");F.bValue=true;ExpectedRun.StoryFlags.Add(F); }
+        Test->TestEqual(TEXT("Only authoritative gameplay delta is ch2_malet_done=true"),StateJson(Run->GetRunSnapshot()),StateJson(ExpectedRun));
         Test->TestEqual(TEXT("Full memory unchanged from reward entry"),StateJson(Run->GetPlayerMemory()->GetSnapshot()),RewardBeforeMemory);
-        Test->TestFalse(TEXT("First source effect ch2_malet_done absent"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")));
+        Test->TestTrue(TEXT("First source effect persisted as an actual true entry"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")) && Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
         Test->TestTrue(TEXT("Same run ID and domain through reward stop"),RunId==Run->GetRunSnapshot().RunId && Domain.Get()==Run->GetPlayerMemory());
         Test->TestTrue(TEXT("No pending source or invented reward completion timer"),!Host->IsMaletDelayPending() && !Host->IsMaletRewardDelayPending());
         Test->TestEqual(TEXT("No downstream field or duplicate invocation"),Host->GetFieldInvocationCount(),4);
@@ -673,7 +700,7 @@ private:
         auto Expected=RewardCase(TEXT("reward_en"),Label);
         if(!Test->TestTrue(TEXT("Executable reward source state exists"),Expected.IsValid()))return;
         auto Gold=Strings(Expected->GetArrayField(TEXT("events")));
-        if(Completed) { Gold.Add(TEXT("callback:reward:enter")); Gold.Add(TEXT("development:deferred:_on_reward_ended:before:ch2_malet_done")); }
+        if(Completed) { Gold.Add(TEXT("callback:reward:enter")); Gold.Add(TEXT("flag:ch2_malet_done")); Gold.Add(TEXT("development:deferred:before:world_memory_seed")); }
         // Keep the historical already-burned payment prefix intact. Compare all
         // reward events against the source and retain the Phase1H memory oracle.
         TArray<FString> Actual;for(int32 I=NormalTraceStart;I<Host->GetTrace().Num();++I)Actual.Add(Host->GetTrace()[I]);
@@ -728,7 +755,7 @@ private:
         Test->AddError(TEXT("Missing source refusal trace"));
     }
     FString Mode() const { if (!RefusalMode.IsEmpty()) return RefusalMode; return bPaid?TEXT("CanonicalInteraction"):TEXT("IntactInteraction"); }
-    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1I"); }
+    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1J"); }
     void AssertExploration(AMemoriaSliceController* PC, UMemoriaNarrativeSubsystem* Host, UWorld* World)
     {
         Test->TestTrue(TEXT("Exploration restored, modal and choices removed"), Host->GetState()==EMemoriaSliceState::Exploration && !PC->IsModalOpen() && !PC->GetNarrativeWidget() && Host->GetView().Choices.IsEmpty());
@@ -756,6 +783,7 @@ private:
         O->SetNumberField(TEXT("reward_completions"),Host->GetRewardCompletionCount());
         O->SetNumberField(TEXT("reward_callback_intents"),Host->GetRewardCallbackIntentCount());
         O->SetBoolField(TEXT("reward_callback_pending"),Host->IsRewardCallbackPending());
+        O->SetBoolField(TEXT("ch2_malet_done_value"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
         O->SetBoolField(TEXT("ch2_malet_done_present"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")));
         // These downstream owners have not been migrated. Null is deliberately
         // distinct from a fabricated empty world/shop state or fake counters.
@@ -1048,6 +1076,54 @@ bool FRewardLanguages::RunTest(const FString&)
             TestEqual(TEXT("Exact source English/Korean interpreter events"),FString::Join(Context.Events,TEXT("\n")),FString::Join(Golden,TEXT("\n")));
         }
     }
+    Game->Shutdown();return !HasAnyErrors();
+}
+IMPLEMENT_COMPLEX_AUTOMATION_TEST(FMaletFirstEffectRuntime,"Memoria.MaletFirstEffect",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+void FMaletFirstEffectRuntime::GetTests(TArray<FString>& Names,TArray<FString>& Commands) const
+{
+    for(const TCHAR* N:{TEXT("Canonical"),TEXT("PreexistingTrue"),TEXT("PreexistingFalse"),TEXT("CancelBeforeCallbackOnRunReplace"),TEXT("CancelBeforeFlagOnRunReplace"),TEXT("CancelAfterFlagOnRunReplace"),TEXT("CancelBeforeCallbackOnWorldTeardown"),TEXT("CancelBeforeFlagOnWorldTeardown"),TEXT("CancelAfterFlagOnWorldTeardown")}) {Names.Add(N);Commands.Add(FString(TEXT("FirstEffect"))+N);}
+}
+bool FMaletFirstEffectRuntime::RunTest(const FString& Parameters)
+{
+    if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false;
+    FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,Parameters)));
+    ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFirstFlagContract,"Memoria.MaletFirstEffect.AuthoritativeFlagContract",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FFirstFlagContract::RunTest(const FString&)
+{
+    auto Cases=Json(Base()/TEXT("fixtures/malet_first_effect/contract_expected.v1.json"));
+    if(!TestTrue(TEXT("Fresh executable first-effect source contract"),Cases.IsValid()))return false;
+    for(auto C:Cases->AsArray())
+    {
+        auto O=C->AsObject();const FString Id=O->GetStringField(TEXT("id"));
+        if(Id==TEXT("seed_guard_false"))continue;
+        auto Boundary=O->GetArrayField(TEXT("boundary_snapshots"))[0]->AsObject();
+        const auto Events=Strings(Boundary->GetArrayField(TEXT("events")));
+        TestEqual(TEXT("Source callback commits flag before seed entry"),FString::Join(Events,TEXT("\n")),FString(TEXT("callback:reward:enter\nflag:ch2_malet_done")));
+        TestTrue(TEXT("Source boundary flag is true"),Boundary->GetObjectField(TEXT("flags"))->GetBoolField(TEXT("ch2_malet_done")));
+    }
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>());Game->Init();auto* Run=Game->GetSubsystem<UMemoriaRunSubsystem>();
+    TestTrue(TEXT("Real starting run"),Run->BeginStartingMemoryRun()==EMemoriaMemoryResult::Success);
+    const auto Before=Run->GetRunSnapshot();const FString Memory=StateJson(Run->GetPlayerMemory()->GetSnapshot());
+    TestFalse(TEXT("Absent is distinct from false entry"),Before.HasFlag(TEXT("ch2_malet_done")));
+    TestTrue(TEXT("Case-distinct false entry"),Run->SetStoryFlag(TEXT("CH2_MALET_DONE"),false));
+    TestTrue(TEXT("Authoritative explicit false"),Run->SetStoryFlag(TEXT("ch2_malet_done"),false));
+    TestTrue(TEXT("Explicit false exists"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")));
+    TestTrue(TEXT("Authoritative false to true"),Run->SetStoryFlag(TEXT("ch2_malet_done"),true));
+    const FString Committed=StateJson(Run->GetRunSnapshot());
+    TestTrue(TEXT("Repeated true set succeeds"),Run->SetStoryFlag(TEXT("ch2_malet_done"),true));
+    TestEqual(TEXT("Repeated set preserves exact storage without duplicates"),StateJson(Run->GetRunSnapshot()),Committed);
+    TestTrue(TEXT("Case-sensitive positive lookup"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
+    TestFalse(TEXT("Case-sensitive other key remains false"),Run->GetRunSnapshot().GetFlag(TEXT("CH2_MALET_DONE")));
+    TestFalse(TEXT("Mixed case remains absent"),Run->GetRunSnapshot().HasFlag(TEXT("Ch2_malet_done")));
+    TestEqual(TEXT("Flag API does not replace run"),Run->GetRunSnapshot().RunId,Before.RunId);
+    TestEqual(TEXT("Flag API preserves memory"),StateJson(Run->GetPlayerMemory()->GetSnapshot()),Memory);
+    auto* Save=NewObject<UMemoriaRunSaveGame>();Save->Run=Run->GetRunSnapshot();Save->ContentRevision=Save->Run.ContentRevision;
+    Save->MemoryDefinitions=Run->GetPlayerMemory()->GetDefinitions();Save->PlayerMemory=Run->GetPlayerMemory()->GetSnapshot();
+    TArray<uint8> Bytes;TestTrue(TEXT("Real SaveGame serialization"),UGameplayStatics::SaveGameToMemory(Save,Bytes));
+    auto* Loaded=Cast<UMemoriaRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Bytes));
+    if(TestNotNull(TEXT("Real save DTO reload"),Loaded))TestEqual(TEXT("True/false and case identities survive save"),StateJson(Loaded->Run),Committed);
     Game->Shutdown();return !HasAnyErrors();
 }
 #endif

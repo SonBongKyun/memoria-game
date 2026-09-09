@@ -2,6 +2,16 @@
 
 ---
 
+## S275 - 2026-09-09 (Unreal Phase 1J — Malet 첫 보상 flag commit 완료)
+
+- 별도 migration worktree의 동일 paid VN/native travel/물리 이동/reaction/Accept/sword/0.3초/deal/0.5초/reward0..7 경로 유지. reward 종료/동기 callback 뒤 기존 authoritative Run API로 ch2_malet_done=true 하나만 commit하고 world seed 함수 진입 전에 개발용 정지.
+- 새 narrative content/package 없음. 기존 UE21패키지·IR/fixture76개와 원본4217파일 보존. 같은 run/domain·food+sword history·전체 memory/HP/Grains/items/다른 flags/currentChapter1 유지. world/item/shop/Ch3/autosave/achievement 미실행.
+- 원본 setter의 absent/false/true/case/로그·save semantics 및 seed12사례를 실제 격리 Godot로 관측. 명시적 forgotten/removed/restored 유지. 반복 full callback은 seed만 idempotent이고 아이템 중복/상점 signal 오류가 생기는 원본 특성 기록.
+- UE5.8.2 UBT/UHT/compile/link/Editor/rendered PIE 기존97+신규10=107/107, 독립358항목·snapshot287개 PASS. source I8/H9/G7/F7/E4/D10/C7, officialGodot15, native51+CTest1, host69, static59/원본4217 PASS. 기존 MotionVectorSimulation 경고1 유지.
+- callback 전/첫 flag 전/flag 직후 run 교체 및 실제 queued OpenLevel teardown 검증. old run에 commit된 flag는 rollback 없음. Source 상태교체만으로 callback이 남는 기술적 차이·테스트명/개발 chapter metadata 부채 명시.
+- 신규 단위 테스트 GameInstance 초기화와 입력 Tick 중 직접 teardown한 검증 코드를 수정; 정상 native travel 예약과 world ownership guard 사용. 실패 로그·4개 native 캡처 원본 보존. 보고서 docs/unreal-migration/PHASE_1J_REPORT.md.
+- 모든 acceptance 후 로컬 checkpoint만 생성, push 없음. Phase1K 구현 없음; source seed만 다음 별도 범위로 권고하고 potion2 전에 정지하도록 기록.
+
 ## S274 - 2026-09-09 (Unreal Phase 1I — Malet 보상 대화와 효과 전 경계 완료)
 
 - 별도 migration worktree에서만 malet_reward 원본0..7을 기존 deterministic Field IR/typed asset/import/interpreter/UMG 경로로 추가. 첫 import CREATED, 독립 재import/check-only UNCHANGED 및 no-save.

@@ -75,8 +75,11 @@ def narrative_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths()
 
+
+def malet_first_effect_test_paths():
+    return {"Memoria.MaletFirstEffect."+n for n in ("AuthoritativeFlagContract","Canonical","PreexistingTrue","PreexistingFalse","CancelBeforeCallbackOnRunReplace","CancelBeforeFlagOnRunReplace","CancelAfterFlagOnRunReplace","CancelBeforeCallbackOnWorldTeardown","CancelBeforeFlagOnWorldTeardown","CancelAfterFlagOnWorldTeardown")}
 
 def malet_reward_test_paths():
     return {"Memoria.MaletReward."+n for n in ("ImportContract","EnglishKoreanExecution","CanonicalReward","CancelRewardFieldOnRunReplace","CancelRewardFieldOnWorldTeardown","CancelRewardBoundaryOnRunReplace","CancelRewardBoundaryOnWorldTeardown")}

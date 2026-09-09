@@ -4,6 +4,7 @@
 #include "Save/MemoriaRunSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Engine/Engine.h"
 
 void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -209,8 +210,9 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     if (State == EMemoriaSliceState::Deferred)
     {
         View.bDevelopmentStop = true;
-        View.Header = TEXT("PHASE 1I / REWARD COMPLETE / DEVELOPMENT STOP");
-        View.Body = TEXT("8 / 8 reward lines completed.\n_on_reward_ended observed; effects deferred before ch2_malet_done.\nNo world memory, inventory, shop or chapter effects applied.");
+        View.Header = TEXT("PHASE 1J / FIRST REWARD EFFECT / DEVELOPMENT STOP");
+        View.Body = FString::Printf(TEXT("8 / 8 reward lines completed.\nch2_malet_done=%s | world seed invocations=0\nStopped before world seed. Inventory, shop and chapter unchanged."),
+            Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")) ? TEXT("true") : TEXT("false"));
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
     return View;
@@ -288,8 +290,11 @@ void UMemoriaNarrativeSubsystem::FinishField()
     {
         ++RewardCompletionCount;
         // end_dialogue switches state before synchronous dialogue_ended. No
-        // frame, timer, gameplay effect or rollback is inserted at this seam.
-        DeferRewardEffects(); return;
+        // frame or timer is inserted at this seam; the first flag commits below.
+#if WITH_DEV_AUTOMATION_TESTS
+        OnRewardBoundaryObserved.Broadcast(TEXT("before_callback"));
+#endif
+        CommitRewardFlagAndDeferSeed(); return;
     }
     if (bDeal)
     {
@@ -352,19 +357,37 @@ void UMemoriaNarrativeSubsystem::RewardDelayElapsed()
     ++RewardFieldInvocationCount; StartMaletField(RewardAsset);
 }
 
-void UMemoriaNarrativeSubsystem::DeferRewardEffects()
+bool UMemoriaNarrativeSubsystem::HasLiveRewardOwner() const
 {
-    if (!RewardCallbackWorld.IsValid() || RewardCallbackWorld.Get() != GetWorld() ||
-        !Run->HasActiveRun() || RewardCallbackRunId != Run->GetRunSnapshot().RunId)
-    {
-        RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();
-        State = EMemoriaSliceState::Idle; ++Revision; return;
-    }
-    // Only callback intent is authorized. There is no executable reward effect
-    // handler or continuation to resume from this development stop.
+    if (!RewardCallbackWorld.IsValid() || RewardCallbackWorld.Get() != GetWorld()) return false;
+    const FWorldContext* WorldContext = GEngine ? GEngine->GetWorldContextFromWorld(RewardCallbackWorld.Get()) : nullptr;
+    // OpenLevel queues native teardown for the engine's safe travel point. Do not
+    // commit into an owner with an already accepted outgoing travel request.
+    return WorldContext && WorldContext->TravelURL.IsEmpty() &&
+        !RewardCallbackWorld->bIsTearingDown && Run->HasActiveRun() &&
+        RewardCallbackRunId == Run->GetRunSnapshot().RunId;
+}
+void UMemoriaNarrativeSubsystem::CommitRewardFlagAndDeferSeed()
+{
+    if (!HasLiveRewardOwner()) return;
     ++RewardCallbackIntentCount; Record(TEXT("callback:reward:enter"));
-    DeferredInteraction = TEXT("_on_reward_ended:before:ch2_malet_done");
+#if WITH_DEV_AUTOMATION_TESTS
+    OnRewardBoundaryObserved.Broadcast(TEXT("before_flag"));
+#endif
+    if (!HasLiveRewardOwner()) return;
+    // Exact first source effect, through the existing case-sensitive run authority.
+    if (!Run->SetStoryFlag(TEXT("ch2_malet_done"), true))
+    {
+        State = EMemoriaSliceState::Failed; ++Revision; return;
+    }
+    Record(TEXT("flag:ch2_malet_done"));
+#if WITH_DEV_AUTOMATION_TESTS
+    OnRewardBoundaryObserved.Broadcast(TEXT("after_flag"));
+#endif
+    // A committed old-run flag is never rolled back if a lifecycle observer replaces it.
+    if (!HasLiveRewardOwner()) return;
+    // Do not enter the source seed function. No world owner, mutation, or continuation.
+    DeferredInteraction = TEXT("before:world_memory_seed");
     Record(TEXT("development:deferred:") + DeferredInteraction);
     State = EMemoriaSliceState::Deferred; ++Revision;
-    // Retain weak ownership of the stopped boundary for cleanup on world exit.
 }

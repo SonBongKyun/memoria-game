@@ -303,3 +303,16 @@ semantic debt documented. [Report](PHASE_1I_REPORT.md). Local checkpoint only; n
 Next recommendation only: separately authorize Phase1J to apply just the first
 `ch2_malet_done` effect and stop before world seeding's first mutation. Preserve97
 identities and lifetime/Refuse/payment/reaction evidence. No Phase1J implementation.
+
+
+## Phase 1J accepted boundary — 2026-09-09
+
+Phase1J is COMPLETE on UE5.8.2: same canonical reward run commits only
+ch2_malet_done=true through the authoritative run API, then stops before world seed.
+No new narrative package;21 package bytes and76 prior IR/fixtures preserved.
+Old97+new10=107/107 rendered Automation, independent358 checks, sourceJ12 and all
+previous oracles, Godot15/native51+CTest1/host69/static59/original4217 PASS.
+Exact source setter/seed cases, pending-world and run replacement ownership, historical
+test-name debt and currentChapter1 fixture debt are documented in PHASE_1J_REPORT.md.
+Phase1K is recommendation only: bounded source seed, stop before potion2. No implementation
+or remote push is included. The local checkpoint is the enclosing first-effect commit.
