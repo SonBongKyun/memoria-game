@@ -22,7 +22,7 @@ void UMemoriaRunSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 }
 void UMemoriaRunSubsystem::Deinitialize()
 {
-    OnRunReplaced.Clear();
+    OnRunReplaced.Clear(); OnInventoryChanged.Clear(); OnItemToastRequested.Clear(); OnPotionObserved.Clear();
     PlayerMemory = nullptr; WorldCognition = nullptr;
     State = FMemoriaRunSnapshot();
     Super::Deinitialize();
@@ -99,4 +99,55 @@ bool UMemoriaRunSubsystem::RestoreSave(const UMemoriaRunSaveGame& Save)
     if(!Save.ValidateHeader(Error) || Save.WorldCognition.SchemaVersion!=1 ||
         (!Save.WorldCognition.SourceJson.IsEmpty() && !UMemoriaWorldCognition::Decode(Save.WorldCognition.SourceJson,World)))return false;
     return RestoreRun(Save.Run,Save.MemoryDefinitions,Save.PlayerMemory,World)==EMemoriaMemoryResult::Success;
+}
+
+namespace
+{
+bool KnownRecentItem(const FString& Id)
+{
+    // Source ITEMS membership only, used to preserve recent-item normalization.
+    // No use/equipment/catalog import or grants for these other identities.
+    for (const TCHAR* Known : {TEXT("potion"),TEXT("hi_potion"),TEXT("antidote"),TEXT("firebomb"),TEXT("smoke_bomb"),TEXT("witness_ink"),TEXT("root_balm"),TEXT("signal_jammer"),TEXT("lantern_salve"),TEXT("name_thread"),TEXT("compass_shard"),TEXT("seed_capsule"),TEXT("anchor_lantern"),TEXT("ledger_chalk"),TEXT("cinder_vial"),TEXT("witness_knot")})
+        if (Id.Equals(Known, ESearchCase::CaseSensitive)) return true;
+    return false;
+}
+}
+int64 UMemoriaRunSubsystem::GetItemCount(const FString& Id) const
+{
+    const auto* Item=State.Player.Items.FindByPredicate([&](const auto& I){return I.Id.Equals(Id,ESearchCase::CaseSensitive);});
+    return Item ? Item->Count : 0;
+}
+bool UMemoriaRunSubsystem::AddRewardPotion(const FString& Id, int64 Count)
+{
+    if (!HasActiveRun() || !Id.Equals(TEXT("potion"),ESearchCase::CaseSensitive)) return false;
+    const FGuid Owner=State.RunId;
+    const int64 Before=GetItemCount(Id);
+    // Define source signed integer addition without C++ signed-overflow UB.
+    const int64 After=static_cast<int64>(static_cast<uint64>(Before)+static_cast<uint64>(Count));
+    auto* Item=State.Player.Items.FindByPredicate([&](const auto& I){return I.Id.Equals(Id,ESearchCase::CaseSensitive);});
+    if(Item) Item->Count=After;
+    else { FMemoriaItemCount New;New.Id=Id;New.Count=After;State.Player.Items.Add(New); }
+    auto Observe=[&](const TCHAR* Point){const auto Snapshot=State;OnPotionObserved.Broadcast(Point,Snapshot);};
+    Observe(TEXT("after_inventory_mutation"));
+    if(State.RunId!=Owner)return false;
+    TArray<FString> Recent;
+    for(const auto& Value:State.Player.RecentItems)
+    {
+        if(KnownRecentItem(Value) && !Recent.ContainsByPredicate([&](const auto& R){return R.Equals(Value,ESearchCase::CaseSensitive);}))Recent.Add(Value);
+        if(Recent.Num()>=5)break;
+    }
+    Recent.RemoveAll([&](const auto& R){return R.Equals(Id,ESearchCase::CaseSensitive);});
+    Recent.Insert(Id,0);if(Recent.Num()>5)Recent.SetNum(5);
+    State.Player.RecentItems=MoveTemp(Recent);
+    Observe(TEXT("after_recent_items"));
+    if(State.RunId!=Owner)return false;
+    OnInventoryChanged.Broadcast(Id);
+    if(State.RunId!=Owner)return false;
+    Observe(TEXT("after_inventory_changed"));
+    if(State.RunId!=Owner)return false;
+    // Exact source text remains English for both source en and ko runtime localization.
+    OnItemToastRequested.Broadcast(FString::Printf(TEXT("+%lld Potion"),Count),1);
+    if(State.RunId!=Owner)return false;
+    Observe(TEXT("potion_complete"));
+    return State.RunId==Owner;
 }

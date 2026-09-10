@@ -10,6 +10,11 @@
 class UMemoriaRunSaveGame;
 
 DECLARE_MULTICAST_DELEGATE(FMemoriaRunReplaced);
+// Source signal payload is item_id only; quantity is read from committed run state.
+DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaInventoryChanged, const FString&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FMemoriaItemToastRequested, const FString&, int32);
+// Value-only development observations, never a second inventory authority.
+DECLARE_MULTICAST_DELEGATE_TwoParams(FMemoriaPotionObserved, const FString&, const FMemoriaRunSnapshot&);
 
 // Owns independent player and world cognition domains across map travel.
 UCLASS()
@@ -31,6 +36,12 @@ public:
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);
     EMemoriaMemoryResult ErodeMemories(int64 ChapterArgument);
+    // Bounded source add_item contract. Only potion grants are authorized in Phase1L.
+    bool AddRewardPotion(const FString& ItemId, int64 Count);
+    int64 GetItemCount(const FString& ItemId) const;
+    FMemoriaInventoryChanged OnInventoryChanged;
+    FMemoriaItemToastRequested OnItemToastRequested;
+    FMemoriaPotionObserved OnPotionObserved;
     bool RemoveStoryFlag(const FString& Id);
     bool SetStoryFlag(const FString& Id, bool bValue);
     UFUNCTION(BlueprintPure, Category="Memoria|Run") FMemoriaRunSnapshot GetRunSnapshot() const { return State; }

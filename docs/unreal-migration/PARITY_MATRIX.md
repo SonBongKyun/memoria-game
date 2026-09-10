@@ -81,3 +81,22 @@ Malet seed implementation; final125/125 and independent437 checks PASS (static60
 
 Source-derived behavioral expectations remain authoritative. General World Memory,
 Malet trade, Verdan progression and production New Game remain outside this appendix.
+
+
+## Phase 1L scoped evidence appendix — 2026-09-10
+
+Historical matrix and K appendix remain unchanged as a prefix. Only the first Malet
+potion call is covered by this appendix. [Report](PHASE_1L_REPORT.md).
+
+| Original row / bounded observation | Phase1L contract |
+|---|---|
+| P31 first reward inventory | Existing run Items0->2 potion, recent[]->[potion], exact source signal(item_id) then +2 Potion/SUCCESS toast. Invalid/repeat/zero/negative/recent ordering tested; other item grant APIs are not implemented. |
+| P37 native SaveGame | Existing schema1 actual binary save/load/restore, independent full run/inventory/recent/player/world comparison, no schema bump. |
+| P40/P48 lifetime | Actual PIE replacement before/after grant and at stop, native world teardown retains commit, absent presentation safe. Source replacement's stale toast is explicitly suppressed by accepted UE run isolation. |
+| P09/P15 preservation | Full player snapshot+connections/power/carry/definitions unchanged; full world remains revision2/sequence2. Same canonical Run/player/world identity. |
+| P04/P07/P08 path | Same paid VN/food/native travel/physical walk/reaction/Accept/sword/deal/reward/world seed; no fixture shortcut in canonical.147 identities all PASS. |
+| P45 temporary presentation |5 native PNGs visually reviewed; recorded synchronous read-only snapshots and final live pre-antidote stop. No final UI/art claim. |
+| P47 content |0 new narrative IR/assets/packages;21 prior packages and82 prior IR/fixtures unchanged. |
+
+Antidote/firebomb/shop/chapter/autosave/achievement/next-map effects remain unexecuted.
+Full Inventory, Malet, Verdan, Shop parity and Steam readiness remain uncertified.

@@ -335,3 +335,17 @@ Only local checkpoint after acceptance, no push. Full world/Malet parity not cla
 Phase1L recommendation only: exact first potion2 inventory call (including its own
 recent-items/signal/toast behavior), STOP before antidote1. No further reward/shop/
 chapter/autosave/achievement effects implied; no Phase1L implementation.
+
+
+## Phase 1L first potion boundary — 2026-09-10
+
+Current bounded implementation: same canonical paid run now executes source potion2
+inventory/recent/signal/toast after the accepted Malet world seed, then defers BEFORE
+antidote1. No new narrative package or downstream effect. Existing125 identities plus
+22 new =147 rendered Automation PASS; independent728 and sourceL16 plus all prior
+oracles PASS. Existing21 packages and82 prior IR/fixtures unchanged. See
+[Phase1L report](PHASE_1L_REPORT.md) for final gates, lifetime/source differences and
+full logs. Local checkpoint only after all acceptance, no push.
+
+Phase1M recommendation only: exact antidote1 call, then STOP before firebomb1.
+No Phase1M implementation, shop/trade/chapter/profile or full inventory parity claim.

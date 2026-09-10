@@ -78,8 +78,12 @@ def narrative_test_paths():
 def world_seed_test_paths():
     return {"Memoria.WorldSeed.Source."+n for n in ("fresh","knowledge_only","memory_only","both","removed","forgotten","actor_missing","repeat","already_true","save_restore","restored","flag_false","case_sensitive")} | {"Memoria.WorldSeed."+n for n in ("NativeContract","IdentityContract","SaveRoundTrip","RunReplacementIsolation","Canonical")}
 
+def potion_test_paths():
+    from export_malet_potion_oracle import inputs
+    return {"Memoria.Potion.Source."+c['id'] for c in inputs()} | {"Memoria.Potion."+n for n in ("NativeInventoryContract","CanonicalPotionGrant","ReplacementBeforePotion","ReplacementAfterCommit","ReplacementAtStop","WorldTeardownAfterCommit")}
+
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths()
 
 
 def malet_first_effect_test_paths():

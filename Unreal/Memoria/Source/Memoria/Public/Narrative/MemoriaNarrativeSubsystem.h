@@ -3,6 +3,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "TimerManager.h"
 #include "World/MemoriaWorldCognition.h"
+#include "Run/MemoriaRunTypes.h"
 #include "Narrative/MemoriaNarrativeRuntime.h"
 #include "MemoriaNarrativeSubsystem.generated.h"
 
@@ -35,6 +36,7 @@ public:
 #endif
     // Read-only presentation of recorded synchronous seed boundaries, after stop.
     void PresentSeedObservation(int32 Index);
+    void PresentPotionObservation(int32 Index);
     bool StartDevelopmentVN();
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
@@ -76,12 +78,15 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
     // Source reward listener is one-shot and synchronous. This owner binds only
-    // the flag and world seed, then a pre-potion development boundary.
+    // the flag, world seed and potion contract, then a pre-antidote boundary.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;
     FGuid RewardCallbackRunId;
     int32 RewardCompletionCount = 0, RewardCallbackIntentCount = 0, RewardFieldInvocationCount = 0;
     void CommitRewardFlagAndDeferSeed();
     TArray<FMemoriaWorldSnapshot> SeedObservations;
+    TArray<FMemoriaRunSnapshot> PotionObservations;
+    int32 PresentedPotionObservation = INDEX_NONE;
+    FString PotionToast;
     int32 PresentedSeedObservation = INDEX_NONE;
     bool HasLiveRewardOwner() const;
     FString DeferredInteraction;

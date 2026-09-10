@@ -1,3 +1,4 @@
+#include "MemoriaPotionEvidence.h"
 #include "MemoriaPlayerObservation.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationEditorCommon.h"
@@ -585,7 +586,10 @@ public:
                         Test->TestEqual(TEXT("All player definitions/connections/power/carry remain exact at world boundary"),Canon(MemoriaPlayerObservation(*Run)),RewardBeforeObservables);
                         Write(Host,Run,nullptr,TEXT("synchronous_")+Observed);
                         if(Observed==TEXT("after_flag"))Write(Host,Run,nullptr,TEXT("before_world_seed"));
-                        if(Observed==TEXT("after_knowledge") || Observed==TEXT("after_memory") || Observed==TEXT("world_seed_complete"))Write(Host,Run,nullptr,Observed);
+                        if(Observed==TEXT("after_knowledge") || Observed==TEXT("after_memory") || Observed==TEXT("world_seed_complete") || Observed.Contains(TEXT("potion")) || Observed.StartsWith(TEXT("after_inventory")) || Observed==TEXT("after_recent_items"))Write(Host,Run,nullptr,Observed);
+                        const FString PotionPoint=RefusalMode.Contains(TEXT("BeforePotion"))?TEXT("before_potion"):TEXT("after_inventory_changed");
+                        if(RefusalMode.StartsWith(TEXT("PotionCancel")) && Observed==PotionPoint)
+                        {Write(Host,Run,nullptr,TEXT("lifetime_before_cancel"));Cancel(World,Run,Host);return;}
                         const bool Preexisting=RefusalMode==TEXT("FirstEffectPreexistingTrue") || RefusalMode==TEXT("FirstEffectPreexistingFalse");
                         Test->TestEqual(TEXT("Presence at exact synchronous boundary"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")),(Observed!=TEXT("before_callback") && Observed!=TEXT("before_flag")) || Preexisting);
                         if(Observed==TEXT("after_flag")) Test->TestTrue(TEXT("Committed flag before seed boundary"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
@@ -637,23 +641,30 @@ public:
             {
                 AssertRewardStop(PC,Host,Run); CompareReward(Host,Run,TEXT("completion_before_callback"),true);
                 Capture(TEXT("Reward_Completion")); Write(Host,Run,Pawn,TEXT("reward_completion"));
-                if(RefusalMode.StartsWith(TEXT("CancelRewardBoundary"))) { Cancel(World,Run,Host); return false; }
+                if(RefusalMode.StartsWith(TEXT("CancelRewardBoundary")) || RefusalMode.StartsWith(TEXT("PotionAfterStop"))) { Cancel(World,Run,Host); return false; }
             }
             if(Frame==161) Host->PresentSeedObservation(0);
             if(Frame==163) Capture(TEXT("MaletDone_Set"));
             if(Frame==165) Host->PresentSeedObservation(1);
             if(Frame==167) Capture(TEXT("WorldKnowledge_Seeded"));
             if(Frame==169) Host->PresentSeedObservation(2);
-            if(Frame==171) Capture(TEXT("WorldMemory_Seeded"));
-            if(Frame==173) Host->PresentSeedObservation(INDEX_NONE);
+            if(Frame==171) { Capture(TEXT("WorldMemory_Seeded")); Capture(TEXT("WorldSeed_Complete")); }
+            if(Frame==173) Host->PresentPotionObservation(0);
+            if(Frame==175) Capture(TEXT("Potion_Before"));
+            if(Frame==177) Host->PresentPotionObservation(1);
+            if(Frame==179) Capture(TEXT("Potion_Granted"));
+            if(Frame==181) Host->PresentPotionObservation(4);
+            if(Frame==183) Capture(TEXT("Potion_Toast"));
+            if(Frame==185) Host->PresentPotionObservation(INDEX_NONE);
             if(Frame==164) { Key(EKeys::E,IE_Pressed); Key(EKeys::D,IE_Pressed); }
             if(Frame==168) { Key(EKeys::E,IE_Released); Key(EKeys::D,IE_Released); }
-            if(Frame==178)
+            if(Frame==190)
             {
                 AssertRewardStop(PC,Host,Run);
                 Test->TestTrue(TEXT("Development stop cannot move pawn"),Pawn->GetActorLocation().Equals(RewardBeforePosition,.01f));
                 CompareReward(Host,Run,TEXT("completion_before_callback"),true);
-                Capture(TEXT("PotionReward_Deferred")); Write(Host,Run,Pawn,TEXT("pre_potion_deferred")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
+                Capture(TEXT("Antidote_Deferred")); Write(Host,Run,Pawn,TEXT("antidote_deferred"));
+                if(RefusalMode==TEXT("PotionCanonical"))MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("save_roundtrip.json")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
                 Stage=9; Frame=-1;
             }
         }
@@ -684,7 +695,7 @@ private:
     TWeakObjectPtr<UWorld> CancelledWorld;
     bool IsDealMode() const
     {
-        return RefusalMode==TEXT("WorldSeedCanonical") || RefusalMode.StartsWith(TEXT("FirstEffect")) || RefusalMode==TEXT("CanonicalReward") || RefusalMode==TEXT("AcceptPreEffectDeferred") || RefusalMode==TEXT("CanonicalPayment") ||
+        return RefusalMode.StartsWith(TEXT("Potion")) || RefusalMode==TEXT("WorldSeedCanonical") || RefusalMode.StartsWith(TEXT("FirstEffect")) || RefusalMode==TEXT("CanonicalReward") || RefusalMode==TEXT("AcceptPreEffectDeferred") || RefusalMode==TEXT("CanonicalPayment") ||
             RefusalMode==TEXT("AlreadyBurnedPayment") || RefusalMode.StartsWith(TEXT("CancelNormal")) || RefusalMode.StartsWith(TEXT("CancelReward"));
     }
     UMemoriaFieldAsset* DealAsset() const { return LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_deal"))); }
@@ -695,12 +706,13 @@ private:
         Test->TestEqual(TEXT("One reward Field completion"),Host->GetRewardCompletionCount(),1);
         Test->TestEqual(TEXT("One synchronous callback intent"),Host->GetRewardCallbackIntentCount(),1);
         Test->TestFalse(TEXT("Completed one-shot no longer pending"),Host->IsRewardCallbackPending());
-        Test->TestEqual(TEXT("Exact pre-effect deferred target"),Host->GetDeferredInteraction(),FString(TEXT("before:item:potion:2")));
+        Test->TestEqual(TEXT("Exact pre-effect deferred target"),Host->GetDeferredInteraction(),FString(TEXT("before:item:antidote:1")));
         auto ExpectedRun=RewardBeforeSnapshot;
         auto* Done=ExpectedRun.StoryFlags.FindByPredicate([](const auto& V){return V.Id.Equals(TEXT("ch2_malet_done"),ESearchCase::CaseSensitive);});
         if(Done) Done->bValue=true;
         else { FMemoriaStoryFlag F; F.Id=TEXT("ch2_malet_done");F.bValue=true;ExpectedRun.StoryFlags.Add(F); }
-        Test->TestEqual(TEXT("Only authoritative gameplay delta is ch2_malet_done=true"),StateJson(Run->GetRunSnapshot()),StateJson(ExpectedRun));
+        FMemoriaItemCount Potion;Potion.Id=TEXT("potion");Potion.Count=2;ExpectedRun.Player.Items.Add(Potion);ExpectedRun.Player.RecentItems={TEXT("potion")};
+        Test->TestEqual(TEXT("Only authorized run deltas are done flag and source potion contract"),StateJson(Run->GetRunSnapshot()),StateJson(ExpectedRun));
         Test->TestEqual(TEXT("All derived player observations unchanged at STOP"),Canon(MemoriaPlayerObservation(*Run)),RewardBeforeObservables);
         Test->TestEqual(TEXT("Full memory unchanged from reward entry"),StateJson(Run->GetPlayerMemory()->GetSnapshot()),RewardBeforeMemory);
         Test->TestTrue(TEXT("First source effect persisted as an actual true entry"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")) && Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
@@ -719,7 +731,8 @@ private:
         auto Expected=RewardCase(TEXT("reward_en"),Label);
         if(!Test->TestTrue(TEXT("Executable reward source state exists"),Expected.IsValid()))return;
         auto Gold=Strings(Expected->GetArrayField(TEXT("events")));
-        if(Completed) { Gold.Add(TEXT("callback:reward:enter")); Gold.Add(TEXT("flag:ch2_malet_done")); Gold.Add(TEXT("worldseed:enter")); Gold.Add(TEXT("world:knowledge:npc.malet:fact.bl07.route_request_received")); Gold.Add(TEXT("world:revision:1")); Gold.Add(TEXT("world:memory:npc.malet:memory.malet.bl07_request_source")); Gold.Add(TEXT("world:revision:2")); Gold.Add(TEXT("worldseed:end")); Gold.Add(TEXT("development:deferred:before:item:potion:2")); }
+        if(Completed) { Gold.Add(TEXT("callback:reward:enter")); Gold.Add(TEXT("flag:ch2_malet_done")); Gold.Add(TEXT("worldseed:enter")); Gold.Add(TEXT("world:knowledge:npc.malet:fact.bl07.route_request_received")); Gold.Add(TEXT("world:revision:1")); Gold.Add(TEXT("world:memory:npc.malet:memory.malet.bl07_request_source")); Gold.Add(TEXT("world:revision:2")); Gold.Add(TEXT("worldseed:end"));
+            for(const TCHAR* E:{TEXT("item:add:begin:potion:2"),TEXT("inventory:potion:0->2"),TEXT("recent_items:potion"),TEXT("inventory_changed:potion"),TEXT("toast:+2 Potion:1"),TEXT("item:add:end:potion:2"),TEXT("development:deferred:before:item:antidote:1")})Gold.Add(E); }
         // Keep the historical already-burned payment prefix intact. Compare all
         // reward events against the source and retain the Phase1H memory oracle.
         TArray<FString> Actual;for(int32 I=NormalTraceStart;I<Host->GetTrace().Num();++I)Actual.Add(Host->GetTrace()[I]);
@@ -774,7 +787,7 @@ private:
         Test->AddError(TEXT("Missing source refusal trace"));
     }
     FString Mode() const { if (!RefusalMode.IsEmpty()) return RefusalMode; return bPaid?TEXT("CanonicalInteraction"):TEXT("IntactInteraction"); }
-    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1K"); }
+    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1L"); }
     void AssertExploration(AMemoriaSliceController* PC, UMemoriaNarrativeSubsystem* Host, UWorld* World)
     {
         Test->TestTrue(TEXT("Exploration restored, modal and choices removed"), Host->GetState()==EMemoriaSliceState::Exploration && !PC->IsModalOpen() && !PC->GetNarrativeWidget() && Host->GetView().Choices.IsEmpty());
@@ -1154,4 +1167,19 @@ bool FFirstFlagContract::RunTest(const FString&)
     if(TestNotNull(TEXT("Real save DTO reload"),Loaded))TestEqual(TEXT("True/false and case identities survive save"),StateJson(Loaded->Run),Committed);
     Game->Shutdown();return !HasAnyErrors();
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionCanonicalPotionGrant,"Memoria.Potion.CanonicalPotionGrant",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FPotionCanonicalPotionGrant::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionCanonical")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionReplacementBeforePotion,"Memoria.Potion.ReplacementBeforePotion",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FPotionReplacementBeforePotion::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionCancelBeforePotionOnRunReplace")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionReplacementAfterCommit,"Memoria.Potion.ReplacementAfterCommit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FPotionReplacementAfterCommit::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionCancelAfterCommitOnRunReplace")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionReplacementAtStop,"Memoria.Potion.ReplacementAtStop",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FPotionReplacementAtStop::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionAfterStopOnRunReplace")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionWorldTeardownAfterCommit,"Memoria.Potion.WorldTeardownAfterCommit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FPotionWorldTeardownAfterCommit::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionAfterStopOnWorldTeardown")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
 #endif

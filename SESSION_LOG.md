@@ -2,6 +2,15 @@
 
 ---
 
+## S277 - 2026-09-10 (Unreal Phase 1L — Malet 첫 potion 보상)
+
+- 동일 canonical paid VN/food/native travel/물리 이동/reaction/Accept/sword/0.3초/deal/0.5초/reward/done/world seed 경로에서 기존 Run inventory potion0->2, recent[]->[potion], 실제 source signal(item_id) 후 +2 Potion/SUCCESS toast를 동기 실행. antidote1 첫 mutation 전 정지.
+- Player Memory 전체/derived 및 World Cognition revision2/sequence2, Run/player/world identity 보존. 별도 inventory/once flag/schema bump 없음. 기존21패키지·이전IR/fixture82개 동일, 새 narrative IR/asset/package0.
+- UE5.8.2 UBT/UHT/compile/link/Editor/rendered PIE 기존125+신규22=147/147, 독립728항목/JSON689개, sourceL16 및 K13/J12/I8/H9/G7/F7/E4/D10/C7, officialGodot memory/world15, native51+CTest1,host83 PASS. static60/원본4217 보존 PASS.
+- 실제 canonical binary SaveGameToMemory/LoadGameFromMemory/RestoreSave로 run/inventory/recent/player/world 독립 비교. Run교체 전후·stop·world teardown·presentation 부재 검증. Source signal 중 상태교체 뒤 stale toast와 UE owner 취소의 차이 명시.
+- 원본 source의 반복 지급/0·음수/최근 목록 규칙 유지, source defect 수정 없음. 첫 PIE wrapper 설정 누락을 검토로 발견하여 시도 중단/로그 보존 후 수정, fresh 전체 PASS. 최종 기존 렌더 경고1 유지, 이전 시도 HTTP timeout1 보존; 신규22 경고/오류0.
+- 원본 PNG5 직접 검토, synchronous snapshot READ ONLY/최종 LIVE 표기. Phase1M 구현·push 없음. 최종 모든 acceptance 뒤 local checkpoint만 생성. 보고서 docs/unreal-migration/PHASE_1L_REPORT.md.
+
 ## S276 - 2026-09-09 (Unreal Phase 1K — Malet world seed 완료)
 
 - 기존 실제 paid VN/food/native travel/물리 이동/reaction/Accept/sword/0.3초/deal/0.5초/reward 경로에서 done flag 뒤 실제 world seed를 실행하고 potion2 직전에 정지.
