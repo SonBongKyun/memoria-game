@@ -22,7 +22,7 @@ void UMemoriaRunSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 }
 void UMemoriaRunSubsystem::Deinitialize()
 {
-    OnRunReplaced.Clear(); OnInventoryChanged.Clear(); OnItemToastRequested.Clear(); OnPotionObserved.Clear();
+    OnRunReplaced.Clear(); OnInventoryChanged.Clear(); OnItemToastRequested.Clear(); OnPotionObserved.Clear(); OnRewardItemObserved.Clear();
     PlayerMemory = nullptr; WorldCognition = nullptr;
     State = FMemoriaRunSnapshot();
     Super::Deinitialize();
@@ -117,9 +117,32 @@ int64 UMemoriaRunSubsystem::GetItemCount(const FString& Id) const
     const auto* Item=State.Player.Items.FindByPredicate([&](const auto& I){return I.Id.Equals(Id,ESearchCase::CaseSensitive);});
     return Item ? Item->Count : 0;
 }
+EMemoriaRewardItemScope UMemoriaRunSubsystem::RewardItemScope(const FString& Id)
+{
+    if (!KnownRecentItem(Id)) return EMemoriaRewardItemScope::InvalidSourceId;
+    return Id==TEXT("potion") || Id==TEXT("antidote") ? EMemoriaRewardItemScope::Supported : EMemoriaRewardItemScope::DeferredByPhase;
+}
+TArray<FString> UMemoriaRunSubsystem::GetRecentItems() const
+{
+    TArray<FString> Recent;
+    for(const auto& Value:State.Player.RecentItems)
+    {
+        if(KnownRecentItem(Value) && !Recent.ContainsByPredicate([&](const auto& R){return R.Equals(Value,ESearchCase::CaseSensitive);}))Recent.Add(Value);
+        if(Recent.Num()>=5)break;
+    }
+    return Recent;
+}
 bool UMemoriaRunSubsystem::AddRewardPotion(const FString& Id, int64 Count)
 {
-    if (!HasActiveRun() || !Id.Equals(TEXT("potion"),ESearchCase::CaseSensitive)) return false;
+    return Id.Equals(TEXT("potion"),ESearchCase::CaseSensitive) && GrantRewardItem(Id,TEXT("Potion"),Count);
+}
+bool UMemoriaRunSubsystem::AddRewardAntidote(const FString& Id, int64 Count)
+{
+    return Id.Equals(TEXT("antidote"),ESearchCase::CaseSensitive) && GrantRewardItem(Id,TEXT("Antidote"),Count);
+}
+bool UMemoriaRunSubsystem::GrantRewardItem(const FString& Id, const TCHAR* DisplayName, int64 Count)
+{
+    if (!HasActiveRun() || RewardItemScope(Id)!=EMemoriaRewardItemScope::Supported) return false;
     const FGuid Owner=State.RunId;
     const int64 Before=GetItemCount(Id);
     // Define source signed integer addition without C++ signed-overflow UB.
@@ -127,15 +150,10 @@ bool UMemoriaRunSubsystem::AddRewardPotion(const FString& Id, int64 Count)
     auto* Item=State.Player.Items.FindByPredicate([&](const auto& I){return I.Id.Equals(Id,ESearchCase::CaseSensitive);});
     if(Item) Item->Count=After;
     else { FMemoriaItemCount New;New.Id=Id;New.Count=After;State.Player.Items.Add(New); }
-    auto Observe=[&](const TCHAR* Point){const auto Snapshot=State;OnPotionObserved.Broadcast(Point,Snapshot);};
+    auto Observe=[&](const TCHAR* Point){const auto Snapshot=State;if(Id==TEXT("potion"))OnPotionObserved.Broadcast(Point,Snapshot);if(State.RunId==Owner)OnRewardItemObserved.Broadcast(Id,Point,Snapshot);};
     Observe(TEXT("after_inventory_mutation"));
     if(State.RunId!=Owner)return false;
-    TArray<FString> Recent;
-    for(const auto& Value:State.Player.RecentItems)
-    {
-        if(KnownRecentItem(Value) && !Recent.ContainsByPredicate([&](const auto& R){return R.Equals(Value,ESearchCase::CaseSensitive);}))Recent.Add(Value);
-        if(Recent.Num()>=5)break;
-    }
+    auto Recent=GetRecentItems();
     Recent.RemoveAll([&](const auto& R){return R.Equals(Id,ESearchCase::CaseSensitive);});
     Recent.Insert(Id,0);if(Recent.Num()>5)Recent.SetNum(5);
     State.Player.RecentItems=MoveTemp(Recent);
@@ -146,8 +164,8 @@ bool UMemoriaRunSubsystem::AddRewardPotion(const FString& Id, int64 Count)
     Observe(TEXT("after_inventory_changed"));
     if(State.RunId!=Owner)return false;
     // Exact source text remains English for both source en and ko runtime localization.
-    OnItemToastRequested.Broadcast(FString::Printf(TEXT("+%lld Potion"),Count),1);
+    OnItemToastRequested.Broadcast(FString::Printf(TEXT("+%lld %s"),Count,DisplayName),1);
     if(State.RunId!=Owner)return false;
-    Observe(TEXT("potion_complete"));
+    Observe(Id==TEXT("potion")?TEXT("potion_complete"):TEXT("antidote_complete"));
     return State.RunId==Owner;
 }

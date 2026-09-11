@@ -36,6 +36,7 @@ public:
 #endif
     // Read-only presentation of recorded synchronous seed boundaries, after stop.
     void PresentSeedObservation(int32 Index);
+    void PresentAntidoteObservation(int32 Index);
     void PresentPotionObservation(int32 Index);
     bool StartDevelopmentVN();
     bool StartUnseenFieldFixture();
@@ -87,6 +88,10 @@ private:
     TArray<FMemoriaRunSnapshot> PotionObservations;
     int32 PresentedPotionObservation = INDEX_NONE;
     FString PotionToast;
+    TArray<FString> RewardToasts;
+    TArray<FMemoriaRunSnapshot> AntidoteObservations;
+    int32 PresentedAntidoteObservation = INDEX_NONE;
+    void CommitAntidoteAndDeferFirebomb();
     int32 PresentedSeedObservation = INDEX_NONE;
     bool HasLiveRewardOwner() const;
     FString DeferredInteraction;

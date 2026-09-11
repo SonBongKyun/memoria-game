@@ -9,6 +9,8 @@
 
 class UMemoriaRunSaveGame;
 
+enum class EMemoriaRewardItemScope { InvalidSourceId, DeferredByPhase, Supported };
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FMemoriaRewardItemObserved, const FString&, const FString&, const FMemoriaRunSnapshot&);
 DECLARE_MULTICAST_DELEGATE(FMemoriaRunReplaced);
 // Source signal payload is item_id only; quantity is read from committed run state.
 DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaInventoryChanged, const FString&);
@@ -36,8 +38,12 @@ public:
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);
     EMemoriaMemoryResult ErodeMemories(int64 ChapterArgument);
-    // Bounded source add_item contract. Only potion grants are authorized in Phase1L.
+    // Bounded source add_item contract. Potion and antidote entry points retain distinct exact-ID contracts.
     bool AddRewardPotion(const FString& ItemId, int64 Count);
+    bool AddRewardAntidote(const FString& ItemId, int64 Count);
+    static EMemoriaRewardItemScope RewardItemScope(const FString& ItemId);
+    TArray<FString> GetRecentItems() const;
+    FMemoriaRewardItemObserved OnRewardItemObserved;
     int64 GetItemCount(const FString& ItemId) const;
     FMemoriaInventoryChanged OnInventoryChanged;
     FMemoriaItemToastRequested OnItemToastRequested;
@@ -51,6 +57,7 @@ public:
     // After atomic replacement; restore emits no acquisition/burn rewards.
     FMemoriaRunReplaced OnRunReplaced;
 private:
+    bool GrantRewardItem(const FString& ItemId, const TCHAR* DisplayName, int64 Count);
     // The interpreter borrows this stable aggregate; the host is a GI subsystem
     // and cancels its cursors synchronously on OnRunReplaced.
     friend class UMemoriaNarrativeSubsystem;

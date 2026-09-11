@@ -17,7 +17,7 @@ void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection
 void UMemoriaNarrativeSubsystem::Reset()
 {
     SeedObservations.Reset(); PresentedSeedObservation = INDEX_NONE;
-    PotionObservations.Reset(); PresentedPotionObservation = INDEX_NONE; PotionToast.Reset();
+    PotionObservations.Reset(); PresentedPotionObservation = INDEX_NONE; PotionToast.Reset(); RewardToasts.Reset(); AntidoteObservations.Reset(); PresentedAntidoteObservation=INDEX_NONE;
     CancelMaletDelay();
     RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();
     RewardCompletionCount = RewardCallbackIntentCount = RewardFieldInvocationCount = 0;
@@ -217,22 +217,27 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
         const auto* Knowledge = Actor ? Actor->Knowledge.FindByPredicate([](const auto& K){return K.FactId.Equals(MemoriaWorldIds::RouteFact,ESearchCase::CaseSensitive);}) : nullptr;
         const auto* Memory = Actor ? Actor->Memories.FindByPredicate([](const auto& M){return M.Id.Equals(MemoriaWorldIds::RouteMemory,ESearchCase::CaseSensitive);}) : nullptr;
         const TCHAR* Labels[] = {TEXT("MaletDone_Set"),TEXT("WorldKnowledge_Seeded"),TEXT("WorldMemory_Seeded")};
-        View.Header = TEXT("PHASE 1L / POTION GRANT / PRE-ANTIDOTE STOP");
-        View.Body = FString::Printf(TEXT("%s\n%s\nch2_malet_done=%s | revision=%lld | event_sequence=%lld\nnpc.malet / route fact=%s / source memory=%s\nAntidote x1 deferred."),
-            SeedObservations.IsValidIndex(PresentedSeedObservation) ? Labels[PresentedSeedObservation] : TEXT("Antidote_Deferred"),
+        View.Header = TEXT("PHASE 1M / ANTIDOTE GRANT / PRE-FIREBOMB STOP");
+        View.Body = FString::Printf(TEXT("%s\n%s\nch2_malet_done=%s | revision=%lld | event_sequence=%lld\nnpc.malet / route fact=%s / source memory=%s\nFirebomb x1 deferred."),
+            SeedObservations.IsValidIndex(PresentedSeedObservation) ? Labels[PresentedSeedObservation] : TEXT("Firebomb_Deferred"),
             SeedObservations.IsValidIndex(PresentedSeedObservation) ? TEXT("RECORDED SYNCHRONOUS SNAPSHOT / READ ONLY") : TEXT("LIVE AUTHORITATIVE WORLD STATE"),
             Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")) ? TEXT("true") : TEXT("false"),Snapshot.Revision,Snapshot.EventSequence,
             Knowledge ? (Knowledge->bValue ? TEXT("true") : TEXT("forgotten")) : TEXT("absent"),Memory ? *Memory->Status : TEXT("absent"));
     }
     if(State==EMemoriaSliceState::Deferred && PresentedSeedObservation==INDEX_NONE)
     {
-        const bool Recorded=PotionObservations.IsValidIndex(PresentedPotionObservation);
-        const auto S=Recorded?PotionObservations[PresentedPotionObservation]:Run->GetRunSnapshot();
+        const bool PotionRecorded=PotionObservations.IsValidIndex(PresentedPotionObservation);
+        const bool AntidoteRecorded=AntidoteObservations.IsValidIndex(PresentedAntidoteObservation);
+        const bool Recorded=PotionRecorded || AntidoteRecorded;
+        const auto S=PotionRecorded?PotionObservations[PresentedPotionObservation]:(AntidoteRecorded?AntidoteObservations[PresentedAntidoteObservation]:Run->GetRunSnapshot());
         const auto* Item=S.Player.Items.FindByPredicate([](const auto& I){return I.Id.Equals(TEXT("potion"),ESearchCase::CaseSensitive);});
         const TCHAR* Labels[]={TEXT("Potion_Before"),TEXT("Potion_Granted"),TEXT("Recent_Items"),TEXT("Inventory_Changed"),TEXT("Potion_Toast")};
-        View.Body=FString::Printf(TEXT("%s\n%s\nPotion: %lld | recent: [%s]\nch2_malet_done=%s | world revision=%lld / sequence=%lld\n%s\nSTOP before add_item(antidote, 1)"),
-            Recorded?Labels[PresentedPotionObservation]:TEXT("Antidote_Deferred"),Recorded?TEXT("RECORDED SYNCHRONOUS SNAPSHOT / READ ONLY"):TEXT("LIVE AUTHORITATIVE RUN STATE"),Item?Item->Count:0,*FString::Join(S.Player.RecentItems,TEXT(", ")),S.GetFlag(TEXT("ch2_malet_done"))?TEXT("true"):TEXT("false"),Run->GetWorldCognition()->GetSnapshot().Revision,Run->GetWorldCognition()->GetSnapshot().EventSequence,
-            (!Recorded || PresentedPotionObservation==4)?*FString(TEXT("[+] ")+PotionToast):TEXT("Toast not yet requested at this recorded boundary"));
+        const auto* Antidote=S.Player.Items.FindByPredicate([](const auto& I){return I.Id==TEXT("antidote");});
+        const TCHAR* AntidoteLabels[]={TEXT("Antidote_Before"),TEXT("Antidote_Granted"),TEXT("Antidote_Recent"),TEXT("Antidote_Signal"),TEXT("Antidote_Toast")};
+        const FString Toasts=PotionRecorded?(PresentedPotionObservation==4?TEXT("[+] ")+PotionToast:TEXT("Toast not yet requested at this recorded boundary")):
+            (AntidoteRecorded && PresentedAntidoteObservation<4?TEXT("[+] ")+PotionToast:FString(TEXT("[+] "))+FString::Join(RewardToasts,TEXT("\n[+] ")));
+        View.Body=FString::Printf(TEXT("%s\n%s\nPotion: %lld | Antidote: %lld | recent: [%s]\nch2_malet_done=%s | world revision=%lld / sequence=%lld\n%s\nSTOP before add_item(firebomb, 1)"),
+            PotionRecorded?Labels[PresentedPotionObservation]:(AntidoteRecorded?AntidoteLabels[PresentedAntidoteObservation]:TEXT("Firebomb_Deferred")),Recorded?TEXT("RECORDED SYNCHRONOUS SNAPSHOT / READ ONLY"):TEXT("LIVE AUTHORITATIVE RUN STATE"),Item?Item->Count:0,Antidote?Antidote->Count:0,*FString::Join(S.Player.RecentItems,TEXT(", ")),S.GetFlag(TEXT("ch2_malet_done"))?TEXT("true"):TEXT("false"),Run->GetWorldCognition()->GetSnapshot().Revision,Run->GetWorldCognition()->GetSnapshot().EventSequence,*Toasts);
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
     return View;
@@ -447,12 +452,46 @@ void UMemoriaNarrativeSubsystem::CommitRewardFlagAndDeferSeed()
     });
     const auto Changed=Run->OnInventoryChanged.AddLambda([this](const FString& Id){if(HasLiveRewardOwner())Record(TEXT("inventory_changed:")+Id);});
     const auto Toast=Run->OnItemToastRequested.AddLambda([this](const FString& Text,int32 Type)
-    {if(HasLiveRewardOwner()){PotionToast=Text;Record(TEXT("toast:")+Text+FString::Printf(TEXT(":%d"),Type));}});
+    {if(HasLiveRewardOwner()){PotionToast=Text;RewardToasts.Add(Text);Record(TEXT("toast:")+Text+FString::Printf(TEXT(":%d"),Type));}});
     const bool Complete=Run->AddRewardPotion(TEXT("potion"),2);
     Run->OnPotionObserved.Remove(Observation);Run->OnInventoryChanged.Remove(Changed);Run->OnItemToastRequested.Remove(Toast);
     if(!Complete || !HasLiveRewardOwner())return;
     Record(TEXT("item:add:end:potion:2"));
-    DeferredInteraction = TEXT("before:item:antidote:1");
+#if WITH_DEV_AUTOMATION_TESTS
+    OnRewardBoundaryObserved.Broadcast(TEXT("potion_contract_complete"));
+#endif
+    if(!HasLiveRewardOwner())return;
+    CommitAntidoteAndDeferFirebomb();
+}
+
+void UMemoriaNarrativeSubsystem::CommitAntidoteAndDeferFirebomb()
+{
+    if(!HasLiveRewardOwner())return;
+    AntidoteObservations.Add(Run->GetRunSnapshot());
+#if WITH_DEV_AUTOMATION_TESTS
+    OnRewardBoundaryObserved.Broadcast(TEXT("before_antidote"));
+#endif
+    if(!HasLiveRewardOwner())return;
+    const int64 Before=Run->GetItemCount(TEXT("antidote"));
+    Record(TEXT("item:add:begin:antidote:1"));
+    const auto Observation=Run->OnRewardItemObserved.AddLambda([this,Before](const FString& Id,const FString& Point,const FMemoriaRunSnapshot& Snapshot)
+    {
+        if(!HasLiveRewardOwner() || Id!=TEXT("antidote"))return;
+        if(Point==TEXT("after_inventory_mutation"))Record(FString::Printf(TEXT("inventory:antidote:%lld->%lld"),Before,Run->GetItemCount(Id)));
+        if(Point==TEXT("after_recent_items"))Record(TEXT("recent_items:")+FString::Join(Snapshot.Player.RecentItems,TEXT(",")));
+        AntidoteObservations.Add(Snapshot);
+#if WITH_DEV_AUTOMATION_TESTS
+        OnRewardBoundaryObserved.Broadcast(TEXT("antidote_")+Point);
+#endif
+    });
+    const auto Changed=Run->OnInventoryChanged.AddLambda([this](const FString& Id){if(HasLiveRewardOwner())Record(TEXT("inventory_changed:")+Id);});
+    const auto Toast=Run->OnItemToastRequested.AddLambda([this](const FString& Text,int32 Type)
+    {if(HasLiveRewardOwner()){RewardToasts.Add(Text);Record(TEXT("toast:")+Text+FString::Printf(TEXT(":%d"),Type));}});
+    const bool Complete=Run->AddRewardAntidote(TEXT("antidote"),1);
+    Run->OnRewardItemObserved.Remove(Observation);Run->OnInventoryChanged.Remove(Changed);Run->OnItemToastRequested.Remove(Toast);
+    if(!Complete || !HasLiveRewardOwner())return;
+    Record(TEXT("item:add:end:antidote:1"));
+    DeferredInteraction = TEXT("before:item:firebomb:1");
     Record(TEXT("development:deferred:") + DeferredInteraction);
     State = EMemoriaSliceState::Deferred; ++Revision;
 }
@@ -468,6 +507,15 @@ void UMemoriaNarrativeSubsystem::PresentPotionObservation(int32 Index)
 {
     if(State!=EMemoriaSliceState::Deferred)return;
     PresentedSeedObservation=INDEX_NONE;
+    PresentedAntidoteObservation=INDEX_NONE;
     PresentedPotionObservation=PotionObservations.IsValidIndex(Index)?Index:INDEX_NONE;
+    ++Revision;
+}
+
+void UMemoriaNarrativeSubsystem::PresentAntidoteObservation(int32 Index)
+{
+    if(State!=EMemoriaSliceState::Deferred)return;
+    PresentedSeedObservation=INDEX_NONE;PresentedPotionObservation=INDEX_NONE;
+    PresentedAntidoteObservation=AntidoteObservations.IsValidIndex(Index)?Index:INDEX_NONE;
     ++Revision;
 }

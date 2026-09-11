@@ -2,6 +2,15 @@
 
 ---
 
+## S278 - 2026-09-11 (Unreal Phase 1M — Malet antidote 지급)
+
+- 동일 canonical paid VN/food/native travel/물리 이동/reaction/Accept/sword/실제0.3초/deal/0.5초/reward/done/world seed/potion2 경로에서 source antidote1/recent/signal/toast까지 동기 실행 후 firebomb 호출 전에 정지.
+- 기존 Run inventory 권위와 공통 지급 루틴 사용. items={potion:2,antidote:1}, recent=[antidote,potion]. 실제 signal item_id 및 toast 각각2회, +2 Potion과 +1 Antidote 순서 유지. 개발 표시에는 두 요청 모두 남음; 시각적 animation queue 미구현 명시.
+- Player Memory 전체/derived, World revision2/sequence2와 동일 Run/player/world 보존. 실제 signal 중 run교체 및 teardown/표시 부재 검증. 원본 raw recent import/조회 차이, 명시적 반복 지급/0/음수/정의된 overflow 유지. full callback 중복 결함과 구분.
+- UE5.8.2 전체 기존147+신규22=169/169, 독립1049항목, sourceM16/L16/K13/J12/I8/H9/G7/F7/E4/D10/C7, officialGodot15, native51+CTest1, host90 PASS. I 첫 timer 관측 실패 후90초 timeout 보존; 원본/기대값/허용오차 변경 없는 단독 재실행 PASS.
+- 실제 binary SaveGame13,009 bytes/schema1/독립RestoreSave, 모든 섹션 동일 및 복원 signal/toast/grant0. PNG6 직접 검토, READ ONLY 중간 상태와 LIVE 최종 상태 구분. 기존 렌더 경고1 및 Godot UID/ObjectDB 경고 보존.
+- 이전 potion-complete source prefix/full-state assertion을 동일 지점에서 유지. 신규 narrative IR/asset/package0. 최종 static60/원본4217/UE21/기존IR-fixture84 보호 PASS. local checkpoint 결과는 PHASE_1M_REPORT.md 참조. Push와 Phase1N 구현 없음.
+
 ## S277 - 2026-09-10 (Unreal Phase 1L — Malet 첫 potion 보상)
 
 - 동일 canonical paid VN/food/native travel/물리 이동/reaction/Accept/sword/0.3초/deal/0.5초/reward/done/world seed 경로에서 기존 Run inventory potion0->2, recent[]->[potion], 실제 source signal(item_id) 후 +2 Potion/SUCCESS toast를 동기 실행. antidote1 첫 mutation 전 정지.

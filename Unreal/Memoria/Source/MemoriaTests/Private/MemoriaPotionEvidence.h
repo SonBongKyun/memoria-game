@@ -24,7 +24,7 @@ inline Obj Inventory(const FMemoriaRunSnapshot& S)
 }
 inline void Write(const FString& Name,const Obj& O)
 {
-    const auto Dir=FPaths::ProjectSavedDir()/TEXT("Validation/Phase1L");IFileManager::Get().MakeDirectory(*Dir,true);
+    const auto Dir=FPaths::ProjectSavedDir()/TEXT("Validation/Phase1M");IFileManager::Get().MakeDirectory(*Dir,true);
     FFileHelper::SaveStringToFile(Canon(O)+TEXT("\n"),*(Dir/Name),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 }
 inline Obj Full(UMemoriaRunSubsystem& Run)
@@ -43,12 +43,23 @@ inline bool SaveRoundTrip(FAutomationTestBase& Test,UMemoriaRunSubsystem& Run,co
     TStrongObjectPtr<UMemoriaRunSaveGame> Loaded(Cast<UMemoriaRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Bytes)));
     if(!Test.TestTrue(TEXT("Actual binary SaveGame read"),Loaded.IsValid()))return false;
     TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>());Game->Init();auto* Restored=Game->GetSubsystem<UMemoriaRunSubsystem>();
+    int32 RestoreSignals=0,RestoreToasts=0,RestoreGrants=0;
+    Restored->OnInventoryChanged.AddLambda([&](const FString&){++RestoreSignals;});
+    Restored->OnItemToastRequested.AddLambda([&](const FString&,int32){++RestoreToasts;});
+    Restored->OnRewardItemObserved.AddLambda([&](const FString&,const FString&,const FMemoriaRunSnapshot&){++RestoreGrants;});
     Test.TestTrue(TEXT("Restore binary save into independent authority"),Restored->RestoreSave(*Loaded));
     const auto After=Full(*Restored);
+    TArray<TSharedPtr<FJsonValue>> Query;
+    for(const auto& R:Restored->GetRecentItems())Query.Add(MakeShared<FJsonValueString>(R));
+    Evidence->SetArrayField(TEXT("restored_recent_query"),Query);
+    Test.TestTrue(TEXT("Restored normalized query agrees with original"),Restored->GetRecentItems()==Run.GetRecentItems());
+    Test.TestEqual(TEXT("Query after binary restore does not mutate raw recent"),Canon(Full(*Restored)),Canon(After));
     for(const TCHAR* Section:{TEXT("run"),TEXT("inventory"),TEXT("player"),TEXT("player_observables"),TEXT("world")})
         Test.TestEqual(FString(TEXT("Binary save exact "))+Section,Canon(Before->GetObjectField(Section)),Canon(After->GetObjectField(Section)));
     Test.TestEqual(TEXT("Canonical original authority unchanged by independent restore"),Canon(Full(Run)),Canon(Before));
     Evidence->SetObjectField(TEXT("before"),Before);Evidence->SetObjectField(TEXT("after"),After);Evidence->SetNumberField(TEXT("binary_bytes"),Bytes.Num());Evidence->SetNumberField(TEXT("schema"),Loaded->SchemaVersion);
+    Test.TestEqual(TEXT("Restore emits no inventory signal"),RestoreSignals,0);Test.TestEqual(TEXT("Restore emits no toast"),RestoreToasts,0);Test.TestEqual(TEXT("Restore does not replay grants"),RestoreGrants,0);
+    Evidence->SetNumberField(TEXT("restore_signals"),RestoreSignals);Evidence->SetNumberField(TEXT("restore_toasts"),RestoreToasts);Evidence->SetNumberField(TEXT("restore_grants"),RestoreGrants);
     Write(Name,Evidence);Game->Shutdown();return !Test.HasAnyErrors();
 }
 }

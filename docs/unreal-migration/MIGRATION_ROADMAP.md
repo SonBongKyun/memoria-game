@@ -349,3 +349,29 @@ full logs. Local checkpoint only after all acceptance, no push.
 
 Phase1M recommendation only: exact antidote1 call, then STOP before firebomb1.
 No Phase1M implementation, shop/trade/chapter/profile or full inventory parity claim.
+
+
+## Phase 1M — Antidote grant / pre-firebomb boundary (2026-09-11)
+
+Same real paid VN/food/native travel/physical walk/reaction/Accept/sword/timers/deal/
+reward/done/world seed/potion route now executes only source add_item("antidote",1).
+Run items={potion:2,antidote:1}, recent=[antidote,potion]; exact item-only signal then
++1 Antidote/SUCCESS1 toast, with the earlier +2 Potion request retained in order.
+Shared internal grant code preserves source zero/negative/repeated/recent behavior;
+16-ID source membership remains distinct from two authorized entry points. Source
+raw recent import and normalized read-only query are separately tested.
+
+Full Player/derived and World revision2/sequence2 plus identities stay unchanged.
+Actual signal observer replacement, independent schema1 binary save (13,009 bytes,
+zero restore events), teardown and absent/removed presentation are covered. Original
+potion-complete full-state/source-prefix assertions remain at their exact logical
+boundary; only final development stop advances. Existing147+new22=169 Automation
+PASS; independent1,049 evidence checks PASS. Final remaining gates and exact local
+checkpoint are recorded in [PHASE_1M_REPORT.md](PHASE_1M_REPORT.md).
+
+Firebomb, shop and all downstream chapter/autosave/achievement/map effects remain
+unexecuted. Zero new narrative IR/asset/package;21 prior packages and84 entering
+IR/fixtures protected (Phase1L quoted82 plus its two potion fixture JSONs). Minimal
+UI retains both toast requests; source visual animation queue is not implemented.
+Recommend separately authorized Phase1N only firebomb1/recent/signal/toast, then stop
+before shop opening. No Phase1N implementation, push or full Inventory/Shop parity.
