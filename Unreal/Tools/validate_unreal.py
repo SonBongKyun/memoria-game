@@ -86,8 +86,12 @@ def antidote_test_paths():
     from export_malet_antidote_oracle import inputs
     return {"Memoria.Antidote.Source."+c["id"] for c in inputs()} | {"Memoria.Antidote."+n for n in ("NativeScopeAndPresentation","Canonical","PotionSignalReplacement","AntidoteSignalReplacement","ReplacementAtStop","WorldTeardownAtStop")}
 
+def firebomb_test_paths():
+    from export_malet_firebomb_oracle import inputs
+    return {"Memoria.Firebomb.Source."+c["id"] for c in inputs()} | {"Memoria.Firebomb."+n for n in ("NativeScopeAndPresentation","Canonical","FirebombSignalReplacement","ReplacementAtStop","WorldTeardownAtStop")}
+
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths()
 
 
 def malet_first_effect_test_paths():

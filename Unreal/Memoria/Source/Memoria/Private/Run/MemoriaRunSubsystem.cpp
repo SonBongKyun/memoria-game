@@ -120,7 +120,7 @@ int64 UMemoriaRunSubsystem::GetItemCount(const FString& Id) const
 EMemoriaRewardItemScope UMemoriaRunSubsystem::RewardItemScope(const FString& Id)
 {
     if (!KnownRecentItem(Id)) return EMemoriaRewardItemScope::InvalidSourceId;
-    return Id==TEXT("potion") || Id==TEXT("antidote") ? EMemoriaRewardItemScope::Supported : EMemoriaRewardItemScope::DeferredByPhase;
+    return Id==TEXT("potion") || Id==TEXT("antidote") || Id==TEXT("firebomb") ? EMemoriaRewardItemScope::Supported : EMemoriaRewardItemScope::DeferredByPhase;
 }
 TArray<FString> UMemoriaRunSubsystem::GetRecentItems() const
 {
@@ -139,6 +139,10 @@ bool UMemoriaRunSubsystem::AddRewardPotion(const FString& Id, int64 Count)
 bool UMemoriaRunSubsystem::AddRewardAntidote(const FString& Id, int64 Count)
 {
     return Id.Equals(TEXT("antidote"),ESearchCase::CaseSensitive) && GrantRewardItem(Id,TEXT("Antidote"),Count);
+}
+bool UMemoriaRunSubsystem::AddRewardFirebomb(const FString& Id, int64 Count)
+{
+    return Id.Equals(TEXT("firebomb"),ESearchCase::CaseSensitive) && GrantRewardItem(Id,TEXT("Firebomb"),Count);
 }
 bool UMemoriaRunSubsystem::GrantRewardItem(const FString& Id, const TCHAR* DisplayName, int64 Count)
 {
@@ -166,6 +170,6 @@ bool UMemoriaRunSubsystem::GrantRewardItem(const FString& Id, const TCHAR* Displ
     // Exact source text remains English for both source en and ko runtime localization.
     OnItemToastRequested.Broadcast(FString::Printf(TEXT("+%lld %s"),Count,DisplayName),1);
     if(State.RunId!=Owner)return false;
-    Observe(Id==TEXT("potion")?TEXT("potion_complete"):TEXT("antidote_complete"));
+    Observe(Id==TEXT("potion")?TEXT("potion_complete"):(Id==TEXT("antidote")?TEXT("antidote_complete"):TEXT("firebomb_complete")));
     return State.RunId==Owner;
 }

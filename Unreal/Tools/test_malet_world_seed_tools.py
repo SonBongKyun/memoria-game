@@ -1,12 +1,12 @@
 import json,unittest
 from pathlib import Path
 import export_malet_world_seed_oracle as k
-from validate_unreal import current_test_paths,world_seed_test_paths
+from validate_unreal import firebomb_test_paths,current_test_paths,world_seed_test_paths
 class WorldSeedTools(unittest.TestCase):
     @classmethod
     def setUpClass(cls):cls.c={x['id']:x for x in json.loads((k.DEST/'contract_expected.v1.json').read_text(encoding='utf-8'))}
     def test_exact_cases_and_retained_identities(self):
-        self.assertEqual(set(self.c),set(k.CASES));self.assertEqual(len(current_test_paths()-world_seed_test_paths()-__import__("validate_unreal").potion_test_paths()-__import__("validate_unreal").antidote_test_paths()),107);self.assertEqual(len(world_seed_test_paths()),18)
+        self.assertEqual(set(self.c),set(k.CASES));self.assertEqual(len((current_test_paths()-firebomb_test_paths())-world_seed_test_paths()-__import__("validate_unreal").potion_test_paths()-__import__("validate_unreal").antidote_test_paths()),107);self.assertEqual(len(world_seed_test_paths()),18)
     def test_fresh_revisions_and_payload(self):
         c=self.c['fresh'];self.assertEqual(c['before']['revision'],0);self.assertEqual([s['world']['revision'] for s in c['steps']],[1,2]);self.assertEqual([e['event_type'] for e in c['events']],['knowledge.learned','memory.added'])
         a=c['after']['actors']['npc.malet'];self.assertEqual(a['knowledge']['fact.bl07.route_request_received'],dict(fact_id='fact.bl07.route_request_received',value=True,updated_revision=1));m=a['memories']['memory.malet.bl07_request_source'];self.assertEqual(m['content'],dict(kind='information_source',subject='bl07_route_request'));self.assertEqual(m['source_actor_id'],'player.arrel');self.assertEqual(m['created_revision'],2)
@@ -23,7 +23,7 @@ class WorldSeedTools(unittest.TestCase):
     def test_production_domain_and_item_boundary(self):
         root=k.base.ROOT/'Unreal/Memoria/Source/Memoria';world=(root/'Private/World/MemoriaWorldCognition.cpp').read_text();host=(root/'Private/Narrative/MemoriaNarrativeSubsystem.cpp').read_text();body=host[host.index('void UMemoriaNarrativeSubsystem::CommitRewardFlagAndDeferSeed()'):]
         for token in ('PlayerMemoryDomain','BurnMemory','FName','SetTimer','AddItem','MemoryShop'):self.assertNotIn(token,world)
-        self.assertLess(body.index('Run->SetStoryFlag'),body.index('World->SeedMaletRoute'));self.assertLess(body.index('World->SeedMaletRoute'),body.index('worldseed:end'));self.assertLess(body.index('worldseed:end'),body.index('before:item:firebomb:1'))
+        self.assertLess(body.index('Run->SetStoryFlag'),body.index('World->SeedMaletRoute'));self.assertLess(body.index('World->SeedMaletRoute'),body.index('worldseed:end'));self.assertLess(body.index('worldseed:end'),body.index('before:shop_open'))
         for token in ('AddItem(', 'SaveGameToSlot(', 'SetTimer(', 'BurnMemory('):self.assertNotIn(token,body)
     def test_save_schema_is_reserved_one(self):
         root=k.base.ROOT/'Unreal/Memoria/Source/Memoria';header=(root/'Public/Save/MemoriaRunSaveGame.h').read_text();runtime=(root/'Private/Run/MemoriaRunSubsystem.cpp').read_text();self.assertIn('CurrentSchemaVersion = 1',header);self.assertIn('Save->WorldCognition.SourceJson=WorldCognition->ExportJson()',runtime);self.assertIn('!UMemoriaWorldCognition::Decode',runtime)

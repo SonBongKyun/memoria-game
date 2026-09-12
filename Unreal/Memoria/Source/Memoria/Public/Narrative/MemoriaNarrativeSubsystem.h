@@ -36,6 +36,7 @@ public:
 #endif
     // Read-only presentation of recorded synchronous seed boundaries, after stop.
     void PresentSeedObservation(int32 Index);
+    void PresentFirebombObservation(int32 Index);
     void PresentAntidoteObservation(int32 Index);
     void PresentPotionObservation(int32 Index);
     bool StartDevelopmentVN();
@@ -79,7 +80,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
     // Source reward listener is one-shot and synchronous. This owner binds only
-    // the flag, world seed and potion contract, then a pre-antidote boundary.
+    // the flag, world seed and three item grants, then stops before shop entry.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;
     FGuid RewardCallbackRunId;
     int32 RewardCompletionCount = 0, RewardCallbackIntentCount = 0, RewardFieldInvocationCount = 0;
@@ -91,7 +92,10 @@ private:
     TArray<FString> RewardToasts;
     TArray<FMemoriaRunSnapshot> AntidoteObservations;
     int32 PresentedAntidoteObservation = INDEX_NONE;
-    void CommitAntidoteAndDeferFirebomb();
+    void CommitAntidoteAndDeferFirebomb(); // Historical method name; preserves the antidote contract seam.
+    void CommitFirebombAndDeferShop();
+    TArray<FMemoriaRunSnapshot> FirebombObservations;
+    int32 PresentedFirebombObservation = INDEX_NONE;
     int32 PresentedSeedObservation = INDEX_NONE;
     bool HasLiveRewardOwner() const;
     FString DeferredInteraction;

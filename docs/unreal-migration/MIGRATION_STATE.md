@@ -1,46 +1,56 @@
-# Migration handoff — Phase 1M
+# Migration handoff — Phase 1N
 
-Status: **Phase1M COMPLETE**. All bounded acceptance gates PASS.
+Status: **Phase 1N complete after approved CRLF recovery on 2026-09-13 KST**.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`, branch `unreal-migration/ue58-foundation`.
-Engine UE5.8.2 / CL56702186, `C:\Program Files\Epic Games\UE_5.8`.
-Starting checkpoint `e8bebd2ef1b6ef08dde51d3f007545428614c720` (clean).
-Final local checkpoint: enclosing `feat(unreal): grant Malet antidote reward` commit;
-resolve with `git log -1 --format=%H -- docs/unreal-migration/PHASE_1M_REPORT.md`.
-No push. No Phase1N implementation. [Report](PHASE_1M_REPORT.md).
+The local checkpoint is the commit containing this handoff; parent/start checkpoint
+`7845493cd7d4edb16b703e38bae510f02bff96aa`. No push.
+UE5.8.2 / CL56702186. [Phase1N report](PHASE_1N_REPORT.md).
 
-- Same actual canonical paid VN1/food/native travel/physical walk/reaction/Accept0/
-  sword/real0.3s/deal/real0.5s/reward/done/world seed/potion2 run now adds antidote1.
-  Final items={potion:2,antidote:1}, recent=[antidote,potion]. No canonical reconstruction.
-- Existing Run Items/RecentItems are authority. One shared private grant implementation;
-  strict potion and antidote entry points, separate16-ID recent membership and grant scope.
-  Unknown source ID and valid-but-deferred item are distinguished. Firebomb stays blocked.
-- Synchronous mutation/recent/item_id-only signal/toast order. Two total signals and two
-  requests ordered +2 Potion/SUCCESS1 then +1 Antidote/SUCCESS1. Both retained in minimal
-  development display; source visual animation queue is still unimplemented.
-- Same Run/player/world identities; full Player/derived and World revision2/sequence2
-  preserved. HP100/Grains0/chapter1/en and unrelated flags/quick slots unchanged.
-- Raw malformed recent arrays survive import/save; read-only query normalizes separately.
-  Explicit repeated calls accumulate normally. Zero/negative and defined signed wrap
-  retained. Separate full callback duplication/shop error remains a source defect.
-- Actual potion/antidote inventory_changed replacement probes prevent stale toast and
-  next-grant leakage into a new run. Old committed snapshots remain. Existing development
-  observer seam tests stay distinct. Teardown and absent/removed presentation are covered.
-- Independent real binary SaveGameToMemory/LoadGameFromMemory/RestoreSave: schema1,
-  13,009 bytes canonical; all Run/inventory/raw recent/flags/player+derived/world equal.
-  Restore signal/toast/grant observations all0; original authority unchanged.
-- Original147 identities/core boundaries retained, including potion-complete exact full
-  state/source prefix before antidote. Only final stop advances to before firebomb.
-  Final UE169/169; independent1,049 checks;1,038 JSON+618 native PNG; six direct reviews.
-- Source M16/L16/K13/J12/I8/H9/G7/F7/E4/D10/C7, host90, official Godot15, native51+CTest1 PASS.
-  First I timer assertion/90s timeout retained; unchanged isolated retry PASS.
-- Existing render warning1 remains, attached this run to first Antidote signal-lifetime
-  case. No suppression. Full raw logs include engine pre-suite diagnostics.
-- Protected original4217, accepted21 packages, current prior84 IR/fixtures (quoted82
-  plus L's two potion fixtures). No new narrative IR/asset/package. All final hashes PASS; static60 and4217 original files verified.
+- Same actual canonical paid VN/native travel/physical walk/Enhanced Input path now
+  synchronously grants potion2, antidote1, firebomb1 and stops before `_open_malet_shop()`
+  entry, including local stock construction. No shop/Chapter3/persistence/Phase1O code.
+- Items={potion:2,antidote:1,firebomb:1}, recent=[firebomb,antidote,potion]. Actual three
+  item_id-only signals and source-resolved SUCCESS1 requests in order. Minimal history
+  retains all3; animated visual toast queue remains outside scope.
+- Same Run/player/world, world2/sequence2, full Player+derived and world DTO unchanged.
+  Raw recent/query, cap5 eviction, repeated/zero/negative grants, nondefault fixture
+  quantities/world19/23, actual signal replacements during each item, stop/world lifetimes
+  and absent presentation are verified. Shared private grant plus strict wrappers only.
+- Potion and Antidote contract-complete assertions/source prefixes/binary saves retained.
+  Canonical Run `3F8EADA247316AF8E8D9F58CC71E7DAE`; independent binary13,121 bytes/schema1,
+  all sections equal, restore signal/toast/grant0, original unchanged.
+- Final UE191/191 = original169 + new22. Independent1,413 checks; host96/96; native51/51
+  +CTest1; official Godot repo/VN/KO/editor + memory/world15; sourceN17/M16/L16/K13/J12/
+  I8/H9/G7/F7/E4/D10/C7 PASS. I first attempt PASS, no retry; historical risk unresolved.
+- First full UE run191 PASS; cap5 fixture refined; initial preview text concern was
+  reassessed by raw PNG glyph-mask inspection (original pixels intact). One capture-helper
+  build failed on SetIsVolatile, corrected to installed API ForceVolatile; final full run PASS.
+  One existing r.MotionVectorSimulation warning and15 engine startup Condition diagnostics
+  remain separate from zero final Memoria test errors. Godot UID/ObjectDB warnings retained.
+- Approved original-only binary recovery restored103 CRLF pairs in the original Godot
+  `assets/fonts/theme.tres`, from3,522 to3,625 bytes. SHA-256 now matches the unchanged
+  original manifest: a38ef594223ee8ca8bbf292f9058f82ef03b5a588214f82ef6dff396ae93e2fd.
+  Migration worktree theme bytes/mtime were untouched. Original change author remains unknown.
+- Fresh static60/60 and original4,217/4,217 PASS; worktree8,405, prior IR/fixtures86,
+  packages21, historical reports/evidence and all prior Phase1N evidence preserved.
+  New narrative IR/asset/package0. Recovery-auditor baseline-scope mistakes and their
+  corrections are preserved separately; no original manifest or rule was changed.
+- September11 UE191/191 and independent1,413 evidence is reused after all77 runtime
+  input hashes and existing packages/fixtures matched. No full runtime test was rerun
+  during recovery. Fresh checks cover restoration, preservation, static and staged bytes.
+- The original failure, old byte copies, all previous failed attempts and current bytes
+  are retained. Both original and migration indexes had no staged theme change.
+  Final selective staging/diff checks and every raw evidence blob comparison passed.
 
-Next separately authorized Phase1N: only exact source firebomb1 grant/recent/signal/toast,
-then STOP before the source shop-opening operation. Preserve169 identities and authority.
-No shop, chapter/autosave/achievement/next map, item-use, full inventory parity, final UI,
-Field save resume, physical-input or Steam readiness claim.
+Phase1N closeout is complete. Do not rerun the single-use restoration helper: it
+intentionally rejects the now-restored original. No push, Phase1O implementation or
+scheduled continuation is authorized. See the recovery section for exact byte provenance
+and the distinction between original runtime execution and fresh integrity checks.
 
-Final evidence: [all gates](evidence/phase1m/final_checks.json), [report](PHASE_1M_REPORT.md), [source regression attempts](evidence/phase1m/source_regressions.json).
+Evidence: [final recovery review](evidence/phase1n/recovery-20260913/final_review.json),
+[original pre-approval checks](evidence/phase1n/final_checks.json),
+[final exact index](evidence/phase1n/automation03/automation_index.json),
+[source mismatch](evidence/phase1n/original_theme_difference.json),
+[raw logs](evidence/phase1n/full_logs.zip), [continuity](evidence/phase1n/assertion_continuity.json).
+Next separate Phase1O dependency and explicit shop-entry acceptance are in the report;
+no full Inventory/Shop/Malet/Verdan or Steam readiness claim.

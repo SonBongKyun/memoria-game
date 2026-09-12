@@ -24,7 +24,7 @@ inline Obj Inventory(const FMemoriaRunSnapshot& S)
 }
 inline void Write(const FString& Name,const Obj& O)
 {
-    const auto Dir=FPaths::ProjectSavedDir()/TEXT("Validation/Phase1M");IFileManager::Get().MakeDirectory(*Dir,true);
+    const auto Dir=FPaths::ProjectSavedDir()/TEXT("Validation/Phase1N");IFileManager::Get().MakeDirectory(*Dir,true);
     FFileHelper::SaveStringToFile(Canon(O)+TEXT("\n"),*(Dir/Name),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
 }
 inline Obj Full(UMemoriaRunSubsystem& Run)

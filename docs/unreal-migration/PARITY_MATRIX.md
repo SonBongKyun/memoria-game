@@ -126,3 +126,39 @@ IR/fixtures protected (Phase1L quoted82 plus its two potion fixture JSONs). Mini
 UI retains both toast requests; source visual animation queue is not implemented.
 Recommend separately authorized Phase1N only firebomb1/recent/signal/toast, then stop
 before shop opening. No Phase1N implementation, push or full Inventory/Shop parity.
+
+
+## Phase 1N — firebomb grant verified; final source byte gate pending (2026-09-11)
+
+The same canonical run now adds source firebomb1 after potion2/antidote1 and stops
+before `_open_malet_shop()` entry, including stock construction. Items/recent, three
+ordered actual item-only signals and SUCCESS1 requests, full Player+derived/World
+preservation, each actual signal replacement and schema1 independent binary13,121 bytes
+are verified. Potion/Antidote complete logical assertions and exact169 prior identities
+remain; final UE191/191, independent1,413, host96, sourceN17 plus all historical source
+checks, official Godot15 and native51+CTest1 PASS. I first attempt PASS; no retry.
+
+No new narrative IR/asset/package. Prior86 IR/fixtures,21 packages and8,405 protected
+worktree files match. Static original-byte preservation fails only on original
+`assets/fonts/theme.tres`:103 CRLF endings became LF, identical normalized content.
+User approval for narrow restoration was requested; no original write or new local
+commit/push occurred. Completion is withheld until the byte gate is resolved.
+[Current report](PHASE_1N_REPORT.md) includes exact source hashes, raw original captures,
+first attempts, one corrected capture-helper compilation failure, warnings and the
+preview/pixel reassessment. Source animation queue, item use and all shop/downstream
+chapter/persistence behavior remain outside scope. Phase1O is not implemented.
+
+
+### Phase 1N closeout update — 2026-09-13 KST
+
+The above September11 pending state is retained as history. User-approved binary
+restoration of only the original Godot `assets/fonts/theme.tres` recovered103 CRLF
+pairs (3,522→3,625 bytes) and the exact old manifest SHA-256. The worktree theme was
+not rewritten. Fresh static60/original4217 and worktree8405/package21/prior IR-fixture86
+preservation pass; all historical evidence remains intact and new IR/asset/package0.
+Existing UE191/191 and independent1413 results are reused from September11 after exact
+runtime-input/package/fixture checks; no new full UE execution is claimed. Both recovery
+auditor baseline-scope mistakes and their read-only resolutions are retained.
+Final diff/staged raw-byte checks pass; Phase1N is complete in the local checkpoint
+containing this update. Original change author remains unknown. No push or Phase1O.
+[Recovery and final review](evidence/phase1n/recovery-20260913/final_review.json).

@@ -62,6 +62,6 @@ class RewardTools(unittest.TestCase):
         self.assertIn('EMemoriaSliceState::Deferred',body)
         self.assertIn('RewardCallbackRunId == Run->GetRunSnapshot().RunId',source)
         self.assertEqual(body.count('Run->SetStoryFlag(TEXT("ch2_malet_done"), true)'),1)
-        self.assertIn('before:item:firebomb:1',body)
+        self.assertIn('before:shop_open',body)
         self.assertNotIn('malet_memory_world_followup',source)
 if __name__=='__main__':unittest.main()

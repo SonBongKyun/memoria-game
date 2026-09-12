@@ -41,6 +41,7 @@ public:
     // Bounded source add_item contract. Potion and antidote entry points retain distinct exact-ID contracts.
     bool AddRewardPotion(const FString& ItemId, int64 Count);
     bool AddRewardAntidote(const FString& ItemId, int64 Count);
+    bool AddRewardFirebomb(const FString& ItemId, int64 Count);
     static EMemoriaRewardItemScope RewardItemScope(const FString& ItemId);
     TArray<FString> GetRecentItems() const;
     FMemoriaRewardItemObserved OnRewardItemObserved;

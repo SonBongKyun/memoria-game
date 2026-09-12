@@ -2,6 +2,21 @@
 
 ---
 
+## S279 - 2026-09-11 (Unreal Phase 1N — Firebomb 지급 검증, 원본 보존 승인 대기)
+
+- 동일 canonical 경로에서 potion2/antidote1/firebomb1을 동기 지급하고 `_open_malet_shop()` 함수 진입 전 정지. 공통 GrantRewardItem 재사용, Player/World 전체·파생값·Run identity 보존.
+- 최종 UE 기존169+신규22=191/191, 독립1413, host96, sourceN17 및 M~C 회귀, officialGodot15, native51+CTest1 PASS. I 최초 PASS로 재시도 없음. 실제 binary13121 bytes/schema1, 독립복원 signal/toast/grant0.
+- 원본 PNG4 직접 확인. 미리보기에서 보인 누락은 원본 글자 픽셀 비교상 확인되지 않아 엔진 렌더 결함 판단을 정정. cap5 N fixture 보완 및 캡처 도구 API 오기 C2039 수정 후 전체 재검증. 기존 경고와 실패 로그 보존.
+- Worktree 보호8405/IR-fixture86/package21 모두 동일. 원본4217 검사 중 theme.tres만 CRLF103개가 LF로 바뀐 차이(내용 동일)를 발견. 변경 주체 불명이며 원본 변경 금지에 따라 임의 복원하지 않음. 현재/복원후보 바이트 보관, 좁은 줄바꿈 복원 승인 요청.
+- 원본 보존 gate 미충족으로 완료·로컬 커밋 보류. Push/Phase1O 없음. PHASE_1N_REPORT.md와 MIGRATION_STATE.md에서 재개 조건 확인.
+
+### S279 마감 추가 기록 - 2026-09-13
+
+- 사용자 승인 후 원본 Godot assets/fonts/theme.tres 한 파일만 검증된 바이너리로 복원. LF103→CRLF103, 3522→3625 bytes, 기존 manifest SHA-256 a38ef594223ee8ca8bbf292f9058f82ef03b5a588214f82ef6dff396ae93e2fd 일치. worktree 동명 파일과 다른 사용자 변경은 보존. 최초 변경 주체 미확정.
+- 새 static60/원본4217, worktree8405/package21/이전IR-fixture86 및 역사적 보고서·증거 보존 PASS. 신규 IR/asset/package0. 복구 감사의 기준 범위 오분류 2건은 실패 기록을 남기고 진입 커밋의 정확한 checkout 바이트로 해결; manifest/규칙 수정 없음.
+- 런타임 입력77개의 기존 해시가 모두 같아 9월11일 UE191/독립1413 결과를 재사용. 복구 후 전체 UE를 새로 실행한 것으로 기록하지 않음. 새 검사는 바이트·보존·static·working/staged diff·staged raw evidence 일치 검사.
+- 기존 원본 실패/바이트 사본/모든 실행 증거를 유지하고 recovery-20260913에 별도 증거 추가. 최종 마감 gate 통과, 이 기록을 포함한 Phase1N 로컬 checkpoint 완료. Push/Phase1O 구현 없음.
+
 ## S278 - 2026-09-11 (Unreal Phase 1M — Malet antidote 지급)
 
 - 동일 canonical paid VN/food/native travel/물리 이동/reaction/Accept/sword/실제0.3초/deal/0.5초/reward/done/world seed/potion2 경로에서 source antidote1/recent/signal/toast까지 동기 실행 후 firebomb 호출 전에 정지.
