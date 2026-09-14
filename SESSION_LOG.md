@@ -8916,3 +8916,13 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 - Representative `verdan_market.tscn` headless boot completed through population, autosave, and Chapter 2 dialogue startup.
 - VN validation: 20 files, 504 steps, 0 errors, 0 warnings.
 - `git diff --check` passed; only normal CRLF working-copy warnings were emitted.
+
+
+## S280 - 2026-09-14 (Unreal Phase 1O — 말렛 상점 첫 화면과 원본 그래픽 적용)
+
+- 사용자 승인으로 동일 canonical 경로의 potion2/antidote1/firebomb1 뒤 말렛 상점을 열고, 원본 기본 sell 목록·가격·Grains를 표시. 실제 키 입력과 클릭으로 기억 설명을 미리 볼 수 있음.
+- 기존 원본 초상화·상점 배경을 새 UE 텍스처2개로 임포트. 새 narrative IR/package0. 구매·판매, shop_closed 실행, Chapter3, autosave, tutorial/achievement handler는 범위 밖이며 요청만 기록.
+- 최종 UE203/203, 독립1500, sourceO10, host96, native51+CTest1, static63 PASS. 최초201/203의 두 실패는 빈/핵심 전용 테스트 입력의 definition/owned 불일치로, 기존 복원 계약과 기대값을 유지하면서 입력만 수정. 모든 실패와 원시 실행 증거 보존.
+- 원본4217, 기존 UE21, IR/fixture88, 보호 worktree17133 파일 보존. 기존 Phase1N1413 검사도 과거 증거에 대해 다시 통과. 새 UE 전체 실행과 과거 증거 재대조를 구분.
+- 실제 영어 화면과 키보드 선택 검토 완료. binary13121 bytes/schema1 독립복원 동일, restore signal/toast/grant0. 자세한 범위·검증·실행 방법은 PHASE_1O_REPORT.md와 PLAYABLE_SLICE.md.
+- 이 기록을 포함하는 Phase1O 로컬 checkpoint. Push 없음. 다음 개발은 상점 거래 계약과 연결된 대화·탐색 화면의 원본 그래픽 확장.

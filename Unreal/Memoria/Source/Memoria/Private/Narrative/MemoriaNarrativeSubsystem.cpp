@@ -10,6 +10,7 @@ void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection
 {
     Super::Initialize(Collection);
     Collection.InitializeDependency<UMemoriaRunSubsystem>();
+    Collection.InitializeDependency<UMemoriaShopSubsystem>();
     Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
     Run->OnRunReplaced.AddUObject(this, &UMemoriaNarrativeSubsystem::Reset);
     FWorldDelegates::OnWorldCleanup.AddUObject(this, &UMemoriaNarrativeSubsystem::OnWorldCleanup);
@@ -187,6 +188,11 @@ void UMemoriaNarrativeSubsystem::Back()
 }
 FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
 {
+    if (State == EMemoriaSliceState::Deferred && PresentedSeedObservation == INDEX_NONE && PresentedPotionObservation == INDEX_NONE && PresentedAntidoteObservation == INDEX_NONE && PresentedFirebombObservation == INDEX_NONE)
+    {
+        const auto Shop = GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>()->GetView();
+        if (Shop.bOpen) { FMemoriaNarrativeView V; V.bShopPresentation = true; V.Shop = Shop; return V; }
+    }
     FMemoriaNarrativeView View; View.bPaused = bPaused;
     if (!Context) return View;
     const FMemoriaNarrativeText* Text = nullptr;
@@ -534,7 +540,13 @@ void UMemoriaNarrativeSubsystem::CommitFirebombAndDeferShop()
     OnRewardBoundaryObserved.Broadcast(TEXT("firebomb_contract_complete"));
 #endif
     if(!HasLiveRewardOwner())return;
-    DeferredInteraction = TEXT("before:shop_open");
+    // Retain the exact Phase 1N seam before any shop entry work.
+    Record(TEXT("development:deferred:before:shop_open"));
+    auto* Shop = GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>();
+    if (!Shop->OpenMalet(GetWorld())) { State = EMemoriaSliceState::Failed; Record(TEXT("error:shop_open")); ++Revision; return; }
+    Record(TEXT("shop:open:Malet:sell"));
+    for (const auto& Request : Shop->GetView().Requests) Record(Request);
+    DeferredInteraction = TEXT("before:shop_actions");
     Record(TEXT("development:deferred:") + DeferredInteraction);
     State = EMemoriaSliceState::Deferred; ++Revision;
 }

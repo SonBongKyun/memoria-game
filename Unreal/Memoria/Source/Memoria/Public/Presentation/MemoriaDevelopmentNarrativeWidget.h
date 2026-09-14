@@ -3,6 +3,8 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "MemoriaDevelopmentNarrativeWidget.generated.h"
 class UTextBlock;
+class UBorder;
+class UMemoriaShopWidget;
 DECLARE_DELEGATE_OneParam(FMemoriaPresentationConfirm, int32);
 
 // Temporary native UMG, shared rendering only. Selection retains source IDs.
@@ -16,6 +18,7 @@ public:
     void ConfirmIntent();
     int32 SelectedOriginalIndex() const;
     FString VisibleText() const;
+    UMemoriaShopWidget* GetShopWidget() const { return ShopWidget; }
     FMemoriaPresentationConfirm OnConfirm;
 protected:
     virtual TSharedRef<SWidget> RebuildWidget() override;
@@ -24,6 +27,8 @@ protected:
     virtual FNavigationReply NativeOnNavigation(const FGeometry&, const FNavigationEvent&, const FNavigationReply&) override { return FNavigationReply::Escape(); }
 private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Message;
+    UPROPERTY(Transient) TObjectPtr<UBorder> NarrativePanel;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaShopWidget> ShopWidget;
     FMemoriaNarrativeView View;
     int32 Selection = 0;
     void Refresh();

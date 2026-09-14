@@ -90,8 +90,13 @@ def firebomb_test_paths():
     from export_malet_firebomb_oracle import inputs
     return {"Memoria.Firebomb.Source."+c["id"] for c in inputs()} | {"Memoria.Firebomb."+n for n in ("NativeScopeAndPresentation","Canonical","FirebombSignalReplacement","ReplacementAtStop","WorldTeardownAtStop")}
 
+def shop_test_paths():
+    from export_malet_shop_oracle import inputs
+    return {"Memoria.Shop.Source."+c["id"] for c in inputs()} | {"Memoria.Shop.OwnerLifetime", "Memoria.Shop.Canonical"}
+
+
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths()
 
 
 def malet_first_effect_test_paths():
@@ -125,6 +130,7 @@ def main():
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
+    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.'], help='Exact full registry or the bounded shop regression subset')
     parser.add_argument('--evidence-dir', type=Path)
     args = parser.parse_args()
     evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('unreal-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
@@ -249,12 +255,12 @@ def main():
     report['editor_launch'] = 'UNATTENDED_CMD'
     save()
     ran = run('automation', [str(editor), project, '-unattended', '-nop4', '-nosplash', *(['-RenderOffscreen', '-MemoriaCapture', '-ResX=1280', '-ResY=720'] if args.rendered else ['-NullRHI']),
-                            '-ExecCmds=Automation RunTests Memoria.', '-TestExit=Automation Test Queue Empty',
+                            f'-ExecCmds=Automation RunTests {args.test_prefix}', '-TestExit=Automation Test Queue Empty',
                             f'-ReportExportPath={test_report}', '-stdout', '-FullStdOutLogOutput'], 900)
     index = test_report / 'index.json'
     try:
         result = json.loads(index.read_text(encoding='utf-8-sig')) if index.is_file() else {}
-        inspection = inspect_automation_report(result, current_test_paths())
+        inspection = inspect_automation_report(result, {p for p in current_test_paths() if p.startswith(args.test_prefix)})
     except (ValueError, OSError) as error:
         inspection = {'passed': False, 'discovered': 0, 'source_parity_discovered': 0, 'errors': [str(error)]}
     report['automation_report'] = str(index.relative_to(ROOT))
@@ -270,6 +276,8 @@ def main():
     report['phase1i_required_total'] = len(malet_reward_test_paths())
     report['phase1g_required_total'] = len(malet_refusal_test_paths())
     report['current_required_total'] = len(current_test_paths())
+    report['test_prefix'] = args.test_prefix
+    report['selected_required_total'] = sum(p.startswith(args.test_prefix) for p in current_test_paths())
     report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']
     passed = ran and inspection['passed']

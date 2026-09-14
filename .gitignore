@@ -62,3 +62,6 @@ docs/unreal-migration/evidence/phase1l/**/*.log
 docs/unreal-migration/evidence/phase1m/**/*.log
 
 docs/unreal-migration/evidence/phase1n/**/*.log
+
+# Raw Phase 1O logs are retained byte-for-byte in evidence archives.
+docs/unreal-migration/evidence/phase1o/**/*.log

@@ -1,12 +1,12 @@
 import json,unittest
 from pathlib import Path
 import export_malet_firebomb_oracle as n
-from validate_unreal import current_test_paths,firebomb_test_paths
+from validate_unreal import shop_test_paths,current_test_paths,firebomb_test_paths
 class FirebombContracts(unittest.TestCase):
     def setUp(self):self.c={c['id']:c for c in json.loads((n.DEST/'contract_expected.v1.json').read_text(encoding='utf-8'))}
     def test_exact_169_retained(self):
         old=json.loads((n.base.ROOT/'docs/unreal-migration/evidence/phase1m/automation01/automation_index.json').read_text(encoding='utf-8-sig'))
-        self.assertEqual({t['fullTestPath'] for t in old['tests']},current_test_paths()-firebomb_test_paths())
+        self.assertEqual({t['fullTestPath'] for t in old['tests']},current_test_paths()-shop_test_paths()-firebomb_test_paths())
     def test_source_record_and_localization(self):
         self.assertEqual(self.c['canonical']['item_record'],dict(name='Firebomb',desc='Deals 12 damage, then burns the enemy for 2 turns.',type='burn',power=15,impact=12,price=18,icon='res://assets/ui/items/firebomb.png'))
         for name in ('canonical','ko'):self.assertEqual(self.c[name]['enqueues'],[dict(text='+1 Firebomb',type=1)])

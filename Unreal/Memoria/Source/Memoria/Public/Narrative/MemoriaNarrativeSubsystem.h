@@ -5,6 +5,7 @@
 #include "World/MemoriaWorldCognition.h"
 #include "Run/MemoriaRunTypes.h"
 #include "Narrative/MemoriaNarrativeRuntime.h"
+#include "Shop/MemoriaShopSubsystem.h"
 #include "MemoriaNarrativeSubsystem.generated.h"
 
 class UMemoriaRunSubsystem;
@@ -17,6 +18,8 @@ struct MEMORIA_API FMemoriaNarrativeView
 {
     FString Header, Speaker, Narration, Body;
     TArray<FMemoriaPresentedChoice> Choices;
+    bool bShopPresentation = false;
+    FMemoriaShopView Shop;
     bool bPaused = false;
     bool bCompactStatus = false;
     bool bDevelopmentStop = false;
@@ -80,7 +83,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
     // Source reward listener is one-shot and synchronous. This owner binds only
-    // the flag, world seed and three item grants, then stops before shop entry.
+    // the flag, world seed and three item grants, then opens the bounded shop presentation.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;
     FGuid RewardCallbackRunId;
     int32 RewardCompletionCount = 0, RewardCallbackIntentCount = 0, RewardFieldInvocationCount = 0;

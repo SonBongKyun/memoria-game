@@ -1,5 +1,6 @@
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
 #include "Blueprint/WidgetTree.h"
+#include "Presentation/MemoriaShopWidget.h"
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 #include "Components/CanvasPanel.h"
@@ -11,7 +12,7 @@ TSharedRef<SWidget> UMemoriaDevelopmentNarrativeWidget::RebuildWidget()
     if (!WidgetTree->RootWidget)
     {
         auto* Canvas = WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget = Canvas;
-        auto* Panel = WidgetTree->ConstructWidget<UBorder>();
+        auto* Panel = WidgetTree->ConstructWidget<UBorder>(); NarrativePanel = Panel;
         Panel->SetBrushColor(FLinearColor(0.015f, 0.022f, 0.035f, 0.98f)); Panel->SetPadding(FMargin(32));
         auto* PanelSlot = Canvas->AddChildToCanvas(Panel);
         PanelSlot->SetAnchors(View.bCompactStatus ? FAnchors(0.03f, 0.03f, 0.97f, 0.25f) : FAnchors(0.08f, 0.12f, 0.92f, 0.9f)); PanelSlot->SetOffsets(FMargin(0));
@@ -19,6 +20,8 @@ TSharedRef<SWidget> UMemoriaDevelopmentNarrativeWidget::RebuildWidget()
         Message = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(), TEXT("NarrativeText"));
         Message->SetAutoWrapText(true); Message->SetColorAndOpacity(FSlateColor(FLinearColor(0.91f, 0.91f, 0.86f)));
         auto Font = Message->GetFont(); Font.Size = 22; Message->SetFont(Font); Scroll->AddChild(Message);
+        ShopWidget = WidgetTree->ConstructWidget<UMemoriaShopWidget>();
+        auto* ShopSlot = Canvas->AddChildToCanvas(ShopWidget);ShopSlot->SetAnchors(FAnchors(0,0,1,1));ShopSlot->SetOffsets(FMargin(0));
     }
     Refresh(); return Super::RebuildWidget();
 }
@@ -31,15 +34,19 @@ void UMemoriaDevelopmentNarrativeWidget::Display(const FMemoriaNarrativeView& In
 }
 void UMemoriaDevelopmentNarrativeWidget::Navigate(int32 Direction)
 {
+    if(View.bShopPresentation && ShopWidget){ShopWidget->Navigate(Direction);return;}
     if (!View.bPaused && !View.Choices.IsEmpty()) { Selection = (Selection + Direction + View.Choices.Num()) % View.Choices.Num(); Refresh(); }
 }
 int32 UMemoriaDevelopmentNarrativeWidget::SelectedOriginalIndex() const
 { return View.Choices.IsValidIndex(Selection) ? View.Choices[Selection].OriginalIndex : INDEX_NONE; }
-void UMemoriaDevelopmentNarrativeWidget::ConfirmIntent() { OnConfirm.ExecuteIfBound(SelectedOriginalIndex()); }
-FString UMemoriaDevelopmentNarrativeWidget::VisibleText() const { return Message ? Message->GetText().ToString() : FString(); }
+void UMemoriaDevelopmentNarrativeWidget::ConfirmIntent() { if(View.bShopPresentation)return; OnConfirm.ExecuteIfBound(SelectedOriginalIndex()); }
+FString UMemoriaDevelopmentNarrativeWidget::VisibleText() const { return View.bShopPresentation && ShopWidget ? ShopWidget->VisibleText() : Message ? Message->GetText().ToString() : FString(); }
 void UMemoriaDevelopmentNarrativeWidget::Refresh()
 {
     if (!Message) return;
+    NarrativePanel->SetVisibility(View.bShopPresentation ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+    ShopWidget->SetVisibility(View.bShopPresentation ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    if(View.bShopPresentation){ShopWidget->Display(View.Shop);return;}
     FString Text = View.Header + TEXT("\n\n");
     if (View.bCompactStatus) Text += View.Body;
     else if (View.bPaused) Text += TEXT("PAUSED\n\nEnter / A or Back: return to the current line");

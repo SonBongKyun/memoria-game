@@ -162,3 +162,17 @@ auditor baseline-scope mistakes and their read-only resolutions are retained.
 Final diff/staged raw-byte checks pass; Phase1N is complete in the local checkpoint
 containing this update. Original change author remains unknown. No push or Phase1O.
 [Recovery and final review](evidence/phase1n/recovery-20260913/final_review.json).
+
+
+## Phase 1O — first shop screen (2026-09-14)
+
+| Surface | Verified scope | Deferred |
+|---|---|---|
+| Malet entry | Same canonical reward route; default sell; source stock2 | close callback, chapter3 |
+| Sell projection | Available ordered memories, burned/faded/collateral/core exclusions, prices, en/ko data | actual sale/purchase and other tabs |
+| Presentation | Original portrait/backdrop, actual UMG modal, read-only keyboard/click preview | full KO visual QA, other ratios, packaged build |
+| Ownership/save | Same Run/Player/World; no shop mutation; reset on restore/travel; binary13121/schema1 equality | persistent shop cursor and stock |
+| Outbound requests | Source-ordered ui_open/check_grains/first_shop records | audio/tutorial/achievement handlers |
+
+Fresh UE203/203 and independent1500 checks pass; sourceO10 and original4217/old21
+packages/88 IR-fixture files preserved. [Full report](PHASE_1O_REPORT.md).

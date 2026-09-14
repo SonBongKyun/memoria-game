@@ -2,7 +2,7 @@
 import argparse,copy,json,struct,hashlib
 from pathlib import Path
 from narrative_ir import ROOT,canonical
-from validate_unreal import current_test_paths,inspect_automation_report
+from validate_unreal import current_test_paths,inspect_automation_report,shop_test_paths
 from validate_malet_deal_evidence import read,normalize,source_state
 from validate_malet_first_effect_evidence import flag_delta
 SUFFIX=['callback:reward:enter','flag:ch2_malet_done','worldseed:enter','world:knowledge:npc.malet:fact.bl07.route_request_received','world:revision:1','world:memory:npc.malet:memory.malet.bl07_request_source','world:revision:2','worldseed:end','item:add:begin:potion:2','inventory:potion:0->2','recent_items:potion','inventory_changed:potion','toast:+2 Potion:1','item:add:end:potion:2','item:add:begin:antidote:1','inventory:antidote:0->1','recent_items:antidote,potion','inventory_changed:antidote','toast:+1 Antidote:1','item:add:end:antidote:1','item:add:begin:firebomb:1','inventory:firebomb:0->1','recent_items:firebomb,antidote,potion','inventory_changed:firebomb','toast:+1 Firebomb:1','item:add:end:firebomb:1','development:deferred:before:shop_open']
@@ -12,15 +12,17 @@ def potion_delta(run):
 def inventory(run):
     return {'items':{x['id']:x['count'] for x in run['player']['items']},'recent':run['player']['recentItems']}
 
-def validate(a):
-    d=a.automation_dir.resolve();cap=d/'Phase1N';out=a.evidence_dir.resolve();out.mkdir(parents=True,exist_ok=False)
-    checks=[];report={'status':'RUNNING','checks':checks}
+SHOP_TAIL=["shop:open:Malet:sell","request:audio:ui_open","request:achievement:check_grains","request:tutorial:first_shop","development:deferred:before:shop_actions"]
+
+def validate(a,shop_frontier=False):
+    d=a.automation_dir.resolve();cap=d/('Phase1O' if shop_frontier else 'Phase1N');out=a.evidence_dir.resolve();out.mkdir(parents=True,exist_ok=False)
+    checks=[];report={'status':'RUNNING','checks':checks,'scope':'Phase1O shop frontier with all retained N checks' if shop_frontier else 'Phase1N original pre-shop frontier'}
     def check(n,b):
         checks.append({'name':n,'passed':bool(b)})
         if not b:raise ValueError(n)
     try:
-        index=read(d/'automation_index.json');check('Exact old169 plus new22 identities PASS',inspect_automation_report(index,current_test_paths())['passed'])
-        prior=read(ROOT/'docs/unreal-migration/evidence/phase1m/automation01/automation_index.json');old_ids={t['fullTestPath'] for t in prior['tests']};new_ids={t['fullTestPath'] for t in index['tests']};check('Exact accepted Phase1M169 identities retained',len(old_ids)==169 and old_ids.issubset(new_ids) and len(new_ids-old_ids)==22)
+        index=read(d/'automation_index.json');check('Exact current identities PASS',inspect_automation_report(index,current_test_paths() if shop_frontier else current_test_paths()-shop_test_paths())['passed'])
+        prior=read(ROOT/'docs/unreal-migration/evidence/phase1m/automation01/automation_index.json');old_ids={t['fullTestPath'] for t in prior['tests']};new_ids={t['fullTestPath'] for t in index['tests']};check('Exact accepted Phase1M169 identities retained',len(old_ids)==169 and old_ids.issubset(new_ids) and len(new_ids-old_ids)==(34 if shop_frontier else 22))
         gold=read(ROOT/'docs/unreal-migration/fixtures/malet_world_seed/contract_expected.v1.json');fresh=gold[0]
         ig=read(ROOT/'docs/unreal-migration/fixtures/malet_reward/contract_expected.v1.json');hg=read(ROOT/'docs/unreal-migration/fixtures/malet_deal/contract_expected.v1.json')
         modes=['FirebombCanonical','AntidoteCanonical','PotionCanonical','WorldSeedCanonical','FirstEffectCanonical','FirstEffectPreexistingTrue','FirstEffectPreexistingFalse','CanonicalReward','CanonicalPayment','AlreadyBurnedPayment','AcceptPreEffectDeferred']
@@ -31,7 +33,7 @@ def validate(a):
                 x=state(label);g=source_state(hg,hcase,label);start=max(i for i,e in enumerate(x['trace']) if e=='interact:Malet');check(mode+' exact H '+label,normalize(x['trace'][start:])==g['events'])
             for label,source_label,done in [('before_reward','reward_first',False),('reward_middle','reward_row_3',False),('reward_last','reward_row_7',False),('reward_completion','completion_before_callback',True),('shop_deferred','completion_before_callback',True)]:
                 x=state(label);g=source_state(ig,'reward_en',source_label)['events'].copy()
-                if done:g+=SUFFIX
+                if done:g+=SUFFIX+(SHOP_TAIL if shop_frontier else [])
                 start=max(i for i,e in enumerate(x['trace']) if e=='interact:Malet');obs=normalize(x['trace'][start:])
                 if hcase=='already_burned':g=g[g.index('field:start:malet_reward'):];obs=obs[obs.index('field:start:malet_reward'):]
                 check(mode+' exact I/J/K trace '+label,obs==g)
@@ -43,10 +45,10 @@ def validate(a):
                 x=state(label);check(mode+' synchronous world '+label,x['world_memory_snapshot']==world);check(mode+' synchronous memory/run '+label,x['memory']==before['memory'] and x['player_observables']==before['player_observables'] and x['run']==expected)
                 check(mode+' ordered prefix '+label,x['trace']==stop['trace'][:len(x['trace'])])
             check(mode+' only potion/recent run delta',stop['run']==potion_delta(expected))
-            check(mode+' zero banned downstream calls',all(stop['observed_downstream_effect_events'][p]==0 for p in ('shop:','chapter:','autosave:','achievement:')))
+            check(mode+' exact shop entry and zero banned downstream calls',stop['observed_downstream_effect_events']['shop:']==int(shop_frontier) and all(stop['observed_downstream_effect_events'][p]==0 for p in ('chapter:','autosave:','achievement:')))
             check(mode+' source timer durations',299000<=stop['actual_delay_microseconds']<350000 and 499000<=stop['actual_reward_delay_microseconds']<550000)
             check(mode+' one completion/no stale timers',stop['reward_completions']==stop['reward_callback_intents']==1 and stop['field_invocations']==4 and not any(stop[k] for k in ('normal_delay_pending','reward_delay_pending','reward_callback_pending')))
-            check(mode+' prepotion stop stable',stop['deferred_target']=='before:shop_open' and stop['trace']==state('reward_completion')['trace'] and stop['pawn_position']==before['pawn_position'])
+            check(mode+' prepotion stop stable',stop['deferred_target']==('before:shop_actions' if shop_frontier else 'before:shop_open') and stop['trace']==state('reward_completion')['trace'] and stop['pawn_position']==before['pawn_position'])
             check(mode+' paid food sword history',stop['memory']['burnedHistory']==['daily_market_food','identity_first_sword'])
             if mode=='FirebombCanonical':
                 report['canonical']=stop;(out/'canonical_full_trace.txt').write_text('\n'.join(stop['trace'])+'\n',encoding='utf-8')
@@ -59,7 +61,7 @@ def validate(a):
                 x=state(label);check(mode+' exact source potion snapshot '+label,inventory(x['run'])==step['state']);check(mode+' all memory unchanged '+label,all(x[k]==before[k] for k in ('memory','player_observables','world_memory_snapshot')))
                 check(mode+' snapshot is synchronous trace prefix '+label,state('shop_deferred')['trace'][:len(x['trace'])]==x['trace'])
             stop=state('shop_deferred');trace=stop['trace'];check(mode+' one signal and toast',trace.count('inventory_changed:potion')==trace.count('toast:+2 Potion:1')==1)
-            check(mode+' no shop/transition',not any(any(e.startswith(p) for p in ('shop:','chapter:','autosave:','achievement:','chapter_transition:')) for e in trace))
+            check(mode+' exact shop count and no transition',sum(e.startswith('shop:') for e in trace)==int(shop_frontier) and not any(any(e.startswith(p) for p in ('chapter:','autosave:','achievement:','chapter_transition:')) for e in trace))
         antidote_gold=read(ROOT/'docs/unreal-migration/fixtures/malet_antidote/contract_expected.v1.json')
         canon=next(c for c in antidote_gold if c['id']=='canonical')
         for mode in modes:
@@ -154,11 +156,34 @@ def validate(a):
             check('Retained I lifetime '+suffix,not x['reward_callback_pending'] and x['world_memory_snapshot']==fresh['after' if suffix=='BoundaryOnWorldTeardown' else 'before'])
         gg=read(ROOT/'docs/unreal-migration/fixtures/malet_refusal/contract_expected.v1.json');g=source_state(gg,'refusal_retry','retry')['events'];events=normalize(read(cap/'CanonicalRefusalRetry_retry_boundary.json')['trace']);check('Refuse cleanup/retry unchanged',events[-len(g):]==g)
         for p in cap.glob('*.json'):read(p)
+        if shop_frontier:
+            old=read(ROOT/'docs/unreal-migration/evidence/phase1n/automation03/automation_index.json')
+            check('All 191 prior test identities retained plus exactly 12 shop tests',len(old['tests'])==191 and {t['fullTestPath'] for t in old['tests']}.issubset(new_ids) and len(new_ids)==203)
+            for c in read(ROOT/'docs/unreal-migration/fixtures/malet_shop/contract_expected.v1.json'):
+                x=read(cap/('shop_source_'+c['id']+'.json'))
+                check('Shop source exact projection '+c['id'],set(x['first'])=={'open','merchant','mode','title','caption','grains_text','detail_title','portrait','rows','stock','events'} and all(v==c['first'][k] for k,v in x['first'].items()))
+                check('Shop full state and repeat-open preservation '+c['id'],x['before_state']==x['after_state'] and x['first']==x['after'])
+                sv=read(cap/('shop_save_'+c['id']+'.json'))
+                check('Shop binary preservation '+c['id'],sv['before']==sv['after'] and sv['schema']==1 and sv['restore_signals']==sv['restore_toasts']==sv['restore_grants']==0)
+            expected_shop=read(ROOT/'docs/unreal-migration/fixtures/malet_shop/contract_expected.v1.json')[0]['first']
+            for mode in modes+['ShopCanonical']:
+                stop=read(cap/(mode+'_shop_deferred.json'));seam=read(cap/(mode+'_synchronous_firebomb_contract_complete.json'))
+                check(mode+' Phase1N synchronous state unchanged through shop',all(seam[k]==stop[k] for k in ('run','memory','player_observables','world_memory_snapshot')))
+                check(mode+' N full ordered prefix then exact O suffix',stop['trace']==seam['trace']+['development:deferred:before:shop_open']+SHOP_TAIL)
+                check(mode+' no shop before N item-complete seam',seam['shop_snapshot'] is None)
+                check(mode+' entire canonical shop projection',set(stop['shop_snapshot'])=={'open','merchant','mode','title','caption','grains_text','detail_title','portrait','rows','stock','events'} and all(v==expected_shop[k] for k,v in stop['shop_snapshot'].items()))
+            for owner in ['Firebomb','Antidote','Potion']:
+                before=read(cap/(owner+'AfterStopOnWorldTeardown_reward_completion.json'));after=read(cap/(owner+'AfterStopOnWorldTeardown_world_callback_cancelled.json'))
+                check(owner+' real map travel discards shop without source close',before['shop_snapshot']['open'] and after['shop_snapshot'] is None and all(before[k]==after[k] for k in ['run','memory','player_observables','world_memory_snapshot','trace']))
+                after=read(cap/(owner+'AfterStopOnRunReplace_cancelled_callback.json'))
+                check(owner+' replacement has no leaked shop',after['shop_snapshot'] is None)
+            sv=read(cap/'shop_canonical_save.json');check('Shop canonical binary independent exact preservation',sv['before']==sv['after'] and sv['restore_signals']==sv['restore_toasts']==sv['restore_grants']==0)
+            check('Shop owner lifecycle evidence',read(cap/'shop_lifetime.json')['cleanup_no_close_effects'])
         report['snapshot_count']=len(list(cap.glob('*.json')));report['captures']=[]
         for name in ('WorldSeed_Complete','Potion_Before','Potion_Granted','Potion_Toast','Antidote_Before','Antidote_Granted','Antidote_Signal','Antidote_Toast','Firebomb_Before','Firebomb_Granted','Reward_Toasts','Shop_Deferred'):
             p=cap/('FirebombCanonical_'+name+'.png');raw=p.read_bytes();size=struct.unpack('>II',raw[16:24]);check('Native capture '+name,raw[:8]==b'\x89PNG\r\n\x1a\n' and size[0]>=1280 and size[1]>=720);report['captures'].append(dict(path=str(p.relative_to(ROOT)),sha256=hashlib.sha256(raw).hexdigest(),dimensions=size))
         report.update(status='PASS',test_count=len(index['tests']),warnings=sum(t['warnings'] for t in index['tests']))
     except Exception as e:report.update(status='FAIL',error=str(e))
-    (out/'acceptance.json').write_bytes(canonical(report));print('MEMORIA_FIREBOMB_EVIDENCE_'+report['status']+' '+report.get('error',''));return int(report['status']!='PASS')
+    (out/'acceptance.json').write_bytes(canonical(report));print(('MEMORIA_SHOP_EVIDENCE_' if shop_frontier else 'MEMORIA_FIREBOMB_EVIDENCE_')+report['status']+' '+report.get('error',''));return int(report['status']!='PASS')
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--automation-dir',type=Path,required=True);p.add_argument('--evidence-dir',type=Path,required=True);raise SystemExit(validate(p.parse_args()))

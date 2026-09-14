@@ -32,3 +32,7 @@ docs/unreal-migration/evidence/phase1m/** -text whitespace=blank-at-eol,blank-at
 
 docs/unreal-migration/fixtures/malet_firebomb/** text eol=lf
 docs/unreal-migration/evidence/phase1n/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+docs/unreal-migration/fixtures/malet_shop/** text eol=lf
+docs/unreal-migration/evidence/phase1o/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Unreal/Memoria/Source/Memoria/Private/Shop/MemoriaShopSource.inl text eol=lf

@@ -1,3 +1,5 @@
+#include "MemoriaShopEvidence.h"
+#include "Presentation/MemoriaShopWidget.h"
 #include "MemoriaPotionEvidence.h"
 #include "MemoriaPlayerObservation.h"
 #include "Misc/AutomationTest.h"
@@ -670,6 +672,7 @@ public:
             if(Frame==158)
             {
                 AssertRewardStop(PC,Host,Run); CompareReward(Host,Run,TEXT("completion_before_callback"),true);
+                Test->TestTrue(TEXT("First shop screen has no selected memory"),PC->GetNarrativeWidget()->GetShopWidget()->SelectedRow()==INDEX_NONE);
                 Capture(TEXT("Reward_Completion")); Write(Host,Run,Pawn,TEXT("reward_completion"));
                 if(RefusalMode.StartsWith(TEXT("CancelRewardBoundary")) || RefusalMode.StartsWith(TEXT("PotionAfterStop")) || RefusalMode.StartsWith(TEXT("AntidoteAfterStop")) || RefusalMode.StartsWith(TEXT("FirebombAfterStop"))) { Cancel(World,Run,Host); return false; }
             }
@@ -701,6 +704,8 @@ public:
             if(Frame==233) Capture(TEXT("Reward_Toasts"));
             if(Frame==237) Host->PresentFirebombObservation(INDEX_NONE);
             if(Frame==239) {Key(EKeys::E,IE_Pressed);Key(EKeys::Enter,IE_Pressed);Key(EKeys::SpaceBar,IE_Pressed);Key(EKeys::Escape,IE_Pressed);}
+            if(Frame==250 && RefusalMode==TEXT("ShopCanonical"))Key(EKeys::Down,IE_Pressed);
+            if(Frame==254 && RefusalMode==TEXT("ShopCanonical"))Key(EKeys::Down,IE_Released);
             if(Frame==258) {Key(EKeys::E,IE_Released);Key(EKeys::Enter,IE_Released);Key(EKeys::SpaceBar,IE_Released);Key(EKeys::Escape,IE_Released);}
             if(Frame==164) { Key(EKeys::E,IE_Pressed); Key(EKeys::D,IE_Pressed); }
             if(Frame==168) { Key(EKeys::E,IE_Released); Key(EKeys::D,IE_Released); }
@@ -710,6 +715,9 @@ public:
                 Test->TestTrue(TEXT("Development stop cannot move pawn"),Pawn->GetActorLocation().Equals(RewardBeforePosition,.01f));
                 CompareReward(Host,Run,TEXT("completion_before_callback"),true);
                 Capture(TEXT("Shop_Deferred")); Write(Host,Run,Pawn,TEXT("shop_deferred"));
+                auto* Shop=Run->GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>();
+                TestTrueShop(PC,Shop,Run);
+                if(RefusalMode==TEXT("ShopCanonical")) {Capture(TEXT("Shop_FirstScreen"));Write(Host,Run,Pawn,TEXT("shop_first_screen"));MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("shop_canonical_save.json"));}
                 if(RefusalMode==TEXT("FirebombCanonical"))MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("save_roundtrip.json")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
                 Stage=9; Frame=-1;
             }
@@ -742,18 +750,30 @@ private:
     TWeakObjectPtr<UWorld> CancelledWorld;
     bool IsDealMode() const
     {
-        return RefusalMode.StartsWith(TEXT("Firebomb")) || RefusalMode.StartsWith(TEXT("Antidote")) || RefusalMode.StartsWith(TEXT("Potion")) || RefusalMode==TEXT("WorldSeedCanonical") || RefusalMode.StartsWith(TEXT("FirstEffect")) || RefusalMode==TEXT("CanonicalReward") || RefusalMode==TEXT("AcceptPreEffectDeferred") || RefusalMode==TEXT("CanonicalPayment") ||
+        return RefusalMode.StartsWith(TEXT("Shop")) || RefusalMode.StartsWith(TEXT("Firebomb")) || RefusalMode.StartsWith(TEXT("Antidote")) || RefusalMode.StartsWith(TEXT("Potion")) || RefusalMode==TEXT("WorldSeedCanonical") || RefusalMode.StartsWith(TEXT("FirstEffect")) || RefusalMode==TEXT("CanonicalReward") || RefusalMode==TEXT("AcceptPreEffectDeferred") || RefusalMode==TEXT("CanonicalPayment") ||
             RefusalMode==TEXT("AlreadyBurnedPayment") || RefusalMode.StartsWith(TEXT("CancelNormal")) || RefusalMode.StartsWith(TEXT("CancelReward"));
     }
     UMemoriaFieldAsset* DealAsset() const { return LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_deal"))); }
     UMemoriaFieldAsset* RewardAsset() const { return LoadObject<UMemoriaFieldAsset>(nullptr,*MemoriaNarrativeImport::ObjectPath(false,TEXT("malet_reward"))); }
+    void TestTrueShop(AMemoriaSliceController* PC,UMemoriaShopSubsystem* Shop,UMemoriaRunSubsystem* Run)
+    {
+        const auto Before=MemoriaPotionEvidence::Full(*Run);
+        Test->TestTrue(TEXT("Shop is actual run-owned production subsystem"),Shop->IsOpen());
+        Test->TestTrue(TEXT("Real widget brushes hold both imported source textures"),PC->GetNarrativeWidget()->GetShopWidget()->HasArtwork());
+        if(RefusalMode==TEXT("ShopCanonical"))Test->TestEqual(TEXT("Physical Down previews first source row"),PC->GetNarrativeWidget()->GetShopWidget()->SelectedRow(),0);
+        Test->TestEqual(TEXT("One canonical shop entry"),Shop->GetOpenCount(),1);
+        Test->TestFalse(TEXT("Repeated open ignored"),Shop->OpenMalet());
+        Test->TestEqual(TEXT("Duplicate entry preserves full state"),Canon(Before),Canon(MemoriaPotionEvidence::Full(*Run)));
+        Test->TestEqual(TEXT("Default sell list excludes payment burns and core"),Shop->GetView().Rows.Num(),4);
+        Test->TestTrue(TEXT("Actual widget displays shop title and inventory"),PC->GetNarrativeWidget()->VisibleText().Contains(Shop->GetView().Title)&&PC->GetNarrativeWidget()->VisibleText().Contains(Shop->GetView().Rows[0].Title));
+    }
     void AssertRewardStop(AMemoriaSliceController* PC,UMemoriaNarrativeSubsystem* Host,UMemoriaRunSubsystem* Run)
     {
         Test->TestTrue(TEXT("Completed Field retained in development modal stop"),Host->GetState()==EMemoriaSliceState::Deferred && PC->IsModalOpen() && PC->IsMoveInputIgnored());
         Test->TestEqual(TEXT("One reward Field completion"),Host->GetRewardCompletionCount(),1);
         Test->TestEqual(TEXT("One synchronous callback intent"),Host->GetRewardCallbackIntentCount(),1);
         Test->TestFalse(TEXT("Completed one-shot no longer pending"),Host->IsRewardCallbackPending());
-        Test->TestEqual(TEXT("Exact pre-effect deferred target"),Host->GetDeferredInteraction(),FString(TEXT("before:shop_open")));
+        Test->TestEqual(TEXT("Exact pre-effect deferred target"),Host->GetDeferredInteraction(),FString(TEXT("before:shop_actions")));
         auto ExpectedRun=RewardBeforeSnapshot;
         auto* Done=ExpectedRun.StoryFlags.FindByPredicate([](const auto& V){return V.Id.Equals(TEXT("ch2_malet_done"),ESearchCase::CaseSensitive);});
         if(Done) Done->bValue=true;
@@ -829,7 +849,7 @@ private:
         if(Completed) { Gold.Add(TEXT("callback:reward:enter")); Gold.Add(TEXT("flag:ch2_malet_done")); Gold.Add(TEXT("worldseed:enter")); Gold.Add(TEXT("world:knowledge:npc.malet:fact.bl07.route_request_received")); Gold.Add(TEXT("world:revision:1")); Gold.Add(TEXT("world:memory:npc.malet:memory.malet.bl07_request_source")); Gold.Add(TEXT("world:revision:2")); Gold.Add(TEXT("worldseed:end"));
             for(const TCHAR* E:{TEXT("item:add:begin:potion:2"),TEXT("inventory:potion:0->2"),TEXT("recent_items:potion"),TEXT("inventory_changed:potion"),TEXT("toast:+2 Potion:1"),TEXT("item:add:end:potion:2")})Gold.Add(E);
             if(!PotionOnly)for(const TCHAR* E:{TEXT("item:add:begin:antidote:1"),TEXT("inventory:antidote:0->1"),TEXT("recent_items:antidote,potion"),TEXT("inventory_changed:antidote"),TEXT("toast:+1 Antidote:1"),TEXT("item:add:end:antidote:1")})Gold.Add(E);
-            if(!PotionOnly && !AntidoteOnly)for(const TCHAR* E:{TEXT("item:add:begin:firebomb:1"),TEXT("inventory:firebomb:0->1"),TEXT("recent_items:firebomb,antidote,potion"),TEXT("inventory_changed:firebomb"),TEXT("toast:+1 Firebomb:1"),TEXT("item:add:end:firebomb:1"),TEXT("development:deferred:before:shop_open")})Gold.Add(E); }
+            if(!PotionOnly && !AntidoteOnly)for(const TCHAR* E:{TEXT("item:add:begin:firebomb:1"),TEXT("inventory:firebomb:0->1"),TEXT("recent_items:firebomb,antidote,potion"),TEXT("inventory_changed:firebomb"),TEXT("toast:+1 Firebomb:1"),TEXT("item:add:end:firebomb:1"),TEXT("development:deferred:before:shop_open"),TEXT("shop:open:Malet:sell"),TEXT("request:audio:ui_open"),TEXT("request:achievement:check_grains"),TEXT("request:tutorial:first_shop"),TEXT("development:deferred:before:shop_actions")})Gold.Add(E); }
         // Keep the historical already-burned payment prefix intact. Compare all
         // reward events against the source and retain the Phase1H memory oracle.
         TArray<FString> Actual;for(int32 I=NormalTraceStart;I<Host->GetTrace().Num();++I)Actual.Add(Host->GetTrace()[I]);
@@ -884,7 +904,7 @@ private:
         Test->AddError(TEXT("Missing source refusal trace"));
     }
     FString Mode() const { if (!RefusalMode.IsEmpty()) return RefusalMode; return bPaid?TEXT("CanonicalInteraction"):TEXT("IntactInteraction"); }
-    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1N"); }
+    FString Output() const { return FPaths::ProjectSavedDir()/TEXT("Validation/Phase1O"); }
     void AssertExploration(AMemoriaSliceController* PC, UMemoriaNarrativeSubsystem* Host, UWorld* World)
     {
         Test->TestTrue(TEXT("Exploration restored, modal and choices removed"), Host->GetState()==EMemoriaSliceState::Exploration && !PC->IsModalOpen() && !PC->GetNarrativeWidget() && Host->GetView().Choices.IsEmpty());
@@ -916,12 +936,14 @@ private:
         O->SetBoolField(TEXT("reward_callback_pending"),Host->IsRewardCallbackPending());
         O->SetBoolField(TEXT("ch2_malet_done_value"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_done")));
         O->SetBoolField(TEXT("ch2_malet_done_present"),Run->GetRunSnapshot().HasFlag(TEXT("ch2_malet_done")));
-        // World cognition is the actual independent production owner; shop remains absent.
+        // Observe the production shop owner without rewriting historical snapshots.
         Obj WorldState;FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Run->GetWorldCognition()->ExportJson()),WorldState);
         O->SetObjectField(TEXT("world_memory_snapshot"),WorldState);
         O->SetBoolField(TEXT("same_world_domain"),WorldDomain.Get()==Run->GetWorldCognition());
-        O->SetField(TEXT("shop_snapshot"),MakeShared<FJsonValueNull>());
-        O->SetStringField(TEXT("downstream_owners"),TEXT("World cognition is authoritative; shop, autosave and achievement orchestration remain unimplemented."));
+        const auto ShopView=Run->GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>()->GetView();
+        if(ShopView.bOpen)O->SetObjectField(TEXT("shop_snapshot"),MemoriaShopEvidence::View(ShopView));
+        else O->SetField(TEXT("shop_snapshot"),MakeShared<FJsonValueNull>());
+        O->SetStringField(TEXT("downstream_owners"),TEXT("World and shop owners are authoritative; transactions, close callback, autosave and request handlers remain deferred."));
         Obj Counts=MakeShared<FJsonObject>();
         for(const TCHAR* Prefix:{TEXT("flag:ch2_malet_done"),TEXT("world:"),TEXT("item:"),TEXT("shop:"),TEXT("chapter:"),TEXT("autosave:"),TEXT("achievement:")})
         {
@@ -1334,4 +1356,11 @@ bool FFirebombReplacementAtStop::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFirebombWorldTeardownAtStop,"Memoria.Firebomb.WorldTeardownAtStop",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FFirebombWorldTeardownAtStop::RunTest(const FString&)
 { if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("FirebombAfterStopOnWorldTeardown")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+#endif
+
+#if WITH_DEV_AUTOMATION_TESTS
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FShopCanonical,"Memoria.Shop.Canonical",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FShopCanonical::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("ShopCanonical")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+
 #endif

@@ -1,12 +1,12 @@
 import json,unittest
 from pathlib import Path
 import export_malet_antidote_oracle as m
-from validate_unreal import firebomb_test_paths,current_test_paths,antidote_test_paths
+from validate_unreal import shop_test_paths,firebomb_test_paths,current_test_paths,antidote_test_paths
 class AntidoteContracts(unittest.TestCase):
     def setUp(self):self.c={c['id']:c for c in json.loads((m.DEST/'contract_expected.v1.json').read_text(encoding='utf-8'))}
     def test_exact_147_retained(self):
         old=json.loads((m.base.ROOT/'docs/unreal-migration/evidence/phase1l/automation03/automation_index.json').read_text(encoding='utf-8-sig'))
-        self.assertEqual({t['fullTestPath'] for t in old['tests']},(current_test_paths()-firebomb_test_paths())-antidote_test_paths())
+        self.assertEqual({t['fullTestPath'] for t in old['tests']},(current_test_paths()-shop_test_paths()-firebomb_test_paths())-antidote_test_paths())
     def test_source_record_and_localization(self):
         self.assertEqual(self.c['canonical']['item_record']['name'],'Antidote')
         for n in ('canonical','ko'):self.assertEqual(self.c[n]['enqueues'],[{'text':'+1 Antidote','type':1}])

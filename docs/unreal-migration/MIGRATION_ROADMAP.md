@@ -411,3 +411,14 @@ auditor baseline-scope mistakes and their read-only resolutions are retained.
 Final diff/staged raw-byte checks pass; Phase1N is complete in the local checkpoint
 containing this update. Original change author remains unknown. No push or Phase1O.
 [Recovery and final review](evidence/phase1n/recovery-20260913/final_review.json).
+
+
+## Phase 1O checkpoint — 2026-09-14
+
+The user authorized the first shop screen and gradual source-art integration.
+The canonical route now reaches Malet's default sell view, with read-only memory
+inspection and two original-art texture packages. Fresh UE203/203 and independent1500
+checks pass. Transactions, close callback and chapter3 remain deferred. See
+[Phase1O report](PHASE_1O_REPORT.md) and [play instructions](PLAYABLE_SLICE.md).
+Next work should combine one reviewed shop transaction with visible screen progress;
+expand original portrait/backdrop presentation as connected gameplay is verified.
