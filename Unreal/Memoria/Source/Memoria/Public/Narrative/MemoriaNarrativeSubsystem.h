@@ -17,6 +17,7 @@ struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; };
 struct MEMORIA_API FMemoriaNarrativeView
 {
     FString Header, Speaker, Narration, Body;
+    FString BackdropSource, PortraitSource, PortraitSide, LocationTitle;
     TArray<FMemoriaPresentedChoice> Choices;
     bool bShopPresentation = false;
     FMemoriaShopView Shop;

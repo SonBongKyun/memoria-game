@@ -206,6 +206,8 @@ namespace
 class FMaletReplay final : public IAutomationLatentCommand
 {
 public:
+    FString LastArtworkHeader;
+    int32 ArtworkStableFrames=0, ArtworkCaptureIndex=0;
     FMaletReplay(FAutomationTestBase* InTest, bool Paid, FString InMode = FString()) : Test(InTest), bPaid(Paid), Started(FPlatformTime::Seconds()), RefusalMode(InMode) {}
     ~FMaletReplay() override { if(ObservedRun.IsValid())ObservedRun->OnInventoryChanged.Remove(InventoryObserverHandle); if(ObservedHost.IsValid()) ObservedHost->OnRewardBoundaryObserved.Remove(BoundaryObserverHandle); if (bStarted) { FApp::SetUseFixedTimeStep(bWasFixed); FApp::SetFixedDeltaTime(OldDelta); } }
     bool Update() override
@@ -253,6 +255,12 @@ public:
                 FScreenshotRequest::RequestScreenshot(Output()/(Mode()+TEXT("_")+Label+TEXT(".png")), true, false);
             }
         };
+        if(RefusalMode==TEXT("ShopCanonical") && PC->GetNarrativeWidget() && PC->GetNarrativeWidget()->DisplayedBackdrop())
+        {
+            const FString Header=Host->GetView().Header;
+            if(Header!=LastArtworkHeader){LastArtworkHeader=Header;ArtworkStableFrames=0;}
+            else if(++ArtworkStableFrames==3)Capture(FString::Printf(TEXT("Artwork_%02d"),ArtworkCaptureIndex++));
+        }
         if (!bStarted)
         {
             bStarted = true; bWasFixed = FApp::UseFixedTimeStep(); OldDelta = FApp::GetFixedDeltaTime();

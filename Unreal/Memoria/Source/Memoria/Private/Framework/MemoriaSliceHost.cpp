@@ -80,9 +80,8 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         {
             StatusWidget = CreateWidget<UMemoriaDevelopmentNarrativeWidget>(this, UMemoriaDevelopmentNarrativeWidget::StaticClass());
         }
-        FMemoriaNarrativeView Status; Status.bCompactStatus = true; Status.Header = TEXT("VERDAN DEVELOPMENT HOST / EXPLORATION READY");
-        const bool Seen = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->GetRunSnapshot().GetFlag(TEXT("ch2_arrival_vn_seen"));
-        Status.Body = FString::Printf(TEXT("VN seen: %s    Field starts: %d    |    Move: WASD / stick"), Seen ? TEXT("true") : TEXT("false"), Narrative->GetFieldInvocationCount());
+        FMemoriaNarrativeView Status; Status.bCompactStatus = true; Status.Header = TEXT("VERDAN  /  THE GRAY BELT");
+        Status.Body = TEXT("WASD / stick  Move");
         if (!Prompt.IsEmpty()) Status.Body += TEXT("\n") + Prompt;
         if (!Narrative->GetDeferredInteraction().IsEmpty())
             Status.Body += TEXT("\nDevelopment boundary: resolved ") + Narrative->GetDeferredInteraction() + TEXT("; content deferred.");

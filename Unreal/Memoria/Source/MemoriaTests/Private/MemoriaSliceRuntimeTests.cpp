@@ -70,11 +70,13 @@ public:
             if (PC->GetNarrativeWidget())
             {
                 Test->TestTrue(TEXT("Modal owns user focus"), PC->GetNarrativeWidget()->HasUserFocus(PC));
+                Test->TestNotNull(TEXT("Authored arrival illustration is rendered"), PC->GetNarrativeWidget()->DisplayedBackdrop());
                 Test->TestTrue(TEXT("Actual imported text visible"), PC->GetNarrativeWidget()->VisibleText().Contains(IsField ? TEXT("largest settlement") : TEXT("Verdan")));
             }
             Key(EKeys::D, IE_Pressed);
         }
         if (Frame == 12) { Capture(TEXT("_Text")); }
+        if (Frame == 76 && !IsField) Capture(TEXT("_EliaPortrait"));
         if (Frame == 18)
         {
             Test->TestTrue(TEXT("Narrative blocks movement"), Pawn->GetActorLocation().Equals(Origin, 0.001)); Key(EKeys::D, IE_Released);

@@ -8926,3 +8926,12 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 - 원본4217, 기존 UE21, IR/fixture88, 보호 worktree17133 파일 보존. 기존 Phase1N1413 검사도 과거 증거에 대해 다시 통과. 새 UE 전체 실행과 과거 증거 재대조를 구분.
 - 실제 영어 화면과 키보드 선택 검토 완료. binary13121 bytes/schema1 독립복원 동일, restore signal/toast/grant0. 자세한 범위·검증·실행 방법은 PHASE_1O_REPORT.md와 PLAYABLE_SLICE.md.
 - 이 기록을 포함하는 Phase1O 로컬 checkpoint. Push 없음. 다음 개발은 상점 거래 계약과 연결된 대화·탐색 화면의 원본 그래픽 확장.
+
+## S281 - 2026-09-14 (Unreal 그래픽 적용 1 — 베르단·말렛 대화 삽화)
+
+- 사용자 요청으로 기존 폴더의 삽화8장·초상화11장을 UE 대화에 연결. 새 텍스처18개, 기존 말렛 기본 초상화 재사용. 원본 이미지·대사·IR·기존 패키지는 보존.
+- 화면 비율을 유지하는 배경, 하단 대화창, 화자/표정/좌우 배치, 키보드·마우스 선택지, 간결한 탐색 안내 적용. 탐색 지형·이동 캐릭터는 아직 기존 개발 그래픽.
+- 전체 UE203/203 및 독립1500 검사(1475 snapshot) 통과 후, 최종 캡처에서 초상화가 안내문을 가리는 문제를 찾아 배치1줄 수정. 최종 배치는 새 상점12/도입부4/그래픽2 검사 통과. 이 배치 수정 후 전체203을 다시 실행했다고 주장하지 않음.
+- host96, static64, 원본4217/보호 worktree21858/기존 UE23/IR-fixture90 보존 통과. 컴파일 실패2건, 최초 비동기 텍스처 크기 검사 실패, 이전 화면·실행 증거 모두 유지.
+- 원본 Godot의 효과 실행과 native domain 검증은 이번 그래픽 작업에서 재실행하지 않았음. 이전 source oracle을 새 UE 실행과 대조. Phase1O의 before:shop_actions 경계 유지; 거래·Chapter3 구현 및 push 없음.
+- PRESENTATION_1_REPORT.md에 범위와 최종 화면 기록. 다음 그래픽 단계는 베르단 탐색 공간·원본 캐릭터 스프라이트·조명.

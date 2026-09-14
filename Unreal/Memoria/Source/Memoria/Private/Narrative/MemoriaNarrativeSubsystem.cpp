@@ -1,4 +1,5 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Narrative/MemoriaMaletReaction.h"
 #include "Save/MemoriaRunSaveGame.h"
@@ -203,6 +204,13 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
         if (VNAsset->Definition.Steps.IsValidIndex(Index))
         {
             const auto& Step = VNAsset->Definition.Steps[Index]; Text = &Step.Text;
+            View.LocationTitle = TEXT("CHAPTER II  /  VERDAN");
+            // Imported arrival is a linear sequence. Reconstruct its last authored CG,
+            // including when resuming directly at a later cursor; no gameplay writes.
+            for (int32 I = 0; I <= Index; ++I)
+                if (VNAsset->Definition.Steps[I].Presentation.bHasCg) View.BackdropSource = VNAsset->Definition.Steps[I].Presentation.Cg;
+            View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Step.Presentation.Portrait);
+            View.PortraitSide = Step.Presentation.Side;
             for (int32 I : VN->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Step.Choices[I].Text)});
         }
     }
@@ -213,6 +221,13 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
         if (ActiveFieldAsset->Definition.Rows.IsValidIndex(Index))
         {
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
+            View.LocationTitle = ActiveFieldAsset == FieldAsset ? TEXT("CHAPTER II  /  VERDAN") : TEXT("THE SUMP  /  MALET");
+            // Sequences without a CG use the already-authored encounter location.
+            View.BackdropSource = ActiveFieldAsset == FieldAsset ? FString() : TEXT("res://assets/cg/generated/story_ch2_malet_cellar.png");
+            for (int32 I = 0; I <= Index; ++I)
+                if (ActiveFieldAsset->Definition.Rows[I].Presentation.bHasCg) View.BackdropSource = ActiveFieldAsset->Definition.Rows[I].Presentation.Cg;
+            View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Row.Presentation.Portrait);
+            View.PortraitSide = Row.Text.Speaker == TEXT("Elia") ? TEXT("right") : TEXT("left");
             for (int32 I : Field->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Row.Choices[I].Text)});
         }
     }

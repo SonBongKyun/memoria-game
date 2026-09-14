@@ -36,3 +36,6 @@ docs/unreal-migration/evidence/phase1n/** -text whitespace=blank-at-eol,blank-at
 docs/unreal-migration/fixtures/malet_shop/** text eol=lf
 docs/unreal-migration/evidence/phase1o/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Unreal/Memoria/Source/Memoria/Private/Shop/MemoriaShopSource.inl text eol=lf
+
+# Raw presentation validation evidence.
+docs/unreal-migration/evidence/presentation1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

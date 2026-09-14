@@ -1,27 +1,34 @@
-# Migration handoff — Phase 1O
+# Migration handoff — illustrated presentation pass 1
 
-Status: Phase1O verified. The local checkpoint is the commit containing this handoff.
+Status: verified; local checkpoint is the commit containing this handoff.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`, branch `unreal-migration/ue58-foundation`.
-Start checkpoint `ef011256f9aebe2902f69d19cdddeeff951cffe1`. UE5.8.2 / CL56702186.
-The user authorized Phase1O and gradual use of original graphics in this task.
-No push. [Current report](PHASE_1O_REPORT.md), [play instructions](PLAYABLE_SLICE.md).
+Entry checkpoint `228aeffe963ea945548dce8d27d02346bc3df24d`. UE5.8.2 / CL56702186.
 
-- Existing canonical route now reaches a run-owned Malet shop in default sell mode.
-  Four available memories on the paid route, source prices, source en/ko text projection,
-  current Grains, original portrait and shop backdrop. Arrows/click preview details.
-- Purchases, sales, shop-close callback, chapter3, autosave and tutorial/achievement
-  handlers remain deferred. Source audio/achievement/tutorial calls are request records.
-- No new narrative IR or narrative packages. Two new presentation textures only.
-  Previous21 packages,88 IR/fixture files and original4217 protected files match entry.
-- Final fresh UE203/203, independent1500, Godot O10, host96, native51+CTest1,
-  static63 and preservation passed. Automation03 is authoritative; all previous
-  failures and the corrected shop subset12/12 remain preserved. Binary save13,121
-  bytes/schema1, full independent equality, restore signal/toast/grant0.
-- Prior Phase1N1413 checks also pass under the extended validator's unchanged N mode.
-  Phase1N original CRLF recovery is closed; do not run its single-use recovery script.
-- All canonical full-state/source-prefix/save checks continue at the item-complete
-  seam and through shop entry. The next frontier is before:shop_actions.
+User requested continued graphics work using the illustrations already in the folders.
+[Current visual report](PRESENTATION_1_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
+[retained Phase1O behavior report](PHASE_1O_REPORT.md).
 
-Next development direction: complete one reviewed shop transaction contract, then
-connect the safe post-shop route. Broaden portrait/backdrop presentation to dialogue
-and exploration as those connected screens become ready; preserve source mechanics.
+- Original illustrations8 and portraits11 now appear in the connected Chapter2 VN,
+  Malet reaction/encounter/refusal, sword extraction and reward dialogue. Eighteen
+  new presentation textures; existing Malet neutral texture reused. No narrative
+  IR or narrative package changes. Previous23 packages/90 IR-fixture files preserved.
+- Aspect-preserving scenes, lower dialogue panel, active expression/side, keyboard
+  and mouse choices, compact exploration prompt. Terrain and moving character art
+  still use the existing development placeholders.
+- Full rendered UE203/203 and independent1500 checks/1475 snapshots passed. A final
+  one-line hint-position correction followed that full execution; the final layout
+  passed fresh shop12, campaign4 and visual2 checks. Do not claim a new full203 run
+  after that correction. Host96, static64 and byte-preservation checks passed.
+- Original4217 files and historical reports/evidence remain preserved. Both compile
+  failures, the initial async-texture coverage failure, and earlier screenshot
+  review states remain archived. Phase1N CRLF recovery is closed; do not rerun it.
+- Source gameplay frontier is still `before:shop_actions`. Existing Phase1O run-owned
+  default sell projection, memory prices, item grants, ownership and save behavior
+  are unchanged. Purchase/sale, shop close, Chapter3, autosave and handler execution
+  remain deferred. Source oracle/native domain results were not rerun for graphics.
+
+Next visual task: build the small Verdan exploration space using original sprites,
+floor/wall art and lighting while preserving the verified movement and interaction
+path. Do not place a perspective story illustration under a walkable top-down map.
+Use another presentation checkpoint without advancing source gameplay implicitly.
+No push.
