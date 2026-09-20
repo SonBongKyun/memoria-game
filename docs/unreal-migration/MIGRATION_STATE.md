@@ -1,28 +1,32 @@
-# Migration handoff — Verdan exploration presentation pass 2
+# Migration handoff — Verdan 2.5D depth prototype
 
 Status: verified; local checkpoint is the commit containing this handoff.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`, branch `unreal-migration/ue58-foundation`.
-Entry checkpoint `78d2ef7794cacda221bf83fc7ead7bfdeb6defb6`. UE5.8.2 / CL56702186.
+Entry checkpoint `3bc4b582a10e782f74ed5daa4e0357bdbbfe60c0`. UE5.8.2 / CL56702186.
 
-[Current report](PRESENTATION_2_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
+[Current report](DEPTH_1_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
 [retained narrative frontier](PHASE_1O_REPORT.md).
 
-- Verdan field placeholders now have original stone/facade/lantern art, Arrel four-direction
-  walking, Malet field art, contact shadows and restrained lighting. Smaller exploration HUD.
-  The original Godot gait functions ran in an isolated harness to produce four atlases.
-- Runtime presentation only: existing maps, seven physical surfaces, camera, movement,
-  Malet position/range and source gameplay remain unchanged. Forty-one new presentation
-  packages, total82. The original41 packages and90 IR/fixture files are preserved.
-- Fresh final rendered visual3, campaign4 and shop12 all passed (three executions, total19).
-  Host96 and final static66 passed. Original4217 and protected worktree21993 preserved.
-  Initial source-harness/test-build failures and pre-refinement screen captures are retained.
-- Previous full UE203 and independent1500/1475 snapshots are reused historical evidence;
-  no new full run or full independent comparison is claimed. Gameplay source/native fixtures
-  were not reexecuted. The source gait export is fresh, graphics-only Godot execution.
-- Frontier stays `before:shop_actions`. Purchases/sales, close callback, Chapter3, autosave,
-  tutorial/achievement handlers, battle and packaged distribution are not implemented here.
-  Phase1N recovery remains closed. No push.
+- The user's 2.5D/3D request is implemented first as an actual 3D Verdan courtyard:
+  six buildings, eight pitched roofs including two stalls, four real lantern lights,
+  lit materials, shadows and fog. Perspective camera:65 FOV,42-degree downward tilt.
+  Existing original Arrel/Malet sprites remain camera-facing 2D art with16 gait frames.
+  Existing narrative illustrations and portraits are retained.
+- Movement, collider, seven original physical surfaces, Malet position/range and
+  source gameplay remain. The foundation map keeps its orthographic camera.
+  New4 presentation packages; total86. Prior82 packages and90 IR/fixtures preserved.
+- Fresh final rendered visual3 and full UE203 passed. Independent1500 checks over1475
+  fresh snapshots passed. Host96/static67 passed. Final original4217/protected22090,
+  prior82 packages/90 IR-fixtures and historical evidence preservation passed.
+  Exact staged raw evidence and LFS verification is recorded in depth1/staged_review.json.
+- Existing source oracle fixtures are reused inputs; Godot gameplay/native executables
+  were not rerun. Initial compile/replay failures and earlier captures are retained.
+- This is a first 2.5D prototype, not finished environment art or skeletal3D characters.
+  The courtyard follow camera can expose empty exterior ground at edges; posts can
+  partially occlude sprites. Camera bounds/occluder handling remain subsequent work.
+- Frontier stays `before:shop_actions`. Purchases/sales, close callback, Chapter3,
+  autosave, battle and packaged distribution are not added. No push.
 
-Next bounded task: characterize the original shop purchase/sale/close sequence before
-implementing it, so this illustrated slice can proceed past the first shop screen.
-Keep source preservation and reusable presentation assets; do not silently port the campaign.
+Next visual milestone: camera bounds/occlusion and a coherent environment-art kit
+based on the existing illustrations; prototype one3D character before expanding.
+Original Godot source, existing packages/fixtures and historical evidence stay immutable.

@@ -8,6 +8,9 @@ class UPaperSprite;
 class UPaperSpriteComponent;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
+class UMaterialInterface;
+class UInstancedStaticMeshComponent;
+class UPointLightComponent;
 
 // Visual-only layer for the bounded Verdan slice. Does not own collision, input or story state.
 UCLASS()
@@ -27,7 +30,17 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UPaperSprite>> PlayerArt;
     UPROPERTY(Transient) TObjectPtr<UPaperSpriteComponent> MaletArt;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
-    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> LampLights;
+    void BuildDepthEnvironment();
+    UMaterialInstanceDynamic* Surface(FName Name, FLinearColor Tint, float Mode, float Roughness = 0.82f, float Metallic = 0);
+    void Solid(const TCHAR* MeshName, UMaterialInterface* Material, FVector Position, FVector Scale, FRotator Rotation = FRotator::ZeroRotator);
+    void Box(UMaterialInterface* Material, FVector Position, FVector Size, FRotator Rotation = FRotator::ZeroRotator);
+    void Beam(UMaterialInterface* Material, FVector A, FVector B, float Width);
+    void Building(FVector Position, FVector Size, UMaterialInterface* Wall, UMaterialInterface* Timber, UMaterialInterface* Roof, UMaterialInterface* Glow);
+    void Stall(FVector Position, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow);
+    void Lantern(FVector Position, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bShadow);
+    UPROPERTY(Transient) TMap<FString, TObjectPtr<UInstancedStaticMeshComponent>> MeshBatches;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> SurfaceMaterials;
+    UPROPERTY(Transient) TArray<TObjectPtr<UPointLightComponent>> LampLights;
     TWeakObjectPtr<AMemoriaFieldPawn> Player;
     TWeakObjectPtr<AMemoriaMaletActor> Malet;
     FVector PreviousPosition = FVector::ZeroVector;

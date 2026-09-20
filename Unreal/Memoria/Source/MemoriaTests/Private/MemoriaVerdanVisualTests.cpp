@@ -18,6 +18,11 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Components/PointLightComponent.h"
+#include "Materials/Material.h"
+#include "Engine/StaticMesh.h"
 #include "InputKeyEventArgs.h"
 #include "JsonObjectConverter.h"
 #include "Misc/App.h"
@@ -53,13 +58,16 @@ public:
             return false;
         }
         if (!World->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
+        // Shader compilation can pump engine frames without ticking the PIE world.
+        if (World->GetTimeSeconds() == LastWorldTime) return false;
+        LastWorldTime = World->GetTimeSeconds();
         AMemoriaVerdanPresentation* Presentation = nullptr;
         int32 Count = 0;
         for (TActorIterator<AMemoriaVerdanPresentation> It(World); It; ++It) { Presentation = *It; ++Count; }
         if (!Test->TestEqual(TEXT("One presentation layer after travel"), Count, 1)) return true;
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
-        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Presentation2")/(FString(Name)+TEXT(".png")), true, false); };
+        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Depth1")/(FString(Name)+TEXT(".png")), true, false); };
         if (Frame == 0)
         {
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), RunBefore);
@@ -75,7 +83,46 @@ public:
             }
             Test->TestEqual(TEXT("All seven original physical surfaces retained"), Bodies, 7);
             Test->TestTrue(TEXT("Pawn collider remains 16 x 16"), Cast<UBoxComponent>(Pawn->GetRootComponent())->GetUnscaledBoxExtent().Equals(FVector(8, 8, 8)));
-            Test->TestEqual(TEXT("Camera width unchanged"), Pawn->GetFieldCamera()->OrthoWidth, 1280.0f);
+            const auto* Camera = Pawn->GetFieldCamera();
+            Test->TestTrue(TEXT("Verdan uses perspective"), Camera->ProjectionMode == ECameraProjectionMode::Perspective);
+            Test->TestEqual(TEXT("Bounded field of view"), Camera->FieldOfView, 65.0f);
+            Test->TestTrue(TEXT("Oblique camera elevation"), FMath::IsNearlyEqual(Camera->GetComponentRotation().Pitch, -42.0, 0.1));
+            Test->TestTrue(TEXT("Player actually receives perspective view"), PC->PlayerCameraManager->GetCameraCacheView().ProjectionMode == ECameraProjectionMode::Perspective);
+            const FVector P = Pawn->GetActorLocation();
+            FVector2D Origin, Right, Back, Up, NearLow, NearHigh, FarLow, FarHigh;
+            Test->TestTrue(TEXT("Origin projects"), PC->ProjectWorldLocationToScreen(P, Origin));
+            PC->ProjectWorldLocationToScreen(P+FVector(100,0,0), Right);
+            PC->ProjectWorldLocationToScreen(P+FVector(0,100,0), Back);
+            PC->ProjectWorldLocationToScreen(P+FVector(0,0,100), Up);
+            Test->TestTrue(TEXT("World X remains screen right"), Right.X > Origin.X);
+            Test->TestTrue(TEXT("World Y remains screen up"), Back.Y < Origin.Y);
+            Test->TestTrue(TEXT("Geometry height projects upward"), Up.Y < Origin.Y);
+            PC->ProjectWorldLocationToScreen(P+FVector(0,-300,0), NearLow);
+            PC->ProjectWorldLocationToScreen(P+FVector(100,-300,0), NearHigh);
+            PC->ProjectWorldLocationToScreen(P+FVector(0,300,0), FarLow);
+            PC->ProjectWorldLocationToScreen(P+FVector(100,300,0), FarHigh);
+            Test->TestTrue(TEXT("Perspective foreshortens distant geometry"), (NearHigh-NearLow).Size() > (FarHigh-FarLow).Size());
+            Test->TestTrue(TEXT("Billboard faces oblique camera"), FMath::Abs(FVector::DotProduct(Pawn->GetFieldSprite()->GetRightVector(), Camera->GetForwardVector())) > 0.999);
+            Test->TestEqual(TEXT("Feet remain on the rendered ground"), Pawn->GetFieldSprite()->GetRelativeLocation().Z, -8.0);
+            TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
+            int32 Instances = 0, Roofs = 0;
+            for (auto* Batch : Batches)
+            {
+                Instances += Batch->GetInstanceCount();
+                Test->TestTrue(TEXT("Every geometry batch has a mesh"), Batch->GetStaticMesh() != nullptr);
+                Test->TestNotNull(TEXT("Every geometry batch has a material"), Batch->GetMaterial(0));
+                if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetName() == TEXT("SM_PitchedRoof")) Roofs += Batch->GetInstanceCount();
+            }
+            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() < 30);
+            Test->TestEqual(TEXT("Six buildings and two physical stall roofs"), Roofs, 8);
+            Test->TestTrue(TEXT("Architecture has substantial height"), Presentation->GetComponentsBoundingBox(true).Max.Z > 580);
+            auto* Lit = LoadObject<UMaterial>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Surface.M_Surface"));
+            Test->TestTrue(TEXT("Walls respond to real lighting"), Lit && Lit->bUsedWithInstancedStaticMeshes && Lit->GetShadingModels().HasShadingModel(MSM_DefaultLit));
+            TArray<UPointLightComponent*> Lights; Presentation->GetComponents(Lights);
+            Test->TestEqual(TEXT("Four real lantern lights"), Lights.Num(), 4);
+            int32 ShadowLights = 0;
+            for (auto* Light : Lights) { Test->TestTrue(TEXT("Lanterns illuminate scene"), Light->Intensity > 0); ShadowLights += Light->CastShadows ? 1 : 0; }
+            Test->TestEqual(TEXT("Two bounded shadow casting lanterns"), ShadowLights, 2);
             for (TActorIterator<AMemoriaMaletActor> It(World); It; ++It)
                 Test->TestTrue(TEXT("Original Malet position"), It->GetActorLocation().Equals(AMemoriaMaletActor::DevelopmentLocation()));
         }
@@ -125,7 +172,7 @@ public:
             Test->TestEqual(TEXT("Art, walking and lighting do not mutate run"), After, RunBefore);
             Test->TestEqual(TEXT("Memory state untouched by visuals"), MemoryAfter, MemoryBefore);
             Test->TestTrue(TEXT("Narrative trace untouched by visuals"), Host->GetTrace() == TraceBefore);
-            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Presentation2");
+            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Depth1");
             IFileManager::Get().MakeDirectory(*Dir, true);
             FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"status\":\"%s\",\"distinct_walk_sprites\":%d,\"physical_surfaces\":7,\"wall_x\":%.3f,\"run_unchanged\":%s,\"memory_unchanged\":%s}\n"), Test->HasAnyErrors() ? TEXT("FAIL") : TEXT("PASS"), SeenWalkSprites.Num(), WallX, After == RunBefore ? TEXT("true") : TEXT("false"), MemoryAfter == MemoryBefore ? TEXT("true") : TEXT("false")), *(Dir/TEXT("exploration.json")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             return true;
@@ -134,7 +181,7 @@ public:
     }
 private:
     FAutomationTestBase* Test;
-    double Started, OldDelta = 0, WallX = 0;
+    double Started, OldDelta = 0, WallX = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;

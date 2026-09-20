@@ -41,3 +41,6 @@ Unreal/Memoria/Source/Memoria/Private/Shop/MemoriaShopSource.inl text eol=lf
 docs/unreal-migration/evidence/presentation1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
 docs/unreal-migration/evidence/presentation2/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Raw 2.5D depth validation evidence.
+docs/unreal-migration/evidence/depth1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

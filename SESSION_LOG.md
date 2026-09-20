@@ -8945,3 +8945,14 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 - 최종 새 렌더링 검사 그래픽3+도입부4+상점12 통과. Host96/static66 및 staged 원시 증거/LFS 검사 통과. 신규 테스트의 UWorld 포인터 추론 컴파일 실패, 초기 바닥 이음새 화면 및 최종 캡처를 모두 유지.
 - 과거 전체 UE203 및 독립1500/1475 결과는 재사용한 역사적 증거이며 이번에 다시 실행한 것으로 쓰지 않음. Gameplay source/native oracle 재실행 없음; 걷기 추출만 새 Godot 실행.
 - before:shop_actions 경계 유지, 거래·상점 종료·Chapter3·사운드·배포 패키징 확장 없음. 로컬 checkpoint, push 없음. 다음은 원본 상점 구매/판매/종료 계약을 확인하고 연결하는 완결 작업.
+
+
+## S283 - 2026-09-20 (Unreal 2.5D 전환 1 — 베르단 입체 공간)
+
+- 사용자 요청으로 베르단 한 구역에 실제 입체 건물6개, 지붕8개(노점2 포함), 목조 프레임·창문·굴뚝·병·상자·랜턴을 적용. 반복 메시는 인스턴싱하며 실제 조명·그림자·안개 사용.
+- 65도 FOV/42도 하향 원근 카메라로 전환. 원본 아렐·말렛 2D 스프라이트와 16개 걷기 프레임, 대화 삽화는 재사용. 완성형 3D 캐릭터/최종 아트가 아닌 첫 2.5D 프로토타입.
+- 기존 이동·물리 표면7개·16x16 충돌체·말렛 위치/범위·서사 계약 보존. Foundation 맵의 정사영은 그대로. 신규 presentation 패키지4개(총86), 신규 narrative IR/package0.
+- 최종 새 렌더링 UE203/203 + 그래픽3/3, 독립1500 검사/1475 새 snapshot, host96, static67 통과. 기존 source oracle 입력은 재사용했으며 Godot gameplay/native 실행을 새로 했다고 주장하지 않음.
+- 원본4217/보호 worktree22090/기존 UE82/IR-fixture90 및 과거 보고·증거 보존. 초기 TObjectPtr 컴파일 실패, 인스턴싱 재질 설정/PIE 시간 진행 실패와 원시 패키지·화면 모두 보관.
+- 경계 부근 빈 외곽 공간과 기둥의 캐릭터 일부 가림은 후속 카메라 범위·가림 처리 과제. 이후 기존 삽화를 기준으로 환경 디테일과 3D 캐릭터1명부터 검증.
+- DEPTH_1_REPORT.md와 evidence/depth1에 범위·새 실행·보존·staged 원시 증거/LFS 검사 기록. before:shop_actions 경계 유지. 로컬 checkpoint만 생성하며 push/배포 없음.
