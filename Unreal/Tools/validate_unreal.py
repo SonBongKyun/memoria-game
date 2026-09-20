@@ -96,7 +96,7 @@ def shop_test_paths():
 
 
 def visual_test_paths():
-    return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction"}
+    return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration"}
 
 
 def current_test_paths():

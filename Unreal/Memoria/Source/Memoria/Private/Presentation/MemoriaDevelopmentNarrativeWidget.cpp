@@ -118,7 +118,7 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
     const bool Right=View.PortraitSide==TEXT("right");
     Position(PortraitFrame,Right?.845f:.04f,.28f,Right?.96f:.155f,.89f);
     const bool Choosing=!View.Choices.IsEmpty() && !View.bPaused;
-    Position(NarrativePanel,.055f,View.bCompactStatus?.04f:View.bDevelopmentStop?.14f:Choosing?.49f:.66f,View.bCompactStatus?.53f:.945f,View.bCompactStatus?.23f:.96f);
+    Position(NarrativePanel,View.bCompactStatus?.035f:.055f,View.bCompactStatus?.035f:View.bDevelopmentStop?.14f:Choosing?.49f:.66f,View.bCompactStatus?.37f:.945f,View.bCompactStatus?.19f:.96f);
     Position(BodyScroll,Face && !Right?.185f:.045f,.28f,Face && Right?.815f:.95f,.78f);
     Position(Hint,Face && !Right?.185f:.045f,.84f,Face && Right?.815f:.95f,.98f);
     Location->SetText(FText::FromString(View.bDevelopmentStop?View.Header:View.LocationTitle));

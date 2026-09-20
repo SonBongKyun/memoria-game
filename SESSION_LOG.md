@@ -8935,3 +8935,13 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 - host96, static64, 원본4217/보호 worktree21858/기존 UE23/IR-fixture90 보존 통과. 컴파일 실패2건, 최초 비동기 텍스처 크기 검사 실패, 이전 화면·실행 증거 모두 유지.
 - 원본 Godot의 효과 실행과 native domain 검증은 이번 그래픽 작업에서 재실행하지 않았음. 이전 source oracle을 새 UE 실행과 대조. Phase1O의 before:shop_actions 경계 유지; 거래·Chapter3 구현 및 push 없음.
 - PRESENTATION_1_REPORT.md에 범위와 최종 화면 기록. 다음 그래픽 단계는 베르단 탐색 공간·원본 캐릭터 스프라이트·조명.
+
+
+## S282 - 2026-09-20 (Unreal 그래픽 적용 2 — 베르단 탐색·원본 걷기)
+
+- 원본 베르단 탑다운 지도에서 돌바닥·노점·벽을 재사용하고, 아렐 4방향/말렛 필드 스프라이트·랜턴·그림자·은은한 조명 적용. 탐색 안내창 축소.
+- 보호된 Godot PixelSprite 걷기 함수와 상수를 격리 실행해 원본 16프레임을 4개 atlas로 추출. UE에서 실제 이동에 따라 재생하며 벽에 막히면 정지. 초기 harness 중복 선언 실패와 수정 후 실행 모두 보존.
+- 기존 맵/물리 표면7개/카메라/이동/말렛 위치·범위 보존. 새 presentation 패키지41개(총82); narrative IR/package 추가0. 기존 원본4217/보호 worktree21993/UE41/IR-fixture90/과거 보고·증거 보존.
+- 최종 새 렌더링 검사 그래픽3+도입부4+상점12 통과. Host96/static66 및 staged 원시 증거/LFS 검사 통과. 신규 테스트의 UWorld 포인터 추론 컴파일 실패, 초기 바닥 이음새 화면 및 최종 캡처를 모두 유지.
+- 과거 전체 UE203 및 독립1500/1475 결과는 재사용한 역사적 증거이며 이번에 다시 실행한 것으로 쓰지 않음. Gameplay source/native oracle 재실행 없음; 걷기 추출만 새 Godot 실행.
+- before:shop_actions 경계 유지, 거래·상점 종료·Chapter3·사운드·배포 패키징 확장 없음. 로컬 checkpoint, push 없음. 다음은 원본 상점 구매/판매/종료 계약을 확인하고 연결하는 완결 작업.

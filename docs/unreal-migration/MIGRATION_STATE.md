@@ -1,34 +1,28 @@
-# Migration handoff — illustrated presentation pass 1
+# Migration handoff — Verdan exploration presentation pass 2
 
 Status: verified; local checkpoint is the commit containing this handoff.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`, branch `unreal-migration/ue58-foundation`.
-Entry checkpoint `228aeffe963ea945548dce8d27d02346bc3df24d`. UE5.8.2 / CL56702186.
+Entry checkpoint `78d2ef7794cacda221bf83fc7ead7bfdeb6defb6`. UE5.8.2 / CL56702186.
 
-User requested continued graphics work using the illustrations already in the folders.
-[Current visual report](PRESENTATION_1_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
-[retained Phase1O behavior report](PHASE_1O_REPORT.md).
+[Current report](PRESENTATION_2_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
+[retained narrative frontier](PHASE_1O_REPORT.md).
 
-- Original illustrations8 and portraits11 now appear in the connected Chapter2 VN,
-  Malet reaction/encounter/refusal, sword extraction and reward dialogue. Eighteen
-  new presentation textures; existing Malet neutral texture reused. No narrative
-  IR or narrative package changes. Previous23 packages/90 IR-fixture files preserved.
-- Aspect-preserving scenes, lower dialogue panel, active expression/side, keyboard
-  and mouse choices, compact exploration prompt. Terrain and moving character art
-  still use the existing development placeholders.
-- Full rendered UE203/203 and independent1500 checks/1475 snapshots passed. A final
-  one-line hint-position correction followed that full execution; the final layout
-  passed fresh shop12, campaign4 and visual2 checks. Do not claim a new full203 run
-  after that correction. Host96, static64 and byte-preservation checks passed.
-- Original4217 files and historical reports/evidence remain preserved. Both compile
-  failures, the initial async-texture coverage failure, and earlier screenshot
-  review states remain archived. Phase1N CRLF recovery is closed; do not rerun it.
-- Source gameplay frontier is still `before:shop_actions`. Existing Phase1O run-owned
-  default sell projection, memory prices, item grants, ownership and save behavior
-  are unchanged. Purchase/sale, shop close, Chapter3, autosave and handler execution
-  remain deferred. Source oracle/native domain results were not rerun for graphics.
+- Verdan field placeholders now have original stone/facade/lantern art, Arrel four-direction
+  walking, Malet field art, contact shadows and restrained lighting. Smaller exploration HUD.
+  The original Godot gait functions ran in an isolated harness to produce four atlases.
+- Runtime presentation only: existing maps, seven physical surfaces, camera, movement,
+  Malet position/range and source gameplay remain unchanged. Forty-one new presentation
+  packages, total82. The original41 packages and90 IR/fixture files are preserved.
+- Fresh final rendered visual3, campaign4 and shop12 all passed (three executions, total19).
+  Host96 and final static66 passed. Original4217 and protected worktree21993 preserved.
+  Initial source-harness/test-build failures and pre-refinement screen captures are retained.
+- Previous full UE203 and independent1500/1475 snapshots are reused historical evidence;
+  no new full run or full independent comparison is claimed. Gameplay source/native fixtures
+  were not reexecuted. The source gait export is fresh, graphics-only Godot execution.
+- Frontier stays `before:shop_actions`. Purchases/sales, close callback, Chapter3, autosave,
+  tutorial/achievement handlers, battle and packaged distribution are not implemented here.
+  Phase1N recovery remains closed. No push.
 
-Next visual task: build the small Verdan exploration space using original sprites,
-floor/wall art and lighting while preserving the verified movement and interaction
-path. Do not place a perspective story illustration under a walkable top-down map.
-Use another presentation checkpoint without advancing source gameplay implicitly.
-No push.
+Next bounded task: characterize the original shop purchase/sale/close sequence before
+implementing it, so this illustrated slice can proceed past the first shop screen.
+Keep source preservation and reusable presentation assets; do not silently port the campaign.

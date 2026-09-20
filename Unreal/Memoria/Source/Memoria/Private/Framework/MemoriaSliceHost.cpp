@@ -1,4 +1,5 @@
 #include "Framework/MemoriaSliceHost.h"
+#include "Presentation/MemoriaVerdanPresentation.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
 #include "EnhancedInputComponent.h"
@@ -19,6 +20,8 @@ void AMemoriaSliceGameMode::StartPlay()
     if (Map.EndsWith(TEXT("L_Ch2VerdanSlice"))) Started = Narrative->StartDevelopmentVN();
     else if (Map.EndsWith(TEXT("L_VerdanUnseenFixture"))) Started = Narrative->StartUnseenFieldFixture();
     else if (Map.EndsWith(TEXT("L_VerdanHost"))) Started = Narrative->EnterVerdan();
+    if (Started && (Map.EndsWith(TEXT("L_VerdanHost")) || Map.EndsWith(TEXT("L_VerdanUnseenFixture"))))
+        GetWorld()->SpawnActor<AMemoriaVerdanPresentation>();
     if (!Started) UE_LOG(LogTemp, Error, TEXT("MEMORIA_SLICE entry refused: %s; start from an explicit slice fixture"), *Map);
 }
 AMemoriaSliceController::AMemoriaSliceController()
