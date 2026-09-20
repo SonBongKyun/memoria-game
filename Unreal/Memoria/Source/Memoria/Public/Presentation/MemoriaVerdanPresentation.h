@@ -31,6 +31,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UPaperSpriteComponent> MaletArt;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
     void BuildDepthEnvironment();
+    void UpdateCameraAndVisibility();
     UMaterialInstanceDynamic* Surface(FName Name, FLinearColor Tint, float Mode, float Roughness = 0.82f, float Metallic = 0);
     void Solid(const TCHAR* MeshName, UMaterialInterface* Material, FVector Position, FVector Scale, FRotator Rotation = FRotator::ZeroRotator);
     void Box(UMaterialInterface* Material, FVector Position, FVector Size, FRotator Rotation = FRotator::ZeroRotator);

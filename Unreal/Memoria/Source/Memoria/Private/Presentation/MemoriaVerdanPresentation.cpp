@@ -23,7 +23,7 @@
 #endif
 namespace
 {
-const TCHAR* SurfacePath = TEXT("/Game/Memoria/Presentation/Depth/M_Surface.M_Surface");
+const TCHAR* SurfacePath = TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface");
 const TCHAR* RoofPath = TEXT("/Game/Memoria/Presentation/Depth/SM_PitchedRoof.SM_PitchedRoof");
 }
 AMemoriaVerdanPresentation::AMemoriaVerdanPresentation()
@@ -37,7 +37,9 @@ UPaperSpriteComponent* AMemoriaVerdanPresentation::Picture(const FString& Name, 
     auto* Component = NewObject<UPaperSpriteComponent>(this);
     AddInstanceComponent(Component); Component->SetupAttachment(RootComponent);
     Component->SetCollisionEnabled(ECollisionEnabled::NoCollision); Component->SetGenerateOverlapEvents(false);
-    Component->SetCastShadow(true); Component->SetSprite(MemoriaVerdanArt::LoadSprite(Name));
+    const bool bLantern=Name==TEXT("MemoryLantern");
+    Component->SetCastShadow(!bLantern);
+    Component->SetSprite(bLantern ? LoadObject<UPaperSprite>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/SPR_MemoryLantern.SPR_MemoryLantern")) : MemoriaVerdanArt::LoadSprite(Name));
     Component->SetRelativeRotation(FRotator(0, 0, 42));
     Component->SetRelativeLocation(Location); Component->SetRelativeScale3D(Scale);
     Component->SetMaterial(0, LoadObject<UMaterialInterface>(nullptr, TEXT("/Paper2D/MaskedLitSpriteMaterial.MaskedLitSpriteMaterial")));
@@ -87,10 +89,9 @@ void AMemoriaVerdanPresentation::Beam(UMaterialInterface* Material, FVector A, F
 { Box(Material, (A+B)*0.5, FVector(Width,Width,(B-A).Size()), FRotationMatrix::MakeFromZ(B-A).Rotator()); }
 void AMemoriaVerdanPresentation::Lantern(FVector P, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bShadow)
 {
-    Box(Glow, P, FVector(15,15,24));
-    Box(Iron, P+FVector(0,0,15), FVector(24,24,5)); Box(Iron, P-FVector(0,0,15), FVector(22,22,5));
-    for (double X : {-9.0,9.0}) for (double Y : {-9.0,9.0}) Box(Iron,P+FVector(X,Y,0),FVector(2.5,2.5,30));
-    Beam(Iron,P+FVector(0,0,18),P+FVector(0,0,42),3);
+    // The intact original lantern illustration hangs from a real beam and light.
+    Picture(TEXT("MemoryLantern"),P-FVector(0,0,28));
+    Beam(Iron,P+FVector(0,0,34),P+FVector(0,0,49),3);
     auto* Light = NewObject<UPointLightComponent>(this); AddInstanceComponent(Light); Light->SetupAttachment(RootComponent);
     Light->SetRelativeLocation(P); Light->bUseInverseSquaredFalloff = false; Light->LightFalloffExponent = 2;
     Light->SetLightColor(FLinearColor(1.0f,0.45f,0.16f)); Light->SetIntensity(3.0f); Light->SetAttenuationRadius(420);
@@ -113,6 +114,12 @@ void AMemoriaVerdanPresentation::Building(FVector P, FVector Size, UMaterialInte
         Box(Glow,P+FVector(X,Front-5,151),FVector(48,3,76));
         Box(Timber,P+FVector(X,Front-8,151),FVector(5,4,78));
         Box(Timber,P+FVector(X,Front-8,151),FVector(50,4,5));
+        for (double Side : {-1.0,1.0})
+        {
+            Box(Timber,P+FVector(X+Side*42,Front-8,151),FVector(19,8,86));
+            Box(Roof,P+FVector(X+Side*42,Front-13,128),FVector(21,3,4));
+            Box(Roof,P+FVector(X+Side*42,Front-13,175),FVector(21,3,4));
+        }
         Beam(Timber,P+FVector(X-40,Front,H*.64),P+FVector(X+40,Front,H-10),7);
     }
     Solid(TEXT("Roof"),Roof,P+FVector(0,0,H),FVector((W+46)/100,(D+55)/100,2.3));
@@ -131,9 +138,12 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     for (int32 I=0; I<5; ++I)
     {
         const FVector V=P+FVector(-30+I*15,-8,84);
-        Solid(TEXT("Sphere"),Glass,V,FVector(.12,.12,.18));
-        Solid(TEXT("Cylinder"),Iron,V+FVector(0,0,10),FVector(.035,.035,.075));
+        Solid(TEXT("Sphere"),Glass,V,FVector(.12,.12,.25));
+        Solid(TEXT("Cylinder"),Iron,V+FVector(0,0,15),FVector(.035,.035,.075));
     }
+    // Small bound ledgers share the existing stall footprint.
+    Box(Cloth,P+FVector(24,22,76),FVector(22,25,5));
+    Box(Timber,P+FVector(20,22,81),FVector(24,24,4),FRotator(0,12,0));
     Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
 }
 void AMemoriaVerdanPresentation::BuildDepthEnvironment()
@@ -176,6 +186,23 @@ void AMemoriaVerdanPresentation::BuildDepthEnvironment()
         Box(Iron,FVector(X,660,22),FVector(58,4,68));
         Solid(TEXT("Cylinder"),Timber,FVector(X+63,652,20),FVector(.45,.45,.6));
     }
+    // Sagging ropes and wine-colored cloth echo the original market illustrations.
+    FVector Last(-800,575,330);
+    for (int32 I=1; I<=16; ++I)
+    {
+        const double X=-800+I*100;
+        const FVector Next(X,575,255+75*FMath::Square(X/800));
+        Beam(Iron,Last,Next,2.5); Last=Next;
+    }
+    for (int32 I=0; I<7; ++I)
+    {
+        const double X=-650+I*215;
+        const double Z=255+75*FMath::Square(X/800);
+        auto* Cloth=(I%3==1)?Moss:Wine;
+        Box(Cloth,FVector(X,575,Z-39),FVector(82,3,78),FRotator((I%2==0)?-4:4,0,0));
+        Box(Timber,FVector(X,575,Z),FVector(88,6,5));
+        Box(Iron,FVector(X,572,Z-75),FVector(74,2,3));
+    }
     for (TActorIterator<ADirectionalLight> It(GetWorld()); It; ++It)
     {
         It->SetActorRotation(FRotator(-52,-28,0)); auto* Light=Cast<UDirectionalLightComponent>(It->GetLightComponent());
@@ -194,9 +221,11 @@ void AMemoriaVerdanPresentation::BeginPlay()
     auto* PC=GetWorld()->GetFirstPlayerController(); Player=PC?Cast<AMemoriaFieldPawn>(PC->GetPawn()):nullptr;
     if (!Player.IsValid() || !LoadObject<UMaterialInterface>(nullptr,SurfacePath) || !LoadObject<UStaticMesh>(nullptr,RoofPath)
         || !LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Paving.M_Paving"))
-        || !LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Glow.M_Glow")))
+        || !LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Glow.M_Glow"))
+        || !LoadObject<UPaperSprite>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/SPR_MemoryLantern.SPR_MemoryLantern")))
     { UE_LOG(LogTemp,Error,TEXT("Verdan depth stage assets or pawn missing")); SetActorTickEnabled(false); return; }
 #if WITH_EDITOR
+    if (auto* Texture=LoadObject<UTexture2D>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/T_MemoryLantern.T_MemoryLantern"))) FTextureCompilingManager::Get().FinishCompilation({Texture});
     for (const auto& Entry : MemoriaVerdanArt::Textures())
     {
         const FString Name=FString(TEXT("T_"))+Entry.Name;
@@ -230,6 +259,32 @@ void AMemoriaVerdanPresentation::BeginPlay()
     }
     PlayerShadow=SoftQuad(FVector(0,0,-9),FVector(.80,.32,1),FLinearColor::Black,.7f);
     PreviousPosition=Player->GetActorLocation(); Sprite->SetSprite(PlayerArt[0]);
+    UpdateCameraAndVisibility();
+}
+void AMemoriaVerdanPresentation::UpdateCameraAndVisibility()
+{
+    const FVector P=Player->GetActorLocation();
+    // Follow exactly in the interaction area, then ease toward a finite edge limit.
+    // This avoids a velocity jump at a hard clamp and does not modify the pawn.
+    auto Limit=[](double V,double Min,double Max,double Reach)
+    {
+        if (V>Max) return Max+Reach*(1-FMath::Exp(-(V-Max)/Reach));
+        if (V<Min) return Min-Reach*(1-FMath::Exp(-(Min-V)/Reach));
+        return V;
+    };
+    const FVector Anchor(Limit(P.X,-450,450,100),Limit(P.Y,-180,100,180),P.Z);
+    auto* Camera=Player->GetFieldCamera();
+    Camera->SetWorldLocation(Anchor+FVector(0,-1150,1450));
+    auto Color=[](const FVector& V){ return FLinearColor(V.X,V.Y,V.Z,1); };
+    const FLinearColor Eye=Color(Camera->GetComponentLocation());
+    const FLinearColor Focus=Color(Player->GetFieldSprite()->Bounds.Origin);
+    const FLinearColor Up=Color(Camera->GetUpVector());
+    for (const auto& M:SurfaceMaterials)
+    {
+        M->SetVectorParameterValue(TEXT("OcclusionEye"),Eye);
+        M->SetVectorParameterValue(TEXT("OcclusionFocus"),Focus);
+        M->SetVectorParameterValue(TEXT("OcclusionUp"),Up);
+    }
 }
 void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
 {
@@ -254,5 +309,6 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     // The ground anchor remains at the physical foot; depth testing handles occlusion.
     Sprite->SetRelativeLocation(FVector(0, 0, -8));
     PlayerShadow->SetWorldLocation(FVector(Position.X, Position.Y, -9));
+    UpdateCameraAndVisibility();
     PreviousPosition = Position;
 }

@@ -8956,3 +8956,14 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 - 원본4217/보호 worktree22090/기존 UE82/IR-fixture90 및 과거 보고·증거 보존. 초기 TObjectPtr 컴파일 실패, 인스턴싱 재질 설정/PIE 시간 진행 실패와 원시 패키지·화면 모두 보관.
 - 경계 부근 빈 외곽 공간과 기둥의 캐릭터 일부 가림은 후속 카메라 범위·가림 처리 과제. 이후 기존 삽화를 기준으로 환경 디테일과 3D 캐릭터1명부터 검증.
 - DEPTH_1_REPORT.md와 evidence/depth1에 범위·새 실행·보존·staged 원시 증거/LFS 검사 기록. before:shop_actions 경계 유지. 로컬 checkpoint만 생성하며 push/배포 없음.
+
+
+## S284 - 2026-09-20 (Unreal 2.5D 개선 2 — 카메라·가림·시장 디테일)
+
+- 베르단 카메라가 중앙에서는 정확히 따라가고 가장자리에서는 제한 범위로 부드럽게 수렴하도록 개선. 경계·모서리8곳에서 캐릭터 머리/발이 화면 안에 있는지 실제 렌더링 검증.
+- 건물·기둥에 가린 아렐 주변만 부드럽게 드러내는 lit masked 재질 추가. 동일 위치 A/B 캡처로 확인. 원래 이동·충돌7개·말렛 범위·서사/기억 상태 보존.
+- 원본 랜턴 삽화1장을 그대로 임포트해 조명4곳에 적용. 시장 삽화를 참고한 와인색/이끼색 천 장식·덧문·병·장부 배치. 새 presentation 패키지3개(총89), 기존86 보존.
+- 초기 컴파일의 포인터/벡터 타입 오류와 최초 campaign1/4 실패를 보관. 도입부430단위 이동보다 카메라 추적 구간이 좁았던 문제는 중앙 구간을 넓혀 해결했으며 기존 테스트 기대값은 변경하지 않음.
+- 최종 새 렌더링29/29(그래픽3+도입부4+상점12+말렛4+기초6), host96/static68 통과. 전체 UE203 및 독립1500/1475는 Depth1의 역사적 증거 재사용이며 이번 전체 재실행 결과가 아님. Source gameplay/native oracle 재실행 없음.
+- 원본4217/보호 worktree22163/기존UE86/IR-fixture90 및 과거 보고·증거 보존. 새 narrative IR/package0. 원시 ZIP·최종 화면·staged blob/LFS 검증은 evidence/depth2와 DEPTH_2_REPORT.md에 기록.
+- 아직 2D 캐릭터를 쓰는 2.5D 프로토타입이며 외곽 바닥 일부와 가림 경계의 디더링은 남음. 다음 시각 단계는 환경 아트 정리와 3D 캐릭터1명 검증. before:shop_actions 유지, 로컬 checkpoint만 생성, push/배포 없음.

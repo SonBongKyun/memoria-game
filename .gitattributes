@@ -44,3 +44,6 @@ docs/unreal-migration/evidence/presentation2/** -text whitespace=blank-at-eol,bl
 
 # Raw 2.5D depth validation evidence.
 docs/unreal-migration/evidence/depth1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Raw 2.5D camera and atmosphere validation evidence.
+docs/unreal-migration/evidence/depth2/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

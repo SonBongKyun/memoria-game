@@ -22,6 +22,7 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Materials/Material.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
 #include "InputKeyEventArgs.h"
 #include "JsonObjectConverter.h"
@@ -67,7 +68,7 @@ public:
         if (!Test->TestEqual(TEXT("One presentation layer after travel"), Count, 1)) return true;
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
-        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Depth1")/(FString(Name)+TEXT(".png")), true, false); };
+        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Depth2")/(FString(Name)+TEXT(".png")), true, false); };
         if (Frame == 0)
         {
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), RunBefore);
@@ -116,8 +117,13 @@ public:
             Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() < 30);
             Test->TestEqual(TEXT("Six buildings and two physical stall roofs"), Roofs, 8);
             Test->TestTrue(TEXT("Architecture has substantial height"), Presentation->GetComponentsBoundingBox(true).Max.Z > 580);
-            auto* Lit = LoadObject<UMaterial>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Surface.M_Surface"));
-            Test->TestTrue(TEXT("Walls respond to real lighting"), Lit && Lit->bUsedWithInstancedStaticMeshes && Lit->GetShadingModels().HasShadingModel(MSM_DefaultLit));
+            auto* Lit = LoadObject<UMaterial>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface"));
+            Test->TestTrue(TEXT("Walls respond to real lighting"), Lit && Lit->GetUsageByFlag(MATUSAGE_InstancedStaticMeshes) && Lit->GetShadingModels().HasShadingModel(MSM_DefaultLit));
+            Test->TestTrue(TEXT("Occlusion material supports masked reveal"), Lit && Lit->BlendMode == BLEND_Masked);
+            int32 ArtLanterns=0;
+            TArray<UPaperSpriteComponent*> Pictures; Presentation->GetComponents(Pictures);
+            for (auto* Picture:Pictures) if (Picture->GetSprite() && Picture->GetSprite()->GetName()==TEXT("SPR_MemoryLantern")) ++ArtLanterns;
+            Test->TestEqual(TEXT("Four original-art lanterns in actual scene"), ArtLanterns, 4);
             TArray<UPointLightComponent*> Lights; Presentation->GetComponents(Lights);
             Test->TestEqual(TEXT("Four real lantern lights"), Lights.Num(), 4);
             int32 ShadowLights = 0;
@@ -151,20 +157,58 @@ public:
         {
             Pawn->SetActorLocation(FVector(850, 0, 0)); Key(EKeys::D, IE_Pressed);
         }
+        auto Lens=[&](float Strength)
+        {
+            TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
+            for (auto* Batch:Batches) if (auto* M=Cast<UMaterialInstanceDynamic>(Batch->GetMaterial(0))) M->SetScalarParameterValue(TEXT("FocusStrength"),Strength);
+        };
+        if (Frame == 188) Lens(0);
         if (Frame == 196)
         {
             Test->TestTrue(TEXT("Original wall still blocks sweep"), Pawn->GetActorLocation().X <= 882.1 && Pawn->GetActorLocation().X > 850);
             Test->TestFalse(TEXT("Blocked input does not slide animated feet"), Presentation->IsWalking());
             WallX = Pawn->GetActorLocation().X;
-            Capture(TEXT("Boundary")); Key(EKeys::D, IE_Released);
+            Capture(TEXT("BoundaryOpaque")); Key(EKeys::D, IE_Released);
         }
-        if (Frame == 204) Pawn->SetActorLocation(AMemoriaMaletActor::DevelopmentLocation() + FVector(-65, 0, 0));
-        if (Frame == 208)
+        if (Frame == 198) Lens(1);
+        if (Frame == 208) Capture(TEXT("BoundaryClear"));
+        if (Frame == 216) Pawn->SetActorLocation(AMemoriaMaletActor::DevelopmentLocation() + FVector(-65, 0, 0));
+        if (Frame == 222)
         {
             Test->TestTrue(TEXT("Original interaction prompt remains reachable"), PC->GetInteractionPrompt().Contains(TEXT("Malet")));
             Capture(TEXT("NearMalet"));
         }
-        if (Frame == 214)
+        const FVector Edges[]={FVector(-870,0,0),FVector(870,0,0),FVector(0,570,0),FVector(0,-570,0),FVector(-870,570,0),FVector(870,570,0),FVector(-870,-570,0),FVector(870,-570,0)};
+        const TCHAR* Names[]={TEXT("West"),TEXT("East"),TEXT("North"),TEXT("South"),TEXT("NorthWest"),TEXT("NorthEast"),TEXT("SouthWest"),TEXT("SouthEast")};
+        for (int32 I=0; I<8; ++I)
+        {
+            const int32 Start=228+I*18;
+            if (Frame==Start) Pawn->SetActorLocation(Edges[I]);
+            if (Frame==Start+14)
+            {
+                auto* Camera=Pawn->GetFieldCamera();
+                const FVector Eye=Camera->GetComponentLocation();
+                Test->TestTrue(TEXT("Camera stays inside courtyard tracking limits"), FMath::Abs(Eye.X)<550.1 && Eye.Y>-1510.1 && Eye.Y<-869.9);
+                int32 Width,Height; PC->GetViewportSize(Width,Height);
+                FVector2D Foot,Head;
+                Test->TestTrue(TEXT("Boundary feet project to screen"), PC->ProjectWorldLocationToScreen(Pawn->GetFieldSprite()->GetComponentLocation(),Foot));
+                Test->TestTrue(TEXT("Boundary head projects to screen"), PC->ProjectWorldLocationToScreen(Pawn->GetFieldSprite()->Bounds.Origin*2-Pawn->GetFieldSprite()->GetComponentLocation(),Head));
+                Test->TestTrue(TEXT("Entire character stays inside view at edges and corners"), Foot.X>30 && Foot.X<Width-30 && Foot.Y>20 && Foot.Y<Height-20 && Head.X>30 && Head.X<Width-30 && Head.Y>20 && Head.Y<Height-20);
+                TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
+                bool FocusTracked=false;
+                for (auto* Batch:Batches) if (auto* M=Cast<UMaterialInstanceDynamic>(Batch->GetMaterial(0)))
+                {
+                    FLinearColor Focus,View;
+                    if (M->GetVectorParameterValue(FMaterialParameterInfo(TEXT("OcclusionFocus")),Focus) && M->GetVectorParameterValue(FMaterialParameterInfo(TEXT("OcclusionEye")),View))
+                        FocusTracked=FVector(Focus.R,Focus.G,Focus.B).Equals(Pawn->GetFieldSprite()->Bounds.Origin,.01) && FVector(View.R,View.G,View.B).Equals(Eye,.01);
+                }
+                Test->TestTrue(TEXT("Reveal follows actual sprite and bounded camera"), FocusTracked);
+                if (I>0) CameraRecords+=TEXT(",");
+                CameraRecords+=FString::Printf(TEXT("{\"edge\":\"%s\",\"camera\":[%.3f,%.3f,%.3f],\"foot\":[%.3f,%.3f],\"head\":[%.3f,%.3f],\"viewport\":[%d,%d]}"),Names[I],Eye.X,Eye.Y,Eye.Z,Foot.X,Foot.Y,Head.X,Head.Y,Width,Height);
+                Capture(Names[I]);
+            }
+        }
+        if (Frame == 380)
         {
             FString After, MemoryAfter;
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), After);
@@ -172,9 +216,9 @@ public:
             Test->TestEqual(TEXT("Art, walking and lighting do not mutate run"), After, RunBefore);
             Test->TestEqual(TEXT("Memory state untouched by visuals"), MemoryAfter, MemoryBefore);
             Test->TestTrue(TEXT("Narrative trace untouched by visuals"), Host->GetTrace() == TraceBefore);
-            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Depth1");
+            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Depth2");
             IFileManager::Get().MakeDirectory(*Dir, true);
-            FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"status\":\"%s\",\"distinct_walk_sprites\":%d,\"physical_surfaces\":7,\"wall_x\":%.3f,\"run_unchanged\":%s,\"memory_unchanged\":%s}\n"), Test->HasAnyErrors() ? TEXT("FAIL") : TEXT("PASS"), SeenWalkSprites.Num(), WallX, After == RunBefore ? TEXT("true") : TEXT("false"), MemoryAfter == MemoryBefore ? TEXT("true") : TEXT("false")), *(Dir/TEXT("exploration.json")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+            FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"status\":\"%s\",\"distinct_walk_sprites\":%d,\"physical_surfaces\":7,\"wall_x\":%.3f,\"run_unchanged\":%s,\"memory_unchanged\":%s,\"camera_cases\":[%s]}\n"), Test->HasAnyErrors() ? TEXT("FAIL") : TEXT("PASS"), SeenWalkSprites.Num(), WallX, After == RunBefore ? TEXT("true") : TEXT("false"), MemoryAfter == MemoryBefore ? TEXT("true") : TEXT("false"), *CameraRecords), *(Dir/TEXT("exploration.json")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             return true;
         }
         ++Frame; return false;
@@ -185,7 +229,7 @@ private:
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;
-    FString RunBefore, MemoryBefore;
+    FString RunBefore, MemoryBefore, CameraRecords;
     TArray<FString> TraceBefore;
     TSet<FString> SeenWalkSprites;
 };
