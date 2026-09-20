@@ -1,37 +1,35 @@
-# Migration handoff — first Arrel skeletal character blockout
+# Migration handoff — refined Arrel model and planted walking
 
-Status: verified as a blockout; local checkpoint is the commit containing this handoff.
+Status: verified prototype refinement; local checkpoint is the commit containing this handoff.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`, branch `unreal-migration/ue58-foundation`.
-Entry checkpoint `fd8ba39fc1e2c61c9f8a38f173e9af0b9be1613c`. UE5.8.2 / CL56702186.
+Entry checkpoint `fa8db119ba5140752d2fa6b642c53abf6352b7e2`. UE5.8.2 / CL56702186.
 
-[Current report](CHARACTER_1_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
+[Current report](CHARACTER_2_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
 [retained narrative frontier](PHASE_1O_REPORT.md).
 
-- The user is rebuilding the108-chapter manuscript through chapter11. No chapter is
-  assumed final. Existing illustrations guide provisional appearance only; old Godot
-  story data and art labels are not promoted to the new canon. No manuscript edits.
-- Arrel now uses a real23-bone,5757-triangle skinned mesh in Verdan. Actual displacement
-  drives body rotation and procedural legs/arms; idle breathing and cape motion are
-  included. The deterministic generator and JSON retain editable parts/weights.
-- Silver hair, navy fabric, metal armor, blue accents and a visual scabbard follow
-  existing concept references. The accessory does not grant/equip a weapon. This is
-  an interim blockout; face/hair, breastplate intersections and gait need an art pass.
-- New4 packages:two materials, skeletal mesh and skeleton; total93. Old89 packages,
-  original4217, protected worktree22223 and IR-fixtures90 preserved. New narrative0.
-- Existing movement/collider, seven bodies, camera bounds, Malet interaction, dialogue
-  and memory state remain. Occlusion targets the3D body. Malet stays2D. Foundation
-  presentation is unchanged. Character-only fill and a small material ambient lift
-  improve readability without relighting the world.
-- Fresh focused29 checks passed:visual3, campaign4, shop12, Malet4, foundation6.
-  The26 gameplay checks precede the final two-material lift; final visual04 was rerun
-  afterward. Host96/static70 passed. Full UE203 and independent1500/1475 from Depth1
-  remain reused historical evidence, not new full runs. No source/native oracle rerun.
-- Initial API compile failure, skeleton-finalization authoring assertion, first visual
-  bounds failure, dark captures and original new-package bytes are retained. Staged
-  evidence/LFS/source checks: `evidence/character1/staged_review.json`.
-- Frontier remains `before:shop_actions`; purchases/sales, close callback, Chapter3,
-  battle and packaged distribution are not added. Local checkpoint only; no push.
+- The user is rebuilding through chapter 11 of 108; no chapter is assumed final.
+  Existing illustrations guide provisional appearance. No manuscript or narrative changes.
+- Arrel uses the new Character2 mesh: 23 bones and 7,424 triangles. Torso surfaces have
+  measured clearance and share a chest bone; jaw, eyes, hair, pauldrons and flat soles
+  are refined. Original Character1 assets, materials and source remain intact.
+- Steady straight walking now has planted feet with eased swing and ankle roll.
+  Checks at 60/120/180 units per second across 30/60/120fps pass. The unchanged pawn's
+  1200-unit maximum still causes sliding; visual cadence caps at 3 cycles/second.
+  Turning/start-stop foot locking and final character art remain future work.
+- Two new presentation packages; total 95. Existing 93 packages, original 4,217 files,
+  protected worktree 22,303 files, prior 90 IR/fixtures and historical evidence preserved.
+- Fresh UE 19 checks: final visual 3 plus campaign 4/shop 12 before the last 96-triangle
+  hair-only addition. Final visual03 reran afterward. Host 96/static 71 passed.
+  Full UE 203 and independent 1500/1475 from Depth1 remain historical reused evidence;
+  no full-suite or source gameplay/native oracle rerun is claimed.
+- The first contact measurement included near-ground swing frames; it now checks
+  flat ankle orientation as well as height without relaxing the slip limit. Initial
+  source winding and posterior-hair iterations, raw new packages and captures are retained.
+  Final screenshots: evidence/character2/final_captures. Staged evidence/source/LFS
+  audit: evidence/character2/staged_review.json.
+- Original movement/collider, seven physical bodies, production camera and Malet contracts
+  remain. Frontier is before:shop_actions; no purchases/sales, close callback, Chapter3,
+  battle extension or packaged distribution. Local checkpoint only; no push.
 
-Next: refine Arrel's face/hair/armor proportions and intersections against provisional
-references, then tune locomotion and foot contact. Final costume/story approval waits
-for the corresponding manuscript/design; reusable engine work can continue.
+Next: align movement speed, stride and camera scale for the small 3D character, then
+continue art refinement. Current gameplay speed is the main remaining locomotion mismatch.

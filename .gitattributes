@@ -53,3 +53,6 @@ docs/unreal-migration/evidence/character1/** -text whitespace=blank-at-eol,blank
 
 # Deterministic new skeletal prototype source.
 Unreal/ArtSource/Arrel3D/*.json text eol=lf
+
+# Raw refined skeletal character evidence.
+docs/unreal-migration/evidence/character2/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

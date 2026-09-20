@@ -36,6 +36,55 @@
 #if WITH_DEV_AUTOMATION_TESTS
 namespace
 {
+// Probe the real poseable component, measuring world-space feet rather than repeating the IK formula.
+FString CheckFootContact(FAutomationTestBase* Test, AActor* Owner)
+{
+    FString Records;
+    for (const int32 Hz : {30,60,120}) for (const float Speed : {60.f,120.f,180.f,1200.f})
+    {
+        auto* Probe=NewObject<UMemoriaArrel3DComponent>(Owner);
+        Probe->RegisterComponent();
+        if(!Test->TestTrue(TEXT("Isolated locomotion mesh loads"),Probe->InitializePrototype())){Probe->DestroyComponent();return TEXT("[]");}
+        Probe->SetVisibility(false);Probe->SetWorldRotation(FRotator::ZeroRotator);
+        const float Dt=1.f/Hz;
+        const double GroundAnkle=Probe->GetComponentLocation().Z+8*Probe->GetComponentScale().Z;
+        FVector Previous[2];bool WasGround[2]={false,false};int32 Contacts=0;double MaxSlip=0,MinSole=1e9,MaxLift=0;
+        for(int32 Frame=0;Frame<Hz*3;++Frame)
+        {
+            const FVector Step(Speed*Dt,0,0);Probe->AddWorldOffset(Step);Probe->AdvanceLocomotion(Step,Dt);
+            for(int32 Side=0;Side<2;++Side)
+            {
+                const FName Foot=Side==0?TEXT("foot_l"):TEXT("foot_r");
+                const FTransform Transform=Probe->GetBoneTransform(Probe->GetBoneIndex(Foot));
+                const FVector Position=Transform.GetLocation();
+                // Distinguish a flat planted sole from the near-ground start/end of swing.
+                const bool Ground=FMath::Abs(Position.Z-GroundAnkle)<.00005 && Transform.GetRotation().AngularDistance(FQuat::Identity)<.00001;
+                if(Frame>Hz && Ground && WasGround[Side]){++Contacts;MaxSlip=FMath::Max(MaxSlip,FVector::Dist2D(Position,Previous[Side]));}
+                if(Frame>Hz)
+                {
+                    MaxLift=FMath::Max(MaxLift,Position.Z-GroundAnkle);
+                    for(const double ToeX:{-7.,13.})
+                        MinSole=FMath::Min(MinSole,Transform.TransformPosition(FVector(ToeX,0,-8)).Z-Probe->GetComponentLocation().Z);
+                }
+                Previous[Side]=Position;WasGround[Side]=Ground;
+                Test->TestFalse(TEXT("Pose stays finite at walk and existing fast pawn speeds"),Position.ContainsNaN());
+            }
+        }
+        Test->TestTrue(TEXT("Both feet lift through swing"),MaxLift>5);
+        Test->TestTrue(TEXT("Flat sole clears the ground during walk"),MinSole>-.08);
+        if(Speed<=180)
+        {
+            Test->TestTrue(TEXT("Steady walking has measured planted contacts"),Contacts>10);
+            Test->TestTrue(TEXT("Planted world-space feet slip less than 0.04 units per sample"),MaxSlip<.04);
+        }
+        for(int32 Frame=0;Frame<Hz;++Frame)Probe->AdvanceLocomotion(FVector::ZeroVector,Dt);
+        Test->TestTrue(TEXT("Stopped gait settles at all tested frame rates"),Probe->LocomotionWeight()<.001);
+        if(!Records.IsEmpty())Records+=TEXT(",");
+        Records+=FString::Printf(TEXT("{\"hz\":%d,\"speed\":%.0f,\"plant_samples\":%d,\"max_slip\":%.6f,\"min_sole\":%.6f,\"max_lift\":%.6f,\"cadence_limited\":%s}"),Hz,Speed,Contacts,MaxSlip,MinSole,MaxLift,Speed>180?TEXT("true"):TEXT("false"));
+        Probe->DestroyComponent();
+    }
+    return TEXT("[")+Records+TEXT("]");
+}
 class FVerdanVisualReplay final : public IAutomationLatentCommand
 {
 public:
@@ -73,7 +122,7 @@ public:
         if(!Test->TestNotNull(TEXT("Actual skeletal character in field"),Character))return true;
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
-        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Character1")/(FString(Name)+TEXT(".png")), true, false); };
+        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Character2")/(FString(Name)+TEXT(".png")), true, false); };
         if (Frame == 0)
         {
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), RunBefore);
@@ -111,6 +160,8 @@ public:
             Test->TestTrue(TEXT("Original field sprite hidden behind 3D presentation"), Pawn->GetFieldSprite()->bHiddenInGame);
             auto* SkeletalAsset=Cast<USkeletalMesh>(Character->GetSkinnedAsset());
             if(!Test->TestNotNull(TEXT("Real skeletal mesh asset loaded"),SkeletalAsset))return true;
+            Test->TestTrue(TEXT("Refined version is used without replacing Character1 packages"),SkeletalAsset->GetPathName().Contains(TEXT("/Character2/SK_ArrelRefined")));
+            FootRecords=CheckFootContact(Test,Pawn);
             Test->TestEqual(TEXT("Editable full-body rig has 23 bones"),SkeletalAsset->GetRefSkeleton().GetNum(),23);
             Test->TestTrue(TEXT("Character uses actual skinning and two lit surface materials"),SkeletalAsset->GetSkeleton()!=nullptr && SkeletalAsset->GetMaterials().Num()==2 && SkeletalAsset->GetHasVertexColors());
             Test->AddInfo(FString::Printf(TEXT("ARREL_BOUNDS %s asset=%s scale=%s"),*Character->Bounds.BoxExtent.ToString(),*SkeletalAsset->GetBounds().BoxExtent.ToString(),*Character->GetComponentScale().ToString()));
@@ -246,12 +297,24 @@ public:
         if(Frame==420)Capture(TEXT("CharacterSide"));
         if(Frame==424)Character->SetRelativeRotation(FRotator(0,90,0));
         if(Frame==434)Capture(TEXT("CharacterBack"));
-        if(Frame==440)
+        if(Frame==440)Key(EKeys::D,IE_Pressed);
+        if(Frame>=440 && Frame<484 && PreviewCamera.IsValid())
+        {
+            PreviewCamera->SetActorLocation(Pawn->GetActorLocation()+FVector(0,-340,110));
+            PreviewCamera->SetActorRotation((Character->FocusPosition()-PreviewCamera->GetActorLocation()).Rotation());
+        }
+        if(Frame==448)Capture(TEXT("WalkA"));
+        if(Frame==451)Capture(TEXT("WalkB"));
+        if(Frame==454)Capture(TEXT("WalkC"));
+        if(Frame==457)Capture(TEXT("WalkD"));
+        if(Frame==460)Key(EKeys::D,IE_Released);
+        if(Frame==480)Capture(TEXT("WalkSettled"));
+        if(Frame==484)
         {
             PC->SetViewTarget(Pawn);if(PreviewCamera.IsValid())PreviewCamera->Destroy();
             Character->SetRelativeRotation(FRotator(0,-90,0));
         }
-        if (Frame == 455)
+        if (Frame == 500)
         {
             FString After, MemoryAfter;
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), After);
@@ -259,8 +322,9 @@ public:
             Test->TestEqual(TEXT("Art, walking and lighting do not mutate run"), After, RunBefore);
             Test->TestEqual(TEXT("Memory state untouched by visuals"), MemoryAfter, MemoryBefore);
             Test->TestTrue(TEXT("Narrative trace untouched by visuals"), Host->GetTrace() == TraceBefore);
-            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Character1");
+            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Character2");
             IFileManager::Get().MakeDirectory(*Dir, true);
+            FFileHelper::SaveStringToFile(FootRecords,*(Dir/TEXT("foot_contact.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"status\":\"%s\",\"distinct_joint_poses\":%d,\"physical_surfaces\":7,\"wall_x\":%.3f,\"run_unchanged\":%s,\"memory_unchanged\":%s,\"camera_cases\":[%s]}\n"), Test->HasAnyErrors() ? TEXT("FAIL") : TEXT("PASS"), SeenGaitPoses.Num(), WallX, After == RunBefore ? TEXT("true") : TEXT("false"), MemoryAfter == MemoryBefore ? TEXT("true") : TEXT("false"), *CameraRecords), *(Dir/TEXT("exploration.json")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             return true;
         }
@@ -272,7 +336,7 @@ private:
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;
-    FString RunBefore, MemoryBefore, CameraRecords;
+    FString RunBefore, MemoryBefore, CameraRecords, FootRecords;
     TArray<FString> TraceBefore;
     TSet<FString> SeenGaitPoses;
     TWeakObjectPtr<ACameraActor> PreviewCamera;
