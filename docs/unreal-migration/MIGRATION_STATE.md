@@ -1,32 +1,37 @@
-# Migration handoff — Verdan camera and market detail
+# Migration handoff — first Arrel skeletal character blockout
 
-Status: verified; local checkpoint is the commit containing this handoff.
+Status: verified as a blockout; local checkpoint is the commit containing this handoff.
 Worktree `C:\Users\jc\MemoriaMigration\foundation`, branch `unreal-migration/ue58-foundation`.
-Entry checkpoint `0d27f6a36280bb03bd6b674fd1720bc4063d7c5a`. UE5.8.2 / CL56702186.
+Entry checkpoint `fd8ba39fc1e2c61c9f8a38f173e9af0b9be1613c`. UE5.8.2 / CL56702186.
 
-[Current report](DEPTH_2_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
+[Current report](CHARACTER_1_REPORT.md), [play instructions](PLAYABLE_SLICE.md),
 [retained narrative frontier](PHASE_1O_REPORT.md).
 
-- Actual 3D courtyard with six buildings, two stalls, lit materials and shadows;
-  original Arrel/Malet sprites remain, with16 directional gait frames for Arrel.
-- Camera follows exactly in the central area, then eases toward finite boundary
-  limits. Eight edge/corner cases keep the whole character on screen.
-  A feathered cutaway reveals Arrel behind architecture without changing collision.
-- Four lanterns use an intact original illustration. Wine/moss cloth hangings,
-  shutters, bottles and ledgers develop the market illustration's visual direction.
-  New3 presentation packages; total89. Old86 packages remain byte-identical.
-- Fresh rendered29/29:visual3, campaign4, shop12, Malet4, foundation6. Host96/static68
-  passed. Final original4217/protected22163/old86/IR-fixtures90 preservation passed.
-  Raw staged evidence/LFS verification: `evidence/depth2/staged_review.json`.
-- Full UE203/203 and independent1500/1475 from Depth1 are reused historical evidence,
-  not fresh full runs. Source gameplay/native oracles were not rerun. Initial build
-  failure and the first campaign camera-follow failure remain archived. The latter
-  was fixed by widening the central following area; old test expectations remain.
-- This remains a 2.5D prototype with original 2D characters. Exterior ground remains
-  visible at some edges; cutaways have a dithered rim. No production 3D character yet.
-- Frontier stays `before:shop_actions`. Purchases/sales, close callback, Chapter3,
-  autosave, battle and packaged distribution are not added. No push.
+- The user is rebuilding the108-chapter manuscript through chapter11. No chapter is
+  assumed final. Existing illustrations guide provisional appearance only; old Godot
+  story data and art labels are not promoted to the new canon. No manuscript edits.
+- Arrel now uses a real23-bone,5757-triangle skinned mesh in Verdan. Actual displacement
+  drives body rotation and procedural legs/arms; idle breathing and cape motion are
+  included. The deterministic generator and JSON retain editable parts/weights.
+- Silver hair, navy fabric, metal armor, blue accents and a visual scabbard follow
+  existing concept references. The accessory does not grant/equip a weapon. This is
+  an interim blockout; face/hair, breastplate intersections and gait need an art pass.
+- New4 packages:two materials, skeletal mesh and skeleton; total93. Old89 packages,
+  original4217, protected worktree22223 and IR-fixtures90 preserved. New narrative0.
+- Existing movement/collider, seven bodies, camera bounds, Malet interaction, dialogue
+  and memory state remain. Occlusion targets the3D body. Malet stays2D. Foundation
+  presentation is unchanged. Character-only fill and a small material ambient lift
+  improve readability without relighting the world.
+- Fresh focused29 checks passed:visual3, campaign4, shop12, Malet4, foundation6.
+  The26 gameplay checks precede the final two-material lift; final visual04 was rerun
+  afterward. Host96/static70 passed. Full UE203 and independent1500/1475 from Depth1
+  remain reused historical evidence, not new full runs. No source/native oracle rerun.
+- Initial API compile failure, skeleton-finalization authoring assertion, first visual
+  bounds failure, dark captures and original new-package bytes are retained. Staged
+  evidence/LFS/source checks: `evidence/character1/staged_review.json`.
+- Frontier remains `before:shop_actions`; purchases/sales, close callback, Chapter3,
+  battle and packaged distribution are not added. Local checkpoint only; no push.
 
-Next visual milestone: refine a coherent environment-art kit from existing
-illustrations and prototype one rigged3D character before expanding the cast.
-Original Godot, prior packages/fixtures and historical evidence stay immutable.
+Next: refine Arrel's face/hair/armor proportions and intersections against provisional
+references, then tune locomotion and foot contact. Final costume/story approval waits
+for the corresponding manuscript/design; reusable engine work can continue.

@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
+#include "Presentation/MemoriaArrel3DComponent.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Interaction/MemoriaMaletActor.h"
@@ -232,11 +233,6 @@ void AMemoriaVerdanPresentation::BeginPlay()
         if (auto* Texture=LoadObject<UTexture2D>(nullptr,*(MemoriaVerdanArt::Package(Name)+TEXT(".")+Name))) FTextureCompilingManager::Get().FinishCompilation({Texture});
     }
 #endif
-    for (const TCHAR* Facing : {TEXT("Down"),TEXT("Up"),TEXT("Left"),TEXT("Right")})
-    {
-        PlayerArt.Add(MemoriaVerdanArt::LoadSprite(FString(TEXT("Arrel"))+Facing));
-        for (int32 Frame=0; Frame<4; ++Frame) PlayerArt.Add(MemoriaVerdanArt::LoadSprite(FString::Printf(TEXT("ArrelWalk%s%d"),Facing,Frame)));
-    }
     for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It)
     {
         const FVector P=It->GetActorLocation();
@@ -258,7 +254,18 @@ void AMemoriaVerdanPresentation::BeginPlay()
         SoftQuad(FVector(P.X,P.Y,-9),FVector(.72,.30,1),FLinearColor::Black,.7f); break;
     }
     PlayerShadow=SoftQuad(FVector(0,0,-9),FVector(.80,.32,1),FLinearColor::Black,.7f);
-    PreviousPosition=Player->GetActorLocation(); Sprite->SetSprite(PlayerArt[0]);
+    ArrelMesh=NewObject<UMemoriaArrel3DComponent>(this);
+    AddInstanceComponent(ArrelMesh);ArrelMesh->SetupAttachment(Player->GetRootComponent());ArrelMesh->RegisterComponent();
+    if(!ArrelMesh->InitializePrototype())
+    { UE_LOG(LogTemp,Error,TEXT("Arrel prototype skeletal mesh missing"));SetActorTickEnabled(false);return; }
+    Sprite->SetHiddenInGame(true);Sprite->SetCastShadow(false);
+    // A soft character-only fill preserves the courtyard's existing night lighting.
+    auto* CharacterFill=NewObject<UPointLightComponent>(this,TEXT("ArrelFillLight"));AddInstanceComponent(CharacterFill);
+    CharacterFill->SetupAttachment(Player->GetRootComponent());CharacterFill->SetRelativeLocation(FVector(40,-140,160));
+    CharacterFill->bUseInverseSquaredFalloff=false;CharacterFill->LightFalloffExponent=2;
+    CharacterFill->SetIntensity(4.f);CharacterFill->SetAttenuationRadius(500);CharacterFill->SetLightColor(FLinearColor(.75f,.83f,1.f));
+    CharacterFill->SetLightingChannels(false,true,false);CharacterFill->SetCastShadows(false);CharacterFill->RegisterComponent();
+    PreviousPosition=Player->GetActorLocation();
     UpdateCameraAndVisibility();
 }
 void AMemoriaVerdanPresentation::UpdateCameraAndVisibility()
@@ -277,7 +284,7 @@ void AMemoriaVerdanPresentation::UpdateCameraAndVisibility()
     Camera->SetWorldLocation(Anchor+FVector(0,-1150,1450));
     auto Color=[](const FVector& V){ return FLinearColor(V.X,V.Y,V.Z,1); };
     const FLinearColor Eye=Color(Camera->GetComponentLocation());
-    const FLinearColor Focus=Color(Player->GetFieldSprite()->Bounds.Origin);
+    const FLinearColor Focus=Color(ArrelMesh->FocusPosition());
     const FLinearColor Up=Color(Camera->GetUpVector());
     for (const auto& M:SurfaceMaterials)
     {
@@ -299,15 +306,8 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     if (bWalking)
     {
         Direction = FMath::Abs(Step.X) >= FMath::Abs(Step.Y) ? (Step.X > 0 ? TEXT("Right") : TEXT("Left")) : (Step.Y > 0 ? TEXT("Up") : TEXT("Down"));
-        GaitTime += DeltaSeconds * FMath::Clamp(float(Step.Size2D() / DeltaSeconds / 200.0), 0.65f, 1.85f);
     }
-    else GaitTime = 0;
-    const int32 DirectionIndex = Direction == TEXT("Down") ? 0 : Direction == TEXT("Up") ? 1 : Direction == TEXT("Left") ? 2 : 3;
-    const int32 Frame = bWalking ? 1 + (int32(GaitTime * 9) % 4) : 0;
-    auto* Sprite = Player->GetFieldSprite();
-    Sprite->SetSprite(PlayerArt[DirectionIndex * 5 + Frame]);
-    // The ground anchor remains at the physical foot; depth testing handles occlusion.
-    Sprite->SetRelativeLocation(FVector(0, 0, -8));
+    ArrelMesh->AdvanceLocomotion(Step,DeltaSeconds);
     PlayerShadow->SetWorldLocation(FVector(Position.X, Position.Y, -9));
     UpdateCameraAndVisibility();
     PreviousPosition = Position;

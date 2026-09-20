@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "MemoriaVerdanPresentation.generated.h"
 class AMemoriaFieldPawn;
+class UMemoriaArrel3DComponent;
 class AMemoriaMaletActor;
 class UPaperSprite;
 class UPaperSpriteComponent;
@@ -22,12 +23,13 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     FString Facing() const { return Direction; }
     bool IsWalking() const { return bWalking; }
+    UMemoriaArrel3DComponent* CharacterMesh() const { return ArrelMesh; }
 protected:
     virtual void BeginPlay() override;
 private:
     UPaperSpriteComponent* Picture(const FString& Name, const FVector& Location, FVector Scale = FVector::OneVector);
     UStaticMeshComponent* SoftQuad(const FVector& Location, const FVector& Scale, FLinearColor Tint, float Alpha);
-    UPROPERTY(Transient) TArray<TObjectPtr<UPaperSprite>> PlayerArt;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaArrel3DComponent> ArrelMesh;
     UPROPERTY(Transient) TObjectPtr<UPaperSpriteComponent> MaletArt;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
     void BuildDepthEnvironment();
@@ -46,7 +48,6 @@ private:
     TWeakObjectPtr<AMemoriaMaletActor> Malet;
     FVector PreviousPosition = FVector::ZeroVector;
     FString Direction = TEXT("Down");
-    float GaitTime = 0;
     float LightTime = 0;
     bool bWalking = false;
 };
