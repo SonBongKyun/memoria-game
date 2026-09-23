@@ -1,4 +1,5 @@
 #include "Framework/MemoriaFieldPawn.h"
+#include "Framework/MemoriaVerdanTuning.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
@@ -26,6 +27,13 @@ AMemoriaFieldPawn::AMemoriaFieldPawn()
     Movement->SetUpdatedComponent(Collision);
     Movement->SetPlaneConstraintNormal(FVector::UpVector);
     Movement->SetPlaneConstraintEnabled(true);
+}
+void AMemoriaFieldPawn::ApplyVerdanMovementProfile()
+{
+    Movement->MaxSpeed = MemoriaVerdanTuning::WalkSpeed;
+    Movement->Acceleration = MemoriaVerdanTuning::Acceleration;
+    Movement->Deceleration = MemoriaVerdanTuning::Deceleration;
+    Movement->TurningBoost = MemoriaVerdanTuning::TurningBoost;
 }
 UPawnMovementComponent* AMemoriaFieldPawn::GetMovementComponent() const { return Movement; }
 void AMemoriaFieldPawn::BeginPlay()

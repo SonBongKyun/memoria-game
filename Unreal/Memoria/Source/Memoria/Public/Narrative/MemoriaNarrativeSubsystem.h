@@ -46,6 +46,12 @@ public:
     bool StartDevelopmentVN();
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
+    bool ContinueCheckpoint();
+    bool RequestCheckpointRevisit();
+    bool HasPendingVerdanReentry() const { return bPendingVerdanReentry; }
+    bool EnterVerdanReentry();
+    bool IsVerdanRevisit() const;
+    bool ReturnFromAmbientBattle();
     bool InteractWithMalet();
     const FString& GetDeferredInteraction() const { return DeferredInteraction; }
     bool IsMaletTalkCached() const { return bMaletTalkCached; }
@@ -119,10 +125,17 @@ private:
     TUniquePtr<FMemoriaVNInterpreter> VN;
     TUniquePtr<FMemoriaFieldInterpreter> Field;
     EMemoriaSliceState State = EMemoriaSliceState::Idle;
+    bool bCheckpointScreen = false, bCheckpointLoadFailed = false;
+    bool bPendingVerdanReentry = false;
+    FGuid RevisitRunId;
+    TWeakObjectPtr<UWorld> RevisitWorld;
+    FVector2D ReentryPosition = FVector2D(128,288);
+    TWeakObjectPtr<UWorld> CheckpointWorld;
     bool bPaused = false;
     int32 Revision = 0, EventCursor = 0, FieldInvocationCount = 0;
     TArray<FString> Trace;
     void Reset();
+    void ShopChanged();
     bool LoadContracts();
     void FlushEvents(const FString& Dialect);
     void AfterVN();

@@ -2,6 +2,7 @@
 #include "Presentation/MemoriaArrel3DComponent.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Framework/MemoriaFieldPawn.h"
+#include "Framework/MemoriaVerdanTuning.h"
 #include "Interaction/MemoriaMaletActor.h"
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
@@ -80,7 +81,9 @@ void AMemoriaVerdanPresentation::Solid(const TCHAR* MeshName, UMaterialInterface
         Batch->SetCollisionEnabled(ECollisionEnabled::NoCollision); Batch->SetGenerateOverlapEvents(false); Batch->SetCanEverAffectNavigation(false);
         const FString Path = FString(MeshName) == TEXT("Roof") ? FString(RoofPath) : FString::Printf(TEXT("/Engine/BasicShapes/%s.%s"), MeshName, MeshName);
         Batch->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, *Path)); Batch->SetMaterial(0, Material);
-        Batch->SetCastShadow(Material->GetName() != TEXT("M_Glow")); Batch->RegisterComponent();
+        // Flush courtyard inlays must not create false raised-obstacle shadows.
+        Batch->SetCastShadow(Material->GetName() != TEXT("M_Glow") && !Material->GetName().StartsWith(TEXT("Courtyard")));
+        Batch->RegisterComponent();
     }
     Batch->AddInstance(FTransform(Rotation, Position, Scale));
 }
@@ -95,8 +98,10 @@ void AMemoriaVerdanPresentation::Lantern(FVector P, UMaterialInterface* Iron, UM
     Beam(Iron,P+FVector(0,0,34),P+FVector(0,0,49),3);
     auto* Light = NewObject<UPointLightComponent>(this); AddInstanceComponent(Light); Light->SetupAttachment(RootComponent);
     Light->SetRelativeLocation(P); Light->bUseInverseSquaredFalloff = false; Light->LightFalloffExponent = 2;
-    Light->SetLightColor(FLinearColor(1.0f,0.45f,0.16f)); Light->SetIntensity(3.0f); Light->SetAttenuationRadius(420);
-    Light->SetCastShadows(bShadow); Light->SetSourceRadius(8); Light->RegisterComponent(); LampLights.Add(Light);
+    Light->SetLightColor(FLinearColor(1.0f,0.58f,0.28f)); Light->SetIntensity(3.6f); Light->SetAttenuationRadius(450);
+    Light->SetCastShadows(bShadow); Light->SetSourceRadius(18); Light->SetSoftSourceRadius(28); Light->RegisterComponent(); LampLights.Add(Light);
+    // Static reflected warmth connects the existing lamp to the paving without adding lights.
+    SoftQuad(FVector(P.X,P.Y-30,-9.25),FVector(2.8,2.5,1),FLinearColor(.19f,.095f,.035f),.19f);
 }
 void AMemoriaVerdanPresentation::Building(FVector P, FVector Size, UMaterialInterface* Wall, UMaterialInterface* Timber, UMaterialInterface* Roof, UMaterialInterface* Glow)
 {
@@ -135,17 +140,97 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Cloth,P+FVector(0,-44,30),FVector(95,4,58));
     for (double X : {-42.0,42.0}) for (double Y : {-38.0,38.0}) Box(Timber,P+FVector(X,Y,74),FVector(7,7,148));
     Solid(TEXT("Roof"),Cloth,P+FVector(0,0,145),FVector(1.4,1.28,0.75));
-    auto* Glass=Surface(FName(*FString::Printf(TEXT("Bottles%.0f"),P.X)),FLinearColor(.08f,.24f,.23f),3,.23f,.35f);
-    for (int32 I=0; I<5; ++I)
+    // The canopy and its seams keep the original roof silhouette and obstacle footprint.
+    for (double X : {-48.0,-16.0,16.0,48.0})
     {
-        const FVector V=P+FVector(-30+I*15,-8,84);
-        Solid(TEXT("Sphere"),Glass,V,FVector(.12,.12,.25));
-        Solid(TEXT("Cylinder"),Iron,V+FVector(0,0,15),FVector(.035,.035,.075));
+        Beam(Timber,P+FVector(X,-63,146),P+FVector(X,0,175),1.3f);
+        Box(Cloth,P+FVector(X,-63,138),FVector(29,2,14));
     }
-    // Small bound ledgers share the existing stall footprint.
-    Box(Cloth,P+FVector(24,22,76),FVector(22,25,5));
-    Box(Timber,P+FVector(20,22,81),FVector(24,24,4),FRotator(0,12,0));
+    Beam(Iron,P+FVector(-65,0,176),P+FVector(65,0,176),1.8f);
+    for (double X : {-42.0,42.0})
+        Beam(Timber,P+FVector(X,-38,104),P+FVector(X,-13,145),4);
+    Box(Timber,P+FVector(0,-47,64),FVector(99,5,8));
+    Box(Timber,P+FVector(0,-47,4),FVector(99,5,8));
+    for (double X : {-46.0,46.0}) Box(Timber,P+FVector(X,-47,34),FVector(5,5,56));
+    Box(Timber,P+FVector(0,31,104),FVector(85,21,5));
+    auto* Glass=Surface(FName(*FString::Printf(TEXT("Bottles%.0f"),P.X)),FLinearColor(.10f,.23f,.20f),3,.28f,.32f);
+    for (int32 I=0; I<8; ++I)
+    {
+        const bool bShelf=I>=5;
+        const double Height=I%3==0?23:18;
+        const FVector V=P+(bShelf?FVector(-27+(I-5)*24,30,107+Height*.5):FVector(-32+I*15,-8,72+Height*.5));
+        Solid(TEXT("Sphere"),Glass,V,FVector(.105,.105,Height/100));
+        Solid(TEXT("Cylinder"),Iron,V+FVector(0,0,Height*.5+1),FVector(.033,.033,.055));
+    }
+    // Bound ledgers, a shallow tray and stored parcels make both existing counters legible.
+    Box(Cloth,P+FVector(24,14,76),FVector(22,23,5));
+    Box(Timber,P+FVector(20,14,81),FVector(24,23,4),FRotator(0,12,0));
+    Box(Iron,P+FVector(-25,-29,75),FVector(27,18,2));
+    for (double X : {-37.0,-13.0}) Box(Timber,P+FVector(X,-29,78),FVector(2,18,6));
+    for (double Y : {-37.0,-21.0}) Box(Timber,P+FVector(-25,Y,78),FVector(27,2,6));
+    Box(Cloth,P+FVector(-22,18,24),FVector(27,27,37));
+    Box(Timber,P+FVector(18,20,18),FVector(39,32,25));
+    for (double X : {4.0,32.0}) Box(Iron,P+FVector(X,20,31),FVector(3,33,2));
     Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
+}
+void AMemoriaVerdanPresentation::BuildCourtyard(UMaterialInterface* Iron)
+{
+    // All details are flush with the retained floor (visual top below the -8 foot anchor).
+    // A worn central passage and short cross-course break up the repeating atlas at play scale.
+    // Reuse the original market paving texture; plain lit colors read as new concrete plates.
+    auto PavingSurface=[this](const TCHAR* Name,FLinearColor Tint,float Roughness)
+    {
+        auto* Material=UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr,
+            TEXT("/Game/Memoria/Presentation/Depth/M_Paving.M_Paving")),this,Name);
+        Material->SetVectorParameterValue(TEXT("Tint"),Tint);
+        Material->SetScalarParameterValue(TEXT("Roughness"),Roughness);
+        return Material;
+    };
+    UMaterialInterface* Slabs[] = {
+        PavingSurface(TEXT("CourtyardWorn0"),FLinearColor(1.43f,1.44f,1.42f),.86f),
+        PavingSurface(TEXT("CourtyardWorn1"),FLinearColor(1.29f,1.35f,1.40f),.91f),
+        PavingSurface(TEXT("CourtyardWorn2"),FLinearColor(1.36f,1.39f,1.40f),.88f)};
+    for (int32 Row=0; Row<17; ++Row)
+        for (int32 Column=0; Column<4; ++Column)
+        {
+            const int32 Pattern=(Row*7+Column*3)%11;
+            // Broken outer courses blend into the older cobbles instead of outlining a cross.
+            const bool bOuter=Column==0 || Column==3;
+            if(bOuter && Pattern%4==0)continue;
+            const double X=-72+Column*48+((Row%2)?4:-4);
+            const double Y=-539+Row*64;
+            Box(Slabs[bOuter?1:Pattern%3],FVector(X,Y,-9.55),FVector(44+(Pattern%3),59-(Pattern%4),.5),FRotator(0,(Pattern-5)*.22,0));
+        }
+    for (int32 Column=-9; Column<=9; ++Column)
+    {
+        if (FMath::Abs(Column)<2) continue;
+        for (int32 Row=0; Row<2; ++Row)
+        {
+            const int32 Pattern=FMath::Abs(Column*5+Row*3);
+            if(FMath::Abs(Column)>6 && (Pattern%3==0 || Row==1))continue;
+            Box(Slabs[(Row==1 || FMath::Abs(Column)>6)?1:Pattern%3],FVector(Column*48,-163+Row*48,-9.55),FVector(43+(Pattern%3),44,.5),FRotator(0,(Pattern%5-2)*.3,0));
+        }
+    }
+    auto* Edge=PavingSurface(TEXT("CourtyardDrainStone"),FLinearColor(1.04f,1.13f,1.18f),.93f);
+    for (double X : {-760.0,760.0})
+    {
+        Box(Edge,FVector(X,0,-9.6),FVector(29,1120,.4));
+        for (int32 Row=0; Row<15; ++Row)
+        {
+            const double Y=-520+Row*74;
+            for (double Side : {-1.0,1.0})
+                Box(Slabs[1],FVector(X+Side*24,Y,-9.55),FVector(16,69,.5));
+            // A few recessed grates read as drainage, never as raised collision obstacles.
+            if (Row%4==1)
+                for (int32 Bar=0; Bar<4; ++Bar)
+                    Box(Iron,FVector(X,Y-12+Bar*8,-9.3),FVector(26,2,.25));
+        }
+    }
+    // Accumulated damp and dirt stay at architectural edges; the interaction area stays clear.
+    for (double X : {-680.0,-220.0,230.0,670.0})
+        SoftQuad(FVector(X,520,-9.2),FVector(4.4,1.5,1),FLinearColor(.022f,.03f,.029f),.38f);
+    for (double X : {-400.0,400.0})
+        SoftQuad(FVector(X,210,-9.15),FVector(2.1,2.0,1),FLinearColor(.035f,.025f,.018f),.25f);
 }
 void AMemoriaVerdanPresentation::BuildDepthEnvironment()
 {
@@ -157,10 +242,12 @@ void AMemoriaVerdanPresentation::BuildDepthEnvironment()
     auto* Wine=Surface(TEXT("WineCanvas"),FLinearColor(.25f,.065f,.075f),2);
     auto* Moss=Surface(TEXT("MossCanvas"),FLinearColor(.075f,.17f,.16f),2);
     auto* Glow=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Glow.M_Glow"));
-    auto* Paving=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Paving.M_Paving"));
+    auto* Paving=UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Paving.M_Paving")),this,TEXT("CourtyardPaving"));
+    Paving->SetScalarParameterValue(TEXT("Roughness"),.86f);
     auto* OuterGround=Surface(TEXT("OuterGround"),FLinearColor(.028f,.038f,.049f),3,1.0f);
     Box(OuterGround,FVector(0,0,-58),FVector(5200,4200,90));
     Solid(TEXT("Plane"),Paving,FVector(0,0,-10),FVector(18,12,1));
+    BuildCourtyard(Iron);
     // The curb marks the same four barriers as the retained collision bodies.
     for (double X : {-900.0,900.0}) Box(Stone,FVector(X,0,10),FVector(20,1200,40));
     for (double Y : {-600.0,600.0}) Box(Stone,FVector(0,Y,10),FVector(1800,20,40));
@@ -207,11 +294,12 @@ void AMemoriaVerdanPresentation::BuildDepthEnvironment()
     for (TActorIterator<ADirectionalLight> It(GetWorld()); It; ++It)
     {
         It->SetActorRotation(FRotator(-52,-28,0)); auto* Light=Cast<UDirectionalLightComponent>(It->GetLightComponent());
-        Light->SetForwardShadingPriority(1); Light->SetIntensity(2.6f); Light->SetLightColor(FLinearColor(.62f,.75f,1.0f)); Light->SetCastShadows(true);
+        Light->SetForwardShadingPriority(1); Light->SetIntensity(2.0f); Light->SetLightColor(FLinearColor(.72f,.79f,.91f)); Light->SetCastShadows(true);
+        Light->SetLightSourceAngle(3.0f); Light->SetShadowAmount(.78f);
         Light->DynamicShadowDistanceMovableLight=5000; Light->ShadowBias=.35f;
     }
     auto* Fill=NewObject<UDirectionalLightComponent>(this); AddInstanceComponent(Fill); Fill->SetupAttachment(RootComponent);
-    Fill->SetRelativeRotation(FRotator(-38,145,0)); Fill->SetIntensity(.75f); Fill->SetLightColor(FLinearColor(.42f,.5f,.65f)); Fill->SetCastShadows(false); Fill->RegisterComponent();
+    Fill->SetRelativeRotation(FRotator(-38,145,0)); Fill->SetIntensity(1.15f); Fill->SetLightColor(FLinearColor(.49f,.58f,.69f)); Fill->SetCastShadows(false); Fill->RegisterComponent();
     auto* Fog=NewObject<UExponentialHeightFogComponent>(this); AddInstanceComponent(Fog); Fog->SetupAttachment(RootComponent);
     Fog->SetRelativeLocation(FVector(0,0,-100)); Fog->SetFogDensity(.017f); Fog->SetFogHeightFalloff(.1f);
     Fog->SetFogInscatteringColor(FLinearColor(.035f,.055f,.08f)); Fog->SetStartDistance(800); Fog->SetFogMaxOpacity(.55f); Fog->RegisterComponent();
@@ -241,7 +329,7 @@ void AMemoriaVerdanPresentation::BeginPlay()
     }
     BuildDepthEnvironment();
     auto* Camera=Player->GetFieldCamera(); Camera->ProjectionMode=ECameraProjectionMode::Perspective;
-    Camera->SetFieldOfView(65); Camera->SetRelativeLocation(FVector(0,-1150,1450)); Camera->SetRelativeRotation(FRotator(-42,90,0));
+    Camera->SetFieldOfView(MemoriaVerdanTuning::CameraFOV); Camera->SetRelativeLocation(MemoriaVerdanTuning::CameraOffset); Camera->SetRelativeRotation(FRotator(MemoriaVerdanTuning::CameraPitch,90,0));
     Camera->bAutoCalculateOrthoPlanes=false;
     auto* Sprite=Player->GetFieldSprite(); Sprite->SetRelativeRotation(FRotator(0,0,42)); Sprite->SetRelativeLocation(FVector(0,0,-8));
     Sprite->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Paper2D/MaskedLitSpriteMaterial.MaskedLitSpriteMaterial"))); Sprite->SetCastShadow(true);
@@ -281,7 +369,7 @@ void AMemoriaVerdanPresentation::UpdateCameraAndVisibility()
     };
     const FVector Anchor(Limit(P.X,-450,450,100),Limit(P.Y,-180,100,180),P.Z);
     auto* Camera=Player->GetFieldCamera();
-    Camera->SetWorldLocation(Anchor+FVector(0,-1150,1450));
+    Camera->SetWorldLocation(Anchor+MemoriaVerdanTuning::CameraOffset);
     auto Color=[](const FVector& V){ return FLinearColor(V.X,V.Y,V.Z,1); };
     const FLinearColor Eye=Color(Camera->GetComponentLocation());
     const FLinearColor Focus=Color(ArrelMesh->FocusPosition());
@@ -298,7 +386,7 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     LightTime += DeltaSeconds;
     for (int32 I = 0; I < LampLights.Num(); ++I)
-        LampLights[I]->SetIntensity(3.0f + 0.12f * FMath::Sin(LightTime * 1.7f + I));
+        LampLights[I]->SetIntensity(3.6f + 0.12f * FMath::Sin(LightTime * 1.7f + I));
     if (!Player.IsValid()) return;
     const FVector Position = Player->GetActorLocation();
     const FVector Step = Position - PreviousPosition;

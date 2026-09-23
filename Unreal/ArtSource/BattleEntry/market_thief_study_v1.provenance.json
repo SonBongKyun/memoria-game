@@ -1,0 +1,10 @@
+{
+  "status": "PROVISIONAL_VISUAL_STUDY_NOT_APPROVED_CANON",
+  "tool": "built-in image_gen",
+  "prompt": "Use case: stylized-concept. Asset type: provisional portrait illustration for an unnamed Market Thief opponent in MEMORIA, a dark fantasy narrative RPG. Create a completely new high quality 2:3 vertical painterly game illustration. Half-body three-quarter view of a wary, lean, hooded adult silhouette in worn charcoal cloth and muted brown leather, shoulders turned slightly toward the left, one hand holding their own cloak closed, face deeply shadowed and anonymous with only ordinary human proportions suggested. Background is a softly painted cramped medieval market alley at night, wet paving and blurred amber lanterns. Detailed hand-painted dark fantasy graphic-novel brushwork, controlled edges, tactile damp fabric, cool desaturated blue-gray shadows, subtle amber side light. Clear readable silhouette and subtle tension, grounded and restrained. Center the figure with generous head clearance; torso fills most of portrait, suitable for a small battle panel. No UI, no lettering, no watermark, no border. No extra eyes, no violet skin, no glowing eyes, no supernatural energy, no emblem, no royal ornament, no invented lore symbols. This is an alternative temporary visual study, not an approved final character design. Make the figure visually coherent with refined painterly dark-fantasy character portraits, not pixel art, not photorealistic, not glossy 3D.",
+  "sha256": "94895f962e397068d0dea891aaa410f779a69bae2e4c8962b8aebdc1eacb9585",
+  "replaces_original": false,
+  "gameplay_effects": false,
+  "notes": "Separate sibling study. Original procedural source sprite and original 95 packages remain preserved. General anonymous market opponent only; no new identity, species or story event established. Notion Ch02 r001 is READY_FOR_REVIEW, used for wet alley and lantern atmosphere only.",
+  "generated_source_name": "exec-ccc0eb47-d43f-4e0d-bdde-e7c90d3817ab.png"
+}

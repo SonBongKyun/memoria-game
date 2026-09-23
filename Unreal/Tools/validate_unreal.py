@@ -95,12 +95,37 @@ def shop_test_paths():
     return {"Memoria.Shop.Source."+c["id"] for c in inputs()} | {"Memoria.Shop.OwnerLifetime", "Memoria.Shop.Canonical"}
 
 
+def shop_transaction_test_paths():
+    from export_shop_transactions_oracle import inputs
+    return {"Memoria.ShopTransactions.Source."+c["id"] for c in inputs()} | {"Memoria.ShopTransactions.Guards", "Memoria.ShopTransactions.Canonical"}
+
+
+def checkpoint_test_paths():
+    return {'Memoria.Checkpoint.'+name for name in ('DiskRoundTrip','BackupRecovery','RejectedSnapshots','WriteFailureRetry','SyntheticIsolation','Canonical')}
+
+
+def checkpoint_process_paths():
+    return {'MemoriaCheckpointProcess.Read','MemoriaCheckpointProcess.Startup.Continue','MemoriaCheckpointProcess.Startup.Missing'}
+
+
+def archive_test_paths():
+    return {'Memoria.Archive.'+n for n in ('RenderedInputFlow','WidgetReadOnly')} | {'Memoria.Archive.Source.'+n for n in ('initial_en','initial_ko','states_en','states_ko','grade5','grade3','grade1','empty')}
+
+
+def battle_entry_test_paths():
+    from export_battle_entry_oracle import inputs
+    # Phase-step/Witness approach probes characterize source only; the playable
+    # native revisit currently supports the original neutral ambient entry.
+    paths = {'Memoria.BattleEntry.Source.'+case['id'] for case in inputs() if case['entry_mode']=='neutral'}
+    return paths | {'Memoria.BattleEntry.'+name for name in ('EncounterDistance','OwnerLifetime','SavedStats','RenderedRevisitFlow')}
+
+
 def visual_test_paths():
     return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration"}
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths()
 
 
 def malet_first_effect_test_paths():
@@ -134,7 +159,7 @@ def main():
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
-    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.'], help='Exact full registry or the bounded shop regression subset')
+    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.'], help='Exact full registry or a bounded gameplay regression subset')
     parser.add_argument('--evidence-dir', type=Path)
     args = parser.parse_args()
     evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('unreal-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
@@ -264,7 +289,7 @@ def main():
     index = test_report / 'index.json'
     try:
         result = json.loads(index.read_text(encoding='utf-8-sig')) if index.is_file() else {}
-        inspection = inspect_automation_report(result, {p for p in current_test_paths() | visual_test_paths() if p.startswith(args.test_prefix)})
+        inspection = inspect_automation_report(result, {p for p in current_test_paths() | visual_test_paths() | checkpoint_process_paths() if any(p.startswith(prefix) for prefix in args.test_prefix.split("+"))})
     except (ValueError, OSError) as error:
         inspection = {'passed': False, 'discovered': 0, 'source_parity_discovered': 0, 'errors': [str(error)]}
     report['automation_report'] = str(index.relative_to(ROOT))
@@ -281,7 +306,7 @@ def main():
     report['phase1g_required_total'] = len(malet_refusal_test_paths())
     report['current_required_total'] = len(current_test_paths())
     report['test_prefix'] = args.test_prefix
-    report['selected_required_total'] = sum(p.startswith(args.test_prefix) for p in current_test_paths() | visual_test_paths())
+    report['selected_required_total'] = sum(any(p.startswith(prefix) for prefix in args.test_prefix.split("+")) for p in current_test_paths() | visual_test_paths() | checkpoint_process_paths())
     report['rendered'] = args.rendered
     report['automation_validation_errors'] = inspection['errors']
     passed = ran and inspection['passed']

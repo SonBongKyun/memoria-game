@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaArrel3DComponent.h"
+#include "Framework/MemoriaVerdanTuning.h"
 #include "Engine/SkeletalMesh.h"
 #if WITH_EDITOR
 #include "SkinnedAssetCompiler.h"
@@ -24,10 +25,10 @@ void UMemoriaArrel3DComponent::AdvanceLocomotion(const FVector& Step,float Dt)
     WalkWeight=FMath::Lerp(WalkWeight,Moving?1.f:0.f,1.f-FMath::Exp(-15.f*Dt));
     if(Moving)
     {
-        // A planted foot traverses 56 source cm during 60% of the stride.
-        // Preserve the existing fast pawn movement; cap visual cadence above walk speeds.
-        const float CycleDistance=56.f*FMath::Abs(float(GetComponentScale().X))/.6f;
-        Phase=FMath::Fmod(Phase+FMath::Min(float(Step.Size2D())/FMath::Max(CycleDistance,.01f),Dt*3.f),1.f);
+        // Match stance travel to actual displacement, including analog input and swept stops.
+        // The safety cap is above the supported walk speed, so ordinary walking never saturates it.
+        const float CycleDistance=2.f*MemoriaVerdanTuning::FootReach*FMath::Abs(float(GetComponentScale().X))/MemoriaVerdanTuning::StanceFraction;
+        Phase=FMath::Fmod(Phase+FMath::Min(float(Step.Size2D())/FMath::Max(CycleDistance,.01f),Dt*MemoriaVerdanTuning::MaxVisualCyclesPerSecond),1.f);
         SetWorldRotation(FMath::RInterpConstantTo(GetComponentRotation(),FRotator(0,Step.Rotation().Yaw,0),Dt,900.f));
     }
     BoneSpaceTransforms=Mesh->GetRefSkeleton().GetRefBonePose();
@@ -38,10 +39,11 @@ void UMemoriaArrel3DComponent::AdvanceLocomotion(const FVector& Step,float Dt)
     for(int32 I=0;I<2;++I)
     {
         const float P=FMath::Fmod(Phase+I*.5f,1.f);
-        const bool Planted=P<.6f;
-        const float Swing=Planted?0.f:(P-.6f)/.4f;
+        const float Stance=MemoriaVerdanTuning::StanceFraction;
+        const bool Planted=P<Stance;
+        const float Swing=Planted?0.f:(P-Stance)/(1.f-Stance);
         const float Ease=Swing*Swing*(3.f-2.f*Swing);
-        const float X=28.f*(Planted?(1.f-2.f*P/.6f):(-1.f+2.f*Ease))*WalkWeight;
+        const float X=MemoriaVerdanTuning::FootReach*(Planted?(1.f-2.f*P/Stance):(-1.f+2.f*Ease))*WalkWeight;
         const float Arc=FMath::Square(FMath::Sin(UE_PI*Swing));
         const float Lift=12.f*Arc*WalkWeight;
         const float Down=81.f+Drop-Lift;

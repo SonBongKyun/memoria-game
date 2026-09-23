@@ -8,6 +8,8 @@
 #include "EngineUtils.h"
 #include "Framework/MemoriaSliceHost.h"
 #include "Framework/MemoriaFieldPawn.h"
+#include "GameFramework/FloatingPawnMovement.h"
+#include "MemoriaPlayFeelChecks.h"
 #include "Interaction/MemoriaMaletActor.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Presentation/MemoriaArrel3DComponent.h"
@@ -122,7 +124,7 @@ public:
         if(!Test->TestNotNull(TEXT("Actual skeletal character in field"),Character))return true;
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
-        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/Character2")/(FString(Name)+TEXT(".png")), true, false); };
+        { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/PlayFeel1")/(FString(Name)+TEXT(".png")), true, false); };
         if (Frame == 0)
         {
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), RunBefore);
@@ -140,8 +142,8 @@ public:
             Test->TestTrue(TEXT("Pawn collider remains 16 x 16"), Cast<UBoxComponent>(Pawn->GetRootComponent())->GetUnscaledBoxExtent().Equals(FVector(8, 8, 8)));
             const auto* Camera = Pawn->GetFieldCamera();
             Test->TestTrue(TEXT("Verdan uses perspective"), Camera->ProjectionMode == ECameraProjectionMode::Perspective);
-            Test->TestEqual(TEXT("Bounded field of view"), Camera->FieldOfView, 65.0f);
-            Test->TestTrue(TEXT("Oblique camera elevation"), FMath::IsNearlyEqual(Camera->GetComponentRotation().Pitch, -42.0, 0.1));
+            Test->TestEqual(TEXT("Bounded field of view"), Camera->FieldOfView, 55.0f);
+            Test->TestTrue(TEXT("Oblique camera elevation"), FMath::IsNearlyEqual(Camera->GetComponentRotation().Pitch, -48.0, 0.1));
             Test->TestTrue(TEXT("Player actually receives perspective view"), PC->PlayerCameraManager->GetCameraCacheView().ProjectionMode == ECameraProjectionMode::Perspective);
             const FVector P = Pawn->GetActorLocation();
             FVector2D Origin, Right, Back, Up, NearLow, NearHigh, FarLow, FarHigh;
@@ -162,6 +164,7 @@ public:
             if(!Test->TestNotNull(TEXT("Real skeletal mesh asset loaded"),SkeletalAsset))return true;
             Test->TestTrue(TEXT("Refined version is used without replacing Character1 packages"),SkeletalAsset->GetPathName().Contains(TEXT("/Character2/SK_ArrelRefined")));
             FootRecords=CheckFootContact(Test,Pawn);
+            MovementRecords=CheckVerdanMovement(Test,Pawn);
             Test->TestEqual(TEXT("Editable full-body rig has 23 bones"),SkeletalAsset->GetRefSkeleton().GetNum(),23);
             Test->TestTrue(TEXT("Character uses actual skinning and two lit surface materials"),SkeletalAsset->GetSkeleton()!=nullptr && SkeletalAsset->GetMaterials().Num()==2 && SkeletalAsset->GetHasVertexColors());
             Test->AddInfo(FString::Printf(TEXT("ARREL_BOUNDS %s asset=%s scale=%s"),*Character->Bounds.BoxExtent.ToString(),*SkeletalAsset->GetBounds().BoxExtent.ToString(),*Character->GetComponentScale().ToString()));
@@ -261,7 +264,7 @@ public:
             {
                 auto* Camera=Pawn->GetFieldCamera();
                 const FVector Eye=Camera->GetComponentLocation();
-                Test->TestTrue(TEXT("Camera stays inside courtyard tracking limits"), FMath::Abs(Eye.X)<550.1 && Eye.Y>-1510.1 && Eye.Y<-869.9);
+                Test->TestTrue(TEXT("Camera stays inside courtyard tracking limits"), FMath::Abs(Eye.X)<550.1 && Eye.Y>-1180.1 && Eye.Y<-539.9);
                 int32 Width,Height; PC->GetViewportSize(Width,Height);
                 FVector2D Foot,Head;
                 Test->TestTrue(TEXT("Boundary feet project to screen"), PC->ProjectWorldLocationToScreen(Character->GetComponentLocation(),Foot));
@@ -282,7 +285,17 @@ public:
             }
         }
         if(Frame==378)Pawn->SetActorLocation(FVector::ZeroVector);
-        if(Frame==390){Character->SetRelativeRotation(FRotator(0,-90,0));Capture(TEXT("MarketFront"));}
+        if(Frame==390)
+        {
+            Character->SetRelativeRotation(FRotator(0,-90,0));
+            FVector2D Foot,Head; int32 W,H; PC->GetViewportSize(W,H);
+            PC->ProjectWorldLocationToScreen(Character->GetComponentLocation(),Foot);
+            PC->ProjectWorldLocationToScreen(Character->GetComponentLocation()+FVector(0,0,124),Head);
+            const double HeightRatio=(Foot-Head).Size()/H;
+            Test->TestTrue(TEXT("Playable camera gives the character 10-18 percent of viewport height"),HeightRatio>.10 && HeightRatio<.18);
+            Test->AddInfo(FString::Printf(TEXT("PLAYFEEL_CHARACTER_HEIGHT ratio=%.6f"),HeightRatio));
+            Capture(TEXT("MarketFront"));
+        }
         if(Frame==400)
         {
             // A temporary review camera shows the real field mesh at a readable angle.
@@ -322,8 +335,9 @@ public:
             Test->TestEqual(TEXT("Art, walking and lighting do not mutate run"), After, RunBefore);
             Test->TestEqual(TEXT("Memory state untouched by visuals"), MemoryAfter, MemoryBefore);
             Test->TestTrue(TEXT("Narrative trace untouched by visuals"), Host->GetTrace() == TraceBefore);
-            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/Character2");
+            const FString Dir = FPaths::ProjectSavedDir()/TEXT("Validation/PlayFeel1");
             IFileManager::Get().MakeDirectory(*Dir, true);
+            FFileHelper::SaveStringToFile(MovementRecords,*(Dir/TEXT("movement_response.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             FFileHelper::SaveStringToFile(FootRecords,*(Dir/TEXT("foot_contact.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"status\":\"%s\",\"distinct_joint_poses\":%d,\"physical_surfaces\":7,\"wall_x\":%.3f,\"run_unchanged\":%s,\"memory_unchanged\":%s,\"camera_cases\":[%s]}\n"), Test->HasAnyErrors() ? TEXT("FAIL") : TEXT("PASS"), SeenGaitPoses.Num(), WallX, After == RunBefore ? TEXT("true") : TEXT("false"), MemoryAfter == MemoryBefore ? TEXT("true") : TEXT("false"), *CameraRecords), *(Dir/TEXT("exploration.json")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             return true;
@@ -336,7 +350,7 @@ private:
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;
-    FString RunBefore, MemoryBefore, CameraRecords, FootRecords;
+    FString RunBefore, MemoryBefore, CameraRecords, FootRecords, MovementRecords;
     TArray<FString> TraceBefore;
     TSet<FString> SeenGaitPoses;
     TWeakObjectPtr<ACameraActor> PreviewCamera;

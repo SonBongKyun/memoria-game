@@ -1,10 +1,13 @@
 #pragma once
 #include "Framework/MemoriaGameMode.h"
 #include "Framework/MemoriaPlayerController.h"
+#include "Battle/MemoriaEncounterModel.h"
 #include "MemoriaSliceHost.generated.h"
 class UMemoriaNarrativeSubsystem;
 class UMemoriaInteractionComponent;
 class UMemoriaDevelopmentNarrativeWidget;
+class UMemoriaArchiveWidget;
+class UMemoriaBattleEntryWidget;
 
 UCLASS()
 class MEMORIA_API AMemoriaSliceGameMode : public AMemoriaGameMode
@@ -24,6 +27,12 @@ public:
     virtual bool InputKey(const FInputKeyEventArgs& Params) override;
     UMemoriaInteractionComponent* GetInteraction() const { return Interaction; }
     FString GetInteractionPrompt() const;
+    void ToggleArchive();
+    void CloseArchive();
+    UMemoriaBattleEntryWidget* GetBattleWidget() const { return BattleWidget; }
+    double GetEncounterPressure() const { return EncounterPressure; }
+    const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
+    UMemoriaArchiveWidget* GetArchiveWidget() const { return ArchiveWidget; }
     UMemoriaDevelopmentNarrativeWidget* GetNarrativeWidget() const { return NarrativeWidget; }
 protected:
     virtual void SetupInputComponent() override;
@@ -33,9 +42,21 @@ protected:
     virtual void OpenModal() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
+    FMemoriaEncounterModel Encounter;
+    FMemoriaEncounterRng EncounterRng = FMemoriaEncounterRng::Random();
+    bool bEncounterInitialized = false;
+    double EncounterPressure = 0.;
+    void RequestBattleFlee(uint64 Revision);
+    void BattleReturned();
+    void ClearBattleWidget();
+    UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryWidget> BattleWidget;
+    TSet<FKey> ArchiveConsumedKeys;
+    void TrackArchiveGesture(const FKey& Key,EInputEvent Event);
+    void TrackConfirmGesture(const FKey& Key,EInputEvent Event);
     void Navigate(const FInputActionValue& Value);
     void ForwardConfirm(int32 OriginalIndex);
     UMemoriaNarrativeSubsystem* Host() const;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaArchiveWidget> ArchiveWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> NarrativeWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> StatusWidget;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMemoriaInteractionComponent> Interaction;

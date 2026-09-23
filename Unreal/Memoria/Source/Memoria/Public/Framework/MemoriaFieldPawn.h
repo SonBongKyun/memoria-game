@@ -18,6 +18,7 @@ class MEMORIA_API AMemoriaFieldPawn : public APawn
 public:
     AMemoriaFieldPawn();
     virtual UPawnMovementComponent* GetMovementComponent() const override;
+    void ApplyVerdanMovementProfile();
     UCameraComponent* GetFieldCamera() const { return Camera; }
     UPaperSpriteComponent* GetFieldSprite() const { return Sprite; }
 protected:

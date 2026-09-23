@@ -89,7 +89,7 @@ int32 UMemoriaDevelopmentNarrativeWidget::SelectedOriginalIndex() const
 void UMemoriaDevelopmentNarrativeWidget::Choose(int32 Index)
 { if(!View.bPaused && View.Choices.IsValidIndex(Index)){Selection=Index;ConfirmIntent();} }
 void UMemoriaDevelopmentNarrativeWidget::ConfirmIntent()
-{ if(!View.bShopPresentation)OnConfirm.ExecuteIfBound(SelectedOriginalIndex()); }
+{ if(View.bShopPresentation && ShopWidget)ShopWidget->ConfirmIntent();else OnConfirm.ExecuteIfBound(SelectedOriginalIndex()); }
 FString UMemoriaDevelopmentNarrativeWidget::VisibleText() const
 {
     if(View.bShopPresentation && ShopWidget)return ShopWidget->VisibleText();
@@ -126,7 +126,10 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
     FString Body=View.bPaused?TEXT("Enter / A or Back: return to the current line"):View.Narration;
     if(!View.bPaused && !View.Body.IsEmpty()){if(!Body.IsEmpty())Body+=TEXT("\n\n");Body+=View.Body;}
     Message->SetText(FText::FromString(Body));
-    BodyScroll->SetVisibility(Choosing?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
+    const bool CheckpointChoices=Choosing && View.bDevelopmentStop;
+    if (CheckpointChoices) Position(BodyScroll,.045f,.24f,.95f,.57f);
+    Position(ChoiceScroll,.04f,CheckpointChoices?.59f:.26f,.96f,.83f);
+    BodyScroll->SetVisibility(Choosing && !CheckpointChoices?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
     ChoiceScroll->SetVisibility(Choosing?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     Choices->ClearChildren();Buttons.Reset();
     if(Choosing)for(int32 I=0;I<View.Choices.Num();++I)
@@ -139,5 +142,5 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
         Cast<UButtonSlot>(RowPadding->Slot)->SetVerticalAlignment(VAlign_Center);
         Choices->AddChildToVerticalBox(B)->SetPadding(FMargin(0,0,0,7));Buttons.Add(B);
     }
-    Hint->SetText(FText::FromString(View.bCompactStatus?TEXT(""):View.bDevelopmentStop?TEXT("Recorded development observation"):View.bPaused?TEXT(""):Choosing?TEXT("UP / DOWN  Select     ENTER / A  Confirm     or click a choice"):TEXT("ENTER / E / SPACE / A  Continue")));
+    Hint->SetText(FText::FromString(View.bCompactStatus?TEXT(""):View.bDevelopmentStop && !Choosing?TEXT("Recorded development observation"):View.bPaused?TEXT(""):Choosing?TEXT("UP / DOWN  Select     ENTER / A  Confirm     or click a choice"):TEXT("ENTER / E / SPACE / A  Continue")));
 }

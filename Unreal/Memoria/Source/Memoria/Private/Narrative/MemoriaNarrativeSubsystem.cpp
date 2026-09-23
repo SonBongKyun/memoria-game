@@ -6,18 +6,33 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
+#include "Save/MemoriaCheckpointSubsystem.h"
+#include "Framework/MemoriaCoordinates.h"
+#include "Battle/MemoriaBattleEntrySubsystem.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 
 void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     Collection.InitializeDependency<UMemoriaRunSubsystem>();
     Collection.InitializeDependency<UMemoriaShopSubsystem>();
+    GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>()->OnChanged.AddUObject(this,&UMemoriaNarrativeSubsystem::ShopChanged);
     Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
     Run->OnRunReplaced.AddUObject(this, &UMemoriaNarrativeSubsystem::Reset);
     FWorldDelegates::OnWorldCleanup.AddUObject(this, &UMemoriaNarrativeSubsystem::OnWorldCleanup);
 }
+void UMemoriaNarrativeSubsystem::ShopChanged()
+{
+    if(State != EMemoriaSliceState::Deferred) return;
+    const auto V=GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>()->GetView();
+    if(V.bClosed) { DeferredInteraction=TEXT("before:chapter_transition_delay"); Record(TEXT("shop:closed")); Record(TEXT("development:deferred:before:chapter_transition_delay")); }
+    ++Revision;
+}
 void UMemoriaNarrativeSubsystem::Reset()
 {
+    bPendingVerdanReentry=false; RevisitRunId.Invalidate(); RevisitWorld.Reset();
+    bCheckpointScreen = bCheckpointLoadFailed = false; CheckpointWorld.Reset();
     SeedObservations.Reset(); PresentedSeedObservation = INDEX_NONE;
     FirebombObservations.Reset(); PresentedFirebombObservation=INDEX_NONE;
     PotionObservations.Reset(); PresentedPotionObservation = INDEX_NONE; PotionToast.Reset(); RewardToasts.Reset(); AntidoteObservations.Reset(); PresentedAntidoteObservation=INDEX_NONE;
@@ -32,6 +47,7 @@ void UMemoriaNarrativeSubsystem::Reset()
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
 {
+    if(auto* Shop=GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>())Shop->OnChanged.RemoveAll(this);
     FWorldDelegates::OnWorldCleanup.RemoveAll(this);
     if (Run) Run->OnRunReplaced.RemoveAll(this);
     Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; EncounterAsset = nullptr; RefusedAsset = nullptr; DealAsset = nullptr; RewardAsset = nullptr; Run = nullptr;
@@ -90,8 +106,73 @@ bool UMemoriaNarrativeSubsystem::EnterVerdan()
     Explore(); return true;
 }
 
+bool UMemoriaNarrativeSubsystem::ContinueCheckpoint()
+{
+    auto* World=GetWorld();
+    if (!World || World->bIsTearingDown || !World->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
+    FVector2D Position;
+    auto* Checkpoint=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
+    if (!Checkpoint->RestoreClosedBoundary(Position))
+    {
+        // A failed load leaves an existing run and its owner unchanged.
+        if (!Context) { bCheckpointLoadFailed=true; State=EMemoriaSliceState::Deferred; CheckpointWorld=World; }
+        ++Revision; return false;
+    }
+    Context=MakeUnique<FMemoriaNarrativeContext>(Run->State,*Run->GetPlayerMemory());
+    bCheckpointScreen=true; bCheckpointLoadFailed=false; CheckpointWorld=World;
+    State=EMemoriaSliceState::Deferred; DeferredInteraction=TEXT("before:chapter_transition_delay");
+    if (auto* PC=World->GetFirstPlayerController())
+        if (APawn* Pawn=PC->GetPawn()) Pawn->SetActorLocation(Memoria::Coordinates::FromSource(Position));
+    Record(TEXT("checkpoint:restored:before:chapter_transition_delay")); ++Revision;
+    return true;
+}
+
+bool UMemoriaNarrativeSubsystem::IsVerdanRevisit() const
+{
+    return Run && Run->HasActiveRun() && Run->GetRunSnapshot().RunId==RevisitRunId &&
+        RevisitWorld.IsValid() && RevisitWorld.Get()==GetWorld() && !RevisitWorld->bIsTearingDown;
+}
+bool UMemoriaNarrativeSubsystem::RequestCheckpointRevisit()
+{
+    if (!bCheckpointScreen || bCheckpointLoadFailed || State!=EMemoriaSliceState::Deferred ||
+        !Run->HasActiveRun() || !Run->GetRunSnapshot().GetFlag(TEXT("ch2_complete")) ||
+        !CheckpointWorld.IsValid() || CheckpointWorld->bIsTearingDown || CheckpointWorld.Get()!=GetWorld()) return false;
+    ReentryPosition=FVector2D(128,288);
+    if (auto* PC=GetWorld()->GetFirstPlayerController())
+        if (APawn* Pawn=PC->GetPawn()) ReentryPosition=Memoria::Coordinates::ToSource(Pawn->GetActorLocation());
+    RevisitRunId=Run->GetRunSnapshot().RunId; bPendingVerdanReentry=true;
+    // Intentional map replacement must survive cleanup; run replacement still clears it.
+    CheckpointWorld.Reset(); bCheckpointScreen=false; CancelMaletDelay(); RewardCallbackWorld.Reset();
+    State=EMemoriaSliceState::Travelling; Record(TEXT("checkpoint:revisit:travel")); ++Revision;
+    UGameplayStatics::OpenLevel(this,FName(VerdanMap)); return true;
+}
+bool UMemoriaNarrativeSubsystem::EnterVerdanReentry()
+{
+    if (!bPendingVerdanReentry || !GetWorld() || GetWorld()->bIsTearingDown || !Run->HasActiveRun() ||
+        Run->GetRunSnapshot().RunId!=RevisitRunId || !Run->GetRunSnapshot().GetFlag(TEXT("ch2_complete")) ||
+        !GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
+    bPendingVerdanReentry=false; RevisitWorld=GetWorld();
+    Context=MakeUnique<FMemoriaNarrativeContext>(Run->State,*Run->GetPlayerMemory());
+    DeferredInteraction.Reset(); bMaletTalkCached=false;
+    if (!EnterVerdan()) { RevisitWorld.Reset(); return false; }
+    if (auto* PC=GetWorld()->GetFirstPlayerController())
+        if (APawn* Pawn=PC->GetPawn()) Pawn->SetActorLocation(Memoria::Coordinates::FromSource(ReentryPosition));
+    Record(TEXT("verdan:revisit:encounters_enabled")); ++Revision; return true;
+}
+bool UMemoriaNarrativeSubsystem::ReturnFromAmbientBattle()
+{
+    if (!IsVerdanRevisit() || State!=EMemoriaSliceState::Exploration ||
+        GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
+    // Source _position_player has no loaded_pos after flee, so uses the authored spawn.
+    ReentryPosition=FVector2D(128,288); bPendingVerdanReentry=true; RevisitWorld.Reset();
+    CancelMaletDelay(); RewardCallbackWorld.Reset(); State=EMemoriaSliceState::Travelling;
+    Record(TEXT("battle:fled:travel:verdan")); ++Revision;
+    UGameplayStatics::OpenLevel(this,FName(VerdanMap)); return true;
+}
+
 bool UMemoriaNarrativeSubsystem::InteractWithMalet()
 {
+    if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
     if (State != EMemoriaSliceState::Exploration || !Context || !GetWorld() ||
         !GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
     Record(TEXT("interact:Malet"));
@@ -154,6 +235,22 @@ void UMemoriaNarrativeSubsystem::AfterVN()
 void UMemoriaNarrativeSubsystem::Confirm(int32 OriginalChoice)
 {
     if (bPaused) { bPaused = false; ++Revision; return; }
+    if (State==EMemoriaSliceState::Deferred && (bCheckpointScreen || bCheckpointLoadFailed ||
+        GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>()->GetView().bClosed))
+    {
+        if (OriginalChoice==3) RequestCheckpointRevisit();
+        else if (OriginalChoice==1) ContinueCheckpoint();
+        else if (OriginalChoice==0 && !bCheckpointLoadFailed && GetWorld() && !GetWorld()->bIsTearingDown)
+        {
+            FVector2D Position(500,340);
+            if (auto* PC=GetWorld()->GetFirstPlayerController())
+                if (APawn* Pawn=PC->GetPawn()) Position=Memoria::Coordinates::ToSource(Pawn->GetActorLocation());
+            GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->SaveClosedBoundary(Position); ++Revision;
+        }
+        else if (OriginalChoice==2 && bCheckpointLoadFailed)
+            UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"));
+        return;
+    }
     if (State == EMemoriaSliceState::VN && VN)
     {
         const auto Choices = VN->VisibleOriginalIndices();
@@ -184,6 +281,7 @@ void UMemoriaNarrativeSubsystem::Confirm(int32 OriginalChoice)
 }
 void UMemoriaNarrativeSubsystem::Back()
 {
+    if (GetView().bShopPresentation) { auto* Shop=GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>(); Shop->Close(Shop->GetView().Revision); return; }
     // PauseMenu._can_open_pause_menu permits VN; Field dialogue cannot cancel.
     if (State == EMemoriaSliceState::VN) { bPaused = !bPaused; ++Revision; }
 }
@@ -193,6 +291,18 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     {
         const auto Shop = GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>()->GetView();
         if (Shop.bOpen) { FMemoriaNarrativeView V; V.bShopPresentation = true; V.Shop = Shop; return V; }
+        if (Shop.bClosed || bCheckpointScreen || bCheckpointLoadFailed)
+        {
+            FMemoriaNarrativeView V; V.bDevelopmentStop=true;V.Header=TEXT("VERDAN EXCHANGE COMPLETE / DEVELOPMENT BOUNDARY");
+            V.Header=bCheckpointLoadFailed ? TEXT("MEMORIA / CONTINUE") : TEXT("VERDAN / EXCHANGE COMPLETE");
+            V.Body=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText();
+            if (!bCheckpointLoadFailed)
+                V.Body+=TEXT("\n\nThis checkpoint includes memories, Grains and items at the end of the exchange.\nLoad this checkpoint to revisit Verdan and enter ambient encounters.\nAttack and burn turns, Chapter 3 travel and persistent achievements are still in development.");
+            if (bCheckpointScreen && !bCheckpointLoadFailed) V.Choices.Add({3,TEXT("Return to Verdan")});
+            V.Choices.Add({1,TEXT("Load checkpoint")});
+            V.Choices.Add(bCheckpointLoadFailed ? FMemoriaPresentedChoice{2,TEXT("Start a new slice")} : FMemoriaPresentedChoice{0,TEXT("Save checkpoint again")});
+            return V;
+        }
     }
     FMemoriaNarrativeView View; View.bPaused = bPaused;
     if (!Context) return View;
@@ -307,6 +417,8 @@ void UMemoriaNarrativeSubsystem::CancelMaletDelay()
 }
 void UMemoriaNarrativeSubsystem::OnWorldCleanup(UWorld* World, bool, bool)
 {
+    if (World == RevisitWorld.Get()) RevisitWorld.Reset();
+    if (World == CheckpointWorld.Get()) { Reset(); return; }
     if (World == RewardCallbackWorld.Get())
     {
         RewardCallbackWorld.Reset(); RewardCallbackRunId.Invalidate();

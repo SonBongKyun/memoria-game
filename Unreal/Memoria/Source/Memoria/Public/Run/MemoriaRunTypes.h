@@ -44,6 +44,9 @@ struct MEMORIA_API FMemoriaRunSnapshot
     UPROPERTY(SaveGame, BlueprintReadOnly) FString ContentRevision;
     UPROPERTY(SaveGame, BlueprintReadOnly) int64 CurrentChapter = 1;
     UPROPERTY(SaveGame, BlueprintReadOnly) FString CurrentLocale = TEXT("en");
+    // Source play_stats; additive SaveGame fields default to zero for older saves.
+    UPROPERTY(SaveGame, BlueprintReadOnly) int64 TotalBattles = 0;
+    UPROPERTY(SaveGame, BlueprintReadOnly) int64 HighestMomentumRank = 0;
     UPROPERTY(SaveGame, BlueprintReadOnly) FMemoriaPlayerState Player;
     // Includes canon_* progression flags verbatim; no second chapter authority.
     UPROPERTY(SaveGame, BlueprintReadOnly) TArray<FMemoriaStoryFlag> StoryFlags;

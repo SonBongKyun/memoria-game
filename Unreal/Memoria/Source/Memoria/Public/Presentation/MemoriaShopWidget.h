@@ -25,6 +25,11 @@ public:
     void Display(const FMemoriaShopView& InView);
     void Navigate(int32 Direction);
     void Preview(int32 Index);
+    void SwitchMode(int32 Direction);
+    UFUNCTION() void ConfirmIntent();
+    UFUNCTION() void SellTab();
+    UFUNCTION() void BuyTab();
+    UFUNCTION() void CloseIntent();
     FString VisibleText() const;
     bool HasArtwork() const;
     int32 SelectedRow() const { return Selection; }
@@ -35,6 +40,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UImage> PortraitImage;
     FMemoriaShopView View;
     int32 Selection = INDEX_NONE;
+    UPROPERTY(Transient) TObjectPtr<UButton> Action;
+    UPROPERTY(Transient) TObjectPtr<UButton> SellButton;
+    UPROPERTY(Transient) TObjectPtr<UButton> BuyButton;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> Feedback;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Title;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Caption;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Grains;

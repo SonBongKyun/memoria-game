@@ -1,0 +1,11 @@
+{
+  "status": "PROVISIONAL_VISUAL_STUDY_NOT_APPROVED_CANON",
+  "tool": "built-in image_gen",
+  "prompt": "Use case: stylized-concept. Asset type: a provisional vertical battle portrait, 2:3 aspect ratio, for the ordinary Alley Rat enemy in MEMORIA. Create a new hand-painted dark fantasy game illustration with tactile brushwork and restrained painterly detail, matching the existing wet Verdan market portraits: charcoal blue-gray shadows, weathered stone, soft amber lantern light, cinematic but grounded. Close low-angle three-quarter portrait of ONE real rat, not a hound: ordinary rat anatomy, pointed muzzle, rounded ears, whiskers, long thin tail, four small paws, wet dark fur. The rat should dominate the foreground, occupying roughly the central 60 percent of the picture height and 70 percent of its width, its head and front paws immediately readable at a 300-pixel UI size. It is alert on wet cobbles, its body naturally sized relative to the cobbles; the camera is close to the ground. Behind it, just a few soft shapes of narrow wooden market stalls and one distant lantern, softly out of focus so the rat remains the clear subject. Painterly graphic-novel character art, visible controlled brush texture, crisp silhouette, coherent anatomy. No photorealistic photography look, no dog or hound traits, no human costume, no weapons, no glowing eyes, no magic, no new markings, no text, no UI, no border or watermark. This is a temporary visual study, not canon creature design.",
+  "sha256": "96aaa65f503e46f9ade5d5e10da022bb0bc0bc085240b6cd55b8b576c1388a76",
+  "replaces_original": false,
+  "gameplay_effects": false,
+  "notes": "Actual Alley Rat battle slot only. Legacy source hound mapping remains unchanged and is the fallback. No new creature mechanics or canon asserted.",
+  "discarded_candidate": "docs/unreal-migration/evidence/art2/alley_rat_candidate_v1.png",
+  "generated_source_name": "exec-6010fb82-92f8-4388-b4d8-6fca2a5f3085.png"
+}

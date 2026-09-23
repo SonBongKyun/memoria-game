@@ -56,3 +56,46 @@ Unreal/ArtSource/Arrel3D/*.json text eol=lf
 
 # Raw refined skeletal character evidence.
 docs/unreal-migration/evidence/character2/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Raw movement, stride and camera tuning evidence.
+docs/unreal-migration/evidence/playfeel1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Source-derived shop transaction fixtures and raw validation bytes.
+docs/unreal-migration/fixtures/shop_transactions/** text eol=lf
+Unreal/Memoria/Source/Memoria/Private/Shop/MemoriaShopTransactionText.inl text eol=lf
+docs/unreal-migration/evidence/shop_transactions1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Source-derived checkpoint fixtures and raw disk validation evidence.
+docs/unreal-migration/fixtures/checkpoint/** text eol=lf
+docs/unreal-migration/evidence/checkpoint1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S290 source archive fixtures and immutable runtime evidence
+docs/unreal-migration/fixtures/archive/** text eol=lf
+docs/unreal-migration/evidence/archive1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S291 deterministic battle-entry contracts and immutable runtime evidence.
+docs/unreal-migration/fixtures/battle_entry/** text eol=lf
+Unreal/Memoria/Source/Memoria/Private/Battle/MemoriaBattleSource.inl text eol=lf
+docs/unreal-migration/evidence/battle1/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S292 provisional battle art provenance and exact package evidence.
+Unreal/ArtSource/BattleEntry/*.provenance.json text eol=lf
+docs/unreal-migration/evidence/art2/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Retain exact prior-session source snapshots with one historical blank EOF line.
+Unreal/Memoria/Source/MemoriaTests/Private/MemoriaShopTransactionTests.cpp whitespace=-blank-at-eof
+Unreal/Tools/archive_archive_execution.py whitespace=-blank-at-eof
+Unreal/Tools/archive_battle_entry_execution.py whitespace=-blank-at-eof
+Unreal/Tools/archive_checkpoint_execution.py whitespace=-blank-at-eof
+Unreal/Tools/archive_shop_transactions_execution.py whitespace=-blank-at-eof
+Unreal/Tools/export_checkpoint_oracle.py whitespace=-blank-at-eof
+Unreal/Tools/export_shop_transactions_oracle.py whitespace=-blank-at-eof
+Unreal/Tools/test_shop_transaction_tools.py whitespace=-blank-at-eof
+Unreal/Tools/validate_archive_preservation.py whitespace=-blank-at-eof
+Unreal/Tools/validate_battle_entry_preservation.py whitespace=-blank-at-eof
+Unreal/Tools/validate_checkpoint_preservation.py whitespace=-blank-at-eof
+Unreal/Tools/validate_shop_transactions_preservation.py whitespace=-blank-at-eof
+
+# Raw engine logs may include trailing spaces emitted by Unreal; preserve exact bytes.
+docs/unreal-migration/evidence/battle1/**/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+docs/unreal-migration/evidence/art2/**/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

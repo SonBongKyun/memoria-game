@@ -62,6 +62,8 @@ private:
     // The interpreter borrows this stable aggregate; the host is a GI subsystem
     // and cancels its cursors synchronously on OnRunReplaced.
     friend class UMemoriaNarrativeSubsystem;
+    friend class UMemoriaShopSubsystem;
+    friend class UMemoriaBattleEntrySubsystem;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPlayerMemoryDomain> PlayerMemory;
     UPROPERTY(Transient) TObjectPtr<UMemoriaWorldCognition> WorldCognition;
     UPROPERTY(Transient) FMemoriaRunSnapshot State;
