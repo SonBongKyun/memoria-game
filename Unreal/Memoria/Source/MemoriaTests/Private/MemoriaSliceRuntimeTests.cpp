@@ -60,6 +60,9 @@ public:
             FApp::SetFixedDeltaTime(1.0/60.0); FApp::SetUseFixedTimeStep(true);
             OriginalRun = Run->GetRunSnapshot(); Memory = Run->GetPlayerMemory(); OriginalWorld = World;
             Test->TestTrue(TEXT("Fresh run initialized through production catalog"), OriginalRun.RunId.IsValid() && Memory->GetSnapshot().Owned.Num() == 7);
+            // Source ch1_after_forest sets chapter 2 before Verdan; the slice must not stay at New Game's 1.
+            Test->TestEqual(TEXT("Slice run begins in its entry sequence's source chapter"), OriginalRun.CurrentChapter, int64(2));
+            Test->TestEqual(TEXT("Memory rules read that chapter"), Run->GetMemoryContext().CurrentChapter, int64(2));
             Test->TestTrue(TEXT("Narrative owns real imported production asset"), Host->GetView().Header.Contains(IsField ? TEXT("FIELD") : TEXT("VN")));
             if (IsFiltered) Test->TestTrue(TEXT("Filter setup uses actual domain"), Run->BurnMemory(TEXT("daily_market_food")) == EMemoriaMemoryResult::Success);
             Origin = Pawn->GetActorLocation();

@@ -5,6 +5,7 @@
 class AMemoriaFieldPawn;
 class UMemoriaArrel3DComponent;
 class AMemoriaMaletActor;
+class AStaticMeshActor;
 class UPaperSprite;
 class UPaperSpriteComponent;
 class UStaticMeshComponent;
@@ -24,6 +25,9 @@ public:
     FString Facing() const { return Direction; }
     bool IsWalking() const { return bWalking; }
     UMemoriaArrel3DComponent* CharacterMesh() const { return ArrelMesh; }
+    // Level geometry the 3D stage replaces visually: tagged actors, or engine basic shapes.
+    static constexpr const TCHAR* PlaceholderTag = TEXT("MemoriaPlaceholder");
+    static bool IsPlaceholderGeometry(const AStaticMeshActor& Actor);
 protected:
     virtual void BeginPlay() override;
 private:

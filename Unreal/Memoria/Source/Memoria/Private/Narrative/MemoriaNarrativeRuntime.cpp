@@ -21,11 +21,23 @@ void FMemoriaNarrativeContext::Flag(const FString& Id)
     if (!Found) { FMemoriaStoryFlag F; F.Id=Id; F.bValue=true; Run.StoryFlags.Add(F); }
     Events.Add(TEXT("flag:")+Id);
 }
-bool FMemoriaNarrativeContext::Burn(const FString& Id,bool Allow)
+bool FMemoriaNarrativeContext::Burn(const FString& Id,bool Allow,bool bPlayerChoice)
 {
-    FMemoriaMemoryContext C; C.bEliaWithParty=Run.Player.bEliaWithParty;
-    const bool Result=Memory.Burn(Id,EMemoriaBurnMode::Normal,Allow,C)==EMemoriaMemoryResult::Success;
-    Events.Add(TEXT("burn:")+Id+(Result?TEXT(":ok"):TEXT(":fail"))); return Result;
+    // Same chapter/party/oath context as UMemoriaRunSubsystem::BurnMemory.
+    const bool Result=Memory.Burn(Id,EMemoriaBurnMode::Normal,Allow,Run.MemoryContext())==EMemoriaMemoryResult::Success;
+    Events.Add(TEXT("burn:")+Id+(Result?TEXT(":ok"):TEXT(":fail")));
+    if (Result && bPlayerChoice)
+    {
+        // Source JourneyOath.on_player_burn -> break_oath(STILL) for an Elia-tied memory.
+        const auto* D=Memory.GetDefinitions().FindByPredicate([&](const auto& V){return V.Id.Equals(Id,ESearchCase::CaseSensitive);});
+        if (D && D->RelatedNpc.Equals(TEXT("Elia"),ESearchCase::CaseSensitive) && Run.MemoryContext().bStillHandsActive)
+        {
+            bool Found=false; for (auto& F:Run.StoryFlags) if (F.Id.Equals(TEXT("oath_still_broken"),ESearchCase::CaseSensitive)) { F.bValue=true; Found=true; break; }
+            if (!Found) { FMemoriaStoryFlag F; F.Id=TEXT("oath_still_broken"); F.bValue=true; Run.StoryFlags.Add(F); }
+            Events.Add(TEXT("oath:broken:still"));
+        }
+    }
+    return Result;
 }
 void FMemoriaNarrativeContext::Rewards(const FMemoriaNarrativeEffects& E,bool VN)
 {
@@ -33,9 +45,18 @@ void FMemoriaNarrativeContext::Rewards(const FMemoriaNarrativeEffects& E,bool VN
     if (E.bHasAddItem)
     {
         int32 Count=E.bHasAddItemCount?E.AddItemCount:1; bool Found=false;
-        for (auto& I:Run.Player.Items) if (I.Id.Equals(E.AddItem,ESearchCase::CaseSensitive)) { I.Count+=Count; Found=true; break; }
-        if (!Found) { FMemoriaItemCount I; I.Id=E.AddItem; I.Count=Count; Run.Player.Items.Add(I); }
-        Events.Add(TEXT("item:")+E.AddItem+TEXT(":")+Num(Count));
+        // Source GameManager.add_item ignores identities outside its ITEMS table.
+        if (!FMemoriaRunSnapshot::IsSourceItem(E.AddItem)) { Events.Add(TEXT("item:ignored:")+E.AddItem); }
+        else
+        {
+            for (auto& I:Run.Player.Items) if (I.Id.Equals(E.AddItem,ESearchCase::CaseSensitive)) { I.Count+=Count; Found=true; break; }
+            if (!Found) { FMemoriaItemCount I; I.Id=E.AddItem; I.Count=Count; Run.Player.Items.Add(I); }
+            Run.RecordRecentItem(E.AddItem);
+            Events.Add(TEXT("item:")+E.AddItem+TEXT(":")+Num(Count));
+            // The source inventory_changed signal is recorded for the host, not broadcast:
+            // a run delegate fired mid-step could replace the run this interpreter borrows.
+            Events.Add(TEXT("inventory_changed:")+E.AddItem);
+        }
     }
     if (E.bHasHealPlayer) Run.Player.Hp+=FMath::Max<int64>(0,FMath::Min<int64>(E.HealPlayer,Run.Player.MaxHp-Run.Player.Hp));
 }
@@ -76,8 +97,8 @@ void FMemoriaFieldInterpreter::SelectFilteredChoice(int32 I)
         const auto& C=Definition.Rows[Index].Choices[Visible[I]]; const auto& E=C.Effects;
         Context.Events.Add(TEXT("choice:")+Context.Localized(C.Text));
         if (E.bHasSetFlag) Context.Flag(E.SetFlag);
-        if (E.bHasBurnMemory) Context.Burn(E.BurnMemory);
-        if (E.bHasCostMemory) Context.Burn(E.CostMemory); // source deliberately continues on failure
+        if (E.bHasBurnMemory) Context.Burn(E.BurnMemory,false,true);
+        if (E.bHasCostMemory) Context.Burn(E.CostMemory,false,true); // source deliberately continues on failure
         if (E.bHasRecordEnding) { Context.Endings.Add(E.RecordEnding); Context.Events.Add(TEXT("ending:")+E.RecordEnding); }
         Context.Rewards(E,false);
         if (C.bHasJump) Index=C.Jump-1;
@@ -133,9 +154,9 @@ void FMemoriaVNInterpreter::SelectOriginalChoice(int32 I)
     const auto& S=Definition.Steps[Continuation.Current.OriginalIndex]; if (!S.bChoicesPresent || !S.Choices.IsValidIndex(I)) return;
     const auto& C=S.Choices[I]; if (!Context.Gate(C.Gate)) return;
     Context.Events.Add(TEXT("choice:")+Context.Localized(C.Text)); const auto& E=C.Effects;
-    if (E.bHasCostMemory && !Context.Burn(E.CostMemory,E.bHasAllowFadedBurn && E.AllowFadedBurn)) return;
+    if (E.bHasCostMemory && !Context.Burn(E.CostMemory,E.bHasAllowFadedBurn && E.AllowFadedBurn,true)) return;
     if (E.bHasSetFlag) Context.Flag(E.SetFlag);
-    if (E.bHasBurnMemory) Context.Burn(E.BurnMemory,E.bHasAllowFadedBurn && E.AllowFadedBurn);
+    if (E.bHasBurnMemory) Context.Burn(E.BurnMemory,E.bHasAllowFadedBurn && E.AllowFadedBurn,true);
     // SceneFlow ignores choice record_ending even though field supports it.
     Context.Rewards(E,true); if (C.bHasJump) Continuation.Current.OriginalIndex=C.Jump-1; Advance();
 }

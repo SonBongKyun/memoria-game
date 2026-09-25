@@ -17,7 +17,9 @@ struct MEMORIA_API FMemoriaNarrativeContext
     bool Gate(const FMemoriaNarrativeGate& G) const;
     bool ExposeCost(const FMemoriaNarrativeEffects& E) const;
     void Flag(const FString& Id);
-    bool Burn(const FString& Id,bool AllowFaded=false);
+    // bPlayerChoice: a choice the player picked (source JourneyOath.on_player_burn).
+    // Authored step burns are not Arrel's own hand and never break Still Hands.
+    bool Burn(const FString& Id,bool AllowFaded=false,bool bPlayerChoice=false);
     void Rewards(const FMemoriaNarrativeEffects& E,bool VN);
     FString Localized(const FMemoriaNarrativeText& T,bool Narrate=false) const;
 };

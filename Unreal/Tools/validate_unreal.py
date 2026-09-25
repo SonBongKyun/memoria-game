@@ -71,7 +71,13 @@ def narrative_test_paths():
     return {'Memoria.Narrative.'+name for name in (
         'VNImportParity', 'FieldImportParity', 'DeterministicReimport',
         'FieldExecutionContract', 'VNExecutionContract', 'OriginalVisibleChoiceIndices',
-        'ContinuationDTO', 'StrictValidationAndSemanticChange')}
+        'ContinuationDTO', 'StrictValidationAndSemanticChange',
+        'BurnUsesRunContext', 'StillHandsOath', 'AddItemSourceRules')}
+
+
+def presentation_test_paths():
+    return {'Memoria.Presentation.'+name for name in (
+        'ArrelGaitBonesResolved', 'ArrelRigWithoutGaitBones', 'PlaceholderIdentification')}
 
 
 
@@ -125,7 +131,7 @@ def visual_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | presentation_test_paths()
 
 
 def malet_first_effect_test_paths():
@@ -159,9 +165,13 @@ def main():
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
-    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.'], help='Exact full registry or a bounded gameplay regression subset')
+    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.'], help='Exact full registry or a bounded gameplay regression subset')
     parser.add_argument('--evidence-dir', type=Path)
+    # The rendered full registry needs far longer than a bounded subset.
+    parser.add_argument('--automation-timeout', type=int, default=900, help='Seconds before the automation process is killed')
     args = parser.parse_args()
+    if args.automation_timeout <= 0:
+        parser.error('--automation-timeout must be positive')
     evidence = args.evidence_dir.resolve() if args.evidence_dir else ROOT / 'Unreal/Memoria/Saved/Validation' / ('unreal-' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f'))
     if any(evidence.is_relative_to(ROOT / 'docs/unreal-migration/evidence' / phase) for phase in ('phase0', 'phase1a', 'phase1b', 'phase1b-ue58')):
         parser.error('Historical evidence is immutable; choose a new output directory')
@@ -285,7 +295,7 @@ def main():
     save()
     ran = run('automation', [str(editor), project, '-unattended', '-nop4', '-nosplash', *(['-RenderOffscreen', '-MemoriaCapture', '-ResX=1280', '-ResY=720'] if args.rendered else ['-NullRHI']),
                             f'-ExecCmds=Automation RunTests {args.test_prefix}', '-TestExit=Automation Test Queue Empty',
-                            f'-ReportExportPath={test_report}', '-stdout', '-FullStdOutLogOutput'], 900)
+                            f'-ReportExportPath={test_report}', '-stdout', '-FullStdOutLogOutput'], args.automation_timeout)
     index = test_report / 'index.json'
     try:
         result = json.loads(index.read_text(encoding='utf-8-sig')) if index.is_file() else {}
@@ -308,6 +318,7 @@ def main():
     report['test_prefix'] = args.test_prefix
     report['selected_required_total'] = sum(any(p.startswith(prefix) for prefix in args.test_prefix.split("+")) for p in current_test_paths() | visual_test_paths() | checkpoint_process_paths())
     report['rendered'] = args.rendered
+    report['automation_timeout_seconds'] = args.automation_timeout
     report['automation_validation_errors'] = inspection['errors']
     passed = ran and inspection['passed']
     report.update(status='PASS' if passed else 'AUTOMATION_FAILED', ue_automation='PASS' if passed else 'FAIL')

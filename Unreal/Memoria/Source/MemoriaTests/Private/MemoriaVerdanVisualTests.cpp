@@ -136,6 +136,7 @@ public:
             for (TActorIterator<AStaticMeshActor> It(World); It; ++It)
             {
                 Test->TestTrue(TEXT("Existing geometry remains collidable"), It->GetStaticMeshComponent()->GetCollisionEnabled() != ECollisionEnabled::NoCollision);
+                Test->TestTrue(TEXT("Retained placeholder visuals are hidden by the 3D stage"), It->GetStaticMeshComponent()->bHiddenInGame);
                 ++Bodies;
             }
             Test->TestEqual(TEXT("All seven original physical surfaces retained"), Bodies, 7);

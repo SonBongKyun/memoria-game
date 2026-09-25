@@ -27,10 +27,11 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
     // Explicit catalog/starting IDs: no hidden content import or chapter advance.
-    EMemoriaMemoryResult BeginRun(const UMemoriaMemoryCatalog& Catalog, const TArray<FString>& InitialIds);
+    // StartChapter is the run's chapter at birth (New Game is 1); no chapter effects run.
+    EMemoriaMemoryResult BeginRun(const UMemoriaMemoryCatalog& Catalog, const TArray<FString>& InitialIds, int64 StartChapter = 1);
     // Explicit New Game memory bootstrap from the offline-imported typed asset.
     // Does not travel, start narrative, or require editor/source tooling.
-    EMemoriaMemoryResult BeginStartingMemoryRun();
+    EMemoriaMemoryResult BeginStartingMemoryRun(int64 StartChapter = 1);
     EMemoriaMemoryResult RestoreRun(const FMemoriaRunSnapshot& Run, const TArray<FMemoriaMemoryDefinition>& Definitions, const FMemoriaMemorySnapshot& Memory, const FMemoriaWorldSnapshot& World = UMemoriaWorldCognition::Defaults());
     UMemoriaWorldCognition* GetWorldCognition() const { return WorldCognition; }
     UMemoriaRunSaveGame* CaptureSave() const;

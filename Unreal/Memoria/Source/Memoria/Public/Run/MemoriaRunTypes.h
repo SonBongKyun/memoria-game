@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Domain/MemoriaMemoryTypes.h"
 #include "MemoriaRunTypes.generated.h"
 
 // Source get_flag/set_flag use bool; absence is distinct from a stored false.
@@ -53,4 +54,13 @@ struct MEMORIA_API FMemoriaRunSnapshot
     bool HasFlag(const FString& Id) const;
     bool GetFlag(const FString& Id) const;
     bool IsValid() const;
+    // Chapter, party and Still Hands oath as every memory rule reads them.
+    // The run subsystem and narrative interpreters share this one derivation.
+    FMemoriaMemoryContext MemoryContext() const;
+    // Source GameManager.ITEMS membership only; names, effects and prices are not ported.
+    static bool IsSourceItem(const FString& Id);
+    // Source get_recent_items(): known, unique, at most five.
+    TArray<FString> NormalizedRecentItems() const;
+    // Source _record_recent_item(): move the id to the front, keep five.
+    void RecordRecentItem(const FString& Id);
 };

@@ -1,7 +1,7 @@
 #include "Run/MemoriaRunSubsystem.h"
 #include "Save/MemoriaRunSaveGame.h"
 
-EMemoriaMemoryResult UMemoriaRunSubsystem::BeginStartingMemoryRun()
+EMemoriaMemoryResult UMemoriaRunSubsystem::BeginStartingMemoryRun(int64 StartChapter)
 {
     const auto* Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr,
         TEXT("/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog.DA_StartingMemoryCatalog"));
@@ -10,7 +10,7 @@ EMemoriaMemoryResult UMemoriaRunSubsystem::BeginStartingMemoryRun()
     { return EMemoriaMemoryResult::InvalidSnapshot; }
     TArray<FString> Ids;
     for (const auto& Definition : Catalog->Definitions) { Ids.Add(Definition.Id); }
-    return BeginRun(*Catalog, Ids);
+    return BeginRun(*Catalog, Ids, StartChapter);
 }
 
 void UMemoriaRunSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -27,8 +27,9 @@ void UMemoriaRunSubsystem::Deinitialize()
     State = FMemoriaRunSnapshot();
     Super::Deinitialize();
 }
-EMemoriaMemoryResult UMemoriaRunSubsystem::BeginRun(const UMemoriaMemoryCatalog& Catalog, const TArray<FString>& InitialIds)
+EMemoriaMemoryResult UMemoriaRunSubsystem::BeginRun(const UMemoriaMemoryCatalog& Catalog, const TArray<FString>& InitialIds, int64 StartChapter)
 {
+    if (StartChapter < 1) { return EMemoriaMemoryResult::InvalidSnapshot; }
     TArray<FMemoriaMemoryDefinition> Definitions;
     FMemoriaMemorySnapshot Memory;
     for (const auto& Id : InitialIds)
@@ -39,7 +40,7 @@ EMemoriaMemoryResult UMemoriaRunSubsystem::BeginRun(const UMemoriaMemoryCatalog&
         FMemoriaMemoryState S; S.Id = Id; Memory.Owned.Add(S);
     }
     FMemoriaRunSnapshot Run;
-    Run.RunId = FGuid::NewGuid(); Run.ContentRevision = Catalog.ContentRevision;
+    Run.RunId = FGuid::NewGuid(); Run.ContentRevision = Catalog.ContentRevision; Run.CurrentChapter = StartChapter;
     return RestoreRun(Run, Definitions, Memory);
 }
 EMemoriaMemoryResult UMemoriaRunSubsystem::RestoreRun(const FMemoriaRunSnapshot& Run, const TArray<FMemoriaMemoryDefinition>& Definitions, const FMemoriaMemorySnapshot& Memory, const FMemoriaWorldSnapshot& World)
@@ -53,10 +54,7 @@ EMemoriaMemoryResult UMemoriaRunSubsystem::RestoreRun(const FMemoriaRunSnapshot&
 }
 FMemoriaMemoryContext UMemoriaRunSubsystem::GetMemoryContext() const
 {
-    FMemoriaMemoryContext C;
-    C.CurrentChapter = State.CurrentChapter; C.bEliaWithParty = State.Player.bEliaWithParty;
-    C.bStillHandsActive = State.GetFlag(TEXT("oath_still_sworn")) && !State.GetFlag(TEXT("oath_still_broken"));
-    return C;
+    return State.MemoryContext();
 }
 EMemoriaMemoryResult UMemoriaRunSubsystem::BurnMemory(const FString& Id, EMemoriaBurnMode Mode, bool bAllowFaded)
 {
@@ -101,17 +99,6 @@ bool UMemoriaRunSubsystem::RestoreSave(const UMemoriaRunSaveGame& Save)
     return RestoreRun(Save.Run,Save.MemoryDefinitions,Save.PlayerMemory,World)==EMemoriaMemoryResult::Success;
 }
 
-namespace
-{
-bool KnownRecentItem(const FString& Id)
-{
-    // Source ITEMS membership only, used to preserve recent-item normalization.
-    // No use/equipment/catalog import or grants for these other identities.
-    for (const TCHAR* Known : {TEXT("potion"),TEXT("hi_potion"),TEXT("antidote"),TEXT("firebomb"),TEXT("smoke_bomb"),TEXT("witness_ink"),TEXT("root_balm"),TEXT("signal_jammer"),TEXT("lantern_salve"),TEXT("name_thread"),TEXT("compass_shard"),TEXT("seed_capsule"),TEXT("anchor_lantern"),TEXT("ledger_chalk"),TEXT("cinder_vial"),TEXT("witness_knot")})
-        if (Id.Equals(Known, ESearchCase::CaseSensitive)) return true;
-    return false;
-}
-}
 int64 UMemoriaRunSubsystem::GetItemCount(const FString& Id) const
 {
     const auto* Item=State.Player.Items.FindByPredicate([&](const auto& I){return I.Id.Equals(Id,ESearchCase::CaseSensitive);});
@@ -119,18 +106,12 @@ int64 UMemoriaRunSubsystem::GetItemCount(const FString& Id) const
 }
 EMemoriaRewardItemScope UMemoriaRunSubsystem::RewardItemScope(const FString& Id)
 {
-    if (!KnownRecentItem(Id)) return EMemoriaRewardItemScope::InvalidSourceId;
+    if (!FMemoriaRunSnapshot::IsSourceItem(Id)) return EMemoriaRewardItemScope::InvalidSourceId;
     return Id==TEXT("potion") || Id==TEXT("antidote") || Id==TEXT("firebomb") ? EMemoriaRewardItemScope::Supported : EMemoriaRewardItemScope::DeferredByPhase;
 }
 TArray<FString> UMemoriaRunSubsystem::GetRecentItems() const
 {
-    TArray<FString> Recent;
-    for(const auto& Value:State.Player.RecentItems)
-    {
-        if(KnownRecentItem(Value) && !Recent.ContainsByPredicate([&](const auto& R){return R.Equals(Value,ESearchCase::CaseSensitive);}))Recent.Add(Value);
-        if(Recent.Num()>=5)break;
-    }
-    return Recent;
+    return State.NormalizedRecentItems();
 }
 bool UMemoriaRunSubsystem::AddRewardPotion(const FString& Id, int64 Count)
 {
@@ -157,10 +138,7 @@ bool UMemoriaRunSubsystem::GrantRewardItem(const FString& Id, const TCHAR* Displ
     auto Observe=[&](const TCHAR* Point){const auto Snapshot=State;if(Id==TEXT("potion"))OnPotionObserved.Broadcast(Point,Snapshot);if(State.RunId==Owner)OnRewardItemObserved.Broadcast(Id,Point,Snapshot);};
     Observe(TEXT("after_inventory_mutation"));
     if(State.RunId!=Owner)return false;
-    auto Recent=GetRecentItems();
-    Recent.RemoveAll([&](const auto& R){return R.Equals(Id,ESearchCase::CaseSensitive);});
-    Recent.Insert(Id,0);if(Recent.Num()>5)Recent.SetNum(5);
-    State.Player.RecentItems=MoveTemp(Recent);
+    State.RecordRecentItem(Id);
     Observe(TEXT("after_recent_items"));
     if(State.RunId!=Owner)return false;
     OnInventoryChanged.Broadcast(Id);

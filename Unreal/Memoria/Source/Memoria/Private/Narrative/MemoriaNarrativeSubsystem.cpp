@@ -69,9 +69,17 @@ void UMemoriaNarrativeSubsystem::FlushEvents(const FString& Dialect)
     for (; EventCursor < Context->Events.Num(); ++EventCursor) Record(Dialect + TEXT(":") + Context->Events[EventCursor]);
     ++Revision;
 }
+namespace
+{
+// The source reaches Verdan after ch1_after_forest's set_chapter 2. The slice skips
+// Chapter 1, so its run is born in the chapter its imported entry sequence declares.
+int64 EntryChapter(const FMemoriaNarrativeMetadata& Metadata)
+{ return Metadata.bHasChapter && Metadata.Chapter >= 1 ? Metadata.Chapter : 0; }
+}
 bool UMemoriaNarrativeSubsystem::StartDevelopmentVN()
 {
-    if (!LoadContracts() || Run->BeginStartingMemoryRun() != EMemoriaMemoryResult::Success) return false;
+    if (!LoadContracts() || !EntryChapter(VNAsset->Definition.Metadata) ||
+        Run->BeginStartingMemoryRun(EntryChapter(VNAsset->Definition.Metadata)) != EMemoriaMemoryResult::Success) return false;
     Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
     VN = MakeUnique<FMemoriaVNInterpreter>(VNAsset->Definition, *Context);
     State = EMemoriaSliceState::VN; Record(TEXT("vn:start:ch2_market_arrival"));
@@ -79,7 +87,8 @@ bool UMemoriaNarrativeSubsystem::StartDevelopmentVN()
 }
 bool UMemoriaNarrativeSubsystem::StartUnseenFieldFixture()
 {
-    if (!LoadContracts() || Run->BeginStartingMemoryRun() != EMemoriaMemoryResult::Success) return false;
+    if (!LoadContracts() || !EntryChapter(FieldAsset->Definition.Metadata) ||
+        Run->BeginStartingMemoryRun(EntryChapter(FieldAsset->Definition.Metadata)) != EMemoriaMemoryResult::Success) return false;
     Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
     Record(TEXT("fixture:vn_unseen")); return EnterVerdan();
 }

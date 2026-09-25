@@ -6,6 +6,7 @@
 #include "Interaction/MemoriaMaletActor.h"
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/DirectionalLight.h"
 #include "EngineUtils.h"
 #include "PaperSpriteComponent.h"
@@ -33,6 +34,14 @@ AMemoriaVerdanPresentation::AMemoriaVerdanPresentation()
     PrimaryActorTick.bCanEverTick = true; PrimaryActorTick.TickGroup = TG_PostPhysics;
     SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("PresentationRoot")));
     SetActorEnableCollision(false);
+}
+bool AMemoriaVerdanPresentation::IsPlaceholderGeometry(const AStaticMeshActor& Actor)
+{
+    // Identify by intent rather than exact coordinates, so moving a retained body in
+    // the level cannot reveal it and new art placed at an old coordinate is not hidden.
+    if (Actor.ActorHasTag(PlaceholderTag)) return true;
+    const UStaticMesh* Mesh = Actor.GetStaticMeshComponent() ? Actor.GetStaticMeshComponent()->GetStaticMesh().Get() : nullptr;
+    return Mesh && Mesh->GetPathName().StartsWith(TEXT("/Engine/BasicShapes/"));
 }
 UPaperSpriteComponent* AMemoriaVerdanPresentation::Picture(const FString& Name, const FVector& Location, FVector Scale)
 {
@@ -321,12 +330,9 @@ void AMemoriaVerdanPresentation::BeginPlay()
         if (auto* Texture=LoadObject<UTexture2D>(nullptr,*(MemoriaVerdanArt::Package(Name)+TEXT(".")+Name))) FTextureCompilingManager::Get().FinishCompilation({Texture});
     }
 #endif
+    // Only the visuals are hidden; the retained bodies keep their collision.
     for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It)
-    {
-        const FVector P=It->GetActorLocation();
-        if (P.Equals(FVector(0,0,-30)) || P.Equals(FVector(-900,0,0)) || P.Equals(FVector(900,0,0)) || P.Equals(FVector(0,-600,0)) || P.Equals(FVector(0,600,0)) || P.Equals(FVector(-400,200,-5)) || P.Equals(FVector(400,200,-5)))
-            It->GetStaticMeshComponent()->SetHiddenInGame(true);
-    }
+        if (IsPlaceholderGeometry(**It)) It->GetStaticMeshComponent()->SetHiddenInGame(true);
     BuildDepthEnvironment();
     auto* Camera=Player->GetFieldCamera(); Camera->ProjectionMode=ECameraProjectionMode::Perspective;
     Camera->SetFieldOfView(MemoriaVerdanTuning::CameraFOV); Camera->SetRelativeLocation(MemoriaVerdanTuning::CameraOffset); Camera->SetRelativeRotation(FRotator(MemoriaVerdanTuning::CameraPitch,90,0));

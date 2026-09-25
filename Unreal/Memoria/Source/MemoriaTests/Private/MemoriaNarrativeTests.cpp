@@ -141,5 +141,79 @@ bool FNarrativeStrictValidation::RunTest(const FString&)
     TStrongObjectPtr<UMemoriaFieldAsset> Wrong(NewObject<UMemoriaFieldAsset>()); TestFalse(TEXT("VN cannot enter field contract"),MemoriaNarrativeImport::ReadIr(Ir(true),*Wrong,Error));
     AddInfo(TEXT("No temporary Unreal package created or saved")); return !HasAnyErrors();
 }
+namespace
+{
+FMemoriaMemoryDefinition ProbeMemory(const TCHAR* Id,const TCHAR* Npc)
+{ FMemoriaMemoryDefinition D; D.Id=Id; D.Title=Id; D.RelatedNpc=Npc; D.RawGrade=EMemoriaMemoryGrade::Grade3; D.BurnPower=30; return D; }
+TStrongObjectPtr<UMemoriaPlayerMemoryDomain> ProbeDomain(FAutomationTestBase& T,const TArray<FMemoriaMemoryDefinition>& Definitions)
+{
+    TStrongObjectPtr<UMemoriaPlayerMemoryDomain> Memory(NewObject<UMemoriaPlayerMemoryDomain>()); FMemoriaMemorySnapshot S;
+    for (const auto& D:Definitions) { FMemoriaMemoryState State; State.Id=D.Id; S.Owned.Add(State); }
+    T.TestTrue(TEXT("Probe memory domain initializes"),Memory->Restore(Definitions,S)==EMemoriaMemoryResult::Success); return Memory;
+}
+}
+NARRATIVE_TEST(FNarrativeBurnRunContext,"Memoria.Narrative.BurnUsesRunContext")
+bool FNarrativeBurnRunContext::RunTest(const FString&)
+{
+    auto Memory=ProbeDomain(*this,{ProbeMemory(TEXT("sense_rain"),TEXT("")),ProbeMemory(TEXT("daily_bread"),TEXT(""))});
+    FMemoriaRunSnapshot Run; Run.CurrentChapter=3;
+    int64 Capacity=-1;
+    const auto Handle=Memory->OnObserved.AddLambda([&Capacity](const FMemoriaMemoryEvent& E){ if (E.Kind==EMemoriaMemoryEventKind::CarryChanged) Capacity=E.CarryCapacity; });
+    FMemoriaNarrativeContext Context(Run,*Memory);
+    TestTrue(TEXT("Narrative burn succeeds"),Context.Burn(TEXT("sense_rain")));
+    Memory->OnObserved.Remove(Handle);
+    TestEqual(TEXT("Carry capacity follows the run chapter"),Capacity,Memory->GetCarryCapacity(3));
+    TestTrue(TEXT("Not New Game's chapter-1 capacity"),Capacity!=Memory->GetCarryCapacity(1));
+    return !HasAnyErrors();
+}
+NARRATIVE_TEST(FNarrativeStillHands,"Memoria.Narrative.StillHandsOath")
+bool FNarrativeStillHands::RunTest(const FString&)
+{
+    auto Memory=ProbeDomain(*this,{ProbeMemory(TEXT("rel_elia_hand"),TEXT("Elia")),ProbeMemory(TEXT("rel_elia_song"),TEXT("Elia")),ProbeMemory(TEXT("sense_rain"),TEXT(""))});
+    FMemoriaRunSnapshot Run; FMemoriaStoryFlag Sworn; Sworn.Id=TEXT("oath_still_sworn"); Sworn.bValue=true; Run.StoryFlags.Add(Sworn);
+    FMemoriaNarrativeContext Context(Run,*Memory);
+    // Source scene_flow step burn_memory never calls JourneyOath.on_player_burn.
+    FMemoriaVNDefinition Sequence; Sequence.Id=TEXT("oath_probe");
+    FMemoriaVNStep Step; Step.Effects.bHasBurnMemory=true; Step.Effects.BurnMemory=TEXT("rel_elia_hand"); Sequence.Steps.Add(Step);
+    FMemoriaVNInterpreter VN(Sequence,Context); VN.Play();
+    TestFalse(TEXT("Authored step burned the Elia memory"),Memory->IsIntact(TEXT("rel_elia_hand")));
+    TestFalse(TEXT("Authored step burn keeps Still Hands"),Run.GetFlag(TEXT("oath_still_broken")));
+    // Source dialogue_manager choice burn_memory / cost_memory call on_player_burn.
+    FMemoriaFieldDefinition Field; Field.Id=TEXT("oath_probe");
+    FMemoriaFieldChoice Rain; Rain.OriginalIndex=0; Rain.Effects.bHasBurnMemory=true; Rain.Effects.BurnMemory=TEXT("sense_rain");
+    FMemoriaFieldChoice Song; Song.OriginalIndex=1; Song.Effects.bHasCostMemory=true; Song.Effects.CostMemory=TEXT("rel_elia_song");
+    FMemoriaFieldRow Row; Row.bChoicesPresent=true; Row.Choices={Rain,Song}; Field.Rows={Row,Row};
+    FMemoriaFieldInterpreter Interpreter(Field,Context); Interpreter.Start();
+    Interpreter.SelectFilteredChoice(0);
+    TestFalse(TEXT("Choosing to burn a memory not tied to Elia keeps the oath"),Run.GetFlag(TEXT("oath_still_broken")));
+    Interpreter.SelectFilteredChoice(1);
+    TestFalse(TEXT("Chosen cost burned the Elia memory"),Memory->IsIntact(TEXT("rel_elia_song")));
+    TestTrue(TEXT("Choosing to burn an Elia memory breaks Still Hands"),Run.GetFlag(TEXT("oath_still_broken")));
+    TestTrue(TEXT("Oath break is traced for the host"),Context.Events.Contains(TEXT("oath:broken:still")));
+    TestFalse(TEXT("A broken oath no longer shields Elia memories"),Run.MemoryContext().bStillHandsActive);
+    return !HasAnyErrors();
+}
+NARRATIVE_TEST(FNarrativeAddItem,"Memoria.Narrative.AddItemSourceRules")
+bool FNarrativeAddItem::RunTest(const FString&)
+{
+    auto Memory=ProbeDomain(*this,{ProbeMemory(TEXT("sense_rain"),TEXT(""))});
+    FMemoriaRunSnapshot Run;
+    Run.Player.RecentItems={TEXT("potion"),TEXT("antidote"),TEXT("not_an_item"),TEXT("firebomb"),TEXT("smoke_bomb"),TEXT("witness_ink")};
+    FMemoriaNarrativeContext Context(Run,*Memory);
+    auto Count=[&](const TCHAR* Id){ const auto* I=Run.Player.Items.FindByPredicate([&](const auto& V){return V.Id.Equals(Id,ESearchCase::CaseSensitive);}); return I?I->Count:int64(0); };
+    for (const TCHAR* Unknown : {TEXT("mystery_relic"),TEXT("Root_Balm")})
+    {
+        FMemoriaNarrativeEffects E; E.bHasAddItem=true; E.AddItem=Unknown; Context.Rewards(E,false);
+        TestEqual(TEXT("Identity outside source ITEMS is ignored"),Count(Unknown),int64(0));
+        TestTrue(TEXT("Ignored identity is traced"),Context.Events.Contains(FString(TEXT("item:ignored:"))+Unknown));
+    }
+    FMemoriaNarrativeEffects Balm; Balm.bHasAddItem=true; Balm.AddItem=TEXT("root_balm"); Balm.bHasAddItemCount=true; Balm.AddItemCount=2;
+    Context.Rewards(Balm,true); Context.Rewards(Balm,false);
+    TestEqual(TEXT("Known item accumulates"),Count(TEXT("root_balm")),int64(4));
+    const TArray<FString> Expected={TEXT("root_balm"),TEXT("potion"),TEXT("antidote"),TEXT("firebomb"),TEXT("smoke_bomb")};
+    TestEqual(TEXT("Recent items: front, unique, known, five"),FString::Join(Run.Player.RecentItems,TEXT(",")),FString::Join(Expected,TEXT(",")));
+    TestTrue(TEXT("Inventory change is traced for the host"),Context.Events.Contains(TEXT("inventory_changed:root_balm")));
+    return !HasAnyErrors();
+}
 #undef NARRATIVE_TEST
 #endif
