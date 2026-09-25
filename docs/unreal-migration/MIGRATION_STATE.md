@@ -1,3 +1,33 @@
+# Migration handoff — first sound pass (S294, 2026-09-26)
+
+- Worked in the Claude lane (`SonBongKyun/memoria-unreal-claude`). The lane was moved from the collaboration snapshot `fd76c0fe` to the published evidence-free `792034ff`; the code is identical and the collaboration files are carried over.
+- **Sources.** `Unreal/Tools/generate_audio_sources.py` renders 25 cues from the `scripts/systems/audio_manager.gd` formulas: 22050 Hz mono 16-bit, with a fixed seed per cue. Layered combat cues are premixed with the source delays and layer dB. Output goes to `Unreal/ArtSource/Audio` (WAVs plus a manifest). `validate_unreal.py` now runs its `--check` before building.
+- **Assets.** `-run=MemoriaAudioAssets` imports into `/Game/Memoria/Audio` and refuses existing packages:
+  - 23 SFX (`Sfx/S_Sfx_<cue>`)
+  - the original `ch2_verdan` and `battle_theme` mp3 BGM (`Music/`, 34 MB in LFS)
+  - the `wind_light` and `heartbeat` loops (`Ambient/`)
+- **Runtime.** `UMemoriaAudioSubsystem` is presentation only: it observes state and never mutates it.
+  - Music: Verdan maps and the arrival VN play `ch2_verdan` (-5 dB, as declared in the VN metadata). Battle plays `battle` with a 0.8 s crossfade. Music persists across OpenLevel.
+  - Ambience: Verdan plays `wind_light` (-10 dB), removed during battle.
+  - VN/Field dialogue ducks the music to -13 dB.
+  - Burning a Grade 2/1 memory plays the source burn drama: duck, 0.3 s silence, rising tone, restore, then `burn_ignite`.
+  - `memory_add` plays on acquisition.
+- **Cues.**
+  - From the source: dialogue advance `confirm`, pressing a choice `ui_select`, choice/row focus `ui_hover`, shop requests executed in source order through the new `OnRequestRecorded` (`ui_open`, `confirm`, `memory_add`, `ui_close`), `step_stone` on each planted foot, ambient flee `flee`.
+  - Additions not in the source: `battle_intro` on encounter start (defined but never played in Godot), archive open/close, and footsteps timed by the gait instead of a timer.
+  - A repeat of the same cue within 50 ms is collapsed, mirroring the source's single player.
+- **Tests (registry now 288):**
+  - `Memoria.Audio.CatalogAssets`: asset durations equal the manifest; loop flags are correct.
+  - `Memoria.Audio.Routing`: foot contacts, request→cue mapping, source volumes.
+  - Audio checks in Campaign (VN duck and music, exploration music/ambience/cues), Verdan exploration (footsteps) and `BattleEntry.RenderedRevisitFlow` (every cue across the whole route, battle music, one flee, field return music).
+- **Results** (rendered, UE 5.8.2, this lane): `Memoria.` 288/288 (about 27 min), `MemoriaVisual.` 3/3, `MemoriaCheckpointProcess.` 3/3. The audio device initialized on WASAPI; the logs show 0 audio warnings or errors.
+- **Not yet done:**
+  - No human listening pass: tests verify routing and assets, not how the sounds feel.
+  - The heartbeat loop is not wired (it belongs to the battle core).
+  - No volume options.
+  - A packaged build was not re-verified.
+- **Next.** `BATTLE_CORE_SPEC.md` holds the next Codex task (the minimal fun battle loop). Pre-existing deprecation warnings (`UMaterial::bUsedWithInstancedStaticMeshes`) in `MemoriaDepthAssetsCommandlet.cpp` will break on the next engine release.
+
 # Migration handoff — code review follow-up (S293, 2026-09-25)
 
 - First complete rendered registry run: `validate_unreal.py --build-and-test --rendered --test-prefix Memoria. --automation-timeout 5400`. Baseline on 371cd6e2 passed 280/280 in about 28 minutes. The old fixed 900 s automation limit could not finish it; `--automation-timeout` is new and still defaults to 900.
