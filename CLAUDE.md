@@ -1,3 +1,7 @@
+# Active Unreal collaboration worktree
+
+Read `docs/collaboration/CLAUDE_CODEX.md` first for current project, file ownership and handoff rules. This checkout is an Unreal migration workspace; legacy Godot notes below remain reference. Wait for a user-assigned development task.
+
 # MEMORIA: The Price of Oblivion — Game Project
 
 ## 프로젝트 개요

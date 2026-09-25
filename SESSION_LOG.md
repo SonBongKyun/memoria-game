@@ -9071,3 +9071,8 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 - 배포 ZIP MEMORIA-Unreal-Verdan-S292-Windows-Development.zip (342,081,925 bytes, SHA-256 7013469696567978bc139734f9cb7332073bad63a2658bcb2dec2e6dac3e7108); PDB 제외, 전체 ZIP 무결성 PASS. 정식 Steam 데모가 아닌 별도 GitHub 개발 프리뷰 대상으로 준비.
 - 원본4217/기존UE101 패키지·S291 도적 그림 보존 PASS. S291 시작부 PreInit CHECK15는 이번에도 원인 미확정; 선택47 PASS·배포 기동과 별도 기록.
 - 공격·전투 기억 연소·적 턴·승패·Chapter3·업적 영구 저장·사람의15~20분 통합 플레이는 후속 작업. 기존 Godot 공개 데모는 유지. 범위와 증거는 ART_2_REPORT.md 및 evidence/art2에 기록.
+
+
+## 2026-09-25 — Claude/Codex Unreal collaboration setup
+
+Local collaboration snapshot of the current foundation HEAD plus 15 modified tracked files and the required untracked source/reference files. Original checkout, index and branch remain unchanged. Two isolated ORCA worktrees share this base and use docs/collaboration/CLAUDE_CODEX.md. No gameplay changes or new Unreal test pass are claimed by setup. Untracked historical evidence remains available in the original foundation checkout.
