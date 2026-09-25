@@ -1,5 +1,8 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Presentation/MemoriaArrel3DComponent.h"
+#include "Audio/MemoriaAudioCatalog.h"
+#include "Audio/MemoriaAudioSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Framework/MemoriaVerdanTuning.h"
@@ -401,7 +404,11 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     {
         Direction = FMath::Abs(Step.X) >= FMath::Abs(Step.Y) ? (Step.X > 0 ? TEXT("Right") : TEXT("Left")) : (Step.Y > 0 ? TEXT("Up") : TEXT("Down"));
     }
+    const float PhaseBefore = ArrelMesh->GaitPhase();
     ArrelMesh->AdvanceLocomotion(Step,DeltaSeconds);
+    // Source player.gd plays play_step on Verdan's stone paving; here each footfall follows the planted foot.
+    if (ArrelMesh->LocomotionWeight() > .5f && MemoriaAudio::CrossedFootContact(PhaseBefore, ArrelMesh->GaitPhase()))
+        if (auto* Audio = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>() : nullptr) Audio->PlaySfx(TEXT("step_stone"));
     PlayerShadow->SetWorldLocation(FVector(Position.X, Position.Y, -9));
     UpdateCameraAndVisibility();
     PreviousPosition = Position;

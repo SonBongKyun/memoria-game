@@ -21,6 +21,9 @@ struct MEMORIA_API FMemoriaShopRow
 struct MEMORIA_API FMemoriaShopToast { FString Text; int32 Type = 0; };
 DECLARE_MULTICAST_DELEGATE(FMemoriaShopChanged);
 DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaShopGrainsChanged, int64);
+// Each source-order request as it is recorded (audio, achievement, tutorial, autosave).
+// Listeners observe only; they must not mutate the shop or the run.
+DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaShopRequestRecorded, const FString&);
 // Values only. The widget cannot sell, grant, change chapters, or persist a profile.
 struct MEMORIA_API FMemoriaShopView
 {
@@ -50,6 +53,7 @@ public:
     const TArray<FMemoriaShopToast>& GetToasts() const { return Toasts; }
     FMemoriaShopChanged OnChanged;
     FMemoriaShopGrainsChanged OnGrainsChanged;
+    FMemoriaShopRequestRecorded OnRequestRecorded;
     int32 GetOpenCount() const { return OpenCount; }
 private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaRunSubsystem> Run;
@@ -64,5 +68,6 @@ private:
     TArray<FMemoriaShopOffer> Stock;
     TArray<FString> Requests;
     void Reset();
+    void Request(const TCHAR* Value);
     void OnWorldCleanup(UWorld* World, bool bSessionEnded, bool bCleanupResources);
 };

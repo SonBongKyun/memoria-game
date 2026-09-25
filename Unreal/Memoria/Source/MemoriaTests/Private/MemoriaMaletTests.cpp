@@ -5,6 +5,7 @@
 #include "Presentation/MemoriaBattleEntryWidget.h"
 #include "Presentation/MemoriaBattleEntryArt.h"
 #include "Battle/MemoriaBattleEntrySubsystem.h"
+#include "Audio/MemoriaAudioSubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "MemoriaPotionEvidence.h"
 #include "MemoriaPlayerObservation.h"
@@ -993,6 +994,19 @@ public:
         {
             auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
             if(Frame==24){Capture(TEXT("BattleEntry"));Write(Host,Run,Pawn,TEXT("battle_entry"));}
+            if(Frame==24)
+                if(auto* Audio=Run->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();Test->TestNotNull(TEXT("Audio subsystem exists"),Audio))
+                {
+                    // Everything this route has heard so far, through real input and domain events.
+                    Test->TestEqual(TEXT("Battle crossfades to the source battle theme"),Audio->GetMusic(),FName(TEXT("battle")));
+                    Test->TestTrue(TEXT("Battle has no field ambience"),Audio->GetAmbient().IsNone());
+                    Test->TestEqual(TEXT("One entry sting per encounter"),Audio->GetCueCount(TEXT("battle_intro")),1);
+                    for(const TCHAR* Cue:{TEXT("confirm"),TEXT("ui_select"),TEXT("ui_open"),TEXT("ui_close"),TEXT("step_stone")})
+                        Test->TestTrue(*FString::Printf(TEXT("Route played %s"),Cue),Audio->GetCueCount(Cue)>0);
+                    // The deal burns the Grade 2 sword: source burn drama = rising tone, then ignition.
+                    Test->TestTrue(TEXT("High-grade burn played the rising tone"),Audio->GetCueCount(TEXT("rising_tone"))>0);
+                    Test->TestTrue(TEXT("High-grade burn ignited"),Audio->GetCueCount(TEXT("burn_ignite"))>0);
+                }
             if(Frame==30)
             {
                 const uint64 Revision=Battle->GetRevision();
@@ -1007,6 +1021,8 @@ public:
             if(Frame==36)
             {
                 Test->TestTrue(TEXT("Original 300ms cleanup has not fired early"),World==BattleOwner.Get() && Battle->IsReturning());
+                if(auto* Audio=Run->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();Test->TestNotNull(TEXT("Audio subsystem exists"),Audio))
+                    Test->TestEqual(TEXT("Source ambient flee plays flee once"),Audio->GetCueCount(TEXT("flee")),1);
                 Capture(TEXT("BattleWithdrawal"));
             }
             if(Frame>36 && World!=BattleOwner.Get() && Host->IsVerdanRevisit())
@@ -1021,6 +1037,11 @@ public:
             Test->TestTrue(TEXT("Source flee respawns at 128,288"),Memoria::Coordinates::ToSource(Pawn->GetActorLocation()).Equals(FVector2D(128,288),.01));
             Test->TestEqual(TEXT("Map return preserves completed first-turn state"),Canon(MemoriaPotionEvidence::Full(*Run)),BattleBeforeFlee);
             Test->TestTrue(TEXT("New visit resets encounter distance"),PC->GetEncounterModel().StepCount<.01);
+            if(auto* Audio=Run->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();Test->TestNotNull(TEXT("Audio subsystem exists"),Audio))
+            {
+                Test->TestEqual(TEXT("Field return restores the market BGM"),Audio->GetMusic(),FName(TEXT("ch2_verdan")));
+                Test->TestEqual(TEXT("Field return restores the light wind"),Audio->GetAmbient(),FName(TEXT("wind_light")));
+            }
             Capture(TEXT("FieldReturned"));Write(Host,Run,Pawn,TEXT("field_returned"));
             // Second image is an explicit alternative-enemy presentation fixture.
             AlternativeEnemy=1-FirstBattle.EnemyIndex;auto Rng=FMemoriaEncounterRng::Random();

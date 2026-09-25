@@ -21,6 +21,8 @@ public:
     void AdvanceLocomotion(const FVector& Displacement,float DeltaSeconds);
     FVector FocusPosition() const { return GetComponentLocation()+FVector(0,0,62); }
     float LocomotionWeight() const { return WalkWeight; }
+    // Gait cycle in [0,1): the left foot plants at 0, the right at 0.5.
+    float GaitPhase() const { return Phase; }
     const FMemoriaArrelGaitBones& GaitBones() const { return Bones; }
 private:
     float Phase=0,WalkWeight=0,IdleTime=0;

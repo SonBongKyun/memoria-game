@@ -10,6 +10,7 @@
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Audio/MemoriaAudioSubsystem.h"
 #include "Save/MemoriaRunSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
@@ -102,6 +103,13 @@ public:
         {
             if (!Test->TestEqual(TEXT("VN reaches original choice step 10"), Host->GetContinuation().Current.OriginalIndex, 10)) return true;
             Test->TestFalse(TEXT("Arrival flag absent before terminal"), Run->GetRunSnapshot().GetFlag(TEXT("ch2_arrival_vn_seen")));
+            if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio subsystem exists"), Audio))
+            {
+                // Source VN metadata bgm is ch2_verdan; dialogue ducks it.
+                Test->TestEqual(TEXT("Arrival VN plays its declared BGM"), Audio->GetMusic(), FName(TEXT("ch2_verdan")));
+                Test->TestTrue(TEXT("Dialogue ducks the BGM"), Audio->IsDucked());
+                Test->TestTrue(TEXT("Advancing lines plays confirm"), Audio->GetCueCount(TEXT("confirm")) > 0);
+            }
             Test->TestEqual(TEXT("Presented choice count respects actual filter"), Host->GetView().Choices.Num(), IsFiltered ? 2 : 3);
             Capture(TEXT("_Choices"));
             if (IsResume)
@@ -176,6 +184,14 @@ public:
             Test->TestTrue(TEXT("Modal context removed; exploration restored"), !Input->HasMappingContext(ModalContext) && Input->HasMappingContext(ExploreContext));
             Test->TestTrue(TEXT("Viewport focus restored"), FSlateApplication::Get().GetUserFocusedWidget(0) == World->GetGameViewport()->GetGameViewportWidget());
             CompareOracle(Host, Run, IsField ? TEXT("source_field_en") : IsFiltered ? TEXT("source_vn_filtered_original") : TEXT("source_vn_choice_1"));
+            if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio subsystem exists"), Audio))
+            {
+                Test->TestEqual(TEXT("Verdan exploration plays the source market BGM"), Audio->GetMusic(), FName(TEXT("ch2_verdan")));
+                Test->TestEqual(TEXT("Verdan exploration adds the source light wind"), Audio->GetAmbient(), FName(TEXT("wind_light")));
+                Test->TestFalse(TEXT("Exploration restores full BGM volume"), Audio->IsDucked());
+                Test->TestTrue(TEXT("Dialogue advance played confirm"), Audio->GetCueCount(TEXT("confirm")) > 0);
+                if (!IsField) Test->TestTrue(TEXT("Choosing a VN option played ui_select"), Audio->GetCueCount(TEXT("ui_select")) > 0);
+            }
             Origin = Pawn->GetActorLocation(); CameraOrigin = Pawn->GetFieldCamera()->GetComponentLocation();
             Capture(TEXT("_Exploration")); Key(EKeys::D, IE_Pressed);
         }

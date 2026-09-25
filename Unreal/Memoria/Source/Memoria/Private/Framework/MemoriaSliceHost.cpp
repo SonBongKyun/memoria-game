@@ -15,6 +15,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Audio/MemoriaAudioSubsystem.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -47,6 +48,8 @@ AMemoriaSliceController::AMemoriaSliceController()
 FString AMemoriaSliceController::GetInteractionPrompt() const { return Interaction->GetPrompt(); }
 UMemoriaNarrativeSubsystem* AMemoriaSliceController::Host() const
 { return GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>(); }
+void AMemoriaSliceController::Cue(const TCHAR* Id) const
+{ if (auto* Audio = GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()) Audio->PlaySfx(Id); }
 void AMemoriaSliceController::SetupInputComponent()
 {
     Super::SetupInputComponent();
@@ -224,10 +227,12 @@ void AMemoriaSliceController::ToggleArchive()
     ArchiveWidget->OnConsumedKey.BindUObject(this,&AMemoriaSliceController::TrackArchiveGesture);
     ArchiveWidget->OnClose.BindUObject(this,&AMemoriaSliceController::CloseArchive);
     ArchiveWidget->BindRun(Run);PresentModal(ArchiveWidget);
+    Cue(TEXT("ui_open")); // Addition: the source archive opens silently.
 }
 void AMemoriaSliceController::CloseArchive()
 {
     if(!ArchiveWidget)return;
+    Cue(TEXT("ui_close"));
     ArchiveWidget->OnConsumedKey.Unbind();ArchiveWidget->OnClose.Unbind();ArchiveWidget->BindRun(nullptr);
     DismissModal();ArchiveWidget=nullptr;LastRevision=INDEX_NONE;
     bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
@@ -247,16 +252,21 @@ void AMemoriaSliceController::Navigate(const FInputActionValue& Value)
     }
     if (NarrativeWidget)
     {
+        const auto View = Host()->GetView();
         const float X = Value.Get<FVector2D>().X;
-        if (Host()->GetView().bShopPresentation && FMath::Abs(X) > .5f && NarrativeWidget->GetShopWidget())
+        if (View.bShopPresentation && FMath::Abs(X) > .5f && NarrativeWidget->GetShopWidget())
             NarrativeWidget->GetShopWidget()->SwitchMode(X > 0 ? 1 : -1);
         const float Y = Value.Get<FVector2D>().Y;
         if (FMath::Abs(Y) > 0.5f) NarrativeWidget->Navigate(Y > 0 ? -1 : 1);
+        // Source dialogue_box/memory_shop play ui_hover when a choice or row gains focus.
+        if (FMath::Abs(Y) > .5f && (View.bShopPresentation || View.Choices.Num() > 1)) Cue(TEXT("ui_hover"));
     }
 }
 void AMemoriaSliceController::ForwardConfirm(int32 OriginalIndex)
 {
     if (bAwaitConfirmRelease || ArchiveWidget || BattleWidget) return;
+    // Source dialogue_box: ui_select when a choice is pressed, confirm when a line advances.
+    Cue(Host()->GetView().Choices.IsEmpty() ? TEXT("confirm") : TEXT("ui_select"));
     const auto Before = Host()->GetState(); Host()->Confirm(OriginalIndex);
     if (Before != Host()->GetState()) bAwaitConfirmRelease = true;
 }

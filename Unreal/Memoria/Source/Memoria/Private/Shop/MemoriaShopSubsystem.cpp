@@ -33,6 +33,10 @@ void UMemoriaShopSubsystem::Reset()
     OwnerRun.Invalidate(); OwnerWorld.Reset(); bWorldBound = false;
     OpenCount = 0; Stock.Reset(); Requests.Reset();
 }
+void UMemoriaShopSubsystem::Request(const TCHAR* Value)
+{
+    Requests.Add(Value); OnRequestRecorded.Broadcast(Requests.Last());
+}
 void UMemoriaShopSubsystem::OnWorldCleanup(UWorld* World, bool, bool)
 {
     if (bWorldBound && OwnerWorld.Get() == World) Reset();
@@ -50,8 +54,9 @@ bool UMemoriaShopSubsystem::OpenMalet(UWorld* Owner)
     if (!Catalog) return false;
     Reset(); OwnerRun = Run->GetRunSnapshot().RunId; OwnerWorld = Owner; bWorldBound = Owner != nullptr;
     Stock = SourceMaletOffers(); OpenCount = 1;
-    // Source order. These requests are recorded, not executed by profile/audio/tutorial handlers.
-    Requests = {TEXT("request:audio:ui_open"), TEXT("request:achievement:check_grains"), TEXT("request:tutorial:first_shop")};
+    // Source order. Requests are recorded here; only audio observers act on them
+    // (profile, achievement and tutorial handlers remain unported).
+    Request(TEXT("request:audio:ui_open")); Request(TEXT("request:achievement:check_grains")); Request(TEXT("request:tutorial:first_shop"));
     return true;
 }
 FMemoriaShopView UMemoriaShopSubsystem::GetView() const
@@ -119,7 +124,7 @@ bool UMemoriaShopSubsystem::Transact(const FString& InMode, const FString& Id, u
         Run->State.Player.Grains += Row.Price;
         OnGrainsChanged.Broadcast(Run->State.Player.Grains);
         if (Revision != Token || !IsOpen()) return false;
-        Requests.Add(TEXT("request:audio:confirm"));
+        Request(TEXT("request:audio:confirm"));
         Toasts.Add({FString(Ko ? SourceSoldKo : SourceSoldEn).Replace(TEXT("%lld"), *LexToString(Row.Price)).Replace(TEXT("%s"), *Row.Title), 2});
     }
     else
@@ -138,11 +143,11 @@ bool UMemoriaShopSubsystem::Transact(const FString& InMode, const FString& Id, u
         { Run->State.Player.Grains += Row.Price; return false; }
         if (Revision != Token || !IsOpen()) return false;
         Stock.FindByPredicate([&](const auto& O){return O.Id == Id;})->bSold = true;
-        Requests.Add(TEXT("request:audio:memory_add"));
-        Requests.Add(TEXT("request:audio:confirm"));
+        Request(TEXT("request:audio:memory_add"));
+        Request(TEXT("request:audio:confirm"));
         Toasts.Add({FString(SourceBought).Replace(TEXT("%lld"), *LexToString(Row.Price)).Replace(TEXT("%s"), *D.Title), 1});
     }
-    Requests.Add(TEXT("request:achievement:check_grains"));
+    Request(TEXT("request:achievement:check_grains"));
     ++Revision; OnChanged.Broadcast(); return true;
 }
 bool UMemoriaShopSubsystem::Close(uint64 ExpectedRevision)
@@ -150,10 +155,10 @@ bool UMemoriaShopSubsystem::Close(uint64 ExpectedRevision)
     if (!IsOpen() || bBusy || Revision != ExpectedRevision || Run->GetPlayerMemory()->IsDispatchingEvent()) return false;
     TGuardValue<bool> Busy(bBusy, true);
     bClosed = true;
-    Requests.Add(TEXT("request:audio:ui_close"));
+    Request(TEXT("request:audio:ui_close"));
     Run->SetStoryFlag(TEXT("ch2_complete"), true);
     Run->State.CurrentChapter = 3;
-    Requests.Add(TEXT("request:autosave:chapter_transition"));
+    Request(TEXT("request:autosave:chapter_transition"));
     // Source captures the current Verdan field after chapter/flag writes and
     // before achievement requests and the deferred next-map timer.
     FVector2D Position(500,340);
@@ -161,8 +166,8 @@ bool UMemoriaShopSubsystem::Close(uint64 ExpectedRevision)
         if (auto* PC=World->GetFirstPlayerController())
             if (APawn* Pawn=PC->GetPawn()) Position=Memoria::Coordinates::ToSource(Pawn->GetActorLocation());
     GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->SaveClosedBoundary(Position);
-    Requests.Add(TEXT("request:achievement:chapter:2"));
-    Requests.Add(TEXT("request:achievement:unlock:merchant"));
-    Requests.Add(TEXT("deferred:chapter_transition_delay:1.5"));
+    Request(TEXT("request:achievement:chapter:2"));
+    Request(TEXT("request:achievement:unlock:merchant"));
+    Request(TEXT("deferred:chapter_transition_delay:1.5"));
     ++Revision; OnChanged.Broadcast(); return true;
 }

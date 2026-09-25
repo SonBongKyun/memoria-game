@@ -8,6 +8,7 @@
 #include "EngineUtils.h"
 #include "Framework/MemoriaSliceHost.h"
 #include "Framework/MemoriaFieldPawn.h"
+#include "Audio/MemoriaAudioSubsystem.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "MemoriaPlayFeelChecks.h"
 #include "Interaction/MemoriaMaletActor.h"
@@ -227,6 +228,8 @@ public:
         if (Frame == 156)
         {
             Test->TestTrue(TEXT("Skinned joint pose changes through movement"),SeenGaitPoses.Num()>=8);
+            if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio subsystem exists"), Audio))
+                Test->TestTrue(TEXT("Planted feet play stone footsteps"), Audio->GetCueCount(TEXT("step_stone")) > 0);
             Capture(TEXT("Market"));
         }
         if (Frame == 158)

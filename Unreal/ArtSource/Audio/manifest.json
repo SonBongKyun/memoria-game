@@ -1,0 +1,182 @@
+{
+  "cues": {
+    "battle_intro": {
+      "duration": 0.6,
+      "file": "battle_intro.wav",
+      "loop": false,
+      "samples": 13230,
+      "sha256": "4bd310a8ca31a3efb729826a3a3ff5037d10ccc32475e8962bbcf576786b190e"
+    },
+    "burn": {
+      "duration": 0.4,
+      "file": "burn.wav",
+      "loop": false,
+      "samples": 8820,
+      "sha256": "f3d103d34197ceedc5f9babf99ea7700297c7eec7e22b4c89b4f04a67e9bd9e0"
+    },
+    "burn_ignite": {
+      "duration": 0.449977,
+      "file": "burn_ignite.wav",
+      "loop": false,
+      "samples": 9922,
+      "sha256": "f2cd8ac4ffcd049743d7cc268703cf59d6460ec7f88412690dedb186debcf8e5"
+    },
+    "cancel": {
+      "duration": 0.149977,
+      "file": "cancel.wav",
+      "loop": false,
+      "samples": 3307,
+      "sha256": "6fe793dccda6aa7ae474fa04e68cf43e25a01f1b74a8531c7bd6df540970d0c2"
+    },
+    "confirm": {
+      "duration": 0.1,
+      "file": "confirm.wav",
+      "loop": false,
+      "samples": 2205,
+      "sha256": "745ce891efd618b1c77cd6c79d0a5d5b4a74efa6df07d25016b28dd41cbd7640"
+    },
+    "defeat": {
+      "duration": 0.5,
+      "file": "defeat.wav",
+      "loop": false,
+      "samples": 11025,
+      "sha256": "60372fa3d34f3f0a5bd3cf59543e6ec694bc1e245df410d9aa56098c8daac424"
+    },
+    "drain": {
+      "duration": 0.349977,
+      "file": "drain.wav",
+      "loop": false,
+      "samples": 7717,
+      "sha256": "65e6fc53ab4948bb0ba17175c932bd80fa6ba0be04e1b094cef40ee9192a87d7"
+    },
+    "enemy_die": {
+      "duration": 0.549977,
+      "file": "enemy_die.wav",
+      "loop": false,
+      "samples": 12127,
+      "sha256": "f6a8ab1de7ca739667023f3e5b0edbd8c21c66ed02cf9c114484d0dfff9d0d53"
+    },
+    "flee": {
+      "duration": 0.2,
+      "file": "flee.wav",
+      "loop": false,
+      "samples": 4410,
+      "sha256": "724ba1d4f6748e9cfd5b715e1f113a55fea5c7771b5203cb00b448fe544a6bfd"
+    },
+    "heal": {
+      "duration": 0.3,
+      "file": "heal.wav",
+      "loop": false,
+      "samples": 6615,
+      "sha256": "2b37cff008f5135c8159c7a7e374883166417a11126d5dc91a3b7b90ac38f12e"
+    },
+    "heal_layered": {
+      "duration": 0.649977,
+      "file": "heal_layered.wav",
+      "loop": false,
+      "samples": 14332,
+      "sha256": "30640b08b9c8083bf4312a49921bdc89df4ed72fb62d529133bc3c4f1ff31a4e"
+    },
+    "heartbeat": {
+      "duration": 1.0,
+      "file": "heartbeat.wav",
+      "loop": true,
+      "samples": 22050,
+      "sha256": "e893c39e5f343dbd77190b1870addc353db21a9ccbdbc2d16a8fc7ec1320ad1c"
+    },
+    "hit": {
+      "duration": 0.12,
+      "file": "hit.wav",
+      "loop": false,
+      "samples": 2646,
+      "sha256": "07cabb978d56518b78b11c24dadd5ee6b770766b5696b3ae4ed88d0140da73a1"
+    },
+    "memory_add": {
+      "duration": 0.4,
+      "file": "memory_add.wav",
+      "loop": false,
+      "samples": 8820,
+      "sha256": "01528f66727a24d96f4f30e3f050ba257a818fcbd6c4094e99b8e2fecdae29db"
+    },
+    "phase_change": {
+      "duration": 0.6,
+      "file": "phase_change.wav",
+      "loop": false,
+      "samples": 13230,
+      "sha256": "6f50d3d6f5143b67ec3fceafde54422dab1fb639df01f8a7feaf69d80b9b0e80"
+    },
+    "rising_tone": {
+      "duration": 0.5,
+      "file": "rising_tone.wav",
+      "loop": false,
+      "samples": 11025,
+      "sha256": "1817e3c75262c3803880484a2829e531feecebdbeb2df6cf8c56a43bc3397502"
+    },
+    "shield": {
+      "duration": 0.349977,
+      "file": "shield.wav",
+      "loop": false,
+      "samples": 7717,
+      "sha256": "8c2bd832c0271544c902bf940c280456e329d6fc2309b8911c62cf835213a251"
+    },
+    "shield_break": {
+      "duration": 0.18,
+      "file": "shield_break.wav",
+      "loop": false,
+      "samples": 3969,
+      "sha256": "0ae655fd11d43ccaf1064696ba8a431d848e69568294eff96c747981b773112a"
+    },
+    "step_stone": {
+      "duration": 0.049977,
+      "file": "step_stone.wav",
+      "loop": false,
+      "samples": 1102,
+      "sha256": "64cf5ec8e334c354250d320f5db3240480e63d59529a23c951539a7366f8ad7d"
+    },
+    "sword_slash": {
+      "duration": 0.299955,
+      "file": "sword_slash.wav",
+      "loop": false,
+      "samples": 6614,
+      "sha256": "8cc0422f7563428141808492da2dd7ebd34eb55b371b1bdc1118a36459dc172c"
+    },
+    "ui_close": {
+      "duration": 0.1,
+      "file": "ui_close.wav",
+      "loop": false,
+      "samples": 2205,
+      "sha256": "446fa27f2c931733f04645bcb453c5698cf95b3809e4dc61fc2929d91f069e16"
+    },
+    "ui_hover": {
+      "duration": 0.04,
+      "file": "ui_hover.wav",
+      "loop": false,
+      "samples": 882,
+      "sha256": "2e2ab98280b2909d41b40ec06b4c5f4bf503b904f427ad95c3d4aac198b0ea12"
+    },
+    "ui_open": {
+      "duration": 0.12,
+      "file": "ui_open.wav",
+      "loop": false,
+      "samples": 2646,
+      "sha256": "baffb6a763b6cd574e1d60aa5f04fa9466a81dcbdd0cffeb4ef83735cfeb19da"
+    },
+    "ui_select": {
+      "duration": 0.08,
+      "file": "ui_select.wav",
+      "loop": false,
+      "samples": 1764,
+      "sha256": "edd44a4d741412e34cb683374d11043c9d347ab23112bab76d3aed755554b1c3"
+    },
+    "wind_light": {
+      "duration": 3.0,
+      "file": "wind_light.wav",
+      "loop": true,
+      "samples": 66150,
+      "sha256": "8d2d84c70634c05ad1c02f03bb26a4f492004f4fc65a334af68c98acbae26a26"
+    }
+  },
+  "generator": "generate_audio_sources.py/1",
+  "sample_rate": 22050,
+  "source": "scripts/systems/audio_manager.gd"
+}

@@ -56,6 +56,7 @@ private:
     void Navigate(const FInputActionValue& Value);
     void ForwardConfirm(int32 OriginalIndex);
     UMemoriaNarrativeSubsystem* Host() const;
+    void Cue(const TCHAR* Id) const;
     UPROPERTY(Transient) TObjectPtr<UMemoriaArchiveWidget> ArchiveWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> NarrativeWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> StatusWidget;
