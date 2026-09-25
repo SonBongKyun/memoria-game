@@ -27,6 +27,9 @@ desktop.ini
 /Unreal/**/DerivedDataCache/
 /Unreal/**/Intermediate/
 /Unreal/**/Saved/
+# Validation evidence (captures, logs, raw zips) is local-only; git history
+# kept multi-gigabyte runs unpushable. Reports summarize results in docs.
+/docs/unreal-migration/evidence/
 /Unreal/**/.vs/
 /Unreal/**/*.sln
 /Unreal/**/*.slnx
