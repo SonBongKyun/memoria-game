@@ -99,3 +99,7 @@ Unreal/Tools/validate_shop_transactions_preservation.py whitespace=-blank-at-eof
 # Raw engine logs may include trailing spaces emitted by Unreal; preserve exact bytes.
 docs/unreal-migration/evidence/battle1/**/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
 docs/unreal-migration/evidence/art2/**/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+
+# Rendered audio sources are compared byte for byte by generate_audio_sources.py --check.
+Unreal/ArtSource/Audio/*.json text eol=lf
+Unreal/ArtSource/Audio/*.wav binary
