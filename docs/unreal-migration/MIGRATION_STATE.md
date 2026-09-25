@@ -1,3 +1,19 @@
+# Migration handoff — code review follow-up (S293, 2026-09-25)
+
+- First complete rendered registry run: `validate_unreal.py --build-and-test --rendered --test-prefix Memoria. --automation-timeout 5400`. Baseline on 371cd6e2 passed 280/280 in about 28 minutes. The old fixed 900 s automation limit could not finish it; `--automation-timeout` is new and still defaults to 900.
+- The Chapter 2 slice run now starts in chapter 2, read from the imported VN/Field metadata. The source reaches Verdan after `ch1_after_forest` sets chapter 2. Before this change the run stayed at 1 until the shop close set 3. `BeginRun`/`BeginStartingMemoryRun` take `StartChapter` (default 1 = New Game).
+- Narrative burns use `FMemoriaRunSnapshot::MemoryContext()`, the same derivation as `UMemoriaRunSubsystem::GetMemoryContext()`. A choice burn or cost of an Elia-tied memory breaks Still Hands (source `JourneyOath.on_player_burn`). Authored VN step burns do not. The break is traced as `oath:broken:still`; no toast is wired yet.
+- Narrative `add_item` follows source `GameManager.add_item`: identities outside ITEMS are ignored (`item:ignored:<id>`), and recent items are updated. `inventory_changed:<id>` is recorded as an event rather than broadcast mid-step.
+- The Arrel gait resolves bone indices once per skeletal asset. Missing bones keep their reference pose and log one warning each, so swapping in another rig cannot index INDEX_NONE.
+- Verdan placeholders are hidden by the `MemoriaPlaceholder` tag or an `/Engine/BasicShapes/` mesh, not by exact coordinates. Collision is retained, and no .umap changed.
+- New tests (registry is now 286):
+  - `Memoria.Narrative.{BurnUsesRunContext,StillHandsOath,AddItemSourceRules}`
+  - `Memoria.Presentation.{ArrelGaitBonesResolved,ArrelRigWithoutGaitBones,PlaceholderIdentification}`
+  - Campaign now asserts that the slice starts in chapter 2; Verdan exploration asserts that placeholders are hidden.
+- Result after the fixes: `Memoria.` 286/286, `MemoriaVisual.` 3/3 and `MemoriaCheckpointProcess.` 3/3, all rendered.
+- Still open: the shop/Malet oracle harnesses set `current_chapter=1`. Tests that use them build their own chapter-1 runs, so they stay self-consistent. Regenerating them at chapter 2 would match the real slice state.
+- Validation evidence is local-only from now on (`docs/unreal-migration/evidence/` is ignored). Report links to it resolve only in this worktree.
+
 # Migration handoff — Verdan art and Windows development preview
 
 S292: the Alley Rat's legacy hound art is supplemented by a provisional, readable rat portrait. Original art and all 101 pre-existing UE packages remain byte-preserved. New battle art imports as exactly one additional texture. The rendered battle suite passed 47/47; a Win64 Development package cooked successfully, contains the new art and Verdan map, and loaded Verdan without fatal diagnostics in a packaged smoke. The ZIP passed full integrity verification. See [ART_2_REPORT.md](ART_2_REPORT.md), [play instructions](PLAYABLE_SLICE.md), and [art2 evidence](evidence/art2).
