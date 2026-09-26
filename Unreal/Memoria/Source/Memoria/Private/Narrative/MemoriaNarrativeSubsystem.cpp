@@ -10,6 +10,8 @@
 #include "Framework/MemoriaCoordinates.h"
 #include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Narrative/MemoriaVerdanStory.h"
+#include "Narrative/MemoriaSumpLedger.h"
+#include "Audio/MemoriaAudioSubsystem.h"
 #include "Interaction/MemoriaStoryPointActor.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
@@ -45,7 +47,7 @@ void UMemoriaNarrativeSubsystem::Reset()
     ActualDelaySeconds = ActualRewardDelaySeconds = 0;
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
     ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
-    ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr;
+    ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr; bTraderArmed = bLedgerArmed = false; Notices.Reset(); NoticeTime = -1000; bNoticeHeld = false;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
@@ -237,9 +239,24 @@ void UMemoriaNarrativeSubsystem::ArmStoryBeats()
         FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         if (auto* Point = World->SpawnActor<AMemoriaStoryPointActor>(Beat.Location, FRotator::ZeroRotator, Params)) Point->Configure(Beat.Group, Beat.Prompt);
     }
+    // Source _setup_side_quests at _ready: the trader exists while the quest is available or
+    // active; the ledger only if the quest was already active when Verdan was entered.
+    bTraderArmed = MemoriaSumpLedger::IsAvailable(S) || MemoriaSumpLedger::IsActive(S);
+    bLedgerArmed = MemoriaSumpLedger::IsActive(S) && !S.GetFlag(MemoriaSumpLedger::Steps()[1].Flag);
+    if (World->bIsTearingDown || !World->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return;
+    FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    if (bTraderArmed)
+        if (auto* Point = World->SpawnActor<AMemoriaStoryPointActor>(MemoriaSumpLedger::TraderLocation, FRotator::ZeroRotator, Params))
+            Point->Configure(MemoriaSumpLedger::TraderPoint, TEXT("Nervous Trader  |  E / A: talk"));
+    if (bLedgerArmed)
+        if (auto* Point = World->SpawnActor<AMemoriaStoryPointActor>(MemoriaSumpLedger::LedgerLocation, FRotator::ZeroRotator, Params))
+            Point->Configure(MemoriaSumpLedger::LedgerPoint, TEXT("Loose stone  |  E / A: search"));
 }
 bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) const
 {
+    const bool bLive = Run && Run->HasActiveRun() && StoryWorld.IsValid() && StoryWorld.Get() == GetWorld();
+    if (Group == MemoriaSumpLedger::TraderPoint) return bLive && bTraderArmed && !MemoriaSumpLedger::IsComplete(Run->GetRunSnapshot());
+    if (Group == MemoriaSumpLedger::LedgerPoint) return bLive && bLedgerArmed && !Run->GetRunSnapshot().GetFlag(MemoriaSumpLedger::Steps()[1].Flag);
     const auto* Beat = MemoriaVerdanStory::Find(Group);
     return Beat && Run && Run->HasActiveRun() && StoryWorld.IsValid() && StoryWorld.Get() == GetWorld() &&
         ArmedStoryBeats.Contains(Group) && !Run->GetRunSnapshot().GetFlag(Beat->Flag);
@@ -248,22 +265,80 @@ bool UMemoriaNarrativeSubsystem::StartStoryBeat(const FString& Group)
 {
     if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
     if (State != EMemoriaSliceState::Exploration || !Context || !IsStoryBeatAvailable(Group)) return false;
+    if (Group == MemoriaSumpLedger::TraderPoint || Group == MemoriaSumpLedger::LedgerPoint) return HandleSumpLedger(Group);
     const auto* Beat = MemoriaVerdanStory::Find(Group);
     const FString Path = FString(TEXT("/Game/Memoria/Generated/Narrative/")) + Beat->Asset + TEXT(".") + Beat->Asset;
-    StoryAsset = LoadObject<UMemoriaFieldAsset>(nullptr, *Path);
-    if (!StoryAsset) { Record(TEXT("error:missing_story_contract:") + Group); return false; }
+    if (!LoadObject<UMemoriaFieldAsset>(nullptr, *Path)) { Record(TEXT("error:missing_story_contract:") + Group); return false; }
     // Source body_entered: set the one-time flag, then load_and_start the group.
     Run->SetStoryFlag(Beat->Flag, true); Record(FString(TEXT("flag:")) + Beat->Flag);
     ArmedStoryBeats.Remove(Group);
+    return StartStoryField(Group, Beat->Asset);
+}
+bool UMemoriaNarrativeSubsystem::StartStoryField(const FString& Group, const TCHAR* Asset)
+{
+    const FString Path = FString(TEXT("/Game/Memoria/Generated/Narrative/")) + Asset + TEXT(".") + Asset;
+    StoryAsset = LoadObject<UMemoriaFieldAsset>(nullptr, *Path);
+    if (!StoryAsset) { Record(TEXT("error:missing_story_contract:") + Group); return false; }
     Record(TEXT("request:res://data/chapter2_dialogue.json::") + Group);
     DeferredInteraction.Reset(); ActiveFieldAsset = StoryAsset; ++FieldInvocationCount;
     Field = MakeUnique<FMemoriaFieldInterpreter>(StoryAsset->Definition, *Context);
     State = EMemoriaSliceState::Field; Record(TEXT("field:start:") + Group);
     Field->Start(); FlushEvents(TEXT("field")); return true;
 }
+bool UMemoriaNarrativeSubsystem::HandleSumpLedger(const FString& Point)
+{
+    using namespace MemoriaSumpLedger;
+    const auto& Flags = Steps();
+    if (Point == LedgerPoint)
+    {
+        // Ledger body_entered: advance to found, ui_select, then the found group.
+        Run->SetStoryFlag(Flags[1].Flag, true); Record(FString(TEXT("flag:")) + Flags[1].Flag); bLedgerArmed = false;
+        if (auto* Audio = GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()) Audio->PlaySfx(TEXT("ui_select"));
+        return StartStoryField(TEXT("sq_sump_ledger_found"), TEXT("DA_Field_SumpLedgerFound"));
+    }
+    switch (TraderAction(Run->GetRunSnapshot()))
+    {
+    case ETraderAction::Start:
+        Run->SetStoryFlag(Flags[0].Flag, true); Record(FString(TEXT("flag:")) + Flags[0].Flag);
+        return StartStoryField(TEXT("sq_sump_ledger_start"), TEXT("DA_Field_SumpLedgerStart"));
+    case ETraderAction::Return:
+    {
+        // advance_step on the last flag grants rewards before the return group starts:
+        // Grains, then items (add_item toast), then the memory, then the completion toast.
+        Run->SetStoryFlag(Flags.Last().Flag, true); Record(FString(TEXT("flag:")) + Flags.Last().Flag);
+        Run->State.Player.Grains += RewardGrains; Notice(FString::Printf(TEXT("+%lld Grains"), RewardGrains));
+        auto* Item = Run->State.Player.Items.FindByPredicate([](const auto& I){ return I.Id.Equals(RewardItem, ESearchCase::CaseSensitive); });
+        if (Item) Item->Count += RewardItemCount; else { FMemoriaItemCount New; New.Id = RewardItem; New.Count = RewardItemCount; Run->State.Player.Items.Add(New); }
+        Run->State.RecordRecentItem(RewardItem); Notice(FString::Printf(TEXT("+%lld Hi-Potion"), RewardItemCount));
+        if (Run->AcquireMemory(RewardMemory()) != EMemoriaMemoryResult::Success) Record(TEXT("error:quest_memory_rejected"));
+        Notice(TEXT("Quest Complete: ") + Title(false)); Record(TEXT("quest:complete:sump_ledger")); bNoticeHeld = true;
+        return StartStoryField(TEXT("sq_sump_ledger_return"), TEXT("DA_Field_SumpLedgerReturn"));
+    }
+    case ETraderAction::Remind:
+        Notice(TEXT("Find the ledger in the Sump.")); ++Revision; return true;
+    default: return false;
+    }
+}
+void UMemoriaNarrativeSubsystem::Notice(const FString& Text)
+{
+    // World time restarts on every Verdan load, so a notice belongs to the world that raised it.
+    if (!GetWorld() || NoticeWorld.Get() != GetWorld() || GetWorld()->GetTimeSeconds() - NoticeTime > 4.0) Notices.Reset();
+    Notices.Add(Text); NoticeWorld = GetWorld(); NoticeTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0; Record(TEXT("toast:") + Text);
+}
+FString UMemoriaNarrativeSubsystem::GetExplorationNotice() const
+{
+    return GetWorld() && NoticeWorld.Get() == GetWorld() && GetWorld()->GetTimeSeconds() - NoticeTime <= 4.0 ? FString::Join(Notices, TEXT("\n")) : FString();
+}
+FString UMemoriaNarrativeSubsystem::GetQuestTrackerLine() const
+{
+    if (!Run || !Run->HasActiveRun() || !MemoriaSumpLedger::IsActive(Run->GetRunSnapshot())) return FString();
+    const bool bKo = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    return (bKo ? TEXT("퀘스트  ") : TEXT("QUEST  ")) + MemoriaSumpLedger::Title(bKo) + TEXT("  -  ") + MemoriaSumpLedger::CurrentStepText(Run->GetRunSnapshot(), bKo);
+}
 void UMemoriaNarrativeSubsystem::Explore()
 {
     Field.Reset(); ActiveFieldAsset = nullptr; State = EMemoriaSliceState::Exploration; bPaused = false;
+    if (bNoticeHeld && GetWorld()) { NoticeTime = GetWorld()->GetTimeSeconds(); bNoticeHeld = false; }
     Record(TEXT("exploration:ready")); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::AfterVN()
@@ -386,6 +461,7 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
             View.LocationTitle = ActiveFieldAsset == FieldAsset ? TEXT("CHAPTER II  /  VERDAN") : TEXT("THE SUMP  /  MALET");
             if (const auto* Beat = ActiveFieldAsset && ActiveFieldAsset == StoryAsset ? MemoriaVerdanStory::Find(ActiveFieldAsset->Definition.Id) : nullptr) View.LocationTitle = Beat->Title;
+            else if (ActiveFieldAsset && ActiveFieldAsset == StoryAsset) View.LocationTitle = TEXT("VERDAN  /  THE SUMP LEDGER");
             // Sequences without a CG use the already-authored encounter location.
             View.BackdropSource = ActiveFieldAsset == FieldAsset ? FString() : TEXT("res://assets/cg/generated/story_ch2_malet_cellar.png");
             for (int32 I = 0; I <= Index; ++I)

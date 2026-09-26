@@ -140,7 +140,10 @@ const FFieldCohort* FieldCohort(const FString& Id)
         {TEXT("verdan_old_burner"),11,7,TEXT("DA_Field_VerdanOldBurner")},
         {TEXT("malet_backstory"),12,8,TEXT("DA_Field_MaletBackstory")},
         {TEXT("elia_sump_concern"),8,9,TEXT("DA_Field_EliaSumpConcern")},
-        {TEXT("sump_atmosphere"),6,10,TEXT("DA_Field_SumpAtmosphere")}
+        {TEXT("sump_atmosphere"),6,10,TEXT("DA_Field_SumpAtmosphere")},
+        {TEXT("sq_sump_ledger_start"),4,11,TEXT("DA_Field_SumpLedgerStart")},
+        {TEXT("sq_sump_ledger_found"),2,12,TEXT("DA_Field_SumpLedgerFound")},
+        {TEXT("sq_sump_ledger_return"),2,13,TEXT("DA_Field_SumpLedgerReturn")}
     };
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;

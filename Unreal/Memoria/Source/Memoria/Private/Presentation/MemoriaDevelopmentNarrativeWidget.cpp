@@ -118,8 +118,16 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
     const bool Right=View.PortraitSide==TEXT("right");
     Position(PortraitFrame,Right?.845f:.04f,.28f,Right?.96f:.155f,.89f);
     const bool Choosing=!View.Choices.IsEmpty() && !View.bPaused;
-    Position(NarrativePanel,View.bCompactStatus?.035f:.055f,View.bCompactStatus?.035f:View.bDevelopmentStop?.14f:Choosing?.49f:.66f,View.bCompactStatus?.37f:.945f,View.bCompactStatus?.19f:.96f);
-    Position(BodyScroll,Face && !Right?.185f:.045f,.28f,Face && Right?.815f:.95f,.78f);
+    // The exploration status grows with its lines (quest tracker, toasts) instead of clipping them.
+    float CompactBottom=.19f;
+    if(View.bCompactStatus)
+    {
+        TArray<FString> Rows;View.Body.ParseIntoArray(Rows,TEXT("\n"),false);int32 Lines=0;
+        for(const auto& Row:Rows)Lines+=FMath::Max(1,FMath::DivideAndRoundUp(Row.Len(),44));
+        CompactBottom=FMath::Clamp(.085f+.047f*Lines,.19f,.46f);
+    }
+    Position(NarrativePanel,View.bCompactStatus?.035f:.055f,View.bCompactStatus?.035f:View.bDevelopmentStop?.14f:Choosing?.49f:.66f,View.bCompactStatus?.37f:.945f,View.bCompactStatus?CompactBottom:.96f);
+    Position(BodyScroll,Face && !Right?.185f:.045f,View.bCompactStatus?.30f:.28f,Face && Right?.815f:.95f,View.bCompactStatus?.96f:.78f);
     Position(Hint,Face && !Right?.185f:.045f,.84f,Face && Right?.815f:.95f,.98f);
     Location->SetText(FText::FromString(View.bDevelopmentStop?View.Header:View.LocationTitle));
     Speaker->SetText(FText::FromString(View.bCompactStatus?View.Header:View.bPaused?TEXT("PAUSED"):Choosing?TEXT("YOUR CHOICE"):View.Speaker.IsEmpty()?TEXT("MEMORIA"):View.Speaker));

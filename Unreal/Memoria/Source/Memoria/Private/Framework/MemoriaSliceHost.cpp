@@ -160,8 +160,9 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
     Interaction->UpdateTarget(State == EMemoriaSliceState::Exploration && !IsModalOpen() ? GetPawn() : nullptr);
     const FString Prompt = Interaction->GetPrompt();
     const bool Changed = Narrative->GetRevision() != LastRevision;
-    if (!Changed && Prompt == LastPrompt) return;
-    LastPrompt = Prompt; LastRevision = Narrative->GetRevision();
+    const FString NoticeNow = Narrative->GetExplorationNotice();
+    if (!Changed && Prompt == LastPrompt && NoticeNow == LastNotice) return;
+    LastPrompt = Prompt; LastNotice = NoticeNow; LastRevision = Narrative->GetRevision();
     if (State != EMemoriaSliceState::Exploration && StatusWidget) { StatusWidget->RemoveFromParent(); StatusWidget = nullptr; }
     if (State == EMemoriaSliceState::VN || State == EMemoriaSliceState::Field || State == EMemoriaSliceState::Deferred)
     {
@@ -188,6 +189,8 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         if (Narrative->IsVerdanRevisit() && Encounter.bWarningEmitted)
             Status.Body+=TEXT("\nMemory noise closes in...");
         if (!Prompt.IsEmpty()) Status.Body += TEXT("\n") + Prompt;
+        if (const FString Quest = Narrative->GetQuestTrackerLine(); !Quest.IsEmpty()) Status.Body += TEXT("\n") + Quest;
+        if (const FString Notice = Narrative->GetExplorationNotice(); !Notice.IsEmpty()) Status.Body += TEXT("\n") + Notice;
         if (!Narrative->GetDeferredInteraction().IsEmpty())
             Status.Body += TEXT("\nDevelopment boundary: resolved ") + Narrative->GetDeferredInteraction() + TEXT("; content deferred.");
         StatusWidget->Display(Status); StatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible);

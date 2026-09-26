@@ -62,7 +62,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> NarrativeWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> StatusWidget;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMemoriaInteractionComponent> Interaction;
-    FString LastPrompt;
+    FString LastPrompt; FString LastNotice;
     TSet<FKey> HeldConfirmKeys;
     bool bAwaitConfirmRelease = false;
     int32 LastRevision = INDEX_NONE;

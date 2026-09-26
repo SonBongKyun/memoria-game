@@ -67,5 +67,60 @@
  ],
  "schema_version": 1,
  "source": "scenes/maps/verdan_market.gd",
+ "sump_ledger": {
+  "chapter_req": 3,
+  "id": "sump_ledger",
+  "ledger_rect": [
+   384,
+   384,
+   416,
+   416
+  ],
+  "requested_groups": [
+   "sq_sump_ledger_start",
+   "sq_sump_ledger_return",
+   "sq_sump_ledger_found"
+  ],
+  "reward_grains": 40,
+  "reward_items": {
+   "hi_potion": 1
+  },
+  "reward_memory": {
+   "burn_power": 55,
+   "desc": "Names and numbers, all owed, all forgotten. Someone paid dearly for this silence.",
+   "effect": "Lose awareness of financial transactions around you.",
+   "grade": 2,
+   "id": "sq_debt_ash",
+   "title": "Debt Written in Ash"
+  },
+  "rows": {
+   "sq_sump_ledger_found": 2,
+   "sq_sump_ledger_return": 2,
+   "sq_sump_ledger_start": 4
+  },
+  "step_desc": [
+   "Talk to the Nervous Trader near the alley.",
+   "Find the hidden ledger in the Sump.",
+   "Decide: return the ledger or burn it."
+  ],
+  "step_desc_ko": [
+   "골목 근처의 불안한 상인과 대화하기",
+   "웅덩이에 숨겨진 장부 찾기",
+   "선택하기: 장부를 돌려주거나 태우거나"
+  ],
+  "steps": [
+   "sq_sump_ledger_started",
+   "sq_sump_ledger_found",
+   "sq_sump_ledger_done"
+  ],
+  "title": "The Sump Ledger",
+  "title_ko": "웅덩이의 장부",
+  "trader_rect": [
+   56,
+   504,
+   104,
+   552
+  ]
+ },
  "tile_size": 32
 }

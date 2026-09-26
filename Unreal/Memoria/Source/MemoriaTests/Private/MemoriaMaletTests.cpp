@@ -39,6 +39,7 @@
 #include "Misc/Parse.h"
 #include "Misc/CommandLine.h"
 #include "Narrative/MemoriaVerdanStory.h"
+#include "Narrative/MemoriaSumpLedger.h"
 #include "Interaction/MemoriaStoryPointActor.h"
 #include "InputKeyEventArgs.h"
 #include "Input/Events.h"
@@ -1187,7 +1188,7 @@ public:
             {
                 Test->TestEqual(TEXT("Every unseen source beat is armed on the revisit"),Host->GetArmedStoryBeats().Num(),StoryGroup==TEXT("verdan_old_burner")?5:4);
                 int32 Points=0;for(TActorIterator<AMemoriaStoryPointActor> It(World);It;++It)++Points;
-                Test->TestEqual(TEXT("One story point per armed beat"),Points,5);
+                Test->TestEqual(TEXT("One point per armed beat plus the offered quest trader"),Points,6);
                 PC->ToggleArchive();
             }
             // Teleport under the archive modal so the encounter meter never counts it as walking.
@@ -1225,10 +1226,69 @@ public:
                 {
                     Test->TestTrue(TEXT("Backstory reached its closing illustration"),bStoryLastCaptured);
                     Test->TestTrue(TEXT("Both beats recorded"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_old_burner"))&&Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_backstory")));
-                    Capture(TEXT("StoryReturned"));return true;
+                    Capture(TEXT("StoryReturned"));Stage=28;Frame=-1;QuestStep=0;QuestFrame=0;
                 }
             }
             if(Frame>2400){Test->AddError(TEXT("Story beat did not return to exploration"));return true;}
+        }
+        else if(Stage==28)
+        {
+            // S299 Sump Ledger on the Ch3 revisit: start, reminder, source re-entry arms the ledger,
+            // find, return with rewards. Teleports happen under the archive modal only.
+            namespace L=MemoriaSumpLedger;const int32 F=Frame-QuestFrame;
+            const bool bTrader=QuestStep==0||QuestStep==3;const FVector Target=bTrader?L::TraderLocation:L::LedgerLocation;
+            const auto Next=[&](){++QuestStep;QuestFrame=Frame+1;};
+            if(QuestStep==1)
+            {
+                if(F==10){Key(EKeys::E,IE_Pressed);}
+                if(F==14){Key(EKeys::E,IE_Released);Test->TestTrue(TEXT("Reminder keeps exploration"),Host->GetState()==EMemoriaSliceState::Exploration);}
+                if(F==20){Test->TestTrue(TEXT("Source reminder toast"),Host->GetExplorationNotice().Contains(TEXT("Find the ledger in the Sump.")));Capture(TEXT("QuestReminder"));}
+                if(F==24){Test->TestFalse(TEXT("Ledger is not placed in the world the quest started"),Host->IsStoryBeatAvailable(L::LedgerPoint));
+                    BattleOwner=World;Test->TestTrue(TEXT("Explicit Verdan re-entry fixture"),Host->ReturnFromAmbientBattle());}
+                if(F>24&&World!=BattleOwner.Get()&&Host->IsVerdanRevisit()&&Host->GetState()==EMemoriaSliceState::Exploration)Next();
+            }
+            else
+            {
+                if(F==10){Test->TestTrue(TEXT("Quest point armed"),Host->IsStoryBeatAvailable(bTrader?L::TraderPoint:L::LedgerPoint));PC->ToggleArchive();}
+                if(F==16)Pawn->SetActorLocation(Target+FVector(-40,0,0));
+                if(F==20)PC->ToggleArchive();
+                if(F==40)
+                {
+                    Test->TestTrue(TEXT("Quest prompt"),PC->GetInteractionPrompt().StartsWith(bTrader?TEXT("Nervous Trader"):TEXT("Loose stone")));
+                    QuestGrains=Run->GetRunSnapshot().Player.Grains;QuestPotions=Run->GetItemCount(L::RewardItem);Key(EKeys::E,IE_Pressed);
+                }
+                if(F==44)
+                {
+                    Key(EKeys::E,IE_Released);const auto S=Run->GetRunSnapshot();
+                    Test->TestTrue(TEXT("Quest Field opens"),Host->GetState()==EMemoriaSliceState::Field);
+                    if(QuestStep==0)Test->TestTrue(TEXT("Started flag before the start group"),S.GetFlag(L::Steps()[0].Flag));
+                    if(QuestStep==2)Test->TestTrue(TEXT("Found flag before the found group"),S.GetFlag(L::Steps()[1].Flag));
+                    if(QuestStep==3)
+                    {
+                        Test->TestTrue(TEXT("Done flag before the return group"),S.GetFlag(L::Steps()[2].Flag));
+                        Test->TestEqual(TEXT("Source reward Grains"),S.Player.Grains,QuestGrains+L::RewardGrains);
+                        Test->TestEqual(TEXT("Source reward Hi-Potion"),Run->GetItemCount(L::RewardItem),QuestPotions+L::RewardItemCount);
+                        Test->TestTrue(TEXT("Source reward memory"),Run->GetPlayerMemory()->GetDefinitions().ContainsByPredicate([](const auto& D){return D.Id==TEXT("sq_debt_ash");})&&Run->GetPlayerMemory()->IsIntact(TEXT("sq_debt_ash")));
+                    }
+                }
+                if(F==60)Capture(QuestStep==0?TEXT("QuestTraderStart"):QuestStep==2?TEXT("QuestLedgerFound"):TEXT("QuestReturn"));
+                if(F>64&&Host->GetState()==EMemoriaSliceState::Field){if(Frame%8==0)Key(EKeys::Enter,IE_Pressed);if(Frame%8==3)Key(EKeys::Enter,IE_Released);}
+                if(F>64&&Host->GetState()==EMemoriaSliceState::Exploration&&!PC->IsModalOpen())
+                {
+                    Key(EKeys::Enter,IE_Released);
+                    if(QuestStep==0){Test->TestTrue(TEXT("Tracker names the ledger step"),Host->GetQuestTrackerLine().Contains(L::Steps()[1].Desc));Next();}
+                    else if(QuestStep==2){Test->TestTrue(TEXT("Tracker names the decision step"),Host->GetQuestTrackerLine().Contains(L::Steps()[2].Desc));Test->TestFalse(TEXT("Found ledger is gone"),Host->IsStoryBeatAvailable(L::LedgerPoint));Next();}
+                    else if(!bQuestCompleteCaptured)
+                    {
+                        bQuestCompleteCaptured=true;
+                        Test->TestTrue(TEXT("Completion toast after the return group"),Host->GetExplorationNotice().Contains(TEXT("Quest Complete: The Sump Ledger")));
+                        Test->TestTrue(TEXT("Tracker clears"),Host->GetQuestTrackerLine().IsEmpty());
+                        Test->TestFalse(TEXT("Completed trader is inert"),Host->IsStoryBeatAvailable(L::TraderPoint));
+                        Capture(TEXT("QuestComplete"));return true;
+                    }
+                }
+            }
+            if(F>2400){Test->AddError(TEXT("Sump Ledger step stalled"));return true;}
         }
         else if (Stage == 9 && Frame == 10) return true;
         if(RefusalMode==TEXT("ShopArchive") && Stage==14 && Frame==82)
@@ -1254,6 +1314,7 @@ private:
     TWeakObjectPtr<UWorld> BattleOwner;
     FString CombatBurnId;int32 CombatBurnBefore=0,CombatStep=0,CombatStepFrame=0;bool bCombatAttackSelected=false;
     FString StoryGroup;int32 StoryFieldsBefore=0;bool bStoryLastCaptured=false;
+    int32 QuestStep=0,QuestFrame=0;int64 QuestGrains=0,QuestPotions=0;bool bQuestCompleteCaptured=false;
     bool bBattleWarning=false;FMemoriaBattleEntryView FirstBattle;
     FString BattleBeforeFlee;int32 AlternativeEnemy=INDEX_NONE;TArray<FString> BattleReturnTrace;
     int32 ArchiveProbe=INDEX_NONE,ArchiveFrame=0,ArchiveCompleted=0;

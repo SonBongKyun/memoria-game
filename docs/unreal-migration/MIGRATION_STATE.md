@@ -1,3 +1,21 @@
+# Migration handoff — S299 Sump Ledger side quest (Claude lane, 2026-09-26)
+
+- User-assigned continuation of the story work, on top of `46f8bcf6` (Claude lane).
+- **Content.** The three groups the source actually requests (`sq_sump_ledger_start` 4, `sq_sump_ledger_found` 2 and `sq_sump_ledger_return` 2) were imported through the attested pipeline, along with three quest CGs. The authored `sq_sump_ledger_burn` is never requested by `verdan_market.gd`, and the "return or burn" step has no burn branch in the source, so it stays out.
+- **Rules**, from `side_quest.gd` and `_setup_side_quests`, in source order:
+  - Available from chapter 3, while not yet started.
+  - The trader exists at entry while the quest is available or active. Talking to them starts the quest, reminds while the ledger is missing, or returns it once found.
+  - The ledger is placed only if the quest was already active when Verdan was entered. So, as in the source, it appears after a re-entry.
+  - Finding it sets `sq_sump_ledger_found`, plays `ui_select` and opens the found group.
+  - Returning it sets `sq_sump_ledger_done` and grants the rewards before the return group: 40 Grains, 1 Hi-Potion, and the memory `sq_debt_ash` "Debt Written in Ash" (Grade3, power 55).
+  - Source toasts appear in the exploration status for 4 s of exploration: "Find the ledger in the Sump.", "+40 Grains", "+1 Hi-Potion", "Quest Complete: The Sump Ledger".
+  - A quest tracker line shows the current source step (en/ko).
+- **Deviations.** Walk-in areas become E/A points, as in S298. Source toasts use the existing status box instead of a toast widget. The status box now grows with its lines, and notices are scoped to the world that raised them because world time restarts on each Verdan load.
+- **Tests.**
+  - `Memoria.VerdanStory.SourceTable` also checks the quest against the parsed Godot source: steps and descriptions (en/ko), chapter gate, rewards, memory fields, areas, requested groups and row counts. It also runs the trader state machine over flags.
+  - The rendered journey adds start, reminder, the source re-entry (an explicit `ReturnFromAmbientBattle` fixture), find and return, with reward assertions. Captures: `QuestTraderStart`, `QuestReminder`, `QuestLedgerFound`, `QuestReturn`, `QuestComplete`.
+- **Results** (UE 5.8.2 rendered, final tree): full `Memoria.` **387/387**, `MemoriaVisual.` 3/3, `MemoriaCheckpointProcess.` 3/3, `Memoria.VerdanStory.` 1/1. The Godot trigger and quest fixture passes `--check`.
+
 # Migration handoff — S298 Verdan story beats (Claude lane, 2026-09-26)
 
 - Assigned by the user directly in the Claude chat. The request was to keep upgrading from the story and the Godot work. Claude lane, on top of `ffe5199a`.

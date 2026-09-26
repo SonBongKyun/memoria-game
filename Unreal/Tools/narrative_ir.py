@@ -30,6 +30,11 @@ FIELD_CASES = {
     'malet_backstory': (12, 8, 'DA_Field_MaletBackstory'),
     'elia_sump_concern': (8, 9, 'DA_Field_EliaSumpConcern'),
     'sump_atmosphere': (6, 10, 'DA_Field_SumpAtmosphere'),
+    # S299 Sump Ledger side quest (verdan_market.gd _setup_side_quests). The authored burn
+    # group is never requested by the source, so it is not part of the cohort.
+    'sq_sump_ledger_start': (4, 11, 'DA_Field_SumpLedgerStart'),
+    'sq_sump_ledger_found': (2, 12, 'DA_Field_SumpLedgerFound'),
+    'sq_sump_ledger_return': (2, 13, 'DA_Field_SumpLedgerReturn'),
 }
 
 def selected_case(dialect, group=None):

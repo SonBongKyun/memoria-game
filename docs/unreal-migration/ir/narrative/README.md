@@ -79,3 +79,7 @@ S298 adds five plain-row Verdan exploration groups to the reviewed Field cohort:
 `elia_sump_concern` (9) and `sump_atmosphere` (10). They carry text, speaker, portrait
 and CG only, with no gates, effects or choices. Import each with `--group <id>`.
 `elia_ch2_talk` (burned substitutions) and the Sump Ledger quest remain later cohorts.
+
+S299 adds the Sump Ledger groups the source requests: `sq_sump_ledger_start` (position 11),
+`sq_sump_ledger_found` (12) and `sq_sump_ledger_return` (13). `sq_sump_ledger_burn` is authored
+but never requested by `verdan_market.gd`, so it is not imported.

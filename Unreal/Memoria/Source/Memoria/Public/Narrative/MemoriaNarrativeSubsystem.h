@@ -57,6 +57,9 @@ public:
     bool StartStoryBeat(const FString& Group);
     bool IsStoryBeatAvailable(const FString& Group) const;
     const TArray<FString>& GetArmedStoryBeats() const { return ArmedStoryBeats; }
+    // Source toast text shown in the exploration status for a few seconds, and the quest tracker line.
+    FString GetExplorationNotice() const;
+    FString GetQuestTrackerLine() const;
     const FString& GetDeferredInteraction() const { return DeferredInteraction; }
     bool IsMaletTalkCached() const { return bMaletTalkCached; }
     bool IsMaletCallbackConnected() const { return bMaletCallbackConnected; }
@@ -97,6 +100,14 @@ private:
     TArray<FString> ArmedStoryBeats;
     TWeakObjectPtr<UWorld> StoryWorld;
     void ArmStoryBeats();
+    bool StartStoryField(const FString& Group, const TCHAR* Asset);
+    bool HandleSumpLedger(const FString& Point);
+    void Notice(const FString& Text);
+    bool bTraderArmed = false, bLedgerArmed = false;
+    TArray<FString> Notices;
+    double NoticeTime = -1000;
+    TWeakObjectPtr<UWorld> NoticeWorld;
+    bool bNoticeHeld = false; // Toasts raised before a Field start counting when exploration resumes.
     // Source reward listener is one-shot and synchronous. This owner binds only
     // the flag, world seed and three item grants, then opens the bounded shop presentation.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;
