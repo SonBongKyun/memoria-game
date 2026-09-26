@@ -81,7 +81,9 @@ public:
                 const FName Expected = View.CueKey.StartsWith(TEXT("ch1_cold_open")) ? FName(TEXT("dialogue_tense")) : View.CueKey.StartsWith(TEXT("ch2_")) ? FName(TEXT("ch2_verdan")) : FName(TEXT("ch1_forest"));
                 Test->TestEqual(*(TEXT("Scene music at ")+View.CueKey), Audio->GetMusic(), Expected);
                 Test->TestNotNull(*(TEXT("Rendered CG at ")+View.CueKey), Widget->DisplayedBackdrop());
-                if (!View.PortraitSource.IsEmpty() && View.Choices.IsEmpty()) Test->TestNotNull(*(TEXT("Rendered portrait at ")+View.CueKey), Widget->DisplayedPortrait());
+                // A line over a full-scene story CG keeps the stage clear (_should_hide_portraits_for_cg_line).
+                const bool StoryCg = View.bStepHasCg && (View.BackdropSource.Contains(TEXT("/generated/story_")) || View.BackdropSource.Contains(TEXT("/generated/dialogue_")));
+                if (!View.PortraitSource.IsEmpty() && !View.Speaker.IsEmpty() && View.Choices.IsEmpty() && !StoryCg) Test->TestNotNull(*(TEXT("Rendered portrait at ")+View.CueKey), Widget->DisplayedPortrait());
             }
             // Captures of the presentation cues at their visible moment.
             FString Shot; int32 At = 0;
@@ -90,6 +92,7 @@ public:
             else if (View.CueKey == TEXT("ch1_cold_open:2")) { Shot = TEXT("Ch1_03_Choice"); At = 20; }
             else if (View.CueKey == TEXT("ch1_prologue:4")) { Shot = TEXT("Ch1_04_SystemLog"); At = 30; }
             else if (View.bDistorted && !Captured.Contains(TEXT("Ch1_05_Distorted"))) { Shot = TEXT("Ch1_05_Distorted"); At = 40; }
+            else if (!View.Speaker.IsEmpty() && !View.PortraitSource.IsEmpty() && !View.bStepHasCg && View.CueKey.StartsWith(TEXT("ch1_prologue")) && !Captured.Contains(TEXT("Ch1_09_Speaker"))) { Shot = TEXT("Ch1_09_Speaker"); At = 40; }
             else if (!View.ChoiceTitle.IsEmpty() && View.CueKey.StartsWith(TEXT("ch1_void_beast")) && !Captured.Contains(TEXT("Ch1_06_VoidBeast"))) { Shot = TEXT("Ch1_06_VoidBeast"); At = 30; }
             else if (View.LedgerSerial > 0 && !Captured.Contains(TEXT("Ch1_07_Ledger"))) { Shot = TEXT("Ch1_07_Ledger"); At = 45; }
             if (!Shot.IsEmpty() && !Captured.Contains(Shot))
@@ -99,6 +102,7 @@ public:
                 if (Shot == TEXT("Ch1_02_VoidImpact")) { Test->TestTrue(TEXT("Void flash on screen"), Probe.FlashAlpha > .02f); Test->TestTrue(TEXT("Push-in motion"), Probe.Motion == TEXT("push_in")); }
                 if (Shot == TEXT("Ch1_04_SystemLog")) Test->TestTrue(TEXT("System log styled"), Probe.bSystemStyle);
                 if (Shot == TEXT("Ch1_05_Distorted")) Test->TestTrue(TEXT("Distorted line styled"), Probe.bDistortedStyle);
+                if (Shot == TEXT("Ch1_09_Speaker")) { Test->TestNotNull(TEXT("Speaker portrait on stage"), Widget->DisplayedPortrait()); Test->TestFalse(TEXT("Speaker side lit"), Probe.ActiveSide.IsEmpty()); Test->TestTrue(TEXT("Memory frame shown"), Probe.bStoryFrame); }
                 if (Shot == TEXT("Ch1_07_Ledger")) { Test->TestTrue(TEXT("Ledger fully shown"), Probe.LedgerAlpha > .95f); Test->TestTrue(TEXT("Ledger text"), Probe.LedgerText.Contains(TEXT("THE LEDGER, CHAPTER 1"))); }
                 Capture(Shot); return false;
             }
@@ -125,7 +129,7 @@ public:
         Test->TestTrue(TEXT("Chapter autosave on disk"), IFileManager::Get().FileExists(*Checkpoint->GetChapterSlotPath()));
         Test->TestEqual(TEXT("Verdan music"), Audio->GetMusic(), FName(TEXT("ch2_verdan")));
         Test->TestTrue(TEXT("Travel recorded"), Host->GetTrace().Contains(TEXT("travel:verdan")));
-        for (const TCHAR* Name : {TEXT("Ch1_01_ColdOpen"),TEXT("Ch1_02_VoidImpact"),TEXT("Ch1_03_Choice"),TEXT("Ch1_04_SystemLog"),TEXT("Ch1_05_Distorted"),TEXT("Ch1_06_VoidBeast"),TEXT("Ch1_07_Ledger")})
+        for (const TCHAR* Name : {TEXT("Ch1_01_ColdOpen"),TEXT("Ch1_02_VoidImpact"),TEXT("Ch1_03_Choice"),TEXT("Ch1_04_SystemLog"),TEXT("Ch1_05_Distorted"),TEXT("Ch1_06_VoidBeast"),TEXT("Ch1_07_Ledger"),TEXT("Ch1_09_Speaker")})
             Test->TestTrue(*(FString(TEXT("Captured "))+Name), Captured.Contains(Name));
         Capture(TEXT("Ch1_08_Verdan"));
         IFileManager::Get().DeleteDirectory(*FPaths::GetPath(Checkpoint->GetChapterSlotPath()), false, true);

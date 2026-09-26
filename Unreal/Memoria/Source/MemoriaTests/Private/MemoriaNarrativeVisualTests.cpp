@@ -12,7 +12,7 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVisualCoverage::RunTest(const FString&)
 {
-    TestEqual(TEXT("Thirty-four illustrations and seventeen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),51);
+    TestEqual(TEXT("Thirty-four illustrations, two frame overlays and seventeen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),53);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);
@@ -57,7 +57,13 @@ bool FVisualInteraction::RunTest(const FString&)
     for(int32 I=0;I<3;++I)Host->Confirm(INDEX_NONE);
     const auto Elia=Host->GetView();Widget->Display(Elia);
     TestEqual(TEXT("CG persists over rows without a CG"),Elia.BackdropSource,Initial.BackdropSource);
-    TestEqual(TEXT("Source right-side speaker"),Elia.PortraitSide,FString(TEXT("right")));TestNotNull(TEXT("Elia rendered"),Widget->DisplayedPortrait());
+    TestEqual(TEXT("Source right-side speaker"),Elia.PortraitSide,FString(TEXT("right")));
+    // _should_hide_portraits_for_cg_line: Elia's first line lands on the gate story CG, so the stage stays clear.
+    TestNull(TEXT("Story CG line hides portraits"),Widget->DisplayedPortrait());
+    Host->Confirm(INDEX_NONE);Widget->Display(Host->GetView());
+    TestNotNull(TEXT("Arrel rendered on the next line"),Widget->DisplayedPortrait());TestEqual(TEXT("Arrel lit on the left"),Widget->GetPresentationProbe().ActiveSide,FString(TEXT("left")));
+    Host->Confirm(INDEX_NONE);Widget->Display(Host->GetView());
+    TestNotNull(TEXT("Elia rendered"),Widget->DisplayedPortrait());TestEqual(TEXT("Single composition: Elia alone on the right"),Widget->GetPresentationProbe().ActiveSide,FString(TEXT("right")));
     FString Before,After;FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(),Before);
     for(int32 I=0;I<5;++I)Widget->Display(Host->GetView());
     FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(),After);TestEqual(TEXT("Presentation redraw cannot mutate run"),After,Before);

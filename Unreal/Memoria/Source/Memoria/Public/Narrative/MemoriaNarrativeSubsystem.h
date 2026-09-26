@@ -35,6 +35,8 @@ struct MEMORIA_API FMemoriaNarrativeView
     FString LedgerTitle;
     TArray<FString> LedgerLines;
     bool bLedgerThreadHolds = false;
+    // vn_scene.gd _on_memory_burned: a new BurnSerial plays the burn glitch once.
+    int32 BurnSerial = 0;
 };
 
 UCLASS()
@@ -126,7 +128,7 @@ private:
     bool bNewGameRoute = false;
     FString SceneCg, ShownScene, ShownCue;
     FName SceneMusic;
-    int32 LedgerSerial = 0, AutosaveCount = 0;
+    int32 LedgerSerial = 0, AutosaveCount = 0, BurnSerial = 0;
     FString LedgerTitle;
     TArray<FString> LedgerLines;
     bool bLedgerThreadHolds = false;

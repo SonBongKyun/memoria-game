@@ -40,6 +40,9 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/portraits/malet_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Shop/T_MaletPortrait"), true},
         {TEXT("res://assets/portraits/malet_face_price_revealed.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_malet_face_price_revealed"), false},
         {TEXT("res://assets/portraits/malet_face_warning.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_malet_face_warning"), false},
+        // vn_scene.gd DIALOGUE_OVERLAY_PATH / CHOICE_OVERLAY_PATH frame art (S305).
+        {TEXT("res://assets/cg/generated/ui_vn_memory_frame_overlay.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_vn_memory_frame_overlay"), false},
+        {TEXT("res://assets/cg/generated/ui_vn_choice_archive_overlay.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_vn_choice_archive_overlay"), false},
         // Chapter 1 route (S304).
         {TEXT("res://assets/cg/generated/archive_ch1_camp_humming_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_ch1_camp_humming_v2"), false},
         {TEXT("res://assets/cg/generated/chapter_splash_rim_forest.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_rim_forest"), false},

@@ -52,7 +52,7 @@ void UMemoriaNarrativeSubsystem::Reset()
     ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
     ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr; bEliaTalkCached = false; EliaTalkAsset = nullptr; bTraderArmed = bLedgerArmed = false; Notices.Reset(); NoticeTime = -1000; bNoticeHeld = false;
     bNewGameRoute = false; SceneCg.Reset(); ShownScene.Reset(); ShownCue.Reset(); SceneMusic = NAME_None;
-    LedgerTitle.Reset(); LedgerLines.Reset(); bLedgerThreadHolds = false; AutosaveCount = 0;
+    LedgerTitle.Reset(); LedgerLines.Reset(); bLedgerThreadHolds = false; AutosaveCount = 0; BurnSerial = 0;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
@@ -76,7 +76,12 @@ void UMemoriaNarrativeSubsystem::Record(const FString& Event)
 }
 void UMemoriaNarrativeSubsystem::FlushEvents(const FString& Dialect)
 {
-    for (; EventCursor < Context->Events.Num(); ++EventCursor) Record(Dialect + TEXT(":") + Context->Events[EventCursor]);
+    for (; EventCursor < Context->Events.Num(); ++EventCursor)
+    {
+        const FString& Event = Context->Events[EventCursor];
+        if (Event.StartsWith(TEXT("burn:")) && Event.EndsWith(TEXT(":ok"))) ++BurnSerial;
+        Record(Dialect + TEXT(":") + Event);
+    }
     ++Revision;
 }
 namespace
@@ -653,6 +658,8 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
                 if (ActiveFieldAsset->Definition.Rows[I].Presentation.bHasCg) View.BackdropSource = ActiveFieldAsset->Definition.Rows[I].Presentation.Cg;
             View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Row.Presentation.bHasBurnedPortrait && Context->UsesBurnedText(Row.Text) ? Row.Presentation.BurnedPortrait : Row.Presentation.Portrait);
             View.PortraitSide = Row.Text.Speaker == TEXT("Elia") ? TEXT("right") : TEXT("left");
+            View.CueKey = TEXT("field:") + ActiveFieldAsset->Definition.Id + TEXT(":") + FString::FromInt(Index);
+            View.bStepHasCg = Row.Presentation.bHasCg && !Row.Presentation.Cg.IsEmpty();
             for (int32 I : Field->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Row.Choices[I].Text)});
         }
     }
@@ -691,6 +698,7 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             PotionRecorded?Labels[PresentedPotionObservation]:(AntidoteRecorded?AntidoteLabels[PresentedAntidoteObservation]:(FirebombRecorded?FirebombLabels[PresentedFirebombObservation]:TEXT("Shop_Deferred"))),Recorded?TEXT("RECORDED SYNCHRONOUS SNAPSHOT / READ ONLY"):TEXT("LIVE AUTHORITATIVE RUN STATE"),Item?Item->Count:0,Antidote?Antidote->Count:0,Firebomb?Firebomb->Count:0,*FString::Join(S.Player.RecentItems,TEXT(", ")),S.GetFlag(TEXT("ch2_malet_done"))?TEXT("true"):TEXT("false"),Run->GetWorldCognition()->GetSnapshot().Revision,Run->GetWorldCognition()->GetSnapshot().EventSequence,*Toasts);
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
+    View.BurnSerial = BurnSerial;
     return View;
 }
 FMemoriaVNContinuation UMemoriaNarrativeSubsystem::GetContinuation() const

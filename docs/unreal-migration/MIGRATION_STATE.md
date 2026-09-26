@@ -1,3 +1,38 @@
+# Migration handoff — S305 VN graphics: the vn_scene.gd presentation (Claude lane, 2026-09-27)
+
+- **Why.** The user played the S304 New Game build and called the graphics far off. This session rebuilds the story presentation of `UMemoriaDevelopmentNarrativeWidget` after `vn_scene.gd`, which serves every VN and Field dialogue. Compact status, development screens and the shop keep their previous layout.
+- **Fonts** (`generate_font_sources.py`, `MemoriaFontAssets`, `MemoriaFonts`):
+  - The bundled Noto fonts are variable fonts. Unreal renders their default instance, the thinnest master (Sans 100, Serif 200).
+  - The tool instances them at the `ui_theme.gd` S230 weights: body Serif 500, titles Serif 600, interface Sans 600.
+  - It subsets them to Latin, punctuation, symbols, Hangul and CJK punctuation plus every character in `data/` (three Hanja), bringing Serif from 24 MB to 9.5 MB.
+  - Static TTFs go to `Saved/FontSources`; the imported `UFontFace`/`UFont` assets are the committed artifact.
+- **Illustration.**
+  - The CG is cover-filled (`STRETCH_KEEP_ASPECT_COVERED`), no longer letterboxed at the sides.
+  - Procedural gradient layers match the source definitions: focus glow, lower wash, cinematic vignette and ember vignette. The vignette is 1.8× the source alpha, because the source's light-toned modulate reads weaker on Slate's linear tint; the lower wash is 0.3 (source 0.18) under the translucent dialogue interior.
+  - Letterbox bars at 60/720.
+  - Source colors are converted from sRGB, since Slate tints are linear.
+- **Dialogue.**
+  - The `ui_vn_memory_frame_overlay` frame art over a dark interior, with the speaker in its name plate. Titles use Serif SemiBold; System is cyan.
+  - A rich-text typewriter at 0.025 s per character. The untyped remainder is laid out but hidden, so words never reflow. Confirm while typing completes the line.
+  - A pulsing NEXT indicator; the location sits in the top bar and the controls in the bottom bar.
+- **Portraits.**
+  - Left and right slots with speaker highlight and `PORTRAIT_DIM`, per-character accent frames (`_portrait_accent_for_id`), and a fade-up entrance.
+  - Source rules: lines over full-scene story CGs clear the stage (`_should_hide_portraits_for_cg_line`), and Arrel and Elia hold the stage alone (`_uses_single_portrait_composition`).
+  - Deviations: the portraits sit above the name plate instead of behind it. The light parchment face art gets an inner vignette.
+- **Choices.**
+  - Exactly three choices use the `ui_vn_choice_archive_overlay` frame, one per slot, over a dimmed scene, with the title and hint above the ornament. Other counts use the same buttons in a centred stack.
+  - Each option shows its effect preview, and mouse hover selects.
+- **Glitch.**
+  - A memory burn (a new `BurnSerial` from `burn:*:ok` events) plays `_play_burn_glitch`: a red flash, an 8 px chroma split over 0.7 s, and the ember vignette (peak 0.6 instead of 0.85, which flooded the cover-filled frame).
+  - Distorted lines get the 1.2 s + 0.4 s 3 px chroma split, the 0.12 s scramble and a violet text style.
+- **Tests.**
+  - Artwork table 51 → 53 (the two frame overlays).
+  - `DialogueInteraction` now asserts the source portrait rules.
+  - `Chapter1Journey` adds a speaker capture (`Ch1_09_Speaker`) and skips portrait checks on story-CG lines.
+  - The typewriter is off under automation unless a test enables it. `VisibleText` reports the complete line.
+- **Results:** full rendered registry `MEMORIA_UNREAL_PASS discovered=409 source_parity=51`; rendered visual suite 5/5. The S305 captures are in `Saved/Validation/Chapter1Journey`: cold open, void impact, framed choice, system log, distorted line, void-beast choice, ledger, speaker, Verdan.
+- **Not done here:** the AUTO / fast-forward chips, the page-turn sweep and portrait expression swaps (`_play_portrait_expression_change`); the Verdan field, battle and title screens are the next sessions (S306 title/menu, S307 field, S308 battle).
+
 # Migration handoff — S304 Chapter 1 stage 3: New Game plays Chapter 1, rendered, to Verdan (Claude lane, 2026-09-26)
 
 - P5 stage 3, assigned by the user (Claude working alone). A New Game now plays the whole imported Chapter 1 route in the production host and widget: `ch1_cold_open` → `ch1_prologue` → `ch1_forest_walk` → `ch1_void_beast` → `ch1_after_forest` → `ch2_market_arrival` → `L_VerdanHost`.
