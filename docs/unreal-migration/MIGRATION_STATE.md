@@ -1,3 +1,28 @@
+# Migration handoff — S300 Elia companion in Verdan (Claude lane, 2026-09-26)
+
+- User-assigned continuation of the story work, on top of `351810e4` (Claude lane).
+- **Narrative schema (review item).** Field rows may now carry the legacy `dialogue_manager.gd` substitution: `requires_memory`, `burned_text` and `burned_text_ko` (Text group), and `burned_portrait` (Presentation). They are Field-only. The Python extractor and the C++ importer reject them on VN rows and choices.
+  - `requires_memory` is not a gate: as in the source, the row always shows, and the line and portrait swap once the memory is in the burned list.
+  - All 14 prior IR files are byte-identical under `--check`. The generated types are regenerated.
+- **Cohort.** A Field group may name its source file. The C++ cohort table carries the file and its chapter, and the importer derives the source path from the definition id. Imported:
+  - `elia_ch2_talk` (chapter 2, position 5)
+  - `elia_song_burned` and `elia_sword_burned` (`chapter1_dialogue.json`, positions 14 and 15)
+  - `elia_face_sad`, plus Elia's four source field sprites (additive `-run=MemoriaVerdanAssets -AddElia`)
+  - The Verdan market splash is reused from the battle art.
+- **Companion.** `AMemoriaEliaCompanion` follows Arrel's trail with the `companion.gd` constants (formation 48, speed 112, arrival 7, trail sample 8/96, warp 310, accel 900, sprint 1.48). It is query-only and never blocks.
+  - She is talked to only when Arrel faces her. This mirrors the player's RayCast, so she never steals E from Malet or a story point.
+  - `InteractWithElia` follows the source order:
+    1. The first burned and unheard reaction (song, then sword), which sets `burn_reaction_heard_<group>`.
+    2. The first talk `elia_ch2_talk`. The talk is cached per loaded Verdan, and `talked_Elia_elia_ch2_talk` is set when the dialogue ends.
+    3. The one-row repeat line "This market smells like rust and regret."
+  - Elia rows without their own CG show the Verdan market splash instead of Malet's cellar.
+- **Tests.**
+  - `Memoria.VerdanStory.SourceTable` now also checks Elia's reactions, key, flag, repeat line and companion constants against the parsed source.
+  - New `Memoria.VerdanStory.BurnedTextSubstitution` covers the intact and burned cases in en and ko, and rows without the keys.
+  - The rendered journey adds a real facing key press and three E presses: sword reaction; first talk, where the paid route burned the food, so row 0 swaps and row 2 stays intact; and the repeat line.
+  - `MemoriaVisual.VerdanExploration` hides the companion only for Arrel's close-up review captures.
+- **Results** (UE 5.8.2 rendered, final tree): full `Memoria.` **388/388**, `MemoriaVisual.` 3/3, `MemoriaCheckpointProcess.` 3/3. `generate_narrative_types.py --check`, `narrative_test_fixtures.py --check` and the Verdan fixture `--check` all pass. The Python host tools show 13 passing and the same 3 historical count failures as before this change.
+
 # Migration handoff — S299 Sump Ledger side quest (Claude lane, 2026-09-26)
 
 - User-assigned continuation of the story work, on top of `46f8bcf6` (Claude lane).

@@ -69,12 +69,28 @@ def sump_ledger(text, tile, dialogues):
             'trader_rect': rect(tx, ty, trader), 'ledger_rect': rect(lx, ly, tile),
             'requested_groups': requested, 'rows': {g: len(dialogues[g]) for g in requested}}
 
+def elia(text):
+    # verdan_market.gd _ready companion setup (repeat line, burn reactions in metadata order),
+    # the scene's dialogue_key, and companion.gd follow constants.
+    scene = (ROOT / 'scenes/maps/verdan_market.tscn').read_text(encoding='utf-8')
+    companion = (ROOT / 'scripts/core/companion.gd').read_text(encoding='utf-8')
+    node = scene[scene.index('[node name="Elia"'):]
+    key = re.search(r'^dialogue_key = "(\w+)"$', node, re.M).group(1)
+    repeat = re.search(r'^\telia\.repeat_line = "([^"]*)"$', text, re.M).group(1)
+    reactions = [{'memory': m, 'file': f, 'group': g} for m, f, g in
+                 re.findall(r'^\telia\.set_meta\("burn_reaction_(\w+)", "res://([\w/.]+)::(\w+)"\)$', text, re.M)]
+    constants = {name.lower(): float(value) for name, value in
+                 re.findall(r'^const (FOLLOW_SPEED|FORMATION_DISTANCE|ARRIVAL_RADIUS|TRAIL_SAMPLE_DISTANCE|MAX_TRAIL_POINTS|WARP_DISTANCE|FOLLOW_ACCEL|SPRINT_CATCHUP): \w+ = ([\d.]+)$', companion, re.M)}
+    if len(constants) != 8 or not reactions: raise ValueError('Companion source changed')
+    return {'dialogue_key': key, 'repeat_line': repeat, 'burn_reactions': reactions, 'talk_flag': 'talked_Elia_' + key, 'constants': constants}
+
 def extract():
     text = SOURCE.read_text(encoding='utf-8')
     tile = int(re.search(r'^const TILE_SIZE: int = (\d+)$', text, re.M).group(1))
     dialogues = json.loads(DIALOGUE.read_text(encoding='utf-8'))['dialogues']
     return {'schema_version': 1, 'source': 'scenes/maps/verdan_market.gd', 'tile_size': tile,
-            'player_body': [14, 14], 'beats': beats(text, tile, dialogues), 'sump_ledger': sump_ledger(text, tile, dialogues)}
+            'player_body': [14, 14], 'beats': beats(text, tile, dialogues), 'sump_ledger': sump_ledger(text, tile, dialogues),
+            'elia': elia(text)}
 
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--check', action='store_true'); a = p.parse_args()

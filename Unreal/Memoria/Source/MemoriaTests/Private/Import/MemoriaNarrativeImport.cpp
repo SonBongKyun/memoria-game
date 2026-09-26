@@ -116,7 +116,9 @@ bool Groups(const Obj& O,bool V,bool Choice)
     const auto T=Object(O,TEXT("text")), P=Object(O,TEXT("presentation")), G=Object(O,TEXT("gate")), E=Object(O,TEXT("effects")), A=Object(O,TEXT("action"));
     if (!T||!P||!G||!E||!A) return false;
     if (Choice && (!KeysSubset(T,{TEXT("text"),TEXT("text_ko")}) || P->Values.Num() || A->Values.Num())) return false;
-    if (!V && !KeysSubset(T,{TEXT("speaker"),TEXT("text"),TEXT("text_ko")})) return false;
+    // Field rows may carry the legacy burned-text substitution keys (narrative_ir.FIELD_ONLY).
+    if (!V && !KeysSubset(T,Choice ? std::initializer_list<const TCHAR*>{TEXT("speaker"),TEXT("text"),TEXT("text_ko")}
+        : std::initializer_list<const TCHAR*>{TEXT("speaker"),TEXT("text"),TEXT("text_ko"),TEXT("requires_memory"),TEXT("burned_text"),TEXT("burned_text_ko")})) return false;
     if (V && !KeysSubset(G,Choice ? std::initializer_list<const TCHAR*>{TEXT("requires_flag"),TEXT("requires_not_flag"),TEXT("requires_memory_intact")} : std::initializer_list<const TCHAR*>{TEXT("requires_flag"),TEXT("requires_not_flag")})) return false;
     if (!V && !Choice && (!KeysSubset(E,{TEXT("set_flag"),TEXT("record_ending")}) || A->Values.Num())) return false;
     if (!V && Has(E,TEXT("allow_faded_burn"))) return false;
@@ -126,7 +128,8 @@ bool Groups(const Obj& O,bool V,bool Choice)
     return true;
 }
 // Reviewed Field cohort only; count, source group position and package travel together.
-struct FFieldCohort { const TCHAR* Id; int32 Count; int32 Position; const TCHAR* Asset; };
+// File is null for the default chapter2_dialogue.json; Chapter is that file's authored root chapter.
+struct FFieldCohort { const TCHAR* Id; int32 Count; int32 Position; const TCHAR* Asset; const TCHAR* File = nullptr; int32 Chapter = 2; };
 const FFieldCohort* FieldCohort(const FString& Id)
 {
     static const FFieldCohort Cases[] = {
@@ -143,7 +146,10 @@ const FFieldCohort* FieldCohort(const FString& Id)
         {TEXT("sump_atmosphere"),6,10,TEXT("DA_Field_SumpAtmosphere")},
         {TEXT("sq_sump_ledger_start"),4,11,TEXT("DA_Field_SumpLedgerStart")},
         {TEXT("sq_sump_ledger_found"),2,12,TEXT("DA_Field_SumpLedgerFound")},
-        {TEXT("sq_sump_ledger_return"),2,13,TEXT("DA_Field_SumpLedgerReturn")}
+        {TEXT("sq_sump_ledger_return"),2,13,TEXT("DA_Field_SumpLedgerReturn")},
+        {TEXT("elia_ch2_talk"),3,5,TEXT("DA_Field_EliaCh2Talk")},
+        {TEXT("elia_song_burned"),3,14,TEXT("DA_Field_EliaSongBurned"),TEXT("data/chapter1_dialogue.json"),1},
+        {TEXT("elia_sword_burned"),3,15,TEXT("DA_Field_EliaSwordBurned"),TEXT("data/chapter1_dialogue.json"),1}
     };
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;
@@ -160,6 +166,8 @@ template<class R> bool ReadRecord(const Obj& O,R& Row,const FMemoriaNarrativeImp
     Row.Provenance.Dialect=M.Dialect; Row.Provenance.GroupPosition=V?0:FieldCohort(Seq)->Position; Row.Provenance.OriginalIndex=I; Row.Provenance.OriginalChoiceIndex=J;
     if (!Object(O,TEXT("provenance")) || !Same(MemoriaCatalogImport::Canonical(Wrap(Object(O,TEXT("provenance")))),MemoriaCatalogImport::Canonical(Wrap(WriteProvenance(Row.Provenance))))) return false;
     if (!ReadText(Object(O,TEXT("text")),Row.Text) || !ReadPresentation(Object(O,TEXT("presentation")),Row.Presentation) || !ReadGate(Object(O,TEXT("gate")),Row.Gate) || !ReadEffects(Object(O,TEXT("effects")),Row.Effects) || !ReadAction(Object(O,TEXT("action")),Row.Action)) return false;
+    // Legacy burned-text substitution exists only on Field rows (dialogue_manager.gd), never VN or choices.
+    if ((V || Choice) && (Row.Text.bHasRequiresMemory || Row.Text.bHasBurnedText || Row.Text.bHasBurnedTextKo || Row.Presentation.bHasBurnedPortrait)) return false;
     auto Jump=O->TryGetField(TEXT("jump")); if (!Jump) return false; Row.bHasJump=Jump->Type!=EJson::Null;
     if (Row.bHasJump && (!Choice || !Readint32(O,TEXT("jump"),Row.Jump) || Row.Jump>=Count)) return false;
     const auto& A=Row.Action;
@@ -186,7 +194,11 @@ template<class D,class Rows> bool Read(const FString& Path,FMemoriaNarrativeImpo
     if (!Keys(O,{TEXT("schema_version"),TEXT("content_kind"),TEXT("dialect"),TEXT("extractor_version"),TEXT("source_revision"),TEXT("sources"),TEXT("definition"),TEXT("semantic_sha256")})) return Fail(TEXT("Envelope keys differ"));
     if (!Readint32(O,TEXT("schema_version"),M.SchemaVersion) || M.SchemaVersion!=1 || !ReadFString(O,TEXT("content_kind"),M.ContentKind) || !Same(M.ContentKind,V?TEXT("narrative.vn"):TEXT("narrative.field")) || !ReadFString(O,TEXT("dialect"),M.Dialect) || !Same(M.Dialect,V?TEXT("vn"):TEXT("field")) || !ReadFString(O,TEXT("extractor_version"),M.ExtractorVersion) || !Same(M.ExtractorVersion,TEXT("memoria-narrative/1")) || !ReadFString(O,TEXT("source_revision"),M.SourceRevision) || !Hex(M.SourceRevision,40) || !ReadFString(O,TEXT("semantic_sha256"),M.SemanticSha256) || !Hex(M.SemanticSha256,64)) return Fail(TEXT("Unsupported metadata"));
     M.IrSha256=MemoriaCatalogImport::Sha256(Text);
-    const TArray<FString> Paths={V?TEXT("data/vn_scenes/ch2_market_arrival.json"):TEXT("data/chapter2_dialogue.json"),TEXT("scripts/systems/dialogue_manager.gd"),TEXT("scripts/systems/scene_flow.gd"),TEXT("scripts/ui/vn_scene.gd"),TEXT("scenes/main/vn_host.gd"),TEXT("scenes/maps/verdan_market.gd"),TEXT("scripts/systems/memory_manager.gd"),TEXT("scripts/utils/journey_oath.gd"),TEXT("scripts/core/game_manager.gd")};
+    // The Field cohort names its source file; peek the definition id before the source inventory.
+    FString PeekId; if (auto PeekDef=Object(O,TEXT("definition"))) PeekDef->TryGetStringField(TEXT("id"),PeekId);
+    const FFieldCohort* PeekCohort=V?nullptr:FieldCohort(PeekId);
+    const FString SourceFile=V?FString(TEXT("data/vn_scenes/ch2_market_arrival.json")):(PeekCohort&&PeekCohort->File?FString(PeekCohort->File):FString(TEXT("data/chapter2_dialogue.json")));
+    const TArray<FString> Paths={SourceFile,TEXT("scripts/systems/dialogue_manager.gd"),TEXT("scripts/systems/scene_flow.gd"),TEXT("scripts/ui/vn_scene.gd"),TEXT("scenes/main/vn_host.gd"),TEXT("scenes/maps/verdan_market.gd"),TEXT("scripts/systems/memory_manager.gd"),TEXT("scripts/utils/journey_oath.gd"),TEXT("scripts/core/game_manager.gd")};
     const TArray<Val>* Sources=nullptr; if (!O->TryGetArrayField(TEXT("sources"),Sources) || Sources->Num()!=Paths.Num()) return Fail(TEXT("Source inventory differs")); M.Sources.Reset();
     for (int32 I=0;I<Paths.Num();++I)
     {
@@ -198,7 +210,7 @@ template<class D,class Rows> bool Read(const FString& Path,FMemoriaNarrativeImpo
     auto D0=Object(O,TEXT("definition"));
     if (!Keys(D0,{TEXT("id"),TEXT("index_mapping_version"),TEXT("metadata"),V?TEXT("steps"):TEXT("rows")}) || !ReadFString(D0,TEXT("id"),Def.Id) || !(V?Same(Def.Id,TEXT("ch2_market_arrival")):(FieldCohort(Def.Id)!=nullptr)) || !Readint32(D0,TEXT("index_mapping_version"),Def.IndexMappingVersion) || Def.IndexMappingVersion!=1) return Fail(TEXT("Invalid definition/index map"));
     auto Meta=Object(D0,TEXT("metadata"));
-    if (!(V?Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter"),TEXT("bgm")}):Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter")})) || !ReadMetadata(Meta,Def.Metadata) || Def.Metadata.Chapter!=2) return Fail(TEXT("Invalid metadata"));
+    if (!(V?Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter"),TEXT("bgm")}):Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter")})) || !ReadMetadata(Meta,Def.Metadata) || Def.Metadata.Chapter!=(V?2:FieldCohort(Def.Id)->Chapter)) return Fail(TEXT("Invalid metadata"));
     const TArray<Val>* Entries=nullptr; if (!D0->TryGetArrayField(V?TEXT("steps"):TEXT("rows"),Entries) || Entries->Num()!=(V?13:FieldCohort(Def.Id)->Count)) return Fail(TEXT("Bounded record count differs")); Items.Reset();
     for (int32 I=0;I<Entries->Num();++I)
     {

@@ -17,6 +17,12 @@ struct MEMORIA_API FMemoriaNarrativeText
     UPROPERTY() FString Narrate = TEXT("");
     UPROPERTY() bool bHasNarrateKo = false;
     UPROPERTY() FString NarrateKo = TEXT("");
+    UPROPERTY() bool bHasRequiresMemory = false;
+    UPROPERTY() FString RequiresMemory = TEXT("");
+    UPROPERTY() bool bHasBurnedText = false;
+    UPROPERTY() FString BurnedText = TEXT("");
+    UPROPERTY() bool bHasBurnedTextKo = false;
+    UPROPERTY() FString BurnedTextKo = TEXT("");
 };
 USTRUCT()
 struct MEMORIA_API FMemoriaNarrativePresentation
@@ -30,6 +36,8 @@ struct MEMORIA_API FMemoriaNarrativePresentation
     UPROPERTY() FString Side = TEXT("");
     UPROPERTY() bool bHasFadeMs = false;
     UPROPERTY() int32 FadeMs = 0;
+    UPROPERTY() bool bHasBurnedPortrait = false;
+    UPROPERTY() FString BurnedPortrait = TEXT("");
 };
 USTRUCT()
 struct MEMORIA_API FMemoriaNarrativeGate

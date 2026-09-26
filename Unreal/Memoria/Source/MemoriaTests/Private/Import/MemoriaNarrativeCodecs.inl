@@ -12,7 +12,13 @@ bool ReadText(const Obj& O, FMemoriaNarrativeText& D)
     if (D.bHasNarrate && !ReadFString(O,TEXT("narrate"),D.Narrate)) return false;
     D.bHasNarrateKo=Has(O,TEXT("narrate_ko"));
     if (D.bHasNarrateKo && !ReadFString(O,TEXT("narrate_ko"),D.NarrateKo)) return false;
-    return KeysSubset(O, {TEXT("speaker"),TEXT("text"),TEXT("text_ko"),TEXT("narrate"),TEXT("narrate_ko")});
+    D.bHasRequiresMemory=Has(O,TEXT("requires_memory"));
+    if (D.bHasRequiresMemory && !ReadFString(O,TEXT("requires_memory"),D.RequiresMemory)) return false;
+    D.bHasBurnedText=Has(O,TEXT("burned_text"));
+    if (D.bHasBurnedText && !ReadFString(O,TEXT("burned_text"),D.BurnedText)) return false;
+    D.bHasBurnedTextKo=Has(O,TEXT("burned_text_ko"));
+    if (D.bHasBurnedTextKo && !ReadFString(O,TEXT("burned_text_ko"),D.BurnedTextKo)) return false;
+    return KeysSubset(O, {TEXT("speaker"),TEXT("text"),TEXT("text_ko"),TEXT("narrate"),TEXT("narrate_ko"),TEXT("requires_memory"),TEXT("burned_text"),TEXT("burned_text_ko")});
 }
 Obj WriteText(const FMemoriaNarrativeText& D)
 {
@@ -22,6 +28,9 @@ Obj WriteText(const FMemoriaNarrativeText& D)
     if (D.bHasTextKo) O->SetStringField(TEXT("text_ko"),D.TextKo);
     if (D.bHasNarrate) O->SetStringField(TEXT("narrate"),D.Narrate);
     if (D.bHasNarrateKo) O->SetStringField(TEXT("narrate_ko"),D.NarrateKo);
+    if (D.bHasRequiresMemory) O->SetStringField(TEXT("requires_memory"),D.RequiresMemory);
+    if (D.bHasBurnedText) O->SetStringField(TEXT("burned_text"),D.BurnedText);
+    if (D.bHasBurnedTextKo) O->SetStringField(TEXT("burned_text_ko"),D.BurnedTextKo);
     return O;
 }
 bool ReadPresentation(const Obj& O, FMemoriaNarrativePresentation& D)
@@ -35,7 +44,9 @@ bool ReadPresentation(const Obj& O, FMemoriaNarrativePresentation& D)
     if (D.bHasSide && !ReadFString(O,TEXT("side"),D.Side)) return false;
     D.bHasFadeMs=Has(O,TEXT("fade_ms"));
     if (D.bHasFadeMs && !Readint32(O,TEXT("fade_ms"),D.FadeMs)) return false;
-    return KeysSubset(O, {TEXT("cg"),TEXT("portrait"),TEXT("side"),TEXT("fade_ms")});
+    D.bHasBurnedPortrait=Has(O,TEXT("burned_portrait"));
+    if (D.bHasBurnedPortrait && !ReadFString(O,TEXT("burned_portrait"),D.BurnedPortrait)) return false;
+    return KeysSubset(O, {TEXT("cg"),TEXT("portrait"),TEXT("side"),TEXT("fade_ms"),TEXT("burned_portrait")});
 }
 Obj WritePresentation(const FMemoriaNarrativePresentation& D)
 {
@@ -44,6 +55,7 @@ Obj WritePresentation(const FMemoriaNarrativePresentation& D)
     if (D.bHasPortrait) O->SetStringField(TEXT("portrait"),D.Portrait);
     if (D.bHasSide) O->SetStringField(TEXT("side"),D.Side);
     if (D.bHasFadeMs) O->SetNumberField(TEXT("fade_ms"),D.FadeMs);
+    if (D.bHasBurnedPortrait) O->SetStringField(TEXT("burned_portrait"),D.BurnedPortrait);
     return O;
 }
 bool ReadGate(const Obj& O, FMemoriaNarrativeGate& D)

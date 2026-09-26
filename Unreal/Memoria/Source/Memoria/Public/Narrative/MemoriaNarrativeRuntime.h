@@ -22,6 +22,9 @@ struct MEMORIA_API FMemoriaNarrativeContext
     bool Burn(const FString& Id,bool AllowFaded=false,bool bPlayerChoice=false);
     void Rewards(const FMemoriaNarrativeEffects& E,bool VN);
     FString Localized(const FMemoriaNarrativeText& T,bool Narrate=false) const;
+    // Legacy dialogue_manager.gd rule: requires_memory + burned_text swap the line (and
+    // burned_portrait) once that memory is in the burned list; the row always shows.
+    bool UsesBurnedText(const FMemoriaNarrativeText& T) const;
 };
 
 class MEMORIA_API FMemoriaFieldInterpreter

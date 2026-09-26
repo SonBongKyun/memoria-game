@@ -8,6 +8,12 @@
 #include "Interaction/MemoriaMaletActor.h"
 #include "Narrative/MemoriaSumpLedger.h"
 #include "Run/MemoriaRunTypes.h"
+#include "Run/MemoriaRunSubsystem.h"
+#include "Narrative/MemoriaNarrativeRuntime.h"
+#include "Interaction/MemoriaEliaCompanion.h"
+#include "Domain/MemoriaPlayerMemoryDomain.h"
+#include "Engine/GameInstance.h"
+#include "UObject/StrongObjectPtr.h"
 #if WITH_DEV_AUTOMATION_TESTS
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVerdanStorySourceTable,"Memoria.VerdanStory.SourceTable",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVerdanStorySourceTable::RunTest(const FString&)
@@ -79,6 +85,46 @@ bool FVerdanStorySourceTable::RunTest(const FString&)
     TestEqual(TEXT("Tracker names the ledger step"),L::CurrentStepText(S,false),FString(L::Steps()[1].Desc));
     S.StoryFlags.Add({TEXT("sq_sump_ledger_found"),true});TestEqual(TEXT("Found ledger returns"),int32(L::TraderAction(S)),int32(L::ETraderAction::Return));
     S.StoryFlags.Add({TEXT("sq_sump_ledger_done"),true});TestTrue(TEXT("Done completes"),L::IsComplete(S)&&!L::IsActive(S)&&L::TraderAction(S)==L::ETraderAction::None);
+    // Elia companion: reaction order, talk key/flag, repeat line and companion.gd follow constants.
+    const auto E=Root->GetObjectField(TEXT("elia"));const auto& R=E->GetArrayField(TEXT("burn_reactions"));
+    if(TestEqual(TEXT("Reaction count"),MemoriaVerdanStory::EliaReactions().Num(),R.Num()))
+        for(int32 I=0;I<R.Num();++I)
+        {
+            const auto& N=MemoriaVerdanStory::EliaReactions()[I];const auto O=R[I]->AsObject();
+            TestEqual(TEXT("Reaction memory"),FString(N.Memory),O->GetStringField(TEXT("memory")));TestEqual(TEXT("Reaction file"),FString(N.File),O->GetStringField(TEXT("file")));
+            TestEqual(TEXT("Reaction group"),FString(N.Group),O->GetStringField(TEXT("group")));
+            TestNotNull(TEXT("Reaction asset"),LoadObject<UMemoriaFieldAsset>(nullptr,*(FString(TEXT("/Game/Memoria/Generated/Narrative/"))+N.Asset+TEXT(".")+N.Asset)));
+        }
+    TestEqual(TEXT("Talk key"),FString(MemoriaVerdanStory::EliaDialogueKey),E->GetStringField(TEXT("dialogue_key")));
+    TestEqual(TEXT("Talk flag"),FString(MemoriaVerdanStory::EliaTalkFlag),E->GetStringField(TEXT("talk_flag")));
+    TestEqual(TEXT("Repeat line"),FString(MemoriaVerdanStory::EliaRepeatLine),E->GetStringField(TEXT("repeat_line")));
+    const auto K=E->GetObjectField(TEXT("constants"));using C=AMemoriaEliaCompanion;
+    TestEqual(TEXT("Formation"),C::FormationDistance,K->GetNumberField(TEXT("formation_distance")));TestEqual(TEXT("Speed"),C::FollowSpeed,K->GetNumberField(TEXT("follow_speed")));
+    TestEqual(TEXT("Arrival"),C::ArrivalRadius,K->GetNumberField(TEXT("arrival_radius")));TestEqual(TEXT("Trail sample"),C::TrailSample,K->GetNumberField(TEXT("trail_sample_distance")));
+    TestEqual(TEXT("Trail length"),double(C::MaxTrailPoints),K->GetNumberField(TEXT("max_trail_points")));TestEqual(TEXT("Warp"),C::WarpDistance,K->GetNumberField(TEXT("warp_distance")));
+    TestEqual(TEXT("Accel"),C::FollowAccel,K->GetNumberField(TEXT("follow_accel")));TestEqual(TEXT("Sprint"),C::SprintCatchup,K->GetNumberField(TEXT("sprint_catchup")));
     return !HasAnyErrors();
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVerdanStoryBurnedText,"Memoria.VerdanStory.BurnedTextSubstitution",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FVerdanStoryBurnedText::RunTest(const FString&)
+{
+    // dialogue_manager.gd: requires_memory + burned_text swap the line only once the memory is burned.
+    const auto* Talk=LoadObject<UMemoriaFieldAsset>(nullptr,TEXT("/Game/Memoria/Generated/Narrative/DA_Field_EliaCh2Talk.DA_Field_EliaCh2Talk"));
+    if(!TestNotNull(TEXT("Imported Elia talk"),Talk)||!TestEqual(TEXT("Three rows"),Talk->Definition.Rows.Num(),3))return false;
+    const auto& Row0=Talk->Definition.Rows[0].Text;const auto& Row1=Talk->Definition.Rows[1].Text;
+    TestTrue(TEXT("Row 0 carries the substitution"),Row0.bHasRequiresMemory&&Row0.bHasBurnedText&&Row0.bHasBurnedTextKo&&Row0.RequiresMemory==TEXT("daily_market_food"));
+    TestFalse(TEXT("Row 1 has none"),Row1.bHasRequiresMemory||Row1.bHasBurnedText);
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>());Game->Init();auto* Run=Game->GetSubsystem<UMemoriaRunSubsystem>();
+    if(!TestTrue(TEXT("Starting run"),Run->BeginStartingMemoryRun()==EMemoriaMemoryResult::Success)){Game->Shutdown();return false;}
+    auto State=Run->GetRunSnapshot();FMemoriaNarrativeContext Context(State,*Run->GetPlayerMemory());
+    TestFalse(TEXT("Intact memory keeps the authored line"),Context.UsesBurnedText(Row0));
+    TestEqual(TEXT("Intact line"),Context.Localized(Row0),Row0.Text);
+    State.CurrentLocale=TEXT("ko");TestEqual(TEXT("Intact Korean line"),Context.Localized(Row0),Row0.TextKo);State.CurrentLocale=TEXT("en");
+    TestTrue(TEXT("Burn the food memory"),Run->GetPlayerMemory()->Burn(TEXT("daily_market_food"),EMemoriaBurnMode::Normal,false,State.MemoryContext())==EMemoriaMemoryResult::Success);
+    TestTrue(TEXT("Burned memory swaps the line"),Context.UsesBurnedText(Row0));
+    TestEqual(TEXT("Burned line"),Context.Localized(Row0),Row0.BurnedText);
+    State.CurrentLocale=TEXT("ko");TestEqual(TEXT("Burned Korean line"),Context.Localized(Row0),Row0.BurnedTextKo);
+    TestEqual(TEXT("Rows without the keys never swap"),Context.Localized(Row1),Row1.TextKo);
+    Game->Shutdown();return !HasAnyErrors();
 }
 #endif

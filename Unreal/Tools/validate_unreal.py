@@ -136,7 +136,7 @@ def battle_entry_test_paths():
 
 
 def verdan_story_test_paths():
-    return {'Memoria.VerdanStory.SourceTable'}
+    return {'Memoria.VerdanStory.SourceTable', 'Memoria.VerdanStory.BurnedTextSubstitution'}
 
 
 def visual_test_paths():

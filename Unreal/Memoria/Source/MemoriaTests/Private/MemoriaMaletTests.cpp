@@ -40,6 +40,7 @@
 #include "Misc/CommandLine.h"
 #include "Narrative/MemoriaVerdanStory.h"
 #include "Narrative/MemoriaSumpLedger.h"
+#include "Interaction/MemoriaEliaCompanion.h"
 #include "Interaction/MemoriaStoryPointActor.h"
 #include "InputKeyEventArgs.h"
 #include "Input/Events.h"
@@ -1284,11 +1285,65 @@ public:
                         Test->TestTrue(TEXT("Completion toast after the return group"),Host->GetExplorationNotice().Contains(TEXT("Quest Complete: The Sump Ledger")));
                         Test->TestTrue(TEXT("Tracker clears"),Host->GetQuestTrackerLine().IsEmpty());
                         Test->TestFalse(TEXT("Completed trader is inert"),Host->IsStoryBeatAvailable(L::TraderPoint));
-                        Capture(TEXT("QuestComplete"));return true;
+                        Capture(TEXT("QuestComplete"));Stage=29;Frame=-1;EliaStep=0;EliaFrame=0;
                     }
                 }
             }
             if(F>2400){Test->AddError(TEXT("Sump Ledger step stalled"));return true;}
+        }
+        else if(Stage==29)
+        {
+            // S300 Elia: face her with a real key, then E runs the source order: burn reaction
+            // (the deal burned the first sword), first talk with the burned food line, repeat line.
+            const int32 F=Frame-EliaFrame;AMemoriaEliaCompanion* Elia=nullptr;
+            for(TActorIterator<AMemoriaEliaCompanion> It(World);It;++It)Elia=*It;
+            if(!Test->TestNotNull(TEXT("Elia companion follows in Verdan"),Elia))return true;
+            if(F==6)
+            {
+                const FVector To=Elia->GetActorLocation()-Pawn->GetActorLocation();
+                EliaKey=FMath::Abs(To.X)>=FMath::Abs(To.Y)?(To.X>0?EKeys::D:EKeys::A):(To.Y>0?EKeys::W:EKeys::S);Key(EliaKey,IE_Pressed);
+            }
+            if(F==8)Key(EliaKey,IE_Released);
+            if(F==40)
+            {
+                Test->TestTrue(TEXT("Facing Elia shows her prompt"),PC->GetInteractionPrompt()==Elia->InteractionPrompt());
+                Key(EKeys::E,IE_Pressed);
+            }
+            if(F==44)
+            {
+                Key(EKeys::E,IE_Released);Test->TestTrue(TEXT("Elia opens a Field"),Host->GetState()==EMemoriaSliceState::Field);
+                const FString Title=Host->GetView().LocationTitle;Test->TestEqual(TEXT("Elia header"),Title,FString(TEXT("VERDAN  /  ELIA")));
+                Test->TestEqual(TEXT("Elia speaks in the market"),Host->GetView().BackdropSource,FString(TEXT("res://assets/cg/generated/chapter_splash_verdan_market.png")));
+                if(EliaStep==0)
+                {
+                    Test->TestTrue(TEXT("Sword reaction first"),Run->GetRunSnapshot().GetFlag(TEXT("burn_reaction_heard_elia_sword_burned")));
+                    Test->TestFalse(TEXT("Song intact, no song reaction"),Run->GetRunSnapshot().GetFlag(TEXT("burn_reaction_heard_elia_song_burned")));
+                }
+                if(EliaStep==1)
+                {
+                    const auto* Talk=LoadObject<UMemoriaFieldAsset>(nullptr,TEXT("/Game/Memoria/Generated/Narrative/DA_Field_EliaCh2Talk.DA_Field_EliaCh2Talk"));
+                    Test->TestEqual(TEXT("Burned food swaps Elia's first line"),Host->GetView().Body,Talk->Definition.Rows[0].Text.BurnedText);
+                }
+                if(EliaStep==2)Test->TestEqual(TEXT("Repeat line"),Host->GetView().Body,FString(MemoriaVerdanStory::EliaRepeatLine));
+            }
+            if(F==60)Capture(EliaStep==0?TEXT("EliaSwordReaction"):EliaStep==1?TEXT("EliaBurnedLine"):TEXT("EliaRepeat"));
+            if(F>64&&Host->GetState()==EMemoriaSliceState::Field)
+            {
+                if(EliaStep==1&&Host->GetView().Body==LoadObject<UMemoriaFieldAsset>(nullptr,TEXT("/Game/Memoria/Generated/Narrative/DA_Field_EliaCh2Talk.DA_Field_EliaCh2Talk"))->Definition.Rows[2].Text.Text)bEliaIntactSeen=true;
+                if(Frame%8==0)Key(EKeys::Enter,IE_Pressed);if(Frame%8==3)Key(EKeys::Enter,IE_Released);
+            }
+            if(F>64&&Host->GetState()==EMemoriaSliceState::Exploration&&!PC->IsModalOpen())
+            {
+                Key(EKeys::Enter,IE_Released);
+                if(EliaStep==1)
+                {
+                    Test->TestTrue(TEXT("Intact song keeps the authored line"),bEliaIntactSeen);
+                    Test->TestTrue(TEXT("First talk sets the talked flag on end"),Run->GetRunSnapshot().GetFlag(MemoriaVerdanStory::EliaTalkFlag));
+                }
+                if(EliaStep==2){Capture(TEXT("EliaReturned"));return true;}
+                ++EliaStep;EliaFrame=Frame+1;
+            }
+            if(F>2400){Test->AddError(TEXT("Elia interaction stalled"));return true;}
         }
         else if (Stage == 9 && Frame == 10) return true;
         if(RefusalMode==TEXT("ShopArchive") && Stage==14 && Frame==82)
@@ -1315,6 +1370,7 @@ private:
     FString CombatBurnId;int32 CombatBurnBefore=0,CombatStep=0,CombatStepFrame=0;bool bCombatAttackSelected=false;
     FString StoryGroup;int32 StoryFieldsBefore=0;bool bStoryLastCaptured=false;
     int32 QuestStep=0,QuestFrame=0;int64 QuestGrains=0,QuestPotions=0;bool bQuestCompleteCaptured=false;
+    int32 EliaStep=0,EliaFrame=0;FKey EliaKey;bool bEliaIntactSeen=false;
     bool bBattleWarning=false;FMemoriaBattleEntryView FirstBattle;
     FString BattleBeforeFlee;int32 AlternativeEnemy=INDEX_NONE;TArray<FString> BattleReturnTrace;
     int32 ArchiveProbe=INDEX_NONE,ArchiveFrame=0,ArchiveCompleted=0;

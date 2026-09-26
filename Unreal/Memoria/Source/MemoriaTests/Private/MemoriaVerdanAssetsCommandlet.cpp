@@ -62,6 +62,41 @@ int32 UMemoriaVerdanAssetsCommandlet::Main(const FString& Params)
         }
         return 1;
     }
+    if (FParse::Param(*Params, TEXT("AddElia")))
+    {
+        // Additive companion import: only the Elia rows, refusing any existing package.
+        auto IsElia = [](const TCHAR* Name){ return FString(Name).StartsWith(TEXT("Elia")); };
+        for (const auto& Source : MemoriaVerdanArt::Textures()) if (IsElia(Source.Name))
+            if (FPackageName::DoesPackageExist(MemoriaVerdanArt::Package(FString(TEXT("T_")) + Source.Name)) || !FPaths::FileExists(FPaths::ProjectDir()/TEXT("../..")/Source.File)) return 1;
+        for (const auto& Region : MemoriaVerdanArt::Sprites()) if (IsElia(Region.Name))
+            if (FPackageName::DoesPackageExist(MemoriaVerdanArt::Package(FString(TEXT("SPR_")) + Region.Name))) return 1;
+        TMap<FString, UTexture2D*> EliaTextures;
+        for (const auto& Source : MemoriaVerdanArt::Textures()) if (IsElia(Source.Name))
+        {
+            const FString Name = FString(TEXT("T_")) + Source.Name;
+            auto* Package = CreatePackage(*MemoriaVerdanArt::Package(Name));
+            auto* Factory = NewObject<UTextureFactory>(); bool Cancelled = false;
+            const FString File = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()/TEXT("../..")/Source.File);
+            auto* Texture = Cast<UTexture2D>(Factory->FactoryCreateFile(UTexture2D::StaticClass(), Package, *Name, RF_Public | RF_Standalone, *File, nullptr, GWarn, Cancelled));
+            if (!Texture || Cancelled) return 1;
+            Texture->LODGroup = TEXTUREGROUP_Pixels2D; Texture->CompressionSettings = TC_EditorIcon;
+            Texture->Filter = TF_Bilinear; Texture->MipGenSettings = TMGS_NoMipmaps;
+            Texture->SRGB = true; Texture->NeverStream = true;
+            Texture->PostEditChange(); FTextureCompilingManager::Get().FinishCompilation({Texture});
+            if (!Save(Texture)) return 1;
+            EliaTextures.Add(Source.Name, Texture);
+        }
+        for (const auto& Region : MemoriaVerdanArt::Sprites()) if (IsElia(Region.Name))
+        {
+            auto* Sprite = Asset<UPaperSprite>(FString(TEXT("SPR_")) + Region.Name);
+            FSpriteAssetInitParameters Init; Init.Texture = EliaTextures[Region.Texture];
+            Init.Offset = Region.Offset; Init.Dimension = Region.Size; Init.SetPixelsPerUnrealUnit(Region.PixelsPerUnit);
+            Sprite->InitializeSprite(Init);
+            Sprite->SetPivotMode(ESpritePivotMode::Custom, FVector2D(Region.Offset) + Region.Pivot);
+            if (!Save(Sprite)) return 1;
+        }
+        return 0;
+    }
     TArray<FString> Names{TEXT("M_SoftLight")};
     for (const auto& Source : MemoriaVerdanArt::Textures()) Names.Add(FString(TEXT("T_")) + Source.Name);
     for (const auto& Region : MemoriaVerdanArt::Sprites()) Names.Add(FString(TEXT("SPR_")) + Region.Name);

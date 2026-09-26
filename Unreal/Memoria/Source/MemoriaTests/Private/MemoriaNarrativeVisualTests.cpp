@@ -12,7 +12,7 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVisualCoverage::RunTest(const FString&)
 {
-    TestEqual(TEXT("Seventeen illustrations and twelve unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),29);
+    TestEqual(TEXT("Eighteen illustrations and thirteen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),31);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);
@@ -26,7 +26,7 @@ bool FVisualCoverage::RunTest(const FString&)
     auto* VN=LoadObject<UMemoriaVNAsset>(nullptr,TEXT("/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival.DA_VN_Ch2MarketArrival"));
     if(!TestNotNull(TEXT("Production VN"),VN))return false;
     for(const auto& Row:VN->Definition.Steps)Check(Row.Presentation);
-    for(const auto* Name:{TEXT("VerdanArrival"),TEXT("MaletTasteBurned"),TEXT("MaletEncounter"),TEXT("MaletRefused"),TEXT("MaletDeal"),TEXT("MaletReward"),TEXT("VerdanMarketWalk"),TEXT("VerdanOldBurner"),TEXT("MaletBackstory"),TEXT("EliaSumpConcern"),TEXT("SumpAtmosphere"),TEXT("SumpLedgerStart"),TEXT("SumpLedgerFound"),TEXT("SumpLedgerReturn")})
+    for(const auto* Name:{TEXT("VerdanArrival"),TEXT("MaletTasteBurned"),TEXT("MaletEncounter"),TEXT("MaletRefused"),TEXT("MaletDeal"),TEXT("MaletReward"),TEXT("VerdanMarketWalk"),TEXT("VerdanOldBurner"),TEXT("MaletBackstory"),TEXT("EliaSumpConcern"),TEXT("SumpAtmosphere"),TEXT("SumpLedgerStart"),TEXT("SumpLedgerFound"),TEXT("SumpLedgerReturn"),TEXT("EliaCh2Talk"),TEXT("EliaSongBurned"),TEXT("EliaSwordBurned")})
     {
         const FString Asset=FString(TEXT("DA_Field_"))+Name;
         auto* Field=LoadObject<UMemoriaFieldAsset>(nullptr,*(TEXT("/Game/Memoria/Generated/Narrative/")+Asset+TEXT(".")+Asset));

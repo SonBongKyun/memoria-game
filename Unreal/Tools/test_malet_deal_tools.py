@@ -6,7 +6,7 @@ from export_malet_refusal_oracle import MARK
 from validate_unreal import current_test_paths,malet_deal_test_paths,expected_test_paths,narrative_test_paths,slice_test_paths,malet_test_paths,malet_refusal_test_paths,inspect_automation_report
 class DealTools(unittest.TestCase):
     def test_single_group_and_retained_contracts(self):
-        self.assertEqual(set(FIELD_CASES),{'verdan_arrival','malet_taste_burned','malet_encounter','malet_refused','malet_deal','malet_reward','verdan_market_walk','verdan_old_burner','malet_backstory','elia_sump_concern','sump_atmosphere','sq_sump_ledger_start','sq_sump_ledger_found','sq_sump_ledger_return'})
+        self.assertEqual(set(FIELD_CASES),{'verdan_arrival','malet_taste_burned','malet_encounter','malet_refused','malet_deal','malet_reward','verdan_market_walk','verdan_old_burner','malet_backstory','elia_sump_concern','sump_atmosphere','sq_sump_ledger_start','sq_sump_ledger_found','sq_sump_ledger_return','elia_ch2_talk','elia_song_burned','elia_sword_burned'})
         for g in FIELD_CASES:self.assertEqual(canonical(extract('field',group=g)),ir_path('field',g).read_bytes())
         v=extract('field',group='malet_deal');self.assertEqual(len(v['definition']['rows']),5)
         for i,r in enumerate(v['definition']['rows']):

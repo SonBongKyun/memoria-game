@@ -60,9 +60,15 @@ void FMemoriaNarrativeContext::Rewards(const FMemoriaNarrativeEffects& E,bool VN
     }
     if (E.bHasHealPlayer) Run.Player.Hp+=FMath::Max<int64>(0,FMath::Min<int64>(E.HealPlayer,Run.Player.MaxHp-Run.Player.Hp));
 }
+bool FMemoriaNarrativeContext::UsesBurnedText(const FMemoriaNarrativeText& T) const
+{
+    return T.bHasRequiresMemory && T.bHasBurnedText && Memory.GetSnapshot().BurnedHistory.Contains(T.RequiresMemory);
+}
 FString FMemoriaNarrativeContext::Localized(const FMemoriaNarrativeText& T,bool Narrate) const
 {
     bool KO=Run.CurrentLocale==TEXT("ko");
+    // localized_value(line, "burned_text", text): the _ko key first, then the base key.
+    if (!Narrate && UsesBurnedText(T)) return KO && T.bHasBurnedTextKo?T.BurnedTextKo:T.BurnedText;
     return Narrate?(KO && T.bHasNarrateKo?T.NarrateKo:T.Narrate):(KO && T.bHasTextKo?T.TextKo:T.Text);
 }
 void FMemoriaFieldInterpreter::Start() { Index=0; bActive=true; Visible.Reset(); Show(); }

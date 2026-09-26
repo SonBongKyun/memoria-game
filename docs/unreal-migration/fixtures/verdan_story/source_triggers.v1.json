@@ -61,6 +61,33 @@
    "rows": 6
   }
  ],
+ "elia": {
+  "burn_reactions": [
+   {
+    "file": "data/chapter1_dialogue.json",
+    "group": "elia_song_burned",
+    "memory": "daily_campfire_song"
+   },
+   {
+    "file": "data/chapter1_dialogue.json",
+    "group": "elia_sword_burned",
+    "memory": "identity_first_sword"
+   }
+  ],
+  "constants": {
+   "arrival_radius": 7.0,
+   "follow_accel": 900.0,
+   "follow_speed": 112.0,
+   "formation_distance": 48.0,
+   "max_trail_points": 96.0,
+   "sprint_catchup": 1.48,
+   "trail_sample_distance": 8.0,
+   "warp_distance": 310.0
+  },
+  "dialogue_key": "elia_ch2_talk",
+  "repeat_line": "This market smells like rust and regret.",
+  "talk_flag": "talked_Elia_elia_ch2_talk"
+ },
  "player_body": [
   14,
   14

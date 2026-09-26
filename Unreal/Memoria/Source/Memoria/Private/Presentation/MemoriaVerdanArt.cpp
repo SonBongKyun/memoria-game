@@ -17,6 +17,11 @@ const TArray<FTextureSource>& Textures()
         {TEXT("Malet"), TEXT("assets/sprites/field/malet/down.png")},
         {TEXT("Market"), TEXT("assets/environment/map_canvases/map_verdan_market_canvas_v1.png")},
         {TEXT("Lantern"), TEXT("assets/environment/hybrid_depth/motif_memory_lantern_v1.png")},
+        // S300 companion: the source field sprites companion.gd shows for Elia.
+        {TEXT("EliaDown"), TEXT("assets/sprites/field/elia/down.png")},
+        {TEXT("EliaUp"), TEXT("assets/sprites/field/elia/up.png")},
+        {TEXT("EliaLeft"), TEXT("assets/sprites/field/elia/left.png")},
+        {TEXT("EliaRight"), TEXT("assets/sprites/field/elia/right.png")},
     };
     return Values;
 }
@@ -52,6 +57,10 @@ const TArray<FSpriteRegion>& Sprites()
         {TEXT("East"), TEXT("Market"), {1268, 270}, {180, 540}, {0, 270}, 1.0f},
         {TEXT("Plinth"), TEXT("Market"), {730, 300}, {180, 60}, {90, 30}, 1.0f},
         {TEXT("Lantern"), TEXT("Lantern"), {0, 0}, {1024, 1536}, {512, 1381}, 10.0f},
+        {TEXT("EliaDown"), TEXT("EliaDown"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
+        {TEXT("EliaUp"), TEXT("EliaUp"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
+        {TEXT("EliaLeft"), TEXT("EliaLeft"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
+        {TEXT("EliaRight"), TEXT("EliaRight"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
     };
     return Values;
 }

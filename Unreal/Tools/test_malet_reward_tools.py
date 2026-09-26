@@ -7,7 +7,7 @@ from export_malet_refusal_oracle import MARK
 from validate_unreal import current_test_paths,malet_reward_test_paths,malet_deal_test_paths,expected_test_paths,narrative_test_paths,slice_test_paths,malet_test_paths,malet_refusal_test_paths,inspect_automation_report
 class RewardTools(unittest.TestCase):
     def test_exact_only_reward_added(self):
-        self.assertEqual(set(FIELD_CASES),{'verdan_arrival','malet_taste_burned','malet_encounter','malet_refused','malet_deal','malet_reward','verdan_market_walk','verdan_old_burner','malet_backstory','elia_sump_concern','sump_atmosphere','sq_sump_ledger_start','sq_sump_ledger_found','sq_sump_ledger_return'})
+        self.assertEqual(set(FIELD_CASES),{'verdan_arrival','malet_taste_burned','malet_encounter','malet_refused','malet_deal','malet_reward','verdan_market_walk','verdan_old_burner','malet_backstory','elia_sump_concern','sump_atmosphere','sq_sump_ledger_start','sq_sump_ledger_found','sq_sump_ledger_return','elia_ch2_talk','elia_song_burned','elia_sword_burned'})
         v=extract('field',group='malet_reward');self.assertEqual(canonical(v),ir_path('field','malet_reward').read_bytes())
         original=parse_source((ROOT/'data/chapter2_dialogue.json').read_bytes())['dialogues']['malet_reward']
         self.assertEqual(len(original),8)

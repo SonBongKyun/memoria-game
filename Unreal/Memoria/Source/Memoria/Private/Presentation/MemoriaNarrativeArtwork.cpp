@@ -10,6 +10,7 @@ const TArray<FMemoriaArtworkSource>& Sources()
 {
     static const TArray<FMemoriaArtworkSource> Values = {
         {TEXT("res://assets/cg/generated/archive_ch2_information_price_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_ch2_information_price_v1"), false},
+        {TEXT("res://assets/cg/generated/chapter_splash_verdan_market.png"), TEXT("/Game/Memoria/Presentation/BattleEntry/T_VerdanMarket"), true},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch02_bottled_memories_market_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch02_bottled_memories_market_v1"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch02_first_sword_empty_space_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch02_first_sword_empty_space_v1"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch02_malet_from_gray_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch02_malet_from_gray_v1"), false},
@@ -30,6 +31,7 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/portraits/character_shots/arrel_story_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_arrel_story_v2"), false},
         {TEXT("res://assets/portraits/character_shots/elia_story_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_story_v2"), false},
         {TEXT("res://assets/portraits/elia_face_gentle_smile.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_face_gentle_smile"), false},
+        {TEXT("res://assets/portraits/elia_face_sad.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_face_sad"), false},
         {TEXT("res://assets/portraits/elia_face_worried.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_face_worried"), false},
         {TEXT("res://assets/portraits/malet_face_amused.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_malet_face_amused"), false},
         {TEXT("res://assets/portraits/malet_face_calculating.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_malet_face_calculating"), false},
@@ -51,6 +53,7 @@ FString PortraitSource(const FString& Key)
         {TEXT("elia_concern"), TEXT("res://assets/portraits/elia_face_worried.png")},
         {TEXT("elia_hopeful"), TEXT("res://assets/portraits/elia_face_gentle_smile.png")},
         {TEXT("elia_neutral"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},
+        {TEXT("elia_sad"), TEXT("res://assets/portraits/elia_face_sad.png")},
         {TEXT("malet_amused"), TEXT("res://assets/portraits/malet_face_amused.png")},
         {TEXT("malet_calculating"), TEXT("res://assets/portraits/malet_face_calculating.png")},
         {TEXT("malet_deal_accepted"), TEXT("res://assets/portraits/malet_face_deal_accepted.png")},

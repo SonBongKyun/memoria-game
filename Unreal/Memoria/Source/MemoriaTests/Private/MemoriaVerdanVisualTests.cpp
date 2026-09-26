@@ -36,6 +36,8 @@
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
 #include "UnrealClient.h"
+#include "Interaction/MemoriaEliaCompanion.h"
+#include "EngineUtils.h"
 #if WITH_DEV_AUTOMATION_TESTS
 namespace
 {
@@ -308,6 +310,9 @@ public:
             PreviewCamera->SetActorRotation((Character->FocusPosition()-PreviewCamera->GetActorLocation()).Rotation());
             PreviewCamera->GetCameraComponent()->SetFieldOfView(40);
             PC->SetViewTarget(PreviewCamera.Get());
+            // The review camera inspects Arrel alone; the following companion is play presentation.
+            int32 Companions=0;for(TActorIterator<AMemoriaEliaCompanion> It(World);It;++It){++Companions;It->SetActorHiddenInGame(true);}
+            Test->TestEqual(TEXT("Elia follows in the Verdan field"),Companions,1);
         }
         if(Frame==406)Capture(TEXT("CharacterFront"));
         if(Frame==410)Character->SetRelativeRotation(FRotator::ZeroRotator);

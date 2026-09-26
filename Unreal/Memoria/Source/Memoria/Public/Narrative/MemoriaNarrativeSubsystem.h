@@ -53,6 +53,8 @@ public:
     bool IsVerdanRevisit() const;
     bool ReturnFromAmbientBattle();
     bool InteractWithMalet();
+    // Source companion.gd interact() for Elia in Verdan: burn reaction, first talk, repeat line.
+    bool InteractWithElia();
     // Source verdan_market.gd exploration beats: armed on Verdan entry, one-time by flag.
     bool StartStoryBeat(const FString& Group);
     bool IsStoryBeatAvailable(const FString& Group) const;
@@ -104,6 +106,9 @@ private:
     bool HandleSumpLedger(const FString& Point);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;
+    bool bEliaTalkCached = false; // companion.gd _talked_keys: per loaded Verdan, not saved.
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EliaTalkAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EliaRepeatAsset;
     TArray<FString> Notices;
     double NoticeTime = -1000;
     TWeakObjectPtr<UWorld> NoticeWorld;

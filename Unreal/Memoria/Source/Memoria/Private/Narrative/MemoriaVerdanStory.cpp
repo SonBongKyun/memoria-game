@@ -20,6 +20,14 @@ const TArray<FMemoriaVerdanStoryBeat>& Beats()
     };
     return Values;
 }
+const TArray<FMemoriaEliaReaction>& EliaReactions()
+{
+    static const TArray<FMemoriaEliaReaction> Values = {
+        {TEXT("daily_campfire_song"), TEXT("data/chapter1_dialogue.json"), TEXT("elia_song_burned"), TEXT("DA_Field_EliaSongBurned")},
+        {TEXT("identity_first_sword"), TEXT("data/chapter1_dialogue.json"), TEXT("elia_sword_burned"), TEXT("DA_Field_EliaSwordBurned")},
+    };
+    return Values;
+}
 const FMemoriaVerdanStoryBeat* Find(const FString& Group)
 {
     return Beats().FindByPredicate([&](const FMemoriaVerdanStoryBeat& B){ return Group.Equals(B.Group, ESearchCase::CaseSensitive); });

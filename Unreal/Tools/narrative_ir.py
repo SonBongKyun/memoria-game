@@ -35,13 +35,20 @@ FIELD_CASES = {
     'sq_sump_ledger_start': (4, 11, 'DA_Field_SumpLedgerStart'),
     'sq_sump_ledger_found': (2, 12, 'DA_Field_SumpLedgerFound'),
     'sq_sump_ledger_return': (2, 13, 'DA_Field_SumpLedgerReturn'),
+    # S300 Elia companion: first talk (legacy burned-text rows) and the two Ch1 burn reactions
+    # verdan_market.gd attaches to her. A fourth element names a non-default source file.
+    'elia_ch2_talk': (3, 5, 'DA_Field_EliaCh2Talk'),
+    'elia_song_burned': (3, 14, 'DA_Field_EliaSongBurned', 'data/chapter1_dialogue.json'),
+    'elia_sword_burned': (3, 15, 'DA_Field_EliaSwordBurned', 'data/chapter1_dialogue.json'),
 }
+FIELD_FILE_CHAPTER = {'data/chapter2_dialogue.json': 2, 'data/chapter1_dialogue.json': 1}
 
 def selected_case(dialect, group=None):
     if dialect == 'field':
         group = group or CASES['field'][1]
         if group not in FIELD_CASES: raise ValueError('Unreviewed Field group')
-        return CASES['field'][0], group, FIELD_CASES[group][2]
+        entry = FIELD_CASES[group]
+        return (entry[3] if len(entry) > 3 else CASES['field'][0]), group, entry[2]
     if dialect != 'vn' or group not in (None, CASES['vn'][1]): raise ValueError('Unreviewed VN sequence')
     return CASES['vn']
 
@@ -49,8 +56,10 @@ DEPENDENCIES = ('scripts/systems/dialogue_manager.gd', 'scripts/systems/scene_fl
                 'scripts/ui/vn_scene.gd', 'scenes/main/vn_host.gd', 'scenes/maps/verdan_market.gd',
                 'scripts/systems/memory_manager.gd', 'scripts/utils/journey_oath.gd',
                 'scripts/core/game_manager.gd')
-TEXT = ('speaker', 'text', 'text_ko', 'narrate', 'narrate_ko')
-PRESENTATION = ('cg', 'portrait', 'side', 'fade_ms')
+TEXT = ('speaker', 'text', 'text_ko', 'narrate', 'narrate_ko', 'requires_memory', 'burned_text', 'burned_text_ko')
+PRESENTATION = ('cg', 'portrait', 'side', 'fade_ms', 'burned_portrait')
+# Legacy dialogue_manager.gd substitution: never a gate, the row always shows (Field only).
+FIELD_ONLY = ('requires_memory', 'burned_text', 'burned_text_ko', 'burned_portrait')
 GATE = ('requires_flag', 'requires_not_flag', 'requires_memory_intact', 'requires_memory_gone')
 EFFECTS = ('set_flag', 'record_ending', 'burn_memory', 'cost_memory', 'allow_faded_burn',
            'add_grains', 'add_item', 'add_item_count', 'heal_player')
@@ -86,11 +95,12 @@ def fingerprint(value):
     return sha(canonical(semantic))
 
 def allowed(dialect, choice):
-    texts = ('text', 'text_ko') if choice else (TEXT if dialect == 'vn' else ('speaker', 'text', 'text_ko'))
+    texts = ('text', 'text_ko') if choice else (tuple(k for k in TEXT if k not in FIELD_ONLY) if dialect == 'vn' else ('speaker', 'text', 'text_ko', 'requires_memory', 'burned_text', 'burned_text_ko'))
     gates = ('requires_flag', 'requires_not_flag') if dialect == 'vn' and not choice else (GATE[:3] if dialect == 'vn' else GATE)
     effects = EFFECTS if choice else (('set_flag', 'record_ending') if dialect == 'field' else tuple(k for k in EFFECTS if k != 'cost_memory'))
     if dialect == 'field': effects = tuple(k for k in effects if k != 'allow_faded_burn')
-    return {'text': texts, 'presentation': () if choice else PRESENTATION,
+    presentation = () if choice else (tuple(k for k in PRESENTATION if dialect == 'field' or k not in FIELD_ONLY))
+    return {'text': texts, 'presentation': presentation,
             'gate': gates, 'effects': effects, 'action': ACTION if dialect == 'vn' and not choice else ()}
 
 def normalize(data, dialect, choice=False):
@@ -176,7 +186,7 @@ def validate(value, root=ROOT, verify_sources=True):
     exact(meta, ('title','title_ko','chapter','bgm') if d == 'vn' else ('title','title_ko','chapter'), 'Metadata')
     for k,v in meta.items():
         if k == 'chapter':
-            if type(v) is not int or v != 2: raise ValueError('Invalid chapter')
+            if type(v) is not int or v != (2 if d == 'vn' else FIELD_FILE_CHAPTER[source_path]): raise ValueError('Invalid chapter')
         else: text(v,k)
     rows = definition[key]
     if type(rows) is not list or len(rows) != (13 if d == 'vn' else FIELD_CASES[sequence][0]): raise ValueError('Bounded source row count changed')

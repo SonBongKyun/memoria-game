@@ -16,8 +16,16 @@ struct FMemoriaVerdanStoryBeat
     const TCHAR* Title; // Dialogue header naming where the beat happens.
 };
 
+// verdan_market.gd sets these on Elia in this order; PerceptionFilter takes the first
+// burned, unheard one before her regular talk.
+struct FMemoriaEliaReaction { const TCHAR* Memory; const TCHAR* File; const TCHAR* Group; const TCHAR* Asset; };
+
 namespace MemoriaVerdanStory
 {
+    MEMORIA_API const TArray<FMemoriaEliaReaction>& EliaReactions();
+    inline const TCHAR* EliaDialogueKey = TEXT("elia_ch2_talk");
+    inline const TCHAR* EliaTalkFlag = TEXT("talked_Elia_elia_ch2_talk");
+    inline const TCHAR* EliaRepeatLine = TEXT("This market smells like rust and regret.");
     MEMORIA_API const TArray<FMemoriaVerdanStoryBeat>& Beats();
     MEMORIA_API const FMemoriaVerdanStoryBeat* Find(const FString& Group);
     constexpr double InteractionRange = 80.0;

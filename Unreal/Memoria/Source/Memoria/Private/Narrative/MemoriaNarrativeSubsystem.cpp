@@ -13,6 +13,7 @@
 #include "Narrative/MemoriaSumpLedger.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Interaction/MemoriaStoryPointActor.h"
+#include "Interaction/MemoriaEliaCompanion.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 
@@ -47,7 +48,7 @@ void UMemoriaNarrativeSubsystem::Reset()
     ActualDelaySeconds = ActualRewardDelaySeconds = 0;
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
     ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
-    ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr; bTraderArmed = bLedgerArmed = false; Notices.Reset(); NoticeTime = -1000; bNoticeHeld = false;
+    ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr; bEliaTalkCached = false; EliaTalkAsset = nullptr; bTraderArmed = bLedgerArmed = false; Notices.Reset(); NoticeTime = -1000; bNoticeHeld = false;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
@@ -229,7 +230,7 @@ void UMemoriaNarrativeSubsystem::ArmStoryBeats()
     // malet_deal_accepted as it stood on entry. Arming is not part of the source trace.
     UWorld* World = GetWorld();
     if (!World || StoryWorld.Get() == World) return;
-    StoryWorld = World; ArmedStoryBeats.Reset();
+    StoryWorld = World; ArmedStoryBeats.Reset(); bEliaTalkCached = false;
     const auto& S = Run->GetRunSnapshot();
     for (const auto& Beat : MemoriaVerdanStory::Beats())
     {
@@ -251,6 +252,11 @@ void UMemoriaNarrativeSubsystem::ArmStoryBeats()
     if (bLedgerArmed)
         if (auto* Point = World->SpawnActor<AMemoriaStoryPointActor>(MemoriaSumpLedger::LedgerLocation, FRotator::ZeroRotator, Params))
             Point->Configure(MemoriaSumpLedger::LedgerPoint, TEXT("Loose stone  |  E / A: search"));
+    // The companion node sits beside the player (verdan_market.gd places her at the player's side).
+    APawn* Pawn = World->GetFirstPlayerController() ? World->GetFirstPlayerController()->GetPawn() : nullptr;
+    if (Pawn && S.Player.bEliaWithParty)
+        if (auto* Elia = World->SpawnActor<AMemoriaEliaCompanion>(Pawn->GetActorLocation() + FVector(-30, -20, 0), FRotator::ZeroRotator, Params))
+            Elia->Follow(Pawn);
 }
 bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) const
 {
@@ -334,6 +340,41 @@ FString UMemoriaNarrativeSubsystem::GetQuestTrackerLine() const
     if (!Run || !Run->HasActiveRun() || !MemoriaSumpLedger::IsActive(Run->GetRunSnapshot())) return FString();
     const bool bKo = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
     return (bKo ? TEXT("퀘스트  ") : TEXT("QUEST  ")) + MemoriaSumpLedger::Title(bKo) + TEXT("  -  ") + MemoriaSumpLedger::CurrentStepText(Run->GetRunSnapshot(), bKo);
+}
+bool UMemoriaNarrativeSubsystem::InteractWithElia()
+{
+    if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
+    if (State != EMemoriaSliceState::Exploration || !Context || !StoryWorld.IsValid() || StoryWorld.Get() != GetWorld()) return false;
+    const auto& S = Run->GetRunSnapshot();
+    // PerceptionFilter.take_burn_reaction, in the order verdan_market.gd sets the metadata.
+    for (const auto& R : MemoriaVerdanStory::EliaReactions())
+    {
+        const FString Heard = FString(TEXT("burn_reaction_heard_")) + R.Group;
+        if (!Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(R.Memory) || S.GetFlag(Heard)) continue;
+        Run->SetStoryFlag(Heard, true); Record(TEXT("flag:") + Heard);
+        return StartStoryField(R.Group, R.Asset);
+    }
+    const FString Talked = MemoriaVerdanStory::EliaTalkFlag;
+    if (bEliaTalkCached || S.GetFlag(Talked))
+    {
+        // start_dialogue([{speaker: npc_name, text: repeat_line, portrait: ""}]).
+        if (!EliaRepeatAsset)
+        {
+            EliaRepeatAsset = NewObject<UMemoriaFieldAsset>(this);
+            EliaRepeatAsset->Definition.Id = TEXT("elia_repeat"); EliaRepeatAsset->Definition.IndexMappingVersion = 1;
+            FMemoriaFieldRow Row; Row.Id = TEXT("field/elia_repeat/0"); Row.EffectPhase = TEXT("gate_then_effects");
+            Row.Text.bHasSpeaker = true; Row.Text.Speaker = TEXT("Elia"); Row.Text.bHasText = true; Row.Text.Text = MemoriaVerdanStory::EliaRepeatLine;
+            EliaRepeatAsset->Definition.Rows.Add(Row);
+        }
+        Record(TEXT("request:elia:repeat_line")); DeferredInteraction.Reset(); StoryAsset = EliaRepeatAsset; ActiveFieldAsset = EliaRepeatAsset; ++FieldInvocationCount;
+        Field = MakeUnique<FMemoriaFieldInterpreter>(EliaRepeatAsset->Definition, *Context);
+        State = EMemoriaSliceState::Field; Record(TEXT("field:start:elia_repeat"));
+        Field->Start(); FlushEvents(TEXT("field")); return true;
+    }
+    // First talk: cache now, set the talked flag on dialogue_ended.
+    bEliaTalkCached = true;
+    if (!StartStoryField(MemoriaVerdanStory::EliaDialogueKey, TEXT("DA_Field_EliaCh2Talk"))) { bEliaTalkCached = false; return false; }
+    EliaTalkAsset = StoryAsset; return true;
 }
 void UMemoriaNarrativeSubsystem::Explore()
 {
@@ -461,12 +502,15 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
             View.LocationTitle = ActiveFieldAsset == FieldAsset ? TEXT("CHAPTER II  /  VERDAN") : TEXT("THE SUMP  /  MALET");
             if (const auto* Beat = ActiveFieldAsset && ActiveFieldAsset == StoryAsset ? MemoriaVerdanStory::Find(ActiveFieldAsset->Definition.Id) : nullptr) View.LocationTitle = Beat->Title;
-            else if (ActiveFieldAsset && ActiveFieldAsset == StoryAsset) View.LocationTitle = TEXT("VERDAN  /  THE SUMP LEDGER");
+            else if (ActiveFieldAsset && ActiveFieldAsset == StoryAsset)
+                View.LocationTitle = ActiveFieldAsset->Definition.Id.StartsWith(TEXT("elia")) ? TEXT("VERDAN  /  ELIA") : TEXT("VERDAN  /  THE SUMP LEDGER");
             // Sequences without a CG use the already-authored encounter location.
             View.BackdropSource = ActiveFieldAsset == FieldAsset ? FString() : TEXT("res://assets/cg/generated/story_ch2_malet_cellar.png");
+            // Elia talks happen in the open market, not Malet's cellar.
+            if (ActiveFieldAsset == StoryAsset && ActiveFieldAsset->Definition.Id.StartsWith(TEXT("elia"))) View.BackdropSource = TEXT("res://assets/cg/generated/chapter_splash_verdan_market.png");
             for (int32 I = 0; I <= Index; ++I)
                 if (ActiveFieldAsset->Definition.Rows[I].Presentation.bHasCg) View.BackdropSource = ActiveFieldAsset->Definition.Rows[I].Presentation.Cg;
-            View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Row.Presentation.Portrait);
+            View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Row.Presentation.bHasBurnedPortrait && Context->UsesBurnedText(Row.Text) ? Row.Presentation.BurnedPortrait : Row.Presentation.Portrait);
             View.PortraitSide = Row.Text.Speaker == TEXT("Elia") ? TEXT("right") : TEXT("left");
             for (int32 I : Field->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Row.Choices[I].Text)});
         }
@@ -572,6 +616,8 @@ void UMemoriaNarrativeSubsystem::StartMaletField(UMemoriaFieldAsset* Asset)
 }
 void UMemoriaNarrativeSubsystem::FinishField()
 {
+    if (EliaTalkAsset && ActiveFieldAsset == EliaTalkAsset)
+    { Run->SetStoryFlag(MemoriaVerdanStory::EliaTalkFlag, true); Record(FString(TEXT("flag:")) + MemoriaVerdanStory::EliaTalkFlag); EliaTalkAsset = nullptr; }
     if (ActiveFieldAsset != EncounterAsset && ActiveFieldAsset != RefusedAsset && ActiveFieldAsset != DealAsset && ActiveFieldAsset != RewardAsset) { Explore(); return; }
     const bool bRefused = ActiveFieldAsset == RefusedAsset;
     const bool bDeal = ActiveFieldAsset == DealAsset;
