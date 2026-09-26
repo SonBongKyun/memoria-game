@@ -21,6 +21,8 @@ public:
     bool PlaySfx(FName Cue);
     FName GetMusic() const { return Music; }
     FName GetAmbient() const { return Ambient; }
+    bool IsMusicPlaying() const;
+    bool IsAmbientPlaying() const;
     bool IsDucked() const { return bDucked; }
     bool IsBurnDramaActive() const { return DramaStage != 0; }
     // Cues requested this session, newest last (bounded), and per-cue totals, for tests and diagnostics.
@@ -44,6 +46,7 @@ private:
     TArray<FName> RecentCues;
     TMap<FName, int32> CueCounts;
     TMap<FName, double> LastPlayed;
+    void OnRunReplaced();
     void SyncContext();
     void SetLoop(FName Track, TObjectPtr<UAudioComponent>& Current, TObjectPtr<UAudioComponent>& Fading, FName& CurrentId, float FadeIn, float FadeOut);
     void SetDuck(bool bDuck);

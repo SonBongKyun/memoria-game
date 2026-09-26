@@ -26,6 +26,7 @@ void UMemoriaAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     // The player memory domain is restored in place, so one binding covers every run.
     GI->GetSubsystem<UMemoriaRunSubsystem>()->GetPlayerMemory()->OnObserved.AddUObject(this, &UMemoriaAudioSubsystem::OnMemoryEvent);
     GI->GetSubsystem<UMemoriaShopSubsystem>()->OnRequestRecorded.AddUObject(this, &UMemoriaAudioSubsystem::OnShopRequest);
+    GI->GetSubsystem<UMemoriaRunSubsystem>()->OnRunReplaced.AddUObject(this, &UMemoriaAudioSubsystem::OnRunReplaced);
     bReady = true;
 }
 void UMemoriaAudioSubsystem::Deinitialize()
@@ -33,14 +34,30 @@ void UMemoriaAudioSubsystem::Deinitialize()
     bReady = false;
     if (auto* GI = GetGameInstance())
     {
-        if (auto* Run = GI->GetSubsystem<UMemoriaRunSubsystem>(); Run && Run->GetPlayerMemory()) Run->GetPlayerMemory()->OnObserved.RemoveAll(this);
+        if (auto* Run = GI->GetSubsystem<UMemoriaRunSubsystem>())
+        {
+            Run->OnRunReplaced.RemoveAll(this);
+            if (Run->GetPlayerMemory()) Run->GetPlayerMemory()->OnObserved.RemoveAll(this);
+        }
         if (auto* Shop = GI->GetSubsystem<UMemoriaShopSubsystem>()) Shop->OnRequestRecorded.RemoveAll(this);
     }
     for (auto* Component : {MusicComponent.Get(), FadingMusic.Get(), AmbientComponent.Get(), FadingAmbient.Get()})
-        if (Component) Component->Stop();
+        if (IsValid(Component)) { Component->Stop(); Component->DestroyComponent(); }
     MusicComponent = FadingMusic = AmbientComponent = FadingAmbient = nullptr;
     Music = Ambient = NAME_None; DramaStage = 0;
     Super::Deinitialize();
+}
+bool UMemoriaAudioSubsystem::IsMusicPlaying() const
+{ return IsValid(MusicComponent) && MusicComponent->IsPlaying(); }
+bool UMemoriaAudioSubsystem::IsAmbientPlaying() const
+{ return IsValid(AmbientComponent) && AmbientComponent->IsPlaying(); }
+void UMemoriaAudioSubsystem::OnRunReplaced()
+{
+    // A save restore can retain the same RunId; observe the replacement event itself.
+    DramaStage = 0; DramaStarted = 0; LastPlayed.Reset();
+    bBattleActive = bBattleReturning = false;
+    if (IsValid(MusicComponent)) MusicComponent->AdjustVolume(.08f, LoopLevel(true));
+    if (IsValid(AmbientComponent)) AmbientComponent->AdjustVolume(.08f, 1.f);
 }
 bool UMemoriaAudioSubsystem::PlaySfx(FName Cue)
 {
@@ -66,8 +83,8 @@ float UMemoriaAudioSubsystem::LoopLevel(bool bForMusic) const
 }
 void UMemoriaAudioSubsystem::SetLoop(FName Track, TObjectPtr<UAudioComponent>& Current, TObjectPtr<UAudioComponent>& Fading, FName& CurrentId, float FadeIn, float FadeOut)
 {
-    if (Track == CurrentId) return;
-    if (Fading) Fading->Stop();
+    if (Track == CurrentId && (Track.IsNone() || (IsValid(Current) && Current->IsPlaying()))) return;
+    if (IsValid(Fading)) { Fading->Stop(); Fading->DestroyComponent(); }
     Fading = Current; Current = nullptr; CurrentId = Track;
     if (Fading) Fading->FadeOut(FadeOut, 0.f);
     const auto* Def = MemoriaAudio::FindTrack(Track);
@@ -131,7 +148,12 @@ void UMemoriaAudioSubsystem::AdvanceDrama()
         if (AmbientComponent) AmbientComponent->AdjustVolume(.4f, 1.f);
         DramaStage = 2;
     }
-    if (DramaStage == 2 && T >= .78) { PlaySfx(TEXT("burn_ignite")); DramaStage = 0; }
+    if (DramaStage == 2 && T >= .78)
+    {
+        PlaySfx(TEXT("burn_ignite")); DramaStage = 0;
+        // Dialogue can start/end during the restoration stage; use its latest duck state.
+        if (MusicComponent) MusicComponent->AdjustVolume(MemoriaAudio::DuckFadeSeconds, LoopLevel(true));
+    }
 }
 void UMemoriaAudioSubsystem::OnShopRequest(const FString& Request)
 {
@@ -142,8 +164,8 @@ void UMemoriaAudioSubsystem::Tick(float)
 {
     SyncContext();
     AdvanceDrama();
-    if (FadingMusic && !FadingMusic->IsPlaying()) FadingMusic = nullptr;
-    if (FadingAmbient && !FadingAmbient->IsPlaying()) FadingAmbient = nullptr;
+    if (FadingMusic && !FadingMusic->IsPlaying()) { FadingMusic->DestroyComponent(); FadingMusic = nullptr; }
+    if (FadingAmbient && !FadingAmbient->IsPlaying()) { FadingAmbient->DestroyComponent(); FadingAmbient = nullptr; }
 }
 TStatId UMemoriaAudioSubsystem::GetStatId() const { RETURN_QUICK_DECLARE_CYCLE_STAT(UMemoriaAudioSubsystem, STATGROUP_Tickables); }
 ETickableTickType UMemoriaAudioSubsystem::GetTickableTickType() const

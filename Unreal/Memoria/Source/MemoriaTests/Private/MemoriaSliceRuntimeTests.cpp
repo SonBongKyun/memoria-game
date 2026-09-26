@@ -108,6 +108,7 @@ public:
                 // Source VN metadata bgm is ch2_verdan; dialogue ducks it.
                 Test->TestEqual(TEXT("Arrival VN plays its declared BGM"), Audio->GetMusic(), FName(TEXT("ch2_verdan")));
                 Test->TestTrue(TEXT("Dialogue ducks the BGM"), Audio->IsDucked());
+                if(FParse::Param(FCommandLine::Get(),TEXT("MemoriaCapture"))) Test->TestTrue(TEXT("Arrival music component is playing"),Audio->IsMusicPlaying());
                 Test->TestTrue(TEXT("Advancing lines plays confirm"), Audio->GetCueCount(TEXT("confirm")) > 0);
             }
             Test->TestEqual(TEXT("Presented choice count respects actual filter"), Host->GetView().Choices.Num(), IsFiltered ? 2 : 3);
@@ -189,6 +190,8 @@ public:
                 Test->TestEqual(TEXT("Verdan exploration plays the source market BGM"), Audio->GetMusic(), FName(TEXT("ch2_verdan")));
                 Test->TestEqual(TEXT("Verdan exploration adds the source light wind"), Audio->GetAmbient(), FName(TEXT("wind_light")));
                 Test->TestFalse(TEXT("Exploration restores full BGM volume"), Audio->IsDucked());
+                if(FParse::Param(FCommandLine::Get(),TEXT("MemoriaCapture")))
+                { Test->TestTrue(TEXT("Exploration music component is playing"),Audio->IsMusicPlaying()); Test->TestTrue(TEXT("Exploration ambience component is playing"),Audio->IsAmbientPlaying()); }
                 Test->TestTrue(TEXT("Dialogue advance played confirm"), Audio->GetCueCount(TEXT("confirm")) > 0);
                 if (!IsField) Test->TestTrue(TEXT("Choosing a VN option played ui_select"), Audio->GetCueCount(TEXT("ui_select")) > 0);
             }

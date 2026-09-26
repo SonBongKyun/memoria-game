@@ -7,6 +7,10 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include <limits>
+#include "Audio/MemoriaAudioSubsystem.h"
+#include "Run/MemoriaRunSubsystem.h"
+#include "Save/MemoriaRunSaveGame.h"
+#include "Engine/GameInstance.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 #define AUDIO_TEST(Class,Name) IMPLEMENT_SIMPLE_AUTOMATION_TEST(Class,Name,EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -65,6 +69,25 @@ bool FAudioRouting::RunTest(const FString&)
     TestTrue(TEXT("Music and ambience live apart"), MemoriaAudio::TrackPackage(TEXT("battle")).StartsWith(TEXT("/Game/Memoria/Audio/Music/")) &&
         MemoriaAudio::TrackPackage(TEXT("wind_light")).StartsWith(TEXT("/Game/Memoria/Audio/Ambient/")));
     return !HasAnyErrors();
+}
+AUDIO_TEST(FAudioRunReplacement,"Memoria.Audio.RunReplacement")
+bool FAudioRunReplacement::RunTest(const FString&)
+{
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>()); Game->Init();
+    auto* Run = Game->GetSubsystem<UMemoriaRunSubsystem>();
+    auto* Audio = Game->GetSubsystem<UMemoriaAudioSubsystem>();
+    if (!TestNotNull(TEXT("Audio subsystem exists"), Audio)) { Game->Shutdown(); return false; }
+    for (bool bRestore : {false, true})
+    {
+        TestTrue(TEXT("Start run"), Run->BeginStartingMemoryRun() == EMemoriaMemoryResult::Success);
+        auto* Save = Run->CaptureSave();
+        TestTrue(TEXT("Burn identity memory"), Run->BurnMemory(TEXT("identity_first_sword")) == EMemoriaMemoryResult::Success);
+        TestTrue(TEXT("Identity burn starts drama"), Audio->IsBurnDramaActive());
+        TestTrue(TEXT("Replace or restore run"), bRestore ? Run->RestoreSave(*Save) : Run->BeginStartingMemoryRun() == EMemoriaMemoryResult::Success);
+        TestFalse(TEXT("Old burn drama cannot continue into replacement run"), Audio->IsBurnDramaActive());
+        TestTrue(TEXT("Replacement keeps identity memory intact"), Run->GetPlayerMemory()->IsIntact(TEXT("identity_first_sword")));
+    }
+    Game->Shutdown(); return !HasAnyErrors();
 }
 #undef AUDIO_TEST
 #endif

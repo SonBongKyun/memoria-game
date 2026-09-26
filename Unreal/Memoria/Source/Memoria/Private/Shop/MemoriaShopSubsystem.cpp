@@ -33,9 +33,15 @@ void UMemoriaShopSubsystem::Reset()
     OwnerRun.Invalidate(); OwnerWorld.Reset(); bWorldBound = false;
     OpenCount = 0; Stock.Reset(); Requests.Reset();
 }
-void UMemoriaShopSubsystem::Request(const TCHAR* Value)
+bool UMemoriaShopSubsystem::Request(const TCHAR* Value)
 {
-    Requests.Add(Value); OnRequestRecorded.Broadcast(Requests.Last());
+    // Keep the payload alive even when an observer clears the request array.
+    const FString RequestValue(Value);
+    const uint64 Token = Revision;
+    Requests.Add(RequestValue); OnRequestRecorded.Broadcast(RequestValue);
+    return Revision == Token && Run && Run->HasActiveRun() && OwnerRun.IsValid()
+        && Run->GetRunSnapshot().RunId == OwnerRun
+        && (!bWorldBound || (OwnerWorld.IsValid() && !OwnerWorld->bIsTearingDown));
 }
 void UMemoriaShopSubsystem::OnWorldCleanup(UWorld* World, bool, bool)
 {
@@ -52,11 +58,12 @@ bool UMemoriaShopSubsystem::OpenMalet(UWorld* Owner)
     if (Owner && (Owner->GetGameInstance() != GetGameInstance() || Owner->bIsTearingDown)) return false;
     Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr, TEXT("/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog.DA_StartingMemoryCatalog"));
     if (!Catalog) return false;
+    TGuardValue<bool> Busy(bBusy, true);
     Reset(); OwnerRun = Run->GetRunSnapshot().RunId; OwnerWorld = Owner; bWorldBound = Owner != nullptr;
     Stock = SourceMaletOffers(); OpenCount = 1;
     // Source order. Requests are recorded here; only audio observers act on them
     // (profile, achievement and tutorial handlers remain unported).
-    Request(TEXT("request:audio:ui_open")); Request(TEXT("request:achievement:check_grains")); Request(TEXT("request:tutorial:first_shop"));
+    if (!Request(TEXT("request:audio:ui_open"))) return false; if (!Request(TEXT("request:achievement:check_grains"))) return false; if (!Request(TEXT("request:tutorial:first_shop"))) return false;
     return true;
 }
 FMemoriaShopView UMemoriaShopSubsystem::GetView() const
@@ -124,7 +131,7 @@ bool UMemoriaShopSubsystem::Transact(const FString& InMode, const FString& Id, u
         Run->State.Player.Grains += Row.Price;
         OnGrainsChanged.Broadcast(Run->State.Player.Grains);
         if (Revision != Token || !IsOpen()) return false;
-        Request(TEXT("request:audio:confirm"));
+        if (!Request(TEXT("request:audio:confirm"))) return false;
         Toasts.Add({FString(Ko ? SourceSoldKo : SourceSoldEn).Replace(TEXT("%lld"), *LexToString(Row.Price)).Replace(TEXT("%s"), *Row.Title), 2});
     }
     else
@@ -143,11 +150,11 @@ bool UMemoriaShopSubsystem::Transact(const FString& InMode, const FString& Id, u
         { Run->State.Player.Grains += Row.Price; return false; }
         if (Revision != Token || !IsOpen()) return false;
         Stock.FindByPredicate([&](const auto& O){return O.Id == Id;})->bSold = true;
-        Request(TEXT("request:audio:memory_add"));
-        Request(TEXT("request:audio:confirm"));
+        if (!Request(TEXT("request:audio:memory_add"))) return false;
+        if (!Request(TEXT("request:audio:confirm"))) return false;
         Toasts.Add({FString(SourceBought).Replace(TEXT("%lld"), *LexToString(Row.Price)).Replace(TEXT("%s"), *D.Title), 1});
     }
-    Request(TEXT("request:achievement:check_grains"));
+    if (!Request(TEXT("request:achievement:check_grains"))) return false;
     ++Revision; OnChanged.Broadcast(); return true;
 }
 bool UMemoriaShopSubsystem::Close(uint64 ExpectedRevision)
@@ -155,10 +162,10 @@ bool UMemoriaShopSubsystem::Close(uint64 ExpectedRevision)
     if (!IsOpen() || bBusy || Revision != ExpectedRevision || Run->GetPlayerMemory()->IsDispatchingEvent()) return false;
     TGuardValue<bool> Busy(bBusy, true);
     bClosed = true;
-    Request(TEXT("request:audio:ui_close"));
+    if (!Request(TEXT("request:audio:ui_close"))) return false;
     Run->SetStoryFlag(TEXT("ch2_complete"), true);
     Run->State.CurrentChapter = 3;
-    Request(TEXT("request:autosave:chapter_transition"));
+    if (!Request(TEXT("request:autosave:chapter_transition"))) return false;
     // Source captures the current Verdan field after chapter/flag writes and
     // before achievement requests and the deferred next-map timer.
     FVector2D Position(500,340);
@@ -166,8 +173,8 @@ bool UMemoriaShopSubsystem::Close(uint64 ExpectedRevision)
         if (auto* PC=World->GetFirstPlayerController())
             if (APawn* Pawn=PC->GetPawn()) Position=Memoria::Coordinates::ToSource(Pawn->GetActorLocation());
     GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->SaveClosedBoundary(Position);
-    Request(TEXT("request:achievement:chapter:2"));
-    Request(TEXT("request:achievement:unlock:merchant"));
-    Request(TEXT("deferred:chapter_transition_delay:1.5"));
+    if (!Request(TEXT("request:achievement:chapter:2"))) return false;
+    if (!Request(TEXT("request:achievement:unlock:merchant"))) return false;
+    if (!Request(TEXT("deferred:chapter_transition_delay:1.5"))) return false;
     ++Revision; OnChanged.Broadcast(); return true;
 }

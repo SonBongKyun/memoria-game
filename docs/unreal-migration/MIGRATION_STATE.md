@@ -1,3 +1,11 @@
+# Migration handoff - S295 Codex sound review (2026-09-26)
+
+- Integrated Claude `792034ff..9c3b2033` into the Codex worktree on `codex/unreal-sound-review-20260926`. Previous `SonBongKyun/memoria-unreal-codex` / `fd76c0fe` remains preserved. Claude and foundation checkouts were not edited; no remote push.
+- Fixed new shop request callback cancellation/payload lifetime and burn-drama continuation across new game/same-ID save restore. Added loop creation retry, explicit retired component cleanup and current dialogue duck restoration.
+- Fresh UE 5.8.2 build + rendered **72/72** pass: Audio3, Campaign4, Visual3, BattleEntry47, ShopTransactions15. Both new regression tests failed before the fix and passed after it. Music/ambience component playback is now asserted in rendered routes. Audio warning/error count 0; fatal diagnostics 0.
+- Relevant host tests **17/17** pass; audio source check25 pass. Broader pre-fix Python discovery was **104/119 pass**, with 15 existing obsolete-evidence/count/source-string test failures/errors. These tests remain unchanged and are not silently skipped. Full UE290, separate-process checkpoint tests, packaged audio and human listening were not rerun in this task.
+- See [review and exact commands](SOUND_REVIEW_S295.md) and [current play instructions](PLAYABLE_SLICE.md). `BATTLE_CORE_SPEC.md` remains the next implementation proposal; combat is still entry/flee only.
+
 # Migration handoff — first sound pass (S294, 2026-09-26)
 
 - Worked in the Claude lane (`SonBongKyun/memoria-unreal-claude`). The lane was moved from the collaboration snapshot `fd76c0fe` to the published evidence-free `792034ff`; the code is identical and the collaboration files are carried over.

@@ -81,7 +81,7 @@ def presentation_test_paths():
 
 
 def audio_test_paths():
-    return {'Memoria.Audio.'+name for name in ('CatalogAssets', 'Routing')}
+    return {'Memoria.Audio.'+name for name in ('CatalogAssets', 'Routing', 'RunReplacement')}
 
 
 
@@ -107,7 +107,7 @@ def shop_test_paths():
 
 def shop_transaction_test_paths():
     from export_shop_transactions_oracle import inputs
-    return {"Memoria.ShopTransactions.Source."+c["id"] for c in inputs()} | {"Memoria.ShopTransactions.Guards", "Memoria.ShopTransactions.Canonical"}
+    return {"Memoria.ShopTransactions.Source."+c["id"] for c in inputs()} | {"Memoria.ShopTransactions.Guards", "Memoria.ShopTransactions.Canonical", "Memoria.ShopTransactions.RequestCancellation"}
 
 
 def checkpoint_test_paths():
@@ -169,7 +169,7 @@ def main():
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
-    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.'], help='Exact full registry or a bounded gameplay regression subset')
+    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.'], help='Exact full registry or a bounded gameplay regression subset')
     parser.add_argument('--evidence-dir', type=Path)
     # The rendered full registry needs far longer than a bounded subset.
     parser.add_argument('--automation-timeout', type=int, default=900, help='Seconds before the automation process is killed')

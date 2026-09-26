@@ -9076,3 +9076,12 @@ Grounded in real 1280x720 OpenGL captures taken before any change, not a code re
 ## 2026-09-25 — Claude/Codex Unreal collaboration setup
 
 Local collaboration snapshot of the current foundation HEAD plus 15 modified tracked files and the required untracked source/reference files. Original checkout, index and branch remain unchanged. Two isolated ORCA worktrees share this base and use docs/collaboration/CLAUDE_CODEX.md. No gameplay changes or new Unreal test pass are claimed by setup. Untracked historical evidence remains available in the original foundation checkout.
+
+
+## S295 - 2026-09-26 (Codex review and integration of Claude sound pass)
+
+- Reviewed the five Claude commits through 9c3b2033 and integrated them on codex/unreal-sound-review-20260926 in the Codex lane. Preserved the old fd76c0fe Codex branch and both original checkouts; no peer writes, foundation merge or push. Historical evidence remains untracked on the clean-history branch.
+- Reproduced two failures before fixing them: shop request callbacks continued after run replacement, and old high-grade burn audio continued across new game/save restore. Added stable request payloads, cancellation checks, open reentrancy guard, audio run-reset handling, loop retry/cleanup and final duck reconciliation. Rendered routes now verify actual loop component playback.
+- UE5.8.2 build + exact selected rendered72/72 PASS (Audio3/Campaign4/Visual3/BattleEntry47/ShopTransactions15), host17/17 and generated audio25 PASS; audio warnings/errors0 and fatal0. Full UE290 and packaged/human listening validation were not performed. A first test-only compile type error and the red2 failures are retained in local Saved/Validation evidence.
+- Broader pre-fix host discovery: 104/119 pass, 10 failures +5 errors from old counts/source-string checks and removed historical evidence. No skip/weakening; documented as separate maintenance debt.
+- Updated MIGRATION_STATE, PLAYABLE_SLICE and SOUND_REVIEW_S295. Battle specification accepted as a proposed next task only; attack/burn/enemy-turn/win/loss/rewards and witness remain future implementation.

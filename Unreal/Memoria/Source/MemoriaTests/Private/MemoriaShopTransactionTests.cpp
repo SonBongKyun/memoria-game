@@ -124,5 +124,42 @@ bool FShopTransactionGuards::RunTest(const FString&)
     auto E=MakeShared<FJsonObject>();E->SetObjectField(TEXT("full"),Full(*Run));Write(TEXT("shop_transaction_guards.json"),E);
     Game->Shutdown();return !HasAnyErrors();
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FShopRequestCancellation,"Memoria.ShopTransactions.RequestCancellation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FShopRequestCancellation::RunTest(const FString&)
+{
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>()); Game->Init();
+    auto* Run=Game->GetSubsystem<UMemoriaRunSubsystem>(); auto* Shop=Game->GetSubsystem<UMemoriaShopSubsystem>();
+    // Each newly introduced synchronous request is a run-replacement boundary.
+    for (const FString Action : {TEXT("open"), TEXT("sell"), TEXT("buy"), TEXT("close")})
+    {
+        const int32 RequestCount=Action==TEXT("open")?3:Action==TEXT("sell")?2:Action==TEXT("buy")?3:5;
+        for(int32 CancelAt=0; CancelAt<RequestCount; ++CancelAt)
+        {
+            Run->BeginStartingMemoryRun(); auto S=Run->GetRunSnapshot(); S.Player.Grains=30;
+            Run->RestoreRun(S,Run->GetPlayerMemory()->GetDefinitions(),Run->GetPlayerMemory()->GetSnapshot());
+            if(Action!=TEXT("open")) Shop->OpenMalet();
+            if(Action==TEXT("buy")) Shop->SetMode(TEXT("buy"));
+            int32 Seen=0; bool bReplaced=false;
+            auto H=Shop->OnRequestRecorded.AddLambda([&](const FString&)
+            {
+                if(Seen++==CancelAt) { bReplaced=true; Run->BeginStartingMemoryRun(); }
+            });
+            const bool Accepted=Action==TEXT("open")?Shop->OpenMalet():Action==TEXT("close")?Shop->Close(Shop->GetView().Revision):
+                Shop->Transact(Action,Action==TEXT("buy")?TEXT("daily_malet_deal"):TEXT("sense_forest_smell"),Shop->GetView().Revision);
+            Shop->OnRequestRecorded.Remove(H);
+            const FString Label=FString::Printf(TEXT("%s request %d"),*Action,CancelAt);
+            TestTrue(*(Label+TEXT(" callback reached")),bReplaced);
+            TestFalse(*(Label+TEXT(" aborts continuation")),Accepted);
+            TestEqual(*(Label+TEXT(" stops further requests")),Seen,CancelAt+1);
+            TestEqual(*(Label+TEXT(" preserves replacement chapter")),Run->GetRunSnapshot().CurrentChapter,int64(1));
+            TestFalse(*(Label+TEXT(" preserves replacement flags")),Run->GetRunSnapshot().GetFlag(TEXT("ch2_complete")));
+            TestEqual(*(Label+TEXT(" preserves replacement balance")),Run->GetRunSnapshot().Player.Grains,int64(0));
+            TestTrue(*(Label+TEXT(" clears stale feedback")),Shop->GetToasts().IsEmpty());
+            TestTrue(*(Label+TEXT(" clears stale requests")),Shop->GetView().Requests.IsEmpty());
+            TestFalse(*(Label+TEXT(" closes stale owner")),Shop->IsOpen());
+        }
+    }
+    Game->Shutdown(); return !HasAnyErrors();
+}
 #endif
 

@@ -1,12 +1,13 @@
-> 현재 기준: S292 베르단 전투의 Alley Rat 임시 삽화와 Windows 개발 프리뷰까지 적용되었습니다. 전체 전투와 15~20분 완성 구간은 미구현이며 최신 범위는 문서 끝의 S292를 따릅니다.
+> 현재 기준: S295 Codex 사운드 검토·통합. 도입부·시장·전투 전환 음악, 바람, 조작·거래·발소리·고등급 연소 효과음이 연결되었습니다. 전투 행동은 여전히 도주만 가능하며 공격·적 턴·승패는 후속 구현입니다. 아래 S292 이전 기록은 당시 범위를 설명합니다. 검증 결과와 제한은 [S295 검토 보고서](SOUND_REVIEW_S295.md)를 따릅니다.
+
 
 # 현재 Unreal 플레이 구간
 
-프로젝트: `C:\Users\jc\MemoriaMigration\foundation\Unreal\Memoria\Memoria.uproject`
+프로젝트: `C:\Users\jc\orca\workspaces\Game\memoria-unreal-codex\Unreal\Memoria\Memoria.uproject`
 
 `Unreal/Tools/Play-MemoriaSlice.ps1`을 실행하거나, Unreal Editor에서
 `/Game/Tests/Campaign/L_Ch2VerdanSlice` 맵을 열고 Play를 누릅니다.
-기본 FoundationTest 맵은 개발용 기초 테스트 맵이므로 이 구간과 다릅니다.
+에디터가 처음 여는 FoundationTest 맵은 기초 테스트용입니다. 위 슬라이스 맵을 직접 열거나 실행 스크립트를 사용하세요. 게임 기본 시작 맵은 Ch2 Verdan Slice입니다.
 
 - Enter / E / Space: 대화 진행, 선택 확정.
 - 위 / 아래: 선택지 이동. 마우스로 선택지를 클릭하면 바로 확정합니다. 음식 기억을 태우는 경로를 고르면 현재 검증 경로와 일치합니다.
@@ -167,3 +168,10 @@ Notion의 구 GDD/캐논/재집필 초안을 구분하여 참조했고, 승인 �
 개발 프리뷰 ZIP을 풀고 `Windows/Memoria.exe`를 실행하면 베르단 플레이 구간에서 시작합니다. 이동 WASD/스틱, 상호작용 E/Enter/Space, 서고 Tab/M, 전투에서는 FLEE만 지원합니다. 저장 이어하기는 이전 S289 안내를 따릅니다. 이 파일은 정식 Steam 데모나 15~20분 완료 구간이 아닙니다.
 
 [새 전투 화면](evidence/art2/automation01/BattleAlleyRat.png), [그림·패키지 검증 보고서](ART_2_REPORT.md).
+
+
+## S295 사운드 검토·통합
+
+실행 위치는 위 Codex 레인입니다. `Unreal/Tools/Play-MemoriaSlice.ps1`을 실행하면 베르단 도입부부터 시작합니다. 음악은 대화 중 작아지고 탐색 때 복원되며, 재방문 전투·도주·시장 복귀에 따라 전환됩니다. Tab/M 서고, 대화 선택, 상점 거래, 돌바닥 보행과 고등급 기억 연소에도 효과음이 연결되어 있습니다.
+
+새 게임·저장 복원 때 이전 연소 효과음 시퀀스가 취소되도록 보강했습니다. 자동 검증과 별개로 실제 청취에 의한 음량 균형 확인은 남아 있습니다. 기존 S292 배포 ZIP에는 이번 소리가 반영되었다고 주장하지 않습니다. 공격·방어·전투 기억 연소·아이템·적 턴·승패는 전투 명세의 다음 단계입니다.

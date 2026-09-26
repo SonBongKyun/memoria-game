@@ -999,6 +999,7 @@ public:
                 {
                     // Everything this route has heard so far, through real input and domain events.
                     Test->TestEqual(TEXT("Battle crossfades to the source battle theme"),Audio->GetMusic(),FName(TEXT("battle")));
+                    if(FParse::Param(FCommandLine::Get(),TEXT("MemoriaCapture"))) Test->TestTrue(TEXT("Battle music component is playing"),Audio->IsMusicPlaying());
                     Test->TestTrue(TEXT("Battle has no field ambience"),Audio->GetAmbient().IsNone());
                     Test->TestEqual(TEXT("One entry sting per encounter"),Audio->GetCueCount(TEXT("battle_intro")),1);
                     for(const TCHAR* Cue:{TEXT("confirm"),TEXT("ui_select"),TEXT("ui_open"),TEXT("ui_close"),TEXT("step_stone")})
@@ -1041,6 +1042,8 @@ public:
             {
                 Test->TestEqual(TEXT("Field return restores the market BGM"),Audio->GetMusic(),FName(TEXT("ch2_verdan")));
                 Test->TestEqual(TEXT("Field return restores the light wind"),Audio->GetAmbient(),FName(TEXT("wind_light")));
+                if(FParse::Param(FCommandLine::Get(),TEXT("MemoriaCapture")))
+                { Test->TestTrue(TEXT("Returned field music component is playing"),Audio->IsMusicPlaying()); Test->TestTrue(TEXT("Returned field ambience component is playing"),Audio->IsAmbientPlaying()); }
             }
             Capture(TEXT("FieldReturned"));Write(Host,Run,Pawn,TEXT("field_returned"));
             // Second image is an explicit alternative-enemy presentation fixture.
