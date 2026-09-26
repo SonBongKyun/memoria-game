@@ -10,12 +10,11 @@ UMemoriaDialogueAssetsCommandlet::UMemoriaDialogueAssetsCommandlet()
 { IsClient = false; IsServer = false; IsEditor = true; LogToConsole = true; }
 int32 UMemoriaDialogueAssetsCommandlet::Main(const FString&)
 {
-    for (const auto& Entry : MemoriaNarrativeArtwork::Sources())
-        if (!Entry.bReuse && FPackageName::DoesPackageExist(Entry.Package))
-        { UE_LOG(LogTemp, Error, TEXT("Refusing existing package: %s"), Entry.Package); return 1; }
+    // Additive: existing packages are never overwritten; only newly listed sources are imported.
     for (const auto& Entry : MemoriaNarrativeArtwork::Sources())
     {
         if (Entry.bReuse) continue;
+        if (FPackageName::DoesPackageExist(Entry.Package)) { UE_LOG(LogTemp, Display, TEXT("DIALOGUE_ASSET_KEPT %s"), Entry.Package); continue; }
         const FString PackagePath(Entry.Package), Name = FPaths::GetBaseFilename(PackagePath);
         auto* Package = CreatePackage(*(PackagePath)); auto* Factory = NewObject<UTextureFactory>();
         bool Cancelled = false;

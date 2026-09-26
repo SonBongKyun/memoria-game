@@ -1,0 +1,71 @@
+{
+ "beats": [
+  {
+   "flag": "ch2_market_walk",
+   "group": "verdan_market_walk",
+   "rect": [
+    320,
+    256,
+    416,
+    320
+   ],
+   "requires_flag": null,
+   "rows": 8
+  },
+  {
+   "flag": "ch2_old_burner",
+   "group": "verdan_old_burner",
+   "rect": [
+    96,
+    160,
+    160,
+    224
+   ],
+   "requires_flag": null,
+   "rows": 11
+  },
+  {
+   "flag": "ch2_malet_backstory",
+   "group": "malet_backstory",
+   "rect": [
+    448,
+    384,
+    512,
+    448
+   ],
+   "requires_flag": "malet_deal_accepted",
+   "rows": 12
+  },
+  {
+   "flag": "ch2_elia_concern",
+   "group": "elia_sump_concern",
+   "rect": [
+    512,
+    448,
+    576,
+    512
+   ],
+   "requires_flag": null,
+   "rows": 8
+  },
+  {
+   "flag": "ch2_sump_atmos",
+   "group": "sump_atmosphere",
+   "rect": [
+    448,
+    512,
+    544,
+    576
+   ],
+   "requires_flag": null,
+   "rows": 6
+  }
+ ],
+ "player_body": [
+  14,
+  14
+ ],
+ "schema_version": 1,
+ "source": "scenes/maps/verdan_market.gd",
+ "tile_size": 32
+}

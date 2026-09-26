@@ -9,6 +9,8 @@
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "Battle/MemoriaBattleEntrySubsystem.h"
+#include "Narrative/MemoriaVerdanStory.h"
+#include "Interaction/MemoriaStoryPointActor.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 
@@ -43,6 +45,7 @@ void UMemoriaNarrativeSubsystem::Reset()
     ActualDelaySeconds = ActualRewardDelaySeconds = 0;
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
     ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
+    ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
@@ -98,6 +101,7 @@ bool UMemoriaNarrativeSubsystem::EnterVerdan()
     if (!Run->HasActiveRun() || !Context || !LoadContracts()) return false;
     bMaletCallbackConnected = true;
     Record(TEXT("verdan:enter"));
+    ArmStoryBeats();
     if (!Run->State.GetFlag(TEXT("ch2_arrived")))
     {
         const bool Seen = Run->State.GetFlag(TEXT("ch2_arrival_vn_seen"));
@@ -215,6 +219,46 @@ bool UMemoriaNarrativeSubsystem::InteractWithMalet()
     State = EMemoriaSliceState::Field;
     // Observed live run value at the actual Field Start boundary.
     Record(FString::Printf(TEXT("field:start:%s:heard=%s"), *Dispatch.Group, Run->GetRunSnapshot().GetFlag(MemoriaMaletReaction::Heard)?TEXT("true"):TEXT("false")));
+    Field->Start(); FlushEvents(TEXT("field")); return true;
+}
+void UMemoriaNarrativeSubsystem::ArmStoryBeats()
+{
+    // Source _add_story_trigger at map _ready: skip seen flags, and gate the backstory on
+    // malet_deal_accepted as it stood on entry. Arming is not part of the source trace.
+    UWorld* World = GetWorld();
+    if (!World || StoryWorld.Get() == World) return;
+    StoryWorld = World; ArmedStoryBeats.Reset();
+    const auto& S = Run->GetRunSnapshot();
+    for (const auto& Beat : MemoriaVerdanStory::Beats())
+    {
+        if (S.GetFlag(Beat.Flag) || (Beat.RequiresFlag && !S.GetFlag(Beat.RequiresFlag))) continue;
+        ArmedStoryBeats.Add(Beat.Group);
+        if (World->bIsTearingDown || !World->GetMapName().EndsWith(TEXT("L_VerdanHost"))) continue;
+        FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        if (auto* Point = World->SpawnActor<AMemoriaStoryPointActor>(Beat.Location, FRotator::ZeroRotator, Params)) Point->Configure(Beat.Group, Beat.Prompt);
+    }
+}
+bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) const
+{
+    const auto* Beat = MemoriaVerdanStory::Find(Group);
+    return Beat && Run && Run->HasActiveRun() && StoryWorld.IsValid() && StoryWorld.Get() == GetWorld() &&
+        ArmedStoryBeats.Contains(Group) && !Run->GetRunSnapshot().GetFlag(Beat->Flag);
+}
+bool UMemoriaNarrativeSubsystem::StartStoryBeat(const FString& Group)
+{
+    if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
+    if (State != EMemoriaSliceState::Exploration || !Context || !IsStoryBeatAvailable(Group)) return false;
+    const auto* Beat = MemoriaVerdanStory::Find(Group);
+    const FString Path = FString(TEXT("/Game/Memoria/Generated/Narrative/")) + Beat->Asset + TEXT(".") + Beat->Asset;
+    StoryAsset = LoadObject<UMemoriaFieldAsset>(nullptr, *Path);
+    if (!StoryAsset) { Record(TEXT("error:missing_story_contract:") + Group); return false; }
+    // Source body_entered: set the one-time flag, then load_and_start the group.
+    Run->SetStoryFlag(Beat->Flag, true); Record(FString(TEXT("flag:")) + Beat->Flag);
+    ArmedStoryBeats.Remove(Group);
+    Record(TEXT("request:res://data/chapter2_dialogue.json::") + Group);
+    DeferredInteraction.Reset(); ActiveFieldAsset = StoryAsset; ++FieldInvocationCount;
+    Field = MakeUnique<FMemoriaFieldInterpreter>(StoryAsset->Definition, *Context);
+    State = EMemoriaSliceState::Field; Record(TEXT("field:start:") + Group);
     Field->Start(); FlushEvents(TEXT("field")); return true;
 }
 void UMemoriaNarrativeSubsystem::Explore()
@@ -336,11 +380,12 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     else if (State == EMemoriaSliceState::Field && Field)
     {
         int32 Index = Field->OriginalIndex();
-        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : ActiveFieldAsset == DealAsset ? TEXT("MALET / DEAL") : ActiveFieldAsset == RewardAsset ? TEXT("MALET / REWARD") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
+        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : ActiveFieldAsset == DealAsset ? TEXT("MALET / DEAL") : ActiveFieldAsset == RewardAsset ? TEXT("MALET / REWARD") : ActiveFieldAsset == StoryAsset ? TEXT("VERDAN / STORY") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
         if (ActiveFieldAsset->Definition.Rows.IsValidIndex(Index))
         {
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
             View.LocationTitle = ActiveFieldAsset == FieldAsset ? TEXT("CHAPTER II  /  VERDAN") : TEXT("THE SUMP  /  MALET");
+            if (const auto* Beat = ActiveFieldAsset && ActiveFieldAsset == StoryAsset ? MemoriaVerdanStory::Find(ActiveFieldAsset->Definition.Id) : nullptr) View.LocationTitle = Beat->Title;
             // Sequences without a CG use the already-authored encounter location.
             View.BackdropSource = ActiveFieldAsset == FieldAsset ? FString() : TEXT("res://assets/cg/generated/story_ch2_malet_cellar.png");
             for (int32 I = 0; I <= Index; ++I)

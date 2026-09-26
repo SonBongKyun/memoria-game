@@ -27,6 +27,8 @@ docs/unreal-migration/fixtures/malet_potion/** text eol=lf
 
 docs/unreal-migration/fixtures/malet_antidote/** text eol=lf
 
+docs/unreal-migration/fixtures/verdan_story/** text eol=lf
+
 # Preserve exact execution/capture bytes for Phase 1M provenance.
 docs/unreal-migration/evidence/phase1m/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 

@@ -24,6 +24,12 @@ FIELD_CASES = {
     'malet_refused': (3, 4, 'DA_Field_MaletRefused'),
     'malet_deal': (5, 2, 'DA_Field_MaletDeal'),
     'malet_reward': (8, 3, 'DA_Field_MaletReward'),
+    # S298 Verdan exploration story beats (verdan_market.gd _setup_exploration_events).
+    'verdan_market_walk': (8, 6, 'DA_Field_VerdanMarketWalk'),
+    'verdan_old_burner': (11, 7, 'DA_Field_VerdanOldBurner'),
+    'malet_backstory': (12, 8, 'DA_Field_MaletBackstory'),
+    'elia_sump_concern': (8, 9, 'DA_Field_EliaSumpConcern'),
+    'sump_atmosphere': (6, 10, 'DA_Field_SumpAtmosphere'),
 }
 
 def selected_case(dialect, group=None):

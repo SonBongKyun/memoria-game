@@ -322,23 +322,24 @@ constexpr int32 AshCount=56,EmberCount=18,MistCount=5;
 // Stable per-index scatter so captures are reproducible frame to frame.
 double Scatter(int32 I,double Salt){return FMath::Frac(FMath::Sin(I*12.9898+Salt*78.233)*43758.5453);}
 }
-UInstancedStaticMeshComponent* AMemoriaVerdanPresentation::MoteBatch(FName Name, FLinearColor Tint, float Alpha)
+void AMemoriaVerdanPresentation::MoteGroup(TArray<TObjectPtr<UStaticMeshComponent>>& Out, int32 Count, FLinearColor Tint, float Alpha)
 {
-    auto* Batch=NewObject<UInstancedStaticMeshComponent>(this,Name);
-    AddInstanceComponent(Batch);Batch->SetupAttachment(RootComponent);Batch->SetMobility(EComponentMobility::Movable);
-    Batch->SetCollisionEnabled(ECollisionEnabled::NoCollision);Batch->SetGenerateOverlapEvents(false);Batch->SetCanEverAffectNavigation(false);Batch->SetCastShadow(false);
-    Batch->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane")));
-    if(auto* Instance=UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Verdan/M_SoftLight.M_SoftLight")),this))
-    {Instance->SetVectorParameterValue(TEXT("Tint"),Tint);Instance->SetScalarParameterValue(TEXT("Alpha"),Alpha);Batch->SetMaterial(0,Instance);}
-    Batch->RegisterComponent();return Batch;
+    auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane"));
+    auto* Instance=UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Verdan/M_SoftLight.M_SoftLight")),this);
+    if(Instance){Instance->SetVectorParameterValue(TEXT("Tint"),Tint);Instance->SetScalarParameterValue(TEXT("Alpha"),Alpha);}
+    for(int32 I=0;I<Count;++I)
+    {
+        auto* Mote=NewObject<UStaticMeshComponent>(this);
+        AddInstanceComponent(Mote);Mote->SetupAttachment(RootComponent);Mote->SetMobility(EComponentMobility::Movable);
+        Mote->SetCollisionEnabled(ECollisionEnabled::NoCollision);Mote->SetGenerateOverlapEvents(false);Mote->SetCanEverAffectNavigation(false);Mote->SetCastShadow(false);
+        Mote->SetStaticMesh(Mesh);if(Instance)Mote->SetMaterial(0,Instance);Mote->RegisterComponent();Out.Add(Mote);
+    }
 }
 void AMemoriaVerdanPresentation::BuildFieldLife()
 {
     // Pale ash drifts through the whole courtyard; embers rise only from the two hanging lanterns.
-    AshMotes=MoteBatch(TEXT("FieldAsh"),FLinearColor(.70f,.74f,.80f),.75f);
-    EmberMotes=MoteBatch(TEXT("FieldEmbers"),FLinearColor(1.f,.52f,.20f),.95f);
-    for(int32 I=0;I<AshCount;++I)AshMotes->AddInstance(FTransform::Identity);
-    for(int32 I=0;I<EmberCount;++I)EmberMotes->AddInstance(FTransform::Identity);
+    MoteGroup(AshMotes,AshCount,FLinearColor(.70f,.74f,.80f),.75f);
+    MoteGroup(EmberMotes,EmberCount,FLinearColor(1.f,.52f,.20f),.95f);
     for(int32 I=0;I<MistCount;++I)
     {
         auto* Patch=SoftQuad(FVector(-700+I*350,-380+Scatter(I,3)*700,-8.6),FVector(7.5,3.4,1),FLinearColor(.15f,.19f,.25f),.16f);
@@ -354,16 +355,15 @@ void AMemoriaVerdanPresentation::TickFieldLife()
         const double Fall=FMath::Fmod(T*(14+10*Scatter(I,1))+Scatter(I,2)*360,360.0);
         const double X=FMath::Fmod(-950+Scatter(I,4)*1900+T*9+950,1900.0)-950+26*FMath::Sin(T*.4+I);
         const FVector P(X,-620+Scatter(I,5)*1240,340-Fall);
-        AshMotes->UpdateInstanceTransform(I,FTransform(FRotator(0,T*20+I*37,0),P,FVector(.09+.05*Scatter(I,6))),false,false,true);
+        AshMotes[I]->SetRelativeTransform(FTransform(FRotator(0,T*20+I*37,0),P,FVector(.09+.05*Scatter(I,6))));
     }
     for(int32 I=0;I<EmberCount;++I)
     {
         const double Life=FMath::Frac(T*(.22+.12*Scatter(I,7))+Scatter(I,8));
         const double Side=I%2?830:-830;
         const FVector P(Side+22*FMath::Sin(T*1.3+I*2.1)+14*Scatter(I,9),552+10*Scatter(I,10),150+Life*170);
-        EmberMotes->UpdateInstanceTransform(I,FTransform(FRotator::ZeroRotator,P,FVector(.075*(1-Life)+.01)),false,I==EmberCount-1,true);
+        EmberMotes[I]->SetRelativeTransform(FTransform(FRotator::ZeroRotator,P,FVector(.075*(1-Life)+.01)));
     }
-    AshMotes->MarkRenderStateDirty();
     for(int32 I=0;I<MistPatches.Num();++I)
     {
         MistPatches[I]->SetRelativeLocation(FVector(-700+I*350+60*FMath::Sin(T*.07+I*1.7),-380+Scatter(I,3)*700,-8.6));
@@ -451,7 +451,7 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     LightTime += DeltaSeconds;
     for (int32 I = 0; I < LampLights.Num(); ++I)
         LampLights[I]->SetIntensity(3.6f + 0.12f * FMath::Sin(LightTime * 1.7f + I));
-    if (AshMotes && EmberMotes) TickFieldLife();
+    if (AshMotes.Num()==AshCount && EmberMotes.Num()==EmberCount) TickFieldLife();
     if (!Player.IsValid()) return;
     const FVector Position = Player->GetActorLocation();
     const FVector Step = Position - PreviousPosition;

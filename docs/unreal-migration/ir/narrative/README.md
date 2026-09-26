@@ -73,3 +73,9 @@ orchestration remains deferred. SaveGame and continuation schema remain 1.
 
 Phase1F NPC oracle and transient negatives live in ../../fixtures/malet/.
 No normal transaction group is part of the reviewed import cohort.
+
+S298 adds five plain-row Verdan exploration groups to the reviewed Field cohort:
+`verdan_market_walk` (position 6), `verdan_old_burner` (7), `malet_backstory` (8),
+`elia_sump_concern` (9) and `sump_atmosphere` (10). They carry text, speaker, portrait
+and CG only, with no gates, effects or choices. Import each with `--group <id>`.
+`elia_ch2_talk` (burned substitutions) and the Sump Ledger quest remain later cohorts.

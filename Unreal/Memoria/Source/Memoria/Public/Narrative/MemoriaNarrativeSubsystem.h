@@ -53,6 +53,10 @@ public:
     bool IsVerdanRevisit() const;
     bool ReturnFromAmbientBattle();
     bool InteractWithMalet();
+    // Source verdan_market.gd exploration beats: armed on Verdan entry, one-time by flag.
+    bool StartStoryBeat(const FString& Group);
+    bool IsStoryBeatAvailable(const FString& Group) const;
+    const TArray<FString>& GetArmedStoryBeats() const { return ArmedStoryBeats; }
     const FString& GetDeferredInteraction() const { return DeferredInteraction; }
     bool IsMaletTalkCached() const { return bMaletTalkCached; }
     bool IsMaletCallbackConnected() const { return bMaletCallbackConnected; }
@@ -89,6 +93,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RefusedAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> StoryAsset;
+    TArray<FString> ArmedStoryBeats;
+    TWeakObjectPtr<UWorld> StoryWorld;
+    void ArmStoryBeats();
     // Source reward listener is one-shot and synchronous. This owner binds only
     // the flag, world seed and three item grants, then opens the bounded shop presentation.
     TWeakObjectPtr<UWorld> RewardCallbackWorld;

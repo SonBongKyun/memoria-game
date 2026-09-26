@@ -38,6 +38,8 @@
 #include "Misc/App.h"
 #include "Misc/Parse.h"
 #include "Misc/CommandLine.h"
+#include "Narrative/MemoriaVerdanStory.h"
+#include "Interaction/MemoriaStoryPointActor.h"
 #include "InputKeyEventArgs.h"
 #include "Input/Events.h"
 #include "EnhancedInputSubsystems.h"
@@ -1172,8 +1174,61 @@ public:
             {
                 Test->TestEqual(TEXT("Defeat recovery restores playable HP"),Run->GetRunSnapshot().Player.Hp,Run->GetRunSnapshot().Player.MaxHp);
                 Test->TestFalse(TEXT("Defeat recovery restores field input"),PC->IsModalOpen());
-                Test->TestTrue(TEXT("Defeat recovery retains previously burned memory"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(CombatBurnId));Capture(TEXT("CombatDefeatRecovered"));return true;
+                Test->TestTrue(TEXT("Defeat recovery retains previously burned memory"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(CombatBurnId));Capture(TEXT("CombatDefeatRecovered"));
+                StoryGroup=TEXT("verdan_old_burner");Stage=27;Frame=-1;
             }
+        }
+        else if(Stage==27)
+        {
+            // S298 Verdan story beats on the recovered revisit: the deal was accepted before this
+            // world loaded, so the source guard arms Malet's backstory alongside the others.
+            const auto* Beat=MemoriaVerdanStory::Find(StoryGroup);if(!Test->TestNotNull(TEXT("Known story beat"),Beat))return true;
+            if(Frame==10)
+            {
+                Test->TestEqual(TEXT("Every unseen source beat is armed on the revisit"),Host->GetArmedStoryBeats().Num(),StoryGroup==TEXT("verdan_old_burner")?5:4);
+                int32 Points=0;for(TActorIterator<AMemoriaStoryPointActor> It(World);It;++It)++Points;
+                Test->TestEqual(TEXT("One story point per armed beat"),Points,5);
+                PC->ToggleArchive();
+            }
+            // Teleport under the archive modal so the encounter meter never counts it as walking.
+            if(Frame==16)Pawn->SetActorLocation(Beat->Location+FVector(-40,0,0));
+            if(Frame==20)PC->ToggleArchive();
+            if(Frame==40)
+            {
+                Test->TestTrue(TEXT("Story point prompt names the beat"),PC->GetInteractionPrompt()==Beat->Prompt);
+                StoryFieldsBefore=Host->GetFieldInvocationCount();Key(EKeys::E,IE_Pressed);
+            }
+            if(Frame==44)
+            {
+                Key(EKeys::E,IE_Released);
+                Test->TestTrue(TEXT("Physical interaction opens the beat's Field"),Host->GetState()==EMemoriaSliceState::Field&&Host->GetFieldInvocationCount()==StoryFieldsBefore+1);
+                Test->TestTrue(TEXT("Source one-time flag is set before the Field"),Run->GetRunSnapshot().GetFlag(Beat->Flag));
+                Test->TestFalse(TEXT("A started beat is no longer available"),Host->IsStoryBeatAvailable(StoryGroup));
+            }
+            if(Frame==60)
+            {
+                Test->TestEqual(TEXT("Beat names its own location"),Host->GetView().LocationTitle,FString(Beat->Title));
+                Capture(StoryGroup==TEXT("verdan_old_burner")?TEXT("StoryOldBurner"):TEXT("StoryMaletBackstory"));
+            }
+            if(Frame>64&&Host->GetState()==EMemoriaSliceState::Field)
+            {
+                if(Host->GetView().BackdropSource.Contains(TEXT("seventeen_eyes"))&&!bStoryLastCaptured){bStoryLastCaptured=true;Capture(TEXT("StoryMaletSeventeenEyes"));}
+                if(Frame%8==0)Key(EKeys::Enter,IE_Pressed);
+                if(Frame%8==3)Key(EKeys::Enter,IE_Released);
+            }
+            if(Frame>64&&Host->GetState()==EMemoriaSliceState::Exploration&&!PC->IsModalOpen())
+            {
+                Key(EKeys::Enter,IE_Released);
+                Test->TestFalse(TEXT("Seen beat cannot repeat"),Host->StartStoryBeat(StoryGroup));
+                if(StoryGroup==TEXT("verdan_old_burner")){StoryGroup=TEXT("malet_backstory");Frame=-1;}
+                else
+                {
+                    Test->TestTrue(TEXT("Backstory reached its closing illustration"),bStoryLastCaptured);
+                    Test->TestTrue(TEXT("Both beats recorded"),Run->GetRunSnapshot().GetFlag(TEXT("ch2_old_burner"))&&Run->GetRunSnapshot().GetFlag(TEXT("ch2_malet_backstory")));
+                    Capture(TEXT("StoryReturned"));return true;
+                }
+            }
+            if(Frame>2400){Test->AddError(TEXT("Story beat did not return to exploration"));return true;}
         }
         else if (Stage == 9 && Frame == 10) return true;
         if(RefusalMode==TEXT("ShopArchive") && Stage==14 && Frame==82)
@@ -1198,6 +1253,7 @@ private:
     FString CheckpointBefore; FVector CheckpointPosition;
     TWeakObjectPtr<UWorld> BattleOwner;
     FString CombatBurnId;int32 CombatBurnBefore=0,CombatStep=0,CombatStepFrame=0;bool bCombatAttackSelected=false;
+    FString StoryGroup;int32 StoryFieldsBefore=0;bool bStoryLastCaptured=false;
     bool bBattleWarning=false;FMemoriaBattleEntryView FirstBattle;
     FString BattleBeforeFlee;int32 AlternativeEnemy=INDEX_NONE;TArray<FString> BattleReturnTrace;
     int32 ArchiveProbe=INDEX_NONE,ArchiveFrame=0,ArchiveCompleted=0;

@@ -1,3 +1,31 @@
+# Migration handoff — S298 Verdan story beats (Claude lane, 2026-09-26)
+
+- Assigned by the user directly in the Claude chat. The request was to keep upgrading from the story and the Godot work. Claude lane, on top of `ffe5199a`.
+- **Content.** The five remaining plain-row Ch2 exploration groups from `scenes/maps/verdan_market.gd _setup_exploration_events` were added to the reviewed Field cohort. They went through `narrative_ir.py`, the Godot oracle check and `import_narrative.py`, each with the first import, an unchanged reimport and a reload check.
+
+  | Group | Rows | Asset |
+  |---|---|---|
+  | `verdan_market_walk` | 8 | `DA_Field_VerdanMarketWalk` |
+  | `verdan_old_burner` | 11 | `DA_Field_VerdanOldBurner` |
+  | `malet_backstory` | 12 | `DA_Field_MaletBackstory` |
+  | `elia_sump_concern` | 8 | `DA_Field_EliaSumpConcern` |
+  | `sump_atmosphere` | 6 | `DA_Field_SumpAtmosphere` |
+
+  `elia_ch2_talk` stays out, because burned-text substitution is a later cohort. The Sump Ledger side quest also stays out.
+- **Art.** Six source CGs and `malet_face_deal_accepted` were imported. `MemoriaDialogueAssets` now only adds missing packages and never overwrites; no existing package changed.
+- **Rules, as in the source:**
+  - Beats are armed when Verdan is entered. A beat whose flag is already set is skipped.
+  - `malet_backstory` is armed only if `malet_deal_accepted` held on entry.
+  - Starting a beat sets its one-time flag, then opens the Field. It only starts in exploration outside battle, and a seen beat never repeats.
+- **Deviation (intentional).** Godot fires a beat when the player body enters its Area2D. The Unreal courtyard is the development layout (Malet sits at `DevelopmentLocation`), so the source rects would land on arbitrary pavement and on existing journey and edge-capture routes. Each beat is instead a glowing point Arrel approaches and activates with E/A, like Malet. Godot also highlights triggers on approach (`update_trigger_approach_glow`). The source rects are kept in `MemoriaVerdanStory` and checked against the Godot source.
+- **Tests.**
+  - New `Memoria.VerdanStory.SourceTable`: `export_verdan_story_triggers.py` parses the Godot trigger table (`--check` runs in the validator), and the test checks the C++ table, the imported row counts and the placement constraints.
+  - `Memoria.BattleCore.RenderedJourney` ends with the Old Burner and Malet's backstory on the recovered revisit. It uses physical E and Enter and teleports only under the archive modal, so the encounter meter never counts the move. Captures: `StoryOldBurner`, `StoryMaletBackstory`, `StoryMaletSeventeenEyes`, `StoryReturned`.
+  - `MemoriaVisual.ArtworkCoverage` now counts 26 sources and covers the new assets.
+- **Results** (UE 5.8.2 rendered, final tree): full `Memoria.` **387/387**, with 0 failures and no material fallback warning. Also `MemoriaVisual.` 3/3 and `Memoria.VerdanStory.` 1/1.
+- **S297 fix.** The Verdan ash and ember motes were instanced static meshes, but `M_SoftLight` lacks the instanced-mesh usage flag. The log warned "Default Material will be used in game", and the S297 squares were that fallback. The motes are now plain components sharing one dynamic material per group: the warning is gone, and the rendered capture shows soft motes. The shared material asset was not edited.
+- **Carry-over from S297:** full rendered `Memoria.` 386/386 and `MemoriaCheckpointProcess.` 3/3 on `ffe5199a`.
+
 # Migration handoff — S297 Witness path, battle HUD, Verdan field life (Claude lane, 2026-09-26)
 
 - Assigned by the user directly in the Claude chat after Codex S296. Claude lane `SonBongKyun/memoria-unreal-claude`, based on `3130ec5a`.
