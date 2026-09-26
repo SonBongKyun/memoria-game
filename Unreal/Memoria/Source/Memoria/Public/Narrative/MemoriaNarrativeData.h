@@ -23,6 +23,34 @@ struct MEMORIA_API FMemoriaNarrativeText
     UPROPERTY() FString BurnedText = TEXT("");
     UPROPERTY() bool bHasBurnedTextKo = false;
     UPROPERTY() FString BurnedTextKo = TEXT("");
+    UPROPERTY() bool bHasSystemLog = false;
+    UPROPERTY() FString SystemLog = TEXT("");
+    UPROPERTY() bool bHasSystemLogKo = false;
+    UPROPERTY() FString SystemLogKo = TEXT("");
+    UPROPERTY() bool bHasChoiceTitle = false;
+    UPROPERTY() FString ChoiceTitle = TEXT("");
+    UPROPERTY() bool bHasChoiceTitleKo = false;
+    UPROPERTY() FString ChoiceTitleKo = TEXT("");
+    UPROPERTY() bool bHasChoiceHint = false;
+    UPROPERTY() FString ChoiceHint = TEXT("");
+    UPROPERTY() bool bHasChoiceHintKo = false;
+    UPROPERTY() FString ChoiceHintKo = TEXT("");
+    UPROPERTY() bool bHasEffect = false;
+    UPROPERTY() FString Effect = TEXT("");
+    UPROPERTY() bool bHasEffectKo = false;
+    UPROPERTY() FString EffectKo = TEXT("");
+    UPROPERTY() bool bHasDistortIfBurned = false;
+    UPROPERTY() FString DistortIfBurned = TEXT("");
+    UPROPERTY() bool bHasDistortedText = false;
+    UPROPERTY() FString DistortedText = TEXT("");
+    UPROPERTY() bool bHasDistortedTextKo = false;
+    UPROPERTY() FString DistortedTextKo = TEXT("");
+    UPROPERTY() bool bHasDistortedNarrate = false;
+    UPROPERTY() FString DistortedNarrate = TEXT("");
+    UPROPERTY() bool bHasDistortedNarrateKo = false;
+    UPROPERTY() FString DistortedNarrateKo = TEXT("");
+    UPROPERTY() bool bHasDistortedSpeaker = false;
+    UPROPERTY() FString DistortedSpeaker = TEXT("");
 };
 USTRUCT()
 struct MEMORIA_API FMemoriaNarrativePresentation
@@ -38,6 +66,16 @@ struct MEMORIA_API FMemoriaNarrativePresentation
     UPROPERTY() int32 FadeMs = 0;
     UPROPERTY() bool bHasBurnedPortrait = false;
     UPROPERTY() FString BurnedPortrait = TEXT("");
+    UPROPERTY() bool bHasCgMotion = false;
+    UPROPERTY() FString CgMotion = TEXT("");
+    UPROPERTY() bool bHasSfx = false;
+    UPROPERTY() FString Sfx = TEXT("");
+    UPROPERTY() bool bHasImpact = false;
+    UPROPERTY() FString Impact = TEXT("");
+    UPROPERTY() bool bHasDistortedPortrait = false;
+    UPROPERTY() FString DistortedPortrait = TEXT("");
+    UPROPERTY() bool bHasDistortedCg = false;
+    UPROPERTY() FString DistortedCg = TEXT("");
 };
 USTRUCT()
 struct MEMORIA_API FMemoriaNarrativeGate
@@ -74,6 +112,12 @@ struct MEMORIA_API FMemoriaNarrativeEffects
     UPROPERTY() int32 AddItemCount = 0;
     UPROPERTY() bool bHasHealPlayer = false;
     UPROPERTY() int32 HealPlayer = 0;
+    UPROPERTY() bool bHasSetChapter = false;
+    UPROPERTY() int32 SetChapter = 0;
+    UPROPERTY() bool bHasCompleteChapter = false;
+    UPROPERTY() int32 CompleteChapter = 0;
+    UPROPERTY() bool bHasAutosaveChapterTransition = false;
+    UPROPERTY() bool AutosaveChapterTransition = false;
 };
 USTRUCT()
 struct MEMORIA_API FMemoriaNarrativeAction

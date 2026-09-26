@@ -85,3 +85,5 @@ S299 adds the Sump Ledger groups the source requests: `sq_sump_ledger_start` (po
 but never requested by `verdan_market.gd`, so it is not imported.
 
 S300 adds the Field-only legacy substitution keys `requires_memory`, `burned_text` and `burned_text_ko` (Text group) and `burned_portrait` (Presentation). They follow `dialogue_manager.gd`: they are never a gate, and the line swaps when the memory is in the burned list. A `FIELD_CASES` entry may name its source file as a fourth element. The C++ cohort table carries that file and its root chapter. `elia_ch2_talk` (chapter 2, position 5), `elia_song_burned` and `elia_sword_burned` (`chapter1_dialogue.json`, positions 14 and 15) are imported.
+
+S302 adds the Chapter 1 VN cohort (`VN_CASES`: `ch1_cold_open`, `ch1_prologue`, `ch1_forest_walk`, `ch1_void_beast`, `ch1_after_forest`, alongside `ch2_market_arrival`). It also adds the VN-only keys listed under `VN_ONLY`, an optional `bgm`, and `goto_scene` across cohort scenes. Import each scene with `--group <id>`.

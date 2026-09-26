@@ -1,12 +1,12 @@
 """Attest both sources and executable oracle, import/reimport/reload in fresh UE processes."""
 import argparse, json, re, subprocess, sys
 from pathlib import Path
-from narrative_ir import ROOT, CASES, FIELD_CASES, ir_path, package, load, canonical, sha
+from narrative_ir import ROOT, CASES, FIELD_CASES, VN_CASES, ir_path, package, load, canonical, sha
 from validate_unreal import matches_required_version
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--engine-root',type=Path,required=True); p.add_argument('--godot',type=Path,required=True)
-    p.add_argument('--group',choices=tuple(FIELD_CASES)); p.add_argument('--build',action='store_true'); p.add_argument('--evidence-dir',type=Path,required=True); a=p.parse_args()
+    p.add_argument('--group',choices=tuple(FIELD_CASES)+tuple(k for k in VN_CASES if k!=CASES['vn'][1])); p.add_argument('--build',action='store_true'); p.add_argument('--evidence-dir',type=Path,required=True); a=p.parse_args()
     ev=a.evidence_dir.resolve()
     if ev.exists() or any(ev.is_relative_to(ROOT/'docs/unreal-migration/evidence'/phase) for phase in ('phase0','phase1a','phase1b','phase1b-ue58','phase1c')): p.error('Use a fresh, nonhistorical evidence directory')
     ev.mkdir(parents=True); report={'status':'RUNNING','commands':[],'cases':{}}
@@ -30,7 +30,8 @@ def main():
         run('fixture_check',[sys.executable,ROOT/'Unreal/Tools/narrative_test_fixtures.py','--check'],120)
         if a.build: run('build',[sys.executable,ROOT/'Unreal/Tools/validate_unreal.py','--engine-root',a.engine_root,'--build-only','--evidence-dir',ev/'build'],3700)
         # Each stage is a different UE process per dialect (six processes total).
-        for d in (('field',) if a.group else CASES):
+        vn_group = a.group in VN_CASES
+        for d in ((('vn',) if vn_group else ('field',)) if a.group else CASES):
             report['cases'][d]={}; ir=load(ir_path(d,a.group)); path=ROOT/'Unreal/Memoria/Content'/(package(d,a.group).removeprefix('/Game/')+'.uasset')
             for stage,check in [('first',False),('second',False),('reload_check',True)]:
                 name=d+'_'+stage; before=sha(path.read_bytes()) if path.exists() else None
@@ -43,8 +44,8 @@ def main():
                 report['cases'][d][stage]=dict(result,package_sha256=after)
         files=sorted(x.name for x in (ROOT/'Unreal/Memoria/Content/Memoria/Generated/Narrative').glob('*.uasset'))
         previous={x[2]+'.uasset' for x in CASES.values()}
-        allowed=previous|{v[2]+'.uasset' for v in FIELD_CASES.values()}
-        required=previous|({FIELD_CASES[a.group][2]+'.uasset'} if a.group else set())
+        allowed=previous|{v[2]+'.uasset' for v in FIELD_CASES.values()}|{v[2]+'.uasset' for v in VN_CASES.values()}
+        required=previous|({(VN_CASES if vn_group else FIELD_CASES)[a.group][2]+'.uasset'} if a.group else set())
         if not required <= set(files) <= allowed: raise ValueError('Unexpected/missing bounded narrative packages')
         report['selected_group']=a.group
         report.update(status='PASS',packages=files)

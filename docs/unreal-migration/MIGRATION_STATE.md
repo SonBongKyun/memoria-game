@@ -1,3 +1,31 @@
+# Migration handoff — S302 Chapter 1 stage 1: VN content import (Claude lane, 2026-09-26)
+
+- Roadmap P5: New Game through the current Chapter 1 to the Verdan arrival. The user asked Claude, working alone while Codex is out of quota, to do it in three stages:
+  - **Stage 1 (this):** import the content, source-attested.
+  - **Stage 2:** play it: the cross-scene interpreter and branch oracle.
+  - **Stage 3:** New Game entry and presentation, rendered.
+- **Content.** The whole current Chapter 1 route from `scene_flow.gd` was imported through `import_narrative.py`, each scene with a first import, an unchanged reimport and a reload check. Every `goto_scene` in the route stays inside the cohort.
+
+  | Scene | Steps | Asset |
+  |---|---|---|
+  | `ch1_cold_open` | 8 | `DA_VN_Ch1ColdOpen` |
+  | `ch1_prologue` | 46 | `DA_VN_Ch1Prologue` |
+  | `ch1_forest_walk` | 41 | `DA_VN_Ch1ForestWalk` |
+  | `ch1_void_beast` | 60 | `DA_VN_Ch1VoidBeast` |
+  | `ch1_after_forest` | 14 | `DA_VN_Ch1AfterForest` |
+
+  `ch1_after_forest` hands off to `ch2_market_arrival`.
+- **Schema (review item, VN-only keys).** Field rows and choices reject these; chapter effects are step-only.
+  - Text: `system_log`, choice framing (`choice_title`, `choice_hint`), choice `effect` text (on choices only), and `distort_if_burned` with `distorted_text`/`distorted_narrate`/`distorted_speaker`.
+  - Presentation: `cg_motion`, `sfx`, `impact`, `distorted_portrait`, `distorted_cg`.
+  - Effects: `set_chapter`, `complete_chapter`, `autosave_chapter_transition`.
+  - VN `bgm` is optional.
+  - `narrative_ir.VN_CASES` and the C++ VN cohort carry each scene's file, step count and chapter. `goto_scene` may target any cohort scene, with `start_index` bounded by the target.
+  - All prior Field and VN IR stays byte-identical, and the types are regenerated.
+- **Not yet executed.** The runtime VN interpreter still plays a single definition, and the new keys are only data so far. Stage 2 adds the `scene_flow.gd` step order (chapter effects before gates, distortion after actions), cross-scene `goto_scene`, and a Godot branch oracle over every Ch1 choice.
+- **Tests:** new `Memoria.Chapter1.ImportParity` (five scenes: saved asset equals a strict source-attested read) and `Memoria.Chapter1.RouteChain` (handoff chain and source field counts).
+- **Results** (UE 5.8.2 rendered): full `Memoria.` **398/398**. The Godot narrative oracle `--check` passes 10/10. Generated types and contract fixtures pass `--check`. Python tools show 13 passing and the same 3 historical failures.
+
 # Migration handoff — S301 self-review of S297–S300 (Claude lane, 2026-09-26)
 
 - Codex is out of quota, so the user asked Claude to continue alone in Claude Code. Claude reviewed its own pushed S297–S300 changes in place of the Codex review.

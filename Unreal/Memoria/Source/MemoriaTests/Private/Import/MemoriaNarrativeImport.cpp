@@ -115,7 +115,11 @@ bool Groups(const Obj& O,bool V,bool Choice)
 {
     const auto T=Object(O,TEXT("text")), P=Object(O,TEXT("presentation")), G=Object(O,TEXT("gate")), E=Object(O,TEXT("effects")), A=Object(O,TEXT("action"));
     if (!T||!P||!G||!E||!A) return false;
-    if (Choice && (!KeysSubset(T,{TEXT("text"),TEXT("text_ko")}) || P->Values.Num() || A->Values.Num())) return false;
+    if (Choice && (!(V?KeysSubset(T,{TEXT("text"),TEXT("text_ko"),TEXT("effect"),TEXT("effect_ko")}):KeysSubset(T,{TEXT("text"),TEXT("text_ko")})) || P->Values.Num() || A->Values.Num())) return false;
+    // Chapter transitions are step effects only; Field never carries VN presentation or chapter keys.
+    if ((Choice || !V) && (Has(E,TEXT("set_chapter")) || Has(E,TEXT("complete_chapter")) || Has(E,TEXT("autosave_chapter_transition")))) return false;
+    if (!V) for (const TCHAR* K : {TEXT("cg_motion"),TEXT("sfx"),TEXT("impact"),TEXT("distorted_portrait"),TEXT("distorted_cg")}) if (Has(P,K)) return false;
+    if (V && !Choice) for (const TCHAR* K : {TEXT("effect"),TEXT("effect_ko")}) if (Has(T,K)) return false;
     // Field rows may carry the legacy burned-text substitution keys (narrative_ir.FIELD_ONLY).
     if (!V && !KeysSubset(T,Choice ? std::initializer_list<const TCHAR*>{TEXT("speaker"),TEXT("text"),TEXT("text_ko")}
         : std::initializer_list<const TCHAR*>{TEXT("speaker"),TEXT("text"),TEXT("text_ko"),TEXT("requires_memory"),TEXT("burned_text"),TEXT("burned_text_ko")})) return false;
@@ -154,6 +158,21 @@ const FFieldCohort* FieldCohort(const FString& Id)
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;
 }
+// Reviewed VN cohort (narrative_ir.VN_CASES): Chapter 1 route plus the Chapter 2 arrival.
+struct FVNCohort { const TCHAR* Id; int32 Count; const TCHAR* Asset; const TCHAR* File; int32 Chapter; };
+const FVNCohort* VNCohort(const FString& Id)
+{
+    static const FVNCohort Cases[] = {
+        {TEXT("ch2_market_arrival"),13,TEXT("DA_VN_Ch2MarketArrival"),TEXT("data/vn_scenes/ch2_market_arrival.json"),2},
+        {TEXT("ch1_cold_open"),8,TEXT("DA_VN_Ch1ColdOpen"),TEXT("data/vn_scenes/ch1_cold_open.json"),1},
+        {TEXT("ch1_prologue"),46,TEXT("DA_VN_Ch1Prologue"),TEXT("data/vn_scenes/ch1_prologue.json"),1},
+        {TEXT("ch1_forest_walk"),41,TEXT("DA_VN_Ch1ForestWalk"),TEXT("data/vn_scenes/ch1_forest_walk.json"),1},
+        {TEXT("ch1_void_beast"),60,TEXT("DA_VN_Ch1VoidBeast"),TEXT("data/vn_scenes/ch1_void_beast.json"),1},
+        {TEXT("ch1_after_forest"),14,TEXT("DA_VN_Ch1AfterForest"),TEXT("data/vn_scenes/ch1_after_forest.json"),1}
+    };
+    for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
+    return nullptr;
+}
 template<class R> bool ReadRecord(const Obj& O,R& Row,const FMemoriaNarrativeImportMetadata& M,const FString& Seq,int32 I,int32 J,int32 Count)
 {
     const bool V=Same(M.Dialect,TEXT("vn")), Choice=J>=0;
@@ -178,9 +197,9 @@ template<class R> bool ReadRecord(const Obj& O,R& Row,const FMemoriaNarrativeImp
         if (Same(A.Action,TEXT("goto_map")))
         { if (!KeysSubset(AO,{TEXT("action"),TEXT("path"),TEXT("resume_scene"),TEXT("resume_index")}) || !A.bHasPath || !Same(A.Path,TEXT("res://scenes/maps/verdan_market.tscn"))) return false; }
         else if (Same(A.Action,TEXT("goto_scene")))
-        { if (!KeysSubset(AO,{TEXT("action"),TEXT("id"),TEXT("start_index")}) || !A.bHasId || !Same(A.Id,Seq)) return false; }
+        { if (!V || !KeysSubset(AO,{TEXT("action"),TEXT("id"),TEXT("start_index")}) || !A.bHasId || !VNCohort(A.Id) || (A.bHasStartIndex && A.StartIndex>=VNCohort(A.Id)->Count)) return false; }
         else if (!Same(A.Action,TEXT("end")) || !Keys(AO,{TEXT("action")})) return false;
-        if ((A.bHasResumeIndex && !A.bHasResumeScene) || (A.bHasResumeScene && !Same(A.ResumeScene,Seq)) || (A.bHasStartIndex && A.StartIndex>=Count) || (A.bHasResumeIndex && A.ResumeIndex>=Count)) return false;
+        if ((A.bHasResumeIndex && !A.bHasResumeScene) || (A.bHasResumeScene && !Same(A.ResumeScene,Seq)) || (A.bHasStartIndex && !Same(A.Action,TEXT("goto_scene")) && A.StartIndex>=Count) || (A.bHasResumeIndex && A.ResumeIndex>=Count)) return false;
     }
     return true;
 }
@@ -197,7 +216,8 @@ template<class D,class Rows> bool Read(const FString& Path,FMemoriaNarrativeImpo
     // The Field cohort names its source file; peek the definition id before the source inventory.
     FString PeekId; if (auto PeekDef=Object(O,TEXT("definition"))) PeekDef->TryGetStringField(TEXT("id"),PeekId);
     const FFieldCohort* PeekCohort=V?nullptr:FieldCohort(PeekId);
-    const FString SourceFile=V?FString(TEXT("data/vn_scenes/ch2_market_arrival.json")):(PeekCohort&&PeekCohort->File?FString(PeekCohort->File):FString(TEXT("data/chapter2_dialogue.json")));
+    const FVNCohort* PeekVN=V?VNCohort(PeekId.IsEmpty()?FString(TEXT("ch2_market_arrival")):PeekId):nullptr;
+    const FString SourceFile=V?FString(PeekVN?PeekVN->File:TEXT("data/vn_scenes/ch2_market_arrival.json")):(PeekCohort&&PeekCohort->File?FString(PeekCohort->File):FString(TEXT("data/chapter2_dialogue.json")));
     const TArray<FString> Paths={SourceFile,TEXT("scripts/systems/dialogue_manager.gd"),TEXT("scripts/systems/scene_flow.gd"),TEXT("scripts/ui/vn_scene.gd"),TEXT("scenes/main/vn_host.gd"),TEXT("scenes/maps/verdan_market.gd"),TEXT("scripts/systems/memory_manager.gd"),TEXT("scripts/utils/journey_oath.gd"),TEXT("scripts/core/game_manager.gd")};
     const TArray<Val>* Sources=nullptr; if (!O->TryGetArrayField(TEXT("sources"),Sources) || Sources->Num()!=Paths.Num()) return Fail(TEXT("Source inventory differs")); M.Sources.Reset();
     for (int32 I=0;I<Paths.Num();++I)
@@ -208,10 +228,12 @@ template<class D,class Rows> bool Read(const FString& Path,FMemoriaNarrativeImpo
         M.Sources.Add(P);
     }
     auto D0=Object(O,TEXT("definition"));
-    if (!Keys(D0,{TEXT("id"),TEXT("index_mapping_version"),TEXT("metadata"),V?TEXT("steps"):TEXT("rows")}) || !ReadFString(D0,TEXT("id"),Def.Id) || !(V?Same(Def.Id,TEXT("ch2_market_arrival")):(FieldCohort(Def.Id)!=nullptr)) || !Readint32(D0,TEXT("index_mapping_version"),Def.IndexMappingVersion) || Def.IndexMappingVersion!=1) return Fail(TEXT("Invalid definition/index map"));
+    if (!Keys(D0,{TEXT("id"),TEXT("index_mapping_version"),TEXT("metadata"),V?TEXT("steps"):TEXT("rows")}) || !ReadFString(D0,TEXT("id"),Def.Id) || !(V?(VNCohort(Def.Id)!=nullptr):(FieldCohort(Def.Id)!=nullptr)) || !Readint32(D0,TEXT("index_mapping_version"),Def.IndexMappingVersion) || Def.IndexMappingVersion!=1) return Fail(TEXT("Invalid definition/index map"));
     auto Meta=Object(D0,TEXT("metadata"));
-    if (!(V?Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter"),TEXT("bgm")}):Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter")})) || !ReadMetadata(Meta,Def.Metadata) || Def.Metadata.Chapter!=(V?2:FieldCohort(Def.Id)->Chapter)) return Fail(TEXT("Invalid metadata"));
-    const TArray<Val>* Entries=nullptr; if (!D0->TryGetArrayField(V?TEXT("steps"):TEXT("rows"),Entries) || Entries->Num()!=(V?13:FieldCohort(Def.Id)->Count)) return Fail(TEXT("Bounded record count differs")); Items.Reset();
+    // VN bgm is optional (SceneFlow keeps the playing track when a scene declares none).
+    const bool bVNKeys=V&&(Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter"),TEXT("bgm")})||Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter")}));
+    if (!(V?bVNKeys:Keys(Meta,{TEXT("title"),TEXT("title_ko"),TEXT("chapter")})) || !ReadMetadata(Meta,Def.Metadata) || Def.Metadata.Chapter!=(V?VNCohort(Def.Id)->Chapter:FieldCohort(Def.Id)->Chapter)) return Fail(TEXT("Invalid metadata"));
+    const TArray<Val>* Entries=nullptr; if (!D0->TryGetArrayField(V?TEXT("steps"):TEXT("rows"),Entries) || Entries->Num()!=(V?VNCohort(Def.Id)->Count:FieldCohort(Def.Id)->Count)) return Fail(TEXT("Bounded record count differs")); Items.Reset();
     for (int32 I=0;I<Entries->Num();++I)
     {
         Obj R0=(*Entries)[I]->Type==EJson::Object?(*Entries)[I]->AsObject():nullptr; auto& R=Items.AddDefaulted_GetRef();
@@ -251,7 +273,7 @@ template<class A> bool ImportAsset(const FString& Path,bool V,bool Check,Obj& Re
 }
 FString Package(bool V,const FString& Sequence)
 {
-    if (V) return TEXT("/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival");
+    if (V) { const auto* C=VNCohort(Sequence.IsEmpty()?FString(TEXT("ch2_market_arrival")):Sequence); return C?FString(TEXT("/Game/Memoria/Generated/Narrative/"))+C->Asset:FString(); }
     const auto* C=FieldCohort(Sequence.IsEmpty()?FString(TEXT("verdan_arrival")):Sequence);
     return C?FString(TEXT("/Game/Memoria/Generated/Narrative/"))+C->Asset:FString();
 }

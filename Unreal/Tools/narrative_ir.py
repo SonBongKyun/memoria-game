@@ -42,6 +42,17 @@ FIELD_CASES = {
     'elia_sword_burned': (3, 15, 'DA_Field_EliaSwordBurned', 'data/chapter1_dialogue.json'),
 }
 FIELD_FILE_CHAPTER = {'data/chapter2_dialogue.json': 2, 'data/chapter1_dialogue.json': 1}
+# Reviewed VN cohort: id -> (source file, step count, asset). S302 adds the whole current
+# Chapter 1 route (scene_flow.gd goto_scene chain ch1_cold_open .. ch1_after_forest).
+VN_CASES = {
+    'ch2_market_arrival': ('data/vn_scenes/ch2_market_arrival.json', 13, 'DA_VN_Ch2MarketArrival'),
+    'ch1_cold_open': ('data/vn_scenes/ch1_cold_open.json', 8, 'DA_VN_Ch1ColdOpen'),
+    'ch1_prologue': ('data/vn_scenes/ch1_prologue.json', 46, 'DA_VN_Ch1Prologue'),
+    'ch1_forest_walk': ('data/vn_scenes/ch1_forest_walk.json', 41, 'DA_VN_Ch1ForestWalk'),
+    'ch1_void_beast': ('data/vn_scenes/ch1_void_beast.json', 60, 'DA_VN_Ch1VoidBeast'),
+    'ch1_after_forest': ('data/vn_scenes/ch1_after_forest.json', 14, 'DA_VN_Ch1AfterForest'),
+}
+VN_CHAPTER = {k: (2 if k.startswith('ch2_') else 1) for k in VN_CASES}
 
 def selected_case(dialect, group=None):
     if dialect == 'field':
@@ -49,23 +60,36 @@ def selected_case(dialect, group=None):
         if group not in FIELD_CASES: raise ValueError('Unreviewed Field group')
         entry = FIELD_CASES[group]
         return (entry[3] if len(entry) > 3 else CASES['field'][0]), group, entry[2]
-    if dialect != 'vn' or group not in (None, CASES['vn'][1]): raise ValueError('Unreviewed VN sequence')
-    return CASES['vn']
+    group = group or CASES['vn'][1]
+    if dialect != 'vn' or group not in VN_CASES: raise ValueError('Unreviewed VN sequence')
+    return VN_CASES[group][0], group, VN_CASES[group][2]
 
 DEPENDENCIES = ('scripts/systems/dialogue_manager.gd', 'scripts/systems/scene_flow.gd',
                 'scripts/ui/vn_scene.gd', 'scenes/main/vn_host.gd', 'scenes/maps/verdan_market.gd',
                 'scripts/systems/memory_manager.gd', 'scripts/utils/journey_oath.gd',
                 'scripts/core/game_manager.gd')
-TEXT = ('speaker', 'text', 'text_ko', 'narrate', 'narrate_ko', 'requires_memory', 'burned_text', 'burned_text_ko')
-PRESENTATION = ('cg', 'portrait', 'side', 'fade_ms', 'burned_portrait')
+TEXT = ('speaker', 'text', 'text_ko', 'narrate', 'narrate_ko', 'requires_memory', 'burned_text', 'burned_text_ko',
+        'system_log', 'system_log_ko', 'choice_title', 'choice_title_ko', 'choice_hint', 'choice_hint_ko',
+        'effect', 'effect_ko', 'distort_if_burned', 'distorted_text', 'distorted_text_ko',
+        'distorted_narrate', 'distorted_narrate_ko', 'distorted_speaker')
+PRESENTATION = ('cg', 'portrait', 'side', 'fade_ms', 'burned_portrait', 'cg_motion', 'sfx', 'impact',
+                'distorted_portrait', 'distorted_cg')
 # Legacy dialogue_manager.gd substitution: never a gate, the row always shows (Field only).
 FIELD_ONLY = ('requires_memory', 'burned_text', 'burned_text_ko', 'burned_portrait')
+# SceneFlow/vn_scene.gd step keys (S302 Chapter 1): presentation cues, choice framing,
+# distortion when a memory is burned, and chapter transitions. Choice effect text is VN-only too.
+VN_ONLY = ('system_log', 'system_log_ko', 'choice_title', 'choice_title_ko', 'choice_hint', 'choice_hint_ko',
+           'effect', 'effect_ko', 'distort_if_burned', 'distorted_text', 'distorted_text_ko', 'distorted_narrate',
+           'distorted_narrate_ko', 'distorted_speaker', 'distorted_portrait', 'distorted_cg', 'cg_motion', 'sfx',
+           'impact', 'set_chapter', 'complete_chapter', 'autosave_chapter_transition')
+STEP_ONLY_EFFECTS = ('set_chapter', 'complete_chapter', 'autosave_chapter_transition')
 GATE = ('requires_flag', 'requires_not_flag', 'requires_memory_intact', 'requires_memory_gone')
 EFFECTS = ('set_flag', 'record_ending', 'burn_memory', 'cost_memory', 'allow_faded_burn',
-           'add_grains', 'add_item', 'add_item_count', 'heal_player')
+           'add_grains', 'add_item', 'add_item_count', 'heal_player', 'set_chapter', 'complete_chapter',
+           'autosave_chapter_transition')
 ACTION = ('action', 'path', 'id', 'start_index', 'resume_scene', 'resume_index')
-INTEGER = {'fade_ms', 'add_grains', 'add_item_count', 'heal_player', 'start_index', 'resume_index'}
-BOOLEAN = {'allow_faded_burn'}
+INTEGER = {'fade_ms', 'add_grains', 'add_item_count', 'heal_player', 'start_index', 'resume_index', 'set_chapter', 'complete_chapter'}
+BOOLEAN = {'allow_faded_burn', 'autosave_chapter_transition'}
 PHASE = {'field': 'gate_then_effects', 'vn': 'effects_then_gate_then_rewards'}
 CHOICE_PHASE = {'field': 'flags_burn_cost_then_rewards_nonblocking', 'vn': 'cost_then_flags_burn_rewards_blocking'}
 
@@ -95,11 +119,14 @@ def fingerprint(value):
     return sha(canonical(semantic))
 
 def allowed(dialect, choice):
-    texts = ('text', 'text_ko') if choice else (tuple(k for k in TEXT if k not in FIELD_ONLY) if dialect == 'vn' else ('speaker', 'text', 'text_ko', 'requires_memory', 'burned_text', 'burned_text_ko'))
+    other = FIELD_ONLY if dialect == 'vn' else VN_ONLY
+    if choice: texts = ('text', 'text_ko') + (('effect', 'effect_ko') if dialect == 'vn' else ())
+    else: texts = tuple(k for k in TEXT if k not in other and k not in ('effect', 'effect_ko')) if dialect == 'vn' else ('speaker', 'text', 'text_ko', 'requires_memory', 'burned_text', 'burned_text_ko')
     gates = ('requires_flag', 'requires_not_flag') if dialect == 'vn' and not choice else (GATE[:3] if dialect == 'vn' else GATE)
     effects = EFFECTS if choice else (('set_flag', 'record_ending') if dialect == 'field' else tuple(k for k in EFFECTS if k != 'cost_memory'))
     if dialect == 'field': effects = tuple(k for k in effects if k != 'allow_faded_burn')
-    presentation = () if choice else (tuple(k for k in PRESENTATION if dialect == 'field' or k not in FIELD_ONLY))
+    effects = tuple(k for k in effects if k not in other and not (choice and k in STEP_ONLY_EFFECTS))
+    presentation = () if choice else tuple(k for k in PRESENTATION if k not in other)
     return {'text': texts, 'presentation': presentation,
             'gate': gates, 'effects': effects, 'action': ACTION if dialect == 'vn' and not choice else ()}
 
@@ -129,10 +156,11 @@ def extract(dialect, root=ROOT, group=None):
     sources = [{'path': p, 'sha256_utf8_lf': sha(source_bytes((root/p).read_bytes()))} for p in paths]
     raw = parse_source((root/path).read_bytes())
     if dialect == 'vn':
-        exact(raw, ('id', 'title', 'title_ko', 'chapter', 'bgm', 'steps'), 'Selected VN root')
+        # bgm is optional: scenes without it keep the previous scene's music in SceneFlow.
+        exact(raw, tuple(k for k in ('id', 'title', 'title_ko', 'chapter', 'bgm', 'steps') if k != 'bgm' or 'bgm' in raw), 'Selected VN root')
         if raw['id'] != seq: raise ValueError('VN source identity changed')
         rows, position = raw['steps'], 0
-        meta = {k: raw[k] for k in ('title', 'title_ko', 'chapter', 'bgm')}
+        meta = {k: raw[k] for k in ('title', 'title_ko', 'chapter', 'bgm') if k in raw}
     else:
         exact(raw, ('chapter', 'title', 'title_ko', 'dialogues'), 'Field file root')
         rows, position = raw['dialogues'][seq], list(raw['dialogues']).index(seq)
@@ -183,13 +211,13 @@ def validate(value, root=ROOT, verify_sources=True):
     exact(definition, ('id','index_mapping_version','metadata',key), 'Definition')
     if definition['id'] != sequence or type(definition['index_mapping_version']) is not int or definition['index_mapping_version'] != 1: raise ValueError('Invalid sequence/index map')
     meta = definition['metadata']
-    exact(meta, ('title','title_ko','chapter','bgm') if d == 'vn' else ('title','title_ko','chapter'), 'Metadata')
+    exact(meta, tuple(k for k in ('title','title_ko','chapter','bgm') if k != 'bgm' or 'bgm' in meta) if d == 'vn' else ('title','title_ko','chapter'), 'Metadata')
     for k,v in meta.items():
         if k == 'chapter':
-            if type(v) is not int or v != (2 if d == 'vn' else FIELD_FILE_CHAPTER[source_path]): raise ValueError('Invalid chapter')
+            if type(v) is not int or v != (VN_CHAPTER[sequence] if d == 'vn' else FIELD_FILE_CHAPTER[source_path]): raise ValueError('Invalid chapter')
         else: text(v,k)
     rows = definition[key]
-    if type(rows) is not list or len(rows) != (13 if d == 'vn' else FIELD_CASES[sequence][0]): raise ValueError('Bounded source row count changed')
+    if type(rows) is not list or len(rows) != (VN_CASES[sequence][1] if d == 'vn' else FIELD_CASES[sequence][0]): raise ValueError('Bounded source row count changed')
     ids=set()
     def record(r,i,j=-1):
         choice=j>=0
@@ -219,11 +247,13 @@ def validate(value, root=ROOT, verify_sources=True):
             legal={'goto_map':{'action','path','resume_scene','resume_index'},'goto_scene':{'action','id','start_index'},'end':{'action'}}
             if action not in legal or not set(a)<=legal[action]: raise ValueError('Invalid action/continuation representation')
             if action=='goto_map' and ('path' not in a or a['path']!='res://scenes/maps/verdan_market.tscn'): raise ValueError('Invalid map target')
-            if action=='goto_scene' and a.get('id')!=definition['id']: raise ValueError('Unmigrated sequence target')
+            if action=='goto_scene' and (d!='vn' or a.get('id') not in VN_CASES): raise ValueError('Unmigrated sequence target')
             if 'resume_index' in a and 'resume_scene' not in a: raise ValueError('Orphan resume index')
             if 'resume_scene' in a and a['resume_scene']!=definition['id']: raise ValueError('Invalid resume ID')
             for k in ('start_index','resume_index'):
-                if k in a and a[k]>=len(rows): raise ValueError('Invalid continuation index')
+                # A goto_scene start_index indexes the target scene, which may be another cohort member.
+                bound = VN_CASES[a['id']][1] if k == 'start_index' and action == 'goto_scene' else len(rows)
+                if k in a and a[k]>=bound: raise ValueError('Invalid continuation index')
         if not choice:
             if type(r['storage_index']) is not int or r['storage_index']!=i or type(r['choices_present']) is not bool or type(r['choices']) is not list: raise ValueError('Invalid storage/choice representation')
             if r['choices'] and not r['choices_present']: raise ValueError('Choice presence mismatch')
@@ -249,12 +279,12 @@ def load(path, verify_sources=True):
 def main():
     import argparse
     p=argparse.ArgumentParser(); p.add_argument('--check',action='store_true'); p.add_argument('--evidence-dir',type=Path,required=True)
-    p.add_argument('--group', choices=tuple(FIELD_CASES))
+    p.add_argument('--group', choices=tuple(FIELD_CASES)+tuple(k for k in VN_CASES if k != CASES['vn'][1]))
     a=p.parse_args()
     if a.evidence_dir.exists(): p.error('Use fresh evidence directory')
     a.evidence_dir.mkdir(parents=True)
     report={'status':'PASS','cases':{},'check_only':a.check}
-    for d in (('field',) if a.group else CASES):
+    for d in ((('vn',) if a.group in VN_CASES else ('field',)) if a.group else CASES):
         value=extract(d, group=a.group); data=canonical(value); target=ir_path(d, a.group)
         if a.check:
             load(target)
@@ -263,7 +293,7 @@ def main():
             target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(data)
         rows=value['definition']['steps' if d=='vn' else 'rows']
         report['cases'][d]={'ir_sha256':sha(data),'semantic_sha256':value['semantic_sha256'],'source_revision':value['source_revision'],
-             'sources':value['sources'],'raw_source_sha256':sha((ROOT/CASES[d][0]).read_bytes()),
+             'sources':value['sources'],'raw_source_sha256':sha((ROOT/selected_case(d, a.group)[0]).read_bytes()),
              'original_indices':[r['original_index'] for r in rows],
              'choice_indices':[[c['original_index'] for c in r['choices']] for r in rows]}
     report['selected_group'] = a.group
