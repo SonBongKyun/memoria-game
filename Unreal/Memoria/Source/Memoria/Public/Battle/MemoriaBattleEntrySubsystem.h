@@ -2,9 +2,11 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Battle/MemoriaEncounterModel.h"
+#include "Battle/MemoriaBattleModel.h"
 #include "MemoriaBattleEntrySubsystem.generated.h"
 
 class UMemoriaRunSubsystem;
+struct FMemoriaBattleChoice { FString Id, Label; int32 Grade=0; bool bAvailable=false; FLinearColor Accent=FLinearColor::White; };
 struct MEMORIA_API FMemoriaBattleEntryView
 {
     bool bActive = false, bReturning = false, bKo = false, bCanFlee = false;
@@ -29,13 +31,20 @@ struct MEMORIA_API FMemoriaBattleEntryView
     int32 MomentumRank = 0, WitnessProgress = 0, WitnessRequired = 2;
     FString MomentumLabel, EnvironmentName, EnvironmentDescription;
     FString BackgroundSource, EnemyImageSource;
+    bool bResolving=false, bVictory=false, bDefeat=false, bObjectiveSupported=true, bObjectiveComplete=false, bObjectiveFailed=false;
+    int32 Combo=0, BrokenTurns=0;
+    uint64 ImpactSerial=0;
+    FString Telegraph, LastBurnTitle;
+    TArray<FMemoriaBattleHit> Hits;
+    TArray<FMemoriaBattleStatus> PlayerStatuses, EnemyStatuses;
+    TArray<FMemoriaBattleChoice> Memories, Items;
+    FMemoriaBattleReward Reward;
     FString BattleState = TEXT("IDLE");
 };
 DECLARE_MULTICAST_DELEGATE(FMemoriaBattleEntryChanged);
 DECLARE_MULTICAST_DELEGATE(FMemoriaBattleEntryReturned);
 
-// Bounded source entry through the first player turn and ambient withdrawal.
-// No attack/burn/item command is exposed. A live world owns the delayed return.
+// Bounded combat session. A live world and run epoch own all delayed commands.
 UCLASS()
 class MEMORIA_API UMemoriaBattleEntrySubsystem : public UGameInstanceSubsystem
 {
@@ -46,6 +55,13 @@ public:
     bool BeginEncounter(int32 EnemyIndex, FMemoriaEncounterRng& Rng, UWorld* Owner = nullptr);
     FMemoriaBattleEntryView GetView() const;
     bool Flee(uint64 ExpectedRevision);
+    bool Submit(const FString& Action, const FString& Id, uint64 ExpectedRevision);
+    bool DismissVictory(uint64 ExpectedRevision);
+    bool RecoverToVerdan(uint64 ExpectedRevision);
+    bool RetryCheckpoint(uint64 ExpectedRevision);
+#if WITH_DEV_AUTOMATION_TESTS
+    void SetCombatRng(FMemoriaEncounterRng InRng) { CombatRng=MoveTemp(InRng); }
+#endif
     bool IsActive() const;
     bool IsReturning() const;
     uint64 GetRevision() const { return Revision; }
@@ -56,7 +72,18 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaRunSubsystem> Run;
     TWeakObjectPtr<UWorld> OwnerWorld;
     FGuid OwnerRun;
-    FTimerHandle ReturnTimer;
+    FTimerHandle ReturnTimer, ActionTimer;
+    FMemoriaBattleModel Combat;
+    TOptional<FMemoriaBattleModel> PendingEnemyResult;
+    uint64 PendingEnemyRevision=0;
+    FMemoriaEncounterRng CombatRng=FMemoriaEncounterRng::Random();
+    FString PendingAction, PendingId;
+    void StartCombat();
+    void ResolveAction();
+    void ResolveEnemy();
+    void ResolveEnemyImpact();
+    void CommitCombat(FMemoriaBattleModel&& Next);
+    void UpdateCombatView();
     FMemoriaBattleEntryView View;
     uint64 Revision = 0;
     bool bBusy = false;

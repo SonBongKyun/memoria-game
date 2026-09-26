@@ -1,3 +1,12 @@
+# Migration handoff — S296 battle core (2026-09-26)
+
+- Codex implemented the user-authorized Git repair, battle core, UI/audio and integrated journey in `codex/unreal-battle-core-20260926`, based on `4adbbfac`. No Claude/foundation source edits and no remote push.
+- Playable: Attack, all five burn grades, Guard, Potion/Antidote/Firebomb, enemy turns/statuses, BREAK/momentum, Last Stand, supported objective and source grade/streak rewards, victory return and burned-memory archive state. Replaced runs/worlds cancel all pending actions.
+- Defeat differs from full Godot: choose actual checkpoint restore or full-HP Verdan recovery retaining burned memories. Unsupported objectives explicitly award nothing. Witness, Limit spending, companion actions/echoes/stances and bosses remain outside this bounded slice.
+- Fresh source oracle `--check` 74/74 and UE 5.8.2 rendered battle tests 76/76 PASS. Full rendered `Memoria.` regression **366/366 PASS**, 0 failures/fatal diagnostics and one existing engine warning. Human feel/listening is not claimed.
+- Git cloud-object quarantine restored access; full `fsck --full --no-dangling` passes and pre-existing refs remain unchanged. Backup/rollback and optional repack rejection are recorded in [S296 report](BATTLE_CORE_S296.md).
+- Play instructions: [current slice](PLAYABLE_SLICE.md). Next product work should begin with human battle feel/listening and the source Witness path, after accepting this checkpoint.
+
 # Migration handoff - S295 Codex sound review (2026-09-26)
 
 - Integrated Claude `792034ff..9c3b2033` into the Codex worktree on `codex/unreal-sound-review-20260926`. Previous `SonBongKyun/memoria-unreal-codex` / `fd76c0fe` remains preserved. Claude and foundation checkouts were not edited; no remote push.

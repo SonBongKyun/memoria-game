@@ -122,6 +122,11 @@ def archive_test_paths():
     return {'Memoria.Archive.'+n for n in ('RenderedInputFlow','WidgetReadOnly')} | {'Memoria.Archive.Source.'+n for n in ('initial_en','initial_ko','states_en','states_ko','grade5','grade3','grade1','empty')}
 
 
+def battle_core_test_paths():
+    from export_battle_core_oracle import inputs
+    return {'Memoria.BattleCore.Source.'+case['id'] for case in inputs()} | {'Memoria.BattleCore.RenderedJourney','Memoria.BattleCore.OwnerLifetime'}
+
+
 def battle_entry_test_paths():
     from export_battle_entry_oracle import inputs
     # Phase-step/Witness approach probes characterize source only; the playable
@@ -135,7 +140,7 @@ def visual_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | presentation_test_paths() | audio_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | battle_core_test_paths() | presentation_test_paths() | audio_test_paths()
 
 
 def malet_first_effect_test_paths():
@@ -169,7 +174,7 @@ def main():
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
-    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.'], help='Exact full registry or a bounded gameplay regression subset')
+    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'Memoria.BattleCore.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.'], help='Exact full registry or a bounded gameplay regression subset')
     parser.add_argument('--evidence-dir', type=Path)
     # The rendered full registry needs far longer than a bounded subset.
     parser.add_argument('--automation-timeout', type=int, default=900, help='Seconds before the automation process is killed')

@@ -11,6 +11,8 @@ class UImage;
 class UProgressBar;
 class UBorder;
 class UScrollBox;
+class UVerticalBox;
+DECLARE_DELEGATE_ThreeParams(FMemoriaBattleAction,const FString&,const FString&,uint64);
 DECLARE_DELEGATE_OneParam(FMemoriaBattleEntryFlee,uint64);
 DECLARE_DELEGATE_TwoParams(FMemoriaBattleEntryKeyGesture,const FKey&,EInputEvent);
 
@@ -21,6 +23,8 @@ class MEMORIA_API UMemoriaBattleEntryButton : public UButton
 public:
     UMemoriaBattleEntryButton(){InitIsFocusable(false);}
     UPROPERTY() TObjectPtr<UMemoriaBattleEntryWidget> Owner;
+    int32 Index=0;
+    bool bChoice=false;
     UFUNCTION() void Activate();
 };
 
@@ -31,6 +35,9 @@ class MEMORIA_API UMemoriaBattleEntryWidget : public UUserWidget
     GENERATED_BODY()
 public:
     FMemoriaBattleEntryFlee OnFlee;
+    FMemoriaBattleAction OnAction;
+    void ClickAction(int32 Index,bool bChoice);
+    void Navigate(const FKey& Key);
     FMemoriaBattleEntryKeyGesture OnConsumedKey;
     void BindBattle(UMemoriaBattleEntrySubsystem* InBattle);
     void ConfirmIntent();
@@ -76,7 +83,18 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryButton> FleeButton;
     FMemoriaBattleEntryView View;
     bool bFleeRequested=false;
-    float Age=0.f,ReturnAge=0.f;
+    float Age=0.f,ReturnAge=0.f,ImpactAge=2.f;
+    int32 Selected=0,ChoiceSelected=0,PanelMode=0;
+    int64 ImpactDamage=0;
+    bool bHitPlayer=false;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaBattleEntryButton>> ActionButtons;
+    UPROPERTY(Transient) TArray<TObjectPtr<UTextBlock>> ActionLabels;
+    UPROPERTY(Transient) TObjectPtr<UBorder> ChoicePanel;
+    UPROPERTY(Transient) TObjectPtr<UVerticalBox> ChoiceList;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ImpactText;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> BurnCost;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> Gauges;
+    void DrawActions();
     void Refresh();
     void Draw();
     void UnbindBattle();

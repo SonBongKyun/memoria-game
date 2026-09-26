@@ -386,4 +386,62 @@ bool FBattleEntrySavedStats::RunTest(const FString&)
     RestoredGame->Shutdown();
     return !HasAnyErrors();
 }
+
+namespace {
+class FCombatGuardCheck final : public IAutomationLatentCommand
+{
+    FAutomationTestBase* T;TSharedPtr<FCaseWorld> C;TStrongObjectPtr<UMemoriaRunSaveGame> Save;
+    int32 Stage=0;double Time=0;uint64 Frame=MAX_uint64;FDelegateHandle Observer;
+    FMemoriaEncounterRng Stable(){return {[](double,double){return .99;},[](int32 A,int32 B){return (A+B)/2;}};}
+    void Start(){auto R=Stable();T->TestTrue(TEXT("Start live combat"),C->Battle->BeginEncounter(0,R,C->World));C->Battle->SetCombatRng(Stable());}
+public:
+    explicit FCombatGuardCheck(FAutomationTestBase* Test):T(Test),C(MakeShared<FCaseWorld>()){}
+    virtual bool Update() override
+    {
+        if(Frame==GFrameCounter)return false;Frame=GFrameCounter;C->World->GetTimerManager().Tick(.1f);Time+=.1;
+        if(Stage==0)
+        {
+            C->Run->BeginStartingMemoryRun(3);Start();Save.Reset(C->Run->CaptureSave());Save->Run.Player.Hp=37;
+            const auto Rev=C->Battle->GetRevision();T->TestFalse(TEXT("Stale action rejected"),C->Battle->Submit(TEXT("attack"),TEXT(""),Rev-1));
+            T->TestTrue(TEXT("Attack scheduled"),C->Battle->Submit(TEXT("attack"),TEXT(""),Rev));
+            T->TestFalse(TEXT("Duplicate action rejected"),C->Battle->Submit(TEXT("attack"),TEXT(""),C->Battle->GetRevision()));
+            T->TestFalse(TEXT("Cannot flee while action resolves"),C->Battle->Flee(C->Battle->GetRevision()));
+            T->TestTrue(TEXT("Same-ID restore cancels windup"),C->Run->RestoreSave(*Save));Stage=1;Time=0;
+        }
+        else if(Stage==1&&Time>.7)
+        {
+            T->TestFalse(TEXT("Restored windup has no battle"),C->Battle->IsActive());T->TestEqual(TEXT("Restored HP untouched"),C->Run->GetRunSnapshot().Player.Hp,37ll);
+            Start();Save.Reset(C->Run->CaptureSave());Save->Run.Player.Hp=37;
+            C->Battle->SetCombatRng({[](double,double){return .99;},[this](int32 A,int32){C->Run->RestoreSave(*Save);return A;}});
+            C->Battle->Submit(TEXT("attack"),TEXT(""),C->Battle->GetRevision());Stage=2;Time=0;
+        }
+        else if(Stage==2&&Time>.7)
+        {
+            T->TestFalse(TEXT("RNG replacement cancels action"),C->Battle->IsActive());T->TestEqual(TEXT("RNG replacement HP survives"),C->Run->GetRunSnapshot().Player.Hp,37ll);
+            Start();Save.Reset(C->Run->CaptureSave());Save->Run.Player.Hp=37;
+            Observer=C->Battle->OnChanged.AddLambda([this]{if(C->Battle->GetView().BattleState==TEXT("ENEMY_TURN"))C->Run->RestoreSave(*Save);});
+            C->Battle->Submit(TEXT("defend"),TEXT(""),C->Battle->GetRevision());Stage=3;Time=0;
+        }
+        else if(Stage==3&&Time>1.5)
+        {
+            C->Battle->OnChanged.Remove(Observer);T->TestFalse(TEXT("Observer replacement cancels enemy timer"),C->Battle->IsActive());T->TestEqual(TEXT("Enemy never damages restored run"),C->Run->GetRunSnapshot().Player.Hp,37ll);
+            Save.Reset(C->Run->CaptureSave());for(auto& M:Save->PlayerMemory.Owned)if(M.Id==TEXT("sense_forest_smell"))M.bFaded=true;
+            Save->PlayerMemory.ActiveLoan.bActive=true;Save->PlayerMemory.ActiveLoan.MemoryId=TEXT("daily_market_food");Save->PlayerMemory.ActiveLoan.Principal=18;Save->PlayerMemory.ActiveLoan.Repay=22;Save->PlayerMemory.ActiveLoan.DueChapter=4;
+            T->TestTrue(TEXT("Faded and collateral fixture restored"),C->Run->RestoreSave(*Save));Start();
+            T->TestFalse(TEXT("Faded burn disabled"),C->Battle->Submit(TEXT("burn"),TEXT("sense_forest_smell"),C->Battle->GetRevision()));
+            T->TestFalse(TEXT("Collateral burn disabled"),C->Battle->Submit(TEXT("burn"),TEXT("daily_market_food"),C->Battle->GetRevision()));
+            T->TestFalse(TEXT("Unknown item disabled"),C->Battle->Submit(TEXT("item"),TEXT("unknown"),C->Battle->GetRevision()));
+            const auto Before=Canon(Full(*C->Run));C->Battle->Submit(TEXT("defend"),TEXT(""),C->Battle->GetRevision());FWorldDelegates::OnWorldCleanup.Broadcast(C->World,false,true);
+            T->TestEqual(TEXT("Teardown leaves no partial command"),Canon(Full(*C->Run)),Before);Stage=4;Time=0;
+        }
+        else if(Stage==4&&Time>1.5)
+        {
+            T->TestFalse(TEXT("Teardown cancels all battle timers"),C->Battle->IsActive());T->TestEqual(TEXT("No cancelled command returns a stale map"),C->Returned,0);return true;
+        }
+        return false;
+    }
+};
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBattleCoreLifetime,"Memoria.BattleCore.OwnerLifetime",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FBattleCoreLifetime::RunTest(const FString&){FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FCombatGuardCheck(this)));return true;}
 #endif

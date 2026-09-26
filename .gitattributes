@@ -103,3 +103,6 @@ docs/unreal-migration/evidence/art2/**/*.log -text whitespace=-blank-at-eol,-bla
 # Rendered audio sources are compared byte for byte by generate_audio_sources.py --check.
 Unreal/ArtSource/Audio/*.json text eol=lf
 Unreal/ArtSource/Audio/*.wav binary
+
+# Battle core oracle fixtures are compared byte for byte.
+docs/unreal-migration/fixtures/battle_core/*.json text eol=lf

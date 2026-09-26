@@ -1,4 +1,9 @@
 #include "Battle/MemoriaBattleEntrySubsystem.h"
+#include "Audio/MemoriaAudioSubsystem.h"
+#include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Save/MemoriaCheckpointSubsystem.h"
+#include "Presentation/MemoriaArchiveView.h"
+#include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
@@ -200,12 +205,14 @@ FMemoriaBattleEntryView UMemoriaBattleEntrySubsystem::GetView() const
     auto Result = View;
     Result.Revision = Revision; Result.bActive = IsActive();
     Result.bReturning = Result.bActive && View.bReturning;
-    Result.bCanFlee = Result.bActive && !Result.bReturning;
+    Result.bCanFlee = Result.bActive && !Result.bReturning && !Result.bResolving && !Result.bVictory && !Result.bDefeat;
     return Result;
 }
 void UMemoriaBattleEntrySubsystem::Cancel()
 {
     if (OwnerWorld.IsValid()) OwnerWorld->GetTimerManager().ClearTimer(ReturnTimer);
+    if (OwnerWorld.IsValid()) OwnerWorld->GetTimerManager().ClearTimer(ActionTimer);
+    ActionTimer.Invalidate(); PendingAction.Reset(); PendingId.Reset(); Combat=FMemoriaBattleModel{};PendingEnemyResult.Reset();
     ReturnTimer.Invalidate(); OwnerWorld.Reset(); OwnerRun.Invalidate();
     View = FMemoriaBattleEntryView{}; View.Revision = ++Revision;
     OnChanged.Broadcast();
@@ -318,13 +325,13 @@ bool UMemoriaBattleEntrySubsystem::BeginEncounter(int32 EnemyIndex, FMemoriaEnco
     // Commit only after every catalog/RNG prerequisite succeeds. Never writes a checkpoint.
     if (OwnerWorld.IsValid()) OwnerWorld->GetTimerManager().ClearTimer(ReturnTimer);
     OwnerWorld = Owner; OwnerRun = State.RunId; Next.Revision = ++Revision;
-    Run->State = MoveTemp(State); View = MoveTemp(Next);
+    Run->State = MoveTemp(State); View = MoveTemp(Next); StartCombat();
     OnChanged.Broadcast();
     return true;
 }
 bool UMemoriaBattleEntrySubsystem::Flee(uint64 ExpectedRevision)
 {
-    if (bBusy || !IsActive() || View.bReturning || Revision != ExpectedRevision) return false;
+    if (bBusy || !GetView().bCanFlee || Revision != ExpectedRevision) return false;
     TGuardValue<bool> Busy(bBusy, true);
     View.bReturning = true; View.bCanFlee = false; View.BattleState = TEXT("FLED");
     View.Logs.Add(Message(View, TEXT("Arrel withdraws before the memory closes around him.")));
@@ -347,6 +354,132 @@ void UMemoriaBattleEntrySubsystem::FinishReturn()
     View.Requests.Add(TEXT("map:") + Source()->GetStringField(TEXT("return_scene")));
     View.Revision = ++Revision;
     // Source cleanup keeps state FLED, removes the enemy, and requests scene re-entry.
+    const uint64 ReturningRevision=Revision;
     OnChanged.Broadcast();
-    OnReturned.Broadcast();
+    if(Revision==ReturningRevision && HasLiveOwner()) OnReturned.Broadcast();
+}
+void UMemoriaBattleEntrySubsystem::StartCombat()
+{
+    Combat=FMemoriaBattleModel{};Combat.Run=Run->GetRunSnapshot();Combat.EnemyName=View.EnemyName;
+    Combat.EnemyHp=View.EnemyHp;Combat.EnemyMaxHp=View.EnemyMaxHp;Combat.EnemyAttack=View.EnemyAttack;
+    Combat.Weakness=View.Weakness;Combat.Resistance=View.Resistance;Combat.Abilities=View.EnemyAbilities;Combat.bVoid=View.bEnemyVoid;
+    Combat.bDefending=View.bPlayerDefending;Combat.Momentum=View.Momentum;Combat.Rank=Combat.BestRank=View.MomentumRank;
+    Combat.Limit=View.LimitGauge;Combat.Break=View.BreakGauge;Combat.Difficulty=View.DifficultyBonus;
+    Combat.ObjectiveId=View.ObjectiveId;Combat.ObjectiveTitle=View.ObjectiveTitle;Combat.ObjectiveGrains=View.ObjectiveRewardGrains;
+    Combat.ObjectiveHeal=View.ObjectiveRewardHeal;Combat.ObjectiveItem=View.ObjectiveRewardItem;
+    Combat.bObjectiveSupported=FMemoriaBattleModel::SupportsObjective(Combat.ObjectiveId);
+    Combat.ModifierEffect=View.ModifierEffect;Combat.ModifierValue=View.ModifierValue;
+    Combat.bMemoryCascade=Run->GetPlayerMemory()->HasPassive(TEXT("memory_cascade"));
+    UpdateCombatView();
+}
+void UMemoriaBattleEntrySubsystem::UpdateCombatView()
+{
+    View.PlayerHp=Combat.Run.Player.Hp;View.PlayerMaxHp=Combat.Run.Player.MaxHp;View.EnemyHp=Combat.EnemyHp;
+    View.bPlayerDefending=Combat.bDefending;View.Momentum=Combat.Momentum;View.MomentumRank=Combat.Rank;
+    View.LimitGauge=Combat.Limit;View.BreakGauge=Combat.Break;View.Combo=Combat.Combo;View.BrokenTurns=Combat.BrokenTurns;
+    View.bVictory=Combat.bVictory;View.bDefeat=Combat.bDefeat;View.Reward=Combat.Reward;
+    View.bObjectiveSupported=Combat.bObjectiveSupported;View.bObjectiveComplete=Combat.bObjectiveComplete;View.bObjectiveFailed=Combat.bObjectiveFailed;
+    View.PlayerStatuses=Combat.PlayerStatuses;View.EnemyStatuses=Combat.EnemyStatuses;
+    View.Memories.Reset();View.Items.Reset();
+    const auto* Memory=Run->GetPlayerMemory();
+    for(const auto& Row:MemoriaArchive::Build(*Run).Rows)
+        View.Memories.Add({Row.Id,Row.Title+TEXT("  · ")+Row.StateLabel,Row.Grade,Memory->CanBurn(Row.Id)==EMemoriaMemoryResult::Success,Row.Accent});
+    for(const FString Id:{TEXT("potion"),TEXT("antidote"),TEXT("firebomb")})
+    {
+        const int64 Count=Run->GetItemCount(Id);
+        const FString Label=Id==TEXT("potion")?(View.bKo?TEXT("포션"):TEXT("Potion")):Id==TEXT("antidote")?(View.bKo?TEXT("해독제"):TEXT("Antidote")):(View.bKo?TEXT("화염탄"):TEXT("Firebomb"));
+        View.Items.Add({Id,Label+FString::Printf(TEXT("  ×%lld"),Count),0,Count>0});
+    }
+}
+bool UMemoriaBattleEntrySubsystem::Submit(const FString& Action,const FString& Id,uint64 ExpectedRevision)
+{
+    if(bBusy||!IsActive()||View.bReturning||View.bResolving||View.bVictory||View.bDefeat||Revision!=ExpectedRevision)return false;
+    if(Action!=TEXT("attack")&&Action!=TEXT("burn")&&Action!=TEXT("defend")&&Action!=TEXT("item"))return false;
+    if(Action==TEXT("burn")&&Run->GetPlayerMemory()->CanBurn(Id)!=EMemoriaMemoryResult::Success)return false;
+    if(Action==TEXT("item")&&((Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb"))||Run->GetItemCount(Id)<=0))return false;
+    TGuardValue<bool> Busy(bBusy,true);PendingAction=Action;PendingId=Id;
+    View.bResolving=true;View.bCanFlee=false;View.BattleState=TEXT("PLAYER_ACTION");View.Telegraph=Action;
+    if(Action==TEXT("burn"))for(const auto& D:Run->GetPlayerMemory()->GetDefinitions())if(D.Id==Id)View.LastBurnTitle=D.Title;
+    View.Revision=++Revision;
+    OwnerWorld->GetTimerManager().SetTimer(ActionTimer,this,&UMemoriaBattleEntrySubsystem::ResolveAction,Action==TEXT("burn")?.45f:.23f,false);
+    OnChanged.Broadcast();return true;
+}
+void UMemoriaBattleEntrySubsystem::ResolveAction()
+{
+    if(!HasLiveOwner()||!View.bResolving){Cancel();return;}
+    TGuardValue<bool> Busy(bBusy,true);const uint64 Epoch=Revision;
+    const FString Action=PendingAction,Id=PendingId;FMemoriaBattleBurn Burn;
+    if(Action==TEXT("burn"))
+    {
+        auto* Memory=Run->GetPlayerMemory();const auto* D=Memory->GetDefinitions().FindByPredicate([&](const auto& V){return V.Id==Id;});
+        if(!D||Memory->CanBurn(Id)!=EMemoriaMemoryResult::Success){View.bResolving=false;View.Revision=++Revision;OnChanged.Broadcast();return;}
+        // Copy before publishing memory events: observers may restore the same run ID.
+        const FMemoriaMemoryDefinition Definition=*D;Burn.Id=Id;Burn.Title=D->Title;Burn.Grade=static_cast<int32>(D->RawGrade);Burn.Power=D->BurnPower;
+        if(Run->BurnMemory(Id)!=EMemoriaMemoryResult::Success||Revision!=Epoch||!HasLiveOwner())return;
+        // Effective power and passives are read after the source burn, including its erosion/unlocks.
+        Burn.EffectivePower=Memory->GetEffectiveBurnPower(Id);
+        Burn.bEmberAffinity=Memory->HasPassive(TEXT("ember_affinity"));Burn.bVoidTouch=Memory->HasPassive(TEXT("void_touch"));
+        Burn.bResidualWarmth=Memory->HasPassive(TEXT("residual_warmth"));Burn.bMemoryCascade=Memory->HasPassive(TEXT("memory_cascade"));
+        if(Definition.RelatedNpc==TEXT("Elia")&&Run->GetMemoryContext().bStillHandsActive)Run->SetStoryFlag(TEXT("oath_still_broken"),true);
+    }
+    auto Next=Combat;Next.Run=Run->GetRunSnapshot();
+    if(!Next.Act(Action,Id,Action==TEXT("burn")?&Burn:nullptr,CombatRng))return;
+    if(Revision!=Epoch||!HasLiveOwner())return;
+    CommitCombat(MoveTemp(Next));
+}
+void UMemoriaBattleEntrySubsystem::ResolveEnemy()
+{
+    if(!HasLiveOwner()||!Combat.bPendingEnemy){Cancel();return;}
+    TGuardValue<bool> Busy(bBusy,true);const uint64 Epoch=Revision;auto Next=Combat;
+    Next.EnemyTurn(CombatRng);if(Revision!=Epoch||!HasLiveOwner())return;
+    // Resolve once into a private value; no run mutation until the anticipation ends.
+    const bool Special=!Next.Ability.IsEmpty();
+    if(Combat.Aftershock>0)View.Logs.Add(View.bKo?TEXT("[연소 잔상] 적의 의도를 읽을 수 없다."):TEXT("[BURN AFTERIMAGE] Enemy intent is unreadable."));
+    else if(Special)
+    {
+        const TMap<FString,FString> Names={{TEXT("poison"),View.bKo?TEXT("독성 구름"):TEXT("Toxic cloud")},{TEXT("weaken"),View.bKo?TEXT("약화의 저주"):TEXT("Weakening curse")},{TEXT("shield"),View.bKo?TEXT("어두운 장벽"):TEXT("Dark barrier")},{TEXT("reflect"),View.bKo?TEXT("반사의 거울"):TEXT("Reflecting mirror")},{TEXT("charge"),View.bKo?TEXT("기운 축적"):TEXT("Gathering power")},{TEXT("drain"),View.bKo?TEXT("생명 흡수"):TEXT("Life drain")},{TEXT("stun"),View.bKo?TEXT("기절 공격"):TEXT("Stunning strike")}};
+        View.Logs.Add((View.bKo?TEXT("적의 의도: "):TEXT("Enemy intent: "))+Names.FindRef(Next.Ability));
+    }
+    PendingEnemyResult=MoveTemp(Next);View.Revision=++Revision;PendingEnemyRevision=Revision;
+    OwnerWorld->GetTimerManager().SetTimer(ActionTimer,this,&UMemoriaBattleEntrySubsystem::ResolveEnemyImpact,Special?.5f:.2f,false);
+    OnChanged.Broadcast();
+}
+void UMemoriaBattleEntrySubsystem::ResolveEnemyImpact()
+{
+    if(!PendingEnemyResult.IsSet()||PendingEnemyRevision!=Revision||!HasLiveOwner())return;
+    TGuardValue<bool> Busy(bBusy,true);auto Next=MoveTemp(PendingEnemyResult.GetValue());PendingEnemyResult.Reset();CommitCombat(MoveTemp(Next));
+}
+void UMemoriaBattleEntrySubsystem::CommitCombat(FMemoriaBattleModel&& Next)
+{
+    Run->State=Next.Run;Combat=MoveTemp(Next);View.Hits=Combat.Hits;++View.ImpactSerial;
+    View.Logs.Append(Combat.Logs);if(View.Logs.Num()>60)View.Logs.RemoveAt(0,View.Logs.Num()-60);
+    View.bResolving=Combat.bPendingEnemy;View.Telegraph=Combat.bPendingEnemy?TEXT("enemy"):FString();
+    View.BattleState=Combat.bVictory?TEXT("VICTORY"):Combat.bDefeat?TEXT("DEFEAT"):Combat.bPendingEnemy?TEXT("ENEMY_TURN"):TEXT("PLAYER_TURN");
+    UpdateCombatView();View.Revision=++Revision;
+    if(Combat.bPendingEnemy)OwnerWorld->GetTimerManager().SetTimer(ActionTimer,this,&UMemoriaBattleEntrySubsystem::ResolveEnemy,.8f,false);
+    if(auto* Audio=GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>())
+    {
+        for(const auto& Cue:Combat.Sounds)Audio->PlaySfx(FName(*Cue));
+        Audio->SetLowHealth(!Combat.bVictory&&!Combat.bDefeat&&double(Combat.Run.Player.Hp)/Combat.Run.Player.MaxHp<.25);
+    }
+    OnChanged.Broadcast();
+}
+bool UMemoriaBattleEntrySubsystem::DismissVictory(uint64 ExpectedRevision)
+{
+    if(bBusy||!IsActive()||!View.bVictory||View.bReturning||Revision!=ExpectedRevision)return false;
+    TGuardValue<bool> Busy(bBusy,true);View.bReturning=true;View.Revision=++Revision;
+    OwnerWorld->GetTimerManager().SetTimer(ReturnTimer,this,&UMemoriaBattleEntrySubsystem::FinishReturn,.3f,false);OnChanged.Broadcast();return true;
+}
+bool UMemoriaBattleEntrySubsystem::RecoverToVerdan(uint64 ExpectedRevision)
+{
+    if(bBusy||!IsActive()||!View.bDefeat||View.bReturning||Revision!=ExpectedRevision)return false;
+    TGuardValue<bool> Busy(bBusy,true);Run->State.Player.Hp=Run->State.Player.MaxHp;Run->State.Player.DirectiveStreak=0;
+    View.bReturning=true;View.Revision=++Revision;
+    OwnerWorld->GetTimerManager().SetTimer(ReturnTimer,this,&UMemoriaBattleEntrySubsystem::FinishReturn,.3f,false);OnChanged.Broadcast();return true;
+}
+bool UMemoriaBattleEntrySubsystem::RetryCheckpoint(uint64 ExpectedRevision)
+{
+    if(bBusy||!IsActive()||!View.bDefeat||View.bReturning||Revision!=ExpectedRevision)return false;
+    if(GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>()->ContinueCheckpoint())return true;
+    View.Logs.Add(View.bKo?TEXT("사용 가능한 체크포인트가 없습니다. 베르단으로 돌아갈 수 있습니다."):TEXT("No valid checkpoint. You can return to Verdan."));View.Revision=++Revision;OnChanged.Broadcast();return false;
 }

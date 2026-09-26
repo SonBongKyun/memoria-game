@@ -263,7 +263,7 @@ public:
                 FScreenshotRequest::RequestScreenshot(Output()/(Mode()+TEXT("_")+Label+TEXT(".png")), true, false);
             }
         };
-        if(RefusalMode==TEXT("ShopBattle") && Stage==18)
+        if(RefusalMode.StartsWith(TEXT("ShopBattle")) && Stage==18)
         {
             if(Frame==5){BattleReturnTrace=Host->GetTrace();Key(EKeys::Enter,IE_Repeat);Key(EKeys::Escape,IE_Repeat);}
             if(Frame==9)
@@ -281,7 +281,7 @@ public:
         }
         if (!bStarted)
         {
-            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode==TEXT("ShopBattle"))Test->TestTrue(TEXT("Canonical saves are isolated"),Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->ConfigureTestStorage(TEXT("canonical-")+FGuid::NewGuid().ToString(EGuidFormats::Digits)));
+            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode.StartsWith(TEXT("ShopBattle")))Test->TestTrue(TEXT("Canonical saves are isolated"),Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->ConfigureTestStorage(TEXT("canonical-")+FGuid::NewGuid().ToString(EGuidFormats::Digits)));
             bStarted = true; bWasFixed = FApp::UseFixedTimeStep(); OldDelta = FApp::GetFixedDeltaTime();
             FApp::SetUseFixedTimeStep(true); FApp::SetFixedDeltaTime(1.0/60.0);
             // Resize the actual PIE window, independent of remembered editor
@@ -881,7 +881,7 @@ public:
                 TestTrueShop(PC,Shop,Run);
                 if(RefusalMode==TEXT("ShopCanonical")) {Capture(TEXT("Shop_FirstScreen"));Write(Host,Run,Pawn,TEXT("shop_first_screen"));MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("shop_canonical_save.json"));}
                 if(RefusalMode==TEXT("FirebombCanonical"))MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("save_roundtrip.json")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
-                Stage=(RefusalMode==TEXT("ShopTransactions") || RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode==TEXT("ShopBattle"))?14:9; Frame=-1;
+                Stage=(RefusalMode==TEXT("ShopTransactions") || RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode.StartsWith(TEXT("ShopBattle")))?14:9; Frame=-1;
             }
         }
         else if (Stage == 8 && Frame == 40)
@@ -924,12 +924,12 @@ public:
                 Test->TestTrue(TEXT("Actual save status visible"),PC->GetNarrativeWidget()->VisibleText().Contains(Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText()));
                 Write(Host,Run,Pawn,TEXT("shop_transactions_closed"));
                 MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("shop_transactions_canonical_save.json"));
-                if(RefusalMode!=TEXT("ShopCheckpoint") && RefusalMode!=TEXT("ShopArchive") && RefusalMode!=TEXT("ShopBattle"))return true;
+                if(RefusalMode!=TEXT("ShopCheckpoint") && RefusalMode!=TEXT("ShopArchive") && !RefusalMode.StartsWith(TEXT("ShopBattle")))return true;
                 Test->TestTrue(TEXT("Close wrote real disk"),Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText().Contains(TEXT("saved to disk")));
                 CheckpointBefore=Canon(MemoriaPotionEvidence::Full(*Run));CheckpointPosition=Pawn->GetActorLocation();
                 Run->SetStoryFlag(TEXT("after_save_mutation"),true);
             }
-            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode==TEXT("ShopBattle"))
+            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode.StartsWith(TEXT("ShopBattle")))
             {
                 if(Frame==68)Key(EKeys::Enter,IE_Pressed);
                 if(Frame==71)Key(EKeys::Enter,IE_Released);
@@ -940,7 +940,7 @@ public:
                     Test->TestTrue(TEXT("No reward/arrival replay"),Host->GetTrace()==TArray<FString>{TEXT("checkpoint:restored:before:chapter_transition_delay")});
                     Test->TestTrue(TEXT("Loaded status and actions rendered"),PC->GetNarrativeWidget()->VisibleText().Contains(TEXT("Checkpoint loaded")) && PC->GetNarrativeWidget()->VisibleText().Contains(TEXT("Save checkpoint again")));
                     Capture(TEXT("Checkpoint_Loaded"));Write(Host,Run,Pawn,TEXT("checkpoint_loaded"));
-                    if(RefusalMode==TEXT("ShopBattle")){Stage=15;Frame=-1;}
+                    if(RefusalMode.StartsWith(TEXT("ShopBattle"))){Stage=15;Frame=-1;}
                     else if(RefusalMode!=TEXT("ShopArchive"))return true;
                 }
             }
@@ -980,7 +980,7 @@ public:
                 if(FirstBattle.EnemyIndex==0)Test->TestEqual(TEXT("Alley Rat study displays instead of legacy hound"),PC->GetBattleWidget()->DisplayedEnemyArtwork(),MemoriaBattleEntryArt::Load(MemoriaBattleEntryArt::AlleyRatStudySource()));
                 PC->ToggleArchive();Test->TestNull(TEXT("Archive cannot interrupt battle"),PC->GetArchiveWidget());
                 Test->TestFalse(TEXT("Direct Malet interaction cannot interrupt battle"),Host->InteractWithMalet());
-                BattleBeforeFlee=Canon(MemoriaPotionEvidence::Full(*Run));Stage=17;Frame=-1;
+                BattleBeforeFlee=Canon(MemoriaPotionEvidence::Full(*Run));Stage=RefusalMode==TEXT("ShopBattleCombat")?21:17;Frame=-1;
             }
             else
             {
@@ -1012,6 +1012,7 @@ public:
             {
                 const uint64 Revision=Battle->GetRevision();
                 Test->TestFalse(TEXT("Stale flee cannot consume turn"),Battle->Flee(Revision-1));
+                PC->GetBattleWidget()->Navigate(EKeys::Left); // explicit Flee selection in the combat menu
                 FSlateApplication::Get().ProcessKeyDownEvent(FKeyEvent(EKeys::Enter,FModifierKeysState(),0,false,0,0));
                 Test->TestTrue(TEXT("Physical confirm begins source return delay"),Battle->IsReturning());
                 Test->TestFalse(TEXT("Duplicate flee rejected"),Battle->Flee(Revision));
@@ -1058,7 +1059,7 @@ public:
                 Test->TestNotNull(TEXT("Alternative source artwork rendered"),PC->GetBattleWidget());
                 if(AlternativeEnemy==0 && PC->GetBattleWidget())Test->TestEqual(TEXT("Alternative Alley Rat study displays"),PC->GetBattleWidget()->DisplayedEnemyArtwork(),MemoriaBattleEntryArt::Load(MemoriaBattleEntryArt::AlleyRatStudySource()));
                 Capture(TEXT("BattleAlternativeEnemy"));Write(Host,Run,Pawn,TEXT("alternative_enemy_fixture"));
-                PC->GetBattleWidget()->ConfirmIntent();BattleOwner=World;
+                PC->GetBattleWidget()->Navigate(EKeys::Left);PC->GetBattleWidget()->ConfirmIntent();BattleOwner=World;
             }
             if(Frame>32 && World!=BattleOwner.Get() && Host->IsVerdanRevisit())
             {Stage=20;Frame=-1;}
@@ -1068,6 +1069,81 @@ public:
             Test->TestEqual(TEXT("Two starts persist exactly two battles"),Run->GetRunSnapshot().TotalBattles,int64(2));
             Test->TestFalse(TEXT("Second source ambient flee clears modal"),PC->IsModalOpen());
             Capture(TEXT("SecondReturn"));return true;
+        }
+        else if(Stage==21)
+        {
+            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();const auto V=Battle->GetView();
+            // Explicit presentation-only 200 damage fixture; never mutates combat/run.
+            if(Frame==3&&PC->GetBattleWidget()){auto Preview=V;Preview.Hits={{V.EnemyName,TEXT("Presentation fixture"),200}};++Preview.ImpactSerial;PC->GetBattleWidget()->Display(Preview);}
+            if(Frame==4)Capture(TEXT("CombatLargeImpactFixture"));
+            if(Frame==12&&PC->GetBattleWidget())PC->GetBattleWidget()->Display(V);
+            if(Frame==2){Battle->SetCombatRng({[](double,double){return .99;},[](int32 A,int32 B){return (A+B)/2;}});CombatBurnBefore=Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num();}
+            if(Frame==5){Key(EKeys::Right,IE_Pressed);Key(EKeys::Right,IE_Released);Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
+            if(Frame==8)
+            {
+                int32 Choice=INDEX_NONE;for(int32 I=0;I<V.Memories.Num();++I)if(V.Memories[I].bAvailable&&V.Memories[I].Grade==0){Choice=I;break;}
+                if(!Test->TestTrue(TEXT("Canonical journey leaves a sensory memory to burn"),Choice>=0))return true;
+                CombatBurnId=V.Memories[Choice].Id;for(int32 I=0;I<Choice;++I){Key(EKeys::Down,IE_Pressed);Key(EKeys::Down,IE_Released);}
+                Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);Test->TestTrue(TEXT("Physical burn command accepted"),Battle->GetView().bResolving);
+            }
+            if(Frame==12)Capture(TEXT("CombatBurn"));
+            if(Frame>40 && !V.bResolving && !V.bVictory && Frame%60==0)
+            {
+                if(!bCombatAttackSelected){Key(EKeys::Left,IE_Pressed);Key(EKeys::Left,IE_Released);bCombatAttackSelected=true;}
+                Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
+            }
+            if(V.bVictory){Capture(TEXT("CombatVictory"));Test->TestEqual(TEXT("Battle commits exactly one chosen burn"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num(),CombatBurnBefore+1);Test->TestTrue(TEXT("Victory grants source grains"),V.Reward.Grains>0);Stage=22;Frame=-1;}
+            if(V.bDefeat){Test->AddError(TEXT("Canonical deterministic burn and attacks should win"));return true;}
+        }
+        else if(Stage==22)
+        {
+            if(Frame==25){BattleOwner=World;Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
+            if(Frame>25 && World!=BattleOwner.Get() && Host->IsVerdanRevisit()){Stage=23;Frame=-1;}
+        }
+        else if(Stage==23)
+        {
+            if(Frame==25){Test->TestFalse(TEXT("Victory restores field controls"),PC->IsModalOpen());Key(EKeys::Tab,IE_Pressed);Key(EKeys::Tab,IE_Released);}
+            if(Frame==40)
+            {
+                const auto* Archive=PC->GetArchiveWidget();if(!Test->TestNotNull(TEXT("Archive opens after victory"),Archive))return true;
+                bool BurnVisible=false;for(const auto& Row:Archive->GetView().Rows)if(Row.Id==CombatBurnId)BurnVisible=Row.bBurned;
+                Test->TestTrue(TEXT("Actual returned archive retains the combat burn"),BurnVisible);Capture(TEXT("CombatReturnedArchive"));
+                Write(Host,Run,Pawn,TEXT("combat_won_returned_archive"));
+                Key(EKeys::Tab,IE_Pressed);Key(EKeys::Tab,IE_Released);
+                // Explicit near-death checkpoint fixture, after the real journey. It
+                // verifies defeat/recovery without pretending this HP came from that win.
+                TStrongObjectPtr<UMemoriaRunSaveGame> NearDeath(Run->CaptureSave());NearDeath->Run.Player.Hp=1;
+                Test->TestTrue(TEXT("Near-death fixture restores"),Run->RestoreSave(*NearDeath));
+                auto* Disk=Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
+                Test->TestTrue(TEXT("Near-death checkpoint saved in isolated test storage"),Disk->SaveClosedBoundary(FVector2D(128,288)));
+                Test->TestTrue(TEXT("Checkpoint host resumes"),Host->ContinueCheckpoint());BattleOwner=World;
+                Test->TestTrue(TEXT("Checkpoint host requests real revisit"),Host->RequestCheckpointRevisit());Stage=24;Frame=-1;
+            }
+        }
+        else if(Stage==24)
+        {
+            if(World!=BattleOwner.Get()&&Host->IsVerdanRevisit()&&Frame>20)
+            {
+                auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();auto Rng=FMemoriaEncounterRng::Random();
+                Test->TestTrue(TEXT("Live near-death thief encounter"),Battle->BeginEncounter(1,Rng,World));
+                Battle->SetCombatRng({[](double,double){return .99;},[](int32 A,int32){return A;}});Stage=25;Frame=-1;
+            }
+        }
+        else if(Stage==25)
+        {
+            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();const auto V=Battle->GetView();
+            if(Frame>20&&!V.bResolving&&!V.bDefeat&&Frame%90==0){Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
+            if(V.bDefeat){Capture(TEXT("CombatDefeat"));Test->TestEqual(TEXT("Defeat reaches zero HP after Last Stand"),Run->GetRunSnapshot().Player.Hp,0ll);Stage=26;Frame=-1;}
+        }
+        else if(Stage==26)
+        {
+            if(Frame==25){BattleOwner=World;Key(EKeys::Right,IE_Pressed);Key(EKeys::Right,IE_Released);Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
+            if(Frame>25&&World!=BattleOwner.Get()&&Host->IsVerdanRevisit())
+            {
+                Test->TestEqual(TEXT("Defeat recovery restores playable HP"),Run->GetRunSnapshot().Player.Hp,Run->GetRunSnapshot().Player.MaxHp);
+                Test->TestFalse(TEXT("Defeat recovery restores field input"),PC->IsModalOpen());
+                Test->TestTrue(TEXT("Defeat recovery retains previously burned memory"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(CombatBurnId));Capture(TEXT("CombatDefeatRecovered"));return true;
+            }
         }
         else if (Stage == 9 && Frame == 10) return true;
         if(RefusalMode==TEXT("ShopArchive") && Stage==14 && Frame==82)
@@ -1091,6 +1167,7 @@ private:
     FString RewardBeforeRun, RewardBeforeMemory, RewardBeforeObservables; FVector RewardBeforePosition;
     FString CheckpointBefore; FVector CheckpointPosition;
     TWeakObjectPtr<UWorld> BattleOwner;
+    FString CombatBurnId;int32 CombatBurnBefore=0;bool bCombatAttackSelected=false;
     bool bBattleWarning=false;FMemoriaBattleEntryView FirstBattle;
     FString BattleBeforeFlee;int32 AlternativeEnemy=INDEX_NONE;TArray<FString> BattleReturnTrace;
     int32 ArchiveProbe=INDEX_NONE,ArchiveFrame=0,ArchiveCompleted=0;
@@ -1652,6 +1729,9 @@ bool FPotionReplacementAtStop::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionWorldTeardownAfterCommit,"Memoria.Potion.WorldTeardownAfterCommit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FPotionWorldTeardownAfterCommit::RunTest(const FString&)
 { if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionAfterStopOnWorldTeardown")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBattleRenderedCombat,"Memoria.BattleCore.RenderedJourney",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FBattleRenderedCombat::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("ShopBattleCombat")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBattleRenderedRevisit,"Memoria.BattleEntry.RenderedRevisitFlow",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FBattleRenderedRevisit::RunTest(const FString&)
 { if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("ShopBattle")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }

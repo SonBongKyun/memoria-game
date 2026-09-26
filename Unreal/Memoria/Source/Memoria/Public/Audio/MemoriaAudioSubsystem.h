@@ -19,6 +19,8 @@ public:
     virtual void Deinitialize() override;
     // Source cue ids (play_sfx / play_combat_sfx / play_step). Returns false for unknown cues.
     bool PlaySfx(FName Cue);
+    void SetLowHealth(bool bEnabled);
+    bool IsHeartbeatPlaying() const;
     FName GetMusic() const { return Music; }
     FName GetAmbient() const { return Ambient; }
     bool IsMusicPlaying() const;
@@ -35,6 +37,7 @@ public:
     virtual ETickableTickType GetTickableTickType() const override;
     virtual UWorld* GetTickableGameObjectWorld() const override;
 private:
+    UPROPERTY(Transient) TObjectPtr<UAudioComponent> HeartbeatComponent;
     UPROPERTY(Transient) TObjectPtr<UAudioComponent> MusicComponent;
     UPROPERTY(Transient) TObjectPtr<UAudioComponent> FadingMusic;
     UPROPERTY(Transient) TObjectPtr<UAudioComponent> AmbientComponent;

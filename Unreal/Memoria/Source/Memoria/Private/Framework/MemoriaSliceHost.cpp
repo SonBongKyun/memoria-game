@@ -82,7 +82,8 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             if (Params.Event==IE_Pressed && !bAwaitConfirmRelease) BattleWidget->ConfirmIntent();
             return true;
         }
-        if (Params.Key==EKeys::Escape || Params.Key==EKeys::Tab || Params.Key==EKeys::M || Params.Key==EKeys::Gamepad_FaceButton_Right) return true;
+        if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
+        return true;
     }
     const bool ArchiveToggle=Params.Key==EKeys::Tab || Params.Key==EKeys::M;
     if(ArchiveWidget)
@@ -126,6 +127,7 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
             if (StatusWidget) StatusWidget->SetVisibility(ESlateVisibility::Collapsed);
             BattleWidget=CreateWidget<UMemoriaBattleEntryWidget>(this,UMemoriaBattleEntryWidget::StaticClass());
             BattleWidget->OnFlee.BindUObject(this,&AMemoriaSliceController::RequestBattleFlee);
+            BattleWidget->OnAction.BindUObject(this,&AMemoriaSliceController::RequestBattleAction);
             BattleWidget->OnConsumedKey.BindUObject(this,&AMemoriaSliceController::TrackArchiveGesture);
             Battle->OnReturned.AddUObject(this,&AMemoriaSliceController::BattleReturned);
             BattleWidget->BindBattle(Battle); PresentModal(BattleWidget);
@@ -303,7 +305,7 @@ void AMemoriaSliceController::RequestBattleFlee(uint64 Revision)
 void AMemoriaSliceController::ClearBattleWidget()
 {
     if(!BattleWidget)return;
-    BattleWidget->OnFlee.Unbind();BattleWidget->OnConsumedKey.Unbind();BattleWidget->BindBattle(nullptr);
+    BattleWidget->OnAction.Unbind();BattleWidget->OnFlee.Unbind();BattleWidget->OnConsumedKey.Unbind();BattleWidget->BindBattle(nullptr);
     GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->OnReturned.RemoveAll(this);
     DismissModal();BattleWidget=nullptr;LastRevision=INDEX_NONE;
 }
@@ -318,4 +320,16 @@ void AMemoriaSliceController::EndPlay(const EEndPlayReason::Type Reason)
     if (NarrativeWidget) NarrativeWidget->OnConfirm.Unbind();
     if (StatusWidget) StatusWidget->RemoveFromParent(); StatusWidget = nullptr;
     NarrativeWidget = nullptr; Super::EndPlay(Reason);
+}
+
+void AMemoriaSliceController::RequestBattleAction(const FString& Action,const FString& Id,uint64 Revision)
+{
+    if(bAwaitConfirmRelease)return;
+    auto* Battle=GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
+    bool Accepted=false;
+    if(Action==TEXT("continue"))Accepted=Battle->DismissVictory(Revision);
+    else if(Action==TEXT("recover"))Accepted=Battle->RecoverToVerdan(Revision);
+    else if(Action==TEXT("checkpoint"))Accepted=Battle->RetryCheckpoint(Revision);
+    else Accepted=Battle->Submit(Action,Id,Revision);
+    if(Accepted)bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
 }

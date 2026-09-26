@@ -47,6 +47,7 @@ private:
     bool bEncounterInitialized = false;
     double EncounterPressure = 0.;
     void RequestBattleFlee(uint64 Revision);
+    void RequestBattleAction(const FString& Action,const FString& Id,uint64 Revision);
     void BattleReturned();
     void ClearBattleWidget();
     UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryWidget> BattleWidget;

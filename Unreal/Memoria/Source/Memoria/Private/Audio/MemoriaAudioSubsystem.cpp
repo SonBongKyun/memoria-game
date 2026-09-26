@@ -31,6 +31,7 @@ void UMemoriaAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 }
 void UMemoriaAudioSubsystem::Deinitialize()
 {
+    SetLowHealth(false);
     bReady = false;
     if (auto* GI = GetGameInstance())
     {
@@ -54,6 +55,7 @@ bool UMemoriaAudioSubsystem::IsAmbientPlaying() const
 void UMemoriaAudioSubsystem::OnRunReplaced()
 {
     // A save restore can retain the same RunId; observe the replacement event itself.
+    SetLowHealth(false);
     DramaStage = 0; DramaStarted = 0; LastPlayed.Reset();
     bBattleActive = bBattleReturning = false;
     if (IsValid(MusicComponent)) MusicComponent->AdjustVolume(.08f, LoopLevel(true));
@@ -116,7 +118,8 @@ void UMemoriaAudioSubsystem::SyncContext()
     const bool bActive = Battle && Battle->IsActive(), bReturning = Battle && Battle->IsReturning();
     // battle_intro is defined but never played by the source; entering a fight uses it as an addition.
     if (bActive && !bBattleActive) PlaySfx(TEXT("battle_intro"));
-    if (bReturning && !bBattleReturning) PlaySfx(TEXT("flee"));
+    if (bReturning && !bBattleReturning && Battle->GetView().BattleState==TEXT("FLED")) PlaySfx(TEXT("flee"));
+    if (!bActive || bReturning) SetLowHealth(false);
     bBattleActive = bActive; bBattleReturning = bReturning;
     SetLoop(bActive ? FName(TEXT("battle")) : bVerdan ? FName(TEXT("ch2_verdan")) : FName(), MusicComponent, FadingMusic, Music, MemoriaAudio::CrossfadeSeconds, MemoriaAudio::CrossfadeSeconds);
     SetLoop(bVerdan && !bActive ? FName(TEXT("wind_light")) : FName(), AmbientComponent, FadingAmbient, Ambient, 1.5f, 1.f);
@@ -175,3 +178,16 @@ UWorld* UMemoriaAudioSubsystem::GetTickableGameObjectWorld() const
     const auto* GI = GetGameInstance();
     return GI ? GI->GetWorld() : nullptr;
 }
+
+void UMemoriaAudioSubsystem::SetLowHealth(bool bEnabled)
+{
+    if(!bEnabled){if(IsValid(HeartbeatComponent)){HeartbeatComponent->Stop();HeartbeatComponent->DestroyComponent();}HeartbeatComponent=nullptr;return;}
+    if(IsHeartbeatPlaying())return;
+    if(IsValid(HeartbeatComponent)){HeartbeatComponent->DestroyComponent();HeartbeatComponent=nullptr;}
+    const auto* Def=MemoriaAudio::FindTrack(TEXT("heartbeat"));UWorld* World=GetTickableGameObjectWorld();
+    USoundBase* Sound=Def&&World?LoadSound(MemoriaAudio::TrackPackage(TEXT("heartbeat"))):nullptr;
+    if(!Sound)return;
+    HeartbeatComponent=UGameplayStatics::CreateSound2D(World,Sound,MemoriaAudio::DbToLinear(Def->VolumeDb),1.f,0.f,nullptr,false,false);
+    if(HeartbeatComponent)HeartbeatComponent->FadeIn(.15f);
+}
+bool UMemoriaAudioSubsystem::IsHeartbeatPlaying() const{return IsValid(HeartbeatComponent)&&HeartbeatComponent->IsPlaying();}

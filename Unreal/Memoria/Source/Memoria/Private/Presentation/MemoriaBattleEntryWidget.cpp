@@ -9,6 +9,8 @@
 #include "Components/ScaleBox.h"
 #include "Components/ProgressBar.h"
 #include "Components/ScrollBox.h"
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/CoreStyle.h"
 #include "Rendering/DrawElementTypes.h"
@@ -53,7 +55,7 @@ bool BattleOwnedKey(const FKey& Key)
 UTexture2D* BattleTexture(const UImage* Image)
 {return Image?Cast<UTexture2D>(Image->GetBrush().GetResourceObject()):nullptr;}
 }
-void UMemoriaBattleEntryButton::Activate(){if(Owner)Owner->ConfirmIntent();}
+void UMemoriaBattleEntryButton::Activate(){if(Owner)Owner->ClickAction(Index,bChoice);}
 TSharedRef<SWidget> UMemoriaBattleEntryWidget::RebuildWidget()
 {
     if(!WidgetTree->RootWidget)
@@ -89,18 +91,25 @@ TSharedRef<SWidget> UMemoriaBattleEntryWidget::RebuildWidget()
         EnemyHealth=BattleText(WidgetTree,TEXT(""),13,BattleMuted);BattlePlace(Canvas,EnemyHealth,.702f,.76f,.938f,.788f);
         EnemyBar=BattleHealthBar(WidgetTree,FLinearColor(.48f,.23f,.19f));BattlePlace(Canvas,EnemyBar,.702f,.794f,.938f,.803f);
 
-        BattlePlace(Canvas,BattlePanel(WidgetTree,FLinearColor(.010f,.022f,.032f,.94f)),.055f,.782f,.655f,.927f);
-        LogScroll=WidgetTree->ConstructWidget<UScrollBox>();LogScroll->SetScrollbarThickness(FVector2D(3,3));BattlePlace(Canvas,LogScroll,.071f,.798f,.638f,.914f);
+        BattlePlace(Canvas,BattlePanel(WidgetTree,FLinearColor(.010f,.022f,.032f,.94f)),.055f,.788f,.945f,.858f);
+        LogScroll=WidgetTree->ConstructWidget<UScrollBox>();LogScroll->SetScrollbarThickness(FVector2D(3,3));BattlePlace(Canvas,LogScroll,.071f,.798f,.925f,.852f);
         BattleLog=BattleText(WidgetTree,TEXT(""),13,BattlePaper);LogScroll->AddChild(BattleLog);
-        FleeButton=WidgetTree->ConstructWidget<UMemoriaBattleEntryButton>();FleeButton->Owner=this;FleeButton->OnClicked.AddDynamic(FleeButton,&UMemoriaBattleEntryButton::Activate);
-        FButtonStyle ButtonStyle;
-        ButtonStyle.SetNormal(FSlateRoundedBoxBrush(FLinearColor(.060f,.083f,.093f,.98f),2.f,BattleGold,1.f));
-        ButtonStyle.SetHovered(FSlateRoundedBoxBrush(FLinearColor(.10f,.13f,.14f),2.f,FLinearColor(.86f,.66f,.36f),1.5f));ButtonStyle.SetPressed(ButtonStyle.Hovered);
-        ButtonStyle.SetDisabled(FSlateRoundedBoxBrush(FLinearColor(.025f,.040f,.048f),2.f,FLinearColor(.22f,.25f,.25f),1.f));FleeButton->SetStyle(ButtonStyle);
-        FleeLabel=BattleText(WidgetTree,TEXT(""),20,BattlePaper);FleeLabel->SetJustification(ETextJustify::Center);FleeButton->SetContent(FleeLabel);
-        BattlePlace(Canvas,FleeButton,.704f,.849f,.945f,.927f);
-        auto* Keys=BattleText(WidgetTree,TEXT("ENTER / E / SPACE   |   PAD A"),10,BattleMuted);Keys->SetJustification(ETextJustify::Center);BattlePlace(Canvas,Keys,.705f,.937f,.945f,.963f);
-        BoundaryNote=BattleText(WidgetTree,TEXT(""),11,BattleMuted);BattlePlace(Canvas,BoundaryNote,.055f,.941f,.678f,.98f);
+        for(int32 I=0;I<5;++I)
+        {
+            auto* Button=WidgetTree->ConstructWidget<UMemoriaBattleEntryButton>();Button->Owner=this;Button->Index=I;
+            Button->OnClicked.AddDynamic(Button,&UMemoriaBattleEntryButton::Activate);
+            auto* Label=BattleText(WidgetTree,TEXT(""),16,BattlePaper);Label->SetJustification(ETextJustify::Center);Button->SetContent(Label);
+            BattlePlace(Canvas,Button,.055f+I*.18f,.874f,.225f+I*.18f,.938f);ActionButtons.Add(Button);ActionLabels.Add(Label);
+        }
+        FleeButton=ActionButtons[4];FleeLabel=ActionLabels[4];
+        BoundaryNote=BattleText(WidgetTree,TEXT(""),11,BattleMuted);BattlePlace(Canvas,BoundaryNote,.055f,.95f,.94f,.99f);
+        ChoicePanel=BattlePanel(WidgetTree,FLinearColor(.015f,.025f,.035f,.99f),1.f);ChoicePanel->SetPadding(FMargin(16));BattlePlace(Canvas,ChoicePanel,.27f,.21f,.73f,.77f);
+        auto* ChoiceScroll=WidgetTree->ConstructWidget<UScrollBox>();ChoicePanel->SetContent(ChoiceScroll);
+        ChoiceList=WidgetTree->ConstructWidget<UVerticalBox>();ChoiceScroll->AddChild(ChoiceList);
+        Gauges=BattleText(WidgetTree,TEXT(""),12,BattleGold);BattlePlace(Canvas,Gauges,.055f,.745f,.66f,.78f);
+        BurnCost=BattleText(WidgetTree,TEXT(""),14,BattleGold);BurnCost->SetJustification(ETextJustify::Center);BattlePlace(Canvas,BurnCost,.26f,.58f,.74f,.65f);
+        ImpactText=BattleText(WidgetTree,TEXT(""),36,BattlePaper);ImpactText->SetJustification(ETextJustify::Center);BattlePlace(Canvas,ImpactText,.32f,.45f,.68f,.57f);
+
     }
     Draw();return Super::RebuildWidget();
 }
@@ -117,22 +126,80 @@ void UMemoriaBattleEntryWidget::Display(const FMemoriaBattleEntryView& InView)
 {
     if(View.Revision!=InView.Revision)bFleeRequested=false;
     if(!View.bReturning && InView.bReturning)ReturnAge=0;
+    if(InView.ImpactSerial!=View.ImpactSerial && !InView.Hits.IsEmpty())
+    {
+        ImpactAge=0;ImpactDamage=0;bHitPlayer=false;
+        for(const auto& Hit:InView.Hits)if(FMath::Abs(Hit.Amount)>=FMath::Abs(ImpactDamage)){ImpactDamage=Hit.Amount;bHitPlayer=Hit.Target==TEXT("Arrel");}
+    }
+    if(InView.bVictory||InView.bDefeat){PanelMode=0;if(!View.bVictory&&!View.bDefeat)Selected=0;}
     View=InView;Draw();
+}
+void UMemoriaBattleEntryWidget::ClickAction(int32 Index,bool bChoice)
+{
+    if(bChoice){ChoiceSelected=Index;ConfirmIntent();return;}
+    Selected=Index;PanelMode=0;ConfirmIntent();
+}
+void UMemoriaBattleEntryWidget::Navigate(const FKey& Key)
+{
+    if(View.bResolving||View.bReturning)return;
+    if(Key==EKeys::Escape||Key==EKeys::Gamepad_FaceButton_Right){PanelMode=0;Draw();return;}
+    const int32 Delta=(Key==EKeys::Left||Key==EKeys::Up||Key==EKeys::A||Key==EKeys::W)?-1:(Key==EKeys::Right||Key==EKeys::Down||Key==EKeys::D||Key==EKeys::S)?1:0;
+    if(!Delta)return;
+    if(PanelMode){const int32 Count=PanelMode==1?View.Memories.Num():View.Items.Num();if(Count)ChoiceSelected=(ChoiceSelected+Delta+Count)%Count;}
+    else{const int32 Count=View.bVictory?1:View.bDefeat?2:5;Selected=(Selected+Delta+Count)%Count;}
+    Draw();
 }
 void UMemoriaBattleEntryWidget::ConfirmIntent()
 {
-    if(!Battle || bFleeRequested || !View.bCanFlee || !OnFlee.IsBound())return;
-    const auto Current=Battle->GetView();
-    if(!Current.bActive || Current.bReturning || !Current.bCanFlee || Current.Revision!=View.Revision)return;
-    const uint64 SubmittedRevision=View.Revision;bFleeRequested=true;Draw();OnFlee.Execute(SubmittedRevision);
-    // A controller may reject a press inherited from the previous owner. Allow a fresh gesture.
-    if(Battle && Battle->GetRevision()==SubmittedRevision && Battle->GetView().bCanFlee){bFleeRequested=false;Draw();}
+    if(!Battle||View.bResolving||View.bReturning||!View.bActive||Battle->GetRevision()!=View.Revision)return;
+    if(View.bVictory){OnAction.ExecuteIfBound(TEXT("continue"),TEXT(""),View.Revision);return;}
+    if(View.bDefeat){OnAction.ExecuteIfBound(Selected==0?TEXT("checkpoint"):TEXT("recover"),TEXT(""),View.Revision);return;}
+    if(PanelMode)
+    {
+        const auto& Choices=PanelMode==1?View.Memories:View.Items;
+        if(!Choices.IsValidIndex(ChoiceSelected)||!Choices[ChoiceSelected].bAvailable)return;
+        const FString Action=PanelMode==1?TEXT("burn"):TEXT("item"),Id=Choices[ChoiceSelected].Id;
+        PanelMode=0;OnAction.ExecuteIfBound(Action,Id,View.Revision);Draw();return;
+    }
+    if(Selected==1||Selected==3){PanelMode=Selected==1?1:2;ChoiceSelected=0;Draw();return;}
+    if(Selected==4){OnFlee.ExecuteIfBound(View.Revision);return;}
+    OnAction.ExecuteIfBound(Selected==0?TEXT("attack"):TEXT("defend"),TEXT(""),View.Revision);
+}
+void UMemoriaBattleEntryWidget::DrawActions()
+{
+    const TArray<FString> Labels=View.bKo?TArray<FString>{TEXT("공격"),TEXT("기억 연소"),TEXT("방어"),TEXT("아이템"),TEXT("도주")}:TArray<FString>{TEXT("ATTACK"),TEXT("BURN"),TEXT("GUARD"),TEXT("ITEM"),TEXT("FLEE")};
+    for(int32 I=0;I<ActionButtons.Num();++I)
+    {
+        const bool Visible=View.bVictory?I==0:View.bDefeat?I<2:true;
+        ActionButtons[I]->SetVisibility(Visible?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+        ActionLabels[I]->SetText(FText::FromString(View.bVictory?(View.bKo?TEXT("베르단으로"):TEXT("CONTINUE")):View.bDefeat?(I==0?(View.bKo?TEXT("체크포인트"):TEXT("CHECKPOINT")):(View.bKo?TEXT("베르단으로"):TEXT("VERDAN"))):Labels[I]));
+        ActionButtons[I]->SetIsEnabled(View.bActive&&!View.bResolving&&!View.bReturning);
+        ActionButtons[I]->SetBackgroundColor(I==Selected?FLinearColor(.42f,.28f,.13f):FLinearColor(.08f,.12f,.15f));
+    }
+    BoundaryNote->SetText(FText::FromString(View.bKo?TEXT("방향키  선택  ·  Enter / E  확인  ·  Esc  목록 닫기"):TEXT("ARROWS  select  ·  ENTER / E  confirm  ·  ESC  close list")));
+    ChoicePanel->SetVisibility(PanelMode?ESlateVisibility::Visible:ESlateVisibility::Collapsed);ChoiceList->ClearChildren();
+    if(PanelMode)
+    {
+        const auto& Choices=PanelMode==1?View.Memories:View.Items;
+        for(int32 I=0;I<Choices.Num();++I)
+        {
+            const auto& C=Choices[I];auto* B=WidgetTree->ConstructWidget<UMemoriaBattleEntryButton>();B->Owner=this;B->Index=I;B->bChoice=true;B->SetIsEnabled(C.bAvailable);
+            B->OnClicked.AddDynamic(B,&UMemoriaBattleEntryButton::Activate);B->SetBackgroundColor(I==ChoiceSelected?FLinearColor(.38f,.24f,.11f):FLinearColor(.035f,.05f,.065f));
+            const FString Label=(PanelMode==1?FString::Printf(TEXT("G%d  "),5-C.Grade):FString())+C.Label+(C.bAvailable?TEXT(""):(View.bKo?TEXT("  · 사용 불가"):TEXT("  · unavailable")));
+            auto* T=BattleText(WidgetTree,Label,15,C.bAvailable?(PanelMode==1?C.Accent:BattlePaper):BattleMuted);B->SetContent(T);auto* ChoiceSlot=ChoiceList->AddChildToVerticalBox(B);ChoiceSlot->SetPadding(FMargin(0,4));
+        }
+    }
+    FString Status;
+    for(const auto& S:View.PlayerStatuses)Status+=FString::Printf(TEXT("  %s %d"),S.Effect==0?(View.bKo?TEXT("독"):TEXT("POISON")):S.Effect==1?(View.bKo?TEXT("약화"):TEXT("WEAK")):(View.bKo?TEXT("화상"):TEXT("BURN")),S.Turns);
+    Gauges->SetText(FText::FromString(FString::Printf(TEXT("BREAK %.0f   /   %s %.0f   /   LIMIT %.0f   /   COMBO %d%s"),View.BreakGauge,View.bKo?TEXT("기세"):TEXT("MOMENTUM"),View.Momentum,View.LimitGauge,View.Combo,*Status)));
+    if(View.bVictory)BattleLog->SetText(FText::FromString(FString::Printf(TEXT("%s   +%lld %s   ·   HP +%lld   %s"),View.bKo?TEXT("승리"):TEXT("VICTORY"),View.Reward.Grains,View.bKo?TEXT("그레인"):TEXT("Grains"),View.Reward.Heal,*View.Reward.Item)));
+    if(View.bDefeat)BattleLog->SetText(FText::FromString(View.bKo?TEXT("아렐이 쓰러졌다. 체크포인트를 불러오거나, 잃은 기억을 안고 베르단으로 돌아간다."):TEXT("Arrel falls. Load a checkpoint, or return to Verdan carrying the cost of the memories burned.")));
 }
 void UMemoriaBattleEntryWidget::Draw()
 {
     if(!Heading)return;
     Heading->SetText(FText::FromString(View.EnvironmentName));
-    Turn->SetText(FText::FromString(View.bReturning?View.BattleState:(View.bKo?TEXT("\ub2f9\uc2e0\uc758 \ud134"):TEXT("YOUR TURN"))));
+    Turn->SetText(FText::FromString(View.bReturning?(View.bKo?TEXT("돌아가는 중"):TEXT("RETURNING")):View.bVictory?(View.bKo?TEXT("승리"):TEXT("VICTORY")):View.bDefeat?(View.bKo?TEXT("쓰러졌습니다"):TEXT("DEFEAT")):View.bResolving?(View.bKo?TEXT("행동 진행 중"):TEXT("ACTION IN PROGRESS")):(View.bKo?TEXT("당신의 턴"):TEXT("YOUR TURN"))));
     PlayerName->SetText(FText::FromString(View.bKo?TEXT("\uc544\ub810"):TEXT("ARREL")));
     PlayerHealth->SetText(FText::FromString(FString::Printf(TEXT("HP  %lld / %lld"),View.PlayerHp,View.PlayerMaxHp)));
     PlayerBar->SetPercent(View.PlayerMaxHp>0?FMath::Clamp(float(View.PlayerHp)/View.PlayerMaxHp,0.f,1.f):0.f);
@@ -143,12 +210,11 @@ void UMemoriaBattleEntryWidget::Draw()
     EnemyBar->SetPercent(View.EnemyMaxHp>0?FMath::Clamp(float(View.EnemyHp)/View.EnemyMaxHp,0.f,1.f):0.f);
     ObjectiveTitle->SetText(FText::FromString(View.ObjectiveTitle));
     ObjectiveBody->SetText(FText::FromString(View.ObjectiveDescription+(View.ObjectiveProgress.IsEmpty()?FString():TEXT("\n")+View.ObjectiveProgress)));
+    if(!View.bObjectiveSupported)ObjectiveBody->SetText(FText::FromString(View.bKo?TEXT("이번 단계 미지원 · 보상 없음"):TEXT("Unavailable in this chapter slice · no reward")));
+    else if(View.bObjectiveComplete||View.bObjectiveFailed)ObjectiveBody->SetText(FText::FromString(View.bObjectiveComplete?(View.bKo?TEXT("목표 달성"):TEXT("COMPLETE")):(View.bKo?TEXT("목표 실패"):TEXT("FAILED"))));
     Modifier->SetText(FText::FromString(View.ModifierName+(View.ModifierDescription.IsEmpty()?FString():TEXT("\n")+View.ModifierDescription)));
     BattleLog->SetText(FText::FromString(FString::Join(View.Logs,TEXT("\n"))));
-    // Small truthful scope text, not new dialogue or a new story fact.
-    BoundaryNote->SetText(FText::FromString(View.bKo?TEXT("\uac1c\ubc1c \uad6c\uac04: \uc804\ud22c \uc9c4\uc785\u00b7\ub3c4\uc8fc\ub9cc \uc9c0\uc6d0. \uacf5\uaca9\u00b7\uc5f0\uc18c \ubbf8\uad6c\ud604."):TEXT("Development slice: entry and withdrawal only. Attack / burn unavailable.")));
-    FleeLabel->SetText(FText::FromString(View.bKo?TEXT("\ub3c4\uc8fc"):TEXT("FLEE")));
-    FleeButton->SetIsEnabled(View.bActive && View.bCanFlee && !View.bReturning && !bFleeRequested);
+    DrawActions();
     FString EnemySource=View.EnemyImageSource;
     if(EnemySource.IsEmpty() && View.EnemyIndex==1)
     {
@@ -175,7 +241,7 @@ FReply UMemoriaBattleEntryWidget::NativeOnPreviewKeyDown(const FGeometry& Geomet
     if(BattleOwnedKey(Key))
     {
         OnConsumedKey.ExecuteIfBound(Key,Event.IsRepeat()?IE_Repeat:IE_Pressed);
-        if(!Event.IsRepeat() && BattleConfirmKey(Key))ConfirmIntent();
+        if(!Event.IsRepeat()){if(BattleConfirmKey(Key))ConfirmIntent();else Navigate(Key);}
         return FReply::Handled();
     }
     return Super::NativeOnPreviewKeyDown(Geometry,Event);
@@ -193,7 +259,19 @@ void UMemoriaBattleEntryWidget::NativeTick(const FGeometry& Geometry,float Delta
     // Visual timing never advances combat or schedules field return.
     const float Entry=FMath::Clamp(Age/.22f,0.f,1.f);
     const float Exit=View.bReturning?1.f-.65f*FMath::Clamp(ReturnAge/.4f,0.f,1.f):1.f;
-    SetRenderOpacity(Entry*Exit);
+    SetRenderOpacity(Entry*Exit);ImpactAge+=DeltaTime;
+    const float Stop=ImpactDamage>=200?.12f:ImpactDamage>=80?.08f:ImpactDamage>=30?.05f:0.f;
+    const float T=FMath::Max(0.f,ImpactAge-Stop);const float Force=FMath::Clamp(float(FMath::Abs(ImpactDamage))/60.f,.5f,3.f);
+    const float Shake=T<.23f?FMath::Sin(T*110.f)*Force*(1-T/.23f):0.f;
+    SetRenderTranslation(FVector2D(Shake,Shake*.45f));
+    const float Punch=ImpactDamage>=200&&T<.2f?1.f+.035f*(1.f-T/.2f):1.f;SetRenderScale(FVector2D(Punch));
+    if(BurnCost)BurnCost->SetText(FText::FromString(View.bResolving&&View.Telegraph==TEXT("burn")?(View.bKo?TEXT("힘은 오르지만, 대가는 전투 뒤에도 남습니다"):TEXT("Power rises. The cost remains after battle.")):FString()));
+    UImage* Target=bHitPlayer?PlayerArt.Get():EnemyArt.Get();
+    if(PlayerArt)PlayerArt->SetRenderScale(FVector2D(1,1));if(EnemyArt)EnemyArt->SetRenderScale(FVector2D(1,1));
+    if(Target && T<.18f && ImpactDamage>0)Target->SetRenderScale(T<.04f?FVector2D(1.15,.85):T<.10f?FVector2D(.95,1.05):FVector2D(1,1));
+    if(ImpactText){ImpactText->SetText(FText::FromString(ImpactAge<1.f&&ImpactDamage!=0?FString::Printf(TEXT("%s%lld"),ImpactDamage<0?TEXT("+"):TEXT(""),FMath::Abs(ImpactDamage)):FString()));ImpactText->SetRenderTranslation(FVector2D(bHitPlayer?-260:260,-T*70));ImpactText->SetRenderOpacity(FMath::Clamp(1.f-T,0.f,1.f));}
+    if(View.bResolving && View.Telegraph==TEXT("burn") && ImpactText){ImpactText->SetText(FText::FromString(View.bKo?TEXT("기억 연소"):TEXT("MEMORY BURN")));ImpactText->SetRenderTranslation(FVector2D::ZeroVector);ImpactText->SetRenderOpacity(1);}
+
 }
 int32 UMemoriaBattleEntryWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements,int32 LayerId,const FWidgetStyle& Style,bool bParentEnabled) const
@@ -208,7 +286,8 @@ int32 UMemoriaBattleEntryWidget::NativePaint(const FPaintArgs& Args,const FGeome
         FSlateDrawElement::MakeBox(Elements,LastLayer+1,Geometry.ToPaintGeometry(FVector2f(1.5f,3.f),FSlateLayoutTransform(Position)),Brush,
             ESlateDrawEffect::None,FLinearColor(.76f,.45f,.18f,Alpha));
     }
-    return LastLayer+1;
+    if(ImpactDamage>=80 && ImpactAge<.12f)FSlateDrawElement::MakeBox(Elements,LastLayer+2,Geometry.ToPaintGeometry(),Brush,ESlateDrawEffect::None,FLinearColor(1.f,.78f,.45f,.20f*(1-ImpactAge/.12f)));
+    return LastLayer+2;
 }
 FString UMemoriaBattleEntryWidget::VisibleText() const
 {
