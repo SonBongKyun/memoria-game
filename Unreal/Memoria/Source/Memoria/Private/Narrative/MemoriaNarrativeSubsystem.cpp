@@ -16,6 +16,8 @@
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
+#include "Misc/Paths.h"
+#include "UObject/StrongObjectPtr.h"
 
 void UMemoriaNarrativeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -49,6 +51,8 @@ void UMemoriaNarrativeSubsystem::Reset()
     VN.Reset(); Field.Reset(); Context.Reset(); State = EMemoriaSliceState::Idle;
     ActiveFieldAsset = nullptr; DeferredInteraction.Reset(); MaletReactionCount = 0;
     ArmedStoryBeats.Reset(); StoryWorld.Reset(); StoryAsset = nullptr; bEliaTalkCached = false; EliaTalkAsset = nullptr; bTraderArmed = bLedgerArmed = false; Notices.Reset(); NoticeTime = -1000; bNoticeHeld = false;
+    bNewGameRoute = false; SceneCg.Reset(); ShownScene.Reset(); ShownCue.Reset(); SceneMusic = NAME_None;
+    LedgerTitle.Reset(); LedgerLines.Reset(); bLedgerThreadHolds = false; AutosaveCount = 0;
     bPaused = false; EventCursor = 0; FieldInvocationCount = 0; Trace.Reset(); ++Revision;
 }
 void UMemoriaNarrativeSubsystem::Deinitialize()
@@ -56,7 +60,7 @@ void UMemoriaNarrativeSubsystem::Deinitialize()
     if(auto* Shop=GetGameInstance()->GetSubsystem<UMemoriaShopSubsystem>())Shop->OnChanged.RemoveAll(this);
     FWorldDelegates::OnWorldCleanup.RemoveAll(this);
     if (Run) Run->OnRunReplaced.RemoveAll(this);
-    Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; EncounterAsset = nullptr; RefusedAsset = nullptr; DealAsset = nullptr; RewardAsset = nullptr; Run = nullptr;
+    Reset(); RouteAssets.Reset(); VNAsset = nullptr; FieldAsset = nullptr; MaletAsset = nullptr; EncounterAsset = nullptr; RefusedAsset = nullptr; DealAsset = nullptr; RewardAsset = nullptr; Run = nullptr;
     Super::Deinitialize();
 }
 bool UMemoriaNarrativeSubsystem::LoadContracts()
@@ -90,6 +94,105 @@ bool UMemoriaNarrativeSubsystem::StartDevelopmentVN()
     VN = MakeUnique<FMemoriaVNInterpreter>(VNAsset->Definition, *Context);
     State = EMemoriaSliceState::VN; Record(TEXT("vn:start:ch2_market_arrival"));
     VN->Play(); AfterVN(); return true;
+}
+const UMemoriaVNAsset* UMemoriaNarrativeSubsystem::ResolveVN(const FString& Id)
+{
+    for (const auto& Asset : RouteAssets) if (Asset && Asset->Definition.Id.Equals(Id, ESearchCase::CaseSensitive)) return Asset;
+    // Imported VN packages are named from the scene id: ch1_cold_open -> DA_VN_Ch1ColdOpen.
+    TArray<FString> Parts; Id.ParseIntoArray(Parts, TEXT("_")); FString Name;
+    for (const auto& Part : Parts) Name += Part.Left(1).ToUpper() + Part.Mid(1);
+    auto* Asset = Name.IsEmpty() ? nullptr : LoadObject<UMemoriaVNAsset>(nullptr, *FString::Printf(TEXT("/Game/Memoria/Generated/Narrative/DA_VN_%s.DA_VN_%s"), *Name, *Name));
+    if (!Asset || !Asset->Definition.Id.Equals(Id, ESearchCase::CaseSensitive)) return nullptr;
+    RouteAssets.Add(Asset); return Asset;
+}
+FMemoriaVNInterpreter::FResolver UMemoriaNarrativeSubsystem::Resolver()
+{
+    return [this](const FString& Id) -> const FMemoriaVNDefinition* { const auto* Asset = ResolveVN(Id); return Asset ? &Asset->Definition : nullptr; };
+}
+bool UMemoriaNarrativeSubsystem::StartNewGame(const FString& Locale)
+{
+    const auto* Cold = ResolveVN(TEXT("ch1_cold_open"));
+    const FString KeptLocale = Locale.IsEmpty() ? Run->State.CurrentLocale : Locale;
+    if (!Cold || !LoadContracts() || Run->BeginStartingMemoryRun(1) != EMemoriaMemoryResult::Success) return false;
+    Run->State.CurrentLocale = KeptLocale.IsEmpty() ? TEXT("en") : KeptLocale;
+    // main.gd _on_new_game_pressed player_data; flags start empty and memories are the starting set.
+    auto& Player = Run->State.Player; Player = FMemoriaPlayerState();
+    Player.Hp = Player.MaxHp = 100; Player.Grains = 0; Player.FieldFocus = Player.DirectiveStreak = 0; Player.bEliaWithParty = true;
+    FMemoriaItemCount Ink; Ink.Id = TEXT("witness_ink"); Ink.Count = 1; Player.Items = {Ink};
+    Player.QuickSlots = {TEXT("witness_ink"), TEXT("potion"), TEXT("antidote")};
+    Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
+    VN = MakeUnique<FMemoriaVNInterpreter>(Cold->Definition, *Context, Resolver(), true);
+    bNewGameRoute = true; State = EMemoriaSliceState::VN; Record(TEXT("vn:start:ch1_cold_open"));
+    VN->Play(); AfterVN(); return true;
+}
+void UMemoriaNarrativeSubsystem::ShowChapterLedger(const FString& Event)
+{
+    // Event is ledger:<chapter>:<ids burned since set_chapter>; lines follow _show_chapter_ledger.
+    TArray<FString> Parts; Event.ParseIntoArray(Parts, TEXT(":"), false);
+    if (Parts.Num() < 2) return;
+    const bool Ko = Run->State.CurrentLocale == TEXT("ko");
+    TArray<FString> Burned; if (Parts.Num() > 2) Parts[2].ParseIntoArray(Burned, TEXT(","), true);
+    auto* Memory = Run->GetPlayerMemory(); const auto Snapshot = Memory->GetSnapshot();
+    int32 Held = 0; for (const auto& M : Snapshot.Owned) if (!M.bBurned && !M.bFaded) ++Held;
+    int32 Anchors = 0; for (const TCHAR* Id : {TEXT("identity_first_sword"), TEXT("rel_hand_reaching"), TEXT("daily_elia_hands"), TEXT("rel_sable_trust")}) if (Memory->IsIntact(Id)) ++Anchors;
+    const bool Name = Memory->IsIntact(TEXT("core_name_origin"));
+    LedgerTitle = Ko ? FString::Printf(TEXT("장부, 제%s장"), *Parts[1]) : FString::Printf(TEXT("THE LEDGER, CHAPTER %s"), *Parts[1]);
+    LedgerLines.Reset();
+    if (Burned.IsEmpty()) LedgerLines.Add(Ko ? TEXT("이번 장에서 태운 기억: 없음") : TEXT("Burned this chapter: nothing"));
+    else
+    {
+        // Unreal has no Korean memory titles yet; the source title is shown in both locales.
+        TArray<FString> Names;
+        for (const auto& Id : Burned)
+        {
+            const auto* D = Memory->GetDefinitions().FindByPredicate([&](const auto& V){ return V.Id.Equals(Id, ESearchCase::CaseSensitive); });
+            Names.Add(D ? D->Title : Id);
+        }
+        FString Joined = FString::Join(TArray<FString>(Names.GetData(), FMath::Min(3, Names.Num())), TEXT(", "));
+        if (Names.Num() > 3) Joined += Ko ? FString::Printf(TEXT(" 외 %d"), Names.Num() - 3) : FString::Printf(TEXT(" +%d more"), Names.Num() - 3);
+        LedgerLines.Add(Ko ? FString::Printf(TEXT("이번 장에서 태운 기억 %d, %s"), Burned.Num(), *Joined) : FString::Printf(TEXT("Burned this chapter: %d, %s"), Burned.Num(), *Joined));
+    }
+    LedgerLines.Add(Ko ? FString::Printf(TEXT("아직 온전한 기억: %d"), Held) : FString::Printf(TEXT("Still held intact: %d"), Held));
+    LedgerLines.Add(Ko ? FString::Printf(TEXT("닻: %d/4 · 이름: %s"), Anchors, Name ? TEXT("온전") : TEXT("소실")) : FString::Printf(TEXT("Anchors: %d/4 · The name: %s"), Anchors, Name ? TEXT("intact") : TEXT("gone")));
+    // weave_unlocked: the name intact, fewer than WEAVE_MAX_BURNS (4) burns, 3+ anchors.
+    bLedgerThreadHolds = Name && Snapshot.BurnedHistory.Num() < 4 && Anchors >= 3;
+    LedgerLines.Add(bLedgerThreadHolds ? (Ko ? TEXT("실은 아직 이어져 있다.") : TEXT("The thread still holds.")) : (Ko ? TEXT("실이 닳아 가고 있다.") : TEXT("The thread is fraying.")));
+    ++LedgerSerial; Record(FString::Printf(TEXT("ledger:shown:%s:burned=%d:held=%d:anchors=%d"), *Parts[1], Burned.Num(), Held, Anchors));
+}
+void UMemoriaNarrativeSubsystem::Autosave()
+{
+    // The autosave step also jumps to the next scene, so the save resumes at that scene's start.
+    auto* Save = CaptureSave();
+    const bool Saved = Save && GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->SaveChapterTransition(*Save);
+    if (Saved) ++AutosaveCount;
+    Record(Saved ? TEXT("autosave:saved") : TEXT("autosave:skipped"));
+}
+void UMemoriaNarrativeSubsystem::PresentVNStep()
+{
+    if (!VN || !VN->ExportContinuation().bActive) return;
+    const auto& Definition = VN->GetDefinition(); const int32 Index = VN->ExportContinuation().Current.OriginalIndex;
+    if (!Definition.Id.Equals(ShownScene, ESearchCase::CaseSensitive))
+    {
+        // SceneFlow.play: a scene that declares bgm switches the music; others keep it.
+        ShownScene = Definition.Id;
+        if (Definition.Metadata.bHasBgm) SceneMusic = FName(*FPaths::GetBaseFilename(Definition.Metadata.Bgm));
+    }
+    const FString Cue = Definition.Id + TEXT(":") + FString::FromInt(Index);
+    if (Cue == ShownCue || !Definition.Steps.IsValidIndex(Index)) return;
+    ShownCue = Cue;
+    const auto& Step = Definition.Steps[Index]; const auto Display = Context->VNDisplay(Step);
+    // vn_scene.gd _change_cg keeps the current CG until a step names another one.
+    if (!Display.Cg.IsEmpty()) SceneCg = MemoriaNarrativeArtwork::CgSource(Display.Cg);
+    if (Step.Presentation.bHasSfx && !Step.Presentation.Sfx.IsEmpty())
+        if (auto* Audio = GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()) Audio->PlaySfx(FName(*Step.Presentation.Sfx));
+}
+bool UMemoriaNarrativeSubsystem::ResumeChapterAutosave()
+{
+    auto* Save = GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->LoadChapterTransition();
+    TStrongObjectPtr<UMemoriaRunSaveGame> Retained(Save);
+    if (!Save || !PrepareRestore(*Save)) { Record(TEXT("autosave:resume_failed")); return false; }
+    Record(TEXT("autosave:resumed"));
+    return ResumePrepared();
 }
 bool UMemoriaNarrativeSubsystem::StartUnseenFieldFixture()
 {
@@ -385,7 +488,15 @@ void UMemoriaNarrativeSubsystem::Explore()
 }
 void UMemoriaNarrativeSubsystem::AfterVN()
 {
+    const int32 From = EventCursor;
     FlushEvents(TEXT("vn"));
+    for (int32 I = From; I < Context->Events.Num(); ++I)
+    {
+        const FString Event = Context->Events[I];
+        if (Event.StartsWith(TEXT("ledger:"))) ShowChapterLedger(Event);
+        else if (Event.StartsWith(TEXT("autosave:"))) Autosave();
+    }
+    PresentVNStep();
     if (!Context->RequestedMap.IsEmpty())
     {
         if (Context->RequestedMap.Equals(TEXT("res://scenes/maps/verdan_market.tscn"), ESearchCase::CaseSensitive))
@@ -425,7 +536,7 @@ void UMemoriaNarrativeSubsystem::Confirm(int32 OriginalChoice)
     {
         const auto Choices = VN->VisibleOriginalIndices();
         const auto Cursor = VN->ExportContinuation().Current.OriginalIndex;
-        if (VNAsset->Definition.Steps.IsValidIndex(Cursor) && VNAsset->Definition.Steps[Cursor].bChoicesPresent)
+        if (VN->GetDefinition().Steps.IsValidIndex(Cursor) && VN->GetDefinition().Steps[Cursor].bChoicesPresent)
         {
             if (!Choices.Contains(OriginalChoice)) return;
             Record(TEXT("select:vn:") + FString::FromInt(OriginalChoice)); VN->SelectOriginalChoice(OriginalChoice);
@@ -479,20 +590,49 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     const FMemoriaNarrativeText* Text = nullptr;
     if (State == EMemoriaSliceState::VN && VN)
     {
+        const auto& Definition = VN->GetDefinition();
         int32 Index = VN->ExportContinuation().Current.OriginalIndex;
-        View.Header = FString::Printf(TEXT("CH2 ARRIVAL / VN   %d / %d"), Index + 1, VNAsset->Definition.Steps.Num());
-        if (VNAsset->Definition.Steps.IsValidIndex(Index))
+        const bool Ko = Context->Run.CurrentLocale == TEXT("ko");
+        const auto& Meta = Definition.Metadata;
+        const FString Title = Ko && Meta.bHasTitleKo ? Meta.TitleKo : Meta.Title;
+        View.Header = bNewGameRoute ? FString::Printf(TEXT("%s / VN   %d / %d"), *Title.ToUpper(), Index + 1, Definition.Steps.Num())
+            : FString::Printf(TEXT("CH2 ARRIVAL / VN   %d / %d"), Index + 1, Definition.Steps.Num());
+        if (Definition.Steps.IsValidIndex(Index))
         {
-            const auto& Step = VNAsset->Definition.Steps[Index]; Text = &Step.Text;
-            View.LocationTitle = TEXT("CHAPTER II  /  VERDAN");
-            // Imported arrival is a linear sequence. Reconstruct its last authored CG,
-            // including when resuming directly at a later cursor; no gameplay writes.
-            for (int32 I = 0; I <= Index; ++I)
-                if (VNAsset->Definition.Steps[I].Presentation.bHasCg) View.BackdropSource = VNAsset->Definition.Steps[I].Presentation.Cg;
-            View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Step.Presentation.Portrait);
+            const auto& Step = Definition.Steps[Index]; const auto Display = Context->VNDisplay(Step);
+            View.LocationTitle = bNewGameRoute ? (Ko ? Title : Title.ToUpper()).Replace(TEXT(", "), TEXT("  /  ")) : TEXT("CHAPTER II  /  VERDAN");
+            View.BackdropSource = SceneCg;
+            // A resumed cursor has no shown history: reconstruct the scene's last authored CG.
+            if (View.BackdropSource.IsEmpty())
+                for (int32 I = 0; I <= Index; ++I)
+                    if (Definition.Steps[I].Presentation.bHasCg) View.BackdropSource = MemoriaNarrativeArtwork::CgSource(Definition.Steps[I].Presentation.Cg);
+            View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Display.Portrait);
             View.PortraitSide = Step.Presentation.Side;
-            for (int32 I : VN->VisibleOriginalIndices()) View.Choices.Add({I, Context->Localized(Step.Choices[I].Text)});
+            View.Speaker = Display.Speaker; View.Narration = Display.Narrate; View.Body = Display.Text; View.bDistorted = Display.bDistorted;
+            const auto& T = Step.Text;
+            if (T.bHasSystemLog)
+            {
+                // _show_system_log: the System speaker in the dialogue box, instead of the line.
+                View.bSystemLog = true; View.Speaker = Ko ? TEXT("시스템") : TEXT("System"); View.Narration.Reset(); View.PortraitSource.Reset();
+                View.Body = Ko && T.bHasSystemLogKo ? T.SystemLogKo : T.SystemLog;
+            }
+            const auto& P = Step.Presentation;
+            View.CueKey = Definition.Id + TEXT(":") + FString::FromInt(Index);
+            View.Impact = P.bHasImpact ? P.Impact : FString(); View.CgMotion = P.bHasCgMotion ? P.CgMotion : TEXT("ambient");
+            View.bStepHasCg = !Display.Cg.IsEmpty(); View.CgFadeSeconds = P.bHasFadeMs ? P.FadeMs / 1000.f : .8f;
+            if (Step.bChoicesPresent)
+            {
+                View.ChoiceTitle = Ko && T.bHasChoiceTitleKo ? T.ChoiceTitleKo : T.bHasChoiceTitle ? T.ChoiceTitle : (Ko ? TEXT("결정") : TEXT("DECISION"));
+                View.ChoiceHint = Ko && T.bHasChoiceHintKo ? T.ChoiceHintKo : T.bHasChoiceHint ? T.ChoiceHint
+                    : (Ko ? TEXT("어떤 선택은 아렐이 지킬 것, 잃을 것, 살아남는 방식을 바꿉니다.") : TEXT("Some choices change what Arrel can keep, spend, or survive."));
+            }
+            for (int32 I : VN->VisibleOriginalIndices())
+            {
+                const auto& C = Step.Choices[I].Text;
+                View.Choices.Add({I, Context->Localized(C), Ko && C.bHasEffectKo ? C.EffectKo : C.bHasEffect ? C.Effect : FString()});
+            }
         }
+        View.LedgerSerial = LedgerSerial; View.LedgerTitle = LedgerTitle; View.LedgerLines = LedgerLines; View.bLedgerThreadHolds = bLedgerThreadHolds;
     }
     else if (State == EMemoriaSliceState::Field && Field)
     {
@@ -569,12 +709,19 @@ bool UMemoriaNarrativeSubsystem::PrepareRestore(const UMemoriaRunSaveGame& Save)
     // Validate the full bounded replacement before disturbing the active host.
     auto* Candidate = NewObject<UMemoriaPlayerMemoryDomain>(this);
     if (Candidate->Restore(Save.MemoryDefinitions, Save.PlayerMemory) != EMemoriaMemoryResult::Success) return false;
+    // The cursor names its scene: the Ch2 arrival checkpoint or a Chapter 1 route autosave.
+    const FString& Scene = Save.SceneFlow.bActive && !Save.SceneFlow.Current.SequenceId.IsEmpty() ? Save.SceneFlow.Current.SequenceId : Save.SceneFlow.Pending.SequenceId;
+    const auto* Asset = Scene.IsEmpty() ? VNAsset.Get() : ResolveVN(Scene);
+    if (!Asset) return false;
+    // A run that already crossed a chapter transition came through the Chapter 1 route.
+    const bool Route = !Asset->Definition.Id.Equals(VNAsset->Definition.Id, ESearchCase::CaseSensitive) || !Save.PlayerMemory.VigilChapters.IsEmpty();
     auto Snapshot = Save.Run; FMemoriaNarrativeContext CheckContext(Snapshot, *Candidate);
-    FMemoriaVNInterpreter Check(VNAsset->Definition, CheckContext);
+    FMemoriaVNInterpreter Check(Asset->Definition, CheckContext, Resolver(), Route);
     if (!Check.PrepareResume(Save.SceneFlow)) return false;
     if (!Run->RestoreSave(Save)) return false;
     Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
-    VN = MakeUnique<FMemoriaVNInterpreter>(VNAsset->Definition, *Context);
+    VN = MakeUnique<FMemoriaVNInterpreter>(Asset->Definition, *Context, Resolver(), Route);
+    bNewGameRoute = Route;
     VN->PrepareResume(Save.SceneFlow); State = EMemoriaSliceState::VN; ++Revision; return true;
 }
 bool UMemoriaNarrativeSubsystem::ResumePrepared()

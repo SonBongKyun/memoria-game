@@ -76,6 +76,9 @@ def sfx(kind, rng):
         d = 0.12; return render(d, lambda t: math.sin(t * lerp(400, 900, t / d) * TAU) * 0.15 * math.sin(t / d * math.pi) * 0.8)
     if kind == 'ui_close':
         d = 0.1; return render(d, lambda t: math.sin(t * lerp(800, 350, t / d) * TAU) * 0.12 * (1 - t / d))
+    if kind == 'void_pulse':
+        d = 0.5
+        return render(d, lambda t: (math.sin(t * 45 * TAU) * 0.3 + math.sin(t * 7 * TAU) * 0.1) * math.sin(t / d * math.pi))
     if kind == 'battle_intro':
         d = 0.6; return render(d, lambda t: (math.sin(t * 80 * TAU) * 0.2 + math.sin(t * 120 * TAU) * 0.15) * math.sin(t / d * math.pi) * 0.7)
     raise KeyError(kind)
@@ -169,7 +172,8 @@ def heartbeat(_rng):
 
 
 SIMPLE = ['confirm', 'cancel', 'burn', 'hit', 'heal', 'step_stone', 'shield', 'drain', 'phase_change', 'defeat',
-          'enemy_die', 'flee', 'memory_add', 'ui_hover', 'ui_select', 'ui_open', 'ui_close', 'battle_intro']
+          'enemy_die', 'flee', 'memory_add', 'ui_hover', 'ui_select', 'ui_open', 'ui_close', 'battle_intro',
+          'void_pulse']
 SPECIAL = {'rising_tone': (rising_tone, False), 'wind_light': (wind_light, True), 'heartbeat': (heartbeat, True)}
 
 

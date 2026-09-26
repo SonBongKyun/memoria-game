@@ -12,20 +12,30 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVisualCoverage::RunTest(const FString&)
 {
-    TestEqual(TEXT("Eighteen illustrations and thirteen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),31);
+    TestEqual(TEXT("Thirty-four illustrations and seventeen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),51);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);
-        if(TestNotNull(Entry.Source,Texture))TestTrue(TEXT("Decoded source dimensions"),Texture->GetSizeX()>200 && Texture->GetSizeY()>200);
+        if(TestNotNull(Entry.Source,Texture))TestTrue(*FString::Printf(TEXT("Decoded source dimensions %s %dx%d"),Entry.Source,Texture->GetSizeX(),Texture->GetSizeY()),Texture->GetSizeX()>200 && Texture->GetSizeY()>200);
     }
     auto Check=[&](const FMemoriaNarrativePresentation& P)
     {
-        if(P.bHasCg && !P.Cg.IsEmpty())TestNotNull(TEXT("Every imported CG resolves"),MemoriaNarrativeArtwork::Load(P.Cg));
-        if(P.bHasPortrait && !P.Portrait.IsEmpty())TestNotNull(TEXT("Every imported expression resolves"),MemoriaNarrativeArtwork::Load(MemoriaNarrativeArtwork::PortraitSource(P.Portrait)));
+        if(P.bHasCg && !P.Cg.IsEmpty())TestNotNull(*(TEXT("Every imported CG resolves: ")+P.Cg),MemoriaNarrativeArtwork::Load(MemoriaNarrativeArtwork::CgSource(P.Cg)));
+        if(P.bHasDistortedCg && !P.DistortedCg.IsEmpty())TestNotNull(*(TEXT("Every distorted CG resolves: ")+P.DistortedCg),MemoriaNarrativeArtwork::Load(MemoriaNarrativeArtwork::CgSource(P.DistortedCg)));
+        if(P.bHasPortrait && !P.Portrait.IsEmpty())TestNotNull(*(TEXT("Every imported expression resolves: ")+P.Portrait),MemoriaNarrativeArtwork::Load(MemoriaNarrativeArtwork::PortraitSource(P.Portrait)));
+        if(P.bHasDistortedPortrait && !P.DistortedPortrait.IsEmpty())TestNotNull(*(TEXT("Every distorted expression resolves: ")+P.DistortedPortrait),MemoriaNarrativeArtwork::Load(MemoriaNarrativeArtwork::PortraitSource(P.DistortedPortrait)));
     };
     auto* VN=LoadObject<UMemoriaVNAsset>(nullptr,TEXT("/Game/Memoria/Generated/Narrative/DA_VN_Ch2MarketArrival.DA_VN_Ch2MarketArrival"));
     if(!TestNotNull(TEXT("Production VN"),VN))return false;
     for(const auto& Row:VN->Definition.Steps)Check(Row.Presentation);
+    for(const auto* Name:{TEXT("Ch1ColdOpen"),TEXT("Ch1Prologue"),TEXT("Ch1ForestWalk"),TEXT("Ch1VoidBeast"),TEXT("Ch1AfterForest")})
+    {
+        const FString Asset=FString(TEXT("DA_VN_"))+Name;
+        auto* Chapter1=LoadObject<UMemoriaVNAsset>(nullptr,*(TEXT("/Game/Memoria/Generated/Narrative/")+Asset+TEXT(".")+Asset));
+        if(TestNotNull(Name,Chapter1))for(const auto& Row:Chapter1->Definition.Steps)Check(Row.Presentation);
+    }
+    TestEqual(TEXT("Source CG alias"),MemoriaNarrativeArtwork::CgSource(TEXT("ch1_stump2")),FString(TEXT("res://assets/cg/generated/story_ch1_memory_shrine.png")));
+    TestEqual(TEXT("Unknown short ref takes the source default"),MemoriaNarrativeArtwork::CgSource(TEXT("no_such_cg")),FString(TEXT("res://assets/cg/generated/chapter_splash_rim_forest.png")));
     for(const auto* Name:{TEXT("VerdanArrival"),TEXT("MaletTasteBurned"),TEXT("MaletEncounter"),TEXT("MaletRefused"),TEXT("MaletDeal"),TEXT("MaletReward"),TEXT("VerdanMarketWalk"),TEXT("VerdanOldBurner"),TEXT("MaletBackstory"),TEXT("EliaSumpConcern"),TEXT("SumpAtmosphere"),TEXT("SumpLedgerStart"),TEXT("SumpLedgerFound"),TEXT("SumpLedgerReturn"),TEXT("EliaCh2Talk"),TEXT("EliaSongBurned"),TEXT("EliaSwordBurned")})
     {
         const FString Asset=FString(TEXT("DA_Field_"))+Name;

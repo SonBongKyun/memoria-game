@@ -7,5 +7,7 @@ namespace MemoriaNarrativeArtwork
 {
     MEMORIA_API const TArray<FMemoriaArtworkSource>& Sources();
     MEMORIA_API FString PortraitSource(const FString& Key);
+    // A VN step's cg value (a res:// path or a short source ref) as an imported source path.
+    MEMORIA_API FString CgSource(const FString& Ref);
     MEMORIA_API UTexture2D* Load(const FString& Source);
 }

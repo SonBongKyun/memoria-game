@@ -79,6 +79,10 @@ bool UMemoriaCheckpointSubsystem::ValidateSnapshot(const UMemoriaRunSaveGame& Sa
         Save.Diary.SchemaVersion!=0 || !Save.Diary.SourceJson.IsEmpty() ||
         Save.Hints.SchemaVersion!=0 || !Save.Hints.SourceJson.IsEmpty() ||
         Save.WorldCognition.SchemaVersion!=1 || Save.WorldCognition.SourceJson.IsEmpty()) return false;
+    return ValidateDomains(Save);
+}
+bool UMemoriaCheckpointSubsystem::ValidateDomains(const UMemoriaRunSaveGame& Save) const
+{
     // Validate into disposable domains BEFORE touching the live run.
     FMemoriaWorldSnapshot World;
     auto* CandidateWorld = NewObject<UMemoriaWorldCognition>();
@@ -86,7 +90,50 @@ bool UMemoriaCheckpointSubsystem::ValidateSnapshot(const UMemoriaRunSaveGame& Sa
     return UMemoriaWorldCognition::Decode(Save.WorldCognition.SourceJson, World) && CandidateWorld->Restore(World) &&
         CandidateMemory->Restore(Save.MemoryDefinitions, Save.PlayerMemory)==EMemoriaMemoryResult::Success;
 }
-UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path) const
+bool UMemoriaCheckpointSubsystem::ValidateChapterSnapshot(const UMemoriaRunSaveGame& Save) const
+{
+    FString Error;
+    const auto* Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr, CatalogPath);
+    const auto& Flow = Save.SceneFlow;
+    // A chapter autosave resumes inside the VN route: an active cursor on a named scene.
+    if (!Catalog || !Save.ValidateHeader(Error) || Save.Slot!=0 ||
+        Save.ContentRevision!=Catalog->ContentRevision || Save.MemoryCatalogId!=Catalog->GetPrimaryAssetId() ||
+        Save.SavedAtUtc.GetTicks()<=0 || !Save.ImportedFromVersion.IsEmpty() ||
+        Save.FieldReturn.MapId!=ChapterBoundaryId || Save.FieldReturn.SourceScenePath!=ChapterSourceScene ||
+        Save.Run.CurrentChapter<2 || !Flow.bActive || Flow.Current.SequenceId.IsEmpty() || Flow.Current.OriginalIndex<0 ||
+        Save.WorldCognition.SchemaVersion!=1 || Save.WorldCognition.SourceJson.IsEmpty()) return false;
+    return ValidateDomains(Save);
+}
+FString UMemoriaCheckpointSubsystem::GetChapterSlotPath() const
+{
+    return StorageRoot.IsEmpty() ? FString() : StorageRoot/TEXT("chapter.memoria.json");
+}
+bool UMemoriaCheckpointSubsystem::SaveChapterTransition(UMemoriaRunSaveGame& Save)
+{
+    if (bBusy || !CanAccess()) return Fail(TEXT("Autosave skipped: disk storage is unavailable in this session."));
+    TGuardValue<bool> Busy(bBusy,true);
+    const auto* Catalog=LoadObject<UMemoriaMemoryCatalog>(nullptr,CatalogPath);
+    if (!Catalog) return Fail(TEXT("Autosave skipped: no memory catalog."));
+    Save.SavedAtUtc=FDateTime::UtcNow(); Save.MemoryCatalogId=Catalog->GetPrimaryAssetId();
+    Save.FieldReturn.SourceScenePath=ChapterSourceScene; Save.FieldReturn.MapId=ChapterBoundaryId; Save.FieldReturn.SourcePixelPosition=FVector2D::ZeroVector;
+    if (!ValidateChapterSnapshot(Save)) return Fail(TEXT("Autosave skipped: this run is outside the supported boundary."));
+    TArray<uint8> Bytes;
+    if (!UGameplayStatics::SaveGameToMemory(&Save,Bytes)) return Fail(TEXT("Autosave skipped: serialization failed."));
+    auto Object=MakeShared<FJsonObject>(); Object->SetNumberField(TEXT("version"),1);
+    Object->SetStringField(TEXT("sha1"),Digest(Bytes)); Object->SetStringField(TEXT("payload"),FBase64::Encode(Bytes));
+    FString Text; FJsonSerializer::Serialize(Object,TJsonWriterFactory<>::Create(&Text));
+    if (Text.Len()>MaxFileBytes || !IFileManager::Get().MakeDirectory(*StorageRoot,true)) return Fail(TEXT("Autosave skipped: cannot create the save folder."));
+    if (!CommitDiskFile(GetChapterSlotPath(),Text,true)) return Fail(TEXT("Autosave failed: disk write failed."));
+    StatusText=TEXT("Chapter autosaved."); return true;
+}
+UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::LoadChapterTransition()
+{
+    if (bBusy || !CanAccess()) { Fail(TEXT("Autosave unavailable: disk storage is disabled or busy.")); return nullptr; }
+    auto* Save=ReadFile(GetChapterSlotPath(),true);
+    if (!Save) Fail(TEXT("No valid chapter autosave found."));
+    return Save;
+}
+UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path, bool bChapter) const
 {
     const auto Size=IFileManager::Get().FileSize(*Path);
     if (Size<=0 || Size>MaxFileBytes) return nullptr;
@@ -99,12 +146,12 @@ UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path) 
     TArray<uint8> Bytes;
     if (!FBase64::Decode(Payload,Bytes) || Bytes.IsEmpty() || Digest(Bytes)!=Hash) return nullptr;
     auto* Save=Cast<UMemoriaRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Bytes));
-    return Save && ValidateSnapshot(*Save) ? Save : nullptr;
+    return Save && (bChapter ? ValidateChapterSnapshot(*Save) : ValidateSnapshot(*Save)) ? Save : nullptr;
 }
-bool UMemoriaCheckpointSubsystem::CommitDiskFile(const FString& Path, const FString& Text) const
+bool UMemoriaCheckpointSubsystem::CommitDiskFile(const FString& Path, const FString& Text, bool bChapter) const
 {
     const FString Temp=Path+TEXT(".tmp");
-    if (!FFileHelper::SaveStringToFile(Text,*Temp,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM) || !ReadFile(Temp)) return false;
+    if (!FFileHelper::SaveStringToFile(Text,*Temp,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM) || !ReadFile(Temp,bChapter)) return false;
     // Same-directory rename; retain the last good primary if writing/verification failed.
 #if PLATFORM_WINDOWS
     return ::MoveFileExW(*Temp,*Path,MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)!=0;

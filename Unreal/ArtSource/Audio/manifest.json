@@ -168,6 +168,13 @@
       "samples": 1764,
       "sha256": "edd44a4d741412e34cb683374d11043c9d347ab23112bab76d3aed755554b1c3"
     },
+    "void_pulse": {
+      "duration": 0.5,
+      "file": "void_pulse.wav",
+      "loop": false,
+      "samples": 11025,
+      "sha256": "f6e742700bbc4ea827dc3f644fe1e3e5e9465d90e088d9d0ed492830ce847f3e"
+    },
     "wind_light": {
       "duration": 3.0,
       "file": "wind_light.wav",

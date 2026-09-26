@@ -1,3 +1,49 @@
+# Migration handoff — S304 Chapter 1 stage 3: New Game plays Chapter 1, rendered, to Verdan (Claude lane, 2026-09-26)
+
+- P5 stage 3, assigned by the user (Claude working alone). A New Game now plays the whole imported Chapter 1 route in the production host and widget: `ch1_cold_open` → `ch1_prologue` → `ch1_forest_walk` → `ch1_void_beast` → `ch1_after_forest` → `ch2_market_arrival` → `L_VerdanHost`.
+- **Entry.** `UMemoriaNarrativeSubsystem::StartNewGame` follows `main.gd` `_on_new_game_pressed`:
+  - a fresh chapter 1 run: HP 100/100, 0 Grains, `witness_ink` ×1, quick slots `witness_ink, potion, antidote`, Elia in the party, no flags;
+  - the locale carries over, since it is a setting and not run data;
+  - the VN uses a resolver (`DA_VN_<PascalId>`), so `goto_scene` crosses the imported scenes.
+  - `L_Ch2VerdanSlice` starts it with the `?NewGame` travel option or `-MemoriaNewGame`. The default boot is still the development Ch2 VN, since there is no title screen yet.
+- **View.** VN views come from the current definition, not the fixed Ch2 asset.
+  - The title comes from metadata (`CHAPTER 1  /  ASH`; Korean in ko).
+  - Text goes through `VNDisplay`, so distortion is applied.
+  - The CG is carried across steps and scenes (`_change_cg`), with short refs resolved by `CgSource`: `CG_ALIAS_FALLBACKS`, then `game_image`, then `DEFAULT_CG_FALLBACK`.
+  - Choices carry the source title, hint and per-option `effect` preview (defaults `DECISION` and the Arrel hint).
+  - `system_log` shows as the System speaker, tinted cyan.
+- **Presentation cues** (`vn_scene.gd`). They run on a deterministic widget clock driven by world delta, like the source tweens:
+  - crossfade to the next CG over the step `fade`;
+  - `cg_motion` curves: pull_back, push_in, strike, still, and the ambient Ken Burns zoom;
+  - `impact` flash colors and the cinematic nudge, after 72% of the fade;
+  - step `sfx` through the audio catalog;
+  - scene `bgm` through the audio subsystem (`dialogue_tense`, `ch1_forest`, `ch2_verdan`).
+- **Chapter ledger.** `complete_chapter` raises the `_show_chapter_ledger` overlay: title, burns, intact count, anchors x/4 with the name, and the thread line from `weave_unlocked`. It fades 0.4 s in, holds 4.6 s and fades 0.6 s out.
+- **Autosave.** `autosave_chapter_transition` writes a separate checkpoint slot, `chapter.memoria.json`. It uses the same framing, SHA-1, atomic commit and test isolation as the Verdan boundary slot, but requires an active VN cursor at chapter 2 or later.
+  - The autosave step also jumps to `ch2_market_arrival`, so the save resumes at the arrival's first step and the ledger is not replayed.
+  - `ResumeChapterAutosave` restores it through the generalized `PrepareRestore`, which resolves the saved scene.
+- **Content.**
+  - 16 CGs and 3 portraits imported (the Elia anchor texture is reused), plus 8 portrait keys; artwork table 31 → 51.
+  - `void_pulse` rendered from `_generate_sfx`, plus the `dialogue_tense` and `ch1_forest` BGM.
+  - `MemoriaAudioAssets` is now additive (existing packages kept), like `MemoriaDialogueAssets`.
+- **Tests.**
+  - `Memoria.Chapter1.NewGameHost.<case>`: the real host plays each oracle case. Its `vn:` trace equals the Godot SceneFlow events exactly. Every CG and portrait resolves, and the start state, ledger, music and cues are checked.
+  - `Memoria.Chapter1.AutosaveResume`: save, restore in a new game instance, then play to Verdan.
+  - `MemoriaVisual.Chapter1Presentation`: widget cue timeline.
+  - `MemoriaVisual.Chapter1Journey`: rendered PIE; `?NewGame` → Chapter 1 with the song-burn picks → Verdan field, with 8 captures in `Saved/Validation/Chapter1Journey`.
+- **Deviations and gaps:**
+  - **Ledger always says "nothing".** The source runs `set_chapter 2` before `complete_chapter 1` on the same step, so the ledger's burn snapshot resets first and Chapter 1's ledger never lists its burns. This is ported as the oracle shows. It is a source-order fix candidate, not changed here.
+  - **Ledger names are English.** Unreal has no Korean memory titles yet.
+  - **Distortion is a text tint.** The source adds a 1.2 s chromatic split on the CG and a pre-glitch scramble; here it is a tint on the line only.
+  - **Ambient pan is fixed per step.** The Ken Burns pan is deterministic per step rather than `randf`.
+  - **Step sfx plays at once.** The source defers it with the flash.
+  - **No title screen or Continue menu yet.** The autosave is resumable through the API and tests only.
+- **Results:**
+  - Full rendered registry: `MEMORIA_UNREAL_PASS discovered=409 source_parity=51` (403 → 409).
+  - Rendered visual suite: 5/5, including `Chapter1Journey` and `Chapter1Presentation`.
+  - `generate_audio_sources.py --check`: 26 cues. `test_audio_sources.py`: 5/5.
+  - The other Python tool tests have 16 historical snapshot-count failures; all of them also fail at `HEAD`, and none are new.
+
 # Migration handoff — S303 Chapter 1 stage 2: the route plays (Claude lane, 2026-09-26)
 
 - P5 stage 2, assigned by the user (Claude working alone). The imported Chapter 1 route now executes exactly as `scene_flow.gd` does, from `ch1_cold_open` through `ch2_market_arrival` to the Verdan map request.

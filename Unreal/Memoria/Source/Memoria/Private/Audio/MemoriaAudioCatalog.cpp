@@ -16,6 +16,8 @@ const TArray<FCue>& Cues()
         {TEXT("ui_open"), -3.f, 0.f}, {TEXT("ui_close"), -3.f, 0.f}, {TEXT("battle_intro"), -3.f, 0.f},
         {TEXT("sword_slash"), 0.f, .06f}, {TEXT("burn_ignite"), 0.f, .06f}, {TEXT("shield_break"), 0.f, .06f},
         {TEXT("heal_layered"), 0.f, .06f}, {TEXT("rising_tone"), -4.f, 0.f},
+        // Chapter 1 cold open (S304): vn_scene.gd _play_cinematic_step plays step sfx on sfx_player.
+        {TEXT("void_pulse"), -3.f, 0.f},
     };
     return Values;
 }
@@ -24,6 +26,9 @@ const TArray<FTrack>& Tracks()
     static const TArray<FTrack> Values = {
         {TEXT("ch2_verdan"), TEXT("assets/audio/bgm/ch2_verdan.mp3"), -5.f, true},
         {TEXT("battle"), TEXT("assets/audio/bgm/battle_theme.mp3"), -5.f, true},
+        // Chapter 1 VN scenes declare these as their bgm (S304).
+        {TEXT("dialogue_tense"), TEXT("assets/audio/bgm/dialogue_tense.mp3"), -5.f, true},
+        {TEXT("ch1_forest"), TEXT("assets/audio/bgm/ch1_forest.mp3"), -5.f, true},
         {TEXT("wind_light"), TEXT("Unreal/ArtSource/Audio/wind_light.wav"), -10.f, false},
         {TEXT("heartbeat"), TEXT("Unreal/ArtSource/Audio/heartbeat.wav"), -14.f, false},
     };

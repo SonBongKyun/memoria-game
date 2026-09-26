@@ -138,7 +138,8 @@ def battle_entry_test_paths():
 def chapter1_test_paths():
     from narrative_ir import VN_CASES
     from export_chapter1_oracle import inputs
-    return {'Memoria.Chapter1.ImportParity.'+k for k in VN_CASES if k.startswith('ch1_')} | {'Memoria.Chapter1.RouteChain'} | {'Memoria.Chapter1.OracleRoute.'+c['id'] for c in inputs()}
+    return {'Memoria.Chapter1.ImportParity.'+k for k in VN_CASES if k.startswith('ch1_')} | {'Memoria.Chapter1.RouteChain'} | {'Memoria.Chapter1.OracleRoute.'+c['id'] for c in inputs()} \
+        | {'Memoria.Chapter1.NewGameHost.'+c['id'] for c in inputs()} | {'Memoria.Chapter1.AutosaveResume'}
 
 
 def verdan_story_test_paths():
@@ -146,7 +147,8 @@ def verdan_story_test_paths():
 
 
 def visual_test_paths():
-    return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration"}
+    return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration",
+            "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey"}
 
 
 def current_test_paths():

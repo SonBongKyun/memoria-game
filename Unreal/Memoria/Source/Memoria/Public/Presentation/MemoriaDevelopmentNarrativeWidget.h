@@ -12,7 +12,17 @@ class UVerticalBox;
 class UScrollBox;
 class UMemoriaShopWidget;
 class UMemoriaDevelopmentNarrativeWidget;
+class UScaleBox;
+class USizeBox;
 DECLARE_DELEGATE_OneParam(FMemoriaPresentationConfirm, int32);
+// Observable state of the vn_scene.gd one-shot cues, for tests and captures.
+struct FMemoriaPresentationProbe
+{
+    float FlashAlpha = 0.f, BackdropScale = 1.f, BackdropOpacity = 1.f, LedgerAlpha = 0.f;
+    FVector2D Nudge = FVector2D::ZeroVector;
+    FString Motion, LedgerText;
+    bool bDistortedStyle = false, bSystemStyle = false;
+};
 UCLASS()
 class MEMORIA_API UMemoriaNarrativeChoiceButton : public UButton
 {
@@ -39,7 +49,11 @@ public:
     UTexture2D* DisplayedPortrait() const;
     UMemoriaShopWidget* GetShopWidget() const { return ShopWidget; }
     FMemoriaPresentationConfirm OnConfirm;
+    // Deterministic cue clock; NativeTick feeds it real frame time.
+    void AdvancePresentation(float DeltaSeconds);
+    FMemoriaPresentationProbe GetPresentationProbe() const;
 protected:
+    virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
     virtual TSharedRef<SWidget> RebuildWidget() override;
     virtual FReply NativeOnKeyDown(const FGeometry&, const FKeyEvent&) override { return FReply::Unhandled(); }
     virtual FNavigationReply NativeOnNavigation(const FGeometry&, const FNavigationEvent&, const FNavigationReply&) override { return FNavigationReply::Escape(); }
@@ -51,6 +65,14 @@ private:
     UPROPERTY(Transient) TObjectPtr<UBorder> NarrativePanel;
     UPROPERTY(Transient) TObjectPtr<UCanvasPanel> Illustration;
     UPROPERTY(Transient) TObjectPtr<UImage> Backdrop;
+    UPROPERTY(Transient) TObjectPtr<UImage> BackdropPrevious;
+    UPROPERTY(Transient) TObjectPtr<UScaleBox> BackdropFit;
+    UPROPERTY(Transient) TObjectPtr<UBorder> Flash;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ChoiceNote;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> Ledger;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> LedgerTitle;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> LedgerBody;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> LedgerThread;
     UPROPERTY(Transient) TObjectPtr<UImage> Portrait;
     UPROPERTY(Transient) TObjectPtr<UBorder> PortraitFrame;
     UPROPERTY(Transient) TObjectPtr<UScrollBox> BodyScroll;
@@ -61,4 +83,15 @@ private:
     FMemoriaNarrativeView View;
     int32 Selection = 0;
     void Refresh();
+    // Cue timeline (seconds since the step was shown) and the CG it started.
+    FString ActiveCue, Motion;
+    float CueAge = 0.f, CueDelay = 0.f, CrossFade = 0.f, FlashDuration = 0.f, NudgeStrength = 0.f;
+    FLinearColor FlashColor = FLinearColor::Transparent;
+    FVector2D Pan = FVector2D::ZeroVector;
+    bool bPendingCrossFade = false, bSeenView = false;
+    int32 ShownLedger = 0;
+    float LedgerAge = -1.f, MotionAge = 0.f;
+    FMemoriaPresentationProbe Probe;
+    void StartCues();
+    void ApplyCues();
 };

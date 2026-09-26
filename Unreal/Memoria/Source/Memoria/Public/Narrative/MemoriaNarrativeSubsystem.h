@@ -12,7 +12,7 @@ class UMemoriaRunSubsystem;
 class UMemoriaRunSaveGame;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaRewardBoundaryObserved, const FString&);
 enum class EMemoriaSliceState : uint8 { Idle, VN, Travelling, Field, Exploration, Deferred, Failed };
-struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; };
+struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; FString Effect; };
 // Presentation receives values only. No conditions, effect data or mutable run.
 struct MEMORIA_API FMemoriaNarrativeView
 {
@@ -24,6 +24,17 @@ struct MEMORIA_API FMemoriaNarrativeView
     bool bPaused = false;
     bool bCompactStatus = false;
     bool bDevelopmentStop = false;
+    // vn_scene.gd step cues. CueKey changes once per shown step; one-shot cues (impact
+    // flash and nudge, CG motion restart, distortion glitch) fire only when it changes.
+    FString CueKey, Impact, CgMotion;
+    float CgFadeSeconds = .8f;
+    bool bStepHasCg = false, bDistorted = false, bSystemLog = false;
+    FString ChoiceTitle, ChoiceHint;
+    // SceneFlow._show_chapter_ledger, shown once per completion (a new LedgerSerial).
+    int32 LedgerSerial = 0;
+    FString LedgerTitle;
+    TArray<FString> LedgerLines;
+    bool bLedgerThreadHolds = false;
 };
 
 UCLASS()
@@ -44,6 +55,16 @@ public:
     void PresentAntidoteObservation(int32 Index);
     void PresentPotionObservation(int32 Index);
     bool StartDevelopmentVN();
+    // main.gd _on_new_game_pressed: a fresh chapter 1 run plays ch1_cold_open through the
+    // imported Chapter 1 route to the Verdan map request. The locale is a setting, not run data:
+    // it carries over from the previous run unless one is given.
+    bool StartNewGame(const FString& Locale = FString());
+    bool IsNewGameRoute() const { return bNewGameRoute; }
+    // SaveManager.autosave_on_chapter_transition: resume the latest chapter autosave.
+    bool ResumeChapterAutosave();
+    int32 GetAutosaveCount() const { return AutosaveCount; }
+    // Track id of the BGM the current VN scene declared (SceneFlow.play), or None.
+    FName GetSceneMusic() const { return SceneMusic; }
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
     bool ContinueCheckpoint();
@@ -99,6 +120,19 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> DealAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> RewardAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> StoryAsset;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaVNAsset>> RouteAssets;
+    const UMemoriaVNAsset* ResolveVN(const FString& Id);
+    FMemoriaVNInterpreter::FResolver Resolver();
+    bool bNewGameRoute = false;
+    FString SceneCg, ShownScene, ShownCue;
+    FName SceneMusic;
+    int32 LedgerSerial = 0, AutosaveCount = 0;
+    FString LedgerTitle;
+    TArray<FString> LedgerLines;
+    bool bLedgerThreadHolds = false;
+    void ShowChapterLedger(const FString& Event);
+    void Autosave();
+    void PresentVNStep();
     TArray<FString> ArmedStoryBeats;
     TWeakObjectPtr<UWorld> StoryWorld;
     void ArmStoryBeats();

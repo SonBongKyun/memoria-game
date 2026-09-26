@@ -39,12 +39,15 @@ int32 UMemoriaAudioAssetsCommandlet::Main(const FString&)
         const FName Id(*FString(Pair.Key.ToView()));
         if (!MemoriaAudio::FindCue(Id) && !MemoriaAudio::FindTrack(Id)) { UE_LOG(LogTemp, Error, TEXT("MEMORIA_AUDIO rendered cue %s has no runtime entry"), *Id.ToString()); return 1; }
     }
-    // Check every destination and source before the first write. Never refresh existing packages.
-    for (const auto& Import : Imports)
+    // Additive: existing packages are kept, never refreshed. Check every new source before the first write.
+    Imports.RemoveAll([](const FAudioImport& Import)
     {
-        if (FPackageName::DoesPackageExist(Import.Package)) { UE_LOG(LogTemp, Error, TEXT("Refusing existing audio package %s"), *Import.Package); return 1; }
+        const bool bKept = FPackageName::DoesPackageExist(Import.Package);
+        if (bKept) UE_LOG(LogTemp, Display, TEXT("MEMORIA_AUDIO_KEPT %s"), *Import.Package);
+        return bKept;
+    });
+    for (const auto& Import : Imports)
         if (!FPaths::FileExists(Import.File)) { UE_LOG(LogTemp, Error, TEXT("MEMORIA_AUDIO missing source %s"), *Import.File); return 1; }
-    }
     auto* Factory = NewObject<UFactory>(GetTransientPackage(), USoundFactory::StaticClass());
     for (const auto& Import : Imports)
     {

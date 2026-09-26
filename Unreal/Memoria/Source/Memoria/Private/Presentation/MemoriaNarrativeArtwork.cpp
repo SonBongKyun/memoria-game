@@ -40,20 +40,49 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/portraits/malet_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Shop/T_MaletPortrait"), true},
         {TEXT("res://assets/portraits/malet_face_price_revealed.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_malet_face_price_revealed"), false},
         {TEXT("res://assets/portraits/malet_face_warning.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_malet_face_warning"), false},
+        // Chapter 1 route (S304).
+        {TEXT("res://assets/cg/generated/archive_ch1_camp_humming_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_ch1_camp_humming_v2"), false},
+        {TEXT("res://assets/cg/generated/chapter_splash_rim_forest.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_rim_forest"), false},
+        {TEXT("res://assets/cg/generated/cinematic_void_beast_memory_devour.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_cinematic_void_beast_memory_devour"), false},
+        {TEXT("res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_campfire_song_v3"), false},
+        {TEXT("res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_first_sword_v3"), false},
+        {TEXT("res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_reaching_hand_v3"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_ash_rain_touch.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_ash_rain_touch"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_elia_reunion.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_elia_reunion"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_first_burn_strike.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_first_burn_strike"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_green_tree_dawn.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_green_tree_dawn"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_memory_shrine.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_memory_shrine"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_opening_aftermath.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_opening_aftermath"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_rim_omen.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_rim_omen"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_twisted_forest_path.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_twisted_forest_path"), false},
+        {TEXT("res://assets/cg/generated/story_ch1_void_beast_emergence.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch1_void_beast_emergence"), false},
+        {TEXT("res://assets/cg/game_image/sealed_city_ruins.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_sealed_city_ruins"), false},
+        {TEXT("res://assets/portraits/arrel_face_determined.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_arrel_face_determined"), false},
+        {TEXT("res://assets/portraits/arrel_face_memory_fading.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_arrel_face_memory_fading"), false},
+        {TEXT("res://assets/portraits/arrel_face_shocked.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_arrel_face_shocked"), false},
+        {TEXT("res://assets/portraits/character_shots/elia_anchor_v3.png"), TEXT("/Game/Memoria/Presentation/BattleEntry/T_EliaAnchor"), true},
     };
     return Values;
 }
 FString PortraitSource(const FString& Key)
 {
     static const TMap<FString, FString> Values = {
+        {TEXT("arrel_burn"), TEXT("res://assets/portraits/arrel_face_memory_fading.png")},
+        {TEXT("arrel_cold"), TEXT("res://assets/portraits/arrel_face_memory_fading.png")},
+        {TEXT("arrel_default2"), TEXT("res://assets/portraits/character_shots/arrel_story_v2.png")},
+        {TEXT("arrel_determined"), TEXT("res://assets/portraits/arrel_face_determined.png")},
         {TEXT("arrel_exhausted"), TEXT("res://assets/portraits/arrel_face_sad.png")},
         {TEXT("arrel_neutral"), TEXT("res://assets/portraits/character_shots/arrel_story_v2.png")},
         {TEXT("arrel_pensive"), TEXT("res://assets/portraits/character_shots/arrel_story_v2.png")},
+        {TEXT("arrel_shocked"), TEXT("res://assets/portraits/arrel_face_shocked.png")},
         {TEXT("elia_calm"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},
         {TEXT("elia_concern"), TEXT("res://assets/portraits/elia_face_worried.png")},
+        {TEXT("elia_determined"), TEXT("res://assets/portraits/character_shots/elia_anchor_v3.png")},
+        {TEXT("elia_gentle_smile"), TEXT("res://assets/portraits/elia_face_gentle_smile.png")},
         {TEXT("elia_hopeful"), TEXT("res://assets/portraits/elia_face_gentle_smile.png")},
         {TEXT("elia_neutral"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},
         {TEXT("elia_sad"), TEXT("res://assets/portraits/elia_face_sad.png")},
+        {TEXT("elia_worried"), TEXT("res://assets/portraits/elia_face_worried.png")},
         {TEXT("malet_amused"), TEXT("res://assets/portraits/malet_face_amused.png")},
         {TEXT("malet_calculating"), TEXT("res://assets/portraits/malet_face_calculating.png")},
         {TEXT("malet_deal_accepted"), TEXT("res://assets/portraits/malet_face_deal_accepted.png")},
@@ -63,6 +92,23 @@ FString PortraitSource(const FString& Key)
         {TEXT("malet_warning"), TEXT("res://assets/portraits/malet_face_warning.png")},
     };
     const FString* Value = Values.Find(Key); return Value ? *Value : FString();
+}
+FString CgSource(const FString& Ref)
+{
+    // vn_scene.gd _resolve_cg_path: res:// paths as authored, CG_ALIAS_FALLBACKS, then
+    // assets/cg/game_image/<ref>.png among the imported pictures, else DEFAULT_CG_FALLBACK.
+    if (Ref.IsEmpty()) return FString();
+    if (Ref.StartsWith(TEXT("res://"))) return Ref;
+    static const TMap<FString, FString> Aliases = {
+        {TEXT("ch1_twisted_forest"), TEXT("res://assets/cg/generated/story_ch1_twisted_forest_path.png")},
+        {TEXT("ch1_stump2"), TEXT("res://assets/cg/generated/story_ch1_memory_shrine.png")},
+        {TEXT("ch1_ash_forest"), TEXT("res://assets/cg/generated/story_ch1_memory_shrine.png")},
+        {TEXT("ch1_green_tree"), TEXT("res://assets/cg/generated/story_ch1_green_tree_dawn.png")},
+    };
+    if (const FString* Alias = Aliases.Find(Ref)) return *Alias;
+    const FString GameImage = TEXT("res://assets/cg/game_image/") + Ref + TEXT(".png");
+    if (Sources().ContainsByPredicate([&](const auto& E){ return GameImage.Equals(E.Source, ESearchCase::CaseSensitive); })) return GameImage;
+    return TEXT("res://assets/cg/generated/chapter_splash_rim_forest.png");
 }
 UTexture2D* Load(const FString& Source)
 {

@@ -121,9 +121,13 @@ void UMemoriaAudioSubsystem::SyncContext()
     if (bReturning && !bBattleReturning && Battle->GetView().BattleState==TEXT("FLED")) PlaySfx(TEXT("flee"));
     if (!bActive || bReturning) SetLowHealth(false);
     bBattleActive = bActive; bBattleReturning = bReturning;
-    SetLoop(bActive ? FName(TEXT("battle")) : bVerdan ? FName(TEXT("ch2_verdan")) : FName(), MusicComponent, FadingMusic, Music, MemoriaAudio::CrossfadeSeconds, MemoriaAudio::CrossfadeSeconds);
-    SetLoop(bVerdan && !bActive ? FName(TEXT("wind_light")) : FName(), AmbientComponent, FadingAmbient, Ambient, 1.5f, 1.f);
     const auto* Narrative = GI->GetSubsystem<UMemoriaNarrativeSubsystem>();
+    // SceneFlow.play: on the VN host a scene's declared bgm replaces the map track (Chapter 1).
+    const FName Scene = Narrative && Map.EndsWith(TEXT("L_Ch2VerdanSlice")) ? Narrative->GetSceneMusic() : NAME_None;
+    const bool bSceneTrack = !Scene.IsNone() && MemoriaAudio::FindTrack(Scene);
+    const FName VerdanTrack(TEXT("ch2_verdan"));
+    SetLoop(bActive ? FName(TEXT("battle")) : bSceneTrack ? Scene : bVerdan ? VerdanTrack : FName(), MusicComponent, FadingMusic, Music, MemoriaAudio::CrossfadeSeconds, MemoriaAudio::CrossfadeSeconds);
+    SetLoop(bVerdan && !bActive && (!bSceneTrack || Scene == VerdanTrack) ? FName(TEXT("wind_light")) : FName(), AmbientComponent, FadingAmbient, Ambient, 1.5f, 1.f);
     const auto State = Narrative ? Narrative->GetState() : EMemoriaSliceState::Idle;
     // Source ducks BGM between dialogue_started and dialogue_ended.
     SetDuck(!bActive && (State == EMemoriaSliceState::VN || State == EMemoriaSliceState::Field));

@@ -19,6 +19,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "Kismet/GameplayStatics.h"
 
 AMemoriaSliceGameMode::AMemoriaSliceGameMode() { PlayerControllerClass = AMemoriaSliceController::StaticClass(); }
 void AMemoriaSliceGameMode::StartPlay()
@@ -26,7 +27,10 @@ void AMemoriaSliceGameMode::StartPlay()
     Super::StartPlay();
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
     const FString Map = GetWorld()->GetMapName(); bool Started = false;
-    if (Map.EndsWith(TEXT("L_Ch2VerdanSlice"))) Started = Narrative->StartDevelopmentVN();
+    // New Game (main.gd) enters through the VN host: -MemoriaNewGame or the ?NewGame travel option.
+    if (Map.EndsWith(TEXT("L_Ch2VerdanSlice")))
+        Started = UGameplayStatics::HasOption(OptionsString, TEXT("NewGame")) || FParse::Param(FCommandLine::Get(), TEXT("MemoriaNewGame"))
+            ? Narrative->StartNewGame() : Narrative->StartDevelopmentVN();
     else if (Map.EndsWith(TEXT("L_VerdanUnseenFixture"))) Started = Narrative->StartUnseenFieldFixture();
     else if (Map.EndsWith(TEXT("L_VerdanHost")))
     {
