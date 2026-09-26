@@ -1,3 +1,30 @@
+# Migration handoff — S306 field characters: one figure path, awaiting illustrated art (Claude lane, 2026-09-27)
+
+- **Why.** The user played S305 in Verdan. Arrel was a 3D prototype mesh standing beside Elia's and Malet's 2D sprites; the user called it jarring, and said the others were not satisfying either. They chose **high-resolution illustrated sprites**, with the art produced by **Codex**.
+- **Art request.** `FIELD_SPRITE_ART_SPEC.md` specifies:
+  - ids and priorities, with canon notes (Sable blind);
+  - views (down, up and right; left is mirrored) and optional two-frame walk contacts;
+  - the canvas: 1024×1536 transparent, feet pivot (512, 1480), fixed height ratios;
+  - style (the `character_shots` v2/v3 look), delivery paths and acceptance.
+- **Figure.** `UMemoriaFieldCharacterComponent` draws every field character the same way:
+  - a camera-facing card (roll 42°, feet on the −8 anchor);
+  - facing from real travel, and a gait advanced by distance (58 units per stride) that also drives the `step_stone` footfalls;
+  - walk frames (4 for pixel, 2 for HD), a bounce and a standing breath;
+  - `FieldHD/SPR_<Id>_<View>` when imported, otherwise the source pixel sprites, point sampled.
+  - The card casts no shadow (a grazing lantern made it self-shadow in streaks); the existing ground blobs anchor it.
+  - Height: Arrel 150, Elia 0.92×, Malet 1.0× (13.8% of the viewport, inside the 10–18% play-feel bound).
+- **Wiring.**
+  - Arrel's 3D prototype is no longer spawned in the field. `UMemoriaArrel3DComponent` and its standalone tests are retained.
+  - `AMemoriaVerdanPresentation::CharacterFigure()` replaces `CharacterMesh()`.
+  - Malet and Elia use the same component; Elia's old sprite is kept but hidden.
+- **Import.** `-run=MemoriaFieldCharacterAssets` imports `assets/sprites/field_hd/<id>/*.png`: additive, mips kept, trilinear, pivot from the spec.
+- **Tests.**
+  - `MemoriaVisual.VerdanExploration`'s skeleton assertions are now figure assertions (card, height, tilt, anchor, point sampling, facing, walk frames, gait settling, head projection from the figure height).
+  - New `MemoriaVisual.FieldCharacters` reports `FIELD_CHARACTER <id> hd|pixel|missing`. Arrel, Elia and Malet must resolve; today all three are `pixel`.
+- **Also.** The exploration status box uses the interface sans at 15, so the control hints no longer wrap; the S305 serif had made them wrap.
+- **Results.** Full rendered registry `MEMORIA_UNREAL_PASS discovered=409 source_parity=51`. Rendered visual suite 6/6 (FieldCharacters added); arrel, elia and malet report `pixel`.
+- **Next.** When Codex delivers the art, run the commandlet and review the `PlayFeel1` captures. Then continue with field lighting and the battle screen.
+
 # Migration handoff — S305 VN graphics: the vn_scene.gd presentation (Claude lane, 2026-09-27)
 
 - **Why.** The user played the S304 New Game build and called the graphics far off. This session rebuilds the story presentation of `UMemoriaDevelopmentNarrativeWidget` after `vn_scene.gd`, which serves every VN and Field dialogue. Compact status, development screens and the shop keep their previous layout.

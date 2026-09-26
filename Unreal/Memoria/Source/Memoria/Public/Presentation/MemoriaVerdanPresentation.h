@@ -3,7 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "MemoriaVerdanPresentation.generated.h"
 class AMemoriaFieldPawn;
-class UMemoriaArrel3DComponent;
+class UMemoriaFieldCharacterComponent;
 class AMemoriaMaletActor;
 class AStaticMeshActor;
 class UPaperSprite;
@@ -24,7 +24,11 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     FString Facing() const { return Direction; }
     bool IsWalking() const { return bWalking; }
-    UMemoriaArrel3DComponent* CharacterMesh() const { return ArrelMesh; }
+    // Arrel's field figure (the S306 card; the 3D prototype stays out of the field).
+    UMemoriaFieldCharacterComponent* CharacterFigure() const { return ArrelFigure; }
+    UMemoriaFieldCharacterComponent* MaletFigure() const { return MaletCard; }
+    // Standing heights in world units (FIELD_SPRITE_ART_SPEC.md proportions).
+    static constexpr float ArrelHeight = 150.f;
     // Level geometry the 3D stage replaces visually: tagged actors, or engine basic shapes.
     static constexpr const TCHAR* PlaceholderTag = TEXT("MemoriaPlaceholder");
     static bool IsPlaceholderGeometry(const AStaticMeshActor& Actor);
@@ -33,8 +37,8 @@ protected:
 private:
     UPaperSpriteComponent* Picture(const FString& Name, const FVector& Location, FVector Scale = FVector::OneVector);
     UStaticMeshComponent* SoftQuad(const FVector& Location, const FVector& Scale, FLinearColor Tint, float Alpha);
-    UPROPERTY(Transient) TObjectPtr<UMemoriaArrel3DComponent> ArrelMesh;
-    UPROPERTY(Transient) TObjectPtr<UPaperSpriteComponent> MaletArt;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> ArrelFigure;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> MaletCard;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
     void BuildDepthEnvironment();
     void BuildCourtyard(UMaterialInterface* Iron);

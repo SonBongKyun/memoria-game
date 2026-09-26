@@ -148,7 +148,7 @@ def verdan_story_test_paths():
 
 def visual_test_paths():
     return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration",
-            "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey"}
+            "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey", "MemoriaVisual.FieldCharacters"}
 
 
 def current_test_paths():

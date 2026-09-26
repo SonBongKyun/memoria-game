@@ -5,6 +5,7 @@
 #include "MemoriaEliaCompanion.generated.h"
 class USphereComponent;
 class UPaperSpriteComponent;
+class UMemoriaFieldCharacterComponent;
 class UStaticMeshComponent;
 
 // Source scripts/core/companion.gd in Verdan: Elia walks the player's trail and is
@@ -35,6 +36,7 @@ public:
 private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UPaperSpriteComponent> Sprite;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> Figure;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Shadow;
     TWeakObjectPtr<APawn> Target;
     TArray<FVector> Trail;

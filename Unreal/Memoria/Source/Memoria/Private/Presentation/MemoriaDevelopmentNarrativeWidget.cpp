@@ -587,6 +587,8 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
     Message->SetColorAndOpacity(View.bDistorted?Distorted:Paper);
     FString Body=View.bPaused?TEXT("Enter / A or Back: return to the current line"):View.Narration;
     if(!View.bPaused && !View.Body.IsEmpty()){if(!Body.IsEmpty())Body+=TEXT("\n\n");Body+=View.Body;}
+    // The exploration status is interface text: sans, smaller, so control hints do not wrap.
+    Message->SetFont(MemoriaFonts::Get(View.bCompactStatus?EFont::Ui:EFont::Body,View.bCompactStatus?15:21));
     Message->SetText(FText::FromString(Body));
     const bool CheckpointChoices=Choosing && View.bDevelopmentStop;
     if (CheckpointChoices) Position(BodyScroll,.045f,.24f,.95f,.57f);

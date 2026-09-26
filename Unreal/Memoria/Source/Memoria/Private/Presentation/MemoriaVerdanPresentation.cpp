@@ -1,5 +1,5 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
-#include "Presentation/MemoriaArrel3DComponent.h"
+#include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Audio/MemoriaAudioCatalog.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Engine/GameInstance.h"
@@ -401,14 +401,17 @@ void AMemoriaVerdanPresentation::BeginPlay()
         Malet=*It; TArray<UStaticMeshComponent*> Meshes; It->GetComponents(Meshes);
         for (auto* Component:Meshes) Component->SetHiddenInGame(true);
         TArray<UTextRenderComponent*> Labels; It->GetComponents(Labels); for (auto* Component:Labels) Component->SetHiddenInGame(true);
-        const FVector P=It->GetActorLocation(); MaletArt=Picture(TEXT("Malet"),FVector(P.X,P.Y,-8));
+        const FVector P=It->GetActorLocation();
+        MaletCard=NewObject<UMemoriaFieldCharacterComponent>(this);AddInstanceComponent(MaletCard);MaletCard->SetupAttachment(GetRootComponent());
+        MaletCard->RegisterComponent();MaletCard->SetWorldLocation(FVector(P.X,P.Y,0));MaletCard->InitializeCharacter(TEXT("malet"),ArrelHeight*1.0f);
         SoftQuad(FVector(P.X,P.Y,-9),FVector(.72,.30,1),FLinearColor::Black,.7f); break;
     }
     PlayerShadow=SoftQuad(FVector(0,0,-9),FVector(.80,.32,1),FLinearColor::Black,.7f);
-    ArrelMesh=NewObject<UMemoriaArrel3DComponent>(this);
-    AddInstanceComponent(ArrelMesh);ArrelMesh->SetupAttachment(Player->GetRootComponent());ArrelMesh->RegisterComponent();
-    if(!ArrelMesh->InitializePrototype())
-    { UE_LOG(LogTemp,Error,TEXT("Arrel prototype skeletal mesh missing"));SetActorTickEnabled(false);return; }
+    // S306: Arrel is drawn like every other field character (the user rejected the 3D prototype beside the sprites).
+    ArrelFigure=NewObject<UMemoriaFieldCharacterComponent>(this);
+    AddInstanceComponent(ArrelFigure);ArrelFigure->SetupAttachment(Player->GetRootComponent());ArrelFigure->RegisterComponent();
+    if(!ArrelFigure->InitializeCharacter(TEXT("arrel"),ArrelHeight))
+    { UE_LOG(LogTemp,Error,TEXT("Arrel field art missing"));SetActorTickEnabled(false);return; }
     Sprite->SetHiddenInGame(true);Sprite->SetCastShadow(false);
     // A soft character-only fill preserves the courtyard's existing night lighting.
     auto* CharacterFill=NewObject<UPointLightComponent>(this,TEXT("ArrelFillLight"));AddInstanceComponent(CharacterFill);
@@ -436,7 +439,7 @@ void AMemoriaVerdanPresentation::UpdateCameraAndVisibility()
     Camera->SetWorldLocation(Anchor+MemoriaVerdanTuning::CameraOffset);
     auto Color=[](const FVector& V){ return FLinearColor(V.X,V.Y,V.Z,1); };
     const FLinearColor Eye=Color(Camera->GetComponentLocation());
-    const FLinearColor Focus=Color(ArrelMesh->FocusPosition());
+    const FLinearColor Focus=Color(ArrelFigure->FocusPosition());
     const FLinearColor Up=Color(Camera->GetUpVector());
     for (const auto& M:SurfaceMaterials)
     {
@@ -460,10 +463,10 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     {
         Direction = FMath::Abs(Step.X) >= FMath::Abs(Step.Y) ? (Step.X > 0 ? TEXT("Right") : TEXT("Left")) : (Step.Y > 0 ? TEXT("Up") : TEXT("Down"));
     }
-    const float PhaseBefore = ArrelMesh->GaitPhase();
-    ArrelMesh->AdvanceLocomotion(Step,DeltaSeconds);
-    // Source player.gd plays play_step on Verdan's stone paving; here each footfall follows the planted foot.
-    if (ArrelMesh->LocomotionWeight() > .5f && MemoriaAudio::CrossedFootContact(PhaseBefore, ArrelMesh->GaitPhase()))
+    const float PhaseBefore = ArrelFigure->GaitPhase();
+    ArrelFigure->AdvanceLocomotion(Step,DeltaSeconds);
+    // Source player.gd plays play_step on Verdan's stone paving; each footfall follows the stride.
+    if (ArrelFigure->LocomotionWeight() > .5f && MemoriaAudio::CrossedFootContact(PhaseBefore, ArrelFigure->GaitPhase()))
         if (auto* Audio = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>() : nullptr) Audio->PlaySfx(TEXT("step_stone"));
     PlayerShadow->SetWorldLocation(FVector(Position.X, Position.Y, -9));
     UpdateCameraAndVisibility();

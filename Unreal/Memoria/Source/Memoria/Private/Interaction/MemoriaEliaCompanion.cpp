@@ -2,6 +2,7 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
+#include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "PaperSpriteComponent.h"
@@ -34,8 +35,13 @@ void AMemoriaEliaCompanion::Follow(APawn* InTarget)
 {
     Target = InTarget; Trail.Reset();
     if (InTarget) { Trail.Add(GetActorLocation()); Trail.Add(InTarget->GetActorLocation()); LastTargetPosition = InTarget->GetActorLocation(); }
-    Sprite->SetMaterial(0, LoadObject<UMaterialInterface>(nullptr, TEXT("/Paper2D/MaskedLitSpriteMaterial.MaskedLitSpriteMaterial")));
-    Sprite->SetCastShadow(true);
+    // S306: Elia is drawn by the shared field figure (illustrated set when imported, else crisp pixel art).
+    if (!Figure)
+    {
+        Figure = NewObject<UMemoriaFieldCharacterComponent>(this); AddInstanceComponent(Figure);
+        Figure->SetupAttachment(Body); Figure->RegisterComponent();
+    }
+    if (Figure->InitializeCharacter(TEXT("elia"), AMemoriaVerdanPresentation::ArrelHeight * .92f)) Sprite->SetHiddenInGame(true);
     if (auto* Material = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Verdan/M_SoftLight.M_SoftLight")))
         if (auto* Instance = UMaterialInstanceDynamic::Create(Material, this))
         { Instance->SetVectorParameterValue(TEXT("Tint"), FLinearColor::Black); Instance->SetScalarParameterValue(TEXT("Alpha"), .6f); Shadow->SetMaterial(0, Instance); }
@@ -46,6 +52,7 @@ void AMemoriaEliaCompanion::Face(const FVector& Move)
     // Unreal +Y is the source's up; the four authored field sprites.
     Direction = FMath::Abs(Move.X) >= FMath::Abs(Move.Y) ? (Move.X > 0 ? TEXT("Right") : TEXT("Left")) : (Move.Y > 0 ? TEXT("Up") : TEXT("Down"));
     if (UPaperSprite* Art = MemoriaVerdanArt::LoadSprite(TEXT("Elia") + Direction)) Sprite->SetSprite(Art);
+    if (Figure) Figure->Face(Direction);
 }
 FVector AMemoriaEliaCompanion::FollowPoint() const
 {
@@ -84,6 +91,7 @@ void AMemoriaEliaCompanion::Tick(float DeltaSeconds)
     Velocity = FMath::VInterpConstantTo(Velocity, Desired, DeltaSeconds, FollowAccel);
     const FVector Step = Velocity * DeltaSeconds;
     if (Step.SizeSquared2D() > .0001) { SetActorLocation(GetActorLocation() + Step); if (Velocity.Size2D() > 12) Face(Velocity); }
+    if (Figure) Figure->AdvanceLocomotion(Velocity.Size2D() > 12 ? Step : FVector::ZeroVector, DeltaSeconds);
     LastTargetPosition = TargetPosition;
     // Breathing bob, as companion.gd keeps her alive while standing.
     Sprite->SetRelativeLocation(FVector(0, 0, -8 + .6 * FMath::Sin(Age * 1.8)));

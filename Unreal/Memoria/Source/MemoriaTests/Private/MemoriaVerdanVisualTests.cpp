@@ -14,6 +14,7 @@
 #include "Interaction/MemoriaMaletActor.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Presentation/MemoriaArrel3DComponent.h"
+#include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
@@ -123,8 +124,8 @@ public:
         int32 Count = 0;
         for (TActorIterator<AMemoriaVerdanPresentation> It(World); It; ++It) { Presentation = *It; ++Count; }
         if (!Test->TestEqual(TEXT("One presentation layer after travel"), Count, 1)) return true;
-        auto* Character=Presentation->CharacterMesh();
-        if(!Test->TestNotNull(TEXT("Actual skeletal character in field"),Character))return true;
+        auto* Character=Presentation->CharacterFigure();
+        if(!Test->TestNotNull(TEXT("Arrel field figure in field"),Character))return true;
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
         { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/PlayFeel1")/(FString(Name)+TEXT(".png")), true, false); };
@@ -163,17 +164,18 @@ public:
             PC->ProjectWorldLocationToScreen(P+FVector(0,300,0), FarLow);
             PC->ProjectWorldLocationToScreen(P+FVector(100,300,0), FarHigh);
             Test->TestTrue(TEXT("Perspective foreshortens distant geometry"), (NearHigh-NearLow).Size() > (FarHigh-FarLow).Size());
-            Test->TestTrue(TEXT("Original field sprite hidden behind 3D presentation"), Pawn->GetFieldSprite()->bHiddenInGame);
-            auto* SkeletalAsset=Cast<USkeletalMesh>(Character->GetSkinnedAsset());
-            if(!Test->TestNotNull(TEXT("Real skeletal mesh asset loaded"),SkeletalAsset))return true;
-            Test->TestTrue(TEXT("Refined version is used without replacing Character1 packages"),SkeletalAsset->GetPathName().Contains(TEXT("/Character2/SK_ArrelRefined")));
+            Test->TestTrue(TEXT("Pawn's own field sprite stays hidden behind the figure"), Pawn->GetFieldSprite()->bHiddenInGame);
+            // S306: Arrel, Elia and Malet share one field figure; the 3D prototype is retained only as a component.
             FootRecords=CheckFootContact(Test,Pawn);
             MovementRecords=CheckVerdanMovement(Test,Pawn);
-            Test->TestEqual(TEXT("Editable full-body rig has 23 bones"),SkeletalAsset->GetRefSkeleton().GetNum(),23);
-            Test->TestTrue(TEXT("Character uses actual skinning and two lit surface materials"),SkeletalAsset->GetSkeleton()!=nullptr && SkeletalAsset->GetMaterials().Num()==2 && SkeletalAsset->GetHasVertexColors());
-            Test->AddInfo(FString::Printf(TEXT("ARREL_BOUNDS %s asset=%s scale=%s"),*Character->Bounds.BoxExtent.ToString(),*SkeletalAsset->GetBounds().BoxExtent.ToString(),*Character->GetComponentScale().ToString()));
-            Test->TestTrue(TEXT("Character is volumetric, with readable height"),Character->Bounds.BoxExtent.X>10 && Character->Bounds.BoxExtent.Y>10 && Character->Bounds.BoxExtent.Z>50);
-            Test->TestEqual(TEXT("Skeletal feet use the existing visual ground anchor"),Character->GetRelativeLocation().Z,-8.0);
+            auto* Card=Character->GetCard();
+            if(!Test->TestTrue(TEXT("Figure draws an actual sprite card"),Card && Card->GetSprite()))return true;
+            Test->AddInfo(FString::Printf(TEXT("ARREL_FIGURE %s hd=%d bounds=%s"),*Character->GetFrameName(),Character->IsHighResolution()?1:0,*Card->Bounds.BoxExtent.ToString()));
+            Test->TestTrue(TEXT("Figure has a readable standing height"),Card->Bounds.BoxExtent.Z>45 && FMath::IsNearlyEqual(Character->GetWorldHeight(),AMemoriaVerdanPresentation::ArrelHeight));
+            Test->TestTrue(TEXT("Card faces the field camera"),FMath::IsNearlyEqual(Card->GetRelativeRotation().Roll,42.0,.01));
+            Test->TestTrue(TEXT("Feet stand on the existing visual ground anchor"),FMath::IsNearlyEqual(Card->GetRelativeLocation().Z,-8.0,.5));
+            if(!Character->IsHighResolution()) Test->TestTrue(TEXT("Pixel art is point sampled"),Card->GetSprite()->GetBakedTexture() && Card->GetSprite()->GetBakedTexture()->Filter==TF_Nearest);
+            Test->TestNotNull(TEXT("Malet drawn by the same figure"),Presentation->MaletFigure() ? Presentation->MaletFigure()->GetCard() : nullptr);
             TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
             int32 Instances = 0, Roofs = 0;
             for (auto* Batch : Batches)
@@ -213,15 +215,13 @@ public:
             if (Frame > Start + 3 && Frame < Start + 20)
             {
                 Test->TestEqual(TEXT("Direction follows real displacement"), Presentation->Facing(), FString(Directions[I]));
-                Test->TestTrue(TEXT("Real movement activates skeletal gait"), Presentation->IsWalking());
-                const auto& Pose=Character->GetBoneSpaceTransforms();
-                SeenGaitPoses.Add(Pose[Character->GetBoneIndex(TEXT("calf_l"))].GetRotation().ToString());
-                Test->TestTrue(TEXT("Skeletal root follows physical pawn"),FVector2D(Character->GetComponentLocation()).Equals(FVector2D(Pawn->GetActorLocation()),.001));
+                Test->TestTrue(TEXT("Real movement activates the walk"), Presentation->IsWalking());
+                SeenGaitPoses.Add(Character->GetFrameName());
+                Test->TestTrue(TEXT("Figure follows physical pawn"),FVector2D(Character->GetComponentLocation()).Equals(FVector2D(Pawn->GetActorLocation()),.001));
                 if(Frame>Start+14)
                 {
-                    const FVector Vectors[]={FVector(0,1,0),FVector(1,0,0),FVector(0,-1,0),FVector(-1,0,0)};
-                    Test->TestTrue(TEXT("3D body turns toward real travel"),FVector::DotProduct(Character->GetForwardVector(),Vectors[I])>.98);
-                    Test->TestTrue(TEXT("Actual joint gait blends in"),Character->LocomotionWeight()>.6f);
+                    Test->TestEqual(TEXT("Figure faces real travel"),Character->GetFacing(),FString(Directions[I]));
+                    Test->TestTrue(TEXT("Walk cycle blends in"),Character->LocomotionWeight()>.6f);
                 }
             }
             if (Frame == Start + 18) Capture(Directions[I]);
@@ -229,7 +229,7 @@ public:
         }
         if (Frame == 156)
         {
-            Test->TestTrue(TEXT("Skinned joint pose changes through movement"),SeenGaitPoses.Num()>=8);
+            Test->TestTrue(TEXT("Walk frames and facings change through movement"),SeenGaitPoses.Num()>=8);
             if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio subsystem exists"), Audio))
                 Test->TestTrue(TEXT("Planted feet play stone footsteps"), Audio->GetCueCount(TEXT("step_stone")) > 0);
             Capture(TEXT("Market"));
@@ -248,7 +248,7 @@ public:
         {
             Test->TestTrue(TEXT("Original wall still blocks sweep"), Pawn->GetActorLocation().X <= 882.1 && Pawn->GetActorLocation().X > 850);
             Test->TestFalse(TEXT("Blocked input does not slide animated feet"), Presentation->IsWalking());
-            Test->TestTrue(TEXT("Blocked movement settles skeletal gait"),Character->LocomotionWeight()<.02f);
+            Test->TestTrue(TEXT("Blocked movement settles the walk"),Character->LocomotionWeight()<.02f);
             WallX = Pawn->GetActorLocation().X;
             Capture(TEXT("BoundaryOpaque")); Key(EKeys::D, IE_Released);
         }
@@ -274,7 +274,7 @@ public:
                 int32 Width,Height; PC->GetViewportSize(Width,Height);
                 FVector2D Foot,Head;
                 Test->TestTrue(TEXT("Boundary feet project to screen"), PC->ProjectWorldLocationToScreen(Character->GetComponentLocation(),Foot));
-                Test->TestTrue(TEXT("Boundary head projects to screen"), PC->ProjectWorldLocationToScreen(Character->GetComponentLocation()+FVector(0,0,124),Head));
+                Test->TestTrue(TEXT("Boundary head projects to screen"), PC->ProjectWorldLocationToScreen(Character->GetComponentLocation()+FVector(0,0,Character->GetWorldHeight()),Head));
                 Test->TestTrue(TEXT("Entire character stays inside view at edges and corners"), Foot.X>30 && Foot.X<Width-30 && Foot.Y>20 && Foot.Y<Height-20 && Head.X>30 && Head.X<Width-30 && Head.Y>20 && Head.Y<Height-20);
                 TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
                 bool FocusTracked=false;
@@ -284,7 +284,7 @@ public:
                     if (M->GetVectorParameterValue(FMaterialParameterInfo(TEXT("OcclusionFocus")),Focus) && M->GetVectorParameterValue(FMaterialParameterInfo(TEXT("OcclusionEye")),View))
                         FocusTracked=FVector(Focus.R,Focus.G,Focus.B).Equals(Character->FocusPosition(),.01) && FVector(View.R,View.G,View.B).Equals(Eye,.01);
                 }
-                Test->TestTrue(TEXT("Reveal follows 3D character and bounded camera"), FocusTracked);
+                Test->TestTrue(TEXT("Reveal follows the figure and bounded camera"), FocusTracked);
                 if (I>0) CameraRecords+=TEXT(",");
                 CameraRecords+=FString::Printf(TEXT("{\"edge\":\"%s\",\"camera\":[%.3f,%.3f,%.3f],\"foot\":[%.3f,%.3f],\"head\":[%.3f,%.3f],\"viewport\":[%d,%d]}"),Names[I],Eye.X,Eye.Y,Eye.Z,Foot.X,Foot.Y,Head.X,Head.Y,Width,Height);
                 Capture(Names[I]);
@@ -293,10 +293,10 @@ public:
         if(Frame==378)Pawn->SetActorLocation(FVector::ZeroVector);
         if(Frame==390)
         {
-            Character->SetRelativeRotation(FRotator(0,-90,0));
+            Character->Face(TEXT("Down"));
             FVector2D Foot,Head; int32 W,H; PC->GetViewportSize(W,H);
             PC->ProjectWorldLocationToScreen(Character->GetComponentLocation(),Foot);
-            PC->ProjectWorldLocationToScreen(Character->GetComponentLocation()+FVector(0,0,124),Head);
+            PC->ProjectWorldLocationToScreen(Character->GetComponentLocation()+FVector(0,0,Character->GetWorldHeight()),Head);
             const double HeightRatio=(Foot-Head).Size()/H;
             Test->TestTrue(TEXT("Playable camera gives the character 10-18 percent of viewport height"),HeightRatio>.10 && HeightRatio<.18);
             Test->AddInfo(FString::Printf(TEXT("PLAYFEEL_CHARACTER_HEIGHT ratio=%.6f"),HeightRatio));
@@ -304,7 +304,7 @@ public:
         }
         if(Frame==400)
         {
-            // A temporary review camera shows the real field mesh at a readable angle.
+            // A temporary review camera shows the real field figure at a readable angle.
             PreviewCamera=World->SpawnActor<ACameraActor>();
             PreviewCamera->SetActorLocation(FVector(0,-340,110));
             PreviewCamera->SetActorRotation((Character->FocusPosition()-PreviewCamera->GetActorLocation()).Rotation());
@@ -315,9 +315,9 @@ public:
             Test->TestEqual(TEXT("Elia follows in the Verdan field"),Companions,1);
         }
         if(Frame==406)Capture(TEXT("CharacterFront"));
-        if(Frame==410)Character->SetRelativeRotation(FRotator::ZeroRotator);
+        if(Frame==410)Character->Face(TEXT("Right"));
         if(Frame==420)Capture(TEXT("CharacterSide"));
-        if(Frame==424)Character->SetRelativeRotation(FRotator(0,90,0));
+        if(Frame==424)Character->Face(TEXT("Up"));
         if(Frame==434)Capture(TEXT("CharacterBack"));
         if(Frame==440)Key(EKeys::D,IE_Pressed);
         if(Frame>=440 && Frame<484 && PreviewCamera.IsValid())
@@ -334,7 +334,7 @@ public:
         if(Frame==484)
         {
             PC->SetViewTarget(Pawn);if(PreviewCamera.IsValid())PreviewCamera->Destroy();
-            Character->SetRelativeRotation(FRotator(0,-90,0));
+            Character->Face(TEXT("Down"));
         }
         if (Frame == 500)
         {
@@ -364,6 +364,20 @@ private:
     TSet<FString> SeenGaitPoses;
     TWeakObjectPtr<ACameraActor> PreviewCamera;
 };
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFieldCharactersTest, "MemoriaVisual.FieldCharacters", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FFieldCharactersTest::RunTest(const FString&)
+{
+    // FIELD_SPRITE_ART_SPEC.md acceptance: every Verdan field character resolves art; the report says which.
+    for (const TCHAR* Id : {TEXT("arrel"), TEXT("elia"), TEXT("malet")})
+    {
+        const FString Art = UMemoriaFieldCharacterComponent::DescribeArt(Id);
+        AddInfo(FString::Printf(TEXT("FIELD_CHARACTER %s %s"), Id, *Art));
+        TestTrue(*(FString(TEXT("Field art resolves for ")) + Id), Art != TEXT("missing"));
+    }
+    for (const TCHAR* Id : {TEXT("sable"), TEXT("tobias"), TEXT("nera"), TEXT("kairos"), TEXT("veil")})
+        AddInfo(FString::Printf(TEXT("FIELD_CHARACTER %s %s"), Id, *UMemoriaFieldCharacterComponent::DescribeArt(Id)));
+    return !HasAnyErrors();
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVerdanVisualTest, "MemoriaVisual.VerdanExploration", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FVerdanVisualTest::RunTest(const FString&)
