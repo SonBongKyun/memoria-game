@@ -14,7 +14,9 @@ struct FMemoriaBattleBurn
 struct FMemoriaBattleReward
 {
     int64 Grains=0, Heal=0, ObjectiveBonus=0, ObjectiveHeal=0, MomentumBonus=0;
-    FString Item, ItemId, ObjectiveItem;
+    int64 TacticalBonus=0, PreservationBonus=0, GradeBonus=0, StreakBonus=0, FocusGained=0;
+    int32 Score=0;
+    FString Item, ItemId, ObjectiveItem, Grade=TEXT("D"), Resolution=TEXT("defeat");
 };
 // Synchronous value model. No UObject, timers, delegates, audio or world access.
 // The host commits a copied result only while the originating run/world/revision live.
@@ -32,6 +34,10 @@ struct MEMORIA_API FMemoriaBattleModel
     double AnchorGuard=0, Difficulty=0, Momentum=0, Limit=0, Break=0;
     int32 Rank=0, BestRank=0, BrokenTurns=0, Combo=0, MaxCombo=0, Chain=0, Aftershock=0;
     int32 Turns=0, Actions=0, Burns=0, Breaks=0, EnemyResponses=0;
+    // Source WITNESS reading: a turn spent hearing the echo instead of burning.
+    int32 WitnessProgress=0, WitnessRequired=2, ItemsUsed=0;
+    bool bWitnessComplete=false, bResolvedByWitness=false, bScanned=false;
+    FString WitnessLine;
     TArray<FString> Abilities, Logs, Sounds;
     TArray<FMemoriaBattleStatus> PlayerStatuses, EnemyStatuses;
     TArray<FMemoriaBattleHit> Hits;
@@ -41,12 +47,16 @@ struct MEMORIA_API FMemoriaBattleModel
     void ApplyStatus(bool bPlayer, int32 Effect, int32 Duration, int64 Power);
     void ClearEvents();
     static bool SupportsObjective(const FString& Id);
+    // Source _get_witness_requirement for non-boss encounters; read before corruption.
+    static int32 WitnessRequirement(bool bVoidBeast, bool bEliaAnchor);
+    static FString WitnessKey(const FString& EnemyName);
     static FString Text(const FString& Locale, const FString& Key, const TArray<FString>& Args={});
 private:
     void Log(const FString& Key, const TArray<FString>& Args={});
     void AddMomentum(double Amount, const FString& Reason);
     void AddLimit(double Amount);
-    void CheckObjective(bool bBurn=false);
+    void CheckObjective(bool bBurn=false, bool bItem=false);
+    void Witness(int32 Power, bool bInk, FMemoriaEncounterRng& Rng);
     void Pressure(const FString& Element);
     void StatusTick(bool bPlayer);
     void EndPlayer(FMemoriaEncounterRng& Rng);

@@ -49,6 +49,8 @@ public:
     UTexture2D* DisplayedEnemyArtwork() const;
     UTexture2D* DisplayedAllyArtwork() const;
     bool IsFleeEnabled() const;
+    bool IsWitnessEnabled() const;
+    bool IsVictoryCardVisible() const;
 protected:
     virtual TSharedRef<SWidget> RebuildWidget() override;
     virtual void NativeDestruct() override;
@@ -94,6 +96,22 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ImpactText;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> BurnCost;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Gauges;
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> BreakBar;
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> MomentumBar;
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> LimitBar;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> BreakLabel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> MomentumLabel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> LimitLabel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> WitnessLabel;
+    UPROPERTY(Transient) TObjectPtr<UBorder> EchoBand;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> EchoText;
+    UPROPERTY(Transient) TObjectPtr<UBorder> CueBand;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> CueText;
+    UPROPERTY(Transient) TObjectPtr<UBorder> VictoryCard;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> VictoryTitle;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> VictoryGrade;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> VictoryBreakdown;
+    float WitnessAge=2.f,VictoryAge=0.f;
     void DrawActions();
     void Refresh();
     void Draw();

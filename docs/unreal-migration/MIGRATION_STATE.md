@@ -1,3 +1,29 @@
+# Migration handoff — S297 Witness path, battle HUD, Verdan field life (Claude lane, 2026-09-26)
+
+- Assigned by the user directly in the Claude chat after Codex S296. Claude lane `SonBongKyun/memoria-unreal-claude`, based on `3130ec5a`.
+- **Witness (gameplay).** `FMemoriaBattleModel` now plays the source `player_witness` and `_use_witness_ink` for ambient, non-boss enemies:
+  - Each reading advances the requirement (2, or 3 for a void beast; 2 again with `listened_to_humming`/`elia_stays`), records the enemy (scan), adds Limit 8/10 and Momentum 10/8, and guards the next blow.
+  - Finishing the reading releases the enemy: no damage, flag `witnessed_<key>`, released log.
+  - Victory adds the source preservation bonus (12 void / 8 released / 6 insight) with Field Focus +1, the record bonus +1 when scanned, and grade +10.
+  - `scan_first`, `witness_echo` and `no_items` are now supported objectives with rewards.
+  - Void drops now include `witness_ink`, as in the source table. The S296 port had left it out.
+  - Boss insight, the `quiet_focus` anchor passive and the `enemies_witnessed` stat stay out of this slice.
+- **Oracle.** `export_battle_core_oracle.py` adds `player_witness`/`_use_witness_ink`, witness snapshot fields, the source witness lines, and 10 cases × en/ko: 94 cases, `--check` byte-exact. The native test also compares the reward breakdown, the witness flags and the localized witness logs. It seeds gauges from the source start snapshot, which already contains the Field Focus and humming openings.
+- **Battle HUD.**
+  - Six action slots: ATTACK, BURN, WITNESS n/m, GUARD, ITEM, FLEE. Attack and Burn keep their slots and Flee is still the wrap-left target.
+  - BREAK/MOMENTUM/LIMIT bars; witness pips and the echo line in the enemy plate.
+  - Burn and witness telegraphs get their own band, and damage numbers are hidden under it.
+  - A victory card shows the grade and reward breakdown. On a release it adds the source aftermath line, and the enemy art fades to archive ink with rising motes.
+  - The log panel no longer runs under the enemy HP bar.
+  - Witness plays `rising_tone`, and release plays `memory_add`.
+- **Verdan field life.** Presentation only, with no collision, input or story change: 56 drifting ash flakes, 18 lantern embers and 5 slowly drifting mist patches, reusing `M_SoftLight` (no new assets). The controls hint in the shared SliceHost was left as is.
+- **Rendered journey.** `Memoria.BattleCore.RenderedJourney` now performs a physical WITNESS read before the burn. It adds the captures `CombatWitnessCue`, `CombatWitnessRead` and `CombatWitnessReleaseFixture` (a presentation-only fixture). The captures and the Verdan `PlayFeel1` frames were inspected. The embers are outside every capture frame, so they are not visually confirmed.
+- **Results** (UE 5.8.2, rendered, this lane):
+  - `Memoria.BattleCore.` 96/96
+  - `MemoriaVisual.` 3/3
+  - Godot oracle `--check` 94/94
+  - The full `Memoria.` registry was still running when this commit was made; see `claude-handoff.md` for its result.
+
 # Migration handoff — S296 battle core (2026-09-26)
 
 - Codex implemented the user-authorized Git repair, battle core, UI/audio and integrated journey in `codex/unreal-battle-core-20260926`, based on `4adbbfac`. No Claude/foundation source edits and no remote push.

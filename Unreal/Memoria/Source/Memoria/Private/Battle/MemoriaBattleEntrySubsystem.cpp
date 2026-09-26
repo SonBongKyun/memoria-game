@@ -242,6 +242,9 @@ bool UMemoriaBattleEntrySubsystem::BeginEncounter(int32 EnemyIndex, FMemoriaEnco
     Next.EnemyHp = Next.EnemyMaxHp = static_cast<int64>(Enemy->GetNumberField(TEXT("hp")));
     Next.EnemyAttack = static_cast<int64>(Enemy->GetNumberField(TEXT("atk")));
     Next.bEnemyVoid = Enemy->GetBoolField(TEXT("is_void")); Next.Weakness = Next.bEnemyVoid ? TEXT("void") : TEXT("fire");
+    // Source start_battle reads the requirement before corruption can convert the enemy.
+    Next.WitnessRequired = FMemoriaBattleModel::WitnessRequirement(Next.bEnemyVoid,
+        State.GetFlag(TEXT("listened_to_humming")) || State.GetFlag(TEXT("elia_stays")));
     for (const auto& A : Enemy->GetArrayField(TEXT("abilities"))) Next.EnemyAbilities.Add(A->AsString());
     Next.CurrentLocale = State.CurrentLocale; Next.bKo = State.CurrentLocale == TEXT("ko");
     Next.bEliaInParty = State.Player.bEliaWithParty;
@@ -370,6 +373,7 @@ void UMemoriaBattleEntrySubsystem::StartCombat()
     Combat.bObjectiveSupported=FMemoriaBattleModel::SupportsObjective(Combat.ObjectiveId);
     Combat.ModifierEffect=View.ModifierEffect;Combat.ModifierValue=View.ModifierValue;
     Combat.bMemoryCascade=Run->GetPlayerMemory()->HasPassive(TEXT("memory_cascade"));
+    Combat.WitnessRequired=View.WitnessRequired;
     UpdateCombatView();
 }
 void UMemoriaBattleEntrySubsystem::UpdateCombatView()
@@ -380,13 +384,23 @@ void UMemoriaBattleEntrySubsystem::UpdateCombatView()
     View.bVictory=Combat.bVictory;View.bDefeat=Combat.bDefeat;View.Reward=Combat.Reward;
     View.bObjectiveSupported=Combat.bObjectiveSupported;View.bObjectiveComplete=Combat.bObjectiveComplete;View.bObjectiveFailed=Combat.bObjectiveFailed;
     View.PlayerStatuses=Combat.PlayerStatuses;View.EnemyStatuses=Combat.EnemyStatuses;
+    View.WitnessProgress=Combat.WitnessProgress;View.WitnessRequired=Combat.WitnessRequired;View.WitnessLine=Combat.WitnessLine;
+    View.bWitnessComplete=Combat.bWitnessComplete;View.bResolvedByWitness=Combat.bResolvedByWitness;
+    if(View.ObjectiveId==TEXT("witness_echo"))View.ObjectiveProgressCurrent=Combat.WitnessProgress;
+    else if(View.ObjectiveId==TEXT("scan_first"))View.ObjectiveProgressCurrent=Combat.bScanned?1:0;
     View.Memories.Reset();View.Items.Reset();
     const auto* Memory=Run->GetPlayerMemory();
     for(const auto& Row:MemoriaArchive::Build(*Run).Rows)
         View.Memories.Add({Row.Id,Row.Title+TEXT("  · ")+Row.StateLabel,Row.Grade,Memory->CanBurn(Row.Id)==EMemoriaMemoryResult::Success,Row.Accent});
-    for(const FString Id:{TEXT("potion"),TEXT("antidote"),TEXT("firebomb")})
+    for(const FString Id:{TEXT("potion"),TEXT("antidote"),TEXT("firebomb"),TEXT("witness_ink")})
     {
         const int64 Count=Run->GetItemCount(Id);
+        if(Id==TEXT("witness_ink"))
+        {
+            // A rare carried reading; listed only when owned, spent only while the echo is still unheard.
+            if(Count>0)View.Items.Add({Id,(View.bKo?TEXT("기록 잉크"):TEXT("Witness Ink"))+FString::Printf(TEXT("  ×%lld"),Count),0,Combat.WitnessProgress<Combat.WitnessRequired});
+            continue;
+        }
         const FString Label=Id==TEXT("potion")?(View.bKo?TEXT("포션"):TEXT("Potion")):Id==TEXT("antidote")?(View.bKo?TEXT("해독제"):TEXT("Antidote")):(View.bKo?TEXT("화염탄"):TEXT("Firebomb"));
         View.Items.Add({Id,Label+FString::Printf(TEXT("  ×%lld"),Count),0,Count>0});
     }
@@ -394,14 +408,15 @@ void UMemoriaBattleEntrySubsystem::UpdateCombatView()
 bool UMemoriaBattleEntrySubsystem::Submit(const FString& Action,const FString& Id,uint64 ExpectedRevision)
 {
     if(bBusy||!IsActive()||View.bReturning||View.bResolving||View.bVictory||View.bDefeat||Revision!=ExpectedRevision)return false;
-    if(Action!=TEXT("attack")&&Action!=TEXT("burn")&&Action!=TEXT("defend")&&Action!=TEXT("item"))return false;
+    if(Action!=TEXT("attack")&&Action!=TEXT("burn")&&Action!=TEXT("defend")&&Action!=TEXT("item")&&Action!=TEXT("witness"))return false;
     if(Action==TEXT("burn")&&Run->GetPlayerMemory()->CanBurn(Id)!=EMemoriaMemoryResult::Success)return false;
-    if(Action==TEXT("item")&&((Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb"))||Run->GetItemCount(Id)<=0))return false;
+    if(Action==TEXT("item")&&((Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb")&&Id!=TEXT("witness_ink"))||Run->GetItemCount(Id)<=0))return false;
+    if((Action==TEXT("witness")||Id==TEXT("witness_ink"))&&Combat.WitnessProgress>=Combat.WitnessRequired)return false;
     TGuardValue<bool> Busy(bBusy,true);PendingAction=Action;PendingId=Id;
-    View.bResolving=true;View.bCanFlee=false;View.BattleState=TEXT("PLAYER_ACTION");View.Telegraph=Action;
+    View.bResolving=true;View.bCanFlee=false;View.BattleState=TEXT("PLAYER_ACTION");View.Telegraph=Id==TEXT("witness_ink")?TEXT("witness"):Action;
     if(Action==TEXT("burn"))for(const auto& D:Run->GetPlayerMemory()->GetDefinitions())if(D.Id==Id)View.LastBurnTitle=D.Title;
     View.Revision=++Revision;
-    OwnerWorld->GetTimerManager().SetTimer(ActionTimer,this,&UMemoriaBattleEntrySubsystem::ResolveAction,Action==TEXT("burn")?.45f:.23f,false);
+    OwnerWorld->GetTimerManager().SetTimer(ActionTimer,this,&UMemoriaBattleEntrySubsystem::ResolveAction,Action==TEXT("burn")?.45f:Action==TEXT("witness")||Id==TEXT("witness_ink")?.38f:.23f,false);
     OnChanged.Broadcast();return true;
 }
 void UMemoriaBattleEntrySubsystem::ResolveAction()

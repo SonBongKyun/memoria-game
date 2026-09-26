@@ -1078,27 +1078,57 @@ public:
             if(Frame==4)Capture(TEXT("CombatLargeImpactFixture"));
             if(Frame==12&&PC->GetBattleWidget())PC->GetBattleWidget()->Display(V);
             if(Frame==2){Battle->SetCombatRng({[](double,double){return .99;},[](int32 A,int32 B){return (A+B)/2;}});CombatBurnBefore=Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num();}
-            if(Frame==5){Key(EKeys::Right,IE_Pressed);Key(EKeys::Right,IE_Released);Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
-            if(Frame==8)
+            // Physical WITNESS read first: two Rights reach the third slot, one reading passes the turn.
+            if(Frame==14)
             {
+                Test->TestTrue(TEXT("Witness slot is enabled before reading"),PC->GetBattleWidget()&&PC->GetBattleWidget()->IsWitnessEnabled());
+                for(int32 I=0;I<2;++I){Key(EKeys::Right,IE_Pressed);Key(EKeys::Right,IE_Released);}
+                Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
+                Test->TestEqual(TEXT("Witness telegraph scheduled"),Battle->GetView().Telegraph,FString(TEXT("witness")));
+            }
+            if(Frame==18)Capture(TEXT("CombatWitnessCue"));
+            if(CombatStep==0&&Frame>18&&!V.bResolving&&V.WitnessProgress==1)
+            {
+                Test->TestEqual(TEXT("One reading recorded"),V.WitnessProgress,1);Test->TestFalse(TEXT("One reading does not release"),V.bVictory);
+                Test->TestTrue(TEXT("Echo line reaches the view"),!V.WitnessLine.IsEmpty()&&PC->GetBattleWidget()->VisibleText().Contains(V.WitnessLine));
+                Capture(TEXT("CombatWitnessRead"));CombatStep=4;CombatStepFrame=Frame;
+            }
+            if(CombatStep==4&&Frame==CombatStepFrame+3)
+            {
+                Key(EKeys::Left,IE_Pressed);Key(EKeys::Left,IE_Released);Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
+                CombatStep=1;CombatStepFrame=Frame;
+            }
+            if(CombatStep==1&&Frame==CombatStepFrame+3)
+            {
+                CombatStep=2;CombatStepFrame=Frame;
                 int32 Choice=INDEX_NONE;for(int32 I=0;I<V.Memories.Num();++I)if(V.Memories[I].bAvailable&&V.Memories[I].Grade==0){Choice=I;break;}
                 if(!Test->TestTrue(TEXT("Canonical journey leaves a sensory memory to burn"),Choice>=0))return true;
                 CombatBurnId=V.Memories[Choice].Id;for(int32 I=0;I<Choice;++I){Key(EKeys::Down,IE_Pressed);Key(EKeys::Down,IE_Released);}
                 Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);Test->TestTrue(TEXT("Physical burn command accepted"),Battle->GetView().bResolving);
             }
-            if(Frame==12)Capture(TEXT("CombatBurn"));
-            if(Frame>40 && !V.bResolving && !V.bVictory && Frame%60==0)
+            if(CombatStep==2&&Frame==CombatStepFrame+4)Capture(TEXT("CombatBurn"));
+            if(CombatStep==2&&Frame>CombatStepFrame+30 && !V.bResolving && !V.bVictory && Frame%60==0)
             {
                 if(!bCombatAttackSelected){Key(EKeys::Left,IE_Pressed);Key(EKeys::Left,IE_Released);bCombatAttackSelected=true;}
                 Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
             }
-            if(V.bVictory){Capture(TEXT("CombatVictory"));Test->TestEqual(TEXT("Battle commits exactly one chosen burn"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num(),CombatBurnBefore+1);Test->TestTrue(TEXT("Victory grants source grains"),V.Reward.Grains>0);Stage=22;Frame=-1;}
+            if(V.bVictory){Capture(TEXT("CombatVictory"));Test->TestTrue(TEXT("Victory card rendered"),PC->GetBattleWidget()->IsVictoryCardVisible());
+                Test->TestEqual(TEXT("Partial reading still earns the source record bonus"),V.Reward.TacticalBonus,int64(1));Test->TestEqual(TEXT("Battle commits exactly one chosen burn"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num(),CombatBurnBefore+1);Test->TestTrue(TEXT("Victory grants source grains"),V.Reward.Grains>0);Stage=22;Frame=-1;}
             if(V.bDefeat){Test->AddError(TEXT("Canonical deterministic burn and attacks should win"));return true;}
         }
         else if(Stage==22)
         {
-            if(Frame==25){BattleOwner=World;Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
-            if(Frame>25 && World!=BattleOwner.Get() && Host->IsVerdanRevisit()){Stage=23;Frame=-1;}
+            // Presentation-only release fixture on the live widget; combat and run stay untouched.
+            if(Frame==2&&PC->GetBattleWidget())
+            {
+                auto Preview=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->GetView();
+                Preview.bResolvedByWitness=Preview.bWitnessComplete=true;Preview.WitnessProgress=Preview.WitnessRequired;
+                Preview.Reward.Resolution=TEXT("witness");Preview.Reward.PreservationBonus=8;Preview.Reward.FocusGained=1;PC->GetBattleWidget()->Display(Preview);
+            }
+            if(Frame==60)Capture(TEXT("CombatWitnessReleaseFixture"));
+            if(Frame==62&&PC->GetBattleWidget())PC->GetBattleWidget()->Display(Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->GetView());
+            if(Frame==65){BattleOwner=World;Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
+            if(Frame>65 && World!=BattleOwner.Get() && Host->IsVerdanRevisit()){Stage=23;Frame=-1;}
         }
         else if(Stage==23)
         {
@@ -1167,7 +1197,7 @@ private:
     FString RewardBeforeRun, RewardBeforeMemory, RewardBeforeObservables; FVector RewardBeforePosition;
     FString CheckpointBefore; FVector CheckpointPosition;
     TWeakObjectPtr<UWorld> BattleOwner;
-    FString CombatBurnId;int32 CombatBurnBefore=0;bool bCombatAttackSelected=false;
+    FString CombatBurnId;int32 CombatBurnBefore=0,CombatStep=0,CombatStepFrame=0;bool bCombatAttackSelected=false;
     bool bBattleWarning=false;FMemoriaBattleEntryView FirstBattle;
     FString BattleBeforeFlee;int32 AlternativeEnemy=INDEX_NONE;TArray<FString> BattleReturnTrace;
     int32 ArchiveProbe=INDEX_NONE,ArchiveFrame=0,ArchiveCompleted=0;

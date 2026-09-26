@@ -18,18 +18,43 @@ FString FMemoriaBattleModel::Text(const FString& Locale,const FString& Key,const
 }
 void FMemoriaBattleModel::Log(const FString& Key,const TArray<FString>& Args){Logs.Add(Text(Run.CurrentLocale,Key,Args));}
 void FMemoriaBattleModel::ClearEvents(){Logs.Reset();Hits.Reset();Sounds.Reset();Ability.Reset();}
-bool FMemoriaBattleModel::SupportsObjective(const FString& I){return I==TEXT("keep_memory")||I==TEXT("swift_finish")||I==TEXT("combo_three")||I==TEXT("kindle_momentum")||I==TEXT("force_break");}
+bool FMemoriaBattleModel::SupportsObjective(const FString& I){return I==TEXT("keep_memory")||I==TEXT("swift_finish")||I==TEXT("combo_three")||I==TEXT("kindle_momentum")||I==TEXT("force_break")||I==TEXT("scan_first")||I==TEXT("witness_echo")||I==TEXT("no_items");}
+// Bosses and the quiet_focus anchor passive are outside the ambient slice; both stay at the source floor of two.
+int32 FMemoriaBattleModel::WitnessRequirement(bool bVoidBeast,bool bEliaAnchor){return FMath::Max(2,(bVoidBeast?3:2)-(bVoidBeast&&bEliaAnchor?1:0));}
+FString FMemoriaBattleModel::WitnessKey(const FString& Name)
+{
+    const FString L=Name.ToLower();
+    return L.Contains(TEXT("kairos"))?TEXT("kairos"):L.Contains(TEXT("sentinel"))||L.Contains(TEXT("guardian"))?TEXT("sentinel"):L.Contains(TEXT("void"))||L.Contains(TEXT("threshold"))?TEXT("void")
+        :L.Contains(TEXT("forest"))||L.Contains(TEXT("shade"))?TEXT("forest"):L.Contains(TEXT("ash"))||L.Contains(TEXT("crawler"))?TEXT("ash"):TEXT("generic");
+}
 void FMemoriaBattleModel::AddLimit(double A){Limit=FMath::Min(100.,Limit+A*(bMemoryCascade?1.2:1.));}
 void FMemoriaBattleModel::AddMomentum(double A,const FString& Reason)
 {
     if(A<=0)return;Momentum=FMath::Clamp(Momentum+A,0.,100.);Rank=RankAt(Momentum);BestRank=FMath::Max(BestRank,Rank);
     Run.HighestMomentumRank=FMath::Max<int64>(Run.HighestMomentumRank,Rank);Log(TEXT("[RESONANCE] %s +%d"),{Reason,N(A)});CheckObjective();
 }
-void FMemoriaBattleModel::CheckObjective(bool Burn)
+void FMemoriaBattleModel::CheckObjective(bool Burn,bool Item)
 {
     if(!bObjectiveSupported||bObjectiveComplete||bObjectiveFailed)return;
-    if((ObjectiveId==TEXT("keep_memory")&&Burn)||(ObjectiveId==TEXT("swift_finish")&&Actions>4)){bObjectiveFailed=true;return;}
-    if((ObjectiveId==TEXT("force_break")&&Breaks>0)||(ObjectiveId==TEXT("combo_three")&&MaxCombo>=3)||(ObjectiveId==TEXT("kindle_momentum")&&BestRank>=3))bObjectiveComplete=true;
+    if((ObjectiveId==TEXT("keep_memory")&&Burn)||(ObjectiveId==TEXT("no_items")&&Item)||(ObjectiveId==TEXT("swift_finish")&&Actions>4)){bObjectiveFailed=true;return;}
+    if((ObjectiveId==TEXT("force_break")&&Breaks>0)||(ObjectiveId==TEXT("combo_three")&&MaxCombo>=3)||(ObjectiveId==TEXT("kindle_momentum")&&BestRank>=3)
+        ||(ObjectiveId==TEXT("scan_first")&&bScanned)||(ObjectiveId==TEXT("witness_echo")&&bWitnessComplete))bObjectiveComplete=true;
+}
+// Source player_witness/_use_witness_ink after their action bookkeeping: read, record, guard, then release or pass the turn.
+void FMemoriaBattleModel::Witness(int32 Power,bool bInk,FMemoriaEncounterRng& Rng)
+{
+    WitnessProgress=FMath::Min(WitnessProgress+FMath::Max(Power,1),WitnessRequired);
+    const auto Table=Source()->GetObjectField(TEXT("witness_lines"))->GetObjectField(Run.CurrentLocale==TEXT("ko")?TEXT("ko"):TEXT("en"));
+    const TArray<TSharedPtr<FJsonValue>>* Lines=nullptr;if(!Table->TryGetArrayField(WitnessKey(EnemyName),Lines))Lines=&Table->GetArrayField(TEXT("generic"));
+    WitnessLine=(*Lines)[FMath::Clamp(WitnessProgress-1,0,Lines->Num()-1)]->AsString();
+    bScanned=true;CheckObjective();
+    AddLimit(bInk?10:8);AddMomentum(bInk?8:10,bInk?TEXT("Witness Ink"):TEXT("Witnessed echo"));bDefending=true;
+    Log(bInk?TEXT("[WITNESS INK %d/%d] %s"):TEXT("[WITNESS %d/%d] %s"),{N(WitnessProgress),N(WitnessRequired),WitnessLine});Sounds.Add(TEXT("rising_tone"));
+    if(WitnessProgress<WitnessRequired){EndPlayer(Rng);return;}
+    bWitnessComplete=bResolvedByWitness=true;CheckObjective();
+    const FString Flag=TEXT("witnessed_")+WitnessKey(EnemyName);
+    if(auto* F=Run.StoryFlags.FindByPredicate([&](const auto& V){return V.Id==Flag;}))F->bValue=true;else Run.StoryFlags.Add({Flag,true});
+    EnemyHp=0;Log(TEXT("[RELEASED] The echo lets go without another memory being burned."));Sounds.Add(TEXT("memory_add"));Win(Rng);
 }
 bool FMemoriaBattleModel::HasStatus(bool P,int32 E)const{for(const auto& S:P?PlayerStatuses:EnemyStatuses)if(S.Effect==E)return true;return false;}
 double FMemoriaBattleModel::Weaken(bool P)const{for(const auto& S:P?PlayerStatuses:EnemyStatuses)if(S.Effect==1)return 1.-S.Power/100.;return 1.;}
@@ -57,14 +82,17 @@ void FMemoriaBattleModel::AddItem(const FString& Id){for(auto& I:Run.Player.Item
 bool FMemoriaBattleModel::Act(const FString& Action,const FString& Id,const FMemoriaBattleBurn* Burn,FMemoriaEncounterRng& Rng)
 {
     if(bPendingEnemy||bVictory||bDefeat||EnemyHp<=0)return false;
-    if(Action!=TEXT("attack")&&Action!=TEXT("burn")&&Action!=TEXT("defend")&&Action!=TEXT("item"))return false;
+    if(Action!=TEXT("attack")&&Action!=TEXT("burn")&&Action!=TEXT("defend")&&Action!=TEXT("item")&&Action!=TEXT("witness"))return false;
     if(Action==TEXT("burn")&&!Burn)return false;
+    // Source rejects a reading (and keeps the ink) once the echo is fully heard.
+    if((Action==TEXT("witness")||(Action==TEXT("item")&&Id==TEXT("witness_ink")))&&WitnessProgress>=WitnessRequired)return false;
     if(Action==TEXT("item")){
-        if(Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb"))return false;
+        if(Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb")&&Id!=TEXT("witness_ink"))return false;
         auto* Item=Run.Player.Items.FindByPredicate([&](const auto& I){return I.Id==Id&&I.Count>0;});if(!Item)return false;
         if(--Item->Count==0)Run.Player.Items.RemoveAll([&](const auto& I){return I.Id==Id;});
     }
-    ClearEvents();++Actions;CheckObjective();
+    ClearEvents();++Actions;if(Action==TEXT("item"))++ItemsUsed;CheckObjective(false,Action==TEXT("item"));
+    if(Action==TEXT("witness")){Combo=0;LastAction=Action;Witness(1,false,Rng);return true;}
     if(Action==TEXT("attack"))
     {
         Chain=0;Combo=LastAction==TEXT("attack")?Combo+1:1;LastAction=Action;
@@ -110,6 +138,7 @@ bool FMemoriaBattleModel::Act(const FString& Action,const FString& Id,const FMem
         Combo=0;LastAction=TEXT("item");Sounds.Add(TEXT("ui_select"));const FString Name=ItemName(Id);
         if(Id==TEXT("potion")){Run.Player.Hp=FMath::Min(Run.Player.Hp+40,Run.Player.MaxHp);Hits.Add({TEXT("Arrel"),Name,-40});Sounds.Add(TEXT("heal"));Log(TEXT("Used %s, restored %d HP."),{Name,TEXT("40")});}
         else if(Id==TEXT("antidote")){PlayerStatuses.RemoveAll([](const auto& S){return S.Effect==0||S.Effect==2;});const int64 H=FMath::Min<int64>(12,Run.Player.MaxHp-Run.Player.Hp);Run.Player.Hp+=H;if(H>0)Hits.Add({TEXT("Arrel"),Name,-H});Log(TEXT("Used %s, status effects cured!"),{Name});}
+        else if(Id==TEXT("witness_ink")){Witness(1,true,Rng);return true;}
         else{Damage(12,Name);if(EnemyHp<=0){Win(Rng);return true;}ApplyStatus(false,2,2,15);}
     }
     if(EnemyHp<=0)Win(Rng);else EndPlayer(Rng);return true;
@@ -170,12 +199,25 @@ void FMemoriaBattleModel::CheckPlayer()
 void FMemoriaBattleModel::Win(FMemoriaEncounterRng& Rng)
 {
     bVictory=true;bPendingEnemy=false;Reward.Heal=int64(Run.Player.MaxHp*.2);Run.Player.Hp=FMath::Min(Run.Player.MaxHp,Run.Player.Hp+Reward.Heal);
-    if(bObjectiveSupported&&!bObjectiveFailed&&((ObjectiveId==TEXT("keep_memory")&&Burns==0)||(ObjectiveId==TEXT("swift_finish")&&Actions<=4)||(ObjectiveId==TEXT("kindle_momentum")&&BestRank>=3)))bObjectiveComplete=true;
+    int64 PreservationFocus=0;
+    if(bWitnessComplete)
+    {
+        // Source preservation: a reading completed in this fight, released or not.
+        Reward.PreservationBonus=bResolvedByWitness&&bVoid?12:bResolvedByWitness?8:6;const int64 Before=Run.Player.FieldFocus;
+        Run.Player.FieldFocus=FMath::Min<int64>(3,Run.Player.FieldFocus+1);PreservationFocus=Reward.FocusGained=Run.Player.FieldFocus-Before;
+    }
+    Reward.TacticalBonus=bScanned?1:0;Reward.Resolution=bResolvedByWitness?TEXT("witness"):bWitnessComplete?TEXT("insight"):TEXT("defeat");
+    if(bObjectiveSupported&&!bObjectiveFailed&&((ObjectiveId==TEXT("keep_memory")&&Burns==0)||(ObjectiveId==TEXT("no_items")&&ItemsUsed==0)||(ObjectiveId==TEXT("swift_finish")&&Actions<=4)||(ObjectiveId==TEXT("kindle_momentum")&&BestRank>=3)))bObjectiveComplete=true;
     if(bObjectiveSupported&&bObjectiveComplete){Reward.ObjectiveBonus=ObjectiveGrains;Reward.ObjectiveHeal=ObjectiveHeal;Reward.ObjectiveItem=ObjectiveItem;if(!ObjectiveItem.IsEmpty())AddItem(ObjectiveItem);const int64 H=FMath::Min(ObjectiveHeal,Run.Player.MaxHp-Run.Player.Hp);Run.Player.Hp+=H;Reward.Heal+=H;if(ObjectiveHeal>0)Hits.Add({TEXT("Arrel"),TEXT("Objective Heal"),-H});}
-    int32 Score=45+(bObjectiveComplete?20:0)+BestRank*5+(Breaks>0?5:0)+FMath::Min(MaxCombo,5)*2+(Actions<=4?8:Actions<=7?4:0);
-    const int64 GradeBonus=Score>=90?15:Score>=78?9:Score>=65?5:Score>=50?2:0;
-    int64 StreakBonus=0;if(bObjectiveComplete){++Run.Player.DirectiveStreak;StreakBonus=FMath::Clamp<int64>(Run.Player.DirectiveStreak-1,0,5);if(Run.Player.DirectiveStreak%3==0)Run.Player.FieldFocus=FMath::Min<int64>(3,Run.Player.FieldFocus+1);if(Run.Player.DirectiveStreak%5==0)AddItem(TEXT("witness_ink"));}else Run.Player.DirectiveStreak=0;
-    Reward.MomentumBonus=BestRank*2+(BestRank>=4?4:0);Reward.Grains=(bVoid?8:3)+EnemyMaxHp/20+Reward.ObjectiveBonus+Reward.MomentumBonus+GradeBonus+StreakBonus;Run.Player.Grains+=Reward.Grains;
-    if(Rng.Real(0,1)<=.30){TArray<FString> Table={TEXT("potion"),TEXT("potion"),TEXT("potion"),TEXT("antidote"),TEXT("antidote"),TEXT("firebomb")};if(bVoid){Table.Add(TEXT("firebomb"));Table.Add(TEXT("hi_potion"));}Reward.ItemId=Table[Rng.Integer(0,Table.Num()-1)];Reward.Item=ItemName(Reward.ItemId);AddItem(Reward.ItemId);}
-    Log(TEXT("%s is defeated!"),{EnemyName});Log(TEXT("Recovered %d HP."),{N(Reward.Heal)});Log(TEXT("Gained %d Grains."),{N(Reward.Grains)});Sounds.Add(TEXT("enemy_die"));Sounds.Add(TEXT("heal"));
+    int32 Score=45+(bObjectiveComplete?20:0)+BestRank*5+(bWitnessComplete?10:0)+(Breaks>0?5:0)+FMath::Min(MaxCombo,5)*2+(Actions<=4?8:Actions<=7?4:0);
+    const int64 GradeBonus=Score>=90?15:Score>=78?9:Score>=65?5:Score>=50?2:0;Reward.Score=FMath::Clamp(Score,0,100);
+    Reward.Grade=Score>=90?TEXT("S"):Score>=78?TEXT("A"):Score>=65?TEXT("B"):Score>=50?TEXT("C"):TEXT("D");Reward.GradeBonus=GradeBonus;
+    int64 StreakBonus=0;if(bObjectiveComplete){++Run.Player.DirectiveStreak;StreakBonus=FMath::Clamp<int64>(Run.Player.DirectiveStreak-1,0,5);if(Run.Player.DirectiveStreak%3==0){const int64 Before=Run.Player.FieldFocus;Run.Player.FieldFocus=FMath::Min<int64>(3,Run.Player.FieldFocus+1);Reward.FocusGained+=Run.Player.FieldFocus-Before;}if(Run.Player.DirectiveStreak%5==0)AddItem(TEXT("witness_ink"));}else Run.Player.DirectiveStreak=0;
+    Reward.StreakBonus=StreakBonus;Reward.MomentumBonus=BestRank*2+(BestRank>=4?4:0);
+    Reward.Grains=(bVoid?8:3)+EnemyMaxHp/20+Reward.TacticalBonus+Reward.ObjectiveBonus+Reward.MomentumBonus+Reward.PreservationBonus+GradeBonus+StreakBonus;Run.Player.Grains+=Reward.Grains;
+    if(Rng.Real(0,1)<=.30){TArray<FString> Table={TEXT("potion"),TEXT("potion"),TEXT("potion"),TEXT("antidote"),TEXT("antidote"),TEXT("firebomb")};if(bVoid){Table.Add(TEXT("firebomb"));Table.Add(TEXT("hi_potion"));Table.Add(TEXT("witness_ink"));}Reward.ItemId=Table[Rng.Integer(0,Table.Num()-1)];Reward.Item=ItemName(Reward.ItemId);AddItem(Reward.ItemId);}
+    Log(bResolvedByWitness?TEXT("%s is released from the hostile echo."):TEXT("%s is defeated!"),{EnemyName});Log(TEXT("Recovered %d HP."),{N(Reward.Heal)});
+    if(bWitnessComplete)Log(TEXT("[PRESERVATION] +%d Grains%s"),{N(Reward.PreservationBonus),PreservationFocus>0?TEXT(" / Field Focus +1"):TEXT("")});
+    Log(TEXT("Gained %d Grains."),{N(Reward.Grains)});
+    if(Reward.TacticalBonus>0)Log(TEXT("[CODEX BONUS] Tactical record +%d Grains."),{N(Reward.TacticalBonus)});Sounds.Add(TEXT("enemy_die"));Sounds.Add(TEXT("heal"));
 }

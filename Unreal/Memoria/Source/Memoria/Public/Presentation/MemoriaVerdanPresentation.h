@@ -49,6 +49,14 @@ private:
     UPROPERTY(Transient) TMap<FString, TObjectPtr<UInstancedStaticMeshComponent>> MeshBatches;
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> SurfaceMaterials;
     UPROPERTY(Transient) TArray<TObjectPtr<UPointLightComponent>> LampLights;
+    // Field life: presentation-only ash, lantern embers and ground mist. No collision, no gameplay state.
+    UInstancedStaticMeshComponent* MoteBatch(FName Name, FLinearColor Tint, float Alpha);
+    void BuildFieldLife();
+    void TickFieldLife();
+    UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> AshMotes;
+    UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> EmberMotes;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> MistPatches;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> MistMaterials;
     TWeakObjectPtr<AMemoriaFieldPawn> Player;
     TWeakObjectPtr<AMemoriaMaletActor> Malet;
     FVector PreviousPosition = FVector::ZeroVector;

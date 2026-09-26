@@ -29,6 +29,8 @@ struct MEMORIA_API FMemoriaBattleEntryView
     int32 ObjectiveProgressCurrent = 0, ObjectiveProgressTarget = 1;
     double Momentum = 0., LimitGauge = 0., BreakGauge = 0., DifficultyBonus = 0.;
     int32 MomentumRank = 0, WitnessProgress = 0, WitnessRequired = 2;
+    bool bWitnessComplete = false, bResolvedByWitness = false;
+    FString WitnessLine;
     FString MomentumLabel, EnvironmentName, EnvironmentDescription;
     FString BackgroundSource, EnemyImageSource;
     bool bResolving=false, bVictory=false, bDefeat=false, bObjectiveSupported=true, bObjectiveComplete=false, bObjectiveFailed=false;

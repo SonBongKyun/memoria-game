@@ -52,6 +52,12 @@ bool FBattleCoreSource::RunTest(const FString& Id)
     M.Momentum=Input->GetNumberField(TEXT("momentum"));M.Rank=M.BestRank=M.Momentum>=75?3:M.Momentum>=50?2:M.Momentum>=25?1:0;M.Break=Input->GetNumberField(TEXT("break_gauge"));
     for(const auto& V:Input->GetArrayField(TEXT("statuses"))){const auto S=V->AsObject();M.ApplyStatus(true,S->GetIntegerField(TEXT("effect")),S->GetIntegerField(TEXT("turns")),S->GetIntegerField(TEXT("power")));}
     for(const auto& V:Input->GetArrayField(TEXT("enemy_statuses"))){const auto S=V->AsObject();M.ApplyStatus(false,S->GetIntegerField(TEXT("effect")),S->GetIntegerField(TEXT("turns")),S->GetIntegerField(TEXT("power")));}
+    // Start from the post-entry focus (an opening may spend one) and the source reading requirement.
+    const Obj Start=States[0]->AsObject();M.Run.Player.FieldFocus=Start->GetIntegerField(TEXT("focus"));
+    // Entry openings (Field Focus, Elia's humming) already moved these gauges in the source start state.
+    M.Limit=Start->GetNumberField(TEXT("limit"));M.Momentum=Start->GetNumberField(TEXT("momentum"));M.Rank=M.BestRank=Start->GetIntegerField(TEXT("rank"));M.Break=Start->GetNumberField(TEXT("break"));
+    M.WitnessRequired=FMemoriaBattleModel::WitnessRequirement(M.bVoid,M.Run.GetFlag(TEXT("listened_to_humming"))||M.Run.GetFlag(TEXT("elia_stays")));
+    TestEqual(TEXT("Source witness requirement"),M.WitnessRequired,Start->GetIntegerField(TEXT("witness_required")));
     const auto Actions=Input->GetArrayField(TEXT("actions"));
     for(int32 I=1;I<States.Num();++I)
     {
@@ -69,8 +75,11 @@ bool FBattleCoreSource::RunTest(const FString& Id)
         for(int32 Safety=0;M.bPendingEnemy&&Safety<10;++Safety){M.EnemyTurn(Rng);Hits.Append(M.Hits);Logs.Append(M.Logs);}
         const auto Eq=[&](const TCHAR* Key,double Actual){TestEqual(FString::Printf(TEXT("Turn %d %s"),I,Key),Actual,E->GetNumberField(Key));};
         Eq(TEXT("hp"),M.Run.Player.Hp);Eq(TEXT("enemy_hp"),M.EnemyHp);Eq(TEXT("momentum"),M.Momentum);Eq(TEXT("rank"),M.Rank);Eq(TEXT("limit"),M.Limit);Eq(TEXT("break"),M.Break);Eq(TEXT("broken_turns"),M.BrokenTurns);Eq(TEXT("combo"),M.Combo);Eq(TEXT("chain"),M.Chain);Eq(TEXT("aftershock"),M.Aftershock);Eq(TEXT("turns"),M.Turns);Eq(TEXT("actions"),M.Actions);Eq(TEXT("grains"),M.Run.Player.Grains);Eq(TEXT("streak"),M.Run.Player.DirectiveStreak);Eq(TEXT("focus"),M.Run.Player.FieldFocus);Eq(TEXT("state"),M.bVictory?3:M.bDefeat?4:1);
+        Eq(TEXT("witness_progress"),M.WitnessProgress);Eq(TEXT("witness_required"),M.WitnessRequired);Eq(TEXT("items_used"),M.ItemsUsed);
         const auto Bool=[&](const TCHAR* K,bool V){TestEqual(FString::Printf(TEXT("Turn %d %s"),I,K),V,E->GetBoolField(K));};
         Bool(TEXT("defending"),M.bDefending);Bool(TEXT("shielded"),M.bShielded);Bool(TEXT("reflecting"),M.bReflecting);Bool(TEXT("charged"),M.bCharged);Bool(TEXT("last_stand"),M.bLastStand);Bool(TEXT("objective_complete"),M.bObjectiveComplete);Bool(TEXT("objective_failed"),M.bObjectiveFailed);
+        Bool(TEXT("witness_complete"),M.bWitnessComplete);Bool(TEXT("witness_resolved"),M.bResolvedByWitness);Bool(TEXT("scanned"),M.bScanned);
+        for(const auto& F:E->GetObjectField(TEXT("flags"))->Values)if(F.Key.ToView().StartsWith(TEXT("witnessed_")))TestTrue(TEXT("Release records the source witness flag"),M.Run.GetFlag(FString(F.Key.ToView())));
         auto Projection=MakeShared<FJsonObject>(),Expected=MakeShared<FJsonObject>();Projection->SetArrayField(TEXT("player_statuses"),StatusCore(M.PlayerStatuses));Projection->SetArrayField(TEXT("enemy_statuses"),StatusCore(M.EnemyStatuses));Expected->SetArrayField(TEXT("player_statuses"),E->GetArrayField(TEXT("player_statuses")));Expected->SetArrayField(TEXT("enemy_statuses"),E->GetArrayField(TEXT("enemy_statuses")));
         auto Items=MakeShared<FJsonObject>();for(const auto& Item:M.Run.Player.Items)Items->SetNumberField(Item.Id,Item.Count);Projection->SetObjectField(TEXT("items"),Items);Expected->SetObjectField(TEXT("items"),E->GetObjectField(TEXT("items")));
         TArray<Val> HitValues;for(const auto& H:Hits){auto V=MakeShared<FJsonObject>();V->SetStringField(TEXT("target"),H.Target);V->SetStringField(TEXT("skill"),H.Skill);V->SetNumberField(TEXT("amount"),H.Amount);HitValues.Add(MakeShared<FJsonValueObject>(V));}
@@ -79,10 +88,16 @@ bool FBattleCoreSource::RunTest(const FString& Id)
         TestEqual(TEXT("Burn history matches source"),FString::Join(Memory->GetSnapshot().BurnedHistory,TEXT(",")),FString::Join(StringsCore(E->GetArrayField(TEXT("burned"))),TEXT(",")));
         TestEqual(TEXT("Exact RNG calls at action boundary"),Cursor,E->GetArrayField(TEXT("rng")).Num());
         if(E->GetObjectField(TEXT("flags"))->HasField(TEXT("oath_still_broken")))TestTrue(TEXT("Still Hands breaks on voluntary Elia burn"),M.Run.GetFlag(TEXT("oath_still_broken")));
-        const auto Reward=E->GetObjectField(TEXT("reward"));if(M.bVictory){TestEqual(TEXT("Source reward grains"),M.Reward.Grains,int64(Reward->GetNumberField(TEXT("grains"))));TestEqual(TEXT("Source reward heal"),M.Reward.Heal,int64(Reward->GetNumberField(TEXT("heal"))));TestEqual(TEXT("Source drop"),M.Reward.Item,Reward->GetStringField(TEXT("item")));}
+        const auto Reward=E->GetObjectField(TEXT("reward"));if(M.bVictory){TestEqual(TEXT("Source reward grains"),M.Reward.Grains,int64(Reward->GetNumberField(TEXT("grains"))));TestEqual(TEXT("Source reward heal"),M.Reward.Heal,int64(Reward->GetNumberField(TEXT("heal"))));TestEqual(TEXT("Source drop"),M.Reward.Item,Reward->GetStringField(TEXT("item")));
+            const auto RewardEq=[&](const TCHAR* K,int64 V){TestEqual(FString::Printf(TEXT("Source reward %s"),K),V,int64(Reward->GetNumberField(K)));};
+            RewardEq(TEXT("tactical_bonus"),M.Reward.TacticalBonus);RewardEq(TEXT("preservation_bonus"),M.Reward.PreservationBonus);RewardEq(TEXT("objective_bonus"),M.Reward.ObjectiveBonus);
+            RewardEq(TEXT("grade_bonus"),M.Reward.GradeBonus);RewardEq(TEXT("streak_bonus"),M.Reward.StreakBonus);RewardEq(TEXT("field_focus_gained"),M.Reward.FocusGained);RewardEq(TEXT("battle_score"),M.Reward.Score);
+            TestEqual(TEXT("Source battle grade"),M.Reward.Grade,Reward->GetStringField(TEXT("battle_grade")));TestEqual(TEXT("Source resolution"),M.Reward.Resolution,Reward->GetStringField(TEXT("resolution")));}
         // Numeric hit events above are exhaustive. Check the localized player-action
         // message key whenever that source branch emits it, without treating omitted
         // companion/profile presentation as part of the slice's numeric contract.
+        const TArray<FString> WitnessKeys={TEXT("[WITNESS"),TEXT("[RELEASED]"),TEXT("[PRESERVATION]"),TEXT("[CODEX BONUS]"),TEXT("[증언"),TEXT("[기록 잉크"),TEXT("[해방]"),TEXT("[보존]"),TEXT("[도감 보너스]")};
+        for(const auto& L:Logs)if(WitnessKeys.ContainsByPredicate([&](const FString& K){return L.StartsWith(K);}))TestTrue(TEXT("Localized source witness log"),StringsCore(E->GetArrayField(TEXT("logs"))).Contains(L));
         for(const auto& L:Logs)if(L.Contains(TEXT("strikes!"))||L.Contains(TEXT("아렐의 일격!")))TestTrue(TEXT("Localized source action log"),StringsCore(E->GetArrayField(TEXT("logs"))).Contains(L));
     }
     TestEqual(TEXT("All recorded RNG consumed"),Cursor,Tape.Num());Game->Shutdown();return true;

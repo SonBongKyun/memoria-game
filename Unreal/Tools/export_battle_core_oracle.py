@@ -16,7 +16,8 @@ _get_grains_reward _get_tactical_bonus _try_item_drop_return _finalize_tactical_
 apply_status _process_statuses _get_weaken_multiplier has_status _get_status_name _soften_player_statuses
 _try_last_stand_resonance _apply_burn_aftershock _advance_burn_aftershock get_burn_aftershock_preview
 get_stance_atk_mult get_stance_def_mult has_echo consume_echo_charge _get_env_element_mult get_env_heal_mult
-_check_env_evasion _check_env_enemy_miss dismiss_victory _calculate_battle_grade _advance_directive_streak'''.split())|EXCLUDED
+_check_env_evasion _check_env_enemy_miss dismiss_victory _calculate_battle_grade _advance_directive_streak
+player_witness _use_witness_ink'''.split())|EXCLUDED
 
 def inputs():
     cases=[]
@@ -24,7 +25,7 @@ def inputs():
         c=dict(id=id,locale='en',enemy_index=0,chapter=3,hp=115,max_hp=130,enemy_hp=0,
                enemy_atk=0,abilities=[],objective='keep_memory',weakness='',resistance='',
                actions=actions,draws=[],statuses=[],enemy_statuses=[],erosion={},momentum=0,break_gauge=0,
-               modifier_effect='',modifier_value=0,is_void=False,streak=0,flags={'ch2_complete':True},items={'potion':2,'antidote':2,'firebomb':2})
+               modifier_effect='',modifier_value=0,is_void=False,streak=0,focus=0,flags={'ch2_complete':True},items={'potion':2,'antidote':2,'firebomb':2})
         c.update(kw);cases.append(c)
     attack={'action':'attack'};defend={'action':'defend'}
     burn=lambda id:dict(action='burn',id=id)
@@ -62,6 +63,17 @@ def inputs():
     add('modifier_limit',[defend,defend],modifier_effect='turn_limit',modifier_value=2,streak=2)
     add('void_physical',[attack,attack],is_void=True)
     add('victory_streak',[attack],enemy_hp=1,streak=2)
+    witness={'action':'witness'}
+    add('witness_release',[witness,witness])
+    add('witness_objective',[witness,witness],objective='witness_echo')
+    add('witness_combo_reset',[attack,witness,attack],enemy_hp=300)
+    add('scan_first',[witness,attack,attack],enemy_hp=40,objective='scan_first')
+    add('witness_ink_no_items',[item('witness_ink'),witness],objective='no_items',items={'potion':1,'witness_ink':1})
+    add('no_items_kept',[attack],enemy_hp=1,objective='no_items')
+    add('witness_void',[witness]*3,is_void=True,hp=130)
+    add('witness_void_anchor',[witness]*2,is_void=True,flags={'ch2_complete':True,'listened_to_humming':True})
+    add('witness_focus_capped',[witness,witness],streak=2,objective='witness_echo',focus=3)
+    add('void_drop_ink',[attack],enemy_hp=1,is_void=True,draws=[{'kind':'int','value':5},{'kind':'float','value':0.0},{'kind':'int','value':8}])
     for c in cases:
         for locale in ['en','ko']:
             out=json.loads(json.dumps(c));out['id']+='_'+locale;out['locale']=locale;yield out
@@ -110,7 +122,9 @@ func snapshot() -> Dictionary:
         "grains":GameManager.player_data.grains,"streak":GameManager.get_directive_streak(),"focus":GameManager.get_field_focus(),"items":GameManager.player_data.items.duplicate(true),
         "burned":burned,"flags":GameManager.story_flags.duplicate(true),"reward":reward.duplicate(true),
         "logs":logs.duplicate(),"events":events.duplicate(true),"rng":OracleRng.calls.duplicate(true),
-        "objective_complete":b._objective_completed,"objective_failed":b._objective_failed}
+        "objective_complete":b._objective_completed,"objective_failed":b._objective_failed,
+        "witness_progress":b._witness_progress,"witness_required":b._witness_required,"witness_complete":b._witness_completed_this_battle,
+        "witness_resolved":b._resolved_by_witness,"scanned":b.scanned_enemies.size()>0,"items_used":b._items_used_this_battle}
 func run() -> void:
     var args=OS.get_cmdline_user_args()
     GameManager.story_flags={"ch2_complete":true}
@@ -124,7 +138,8 @@ func run() -> void:
     BattleManager.victory_rewards_ready.connect(func(r):reward=r.duplicate(true))
     BattleManager.battle_ended.connect(func(_r):ended=true)
     BattleManager.player_turn_started.connect(func():player_ready=true)
-    var catalog={"burn_skills":BattleManager.BURN_SKILLS,"items":GameManager.ITEMS,"messages":{"en":{},"ko":{}}}
+    var catalog={"burn_skills":BattleManager.BURN_SKILLS,"items":GameManager.ITEMS,"messages":{"en":{},"ko":{}},
+        "witness_lines":{"en":BattleManager.WITNESS_LINES_EN,"ko":BattleManager.WITNESS_LINES_KO}}
     for locale in ["en","ko"]:
         GameManager.current_locale=locale
         for pair in JSON.parse_string(FileAccess.get_file_as_string("res://message_pairs.json")):
@@ -135,7 +150,7 @@ func run() -> void:
         GameManager.current_locale=c.locale;GameManager.current_chapter=int(c.chapter)
         GameManager.story_flags=c.flags.duplicate(true)
         GameManager.player_data={"name":"Arrel","hp":int(c.hp),"max_hp":int(c.max_hp),"grains":17,
-            "elia_with_party":true,"field_focus":0,"directive_streak":int(c.streak),"items":c.items.duplicate(true),
+            "elia_with_party":true,"field_focus":int(c.focus),"directive_streak":int(c.streak),"items":c.items.duplicate(true),
             "recent_items":[],"item_quick_slots":["potion","antidote","firebomb"]}
         GameManager.play_stats=GameManager.initial_play_stats.duplicate(true)
         MemoryManager.memories.clear();MemoryManager.burned_memories.clear();MemoryManager.burn_passives.clear()
@@ -175,6 +190,7 @@ func run() -> void:
                     BattleManager.player_burn(action.id)
                 "defend":BattleManager.player_defend()
                 "item":BattleManager.player_use_item(action.id)
+                "witness":BattleManager.player_witness()
             assert(BattleManager._player_actions_this_battle>old_actions,"Action was rejected")
             while not ended and not player_ready:await get_tree().process_frame
             await get_tree().create_timer(0.06).timeout
