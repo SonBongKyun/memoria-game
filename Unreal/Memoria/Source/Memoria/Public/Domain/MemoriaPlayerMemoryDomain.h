@@ -23,6 +23,8 @@ public:
     EMemoriaMemoryResult Burn(const FString& Id, EMemoriaBurnMode Mode, bool bAllowFaded, const FMemoriaMemoryContext& Context);
     EMemoriaMemoryResult ApplyErosion(int64 Chapter, const FMemoriaMemoryContext& Context);
     EMemoriaMemoryResult EvaluatePassives();
+    EMemoriaMemoryResult AdvanceChapter(int64 Chapter, const FMemoriaMemoryContext& Context);
+    UFUNCTION(BlueprintPure, Category="Memoria|Memory") bool HasAnchorPassive(const FString& Id) const;
 
     UFUNCTION(BlueprintPure, Category="Memoria|Memory") FMemoriaMemorySnapshot GetSnapshot() const;
     UFUNCTION(BlueprintPure, Category="Memoria|Memory") EMemoriaMemoryResult CanBurn(const FString& Id, bool bAllowFaded = false) const;

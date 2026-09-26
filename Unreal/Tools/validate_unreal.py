@@ -137,7 +137,8 @@ def battle_entry_test_paths():
 
 def chapter1_test_paths():
     from narrative_ir import VN_CASES
-    return {'Memoria.Chapter1.ImportParity.'+k for k in VN_CASES if k.startswith('ch1_')} | {'Memoria.Chapter1.RouteChain'}
+    from export_chapter1_oracle import inputs
+    return {'Memoria.Chapter1.ImportParity.'+k for k in VN_CASES if k.startswith('ch1_')} | {'Memoria.Chapter1.RouteChain'} | {'Memoria.Chapter1.OracleRoute.'+c['id'] for c in inputs()}
 
 
 def verdan_story_test_paths():

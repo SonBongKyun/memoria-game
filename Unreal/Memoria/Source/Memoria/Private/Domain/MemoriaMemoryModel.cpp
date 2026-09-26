@@ -281,6 +281,49 @@ void Model::UnlockPassives(const Observer& Notify)
         Emit(Notify, Unlocked);
     }
 }
+Result Model::AdvanceChapter(std::int64_t Chapter, const Context& Runtime, const Observer& Notify)
+{
+    if (Mutating) { return Result::Busy; }
+    // _vigil_chapters_counted: the bookkeeping runs once per chapter, however often it is entered.
+    if (std::find(Data.VigilChapters.begin(), Data.VigilChapters.end(), Chapter) != Data.VigilChapters.end()) { return Result::Success; }
+    if (Chapter >= 3)
+    {
+        const Result Eroded = ApplyErosion(Chapter, Runtime, Notify);
+        if (Eroded != Result::Success) { return Eroded; }
+    }
+    MutationScope Scope(Mutating);
+    Data.VigilChapters.push_back(Chapter);
+    // accrue_anchor_vigil: WEAVE_SECONDARY intact anchors x2, +3 while the primary name holds.
+    static const std::array<const char*, 4> Secondary{{"identity_first_sword", "rel_hand_reaching", "daily_elia_hands", "rel_sable_trust"}};
+    std::int64_t Gained = 0;
+    for (const char* Id : Secondary) { if (IsIntact(Id)) { Gained += 2; } }
+    if (IsIntact("core_name_origin")) { Gained += 3; }
+    if (Gained > 0)
+    {
+        Data.AnchorVigil += Gained;
+        Event Vigil; Vigil.Kind = EventKind::AnchorVigil; Vigil.Amount = Gained; Emit(Notify, Vigil);
+        struct Threshold { std::int64_t Vigil; const char* Id; const char* Name; };
+        constexpr std::array<Threshold, 5> Thresholds{{
+            {8, "quiet_focus", "Quiet Focus"}, {20, "steady_hand", "Steady Hand"}, {36, "unbroken_edge", "Unbroken Edge"},
+            {56, "shared_burden", "Shared Burden"}, {80, "deep_anchor", "Deep Anchor"}
+        }};
+        for (const auto& T : Thresholds)
+        {
+            if (Data.AnchorVigil < T.Vigil || HasAnchorPassive(T.Id)) { continue; }
+            Data.AnchorPassives.push_back({T.Id, true});
+            Event Unlocked; Unlocked.Kind = EventKind::AnchorPassiveUnlocked; Unlocked.PassiveId = T.Id; Unlocked.PassiveName = T.Name;
+            Emit(Notify, Unlocked);
+        }
+    }
+    Data.GuardSlotsUsed = 0;
+    // check_loan_maturity/extract_collateral and the Oath of Ash payout need the loan and oath
+    // systems, which are not in the Unreal slice yet; neither can be active on the Chapter 1 route.
+    return Result::Success;
+}
+bool Model::HasAnchorPassive(const std::string& Id) const
+{
+    return std::any_of(Data.AnchorPassives.begin(), Data.AnchorPassives.end(), [&](const NamedFlag& F) { return F.Id == Id && F.Value; });
+}
 Result Model::EvaluatePassives(const Observer& Notify)
 {
     if (Mutating) { return Result::Busy; }

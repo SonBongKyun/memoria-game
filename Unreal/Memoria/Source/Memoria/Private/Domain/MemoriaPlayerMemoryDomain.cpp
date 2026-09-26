@@ -109,6 +109,11 @@ EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::ApplyErosion(int64 Chapter, con
 {
     return static_cast<EMemoriaMemoryResult>(Model->ApplyErosion(Chapter, ToContext(Context), [this](const auto& E) { Publish(FromEvent(E)); }));
 }
+EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::AdvanceChapter(int64 Chapter, const FMemoriaMemoryContext& Context)
+{
+    return static_cast<EMemoriaMemoryResult>(Model->AdvanceChapter(Chapter, ToContext(Context), [this](const auto& E) { Publish(FromEvent(E)); }));
+}
+bool UMemoriaPlayerMemoryDomain::HasAnchorPassive(const FString& Id) const { return Model->HasAnchorPassive(Utf8(Id)); }
 EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::EvaluatePassives()
 {
     return static_cast<EMemoriaMemoryResult>(Model->EvaluatePassives([this](const auto& E) { Publish(FromEvent(E)); }));

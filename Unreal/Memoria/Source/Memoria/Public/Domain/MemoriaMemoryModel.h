@@ -12,7 +12,7 @@ namespace Memoria::Memory
 enum class Grade : std::uint8_t { Grade5 = 0, Grade4 = 1, Grade3 = 2, Grade2 = 3, Grade1 = 4 };
 enum class BurnMode : std::uint8_t { Normal, Silent };
 enum class Result : std::uint8_t { Success, Missing, AlreadyBurned, Faded, Collateral, Busy, InvalidSnapshot };
-enum class EventKind : std::uint8_t { Added, ResidueCreated, Faded, Cascaded, Burned, CarryChanged, PassiveUnlocked, MemoriesEroded };
+enum class EventKind : std::uint8_t { Added, ResidueCreated, Faded, Cascaded, Burned, CarryChanged, PassiveUnlocked, MemoriesEroded, AnchorVigil, AnchorPassiveUnlocked };
 
 struct Definition
 {
@@ -84,6 +84,10 @@ public:
     Result Burn(const std::string& Id, BurnMode Mode, bool AllowFaded, const Context& Runtime, const Observer& Notify = {});
     Result ApplyErosion(std::int64_t Chapter, const Context& Runtime, const Observer& Notify = {});
     Result EvaluatePassives(const Observer& Notify = {});
+    // Source MemoryManager.add_chapter_memories bookkeeping, once per chapter: erosion from
+    // chapter 3, anchor vigil and its passives, and a fresh guard-slot budget.
+    Result AdvanceChapter(std::int64_t Chapter, const Context& Runtime, const Observer& Notify = {});
+    bool HasAnchorPassive(const std::string& Id) const;
 
     const Snapshot& GetSnapshot() const { return Data; }
     const std::vector<Definition>& GetDefinitions() const { return Catalog; }

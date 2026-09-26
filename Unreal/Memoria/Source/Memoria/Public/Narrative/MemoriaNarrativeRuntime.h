@@ -6,6 +6,8 @@
 
 // Borrowed run/domain references must outlive an interpreter. No campaign boot,
 // travel or UI occurs here. Effects use the accepted memory domain, never copies.
+// What a VN step shows after scene_flow.gd distortion (distort_if_burned + distorted_*).
+struct FMemoriaVNDisplay { bool bDistorted=false; FString Speaker, Text, Narrate, Portrait, Cg; };
 struct MEMORIA_API FMemoriaNarrativeContext
 {
     FMemoriaRunSnapshot& Run;
@@ -25,6 +27,9 @@ struct MEMORIA_API FMemoriaNarrativeContext
     // Legacy dialogue_manager.gd rule: requires_memory + burned_text swap the line (and
     // burned_portrait) once that memory is in the burned list; the row always shows.
     bool UsesBurnedText(const FMemoriaNarrativeText& T) const;
+    // scene_flow.gd set_chapter: a new chapter runs MemoryManager.add_chapter_memories once.
+    void SetChapter(int32 Chapter);
+    FMemoriaVNDisplay VNDisplay(const FMemoriaVNStep& S) const;
 };
 
 class MEMORIA_API FMemoriaFieldInterpreter
@@ -49,7 +54,13 @@ private:
 class MEMORIA_API FMemoriaVNInterpreter
 {
 public:
-    FMemoriaVNInterpreter(const FMemoriaVNDefinition& D,FMemoriaNarrativeContext& C) : Definition(D),Context(C) {}
+    // Resolve maps a goto_scene id to another imported definition (the Chapter 1 route); without
+    // one only same-scene goto_scene is followed. bQualified adds scene ids and displayed text to
+    // the event trace, as the Chapter 1 oracle records them.
+    using FResolver=TFunction<const FMemoriaVNDefinition*(const FString&)>;
+    FMemoriaVNInterpreter(const FMemoriaVNDefinition& D,FMemoriaNarrativeContext& C,FResolver InResolve=nullptr,bool bInQualified=false)
+        : Definition(&D),Context(C),Resolve(MoveTemp(InResolve)),bQualified(bInQualified) {}
+    const FMemoriaVNDefinition& GetDefinition() const { return *Definition; }
     void Play(int32 StartIndex=0);
     void Advance();
     void SelectOriginalChoice(int32 OriginalChoiceIndex);
@@ -61,8 +72,11 @@ public:
     bool PrepareResume(const FMemoriaVNContinuation& Saved);
     bool ConsumePendingOrQueue();
 private:
-    const FMemoriaVNDefinition& Definition;
+    const FMemoriaVNDefinition* Definition;
     FMemoriaNarrativeContext& Context;
+    FResolver Resolve;
+    bool bQualified=false;
+    FString Where(int32 Index) const;
     FMemoriaVNContinuation Continuation;
     void Execute();
     void End();

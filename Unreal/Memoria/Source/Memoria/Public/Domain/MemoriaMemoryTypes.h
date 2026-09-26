@@ -15,7 +15,7 @@ enum class EMemoriaBurnMode : uint8 { Normal, Silent };
 UENUM(BlueprintType)
 enum class EMemoriaMemoryResult : uint8 { Success, Missing, AlreadyBurned, Faded, Collateral, Busy, InvalidSnapshot };
 UENUM(BlueprintType)
-enum class EMemoriaMemoryEventKind : uint8 { Added, ResidueCreated, Faded, Cascaded, Burned, CarryChanged, PassiveUnlocked, MemoriesEroded };
+enum class EMemoriaMemoryEventKind : uint8 { Added, ResidueCreated, Faded, Cascaded, Burned, CarryChanged, PassiveUnlocked, MemoriesEroded, AnchorVigil, AnchorPassiveUnlocked };
 
 USTRUCT(BlueprintType)
 struct MEMORIA_API FMemoriaMemoryDefinition

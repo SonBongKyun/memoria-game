@@ -1,3 +1,30 @@
+# Migration handoff — S303 Chapter 1 stage 2: the route plays (Claude lane, 2026-09-26)
+
+- P5 stage 2, assigned by the user (Claude working alone). The imported Chapter 1 route now executes exactly as `scene_flow.gd` does, from `ch1_cold_open` through `ch2_market_arrival` to the Verdan map request.
+- **Interpreter.** `FMemoriaVNInterpreter` takes an optional resolver, so `goto_scene` can switch to another imported definition (same-scene `goto_scene` is unchanged). The step order follows `_run_step`:
+  - flag, `set_chapter`, `complete_chapter` (event and ledger of memories burned since `set_chapter`), autosave, burn, ending, gate, rewards, action;
+  - distortion is applied at display time.
+- **`FMemoriaNarrativeContext`:**
+  - `SetChapter` advances the run chapter and calls the new domain `AdvanceChapter`.
+  - `VNDisplay` applies `distort_if_burned` as the source does: keys are replaced before localization, so a missing `distorted_*_ko` keeps the original Korean.
+  - Chapter completion and autosave are recorded as events. Stage 3 hosts turn them into the ledger overlay and the actual save.
+- **Memory domain.** `AdvanceChapter` ports `add_chapter_memories`' once-per-chapter bookkeeping:
+  - erosion from chapter 3;
+  - anchor vigil (intact `WEAVE_SECONDARY` × 2, +3 for `core_name_origin`) and its passives (quiet_focus 8, steady_hand 20, unbroken_edge 36, shared_burden 56, deep_anchor 80);
+  - a guard-slot reset.
+  - Two new event kinds are appended.
+  - Loan maturity and the Oath of Ash payout are deferred: neither system exists in the slice, and neither can be active on this route.
+- **Oracle.** New `export_chapter1_oracle.py` runs the pinned Godot SceneFlow and MemoryManager over the six route scenes. It uses the existing isolated harness; only the ledger overlay, chapter-complete and autosave are recorded instead of drawn or saved. Five cases (four branch paths in en, one in ko) cover every option at every Chapter 1 choice and the arrival choice, including:
+  - the song burn and its distortion;
+  - the humming gate;
+  - three forest-hub orders;
+  - the void-beast burns and the counter unlocked by the cold-open reading.
+  - Fixtures are under `fixtures/chapter1` (LF-pinned).
+- **Tests.** `Memoria.Chapter1.OracleRoute.<case>` replays each case with the imported assets and compares:
+  - the full event trace (visits, steps with the displayed text, choices, flags, burns, items, Grains, chapter effects);
+  - every choice-point and final snapshot (scene, index, flags, Grains, HP, chapter, burned, anchor vigil and passives, guard slots, map).
+- **Results:** full rendered registry `MEMORIA_UNREAL_PASS discovered=403 source_parity=51` (398 → 403); Chapter 1 oracle `--check` 5 cases and narrative oracle `--check` 10 cases byte-exact.
+
 # Migration handoff — S302 Chapter 1 stage 1: VN content import (Claude lane, 2026-09-26)
 
 - Roadmap P5: New Game through the current Chapter 1 to the Verdan arrival. The user asked Claude, working alone while Codex is out of quota, to do it in three stages:

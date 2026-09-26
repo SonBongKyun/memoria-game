@@ -60,6 +60,30 @@ void FMemoriaNarrativeContext::Rewards(const FMemoriaNarrativeEffects& E,bool VN
     }
     if (E.bHasHealPlayer) Run.Player.Hp+=FMath::Max<int64>(0,FMath::Min<int64>(E.HealPlayer,Run.Player.MaxHp-Run.Player.Hp));
 }
+void FMemoriaNarrativeContext::SetChapter(int32 Chapter)
+{
+    if (Chapter==Run.CurrentChapter) return;
+    Run.CurrentChapter=Chapter; Memory.AdvanceChapter(Chapter,Run.MemoryContext());
+}
+FMemoriaVNDisplay FMemoriaNarrativeContext::VNDisplay(const FMemoriaVNStep& S) const
+{
+    // Distortion replaces keys before localization, so a missing distorted_*_ko keeps the original Korean.
+    const auto& T=S.Text; const auto& P=S.Presentation; FMemoriaVNDisplay D;
+    D.bDistorted=T.bHasDistortIfBurned && Memory.GetSnapshot().BurnedHistory.Contains(T.DistortIfBurned);
+    const bool KO=Run.CurrentLocale==TEXT("ko");
+    auto Pick=[&](bool HasBase,const FString& Base,bool HasKo,const FString& Ko,bool HasDBase,const FString& DBase,bool HasDKo,const FString& DKo)
+    {
+        const bool B=D.bDistorted&&HasDBase?true:HasBase, K=D.bDistorted&&HasDKo?true:HasKo;
+        const FString& BV=D.bDistorted&&HasDBase?DBase:Base; const FString& KV=D.bDistorted&&HasDKo?DKo:Ko;
+        return KO&&K?KV:(B?BV:FString());
+    };
+    D.Text=Pick(T.bHasText,T.Text,T.bHasTextKo,T.TextKo,T.bHasDistortedText,T.DistortedText,T.bHasDistortedTextKo,T.DistortedTextKo);
+    D.Narrate=Pick(T.bHasNarrate,T.Narrate,T.bHasNarrateKo,T.NarrateKo,T.bHasDistortedNarrate,T.DistortedNarrate,T.bHasDistortedNarrateKo,T.DistortedNarrateKo);
+    D.Speaker=D.bDistorted&&T.bHasDistortedSpeaker?T.DistortedSpeaker:T.Speaker;
+    D.Portrait=D.bDistorted&&P.bHasDistortedPortrait?P.DistortedPortrait:P.Portrait;
+    D.Cg=D.bDistorted&&P.bHasDistortedCg?P.DistortedCg:P.Cg;
+    return D;
+}
 bool FMemoriaNarrativeContext::UsesBurnedText(const FMemoriaNarrativeText& T) const
 {
     return T.bHasRequiresMemory && T.bHasBurnedText && Memory.GetSnapshot().BurnedHistory.Contains(T.RequiresMemory);
@@ -113,15 +137,15 @@ void FMemoriaFieldInterpreter::SelectFilteredChoice(int32 I)
 }
 void FMemoriaVNInterpreter::Play(int32 Start)
 {
-    Continuation.Current.SequenceId=Definition.Id; Continuation.Current.OriginalIndex=FMath::Clamp(Start,0,Definition.Steps.Num()); Continuation.bActive=true; Execute();
+    Continuation.Current.SequenceId=Definition->Id; Continuation.Current.OriginalIndex=FMath::Clamp(Start,0,Definition->Steps.Num()); Continuation.bActive=true; Execute();
 }
 void FMemoriaVNInterpreter::Advance() { if (Continuation.bActive) { ++Continuation.Current.OriginalIndex; Execute(); } }
 void FMemoriaVNInterpreter::End()
 { Continuation.bActive=false; Continuation.Current={}; Context.Events.Add(TEXT("end")); }
 TArray<int32> FMemoriaVNInterpreter::VisibleOriginalIndices() const
 {
-    TArray<int32> R; if (!Continuation.bActive || !Definition.Steps.IsValidIndex(Continuation.Current.OriginalIndex)) return R;
-    for (const auto& C:Definition.Steps[Continuation.Current.OriginalIndex].Choices) if (Context.Gate(C.Gate) && Context.ExposeCost(C.Effects)) R.Add(C.OriginalIndex);
+    TArray<int32> R; if (!Continuation.bActive || !Definition->Steps.IsValidIndex(Continuation.Current.OriginalIndex)) return R;
+    for (const auto& C:Definition->Steps[Continuation.Current.OriginalIndex].Choices) if (Context.Gate(C.Gate) && Context.ExposeCost(C.Effects)) R.Add(C.OriginalIndex);
     return R;
 }
 void FMemoriaVNInterpreter::Execute()
@@ -129,10 +153,20 @@ void FMemoriaVNInterpreter::Execute()
     int32 Budget=4096; // Report a bounded contract failure rather than hang on malformed synthetic loops.
     while (Continuation.bActive && Budget-->0)
     {
-        auto& Index=Continuation.Current.OriginalIndex; Index=FMath::Max(0,Index); Context.Events.Add(TEXT("visit:")+Num(Index));
-        if (!Definition.Steps.IsValidIndex(Index)) { End(); return; }
-        const auto& S=Definition.Steps[Index]; const auto& E=S.Effects;
+        auto& Index=Continuation.Current.OriginalIndex; Index=FMath::Max(0,Index); Context.Events.Add(TEXT("visit:")+Where(Index));
+        if (!Definition->Steps.IsValidIndex(Index)) { End(); return; }
+        const auto& S=Definition->Steps[Index]; const auto& E=S.Effects;
+        // scene_flow.gd _run_step order: flag, chapter, completion/ledger, autosave, burn, ending.
         if (E.bHasSetFlag) Context.Flag(E.SetFlag);
+        if (E.bHasSetChapter) { Context.SetChapter(E.SetChapter); Continuation.LedgerBurnSnapshot=Context.Memory.GetSnapshot().BurnedHistory.Num(); }
+        if (E.bHasCompleteChapter)
+        {
+            Context.Events.Add(TEXT("chapter_complete:")+Num(E.CompleteChapter));
+            const auto& Burned=Context.Memory.GetSnapshot().BurnedHistory; TArray<FString> Since;
+            for (int32 I=int32(FMath::Clamp<int64>(Continuation.LedgerBurnSnapshot,0,Burned.Num()));I<Burned.Num();++I) Since.Add(Burned[I]);
+            Context.Events.Add(TEXT("ledger:")+Num(E.CompleteChapter)+TEXT(":")+FString::Join(Since,TEXT(",")));
+        }
+        if (E.bHasAutosaveChapterTransition && E.AutosaveChapterTransition) Context.Events.Add(TEXT("autosave:")+Num(int32(Context.Run.CurrentChapter)));
         if (E.bHasBurnMemory) Context.Burn(E.BurnMemory,E.bHasAllowFadedBurn && E.AllowFadedBurn);
         if (E.bHasRecordEnding) { Context.Endings.Add(E.RecordEnding); Context.Events.Add(TEXT("ending:")+E.RecordEnding); }
         if (!Context.Gate(S.Gate)) { ++Index; continue; }
@@ -145,10 +179,25 @@ void FMemoriaVNInterpreter::Execute()
                 if (A.bHasResumeScene) { FMemoriaVNCursor C; C.SequenceId=A.ResumeScene; C.OriginalIndex=A.bHasResumeIndex?A.ResumeIndex:0; Continuation.ResumeQueue.Add(C); }
                 Continuation.bActive=false; Context.RequestedMap=A.Path; Context.Events.Add(TEXT("map:")+A.Path); return;
             }
-            if (A.Action==TEXT("goto_scene")) { Index=A.bHasStartIndex?A.StartIndex:0; continue; }
+            if (A.Action==TEXT("goto_scene"))
+            {
+                // SceneFlow.play(next_id, start_index): same scene or another imported one.
+                if (!A.Id.Equals(Definition->Id,ESearchCase::CaseSensitive))
+                {
+                    const FMemoriaVNDefinition* Next=Resolve?Resolve(A.Id):nullptr;
+                    if (!Next) { Continuation.bActive=false; Context.Events.Add(TEXT("contract_error:unresolved_scene:")+A.Id); return; }
+                    Definition=Next; Continuation.Current.SequenceId=Next->Id;
+                }
+                Index=A.bHasStartIndex?A.StartIndex:0; continue;
+            }
             if (A.Action==TEXT("end")) { End(); return; }
         }
-        Context.Events.Add(TEXT("step:")+Num(Index));
+        Context.Events.Add(TEXT("step:")+Where(Index));
+        if (bQualified)
+        {
+            const auto D=Context.VNDisplay(S);
+            Context.Events.Add(FString::Printf(TEXT("text:%s:%s|%s|%s|%s|%s"),D.bDistorted?TEXT("distorted"):TEXT("plain"),*D.Speaker,*D.Text,*D.Narrate,*D.Portrait,*D.Cg));
+        }
         if (S.bChoicesPresent) Context.Events.Add(TEXT("choices:")+Indices(VisibleOriginalIndices()));
         return;
     }
@@ -156,8 +205,8 @@ void FMemoriaVNInterpreter::Execute()
 }
 void FMemoriaVNInterpreter::SelectOriginalChoice(int32 I)
 {
-    if (!Continuation.bActive || !Definition.Steps.IsValidIndex(Continuation.Current.OriginalIndex)) return;
-    const auto& S=Definition.Steps[Continuation.Current.OriginalIndex]; if (!S.bChoicesPresent || !S.Choices.IsValidIndex(I)) return;
+    if (!Continuation.bActive || !Definition->Steps.IsValidIndex(Continuation.Current.OriginalIndex)) return;
+    const auto& S=Definition->Steps[Continuation.Current.OriginalIndex]; if (!S.bChoicesPresent || !S.Choices.IsValidIndex(I)) return;
     const auto& C=S.Choices[I]; if (!Context.Gate(C.Gate)) return;
     Context.Events.Add(TEXT("choice:")+Context.Localized(C.Text)); const auto& E=C.Effects;
     if (E.bHasCostMemory && !Context.Burn(E.CostMemory,E.bHasAllowFadedBurn && E.AllowFadedBurn,true)) return;
@@ -168,14 +217,15 @@ void FMemoriaVNInterpreter::SelectOriginalChoice(int32 I)
 }
 bool FMemoriaVNInterpreter::PrepareResume(const FMemoriaVNContinuation& Saved)
 {
-    auto Valid=[&](const FMemoriaVNCursor& C){return (C.SequenceId.IsEmpty() || C.SequenceId.Equals(Definition.Id,ESearchCase::CaseSensitive)) && C.OriginalIndex>=0;};
-    if (Saved.SchemaVersion!=1 || Saved.IndexMappingVersion!=Definition.IndexMappingVersion || !Valid(Saved.Current) || !Valid(Saved.Pending)) return false;
+    auto Valid=[&](const FMemoriaVNCursor& C){return (C.SequenceId.IsEmpty() || C.SequenceId.Equals(Definition->Id,ESearchCase::CaseSensitive)) && C.OriginalIndex>=0;};
+    if (Saved.SchemaVersion!=1 || Saved.IndexMappingVersion!=Definition->IndexMappingVersion || !Valid(Saved.Current) || !Valid(Saved.Pending)) return false;
     for (const auto& C:Saved.ResumeQueue) if (C.SequenceId.IsEmpty() || !Valid(C)) return false;
     auto Pending=Saved.bActive && !Saved.Current.SequenceId.IsEmpty()?Saved.Current:Saved.Pending;
     if (Pending.SequenceId.IsEmpty()) return false;
     Continuation=Saved; Continuation.Pending=Pending; Continuation.bActive=false;
     Continuation.LedgerBurnSnapshot=FMath::Clamp<int64>(Saved.LedgerBurnSnapshot,0,Context.Memory.GetSnapshot().BurnedHistory.Num()); return true;
 }
+FString FMemoriaVNInterpreter::Where(int32 Index) const { return bQualified?Definition->Id+TEXT(":")+Num(Index):Num(Index); }
 bool FMemoriaVNInterpreter::ConsumePendingOrQueue()
 {
     FMemoriaVNCursor Next;
