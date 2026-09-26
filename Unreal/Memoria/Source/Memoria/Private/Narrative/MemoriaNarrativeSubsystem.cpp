@@ -280,12 +280,13 @@ bool UMemoriaNarrativeSubsystem::StartStoryBeat(const FString& Group)
     ArmedStoryBeats.Remove(Group);
     return StartStoryField(Group, Beat->Asset);
 }
-bool UMemoriaNarrativeSubsystem::StartStoryField(const FString& Group, const TCHAR* Asset)
+bool UMemoriaNarrativeSubsystem::StartStoryField(const FString& Group, const TCHAR* Asset, const TCHAR* File)
 {
     const FString Path = FString(TEXT("/Game/Memoria/Generated/Narrative/")) + Asset + TEXT(".") + Asset;
     StoryAsset = LoadObject<UMemoriaFieldAsset>(nullptr, *Path);
     if (!StoryAsset) { Record(TEXT("error:missing_story_contract:") + Group); return false; }
-    Record(TEXT("request:res://data/chapter2_dialogue.json::") + Group);
+    // The trace names the authored file the source loads (Elia's reactions come from Chapter 1).
+    Record(FString(TEXT("request:res://")) + File + TEXT("::") + Group);
     DeferredInteraction.Reset(); ActiveFieldAsset = StoryAsset; ++FieldInvocationCount;
     Field = MakeUnique<FMemoriaFieldInterpreter>(StoryAsset->Definition, *Context);
     State = EMemoriaSliceState::Field; Record(TEXT("field:start:") + Group);
@@ -352,7 +353,7 @@ bool UMemoriaNarrativeSubsystem::InteractWithElia()
         const FString Heard = FString(TEXT("burn_reaction_heard_")) + R.Group;
         if (!Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(R.Memory) || S.GetFlag(Heard)) continue;
         Run->SetStoryFlag(Heard, true); Record(TEXT("flag:") + Heard);
-        return StartStoryField(R.Group, R.Asset);
+        return StartStoryField(R.Group, R.Asset, R.File);
     }
     const FString Talked = MemoriaVerdanStory::EliaTalkFlag;
     if (bEliaTalkCached || S.GetFlag(Talked))

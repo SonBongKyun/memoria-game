@@ -102,7 +102,7 @@ private:
     TArray<FString> ArmedStoryBeats;
     TWeakObjectPtr<UWorld> StoryWorld;
     void ArmStoryBeats();
-    bool StartStoryField(const FString& Group, const TCHAR* Asset);
+    bool StartStoryField(const FString& Group, const TCHAR* Asset, const TCHAR* File = TEXT("data/chapter2_dialogue.json"));
     bool HandleSumpLedger(const FString& Point);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;

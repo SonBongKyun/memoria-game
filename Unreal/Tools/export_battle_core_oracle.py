@@ -73,6 +73,8 @@ def inputs():
     add('witness_void',[witness]*3,is_void=True,hp=130)
     add('witness_void_anchor',[witness]*2,is_void=True,flags={'ch2_complete':True,'listened_to_humming':True})
     add('witness_focus_capped',[witness,witness],streak=2,objective='witness_echo',focus=3)
+    add('hi_potion',[item('hi_potion')],hp=30,items={'potion':1,'hi_potion':2})
+    add('hi_potion_capped',[item('hi_potion')],hp=100,items={'hi_potion':1})
     add('void_drop_ink',[attack],enemy_hp=1,is_void=True,draws=[{'kind':'int','value':5},{'kind':'float','value':0.0},{'kind':'int','value':8}])
     for c in cases:
         for locale in ['en','ko']:

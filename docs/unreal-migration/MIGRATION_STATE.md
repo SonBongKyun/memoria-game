@@ -1,3 +1,17 @@
+# Migration handoff — S301 self-review of S297–S300 (Claude lane, 2026-09-26)
+
+- Codex is out of quota, so the user asked Claude to continue alone in Claude Code. Claude reviewed its own pushed S297–S300 changes in place of the Codex review.
+- **Checked and sound:**
+  - World/run lifetime of story points, the quest and Elia: every checkpoint restore travels to a fresh Verdan world, which re-arms them, and a run replacement clears arming.
+  - Elia's facing gate against the Malet and story-point interactions.
+  - Witness submission guards.
+  - The status-box redraw.
+  - Schema keys are rejected on VN rows and choices.
+- **Fixed:**
+  1. Elia's Chapter 1 reactions were recorded in the trace as `chapter2_dialogue.json` requests. The trace now names the authored file.
+  2. The Sump Ledger reward and void drops give a Hi-Potion that the battle item list could not use. It is now a source "heal" item using its catalog power (80), listed while carried. The battle oracle adds `hi_potion` and `hi_potion_capped` (en/ko): 98 cases, and the native `Memoria.BattleCore.Source` passes them.
+- **Results** (UE 5.8.2 rendered): `Memoria.BattleCore.` 100/100, full `Memoria.` **392/392**.
+
 # Migration handoff — S300 Elia companion in Verdan (Claude lane, 2026-09-26)
 
 - User-assigned continuation of the story work, on top of `351810e4` (Claude lane).

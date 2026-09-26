@@ -392,9 +392,15 @@ void UMemoriaBattleEntrySubsystem::UpdateCombatView()
     const auto* Memory=Run->GetPlayerMemory();
     for(const auto& Row:MemoriaArchive::Build(*Run).Rows)
         View.Memories.Add({Row.Id,Row.Title+TEXT("  · ")+Row.StateLabel,Row.Grade,Memory->CanBurn(Row.Id)==EMemoriaMemoryResult::Success,Row.Accent});
-    for(const FString Id:{TEXT("potion"),TEXT("antidote"),TEXT("firebomb"),TEXT("witness_ink")})
+    for(const FString Id:{TEXT("potion"),TEXT("hi_potion"),TEXT("antidote"),TEXT("firebomb"),TEXT("witness_ink")})
     {
         const int64 Count=Run->GetItemCount(Id);
+        if(Id==TEXT("hi_potion"))
+        {
+            // Quest reward and void drop; listed only when carried.
+            if(Count>0)View.Items.Add({Id,(View.bKo?TEXT("하이포션"):TEXT("Hi-Potion"))+FString::Printf(TEXT("  ×%lld"),Count),0,true});
+            continue;
+        }
         if(Id==TEXT("witness_ink"))
         {
             // A rare carried reading; listed only when owned, spent only while the echo is still unheard.
@@ -410,7 +416,7 @@ bool UMemoriaBattleEntrySubsystem::Submit(const FString& Action,const FString& I
     if(bBusy||!IsActive()||View.bReturning||View.bResolving||View.bVictory||View.bDefeat||Revision!=ExpectedRevision)return false;
     if(Action!=TEXT("attack")&&Action!=TEXT("burn")&&Action!=TEXT("defend")&&Action!=TEXT("item")&&Action!=TEXT("witness"))return false;
     if(Action==TEXT("burn")&&Run->GetPlayerMemory()->CanBurn(Id)!=EMemoriaMemoryResult::Success)return false;
-    if(Action==TEXT("item")&&((Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb")&&Id!=TEXT("witness_ink"))||Run->GetItemCount(Id)<=0))return false;
+    if(Action==TEXT("item")&&((Id!=TEXT("potion")&&Id!=TEXT("hi_potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb")&&Id!=TEXT("witness_ink"))||Run->GetItemCount(Id)<=0))return false;
     if((Action==TEXT("witness")||Id==TEXT("witness_ink"))&&Combat.WitnessProgress>=Combat.WitnessRequired)return false;
     TGuardValue<bool> Busy(bBusy,true);PendingAction=Action;PendingId=Id;
     View.bResolving=true;View.bCanFlee=false;View.BattleState=TEXT("PLAYER_ACTION");View.Telegraph=Id==TEXT("witness_ink")?TEXT("witness"):Action;

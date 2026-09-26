@@ -87,7 +87,7 @@ bool FMemoriaBattleModel::Act(const FString& Action,const FString& Id,const FMem
     // Source rejects a reading (and keeps the ink) once the echo is fully heard.
     if((Action==TEXT("witness")||(Action==TEXT("item")&&Id==TEXT("witness_ink")))&&WitnessProgress>=WitnessRequired)return false;
     if(Action==TEXT("item")){
-        if(Id!=TEXT("potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb")&&Id!=TEXT("witness_ink"))return false;
+        if(Id!=TEXT("potion")&&Id!=TEXT("hi_potion")&&Id!=TEXT("antidote")&&Id!=TEXT("firebomb")&&Id!=TEXT("witness_ink"))return false;
         auto* Item=Run.Player.Items.FindByPredicate([&](const auto& I){return I.Id==Id&&I.Count>0;});if(!Item)return false;
         if(--Item->Count==0)Run.Player.Items.RemoveAll([&](const auto& I){return I.Id==Id;});
     }
@@ -136,7 +136,12 @@ bool FMemoriaBattleModel::Act(const FString& Action,const FString& Id,const FMem
     else
     {
         Combo=0;LastAction=TEXT("item");Sounds.Add(TEXT("ui_select"));const FString Name=ItemName(Id);
-        if(Id==TEXT("potion")){Run.Player.Hp=FMath::Min(Run.Player.Hp+40,Run.Player.MaxHp);Hits.Add({TEXT("Arrel"),Name,-40});Sounds.Add(TEXT("heal"));Log(TEXT("Used %s, restored %d HP."),{Name,TEXT("40")});}
+        if(Id==TEXT("potion")||Id==TEXT("hi_potion"))
+        {
+            // Source "heal" items restore their catalog power (Verdan has no item/heal modifier).
+            const int64 Power=int64(Source()->GetObjectField(TEXT("items"))->GetObjectField(Id)->GetNumberField(TEXT("power")));
+            Run.Player.Hp=FMath::Min(Run.Player.Hp+Power,Run.Player.MaxHp);Hits.Add({TEXT("Arrel"),Name,-Power});Sounds.Add(TEXT("heal"));Log(TEXT("Used %s, restored %d HP."),{Name,N(Power)});
+        }
         else if(Id==TEXT("antidote")){PlayerStatuses.RemoveAll([](const auto& S){return S.Effect==0||S.Effect==2;});const int64 H=FMath::Min<int64>(12,Run.Player.MaxHp-Run.Player.Hp);Run.Player.Hp+=H;if(H>0)Hits.Add({TEXT("Arrel"),Name,-H});Log(TEXT("Used %s, status effects cured!"),{Name});}
         else if(Id==TEXT("witness_ink")){Witness(1,true,Rng);return true;}
         else{Damage(12,Name);if(EnemyHp<=0){Win(Rng);return true;}ApplyStatus(false,2,2,15);}
