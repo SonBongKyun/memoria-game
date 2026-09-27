@@ -6,6 +6,10 @@
 - No new commit/push. Claude/original Godot/foundation untouched. Full 413 registry not rerun.
 - No combat retargeting yet; joined garment topology and side projection remain limited for large motions.
 - Detailed result and adoption steps: [S310_RIGGED_FIELD_REPORT.md](S310_RIGGED_FIELD_REPORT.md); shared codex-review.md / models/MANIFEST.md.
+- **Adopted into the Claude lane by Claude (2026-09-27).**
+  - `apply_s310.py`: CHECK_OK, 56/56 files applied.
+  - Rendered `MemoriaVisual.` 7/7, with `FIELD_CHARACTER arrel|elia|malet rigged`.
+  - Full rendered registry **413/413** (`unreal-run-20260927T121720430015`).
 
 ---
 
