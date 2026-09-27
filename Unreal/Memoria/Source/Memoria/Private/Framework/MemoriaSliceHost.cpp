@@ -13,6 +13,8 @@
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "InputKeyEventArgs.h"
@@ -97,6 +99,17 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         return true;
     }
     const bool ArchiveToggle=Params.Key==EKeys::Tab || Params.Key==EKeys::M;
+    // S311 field combat: left click or J attacks toward the cursor, Shift dodges, F9 calls a husk (development).
+    if(!ArchiveWidget && Params.Event==IE_Pressed && Host()->GetState()==EMemoriaSliceState::Exploration && !IsModalOpen())
+    {
+        auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
+        if(Combat && Combat->GetPlayer() && GetPawn())
+        {
+            if(Params.Key==EKeys::LeftMouseButton || Params.Key==EKeys::J){Combat->RequestAttack(CursorOnFloor());return true;}
+            if(Params.Key==EKeys::LeftShift || Params.Key==EKeys::RightShift){Combat->RequestDash(GetPawn()->GetLastMovementInputVector().IsNearlyZero()?GetPawn()->GetVelocity():GetPawn()->GetLastMovementInputVector());return true;}
+            if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
+        }
+    }
     if(ArchiveWidget)
     {
         const bool CloseKey=ArchiveToggle || Params.Key==EKeys::Escape || Params.Key==EKeys::Gamepad_FaceButton_Right;
@@ -173,6 +186,14 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         if (Step.bWarningStarted) { Narrative->Record(TEXT("encounter:warning")); LastRevision=INDEX_NONE; }
         if (Step.bTriggered)
         {
+            // S311: husks rise in the field around Arrel; the turn-based battle stays only as the tested stopgap.
+            auto* Combat=GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+            if (UMemoriaFieldCombatSubsystem::UseFieldEncounters() && Combat && Combat->GetPlayer())
+            {
+                Combat->SpawnWave(2+Step.EnemyIndex%2,GetPawn()->GetActorLocation(),420.f);
+                Narrative->Record(TEXT("encounter:field_started"));
+                return;
+            }
             if (Battle->BeginEncounter(Step.EnemyIndex,EncounterRng,GetWorld())) Narrative->Record(TEXT("encounter:battle_started"));
             return;
         }
@@ -223,7 +244,8 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         if (!StatusWidget->IsInViewport()) StatusWidget->AddToViewport(10);
         if (Changed && !IsModalOpen())
         {
-            SetInputMode(FInputModeGameOnly()); bShowMouseCursor = false;
+            // The cursor aims attacks in the field (Diablo-style).
+            SetInputMode(FInputModeGameOnly()); bShowMouseCursor = true;
             FSlateApplication::Get().SetAllUserFocusToGameViewport();
         }
     }
@@ -302,7 +324,24 @@ void AMemoriaSliceController::CloseArchive()
 }
 void AMemoriaSliceController::Move(const FInputActionValue& Value)
 {
+    auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
+    if (Combat && Combat->GetPlayer() && !Combat->CanMove()) return;
     if (Host()->GetState() == EMemoriaSliceState::Exploration) Super::Move(Value);
+}
+FVector AMemoriaSliceController::CursorOnFloor() const
+{
+    // The cursor ray meets the floor plane at Arrel's height; without a pointer, aim where he faces.
+    const APawn* Self=GetPawn(); if(!Self) return FVector::ZeroVector;
+    FVector Origin,Direction;
+    if(DeprojectMousePositionToWorld(Origin,Direction) && FMath::Abs(Direction.Z)>1e-3)
+    {
+        const double T=(Self->GetActorLocation().Z-Origin.Z)/Direction.Z;
+        if(T>0) return Origin+Direction*T;
+    }
+    const auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
+    const auto* Figure=Combat?Combat->GetPlayerFigure():nullptr;
+    const float Yaw=Figure?Figure->GetYaw():0.f;
+    return Self->GetActorLocation()+FRotator(0,Yaw,0).Vector()*100.f;
 }
 void AMemoriaSliceController::Navigate(const FInputActionValue& Value)
 {

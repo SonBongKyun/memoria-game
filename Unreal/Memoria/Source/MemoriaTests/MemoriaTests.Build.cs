@@ -9,7 +9,7 @@ public class MemoriaTests : ModuleRules
         CppStandard = CppStandardVersion.Cpp20;
         bUseUnity = false;
         AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenSSL");
-        PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "Memoria", "UnrealEd", "UMG", "UMGEditor", "Slate", "SlateCore", "AssetRegistry", "InputCore", "EnhancedInput", "Paper2D", "Json", "JsonUtilities", "MeshDescription", "StaticMeshDescription", "SkeletalMeshDescription", "SkeletalMeshUtilitiesCommon", "AudioEditor" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "Memoria", "UnrealEd", "UMG", "UMGEditor", "Slate", "SlateCore", "AssetRegistry", "InputCore", "EnhancedInput", "Paper2D", "Json", "JsonUtilities", "MeshDescription", "StaticMeshDescription", "SkeletalMeshDescription", "SkeletalMeshUtilitiesCommon", "AudioEditor", "IKRig", "IKRigEditor" });
         PrivateIncludePaths.Add(Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../Tests/Shared")));
         PrivateIncludePaths.Add(Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../Tests/Generated")));
     }

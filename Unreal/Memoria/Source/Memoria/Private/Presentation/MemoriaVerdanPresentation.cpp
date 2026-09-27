@@ -1,4 +1,6 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaCombatHudWidget.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Audio/MemoriaAudioCatalog.h"
 #include "Audio/MemoriaAudioSubsystem.h"
@@ -425,6 +427,16 @@ void AMemoriaVerdanPresentation::BeginPlay()
     };
     AddFill(Player->GetRootComponent(),TEXT("ArrelFillLight"));
     if(MaletCard) AddFill(MaletCard,TEXT("MaletFillLight"));
+    // S311: Arrel fights in the field; the combat HUD paints only while a fight or a wound shows.
+    if (auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>())
+    {
+        Combat->RegisterPlayer(Player.Get(), ArrelFigure);
+        if (APlayerController* HudOwner = GetWorld()->GetFirstPlayerController())
+        {
+            CombatHud = CreateWidget<UMemoriaCombatHudWidget>(HudOwner, UMemoriaCombatHudWidget::StaticClass());
+            CombatHud->Bind(Combat); CombatHud->SetVisibility(ESlateVisibility::HitTestInvisible); CombatHud->AddToViewport(4);
+        }
+    }
     BuildFieldLife();
     PreviousPosition=Player->GetActorLocation();
     UpdateCameraAndVisibility();
@@ -477,4 +489,9 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     PlayerShadow->SetWorldLocation(FVector(Position.X, Position.Y, -9));
     UpdateCameraAndVisibility();
     PreviousPosition = Position;
+}
+void AMemoriaVerdanPresentation::EndPlay(const EEndPlayReason::Type Reason)
+{
+    if (CombatHud) { CombatHud->RemoveFromParent(); CombatHud = nullptr; }
+    Super::EndPlay(Reason);
 }
