@@ -62,6 +62,9 @@ public:
     // it carries over from the previous run unless one is given.
     bool StartNewGame(const FString& Locale = FString());
     bool IsNewGameRoute() const { return bNewGameRoute; }
+    // main.gd: the title screen holds the VN host until New Game or Continue leaves it.
+    void EnterTitle();
+    bool IsOnTitle() const { return bTitle; }
     // SaveManager.autosave_on_chapter_transition: resume the latest chapter autosave.
     bool ResumeChapterAutosave();
     int32 GetAutosaveCount() const { return AutosaveCount; }
@@ -125,7 +128,7 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaVNAsset>> RouteAssets;
     const UMemoriaVNAsset* ResolveVN(const FString& Id);
     FMemoriaVNInterpreter::FResolver Resolver();
-    bool bNewGameRoute = false;
+    bool bNewGameRoute = false, bTitle = false;
     FString SceneCg, ShownScene, ShownCue;
     FName SceneMusic;
     int32 LedgerSerial = 0, AutosaveCount = 0, BurnSerial = 0;

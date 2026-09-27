@@ -9,6 +9,10 @@
 #include "Presentation/MemoriaShopWidget.h"
 #include "Presentation/MemoriaArchiveWidget.h"
 #include "Presentation/MemoriaBattleEntryWidget.h"
+#include "Presentation/MemoriaTitleWidget.h"
+#include "Save/MemoriaCheckpointSubsystem.h"
+#include "Settings/MemoriaSettingsSubsystem.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "InputKeyEventArgs.h"
@@ -28,14 +32,17 @@ void AMemoriaSliceGameMode::StartPlay()
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
     const FString Map = GetWorld()->GetMapName(); bool Started = false;
     // New Game (main.gd) enters through the VN host: -MemoriaNewGame or the ?NewGame travel option.
-    if (Map.EndsWith(TEXT("L_Ch2VerdanSlice")))
+    // main.gd is the game's main scene: the default map opens with ?Title (GameMapsSettings LocalMapOptions).
+    if (Map.EndsWith(TEXT("L_Ch2VerdanSlice")) && UGameplayStatics::HasOption(OptionsString, TEXT("Title")))
+    { Narrative->EnterTitle(); Started = true; }
+    else if (Map.EndsWith(TEXT("L_Ch2VerdanSlice")))
         Started = UGameplayStatics::HasOption(OptionsString, TEXT("NewGame")) || FParse::Param(FCommandLine::Get(), TEXT("MemoriaNewGame"))
             ? Narrative->StartNewGame() : Narrative->StartDevelopmentVN();
     else if (Map.EndsWith(TEXT("L_VerdanUnseenFixture"))) Started = Narrative->StartUnseenFieldFixture();
     else if (Map.EndsWith(TEXT("L_VerdanHost")))
     {
         if (Narrative->HasPendingVerdanReentry()) Started=Narrative->EnterVerdanReentry();
-        else if (FParse::Param(FCommandLine::Get(),TEXT("MemoriaContinue")) && !GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->HasActiveRun())
+        else if ((FParse::Param(FCommandLine::Get(),TEXT("MemoriaContinue")) || UGameplayStatics::HasOption(OptionsString,TEXT("Continue"))) && !GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->HasActiveRun())
         { Narrative->ContinueCheckpoint(); Started=true; } // Failure is an actionable Continue screen.
         else Started=Narrative->EnterVerdan();
     }
@@ -120,6 +127,21 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds); auto* Narrative = Host();
     if (!Narrative) return;
+    // main.gd: the title owns the screen until New Game or Continue leaves it.
+    if (Narrative->IsOnTitle())
+    {
+        if (!TitleWidget)
+        {
+            TitleWidget=CreateWidget<UMemoriaTitleWidget>(this,UMemoriaTitleWidget::StaticClass());
+            const auto* Checkpoint=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
+            TitleWidget->Configure(Checkpoint->FindContinue()!=EMemoriaContinueSource::None,GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>());
+            TitleWidget->OnAction.BindUObject(this,&AMemoriaSliceController::TitleAction);
+            TitleWidget->OnConsumedKey.BindUObject(this,&AMemoriaSliceController::TrackConfirmGesture);
+            PresentModal(TitleWidget);
+        }
+        return;
+    }
+    if (TitleWidget) ClearTitle();
     auto* Battle=GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
     if (Battle->IsActive() || Battle->IsReturning())
     {
@@ -206,6 +228,38 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         }
     }
 }
+void AMemoriaSliceController::TitleAction(EMemoriaTitleAction Action)
+{
+    // main.gd _play_select_sfx on every menu press; a held confirm must not also advance the first line.
+    Cue(TEXT("ui_select"));
+    auto* Game=GetGameInstance();
+    switch (Action)
+    {
+    case EMemoriaTitleAction::NewGame:
+        bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty(); ClearTitle();
+        Host()->StartNewGame(Game->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale()); LastRevision=INDEX_NONE;
+        break;
+    case EMemoriaTitleAction::Continue:
+    {
+        const auto Source=Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue();
+        bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
+        if (Source==EMemoriaContinueSource::Chapter) { ClearTitle(); Host()->ResumeChapterAutosave(); LastRevision=INDEX_NONE; }
+        else if (Source==EMemoriaContinueSource::Boundary) UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_VerdanHost"),true,TEXT("Continue"));
+        break;
+    }
+    case EMemoriaTitleAction::Options: break; // The widget opens its own panel.
+    case EMemoriaTitleAction::Quit:
+        UE_LOG(LogTemp,Display,TEXT("MEMORIA_TITLE quit"));
+        if (!GIsAutomationTesting) UKismetSystemLibrary::QuitGame(this,this,EQuitPreference::Quit,false);
+        break;
+    }
+}
+void AMemoriaSliceController::ClearTitle()
+{
+    if(!TitleWidget)return;
+    TitleWidget->OnAction.Unbind();TitleWidget->OnConsumedKey.Unbind();
+    DismissModal();TitleWidget=nullptr;
+}
 void AMemoriaSliceController::TrackArchiveGesture(const FKey& Key,EInputEvent Event)
 {
     if(Event==IE_Pressed)ArchiveConsumedKeys.Add(Key);
@@ -252,6 +306,14 @@ void AMemoriaSliceController::Move(const FInputActionValue& Value)
 }
 void AMemoriaSliceController::Navigate(const FInputActionValue& Value)
 {
+    if(TitleWidget)
+    {
+        // Keys reach the focused title through Slate; the stick arrives here.
+        const auto Axis=Value.Get<FVector2D>();
+        if(FMath::Abs(Axis.Y)>.5f)TitleWidget->Navigate(Axis.Y>0?-1:1);
+        else if(FMath::Abs(Axis.X)>.5f)TitleWidget->Adjust(Axis.X>0?1:-1);
+        return;
+    }
     if(ArchiveWidget)
     {
         const auto Axis=Value.Get<FVector2D>();
@@ -281,7 +343,7 @@ void AMemoriaSliceController::ForwardConfirm(int32 OriginalIndex)
 }
 void AMemoriaSliceController::Confirm()
 {
-    if (bAwaitConfirmRelease || ArchiveWidget) return;
+    if (bAwaitConfirmRelease || ArchiveWidget || TitleWidget) return;
     if (BattleWidget) BattleWidget->ConfirmIntent();
     else if (NarrativeWidget) NarrativeWidget->ConfirmIntent();
     else if (Host()->GetState() == EMemoriaSliceState::Exploration && !IsModalOpen())
@@ -292,13 +354,14 @@ void AMemoriaSliceController::Confirm()
 }
 void AMemoriaSliceController::Back()
 {
+    if(TitleWidget){TitleWidget->Back();return;}
     if(BattleWidget)return;
     if(ArchiveWidget){CloseArchive();return;}
     if (NarrativeWidget) Host()->Back(); else Super::Back();
 }
 void AMemoriaSliceController::OpenModal()
 {
-    if(BattleWidget)return;
+    if(BattleWidget || TitleWidget)return;
     if(ArchiveWidget){CloseArchive();return;}
     if (NarrativeWidget) Host()->Back();
     else if (Host()->GetState() == EMemoriaSliceState::Exploration) Super::OpenModal();
@@ -322,7 +385,7 @@ void AMemoriaSliceController::BattleReturned()
 }
 void AMemoriaSliceController::EndPlay(const EEndPlayReason::Type Reason)
 {
-    ClearBattleWidget();
+    ClearBattleWidget(); ClearTitle();
     if(ArchiveWidget){ArchiveWidget->OnConsumedKey.Unbind();ArchiveWidget->OnClose.Unbind();ArchiveWidget->BindRun(nullptr);ArchiveWidget=nullptr;}
     if (NarrativeWidget) NarrativeWidget->OnConfirm.Unbind();
     if (StatusWidget) StatusWidget->RemoveFromParent(); StatusWidget = nullptr;

@@ -1,6 +1,7 @@
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Presentation/MemoriaFonts.h"
+#include "Presentation/MemoriaUiKit.h"
 #include "Presentation/MemoriaShopWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
@@ -24,9 +25,7 @@
 namespace
 {
 const FLinearColor Gold(.66f,.49f,.27f), Paper(.88f,.85f,.77f), Ink(.006f,.008f,.012f,.97f);
-// Godot 2D colors are sRGB; Slate colors and tints are linear. Source colors pass through this.
-FLinearColor Srgb(float R,float G,float B,float A=1.f)
-{ FLinearColor C=FLinearColor::FromSRGBColor(FColor(uint8(R*255.f+.5f),uint8(G*255.f+.5f),uint8(B*255.f+.5f)));C.A=A;return C; }
+using MemoriaUiKit::Srgb;
 // vn_scene.gd PORTRAIT_DIM / PORTRAIT_BRIGHT and the name / system label colors.
 const FLinearColor Dim=Srgb(.45f,.45f,.5f), NameGold=Srgb(.97f,.86f,.55f), SystemCyan=Srgb(.5f,.85f,.95f), Distorted=Srgb(.74f,.62f,.95f);
 using EFont=MemoriaFonts::EStyle;
@@ -69,27 +68,8 @@ FButtonStyle StoryChoiceStyle(bool Selected,bool Framed)
     }
     Style.SetPressed(Style.Hovered);return Style;
 }
-struct FStop { float T; FLinearColor C; };
-// Godot GradientTexture2D: linear or radial fill from From to To in UV space; colors are authored sRGB bytes.
-UTexture2D* Gradient(int32 W,int32 H,FVector2D From,FVector2D To,bool bRadial,std::initializer_list<FStop> Stops)
-{
-    auto* Texture=UTexture2D::CreateTransient(W,H,PF_B8G8R8A8);
-    if(!Texture)return nullptr;
-    Texture->SRGB=true;Texture->Filter=TF_Bilinear;Texture->AddressX=TA_Clamp;Texture->AddressY=TA_Clamp;
-    FColor* Pixels=static_cast<FColor*>(Texture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
-    const FVector2D Axis=To-From;const double Length=FMath::Max(Axis.Size(),1e-6),Length2=FMath::Max(Axis.SizeSquared(),1e-9);
-    const TArray<FStop> S(Stops);
-    for(int32 Y=0;Y<H;++Y)for(int32 X=0;X<W;++X)
-    {
-        const FVector2D UV((X+.5)/W,(Y+.5)/H);
-        const float T=FMath::Clamp(float(bRadial?(UV-From).Size()/Length:FVector2D::DotProduct(UV-From,Axis)/Length2),0.f,1.f);
-        FLinearColor C=S.Last().C;
-        for(int32 I=1;I<S.Num();++I)if(T<=S[I].T){const float U=(T-S[I-1].T)/FMath::Max(S[I].T-S[I-1].T,1e-6f);C=FMath::Lerp(S[I-1].C,S[I].C,U);break;}
-        if(T<=S[0].T)C=S[0].C;
-        Pixels[Y*W+X]=FColor(uint8(FMath::Clamp(C.R,0.f,1.f)*255.f+.5f),uint8(FMath::Clamp(C.G,0.f,1.f)*255.f+.5f),uint8(FMath::Clamp(C.B,0.f,1.f)*255.f+.5f),uint8(FMath::Clamp(C.A,0.f,1.f)*255.f+.5f));
-    }
-    Texture->GetPlatformData()->Mips[0].BulkData.Unlock();Texture->UpdateResource();return Texture;
-}
+using MemoriaUiKit::FStop;
+using MemoriaUiKit::Gradient;
 UImage* GradientImage(UWidgetTree* Tree,UTexture2D* Texture,const FLinearColor& Tint)
 { auto* I=Tree->ConstructWidget<UImage>();I->SetBrushFromTexture(Texture,false);I->SetColorAndOpacity(Tint);I->SetVisibility(ESlateVisibility::HitTestInvisible);return I; }
 FString Escape(const FString& S)

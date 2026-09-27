@@ -280,6 +280,37 @@ bool FChapter1AutosaveResume::RunTest(const FString&)
     IFileManager::Get().DeleteDirectory(*FPaths::GetPath(ChapterSlot),false,true);
     return !HasAnyErrors();
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FTitleContinueSource,"Memoria.Title.ContinueSource",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FTitleContinueSource::RunTest(const FString&)
+{
+    // main.gd: Continue is enabled only by a valid save, and New Game or Continue leaves the title.
+    const auto Input=Chapter1Case(TEXT("contract_inputs.v1.json"),TEXT("burn_song_strike_en"));
+    if (!TestTrue(TEXT("Oracle case"),Input.IsValid())) return false;
+    const FString Leaf=TEXT("title-continue-")+FGuid::NewGuid().ToString(EGuidFormats::Digits);
+    TStrongObjectPtr<UGameInstance> Game(NewObject<UGameInstance>()); Game->Init();
+    auto* Host=Game->GetSubsystem<UMemoriaNarrativeSubsystem>(); auto* Checkpoint=Game->GetSubsystem<UMemoriaCheckpointSubsystem>();
+    TestTrue(TEXT("Disabled storage offers no Continue"),Checkpoint->FindContinue()==EMemoriaContinueSource::None);
+    if (!TestTrue(TEXT("Isolated storage"),Checkpoint->ConfigureTestStorage(Leaf))) { Game->Shutdown(); return false; }
+    TestTrue(TEXT("Empty storage offers no Continue"),Checkpoint->FindContinue()==EMemoriaContinueSource::None);
+    Host->EnterTitle(); TestTrue(TEXT("Title entered"),Host->IsOnTitle());
+    if (!TestTrue(TEXT("New Game"),Host->StartNewGame())) { Game->Shutdown(); return false; }
+    TestFalse(TEXT("New Game leaves the title"),Host->IsOnTitle());
+    TArray<TSharedPtr<FJsonValue>> Picks=Input->GetArrayField(TEXT("picks")); Picks.Pop();
+    DriveHost(Host,Picks,[](const FMemoriaNarrativeView&){});
+    TestTrue(TEXT("The chapter autosave is offered"),Checkpoint->FindContinue()==EMemoriaContinueSource::Chapter);
+    // A damaged slot is never offered.
+    const FString Slot=Checkpoint->GetChapterSlotPath(); FString Good; FFileHelper::LoadFileToString(Good,*Slot);
+    FFileHelper::SaveStringToFile(TEXT("{\"version\":1}"),*Slot);
+    TestTrue(TEXT("A damaged autosave is not offered"),Checkpoint->FindContinue()==EMemoriaContinueSource::None);
+    FFileHelper::SaveStringToFile(Good,*Slot);
+    Host->EnterTitle();
+    TestTrue(TEXT("Continue resumes the autosave"),Host->ResumeChapterAutosave());
+    TestFalse(TEXT("Continue leaves the title"),Host->IsOnTitle());
+    TestEqual(TEXT("At the arrival"),Host->GetContinuation().Current.SequenceId,FString(TEXT("ch2_market_arrival")));
+    Game->Shutdown();
+    IFileManager::Get().DeleteDirectory(*FPaths::GetPath(Slot),false,true);
+    return !HasAnyErrors();
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FChapter1Presentation,"MemoriaVisual.Chapter1Presentation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FChapter1Presentation::RunTest(const FString&)
 {

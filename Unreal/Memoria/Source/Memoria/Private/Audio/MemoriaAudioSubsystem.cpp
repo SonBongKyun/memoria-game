@@ -4,6 +4,7 @@
 #include "Shop/MemoriaShopSubsystem.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Battle/MemoriaBattleEntrySubsystem.h"
+#include "Settings/MemoriaSettingsSubsystem.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
@@ -22,7 +23,10 @@ void UMemoriaAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     Collection.InitializeDependency<UMemoriaShopSubsystem>();
     Collection.InitializeDependency<UMemoriaNarrativeSubsystem>();
     Collection.InitializeDependency<UMemoriaBattleEntrySubsystem>();
+    Collection.InitializeDependency<UMemoriaSettingsSubsystem>();
     auto* GI = GetGameInstance();
+    // options_menu.gd master/bgm/sfx sliders drive the loop and one-shot players live.
+    GI->GetSubsystem<UMemoriaSettingsSubsystem>()->OnChanged.AddUObject(this, &UMemoriaAudioSubsystem::ApplyGains);
     // The player memory domain is restored in place, so one binding covers every run.
     GI->GetSubsystem<UMemoriaRunSubsystem>()->GetPlayerMemory()->OnObserved.AddUObject(this, &UMemoriaAudioSubsystem::OnMemoryEvent);
     GI->GetSubsystem<UMemoriaShopSubsystem>()->OnRequestRecorded.AddUObject(this, &UMemoriaAudioSubsystem::OnShopRequest);
@@ -41,6 +45,7 @@ void UMemoriaAudioSubsystem::Deinitialize()
             if (Run->GetPlayerMemory()) Run->GetPlayerMemory()->OnObserved.RemoveAll(this);
         }
         if (auto* Shop = GI->GetSubsystem<UMemoriaShopSubsystem>()) Shop->OnRequestRecorded.RemoveAll(this);
+        if (auto* Settings = GI->GetSubsystem<UMemoriaSettingsSubsystem>()) Settings->OnChanged.RemoveAll(this);
     }
     for (auto* Component : {MusicComponent.Get(), FadingMusic.Get(), AmbientComponent.Get(), FadingAmbient.Get()})
         if (IsValid(Component)) { Component->Stop(); Component->DestroyComponent(); }
@@ -75,8 +80,27 @@ bool UMemoriaAudioSubsystem::PlaySfx(FName Cue)
     USoundBase* Sound = World ? LoadSound(MemoriaAudio::CuePackage(Cue)) : nullptr;
     if (!Sound) return true;
     const float Pitch = 1.f + FMath::FRandRange(-Def->PitchVariation, Def->PitchVariation);
-    UGameplayStatics::PlaySound2D(World, Sound, MemoriaAudio::DbToLinear(Def->VolumeDb), Pitch);
+    UGameplayStatics::PlaySound2D(World, Sound, MemoriaAudio::DbToLinear(Def->VolumeDb) * Gain(false), Pitch);
     return true;
+}
+float UMemoriaAudioSubsystem::Gain(bool bLoop) const
+{
+    const auto* GI = GetGameInstance();
+    const auto* Settings = GI ? GI->GetSubsystem<UMemoriaSettingsSubsystem>() : nullptr;
+    return Settings ? (bLoop ? Settings->MusicGain() : Settings->SfxGain()) : 1.f;
+}
+float UMemoriaAudioSubsystem::GetMusicVolumeMultiplier() const
+{ return IsValid(MusicComponent) ? MusicComponent->VolumeMultiplier : 0.f; }
+void UMemoriaAudioSubsystem::ApplyGains()
+{
+    // Music and ambience loops follow master x bgm; the heartbeat is an sfx player.
+    auto Apply = [this](UAudioComponent* Component, FName Track, bool bLoop)
+    {
+        const auto* Def = MemoriaAudio::FindTrack(Track);
+        if (IsValid(Component) && Def) Component->SetVolumeMultiplier(MemoriaAudio::DbToLinear(Def->VolumeDb) * Gain(bLoop));
+    };
+    Apply(MusicComponent, Music, true); Apply(AmbientComponent, Ambient, true);
+    Apply(HeartbeatComponent, TEXT("heartbeat"), false);
 }
 float UMemoriaAudioSubsystem::LoopLevel(bool bForMusic) const
 {
@@ -94,7 +118,7 @@ void UMemoriaAudioSubsystem::SetLoop(FName Track, TObjectPtr<UAudioComponent>& C
     USoundBase* Sound = Def && World ? LoadSound(MemoriaAudio::TrackPackage(Track)) : nullptr;
     if (!Sound) return;
     // Persist across OpenLevel: the source keeps one BGM playing through scene changes.
-    Current = UGameplayStatics::CreateSound2D(World, Sound, MemoriaAudio::DbToLinear(Def->VolumeDb), 1.f, 0.f, nullptr, true, false);
+    Current = UGameplayStatics::CreateSound2D(World, Sound, MemoriaAudio::DbToLinear(Def->VolumeDb) * Gain(true), 1.f, 0.f, nullptr, true, false);
     if (!Current) return;
     Current->FadeIn(FadeIn, 1.f);
     if (Def->bMusic && bDucked) Current->AdjustVolume(0.f, LoopLevel(true));
@@ -122,6 +146,13 @@ void UMemoriaAudioSubsystem::SyncContext()
     if (!bActive || bReturning) SetLowHealth(false);
     bBattleActive = bActive; bBattleReturning = bReturning;
     const auto* Narrative = GI->GetSubsystem<UMemoriaNarrativeSubsystem>();
+    // main.gd _play_title_bgm: the title plays title.mp3 alone, with no ambience or duck.
+    if (Narrative && Narrative->IsOnTitle())
+    {
+        SetLoop(FName(TEXT("title")), MusicComponent, FadingMusic, Music, MemoriaAudio::CrossfadeSeconds, MemoriaAudio::CrossfadeSeconds);
+        SetLoop(FName(), AmbientComponent, FadingAmbient, Ambient, 1.5f, 1.f);
+        SetDuck(false); return;
+    }
     // SceneFlow.play: on the VN host a scene's declared bgm replaces the map track (Chapter 1).
     const FName Scene = Narrative && Map.EndsWith(TEXT("L_Ch2VerdanSlice")) ? Narrative->GetSceneMusic() : NAME_None;
     const bool bSceneTrack = !Scene.IsNone() && MemoriaAudio::FindTrack(Scene);
@@ -191,7 +222,7 @@ void UMemoriaAudioSubsystem::SetLowHealth(bool bEnabled)
     const auto* Def=MemoriaAudio::FindTrack(TEXT("heartbeat"));UWorld* World=GetTickableGameObjectWorld();
     USoundBase* Sound=Def&&World?LoadSound(MemoriaAudio::TrackPackage(TEXT("heartbeat"))):nullptr;
     if(!Sound)return;
-    HeartbeatComponent=UGameplayStatics::CreateSound2D(World,Sound,MemoriaAudio::DbToLinear(Def->VolumeDb),1.f,0.f,nullptr,false,false);
+    HeartbeatComponent=UGameplayStatics::CreateSound2D(World,Sound,MemoriaAudio::DbToLinear(Def->VolumeDb)*Gain(false),1.f,0.f,nullptr,false,false);
     if(HeartbeatComponent)HeartbeatComponent->FadeIn(.15f);
 }
 bool UMemoriaAudioSubsystem::IsHeartbeatPlaying() const{return IsValid(HeartbeatComponent)&&HeartbeatComponent->IsPlaying();}

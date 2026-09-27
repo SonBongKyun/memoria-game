@@ -1,3 +1,47 @@
+# Migration handoff — S308 title screen and menu after main.gd (Claude lane, 2026-09-27)
+
+- **Entry.** The game's default map now opens as the title.
+  - `GameMapsSettings LocalMapOptions=?Title` takes `L_Ch2VerdanSlice` there; `AMemoriaSliceGameMode::StartPlay` calls `EnterTitle`.
+  - Without the option, the map keeps its development VN and `?NewGame` entries.
+  - `L_VerdanHost` also accepts `?Continue`, beside `-MemoriaContinue`.
+- **Title widget.** `UMemoriaTitleWidget` follows main.gd:
+  - the key art `ui_title_memoria_premium.png`, cover-fitted with the 18/14 px overscan, the breath and the pointer parallax;
+  - the rift glow;
+  - 30 ash motes of the source's 512 px texture, with a fade over their life added;
+  - the vignette shader, baked once with `MemoriaUiKit::Paint`;
+  - letterbox strips animating from 42 to 24 px;
+  - the gold rail and the wordmark stack (eyebrow, MEMORIA with outline and shadow, subtitle, ◆ divider, tagline);
+  - the archive menu panel (kicker, heading, gold rule, key hint);
+  - numbered items with the source's normal, hover and disabled boxes, the left accent bar, and the 1.8% focus emphasis;
+  - the intro choreography, with its timings;
+  - Korean and English copy from `GameManager.loc`.
+- **Menu.** New Game, Continue, Options, Quit.
+  - Continue is disabled without a valid save, and focus skips it.
+  - Deviation: the source's Aftermath preview (Part 2) is not listed.
+  - New Game starts `StartNewGame(settings locale)`.
+  - Continue resumes the newer valid slot (`UMemoriaCheckpointSubsystem::FindContinue`): the chapter autosave in place, or the Verdan checkpoint via `L_VerdanHost?Continue`.
+  - Quit calls `QuitGame` outside automation.
+  - The confirm that starts the game is held as a gesture, so it cannot advance the first VN line.
+- **Options (partial port of options_menu.gd).** `UMemoriaSettingsSubsystem` holds master, BGM and SFX volume (80/70/80), fullscreen and language (Korean first).
+  - Settings persist in `GameUserSettings.ini` outside automation.
+  - The audio applies master×bus gains live.
+  - Not ported: text speed, difficulty, battle speed, accessibility, resolution.
+- **Audio.** A `title` track (`title.mp3`) plays on the title, with no ambience or duck.
+- **Shared kit.** `MemoriaUiKit` holds `Srgb`, `Gradient` and `Paint`; the VN widget now uses it.
+- **Layout units.** Slate lays out in 1080p units at 720p, so source lengths scale by 1.5 and font points by about 1.12.
+- **Tests.**
+  - `Memoria.Title.ContinueSource`: disabled or empty storage, the chapter autosave offered, a damaged slot refused, and New Game or Continue leaving the title.
+  - `Memoria.Title.Settings` and `Memoria.Title.Menu`.
+  - `MemoriaVisual.TitleScreen` (rendered PIE with real Slate keys):
+    - title music, Continue disabled;
+    - Options Left lowering BGM, with the live multiplier checked;
+    - Escape, Up and Enter;
+    - New Game in Korean at the cold open, the first line not skipped.
+    - Captures in `Saved/Validation/Title/`.
+  - Artwork coverage is 54.
+- **Results.** Full rendered registry **412/412**; visual suite 7/7.
+- **Play.** `UnrealEditor.exe Memoria.uproject -game` opens the title.
+
 # Migration handoff — S307 illustrated field art imported and tuned (Claude lane, 2026-09-27)
 
 - **Art.** Codex delivered priority 1 of `FIELD_SPRITE_ART_SPEC.md` to the shared `field_hd/`:

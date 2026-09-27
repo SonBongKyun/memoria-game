@@ -142,17 +142,22 @@ def chapter1_test_paths():
         | {'Memoria.Chapter1.NewGameHost.'+c['id'] for c in inputs()} | {'Memoria.Chapter1.AutosaveResume'}
 
 
+def title_test_paths():
+    return {'Memoria.Title.' + n for n in ('ContinueSource', 'Settings', 'Menu')}
+
+
 def verdan_story_test_paths():
     return {'Memoria.VerdanStory.SourceTable', 'Memoria.VerdanStory.BurnedTextSubstitution'}
 
 
 def visual_test_paths():
     return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration",
-            "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey", "MemoriaVisual.FieldCharacters"}
+            "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey", "MemoriaVisual.FieldCharacters",
+            "MemoriaVisual.TitleScreen"}
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | battle_core_test_paths() | presentation_test_paths() | audio_test_paths() | verdan_story_test_paths() | chapter1_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | battle_core_test_paths() | presentation_test_paths() | audio_test_paths() | verdan_story_test_paths() | chapter1_test_paths() | title_test_paths()
 
 
 def malet_first_effect_test_paths():
@@ -186,7 +191,7 @@ def main():
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--create-foundation-assets', action='store_true')
     parser.add_argument('--rendered', action='store_true')
-    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Chapter1.', 'Memoria.VerdanStory.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'Memoria.BattleCore.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.'], help='Exact full registry or a bounded gameplay regression subset')
+    parser.add_argument('--test-prefix', default='Memoria.', choices=['Memoria.', 'Memoria.Chapter1.', 'Memoria.Title.', 'Memoria.VerdanStory.', 'Memoria.Shop.', 'Memoria.ShopTransactions.', 'Memoria.Checkpoint.', 'Memoria.Archive.', 'Memoria.BattleEntry.', 'Memoria.BattleCore.', 'MemoriaCheckpointProcess.', 'Memoria.Campaign.', 'Memoria.Malet.', 'Memoria.Foundation.', 'MemoriaVisual.', 'Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.BattleEntry.+Memoria.Archive.+MemoriaVisual.+Memoria.Checkpoint.+Memoria.ShopTransactions.+Memoria.Shop.+Memoria.Campaign.', 'Memoria.Narrative.+Memoria.Presentation.+Memoria.Campaign.+MemoriaVisual.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.', 'Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.'], help='Exact full registry or a bounded gameplay regression subset')
     parser.add_argument('--evidence-dir', type=Path)
     # The rendered full registry needs far longer than a bounded subset.
     parser.add_argument('--automation-timeout', type=int, default=900, help='Seconds before the automation process is killed')

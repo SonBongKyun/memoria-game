@@ -119,6 +119,7 @@ bool UMemoriaNarrativeSubsystem::StartNewGame(const FString& Locale)
     const auto* Cold = ResolveVN(TEXT("ch1_cold_open"));
     const FString KeptLocale = Locale.IsEmpty() ? Run->State.CurrentLocale : Locale;
     if (!Cold || !LoadContracts() || Run->BeginStartingMemoryRun(1) != EMemoriaMemoryResult::Success) return false;
+    bTitle = false;
     Run->State.CurrentLocale = KeptLocale.IsEmpty() ? TEXT("en") : KeptLocale;
     // main.gd _on_new_game_pressed player_data; flags start empty and memories are the starting set.
     auto& Player = Run->State.Player; Player = FMemoriaPlayerState();
@@ -191,11 +192,16 @@ void UMemoriaNarrativeSubsystem::PresentVNStep()
     if (Step.Presentation.bHasSfx && !Step.Presentation.Sfx.IsEmpty())
         if (auto* Audio = GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()) Audio->PlaySfx(FName(*Step.Presentation.Sfx));
 }
+void UMemoriaNarrativeSubsystem::EnterTitle()
+{
+    bTitle = true; State = EMemoriaSliceState::Idle; Record(TEXT("title:enter")); ++Revision;
+}
 bool UMemoriaNarrativeSubsystem::ResumeChapterAutosave()
 {
     auto* Save = GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->LoadChapterTransition();
     TStrongObjectPtr<UMemoriaRunSaveGame> Retained(Save);
     if (!Save || !PrepareRestore(*Save)) { Record(TEXT("autosave:resume_failed")); return false; }
+    bTitle = false;
     Record(TEXT("autosave:resumed"));
     return ResumePrepared();
 }

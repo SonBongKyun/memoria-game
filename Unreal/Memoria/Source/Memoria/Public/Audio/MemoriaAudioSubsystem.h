@@ -22,6 +22,8 @@ public:
     void SetLowHealth(bool bEnabled);
     bool IsHeartbeatPlaying() const;
     FName GetMusic() const { return Music; }
+    // The playing music loop's volume multiplier: its source dB times the master x bgm setting.
+    float GetMusicVolumeMultiplier() const;
     FName GetAmbient() const { return Ambient; }
     bool IsMusicPlaying() const;
     bool IsAmbientPlaying() const;
@@ -54,6 +56,8 @@ private:
     void SetLoop(FName Track, TObjectPtr<UAudioComponent>& Current, TObjectPtr<UAudioComponent>& Fading, FName& CurrentId, float FadeIn, float FadeOut);
     void SetDuck(bool bDuck);
     float LoopLevel(bool bForMusic) const;
+    float Gain(bool bLoop) const;
+    void ApplyGains();
     void OnMemoryEvent(const FMemoriaMemoryEvent& Event);
     void OnShopRequest(const FString& Request);
     void AdvanceDrama();

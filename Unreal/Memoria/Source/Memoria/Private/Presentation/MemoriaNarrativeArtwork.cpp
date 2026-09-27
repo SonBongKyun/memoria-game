@@ -43,6 +43,8 @@ const TArray<FMemoriaArtworkSource>& Sources()
         // vn_scene.gd DIALOGUE_OVERLAY_PATH / CHOICE_OVERLAY_PATH frame art (S305).
         {TEXT("res://assets/cg/generated/ui_vn_memory_frame_overlay.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_vn_memory_frame_overlay"), false},
         {TEXT("res://assets/cg/generated/ui_vn_choice_archive_overlay.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_vn_choice_archive_overlay"), false},
+        // main.gd TITLE_BG_PATH (S308).
+        {TEXT("res://assets/cg/generated/ui_title_memoria_premium.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_title_memoria_premium"), false},
         // Chapter 1 route (S304).
         {TEXT("res://assets/cg/generated/archive_ch1_camp_humming_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_ch1_camp_humming_v2"), false},
         {TEXT("res://assets/cg/generated/chapter_splash_rim_forest.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_rim_forest"), false},

@@ -133,6 +133,21 @@ UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::LoadChapterTransition()
     if (!Save) Fail(TEXT("No valid chapter autosave found."));
     return Save;
 }
+EMemoriaContinueSource UMemoriaCheckpointSubsystem::FindContinue() const
+{
+    if (!IsStorageEnabled()) return EMemoriaContinueSource::None;
+    // The source has one slot; here the newer of the two valid files stands for it.
+    auto Written = [this](const FString& Path, bool bChapter, FDateTime& Out)
+    {
+        if (!ReadFile(Path, bChapter)) return false;
+        Out = IFileManager::Get().GetTimeStamp(*Path); return true;
+    };
+    FDateTime Chapter, Boundary;
+    const bool bChapter = Written(GetChapterSlotPath(), true, Chapter);
+    const bool bBoundary = Written(GetSlotPath(), false, Boundary) || Written(GetSlotPath() + TEXT(".bak"), false, Boundary);
+    if (bChapter && bBoundary) return Chapter > Boundary ? EMemoriaContinueSource::Chapter : EMemoriaContinueSource::Boundary;
+    return bChapter ? EMemoriaContinueSource::Chapter : bBoundary ? EMemoriaContinueSource::Boundary : EMemoriaContinueSource::None;
+}
 UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path, bool bChapter) const
 {
     const auto Size=IFileManager::Get().FileSize(*Path);

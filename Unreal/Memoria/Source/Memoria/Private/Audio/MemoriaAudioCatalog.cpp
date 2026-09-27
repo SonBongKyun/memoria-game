@@ -25,6 +25,8 @@ const TArray<FTrack>& Tracks()
 {
     static const TArray<FTrack> Values = {
         {TEXT("ch2_verdan"), TEXT("assets/audio/bgm/ch2_verdan.mp3"), -5.f, true},
+        // main.gd TITLE_BGM_PATH (S308).
+        {TEXT("title"), TEXT("assets/audio/bgm/title.mp3"), -5.f, true},
         {TEXT("battle"), TEXT("assets/audio/bgm/battle_theme.mp3"), -5.f, true},
         // Chapter 1 VN scenes declare these as their bgm (S304).
         {TEXT("dialogue_tense"), TEXT("assets/audio/bgm/dialogue_tense.mp3"), -5.f, true},

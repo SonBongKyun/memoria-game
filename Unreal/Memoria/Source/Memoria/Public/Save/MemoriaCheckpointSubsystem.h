@@ -4,6 +4,8 @@
 #include "MemoriaCheckpointSubsystem.generated.h"
 
 class UMemoriaRunSaveGame;
+// Which save the title's Continue resumes: the chapter autosave (VN host) or the Verdan checkpoint.
+enum class EMemoriaContinueSource : uint8 { None, Chapter, Boundary };
 class UMemoriaRunSubsystem;
 
 // Bounded native disk adapter. Never reads/writes Godot slots or resumes Chapter 3.
@@ -21,6 +23,8 @@ public:
     UMemoriaRunSaveGame* LoadChapterTransition();
     bool ValidateChapterSnapshot(const UMemoriaRunSaveGame& Save) const;
     FString GetChapterSlotPath() const;
+    // SaveManager.has_save / load_game for the title: the most recently written valid slot.
+    EMemoriaContinueSource FindContinue() const;
     const FString& GetStatusText() const { return StatusText; }
     FString GetSlotPath() const;
     bool IsStorageEnabled() const { return !StorageRoot.IsEmpty(); }

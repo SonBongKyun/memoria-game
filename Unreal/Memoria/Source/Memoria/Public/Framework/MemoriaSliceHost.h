@@ -8,6 +8,8 @@ class UMemoriaInteractionComponent;
 class UMemoriaDevelopmentNarrativeWidget;
 class UMemoriaArchiveWidget;
 class UMemoriaBattleEntryWidget;
+class UMemoriaTitleWidget;
+enum class EMemoriaTitleAction : uint8;
 
 UCLASS()
 class MEMORIA_API AMemoriaSliceGameMode : public AMemoriaGameMode
@@ -34,6 +36,7 @@ public:
     const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
     UMemoriaArchiveWidget* GetArchiveWidget() const { return ArchiveWidget; }
     UMemoriaDevelopmentNarrativeWidget* GetNarrativeWidget() const { return NarrativeWidget; }
+    UMemoriaTitleWidget* GetTitleWidget() const { return TitleWidget; }
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -51,6 +54,9 @@ private:
     void BattleReturned();
     void ClearBattleWidget();
     UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryWidget> BattleWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaTitleWidget> TitleWidget;
+    void TitleAction(EMemoriaTitleAction Action);
+    void ClearTitle();
     TSet<FKey> ArchiveConsumedKeys;
     void TrackArchiveGesture(const FKey& Key,EInputEvent Event);
     void TrackConfirmGesture(const FKey& Key,EInputEvent Event);
