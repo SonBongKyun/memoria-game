@@ -2,6 +2,16 @@
 
 ---
 
+## S310 - 2026-09-27 (Codex: 세 필드 캐릭터 보정·로컬 리깅·Unreal 적용)
+
+- 아렐/엘리아/말렛 손가락·부츠·망토 및 의상 가중치 보정, 77뼈 리그와 정지/걷기 FBX, 뼈 부착 소품.
+- Field3D 26패키지, 원본 FBX/PNG ArtSource, 임포트 커맨드렛, 거리 기반 애니메이션 블렌딩을 Codex 레인에 적용.
+- UE5.8.2 빌드, 최종 렌더 시각 7/7, 기본 회귀 6/6 통과. 실제 필드 전신/4방향/걷기/엘리아/말렛 캡처 및 Run/기억 보존 확인.
+- 전체413 재실행은 하지 않음. 공격·대시 리타기팅/액션 전투는 다음 작업. 큰 동작용 의상 리토폴로지와 옆면 투영 한계 기록.
+- 공유 codex-review.md, models/MANIFEST.md, RIGGING_GUIDE_KO.md, 해시 검증 인계 묶음 제공. Claude/원본/foundation 수정, 새 커밋/푸시 없음.
+
+---
+
 ## S279 - 2026-09-11 (Unreal Phase 1N — Firebomb 지급 검증, 원본 보존 승인 대기)
 
 - 동일 canonical 경로에서 potion2/antidote1/firebomb1을 동기 지급하고 `_open_malet_shop()` 함수 진입 전 정지. 공통 GrantRewardItem 재사용, Player/World 전체·파생값·Run identity 보존.

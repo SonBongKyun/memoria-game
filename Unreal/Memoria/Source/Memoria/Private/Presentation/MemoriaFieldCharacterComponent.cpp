@@ -1,5 +1,11 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaVerdanArt.h"
+#include "Presentation/MemoriaFieldAnimInstance.h"
+#include "Animation/AnimSequence.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
 #include "PaperSprite.h"
 #include "PaperSpriteComponent.h"
 #include "Engine/Texture2D.h"
@@ -10,6 +16,20 @@ namespace
 const TCHAR* Directions[4] = {TEXT("Down"), TEXT("Up"), TEXT("Left"), TEXT("Right")};
 UPaperSprite* LoadAt(const FString& Package)
 { return LoadObject<UPaperSprite>(nullptr, *(Package + TEXT(".") + FPaths::GetBaseFilename(Package)), nullptr, LOAD_NoWarn | LOAD_Quiet); }
+FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suffix = TEXT(""))
+{
+    const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
+    const FString Asset = Prefix + Name + Suffix;
+    return TEXT("/Game/Memoria/Presentation/Field3D/") + Name + TEXT("/") + Asset + TEXT(".") + Asset;
+}
+template<class T> T* RiggedAsset(const FString& Id, const FString& Prefix, const FString& Suffix = TEXT(""))
+{ return LoadObject<T>(nullptr, *RiggedPath(Id, Prefix, Suffix), nullptr, LOAD_NoWarn | LOAD_Quiet); }
+bool HasRigged(const FString& Id)
+{
+    return RiggedAsset<USkeletalMesh>(Id, TEXT("SK_")) &&
+        RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle")) &&
+        RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
+}
 FString HD(const FString& Id, const FString& Name) { return FString::Printf(TEXT("/Game/Memoria/Presentation/FieldHD/SPR_%s_%s"), *Id, *Name); }
 }
 UMemoriaFieldCharacterComponent::UMemoriaFieldCharacterComponent()
@@ -20,6 +40,7 @@ UMemoriaFieldCharacterComponent::UMemoriaFieldCharacterComponent()
 FString UMemoriaFieldCharacterComponent::DescribeArt(const FString& Id)
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
+    if (HasRigged(Id)) return TEXT("rigged");
     if (LoadAt(HD(Name, TEXT("Down")))) return TEXT("hd");
     return MemoriaVerdanArt::LoadSprite(Name + TEXT("Down")) || MemoriaVerdanArt::LoadSprite(Name) ? TEXT("pixel") : TEXT("missing");
 }
@@ -32,6 +53,11 @@ bool UMemoriaFieldCharacterComponent::InitializeCharacter(const FString& Id, flo
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     Height = WorldHeight; Walk.Reset(); WalkFrames = 0; bMirrorLeft = false;
+    if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    for (const auto& Prop : Props) if (Prop) Prop->DestroyComponent();
+    Props.Reset(); Phase = Weight = Age = 0.f;
+    if (InitializeRigged(Id)) { if (Card) Card->SetHiddenInGame(true); return true; }
+    if (Card) Card->SetHiddenInGame(false);
     // FIELD_SPRITE_ART_SPEC.md: down/up/right (left mirrors right), two optional walk contacts per view.
     bHighResolution = LoadAt(HD(Name, TEXT("Down"))) != nullptr;
     if (bHighResolution)
@@ -112,11 +138,20 @@ void UMemoriaFieldCharacterComponent::AdvanceLocomotion(const FVector& Step, flo
 FVector UMemoriaFieldCharacterComponent::FocusPosition() const { return GetComponentLocation() + FVector(0, 0, Height * .55f); }
 FString UMemoriaFieldCharacterComponent::GetFrameName() const
 {
+    if (Skeletal) return FString::Printf(TEXT("%s_%s_%02d"), *Skeletal->GetSkeletalMeshAsset()->GetName(), *Facing, FMath::FloorToInt(Phase * 30));
     const UPaperSprite* Sprite = Card ? Card->GetSprite() : nullptr;
     return Sprite ? Sprite->GetName() + (Card->GetRelativeScale3D().X < 0 ? TEXT("#mirror") : TEXT("")) : FString();
 }
 void UMemoriaFieldCharacterComponent::ApplyFrame()
 {
+    if (Skeletal)
+    {
+        const float Yaws[4] = {-90.f, 90.f, 180.f, 0.f};
+        Skeletal->SetRelativeRotation(FRotator(0, Yaws[DirectionIndex(Facing)], 0));
+        if (auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skeletal->GetAnimInstance()))
+        { Anim->Age = Age; Anim->Phase = Phase; Anim->Weight = Weight; }
+        return;
+    }
     if (!Card) return;
     int32 D = DirectionIndex(Facing);
     const bool bMirror = D == 2 && (bMirrorLeft || !Stand[2]);
@@ -139,4 +174,58 @@ void UMemoriaFieldCharacterComponent::TickComponent(float DeltaTime, ELevelTick 
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     Age += DeltaTime; ApplyFrame();
+}
+
+
+// Animation assets and their skeleton must agree before replacing a working card.
+bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
+{
+    auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
+    auto* Idle = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle"));
+    auto* WalkClip = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
+    if (!Mesh || !Idle || !WalkClip || Idle->GetSkeleton() != Mesh->GetSkeleton() || WalkClip->GetSkeleton() != Mesh->GetSkeleton()) return false;
+    Skeletal = NewObject<USkeletalMeshComponent>(GetOwner(), NAME_None);
+    Skeletal->SetupAttachment(this);
+    Skeletal->SetCollisionEnabled(ECollisionEnabled::NoCollision); Skeletal->SetGenerateOverlapEvents(false);
+    Skeletal->SetSkeletalMesh(Mesh);
+    Skeletal->SetRelativeScale3D(FVector(Height / FMath::Max(1.f, float(Mesh->GetBounds().BoxExtent.Z * 2))));
+    Skeletal->SetRelativeLocation(FVector(0, 0, -8));
+    Skeletal->SetLightingChannels(true, true, false); Skeletal->SetCastShadow(true);
+    Skeletal->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+    Skeletal->PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
+    Skeletal->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+    Skeletal->SetAnimInstanceClass(UMemoriaFieldAnimInstance::StaticClass());
+    Skeletal->RegisterComponent(); Skeletal->AddTickPrerequisiteComponent(this);
+    auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skeletal->GetAnimInstance());
+    if (!Anim) { Skeletal->DestroyComponent(); Skeletal = nullptr; return false; }
+    Anim->Idle = Idle; Anim->Walk = WalkClip;
+    // Bind rigid grips against the actual idle pose, including the FBX import basis.
+    Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
+    bHighResolution = true; WalkFrames = 30;
+    // Coordinates are in the imported reference-pose frame: X forward, Y right, Z up.
+    if (Id == TEXT("arrel")) AttachProp(Id, TEXT("sword_sheathed"), TEXT("pelvis"), FVector(0, -21, 13));
+    else if (Id == TEXT("elia")) AttachProp(Id, TEXT("staff"), TEXT("hand_l"), FVector(0, 0, -2));
+    else if (Id == TEXT("malet"))
+    {
+        AttachProp(Id, TEXT("ledger"), TEXT("hand_r"), FVector(3, 0, -3));
+        AttachProp(Id, TEXT("vials"), TEXT("pelvis"), FVector(10, 18, 0));
+    }
+    ApplyFrame(); return true;
+}
+void UMemoriaFieldCharacterComponent::AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset)
+{
+    auto* Mesh = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_") + Prop);
+    if (!Mesh || !Skeletal) return;
+    const auto& Ref = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
+    const int32 Index = Ref.FindBoneIndex(Bone); if (Index == INDEX_NONE) return;
+    const FTransform BoneTransform = Skeletal->GetSocketTransform(Bone, RTS_Component);
+    auto* Part = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None);
+    Part->SetStaticMesh(Mesh); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Part->SetGenerateOverlapEvents(false); Part->SetLightingChannels(true, true, false);
+    Part->SetupAttachment(Skeletal, Bone);
+    // The prop FBX origin is its grip. Cancel the idle grip rotation, then follow the animated bone.
+    const FTransform Desired(FRotator(0, 90, 0).Quaternion(), BoneTransform.GetLocation() + Offset);
+    Part->SetRelativeTransform(Desired.GetRelativeTransform(BoneTransform));
+    if (Prop == TEXT("staff")) Part->SetRelativeScale3D(FVector(.85f));
+    Part->RegisterComponent(); Props.Add(Part);
 }
