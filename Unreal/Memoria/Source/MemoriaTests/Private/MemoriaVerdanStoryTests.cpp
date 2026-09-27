@@ -99,7 +99,7 @@ bool FVerdanStorySourceTable::RunTest(const FString&)
     TestEqual(TEXT("Talk flag"),FString(MemoriaVerdanStory::EliaTalkFlag),E->GetStringField(TEXT("talk_flag")));
     TestEqual(TEXT("Repeat line"),FString(MemoriaVerdanStory::EliaRepeatLine),E->GetStringField(TEXT("repeat_line")));
     const auto K=E->GetObjectField(TEXT("constants"));using C=AMemoriaEliaCompanion;
-    TestEqual(TEXT("Formation"),C::FormationDistance,K->GetNumberField(TEXT("formation_distance")));TestEqual(TEXT("Speed"),C::FollowSpeed,K->GetNumberField(TEXT("follow_speed")));
+    TestEqual(TEXT("Formation"),C::SourceFormationDistance,K->GetNumberField(TEXT("formation_distance")));TestEqual(TEXT("Formation for illustrated figures (S307 deviation)"),C::FormationDistance,90.0);TestEqual(TEXT("Speed"),C::FollowSpeed,K->GetNumberField(TEXT("follow_speed")));
     TestEqual(TEXT("Arrival"),C::ArrivalRadius,K->GetNumberField(TEXT("arrival_radius")));TestEqual(TEXT("Trail sample"),C::TrailSample,K->GetNumberField(TEXT("trail_sample_distance")));
     TestEqual(TEXT("Trail length"),double(C::MaxTrailPoints),K->GetNumberField(TEXT("max_trail_points")));TestEqual(TEXT("Warp"),C::WarpDistance,K->GetNumberField(TEXT("warp_distance")));
     TestEqual(TEXT("Accel"),C::FollowAccel,K->GetNumberField(TEXT("follow_accel")));TestEqual(TEXT("Sprint"),C::SprintCatchup,K->GetNumberField(TEXT("sprint_catchup")));

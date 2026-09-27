@@ -26,6 +26,8 @@ public:
     FVector FocusPosition() const;
     float GetWorldHeight() const { return Height; }
     bool IsHighResolution() const { return bHighResolution; }
+    // Walk frames per view: 4 for the pixel cycle, 2 for illustrated contacts, 0 when walking is bob and sway only.
+    int32 GetWalkFrameCount() const { return WalkFrames; }
     FString GetFrameName() const;
     UPaperSpriteComponent* GetCard() const { return Card; }
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

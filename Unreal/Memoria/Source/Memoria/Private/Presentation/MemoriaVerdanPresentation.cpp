@@ -413,12 +413,18 @@ void AMemoriaVerdanPresentation::BeginPlay()
     if(!ArrelFigure->InitializeCharacter(TEXT("arrel"),ArrelHeight))
     { UE_LOG(LogTemp,Error,TEXT("Arrel field art missing"));SetActorTickEnabled(false);return; }
     Sprite->SetHiddenInGame(true);Sprite->SetCastShadow(false);
-    // A soft character-only fill preserves the courtyard's existing night lighting.
-    auto* CharacterFill=NewObject<UPointLightComponent>(this,TEXT("ArrelFillLight"));AddInstanceComponent(CharacterFill);
-    CharacterFill->SetupAttachment(Player->GetRootComponent());CharacterFill->SetRelativeLocation(FVector(40,-140,160));
-    CharacterFill->bUseInverseSquaredFalloff=false;CharacterFill->LightFalloffExponent=2;
-    CharacterFill->SetIntensity(4.f);CharacterFill->SetAttenuationRadius(500);CharacterFill->SetLightColor(FLinearColor(.75f,.83f,1.f));
-    CharacterFill->SetLightingChannels(false,true,false);CharacterFill->SetCastShadows(false);CharacterFill->RegisterComponent();
+    // A soft character-only fill preserves the courtyard's existing night lighting. Every figure gets the same one,
+    // so painted art reads alike wherever it stands; 3 keeps silver armour and white robes off the clip.
+    auto AddFill=[this](USceneComponent* Parent,const TCHAR* Name)
+    {
+        auto* Fill=NewObject<UPointLightComponent>(this,Name);AddInstanceComponent(Fill);
+        Fill->SetupAttachment(Parent);Fill->SetRelativeLocation(FVector(40,-140,160));
+        Fill->bUseInverseSquaredFalloff=false;Fill->LightFalloffExponent=2;
+        Fill->SetIntensity(3.f);Fill->SetAttenuationRadius(500);Fill->SetLightColor(FLinearColor(.75f,.83f,1.f));
+        Fill->SetLightingChannels(false,true,false);Fill->SetCastShadows(false);Fill->RegisterComponent();
+    };
+    AddFill(Player->GetRootComponent(),TEXT("ArrelFillLight"));
+    if(MaletCard) AddFill(MaletCard,TEXT("MaletFillLight"));
     BuildFieldLife();
     PreviousPosition=Player->GetActorLocation();
     UpdateCameraAndVisibility();

@@ -21,6 +21,7 @@
 #include "Run/MemoriaRunSubsystem.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
+#include "Engine/Texture2D.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -196,9 +197,13 @@ public:
             for (auto* Picture:Pictures) if (Picture->GetSprite() && Picture->GetSprite()->GetName()==TEXT("SPR_MemoryLantern")) ++ArtLanterns;
             Test->TestEqual(TEXT("Four original-art lanterns in actual scene"), ArtLanterns, 4);
             TArray<UPointLightComponent*> Lights; Presentation->GetComponents(Lights);
-            auto* Fill=Lights.FindByPredicate([](const UPointLightComponent* L){return L->GetFName()==TEXT("ArrelFillLight");});
-            Test->TestTrue(TEXT("Character fill is isolated from world lighting"),Fill && !(*Fill)->LightingChannels.bChannel0 && (*Fill)->LightingChannels.bChannel1);
-            Lights.RemoveAll([](const UPointLightComponent* L){return L->GetFName()==TEXT("ArrelFillLight");});
+            // Arrel and Malet carry the same character-only fill (Elia shares Arrel's as she follows).
+            for (const TCHAR* Name : {TEXT("ArrelFillLight"), TEXT("MaletFillLight")})
+            {
+                auto* Fill=Lights.FindByPredicate([Name](const UPointLightComponent* L){return L->GetFName()==Name;});
+                Test->TestTrue(TEXT("Character fill is isolated from world lighting"),Fill && !(*Fill)->LightingChannels.bChannel0 && (*Fill)->LightingChannels.bChannel1);
+            }
+            Lights.RemoveAll([](const UPointLightComponent* L){return L->GetFName().ToString().EndsWith(TEXT("FillLight"));});
             Test->TestEqual(TEXT("Four real lantern lights"), Lights.Num(), 4);
             int32 ShadowLights = 0;
             for (auto* Light : Lights) { Test->TestTrue(TEXT("Lanterns illuminate scene"), Light->Intensity > 0); ShadowLights += Light->CastShadows ? 1 : 0; }
@@ -217,6 +222,7 @@ public:
                 Test->TestEqual(TEXT("Direction follows real displacement"), Presentation->Facing(), FString(Directions[I]));
                 Test->TestTrue(TEXT("Real movement activates the walk"), Presentation->IsWalking());
                 SeenGaitPoses.Add(Character->GetFrameName());
+                if (const UPaperSpriteComponent* Card = Character->GetCard()) MaxBounce = FMath::Max(MaxBounce, float(Card->GetRelativeLocation().Z) + 8.f);
                 Test->TestTrue(TEXT("Figure follows physical pawn"),FVector2D(Character->GetComponentLocation()).Equals(FVector2D(Pawn->GetActorLocation()),.001));
                 if(Frame>Start+14)
                 {
@@ -229,7 +235,11 @@ public:
         }
         if (Frame == 156)
         {
-            Test->TestTrue(TEXT("Walk frames and facings change through movement"),SeenGaitPoses.Num()>=8);
+            // Four facings, times the walk frames when the art has them; without walk contacts the stride is a visible bounce.
+            const int32 WalkFrames = Character->GetWalkFrameCount();
+            Test->TestTrue(TEXT("Walk frames and facings change through movement"),SeenGaitPoses.Num()>=(WalkFrames>0 ? 8 : 4));
+            Test->AddInfo(FString::Printf(TEXT("FIELD_GAIT poses=%d walk_frames=%d bounce=%.2f"),SeenGaitPoses.Num(),WalkFrames,MaxBounce));
+            if (WalkFrames == 0) Test->TestTrue(TEXT("Walking without contact frames still bounces"), MaxBounce > Character->GetWorldHeight() * .01f);
             if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio subsystem exists"), Audio))
                 Test->TestTrue(TEXT("Planted feet play stone footsteps"), Audio->GetCueCount(TEXT("step_stone")) > 0);
             Capture(TEXT("Market"));
@@ -314,7 +324,17 @@ public:
             int32 Companions=0;for(TActorIterator<AMemoriaEliaCompanion> It(World);It;++It){++Companions;It->SetActorHiddenInGame(true);}
             Test->TestEqual(TEXT("Elia follows in the Verdan field"),Companions,1);
         }
-        if(Frame==406)Capture(TEXT("CharacterFront"));
+        if(Frame==406)
+        {
+            // The close review needs the illustrated art at full resolution, not a streamed-down mip.
+            const UTexture2D* Texture=Character->GetCard()&&Character->GetCard()->GetSprite()?Character->GetCard()->GetSprite()->GetBakedTexture():nullptr;
+            if(Texture)
+            {
+                Test->AddInfo(FString::Printf(TEXT("FIELD_TEXTURE_RESIDENT %s resident=%d mips=%d stream=%d"),*Texture->GetName(),Texture->GetNumResidentMips(),Texture->GetNumMips(),Texture->IsStreamable()?1:0));
+                if(Character->IsHighResolution()) Test->TestEqual(TEXT("Illustrated field art is fully resident"),Texture->GetNumResidentMips(),Texture->GetNumMips());
+            }
+            Capture(TEXT("CharacterFront"));
+        }
         if(Frame==410)Character->Face(TEXT("Right"));
         if(Frame==420)Capture(TEXT("CharacterSide"));
         if(Frame==424)Character->Face(TEXT("Up"));
@@ -362,6 +382,7 @@ private:
     FString RunBefore, MemoryBefore, CameraRecords, FootRecords, MovementRecords;
     TArray<FString> TraceBefore;
     TSet<FString> SeenGaitPoses;
+    float MaxBounce = 0.f;
     TWeakObjectPtr<ACameraActor> PreviewCamera;
 };
 }
@@ -374,6 +395,15 @@ bool FFieldCharactersTest::RunTest(const FString&)
         const FString Art = UMemoriaFieldCharacterComponent::DescribeArt(Id);
         AddInfo(FString::Printf(TEXT("FIELD_CHARACTER %s %s"), Id, *Art));
         TestTrue(*(FString(TEXT("Field art resolves for ")) + Id), Art != TEXT("missing"));
+        if (Art != TEXT("hd")) continue;
+        // The illustrated canvas is drawn at a fraction of its size: filtered, with a mip chain once a real RHI builds it.
+        const FString Name = FString(Id).Left(1).ToUpper() + FString(Id).Mid(1);
+        const FString TexturePath = FString::Printf(TEXT("/Game/Memoria/Presentation/FieldHD/T_%s_Down.T_%s_Down"), *Name, *Name);
+        const UTexture2D* Texture = LoadObject<UTexture2D>(nullptr, *TexturePath);
+        if (!TestNotNull(*(FString(TEXT("HD texture loads for ")) + Id), Texture)) continue;
+        TestTrue(*(FString(TEXT("HD art is filtered for ")) + Id), Texture->Filter != TF_Nearest);
+        AddInfo(FString::Printf(TEXT("FIELD_HD_TEXTURE %s mips=%d"), Id, Texture->GetNumMips()));
+        if (FApp::CanEverRender()) TestTrue(*(FString(TEXT("HD art has mips for ")) + Id), Texture->GetNumMips() > 4);
     }
     for (const TCHAR* Id : {TEXT("sable"), TEXT("tobias"), TEXT("nera"), TEXT("kairos"), TEXT("veil")})
         AddInfo(FString::Printf(TEXT("FIELD_CHARACTER %s %s"), Id, *UMemoriaFieldCharacterComponent::DescribeArt(Id)));

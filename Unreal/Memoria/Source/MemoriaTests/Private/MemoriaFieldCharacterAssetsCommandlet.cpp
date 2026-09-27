@@ -28,9 +28,10 @@ FString ViewName(const FString& File)
     return Out;
 }
 }
-int32 UMemoriaFieldCharacterAssetsCommandlet::Main(const FString&)
+int32 UMemoriaFieldCharacterAssetsCommandlet::Main(const FString& Params)
 {
-    // Additive: existing packages are kept. Canvas 1024x1536, feet at (512, 1480).
+    // Additive: existing packages are kept unless -Force. Canvas 1024x1536, feet at (512, 1480).
+    const bool bForce = FParse::Param(*Params, TEXT("Force"));
     const FString Root = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("../../assets/sprites/field_hd"));
     TArray<FString> Ids; IFileManager::Get().FindFiles(Ids, *(Root / TEXT("*")), false, true);
     int32 Imported = 0;
@@ -43,13 +44,22 @@ int32 UMemoriaFieldCharacterAssetsCommandlet::Main(const FString&)
             const FString View = ViewName(File);
             const FString TexturePath = FString::Printf(TEXT("/Game/Memoria/Presentation/FieldHD/T_%s_%s"), *Name, *View);
             const FString SpritePath = FString::Printf(TEXT("/Game/Memoria/Presentation/FieldHD/SPR_%s_%s"), *Name, *View);
-            if (FPackageName::DoesPackageExist(SpritePath)) { UE_LOG(LogTemp, Display, TEXT("FIELD_HD_KEPT %s"), *SpritePath); continue; }
+            if (!bForce && FPackageName::DoesPackageExist(SpritePath)) { UE_LOG(LogTemp, Display, TEXT("FIELD_HD_KEPT %s"), *SpritePath); continue; }
+            // -Force replaces the files before anything loads them; a partly loaded package cannot be saved over.
+            if (bForce)
+                for (const FString& Path : {TexturePath, SpritePath})
+                    IFileManager::Get().Delete(*FPackageName::LongPackageNameToFilename(Path, FPackageName::GetAssetPackageExtension()), false, true, true);
             auto* Factory = NewObject<UTextureFactory>(); bool Cancelled = false;
             auto* Texture = Cast<UTexture2D>(Factory->FactoryCreateFile(UTexture2D::StaticClass(), CreatePackage(*TexturePath), *FPaths::GetBaseFilename(TexturePath),
                 RF_Public | RF_Standalone, *(Root / Id / File), nullptr, GWarn, Cancelled));
             if (!Texture || Cancelled) { UE_LOG(LogTemp, Error, TEXT("FIELD_HD import failed %s/%s"), *Id, *File); return 1; }
             // Drawn at a fraction of its size: keep mips and filtering, alpha-capable compression.
             Texture->LODGroup = TEXTUREGROUP_Character; Texture->CompressionSettings = TC_Default; Texture->SRGB = true; Texture->Filter = TF_Trilinear;
+            // 1536 is not a power of two, so no mips would be built and the ~200 px field figure would alias.
+            // Stretching keeps Paper2D's normalised UVs, so the pivot and bounds are unchanged.
+            Texture->PowerOfTwoMode = ETexturePowerOfTwoSetting::StretchToPowerOfTwo; Texture->MipGenSettings = TMGS_FromTextureGroup;
+            // A handful of always-visible figures: the streamer left them 5 mips short (a 64 px top mip) in the field.
+            Texture->NeverStream = true;
             Texture->PostEditChange(); FTextureCompilingManager::Get().FinishCompilation({Texture});
             if (Texture->Source.GetSizeX() != 1024 || Texture->Source.GetSizeY() != 1536)
                 UE_LOG(LogTemp, Warning, TEXT("FIELD_HD %s/%s is %dx%d, not the 1024x1536 spec canvas"), *Id, *File, int32(Texture->Source.GetSizeX()), int32(Texture->Source.GetSizeY()));
@@ -61,7 +71,8 @@ int32 UMemoriaFieldCharacterAssetsCommandlet::Main(const FString&)
             const float Sx = Texture->Source.GetSizeX() / 1024.f, Sy = Texture->Source.GetSizeY() / 1536.f;
             Sprite->SetPivotMode(ESpritePivotMode::Custom, FVector2D(512.f * Sx, 1480.f * Sy));
             if (!Save(Sprite)) return 1;
-            ++Imported; UE_LOG(LogTemp, Display, TEXT("FIELD_HD_ASSET %s"), *Sprite->GetPathName());
+            ++Imported;
+            UE_LOG(LogTemp, Display, TEXT("FIELD_HD_ASSET %s mips=%d height=%.1f"), *Sprite->GetPathName(), Texture->GetNumMips(), float(Sprite->GetRenderBounds().BoxExtent.Z * 2.0));
         }
     }
     UE_LOG(LogTemp, Display, TEXT("FIELD_HD_IMPORTED %d"), Imported);

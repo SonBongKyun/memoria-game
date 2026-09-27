@@ -23,7 +23,11 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     FString Facing() const { return Direction; }
     // companion.gd constants, in source pixels (1 unit per pixel in this slice).
-    static constexpr double FormationDistance = 48;
+    // Godot companion.gd FORMATION_DISTANCE, kept for the source fixture.
+    static constexpr double SourceFormationDistance = 48;
+    // S307 deviation (user-approved): the illustrated figures are ~80 units wide, so the source 48 put Elia
+    // inside Arrel's silhouette. 90 keeps a clear gap behind him along the trail.
+    static constexpr double FormationDistance = 90;
     static constexpr double FollowSpeed = 112;
     static constexpr double ArrivalRadius = 7;
     static constexpr double TrailSample = 8;
@@ -31,7 +35,9 @@ public:
     static constexpr double FollowAccel = 900;
     static constexpr double SprintCatchup = 1.48;
     static constexpr int32 MaxTrailPoints = 96;
-    static constexpr double InteractionRange = 80;
+    // The source reaches her 32 beyond where she rests (80 against 48); the same margin past the S307 formation,
+    // or the player could not talk to her from where she stops.
+    static constexpr double InteractionRange = FormationDistance + 32;
     static constexpr double FacingDot = .7;
 private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<USphereComponent> Body;

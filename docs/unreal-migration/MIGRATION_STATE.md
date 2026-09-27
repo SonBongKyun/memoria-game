@@ -1,3 +1,45 @@
+# Migration handoff — S307 illustrated field art imported and tuned (Claude lane, 2026-09-27)
+
+- **Art.** Codex delivered priority 1 of `FIELD_SPRITE_ART_SPEC.md` to the shared `field_hd/`:
+  - `arrel`, `elia` and `malet`, each with down, up and right views, 9 PNGs;
+  - report in `codex-review.md`, provenance in `field_hd/MANIFEST.md`.
+  - Claude re-checked all 9: SHA-256 matches the manifest; each is 1024×1536 RGBA with transparent corners; feet at y 1480; lower centre x 511.5–512.5.
+  - Copied to `assets/sprites/field_hd/<id>/` and imported to `/Game/Memoria/Presentation/FieldHD/` (T_/SPR_ ×9).
+- **Walk.** No walk contacts were delivered (optional in the spec), so walking uses the bounce fallback.
+- **Scale.** The imported sprites' render bounds are tight to the figure: Arrel 131, Elia 120, Malet 131 units at PPU 10. `InitializeCharacter`'s `WorldHeight` is therefore the figure's real height: Arrel 150, Elia 138 (0.92), Malet 150.
+  - `PLAYFEEL_CHARACTER_HEIGHT` 0.138, inside the 10–18% bound.
+  - Feet land on the pivot; no anchor change was needed.
+- **Resolution (root cause).** The first rendered captures were blurry in the field and blocky close up.
+  - Rejected hypotheses: no project texture-group or streaming override exists (config grep); the power-of-two stretch was not the cause (12 mips present).
+  - Confirmed cause: at the review capture only 7 of 12 mips were resident (`FIELD_TEXTURE_RESIDENT`), a top mip about 64 px tall; the streamer had not raised these cards.
+  - Fix, in the commandlet:
+    - `NeverStream` on the 9 HD textures, about 25 MB in total;
+    - `StretchToPowerOfTwo` so the 1024×1536 canvas gets a mip chain (Paper2D UVs are normalised; the pivot is unchanged).
+  - After the fix: resident 12/12, and the close review shows the painted detail.
+- **Commandlet.** `-run=MemoriaFieldCharacterAssets -Force` now deletes and re-creates the packages before anything loads them. Overwriting in place failed with a partly loaded package that could not be saved.
+- **Lighting.** Malet stood outside Arrel's character fill and read as murky next to the lit pair.
+  - Every figure now gets the same channel-1 fill: `ArrelFillLight` on the player and `MaletFillLight` on Malet's card. Elia shares Arrel's.
+  - Intensity went from 4 to 3, so silver armour and the white robe stay off the clip.
+  - Lantern and moon lighting are unchanged.
+- **Tests.**
+  - `MemoriaVisual.FieldCharacters`: `FIELD_CHARACTER arrel|elia|malet hd`; HD textures are filtered; mips > 4 under a real RHI (12 found).
+  - `MemoriaVisual.VerdanExploration`:
+    - gait requires 8 poses when the art has walk frames; without them it requires 4 facings plus a visible bounce (> 1% of height; measured 3.26);
+    - illustrated art must be fully resident at the close review;
+    - both fill lights are checked for isolation from world lighting.
+  - `UMemoriaFieldCharacterComponent::GetWalkFrameCount()` was added for this.
+- **Formation (user-approved deviation).** Elia's Godot formation distance, 48, was about 60% of the HD figure width (~80 units), so she stood inside Arrel's silhouette.
+  - The user approved 90: `AMemoriaEliaCompanion::FormationDistance` is 90.
+  - `SourceFormationDistance` 48 stays equal to the source fixture, and both are asserted in `Memoria.VerdanStory`.
+  - Her talk reach follows it: `InteractionRange` = formation + 32 = 122, keeping the source's 32 margin (80 against 48). At 80 the full run showed she stopped out of reach, and `Memoria.BattleCore.RenderedJourney` could not talk to her.
+  - Standing captures now show a clear gap. Short direction changes still overlap briefly while she catches up along the trail.
+- **Results.** Full rendered registry **409/409** (`Saved/Validation/unreal-run-20260927T003425991298`); rendered visual suite 6/6; `Memoria.BattleCore.` 100/100 after the talk-reach fix.
+- **Known.**
+  - Sable, Tobias, Nera, Kairos and Veil have no field art yet (priority 2 and 3 of the spec).
+- **Next.**
+  - Walk contacts and the other characters when Codex delivers them; the same import applies.
+  - Then field lighting polish, the title/menu and the battle screen.
+
 # Migration handoff — S306 field characters: one figure path, awaiting illustrated art (Claude lane, 2026-09-27)
 
 - **Why.** The user played S305 in Verdan. Arrel was a 3D prototype mesh standing beside Elia's and Malet's 2D sprites; the user called it jarring, and said the others were not satisfying either. They chose **high-resolution illustrated sprites**, with the art produced by **Codex**.

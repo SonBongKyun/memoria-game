@@ -4,6 +4,12 @@ Requested by the user on 2026-09-27, after playing the S305 build. In the Verdan
 
 The Unreal side is built to consume exactly this layout (S306, Claude lane). Until the art lands, the field falls back to the existing pixel sprites. Dropping files into the paths below and running the import commandlet switches a character over, with no code change.
 
+## Status
+
+- **2026-09-27, S307:** priority 1 was delivered by Codex, imported and accepted: `arrel`, `elia` and `malet` each have down, up and right. `FIELD_CHARACTER <id> hd` is reported, and the close review is at full resolution.
+- **Open:** walk contacts and priority 2 and 3 characters.
+- **Import notes:** the commandlet keeps these textures resident (`NeverStream`) and stretches them to a power of two for mips. `-Force` replaces existing packages.
+
 ## Characters and priority
 
 | Priority | Id | Reference art (canon costume, face, palette) |
