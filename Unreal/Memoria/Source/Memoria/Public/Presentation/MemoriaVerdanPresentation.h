@@ -4,6 +4,7 @@
 #include "MemoriaVerdanPresentation.generated.h"
 class AMemoriaFieldPawn;
 class UMemoriaFieldCharacterComponent;
+class UMemoriaCombatHudWidget;
 class AMemoriaMaletActor;
 class AStaticMeshActor;
 class UPaperSprite;
@@ -22,6 +23,7 @@ class MEMORIA_API AMemoriaVerdanPresentation : public AActor
 public:
     AMemoriaVerdanPresentation();
     virtual void Tick(float DeltaSeconds) override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     FString Facing() const { return Direction; }
     bool IsWalking() const { return bWalking; }
     // Arrel's field figure (the S306 card; the 3D prototype stays out of the field).
@@ -39,6 +41,7 @@ private:
     UStaticMeshComponent* SoftQuad(const FVector& Location, const FVector& Scale, FLinearColor Tint, float Alpha);
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> ArrelFigure;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> MaletCard;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaCombatHudWidget> CombatHud;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
     void BuildDepthEnvironment();
     void BuildCourtyard(UMaterialInterface* Iron);

@@ -1,0 +1,20 @@
+#pragma once
+#include "CoreMinimal.h"
+class UAnimSequence;
+struct FMemoriaCombatClip { const TCHAR* Name; const TCHAR* MannequinPath; };
+// S311: the combat clips every 3D combatant uses. The mannequin (the monster stand-in) plays Epic's
+// originals; each rigged character plays its retargeted copy from -run=MemoriaCombatRetarget.
+namespace MemoriaCombatClips
+{
+    MEMORIA_API const TArray<FMemoriaCombatClip>& Clips();
+    MEMORIA_API FString MannequinMesh();
+    // /Game/Memoria/Presentation/Field3D/<Id>/Combat/A_<Id>_<Name>, or the mannequin original for "Mannequin".
+    MEMORIA_API FString ClipPath(const FString& Id, const FString& Name);
+    MEMORIA_API UAnimSequence* Load(const FString& Id, const FString& Name);
+    // Clip names.
+    inline const TCHAR* Attack(int32 Step) { return Step == 0 ? TEXT("Attack_01") : Step == 1 ? TEXT("Attack_02") : TEXT("Attack_03"); }
+    inline const TCHAR* Charged() { return TEXT("ChargedAttack"); }
+    inline const TCHAR* Dash() { return TEXT("Dash"); }
+    inline const TCHAR* Hit() { return TEXT("HitReact_Front_Lgt_01"); }
+    inline const TCHAR* Death() { return TEXT("Death_Front_01"); }
+}

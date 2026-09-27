@@ -1,6 +1,8 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Presentation/MemoriaFieldAnimInstance.h"
+#include "Presentation/MemoriaCombatClips.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Animation/AnimSequence.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -146,10 +148,12 @@ void UMemoriaFieldCharacterComponent::ApplyFrame()
 {
     if (Skeletal)
     {
-        const float Yaws[4] = {-90.f, 90.f, 180.f, 0.f};
-        Skeletal->SetRelativeRotation(FRotator(0, Yaws[DirectionIndex(Facing)], 0));
+        Skeletal->SetRelativeRotation(FRotator(0, GetYaw() + MeshYawOffset, 0));
         if (auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skeletal->GetAnimInstance()))
-        { Anim->Age = Age; Anim->Phase = Phase; Anim->Weight = Weight; }
+        {
+            Anim->Age = Age; Anim->Phase = Phase; Anim->Weight = Weight;
+            Anim->Action = ActionClip; Anim->ActionTime = ActionTime; Anim->ActionWeight = ActionWeight;
+        }
         return;
     }
     if (!Card) return;
@@ -173,16 +177,56 @@ void UMemoriaFieldCharacterComponent::ApplyFrame()
 void UMemoriaFieldCharacterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    Age += DeltaTime; ApplyFrame();
+    Age += DeltaTime;
+    if (ActionClip)
+    {
+        // Blend in over 0.08 s and out over the last 0.12 s; a held clip (death) rests on its final pose.
+        const float Length = GetActionLength();
+        ActionTime = FMath::Min(ActionTime + DeltaTime * ActionRate, Length);
+        const float In = FMath::Clamp(ActionTime / .08f, 0.f, 1.f), Out = bActionHold ? 1.f : FMath::Clamp((Length - ActionTime) / .12f, 0.f, 1.f);
+        ActionWeight = FMath::Min(In, Out);
+        if (!bActionHold && ActionTime >= Length) StopAction();
+    }
+    ApplyFrame();
 }
 
 
-// Animation assets and their skeleton must agree before replacing a working card.
-bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
+float UMemoriaFieldCharacterComponent::GetActionLength() const { return ActionClip ? ActionClip->GetPlayLength() : 0.f; }
+float UMemoriaFieldCharacterComponent::GetYaw() const
 {
-    auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
-    auto* Idle = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle"));
-    auto* WalkClip = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
+    const float Yaws[4] = {-90.f, 90.f, 180.f, 0.f};
+    return bAim ? AimYaw : Yaws[DirectionIndex(Facing)];
+}
+bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, bool bHold)
+{
+    UAnimSequence* Sequence = MemoriaCombatClips::Load(CharacterId, Clip);
+    if (!Sequence || !Skeletal || Sequence->GetSkeleton() != Skeletal->GetSkeletalMeshAsset()->GetSkeleton()) return false;
+    ActionClip = Sequence; ActionTime = 0.f; ActionRate = FMath::Max(.05f, Rate); ActionWeight = 0.f; bActionHold = bHold;
+    ApplyFrame(); return true;
+}
+void UMemoriaFieldCharacterComponent::StopAction() { ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false; ApplyFrame(); }
+bool UMemoriaFieldCharacterComponent::InitializeMannequin(float WorldHeight, const FLinearColor& Tint)
+{
+    Height = WorldHeight; CharacterId = TEXT("Mannequin");
+    if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    auto Seq = [](const TCHAR* Path) { return LoadObject<UAnimSequence>(nullptr, Path, nullptr, LOAD_NoWarn | LOAD_Quiet); };
+    auto* Mesh = LoadObject<USkeletalMesh>(nullptr, *(MemoriaCombatClips::MannequinMesh() + TEXT(".SKM_Manny_Simple")), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    // Epic's mannequin faces +Y in mesh space; the field figures face +X at yaw 0.
+    MeshYawOffset = -90.f;
+    if (!CreateSkeletal(Mesh, Seq(TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle")),
+        Seq(TEXT("/Game/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd.MF_Unarmed_Walk_Fwd")))) return false;
+    // A void-dark husk: every slot takes the tint instead of the mannequin grey.
+    if (auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
+        for (int32 I = 0; I < Skeletal->GetNumMaterials(); ++I)
+        {
+            auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal);
+            Material->SetVectorParameterValue(TEXT("Color"), Tint); Skeletal->SetMaterial(I, Material);
+        }
+    if (Card) Card->SetHiddenInGame(true);
+    bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
+}
+bool UMemoriaFieldCharacterComponent::CreateSkeletal(USkeletalMesh* Mesh, UAnimSequence* Idle, UAnimSequence* WalkClip)
+{
     if (!Mesh || !Idle || !WalkClip || Idle->GetSkeleton() != Mesh->GetSkeleton() || WalkClip->GetSkeleton() != Mesh->GetSkeleton()) return false;
     Skeletal = NewObject<USkeletalMeshComponent>(GetOwner(), NAME_None);
     Skeletal->SetupAttachment(this);
@@ -199,6 +243,14 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
     auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skeletal->GetAnimInstance());
     if (!Anim) { Skeletal->DestroyComponent(); Skeletal = nullptr; return false; }
     Anim->Idle = Idle; Anim->Walk = WalkClip;
+    return true;
+}
+// Animation assets and their skeleton must agree before replacing a working card.
+bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
+{
+    auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
+    CharacterId = Id.Left(1).ToUpper() + Id.Mid(1).ToLower(); MeshYawOffset = 0.f;
+    if (!CreateSkeletal(Mesh, RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle")), RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk")))) return false;
     // Bind rigid grips against the actual idle pose, including the FBX import basis.
     Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
     bHighResolution = true; WalkFrames = 30;

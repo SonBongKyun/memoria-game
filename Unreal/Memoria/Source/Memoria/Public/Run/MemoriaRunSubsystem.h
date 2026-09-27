@@ -65,6 +65,7 @@ private:
     friend class UMemoriaNarrativeSubsystem;
     friend class UMemoriaShopSubsystem;
     friend class UMemoriaBattleEntrySubsystem;
+    friend class UMemoriaFieldCombatSubsystem;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPlayerMemoryDomain> PlayerMemory;
     UPROPERTY(Transient) TObjectPtr<UMemoriaWorldCognition> WorldCognition;
     UPROPERTY(Transient) FMemoriaRunSnapshot State;

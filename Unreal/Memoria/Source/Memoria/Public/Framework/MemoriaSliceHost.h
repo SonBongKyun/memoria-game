@@ -57,6 +57,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaTitleWidget> TitleWidget;
     void TitleAction(EMemoriaTitleAction Action);
     void ClearTitle();
+    FVector CursorOnFloor() const;
     TSet<FKey> ArchiveConsumedKeys;
     void TrackArchiveGesture(const FKey& Key,EInputEvent Event);
     void TrackConfirmGesture(const FKey& Key,EInputEvent Event);

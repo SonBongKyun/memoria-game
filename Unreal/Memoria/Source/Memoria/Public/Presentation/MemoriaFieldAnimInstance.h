@@ -13,6 +13,9 @@ public:
     UPROPERTY(Transient) TObjectPtr<UAnimSequence> Idle;
     UPROPERTY(Transient) TObjectPtr<UAnimSequence> Walk;
     float Age = 0.f, Phase = 0.f, Weight = 0.f;
+    // S311 action layer (attack, dash, hit, death) over the locomotion blend, at an explicit time.
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> Action;
+    float ActionTime = 0.f, ActionWeight = 0.f;
 protected:
     virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
     virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* Proxy) override;

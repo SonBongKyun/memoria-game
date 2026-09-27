@@ -1,3 +1,49 @@
+# Migration handoff — S311 action combat foundation (Claude lane, 2026-09-27)
+
+- **Why.** This is the user's combat pivot: Diablo-style quarter-view action on the field map instead of the Godot turn-based battle. It builds on S310's rigged Arrel, Elia and Malet.
+- **Animations.**
+  - `Unreal/Tools/install_mannequin.py` copies Epic's UE 5.8 mannequin from the engine templates into the git-ignored `Content/Characters/Mannequins`.
+  - `-run=MemoriaCombatRetarget` batch-retargets seven clips onto each rigged character, into `Field3D/<Name>/Combat/A_<Name>_<Clip>`. The clips are Attack_01–03, ChargedAttack, Dash, HitReact and Death.
+  - It follows the editor's auto-retarget: auto-characterized IK rigs (Arrel 21 chains, mannequin 29), the default op stack, exact chain mapping, an aligned target retarget pose, IK disabled and root motion from the rig roots.
+  - Root causes found on the way:
+    - a retargeter made with `NewObject` has no op stack, so every clip came out as the reference pose (`-Inspect`: upperarm 0° before, 46–141° after);
+    - replacing already loaded retarget assets in place crashed the batch. Regenerate from deleted folders.
+- **Animation layer.** `UMemoriaFieldAnimInstance` blends an action layer (explicit-time evaluator) over idle/walk.
+  - The root bone's translation is locked to the reference pose: the mannequin's lunge rode on the root and pulled the mesh off the pawn.
+  - `UMemoriaFieldCharacterComponent` gained `PlayAction` (blend in 0.08 s, out 0.12 s, or hold), a free aim yaw, and `InitializeMannequin` (the void husk: a tinted SKM_Manny).
+- **Combat (`UMemoriaFieldCombatSubsystem`).**
+  - The player's HP is the run's HP.
+  - A three-step combo toward the cursor:
+    - damage 12/14/22, rate 1.35, hit window 30–55%;
+    - range 175 and a ±55° arc;
+    - input from 40% of a step chains the next.
+  - Dash: Shift, 330 units in 0.32 s, invulnerable, 0.7 s cooldown.
+  - Stagger on hit; defeat plays Death, then after 2.5 s restores full HP and withdraws the husks.
+- **Monster (`AMemoriaFieldMonster`, void husk).**
+  - Stats: HP 60; it chases at 95 (Arrel walks 120); aggro 750.
+  - It telegraphs a 0.6 s windup with a red reach disc, then strikes for 9 within 150+40, and recovers for 0.9 s.
+  - Hits stagger it; its corpse fades after 2.5 s.
+  - It is moved directly, because pawn movement ignores input without a local controller.
+- **HUD (`UMemoriaCombatHudWidget`, painted).**
+  - HP bar; husk bars; damage popups; the defeat veil; the control hint.
+  - Korean or English from the settings.
+- **Controls (Verdan exploration).**
+  - Left click or J: attack toward the cursor, which is now shown in the field.
+  - Shift: dash.
+  - F9 (development): call a husk.
+- **Encounters.** On a Verdan revisit, an encounter now spawns 2–3 husks in the field when `UseFieldEncounters()` is true. That is always in play; under automation, only when a test opts in, so the stopgap turn-based suites keep their route until they retire.
+- **Tests.** New `MemoriaVisual.FieldCombat` (rendered):
+  - the retargeted clips load;
+  - a J key plus aimed attacks: the combo reaches step 3, at least 4 blows land, and the husk dies;
+  - a telegraphed strike wounds Arrel; a Shift dash dodges the next with no damage;
+  - close captures of a swing at three moments (`Saved/Validation/FieldCombat/`).
+- **Known.**
+  - The mannequin's melee set is unarmed: Arrel strikes with his fists while his sword stays sheathed. Sword clips still need a free source.
+  - Long garments were not rechecked under combat motions (S310 warning).
+  - Husks are grey mannequins in void tint.
+  - Numbers are first-pass.
+- **Results.** Full rendered registry: **413/413** (unreal-run-20260927T144353783802); visual **8/8** incl. MemoriaVisual.FieldCombat.
+
 # Migration handoff — S310 rigged field characters (Codex, 2026-09-27)
 
 - Arrel/Elia/Malet corrected and rigged locally; 77 bones each; idle/walk and bone props running in the field.

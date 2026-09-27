@@ -6,6 +6,8 @@ class USkeletalMeshComponent;
 class UStaticMeshComponent;
 class UPaperSprite;
 class UPaperSpriteComponent;
+class UAnimSequence;
+class USkeletalMesh;
 
 // Rigged field figures share distance-driven locomotion. Illustrated/pixel cards remain a fallback.
 UCLASS()
@@ -36,6 +38,18 @@ public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     // Which art a character id resolves to: "rigged", "hd", "pixel" or "missing".
     static FString DescribeArt(const FString& Id);
+    // S311 combat: the UE mannequin as the monster stand-in, one-shot action clips, and a free aim yaw.
+    bool InitializeMannequin(float WorldHeight, const FLinearColor& Tint);
+    bool PlayAction(const TCHAR* Clip, float Rate = 1.f, bool bHold = false);
+    void StopAction();
+    bool IsActing() const { return ActionClip != nullptr; }
+    const UAnimSequence* GetActionClip() const { return ActionClip; }
+    float GetActionTime() const { return ActionTime; }
+    float GetActionLength() const;
+    void SetAim(float Yaw) { bAim = true; AimYaw = Yaw; ApplyFrame(); }
+    void ClearAim() { bAim = false; ApplyFrame(); }
+    float GetYaw() const;
+    const FString& GetCharacterId() const { return CharacterId; }
     // Distance for one full two-step gait cycle.
     static constexpr float StrideLength = 58.f;
 private:
@@ -43,6 +57,11 @@ private:
     UPROPERTY(Transient) TObjectPtr<USkeletalMeshComponent> Skeletal;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Props;
     bool InitializeRigged(const FString& Id);
+    bool CreateSkeletal(USkeletalMesh* Mesh, UAnimSequence* Idle, UAnimSequence* WalkClip);
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> ActionClip;
+    FString CharacterId;
+    float ActionTime = 0.f, ActionRate = 1.f, ActionWeight = 0.f, AimYaw = 0.f, MeshYawOffset = 0.f;
+    bool bActionHold = false, bAim = false;
     void AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset);
     // Down, Up, Left, Right; a missing Left mirrors Right.
     UPROPERTY(Transient) TObjectPtr<UPaperSprite> Stand[4];
