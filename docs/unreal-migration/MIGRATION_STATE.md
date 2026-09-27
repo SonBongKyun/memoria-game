@@ -1,3 +1,42 @@
+# Migration handoff — S309 battle screen presentation after battle_scene.gd (Claude lane, 2026-09-27)
+
+- **Why.** The Unreal battle was a teal dashboard of framed boxes, with the burn telegraph overlapping the objective, modifier and Elia cards. The Godot reference is `tmp/visual_audit/battle_forest_shade.png`: combatants stand on a stage, with an ornate command deck and readout frames.
+- **Scope.** Presentation only. `UMemoriaBattleEntryWidget`'s state logic is unchanged: `Display`, `Navigate`, `ConfirmIntent`, `ClickAction`, the six commands, and the burn/item lists. So are its probes. The battle subsystem is untouched.
+- **Stage.**
+  - The encounter backdrop is darkened toward the floor and edges.
+  - Arrel, Elia (behind) and the enemy stand as full-figure plates on `STAGE_BASELINE_Y` 424, with `BATTLE_ROLE_PROFILES` boxes, edge softness, oval masks and `plate_modulate` (the enemy lifted 1.5×).
+  - Role shadows and glows sit under the feet.
+  - `battle_stage_blend.gdshader` is ported as the UI material `M_BattlePlate`, authored by `-run=MemoriaBattleStageAssets`: the same edge, oval and floor-blend math, `Modulate` (which may exceed 1) and a `Region` crop.
+  - The pixel Market Thief fallback keeps the thin 0.02 edge and native scale.
+- **HUD, after the source layout:**
+  - objective card on the tactical plate art;
+  - field read (enemy miniature, location, and the modifier or the witness echo);
+  - enemy panel (HP, break bar, witness pips);
+  - turn banner;
+  - player panel (portrait, HP, limit, momentum, combo and statuses);
+  - field readout frame with the two latest log lines;
+  - the command deck art (region 8,284,1656,356) with numbered two-line commands (`_format_action_button` roles, `_action_base_color`, hover box for focus);
+  - burn and item lists in a gold-framed panel;
+  - telegraph band over the stage centre;
+  - damage numbers over the struck figure;
+  - the result card in the middle frame of `ui_battle_victory_reward_panel` (520×490 cover crop, feathered).
+- **Import.** The four interface arts were added to `MemoriaBattleEntryArt::Sources`. `-run=MemoriaBattleEntryAssets` is now additive: existing packages are kept.
+- **Deviations.**
+  - Six commands in a 3×2 deck; the source has eight, with Limit and Auto not ported.
+  - Arrows still step linearly.
+  - Not ported yet: stance chips, battle speed chip, turn order, cut-ins, and the 3D hybrid depth stage and rim light.
+- **Tests.**
+  - New `Memoria.BattleCore.StagePresentation`: material and art resolve, the stage figures, and the Korean command deck text.
+  - `Memoria.BattleCore.` 101/101.
+  - Reviewed captures (`Saved/Validation/Phase1O/ShopBattleCombat_Combat*`): burn, witness read, victory, released, defeat.
+- **Results.** Full rendered registry: **413/413** (unreal-run-20260927T061800873639, heavy programs closed); visual 7/7; BattleCore 101/101.
+- **Flaky `Memoria.Foundation.MapInputAndModal` (investigated).**
+  - It failed in three S309 full runs made while the user ran MapleStory and other heavy programs (commit free 6 GB; one run died of out-of-memory). The injected `D` never registered (`pressed=0`), and frames ran about 5× slower (28 ms against 6 ms).
+  - It passed in isolation, after Firebomb, and after BattleCore+Firebomb.
+  - An S308-code control run passed, but after the programs were closed, so it was confounded.
+  - With the heavy programs closed, the S309 full run passed 413/413.
+  - Conclusion: host load and input flush, not S309 code. Rejected: S309 code, since the same code passes under light load.
+
 # Migration handoff — S308 title screen and menu after main.gd (Claude lane, 2026-09-27)
 
 - **Entry.** The game's default map now opens as the title.

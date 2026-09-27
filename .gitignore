@@ -68,3 +68,6 @@ docs/unreal-migration/evidence/phase1n/**/*.log
 
 # Raw Phase 1O logs are retained byte-for-byte in evidence archives.
 docs/unreal-migration/evidence/phase1o/**/*.log
+
+# UE 5.8 template mannequin, copied from the engine by Unreal/Tools/install_mannequin.py (S310 stand-in)
+/Unreal/Memoria/Content/Characters/Mannequins/

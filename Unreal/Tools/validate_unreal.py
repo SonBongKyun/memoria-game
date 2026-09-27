@@ -124,7 +124,7 @@ def archive_test_paths():
 
 def battle_core_test_paths():
     from export_battle_core_oracle import inputs
-    return {'Memoria.BattleCore.Source.'+case['id'] for case in inputs()} | {'Memoria.BattleCore.RenderedJourney','Memoria.BattleCore.OwnerLifetime'}
+    return {'Memoria.BattleCore.Source.'+case['id'] for case in inputs()} | {'Memoria.BattleCore.RenderedJourney','Memoria.BattleCore.OwnerLifetime','Memoria.BattleCore.StagePresentation'}
 
 
 def battle_entry_test_paths():

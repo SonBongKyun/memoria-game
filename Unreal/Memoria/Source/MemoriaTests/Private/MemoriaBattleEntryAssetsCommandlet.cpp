@@ -26,8 +26,9 @@ int32 UMemoriaBattleEntryAssetsCommandlet::Main(const FString& Params)
         const FString File=Root/Entry.RelativeFile;
         if(!FPaths::FileExists(File))
         { UE_LOG(LogTemp,Error,TEXT("BATTLE_ENTRY_SOURCE_MISSING %s"),*File);return 1; }
+        // Additive (S309): existing packages are kept untouched; only missing ones are created.
         if(!bCheck && FPackageName::DoesPackageExist(Entry.Package))
-        { UE_LOG(LogTemp,Error,TEXT("Refusing existing battle-entry package: %s"),Entry.Package);return 1; }
+            UE_LOG(LogTemp,Display,TEXT("BATTLE_ENTRY_KEPT %s"),Entry.Package);
     }
     for(const auto& Entry:MemoriaBattleEntryArt::Sources())
     {
@@ -47,6 +48,7 @@ int32 UMemoriaBattleEntryAssetsCommandlet::Main(const FString& Params)
             UE_LOG(LogTemp,Display,TEXT("BATTLE_ENTRY_ASSET_CHECKED %s %dx%d source_valid=true"),*Texture->GetPathName(),ImportedSize.X,ImportedSize.Y);
             continue;
         }
+        if(FPackageName::DoesPackageExist(Entry.Package))continue;
         const FString PackagePath(Entry.Package),Name=FPaths::GetBaseFilename(PackagePath),File=Root/Entry.RelativeFile;
         auto* Package=CreatePackage(*PackagePath);auto* Factory=NewObject<UTextureFactory>();bool Cancelled=false;
         auto* Texture=Cast<UTexture2D>(Factory->FactoryCreateFile(UTexture2D::StaticClass(),Package,*Name,RF_Public|RF_Standalone,*File,nullptr,GWarn,Cancelled));

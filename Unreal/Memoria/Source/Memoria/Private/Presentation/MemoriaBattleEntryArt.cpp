@@ -20,6 +20,11 @@ const TArray<FMemoriaBattleEntryArtSource>& Sources()
         {TEXT("draft://S291/MarketThiefStudy"),TEXT("Unreal/ArtSource/BattleEntry/market_thief_study_v1.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_MarketThiefStudy"),false},
         // S292 presentation study; the legacy source image remains available as fallback.
         {TEXT("draft://S292/AlleyRatStudy"),TEXT("Unreal/ArtSource/BattleEntry/alley_rat_study_v2.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_AlleyRatStudy"),false},
+        // battle_scene.gd interface art (S309): command deck, field readout, objective plate, result panel.
+        {TEXT("res://assets/cg/generated/ui_battle_command_deck_v4.png"),TEXT("assets/cg/generated/ui_battle_command_deck_v4.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiCommandDeck"),false},
+        {TEXT("res://assets/cg/generated/ui_battle_field_readout_v4.png"),TEXT("assets/cg/generated/ui_battle_field_readout_v4.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiFieldReadout"),false},
+        {TEXT("res://assets/cg/generated/ui_battle_tactical_plate.png"),TEXT("assets/cg/generated/ui_battle_tactical_plate.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiTacticalPlate"),false},
+        {TEXT("res://assets/cg/generated/ui_battle_victory_reward_panel.png"),TEXT("assets/cg/generated/ui_battle_victory_reward_panel.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiVictoryPanel"),false},
     };
     return Values;
 }
