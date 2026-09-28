@@ -15,6 +15,7 @@
 namespace
 {
 using MemoriaUiKit::Srgb;
+constexpr float RewardShown = 3.5f; // seconds the victory rewards stay up
 void Box(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G, const FVector2D& At, const FVector2D& Size, const FLinearColor& Color)
 {
     FSlateDrawElement::MakeBox(Elements, Layer, G.ToPaintGeometry(FVector2f(Size), FSlateLayoutTransform(FVector2f(At))),
@@ -53,7 +54,7 @@ bool UMemoriaCombatHudWidget::IsShowing() const
 {
     const auto* C = Combat.Get();
     return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
-        C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive);
+        C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned());
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -105,9 +106,12 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     {
         FVector2D At;
         if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, P.Location, At, false)) continue;
-        const float Alpha = FMath::Clamp(1.4f - P.Age * 1.4f, 0.f, 1.f);
-        Text(Elements, Layer + 2, Geometry, FString::Printf(TEXT("%d"), FMath::RoundToInt(P.Amount)), At - FVector2D(0, 60.f * P.Age),
-            MemoriaFonts::Get(MemoriaFonts::EStyle::Title, P.bPlayer ? 30 : 34), P.bPlayer ? Srgb(1.f, .28f, .24f, Alpha) : Srgb(1.f, .82f, .46f, Alpha));
+        // Words (grains, statuses, healing) linger a little longer than numbers.
+        const bool bWord = !P.Label.IsEmpty();
+        const float Alpha = FMath::Clamp((bWord ? 2.2f : 1.4f) - P.Age * 1.4f, 0.f, 1.f);
+        const FLinearColor Base = P.Tint.A > 0.f ? P.Tint : P.bPlayer ? FLinearColor(1.f, .28f, .24f) : FLinearColor(1.f, .82f, .46f);
+        Text(Elements, Layer + 2, Geometry, bWord ? P.Label : FString::Printf(TEXT("%d"), FMath::RoundToInt(P.Amount)), At - FVector2D(0, (bWord ? 40.f : 60.f) * P.Age),
+            MemoriaFonts::Get(bWord ? MemoriaFonts::EStyle::Ui : MemoriaFonts::EStyle::Title, bWord ? 22 : P.bPlayer ? 30 : 34), Srgb(Base.R, Base.G, Base.B, Alpha));
     }
     // Arrel's HP, bottom centre.
     const float Hp = float(C->GetPlayerHp()), Max = FMath::Max(1.f, float(C->GetPlayerMaxHp()));
@@ -116,6 +120,34 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     Box(Elements, Layer + 1, Geometry, At, FVector2D(Bar.X * Hp / Max, Bar.Y), Srgb(.78f, .12f, .14f));
     Text(Elements, Layer + 3, Geometry, FString::Printf(TEXT("HP  %d / %d"), int32(Hp), int32(Max)), At + FVector2D(Bar.X * .5, Bar.Y * .5),
         MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15), FLinearColor(.95f, .92f, .88f));
+    // S314: Arrel's statuses beside the bar.
+    float TagX = At.X - 12.f;
+    auto Tag = [&](const FString& Label, const FLinearColor& Color)
+    {
+        const FSlateFontInfo Font = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 14);
+        const float W = FSlateApplication::Get().GetRenderer()->GetFontMeasureService()->Measure(Label, Font).X + 18.f;
+        TagX -= W;
+        Box(Elements, Layer + 1, Geometry, FVector2D(TagX, At.Y - 4), FVector2D(W, Bar.Y + 8), FLinearColor(Color.R * .25f, Color.G * .25f, Color.B * .25f, .9f));
+        TextAt(Elements, Layer + 3, Geometry, Label, FVector2D(TagX + W * .5f, At.Y + Bar.Y * .5f), .5f, Font, Color);
+        TagX -= 8.f;
+    };
+    const int32 WeakSeconds = FMath::CeilToInt(C->GetWeakenLeft()), PoisonTicks = C->GetPoisonTicksLeft();
+    if (C->IsWeakened()) Tag(Ko ? FString::Printf(TEXT("약화 %d초"), WeakSeconds) : FString::Printf(TEXT("Weak %ds"), WeakSeconds), Srgb(.80f, .66f, 1.f));
+    if (C->IsPoisoned()) Tag(Ko ? FString::Printf(TEXT("중독 ×%d"), PoisonTicks) : FString::Printf(TEXT("Poison ×%d"), PoisonTicks), Srgb(.60f, 1.f, .42f));
+    // S314: the won fight's rewards (source Win), above the bar for a few seconds.
+    const FMemoriaFieldReward& Won = C->GetLastReward();
+    if (Won.Age < RewardShown)
+    {
+        const float A = FMath::Clamp(FMath::Min(Won.Age / .2f, (RewardShown - Won.Age) / .6f), 0.f, 1.f);
+        FString Line = FString::Printf(TEXT("Grains +%lld"), Won.Grains);
+        if (Won.Heal > 0) Line += FString::Printf(TEXT("    HP +%lld"), Won.Heal);
+        if (!Won.ItemName.IsEmpty()) Line += Ko ? FString::Printf(TEXT("    %s 획득"), *Won.ItemName) : FString::Printf(TEXT("    %s found"), *Won.ItemName);
+        const FVector2D Center(Size.X * .5, At.Y - 92.f);
+        Box(Elements, Layer + 4, Geometry, Center - FVector2D(300, 40), FVector2D(600, 80), FLinearColor(.03f, .02f, .015f, .82f * A));
+        Box(Elements, Layer + 4, Geometry, Center - FVector2D(300, 40), FVector2D(600, 2), Srgb(.85f, .66f, .30f, A));
+        Text(Elements, Layer + 5, Geometry, Ko ? TEXT("전투 승리") : TEXT("Victory"), Center - FVector2D(0, 16), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 24), Srgb(1.f, .86f, .52f, A));
+        Text(Elements, Layer + 5, Geometry, Line, Center + FVector2D(0, 18), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16), Srgb(.92f, .88f, .80f, A));
+    }
     if (C->LiveMonsterCount() > 0)
         Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격     Shift  회피     R  기억 연소") : TEXT("LMB / J  Attack     Shift  Dodge     R  Burn a memory"),
             At + FVector2D(Bar.X * .5, Bar.Y + 26), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.80f, .76f, .70f, .9f));

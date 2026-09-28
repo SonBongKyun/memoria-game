@@ -4,6 +4,7 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaCombatClips.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Run/MemoriaRunTypes.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Presentation/MemoriaArchiveView.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
@@ -92,7 +93,7 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         if (Distance > AttackRange + 30.f) continue;
         if (Distance > 60.f && FVector::DotProduct(To / Distance, AimDirection) < AttackArcCos) continue;
         HitThisSwing.Add(Weak);
-        const float Damage = ComboDamage[FMath::Clamp(ComboStep, 0, 2)];
+        const float Damage = ComboDamage[FMath::Clamp(ComboStep, 0, 2)] * (IsWeakened() ? WeakenFactor : 1.f);
         if (Monster->TakeHit(Damage, Origin))
         {
             ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false);
@@ -107,7 +108,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     if (FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
     if (bPicking) CloseBurnPicker();
     auto& Hp = Run->State.Player.Hp;
-    Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage));
+    Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage)); ++StrikesTaken;
     Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), Damage, true);
     Cue(GetWorld(), TEXT("hit"));
     ComboStep = -1; bQueued = false;
@@ -121,6 +122,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     }
     StaggerLeft = PlayerStagger;
     if (Figure) Figure->PlayAction(MemoriaCombatClips::Hit(), 1.3f);
+    Afflict(Monster->Spec().Ability, Damage);
     return true;
 }
 TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Count, const FVector& Center, float Radius, EMemoriaFoeKind Kind)
@@ -138,14 +140,88 @@ TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Coun
     }
     return Spawned;
 }
-void UMemoriaFieldCombatSubsystem::NotifyMonsterDied(AMemoriaFieldMonster*) { ++Kills; Cue(GetWorld(), TEXT("enemy_die")); }
-void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, bool bPlayer)
-{ FMemoriaCombatPopup P; P.Location = Location; P.Amount = Amount; P.bPlayer = bPlayer; Popups.Add(P); }
+void UMemoriaFieldCombatSubsystem::NotifyMonsterDied(AMemoriaFieldMonster* Monster)
+{
+    ++Kills; Cue(GetWorld(), TEXT("enemy_die"));
+    auto* Run = RunOf(GetWorld());
+    if (!Monster || !Run) return;
+    // Source Win grains for the foe: (void ? 8 : 3) + max HP / 20, paid as each one falls.
+    const FMemoriaFoeSpec& S = Monster->Spec();
+    const int64 Grains = (S.bVoid ? 8 : 3) + int64(S.Health) / 20;
+    Run->State.Player.Grains += Grains; WaveGrains += Grains; ++WaveKills; bWaveVoid |= S.bVoid;
+    Popup(Monster->GetActorLocation() + FVector(0, 0, S.Height * .6f), float(Grains), false, FString::Printf(TEXT("+%lld Grains"), Grains), FLinearColor(1.f, .86f, .35f));
+    if (LiveMonsterCount() == 0) WinWave();
+}
+void UMemoriaFieldCombatSubsystem::WinWave()
+{
+    auto* Run = RunOf(GetWorld()); APawn* Pawn = Player.Get();
+    if (!Run) return;
+    // The rest of the source Win: 20% HP back and a 30% drop from the potion table (richer after a void foe).
+    auto& P = Run->State.Player;
+    Reward = FMemoriaFieldReward(); Reward.Grains = WaveGrains; Reward.Kills = WaveKills; Reward.Age = 0.f;
+    Reward.Heal = FMath::Min<int64>(int64(P.MaxHp * WaveHealShare), P.MaxHp - P.Hp); P.Hp += Reward.Heal;
+    if (Drops.FRand() <= ItemDropChance)
+    {
+        TArray<const TCHAR*> Table = {TEXT("potion"), TEXT("potion"), TEXT("potion"), TEXT("antidote"), TEXT("antidote"), TEXT("firebomb")};
+        if (bWaveVoid) Table.Append({TEXT("firebomb"), TEXT("hi_potion"), TEXT("witness_ink")});
+        Reward.ItemId = Table[Drops.RandRange(0, Table.Num() - 1)];
+        auto* Item = P.Items.FindByPredicate([&](const FMemoriaItemCount& I) { return I.Id == Reward.ItemId; });
+        if (Item) ++Item->Count; else { FMemoriaItemCount New; New.Id = Reward.ItemId; New.Count = 1; P.Items.Add(New); }
+        Run->State.RecordRecentItem(Reward.ItemId);
+        Reward.ItemName = MemoriaCombatTuning::ItemName(Reward.ItemId, Run->GetRunSnapshot().CurrentLocale == TEXT("ko"));
+    }
+    if (Pawn && Reward.Heal > 0) Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Reward.Heal), true, FString::Printf(TEXT("+%lld HP"), Reward.Heal), FLinearColor(.5f, 1.f, .6f));
+    // A won fight ends the statuses and the chain, like the source battle's end.
+    WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
+    Cue(GetWorld(), TEXT("heal"));
+}
+void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Damage)
+{
+    APawn* Pawn = Player.Get(); if (!Pawn || bDefeated) return;
+    const bool Ko = [&] { const auto* Run = RunOf(GetWorld()); return !Run || Run->GetRunSnapshot().CurrentLocale == TEXT("ko"); }();
+    if (Ability == EMemoriaFoeAbility::Weaken)
+    {
+        WeakenLeft = WeakenTime;
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("약화") : TEXT("Weakened"), FLinearColor(.75f, .6f, 1.f));
+    }
+    else if (Ability == EMemoriaFoeAbility::Poison && PoisonLeft == 0)
+    {
+        // Source poison: attack * 0.3 + 2..5 each turn; the field takes the middle of the range.
+        PoisonLeft = PoisonTicks; PoisonClock = PoisonInterval; PoisonDamage = int64(Damage * .3f) + 3;
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("중독") : TEXT("Poisoned"), FLinearColor(.55f, 1.f, .35f));
+    }
+}
+void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
+{
+    WeakenLeft = FMath::Max(0.f, WeakenLeft - DeltaSeconds);
+    auto* Run = RunOf(GetWorld()); APawn* Pawn = Player.Get();
+    if (PoisonLeft > 0 && Run && Pawn && (PoisonClock -= DeltaSeconds) <= 0.f)
+    {
+        // Poison wears Arrel down but never fells him; only a blow does.
+        PoisonClock = PoisonInterval; --PoisonLeft;
+        auto& Hp = Run->State.Player.Hp;
+        const int64 Loss = FMath::Min(PoisonDamage, Hp - 1);
+        if (Loss > 0) { Hp -= Loss; Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, FString(), FLinearColor(.55f, 1.f, .35f)); }
+    }
+}
+void UMemoriaFieldCombatSubsystem::NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage)
+{ if (Monster) Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), FLinearColor(1.f, .45f, .15f)); }
+void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label, const FLinearColor& Tint)
+{
+    FMemoriaCombatPopup P; P.Location = Location; P.Amount = Amount; P.bPlayer = bPlayer; P.Label = Label; P.Tint = Tint;
+    // Words raised at the same moment and place stack upward instead of printing over each other.
+    if (!Label.IsEmpty())
+        for (const FMemoriaCombatPopup& Other : Popups)
+            if (!Other.Label.IsEmpty() && Other.Age < .5f && FVector::Dist2D(Other.Location, P.Location) < 60.f && FMath::Abs(Other.Location.Z - P.Location.Z) < 24.f)
+                P.Location.Z = Other.Location.Z + 28.f;
+    Popups.Add(P);
+}
 void UMemoriaFieldCombatSubsystem::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     for (auto& P : Popups) P.Age += DeltaSeconds;
-    Popups.RemoveAll([](const FMemoriaCombatPopup& P) { return P.Age > 1.f; });
+    Popups.RemoveAll([](const FMemoriaCombatPopup& P) { return P.Age > (P.Label.IsEmpty() ? 1.f : 1.6f); });
+    Reward.Age += DeltaSeconds;
     Monsters.RemoveAll([](const TWeakObjectPtr<AMemoriaFieldMonster>& M) { return !M.IsValid(); });
     APawn* Pawn = Player.Get(); auto* Figure = PlayerFigure.Get();
     if (!Pawn) return;
@@ -158,11 +234,13 @@ void UMemoriaFieldCombatSubsystem::Tick(float DeltaSeconds)
             if (auto* Run = RunOf(GetWorld())) Run->State.Player.Hp = Run->State.Player.MaxHp;
             for (const auto& M : Monsters) if (M.IsValid()) M->Destroy();
             Monsters.Reset(); bDefeated = false;
+            WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
             if (Figure) { Figure->StopAction(); Figure->ClearAim(); }
         }
         return;
     }
     TickBurn(DeltaSeconds);
+    TickStatuses(DeltaSeconds);
     if (CastLeft > 0.f) return;
     // S312: the sword stays out while husks stand, and goes back a while after the last of them falls.
     if (LiveMonsterCount() > 0) DrawSword();
@@ -237,8 +315,20 @@ bool UMemoriaFieldCombatSubsystem::ConfirmBurn()
     // The burn is the run's: the memory is gone for good, and its passives, erosion and drama follow.
     if (Run->BurnMemory(Choice.Id) != EMemoriaMemoryResult::Success) { Cue(GetWorld(), TEXT("cancel")); return false; }
     ++Burns; Casting = Choice;
-    Casting.Power = Run->GetPlayerMemory()->GetEffectiveBurnPower(Choice.Id);
-    Casting.Damage = FMath::Max(Choice.Damage, BurnBaseDamage[Choice.Grade] + float(Casting.Power));
+    const auto* Memory = Run->GetPlayerMemory();
+    Casting.Power = Memory->GetEffectiveBurnPower(Choice.Id);
+    // Source burn damage: base + effective power, then Ember Affinity, the chain and (void grades) Void Touch.
+    float Damage = FMath::Max(Choice.Damage, BurnBaseDamage[Choice.Grade] + float(Casting.Power));
+    if (Memory->HasPassive(TEXT("ember_affinity"))) Damage *= EmberAffinity;
+    BurnChain = Choice.Grade >= 2 ? BurnChain + 1 : 0;
+    if (BurnChain >= 2) Damage *= 1.f + (BurnChain - 1) * BurnChainBonus;
+    if (Choice.Grade >= 3 && Memory->HasPassive(TEXT("void_touch"))) Damage *= VoidTouch;
+    Casting.Damage = Damage;
+    if (Memory->HasPassive(TEXT("residual_warmth")))
+    {
+        auto& P = Run->State.Player; const int64 Warmth = FMath::Min(ResidualWarmth, P.MaxHp - P.Hp); P.Hp += Warmth;
+        if (Warmth > 0 && Player.IsValid()) Popup(Player->GetActorLocation() + FVector(0, 0, 150.f), float(Warmth), true, FString::Printf(TEXT("+%lld HP"), Warmth), FLinearColor(.5f, 1.f, .6f));
+    }
     CastLeft = BurnCastTime; StaggerLeft = 0.f; DrawSword();
     Wave = FMemoriaBurnWave(); Wave.Grade = Choice.Grade; Wave.Title = Choice.Title;
     Wave.Skill = BurnSkillName(Choice.Grade, Run->GetRunSnapshot().CurrentLocale == TEXT("ko"));
@@ -289,7 +379,11 @@ void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
         if (!Monster || Monster->IsDead() || Burned.Contains(Weak) || FVector::Dist2D(Monster->GetActorLocation(), Wave.Center) > Reach + 30.f) continue;
         Burned.Add(Weak);
         if (Monster->TakeHit(Casting.Damage, Wave.Center, BurnShove[Casting.Grade]))
-        { ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Casting.Damage, false); }
+        {
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Casting.Damage, false);
+            // Source: a burn of grade 2 or 1 leaves the foe burning (power * 0.3 + 5 for two turns).
+            if (Casting.Grade >= 3) Monster->Ignite(float(Casting.Power) * .3f + 5.f, IgniteTicks);
+        }
     }
     if (auto* Light = Flare.Get())
     {

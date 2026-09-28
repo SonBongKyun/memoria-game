@@ -113,6 +113,7 @@ public:
             Test->TestTrue(TEXT("The run records the burn"), Memory->GetSnapshot().BurnedHistory.Contains(TEXT("rel_hand_reaching")));
             Test->TestEqual(TEXT("The first sword is untouched"), Memory->CanBurn(TEXT("identity_first_sword")), EMemoriaMemoryResult::Success);
             Test->TestTrue(TEXT("Time returns for the release"), FMath::IsNearlyEqual(Dilation(), 1.f, .001f));
+            Test->TestEqual(TEXT("A relationship burn starts the chain (S314)"), Combat->GetBurnChain(), 1);
             Phase = 3; Mark = Frame; return false;
         }
         if (Phase == 3)

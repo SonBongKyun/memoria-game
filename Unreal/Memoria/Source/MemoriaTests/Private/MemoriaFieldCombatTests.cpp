@@ -165,7 +165,7 @@ public:
             // Dash out of the next windup: invulnerable while dashing, and the strike misses.
             if (Target && Target->GetState() == EMemoriaMonsterState::Windup && !bDashed)
             {
-                HpBeforeDash = Combat->GetPlayerHp(); const FVector From = Pawn->GetActorLocation();
+                HpBeforeDash = Combat->GetStrikesTaken(); const FVector From = Pawn->GetActorLocation();
                 PC->InputKey(FInputKeyEventArgs::CreateSimulated(EKeys::LeftShift, IE_Pressed, 1.f));
                 PC->InputKey(FInputKeyEventArgs::CreateSimulated(EKeys::LeftShift, IE_Released, 0.f));
                 if (!Combat->IsDashing()) Combat->RequestDash(From - Target->GetActorLocation());
@@ -176,7 +176,8 @@ public:
             if (bDashed && Frame == DashFrame + 60)
             {
                 Test->TestTrue(TEXT("The dash carried Arrel away"), FVector::Dist2D(Pawn->GetActorLocation(), DashFrom) > MemoriaCombatTuning::DashDistance * .6f);
-                Test->TestEqual(TEXT("The dodged strike did no harm"), Combat->GetPlayerHp(), HpBeforeDash);
+                // Counted in blows taken: the husk's poison (S314) may still tick through the dodge.
+                Test->TestEqual(TEXT("The dodged strike did no harm"), int64(Combat->GetStrikesTaken()), HpBeforeDash);
                 Capture(TEXT("CombatField"));
                 Phase = 5; Mark = Frame;
             }
