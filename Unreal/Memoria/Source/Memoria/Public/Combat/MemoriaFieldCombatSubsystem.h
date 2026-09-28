@@ -7,7 +7,9 @@ class APawn;
 class AMemoriaFieldMonster;
 class UMemoriaFieldCharacterComponent;
 
-struct FMemoriaCombatPopup { FVector Location; float Amount = 0.f; float Age = 0.f; bool bPlayer = false; };
+struct FMemoriaCombatPopup { FVector Location; float Amount = 0.f; float Age = 0.f; bool bPlayer = false; FString Label; FLinearColor Tint = FLinearColor::Transparent; };
+// S314: what a won fight gave (the source Win: grains per foe, 20% HP back, a 30% drop).
+struct FMemoriaFieldReward { int64 Grains = 0, Heal = 0; FString ItemId, ItemName; int32 Kills = 0; float Age = 99.f; };
 // S312: a memory that can be burned, as the picker lists it (localized title, source grade and skill).
 struct FMemoriaBurnChoice { FString Id, Title, GradeLabel; int32 Grade = 0; int64 Power = 0; float Damage = 0.f; FLinearColor Accent = FLinearColor::White; };
 // The released burn: its ring on the floor, and what burned, for the HUD.
@@ -49,6 +51,17 @@ public:
     bool IsBurnArmed() const { return bArmed; }
     bool IsCasting() const { return CastLeft > 0.f; }
     const FMemoriaBurnWave& GetBurnWave() const { return Wave; }
+    // S314: statuses on Arrel, the last won fight, and the burn chain.
+    bool IsWeakened() const { return WeakenLeft > 0.f; }
+    float GetWeakenLeft() const { return WeakenLeft; }
+    bool IsPoisoned() const { return PoisonLeft > 0; }
+    int32 GetPoisonTicksLeft() const { return PoisonLeft; }
+    const FMemoriaFieldReward& GetLastReward() const { return Reward; }
+    int32 GetBurnChain() const { return BurnChain; }
+    int32 GetStrikesTaken() const { return StrikesTaken; }
+    void NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage);
+    // Seeds the drop roll (tests); a fresh stream otherwise.
+    void SeedDrops(int32 Seed) { Drops.Initialize(Seed); }
     int32 GetBurns() const { return Burns; }
     int32 GetComboStep() const { return ComboStep; }
     // Spawns void husks in a ring around a point on the floor.
@@ -86,7 +99,15 @@ private:
     TSet<TWeakObjectPtr<AMemoriaFieldMonster>> Burned;
     TWeakObjectPtr<APointLight> Flare;
     int32 Selection = 0, Burns = 0;
-    float CastLeft = 0.f, SheatheIn = 0.f;
+    float CastLeft = 0.f, SheatheIn = 0.f, WeakenLeft = 0.f, PoisonClock = 0.f;
+    int32 PoisonLeft = 0, BurnChain = 0, WaveKills = 0, StrikesTaken = 0;
+    int64 PoisonDamage = 0, WaveGrains = 0;
+    bool bWaveVoid = false;
+    FMemoriaFieldReward Reward;
+    FRandomStream Drops{int32(FPlatformTime::Cycles())};
+    void Afflict(EMemoriaFoeAbility Ability, float Damage);
+    void WinWave();
+    void TickStatuses(float DeltaSeconds);
     bool bPicking = false, bArmed = false;
     static bool bFieldEncountersInTests;
     void TickBurn(float DeltaSeconds);
@@ -94,5 +115,5 @@ private:
     void ReleaseBurn();
     bool StartStep(int32 Step);
     void ResolveSwing();
-    void Popup(const FVector& Location, float Amount, bool bPlayer);
+    void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent);
 };

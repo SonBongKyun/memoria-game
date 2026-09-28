@@ -42,11 +42,34 @@ inline constexpr float BurnCastTime = .45f;        // Arrel gathers the fire bef
 inline constexpr float BurnRingTime = .45f;        // the ring spreads to its full reach
 inline constexpr float BurnAfterglow = 2.2f;       // the banner and the light linger
 inline constexpr int32 BurnAskTwiceFrom = 3;       // raw grade from which a burn asks twice
+// S314: the source's battle rules in the field (battle_core). A turn is read as about two seconds.
+inline constexpr float WaveHealShare = .20f;       // source Win: 20% of max HP back when the fight is won
+inline constexpr float ItemDropChance = .30f;      // source Win: a 30% drop roll, a richer table after a void foe
+inline constexpr float WeakenFactor = .70f;        // source weaken: -30% attack for 3 turns
+inline constexpr float WeakenTime = 6.f;
+inline constexpr int32 PoisonTicks = 3;            // source poison: 3 turns of attack*0.3 + 2..5
+inline constexpr float PoisonInterval = 1.5f;
+inline constexpr int32 IgniteTicks = 2;            // source burn grade >= 3: 2 turns of power*0.3 + 5 on the foe
+inline constexpr float IgniteInterval = 1.f;
+inline constexpr float BurnChainBonus = .20f;      // source chain: +20% per consecutive relationship-or-higher burn
+inline constexpr float EmberAffinity = 1.10f;      // source passives
+inline constexpr float VoidTouch = 1.15f;
+inline constexpr int64 ResidualWarmth = 5;
 inline const TCHAR* BurnSkillName(int32 Grade, bool bKo)
 {
     static const TCHAR* Ko[5] = {TEXT("잿불"), TEXT("푸른 불꽃 베기"), TEXT("소각"), TEXT("자아의 장작더미"), TEXT("제로 번")};
     static const TCHAR* En[5] = {TEXT("Ember"), TEXT("Blue Flame Slash"), TEXT("Incinerate"), TEXT("Identity Pyre"), TEXT("Zero Burn")};
     return (bKo ? Ko : En)[FMath::Clamp(Grade, 0, 4)];
+}
+// The drop table's items (battle_core items), for the reward toast.
+inline FString ItemName(const FString& Id, bool bKo)
+{
+    static const TMap<FString, TPair<const TCHAR*, const TCHAR*>> Names = {
+        {TEXT("potion"), {TEXT("Potion"), TEXT("포션")}}, {TEXT("antidote"), {TEXT("Antidote"), TEXT("해독제")}},
+        {TEXT("firebomb"), {TEXT("Firebomb"), TEXT("화염탄")}}, {TEXT("hi_potion"), {TEXT("Hi-Potion"), TEXT("하이포션")}},
+        {TEXT("witness_ink"), {TEXT("Witness Ink"), TEXT("목격의 잉크")}}};
+    const auto* Name = Names.Find(Id);
+    return Name ? FString(bKo ? Name->Value : Name->Key) : Id;
 }
 // Fire for the lower grades, void violet for Identity Pyre and Zero Burn (the source's elements).
 inline FLinearColor BurnColor(int32 Grade)
@@ -56,6 +79,8 @@ enum class EMemoriaMonsterState : uint8 { Idle, Chase, Windup, Recover, Stagger,
 // S313: the field foes. The void husk is the stand-in void creature; the market thief is the Verdan source
 // enemy (source: 50 HP, "weaken"). Both are Epic's mannequin until Codex's models arrive.
 enum class EMemoriaFoeKind : uint8 { VoidHusk, MarketThief };
+// The source enemy abilities carried into the field (S314): a blow that lands also poisons or weakens.
+enum class EMemoriaFoeAbility : uint8 { None, Poison, Weaken };
 struct FMemoriaFoeSpec
 {
     const TCHAR* Name; const TCHAR* NameKo;
@@ -64,6 +89,7 @@ struct FMemoriaFoeSpec
     const TCHAR* Strike;                    // played across the windup, its blow at the windup's end
     float StrikeAt;                         // fraction of the strike clip where the blow lands
     bool bQuinn; FLinearColor Color, Glow; float Crack, Rim, BladeScale;
+    bool bVoid; EMemoriaFoeAbility Ability;   // S314: source is_void (rewards) and the blow's status
 };
 inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
 {
@@ -71,11 +97,14 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
     static const FMemoriaFoeSpec Husk = {TEXT("Void Husk"), TEXT("보이드 허스크"),
         HuskHealth, HuskHeight, 80.f, HuskAggro, HuskReach, .70f, HuskRecover, HuskStagger, HuskDamage,
         TEXT("Zombie_Idle_Loop"), TEXT("Zombie_Walk_Fwd_Loop"), TEXT("Zombie_Scratch"), .55f,
-        false, FLinearColor(.035f, .025f, .05f), FLinearColor(.55f, .18f, 1.f), 6.f, .8f, 0.f};
+        false, FLinearColor(.035f, .025f, .05f), FLinearColor(.55f, .18f, 1.f), 6.f, .8f, 0.f,
+        // It stands in for the source pool's Alley Rat, so it carries the rat's poison.
+        true, EMemoriaFoeAbility::Poison};
     // Quick and light: it darts in with a short blade and gets away; its blow is weaker and harder to see coming.
     static const FMemoriaFoeSpec Thief = {TEXT("Market Thief"), TEXT("시장 도둑"),
         45.f, 160.f, 150.f, 700.f, 125.f, .42f, .70f, .30f, 7.f,
         nullptr, nullptr, TEXT("Sword_Regular_A"), .55f,
-        true, FLinearColor(.07f, .05f, .038f), FLinearColor(1.f, .62f, .30f), 0.f, .05f, .42f};
+        true, FLinearColor(.07f, .05f, .038f), FLinearColor(1.f, .62f, .30f), 0.f, .05f, .42f,
+        false, EMemoriaFoeAbility::Weaken};
     return Kind == EMemoriaFoeKind::MarketThief ? Thief : Husk;
 }

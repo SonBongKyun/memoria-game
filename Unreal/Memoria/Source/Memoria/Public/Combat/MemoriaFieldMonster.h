@@ -24,6 +24,9 @@ public:
     virtual UPawnMovementComponent* GetMovementComponent() const override;
     // Returns true when the hit landed (not dead). Staggers and cancels a windup.
     bool TakeHit(float Damage, const FVector& From, float Shove = 14.f);
+    // S314: the source burn status on a foe, ticking once a second.
+    void Ignite(float TickDamage, int32 Ticks);
+    bool IsBurning() const { return IgniteLeft > 0; }
     bool IsDead() const { return State == EMemoriaMonsterState::Dead; }
     EMemoriaMonsterState GetState() const { return State; }
     float GetHealth() const { return Health; }
@@ -40,7 +43,8 @@ private:
     EMemoriaMonsterState State = EMemoriaMonsterState::Idle;
     EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk;
     float Health = MemoriaCombatTuning::HuskHealth, MaxHealth = MemoriaCombatTuning::HuskHealth, StateTime = 0.f;
-    int32 Strikes = 0;
+    int32 Strikes = 0, IgniteLeft = 0;
+    float IgniteDamage = 0.f, IgniteClock = 0.f;
     FVector PreviousLocation = FVector::ZeroVector;
     void Enter(EMemoriaMonsterState Next);
     UMemoriaFieldCombatSubsystem* Combat() const;

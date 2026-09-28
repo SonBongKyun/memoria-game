@@ -86,6 +86,13 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
     const FVector Step = GetActorLocation() - PreviousLocation; PreviousLocation = GetActorLocation();
     Figure->AdvanceLocomotion(Step, DeltaSeconds);
     if (IsDead()) { if (StateTime > HuskCorpseTime) Destroy(); return; }
+    if (IgniteLeft > 0 && (IgniteClock -= DeltaSeconds) <= 0.f)
+    {
+        IgniteClock = IgniteInterval; --IgniteLeft;
+        Health = FMath::Max(0.f, Health - IgniteDamage);
+        if (auto* C = Combat()) C->NotifyBurnTick(this, IgniteDamage);
+        if (Health <= 0.f) { TakeHit(0.f, GetActorLocation()); return; }
+    }
     auto* C = Combat(); APawn* Target = C ? C->GetPlayer() : nullptr;
     if (!Target || (C && C->IsDefeated())) { if (State != EMemoriaMonsterState::Idle) Enter(EMemoriaMonsterState::Idle); return; }
     const FVector ToTarget = (Target->GetActorLocation() - GetActorLocation()) * FVector(1, 1, 0);
@@ -120,4 +127,9 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         break;
     default: break;
     }
+}
+void AMemoriaFieldMonster::Ignite(float TickDamage, int32 Ticks)
+{
+    if (IsDead()) return;
+    IgniteDamage = FMath::Max(IgniteDamage * (IgniteLeft > 0), TickDamage); IgniteLeft = FMath::Max(IgniteLeft, Ticks); IgniteClock = IgniteInterval;
 }
