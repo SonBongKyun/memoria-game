@@ -24,4 +24,5 @@ namespace MemoriaCombatClips
     inline const TCHAR* Dash() { return TEXT("Dash"); }
     inline const TCHAR* Hit() { return TEXT("HitReact_Front_Lgt_01"); }
     inline const TCHAR* Death() { return TEXT("Death_Front_01"); }
+    inline const TCHAR* Block() { return TEXT("Block"); }  // S315: only characters with the sword set have one
 }

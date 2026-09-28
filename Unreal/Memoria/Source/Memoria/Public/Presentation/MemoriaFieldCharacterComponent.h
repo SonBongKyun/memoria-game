@@ -64,7 +64,8 @@ public:
     bool InitializeFoe(const struct FMemoriaFoeLook& Look);
     // The M_FieldFoe "Hit" flash, 0..1.
     void SetHitFlash(float Amount);
-    bool PlayAction(const TCHAR* Clip, float Rate = 1.f, bool bHold = false);
+    // bHold keeps the clip's last pose; HoldAt (0..1) freezes it earlier, at that share of the clip.
+    bool PlayAction(const TCHAR* Clip, float Rate = 1.f, bool bHold = false, float HoldAt = 1.f);
     void StopAction();
     bool IsActing() const { return ActionClip != nullptr; }
     const UAnimSequence* GetActionClip() const { return ActionClip; }
@@ -89,6 +90,7 @@ private:
     FString CharacterId;
     float ActionTime = 0.f, ActionRate = 1.f, ActionWeight = 0.f, AimYaw = 0.f, MeshYawOffset = 0.f;
     bool bActionHold = false, bAim = false;
+    float ActionHoldAt = 1.f;
     // Listed props count in GetPropCount; the sword swap parts (scabbard, blade) are kept aside.
     UStaticMeshComponent* AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset, bool bListed = true);
     UStaticMeshComponent* AttachGrip(UStaticMesh* Mesh, float PropScale = 1.f);

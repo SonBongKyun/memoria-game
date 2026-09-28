@@ -183,7 +183,7 @@ void UMemoriaFieldCharacterComponent::TickComponent(float DeltaTime, ELevelTick 
     {
         // Blend in over 0.08 s and out over the last 0.12 s; a held clip (death) rests on its final pose.
         const float Length = GetActionLength();
-        ActionTime = FMath::Min(ActionTime + DeltaTime * ActionRate, Length);
+        ActionTime = FMath::Min(ActionTime + DeltaTime * ActionRate, Length * ActionHoldAt);
         const float In = FMath::Clamp(ActionTime / .08f, 0.f, 1.f), Out = bActionHold ? 1.f : FMath::Clamp((Length - ActionTime) / .12f, 0.f, 1.f);
         ActionWeight = FMath::Min(In, Out);
         if (!bActionHold && ActionTime >= Length) StopAction();
@@ -198,12 +198,13 @@ float UMemoriaFieldCharacterComponent::GetYaw() const
     const float Yaws[4] = {-90.f, 90.f, 180.f, 0.f};
     return bAim ? AimYaw : Yaws[DirectionIndex(Facing)];
 }
-bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, bool bHold)
+bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, bool bHold, float HoldAt)
 {
     // A character with the sword set (Arrel) plays its cuts in place of the melee set.
     UAnimSequence* Sequence = MemoriaCombatClips::Load(CharacterId, MemoriaCombatClips::ForAction(CharacterId, Clip));
     if (!Sequence || !Skeletal || Sequence->GetSkeleton() != Skeletal->GetSkeletalMeshAsset()->GetSkeleton()) return false;
     ActionClip = Sequence; ActionTime = 0.f; ActionRate = FMath::Max(.05f, Rate); ActionWeight = 0.f; bActionHold = bHold;
+    ActionHoldAt = bHold ? FMath::Clamp(HoldAt, .01f, 1.f) : 1.f;
     ApplyFrame(); return true;
 }
 void UMemoriaFieldCharacterComponent::StopAction() { ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false; ApplyFrame(); }

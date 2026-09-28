@@ -12,6 +12,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Styling/CoreStyle.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 namespace
 {
 using MemoriaUiKit::Srgb;
@@ -47,6 +48,26 @@ void Ring(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G, AP
     }
     FSlateDrawElement::MakeLines(Elements, Layer, G.ToPaintGeometry(), Points, ESlateDrawEffect::None, Color, true, Thickness);
 }
+// Part of a world circle on the floor, from angle 0 through Fraction of a full turn.
+void Arc(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G, APlayerController* PC, const FVector& Center, float Radius, float Fraction, float Thickness, const FLinearColor& Color)
+{
+    TArray<FVector2f> Points;
+    const int32 Steps = FMath::Max(2, FMath::CeilToInt(48 * Fraction));
+    for (int32 I = 0; I <= Steps; ++I)
+    {
+        const float A = 2.f * PI * Fraction * I / Steps - PI * .5f;
+        FVector2D At;
+        if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, Center + FVector(FMath::Cos(A), FMath::Sin(A), 0) * Radius, At, false)) return;
+        Points.Add(FVector2f(At));
+    }
+    FSlateDrawElement::MakeLines(Elements, Layer, G.ToPaintGeometry(), Points, ESlateDrawEffect::None, Color, true, Thickness);
+}
+void Segment(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G, APlayerController* PC, const FVector& A, const FVector& B, float Thickness, const FLinearColor& Color)
+{
+    FVector2D PA, PB;
+    if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, A, PA, false) || !UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, B, PB, false)) return;
+    FSlateDrawElement::MakeLines(Elements, Layer, G.ToPaintGeometry(), TArray<FVector2f>{FVector2f(PA), FVector2f(PB)}, ESlateDrawEffect::None, Color, true, Thickness);
+}
 FLinearColor Toward(const FLinearColor& Hue, float White, float Alpha)
 { return FLinearColor(FMath::Lerp(Hue.R, 1.f, White), FMath::Lerp(Hue.G, 1.f, White), FMath::Lerp(Hue.B, 1.f, White), Alpha); }
 }
@@ -54,7 +75,8 @@ bool UMemoriaCombatHudWidget::IsShowing() const
 {
     const auto* C = Combat.Get();
     return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
-        C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned());
+        C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned() ||
+        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetCharge() > 0.f || C->IsBlocking());
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -89,6 +111,33 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         Text(Elements, Layer + 6, Geometry, Wave.Skill, FVector2D(Size.X * .5, 190), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 46), Toward(Hue, .6f, Banner));
         const FString Cost = Ko ? FString::Printf(TEXT("「%s」 — 연소"), *Wave.Title) : FString::Printf(TEXT("\"%s\" — burned"), *Wave.Title);
         Text(Elements, Layer + 6, Geometry, Cost, FVector2D(Size.X * .5, 248), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 19), Srgb(.86f, .80f, .72f, Banner * .95f));
+    }
+    // S315: the blade's trail (a fan of streaks through the recent blade positions), sparks, the charge ring.
+    const auto& Trail = C->GetTrail();
+    for (int32 I = 1; I < Trail.Num(); ++I)
+    {
+        const float Fade = FMath::Clamp(1.f - Trail[I].Age / MemoriaCombatTuning::TrailLife, 0.f, 1.f);
+        for (const float Along : {1.f, .8f, .6f})
+        {
+            const FVector A = FMath::Lerp(Trail[I - 1].Base, Trail[I - 1].Tip, Along), B = FMath::Lerp(Trail[I].Base, Trail[I].Tip, Along);
+            Segment(Elements, Layer, Geometry, PC, A, B, Along == 1.f ? 5.f : 3.f, FLinearColor(.85f, .92f, 1.f, Fade * (Along == 1.f ? .85f : .45f)));
+        }
+        Segment(Elements, Layer, Geometry, PC, Trail[I].Base, Trail[I].Tip, 1.5f, FLinearColor(.8f, .88f, 1.f, Fade * .18f));
+    }
+    for (const FMemoriaSpark& Spark : C->GetSparks())
+    {
+        // A short streak along the spark's flight, with a soft glow under it.
+        const float Life = FMath::Clamp(1.f - Spark.Age / Spark.Life, 0.f, 1.f), Width = Spark.Size * (.5f + .5f * Life);
+        const FLinearColor Hot(FMath::Lerp(Spark.Color.R, 1.f, Life * .6f), FMath::Lerp(Spark.Color.G, 1.f, Life * .6f), FMath::Lerp(Spark.Color.B, 1.f, Life * .45f), Life);
+        const FVector Tail = Spark.Location - Spark.Velocity * .035f;
+        Segment(Elements, Layer, Geometry, PC, Tail, Spark.Location, Width * 2.4f, FLinearColor(Spark.Color.R, Spark.Color.G, Spark.Color.B, .28f * Life));
+        Segment(Elements, Layer + 1, Geometry, PC, Tail, Spark.Location, Width, Hot);
+    }
+    if (const APawn* Arrel = C->GetPlayer(); Arrel && C->GetCharge() > .15f)
+    {
+        const float Charge = C->GetCharge();
+        Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 6.f), 70.f, 1.f, 2.f, FLinearColor(1.f, .9f, .6f, .25f));
+        Arc(Elements, Layer + 1, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 6.f), 70.f, Charge, Charge >= 1.f ? 6.f : 4.f, FLinearColor(1.f, .82f, .45f, .95f));
     }
     // Husk health above each head.
     for (const auto& Weak : C->GetMonsters())
@@ -134,6 +183,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     const int32 WeakSeconds = FMath::CeilToInt(C->GetWeakenLeft()), PoisonTicks = C->GetPoisonTicksLeft();
     if (C->IsWeakened()) Tag(Ko ? FString::Printf(TEXT("약화 %d초"), WeakSeconds) : FString::Printf(TEXT("Weak %ds"), WeakSeconds), Srgb(.80f, .66f, 1.f));
     if (C->IsPoisoned()) Tag(Ko ? FString::Printf(TEXT("중독 ×%d"), PoisonTicks) : FString::Printf(TEXT("Poison ×%d"), PoisonTicks), Srgb(.60f, 1.f, .42f));
+    if (C->IsBlocking()) Tag(Ko ? TEXT("막기") : TEXT("Guard"), Srgb(.78f, .86f, 1.f));
     // S314: the won fight's rewards (source Win), above the bar for a few seconds.
     const FMemoriaFieldReward& Won = C->GetLastReward();
     if (Won.Age < RewardShown)
@@ -149,7 +199,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         Text(Elements, Layer + 5, Geometry, Line, Center + FVector2D(0, 18), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16), Srgb(.92f, .88f, .80f, A));
     }
     if (C->LiveMonsterCount() > 0)
-        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격     Shift  회피     R  기억 연소") : TEXT("LMB / J  Attack     Shift  Dodge     R  Burn a memory"),
+        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격 (길게: 회전베기)     우클릭 / K  막기     Shift  회피     R  기억 연소") : TEXT("LMB / J  Attack (hold: spin)     RMB / K  Guard     Shift  Dodge     R  Burn a memory"),
             At + FVector2D(Bar.X * .5, Bar.Y + 26), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.80f, .76f, .70f, .9f));
     if (C->IsDefeated())
     {

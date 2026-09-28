@@ -15,6 +15,9 @@ struct FMemoriaBurnChoice { FString Id, Title, GradeLabel; int32 Grade = 0; int6
 // The released burn: its ring on the floor, and what burned, for the HUD.
 struct FMemoriaBurnWave { FVector Center = FVector::ZeroVector; float Radius = 0.f, Age = 0.f; int32 Grade = 0; FString Title, Skill; bool bLive = false; };
 class APointLight;
+// S315: a spark in the world, drawn by the HUD; and one sample of the blade for its trail.
+struct FMemoriaSpark { FVector Location, Velocity; float Age = 0.f, Life = .5f, Size = 4.f; FLinearColor Color; };
+struct FMemoriaTrailSample { FVector Base, Tip; float Age = 0.f; };
 
 // S311: field action combat. Owns the player's combo, dash and stagger, the live monsters, damage and
 // defeat recovery. Player health is the run's HP, so the archive, saves and VN see the same number.
@@ -32,7 +35,7 @@ public:
     bool RequestAttack(const FVector& AimPoint);
     bool RequestDash(const FVector& Direction);
     // Movement input is ignored while an attack, dash, stagger or defeat plays.
-    bool CanMove() const { return !IsAttacking() && DashLeft <= 0.f && StaggerLeft <= 0.f && !bDefeated && !bPicking && CastLeft <= 0.f; }
+    bool CanMove() const { return !IsAttacking() && DashLeft <= 0.f && StaggerLeft <= 0.f && !bDefeated && !bPicking && CastLeft <= 0.f && !bBlocking; }
     bool IsAttacking() const { return ComboStep >= 0; }
     bool IsDashing() const { return DashLeft > 0.f; }
     bool IsInvulnerable() const { return DashLeft > 0.f || bDefeated || CastLeft > 0.f; }
@@ -59,6 +62,20 @@ public:
     const FMemoriaFieldReward& GetLastReward() const { return Reward; }
     int32 GetBurnChain() const { return BurnChain; }
     int32 GetStrikesTaken() const { return StrikesTaken; }
+    // S315 feel and the two new moves.
+    void BeginCharge() { bCharging = !bDefeated; ChargeHeld = 0.f; }
+    void EndCharge() { bCharging = false; ChargeHeld = 0.f; }
+    float GetCharge() const { return bCharging ? FMath::Clamp(ChargeHeld / ChargeTimeValue(), 0.f, 1.f) : 0.f; }
+    bool IsHeavy() const { return ComboStep == 3; }
+    bool BeginBlock();
+    void EndBlock();
+    bool IsBlocking() const { return bBlocking; }
+    int32 GetParries() const { return Parries; }
+    int32 GetBlocks() const { return Blocks; }
+    bool IsHitStopped() const { return HitStopLeft > 0.f; }
+    FVector GetShakeOffset() const;
+    const TArray<FMemoriaSpark>& GetSparks() const { return Sparks; }
+    const TArray<FMemoriaTrailSample>& GetTrail() const { return Trail; }
     void NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage);
     // Seeds the drop roll (tests); a fresh stream otherwise.
     void SeedDrops(int32 Seed) { Drops.Initialize(Seed); }
@@ -100,6 +117,15 @@ private:
     TWeakObjectPtr<APointLight> Flare;
     int32 Selection = 0, Burns = 0;
     float CastLeft = 0.f, SheatheIn = 0.f, WeakenLeft = 0.f, PoisonClock = 0.f;
+    float HitStopLeft = 0.f, ShakeLeft = 0.f, ShakeStrength = 0.f, ShakeClock = 0.f, ChargeHeld = 0.f, BlockHeld = 0.f;
+    bool bCharging = false, bBlocking = false;
+    int32 Parries = 0, Blocks = 0;
+    TArray<FMemoriaSpark> Sparks;
+    TArray<FMemoriaTrailSample> Trail;
+    static float ChargeTimeValue();
+    void HitStop(float Seconds, float Shake);
+    void Burst(const FVector& Location, int32 Count, const FLinearColor& Color, float Speed);
+    void TickFeel(float DeltaSeconds);
     int32 PoisonLeft = 0, BurnChain = 0, WaveKills = 0, StrikesTaken = 0;
     int64 PoisonDamage = 0, WaveGrains = 0;
     bool bWaveVoid = false;
