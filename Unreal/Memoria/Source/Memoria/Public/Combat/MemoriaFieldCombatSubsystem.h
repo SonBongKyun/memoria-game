@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "Combat/MemoriaFieldCombatTypes.h"
 #include "MemoriaFieldCombatSubsystem.generated.h"
 class APawn;
 class AMemoriaFieldMonster;
@@ -51,7 +52,7 @@ public:
     int32 GetBurns() const { return Burns; }
     int32 GetComboStep() const { return ComboStep; }
     // Spawns void husks in a ring around a point on the floor.
-    TArray<AMemoriaFieldMonster*> SpawnWave(int32 Count, const FVector& Center, float Radius = 420.f);
+    TArray<AMemoriaFieldMonster*> SpawnWave(int32 Count, const FVector& Center, float Radius = 420.f, EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk);
     const TArray<TWeakObjectPtr<AMemoriaFieldMonster>>& GetMonsters() const { return Monsters; }
     int32 LiveMonsterCount() const;
     int32 GetKills() const { return Kills; }

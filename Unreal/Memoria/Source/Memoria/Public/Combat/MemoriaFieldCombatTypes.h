@@ -53,3 +53,29 @@ inline FLinearColor BurnColor(int32 Grade)
 { return Grade >= 3 ? FLinearColor(.62f, .30f, 1.f) : Grade == 1 ? FLinearColor(.35f, .62f, 1.f) : FLinearColor(1.f, .52f, .16f); }
 }
 enum class EMemoriaMonsterState : uint8 { Idle, Chase, Windup, Recover, Stagger, Dead };
+// S313: the field foes. The void husk is the stand-in void creature; the market thief is the Verdan source
+// enemy (source: 50 HP, "weaken"). Both are Epic's mannequin until Codex's models arrive.
+enum class EMemoriaFoeKind : uint8 { VoidHusk, MarketThief };
+struct FMemoriaFoeSpec
+{
+    const TCHAR* Name; const TCHAR* NameKo;
+    float Health, Height, Speed, Aggro, Reach, Windup, Recover, Stagger, Damage;
+    const TCHAR* Idle; const TCHAR* Walk;   // mannequin foe clips (null: Epic's idle/walk)
+    const TCHAR* Strike;                    // played across the windup, its blow at the windup's end
+    float StrikeAt;                         // fraction of the strike clip where the blow lands
+    bool bQuinn; FLinearColor Color, Glow; float Crack, Rim, BladeScale;
+};
+inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
+{
+    using namespace MemoriaCombatTuning;
+    static const FMemoriaFoeSpec Husk = {TEXT("Void Husk"), TEXT("보이드 허스크"),
+        HuskHealth, HuskHeight, 80.f, HuskAggro, HuskReach, .70f, HuskRecover, HuskStagger, HuskDamage,
+        TEXT("Zombie_Idle_Loop"), TEXT("Zombie_Walk_Fwd_Loop"), TEXT("Zombie_Scratch"), .55f,
+        false, FLinearColor(.035f, .025f, .05f), FLinearColor(.55f, .18f, 1.f), 6.f, .8f, 0.f};
+    // Quick and light: it darts in with a short blade and gets away; its blow is weaker and harder to see coming.
+    static const FMemoriaFoeSpec Thief = {TEXT("Market Thief"), TEXT("시장 도둑"),
+        45.f, 160.f, 150.f, 700.f, 125.f, .42f, .70f, .30f, 7.f,
+        nullptr, nullptr, TEXT("Sword_Regular_A"), .55f,
+        true, FLinearColor(.07f, .05f, .038f), FLinearColor(1.f, .62f, .30f), 0.f, .05f, .42f};
+    return Kind == EMemoriaFoeKind::MarketThief ? Thief : Husk;
+}

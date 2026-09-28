@@ -29,8 +29,16 @@ const TCHAR* ForAction(const FString& Id, const TCHAR* Clip)
     static const TMap<FString, const TCHAR*> Sword = {
         {TEXT("Attack_01"), TEXT("Sword_Regular_A")}, {TEXT("Attack_02"), TEXT("Sword_Regular_B")}, {TEXT("Attack_03"), TEXT("Sword_Regular_C")},
         {TEXT("Dash"), TEXT("Sword_Dash")}, {TEXT("HitReact_Front_Lgt_01"), TEXT("Hit_Knockback")}};
+    // The mannequin foes carry some of the same UAL2 clips, but they choose theirs explicitly.
+    if (Id == TEXT("Mannequin")) return Clip;
     const TCHAR* const* Mapped = Sword.Find(Clip);
     return Mapped && Load(Id, *Mapped) ? *Mapped : Clip;
+}
+const TArray<const TCHAR*>& FoeClips()
+{
+    static const TArray<const TCHAR*> Values = {TEXT("Zombie_Idle_Loop"), TEXT("Zombie_Walk_Fwd_Loop"), TEXT("Zombie_Scratch"),
+        TEXT("Sword_Regular_A"), TEXT("Sword_Regular_B")};
+    return Values;
 }
 FString MannequinMesh() { return TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple"); }
 FString ClipPath(const FString& Id, const FString& Name)
@@ -38,7 +46,7 @@ FString ClipPath(const FString& Id, const FString& Name)
     if (Id == TEXT("Mannequin"))
     {
         const auto* Clip = Clips().FindByPredicate([&](const FMemoriaCombatClip& C) { return Name == C.Name; });
-        return Clip ? FString(Clip->MannequinPath) : FString();
+        return Clip ? FString(Clip->MannequinPath) : FString::Printf(TEXT("/Game/Memoria/Presentation/Combat/Foes/A_Mannequin_%s"), *Name);
     }
     return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/%s/Combat/A_%s_%s"), *Id, *Id, *Name);
 }

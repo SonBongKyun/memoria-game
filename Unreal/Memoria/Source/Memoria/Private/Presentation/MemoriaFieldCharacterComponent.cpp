@@ -207,26 +207,39 @@ bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, 
     ApplyFrame(); return true;
 }
 void UMemoriaFieldCharacterComponent::StopAction() { ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false; ApplyFrame(); }
-bool UMemoriaFieldCharacterComponent::InitializeMannequin(float WorldHeight, const FLinearColor& Tint)
+bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
 {
-    Height = WorldHeight; CharacterId = TEXT("Mannequin");
+    Height = Look.Height; CharacterId = TEXT("Mannequin");
     if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    FoeMaterials.Reset();
+    if (Blade) { Blade->DestroyComponent(); Blade = nullptr; }
     auto Seq = [](const TCHAR* Path) { return LoadObject<UAnimSequence>(nullptr, Path, nullptr, LOAD_NoWarn | LOAD_Quiet); };
-    auto* Mesh = LoadObject<USkeletalMesh>(nullptr, *(MemoriaCombatClips::MannequinMesh() + TEXT(".SKM_Manny_Simple")), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    auto Clip = [&](const TCHAR* Name, const TCHAR* Fallback) { UAnimSequence* S = Name ? MemoriaCombatClips::Load(CharacterId, Name) : nullptr; return S ? S : Seq(Fallback); };
+    const FString MeshPath = Look.bQuinn ? TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple") : MemoriaCombatClips::MannequinMesh() + TEXT(".SKM_Manny_Simple");
+    auto* Mesh = LoadObject<USkeletalMesh>(nullptr, *MeshPath, nullptr, LOAD_NoWarn | LOAD_Quiet);
     // Epic's mannequin faces +Y in mesh space; the field figures face +X at yaw 0.
     MeshYawOffset = -90.f;
-    if (!CreateSkeletal(Mesh, Seq(TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle")),
-        Seq(TEXT("/Game/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd.MF_Unarmed_Walk_Fwd")))) return false;
-    // A void-dark husk: every slot takes the tint instead of the mannequin grey.
-    if (auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
+    if (!CreateSkeletal(Mesh, Clip(Look.Idle, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle.MM_Idle")),
+        Clip(Look.Walk, TEXT("/Game/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd.MF_Unarmed_Walk_Fwd")))) return false;
+    // Every slot takes M_FieldFoe (a skeletal-mesh material; BasicShapeMaterial rendered as the default).
+    if (auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Combat/M_FieldFoe.M_FieldFoe"), nullptr, LOAD_NoWarn | LOAD_Quiet))
         for (int32 I = 0; I < Skeletal->GetNumMaterials(); ++I)
         {
             auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal);
-            Material->SetVectorParameterValue(TEXT("Color"), Tint); Skeletal->SetMaterial(I, Material);
+            Material->SetVectorParameterValue(TEXT("Color"), Look.Color); Material->SetVectorParameterValue(TEXT("Glow"), Look.Glow);
+            Material->SetScalarParameterValue(TEXT("CrackStrength"), Look.Crack); Material->SetScalarParameterValue(TEXT("RimStrength"), Look.Rim);
+            Skeletal->SetMaterial(I, Material); FoeMaterials.Add(Material);
         }
+    if (Look.BladeScale > 0.f)
+    {
+        Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
+        Blade = AttachGrip(LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Memoria/Presentation/Field3D/Arrel/SM_Arrel_sword_drawn.SM_Arrel_sword_drawn"), nullptr, LOAD_NoWarn | LOAD_Quiet), Look.BladeScale);
+    }
     if (Card) Card->SetHiddenInGame(true);
     bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
 }
+void UMemoriaFieldCharacterComponent::SetHitFlash(float Amount)
+{ for (const auto& Material : FoeMaterials) if (Material) Material->SetScalarParameterValue(TEXT("Hit"), Amount); }
 bool UMemoriaFieldCharacterComponent::CreateSkeletal(USkeletalMesh* Mesh, UAnimSequence* Idle, UAnimSequence* WalkClip)
 {
     if (!Mesh || !Idle || !WalkClip || Idle->GetSkeleton() != Mesh->GetSkeleton() || WalkClip->GetSkeleton() != Mesh->GetSkeleton()) return false;
@@ -262,7 +275,7 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
         Sheathed = AttachProp(Id, TEXT("sword_sheathed"), TEXT("pelvis"), FVector(0, -21, 13));
         // S312: the drawn pair keeps the sheathed prop's frame, so the scabbard hangs exactly where it was.
         Scabbard = AttachProp(Id, TEXT("scabbard"), TEXT("pelvis"), FVector(0, -21, 13), false);
-        Blade = AttachGrip(Id, TEXT("sword_drawn"));
+        Blade = AttachGrip(RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_sword_drawn")));
         if (!Scabbard || !Blade)
         {
             for (UStaticMeshComponent* Part : {Scabbard.Get(), Blade.Get()}) if (Part) Part->DestroyComponent();
@@ -297,9 +310,8 @@ UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachProp(const FString&
     if (bListed) Props.Add(Part);
     return Part;
 }
-UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachGrip(const FString& Id, const FString& Prop)
+UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachGrip(UStaticMesh* Mesh, float PropScale)
 {
-    auto* Mesh = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_") + Prop);
     if (!Mesh || !Skeletal) return nullptr;
     const auto& Ref = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
     for (const TCHAR* Bone : {TEXT("hand_r"), TEXT("index_01_r"), TEXT("middle_01_r"), TEXT("pinky_01_r")})
@@ -315,7 +327,7 @@ UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachGrip(const FString&
     const FVector X = (Along - Z * FVector::DotProduct(Along, Z)).GetSafeNormal();
     FVector Palm = Ref.FindBoneIndex(TEXT("thumb_01_r")) != INDEX_NONE ? At(TEXT("thumb_01_r")) - Knuckles : FVector::ZeroVector;
     Palm = (Palm - Z * FVector::DotProduct(Palm, Z) - X * FVector::DotProduct(Palm, X)).GetSafeNormal();
-    const FTransform Desired(FRotationMatrix::MakeFromZX(Z, X).ToQuat(), Knuckles + X * GripReach + Palm * GripDepth);
+    const FTransform Desired(FRotationMatrix::MakeFromZX(Z, X).ToQuat(), Knuckles + X * GripReach + Palm * GripDepth, FVector(PropScale));
     auto* Part = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None);
     Part->SetStaticMesh(Mesh); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Part->SetGenerateOverlapEvents(false); Part->SetLightingChannels(true, true, false);
@@ -326,7 +338,7 @@ UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachGrip(const FString&
 }
 void UMemoriaFieldCharacterComponent::SetSwordDrawn(bool bDrawn)
 {
-    if (!Blade || bDrawn == bSwordDrawn) return;
+    if (!HasSword() || bDrawn == bSwordDrawn) return;
     bSwordDrawn = bDrawn;
     if (Sheathed) Sheathed->SetHiddenInGame(bDrawn);
     Scabbard->SetHiddenInGame(!bDrawn); Blade->SetHiddenInGame(!bDrawn);

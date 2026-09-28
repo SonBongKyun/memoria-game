@@ -112,7 +112,7 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         return true;
     }
     const bool ArchiveToggle=Params.Key==EKeys::Tab || Params.Key==EKeys::M;
-    // S311 field combat: left click or J attacks toward the cursor, Shift dodges, R burns a memory (S312), F9 calls a husk (development).
+    // S311 field combat: left click or J attacks toward the cursor, Shift dodges, R burns a memory (S312), F9 calls a husk, F10 a thief (development).
     if(!ArchiveWidget && Params.Event==IE_Pressed && Host()->GetState()==EMemoriaSliceState::Exploration && !IsModalOpen())
     {
         auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
@@ -121,6 +121,7 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             if(Params.Key==EKeys::LeftMouseButton || Params.Key==EKeys::J){Combat->RequestAttack(CursorOnFloor());return true;}
             if(Params.Key==EKeys::LeftShift || Params.Key==EKeys::RightShift){Combat->RequestDash(GetPawn()->GetLastMovementInputVector().IsNearlyZero()?GetPawn()->GetVelocity():GetPawn()->GetLastMovementInputVector());return true;}
             if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
+            if(Params.Key==EKeys::F10){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f,EMemoriaFoeKind::MarketThief);return true;}
             if(Params.Key==EKeys::R){Combat->OpenBurnPicker();return true;}
         }
     }
@@ -200,11 +201,14 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         if (Step.bWarningStarted) { Narrative->Record(TEXT("encounter:warning")); LastRevision=INDEX_NONE; }
         if (Step.bTriggered)
         {
-            // S311: husks rise in the field around Arrel; the turn-based battle stays only as the tested stopgap.
+            // S311: foes rise in the field around Arrel; the turn-based battle stays only as the tested stopgap.
+            // S313: the source pool's Market Thief (index 1) comes as two thieves; the Alley Rat has no model
+            // yet, so void husks stand in for it.
             auto* Combat=GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
             if (UMemoriaFieldCombatSubsystem::UseFieldEncounters() && Combat && Combat->GetPlayer())
             {
-                Combat->SpawnWave(2+Step.EnemyIndex%2,GetPawn()->GetActorLocation(),420.f);
+                const bool bThief=Step.EnemyIndex%2==1;
+                Combat->SpawnWave(bThief?2:3,GetPawn()->GetActorLocation(),420.f,bThief?EMemoriaFoeKind::MarketThief:EMemoriaFoeKind::VoidHusk);
                 Narrative->Record(TEXT("encounter:field_started"));
                 return;
             }

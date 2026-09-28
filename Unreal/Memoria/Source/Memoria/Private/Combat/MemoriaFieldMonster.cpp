@@ -2,6 +2,7 @@
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaCombatClips.h"
+#include "Animation/AnimSequence.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -17,7 +18,7 @@ AMemoriaFieldMonster::AMemoriaFieldMonster()
     SetRootComponent(Box);
     Movement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
     Movement->SetUpdatedComponent(Box); Movement->SetPlaneConstraintNormal(FVector::UpVector); Movement->SetPlaneConstraintEnabled(true);
-    Movement->MaxSpeed = HuskSpeed; Movement->Acceleration = 900.f; Movement->Deceleration = 1400.f;
+    Movement->MaxSpeed = HuskSpeed; Movement->Acceleration = 900.f; Movement->Deceleration = 1400.f; // the kind's speed is set in BeginPlay
     Figure = CreateDefaultSubobject<UMemoriaFieldCharacterComponent>(TEXT("Figure"));
     Figure->SetupAttachment(Box);
     // The telegraph: a thin red disc under the husk while it winds up, the reach of its strike.
@@ -33,7 +34,13 @@ UMemoriaFieldCombatSubsystem* AMemoriaFieldMonster::Combat() const { return GetW
 void AMemoriaFieldMonster::BeginPlay()
 {
     Super::BeginPlay();
-    Figure->InitializeMannequin(HuskHeight, FLinearColor(.045f, .03f, .075f));
+    const FMemoriaFoeSpec& S = Spec();
+    FMemoriaFoeLook Look;
+    Look.Height = S.Height; Look.bQuinn = S.bQuinn; Look.Idle = S.Idle; Look.Walk = S.Walk;
+    Look.Color = S.Color; Look.Glow = S.Glow; Look.Crack = S.Crack; Look.Rim = S.Rim; Look.BladeScale = S.BladeScale;
+    Figure->InitializeFoe(Look);
+    Health = MaxHealth = S.Health; Movement->MaxSpeed = S.Speed;
+    Telegraph->SetRelativeScale3D(FVector(S.Reach / 50.f, S.Reach / 50.f, .004f));
     if (auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
     {
         TelegraphMaterial = UMaterialInstanceDynamic::Create(Base, this);
@@ -46,8 +53,10 @@ void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
 {
     State = Next; StateTime = 0.f;
     Telegraph->SetHiddenInGame(Next != EMemoriaMonsterState::Windup);
-    // The strike reuses the mannequin's heavy swing, slowed across the windup and the blow.
-    if (Next == EMemoriaMonsterState::Windup) Figure->PlayAction(MemoriaCombatClips::Charged(), 1.1f);
+    // The kind's strike, timed so its blow lands as the windup ends.
+    if (Next == EMemoriaMonsterState::Windup)
+        if (const UAnimSequence* Clip = MemoriaCombatClips::Load(Figure->GetCharacterId(), Spec().Strike))
+            Figure->PlayAction(Spec().Strike, FMath::Max(.1f, Clip->GetPlayLength() * Spec().StrikeAt / Spec().Windup));
 }
 bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shove)
 {
@@ -85,29 +94,29 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
     switch (State)
     {
     case EMemoriaMonsterState::Idle:
-        if (Distance < HuskAggro) Enter(EMemoriaMonsterState::Chase);
+        if (Distance < Spec().Aggro) Enter(EMemoriaMonsterState::Chase);
         break;
     case EMemoriaMonsterState::Chase:
         FaceTarget();
-        if (Distance <= HuskReach * .85f) Enter(EMemoriaMonsterState::Windup);
+        if (Distance <= Spec().Reach * .85f) Enter(EMemoriaMonsterState::Windup);
         // Moved directly: pawn movement only applies input under a local controller, and husks have none.
-        else SetActorLocation(GetActorLocation() + ToTarget.GetSafeNormal() * HuskSpeed * DeltaSeconds, true);
+        else SetActorLocation(GetActorLocation() + ToTarget.GetSafeNormal() * Spec().Speed * DeltaSeconds, true);
         break;
     case EMemoriaMonsterState::Windup:
         FaceTarget();
-        if (TelegraphMaterial) TelegraphMaterial->SetVectorParameterValue(TEXT("Color"), FLinearColor(.45f + .5f * StateTime / HuskWindup, .02f, .03f));
-        if (StateTime >= HuskWindup)
+        if (TelegraphMaterial) TelegraphMaterial->SetVectorParameterValue(TEXT("Color"), FLinearColor(.45f + .5f * StateTime / Spec().Windup, .02f, .03f));
+        if (StateTime >= Spec().Windup)
         {
             ++Strikes;
-            if (C) C->StrikePlayer(this, HuskDamage);
+            if (C) C->StrikePlayer(this, Spec().Damage);
             Enter(EMemoriaMonsterState::Recover);
         }
         break;
     case EMemoriaMonsterState::Recover:
-        if (StateTime >= HuskRecover) Enter(EMemoriaMonsterState::Chase);
+        if (StateTime >= Spec().Recover) Enter(EMemoriaMonsterState::Chase);
         break;
     case EMemoriaMonsterState::Stagger:
-        if (StateTime >= HuskStagger) Enter(EMemoriaMonsterState::Chase);
+        if (StateTime >= Spec().Stagger) Enter(EMemoriaMonsterState::Chase);
         break;
     default: break;
     }
