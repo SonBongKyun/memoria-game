@@ -57,7 +57,8 @@ bool UMemoriaFieldCharacterComponent::InitializeCharacter(const FString& Id, flo
     Height = WorldHeight; Walk.Reset(); WalkFrames = 0; bMirrorLeft = false;
     if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
     for (const auto& Prop : Props) if (Prop) Prop->DestroyComponent();
-    Props.Reset(); Phase = Weight = Age = 0.f;
+    for (UStaticMeshComponent* Part : {Scabbard.Get(), Blade.Get()}) if (Part) Part->DestroyComponent();
+    Props.Reset(); Sheathed = Scabbard = Blade = nullptr; bSwordDrawn = false; Phase = Weight = Age = 0.f;
     if (InitializeRigged(Id)) { if (Card) Card->SetHiddenInGame(true); return true; }
     if (Card) Card->SetHiddenInGame(false);
     // FIELD_SPRITE_ART_SPEC.md: down/up/right (left mirrors right), two optional walk contacts per view.
@@ -199,7 +200,8 @@ float UMemoriaFieldCharacterComponent::GetYaw() const
 }
 bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, bool bHold)
 {
-    UAnimSequence* Sequence = MemoriaCombatClips::Load(CharacterId, Clip);
+    // A character with the sword set (Arrel) plays its cuts in place of the melee set.
+    UAnimSequence* Sequence = MemoriaCombatClips::Load(CharacterId, MemoriaCombatClips::ForAction(CharacterId, Clip));
     if (!Sequence || !Skeletal || Sequence->GetSkeleton() != Skeletal->GetSkeletalMeshAsset()->GetSkeleton()) return false;
     ActionClip = Sequence; ActionTime = 0.f; ActionRate = FMath::Max(.05f, Rate); ActionWeight = 0.f; bActionHold = bHold;
     ApplyFrame(); return true;
@@ -255,7 +257,19 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
     Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
     bHighResolution = true; WalkFrames = 30;
     // Coordinates are in the imported reference-pose frame: X forward, Y right, Z up.
-    if (Id == TEXT("arrel")) AttachProp(Id, TEXT("sword_sheathed"), TEXT("pelvis"), FVector(0, -21, 13));
+    if (Id == TEXT("arrel"))
+    {
+        Sheathed = AttachProp(Id, TEXT("sword_sheathed"), TEXT("pelvis"), FVector(0, -21, 13));
+        // S312: the drawn pair keeps the sheathed prop's frame, so the scabbard hangs exactly where it was.
+        Scabbard = AttachProp(Id, TEXT("scabbard"), TEXT("pelvis"), FVector(0, -21, 13), false);
+        Blade = AttachGrip(Id, TEXT("sword_drawn"));
+        if (!Scabbard || !Blade)
+        {
+            for (UStaticMeshComponent* Part : {Scabbard.Get(), Blade.Get()}) if (Part) Part->DestroyComponent();
+            Scabbard = Blade = nullptr;
+        }
+        else { Scabbard->SetHiddenInGame(true); Blade->SetHiddenInGame(true); }
+    }
     else if (Id == TEXT("elia")) AttachProp(Id, TEXT("staff"), TEXT("hand_l"), FVector(0, 0, -2));
     else if (Id == TEXT("malet"))
     {
@@ -264,12 +278,12 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
     }
     ApplyFrame(); return true;
 }
-void UMemoriaFieldCharacterComponent::AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset)
+UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset, bool bListed)
 {
     auto* Mesh = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_") + Prop);
-    if (!Mesh || !Skeletal) return;
+    if (!Mesh || !Skeletal) return nullptr;
     const auto& Ref = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
-    const int32 Index = Ref.FindBoneIndex(Bone); if (Index == INDEX_NONE) return;
+    const int32 Index = Ref.FindBoneIndex(Bone); if (Index == INDEX_NONE) return nullptr;
     const FTransform BoneTransform = Skeletal->GetSocketTransform(Bone, RTS_Component);
     auto* Part = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None);
     Part->SetStaticMesh(Mesh); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -279,5 +293,41 @@ void UMemoriaFieldCharacterComponent::AttachProp(const FString& Id, const FStrin
     const FTransform Desired(FRotator(0, 90, 0).Quaternion(), BoneTransform.GetLocation() + Offset);
     Part->SetRelativeTransform(Desired.GetRelativeTransform(BoneTransform));
     if (Prop == TEXT("staff")) Part->SetRelativeScale3D(FVector(.85f));
-    Part->RegisterComponent(); Props.Add(Part);
+    Part->RegisterComponent();
+    if (bListed) Props.Add(Part);
+    return Part;
+}
+UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachGrip(const FString& Id, const FString& Prop)
+{
+    auto* Mesh = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_") + Prop);
+    if (!Mesh || !Skeletal) return nullptr;
+    const auto& Ref = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
+    for (const TCHAR* Bone : {TEXT("hand_r"), TEXT("index_01_r"), TEXT("middle_01_r"), TEXT("pinky_01_r")})
+        if (Ref.FindBoneIndex(Bone) == INDEX_NONE) return nullptr;
+    auto At = [&](const TCHAR* Bone) { return Skeletal->GetSocketTransform(Bone, RTS_Component).GetLocation(); };
+    // The grip is built from the hand itself rather than a hand-tuned socket, so it holds for any rig with
+    // UE finger names: the handle runs across the knuckles with the pommel on the little-finger side (the
+    // prop's +Z), the guard's width (+X) follows the back of the hand, and the handle sits inside the fist.
+    const FTransform Hand = Skeletal->GetSocketTransform(TEXT("hand_r"), RTS_Component);
+    const FVector Index = At(TEXT("index_01_r")), Pinky = At(TEXT("pinky_01_r")), Knuckles = (Index + Pinky) * .5f;
+    const FVector Z = (Pinky - Index).GetSafeNormal();
+    const FVector Along = At(TEXT("middle_01_r")) - Hand.GetLocation();
+    const FVector X = (Along - Z * FVector::DotProduct(Along, Z)).GetSafeNormal();
+    FVector Palm = Ref.FindBoneIndex(TEXT("thumb_01_r")) != INDEX_NONE ? At(TEXT("thumb_01_r")) - Knuckles : FVector::ZeroVector;
+    Palm = (Palm - Z * FVector::DotProduct(Palm, Z) - X * FVector::DotProduct(Palm, X)).GetSafeNormal();
+    const FTransform Desired(FRotationMatrix::MakeFromZX(Z, X).ToQuat(), Knuckles + X * GripReach + Palm * GripDepth);
+    auto* Part = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None);
+    Part->SetStaticMesh(Mesh); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Part->SetGenerateOverlapEvents(false); Part->SetLightingChannels(true, true, false);
+    Part->SetupAttachment(Skeletal, TEXT("hand_r"));
+    Part->SetRelativeTransform(Desired.GetRelativeTransform(Hand));
+    Part->RegisterComponent();
+    return Part;
+}
+void UMemoriaFieldCharacterComponent::SetSwordDrawn(bool bDrawn)
+{
+    if (!Blade || bDrawn == bSwordDrawn) return;
+    bSwordDrawn = bDrawn;
+    if (Sheathed) Sheathed->SetHiddenInGame(bDrawn);
+    Scabbard->SetHiddenInGame(!bDrawn); Blade->SetHiddenInGame(!bDrawn);
 }

@@ -16,6 +16,22 @@ const TArray<FMemoriaCombatClip>& Clips()
     };
     return Values;
 }
+const TArray<const TCHAR*>& SwordClips()
+{
+    static const TArray<const TCHAR*> Values = {TEXT("Sword_Regular_A"), TEXT("Sword_Regular_B"), TEXT("Sword_Regular_C"),
+        TEXT("Sword_Heavy_Combo"), TEXT("Sword_Dash"), TEXT("Sword_Block"), TEXT("Hit_Knockback")};
+    return Values;
+}
+const TCHAR* ForAction(const FString& Id, const TCHAR* Clip)
+{
+    // The melee combo becomes the sword's three regular cuts, the dash its lunge, a blow taken its knockback.
+    // Sword_Heavy_Combo and Sword_Block are retargeted for later skills and not mapped yet.
+    static const TMap<FString, const TCHAR*> Sword = {
+        {TEXT("Attack_01"), TEXT("Sword_Regular_A")}, {TEXT("Attack_02"), TEXT("Sword_Regular_B")}, {TEXT("Attack_03"), TEXT("Sword_Regular_C")},
+        {TEXT("Dash"), TEXT("Sword_Dash")}, {TEXT("HitReact_Front_Lgt_01"), TEXT("Hit_Knockback")}};
+    const TCHAR* const* Mapped = Sword.Find(Clip);
+    return Mapped && Load(Id, *Mapped) ? *Mapped : Clip;
+}
 FString MannequinMesh() { return TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple"); }
 FString ClipPath(const FString& Id, const FString& Name)
 {

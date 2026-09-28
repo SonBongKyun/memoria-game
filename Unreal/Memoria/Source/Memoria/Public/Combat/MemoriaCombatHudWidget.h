@@ -5,7 +5,8 @@
 class UMemoriaFieldCombatSubsystem;
 
 // S311 field combat HUD, painted directly: Arrel's HP, husk health over their heads, rising damage
-// numbers, the defeat veil and the control hint while a fight is on.
+// numbers, the defeat veil and the control hint while a fight is on. S312 adds the memory burn picker and
+// the released burn's ring, flare and banner.
 UCLASS()
 class MEMORIA_API UMemoriaCombatHudWidget : public UUserWidget
 {
@@ -19,4 +20,5 @@ protected:
         FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const override;
 private:
     TWeakObjectPtr<UMemoriaFieldCombatSubsystem> Combat;
+    void PaintBurnPicker(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& Geometry, bool Ko) const;
 };

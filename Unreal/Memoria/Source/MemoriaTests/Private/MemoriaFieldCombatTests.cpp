@@ -13,6 +13,7 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaCombatClips.h"
 #include "Animation/AnimSequence.h"
+#include "Components/StaticMeshComponent.h"
 #include "Camera/CameraActor.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "EngineUtils.h"
@@ -75,6 +76,9 @@ public:
                 Test->TestNotNull(*FString::Printf(TEXT("Retargeted combo step %d"), Step + 1), MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Attack(Step)));
             Test->TestNotNull(TEXT("Retargeted dash"), MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Dash()));
             Test->TestNotNull(TEXT("Retargeted death"), MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Death()));
+            for (const TCHAR* Clip : MemoriaCombatClips::SwordClips())
+                Test->TestNotNull(*FString::Printf(TEXT("Sword clip %s"), Clip), MemoriaCombatClips::Load(TEXT("Arrel"), Clip));
+            Test->TestTrue(TEXT("The sword starts sheathed"), Arrel && Arrel->HasSword() && !Arrel->IsSwordDrawn());
             StartHp = Combat->GetPlayerHp();
             // The review hides the following companion so the close captures show Arrel alone.
             for (TActorIterator<AMemoriaEliaCompanion> It(World); It; ++It) It->SetActorHiddenInGame(true);
@@ -110,8 +114,11 @@ public:
             if (Arrel && Arrel->IsActing() && !bSwingShot && Arrel->GetActionTime() > Arrel->GetActionLength() * .35f)
             {
                 bSwingShot = true;
-                Test->TestTrue(TEXT("Arrel plays his retargeted swing"), Arrel->GetActionClip() == MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Attack(0)) ||
-                    Arrel->GetActionClip() == MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Attack(1)) || Arrel->GetActionClip() == MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Attack(2)));
+                // S312: Arrel's combo is the sword set's cuts when it is there.
+                auto Cut = [&](int32 Step) { return MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::ForAction(TEXT("Arrel"), MemoriaCombatClips::Attack(Step))); };
+                Test->TestTrue(TEXT("Arrel plays his retargeted swing"), Arrel->GetActionClip() == Cut(0) || Arrel->GetActionClip() == Cut(1) || Arrel->GetActionClip() == Cut(2));
+                Test->TestTrue(TEXT("The swing is a sword cut"), FString(Arrel->GetActionClip() ? Arrel->GetActionClip()->GetName() : FString()).Contains(TEXT("Sword_Regular")));
+                Test->TestTrue(TEXT("Arrel fights with the sword drawn"), Arrel->HasSword() && Arrel->IsSwordDrawn() && Arrel->GetBlade() && Arrel->GetBlade()->IsVisible());
                 SwingFrame = Frame;
             }
             // Keep pressing through the combo until the husk falls.

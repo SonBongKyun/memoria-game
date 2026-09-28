@@ -19,7 +19,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual UPawnMovementComponent* GetMovementComponent() const override;
     // Returns true when the hit landed (not dead). Staggers and cancels a windup.
-    bool TakeHit(float Damage, const FVector& From);
+    bool TakeHit(float Damage, const FVector& From, float Shove = 14.f);
     bool IsDead() const { return State == EMemoriaMonsterState::Dead; }
     EMemoriaMonsterState GetState() const { return State; }
     float GetHealth() const { return Health; }

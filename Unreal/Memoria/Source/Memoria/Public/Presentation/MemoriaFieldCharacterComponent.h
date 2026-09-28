@@ -35,6 +35,12 @@ public:
     USkeletalMeshComponent* GetSkeletalMesh() const { return Skeletal; }
     bool IsRigged() const { return Skeletal != nullptr; }
     int32 GetPropCount() const { return Props.Num(); }
+    // S312: Arrel draws his sword for a fight. The sheathed prop gives way to the empty scabbard at his hip
+    // and the drawn blade in his right hand, gripped across the knuckles; sheathing swaps them back.
+    bool HasSword() const { return Blade != nullptr; }
+    void SetSwordDrawn(bool bDrawn);
+    bool IsSwordDrawn() const { return bSwordDrawn; }
+    UStaticMeshComponent* GetBlade() const { return Blade; }
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     // Which art a character id resolves to: "rigged", "hd", "pixel" or "missing".
     static FString DescribeArt(const FString& Id);
@@ -52,6 +58,9 @@ public:
     const FString& GetCharacterId() const { return CharacterId; }
     // Distance for one full two-step gait cycle.
     static constexpr float StrideLength = 58.f;
+    // The blade's handle centre from the knuckle line: toward the fingers, and into the palm.
+    static constexpr float GripReach = 2.f;
+    static constexpr float GripDepth = 2.5f;
 private:
     UPROPERTY(Transient) TObjectPtr<UPaperSpriteComponent> Card;
     UPROPERTY(Transient) TObjectPtr<USkeletalMeshComponent> Skeletal;
@@ -62,7 +71,13 @@ private:
     FString CharacterId;
     float ActionTime = 0.f, ActionRate = 1.f, ActionWeight = 0.f, AimYaw = 0.f, MeshYawOffset = 0.f;
     bool bActionHold = false, bAim = false;
-    void AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset);
+    // Listed props count in GetPropCount; the sword swap parts (scabbard, blade) are kept aside.
+    UStaticMeshComponent* AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset, bool bListed = true);
+    UStaticMeshComponent* AttachGrip(const FString& Id, const FString& Prop);
+    UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Sheathed;
+    UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Scabbard;
+    UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Blade;
+    bool bSwordDrawn = false;
     // Down, Up, Left, Right; a missing Left mirrors Right.
     UPROPERTY(Transient) TObjectPtr<UPaperSprite> Stand[4];
     UPROPERTY(Transient) TArray<TObjectPtr<UPaperSprite>> Walk;

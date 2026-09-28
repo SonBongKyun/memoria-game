@@ -1,3 +1,44 @@
+# Migration handoff — S312 memory burn skill and Arrel's sword (Claude lane, 2026-09-28)
+
+- **Why.** The user's plan after S311: memory burn becomes the powerful skill, Arrel fights with his sword, and the monster model goes to Codex (the request is in the shared `claude-handoff.md`).
+- **Memory burn (`UMemoriaFieldCombatSubsystem`).**
+  - R in Verdan exploration opens the picker and slows the world to 0.12.
+    - It lists every memory that can burn now, weakest first, with localized titles from `MemoriaArchive::Build`.
+    - 1–9, ↑↓ or the wheel choose; R, Enter or a click burns; Esc or a right click lets it go.
+    - Grade 2 and 1 memories (identity, the core) ask twice.
+  - The burn goes through `UMemoriaRunSubsystem::BurnMemory`, so the loss is permanent and the passives, erosion, audio drama and saves follow.
+  - Then Arrel is invulnerable for a 0.45 s cast and releases the grade's source skill (battle_core `burn_skills`):
+    - Ember, Blue Flame Slash, Incinerate, Identity Pyre, Zero Burn;
+    - a ring of 260–1100 units;
+    - damage is the skill's base plus the effective burn power;
+    - a shove of 50–280;
+    - a coloured point light.
+  - HUD: the ring projected on the floor, a screen flare, the banner (skill and the memory it cost), and the picker panel.
+  - The combat HUD now follows the run's locale, like the memory titles.
+- **Sword.**
+  - Quaternius' Universal Animation Library 2 (CC0, free Standard; downloaded with the user's permission) lives in the shared `models/_raw/ual2/`.
+  - `-run=MemoriaSwordRetarget` imports its glb through Interchange into the git-ignored `/Game/Memoria/Imported/UAL2`, then retargets seven clips onto Arrel as `Field3D/Arrel/Combat/A_Arrel_<Clip>`:
+    - Sword_Regular_A/B/C, Sword_Heavy_Combo, Sword_Dash, Sword_Block, Hit_Knockback;
+    - with its own IK rigs and `RTG_UAL2_Arrel`.
+  - `MemoriaRetargetKit.h` now holds the rig and retargeter setup shared with `MemoriaCombatRetarget`.
+  - The sheathed prop was split in Blender (`models/_raw/s312_sword/sword_split.py`) into `SM_Arrel_sword_drawn` (the hilt plus a new blade) and `SM_Arrel_scabbard`. Both are imported by the same commandlet.
+  - The blade's grip is computed from the hand's knuckle bones (`AttachGrip`), not a hand-tuned socket.
+  - `MemoriaCombatClips::ForAction` maps the melee combo to the sword cuts for any character that has the set (Arrel), and the dash to Sword_Dash.
+  - The sword is drawn while husks stand or Arrel acts, and sheathed 4 s after the last one falls.
+  - The combo rates are 1, 1 and 1.3; the burn cast plays the spinning cut.
+- **Tests.**
+  - New `MemoriaVisual.FieldBurn`:
+    - picker, cancel, ask-twice, the burn is permanent;
+    - three husks within reach fall and one beyond is spared;
+    - the sword is sheathed after the fight.
+  - `MemoriaVisual.FieldCombat` checks the sword clips and the drawn blade.
+- **Known.**
+  - The Verdan source enemies are the Alley Rat and the Market Thief. The void husk is a stand-in and still a tinted mannequin, which gets the engine default material (BasicShapeMaterial lacks the skeletal usage flag).
+  - Burn tuning is first pass.
+  - Sword_Heavy_Combo and Sword_Block are retargeted but unused.
+  - Garment deformation under the sword motions has not been rechecked.
+- **Results.** Full rendered registry: 413/413 (s312-full, MEMORIA_UNREAL_PASS discovered=413). Visual suite: 9/9 (s312-visual).
+
 # Migration handoff — S311 action combat foundation (Claude lane, 2026-09-27)
 
 - **Why.** This is the user's combat pivot: Diablo-style quarter-view action on the field map instead of the Godot turn-based battle. It builds on S310's rigged Arrel, Elia and Malet.
