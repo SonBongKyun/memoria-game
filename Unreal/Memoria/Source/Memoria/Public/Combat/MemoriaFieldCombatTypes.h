@@ -20,6 +20,19 @@ inline constexpr float DashDistance = 330.f;
 inline constexpr float DashCooldown = .7f;
 inline constexpr float PlayerStagger = .30f;
 inline constexpr float SheatheDelay = 4.f;          // S312: seconds after the last fight before Arrel sheathes
+// S315 feel: hit stop (real seconds at a near-frozen world), camera shake, sparks, the blade's trail.
+inline constexpr float HitStopDilation = .06f;
+inline constexpr float HitStopLight = .055f, HitStopHeavy = .11f;
+inline constexpr float ShakeLight = 5.f, ShakeHeavy = 12.f, ShakeTime = .22f;
+inline constexpr float TrailLife = .14f;
+// Heavy cut: hold the attack; a 360-degree spinning cut.
+inline constexpr float ChargeTime = .45f;
+inline constexpr float HeavyDamage = 30.f, HeavyRange = 215.f, HeavyShove = 60.f, HeavyRate = 1.1f;
+// Guard: hold right click or K. Raised just before a blow, it parries: no harm and the foe reels.
+inline constexpr float ParryWindow = .22f;
+inline constexpr float BlockFactor = .30f;
+inline constexpr float ParryStun = 1.2f;
+inline constexpr float BlockHoldAt = .38f;          // the guard pose's point in Sword_Block
 // Void husk (the mannequin stand-in).
 inline constexpr float HuskHealth = 60.f;
 inline constexpr float HuskHeight = 165.f;

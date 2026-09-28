@@ -112,13 +112,22 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         return true;
     }
     const bool ArchiveToggle=Params.Key==EKeys::Tab || Params.Key==EKeys::M;
-    // S311 field combat: left click or J attacks toward the cursor, Shift dodges, R burns a memory (S312), F9 calls a husk, F10 a thief (development).
+    // S315: releasing the attack ends a charge; releasing the guard lowers it (in any state, so it never sticks).
+    if(Params.Event==IE_Released)
+        if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr)
+        {
+            if(Params.Key==EKeys::LeftMouseButton || Params.Key==EKeys::J)Combat->EndCharge();
+            if(Params.Key==EKeys::RightMouseButton || Params.Key==EKeys::K)Combat->EndBlock();
+        }
+    // S311 field combat: left click or J attacks toward the cursor (held: the heavy cut, S315), right click or K guards (S315),
+    // Shift dodges, R burns a memory (S312), F9 calls a husk, F10 a thief (development).
     if(!ArchiveWidget && Params.Event==IE_Pressed && Host()->GetState()==EMemoriaSliceState::Exploration && !IsModalOpen())
     {
         auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
         if(Combat && Combat->GetPlayer() && GetPawn())
         {
-            if(Params.Key==EKeys::LeftMouseButton || Params.Key==EKeys::J){Combat->RequestAttack(CursorOnFloor());return true;}
+            if(Params.Key==EKeys::LeftMouseButton || Params.Key==EKeys::J){Combat->RequestAttack(CursorOnFloor());Combat->BeginCharge();return true;}
+            if(Params.Key==EKeys::RightMouseButton || Params.Key==EKeys::K){Combat->BeginBlock();return true;}
             if(Params.Key==EKeys::LeftShift || Params.Key==EKeys::RightShift){Combat->RequestDash(GetPawn()->GetLastMovementInputVector().IsNearlyZero()?GetPawn()->GetVelocity():GetPawn()->GetLastMovementInputVector());return true;}
             if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
             if(Params.Key==EKeys::F10){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f,EMemoriaFoeKind::MarketThief);return true;}

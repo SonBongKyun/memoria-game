@@ -62,6 +62,7 @@ bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shov
 {
     if (IsDead()) return false;
     Health = FMath::Max(0.f, Health - Damage);
+    if (Damage > 0.f) { HitFlash = 1.f; Figure->SetHitFlash(1.f); }
     const FVector Away = (GetActorLocation() - From).GetSafeNormal2D();
     if (Health <= 0.f)
     {
@@ -73,7 +74,7 @@ bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shov
         if (auto* C = Combat()) C->NotifyMonsterDied(this);
         return true;
     }
-    Enter(EMemoriaMonsterState::Stagger);
+    Enter(EMemoriaMonsterState::Stagger); StaggerFor = Spec().Stagger;
     Figure->PlayAction(MemoriaCombatClips::Hit(), 1.2f);
     // A shove away from the blow: short for a sword, far for a burn.
     SetActorLocation(GetActorLocation() + Away * Shove, true);
@@ -84,6 +85,7 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     StateTime += DeltaSeconds;
     const FVector Step = GetActorLocation() - PreviousLocation; PreviousLocation = GetActorLocation();
+    if (HitFlash > 0.f) { HitFlash = FMath::Max(0.f, HitFlash - DeltaSeconds * 6.f); Figure->SetHitFlash(HitFlash); }
     Figure->AdvanceLocomotion(Step, DeltaSeconds);
     if (IsDead()) { if (StateTime > HuskCorpseTime) Destroy(); return; }
     if (IgniteLeft > 0 && (IgniteClock -= DeltaSeconds) <= 0.f)
@@ -116,14 +118,15 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         {
             ++Strikes;
             if (C) C->StrikePlayer(this, Spec().Damage);
-            Enter(EMemoriaMonsterState::Recover);
+            // A parry has already sent the foe reeling (Stun); keep that instead of the recovery.
+            if (State == EMemoriaMonsterState::Windup) Enter(EMemoriaMonsterState::Recover);
         }
         break;
     case EMemoriaMonsterState::Recover:
         if (StateTime >= Spec().Recover) Enter(EMemoriaMonsterState::Chase);
         break;
     case EMemoriaMonsterState::Stagger:
-        if (StateTime >= Spec().Stagger) Enter(EMemoriaMonsterState::Chase);
+        if (StateTime >= StaggerFor) Enter(EMemoriaMonsterState::Chase);
         break;
     default: break;
     }
@@ -132,4 +135,11 @@ void AMemoriaFieldMonster::Ignite(float TickDamage, int32 Ticks)
 {
     if (IsDead()) return;
     IgniteDamage = FMath::Max(IgniteDamage * (IgniteLeft > 0), TickDamage); IgniteLeft = FMath::Max(IgniteLeft, Ticks); IgniteClock = IgniteInterval;
+}
+void AMemoriaFieldMonster::Stun(float Seconds)
+{
+    if (IsDead()) return;
+    Enter(EMemoriaMonsterState::Stagger); StaggerFor = Seconds;
+    HitFlash = 1.f; Figure->SetHitFlash(1.f);
+    Figure->PlayAction(MemoriaCombatClips::Hit(), .8f);
 }

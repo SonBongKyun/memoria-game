@@ -153,7 +153,7 @@ def verdan_story_test_paths():
 def visual_test_paths():
     return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration",
             "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey", "MemoriaVisual.FieldCharacters",
-            "MemoriaVisual.TitleScreen", "MemoriaVisual.FieldCombat", "MemoriaVisual.FieldBurn", "MemoriaVisual.FieldFoes", "MemoriaVisual.FieldRewards"}
+            "MemoriaVisual.TitleScreen", "MemoriaVisual.FieldCombat", "MemoriaVisual.FieldBurn", "MemoriaVisual.FieldFoes", "MemoriaVisual.FieldRewards", "MemoriaVisual.FieldFeel"}
 
 
 def current_test_paths():

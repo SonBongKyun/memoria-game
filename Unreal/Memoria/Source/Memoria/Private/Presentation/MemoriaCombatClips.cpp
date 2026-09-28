@@ -28,7 +28,7 @@ const TCHAR* ForAction(const FString& Id, const TCHAR* Clip)
     // Sword_Heavy_Combo and Sword_Block are retargeted for later skills and not mapped yet.
     static const TMap<FString, const TCHAR*> Sword = {
         {TEXT("Attack_01"), TEXT("Sword_Regular_A")}, {TEXT("Attack_02"), TEXT("Sword_Regular_B")}, {TEXT("Attack_03"), TEXT("Sword_Regular_C")},
-        {TEXT("Dash"), TEXT("Sword_Dash")}, {TEXT("HitReact_Front_Lgt_01"), TEXT("Hit_Knockback")}};
+        {TEXT("Dash"), TEXT("Sword_Dash")}, {TEXT("HitReact_Front_Lgt_01"), TEXT("Hit_Knockback")}, {TEXT("Block"), TEXT("Sword_Block")}};
     // The mannequin foes carry some of the same UAL2 clips, but they choose theirs explicitly.
     if (Id == TEXT("Mannequin")) return Clip;
     const TCHAR* const* Mapped = Sword.Find(Clip);

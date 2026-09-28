@@ -27,6 +27,9 @@ public:
     // S314: the source burn status on a foe, ticking once a second.
     void Ignite(float TickDamage, int32 Ticks);
     bool IsBurning() const { return IgniteLeft > 0; }
+    // S315: a parried foe reels for longer than a stagger.
+    void Stun(float Seconds);
+    float GetHitFlash() const { return HitFlash; }
     bool IsDead() const { return State == EMemoriaMonsterState::Dead; }
     EMemoriaMonsterState GetState() const { return State; }
     float GetHealth() const { return Health; }
@@ -44,7 +47,7 @@ private:
     EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk;
     float Health = MemoriaCombatTuning::HuskHealth, MaxHealth = MemoriaCombatTuning::HuskHealth, StateTime = 0.f;
     int32 Strikes = 0, IgniteLeft = 0;
-    float IgniteDamage = 0.f, IgniteClock = 0.f;
+    float IgniteDamage = 0.f, IgniteClock = 0.f, HitFlash = 0.f, StaggerFor = 0.f;
     FVector PreviousLocation = FVector::ZeroVector;
     void Enter(EMemoriaMonsterState Next);
     UMemoriaFieldCombatSubsystem* Combat() const;

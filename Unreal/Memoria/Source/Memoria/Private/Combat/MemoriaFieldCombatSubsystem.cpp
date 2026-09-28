@@ -11,6 +11,8 @@
 #include "Components/PointLightComponent.h"
 #include "Engine/PointLight.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/StaticMeshComponent.h"
+#include "Misc/App.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
@@ -40,23 +42,23 @@ bool UMemoriaFieldCombatSubsystem::StartStep(int32 Step)
     ComboStep = Step; StepTime = 0.f; bQueued = false; HitThisSwing.Reset(); DrawSword();
     if (Figure) Figure->SetAim(AimDirection.Rotation().Yaw);
     // Without a clip (no rigged art) the combo still resolves on a fixed half-second beat.
-    const float Rate = Figure && Figure->HasSword() ? SwordComboRate[FMath::Clamp(Step, 0, 2)] : ComboRate;
-    StepLength = Figure && Figure->PlayAction(MemoriaCombatClips::Attack(Step), Rate) ? Figure->GetActionLength() / Rate : .5f;
+    const float Rate = Step == 3 ? HeavyRate : Figure && Figure->HasSword() ? SwordComboRate[FMath::Clamp(Step, 0, 2)] : ComboRate;
+    StepLength = Figure && Figure->PlayAction(MemoriaCombatClips::Attack(FMath::Min(Step, 2)), Rate) ? Figure->GetActionLength() / Rate : .5f;
     Cue(GetWorld(), TEXT("sword_slash"));
     return true;
 }
 bool UMemoriaFieldCombatSubsystem::RequestAttack(const FVector& AimPoint)
 {
     APawn* Pawn = Player.Get();
-    if (!Pawn || bDefeated || DashLeft > 0.f || StaggerLeft > 0.f) return false;
+    if (!Pawn || bDefeated || DashLeft > 0.f || StaggerLeft > 0.f || bBlocking) return false;
     const FVector Aim = (AimPoint - Pawn->GetActorLocation()) * FVector(1, 1, 0);
     if (!IsAttacking())
     {
         if (!Aim.IsNearlyZero()) AimDirection = Aim.GetSafeNormal();
         // A press shortly after a step ends still chains the combo; otherwise it starts over.
-        return StartStep(SinceStep < ComboReset && LastStep < 2 ? LastStep + 1 : 0);
+        return StartStep(SinceStep < ComboReset && LastStep >= 0 && LastStep < 2 ? LastStep + 1 : 0);
     }
-    if (StepTime / FMath::Max(StepLength, .01f) >= QueueFrom && ComboStep < 2)
+    if (!IsHeavy() && StepTime / FMath::Max(StepLength, .01f) >= QueueFrom && ComboStep < 2)
     {
         if (!Aim.IsNearlyZero()) AimDirection = Aim.GetSafeNormal();
         bQueued = true;
@@ -90,14 +92,17 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         if (!Monster || Monster->IsDead() || HitThisSwing.Contains(Weak)) continue;
         const FVector To = (Monster->GetActorLocation() - Origin) * FVector(1, 1, 0);
         const float Distance = To.Size();
-        if (Distance > AttackRange + 30.f) continue;
-        if (Distance > 60.f && FVector::DotProduct(To / Distance, AimDirection) < AttackArcCos) continue;
+        if (Distance > (IsHeavy() ? HeavyRange : AttackRange) + 30.f) continue;
+        if (!IsHeavy() && Distance > 60.f && FVector::DotProduct(To / Distance, AimDirection) < AttackArcCos) continue;
         HitThisSwing.Add(Weak);
-        const float Damage = ComboDamage[FMath::Clamp(ComboStep, 0, 2)] * (IsWeakened() ? WeakenFactor : 1.f);
-        if (Monster->TakeHit(Damage, Origin))
+        const float Damage = (IsHeavy() ? HeavyDamage : ComboDamage[FMath::Clamp(ComboStep, 0, 2)]) * (IsWeakened() ? WeakenFactor : 1.f);
+        if (Monster->TakeHit(Damage, Origin, IsHeavy() ? HeavyShove : 14.f))
         {
             ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false);
             Cue(GetWorld(), TEXT("hit"));
+            const bool bBig = IsHeavy() || ComboStep == 2;
+            HitStop(bBig ? HitStopHeavy : HitStopLight, bBig ? ShakeHeavy : ShakeLight);
+            Burst(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height * .55f), bBig ? 14 : 8, FLinearColor(1.f, .7f, .35f), bBig ? 420.f : 300.f);
         }
     }
 }
@@ -107,6 +112,29 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     if (!Pawn || !Monster || !Run || IsInvulnerable()) return false;
     if (FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
     if (bPicking) CloseBurnPicker();
+    const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    if (bBlocking)
+    {
+        const FVector Spark = (Pawn->GetActorLocation() + Monster->GetActorLocation()) * .5f + FVector(0, 0, 110.f);
+        if (BlockHeld <= ParryWindow)
+        {
+            // Parry: the guard met the blow as it came. No harm, and the foe reels.
+            ++Parries; Monster->Stun(ParryStun);
+            Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("패링!") : TEXT("Parry!"), FLinearColor(1.f, .9f, .55f));
+            HitStop(HitStopHeavy, ShakeHeavy); Burst(Spark, 18, FLinearColor(1.f, .92f, .6f), 480.f);
+            Cue(GetWorld(), TEXT("shield"));
+            return false;
+        }
+        // A held guard only softens the blow, and it spares Arrel the blow's poison or curse.
+        ++Blocks;
+        auto& Hp = Run->State.Player.Hp;
+        const int64 Loss = FMath::Min<int64>(FMath::RoundToInt64(Damage * BlockFactor), Hp - 1);
+        if (Loss > 0) Hp -= Loss;
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, Ko ? TEXT("막음") : TEXT("Blocked"), FLinearColor(.75f, .82f, 1.f));
+        HitStop(HitStopLight, ShakeLight); Burst(Spark, 8, FLinearColor(.8f, .85f, 1.f), 300.f);
+        Cue(GetWorld(), TEXT("shield"));
+        return true;
+    }
     auto& Hp = Run->State.Player.Hp;
     Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage)); ++StrikesTaken;
     Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), Damage, true);
@@ -120,8 +148,9 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         Cue(GetWorld(), TEXT("defeat"));
         return true;
     }
-    StaggerLeft = PlayerStagger;
+    StaggerLeft = PlayerStagger; bCharging = false;
     if (Figure) Figure->PlayAction(MemoriaCombatClips::Hit(), 1.3f);
+    HitStop(HitStopLight, ShakeHeavy);
     Afflict(Monster->Spec().Ability, Damage);
     return true;
 }
@@ -219,6 +248,7 @@ void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, 
 void UMemoriaFieldCombatSubsystem::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    TickFeel(DeltaSeconds);
     for (auto& P : Popups) P.Age += DeltaSeconds;
     Popups.RemoveAll([](const FMemoriaCombatPopup& P) { return P.Age > (P.Label.IsEmpty() ? 1.f : 1.6f); });
     Reward.Age += DeltaSeconds;
@@ -361,6 +391,8 @@ void UMemoriaFieldCombatSubsystem::ReleaseBurn()
         Flare = Light;
     }
     Cue(World, Grade >= 3 ? TEXT("void_pulse") : TEXT("burn_ignite"));
+    HitStop(HitStopHeavy, ShakeHeavy + 3.f * Grade);
+    Burst(Wave.Center + FVector(0, 0, 60.f), 24 + 8 * Grade, BurnColor(Grade), 520.f);
 }
 void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
 {
@@ -407,4 +439,73 @@ void UMemoriaFieldCombatSubsystem::DrawSword()
 {
     SheatheIn = SheatheDelay;
     if (auto* Figure = PlayerFigure.Get()) Figure->SetSwordDrawn(true);
+}
+float UMemoriaFieldCombatSubsystem::ChargeTimeValue() { return ChargeTime; }
+bool UMemoriaFieldCombatSubsystem::BeginBlock()
+{
+    auto* Figure = PlayerFigure.Get();
+    if (!Player.IsValid() || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f || bBlocking) return false;
+    // The guard cancels a swing; the sword comes out for it.
+    ComboStep = -1; bQueued = false; bCharging = false; bBlocking = true; BlockHeld = 0.f; DrawSword();
+    if (Figure) Figure->PlayAction(MemoriaCombatClips::Block(), 1.6f, true, BlockHoldAt);
+    return true;
+}
+void UMemoriaFieldCombatSubsystem::EndBlock()
+{
+    if (!bBlocking) return;
+    bBlocking = false;
+    if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
+}
+void UMemoriaFieldCombatSubsystem::HitStop(float Seconds, float Shake)
+{
+    // The burn picker owns the world's time while it is open.
+    if (!bPicking && GetWorld())
+    {
+        HitStopLeft = FMath::Max(HitStopLeft, Seconds);
+        UGameplayStatics::SetGlobalTimeDilation(GetWorld(), HitStopDilation);
+    }
+    if (Shake >= ShakeStrength * ShakeLeft / ShakeTime) { ShakeStrength = Shake; ShakeLeft = ShakeTime; }
+}
+FVector UMemoriaFieldCombatSubsystem::GetShakeOffset() const
+{
+    if (ShakeLeft <= 0.f) return FVector::ZeroVector;
+    const float A = ShakeStrength * ShakeLeft / ShakeTime;
+    return FVector(FMath::Sin(ShakeClock * 71.f), FMath::Sin(ShakeClock * 53.f + 1.3f), .5f * FMath::Sin(ShakeClock * 37.f + .7f)) * A;
+}
+void UMemoriaFieldCombatSubsystem::Burst(const FVector& Location, int32 Count, const FLinearColor& Color, float Speed)
+{
+    for (int32 I = 0; I < Count; ++I)
+    {
+        FMemoriaSpark S; S.Location = Location; S.Color = Color;
+        S.Velocity = FVector(FMath::FRandRange(-1.f, 1.f), FMath::FRandRange(-1.f, 1.f), FMath::FRandRange(.2f, 1.f)).GetSafeNormal() * Speed * FMath::FRandRange(.4f, 1.f);
+        S.Life = FMath::FRandRange(.3f, .6f); S.Size = FMath::FRandRange(3.5f, 6.5f);
+        Sparks.Add(S);
+    }
+}
+void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
+{
+    // Hit stop and shake run on real time; sparks and the trail on world time, so they hang in the stop.
+    const float Real = FApp::GetDeltaTime();
+    if (HitStopLeft > 0.f && (HitStopLeft -= Real) <= 0.f && !bPicking && GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+    ShakeClock += Real; ShakeLeft = FMath::Max(0.f, ShakeLeft - Real);
+    for (FMemoriaSpark& S : Sparks) { S.Age += DeltaSeconds; S.Velocity.Z -= 900.f * DeltaSeconds; S.Location += S.Velocity * DeltaSeconds; }
+    Sparks.RemoveAll([](const FMemoriaSpark& S) { return S.Age >= S.Life; });
+    for (FMemoriaTrailSample& T : Trail) T.Age += DeltaSeconds;
+    Trail.RemoveAll([](const FMemoriaTrailSample& T) { return T.Age > TrailLife; });
+    auto* Figure = PlayerFigure.Get();
+    const UStaticMeshComponent* Blade = Figure ? Figure->GetBlade() : nullptr;
+    if (Blade && Figure->IsSwordDrawn() && (IsAttacking() || CastLeft > 0.f) && DeltaSeconds > 0.f)
+    {
+        // The prop's blade runs from the guard (about -13 cm) to the tip (-91 cm) along its -Z.
+        FMemoriaTrailSample T; T.Base = Blade->GetComponentTransform().TransformPosition(FVector(0, 0, -30));
+        T.Tip = Blade->GetComponentTransform().TransformPosition(FVector(0, 0, -88)); Trail.Add(T);
+    }
+    if (bBlocking) BlockHeld += DeltaSeconds;
+    if (bCharging && !IsHeavy() && !bBlocking)
+    {
+        ChargeHeld += DeltaSeconds;
+        // Held long enough: the heavy cut, a full spin, breaking off whatever swing was playing.
+        if (ChargeHeld >= ChargeTime && Player.IsValid() && !bDefeated && DashLeft <= 0.f && StaggerLeft <= 0.f && CastLeft <= 0.f)
+        { bCharging = false; StartStep(3); }
+    }
 }

@@ -454,7 +454,9 @@ void AMemoriaVerdanPresentation::UpdateCameraAndVisibility()
     };
     const FVector Anchor(Limit(P.X,-450,450,100),Limit(P.Y,-180,100,180),P.Z);
     auto* Camera=Player->GetFieldCamera();
-    Camera->SetWorldLocation(Anchor+MemoriaVerdanTuning::CameraOffset);
+    // S315: the combat shake rides on the follow position.
+    const FVector Shake=GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>()->GetShakeOffset():FVector::ZeroVector;
+    Camera->SetWorldLocation(Anchor+MemoriaVerdanTuning::CameraOffset+Shake);
     auto Color=[](const FVector& V){ return FLinearColor(V.X,V.Y,V.Z,1); };
     const FLinearColor Eye=Color(Camera->GetComponentLocation());
     const FLinearColor Focus=Color(ArrelFigure->FocusPosition());
