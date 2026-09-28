@@ -9,13 +9,17 @@ class UMaterialInstanceDynamic;
 class UMemoriaFieldCharacterComponent;
 class UMemoriaFieldCombatSubsystem;
 
-// A void husk: Epic's mannequin in void-dark, chasing the player and striking after a telegraph.
+// A field foe (S313: a void husk or a market thief, FoeSpec) on Epic's mannequin, chasing the player and
+// striking after a telegraph. Set the kind before BeginPlay (SpawnWave spawns deferred).
 UCLASS()
 class MEMORIA_API AMemoriaFieldMonster : public APawn
 {
     GENERATED_BODY()
 public:
     AMemoriaFieldMonster();
+    void SetKind(EMemoriaFoeKind InKind) { Kind = InKind; }
+    EMemoriaFoeKind GetKind() const { return Kind; }
+    const FMemoriaFoeSpec& Spec() const { return FoeSpec(Kind); }
     virtual void Tick(float DeltaSeconds) override;
     virtual UPawnMovementComponent* GetMovementComponent() const override;
     // Returns true when the hit landed (not dead). Staggers and cancels a windup.
@@ -34,6 +38,7 @@ private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Telegraph;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> TelegraphMaterial;
     EMemoriaMonsterState State = EMemoriaMonsterState::Idle;
+    EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk;
     float Health = MemoriaCombatTuning::HuskHealth, MaxHealth = MemoriaCombatTuning::HuskHealth, StateTime = 0.f;
     int32 Strikes = 0;
     FVector PreviousLocation = FVector::ZeroVector;

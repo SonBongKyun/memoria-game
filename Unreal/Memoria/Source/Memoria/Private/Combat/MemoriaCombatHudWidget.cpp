@@ -95,7 +95,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         const AMemoriaFieldMonster* M = Weak.Get();
         if (!M || M->IsDead()) continue;
         FVector2D At;
-        if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, M->GetActorLocation() + FVector(0, 0, MemoriaCombatTuning::HuskHeight + 25.f), At, false)) continue;
+        if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, M->GetActorLocation() + FVector(0, 0, M->Spec().Height + 25.f), At, false)) continue;
         const FVector2D Bar(96, 9);
         Box(Elements, Layer, Geometry, At - FVector2D(Bar.X * .5 + 2, 2), Bar + FVector2D(4, 4), FLinearColor(0, 0, 0, .75f));
         Box(Elements, Layer + 1, Geometry, At - FVector2D(Bar.X * .5, 0), FVector2D(Bar.X * M->GetHealth() / M->GetMaxHealth(), Bar.Y), Srgb(.62f, .12f, .78f));

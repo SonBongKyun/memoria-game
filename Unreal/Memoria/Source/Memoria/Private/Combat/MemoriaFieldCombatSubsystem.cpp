@@ -95,7 +95,7 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         const float Damage = ComboDamage[FMath::Clamp(ComboStep, 0, 2)];
         if (Monster->TakeHit(Damage, Origin))
         {
-            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, HuskHeight), Damage, false);
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false);
             Cue(GetWorld(), TEXT("hit"));
         }
     }
@@ -104,7 +104,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
 {
     APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld()); auto* Figure = PlayerFigure.Get();
     if (!Pawn || !Monster || !Run || IsInvulnerable()) return false;
-    if (FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > HuskReach + 40.f) return false;
+    if (FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
     if (bPicking) CloseBurnPicker();
     auto& Hp = Run->State.Player.Hp;
     Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage));
@@ -123,7 +123,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     if (Figure) Figure->PlayAction(MemoriaCombatClips::Hit(), 1.3f);
     return true;
 }
-TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Count, const FVector& Center, float Radius)
+TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Count, const FVector& Center, float Radius, EMemoriaFoeKind Kind)
 {
     TArray<AMemoriaFieldMonster*> Spawned;
     UWorld* World = GetWorld(); if (!World) return Spawned;
@@ -132,8 +132,9 @@ TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Coun
     {
         const float Angle = 2.f * PI * I / FMath::Max(1, Count) + .6f;
         const FVector Location = Center + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * Radius;
-        if (auto* Monster = World->SpawnActor<AMemoriaFieldMonster>(Location, FRotator::ZeroRotator, Params))
-        { Monsters.Add(Monster); Spawned.Add(Monster); }
+        // Deferred, so the kind is known when the foe builds its figure in BeginPlay.
+        if (auto* Monster = World->SpawnActorDeferred<AMemoriaFieldMonster>(AMemoriaFieldMonster::StaticClass(), FTransform(Location), nullptr, nullptr, Params.SpawnCollisionHandlingOverride))
+        { Monster->SetKind(Kind); Monster->FinishSpawning(FTransform(Location)); Monsters.Add(Monster); Spawned.Add(Monster); }
     }
     return Spawned;
 }
@@ -288,7 +289,7 @@ void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
         if (!Monster || Monster->IsDead() || Burned.Contains(Weak) || FVector::Dist2D(Monster->GetActorLocation(), Wave.Center) > Reach + 30.f) continue;
         Burned.Add(Weak);
         if (Monster->TakeHit(Casting.Damage, Wave.Center, BurnShove[Casting.Grade]))
-        { ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, HuskHeight), Casting.Damage, false); }
+        { ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Casting.Damage, false); }
     }
     if (auto* Light = Flare.Get())
     {
