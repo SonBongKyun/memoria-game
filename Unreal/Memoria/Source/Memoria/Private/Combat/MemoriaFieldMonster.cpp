@@ -49,7 +49,7 @@ void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
     // The strike reuses the mannequin's heavy swing, slowed across the windup and the blow.
     if (Next == EMemoriaMonsterState::Windup) Figure->PlayAction(MemoriaCombatClips::Charged(), 1.1f);
 }
-bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From)
+bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shove)
 {
     if (IsDead()) return false;
     Health = FMath::Max(0.f, Health - Damage);
@@ -60,13 +60,14 @@ bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From)
         Figure->SetAim((-Away).Rotation().Yaw);
         Figure->PlayAction(MemoriaCombatClips::Death(), 1.f, true);
         SetActorEnableCollision(false);
+        SetActorLocation(GetActorLocation() + Away * Shove * .5f, false);
         if (auto* C = Combat()) C->NotifyMonsterDied(this);
         return true;
     }
     Enter(EMemoriaMonsterState::Stagger);
     Figure->PlayAction(MemoriaCombatClips::Hit(), 1.2f);
-    // A short shove away from the blow.
-    SetActorLocation(GetActorLocation() + Away * 14.f, true);
+    // A shove away from the blow: short for a sword, far for a burn.
+    SetActorLocation(GetActorLocation() + Away * Shove, true);
     return true;
 }
 void AMemoriaFieldMonster::Tick(float DeltaSeconds)

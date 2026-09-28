@@ -98,8 +98,21 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
         return true;
     }
+    // S312 memory burn picker: it holds every key while open. 1-9 or Up/Down/wheel choose, R, Enter or a
+    // click burns (grade 2 and 1 ask twice), Esc or a right click lets the fire go out.
+    if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr; Combat && Combat->IsPickingBurn())
+    {
+        if(Params.Event!=IE_Pressed)return true;
+        static const FKey Digits[9]={EKeys::One,EKeys::Two,EKeys::Three,EKeys::Four,EKeys::Five,EKeys::Six,EKeys::Seven,EKeys::Eight,EKeys::Nine};
+        for(int32 I=0;I<9;++I)if(Params.Key==Digits[I]){Combat->SelectBurn(I);return true;}
+        if(Params.Key==EKeys::Up || Params.Key==EKeys::W || Params.Key==EKeys::MouseScrollUp)Combat->MoveBurnSelection(-1);
+        else if(Params.Key==EKeys::Down || Params.Key==EKeys::S || Params.Key==EKeys::MouseScrollDown)Combat->MoveBurnSelection(1);
+        else if(Params.Key==EKeys::R || Params.Key==EKeys::LeftMouseButton || ConfirmKey)Combat->ConfirmBurn();
+        else if(Params.Key==EKeys::Escape || Params.Key==EKeys::RightMouseButton || Params.Key==EKeys::Gamepad_FaceButton_Right){Combat->CloseBurnPicker();Cue(TEXT("cancel"));}
+        return true;
+    }
     const bool ArchiveToggle=Params.Key==EKeys::Tab || Params.Key==EKeys::M;
-    // S311 field combat: left click or J attacks toward the cursor, Shift dodges, F9 calls a husk (development).
+    // S311 field combat: left click or J attacks toward the cursor, Shift dodges, R burns a memory (S312), F9 calls a husk (development).
     if(!ArchiveWidget && Params.Event==IE_Pressed && Host()->GetState()==EMemoriaSliceState::Exploration && !IsModalOpen())
     {
         auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
@@ -108,6 +121,7 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             if(Params.Key==EKeys::LeftMouseButton || Params.Key==EKeys::J){Combat->RequestAttack(CursorOnFloor());return true;}
             if(Params.Key==EKeys::LeftShift || Params.Key==EKeys::RightShift){Combat->RequestDash(GetPawn()->GetLastMovementInputVector().IsNearlyZero()?GetPawn()->GetVelocity():GetPawn()->GetLastMovementInputVector());return true;}
             if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
+            if(Params.Key==EKeys::R){Combat->OpenBurnPicker();return true;}
         }
     }
     if(ArchiveWidget)
