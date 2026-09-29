@@ -151,3 +151,10 @@ bool UMemoriaRunSubsystem::GrantRewardItem(const FString& Id, const TCHAR* Displ
     Observe(Id==TEXT("potion")?TEXT("potion_complete"):(Id==TEXT("antidote")?TEXT("antidote_complete"):TEXT("firebomb_complete")));
     return State.RunId==Owner;
 }
+void UMemoriaRunSubsystem::GrantFieldItem(const FString& ItemId, int64 Count)
+{
+    if (!HasActiveRun() || ItemId.IsEmpty() || Count <= 0) return;
+    auto* Item = State.Player.Items.FindByPredicate([&](const FMemoriaItemCount& I) { return I.Id.Equals(ItemId, ESearchCase::CaseSensitive); });
+    if (Item) Item->Count += Count; else { FMemoriaItemCount New; New.Id = ItemId; New.Count = Count; State.Player.Items.Add(New); }
+    State.RecordRecentItem(ItemId);
+}

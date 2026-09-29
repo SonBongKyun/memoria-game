@@ -1,3 +1,41 @@
+# Migration handoff — S320 Chapter 3, the Belt Waystation (Claude lane, 2026-09-29)
+
+- **Why.** Step B of the user's order: port Chapter 3 onward. The user chose the content-first route. Dialogue, flags and events come from the source data. Maps are simple 3D terrain with source illustrations and light. Foes use field combat. Each chapter gets a flow test.
+- **Pipeline** (repeat it for each chapter):
+  1. **Dialogue.** Add the chapter's groups to `narrative_ir.py` FIELD_CASES and FIELD_FILE_CHAPTER, and the same cohort to `MemoriaNarrativeImport.cpp`. Extract with `narrative_ir.py --group <g>`, then import with `-run=MemoriaNarrative -Dialect=field`. Delete the report file first: the commandlet returns 1 early if it exists.
+  2. **Map.** `Unreal/Tools/export_chapter_maps.py` parses `scenes/maps/<map>.gd` and writes two outputs:
+     - `ir/chapters/<map>.v1.json`;
+     - `MemoriaChapterMapSources.inl`.
+     - The parsed fields are tiles, tile types, solid set, atmosphere, title card, spawn, arrival sequence, exit, triggers, chests, clues, battles, encounters and gates.
+     - `--check` verifies both outputs are current. Add maps to `MAPS`.
+  3. **Level.** `-run=MemoriaChapterLevels` writes `/Game/Memoria/Maps/L_<Pascal>` (slice game mode, player start at the source spawn).
+  4. **Art.** Add CGs and portraits to `MemoriaNarrativeArtwork.cpp`, then run `-run=MemoriaDialogueAssets`.
+  5. **Test.** Add a `MemoriaVisual.Chapter<N>` flow test and register it in `visual_test_paths()`.
+- **Runtime.**
+  - `FMemoriaChapterMapSpec` / `MemoriaChapterMaps`: scale 3 (a 32 px tile is 96 units), `ToWorld`/`ToSource`, `LevelPath`, `MapFromLevel`.
+  - `AMemoriaChapterPresentation` builds the field from the spec:
+    - **Terrain:** instanced tiles per type; low walls and rubble ruins; hidden blockers on solid tiles.
+    - **Light:** a key and a fill light plus fog, from the source atmosphere.
+    - **Markers:** chest and clue plinths.
+    - **Characters and HUD:** Arrel's rigged figure, Elia, field combat, the exploration HUD place name and the title card (`UMemoriaChapterCardWidget`).
+  - **Arrival chain.** The arrival sequence plays in the source's order through `OnFieldFinished`, with the source's flags and toasts ("Obtained: Blank Book").
+  - **Triggers.** Story triggers, gated chests (grains and items), clues and battles (`SpawnWave`) fire when Arrel enters them.
+  - **Exit.** The exit plays the departure, sets `ch3_complete`, moves the run to Chapter 4 and shows the completion card.
+  - `UMemoriaNarrativeSubsystem::EnterChapterMap` takes up the current run. With no run it starts a development run (New Game's player at the map's chapter, trace `chapter:development_run`). `TravelToChapterMap` opens the chapter level.
+- **Chapter 2 → 3.** At the closed Chapter 2 boundary the exchange-complete screen offers "Travel on: Chapter 3, The Belt" (choice 4). It carries the same run, memories and grains to the Belt Waystation.
+- **Content.**
+  - Six Chapter 3 groups (`DA_Field_Ch3*`): waystation_arrival, blank_book_discovery, waystation_night, class_seven_wall_message, belt_atmosphere, waystation_departure.
+  - Five Chapter 3 CGs, and the portrait `arrel_pain` → arrel_face_shocked (artwork 54 → 59).
+  - Korean labels: 벨트 / 페이지의 무게 / 벨트 중간역 / 획득: 백서.
+- **Tests.** New `MemoriaVisual.Chapter3` (the whole chapter flow) and `MemoriaVisual.Chapter3Travel` (the Chapter 2 → 3 road).
+- **Results.** Full rendered registry 413/413 (s320-full), visual 17/17 (s320-visual, including Chapter3 and Chapter3Travel).
+- **Known gaps.**
+  - Chapter memories (`add_chapter_memories(3)`) are not granted.
+  - No autosave at chapter transitions; the checkpoint still validates only the closed Chapter 2 boundary.
+  - Random encounters after completion are not ported, nor are ambient NPCs and decorations (water tank, cracks).
+  - Chapter 4 is not ported: the completion card says the road is still being prepared, and the HUD keeps the waystation's name.
+  - Rendered captures get smaller with each PIE start within one editor session: 1286×760 at first, down to 1220×320. Later tests in a suite capture a squashed window, which can overlap the status panel text. This is a harness issue, not the 16:9 layout.
+
 # Migration handoff — S317–S319 pause menu, game over, Elia's techniques (Claude lane, 2026-09-29)
 
 - **Why.** The user asked Claude to keep working alone, in order: (A) close the Chapter 1–2 loop, (B) port Chapter 3 onward, (C) the side systems. These three sessions are A.

@@ -153,7 +153,14 @@ const FFieldCohort* FieldCohort(const FString& Id)
         {TEXT("sq_sump_ledger_return"),2,13,TEXT("DA_Field_SumpLedgerReturn")},
         {TEXT("elia_ch2_talk"),3,5,TEXT("DA_Field_EliaCh2Talk")},
         {TEXT("elia_song_burned"),3,14,TEXT("DA_Field_EliaSongBurned"),TEXT("data/chapter1_dialogue.json"),1},
-        {TEXT("elia_sword_burned"),3,15,TEXT("DA_Field_EliaSwordBurned"),TEXT("data/chapter1_dialogue.json"),1}
+        {TEXT("elia_sword_burned"),3,15,TEXT("DA_Field_EliaSwordBurned"),TEXT("data/chapter1_dialogue.json"),1},
+        // S320 Chapter 3, Belt Waystation (content-first port).
+        {TEXT("waystation_arrival"),8,0,TEXT("DA_Field_Ch3WaystationArrival"),TEXT("data/chapter3_dialogue.json"),3},
+        {TEXT("blank_book_discovery"),10,1,TEXT("DA_Field_Ch3BlankBookDiscovery"),TEXT("data/chapter3_dialogue.json"),3},
+        {TEXT("waystation_night"),5,2,TEXT("DA_Field_Ch3WaystationNight"),TEXT("data/chapter3_dialogue.json"),3},
+        {TEXT("class_seven_wall_message"),6,3,TEXT("DA_Field_Ch3ClassSevenWallMessage"),TEXT("data/chapter3_dialogue.json"),3},
+        {TEXT("belt_atmosphere"),2,4,TEXT("DA_Field_Ch3BeltAtmosphere"),TEXT("data/chapter3_dialogue.json"),3},
+        {TEXT("waystation_departure"),3,5,TEXT("DA_Field_Ch3WaystationDeparture"),TEXT("data/chapter3_dialogue.json"),3}
     };
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;

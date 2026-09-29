@@ -40,8 +40,15 @@ FIELD_CASES = {
     'elia_ch2_talk': (3, 5, 'DA_Field_EliaCh2Talk'),
     'elia_song_burned': (3, 14, 'DA_Field_EliaSongBurned', 'data/chapter1_dialogue.json'),
     'elia_sword_burned': (3, 15, 'DA_Field_EliaSwordBurned', 'data/chapter1_dialogue.json'),
+    # S320 Chapter 3, Belt Waystation (belt_waystation.gd): the content-first chapter port.
+    'waystation_arrival': (8, 0, 'DA_Field_Ch3WaystationArrival', 'data/chapter3_dialogue.json'),
+    'blank_book_discovery': (10, 1, 'DA_Field_Ch3BlankBookDiscovery', 'data/chapter3_dialogue.json'),
+    'waystation_night': (5, 2, 'DA_Field_Ch3WaystationNight', 'data/chapter3_dialogue.json'),
+    'class_seven_wall_message': (6, 3, 'DA_Field_Ch3ClassSevenWallMessage', 'data/chapter3_dialogue.json'),
+    'belt_atmosphere': (2, 4, 'DA_Field_Ch3BeltAtmosphere', 'data/chapter3_dialogue.json'),
+    'waystation_departure': (3, 5, 'DA_Field_Ch3WaystationDeparture', 'data/chapter3_dialogue.json'),
 }
-FIELD_FILE_CHAPTER = {'data/chapter2_dialogue.json': 2, 'data/chapter1_dialogue.json': 1}
+FIELD_FILE_CHAPTER = {'data/chapter2_dialogue.json': 2, 'data/chapter1_dialogue.json': 1, 'data/chapter3_dialogue.json': 3}
 # Reviewed VN cohort: id -> (source file, step count, asset). S302 adds the whole current
 # Chapter 1 route (scene_flow.gd goto_scene chain ch1_cold_open .. ch1_after_forest).
 VN_CASES = {

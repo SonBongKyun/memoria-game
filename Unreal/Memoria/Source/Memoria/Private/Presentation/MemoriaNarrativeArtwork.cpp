@@ -66,6 +66,12 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/portraits/arrel_face_memory_fading.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_arrel_face_memory_fading"), false},
         {TEXT("res://assets/portraits/arrel_face_shocked.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_arrel_face_shocked"), false},
         {TEXT("res://assets/portraits/character_shots/elia_anchor_v3.png"), TEXT("/Game/Memoria/Presentation/BattleEntry/T_EliaAnchor"), true},
+        // S320 Chapter 3, Belt Waystation: the splash and the four CGs chapter3_dialogue.json names.
+        {TEXT("res://assets/cg/generated/chapter_splash_belt_waystation.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_belt_waystation"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch03_waystation_haze_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch03_waystation_haze_v1"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch03_class_seven_wall_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch03_class_seven_wall_v1"), false},
+        {TEXT("res://assets/cg/generated/story_ch3_blank_book_warmth.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch3_blank_book_warmth"), false},
+        {TEXT("res://assets/cg/generated/archive_ch3_kairos_marks_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_ch3_kairos_marks_v1"), false},
     };
     return Values;
 }
@@ -78,6 +84,7 @@ FString PortraitSource(const FString& Key)
         {TEXT("arrel_determined"), TEXT("res://assets/portraits/arrel_face_determined.png")},
         {TEXT("arrel_exhausted"), TEXT("res://assets/portraits/arrel_face_sad.png")},
         {TEXT("arrel_neutral"), TEXT("res://assets/portraits/character_shots/arrel_story_v2.png")},
+        {TEXT("arrel_pain"), TEXT("res://assets/portraits/arrel_face_shocked.png")},
         {TEXT("arrel_pensive"), TEXT("res://assets/portraits/character_shots/arrel_story_v2.png")},
         {TEXT("arrel_shocked"), TEXT("res://assets/portraits/arrel_face_shocked.png")},
         {TEXT("elia_calm"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},

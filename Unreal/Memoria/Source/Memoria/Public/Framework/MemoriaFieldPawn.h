@@ -20,6 +20,8 @@ public:
     virtual UPawnMovementComponent* GetMovementComponent() const override;
     void ApplyVerdanMovementProfile();
     UCameraComponent* GetFieldCamera() const { return Camera; }
+    // S320: the chapter maps walk at their own speed on Verdan's acceleration profile.
+    void SetWalkSpeed(float Speed);
     UPaperSpriteComponent* GetFieldSprite() const { return Sprite; }
 protected:
     virtual void BeginPlay() override;

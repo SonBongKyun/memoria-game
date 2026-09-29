@@ -62,7 +62,7 @@ int32 UMemoriaExplorationHudWidget::NativePaint(const FPaintArgs& Args, const FG
     // exploration_hud.gd rows: HP, chapter and place, memories, grains, items.
     Lines.Reset();
     Lines.Add(FString::Printf(TEXT("HP  %lld / %lld"), State.Player.Hp, State.Player.MaxHp));
-    Lines.Add(Ko ? FString::Printf(TEXT("Ch.%lld — 베르단 시장"), State.CurrentChapter) : FString::Printf(TEXT("Ch.%lld — Verdan Market"), State.CurrentChapter));
+    Lines.Add(FString::Printf(TEXT("Ch.%lld — %s"), State.CurrentChapter, Ko ? *PlaceKo : *PlaceEn));
     Lines.Add(Ko ? FString::Printf(TEXT("기억  보유 %lld · 연소 %lld"), Held, Burned) : FString::Printf(TEXT("Memories: %lld held, %lld burned"), Held, Burned));
     Lines.Add(FString::Printf(TEXT("Grains  %lld"), State.Player.Grains));
     Lines.Add(Ko ? FString::Printf(TEXT("아이템  %lld"), Items) : FString::Printf(TEXT("Items: %lld"), Items));

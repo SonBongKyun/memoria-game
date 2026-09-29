@@ -12,6 +12,8 @@
 #include "Presentation/MemoriaTitleWidget.h"
 #include "Presentation/MemoriaPauseWidget.h"
 #include "Presentation/MemoriaGameOverWidget.h"
+#include "Chapter/MemoriaChapterMap.h"
+#include "Chapter/MemoriaChapterPresentation.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
@@ -58,6 +60,14 @@ void AMemoriaSliceGameMode::StartPlay()
         if (auto* PC = GetWorld()->GetFirstPlayerController())
             if (auto* Pawn = Cast<AMemoriaFieldPawn>(PC->GetPawn())) Pawn->ApplyVerdanMovementProfile();
         GetWorld()->SpawnActor<AMemoriaVerdanPresentation>();
+    }
+    // S320: a content-first chapter map; its presentation builds the field from the map's IR.
+    if (const FString Chapter = MemoriaChapterMaps::MapFromLevel(Map); !Started && !Chapter.IsEmpty() && Narrative->EnterChapterMap(Chapter))
+    {
+        Started = true;
+        FActorSpawnParameters Params; Params.bDeferConstruction = true;
+        if (auto* Presentation = GetWorld()->SpawnActor<AMemoriaChapterPresentation>(AMemoriaChapterPresentation::StaticClass(), FTransform::Identity, Params))
+        { Presentation->Configure(Chapter); Presentation->FinishSpawning(FTransform::Identity); }
     }
     if (!Started) UE_LOG(LogTemp, Error, TEXT("MEMORIA_SLICE entry refused: %s; start from an explicit slice fixture"), *Map);
 }
@@ -304,6 +314,8 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
             StatusWidget = CreateWidget<UMemoriaDevelopmentNarrativeWidget>(this, UMemoriaDevelopmentNarrativeWidget::StaticClass());
         }
         FMemoriaNarrativeView Status; Status.bCompactStatus = true; Status.Header = TEXT("VERDAN  /  THE GRAY BELT");
+        if (const auto* Chapter = Narrative->GetChapterMap().IsEmpty() ? nullptr : MemoriaChapterMaps::Find(Narrative->GetChapterMap()))
+            Status.Header = FString::Printf(TEXT("%s  /  %s"), *Chapter->TitleName.ToUpper(), *Chapter->Subtitle.ToUpper());
         Status.Body = TEXT("WASD / stick  Move     TAB / M  Memories");
         if (Narrative->IsVerdanRevisit() && Encounter.bWarningEmitted)
             Status.Body+=TEXT("\nMemory noise closes in...");
