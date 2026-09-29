@@ -16,6 +16,9 @@ class MEMORIA_API UMemoriaCheckpointSubsystem : public UGameInstanceSubsystem
 public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     bool SaveClosedBoundary(const FVector2D& Position);
+    // S317: whether SaveClosedBoundary would be accepted now (the ported save point is the closed Chapter 2
+    // boundary: chapter 3, ch2_complete, no scene flow). Validates a capture; writes nothing.
+    bool CanSaveClosedBoundary() const;
     bool RestoreClosedBoundary(FVector2D& OutPosition);
     bool ValidateSnapshot(const UMemoriaRunSaveGame& Save) const;
     // SaveManager.autosave_on_chapter_transition: a separate slot holding an active VN cursor.
