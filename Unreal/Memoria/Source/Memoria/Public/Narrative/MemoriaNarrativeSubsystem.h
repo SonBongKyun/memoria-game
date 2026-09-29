@@ -11,6 +11,8 @@
 class UMemoriaRunSubsystem;
 class UMemoriaRunSaveGame;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaRewardBoundaryObserved, const FString&);
+// S320: a Field group finished and exploration resumed (its definition id).
+DECLARE_MULTICAST_DELEGATE_OneParam(FMemoriaFieldFinished, const FString&);
 enum class EMemoriaSliceState : uint8 { Idle, VN, Travelling, Field, Exploration, Deferred, Failed };
 struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; FString Effect; };
 // Presentation receives values only. No conditions, effect data or mutable run.
@@ -72,6 +74,14 @@ public:
     FName GetSceneMusic() const { return SceneMusic; }
     bool StartUnseenFieldFixture();
     bool EnterVerdan();
+    // S320 content-first chapter maps (MemoriaChapterMap): enter one (a development entry without a run
+    // starts New Game's run at the map's chapter), run its dialogue groups, and travel between them.
+    bool EnterChapterMap(const FString& Map);
+    bool StartChapterField(const FString& Group, const FString& Asset, const FString& File);
+    bool TravelToChapterMap(const FString& Map);
+    const FString& GetChapterMap() const { return ChapterMap; }
+    void ShowNotice(const FString& Text) { Notice(Text); }
+    FMemoriaFieldFinished OnFieldFinished;
     bool ContinueCheckpoint();
     bool RequestCheckpointRevisit();
     bool HasPendingVerdanReentry() const { return bPendingVerdanReentry; }
@@ -142,6 +152,7 @@ private:
     TWeakObjectPtr<UWorld> StoryWorld;
     void ArmStoryBeats();
     bool StartStoryField(const FString& Group, const TCHAR* Asset, const TCHAR* File = TEXT("data/chapter2_dialogue.json"));
+    FString ChapterMap;
     bool HandleSumpLedger(const FString& Point);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;

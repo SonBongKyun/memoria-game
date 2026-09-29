@@ -41,3 +41,4 @@ void AMemoriaFieldPawn::BeginPlay()
     Super::BeginPlay();
     Sprite->SetSprite(LoadObject<UPaperSprite>(nullptr, TEXT("/Game/Tests/Foundation/SPR_FootPivot.SPR_FootPivot")));
 }
+void AMemoriaFieldPawn::SetWalkSpeed(float Speed) { Movement->MaxSpeed = Speed; }

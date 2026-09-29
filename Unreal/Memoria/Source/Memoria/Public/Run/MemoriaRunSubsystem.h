@@ -36,6 +36,10 @@ public:
     UMemoriaWorldCognition* GetWorldCognition() const { return WorldCognition; }
     UMemoriaRunSaveGame* CaptureSave() const;
     bool RestoreSave(const UMemoriaRunSaveGame& Save);
+    // S320 chapter maps: the chapter a departure moves the run to, and the rewards of a chest.
+    void SetCurrentChapter(int64 Chapter) { if (HasActiveRun()) State.CurrentChapter = Chapter; }
+    void AddGrains(int64 Amount) { if (HasActiveRun()) State.Player.Grains += Amount; }
+    void GrantFieldItem(const FString& ItemId, int64 Count);
     // S317: the options' language applies to the live run too.
     void SetLocale(const FString& Locale) { if (HasActiveRun()) State.CurrentLocale = Locale == TEXT("en") ? TEXT("en") : TEXT("ko"); }
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);

@@ -11,6 +11,8 @@
 #include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Narrative/MemoriaVerdanStory.h"
 #include "Narrative/MemoriaSumpLedger.h"
+#include "Chapter/MemoriaChapterMap.h"
+#include "Settings/MemoriaSettingsSubsystem.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Interaction/MemoriaStoryPointActor.h"
 #include "Interaction/MemoriaEliaCompanion.h"
@@ -39,6 +41,7 @@ void UMemoriaNarrativeSubsystem::ShopChanged()
 void UMemoriaNarrativeSubsystem::Reset()
 {
     bPendingVerdanReentry=false; RevisitRunId.Invalidate(); RevisitWorld.Reset();
+    ChapterMap.Reset();
     bCheckpointScreen = bCheckpointLoadFailed = false; CheckpointWorld.Reset();
     SeedObservations.Reset(); PresentedSeedObservation = INDEX_NONE;
     FirebombObservations.Reset(); PresentedFirebombObservation=INDEX_NONE;
@@ -214,6 +217,7 @@ bool UMemoriaNarrativeSubsystem::StartUnseenFieldFixture()
 }
 bool UMemoriaNarrativeSubsystem::EnterVerdan()
 {
+    ChapterMap.Reset();
     // Source: verdan_market.gd _ready guard and the two _start_ch2_* methods.
     if (!Run->HasActiveRun() || !Context || !LoadContracts()) return false;
     bMaletCallbackConnected = true;
@@ -541,6 +545,8 @@ void UMemoriaNarrativeSubsystem::Confirm(int32 OriginalChoice)
         }
         else if (OriginalChoice==2 && bCheckpointLoadFailed)
             UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"));
+        else if (OriginalChoice==4 && !bCheckpointLoadFailed && Run->GetRunSnapshot().GetFlag(TEXT("ch2_complete")))
+            TravelToChapterMap(TEXT("belt_waystation"));
         return;
     }
     if (State == EMemoriaSliceState::VN && VN)
@@ -589,10 +595,12 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             V.Header=bCheckpointLoadFailed ? TEXT("MEMORIA / CONTINUE") : TEXT("VERDAN / EXCHANGE COMPLETE");
             V.Body=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText();
             if (!bCheckpointLoadFailed)
-                V.Body+=TEXT("\n\nThis checkpoint includes memories, Grains and items at the end of the exchange.\nLoad this checkpoint to revisit Verdan and enter ambient encounters.\nAttack and burn turns, Chapter 3 travel and persistent achievements are still in development.");
+                V.Body+=TEXT("\n\nThis checkpoint includes memories, Grains and items at the end of the exchange.\nLoad this checkpoint to revisit Verdan and enter ambient encounters, or take the Belt road on to Chapter 3.");
             if (bCheckpointScreen && !bCheckpointLoadFailed) V.Choices.Add({3,TEXT("Return to Verdan")});
             V.Choices.Add({1,TEXT("Load checkpoint")});
             V.Choices.Add(bCheckpointLoadFailed ? FMemoriaPresentedChoice{2,TEXT("Start a new slice")} : FMemoriaPresentedChoice{0,TEXT("Save checkpoint again")});
+            // S320: verdan_market.gd travels on to the Belt Waystation once Chapter 2 closes.
+            if (!bCheckpointLoadFailed && Run->GetRunSnapshot().GetFlag(TEXT("ch2_complete"))) V.Choices.Add({4,TEXT("Travel on: Chapter 3, The Belt")});
             return V;
         }
     }
@@ -648,7 +656,9 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
     else if (State == EMemoriaSliceState::Field && Field)
     {
         int32 Index = Field->OriginalIndex();
-        View.Header = FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : ActiveFieldAsset == DealAsset ? TEXT("MALET / DEAL") : ActiveFieldAsset == RewardAsset ? TEXT("MALET / REWARD") : ActiveFieldAsset == StoryAsset ? TEXT("VERDAN / STORY") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
+        const auto* ChapterSpec = ChapterMap.IsEmpty() ? nullptr : MemoriaChapterMaps::Find(ChapterMap);
+        View.Header = ChapterSpec ? FString::Printf(TEXT("%s / STORY   %d / %d"), *ChapterSpec->TitleName.ToUpper(), Index + 1, ActiveFieldAsset->Definition.Rows.Num()) :
+            FString::Printf(TEXT("%s   %d / %d"), ActiveFieldAsset == FieldAsset ? TEXT("VN-UNSEEN FIELD FIXTURE") : ActiveFieldAsset == EncounterAsset ? TEXT("MALET / ENCOUNTER") : ActiveFieldAsset == RefusedAsset ? TEXT("MALET / REFUSAL") : ActiveFieldAsset == DealAsset ? TEXT("MALET / DEAL") : ActiveFieldAsset == RewardAsset ? TEXT("MALET / REWARD") : ActiveFieldAsset == StoryAsset ? TEXT("VERDAN / STORY") : TEXT("MALET / MEMORY REACTION"), Index + 1, ActiveFieldAsset->Definition.Rows.Num());
         if (ActiveFieldAsset->Definition.Rows.IsValidIndex(Index))
         {
             const auto& Row = ActiveFieldAsset->Definition.Rows[Index]; Text = &Row.Text;
@@ -660,6 +670,13 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             View.BackdropSource = ActiveFieldAsset == FieldAsset ? FString() : TEXT("res://assets/cg/generated/story_ch2_malet_cellar.png");
             // Elia talks happen in the open market, not Malet's cellar.
             if (ActiveFieldAsset == StoryAsset && ActiveFieldAsset->Definition.Id.StartsWith(TEXT("elia"))) View.BackdropSource = TEXT("res://assets/cg/generated/chapter_splash_verdan_market.png");
+            // S320: a chapter map's story plays over its splash, under "CHAPTER N / PLACE".
+            if (ChapterSpec)
+            {
+                const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+                View.LocationTitle = Ko ? FString::Printf(TEXT("%d장  /  %s"), ChapterSpec->Chapter, *ChapterSpec->TitleName) : FString::Printf(TEXT("CHAPTER %d  /  %s"), ChapterSpec->Chapter, *ChapterSpec->TitleName.ToUpper());
+                View.BackdropSource = ChapterSpec->Splash;
+            }
             for (int32 I = 0; I <= Index; ++I)
                 if (ActiveFieldAsset->Definition.Rows[I].Presentation.bHasCg) View.BackdropSource = ActiveFieldAsset->Definition.Rows[I].Presentation.Cg;
             View.PortraitSource = MemoriaNarrativeArtwork::PortraitSource(Row.Presentation.bHasBurnedPortrait && Context->UsesBurnedText(Row.Text) ? Row.Presentation.BurnedPortrait : Row.Presentation.Portrait);
@@ -780,7 +797,11 @@ void UMemoriaNarrativeSubsystem::FinishField()
 {
     if (EliaTalkAsset && ActiveFieldAsset == EliaTalkAsset)
     { Run->SetStoryFlag(MemoriaVerdanStory::EliaTalkFlag, true); Record(FString(TEXT("flag:")) + MemoriaVerdanStory::EliaTalkFlag); EliaTalkAsset = nullptr; }
-    if (ActiveFieldAsset != EncounterAsset && ActiveFieldAsset != RefusedAsset && ActiveFieldAsset != DealAsset && ActiveFieldAsset != RewardAsset) { Explore(); return; }
+    if (ActiveFieldAsset != EncounterAsset && ActiveFieldAsset != RefusedAsset && ActiveFieldAsset != DealAsset && ActiveFieldAsset != RewardAsset)
+    {
+        const FString Finished = ActiveFieldAsset ? ActiveFieldAsset->Definition.Id : FString();
+        Explore(); OnFieldFinished.Broadcast(Finished); return;
+    }
     const bool bRefused = ActiveFieldAsset == RefusedAsset;
     const bool bDeal = ActiveFieldAsset == DealAsset;
     const bool bReward = ActiveFieldAsset == RewardAsset;
@@ -1046,4 +1067,43 @@ void UMemoriaNarrativeSubsystem::PresentFirebombObservation(int32 Index)
     PresentedSeedObservation=INDEX_NONE;PresentedPotionObservation=INDEX_NONE;PresentedAntidoteObservation=INDEX_NONE;
     PresentedFirebombObservation=FirebombObservations.IsValidIndex(Index)?Index:INDEX_NONE;
     ++Revision;
+}
+bool UMemoriaNarrativeSubsystem::EnterChapterMap(const FString& Map)
+{
+    const auto* Spec = MemoriaChapterMaps::Find(Map);
+    if (!Spec) { Record(TEXT("error:missing_chapter_map:") + Map); return false; }
+    if (!Run->HasActiveRun())
+    {
+        // A development entry straight into the map: New Game's player at the map's chapter.
+        if (Run->BeginStartingMemoryRun(Spec->Chapter) != EMemoriaMemoryResult::Success) return false;
+        auto& Player = Run->State.Player; Player = FMemoriaPlayerState();
+        Player.Hp = Player.MaxHp = 100; Player.bEliaWithParty = true;
+        FMemoriaItemCount Ink; Ink.Id = TEXT("witness_ink"); Ink.Count = 1; Player.Items = {Ink};
+        Player.QuickSlots = {TEXT("witness_ink"), TEXT("potion"), TEXT("antidote")};
+        Run->State.CurrentLocale = GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale();
+        Record(TEXT("chapter:development_run"));
+    }
+    // The chapter a map belongs to becomes the run's (belt_waystation.gd arrives in Chapter 3).
+    if (Run->State.CurrentChapter < Spec->Chapter) Run->State.CurrentChapter = Spec->Chapter;
+    VN.Reset(); Field.Reset(); ActiveFieldAsset = nullptr; bTitle = false; bPaused = false; DeferredInteraction.Reset();
+    bCheckpointScreen = bCheckpointLoadFailed = false; CheckpointWorld.Reset();
+    Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
+    ChapterMap = Map; State = EMemoriaSliceState::Exploration;
+    Record(TEXT("chapter:enter:") + Map); ++Revision;
+    return true;
+}
+bool UMemoriaNarrativeSubsystem::StartChapterField(const FString& Group, const FString& Asset, const FString& File)
+{
+    if (ChapterMap.IsEmpty() || State != EMemoriaSliceState::Exploration) return false;
+    return StartStoryField(Group, *Asset, *File);
+}
+bool UMemoriaNarrativeSubsystem::TravelToChapterMap(const FString& Map)
+{
+    if (!MemoriaChapterMaps::Find(Map) || !Run->HasActiveRun()) return false;
+    // The run travels with the game instance; the map's presentation takes it up on arrival.
+    CheckpointWorld.Reset(); bCheckpointScreen = false; CancelMaletDelay(); RewardCallbackWorld.Reset();
+    VN.Reset(); Field.Reset(); ActiveFieldAsset = nullptr;
+    State = EMemoriaSliceState::Travelling; Record(TEXT("chapter:travel:") + Map); ++Revision;
+    UGameplayStatics::OpenLevel(this, FName(*MemoriaChapterMaps::LevelPath(Map)));
+    return true;
 }
