@@ -1,3 +1,34 @@
+# Migration handoff — S322 Chapter 5, The Classifier (Claude lane, 2026-09-30)
+
+- **Why.** Step B continues. Chapter 5 is not a map: `ch5_classifier_entry.gd` consumes the Chapter 4 boundary, freezes Malet's report as one Kairos fact, and hands presentation to the VN `ch5_classifier` (22 steps).
+- **Where the source's canon stops.** The VN's last step sets `canon_ch6_seam_ready`, completes Chapter 5 and returns to Drift Shelter. There the HUD names "Next: Chapter 6, The Seam". Chapter 6 is not wired in the source, so with S322 the port reaches the end of the source's current connected storyline (Chapters 1–5).
+- **Report rule** (`MemoriaClassifier`, after `resolve_malet_report_outcome`).
+  - **Once decided, kept.** If Kairos already holds either report fact, that outcome stands.
+  - **Identified** only when Malet knows `fact.bl07.route_request_received` and still holds an active `memory.malet.bl07_request_source` whose source is `player.arrel`. Otherwise the requester stays **unknown**.
+  - Kairos learns `fact.kairos.malet_report_identified_arrel` or `..._requester_unknown`. Later changes to Malet's memory never rewrite it.
+  - The flags `ch5_malet_report_identified_arrel` / `_requester_unknown` only select the VN's lines 12–13 or 14–15.
+  - `UMemoriaWorldCognition` gains `KnowsFact` (held as true) and `FindMemory`.
+- **Entry** (`UMemoriaNarrativeSubsystem::EnterClassifier`, via `EnterStoryScene`). It runs only from `canon_ch5_classifier_ready` (or a begun Chapter 5 entry), and never after `canon_ch6_seam_ready`. It clears the boundary, sets `ch5_classifier_started` and `ch5_kairos_seen`, moves to Chapter 5, resolves the report, and plays the VN.
+- **VN return.** A VN `goto_map` to a ported chapter map now opens that map's level. The importers (narrative_ir.py, the C++ cohort) accept `drift_shelter.tscn` as a goto_map target.
+- **Presentation.**
+  - After the Chapter 4 completion card (6 s) the classifier begins. Arriving with the boundary readied also starts it.
+  - After Chapter 5, Drift Shelter shows "5장 완료 / 심 / 6장으로 가는 길은 아직 준비 중입니다" and the notice "다음 여정: 6장, 심".
+- **Fixes.**
+  - `EnterChapterMap` resets the event cursor with its fresh context. Before, field events after a travel could go unflushed.
+  - Speaker names follow `localized_speaker` (`SPEAKER_NAMES_KO`) through a new `FMemoriaNarrativeView::SpeakerLabel`. `Speaker` stays the source key the widget's layout reads. This affects every dialogue, including Verdan and Chapters 3–4.
+  - The classifier VN shows its own title ("5장 / 분류자") instead of the Verdan default.
+- **Content.** `DA_VN_Ch5Classifier`, the CG `cinematic_kairos_authority_edit`, and Kairos's portraits `kairos_neutral` and `kairos_cold` (artwork 64 → 67).
+- **Tests.**
+  - New `Memoria.Narrative.ClassifierReport` covers identified, unknown, and history not rewritten.
+  - New `MemoriaVisual.Chapter5` plays from the Chapter 4 exit through the whole VN (identified lines only) and back to Drift Shelter's Chapter 6 card, and checks the classifier plays once.
+  - `MemoriaVisual.Chapter4` now ends when the classifier begins.
+- **Test fix.** `MemoriaVisual.PauseMenu` held the pre-travel world as a raw `UWorld*`. After travel the new world can reuse the old one's address, and the test then waits forever for a world change it cannot see. It failed only in the full suite (s322-visual: the revisit reached `exploration:ready` and the test still timed out at step 8), and passed alone. It now holds a `TWeakObjectPtr`.
+- **Results.** The first run (s322) failed for two reasons: the unregistered `ClassifierReport` test, and the PauseMenu timeout above. After both fixes: full rendered registry 414/414 (s322b-full), visual 19/19 (s322b-visual).
+- **Known gaps.**
+  - The chapter-transition autosave at the entry and at the VN's end is skipped (checkpoint validation covers only the Chapter 1→2 and closed Chapter 2 boundaries).
+  - Chapter 6 onward is not connected in the source's canon. `docs/SEASON1_GAME_PROGRESSION.md` says the New Game main route stops after Chapter 5 at `canon_ch6_seam_ready`, and Canon Chapters 6–10 are Wave 2B (pending).
+  - The legacy maps (the_seam, seam_outskirts, ...) are kept but unreachable, and are marked for rewrite: the mandatory Shade Sentinel/Threshold gates are to be removed. Porting them would port content the source means to replace.
+
 # Migration handoff — S321 Chapter 4, Drift Shelter (Claude lane, 2026-09-29)
 
 - **Why.** Step B continues: Chapter 4 through the S320 pipeline.

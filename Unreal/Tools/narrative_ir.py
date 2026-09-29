@@ -65,8 +65,12 @@ VN_CASES = {
     'ch1_forest_walk': ('data/vn_scenes/ch1_forest_walk.json', 41, 'DA_VN_Ch1ForestWalk'),
     'ch1_void_beast': ('data/vn_scenes/ch1_void_beast.json', 60, 'DA_VN_Ch1VoidBeast'),
     'ch1_after_forest': ('data/vn_scenes/ch1_after_forest.json', 14, 'DA_VN_Ch1AfterForest'),
+    # S322 Chapter 5, The Classifier (ch5_classifier_entry.gd hands it to the VN host).
+    'ch5_classifier': ('data/vn_scenes/ch5_classifier.json', 22, 'DA_VN_Ch5Classifier'),
 }
-VN_CHAPTER = {k: (2 if k.startswith('ch2_') else 1) for k in VN_CASES}
+VN_CHAPTER = {k: int(k.split('_')[0][2:]) for k in VN_CASES}
+# goto_map targets with an Unreal home: Verdan and the ported chapter maps a VN returns to.
+VN_MAP_TARGETS = ('res://scenes/maps/verdan_market.tscn', 'res://scenes/maps/drift_shelter.tscn')
 
 def selected_case(dialect, group=None):
     if dialect == 'field':
@@ -260,7 +264,7 @@ def validate(value, root=ROOT, verify_sources=True):
             action=a.get('action')
             legal={'goto_map':{'action','path','resume_scene','resume_index'},'goto_scene':{'action','id','start_index'},'end':{'action'}}
             if action not in legal or not set(a)<=legal[action]: raise ValueError('Invalid action/continuation representation')
-            if action=='goto_map' and ('path' not in a or a['path']!='res://scenes/maps/verdan_market.tscn'): raise ValueError('Invalid map target')
+            if action=='goto_map' and ('path' not in a or a['path'] not in VN_MAP_TARGETS): raise ValueError('Invalid map target')
             if action=='goto_scene' and (d!='vn' or a.get('id') not in VN_CASES): raise ValueError('Unmigrated sequence target')
             if 'resume_index' in a and 'resume_scene' not in a: raise ValueError('Orphan resume index')
             if 'resume_scene' in a and a['resume_scene']!=definition['id']: raise ValueError('Invalid resume ID')

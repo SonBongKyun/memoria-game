@@ -180,7 +180,8 @@ const FVNCohort* VNCohort(const FString& Id)
         {TEXT("ch1_prologue"),46,TEXT("DA_VN_Ch1Prologue"),TEXT("data/vn_scenes/ch1_prologue.json"),1},
         {TEXT("ch1_forest_walk"),41,TEXT("DA_VN_Ch1ForestWalk"),TEXT("data/vn_scenes/ch1_forest_walk.json"),1},
         {TEXT("ch1_void_beast"),60,TEXT("DA_VN_Ch1VoidBeast"),TEXT("data/vn_scenes/ch1_void_beast.json"),1},
-        {TEXT("ch1_after_forest"),14,TEXT("DA_VN_Ch1AfterForest"),TEXT("data/vn_scenes/ch1_after_forest.json"),1}
+        {TEXT("ch1_after_forest"),14,TEXT("DA_VN_Ch1AfterForest"),TEXT("data/vn_scenes/ch1_after_forest.json"),1},
+        {TEXT("ch5_classifier"),22,TEXT("DA_VN_Ch5Classifier"),TEXT("data/vn_scenes/ch5_classifier.json"),5}
     };
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;
@@ -207,7 +208,7 @@ template<class R> bool ReadRecord(const Obj& O,R& Row,const FMemoriaNarrativeImp
         const auto AO=Object(O,TEXT("action"));
         if (!A.bHasAction) return false;
         if (Same(A.Action,TEXT("goto_map")))
-        { if (!KeysSubset(AO,{TEXT("action"),TEXT("path"),TEXT("resume_scene"),TEXT("resume_index")}) || !A.bHasPath || !Same(A.Path,TEXT("res://scenes/maps/verdan_market.tscn"))) return false; }
+        { if (!KeysSubset(AO,{TEXT("action"),TEXT("path"),TEXT("resume_scene"),TEXT("resume_index")}) || !A.bHasPath || !(Same(A.Path,TEXT("res://scenes/maps/verdan_market.tscn")) || Same(A.Path,TEXT("res://scenes/maps/drift_shelter.tscn")))) return false; }
         else if (Same(A.Action,TEXT("goto_scene")))
         { if (!V || !KeysSubset(AO,{TEXT("action"),TEXT("id"),TEXT("start_index")}) || !A.bHasId || !VNCohort(A.Id) || (A.bHasStartIndex && A.StartIndex>=VNCohort(A.Id)->Count)) return false; }
         else if (!Same(A.Action,TEXT("end")) || !Keys(AO,{TEXT("action")})) return false;

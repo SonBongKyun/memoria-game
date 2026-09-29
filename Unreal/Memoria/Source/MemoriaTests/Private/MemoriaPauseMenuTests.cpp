@@ -53,7 +53,7 @@ public:
         if (!World->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
         // Frames, not world time: the menu pauses the world.
         if (Host->GetState() != EMemoriaSliceState::Exploration && Step == 0) return false;
-        if (Step == 8 && World == TravelledFrom) return false;
+        if (Step == 8 && World == TravelledFrom.Get()) return false;
         ++Frame;
         auto* Checkpoint = Game->GetSubsystem<UMemoriaCheckpointSubsystem>();
         Settings = Game->GetSubsystem<UMemoriaSettingsSubsystem>();
@@ -110,7 +110,7 @@ public:
             break;
         }
         case 8:
-            if (Host->GetState() != EMemoriaSliceState::Exploration || World == TravelledFrom) { --Step; break; }
+            if (Host->GetState() != EMemoriaSliceState::Exploration || World == TravelledFrom.Get()) { --Step; break; }
             Key(EKeys::Escape);
             Test->TestTrue(TEXT("The menu opens on the revisit"), PC->GetPauseWidget() != nullptr);
             Test->TestTrue(TEXT("Save and Load are lit"), PC->GetPauseWidget() && PC->GetPauseWidget()->IsItemEnabled(2) && PC->GetPauseWidget()->IsItemEnabled(3));
@@ -145,7 +145,8 @@ private:
     int32 Step = 0, Frame = 0, MasterBefore = -1;
     bool bFixed = false, bOldFixed = false;
     FVector SavedAt = FVector::ZeroVector;
-    UWorld* TravelledFrom = nullptr;
+    // Weak: the old world is freed after travel, and a raw pointer can match the new world at a reused address.
+    TWeakObjectPtr<UWorld> TravelledFrom;
     TWeakObjectPtr<UMemoriaSettingsSubsystem> Settings;
 };
 }

@@ -24,7 +24,7 @@ namespace
 // (arrival, reading deterioration, the anchoring session, the night watch). The map has no story
 // triggers, and its chests and clues wait behind _can_resume_ch4_exploration: closed during the chapter,
 // and still closed after the east exit, because the departure readies Chapter 5's classifier scene
-// (canon_ch5_classifier_ready) and raises the boundary notice. Chapter 5 is not ported, so the run stays.
+// (canon_ch5_classifier_ready) and raises the boundary notice; after the card the classifier scene begins (S322).
 class FChapter4Replay final : public IAutomationLatentCommand
 {
 public:
@@ -117,11 +117,19 @@ public:
             Place(Campfire);
             ++Step; Mark = Frame; break;
         case 6:
-            if (Frame < Mark + 300) break;
+            if (Frame < Mark + 60) break;
             Test->TestFalse(TEXT("The classifier's readiness keeps the clues closed"), Flag(TEXT("clue_drift_campfire")));
-            Test->TestEqual(TEXT("The run stays at Drift Shelter"), Host->GetChapterMap(), FString(TEXT("drift_shelter")));
-            Test->TestFalse(TEXT("No travel starts"), Host->GetTrace().ContainsByPredicate([](const FString& E) { return E.StartsWith(TEXT("chapter:travel:")); }));
-            return true;
+            ++Step; Mark = Frame; break;
+        case 7:
+            // S322: after the card, the road leads into Chapter 5's classifier scene (MemoriaVisual.Chapter5 plays it).
+            if (Host->GetTrace().Contains(TEXT("vn:start:ch5_classifier")))
+            {
+                Test->TestEqual(TEXT("The Classifier opens Chapter 5"), Run->GetRunSnapshot().CurrentChapter, int64(5));
+                Test->TestFalse(TEXT("The Chapter 4 boundary is consumed"), Flag(TEXT("canon_ch5_classifier_ready")));
+                return true;
+            }
+            if (Frame > Mark + 900) { Test->AddError(TEXT("The classifier scene never began")); return true; }
+            break;
         }
         return false;
     }
