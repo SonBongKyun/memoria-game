@@ -12,6 +12,8 @@
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Interaction/MemoriaEliaCompanion.h"
+#include "Presentation/MemoriaVerdanPresentation.h"
+#include "Combat/MemoriaExplorationHudWidget.h"
 #include "EngineUtils.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
@@ -115,6 +117,18 @@ public:
                     if (Won.ItemId == TEXT("potion")) Test->TestEqual(TEXT("One more potion"), Items(TEXT("potion")), Potions + 1);
                 }
                 Test->AddInfo(FString::Printf(TEXT("FIELD_REWARD grains=%lld heal=%lld item=%s"), Won.Grains, Won.Heal, *Won.ItemId));
+            }
+            if (Frame == Mark + 20)
+            {
+                // S316: the exploration panel after exploration_hud.gd shows the same numbers.
+                const UMemoriaExplorationHudWidget* Hud = nullptr;
+                for (TActorIterator<AMemoriaVerdanPresentation> It(World); It; ++It) Hud = It->GetExplorationHud();
+                Test->TestTrue(TEXT("The exploration panel is up"), Hud && Hud->IsShowing() && Hud->GetLines().Num() == 5);
+                if (Hud && Hud->GetLines().Num() == 5)
+                {
+                    Test->TestEqual(TEXT("It shows the grains"), Hud->GetLines()[3], FString::Printf(TEXT("Grains  %lld"), Run->GetRunSnapshot().Player.Grains));
+                    Test->TestTrue(TEXT("It shows the HP"), Hud->GetLines()[0].Contains(FString::Printf(TEXT("%lld / %lld"), Combat->GetPlayerHp(), Combat->GetPlayerMaxHp())));
+                }
             }
             if (Frame == Mark + 24) Capture(TEXT("RewardsVictory"));
             return Frame > Mark + 28;

@@ -5,6 +5,7 @@
 class AMemoriaFieldPawn;
 class UMemoriaFieldCharacterComponent;
 class UMemoriaCombatHudWidget;
+class UMemoriaExplorationHudWidget;
 class AMemoriaMaletActor;
 class AStaticMeshActor;
 class UPaperSprite;
@@ -34,6 +35,7 @@ public:
     // Level geometry the 3D stage replaces visually: tagged actors, or engine basic shapes.
     static constexpr const TCHAR* PlaceholderTag = TEXT("MemoriaPlaceholder");
     static bool IsPlaceholderGeometry(const AStaticMeshActor& Actor);
+    UMemoriaExplorationHudWidget* GetExplorationHud() const { return ExplorationHud; }
 protected:
     virtual void BeginPlay() override;
 private:
@@ -42,6 +44,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> ArrelFigure;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> MaletCard;
     UPROPERTY(Transient) TObjectPtr<UMemoriaCombatHudWidget> CombatHud;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
     void BuildDepthEnvironment();
     void BuildCourtyard(UMaterialInterface* Iron);

@@ -1,6 +1,7 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaCombatHudWidget.h"
+#include "Combat/MemoriaExplorationHudWidget.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Audio/MemoriaAudioCatalog.h"
 #include "Audio/MemoriaAudioSubsystem.h"
@@ -435,6 +436,9 @@ void AMemoriaVerdanPresentation::BeginPlay()
         {
             CombatHud = CreateWidget<UMemoriaCombatHudWidget>(HudOwner, UMemoriaCombatHudWidget::StaticClass());
             CombatHud->Bind(Combat); CombatHud->SetVisibility(ESlateVisibility::HitTestInvisible); CombatHud->AddToViewport(4);
+            // S316: the source exploration panel (HP, chapter, memories, grains, items) at the top right.
+            ExplorationHud = CreateWidget<UMemoriaExplorationHudWidget>(HudOwner, UMemoriaExplorationHudWidget::StaticClass());
+            ExplorationHud->SetVisibility(ESlateVisibility::HitTestInvisible); ExplorationHud->AddToViewport(3);
         }
     }
     BuildFieldLife();
@@ -495,5 +499,6 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
 void AMemoriaVerdanPresentation::EndPlay(const EEndPlayReason::Type Reason)
 {
     if (CombatHud) { CombatHud->RemoveFromParent(); CombatHud = nullptr; }
+    if (ExplorationHud) { ExplorationHud->RemoveFromParent(); ExplorationHud = nullptr; }
     Super::EndPlay(Reason);
 }
