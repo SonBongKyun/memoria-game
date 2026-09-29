@@ -13,6 +13,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Misc/App.h"
+#include "Interaction/MemoriaEliaCompanion.h"
+#include "EngineUtils.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
@@ -135,6 +137,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         Cue(GetWorld(), TEXT("shield"));
         return true;
     }
+    if (ShieldLeft > 0.f) Damage *= HummingShieldFactor; // Elia's humming shield (S319)
     auto& Hp = Run->State.Player.Hp;
     Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage)); ++StrikesTaken;
     Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), Damage, true);
@@ -338,6 +341,7 @@ bool UMemoriaFieldCombatSubsystem::ConfirmBurn()
     // The burn is the run's: the memory is gone for good, and its passives, erosion and drama follow.
     if (Run->BurnMemory(Choice.Id) != EMemoriaMemoryResult::Success) { Cue(GetWorld(), TEXT("cancel")); return false; }
     ++Burns; Casting = Choice;
+    NoteDiary(Choice.Id);
     const auto* Memory = Run->GetPlayerMemory();
     Casting.Power = Memory->GetEffectiveBurnPower(Choice.Id);
     // Source burn damage: base + effective power, then Ember Affinity, the chain and (void grades) Void Touch.
@@ -494,6 +498,8 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
         T.Tip = Blade->GetComponentTransform().TransformPosition(FVector(0, 0, -88)); Trail.Add(T);
     }
     if (bBlocking) BlockHeld += DeltaSeconds;
+    for (float& Cooldown : EliaCooldown) Cooldown = FMath::Max(0.f, Cooldown - DeltaSeconds);
+    ShieldLeft = FMath::Max(0.f, ShieldLeft - DeltaSeconds); EliaNoticeAge += DeltaSeconds;
     if (bCharging && !IsHeavy() && !bBlocking)
     {
         ChargeHeld += DeltaSeconds;
@@ -514,4 +520,107 @@ void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
     WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
     EndBlock(); EndCharge();
     if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
+}
+AMemoriaEliaCompanion* UMemoriaFieldCombatSubsystem::FindElia() const
+{
+    for (TActorIterator<AMemoriaEliaCompanion> It(GetWorld()); It; ++It) return *It;
+    return nullptr;
+}
+bool UMemoriaFieldCombatSubsystem::IsEliaSkillUnlocked(int32 Slot) const
+{
+    // The diary's unlock, derived from the run so no new save data is needed: her memory is burned and she is
+    // with the party. (The source also requires her company at the moment of the burn; in Chapters 1-2 she
+    // never leaves.)
+    const auto* Run = RunOf(GetWorld());
+    if (Slot < 0 || Slot >= 4 || !Run || !Run->GetPlayerMemory() || !Run->GetRunSnapshot().Player.bEliaWithParty) return false;
+    return Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(FString(EliaSkills[Slot].Memory));
+}
+void UMemoriaFieldCombatSubsystem::NoteDiary(const FString& MemoryId)
+{
+    const auto* Run = RunOf(GetWorld());
+    if (!Run || !Run->GetRunSnapshot().Player.bEliaWithParty) return;
+    const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    static const TCHAR* Diary[] = {TEXT("sense_forest_smell"), TEXT("daily_campfire_song"), TEXT("daily_market_food"), TEXT("rel_hand_reaching"),
+        TEXT("identity_first_sword"), TEXT("rel_sable_trust"), TEXT("daily_elia_hands"), TEXT("identity_compass")};
+    bool bEntry = false; for (const TCHAR* Id : Diary) bEntry |= MemoryId == Id;
+    if (!bEntry) return;
+    EliaNotice = Ko ? TEXT("엘리아가 일지를 썼다...") : TEXT("Elia wrote in her diary...");
+    for (const auto& Skill : EliaSkills)
+        if (MemoryId == Skill.Memory)
+            EliaNotice += Ko ? FString::Printf(TEXT("\n엘리아 기술 해금: %s"), Skill.NameKo) : FString::Printf(TEXT("\nElia Technique unlocked: %s"), Skill.Name);
+    EliaNoticeAge = 0.f;
+}
+bool UMemoriaFieldCombatSubsystem::UseEliaSkill(int32 Slot)
+{
+    APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld());
+    if (!Pawn || !Run || bDefeated || bPicking || !IsEliaSkillUnlocked(Slot) || EliaCooldown[Slot] > 0.f) return false;
+    AMemoriaEliaCompanion* Elia = FindElia();
+    const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    const FVector Me = Pawn->GetActorLocation();
+    const FVector From = Elia ? Elia->GetActorLocation() : Me;
+    auto Nearest = [&](float Range)
+    {
+        AMemoriaFieldMonster* Best = nullptr; float BestDistance = Range;
+        for (const auto& Weak : Monsters)
+            if (AMemoriaFieldMonster* M = Weak.Get(); M && !M->IsDead())
+                if (const float D = FVector::Dist2D(M->GetActorLocation(), Me); D < BestDistance) { Best = M; BestDistance = D; }
+        return Best;
+    };
+    const FLinearColor Pale(.62f, .82f, 1.f);
+    switch (Slot)
+    {
+    case 0:
+        // Humming Shield: the melody halves the next blows.
+        ShieldLeft = HummingShieldTime;
+        Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("흥얼거림의 방패") : TEXT("Humming Shield"), Pale);
+        Cue(GetWorld(), TEXT("shield"));
+        break;
+    case 1:
+    {
+        // Desperate Reach: every foe close by freezes.
+        int32 Held = 0;
+        for (const auto& Weak : Monsters)
+            if (AMemoriaFieldMonster* M = Weak.Get(); M && !M->IsDead() && FVector::Dist2D(M->GetActorLocation(), Me) <= DesperateReachRange)
+            { M->Stun(DesperateReachStun); Burst(M->GetActorLocation() + FVector(0, 0, 100.f), 8, Pale, 260.f); ++Held; }
+        if (Held == 0) return false;
+        Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("절박한 손길") : TEXT("Desperate Reach"), Pale);
+        Cue(GetWorld(), TEXT("void_pulse"));
+        break;
+    }
+    case 2:
+    {
+        // Remembered Strike: 10 + 8 per burned memory, on the nearest foe; Elia swings at it.
+        AMemoriaFieldMonster* Target = Nearest(RememberedStrikeRange);
+        if (!Target) return false;
+        const float Damage = 10.f + 8.f * Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num();
+        if (Target->TakeHit(Damage, From, 30.f))
+        {
+            ++HitsLanded;
+            Popup(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height), Damage, false, FString(), Pale);
+            Burst(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height * .55f), 12, Pale, 380.f);
+            HitStop(HitStopLight, ShakeLight);
+        }
+        if (Elia && Elia->GetFigure())
+        {
+            Elia->GetFigure()->SetAim((Target->GetActorLocation() - From).Rotation().Yaw);
+            Elia->GetFigure()->PlayAction(MemoriaCombatClips::Attack(0), 1.2f);
+        }
+        Cue(GetWorld(), TEXT("sword_slash"));
+        break;
+    }
+    case 3:
+    {
+        // Anchor Pulse: 15% of max HP and every status cured.
+        auto& P = Run->State.Player;
+        const int64 Heal = FMath::Min<int64>(int64(P.MaxHp * AnchorPulseShare), P.MaxHp - P.Hp); P.Hp += Heal;
+        WeakenLeft = 0.f; PoisonLeft = 0;
+        Popup(Me + FVector(0, 0, 150.f), float(Heal), true, FString::Printf(TEXT("+%lld HP"), Heal), FLinearColor(.5f, 1.f, .6f));
+        Burst(Me + FVector(0, 0, 60.f), 14, FLinearColor(.55f, 1.f, .7f), 240.f);
+        Cue(GetWorld(), TEXT("heal"));
+        break;
+    }
+    default: return false;
+    }
+    EliaCooldown[Slot] = EliaSkills[Slot].Cooldown; ++EliaSkillsUsed;
+    return true;
 }

@@ -1,3 +1,33 @@
+# Migration handoff — S317–S319 pause menu, game over, Elia's techniques (Claude lane, 2026-09-29)
+
+- **Why.** The user asked Claude to keep working alone, in order: (A) close the Chapter 1–2 loop, (B) port Chapter 3 onward, (C) the side systems. These three sessions are A.
+- **S317 pause menu** (`UMemoriaPauseWidget`, after `pause_menu.gd`).
+  - ESC, or the Menu action, in Verdan exploration opens it; the world pauses.
+  - The source's archive backdrop and control slab; the chapter card; six rows: Resume, Options, Save, Load, Title, Quit (asked first).
+  - Options shares the title's settings; a language switch also retunes the run (`UMemoriaRunSubsystem::SetLocale`).
+  - **Save** writes the only ported checkpoint, the closed Chapter 2 boundary (`CanSaveClosedBoundary` validates without writing). Elsewhere the row is dark with "Not here". Saving anywhere, as the source does, needs broader checkpoint validation.
+  - **Load** is Continue in place.
+  - **Fix:** an explicit `?Continue` travel now restores over a live run.
+  - **Not listed:** Journal, Codex, Artbook, Achievements and Endings, until those systems exist.
+- **S318 game over** (`UMemoriaGameOverWidget`, after `game_over.gd`).
+  - A fall no longer auto-revives. The death clip and veil play, then "You fell." with Stagger On (30% HP, foes withdraw: `Revive`), Load Save (cancel sound without a save) and Return to Title.
+  - `-run=MemoriaBattleEntryAssets` now also imports `T_UiGameOverBackdrop`, `T_UiPauseBackdrop` and `T_UiPauseSlab`.
+- **S319 Elia's techniques** (after `elia_diary.gd`). Keys 1–4.
+  - Burning the memory her diary entry follows (while she is with the party) unlocks:
+
+    | Key | Technique | Memory | Effect | Cooldown |
+    | --- | --- | --- | --- | --- |
+    | 1 | Humming Shield | campfire song | halves blows for 2 s | 6 s |
+    | 2 | Desperate Reach | reaching hand | stuns foes within 320 for 2 s | 8 s |
+    | 3 | Remembered Strike | first sword | 10 + 8 per burned memory on the nearest foe; Elia swings | 6 s |
+    | 4 | Anchor Pulse | Elia's hands | 15% HP and cures statuses | 8 s |
+
+  - Anchor Pulse's memory is not in the starting set.
+  - Unlocks are derived from the burned history (no new save data), because checkpoint validation requires an empty Diary block.
+  - The HUD shows a skill row under the HP bar, the shield ring, and the diary notice after a burn.
+- **Tests.** New `MemoriaVisual.PauseMenu`, `GameOver` and `EliaSkills`.
+- **Results.** Full rendered registry 413/413 (s319-full), visual 15/15 (s319-visual).
+
 # Migration handoff — S313–S316 foes, source rules, feel, exploration HUD (Claude lane, 2026-09-28)
 
 - **Why.** Codex's quota is low, so its monster models (the S313 request in the shared `claude-handoff.md`) are on hold. The user asked Claude to do what it can alone, in order: stand-in foes, rewards and source data, combat feel, cleanup.
