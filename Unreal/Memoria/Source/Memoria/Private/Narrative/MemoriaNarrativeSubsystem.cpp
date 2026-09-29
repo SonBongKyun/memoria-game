@@ -674,7 +674,7 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             if (ChapterSpec)
             {
                 const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
-                View.LocationTitle = Ko ? FString::Printf(TEXT("%d장  /  %s"), ChapterSpec->Chapter, *ChapterSpec->TitleName) : FString::Printf(TEXT("CHAPTER %d  /  %s"), ChapterSpec->Chapter, *ChapterSpec->TitleName.ToUpper());
+                View.LocationTitle = Ko ? FString::Printf(TEXT("%d장  /  %s"), ChapterSpec->Chapter, *MemoriaChapterMaps::Korean(ChapterSpec->TitleName)) : FString::Printf(TEXT("CHAPTER %d  /  %s"), ChapterSpec->Chapter, *ChapterSpec->TitleName.ToUpper());
                 View.BackdropSource = ChapterSpec->Splash;
             }
             for (int32 I = 0; I <= Index; ++I)

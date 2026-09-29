@@ -160,7 +160,12 @@ const FFieldCohort* FieldCohort(const FString& Id)
         {TEXT("waystation_night"),5,2,TEXT("DA_Field_Ch3WaystationNight"),TEXT("data/chapter3_dialogue.json"),3},
         {TEXT("class_seven_wall_message"),6,3,TEXT("DA_Field_Ch3ClassSevenWallMessage"),TEXT("data/chapter3_dialogue.json"),3},
         {TEXT("belt_atmosphere"),2,4,TEXT("DA_Field_Ch3BeltAtmosphere"),TEXT("data/chapter3_dialogue.json"),3},
-        {TEXT("waystation_departure"),3,5,TEXT("DA_Field_Ch3WaystationDeparture"),TEXT("data/chapter3_dialogue.json"),3}
+        {TEXT("waystation_departure"),3,5,TEXT("DA_Field_Ch3WaystationDeparture"),TEXT("data/chapter3_dialogue.json"),3},
+        {TEXT("drift_arrival"),8,0,TEXT("DA_Field_Ch4DriftArrival"),TEXT("data/chapter4_dialogue.json"),4},
+        {TEXT("reading_deterioration"),4,1,TEXT("DA_Field_Ch4ReadingDeterioration"),TEXT("data/chapter4_dialogue.json"),4},
+        {TEXT("anchoring_session"),13,2,TEXT("DA_Field_Ch4AnchoringSession"),TEXT("data/chapter4_dialogue.json"),4},
+        {TEXT("night_watch"),10,3,TEXT("DA_Field_Ch4NightWatch"),TEXT("data/chapter4_dialogue.json"),4},
+        {TEXT("drift_departure"),2,4,TEXT("DA_Field_Ch4DriftDeparture"),TEXT("data/chapter4_dialogue.json"),4}
     };
     for (const auto& C : Cases) if (Same(Id,C.Id)) return &C;
     return nullptr;

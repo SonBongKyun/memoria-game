@@ -22,7 +22,8 @@ namespace
 // S320: Chapter 3, the Belt Waystation, the first content-first chapter map. Entered directly (a
 // development run at Chapter 3), the field is built from belt_waystation.gd's IR; the chapter title
 // shows, then the arrival chain plays in order (arrival, the blank book and its toast, the night, the
-// Class Seven wall message), the story trigger plays, and the east exit closes the chapter into 4.
+// Class Seven wall message), the story trigger plays, and the east exit closes the chapter into 4 and,
+// after the completion card, travels on to Drift Shelter (S321).
 class FChapter3Replay final : public IAutomationLatentCommand
 {
 public:
@@ -112,7 +113,17 @@ public:
             break;
         case 5:
             if (Frame == Mark + 40) { Capture(TEXT("Chapter3Complete")); }
-            return Frame > Mark + 44;
+            // S321: change_scene_chapter_complete, then the road on to Drift Shelter, carrying the run.
+            if (Map->GetMap() == TEXT("drift_shelter"))
+            {
+                Test->TestEqual(TEXT("The road reaches Drift Shelter"), Host->GetChapterMap(), FString(TEXT("drift_shelter")));
+                Test->TestTrue(TEXT("It travelled from the Belt"), Host->GetTrace().Contains(TEXT("chapter:travel:drift_shelter")));
+                Test->TestTrue(TEXT("The run carries the Blank Book and the closed chapter"), Flag(TEXT("has_blank_book")) && Flag(TEXT("ch3_complete")));
+                Test->TestEqual(TEXT("Still Chapter 4"), Run->GetRunSnapshot().CurrentChapter, int64(4));
+                return true;
+            }
+            if (Frame > Mark + 900) { Test->AddError(TEXT("The road never reached Drift Shelter")); return true; }
+            break;
         }
         return false;
     }

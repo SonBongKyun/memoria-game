@@ -72,6 +72,11 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/chapter_expansion/ch03_class_seven_wall_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch03_class_seven_wall_v1"), false},
         {TEXT("res://assets/cg/generated/story_ch3_blank_book_warmth.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch3_blank_book_warmth"), false},
         {TEXT("res://assets/cg/generated/archive_ch3_kairos_marks_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_ch3_kairos_marks_v1"), false},
+        {TEXT("res://assets/cg/generated/chapter_splash_drift_shelter.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_drift_shelter"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch04_words_move_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch04_words_move_v1"), false},
+        {TEXT("res://assets/cg/generated/archive_drift_anchoring_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_drift_anchoring_v1"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch04_anchor_tea_thread_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch04_anchor_tea_thread_v1"), false},
+        {TEXT("res://assets/cg/generated/resonance_drift_shelter_echo.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_resonance_drift_shelter_echo"), false},
     };
     return Values;
 }

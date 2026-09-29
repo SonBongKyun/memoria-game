@@ -47,8 +47,15 @@ FIELD_CASES = {
     'class_seven_wall_message': (6, 3, 'DA_Field_Ch3ClassSevenWallMessage', 'data/chapter3_dialogue.json'),
     'belt_atmosphere': (2, 4, 'DA_Field_Ch3BeltAtmosphere', 'data/chapter3_dialogue.json'),
     'waystation_departure': (3, 5, 'DA_Field_Ch3WaystationDeparture', 'data/chapter3_dialogue.json'),
+    # S321 Chapter 4, Drift Shelter (drift_shelter.gd).
+    'drift_arrival': (8, 0, 'DA_Field_Ch4DriftArrival', 'data/chapter4_dialogue.json'),
+    'reading_deterioration': (4, 1, 'DA_Field_Ch4ReadingDeterioration', 'data/chapter4_dialogue.json'),
+    'anchoring_session': (13, 2, 'DA_Field_Ch4AnchoringSession', 'data/chapter4_dialogue.json'),
+    'night_watch': (10, 3, 'DA_Field_Ch4NightWatch', 'data/chapter4_dialogue.json'),
+    'drift_departure': (2, 4, 'DA_Field_Ch4DriftDeparture', 'data/chapter4_dialogue.json'),
 }
-FIELD_FILE_CHAPTER = {'data/chapter2_dialogue.json': 2, 'data/chapter1_dialogue.json': 1, 'data/chapter3_dialogue.json': 3}
+FIELD_FILE_CHAPTER = {'data/chapter2_dialogue.json': 2, 'data/chapter1_dialogue.json': 1, 'data/chapter3_dialogue.json': 3,
+                      'data/chapter4_dialogue.json': 4}
 # Reviewed VN cohort: id -> (source file, step count, asset). S302 adds the whole current
 # Chapter 1 route (scene_flow.gd goto_scene chain ch1_cold_open .. ch1_after_forest).
 VN_CASES = {

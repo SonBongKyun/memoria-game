@@ -1,3 +1,35 @@
+# Migration handoff — S321 Chapter 4, Drift Shelter (Claude lane, 2026-09-29)
+
+- **Why.** Step B continues: Chapter 4 through the S320 pipeline.
+- **Exporter** (`export_chapter_maps.py`, map `drift_shelter`, prefix Ch4):
+  - **Exit destination.** The exit can lead to a story scene rather than a map. It resolves the `_enter_*` helper's scene constant, giving `next_scene` = `scenes/story/ch5_classifier_entry.tscn`.
+  - **Exit handler.** It also records the end handler's flags (`canon_ch5_classifier_ready`) and its bilingual notice.
+  - **Section gates.** A section can be guarded by `_can_resume_ch4_exploration()` instead of a single flag. The gate becomes its required flag, and `resume_blocked` lists the later canon flags that close it.
+  - **Encoding.** The `.inl` is now ASCII (Korean as JSON `\u` escapes), and chunks never split an escape. The first Chapter 4 build failed with "newline in constant" on the `.inl`.
+- **Runtime.**
+  - **Gates.** `GateOpen` requires the section flag and no `ResumeBlocked` flag. Chests, clues and battles use it.
+  - **Departure.** It sets the exit flags and raises the notice in the run's locale.
+  - **Completion card.** It names the destination: the next map's place name, or the story scene's title ("The Classifier" / "분류자").
+  - **Road on.** When the next map is ported, the card holds 4 s, then `TravelToChapterMap` (`change_scene_chapter_complete`). Chapter 3 now travels on to Drift Shelter with the same run.
+  - **Terrain.** RUBBLE scatters stones like RUIN, and CONCRETE stands as low slabs.
+  - **Korean.** The table moved to `MemoriaChapterMaps::Korean`, so the dialogue location title is now "4장 / 드리프트" rather than "4장 / Drift". Titles follow `game_manager.gd` RUNTIME_TEXT_KO; place names follow the map headers ("드리프트 셸터"). The two Chapter 4 clue translations are new.
+- **Content.**
+  - Five Chapter 4 groups (`DA_Field_Ch4*`): drift_arrival, reading_deterioration, anchoring_session, night_watch, drift_departure.
+  - Five CGs (artwork 59 → 64) and the `L_DriftShelter` level.
+- **Source behaviour kept.**
+  - The departure keeps `current_chapter = 4` and readies Chapter 5's classifier scene.
+  - With `canon_ch5_classifier_ready` set, Drift Shelter's chests, clues, battles and encounters never open, as in the source (which moves straight on to Chapter 5).
+  - Chapter 5 is a story scene, not ported: the card says the road is still being prepared, and no travel starts.
+- **Tests.**
+  - New `MemoriaVisual.Chapter4` covers the chain order, the closed clue before and after the chapter, the departure flags and notice, and no travel.
+  - `MemoriaVisual.Chapter3` now follows the road into Drift Shelter and checks the run carries over.
+- **Results.** Full rendered registry 413/413 (s321-full), visual 18/18 (s321-visual, including Chapter4 and the extended Chapter3).
+- **Known gaps.**
+  - The S320 gaps remain: chapter memories, autosave, encounters, NPCs and decorations.
+  - The anchoring session's StoryJournal event waits for step C (journal).
+  - The WorldAtlas gateway (waymarker shrine) is not ported.
+  - Chapter 5 (`ch5_classifier_entry`) is a VN-style story scene and will need the VN pipeline, not the chapter map pipeline.
+
 # Migration handoff — S320 Chapter 3, the Belt Waystation (Claude lane, 2026-09-29)
 
 - **Why.** Step B of the user's order: port Chapter 3 onward. The user chose the content-first route. Dialogue, flags and events come from the source data. Maps are simple 3D terrain with source illustrations and light. Foes use field combat. Each chapter gets a flow test.
