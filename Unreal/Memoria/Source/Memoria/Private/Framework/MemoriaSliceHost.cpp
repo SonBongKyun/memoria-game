@@ -1,4 +1,6 @@
 #include "Framework/MemoriaSliceHost.h"
+#include "Tutorial/MemoriaTutorialSubsystem.h"
+#include "Tutorial/MemoriaHintWidget.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
@@ -29,6 +31,7 @@
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/CommandLine.h"
+#include "Misc/App.h"
 #include "Misc/Parse.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -95,6 +98,10 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
     // Modal/context changes flush processed key state. Only a physical release
     // ends the gesture that crossed a narrative boundary; repeats do not.
     if(ConfirmKey)TrackConfirmGesture(Params.Key,Params.Event);
+    // tutorial_hints.gd: any key or click lets a hint go. It is not swallowed: in the field it is also a strike.
+    if(Params.Event==IE_Pressed)
+        if(auto* Tutorial=GetGameInstance()->GetSubsystem<UMemoriaTutorialSubsystem>(); Tutorial && Tutorial->IsShowing() && Tutorial->GetAge()>=UMemoriaTutorialSubsystem::SlideSeconds)
+            Tutorial->Dismiss();
     // A Slate-consumed press must not be auto-reconciled as a fresh press in
     // the restored shop when its first repeat reaches PlayerInput.
     if(!ArchiveWidget && ArchiveConsumedKeys.Contains(Params.Key))
@@ -202,6 +209,28 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
     if(Params.Key==EKeys::Escape && Params.Event==IE_Pressed && OpenPause())return true;
     return Super::InputKey(Params);
 }
+void AMemoriaSliceController::UpdateHints(UMemoriaFieldCombatSubsystem* Combat)
+{
+    auto* Tutorial=GetGameInstance()->GetSubsystem<UMemoriaTutorialSubsystem>();
+    if(!Tutorial)return;
+    // battle_manager.gd's moments in the action field: the first foes, the first burn, the first status on Arrel.
+    if(Combat && Combat->GetPlayer() && !Combat->IsDefeated())
+    {
+        auto* Narrative=Host();
+        auto Show=[&](const TCHAR* Id){ if(Tutorial->ShowHint(Id) && Narrative)Narrative->Record(FString(TEXT("hint:"))+Id); };
+        if(Combat->LiveMonsterCount()>0)Show(TEXT("first_battle"));
+        if(Combat->GetBurns()>0)Show(TEXT("first_burn"));
+        if(Combat->IsPoisoned() || Combat->IsWeakened())Show(TEXT("first_status_effect"));
+    }
+    Tutorial->Advance(FApp::GetDeltaTime());
+    if(Tutorial->IsShowing() && !HintWidget)
+    {
+        HintWidget=CreateWidget<UMemoriaHintWidget>(this,UMemoriaHintWidget::StaticClass());
+        HintWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+        HintWidget->AddToViewport(65); // over the pause menu (60), under the game over screen (70)
+    }
+    if(HintWidget)HintWidget->Bind(Tutorial,GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale()!=TEXT("en"));
+}
 void AMemoriaSliceController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds); auto* Narrative = Host();
@@ -219,6 +248,7 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         FInputModeGameAndUI Mode; Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); bShowMouseCursor=true;
         Narrative->Record(TEXT("combat:game_over"));
     }
+    UpdateHints(GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr);
     // main.gd: the title owns the screen until New Game or Continue leaves it.
     if (Narrative->IsOnTitle())
     {
