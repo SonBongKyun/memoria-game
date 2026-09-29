@@ -11,6 +11,7 @@
 #include "Presentation/MemoriaBattleEntryWidget.h"
 #include "Presentation/MemoriaTitleWidget.h"
 #include "Presentation/MemoriaPauseWidget.h"
+#include "Presentation/MemoriaGameOverWidget.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
@@ -102,6 +103,16 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
         return true;
     }
+    // S318 game over: it holds every key; there is no escape from it, as in the source.
+    if(GameOverWidget)
+    {
+        if(Params.Event!=IE_Pressed)return true;
+        const FKey K=Params.Key;
+        if(K==EKeys::Up || K==EKeys::W || K==EKeys::Gamepad_DPad_Up){GameOverWidget->Navigate(-1);Cue(TEXT("ui_hover"));}
+        else if(K==EKeys::Down || K==EKeys::S || K==EKeys::Gamepad_DPad_Down){GameOverWidget->Navigate(1);Cue(TEXT("ui_hover"));}
+        else if(ConfirmKey || K==EKeys::J)GameOverWidget->Confirm();
+        return true;
+    }
     // S317 pause menu: it holds every key while open (the world is paused behind it).
     if(PauseWidget)
     {
@@ -182,6 +193,19 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds); auto* Narrative = Host();
     if (!Narrative) return;
+    // S318: once Arrel's fall has played out, game_over.gd's choice.
+    if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr; Combat && Combat->IsAwaitingGameOver() && !GameOverWidget)
+    {
+        ClosePause();
+        auto* Game=GetGameInstance();
+        GameOverWidget=CreateWidget<UMemoriaGameOverWidget>(this,UMemoriaGameOverWidget::StaticClass());
+        GameOverWidget->Configure(Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue()!=EMemoriaContinueSource::None,
+            Game->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale()!=TEXT("en"));
+        GameOverWidget->OnAction.BindUObject(this,&AMemoriaSliceController::GameOverAction);
+        GameOverWidget->AddToViewport(70);
+        FInputModeGameAndUI Mode; Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); bShowMouseCursor=true;
+        Narrative->Record(TEXT("combat:game_over"));
+    }
     // main.gd: the title owns the screen until New Game or Continue leaves it.
     if (Narrative->IsOnTitle())
     {
@@ -552,11 +576,7 @@ void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
     case EMemoriaPauseAction::Load:
     {
         // The title's Continue, in place: the newest valid slot replaces the live run.
-        const auto Source=Checkpoint->FindContinue();
-        ClosePause();
-        if(Source==EMemoriaContinueSource::Boundary)Host()->ContinueCheckpoint();
-        else if(Source==EMemoriaContinueSource::Chapter)Host()->ResumeChapterAutosave();
-        LastRevision=INDEX_NONE;
+        ClosePause(); LoadNewest();
         break;
     }
     case EMemoriaPauseAction::Title:
@@ -573,5 +593,43 @@ void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
         PauseWidget->SetInfo(PauseInfo()); LastRevision=INDEX_NONE;
         break;
     default: break;
+    }
+}
+void AMemoriaSliceController::LoadNewest()
+{
+    // The title's Continue, in place: the newest valid slot replaces the live run.
+    const auto Source=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue();
+    if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr)Combat->Revive(1.f);
+    if(Source==EMemoriaContinueSource::Boundary)Host()->ContinueCheckpoint();
+    else if(Source==EMemoriaContinueSource::Chapter)Host()->ResumeChapterAutosave();
+    LastRevision=INDEX_NONE;
+}
+void AMemoriaSliceController::CloseGameOver()
+{
+    if(!GameOverWidget)return;
+    GameOverWidget->OnAction.Unbind(); GameOverWidget->RemoveFromParent(); GameOverWidget=nullptr;
+    SetInputMode(FInputModeGameOnly()); bShowMouseCursor=true;
+    FSlateApplication::Get().SetAllUserFocusToGameViewport();
+}
+void AMemoriaSliceController::GameOverAction(EMemoriaGameOverAction Action)
+{
+    auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
+    switch(Action)
+    {
+    case EMemoriaGameOverAction::StaggerOn:
+        // _on_retry: HP to 30% and back to the field; the husks are gone.
+        Cue(TEXT("ui_select")); CloseGameOver();
+        if(Combat)Combat->Revive(.3f);
+        LastRevision=INDEX_NONE;
+        break;
+    case EMemoriaGameOverAction::Load:
+        // _on_load: without a save, only the cancel sound.
+        if(GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue()==EMemoriaContinueSource::None){Cue(TEXT("cancel"));break;}
+        Cue(TEXT("ui_select")); CloseGameOver(); LoadNewest();
+        break;
+    case EMemoriaGameOverAction::Title:
+        Cue(TEXT("ui_select")); CloseGameOver();
+        UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"),true,TEXT("Title"));
+        break;
     }
 }

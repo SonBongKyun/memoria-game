@@ -10,6 +10,8 @@ class UMemoriaArchiveWidget;
 class UMemoriaBattleEntryWidget;
 class UMemoriaTitleWidget;
 class UMemoriaPauseWidget;
+class UMemoriaGameOverWidget;
+enum class EMemoriaGameOverAction : uint8;
 enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
 
@@ -43,6 +45,8 @@ public:
     UMemoriaPauseWidget* GetPauseWidget() const { return PauseWidget; }
     bool OpenPause();
     void ClosePause();
+    // S318: the defeat screen (game_over.gd) once Arrel's fall has played out.
+    UMemoriaGameOverWidget* GetGameOverWidget() const { return GameOverWidget; }
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -62,6 +66,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryWidget> BattleWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaTitleWidget> TitleWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPauseWidget> PauseWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaGameOverWidget> GameOverWidget;
+    void GameOverAction(EMemoriaGameOverAction Action);
+    void CloseGameOver();
+    void LoadNewest();
     void PauseAction(EMemoriaPauseAction Action);
     FString PauseInfo() const;
     void TitleAction(EMemoriaTitleAction Action);

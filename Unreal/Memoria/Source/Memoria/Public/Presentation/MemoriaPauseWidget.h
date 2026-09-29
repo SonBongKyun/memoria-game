@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Styling/SlateBrush.h"
 #include "MemoriaPauseWidget.generated.h"
 class UMemoriaSettingsSubsystem;
 
@@ -38,6 +39,7 @@ public:
     const FString& GetNotice() const { return Notice; }
     FString ItemLabel(int32 Index) const;
 protected:
+    virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry, float DeltaTime) override;
     virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const override;
@@ -46,6 +48,7 @@ protected:
 private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaSettingsSubsystem> Settings;
     FString Info, Notice;
+    FSlateBrush Backdrop, Slab;
     float NoticeAge = 99.f, Clock = 0.f;
     int32 Selected = 0, OptionRow = 0, QuitChoice = 1;
     bool bCanSave = false, bCanLoad = false, bOptionsOpen = false, bAskQuit = false;
