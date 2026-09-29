@@ -84,7 +84,8 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     const int32 Layer = Super::NativePaint(Args, Geometry, CullingRect, Elements, LayerId, Style, bParentEnabled) + 1;
     const auto* C = Combat.Get();
     APlayerController* PC = GetOwningPlayer();
-    if (!C || !PC || !IsShowing()) return Layer;
+    // The game over screen (S318) takes over from the fall's veil.
+    if (!C || !PC || !IsShowing() || C->IsAwaitingGameOver()) return Layer;
     const FVector2D Size = Geometry.GetLocalSize();
     // The run's locale, like the memory titles and the story text (a new game takes it from the settings).
     const auto* Run = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>() : nullptr;

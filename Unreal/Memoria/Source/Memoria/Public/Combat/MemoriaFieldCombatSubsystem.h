@@ -94,6 +94,10 @@ public:
     int64 GetPlayerHp() const;
     int64 GetPlayerMaxHp() const;
     bool IsDefeated() const { return bDefeated; }
+    // S318: after the fall plays out, the game over screen (game_over.gd) takes the choice.
+    bool IsAwaitingGameOver() const { return bDefeated && DefeatLeft <= 0.f; }
+    // "Stagger On": HP at the given share of max, the foes withdraw, statuses end. Also used after a load.
+    void Revive(float HpShare);
     const TArray<FMemoriaCombatPopup>& GetPopups() const { return Popups; }
     // Field encounters replace the turn-based battle in play. Automation keeps the legacy battle unless a
     // test opts in, so the stopgap turn-based suites keep their encounter route until they retire.

@@ -1,5 +1,7 @@
 #include "Presentation/MemoriaPauseWidget.h"
 #include "Presentation/MemoriaFonts.h"
+#include "Presentation/MemoriaBattleEntryArt.h"
+#include "Engine/Texture2D.h"
 #include "Presentation/MemoriaUiKit.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Rendering/DrawElements.h"
@@ -100,6 +102,17 @@ void UMemoriaPauseWidget::ActivateOption(int32 Row, int32 Step)
     default: if (Step == 0) Back(); break;
     }
 }
+void UMemoriaPauseWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+    auto Use = [](FSlateBrush& Brush, const TCHAR* Source)
+    {
+        if (UTexture2D* Texture = MemoriaBattleEntryArt::Load(Source))
+        { Brush.SetResourceObject(Texture); Brush.ImageSize = FVector2D(Texture->GetSizeX(), Texture->GetSizeY()); Brush.DrawAs = ESlateBrushDrawType::Image; }
+    };
+    Use(Backdrop, TEXT("res://assets/cg/generated/ui_pause_archive_backdrop_v2.png"));
+    Use(Slab, TEXT("res://assets/cg/generated/ui_pause_control_slab.png"));
+}
 void UMemoriaPauseWidget::NativeTick(const FGeometry& Geometry, float DeltaTime)
 {
     Super::NativeTick(Geometry, DeltaTime);
@@ -138,8 +151,19 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
     const int32 L = Super::NativePaint(Args, Geometry, CullingRect, Elements, LayerId, Style, bParentEnabled) + 1;
     const FVector2D Size = Geometry.GetLocalSize();
     Rows.Reset();
-    // The world dims behind a 0.58 veil; the panel sits on the right (anchors 0.585-0.92 x, 0.12-0.88 y).
+    // The archive backdrop covers the screen (keep aspect, covered), a 0.58 veil over it, and the control slab
+    // behind the panel (anchors 0.555-0.95 x, 0.075-0.925 y); the panel sits at 0.585-0.92 x, 0.12-0.88 y.
+    if (Backdrop.GetResourceObject())
+    {
+        const float Cover = FMath::Max(Size.X / Backdrop.ImageSize.X, Size.Y / Backdrop.ImageSize.Y);
+        const FVector2D Art = Backdrop.ImageSize * Cover;
+        FSlateDrawElement::MakeBox(Elements, L, Geometry.ToPaintGeometry(FVector2f(Art), FSlateLayoutTransform(FVector2f((Size - Art) * .5))),
+            &Backdrop, ESlateDrawEffect::None, Srgb(.86f, .82f, .78f, .94f));
+    }
     Box(Elements, L, Geometry, FVector2D::ZeroVector, Size, FLinearColor(0, 0, 0, .58f));
+    if (Slab.GetResourceObject())
+        FSlateDrawElement::MakeBox(Elements, L, Geometry.ToPaintGeometry(FVector2f(Size.X * .395, Size.Y * .85), FSlateLayoutTransform(FVector2f(Size.X * .555, Size.Y * .075))),
+            &Slab, ESlateDrawEffect::None, Srgb(1.f, .92f, .78f, .78f));
     const FVector2D At(Size.X * .585, Size.Y * .12), Panel(Size.X * .335, Size.Y * .76);
     Box(Elements, L + 1, Geometry, At, Panel, Srgb(.030f, .026f, .040f, .90f));
     Frame(Elements, L + 2, Geometry, At, Panel, 2.f, Srgb(.72f, .54f, .30f, .46f));

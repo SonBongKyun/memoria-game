@@ -257,16 +257,9 @@ void UMemoriaFieldCombatSubsystem::Tick(float DeltaSeconds)
     if (!Pawn) return;
     if (bDefeated)
     {
+        // The fall plays out; then the game over screen owns the choice (see Revive).
         TickBurn(DeltaSeconds);
-        DefeatLeft -= DeltaSeconds;
-        if (DefeatLeft <= 0.f)
-        {
-            if (auto* Run = RunOf(GetWorld())) Run->State.Player.Hp = Run->State.Player.MaxHp;
-            for (const auto& M : Monsters) if (M.IsValid()) M->Destroy();
-            Monsters.Reset(); bDefeated = false;
-            WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
-            if (Figure) { Figure->StopAction(); Figure->ClearAim(); }
-        }
+        DefeatLeft = FMath::Max(0.f, DefeatLeft - DeltaSeconds);
         return;
     }
     TickBurn(DeltaSeconds);
@@ -508,4 +501,17 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
         if (ChargeHeld >= ChargeTime && Player.IsValid() && !bDefeated && DashLeft <= 0.f && StaggerLeft <= 0.f && CastLeft <= 0.f)
         { bCharging = false; StartStep(3); }
     }
+}
+void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
+{
+    if (auto* Run = RunOf(GetWorld()))
+    {
+        auto& P = Run->State.Player;
+        P.Hp = FMath::Clamp<int64>(int64(P.MaxHp * HpShare), 1, P.MaxHp);
+    }
+    for (const auto& M : Monsters) if (M.IsValid()) M->Destroy();
+    Monsters.Reset(); bDefeated = false; DefeatLeft = 0.f; StaggerLeft = CastLeft = DashLeft = 0.f; ComboStep = -1;
+    WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
+    EndBlock(); EndCharge();
+    if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
 }
