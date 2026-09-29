@@ -19,6 +19,7 @@ struct FMemoriaPresentedChoice { int32 OriginalIndex; FString Text; FString Effe
 struct MEMORIA_API FMemoriaNarrativeView
 {
     FString Header, Speaker, Narration, Body;
+    FString SpeakerLabel; // the speaker as shown: game_manager.gd localized_speaker (Speaker stays the source key)
     FString BackdropSource, PortraitSource, PortraitSide, LocationTitle;
     TArray<FMemoriaPresentedChoice> Choices;
     bool bShopPresentation = false;
@@ -79,6 +80,10 @@ public:
     bool EnterChapterMap(const FString& Map);
     bool StartChapterField(const FString& Group, const FString& Asset, const FString& File);
     bool TravelToChapterMap(const FString& Map);
+    // S322: the story scene a chapter's road leads into (drift_shelter.gd -> ch5_classifier_entry.gd), and
+    // Chapter 5's entry: consume the Chapter 4 boundary, freeze Malet's report, then play ch5_classifier.
+    bool EnterStoryScene(const FString& Scene);
+    bool EnterClassifier();
     const FString& GetChapterMap() const { return ChapterMap; }
     void ShowNotice(const FString& Text) { Notice(Text); }
     FMemoriaFieldFinished OnFieldFinished;

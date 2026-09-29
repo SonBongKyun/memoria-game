@@ -12,6 +12,8 @@
 #include "Narrative/MemoriaVerdanStory.h"
 #include "Narrative/MemoriaSumpLedger.h"
 #include "Chapter/MemoriaChapterMap.h"
+#include "Narrative/MemoriaClassifier.h"
+#include "World/MemoriaWorldCognition.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Interaction/MemoriaStoryPointActor.h"
@@ -91,6 +93,19 @@ namespace
 {
 // The source reaches Verdan after ch1_after_forest's set_chapter 2. The slice skips
 // Chapter 1, so its run is born in the chapter its imported entry sequence declares.
+// game_manager.gd SPEAKER_NAMES_KO / localized_speaker.
+FString SpeakerKo(const FString& Speaker)
+{
+    static const TMap<FString, FString> Names = {
+        {TEXT("system_log"), TEXT("시스템")}, {TEXT("System"), TEXT("시스템")}, {TEXT("Narration"), TEXT("나레이션")},
+        {TEXT("Arrel"), TEXT("아렐")}, {TEXT("Elia"), TEXT("엘리아")}, {TEXT("Malet"), TEXT("말렛")}, {TEXT("Mallet"), TEXT("말렛")},
+        {TEXT("Kairos"), TEXT("카이로스")}, {TEXT("Sable"), TEXT("세이블")}, {TEXT("Nera"), TEXT("네라")}, {TEXT("Seric"), TEXT("세릭")},
+        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
+        {TEXT("Nervous Trader"), TEXT("불안한 상인")}, {TEXT("Gardener"), TEXT("정원사")}, {TEXT("Handler"), TEXT("관리관")},
+        {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
+        {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")}};
+    const FString* Found = Names.Find(Speaker); return Found ? *Found : Speaker;
+}
 int64 EntryChapter(const FMemoriaNarrativeMetadata& Metadata)
 { return Metadata.bHasChapter && Metadata.Chapter >= 1 ? Metadata.Chapter : 0; }
 }
@@ -520,6 +535,13 @@ void UMemoriaNarrativeSubsystem::AfterVN()
             Record(TEXT("travel:verdan"));
             UGameplayStatics::OpenLevel(this, FName(VerdanMap));
         }
+        else if (const FString Map = FPaths::GetBaseFilename(Context->RequestedMap); Context->RequestedMap.StartsWith(TEXT("res://scenes/maps/")) && MemoriaChapterMaps::Find(Map))
+        {
+            // ch5_classifier ends goto_map drift_shelter: the chapter map takes the run up again.
+            State = EMemoriaSliceState::Travelling;
+            Record(TEXT("chapter:travel:") + Map);
+            UGameplayStatics::OpenLevel(this, FName(*MemoriaChapterMaps::LevelPath(Map)));
+        }
         else { State = EMemoriaSliceState::Failed; Record(TEXT("error:unsupported_map")); }
     }
     else if (!VN->ExportContinuation().bActive)
@@ -721,6 +743,7 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             PotionRecorded?Labels[PresentedPotionObservation]:(AntidoteRecorded?AntidoteLabels[PresentedAntidoteObservation]:(FirebombRecorded?FirebombLabels[PresentedFirebombObservation]:TEXT("Shop_Deferred"))),Recorded?TEXT("RECORDED SYNCHRONOUS SNAPSHOT / READ ONLY"):TEXT("LIVE AUTHORITATIVE RUN STATE"),Item?Item->Count:0,Antidote?Antidote->Count:0,Firebomb?Firebomb->Count:0,*FString::Join(S.Player.RecentItems,TEXT(", ")),S.GetFlag(TEXT("ch2_malet_done"))?TEXT("true"):TEXT("false"),Run->GetWorldCognition()->GetSnapshot().Revision,Run->GetWorldCognition()->GetSnapshot().EventSequence,*Toasts);
     }
     if (Text) { View.Speaker = Text->Speaker; View.Narration = Context->Localized(*Text, true); View.Body = Context->Localized(*Text); }
+    View.SpeakerLabel = Run->State.CurrentLocale == TEXT("ko") ? SpeakerKo(View.Speaker) : View.Speaker;
     View.BurnSerial = BurnSerial;
     return View;
 }
@@ -1087,7 +1110,8 @@ bool UMemoriaNarrativeSubsystem::EnterChapterMap(const FString& Map)
     if (Run->State.CurrentChapter < Spec->Chapter) Run->State.CurrentChapter = Spec->Chapter;
     VN.Reset(); Field.Reset(); ActiveFieldAsset = nullptr; bTitle = false; bPaused = false; DeferredInteraction.Reset();
     bCheckpointScreen = bCheckpointLoadFailed = false; CheckpointWorld.Reset();
-    Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory());
+    // A fresh context starts a fresh event list; the cursor follows it.
+    Context = MakeUnique<FMemoriaNarrativeContext>(Run->State, *Run->GetPlayerMemory()); EventCursor = 0;
     ChapterMap = Map; State = EMemoriaSliceState::Exploration;
     Record(TEXT("chapter:enter:") + Map); ++Revision;
     return true;
@@ -1096,6 +1120,35 @@ bool UMemoriaNarrativeSubsystem::StartChapterField(const FString& Group, const F
 {
     if (ChapterMap.IsEmpty() || State != EMemoriaSliceState::Exploration) return false;
     return StartStoryField(Group, *Asset, *File);
+}
+bool UMemoriaNarrativeSubsystem::EnterStoryScene(const FString& Scene)
+{
+    if (Scene.EndsWith(TEXT("ch5_classifier_entry.tscn"))) return EnterClassifier();
+    Record(TEXT("error:unported_story_scene:") + Scene); return false;
+}
+bool UMemoriaNarrativeSubsystem::EnterClassifier()
+{
+    // prepare_classifier_entry: only from the Chapter 4 boundary (or a Chapter 5 entry already begun), and
+    // never once the story has reached Chapter 6.
+    if (!Run->HasActiveRun() || !Context || Run->State.GetFlag(TEXT("canon_ch6_seam_ready"))) return false;
+    const bool bBoundary = Run->State.GetFlag(TEXT("canon_ch5_classifier_ready"));
+    const bool bResuming = Run->State.GetFlag(TEXT("ch5_classifier_started")) && Run->State.CurrentChapter == 5;
+    if (!bBoundary && !bResuming) return false;
+    const auto* Scene = ResolveVN(MemoriaClassifier::Scene);
+    if (!Scene) { Record(TEXT("error:missing_vn:ch5_classifier")); return false; }
+    if (bBoundary) Run->SetStoryFlag(TEXT("canon_ch5_classifier_ready"), false);
+    Run->SetStoryFlag(TEXT("ch5_classifier_started"), true); Run->SetStoryFlag(TEXT("ch5_kairos_seen"), true);
+    Run->SetCurrentChapter(5);
+    const FString Outcome = MemoriaClassifier::ResolveReport(*Run->GetWorldCognition());
+    if (Outcome.IsEmpty()) { Record(TEXT("error:classifier_report")); return false; }
+    // _project_report_flags: the flags only select the VN's authored lines.
+    Run->SetStoryFlag(TEXT("ch5_malet_report_identified_arrel"), Outcome == MemoriaClassifier::Identified);
+    Run->SetStoryFlag(TEXT("ch5_malet_report_requester_unknown"), Outcome == MemoriaClassifier::Unknown);
+    Record(TEXT("classifier:report:") + Outcome);
+    Field.Reset(); ActiveFieldAsset = nullptr; DeferredInteraction.Reset();
+    VN = MakeUnique<FMemoriaVNInterpreter>(Scene->Definition, *Context, Resolver(), true); bNewGameRoute = true;
+    State = EMemoriaSliceState::VN; Record(TEXT("vn:start:ch5_classifier")); ++Revision;
+    VN->Play(); AfterVN(); return true;
 }
 bool UMemoriaNarrativeSubsystem::TravelToChapterMap(const FString& Map)
 {

@@ -70,6 +70,9 @@ public:
     bool HasActor(const FString& Id) const;
     bool HasKnowledge(const FString& Actor, const FString& Fact) const;
     bool HasMemory(const FString& Actor, const FString& Memory) const;
+    // S322 MemoryEngine.knows_fact (held as true) and WorldState.get_memory_record (active or removed).
+    bool KnowsFact(const FString& Actor, const FString& Fact) const;
+    const FMemoriaWorldMemory* FindMemory(const FString& Actor, const FString& Memory) const;
     bool LearnFact(const FString& Actor, const FString& Fact);
     bool AddMemory(const FString& Actor, const FString& Memory, const TArray<FString>& Facts, const FString& Source, const FString& ContentJson);
     void SeedMaletRoute(bool bDone);

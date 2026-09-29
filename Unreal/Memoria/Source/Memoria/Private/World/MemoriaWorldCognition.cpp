@@ -113,6 +113,10 @@ bool UMemoriaWorldCognition::HasKnowledge(const FString& Actor,const FString& Fa
 { const auto* A=FindActor(Actor);return A && A->Knowledge.ContainsByPredicate([&](const auto& K){return Eq(K.FactId,Fact);}); }
 bool UMemoriaWorldCognition::HasMemory(const FString& Actor,const FString& Memory) const
 { const auto* A=FindActor(Actor);return A && A->Memories.ContainsByPredicate([&](const auto& M){return Eq(M.Id,Memory);}); }
+bool UMemoriaWorldCognition::KnowsFact(const FString& Actor,const FString& Fact) const
+{ const auto* A=FindActor(Actor);return MemoriaWorldIds::IsFact(Fact) && A && A->Knowledge.ContainsByPredicate([&](const auto& K){return Eq(K.FactId,Fact) && K.bValue;}); }
+const FMemoriaWorldMemory* UMemoriaWorldCognition::FindMemory(const FString& Actor,const FString& Memory) const
+{ const auto* A=FindActor(Actor);return A?A->Memories.FindByPredicate([&](const auto& M){return Eq(M.Id,Memory);}):nullptr; }
 bool UMemoriaWorldCognition::LearnFact(const FString& Actor,const FString& Fact)
 {
     if(bDispatching || !HasActor(Actor) || !MemoriaWorldIds::IsFact(Fact) || State.Revision>=9007199254740991LL || State.EventSequence>=9007199254740991LL)return false;

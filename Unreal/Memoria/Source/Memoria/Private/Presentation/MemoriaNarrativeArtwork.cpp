@@ -77,6 +77,9 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/archive_drift_anchoring_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_archive_drift_anchoring_v1"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch04_anchor_tea_thread_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch04_anchor_tea_thread_v1"), false},
         {TEXT("res://assets/cg/generated/resonance_drift_shelter_echo.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_resonance_drift_shelter_echo"), false},
+        {TEXT("res://assets/cg/generated/cinematic_kairos_authority_edit.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_cinematic_kairos_authority_edit"), false},
+        {TEXT("res://assets/portraits/character_shots/kairos_story_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_story_v2"), false},
+        {TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_edit_v3"), false},
     };
     return Values;
 }
@@ -100,6 +103,8 @@ FString PortraitSource(const FString& Key)
         {TEXT("elia_neutral"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},
         {TEXT("elia_sad"), TEXT("res://assets/portraits/elia_face_sad.png")},
         {TEXT("elia_worried"), TEXT("res://assets/portraits/elia_face_worried.png")},
+        {TEXT("kairos_cold"), TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png")},
+        {TEXT("kairos_neutral"), TEXT("res://assets/portraits/character_shots/kairos_story_v2.png")},
         {TEXT("malet_amused"), TEXT("res://assets/portraits/malet_face_amused.png")},
         {TEXT("malet_calculating"), TEXT("res://assets/portraits/malet_face_calculating.png")},
         {TEXT("malet_deal_accepted"), TEXT("res://assets/portraits/malet_face_deal_accepted.png")},

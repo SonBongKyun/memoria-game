@@ -497,7 +497,8 @@ void UMemoriaDevelopmentNarrativeWidget::RefreshStory(bool bChoosing)
     DialogueLayer->SetVisibility(!bChoosing && !View.bPaused?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     ChoiceLayer->SetVisibility(bChoosing?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     StoryLocation->SetText(FText::FromString(View.LocationTitle));
-    StoryName->SetText(FText::FromString(View.Speaker));StoryName->SetColorAndOpacity(View.bSystemLog?SystemCyan:NameGold);
+    const FString& Shown = View.SpeakerLabel.IsEmpty() ? View.Speaker : View.SpeakerLabel;
+    StoryName->SetText(FText::FromString(Shown));StoryName->SetColorAndOpacity(View.bSystemLog?SystemCyan:NameGold);
     NameFill->SetVisibility(View.Speaker.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     const FString Body=StoryBody();
     if(Body!=ShownBody){ShownBody=Body;Typed=0.f;}
@@ -562,7 +563,7 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
     Position(BodyScroll,Face && !Right?.185f:.045f,View.bCompactStatus?.30f:.28f,Face && Right?.815f:.95f,View.bCompactStatus?.96f:.78f);
     Position(Hint,Face && !Right?.185f:.045f,.84f,Face && Right?.815f:.95f,.98f);
     Location->SetText(FText::FromString(View.bDevelopmentStop?View.Header:View.LocationTitle));
-    Speaker->SetText(FText::FromString(View.bCompactStatus?View.Header:View.bPaused?TEXT("PAUSED"):Choosing?(View.ChoiceTitle.IsEmpty()?TEXT("YOUR CHOICE"):View.ChoiceTitle):View.Speaker.IsEmpty()?TEXT("MEMORIA"):View.Speaker));
+    Speaker->SetText(FText::FromString(View.bCompactStatus?View.Header:View.bPaused?TEXT("PAUSED"):Choosing?(View.ChoiceTitle.IsEmpty()?TEXT("YOUR CHOICE"):View.ChoiceTitle):View.Speaker.IsEmpty()?TEXT("MEMORIA"):(View.SpeakerLabel.IsEmpty()?View.Speaker:View.SpeakerLabel)));
     Speaker->SetColorAndOpacity(View.bSystemLog && !Choosing?SystemCyan:Gold);
     Message->SetColorAndOpacity(View.bDistorted?Distorted:Paper);
     FString Body=View.bPaused?TEXT("Enter / A or Back: return to the current line"):View.Narration;

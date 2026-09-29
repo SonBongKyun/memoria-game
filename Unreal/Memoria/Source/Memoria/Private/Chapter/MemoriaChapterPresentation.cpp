@@ -146,6 +146,19 @@ void AMemoriaChapterPresentation::BuildMarkers()
     for (const auto& Chest : Spec->Chests) Add(Chest.Flag, Chest.Origin, FLinearColor(.75f, .6f, .25f));
     for (const auto& Clue : Spec->Clues) Add(Clue.Flag, Clue.Origin, FLinearColor(.3f, .45f, .8f));
 }
+bool AMemoriaChapterPresentation::SceneReady() const
+{
+    // The departure's flags (canon_ch5_classifier_ready) stand and no later canon flag has moved the story on.
+    const auto& Exit = Spec->Exit;
+    if (Exit.NextScene.IsEmpty() || Exit.Flags.IsEmpty()) return false;
+    for (const FString& F : Exit.Flags) if (!Flag(F)) return false;
+    return StoryMovedOn().IsEmpty();
+}
+FString AMemoriaChapterPresentation::StoryMovedOn() const
+{
+    for (const FString& Blocked : Spec->ResumeBlocked) if (!Spec->Exit.Flags.Contains(Blocked) && Flag(Blocked)) return Blocked;
+    return FString();
+}
 bool AMemoriaChapterPresentation::GateOpen(const FString& Gate) const
 {
     // _can_resume_ch4_exploration: the section's flag, and none of the later canon flags that move the story on.
@@ -212,6 +225,20 @@ void AMemoriaChapterPresentation::BeginPlay()
             bKo ? Ko(Spec->TitleName) : Spec->TitleName, bKo ? Ko(Spec->Subtitle) : Spec->Subtitle, 3.f);
     }
     StepAt = bFirst ? 3.3f : .3f;
+    // _ready_sequence: a readied story scene launches at once; after it, the chain is over and the card names
+    // the chapter the story reached (canon_ch6_seam_ready: "Next: Chapter 6, The Seam").
+    if (SceneReady()) { StepAt = -1.f; SceneAt = .5f; }
+    else if (const FString Moved = StoryMovedOn(); !Moved.IsEmpty())
+    {
+        StepAt = -1.f; bComplete = true;
+        const bool bKo = Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+        const int32 Reached = int32(Run ? Run->GetRunSnapshot().CurrentChapter : Spec->Chapter);
+        const FString Next = Moved == TEXT("canon_ch6_seam_ready") ? TEXT("The Seam") : FString();
+        Card->Show(bKo ? FString::Printf(TEXT("%d장 완료"), Reached) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Reached), bKo ? Ko(Next) : Next,
+            bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Reached + 1) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Reached + 1), SceneDelay);
+        if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>(); Narrative && !Next.IsEmpty())
+            Narrative->ShowNotice(Localized(FString::Printf(TEXT("Next: Chapter %d, %s"), Reached + 1, *Next)));
+    }
     PreviousPosition = Player->GetActorLocation();
     if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("chapter:presented:") + Map);
 }
@@ -249,9 +276,10 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));
-        Card->Show(Eyebrow, Where, Road, bRoad ? TravelDelay : 6.f);
-        // change_scene_chapter_complete: the card, then the next map.
+        Card->Show(Eyebrow, Where, Road, bRoad ? TravelDelay : SceneDelay);
+        // change_scene_chapter_complete: the card, then the next map; or the story scene after the card.
         if (bRoad) TravelAt = Clock + TravelDelay;
+        else if (!Exit.NextScene.IsEmpty()) SceneAt = Clock + SceneDelay;
         if (Narrative) Narrative->Record(TEXT("chapter:complete:") + Map);
         return;
     }
@@ -320,6 +348,13 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     PreviousPosition = Position;
     for (const auto& Pair : Markers) if (Pair.Value) Pair.Value->SetHiddenInGame(Flag(Pair.Key) || !GateOpen(Spec->ObjectsGate));
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }
+    if (SceneAt >= 0.f && Clock >= SceneAt)
+    {
+        // The story scene waits for any dialogue or menu to close.
+        auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
+        if (Narrative && Narrative->GetState() != EMemoriaSliceState::Exploration) SceneAt = Clock + .3f;
+        else { SceneAt = -1.f; if (Narrative) Narrative->EnterStoryScene(Spec->Exit.NextScene); }
+    }
     if (TravelAt >= 0.f && Clock >= TravelAt)
     {
         TravelAt = -1.f;
