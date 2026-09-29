@@ -12,7 +12,7 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVisualCoverage::RunTest(const FString&)
 {
-    TestEqual(TEXT("Thirty-nine illustrations (five for Chapter 3), two frame overlays, the title art and seventeen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),59);
+    TestEqual(TEXT("Forty-four illustrations (five each for Chapters 3 and 4), two frame overlays, the title art and seventeen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),64);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);

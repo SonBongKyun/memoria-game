@@ -11,7 +11,7 @@ UMemoriaChapterLevelsCommandlet::UMemoriaChapterLevelsCommandlet()
 { IsClient = false; IsServer = false; IsEditor = true; LogToConsole = true; }
 int32 UMemoriaChapterLevelsCommandlet::Main(const FString& Params)
 {
-    for (const TCHAR* Map : {TEXT("belt_waystation")})
+    for (const TCHAR* Map : {TEXT("belt_waystation"), TEXT("drift_shelter")})
     {
         const auto* Spec = MemoriaChapterMaps::Find(Map);
         if (!Spec) { UE_LOG(LogTemp, Error, TEXT("CHAPTER_LEVEL_SPEC_MISSING %s"), Map); return 1; }

@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4')}
 
 
 def num(expr, tile):
@@ -151,10 +151,23 @@ def extract(map_id):
     depart = func_body(src, depart_name)
     depart_handler = re.search(r'dialogue_ended\.connect\((\w+)', depart).group(1)
     ended = func_body(src, depart_handler)
+    # Where the road goes: another chapter map (belt_waystation.gd) or a story scene through a
+    # scene constant and an _enter_* helper (drift_shelter.gd enters Chapter 5's classifier scene).
+    next_map = re.search(r'"res://scenes/maps/(\w+)\.tscn"', ended)
+    next_scene = None
+    if not next_map:
+        enter = re.search(r'\t(_enter_\w+)\(\)', ended)
+        const = re.search(r'change_scene\w*\((\w+)\)', func_body(src, enter.group(1))).group(1) if enter else None
+        scene = re.search(r'const ' + const + r': String = "res://([^"]+)"', src) if const else None
+        next_scene = scene.group(1) if scene else None
+    # The notice raised as the chapter closes, in both locales (drift_shelter.gd's boundary text).
+    notice = re.search(r'var (\w+) := "([^"]+)"\n(?:\t.*\n)*?\tif GameManager\.current_locale == "ko":\n\t\t\1 = "([^"]+)"', ended)
     exit_def = dict(exit_rect, requires=requires.group(1), completes=requires.group(2),
                     group=re.search(r'load_and_start\(DIALOGUE_FILE, "([^"]+)"\)', depart).group(1),
                     next_chapter=int(re.search(r'current_chapter = (\d+)', ended).group(1)),
-                    next_map=re.search(r'"res://scenes/maps/(\w+)\.tscn"', ended).group(1))
+                    next_map=next_map.group(1) if next_map else None, next_scene=next_scene,
+                    flags=re.findall(r'GameManager\.set_flag\("([^"]+)"', ended),
+                    notice={'en': notice.group(2), 'ko': notice.group(3)} if notice else None)
     triggers = []
     events = func_body(src, '_setup_exploration_events')
     for position, args in calls(events, '_add_story_trigger'):
@@ -162,7 +175,23 @@ def extract(map_id):
         triggers.append({'rect': {'origin': vec(a[0], tile), 'size': vec(a[1], tile)}, 'group': ast.literal_eval(a[2]),
                          'flag': ast.literal_eval(a[3]), 'gate': gate_of(events, position)})
     objects = func_body(src, '_setup_interactive_objects')
-    object_gate = re.search(r'if GameManager\.get_flag\("([^"]+)"\):\n\t\t_setup_interactive_objects', src)
+    resume_blocked = []
+
+    def section_gate(setup):
+        """The flag that opens a post-chapter section: `if GameManager.get_flag("x"):` over its setup call
+        (belt_waystation.gd), or a `_can_resume_*()` guard requiring x and blocking later canon flags."""
+        m = re.search(r'if GameManager\.get_flag\("([^"]+)"\):\n\t\t' + setup, src)
+        if m:
+            return m.group(1)
+        m = re.search(r'if (_can_resume_\w+)\(\):\n(?:\t\t.*\n)*?\t\t' + setup, src)
+        if not m:
+            return None
+        guard = func_body(src, m.group(1))
+        blocked = re.findall(r'not GameManager\.get_flag\("([^"]+)"\)', guard)
+        resume_blocked[:] = sorted(set(resume_blocked) | set(blocked))
+        return [f for f in re.findall(r'GameManager\.get_flag\("([^"]+)"\)', guard) if f not in blocked][0]
+
+    object_gate = section_gate('_setup_interactive_objects')
     chests, clues = [], []
     for _, args in calls(objects, '_add_chest'):
         a = split_args(args)
@@ -172,7 +201,7 @@ def extract(map_id):
         a = split_args(args)
         clues.append({'origin': vec(a[0], tile), 'flag': ast.literal_eval(a[1]), 'text': ast.literal_eval(a[2])})
     battles = []
-    battle_gate = re.search(r'if GameManager\.get_flag\("([^"]+)"\):\n\t\t_setup_battle_triggers', src)
+    battle_gate = section_gate('_setup_battle_triggers')
     for _, args in calls(func_body(src, '_setup_battle_triggers'), '_add_battle_area'):
         a = split_args(args)
         battles.append({'rect': {'origin': vec(a[0], tile), 'size': vec(a[1], tile)}, 'name': ast.literal_eval(a[2]),
@@ -190,8 +219,8 @@ def extract(map_id):
         'tile_defs': tile_defs, 'tile_names': tile_names, 'solid': solid,
         'atmosphere': atmosphere, 'spawn': vec(spawn.group(1), tile), 'elia_repeat': repeat.group(1) if repeat else '',
         'sequence': sequence, 'exit': exit_def, 'triggers': triggers,
-        'objects_gate': object_gate.group(1) if object_gate else None, 'chests': chests, 'clues': clues,
-        'battles_gate': battle_gate.group(1) if battle_gate else None, 'battles': battles,
+        'objects_gate': object_gate, 'chests': chests, 'clues': clues,
+        'battles_gate': battle_gate, 'battles': battles, 'resume_blocked': resume_blocked,
         'encounters_gate': encounter_gate.group(1) if encounter_gate else None, 'encounters': pool,
     }
 
@@ -204,8 +233,15 @@ def inl(values):
     lines = ['// Generated by Unreal/Tools/export_chapter_maps.py from scenes/maps/*.gd; do not hand edit.',
              '// Each map is its IR JSON (docs/unreal-migration/ir/chapters), one literal per map.']
     for map_id, value in values.items():
-        text = canonical(value).replace('\\', '\\\\').replace('"', '\\"')
-        chunks = [text[i:i + 2000] for i in range(0, len(text), 2000)]
+        # ASCII only: MSVC reads the source in the system code page, so Korean text travels as JSON \u escapes.
+        text = json.dumps(value, ensure_ascii=True, sort_keys=True, separators=(',', ':')).replace('\\', '\\\\').replace('"', '\\"')
+        # Chunks never split an escape (a chunk ending in a lone backslash would escape the closing quote).
+        chunks, i = [], 0
+        while i < len(text):
+            j = min(i + 2000, len(text))
+            while j < len(text) and text[j - 1] == '\\':
+                j += 1
+            chunks.append(text[i:j]); i = j
         lines.append('static const TCHAR* MemoriaChapterMap_%s =' % map_id)
         lines += ['    TEXT("%s")' % c for c in chunks[:-1]] + ['    TEXT("%s");' % chunks[-1]]
     lines.append('static const TPair<const TCHAR*, const TCHAR*> MemoriaChapterMapSources[] = {')

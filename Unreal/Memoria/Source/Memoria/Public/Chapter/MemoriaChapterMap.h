@@ -15,7 +15,9 @@ struct FMemoriaChapterTrigger { FMemoriaChapterRect Rect; FString Group, Flag, G
 struct FMemoriaChapterChest { FVector2D Origin = FVector2D::ZeroVector; FString Flag; int64 Grains = 0; TArray<TPair<FString, int64>> Items; };
 struct FMemoriaChapterClue { FVector2D Origin = FVector2D::ZeroVector; FString Flag, Text; };
 struct FMemoriaChapterBattle { FMemoriaChapterRect Rect; FString Name; int32 Hp = 0, Atk = 0; bool bVoid = false; };
-struct FMemoriaChapterExit { FMemoriaChapterRect Rect; FString Requires, Completes, Group, NextMap; int32 NextChapter = 0; };
+// The exit: what opens it, the flag it closes, the departure group, and where the road goes (another
+// chapter map, or a story scene not yet ported), with the flags and bilingual notice its end handler raises.
+struct FMemoriaChapterExit { FMemoriaChapterRect Rect; FString Requires, Completes, Group, NextMap, NextScene, NoticeEn, NoticeKo; TArray<FString> Flags; int32 NextChapter = 0; };
 struct FMemoriaChapterMapSpec
 {
     FString Map, AssetPrefix, DialogueFile, Source, TitleName, Subtitle, EliaRepeat, Splash;
@@ -31,6 +33,7 @@ struct FMemoriaChapterMapSpec
     FMemoriaChapterExit Exit;
     TArray<FMemoriaChapterTrigger> Triggers;
     FString ObjectsGate, BattlesGate, EncountersGate;
+    TArray<FString> ResumeBlocked;       // later canon flags that close the post-chapter sections (drift_shelter.gd)
     TArray<FMemoriaChapterChest> Chests;
     TArray<FMemoriaChapterClue> Clues;
     TArray<FMemoriaChapterBattle> Battles;
@@ -46,6 +49,8 @@ namespace MemoriaChapterMaps
     MEMORIA_API const FMemoriaChapterMapSpec* Find(const FString& Map);
     // "waystation_arrival" -> "DA_Field_Ch3WaystationArrival" (narrative_ir.py's asset names).
     MEMORIA_API FString GroupAsset(const FMemoriaChapterMapSpec& Spec, const FString& Group);
+    // The chapter maps' authored strings outside dialogue (titles, place names, clues), in Korean; others pass through.
+    MEMORIA_API FString Korean(const FString& En);
     // The level each ported map lives in.
     MEMORIA_API FString LevelPath(const FString& Map);
     MEMORIA_API FString MapFromLevel(const FString& LevelName);

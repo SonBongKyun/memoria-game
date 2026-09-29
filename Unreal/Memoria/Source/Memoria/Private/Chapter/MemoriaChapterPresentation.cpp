@@ -28,17 +28,9 @@
 namespace
 {
 FLinearColor Linear(const FLinearColor& Srgb) { return FLinearColor::FromSRGBColor(Srgb.ToFColor(false)); }
-// The small set of authored strings the chapter maps raise outside dialogue, in Korean.
-FString Ko(const FString& En)
-{
-    static const TMap<FString, FString> Table = {
-        {TEXT("Obtained: Blank Book"), TEXT("획득: 백서")},
-        {TEXT("The Belt"), TEXT("벨트")}, {TEXT("Weight of Pages"), TEXT("페이지의 무게")},
-        {TEXT("drift_shelter"), TEXT("표류 쉼터")}, {TEXT("belt_waystation"), TEXT("벨트 중간역")},
-        {TEXT("A faded Bureau sign: 'RELAY STATION 14, All combustion events must be reported within 72 hours.'"),
-         TEXT("빛바랜 관리국 표지판: '중계소 14, 모든 연소는 72시간 이내에 보고할 것.'")}};
-    const FString* Found = Table.Find(En); return Found ? *Found : En;
-}
+FString Ko(const FString& En) { return MemoriaChapterMaps::Korean(En); }
+// The story scenes a chapter's road leads into before they are ported (drift_shelter.gd -> Chapter 5).
+FString SceneTitle(const FString& Scene) { return Scene.Contains(TEXT("ch5_classifier")) ? TEXT("The Classifier") : FString(); }
 FString PlaceName(const FString& Map)
 { FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
@@ -77,7 +69,10 @@ void AMemoriaChapterPresentation::BuildTerrain()
     TArray<UInstancedStaticMeshComponent*> Ground;
     for (int32 Type = 0; Type < Spec->TileColors.Num(); ++Type) Ground.Add(Layer(Cube, Surface(Spec->TileColors[Type]), false));
     Blockers = Layer(Cube, nullptr, true); Blockers->SetHiddenInGame(true);
-    const int32 Wall = Spec->TileNames.IndexOfByKey(TEXT("WALL")), Ruin = Spec->TileNames.IndexOfByKey(TEXT("RUIN"));
+    // Wall tiles rise; ruins and rubble scatter stones (belt_waystation.gd RUIN, drift_shelter.gd RUBBLE); the
+    // fallen overpass's concrete stands as low slabs.
+    const int32 Wall = Spec->TileNames.IndexOfByKey(TEXT("WALL")), Concrete = Spec->TileNames.IndexOfByKey(TEXT("CONCRETE"));
+    const int32 Ruin = Spec->TileNames.Contains(TEXT("RUIN")) ? Spec->TileNames.IndexOfByKey(TEXT("RUIN")) : Spec->TileNames.IndexOfByKey(TEXT("RUBBLE"));
     FRandomStream Rng(Spec->Chapter * 7919);
     for (int32 Y = 0; Y < Spec->Height; ++Y)
         for (int32 X = 0; X < Spec->Width; ++X)
@@ -86,7 +81,12 @@ void AMemoriaChapterPresentation::BuildTerrain()
             if (!Ground.IsValidIndex(Type)) continue;
             const FVector Center = MemoriaChapterMaps::ToWorld(FVector2D((X + .5f) * Spec->TileSize, (Y + .5f) * Spec->TileSize));
             const bool bBorder = X == 0 || Y == 0 || X == Spec->Width - 1 || Y == Spec->Height - 1;
-            if (Type == Wall)
+            if (Type == Concrete)
+            {
+                const float H = Rng.FRandRange(34.f, 52.f);
+                Ground[Type]->AddInstance(FTransform(FRotator(0, Rng.FRandRange(-4.f, 4.f), Rng.FRandRange(-3.f, 3.f)), Center + FVector(0, 0, H * .5f - 8.f), FVector(T * .96f / 100.f, T * .96f / 100.f, H / 100.f)), true);
+            }
+            else if (Type == Wall)
             {
                 // The border reads as a low rim and the building walls stay below the quarter view's line of sight.
                 const float H = bBorder ? 50.f : 100.f;
@@ -145,6 +145,12 @@ void AMemoriaChapterPresentation::BuildMarkers()
     };
     for (const auto& Chest : Spec->Chests) Add(Chest.Flag, Chest.Origin, FLinearColor(.75f, .6f, .25f));
     for (const auto& Clue : Spec->Clues) Add(Clue.Flag, Clue.Origin, FLinearColor(.3f, .45f, .8f));
+}
+bool AMemoriaChapterPresentation::GateOpen(const FString& Gate) const
+{
+    // _can_resume_ch4_exploration: the section's flag, and none of the later canon flags that move the story on.
+    for (const FString& Blocked : Spec->ResumeBlocked) if (Flag(Blocked)) return false;
+    return Gate.IsEmpty() || Flag(Gate);
 }
 bool AMemoriaChapterPresentation::Flag(const FString& Id) const
 {
@@ -226,17 +232,26 @@ void AMemoriaChapterPresentation::StartNextStep()
 void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
 {
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
-    // The departure closes the chapter: the next chapter number, then the completion card.
+    // The departure closes the chapter: its end handler's chapter number, flags and notice, then the
+    // completion card, and the road on to the next chapter map when it is ported.
     if (bDeparting && Group == Spec->Exit.Group)
     {
         bDeparting = false; bComplete = true;
-        if (auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()) Run->SetCurrentChapter(Spec->Exit.NextChapter);
-        const auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
+        const auto& Exit = Spec->Exit;
+        auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
+        if (Run) Run->SetCurrentChapter(Exit.NextChapter);
+        for (const FString& F : Exit.Flags) SetFlag(F);
         const bool bKo = Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
-        // The next map is not ported yet: the card says where the road leads.
-        Card->Show(bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter),
-            bKo ? Ko(Spec->Exit.NextMap) : PlaceName(Spec->Exit.NextMap),
-            bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Spec->Exit.NextChapter) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Spec->Exit.NextChapter), 6.f);
+        if (!Exit.NoticeEn.IsEmpty() && Narrative) Narrative->ShowNotice(bKo && !Exit.NoticeKo.IsEmpty() ? Exit.NoticeKo : Exit.NoticeEn);
+        const int32 Next = Spec->Chapter + 1;
+        const bool bRoad = MemoriaChapterMaps::Find(Exit.NextMap) != nullptr;
+        const FString Where = !Exit.NextMap.IsEmpty() ? (bKo ? Ko(Exit.NextMap) : PlaceName(Exit.NextMap)) : (bKo ? Ko(SceneTitle(Exit.NextScene)) : SceneTitle(Exit.NextScene));
+        const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
+        const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
+                                   : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));
+        Card->Show(Eyebrow, Where, Road, bRoad ? TravelDelay : 6.f);
+        // change_scene_chapter_complete: the card, then the next map.
+        if (bRoad) TravelAt = Clock + TravelDelay;
         if (Narrative) Narrative->Record(TEXT("chapter:complete:") + Map);
         return;
     }
@@ -267,7 +282,7 @@ void AMemoriaChapterPresentation::CheckTriggers()
         return;
     }
     auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
-    if (Run && (Spec->ObjectsGate.IsEmpty() || Flag(Spec->ObjectsGate)))
+    if (Run && GateOpen(Spec->ObjectsGate))
     {
         const FVector2D Tile(Spec->TileSize, Spec->TileSize);
         for (const auto& Chest : Spec->Chests)
@@ -282,7 +297,7 @@ void AMemoriaChapterPresentation::CheckTriggers()
             if (!Flag(Clue.Flag) && FMemoriaChapterRect{Clue.Origin, Tile}.Contains(P))
             { SetFlag(Clue.Flag); Narrative->ShowNotice(Localized(Clue.Text)); }
     }
-    if (Combat && (Spec->BattlesGate.IsEmpty() || Flag(Spec->BattlesGate)))
+    if (Combat && GateOpen(Spec->BattlesGate))
         for (int32 I = 0; I < Spec->Battles.Num(); ++I)
         {
             const auto& Battle = Spec->Battles[I];
@@ -303,8 +318,14 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     const FVector Position = Player->GetActorLocation();
     ArrelFigure->AdvanceLocomotion(Position - PreviousPosition, DeltaSeconds);
     PreviousPosition = Position;
-    for (const auto& Pair : Markers) if (Pair.Value) Pair.Value->SetHiddenInGame(Flag(Pair.Key) || !(Spec->ObjectsGate.IsEmpty() || Flag(Spec->ObjectsGate)));
+    for (const auto& Pair : Markers) if (Pair.Value) Pair.Value->SetHiddenInGame(Flag(Pair.Key) || !GateOpen(Spec->ObjectsGate));
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }
+    if (TravelAt >= 0.f && Clock >= TravelAt)
+    {
+        TravelAt = -1.f;
+        if (auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->TravelToChapterMap(Spec->Exit.NextMap);
+        return;
+    }
     CheckTriggers();
 }
 void AMemoriaChapterPresentation::EndPlay(const EEndPlayReason::Type Reason)

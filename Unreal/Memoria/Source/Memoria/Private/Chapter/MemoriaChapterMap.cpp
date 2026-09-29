@@ -58,6 +58,8 @@ FMemoriaChapterMapSpec Parse(const TCHAR* Json)
     {
         S.Exit.Rect = Rect(*E); S.Exit.Requires = Str(*E, TEXT("requires")); S.Exit.Completes = Str(*E, TEXT("completes"));
         S.Exit.Group = Str(*E, TEXT("group")); S.Exit.NextMap = Str(*E, TEXT("next_map")); S.Exit.NextChapter = (*E)->GetIntegerField(TEXT("next_chapter"));
+        S.Exit.NextScene = Str(*E, TEXT("next_scene")); S.Exit.Flags = Strings(*E, TEXT("flags"));
+        if (const Obj* N; (*E)->TryGetObjectField(TEXT("notice"), N)) { S.Exit.NoticeEn = Str(*N, TEXT("en")); S.Exit.NoticeKo = Str(*N, TEXT("ko")); }
     }
     for (const auto& V : O->GetArrayField(TEXT("triggers")))
     {
@@ -66,6 +68,7 @@ FMemoriaChapterMapSpec Parse(const TCHAR* Json)
         S.Triggers.Add(Trigger);
     }
     S.ObjectsGate = Str(O, TEXT("objects_gate")); S.BattlesGate = Str(O, TEXT("battles_gate")); S.EncountersGate = Str(O, TEXT("encounters_gate"));
+    S.ResumeBlocked = Strings(O, TEXT("resume_blocked"));
     for (const auto& V : O->GetArrayField(TEXT("chests")))
     {
         const Obj C = V->AsObject(); FMemoriaChapterChest Chest;
@@ -104,6 +107,24 @@ const FMemoriaChapterMapSpec* Find(const FString& Map)
     }();
     const FMemoriaChapterMapSpec* Spec = Specs.Find(Map);
     return Spec && !Spec->Map.IsEmpty() && Spec->Tiles.Num() == Spec->Width * Spec->Height ? Spec : nullptr;
+}
+// The small set of authored strings the chapter maps raise outside dialogue, in Korean. Titles follow
+// game_manager.gd's RUNTIME_TEXT_KO; place names follow the map scripts' headers.
+FString Korean(const FString& En)
+{
+    static const TMap<FString, FString> Table = {
+        {TEXT("Obtained: Blank Book"), TEXT("획득: 백서")},
+        {TEXT("The Belt"), TEXT("벨트")}, {TEXT("Weight of Pages"), TEXT("페이지의 무게")},
+        {TEXT("Drift"), TEXT("드리프트")}, {TEXT("The architecture crumbles"), TEXT("무너져 내리는 구조")},
+        {TEXT("The Classifier"), TEXT("분류자")},
+        {TEXT("drift_shelter"), TEXT("드리프트 셸터")}, {TEXT("belt_waystation"), TEXT("벨트 중간역")},
+        {TEXT("A faded Bureau sign: 'RELAY STATION 14, All combustion events must be reported within 72 hours.'"),
+         TEXT("빛바랜 관리국 표지판: '중계소 14, 모든 연소는 72시간 이내에 보고할 것.'")},
+        {TEXT("Warm ashes. Someone camped here recently, the fire pit is lined with Bureau-issue kindling."),
+         TEXT("아직 따뜻한 재. 최근 누군가 이곳에서 야영했다. 화덕에는 관리국 보급 불쏘시개가 깔려 있다.")},
+        {TEXT("Scratched into the concrete: 'WE REMEMBER.' Below it, in different handwriting: 'For how long?'"),
+         TEXT("콘크리트에 긁어 새긴 글씨: '우리는 기억한다.' 그 아래, 다른 필체로: '언제까지?'")}};
+    const FString* Found = Table.Find(En); return Found ? *Found : En;
 }
 FString GroupAsset(const FMemoriaChapterMapSpec& Spec, const FString& Group) { return TEXT("DA_Field_") + Spec.AssetPrefix + Pascal(Group); }
 FString LevelPath(const FString& Map) { return TEXT("/Game/Memoria/Maps/L_") + Pascal(Map); }

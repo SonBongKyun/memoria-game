@@ -36,6 +36,7 @@ public:
     static constexpr float ArrelHeight = 150.f;
     static constexpr float WalkSpeed = 150.f;      // the source's 120 px/s at the map's 3x scale, within Elia's catch-up
     static constexpr float StepDelay = 1.f;         // belt_waystation.gd waits about a second between chained groups
+    static constexpr float TravelDelay = 4.f;       // the completion card holds before the road moves on
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
@@ -51,7 +52,7 @@ private:
     UPROPERTY(Transient) TMap<FString, TObjectPtr<UStaticMeshComponent>> Markers;
     FDelegateHandle FinishedHandle;
     FVector PreviousPosition = FVector::ZeroVector;
-    float StepAt = -1.f, Clock = 0.f;
+    float StepAt = -1.f, TravelAt = -1.f, Clock = 0.f;
     bool bComplete = false, bDeparting = false;
     UMaterialInstanceDynamic* Surface(const FLinearColor& Srgb, float Roughness = .9f);
     UInstancedStaticMeshComponent* Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide);
@@ -62,6 +63,7 @@ private:
     void OnFieldFinished(const FString& Group);
     void CheckTriggers();
     bool Flag(const FString& Id) const;
+    bool GateOpen(const FString& Gate) const;
     void SetFlag(const FString& Id);
     FString Localized(const FString& Text) const;
 };
