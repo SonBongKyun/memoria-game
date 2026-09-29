@@ -36,6 +36,8 @@ public:
     UMemoriaWorldCognition* GetWorldCognition() const { return WorldCognition; }
     UMemoriaRunSaveGame* CaptureSave() const;
     bool RestoreSave(const UMemoriaRunSaveGame& Save);
+    // S317: the options' language applies to the live run too.
+    void SetLocale(const FString& Locale) { if (HasActiveRun()) State.CurrentLocale = Locale == TEXT("en") ? TEXT("en") : TEXT("ko"); }
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);
     EMemoriaMemoryResult ErodeMemories(int64 ChapterArgument);

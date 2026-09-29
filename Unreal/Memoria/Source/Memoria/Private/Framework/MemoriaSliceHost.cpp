@@ -10,6 +10,8 @@
 #include "Presentation/MemoriaArchiveWidget.h"
 #include "Presentation/MemoriaBattleEntryWidget.h"
 #include "Presentation/MemoriaTitleWidget.h"
+#include "Presentation/MemoriaPauseWidget.h"
+#include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -44,7 +46,9 @@ void AMemoriaSliceGameMode::StartPlay()
     else if (Map.EndsWith(TEXT("L_VerdanHost")))
     {
         if (Narrative->HasPendingVerdanReentry()) Started=Narrative->EnterVerdanReentry();
-        else if ((FParse::Param(FCommandLine::Get(),TEXT("MemoriaContinue")) || UGameplayStatics::HasOption(OptionsString,TEXT("Continue"))) && !GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->HasActiveRun())
+        // An explicit ?Continue travel always restores, even over a live run (Title from the pause menu, then
+        // Continue); the -MemoriaContinue switch outlives travel, so it only applies before a run exists.
+        else if (UGameplayStatics::HasOption(OptionsString,TEXT("Continue")) || (FParse::Param(FCommandLine::Get(),TEXT("MemoriaContinue")) && !GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->HasActiveRun()))
         { Narrative->ContinueCheckpoint(); Started=true; } // Failure is an actionable Continue screen.
         else Started=Narrative->EnterVerdan();
     }
@@ -96,6 +100,19 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             return true;
         }
         if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
+        return true;
+    }
+    // S317 pause menu: it holds every key while open (the world is paused behind it).
+    if(PauseWidget)
+    {
+        if(Params.Event!=IE_Pressed)return true;
+        const FKey K=Params.Key;
+        if(K==EKeys::Up || K==EKeys::W || K==EKeys::Gamepad_DPad_Up){PauseWidget->Navigate(-1);Cue(TEXT("ui_hover"));}
+        else if(K==EKeys::Down || K==EKeys::S || K==EKeys::Gamepad_DPad_Down){PauseWidget->Navigate(1);Cue(TEXT("ui_hover"));}
+        else if(K==EKeys::Left || K==EKeys::A || K==EKeys::Gamepad_DPad_Left)PauseWidget->Adjust(-1);
+        else if(K==EKeys::Right || K==EKeys::D || K==EKeys::Gamepad_DPad_Right)PauseWidget->Adjust(1);
+        else if(ConfirmKey || K==EKeys::J){Cue(TEXT("ui_select"));PauseWidget->Confirm();}
+        else if(K==EKeys::Escape || K==EKeys::BackSpace || K==EKeys::Gamepad_FaceButton_Right || K==EKeys::Gamepad_Special_Right){if(!PauseWidget->Back())ClosePause();}
         return true;
     }
     // S312 memory burn picker: it holds every key while open. 1-9 or Up/Down/wheel choose, R, Enter or a
@@ -158,6 +175,7 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         if(Params.Event==IE_Pressed)ToggleArchive();
         return true;
     }
+    if(Params.Key==EKeys::Escape && Params.Event==IE_Pressed && OpenPause())return true;
     return Super::InputKey(Params);
 }
 void AMemoriaSliceController::Tick(float DeltaSeconds)
@@ -420,6 +438,7 @@ void AMemoriaSliceController::Confirm()
 }
 void AMemoriaSliceController::Back()
 {
+    if(PauseWidget){if(!PauseWidget->Back())ClosePause();return;}
     if(TitleWidget){TitleWidget->Back();return;}
     if(BattleWidget)return;
     if(ArchiveWidget){CloseArchive();return;}
@@ -430,7 +449,7 @@ void AMemoriaSliceController::OpenModal()
     if(BattleWidget || TitleWidget)return;
     if(ArchiveWidget){CloseArchive();return;}
     if (NarrativeWidget) Host()->Back();
-    else if (Host()->GetState() == EMemoriaSliceState::Exploration) Super::OpenModal();
+    else if (Host()->GetState() == EMemoriaSliceState::Exploration && !OpenPause() && !PauseWidget) Super::OpenModal();
 }
 void AMemoriaSliceController::RequestBattleFlee(uint64 Revision)
 {
@@ -468,4 +487,91 @@ void AMemoriaSliceController::RequestBattleAction(const FString& Action,const FS
     else if(Action==TEXT("checkpoint"))Accepted=Battle->RetryCheckpoint(Revision);
     else Accepted=Battle->Submit(Action,Id,Revision);
     if(Accepted)bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
+}
+bool AMemoriaSliceController::OpenPause()
+{
+    auto* Narrative=Host();
+    if(PauseWidget || TitleWidget || BattleWidget || ArchiveWidget || NarrativeWidget || !Narrative || Narrative->GetState()!=EMemoriaSliceState::Exploration || IsModalOpen())return false;
+    if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr; Combat && (Combat->IsPickingBurn() || Combat->IsDefeated()))return false;
+    auto* Game=GetGameInstance();
+    PauseWidget=CreateWidget<UMemoriaPauseWidget>(this,UMemoriaPauseWidget::StaticClass());
+    PauseWidget->Configure(Game->GetSubsystem<UMemoriaSettingsSubsystem>(),Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->CanSaveClosedBoundary(),
+        Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue()!=EMemoriaContinueSource::None,PauseInfo());
+    PauseWidget->OnAction.BindUObject(this,&AMemoriaSliceController::PauseAction);
+    PauseWidget->AddToViewport(60);
+    // get_tree().paused: the world stops behind the menu; the mouse works on its rows.
+    UGameplayStatics::SetGamePaused(this,true);
+    FInputModeGameAndUI Mode; Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); bShowMouseCursor=true;
+    Cue(TEXT("ui_open"));
+    return true;
+}
+void AMemoriaSliceController::ClosePause()
+{
+    if(!PauseWidget)return;
+    PauseWidget->OnAction.Unbind(); PauseWidget->RemoveFromParent(); PauseWidget=nullptr;
+    UGameplayStatics::SetGamePaused(this,false);
+    SetInputMode(FInputModeGameOnly()); bShowMouseCursor=true;
+    FSlateApplication::Get().SetAllUserFocusToGameViewport();
+    Cue(TEXT("ui_close"));
+}
+FString AMemoriaSliceController::PauseInfo() const
+{
+    // _update_save_info: the chapter and place, then the run's numbers, in the menu's language.
+    auto* Game=GetGameInstance();
+    const auto* Run=Game->GetSubsystem<UMemoriaRunSubsystem>();
+    const bool Ko=Game->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale()!=TEXT("en");
+    if(!Run || !Run->HasActiveRun())return FString();
+    const auto State=Run->GetRunSnapshot();
+    int64 Held=0,Burned=0;
+    if(const auto* Memory=Run->GetPlayerMemory())
+    {
+        const auto Snapshot=Memory->GetSnapshot();
+        for(const auto& M:Snapshot.Owned)if(!M.bBurned && !M.bFaded)++Held;
+        Burned=Snapshot.BurnedHistory.Num();
+    }
+    return Ko?FString::Printf(TEXT("%lld장 — 베르단 시장\n기억  보유 %lld · 연소 %lld\nHP %lld / %lld    Grains %lld"),State.CurrentChapter,Held,Burned,State.Player.Hp,State.Player.MaxHp,State.Player.Grains)
+        :FString::Printf(TEXT("Chapter %lld — Verdan Market\nMemories: %lld held, %lld burned\nHP %lld / %lld    Grains %lld"),State.CurrentChapter,Held,Burned,State.Player.Hp,State.Player.MaxHp,State.Player.Grains);
+}
+void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
+{
+    auto* Game=GetGameInstance();
+    auto* Checkpoint=Game->GetSubsystem<UMemoriaCheckpointSubsystem>();
+    const bool Ko=Game->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale()!=TEXT("en");
+    switch(Action)
+    {
+    case EMemoriaPauseAction::Resume: ClosePause(); break;
+    case EMemoriaPauseAction::Save:
+    {
+        // The field checkpoint (a closed boundary) at Arrel's place, as the market's save point writes it.
+        const bool bSaved=GetPawn() && Checkpoint->SaveClosedBoundary(Memoria::Coordinates::ToSource(GetPawn()->GetActorLocation()));
+        PauseWidget->SetNotice(bSaved?(Ko?TEXT("저장했습니다."):TEXT("Saved.")):(Ko?TEXT("저장할 수 없습니다."):TEXT("Could not save.")));
+        PauseWidget->SetCanLoad(Checkpoint->FindContinue()!=EMemoriaContinueSource::None);
+        Cue(bSaved?TEXT("confirm"):TEXT("cancel"));
+        break;
+    }
+    case EMemoriaPauseAction::Load:
+    {
+        // The title's Continue, in place: the newest valid slot replaces the live run.
+        const auto Source=Checkpoint->FindContinue();
+        ClosePause();
+        if(Source==EMemoriaContinueSource::Boundary)Host()->ContinueCheckpoint();
+        else if(Source==EMemoriaContinueSource::Chapter)Host()->ResumeChapterAutosave();
+        LastRevision=INDEX_NONE;
+        break;
+    }
+    case EMemoriaPauseAction::Title:
+        ClosePause();
+        UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"),true,TEXT("Title"));
+        break;
+    case EMemoriaPauseAction::Quit:
+        UE_LOG(LogTemp,Display,TEXT("MEMORIA_PAUSE quit"));
+        if(!GIsAutomationTesting)UKismetSystemLibrary::QuitGame(this,this,EQuitPreference::Quit,false);
+        break;
+    case EMemoriaPauseAction::Language:
+        // The run speaks the menu's language from here on, as the source's single language setting does.
+        Game->GetSubsystem<UMemoriaRunSubsystem>()->SetLocale(Game->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale());
+        PauseWidget->SetInfo(PauseInfo()); LastRevision=INDEX_NONE;
+        break;
+    default: break;
+    }
 }

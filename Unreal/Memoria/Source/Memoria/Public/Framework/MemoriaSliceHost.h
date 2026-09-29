@@ -9,6 +9,8 @@ class UMemoriaDevelopmentNarrativeWidget;
 class UMemoriaArchiveWidget;
 class UMemoriaBattleEntryWidget;
 class UMemoriaTitleWidget;
+class UMemoriaPauseWidget;
+enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
 
 UCLASS()
@@ -37,6 +39,10 @@ public:
     UMemoriaArchiveWidget* GetArchiveWidget() const { return ArchiveWidget; }
     UMemoriaDevelopmentNarrativeWidget* GetNarrativeWidget() const { return NarrativeWidget; }
     UMemoriaTitleWidget* GetTitleWidget() const { return TitleWidget; }
+    // S317: the ESC pause menu (pause_menu.gd) while exploring.
+    UMemoriaPauseWidget* GetPauseWidget() const { return PauseWidget; }
+    bool OpenPause();
+    void ClosePause();
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -55,6 +61,9 @@ private:
     void ClearBattleWidget();
     UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryWidget> BattleWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaTitleWidget> TitleWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaPauseWidget> PauseWidget;
+    void PauseAction(EMemoriaPauseAction Action);
+    FString PauseInfo() const;
     void TitleAction(EMemoriaTitleAction Action);
     void ClearTitle();
     FVector CursorOnFloor() const;

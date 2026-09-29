@@ -203,6 +203,16 @@ bool UMemoriaCheckpointSubsystem::SaveClosedBoundary(const FVector2D& Position)
     if (!CommitDiskFile(Path,Text)) return Fail(TEXT("Checkpoint not saved: disk write failed. Retry saving."));
     StatusText=TEXT("Checkpoint saved to disk."); return true;
 }
+bool UMemoriaCheckpointSubsystem::CanSaveClosedBoundary() const
+{
+    if (bBusy || !CanAccess()) return false;
+    auto* Save=Run->CaptureSave();
+    const auto* Catalog=LoadObject<UMemoriaMemoryCatalog>(nullptr,CatalogPath);
+    if (!Save || !Catalog) return false;
+    Save->SavedAtUtc=FDateTime::UtcNow(); Save->MemoryCatalogId=Catalog->GetPrimaryAssetId();
+    Save->FieldReturn.SourceScenePath=SourceScene; Save->FieldReturn.MapId=BoundaryId; Save->FieldReturn.SourcePixelPosition=FVector2D(500,340);
+    return ValidateSnapshot(*Save);
+}
 bool UMemoriaCheckpointSubsystem::RestoreClosedBoundary(FVector2D& OutPosition)
 {
     if (bBusy || !CanAccess()) return Fail(TEXT("Checkpoint unavailable: disk storage is disabled or busy."));
