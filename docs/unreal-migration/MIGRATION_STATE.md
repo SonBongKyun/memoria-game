@@ -1,3 +1,34 @@
+# Migration handoff — S323 tutorial hints (Claude lane, 2026-09-30)
+
+- **Why.** Step C, the side systems, begins here: journal, codex/bestiary, achievements, tutorial hints. The hints come first because the action field's controls are otherwise only in the HUD's control line.
+- **`UMemoriaTutorialSubsystem`** (after `tutorial_hints.gd`).
+  - A hint shows once, the first time its moment comes. It holds for 4 s, and any key or click lets it go (fade .25 s).
+  - Shown ids persist per profile in GameUserSettings.ini (`/Script/Memoria.MemoriaTutorial`, `ShownHints`), never in tests or commandlets, like the settings subsystem.
+  - A new hint replaces the one on screen, as in the source.
+- **Hints carried.**
+  - `first_burn` and `first_shop` keep the source's words.
+  - `first_battle` names the action controls, in the combat HUD's terms (strike, hold for a spinning slash, guard/parry, dodge, R to burn).
+  - `first_status_effect` says statuses wear off with time instead of lasting turns.
+  - Not carried: the source hints for turn-based systems the action field does not have (approach, BREAK, resonance, directive, equipment, pulse). `ShowHint` refuses them.
+- **Triggers** (`AMemoriaSliceController::UpdateHints`, polled each frame; battle_manager.gd's moments):
+  - `first_battle`: the first live foes;
+  - `first_burn`: the first field burn;
+  - `first_status_effect`: the first poison or weaken on Arrel.
+  - `first_shop` is defined but, as in the source, never raised.
+- **Deviation.** The key that dismisses a hint is not swallowed: in real-time combat it is also a strike or a dodge. The source consumes it.
+- **Widget** (`UMemoriaHintWidget`, z 65: over the pause menu, under game over).
+  - The source's banner frame (`ui_tutorial_hint_banner`, imported by `-run=MemoriaBattleEntryAssets` as `T_UiHintBanner`) and the dark panel with a gold border and centred, word-wrapped text (15 px at 720p).
+  - It slides 70 in with a back-ease over .35 s, and fades on the way out.
+  - The source's top band (.20–.80) would cover the status panel, so the hint takes the gap between the status panel (to .37) and the HUD (from .865). This follows the source's own rule of placing it where nothing overlaps (it moved the hint in battle for the same reason).
+- **Tests.**
+  - New `MemoriaVisual.TutorialHints` covers the first foes, a dash that dismisses the hint and still dashes, the first burn in Korean in the source's words, leaving after four seconds, and no repeat.
+  - Other field tests now show the first-battle hint in their captures, without changing their results.
+- **Results.**
+  - Visual 20/20 (s323-visual).
+  - The first full run (s323-full) produced no report. The editor hit an engine assertion, `IsInGameThread()` in SceneViewport.cpp:196, from the Slate RHI renderer on the render thread. It happened while `Memoria.Foundation.MapInputAndModal` tore down its PIE window, two frames after starting.
+  - That test tears down just as quickly in the passing s322b run, and it never creates a hint. The crash was read as an intermittent engine teardown race.
+  - The unchanged rerun passed: full rendered registry 414/414 (s323b-full). If it recurs, look at that test's immediate teardown.
+
 # Migration handoff — S322 Chapter 5, The Classifier (Claude lane, 2026-09-30)
 
 - **Why.** Step B continues. Chapter 5 is not a map: `ch5_classifier_entry.gd` consumes the Chapter 4 boundary, freezes Malet's report as one Kairos fact, and hands presentation to the VN `ch5_classifier` (22 steps).

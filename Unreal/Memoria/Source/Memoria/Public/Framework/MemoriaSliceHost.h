@@ -11,6 +11,7 @@ class UMemoriaBattleEntryWidget;
 class UMemoriaTitleWidget;
 class UMemoriaPauseWidget;
 class UMemoriaGameOverWidget;
+class UMemoriaHintWidget;
 enum class EMemoriaGameOverAction : uint8;
 enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
@@ -47,6 +48,8 @@ public:
     void ClosePause();
     // S318: the defeat screen (game_over.gd) once Arrel's fall has played out.
     UMemoriaGameOverWidget* GetGameOverWidget() const { return GameOverWidget; }
+    // S323: the tutorial hint on screen (tutorial_hints.gd).
+    UMemoriaHintWidget* GetHintWidget() const { return HintWidget; }
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -67,6 +70,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaTitleWidget> TitleWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPauseWidget> PauseWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaGameOverWidget> GameOverWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaHintWidget> HintWidget;
+    void UpdateHints(class UMemoriaFieldCombatSubsystem* Combat);
     void GameOverAction(EMemoriaGameOverAction Action);
     void CloseGameOver();
     void LoadNewest();
