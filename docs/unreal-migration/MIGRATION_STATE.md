@@ -1,3 +1,60 @@
+# Migration handoff — S313–S316 foes, source rules, feel, exploration HUD (Claude lane, 2026-09-28)
+
+- **Why.** Codex's quota is low, so its monster models (the S313 request in the shared `claude-handoff.md`) are on hold. The user asked Claude to do what it can alone, in order: stand-in foes, rewards and source data, combat feel, cleanup.
+- **S313 foes.**
+  - `-run=MemoriaFoeAssets` makes `M_FieldFoe`, a skeletal-usage material with parameters Color, Glow, CrackStrength, RimStrength, Hit and HitColor.
+    - Violet cracks follow the pre-skinned position through a vertex interpolator (a pixel-shader read failed to compile, which falls back to the default material).
+    - `MemoriaVisual.FieldFoes` now requires a clean compile.
+  - The same commandlet retargets UAL2's Zombie_Idle/Walk/Scratch and Sword_Regular_A/B onto the mannequin (`Combat/Foes/A_Mannequin_*`).
+  - `EMemoriaFoeKind`/`FoeSpec`:
+    - **void husk:** it shambles and scratches;
+    - **market thief:** the Verdan source enemy, on Quinn, fast, with a short blade.
+  - Monsters spawn deferred with their kind. Verdan encounters bring 2 thieves for the pool's thief entry and 3 husks as the Alley Rat stand-in. F10 calls a thief.
+- **S314 source rules** (battle_core `Win` and abilities, a turn read as about 2 s).
+  - **Grains:** (void ? 8 : 3) + max HP / 20 per fallen foe.
+  - **A won fight:** +20% HP and a 30% drop from the potion table (richer after a void foe); a victory panel.
+  - **Statuses:** the thief weakens Arrel (x0.7 for 6 s); the husk (rat stand-in) poisons him (3 ticks, never lethal).
+  - **A guard or parry** blocks the status.
+  - **Burns:**
+    - Ember Affinity x1.1, Void Touch x1.15, Residual Warmth +5;
+    - the chain gives +20% per consecutive relationship-or-higher burn;
+    - identity and core burns ignite the foes.
+  - **Not ported:** the bestiary (Codex) does not exist in Unreal yet.
+- **S315 feel.**
+  - A landed blow gives:
+    - a real-time hit stop (world dilation 0.06 for 0.055 or 0.11 s);
+    - camera shake on the Verdan follow camera;
+    - a foe flash;
+    - spark streaks;
+    - the blade trail (HUD-painted).
+  - **Heavy cut:** hold J or LMB for 0.45 s, with a charge ring. Sword_Regular_C at 360 degrees, 30 damage, reach 215.
+  - **Guard:** hold K or RMB. Sword_Block is held at 38%.
+    - Raised within 0.22 s of the blow, it parries: no harm, and the foe is stunned for 1.2 s.
+    - Raised earlier, it blocks: 30% of the damage.
+  - **Fix:** a parried foe no longer overwrites its stun with recovery.
+- **S316 exploration HUD.** `UMemoriaExplorationHudWidget` at the top right, after `exploration_hud.gd`:
+  - HP with the ghost bar, the chapter and place, memories held and burned, grains, items;
+  - the source's pulse, weapon and quest rows have no Unreal systems yet.
+- **Retiring the turn-based battle: deferred, with this plan.**
+  - Play already uses field encounters only. Automation keeps the old route through `UseFieldEncounters()` and `SetFieldEncountersForTests`.
+  - Removing it touches many suites:
+    - `Memoria.BattleEntry.*` (Source oracle, EncounterDistance, OwnerLifetime, SavedStats, RenderedRevisitFlow);
+    - `Memoria.BattleCore.*` (Source oracle, RenderedJourney, OwnerLifetime, StagePresentation);
+    - the Malet `ShopBattle*` refusal flows;
+    - `MemoriaNarrativeVisualTests` encounter steps;
+    - the narrative subsystem's `IsActive()` guards;
+    - audio battle music;
+    - checkpoint stats.
+  - **Order:**
+    1. Rewrite the encounter-driven tests on field encounters.
+    2. Drop the automation opt-out.
+    3. Remove the BattleEntry widget and art.
+    4. Keep the BattleModel source oracle only while its rules still feed field numbers.
+  - This is a session of its own.
+- **Checked.** Garments under the sword set: the S312 pose sheet (25 frames) showed no tearing. Field lighting was left as is (no concrete defect).
+- **Tests.** New `MemoriaVisual.FieldFoes`, `FieldRewards` (with the exploration panel) and `FieldFeel`. `FieldCombat` counts blows taken for the dodge check.
+- **Results.** Full rendered registry: 413/413 (s316-full). Visual suite: 12/12 (s316-visual).
+
 # Migration handoff — S312 memory burn skill and Arrel's sword (Claude lane, 2026-09-28)
 
 - **Why.** The user's plan after S311: memory burn becomes the powerful skill, Arrel fights with his sword, and the monster model goes to Codex (the request is in the shared `claude-handoff.md`).
