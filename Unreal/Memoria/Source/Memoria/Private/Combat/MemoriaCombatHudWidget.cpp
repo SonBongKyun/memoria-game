@@ -76,7 +76,7 @@ bool UMemoriaCombatHudWidget::IsShowing() const
     const auto* C = Combat.Get();
     return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
         C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned() ||
-        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetCharge() > 0.f || C->IsBlocking());
+        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -185,6 +185,32 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     if (C->IsWeakened()) Tag(Ko ? FString::Printf(TEXT("약화 %d초"), WeakSeconds) : FString::Printf(TEXT("Weak %ds"), WeakSeconds), Srgb(.80f, .66f, 1.f));
     if (C->IsPoisoned()) Tag(Ko ? FString::Printf(TEXT("중독 ×%d"), PoisonTicks) : FString::Printf(TEXT("Poison ×%d"), PoisonTicks), Srgb(.60f, 1.f, .42f));
     if (C->IsBlocking()) Tag(Ko ? TEXT("막기") : TEXT("Guard"), Srgb(.78f, .86f, 1.f));
+    // S319: Elia's techniques in a row under the bar (the control hint moves below it): the key, the name (or ??? until her diary unlocks it) and
+    // the cooldown draining from the slot.
+    for (int32 I = 0; I < 4; ++I)
+    {
+        const bool bOpen = C->IsEliaSkillUnlocked(I);
+        const float Cool = bOpen ? C->GetEliaCooldown(I) / MemoriaCombatTuning::EliaSkills[I].Cooldown : 0.f;
+        const FVector2D Cell(222, 34), SlotAt(At.X + Bar.X * .5 - 2 * (Cell.X + 8) + 4 + I * (Cell.X + 8), At.Y + Bar.Y + 14);
+        Box(Elements, Layer, Geometry, SlotAt, Cell, bOpen ? Srgb(.07f, .09f, .13f, .88f) : Srgb(.05f, .05f, .06f, .6f));
+        if (Cool > 0.f) Box(Elements, Layer + 1, Geometry, SlotAt, FVector2D(Cell.X * Cool, Cell.Y), Srgb(.02f, .02f, .03f, .7f));
+        Box(Elements, Layer + 1, Geometry, SlotAt, FVector2D(Cell.X, 1.5f), bOpen && Cool <= 0.f ? Srgb(.62f, .82f, 1.f, .9f) : Srgb(.3f, .32f, .36f, .5f));
+        const FLinearColor Ink = !bOpen ? Srgb(.40f, .40f, .42f) : Cool > 0.f ? Srgb(.55f, .60f, .66f) : Srgb(.85f, .92f, 1.f);
+        TextAt(Elements, Layer + 3, Geometry, FString::FromInt(I + 1), SlotAt + FVector2D(12, Cell.Y * .5), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.62f, .66f, .72f));
+        TextAt(Elements, Layer + 3, Geometry, bOpen ? FString(Ko ? MemoriaCombatTuning::EliaSkills[I].NameKo : MemoriaCombatTuning::EliaSkills[I].Name) : FString(TEXT("???")),
+            SlotAt + FVector2D(24, Cell.Y * .5), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Ink);
+    }
+    if (const APawn* Arrel = C->GetPlayer(); Arrel && C->IsShielded())
+        Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 4.f), 64.f, 1.f, 3.f, FLinearColor(.62f, .82f, 1.f, .8f));
+    // The diary notice after a burn (EliaDiary toasts), under the burn banner.
+    if (C->GetEliaNoticeAge() < 3.5f && !C->GetEliaNotice().IsEmpty())
+    {
+        const float A = FMath::Clamp(FMath::Min(C->GetEliaNoticeAge() / .3f, (3.5f - C->GetEliaNoticeAge()) / .6f), 0.f, 1.f);
+        TArray<FString> NoteLines; C->GetEliaNotice().ParseIntoArrayLines(NoteLines);
+        for (int32 N = 0; N < NoteLines.Num(); ++N)
+            Text(Elements, Layer + 6, Geometry, NoteLines[N], FVector2D(Size.X * .5, 300 + 30.f * N), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, N == 0 ? 17 : 19),
+                N == 0 ? Srgb(.72f, .80f, .90f, A) : Srgb(.62f, .85f, 1.f, A));
+    }
     // S314: the won fight's rewards (source Win), above the bar for a few seconds.
     const FMemoriaFieldReward& Won = C->GetLastReward();
     if (Won.Age < RewardShown)
@@ -200,8 +226,8 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         Text(Elements, Layer + 5, Geometry, Line, Center + FVector2D(0, 18), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16), Srgb(.92f, .88f, .80f, A));
     }
     if (C->LiveMonsterCount() > 0)
-        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격 (길게: 회전베기)     우클릭 / K  막기     Shift  회피     R  기억 연소") : TEXT("LMB / J  Attack (hold: spin)     RMB / K  Guard     Shift  Dodge     R  Burn a memory"),
-            At + FVector2D(Bar.X * .5, Bar.Y + 26), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.80f, .76f, .70f, .9f));
+        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격 (길게: 회전베기)     우클릭 / K  막기     Shift  회피     R  기억 연소     1–4  엘리아 기술") : TEXT("LMB / J  Attack (hold: spin)     RMB / K  Guard     Shift  Dodge     R  Burn a memory     1–4  Elia"),
+            At + FVector2D(Bar.X * .5, Bar.Y + 74), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.80f, .76f, .70f, .9f));
     if (C->IsDefeated())
     {
         Box(Elements, Layer + 4, Geometry, FVector2D::ZeroVector, Size, FLinearColor(.02f, 0, 0, .55f));

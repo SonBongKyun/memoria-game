@@ -160,6 +160,9 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
             if(Params.Key==EKeys::F10){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f,EMemoriaFoeKind::MarketThief);return true;}
             if(Params.Key==EKeys::R){Combat->OpenBurnPicker();return true;}
+            // S319: Elia's techniques on 1-4.
+            static const FKey Techniques[4]={EKeys::One,EKeys::Two,EKeys::Three,EKeys::Four};
+            for(int32 I=0;I<4;++I)if(Params.Key==Techniques[I]){if(!Combat->UseEliaSkill(I))Cue(TEXT("cancel"));return true;}
         }
     }
     if(ArchiveWidget)

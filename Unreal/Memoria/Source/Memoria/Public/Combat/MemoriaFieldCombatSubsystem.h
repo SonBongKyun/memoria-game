@@ -76,6 +76,15 @@ public:
     FVector GetShakeOffset() const;
     const TArray<FMemoriaSpark>& GetSparks() const { return Sparks; }
     const TArray<FMemoriaTrailSample>& GetTrail() const { return Trail; }
+    // S319: Elia's techniques, keys 1-4 (elia_diary.gd): unlocked by burning her diary's memories.
+    bool IsEliaSkillUnlocked(int32 Slot) const;
+    float GetEliaCooldown(int32 Slot) const { return Slot >= 0 && Slot < 4 ? EliaCooldown[Slot] : 0.f; }
+    bool UseEliaSkill(int32 Slot);
+    bool IsShielded() const { return ShieldLeft > 0.f; }
+    int32 GetEliaSkillsUsed() const { return EliaSkillsUsed; }
+    // The diary notice after a burn: "Elia wrote in her diary..." and any technique it unlocked.
+    const FString& GetEliaNotice() const { return EliaNotice; }
+    float GetEliaNoticeAge() const { return EliaNoticeAge; }
     void NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage);
     // Seeds the drop roll (tests); a fresh stream otherwise.
     void SeedDrops(int32 Seed) { Drops.Initialize(Seed); }
@@ -123,7 +132,12 @@ private:
     float CastLeft = 0.f, SheatheIn = 0.f, WeakenLeft = 0.f, PoisonClock = 0.f;
     float HitStopLeft = 0.f, ShakeLeft = 0.f, ShakeStrength = 0.f, ShakeClock = 0.f, ChargeHeld = 0.f, BlockHeld = 0.f;
     bool bCharging = false, bBlocking = false;
-    int32 Parries = 0, Blocks = 0;
+    int32 Parries = 0, Blocks = 0, EliaSkillsUsed = 0;
+    float EliaCooldown[4] = {0.f, 0.f, 0.f, 0.f};
+    float ShieldLeft = 0.f, EliaNoticeAge = 99.f;
+    FString EliaNotice;
+    class AMemoriaEliaCompanion* FindElia() const;
+    void NoteDiary(const FString& MemoryId);
     TArray<FMemoriaSpark> Sparks;
     TArray<FMemoriaTrailSample> Trail;
     static float ChargeTimeValue();

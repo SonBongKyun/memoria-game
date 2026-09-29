@@ -74,6 +74,18 @@ inline const TCHAR* BurnSkillName(int32 Grade, bool bKo)
     static const TCHAR* En[5] = {TEXT("Ember"), TEXT("Blue Flame Slash"), TEXT("Incinerate"), TEXT("Identity Pyre"), TEXT("Zero Burn")};
     return (bKo ? Ko : En)[FMath::Clamp(Grade, 0, 4)];
 }
+// S319: Elia's techniques (elia_diary.gd SKILL_DEFS). Burning the memory her diary entry follows, while she is
+// with the party, unlocks it. Cooldowns are the source turns at about two seconds each.
+struct FMemoriaEliaSkillSpec { const TCHAR* Id; const TCHAR* Memory; const TCHAR* Name; const TCHAR* NameKo; float Cooldown; };
+inline const FMemoriaEliaSkillSpec EliaSkills[4] = {
+    {TEXT("humming_shield"), TEXT("daily_campfire_song"), TEXT("Humming Shield"), TEXT("흥얼거림의 방패"), 6.f},
+    {TEXT("desperate_reach"), TEXT("rel_hand_reaching"), TEXT("Desperate Reach"), TEXT("절박한 손길"), 8.f},
+    {TEXT("remembered_strike"), TEXT("identity_first_sword"), TEXT("Remembered Strike"), TEXT("기억된 일격"), 6.f},
+    {TEXT("anchor_pulse"), TEXT("daily_elia_hands"), TEXT("Anchor Pulse"), TEXT("닻의 맥동"), 8.f}};
+inline constexpr float HummingShieldTime = 2.f, HummingShieldFactor = .5f;   // "damage halved for 1 turn"
+inline constexpr float DesperateReachStun = 2.f, DesperateReachRange = 320.f; // "stuns the enemy for 1 turn"
+inline constexpr float RememberedStrikeRange = 420.f;                         // 10 + burned memories * 8
+inline constexpr float AnchorPulseShare = .15f;                               // 15% of max HP, statuses cured
 // The drop table's items (battle_core items), for the reward toast.
 inline FString ItemName(const FString& Id, bool bKo)
 {

@@ -22,6 +22,7 @@ public:
     virtual bool Interact(APawn& Pawn) override;
     virtual void Tick(float DeltaSeconds) override;
     FString Facing() const { return Direction; }
+    UMemoriaFieldCharacterComponent* GetFigure() const { return Figure; }
     // companion.gd constants, in source pixels (1 unit per pixel in this slice).
     // Godot companion.gd FORMATION_DISTANCE, kept for the source fixture.
     static constexpr double SourceFormationDistance = 48;
