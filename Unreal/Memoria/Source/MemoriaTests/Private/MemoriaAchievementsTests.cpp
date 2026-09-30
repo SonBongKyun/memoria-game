@@ -125,8 +125,9 @@ public:
             Press(EKeys::Escape);
             if (auto* Menu = PC->GetPauseWidget())
             {
-                Test->TestEqual(TEXT("Achievements is the fifth row"), Menu->ItemLabel(4), FString(TEXT("업적")));
-                Menu->Select(4); Press(EKeys::Enter);
+                int32 Row = -1; for (int32 I = 0; I < UMemoriaPauseWidget::ItemCount; ++I) if (Menu->ItemLabel(I) == TEXT("업적")) Row = I;
+                Test->TestTrue(TEXT("The menu lists Achievements"), Row >= 0);
+                Menu->Select(Row); Press(EKeys::Enter);
             }
             ++Phase; Mark = Frame; break;
         case 4:

@@ -31,6 +31,8 @@ const TArray<FMemoriaBattleEntryArtSource>& Sources()
         {TEXT("res://assets/cg/generated/ui_pause_control_slab.png"),TEXT("assets/cg/generated/ui_pause_control_slab.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiPauseSlab"),false},
         // tutorial_hints.gd banner frame (S323).
         {TEXT("res://assets/cg/generated/ui_tutorial_hint_banner.png"),TEXT("assets/cg/generated/ui_tutorial_hint_banner.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiHintBanner"),false},
+        // codex.gd backdrop (S325).
+        {TEXT("res://assets/cg/generated/ui_codex_archive_backdrop_v2.png"),TEXT("assets/cg/generated/ui_codex_archive_backdrop_v2.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiCodexBackdrop"),false},
         // pause_menu.gd achievements backdrop (S324).
         {TEXT("res://assets/cg/generated/ui_achievements_chronicle_backdrop.png"),TEXT("assets/cg/generated/ui_achievements_chronicle_backdrop.png"),TEXT("/Game/Memoria/Presentation/BattleEntry/T_UiAchievementsBackdrop"),false},
     };
