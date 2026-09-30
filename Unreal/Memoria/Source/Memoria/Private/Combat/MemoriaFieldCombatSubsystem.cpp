@@ -21,7 +21,6 @@
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 using namespace MemoriaCombatTuning;
-bool UMemoriaFieldCombatSubsystem::bFieldEncountersInTests = false;
 namespace
 {
 UMemoriaRunSubsystem* RunOf(const UWorld* World)
@@ -29,7 +28,6 @@ UMemoriaRunSubsystem* RunOf(const UWorld* World)
 void Cue(const UWorld* World, const TCHAR* Id)
 { if (auto* Audio = World && World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>() : nullptr) Audio->PlaySfx(Id); }
 }
-bool UMemoriaFieldCombatSubsystem::UseFieldEncounters() { return !GIsAutomationTesting || bFieldEncountersInTests; }
 void UMemoriaFieldCombatSubsystem::RegisterPlayer(APawn* Pawn, UMemoriaFieldCharacterComponent* Figure)
 { Player = Pawn; PlayerFigure = Figure; ComboStep = -1; DashLeft = StaggerLeft = CastLeft = 0.f; bDefeated = false; CloseBurnPicker(); }
 int64 UMemoriaFieldCombatSubsystem::GetPlayerHp() const { const auto* Run = RunOf(GetWorld()); return Run ? Run->State.Player.Hp : 0; }

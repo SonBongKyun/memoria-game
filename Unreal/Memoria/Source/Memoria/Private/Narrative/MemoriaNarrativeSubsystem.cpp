@@ -8,7 +8,6 @@
 #include "Engine/Engine.h"
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
-#include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Narrative/MemoriaVerdanStory.h"
 #include "Narrative/MemoriaSumpLedger.h"
 #include "Chapter/MemoriaChapterMap.h"
@@ -313,8 +312,8 @@ bool UMemoriaNarrativeSubsystem::EnterVerdanReentry()
 }
 bool UMemoriaNarrativeSubsystem::ReturnFromAmbientBattle()
 {
-    if (!IsVerdanRevisit() || State!=EMemoriaSliceState::Exploration ||
-        GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
+    // S329: the turn-based flee's return is retired; this remains the revisit's re-entry at the authored spawn.
+    if (!IsVerdanRevisit() || State!=EMemoriaSliceState::Exploration) return false;
     // Source _position_player has no loaded_pos after flee, so uses the authored spawn.
     ReentryPosition=FVector2D(128,288); bPendingVerdanReentry=true; RevisitWorld.Reset();
     CancelMaletDelay(); RewardCallbackWorld.Reset(); State=EMemoriaSliceState::Travelling;
@@ -324,7 +323,6 @@ bool UMemoriaNarrativeSubsystem::ReturnFromAmbientBattle()
 
 bool UMemoriaNarrativeSubsystem::InteractWithMalet()
 {
-    if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
     if (State != EMemoriaSliceState::Exploration || !Context || !GetWorld() ||
         !GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
     Record(TEXT("interact:Malet"));
@@ -405,7 +403,6 @@ bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) cons
 }
 bool UMemoriaNarrativeSubsystem::StartStoryBeat(const FString& Group)
 {
-    if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
     if (State != EMemoriaSliceState::Exploration || !Context || !IsStoryBeatAvailable(Group)) return false;
     if (Group == MemoriaSumpLedger::TraderPoint || Group == MemoriaSumpLedger::LedgerPoint) return HandleSumpLedger(Group);
     const auto* Beat = MemoriaVerdanStory::Find(Group);
@@ -480,7 +477,6 @@ FString UMemoriaNarrativeSubsystem::GetQuestTrackerLine() const
 }
 bool UMemoriaNarrativeSubsystem::InteractWithElia()
 {
-    if (GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive()) return false;
     if (State != EMemoriaSliceState::Exploration || !Context || !StoryWorld.IsValid() || StoryWorld.Get() != GetWorld()) return false;
     const auto& S = Run->GetRunSnapshot();
     // PerceptionFilter.take_burn_reaction, in the order verdan_market.gd sets the metadata.

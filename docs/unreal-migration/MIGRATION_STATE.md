@@ -1,3 +1,30 @@
+# Migration handoff — S329 turn-based retirement, step 2: the battle removed (Claude lane, 2026-09-30)
+
+- **Why.** The user chose a staged removal. S328 moved the encounter behaviour onto field combat and tested it there. This session removes the turn-based battle, which only automation still used.
+- **Removed** (all recoverable from history):
+  - `UMemoriaBattleEntrySubsystem`, `MemoriaBattleModel` and their generated `MemoriaBattleSource.inl` / `MemoriaBattleCoreSource.inl`;
+  - `UMemoriaBattleEntryWidget`;
+  - the battle stage commandlet and its test;
+  - `MemoriaBattleCoreTests`, the `MemoriaBattleEntryContractSpec`;
+  - the source-battle oracle exporters `export_battle_core_oracle.py` and `export_battle_entry_oracle.py`, `test_battle_entry_tools.py`, and their fixtures (`fixtures/battle_core`, `fixtures/battle_entry`);
+  - the automation opt-out (`UseFieldEncounters` / `SetFieldEncountersForTests`): field encounters are the only encounter path, in play and in tests.
+  - The registry drops the BattleEntry (47) and BattleCore (101) suites: 417 → 270, with one new test.
+  - The docs (`BATTLE_CORE_S296.md`, `BATTLE_CORE_SPEC.md`) stay as history.
+- **Changed.**
+  - **Slice controller:** no battle widget, flee or battle actions. A revisit encounter always raises field foes.
+  - **Narrative:** the battle guards on Malet, story beats and Elia are gone. `ReturnFromAmbientBattle` stays as the revisit's re-entry at the authored spawn (the Sump Ledger step uses it).
+  - **Audio:** `battle_theme` and the `battle_intro` cue now follow live field foes, like the source's battle scene. The flee cue and the battle-return state went with the battle.
+- **Kept.**
+  - `FMemoriaEncounterModel`: the source distance rules the field uses.
+  - `MemoriaBattleEntryArt` and `-run=MemoriaBattleEntryAssets`: the UI art table the pause, game over, hint, achievement, codex and journal screens load from. Its battle-only textures and `M_BattlePlate` stay as unused content for now.
+  - The art tools (`export_battle_entry_art.py`, `author_battle_entry_assets.py`) and the historical session tools.
+- **Journey preserved.** The Malet journey's battle modes (`ShopBattle`, `ShopBattleCombat`) also carried non-battle coverage after their fights. It is now one mode, `ShopRevisit`, and one test, `Memoria.Verdan.RevisitJourney`:
+  - the closed boundary's checkpoint and its physical reentry;
+  - the held-key guard after that travel (formerly after the flee);
+  - the two source story beats, the Sump Ledger and Elia.
+  - Stages 16–26 (encounter, battle, flee, victory, defeat and recovery) are removed. The encounter part is covered by S328's `MemoriaVisual.FieldEncounters`.
+- **Results.** Full rendered registry 270/270 (s329-full), visual 24/24 (s329-visual).
+
 # Migration handoff — S328 turn-based retirement, step 1: field encounters tested (Claude lane, 2026-09-30)
 
 - **Why.** Step D, which the user chose to do in stages.

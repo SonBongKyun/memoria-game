@@ -7,7 +7,6 @@ class UMemoriaNarrativeSubsystem;
 class UMemoriaInteractionComponent;
 class UMemoriaDevelopmentNarrativeWidget;
 class UMemoriaArchiveWidget;
-class UMemoriaBattleEntryWidget;
 class UMemoriaTitleWidget;
 class UMemoriaPauseWidget;
 class UMemoriaGameOverWidget;
@@ -40,7 +39,6 @@ public:
     FString GetInteractionPrompt() const;
     void ToggleArchive();
     void CloseArchive();
-    UMemoriaBattleEntryWidget* GetBattleWidget() const { return BattleWidget; }
     double GetEncounterPressure() const { return EncounterPressure; }
     const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
     UMemoriaArchiveWidget* GetArchiveWidget() const { return ArchiveWidget; }
@@ -73,11 +71,6 @@ private:
     FMemoriaEncounterRng EncounterRng = FMemoriaEncounterRng::Random();
     bool bEncounterInitialized = false;
     double EncounterPressure = 0.;
-    void RequestBattleFlee(uint64 Revision);
-    void RequestBattleAction(const FString& Action,const FString& Id,uint64 Revision);
-    void BattleReturned();
-    void ClearBattleWidget();
-    UPROPERTY(Transient) TObjectPtr<UMemoriaBattleEntryWidget> BattleWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaTitleWidget> TitleWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaPauseWidget> PauseWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaGameOverWidget> GameOverWidget;

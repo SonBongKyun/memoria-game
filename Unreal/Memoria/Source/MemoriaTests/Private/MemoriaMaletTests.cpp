@@ -2,9 +2,7 @@
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Presentation/MemoriaShopWidget.h"
 #include "Presentation/MemoriaArchiveWidget.h"
-#include "Presentation/MemoriaBattleEntryWidget.h"
 #include "Presentation/MemoriaBattleEntryArt.h"
-#include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "MemoriaPotionEvidence.h"
@@ -267,13 +265,14 @@ public:
                 FScreenshotRequest::RequestScreenshot(Output()/(Mode()+TEXT("_")+Label+TEXT(".png")), true, false);
             }
         };
-        if(RefusalMode.StartsWith(TEXT("ShopBattle")) && Stage==18)
+        // S329: held keys after the checkpoint reentry's actual travel (the turn-based battle's flee used to cover it).
+        if(RefusalMode==TEXT("ShopRevisit") && Stage==27 && StoryGroup==TEXT("verdan_old_burner"))
         {
-            if(Frame==5){BattleReturnTrace=Host->GetTrace();Key(EKeys::Enter,IE_Repeat);Key(EKeys::Escape,IE_Repeat);}
+            if(Frame==5){TravelTrace=Host->GetTrace();Key(EKeys::Enter,IE_Repeat);Key(EKeys::Escape,IE_Repeat);}
             if(Frame==9)
             {
                 Test->TestFalse(TEXT("Unmatched repeat after actual travel cannot open a modal"),PC->IsModalOpen());
-                Test->TestTrue(TEXT("Held confirm after actual travel cannot advance narrative"),Host->GetTrace()==BattleReturnTrace);
+                Test->TestTrue(TEXT("Held confirm after actual travel cannot advance narrative"),Host->GetTrace()==TravelTrace);
                 Key(EKeys::Enter,IE_Released);Key(EKeys::Escape,IE_Released);
             }
         }
@@ -285,7 +284,7 @@ public:
         }
         if (!bStarted)
         {
-            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode.StartsWith(TEXT("ShopBattle")))Test->TestTrue(TEXT("Canonical saves are isolated"),Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->ConfigureTestStorage(TEXT("canonical-")+FGuid::NewGuid().ToString(EGuidFormats::Digits)));
+            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode==TEXT("ShopRevisit"))Test->TestTrue(TEXT("Canonical saves are isolated"),Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->ConfigureTestStorage(TEXT("canonical-")+FGuid::NewGuid().ToString(EGuidFormats::Digits)));
             bStarted = true; bWasFixed = FApp::UseFixedTimeStep(); OldDelta = FApp::GetFixedDeltaTime();
             FApp::SetUseFixedTimeStep(true); FApp::SetFixedDeltaTime(1.0/60.0);
             // Resize the actual PIE window, independent of remembered editor
@@ -885,7 +884,7 @@ public:
                 TestTrueShop(PC,Shop,Run);
                 if(RefusalMode==TEXT("ShopCanonical")) {Capture(TEXT("Shop_FirstScreen"));Write(Host,Run,Pawn,TEXT("shop_first_screen"));MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("shop_canonical_save.json"));}
                 if(RefusalMode==TEXT("FirebombCanonical"))MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("save_roundtrip.json")); Write(Host,Run,Pawn,TEXT("reward_effects_deferred"));
-                Stage=(RefusalMode==TEXT("ShopTransactions") || RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode.StartsWith(TEXT("ShopBattle")))?14:9; Frame=-1;
+                Stage=(RefusalMode==TEXT("ShopTransactions") || RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode==TEXT("ShopRevisit"))?14:9; Frame=-1;
             }
         }
         else if (Stage == 8 && Frame == 40)
@@ -928,12 +927,12 @@ public:
                 Test->TestTrue(TEXT("Actual save status visible"),PC->GetNarrativeWidget()->VisibleText().Contains(Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText()));
                 Write(Host,Run,Pawn,TEXT("shop_transactions_closed"));
                 MemoriaPotionEvidence::SaveRoundTrip(*Test,*Run,TEXT("shop_transactions_canonical_save.json"));
-                if(RefusalMode!=TEXT("ShopCheckpoint") && RefusalMode!=TEXT("ShopArchive") && !RefusalMode.StartsWith(TEXT("ShopBattle")))return true;
+                if(RefusalMode!=TEXT("ShopCheckpoint") && RefusalMode!=TEXT("ShopArchive") && RefusalMode!=TEXT("ShopRevisit"))return true;
                 Test->TestTrue(TEXT("Close wrote real disk"),Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText().Contains(TEXT("saved to disk")));
                 CheckpointBefore=Canon(MemoriaPotionEvidence::Full(*Run));CheckpointPosition=Pawn->GetActorLocation();
                 Run->SetStoryFlag(TEXT("after_save_mutation"),true);
             }
-            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode.StartsWith(TEXT("ShopBattle")))
+            if(RefusalMode==TEXT("ShopCheckpoint") || RefusalMode==TEXT("ShopArchive") || RefusalMode==TEXT("ShopRevisit"))
             {
                 if(Frame==68)Key(EKeys::Enter,IE_Pressed);
                 if(Frame==71)Key(EKeys::Enter,IE_Released);
@@ -944,7 +943,7 @@ public:
                     Test->TestTrue(TEXT("No reward/arrival replay"),Host->GetTrace()==TArray<FString>{TEXT("checkpoint:restored:before:chapter_transition_delay")});
                     Test->TestTrue(TEXT("Loaded status and actions rendered"),PC->GetNarrativeWidget()->VisibleText().Contains(TEXT("Checkpoint loaded")) && PC->GetNarrativeWidget()->VisibleText().Contains(TEXT("Save checkpoint again")));
                     Capture(TEXT("Checkpoint_Loaded"));Write(Host,Run,Pawn,TEXT("checkpoint_loaded"));
-                    if(RefusalMode.StartsWith(TEXT("ShopBattle"))){Stage=15;Frame=-1;}
+                    if(RefusalMode==TEXT("ShopRevisit")){Stage=15;Frame=-1;}
                     else if(RefusalMode!=TEXT("ShopArchive"))return true;
                 }
             }
@@ -957,227 +956,15 @@ public:
             {
                 Test->TestFalse(TEXT("Loading alone does not activate encounters"),Host->IsVerdanRevisit());
                 Test->TestEqual(TEXT("Physical Up selects new reentry choice"),PC->GetNarrativeWidget()->SelectedOriginalIndex(),3);
-                BattleOwner=World;Key(EKeys::Enter,IE_Pressed);
+                TravelOwner=World;Key(EKeys::Enter,IE_Pressed);
             }
-            if(Frame>=9 && World!=BattleOwner.Get() && Host->IsVerdanRevisit())
+            if(Frame>=9 && World!=TravelOwner.Get() && Host->IsVerdanRevisit())
             {
                 Key(EKeys::Enter,IE_Released);
                 Test->TestEqual(TEXT("Actual checkpoint reentry preserves full state"),Canon(MemoriaPotionEvidence::Full(*Run)),CheckpointBefore);
                 Test->TestTrue(TEXT("Reentry restores saved field position"),Pawn->GetActorLocation().Equals(CheckpointPosition,.01f));
                 Test->TestTrue(TEXT("Actual reentry reaches exploration"),Host->GetState()==EMemoriaSliceState::Exploration);
-                BattleOwner=World;Stage=16;Frame=-1;
-            }
-        }
-        else if(Stage==16)
-        {
-            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
-            if(Battle->IsActive() && PC->GetBattleWidget())
-            {
-                Key(EKeys::D,IE_Released);Key(EKeys::A,IE_Released);
-                FirstBattle=Battle->GetView();
-                Test->TestTrue(TEXT("Actual walking emitted warning before encounter"),bBattleWarning);
-                Test->TestTrue(TEXT("Source first-turn HP scaling"),FirstBattle.PlayerHp==115 && FirstBattle.PlayerMaxHp==130);
-                Test->TestEqual(TEXT("Source battle_started increments persistent statistic"),Run->GetRunSnapshot().TotalBattles,int64(1));
-                Test->TestEqual(TEXT("Entry preserves Grains"),Run->GetRunSnapshot().Player.Grains,int64(2));
-                Test->TestTrue(TEXT("Battle modal blocks movement"),PC->IsModalOpen() && PC->IsMoveInputIgnored());
-                Test->TestTrue(TEXT("Battle source artwork loaded"),PC->GetBattleWidget()->DisplayedBackdrop() && PC->GetBattleWidget()->DisplayedPlayerArtwork() && PC->GetBattleWidget()->DisplayedEnemyArtwork());
-                if(FirstBattle.EnemyIndex==0)Test->TestEqual(TEXT("Alley Rat study displays instead of legacy hound"),PC->GetBattleWidget()->DisplayedEnemyArtwork(),MemoriaBattleEntryArt::Load(MemoriaBattleEntryArt::AlleyRatStudySource()));
-                PC->ToggleArchive();Test->TestNull(TEXT("Archive cannot interrupt battle"),PC->GetArchiveWidget());
-                Test->TestFalse(TEXT("Direct Malet interaction cannot interrupt battle"),Host->InteractWithMalet());
-                BattleBeforeFlee=Canon(MemoriaPotionEvidence::Full(*Run));Stage=RefusalMode==TEXT("ShopBattleCombat")?21:17;Frame=-1;
-            }
-            else
-            {
-                if(Frame%160==0){Key(EKeys::A,IE_Released);Key(EKeys::D,IE_Pressed);}
-                if(Frame%160==80){Key(EKeys::D,IE_Released);Key(EKeys::A,IE_Pressed);}
-                if(PC->GetEncounterModel().bWarningEmitted && !bBattleWarning)
-                {bBattleWarning=true;Capture(TEXT("EncounterWarning"));}
-            }
-        }
-        else if(Stage==17)
-        {
-            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
-            if(Frame==24){Capture(TEXT("BattleEntry"));Write(Host,Run,Pawn,TEXT("battle_entry"));}
-            if(Frame==24)
-                if(auto* Audio=Run->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();Test->TestNotNull(TEXT("Audio subsystem exists"),Audio))
-                {
-                    // Everything this route has heard so far, through real input and domain events.
-                    Test->TestEqual(TEXT("Battle crossfades to the source battle theme"),Audio->GetMusic(),FName(TEXT("battle")));
-                    if(FParse::Param(FCommandLine::Get(),TEXT("MemoriaCapture"))) Test->TestTrue(TEXT("Battle music component is playing"),Audio->IsMusicPlaying());
-                    Test->TestTrue(TEXT("Battle has no field ambience"),Audio->GetAmbient().IsNone());
-                    Test->TestEqual(TEXT("One entry sting per encounter"),Audio->GetCueCount(TEXT("battle_intro")),1);
-                    for(const TCHAR* Cue:{TEXT("confirm"),TEXT("ui_select"),TEXT("ui_open"),TEXT("ui_close"),TEXT("step_stone")})
-                        Test->TestTrue(*FString::Printf(TEXT("Route played %s"),Cue),Audio->GetCueCount(Cue)>0);
-                    // The deal burns the Grade 2 sword: source burn drama = rising tone, then ignition.
-                    Test->TestTrue(TEXT("High-grade burn played the rising tone"),Audio->GetCueCount(TEXT("rising_tone"))>0);
-                    Test->TestTrue(TEXT("High-grade burn ignited"),Audio->GetCueCount(TEXT("burn_ignite"))>0);
-                }
-            if(Frame==30)
-            {
-                const uint64 Revision=Battle->GetRevision();
-                Test->TestFalse(TEXT("Stale flee cannot consume turn"),Battle->Flee(Revision-1));
-                PC->GetBattleWidget()->Navigate(EKeys::Left); // explicit Flee selection in the combat menu
-                FSlateApplication::Get().ProcessKeyDownEvent(FKeyEvent(EKeys::Enter,FModifierKeysState(),0,false,0,0));
-                Test->TestTrue(TEXT("Physical confirm begins source return delay"),Battle->IsReturning());
-                Test->TestFalse(TEXT("Duplicate flee rejected"),Battle->Flee(Revision));
-                FSlateApplication::Get().ProcessKeyDownEvent(FKeyEvent(EKeys::Enter,FModifierKeysState(),0,true,0,0));
-                Test->TestEqual(TEXT("Ambient flee grants no rewards or memory changes"),Canon(MemoriaPotionEvidence::Full(*Run)),BattleBeforeFlee);
-            }
-            // Hold Enter across the actual world replacement; release in the new owner.
-            if(Frame==36)
-            {
-                Test->TestTrue(TEXT("Original 300ms cleanup has not fired early"),World==BattleOwner.Get() && Battle->IsReturning());
-                if(auto* Audio=Run->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();Test->TestNotNull(TEXT("Audio subsystem exists"),Audio))
-                    Test->TestEqual(TEXT("Source ambient flee plays flee once"),Audio->GetCueCount(TEXT("flee")),1);
-                Capture(TEXT("BattleWithdrawal"));
-            }
-            if(Frame>36 && World!=BattleOwner.Get() && Host->IsVerdanRevisit())
-            { Stage=18;Frame=-1; }
-        }
-        else if(Stage==18 && Frame==30)
-        {
-            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
-            Test->TestFalse(TEXT("Real field return disposes battle"),Battle->IsActive());
-            Test->TestNull(TEXT("Real field return disposes modal"),PC->GetBattleWidget());
-            Test->TestTrue(TEXT("Real field return restores controls"),!PC->IsModalOpen() && !PC->IsMoveInputIgnored());
-            Test->TestTrue(TEXT("Source flee respawns at 128,288"),Memoria::Coordinates::ToSource(Pawn->GetActorLocation()).Equals(FVector2D(128,288),.01));
-            Test->TestEqual(TEXT("Map return preserves completed first-turn state"),Canon(MemoriaPotionEvidence::Full(*Run)),BattleBeforeFlee);
-            Test->TestTrue(TEXT("New visit resets encounter distance"),PC->GetEncounterModel().StepCount<.01);
-            if(auto* Audio=Run->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();Test->TestNotNull(TEXT("Audio subsystem exists"),Audio))
-            {
-                Test->TestEqual(TEXT("Field return restores the market BGM"),Audio->GetMusic(),FName(TEXT("ch2_verdan")));
-                Test->TestEqual(TEXT("Field return restores the light wind"),Audio->GetAmbient(),FName(TEXT("wind_light")));
-                if(FParse::Param(FCommandLine::Get(),TEXT("MemoriaCapture")))
-                { Test->TestTrue(TEXT("Returned field music component is playing"),Audio->IsMusicPlaying()); Test->TestTrue(TEXT("Returned field ambience component is playing"),Audio->IsAmbientPlaying()); }
-            }
-            Capture(TEXT("FieldReturned"));Write(Host,Run,Pawn,TEXT("field_returned"));
-            // Second image is an explicit alternative-enemy presentation fixture.
-            AlternativeEnemy=1-FirstBattle.EnemyIndex;auto Rng=FMemoriaEncounterRng::Random();
-            Test->TestTrue(TEXT("Alternative source enemy starts in live owner"),Battle->BeginEncounter(AlternativeEnemy,Rng,World));
-            Stage=19;Frame=-1;
-        }
-        else if(Stage==19)
-        {
-            if(Frame==30)
-            {
-                Test->TestNotNull(TEXT("Alternative source artwork rendered"),PC->GetBattleWidget());
-                if(AlternativeEnemy==0 && PC->GetBattleWidget())Test->TestEqual(TEXT("Alternative Alley Rat study displays"),PC->GetBattleWidget()->DisplayedEnemyArtwork(),MemoriaBattleEntryArt::Load(MemoriaBattleEntryArt::AlleyRatStudySource()));
-                Capture(TEXT("BattleAlternativeEnemy"));Write(Host,Run,Pawn,TEXT("alternative_enemy_fixture"));
-                PC->GetBattleWidget()->Navigate(EKeys::Left);PC->GetBattleWidget()->ConfirmIntent();BattleOwner=World;
-            }
-            if(Frame>32 && World!=BattleOwner.Get() && Host->IsVerdanRevisit())
-            {Stage=20;Frame=-1;}
-        }
-        else if(Stage==20 && Frame==24)
-        {
-            Test->TestEqual(TEXT("Two starts persist exactly two battles"),Run->GetRunSnapshot().TotalBattles,int64(2));
-            Test->TestFalse(TEXT("Second source ambient flee clears modal"),PC->IsModalOpen());
-            Capture(TEXT("SecondReturn"));return true;
-        }
-        else if(Stage==21)
-        {
-            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();const auto V=Battle->GetView();
-            // Explicit presentation-only 200 damage fixture; never mutates combat/run.
-            if(Frame==3&&PC->GetBattleWidget()){auto Preview=V;Preview.Hits={{V.EnemyName,TEXT("Presentation fixture"),200}};++Preview.ImpactSerial;PC->GetBattleWidget()->Display(Preview);}
-            if(Frame==4)Capture(TEXT("CombatLargeImpactFixture"));
-            if(Frame==12&&PC->GetBattleWidget())PC->GetBattleWidget()->Display(V);
-            if(Frame==2){Battle->SetCombatRng({[](double,double){return .99;},[](int32 A,int32 B){return (A+B)/2;}});CombatBurnBefore=Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num();}
-            // Physical WITNESS read first: two Rights reach the third slot, one reading passes the turn.
-            if(Frame==14)
-            {
-                Test->TestTrue(TEXT("Witness slot is enabled before reading"),PC->GetBattleWidget()&&PC->GetBattleWidget()->IsWitnessEnabled());
-                for(int32 I=0;I<2;++I){Key(EKeys::Right,IE_Pressed);Key(EKeys::Right,IE_Released);}
-                Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
-                Test->TestEqual(TEXT("Witness telegraph scheduled"),Battle->GetView().Telegraph,FString(TEXT("witness")));
-            }
-            if(Frame==18)Capture(TEXT("CombatWitnessCue"));
-            if(CombatStep==0&&Frame>18&&!V.bResolving&&V.WitnessProgress==1)
-            {
-                Test->TestEqual(TEXT("One reading recorded"),V.WitnessProgress,1);Test->TestFalse(TEXT("One reading does not release"),V.bVictory);
-                Test->TestTrue(TEXT("Echo line reaches the view"),!V.WitnessLine.IsEmpty()&&PC->GetBattleWidget()->VisibleText().Contains(V.WitnessLine));
-                Capture(TEXT("CombatWitnessRead"));CombatStep=4;CombatStepFrame=Frame;
-            }
-            if(CombatStep==4&&Frame==CombatStepFrame+3)
-            {
-                Key(EKeys::Left,IE_Pressed);Key(EKeys::Left,IE_Released);Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
-                CombatStep=1;CombatStepFrame=Frame;
-            }
-            if(CombatStep==1&&Frame==CombatStepFrame+3)
-            {
-                CombatStep=2;CombatStepFrame=Frame;
-                int32 Choice=INDEX_NONE;for(int32 I=0;I<V.Memories.Num();++I)if(V.Memories[I].bAvailable&&V.Memories[I].Grade==0){Choice=I;break;}
-                if(!Test->TestTrue(TEXT("Canonical journey leaves a sensory memory to burn"),Choice>=0))return true;
-                CombatBurnId=V.Memories[Choice].Id;for(int32 I=0;I<Choice;++I){Key(EKeys::Down,IE_Pressed);Key(EKeys::Down,IE_Released);}
-                Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);Test->TestTrue(TEXT("Physical burn command accepted"),Battle->GetView().bResolving);
-            }
-            if(CombatStep==2&&Frame==CombatStepFrame+4)Capture(TEXT("CombatBurn"));
-            if(CombatStep==2&&Frame>CombatStepFrame+30 && !V.bResolving && !V.bVictory && Frame%60==0)
-            {
-                if(!bCombatAttackSelected){Key(EKeys::Left,IE_Pressed);Key(EKeys::Left,IE_Released);bCombatAttackSelected=true;}
-                Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);
-            }
-            if(V.bVictory){Capture(TEXT("CombatVictory"));Test->TestTrue(TEXT("Victory card rendered"),PC->GetBattleWidget()->IsVictoryCardVisible());
-                Test->TestEqual(TEXT("Partial reading still earns the source record bonus"),V.Reward.TacticalBonus,int64(1));Test->TestEqual(TEXT("Battle commits exactly one chosen burn"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num(),CombatBurnBefore+1);Test->TestTrue(TEXT("Victory grants source grains"),V.Reward.Grains>0);Stage=22;Frame=-1;}
-            if(V.bDefeat){Test->AddError(TEXT("Canonical deterministic burn and attacks should win"));return true;}
-        }
-        else if(Stage==22)
-        {
-            // Presentation-only release fixture on the live widget; combat and run stay untouched.
-            if(Frame==2&&PC->GetBattleWidget())
-            {
-                auto Preview=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->GetView();
-                Preview.bResolvedByWitness=Preview.bWitnessComplete=true;Preview.WitnessProgress=Preview.WitnessRequired;
-                Preview.Reward.Resolution=TEXT("witness");Preview.Reward.PreservationBonus=8;Preview.Reward.FocusGained=1;PC->GetBattleWidget()->Display(Preview);
-            }
-            if(Frame==60)Capture(TEXT("CombatWitnessReleaseFixture"));
-            if(Frame==62&&PC->GetBattleWidget())PC->GetBattleWidget()->Display(Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->GetView());
-            if(Frame==65){BattleOwner=World;Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
-            if(Frame>65 && World!=BattleOwner.Get() && Host->IsVerdanRevisit()){Stage=23;Frame=-1;}
-        }
-        else if(Stage==23)
-        {
-            if(Frame==25){Test->TestFalse(TEXT("Victory restores field controls"),PC->IsModalOpen());Key(EKeys::Tab,IE_Pressed);Key(EKeys::Tab,IE_Released);}
-            if(Frame==40)
-            {
-                const auto* Archive=PC->GetArchiveWidget();if(!Test->TestNotNull(TEXT("Archive opens after victory"),Archive))return true;
-                bool BurnVisible=false;for(const auto& Row:Archive->GetView().Rows)if(Row.Id==CombatBurnId)BurnVisible=Row.bBurned;
-                Test->TestTrue(TEXT("Actual returned archive retains the combat burn"),BurnVisible);Capture(TEXT("CombatReturnedArchive"));
-                Write(Host,Run,Pawn,TEXT("combat_won_returned_archive"));
-                Key(EKeys::Tab,IE_Pressed);Key(EKeys::Tab,IE_Released);
-                // Explicit near-death checkpoint fixture, after the real journey. It
-                // verifies defeat/recovery without pretending this HP came from that win.
-                TStrongObjectPtr<UMemoriaRunSaveGame> NearDeath(Run->CaptureSave());NearDeath->Run.Player.Hp=1;
-                Test->TestTrue(TEXT("Near-death fixture restores"),Run->RestoreSave(*NearDeath));
-                auto* Disk=Run->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
-                Test->TestTrue(TEXT("Near-death checkpoint saved in isolated test storage"),Disk->SaveClosedBoundary(FVector2D(128,288)));
-                Test->TestTrue(TEXT("Checkpoint host resumes"),Host->ContinueCheckpoint());BattleOwner=World;
-                Test->TestTrue(TEXT("Checkpoint host requests real revisit"),Host->RequestCheckpointRevisit());Stage=24;Frame=-1;
-            }
-        }
-        else if(Stage==24)
-        {
-            if(World!=BattleOwner.Get()&&Host->IsVerdanRevisit()&&Frame>20)
-            {
-                auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();auto Rng=FMemoriaEncounterRng::Random();
-                Test->TestTrue(TEXT("Live near-death thief encounter"),Battle->BeginEncounter(1,Rng,World));
-                Battle->SetCombatRng({[](double,double){return .99;},[](int32 A,int32){return A;}});Stage=25;Frame=-1;
-            }
-        }
-        else if(Stage==25)
-        {
-            auto* Battle=Run->GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();const auto V=Battle->GetView();
-            if(Frame>20&&!V.bResolving&&!V.bDefeat&&Frame%90==0){Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
-            if(V.bDefeat){Capture(TEXT("CombatDefeat"));Test->TestEqual(TEXT("Defeat reaches zero HP after Last Stand"),Run->GetRunSnapshot().Player.Hp,0ll);Stage=26;Frame=-1;}
-        }
-        else if(Stage==26)
-        {
-            if(Frame==25){BattleOwner=World;Key(EKeys::Right,IE_Pressed);Key(EKeys::Right,IE_Released);Key(EKeys::Enter,IE_Pressed);Key(EKeys::Enter,IE_Released);}
-            if(Frame>25&&World!=BattleOwner.Get()&&Host->IsVerdanRevisit())
-            {
-                Test->TestEqual(TEXT("Defeat recovery restores playable HP"),Run->GetRunSnapshot().Player.Hp,Run->GetRunSnapshot().Player.MaxHp);
-                Test->TestFalse(TEXT("Defeat recovery restores field input"),PC->IsModalOpen());
-                Test->TestTrue(TEXT("Defeat recovery retains previously burned memory"),Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Contains(CombatBurnId));Capture(TEXT("CombatDefeatRecovered"));
-                StoryGroup=TEXT("verdan_old_burner");Stage=27;Frame=-1;
+                TravelOwner=World;StoryGroup=TEXT("verdan_old_burner");Stage=27;Frame=-1;
             }
         }
         else if(Stage==27)
@@ -1245,8 +1032,8 @@ public:
                 if(F==14){Key(EKeys::E,IE_Released);Test->TestTrue(TEXT("Reminder keeps exploration"),Host->GetState()==EMemoriaSliceState::Exploration);}
                 if(F==20){Test->TestTrue(TEXT("Source reminder toast"),Host->GetExplorationNotice().Contains(TEXT("Find the ledger in the Sump.")));Capture(TEXT("QuestReminder"));}
                 if(F==24){Test->TestFalse(TEXT("Ledger is not placed in the world the quest started"),Host->IsStoryBeatAvailable(L::LedgerPoint));
-                    BattleOwner=World;Test->TestTrue(TEXT("Explicit Verdan re-entry fixture"),Host->ReturnFromAmbientBattle());}
-                if(F>24&&World!=BattleOwner.Get()&&Host->IsVerdanRevisit()&&Host->GetState()==EMemoriaSliceState::Exploration)Next();
+                    TravelOwner=World;Test->TestTrue(TEXT("Explicit Verdan re-entry fixture"),Host->ReturnFromAmbientBattle());}
+                if(F>24&&World!=TravelOwner.Get()&&Host->IsVerdanRevisit()&&Host->GetState()==EMemoriaSliceState::Exploration)Next();
             }
             else
             {
@@ -1366,13 +1153,11 @@ private:
     FDelegateHandle BoundaryObserverHandle; TWeakObjectPtr<UMemoriaNarrativeSubsystem> ObservedHost;
     FString RewardBeforeRun, RewardBeforeMemory, RewardBeforeObservables; FVector RewardBeforePosition;
     FString CheckpointBefore; FVector CheckpointPosition;
-    TWeakObjectPtr<UWorld> BattleOwner;
-    FString CombatBurnId;int32 CombatBurnBefore=0,CombatStep=0,CombatStepFrame=0;bool bCombatAttackSelected=false;
+    TWeakObjectPtr<UWorld> TravelOwner;
     FString StoryGroup;int32 StoryFieldsBefore=0;bool bStoryLastCaptured=false;
     int32 QuestStep=0,QuestFrame=0;int64 QuestGrains=0,QuestPotions=0;bool bQuestCompleteCaptured=false;
     int32 EliaStep=0,EliaFrame=0;FKey EliaKey;bool bEliaIntactSeen=false;
-    bool bBattleWarning=false;FMemoriaBattleEntryView FirstBattle;
-    FString BattleBeforeFlee;int32 AlternativeEnemy=INDEX_NONE;TArray<FString> BattleReturnTrace;
+    TArray<FString> TravelTrace;
     int32 ArchiveProbe=INDEX_NONE,ArchiveFrame=0,ArchiveCompleted=0;
     FString ArchiveBefore,ArchiveShopBefore,ArchiveSelection;TArray<FString> ArchiveTrace;
     FVector ArchivePosition;EMemoriaSliceState ArchiveHostState=EMemoriaSliceState::Idle;
@@ -1932,12 +1717,12 @@ bool FPotionReplacementAtStop::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPotionWorldTeardownAfterCommit,"Memoria.Potion.WorldTeardownAfterCommit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FPotionWorldTeardownAfterCommit::RunTest(const FString&)
 { if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("PotionAfterStopOnWorldTeardown")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBattleRenderedCombat,"Memoria.BattleCore.RenderedJourney",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FBattleRenderedCombat::RunTest(const FString&)
-{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("ShopBattleCombat")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBattleRenderedRevisit,"Memoria.BattleEntry.RenderedRevisitFlow",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FBattleRenderedRevisit::RunTest(const FString&)
-{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("ShopBattle")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
+// S329: the Verdan revisit journey through the real UI: the closed boundary's checkpoint, its physical reentry,
+// the held-key guard after that travel, the source story beats, the Sump Ledger and Elia (formerly the tail of
+// the turn-based battle journeys, Memoria.BattleCore.RenderedJourney and Memoria.BattleEntry.RenderedRevisitFlow).
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVerdanRevisitJourney,"Memoria.Verdan.RevisitJourney",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FVerdanRevisitJourney::RunTest(const FString&)
+{ if(!AutomationOpenMap(TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice")))return false; FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMaletReplay(this,true,TEXT("ShopRevisit")))); ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());return true; }
 #endif
 
 #if WITH_DEV_AUTOMATION_TESTS
