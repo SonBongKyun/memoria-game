@@ -39,6 +39,8 @@ public:
     // S320 chapter maps: the chapter a departure moves the run to, and the rewards of a chest.
     void SetCurrentChapter(int64 Chapter) { if (HasActiveRun()) State.CurrentChapter = Chapter; }
     void AddGrains(int64 Amount) { if (HasActiveRun()) State.Player.Grains += Amount; }
+    // S328: the source's battle_started statistic, counted as a field encounter begins.
+    void RecordBattleStarted() { if (HasActiveRun() && State.TotalBattles < MAX_int64) ++State.TotalBattles; }
     void GrantFieldItem(const FString& ItemId, int64 Count);
     // S317: the options' language applies to the live run too.
     void SetLocale(const FString& Locale) { if (HasActiveRun()) State.CurrentLocale = Locale == TEXT("en") ? TEXT("en") : TEXT("ko"); }

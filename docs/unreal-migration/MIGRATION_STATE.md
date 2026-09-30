@@ -1,3 +1,23 @@
+# Migration handoff — S328 turn-based retirement, step 1: field encounters tested (Claude lane, 2026-09-30)
+
+- **Why.** Step D, which the user chose to do in stages.
+  - Play already uses field encounters only.
+  - The turn-based battle (`UMemoriaBattleEntrySubsystem`, `MemoriaBattleModel`, the battle widget) remains only for automation, behind `UseFieldEncounters()`. Its suites are 148 of the 417 registered tests: BattleEntry 47, BattleCore 101.
+  - Before removing them, the encounter behaviour they covered must be tested on the field path.
+- **What field encounters now carry.**
+  - `UMemoriaRunSubsystem::RecordBattleStarted`: a field encounter counts the source's `battle_started` statistic (`TotalBattles`, saved), as the turn-based entry did.
+  - While foes live, the encounter distance holds (the Advance call is treated as not exploring). The source's battle was a separate scene, so no walking fed the next encounter during a fight. Before, the field let steps accumulate through a fight.
+- **Kept for the field.** The source distance model `FMemoriaEncounterModel` (random_encounter.gd: a 60–100 tile threshold, the warning at 72%, the pool index). It is encounter rules, not battle.
+- **Test.** New `MemoriaVisual.FieldEncounters`. On the Verdan revisit (through the closed boundary's checkpoint), pacing fills the model:
+  - the warning comes first;
+  - the encounter raises three husks or two thieves;
+  - `TotalBattles` rises by one;
+  - walking on through the fight starts no second encounter.
+  - Its capture, first requested on the trigger frame, showed the editor viewport. It is now taken 20 frames later and shows the revisit with the foes.
+- **Next (S329).** Drop the automation opt-out (`SetFieldEncountersForTests` / `UseFieldEncounters`) and remove the turn-based code. That means the BattleEntry subsystem, BattleModel, widget, stage commandlet, audio battle routing, the narrative's `IsActive` guards, the Malet battle journey modes and the BattleEntry/BattleCore suites.
+  - `MemoriaBattleEntryArt` stays: despite its name it is the UI art table the pause, hint, achievement, codex and journal screens load from.
+- **Results.** Full rendered registry 417/417 (s328-full), visual 24/24 (s328-visual).
+
 # Migration handoff — S327 story journal (Claude lane, 2026-09-30)
 
 - **Why.** Step C finishes: the journal is the last of the four side systems (hints, achievements, codex, journal).

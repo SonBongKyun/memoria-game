@@ -360,7 +360,9 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
     if (Narrative->IsVerdanRevisit() && GetPawn())
     {
         if (!bEncounterInitialized) { Encounter.Reset(EncounterRng.Real(60,100)); bEncounterInitialized=true; }
-        const bool Exploring=Narrative->GetState()==EMemoriaSliceState::Exploration && !IsModalOpen();
+        // S328: a fight in the field holds the encounter distance, as the source's separate battle scene did.
+        const auto* FieldFight=GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+        const bool Exploring=Narrative->GetState()==EMemoriaSliceState::Exploration && !IsModalOpen() && !(FieldFight && FieldFight->LiveMonsterCount()>0);
         const auto Step=Encounter.Advance(Memoria::Coordinates::ToSource(GetPawn()->GetActorLocation()),Exploring,EncounterRng);
         const bool PressureChanged=(EncounterPressure>=.5)!=(Step.Pressure>=.5);
         EncounterPressure=Step.Pressure;
@@ -376,6 +378,7 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
             {
                 const bool bThief=Step.EnemyIndex%2==1;
                 Combat->SpawnWave(bThief?2:3,GetPawn()->GetActorLocation(),420.f,bThief?EMemoriaFoeKind::MarketThief:EMemoriaFoeKind::VoidHusk);
+                GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->RecordBattleStarted();
                 Narrative->Record(TEXT("encounter:field_started"));
                 return;
             }
