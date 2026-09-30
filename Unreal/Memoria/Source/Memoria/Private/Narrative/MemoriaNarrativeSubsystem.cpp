@@ -13,6 +13,7 @@
 #include "Narrative/MemoriaSumpLedger.h"
 #include "Chapter/MemoriaChapterMap.h"
 #include "Narrative/MemoriaClassifier.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #include "World/MemoriaWorldCognition.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Audio/MemoriaAudioSubsystem.h"
@@ -85,6 +86,8 @@ void UMemoriaNarrativeSubsystem::FlushEvents(const FString& Dialect)
     {
         const FString& Event = Context->Events[EventCursor];
         if (Event.StartsWith(TEXT("burn:")) && Event.EndsWith(TEXT(":ok"))) ++BurnSerial;
+        if (Event.StartsWith(TEXT("chapter_complete:")))
+            if (auto* Achievements = GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordChapterComplete(FCString::Atoi(*Event.RightChop(17)));
         Record(Dialect + TEXT(":") + Event);
     }
     ++Revision;

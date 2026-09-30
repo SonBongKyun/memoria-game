@@ -1,3 +1,39 @@
+# Migration handoff — S324 achievements (Claude lane, 2026-09-30)
+
+- **Why.** Step C continues.
+- **`UMemoriaAchievementSubsystem`** (after `achievement_manager.gd`).
+  - **Table.** The source's 38 achievements in its order, with the titles, descriptions and icons as authored. They are English in both locales, as the source shows them.
+  - **Storage.** Unlocks and the counters (battles_won, items_used, maps_visited) persist across runs in their own file: `user://achievements.json` → `Saved/Memoria/achievements.json`. Never in tests or commandlets.
+  - **Behaviour.** An unlock happens once; unknown ids are refused. The seventh ending unlocks all_endings.
+- **What unlocks now:**
+  - a won field fight: `first_blood`, `battle_veteran` at ten, `survivor` at 10 HP or less as the fight ends (before the win's heal);
+  - each burn in the run (polled): `first_burn`, `pyromaniac` at five, `identity_crisis` (grade 2), `zero_burn` (`core_name_origin`);
+  - `chapter_complete_1`/`_5` from a VN's `complete_chapter` step, and `_2` to `_4` from `chN_complete`;
+  - `merchant` (`ch2_malet_done`) and `wealthy` (100 Grains);
+  - map visits (Verdan and the chapter maps) toward `explorer` at five.
+- **What cannot unlock yet** (listed as "???" until their content exists): `item_master` (no items usable in field combat), `void_slayer`, `boss_hunter`, `perfect_tactics`, `resonance_master`, the hidden places, chapters 6–10, the endings, `all_quests` and `new_game_plus`.
+- **Popup** (`UMemoriaAchievementPopupWidget`, z 95 like the source's layer).
+  - One at a time from a queue, top right: "ACHIEVEMENT UNLOCKED", the title and the description, in the source's colours.
+  - It drops from -80 to 12 over .4 s (back-ease), holds 4 s, leaves over .3 s, and plays `memory_add`.
+  - The source's popup label was a placeholder "X"; the glyph here is the list's.
+- **List** (`UMemoriaAchievementsWidget`, the pause menu's new Achievements row, after Load).
+  - The chronicle backdrop (`T_UiAchievementsBackdrop`) under a veil, then the panel: "ACHIEVEMENTS (n / 38)", the Korean or English completion line, and the rows.
+  - Each row has its glyph, the title or "???", and the description, gold when unlocked and grey when not.
+  - Arrows, PageUp/PageDown or the wheel scroll it; ESC returns to the menu.
+  - Glyphs are limited to the bundled font's coverage: ✕, ♛ and ◈ became ▼, ◆ and ■. The close hint follows the locale.
+- **Pause menu.** 7 rows; Save and Load keep their rows and Quit stays last.
+- **Tests.**
+  - New `Memoria.Achievements.Rules` covers once only, unknown refused, veteran at ten, survivor at 10 HP, explorer at five maps, the chapter id and all_endings.
+  - New `MemoriaVisual.Achievements` checks that the arrival's bribe burn is First Burn and the Verdan visit is recorded. A husk burned down is First Blood, with its popup. The pause row opens the list with the right header and rows; the arrows scroll to the end; ESC returns and ESC resumes.
+- **Pause layout.**
+  - With the seventh row, a short window (the 474 px validation capture) ran the last row into the controls line.
+  - Rows now keep their 62 px while they fit, and otherwise shrink (to at least 34) to end above the saved note and the hint.
+  - Options uses the same rule.
+- **Results.**
+  - The first run (s324) was cut off with an empty log (the session was interrupted).
+  - The rerun passed: full rendered registry 415/415 (s324-full), visual 21/21 (s324-visual).
+  - The row-fit change came after that run. It was verified with `MemoriaVisual.PauseMenu` (Success; the capture shows seven rows, the note and the hint clear of each other).
+
 # Migration handoff — S323 tutorial hints (Claude lane, 2026-09-30)
 
 - **Why.** Step C, the side systems, begins here: journal, codex/bestiary, achievements, tutorial hints. The hints come first because the action field's controls are otherwise only in the HUD's control line.

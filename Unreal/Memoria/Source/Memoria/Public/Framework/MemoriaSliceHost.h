@@ -12,6 +12,8 @@ class UMemoriaTitleWidget;
 class UMemoriaPauseWidget;
 class UMemoriaGameOverWidget;
 class UMemoriaHintWidget;
+class UMemoriaAchievementPopupWidget;
+class UMemoriaAchievementsWidget;
 enum class EMemoriaGameOverAction : uint8;
 enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
@@ -50,6 +52,9 @@ public:
     UMemoriaGameOverWidget* GetGameOverWidget() const { return GameOverWidget; }
     // S323: the tutorial hint on screen (tutorial_hints.gd).
     UMemoriaHintWidget* GetHintWidget() const { return HintWidget; }
+    // S324: the achievement popup and the pause menu's achievements list.
+    UMemoriaAchievementPopupWidget* GetAchievementPopup() const { return AchievementPopup; }
+    UMemoriaAchievementsWidget* GetAchievementsWidget() const { return AchievementsWidget; }
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -71,6 +76,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaPauseWidget> PauseWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaGameOverWidget> GameOverWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaHintWidget> HintWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaAchievementPopupWidget> AchievementPopup;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaAchievementsWidget> AchievementsWidget;
+    void UpdateAchievements();
+    void CloseAchievements();
     void UpdateHints(class UMemoriaFieldCombatSubsystem* Combat);
     void GameOverAction(EMemoriaGameOverAction Action);
     void CloseGameOver();

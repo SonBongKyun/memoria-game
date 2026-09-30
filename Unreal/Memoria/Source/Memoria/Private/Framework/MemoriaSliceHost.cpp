@@ -1,6 +1,8 @@
 #include "Framework/MemoriaSliceHost.h"
 #include "Tutorial/MemoriaTutorialSubsystem.h"
 #include "Tutorial/MemoriaHintWidget.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
+#include "Achievements/MemoriaAchievementWidgets.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
@@ -120,6 +122,17 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
         if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
         return true;
     }
+    if(AchievementsWidget)
+    {
+        if(Params.Event!=IE_Pressed && Params.Event!=IE_Repeat)return true;
+        const FKey K=Params.Key;
+        if(K==EKeys::Up || K==EKeys::W || K==EKeys::Gamepad_DPad_Up)AchievementsWidget->Scroll(-1);
+        else if(K==EKeys::Down || K==EKeys::S || K==EKeys::Gamepad_DPad_Down)AchievementsWidget->Scroll(1);
+        else if(K==EKeys::PageUp)AchievementsWidget->Scroll(-AchievementsWidget->GetVisibleRows());
+        else if(K==EKeys::PageDown)AchievementsWidget->Scroll(AchievementsWidget->GetVisibleRows());
+        else if(Params.Event==IE_Pressed && (K==EKeys::Escape || K==EKeys::BackSpace || K==EKeys::Gamepad_FaceButton_Right || K==EKeys::Gamepad_Special_Right))CloseAchievements();
+        return true;
+    }
     // S318 game over: it holds every key; there is no escape from it, as in the source.
     if(GameOverWidget)
     {
@@ -231,6 +244,27 @@ void AMemoriaSliceController::UpdateHints(UMemoriaFieldCombatSubsystem* Combat)
     }
     if(HintWidget)HintWidget->Bind(Tutorial,GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale()!=TEXT("en"));
 }
+void AMemoriaSliceController::UpdateAchievements()
+{
+    auto* Achievements=GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>();
+    if(!Achievements)return;
+    Achievements->Observe(*GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>());
+    Achievements->Advance(FApp::GetDeltaTime());
+    if(!Achievements->GetPopup().IsEmpty() && !AchievementPopup)
+    {
+        // Layer 95 in the source: over everything.
+        AchievementPopup=CreateWidget<UMemoriaAchievementPopupWidget>(this,UMemoriaAchievementPopupWidget::StaticClass());
+        AchievementPopup->SetVisibility(ESlateVisibility::HitTestInvisible);
+        AchievementPopup->Bind(Achievements);
+        AchievementPopup->AddToViewport(95);
+    }
+}
+void AMemoriaSliceController::CloseAchievements()
+{
+    if(!AchievementsWidget)return;
+    AchievementsWidget->RemoveFromParent(); AchievementsWidget=nullptr;
+    Cue(TEXT("cancel"));
+}
 void AMemoriaSliceController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds); auto* Narrative = Host();
@@ -249,6 +283,7 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         Narrative->Record(TEXT("combat:game_over"));
     }
     UpdateHints(GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr);
+    UpdateAchievements();
     // main.gd: the title owns the screen until New Game or Continue leaves it.
     if (Narrative->IsOnTitle())
     {
@@ -624,6 +659,14 @@ void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
         ClosePause(); LoadNewest();
         break;
     }
+    case EMemoriaPauseAction::Achievements:
+        // pause_menu.gd _show_achievements_panel: over the menu, which stays open beneath it.
+        AchievementsWidget=CreateWidget<UMemoriaAchievementsWidget>(this,UMemoriaAchievementsWidget::StaticClass());
+        AchievementsWidget->Configure(Game->GetSubsystem<UMemoriaAchievementSubsystem>(),Ko);
+        AchievementsWidget->AddToViewport(62);
+        FSlateApplication::Get().SetAllUserFocusToGameViewport();
+        Cue(TEXT("ui_select"));
+        break;
     case EMemoriaPauseAction::Title:
         ClosePause();
         UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"),true,TEXT("Title"));

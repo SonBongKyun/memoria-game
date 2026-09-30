@@ -16,6 +16,7 @@
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "EngineUtils.h"
 #include "Engine/GameInstance.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 using namespace MemoriaCombatTuning;
@@ -190,6 +191,7 @@ void UMemoriaFieldCombatSubsystem::WinWave()
     if (!Run) return;
     // The rest of the source Win: 20% HP back and a 30% drop from the potion table (richer after a void foe).
     auto& P = Run->State.Player;
+    if (auto* Achievements = GetWorld()->GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordBattleWon(P.Hp);
     Reward = FMemoriaFieldReward(); Reward.Grains = WaveGrains; Reward.Kills = WaveKills; Reward.Age = 0.f;
     Reward.Heal = FMath::Min<int64>(int64(P.MaxHp * WaveHealShare), P.MaxHp - P.Hp); P.Hp += Reward.Heal;
     if (Drops.FRand() <= ItemDropChance)
