@@ -1,3 +1,36 @@
+# Migration handoff — S326 Codex's foe models in the field (Claude lane, 2026-09-30)
+
+- **Why.** Codex delivered the S313 request: the void husk, and the market thief with its dagger. See `codex-review.md` in the shared folder and `models/MANIFEST.md`. The field foes stop being the tinted mannequin. The optional alley rat was deferred by Codex.
+- **Sources.** The six files are copied into `Unreal/ArtSource/FieldCharacters/void_husk` and `market_thief`, beside S310's characters: the rigged FBXs, base colours, the husk's emissive mask, and the dagger.
+- **`-run=MemoriaFoeModels`** (new; run after `-run=MemoriaFoeAssets`; additive).
+  - **Imports** `Field3D/Husk` and `Field3D/Thief` with S310's import basis:
+    - SK meshes (77 bones checked);
+    - base colours;
+    - the husk mask, linear grayscale as `codex-review.md` asks;
+    - `SM_Thief_dagger`, which shares the thief atlas.
+  - **Materials** `M_Husk` / `M_Thief`:
+    - the painted colour and S310's small fill;
+    - a fresnel edge in the spec's colour (violet / lantern-warm; strength .12, exponent 4) so the dark bodies read at night;
+    - the husk's cracks, mask × Glow (.32, .008, .72) × CrackStrength 2.5, the QA values;
+    - the Hit flash the combat drives.
+  - **Retargeting** from the mannequin (one IK rig, `RTG_Mannequin_Husk` / `_Thief`):
+    - the UAL2 foe set: zombie idle, walk and scratch, sword A and B;
+    - the melee set's hit and death;
+    - Epic's unarmed idle and walk, renamed `A_<Name>_Idle` / `_Walk`.
+  - A kept model rebuilds only a deleted material and puts it back on the body and the prop.
+- **Runtime.**
+  - `FMemoriaFoeSpec::Model` ("Husk" / "Thief") → `FMemoriaFoeLook::Model`.
+  - `InitializeFoe` wears the model when its assets exist: its idle and walk (the husk's zombie pair), MIDs for the Hit flash, and the thief's dagger in hand. Otherwise the S313 mannequin remains as the fallback.
+  - `IsFoeModel()` reports which one is worn. Strike, hit and death clips resolve per model id.
+- **Fixes found while checking.**
+  - The mask sampler was first Grayscale. `M_Husk` failed to compile and rendered as the default, which `MemoriaVisual.FieldFoes`' compile check caught; it is now LinearGrayscale.
+  - The first rim (.6, exponent 3) washed the bodies into flat violet and gold in the captures, so it was lowered.
+- **Tests.**
+  - `MemoriaVisual.FieldFoes` now requires both models (SK_Husk / SK_Thief), their own materials, the husk's zombie clips on the model, the thief's own dagger, the per-model strike clips, and a clean `M_Husk` compile.
+  - `MemoriaVisual.FieldCombat` expects the husk's model.
+- **Limits** (as Codex reported): stylized local models, no cloth simulation or facial rig, and rigid panels may intersect at extreme twists. The alley rat is still the husk stand-in's poison role.
+- **Results.** Full rendered registry 416/416 (s326-full), visual 22/22 (s326-visual).
+
 # Migration handoff — S325 codex, the bestiary and memory archive (Claude lane, 2026-09-30)
 
 - **Why.** Step C continues. `codex.gd` is the game's codex (도감). It has nothing to do with the Codex agent.

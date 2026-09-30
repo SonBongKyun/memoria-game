@@ -28,9 +28,10 @@
 #if WITH_DEV_AUTOMATION_TESTS
 namespace
 {
-// S313: the field foes on the mannequin stand-in. A void husk shambles on UAL2's zombie clips in the void
-// material and scratches; a market thief (Quinn) runs in fast with a short blade and cuts. Close captures
-// of each, then both chasing Arrel from the game camera.
+// S313: the field foes. A void husk shambles on UAL2's zombie clips and scratches; a market thief runs in
+// fast with a short blade and cuts. Close captures of each, then both chasing Arrel from the game camera.
+// S326: they wear Codex's models (the husk's violet cracks from its mask, the thief's dagger in hand), the
+// clips retargeted onto them from the mannequin.
 class FFieldFoesReplay final : public IAutomationLatentCommand
 {
 public:
@@ -73,7 +74,7 @@ public:
             for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
             {
                 const auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
-                if (!Material || !Material->Parent || Material->Parent->GetName() != TEXT("M_FieldFoe")) return false;
+                if (!Material || !Material->Parent || !(Material->Parent->GetName() == TEXT("M_Husk") || Material->Parent->GetName() == TEXT("M_Thief"))) return false;
             }
             return true;
         };
@@ -95,13 +96,16 @@ public:
             {
                 Test->TestTrue(TEXT("The husk is a void husk"), H->GetKind() == EMemoriaFoeKind::VoidHusk && H->GetMaxHealth() == FoeSpec(EMemoriaFoeKind::VoidHusk).Health);
                 Test->TestTrue(TEXT("The thief is a market thief"), T->GetKind() == EMemoriaFoeKind::MarketThief && T->GetMaxHealth() == FoeSpec(EMemoriaFoeKind::MarketThief).Health);
-                Test->TestTrue(TEXT("The husk wears the foe material (not the default)"), UsesFoeMaterial(H));
-                Test->TestTrue(TEXT("The thief wears the foe material"), UsesFoeMaterial(T));
+                Test->TestTrue(TEXT("The husk wears its model"), H->GetFigure()->IsFoeModel() && H->GetFigure()->GetCharacterId() == TEXT("Husk") &&
+                    H->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetName() == TEXT("SK_Husk"));
+                Test->TestTrue(TEXT("The thief wears its model"), T->GetFigure()->IsFoeModel() && T->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetName() == TEXT("SK_Thief"));
+                Test->TestTrue(TEXT("The husk wears its own material (not the default)"), UsesFoeMaterial(H));
+                Test->TestTrue(TEXT("The thief wears its own material"), UsesFoeMaterial(T));
                 const auto* HuskAnim = Cast<UMemoriaFieldAnimInstance>(H->GetFigure()->GetSkeletalMesh()->GetAnimInstance());
-                Test->TestTrue(TEXT("The husk shambles on the zombie clips"), HuskAnim && HuskAnim->Idle == MemoriaCombatClips::Load(TEXT("Mannequin"), TEXT("Zombie_Idle_Loop")) &&
-                    HuskAnim->Walk == MemoriaCombatClips::Load(TEXT("Mannequin"), TEXT("Zombie_Walk_Fwd_Loop")));
+                Test->TestTrue(TEXT("The husk shambles on the zombie clips"), HuskAnim && HuskAnim->Idle == MemoriaCombatClips::Load(TEXT("Husk"), TEXT("Zombie_Idle_Loop")) &&
+                    HuskAnim->Walk == MemoriaCombatClips::Load(TEXT("Husk"), TEXT("Zombie_Walk_Fwd_Loop")));
                 Test->TestTrue(TEXT("The thief carries a blade, the husk none"), T->GetFigure()->GetBlade() != nullptr && H->GetFigure()->GetBlade() == nullptr);
-                Test->TestTrue(TEXT("The thief is Quinn"), T->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetName().Contains(TEXT("Quinn")));
+                Test->TestTrue(TEXT("The thief holds its own dagger"), T->GetFigure()->GetBlade() && T->GetFigure()->GetBlade()->GetStaticMesh() && T->GetFigure()->GetBlade()->GetStaticMesh()->GetName() == TEXT("SM_Thief_dagger"));
                 Look(H, (Me - H->GetActorLocation()).Rotation().Yaw + 25.f);
             }
             // Close captures while each closes in: the husk's shamble, the thief's run with the blade.
@@ -123,7 +127,7 @@ public:
             if (T && T->GetState() == EMemoriaMonsterState::Windup && !bThiefStrike)
             {
                 bThiefStrike = true;
-                Test->TestTrue(TEXT("The thief cuts with the blade clip"), T->GetFigure()->GetActionClip() == MemoriaCombatClips::Load(TEXT("Mannequin"), TEXT("Sword_Regular_A")));
+                Test->TestTrue(TEXT("The thief cuts with the blade clip"), T->GetFigure()->GetActionClip() == MemoriaCombatClips::Load(TEXT("Thief"), TEXT("Sword_Regular_A")));
                 Look(T, 60.f); ThiefFrame = Frame;
             }
             if (bThiefStrike && Frame == ThiefFrame + 18) Capture(TEXT("ThiefStrike"));
@@ -131,7 +135,7 @@ public:
             if (H && H->GetState() == EMemoriaMonsterState::Windup && !bHuskStrike)
             {
                 bHuskStrike = true;
-                Test->TestTrue(TEXT("The husk scratches"), H->GetFigure()->GetActionClip() == MemoriaCombatClips::Load(TEXT("Mannequin"), TEXT("Zombie_Scratch")));
+                Test->TestTrue(TEXT("The husk scratches"), H->GetFigure()->GetActionClip() == MemoriaCombatClips::Load(TEXT("Husk"), TEXT("Zombie_Scratch")));
                 HuskFrame = Frame;
                 if (!bThiefStrike || Frame > ThiefFrame + 22) Look(H, -40.f);
             }
@@ -152,8 +156,9 @@ public:
             // A material that fails to compile silently renders as the engine default; require a clean compile.
             auto* Foe = Cast<UMaterialInstanceDynamic>(H ? H->GetFigure()->GetSkeletalMesh()->GetMaterial(0) : nullptr);
             const FMaterialResource* Resource = Foe ? Foe->GetMaterialResource(GMaxRHIShaderPlatform) : nullptr;
-            Test->TestTrue(TEXT("M_FieldFoe compiles for this platform"), Resource && Resource->GetCompileErrors().IsEmpty() && Resource->GetMaterialInterface() &&
-                Resource->GetMaterialInterface()->GetName() == TEXT("M_FieldFoe"));
+            // S326: the husk's model material (its mask sampled as linear grayscale) in place of M_FieldFoe.
+            Test->TestTrue(TEXT("M_Husk compiles for this platform"), Resource && Resource->GetCompileErrors().IsEmpty() && Resource->GetMaterialInterface() &&
+                Resource->GetMaterialInterface()->GetName() == TEXT("M_Husk"));
             if (Resource) for (const FString& Error : Resource->GetCompileErrors()) Test->AddError(Error);
             return true;
         }

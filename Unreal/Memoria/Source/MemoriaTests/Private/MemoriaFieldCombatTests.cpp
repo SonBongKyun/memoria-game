@@ -91,7 +91,7 @@ public:
         {
             if (Frame == Mark + 20)
             {
-                Test->TestTrue(TEXT("The husk is the tinted mannequin"), Target && Target->GetFigure()->IsRigged() && Target->GetFigure()->GetCharacterId() == TEXT("Mannequin"));
+                Test->TestTrue(TEXT("The husk wears Codex's model"), Target && Target->GetFigure()->IsRigged() && Target->GetFigure()->IsFoeModel() && Target->GetFigure()->GetCharacterId() == TEXT("Husk"));
                 Capture(TEXT("CombatApproach"));
             }
             if (Frame < Mark + 24 || !Target) return false;

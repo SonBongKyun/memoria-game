@@ -210,10 +210,29 @@ bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, 
 void UMemoriaFieldCharacterComponent::StopAction() { ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false; ApplyFrame(); }
 bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
 {
-    Height = Look.Height; CharacterId = TEXT("Mannequin");
+    Height = Look.Height; CharacterId = TEXT("Mannequin"); bFoeModel = false;
     if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
     FoeMaterials.Reset();
     if (Blade) { Blade->DestroyComponent(); Blade = nullptr; }
+    // S326: Codex's model, its idle and walk and the clips retargeted onto it; the material's Hit flash is
+    // driven like M_FieldFoe's, and the thief takes its dagger in hand.
+    if (Look.Model)
+    {
+        const FString Id = Look.Model;
+        auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
+        CharacterId = Id; MeshYawOffset = 0.f;
+        if (CreateSkeletal(Mesh, MemoriaCombatClips::Load(Id, Look.Idle ? Look.Idle : TEXT("Idle")), MemoriaCombatClips::Load(Id, Look.Walk ? Look.Walk : TEXT("Walk"))))
+        {
+            for (int32 I = 0; I < Skeletal->GetNumMaterials(); ++I)
+                if (UMaterialInterface* Base = Skeletal->GetMaterial(I))
+                { auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal); Skeletal->SetMaterial(I, Material); FoeMaterials.Add(Material); }
+            if (auto* Dagger = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_dagger")))
+            { Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms(); Blade = AttachGrip(Dagger, 1.f); }
+            if (Card) Card->SetHiddenInGame(true);
+            bFoeModel = true; bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
+        }
+        CharacterId = TEXT("Mannequin");
+    }
     auto Seq = [](const TCHAR* Path) { return LoadObject<UAnimSequence>(nullptr, Path, nullptr, LOAD_NoWarn | LOAD_Quiet); };
     auto Clip = [&](const TCHAR* Name, const TCHAR* Fallback) { UAnimSequence* S = Name ? MemoriaCombatClips::Load(CharacterId, Name) : nullptr; return S ? S : Seq(Fallback); };
     const FString MeshPath = Look.bQuinn ? TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple") : MemoriaCombatClips::MannequinMesh() + TEXT(".SKM_Manny_Simple");

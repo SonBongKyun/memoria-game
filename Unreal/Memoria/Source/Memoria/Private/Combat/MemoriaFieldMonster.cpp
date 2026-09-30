@@ -36,7 +36,7 @@ void AMemoriaFieldMonster::BeginPlay()
     Super::BeginPlay();
     const FMemoriaFoeSpec& S = Spec();
     FMemoriaFoeLook Look;
-    Look.Height = S.Height; Look.bQuinn = S.bQuinn; Look.Idle = S.Idle; Look.Walk = S.Walk;
+    Look.Model = S.Model; Look.Height = S.Height; Look.bQuinn = S.bQuinn; Look.Idle = S.Idle; Look.Walk = S.Walk;
     Look.Color = S.Color; Look.Glow = S.Glow; Look.Crack = S.Crack; Look.Rim = S.Rim; Look.BladeScale = S.BladeScale;
     Figure->InitializeFoe(Look);
     Health = MaxHealth = S.Health; Movement->MaxSpeed = S.Speed;
