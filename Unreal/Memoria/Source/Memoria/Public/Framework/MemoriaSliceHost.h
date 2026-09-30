@@ -15,6 +15,7 @@ class UMemoriaHintWidget;
 class UMemoriaAchievementPopupWidget;
 class UMemoriaAchievementsWidget;
 class UMemoriaCodexWidget;
+class UMemoriaJournalWidget;
 enum class EMemoriaGameOverAction : uint8;
 enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
@@ -58,6 +59,8 @@ public:
     UMemoriaAchievementsWidget* GetAchievementsWidget() const { return AchievementsWidget; }
     // S325: the codex (도감) from the pause menu.
     UMemoriaCodexWidget* GetCodexWidget() const { return CodexWidget; }
+    // S327: the story journal from the pause menu.
+    UMemoriaJournalWidget* GetJournalWidget() const { return JournalWidget; }
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -82,6 +85,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaAchievementPopupWidget> AchievementPopup;
     UPROPERTY(Transient) TObjectPtr<UMemoriaAchievementsWidget> AchievementsWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaCodexWidget> CodexWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaJournalWidget> JournalWidget;
+    void CloseJournal();
     void CloseCodex();
     void UpdateAchievements();
     void CloseAchievements();

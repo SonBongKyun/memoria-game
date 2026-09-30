@@ -1,3 +1,29 @@
+# Migration handoff — S327 story journal (Claude lane, 2026-09-30)
+
+- **Why.** Step C finishes: the journal is the last of the four side systems (hints, achievements, codex, journal).
+- **Data.**
+  - `Unreal/Tools/export_journal.py` extracts `story_journal.gd`'s tables: 46 events (with `EVENT_ART_BY_FLAG` applied), 5 people, 14 world notes and 7 choices.
+  - It also extracts the chapter names of `GameManager.localized_chapter_name` from `game_manager.gd`: `CHAPTER_NAMES_KO`, and `RICH_PRESENCE_CHAPTERS` over the journal's `CHAPTER_NAMES`.
+  - Outputs: `docs/unreal-migration/ir/journal/story_journal.v1.json` and `Private/Journal/MemoriaJournalSources.inl`, with a `--check` mode.
+  - The `.inl` is ASCII, split into separate literals joined at runtime (57k characters would pass MSVC's 64 KB literal limit).
+- **Runtime.**
+  - `MemoriaJournal` parses the tables. The journal is derived from the run's story flags, as in the source, so it needs no save data.
+  - Korean comes from each entry's `_ko` field, else the English, as in `_field`. People without a `name_ko` use `localized_speaker`'s names.
+- **Screen** (`UMemoriaJournalWidget`, the pause menu's new 저널 row before 도감, following the source's order; 9 rows now).
+  - The journal backdrop (`T_UiJournalBackdrop`) under the veil, then "일지 · 기억 운반자의 현장 기록".
+  - The summary: "N장 / name  보유  연소  삽화 i/u".
+  - Four tabs: 사건 / 인물 / 세계 / 선택. Events and World get the source's chapter headers ("N장 · name", "N장에서 알게 된 것 · name"). People put the role first. Choices show a note while empty.
+  - The detail shows the entry's illustration when the port carries that picture (the dialogue artwork or UI art).
+  - Arrows, TAB and the side keys turn tabs; up and down choose; ESC returns.
+- **Not carried.**
+  - The Quests, Losses and Leads tabs: side quests, the world rewrite's loss records and curios are not ported. The summary's loss count goes with them.
+  - Most `archive_*` illustrations are not imported yet, so "삽화" counts only the pictures the port has.
+  - The choices-empty note gains a Korean line (the source's was English only).
+- **Tests.**
+  - New `Memoria.Journal.Source` covers table sizes, the first event in both languages, the art table, chapter names, `name_ko` and the speaker fallback.
+  - New `MemoriaVisual.Journal`: in Verdan after the arrival, the pause row opens the journal. It checks the summary names Chapter 2, "2장 · 베르단 시장" then its event and description, Malet among the people with his role first, Chapter 2's world note, and no choices; ESC returns.
+- **Results.** Full rendered registry 417/417 (s327-full), visual 23/23 (s327-visual).
+
 # Migration handoff — S326 Codex's foe models in the field (Claude lane, 2026-09-30)
 
 - **Why.** Codex delivered the S313 request: the void husk, and the market thief with its dagger. See `codex-review.md` in the shared folder and `models/MANIFEST.md`. The field foes stop being the tinted mannequin. The optional alley rat was deferred by Codex.
