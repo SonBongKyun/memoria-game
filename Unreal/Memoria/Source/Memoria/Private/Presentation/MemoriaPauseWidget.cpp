@@ -42,8 +42,8 @@ bool UMemoriaPauseWidget::IsItemEnabled(int32 Index) const
 { return Index == 2 ? bCanSave : Index == 3 ? bCanLoad : Index >= 0 && Index < ItemCount; }
 FString UMemoriaPauseWidget::ItemLabel(int32 Index) const
 {
-    static const TCHAR* En[ItemCount] = {TEXT("Resume"), TEXT("Options"), TEXT("Save"), TEXT("Load"), TEXT("Achievements"), TEXT("Return to Title"), TEXT("Quit Game")};
-    static const TCHAR* KoText[ItemCount] = {TEXT("계속하기"), TEXT("옵션"), TEXT("저장"), TEXT("불러오기"), TEXT("업적"), TEXT("타이틀로"), TEXT("게임 종료")};
+    static const TCHAR* En[ItemCount] = {TEXT("Resume"), TEXT("Options"), TEXT("Save"), TEXT("Load"), TEXT("Codex"), TEXT("Achievements"), TEXT("Return to Title"), TEXT("Quit Game")};
+    static const TCHAR* KoText[ItemCount] = {TEXT("계속하기"), TEXT("옵션"), TEXT("저장"), TEXT("불러오기"), TEXT("도감"), TEXT("업적"), TEXT("타이틀로"), TEXT("게임 종료")};
     return Index >= 0 && Index < ItemCount ? Loc(En[Index], KoText[Index]) : FString();
 }
 void UMemoriaPauseWidget::Navigate(int32 Direction)

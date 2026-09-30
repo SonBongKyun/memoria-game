@@ -17,6 +17,7 @@
 #include "EngineUtils.h"
 #include "Engine/GameInstance.h"
 #include "Achievements/MemoriaAchievementSubsystem.h"
+#include "Codex/MemoriaCodexSubsystem.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 using namespace MemoriaCombatTuning;
@@ -163,6 +164,10 @@ TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Coun
     TArray<AMemoriaFieldMonster*> Spawned;
     UWorld* World = GetWorld(); if (!World) return Spawned;
     FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    // codex.gd _on_battle_started: the wave is one encounter with its kind.
+    if (Count > 0)
+        if (auto* Codex = World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaCodexSubsystem>() : nullptr)
+        { const FMemoriaFoeSpec& S = FoeSpec(Kind); Codex->RecordEncounter(S.Name, S.bVoid, false, int32(S.Health), int32(S.Damage)); }
     for (int32 I = 0; I < Count; ++I)
     {
         const float Angle = 2.f * PI * I / FMath::Max(1, Count) + .6f;
@@ -180,6 +185,7 @@ void UMemoriaFieldCombatSubsystem::NotifyMonsterDied(AMemoriaFieldMonster* Monst
     if (!Monster || !Run) return;
     // Source Win grains for the foe: (void ? 8 : 3) + max HP / 20, paid as each one falls.
     const FMemoriaFoeSpec& S = Monster->Spec();
+    if (auto* Codex = GetWorld()->GetGameInstance()->GetSubsystem<UMemoriaCodexSubsystem>()) Codex->RecordDefeat(S.Name);
     const int64 Grains = (S.bVoid ? 8 : 3) + int64(S.Health) / 20;
     Run->State.Player.Grains += Grains; WaveGrains += Grains; ++WaveKills; bWaveVoid |= S.bVoid;
     Popup(Monster->GetActorLocation() + FVector(0, 0, S.Height * .6f), float(Grains), false, FString::Printf(TEXT("+%lld Grains"), Grains), FLinearColor(1.f, .86f, .35f));

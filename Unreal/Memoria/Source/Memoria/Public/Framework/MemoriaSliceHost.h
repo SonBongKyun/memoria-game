@@ -14,6 +14,7 @@ class UMemoriaGameOverWidget;
 class UMemoriaHintWidget;
 class UMemoriaAchievementPopupWidget;
 class UMemoriaAchievementsWidget;
+class UMemoriaCodexWidget;
 enum class EMemoriaGameOverAction : uint8;
 enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
@@ -55,6 +56,8 @@ public:
     // S324: the achievement popup and the pause menu's achievements list.
     UMemoriaAchievementPopupWidget* GetAchievementPopup() const { return AchievementPopup; }
     UMemoriaAchievementsWidget* GetAchievementsWidget() const { return AchievementsWidget; }
+    // S325: the codex (도감) from the pause menu.
+    UMemoriaCodexWidget* GetCodexWidget() const { return CodexWidget; }
 protected:
     virtual void SetupInputComponent() override;
     virtual void Move(const FInputActionValue& Value) override;
@@ -78,6 +81,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaHintWidget> HintWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaAchievementPopupWidget> AchievementPopup;
     UPROPERTY(Transient) TObjectPtr<UMemoriaAchievementsWidget> AchievementsWidget;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaCodexWidget> CodexWidget;
+    void CloseCodex();
     void UpdateAchievements();
     void CloseAchievements();
     void UpdateHints(class UMemoriaFieldCombatSubsystem* Combat);

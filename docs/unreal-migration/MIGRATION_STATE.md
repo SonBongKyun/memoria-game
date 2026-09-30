@@ -1,3 +1,32 @@
+# Migration handoff — S325 codex, the bestiary and memory archive (Claude lane, 2026-09-30)
+
+- **Why.** Step C continues. `codex.gd` is the game's codex (도감). It has nothing to do with the Codex agent.
+- **`UMemoriaCodexSubsystem`.**
+  - **Storage.** It keeps the Bestiary and the Memory Archive across runs in their own file: `user://codex.json` → `Saved/Memoria/codex.json`. Never in tests or commandlets, which is the source's `suppress_recording`.
+  - **Bestiary.** A field wave is one encounter with its kind's name, void flag, health and damage. Each foe that falls is a defeat.
+  - **Memory archive.** Memories are recorded from the run's archive as the run holds them: the title and description in the run's language at that moment, and the raw grade. They are marked when burned. The archive is rebuilt only when the run, the held count or the burn count changes.
+  - **Roster.** The unmet list is the source's `GameManager.ENEMY_NAMES_KO` roster, which is also the Korean name table, plus the field's stand-in void husk ("보이드 허스크"). The denominator is the roster plus anything recorded, as in S217.
+- **Screen** (`UMemoriaCodexWidget`, the pause menu's new 도감 row before Achievements, following the source's order).
+  - The archive backdrop (`T_UiCodexBackdrop`) under the veil, then "도감 / CODEX", the subtitle, and "생물 기록 n · 기억 기록 m".
+  - The Bestiary / Memory Archive tabs, the list on the left and the detail panel (350 wide) on the right.
+  - **Bestiary list:** "기록 n / total", then the recorded foes with their defeat badges (◦ 10, ○ 25, ● 50), then "미조우 n" and "???" rows.
+  - **Archive list:** stars, the title, and a burned mark.
+  - **Details.** A foe shows its type, base HP, base attack, encounters and defeats. A memory shows its grade and stars, held or burned, and its description.
+  - **Input.** TAB or the side arrows switch tabs, the up and down arrows choose, the list follows the choice, and ESC returns to the menu.
+- **Deviations.**
+  - **Stars.** The source's `_get_star_rating` gave `5 - grade` (the sensory Grade 5 got five stars, the core Grade 1 one). This contradicts its own comment and its gold colour for Grade 1. The comment's intent is kept: Grade 5 one star, Grade 1 five.
+  - **Detail labels** are in both languages. The source's were English apart from the unscanned block.
+  - **Not carried:** scans (Tobias' Analyze) and the enemy picture preview. The unmet hint keeps only "교전을 시작하면 기본 정보가 기록됩니다".
+- **Pause menu.** 8 rows: Resume, Options, Save, Load, 도감, 업적, Title, Quit. The achievements test now finds its row by label.
+- **Tests.**
+  - New `Memoria.Codex.Rules` covers counts per name, the roster and denominator, Korean names, stars and badges.
+  - New `MemoriaVisual.Codex` checks the arrival's memories are archived and the bribe's is burned. A husk met and burned down is recorded (one encounter, one defeat). The pause row opens the screen with the right list and detail; TAB turns to the archive; ESC returns.
+- **Language.** Memory titles are stored in the run's language when first held. The Verdan test run is English while the interface setting is Korean, so its archive rows are English beside Korean labels, as in the existing memory archive screen.
+- **Timing.** The code was written and compiled while Codex held the GPU for S313. Validation waited for the GPU to be released.
+- **Results.**
+  - Full rendered registry 416/416 (s325-full), visual 22/22 (s325-visual).
+  - The codex backdrop was imported after that run. `MemoriaVisual.Codex` was rerun with it (Success, no glyph fallbacks).
+
 # Migration handoff — S324 achievements (Claude lane, 2026-09-30)
 
 - **Why.** Step C continues.

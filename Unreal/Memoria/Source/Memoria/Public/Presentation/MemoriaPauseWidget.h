@@ -6,19 +6,19 @@
 class UMemoriaSettingsSubsystem;
 
 // Menu rows first (their order is the row order); Language reports a language switch in Options.
-enum class EMemoriaPauseAction : uint8 { Resume, Options, Save, Load, Achievements, Title, Quit, Language };
+enum class EMemoriaPauseAction : uint8 { Resume, Options, Save, Load, Codex, Achievements, Title, Quit, Language };
 DECLARE_DELEGATE_OneParam(FMemoriaPauseActionEvent, EMemoriaPauseAction);
 
 // S317: the ESC menu after pause_menu.gd, painted like the combat HUD: a dark veil, the amber-bordered
-// panel on the right with the chapter card, and the menu. Achievements joined in S324; the source's Journal,
-// Codex, Artbook and Endings have no Unreal systems yet, so their rows are not listed.
+// panel on the right with the chapter card, and the menu. Achievements joined in S324 and the Codex in S325;
+// the source's Journal, Artbook and Endings have no Unreal systems yet, so their rows are not listed.
 // Options edits the same settings as the title; Quit asks first, as the source does.
 UCLASS()
 class MEMORIA_API UMemoriaPauseWidget : public UUserWidget
 {
     GENERATED_BODY()
 public:
-    static constexpr int32 ItemCount = 7;
+    static constexpr int32 ItemCount = 8;
     static constexpr int32 OptionRowCount = 6; // master, bgm, sfx, fullscreen, language, back
     FMemoriaPauseActionEvent OnAction;
     void Configure(UMemoriaSettingsSubsystem* InSettings, bool bInCanSave, bool bInCanLoad, const FString& InInfo);

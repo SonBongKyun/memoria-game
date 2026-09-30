@@ -3,6 +3,8 @@
 #include "Tutorial/MemoriaHintWidget.h"
 #include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Achievements/MemoriaAchievementWidgets.h"
+#include "Codex/MemoriaCodexSubsystem.h"
+#include "Codex/MemoriaCodexWidget.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
@@ -120,6 +122,17 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             return true;
         }
         if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
+        return true;
+    }
+    if(CodexWidget)
+    {
+        if(Params.Event!=IE_Pressed && Params.Event!=IE_Repeat)return true;
+        const FKey K=Params.Key;
+        if(K==EKeys::Up || K==EKeys::W || K==EKeys::Gamepad_DPad_Up){CodexWidget->Move(-1);Cue(TEXT("ui_hover"));}
+        else if(K==EKeys::Down || K==EKeys::S || K==EKeys::Gamepad_DPad_Down){CodexWidget->Move(1);Cue(TEXT("ui_hover"));}
+        else if(Params.Event==IE_Pressed && (K==EKeys::Tab || K==EKeys::Left || K==EKeys::Right || K==EKeys::A || K==EKeys::D || K==EKeys::Gamepad_LeftShoulder || K==EKeys::Gamepad_RightShoulder))
+        {CodexWidget->SetTab(1-CodexWidget->GetTab());Cue(TEXT("ui_select"));}
+        else if(Params.Event==IE_Pressed && (K==EKeys::Escape || K==EKeys::BackSpace || K==EKeys::Gamepad_FaceButton_Right || K==EKeys::Gamepad_Special_Right))CloseCodex();
         return true;
     }
     if(AchievementsWidget)
@@ -249,6 +262,7 @@ void AMemoriaSliceController::UpdateAchievements()
     auto* Achievements=GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>();
     if(!Achievements)return;
     Achievements->Observe(*GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>());
+    if(auto* Codex=GetGameInstance()->GetSubsystem<UMemoriaCodexSubsystem>())Codex->Observe(*GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>());
     Achievements->Advance(FApp::GetDeltaTime());
     if(!Achievements->GetPopup().IsEmpty() && !AchievementPopup)
     {
@@ -258,6 +272,12 @@ void AMemoriaSliceController::UpdateAchievements()
         AchievementPopup->Bind(Achievements);
         AchievementPopup->AddToViewport(95);
     }
+}
+void AMemoriaSliceController::CloseCodex()
+{
+    if(!CodexWidget)return;
+    CodexWidget->RemoveFromParent(); CodexWidget=nullptr;
+    Cue(TEXT("cancel"));
 }
 void AMemoriaSliceController::CloseAchievements()
 {
@@ -659,6 +679,14 @@ void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
         ClosePause(); LoadNewest();
         break;
     }
+    case EMemoriaPauseAction::Codex:
+        // pause_menu.gd _on_codex: over the menu, which stays open beneath it.
+        CodexWidget=CreateWidget<UMemoriaCodexWidget>(this,UMemoriaCodexWidget::StaticClass());
+        CodexWidget->Configure(Game->GetSubsystem<UMemoriaCodexSubsystem>(),Ko);
+        CodexWidget->AddToViewport(62);
+        FSlateApplication::Get().SetAllUserFocusToGameViewport();
+        Cue(TEXT("ui_select"));
+        break;
     case EMemoriaPauseAction::Achievements:
         // pause_menu.gd _show_achievements_panel: over the menu, which stays open beneath it.
         AchievementsWidget=CreateWidget<UMemoriaAchievementsWidget>(this,UMemoriaAchievementsWidget::StaticClass());
