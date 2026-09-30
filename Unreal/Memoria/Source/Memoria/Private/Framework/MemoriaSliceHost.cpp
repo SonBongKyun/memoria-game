@@ -5,6 +5,7 @@
 #include "Achievements/MemoriaAchievementWidgets.h"
 #include "Codex/MemoriaCodexSubsystem.h"
 #include "Codex/MemoriaCodexWidget.h"
+#include "Journal/MemoriaJournalWidget.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
@@ -122,6 +123,17 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             return true;
         }
         if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
+        return true;
+    }
+    if(JournalWidget)
+    {
+        if(Params.Event!=IE_Pressed && Params.Event!=IE_Repeat)return true;
+        const FKey K=Params.Key;
+        if(K==EKeys::Up || K==EKeys::W || K==EKeys::Gamepad_DPad_Up){JournalWidget->Move(-1);Cue(TEXT("ui_hover"));}
+        else if(K==EKeys::Down || K==EKeys::S || K==EKeys::Gamepad_DPad_Down){JournalWidget->Move(1);Cue(TEXT("ui_hover"));}
+        else if(Params.Event==IE_Pressed && (K==EKeys::Tab || K==EKeys::Right || K==EKeys::D || K==EKeys::Gamepad_RightShoulder)){JournalWidget->CycleTab(1);Cue(TEXT("ui_select"));}
+        else if(Params.Event==IE_Pressed && (K==EKeys::Left || K==EKeys::A || K==EKeys::Gamepad_LeftShoulder)){JournalWidget->CycleTab(-1);Cue(TEXT("ui_select"));}
+        else if(Params.Event==IE_Pressed && (K==EKeys::Escape || K==EKeys::BackSpace || K==EKeys::Gamepad_FaceButton_Right || K==EKeys::Gamepad_Special_Right))CloseJournal();
         return true;
     }
     if(CodexWidget)
@@ -272,6 +284,12 @@ void AMemoriaSliceController::UpdateAchievements()
         AchievementPopup->Bind(Achievements);
         AchievementPopup->AddToViewport(95);
     }
+}
+void AMemoriaSliceController::CloseJournal()
+{
+    if(!JournalWidget)return;
+    JournalWidget->RemoveFromParent(); JournalWidget=nullptr;
+    Cue(TEXT("cancel"));
 }
 void AMemoriaSliceController::CloseCodex()
 {
@@ -679,6 +697,14 @@ void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
         ClosePause(); LoadNewest();
         break;
     }
+    case EMemoriaPauseAction::Journal:
+        // pause_menu.gd _on_journal: over the menu, which stays open beneath it.
+        JournalWidget=CreateWidget<UMemoriaJournalWidget>(this,UMemoriaJournalWidget::StaticClass());
+        JournalWidget->Configure(Game->GetSubsystem<UMemoriaRunSubsystem>(),Ko);
+        JournalWidget->AddToViewport(62);
+        FSlateApplication::Get().SetAllUserFocusToGameViewport();
+        Cue(TEXT("ui_select"));
+        break;
     case EMemoriaPauseAction::Codex:
         // pause_menu.gd _on_codex: over the menu, which stays open beneath it.
         CodexWidget=CreateWidget<UMemoriaCodexWidget>(this,UMemoriaCodexWidget::StaticClass());
