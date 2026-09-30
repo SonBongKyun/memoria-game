@@ -12,9 +12,11 @@ class UAnimSequence;
 class USkeletalMesh;
 
 // S313: how a mannequin-based foe looks. Clip names resolve through MemoriaCombatClips for "Mannequin";
-// null keeps Epic's MM_Idle and walk.
+// null keeps Epic's MM_Idle and walk. S326: Model names Codex's model (Field3D/<Model>, imported by
+// -run=MemoriaFoeModels); the foe wears it when its assets exist, and the mannequin otherwise.
 struct FMemoriaFoeLook
 {
+    const TCHAR* Model = nullptr;
     float Height = 165.f;
     bool bQuinn = false;
     const TCHAR* Idle = nullptr;
@@ -62,6 +64,8 @@ public:
     // S313: a field foe on Epic's mannequin (Manny, or Quinn), in the M_FieldFoe material, with optional
     // UAL2 idle/walk clips (Combat/Foes) and a short blade in the right hand.
     bool InitializeFoe(const struct FMemoriaFoeLook& Look);
+    // S326: true when the foe wears its model rather than the mannequin.
+    bool IsFoeModel() const { return bFoeModel; }
     // The M_FieldFoe "Hit" flash, 0..1.
     void SetHitFlash(float Amount);
     // bHold keeps the clip's last pose; HoldAt (0..1) freezes it earlier, at that share of the clip.
@@ -95,6 +99,7 @@ private:
     UStaticMeshComponent* AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset, bool bListed = true);
     UStaticMeshComponent* AttachGrip(UStaticMesh* Mesh, float PropScale = 1.f);
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> FoeMaterials;
+    bool bFoeModel = false;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Sheathed;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Scabbard;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Blade;

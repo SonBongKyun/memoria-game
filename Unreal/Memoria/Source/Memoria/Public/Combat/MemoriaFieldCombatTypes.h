@@ -115,6 +115,7 @@ struct FMemoriaFoeSpec
     float StrikeAt;                         // fraction of the strike clip where the blow lands
     bool bQuinn; FLinearColor Color, Glow; float Crack, Rim, BladeScale;
     bool bVoid; EMemoriaFoeAbility Ability;   // S314: source is_void (rewards) and the blow's status
+    const TCHAR* Model;                       // S326: Codex's model (Field3D/<Model>), when imported
 };
 inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
 {
@@ -124,12 +125,12 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
         TEXT("Zombie_Idle_Loop"), TEXT("Zombie_Walk_Fwd_Loop"), TEXT("Zombie_Scratch"), .55f,
         false, FLinearColor(.035f, .025f, .05f), FLinearColor(.55f, .18f, 1.f), 6.f, .8f, 0.f,
         // It stands in for the source pool's Alley Rat, so it carries the rat's poison.
-        true, EMemoriaFoeAbility::Poison};
+        true, EMemoriaFoeAbility::Poison, TEXT("Husk")};
     // Quick and light: it darts in with a short blade and gets away; its blow is weaker and harder to see coming.
     static const FMemoriaFoeSpec Thief = {TEXT("Market Thief"), TEXT("시장 도둑"),
         45.f, 160.f, 150.f, 700.f, 125.f, .42f, .70f, .30f, 7.f,
         nullptr, nullptr, TEXT("Sword_Regular_A"), .55f,
         true, FLinearColor(.07f, .05f, .038f), FLinearColor(1.f, .62f, .30f), 0.f, .05f, .42f,
-        false, EMemoriaFoeAbility::Weaken};
+        false, EMemoriaFoeAbility::Weaken, TEXT("Thief")};
     return Kind == EMemoriaFoeKind::MarketThief ? Thief : Husk;
 }
