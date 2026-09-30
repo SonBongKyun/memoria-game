@@ -42,8 +42,8 @@ bool UMemoriaPauseWidget::IsItemEnabled(int32 Index) const
 { return Index == 2 ? bCanSave : Index == 3 ? bCanLoad : Index >= 0 && Index < ItemCount; }
 FString UMemoriaPauseWidget::ItemLabel(int32 Index) const
 {
-    static const TCHAR* En[ItemCount] = {TEXT("Resume"), TEXT("Options"), TEXT("Save"), TEXT("Load"), TEXT("Return to Title"), TEXT("Quit Game")};
-    static const TCHAR* KoText[ItemCount] = {TEXT("계속하기"), TEXT("옵션"), TEXT("저장"), TEXT("불러오기"), TEXT("타이틀로"), TEXT("게임 종료")};
+    static const TCHAR* En[ItemCount] = {TEXT("Resume"), TEXT("Options"), TEXT("Save"), TEXT("Load"), TEXT("Achievements"), TEXT("Return to Title"), TEXT("Quit Game")};
+    static const TCHAR* KoText[ItemCount] = {TEXT("계속하기"), TEXT("옵션"), TEXT("저장"), TEXT("불러오기"), TEXT("업적"), TEXT("타이틀로"), TEXT("게임 종료")};
     return Index >= 0 && Index < ItemCount ? Loc(En[Index], KoText[Index]) : FString();
 }
 void UMemoriaPauseWidget::Navigate(int32 Direction)
@@ -176,9 +176,12 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
     Y += 44;
     Box(Elements, L + 2, Geometry, FVector2D(At.X + Pad, Y), FVector2D(W, 1.5f), Srgb(.72f, .54f, .30f, .35f));
     Y += 20;
+    // Rows keep their height while they fit above the controls line and the saved note; a short window
+    // (S324's seventh row) shrinks them instead of letting the last one run into the hint.
+    float RowHeight = RowH;
     auto Row = [&](int32 Index, const FString& Label, const FString& Value, bool bOn, bool bEnabled)
     {
-        const FVector2D R(At.X + Pad, Y), RS(W, RowH);
+        const FVector2D R(At.X + Pad, Y), RS(W, RowHeight);
         Box(Elements, L + 2, Geometry, R, RS, bOn ? Srgb(.15f, .12f, .18f, .95f) : Srgb(.10f, .08f, .12f, .90f));
         Frame(Elements, L + 3, Geometry, R, RS, 1.f, bOn ? Srgb(.70f, .55f, .30f, .80f) : Srgb(.35f, .28f, .20f, .50f));
         if (bOn) Box(Elements, L + 3, Geometry, R, FVector2D(4, RS.Y), Srgb(1.f, .76f, .36f, .94f));
@@ -186,8 +189,9 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
         Text(Elements, L + 4, Geometry, Label, R + FVector2D(24, RS.Y * .5), 0.f, Body, Ink);
         if (!Value.IsEmpty()) Text(Elements, L + 4, Geometry, Value, R + FVector2D(RS.X - 24, RS.Y * .5), 1.f, Body, Ink);
         Rows.Add(FBox2D(R, R + RS));
-        Y += RowH + RowGap;
+        Y += RowHeight + RowGap;
     };
+    auto FitRows = [&](int32 Count) { RowHeight = FMath::Clamp((At.Y + Panel.Y - 64.f - Y) / Count - RowGap, 34.f, RowH); };
     if (!bOptionsOpen)
     {
         // The source's info card: chapter and place, then the run's numbers.
@@ -196,6 +200,7 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
         TArray<FString> Lines; Info.ParseIntoArrayLines(Lines);
         for (int32 N = 0; N < Lines.Num() && N < 3; ++N) Text(Elements, L + 3, Geometry, Lines[N], I + FVector2D(16, 22 + 26.f * N), 0.f, Small, Srgb(.60f, .55f, .50f));
         Y += IS.Y + 24;
+        FitRows(ItemCount);
         // The ported save point is the closed Chapter 2 boundary; elsewhere Save says why it is dark.
         for (int32 N = 0; N < ItemCount; ++N)
             Row(N, FString::Printf(TEXT("%02d    %s"), N + 1, *ItemLabel(N)), N == 2 && !bCanSave ? Loc(TEXT("Not here"), TEXT("여기서는 불가")) : FString(), N == Selected && !bAskQuit, IsItemEnabled(N));
@@ -211,6 +216,7 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
             Values[2] = FString::Printf(TEXT("%d%%"), Settings->GetSfxVolume()); Values[3] = Settings->IsFullscreen() ? Loc(TEXT("On"), TEXT("켜짐")) : Loc(TEXT("Off"), TEXT("꺼짐"));
             Values[4] = Settings->GetLocale() == TEXT("en") ? TEXT("English") : TEXT("한국어");
         }
+        FitRows(OptionRowCount);
         for (int32 N = 0; N < OptionRowCount; ++N) Row(N, Labels[N], Values[N], N == OptionRow, true);
     }
     // The last-saved line (the source's green note), then the controls hint.

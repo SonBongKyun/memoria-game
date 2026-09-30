@@ -75,6 +75,10 @@ def narrative_test_paths():
         'BurnUsesRunContext', 'StillHandsOath', 'AddItemSourceRules', 'ClassifierReport')}
 
 
+def side_system_test_paths():
+    return {'Memoria.Achievements.Rules'}
+
+
 def presentation_test_paths():
     return {'Memoria.Presentation.'+name for name in (
         'ArrelGaitBonesResolved', 'ArrelRigWithoutGaitBones', 'PlaceholderIdentification')}
@@ -153,11 +157,11 @@ def verdan_story_test_paths():
 def visual_test_paths():
     return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration",
             "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey", "MemoriaVisual.FieldCharacters",
-            "MemoriaVisual.TitleScreen", "MemoriaVisual.FieldCombat", "MemoriaVisual.FieldBurn", "MemoriaVisual.FieldFoes", "MemoriaVisual.FieldRewards", "MemoriaVisual.FieldFeel", "MemoriaVisual.PauseMenu", "MemoriaVisual.GameOver", "MemoriaVisual.EliaSkills", "MemoriaVisual.Chapter3", "MemoriaVisual.Chapter3Travel", "MemoriaVisual.Chapter4", "MemoriaVisual.Chapter5", "MemoriaVisual.TutorialHints"}
+            "MemoriaVisual.TitleScreen", "MemoriaVisual.FieldCombat", "MemoriaVisual.FieldBurn", "MemoriaVisual.FieldFoes", "MemoriaVisual.FieldRewards", "MemoriaVisual.FieldFeel", "MemoriaVisual.PauseMenu", "MemoriaVisual.GameOver", "MemoriaVisual.EliaSkills", "MemoriaVisual.Chapter3", "MemoriaVisual.Chapter3Travel", "MemoriaVisual.Chapter4", "MemoriaVisual.Chapter5", "MemoriaVisual.TutorialHints", "MemoriaVisual.Achievements"}
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | battle_core_test_paths() | presentation_test_paths() | audio_test_paths() | verdan_story_test_paths() | chapter1_test_paths() | title_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | battle_core_test_paths() | presentation_test_paths() | audio_test_paths() | verdan_story_test_paths() | chapter1_test_paths() | title_test_paths() | side_system_test_paths()
 
 
 def malet_first_effect_test_paths():

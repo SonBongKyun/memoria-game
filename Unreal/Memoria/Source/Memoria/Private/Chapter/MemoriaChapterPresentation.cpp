@@ -10,6 +10,7 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Audio/MemoriaAudioSubsystem.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
@@ -241,6 +242,7 @@ void AMemoriaChapterPresentation::BeginPlay()
     }
     PreviousPosition = Player->GetActorLocation();
     if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("chapter:presented:") + Map);
+    if (auto* Achievements = Game->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordMapVisit(Map);
 }
 void AMemoriaChapterPresentation::StartNextStep()
 {

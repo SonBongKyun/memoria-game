@@ -29,6 +29,7 @@
 #if WITH_EDITOR
 #include "TextureCompiler.h"
 #include "Engine/Texture2D.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #endif
 namespace
 {
@@ -376,6 +377,8 @@ void AMemoriaVerdanPresentation::TickFieldLife()
 void AMemoriaVerdanPresentation::BeginPlay()
 {
     Super::BeginPlay();
+    // verdan_market.gd record_map_visit.
+    if (auto* Achievements = GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordMapVisit(TEXT("verdan_market"));
     auto* PC=GetWorld()->GetFirstPlayerController(); Player=PC?Cast<AMemoriaFieldPawn>(PC->GetPawn()):nullptr;
     if (!Player.IsValid() || !LoadObject<UMaterialInterface>(nullptr,SurfacePath) || !LoadObject<UStaticMesh>(nullptr,RoofPath)
         || !LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Depth/M_Paving.M_Paving"))
