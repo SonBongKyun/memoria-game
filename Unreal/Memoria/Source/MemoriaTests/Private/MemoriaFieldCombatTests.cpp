@@ -33,7 +33,6 @@ public:
     ~FFieldCombatReplay() override
     {
         if (bFixed) { FApp::SetUseFixedTimeStep(bOldFixed); FApp::SetFixedDeltaTime(OldDelta); }
-        UMemoriaFieldCombatSubsystem::SetFieldEncountersForTests(false);
     }
     bool Update() override
     {
@@ -69,8 +68,6 @@ public:
         };
         if (Phase == 0)
         {
-            UMemoriaFieldCombatSubsystem::SetFieldEncountersForTests(true);
-            Test->TestTrue(TEXT("Field encounters replace the battle when opted in"), UMemoriaFieldCombatSubsystem::UseFieldEncounters());
             Test->TestTrue(TEXT("Arrel is the rigged figure"), Arrel && Arrel->IsRigged() && Arrel->GetCharacterId() == TEXT("Arrel"));
             for (int32 Step = 0; Step < 3; ++Step)
                 Test->TestNotNull(*FString::Printf(TEXT("Retargeted combo step %d"), Step + 1), MemoriaCombatClips::Load(TEXT("Arrel"), MemoriaCombatClips::Attack(Step)));

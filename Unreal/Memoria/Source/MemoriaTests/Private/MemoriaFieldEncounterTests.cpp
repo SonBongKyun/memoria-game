@@ -30,7 +30,6 @@ public:
     ~FFieldEncounterReplay() override
     {
         if (bFixed) { FApp::SetUseFixedTimeStep(bOldFixed); FApp::SetFixedDeltaTime(OldDelta); }
-        UMemoriaFieldCombatSubsystem::SetFieldEncountersForTests(false);
     }
     bool Update() override
     {
@@ -48,7 +47,6 @@ public:
         {
             bFixed = true; bOldFixed = FApp::UseFixedTimeStep(); OldDelta = FApp::GetFixedDeltaTime();
             FApp::SetUseFixedTimeStep(true); FApp::SetFixedDeltaTime(1.0 / 60.0);
-            UMemoriaFieldCombatSubsystem::SetFieldEncountersForTests(true);
             for (int32 I = 0; I < 20 && Host->GetState() == EMemoriaSliceState::VN; ++I) Host->Confirm(1);
             return false;
         }
@@ -74,7 +72,6 @@ public:
         }
         case 1:
             if (World == From.Get() || !Host->IsVerdanRevisit() || Frame < 10) break;
-            Test->TestTrue(TEXT("Field encounters are the encounter path"), UMemoriaFieldCombatSubsystem::UseFieldEncounters());
             BattlesBefore = Run->GetRunSnapshot().TotalBattles;
             Origin = Pawn->GetActorLocation();
             ++Phase; Mark = Frame; break;

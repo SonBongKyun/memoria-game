@@ -76,7 +76,7 @@ def narrative_test_paths():
 
 
 def side_system_test_paths():
-    return {'Memoria.Achievements.Rules', 'Memoria.Codex.Rules', 'Memoria.Journal.Source'}
+    return {'Memoria.Achievements.Rules', 'Memoria.Codex.Rules', 'Memoria.Journal.Source', 'Memoria.Verdan.RevisitJourney'}
 
 
 def presentation_test_paths():
@@ -126,19 +126,6 @@ def archive_test_paths():
     return {'Memoria.Archive.'+n for n in ('RenderedInputFlow','WidgetReadOnly')} | {'Memoria.Archive.Source.'+n for n in ('initial_en','initial_ko','states_en','states_ko','grade5','grade3','grade1','empty')}
 
 
-def battle_core_test_paths():
-    from export_battle_core_oracle import inputs
-    return {'Memoria.BattleCore.Source.'+case['id'] for case in inputs()} | {'Memoria.BattleCore.RenderedJourney','Memoria.BattleCore.OwnerLifetime','Memoria.BattleCore.StagePresentation'}
-
-
-def battle_entry_test_paths():
-    from export_battle_entry_oracle import inputs
-    # Phase-step/Witness approach probes characterize source only; the playable
-    # native revisit currently supports the original neutral ambient entry.
-    paths = {'Memoria.BattleEntry.Source.'+case['id'] for case in inputs() if case['entry_mode']=='neutral'}
-    return paths | {'Memoria.BattleEntry.'+name for name in ('EncounterDistance','OwnerLifetime','SavedStats','RenderedRevisitFlow')}
-
-
 def chapter1_test_paths():
     from narrative_ir import VN_CASES
     from export_chapter1_oracle import inputs
@@ -161,7 +148,7 @@ def visual_test_paths():
 
 
 def current_test_paths():
-    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | battle_entry_test_paths() | battle_core_test_paths() | presentation_test_paths() | audio_test_paths() | verdan_story_test_paths() | chapter1_test_paths() | title_test_paths() | side_system_test_paths()
+    return expected_test_paths() | narrative_test_paths() | slice_test_paths() | malet_test_paths() | malet_refusal_test_paths() | malet_deal_test_paths() | malet_reward_test_paths() | malet_first_effect_test_paths() | world_seed_test_paths() | potion_test_paths() | antidote_test_paths() | firebomb_test_paths() | shop_test_paths() | shop_transaction_test_paths() | checkpoint_test_paths() | archive_test_paths() | presentation_test_paths() | audio_test_paths() | verdan_story_test_paths() | chapter1_test_paths() | title_test_paths() | side_system_test_paths()
 
 
 def malet_first_effect_test_paths():

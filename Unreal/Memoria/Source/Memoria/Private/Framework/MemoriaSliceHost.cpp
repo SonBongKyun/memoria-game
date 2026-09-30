@@ -15,7 +15,6 @@
 #include "InputActionValue.h"
 #include "Presentation/MemoriaShopWidget.h"
 #include "Presentation/MemoriaArchiveWidget.h"
-#include "Presentation/MemoriaBattleEntryWidget.h"
 #include "Presentation/MemoriaTitleWidget.h"
 #include "Presentation/MemoriaPauseWidget.h"
 #include "Presentation/MemoriaGameOverWidget.h"
@@ -27,7 +26,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
-#include "Battle/MemoriaBattleEntrySubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "InputKeyEventArgs.h"
 #include "Engine/GameInstance.h"
@@ -112,17 +110,6 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
     if(!ArchiveWidget && ArchiveConsumedKeys.Contains(Params.Key))
     {
         if(Params.Event==IE_Released)ArchiveConsumedKeys.Remove(Params.Key);
-        return true;
-    }
-    if (BattleWidget)
-    {
-        if (ConfirmKey)
-        {
-            TrackArchiveGesture(Params.Key,Params.Event);
-            if (Params.Event==IE_Pressed && !bAwaitConfirmRelease) BattleWidget->ConfirmIntent();
-            return true;
-        }
-        if(Params.Event==IE_Pressed)BattleWidget->Navigate(Params.Key);
         return true;
     }
     if(JournalWidget)
@@ -337,26 +324,6 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         return;
     }
     if (TitleWidget) ClearTitle();
-    auto* Battle=GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
-    if (Battle->IsActive() || Battle->IsReturning())
-    {
-        Interaction->UpdateTarget(nullptr);
-        if (!BattleWidget)
-        {
-            if (NarrativeWidget) NarrativeWidget->OnConfirm.Unbind();
-            DismissModal(); NarrativeWidget=nullptr;
-            if (StatusWidget) StatusWidget->SetVisibility(ESlateVisibility::Collapsed);
-            BattleWidget=CreateWidget<UMemoriaBattleEntryWidget>(this,UMemoriaBattleEntryWidget::StaticClass());
-            BattleWidget->OnFlee.BindUObject(this,&AMemoriaSliceController::RequestBattleFlee);
-            BattleWidget->OnAction.BindUObject(this,&AMemoriaSliceController::RequestBattleAction);
-            BattleWidget->OnConsumedKey.BindUObject(this,&AMemoriaSliceController::TrackArchiveGesture);
-            Battle->OnReturned.AddUObject(this,&AMemoriaSliceController::BattleReturned);
-            BattleWidget->BindBattle(Battle); PresentModal(BattleWidget);
-            bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
-        }
-        return;
-    }
-    if (BattleWidget) ClearBattleWidget();
     if (Narrative->IsVerdanRevisit() && GetPawn())
     {
         if (!bEncounterInitialized) { Encounter.Reset(EncounterRng.Real(60,100)); bEncounterInitialized=true; }
@@ -370,19 +337,17 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         if (Step.bWarningStarted) { Narrative->Record(TEXT("encounter:warning")); LastRevision=INDEX_NONE; }
         if (Step.bTriggered)
         {
-            // S311: foes rise in the field around Arrel; the turn-based battle stays only as the tested stopgap.
+            // S311: foes rise in the field around Arrel (S329: the turn-based battle is retired).
             // S313: the source pool's Market Thief (index 1) comes as two thieves; the Alley Rat has no model
             // yet, so void husks stand in for it.
             auto* Combat=GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
-            if (UMemoriaFieldCombatSubsystem::UseFieldEncounters() && Combat && Combat->GetPlayer())
+            if (Combat && Combat->GetPlayer())
             {
                 const bool bThief=Step.EnemyIndex%2==1;
                 Combat->SpawnWave(bThief?2:3,GetPawn()->GetActorLocation(),420.f,bThief?EMemoriaFoeKind::MarketThief:EMemoriaFoeKind::VoidHusk);
                 GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->RecordBattleStarted();
                 Narrative->Record(TEXT("encounter:field_started"));
-                return;
             }
-            if (Battle->BeginEncounter(Step.EnemyIndex,EncounterRng,GetWorld())) Narrative->Record(TEXT("encounter:battle_started"));
             return;
         }
     }
@@ -491,7 +456,6 @@ void AMemoriaSliceController::TrackConfirmGesture(const FKey& Key,EInputEvent Ev
 void AMemoriaSliceController::ToggleArchive()
 {
     if(ArchiveWidget){CloseArchive();return;}
-    if(GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->IsActive())return;
     auto* Narrative=Host();auto* Run=GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
     if(!Narrative || !Run->HasActiveRun() || !GetWorld() || GetWorld()->bIsTearingDown ||
         (Narrative->GetState()!=EMemoriaSliceState::Exploration && Narrative->GetState()!=EMemoriaSliceState::Deferred))return;
@@ -564,7 +528,7 @@ void AMemoriaSliceController::Navigate(const FInputActionValue& Value)
 }
 void AMemoriaSliceController::ForwardConfirm(int32 OriginalIndex)
 {
-    if (bAwaitConfirmRelease || ArchiveWidget || BattleWidget) return;
+    if (bAwaitConfirmRelease || ArchiveWidget) return;
     // Source dialogue_box: ui_select when a choice is pressed, confirm when a line advances.
     Cue(Host()->GetView().Choices.IsEmpty() ? TEXT("confirm") : TEXT("ui_select"));
     const auto Before = Host()->GetState(); Host()->Confirm(OriginalIndex);
@@ -573,8 +537,7 @@ void AMemoriaSliceController::ForwardConfirm(int32 OriginalIndex)
 void AMemoriaSliceController::Confirm()
 {
     if (bAwaitConfirmRelease || ArchiveWidget || TitleWidget) return;
-    if (BattleWidget) BattleWidget->ConfirmIntent();
-    else if (NarrativeWidget) NarrativeWidget->ConfirmIntent();
+    if (NarrativeWidget) NarrativeWidget->ConfirmIntent();
     else if (Host()->GetState() == EMemoriaSliceState::Exploration && !IsModalOpen())
     {
         if (Interaction->Interact(GetPawn())) bAwaitConfirmRelease = true;
@@ -585,58 +548,29 @@ void AMemoriaSliceController::Back()
 {
     if(PauseWidget){if(!PauseWidget->Back())ClosePause();return;}
     if(TitleWidget){TitleWidget->Back();return;}
-    if(BattleWidget)return;
     if(ArchiveWidget){CloseArchive();return;}
     if (NarrativeWidget) Host()->Back(); else Super::Back();
 }
 void AMemoriaSliceController::OpenModal()
 {
-    if(BattleWidget || TitleWidget)return;
+    if(TitleWidget)return;
     if(ArchiveWidget){CloseArchive();return;}
     if (NarrativeWidget) Host()->Back();
     else if (Host()->GetState() == EMemoriaSliceState::Exploration && !OpenPause() && !PauseWidget) Super::OpenModal();
 }
-void AMemoriaSliceController::RequestBattleFlee(uint64 Revision)
-{
-    if(bAwaitConfirmRelease)return;
-    if(GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->Flee(Revision))
-        bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
-}
-void AMemoriaSliceController::ClearBattleWidget()
-{
-    if(!BattleWidget)return;
-    BattleWidget->OnAction.Unbind();BattleWidget->OnFlee.Unbind();BattleWidget->OnConsumedKey.Unbind();BattleWidget->BindBattle(nullptr);
-    GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>()->OnReturned.RemoveAll(this);
-    DismissModal();BattleWidget=nullptr;LastRevision=INDEX_NONE;
-}
-void AMemoriaSliceController::BattleReturned()
-{
-    ClearBattleWidget();Host()->ReturnFromAmbientBattle();
-}
 void AMemoriaSliceController::EndPlay(const EEndPlayReason::Type Reason)
 {
-    ClearBattleWidget(); ClearTitle();
+    ClearTitle();
     if(ArchiveWidget){ArchiveWidget->OnConsumedKey.Unbind();ArchiveWidget->OnClose.Unbind();ArchiveWidget->BindRun(nullptr);ArchiveWidget=nullptr;}
     if (NarrativeWidget) NarrativeWidget->OnConfirm.Unbind();
     if (StatusWidget) StatusWidget->RemoveFromParent(); StatusWidget = nullptr;
     NarrativeWidget = nullptr; Super::EndPlay(Reason);
 }
 
-void AMemoriaSliceController::RequestBattleAction(const FString& Action,const FString& Id,uint64 Revision)
-{
-    if(bAwaitConfirmRelease)return;
-    auto* Battle=GetGameInstance()->GetSubsystem<UMemoriaBattleEntrySubsystem>();
-    bool Accepted=false;
-    if(Action==TEXT("continue"))Accepted=Battle->DismissVictory(Revision);
-    else if(Action==TEXT("recover"))Accepted=Battle->RecoverToVerdan(Revision);
-    else if(Action==TEXT("checkpoint"))Accepted=Battle->RetryCheckpoint(Revision);
-    else Accepted=Battle->Submit(Action,Id,Revision);
-    if(Accepted)bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
-}
 bool AMemoriaSliceController::OpenPause()
 {
     auto* Narrative=Host();
-    if(PauseWidget || TitleWidget || BattleWidget || ArchiveWidget || NarrativeWidget || !Narrative || Narrative->GetState()!=EMemoriaSliceState::Exploration || IsModalOpen())return false;
+    if(PauseWidget || TitleWidget || ArchiveWidget || NarrativeWidget || !Narrative || Narrative->GetState()!=EMemoriaSliceState::Exploration || IsModalOpen())return false;
     if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr; Combat && (Combat->IsPickingBurn() || Combat->IsDefeated()))return false;
     auto* Game=GetGameInstance();
     PauseWidget=CreateWidget<UMemoriaPauseWidget>(this,UMemoriaPauseWidget::StaticClass());

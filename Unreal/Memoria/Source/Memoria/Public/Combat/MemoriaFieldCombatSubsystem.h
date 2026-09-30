@@ -108,10 +108,6 @@ public:
     // "Stagger On": HP at the given share of max, the foes withdraw, statuses end. Also used after a load.
     void Revive(float HpShare);
     const TArray<FMemoriaCombatPopup>& GetPopups() const { return Popups; }
-    // Field encounters replace the turn-based battle in play. Automation keeps the legacy battle unless a
-    // test opts in, so the stopgap turn-based suites keep their encounter route until they retire.
-    static bool UseFieldEncounters();
-    static void SetFieldEncountersForTests(bool bEnabled) { bFieldEncountersInTests = bEnabled; }
     void NotifyMonsterDied(AMemoriaFieldMonster* Monster);
 private:
     TWeakObjectPtr<APawn> Player;
@@ -153,7 +149,6 @@ private:
     void WinWave();
     void TickStatuses(float DeltaSeconds);
     bool bPicking = false, bArmed = false;
-    static bool bFieldEncountersInTests;
     void TickBurn(float DeltaSeconds);
     void DrawSword();
     void ReleaseBurn();

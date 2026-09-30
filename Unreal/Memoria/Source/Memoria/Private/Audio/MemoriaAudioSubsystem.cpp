@@ -3,7 +3,7 @@
 #include "Run/MemoriaRunSubsystem.h"
 #include "Shop/MemoriaShopSubsystem.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
-#include "Battle/MemoriaBattleEntrySubsystem.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -22,7 +22,6 @@ void UMemoriaAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     Collection.InitializeDependency<UMemoriaRunSubsystem>();
     Collection.InitializeDependency<UMemoriaShopSubsystem>();
     Collection.InitializeDependency<UMemoriaNarrativeSubsystem>();
-    Collection.InitializeDependency<UMemoriaBattleEntrySubsystem>();
     Collection.InitializeDependency<UMemoriaSettingsSubsystem>();
     auto* GI = GetGameInstance();
     // options_menu.gd master/bgm/sfx sliders drive the loop and one-shot players live.
@@ -135,16 +134,16 @@ void UMemoriaAudioSubsystem::SyncContext()
     UWorld* World = GI ? GI->GetWorld() : nullptr;
     if (!World || World->bIsTearingDown) return;
     // Source SCENE_BGM/SCENE_AMBIENT: verdan_market.tscn -> ch2_verdan + wind_light, and the
-    // arrival VN declares the same BGM; battle_scene.tscn -> battle_theme with no ambience.
+    // arrival VN declares the same BGM; battle_scene.tscn -> battle_theme with no ambience, now while field
+    // foes live (S329: the turn-based battle scene is retired).
     const FString Map = World->GetMapName();
     const bool bVerdan = Map.EndsWith(TEXT("L_VerdanHost")) || Map.EndsWith(TEXT("L_Ch2VerdanSlice")) || Map.EndsWith(TEXT("L_VerdanUnseenFixture"));
-    const auto* Battle = GI->GetSubsystem<UMemoriaBattleEntrySubsystem>();
-    const bool bActive = Battle && Battle->IsActive(), bReturning = Battle && Battle->IsReturning();
+    const auto* Fight = World->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+    const bool bActive = Fight && Fight->LiveMonsterCount() > 0;
     // battle_intro is defined but never played by the source; entering a fight uses it as an addition.
     if (bActive && !bBattleActive) PlaySfx(TEXT("battle_intro"));
-    if (bReturning && !bBattleReturning && Battle->GetView().BattleState==TEXT("FLED")) PlaySfx(TEXT("flee"));
-    if (!bActive || bReturning) SetLowHealth(false);
-    bBattleActive = bActive; bBattleReturning = bReturning;
+    if (!bActive) SetLowHealth(false);
+    bBattleActive = bActive; bBattleReturning = false;
     const auto* Narrative = GI->GetSubsystem<UMemoriaNarrativeSubsystem>();
     // main.gd _play_title_bgm: the title plays title.mp3 alone, with no ambience or duck.
     if (Narrative && Narrative->IsOnTitle())
