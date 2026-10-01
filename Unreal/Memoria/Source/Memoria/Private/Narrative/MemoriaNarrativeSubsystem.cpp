@@ -203,8 +203,8 @@ bool UMemoriaNarrativeSubsystem::ContinueChapterMap(const FString& Map)
     ContinuedMapPosition.Reset();
     // The slot must name this map; a refused load leaves a live run as it was.
     FString Saved; FVector2D Position;
-    if (Checkpoint->PeekChapterMap() != Map || !Checkpoint->RestoreChapterMap(Saved, Position)) { Record(TEXT("autosave:map_resume_failed")); return false; }
-    ContinuedMapPosition = Position; Record(TEXT("autosave:map_resumed:") + Map);
+    if (Checkpoint->PeekChapterMap() != Map || !Checkpoint->RestoreChapterMap(Saved, Position)) { bMapLoadFailed = true; Record(TEXT("autosave:map_resume_failed")); return false; }
+    bMapLoadFailed = false; ContinuedMapPosition = Position; Record(TEXT("autosave:map_resumed:") + Map);
     return true;
 }
 bool UMemoriaNarrativeSubsystem::ConsumeMapPosition(FVector2D& Out)

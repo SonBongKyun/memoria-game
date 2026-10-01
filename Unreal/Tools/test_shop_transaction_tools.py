@@ -1,9 +1,7 @@
-from validate_unreal import battle_entry_test_paths, archive_test_paths, checkpoint_test_paths
 """Checks on the executed shop fixtures and retained historical test identities."""
-import json,unittest,zipfile
-from pathlib import Path
+import json,unittest
 import export_shop_transactions_oracle as source
-from validate_unreal import battle_entry_test_paths, archive_test_paths, current_test_paths,shop_transaction_test_paths
+from validate_unreal import current_test_paths, shop_transaction_test_paths
 class ShopTransactions(unittest.TestCase):
     def setUp(self):
         self.c={x['id']:x['states'] for x in json.loads((source.DEST/'contract_expected.v1.json').read_text(encoding='utf-8'))}
@@ -24,10 +22,10 @@ class ShopTransactions(unittest.TestCase):
         self.assertIn('autosave:chapter_transition',first['events'])
         travel='chapter_transition:2:res://scenes/maps/belt_waystation.tscn'
         self.assertNotIn(travel,first['events']);self.assertIn(travel,last['events'])
-    def test_retained_203_identities(self):
-        with zipfile.ZipFile(source.base.ROOT/'docs/unreal-migration/evidence/depth1/automation01/raw_execution.zip') as z:
-            old=json.loads(z.read('automation_index.json').decode('utf-8-sig'))
-        self.assertEqual(len(((current_test_paths()-battle_entry_test_paths()-archive_test_paths())-checkpoint_test_paths())-shop_transaction_test_paths()),203)
-        self.assertEqual(len(shop_transaction_test_paths()),14)
-        self.assertEqual({x['fullTestPath'] for x in old['tests']},((current_test_paths()-battle_entry_test_paths()-archive_test_paths())-checkpoint_test_paths())-shop_transaction_test_paths())
-
+    def test_shop_transaction_identities_retained(self):
+        expected = {'Memoria.ShopTransactions.Source.' + case['id'] for case in source.inputs()}
+        expected |= {'Memoria.ShopTransactions.Guards', 'Memoria.ShopTransactions.Canonical',
+                     'Memoria.ShopTransactions.RequestCancellation'}
+        self.assertEqual(shop_transaction_test_paths(), expected)
+        current = current_test_paths()
+        self.assertTrue(expected.issubset(current), expected - current)

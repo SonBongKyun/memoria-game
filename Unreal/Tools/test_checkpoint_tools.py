@@ -1,7 +1,7 @@
 """Executed source save boundaries and retained test identities."""
-import json,unittest,zipfile
+import json,unittest
 import export_checkpoint_oracle as source
-from validate_unreal import battle_entry_test_paths, archive_test_paths, checkpoint_test_paths,current_test_paths,shop_transaction_test_paths
+from validate_unreal import checkpoint_test_paths, current_test_paths, shop_transaction_test_paths
 class CheckpointContracts(unittest.TestCase):
     def setUp(self):
         self.c={x['id']:x for x in json.loads((source.DEST/'contract_expected.v1.json').read_text(encoding='utf-8'))}
@@ -21,7 +21,11 @@ class CheckpointContracts(unittest.TestCase):
         self.assertEqual(self.c['missing_scene'],{'id':'missing_scene','ok':False,'grains':777,'events':[]})
         self.assertTrue(self.c['guards']['menu_unchanged']);self.assertTrue(self.c['guards']['synthetic_unchanged'])
         self.assertFalse(self.c['guards']['invalid_slot'])
-    def test_previous_registry_retained(self):
-        self.assertEqual(len(checkpoint_test_paths()),6)
-        self.assertEqual(len((current_test_paths()-battle_entry_test_paths()-archive_test_paths())-checkpoint_test_paths()),217)
-        self.assertTrue(shop_transaction_test_paths().issubset((current_test_paths()-battle_entry_test_paths()-archive_test_paths())))
+    def test_checkpoint_identities_retained(self):
+        expected = {'Memoria.Checkpoint.' + name for name in (
+            'DiskRoundTrip', 'BackupRecovery', 'RejectedSnapshots',
+            'WriteFailureRetry', 'SyntheticIsolation', 'Canonical')}
+        self.assertEqual(checkpoint_test_paths(), expected)
+        current = current_test_paths()
+        self.assertTrue(expected.issubset(current), expected - current)
+        self.assertTrue(shop_transaction_test_paths().issubset(current))

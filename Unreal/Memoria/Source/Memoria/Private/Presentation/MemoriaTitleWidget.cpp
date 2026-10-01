@@ -219,11 +219,13 @@ void UMemoriaTitleWidget::Refresh()
     const FString Texts[] = {
         Loc(TEXT("A DARK FANTASY OF MEMORY AND LOSS"), TEXT("기억과 상실의 다크 판타지")), TEXT("MEMORIA"),
         Loc(TEXT("The Price of Oblivion"), TEXT("망각의 대가")), Loc(TEXT("Burn what you remember. Carry what remains."), TEXT("기억을 태워라. 남은 것을 짊어져라.")),
-        Loc(TEXT("ENTER THE REMEMBERED PATH"), TEXT("기억의 문을 연다")), Loc(TEXT("↑ ↓  SELECT    ENTER  CONFIRM"), TEXT("↑ ↓  선택    ENTER  결정")),
+        Loc(TEXT("ENTER THE REMEMBERED PATH"), TEXT("기억의 문을 연다")),
+        bLoadFailed ? Loc(TEXT("The save could not be loaded"), TEXT("저장을 불러오지 못했습니다")) : Loc(TEXT("↑ ↓  SELECT    ENTER  CONFIRM"), TEXT("↑ ↓  선택    ENTER  결정")),
         Loc(TEXT("OPTIONS"), TEXT("옵션")), Loc(TEXT("AUDIO"), TEXT("오디오")),
         Loc(TEXT("Master Volume"), TEXT("전체 음량")), Loc(TEXT("BGM Volume"), TEXT("배경음악 음량")), Loc(TEXT("SFX Volume"), TEXT("효과음 음량")),
         Loc(TEXT("DISPLAY"), TEXT("화면")), Loc(TEXT("Fullscreen"), TEXT("전체 화면")), Loc(TEXT("Language"), TEXT("언어")), Loc(TEXT("Back"), TEXT("뒤로"))};
     for (int32 I = 0; I < Copy.Num() && I < UE_ARRAY_COUNT(Texts); ++I) Copy[I]->SetText(FText::FromString(Texts[I]));
+    Copy[5]->SetColorAndOpacity(bLoadFailed ? Srgb(.93f, .58f, .42f) : Srgb(.58f, .55f, .52f, .92f));
     const FString Labels[] = {Loc(TEXT("New Game"), TEXT("새 게임")), Loc(TEXT("Continue"), TEXT("이어하기")), Loc(TEXT("Options"), TEXT("옵션")), Loc(TEXT("Quit Game"), TEXT("게임 종료"))};
     for (int32 I = 0; I < Items.Num(); ++I)
     {

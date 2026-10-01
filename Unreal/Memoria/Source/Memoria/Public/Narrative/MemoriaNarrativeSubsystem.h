@@ -91,6 +91,8 @@ public:
     bool AutosaveChapterMap(const FString& Map, const FVector2D& Position);
     bool ContinueChapterMap(const FString& Map);
     bool ConsumeMapPosition(FVector2D& Out);
+    // S334: whether a map Continue was refused since the last call (the title then says so).
+    bool ConsumeMapLoadFailure() { const bool bFailed = bMapLoadFailed; bMapLoadFailed = false; return bFailed; }
     void ShowNotice(const FString& Text) { Notice(Text); }
     FMemoriaFieldFinished OnFieldFinished;
     bool ContinueCheckpoint();
@@ -165,6 +167,7 @@ private:
     bool StartStoryField(const FString& Group, const TCHAR* Asset, const TCHAR* File = TEXT("data/chapter2_dialogue.json"));
     FString ChapterMap;
     TOptional<FVector2D> ContinuedMapPosition;
+    bool bMapLoadFailed = false;
     bool HandleSumpLedger(const FString& Point);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;

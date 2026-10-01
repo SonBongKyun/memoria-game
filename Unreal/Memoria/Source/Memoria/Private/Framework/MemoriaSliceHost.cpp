@@ -68,9 +68,12 @@ void AMemoriaSliceGameMode::StartPlay()
         GetWorld()->SpawnActor<AMemoriaVerdanPresentation>();
     }
     // S320: a content-first chapter map; its presentation builds the field from the map's IR.
-    // S330: ?Continue restores the map slot first; a refused load without a run goes back to the title.
+    // S330: ?Continue restores the map slot first.
+    // S334 (Codex review): a refused load never goes on into the chapter, with a live run or without one.
+    // Entering would raise the run's chapter, reset the story's context and start the map's arrival. The game
+    // returns to the title, which says the load failed; a live run stays exactly as it was.
     if (const FString Chapter = MemoriaChapterMaps::MapFromLevel(Map); !Started && !Chapter.IsEmpty() && UGameplayStatics::HasOption(OptionsString, TEXT("Continue"))
-        && !Narrative->ContinueChapterMap(Chapter) && !GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->HasActiveRun())
+        && !Narrative->ContinueChapterMap(Chapter))
     {
         Started = true;
         UGameplayStatics::OpenLevel(this, TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"), true, TEXT("Title"));
@@ -324,6 +327,8 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
             TitleWidget=CreateWidget<UMemoriaTitleWidget>(this,UMemoriaTitleWidget::StaticClass());
             const auto* Checkpoint=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
             TitleWidget->Configure(Checkpoint->FindContinue()!=EMemoriaContinueSource::None,GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>());
+            // S334: a map Continue that was refused brought the game back here; say so once.
+            if (Narrative->ConsumeMapLoadFailure()) TitleWidget->SetLoadFailed(true);
             TitleWidget->OnAction.BindUObject(this,&AMemoriaSliceController::TitleAction);
             TitleWidget->OnConsumedKey.BindUObject(this,&AMemoriaSliceController::TrackConfirmGesture);
             PresentModal(TitleWidget);
