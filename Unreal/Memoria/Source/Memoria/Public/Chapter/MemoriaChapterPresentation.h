@@ -34,6 +34,9 @@ public:
     // S331: the props of _setup_map_decorations, the revisit's ambient NPCs and its random encounters.
     int32 GetDecorationCount() const { return DecorationCount; }
     int32 GetVisibleNpcCount() const;
+    // S335: how many ambient NPCs wear a rigged model, and how many props are Codex's models.
+    int32 GetRiggedNpcCount() const;
+    int32 GetModelPropCount() const { return ModelPropCount; }
     const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
     bool AreEncountersOpen() const;
     int32 GetBlockerCount() const;
@@ -62,7 +65,7 @@ private:
     float StepAt = -1.f, TravelAt = -1.f, SceneAt = -1.f, Clock = 0.f;
     bool bComplete = false, bDeparting = false, bInExit = false;
     UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaFieldCharacterComponent>> AmbientNpcs;
-    int32 DecorationCount = 0;
+    int32 DecorationCount = 0, ModelPropCount = 0;
     FMemoriaEncounterModel Encounter;
     FMemoriaEncounterRng EncounterRng = FMemoriaEncounterRng::Random();
     bool bEncounterReady = false;

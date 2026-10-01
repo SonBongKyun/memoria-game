@@ -94,8 +94,12 @@ public:
             Place(Campfire);
             ++Step; Mark = Frame; break;
         case 3:
-            if (Frame < Mark + 20) break;
-            Test->TestFalse(TEXT("Clues wait for the chapter's end"), Flag(TEXT("clue_drift_campfire")));
+            // S335: the campfire and the eight rubble heaps are Codex's models; a close look at each on the way to the exit.
+            if (Frame == Mark + 1) Test->TestEqual(TEXT("Drift Shelter's props are models"), Map->GetModelPropCount(), 9);
+            if (Frame == Mark + 15) Capture(TEXT("Chapter4Campfire"));
+            if (Frame == Mark + 20) { Test->TestFalse(TEXT("Clues wait for the chapter's end"), Flag(TEXT("clue_drift_campfire"))); Place(FVector2D(600, 350)); }
+            if (Frame == Mark + 35) Capture(TEXT("Chapter4Rubble"));
+            if (Frame < Mark + 40) break;
             Place(Spec->Exit.Rect.Center());
             ++Step; Mark = Frame; break;
         case 4:
