@@ -61,7 +61,16 @@ void UMemoriaJournalWidget::Configure(const UMemoriaRunSubsystem* InRun, bool bI
     Run = InRun; bKo = bInKo; Tab = 0; Selected = 0; FirstLine = 0;
     if (!Backdrop && (Backdrop = MemoriaBattleEntryArt::Load(TEXT("res://assets/cg/generated/ui_story_journal_backdrop_v3.png"))))
     { BackdropBrush.SetResourceObject(Backdrop); BackdropBrush.ImageSize = FVector2D(Backdrop->GetSizeX(), Backdrop->GetSizeY()); BackdropBrush.DrawAs = ESlateBrushDrawType::Image; }
+    QuestRows.Reset(); LossRows.Reset();
+    if (const auto* R = Run.Get()) { QuestRows = MemoriaJournal::QuestRecords(*R, bKo); LossRows = MemoriaJournal::LossRecords(*R, bKo); }
     UpdateArt(); Summary = SummaryText();
+}
+int32 UMemoriaJournalWidget::GetLossCount() const { return LossRows.Num(); }
+const FMemoriaJournalRecord* UMemoriaJournalWidget::SelectedRecord() const
+{
+    if (Tab != QuestsTab && Tab != LossesTab) return nullptr;
+    const auto& Rows = Tab == QuestsTab ? QuestRows : LossRows;
+    return Rows.IsValidIndex(Selected) ? &Rows[Selected] : nullptr;
 }
 void UMemoriaJournalWidget::SetTab(int32 InTab) { Tab = FMath::Clamp(InTab, 0, TabCount - 1); Selected = 0; FirstLine = 0; UpdateArt(); }
 void UMemoriaJournalWidget::Move(int32 Delta)
@@ -78,6 +87,16 @@ const TArray<FMemoriaJournalEntry>& UMemoriaJournalWidget::TabEntries() const
 TArray<UMemoriaJournalWidget::FLine> UMemoriaJournalWidget::ListLines() const
 {
     TArray<FLine> Out;
+    if (Tab == QuestsTab || Tab == LossesTab)
+    {
+        // _populate_quests / _populate_losses: one button per record, or the empty note.
+        const auto& Rows = Tab == QuestsTab ? QuestRows : LossRows;
+        for (int32 I = 0; I < Rows.Num(); ++I) Out.Add({Rows[I].Label, Rows[I].Color, I});
+        if (Out.IsEmpty())
+            Out.Add({Tab == QuestsTab ? Loc(TEXT("No quests discovered yet."), TEXT("아직 발견한 퀘스트가 없습니다."))
+                                      : Loc(TEXT("No irreversible losses recorded yet."), TEXT("아직 되돌릴 수 없는 상실이 기록되지 않았습니다.")), Srgb(.5f, .47f, .45f), -1});
+        return Out;
+    }
     const auto& Entries = TabEntries();
     int32 LastChapter = 0;
     for (int32 I = 0; I < Entries.Num(); ++I)
@@ -107,6 +126,7 @@ TArray<int32> UMemoriaJournalWidget::SelectableLines() const
 }
 const FMemoriaJournalEntry* UMemoriaJournalWidget::SelectedEntry() const
 {
+    if (Tab == QuestsTab || Tab == LossesTab) return nullptr;
     const auto Lines = ListLines(); const auto Pickable = SelectableLines();
     if (!Pickable.IsValidIndex(Selected)) return nullptr;
     const int32 Entry = Lines[Pickable[Selected]].Entry;
@@ -114,11 +134,13 @@ const FMemoriaJournalEntry* UMemoriaJournalWidget::SelectedEntry() const
 }
 FString UMemoriaJournalWidget::DetailTitle() const
 {
+    if (const auto* Record = SelectedRecord()) return Record->Title;
     const auto* E = SelectedEntry();
     return E ? E->TitleIn(bKo) : Loc(TEXT("Select an entry..."), TEXT("항목을 고르세요..."));
 }
 FString UMemoriaJournalWidget::DetailBody() const
 {
+    if (const auto* Record = SelectedRecord()) return Record->Body;
     const auto* E = SelectedEntry();
     if (!E) return FString();
     // _populate_npcs: the role, then the description.
@@ -128,15 +150,15 @@ FString UMemoriaJournalWidget::DetailBody() const
 bool UMemoriaJournalWidget::HasDetailArt() const { return Art != nullptr; }
 void UMemoriaJournalWidget::UpdateArt()
 {
-    // The entry's illustration when the port carries that picture (the dialogue CGs and portraits).
-    const auto* E = SelectedEntry();
-    Art = E && !E->Art.IsEmpty() ? MemoriaNarrativeArtwork::Load(E->Art) : nullptr;
-    if (!Art) Art = E && !E->Art.IsEmpty() ? MemoriaBattleEntryArt::Load(E->Art) : nullptr;
+    // The chosen row's illustration when the port carries that picture (the dialogue CGs and portraits, the
+    // UI plates, and the journal's own table).
+    const auto* E = SelectedEntry(); const auto* Record = SelectedRecord();
+    Art = MemoriaJournal::LoadArt(Record ? Record->Art : E ? E->Art : FString());
     if (Art) { ArtBrush.SetResourceObject(Art); ArtBrush.ImageSize = FVector2D(Art->GetSizeX(), Art->GetSizeY()); ArtBrush.DrawAs = ESlateBrushDrawType::Image; }
 }
 FString UMemoriaJournalWidget::SummaryText() const
 {
-    // _update_journal_summary, less the losses (the world rewrite's records are not ported).
+    // _update_journal_summary.
     const auto* R = Run.Get();
     const int32 Chapter = R ? int32(R->GetRunSnapshot().CurrentChapter) : 0;
     int32 Burned = 0, Held = 0, Unlocked = 0, Illustrated = 0;
@@ -146,10 +168,10 @@ FString UMemoriaJournalWidget::SummaryText() const
         Burned = Snapshot.BurnedHistory.Num(); Held = FMath::Max(0, Snapshot.Owned.Num() - Burned);
     }
     for (const auto& E : MemoriaJournal::Events())
-        if (Flag(E.Flag)) { ++Unlocked; if (!E.Art.IsEmpty() && (MemoriaNarrativeArtwork::Load(E.Art) || MemoriaBattleEntryArt::Load(E.Art))) ++Illustrated; }
+        if (Flag(E.Flag)) { ++Unlocked; if (MemoriaJournal::LoadArt(E.Art)) ++Illustrated; }
     const FString Name = MemoriaJournal::ChapterName(Chapter, bKo);
-    return bKo ? FString::Printf(TEXT("%d장 / %s    보유 %d    연소 %d    삽화 %d/%d"), Chapter, *Name, Held, Burned, Illustrated, Unlocked)
-               : FString::Printf(TEXT("Ch.%d / %s    Held: %d    Burned: %d    Illustrated: %d/%d"), Chapter, *Name, Held, Burned, Illustrated, Unlocked);
+    return bKo ? FString::Printf(TEXT("%d장 / %s    보유 %d    연소 %d    상실 %d    삽화 %d/%d"), Chapter, *Name, Held, Burned, LossRows.Num(), Illustrated, Unlocked)
+               : FString::Printf(TEXT("Ch.%d / %s    Held: %d    Burned: %d    Losses: %d    Illustrated: %d/%d"), Chapter, *Name, Held, Burned, LossRows.Num(), Illustrated, Unlocked);
 }
 int32 UMemoriaJournalWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -172,7 +194,8 @@ int32 UMemoriaJournalWidget::NativePaint(const FPaintArgs& Args, const FGeometry
     float Y = At.Y + M;
     Centre(Loc(TEXT("JOURNAL, Field Notes of a Memory Carrier"), TEXT("일지 · 기억 운반자의 현장 기록")), Y, Head, Srgb(.8f, .7f, .5f)); Y += 34 * S;
     Centre(Summary, Y, Small, Srgb(.55f, .62f, .72f)); Y += 26 * S;
-    const FString Tabs[TabCount] = {Loc(TEXT("Events"), TEXT("사건")), Loc(TEXT("People"), TEXT("인물")), Loc(TEXT("World"), TEXT("세계")), Loc(TEXT("Choices"), TEXT("선택"))};
+    const FString Tabs[TabCount] = {Loc(TEXT("Events"), TEXT("사건")), Loc(TEXT("People"), TEXT("인물")), Loc(TEXT("World"), TEXT("세계")), Loc(TEXT("Choices"), TEXT("선택")),
+        Loc(TEXT("Quests"), TEXT("퀘스트")), Loc(TEXT("Losses"), TEXT("상실"))};
     const FVector2D TabSize(110 * S, 30 * S);
     const float TabsWidth = TabCount * TabSize.X + (TabCount - 1) * 8 * S;
     for (int32 I = 0; I < TabCount; ++I)
@@ -214,7 +237,11 @@ int32 UMemoriaJournalWidget::NativePaint(const FPaintArgs& Args, const FGeometry
     float DY = D.Y + 50 * S;
     if (Art)
     {
-        const float W = DS.X - 28 * S, H = FMath::Min(170.f * S, W * Art->GetSizeY() / FMath::Max(1.f, float(Art->GetSizeX())));
+        // The source scrolls a long body; here the picture gives up height so the whole text shows (a loss
+        // record's body is a dozen lines).
+        const float TextHeight = Wrap(DetailBody(), Small, DS.X - 28 * S).Num() * Measure(TEXT("가"), Small).Y * 1.25f;
+        const float Room = FMath::Clamp(D.Y + DS.Y - 20 * S - DY - 10 * S - TextHeight, 60.f * S, 170.f * S);
+        const float W = DS.X - 28 * S, H = FMath::Min(Room, W * Art->GetSizeY() / FMath::Max(1.f, float(Art->GetSizeX())));
         const float ArtW = H * Art->GetSizeX() / FMath::Max(1.f, float(Art->GetSizeY()));
         FSlateDrawElement::MakeBox(Elements, L + 5, Geometry.ToPaintGeometry(FVector2f(ArtW, H), FSlateLayoutTransform(FVector2f(D.X + (DS.X - ArtW) * .5f, DY))), &ArtBrush, ESlateDrawEffect::None, FLinearColor::White);
         DY += H + 10 * S;
