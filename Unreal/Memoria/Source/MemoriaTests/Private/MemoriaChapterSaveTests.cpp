@@ -19,6 +19,13 @@
 #include "Presentation/MemoriaArchiveView.h"
 #include "Presentation/MemoriaArchiveWidget.h"
 #include "Presentation/MemoriaPauseWidget.h"
+#include "Presentation/MemoriaTitleWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Misc/Base64.h"
+#include "Misc/SecureHash.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 #include "EngineUtils.h"
 #include "HAL/FileManager.h"
 #include "HAL/PlatformProcess.h"
@@ -165,6 +172,47 @@ bool FChapterMapSaveTest::RunTest(const FString&)
     const FGuid Live = Run->GetRunSnapshot().RunId; Run->AddGrains(7); const int64 Grains = Run->GetRunSnapshot().Player.Grains;
     TestFalse(TEXT("A damaged slot does not restore"), Checkpoint->RestoreChapterMap(Map, Place));
     TestTrue(TEXT("The live run is unchanged"), Run->GetRunSnapshot().RunId == Live && Run->GetRunSnapshot().Player.Grains == Grains);
+    // S334 (Codex review): a map restore carries only the run, the memories and world cognition, so a save that
+    // holds anything else must be refused rather than offered and then quietly stripped. A correctly framed file
+    // is written by hand: unchanged it is accepted, and each unsupported field alone refuses it.
+    {
+        const auto* Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr, TEXT("/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog.DA_StartingMemoryCatalog"));
+        auto WriteRaw = [&](TFunctionRef<void(UMemoriaRunSaveGame&)> Mutate)
+        {
+            auto* Save = Run->CaptureSave();
+            Save->SavedAtUtc = FDateTime::UtcNow(); Save->MemoryCatalogId = Catalog->GetPrimaryAssetId();
+            Save->FieldReturn.MapId = UMemoriaCheckpointSubsystem::MapBoundaryId;
+            Save->FieldReturn.SourceScenePath = TEXT("res://scenes/maps/drift_shelter.tscn"); Save->FieldReturn.SourcePixelPosition = FVector2D(320, 512);
+            Mutate(*Save);
+            TArray<uint8> Bytes; UGameplayStatics::SaveGameToMemory(Save, Bytes);
+            FSHAHash Hash; FSHA1::HashBuffer(Bytes.GetData(), Bytes.Num(), Hash.Hash);
+            auto Object = MakeShared<FJsonObject>(); Object->SetNumberField(TEXT("version"), 1);
+            Object->SetStringField(TEXT("sha1"), Hash.ToString()); Object->SetStringField(TEXT("payload"), FBase64::Encode(Bytes));
+            FString Text; FJsonSerializer::Serialize(Object, TJsonWriterFactory<>::Create(&Text));
+            FFileHelper::SaveStringToFile(Text, *Slot, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+            return Save;
+        };
+        if (TestNotNull(TEXT("The memory catalog"), Catalog))
+        {
+            auto* Plain = WriteRaw([](UMemoriaRunSaveGame&) {});
+            TestTrue(TEXT("A hand-framed map save is accepted as it is"), Checkpoint->ValidateMapSnapshot(*Plain) && Checkpoint->PeekChapterMap() == TEXT("drift_shelter"));
+            struct FCase { const TCHAR* What; TFunction<void(UMemoriaRunSaveGame&)> Mutate; };
+            const FCase Cases[] = {
+                {TEXT("a diary schema"), [](UMemoriaRunSaveGame& S) { S.Diary.SchemaVersion = 1; }},
+                {TEXT("a diary body"), [](UMemoriaRunSaveGame& S) { S.Diary.SourceJson = TEXT("{}"); }},
+                {TEXT("a hints schema"), [](UMemoriaRunSaveGame& S) { S.Hints.SchemaVersion = 1; }},
+                {TEXT("a hints body"), [](UMemoriaRunSaveGame& S) { S.Hints.SourceJson = TEXT("{}"); }},
+                {TEXT("a ledger count on an inactive flow"), [](UMemoriaRunSaveGame& S) { S.SceneFlow.LedgerBurnSnapshot = 3; }}};
+            for (const auto& Case : Cases)
+            {
+                auto* Bad = WriteRaw(Case.Mutate);
+                TestFalse(*FString::Printf(TEXT("A map save with %s does not validate"), Case.What), Checkpoint->ValidateMapSnapshot(*Bad));
+                TestTrue(*FString::Printf(TEXT("A map save with %s is not offered"), Case.What), Checkpoint->PeekChapterMap().IsEmpty() && Checkpoint->FindContinue() == EMemoriaContinueSource::Boundary);
+                TestFalse(*FString::Printf(TEXT("A map save with %s does not restore"), Case.What), Checkpoint->RestoreChapterMap(Map, Place));
+            }
+            TestTrue(TEXT("The live run is still unchanged"), Run->GetRunSnapshot().RunId == Live && Run->GetRunSnapshot().Player.Grains == Grains);
+        }
+    }
     // A boundary save is not a map save, whatever file it sits in.
     FString Boundary; FFileHelper::LoadFileToString(Boundary, *Checkpoint->GetSlotPath());
     FFileHelper::SaveStringToFile(Boundary, *Slot);
@@ -343,6 +391,94 @@ private:
     TWeakObjectPtr<UWorld> Before;
     bool bFixed = false, bOldFixed = false, bGrantChecked = false;
 };
+}
+namespace
+{
+// S334 (Codex review, P1): an explicit ?Continue whose map slot cannot be restored must not enter the chapter.
+// A live Chapter 3 run stands in the Belt Waystation before its arrival; the game travels to Drift Shelter with
+// ?Continue while no map save exists. Entering would raise the run to Chapter 4, reset the story's context and
+// start Drift Shelter's arrival (granting its memories and eroding the rest). Instead the game must return to
+// the title with the load's failure shown, and the run must be exactly as it was.
+class FMapContinueRefusedReplay final : public IAutomationLatentCommand
+{
+public:
+    explicit FMapContinueRefusedReplay(FAutomationTestBase* InTest) : Test(InTest), Started(FPlatformTime::Seconds()) {}
+    bool Update() override
+    {
+        if (LastFrame == GFrameCounter) return false;
+        LastFrame = GFrameCounter;
+        if (FPlatformTime::Seconds() - Started > 120) { Test->AddError(FString::Printf(TEXT("Refused map Continue timeout at step %d"), Step)); return true; }
+        UWorld* World = GEditor->PlayWorld;
+        auto* PC = World ? Cast<AMemoriaSliceController>(World->GetFirstPlayerController()) : nullptr;
+        if (!PC || !PC->GetPawn() || World->GetTimeSeconds() < .2) return false;
+        ++Frame;
+        auto* Game = World->GetGameInstance();
+        auto* Host = Game->GetSubsystem<UMemoriaNarrativeSubsystem>();
+        auto* Run = Game->GetSubsystem<UMemoriaRunSubsystem>();
+        auto* Checkpoint = Game->GetSubsystem<UMemoriaCheckpointSubsystem>();
+        switch (Step)
+        {
+        case 0:
+            if (!World->GetMapName().EndsWith(TEXT("L_BeltWaystation")) || Host->GetChapterMap() != TEXT("belt_waystation")) break;
+            Test->TestTrue(TEXT("Saves are isolated"), Checkpoint->ConfigureTestStorage(TEXT("refused-") + FGuid::NewGuid().ToString(EGuidFormats::Digits)));
+            Test->TestTrue(TEXT("No map save exists"), Checkpoint->PeekChapterMap().IsEmpty() && Checkpoint->FindContinue() == EMemoriaContinueSource::None);
+            Before = Run->GetRunSnapshot(); Memory = Run->GetPlayerMemory()->GetSnapshot(); Erosion = TotalErosion(*Run);
+            Test->TestTrue(TEXT("A live Chapter 3 run before its arrival"), Run->HasActiveRun() && Before.CurrentChapter == 3 && !Before.GetFlag(TEXT("ch3_arrived")) && Erosion == 0);
+            From = World;
+            UGameplayStatics::OpenLevel(World, TEXT("/Game/Memoria/Maps/L_DriftShelter"), true, TEXT("Continue"));
+            ++Step; Mark = Frame; break;
+        case 1:
+        {
+            if (World == From.Get()) break;
+            // Wherever the game lands, the chapter must not have been entered.
+            const bool bTitle = World->GetMapName().EndsWith(TEXT("L_Ch2VerdanSlice")) && Host->IsOnTitle() && PC->GetTitleWidget();
+            if (!bTitle && Frame < Mark + 240) break;
+            const auto& Trace = Host->GetTrace();
+            Test->TestTrue(TEXT("The refusal is recorded"), Trace.Contains(TEXT("autosave:map_resume_failed")));
+            Test->TestFalse(TEXT("Drift Shelter is not entered"), Trace.Contains(TEXT("chapter:enter:drift_shelter")) || Trace.Contains(TEXT("chapter:presented:drift_shelter")));
+            Test->TestTrue(TEXT("The game returns to the title"), bTitle);
+            const auto After = Run->GetRunSnapshot(); const auto MemoryAfter = Run->GetPlayerMemory()->GetSnapshot();
+            Test->TestTrue(TEXT("The same run is still live"), Run->HasActiveRun() && After.RunId == Before.RunId);
+            Test->TestEqual(TEXT("Its chapter is not raised"), After.CurrentChapter, Before.CurrentChapter);
+            Test->TestTrue(TEXT("No arrival flag is set"), !After.GetFlag(TEXT("ch4_arrived")) && !After.GetFlag(TEXT("ch3_arrived")) && After.StoryFlags.Num() == Before.StoryFlags.Num());
+            Test->TestTrue(TEXT("No memory is granted or eroded"), MemoryAfter.Owned.Num() == Memory.Owned.Num() && TotalErosion(*Run) == Erosion && MemoryAfter.VigilChapters.Num() == Memory.VigilChapters.Num());
+            Test->TestTrue(TEXT("Grains and items are as they were"), After.Player.Grains == Before.Player.Grains && After.Player.Items.Num() == Before.Player.Items.Num());
+            if (bTitle)
+            {
+                const FString Shown = PC->GetTitleWidget()->VisibleText();
+                Test->TestTrue(TEXT("The title says the load failed"), Shown.Contains(TEXT("저장을 불러오지 못했습니다")) || Shown.Contains(TEXT("The save could not be loaded")));
+                Test->TestFalse(TEXT("Continue is dark: there is nothing valid to load"), PC->GetTitleWidget()->IsItemEnabled(1));
+            }
+            if (!bTitle) return true;
+            ++Step; Mark = Frame; break;
+        }
+        case 2:
+            // The title once its intro has settled, with the failure in the footer.
+            if (!PC->GetTitleWidget() || !PC->GetTitleWidget()->IsIntroComplete()) { if (Frame > Mark + 600) return true; Shot = Frame; break; }
+            if (Frame == Shot + 10) FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/ChapterContinue/ContinueRefusedTitle.png"), true, false);
+            if (Frame > Shot + 20) return true;
+            break;
+        }
+        return false;
+    }
+private:
+    FAutomationTestBase* Test;
+    double Started;
+    uint64 LastFrame = MAX_uint64;
+    int32 Step = 0, Frame = 0, Mark = 0, Shot = 0;
+    int64 Erosion = 0;
+    FMemoriaRunSnapshot Before;
+    FMemoriaMemorySnapshot Memory;
+    TWeakObjectPtr<UWorld> From;
+};
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMapContinueRefusedTest, "Memoria.Checkpoint.MapContinueRefused", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMapContinueRefusedTest::RunTest(const FString&)
+{
+    if (!AutomationOpenMap(TEXT("/Game/Memoria/Maps/L_BeltWaystation"))) return false;
+    FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FMapContinueRefusedReplay(this)));
+    ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
+    return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FChapterContinueTest, "MemoriaVisual.ChapterContinue", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FChapterContinueTest::RunTest(const FString&)

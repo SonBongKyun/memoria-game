@@ -174,6 +174,12 @@ bool UMemoriaCheckpointSubsystem::ValidateMapSnapshot(const UMemoriaRunSaveGame&
         !FMath::IsFinite(P.X) || !FMath::IsFinite(P.Y) || P.X<0 || P.X>Spec->Width*Spec->TileSize || P.Y<0 || P.Y>Spec->Height*Spec->TileSize ||
         Save.Run.CurrentChapter<Spec->Chapter ||
         Flow.bActive || !Flow.Current.SequenceId.IsEmpty() || !Flow.Pending.SequenceId.IsEmpty() || !Flow.ResumeQueue.IsEmpty() ||
+        // S334 (Codex review): RestoreSave carries the run, the memories and world cognition only. A save that
+        // holds a diary, hints or a ledger count would be offered and then lose them, so it is refused here,
+        // as the Verdan boundary slot refuses it.
+        Flow.LedgerBurnSnapshot!=0 ||
+        Save.Diary.SchemaVersion!=0 || !Save.Diary.SourceJson.IsEmpty() ||
+        Save.Hints.SchemaVersion!=0 || !Save.Hints.SourceJson.IsEmpty() ||
         Save.WorldCognition.SchemaVersion!=1 || Save.WorldCognition.SourceJson.IsEmpty()) return false;
     return ValidateDomains(Save);
 }

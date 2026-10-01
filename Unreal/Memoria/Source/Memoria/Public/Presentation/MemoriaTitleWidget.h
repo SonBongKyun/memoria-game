@@ -44,6 +44,9 @@ public:
     FMemoriaTitleActionEvent OnAction;
     FMemoriaTitleKeyGesture OnConsumedKey;
     void Configure(bool bInCanContinue, UMemoriaSettingsSubsystem* InSettings);
+    // S334: a load that was refused; the footer says so in place of the key hint.
+    void SetLoadFailed(bool bFailed) { bLoadFailed = bFailed; Refresh(); }
+    bool IsLoadFailed() const { return bLoadFailed; }
     void Navigate(int32 Direction);
     void Adjust(int32 Direction);
     void ConfirmIntent();
@@ -96,6 +99,7 @@ private:
     TArray<float> Emphasis;
     int32 Selected = 0, OptionRow = 0;
     bool bCanContinue = false, bOptionsOpen = false;
+    bool bLoadFailed = false;
     FString Loc(const TCHAR* En, const TCHAR* Ko) const;
     void Refresh();
     void Animate(float DeltaTime);

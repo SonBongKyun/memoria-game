@@ -1,3 +1,28 @@
+# Migration handoff — S334 Codex's review of S330: two save-safety fixes (Claude lane, 2026-10-01)
+
+- **Why.** Codex reviewed S330–S333 (`codex-review.md`, S334) and withheld integration for two findings in S330's map save. Both were reproduced with new tests before any fix, then fixed.
+- **P1: a refused map Continue entered the chapter anyway.**
+  - *Reproduced.* A live Chapter 3 run in the Belt Waystation travels to Drift Shelter with `?Continue` while no map save exists. Before the fix the game entered Drift Shelter and the run's chapter rose from 3 to 4.
+  - *Cause.* `AMemoriaSliceGameMode::StartPlay` handled the refusal only when no run was live. With a live run it fell through to `EnterChapterMap`, which raises the chapter, resets the story's context and spawns the map's presentation.
+  - *Fix.* A refused `ContinueChapterMap` never goes on into the chapter, with a live run or without one. The game returns to the title, and the title's footer says the load failed (`UMemoriaTitleWidget::SetLoadFailed`, from `UMemoriaNarrativeSubsystem::ConsumeMapLoadFailure`). A live run stays as it was.
+  - *Limit.* By then the previous level is gone, so Arrel's place in it is not kept: a live run reaches the title as it does through the pause menu's Title. The pause menu's Load and the title's Continue both validate the slot before they travel, so this needs the file to fail between that check and the arrival.
+  - *Not covered by a rendered test:* the same refusal with no live run. The branch is now the same one; a play session always has a run by the time a test can travel.
+- **P2: a map save could carry data the restore drops.**
+  - *Reproduced.* Hand-framed map saves holding a diary schema, a diary body, a hints schema, a hints body, or a ledger count on an inactive flow were each validated, offered by Continue and restored.
+  - *Cause.* `ValidateMapSnapshot` checked none of them, and `RestoreSave` carries only the run, the memories and world cognition.
+  - *Fix.* `ValidateMapSnapshot` refuses all five, as the Verdan boundary slot does.
+- **Stale host tests** (Codex's note: six modules imported `battle_entry_test_paths`, removed in S329).
+  - The two Codex repaired in its lane (`test_checkpoint_tools.py`, `test_shop_transaction_tools.py`) are adopted here byte for byte.
+  - The other four (`test_malet_antidote_tools.py`, `_firebomb_`, `_potion_`, `_world_seed_`) drop the import and the frozen registry subtraction; each now requires its own suite's identities in the current registry.
+  - Those four also held source-shape checks that later sessions had made stale: field pickups add items in `GrantFieldItem` (S320) and recent items go through `RecordRecentItem`. The checks now look at `GrantRewardItem`'s body, which is the reward's one shared mutation. One module read sources without naming UTF-8.
+  - All six pass: 35 host tests.
+- **Tests.**
+  - New `Memoria.Checkpoint.MapContinueRefused`: the P1 scenario through `StartPlay`. The chapter is not entered; the game is at the title with the failure shown and Continue dark; the run's id, chapter, flags, memories, erosion, grains and items are unchanged.
+  - `Memoria.Checkpoint.ChapterMap`: a hand-framed map save is accepted unchanged, and each of the five unsupported fields alone is refused by validation, by Continue and by restore.
+  - Both failed before the fixes and pass after. Capture read at 1280×720: the title with the failure in its footer.
+- **Found on the way.** The capture window was small because the editor saves the play window's size on every close and it creeps smaller (it had reached 1208×240 in `Saved/Config/WindowsEditor/EditorPerProjectUserSettings.ini`). Resetting `NewWindowWidth` and `NewWindowHeight` before a run gives 1280×720 captures. S335 puts that reset into the validation tool.
+- **Results.** Validated together with S335 (see its results).
+
 # Migration handoff — S333 the turn-based battle's leftover content removed (Claude lane, 2026-10-01)
 
 - **Why.** The fourth of the remaining items. S329 retired the turn-based battle's code and kept its art as unused content. The user asked for that content to be cleared.
