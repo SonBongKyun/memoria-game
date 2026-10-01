@@ -67,11 +67,11 @@ FMemoriaEncounterStep FMemoriaEncounterModel::Advance(const FVector2D& Position,
     if (StepCount >= Threshold && Rng.Real && Rng.Integer)
     {
         StepCount = 0.;
-        Threshold = Rng.Real(60., 100.);
+        Threshold = Rng.Real(MinSteps, MaxSteps);
         bWarningEmitted = false;
         bTrailBrokenFeedback = false;
         Result.Pressure = 0.;
-        Result.EnemyIndex = Rng.Integer(0, 1);
+        Result.EnemyIndex = Rng.Integer(0, FMath::Max(1, PoolSize) - 1);
         Result.bTriggered = true;
     }
     return Result;

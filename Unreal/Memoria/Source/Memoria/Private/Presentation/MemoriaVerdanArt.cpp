@@ -22,6 +22,19 @@ const TArray<FTextureSource>& Textures()
         {TEXT("EliaUp"), TEXT("assets/sprites/field/elia/up.png")},
         {TEXT("EliaLeft"), TEXT("assets/sprites/field/elia/left.png")},
         {TEXT("EliaRight"), TEXT("assets/sprites/field/elia/right.png")},
+        // S331 ambient NPCs: the source's procedural presets (Unreal/Tools/export_ambient_npcs.py).
+        {TEXT("TravelerDown"), TEXT("Unreal/ArtSource/Ambient/traveler_down.png")},
+        {TEXT("TravelerUp"), TEXT("Unreal/ArtSource/Ambient/traveler_up.png")},
+        {TEXT("TravelerLeft"), TEXT("Unreal/ArtSource/Ambient/traveler_left.png")},
+        {TEXT("TravelerRight"), TEXT("Unreal/ArtSource/Ambient/traveler_right.png")},
+        {TEXT("BureauagentDown"), TEXT("Unreal/ArtSource/Ambient/bureau_agent_down.png")},
+        {TEXT("BureauagentUp"), TEXT("Unreal/ArtSource/Ambient/bureau_agent_up.png")},
+        {TEXT("BureauagentLeft"), TEXT("Unreal/ArtSource/Ambient/bureau_agent_left.png")},
+        {TEXT("BureauagentRight"), TEXT("Unreal/ArtSource/Ambient/bureau_agent_right.png")},
+        {TEXT("GuardDown"), TEXT("Unreal/ArtSource/Ambient/guard_down.png")},
+        {TEXT("GuardUp"), TEXT("Unreal/ArtSource/Ambient/guard_up.png")},
+        {TEXT("GuardLeft"), TEXT("Unreal/ArtSource/Ambient/guard_left.png")},
+        {TEXT("GuardRight"), TEXT("Unreal/ArtSource/Ambient/guard_right.png")},
     };
     return Values;
 }
@@ -61,11 +74,26 @@ const TArray<FSpriteRegion>& Sprites()
         {TEXT("EliaUp"), TEXT("EliaUp"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
         {TEXT("EliaLeft"), TEXT("EliaLeft"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
         {TEXT("EliaRight"), TEXT("EliaRight"), {0, 0}, {128, 160}, {64, 152}, 1.3f},
+        // S331 ambient NPCs: the 48 px procedural figure, pivot at its feet.
+        {TEXT("TravelerDown"), TEXT("TravelerDown"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("TravelerUp"), TEXT("TravelerUp"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("TravelerLeft"), TEXT("TravelerLeft"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("TravelerRight"), TEXT("TravelerRight"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("BureauagentDown"), TEXT("BureauagentDown"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("BureauagentUp"), TEXT("BureauagentUp"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("BureauagentLeft"), TEXT("BureauagentLeft"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("BureauagentRight"), TEXT("BureauagentRight"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("GuardDown"), TEXT("GuardDown"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("GuardUp"), TEXT("GuardUp"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("GuardLeft"), TEXT("GuardLeft"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
+        {TEXT("GuardRight"), TEXT("GuardRight"), {0, 0}, {48, 48}, {24, 46}, 1.0f},
     };
     return Values;
 }
 UPaperSprite* LoadSprite(const FString& Name)
 {
+    // Only the table's sprites exist; asking for another (a figure without walk frames) is not an error.
+    if (!Sprites().ContainsByPredicate([&](const FSpriteRegion& Region) { return Name == Region.Name; })) return nullptr;
     const FString Asset = TEXT("SPR_") + Name;
     return LoadObject<UPaperSprite>(nullptr, *(Package(Asset) + TEXT(".") + Asset));
 }

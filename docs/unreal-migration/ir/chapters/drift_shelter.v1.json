@@ -1,4 +1,28 @@
 {
+ "ambient_npcs": [
+  {
+   "position": [
+    272.0,
+    240.0
+   ],
+   "preset": "villager_f"
+  },
+  {
+   "position": [
+    432.0,
+    208.0
+   ],
+   "preset": "scholar"
+  },
+  {
+   "position": [
+    528.0,
+    304.0
+   ],
+   "preset": "villager_m"
+  }
+ ],
+ "ambient_npcs_gate": "ch4_complete",
  "asset_prefix": "Ch4",
  "atmosphere": {
   "brightness": -0.05,
@@ -89,8 +113,192 @@
    "text": "Scratched into the concrete: 'WE REMEMBER.' Below it, in different handwriting: 'For how long?'"
   }
  ],
+ "decorations": [
+  {
+   "color": [
+    0.8,
+    0.4,
+    0.1,
+    0.6
+   ],
+   "kind": "fire",
+   "light": false,
+   "origin": [
+    332.0,
+    236.0
+   ],
+   "size": [
+    8.0,
+    8.0
+   ]
+  },
+  {
+   "color": [
+    0.9,
+    0.6,
+    0.3,
+    1.0
+   ],
+   "energy": 0.8,
+   "kind": "light",
+   "light": true,
+   "origin": [
+    336.0,
+    240.0
+   ],
+   "scale": 3.0
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    102.0,
+    106.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    134.0,
+    138.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    550.0,
+    74.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    582.0,
+    106.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    614.0,
+    298.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    646.0,
+    330.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    102.0,
+    394.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    0.25
+   ],
+   "kind": "rubble",
+   "light": false,
+   "origin": [
+    678.0,
+    394.0
+   ],
+   "size": [
+    19.2,
+    12.8
+   ]
+  }
+ ],
  "dialogue_file": "data/chapter4_dialogue.json",
  "elia_repeat": "Rest. Please.",
+ "encounter_range": [
+  50,
+  90
+ ],
  "encounters": [
   {
    "abilities": [

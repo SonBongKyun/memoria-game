@@ -1,4 +1,28 @@
 {
+ "ambient_npcs": [
+  {
+   "position": [
+    272.0,
+    208.0
+   ],
+   "preset": "traveler"
+  },
+  {
+   "position": [
+    464.0,
+    272.0
+   ],
+   "preset": "bureau_agent"
+  },
+  {
+   "position": [
+    592.0,
+    176.0
+   ],
+   "preset": "guard"
+  }
+ ],
+ "ambient_npcs_gate": "ch3_complete",
  "asset_prefix": "Ch3",
  "atmosphere": {
   "brightness": -0.03,
@@ -94,8 +118,87 @@
    "text": "A faded Bureau sign: 'RELAY STATION 14, All combustion events must be reported within 72 hours.'"
   }
  ],
+ "decorations": [
+  {
+   "color": [
+    0.25,
+    0.22,
+    0.2,
+    0.4
+   ],
+   "kind": "tank",
+   "light": false,
+   "origin": [
+    640.0,
+    224.0
+   ],
+   "rotation": 0.1,
+   "size": [
+    64.0,
+    96.0
+   ]
+  },
+  {
+   "color": [
+    0.1,
+    0.08,
+    0.07,
+    0.3
+   ],
+   "kind": "crack",
+   "light": false,
+   "origin": [
+    366.0,
+    168.0
+   ],
+   "size": [
+    2.0,
+    19.2
+   ]
+  },
+  {
+   "color": [
+    0.1,
+    0.08,
+    0.07,
+    0.3
+   ],
+   "kind": "crack",
+   "light": false,
+   "origin": [
+    398.0,
+    168.0
+   ],
+   "size": [
+    2.0,
+    19.2
+   ]
+  },
+  {
+   "color": [
+    0.1,
+    0.08,
+    0.07,
+    0.3
+   ],
+   "kind": "crack",
+   "light": false,
+   "origin": [
+    430.0,
+    168.0
+   ],
+   "size": [
+    2.0,
+    19.2
+   ]
+  }
+ ],
  "dialogue_file": "data/chapter3_dialogue.json",
  "elia_repeat": "The pages still feel warm. Let me carry them.",
+ "encounter_range": [
+  50,
+  90
+ ],
  "encounters": [
   {
    "abilities": [

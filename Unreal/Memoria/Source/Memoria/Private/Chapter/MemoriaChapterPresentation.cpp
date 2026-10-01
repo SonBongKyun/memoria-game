@@ -133,6 +133,126 @@ void AMemoriaChapterPresentation::BuildLight()
         F->SetFogInscatteringColor(Linear(Spec->Hue) * .35f);
     }
 }
+void AMemoriaChapterPresentation::BuildDecorations()
+{
+    // _setup_map_decorations: the source lays flat translucent ColorRects under the actors. Here each stands as
+    // a simple prop named by the script's variable: the waystation's leaning water tank, the cracks in the belt
+    // road, the shelter's campfire and its light, the rubble heaps.
+    auto* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+    auto* Cylinder = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+    FRandomStream Rng(Spec->Chapter * 104729);
+    const float S = MemoriaChapterMaps::Scale;
+    for (const auto& D : Spec->Decorations)
+    {
+        const FVector Center = MemoriaChapterMaps::ToWorld(D.Origin + D.Size * .5);
+        if (D.bLight)
+        {
+            auto* Light = NewObject<UPointLightComponent>(this);
+            Light->SetupAttachment(GetRootComponent()); Light->SetMobility(EComponentMobility::Movable);
+            Light->SetWorldLocation(MemoriaChapterMaps::ToWorld(D.Origin) + FVector(0, 0, 45.f));
+            Light->SetLightColor(Linear(D.Color)); Light->SetIntensity(9000.f * D.Energy);
+            Light->SetAttenuationRadius(110.f * D.Scale); Light->SetCastShadows(false);
+            Light->RegisterComponent(); AddInstanceComponent(Light); ++DecorationCount;
+            continue;
+        }
+        auto* Mesh = NewObject<UStaticMeshComponent>(this);
+        Mesh->SetupAttachment(GetRootComponent()); Mesh->SetMobility(EComponentMobility::Movable);
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        const FVector2D World = D.Size * S;
+        if (D.Kind == TEXT("tank"))
+        {
+            // A cylinder as wide as the rect, as tall as the rect is long, standing on the rect's lower end and
+            // leaning by the source's rotation. It is the one prop Arrel cannot walk through.
+            const float Radius = World.X * .5f, Tall = World.Y;
+            // The source's translucent shade would stand as a black mass here; the metal is lifted to read as a tank.
+            Mesh->SetStaticMesh(Cylinder); Mesh->SetMaterial(0, Surface(D.Color * 1.7f));
+            Mesh->SetWorldScale3D(FVector(Radius / 50.f, Radius / 50.f, Tall / 100.f));
+            Mesh->SetWorldRotation(FRotator(0, 0, FMath::RadiansToDegrees(D.Rotation)));
+            Mesh->SetWorldLocation(MemoriaChapterMaps::ToWorld(FVector2D(D.Origin.X + D.Size.X * .5, D.Origin.Y + D.Size.Y - D.Size.X * .5)) + FVector(0, 0, Tall * .5f - 10.f));
+            Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+        }
+        else if (D.Kind == TEXT("fire"))
+        {
+            // The campfire: a small bright ember block; its PointLight2D follows as the next decoration.
+            Mesh->SetStaticMesh(Cube);
+            auto* Ember = Surface(D.Color); Ember->SetVectorParameterValue(TEXT("Color"), Linear(D.Color) * 6.f);
+            Mesh->SetMaterial(0, Ember); Mesh->SetCastShadow(false);
+            Mesh->SetWorldScale3D(FVector(World.X / 100.f, World.Y / 100.f, .14f));
+            Mesh->SetWorldRotation(FRotator(0, 45.f, 0));
+            Mesh->SetWorldLocation(Center + FVector(0, 0, -1.f));
+        }
+        else if (D.Kind == TEXT("crack"))
+        {
+            // A dark seam lying on the road.
+            Mesh->SetStaticMesh(Cube); Mesh->SetMaterial(0, Surface(D.Color)); Mesh->SetCastShadow(false);
+            Mesh->SetWorldScale3D(FVector(FMath::Max(World.X, 5.f) / 100.f, World.Y / 100.f, .02f));
+            Mesh->SetWorldRotation(FRotator(0, Rng.FRandRange(-9.f, 9.f), 0));
+            Mesh->SetWorldLocation(Center + FVector(0, 0, -7.f));
+        }
+        else
+        {
+            // Rubble and any other heap: a low stone, turned a little.
+            const float Tall = Rng.FRandRange(10.f, 20.f);
+            Mesh->SetStaticMesh(Cube); Mesh->SetMaterial(0, Surface(D.Color));
+            Mesh->SetWorldScale3D(FVector(World.X / 100.f, World.Y / 100.f, Tall / 100.f));
+            Mesh->SetWorldRotation(FRotator(Rng.FRandRange(-6.f, 6.f), Rng.FRandRange(0.f, 60.f), 0));
+            Mesh->SetWorldLocation(Center + FVector(0, 0, Tall * .5f - 8.f));
+        }
+        Mesh->RegisterComponent(); AddInstanceComponent(Mesh); ++DecorationCount;
+    }
+}
+void AMemoriaChapterPresentation::BuildAmbientNpcs()
+{
+    // The revisit's ambient NPCs: the source's procedural pixel figures (Unreal/Tools/export_ambient_npcs.py),
+    // standing still at their tiles. They are built hidden; Tick shows them once their gate opens.
+    for (const auto& Npc : Spec->AmbientNpcs)
+    {
+        auto* Figure = NewObject<UMemoriaFieldCharacterComponent>(this);
+        AddInstanceComponent(Figure); Figure->SetupAttachment(GetRootComponent()); Figure->RegisterComponent();
+        Figure->SetWorldLocation(MemoriaChapterMaps::ToWorld(Npc.Position));
+        // "bureau_agent" -> "bureauagent": the component title-cases the id into the sprite's name.
+        if (!Figure->InitializeCharacter(Npc.Preset.Replace(TEXT("_"), TEXT("")), ArrelHeight)) { Figure->DestroyComponent(); continue; }
+        Figure->Face(TEXT("Down")); Figure->SetVisibility(false, true);
+        AmbientNpcs.Add(Figure);
+    }
+}
+int32 AMemoriaChapterPresentation::GetVisibleNpcCount() const
+{
+    int32 Count = 0; for (const auto& Npc : AmbientNpcs) Count += Npc && Npc->IsVisible() ? 1 : 0; return Count;
+}
+bool AMemoriaChapterPresentation::AreEncountersOpen() const
+{
+    return Spec && !Spec->Encounters.IsEmpty() && !Spec->EncountersGate.IsEmpty() && GateOpen(Spec->EncountersGate) && !bComplete && !bDeparting;
+}
+void AMemoriaChapterPresentation::UpdateEncounters()
+{
+    // RandomEncounter.update on a closed chapter's map: the source's distance model with the map's own range and
+    // pool. The foes rise in the field (void entries as three husks, the others as two thieves, as in Verdan).
+    auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
+    auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+    if (!AreEncountersOpen() || !Narrative || !Combat || !Combat->GetPlayer()) return;
+    if (!bEncounterReady)
+    {
+        Encounter.Reset(EncounterRng.Real(Spec->EncounterMin, Spec->EncounterMax)); bEncounterReady = true;
+        Encounter.MinSteps = Spec->EncounterMin; Encounter.MaxSteps = Spec->EncounterMax; Encounter.PoolSize = Spec->Encounters.Num();
+    }
+    // A fight holds the distance, as the source's separate battle scene did.
+    const bool bExploring = Narrative->GetState() == EMemoriaSliceState::Exploration && Combat->LiveMonsterCount() == 0 && !Combat->IsDefeated();
+    const auto Step = Encounter.Advance(PlayerSource(), bExploring, EncounterRng, false, Spec->TileSize);
+    auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
+    if (Step.bWarningStarted)
+    {
+        Narrative->Record(TEXT("encounter:warning"));
+        Narrative->ShowNotice(Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko") ? TEXT("기억 소음이 닫힌다") : TEXT("Memory noise closes in"));
+    }
+    if (Step.bTriggered && Spec->Encounters.IsValidIndex(Step.EnemyIndex))
+    {
+        const bool bVoid = Spec->Encounters[Step.EnemyIndex].bVoid;
+        Combat->SpawnWave(bVoid ? 3 : 2, Player->GetActorLocation(), 420.f, bVoid ? EMemoriaFoeKind::VoidHusk : EMemoriaFoeKind::MarketThief);
+        if (Run) Run->RecordBattleStarted();
+        Narrative->Record(TEXT("encounter:field_started:") + Spec->Encounters[Step.EnemyIndex].Name);
+    }
+}
 void AMemoriaChapterPresentation::BuildMarkers()
 {
     // make_discovery_marker: a small glowing plinth on each chest and clue, shown once the gate opens.
@@ -200,7 +320,7 @@ void AMemoriaChapterPresentation::BeginPlay()
     FVector2D Place = Spec->Spawn;
     if (auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->ConsumeMapPosition(Place);
     Player->SetActorLocation(MemoriaChapterMaps::ToWorld(Place) + FVector(0, 0, Player->GetActorLocation().Z));
-    BuildTerrain(); BuildLight(); BuildMarkers();
+    BuildTerrain(); BuildLight(); BuildMarkers(); BuildDecorations(); BuildAmbientNpcs();
     // The quarter-view camera and the painted/rigged figures, as in Verdan.
     auto* Camera = Player->GetFieldCamera(); Camera->ProjectionMode = ECameraProjectionMode::Perspective;
     Camera->SetFieldOfView(MemoriaVerdanTuning::CameraFOV); Camera->SetRelativeLocation(MemoriaVerdanTuning::CameraOffset);
@@ -403,6 +523,10 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     ArrelFigure->AdvanceLocomotion(Position - PreviousPosition, DeltaSeconds);
     PreviousPosition = Position;
     for (const auto& Pair : Markers) if (Pair.Value) Pair.Value->SetHiddenInGame(Flag(Pair.Key) || !GateOpen(Spec->ObjectsGate));
+    // The ambient NPCs stand only on the revisit (belt_waystation.gd: "The first canonical visit is abandoned").
+    const bool bNpcs = !Spec->AmbientNpcsGate.IsEmpty() && GateOpen(Spec->AmbientNpcsGate);
+    for (const auto& Npc : AmbientNpcs) if (Npc && Npc->IsVisible() != bNpcs) Npc->SetVisibility(bNpcs, true);
+    UpdateEncounters();
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }
     if (SceneAt >= 0.f && Clock >= SceneAt)
     {

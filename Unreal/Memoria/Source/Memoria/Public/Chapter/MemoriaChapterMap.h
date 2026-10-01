@@ -16,6 +16,19 @@ struct FMemoriaChapterTrigger { FMemoriaChapterRect Rect; FString Group, Flag, G
 struct FMemoriaChapterChest { FVector2D Origin = FVector2D::ZeroVector; FString Flag; int64 Grains = 0; TArray<TPair<FString, int64>> Items; };
 struct FMemoriaChapterClue { FVector2D Origin = FVector2D::ZeroVector; FString Flag, Text; };
 struct FMemoriaChapterBattle { FMemoriaChapterRect Rect; FString Name; int32 Hp = 0, Atk = 0; bool bVoid = false; };
+// S331: the random encounter pool of a closed chapter's map (RandomEncounter.setup).
+struct FMemoriaChapterEncounter { FString Name; int32 Hp = 0, Atk = 0; bool bVoid = false; };
+// S331: _setup_map_decorations. A ColorRect prop (Kind is the script's variable name: tank, crack, fire, rubble)
+// or a PointLight2D (bLight, with Energy and Scale), in source pixels.
+struct FMemoriaChapterDecoration
+{
+    FString Kind; bool bLight = false;
+    FVector2D Origin = FVector2D::ZeroVector, Size = FVector2D::ZeroVector;
+    FLinearColor Color = FLinearColor::White;
+    float Rotation = 0.f, Energy = 0.f, Scale = 1.f;
+};
+// S331: an ambient NPC of the map's revisit (PixelSprite.create_npc_sprite preset), at its tile's centre.
+struct FMemoriaChapterNpc { FVector2D Position = FVector2D::ZeroVector; FString Preset; };
 // The exit: what opens it, the flag it closes, the departure group, and where the road goes (another
 // chapter map, or a story scene not yet ported), with the flags and bilingual notice its end handler raises.
 struct FMemoriaChapterExit { FMemoriaChapterRect Rect; FString Requires, Completes, Group, NextMap, NextScene, NoticeEn, NoticeKo; TArray<FString> Flags; int32 NextChapter = 0; };
@@ -38,6 +51,11 @@ struct FMemoriaChapterMapSpec
     TArray<FMemoriaChapterChest> Chests;
     TArray<FMemoriaChapterClue> Clues;
     TArray<FMemoriaChapterBattle> Battles;
+    TArray<FMemoriaChapterEncounter> Encounters;
+    double EncounterMin = 40., EncounterMax = 80.;   // RandomEncounter.setup's defaults, in tiles walked
+    TArray<FMemoriaChapterDecoration> Decorations;
+    TArray<FMemoriaChapterNpc> AmbientNpcs;
+    FString AmbientNpcsGate;
     int32 TileAt(int32 X, int32 Y) const { return X >= 0 && Y >= 0 && X < Width && Y < Height ? Tiles[Y * Width + X] : -1; }
     bool IsSolid(int32 Type) const { return Solid.Contains(Type); }
 };

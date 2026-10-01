@@ -87,6 +87,29 @@ FMemoriaChapterMapSpec Parse(const TCHAR* Json)
         Battle.Hp = B->GetIntegerField(TEXT("hp")); Battle.Atk = B->GetIntegerField(TEXT("atk")); Battle.bVoid = B->GetBoolField(TEXT("is_void"));
         S.Battles.Add(Battle);
     }
+    for (const auto& V : O->GetArrayField(TEXT("encounters")))
+    {
+        const Obj E = V->AsObject(); FMemoriaChapterEncounter Encounter;
+        Encounter.Name = Str(E, TEXT("name")); Encounter.Hp = E->GetIntegerField(TEXT("hp")); Encounter.Atk = E->GetIntegerField(TEXT("atk"));
+        Encounter.bVoid = E->GetBoolField(TEXT("is_void"));
+        S.Encounters.Add(Encounter);
+    }
+    if (const TArray<TSharedPtr<FJsonValue>>* Range = nullptr; O->TryGetArrayField(TEXT("encounter_range"), Range) && Range && Range->Num() == 2)
+    { S.EncounterMin = (*Range)[0]->AsNumber(); S.EncounterMax = (*Range)[1]->AsNumber(); }
+    if (const TArray<TSharedPtr<FJsonValue>>* Props = nullptr; O->TryGetArrayField(TEXT("decorations"), Props) && Props)
+        for (const auto& V : *Props)
+        {
+            const Obj D = V->AsObject(); FMemoriaChapterDecoration Decoration;
+            Decoration.Kind = Str(D, TEXT("kind")); D->TryGetBoolField(TEXT("light"), Decoration.bLight);
+            Decoration.Origin = VecField(D, TEXT("origin")); Decoration.Size = VecField(D, TEXT("size"));
+            Decoration.Color = Col(D, TEXT("color"), FLinearColor::White);
+            D->TryGetNumberField(TEXT("rotation"), Decoration.Rotation); D->TryGetNumberField(TEXT("energy"), Decoration.Energy);
+            D->TryGetNumberField(TEXT("scale"), Decoration.Scale);
+            S.Decorations.Add(Decoration);
+        }
+    if (const TArray<TSharedPtr<FJsonValue>>* Npcs = nullptr; O->TryGetArrayField(TEXT("ambient_npcs"), Npcs) && Npcs)
+        for (const auto& V : *Npcs) { const Obj N = V->AsObject(); S.AmbientNpcs.Add({VecField(N, TEXT("position")), Str(N, TEXT("preset"))}); }
+    S.AmbientNpcsGate = Str(O, TEXT("ambient_npcs_gate"));
     return S;
 }
 FString Pascal(const FString& Snake)
