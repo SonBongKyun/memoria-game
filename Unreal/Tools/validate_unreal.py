@@ -77,7 +77,7 @@ def narrative_test_paths():
 
 def side_system_test_paths():
     return {'Memoria.Achievements.Rules', 'Memoria.Codex.Rules', 'Memoria.Journal.Source', 'Memoria.Verdan.RevisitJourney',
-            'Memoria.Chapter.Memories', 'Memoria.Checkpoint.ChapterMap'}
+            'Memoria.Chapter.Memories', 'Memoria.Checkpoint.ChapterMap', 'Memoria.Journal.Records'}
 
 
 def presentation_test_paths():

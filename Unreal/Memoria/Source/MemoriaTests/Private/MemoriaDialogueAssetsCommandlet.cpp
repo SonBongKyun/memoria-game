@@ -1,6 +1,7 @@
 #include "MemoriaDialogueAssetsCommandlet.h"
 #include "Factories/TextureFactory.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
+#include "Journal/MemoriaJournal.h"
 #include "Engine/Texture2D.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Misc/Paths.h"
@@ -11,7 +12,10 @@ UMemoriaDialogueAssetsCommandlet::UMemoriaDialogueAssetsCommandlet()
 int32 UMemoriaDialogueAssetsCommandlet::Main(const FString&)
 {
     // Additive: existing packages are never overwritten; only newly listed sources are imported.
-    for (const auto& Entry : MemoriaNarrativeArtwork::Sources())
+    // S332: the journal's own illustrations follow the dialogue's, by the same rule.
+    TArray<FMemoriaArtworkSource> Entries = MemoriaNarrativeArtwork::Sources();
+    Entries.Append(MemoriaJournal::ArtSources());
+    for (const auto& Entry : Entries)
     {
         if (Entry.bReuse) continue;
         if (FPackageName::DoesPackageExist(Entry.Package)) { UE_LOG(LogTemp, Display, TEXT("DIALOGUE_ASSET_KEPT %s"), Entry.Package); continue; }

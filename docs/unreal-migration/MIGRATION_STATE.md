@@ -1,3 +1,30 @@
+# Migration handoff — S332 the journal's Quests and Losses tabs and its illustrations (Claude lane, 2026-10-01)
+
+- **Why.** The third of the remaining gaps: `story_journal.gd`'s Quests, Losses and Leads tabs, and the pictures its entries name.
+- **The IR** (`export_journal.py`) gains `quests` (`SideQuest.QUESTS` without the rewards), `loss_rules` (`WorldRewriteDirector.MEMORY_REWRITE_RULES`) and `loss_default_lines` in both languages (`DEFAULT_LINES`, by grade).
+- **Quests** (`MemoriaJournal::Quests`, `QuestStatus`, `QuestRecords`).
+  - The status is `SideQuest.get_all_quests`': complete on the last step's flag, active once started, available from the quest's chapter and prerequisite flag, else locked.
+  - The tab lists `_populate_quests`' rows: `[NEW]`, the active quest with its current step, `[DONE]`.
+  - **Only quests on maps the port has are listed.** Echoes in the Ash is available to the source from Chapter 2, but Rim Forest is not a field map here, and the journal should not send the player somewhere that cannot be reached. On the port's route that leaves the Sump Ledger.
+  - In Korean an available quest ends with its first step's own text; the source builds an English sentence there. An active quest's description is localized too (the source leaves it in English).
+- **Losses** (`MemoriaJournal::LossRecords`): `WorldRewriteDirector.get_loss_records`, one record per burned memory and per faded one, in the archive's order.
+  - A memory with a rule takes the rule's title, line, compass reading, colour, picture and story flag; any other takes its grade's default line and colour, the compass line `Lost:` or `Eroding:` with the memory's source title, and the grade's fallback picture.
+  - A faded memory's record carries the source's `Fading:` prefixes. With S330's erosion, the two starting Grade 5 memories fade on arriving in Chapter 4 and appear here.
+  - The source's record body is English in both locales. The port translates its labels and the grade name in Korean; the compass reading and the story flag stay as authored.
+  - The summary line now counts the losses, as the source's does.
+- **Leads: not ported.** The source's tab counts untouched caches, relics and resonance points per map (`WorldPopulation`, `MemoryResonance`). None of those exist in the port's world, so the tab would list things that cannot be found. It should come with those systems.
+- **Illustrations.** `MemoriaJournal::ArtSources` is the journal's own table: 17 pictures no dialogue shows (16 new textures under `Content/Memoria/Presentation/Journal`, about 42 MB, and the Verdan canvas reused). `-run=MemoriaDialogueAssets` imports them by the same additive rule as the dialogue's.
+  - Chosen for the port's route: the archive plates and map canvases of the Chapter 2 to 4 entries, the Sump Ledger's picture, the rewrite pictures for the memories Arrel can hold there, and the two fallbacks.
+  - Left out: pictures of entries whose flags the canon route never sets (the legacy ten-chapter route and Chapters 6 on).
+  - `MemoriaJournal::LoadArt` looks in the dialogue's table, the UI plates and then this table.
+- **The screen.** Six tabs. The detail's picture now gives up height so a long body shows whole (the source scrolls it; a loss record runs to a dozen lines).
+- **Tests.**
+  - New `Memoria.Journal.Records`: the quest table against the source, the four statuses, the port-map filter, the rows in both languages; loss records by rule, by default and fading; every picture of the journal's table loads.
+  - `MemoriaVisual.Journal` goes on through the two new tabs: the Losses tab holds the burn of the road to Verdan, and in Chapter 3 the Quests tab offers the Sump Ledger.
+  - Captures read: both tabs in Korean with their pictures; the loss record's last line shows.
+- **Correction to S331.** `docs/unreal-migration/evidence/` is ignored by git, so the ambient NPC export's harness and hashes are local evidence only. The tool and the exported sprites are committed.
+- **Results.** Validated together with S333 (see its results).
+
 # Migration handoff — S331 the chapter maps' props, ambient NPCs and revisit encounters (Claude lane, 2026-10-01)
 
 - **Why.** The second of the remaining Chapter 3–5 gaps: `_setup_map_decorations` and `_setup_random_encounters` of `belt_waystation.gd` and `drift_shelter.gd`. S330 made a closed chapter's map reachable in play (a save loaded there), so its revisit content now has a way to be seen.

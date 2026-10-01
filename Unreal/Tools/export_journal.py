@@ -1,5 +1,8 @@
 """S327: extract the story journal's entry tables from scripts/ui/story_journal.gd.
 
+S332 adds what its Quests and Losses tabs read: SideQuest.QUESTS (scripts/utils/side_quest.gd, without the
+rewards) and the world rewrite's MEMORY_REWRITE_RULES and DEFAULT_LINES (scripts/systems/world_rewrite_director.gd).
+
 The journal is derived from the run's story flags: each entry shows once its flag is set. This reads the
 source tables (EVENT_ENTRIES, NPC_ENTRIES, WORLD_ENTRIES, the choice entries in _populate_choices,
 EVENT_ART_BY_FLAG and CHAPTER_NAMES) and writes
@@ -17,6 +20,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'scripts/ui/story_journal.gd'
 GAME_MANAGER = ROOT / 'scripts/core/game_manager.gd'
+SIDE_QUEST = ROOT / 'scripts/utils/side_quest.gd'
+WORLD_REWRITE = ROOT / 'scripts/systems/world_rewrite_director.gd'
+# enum MemoryGrade { GRADE_5, GRADE_4, GRADE_3, GRADE_2, GRADE_1 }
+GRADES = {'GRADE_5': 0, 'GRADE_4': 1, 'GRADE_3': 2, 'GRADE_2': 3, 'GRADE_1': 4}
 OUT = ROOT / 'docs/unreal-migration/ir/journal/story_journal.v1.json'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Journal/MemoriaJournalSources.inl'
 
@@ -74,10 +81,29 @@ def extract():
         # _update_journal_summary / _populate_events: the art table first, then the entry's own.
         if e['flag'] in art:
             e['art'] = art[e['flag']]
+    # SideQuest.QUESTS: what get_all_quests and the journal read (the rewards stay with the quest's own port).
+    quests = []
+    for q in literal(SIDE_QUEST.read_text(encoding='utf-8').replace('\r\n', '\n'), r'const QUESTS: Array = \['):
+        quests.append({'id': q['id'], 'title': q['title'], 'title_ko': q.get('title_ko', ''), 'desc': q['desc'], 'desc_ko': q.get('desc_ko', ''),
+                       'art': q.get('art', ''), 'map': q['map'], 'npc': q.get('npc', ''), 'chapter_req': int(q['chapter_req']),
+                       'prereq_flag': q.get('prereq_flag', ''),
+                       'steps': [{'flag': s['flag'], 'desc': s['desc'], 'desc_ko': s.get('desc_ko', '')} for s in q['steps']]})
+    # WorldRewriteDirector: the per-memory rules and the per-grade default lines behind get_loss_records.
+    rewrite = WORLD_REWRITE.read_text(encoding='utf-8').replace('\r\n', '\n')
+    rewrite = re.sub(r'Color\(([^)]*)\)', r'[\1]', rewrite)
+    rewrite = re.sub(r'MemoryManager\.MemoryGrade\.(GRADE_\d)', r'"\1"', rewrite)
+    rules = literal(rewrite, r'const MEMORY_REWRITE_RULES := \{')
+    lines = {str(GRADES[k]): v for k, v in literal(rewrite, r'const DEFAULT_LINES := \{').items()}
+    lines_ko = {str(GRADES[k]): v for k, v in literal(rewrite, r'const DEFAULT_LINES_KO := \{').items()}
+    if sorted(lines) != ['0', '1', '2', '3', '4'] or sorted(lines_ko) != sorted(lines):
+        raise ValueError('DEFAULT_LINES must cover the five grades in both languages')
     return {'schema_version': 1, 'source': 'scripts/ui/story_journal.gd',
             'chapters': {str(k): chapters[k] for k in sorted(chapters)},
             'chapters_ko': {str(k): chapters_ko[k] for k in sorted(chapters_ko)},
-            'events': events, 'npcs': npcs, 'world': world, 'choices': choices}
+            'events': events, 'npcs': npcs, 'world': world, 'choices': choices,
+            'quests': quests,
+            'loss_rules': [dict(rule, memory=memory) for memory, rule in rules.items()],
+            'loss_default_lines': lines, 'loss_default_lines_ko': lines_ko}
 
 
 def inl(value):
@@ -106,7 +132,8 @@ def main():
         return 1 if stale else 0
     for path, text in outputs.items():
         path.parent.mkdir(parents=True, exist_ok=True); path.write_text(text, encoding='utf-8', newline='\n')
-    print('MEMORIA_JOURNAL_WRITTEN events=%d npcs=%d world=%d choices=%d' % (len(value['events']), len(value['npcs']), len(value['world']), len(value['choices'])))
+    print('MEMORIA_JOURNAL_WRITTEN events=%d npcs=%d world=%d choices=%d quests=%d loss_rules=%d' % (
+        len(value['events']), len(value['npcs']), len(value['world']), len(value['choices']), len(value['quests']), len(value['loss_rules'])))
     return 0
 
 

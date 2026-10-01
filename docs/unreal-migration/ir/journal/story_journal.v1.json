@@ -501,6 +501,202 @@
    "title_ko": "빠진 조각"
   }
  ],
+ "loss_default_lines": {
+  "0": "A small sensation leaves the weather of the room.",
+  "1": "A daily habit disappears, and the world quietly edits around it.",
+  "2": "A relationship contour collapses into afterimage.",
+  "3": "A piece of identity breaks alignment with the body.",
+  "4": "The core thread burns white. Reality pauses before continuing."
+ },
+ "loss_default_lines_ko": {
+  "0": "작은 감각 하나가 방의 공기에서 빠져나간다.",
+  "1": "일상의 습관이 사라지고, 세계가 조용히 그 주위를 고쳐 쓴다.",
+  "2": "관계의 윤곽이 잔상으로 무너진다.",
+  "3": "정체성의 한 조각이 몸과 어긋난다.",
+  "4": "핵심 가닥이 하얗게 탄다. 현실이 잠시 멈췄다가 이어진다."
+ },
+ "loss_rules": [
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_verdan_taste_v3.png",
+   "color": [
+    0.95,
+    0.62,
+    0.3
+   ],
+   "compass": "Verdan taste map erased.",
+   "flag": "world_rewrite_verdan_taste_blurred",
+   "line": "A vendor's face slips out of every market smell.",
+   "line_ko": "시장의 모든 냄새에서 상인의 얼굴이 빠져나간다.",
+   "memory": "daily_market_food",
+   "title": "Verdan Taste Blurred",
+   "title_ko": "베르단 미각 흐려짐"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_campfire_song_v3.png",
+   "color": [
+    0.68,
+    0.74,
+    0.92
+   ],
+   "compass": "Anchor melody destabilized.",
+   "flag": "world_rewrite_elia_hum_unmoored",
+   "line": "Elia's humming still exists, but it no longer knows where to land.",
+   "line_ko": "엘리아의 흥얼거림은 남았지만, 이제 내려앉을 곳을 모른다.",
+   "memory": "daily_campfire_song",
+   "title": "Campfire Song Unmoored",
+   "title_ko": "모닥불 노래 표류"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_reaching_hand_v3.png",
+   "color": [
+    0.8,
+    0.66,
+    0.94
+   ],
+   "compass": "Relationship contour torn.",
+   "flag": "world_rewrite_reaching_hand_absent",
+   "line": "When someone reaches for him, the world hesitates before drawing the hand.",
+   "line_ko": "누군가 손을 뻗으면, 세계가 그 손을 그리기 전에 잠시 망설인다.",
+   "memory": "rel_hand_reaching",
+   "title": "The Reaching Hand Removed",
+   "title_ko": "뻗던 손 삭제"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_first_sword_v3.png",
+   "color": [
+    0.95,
+    0.38,
+    0.26
+   ],
+   "compass": "Identity architecture fractured.",
+   "flag": "world_rewrite_first_sword_cut",
+   "line": "The body remembers the stance. The self no longer remembers why.",
+   "line_ko": "몸은 자세를 기억한다. 자신은 그 이유를 더 기억하지 못한다.",
+   "memory": "identity_first_sword",
+   "title": "First Sword Excised",
+   "title_ko": "첫 검 절제"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_name_origin_v3.png",
+   "color": [
+    1.0,
+    0.28,
+    0.22
+   ],
+   "compass": "Name-bearing thread severed.",
+   "flag": "world_rewrite_name_origin_void",
+   "line": "The sound 'Arrel' keeps its letters and loses its owner.",
+   "line_ko": "'아렐'이라는 소리는 글자를 지키고 주인을 잃는다.",
+   "memory": "core_name_origin",
+   "title": "Name Origin Consumed",
+   "title_ko": "이름의 기원 소각"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png",
+   "color": [
+    0.75,
+    0.62,
+    0.48
+   ],
+   "compass": "Record-tree contour retained.",
+   "flag": "world_rewrite_record_ink_fades",
+   "line": "Tobias can still write the facts. The meaning dries before the ink does.",
+   "line_ko": "토비아스는 사실을 적을 수 있다. 다만 잉크보다 의미가 먼저 마른다.",
+   "memory": "rel_tobias_records",
+   "title": "Record Ink Fades",
+   "title_ko": "기록의 잉크 바램"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v2/world_rewrite_elia_anchor_v3.png",
+   "color": [
+    0.72,
+    0.78,
+    0.96
+   ],
+   "compass": "Elia anchor pressure reduced.",
+   "flag": "world_rewrite_elia_anchor_thinned",
+   "line": "Warm hands remain in the scene like heat after a body has left.",
+   "line_ko": "따뜻한 손은 몸이 떠난 자리에 남은 열처럼 장면에 머문다.",
+   "memory": "daily_elia_hands",
+   "title": "Anchor Warmth Thinned",
+   "title_ko": "앵커의 온기 희박"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png",
+   "color": [
+    0.62,
+    0.54,
+    0.72
+   ],
+   "compass": "Void-walker witness weakened.",
+   "flag": "world_rewrite_sable_witness_dimmed",
+   "line": "Sable's certainty loses one scar's worth of weight.",
+   "line_ko": "세이블의 확신에서 흉터 하나만큼의 무게가 빠진다.",
+   "memory": "rel_sable_voidwalk",
+   "title": "Witness Dimmed",
+   "title_ko": "증인 흐려짐"
+  },
+  {
+   "art": "res://assets/cg/generated/memory_rewrite_forest_scent_v2.png",
+   "color": [
+    0.52,
+    0.7,
+    0.88
+   ],
+   "compass": "Rim weather contour unmoored.",
+   "flag": "world_rewrite_forest_scent_thinned",
+   "line": "The rain still darkens the roots, but the trail no longer has a smell to lead him home.",
+   "line_ko": "비는 여전히 뿌리를 적시지만, 그 길에는 그를 집으로 이끌 냄새가 없다.",
+   "memory": "sense_forest_smell",
+   "title": "Forest Scent Thinned",
+   "title_ko": "숲 냄새 희박"
+  },
+  {
+   "art": "res://assets/cg/generated/memory_rewrite_ghost_words_v2.png",
+   "color": [
+    0.74,
+    0.64,
+    0.86
+   ],
+   "compass": "Forest witness contour hollowed.",
+   "flag": "world_rewrite_ghost_words_silenced",
+   "line": "The hollow keeps its shape, but the unfinished voice has lost the way back to him.",
+   "line_ko": "공동은 형태를 지켰지만, 끝맺지 못한 목소리가 그에게 돌아올 길을 잃었다.",
+   "memory": "rel_ghost_words",
+   "title": "Ghost Words Silenced",
+   "title_ko": "유령의 말 소거"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_compass_unmapped_v3.png",
+   "color": [
+    0.56,
+    0.78,
+    0.96
+   ],
+   "compass": "Colorless route no longer confirms north.",
+   "flag": "world_rewrite_compass_unmapped",
+   "line": "The pull remains beneath his sternum, but the direction now feels like a question asked in someone else's voice.",
+   "line_ko": "가슴뼈 아래의 이끌림은 남았지만, 그 방향이 이제 남의 목소리로 던진 질문처럼 느껴진다.",
+   "memory": "identity_compass",
+   "title": "Compass Identity Unmapped",
+   "title_ko": "나침반 정체성 미상"
+  },
+  {
+   "art": "res://assets/cg/generated/illustration_expansion_v3/world_rewrite_void_walker_v3.png",
+   "color": [
+    0.62,
+    0.48,
+    0.9
+   ],
+   "compass": "BL-07 passage contour weakened.",
+   "flag": "world_rewrite_void_walker_blurred",
+   "line": "One footprint survives the Void's pressure, but he no longer remembers why he knew to place it there.",
+   "line_ko": "발자국 하나는 보이드의 압력을 견뎠지만, 왜 거기에 두어야 했는지는 남지 않았다.",
+   "memory": "identity_void_walker",
+   "title": "Void Walker Blurred",
+   "title_ko": "보이드 보행자 흐려짐"
+  }
+ ],
  "npcs": [
   {
    "art": "res://assets/portraits/character_shots/elia_anchor_v3.png",
@@ -546,6 +742,202 @@
    "name": "Kairos",
    "role": "Editor / Pursuer",
    "role_ko": "편집관 · 추적자"
+  }
+ ],
+ "quests": [
+  {
+   "art": "res://assets/cg/generated/quest_echoes_ash_v1.png",
+   "chapter_req": 2,
+   "desc": "A ghostly figure near the old stump asks you to find scattered memory fragments in the forest.",
+   "desc_ko": "오래된 그루터기 옆의 희미한 형체가, 숲에 흩어진 기억 조각을 찾아 달라고 부탁한다.",
+   "id": "echoes_ash",
+   "map": "rim_forest",
+   "npc": "Ashen Figure",
+   "prereq_flag": "",
+   "steps": [
+    {
+     "desc": "Talk to the Ashen Figure in Rim Forest.",
+     "desc_ko": "림 외곽 숲의 잿빛 형체와 대화하기",
+     "flag": "sq_echoes_ash_started"
+    },
+    {
+     "desc": "Find memory fragment near the mossy stones.",
+     "desc_ko": "이끼 낀 돌무더기 근처에서 기억 조각 찾기",
+     "flag": "sq_echoes_ash_frag1"
+    },
+    {
+     "desc": "Find memory fragment near the fallen tree.",
+     "desc_ko": "쓰러진 나무 근처에서 기억 조각 찾기",
+     "flag": "sq_echoes_ash_frag2"
+    },
+    {
+     "desc": "Return to the Ashen Figure.",
+     "desc_ko": "잿빛 형체에게 돌아가기",
+     "flag": "sq_echoes_ash_complete"
+    }
+   ],
+   "title": "Echoes in the Ash",
+   "title_ko": "재 속의 메아리"
+  },
+  {
+   "art": "res://assets/cg/generated/quest_sump_ledger_v1.png",
+   "chapter_req": 3,
+   "desc": "A nervous trader wants a hidden ledger found in the market's back alleys.",
+   "desc_ko": "불안해하는 상인이 시장 뒷골목에 숨겨진 장부를 찾아 달라고 한다.",
+   "id": "sump_ledger",
+   "map": "verdan_market",
+   "npc": "Nervous Trader",
+   "prereq_flag": "",
+   "steps": [
+    {
+     "desc": "Talk to the Nervous Trader near the alley.",
+     "desc_ko": "골목 근처의 불안한 상인과 대화하기",
+     "flag": "sq_sump_ledger_started"
+    },
+    {
+     "desc": "Find the hidden ledger in the Sump.",
+     "desc_ko": "웅덩이에 숨겨진 장부 찾기",
+     "flag": "sq_sump_ledger_found"
+    },
+    {
+     "desc": "Decide: return the ledger or burn it.",
+     "desc_ko": "선택하기: 장부를 돌려주거나 태우거나",
+     "flag": "sq_sump_ledger_done"
+    }
+   ],
+   "title": "The Sump Ledger",
+   "title_ko": "웅덩이의 장부"
+  },
+  {
+   "art": "res://assets/cg/generated/quest_sable_vigil_v2.png",
+   "chapter_req": 4,
+   "desc": "Sable asks for help clearing a Void Watcher near the BL-07 entrance.",
+   "desc_ko": "세이블이 BL-07 입구 근처의 공허 감시자를 처리해 달라고 청한다.",
+   "id": "sable_vigil",
+   "map": "the_seam",
+   "npc": "Sable",
+   "prereq_flag": "sable_joined",
+   "steps": [
+    {
+     "desc": "Talk to Sable about void patrols.",
+     "desc_ko": "세이블과 공허 순찰에 대해 이야기하기",
+     "flag": "sq_sable_vigil_started"
+    },
+    {
+     "desc": "Defeat the Void Watcher near the rift.",
+     "desc_ko": "균열 근처의 공허 감시자 처치하기",
+     "flag": "sq_sable_vigil_killed"
+    },
+    {
+     "desc": "Report back to Sable.",
+     "desc_ko": "세이블에게 보고하기",
+     "flag": "sq_sable_vigil_complete"
+    }
+   ],
+   "title": "Sable's Vigil",
+   "title_ko": "세이블의 불침번"
+  },
+  {
+   "art": "res://assets/cg/generated/quest_echo_threshold_v1.png",
+   "chapter_req": 7,
+   "desc": "Collect echo fragments scattered across the Seam Outskirts.",
+   "desc_ko": "",
+   "id": "echo_fragments",
+   "map": "seam_outskirts",
+   "npc": "Sable",
+   "prereq_flag": "",
+   "steps": [
+    {
+     "desc": "Search the Seam Outskirts for echo shards.",
+     "desc_ko": "심 외곽에서 메아리 파편 찾기",
+     "flag": "sq_echo_fragments_started"
+    },
+    {
+     "desc": "Find the first echo shard near the cliff.",
+     "desc_ko": "절벽 근처에서 첫 번째 파편 찾기",
+     "flag": "sq_echo_frag1"
+    },
+    {
+     "desc": "Find the second echo shard in the ruins.",
+     "desc_ko": "폐허에서 두 번째 파편 찾기",
+     "flag": "sq_echo_frag2"
+    },
+    {
+     "desc": "Return to the resonance point.",
+     "desc_ko": "공명 지점으로 돌아가기",
+     "flag": "sq_echo_complete"
+    }
+   ],
+   "title": "Echoes of the Threshold",
+   "title_ko": "문턱의 메아리"
+  },
+  {
+   "art": "res://assets/cg/generated/quest_forest_parasite_v1.png",
+   "chapter_req": 8,
+   "desc": "Trace the memory-parasitic vines to their source in the Forgotten Forest.",
+   "desc_ko": "",
+   "id": "forest_parasite",
+   "map": "forgotten_forest",
+   "npc": "Tobias",
+   "prereq_flag": "",
+   "steps": [
+    {
+     "desc": "Search the Forgotten Forest for parasitic vines.",
+     "desc_ko": "잊힌 숲에서 기생 덩굴 찾기",
+     "flag": "sq_forest_parasite_started"
+    },
+    {
+     "desc": "Find the parasitic vine cluster.",
+     "desc_ko": "기생 덩굴 군락 찾기",
+     "flag": "sq_parasite_found"
+    },
+    {
+     "desc": "Burn a memory to purge the root.",
+     "desc_ko": "기억을 태워 뿌리 정화하기",
+     "flag": "sq_parasite_burned"
+    },
+    {
+     "desc": "Confirm the vines have withered.",
+     "desc_ko": "덩굴이 시들었는지 확인하기",
+     "flag": "sq_parasite_complete"
+    }
+   ],
+   "title": "The Parasite's Root",
+   "title_ko": "기생하는 뿌리"
+  },
+  {
+   "art": "res://assets/cg/generated/quest_colorless_compass_v2.png",
+   "chapter_req": 9,
+   "desc": "The Memory Compass needs calibration, find three anchor points in the Colorless Waste.",
+   "desc_ko": "",
+   "id": "colorless_compass",
+   "map": "colorless_waste",
+   "npc": "Elia",
+   "prereq_flag": "ch9_compass",
+   "steps": [
+    {
+     "desc": "Begin compass calibration.",
+     "desc_ko": "나침반 교정 시작하기",
+     "flag": "sq_colorless_compass_started"
+    },
+    {
+     "desc": "Find the northern anchor point.",
+     "desc_ko": "북쪽 정박점 찾기",
+     "flag": "sq_compass_anchor1"
+    },
+    {
+     "desc": "Find the eastern anchor point.",
+     "desc_ko": "동쪽 정박점 찾기",
+     "flag": "sq_compass_anchor2"
+    },
+    {
+     "desc": "Calibrate the compass at the center.",
+     "desc_ko": "중심에서 나침반 교정하기",
+     "flag": "sq_compass_calibrated"
+    }
+   ],
+   "title": "Calibrating the Compass",
+   "title_ko": "나침반 교정"
   }
  ],
  "schema_version": 1,
