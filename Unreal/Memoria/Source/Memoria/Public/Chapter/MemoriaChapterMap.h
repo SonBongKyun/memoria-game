@@ -10,7 +10,8 @@ struct FMemoriaChapterRect
     FVector2D Center() const { return Origin + Size * .5; }
 };
 // One link of the arrival chain: its flag, its dialogue group, and what the group's end handler sets and toasts.
-struct FMemoriaChapterStep { FString Flag, Group; TArray<FString> Flags, Toasts; };
+// MemoriesChapter: the step calls add_chapter_memories with this chapter (0: it does not).
+struct FMemoriaChapterStep { FString Flag, Group; TArray<FString> Flags, Toasts; int32 MemoriesChapter = 0; };
 struct FMemoriaChapterTrigger { FMemoriaChapterRect Rect; FString Group, Flag, Gate; };
 struct FMemoriaChapterChest { FVector2D Origin = FVector2D::ZeroVector; FString Flag; int64 Grains = 0; TArray<TPair<FString, int64>> Items; };
 struct FMemoriaChapterClue { FVector2D Origin = FVector2D::ZeroVector; FString Flag, Text; };

@@ -185,8 +185,39 @@ void UMemoriaNarrativeSubsystem::ShowChapterLedger(const FString& Event)
     LedgerLines.Add(bLedgerThreadHolds ? (Ko ? TEXT("실은 아직 이어져 있다.") : TEXT("The thread still holds.")) : (Ko ? TEXT("실이 닳아 가고 있다.") : TEXT("The thread is fraying.")));
     ++LedgerSerial; Record(FString::Printf(TEXT("ledger:shown:%s:burned=%d:held=%d:anchors=%d"), *Parts[1], Burned.Num(), Held, Anchors));
 }
+bool UMemoriaNarrativeSubsystem::AutosaveChapterMap(const FString& Map, const FVector2D& Position)
+{
+    const bool Saved = Run->HasActiveRun() && GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->SaveChapterMap(Map, Position);
+    if (Saved)
+    {
+        ++AutosaveCount;
+        // NotificationToast._on_save_completed, slot 0.
+        Notice(Run->GetRunSnapshot().CurrentLocale == TEXT("ko") ? TEXT("자동 저장 완료") : TEXT("Autosaved"));
+    }
+    Record(Saved ? TEXT("autosave:map_saved:") + Map : FString(TEXT("autosave:skipped")));
+    return Saved;
+}
+bool UMemoriaNarrativeSubsystem::ContinueChapterMap(const FString& Map)
+{
+    auto* Checkpoint = GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
+    ContinuedMapPosition.Reset();
+    // The slot must name this map; a refused load leaves a live run as it was.
+    FString Saved; FVector2D Position;
+    if (Checkpoint->PeekChapterMap() != Map || !Checkpoint->RestoreChapterMap(Saved, Position)) { Record(TEXT("autosave:map_resume_failed")); return false; }
+    ContinuedMapPosition = Position; Record(TEXT("autosave:map_resumed:") + Map);
+    return true;
+}
+bool UMemoriaNarrativeSubsystem::ConsumeMapPosition(FVector2D& Out)
+{
+    if (!ContinuedMapPosition.IsSet()) return false;
+    Out = ContinuedMapPosition.GetValue(); ContinuedMapPosition.Reset(); return true;
+}
 void UMemoriaNarrativeSubsystem::Autosave()
 {
+    // S330: a step that also leaves for a chapter map (ch5_classifier's last step: complete_chapter, autosave,
+    // goto_map drift_shelter) has no VN cursor left to resume; the save is that map's field, at its spawn.
+    if (const FString Map = FPaths::GetBaseFilename(Context->RequestedMap); Context->RequestedMap.StartsWith(TEXT("res://scenes/maps/")))
+        if (const auto* Spec = MemoriaChapterMaps::Find(Map)) { AutosaveChapterMap(Map, Spec->Spawn); return; }
     // The autosave step also jumps to the next scene, so the save resumes at that scene's start.
     auto* Save = CaptureSave();
     const bool Saved = Save && GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->SaveChapterTransition(*Save);

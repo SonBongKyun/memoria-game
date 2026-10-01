@@ -154,6 +154,7 @@
    "flag": "ch3_arrived",
    "flags": [],
    "group": "waystation_arrival",
+   "memories_chapter": 3,
    "toasts": []
   },
   {
@@ -162,6 +163,7 @@
     "has_blank_book"
    ],
    "group": "blank_book_discovery",
+   "memories_chapter": null,
    "toasts": [
     "Obtained: Blank Book"
    ]
@@ -170,12 +172,14 @@
    "flag": "ch3_waystation_night",
    "flags": [],
    "group": "waystation_night",
+   "memories_chapter": null,
    "toasts": []
   },
   {
    "flag": "ch3_class_seven_message",
    "flags": [],
    "group": "class_seven_wall_message",
+   "memories_chapter": null,
    "toasts": []
   }
  ],

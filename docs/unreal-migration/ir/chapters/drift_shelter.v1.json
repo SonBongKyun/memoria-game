@@ -158,24 +158,28 @@
    "flag": "ch4_arrived",
    "flags": [],
    "group": "drift_arrival",
+   "memories_chapter": 4,
    "toasts": []
   },
   {
    "flag": "ch4_reading_loss",
    "flags": [],
    "group": "reading_deterioration",
+   "memories_chapter": null,
    "toasts": []
   },
   {
    "flag": "ch4_anchoring",
    "flags": [],
    "group": "anchoring_session",
+   "memories_chapter": null,
    "toasts": []
   },
   {
    "flag": "ch4_night_watch",
    "flags": [],
    "group": "night_watch",
+   "memories_chapter": null,
    "toasts": []
   }
  ],

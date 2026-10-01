@@ -87,6 +87,7 @@ private:
     void GameOverAction(EMemoriaGameOverAction Action);
     void CloseGameOver();
     void LoadNewest();
+    void ContinueIntoMap();
     void PauseAction(EMemoriaPauseAction Action);
     FString PauseInfo() const;
     void TitleAction(EMemoriaTitleAction Action);

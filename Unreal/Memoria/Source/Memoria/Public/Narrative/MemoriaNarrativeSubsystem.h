@@ -85,6 +85,12 @@ public:
     bool EnterStoryScene(const FString& Scene);
     bool EnterClassifier();
     const FString& GetChapterMap() const { return ChapterMap; }
+    // S330: SaveManager.autosave_on_chapter_transition in a chapter map's field (the map slot), with the
+    // source's "Autosaved" toast; and Continue into a chapter map: the run restored before the map is entered,
+    // Arrel's saved place handed to the map's presentation.
+    bool AutosaveChapterMap(const FString& Map, const FVector2D& Position);
+    bool ContinueChapterMap(const FString& Map);
+    bool ConsumeMapPosition(FVector2D& Out);
     void ShowNotice(const FString& Text) { Notice(Text); }
     FMemoriaFieldFinished OnFieldFinished;
     bool ContinueCheckpoint();
@@ -158,6 +164,7 @@ private:
     void ArmStoryBeats();
     bool StartStoryField(const FString& Group, const TCHAR* Asset, const TCHAR* File = TEXT("data/chapter2_dialogue.json"));
     FString ChapterMap;
+    TOptional<FVector2D> ContinuedMapPosition;
     bool HandleSumpLedger(const FString& Point);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;

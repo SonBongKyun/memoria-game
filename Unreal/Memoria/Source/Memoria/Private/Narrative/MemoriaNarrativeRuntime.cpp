@@ -63,7 +63,7 @@ void FMemoriaNarrativeContext::Rewards(const FMemoriaNarrativeEffects& E,bool VN
 void FMemoriaNarrativeContext::SetChapter(int32 Chapter)
 {
     if (Chapter==Run.CurrentChapter) return;
-    Run.CurrentChapter=Chapter; Memory.AdvanceChapter(Chapter,Run.MemoryContext());
+    Run.CurrentChapter=Chapter; Memory.AddChapterMemories(Chapter,Run.MemoryContext());
 }
 FMemoriaVNDisplay FMemoriaNarrativeContext::VNDisplay(const FMemoriaVNStep& S) const
 {

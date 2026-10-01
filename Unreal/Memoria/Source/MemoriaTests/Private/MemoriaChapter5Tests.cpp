@@ -96,6 +96,12 @@ public:
                 Test->TestEqual(TEXT("Back at Drift Shelter"), Host->GetChapterMap(), FString(TEXT("drift_shelter")));
                 Test->TestTrue(TEXT("The card names the road on"), Map->GetCard() && Map->GetCard()->IsShowing());
                 Test->TestTrue(TEXT("The next journey is named"), Trace.ContainsByPredicate([](const FString& E) { return E.StartsWith(TEXT("toast:")) && (E.Contains(TEXT("Chapter 6")) || E.Contains(TEXT("6장"))); }));
+                // S330: the Chapter 4 departure and the classifier's last step (complete_chapter, autosave, goto_map)
+                // each autosave Drift Shelter's field, and Continue offers it.
+                int32 Saves = 0; for (const FString& E : Trace) Saves += E == TEXT("autosave:map_saved:drift_shelter") ? 1 : 0;
+                Test->TestEqual(TEXT("The departure and the chapter's end autosave"), Saves, 2);
+                auto* Checkpoint = World->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
+                Test->TestTrue(TEXT("Continue resumes Drift Shelter"), Checkpoint->FindContinue() == EMemoriaContinueSource::Map && Checkpoint->PeekChapterMap() == TEXT("drift_shelter"));
                 ++Step; Mark = Frame;
             }
             if (Frame > Mark + 6000) { Test->AddError(TEXT("The classifier scene never returned to Drift Shelter")); return true; }

@@ -52,6 +52,7 @@ FMemoriaChapterMapSpec Parse(const TCHAR* Json)
     {
         const Obj Q = V->AsObject(); FMemoriaChapterStep Step;
         Step.Flag = Str(Q, TEXT("flag")); Step.Group = Str(Q, TEXT("group")); Step.Flags = Strings(Q, TEXT("flags")); Step.Toasts = Strings(Q, TEXT("toasts"));
+        Q->TryGetNumberField(TEXT("memories_chapter"), Step.MemoriesChapter);
         S.Sequence.Add(Step);
     }
     if (const Obj* E; O->TryGetObjectField(TEXT("exit"), E))

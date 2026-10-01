@@ -54,18 +54,22 @@ private:
     FDelegateHandle FinishedHandle;
     FVector PreviousPosition = FVector::ZeroVector;
     float StepAt = -1.f, TravelAt = -1.f, SceneAt = -1.f, Clock = 0.f;
-    bool bComplete = false, bDeparting = false;
+    bool bComplete = false, bDeparting = false, bInExit = false;
     UMaterialInstanceDynamic* Surface(const FLinearColor& Srgb, float Roughness = .9f);
     UInstancedStaticMeshComponent* Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide);
     void BuildTerrain();
     void BuildLight();
     void BuildMarkers();
     void StartNextStep();
+    // S330: the memories the chapter brings (add_chapter_memories), and their toasts held for the arrival chain's end.
+    void GrantChapterMemories(int32 Chapter);
+    TArray<FString> MemoryToasts;
     void OnFieldFinished(const FString& Group);
     void CheckTriggers();
     bool Flag(const FString& Id) const;
     bool GateOpen(const FString& Gate) const;
     bool SceneReady() const;
+    bool RoadOpen() const;
     FString StoryMovedOn() const;
     void SetFlag(const FString& Id);
     FString Localized(const FString& Text) const;

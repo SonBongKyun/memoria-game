@@ -1,6 +1,7 @@
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Save/MemoriaRunSaveGame.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Chapter/MemoriaChapterMap.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/App.h"
@@ -123,32 +124,108 @@ bool UMemoriaCheckpointSubsystem::SaveChapterTransition(UMemoriaRunSaveGame& Sav
     Object->SetStringField(TEXT("sha1"),Digest(Bytes)); Object->SetStringField(TEXT("payload"),FBase64::Encode(Bytes));
     FString Text; FJsonSerializer::Serialize(Object,TJsonWriterFactory<>::Create(&Text));
     if (Text.Len()>MaxFileBytes || !IFileManager::Get().MakeDirectory(*StorageRoot,true)) return Fail(TEXT("Autosave skipped: cannot create the save folder."));
-    if (!CommitDiskFile(GetChapterSlotPath(),Text,true)) return Fail(TEXT("Autosave failed: disk write failed."));
+    if (!CommitDiskFile(GetChapterSlotPath(),Text,ESlot::Chapter)) return Fail(TEXT("Autosave failed: disk write failed."));
     StatusText=TEXT("Chapter autosaved."); return true;
 }
 UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::LoadChapterTransition()
 {
     if (bBusy || !CanAccess()) { Fail(TEXT("Autosave unavailable: disk storage is disabled or busy.")); return nullptr; }
-    auto* Save=ReadFile(GetChapterSlotPath(),true);
+    auto* Save=ReadFile(GetChapterSlotPath(),ESlot::Chapter);
     if (!Save) Fail(TEXT("No valid chapter autosave found."));
     return Save;
 }
 EMemoriaContinueSource UMemoriaCheckpointSubsystem::FindContinue() const
 {
     if (!IsStorageEnabled()) return EMemoriaContinueSource::None;
-    // The source has one slot; here the newer of the two valid files stands for it.
-    auto Written = [this](const FString& Path, bool bChapter, FDateTime& Out)
+    // The source has one slot; here the newest valid file stands for it, by the time each save records
+    // (file times are too coarse to order two saves made in the same second).
+    auto Written = [this](const FString& Path, ESlot Slot, FDateTime& Out)
     {
-        if (!ReadFile(Path, bChapter)) return false;
-        Out = IFileManager::Get().GetTimeStamp(*Path); return true;
+        const auto* Save = ReadFile(Path, Slot);
+        if (!Save) return false;
+        Out = Save->SavedAtUtc; return true;
     };
-    FDateTime Chapter, Boundary;
-    const bool bChapter = Written(GetChapterSlotPath(), true, Chapter);
-    const bool bBoundary = Written(GetSlotPath(), false, Boundary) || Written(GetSlotPath() + TEXT(".bak"), false, Boundary);
-    if (bChapter && bBoundary) return Chapter > Boundary ? EMemoriaContinueSource::Chapter : EMemoriaContinueSource::Boundary;
-    return bChapter ? EMemoriaContinueSource::Chapter : bBoundary ? EMemoriaContinueSource::Boundary : EMemoriaContinueSource::None;
+    FDateTime Chapter, Boundary, Map;
+    const bool bChapter = Written(GetChapterSlotPath(), ESlot::Chapter, Chapter);
+    const bool bBoundary = Written(GetSlotPath(), ESlot::Boundary, Boundary) || Written(GetSlotPath() + TEXT(".bak"), ESlot::Boundary, Boundary);
+    const bool bMap = Written(GetMapSlotPath(), ESlot::Map, Map);
+    auto Source = EMemoriaContinueSource::None; FDateTime Newest;
+    auto Offer = [&](bool bValid, const FDateTime& When, EMemoriaContinueSource Kind)
+    { if (bValid && (Source == EMemoriaContinueSource::None || When > Newest)) { Source = Kind; Newest = When; } };
+    // Ties keep the earlier offer: the boundary, then the chapter autosave, then the map.
+    Offer(bBoundary, Boundary, EMemoriaContinueSource::Boundary); Offer(bChapter, Chapter, EMemoriaContinueSource::Chapter); Offer(bMap, Map, EMemoriaContinueSource::Map);
+    return Source;
 }
-UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path, bool bChapter) const
+FString UMemoriaCheckpointSubsystem::GetMapSlotPath() const
+{
+    return StorageRoot.IsEmpty() ? FString() : StorageRoot/TEXT("map.memoria.json");
+}
+bool UMemoriaCheckpointSubsystem::ValidateMapSnapshot(const UMemoriaRunSaveGame& Save) const
+{
+    FString Error;
+    const auto* Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr, CatalogPath);
+    const auto& Flow = Save.SceneFlow; const auto& P = Save.FieldReturn.SourcePixelPosition;
+    const FString& Scene = Save.FieldReturn.SourceScenePath;
+    // A map save resumes in the field of a ported chapter map: its scene, a place inside it, and no VN cursor.
+    const auto* Spec = Scene.StartsWith(TEXT("res://scenes/maps/")) && Scene.EndsWith(TEXT(".tscn")) ? MemoriaChapterMaps::Find(FPaths::GetBaseFilename(Scene)) : nullptr;
+    if (!Catalog || !Spec || !Save.ValidateHeader(Error) || Save.Slot!=0 ||
+        Save.ContentRevision!=Catalog->ContentRevision || Save.MemoryCatalogId!=Catalog->GetPrimaryAssetId() ||
+        Save.SavedAtUtc.GetTicks()<=0 || !Save.ImportedFromVersion.IsEmpty() || Save.FieldReturn.MapId!=MapBoundaryId ||
+        !FMath::IsFinite(P.X) || !FMath::IsFinite(P.Y) || P.X<0 || P.X>Spec->Width*Spec->TileSize || P.Y<0 || P.Y>Spec->Height*Spec->TileSize ||
+        Save.Run.CurrentChapter<Spec->Chapter ||
+        Flow.bActive || !Flow.Current.SequenceId.IsEmpty() || !Flow.Pending.SequenceId.IsEmpty() || !Flow.ResumeQueue.IsEmpty() ||
+        Save.WorldCognition.SchemaVersion!=1 || Save.WorldCognition.SourceJson.IsEmpty()) return false;
+    return ValidateDomains(Save);
+}
+UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::CaptureChapterMap(const FString& Map, const FVector2D& Position) const
+{
+    auto* Save=Run->CaptureSave();
+    const auto* Catalog=LoadObject<UMemoriaMemoryCatalog>(nullptr,CatalogPath);
+    if (!Save || !Catalog) return nullptr;
+    Save->SavedAtUtc=FDateTime::UtcNow(); Save->MemoryCatalogId=Catalog->GetPrimaryAssetId();
+    Save->FieldReturn.SourceScenePath=FString::Printf(TEXT("res://scenes/maps/%s.tscn"),*Map); Save->FieldReturn.MapId=MapBoundaryId;
+    Save->FieldReturn.SourcePixelPosition=Position;
+    return ValidateMapSnapshot(*Save) ? Save : nullptr;
+}
+bool UMemoriaCheckpointSubsystem::CanSaveChapterMap(const FString& Map, const FVector2D& Position) const
+{
+    return !bBusy && CanAccess() && CaptureChapterMap(Map, Position) != nullptr;
+}
+bool UMemoriaCheckpointSubsystem::SaveChapterMap(const FString& Map, const FVector2D& Position)
+{
+    if (bBusy || !CanAccess()) return Fail(TEXT("Save skipped: disk storage is unavailable in this session."));
+    TGuardValue<bool> Busy(bBusy,true);
+    auto* Save=CaptureChapterMap(Map, Position);
+    if (!Save) return Fail(TEXT("Save skipped: this run is outside the supported boundary."));
+    TArray<uint8> Bytes;
+    if (!UGameplayStatics::SaveGameToMemory(Save,Bytes)) return Fail(TEXT("Save skipped: serialization failed."));
+    auto Object=MakeShared<FJsonObject>(); Object->SetNumberField(TEXT("version"),1);
+    Object->SetStringField(TEXT("sha1"),Digest(Bytes)); Object->SetStringField(TEXT("payload"),FBase64::Encode(Bytes));
+    FString Text; FJsonSerializer::Serialize(Object,TJsonWriterFactory<>::Create(&Text));
+    if (Text.Len()>MaxFileBytes || !IFileManager::Get().MakeDirectory(*StorageRoot,true)) return Fail(TEXT("Save skipped: cannot create the save folder."));
+    // The temp file is verified before the same-directory rename, so a failed write keeps the last good save.
+    if (!CommitDiskFile(GetMapSlotPath(),Text,ESlot::Map)) return Fail(TEXT("Save failed: disk write failed."));
+    StatusText=TEXT("Saved in the field."); return true;
+}
+FString UMemoriaCheckpointSubsystem::PeekChapterMap() const
+{
+    if (!IsStorageEnabled()) return FString();
+    const auto* Save=ReadFile(GetMapSlotPath(),ESlot::Map);
+    return Save ? FPaths::GetBaseFilename(Save->FieldReturn.SourceScenePath) : FString();
+}
+bool UMemoriaCheckpointSubsystem::RestoreChapterMap(FString& OutMap, FVector2D& OutPosition)
+{
+    if (bBusy || !CanAccess()) return Fail(TEXT("Save unavailable: disk storage is disabled or busy."));
+    TGuardValue<bool> Busy(bBusy,true);
+    auto* Save=ReadFile(GetMapSlotPath(),ESlot::Map);
+    if (!Save) return Fail(TEXT("No valid field save found. The current run has not changed."));
+    // Keep the decoded DTO alive across run-replaced observers.
+    TStrongObjectPtr<UMemoriaRunSaveGame> RetainedSave(Save);
+    if (!Run->RestoreSave(*Save)) return Fail(TEXT("The field save could not be restored. The current run has not changed."));
+    OutMap=FPaths::GetBaseFilename(Save->FieldReturn.SourceScenePath); OutPosition=Save->FieldReturn.SourcePixelPosition;
+    StatusText=TEXT("Field save loaded."); return true;
+}
+UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path, ESlot Slot) const
 {
     const auto Size=IFileManager::Get().FileSize(*Path);
     if (Size<=0 || Size>MaxFileBytes) return nullptr;
@@ -161,12 +238,12 @@ UMemoriaRunSaveGame* UMemoriaCheckpointSubsystem::ReadFile(const FString& Path, 
     TArray<uint8> Bytes;
     if (!FBase64::Decode(Payload,Bytes) || Bytes.IsEmpty() || Digest(Bytes)!=Hash) return nullptr;
     auto* Save=Cast<UMemoriaRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Bytes));
-    return Save && (bChapter ? ValidateChapterSnapshot(*Save) : ValidateSnapshot(*Save)) ? Save : nullptr;
+    return Save && (Slot==ESlot::Chapter ? ValidateChapterSnapshot(*Save) : Slot==ESlot::Map ? ValidateMapSnapshot(*Save) : ValidateSnapshot(*Save)) ? Save : nullptr;
 }
-bool UMemoriaCheckpointSubsystem::CommitDiskFile(const FString& Path, const FString& Text, bool bChapter) const
+bool UMemoriaCheckpointSubsystem::CommitDiskFile(const FString& Path, const FString& Text, ESlot Slot) const
 {
     const FString Temp=Path+TEXT(".tmp");
-    if (!FFileHelper::SaveStringToFile(Text,*Temp,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM) || !ReadFile(Temp,bChapter)) return false;
+    if (!FFileHelper::SaveStringToFile(Text,*Temp,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM) || !ReadFile(Temp,Slot)) return false;
     // Same-directory rename; retain the last good primary if writing/verification failed.
 #if PLATFORM_WINDOWS
     return ::MoveFileExW(*Temp,*Path,MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)!=0;

@@ -46,6 +46,8 @@ public:
     void SetLocale(const FString& Locale) { if (HasActiveRun()) State.CurrentLocale = Locale == TEXT("en") ? TEXT("en") : TEXT("ko"); }
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);
     EMemoriaMemoryResult AcquireMemory(const FMemoriaMemoryDefinition& Definition);
+    // S330: MemoryManager.add_chapter_memories for the live run.
+    EMemoriaMemoryResult AddChapterMemories(int64 Chapter);
     EMemoriaMemoryResult ErodeMemories(int64 ChapterArgument);
     // Bounded source add_item contract. Potion and antidote entry points retain distinct exact-ID contracts.
     bool AddRewardPotion(const FString& ItemId, int64 Count);

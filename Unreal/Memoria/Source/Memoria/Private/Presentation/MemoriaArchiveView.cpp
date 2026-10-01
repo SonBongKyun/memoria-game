@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaArchiveView.h"
+#include "Domain/MemoriaChapterMemories.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 
@@ -64,6 +65,11 @@ FMemoriaArchiveView MemoriaArchive::Build(const UMemoriaRunSubsystem& Run, int32
                 Row.Title = Text->Title; Row.Description = Text->Description;
                 if (Text->bHasStoryEffect) Row.StoryEffect = Text->StoryEffect;
             }
+        if (FMemoriaMemoryLocalizedText Chapter; View.bKo && MemoriaChapterMemories::Korean(Row.Id, Chapter))
+        {
+            Row.Title = Chapter.Title; Row.Description = Chapter.Description;
+            if (Chapter.bHasStoryEffect) Row.StoryEffect = Chapter.StoryEffect;
+        }
         // Use the source card's state priority. Its legacy detail panel labels
         // all unburned rows INTACT, including faded rows; the card is authoritative here.
         if (Row.bBurned) Row.StateLabel = SourceStates[Locale][Row.bResidue ? 2 : 1];

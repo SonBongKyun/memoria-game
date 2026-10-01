@@ -1,0 +1,96 @@
+{
+ "chapters": {
+  "3": [
+   {
+    "burn_power": 10,
+    "description": "Dust that tastes of nothing. The Belt stretches on, a road that forgot its purpose.",
+    "grade": 0,
+    "id": "sense_dead_soil",
+    "ko": {
+     "description": "아무 맛도 나지 않는 먼지. 벨트는 목적을 잊은 길처럼 계속 이어진다.",
+     "story_effect": "",
+     "title": "죽은 흙의 맛"
+    },
+    "related_npc": "",
+    "story_effect": "",
+    "title": "The Taste of Dead Earth"
+   },
+   {
+    "burn_power": 25,
+    "description": "Ink-stained fingers. Spectacles perched on a nose that's seen too many ledgers. He records the dying.",
+    "grade": 1,
+    "id": "rel_tobias_records",
+    "ko": {
+     "description": "잉크에 물든 손가락. 장부를 너무 많이 본 코 위의 안경. 그는 죽어 가는 것들을 기록한다.",
+     "story_effect": "토비아스의 설명을 떠올리지 못하게 된다. 관리국 용어가 흐려진다.",
+     "title": "전부 받아 적는 남자"
+    },
+    "related_npc": "Tobias",
+    "story_effect": "Lose the ability to recall Tobias's explanations. Bureau terminology blurs.",
+    "title": "The Man Who Writes Everything Down"
+   }
+  ],
+  "4": [
+   {
+    "burn_power": 12,
+    "description": "Gray drops that leave streaks on skin. Memory residue from someone else's burning, carried on the wind.",
+    "grade": 0,
+    "id": "sense_ash_rain",
+    "ko": {
+     "description": "피부에 자국을 남기는 잿빛 방울. 누군가의 연소가 남긴 잔재가 바람에 실려 온다.",
+     "story_effect": "",
+     "title": "비가 아닌 비"
+    },
+    "related_npc": "",
+    "story_effect": "",
+    "title": "Rain That Isn't Rain"
+   },
+   {
+    "burn_power": 50,
+    "description": "She held your hands and something shifted. A page pressed back into its binding. You could read again.",
+    "grade": 2,
+    "id": "daily_elia_hands",
+    "ko": {
+     "description": "그녀가 손을 잡자 무언가 제자리를 찾았다. 뜯겨 나가던 페이지가 다시 눌려 붙었다. 읽을 수 있게 됐다.",
+     "story_effect": "붙들려 있다는 감각을 잃는다. 구조가 헐거워진다.",
+     "title": "차가운 손바닥 위의 따뜻한 손"
+    },
+    "related_npc": "Elia",
+    "story_effect": "Lose the sensation of being anchored. The architecture loosens.",
+    "title": "Warm Hands on Cold Palms"
+   }
+  ],
+  "5": [
+   {
+    "burn_power": 12,
+    "description": "The taste of brine carried up from where the coast is falling apart. Cold and honest.",
+    "grade": 0,
+    "id": "sense_salt_wind",
+    "ko": {
+     "description": "무너져 내리는 해안에서 올라오는 짠 내. 차갑고 정직하다.",
+     "story_effect": "",
+     "title": "절벽의 소금 바람"
+    },
+    "related_npc": "",
+    "story_effect": "",
+    "title": "Salt Wind on the Cliffs"
+   },
+   {
+    "burn_power": 30,
+    "description": "Two sets of footsteps. Yours and someone lighter. The rhythm is familiar.",
+    "grade": 1,
+    "id": "daily_elia_walking",
+    "ko": {
+     "description": "두 사람 몫의 발소리. 내 것과, 조금 더 가벼운 것. 그 박자가 익숙하다.",
+     "story_effect": "엘리아의 걸음 습관을 알아채지 못하게 된다.",
+     "title": "누군가와 나란히 걷기"
+    },
+    "related_npc": "Elia",
+    "story_effect": "Lose awareness of Elia's movement patterns",
+    "title": "Walking With Someone"
+   }
+  ]
+ },
+ "schema_version": 1,
+ "source": "scripts/systems/memory_manager.gd::add_chapter_memories"
+}
