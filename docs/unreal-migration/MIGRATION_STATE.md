@@ -1,3 +1,21 @@
+# Migration handoff — S333 the turn-based battle's leftover content removed (Claude lane, 2026-10-01)
+
+- **Why.** The fourth of the remaining items. S329 retired the turn-based battle's code and kept its art as unused content. The user asked for that content to be cleared.
+- **Removed** (17 files, about 17 MB, all recoverable from history):
+  - Content under `Content/Memoria/Presentation/BattleEntry`: `M_BattlePlate`, `T_ArrelBattle`, `T_AlleyRatLegacy`, `T_AlleyRatStudy`, `T_MarketThiefSource`, `T_MarketThiefStudy`, `T_UiCommandDeck`, `T_UiFieldReadout`, `T_UiTacticalPlate`, `T_UiVictoryPanel`. No other asset or source file referenced them.
+  - Their rows in `MemoriaBattleEntryArt`, the three study-source helpers, and the commandlet's `-StudyOnly` and `-AlleyRatStudyOnly` switches.
+  - `Unreal/ArtSource/BattleEntry` (the two study drawings and their provenance) and the fixture `docs/unreal-migration/fixtures/battle_entry_art/market_thief.png`.
+  - The two tools that only produced those: `export_battle_entry_art.py` and `author_battle_entry_assets.py`.
+- **Kept.**
+  - `T_VerdanMarket` and `T_EliaAnchor`: the dialogue's art table reuses them from this folder.
+  - The seven UI plates (pause, game over, hint, journal, codex, achievements).
+  - The names `MemoriaBattleEntryArt` and `-run=MemoriaBattleEntryAssets`. The table is now only UI art; renaming it and moving its packages is a refactor of its own.
+  - The Godot source images under `assets/`, which the port never owned.
+  - `validate_battle_entry_preservation.py` and `archive_battle_entry_execution.py`, session tools of S291 like the other sessions' archive tools.
+- **Check.** `-run=MemoriaBattleEntryAssets -CheckOnly` loads the nine remaining textures.
+- **Known stale, older than this session.** `test_checkpoint_tools.py` and `test_shop_transaction_tools.py` import `battle_entry_test_paths`, which S329 removed from `validate_unreal.py`. They are not part of the validation run. They need their registry arithmetic rewritten or to be retired.
+- **Results.** Full rendered registry 273/273 (s333_full), visual 26/26 (s333_visual). This run covers S332 and S333 together.
+
 # Migration handoff — S332 the journal's Quests and Losses tabs and its illustrations (Claude lane, 2026-10-01)
 
 - **Why.** The third of the remaining gaps: `story_journal.gd`'s Quests, Losses and Leads tabs, and the pictures its entries name.

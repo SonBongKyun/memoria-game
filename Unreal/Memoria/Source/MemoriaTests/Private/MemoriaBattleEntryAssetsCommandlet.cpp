@@ -13,15 +13,10 @@ UMemoriaBattleEntryAssetsCommandlet::UMemoriaBattleEntryAssetsCommandlet()
 int32 UMemoriaBattleEntryAssetsCommandlet::Main(const FString& Params)
 {
     const bool bCheck=FParse::Param(*Params,TEXT("CheckOnly"));
-    const bool bStudyOnly=FParse::Param(*Params,TEXT("StudyOnly"));
-    const bool bAlleyRatStudyOnly=FParse::Param(*Params,TEXT("AlleyRatStudyOnly"));
-    if(bStudyOnly && bAlleyRatStudyOnly)return 1;
     const FString Root=FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()/TEXT("../.."));
     // Preflight every fixed source and destination before creating any package.
     for(const auto& Entry:MemoriaBattleEntryArt::Sources())
     {
-        if((bStudyOnly && FString(Entry.Source)!=MemoriaBattleEntryArt::MarketThiefStudySource()) ||
-           (bAlleyRatStudyOnly && FString(Entry.Source)!=MemoriaBattleEntryArt::AlleyRatStudySource()))continue;
         if(!FString(Entry.Package).StartsWith(TEXT("/Game/Memoria/Presentation/BattleEntry/")))return 1;
         const FString File=Root/Entry.RelativeFile;
         if(!FPaths::FileExists(File))
@@ -32,8 +27,6 @@ int32 UMemoriaBattleEntryAssetsCommandlet::Main(const FString& Params)
     }
     for(const auto& Entry:MemoriaBattleEntryArt::Sources())
     {
-        if((bStudyOnly && FString(Entry.Source)!=MemoriaBattleEntryArt::MarketThiefStudySource()) ||
-           (bAlleyRatStudyOnly && FString(Entry.Source)!=MemoriaBattleEntryArt::AlleyRatStudySource()))continue;
         if(bCheck)
         {
             auto* Texture=MemoriaBattleEntryArt::Load(Entry.Source);

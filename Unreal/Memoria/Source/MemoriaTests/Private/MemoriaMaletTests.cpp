@@ -2,7 +2,6 @@
 #include "Save/MemoriaCheckpointSubsystem.h"
 #include "Presentation/MemoriaShopWidget.h"
 #include "Presentation/MemoriaArchiveWidget.h"
-#include "Presentation/MemoriaBattleEntryArt.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Framework/MemoriaCoordinates.h"
 #include "MemoriaPotionEvidence.h"

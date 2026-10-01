@@ -8,12 +8,9 @@ struct FMemoriaBattleEntryArtSource
     const TCHAR* Package;
     bool bPixelArt=false;
 };
-// Offline imports only. Original art and the executed source fallback remain unchanged.
+// Offline imports only. Despite the name this is the UI art table (S333): the turn-based battle is retired.
 namespace MemoriaBattleEntryArt
 {
     MEMORIA_API const TArray<FMemoriaBattleEntryArtSource>& Sources();
     MEMORIA_API UTexture2D* Load(const FString& Source);
-    MEMORIA_API FString MarketThiefSource();
-    MEMORIA_API FString MarketThiefStudySource();
-    MEMORIA_API FString AlleyRatStudySource();
 }
