@@ -142,6 +142,20 @@ void AMemoriaChapterPresentation::BuildDecorations()
     auto* Cylinder = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
     FRandomStream Rng(Spec->Chapter * 104729);
     const float S = MemoriaChapterMaps::Scale;
+    // S335: Codex's S334 props (-run=MemoriaAmbientModels) stand in place of the primitives when they are
+    // imported: centimetre models with their origin on the ground at the centre.
+    auto Model = [](const TCHAR* Name)
+    { return LoadObject<UStaticMesh>(nullptr, *FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/Props/SM_%s.SM_%s"), Name, Name), nullptr, LOAD_NoWarn | LOAD_Quiet); };
+    UStaticMesh* TankModel = Model(TEXT("WaterTank")); UStaticMesh* FireModel = Model(TEXT("Campfire")); UStaticMesh* RubbleModel = Model(TEXT("Rubble"));
+    auto Place = [this](UStaticMesh* Asset, const FVector& Ground, float Yaw)
+    {
+        auto* Prop = NewObject<UStaticMeshComponent>(this);
+        Prop->SetupAttachment(GetRootComponent()); Prop->SetMobility(EComponentMobility::Movable);
+        Prop->SetStaticMesh(Asset); Prop->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        // The figures stand on z -8, the top of the ground slabs.
+        Prop->SetWorldLocation(FVector(Ground.X, Ground.Y, -8.f)); Prop->SetWorldRotation(FRotator(0, Yaw, 0));
+        Prop->RegisterComponent(); AddInstanceComponent(Prop); ++ModelPropCount;
+    };
     for (const auto& D : Spec->Decorations)
     {
         const FVector Center = MemoriaChapterMaps::ToWorld(D.Origin + D.Size * .5);
@@ -165,11 +179,14 @@ void AMemoriaChapterPresentation::BuildDecorations()
             // leaning by the source's rotation. It is the one prop Arrel cannot walk through.
             const float Radius = World.X * .5f, Tall = World.Y;
             // The source's translucent shade would stand as a black mass here; the metal is lifted to read as a tank.
+            const FVector Foot = MemoriaChapterMaps::ToWorld(FVector2D(D.Origin.X + D.Size.X * .5, D.Origin.Y + D.Size.Y - D.Size.X * .5));
             Mesh->SetStaticMesh(Cylinder); Mesh->SetMaterial(0, Surface(D.Color * 1.7f));
             Mesh->SetWorldScale3D(FVector(Radius / 50.f, Radius / 50.f, Tall / 100.f));
-            Mesh->SetWorldRotation(FRotator(0, 0, FMath::RadiansToDegrees(D.Rotation)));
-            Mesh->SetWorldLocation(MemoriaChapterMaps::ToWorld(FVector2D(D.Origin.X + D.Size.X * .5, D.Origin.Y + D.Size.Y - D.Size.X * .5)) + FVector(0, 0, Tall * .5f - 10.f));
+            Mesh->SetWorldLocation(Foot + FVector(0, 0, Tall * .5f - 10.f));
             Mesh->SetCollisionProfileName(TEXT("BlockAll"));
+            // With the model, the cylinder stays only as the unseen block; the model carries its own lean.
+            if (TankModel) { Mesh->SetHiddenInGame(true); Mesh->SetCastShadow(false); Place(TankModel, Foot, 0.f); }
+            else Mesh->SetWorldRotation(FRotator(0, 0, FMath::RadiansToDegrees(D.Rotation)));
         }
         else if (D.Kind == TEXT("fire"))
         {
@@ -180,6 +197,8 @@ void AMemoriaChapterPresentation::BuildDecorations()
             Mesh->SetWorldScale3D(FVector(World.X / 100.f, World.Y / 100.f, .14f));
             Mesh->SetWorldRotation(FRotator(0, 45.f, 0));
             Mesh->SetWorldLocation(Center + FVector(0, 0, -1.f));
+            // With the model, the ember block glows in the middle of its stone ring and crossed logs.
+            if (FireModel) { Place(FireModel, Center, 20.f); Mesh->SetWorldScale3D(FVector(.16f, .16f, .08f)); Mesh->SetWorldLocation(Center + FVector(0, 0, 0.f)); }
         }
         else if (D.Kind == TEXT("crack"))
         {
@@ -191,7 +210,9 @@ void AMemoriaChapterPresentation::BuildDecorations()
         }
         else
         {
-            // Rubble and any other heap: a low stone, turned a little.
+            // Rubble and any other heap: the model turned at random, or a low stone.
+            if (D.Kind == TEXT("rubble") && RubbleModel)
+            { Place(RubbleModel, Center, Rng.FRandRange(0.f, 360.f)); Mesh->MarkAsGarbage(); ++DecorationCount; continue; }
             const float Tall = Rng.FRandRange(10.f, 20.f);
             Mesh->SetStaticMesh(Cube); Mesh->SetMaterial(0, Surface(D.Color));
             Mesh->SetWorldScale3D(FVector(World.X / 100.f, World.Y / 100.f, Tall / 100.f));
@@ -203,8 +224,9 @@ void AMemoriaChapterPresentation::BuildDecorations()
 }
 void AMemoriaChapterPresentation::BuildAmbientNpcs()
 {
-    // The revisit's ambient NPCs: the source's procedural pixel figures (Unreal/Tools/export_ambient_npcs.py),
-    // standing still at their tiles. They are built hidden; Tick shows them once their gate opens.
+    // The revisit's ambient NPCs, standing still at their tiles: Codex's S334 models (-run=MemoriaAmbientModels,
+    // S335), or without them the source's procedural pixel figures (Unreal/Tools/export_ambient_npcs.py) on
+    // cards. They are built hidden; Tick shows them once their gate opens.
     for (const auto& Npc : Spec->AmbientNpcs)
     {
         auto* Figure = NewObject<UMemoriaFieldCharacterComponent>(this);
@@ -215,6 +237,10 @@ void AMemoriaChapterPresentation::BuildAmbientNpcs()
         Figure->Face(TEXT("Down")); Figure->SetVisibility(false, true);
         AmbientNpcs.Add(Figure);
     }
+}
+int32 AMemoriaChapterPresentation::GetRiggedNpcCount() const
+{
+    int32 Count = 0; for (const auto& Npc : AmbientNpcs) Count += Npc && Npc->IsRigged() ? 1 : 0; return Count;
 }
 int32 AMemoriaChapterPresentation::GetVisibleNpcCount() const
 {

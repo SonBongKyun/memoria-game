@@ -68,6 +68,9 @@ public:
             }
             // The first visit: the props stand, the road is empty, nothing stalks it.
             Test->TestEqual(TEXT("Every prop is built"), Map->GetDecorationCount(), Spec->Decorations.Num());
+            // S335: Codex's models stand in for the cylinder and the pixel cards.
+            Test->TestEqual(TEXT("The water tank is the model"), Map->GetModelPropCount(), 1);
+            Test->TestEqual(TEXT("The three NPCs wear rigged models"), Map->GetRiggedNpcCount(), 3);
             Test->TestEqual(TEXT("No ambient NPCs on the first visit"), Map->GetVisibleNpcCount(), 0);
             Test->TestFalse(TEXT("No random encounters on the first visit"), Map->AreEncountersOpen());
             // Chapter 3 closed, as a save loaded in the completed map finds it.

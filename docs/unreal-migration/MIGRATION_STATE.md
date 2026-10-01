@@ -1,3 +1,29 @@
+# Migration handoff — S335 Codex's ambient NPC models and props adopted (Claude lane, 2026-10-01)
+
+- **Why.** Codex delivered the art requested after S331 (shared `models/`, S334): three NPCs on Arrel's 77-bone rig and three static props. This session imports them and puts them in the chapter maps.
+- **Source files.** Copied to `Unreal/ArtSource/FieldCharacters/npc_traveler`, `npc_bureau_agent`, `npc_guard` and `Unreal/ArtSource/FieldProps`. All 12 files match the SHA-256 values of `models/_qa/s334/final_delivery_audit.json`.
+- **Import.** New `-run=MemoriaAmbientModels` (additive; run after `install_mannequin.py`).
+  - NPCs, under `Field3D/Traveler`, `Bureauagent` and `Guard`: the skeletal mesh and its skeleton, the base colour, a material in the leads' S310 style, and an idle and a walk retargeted from Epic's mannequin (`MM_Idle`, `MF_Unarmed_Walk_Fwd`). They are named as the field figure looks for them (`A_<Name>_Idle`, `A_<Name>_Walk`), so `InitializeCharacter` finds the model before the pixel card with no change to the figure's code. The import checks 77 bones; heights came in at 174, 176 and 178 cm.
+  - Props, under `Field3D/Props`: `SM_WaterTank`, `SM_Campfire`, `SM_Rubble`, each with its texture and material. Sizes came in as the manifest states.
+  - The props keep the leads' small fill. Without it the tank's shadowed side went black (tried, read in a capture, and reverted).
+- **In the maps** (`AMemoriaChapterPresentation`).
+  - The ambient NPCs are the models, scaled to Arrel's height, standing idle. The pixel cards from S331 remain as the fallback when the models are not imported.
+  - The water tank is the model on the tank's ground spot. It carries its own 3-degree lean, so the source's rotation is not applied on top. The old cylinder stays hidden as the block.
+  - The campfire is the model, with the ember block small in its centre and the source's light above it.
+  - The rubble heaps are the model, each at a random turn.
+  - The road cracks stay as they were: no model was requested for them.
+- **The capture window.** The editor saves the play window's size on every close, a title bar smaller each time, so captures shrank through a suite and from run to run (the saved size had reached 1208×240). Under `-MemoriaCapture` the test module now puts the size back to 1280×720 on every frame between play sessions. Eleven captures in one editor session all came out at 1280×720. This closes the known gap that earlier sessions recorded as the capture window shrinking.
+- **Tests.**
+  - `MemoriaVisual.ChapterRevisit`: the tank is a model and the three NPCs are rigged.
+  - `MemoriaVisual.Chapter4`: Drift Shelter's nine props are models; two new captures (the campfire, a rubble heap).
+  - Captures read at 1280×720: the Belt with the tank and the three NPCs; the encounter; Drift Shelter's campfire with its glow; the rubble.
+- **Known gaps.**
+  - The NPCs only stand. The retargeted walk exists because the figure requires one; nothing moves them.
+  - The rubble model is light concrete and small beside the terrain's dark placeholder stones (the scattered cubes on ruin and rubble tiles). Those stones could take the same model; that is a terrain change and was not done here.
+  - The bureau agent stands inside the waystation's walls, as the source places him, and is partly hidden by them from the quarter view.
+  - Not delivered: the alley rat (Codex deferred it again).
+- **Results.** Full rendered registry 274/274 (s335_full), visual 26/26 (s335_visual), covering S334 and S335 together. All 104 captures of the visual run are 1280×720.
+
 # Migration handoff — S334 Codex's review of S330: two save-safety fixes (Claude lane, 2026-10-01)
 
 - **Why.** Codex reviewed S330–S333 (`codex-review.md`, S334) and withheld integration for two findings in S330's map save. Both were reproduced with new tests before any fix, then fixed.
