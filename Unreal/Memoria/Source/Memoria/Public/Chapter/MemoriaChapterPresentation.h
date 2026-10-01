@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Chapter/MemoriaChapterMap.h"
+#include "Battle/MemoriaEncounterModel.h"
 #include "MemoriaChapterPresentation.generated.h"
 class AMemoriaFieldPawn;
 class UInstancedStaticMeshComponent;
@@ -30,6 +31,11 @@ public:
     UMemoriaFieldCharacterComponent* GetArrelFigure() const { return ArrelFigure; }
     UMemoriaChapterCardWidget* GetCard() const { return Card; }
     bool IsChapterComplete() const { return bComplete; }
+    // S331: the props of _setup_map_decorations, the revisit's ambient NPCs and its random encounters.
+    int32 GetDecorationCount() const { return DecorationCount; }
+    int32 GetVisibleNpcCount() const;
+    const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
+    bool AreEncountersOpen() const;
     int32 GetBlockerCount() const;
     // Source-pixel position of the player (the map IR's frame).
     FVector2D PlayerSource() const;
@@ -55,6 +61,14 @@ private:
     FVector PreviousPosition = FVector::ZeroVector;
     float StepAt = -1.f, TravelAt = -1.f, SceneAt = -1.f, Clock = 0.f;
     bool bComplete = false, bDeparting = false, bInExit = false;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaFieldCharacterComponent>> AmbientNpcs;
+    int32 DecorationCount = 0;
+    FMemoriaEncounterModel Encounter;
+    FMemoriaEncounterRng EncounterRng = FMemoriaEncounterRng::Random();
+    bool bEncounterReady = false;
+    void BuildDecorations();
+    void BuildAmbientNpcs();
+    void UpdateEncounters();
     UMaterialInstanceDynamic* Surface(const FLinearColor& Srgb, float Roughness = .9f);
     UInstancedStaticMeshComponent* Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide);
     void BuildTerrain();

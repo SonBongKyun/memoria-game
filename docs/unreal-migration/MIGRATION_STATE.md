@@ -1,3 +1,34 @@
+# Migration handoff — S331 the chapter maps' props, ambient NPCs and revisit encounters (Claude lane, 2026-10-01)
+
+- **Why.** The second of the remaining Chapter 3–5 gaps: `_setup_map_decorations` and `_setup_random_encounters` of `belt_waystation.gd` and `drift_shelter.gd`. S330 made a closed chapter's map reachable in play (a save loaded there), so its revisit content now has a way to be seen.
+- **The IR** (`export_chapter_maps.py`) gains:
+  - `decorations`: every `ColorRect` and `PointLight2D` the function adds outside a gate, with its loops evaluated (kind is the script's variable name). The Belt has the leaning water tank and three road cracks; Drift Shelter has the campfire, its light and eight rubble heaps.
+  - `ambient_npcs` and `ambient_npcs_gate`: the three presets per map and the flag that shows them (`ch3_complete`; Drift Shelter's `_can_resume_ch4_exploration`, whose blocked flags join `resume_blocked`).
+  - `encounter_range`: `RandomEncounter.setup`'s `min_steps` and `max_steps` (50 and 90 on both maps).
+- **Props** (`AMemoriaChapterPresentation::BuildDecorations`). The source lays flat translucent rectangles under the actors; here each stands as a simple prop:
+  - the tank, a cylinder as wide as its rectangle and as tall as the rectangle is long, leaning by the source's rotation. It is the one prop that blocks, and its colour is lifted so it does not read as a black mass;
+  - the cracks, dark seams on the road;
+  - the campfire, a bright ember block, and its `PointLight2D` as a point light;
+  - the rubble, low stones.
+- **Ambient NPCs.** The source draws them with `PixelSprite.create_npc_sprite`.
+  - New `Unreal/Tools/export_ambient_npcs.py` runs that painter unchanged in an isolated Godot project (`_draw_character` and what it calls, extracted from `pixel_sprite.gd`) and saves each preset's four idle views to `Unreal/ArtSource/Ambient`, with the harness and hashes under `docs/unreal-migration/evidence/ambient_npcs`.
+  - Exported: traveler, bureau_agent, guard (the Belt's). Drift Shelter's presets are not: its gate cannot open on the canon route, and two of the three (`villager_f`, `villager_m`) resolve to authored field sprites in the source.
+  - The sprites join the Verdan art table (`MemoriaVerdanArt`) and are imported by `-run=MemoriaVerdanAssets -AddAmbient` (additive, point-sampled; 12 textures and 12 sprites).
+  - They stand still at their tiles, hidden until their gate opens. `MemoriaVerdanArt::LoadSprite` now returns null for a name outside the table instead of logging a failed load (a figure without walk frames).
+- **Revisit encounters** (`AMemoriaChapterPresentation::UpdateEncounters`).
+  - `FMemoriaEncounterModel` takes a map's own range and pool size (`MinSteps`, `MaxSteps`, `PoolSize`); the defaults are Verdan's, so its behaviour and its oracle are unchanged.
+  - Once the map's encounter gate opens, walking fills the model: the warning notice at 72%, then the foes rise in the field. Void entries come as three husks, the others as two thieves, as in Verdan. The battle statistic counts, and a fight holds the distance.
+  - On the canon route this is the Belt Waystation after Chapter 3. Drift Shelter's gate is closed by the later canon flags, as in the source.
+- **Tests.** New `MemoriaVisual.ChapterRevisit`: both maps' IR against the scripts' values; the props built; no NPCs and no encounters on the first visit; on the revisit the three NPCs, the model's range and pool, the Korean warning before the foes, one battle counted, and no second encounter during the fight.
+  - Captures read: the Belt with its tank, cracks and NPCs; the encounter's husks; Drift Shelter's campfire and light (`Chapter4Field`).
+- **Known gaps.**
+  - `WorldPopulation.populate` (caches, curios, voices, hunts) and the world atlas gateways are separate systems and are not ported.
+  - The dust and ash particles of `_setup_map_decorations` are not ported.
+  - The ambient NPCs are the source's 48 px pixel figures on cards, beside rigged 3D leads. Models for them would be a Codex art request.
+  - The Belt's pool names (Belt Scavenger, Void Wisp, Dust Crawler) map onto the two field foes; their own stats and abilities are not carried.
+  - The chapter title card runs on the screen's clock, so a fixed-step test must wait for it to close before a capture.
+- **Results.** Full rendered registry 272/272 (s331_full), visual 26/26 (s331_visual).
+
 # Migration handoff — S330 chapter memories and saving in the chapter maps (Claude lane, 2026-10-01)
 
 - **Why.** The user asked for the remaining Chapter 3–5 gaps in order. This is the first: the memories a chapter brings, and the chapter-transition autosave. Burning memories is the game's core, and Chapters 3 and 4 brought none.

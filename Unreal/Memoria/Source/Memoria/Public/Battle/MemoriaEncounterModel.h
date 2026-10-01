@@ -21,6 +21,9 @@ struct MEMORIA_API FMemoriaEncounterModel
     double StepCount = 0., Threshold = 0.;
     FVector2D LastPosition = FVector2D::ZeroVector;
     bool bEnabled = true, bWarningEmitted = false, bTrailBrokenFeedback = false;
+    // RandomEncounter.setup's min_steps, max_steps and pool size. The defaults are verdan_market.gd's.
+    double MinSteps = 60., MaxSteps = 100.;
+    int32 PoolSize = 2;
     void Reset(double InitialThreshold);
     FMemoriaEncounterStep Advance(const FVector2D& Position, bool bExploration,
         FMemoriaEncounterRng& Rng, bool bFieldDashing = false, double TileSize = 32.);

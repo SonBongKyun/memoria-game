@@ -62,10 +62,17 @@ int32 UMemoriaVerdanAssetsCommandlet::Main(const FString& Params)
         }
         return 1;
     }
-    if (FParse::Param(*Params, TEXT("AddElia")))
+    // -AddAmbient (S331): the same additive import for the ambient NPC rows (the source's procedural pixel
+    // figures, point-sampled).
+    const bool bAmbient = FParse::Param(*Params, TEXT("AddAmbient"));
+    if (FParse::Param(*Params, TEXT("AddElia")) || bAmbient)
     {
         // Additive companion import: only the Elia rows, refusing any existing package.
-        auto IsElia = [](const TCHAR* Name){ return FString(Name).StartsWith(TEXT("Elia")); };
+        auto IsElia = [bAmbient](const TCHAR* Name)
+        {
+            const FString N(Name);
+            return bAmbient ? N.StartsWith(TEXT("Traveler")) || N.StartsWith(TEXT("Bureauagent")) || N.StartsWith(TEXT("Guard")) : N.StartsWith(TEXT("Elia"));
+        };
         for (const auto& Source : MemoriaVerdanArt::Textures()) if (IsElia(Source.Name))
             if (FPackageName::DoesPackageExist(MemoriaVerdanArt::Package(FString(TEXT("T_")) + Source.Name)) || !FPaths::FileExists(FPaths::ProjectDir()/TEXT("../..")/Source.File)) return 1;
         for (const auto& Region : MemoriaVerdanArt::Sprites()) if (IsElia(Region.Name))
@@ -80,7 +87,7 @@ int32 UMemoriaVerdanAssetsCommandlet::Main(const FString& Params)
             auto* Texture = Cast<UTexture2D>(Factory->FactoryCreateFile(UTexture2D::StaticClass(), Package, *Name, RF_Public | RF_Standalone, *File, nullptr, GWarn, Cancelled));
             if (!Texture || Cancelled) return 1;
             Texture->LODGroup = TEXTUREGROUP_Pixels2D; Texture->CompressionSettings = TC_EditorIcon;
-            Texture->Filter = TF_Bilinear; Texture->MipGenSettings = TMGS_NoMipmaps;
+            Texture->Filter = bAmbient ? TF_Nearest : TF_Bilinear; Texture->MipGenSettings = TMGS_NoMipmaps;
             Texture->SRGB = true; Texture->NeverStream = true;
             Texture->PostEditChange(); FTextureCompilingManager::Get().FinishCompilation({Texture});
             if (!Save(Texture)) return 1;

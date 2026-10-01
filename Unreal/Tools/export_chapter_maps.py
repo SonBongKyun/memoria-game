@@ -46,6 +46,90 @@ def color(text):
     return (parts + [1.0])[:4] if len(parts) >= 3 else None
 
 
+class V:
+    """A Vector2 for evaluating the map scripts' position arithmetic."""
+    def __init__(self, x, y):
+        self.x, self.y = float(x), float(y)
+
+    def __add__(self, other):
+        return V(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return V(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, k):
+        return V(self.x * k, self.y * k)
+
+    __rmul__ = __mul__
+
+    def list(self):
+        return [self.x, self.y]
+
+
+class Prop:
+    """A decoration being read; later lines may refer to its position (light.position = fire.position + ...)."""
+
+
+def evaluate(expr, env):
+    tree = ast.parse(expr.strip(), mode='eval')
+    allowed = (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.USub,
+               ast.Name, ast.Load, ast.Call, ast.Attribute)
+    for node in ast.walk(tree):
+        if not isinstance(node, allowed) or (isinstance(node, ast.Call) and getattr(node.func, 'id', '') != 'Vector2'):
+            raise ValueError('Unsupported decoration expression: ' + expr)
+    return eval(compile(tree, '<decoration>', 'eval'), {'__builtins__': {}}, env)
+
+
+def decorations(body, tile):
+    """_setup_map_decorations: every ColorRect (kind: the source's variable name) and PointLight2D it adds
+    outside a gate, in source pixels. Gated blocks (the ambient NPCs) are read separately."""
+    lines = [(len(l) - len(l.lstrip('\t')), l.strip()) for l in body.split('\n') if l.strip() and not l.strip().startswith('#')]
+    out = []
+
+    def run(block, env):
+        i = 0
+        while i < len(block):
+            indent, text = block[i]
+            j = i + 1
+            while j < len(block) and block[j][0] > indent:
+                j += 1
+            loop = re.match(r'for (\w+) in range\((\d+)\):', text)
+            each = re.match(r'for (\w+) in \[(.*)\]:', text)
+            if loop or each:
+                values = range(int(loop.group(2))) if loop else [evaluate(v, env) for v in split_args(each.group(2))]
+                for value in values:
+                    run(block[i + 1:j], dict(env, **{(loop or each).group(1): value}))
+                i = j
+                continue
+            if text.startswith('if '):
+                i = j
+                continue
+            new = re.match(r'var (\w+) = (ColorRect|PointLight2D)\.new\(\)', text)
+            if new:
+                prop = Prop()
+                prop.record = {'kind': new.group(1), 'light': new.group(2) == 'PointLight2D'}
+                env[new.group(1)] = prop
+                out.append(prop.record)
+            field = re.match(r'(\w+)\.(size|position|color|rotation|energy|texture_scale) = (.+)', text)
+            if field and isinstance(env.get(field.group(1)), Prop):
+                prop, key, value = env[field.group(1)], field.group(2), field.group(3)
+                if key == 'color':
+                    prop.record['color'] = color(value)
+                elif key in ('size', 'position'):
+                    vector = evaluate(value, env)
+                    setattr(prop, key, vector)
+                    prop.record['origin' if key == 'position' else 'size'] = vector.list()
+                else:
+                    prop.record['scale' if key == 'texture_scale' else key] = float(value)
+            i += 1
+
+    run(lines, {'Vector2': V, 'TILE_SIZE': tile})
+    for record in out:
+        if 'origin' not in record or 'color' not in record:
+            raise ValueError('Incomplete decoration: ' + repr(record))
+    return out
+
+
 def func_body(src, name):
     m = re.search(r'^func ' + re.escape(name) + r'\(.*?\).*?:\n((?:\t.*\n|\s*\n)*)', src, re.M)
     return m.group(1) if m else ''
@@ -214,6 +298,22 @@ def extract(map_id):
     encounter_gate = re.search(r'if not GameManager\.get_flag\("([^"]+)"\):\n\t\treturn', encounters)
     for entry in re.findall(r'\{"name": [^}]*\}', encounters):
         pool.append(json.loads(entry.replace('false', 'false').replace('true', 'true')))
+    # RandomEncounter.setup(pool, scene, bg, enemy, min_steps, max_steps).
+    encounter_range = re.search(r',\s*(\d+),\s*(\d+)\s*\)\s*$', encounters.strip())
+    # _setup_map_decorations: the props, and the ambient NPCs with the gate that shows them.
+    decor = func_body(src, '_setup_map_decorations')
+    npcs = [{'position': [(v + .5) * tile for v in vec(p, 1)], 'preset': preset}
+            for p, preset in re.findall(r'\{"pos": (Vector2\([^)]*\)), "preset": "(\w+)"\}', decor)]
+    npc_gate = re.search(r'if GameManager\.get_flag\("([^"]+)"\):\n\t\tvar ambient_npcs', decor)
+    if npc_gate:
+        npc_gate = npc_gate.group(1)
+    else:
+        guard = re.search(r'if (_can_resume_\w+)\(\):\n\t\tvar ambient_npcs', decor)
+        if guard:
+            guard_body = func_body(src, guard.group(1))
+            blocked = re.findall(r'not GameManager\.get_flag\("([^"]+)"\)', guard_body)
+            resume_blocked[:] = sorted(set(resume_blocked) | set(blocked))
+            npc_gate = [f for f in re.findall(r'GameManager\.get_flag\("([^"]+)"\)', guard_body) if f not in blocked][0]
     return {
         'schema_version': 1, 'map': map_id, 'chapter': chapter, 'asset_prefix': prefix,
         'source': 'scenes/maps/' + map_id + '.gd', 'dialogue_file': dialogue_file,
@@ -225,6 +325,8 @@ def extract(map_id):
         'objects_gate': object_gate, 'chests': chests, 'clues': clues,
         'battles_gate': battle_gate, 'battles': battles, 'resume_blocked': resume_blocked,
         'encounters_gate': encounter_gate.group(1) if encounter_gate else None, 'encounters': pool,
+        'encounter_range': [int(encounter_range.group(1)), int(encounter_range.group(2))] if encounter_range else None,
+        'decorations': decorations(decor, tile), 'ambient_npcs': npcs, 'ambient_npcs_gate': npc_gate,
     }
 
 
