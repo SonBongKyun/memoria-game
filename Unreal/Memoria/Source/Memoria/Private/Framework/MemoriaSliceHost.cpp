@@ -68,6 +68,13 @@ void AMemoriaSliceGameMode::StartPlay()
         GetWorld()->SpawnActor<AMemoriaVerdanPresentation>();
     }
     // S320: a content-first chapter map; its presentation builds the field from the map's IR.
+    // S330: ?Continue restores the map slot first; a refused load without a run goes back to the title.
+    if (const FString Chapter = MemoriaChapterMaps::MapFromLevel(Map); !Started && !Chapter.IsEmpty() && UGameplayStatics::HasOption(OptionsString, TEXT("Continue"))
+        && !Narrative->ContinueChapterMap(Chapter) && !GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->HasActiveRun())
+    {
+        Started = true;
+        UGameplayStatics::OpenLevel(this, TEXT("/Game/Tests/Campaign/L_Ch2VerdanSlice"), true, TEXT("Title"));
+    }
     if (const FString Chapter = MemoriaChapterMaps::MapFromLevel(Map); !Started && !Chapter.IsEmpty() && Narrative->EnterChapterMap(Chapter))
     {
         Started = true;
@@ -422,6 +429,7 @@ void AMemoriaSliceController::TitleAction(EMemoriaTitleAction Action)
         bAwaitConfirmRelease=!HeldConfirmKeys.IsEmpty();
         if (Source==EMemoriaContinueSource::Chapter) { ClearTitle(); Host()->ResumeChapterAutosave(); LastRevision=INDEX_NONE; }
         else if (Source==EMemoriaContinueSource::Boundary) UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_VerdanHost"),true,TEXT("Continue"));
+        else if (Source==EMemoriaContinueSource::Map) ContinueIntoMap();
         break;
     }
     case EMemoriaTitleAction::Options: break; // The widget opens its own panel.
@@ -574,7 +582,10 @@ bool AMemoriaSliceController::OpenPause()
     if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr; Combat && (Combat->IsPickingBurn() || Combat->IsDefeated()))return false;
     auto* Game=GetGameInstance();
     PauseWidget=CreateWidget<UMemoriaPauseWidget>(this,UMemoriaPauseWidget::StaticClass());
-    PauseWidget->Configure(Game->GetSubsystem<UMemoriaSettingsSubsystem>(),Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->CanSaveClosedBoundary(),
+    const FString& ChapterMap=Host()->GetChapterMap();
+    const bool bCanSave=ChapterMap.IsEmpty() ? Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->CanSaveClosedBoundary()
+        : GetPawn() && Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->CanSaveChapterMap(ChapterMap,MemoriaChapterMaps::ToSource(GetPawn()->GetActorLocation()));
+    PauseWidget->Configure(Game->GetSubsystem<UMemoriaSettingsSubsystem>(),bCanSave,
         Game->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue()!=EMemoriaContinueSource::None,PauseInfo());
     PauseWidget->OnAction.BindUObject(this,&AMemoriaSliceController::PauseAction);
     PauseWidget->AddToViewport(60);
@@ -621,8 +632,11 @@ void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)
     case EMemoriaPauseAction::Resume: ClosePause(); break;
     case EMemoriaPauseAction::Save:
     {
-        // The field checkpoint (a closed boundary) at Arrel's place, as the market's save point writes it.
-        const bool bSaved=GetPawn() && Checkpoint->SaveClosedBoundary(Memoria::Coordinates::ToSource(GetPawn()->GetActorLocation()));
+        // The field checkpoint (a closed boundary) at Arrel's place, as the market's save point writes it;
+        // in a chapter map (S330), the map slot.
+        const FString& ChapterMap=Host()->GetChapterMap();
+        const bool bSaved=GetPawn() && (ChapterMap.IsEmpty() ? Checkpoint->SaveClosedBoundary(Memoria::Coordinates::ToSource(GetPawn()->GetActorLocation()))
+            : Checkpoint->SaveChapterMap(ChapterMap,MemoriaChapterMaps::ToSource(GetPawn()->GetActorLocation())));
         PauseWidget->SetNotice(bSaved?(Ko?TEXT("저장했습니다."):TEXT("Saved.")):(Ko?TEXT("저장할 수 없습니다."):TEXT("Could not save.")));
         PauseWidget->SetCanLoad(Checkpoint->FindContinue()!=EMemoriaContinueSource::None);
         Cue(bSaved?TEXT("confirm"):TEXT("cancel"));
@@ -679,9 +693,23 @@ void AMemoriaSliceController::LoadNewest()
     // The title's Continue, in place: the newest valid slot replaces the live run.
     const auto Source=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->FindContinue();
     if(auto* Combat=GetWorld()?GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr)Combat->Revive(1.f);
-    if(Source==EMemoriaContinueSource::Boundary)Host()->ContinueCheckpoint();
+    // The Verdan checkpoint restores in its own level; from elsewhere (a chapter map) the load travels there.
+    if(Source==EMemoriaContinueSource::Boundary)
+    {
+        if(GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost")))Host()->ContinueCheckpoint();
+        else UGameplayStatics::OpenLevel(this,TEXT("/Game/Tests/Campaign/L_VerdanHost"),true,TEXT("Continue"));
+    }
     else if(Source==EMemoriaContinueSource::Chapter)Host()->ResumeChapterAutosave();
+    else if(Source==EMemoriaContinueSource::Map)ContinueIntoMap();
     LastRevision=INDEX_NONE;
+}
+void AMemoriaSliceController::ContinueIntoMap()
+{
+    // S330: the map slot names its level; the map's game mode restores the run on arrival (?Continue).
+    const FString Map=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->PeekChapterMap();
+    if(Map.IsEmpty())return;
+    ClearTitle();
+    UGameplayStatics::OpenLevel(this,FName(*MemoriaChapterMaps::LevelPath(Map)),true,TEXT("Continue"));
 }
 void AMemoriaSliceController::CloseGameOver()
 {

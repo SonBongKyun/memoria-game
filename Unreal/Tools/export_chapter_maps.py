@@ -141,7 +141,10 @@ def extract(map_id):
         group = re.search(r'load_and_start\(DIALOGUE_FILE, "([^"]+)"\)', body)
         handler = re.search(r'dialogue_ended\.connect\((\w+)', body)
         after = handler_effects(handler.group(1)) if handler else {'flags': [], 'toasts': []}
-        sequence.append({'flag': flag, 'group': group.group(1) if group else None, **after})
+        # MemoryManager.add_chapter_memories(N): the memories the chapter brings come with this step.
+        memories = re.search(r'MemoryManager\.add_chapter_memories\((\d+)\)', body)
+        sequence.append({'flag': flag, 'group': group.group(1) if group else None,
+                         'memories_chapter': int(memories.group(1)) if memories else None, **after})
     # The exit: a trigger area, the flag that opens it, and the departure that closes the chapter.
     exit_body = func_body(src, '_setup_exit_trigger')
     exit_rect = {'center': vec(re.search(r'area\.position = (Vector2\([^\n]*\))\n', exit_body).group(1), tile),

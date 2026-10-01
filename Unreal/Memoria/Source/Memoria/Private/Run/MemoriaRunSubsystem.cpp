@@ -64,6 +64,10 @@ EMemoriaMemoryResult UMemoriaRunSubsystem::AcquireMemory(const FMemoriaMemoryDef
 {
     return HasActiveRun() && PlayerMemory ? PlayerMemory->Add(Definition, GetMemoryContext()) : EMemoriaMemoryResult::InvalidSnapshot;
 }
+EMemoriaMemoryResult UMemoriaRunSubsystem::AddChapterMemories(int64 Chapter)
+{
+    return HasActiveRun() && PlayerMemory ? PlayerMemory->AddChapterMemories(Chapter, GetMemoryContext()) : EMemoriaMemoryResult::InvalidSnapshot;
+}
 EMemoriaMemoryResult UMemoriaRunSubsystem::ErodeMemories(int64 ChapterArgument)
 {
     return HasActiveRun() && PlayerMemory ? PlayerMemory->ApplyErosion(ChapterArgument, GetMemoryContext()) : EMemoriaMemoryResult::InvalidSnapshot;

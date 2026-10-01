@@ -9,6 +9,8 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Domain/MemoriaChapterMemories.h"
+#include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Camera/CameraComponent.h"
@@ -155,6 +157,11 @@ bool AMemoriaChapterPresentation::SceneReady() const
     for (const FString& F : Exit.Flags) if (!Flag(F)) return false;
     return StoryMovedOn().IsEmpty();
 }
+bool AMemoriaChapterPresentation::RoadOpen() const
+{
+    // The chapter is closed and its next map is ported.
+    return Flag(Spec->Exit.Completes) && MemoriaChapterMaps::Find(Spec->Exit.NextMap) != nullptr;
+}
 FString AMemoriaChapterPresentation::StoryMovedOn() const
 {
     for (const FString& Blocked : Spec->ResumeBlocked) if (!Spec->Exit.Flags.Contains(Blocked) && Flag(Blocked)) return Blocked;
@@ -189,7 +196,10 @@ void AMemoriaChapterPresentation::BeginPlay()
     Player = PC ? Cast<AMemoriaFieldPawn>(PC->GetPawn()) : nullptr;
     if (!Spec || !Player.IsValid()) { UE_LOG(LogTemp, Error, TEXT("MEMORIA_CHAPTER missing map or pawn: %s"), *Map); SetActorTickEnabled(false); return; }
     Player->ApplyVerdanMovementProfile(); Player->SetWalkSpeed(WalkSpeed);
-    Player->SetActorLocation(MemoriaChapterMaps::ToWorld(Spec->Spawn) + FVector(0, 0, Player->GetActorLocation().Z));
+    // S330: a continued save stands where it was saved; otherwise _position_player's spawn.
+    FVector2D Place = Spec->Spawn;
+    if (auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->ConsumeMapPosition(Place);
+    Player->SetActorLocation(MemoriaChapterMaps::ToWorld(Place) + FVector(0, 0, Player->GetActorLocation().Z));
     BuildTerrain(); BuildLight(); BuildMarkers();
     // The quarter-view camera and the painted/rigged figures, as in Verdan.
     auto* Camera = Player->GetFieldCamera(); Camera->ProjectionMode = ECameraProjectionMode::Perspective;
@@ -240,6 +250,17 @@ void AMemoriaChapterPresentation::BeginPlay()
         if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>(); Narrative && !Next.IsEmpty())
             Narrative->ShowNotice(Localized(FString::Printf(TEXT("Next: Chapter %d, %s"), Reached + 1, *Next)));
     }
+    // S330: a save loaded in a map whose chapter is closed (the source's autosave at the departure). The source
+    // goes on from there through its world atlas, which is not ported; here the exit stays a road onward.
+    bInExit = Spec->Exit.Rect.Contains(PlayerSource());
+    if (RoadOpen() && StepAt >= 0.f && !bFirst)
+        if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>())
+        {
+            const bool bKo = Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+            const FString Where = bKo ? Ko(Spec->Exit.NextMap) : PlaceName(Spec->Exit.NextMap);
+            Narrative->ShowNotice(bKo ? FString::Printf(TEXT("%d장 완료. 출구의 길이 다음 목적지로 이어집니다: %s"), Spec->Chapter, *Where)
+                                      : FString::Printf(TEXT("Chapter %d complete. The road at the exit goes on: %s"), Spec->Chapter, *Where));
+        }
     PreviousPosition = Player->GetActorLocation();
     if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("chapter:presented:") + Map);
     if (auto* Achievements = Game->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordMapVisit(Map);
@@ -254,9 +275,29 @@ void AMemoriaChapterPresentation::StartNextStep()
         // Wait out any dialogue, fight or menu before the next link starts.
         if (Narrative->GetState() != EMemoriaSliceState::Exploration) { StepAt = Clock + .3f; return; }
         SetFlag(Step.Flag);
+        if (Step.MemoriesChapter > 0) GrantChapterMemories(Step.MemoriesChapter);
         if (!Step.Group.IsEmpty()) Narrative->StartChapterField(Step.Group, MemoriaChapterMaps::GroupAsset(*Spec, Step.Group), Spec->DialogueFile);
         return;
     }
+}
+void AMemoriaChapterPresentation::GrantChapterMemories(int32 Chapter)
+{
+    // _start_chN_sequence: MemoryManager.add_chapter_memories(N). NotificationToast raises one toast per
+    // new memory; here they wait for the arrival chain to end, where the field shows notices long enough to read.
+    auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
+    auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
+    if (!Run || !Run->HasActiveRun()) return;
+    const int32 Before = Run->GetPlayerMemory()->GetDefinitions().Num();
+    if (Run->AddChapterMemories(Chapter) != EMemoriaMemoryResult::Success) { if (Narrative) Narrative->Record(TEXT("error:chapter_memories")); return; }
+    const auto& Definitions = Run->GetPlayerMemory()->GetDefinitions();
+    const bool bKo = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    for (int32 I = Before; I < Definitions.Num(); ++I)
+    {
+        FMemoriaMemoryLocalizedText Text;
+        const FString Title = bKo && MemoriaChapterMemories::Korean(Definitions[I].Id, Text) ? Text.Title : Definitions[I].Title;
+        MemoryToasts.Add(bKo ? FString::Printf(TEXT("기억 획득: %s"), *Title) : FString::Printf(TEXT("Memory acquired: %s"), *Title));
+    }
+    if (Narrative) Narrative->Record(FString::Printf(TEXT("chapter:memories:%d:%d"), Chapter, Definitions.Num() - Before));
 }
 void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
 {
@@ -283,6 +324,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (bRoad) TravelAt = Clock + TravelDelay;
         else if (!Exit.NextScene.IsEmpty()) SceneAt = Clock + SceneDelay;
         if (Narrative) Narrative->Record(TEXT("chapter:complete:") + Map);
+        // _on_departure_ended: SaveManager.autosave_on_chapter_transition, in this map at Arrel's place.
+        if (Narrative) Narrative->AutosaveChapterMap(Map, PlayerSource());
         return;
     }
     for (const auto& Step : Spec->Sequence)
@@ -291,6 +334,12 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
             // The group's dialogue_ended handler: its flags and toasts, then the next link after a beat.
             for (const FString& F : Step.Flags) SetFlag(F);
             for (const FString& Toast : Step.Toasts) if (Narrative) Narrative->ShowNotice(Localized(Toast));
+            // The field shows notices only between dialogues, so the memory toasts wait for the chain's last link.
+            if (&Step == &Spec->Sequence.Last())
+            {
+                for (const FString& Toast : MemoryToasts) if (Narrative) Narrative->ShowNotice(Toast);
+                MemoryToasts.Reset();
+            }
             StepAt = Clock + StepDelay;
             return;
         }
@@ -305,12 +354,17 @@ void AMemoriaChapterPresentation::CheckTriggers()
         if (!Flag(Trigger.Flag) && (Trigger.Gate.IsEmpty() || Flag(Trigger.Gate)) && Trigger.Rect.Contains(P))
         { SetFlag(Trigger.Flag); Narrative->StartChapterField(Trigger.Group, MemoriaChapterMaps::GroupAsset(*Spec, Trigger.Group), Spec->DialogueFile); return; }
     const auto& Exit = Spec->Exit;
-    if (!bDeparting && Exit.Rect.Contains(P) && Flag(Exit.Requires) && !Flag(Exit.Completes))
+    // body_entered: the exit acts on stepping into it, not on standing in it.
+    const bool bWasInExit = bInExit; bInExit = Exit.Rect.Contains(P);
+    if (!bDeparting && bInExit && Flag(Exit.Requires) && !Flag(Exit.Completes))
     {
         SetFlag(Exit.Completes); bDeparting = true;
         Narrative->StartChapterField(Exit.Group, MemoriaChapterMaps::GroupAsset(*Spec, Exit.Group), Spec->DialogueFile);
         return;
     }
+    // S330: in a closed chapter the exit is the road onward (see BeginPlay).
+    if (!bDeparting && bInExit && !bWasInExit && RoadOpen() && !(Combat && Combat->LiveMonsterCount() > 0))
+    { bComplete = true; Narrative->TravelToChapterMap(Exit.NextMap); return; }
     auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
     if (Run && GateOpen(Spec->ObjectsGate))
     {

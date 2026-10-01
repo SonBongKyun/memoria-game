@@ -1,3 +1,42 @@
+# Migration handoff — S330 chapter memories and saving in the chapter maps (Claude lane, 2026-10-01)
+
+- **Why.** The user asked for the remaining Chapter 3–5 gaps in order. This is the first: the memories a chapter brings, and the chapter-transition autosave. Burning memories is the game's core, and Chapters 3 and 4 brought none.
+- **Chapter memories** (`memory_manager.gd add_chapter_memories`).
+  - New exporter `Unreal/Tools/export_chapter_memories.py` reads the `match chapter:` cases for Chapters 3 to 5 and their `MEMORY_TEXT_KO` rows. It writes `docs/unreal-migration/ir/chapter_memories.v1.json` and `Private/Domain/MemoriaChapterMemorySources.inl` (`--check` reports stale output).
+  - `MemoriaChapterMemories::For(Chapter)` and `::Korean(Id, Out)` serve that table.
+  - `UMemoriaPlayerMemoryDomain::AddChapterMemories` is the source function: the once-per-chapter bookkeeping (`AdvanceChapter`: erosion from Chapter 3, anchor vigil, guard slots), then the chapter's memories that are not held yet. `UMemoriaRunSubsystem::AddChapterMemories` calls it for the live run. The VN's `set_chapter` now goes through it too, as `scene_flow.gd` does; Chapters 1 and 2 bring none, so the Chapter 1 route is unchanged.
+  - The chapter maps' IR gains `sequence[].memories_chapter`, from the `MemoryManager.add_chapter_memories(N)` call in each `_start_*` function. The Belt Waystation's arrival grants Chapter 3's two memories and Drift Shelter's grants Chapter 4's.
+  - Chapter 5's two memories are in the table but nothing grants them: the source calls `add_chapter_memories(5)` only from `crumbling_coast.gd`, which the canon route does not visit.
+  - **Erosion now applies.** Before this session a chapter map set the run's chapter directly, so `AdvanceChapter` never ran for Chapters 3 and 4. It runs now, as in the source: every unburned memory below Grade 1 erodes by the chapter number (3, then 4), and a memory fades at 70% of its burn power. A starting Grade 5 memory with burn power 10 fades on arriving in Chapter 4. This is the source's rule; it is the first time the port's player meets it.
+  - Toasts: the source raises "Memory acquired: <title>" per memory. The field shows notices only between dialogues, so the port holds them until the arrival chain's last dialogue ends.
+  - The archive shows the chapter memories' Korean title, description and effect (the starting catalog carries no text for them).
+- **Saving in the chapter maps.**
+  - A third slot, `map.memoria.json` (`UMemoriaCheckpointSubsystem::SaveChapterMap` / `RestoreChapterMap` / `PeekChapterMap` / `CanSaveChapterMap`). It holds the run, the map's scene (`res://scenes/maps/<map>.tscn`) and Arrel's source position. A save is accepted only for a ported chapter map, a place inside it, a run at or past the map's chapter, and no VN cursor. It uses the same framing, SHA-1 and verified temp-file rename as the other slots.
+  - `FindContinue` now picks the newest of three valid slots, ordered by the time each save records. File times were too coarse to order two saves made in the same second.
+  - **Autosave** (`SaveManager.autosave_on_chapter_transition`), with the source's "Autosaved" toast:
+    - at the end of each map's departure dialogue, in that map at Arrel's place, as the source does;
+    - at `ch5_classifier`'s last step (`complete_chapter`, autosave, `goto_map`): that step leaves no VN cursor to resume, so the save is Drift Shelter's field at its spawn.
+  - **Not ported:** the autosave in `ch5_classifier_entry.gd`'s `_ready`. The Drift Shelter departure save already resumes into the classifier from its first line, and Malet's report resolves to the same outcome from the same world state.
+  - **Continue and Load.** The title's Continue, the pause menu's Load and the game over screen's Load open the saved map with `?Continue`. The game mode restores the run before the map is entered, and the presentation puts Arrel at the saved place. A refused load with no live run goes back to the title.
+  - The pause menu's Save writes the map slot in a chapter map. In Verdan it still writes the closed-boundary checkpoint.
+  - Fixed on the way: Load from a chapter map with the Verdan checkpoint as the newest save did nothing (`ContinueCheckpoint` works only in `L_VerdanHost`). It now travels there.
+- **A closed chapter's map.** The source's departure autosave lands the player in the completed map. There the source opens the map's chests, clues, battle areas and random encounters, and goes on through its world atlas, which is not ported.
+  - In the port the exit of a closed chapter is the road onward: stepping into it travels to the next map (`RoadOpen`). It acts on entering, as `body_entered` does, so a save loaded while standing in the exit does not travel at once.
+  - A notice names the road on arrival ("Chapter 3 complete. The road at the exit goes on: Drift Shelter").
+  - This also makes the Belt Waystation's post-chapter chests and clues reachable in play for the first time.
+- **Tests.**
+  - `Memoria.Chapter.Memories`: the table against the source's values, the grant, the single erosion, no second grant (also for a burned memory), Chapter 4, and the archive rows in both languages.
+  - `Memoria.Checkpoint.ChapterMap`: what a map save accepts and refuses, the disk round trip into a fresh game instance, the newest-slot order, and damaged or foreign files.
+  - `MemoriaVisual.ChapterContinue`: Chapter 3's arrival grants and toasts, the pause menu's Save, the departure autosave, Load back into the closed Belt Waystation at the saved place, the chest, the exit's road to Drift Shelter, and Chapter 4's grant.
+  - `MemoriaVisual.Chapter5` now also checks the two Drift Shelter autosaves and that Continue offers the map.
+  - Captures read: the memory toasts in Korean, the road notice, and the archive's two new rows with their Korean text.
+- **Known gaps.**
+  - A notice raised between two chained dialogues shows for about a second (the chain's delay); only the memory toasts wait for the chain's end. The Blank Book toast still shows that briefly.
+  - Loan maturity and the Oath of Ash payout in `add_chapter_memories` need systems that are not ported.
+  - The chapter ledger still lists burned memories by their English titles.
+  - The capture window in a single-test run is about 1226×360; text was readable but layout at 1280×720 was not re-checked here.
+- **Results.** Full rendered registry 272/272 (s330_full), visual 25/25 (s330_visual).
+
 # Migration handoff — S329 turn-based retirement, step 2: the battle removed (Claude lane, 2026-09-30)
 
 - **Why.** The user chose a staged removal. S328 moved the encounter behaviour onto field combat and tested it there. This session removes the turn-based battle, which only automation still used.

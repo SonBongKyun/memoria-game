@@ -1,4 +1,5 @@
 #include "Domain/MemoriaPlayerMemoryDomain.h"
+#include "Domain/MemoriaChapterMemories.h"
 #include "Domain/MemoriaMemoryModel.h"
 #include "Templates/UnrealTemplate.h"
 
@@ -112,6 +113,19 @@ EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::ApplyErosion(int64 Chapter, con
 EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::AdvanceChapter(int64 Chapter, const FMemoriaMemoryContext& Context)
 {
     return static_cast<EMemoriaMemoryResult>(Model->AdvanceChapter(Chapter, ToContext(Context), [this](const auto& E) { Publish(FromEvent(E)); }));
+}
+EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::AddChapterMemories(int64 Chapter, const FMemoriaMemoryContext& Context)
+{
+    const auto Advanced = AdvanceChapter(Chapter, Context);
+    if (Advanced != EMemoriaMemoryResult::Success) return Advanced;
+    for (const auto& Memory : MemoriaChapterMemories::For(Chapter))
+    {
+        // _has_memory: any held memory, burned or not.
+        if (DefinitionCatalog.ContainsByPredicate([&](const auto& D) { return D.Id.Equals(Memory.Id, ESearchCase::CaseSensitive); })) continue;
+        const auto Added = Add(Memory, Context);
+        if (Added != EMemoriaMemoryResult::Success) return Added;
+    }
+    return EMemoriaMemoryResult::Success;
 }
 bool UMemoriaPlayerMemoryDomain::HasAnchorPassive(const FString& Id) const { return Model->HasAnchorPassive(Utf8(Id)); }
 EMemoriaMemoryResult UMemoriaPlayerMemoryDomain::EvaluatePassives()

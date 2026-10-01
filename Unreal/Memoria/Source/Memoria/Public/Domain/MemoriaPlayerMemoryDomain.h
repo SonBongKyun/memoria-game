@@ -24,6 +24,9 @@ public:
     EMemoriaMemoryResult ApplyErosion(int64 Chapter, const FMemoriaMemoryContext& Context);
     EMemoriaMemoryResult EvaluatePassives();
     EMemoriaMemoryResult AdvanceChapter(int64 Chapter, const FMemoriaMemoryContext& Context);
+    // S330: add_chapter_memories, the once-per-chapter bookkeeping (AdvanceChapter), then the chapter's
+    // memories that are not held yet (MemoriaChapterMemories). Safe to call on every entry.
+    EMemoriaMemoryResult AddChapterMemories(int64 Chapter, const FMemoriaMemoryContext& Context);
     UFUNCTION(BlueprintPure, Category="Memoria|Memory") bool HasAnchorPassive(const FString& Id) const;
 
     UFUNCTION(BlueprintPure, Category="Memoria|Memory") FMemoriaMemorySnapshot GetSnapshot() const;

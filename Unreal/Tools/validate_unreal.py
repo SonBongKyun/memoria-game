@@ -76,7 +76,8 @@ def narrative_test_paths():
 
 
 def side_system_test_paths():
-    return {'Memoria.Achievements.Rules', 'Memoria.Codex.Rules', 'Memoria.Journal.Source', 'Memoria.Verdan.RevisitJourney'}
+    return {'Memoria.Achievements.Rules', 'Memoria.Codex.Rules', 'Memoria.Journal.Source', 'Memoria.Verdan.RevisitJourney',
+            'Memoria.Chapter.Memories', 'Memoria.Checkpoint.ChapterMap'}
 
 
 def presentation_test_paths():
@@ -144,7 +145,7 @@ def verdan_story_test_paths():
 def visual_test_paths():
     return {"MemoriaVisual.ArtworkCoverage", "MemoriaVisual.DialogueInteraction", "MemoriaVisual.VerdanExploration",
             "MemoriaVisual.Chapter1Presentation", "MemoriaVisual.Chapter1Journey", "MemoriaVisual.FieldCharacters",
-            "MemoriaVisual.TitleScreen", "MemoriaVisual.FieldCombat", "MemoriaVisual.FieldBurn", "MemoriaVisual.FieldFoes", "MemoriaVisual.FieldRewards", "MemoriaVisual.FieldFeel", "MemoriaVisual.PauseMenu", "MemoriaVisual.GameOver", "MemoriaVisual.EliaSkills", "MemoriaVisual.Chapter3", "MemoriaVisual.Chapter3Travel", "MemoriaVisual.Chapter4", "MemoriaVisual.Chapter5", "MemoriaVisual.TutorialHints", "MemoriaVisual.Achievements", "MemoriaVisual.Codex", "MemoriaVisual.Journal", "MemoriaVisual.FieldEncounters"}
+            "MemoriaVisual.TitleScreen", "MemoriaVisual.FieldCombat", "MemoriaVisual.FieldBurn", "MemoriaVisual.FieldFoes", "MemoriaVisual.FieldRewards", "MemoriaVisual.FieldFeel", "MemoriaVisual.PauseMenu", "MemoriaVisual.GameOver", "MemoriaVisual.EliaSkills", "MemoriaVisual.Chapter3", "MemoriaVisual.Chapter3Travel", "MemoriaVisual.Chapter4", "MemoriaVisual.Chapter5", "MemoriaVisual.TutorialHints", "MemoriaVisual.Achievements", "MemoriaVisual.Codex", "MemoriaVisual.Journal", "MemoriaVisual.FieldEncounters", "MemoriaVisual.ChapterContinue"}
 
 
 def current_test_paths():
