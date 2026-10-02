@@ -62,77 +62,6 @@ UInstancedStaticMeshComponent* AMemoriaChapterPresentation::Layer(const TCHAR* M
 }
 int32 AMemoriaChapterPresentation::GetBlockerCount() const { return Blockers ? Blockers->GetInstanceCount() : 0; }
 FVector2D AMemoriaChapterPresentation::PlayerSource() const { return Player.IsValid() ? MemoriaChapterMaps::ToSource(Player->GetActorLocation()) : FVector2D::ZeroVector; }
-void AMemoriaChapterPresentation::BuildTerrain()
-{
-    // The tile grid, 32 px tiles at the map's 3x scale: flat ground for the open tiles, raised walls
-    // (the border tall, the building walls low enough for the quarter view to see over), rubble on ruins.
-    // An invisible block stands on every solid tile, as TilePainter.add_collisions does.
-    const float T = Spec->TileSize * MemoriaChapterMaps::Scale;
-    const TCHAR* Cube = TEXT("/Engine/BasicShapes/Cube.Cube");
-    TArray<UInstancedStaticMeshComponent*> Ground;
-    for (int32 Type = 0; Type < Spec->TileColors.Num(); ++Type) Ground.Add(Layer(Cube, Surface(Spec->TileColors[Type]), false));
-    Blockers = Layer(Cube, nullptr, true); Blockers->SetHiddenInGame(true);
-    // Wall tiles rise; ruins and rubble scatter stones (belt_waystation.gd RUIN, drift_shelter.gd RUBBLE); the
-    // fallen overpass's concrete stands as low slabs.
-    const int32 Wall = Spec->TileNames.IndexOfByKey(TEXT("WALL")), Concrete = Spec->TileNames.IndexOfByKey(TEXT("CONCRETE"));
-    const int32 Ruin = Spec->TileNames.Contains(TEXT("RUIN")) ? Spec->TileNames.IndexOfByKey(TEXT("RUIN")) : Spec->TileNames.IndexOfByKey(TEXT("RUBBLE"));
-    FRandomStream Rng(Spec->Chapter * 7919);
-    for (int32 Y = 0; Y < Spec->Height; ++Y)
-        for (int32 X = 0; X < Spec->Width; ++X)
-        {
-            const int32 Type = Spec->TileAt(X, Y);
-            if (!Ground.IsValidIndex(Type)) continue;
-            const FVector Center = MemoriaChapterMaps::ToWorld(FVector2D((X + .5f) * Spec->TileSize, (Y + .5f) * Spec->TileSize));
-            const bool bBorder = X == 0 || Y == 0 || X == Spec->Width - 1 || Y == Spec->Height - 1;
-            if (Type == Concrete)
-            {
-                const float H = Rng.FRandRange(34.f, 52.f);
-                Ground[Type]->AddInstance(FTransform(FRotator(0, Rng.FRandRange(-4.f, 4.f), Rng.FRandRange(-3.f, 3.f)), Center + FVector(0, 0, H * .5f - 8.f), FVector(T * .96f / 100.f, T * .96f / 100.f, H / 100.f)), true);
-            }
-            else if (Type == Wall)
-            {
-                // The border reads as a low rim and the building walls stay below the quarter view's line of sight.
-                const float H = bBorder ? 50.f : 100.f;
-                Ground[Type]->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, H * .5f - 8.f), FVector(T / 100.f, T / 100.f, H / 100.f)), true);
-            }
-            else
-            {
-                // Ground: a thin slab, its top at z -8 where the figures stand; a hair of height jitter keeps the grid from reading as a board.
-                Ground[Type]->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, -13.f - Rng.FRand() * 1.5f), FVector(T / 100.f, T / 100.f, .1f)), true);
-                if (Type == Ruin)
-                    for (int32 I = 0; I < 3; ++I)
-                    {
-                        const FVector Offset(Rng.FRandRange(-.3f, .3f) * T, Rng.FRandRange(-.3f, .3f) * T, 0);
-                        const float S = Rng.FRandRange(.22f, .45f) * T / 100.f, H = Rng.FRandRange(.25f, .7f);
-                        Ground[Type]->AddInstance(FTransform(FRotator(Rng.FRandRange(-8.f, 8.f), Rng.FRandRange(0.f, 90.f), 0), Center + Offset + FVector(0, 0, H * 50.f - 8.f), FVector(S, S, H)), true);
-                    }
-            }
-            if (Spec->IsSolid(Type)) Blockers->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, 60.f), FVector(T / 100.f, T / 100.f, 1.6f)), true);
-        }
-}
-void AMemoriaChapterPresentation::BuildLight()
-{
-    // The atmosphere budget: the key light in the map's light colour, a cool fill, and a haze in its hue.
-    for (TActorIterator<ADirectionalLight> It(GetWorld()); It; ++It) It->Destroy();
-    FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    if (auto* Key = GetWorld()->SpawnActor<ADirectionalLight>(FVector(0, 0, 800), FRotator(-52, 35, 0), Params))
-    {
-        auto* L = Key->GetComponent(); L->SetMobility(EComponentMobility::Movable);
-        L->SetLightColor(Linear(Spec->Light)); L->SetIntensity(6.f + 4.f * Spec->Brightness); L->SetLightingChannels(true, true, false);
-        L->ForwardShadingPriority = 1; // the key light is the one forward shading, translucency and fog use
-    }
-    if (auto* Fill = GetWorld()->SpawnActor<ADirectionalLight>(FVector(0, 0, 800), FRotator(-35, -140, 0), Params))
-    {
-        auto* L = Fill->GetComponent(); L->SetMobility(EComponentMobility::Movable); L->SetCastShadows(false);
-        L->SetLightColor(Linear(FLinearColor(.55f, .62f, .78f))); L->SetIntensity(1.6f); L->SetLightingChannels(true, true, false);
-        L->ForwardShadingPriority = 0; L->SetAtmosphereSunLight(false);
-    }
-    if (auto* Fog = GetWorld()->SpawnActor<AExponentialHeightFog>(FVector(0, 0, -40), FRotator::ZeroRotator, Params))
-    {
-        auto* F = Fog->GetComponent(); F->SetFogDensity(.012f + .02f * Spec->Mood); F->SetFogHeightFalloff(.5f);
-        F->SetFogInscatteringColor(Linear(Spec->Hue) * .35f);
-    }
-}
 void AMemoriaChapterPresentation::BuildDecorations()
 {
     // _setup_map_decorations: the source lays flat translucent ColorRects under the actors. Here each stands as
@@ -552,6 +481,7 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     // The ambient NPCs stand only on the revisit (belt_waystation.gd: "The first canonical visit is abandoned").
     const bool bNpcs = !Spec->AmbientNpcsGate.IsEmpty() && GateOpen(Spec->AmbientNpcsGate);
     for (const auto& Npc : AmbientNpcs) if (Npc && Npc->IsVisible() != bNpcs) Npc->SetVisibility(bNpcs, true);
+    TickEnvironment(DeltaSeconds);
     UpdateEncounters();
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }
     if (SceneAt >= 0.f && Clock >= SceneAt)
