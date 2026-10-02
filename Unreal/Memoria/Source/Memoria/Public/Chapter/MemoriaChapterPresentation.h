@@ -34,6 +34,8 @@ public:
     const FMemoriaChapterMapSpec* GetSpec() const { return Spec; }
     UMemoriaFieldCharacterComponent* GetArrelFigure() const { return ArrelFigure; }
     UMemoriaChapterCardWidget* GetCard() const { return Card; }
+    UMemoriaExplorationHudWidget* GetExplorationHud() const { return ExplorationHud; }
+    UMemoriaCombatHudWidget* GetCombatHud() const { return CombatHud; }
     bool IsChapterComplete() const { return bComplete; }
     // S331: the props of _setup_map_decorations, the revisit's ambient NPCs and its random encounters.
     int32 GetDecorationCount() const { return DecorationCount; }

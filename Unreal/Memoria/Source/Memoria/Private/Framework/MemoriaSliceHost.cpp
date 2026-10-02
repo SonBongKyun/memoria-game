@@ -10,6 +10,7 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
+#include "Combat/MemoriaFieldHudWidget.h"
 #include "EnhancedInputComponent.h"
 #include "Interaction/MemoriaInteractionComponent.h"
 #include "InputActionValue.h"
@@ -394,19 +395,23 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
     {
         if (!StatusWidget)
         {
-            StatusWidget = CreateWidget<UMemoriaDevelopmentNarrativeWidget>(this, UMemoriaDevelopmentNarrativeWidget::StaticClass());
+            StatusWidget = CreateWidget<UMemoriaFieldHudWidget>(this, UMemoriaFieldHudWidget::StaticClass());
         }
-        FMemoriaNarrativeView Status; Status.bCompactStatus = true; Status.Header = TEXT("VERDAN  /  THE GRAY BELT");
+        // The place on the ribbon, in the run's language; then the quest's line, the toasts and the prompt.
+        const auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
+        FMemoriaFieldHudView Status; Status.bKorean = !Run || !Run->HasActiveRun() || Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+        Status.Title = Status.bKorean ? TEXT("베르단 시장") : TEXT("Verdan Market"); Status.Subtitle = Status.bKorean ? TEXT("회색 벨트") : TEXT("The Gray Belt");
         if (const auto* Chapter = Narrative->GetChapterMap().IsEmpty() ? nullptr : MemoriaChapterMaps::Find(Narrative->GetChapterMap()))
-            Status.Header = FString::Printf(TEXT("%s  /  %s"), *Chapter->TitleName.ToUpper(), *Chapter->Subtitle.ToUpper());
-        Status.Body = TEXT("WASD / stick  Move     TAB / M  Memories");
+        {
+            Status.Title = Status.bKorean ? MemoriaChapterMaps::Korean(Chapter->Map) : Chapter->TitleName;
+            Status.Subtitle = Status.bKorean ? MemoriaChapterMaps::Korean(Chapter->Subtitle) : Chapter->Subtitle;
+        }
+        Status.Prompt = Prompt; Status.Quest = Narrative->GetQuestTrackerLine();
         if (Narrative->IsVerdanRevisit() && Encounter.bWarningEmitted)
-            Status.Body+=TEXT("\nMemory noise closes in...");
-        if (!Prompt.IsEmpty()) Status.Body += TEXT("\n") + Prompt;
-        if (const FString Quest = Narrative->GetQuestTrackerLine(); !Quest.IsEmpty()) Status.Body += TEXT("\n") + Quest;
-        if (const FString Notice = Narrative->GetExplorationNotice(); !Notice.IsEmpty()) Status.Body += TEXT("\n") + Notice;
+            Status.Notices.Add(Status.bKorean ? TEXT("기억 소음이 닫힌다...") : TEXT("Memory noise closes in..."));
+        Narrative->GetExplorationNotice().ParseIntoArrayLines(Status.Notices, true);
         if (!Narrative->GetDeferredInteraction().IsEmpty())
-            Status.Body += TEXT("\nDevelopment boundary: resolved ") + Narrative->GetDeferredInteraction() + TEXT("; content deferred.");
+            Status.Notices.Add(TEXT("Development boundary: resolved ") + Narrative->GetDeferredInteraction() + TEXT("; content deferred."));
         StatusWidget->Display(Status); StatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
         if (!StatusWidget->IsInViewport()) StatusWidget->AddToViewport(10);
         if (Changed && !IsModalOpen())

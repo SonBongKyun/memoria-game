@@ -3,6 +3,8 @@
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Presentation/MemoriaFonts.h"
+#include "Presentation/MemoriaHudKit.h"
+#include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Presentation/MemoriaUiKit.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Engine/GameInstance.h"
@@ -70,6 +72,12 @@ void Segment(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G,
 }
 FLinearColor Toward(const FLinearColor& Hue, float White, float Alpha)
 { return FLinearColor(FMath::Lerp(Hue.R, 1.f, White), FMath::Lerp(Hue.G, 1.f, White), FMath::Lerp(Hue.B, 1.f, White), Alpha); }
+}
+void UMemoriaCombatHudWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+    Ribbon = MemoriaHudKit::Load(MemoriaHudKit::EArt::Ribbon);
+    MemoriaHudKit::Brush(RibbonBrush, Ribbon);
 }
 bool UMemoriaCombatHudWidget::IsShowing() const
 {
@@ -163,14 +171,35 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         Text(Elements, Layer + 2, Geometry, bWord ? P.Label : FString::Printf(TEXT("%d"), FMath::RoundToInt(P.Amount)), At - FVector2D(0, (bWord ? 40.f : 60.f) * P.Age),
             MemoriaFonts::Get(bWord ? MemoriaFonts::EStyle::Ui : MemoriaFonts::EStyle::Title, bWord ? 22 : P.bPlayer ? 30 : 34), Srgb(Base.R, Base.G, Base.B, Alpha));
     }
-    // Arrel's HP, bottom centre.
+    // S339: the command ribbon at the bottom centre (the source's ui_battle_command_ribbon). Its seven cells hold
+    // Elia's four techniques, the burn, the guard and the dodge, each with its key; its left orb holds Arrel's HP
+    // and its right orb the memories he still has to burn. K takes the ribbon's own pixels (1840 x 386) to the
+    // viewport's units.
+    constexpr float K = .6f;
+    const FVector2D RibbonAt(Size.X * .5 - 1840 * K * .5, Size.Y - 386 * K + 14);
     const float Hp = float(C->GetPlayerHp()), Max = FMath::Max(1.f, float(C->GetPlayerMaxHp()));
-    const FVector2D Bar(520, 18), At(Size.X * .5 - Bar.X * .5, Size.Y - 150);
-    Box(Elements, Layer, Geometry, At - FVector2D(3, 3), Bar + FVector2D(6, 6), FLinearColor(0, 0, 0, .8f));
-    Box(Elements, Layer + 1, Geometry, At, FVector2D(Bar.X * Hp / Max, Bar.Y), Srgb(.78f, .12f, .14f));
-    Text(Elements, Layer + 3, Geometry, FString::Printf(TEXT("HP  %d / %d"), int32(Hp), int32(Max)), At + FVector2D(Bar.X * .5, Bar.Y * .5),
-        MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15), FLinearColor(.95f, .92f, .88f));
-    // S314: Arrel's statuses beside the bar.
+    // Arrel's HP as a gauge over the ribbon.
+    const FVector2D Bar(520, 14), At(Size.X * .5 - Bar.X * .5, RibbonAt.Y - 16);
+    Box(Elements, Layer, Geometry, At - FVector2D(3, 3), Bar + FVector2D(6, 6), Srgb(.62f, .50f, .32f, .55f));
+    MemoriaHudKit::Gauge(Elements, Layer + 1, Geometry, At, Bar, Hp / Max, Hp / Max, Srgb(.74f, .13f, .15f));
+    Text(Elements, Layer + 4, Geometry, FString::Printf(TEXT("HP  %d / %d"), int32(Hp), int32(Max)), At + FVector2D(Bar.X * .5, Bar.Y * .5),
+        MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 12), FLinearColor(.97f, .94f, .90f));
+    if (Ribbon)
+    {
+        MemoriaHudKit::Image(Elements, Layer, Geometry, RibbonBrush, RibbonAt, FVector2D(1840, 386) * K);
+        // The orbs: a number, a word under it, and a ring that empties with it.
+        int32 Held = 0;
+        if (Run && Run->GetPlayerMemory()) for (const auto& M : Run->GetPlayerMemory()->GetSnapshot().Owned) Held += !M.bBurned && !M.bFaded ? 1 : 0;
+        const FVector2D Left = RibbonAt + FVector2D(160, 188) * K, Right = RibbonAt + FVector2D(1680, 188) * K;
+        MemoriaHudKit::Arc(Elements, Layer + 1, Geometry, Left, 70 * K, Hp / Max, 3.5f, Srgb(.92f, .26f, .22f, .95f));
+        Text(Elements, Layer + 2, Geometry, FString::FromInt(int32(Hp)), Left - FVector2D(0, 5), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 22), Srgb(1.f, .90f, .84f));
+        Text(Elements, Layer + 2, Geometry, TEXT("HP"), Left + FVector2D(0, 16), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 10), Srgb(.86f, .62f, .56f));
+        MemoriaHudKit::Arc(Elements, Layer + 1, Geometry, Right, 70 * K, FMath::Clamp(Held / 12.f, 0.f, 1.f), 3.5f, Srgb(.56f, .78f, 1.f, .95f));
+        Text(Elements, Layer + 2, Geometry, FString::FromInt(Held), Right - FVector2D(0, 5), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 22), Srgb(.90f, .95f, 1.f));
+        Text(Elements, Layer + 2, Geometry, Ko ? TEXT("기억") : TEXT("MEM"), Right + FVector2D(0, 16), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 10), Srgb(.62f, .76f, .92f));
+    }
+    else Box(Elements, Layer, Geometry, RibbonAt + FVector2D(150, 70), FVector2D(1840 * K - 300, 110), Srgb(.03f, .025f, .04f, .82f));
+    // S314: Arrel's statuses beside the gauge.
     float TagX = At.X - 12.f;
     auto Tag = [&](const FString& Label, const FLinearColor& Color)
     {
@@ -185,20 +214,39 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     if (C->IsWeakened()) Tag(Ko ? FString::Printf(TEXT("약화 %d초"), WeakSeconds) : FString::Printf(TEXT("Weak %ds"), WeakSeconds), Srgb(.80f, .66f, 1.f));
     if (C->IsPoisoned()) Tag(Ko ? FString::Printf(TEXT("중독 ×%d"), PoisonTicks) : FString::Printf(TEXT("Poison ×%d"), PoisonTicks), Srgb(.60f, 1.f, .42f));
     if (C->IsBlocking()) Tag(Ko ? TEXT("막기") : TEXT("Guard"), Srgb(.78f, .86f, 1.f));
-    // S319: Elia's techniques in a row under the bar (the control hint moves below it): the key, the name (or ??? until her diary unlocks it) and
-    // the cooldown draining from the slot.
-    for (int32 I = 0; I < 4; ++I)
+    // The cells. S319: Elia's techniques show their name (??? until her diary unlocks it) and the cooldown
+    // draining from the cell; then the burn, the guard and the dodge.
+    struct FCell { float X0, X1; };
+    static const FCell Cells[7] = {{290, 461}, {478, 650}, {675, 829}, {847, 996}, {1011, 1160}, {1178, 1359}, {1378, 1545}};
+    const FSlateFontInfo KeyFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 11), NameFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13);
+    for (int32 I = 0; I < 7; ++I)
     {
-        const bool bOpen = C->IsEliaSkillUnlocked(I);
-        const float Cool = bOpen ? C->GetEliaCooldown(I) / MemoriaCombatTuning::EliaSkills[I].Cooldown : 0.f;
-        const FVector2D Cell(222, 34), SlotAt(At.X + Bar.X * .5 - 2 * (Cell.X + 8) + 4 + I * (Cell.X + 8), At.Y + Bar.Y + 14);
-        Box(Elements, Layer, Geometry, SlotAt, Cell, bOpen ? Srgb(.07f, .09f, .13f, .88f) : Srgb(.05f, .05f, .06f, .6f));
-        if (Cool > 0.f) Box(Elements, Layer + 1, Geometry, SlotAt, FVector2D(Cell.X * Cool, Cell.Y), Srgb(.02f, .02f, .03f, .7f));
-        Box(Elements, Layer + 1, Geometry, SlotAt, FVector2D(Cell.X, 1.5f), bOpen && Cool <= 0.f ? Srgb(.62f, .82f, 1.f, .9f) : Srgb(.3f, .32f, .36f, .5f));
-        const FLinearColor Ink = !bOpen ? Srgb(.40f, .40f, .42f) : Cool > 0.f ? Srgb(.55f, .60f, .66f) : Srgb(.85f, .92f, 1.f);
-        TextAt(Elements, Layer + 3, Geometry, FString::FromInt(I + 1), SlotAt + FVector2D(12, Cell.Y * .5), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.62f, .66f, .72f));
-        TextAt(Elements, Layer + 3, Geometry, bOpen ? FString(Ko ? MemoriaCombatTuning::EliaSkills[I].NameKo : MemoriaCombatTuning::EliaSkills[I].Name) : FString(TEXT("???")),
-            SlotAt + FVector2D(24, Cell.Y * .5), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Ink);
+        const FVector2D CellAt = RibbonAt + FVector2D(Cells[I].X0 + 6, 131) * K, Cell = FVector2D(Cells[I].X1 - Cells[I].X0 - 12, 155) * K;
+        const FVector2D Centre = CellAt + Cell * .5;
+        FString Key, Name; bool bOpen = true, bLit = false; float Cool = 0.f; FLinearColor Hue = Srgb(.62f, .82f, 1.f);
+        if (I < 4)
+        {
+            bOpen = C->IsEliaSkillUnlocked(I);
+            Cool = bOpen ? C->GetEliaCooldown(I) / MemoriaCombatTuning::EliaSkills[I].Cooldown : 0.f;
+            Key = FString::FromInt(I + 1);
+            Name = bOpen ? FString(Ko ? MemoriaCombatTuning::EliaSkills[I].NameKo : MemoriaCombatTuning::EliaSkills[I].Name) : FString(TEXT("???"));
+        }
+        else if (I == 4) { Key = TEXT("R"); Name = Ko ? TEXT("기억 연소") : TEXT("Burn"); Hue = Srgb(1.f, .62f, .30f); bLit = C->IsPickingBurn() || C->IsCasting(); }
+        else if (I == 5) { Key = Ko ? TEXT("우클릭") : TEXT("RMB"); Name = Ko ? TEXT("막기") : TEXT("Guard"); Hue = Srgb(.82f, .88f, 1.f); bLit = C->IsBlocking(); }
+        else { Key = TEXT("Shift"); Name = Ko ? TEXT("회피") : TEXT("Dodge"); Hue = Srgb(.82f, .88f, 1.f); }
+        if (bLit) Box(Elements, Layer + 1, Geometry, CellAt, Cell, FLinearColor(Hue.R, Hue.G, Hue.B, .16f));
+        if (Cool > 0.f) Box(Elements, Layer + 1, Geometry, CellAt, FVector2D(Cell.X, Cell.Y * Cool), Srgb(.0f, .0f, .01f, .62f));
+        Box(Elements, Layer + 1, Geometry, CellAt + FVector2D(Cell.X * .2, Cell.Y - 3), FVector2D(Cell.X * .6, 2), !bOpen ? Srgb(.3f, .32f, .36f, .4f) : Cool > 0.f ? Srgb(.4f, .44f, .5f, .6f) : FLinearColor(Hue.R, Hue.G, Hue.B, .9f));
+        TextAt(Elements, Layer + 3, Geometry, Key, CellAt + FVector2D(Cell.X * .5, 13), .5f, KeyFont, !bOpen ? Srgb(.42f, .42f, .44f) : Srgb(.74f, .70f, .62f));
+        // A name of two words stands on two lines.
+        FString First = Name, Second;
+        const FLinearColor Ink = !bOpen ? Srgb(.40f, .40f, .42f) : Cool > 0.f ? Srgb(.55f, .60f, .66f) : FLinearColor(FMath::Lerp(Hue.R, 1.f, .5f), FMath::Lerp(Hue.G, 1.f, .5f), FMath::Lerp(Hue.B, 1.f, .5f));
+        if (MemoriaHudKit::Width(Name, NameFont) > Cell.X - 6 && Name.Split(TEXT(" "), &First, &Second, ESearchCase::IgnoreCase, ESearchDir::FromEnd))
+        {
+            TextAt(Elements, Layer + 3, Geometry, First, Centre + FVector2D(0, -2), .5f, NameFont, Ink);
+            TextAt(Elements, Layer + 3, Geometry, Second, Centre + FVector2D(0, 17), .5f, NameFont, Ink);
+        }
+        else TextAt(Elements, Layer + 3, Geometry, Name, Centre + FVector2D(0, 8), .5f, NameFont, Ink);
     }
     if (const APawn* Arrel = C->GetPlayer(); Arrel && C->IsShielded())
         Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 4.f), 64.f, 1.f, 3.f, FLinearColor(.62f, .82f, 1.f, .8f));
@@ -225,9 +273,10 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         Text(Elements, Layer + 5, Geometry, Ko ? TEXT("전투 승리") : TEXT("Victory"), Center - FVector2D(0, 16), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 24), Srgb(1.f, .86f, .52f, A));
         Text(Elements, Layer + 5, Geometry, Line, Center + FVector2D(0, 18), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16), Srgb(.92f, .88f, .80f, A));
     }
+    // The attack has no cell: its hint stands over the gauge while a fight is on.
     if (C->LiveMonsterCount() > 0)
-        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격 (길게: 회전베기)     우클릭 / K  막기     Shift  회피     R  기억 연소     1–4  엘리아 기술") : TEXT("LMB / J  Attack (hold: spin)     RMB / K  Guard     Shift  Dodge     R  Burn a memory     1–4  Elia"),
-            At + FVector2D(Bar.X * .5, Bar.Y + 74), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.80f, .76f, .70f, .9f));
+        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격     길게 눌러 회전베기") : TEXT("LMB / J  Attack     hold to spin"),
+            At + FVector2D(Bar.X * .5, -18), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.86f, .82f, .76f, .9f));
     if (C->IsDefeated())
     {
         Box(Elements, Layer + 4, Geometry, FVector2D::ZeroVector, Size, FLinearColor(.02f, 0, 0, .55f));
