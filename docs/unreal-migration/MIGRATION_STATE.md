@@ -32,7 +32,7 @@
   - An orb passes through walls.
   - The foes do not avoid each other, and a charger can rush out of the lit part of a map before it turns back.
   - No numbers are tuned by play yet.
-- **Results.** `MemoriaVisual.FoeVariety`, `ChapterRevisit` and `FieldFoes` pass on this tree. The full registry follows.
+- **Results.** Full rendered registry 274/274 (`s342_full`), visual 30/30 (`s342_visual`), on this tree; they cover S341 and S342 together.
 
 # Migration handoff — S341 items used in the field (Claude lane, 2026-10-02)
 
