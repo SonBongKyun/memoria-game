@@ -1,3 +1,12 @@
+# Migration handoff — S336 follow-up: Codex integrated S310–S335; two records corrected (Claude lane, 2026-10-02)
+
+- **Where things stand.** Codex re-reviewed S334, accepted both save fixes and integrated S310–S335 in its lane (`codex/unreal-s335-integration-20261002`, gameplay at `c2afd34b`). Its fresh run there: build, full 274/274, visual 26/26, host 35/35 (`codex-review.md`, S336). No code changed in this session; this entry is documentation only.
+- **Correction: capture sizes.** S335 wrote that captures are 1280×720. That holds for the tests that capture through the game viewport (125 files in this lane's validation folder). The older full-registry replay tests capture the play window with its 34 px title bar and come out at 1280×754 (946 files). Both sizes are stable: the shrinking that S335 fixed is gone, but "every capture is 1280×720" was too broad.
+- **Cause found: the 15 `LogAutomationTest: Error: Condition failed` lines at startup.** Codex recorded them as unresolved. They are the engine's own Core smoke tests, not Memoria's.
+  - `Engine/Source/Runtime/Core/Tests/Experimental/UnifiedError/UnifiedErrorTests.cpp` compares error messages with English text. This machine runs the editor in Korean (`Using OS detected language (ko-KR)`), where the same messages are translated (`[빈 오류]`), so 15 comparisons fail.
+  - Checked by running the editor twice without graphics on the same test: 15 lines in Korean, 0 with `-culture=en`. The lines have been in every automation log since 2026-09-26. Commandlets do not run the smoke tests and show none.
+  - Nothing was changed. Forcing English in the validation tool would also change the language the game's own tests run in, so the lines stay and are now explained.
+
 # Migration handoff — S335 Codex's ambient NPC models and props adopted (Claude lane, 2026-10-01)
 
 - **Why.** Codex delivered the art requested after S331 (shared `models/`, S334): three NPCs on Arrel's 77-bone rig and three static props. This session imports them and puts them in the chapter maps.
