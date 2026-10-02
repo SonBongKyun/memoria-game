@@ -2,6 +2,16 @@
 
 ---
 
+## S310 - 2026-09-27 (Codex: 세 필드 캐릭터 보정·로컬 리깅·Unreal 적용)
+
+- 아렐/엘리아/말렛 손가락·부츠·망토 및 의상 가중치 보정, 77뼈 리그와 정지/걷기 FBX, 뼈 부착 소품.
+- Field3D 26패키지, 원본 FBX/PNG ArtSource, 임포트 커맨드렛, 거리 기반 애니메이션 블렌딩을 Codex 레인에 적용.
+- UE5.8.2 빌드, 최종 렌더 시각 7/7, 기본 회귀 6/6 통과. 실제 필드 전신/4방향/걷기/엘리아/말렛 캡처 및 Run/기억 보존 확인.
+- 전체413 재실행은 하지 않음. 공격·대시 리타기팅/액션 전투는 다음 작업. 큰 동작용 의상 리토폴로지와 옆면 투영 한계 기록.
+- 공유 codex-review.md, models/MANIFEST.md, RIGGING_GUIDE_KO.md, 해시 검증 인계 묶음 제공. Claude/원본/foundation 수정, 새 커밋/푸시 없음.
+
+---
+
 ## S279 - 2026-09-11 (Unreal Phase 1N — Firebomb 지급 검증, 원본 보존 승인 대기)
 
 - 동일 canonical 경로에서 potion2/antidote1/firebomb1을 동기 지급하고 `_open_malet_shop()` 함수 진입 전 정지. 공통 GrantRewardItem 재사용, Player/World 전체·파생값·Run identity 보존.
@@ -9095,3 +9105,21 @@ Local collaboration snapshot of the current foundation HEAD plus 15 modified tra
 - Added battle menus, shared archive memory presentation, status/HP/gauge feedback, burn-cost subtitle, damage/squash/visual pause/shake/flash/zoom, enemy anticipation and aftershock intent hiding. Connected source SFX and heartbeat cleanup. Defeat offers real checkpoint restore or explicit full-HP Verdan recovery retaining burned memories; unsupported objectives have no reward.
 - Fresh Godot source oracle check 74/74, UE 5.8.2 battle rendered tests 76/76, audio host tests 5/5 and battle-entry host tests 6/6 pass. Full rendered `Memoria.` **366/366 PASS** (365 success + 1 success with existing engine warning), fatal diagnostics 0. Integrated physical-key flow reaches trade, revisit, burn, victory, field and archive; a declared near-death fixture reaches Last Stand/defeat/recovery. Large-impact capture is explicitly presentation-only. Screenshots reviewed; human feel/listening remains unverified.
 - Preserved earlier failures, including the native JSON fixture lifetime crash and turn-limit Last Stand mismatch, then corrected native behavior without weakening expected values/tolerances. Source check and exact report paths are in docs/unreal-migration/BATTLE_CORE_S296.md. Historical 15 unrelated Python host-suite failures were not fixed or relabeled as passing.
+
+## S334 - 2026-10-01 (Codex handoff review, host-test repairs, art preparation)
+
+- Read shared claude-handoff.md's top request and reviewed Claude eec6d6ae S330–S333. Recorded two S330 save-safety findings in shared codex-review.md: failed explicit map Continue falls through over an active run, and unsupported Diary/Hints/inactive-flow data is accepted then discarded. Integration awaits Claude's fixes; no cherry-pick or commit/push.
+- Preserved existing S310 uncommitted implementation/assets. The six tracked S310 paths compare equal to Claude's S310 apart from its status addendum. No peer/foundation/original Godot changes.
+- Fixed the expressly delegated test_checkpoint_tools.py and test_shop_transaction_tools.py: removed retired battle-suite dependency/frozen global counts while preserving all source behavior assertions and requiring current suite identities. Fresh host checks against eec6d6ae modules: 8/8, diff check passed. Four additional stale host modules reported for Claude.
+- Confirmed original erosion arithmetic and reviewed RoadOpen, sprite table callers and journal scope deviations. Re-searched 508 actual remaining content packages for the ten deleted S333 names: zero hits, zero LFS pointers; no Unreal package-load/build/runtime validation performed.
+- Prepared AST-checked shared scripts for three NPCs and three static props using existing licensed offline TripoSR/Blender tooling. No model generation has started; user's games/Unreal-closed confirmation is pending. No GPU/build slot held.
+- Reports/evidence: C:/Users/jc/Documents/Codex/MEMORIA-Unreal-Collaboration/codex-review.md and models/_raw/s334_handoff/. Next: Claude's S330 fix, safe integration/fresh Unreal validation, traveler-first model delivery after GPU confirmation.
+## S334 art delivery complete (2026-10-01)
+
+- User confirmed games/Unreal closed; explicitly chose all six deliveries using Blender/FBX QA without waiting for first import.
+- Three NPC FBX/2048 textures: 174/176/178 cm, exact Arrel 77-bone names/parents, <=25k triangles, max two normalized weights.
+- Water tank/campfire/rubble static FBX/2048 textures: 1332/1096/664 triangles, ground-center origins, dimensions checked after import.
+- Fresh hierarchy/weights/UV/unit/portable-texture and crouch/reach checks PASS; actual front/side/back/48-degree, native 1080p and Arrel comparisons inspected.
+- Offline local TripoSR/Blender only; fitted S310 head detail, rebuilt clothing/limbs/props. No new accounts/downloads/uploads/paid tools. Rat deferred.
+- Shared bundle/manifest/preview: models/_handoff/s334_ambient.zip, models/MANIFEST.md, models/_qa/s334/overview.png. Final audit: models/_qa/s334/final_delivery_audit.json.
+- Slot released; Unreal import/retarget/placement/test are Claude's next task. Code integration still awaits the two S330 fixes in codex-review.md. No commit/push; S310 uncommitted work and source/Claude/foundation preserved.

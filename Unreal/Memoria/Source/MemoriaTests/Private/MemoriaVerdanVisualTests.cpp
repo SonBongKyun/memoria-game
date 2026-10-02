@@ -16,6 +16,9 @@
 #include "Presentation/MemoriaArrel3DComponent.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimSequence.h"
+#include "Presentation/MemoriaFieldAnimInstance.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
@@ -169,6 +172,18 @@ public:
             // S306: Arrel, Elia and Malet share one field figure; the 3D prototype is retained only as a component.
             FootRecords=CheckFootContact(Test,Pawn);
             MovementRecords=CheckVerdanMovement(Test,Pawn);
+            if (Character->IsRigged())
+            {
+                auto* Skin = Character->GetSkeletalMesh();
+                Test->TestEqual(TEXT("Arrel has the delivered skeleton"), Skin->GetNumBones(), 77);
+                Test->TestTrue(TEXT("Skinned figure has readable height"), Skin->Bounds.BoxExtent.Z > 45);
+                Test->TestTrue(TEXT("Rigged feet use the visual ground anchor"), FMath::IsNearlyEqual(Skin->GetRelativeLocation().Z, -8.0, .5));
+                Test->TestNotNull(TEXT("Native idle/walk blend instance"), Cast<UMemoriaFieldAnimInstance>(Skin->GetAnimInstance()));
+                Test->TestEqual(TEXT("Arrel sword is attached"), Character->GetPropCount(), 1);
+                Test->TestTrue(TEXT("Malet is rigged with two props"), Presentation->MaletFigure() && Presentation->MaletFigure()->IsRigged() && Presentation->MaletFigure()->GetPropCount() == 2);
+            }
+            else
+            {
             auto* Card=Character->GetCard();
             if(!Test->TestTrue(TEXT("Figure draws an actual sprite card"),Card && Card->GetSprite()))return true;
             Test->AddInfo(FString::Printf(TEXT("ARREL_FIGURE %s hd=%d bounds=%s"),*Character->GetFrameName(),Character->IsHighResolution()?1:0,*Card->Bounds.BoxExtent.ToString()));
@@ -177,6 +192,7 @@ public:
             Test->TestTrue(TEXT("Feet stand on the existing visual ground anchor"),FMath::IsNearlyEqual(Card->GetRelativeLocation().Z,-8.0,.5));
             if(!Character->IsHighResolution()) Test->TestTrue(TEXT("Pixel art is point sampled"),Card->GetSprite()->GetBakedTexture() && Card->GetSprite()->GetBakedTexture()->Filter==TF_Nearest);
             Test->TestNotNull(TEXT("Malet drawn by the same figure"),Presentation->MaletFigure() ? Presentation->MaletFigure()->GetCard() : nullptr);
+            }
             TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
             int32 Instances = 0, Roofs = 0;
             for (auto* Batch : Batches)
@@ -222,6 +238,13 @@ public:
                 Test->TestEqual(TEXT("Direction follows real displacement"), Presentation->Facing(), FString(Directions[I]));
                 Test->TestTrue(TEXT("Real movement activates the walk"), Presentation->IsWalking());
                 SeenGaitPoses.Add(Character->GetFrameName());
+                if (auto* Skin = Character->GetSkeletalMesh())
+                {
+                    const FVector Foot = Skin->GetBoneTransform(Skin->GetBoneIndex(TEXT("foot_l"))).GetLocation();
+                    Test->TestFalse(TEXT("Animated foot stays finite"), Foot.ContainsNaN());
+                    const FVector LocalFoot = Skin->GetComponentTransform().InverseTransformPosition(Foot);
+                    MinFootX = FMath::Min(MinFootX, LocalFoot.X); MaxFootX = FMath::Max(MaxFootX, LocalFoot.X);
+                }
                 if (const UPaperSpriteComponent* Card = Character->GetCard()) MaxBounce = FMath::Max(MaxBounce, float(Card->GetRelativeLocation().Z) + 8.f);
                 Test->TestTrue(TEXT("Figure follows physical pawn"),FVector2D(Character->GetComponentLocation()).Equals(FVector2D(Pawn->GetActorLocation()),.001));
                 if(Frame>Start+14)
@@ -239,6 +262,7 @@ public:
             const int32 WalkFrames = Character->GetWalkFrameCount();
             Test->TestTrue(TEXT("Walk frames and facings change through movement"),SeenGaitPoses.Num()>=(WalkFrames>0 ? 8 : 4));
             Test->AddInfo(FString::Printf(TEXT("FIELD_GAIT poses=%d walk_frames=%d bounce=%.2f"),SeenGaitPoses.Num(),WalkFrames,MaxBounce));
+            if (Character->IsRigged()) Test->TestTrue(TEXT("Real skinned foot moves through walking poses"), MaxFootX - MinFootX > 10);
             if (WalkFrames == 0) Test->TestTrue(TEXT("Walking without contact frames still bounces"), MaxBounce > Character->GetWorldHeight() * .01f);
             if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio subsystem exists"), Audio))
                 Test->TestTrue(TEXT("Planted feet play stone footsteps"), Audio->GetCueCount(TEXT("step_stone")) > 0);
@@ -316,7 +340,7 @@ public:
         {
             // A temporary review camera shows the real field figure at a readable angle.
             PreviewCamera=World->SpawnActor<ACameraActor>();
-            PreviewCamera->SetActorLocation(FVector(0,-340,110));
+            PreviewCamera->SetActorLocation(FVector(0,-470,110));
             PreviewCamera->SetActorRotation((Character->FocusPosition()-PreviewCamera->GetActorLocation()).Rotation());
             PreviewCamera->GetCameraComponent()->SetFieldOfView(40);
             PC->SetViewTarget(PreviewCamera.Get());
@@ -342,7 +366,7 @@ public:
         if(Frame==440)Key(EKeys::D,IE_Pressed);
         if(Frame>=440 && Frame<484 && PreviewCamera.IsValid())
         {
-            PreviewCamera->SetActorLocation(Pawn->GetActorLocation()+FVector(0,-340,110));
+            PreviewCamera->SetActorLocation(Pawn->GetActorLocation()+FVector(0,-470,110));
             PreviewCamera->SetActorRotation((Character->FocusPosition()-PreviewCamera->GetActorLocation()).Rotation());
         }
         if(Frame==448)Capture(TEXT("WalkA"));
@@ -357,6 +381,38 @@ public:
             Character->Face(TEXT("Down"));
         }
         if (Frame == 500)
+        {
+            auto* Malet = Presentation->MaletFigure(); Malet->Face(TEXT("Down"));
+            PreviewCamera = World->SpawnActor<ACameraActor>();
+            PreviewCamera->SetActorLocation(Malet->GetComponentLocation() + FVector(0, -470, 110));
+            PreviewCamera->SetActorRotation((Malet->FocusPosition() - PreviewCamera->GetActorLocation()).Rotation());
+            PreviewCamera->GetCameraComponent()->SetFieldOfView(40);
+            PC->SetViewTarget(PreviewCamera.Get());
+        }
+        if (Frame == 512) Capture(TEXT("MaletRigged"));
+        if (Frame == 524)
+        {
+            Character->SetVisibility(false, true);
+            for (TActorIterator<AMemoriaEliaCompanion> It(World); It; ++It)
+            {
+                It->SetActorHiddenInGame(false);
+                auto* Elia = It->FindComponentByClass<UMemoriaFieldCharacterComponent>();
+                Test->TestTrue(TEXT("Elia rig and staff are active"), Elia && Elia->IsRigged() && Elia->GetPropCount() == 1);
+                if (Elia)
+                {
+                    Elia->Face(TEXT("Down"));
+                    PreviewCamera->SetActorLocation(Elia->GetComponentLocation() + FVector(0, -450, 100));
+                    PreviewCamera->SetActorRotation((Elia->FocusPosition() - PreviewCamera->GetActorLocation()).Rotation());
+                }
+            }
+        }
+        if (Frame == 536) Capture(TEXT("EliaRigged"));
+        if (Frame == 544)
+        {
+            Character->SetVisibility(true, true);
+            PC->SetViewTarget(Pawn); if (PreviewCamera.IsValid()) PreviewCamera->Destroy();
+        }
+        if (Frame == 554)
         {
             FString After, MemoryAfter;
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), After);
@@ -383,6 +439,7 @@ private:
     TArray<FString> TraceBefore;
     TSet<FString> SeenGaitPoses;
     float MaxBounce = 0.f;
+    double MinFootX = 1e9, MaxFootX = -1e9;
     TWeakObjectPtr<ACameraActor> PreviewCamera;
 };
 }
@@ -395,6 +452,25 @@ bool FFieldCharactersTest::RunTest(const FString&)
         const FString Art = UMemoriaFieldCharacterComponent::DescribeArt(Id);
         AddInfo(FString::Printf(TEXT("FIELD_CHARACTER %s %s"), Id, *Art));
         TestTrue(*(FString(TEXT("Field art resolves for ")) + Id), Art != TEXT("missing"));
+        if (Art == TEXT("rigged"))
+        {
+            const FString N = FString(Id).Left(1).ToUpper() + FString(Id).Mid(1);
+            const FString Base = TEXT("/Game/Memoria/Presentation/Field3D/") + N + TEXT("/");
+            auto* Skin = LoadObject<USkeletalMesh>(nullptr, *(Base + TEXT("SK_") + N + TEXT(".SK_") + N));
+            if (!TestNotNull(TEXT("Delivered skeletal asset loads"), Skin)) continue;
+            TestEqual(TEXT("77 deform bones, including fingers and cloth"), Skin->GetRefSkeleton().GetNum(), 77);
+            TestEqual(TEXT("One body material"), Skin->GetMaterials().Num(), 1);
+            TestEqual(TEXT("Feet-centred root"), Skin->GetRefSkeleton().GetBoneName(0), FName(TEXT("root")));
+            TestTrue(TEXT("Physical import height matches cm source"), FMath::IsNearlyEqual(float(Skin->GetBounds().BoxExtent.Z * 2), N == TEXT("Elia") ? 166.f : 180.f, 1.f));
+            for (const FString Clip : {TEXT("Idle"), TEXT("Walk")})
+            {
+                auto* Anim = LoadObject<UAnimSequence>(nullptr, *(Base + TEXT("A_") + N + TEXT("_") + Clip + TEXT(".A_") + N + TEXT("_") + Clip));
+                if (!TestNotNull(TEXT("Delivered animation loads"), Anim)) continue;
+                TestEqual(TEXT("Clip uses the matching skeleton"), Anim->GetSkeleton(), Skin->GetSkeleton());
+                TestTrue(TEXT("Clip has its authored duration"), FMath::IsNearlyEqual(Anim->GetPlayLength(), Clip == TEXT("Idle") ? 2.f : 1.f, .04f));
+            }
+            continue;
+        }
         if (Art != TEXT("hd")) continue;
         // The illustrated canvas is drawn at a fraction of its size: filtered, with a mip chain once a real RHI builds it.
         const FString Name = FString(Id).Left(1).ToUpper() + FString(Id).Mid(1);

@@ -1,3 +1,14 @@
+# Migration handoff — S310 rigged field characters (Codex, 2026-09-27)
+
+- Arrel/Elia/Malet corrected and rigged locally; 77 bones each; idle/walk and bone props running in the field.
+- New Field3D packages and ArtSource/FieldCharacters sources. Native distance-driven animation proxy. HD/pixel fallback retained.
+- UE5.8.2 build PASS; rendered MemoriaVisual. 7/7; rendered Memoria.Foundation. 6/6. Actual screenshots and state-preserving replay verified.
+- No new commit/push. Claude/original Godot/foundation untouched. Full 413 registry not rerun.
+- No combat retargeting yet; joined garment topology and side projection remain limited for large motions.
+- Detailed result and adoption steps: [S310_RIGGED_FIELD_REPORT.md](S310_RIGGED_FIELD_REPORT.md); shared codex-review.md / models/MANIFEST.md.
+
+---
+
 # Migration handoff — S309 battle screen presentation after battle_scene.gd (Claude lane, 2026-09-27)
 
 - **Why.** The Unreal battle was a teal dashboard of framed boxes, with the burn telegraph overlapping the objective, modifier and Elia cards. The Godot reference is `tmp/visual_audit/battle_forest_shade.png`: combatants stand on a stage, with an ornate command deck and readout frames.

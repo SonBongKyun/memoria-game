@@ -2,12 +2,12 @@
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "MemoriaFieldCharacterComponent.generated.h"
+class USkeletalMeshComponent;
+class UStaticMeshComponent;
 class UPaperSprite;
 class UPaperSpriteComponent;
 
-// One field character drawn as a camera-facing card, the same way for Arrel, Elia and Malet.
-// Uses the high-resolution illustrated set (FieldHD, FIELD_SPRITE_ART_SPEC.md) when it has
-// been imported, and otherwise the source pixel field sprites, rendered with point sampling.
+// Rigged field figures share distance-driven locomotion. Illustrated/pixel cards remain a fallback.
 UCLASS()
 class MEMORIA_API UMemoriaFieldCharacterComponent : public USceneComponent
 {
@@ -30,13 +30,20 @@ public:
     int32 GetWalkFrameCount() const { return WalkFrames; }
     FString GetFrameName() const;
     UPaperSpriteComponent* GetCard() const { return Card; }
+    USkeletalMeshComponent* GetSkeletalMesh() const { return Skeletal; }
+    bool IsRigged() const { return Skeletal != nullptr; }
+    int32 GetPropCount() const { return Props.Num(); }
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-    // Which art a character id resolves to: "hd", "pixel" or "missing".
+    // Which art a character id resolves to: "rigged", "hd", "pixel" or "missing".
     static FString DescribeArt(const FString& Id);
     // Distance for one full two-step gait cycle.
     static constexpr float StrideLength = 58.f;
 private:
     UPROPERTY(Transient) TObjectPtr<UPaperSpriteComponent> Card;
+    UPROPERTY(Transient) TObjectPtr<USkeletalMeshComponent> Skeletal;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Props;
+    bool InitializeRigged(const FString& Id);
+    void AttachProp(const FString& Id, const FString& Prop, FName Bone, const FVector& Offset);
     // Down, Up, Left, Right; a missing Left mirrors Right.
     UPROPERTY(Transient) TObjectPtr<UPaperSprite> Stand[4];
     UPROPERTY(Transient) TArray<TObjectPtr<UPaperSprite>> Walk;
