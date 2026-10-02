@@ -26,12 +26,13 @@ namespace
 // at the places the dressing was built for (the Belt's rail line, platform and freight; Drift's tarp, walls and
 // trees), with a capture at each to be read. The dressing must not change where he can walk: the blocks are
 // still one per solid tile.
+// S344: the set pieces are Codex's S343 models; each map counts the kinds of model that stand in it.
 struct FDressingView { const TCHAR* Name; FVector2D Tile; };
 class FChapterDressingReplay final : public IAutomationLatentCommand
 {
 public:
-    FChapterDressingReplay(FAutomationTestBase* InTest, TArray<FDressingView> InViews, int32 InLamps)
-        : Test(InTest), Views(MoveTemp(InViews)), Lamps(InLamps), Started(FPlatformTime::Seconds()) {}
+    FChapterDressingReplay(FAutomationTestBase* InTest, TArray<FDressingView> InViews, int32 InLamps, int32 InKinds)
+        : Test(InTest), Views(MoveTemp(InViews)), Lamps(InLamps), Kinds(InKinds), Started(FPlatformTime::Seconds()) {}
     ~FChapterDressingReplay() override { if (bFixed) { FApp::SetUseFixedTimeStep(bOldFixed); FApp::SetFixedDeltaTime(OldDelta); } }
     bool Update() override
     {
@@ -62,6 +63,9 @@ public:
             Test->TestTrue(TEXT("The ground wears the painted material"), Map->IsGroundPainted());
             Test->TestEqual(TEXT("The map's lamps burn"), Map->GetLampCount(), Lamps);
             Test->TestTrue(TEXT("The air carries dust or rain"), Map->GetMoteCount() >= 40);
+            // S344: Codex's environment kit stands where the box stand-ins stood.
+            Test->TestEqual(TEXT("The map's kinds of kit model stand"), Map->GetKitKindCount(), Kinds);
+            Test->TestTrue(TEXT("Many of them"), Map->GetKitPropCount() >= 40);
             // S339: the field HUD stands on the source's plates, and the ribbon names the place in the run's language.
             Test->TestTrue(TEXT("The status panel is drawn on its plate"), Map->GetExplorationHud() && Map->GetExplorationHud()->HasPlate());
             Test->TestTrue(TEXT("The combat bar has its command ribbon"), Map->GetCombatHud() && Map->GetCombatHud()->HasRibbon());
@@ -89,7 +93,7 @@ public:
 private:
     FAutomationTestBase* Test;
     TArray<FDressingView> Views;
-    int32 Lamps;
+    int32 Lamps, Kinds;
     double Started, OldDelta = 0;
     uint64 LastFrame = MAX_uint64;
     int32 Step = 0, Frame = 0, Mark = 0, View = 0;
@@ -100,10 +104,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBeltDressingTest, "MemoriaVisual.BeltDressing"
 bool FBeltDressingTest::RunTest(const FString&)
 {
     if (!AutomationOpenMap(TEXT("/Game/Memoria/Maps/L_BeltWaystation"))) return false;
-    // Lamps: two at the door, the signal post's, the platform's, and three posts where the road leaves the yard.
+    // Lamps: two at the door, the signal post's, the platform's two, and three lantern posts.
+    // Kit: signal post, platform shelter, crates, chain fence, lantern post, rail, banner pole, ruined wall, dry grass.
     FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FChapterDressingReplay(this,
-        {{TEXT("BeltPlatform"), FVector2D(18, 2)}, {TEXT("BeltSignal"), FVector2D(6, 2)}, {TEXT("BeltFreight"), FVector2D(6, 13)},
-         {TEXT("BeltExit"), FVector2D(21, 9)}, {TEXT("BeltDoor"), FVector2D(12, 13)}, {TEXT("BeltInside"), FVector2D(12, 9)}}, 7)));
+        {{TEXT("BeltPlatform"), FVector2D(16, 2)}, {TEXT("BeltSignal"), FVector2D(6, 2)}, {TEXT("BeltFreight"), FVector2D(6, 13)},
+         {TEXT("BeltExit"), FVector2D(22, 10)}, {TEXT("BeltDoor"), FVector2D(12, 13)}, {TEXT("BeltInside"), FVector2D(12, 9)},
+         {TEXT("BeltRuin"), FVector2D(5, 5)}, {TEXT("BeltCorner"), FVector2D(18, 15)}}, 8, 9)));
     ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
     return true;
 }
@@ -111,10 +117,12 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDriftDressingTest, "MemoriaVisual.DriftDressin
 bool FDriftDressingTest::RunTest(const FString&)
 {
     if (!AutomationOpenMap(TEXT("/Game/Memoria/Maps/L_DriftShelter"))) return false;
-    // Lamps: one on each of the shelter's four poles and two posts on the road.
+    // Lamps: one on each of the awnings' four front poles, two lantern posts and the camp's beyond the east wall.
+    // Kit: tarp, ruined wall, gramophone, dead tree, lantern post, crates, dry grass.
     FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FChapterDressingReplay(this,
         {{TEXT("DriftTarp"), FVector2D(10, 3)}, {TEXT("DriftStores"), FVector2D(17, 4)}, {TEXT("DriftSouth"), FVector2D(10, 14)},
-         {TEXT("DriftEast"), FVector2D(21, 8)}, {TEXT("DriftWest"), FVector2D(3, 8)}}, 6)));
+         {TEXT("DriftEast"), FVector2D(21, 8)}, {TEXT("DriftWest"), FVector2D(3, 8)}, {TEXT("DriftGramophone"), FVector2D(5, 4)},
+         {TEXT("DriftCamp"), FVector2D(22, 6)}, {TEXT("DriftShelter"), FVector2D(10, 8)}}, 7, 7)));
     ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
     return true;
 }
