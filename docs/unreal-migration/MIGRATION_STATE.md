@@ -1,3 +1,48 @@
+# Migration handoff — S338 the chapter maps dressed (Claude lane, 2026-10-02)
+
+- **Why.** The user's words: the game "still feels like a prototype". The story scenes read as finished; the field of Chapters 3 and 4 was flat single-colour tiles, a building of black boxes and cube rubble. Order agreed with the user: the maps (this session), the field HUD (S339), NPC movement and hit effects (S340).
+- **Numbering.** Codex used S337 in its own lane on the same day (`7922b395`, "polish ambient materials and chapter terrain"). That commit is not in this lane: bringing it in was refused by the session's permission check, so it waits for the user or for Codex's integration. This session replaces the terrain that S337 polished; see "For integration" below.
+- **The source's art direction.** The Godot maps do not show their tiles. Each hides them (`terrain_alpha 0.0`) under one painted canvas (`MapEffects.add_map_canvas`, `assets/environment/map_canvases/map_belt_waystation_canvas_v1.png` and `map_drift_shelter_canvas_v2.png`). A flat painting cannot lie under the quarter-view camera (its props would lie flat), so the port builds what the canvas paints.
+- **Ground.**
+  - `Unreal/Tools/export_chapter_ground.py` cuts open ground from the canvases (a soil and a paved patch per map, made to repeat) and the Belt's round dial, into `Unreal/ArtSource/ChapterGround` (`--check`).
+  - `-run=MemoriaChapterGroundAssets` imports them to `Content/Memoria/Presentation/Chapter` and authors `M_ChapterGround` (`-Rebuild` writes the material again).
+  - The whole ground, and the land around the map, is one surface. The tile grid reaches the material as a mask built at run time (paved, interior floor, building walls); noise pushes the mask's edges about so roads end in a worn line and not along the grid. The material adds relief from the painting's light and dark, timber planks or cooled paving indoors, grime at walls, puddles in Drift, and the dial as an inlay before the relay house's door.
+- **Walls and border** (`MemoriaChapterEnvironment.cpp`: the class's terrain, light and air, moved out of the main file).
+  - The relay house: masonry on a plinth with capstones, corners and door jambs tall, the runs between worn down, a timber lintel, wall plates and rafters (two fallen in), a lantern at each side of the door. Walls between the camera and Arrel open round him (`M_FocusSurface`, as in Verdan).
+  - Ruin tiles: a wall stub and Codex's rubble model in the wall's stone. Drift's concrete ring: low blocks out of true.
+  - The Belt's border: the rail line's embankment along the north, a worn kerb with stone posts and chains on the other sides. Drift's: broken walls, high at the back and low at the front.
+- **Stand-ins for the canvas's props,** built from boxes, each on a solid tile or beyond the border so none is in Arrel's way.
+  - The Belt: the rail line with sleepers, relay pylons and far slag ridges, the signal post with its wheel and pennants, the platform shelter, the banner pole, freight on two ruins, lamp posts at the road's ends.
+  - Drift: the tarp on four poles with lanterns, dead trees and far ruin masses, stores on the rubble, two lamp posts.
+  - Codex was asked for models of twelve of these (`claude-handoff.md`, 2026-10-02).
+- **Light and air.**
+  - Found: a spawned directional light keeps its class's own downward tilt under the rotation it is spawned with. The key light had fallen almost straight down since S320 and every wall face was black (Codex's S337 report notes the same dark faces). Each light is now turned after spawning: the Belt's key is low and warm from the south-west, Drift's is a cold back light.
+  - Two faint shadowless lights (from above, and along the camera's line) stand in for the sky. A sky light was tried and removed: its capture arrived late in some sessions and washed the map out in others.
+  - Lamps flicker; the Belt carries dust and Drift rain, in a box that travels with Arrel; a vignette and bloom on the lens; fog thinner than before.
+- **Unchanged.** Where Arrel can walk: the blocks are still one per solid tile, built first and unseen. Story, saves, encounters, markers, decorations and NPCs are as they were.
+- **Tests.** `MemoriaVisual.BeltDressing` and `MemoriaVisual.DriftDressing` (new, registered in `validate_unreal.py`).
+  - Each plays the arrival chain, checks the blocks, the painted ground, the lamp count (7 and 6) and the air, then stands Arrel at six and five places and captures each (`Saved/Validation/ChapterDressing`).
+  - Captures read: the rail and platform, the signal post, the freight, the door and its dial, the interior, the exit; Drift's tarp, stores, south, east and west.
+- **For integration (Codex).**
+  - Your S337 `BuildTerrain` and `BuildLight` changes conflict with this session, which replaces both.
+  - This session's code uses your S337 assets where they exist: `SM_BeveledBlock` for walls and slabs and `M_StoneSurface` for the slab ring, with a cube and the masonry material as the fallback (this lane has neither asset).
+  - Your six polished Field3D materials are untouched by this session.
+  - `CheckChapterVisualPolish` should still find the stone material, the bevelled block and the rubble model after integration; it was not run here.
+- **Known gaps.**
+  - The stand-ins are boxes. The tarp is the weakest: three flat sheets.
+  - The soil patch is 192 px of canvas repeated. A slow noise trades two takes of it and lets old paving show through, but a keen eye finds the repeat.
+  - Verdan is unchanged (it already had its own environment).
+- **Results.** Seven chapter-map visual tests pass on this tree (Chapter3, Chapter3Travel, Chapter4, ChapterContinue, ChapterRevisit, FieldEncounters, and the two new ones). The full registry runs at the end of S340.
+
+# Migration handoff — S336 follow-up: Codex integrated S310–S335; two records corrected (Claude lane, 2026-10-02)
+
+- **Where things stand.** Codex re-reviewed S334, accepted both save fixes and integrated S310–S335 in its lane (`codex/unreal-s335-integration-20261002`, gameplay at `c2afd34b`). Its fresh run there: build, full 274/274, visual 26/26, host 35/35 (`codex-review.md`, S336). No code changed in this session; this entry is documentation only.
+- **Correction: capture sizes.** S335 wrote that captures are 1280×720. That holds for the tests that capture through the game viewport (125 files in this lane's validation folder). The older full-registry replay tests capture the play window with its 34 px title bar and come out at 1280×754 (946 files). Both sizes are stable: the shrinking that S335 fixed is gone, but "every capture is 1280×720" was too broad.
+- **Cause found: the 15 `LogAutomationTest: Error: Condition failed` lines at startup.** Codex recorded them as unresolved. They are the engine's own Core smoke tests, not Memoria's.
+  - `Engine/Source/Runtime/Core/Tests/Experimental/UnifiedError/UnifiedErrorTests.cpp` compares error messages with English text. This machine runs the editor in Korean (`Using OS detected language (ko-KR)`), where the same messages are translated (`[빈 오류]`), so 15 comparisons fail.
+  - Checked by running the editor twice without graphics on the same test: 15 lines in Korean, 0 with `-culture=en`. The lines have been in every automation log since 2026-09-26. Commandlets do not run the smoke tests and show none.
+  - Nothing was changed. Forcing English in the validation tool would also change the language the game's own tests run in, so the lines stay and are now explained.
+
 # Migration handoff — S337 asset and chapter visual polish (Codex, 2026-10-02)
 
 - User requested higher quality existing assets and graphics. New branch `codex/unreal-visual-polish-s337`, based on `f2104f4d`.

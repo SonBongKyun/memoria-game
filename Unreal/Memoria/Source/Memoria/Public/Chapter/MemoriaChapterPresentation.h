@@ -12,12 +12,16 @@ class UMemoriaCombatHudWidget;
 class UMemoriaExplorationHudWidget;
 class UMemoriaChapterCardWidget;
 class UStaticMeshComponent;
+class UPointLightComponent;
+class UTexture2D;
 
 // S320: a content-first chapter field (Chapter 3 on). It builds the level from the map's IR the way the
 // Godot map script does: the tile grid as ground, walls and ruins (blocking), the atmosphere as light and
 // haze, the quarter-view camera, Arrel and Elia, the combat and exploration HUDs. It then runs the map's
 // story: the arrival chain (each link's flag, dialogue group, end-handler flags and toasts), story
 // triggers, the exit that closes the chapter, and after it the chests, clues and one-time fights.
+// S338: the level is dressed past its tiles (MemoriaChapterEnvironment.cpp): painted ground, masonry, a border
+// that reads as a place, lamps, dust or rain.
 UCLASS()
 class MEMORIA_API AMemoriaChapterPresentation : public AActor
 {
@@ -37,6 +41,10 @@ public:
     // S335: how many ambient NPCs wear a rigged model, and how many props are Codex's models.
     int32 GetRiggedNpcCount() const;
     int32 GetModelPropCount() const { return ModelPropCount; }
+    // S337: the dressed map. Whether the ground wears the painted material, and how many lamps burn.
+    bool IsGroundPainted() const { return GroundMaterial != nullptr; }
+    int32 GetLampCount() const { return Lamps.Num(); }
+    int32 GetMoteCount() const { return Motes.Num(); }
     const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
     bool AreEncountersOpen() const;
     int32 GetBlockerCount() const;
@@ -59,7 +67,6 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;
     UPROPERTY(Transient) TObjectPtr<UMemoriaChapterCardWidget> Card;
     UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> Blockers;
-    UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> TerrainRubble;
     UPROPERTY(Transient) TMap<FString, TObjectPtr<UStaticMeshComponent>> Markers;
     FDelegateHandle FinishedHandle;
     FVector PreviousPosition = FVector::ZeroVector;
@@ -74,10 +81,36 @@ private:
     void BuildAmbientNpcs();
     void UpdateEncounters();
     UMaterialInstanceDynamic* Surface(const FLinearColor& Srgb, float Roughness = .9f);
-    UMaterialInstanceDynamic* TerrainSurface(const FLinearColor& Srgb, float Mode, float Roughness);
     UInstancedStaticMeshComponent* Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide);
     void BuildTerrain();
     void BuildLight();
+    // S337 (MemoriaChapterEnvironment.cpp): the map dressed past its tiles. The ground is one painted surface
+    // under a tile mask; the walls are masonry with broken tops; the border, the lamps, the stand-ins for the
+    // props of the source's map canvas, the air (dust or rain) and the world beyond the map follow.
+    struct FDressing;
+    static const FDressing& DressingFor(const FString& Map);
+    void BuildGround(const FDressing& Look);
+    void BuildWalls(const FDressing& Look);
+    void BuildBorder(const FDressing& Look);
+    void BuildSetPieces(const FDressing& Look);
+    void BuildAir(const FDressing& Look);
+    void TickEnvironment(float DeltaSeconds);
+    UMaterialInstanceDynamic* Focus(const TCHAR* Name, const FLinearColor& Tint, float Mode, float Roughness = .82f, float Metallic = 0.f);
+    void Solid(const TCHAR* Mesh, UMaterialInterface* Material, const FVector& Position, const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator, bool bShadow = true);
+    void Box(UMaterialInterface* Material, const FVector& Position, const FVector& Size, const FRotator& Rotation = FRotator::ZeroRotator, bool bShadow = true);
+    void Beam(UMaterialInterface* Material, const FVector& A, const FVector& B, float Width);
+    void Lamp(const FVector& Position, float Radius, float Intensity);
+    FVector TileCentre(float X, float Y) const;
+    UPROPERTY(Transient) TObjectPtr<UTexture2D> GroundMask;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GroundMaterial;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> FocusMaterials;
+    UPROPERTY(Transient) TMap<FString, TObjectPtr<UInstancedStaticMeshComponent>> Batches;
+    UPROPERTY(Transient) TArray<TObjectPtr<UPointLightComponent>> Lamps;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Motes;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInterface> GlowMaterial;
+    TArray<float> LampBase;
+    double EnvTime = 0.;
+    bool bRain = false;
     void BuildMarkers();
     void StartNextStep();
     // S330: the memories the chapter brings (add_chapter_memories), and their toasts held for the arrival chain's end.
