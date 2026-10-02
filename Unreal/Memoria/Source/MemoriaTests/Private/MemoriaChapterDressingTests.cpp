@@ -11,6 +11,10 @@
 #include "Chapter/MemoriaChapterMap.h"
 #include "Chapter/MemoriaChapterPresentation.h"
 #include "Chapter/MemoriaChapterCardWidget.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaCombatHudWidget.h"
+#include "Combat/MemoriaExplorationHudWidget.h"
+#include "Combat/MemoriaFieldHudWidget.h"
 #include "EngineUtils.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
@@ -58,6 +62,17 @@ public:
             Test->TestTrue(TEXT("The ground wears the painted material"), Map->IsGroundPainted());
             Test->TestEqual(TEXT("The map's lamps burn"), Map->GetLampCount(), Lamps);
             Test->TestTrue(TEXT("The air carries dust or rain"), Map->GetMoteCount() >= 40);
+            // S339: the field HUD stands on the source's plates, and the ribbon names the place in the run's language.
+            Test->TestTrue(TEXT("The status panel is drawn on its plate"), Map->GetExplorationHud() && Map->GetExplorationHud()->HasPlate());
+            Test->TestTrue(TEXT("The combat bar has its command ribbon"), Map->GetCombatHud() && Map->GetCombatHud()->HasRibbon());
+            if (const auto* Hud = PC->GetFieldHud(); Test->TestNotNull(TEXT("The field HUD is up while exploring"), Hud))
+            {
+                const bool bKo = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+                Test->TestTrue(TEXT("The place stands on the toast frame"), Hud->HasRibbon());
+                Test->TestEqual(TEXT("The ribbon names the place"), Hud->GetView().Title, bKo ? MemoriaChapterMaps::Korean(Spec->Map) : Spec->TitleName);
+                Test->TestEqual(TEXT("And its subtitle"), Hud->GetView().Subtitle, bKo ? MemoriaChapterMaps::Korean(Spec->Subtitle) : Spec->Subtitle);
+                Test->TestEqual(TEXT("In the run's language"), Hud->GetView().bKorean, bKo);
+            }
             ++Step; Mark = Frame; View = 0; break;
         }
         case 1:

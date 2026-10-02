@@ -51,9 +51,10 @@ int32 UMemoriaHintWidget::NativePaint(const FPaintArgs& Args, const FGeometry& G
     const float Slide = -70.f * S * (T->IsLeaving() ? Out : 1.f - BackOut(In));
     const float Top = 10.f * S + Slide;
     const FSlateFontInfo Font = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(15.f * S));
-    // The source's top band (.20-.80) sits where nothing else is; here the status panel holds the top left
-    // (to .37) and the HUD the top right (from .865), so the hint takes the band between them.
-    const float Margin = 16.f * S, PanelLeft = Size.X * .395f, PanelWidth = Size.X * .44f;
+    // The source's top band (.20-.80) sits where nothing else is; here the hint takes the band between the two
+    // plates at the top's corners.
+    // S339: the place ribbon holds the top left to .34 and the status plate the top right from .715.
+    const float Margin = 16.f * S, PanelLeft = Size.X * .352f, PanelWidth = Size.X * .35f;
     Lines = Wrap(UMemoriaTutorialSubsystem::Text(T->GetCurrent(), bKo), Font, PanelWidth - Margin * 2.f);
     const auto Measure = FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
     const float LineHeight = Measure->GetMaxCharacterHeight(Font) * 1.08f;

@@ -53,7 +53,9 @@ int32 UMemoriaAchievementPopupWidget::NativePaint(const FPaintArgs& Args, const 
     const float In = FMath::Clamp(Age / UMemoriaAchievementSubsystem::PopupIn, 0.f, 1.f);
     const float Out = FMath::Clamp((Age - UMemoriaAchievementSubsystem::PopupIn - UMemoriaAchievementSubsystem::PopupHold) / UMemoriaAchievementSubsystem::PopupOut, 0.f, 1.f);
     const float Ease = [](float T) { const float C1 = 1.70158f, C3 = C1 + 1.f; T -= 1.f; return 1.f + C3 * T * T * T + C1 * T * T; }(In);
-    const float Top = FMath::Lerp(FMath::Lerp(-80.f, 12.f, Ease), -80.f, Out) * S;
+    // S339: the status plate holds the top right down to about 190, so the popup comes down to rest under it
+    // (the same travel, 92, from above its resting place).
+    const float Top = FMath::Lerp(FMath::Lerp(104.f, 196.f, Ease), 104.f, Out) * S;
     const float Alpha = FMath::Min(FMath::Clamp(Age / .3f, 0.f, 1.f), 1.f - Out);
     const FVector2D At(Size.X - 320.f * S, Top), Panel2(308.f * S, 68.f * S);
     Panel(Elements, L, Geometry, At, Panel2, Srgb(.08f, .07f, .06f, .95f * Alpha), Srgb(.7f, .55f, .25f, .9f * Alpha), 2.f * S);

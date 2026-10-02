@@ -1,3 +1,25 @@
+# Migration handoff — S339 the field HUD on the source's plates (Claude lane, 2026-10-02)
+
+- **Why.** Second of the three steps agreed with the user (see S338). The field HUD read as a debug overlay: a plain box at the top left holding the place name, a control hint, the interaction prompt and every toast; a plain status panel; a bare HP bar with four text slots and a line of control hints under it.
+- **The source's art.** The Godot game has paintings made for exactly these panels: `ui_exploration_hud_plate.png` (exploration_hud.gd), `ui_notification_toast_frame.png` (notification_toast.gd) and `ui_battle_command_ribbon.png` (battle_scene.gd). It lays them behind its panels with their black ground.
+  - `Unreal/Tools/export_hud_art.py` crops each to its plate and makes the ground outside it transparent (`Unreal/ArtSource/Hud`, `--check`). The frames are thin lines with gaps and the panel inside is as dark as the ground outside, so the lines are thickened into a closed wall before the flood and the flooded region grown back afterwards.
+  - `-run=MemoriaHudAssets` imports them to `Content/Memoria/Presentation/Hud` (`-Refresh` imports again).
+- **What changed on screen.**
+  - **Status, top right** (`UMemoriaExplorationHudWidget`): drawn on the plate. The HP gauge (with its trailing ghost) sits in the plate's slot, each row stands over its rule beside a small icon in the plate's frame. The rows' text is unchanged (tests read it).
+  - **Place, top left** (`UMemoriaFieldHudWidget`, new): the place and its subtitle on the toast frame, in the run's language ("벨트 중간역 / 페이지의 무게"; it was English capitals in every language). Under it the quest's line and the toasts, as chips. The interaction prompt is a chip over the bottom centre, with the name, a key cap and the verb. The control hint is a faint line at the bottom left.
+  - `AMemoriaSliceController::StatusWidget` is now this widget. It was a compact view of the development narrative widget.
+  - **Combat, bottom centre** (`UMemoriaCombatHudWidget`): the command ribbon. Its seven cells hold Elia's four techniques (key, name on two lines, cooldown draining from the cell), the burn, the guard and the dodge; the last three light while they are in use. The left orb holds Arrel's HP with a ring that empties, the right orb the memories he still holds. The HP gauge stands over the ribbon, the statuses beside it. The control line under the bar is gone: the cells carry the keys, and the attack's hint stands over the gauge during a fight.
+  - **Moved to make room:** the tutorial hint now takes the band between the two top plates (it overlapped the status panel before this session too); the achievement popup comes to rest under the status plate.
+- **Shared code.** `MemoriaHudKit` (plates, image, text, gauge, ring, diamond). Each widget falls back to a plain panel if its plate is not imported.
+- **Tests.** The two dressing tests now also check that the status panel has its plate, the combat bar its ribbon, and that the field HUD names the place and subtitle in the run's language.
+  - Captures read: the Belt and Drift with toasts; Verdan with the prompt at Malet; a fight with the ribbon, statuses and unlocked techniques; the victory panel; the tutorial hint and the achievement popup side by side.
+- **Known gaps.**
+  - The victory panel, the burn picker and the defeat veil keep their plain panels.
+  - The orbs show a number and a ring, not a filling sphere.
+  - Interaction prompts are still authored in English in code ("Malet | E / A: talk").
+  - The memory orb's ring is full at twelve memories, a number chosen for the ring and not taken from the source.
+- **Results.** Visual tests run on this tree and passing: BeltDressing, DriftDressing, ChapterRevisit, Chapter4, FieldCombat, EliaSkills, FieldBurn, FieldRewards, VerdanExploration, TutorialHints, Achievements, PauseMenu, Journal, GameOver. The full registry runs at the end of S340.
+
 # Migration handoff — S338 the chapter maps dressed (Claude lane, 2026-10-02)
 
 - **Why.** The user's words: the game "still feels like a prototype". The story scenes read as finished; the field of Chapters 3 and 4 was flat single-colour tiles, a building of black boxes and cube rubble. Order agreed with the user: the maps (this session), the field HUD (S339), NPC movement and hit effects (S340).

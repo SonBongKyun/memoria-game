@@ -1,11 +1,13 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Styling/SlateBrush.h"
 #include "MemoriaExplorationHudWidget.generated.h"
 
 // S316: the field status panel after exploration_hud.gd, painted at the top right while exploring:
 // HP with the trailing ghost bar, the chapter and place, memories held and burned, grains and items.
 // (The source's pulse, weapon and quest rows have no Unreal systems yet.)
+// S339: drawn on the source's own plate (ui_exploration_hud_plate), with the gauge in its slot.
 UCLASS()
 class MEMORIA_API UMemoriaExplorationHudWidget : public UUserWidget
 {
@@ -17,12 +19,16 @@ public:
     float GetGhostHp() const { return GhostHp; }
     // S320: the place in the chapter row (Verdan Market unless a chapter map names its own).
     void SetPlace(const FString& En, const FString& Ko) { PlaceEn = En; PlaceKo = Ko; }
+    bool HasPlate() const { return Plate != nullptr; }
 protected:
+    virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry, float DeltaSeconds) override;
     virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const override;
 private:
     mutable TArray<FString> Lines;
     float GhostHp = -1.f;
+    UPROPERTY(Transient) TObjectPtr<class UTexture2D> Plate;
+    FSlateBrush PlateBrush;
     FString PlaceEn = TEXT("Verdan Market"), PlaceKo = TEXT("베르단 시장");
 };

@@ -6,6 +6,7 @@
 class UMemoriaNarrativeSubsystem;
 class UMemoriaInteractionComponent;
 class UMemoriaDevelopmentNarrativeWidget;
+class UMemoriaFieldHudWidget;
 class UMemoriaArchiveWidget;
 class UMemoriaTitleWidget;
 class UMemoriaPauseWidget;
@@ -43,6 +44,7 @@ public:
     const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
     UMemoriaArchiveWidget* GetArchiveWidget() const { return ArchiveWidget; }
     UMemoriaDevelopmentNarrativeWidget* GetNarrativeWidget() const { return NarrativeWidget; }
+    UMemoriaFieldHudWidget* GetFieldHud() const { return StatusWidget; }
     UMemoriaTitleWidget* GetTitleWidget() const { return TitleWidget; }
     // S317: the ESC pause menu (pause_menu.gd) while exploring.
     UMemoriaPauseWidget* GetPauseWidget() const { return PauseWidget; }
@@ -102,7 +104,9 @@ private:
     void Cue(const TCHAR* Id) const;
     UPROPERTY(Transient) TObjectPtr<UMemoriaArchiveWidget> ArchiveWidget;
     UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> NarrativeWidget;
-    UPROPERTY(Transient) TObjectPtr<UMemoriaDevelopmentNarrativeWidget> StatusWidget;
+    // S339: the HUD of the field beside the status plate (the place, toasts, the prompt). It was a compact view of the
+    // development narrative widget until then.
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldHudWidget> StatusWidget;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMemoriaInteractionComponent> Interaction;
     FString LastPrompt; FString LastNotice;
     TSet<FKey> HeldConfirmKeys;
