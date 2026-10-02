@@ -42,6 +42,8 @@ public:
     // S328: the source's battle_started statistic, counted as a field encounter begins.
     void RecordBattleStarted() { if (HasActiveRun() && State.TotalBattles < MAX_int64) ++State.TotalBattles; }
     void GrantFieldItem(const FString& ItemId, int64 Count);
+    // S341: GameManager.remove_item. Takes one from the count and drops the entry at zero; false when there is none.
+    bool ConsumeItem(const FString& ItemId);
     // S317: the options' language applies to the live run too.
     void SetLocale(const FString& Locale) { if (HasActiveRun()) State.CurrentLocale = Locale == TEXT("en") ? TEXT("en") : TEXT("ko"); }
     EMemoriaMemoryResult BurnMemory(const FString& Id, EMemoriaBurnMode Mode = EMemoriaBurnMode::Normal, bool bAllowFaded = false);

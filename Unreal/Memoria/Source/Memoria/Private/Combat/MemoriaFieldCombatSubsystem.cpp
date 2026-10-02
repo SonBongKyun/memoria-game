@@ -1,4 +1,5 @@
 #include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
@@ -142,6 +143,15 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         Impact(Spark, FLinearColor(.78f, .85f, 1.f), 80.f, false);
         Cue(GetWorld(), TEXT("shield"));
         return true;
+    }
+    if (bWarded)
+    {
+        // S341: the witness ink's guard. The blow is turned aside and the ward is spent.
+        bWarded = false;
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("잉크가 막았다") : TEXT("Warded"), FLinearColor(.72f, .8f, 1.f));
+        Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(.7f, .8f, 1.f), 120.f, true);
+        Cue(GetWorld(), TEXT("shield"));
+        return false;
     }
     if (ShieldLeft > 0.f) Damage *= HummingShieldFactor; // Elia's humming shield (S319)
     auto& Hp = Run->State.Player.Hp;
@@ -495,6 +505,137 @@ void UMemoriaFieldCombatSubsystem::Burst(const FVector& Location, int32 Count, c
         Sparks.Add(S);
     }
 }
+FString UMemoriaFieldCombatSubsystem::QuickItemId(int32 Slot) const
+{
+    const auto* Run = RunOf(GetWorld());
+    switch (Slot)
+    {
+    case 0:
+    {
+        if (!Run) return TEXT("potion");
+        // The potion for a small wound; the hi-potion once the wound is deep, or when it is all there is.
+        const int64 Missing = Run->State.Player.MaxHp - Run->State.Player.Hp, Small = Run->GetItemCount(TEXT("potion")), Large = Run->GetItemCount(TEXT("hi_potion"));
+        return Large > 0 && (Small <= 0 || Missing >= HiPotionFrom) ? TEXT("hi_potion") : TEXT("potion");
+    }
+    case 1: return TEXT("antidote");
+    case 2: return TEXT("firebomb");
+    case 3: return TEXT("smoke_bomb");
+    case 4: return TEXT("witness_ink");
+    default: return FString();
+    }
+}
+int64 UMemoriaFieldCombatSubsystem::QuickItemCount(int32 Slot) const
+{
+    const auto* Run = RunOf(GetWorld());
+    if (!Run) return 0;
+    return Slot == 0 ? Run->GetItemCount(TEXT("potion")) + Run->GetItemCount(TEXT("hi_potion")) : Run->GetItemCount(QuickItemId(Slot));
+}
+bool UMemoriaFieldCombatSubsystem::UseQuickItem(int32 Slot, const FVector& Aim)
+{ return Slot >= 0 && Slot < QuickSlots && UseItem(QuickItemId(Slot), Aim); }
+bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector& Aim)
+{
+    APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld());
+    const FMemoriaFieldItem* Item = FindFieldItem(ItemId);
+    if (!Pawn || !Run || !Item || bDefeated || bPicking || CastLeft > 0.f) return false;
+    const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    const FVector Me = Pawn->GetActorLocation();
+    auto& Hp = Run->State.Player.Hp; const int64 Max = Run->State.Player.MaxHp;
+    auto Refuse = [&](const TCHAR* InKo, const TCHAR* InEn)
+    {
+        ItemRefusal = Ko ? InKo : InEn;
+        Popup(Me + FVector(0, 0, 175.f), 0.f, true, ItemRefusal, FLinearColor(.72f, .70f, .66f));
+        return false;
+    };
+    if (ItemCooldownLeft > 0.f) return false;
+    if (Run->GetItemCount(ItemId) <= 0) return Refuse(TEXT("남은 것이 없다"), TEXT("None left"));
+    // An item that would do nothing is kept.
+    switch (Item->Effect)
+    {
+    case EMemoriaItemEffect::Heal: if (Hp >= Max) return Refuse(TEXT("HP가 가득하다"), TEXT("HP is full")); break;
+    case EMemoriaItemEffect::Cure: if (!IsPoisoned() && Hp >= Max) return Refuse(TEXT("치유할 것이 없다"), TEXT("Nothing to cure")); break;
+    case EMemoriaItemEffect::Flee: if (LiveMonsterCount() == 0) return Refuse(TEXT("달아날 적이 없다"), TEXT("No one to flee from")); break;
+    case EMemoriaItemEffect::Ward: if (bWarded) return Refuse(TEXT("잉크가 아직 마르지 않았다"), TEXT("The ink still holds")); break;
+    default: break;
+    }
+    if (!Run->ConsumeItem(ItemId)) return false;
+    ItemRefusal.Reset(); ItemCooldownLeft = ItemCooldown; ++ItemsUsed;
+    if (auto* Game = GetWorld()->GetGameInstance())
+    {
+        if (auto* Achievements = Game->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordItemUsed();
+        if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("item:used:") + ItemId);
+    }
+    const FString Name = ItemName(ItemId, Ko);
+    switch (Item->Effect)
+    {
+    case EMemoriaItemEffect::Heal:
+    {
+        const int64 Restored = FMath::Min<int64>(Item->Power, Max - Hp); Hp += Restored;
+        Popup(Me + FVector(0, 0, 150.f), float(Restored), true, FString::Printf(TEXT("+%lld HP"), Restored), FLinearColor(.5f, 1.f, .6f));
+        Impact(Me + FVector(0, 0, 40.f), FLinearColor(.45f, 1.f, .6f), 110.f, false);
+        Cue(GetWorld(), TEXT("heal"));
+        break;
+    }
+    case EMemoriaItemEffect::Cure:
+    {
+        // "Cures poison and burn, then restores 12 HP."
+        const bool bCured = IsPoisoned(); PoisonLeft = 0;
+        const int64 Restored = FMath::Min<int64>(Item->Extra, Max - Hp); Hp += Restored;
+        Popup(Me + FVector(0, 0, 175.f), 0.f, true, bCured ? (Ko ? TEXT("해독") : TEXT("Cured")) : Name, FLinearColor(.6f, 1.f, .75f));
+        if (Restored > 0) Popup(Me + FVector(0, 0, 150.f), float(Restored), true, FString::Printf(TEXT("+%lld HP"), Restored), FLinearColor(.5f, 1.f, .6f));
+        Impact(Me + FVector(0, 0, 40.f), FLinearColor(.5f, 1.f, .8f), 100.f, false);
+        Cue(GetWorld(), TEXT("heal"));
+        break;
+    }
+    case EMemoriaItemEffect::Bomb:
+    {
+        // Thrown toward the aim, as far as Arrel's arm carries it.
+        FVector Reach = (Aim - Me) * FVector(1, 1, 0);
+        if (Reach.IsNearlyZero()) Reach = AimDirection * 300.f;
+        FMemoriaThrown Bomb; Bomb.From = Me + FVector(0, 0, 120.f); Bomb.To = Me + Reach.GetClampedToMaxSize(BombRange);
+        Thrown.Add(Bomb);
+        if (auto* Figure = PlayerFigure.Get(); Figure && !IsAttacking()) Figure->SetAim(Reach.Rotation().Yaw);
+        Cue(GetWorld(), TEXT("sword_slash"));
+        break;
+    }
+    case EMemoriaItemEffect::Flee:
+    {
+        // "Guaranteed escape from battle": the foes lose him in the smoke and are gone, and the fight pays nothing.
+        for (const auto& M : Monsters) if (M.IsValid() && !M->IsDead()) { Burst(M->GetActorLocation() + FVector(0, 0, 90.f), 10, FLinearColor(.6f, .62f, .68f), 220.f); M->Destroy(); }
+        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; WeakenLeft = 0.f; PoisonLeft = 0;
+        Burst(Me + FVector(0, 0, 80.f), 34, FLinearColor(.66f, .68f, .74f), 340.f);
+        Impact(Me + FVector(0, 0, 30.f), FLinearColor(.7f, .72f, .78f), 260.f, false);
+        Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("연기 속으로 사라졌다") : TEXT("Vanished in smoke"), FLinearColor(.82f, .84f, .9f));
+        Cue(GetWorld(), TEXT("flee"));
+        break;
+    }
+    case EMemoriaItemEffect::Ward:
+        bWarded = true;
+        Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("잉크의 수호") : TEXT("Ink's guard"), FLinearColor(.72f, .8f, 1.f));
+        Impact(Me + FVector(0, 0, 40.f), FLinearColor(.66f, .78f, 1.f), 120.f, false);
+        Cue(GetWorld(), TEXT("shield"));
+        break;
+    }
+    return true;
+}
+void UMemoriaFieldCombatSubsystem::BurstBomb(const FVector& At)
+{
+    // "Deals 12 damage, then burns the enemy for 2 turns" (15 a turn), to every foe the fire reaches.
+    const FMemoriaFieldItem* Bomb = FindFieldItem(TEXT("firebomb"));
+    for (const auto& Weak : Monsters)
+    {
+        AMemoriaFieldMonster* Monster = Weak.Get();
+        if (!Monster || Monster->IsDead() || FVector::Dist2D(Monster->GetActorLocation(), At) > BombRadius) continue;
+        if (Monster->TakeHit(float(Bomb->Extra), At, 40.f))
+        {
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), float(Bomb->Extra), false, FString(), FLinearColor(1.f, .55f, .2f));
+            if (!Monster->IsDead()) Monster->Ignite(float(Bomb->Power), BombBurnTicks);
+        }
+    }
+    Burst(At + FVector(0, 0, 30.f), 30, FLinearColor(1.f, .5f, .16f), 520.f);
+    Impact(At + FVector(0, 0, 20.f), FLinearColor(1.f, .55f, .2f), BombRadius, true);
+    HitStop(HitStopLight, ShakeHeavy);
+    Cue(GetWorld(), TEXT("burn_ignite"));
+}
 void UMemoriaFieldCombatSubsystem::Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy)
 {
     FMemoriaImpact Mark; Mark.Location = Location; Mark.Color = Color; Mark.Radius = Radius; Mark.bHeavy = bHeavy; Mark.Life = bHeavy ? .36f : .26f;
@@ -525,6 +666,10 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
     const float Real = FApp::GetDeltaTime();
     if (HitStopLeft > 0.f && (HitStopLeft -= Real) <= 0.f && !bPicking && GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
     ShakeClock += Real; ShakeLeft = FMath::Max(0.f, ShakeLeft - Real);
+    // S341: the item's cooldown, and a thrown firebomb's flight to where it bursts.
+    ItemCooldownLeft = FMath::Max(0.f, ItemCooldownLeft - DeltaSeconds);
+    for (int32 I = Thrown.Num() - 1; I >= 0; --I)
+        if ((Thrown[I].Age += DeltaSeconds) >= BombFlight) { const FVector At = Thrown[I].To; Thrown.RemoveAt(I); BurstBomb(At); }
     // The impact marks and the hit light also run on real time: they open during the stop, which is their moment.
     HurtAge += Real;
     for (FMemoriaImpact& Mark : Impacts) Mark.Age += Real;
@@ -567,6 +712,7 @@ void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
     for (const auto& M : Monsters) if (M.IsValid()) M->Destroy();
     Monsters.Reset(); bDefeated = false; DefeatLeft = 0.f; StaggerLeft = CastLeft = DashLeft = 0.f; ComboStep = -1;
     WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
+    Thrown.Reset(); bWarded = false;
     EndBlock(); EndCharge();
     if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
 }

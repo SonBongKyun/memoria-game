@@ -30,6 +30,22 @@ UTexture2D* Load(EArt Art)
 #endif
     return Texture;
 }
+FString ItemPackage(const FString& ItemId)
+{
+    // "hi_potion" -> T_ItemHiPotion
+    FString Name; bool bUpper = true;
+    for (const TCHAR C : ItemId) { if (C == TEXT('_')) { bUpper = true; continue; } Name.AppendChar(bUpper ? FChar::ToUpper(C) : C); bUpper = false; }
+    return TEXT("/Game/Memoria/Presentation/Hud/T_Item") + Name;
+}
+UTexture2D* LoadItem(const FString& ItemId)
+{
+    const FString Path = ItemPackage(ItemId);
+    auto* Texture = LoadObject<UTexture2D>(nullptr, *(Path + TEXT(".") + FPaths::GetBaseFilename(Path)), nullptr, LOAD_NoWarn | LOAD_Quiet);
+#if WITH_EDITOR
+    if (Texture) FTextureCompilingManager::Get().FinishCompilation({Texture});
+#endif
+    return Texture;
+}
 bool Brush(FSlateBrush& Out, UTexture2D* Texture)
 {
     if (!Texture) return false;

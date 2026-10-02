@@ -23,6 +23,10 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "assets" / "cg" / "generated"
 OUT = ROOT / "Unreal" / "ArtSource" / "Hud"
 SEAL = 7  # pixels a frame's gaps are sealed by before the flood
+# S341: the icons of the items Arrel can use in the field (GameManager.ITEMS "icon"), already on a clear ground.
+ITEMS = ROOT / "assets" / "ui" / "items"
+ICONS = ("potion", "hi_potion", "antidote", "firebomb", "smoke_bomb", "witness_ink")
+ICON_SIZE = 128
 # name: (source, crop box, output width, how dark counts as ground)
 PLATES = {
     "hud_plate": ("ui_exploration_hud_plate.png", (16, 8, 1704, 884), 844, 16),
@@ -81,8 +85,14 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     failed = False
-    for name, (source, box, width, dark) in PLATES.items():
-        image = cut(source, box, width, dark)
+    images = {name: cut(source, box, width, dark) for name, (source, box, width, dark) in PLATES.items()}
+    for item in ICONS:
+        icon = Image.open(ITEMS / f"{item}.png").convert("RGBA")
+        icon.thumbnail((ICON_SIZE, ICON_SIZE), Image.LANCZOS)
+        square = Image.new("RGBA", (ICON_SIZE, ICON_SIZE), (0, 0, 0, 0))
+        square.paste(icon, ((ICON_SIZE - icon.width) // 2, (ICON_SIZE - icon.height) // 2))
+        images[f"item_{item}"] = square
+    for name, image in images.items():
         data = encode(image)
         path = OUT / f"{name}.png"
         if args.check:

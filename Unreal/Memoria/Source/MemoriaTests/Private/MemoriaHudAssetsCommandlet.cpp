@@ -1,5 +1,6 @@
 #include "MemoriaHudAssetsCommandlet.h"
 #include "Presentation/MemoriaHudKit.h"
+#include "Combat/MemoriaFieldCombatTypes.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Engine/Texture2D.h"
 #include "Factories/TextureFactory.h"
@@ -32,6 +33,24 @@ int32 UMemoriaHudAssetsCommandlet::Main(const FString& Params)
         FSavePackageArgs Args; Args.TopLevelFlags = RF_Public | RF_Standalone;
         const bool bSaved = UPackage::SavePackage(T->GetOutermost(), T, *FPackageName::LongPackageNameToFilename(Path, FPackageName::GetAssetPackageExtension()), Args);
         UE_LOG(LogTemp, Display, TEXT("HUD_ASSET %s %dx%d %s"), *Name, T->GetSizeX(), T->GetSizeY(), bSaved ? TEXT("SAVED") : TEXT("FAILED"));
+        if (!bSaved) return 1;
+    }
+    // S341: the item icons, by the name the HUD loads them under.
+    for (const auto& Item : MemoriaCombatTuning::FieldItems)
+    {
+        const FString Path = MemoriaHudKit::ItemPackage(Item.Id), Name = FPackageName::GetShortName(Path);
+        if (!bRefresh && MemoriaHudKit::LoadItem(Item.Id)) { UE_LOG(LogTemp, Display, TEXT("HUD_ASSET_KEPT %s"), *Name); continue; }
+        const FString File = Art / (FString(TEXT("item_")) + Item.Id + TEXT(".png"));
+        auto* Factory = NewObject<UTextureFactory>(); bool bCancelled = false;
+        auto* T = Cast<UTexture2D>(Factory->FactoryCreateFile(UTexture2D::StaticClass(), CreatePackage(*Path), *Name, RF_Public | RF_Standalone, *File, nullptr, GWarn, bCancelled));
+        if (!T || bCancelled) { UE_LOG(LogTemp, Error, TEXT("HUD_ASSET_FAILED %s"), *File); return 1; }
+        T->LODGroup = TEXTUREGROUP_UI; T->CompressionSettings = TC_EditorIcon; T->MipGenSettings = TMGS_NoMipmaps;
+        T->Filter = TF_Bilinear; T->SRGB = true; T->NeverStream = true;
+        T->PostEditChange(); FTextureCompilingManager::Get().FinishCompilation({T});
+        FAssetRegistryModule::AssetCreated(T); T->MarkPackageDirty();
+        FSavePackageArgs Args; Args.TopLevelFlags = RF_Public | RF_Standalone;
+        const bool bSaved = UPackage::SavePackage(T->GetOutermost(), T, *FPackageName::LongPackageNameToFilename(Path, FPackageName::GetAssetPackageExtension()), Args);
+        UE_LOG(LogTemp, Display, TEXT("HUD_ASSET %s %s"), *Name, bSaved ? TEXT("SAVED") : TEXT("FAILED"));
         if (!bSaved) return 1;
     }
     return 0;

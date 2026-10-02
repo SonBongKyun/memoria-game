@@ -84,7 +84,7 @@ bool UMemoriaCombatHudWidget::IsShowing() const
     const auto* C = Combat.Get();
     return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
         C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned() ||
-        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetImpacts().Num() > 0 || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
+        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetImpacts().Num() > 0 || C->GetThrown().Num() > 0 || C->IsWarded() || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -287,6 +287,20 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
             TextAt(Elements, Layer + 3, Geometry, Second, Centre + FVector2D(0, 17), .5f, NameFont, Ink);
         }
         else TextAt(Elements, Layer + 3, Geometry, Name, Centre + FVector2D(0, 8), .5f, NameFont, Ink);
+    }
+    // S341: a firebomb in the air (a hot point on a low arc, with a short tail), and the ink's ward round Arrel.
+    for (const FMemoriaThrown& Bomb : C->GetThrown())
+    {
+        auto Fly = [&](float T) { return FMath::Lerp(Bomb.From, Bomb.To, T) + FVector(0, 0, 150.f * FMath::Sin(T * PI)); };
+        const float T = FMath::Clamp(Bomb.Age / MemoriaCombatTuning::BombFlight, 0.f, 1.f);
+        Segment(Elements, Layer + 1, Geometry, PC, Fly(FMath::Max(0.f, T - .16f)), Fly(T), 9.f, FLinearColor(1.f, .5f, .15f, .35f));
+        Segment(Elements, Layer + 2, Geometry, PC, Fly(FMath::Max(0.f, T - .05f)), Fly(T), 6.f, FLinearColor(1.f, .86f, .5f, 1.f));
+        Ring(Elements, Layer, Geometry, PC, Bomb.To, MemoriaCombatTuning::BombRadius, 2.f, FLinearColor(1.f, .45f, .15f, .35f));
+    }
+    if (const APawn* Arrel = C->GetPlayer(); Arrel && C->IsWarded())
+    {
+        Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 4.f), 78.f, 1.f, 2.f, FLinearColor(.72f, .8f, 1.f, .7f));
+        Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() + FVector(0, 0, 60.f), 58.f, 1.f, 1.5f, FLinearColor(.72f, .8f, 1.f, .35f));
     }
     if (const APawn* Arrel = C->GetPlayer(); Arrel && C->IsShielded())
         Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 4.f), 64.f, 1.f, 3.f, FLinearColor(.62f, .82f, 1.f, .8f));

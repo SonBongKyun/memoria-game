@@ -1,5 +1,8 @@
 #include "Combat/MemoriaFieldHudWidget.h"
 #include "Presentation/MemoriaFonts.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaFieldCombatTypes.h"
+#include "Engine/World.h"
 #include "Presentation/MemoriaHudKit.h"
 #include "Presentation/MemoriaUiKit.h"
 #include "Engine/Texture2D.h"
@@ -21,6 +24,8 @@ void UMemoriaFieldHudWidget::NativeConstruct()
     Super::NativeConstruct();
     Toast = MemoriaHudKit::Load(MemoriaHudKit::EArt::Toast);
     MemoriaHudKit::Brush(ToastBrush, Toast);
+    for (const auto& Item : MemoriaCombatTuning::FieldItems)
+        if (auto* Icon = MemoriaHudKit::LoadItem(Item.Id)) { Icons.Add(Item.Id, Icon); MemoriaHudKit::Brush(IconBrushes.Add(Item.Id), Icon); }
 }
 int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -80,6 +85,28 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
             X += KeyW + 12.f;
         }
         Text(Elements, Layer + 1, Geometry, Verb, FVector2D(X, Mid), 0.f, VerbFont, Srgb(.90f, .88f, .84f));
+    }
+    // S341: the quick items, at the bottom right. Each slot shows the item it would use now, its key and how many
+    // are left; an empty slot is dim, and the tray darkens for the moment between two items.
+    if (const auto* Combat = GetWorld() ? GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>() : nullptr; Combat && Combat->GetPlayer())
+    {
+        static const TCHAR* Keys[MemoriaCombatTuning::QuickSlots] = {TEXT("Z"), TEXT("X"), TEXT("C"), TEXT("V"), TEXT("B")};
+        const FVector2D Cell(74, 74); const float Gap = 8.f;
+        const FVector2D TrayAt(Size.X - 26 - MemoriaCombatTuning::QuickSlots * (Cell.X + Gap) + Gap, Size.Y - Cell.Y - 34);
+        const float Cooling = Combat->GetItemCooldown() / MemoriaCombatTuning::ItemCooldown;
+        for (int32 I = 0; I < MemoriaCombatTuning::QuickSlots; ++I)
+        {
+            const FString Id = Combat->QuickItemId(I); const int64 Count = Combat->QuickItemCount(I);
+            const FVector2D SlotAt = TrayAt + FVector2D(I * (Cell.X + Gap), 0);
+            const float Lit = Count > 0 ? 1.f : .34f;
+            Box(Elements, Layer, Geometry, SlotAt - FVector2D(1.5, 1.5), Cell + FVector2D(3, 3), Srgb(.70f, .56f, .34f, .5f * Lit));
+            Box(Elements, Layer, Geometry, SlotAt, Cell, Srgb(.030f, .024f, .040f, .86f));
+            if (const FSlateBrush* Icon = IconBrushes.Find(Id)) Image(Elements, Layer + 1, Geometry, *Icon, SlotAt + FVector2D(6, 6), Cell - FVector2D(12, 12), FLinearColor(1, 1, 1, Lit));
+            else Text(Elements, Layer + 1, Geometry, MemoriaCombatTuning::ItemName(Id, View.bKorean).Left(2), SlotAt + Cell * .5, .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 14), Srgb(.86f, .82f, .76f, Lit));
+            if (Cooling > 0.f && Count > 0) Box(Elements, Layer + 2, Geometry, SlotAt, FVector2D(Cell.X, Cell.Y * Cooling), Srgb(0, 0, .01f, .6f));
+            Text(Elements, Layer + 2, Geometry, Keys[I], SlotAt + FVector2D(9, 11), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 12), Srgb(.86f, .80f, .68f, .5f + .5f * Lit));
+            Text(Elements, Layer + 2, Geometry, FString::Printf(TEXT("%lld"), Count), SlotAt + FVector2D(Cell.X - 6, Cell.Y - 12), 1.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15), Count > 0 ? Srgb(1.f, .96f, .88f) : Srgb(.5f, .5f, .52f));
+        }
     }
     // The controls, faint, at the bottom left.
     Text(Elements, Layer, Geometry, View.bKorean ? TEXT("WASD  이동      TAB  기억      ESC  메뉴") : TEXT("WASD  Move      TAB  Memories      ESC  Menu"),
