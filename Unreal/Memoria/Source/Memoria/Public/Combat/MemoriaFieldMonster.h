@@ -29,6 +29,9 @@ public:
     bool IsBurning() const { return IgniteLeft > 0; }
     // S315: a parried foe reels for longer than a stagger.
     void Stun(float Seconds);
+    // S342: a drain gives the foe back part of the harm it did.
+    void Heal(float Amount) { if (!IsDead()) Health = FMath::Min(MaxHealth, Health + Amount); }
+    const FVector& GetRushDirection() const { return RushDirection; }
     float GetHitFlash() const { return HitFlash; }
     bool IsDead() const { return State == EMemoriaMonsterState::Dead; }
     EMemoriaMonsterState GetState() const { return State; }
@@ -48,7 +51,8 @@ private:
     float Health = MemoriaCombatTuning::HuskHealth, MaxHealth = MemoriaCombatTuning::HuskHealth, StateTime = 0.f;
     int32 Strikes = 0, IgniteLeft = 0;
     float IgniteDamage = 0.f, IgniteClock = 0.f, HitFlash = 0.f, StaggerFor = 0.f;
-    FVector PreviousLocation = FVector::ZeroVector;
+    FVector PreviousLocation = FVector::ZeroVector, RushDirection = FVector::ForwardVector;
+    bool bRushHit = false;
     void Enter(EMemoriaMonsterState Next);
     UMemoriaFieldCombatSubsystem* Combat() const;
 };

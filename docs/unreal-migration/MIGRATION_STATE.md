@@ -1,3 +1,39 @@
+# Migration handoff — S342 the maps' encounter pools as foes of their own (Claude lane, 2026-10-02)
+
+- **Why.** Second gameplay step after S341. Every fight in the field was against one of two foes that fight the same way (walk up, wind up, strike): the husk and the thief. The Belt Waystation's and Drift Shelter's pools name six different enemies with their own HP, attack and abilities; the port spawned husks for the void ones and thieves for the rest, whatever their names.
+- **The six** (`FoeSpec`, `EMemoriaFoeKind`), each by its source name, HP and attack (`belt_waystation.gd`, `drift_shelter.gd` `RandomEncounter.setup`), Korean names from `GameManager.ENEMY_NAMES_KO`:
+
+| Foe | Source HP / atk | Here | Fights as | Its blow |
+|---|---|---|---|---|
+| Belt Scavenger (벨트 약탈자) | 55 / 12 | 50 HP, 7 | brawler, quick | weakens |
+| Void Wisp (보이드 도깨비불) | 45 / 14, void | 40 HP, 8 | **caster** | drains |
+| Dust Crawler (먼지 크롤러) | 40 / 10 | 36 HP, 6 | **charger**, pack of three | poisons |
+| Memory Leech (기억 거머리) | 50 / 13, void | 45 HP, 8 | brawler | drains |
+| Rubble Rat (잔해쥐) | 35 / 9 | 32 HP, 5 | **charger**, pack of three | poisons |
+| Ash Walker (재의 방랑자) | 60 / 11 | 55 HP, 8 | brawler, slow | scorches and weakens |
+
+  - Health is near the source's HP and the blow about 0.6 of its attack, as the thief's 50 and 12 became 45 and 7. These are first-pass numbers for the user's tuning.
+- **Two new ways to fight** (`AMemoriaFieldMonster`).
+  - **Caster.** It closes to 430 units, backs away when Arrel comes within 230, and from between casts a slow orb (480 units a second, 2.4 s) at where he stands. The orb can be stepped out of, dodged through, guarded or parried; it fades if its thrower is dead when it arrives.
+  - **Charger.** Within 380 units it commits to a lane toward Arrel, shown as a red lane on the ground for the windup, then runs 520 units down it and strikes him once if he is still in it. Walls stop it; Arrel and the other foes do not.
+- **Two new abilities** (`battle_manager.gd`).
+  - **Drain:** the foe gets back half the harm its blow did.
+  - **Scorch** (`burn_attack`): two turns of attack × 0.2 + 3 on Arrel, never felling him, like the poison. The antidote ends it, as the source's cures poison and burn.
+- **Telling them apart.** There are two foe models. A pool foe wears one of them at its own height with its own crack glow and rim colour (`FMemoriaFoeLook::bRetint`), and its name stands over its health bar. The husk and the thief are unchanged.
+- **Where they rise** (`AMemoriaChapterPresentation`). A random encounter spawns the pool entry's own foe in its pack (three chargers, two of the others); a one-time battle area spawns one fewer. The bestiary records the source's HP and attack for them. Verdan's pool is unchanged.
+- **Tests.** `MemoriaVisual.FoeVariety` (new, registered).
+  - Every pool entry of both maps finds a foe of its own with the source's HP, attack and kind; an unknown name falls back by its kind.
+  - The wisp casts from its range and never closes; its orb does the wisp's harm; the next one is stepped out of; a wounded wisp's blow gives it back half the harm.
+  - The crawler commits to a lane pointing at Arrel, its rush strikes him once and poisons him, and it runs on past.
+  - The ash walker's blow scorches and weakens; the scorch bites; the antidote ends the scorch and the poison.
+  - Captures read: the six in a row, the orb in flight, the lane, the rush, the scorch. The Belt's revisit capture now shows two Belt Scavengers under their name.
+- **Known gaps.**
+  - Six foes on two models: they differ by size, glow and name, not by shape. New models would be a request to Codex (the Belt's and Drift's pools were listed as not requested in the S331 art request).
+  - An orb passes through walls.
+  - The foes do not avoid each other, and a charger can rush out of the lit part of a map before it turns back.
+  - No numbers are tuned by play yet.
+- **Results.** `MemoriaVisual.FoeVariety`, `ChapterRevisit` and `FieldFoes` pass on this tree. The full registry follows.
+
 # Migration handoff — S341 items used in the field (Claude lane, 2026-10-02)
 
 - **Why.** The user asked for gameplay work to continue after the field finish (S338–S340). The plainest hole: items dropped, were counted in the HUD, and could not be used. The turn-based battle that used them was retired in S329 and nothing took its place.

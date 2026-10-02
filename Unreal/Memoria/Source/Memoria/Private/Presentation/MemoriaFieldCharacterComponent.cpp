@@ -225,7 +225,14 @@ bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
         {
             for (int32 I = 0; I < Skeletal->GetNumMaterials(); ++I)
                 if (UMaterialInterface* Base = Skeletal->GetMaterial(I))
-                { auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal); Skeletal->SetMaterial(I, Material); FoeMaterials.Add(Material); }
+                {
+                    auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal); Skeletal->SetMaterial(I, Material); FoeMaterials.Add(Material);
+                    if (Look.bRetint)
+                    {
+                        Material->SetVectorParameterValue(TEXT("Glow"), Look.ModelGlow); Material->SetScalarParameterValue(TEXT("CrackStrength"), Look.ModelCrack);
+                        Material->SetVectorParameterValue(TEXT("RimColor"), Look.ModelRim); Material->SetScalarParameterValue(TEXT("RimStrength"), Look.ModelRimStrength);
+                    }
+                }
             if (auto* Dagger = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_dagger")))
             { Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms(); Blade = AttachGrip(Dagger, 1.f); }
             if (Card) Card->SetHiddenInGame(true);

@@ -84,7 +84,7 @@ bool UMemoriaCombatHudWidget::IsShowing() const
     const auto* C = Combat.Get();
     return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
         C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned() ||
-        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetImpacts().Num() > 0 || C->GetThrown().Num() > 0 || C->IsWarded() || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
+        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetImpacts().Num() > 0 || C->GetThrown().Num() > 0 || C->IsWarded() || C->GetOrbs().Num() > 0 || C->IsScorched() || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -172,7 +172,10 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, M->GetActorLocation() + FVector(0, 0, M->Spec().Height + 25.f), At, false)) continue;
         const FVector2D Bar(96, 9);
         Box(Elements, Layer, Geometry, At - FVector2D(Bar.X * .5 + 2, 2), Bar + FVector2D(4, 4), FLinearColor(0, 0, 0, .75f));
-        Box(Elements, Layer + 1, Geometry, At - FVector2D(Bar.X * .5, 0), FVector2D(Bar.X * M->GetHealth() / M->GetMaxHealth(), Bar.Y), Srgb(.62f, .12f, .78f));
+        Box(Elements, Layer + 1, Geometry, At - FVector2D(Bar.X * .5, 0), FVector2D(Bar.X * M->GetHealth() / M->GetMaxHealth(), Bar.Y), M->Spec().bVoid ? Srgb(.62f, .12f, .78f) : Srgb(.80f, .42f, .16f));
+        // S342: the pools' foes are named over their bar, since two kinds can share a model.
+        if (M->Spec().bRetint)
+            Text(Elements, Layer + 2, Geometry, Ko ? M->Spec().NameKo : M->Spec().Name, At - FVector2D(0, 12), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.90f, .86f, .80f, .92f));
     }
     // Rising damage numbers: ember on a husk, red on Arrel.
     for (const auto& P : C->GetPopups())
@@ -253,6 +256,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     const int32 WeakSeconds = FMath::CeilToInt(C->GetWeakenLeft()), PoisonTicks = C->GetPoisonTicksLeft();
     if (C->IsWeakened()) Tag(Ko ? FString::Printf(TEXT("약화 %d초"), WeakSeconds) : FString::Printf(TEXT("Weak %ds"), WeakSeconds), Srgb(.80f, .66f, 1.f));
     if (C->IsPoisoned()) Tag(Ko ? FString::Printf(TEXT("중독 ×%d"), PoisonTicks) : FString::Printf(TEXT("Poison ×%d"), PoisonTicks), Srgb(.60f, 1.f, .42f));
+    if (C->IsScorched()) Tag(Ko ? FString::Printf(TEXT("화상 ×%d"), C->GetScorchTicksLeft()) : FString::Printf(TEXT("Scorch ×%d"), C->GetScorchTicksLeft()), Srgb(1.f, .62f, .30f));
     if (C->IsBlocking()) Tag(Ko ? TEXT("막기") : TEXT("Guard"), Srgb(.78f, .86f, 1.f));
     // The cells. S319: Elia's techniques show their name (??? until her diary unlocks it) and the cooldown
     // draining from the cell; then the burn, the guard and the dodge.
@@ -287,6 +291,18 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
             TextAt(Elements, Layer + 3, Geometry, Second, Centre + FVector2D(0, 17), .5f, NameFont, Ink);
         }
         else TextAt(Elements, Layer + 3, Geometry, Name, Centre + FVector2D(0, 8), .5f, NameFont, Ink);
+    }
+    // S342: a caster's orb: a bright point with a tail, and its shadow ring on the floor so its path can be read.
+    for (const FMemoriaOrb& Orb : C->GetOrbs())
+    {
+        const float Fade = FMath::Clamp((MemoriaCombatTuning::OrbLife - Orb.Age) / .3f, 0.f, 1.f);
+        const FVector Tail = Orb.Location - Orb.Velocity * .09f;
+        Segment(Elements, Layer + 1, Geometry, PC, Tail, Orb.Location, 16.f, FLinearColor(Orb.Color.R, Orb.Color.G, Orb.Color.B, .30f * Fade));
+        // The orb itself: a bright core inside a soft halo (rings in the orb's own plane, thick enough to fill).
+        Ring(Elements, Layer + 1, Geometry, PC, Orb.Location, 30.f, 7.f, FLinearColor(Orb.Color.R, Orb.Color.G, Orb.Color.B, .40f * Fade));
+        Ring(Elements, Layer + 2, Geometry, PC, Orb.Location, 15.f, 10.f, Toward(Orb.Color, .45f, .95f * Fade));
+        Ring(Elements, Layer + 2, Geometry, PC, Orb.Location, 5.f, 8.f, Toward(Orb.Color, .9f, Fade));
+        Ring(Elements, Layer, Geometry, PC, FVector(Orb.Location.X, Orb.Location.Y, -6.f), MemoriaCombatTuning::OrbRadius * .6f, 2.f, FLinearColor(Orb.Color.R, Orb.Color.G, Orb.Color.B, .45f * Fade));
     }
     // S341: a firebomb in the air (a hot point on a low arc, with a short tail), and the ink's ward round Arrel.
     for (const FMemoriaThrown& Bomb : C->GetThrown())

@@ -113,11 +113,11 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         }
     }
 }
-bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, float Damage)
+bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bRanged)
 {
     APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld()); auto* Figure = PlayerFigure.Get();
     if (!Pawn || !Monster || !Run || IsInvulnerable()) return false;
-    if (FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
+    if (!bRanged && FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
     if (bPicking) CloseBurnPicker();
     const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
     if (bBlocking)
@@ -158,6 +158,14 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage)); ++StrikesTaken;
     Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), Damage, true);
     Cue(GetWorld(), TEXT("hit"));
+    // S342: a draining blow gives the foe back half of the harm it did (battle_manager "drain").
+    if (Monster->Spec().Ability == EMemoriaFoeAbility::Drain || Monster->Spec().Second == EMemoriaFoeAbility::Drain)
+    {
+        const float Before = Monster->GetHealth(); Monster->Heal(Damage * DrainShare);
+        if (Monster->GetHealth() > Before)
+            Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Monster->GetHealth() - Before, false, FString::Printf(TEXT("+%d"), FMath::RoundToInt(Monster->GetHealth() - Before)), FLinearColor(.5f, 1.f, .6f));
+        Cue(GetWorld(), TEXT("drain"));
+    }
     // S340: a wound reddens the screen's edge and marks where it landed.
     HurtAge = 0.f; Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(1.f, .22f, .18f), 86.f, false);
     Burst(Pawn->GetActorLocation() + FVector(0, 0, 100.f), 8, FLinearColor(1.f, .3f, .22f), 260.f);
@@ -173,7 +181,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     StaggerLeft = PlayerStagger; bCharging = false;
     if (Figure) Figure->PlayAction(MemoriaCombatClips::Hit(), 1.3f);
     HitStop(HitStopLight, ShakeHeavy);
-    Afflict(Monster->Spec().Ability, Damage);
+    Afflict(Monster->Spec().Ability, Damage); Afflict(Monster->Spec().Second, Damage);
     return true;
 }
 TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Count, const FVector& Center, float Radius, EMemoriaFoeKind Kind)
@@ -184,7 +192,7 @@ TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Coun
     // codex.gd _on_battle_started: the wave is one encounter with its kind.
     if (Count > 0)
         if (auto* Codex = World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaCodexSubsystem>() : nullptr)
-        { const FMemoriaFoeSpec& S = FoeSpec(Kind); Codex->RecordEncounter(S.Name, S.bVoid, false, int32(S.Health), int32(S.Damage)); }
+        { const FMemoriaFoeSpec& S = FoeSpec(Kind); Codex->RecordEncounter(S.Name, S.bVoid, false, S.SourceHp > 0 ? S.SourceHp : int32(S.Health), S.SourceAtk > 0 ? S.SourceAtk : int32(S.Damage)); }
     for (int32 I = 0; I < Count; ++I)
     {
         const float Angle = 2.f * PI * I / FMath::Max(1, Count) + .6f;
@@ -241,6 +249,12 @@ void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Dam
         WeakenLeft = WeakenTime;
         Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("약화") : TEXT("Weakened"), FLinearColor(.75f, .6f, 1.f));
     }
+    else if (Ability == EMemoriaFoeAbility::Burn && ScorchLeft == 0)
+    {
+        // S342, battle_manager "burn_attack": two turns of attack * 0.2 + 3.
+        ScorchLeft = ScorchTicks; ScorchClock = PoisonInterval; ScorchDamage = int64(Damage * .2f) + 3;
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 195.f), 0.f, true, Ko ? TEXT("화상") : TEXT("Scorched"), FLinearColor(1.f, .55f, .2f));
+    }
     else if (Ability == EMemoriaFoeAbility::Poison && PoisonLeft == 0)
     {
         // Source poison: attack * 0.3 + 2..5 each turn; the field takes the middle of the range.
@@ -252,6 +266,36 @@ void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
 {
     WeakenLeft = FMath::Max(0.f, WeakenLeft - DeltaSeconds);
     auto* Run = RunOf(GetWorld()); APawn* Pawn = Player.Get();
+    if (ScorchLeft > 0 && Run && Pawn && (ScorchClock -= DeltaSeconds) <= 0.f)
+    {
+        // The scorch, like the poison, wears Arrel down but never fells him.
+        ScorchClock = PoisonInterval; --ScorchLeft;
+        auto& Hp = Run->State.Player.Hp;
+        const int64 Loss = FMath::Min(ScorchDamage, Hp - 1);
+        if (Loss > 0) { Hp -= Loss; Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, FString(), FLinearColor(1.f, .55f, .2f)); }
+    }
+    // S342: the orbs fly on; one that reaches Arrel strikes him as its thrower's blow, unless he is mid-dodge
+    // (it passes through) or its thrower is gone (it fades).
+    for (int32 I = Orbs.Num() - 1; I >= 0; --I)
+    {
+        FMemoriaOrb& Orb = Orbs[I];
+        Orb.Age += DeltaSeconds; Orb.Location += Orb.Velocity * DeltaSeconds;
+        bool bDone = Orb.Age >= OrbLife;
+        if (!bDone && Pawn && FVector::Dist2D(Orb.Location, Pawn->GetActorLocation()) <= OrbRadius)
+        {
+            AMemoriaFieldMonster* Owner = Orb.Owner.Get();
+            if (!Owner || Owner->IsDead()) bDone = true;
+            else if (!IsInvulnerable())
+            {
+                const float Damage = Orb.Damage; const FVector At = Orb.Location; const FLinearColor Color = Orb.Color;
+                Orbs.RemoveAt(I);
+                StrikePlayer(Owner, Damage, true);
+                Burst(At, 10, Color, 260.f);
+                continue;
+            }
+        }
+        if (bDone) Orbs.RemoveAt(I);
+    }
     if (PoisonLeft > 0 && Run && Pawn && (PoisonClock -= DeltaSeconds) <= 0.f)
     {
         // Poison wears Arrel down but never fells him; only a blow does.
@@ -260,6 +304,15 @@ void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
         const int64 Loss = FMath::Min(PoisonDamage, Hp - 1);
         if (Loss > 0) { Hp -= Loss; Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, FString(), FLinearColor(.55f, 1.f, .35f)); }
     }
+}
+void UMemoriaFieldCombatSubsystem::LaunchOrb(AMemoriaFieldMonster* Owner, const FVector& From, const FVector& Direction)
+{
+    if (!Owner || Direction.IsNearlyZero()) return;
+    FMemoriaOrb Orb; Orb.Location = From; Orb.Velocity = Direction.GetSafeNormal2D() * OrbSpeed; Orb.Damage = Owner->Spec().Damage; Orb.Owner = Owner;
+    Orb.Color = Owner->Spec().bRetint ? Owner->Spec().ModelRim : Owner->Spec().Glow;
+    Orbs.Add(Orb); ++OrbsLaunched;
+    Burst(From, 6, Orb.Color, 180.f);
+    Cue(GetWorld(), TEXT("void_pulse"));
 }
 void UMemoriaFieldCombatSubsystem::NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage)
 { if (Monster) Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), FLinearColor(1.f, .45f, .15f)); }
@@ -552,7 +605,7 @@ bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector&
     switch (Item->Effect)
     {
     case EMemoriaItemEffect::Heal: if (Hp >= Max) return Refuse(TEXT("HP가 가득하다"), TEXT("HP is full")); break;
-    case EMemoriaItemEffect::Cure: if (!IsPoisoned() && Hp >= Max) return Refuse(TEXT("치유할 것이 없다"), TEXT("Nothing to cure")); break;
+    case EMemoriaItemEffect::Cure: if (!IsPoisoned() && !IsScorched() && Hp >= Max) return Refuse(TEXT("치유할 것이 없다"), TEXT("Nothing to cure")); break;
     case EMemoriaItemEffect::Flee: if (LiveMonsterCount() == 0) return Refuse(TEXT("달아날 적이 없다"), TEXT("No one to flee from")); break;
     case EMemoriaItemEffect::Ward: if (bWarded) return Refuse(TEXT("잉크가 아직 마르지 않았다"), TEXT("The ink still holds")); break;
     default: break;
@@ -578,7 +631,7 @@ bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector&
     case EMemoriaItemEffect::Cure:
     {
         // "Cures poison and burn, then restores 12 HP."
-        const bool bCured = IsPoisoned(); PoisonLeft = 0;
+        const bool bCured = IsPoisoned() || IsScorched(); PoisonLeft = 0; ScorchLeft = 0;
         const int64 Restored = FMath::Min<int64>(Item->Extra, Max - Hp); Hp += Restored;
         Popup(Me + FVector(0, 0, 175.f), 0.f, true, bCured ? (Ko ? TEXT("해독") : TEXT("Cured")) : Name, FLinearColor(.6f, 1.f, .75f));
         if (Restored > 0) Popup(Me + FVector(0, 0, 150.f), float(Restored), true, FString::Printf(TEXT("+%lld HP"), Restored), FLinearColor(.5f, 1.f, .6f));
@@ -601,7 +654,7 @@ bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector&
     {
         // "Guaranteed escape from battle": the foes lose him in the smoke and are gone, and the fight pays nothing.
         for (const auto& M : Monsters) if (M.IsValid() && !M->IsDead()) { Burst(M->GetActorLocation() + FVector(0, 0, 90.f), 10, FLinearColor(.6f, .62f, .68f), 220.f); M->Destroy(); }
-        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; WeakenLeft = 0.f; PoisonLeft = 0;
+        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; Orbs.Reset();
         Burst(Me + FVector(0, 0, 80.f), 34, FLinearColor(.66f, .68f, .74f), 340.f);
         Impact(Me + FVector(0, 0, 30.f), FLinearColor(.7f, .72f, .78f), 260.f, false);
         Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("연기 속으로 사라졌다") : TEXT("Vanished in smoke"), FLinearColor(.82f, .84f, .9f));
@@ -712,7 +765,7 @@ void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
     for (const auto& M : Monsters) if (M.IsValid()) M->Destroy();
     Monsters.Reset(); bDefeated = false; DefeatLeft = 0.f; StaggerLeft = CastLeft = DashLeft = 0.f; ComboStep = -1;
     WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
-    Thrown.Reset(); bWarded = false;
+    Thrown.Reset(); bWarded = false; Orbs.Reset(); ScorchLeft = 0;
     EndBlock(); EndCharge();
     if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
 }
