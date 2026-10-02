@@ -233,9 +233,37 @@ public:
             F->Tick(.5f);
             Test->TestTrue(TEXT("A pawn does not let the rush cross the wall behind it"), F->GetActorLocation().X + 30.f <= TestCentre.X + 20.f + .1f);
             Test->TestEqual(TEXT("Rush restores its pawn collision response"), Collision->GetCollisionResponseToChannel(ECC_Pawn), ECR_Block);
-            Wall->Destroy(); Clear(); Pawn->SetActorLocation(Home);
-            return true;
+            Wall->Destroy(); Clear();
+            // Proximity must not strike through a wall that stops the actual rush segment.
+            F = Spawn(EMemoriaFoeKind::DustCrawler, FVector(-60, 0, 0));
+            F->Tick(.01f); F->Tick(.01f); F->Tick(F->Spec().Windup + .01f);
+            Test->TestTrue(TEXT("Thin-wall regression enters the real rush before the wall is placed"), F->GetState() == EMemoriaMonsterState::Rush);
+            Wall = World->SpawnActor<AActor>();
+            Box = NewObject<UBoxComponent>(Wall); Wall->SetRootComponent(Box); Wall->AddInstanceComponent(Box);
+            Box->SetBoxExtent(FVector(5, 160, 80)); Box->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            Box->SetCollisionObjectType(ECC_WorldStatic); Box->SetCollisionResponseToAllChannels(ECR_Block); Box->RegisterComponent();
+            Wall->SetActorLocation(TestCentre + FVector(-20, 0, 0));
+            Hp = Combat->GetPlayerHp(); Taken = Combat->GetStrikesTaken();
+            F->Tick(.5f);
+            Test->TestTrue(TEXT("The thin wall stops the rush before Arrel"), F->GetActorLocation().X + 30.f <= TestCentre.X - 25.f + .1f);
+            Test->TestEqual(TEXT("The blocked rush does not harm Arrel through the thin wall"), Combat->GetPlayerHp(), Hp);
+            Test->TestEqual(TEXT("The blocked rush does not count a strike through the thin wall"), Combat->GetStrikesTaken(), Taken);
+            Wall->Destroy(); Clear();
+            Phase = 13; Mark = Frame; break;
         }
+        case 13:
+            if (Frame < Mark + 40) break;
+            // The same long frame in an open lane crosses Arrel even though both endpoints are outside reach.
+            F = Spawn(EMemoriaFoeKind::DustCrawler, FVector(-150, 0, 0));
+            F->Tick(.01f); F->Tick(.01f); F->Tick(F->Spec().Windup + .01f);
+            Test->TestTrue(TEXT("Overshoot control enters the real rush"), F->GetState() == EMemoriaMonsterState::Rush);
+            Hp = Combat->GetPlayerHp(); Taken = Combat->GetStrikesTaken();
+            F->Tick(.5f);
+            Test->TestTrue(TEXT("The open-lane long frame runs beyond Arrel"), FVector::DotProduct(F->GetActorLocation() - Me, F->GetRushDirection()) > RushHit);
+            Test->TestEqual(TEXT("The traversed open lane strikes Arrel once during an overshoot"), Combat->GetStrikesTaken(), Taken + 1);
+            Test->TestEqual(TEXT("The traversed open lane deals the crawler's harm during an overshoot"), Combat->GetPlayerHp(), Hp - int64(F->Spec().Damage));
+            Clear(); Pawn->SetActorLocation(Home);
+            return true;
         }
         return false;
     }

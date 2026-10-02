@@ -125,8 +125,8 @@ public:
     int32 GetKills() const { return Kills; }
     int32 GetHitsLanded() const { return HitsLanded; }
     // Called by a husk at the end of its windup; false when the player dodged, left the reach, or is down.
-    // bRanged (S342): an orb's blow, which lands wherever the foe that threw it stands.
-    bool StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bRanged = false);
+    // bContactResolved: an orb or swept rush already checked contact; final foe distance is irrelevant.
+    bool StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bContactResolved = false);
     // S342: a caster's orb, and the burn a scorching blow leaves on Arrel.
     void LaunchOrb(AMemoriaFieldMonster* Owner, const FVector& From, const FVector& Direction);
     const TArray<FMemoriaOrb>& GetOrbs() const { return Orbs; }

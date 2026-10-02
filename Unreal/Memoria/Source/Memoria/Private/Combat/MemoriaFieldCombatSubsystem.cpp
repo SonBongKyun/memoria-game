@@ -113,11 +113,11 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         }
     }
 }
-bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bRanged)
+bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bContactResolved)
 {
     APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld()); auto* Figure = PlayerFigure.Get();
     if (!Pawn || !Monster || !Run || IsInvulnerable()) return false;
-    if (!bRanged && FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
+    if (!bContactResolved && FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
     if (bPicking) CloseBurnPicker();
     const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
     if (bBlocking)

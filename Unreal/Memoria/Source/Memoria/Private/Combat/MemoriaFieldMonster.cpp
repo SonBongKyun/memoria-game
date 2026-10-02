@@ -1,5 +1,6 @@
 #include "Combat/MemoriaFieldMonster.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "CollisionQueryParams.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaCombatClips.h"
 #include "Animation/AnimSequence.h"
@@ -173,7 +174,8 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         // Down the lane, striking Arrel once if he is still in it.
         {
             // Walls stop the rush; Arrel and the other foes do not (it runs through them).
-            const FVector Next = GetActorLocation() + RushDirection * RushSpeed * DeltaSeconds;
+            const FVector Before = GetActorLocation();
+            const FVector Next = Before + RushDirection * RushSpeed * DeltaSeconds;
             // Ignore pawns for this sweep only. An unswept retry after hitting a pawn would also
             // skip a wall behind it, especially during a long frame.
             auto* Collision = CastChecked<UPrimitiveComponent>(GetRootComponent());
@@ -181,8 +183,21 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
             Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
             SetActorLocation(Next, true);
             Collision->SetCollisionResponseToChannel(ECC_Pawn, PawnResponse);
+            // Resolve contact along the distance actually travelled, including a long frame that
+            // crosses Arrel. The hit radius must not reach through a wall that stopped the sweep.
+            const FVector PlayerPosition = Target->GetActorLocation();
+            const FVector Contact = FMath::ClosestPointOnSegment(PlayerPosition, Before, GetActorLocation());
+            if (!bRushHit && FVector::DistSquared2D(Contact, PlayerPosition) <= FMath::Square(RushHit))
+            {
+                FCollisionQueryParams Query(SCENE_QUERY_STAT(MemoriaRushContact), false, this);
+                Query.AddIgnoredActor(Target);
+                if (!GetWorld()->LineTraceTestByChannel(Contact, PlayerPosition, ECC_Visibility, Query))
+                {
+                    bRushHit = true;
+                    if (C) C->StrikePlayer(this, Spec().Damage, true);
+                }
+            }
         }
-        if (!bRushHit && Distance <= RushHit) { bRushHit = true; if (C) C->StrikePlayer(this, Spec().Damage); }
         if (State == EMemoriaMonsterState::Rush && StateTime >= RushDistance / RushSpeed) Enter(EMemoriaMonsterState::Recover);
         break;
     case EMemoriaMonsterState::Recover:
