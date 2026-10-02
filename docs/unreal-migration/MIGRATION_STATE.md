@@ -1,3 +1,28 @@
+# Migration handoff — S340 blows that land, and NPCs that live a little (Claude lane, 2026-10-02)
+
+- **Why.** Third of the three steps agreed with the user (see S338). After the maps and the HUD, what still read as unfinished was movement: the ambient NPCs stood like posts, and a blow showed only sparks and a number.
+- **Blows** (`UMemoriaFieldCombatSubsystem`, `UMemoriaCombatHudWidget`).
+  - **A mark where it lands.** Every blow that lands (Arrel's cuts, Elia's remembered strike, a parry, a block, a wound to Arrel) leaves a ring that opens and fades at the point of impact. A heavy cut, a parry and a kill also throw a cross of light.
+  - **Light.** The blow lights the ground and the figures round it for an instant: one point light, moved to each blow, fading over 0.18 s. In the dark maps of S338 this is the strongest part of the change.
+  - **A kill** breaks the foe open in its own colour (a second burst and a wide ring), and the corpse sinks out of the world over its last 0.9 s instead of vanishing.
+  - **Numbers** land large and settle; a heavy or killing blow's number stays larger and brighter.
+  - **A wound** reddens the screen's edge for half a second; under a third of his HP the edge keeps a slow pulse.
+  - The marks and the light run on real time, so they open during the hit stop.
+- **Ambient NPCs** (`AMemoriaChapterPresentation::TickAmbientNpcs`).
+  - Each idles, strolls at an unhurried walk to a spot within 150 units of where the source stands it, and idles again. The way must be open ground, clear of the water tank, and not on top of Arrel.
+  - When Arrel comes within 170 units it stops and turns to face him. While a fight is on it stands and watches the nearest foe.
+  - The rigged models turn freely and walk with the retargeted walk S335 imported; the pixel cards (the fallback) keep their four facings.
+  - This is the port's own: the source's ambient NPCs are still sprites with no behaviour. Positions at the start, visibility and the gate are unchanged.
+- **Tests.**
+  - `MemoriaVisual.ChapterRevisit`: left alone for eleven seconds the NPCs have walked, each is within reach of its place and on open ground; Arrel then stands beside the guard and it turns to face him (new capture `RevisitNpcs`).
+  - `MemoriaVisual.FieldFeel`: a landed blow leaves a mark and a flash of light.
+  - Captures read: the hit flash lighting the paving, the parry's ring and cross, the guard turned to Arrel and the bureau agent mid-stride.
+- **Known gaps.**
+  - NPCs do not avoid each other or Elia, and they have nothing to say.
+  - Drift Shelter's NPC presets (villager_f, scholar, villager_m) still have no models or cards, so no one stands there; the code would move them as it does the Belt's.
+  - The effects are drawn by the HUD and one light; there is no particle system.
+- **Results.** See the end of this section's validation in `claude-handoff.md`: full registry and visual run on the final tree.
+
 # Migration handoff — S339 the field HUD on the source's plates (Claude lane, 2026-10-02)
 
 - **Why.** Second of the three steps agreed with the user (see S338). The field HUD read as a debug overlay: a plain box at the top left holding the place name, a control hint, the interaction prompt and every toast; a plain status panel; a bare HP bar with four text slots and a line of control hints under it.

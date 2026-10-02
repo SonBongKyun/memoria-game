@@ -3,6 +3,7 @@
 #include "Combat/MemoriaCombatHudWidget.h"
 #include "Combat/MemoriaExplorationHudWidget.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaFieldMonster.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Framework/MemoriaVerdanTuning.h"
 #include "Interaction/MemoriaEliaCompanion.h"
@@ -170,6 +171,74 @@ void AMemoriaChapterPresentation::BuildAmbientNpcs()
         if (!Figure->InitializeCharacter(Npc.Preset.Replace(TEXT("_"), TEXT("")), ArrelHeight)) { Figure->DestroyComponent(); continue; }
         Figure->Face(TEXT("Down")); Figure->SetVisibility(false, true);
         AmbientNpcs.Add(Figure);
+        // Each sets out a little after the one before, so they are never in step.
+        FAmbientMind Mind; Mind.Home = Mind.Target = Figure->GetComponentLocation(); Mind.Wait = 1.5f + 1.3f * NpcMinds.Num();
+        NpcMinds.Add(Mind);
+    }
+}
+bool AMemoriaChapterPresentation::CanStand(const FVector& World) const
+{
+    // An open tile, and clear of the one prop that blocks (the water tank).
+    const FVector2D P = MemoriaChapterMaps::ToSource(World);
+    const int32 Type = Spec->TileAt(FMath::FloorToInt32(P.X / Spec->TileSize), FMath::FloorToInt32(P.Y / Spec->TileSize));
+    if (Type < 0 || Spec->IsSolid(Type)) return false;
+    for (const auto& D : Spec->Decorations)
+        if (D.Kind == TEXT("tank") && P.X > D.Origin.X - 28 && P.Y > D.Origin.Y - 28 && P.X < D.Origin.X + D.Size.X + 28 && P.Y < D.Origin.Y + D.Size.Y + 28) return false;
+    return true;
+}
+void AMemoriaChapterPresentation::TickAmbientNpcs(float DeltaSeconds)
+{
+    auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+    const FVector Arrel = Player->GetActorLocation();
+    for (int32 I = 0; I < AmbientNpcs.Num() && I < NpcMinds.Num(); ++I)
+    {
+        auto* Figure = AmbientNpcs[I].Get(); FAmbientMind& Mind = NpcMinds[I];
+        if (!Figure) continue;
+        const FVector At = Figure->GetComponentLocation();
+        const FVector ToArrel = (Arrel - At) * FVector(1, 1, 0);
+        FVector Step = FVector::ZeroVector; float Want = Mind.Yaw;
+        // The nearest live foe, if a fight is on.
+        const AMemoriaFieldMonster* Foe = nullptr;
+        if (Combat)
+            for (const auto& Weak : Combat->GetMonsters())
+                if (const auto* M = Weak.Get(); M && !M->IsDead() && (!Foe || FVector::DistSquared2D(M->GetActorLocation(), At) < FVector::DistSquared2D(Foe->GetActorLocation(), At))) Foe = M;
+        if (Foe)
+        {
+            // A fight: it stands where it is and watches the foe.
+            Mind.bWalking = false; Mind.Wait = FMath::Max(Mind.Wait, 2.f);
+            Want = ((Foe->GetActorLocation() - At) * FVector(1, 1, 0)).Rotation().Yaw;
+        }
+        else if (ToArrel.Size() < NpcNotice)
+        {
+            // Arrel is close: it stops and turns to him.
+            Mind.bWalking = false; Mind.Wait = FMath::Max(Mind.Wait, 1.2f);
+            if (!ToArrel.IsNearlyZero()) Want = ToArrel.Rotation().Yaw;
+        }
+        else if (Mind.bWalking)
+        {
+            const FVector To = (Mind.Target - At) * FVector(1, 1, 0);
+            const float Left = To.Size();
+            if (Left < 3.f) { Mind.bWalking = false; Mind.Wait = NpcRng.FRandRange(2.5f, 6.f); }
+            else { Step = To / Left * FMath::Min(Left, NpcSpeed * DeltaSeconds); Want = To.Rotation().Yaw; }
+        }
+        else if ((Mind.Wait -= DeltaSeconds) <= 0.f)
+        {
+            // A new spot within reach of its place: open ground the whole way, and not on top of Arrel.
+            Mind.Wait = 1.5f;
+            for (int32 Try = 0; Try < 6; ++Try)
+            {
+                const float Angle = NpcRng.FRandRange(0.f, 2.f * PI), Reach = NpcRng.FRandRange(60.f, NpcRoam);
+                const FVector Spot = Mind.Home + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * Reach;
+                bool bClear = FVector::Dist2D(Spot, Arrel) > NpcNotice;
+                for (const float Along : {.25f, .5f, .75f, 1.f}) bClear = bClear && CanStand(FMath::Lerp(At, Spot, Along));
+                if (bClear) { Mind.Target = FVector(Spot.X, Spot.Y, At.Z); Mind.bWalking = true; break; }
+            }
+        }
+        Mind.Yaw = FMath::FixedTurn(Mind.Yaw, Want, 320.f * DeltaSeconds);
+        if (!Step.IsZero()) { Figure->SetWorldLocation(At + Step); NpcTravel += Step.Size(); }
+        Figure->AdvanceLocomotion(Step, DeltaSeconds);
+        // A rigged figure turns freely; a card keeps the four facings its walk gave it.
+        if (Figure->IsRigged()) Figure->SetAim(Mind.Yaw);
     }
 }
 int32 AMemoriaChapterPresentation::GetRiggedNpcCount() const
@@ -486,6 +555,7 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     // The ambient NPCs stand only on the revisit (belt_waystation.gd: "The first canonical visit is abandoned").
     const bool bNpcs = !Spec->AmbientNpcsGate.IsEmpty() && GateOpen(Spec->AmbientNpcsGate);
     for (const auto& Npc : AmbientNpcs) if (Npc && Npc->IsVisible() != bNpcs) Npc->SetVisibility(bNpcs, true);
+    if (bNpcs) TickAmbientNpcs(DeltaSeconds);
     TickEnvironment(DeltaSeconds);
     UpdateEncounters();
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }

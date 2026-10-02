@@ -80,6 +80,9 @@ public:
                 Test->TestTrue(TEXT("The blow stops the world for a beat"), Combat->IsHitStopped() && Dilation < .2f);
                 Test->TestTrue(TEXT("The foe flashes"), H && H->GetHitFlash() > .5f);
                 Test->TestTrue(TEXT("Sparks fly"), Combat->GetSparks().Num() > 0);
+                // S340: the blow leaves its ring and lights the ground for an instant.
+                Test->TestTrue(TEXT("The blow leaves a mark"), Combat->GetImpacts().Num() > 0 && Combat->GetImpactsMade() > 0);
+                Test->TestTrue(TEXT("And a flash of light"), Combat->GetHitLight() > 0.f);
                 Test->TestTrue(TEXT("The camera shakes"), !Combat->GetShakeOffset().IsNearlyZero());
                 Test->TestTrue(TEXT("The blade leaves a trail"), Combat->GetTrail().Num() > 1);
                 Capture(TEXT("FeelImpact"));

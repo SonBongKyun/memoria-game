@@ -84,7 +84,7 @@ bool UMemoriaCombatHudWidget::IsShowing() const
     const auto* C = Combat.Get();
     return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
         C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned() ||
-        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
+        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetImpacts().Num() > 0 || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -142,6 +142,21 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         Segment(Elements, Layer, Geometry, PC, Tail, Spark.Location, Width * 2.4f, FLinearColor(Spark.Color.R, Spark.Color.G, Spark.Color.B, .28f * Life));
         Segment(Elements, Layer + 1, Geometry, PC, Tail, Spark.Location, Width, Hot);
     }
+    // S340: where a blow landed, a ring opens and fades; a heavy one also throws a cross of light.
+    for (const FMemoriaImpact& Mark : C->GetImpacts())
+    {
+        const float T = FMath::Clamp(Mark.Age / Mark.Life, 0.f, 1.f), Open = 1.f - FMath::Square(1.f - T), Fade = 1.f - T;
+        Ring(Elements, Layer + 1, Geometry, PC, Mark.Location, Mark.Radius * (.25f + .75f * Open), (Mark.bHeavy ? 7.f : 4.5f) * Fade + 1.f, Toward(Mark.Color, .45f, .9f * Fade));
+        Ring(Elements, Layer, Geometry, PC, Mark.Location, Mark.Radius * (.15f + .55f * Open), 10.f * Fade + 1.f, Toward(Mark.Color, 0.f, .22f * Fade));
+        FVector2D At;
+        if (Mark.bHeavy && UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, Mark.Location, At, false))
+        {
+            const float Reach = (60.f + 150.f * Open) * FMath::Clamp(Mark.Radius / 120.f, .8f, 1.5f);
+            for (const FVector2D& Along : {FVector2D(.94, -.34), FVector2D(-.5, -.86)})
+                FSlateDrawElement::MakeLines(Elements, Layer + 2, Geometry.ToPaintGeometry(), TArray<FVector2f>{FVector2f(At - Along * Reach), FVector2f(At + Along * Reach)},
+                    ESlateDrawEffect::None, Toward(Mark.Color, .8f, .85f * Fade * Fade), true, 5.f * Fade + 1.f);
+        }
+    }
     if (const APawn* Arrel = C->GetPlayer(); Arrel && C->GetCharge() > .15f)
     {
         const float Charge = C->GetCharge();
@@ -168,8 +183,33 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         const bool bWord = !P.Label.IsEmpty();
         const float Alpha = FMath::Clamp((bWord ? 2.2f : 1.4f) - P.Age * 1.4f, 0.f, 1.f);
         const FLinearColor Base = P.Tint.A > 0.f ? P.Tint : P.bPlayer ? FLinearColor(1.f, .28f, .24f) : FLinearColor(1.f, .82f, .46f);
+        // S340: a number lands large and settles; a heavy or killing blow's stays larger and brighter.
+        const float Pop = 1.f + .55f * FMath::Square(FMath::Clamp(1.f - P.Age / .16f, 0.f, 1.f));
+        const int32 Points = FMath::RoundToInt((bWord ? 22 : P.bPlayer ? 30 : P.bBig ? 46 : 34) * Pop);
+        const FLinearColor Ink = P.bBig && !bWord ? FLinearColor(FMath::Lerp(Base.R, 1.f, .35f), FMath::Lerp(Base.G, 1.f, .35f), FMath::Lerp(Base.B, 1.f, .35f)) : Base;
         Text(Elements, Layer + 2, Geometry, bWord ? P.Label : FString::Printf(TEXT("%d"), FMath::RoundToInt(P.Amount)), At - FVector2D(0, (bWord ? 40.f : 60.f) * P.Age),
-            MemoriaFonts::Get(bWord ? MemoriaFonts::EStyle::Ui : MemoriaFonts::EStyle::Title, bWord ? 22 : P.bPlayer ? 30 : 34), Srgb(Base.R, Base.G, Base.B, Alpha));
+            MemoriaFonts::Get(bWord ? MemoriaFonts::EStyle::Ui : MemoriaFonts::EStyle::Title, Points), Srgb(Ink.R, Ink.G, Ink.B, Alpha));
+    }
+    // S340: a wound reddens the screen's edge for a moment; under a third of his HP the edge keeps a slow pulse.
+    {
+        const float Share = C->GetPlayerMaxHp() > 0 ? float(C->GetPlayerHp()) / float(C->GetPlayerMaxHp()) : 1.f;
+        const float Struck = FMath::Square(FMath::Clamp(1.f - C->GetHurtAge() / UMemoriaFieldCombatSubsystem::HurtTime, 0.f, 1.f)) * .5f;
+        const float Low = Share < .3f && !C->IsDefeated() ? .16f + .1f * FMath::Sin(float(FPlatformTime::Seconds()) * 4.6f) : 0.f;
+        const float Edge = FMath::Max(Struck, Low);
+        if (Edge > .01f)
+        {
+            const FLinearColor Red(.55f, .02f, .02f, Edge), Clear(.55f, .02f, .02f, 0.f);
+            const float Wide = Size.X * .17f, Tall = Size.Y * .2f;
+            auto Band = [&](const FVector2D& At, const FVector2D& Extent, EOrientation Way, bool bFromStart)
+            {
+                FSlateDrawElement::MakeGradient(Elements, Layer, Geometry.ToPaintGeometry(FVector2f(Extent), FSlateLayoutTransform(FVector2f(At))),
+                    TArray<FSlateGradientStop>{FSlateGradientStop(FVector2D::ZeroVector, bFromStart ? Red : Clear), FSlateGradientStop(Extent, bFromStart ? Clear : Red)}, Way, ESlateDrawEffect::None);
+            };
+            Band(FVector2D::ZeroVector, FVector2D(Wide, Size.Y), Orient_Vertical, true);
+            Band(FVector2D(Size.X - Wide, 0), FVector2D(Wide, Size.Y), Orient_Vertical, false);
+            Band(FVector2D::ZeroVector, FVector2D(Size.X, Tall), Orient_Horizontal, true);
+            Band(FVector2D(0, Size.Y - Tall), FVector2D(Size.X, Tall), Orient_Horizontal, false);
+        }
     }
     // S339: the command ribbon at the bottom centre (the source's ui_battle_command_ribbon). Its seven cells hold
     // Elia's four techniques, the burn, the guard and the dodge, each with its key; its left orb holds Arrel's HP

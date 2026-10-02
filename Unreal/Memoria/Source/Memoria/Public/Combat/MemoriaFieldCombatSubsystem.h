@@ -7,7 +7,10 @@ class APawn;
 class AMemoriaFieldMonster;
 class UMemoriaFieldCharacterComponent;
 
-struct FMemoriaCombatPopup { FVector Location; float Amount = 0.f; float Age = 0.f; bool bPlayer = false; FString Label; FLinearColor Tint = FLinearColor::Transparent; };
+// bBig (S340): a heavy or killing blow; its number is drawn larger.
+struct FMemoriaCombatPopup { FVector Location; float Amount = 0.f; float Age = 0.f; bool bPlayer = false; FString Label; FLinearColor Tint = FLinearColor::Transparent; bool bBig = false; };
+// S340: the mark a blow leaves for the HUD: a ring that opens where it landed (and a cross of light when heavy).
+struct FMemoriaImpact { FVector Location = FVector::ZeroVector; FLinearColor Color = FLinearColor::White; float Age = 0.f, Life = .3f, Radius = 70.f; bool bHeavy = false; };
 // S314: what a won fight gave (the source Win: grains per foe, 20% HP back, a 30% drop).
 struct FMemoriaFieldReward { int64 Grains = 0, Heal = 0; FString ItemId, ItemName; int32 Kills = 0; float Age = 99.f; };
 // S312: a memory that can be burned, as the picker lists it (localized title, source grade and skill).
@@ -76,6 +79,13 @@ public:
     FVector GetShakeOffset() const;
     const TArray<FMemoriaSpark>& GetSparks() const { return Sparks; }
     const TArray<FMemoriaTrailSample>& GetTrail() const { return Trail; }
+    // S340: blows leave a ring and a flash of light where they land; a wound reddens the screen's edge.
+    const TArray<FMemoriaImpact>& GetImpacts() const { return Impacts; }
+    int32 GetImpactsMade() const { return ImpactsMade; }
+    float GetHitLight() const { return HitLightLeft > 0.f ? HitLightPeak * FMath::Square(HitLightLeft / HitLightTime) : 0.f; }
+    float GetHurtAge() const { return HurtAge; }
+    static constexpr float HitLightTime = .18f;
+    static constexpr float HurtTime = .55f;
     // S319: Elia's techniques, keys 1-4 (elia_diary.gd): unlocked by burning her diary's memories.
     bool IsEliaSkillUnlocked(int32 Slot) const;
     float GetEliaCooldown(int32 Slot) const { return Slot >= 0 && Slot < 4 ? EliaCooldown[Slot] : 0.f; }
@@ -135,6 +145,11 @@ private:
     class AMemoriaEliaCompanion* FindElia() const;
     void NoteDiary(const FString& MemoryId);
     TArray<FMemoriaSpark> Sparks;
+    TArray<FMemoriaImpact> Impacts;
+    TWeakObjectPtr<APointLight> HitLight;
+    float HitLightLeft = 0.f, HitLightPeak = 0.f, HurtAge = 99.f;
+    int32 ImpactsMade = 0;
+    void Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy);
     TArray<FMemoriaTrailSample> Trail;
     static float ChargeTimeValue();
     void HitStop(float Seconds, float Shake);
@@ -154,5 +169,5 @@ private:
     void ReleaseBurn();
     bool StartStep(int32 Step);
     void ResolveSwing();
-    void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent);
+    void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent, bool bBig = false);
 };

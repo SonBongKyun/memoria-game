@@ -44,6 +44,7 @@ inline constexpr float HuskRecover = .90f;
 inline constexpr float HuskStagger = .35f;
 inline constexpr float HuskDamage = 9.f;
 inline constexpr float HuskCorpseTime = 2.5f;
+inline constexpr float CorpseSink = .9f;   // S340: the corpse's last seconds, sinking
 // S312 memory burn: the source's five grade skills (battle_core burn_skills, by raw grade), in the field.
 // Damage is the skill's base plus the memory's effective burn power. The ring reaches further and shoves
 // harder with the grade.
