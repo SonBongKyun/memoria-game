@@ -1,3 +1,13 @@
+# Migration handoff — S343 integration and environment12 delivered (Codex, 2026-10-03)
+
+- Branch `codex/unreal-s342-integration-env-s343-20261003`, local only. S338–S342 and final peer records integrated over S337. New ground/light owns terrain; six polished materials, bevel/stone and detailed Surface/tint retained; exact blockers tested.
+- Reviewed/repaired scorch cleanup, smoke escape chain, unswept charger retry (7bb330d0), then rush contact through walls/missed overshoot (32bb631e). Existing rendered regressions reproduced each defect before repair. Two stale host checks exclude ConsumeItem while preserving GrantRewardItem contracts.
+- Fresh full 274/274 on `7bb330d0`; final rebuilt visual 30/30 on `32bb631e`; host 35/35 and ground 5/HUD 9 checks PASS. The late repair is combat-only; no final-HEAD274 run is claimed. Existing startup 15 assertions and warnings are separately disclosed; fatal 0.
+-149 checked asset files preserve S337 bytes, including 6 polished materials;16 new peer packages match545fecaf. Existing FBX/textures/rigs/clips unchanged. Twelve shared environment models +15textures pass requested size/budget/portable import/hash/CPU QA; manifest and53,970,610byte ZIP under shared models/.
+- New12 models are delivered, not applied. Claude owns additive import/replacement and game validation. Guard-only ink, no-op preservation, no gamepad quick items, two models for six foes, orbs through walls and untuned values remain disclosed. Packaging/push and six new foe models are not performed.
+- Peer545fecaf/source/foundation read-only. Exact revisions, failed build/red evidence and final reports: `docs/unreal-migration/S343_INTEGRATION_ENVIRONMENT.md`.
+
+---
 # Migration handoff — S342 the maps' encounter pools as foes of their own (Claude lane, 2026-10-02)
 
 - **Why.** Second gameplay step after S341. Every fight in the field was against one of two foes that fight the same way (walk up, wind up, strike): the husk and the thief. The Belt Waystation's and Drift Shelter's pools name six different enemies with their own HP, attack and abilities; the port spawned husks for the void ones and thieves for the rest, whatever their names.

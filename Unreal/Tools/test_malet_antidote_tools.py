@@ -28,9 +28,10 @@ class AntidoteContracts(unittest.TestCase):
         self.assertEqual(self.c['replacement_potion']['after']['items'],{'antidote':1});self.assertEqual(len(self.c['replacement_antidote']['enqueues']),2)
     def test_one_shared_mutation_and_no_firebomb(self):
         r=m.base.ROOT/'Unreal/Memoria/Source/Memoria';api=(r/'Private/Run/MemoriaRunSubsystem.cpp').read_text(encoding='utf-8')
-        # S334: the reward's one shared mutation is GrantRewardItem's body. Field pickups (GrantFieldItem, S320)
-        # add items elsewhere, and recent items are recorded through RecordRecentItem.
-        api=api[api.index('bool UMemoriaRunSubsystem::GrantRewardItem'):api.index('void UMemoriaRunSubsystem::GrantFieldItem')]
+        # The reward's one shared mutation is confined to GrantRewardItem's body. Stop at its closing brace:
+        # S341 added ConsumeItem before GrantFieldItem, with its own unrelated inventory broadcast.
+        api=api[api.index('bool UMemoriaRunSubsystem::GrantRewardItem'):]
+        api=api[:api.index('\n}\n')+2]
         for text in ('State.Player.Items.Add','State.RecordRecentItem(','OnInventoryChanged.Broadcast','OnItemToastRequested.Broadcast'):self.assertEqual(api.count(text),1)
         host=(r/'Private/Narrative/MemoriaNarrativeSubsystem.cpp').read_text(encoding='utf-8');body=host[host.index('void UMemoriaNarrativeSubsystem::CommitAntidoteAndDeferFirebomb'):host.index('void UMemoriaNarrativeSubsystem::PresentSeedObservation')]
         self.assertEqual(body.count('Run->AddRewardAntidote(TEXT("antidote"),1)'),1)
