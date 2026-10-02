@@ -1,3 +1,12 @@
+# Migration handoff — S337 asset and chapter visual polish (Codex, 2026-10-02)
+
+- User requested higher quality existing assets and graphics. New branch `codex/unreal-visual-polish-s337`, based on `f2104f4d`.
+- Three ambient NPCs and three props receive scoped material improvements. Chapter3/4 ground/walls use weathered surfaces and beveled geometry; terrain rubble now reuses the delivered model. Original texture/FBX/rig/animation bytes and all source collision transforms are preserved.
+- Fresh UE5.8.2 build and final visual **26/26 PASS**. Seven full material shader maps compiled, eight owned packages saved; generated LOD96 vertices/44triangles, inward0. Source asset audit143 unchanged +6 allowed materials. Full274 not rerun.
+- Known existing engine diagnostics and intermediate fixes are recorded in [S337 report](S337_VISUAL_POLISH.md), with six before/after1280x720 captures. Dark vertical wall faces remain a lighting limitation. No remote push, packaging or peer/foundation/Godot edits.
+
+---
+
 # Migration handoff — S336 Codex integration verified (2026-10-02)
 
 - S334 save fixes accepted; S310–S335 dependencies integrated on `codex/unreal-s335-integration-20261002` through gameplay commit `c2afd34b`.

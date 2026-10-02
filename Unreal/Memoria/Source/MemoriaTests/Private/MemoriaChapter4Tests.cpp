@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "MemoriaChapterVisualChecks.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
 #include "Editor.h"
@@ -65,6 +66,7 @@ public:
         {
             Test->TestEqual(TEXT("The map is Drift Shelter"), Map->GetMap(), FString(TEXT("drift_shelter")));
             Test->TestEqual(TEXT("A development run stands in Chapter 4"), Run->GetRunSnapshot().CurrentChapter, int64(4));
+            CheckChapterVisualPolish(Test, Map);
             int32 Solid = 0; for (int32 T : Spec->Tiles) Solid += Spec->IsSolid(T) ? 1 : 0;
             Test->TestEqual(TEXT("Every wall, rubble and concrete tile blocks"), Map->GetBlockerCount(), Solid);
             Test->TestTrue(TEXT("No story triggers, as drift_shelter.gd"), Spec->Triggers.Num() == 0);

@@ -59,6 +59,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;
     UPROPERTY(Transient) TObjectPtr<UMemoriaChapterCardWidget> Card;
     UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> Blockers;
+    UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> TerrainRubble;
     UPROPERTY(Transient) TMap<FString, TObjectPtr<UStaticMeshComponent>> Markers;
     FDelegateHandle FinishedHandle;
     FVector PreviousPosition = FVector::ZeroVector;
@@ -73,6 +74,7 @@ private:
     void BuildAmbientNpcs();
     void UpdateEncounters();
     UMaterialInstanceDynamic* Surface(const FLinearColor& Srgb, float Roughness = .9f);
+    UMaterialInstanceDynamic* TerrainSurface(const FLinearColor& Srgb, float Mode, float Roughness);
     UInstancedStaticMeshComponent* Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide);
     void BuildTerrain();
     void BuildLight();

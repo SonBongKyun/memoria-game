@@ -44,9 +44,25 @@ AMemoriaChapterPresentation::AMemoriaChapterPresentation()
 }
 UMaterialInstanceDynamic* AMemoriaChapterPresentation::Surface(const FLinearColor& Srgb, float Roughness)
 {
-    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Depth/M_Surface.M_Surface"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    if (!Base) Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
     auto* Material = UMaterialInstanceDynamic::Create(Base, this);
+    Material->SetVectorParameterValue(TEXT("Tint"), Linear(Srgb));
     Material->SetVectorParameterValue(TEXT("Color"), Linear(Srgb));
+    Material->SetScalarParameterValue(TEXT("Mode"), 3.f);
+    Material->SetScalarParameterValue(TEXT("Roughness"), Roughness);
+    return Material;
+}
+UMaterialInstanceDynamic* AMemoriaChapterPresentation::TerrainSurface(const FLinearColor& Srgb, float Mode, float Roughness)
+{
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/VisualPolish/M_StoneSurface.M_StoneSurface"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    const bool bDetailed = Base != nullptr;
+    if (!Base) Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Depth/M_Surface.M_Surface"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    if (!Base) return Surface(Srgb, Roughness);
+    auto* Material = UMaterialInstanceDynamic::Create(Base, this);
+    Material->SetVectorParameterValue(TEXT("Tint"), Linear(Srgb));
+    Material->SetScalarParameterValue(TEXT("Mode"), bDetailed ? Mode : (Mode == 0.f || Mode == 2.f ? 0.f : 3.f));
+    Material->SetScalarParameterValue(TEXT("Roughness"), Roughness);
     return Material;
 }
 UInstancedStaticMeshComponent* AMemoriaChapterPresentation::Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide)
@@ -64,18 +80,31 @@ int32 AMemoriaChapterPresentation::GetBlockerCount() const { return Blockers ? B
 FVector2D AMemoriaChapterPresentation::PlayerSource() const { return Player.IsValid() ? MemoriaChapterMaps::ToSource(Player->GetActorLocation()) : FVector2D::ZeroVector; }
 void AMemoriaChapterPresentation::BuildTerrain()
 {
-    // The tile grid, 32 px tiles at the map's 3x scale: flat ground for the open tiles, raised walls
-    // (the border tall, the building walls low enough for the quarter view to see over), rubble on ruins.
-    // An invisible block stands on every solid tile, as TilePainter.add_collisions does.
+    // S337: retain the source tile grid and separate invisible collision, while the surface reads as
+    // worn paving, earth and masonry. World-space material detail continues across adjacent tiles.
     const float T = Spec->TileSize * MemoriaChapterMaps::Scale;
     const TCHAR* Cube = TEXT("/Engine/BasicShapes/Cube.Cube");
-    TArray<UInstancedStaticMeshComponent*> Ground;
-    for (int32 Type = 0; Type < Spec->TileColors.Num(); ++Type) Ground.Add(Layer(Cube, Surface(Spec->TileColors[Type]), false));
-    Blockers = Layer(Cube, nullptr, true); Blockers->SetHiddenInGame(true);
-    // Wall tiles rise; ruins and rubble scatter stones (belt_waystation.gd RUIN, drift_shelter.gd RUBBLE); the
-    // fallen overpass's concrete stands as low slabs.
+    const TCHAR* Beveled = TEXT("/Game/Memoria/Presentation/VisualPolish/SM_BeveledBlock.SM_BeveledBlock");
+    const TCHAR* Rubble = TEXT("/Game/Memoria/Presentation/Field3D/Props/SM_Rubble.SM_Rubble");
+    const bool bBeveled = LoadObject<UStaticMesh>(nullptr, Beveled, nullptr, LOAD_NoWarn | LOAD_Quiet) != nullptr;
+    const bool bRubble = LoadObject<UStaticMesh>(nullptr, Rubble, nullptr, LOAD_NoWarn | LOAD_Quiet) != nullptr;
     const int32 Wall = Spec->TileNames.IndexOfByKey(TEXT("WALL")), Concrete = Spec->TileNames.IndexOfByKey(TEXT("CONCRETE"));
     const int32 Ruin = Spec->TileNames.Contains(TEXT("RUIN")) ? Spec->TileNames.IndexOfByKey(TEXT("RUIN")) : Spec->TileNames.IndexOfByKey(TEXT("RUBBLE"));
+    TArray<UInstancedStaticMeshComponent*> Ground;
+    for (int32 Type = 0; Type < Spec->TileColors.Num(); ++Type)
+    {
+        const FString& Name = Spec->TileNames[Type];
+        const bool bEarth = Name == TEXT("DEAD_SOIL") || Name == TEXT("MUD") || Type == Ruin;
+        const float Mode = Type == Wall ? 2.f : Type == Concrete ? 3.f : bEarth ? 1.f : 0.f;
+        // Lift only the very dark structural stone, preserving each map's warm/cool source palette.
+        const FLinearColor Tint = Type == Wall ? FMath::Lerp(Spec->TileColors[Type], FLinearColor(.28f, .27f, .25f), .45f) : Spec->TileColors[Type];
+        Ground.Add(Layer(bBeveled && (Type == Wall || Type == Concrete) ? Beveled : Cube,
+            TerrainSurface(Tint, Mode, bEarth ? .96f : .86f), false));
+        if (Type != Wall && Type != Concrete) Ground.Last()->SetCastShadow(false);
+    }
+    Blockers = Layer(Cube, nullptr, true); Blockers->SetHiddenInGame(true);
+    // Keep the delivered atlas and its polished material on both terrain and decoration rubble.
+    if (bRubble) TerrainRubble = Layer(Rubble, nullptr, false);
     FRandomStream Rng(Spec->Chapter * 7919);
     for (int32 Y = 0; Y < Spec->Height; ++Y)
         for (int32 X = 0; X < Spec->Width; ++X)
@@ -91,22 +120,40 @@ void AMemoriaChapterPresentation::BuildTerrain()
             }
             else if (Type == Wall)
             {
-                // The border reads as a low rim and the building walls stay below the quarter view's line of sight.
+                // The original heights preserve the quarter view's sightlines through the ruined buildings.
                 const float H = bBorder ? 50.f : 100.f;
                 Ground[Type]->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, H * .5f - 8.f), FVector(T / 100.f, T / 100.f, H / 100.f)), true);
             }
             else
             {
-                // Ground: a thin slab, its top at z -8 where the figures stand; a hair of height jitter keeps the grid from reading as a board.
-                Ground[Type]->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, -13.f - Rng.FRand() * 1.5f), FVector(T / 100.f, T / 100.f, .1f)), true);
+                // Every walkable slab meets at the -8 cm foot plane: detail comes from the material,
+                // rather than raised seams that look like a grid or cast false obstacle shadows.
+                Ground[Type]->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, -13.f), FVector(T / 100.f, T / 100.f, .1f)), true);
                 if (Type == Ruin)
-                    for (int32 I = 0; I < 3; ++I)
+                {
+                    if (TerrainRubble)
                     {
-                        const FVector Offset(Rng.FRandRange(-.3f, .3f) * T, Rng.FRandRange(-.3f, .3f) * T, 0);
-                        const float S = Rng.FRandRange(.22f, .45f) * T / 100.f, H = Rng.FRandRange(.25f, .7f);
-                        Ground[Type]->AddInstance(FTransform(FRotator(Rng.FRandRange(-8.f, 8.f), Rng.FRandRange(0.f, 90.f), 0), Center + Offset + FVector(0, 0, H * 50.f - 8.f), FVector(S, S, H)), true);
+                        for (int32 I = 0; I < 2; ++I)
+                        {
+                            const float Side = I == 0 ? -1.f : 1.f;
+                            const FVector Offset(Side * T * .15f, Rng.FRandRange(-.12f, .12f) * T, -8.f);
+                            const float Scale = Rng.FRandRange(.92f, 1.10f) * T / 96.f;
+                            TerrainRubble->AddInstance(FTransform(FRotator(0, Rng.FRandRange(0.f, 360.f), 0), Center + Offset,
+                                FVector(Scale, Scale, Scale * Rng.FRandRange(1.15f, 1.5f))), true);
+                        }
                     }
+                    else
+                    {
+                        for (int32 I = 0; I < 3; ++I)
+                        {
+                            const FVector Offset(Rng.FRandRange(-.3f, .3f) * T, Rng.FRandRange(-.3f, .3f) * T, 0);
+                            const float S = Rng.FRandRange(.22f, .45f) * T / 100.f, H = Rng.FRandRange(.25f, .7f);
+                            Ground[Type]->AddInstance(FTransform(FRotator(Rng.FRandRange(-8.f, 8.f), Rng.FRandRange(0.f, 90.f), 0), Center + Offset + FVector(0, 0, H * 50.f - 8.f), FVector(S, S, H)), true);
+                        }
+                    }
+                }
             }
+            // Exact original collision footprint, independent of all surface and rubble presentation.
             if (Spec->IsSolid(Type)) Blockers->AddInstance(FTransform(FRotator::ZeroRotator, Center + FVector(0, 0, 60.f), FVector(T / 100.f, T / 100.f, 1.6f)), true);
         }
 }
@@ -119,18 +166,21 @@ void AMemoriaChapterPresentation::BuildLight()
     {
         auto* L = Key->GetComponent(); L->SetMobility(EComponentMobility::Movable);
         L->SetLightColor(Linear(Spec->Light)); L->SetIntensity(6.f + 4.f * Spec->Brightness); L->SetLightingChannels(true, true, false);
+        L->SetLightSourceAngle(3.f); L->SetShadowAmount(.80f);
+        L->DynamicShadowDistanceMovableLight = 6000.f; L->ShadowBias = .35f;
         L->ForwardShadingPriority = 1; // the key light is the one forward shading, translucency and fog use
     }
     if (auto* Fill = GetWorld()->SpawnActor<ADirectionalLight>(FVector(0, 0, 800), FRotator(-35, -140, 0), Params))
     {
         auto* L = Fill->GetComponent(); L->SetMobility(EComponentMobility::Movable); L->SetCastShadows(false);
-        L->SetLightColor(Linear(FLinearColor(.55f, .62f, .78f))); L->SetIntensity(1.6f); L->SetLightingChannels(true, true, false);
+        L->SetLightColor(Linear(FLinearColor(.62f, .68f, .78f))); L->SetIntensity(2.0f); L->SetLightingChannels(true, true, false);
         L->ForwardShadingPriority = 0; L->SetAtmosphereSunLight(false);
     }
     if (auto* Fog = GetWorld()->SpawnActor<AExponentialHeightFog>(FVector(0, 0, -40), FRotator::ZeroRotator, Params))
     {
         auto* F = Fog->GetComponent(); F->SetFogDensity(.012f + .02f * Spec->Mood); F->SetFogHeightFalloff(.5f);
         F->SetFogInscatteringColor(Linear(Spec->Hue) * .35f);
+        F->SetStartDistance(650.f); F->SetFogMaxOpacity(.45f);
     }
 }
 void AMemoriaChapterPresentation::BuildDecorations()
@@ -193,6 +243,7 @@ void AMemoriaChapterPresentation::BuildDecorations()
             // The campfire: a small bright ember block; its PointLight2D follows as the next decoration.
             Mesh->SetStaticMesh(Cube);
             auto* Ember = Surface(D.Color); Ember->SetVectorParameterValue(TEXT("Color"), Linear(D.Color) * 6.f);
+            Ember->SetVectorParameterValue(TEXT("Tint"), Linear(D.Color) * 6.f);
             Mesh->SetMaterial(0, Ember); Mesh->SetCastShadow(false);
             Mesh->SetWorldScale3D(FVector(World.X / 100.f, World.Y / 100.f, .14f));
             Mesh->SetWorldRotation(FRotator(0, 45.f, 0));

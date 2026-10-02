@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "MemoriaChapterVisualChecks.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
 #include "Editor.h"
@@ -65,6 +66,7 @@ public:
         {
             Test->TestEqual(TEXT("The map is the Belt Waystation"), Map->GetMap(), FString(TEXT("belt_waystation")));
             Test->TestEqual(TEXT("A development run stands in Chapter 3"), Run->GetRunSnapshot().CurrentChapter, int64(3));
+            CheckChapterVisualPolish(Test, Map);
             int32 Solid = 0; for (int32 T : Spec->Tiles) Solid += Spec->IsSolid(T) ? 1 : 0;
             Test->TestEqual(TEXT("Every wall and ruin tile blocks"), Map->GetBlockerCount(), Solid);
             Test->TestTrue(TEXT("Arrel is the rigged figure"), Map->GetArrelFigure() && Map->GetArrelFigure()->IsRigged());
