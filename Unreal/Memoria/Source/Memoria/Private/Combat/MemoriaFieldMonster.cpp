@@ -87,7 +87,13 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
     const FVector Step = GetActorLocation() - PreviousLocation; PreviousLocation = GetActorLocation();
     if (HitFlash > 0.f) { HitFlash = FMath::Max(0.f, HitFlash - DeltaSeconds * 6.f); Figure->SetHitFlash(HitFlash); }
     Figure->AdvanceLocomotion(Step, DeltaSeconds);
-    if (IsDead()) { if (StateTime > HuskCorpseTime) Destroy(); return; }
+    if (IsDead())
+    {
+        // S340: the corpse sinks out of the world over its last moments instead of vanishing.
+        if (StateTime > HuskCorpseTime - CorpseSink) AddActorWorldOffset(FVector(0, 0, -Spec().Height * DeltaSeconds / CorpseSink));
+        if (StateTime > HuskCorpseTime) Destroy();
+        return;
+    }
     if (IgniteLeft > 0 && (IgniteClock -= DeltaSeconds) <= 0.f)
     {
         IgniteClock = IgniteInterval; --IgniteLeft;

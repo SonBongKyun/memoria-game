@@ -43,6 +43,15 @@ public:
     // S335: how many ambient NPCs wear a rigged model, and how many props are Codex's models.
     int32 GetRiggedNpcCount() const;
     int32 GetModelPropCount() const { return ModelPropCount; }
+    // S340: the ambient NPCs live a little. Each idles, strolls to a spot near where the source stands it, and
+    // idles again; it stops and turns to Arrel when he comes close, and to the foes while a fight is on.
+    UMemoriaFieldCharacterComponent* GetAmbientNpc(int32 Index) const { return AmbientNpcs.IsValidIndex(Index) ? AmbientNpcs[Index].Get() : nullptr; }
+    FVector GetAmbientHome(int32 Index) const { return NpcMinds.IsValidIndex(Index) ? NpcMinds[Index].Home : FVector::ZeroVector; }
+    float GetAmbientYaw(int32 Index) const { return NpcMinds.IsValidIndex(Index) ? NpcMinds[Index].Yaw : 0.f; }
+    float GetNpcTravel() const { return NpcTravel; }
+    static constexpr float NpcRoam = 150.f;     // how far from its place an NPC strolls
+    static constexpr float NpcNotice = 170.f;   // how close Arrel comes before it turns to him
+    static constexpr float NpcSpeed = 55.f;     // an unhurried walk
     // S337: the dressed map. Whether the ground wears the painted material, and how many lamps burn.
     bool IsGroundPainted() const { return GroundMaterial != nullptr; }
     int32 GetLampCount() const { return Lamps.Num(); }
@@ -81,6 +90,12 @@ private:
     bool bEncounterReady = false;
     void BuildDecorations();
     void BuildAmbientNpcs();
+    struct FAmbientMind { FVector Home = FVector::ZeroVector, Target = FVector::ZeroVector; float Wait = 0.f, Yaw = -90.f; bool bWalking = false; };
+    TArray<FAmbientMind> NpcMinds;
+    FRandomStream NpcRng{20261002};
+    float NpcTravel = 0.f;
+    void TickAmbientNpcs(float DeltaSeconds);
+    bool CanStand(const FVector& World) const;
     void UpdateEncounters();
     UMaterialInstanceDynamic* Surface(const FLinearColor& Srgb, float Roughness = .9f);
     UInstancedStaticMeshComponent* Layer(const TCHAR* Mesh, UMaterialInstanceDynamic* Material, bool bCollide);

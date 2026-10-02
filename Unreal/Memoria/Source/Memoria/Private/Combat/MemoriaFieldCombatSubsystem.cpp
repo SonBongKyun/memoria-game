@@ -100,11 +100,15 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         const float Damage = (IsHeavy() ? HeavyDamage : ComboDamage[FMath::Clamp(ComboStep, 0, 2)]) * (IsWeakened() ? WeakenFactor : 1.f);
         if (Monster->TakeHit(Damage, Origin, IsHeavy() ? HeavyShove : 14.f))
         {
-            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false);
+            const bool bBig = IsHeavy() || ComboStep == 2, bKill = Monster->IsDead();
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), FLinearColor::Transparent, bBig || bKill);
             Cue(GetWorld(), TEXT("hit"));
-            const bool bBig = IsHeavy() || ComboStep == 2;
-            HitStop(bBig ? HitStopHeavy : HitStopLight, bBig ? ShakeHeavy : ShakeLight);
-            Burst(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height * .55f), bBig ? 14 : 8, FLinearColor(1.f, .7f, .35f), bBig ? 420.f : 300.f);
+            HitStop(bBig || bKill ? HitStopHeavy : HitStopLight, bBig ? ShakeHeavy : ShakeLight);
+            const FVector Struck = Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height * .55f);
+            Burst(Struck, bBig ? 14 : 8, FLinearColor(1.f, .7f, .35f), bBig ? 420.f : 300.f);
+            Impact(Struck, FLinearColor(1.f, .74f, .42f), bBig ? 120.f : 74.f, bBig);
+            // S340: the killing blow breaks the foe open in its own colour.
+            if (bKill) { Burst(Struck, 22, Monster->Spec().Glow, 460.f); Impact(Struck, Monster->Spec().Glow, 170.f, true); }
         }
     }
 }
@@ -124,6 +128,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
             ++Parries; Monster->Stun(ParryStun);
             Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("패링!") : TEXT("Parry!"), FLinearColor(1.f, .9f, .55f));
             HitStop(HitStopHeavy, ShakeHeavy); Burst(Spark, 18, FLinearColor(1.f, .92f, .6f), 480.f);
+            Impact(Spark, FLinearColor(1.f, .95f, .72f), 140.f, true);
             Cue(GetWorld(), TEXT("shield"));
             return false;
         }
@@ -134,6 +139,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         if (Loss > 0) Hp -= Loss;
         Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, Ko ? TEXT("막음") : TEXT("Blocked"), FLinearColor(.75f, .82f, 1.f));
         HitStop(HitStopLight, ShakeLight); Burst(Spark, 8, FLinearColor(.8f, .85f, 1.f), 300.f);
+        Impact(Spark, FLinearColor(.78f, .85f, 1.f), 80.f, false);
         Cue(GetWorld(), TEXT("shield"));
         return true;
     }
@@ -142,6 +148,9 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage)); ++StrikesTaken;
     Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), Damage, true);
     Cue(GetWorld(), TEXT("hit"));
+    // S340: a wound reddens the screen's edge and marks where it landed.
+    HurtAge = 0.f; Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(1.f, .22f, .18f), 86.f, false);
+    Burst(Pawn->GetActorLocation() + FVector(0, 0, 100.f), 8, FLinearColor(1.f, .3f, .22f), 260.f);
     ComboStep = -1; bQueued = false;
     if (Hp <= 0)
     {
@@ -244,9 +253,9 @@ void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
 }
 void UMemoriaFieldCombatSubsystem::NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage)
 { if (Monster) Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), FLinearColor(1.f, .45f, .15f)); }
-void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label, const FLinearColor& Tint)
+void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label, const FLinearColor& Tint, bool bBig)
 {
-    FMemoriaCombatPopup P; P.Location = Location; P.Amount = Amount; P.bPlayer = bPlayer; P.Label = Label; P.Tint = Tint;
+    FMemoriaCombatPopup P; P.Location = Location; P.Amount = Amount; P.bPlayer = bPlayer; P.Label = Label; P.Tint = Tint; P.bBig = bBig;
     // Words raised at the same moment and place stack upward instead of printing over each other.
     if (!Label.IsEmpty())
         for (const FMemoriaCombatPopup& Other : Popups)
@@ -435,6 +444,7 @@ void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
 void UMemoriaFieldCombatSubsystem::Deinitialize()
 {
     if (auto* Light = Flare.Get()) Light->Destroy();
+    if (auto* Light = HitLight.Get()) Light->Destroy();
     CloseBurnPicker();
     Super::Deinitialize();
 }
@@ -485,12 +495,45 @@ void UMemoriaFieldCombatSubsystem::Burst(const FVector& Location, int32 Count, c
         Sparks.Add(S);
     }
 }
+void UMemoriaFieldCombatSubsystem::Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy)
+{
+    FMemoriaImpact Mark; Mark.Location = Location; Mark.Color = Color; Mark.Radius = Radius; Mark.bHeavy = bHeavy; Mark.Life = bHeavy ? .36f : .26f;
+    Impacts.Add(Mark); ++ImpactsMade;
+    // The blow lights the ground and the figures round it for an instant. One light, moved to each blow.
+    UWorld* World = GetWorld();
+    if (!World) return;
+    auto* Light = HitLight.Get();
+    if (!Light)
+    {
+        FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        Light = World->SpawnActor<APointLight>(Location, FRotator::ZeroRotator, Params);
+        if (!Light) return;
+        auto* Component = Light->PointLightComponent.Get();
+        Component->SetMobility(EComponentMobility::Movable); Component->SetIntensityUnits(ELightUnits::Candelas); Component->SetCastShadows(false);
+        HitLight = Light;
+    }
+    const float Peak = bHeavy ? 46.f : 24.f;
+    // A weaker blow does not dim the light of a stronger one still burning.
+    if (Peak < GetHitLight()) return;
+    Light->SetActorLocation(Location + FVector(0, -30, 40.f));
+    Light->PointLightComponent->SetLightColor(Color); Light->PointLightComponent->SetAttenuationRadius(bHeavy ? 620.f : 430.f);
+    HitLightPeak = Peak; HitLightLeft = HitLightTime; Light->PointLightComponent->SetIntensity(Peak);
+}
 void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
 {
     // Hit stop and shake run on real time; sparks and the trail on world time, so they hang in the stop.
     const float Real = FApp::GetDeltaTime();
     if (HitStopLeft > 0.f && (HitStopLeft -= Real) <= 0.f && !bPicking && GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
     ShakeClock += Real; ShakeLeft = FMath::Max(0.f, ShakeLeft - Real);
+    // The impact marks and the hit light also run on real time: they open during the stop, which is their moment.
+    HurtAge += Real;
+    for (FMemoriaImpact& Mark : Impacts) Mark.Age += Real;
+    Impacts.RemoveAll([](const FMemoriaImpact& Mark) { return Mark.Age >= Mark.Life; });
+    if (HitLightLeft > 0.f)
+    {
+        HitLightLeft = FMath::Max(0.f, HitLightLeft - Real);
+        if (auto* Light = HitLight.Get()) Light->PointLightComponent->SetIntensity(GetHitLight());
+    }
     for (FMemoriaSpark& S : Sparks) { S.Age += DeltaSeconds; S.Velocity.Z -= 900.f * DeltaSeconds; S.Location += S.Velocity * DeltaSeconds; }
     Sparks.RemoveAll([](const FMemoriaSpark& S) { return S.Age >= S.Life; });
     for (FMemoriaTrailSample& T : Trail) T.Age += DeltaSeconds;
@@ -605,6 +648,7 @@ bool UMemoriaFieldCombatSubsystem::UseEliaSkill(int32 Slot)
             Popup(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height), Damage, false, FString(), Pale);
             Burst(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height * .55f), 12, Pale, 380.f);
             HitStop(HitStopLight, ShakeLight);
+            Impact(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height * .55f), Pale, 96.f, false);
         }
         if (Elia && Elia->GetFigure())
         {

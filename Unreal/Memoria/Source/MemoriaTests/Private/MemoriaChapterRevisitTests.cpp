@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "Framework/MemoriaSliceHost.h"
 #include "Framework/MemoriaFieldPawn.h"
+#include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
@@ -94,10 +95,34 @@ public:
             Capture(TEXT("RevisitBelt"));
             ++Step; Mark = Frame; break;
         case 2:
+            // S340: left alone for a while, the NPCs stroll: each stays on open ground near its place.
+            if (Frame < Mark + 660) break;
+            Test->TestTrue(TEXT("The NPCs have walked"), Map->GetNpcTravel() > 60.f);
+            for (int32 I = 0; I < 3; ++I)
+            {
+                const FVector At = Map->GetAmbientNpc(I)->GetComponentLocation();
+                const FVector2D P = MemoriaChapterMaps::ToSource(At);
+                Test->TestTrue(TEXT("An NPC stays near its place"), FVector::Dist2D(At, Map->GetAmbientHome(I)) <= AMemoriaChapterPresentation::NpcRoam + 5.f);
+                Test->TestFalse(TEXT("And on open ground"), Spec->IsSolid(Spec->TileAt(FMath::FloorToInt32(P.X / Spec->TileSize), FMath::FloorToInt32(P.Y / Spec->TileSize))));
+            }
+            // Arrel comes up beside the guard, on the open ground to its south-west: it stops and turns to face him.
+            Place(MemoriaChapterMaps::ToSource(Map->GetAmbientNpc(2)->GetComponentLocation()) + FVector2D(-30, 22));
+            Step = 20; Mark = Frame; break;
+        case 20:
+        {
+            if (Frame < Mark + 90) break;
+            const FVector Npc = Map->GetAmbientNpc(2)->GetComponentLocation();
+            const float Want = ((Pawn->GetActorLocation() - Npc) * FVector(1, 1, 0)).Rotation().Yaw;
+            Test->TestTrue(TEXT("The guard has turned to Arrel"), FMath::Abs(FMath::FindDeltaAngleDegrees(Map->GetAmbientYaw(2), Want)) < 8.f);
+            Test->TestTrue(TEXT("And faces him as a rigged figure"), FMath::Abs(FMath::FindDeltaAngleDegrees(Map->GetAmbientNpc(2)->GetYaw(), Want)) < 8.f);
+            Capture(TEXT("RevisitNpcs"));
+            Step = 21; Mark = Frame; break;
+        }
+        case 21:
             if (Frame < Mark + 20) break;
             Test->TestTrue(TEXT("The model takes the map's range and pool"), Map->GetEncounterModel().MinSteps == 50. && Map->GetEncounterModel().MaxSteps == 90. && Map->GetEncounterModel().PoolSize == 3
                 && Map->GetEncounterModel().Threshold >= 50. && Map->GetEncounterModel().Threshold <= 90.);
-            ++Step; Mark = Frame; break;
+            Step = 3; Mark = Frame; break;
         case 3:
             // Pacing ten tiles at a time fills the distance.
             if ((Frame - Mark) % 3 == 0) Place(((Frame - Mark) / 3) % 2 ? FVector2D(300, 400) : FVector2D(620, 400));
