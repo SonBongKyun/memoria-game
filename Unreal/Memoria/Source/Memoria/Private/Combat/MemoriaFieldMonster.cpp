@@ -174,9 +174,13 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         {
             // Walls stop the rush; Arrel and the other foes do not (it runs through them).
             const FVector Next = GetActorLocation() + RushDirection * RushSpeed * DeltaSeconds;
-            FHitResult Hit;
-            SetActorLocation(Next, true, &Hit);
-            if (Hit.bBlockingHit && Cast<APawn>(Hit.GetActor())) SetActorLocation(Next, false);
+            // Ignore pawns for this sweep only. An unswept retry after hitting a pawn would also
+            // skip a wall behind it, especially during a long frame.
+            auto* Collision = CastChecked<UPrimitiveComponent>(GetRootComponent());
+            const ECollisionResponse PawnResponse = Collision->GetCollisionResponseToChannel(ECC_Pawn);
+            Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+            SetActorLocation(Next, true);
+            Collision->SetCollisionResponseToChannel(ECC_Pawn, PawnResponse);
         }
         if (!bRushHit && Distance <= RushHit) { bRushHit = true; if (C) C->StrikePlayer(this, Spec().Damage); }
         if (State == EMemoriaMonsterState::Rush && StateTime >= RushDistance / RushSpeed) Enter(EMemoriaMonsterState::Recover);

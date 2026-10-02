@@ -15,6 +15,7 @@
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "EngineUtils.h"
+#include "Components/BoxComponent.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
 #include "UnrealClient.h"
@@ -188,11 +189,53 @@ public:
                 Test->TestTrue(TEXT("The scorch bites"), Combat->GetPlayerHp() < Hp);
                 Test->TestTrue(TEXT("The antidote is used"), Combat->UseQuickItem(1, Me));
                 Test->TestTrue(TEXT("It ends the scorch and the poison"), !Combat->IsScorched() && !Combat->IsPoisoned());
-                Clear();
-                return true;
+                Phase = 10; Mark = Frame;
             }
             if (Frame > Mark + 300) { Test->AddError(TEXT("The scorch never ticked")); return true; }
             break;
+        case 10:
+        {
+            if (Frame < Mark + 40 || !F) break;
+            // Unlock through the public memory domain, then cure the newly added status with Anchor Pulse.
+            FMemoriaMemoryDefinition Hands; Hands.Id = TEXT("daily_elia_hands"); Hands.BurnPower = 1;
+            auto* Memory = Run->GetPlayerMemory();
+            Test->TestTrue(TEXT("The hands memory is added for the cure regression"), Memory->Add(Hands, Run->GetMemoryContext()) == EMemoriaMemoryResult::Success);
+            Test->TestTrue(TEXT("The hands memory burns to unlock Anchor Pulse"), Memory->Burn(Hands.Id, EMemoriaBurnMode::Normal, false, Run->GetMemoryContext()) == EMemoriaMemoryResult::Success);
+            Test->TestTrue(TEXT("A fresh walker blow scorches before Anchor Pulse"), Combat->StrikePlayer(F, F->Spec().Damage) && Combat->IsScorched());
+            Test->TestTrue(TEXT("Anchor Pulse is used"), Combat->UseEliaSkill(3));
+            Test->TestTrue(TEXT("Anchor Pulse cures scorch, poison and weaken"), !Combat->IsScorched() && !Combat->IsPoisoned() && !Combat->IsWeakened());
+            Phase = 11; Mark = Frame; break;
+        }
+        case 11:
+            if (Frame < Mark + 40 || !F) break;
+            Test->TestTrue(TEXT("The last foe scorches Arrel before victory"), Combat->StrikePlayer(F, F->Spec().Damage) && Combat->IsScorched());
+            F->TakeHit(999.f, Me, 0.f);
+            Test->TestTrue(TEXT("Victory clears every harmful status"), !Combat->IsScorched() && !Combat->IsPoisoned() && !Combat->IsWeakened());
+            Hp = Combat->GetPlayerHp(); Phase = 12; Mark = Frame; break;
+        case 12:
+        {
+            if (Frame < Mark + FMath::CeilToInt(PoisonInterval * 60.f) + 30) break;
+            Test->TestEqual(TEXT("No scorch damage follows victory"), Combat->GetPlayerHp(), Hp);
+            Clear();
+            // A long frame with a pawn in front of a wall must still sweep against the wall.
+            const FVector TestCentre = Home + FVector(0, 5000, 0);
+            Pawn->SetActorLocation(TestCentre);
+            F = Spawn(EMemoriaFoeKind::DustCrawler, FVector(-150, 0, 0));
+            auto* Collision = Cast<UBoxComponent>(F->GetRootComponent());
+            Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+            F->Tick(.01f); F->Tick(.01f); F->Tick(F->Spec().Windup + .01f);
+            Test->TestTrue(TEXT("Collision regression enters the real rush"), F->GetState() == EMemoriaMonsterState::Rush);
+            auto* Wall = World->SpawnActor<AActor>();
+            auto* Box = NewObject<UBoxComponent>(Wall); Wall->SetRootComponent(Box); Wall->AddInstanceComponent(Box);
+            Box->SetBoxExtent(FVector(40, 160, 80)); Box->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            Box->SetCollisionObjectType(ECC_WorldStatic); Box->SetCollisionResponseToAllChannels(ECR_Block); Box->RegisterComponent();
+            Wall->SetActorLocation(TestCentre + FVector(60, 0, 0));
+            F->Tick(.5f);
+            Test->TestTrue(TEXT("A pawn does not let the rush cross the wall behind it"), F->GetActorLocation().X + 30.f <= TestCentre.X + 20.f + .1f);
+            Test->TestEqual(TEXT("Rush restores its pawn collision response"), Collision->GetCollisionResponseToChannel(ECC_Pawn), ECR_Block);
+            Wall->Destroy(); Clear(); Pawn->SetActorLocation(Home);
+            return true;
+        }
         }
         return false;
     }

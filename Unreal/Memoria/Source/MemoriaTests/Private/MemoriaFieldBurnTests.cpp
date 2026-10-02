@@ -136,17 +136,43 @@ public:
                 Test->TestEqual(TEXT("Three kills"), Combat->GetKills(), 3);
                 Test->TestTrue(TEXT("Arrel is free again"), Combat->CanMove());
                 Capture(TEXT("BurnAfter"));
-                // With the last husk gone, Arrel sheathes his sword a while later (S312).
-                if (Far.IsValid()) Far->Destroy();
                 Test->TestTrue(TEXT("The sword is out after the burn"), Combat->GetPlayerFigure()->IsSwordDrawn());
+                // S343: the surviving husk keeps this fight open; smoke must end its burn chain as victory does.
+                Run->GrantFieldItem(TEXT("smoke_bomb"), 1);
                 Phase = 4; Mark = Frame;
             }
             if (Frame > Mark + 400) { Test->AddError(TEXT("The burn never released")); return true; }
             return false;
         }
-        if (Phase == 4 && Frame == Mark + int32(MemoriaCombatTuning::SheatheDelay * 60.f) + 30)
+        if (Phase == 4)
         {
+            if (Combat->IsCasting() || Combat->GetItemCooldown() > 0.f) return false;
+            Test->TestEqual(TEXT("The surviving husk preserves the first burn chain"), Combat->GetBurnChain(), 1);
+            Test->TestTrue(TEXT("Smoke escapes from the surviving husk"), Combat->UseQuickItem(3, Pawn->GetActorLocation()));
+            Test->TestEqual(TEXT("Smoke leaves no live foes"), Combat->LiveMonsterCount(), 0);
+            Test->TestEqual(TEXT("Escaping ends the burn chain"), Combat->GetBurnChain(), 0);
+            Phase = 5; Mark = Frame; return false;
+        }
+        if (Phase == 5)
+        {
+            if (Frame < Mark + int32(MemoriaCombatTuning::SheatheDelay * 60.f) + 30) return false;
             Test->TestFalse(TEXT("Arrel sheathes once the fight is over"), Combat->GetPlayerFigure()->IsSwordDrawn());
+            // Keep the next foe beyond the identity burn, so winning cannot conceal a carried-over chain.
+            Far = Combat->SpawnWave(1, Pawn->GetActorLocation() + FVector(0, -1150, 0), 0.f)[0];
+            Test->TestTrue(TEXT("The next encounter opens its burn picker"), Combat->OpenBurnPicker());
+            const int32 Sword = IndexOf(TEXT("identity_first_sword"));
+            if (!Test->TestTrue(TEXT("The untouched identity memory is offered again"), Sword >= 0)) return true;
+            Combat->SelectBurn(Sword);
+            Test->TestFalse(TEXT("The identity burn still asks twice"), Combat->ConfirmBurn());
+            Test->TestTrue(TEXT("The next encounter burns the identity memory"), Combat->ConfirmBurn());
+            Test->TestEqual(TEXT("The first burn after escape starts a fresh chain"), Combat->GetBurnChain(), 1);
+            Phase = 6; Mark = Frame; return false;
+        }
+        if (Phase == 6 && !Combat->IsCasting() && !Combat->GetBurnWave().bLive)
+        {
+            Test->TestTrue(TEXT("The next foe survives beyond the burn"), Far.IsValid() && !Far->IsDead() && Far->GetHealth() == Far->GetMaxHealth());
+            Test->TestEqual(TEXT("The fresh encounter still has only one burn in its chain"), Combat->GetBurnChain(), 1);
+            if (Far.IsValid()) Far->Destroy();
             return true;
         }
         return false;

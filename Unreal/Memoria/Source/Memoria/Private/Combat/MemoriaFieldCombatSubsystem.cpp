@@ -237,7 +237,7 @@ void UMemoriaFieldCombatSubsystem::WinWave()
     }
     if (Pawn && Reward.Heal > 0) Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Reward.Heal), true, FString::Printf(TEXT("+%lld HP"), Reward.Heal), FLinearColor(.5f, 1.f, .6f));
     // A won fight ends the statuses and the chain, like the source battle's end.
-    WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
+    WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
     Cue(GetWorld(), TEXT("heal"));
 }
 void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Damage)
@@ -654,7 +654,7 @@ bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector&
     {
         // "Guaranteed escape from battle": the foes lose him in the smoke and are gone, and the fight pays nothing.
         for (const auto& M : Monsters) if (M.IsValid() && !M->IsDead()) { Burst(M->GetActorLocation() + FVector(0, 0, 90.f), 10, FLinearColor(.6f, .62f, .68f), 220.f); M->Destroy(); }
-        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; Orbs.Reset();
+        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; BurnChain = 0; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; Orbs.Reset();
         Burst(Me + FVector(0, 0, 80.f), 34, FLinearColor(.66f, .68f, .74f), 340.f);
         Impact(Me + FVector(0, 0, 30.f), FLinearColor(.7f, .72f, .78f), 260.f, false);
         Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("연기 속으로 사라졌다") : TEXT("Vanished in smoke"), FLinearColor(.82f, .84f, .9f));
@@ -862,7 +862,7 @@ bool UMemoriaFieldCombatSubsystem::UseEliaSkill(int32 Slot)
         // Anchor Pulse: 15% of max HP and every status cured.
         auto& P = Run->State.Player;
         const int64 Heal = FMath::Min<int64>(int64(P.MaxHp * AnchorPulseShare), P.MaxHp - P.Hp); P.Hp += Heal;
-        WeakenLeft = 0.f; PoisonLeft = 0;
+        WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0;
         Popup(Me + FVector(0, 0, 150.f), float(Heal), true, FString::Printf(TEXT("+%lld HP"), Heal), FLinearColor(.5f, 1.f, .6f));
         Burst(Me + FVector(0, 0, 60.f), 14, FLinearColor(.55f, 1.f, .7f), 240.f);
         Cue(GetWorld(), TEXT("heal"));
