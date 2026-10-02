@@ -1,3 +1,25 @@
+# Migration handoff — S341 items used in the field (Claude lane, 2026-10-02)
+
+- **Why.** The user asked for gameplay work to continue after the field finish (S338–S340). The plainest hole: items dropped, were counted in the HUD, and could not be used. The turn-based battle that used them was retired in S329 and nothing took its place.
+- **Rules** (`GameManager.ITEMS`, `battle_manager.gd player_use_item`), in `MemoriaCombatTuning::FieldItems`:
+  - `potion` restores 40 HP, `hi_potion` 80.
+  - `antidote` ends the poison and restores 12 HP.
+  - `firebomb` does 12 where it bursts, then burns for 15 a turn for two turns. In the field it is thrown toward the cursor (up to 620 units, 0.38 s in the air) and reaches every foe within 190 units; the source's battle had one foe.
+  - `smoke_bomb` is a sure escape: the foes are gone and the fight pays nothing (the source ends the battle as fled).
+  - `witness_ink`: the source advances WITNESS, guards the next blow and adds Limit. Only the guard exists in the field, so here it turns the next unguarded blow aside. A deviation, recorded.
+- **Use** (`UMemoriaFieldCombatSubsystem::UseQuickItem`, `UseItem`).
+  - Five quick slots on **Z X C V B**: healing, antidote, firebomb, smoke bomb, witness ink. The healing slot takes the potion, or the hi-potion once 60 HP or more is missing, or whichever is left.
+  - An item that would do nothing is kept and a word over Arrel says why: a potion at full HP, an antidote with nothing to cure, a smoke bomb with no foe, ink over a ward that still holds.
+  - 0.8 s between two items. Not while down, casting a burn or choosing one.
+  - A used item is recorded (`item:used:<id>` in the trace, the achievements' items-used count) and leaves the inventory at zero (`UMemoriaRunSubsystem::ConsumeItem`, the source's `remove_item`).
+- **On screen.** A tray at the bottom right of the field HUD: each slot's icon (the source's `assets/ui/items`, through `export_hud_art.py` and `-run=MemoriaHudAssets`), its key and its count; an empty slot is dim, and the tray darkens during the wait. The bomb flies as a hot point on a low arc with its landing ring drawn; healing, the ward and the smoke leave their rings and light (S340's marks).
+- **Tests.** `MemoriaVisual.FieldItems` (new, registered): the source's numbers; each refusal spends nothing; the potion restores only what is missing; the wait between items; the antidote cures and its entry leaves the inventory; the hi-potion for a deep wound; the ink turns one blow aside; the firebomb's 12 on impact and 15 twice; the smoke bomb ends the fight unpaid; six items used. Captures read: the tray, the heal, the bomb in flight and its burst, the smoke.
+- **Known gaps.**
+  - The quick slots are fixed. The source's Quick Kit lets the player pin three items from the pause menu's inventory, which is not ported.
+  - Gamepad buttons for the slots are not bound.
+  - The other source items (lantern salve, root balm, signal jammer and the rest) are not in the drop table and have no effect here.
+- **Results.** `MemoriaVisual.FieldItems` and `MemoriaVisual.FieldRewards` pass on this tree. The full registry runs at the end of S342.
+
 # Migration handoff — S340 blows that land, and NPCs that live a little (Claude lane, 2026-10-02)
 
 - **Why.** Third of the three steps agreed with the user (see S338). After the maps and the HUD, what still read as unfinished was movement: the ambient NPCs stood like posts, and a blow showed only sparks and a number.

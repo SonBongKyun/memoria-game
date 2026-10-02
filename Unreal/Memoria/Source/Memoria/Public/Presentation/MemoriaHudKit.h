@@ -15,6 +15,9 @@ namespace MemoriaHudKit
     enum class EArt : uint8 { Plate, Toast, Ribbon };
     MEMORIA_API const TCHAR* Package(EArt Art);
     MEMORIA_API UTexture2D* Load(EArt Art);
+    // S341: an item's icon (GameManager.ITEMS "icon"), by the item's id.
+    MEMORIA_API FString ItemPackage(const FString& ItemId);
+    MEMORIA_API UTexture2D* LoadItem(const FString& ItemId);
     // Points the brush at the texture (an image brush at the texture's size). False when the texture is missing.
     MEMORIA_API bool Brush(FSlateBrush& Out, UTexture2D* Texture);
     MEMORIA_API void Box(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G, const FVector2D& At, const FVector2D& Size, const FLinearColor& Color);

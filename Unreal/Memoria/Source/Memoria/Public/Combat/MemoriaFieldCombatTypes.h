@@ -93,10 +93,30 @@ inline FString ItemName(const FString& Id, bool bKo)
     static const TMap<FString, TPair<const TCHAR*, const TCHAR*>> Names = {
         {TEXT("potion"), {TEXT("Potion"), TEXT("포션")}}, {TEXT("antidote"), {TEXT("Antidote"), TEXT("해독제")}},
         {TEXT("firebomb"), {TEXT("Firebomb"), TEXT("화염탄")}}, {TEXT("hi_potion"), {TEXT("Hi-Potion"), TEXT("하이포션")}},
-        {TEXT("witness_ink"), {TEXT("Witness Ink"), TEXT("목격의 잉크")}}};
+        {TEXT("witness_ink"), {TEXT("Witness Ink"), TEXT("목격의 잉크")}}, {TEXT("smoke_bomb"), {TEXT("Smoke Bomb"), TEXT("연막탄")}}};
     const auto* Name = Names.Find(Id);
     return Name ? FString(bKo ? Name->Value : Name->Key) : Id;
 }
+// S341: the items Arrel uses in the field, by what they do. The numbers are GameManager.ITEMS':
+// potion 40 HP, hi_potion 80 HP, antidote cures and restores 12, firebomb 12 on impact then 15 a turn for two
+// turns, smoke_bomb a sure escape, witness_ink (here) the next blow guarded.
+enum class EMemoriaItemEffect : uint8 { Heal, Cure, Bomb, Flee, Ward };
+struct FMemoriaFieldItem { const TCHAR* Id; EMemoriaItemEffect Effect; int32 Power; int32 Extra; };
+inline const FMemoriaFieldItem FieldItems[6] = {
+    {TEXT("potion"), EMemoriaItemEffect::Heal, 40, 0}, {TEXT("hi_potion"), EMemoriaItemEffect::Heal, 80, 0},
+    {TEXT("antidote"), EMemoriaItemEffect::Cure, 0, 12}, {TEXT("firebomb"), EMemoriaItemEffect::Bomb, 15, 12},
+    {TEXT("smoke_bomb"), EMemoriaItemEffect::Flee, 0, 0}, {TEXT("witness_ink"), EMemoriaItemEffect::Ward, 1, 0}};
+inline const FMemoriaFieldItem* FindFieldItem(const FString& Id)
+{ for (const auto& Item : FieldItems) if (Id.Equals(Item.Id, ESearchCase::CaseSensitive)) return &Item; return nullptr; }
+// The quick slots, on Z X C V B: healing (the potion, or the hi-potion for a deep wound), antidote, firebomb,
+// smoke bomb, witness ink.
+inline constexpr int32 QuickSlots = 5;
+inline constexpr float ItemCooldown = .8f;          // seconds between two items
+inline constexpr float BombRange = 620.f;           // how far Arrel throws
+inline constexpr float BombRadius = 190.f;
+inline constexpr float BombFlight = .38f;
+inline constexpr int32 BombBurnTicks = 2;           // "burns the enemy for 2 turns"
+inline constexpr int32 HiPotionFrom = 60;           // the hi-potion is taken first once this much HP is missing
 // Fire for the lower grades, void violet for Identity Pyre and Zero Burn (the source's elements).
 inline FLinearColor BurnColor(int32 Grade)
 { return Grade >= 3 ? FLinearColor(.62f, .30f, 1.f) : Grade == 1 ? FLinearColor(.35f, .62f, 1.f) : FLinearColor(1.f, .52f, .16f); }

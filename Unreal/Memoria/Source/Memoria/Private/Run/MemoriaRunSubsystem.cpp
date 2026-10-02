@@ -155,6 +155,15 @@ bool UMemoriaRunSubsystem::GrantRewardItem(const FString& Id, const TCHAR* Displ
     Observe(Id==TEXT("potion")?TEXT("potion_complete"):(Id==TEXT("antidote")?TEXT("antidote_complete"):TEXT("firebomb_complete")));
     return State.RunId==Owner;
 }
+bool UMemoriaRunSubsystem::ConsumeItem(const FString& ItemId)
+{
+    if (!HasActiveRun()) return false;
+    const int32 Index = State.Player.Items.IndexOfByPredicate([&](const FMemoriaItemCount& I) { return I.Id.Equals(ItemId, ESearchCase::CaseSensitive); });
+    if (Index == INDEX_NONE || State.Player.Items[Index].Count <= 0) return false;
+    if (--State.Player.Items[Index].Count <= 0) State.Player.Items.RemoveAt(Index);
+    OnInventoryChanged.Broadcast(ItemId);
+    return true;
+}
 void UMemoriaRunSubsystem::GrantFieldItem(const FString& ItemId, int64 Count)
 {
     if (!HasActiveRun() || ItemId.IsEmpty() || Count <= 0) return;

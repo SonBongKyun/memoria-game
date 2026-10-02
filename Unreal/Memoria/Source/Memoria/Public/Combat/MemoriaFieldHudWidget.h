@@ -28,6 +28,8 @@ public:
     void Display(const FMemoriaFieldHudView& InView) { View = InView; }
     const FMemoriaFieldHudView& GetView() const { return View; }
     bool HasRibbon() const { return Toast != nullptr; }
+    // S341: the quick items' tray at the bottom right: each slot's icon, key and count.
+    int32 GetIconCount() const { return Icons.Num(); }
 protected:
     virtual void NativeConstruct() override;
     virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
@@ -36,4 +38,6 @@ private:
     FMemoriaFieldHudView View;
     UPROPERTY(Transient) TObjectPtr<UTexture2D> Toast;
     FSlateBrush ToastBrush;
+    UPROPERTY(Transient) TMap<FString, TObjectPtr<UTexture2D>> Icons;
+    TMap<FString, FSlateBrush> IconBrushes;
 };

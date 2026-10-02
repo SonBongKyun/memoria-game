@@ -21,6 +21,8 @@ class APointLight;
 // S315: a spark in the world, drawn by the HUD; and one sample of the blade for its trail.
 struct FMemoriaSpark { FVector Location, Velocity; float Age = 0.f, Life = .5f, Size = 4.f; FLinearColor Color; };
 struct FMemoriaTrailSample { FVector Base, Tip; float Age = 0.f; };
+// S341: a firebomb in the air, from Arrel's hand to where it bursts.
+struct FMemoriaThrown { FVector From = FVector::ZeroVector, To = FVector::ZeroVector; float Age = 0.f; };
 
 // S311: field action combat. Owns the player's combo, dash and stagger, the live monsters, damage and
 // defeat recovery. Player health is the run's HP, so the archive, saves and VN see the same number.
@@ -96,6 +98,20 @@ public:
     const FString& GetEliaNotice() const { return EliaNotice; }
     float GetEliaNoticeAge() const { return EliaNoticeAge; }
     void NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage);
+    // S341: items in the field (GameManager.ITEMS). A quick slot uses its item toward the aim; false (and
+    // nothing spent) when there is none, when it would do nothing, or within ItemCooldown of the last one.
+    bool UseQuickItem(int32 Slot, const FVector& Aim);
+    bool UseItem(const FString& ItemId, const FVector& Aim);
+    // The item the slot would use now, and how many of it (slot 0 counts both potions).
+    FString QuickItemId(int32 Slot) const;
+    int64 QuickItemCount(int32 Slot) const;
+    float GetItemCooldown() const { return ItemCooldownLeft; }
+    int32 GetItemsUsed() const { return ItemsUsed; }
+    // Why the last item was refused ("" when it was used).
+    const FString& GetItemRefusal() const { return ItemRefusal; }
+    // Witness ink: the next blow that would land is turned aside.
+    bool IsWarded() const { return bWarded; }
+    const TArray<FMemoriaThrown>& GetThrown() const { return Thrown; }
     // Seeds the drop roll (tests); a fresh stream otherwise.
     void SeedDrops(int32 Seed) { Drops.Initialize(Seed); }
     int32 GetBurns() const { return Burns; }
@@ -145,6 +161,12 @@ private:
     class AMemoriaEliaCompanion* FindElia() const;
     void NoteDiary(const FString& MemoryId);
     TArray<FMemoriaSpark> Sparks;
+    TArray<FMemoriaThrown> Thrown;
+    float ItemCooldownLeft = 0.f;
+    int32 ItemsUsed = 0;
+    bool bWarded = false;
+    FString ItemRefusal;
+    void BurstBomb(const FVector& At);
     TArray<FMemoriaImpact> Impacts;
     TWeakObjectPtr<APointLight> HitLight;
     float HitLightLeft = 0.f, HitLightPeak = 0.f, HurtAge = 99.f;

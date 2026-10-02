@@ -213,6 +213,9 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
             if(Params.Key==EKeys::F10){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f,EMemoriaFoeKind::MarketThief);return true;}
             if(Params.Key==EKeys::R){Combat->OpenBurnPicker();return true;}
+            // S341: the quick items on Z X C V B (healing, antidote, firebomb toward the cursor, smoke bomb, witness ink).
+            static const FKey QuickItems[5]={EKeys::Z,EKeys::X,EKeys::C,EKeys::V,EKeys::B};
+            for(int32 I=0;I<5;++I)if(Params.Key==QuickItems[I]){if(!Combat->UseQuickItem(I,CursorOnFloor()))Cue(TEXT("cancel"));return true;}
             // S319: Elia's techniques on 1-4.
             static const FKey Techniques[4]={EKeys::One,EKeys::Two,EKeys::Three,EKeys::Four};
             for(int32 I=0;I<4;++I)if(Params.Key==Techniques[I]){if(!Combat->UseEliaSkill(I))Cue(TEXT("cancel"));return true;}
