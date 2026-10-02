@@ -21,7 +21,7 @@
   - NPCs do not avoid each other or Elia, and they have nothing to say.
   - Drift Shelter's NPC presets (villager_f, scholar, villager_m) still have no models or cards, so no one stands there; the code would move them as it does the Belt's.
   - The effects are drawn by the HUD and one light; there is no particle system.
-- **Results.** See the end of this section's validation in `claude-handoff.md`: full registry and visual run on the final tree.
+- **Results.** Full rendered registry 274/274 (`s340_full`), visual 28/28 (`s340_visual`), on this tree; they cover S338, S339 and S340 together.
 
 # Migration handoff — S339 the field HUD on the source's plates (Claude lane, 2026-10-02)
 
