@@ -56,6 +56,9 @@ public:
     bool IsGroundPainted() const { return GroundMaterial != nullptr; }
     int32 GetLampCount() const { return Lamps.Num(); }
     int32 GetMoteCount() const { return Motes.Num(); }
+    // S344: Codex's environment kit stands in the map. How many of its models stand, and how many kinds.
+    int32 GetKitPropCount() const { return KitPropCount; }
+    int32 GetKitKindCount() const { return KitKinds.Num(); }
     const FMemoriaEncounterModel& GetEncounterModel() const { return Encounter; }
     bool AreEncountersOpen() const;
     int32 GetBlockerCount() const;
@@ -102,8 +105,8 @@ private:
     void BuildTerrain();
     void BuildLight();
     // S337 (MemoriaChapterEnvironment.cpp): the map dressed past its tiles. The ground is one painted surface
-    // under a tile mask; the walls are masonry with broken tops; the border, the lamps, the stand-ins for the
-    // props of the source's map canvas, the air (dust or rain) and the world beyond the map follow.
+    // under a tile mask; the walls are masonry with broken tops; the border, the lamps, the props of the
+    // source's map canvas, the air (dust or rain) and the world beyond the map follow.
     struct FDressing;
     static const FDressing& DressingFor(const FString& Map);
     void BuildGround(const FDressing& Look);
@@ -116,7 +119,18 @@ private:
     void Solid(const TCHAR* Mesh, UMaterialInterface* Material, const FVector& Position, const FVector& Scale, const FRotator& Rotation = FRotator::ZeroRotator, bool bShadow = true);
     void Box(UMaterialInterface* Material, const FVector& Position, const FVector& Size, const FRotator& Rotation = FRotator::ZeroRotator, bool bShadow = true);
     void Beam(UMaterialInterface* Material, const FVector& A, const FVector& B, float Width);
-    void Lamp(const FVector& Position, float Radius, float Intensity);
+    void Lamp(const FVector& Position, float Radius, float Intensity, bool bPane = true);
+    // S344: Codex's S343 environment kit (-run=MemoriaEnvironmentAssets). Kit is one of its atlases as a material,
+    // Prop stands a model on the ground, Fence runs the chain fence from post to post. Claimed are the solid tiles
+    // a set piece stands on, which the ruins leave to it.
+    UMaterialInstanceDynamic* Kit(const TCHAR* Atlas, const FLinearColor& Tint = FLinearColor::White, const TCHAR* Glow = nullptr);
+    void Prop(const TCHAR* Name, UMaterialInterface* Material, const FVector& Ground, float Yaw = 0.f, const FVector& Scale = FVector::OneVector, bool bShadow = true);
+    void Fence(UMaterialInterface* Material, const FVector& A, const FVector& B);
+    bool Claimed(int32 X, int32 Y) const;
+    void BuildGrass(const FDressing& Look);
+    UPROPERTY(Transient) TMap<FString, TObjectPtr<UMaterialInstanceDynamic>> Kits;
+    TSet<FString> KitKinds;
+    int32 KitPropCount = 0;
     FVector TileCentre(float X, float Y) const;
     UPROPERTY(Transient) TObjectPtr<UTexture2D> GroundMask;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GroundMaterial;

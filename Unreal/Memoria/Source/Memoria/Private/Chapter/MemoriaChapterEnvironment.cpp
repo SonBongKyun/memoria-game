@@ -5,8 +5,8 @@
 // canvas paints: the ground from its open patches (M_ChapterGround, -run=MemoriaChapterGroundAssets), masonry
 // walls with broken tops, a border that reads as a place (the Belt's rail line, Drift's ruined walls), lamps,
 // dust or rain, and a world that goes on beyond the map. The props the canvas paints (signal post, platform
-// shelter, crates, chain fences, tarps) stand here as stand-ins built from boxes until Codex's models arrive
-// (claude-handoff.md, 2026-10-02). None of this changes where Arrel can walk: the blocks stay one per solid tile.
+// shelter, crates, chain fences, tarps, the gramophone, dead trees, dry grass) are Codex's S343 models (S344,
+// -run=MemoriaEnvironmentAssets). None of this changes where Arrel can walk: the blocks stay one per solid tile.
 #include "Chapter/MemoriaChapterPresentation.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
@@ -30,6 +30,7 @@ namespace
 const TCHAR* ChapterArt = TEXT("/Game/Memoria/Presentation/Chapter/");
 const TCHAR* FocusSurfacePath = TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface");
 const TCHAR* RoofPath = TEXT("/Game/Memoria/Presentation/Depth/SM_PitchedRoof.SM_PitchedRoof");
+const TCHAR* EnvArt = TEXT("/Game/Memoria/Presentation/Environment/");
 const TCHAR* RubblePath = TEXT("/Game/Memoria/Presentation/Field3D/Props/SM_Rubble.SM_Rubble");
 // Codex's S337 polish assets (its lane, -run=MemoriaVisualPolishAssets): a 100 cm block with a bevelled edge and
 // a weathered stone material. The walls and slabs wear them where they are imported; a plain cube stands in.
@@ -123,10 +124,11 @@ void AMemoriaChapterPresentation::Box(UMaterialInterface* Material, const FVecto
 { Solid(TEXT("Cube"), Material, Position, Size / 100.0, Rotation, bShadow); }
 void AMemoriaChapterPresentation::Beam(UMaterialInterface* Material, const FVector& A, const FVector& B, float Width)
 { Box(Material, (A + B) * .5, FVector(Width, Width, (B - A).Size()), FRotationMatrix::MakeFromZ(B - A).Rotator()); }
-void AMemoriaChapterPresentation::Lamp(const FVector& Position, float Radius, float Intensity)
+void AMemoriaChapterPresentation::Lamp(const FVector& Position, float Radius, float Intensity, bool bPane)
 {
-    // A lantern: a glowing pane in an iron cage, and the light it throws.
-    if (GlowMaterial) Box(GlowMaterial, Position, FVector(7, 7, 10), FRotator::ZeroRotator, false);
+    // A lantern: a glowing pane in an iron cage, and the light it throws. A model's lantern glows by itself
+    // (its mask) and takes the light alone.
+    if (bPane && GlowMaterial) Box(GlowMaterial, Position, FVector(7, 7, 10), FRotator::ZeroRotator, false);
     auto* Light = NewObject<UPointLightComponent>(this);
     AddInstanceComponent(Light); Light->SetupAttachment(GetRootComponent()); Light->SetMobility(EComponentMobility::Movable);
     Light->SetWorldLocation(Position + FVector(0, -6, 2));
@@ -134,6 +136,54 @@ void AMemoriaChapterPresentation::Lamp(const FVector& Position, float Radius, fl
     Light->SetLightColor(DressingFor(Map).LampColor); Light->SetIntensity(Intensity); Light->SetAttenuationRadius(Radius);
     Light->SetSourceRadius(10); Light->SetSoftSourceRadius(22); Light->SetCastShadows(false);
     Light->RegisterComponent(); Lamps.Add(Light); LampBase.Add(Intensity);
+}
+UMaterialInstanceDynamic* AMemoriaChapterPresentation::Kit(const TCHAR* Atlas, const FLinearColor& Tint, const TCHAR* Glow)
+{
+    const FString Key = FString::Printf(TEXT("Kit%s%s%s"), Atlas, *Tint.ToFColor(false).ToHex(), Glow ? Glow : TEXT(""));
+    if (auto* Found = Kits.Find(Key)) return *Found;
+    const auto Art = [](const FString& Name) { return LoadObject<UTexture2D>(nullptr, *(FString(EnvArt) + Name + TEXT(".") + Name), nullptr, LOAD_NoWarn | LOAD_Quiet); };
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, *(FString(EnvArt) + TEXT("M_EnvProp.M_EnvProp")), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    UTexture2D* Color = Art(FString(TEXT("T_Env")) + Atlas);
+    if (!Base || !Color) { UE_LOG(LogTemp, Error, TEXT("MEMORIA_CHAPTER environment kit missing (-run=MemoriaEnvironmentAssets): %s"), Atlas); return nullptr; }
+    auto* Result = UMaterialInstanceDynamic::Create(Base, this, FName(*Key));
+    Result->SetTextureParameterValue(TEXT("Color"), Color); Result->SetVectorParameterValue(TEXT("Tint"), Tint);
+    if (UTexture2D* Mask = Glow ? Art(FString(TEXT("T_Env")) + Glow) : nullptr)
+    {
+        // The lanterns' glass: the map's lamp colour, bright enough to bloom.
+        const FLinearColor Lamp = DressingFor(Map).LampColor;
+        Result->SetTextureParameterValue(TEXT("Glow"), Mask); Result->SetVectorParameterValue(TEXT("GlowColor"), FLinearColor(Lamp.R, Lamp.G, Lamp.B, 14.f));
+    }
+    Kits.Add(Key, Result); FocusMaterials.Add(Result);
+    return Result;
+}
+void AMemoriaChapterPresentation::Prop(const TCHAR* Name, UMaterialInterface* Material, const FVector& Ground, float Yaw, const FVector& Scale, bool bShadow)
+{
+    // The models are in centimetres with their origin on the ground at the centre of their footprint; their
+    // front faces the camera (south) at yaw 0.
+    const FString Path = FString::Printf(TEXT("%sSM_Env%s.SM_Env%s"), EnvArt, Name, Name);
+    if (!Material || !LoadObject<UStaticMesh>(nullptr, *Path, nullptr, LOAD_NoWarn | LOAD_Quiet)) return;
+    Solid(*Path, Material, Ground, Scale, FRotator(0, Yaw, 0), bShadow);
+    ++KitPropCount; KitKinds.Add(Name);
+}
+void AMemoriaChapterPresentation::Fence(UMaterialInterface* Material, const FVector& A, const FVector& B)
+{
+    // The fence's posts stand 160 cm apart and neighbours share one, so a run is cut into the nearest whole
+    // number of lengths and each is stretched or shortened a little to end on a post.
+    const FVector Along = B - A;
+    const int32 Count = FMath::Max(1, FMath::RoundToInt32(Along.Size2D() / 160.f));
+    const float Yaw = FMath::RadiansToDegrees(FMath::Atan2(Along.Y, Along.X));
+    for (int32 I = 0; I < Count; ++I)
+        Prop(TEXT("FenceChain"), Material, A + Along * ((I + .5f) / Count), Yaw, FVector(Along.Size2D() / Count / 160.f, 1, 1));
+}
+bool AMemoriaChapterPresentation::Claimed(int32 X, int32 Y) const
+{
+    // The Belt's freight on its two southern ruins; Drift's stores, its gramophone and the stores by the west wall.
+    static const FIntPoint Belt[] = {{3, 14}, {4, 14}, {19, 14}, {20, 14}};
+    static const FIntPoint Drift[] = {{17, 2}, {18, 2}, {3, 4}, {2, 13}, {3, 13}};
+    const FIntPoint Tile(X, Y);
+    if (Map == TEXT("belt_waystation")) { for (const FIntPoint& P : Belt) if (P == Tile) return true; }
+    else for (const FIntPoint& P : Drift) if (P == Tile) return true;
+    return false;
 }
 void AMemoriaChapterPresentation::BuildTerrain()
 {
@@ -150,7 +200,7 @@ void AMemoriaChapterPresentation::BuildTerrain()
     BuildGround(Look);
     if (!LoadObject<UMaterialInterface>(nullptr, FocusSurfacePath) || !LoadObject<UStaticMesh>(nullptr, RoofPath))
     { UE_LOG(LogTemp, Error, TEXT("MEMORIA_CHAPTER surface assets missing; the map stands undressed")); return; }
-    BuildWalls(Look); BuildBorder(Look); BuildSetPieces(Look); BuildAir(Look);
+    BuildWalls(Look); BuildBorder(Look); BuildSetPieces(Look); BuildGrass(Look); BuildAir(Look);
 }
 void AMemoriaChapterPresentation::BuildGround(const FDressing& Look)
 {
@@ -244,6 +294,9 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
     auto IsWall = [&](int32 X, int32 Y) { return Spec->TileAt(X, Y) == WallType && !Border(X, Y); };
     auto Open = [&](int32 X, int32 Y) { const int32 Type = Spec->TileAt(X, Y); return Type >= 0 && !Spec->IsSolid(Type); };
     FIntPoint FloorMin(MAX_int32, MAX_int32), FloorMax(MIN_int32, MIN_int32);
+    // The ruins' stone is cool; the Belt's dusk warms it.
+    auto* RuinKit = Kit(TEXT("Drift"), Look.bRuinBorder ? FLinearColor::White : FLinearColor(1.12f, 1.f, .86f));
+    TSet<FIntPoint> Taken;
     for (int32 Y = 0; Y < Spec->Height; ++Y)
         for (int32 X = 0; X < Spec->Width; ++X)
         {
@@ -282,13 +335,17 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
             }
             if (Type == Ruin && !Border(X, Y))
             {
-                // A ruin: what is left of a wall, and the stones that fell from it.
-                const bool bTurn = Hash(X, Y, 5) > .5f;
-                const float Height = 46.f + 74.f * N, Long = T * (.62f + .3f * Hash(X, Y, 7)), Thick = T * (.34f + .14f * Hash(X, Y, 9));
-                const FVector Offset((Hash(X, Y, 11) - .5f) * T * .2f, (Hash(X, Y, 13) - .5f) * T * .2f, 0);
-                Box(RuinStone, C + Offset + FVector(0, 0, Height * .5f + Feet), FVector(Long, Thick, Height), FRotator(0, (bTurn ? 90.f : 0.f) + (N - .5f) * 14.f, 0));
-                Box(RuinStone, C + Offset + FVector(0, 0, Height * .28f + Feet), FVector(Long * .5f, Thick * 1.5f, Height * .56f), FRotator(0, (bTurn ? 0.f : 90.f) + (N - .5f) * 20.f, 0));
-                for (int32 I = 0; I < 4; ++I)
+                // A ruin: what is left of a wall (two tiles long where two ruin tiles lie together, a stub of it on
+                // a lone tile), and the stones that fell from it. A tile a set piece stands on is left to it.
+                const FIntPoint Here(X, Y);
+                if (Claimed(X, Y) || Taken.Contains(Here)) continue;
+                const auto Free = [&](int32 AX, int32 AY) { return Spec->TileAt(AX, AY) == Ruin && !Border(AX, AY) && !Claimed(AX, AY) && !Taken.Contains(FIntPoint(AX, AY)); };
+                const FVector Ground(0, 0, Feet);
+                const float Turn = (N - .5f) * 8.f + (Hash(X, Y, 5) > .5f ? 180.f : 0.f);
+                if (Free(X + 1, Y)) { Taken.Add(FIntPoint(X + 1, Y)); Prop(TEXT("RuinWall"), RuinKit, (C + TileCentre(X + 1, Y)) * .5 + Ground, Turn); }
+                else if (Free(X, Y + 1)) { Taken.Add(FIntPoint(X, Y + 1)); Prop(TEXT("RuinWall"), RuinKit, (C + TileCentre(X, Y + 1)) * .5 + Ground, 90.f + Turn); }
+                else Prop(TEXT("RuinWall"), RuinKit, C + Ground, 360.f * Hash(X, Y, 7), FVector(.6f));
+                for (int32 I = 0; I < 3; ++I)
                 {
                     const FVector At = C + FVector((Hash(X * 7 + I, Y, 15) - .5f) * T * .8f, (Hash(X, Y * 7 + I, 17) - .5f) * T * .8f, Feet);
                     const float S = .9f + 1.1f * Hash(X + I, Y + I, 19);
@@ -326,26 +383,29 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
     }
     else
     {
-        // Drift's shelter: poles at the corners of the slab ring, ropes between their heads, a patched tarp
-        // leaning over the back row, and a lantern on each pole.
-        auto* Cloth = Focus(TEXT("Tarp"), Look.ClothTint, 2, .95f);
-        const FVector NW = TileCentre(FloorMin.X, FloorMin.Y - 1), NE = TileCentre(FloorMax.X, FloorMin.Y - 1);
-        const FVector SW = TileCentre(FloorMin.X, FloorMax.Y + 1), SE = TileCentre(FloorMax.X - 1, FloorMax.Y + 1);
-        const float Head = 214.f + Feet;
-        for (const FVector& Pole : {NW, NE, SW, SE})
+        // Drift's shelter: a patched awning on poles over the back row of the slab ring, one each side of the
+        // path, and a lantern on each front pole. The awnings stand over the ring, where nobody walks: a roof
+        // over the floor would hide the heads of those under it from this camera.
+        auto* Canvas = Kit(TEXT("Drift"));
+        const int32 Row = FloorMin.Y - 1;
+        int32 From = FloorMin.X;
+        for (int32 X = FloorMin.X; X <= FloorMax.X + 1; ++X)
         {
-            Beam(Timber, Pole + FVector(0, 0, Feet + 30), Pole + FVector(0, 0, Head), 9.f);
-            Lamp(Pole + FVector(0, -12, Head - 46.f), 430.f, Look.LampIntensity);
-            Beam(Iron, Pole + FVector(0, -12, Head - 36.f), Pole + FVector(0, 0, Head - 22.f), 2.f);
-        }
-        Beam(Iron, NW + FVector(0, 0, Head), NE + FVector(0, 0, Head), 2.5f);
-        const FVector Mid = (NW + NE) * .5;
-        const float Span = (NE - NW).X;
-        for (int32 I = 0; I < 3; ++I)
-        {
-            // Three sheets lashed side by side, each sagging its own way.
-            const float U = (I - 1) * Span / 3.f;
-            Box(Cloth, Mid + FVector(U, T * .42f, Head - 34.f - 6.f * I), FVector(Span / 3.f - 6.f, T * 1.25f, 2.5f), FRotator(0, 0, -24.f + 5.f * I));
+            if (X <= FloorMax.X && !Open(X, Row)) continue;
+            if (X - From >= 2)
+            {
+                const FVector P = (TileCentre(From, Row) + TileCentre(X - 1, Row)) * .5 + FVector(0, 0, Feet);
+                const float Wide = (X - From) * T / 384.f, Deep = .6f;
+                Prop(TEXT("TarpCanopy"), Canvas, P, From == FloorMin.X ? 0.f : 180.f, FVector(Wide, Deep, 1));
+                for (float Side : {-180.f, 180.f})
+                {
+                    const FVector Pole = P + FVector(Side * Wide, -130.f * Deep, 0);
+                    Beam(Iron, Pole + FVector(0, 0, 176.f), Pole + FVector(0, -13, 170.f), 2.f);
+                    Beam(Iron, Pole + FVector(0, -13, 170.f), Pole + FVector(0, -13, 160.f), 1.5f);
+                    Lamp(Pole + FVector(0, -13, 153.f), 430.f, Look.LampIntensity);
+                }
+            }
+            From = X + 1;
         }
     }
 }
@@ -356,16 +416,9 @@ void AMemoriaChapterPresentation::BuildBorder(const FDressing& Look)
     const int32 WallType = Spec->TileNames.IndexOfByKey(TEXT("WALL"));
     auto* Stone = Focus(TEXT("BorderStone"), Look.RuinTint * 1.1f, 0, .93f);
     auto* Cap = Focus(TEXT("BorderCap"), Look.RuinTint * 1.35f, 0, .88f);
-    auto* Iron = Focus(TEXT("BorderIron"), Look.IronTint, 3, .5f, .65f);
     const TCHAR* Block = BlockMesh();
     auto Stand = [&](UMaterialInterface* Material, const FVector& Position, const FVector& Size) { Solid(Block, Material, Position, Size / 100.0); };
     auto Rim = [&](int32 X, int32 Y) { return (X == 0 || Y == 0 || X == Spec->Width - 1 || Y == Spec->Height - 1) && Spec->TileAt(X, Y) == WallType; };
-    auto Post = [&](const FVector& C) { Box(Stone, C + FVector(0, 0, 42.f + Feet), FVector(24, 24, 84)); Box(Iron, C + FVector(0, 0, 87.f + Feet), FVector(29, 29, 6)); Box(Iron, C + FVector(0, 0, 94.f + Feet), FVector(11, 11, 9)); };
-    auto Chain = [&](const FVector& A, const FVector& B)
-    {
-        const FVector Top(0, 0, 70.f + Feet), Sag = (A + B) * .5 + FVector(0, 0, 50.f + Feet);
-        Beam(Iron, A + Top, Sag, 3.f); Beam(Iron, Sag, B + Top, 3.f);
-    };
     for (int32 Y = 0; Y < Spec->Height; ++Y)
         for (int32 X = 0; X < Spec->Width; ++X)
         {
@@ -393,57 +446,53 @@ void AMemoriaChapterPresentation::BuildBorder(const FDressing& Look)
             const bool bVertical = X == 0 || X == Spec->Width - 1;
             const float Height = 14.f + 16.f * N;
             Box(Stone, C + FVector(0, 0, Height * .5f + Feet), bVertical ? FVector(T * .6f, T, Height) : FVector(T, T * .6f, Height));
-            const int32 Along = bVertical ? Y : X;
-            if (Along % 2 == 0)
-            {
-                Post(C);
-                const int32 NX = bVertical ? X : X + 2, NY = bVertical ? Y + 2 : Y;
-                if (Rim(NX, NY) && Rim(bVertical ? X : X + 1, bVertical ? Y + 1 : Y)) Chain(C, TileCentre(NX, NY));
-            }
         }
+    if (Look.bRuinBorder) return;
+    // The Belt's chain fence on the kerb, along the west, the south and the east, broken where the road leaves.
+    auto* Chain = Kit(TEXT("Belt"));
+    const auto Run = [&](FIntPoint At, const FIntPoint& Step, int32 Count)
+    {
+        FIntPoint First = At; int32 Length = 0;
+        for (int32 I = 0; I <= Count; ++I, At += Step)
+        {
+            if (I < Count && Rim(At.X, At.Y)) { if (Length++ == 0) First = At; continue; }
+            if (Length >= 2) { const FIntPoint Last = At - Step; Fence(Chain, TileCentre(First.X, First.Y) + FVector(0, 0, Feet + 10.f), TileCentre(Last.X, Last.Y) + FVector(0, 0, Feet + 10.f)); }
+            Length = 0;
+        }
+    };
+    Run(FIntPoint(0, 1), FIntPoint(0, 1), Spec->Height - 1);
+    Run(FIntPoint(0, Spec->Height - 1), FIntPoint(1, 0), Spec->Width);
+    Run(FIntPoint(Spec->Width - 1, 1), FIntPoint(0, 1), Spec->Height - 1);
 }
 void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
 {
-    // Stand-ins for what the canvas paints, built from boxes. Each stands on a solid tile or beyond the border,
-    // so none of them is in Arrel's way. Codex's models replace them.
+    // What the canvas paints, as Codex's S343 models. Each stands on a solid tile or beyond the border, so none
+    // of them is in Arrel's way, and none roofs a place where a figure can stand. The far things the kit has no
+    // model for (the relay pylons, the slag ridges, the ruin masses) stay built from boxes.
     const float T = Spec->TileSize * MemoriaChapterMaps::Scale;
     auto* Stone = Focus(TEXT("SetStone"), Look.WallTint * .9f, 0, .93f);
     auto* Timber = Focus(TEXT("SetTimber"), Look.TimberTint * 1.25f, 1);
-    auto* Sleeper = Focus(TEXT("Sleeper"), Look.TimberTint * .8f, 1, .95f);
     auto* Iron = Focus(TEXT("SetIron"), Look.IronTint, 3, .45f, .7f);
-    auto* Rust = Focus(TEXT("Rust"), FLinearColor(.16f, .085f, .045f), 3, .7f, .35f);
-    auto* Cloth = Focus(TEXT("SetCloth"), Look.ClothTint, 2, .95f);
-    auto* Slate = Focus(TEXT("Slate"), Look.IronTint * 1.9f, 0, .7f);
     auto* Dark = Focus(TEXT("Far"), Look.RuinTint * .42f, 3, 1.f);
-    auto* Ballast = Focus(TEXT("Ballast"), Look.RuinTint * .8f, 3, 1.f);
-    auto Crate = [&](const FVector& P, float Size, float Yaw)
+    auto* Small = Kit(TEXT("Small"), FLinearColor::White, TEXT("SmallGlow"));
+    const FVector Ground(0, 0, Feet);
+    auto LanternPost = [&](const FVector& P, float Yaw)
     {
-        Box(Timber, P + FVector(0, 0, Size * .5f + Feet), FVector(Size), FRotator(0, Yaw, 0));
-        Box(Iron, P + FVector(0, 0, Size * .5f + Feet), FVector(Size + 2.f, Size * .12f, Size + 2.f), FRotator(0, Yaw, 0));
-        Box(Iron, P + FVector(0, 0, Size * .5f + Feet), FVector(Size * .12f, Size + 2.f, Size + 2.f), FRotator(0, Yaw, 0));
-    };
-    auto Barrel = [&](const FVector& P)
-    {
-        Solid(TEXT("Cylinder"), Timber, P + FVector(0, 0, 28.f + Feet), FVector(.42f, .42f, .56f));
-        for (float Z : {12.f, 44.f}) Solid(TEXT("Cylinder"), Iron, P + FVector(0, 0, Z + Feet), FVector(.445f, .445f, .05f));
-    };
-    auto LampPost = [&](const FVector& P, float Tall)
-    {
-        Box(Stone, P + FVector(0, 0, 9.f + Feet), FVector(26, 26, 18));
-        Beam(Iron, P + FVector(0, 0, Feet), P + FVector(0, 0, Tall + Feet), 7.f);
-        Beam(Iron, P + FVector(0, 0, Tall + Feet - 4.f), P + FVector(0, -30, Tall + Feet - 4.f), 4.f);
-        Beam(Iron, P + FVector(0, -30, Tall + Feet - 4.f), P + FVector(0, -30, Tall + Feet - 16.f), 2.f);
-        Lamp(P + FVector(0, -30, Tall + Feet - 24.f), 470.f, Look.LampIntensity * 1.15f);
+        // The lantern hangs 17 cm to the post's right and 153 cm up.
+        Prop(TEXT("LanternPost"), Small, P + Ground, Yaw);
+        Lamp(P + Ground + FRotator(0, Yaw, 0).RotateVector(FVector(17, -6, 150)), 470.f, Look.LampIntensity * 1.15f, false);
     };
     if (Map == TEXT("belt_waystation"))
     {
-        // The rail line beyond the embankment: ballast, sleepers and two rails, running off both ways.
-        const float RailY = TileCentre(0, -2.f).Y, West = -14.f * T, East = (Spec->Width + 14.f) * T;
-        Box(Ballast, FVector((West + East) * .5f, RailY, 4.f + Feet), FVector(East - West, 210, 22));
-        for (float X = West; X < East; X += 54.f) Box(Sleeper, FVector(X, RailY, 18.f + Feet), FVector(20, 168, 9), FRotator(0, (Scatter(int32(X), 1) - .5) * 5., 0));
-        for (float Side : {-48.f, 48.f}) Box(Iron, FVector((West + East) * .5f, RailY + Side, 26.f + Feet), FVector(East - West, 7, 9));
+        // The glow mask belongs to the two models with lanterns; the others share the atlas without it.
+        auto* Belt = Kit(TEXT("Belt"));
+        auto* Lit = Kit(TEXT("Belt"), FLinearColor::White, TEXT("BeltGlow"));
+        const FVector Bank(0, 0, 46.f + Feet);   // the embankment's top
+        // The rail line beyond the embankment, running off both ways.
+        const float RailY = TileCentre(0, -3.f).Y, West = -14.f * T, East = (Spec->Width + 14.f) * T;
+        for (float X = West; X < East; X += 192.f) Prop(TEXT("RailTrack"), Belt, FVector(X + 96.f, RailY, Feet));
         // The far side: relay pylons carrying a sagging line, and slag ridges fading into the dust.
-        const float PylonY = TileCentre(0, -4.6f).Y;
+        const float PylonY = TileCentre(0, -5.4f).Y;
         FVector Last = FVector::ZeroVector;
         for (int32 I = -2; I <= 6; ++I)
         {
@@ -458,73 +507,41 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         for (int32 I = 0; I < 7; ++I)
             Solid(TEXT("Roof"), Dark, FVector(-1800.f + I * 1150.f + 300.f * Scatter(I, 4), 1900.f + 900.f * Scatter(I, 5), -20.f),
                 FVector(15.f + 12.f * Scatter(I, 6), 7.f + 4.f * Scatter(I, 7), 5.f + 6.f * Scatter(I, 8)), FRotator(0, (Scatter(I, 9) - .5) * 30., 0), false);
-        // The signal post on the embankment: a mast, its spoked wheel, three pennants and the lamp at its foot.
+        // The signal post on the embankment: its wheel, three pennants and the lamp at its foot.
         {
-            const FVector P = TileCentre(5.f, -.15f);
-            Box(Stone, P + FVector(0, 0, 46.f + 14.f + Feet), FVector(54, 54, 28));
-            Beam(Iron, P + FVector(0, 0, 46.f + Feet), P + FVector(0, 0, 372.f), 13.f);
-            const FVector Hub = P + FVector(0, -11, 300.f);
-            Solid(TEXT("Cylinder"), Rust, Hub, FVector(1.12f, 1.12f, .07f), FRotator(0, 0, 90));
-            Solid(TEXT("Cylinder"), Iron, Hub + FVector(0, -3, 0), FVector(.86f, .86f, .05f), FRotator(0, 0, 90));
-            Solid(TEXT("Cylinder"), Rust, Hub + FVector(0, -6, 0), FVector(.3f, .3f, .08f), FRotator(0, 0, 90));
-            for (int32 I = 0; I < 4; ++I) Box(Rust, Hub + FVector(0, -6, 0), FVector(104, 4, 6), FRotator(I * 45.f, 0, 0));
-            Box(Iron, P + FVector(0, -6, 206.f), FVector(150, 6, 6));
-            for (int32 I = 0; I < 3; ++I) Box(Cloth, P + FVector(-56.f + I * 56.f, -8, 206.f - 26.f - 6.f * (I % 2)), FVector(26, 2, 46.f + 12.f * (I % 2)), FRotator((I - 1) * 5.f, 0, 0));
-            Lamp(P + FVector(0, -34, 70.f + Feet), 430.f, Look.LampIntensity);
+            const FVector P = TileCentre(5.f, 0.f) + Bank;
+            Prop(TEXT("SignalPost"), Lit, P);
+            Lamp(P + FVector(0, -30, 32), 430.f, Look.LampIntensity, false);
         }
-        // The platform shelter on the embankment: a stone platform, four posts, a curved slatted canopy.
+        // The platform shelter between the embankment and the rails, on a plinth where it overhangs the bank.
         {
-            const FVector P = (TileCentre(17.f, 0.f) + TileCentre(20.f, 0.f)) * .5 + FVector(0, 26, 0);
-            Box(Stone, P + FVector(0, 0, 29.f + Feet), FVector(410, 150, 58));
-            for (float X : {-185.f, -62.f, 62.f, 185.f}) for (float Y : {-58.f, 58.f}) Beam(Timber, P + FVector(X, Y, 58.f + Feet), P + FVector(X, Y, 226.f), 9.f);
-            Solid(TEXT("Roof"), Slate, P + FVector(0, 0, 226.f), FVector(4.5f, 1.85f, .62f));
-            Box(Timber, P + FVector(0, -92, 226.f), FVector(450, 6, 12));
-            for (int32 I = 0; I < 9; ++I) Box(Timber, P + FVector(-200.f + I * 50.f, -94, 214.f), FVector(10, 3, 18.f + 8.f * (I % 2)));
-            Box(Timber, P + FVector(0, 52, 100.f), FVector(380, 5, 70));     // the back screen
-            Box(Timber, P + FVector(-110, -10, 78.f + Feet), FVector(120, 30, 8));  // a bench
-            for (float X : {-160.f, -60.f}) Box(Iron, P + FVector(X, -10, 66.f + Feet), FVector(6, 28, 18));
-            Lamp(P + FVector(120, -84, 176.f), 520.f, Look.LampIntensity * 1.2f);
-            Beam(Iron, P + FVector(120, -84, 222.f), P + FVector(120, -84, 184.f), 2.f);
-            Crate(P + FVector(150, -20, 58.f), 46.f, 12.f); Crate(P + FVector(196, 10, 58.f), 36.f, -20.f);
+            const FVector P((TileCentre(17.f, 0.f).X + TileCentre(20.f, 0.f).X) * .5, 30.f, Bank.Z);
+            Box(Stone, FVector(P.X, 82.f, (Bank.Z + Feet) * .5f), FVector(380, 164, Bank.Z - Feet));
+            Prop(TEXT("PlatformShelter"), Lit, P);
+            for (float Side : {-152.f, 152.f}) Lamp(P + FVector(Side, -114, 182), 460.f, Look.LampIntensity * 1.1f, false);
         }
         // The banner pole at the north-east corner, its long cloth torn.
-        {
-            const FVector P = TileCentre(22.6f, -.1f);
-            Beam(Iron, P + FVector(0, 0, 46.f + Feet), P + FVector(0, 0, 368.f), 11.f);
-            Beam(Iron, P + FVector(0, 0, 350.f), P + FVector(-64, -10, 340.f), 5.f);
-            Box(Cloth, P + FVector(-34, -12, 286.f), FVector(34, 2, 104), FRotator(3, 0, 0)); Box(Cloth, P + FVector(-44, -13, 214.f), FVector(16, 2, 40), FRotator(8, 0, 0));
-        }
-        // The freight left on the south-west ruin, and a cart's worth on the south-east.
-        {
-            const FVector P = TileCentre(3.f, 14.f);
-            Crate(P + FVector(-18, 14, 0), 52.f, 8.f); Crate(P + FVector(30, 20, 0), 40.f, -14.f); Crate(P + FVector(-12, 16, 52.f), 36.f, 24.f);
-            Barrel(P + FVector(34, -24, 0)); Barrel(P + FVector(-28, -30, 0));
-            Beam(Timber, P + FVector(-44, 40, Feet), P + FVector(-44, 40, 130.f), 6.f); Beam(Timber, P + FVector(44, 40, Feet), P + FVector(44, 40, 130.f), 6.f);
-            Beam(Timber, P + FVector(-44, 40, 126.f), P + FVector(44, 40, 126.f), 5.f);
-            Box(Cloth, P + FVector(-6, 38, 92.f), FVector(58, 2, 62), FRotator(0, 0, 4));
-            const FVector Q = TileCentre(20.f, 14.f);
-            Crate(Q + FVector(8, 6, 0), 46.f, 30.f); Barrel(Q + FVector(-30, -18, 0)); Crate(Q + FVector(-22, 24, 0), 30.f, -8.f);
-        }
-        // Lamp posts where the road leaves the yard.
-        for (float Y : {7.f, 11.f}) LampPost(TileCentre(Spec->Width - 1.f, Y), 205.f);
-        LampPost(TileCentre(0.f, 12.f) + FVector(10, 0, 0), 205.f);
+        Prop(TEXT("BannerPole"), Belt, TileCentre(22.6f, 0.f) + Bank);
+        // The freight left on the two southern ruins.
+        Prop(TEXT("CrateStack"), Belt, TileCentre(3.5f, 14.f) + Ground);
+        Prop(TEXT("CrateStack"), Belt, TileCentre(19.5f, 14.f) + Ground, 0.f, FVector(.94f));
+        // Lantern posts where the road leaves the yard, and one on the west kerb.
+        for (float Y : {7.f, 11.f}) LanternPost(TileCentre(Spec->Width - 1.f, Y) + FVector(-30, 0, 0), 180.f);
+        LanternPost(TileCentre(0.f, 12.f) + FVector(30, 0, 0), 0.f);
     }
     else
     {
-        // Drift: dead trees beyond the walls, and what the camp left on its ruins.
+        auto* Camp = Kit(TEXT("Drift"));
+        auto* Far = Kit(TEXT("Drift"), FLinearColor(.5f, .52f, .6f));
+        auto* Freight = Kit(TEXT("Belt"), FLinearColor(1.1f, 1.16f, 1.34f));
+        // The camp beyond the east wall, north of the road: a patched canopy on poles over its stores, and a lantern.
+        const FVector Beyond(Spec->Width * T + 230.f, TileCentre(0, 4.6f).Y, Feet);
+        // Drift: dead trees beyond the walls.
         auto Tree = [&](const FVector& P, int32 Seed)
         {
-            const float Tall = 330.f + 170.f * Scatter(Seed, 11);
-            const FVector Crown = P + FVector((Scatter(Seed, 12) - .5) * 90., (Scatter(Seed, 13) - .5) * 60., Tall);
-            Beam(Dark, P + FVector(0, 0, Feet - 10.f), Crown, 22.f);
-            for (int32 I = 0; I < 5; ++I)
-            {
-                const FVector From = FMath::Lerp(P, Crown, .42f + .12f * I);
-                const double Turn = Scatter(Seed * 7 + I, 14) * 6.283;
-                const FVector To = From + FVector(FMath::Cos(Turn) * (130. - 14. * I), FMath::Sin(Turn) * 60., 70. + 30. * Scatter(Seed + I, 15));
-                Beam(Dark, From, To, 9.f - I);
-                Beam(Dark, To, To + FVector(FMath::Cos(Turn + 1.) * 60., 20., 46.), 4.f);
-            }
+            if (FMath::Abs(P.X - Beyond.X) < 330.f && FMath::Abs(P.Y - Beyond.Y) < 300.f) return;
+            const float S = .8f + .42f * float(Scatter(Seed, 11));
+            Prop(TEXT("DeadTree"), Far, FVector(P.X, P.Y, Feet - 6.f), 360.f * float(Scatter(Seed, 12)), FVector(S, S, S * (.9f + .25f * float(Scatter(Seed, 13)))));
         };
         int32 Seed = 0;
         for (float X = -3.f; X <= Spec->Width + 3.f; X += 2.6f, ++Seed)
@@ -541,15 +558,41 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         for (int32 I = 0; I < 6; ++I)
             Box(Dark, FVector(-900.f + I * 760.f, 1150.f + 500.f * Scatter(I, 22), 120.f), FVector(420.f + 300.f * Scatter(I, 23), 300, 300.f + 320.f * Scatter(I, 24)),
                 FRotator(0, (Scatter(I, 25) - .5) * 24., (Scatter(I, 26) - .5) * 9.), false);
-        // The camp's stores on the rubble.
-        const FVector P = TileCentre(18.f, 2.f);
-        Crate(P + FVector(-10, 4, 0), 44.f, 16.f); Crate(P + FVector(34, -12, 0), 32.f, -22.f); Barrel(P + FVector(-40, -26, 0));
-        const FVector Q = TileCentre(3.f, 3.f);
-        Crate(Q + FVector(0, 0, 0), 40.f, -10.f); Barrel(Q + FVector(36, 22, 0));
-        // A lamp post at the road's two ends.
-        LampPost(TileCentre(8.f, 0.f) + FVector(-20, -T * .5f - 10.f, 0), 215.f);
-        LampPost(TileCentre(Spec->Width - 1.f, 7.f), 215.f);
+        Prop(TEXT("TarpCanopy"), Camp, Beyond);
+        Prop(TEXT("CrateStack"), Freight, Beyond + FVector(24, 26, 0), 180.f, FVector(.9f));
+        Beam(Iron, Beyond + FVector(-180, -130, 190), Beyond + FVector(-166, -140, 176), 2.f);
+        Lamp(Beyond + FVector(-166, -140, 168), 520.f, Look.LampIntensity);
+        // The camp's stores on the rubble in the north-east and by the west wall, and the gramophone on its ruin.
+        Prop(TEXT("CrateStack"), Freight, TileCentre(17.5f, 2.f) + Ground, 0.f, FVector(.92f));
+        Prop(TEXT("CrateStack"), Freight, TileCentre(2.5f, 13.f) + Ground, 180.f, FVector(.92f));
+        Prop(TEXT("Gramophone"), Kit(TEXT("Small")), TileCentre(3.f, 4.f) + Ground, 24.f);
+        // A lantern post at the road's two ends.
+        LanternPost(TileCentre(8.f, 0.f) + FVector(-20, -T * .5f - 14.f, 0), 0.f);
+        LanternPost(TileCentre(Spec->Width - 1.f, 7.f) + FVector(-T * .5f - 14.f, 0, 0), 180.f);
     }
+}
+void AMemoriaChapterPresentation::BuildGrass(const FDressing& Look)
+{
+    // Dry tufts on the open soil, as the canvases paint them: thick in the Belt's dead yard, thin in Drift's mud.
+    auto* Grass = Kit(TEXT("Grass"), Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
+    if (!Grass) return;
+    // The cards stand edge-on to the low light and would go black; they give back some of their own colour.
+    Grass->SetScalarParameterValue(TEXT("Fill"), Look.bRain ? .22f : .3f);
+    const float T = Spec->TileSize * MemoriaChapterMaps::Scale, Share = Look.bRain ? .16f : .36f;
+    for (int32 Y = 1; Y < Spec->Height - 1; ++Y)
+        for (int32 X = 1; X < Spec->Width - 1; ++X)
+        {
+            const int32 Type = Spec->TileAt(X, Y);
+            const FString Detail = Spec->TileDetails.IsValidIndex(Type) ? Spec->TileDetails[Type] : FString();
+            if ((Detail != TEXT("dead_soil") && Detail != TEXT("mud")) || Hash(X, Y, 41) > Share) continue;
+            const int32 Tufts = 1 + int32(Hash(X, Y, 43) * 3.f);
+            for (int32 I = 0; I < Tufts; ++I)
+            {
+                const FVector At = TileCentre(X, Y) + FVector((Hash(X * 5 + I, Y, 45) - .5f) * T * .9f, (Hash(X, Y * 5 + I, 47) - .5f) * T * .9f, Feet);
+                const float S = 1.1f + .9f * Hash(X + I, Y - I, 49);
+                Prop(TEXT("DryGrass"), Grass, At, 360.f * Hash(X - I, Y + I, 51), FVector(S, S, S * (.8f + .5f * Hash(X, Y, 53 + I))), false);
+            }
+        }
 }
 void AMemoriaChapterPresentation::BuildAir(const FDressing& Look)
 {
