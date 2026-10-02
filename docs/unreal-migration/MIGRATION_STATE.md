@@ -1,3 +1,14 @@
+# Migration handoff — S336 Codex integration verified (2026-10-02)
+
+- S334 save fixes accepted; S310–S335 dependencies integrated on `codex/unreal-s335-integration-20261002` through gameplay commit `c2afd34b`.
+- Fresh Codex UE5.8.2 build PASS; rendered registry **274/274**, visual **26/26**, host **35/35**. Fresh no-active-run Continue smoke also passed: refusal -> title, no chapter entry, exit 0.
+- Existing S310 work preserved in raw 58-file archive and local `a42f4526` (`codex/s310-preserved-20261002`). Runtime/art/tools match Claude's final content; all 12 model delivery hashes match.
+- Accept the documented loss of previous actor position on failed travel. Seven full-suite/two visual warnings and the existing 15 startup Condition failed lines are disclosed in the report, fatal 0. No packaging or human feel/listening pass.
+- Shared build/GPU slot released. No peer/foundation/Godot writes, new art, remote push or release. No next implementation task assigned.
+- [Review, commit map, exact commands and evidence](S336_INTEGRATION_REVIEW.md).
+
+---
+
 # Migration handoff — S335 Codex's ambient NPC models and props adopted (Claude lane, 2026-10-01)
 
 - **Why.** Codex delivered the art requested after S331 (shared `models/`, S334): three NPCs on Arrel's 77-bone rig and three static props. This session imports them and puts them in the chapter maps.
