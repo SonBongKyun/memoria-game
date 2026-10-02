@@ -20,7 +20,7 @@
   - The awnings are the tarp model at 60% depth; the ruin stubs are the wall at 60%.
   - No LODs, no wind on cloth or grass, no normal or roughness maps (as delivered).
   - A source quirk seen on the way and left alone: Drift's chest lies on a rubble tile (17, 3), which is solid in the source too.
-- **Results.** `MemoriaVisual.BeltDressing` and `MemoriaVisual.DriftDressing` pass on this tree. The full registry follows.
+- **Results.** Full rendered registry 274/274 (`s344_full`), visual 30/30 (`s344_visual`), on `277b92e4`.
 
 # Migration handoff — S342 the maps' encounter pools as foes of their own (Claude lane, 2026-10-02)
 
