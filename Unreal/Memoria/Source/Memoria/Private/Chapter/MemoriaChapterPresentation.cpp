@@ -276,8 +276,9 @@ void AMemoriaChapterPresentation::UpdateEncounters()
     }
     if (Step.bTriggered && Spec->Encounters.IsValidIndex(Step.EnemyIndex))
     {
-        const bool bVoid = Spec->Encounters[Step.EnemyIndex].bVoid;
-        Combat->SpawnWave(bVoid ? 3 : 2, Player->GetActorLocation(), 420.f, bVoid ? EMemoriaFoeKind::VoidHusk : EMemoriaFoeKind::MarketThief);
+        // S342: the pool's own foe, by its source name, in its pack.
+        const EMemoriaFoeKind Kind = FoeKindByName(Spec->Encounters[Step.EnemyIndex].Name, Spec->Encounters[Step.EnemyIndex].bVoid);
+        Combat->SpawnWave(FoePackSize(Kind), Player->GetActorLocation(), 420.f, Kind);
         if (Run) Run->RecordBattleStarted();
         Narrative->Record(TEXT("encounter:field_started:") + Spec->Encounters[Step.EnemyIndex].Name);
     }
@@ -539,7 +540,9 @@ void AMemoriaChapterPresentation::CheckTriggers()
             if (!Flag(Id) && Battle.Rect.Contains(P))
             {
                 SetFlag(Id);
-                Combat->SpawnWave(1, Player->GetActorLocation(), 380.f, Battle.bVoid ? EMemoriaFoeKind::VoidHusk : EMemoriaFoeKind::MarketThief);
+                // S342: the area's own foe, one fewer than its roaming pack.
+                const EMemoriaFoeKind Kind = FoeKindByName(Battle.Name, Battle.bVoid);
+                Combat->SpawnWave(FMath::Max(1, FoePackSize(Kind) - 1), Player->GetActorLocation(), 380.f, Kind);
             }
         }
 }

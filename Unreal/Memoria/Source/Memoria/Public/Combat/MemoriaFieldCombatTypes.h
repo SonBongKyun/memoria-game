@@ -117,16 +117,26 @@ inline constexpr float BombRadius = 190.f;
 inline constexpr float BombFlight = .38f;
 inline constexpr int32 BombBurnTicks = 2;           // "burns the enemy for 2 turns"
 inline constexpr int32 HiPotionFrom = 60;           // the hi-potion is taken first once this much HP is missing
+// S342: the foes of the chapter maps' encounter pools. A caster keeps its distance and throws a slow orb; a
+// charger marks a lane and runs it; a drain heals the foe by half the harm it does (battle_manager "drain");
+// a scorch burns Arrel for two turns (battle_manager "burn_attack": attack * 0.2 + 3).
+inline constexpr float CasterRange = 430.f, CasterRetreat = 230.f;
+inline constexpr float OrbSpeed = 480.f, OrbRadius = 52.f, OrbLife = 2.4f;
+inline constexpr float RushFrom = 380.f, RushSpeed = 640.f, RushDistance = 520.f, RushHit = 78.f, RushWidth = 70.f;
+inline constexpr float DrainShare = .5f;
+inline constexpr int32 ScorchTicks = 2;
 // Fire for the lower grades, void violet for Identity Pyre and Zero Burn (the source's elements).
 inline FLinearColor BurnColor(int32 Grade)
 { return Grade >= 3 ? FLinearColor(.62f, .30f, 1.f) : Grade == 1 ? FLinearColor(.35f, .62f, 1.f) : FLinearColor(1.f, .52f, .16f); }
 }
-enum class EMemoriaMonsterState : uint8 { Idle, Chase, Windup, Recover, Stagger, Dead };
+enum class EMemoriaMonsterState : uint8 { Idle, Chase, Windup, Recover, Stagger, Dead, Rush };
 // S313: the field foes. The void husk is the stand-in void creature; the market thief is the Verdan source
 // enemy (source: 50 HP, "weaken"). Both are Epic's mannequin until Codex's models arrive.
-enum class EMemoriaFoeKind : uint8 { VoidHusk, MarketThief };
+// S342: and the six foes of the Belt Waystation's and Drift Shelter's pools, each on one of the two models.
+enum class EMemoriaFoeKind : uint8 { VoidHusk, MarketThief, BeltScavenger, VoidWisp, DustCrawler, MemoryLeech, RubbleRat, AshWalker };
+enum class EMemoriaFoeBehaviour : uint8 { Brawler, Caster, Charger };
 // The source enemy abilities carried into the field (S314): a blow that lands also poisons or weakens.
-enum class EMemoriaFoeAbility : uint8 { None, Poison, Weaken };
+enum class EMemoriaFoeAbility : uint8 { None, Poison, Weaken, Drain, Burn };
 struct FMemoriaFoeSpec
 {
     const TCHAR* Name; const TCHAR* NameKo;
@@ -137,6 +147,13 @@ struct FMemoriaFoeSpec
     bool bQuinn; FLinearColor Color, Glow; float Crack, Rim, BladeScale;
     bool bVoid; EMemoriaFoeAbility Ability;   // S314: source is_void (rewards) and the blow's status
     const TCHAR* Model;                       // S326: Codex's model (Field3D/<Model>), when imported
+    // S342: how it fights, a second ability, the source's own numbers, and the tint that tells it from its model's kind.
+    EMemoriaFoeBehaviour Behaviour = EMemoriaFoeBehaviour::Brawler;
+    EMemoriaFoeAbility Second = EMemoriaFoeAbility::None;
+    int32 SourceHp = 0, SourceAtk = 0;
+    bool bRetint = false;
+    FLinearColor ModelGlow = FLinearColor(.32f, .008f, .72f), ModelRim = FLinearColor::White;
+    float ModelCrack = 2.5f, ModelRimStrength = .12f;
 };
 inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
 {
@@ -153,5 +170,56 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
         nullptr, nullptr, TEXT("Sword_Regular_A"), .55f,
         true, FLinearColor(.07f, .05f, .038f), FLinearColor(1.f, .62f, .30f), 0.f, .05f, .42f,
         false, EMemoriaFoeAbility::Weaken, TEXT("Thief")};
-    return Kind == EMemoriaFoeKind::MarketThief ? Thief : Husk;
+    // S342: the pools' foes. Health is near the source's HP and the blow about 0.6 of its attack, as the thief's
+    // (50 and 12 in the source) became 45 and 7 here.
+    struct FVariant
+    {
+        static FMemoriaFoeSpec Of(const FMemoriaFoeSpec& Base, const TCHAR* Name, const TCHAR* NameKo, int32 Hp, int32 Atk, float Health, float Height, float Speed, float Damage,
+            float Windup, float Recover, bool bVoid, EMemoriaFoeAbility Ability, EMemoriaFoeAbility Second, EMemoriaFoeBehaviour Behaviour,
+            const FLinearColor& Glow, float Crack, const FLinearColor& Rim, float RimStrength)
+        {
+            FMemoriaFoeSpec S = Base;
+            S.Name = Name; S.NameKo = NameKo; S.SourceHp = Hp; S.SourceAtk = Atk; S.Health = Health; S.Height = Height; S.Speed = Speed; S.Damage = Damage;
+            S.Windup = Windup; S.Recover = Recover; S.bVoid = bVoid; S.Ability = Ability; S.Second = Second; S.Behaviour = Behaviour;
+            S.bRetint = true; S.ModelGlow = Glow; S.ModelCrack = Crack; S.ModelRim = Rim; S.ModelRimStrength = RimStrength;
+            // The mannequin stand-in (when the models are not imported) wears the same glow.
+            S.Glow = Rim;
+            return S;
+        }
+    };
+    using A = EMemoriaFoeAbility; using B = EMemoriaFoeBehaviour;
+    static const FMemoriaFoeSpec Scavenger = FVariant::Of(Thief, TEXT("Belt Scavenger"), TEXT("벨트 약탈자"), 55, 12, 50.f, 165.f, 140.f, 7.f, .45f, .75f,
+        false, A::Weaken, A::None, B::Brawler, FLinearColor::Black, 0.f, FLinearColor(.95f, .62f, .22f), .24f);
+    static const FMemoriaFoeSpec Wisp = FVariant::Of(Husk, TEXT("Void Wisp"), TEXT("보이드 도깨비불"), 45, 14, 40.f, 135.f, 110.f, 8.f, .90f, 1.40f,
+        true, A::Drain, A::None, B::Caster, FLinearColor(.25f, .7f, 1.f), 5.f, FLinearColor(.4f, .8f, 1.f), .70f);
+    static const FMemoriaFoeSpec Crawler = FVariant::Of(Thief, TEXT("Dust Crawler"), TEXT("먼지 크롤러"), 40, 10, 36.f, 118.f, 170.f, 6.f, .65f, 1.10f,
+        false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.85f, .74f, .46f), .22f);
+    static const FMemoriaFoeSpec Leech = FVariant::Of(Husk, TEXT("Memory Leech"), TEXT("기억 거머리"), 50, 13, 45.f, 150.f, 100.f, 8.f, .60f, .90f,
+        true, A::Drain, A::None, B::Brawler, FLinearColor(1.f, .1f, .3f), 4.f, FLinearColor(1.f, .2f, .4f), .45f);
+    static const FMemoriaFoeSpec Rat = FVariant::Of(Thief, TEXT("Rubble Rat"), TEXT("잔해쥐"), 35, 9, 32.f, 105.f, 185.f, 5.f, .60f, 1.10f,
+        false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.62f, .64f, .70f), .20f);
+    static const FMemoriaFoeSpec Walker = FVariant::Of(Husk, TEXT("Ash Walker"), TEXT("재의 방랑자"), 60, 11, 55.f, 185.f, 70.f, 8.f, .85f, 1.00f,
+        false, A::Burn, A::Weaken, B::Brawler, FLinearColor(1.f, .42f, .08f), 5.f, FLinearColor(1.f, .5f, .15f), .40f);
+    switch (Kind)
+    {
+    case EMemoriaFoeKind::MarketThief: return Thief;
+    case EMemoriaFoeKind::BeltScavenger: return Scavenger;
+    case EMemoriaFoeKind::VoidWisp: return Wisp;
+    case EMemoriaFoeKind::DustCrawler: return Crawler;
+    case EMemoriaFoeKind::MemoryLeech: return Leech;
+    case EMemoriaFoeKind::RubbleRat: return Rat;
+    case EMemoriaFoeKind::AshWalker: return Walker;
+    default: return Husk;
+    }
 }
+// S342: a map's encounter by its source name; one the port has no foe for falls back to the husk (void) or the thief.
+inline EMemoriaFoeKind FoeKindByName(const FString& SourceName, bool bVoid)
+{
+    for (const EMemoriaFoeKind Kind : {EMemoriaFoeKind::BeltScavenger, EMemoriaFoeKind::VoidWisp, EMemoriaFoeKind::DustCrawler, EMemoriaFoeKind::MemoryLeech,
+        EMemoriaFoeKind::RubbleRat, EMemoriaFoeKind::AshWalker, EMemoriaFoeKind::MarketThief, EMemoriaFoeKind::VoidHusk})
+        if (SourceName.Equals(FoeSpec(Kind).Name, ESearchCase::CaseSensitive)) return Kind;
+    return bVoid ? EMemoriaFoeKind::VoidHusk : EMemoriaFoeKind::MarketThief;
+}
+// How many rise together: the small chargers in a pack of three, the rest in twos (the husk keeps its three).
+inline int32 FoePackSize(EMemoriaFoeKind Kind)
+{ return Kind == EMemoriaFoeKind::VoidHusk || FoeSpec(Kind).Behaviour == EMemoriaFoeBehaviour::Charger ? 3 : 2; }

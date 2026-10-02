@@ -38,6 +38,7 @@ void AMemoriaFieldMonster::BeginPlay()
     FMemoriaFoeLook Look;
     Look.Model = S.Model; Look.Height = S.Height; Look.bQuinn = S.bQuinn; Look.Idle = S.Idle; Look.Walk = S.Walk;
     Look.Color = S.Color; Look.Glow = S.Glow; Look.Crack = S.Crack; Look.Rim = S.Rim; Look.BladeScale = S.BladeScale;
+    Look.bRetint = S.bRetint; Look.ModelGlow = S.ModelGlow; Look.ModelCrack = S.ModelCrack; Look.ModelRim = S.ModelRim; Look.ModelRimStrength = S.ModelRimStrength;
     Figure->InitializeFoe(Look);
     Health = MaxHealth = S.Health; Movement->MaxSpeed = S.Speed;
     Telegraph->SetRelativeScale3D(FVector(S.Reach / 50.f, S.Reach / 50.f, .004f));
@@ -53,6 +54,23 @@ void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
 {
     State = Next; StateTime = 0.f;
     Telegraph->SetHiddenInGame(Next != EMemoriaMonsterState::Windup);
+    if (Next == EMemoriaMonsterState::Windup)
+    {
+        // The telegraph is the reach of what is coming: a disc under a brawler or a caster, a lane before a charger.
+        const FMemoriaFoeSpec& S = Spec();
+        if (S.Behaviour == EMemoriaFoeBehaviour::Charger)
+        {
+            Telegraph->SetRelativeRotation(FRotator(0, RushDirection.Rotation().Yaw, 0));
+            Telegraph->SetRelativeLocation(RushDirection * RushDistance * .5f + FVector(0, 0, -8.5));
+            Telegraph->SetRelativeScale3D(FVector(RushDistance / 100.f, RushWidth / 100.f, .004f));
+        }
+        else
+        {
+            Telegraph->SetRelativeRotation(FRotator::ZeroRotator); Telegraph->SetRelativeLocation(FVector(0, 0, -8.5));
+            const float Reach = S.Behaviour == EMemoriaFoeBehaviour::Caster ? 60.f : S.Reach;
+            Telegraph->SetRelativeScale3D(FVector(Reach / 50.f, Reach / 50.f, .004f));
+        }
+    }
     // The kind's strike, timed so its blow lands as the windup ends.
     if (Next == EMemoriaMonsterState::Windup)
         if (const UAnimSequence* Clip = MemoriaCombatClips::Load(Figure->GetCharacterId(), Spec().Strike))
@@ -113,20 +131,55 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         break;
     case EMemoriaMonsterState::Chase:
         FaceTarget();
-        if (Distance <= Spec().Reach * .85f) Enter(EMemoriaMonsterState::Windup);
         // Moved directly: pawn movement only applies input under a local controller, and husks have none.
+        if (Spec().Behaviour == EMemoriaFoeBehaviour::Caster)
+        {
+            // S342: a caster closes to its range, backs off when Arrel comes at it, and casts from between.
+            if (Distance < CasterRetreat) SetActorLocation(GetActorLocation() - ToTarget.GetSafeNormal() * Spec().Speed * .8f * DeltaSeconds, true);
+            else if (Distance > CasterRange) SetActorLocation(GetActorLocation() + ToTarget.GetSafeNormal() * Spec().Speed * DeltaSeconds, true);
+            else Enter(EMemoriaMonsterState::Windup);
+        }
+        else if (Spec().Behaviour == EMemoriaFoeBehaviour::Charger)
+        {
+            // S342: a charger closes, then commits to a lane toward where Arrel stands.
+            if (Distance <= RushFrom && Distance > 1.f) { RushDirection = ToTarget / Distance; Figure->SetAim(RushDirection.Rotation().Yaw); Enter(EMemoriaMonsterState::Windup); }
+            else SetActorLocation(GetActorLocation() + ToTarget.GetSafeNormal() * Spec().Speed * DeltaSeconds, true);
+        }
+        else if (Distance <= Spec().Reach * .85f) Enter(EMemoriaMonsterState::Windup);
         else SetActorLocation(GetActorLocation() + ToTarget.GetSafeNormal() * Spec().Speed * DeltaSeconds, true);
         break;
     case EMemoriaMonsterState::Windup:
-        FaceTarget();
+        // The charger's lane is set; the others keep turning to Arrel.
+        if (Spec().Behaviour != EMemoriaFoeBehaviour::Charger) FaceTarget();
         if (TelegraphMaterial) TelegraphMaterial->SetVectorParameterValue(TEXT("Color"), FLinearColor(.45f + .5f * StateTime / Spec().Windup, .02f, .03f));
         if (StateTime >= Spec().Windup)
         {
             ++Strikes;
-            if (C) C->StrikePlayer(this, Spec().Damage);
-            // A parry has already sent the foe reeling (Stun); keep that instead of the recovery.
-            if (State == EMemoriaMonsterState::Windup) Enter(EMemoriaMonsterState::Recover);
+            if (Spec().Behaviour == EMemoriaFoeBehaviour::Caster)
+            {
+                if (C && Distance > 1.f) C->LaunchOrb(this, GetActorLocation() + FVector(0, 0, Spec().Height * .6f), ToTarget / Distance);
+                Enter(EMemoriaMonsterState::Recover);
+            }
+            else if (Spec().Behaviour == EMemoriaFoeBehaviour::Charger) { bRushHit = false; Enter(EMemoriaMonsterState::Rush); }
+            else
+            {
+                if (C) C->StrikePlayer(this, Spec().Damage);
+                // A parry has already sent the foe reeling (Stun); keep that instead of the recovery.
+                if (State == EMemoriaMonsterState::Windup) Enter(EMemoriaMonsterState::Recover);
+            }
         }
+        break;
+    case EMemoriaMonsterState::Rush:
+        // Down the lane, striking Arrel once if he is still in it.
+        {
+            // Walls stop the rush; Arrel and the other foes do not (it runs through them).
+            const FVector Next = GetActorLocation() + RushDirection * RushSpeed * DeltaSeconds;
+            FHitResult Hit;
+            SetActorLocation(Next, true, &Hit);
+            if (Hit.bBlockingHit && Cast<APawn>(Hit.GetActor())) SetActorLocation(Next, false);
+        }
+        if (!bRushHit && Distance <= RushHit) { bRushHit = true; if (C) C->StrikePlayer(this, Spec().Damage); }
+        if (State == EMemoriaMonsterState::Rush && StateTime >= RushDistance / RushSpeed) Enter(EMemoriaMonsterState::Recover);
         break;
     case EMemoriaMonsterState::Recover:
         if (StateTime >= Spec().Recover) Enter(EMemoriaMonsterState::Chase);

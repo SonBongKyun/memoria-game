@@ -21,6 +21,8 @@ class APointLight;
 // S315: a spark in the world, drawn by the HUD; and one sample of the blade for its trail.
 struct FMemoriaSpark { FVector Location, Velocity; float Age = 0.f, Life = .5f, Size = 4.f; FLinearColor Color; };
 struct FMemoriaTrailSample { FVector Base, Tip; float Age = 0.f; };
+// S342: a caster's orb, flying slowly in a straight line.
+struct FMemoriaOrb { FVector Location = FVector::ZeroVector, Velocity = FVector::ZeroVector; float Age = 0.f, Damage = 0.f; TWeakObjectPtr<class AMemoriaFieldMonster> Owner; FLinearColor Color = FLinearColor::White; };
 // S341: a firebomb in the air, from Arrel's hand to where it bursts.
 struct FMemoriaThrown { FVector From = FVector::ZeroVector, To = FVector::ZeroVector; float Age = 0.f; };
 
@@ -123,7 +125,14 @@ public:
     int32 GetKills() const { return Kills; }
     int32 GetHitsLanded() const { return HitsLanded; }
     // Called by a husk at the end of its windup; false when the player dodged, left the reach, or is down.
-    bool StrikePlayer(AMemoriaFieldMonster* Monster, float Damage);
+    // bRanged (S342): an orb's blow, which lands wherever the foe that threw it stands.
+    bool StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bRanged = false);
+    // S342: a caster's orb, and the burn a scorching blow leaves on Arrel.
+    void LaunchOrb(AMemoriaFieldMonster* Owner, const FVector& From, const FVector& Direction);
+    const TArray<FMemoriaOrb>& GetOrbs() const { return Orbs; }
+    int32 GetOrbsLaunched() const { return OrbsLaunched; }
+    bool IsScorched() const { return ScorchLeft > 0; }
+    int32 GetScorchTicksLeft() const { return ScorchLeft; }
     APawn* GetPlayer() const { return Player.Get(); }
     UMemoriaFieldCharacterComponent* GetPlayerFigure() const { return PlayerFigure.Get(); }
     int64 GetPlayerHp() const;
@@ -162,6 +171,10 @@ private:
     void NoteDiary(const FString& MemoryId);
     TArray<FMemoriaSpark> Sparks;
     TArray<FMemoriaThrown> Thrown;
+    TArray<FMemoriaOrb> Orbs;
+    int32 OrbsLaunched = 0, ScorchLeft = 0;
+    int64 ScorchDamage = 0;
+    float ScorchClock = 0.f;
     float ItemCooldownLeft = 0.f;
     int32 ItemsUsed = 0;
     bool bWarded = false;
