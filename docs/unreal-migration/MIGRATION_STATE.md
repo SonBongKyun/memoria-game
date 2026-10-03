@@ -16,7 +16,7 @@
   - `Memoria.Audio.CatalogAssets` covers the three new packages through the catalog.
   - `MemoriaVisual.BeltDressing` and `DriftDressing`: the exploration track and the map's air are set and playing; Arrel walks 250 units and the step plays (8 and 9 footfalls).
 - **Known gaps.** No listening pass: the tests check routing, not how it sounds. The source's low-HP filter, reverb maps and thunder are not ported. Foes, NPCs and Elia make no footsteps.
-- **Results.** `Memoria.Audio.*` (3) and the two dressing tests pass on this tree. The full registry follows.
+- **Results.** Full rendered registry 274/274 (`s345_full`), visual 30/30 (`s345_visual`), on `22b42cdc`; host `test_audio_sources` 5/5.
 
 # Migration handoff — S344 Codex's environment kit standing in the chapter maps (Claude lane, 2026-10-03)
 
