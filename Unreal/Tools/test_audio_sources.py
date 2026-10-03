@@ -6,11 +6,11 @@ import generate_audio_sources as g
 
 # Durations stated in scripts/systems/audio_manager.gd for each rendered cue.
 SOURCE_DURATIONS = {
-    'confirm': 0.1, 'cancel': 0.15, 'burn': 0.4, 'hit': 0.12, 'heal': 0.3, 'step_stone': 0.05, 'shield': 0.35,
+    'confirm': 0.1, 'cancel': 0.15, 'burn': 0.4, 'hit': 0.12, 'heal': 0.3, 'step': 0.06, 'step_stone': 0.05, 'shield': 0.35,
     'drain': 0.35, 'phase_change': 0.6, 'defeat': 0.5, 'enemy_die': 0.55, 'flee': 0.2, 'memory_add': 0.4,
     'ui_hover': 0.04, 'ui_select': 0.08, 'ui_open': 0.12, 'ui_close': 0.1, 'battle_intro': 0.6,
     'sword_slash': 0.05 + 0.25, 'burn_ignite': 0.1 + 0.35, 'shield_break': 0.18, 'heal_layered': 0.05 + 0.6,
-    'rising_tone': 0.5, 'wind_light': 3.0, 'heartbeat': 1.0, 'void_pulse': 0.5,
+    'rising_tone': 0.5, 'wind_light': 3.0, 'heartbeat': 1.0, 'void_pulse': 0.5, 'rain': 3.0,
 }
 
 
@@ -34,7 +34,7 @@ class AudioSourceTests(unittest.TestCase):
                 self.assertEqual(w.getnframes(), cue['samples'], name)
 
     def test_only_ambient_and_heartbeat_loop(self):
-        self.assertEqual({n for n, c in self.manifest['cues'].items() if c['loop']}, {'wind_light', 'heartbeat'})
+        self.assertEqual({n for n, c in self.manifest['cues'].items() if c['loop']}, {'wind_light', 'heartbeat', 'rain'})
 
     def test_layer_delays_offset_the_premix(self):
         rng = g.random.Random(1)

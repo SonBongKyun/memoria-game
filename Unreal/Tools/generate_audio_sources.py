@@ -45,6 +45,8 @@ def sfx(kind, rng):
     if kind == 'heal':
         d = 0.3
         return render(d, lambda t: math.sin(t * 660 * TAU) * 0.15 * math.sin(t / d * math.pi) + math.sin(t * 990 * TAU) * 0.1 * math.sin(t / d * math.pi))
+    if kind == 'step':
+        d = 0.06; return render(d, lambda t: u(-0.15, 0.15) * (1 - t / d))
     if kind == 'step_stone':
         d = 0.05; return render(d, lambda t: (math.sin(t * 1200 * TAU) * 0.08 + u(-0.12, 0.12)) * (1 - t / d) ** 2)
     if kind == 'shield':
@@ -162,6 +164,16 @@ def wind_light(rng):
     return out
 
 
+def rain(rng):
+    """_generate_ambient('rain') (audio_manager.gd:465), 3 s loop: bright noise and sparse drops."""
+    out, prev_hi = [], 0.0
+    for i in range(int(SR * 3.0)):
+        t = i / SR; prev_hi = prev_hi * 0.85 + rng.uniform(-1, 1) * 0.15
+        drop = rng.uniform(0.1, 0.3) if rng.random() < 0.001 else 0.0
+        out.append((prev_hi * 0.1 + drop) * (math.sin(t * 0.3 * TAU) * 0.15 + 0.85))
+    return out
+
+
 def heartbeat(_rng):
     """_generate_heartbeat (audio_manager.gd:605), 1 s loop."""
     def f(t):
@@ -171,10 +183,11 @@ def heartbeat(_rng):
     return render(1.0, f)
 
 
-SIMPLE = ['confirm', 'cancel', 'burn', 'hit', 'heal', 'step_stone', 'shield', 'drain', 'phase_change', 'defeat',
+SIMPLE = ['confirm', 'cancel', 'burn', 'hit', 'heal', 'step', 'step_stone', 'shield', 'drain', 'phase_change', 'defeat',
           'enemy_die', 'flee', 'memory_add', 'ui_hover', 'ui_select', 'ui_open', 'ui_close', 'battle_intro',
           'void_pulse']
-SPECIAL = {'rising_tone': (rising_tone, False), 'wind_light': (wind_light, True), 'heartbeat': (heartbeat, True)}
+SPECIAL = {'rising_tone': (rising_tone, False), 'wind_light': (wind_light, True), 'heartbeat': (heartbeat, True),
+           'rain': (rain, True)}
 
 
 def cues():

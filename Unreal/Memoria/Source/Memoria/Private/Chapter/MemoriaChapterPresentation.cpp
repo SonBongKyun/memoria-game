@@ -12,6 +12,7 @@
 #include "Run/MemoriaRunSubsystem.h"
 #include "Domain/MemoriaChapterMemories.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
+#include "Audio/MemoriaAudioCatalog.h"
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Camera/CameraComponent.h"
@@ -547,8 +548,12 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     Clock += DeltaSeconds;
     if (!Player.IsValid() || !Spec) return;
     const FVector Position = Player->GetActorLocation();
+    const float PhaseBefore = ArrelFigure->GaitPhase();
     ArrelFigure->AdvanceLocomotion(Position - PreviousPosition, DeltaSeconds);
     PreviousPosition = Position;
+    // S345: player.gd play_step on each footfall; these maps fall back to the plain (grass) step.
+    if (ArrelFigure->LocomotionWeight() > .5f && MemoriaAudio::CrossedFootContact(PhaseBefore, ArrelFigure->GaitPhase()))
+        if (auto* Audio = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>() : nullptr) Audio->PlaySfx(TEXT("step"));
     for (const auto& Pair : Markers) if (Pair.Value) Pair.Value->SetHiddenInGame(Flag(Pair.Key) || !GateOpen(Spec->ObjectsGate));
     // The ambient NPCs stand only on the revisit (belt_waystation.gd: "The first canonical visit is abandoned").
     const bool bNpcs = !Spec->AmbientNpcsGate.IsEmpty() && GateOpen(Spec->AmbientNpcsGate);
