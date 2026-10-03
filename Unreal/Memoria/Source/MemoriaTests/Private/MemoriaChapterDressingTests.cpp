@@ -15,6 +15,7 @@
 #include "Combat/MemoriaCombatHudWidget.h"
 #include "Combat/MemoriaExplorationHudWidget.h"
 #include "Combat/MemoriaFieldHudWidget.h"
+#include "Audio/MemoriaAudioSubsystem.h"
 #include "EngineUtils.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
@@ -31,8 +32,8 @@ struct FDressingView { const TCHAR* Name; FVector2D Tile; };
 class FChapterDressingReplay final : public IAutomationLatentCommand
 {
 public:
-    FChapterDressingReplay(FAutomationTestBase* InTest, TArray<FDressingView> InViews, int32 InLamps, int32 InKinds)
-        : Test(InTest), Views(MoveTemp(InViews)), Lamps(InLamps), Kinds(InKinds), Started(FPlatformTime::Seconds()) {}
+    FChapterDressingReplay(FAutomationTestBase* InTest, TArray<FDressingView> InViews, int32 InLamps, int32 InKinds, FName InAir)
+        : Test(InTest), Views(MoveTemp(InViews)), Lamps(InLamps), Kinds(InKinds), Air(InAir), Started(FPlatformTime::Seconds()) {}
     ~FChapterDressingReplay() override { if (bFixed) { FApp::SetUseFixedTimeStep(bOldFixed); FApp::SetFixedDeltaTime(OldDelta); } }
     bool Update() override
     {
@@ -77,16 +78,40 @@ public:
                 Test->TestEqual(TEXT("And its subtitle"), Hud->GetView().Subtitle, bKo ? MemoriaChapterMaps::Korean(Spec->Subtitle) : Spec->Subtitle);
                 Test->TestEqual(TEXT("In the run's language"), Hud->GetView().bKorean, bKo);
             }
+            // S345: the map's sound: the exploration track and the map's air, crossfaded in.
+            if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>(); Test->TestNotNull(TEXT("Audio"), Audio))
+            {
+                Test->TestEqual(TEXT("The map plays the exploration track"), Audio->GetMusic(), FName(TEXT("exploration")));
+                Test->TestTrue(TEXT("And it is heard"), Audio->IsMusicPlaying());
+                Test->TestEqual(TEXT("The map's air"), Audio->GetAmbient(), Air);
+                Test->TestTrue(TEXT("And it is heard"), Audio->IsAmbientPlaying());
+            }
             ++Step; Mark = Frame; View = 0; break;
         }
         case 1:
-            if (View >= Views.Num()) return true;
+            if (View >= Views.Num())
+            {
+                // S345: Arrel walks east along the open ground south of the house; each footfall plays the step.
+                auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
+                Steps = Audio ? Audio->GetCueCount(TEXT("step")) : 0;
+                Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld(FVector2D(6.5, 14.5) * Spec->TileSize) + FVector(0, 0, Pawn->GetActorLocation().Z));
+                ++Step; Mark = Frame; break;
+            }
             if (Frame == Mark + 1)
                 Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld((Views[View].Tile + FVector2D(.5, .5)) * Spec->TileSize) + FVector(0, 0, Pawn->GetActorLocation().Z));
             if (Frame == Mark + 30)
                 FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/ChapterDressing") / (FString(Views[View].Name) + TEXT(".png")), true, false);
             if (Frame >= Mark + 36) { ++View; Mark = Frame; }
             break;
+        case 2:
+            if (Frame < Mark + 100) { Pawn->SetActorLocation(Pawn->GetActorLocation() + FVector(2.5, 0, 0)); break; }
+            if (auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>())
+            {
+                const int32 Made = Audio->GetCueCount(TEXT("step")) - Steps;
+                Test->AddInfo(FString::Printf(TEXT("CHAPTER_STEPS %d over 250 units"), Made));
+                Test->TestTrue(TEXT("Walking plays footsteps"), Made >= 2);
+            }
+            return true;
         }
         return false;
     }
@@ -94,6 +119,8 @@ private:
     FAutomationTestBase* Test;
     TArray<FDressingView> Views;
     int32 Lamps, Kinds;
+    FName Air;
+    int32 Steps = 0;
     double Started, OldDelta = 0;
     uint64 LastFrame = MAX_uint64;
     int32 Step = 0, Frame = 0, Mark = 0, View = 0;
@@ -109,7 +136,7 @@ bool FBeltDressingTest::RunTest(const FString&)
     FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FChapterDressingReplay(this,
         {{TEXT("BeltPlatform"), FVector2D(16, 2)}, {TEXT("BeltSignal"), FVector2D(6, 2)}, {TEXT("BeltFreight"), FVector2D(6, 13)},
          {TEXT("BeltExit"), FVector2D(22, 10)}, {TEXT("BeltDoor"), FVector2D(12, 13)}, {TEXT("BeltInside"), FVector2D(12, 9)},
-         {TEXT("BeltRuin"), FVector2D(5, 5)}, {TEXT("BeltCorner"), FVector2D(18, 15)}}, 8, 9)));
+         {TEXT("BeltRuin"), FVector2D(5, 5)}, {TEXT("BeltCorner"), FVector2D(18, 15)}}, 8, 9, TEXT("wind_light"))));
     ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
     return true;
 }
@@ -122,7 +149,7 @@ bool FDriftDressingTest::RunTest(const FString&)
     FAutomationTestFramework::Get().EnqueueLatentCommand(MakeShareable(new FChapterDressingReplay(this,
         {{TEXT("DriftTarp"), FVector2D(10, 3)}, {TEXT("DriftStores"), FVector2D(17, 4)}, {TEXT("DriftSouth"), FVector2D(10, 14)},
          {TEXT("DriftEast"), FVector2D(21, 8)}, {TEXT("DriftWest"), FVector2D(3, 8)}, {TEXT("DriftGramophone"), FVector2D(5, 4)},
-         {TEXT("DriftCamp"), FVector2D(22, 6)}, {TEXT("DriftShelter"), FVector2D(10, 8)}}, 7, 7)));
+         {TEXT("DriftCamp"), FVector2D(22, 6)}, {TEXT("DriftShelter"), FVector2D(10, 8)}}, 7, 7, TEXT("rain"))));
     ADD_LATENT_AUTOMATION_COMMAND(FEndPlayMapCommand());
     return true;
 }

@@ -18,6 +18,9 @@ const TArray<FCue>& Cues()
         {TEXT("heal_layered"), 0.f, .06f}, {TEXT("rising_tone"), -4.f, 0.f},
         // Chapter 1 cold open (S304): vn_scene.gd _play_cinematic_step plays step sfx on sfx_player.
         {TEXT("void_pulse"), -3.f, 0.f},
+        // S345: the chapter maps' footfall. Neither map script defines get_terrain_at, so player.gd falls back to
+        // "grass" and play_step plays the plain step on step_player (-12 dB, pitch +-0.12).
+        {TEXT("step"), -12.f, .12f},
     };
     return Values;
 }
@@ -33,6 +36,10 @@ const TArray<FTrack>& Tracks()
         {TEXT("ch1_forest"), TEXT("assets/audio/bgm/ch1_forest.mp3"), -5.f, true},
         {TEXT("wind_light"), TEXT("Unreal/ArtSource/Audio/wind_light.wav"), -10.f, false},
         {TEXT("heartbeat"), TEXT("Unreal/ArtSource/Audio/heartbeat.wav"), -14.f, false},
+        // S345: the chapter maps. SCENE_AMBIENT gives drift_shelter rain; exploration.mp3 is the map track (see
+        // UMemoriaAudioSubsystem::SyncContext for why).
+        {TEXT("exploration"), TEXT("assets/audio/bgm/exploration.mp3"), -5.f, true},
+        {TEXT("rain"), TEXT("Unreal/ArtSource/Audio/rain.wav"), -10.f, false},
     };
     return Values;
 }

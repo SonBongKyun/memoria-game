@@ -156,8 +156,14 @@ void UMemoriaAudioSubsystem::SyncContext()
     const FName Scene = Narrative && Map.EndsWith(TEXT("L_Ch2VerdanSlice")) ? Narrative->GetSceneMusic() : NAME_None;
     const bool bSceneTrack = !Scene.IsNone() && MemoriaAudio::FindTrack(Scene);
     const FName VerdanTrack(TEXT("ch2_verdan"));
-    SetLoop(bActive ? FName(TEXT("battle")) : bSceneTrack ? Scene : bVerdan ? VerdanTrack : FName(), MusicComponent, FadingMusic, Music, MemoriaAudio::CrossfadeSeconds, MemoriaAudio::CrossfadeSeconds);
-    SetLoop(bVerdan && !bActive && (!bSceneTrack || Scene == VerdanTrack) ? FName(TEXT("wind_light")) : FName(), AmbientComponent, FadingAmbient, Ambient, 1.5f, 1.f);
+    // S345: the chapter maps. SCENE_AMBIENT gives belt_waystation wind_light and drift_shelter rain. SCENE_BGM names
+    // neither, so in the source the previous scene's track plays on (the title's, after a Continue; the battle
+    // theme, after a fight). The port plays the source's exploration.mp3 there instead, which no ported scene uses.
+    const bool bBelt = Map.EndsWith(TEXT("L_BeltWaystation")), bDrift = Map.EndsWith(TEXT("L_DriftShelter"));
+    const FName MapTrack = bVerdan ? VerdanTrack : bBelt || bDrift ? FName(TEXT("exploration")) : FName();
+    const FName MapAir = bVerdan || bBelt ? FName(TEXT("wind_light")) : bDrift ? FName(TEXT("rain")) : FName();
+    SetLoop(bActive ? FName(TEXT("battle")) : bSceneTrack ? Scene : MapTrack, MusicComponent, FadingMusic, Music, MemoriaAudio::CrossfadeSeconds, MemoriaAudio::CrossfadeSeconds);
+    SetLoop(!bActive && (!bSceneTrack || Scene == VerdanTrack) ? MapAir : FName(), AmbientComponent, FadingAmbient, Ambient, 1.5f, 1.f);
     const auto State = Narrative ? Narrative->GetState() : EMemoriaSliceState::Idle;
     // Source ducks BGM between dialogue_started and dialogue_ended.
     SetDuck(!bActive && (State == EMemoriaSliceState::VN || State == EMemoriaSliceState::Field));

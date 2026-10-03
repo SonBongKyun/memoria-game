@@ -105,6 +105,13 @@
       "samples": 13230,
       "sha256": "6f50d3d6f5143b67ec3fceafde54422dab1fb639df01f8a7feaf69d80b9b0e80"
     },
+    "rain": {
+      "duration": 3.0,
+      "file": "rain.wav",
+      "loop": true,
+      "samples": 66150,
+      "sha256": "882d2f48e7e99600ff6cca579fb00671b02a76401dcd927e297c50ff81d74c2f"
+    },
     "rising_tone": {
       "duration": 0.5,
       "file": "rising_tone.wav",
@@ -125,6 +132,13 @@
       "loop": false,
       "samples": 3969,
       "sha256": "0ae655fd11d43ccaf1064696ba8a431d848e69568294eff96c747981b773112a"
+    },
+    "step": {
+      "duration": 0.06,
+      "file": "step.wav",
+      "loop": false,
+      "samples": 1323,
+      "sha256": "89eb3f60b62cca88723a9cdf13471e1d32b153ea666ac06b1e3da8e452bfc1fa"
     },
     "step_stone": {
       "duration": 0.049977,

@@ -1,3 +1,25 @@
+# Migration handoff — S345 the chapter maps' sound (Claude lane, 2026-10-04)
+
+- **Why.** The user asked for the work to go on after Codex integrated S344 (`486b6c42` in its branch; nothing asked of Claude). The Belt Waystation and Drift Shelter had no music, no ambience and no footsteps: the audio subsystem knew only Verdan and the title.
+- **What the source does** (`scripts/systems/audio_manager.gd`, `scripts/core/player.gd`).
+  - `SCENE_AMBIENT` gives `belt_waystation` the light wind and `drift_shelter` the rain (both procedural 3 s loops).
+  - `SCENE_BGM` names neither map, so the previous scene's track plays on: Verdan's after the road, the title's after a Continue, the battle theme after a fight.
+  - Neither map defines `get_terrain_at`, so `_get_terrain_type` falls back to "grass" and `play_step` plays the plain `step`.
+- **Port.**
+  - Sources: `generate_audio_sources.py` renders `step` (0.06 s) and `rain` (3 s loop) from the source formulas, seeded per cue as before; the other 26 files are byte-identical.
+  - Catalog: cue `step` (-12 dB, pitch ±0.12, step_player); tracks `exploration` (`assets/audio/bgm/exploration.mp3`, -5 dB) and `rain` (-10 dB). `-run=MemoriaAudioAssets` adds `S_Sfx_step`, `S_Bgm_exploration`, `S_Amb_rain` and keeps the rest.
+  - `UMemoriaAudioSubsystem::SyncContext`: the Belt plays `wind_light`, Drift `rain`, both under `exploration`; a fight still switches to the battle theme and silences the air, and the map's sound returns after it.
+  - **Deviation:** the music. The source's fall-through would carry the title or battle theme into these maps; the port plays the source's own `exploration.mp3` there instead, a track no ported scene uses.
+  - `AMemoriaChapterPresentation::Tick` plays `step` on each footfall of Arrel's gait, as Verdan plays `step_stone`.
+- **Tests.**
+  - `test_audio_sources.py` (host): the new durations and loops.
+  - `Memoria.Audio.CatalogAssets` covers the three new packages through the catalog.
+  - `MemoriaVisual.BeltDressing` and `DriftDressing`: the exploration track and the map's air are set and playing; Arrel walks 250 units and the step plays (8 and 9 footfalls).
+- **Known gaps.** No listening pass: the tests check routing, not how it sounds. The source's low-HP filter, reverb maps and thunder are not ported. Foes, NPCs and Elia make no footsteps.
+- **Results.** `Memoria.Audio.*` (3) and the two dressing tests pass on this tree. The full registry follows.
+
+---
+
 # Migration handoff — S344 integrated and verified on Codex (2026-10-03)
 
 - Accepted Claude S344 `277b92e492681c8795cbd35a1c962875054837ab` as local `07120526d6462d797154ce766b4ef53c87b33532` on `codex/unreal-s342-integration-env-s343-20261003`, over `360ffff2`. The sole conflict was this history document; both incoming S344 and existing S343 records remain below.
