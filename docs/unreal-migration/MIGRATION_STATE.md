@@ -1,3 +1,15 @@
+# Migration handoff — S344 integrated and verified on Codex (2026-10-03)
+
+- Accepted Claude S344 `277b92e492681c8795cbd35a1c962875054837ab` as local `07120526d6462d797154ce766b4ef53c87b33532` on `codex/unreal-s342-integration-env-s343-20261003`, over `360ffff2`. The sole conflict was this history document; both incoming S344 and existing S343 records remain below.
+- The twelve S343 environment models now stand in Belt Waystation and Drift Shelter. Fresh 16 captures are all1280x720; all views inspected, critical roof/platform/signal/camp views at native size. No additional S344 code repair required.
+- S337 polish and all S343 repairs remain:149 checked asset files and9 repair/detail/host source files byte-identical to the baseline. New27 FBX/PNG files match delivery/peer;20 hydrated packages match source LFS SHA/size and peer. Post-run integrity PASS. Actual UE bounds/triangle checks12/12; package writes0.
+- Fresh UE5.8.2 build and rendered registries on07120526: **274/274 plus30/30 PASS**, exact identities, exits0, failed/not-run0, fatal0. Full266success+8warning-bearing successes; visual28+2. Startup15 existing Conditionfailed lines per process and all warning events disclosed. Full adds one3sHTTP connectivity timeout to the usual6world-context/1MotionVector warnings.
+- Rear-row/outside-border canopy placement accepted; Arrel/floor stay visible. Decorative edges can overhang passable ground by~30cm without their own collision; original navigation blockers remain exact. Distant primitive structures and existing gameplay limits remain documented.
+- Peer clean/d63c47a8, source/foundation/shared models/Claude handoff read-only. This session performs no push, packaging or deployment. Build/GPU slot released after all UE processes exit.
+- Exact review/evidence: `docs/unreal-migration/S344_INTEGRATION_REVIEW.md`, `Unreal/Memoria/Saved/Validation/s344-integration/`. The following lane records are historical snapshots.
+
+---
+
 # Migration handoff — S344 Codex's environment kit standing in the chapter maps (Claude lane, 2026-10-03)
 
 - **Why.** S338 built what the map canvases paint from boxes and asked Codex for models. Codex delivered the twelve in S343 (`models/S343_ENVIRONMENT_MANIFEST.md`) and named Claude as the owner of their import and placement. The user asked for the next work to go on once Codex was done.
