@@ -214,6 +214,18 @@ public:
             Test->TestEqual(TEXT("Each wears Codex's rigged model"), Presentation->GetRiggedTownsfolkCount(), 5);
             if (auto* Child = Presentation->GetTownsfolk(4))
                 Test->TestTrue(TEXT("The child stands a child's height beside Arrel"), FMath::IsNearlyEqual(Child->GetWorldHeight(), AMemoriaVerdanPresentation::ArrelHeight * 120.f / 180.f, .5f));
+            // Read the loaded skeletal component's physical scale, independently of the height helper.
+            const float AuthoredCm[] = {165.f, 172.f, 175.f, 165.f, 120.f};
+            for (int32 Index = 0; Index < UE_ARRAY_COUNT(AuthoredCm); ++Index)
+            {
+                auto* Figure = Presentation->GetTownsfolk(Index);
+                auto* Skin = Figure ? Figure->GetSkeletalMesh() : nullptr;
+                if (!Test->TestNotNull(TEXT("A live townsfolk mesh stands"), Skin)) continue;
+                const float StandingHeight = float(Skin->GetSkeletalMeshAsset()->GetBounds().BoxExtent.Z * 2 * Skin->GetComponentScale().Z);
+                Test->TestTrue(TEXT("Live townsfolk keeps its authored scale beside Arrel"), FMath::IsNearlyEqual(StandingHeight, AMemoriaVerdanPresentation::ArrelHeight * AuthoredCm[Index] / 180.f, .5f));
+                Test->TestEqual(TEXT("Townsfolk does not alter walkable routes"), Skin->GetCollisionEnabled(), ECollisionEnabled::NoCollision);
+                Test->TestFalse(TEXT("Townsfolk adds no story overlap events"), Skin->GetGenerateOverlapEvents());
+            }
             Test->TestTrue(TEXT("Architecture has substantial height"), Presentation->GetComponentsBoundingBox(true).Max.Z > 580);
             auto* Lit = LoadObject<UMaterial>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface"));
             Test->TestTrue(TEXT("Walls respond to real lighting"), Lit && Lit->GetUsageByFlag(MATUSAGE_InstancedStaticMeshes) && Lit->GetShadingModels().HasShadingModel(MSM_DefaultLit));
@@ -490,6 +502,52 @@ bool FFieldCharactersTest::RunTest(const FString&)
         TestTrue(*(FString(TEXT("HD art is filtered for ")) + Id), Texture->Filter != TF_Nearest);
         AddInfo(FString::Printf(TEXT("FIELD_HD_TEXTURE %s mips=%d"), Id, Texture->GetNumMips()));
         if (FApp::CanEverRender()) TestTrue(*(FString(TEXT("HD art has mips for ")) + Id), Texture->GetNumMips() > 4);
+    }
+    // S348 integration: check the actual imported assets, including the scholar who is absent from Verdan.
+    // A missing/wrongly scaled package or incompatible retargeted clip must fail rather than use a card fallback.
+    struct FTownsfolkAsset { const TCHAR* Id; const TCHAR* Name; float HeightCm; };
+    const FTownsfolkAsset TownsfolkAssets[] = {
+        {TEXT("villagerf"), TEXT("Villagerf"), 165.f}, {TEXT("villagerm"), TEXT("Villagerm"), 175.f},
+        {TEXT("fisherman"), TEXT("Fisherman"), 172.f}, {TEXT("elder"), TEXT("Elder"), 165.f},
+        {TEXT("child"), TEXT("Child"), 120.f}, {TEXT("scholar"), TEXT("Scholar"), 172.f}};
+    auto* Reference = LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/Memoria/Presentation/Field3D/Arrel/SK_Arrel.SK_Arrel"));
+    if (!TestNotNull(TEXT("Arrel hierarchy reference loads for townsfolk"), Reference)) return false;
+    for (const auto& Person : TownsfolkAssets)
+    {
+        TestEqual(*(FString(Person.Name) + TEXT(" resolves a rigged figure")), UMemoriaFieldCharacterComponent::DescribeArt(Person.Id), FString(TEXT("rigged")));
+        const FString N = Person.Name, Base = TEXT("/Game/Memoria/Presentation/Field3D/") + N + TEXT("/");
+        auto* Skin = LoadObject<USkeletalMesh>(nullptr, *(Base + TEXT("SK_") + N + TEXT(".SK_") + N));
+        if (!TestNotNull(*(N + TEXT(" mesh loads")), Skin)) continue;
+        const auto& Ref = Skin->GetRefSkeleton();
+        const auto& Expected = Reference->GetRefSkeleton();
+        TestEqual(*(N + TEXT(" has all delivered bones")), Ref.GetNum(), Expected.GetNum());
+        for (int32 Bone = 0; Bone < FMath::Min(Ref.GetNum(), Expected.GetNum()); ++Bone)
+        {
+            TestEqual(*(N + FString::Printf(TEXT(" bone %d name"), Bone)), Ref.GetBoneName(Bone), Expected.GetBoneName(Bone));
+            TestEqual(*(N + FString::Printf(TEXT(" bone %d parent"), Bone)), Ref.GetParentIndex(Bone), Expected.GetParentIndex(Bone));
+        }
+        TestTrue(*(N + TEXT(" retains its delivered cm height")), FMath::IsNearlyEqual(float(Skin->GetBounds().BoxExtent.Z * 2), Person.HeightCm, 1.f));
+        TestEqual(*(N + TEXT(" has one body material")), Skin->GetMaterials().Num(), 1);
+        auto* Material = LoadObject<UMaterial>(nullptr, *(Base + TEXT("M_") + N + TEXT(".M_") + N));
+        if (TestNotNull(*(N + TEXT(" material loads")), Material))
+        {
+            TestTrue(*(N + TEXT(" uses lit skeletal material")), Material->GetShadingModels().HasShadingModel(MSM_DefaultLit) && Material->GetUsageByFlag(MATUSAGE_SkeletalMesh));
+            if (Skin->GetMaterials().Num() == 1) TestEqual(*(N + TEXT(" binds its own material")), Skin->GetMaterials()[0].MaterialInterface.Get(), static_cast<UMaterialInterface*>(Material));
+        }
+        auto* Texture = LoadObject<UTexture2D>(nullptr, *(Base + TEXT("T_") + N + TEXT(".T_") + N));
+        if (TestNotNull(*(N + TEXT(" texture loads")), Texture))
+        {
+            TestEqual(*(N + TEXT(" atlas width")), Texture->GetSizeX(), 2048);
+            TestEqual(*(N + TEXT(" atlas height")), Texture->GetSizeY(), 2048);
+        }
+        for (const FString Clip : {TEXT("Idle"), TEXT("Walk")})
+        {
+            auto* Anim = LoadObject<UAnimSequence>(nullptr, *(Base + TEXT("A_") + N + TEXT("_") + Clip + TEXT(".A_") + N + TEXT("_") + Clip));
+            if (!TestNotNull(*(N + TEXT(" ") + Clip + TEXT(" retargeted clip loads")), Anim)) continue;
+            TestEqual(*(N + TEXT(" ") + Clip + TEXT(" uses its mesh skeleton")), Anim->GetSkeleton(), Skin->GetSkeleton());
+            TestTrue(*(N + TEXT(" ") + Clip + TEXT(" contains animation")), Anim->GetPlayLength() > .1f);
+        }
+        AddInfo(FString::Printf(TEXT("TOWNSFOLK_ASSET %s height_cm=%.2f bones=%d idle_walk=checked"), *N, Skin->GetBounds().BoxExtent.Z * 2, Ref.GetNum()));
     }
     for (const TCHAR* Id : {TEXT("sable"), TEXT("tobias"), TEXT("nera"), TEXT("kairos"), TEXT("veil")})
         AddInfo(FString::Printf(TEXT("FIELD_CHARACTER %s %s"), Id, *UMemoriaFieldCharacterComponent::DescribeArt(Id)));
