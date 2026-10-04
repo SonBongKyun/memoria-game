@@ -1,3 +1,13 @@
+# Migration handoff — S350 Verdan's market props (Claude lane, 2026-10-04)
+
+- **Why.** `verdan_market.gd` `_setup_interactive_props` places four `MapEffects.add_interactive_prop`s — a barrel (5,4), a crate (11,9), the market sign (8,2) and a campfire (13,11, heal 5) — each acting once on `body_entered` under its flag `prop_<type>_<x>_<y>`. The port had none.
+- **What** (`AMemoriaVerdanPresentation::Interactives`, `BuildInteractives`, `TickInteractives`).
+  - Placed on the port's square as the story's places are read: barrel (−560,330) by the north-west stalls, crate (160,340), sign (−100,445) at the north edge, campfire (180,−420) in the south lane. Clear of the stalls, the story beats, the townsfolk's homes (which now keep 90 cm from them too) and every spot `VerdanExploration` walks Arrel through.
+  - Built of the square's timber, iron, stone and glow: a hooped barrel, a strapped crate, a board on a post with the source's "!" marker, a ring of nine stones round three logs with ember bed and flame, its flickering warm light (`CampfireLight`, no shadow) and glow on the paving. No collision.
+  - Within 60 cm in free exploration (not in a scene or after a fall), once each under the source flags: barrel 1–3 grains; crate 40 % a potion, 30 % 2–5 grains, 30 % empty; sign shows its text; campfire +5 HP (new `UMemoriaRunSubsystem::RestoreHp`, capped at max). A notice in the run's language (Korean from the source's own table where it has one), and `ui_select` except for the sign, as the source.
+- **Test.** `MemoriaVisual.VerdanExploration`, after the run-unchanged checks (frame 680): none acted during the walks; Arrel stepped up to each in turn with the outcome checked (frames 690–730, captures `PropBarrel/Crate/Sign/Campfire.png`), then back to the barrel, which gives nothing the second time. The lantern count excludes `Campfire*` lights.
+- **Results.** Full **274/274** (`s350_full`), visual **30/30** (`s350_visual`); this run also clears S349's one foundation input flake.
+
 # Migration handoff — S349 Verdan's townsfolk stroll (Claude lane, 2026-10-04)
 
 - **Why.** `verdan_market.gd` S59 sets its market townsfolk wandering near their places (`MapEffects.add_npc_wander`, radius 32 px); the port's five (S348) stood still, while the Belt's and Drift's stroll since S340.
