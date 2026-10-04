@@ -39,6 +39,8 @@ public:
     // S320 chapter maps: the chapter a departure moves the run to, and the rewards of a chest.
     void SetCurrentChapter(int64 Chapter) { if (HasActiveRun()) State.CurrentChapter = Chapter; }
     void AddGrains(int64 Amount) { if (HasActiveRun()) State.Player.Grains += Amount; }
+    // S350: a rest (Verdan's campfire, MapEffects.add_interactive_prop): HP back by the amount, up to max.
+    void RestoreHp(int64 Amount) { if (HasActiveRun()) State.Player.Hp = FMath::Min(State.Player.MaxHp, State.Player.Hp + FMath::Max<int64>(0, Amount)); }
     // S328: the source's battle_started statistic, counted as a field encounter begins.
     void RecordBattleStarted() { if (HasActiveRun() && State.TotalBattles < MAX_int64) ++State.TotalBattles; }
     void GrantFieldItem(const FString& ItemId, int64 Count);

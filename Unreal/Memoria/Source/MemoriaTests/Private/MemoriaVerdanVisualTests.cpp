@@ -229,7 +229,7 @@ public:
                 auto* Fill=Lights.FindByPredicate([Name](const UPointLightComponent* L){return L->GetFName()==Name;});
                 Test->TestTrue(TEXT("Character fill is isolated from world lighting"),Fill && !(*Fill)->LightingChannels.bChannel0 && (*Fill)->LightingChannels.bChannel1);
             }
-            Lights.RemoveAll([](const UPointLightComponent* L){return L->GetFName().ToString().EndsWith(TEXT("FillLight")) || L->GetFName().ToString().StartsWith(TEXT("MarketLight"));});
+            Lights.RemoveAll([](const UPointLightComponent* L){return L->GetFName().ToString().EndsWith(TEXT("FillLight")) || L->GetFName().ToString().StartsWith(TEXT("MarketLight")) || L->GetFName().ToString().StartsWith(TEXT("Campfire"));});
             Test->TestEqual(TEXT("Four real lantern lights"), Lights.Num(), 4);
             int32 ShadowLights = 0;
             for (auto* Light : Lights) { Test->TestTrue(TEXT("Lanterns illuminate scene"), Light->Intensity > 0); ShadowLights += Light->CastShadows ? 1 : 0; }
@@ -459,6 +459,52 @@ public:
             FFileHelper::SaveStringToFile(MovementRecords,*(Dir/TEXT("movement_response.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             FFileHelper::SaveStringToFile(FootRecords,*(Dir/TEXT("foot_contact.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
             FFileHelper::SaveStringToFile(FString::Printf(TEXT("{\"status\":\"%s\",\"distinct_joint_poses\":%d,\"physical_surfaces\":7,\"wall_x\":%.3f,\"run_unchanged\":%s,\"memory_unchanged\":%s,\"camera_cases\":[%s]}\n"), Test->HasAnyErrors() ? TEXT("FAIL") : TEXT("PASS"), SeenGaitPoses.Num(), WallX, After == RunBefore ? TEXT("true") : TEXT("false"), MemoryAfter == MemoryBefore ? TEXT("true") : TEXT("false"), *CameraRecords), *(Dir/TEXT("exploration.json")), FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+        }
+        // S350: the source's interactive props, each stepped up to in turn after the untouched-run checks above.
+        const auto& Props = AMemoriaVerdanPresentation::Interactives();
+        auto Grains = [&] { return Run->GetRunSnapshot().Player.Grains; };
+        auto Used = [&](int32 I) { return Run->GetRunSnapshot().GetFlag(Props[I].Flag); };
+        if (Frame == 690)
+        {
+            Test->TestEqual(TEXT("Four interactive props"), Props.Num(), 4);
+            Test->TestEqual(TEXT("None was touched by the walks above"), Presentation->GetInteractiveUses(), 0);
+            GrainsBefore = Grains(); PotionsBefore = Run->GetItemCount(TEXT("potion"));
+            Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
+        }
+        if (Frame == 700)
+        {
+            const int64 Got = Grains() - GrainsBefore;
+            Test->TestTrue(TEXT("The barrel gives 1 to 3 grains"), Used(0) && Got >= 1 && Got <= 3);
+            GrainsBefore = Grains(); Pawn->SetActorLocation(Props[1].At + FVector(0, -20, 0));
+        }
+        if (Frame == 710)
+        {
+            const int64 Got = Grains() - GrainsBefore, Potions = Run->GetItemCount(TEXT("potion")) - PotionsBefore;
+            Test->AddInfo(FString::Printf(TEXT("VERDAN_CRATE grains=%lld potions=%lld"), Got, Potions));
+            Test->TestTrue(TEXT("The crate gives a potion, 2 to 5 grains, or nothing"), Used(1) && ((Potions == 1 && Got == 0) || (Potions == 0 && Got >= 2 && Got <= 5) || (Potions == 0 && Got == 0)));
+            Pawn->SetActorLocation(Props[2].At + FVector(0, -20, 0));
+        }
+        if (Frame == 720)
+        {
+            Test->TestTrue(TEXT("The sign is read"), Used(2));
+            HpBefore = Run->GetRunSnapshot().Player.Hp; Pawn->SetActorLocation(Props[3].At + FVector(-55, -15, 0));
+        }
+        if (Frame == 730)
+        {
+            const FMemoriaRunSnapshot After = Run->GetRunSnapshot();
+            Test->TestTrue(TEXT("Resting by the campfire"), Used(3) && After.Player.Hp == FMath::Min(After.Player.MaxHp, HpBefore + 5));
+            GrainsBefore = Grains(); Pawn->SetActorLocation(FVector::ZeroVector);
+        }
+        // Each capture a little before Arrel moves on, so it shows him at the prop.
+        if (Frame == 698) Capture(TEXT("PropBarrel"));
+        if (Frame == 708) Capture(TEXT("PropCrate"));
+        if (Frame == 718) Capture(TEXT("PropSign"));
+        if (Frame == 728) Capture(TEXT("PropCampfire"));
+        if (Frame == 740) Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
+        if (Frame == 750)
+        {
+            Test->TestEqual(TEXT("Each acts once"), Presentation->GetInteractiveUses(), 4);
+            Test->TestEqual(TEXT("The barrel is empty the second time"), Grains(), GrainsBefore);
             return true;
         }
         ++Frame; return false;
@@ -466,6 +512,7 @@ public:
 private:
     FAutomationTestBase* Test;
     double Started, OldDelta = 0, WallX = 0, LastWorldTime = -1;
+    int64 GrainsBefore = 0, PotionsBefore = 0, HpBefore = 0;
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;

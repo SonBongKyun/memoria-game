@@ -2,6 +2,8 @@
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Narrative/MemoriaVerdanStory.h"
+#include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Run/MemoriaRunSubsystem.h"
 #include "Combat/MemoriaCombatHudWidget.h"
 #include "Combat/MemoriaExplorationHudWidget.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
@@ -198,6 +200,117 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Timber,P+FVector(18,20,18),FVector(39,32,25));
     for (double X : {4.0,32.0}) Box(Iron,P+FVector(X,20,31),FVector(3,33,2));
     if (bLantern) Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
+}
+const TArray<AMemoriaVerdanPresentation::FInteractive>& AMemoriaVerdanPresentation::Interactives()
+{
+    // The source's tiles (5,4) barrel, (11,9) crate, (8,2) sign, (13,11) campfire, with its flags
+    // prop_<type>_<x>_<y>. Read on the port's smaller square as the story's places are: the barrel by the
+    // north-west stalls, the sign at the north edge, the crate north of the memory stalls' east side, the campfire
+    // in the south lane towards the sump. All stand clear of the stalls, the story's places, the townsfolk's homes
+    // and every spot the exploration test walks Arrel through.
+    static const TArray<FInteractive> Values = {
+        {TEXT("barrel"), FVector(-560, 330, 0), TEXT("prop_barrel_160_128")},
+        {TEXT("crate"), FVector(160, 340, 0), TEXT("prop_crate_352_288")},
+        {TEXT("sign"), FVector(-100, 445, 0), TEXT("prop_sign_256_64")},
+        {TEXT("campfire"), FVector(180, -420, 0), TEXT("prop_campfire_416_352")}};
+    return Values;
+}
+void AMemoriaVerdanPresentation::BuildInteractives(UMaterialInterface* Timber, UMaterialInterface* Iron, UMaterialInterface* Stone, UMaterialInterface* Glow)
+{
+    // Built of the square's own timber, iron and stone. No collision, as with every prop here.
+    for (const auto& Prop : Interactives())
+    {
+        const FVector P(Prop.At.X, Prop.At.Y, -8);
+        const FString Kind = Prop.Kind;
+        if (Kind == TEXT("barrel"))
+        {
+            Solid(TEXT("Cylinder"), Timber, P + FVector(0, 0, 36), FVector(.44, .44, .72));
+            for (const double Z : {14.0, 58.0}) Solid(TEXT("Cylinder"), Iron, P + FVector(0, 0, Z), FVector(.46, .46, .04));
+            Solid(TEXT("Cylinder"), Iron, P + FVector(0, 0, 72.5), FVector(.38, .38, .01));
+        }
+        else if (Kind == TEXT("crate"))
+        {
+            Box(Timber, P + FVector(0, 0, 23), FVector(46, 46, 46));
+            Box(Iron, P + FVector(0, -23.5, 23), FVector(48, 1.5, 5)); Box(Iron, P + FVector(0, -23.5, 23), FVector(5, 1.5, 48));
+            Box(Iron, P + FVector(0, 0, 46.5), FVector(48, 5, 1.5)); Box(Iron, P + FVector(0, 0, 46.5), FVector(5, 48, 1.5));
+        }
+        else if (Kind == TEXT("sign"))
+        {
+            // A board on a post, with the source's "!" marker above it.
+            Box(Timber, P + FVector(0, 0, 70), FVector(9, 9, 156));
+            Box(Timber, P + FVector(0, -8, 118), FVector(86, 5, 42));
+            for (const double Z : {97.0, 139.0}) Box(Iron, P + FVector(0, -11, Z), FVector(88, 2, 3));
+            Box(Glow, P + FVector(0, -10, 175), FVector(5, 4, 18)); Box(Glow, P + FVector(0, -10, 160), FVector(5, 4, 5));
+        }
+        else if (Kind == TEXT("campfire"))
+        {
+            // A ring of stones, two crossed logs, the embers and a small flame, its warm light and glow on the paving.
+            for (int32 I = 0; I < 9; ++I)
+            {
+                const double A = I * 2 * PI / 9;
+                Box(Stone, P + FVector(FMath::Cos(A) * 42, FMath::Sin(A) * 42, 7), FVector(21, 17, 14), FRotator(0, FMath::RadiansToDegrees(A), 0));
+            }
+            Box(Timber, P + FVector(0, 0, 10), FVector(74, 12, 11), FRotator(0, 30, 0));
+            Box(Timber, P + FVector(0, 0, 15), FVector(74, 12, 11), FRotator(0, -35, 0));
+            Box(Timber, P + FVector(0, 0, 13), FVector(66, 11, 10), FRotator(0, 95, 0));
+            Box(Glow, P + FVector(0, 0, 14), FVector(30, 30, 8));
+            for (const double Yaw : {0.0, 60.0, 120.0}) Box(Glow, P + FVector(0, 0, 34), FVector(9, 9, 36), FRotator(0, Yaw, 0));
+            Box(Glow, P + FVector(0, 0, 56), FVector(6, 6, 14), FRotator(0, 25, 0));
+            CampfireLight = NewObject<UPointLightComponent>(this, TEXT("CampfireLight"));
+            AddInstanceComponent(CampfireLight); CampfireLight->SetupAttachment(RootComponent); CampfireLight->SetRelativeLocation(P + FVector(0, -30, 70));
+            CampfireLight->bUseInverseSquaredFalloff = false; CampfireLight->LightFalloffExponent = 2.2f;
+            CampfireLight->SetLightColor(FLinearColor(1.f, .52f, .22f)); CampfireLight->SetIntensity(9.f); CampfireLight->SetAttenuationRadius(540);
+            CampfireLight->SetCastShadows(false); CampfireLight->SetSourceRadius(10); CampfireLight->RegisterComponent();
+            SoftQuad(FVector(P.X, P.Y, -9.25), FVector(4.4, 4.4, 1), FLinearColor(.3f, .14f, .045f), .34f);
+        }
+    }
+}
+void AMemoriaVerdanPresentation::TickInteractives()
+{
+    // body_entered: each acts once, as Arrel steps up to it in free exploration.
+    auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
+    auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
+    auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+    if (!Narrative || !Run || !Run->HasActiveRun() || Narrative->GetState() != EMemoriaSliceState::Exploration || (Combat && Combat->IsDefeated())) return;
+    const FVector Arrel = Player->GetActorLocation();
+    for (const auto& Prop : Interactives())
+    {
+        if (FVector::Dist2D(Arrel, Prop.At) > InteractiveReach) continue;
+        const FMemoriaRunSnapshot Snapshot = Run->GetRunSnapshot();
+        if (Snapshot.GetFlag(Prop.Flag)) continue;
+        Run->SetStoryFlag(Prop.Flag, true); Narrative->Record(FString(TEXT("flag:")) + Prop.Flag);
+        const bool bKo = Snapshot.CurrentLocale == TEXT("ko");
+        const FString Kind = Prop.Kind;
+        FString Text; bool bChime = true;
+        if (Kind == TEXT("barrel"))
+        {
+            const int32 Grains = FMath::RandRange(1, 3); Run->AddGrains(Grains);
+            Text = (bKo ? FString::Printf(TEXT("+%d 그레인"), Grains) : FString::Printf(TEXT("+%d Grains"), Grains));
+        }
+        else if (Kind == TEXT("crate"))
+        {
+            const int32 Roll = FMath::RandRange(0, 99);
+            if (Roll < 40) { Run->GrantFieldItem(TEXT("potion"), 1); Text = bKo ? TEXT("포션을 발견했다!") : TEXT("Found a Potion!"); }
+            else if (Roll < 70)
+            {
+                const int32 Grains = FMath::RandRange(2, 5); Run->AddGrains(Grains);
+                Text = (bKo ? FString::Printf(TEXT("+%d 그레인"), Grains) : FString::Printf(TEXT("+%d Grains"), Grains));
+            }
+            else Text = bKo ? TEXT("상자는 비어 있다.") : TEXT("The crate is empty.");
+        }
+        else if (Kind == TEXT("sign"))
+        {
+            Text = bKo ? TEXT("베르단 시장 — 거래는 각자의 책임으로.") : TEXT("Verdan Market — Trade at your own risk."); bChime = false;
+        }
+        else
+        {
+            Run->RestoreHp(5);
+            Text = bKo ? TEXT("모닥불 곁에서 쉬었다. +5 HP") : TEXT("Rested by the fire. +5 HP");
+        }
+        Narrative->ShowNotice(Text);
+        if (bChime) if (auto* Audio = GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()) Audio->PlaySfx(TEXT("ui_select"));
+        ++InteractiveUses;
+    }
 }
 bool AMemoriaVerdanPresentation::CanTownsfolkStand(const FVector& W) const
 {
@@ -434,6 +547,7 @@ void AMemoriaVerdanPresentation::BuildDepthEnvironment()
     Stall(FVector(-400,200,-8),Timber,Wine,Iron,Glow);
     Stall(FVector(400,200,-8),Timber,Moss,Iron,Glow);
     BuildMarketRing(Timber,Iron,Glow);
+    BuildInteractives(Timber,Iron,Stone,Glow);
     Lantern(FVector(-830,560,155),Iron,Glow,false);
     Lantern(FVector(830,560,155),Iron,Glow,false);
     Beam(Timber,FVector(-830,560,0),FVector(-830,560,205),10);
@@ -594,6 +708,7 @@ void AMemoriaVerdanPresentation::BeginPlay()
     // they stand, with the same character fill as Arrel and Malet; no collision, as with every figure here.
     // S349: they keep off the story's places and Malet as they stroll.
     for (const auto& Beat : MemoriaVerdanStory::Beats()) StoryClear.Add(Beat.Location);
+    for (const auto& Prop : Interactives()) StoryClear.Add(Prop.At);
     if (Malet.IsValid()) StoryClear.Add(Malet->GetActorLocation());
     struct FTownsperson { const TCHAR* Id; FVector At; const TCHAR* Facing; };
     const FTownsperson People[] = {
@@ -668,8 +783,10 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     for (int32 I = 0; I < MarketLights.Num(); ++I)
         MarketLights[I]->SetIntensity(MarketBase[I] * (1.f + .05f * FMath::Sin(LightTime * 2.1f + I * 1.7f)));
     if (AshMotes.Num()==AshCount && EmberMotes.Num()==EmberCount) TickFieldLife();
+    if (CampfireLight) CampfireLight->SetIntensity(9.f * (1.f + .12f * FMath::Sin(LightTime * 7.3f) + .06f * FMath::Sin(LightTime * 13.1f + 1.f)));
     if (!Player.IsValid()) return;
     TickTownsfolk(DeltaSeconds);
+    TickInteractives();
     const FVector Position = Player->GetActorLocation();
     const FVector Step = Position - PreviousPosition;
     bWalking = Step.SizeSquared2D() > 0.0001 && DeltaSeconds > 0;
