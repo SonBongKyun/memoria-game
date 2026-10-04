@@ -11,7 +11,7 @@
 - **Not changed.** No collision: the presentation owns none, and the ring's stalls can be walked through, as the two story stalls always could. The courtyard, buildings, camera limits, story points and Malet are as they were.
 - **Tests.** `MemoriaVisual.VerdanExploration`: 18 roofs (six buildings, twelve stalls), 10 ring stalls, 6 kit props, 17 market lights; the lantern and shadow counts exclude the market lights. Captures read: the square from its centre, the north, the corners, the west and east edges, and at Malet.
 - **Known gaps.** Arrel standing just north of a side stall shows over its canopy (the opening follows his line of sight, which passes above the roof). The source's five market NPCs are not placed: they have no models (requested from Codex, 2026-10-04). The smoke wisps from the alleys are not ported.
-- **Results.** `MemoriaVisual.VerdanExploration` and `FieldCharacters` pass on this tree. The full registry follows.
+- **Results.** Full rendered registry 274/274 (`s346_full`), visual 30/30 (`s346_visual`), on `fffdef2d`.
 
 # Migration handoff — S345 the chapter maps' sound (Claude lane, 2026-10-04)
 
