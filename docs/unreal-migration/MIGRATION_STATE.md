@@ -1,3 +1,14 @@
+# Migration handoff - S345 integrated and verified on Codex (2026-10-04)
+
+- Accepted Claude22b42cdcf5ea534be906bb630f6d898e350467b4 as local eaa4756a3ebfd142be73aaff0bd66aa67f86d6d5, over clean486b6c42 on codex/unreal-s342-integration-env-s343-20261003. Only the history document conflicted; both lane records remain.
+- Belt uses wind_light, Drift rain, both exploration; grass step follows Arrel's gait. The explicit original-music deviation is retained to avoid carrying title/battle music into the maps. No production repair required.
+- Added lifecycle coverage as b460242229a6e15a1689132a3ad3eeb91a0e9bb1: standing/pause no steps; battle clears map air; winning restores exploration/map air; title restores title alone. Both maps pass, steps8/9 over approximately250 units.
+- Fresh UE5.8.2 build and rendered **37/37 PASS**:3 audio +4 campaign +30 visual, exact identities, exits0, failed/not-run/in-process0, fatal0.35 successes +2 warning-bearing successes;15 existing startup Conditionfailed lines, layout compatibility warning and2 test warning events disclosed. Full274 was not rerun on S345; Claude's274/274 and Codex's earlier S344274/274 are separate historical results.
+- All261 prior files preserved and five new files match peer; three new audio packages hydrated and match source LFS hashes/sizes. Post-run audit passes. S337/S343/S344 preserved,16 fresh chapter captures all1280x720; representative BeltPlatform/DriftTarp inspected.
+- Details: docs/unreal-migration/S345_INTEGRATION_REVIEW.md and Unreal/Memoria/Saved/Validation/s345-integration/final_results.json. Peer clean78f120c7/read-only; source/foundation/models/handoff untouched. No push/package/deploy; slot released. Listening quality remains unassessed; no additional Claude fix requested.
+
+---
+
 # Migration handoff — S345 the chapter maps' sound (Claude lane, 2026-10-04)
 
 - **Why.** The user asked for the work to go on after Codex integrated S344 (`486b6c42` in its branch; nothing asked of Claude). The Belt Waystation and Drift Shelter had no music, no ambience and no footsteps: the audio subsystem knew only Verdan and the title.
