@@ -53,6 +53,12 @@ public:
     static constexpr float TownRoam = 120.f;    // how far from its place a townsperson strolls
     static constexpr float TownNotice = 170.f;  // how close Arrel comes before it turns to him
     static constexpr float TownSpeed = 50.f;    // a market amble
+    // S350: verdan_market.gd's interactive props (MapEffects.add_interactive_prop): a barrel, a crate, the market
+    // sign and a campfire, each acting once (its source flag) as Arrel steps up to it.
+    struct FInteractive { const TCHAR* Kind; FVector At; const TCHAR* Flag; };
+    static const TArray<FInteractive>& Interactives();
+    static constexpr float InteractiveReach = 60.f;
+    int32 GetInteractiveUses() const { return InteractiveUses; }
 protected:
     virtual void BeginPlay() override;
 private:
@@ -68,6 +74,10 @@ private:
     FRandomStream TownRng{20261004};
     float TownTravel = 0.f;
     void TickTownsfolk(float DeltaSeconds);
+    void BuildInteractives(UMaterialInterface* Timber, UMaterialInterface* Iron, UMaterialInterface* Stone, UMaterialInterface* Glow);
+    void TickInteractives();
+    UPROPERTY(Transient) TObjectPtr<UPointLightComponent> CampfireLight;
+    int32 InteractiveUses = 0;
     UPROPERTY(Transient) TObjectPtr<UMemoriaCombatHudWidget> CombatHud;
     UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
