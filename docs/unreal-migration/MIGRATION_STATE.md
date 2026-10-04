@@ -11,7 +11,7 @@
   - Captures read: Verdan's square with the five; Drift's shelter with its three.
 - **Known gaps.** Verdan's townsfolk do not stroll or turn to Arrel (Drift's and the Belt's do, S340): the Verdan presentation has no NPC mind of its own. None of them speaks. The models share one face (Codex's limit).
 - **Machine note.** The first build failed with C3859/C1076 (compiler out of memory) and the first rendered run crashed out of memory (page file) while other programs held most of the 16 GB; a one-job build and a second run passed.
-- **Results.** `VerdanExploration`, `BeltDressing`, `DriftDressing`, `ChapterRevisit` pass on this tree. The full registry follows.
+- **Results.** Full rendered registry 274/274 (`s348_full`), visual 30/30 (`s348_visual`), on `f1bb1337`.
 
 # Migration handoff — S346 Verdan's market ring (Claude lane, 2026-10-04)
 
