@@ -1,5 +1,7 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaFieldMonster.h"
+#include "Narrative/MemoriaVerdanStory.h"
 #include "Combat/MemoriaCombatHudWidget.h"
 #include "Combat/MemoriaExplorationHudWidget.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
@@ -153,6 +155,7 @@ void AMemoriaVerdanPresentation::Building(FVector P, FVector Size, UMaterialInte
 }
 void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bLantern)
 {
+    StallSpots.Add(P);
     Box(Timber,P+FVector(0,0,66),FVector(98,92,12));
     Box(Cloth,P+FVector(0,-44,30),FVector(95,4,58));
     for (double X : {-42.0,42.0}) for (double Y : {-38.0,38.0}) Box(Timber,P+FVector(X,Y,74),FVector(7,7,148));
@@ -195,6 +198,73 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Timber,P+FVector(18,20,18),FVector(39,32,25));
     for (double X : {4.0,32.0}) Box(Iron,P+FVector(X,20,31),FVector(3,33,2));
     if (bLantern) Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
+}
+bool AMemoriaVerdanPresentation::CanTownsfolkStand(const FVector& W) const
+{
+    // Inside the square, short of its side stalls and the north row; not under a stall or at its counter (a
+    // shopper may stand just in front of one); and clear of where the story's talks and Malet are.
+    if (FMath::Abs(W.X) > 800 || W.Y < -540 || W.Y > 440) return false;
+    for (const FVector& S : StallSpots)
+        if (FMath::Abs(W.X - S.X) < 80 && W.Y - S.Y > -71 && W.Y - S.Y < 76) return false;
+    for (const FVector& C : StoryClear) if (FVector::Dist2D(W, C) < 90) return false;
+    return true;
+}
+void AMemoriaVerdanPresentation::TickTownsfolk(float DeltaSeconds)
+{
+    // As AMemoriaChapterPresentation::TickAmbientNpcs (S340): a fight holds them watching the nearest foe; Arrel
+    // close by stops them and they turn to him; otherwise they amble to a spot near their place, wait, and go on.
+    auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+    const FVector Arrel = Player->GetActorLocation();
+    for (int32 I = 0; I < Townsfolk.Num() && I < TownMinds.Num(); ++I)
+    {
+        auto* Figure = Townsfolk[I].Get(); FTownMind& Mind = TownMinds[I];
+        if (!Figure) continue;
+        const FVector At = Figure->GetComponentLocation();
+        const FVector ToArrel = (Arrel - At) * FVector(1, 1, 0);
+        FVector Step = FVector::ZeroVector; float Want = Mind.Yaw;
+        const AMemoriaFieldMonster* Foe = nullptr;
+        if (Combat)
+            for (const auto& Weak : Combat->GetMonsters())
+                if (const auto* M = Weak.Get(); M && !M->IsDead() && (!Foe || FVector::DistSquared2D(M->GetActorLocation(), At) < FVector::DistSquared2D(Foe->GetActorLocation(), At))) Foe = M;
+        if (Foe)
+        {
+            Mind.bWalking = false; Mind.Wait = FMath::Max(Mind.Wait, 2.f);
+            Want = ((Foe->GetActorLocation() - At) * FVector(1, 1, 0)).Rotation().Yaw;
+        }
+        else if (ToArrel.Size() < TownNotice)
+        {
+            Mind.bWalking = false; Mind.Wait = FMath::Max(Mind.Wait, 1.2f);
+            if (!ToArrel.IsNearlyZero()) Want = ToArrel.Rotation().Yaw;
+        }
+        else if (Mind.bWalking)
+        {
+            const FVector To = (Mind.Target - At) * FVector(1, 1, 0);
+            const float Left = To.Size();
+            if (Left < 3.f) { Mind.bWalking = false; Mind.Wait = TownRng.FRandRange(3.f, 7.f); }
+            else { Step = To / Left * FMath::Min(Left, TownSpeed * DeltaSeconds); Want = To.Rotation().Yaw; }
+        }
+        else if ((Mind.Wait -= DeltaSeconds) <= 0.f)
+        {
+            // A new spot within reach of its place: allowed ground the whole way, not on Arrel, and apart from the
+            // others where they stand or are going.
+            Mind.Wait = 1.5f;
+            for (int32 Try = 0; Try < 8; ++Try)
+            {
+                const float Angle = TownRng.FRandRange(0.f, 2.f * PI), Reach = TownRng.FRandRange(30.f, TownRoam);
+                const FVector Spot = Mind.Home + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * Reach;
+                bool bClear = FVector::Dist2D(Spot, Arrel) > TownNotice;
+                for (const float Along : {.25f, .5f, .75f, 1.f}) bClear = bClear && CanTownsfolkStand(FMath::Lerp(At, Spot, Along));
+                for (int32 J = 0; J < Townsfolk.Num() && bClear; ++J)
+                    if (J != I && Townsfolk[J] && (FVector::Dist2D(Spot, Townsfolk[J]->GetComponentLocation()) < 70 || FVector::Dist2D(Spot, TownMinds[J].Target) < 70)) bClear = false;
+                if (bClear) { Mind.Target = FVector(Spot.X, Spot.Y, At.Z); Mind.bWalking = true; break; }
+            }
+        }
+        Mind.Yaw = FMath::FixedTurn(Mind.Yaw, Want, 320.f * DeltaSeconds);
+        if (!Step.IsZero()) { Figure->SetWorldLocation(At + Step); TownTravel += Step.Size(); }
+        Figure->AdvanceLocomotion(Step, DeltaSeconds);
+        if (Figure->IsRigged()) Figure->SetAim(Mind.Yaw);
+        if (TownShadows.IsValidIndex(I) && TownShadows[I]) TownShadows[I]->SetWorldLocation(FVector(At.X + Step.X, At.Y + Step.Y, -9));
+    }
 }
 int32 AMemoriaVerdanPresentation::GetRiggedTownsfolkCount() const
 {
@@ -522,6 +592,9 @@ void AMemoriaVerdanPresentation::BeginPlay()
     // smaller square and moved off its stalls and story places: the woman shops at the west story stall, the
     // elder keeps the west edge where the old man's talk is, the child stands by the east stall. They idle where
     // they stand, with the same character fill as Arrel and Malet; no collision, as with every figure here.
+    // S349: they keep off the story's places and Malet as they stroll.
+    for (const auto& Beat : MemoriaVerdanStory::Beats()) StoryClear.Add(Beat.Location);
+    if (Malet.IsValid()) StoryClear.Add(Malet->GetActorLocation());
     struct FTownsperson { const TCHAR* Id; FVector At; const TCHAR* Facing; };
     const FTownsperson People[] = {
         {TEXT("villagerf"), FVector(-470,105,0), TEXT("Up")}, {TEXT("fisherman"), FVector(-160,300,0), TEXT("Down")},
@@ -533,9 +606,14 @@ void AMemoriaVerdanPresentation::BeginPlay()
         Figure->RegisterComponent();Figure->SetWorldLocation(Person.At);
         if(!Figure->InitializeCharacter(Person.Id,UMemoriaFieldCharacterComponent::AmbientHeight(Person.Id,ArrelHeight))){Figure->DestroyComponent();continue;}
         Figure->Face(Person.Facing);
-        SoftQuad(FVector(Person.At.X,Person.At.Y,-9),FVector(.6,.26,1),FLinearColor::Black,.6f);
+        TownShadows.Add(SoftQuad(FVector(Person.At.X,Person.At.Y,-9),FVector(.6,.26,1),FLinearColor::Black,.6f));
         AddFill(Figure,*FString::Printf(TEXT("Town%sFillLight"),Person.Id));
         Townsfolk.Add(Figure);
+        // Each sets out a little after the one before, so they are never in step.
+        const FString Facing=Person.Facing;
+        FTownMind Mind; Mind.Home=Mind.Target=Figure->GetComponentLocation(); Mind.Wait=1.2f+1.1f*TownMinds.Num();
+        Mind.Yaw=Facing==TEXT("Up")?90.f:Facing==TEXT("Left")?180.f:Facing==TEXT("Right")?0.f:-90.f;
+        TownMinds.Add(Mind);
     }
     // S311: Arrel fights in the field; the combat HUD paints only while a fight or a wound shows.
     if (auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>())
@@ -591,6 +669,7 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
         MarketLights[I]->SetIntensity(MarketBase[I] * (1.f + .05f * FMath::Sin(LightTime * 2.1f + I * 1.7f)));
     if (AshMotes.Num()==AshCount && EmberMotes.Num()==EmberCount) TickFieldLife();
     if (!Player.IsValid()) return;
+    TickTownsfolk(DeltaSeconds);
     const FVector Position = Player->GetActorLocation();
     const FVector Step = Position - PreviousPosition;
     bWalking = Step.SizeSquared2D() > 0.0001 && DeltaSeconds > 0;

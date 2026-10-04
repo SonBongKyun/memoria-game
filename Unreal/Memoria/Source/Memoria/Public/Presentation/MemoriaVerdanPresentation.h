@@ -44,6 +44,15 @@ public:
     int32 GetTownsfolkCount() const { return Townsfolk.Num(); }
     int32 GetRiggedTownsfolkCount() const;
     UMemoriaFieldCharacterComponent* GetTownsfolk(int32 Index) const { return Townsfolk.IsValidIndex(Index) ? Townsfolk[Index].Get() : nullptr; }
+    // S349: they stroll near their places and turn to Arrel when he comes close (the source's S59 add_npc_wander,
+    // as the chapter maps' NPCs do since S340), keeping off the stalls, the story's places and the square's edges.
+    FVector GetTownsHome(int32 Index) const { return TownMinds.IsValidIndex(Index) ? TownMinds[Index].Home : FVector::ZeroVector; }
+    float GetTownsYaw(int32 Index) const { return TownMinds.IsValidIndex(Index) ? TownMinds[Index].Yaw : 0.f; }
+    float GetTownsTravel() const { return TownTravel; }
+    bool CanTownsfolkStand(const FVector& World) const;
+    static constexpr float TownRoam = 120.f;    // how far from its place a townsperson strolls
+    static constexpr float TownNotice = 170.f;  // how close Arrel comes before it turns to him
+    static constexpr float TownSpeed = 50.f;    // a market amble
 protected:
     virtual void BeginPlay() override;
 private:
@@ -52,6 +61,13 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> ArrelFigure;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> MaletCard;
     UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaFieldCharacterComponent>> Townsfolk;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> TownShadows;
+    struct FTownMind { FVector Home = FVector::ZeroVector, Target = FVector::ZeroVector; float Wait = 0.f, Yaw = -90.f; bool bWalking = false; };
+    TArray<FTownMind> TownMinds;
+    TArray<FVector> StallSpots, StoryClear;
+    FRandomStream TownRng{20261004};
+    float TownTravel = 0.f;
+    void TickTownsfolk(float DeltaSeconds);
     UPROPERTY(Transient) TObjectPtr<UMemoriaCombatHudWidget> CombatHud;
     UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;
