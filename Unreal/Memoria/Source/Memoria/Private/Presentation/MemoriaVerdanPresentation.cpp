@@ -26,6 +26,7 @@
 #include "Components/ExponentialHeightFogComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
+#include "Engine/Texture2D.h"
 #if WITH_EDITOR
 #include "TextureCompiler.h"
 #include "Engine/Texture2D.h"
@@ -95,7 +96,7 @@ void AMemoriaVerdanPresentation::Solid(const TCHAR* MeshName, UMaterialInterface
         Batch = NewObject<UInstancedStaticMeshComponent>(this);
         AddInstanceComponent(Batch); Batch->SetupAttachment(RootComponent); Batch->SetMobility(EComponentMobility::Movable);
         Batch->SetCollisionEnabled(ECollisionEnabled::NoCollision); Batch->SetGenerateOverlapEvents(false); Batch->SetCanEverAffectNavigation(false);
-        const FString Path = FString(MeshName) == TEXT("Roof") ? FString(RoofPath) : FString::Printf(TEXT("/Engine/BasicShapes/%s.%s"), MeshName, MeshName);
+        const FString Path = MeshName[0] == TEXT('/') ? FString(MeshName) : FString(MeshName) == TEXT("Roof") ? FString(RoofPath) : FString::Printf(TEXT("/Engine/BasicShapes/%s.%s"), MeshName, MeshName);
         Batch->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, *Path)); Batch->SetMaterial(0, Material);
         // Flush courtyard inlays must not create false raised-obstacle shadows.
         Batch->SetCastShadow(Material->GetName() != TEXT("M_Glow") && !Material->GetName().StartsWith(TEXT("Courtyard")));
@@ -150,7 +151,7 @@ void AMemoriaVerdanPresentation::Building(FVector P, FVector Size, UMaterialInte
     Box(Wall,P+FVector(W*.27,D*.1,H+80),FVector(43,45,150));
     Box(Timber,P+FVector(W*.27,D*.1,H+159),FVector(55,57,10));
 }
-void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow)
+void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bLantern)
 {
     Box(Timber,P+FVector(0,0,66),FVector(98,92,12));
     Box(Cloth,P+FVector(0,-44,30),FVector(95,4,58));
@@ -169,7 +170,13 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Timber,P+FVector(0,-47,4),FVector(99,5,8));
     for (double X : {-46.0,46.0}) Box(Timber,P+FVector(X,-47,34),FVector(5,5,56));
     Box(Timber,P+FVector(0,31,104),FVector(85,21,5));
-    auto* Glass=Surface(FName(*FString::Printf(TEXT("Bottles%.0f"),P.X)),FLinearColor(.10f,.23f,.20f),3,.28f,.32f);
+    // Three glass colours shared by every stall (one material each keeps the batches few).
+    static const FLinearColor GlassTints[] = {FLinearColor(.10f,.23f,.20f), FLinearColor(.26f,.12f,.07f), FLinearColor(.09f,.12f,.24f)};
+    const int32 Shade=FMath::Abs(int32(P.X/7+P.Y/3))%3;
+    const FName GlassName(*FString::Printf(TEXT("Bottles%d"),Shade));
+    UMaterialInstanceDynamic* Glass=nullptr;
+    for (const auto& M:SurfaceMaterials) if (M && M->GetFName()==GlassName) Glass=M;
+    if (!Glass) Glass=Surface(GlassName,GlassTints[Shade],3,.28f,.32f);
     for (int32 I=0; I<8; ++I)
     {
         const bool bShelf=I>=5;
@@ -187,7 +194,79 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Cloth,P+FVector(-22,18,24),FVector(27,27,37));
     Box(Timber,P+FVector(18,20,18),FVector(39,32,25));
     for (double X : {4.0,32.0}) Box(Iron,P+FVector(X,20,31),FVector(3,33,2));
-    Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
+    if (bLantern) Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
+}
+void AMemoriaVerdanPresentation::MarketLight(const FVector& P, float Intensity, float Radius)
+{
+    // A stall's or a lantern's warm light: no shadow, so a ring of them stays cheap.
+    auto* Light = NewObject<UPointLightComponent>(this, FName(*FString::Printf(TEXT("MarketLight%d"), MarketLights.Num())));
+    AddInstanceComponent(Light); Light->SetupAttachment(RootComponent); Light->SetRelativeLocation(P);
+    Light->bUseInverseSquaredFalloff = false; Light->LightFalloffExponent = 2.2f;
+    Light->SetLightColor(FLinearColor(1.f,.6f,.3f)); Light->SetIntensity(Intensity); Light->SetAttenuationRadius(Radius);
+    Light->SetCastShadows(false); Light->SetSourceRadius(12); Light->RegisterComponent();
+    MarketLights.Add(Light); MarketBase.Add(Intensity);
+}
+void AMemoriaVerdanPresentation::BuildMarketRing(UMaterialInterface* Timber, UMaterialInterface* Iron, UMaterialInterface* Glow)
+{
+    // S346: verdan_market.gd sets its stalls round the square (STALL tiles, each with a warm PointLight2D), and the
+    // market canvas paints a ring of lantern-lit stalls under wine, slate and moss cloth. The port's square keeps its
+    // two story stalls; ten more stand along its edges, clear of the story's places (the memory stalls, the old
+    // man at the west edge, Malet's table, Elia and the sump stairs) and of the edge spots the tests stand Arrel
+    // on. The side ones stand against the curb, leaving no alley behind them. Like the two, they are visual only:
+    // the presentation owns no collision.
+    auto* Wine=Surface(TEXT("RingWine"),FLinearColor(.22f,.055f,.06f),2);
+    auto* Moss=Surface(TEXT("RingMoss"),FLinearColor(.065f,.15f,.14f),2);
+    auto* SlateCloth=Surface(TEXT("RingSlate"),FLinearColor(.07f,.075f,.09f),2);
+    UMaterialInterface* Cloths[] = {Wine, SlateCloth, Moss};
+    const FVector Stalls[] = {
+        FVector(-690,505,-8), FVector(-400,505,-8), FVector(400,505,-8), FVector(690,505,-8),
+        FVector(-840,330,-8), FVector(-840,-170,-8), FVector(-840,-430,-8),
+        FVector(840,330,-8), FVector(840,160,-8), FVector(840,-160,-8)};
+    for (int32 I = 0; I < UE_ARRAY_COUNT(Stalls); ++I)
+    {
+        Stall(Stalls[I], Timber, Cloths[I % 3], Iron, Glow, false);
+        // The lamp under the canopy: a glowing pane and its light on the counter.
+        Box(Glow, Stalls[I] + FVector(-30, -30, 110), FVector(11, 11, 15));
+        MarketLight(Stalls[I] + FVector(-30, -70, 118), 5.f, 420.f);
+        // The lamp's warmth on the paving in front of the counter, as the story stalls' lanterns have.
+        SoftQuad(FVector(Stalls[I].X - 10, Stalls[I].Y - 95, -9.25), FVector(2.4, 1.8, 1), FLinearColor(.19f, .095f, .035f), .2f);
+        ++MarketStalls;
+    }
+    // Codex's S343 kit, where it is imported: lantern posts on the curb by the pillars, and freight between the
+    // north stalls. Their material is the kit's, with the same opening round Arrel as the walls.
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Environment/M_EnvProp.M_EnvProp"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    auto Atlas = [](const TCHAR* Name) { return LoadObject<UTexture2D>(nullptr, *FString::Printf(TEXT("/Game/Memoria/Presentation/Environment/%s.%s"), Name, Name), nullptr, LOAD_NoWarn | LOAD_Quiet); };
+    UTexture2D* Small = Atlas(TEXT("T_EnvSmall")); UTexture2D* SmallGlow = Atlas(TEXT("T_EnvSmallGlow")); UTexture2D* Belt = Atlas(TEXT("T_EnvBelt"));
+    if (!Base || !Small || !Belt) { UE_LOG(LogTemp, Warning, TEXT("Verdan market: environment kit not imported (-run=MemoriaEnvironmentAssets)")); return; }
+    auto Kit = [&](const TCHAR* Name, UTexture2D* Color, UTexture2D* Mask, const FLinearColor& Tint)
+    {
+        auto* M = UMaterialInstanceDynamic::Create(Base, this, Name);
+        M->SetTextureParameterValue(TEXT("Color"), Color); M->SetVectorParameterValue(TEXT("Tint"), Tint);
+        if (Mask) { M->SetTextureParameterValue(TEXT("Glow"), Mask); M->SetVectorParameterValue(TEXT("GlowColor"), FLinearColor(1.f, .58f, .28f, 14.f)); }
+        SurfaceMaterials.Add(M); return M;
+    };
+    auto* Post = Kit(TEXT("MarketLanternPost"), Small, SmallGlow, FLinearColor(.95f, .97f, 1.05f));
+    auto* Freight = Kit(TEXT("MarketFreight"), Belt, nullptr, FLinearColor(1.05f, 1.08f, 1.18f));
+    for (double X : {-900.0, 900.0})
+        for (double Y : {-250.0, 350.0})
+        {
+            // On the curb (its top at 30) beside the pillar; the lantern hangs 17 cm towards the square.
+            const float Yaw = X < 0 ? 0.f : 180.f;
+            Solid(TEXT("/Game/Memoria/Presentation/Environment/SM_EnvLanternPost.SM_EnvLanternPost"), Post, FVector(X, Y + 46, 30), FVector::OneVector, FRotator(0, Yaw, 0));
+            MarketLight(FVector(X, Y + 46, 30) + FRotator(0, Yaw, 0).RotateVector(FVector(17, -6, 150)), 3.f, 430.f);
+            ++MarketProps;
+        }
+    Solid(TEXT("/Game/Memoria/Presentation/Environment/SM_EnvCrateStack.SM_EnvCrateStack"), Freight, FVector(-210, 525, -8), FVector(.7), FRotator(0, 8, 0));
+    Solid(TEXT("/Game/Memoria/Presentation/Environment/SM_EnvCrateStack.SM_EnvCrateStack"), Freight, FVector(210, 528, -8), FVector(.66), FRotator(0, -6, 0));
+    MarketProps += 2;
+    // Lanterns hung from the north rope, where the cloth ends.
+    for (double X : {-540.0, 0.0, 540.0})
+    {
+        const double Z = 255 + 75 * FMath::Square(X / 800) - 52;
+        Beam(Iron, FVector(X, 575, Z + 50), FVector(X, 575, Z + 10), 1.5f);
+        Box(Glow, FVector(X, 572, Z), FVector(10, 10, 16));
+        MarketLight(FVector(X, 560, Z - 6), 2.4f, 360.f);
+    }
 }
 void AMemoriaVerdanPresentation::BuildCourtyard(UMaterialInterface* Iron)
 {
@@ -278,6 +357,7 @@ void AMemoriaVerdanPresentation::BuildDepthEnvironment()
     // Both stalls occupy the existing 100 x 100 obstacles, leaving the canonical route clear.
     Stall(FVector(-400,200,-8),Timber,Wine,Iron,Glow);
     Stall(FVector(400,200,-8),Timber,Moss,Iron,Glow);
+    BuildMarketRing(Timber,Iron,Glow);
     Lantern(FVector(-830,560,155),Iron,Glow,false);
     Lantern(FVector(830,560,155),Iron,Glow,false);
     Beam(Timber,FVector(-830,560,0),FVector(-830,560,205),10);
@@ -481,6 +561,8 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     LightTime += DeltaSeconds;
     for (int32 I = 0; I < LampLights.Num(); ++I)
         LampLights[I]->SetIntensity(3.6f + 0.12f * FMath::Sin(LightTime * 1.7f + I));
+    for (int32 I = 0; I < MarketLights.Num(); ++I)
+        MarketLights[I]->SetIntensity(MarketBase[I] * (1.f + .05f * FMath::Sin(LightTime * 2.1f + I * 1.7f)));
     if (AshMotes.Num()==AshCount && EmberMotes.Num()==EmberCount) TickFieldLife();
     if (!Player.IsValid()) return;
     const FVector Position = Player->GetActorLocation();

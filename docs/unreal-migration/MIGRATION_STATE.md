@@ -1,3 +1,18 @@
+# Migration handoff — S346 Verdan's market ring (Claude lane, 2026-10-04)
+
+- **Why.** After S338–S345 the chapter maps were dressed and sounded, while Verdan, the hub the player reaches first, was a bare paved square with two stalls. `verdan_market.gd` sets stalls round its square (STALL tiles, each with a warm PointLight2D), and `map_verdan_market_canvas_v1.png` paints a ring of lantern-lit stalls under wine, slate and moss cloth.
+- **What stands now** (`AMemoriaVerdanPresentation::BuildMarketRing`).
+  - Ten more stalls of the existing kind: four along the north edge, three against each side curb, none along the south edge (it faces the camera). They keep clear of the story's places (the memory stalls, the old man at the west edge, Malet's table, Elia, the sump stairs) and of the eight edge spots `MemoriaVisual.VerdanExploration` stands Arrel on.
+  - Each has a lamp under its canopy, a warm point light (no shadow) and a warm patch on the paving in front of its counter.
+  - Codex's S343 kit where it is imported: four lantern posts on the side curbs beside the pillars (each with its light), and two crate stacks between the north stalls. Their material is `M_EnvProp` with the walls' opening round Arrel.
+  - Three lanterns hung from the north rope, with their lights.
+  - 17 market lights in all, flickering a little like the existing lanterns. The four original lanterns, their two shadows and the fill lights are unchanged.
+  - The stalls' bottles share three glass materials instead of one per stall (30 geometry batches).
+- **Not changed.** No collision: the presentation owns none, and the ring's stalls can be walked through, as the two story stalls always could. The courtyard, buildings, camera limits, story points and Malet are as they were.
+- **Tests.** `MemoriaVisual.VerdanExploration`: 18 roofs (six buildings, twelve stalls), 10 ring stalls, 6 kit props, 17 market lights; the lantern and shadow counts exclude the market lights. Captures read: the square from its centre, the north, the corners, the west and east edges, and at Malet.
+- **Known gaps.** Arrel standing just north of a side stall shows over its canopy (the opening follows his line of sight, which passes above the roof). The source's five market NPCs are not placed: they have no models (requested from Codex, 2026-10-04). The smoke wisps from the alleys are not ported.
+- **Results.** `MemoriaVisual.VerdanExploration` and `FieldCharacters` pass on this tree. The full registry follows.
+
 # Migration handoff — S345 the chapter maps' sound (Claude lane, 2026-10-04)
 
 - **Why.** The user asked for the work to go on after Codex integrated S344 (`486b6c42` in its branch; nothing asked of Claude). The Belt Waystation and Drift Shelter had no music, no ambience and no footsteps: the audio subsystem knew only Verdan and the title.

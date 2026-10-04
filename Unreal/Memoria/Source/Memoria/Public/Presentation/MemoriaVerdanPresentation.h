@@ -36,6 +36,10 @@ public:
     static constexpr const TCHAR* PlaceholderTag = TEXT("MemoriaPlaceholder");
     static bool IsPlaceholderGeometry(const AStaticMeshActor& Actor);
     UMemoriaExplorationHudWidget* GetExplorationHud() const { return ExplorationHud; }
+    // S346: the market ring the source's canvas paints round the square, and its warm lights.
+    int32 GetMarketStallCount() const { return MarketStalls; }
+    int32 GetMarketLightCount() const { return MarketLights.Num(); }
+    int32 GetMarketPropCount() const { return MarketProps; }
 protected:
     virtual void BeginPlay() override;
 private:
@@ -54,7 +58,12 @@ private:
     void Box(UMaterialInterface* Material, FVector Position, FVector Size, FRotator Rotation = FRotator::ZeroRotator);
     void Beam(UMaterialInterface* Material, FVector A, FVector B, float Width);
     void Building(FVector Position, FVector Size, UMaterialInterface* Wall, UMaterialInterface* Timber, UMaterialInterface* Roof, UMaterialInterface* Glow);
-    void Stall(FVector Position, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow);
+    void Stall(FVector Position, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bLantern = true);
+    void BuildMarketRing(UMaterialInterface* Timber, UMaterialInterface* Iron, UMaterialInterface* Glow);
+    void MarketLight(const FVector& Position, float Intensity, float Radius);
+    UPROPERTY(Transient) TArray<TObjectPtr<UPointLightComponent>> MarketLights;
+    TArray<float> MarketBase;
+    int32 MarketStalls = 0, MarketProps = 0;
     void Lantern(FVector Position, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bShadow);
     UPROPERTY(Transient) TMap<FString, TObjectPtr<UInstancedStaticMeshComponent>> MeshBatches;
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> SurfaceMaterials;

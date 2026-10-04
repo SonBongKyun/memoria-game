@@ -202,8 +202,13 @@ public:
                 Test->TestNotNull(TEXT("Every geometry batch has a material"), Batch->GetMaterial(0));
                 if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetName() == TEXT("SM_PitchedRoof")) Roofs += Batch->GetInstanceCount();
             }
-            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() < 30);
-            Test->TestEqual(TEXT("Six buildings and two physical stall roofs"), Roofs, 8);
+            Test->AddInfo(FString::Printf(TEXT("VERDAN_BATCHES %d instances %d"), Batches.Num(), Instances));
+            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() < 40);
+            // S346: six buildings, the two story stalls and the market ring's ten.
+            Test->TestEqual(TEXT("Six buildings and twelve stall roofs"), Roofs, 18);
+            Test->TestEqual(TEXT("The market ring stands round the square"), Presentation->GetMarketStallCount(), 10);
+            Test->TestEqual(TEXT("With the kit's lantern posts and freight"), Presentation->GetMarketPropCount(), 6);
+            Test->TestEqual(TEXT("Each stall, post and rope lantern burns warm"), Presentation->GetMarketLightCount(), 17);
             Test->TestTrue(TEXT("Architecture has substantial height"), Presentation->GetComponentsBoundingBox(true).Max.Z > 580);
             auto* Lit = LoadObject<UMaterial>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface"));
             Test->TestTrue(TEXT("Walls respond to real lighting"), Lit && Lit->GetUsageByFlag(MATUSAGE_InstancedStaticMeshes) && Lit->GetShadingModels().HasShadingModel(MSM_DefaultLit));
@@ -219,7 +224,7 @@ public:
                 auto* Fill=Lights.FindByPredicate([Name](const UPointLightComponent* L){return L->GetFName()==Name;});
                 Test->TestTrue(TEXT("Character fill is isolated from world lighting"),Fill && !(*Fill)->LightingChannels.bChannel0 && (*Fill)->LightingChannels.bChannel1);
             }
-            Lights.RemoveAll([](const UPointLightComponent* L){return L->GetFName().ToString().EndsWith(TEXT("FillLight"));});
+            Lights.RemoveAll([](const UPointLightComponent* L){return L->GetFName().ToString().EndsWith(TEXT("FillLight")) || L->GetFName().ToString().StartsWith(TEXT("MarketLight"));});
             Test->TestEqual(TEXT("Four real lantern lights"), Lights.Num(), 4);
             int32 ShadowLights = 0;
             for (auto* Light : Lights) { Test->TestTrue(TEXT("Lanterns illuminate scene"), Light->Intensity > 0); ShadowLights += Light->CastShadows ? 1 : 0; }
