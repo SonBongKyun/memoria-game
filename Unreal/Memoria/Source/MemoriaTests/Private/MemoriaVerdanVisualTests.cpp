@@ -436,6 +436,30 @@ public:
         }
         if (Frame == 554)
         {
+            // S349: by now the townsfolk have strolled, each near its place and on allowed ground.
+            Test->AddInfo(FString::Printf(TEXT("VERDAN_TOWNS_TRAVEL %.1f"), Presentation->GetTownsTravel()));
+            Test->TestTrue(TEXT("The townsfolk have strolled"), Presentation->GetTownsTravel() > 60.f);
+            for (int32 I = 0; I < Presentation->GetTownsfolkCount(); ++I)
+            {
+                const FVector At = Presentation->GetTownsfolk(I)->GetComponentLocation();
+                Test->TestTrue(TEXT("A townsperson stays near its place"), FVector::Dist2D(At, Presentation->GetTownsHome(I)) <= AMemoriaVerdanPresentation::TownRoam + 5.f);
+                Test->TestTrue(TEXT("Off the stalls and the story's places"), Presentation->CanTownsfolkStand(At) || At.Equals(Presentation->GetTownsHome(I), 1.));
+            }
+            // Arrel comes up beside the man in the square, to his south-west: he stops and turns to face him.
+            if (auto* Man = Presentation->GetTownsfolk(2)) Pawn->SetActorLocation(FVector(Man->GetComponentLocation().X - 70, Man->GetComponentLocation().Y - 60, 0));
+        }
+        if (Frame == 674)
+        {
+            if (auto* Man = Presentation->GetTownsfolk(2))
+            {
+                const float Want = ((Pawn->GetActorLocation() - Man->GetComponentLocation()) * FVector(1, 1, 0)).Rotation().Yaw;
+                Test->TestTrue(TEXT("The man has turned to Arrel"), FMath::Abs(FMath::FindDeltaAngleDegrees(Presentation->GetTownsYaw(2), Want)) < 8.f);
+                Test->TestTrue(TEXT("And his rigged figure faces him"), FMath::Abs(FMath::FindDeltaAngleDegrees(Man->GetYaw(), Want)) < 8.f);
+            }
+            Capture(TEXT("TownsfolkTurn"));
+        }
+        if (Frame == 680)
+        {
             FString After, MemoryAfter;
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), After);
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetPlayerMemory()->GetSnapshot(), MemoryAfter);
