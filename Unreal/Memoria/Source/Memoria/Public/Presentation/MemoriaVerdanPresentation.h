@@ -40,6 +40,10 @@ public:
     int32 GetMarketStallCount() const { return MarketStalls; }
     int32 GetMarketLightCount() const { return MarketLights.Num(); }
     int32 GetMarketPropCount() const { return MarketProps; }
+    // S348: the market's townsfolk (verdan_market.gd S55), on Codex's S347 models.
+    int32 GetTownsfolkCount() const { return Townsfolk.Num(); }
+    int32 GetRiggedTownsfolkCount() const;
+    UMemoriaFieldCharacterComponent* GetTownsfolk(int32 Index) const { return Townsfolk.IsValidIndex(Index) ? Townsfolk[Index].Get() : nullptr; }
 protected:
     virtual void BeginPlay() override;
 private:
@@ -47,6 +51,7 @@ private:
     UStaticMeshComponent* SoftQuad(const FVector& Location, const FVector& Scale, FLinearColor Tint, float Alpha);
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> ArrelFigure;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldCharacterComponent> MaletCard;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaFieldCharacterComponent>> Townsfolk;
     UPROPERTY(Transient) TObjectPtr<UMemoriaCombatHudWidget> CombatHud;
     UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> PlayerShadow;

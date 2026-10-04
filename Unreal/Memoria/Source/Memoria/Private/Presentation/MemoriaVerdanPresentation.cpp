@@ -196,6 +196,12 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     for (double X : {4.0,32.0}) Box(Iron,P+FVector(X,20,31),FVector(3,33,2));
     if (bLantern) Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
 }
+int32 AMemoriaVerdanPresentation::GetRiggedTownsfolkCount() const
+{
+    int32 Count = 0;
+    for (const auto& Figure : Townsfolk) Count += Figure && Figure->IsRigged() ? 1 : 0;
+    return Count;
+}
 void AMemoriaVerdanPresentation::MarketLight(const FVector& P, float Intensity, float Radius)
 {
     // A stall's or a lantern's warm light: no shadow, so a ring of them stays cheap.
@@ -511,6 +517,26 @@ void AMemoriaVerdanPresentation::BeginPlay()
     };
     AddFill(Player->GetRootComponent(),TEXT("ArrelFillLight"));
     if(MaletCard) AddFill(MaletCard,TEXT("MaletFillLight"));
+    // S348: verdan_market.gd's S55 market townsfolk, on Codex's S347 models (the pixel presets have no card art,
+    // so before them none stood). The source tiles (7,6), (12,5), (16,7), (4,9), (19,6) are read on the port's
+    // smaller square and moved off its stalls and story places: the woman shops at the west story stall, the
+    // elder keeps the west edge where the old man's talk is, the child stands by the east stall. They idle where
+    // they stand, with the same character fill as Arrel and Malet; no collision, as with every figure here.
+    struct FTownsperson { const TCHAR* Id; FVector At; const TCHAR* Facing; };
+    const FTownsperson People[] = {
+        {TEXT("villagerf"), FVector(-470,105,0), TEXT("Up")}, {TEXT("fisherman"), FVector(-160,300,0), TEXT("Down")},
+        {TEXT("villagerm"), FVector(110,140,0), TEXT("Left")}, {TEXT("elder"), FVector(-640,30,0), TEXT("Right")},
+        {TEXT("child"), FVector(290,215,0), TEXT("Down")}};
+    for (const FTownsperson& Person : People)
+    {
+        auto* Figure=NewObject<UMemoriaFieldCharacterComponent>(this);AddInstanceComponent(Figure);Figure->SetupAttachment(GetRootComponent());
+        Figure->RegisterComponent();Figure->SetWorldLocation(Person.At);
+        if(!Figure->InitializeCharacter(Person.Id,UMemoriaFieldCharacterComponent::AmbientHeight(Person.Id,ArrelHeight))){Figure->DestroyComponent();continue;}
+        Figure->Face(Person.Facing);
+        SoftQuad(FVector(Person.At.X,Person.At.Y,-9),FVector(.6,.26,1),FLinearColor::Black,.6f);
+        AddFill(Figure,*FString::Printf(TEXT("Town%sFillLight"),Person.Id));
+        Townsfolk.Add(Figure);
+    }
     // S311: Arrel fights in the field; the combat HUD paints only while a fight or a wound shows.
     if (auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>())
     {

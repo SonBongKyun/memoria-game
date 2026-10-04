@@ -164,7 +164,8 @@ void AMemoriaChapterPresentation::BuildAmbientNpcs()
         AddInstanceComponent(Figure); Figure->SetupAttachment(GetRootComponent()); Figure->RegisterComponent();
         Figure->SetWorldLocation(MemoriaChapterMaps::ToWorld(Npc.Position));
         // "bureau_agent" -> "bureauagent": the component title-cases the id into the sprite's name.
-        if (!Figure->InitializeCharacter(Npc.Preset.Replace(TEXT("_"), TEXT("")), ArrelHeight)) { Figure->DestroyComponent(); continue; }
+        const FString Id = Npc.Preset.Replace(TEXT("_"), TEXT(""));
+        if (!Figure->InitializeCharacter(Id, UMemoriaFieldCharacterComponent::AmbientHeight(Id, ArrelHeight))) { Figure->DestroyComponent(); continue; }
         Figure->Face(TEXT("Down")); Figure->SetVisibility(false, true);
         AmbientNpcs.Add(Figure);
         // Each sets out a little after the one before, so they are never in step.

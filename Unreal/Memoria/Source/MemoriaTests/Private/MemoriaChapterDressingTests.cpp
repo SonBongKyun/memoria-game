@@ -67,6 +67,8 @@ public:
             // S344: Codex's environment kit stands where the box stand-ins stood.
             Test->TestEqual(TEXT("The map's kinds of kit model stand"), Map->GetKitKindCount(), Kinds);
             Test->TestTrue(TEXT("Many of them"), Map->GetKitPropCount() >= 40);
+            // S348: the revisit's three NPCs wear models in both maps now (Drift's on Codex's S347 townsfolk).
+            Test->TestEqual(TEXT("The revisit's NPCs wear rigged models"), Map->GetRiggedNpcCount(), 3);
             // S339: the field HUD stands on the source's plates, and the ribbon names the place in the run's language.
             Test->TestTrue(TEXT("The status panel is drawn on its plate"), Map->GetExplorationHud() && Map->GetExplorationHud()->HasPlate());
             Test->TestTrue(TEXT("The combat bar has its command ribbon"), Map->GetCombatHud() && Map->GetCombatHud()->HasRibbon());
@@ -111,7 +113,18 @@ public:
                 Test->AddInfo(FString::Printf(TEXT("CHAPTER_STEPS %d over 250 units"), Made));
                 Test->TestTrue(TEXT("Walking plays footsteps"), Made >= 2);
             }
-            return true;
+            // S348: with the chapter closed the revisit's NPCs stand; a capture among them.
+            Run->SetStoryFlag(Spec->AmbientNpcsGate, true);
+            Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld(Spec->AmbientNpcs[0].Position + FVector2D(40, 60)) + FVector(0, 0, Pawn->GetActorLocation().Z));
+            ++Step; Mark = Frame; break;
+        case 3:
+            if (Frame == Mark + 40)
+            {
+                Test->TestEqual(TEXT("The revisit's NPCs stand"), Map->GetVisibleNpcCount(), 3);
+                FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/ChapterDressing") / (Spec->Map + TEXT("_Npcs.png")), true, false);
+            }
+            if (Frame >= Mark + 46) return true;
+            break;
         }
         return false;
     }

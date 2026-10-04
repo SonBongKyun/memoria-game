@@ -209,6 +209,11 @@ public:
             Test->TestEqual(TEXT("The market ring stands round the square"), Presentation->GetMarketStallCount(), 10);
             Test->TestEqual(TEXT("With the kit's lantern posts and freight"), Presentation->GetMarketPropCount(), 6);
             Test->TestEqual(TEXT("Each stall, post and rope lantern burns warm"), Presentation->GetMarketLightCount(), 17);
+            // S348: the source's five market townsfolk, each on its own model, the child a child's height.
+            Test->TestEqual(TEXT("Five townsfolk stand in the market"), Presentation->GetTownsfolkCount(), 5);
+            Test->TestEqual(TEXT("Each wears Codex's rigged model"), Presentation->GetRiggedTownsfolkCount(), 5);
+            if (auto* Child = Presentation->GetTownsfolk(4))
+                Test->TestTrue(TEXT("The child stands a child's height beside Arrel"), FMath::IsNearlyEqual(Child->GetWorldHeight(), AMemoriaVerdanPresentation::ArrelHeight * 120.f / 180.f, .5f));
             Test->TestTrue(TEXT("Architecture has substantial height"), Presentation->GetComponentsBoundingBox(true).Max.Z > 580);
             auto* Lit = LoadObject<UMaterial>(nullptr,TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface"));
             Test->TestTrue(TEXT("Walls respond to real lighting"), Lit && Lit->GetUsageByFlag(MATUSAGE_InstancedStaticMeshes) && Lit->GetShadingModels().HasShadingModel(MSM_DefaultLit));
