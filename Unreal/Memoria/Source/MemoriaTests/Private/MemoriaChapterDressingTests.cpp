@@ -69,6 +69,8 @@ public:
             // S344: Codex's environment kit stands where the box stand-ins stood.
             Test->TestEqual(TEXT("The map's kinds of kit model stand"), Map->GetKitKindCount(), Kinds);
             Test->TestTrue(TEXT("Many of them"), Map->GetKitPropCount() >= 40);
+            // S348: the revisit's three NPCs wear models in both maps now (Drift's on Codex's S347 townsfolk).
+            Test->TestEqual(TEXT("The revisit's NPCs wear rigged models"), Map->GetRiggedNpcCount(), 3);
             // S339: the field HUD stands on the source's plates, and the ribbon names the place in the run's language.
             Test->TestTrue(TEXT("The status panel is drawn on its plate"), Map->GetExplorationHud() && Map->GetExplorationHud()->HasPlate());
             Test->TestTrue(TEXT("The combat bar has its command ribbon"), Map->GetCombatHud() && Map->GetCombatHud()->HasRibbon());
@@ -113,8 +115,19 @@ public:
                 Test->AddInfo(FString::Printf(TEXT("CHAPTER_STEPS %d over 250 units"), Made));
                 Test->TestTrue(TEXT("Walking plays footsteps"), Made >= 2);
             }
+            // S348: capture the revisit figures before the retained S345 audio lifecycle replay.
+            Run->SetStoryFlag(Spec->AmbientNpcsGate, true);
+            Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld(Spec->AmbientNpcs[0].Position + FVector2D(40, 60)) + FVector(0, 0, Pawn->GetActorLocation().Z));
             ++Step; Mark = Frame; break;
         case 3:
+            if (Frame == Mark + 40)
+            {
+                Test->TestEqual(TEXT("The revisit's NPCs stand"), Map->GetVisibleNpcCount(), 3);
+                FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/ChapterDressing") / (Spec->Map + TEXT("_Npcs.png")), true, false);
+            }
+            if (Frame >= Mark + 46) { ++Step; Mark = Frame; }
+            break;
+        case 4:
             // Let the final displacement reach the gait before measuring the standing interval.
             if (Frame == Mark + 5)
                 Steps = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()->GetCueCount(TEXT("step"));
@@ -131,7 +144,7 @@ public:
                 ++Step; Mark = Frame;
             }
             break;
-        case 4:
+        case 5:
             if (Frame >= Mark + 30)
             {
                 auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
@@ -144,7 +157,7 @@ public:
                 ++Step; Mark = Frame;
             }
             break;
-        case 5:
+        case 6:
             if (Frame >= Mark + 45)
             {
                 auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
@@ -160,7 +173,7 @@ public:
                 ++Step; Mark = Frame;
             }
             break;
-        case 6:
+        case 7:
             if (Frame >= Mark + 30)
             {
                 auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
@@ -171,7 +184,7 @@ public:
                 Host->EnterTitle(); ++Step; Mark = Frame;
             }
             break;
-        case 7:
+        case 8:
             if (Frame >= Mark + 30)
             {
                 auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();

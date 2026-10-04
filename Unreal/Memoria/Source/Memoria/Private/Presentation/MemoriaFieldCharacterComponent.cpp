@@ -288,6 +288,16 @@ bool UMemoriaFieldCharacterComponent::CreateSkeletal(USkeletalMesh* Mesh, UAnimS
     return true;
 }
 // Animation assets and their skeleton must agree before replacing a working card.
+float UMemoriaFieldCharacterComponent::AmbientHeight(const FString& Id, float ArrelWorldHeight)
+{
+    // Authored heights in cm (models/MANIFEST.md S334, models/S347_NPC_MANIFEST.md); Arrel's source model is 180.
+    static const TMap<FString, float> Authored = {
+        {TEXT("traveler"), 174.f}, {TEXT("bureauagent"), 176.f}, {TEXT("guard"), 178.f},
+        {TEXT("villagerf"), 165.f}, {TEXT("villagerm"), 175.f}, {TEXT("fisherman"), 172.f},
+        {TEXT("elder"), 165.f}, {TEXT("child"), 120.f}, {TEXT("scholar"), 172.f}};
+    const float* Cm = Authored.Find(Id.Replace(TEXT("_"), TEXT("")).ToLower());
+    return Cm ? ArrelWorldHeight * *Cm / 180.f : ArrelWorldHeight;
+}
 bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
 {
     auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));

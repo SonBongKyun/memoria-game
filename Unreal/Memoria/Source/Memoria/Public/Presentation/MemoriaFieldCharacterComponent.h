@@ -39,6 +39,10 @@ public:
     // Resolves the art for a source character id (arrel, elia, malet...). WorldHeight is the
     // standing figure's height in world units; the card is scaled to it.
     bool InitializeCharacter(const FString& Id, float WorldHeight);
+    // S348: an ambient NPC's standing height beside Arrel. Codex's models keep their authored heights (the
+    // child 120 cm, the elder 165 cm...) against Arrel's 180 cm source, so each is scaled by its own ratio
+    // rather than to Arrel's full height. An unknown id stands as tall as Arrel, as before.
+    static float AmbientHeight(const FString& Id, float ArrelWorldHeight);
     // Facing follows real travel; gait advances with distance, not time.
     void AdvanceLocomotion(const FVector& Step, float DeltaSeconds);
     void Face(const FString& Direction);

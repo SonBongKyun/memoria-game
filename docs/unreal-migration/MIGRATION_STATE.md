@@ -1,3 +1,18 @@
+# Migration handoff — S348 the townsfolk of Verdan and Drift (Claude lane, 2026-10-04)
+
+- **Why.** Codex delivered six townsfolk models in S347 (`models/S347_NPC_MANIFEST.md`) at Claude's request: the source's market NPCs had no art, so Verdan showed none and Drift's revisit showed none. Codex's S347 also integrated S346 (`030bf057`); both branches were pushed at the user's request before this session.
+- **Import** (`-run=MemoriaAmbientModels`, additive). The Npcs table gains `npc_villager_f → Villagerf`, `npc_villager_m → Villagerm`, `npc_fisherman → Fisherman`, `npc_elder → Elder`, `npc_child → Child`, `npc_scholar → Scholar`; the twelve files are copied byte for byte to `Unreal/ArtSource/FieldCharacters/<id>/` and match the manifest's SHA-256. Each gets `SK_`, a lit material, and the mannequin's idle and walk retargeted (`A_<Name>_Idle`, `_Walk`); 77 bones, imported heights 165/175/172/165/120/172 cm as authored. The shared `IK_Mannequin_Ambient` is re-made by the commandlet when it imports new NPCs, as in S335.
+- **Height** (`UMemoriaFieldCharacterComponent::AmbientHeight`). A figure is normalized to the height it is given; every ambient NPC used to get Arrel's 150. Each now gets Arrel's height × its authored cm / 180 (Arrel's source model), so the child stands 100, the elder 137.5, the guard 148.3. This also applies to the Belt's three (S335 models).
+- **Verdan** (`AMemoriaVerdanPresentation::BeginPlay`). `verdan_market.gd`'s S55 five, at their source tiles read on the port's smaller square and moved off its stalls and story places: the woman shopping at the west story stall, the fisherman and the man in the square, the elder at the west edge (where the old man's talk is), the child by the east stall. They idle, each with the characters' fill light and a soft shadow. No collision, as with every figure here.
+- **Drift** needs no new code: its revisit presets (villager_f, scholar, villager_m) now find their models.
+- **Tests.**
+  - `MemoriaVisual.VerdanExploration`: five townsfolk, five rigged, the child at a child's height.
+  - `MemoriaVisual.BeltDressing` / `DriftDressing`: the revisit's three NPCs are rigged; with the chapter closed they stand (3), with a capture among them (`<map>_Npcs.png`).
+  - Captures read: Verdan's square with the five; Drift's shelter with its three.
+- **Known gaps.** Verdan's townsfolk do not stroll or turn to Arrel (Drift's and the Belt's do, S340): the Verdan presentation has no NPC mind of its own. None of them speaks. The models share one face (Codex's limit).
+- **Machine note.** The first build failed with C3859/C1076 (compiler out of memory) and the first rendered run crashed out of memory (page file) while other programs held most of the 16 GB; a one-job build and a second run passed.
+- **Results.** `VerdanExploration`, `BeltDressing`, `DriftDressing`, `ChapterRevisit` pass on this tree. The full registry follows.
+
 # Migration handoff - S347: S346 adopted, six townsfolk delivered (Codex, 2026-10-04)
 
 - S346 sourcefffdef2d50fc03b67032d432c03cb21a5d2ab27e accepted as45fb1a0cc1ed34a9c609b00f710a9212da5f23a6; all3 source/test blobs identical, sole history conflict resolved preserving both lanes. No extra product repair. Existing S337/S343/S344/S345 code/art retained.

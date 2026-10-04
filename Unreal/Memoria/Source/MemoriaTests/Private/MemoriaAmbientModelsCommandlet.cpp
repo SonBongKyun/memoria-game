@@ -25,7 +25,10 @@ namespace
 // Source is Codex's folder name; Name is what the field figure title-cases a preset into ("bureau_agent" ->
 // "bureauagent" -> "Bureauagent").
 struct FAmbientNpc { const TCHAR* Source; const TCHAR* Name; };
-const FAmbientNpc Npcs[] = {{TEXT("npc_traveler"), TEXT("Traveler")}, {TEXT("npc_bureau_agent"), TEXT("Bureauagent")}, {TEXT("npc_guard"), TEXT("Guard")}};
+const FAmbientNpc Npcs[] = {{TEXT("npc_traveler"), TEXT("Traveler")}, {TEXT("npc_bureau_agent"), TEXT("Bureauagent")}, {TEXT("npc_guard"), TEXT("Guard")},
+    // S348: Codex's S347 townsfolk for Verdan's market and Drift's revisit.
+    {TEXT("npc_villager_f"), TEXT("Villagerf")}, {TEXT("npc_villager_m"), TEXT("Villagerm")}, {TEXT("npc_fisherman"), TEXT("Fisherman")},
+    {TEXT("npc_elder"), TEXT("Elder")}, {TEXT("npc_child"), TEXT("Child")}, {TEXT("npc_scholar"), TEXT("Scholar")}};
 struct FAmbientProp { const TCHAR* Source; const TCHAR* Name; };
 const FAmbientProp Props[] = {{TEXT("prop_water_tank"), TEXT("WaterTank")}, {TEXT("prop_campfire"), TEXT("Campfire")}, {TEXT("prop_rubble"), TEXT("Rubble")}};
 FString Base(const TCHAR* Name) { return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/%s/"), Name); }
