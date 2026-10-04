@@ -12,6 +12,8 @@
 #include "Chapter/MemoriaChapterPresentation.h"
 #include "Chapter/MemoriaChapterCardWidget.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaFieldMonster.h"
+#include "InputCoreTypes.h"
 #include "Combat/MemoriaCombatHudWidget.h"
 #include "Combat/MemoriaExplorationHudWidget.h"
 #include "Combat/MemoriaFieldHudWidget.h"
@@ -111,7 +113,76 @@ public:
                 Test->AddInfo(FString::Printf(TEXT("CHAPTER_STEPS %d over 250 units"), Made));
                 Test->TestTrue(TEXT("Walking plays footsteps"), Made >= 2);
             }
-            return true;
+            ++Step; Mark = Frame; break;
+        case 3:
+            // Let the final displacement reach the gait before measuring the standing interval.
+            if (Frame == Mark + 5)
+                Steps = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()->GetCueCount(TEXT("step"));
+            if (Frame >= Mark + 35)
+            {
+                auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
+                Test->TestEqual(TEXT("Standing makes no footsteps"), Audio->GetCueCount(TEXT("step")), Steps);
+                auto* Combat = World->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+                if (!Test->TestNotNull(TEXT("Chapter field combat"), Combat)) return true;
+                Test->TestEqual(TEXT("No fight is active before the audio replay"), Combat->LiveMonsterCount(), 0);
+                const auto Foes = Combat->SpawnWave(1, Pawn->GetActorLocation() + FVector(400, 0, 0), 0.f);
+                if (!Test->TestEqual(TEXT("The audio replay starts one foe"), Foes.Num(), 1)) return true;
+                Target = Foes[0]; Target->Stun(10.f);
+                ++Step; Mark = Frame;
+            }
+            break;
+        case 4:
+            if (Frame >= Mark + 30)
+            {
+                auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
+                Test->TestEqual(TEXT("A chapter fight switches to battle music"), Audio->GetMusic(), FName(TEXT("battle")));
+                Test->TestTrue(TEXT("The battle loop plays"), Audio->IsMusicPlaying());
+                Test->TestTrue(TEXT("The map air is removed during battle"), Audio->GetAmbient().IsNone() && !Audio->IsAmbientPlaying());
+                Test->TestFalse(TEXT("Battle music is not dialogue-ducked"), Audio->IsDucked());
+                if (!Test->TestTrue(TEXT("The replay foe is still alive"), Target.IsValid() && !Target->IsDead())) return true;
+                Target->TakeHit(Target->GetHealth() + 1.f, Pawn->GetActorLocation(), 0.f);
+                ++Step; Mark = Frame;
+            }
+            break;
+        case 5:
+            if (Frame >= Mark + 45)
+            {
+                auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
+                Test->TestEqual(TEXT("Winning restores exploration music"), Audio->GetMusic(), FName(TEXT("exploration")));
+                Test->TestTrue(TEXT("The restored music loop plays"), Audio->IsMusicPlaying());
+                Test->TestEqual(TEXT("Winning restores this map's air"), Audio->GetAmbient(), Air);
+                Test->TestTrue(TEXT("The restored air loop plays"), Audio->IsAmbientPlaying());
+                Test->TestFalse(TEXT("The exploration loop is not left ducked"), Audio->IsDucked());
+                Steps = Audio->GetCueCount(TEXT("step"));
+                PC->InputKey(FInputKeyEventArgs::CreateSimulated(EKeys::Escape, IE_Pressed, 1.f));
+                PC->InputKey(FInputKeyEventArgs::CreateSimulated(EKeys::Escape, IE_Released, 0.f));
+                Test->TestTrue(TEXT("The chapter's pause menu stops movement"), World->IsPaused());
+                ++Step; Mark = Frame;
+            }
+            break;
+        case 6:
+            if (Frame >= Mark + 30)
+            {
+                auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
+                Test->TestEqual(TEXT("Paused movement makes no footsteps"), Audio->GetCueCount(TEXT("step")), Steps);
+                PC->InputKey(FInputKeyEventArgs::CreateSimulated(EKeys::Escape, IE_Pressed, 1.f));
+                PC->InputKey(FInputKeyEventArgs::CreateSimulated(EKeys::Escape, IE_Released, 0.f));
+                Test->TestFalse(TEXT("Closing the menu resumes the chapter"), World->IsPaused());
+                Host->EnterTitle(); ++Step; Mark = Frame;
+            }
+            break;
+        case 7:
+            if (Frame >= Mark + 30)
+            {
+                auto* Audio = World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>();
+                Test->TestEqual(TEXT("Returning from the chapter restores title music"), Audio->GetMusic(), FName(TEXT("title")));
+                Test->TestTrue(TEXT("The title music loop plays"), Audio->IsMusicPlaying());
+                Test->TestTrue(TEXT("The chapter air is removed on the title"), Audio->GetAmbient().IsNone() && !Audio->IsAmbientPlaying());
+                Test->TestFalse(TEXT("Title music is not left ducked"), Audio->IsDucked());
+                Test->AddInfo(TEXT("CHAPTER_AUDIO_LIFECYCLE idle, battle, win, pause and title verified"));
+                return true;
+            }
+            break;
         }
         return false;
     }
@@ -121,6 +192,7 @@ private:
     int32 Lamps, Kinds;
     FName Air;
     int32 Steps = 0;
+    TWeakObjectPtr<AMemoriaFieldMonster> Target;
     double Started, OldDelta = 0;
     uint64 LastFrame = MAX_uint64;
     int32 Step = 0, Frame = 0, Mark = 0, View = 0;
