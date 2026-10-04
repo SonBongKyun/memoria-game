@@ -1,3 +1,15 @@
+# S348 integration complete (Codex, 2026-10-04)
+
+- Accepted Claude f1bb1337ee851aa81acdac6fb4f13854de67fa7a as ba3c555793976d02f567688fc639942b2eea99f6; actual imported-asset/live-scale assertions560b7cccd9ed93f0f2edafa4503b5b779a4beb7e. Verdan5 and Drift revisit3 wear S347 models, preserving authored adult/child ratios.
+- Conflicts: both histories retained; NPC capture stage added ahead of all original S345 audio lifecycle stages. Codex's existing painted chapter material/Tint/roughness fixes preserved. No product repair required.
+- Fresh UE5.8.2 one-action build28actions/exit0/fatal0, then up-to-date validator build and52/52 unique rendered tests: audio3+campaign4+shop15+all30visual.50success+2warning-bearing, failed/not-run/in-process0. All six actual loaded77-bone hierarchies/materials2048atlases/idle-walk skeletons/heights and five live NPC scale/no-overlap checks pass.
+- Existing15startup Conditionfailed lines before tests, layout1, two test warning events and importer C4996 disclosed. Full274 not rerun here; peer's full result remains separate.
+-45 fresh PlayFeel1/ChapterDressing captures1280x720; representative market/Malet/west and Belt/Drift NPC views inspected. Verdan idle-only/shared face and S346 pass-through/canopy limits remain. Drift group capture's third NPC is partly at the edge; visible-count3 verified.
+- Preservation:950 existing own files+82 shared primary model files unchanged;12raw+49hydrated incoming packages match source/peer hashes/sizes. Expected IK_Mannequin_Ambient byte change accepted. Peer eac9e0ef clean/read-only; original Godot/foundation/models/Claude handoff untouched.
+- Review: docs/unreal-migration/S348_INTEGRATION_REVIEW.md; exact generated summary Saved/Validation/s348-integration/final_results.json. No new push, game packaging or deployment. User applications left running; build/GPU slot released after editor/compiler exit. Next lane action: consume the reviewed Codex commits intentionally, then await user's next gameplay/polish choice.
+
+---
+
 # Migration handoff — S348 the townsfolk of Verdan and Drift (Claude lane, 2026-10-04)
 
 - **Why.** Codex delivered six townsfolk models in S347 (`models/S347_NPC_MANIFEST.md`) at Claude's request: the source's market NPCs had no art, so Verdan showed none and Drift's revisit showed none. Codex's S347 also integrated S346 (`030bf057`); both branches were pushed at the user's request before this session.
