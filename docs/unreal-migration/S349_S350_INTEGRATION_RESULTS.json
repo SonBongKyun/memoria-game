@@ -1,0 +1,1979 @@
+{
+  "task": "S349/S350",
+  "status": "PASS",
+  "base": "cf358235abb168912ffa1ab7105100bd8076f66e",
+  "sources": [
+    "f3c1ed541ab205257f181e51b438559b5c65e4ed",
+    "1068d8af2770125f288d11de49ab400a2dd377c8"
+  ],
+  "adoptions": [
+    "f2e43e932558a25d3f267398ccf85c552a55b056",
+    "95a2fb0af35c4f8c6b8910ba0f2e47bef20ac293"
+  ],
+  "repair_commits": [
+    "8ec8c16da2e2f6e95abebae3ac51b3bf8a49e623",
+    "943b3141d31ec54bd5e4854377e2748ef57b9102"
+  ],
+  "tested_head": "6160f2612f0313a20099c64474fbf3165f5909fb",
+  "full_tested_head": "943b3141d31ec54bd5e4854377e2748ef57b9102",
+  "capture_refresh_change": {
+    "head": "6160f2612f0313a20099c64474fbf3165f5909fb",
+    "full_tested_head": "943b3141d31ec54bd5e4854377e2748ef57b9102",
+    "changed_paths": [
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaVerdanVisualTests.cpp"
+    ],
+    "reason": "Test-only staged damage/capture timing; gameplay and all full-registry test source unchanged.",
+    "utc": "2026-10-05T11:41:03.043872+00:00"
+  },
+  "preservation": {
+    "own_baseline_count": 1015,
+    "intentionally_repaired": [
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaRuntimeTests.cpp"
+    ],
+    "unchanged_own_count": 1014,
+    "shared_primary_unchanged_count": 82,
+    "peer_head": "29398d058e9852c992613d044bcbf8a2d274ea30",
+    "peer_clean": true,
+    "handoff_unchanged": true
+  },
+  "finished_utc": "2026-10-05T11:47:08.342169+00:00",
+  "reports": {
+    "full": {
+      "distinct_tests": 274,
+      "raw_summary": {
+        "succeeded": 267,
+        "succeededWithWarnings": 7,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0,
+        "totalDuration": 2058.313232421875
+      },
+      "tests": [
+        {
+          "path": "Memoria.Achievements.Rules",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.AntidoteSignalReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Antidote.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.NativeScopeAndPresentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.PotionSignalReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.ReplacementAtStop",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.already_recent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.case_sensitive",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.existing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.five",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.invalid",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.negative",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.normalize",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.presentation_absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.repeat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.replacement_antidote",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.replacement_potion",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.sequence",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.Source.zero",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Antidote.WorldTeardownAtStop",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.RenderedInputFlow",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.empty",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.grade1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.grade3",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.grade5",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.initial_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.initial_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.states_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.Source.states_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Archive.WidgetReadOnly",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.CatalogAssets",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.Routing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.RunReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.CanonicalPaidRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.FilteredOriginalChoice",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.HostContinuation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.UnseenFieldRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter.Memories",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.AutosaveResume",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.ImportParity.ch1_after_forest",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.ImportParity.ch1_cold_open",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.ImportParity.ch1_forest_walk",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.ImportParity.ch1_prologue",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.ImportParity.ch1_void_beast",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.burn_song_elia_counter_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.burn_song_strike_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.burn_song_strike_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.read_rhythm_full_forest_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.refuse_humming_burns_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.OracleRoute.burn_song_elia_counter_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.OracleRoute.burn_song_strike_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.OracleRoute.burn_song_strike_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.OracleRoute.read_rhythm_full_forest_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.OracleRoute.refuse_humming_burns_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Chapter1.RouteChain",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.BackupRecovery",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.ChapterMap",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.DiskRoundTrip",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.MapContinueRefused",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.RejectedSnapshots",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.SyntheticIsolation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Checkpoint.WriteFailureRetry",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Codex.Rules",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Content.StartingCatalogParity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Content.StartingCatalogRuntime",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Content.StartingCatalogValidation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.FirebombSignalReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.NativeScopeAndPresentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.ReplacementAtStop",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.already_recent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.case_sensitive",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.existing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.five",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.invalid",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.negative",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.normalize",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.presentation_absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.repeat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.replacement_antidote",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.replacement_firebomb",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.replacement_potion",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.sequence",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.Source.zero",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Firebomb.WorldTeardownAtStop",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.MapInputAndModal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.MemoryAdapter",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.NondefaultSaveRoundTrip",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.RunOwnership",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.RuntimeLifetime",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.SaveAndDialectBoundaries",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Journal.Records",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Journal.Source",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Malet.CanonicalInteraction",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Malet.ImportContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Malet.IntactInteraction",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Malet.SourceDispatch",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.AlreadyBurnedPayment",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.CancelNormalOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.CancelNormalOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.CancelRewardOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.CancelRewardOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.CanonicalPayment",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.ImportContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletDeal.PaymentEdgeCases",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.AuthoritativeFlagContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.CancelAfterFlagOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.CancelAfterFlagOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.CancelBeforeCallbackOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.CancelBeforeCallbackOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.CancelBeforeFlagOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.CancelBeforeFlagOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.PreexistingFalse",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletFirstEffect.PreexistingTrue",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletRefusal.AcceptPreEffectDeferred",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletRefusal.CallbackCancellation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletRefusal.CanonicalRefusalRetry",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletRefusal.ChoiceEffects",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletRefusal.ImportContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletRefusal.RepeatCache",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.CancelRewardBoundaryOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.CancelRewardBoundaryOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.CancelRewardFieldOnRunReplace",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.CancelRewardFieldOnWorldTeardown",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.CanonicalReward",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.EnglishKoreanExecution",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.MaletReward.ImportContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.acquisition_notifications_precede_graph_refresh",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.burn_history_order",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_0",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_10",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_11",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_12",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_2",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_24",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_chapter_minus_2",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.capacity_uses_runtime_chapter_erosion_uses_argument",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.cascade_affects_collateral_and_still_hand_memory",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.cascade_group_and_neighbor_order",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.cascade_guard_and_fading_before_burn_notification",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.cascade_skips_already_faded_burned_and_core",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.case_sensitive_ids_and_npc_names",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.collateral_rejects_both_burn_modes_and_excludes_weight",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.core_guard_not_consumed",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.erosion_collateral_still_erodes",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.erosion_guard_before_still_hands",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.erosion_rank_elia_truncation_and_core_immunity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.erosion_skips_burned_and_faded_counts_zero",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.extraction_count_clamped_not_set_difference",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.extractions_excluded_from_passives",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.faded_rejection_then_explicit_override",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.fading_threshold_and_effective_power_floor",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.grade_ordinals_and_weights",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_does_not_clear_residue_bit_when_elia_absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_0_elia_0",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_0_elia_1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_1_elia_0",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_1_elia_1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_2_elia_0",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_2_elia_1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_3_elia_0",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_3_elia_1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_4_elia_0",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.normal_grade_4_elia_1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.overload_fractional_rounding",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.overload_multiplier_caps_at_two",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.passive_key_presence_even_when_false",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.passive_threshold_10",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.passive_threshold_20",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.passive_threshold_30",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.passive_threshold_5",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.passive_threshold_50",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.preservation_fields_survive_memory_command",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.silent_allows_faded_explicitly",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.silent_has_no_new_residue",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.silent_preserves_preexisting_residue_bit",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Memory.SourceParity.unicode_identity_preserved",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.AddItemSourceRules",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.BurnUsesRunContext",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.ClassifierReport",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.ContinuationDTO",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.DeterministicReimport",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.FieldExecutionContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.FieldImportParity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.OriginalVisibleChoiceIndices",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.StillHandsOath",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.StrictValidationAndSemanticChange",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.VNExecutionContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Narrative.VNImportParity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.CanonicalPotionGrant",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.NativeInventoryContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.ReplacementAfterCommit",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.ReplacementAtStop",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.ReplacementBeforePotion",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.already_recent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.case_sensitive",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.existing1",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.existing9",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.invalid",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.multiple",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.negative",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.normalize",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.presentation_absent",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.repeat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.replacement_signal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.save_restore",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.unrelated",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.Source.zero",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Potion.WorldTeardownAfterCommit",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Presentation.ArrelGaitBonesResolved",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Presentation.ArrelRigWithoutGaitBones",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Presentation.PlaceholderIdentification",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.OwnerLifetime",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.all_burned",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.already_open",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.collateral",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.core_only",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.empty",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.faded",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.grains37",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Shop.Source.no_burns",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Guards",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.RequestCancellation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_both",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_exact",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_poor",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_sell_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.close",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.exchange",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.oath_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.oath_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_daily",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_identity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_relation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_sense",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Title.ContinueSource",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Title.Menu",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Title.Settings",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Verdan.RevisitJourney",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.VerdanStory.BurnedTextSubstitution",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.VerdanStory.SourceTable",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.IdentityContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.NativeContract",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.RunReplacementIsolation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.SaveRoundTrip",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.actor_missing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.already_true",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.both",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.case_sensitive",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.flag_false",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.forgotten",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.fresh",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.knowledge_only",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.memory_only",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.removed",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.repeat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.restored",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.WorldSeed.Source.save_restore",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        }
+      ],
+      "warning_tests": [
+        {
+          "path": "Memoria.Antidote.AntidoteSignalReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.burn_song_elia_counter_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.burn_song_strike_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.burn_song_strike_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.read_rhythm_full_forest_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.NewGameHost.refuse_humming_burns_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Chapter1.AutosaveResume",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        }
+      ],
+      "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261005T105711445607\\Automation-20261005T105714243808\\index.json",
+      "report_sha256": "bb7c52ee740aa1f8f32ae6f97e5978315e5b03906b3de0d0320efef5484cbe3e",
+      "diagnostics": {
+        "startup_condition_lines": 15,
+        "condition_lines_before_first_test": true,
+        "layout_warning_count": 1,
+        "memory_budget_warning_count": 42
+      },
+      "key_traces": [
+        "[2026.10.05-11.07.32:760][734]LogAutomationController: KEYBOARD_TRACE before=X=137.250 Y=83.500 Z=0.000 after=X=270.583 Y=83.500 Z=0.000 pressed=1 ignored=0"
+      ]
+    },
+    "visual": {
+      "distinct_tests": 30,
+      "raw_summary": {
+        "succeeded": 28,
+        "succeededWithWarnings": 2,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0,
+        "totalDuration": 153.3968963623047
+      },
+      "tests": [
+        {
+          "path": "MemoriaVisual.Achievements",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "MemoriaVisual.ArtworkCoverage",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.BeltDressing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Journey",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Presentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "MemoriaVisual.Chapter3",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter3Travel",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter4",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter5",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ChapterContinue",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ChapterRevisit",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Codex",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.DialogueInteraction",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.DriftDressing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.EliaSkills",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldBurn",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldCharacters",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldCombat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldEncounters",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldFeel",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldFoes",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldItems",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldRewards",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FoeVariety",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.GameOver",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Journal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.PauseMenu",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.TitleScreen",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.TutorialHints",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.VerdanExploration",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        }
+      ],
+      "warning_tests": [
+        {
+          "path": "MemoriaVisual.Achievements",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Presentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        }
+      ],
+      "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261005T114201455122\\Automation-20261005T114204727793\\index.json",
+      "report_sha256": "26863ca6cc9bfb2397a419872632bc9d5243910de11ee7125f19d107059e0d61",
+      "diagnostics": {
+        "startup_condition_lines": 15,
+        "condition_lines_before_first_test": true,
+        "layout_warning_count": 1,
+        "memory_budget_warning_count": 30
+      },
+      "key_traces": [
+        "[2026.10.05-11.46.07:273][299]LogAutomationController: VERDAN_TOWNS_TRAVEL 435.8",
+        "[2026.10.05-11.46.07:273][299]LogAutomationController: VERDAN_TOWNS_CLEARANCE min_cm=185.81",
+        "[2026.10.05-11.46.07:273][299]LogAutomationController: VERDAN_CRATE grains=0 potions=1"
+      ]
+    }
+  },
+  "capture_count": 50,
+  "capture_size": [
+    1280,
+    720
+  ]
+}

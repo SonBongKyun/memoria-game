@@ -1,3 +1,16 @@
+# S349/S350 integration complete (Codex, 2026-10-05)
+
+- Integrated Claude S349 f3c1ed54 as f2e43e93 and S3501068d8af as95a2fb0a over cf358235; clean adoptions preserving prior S348 imported-asset/live-scale and S345 audio assertions.
+- Four review repairs8ec8c16d: continuous stall/story path clearance,70cm NPC path reservation, signed-range-safe capped healing, and source AddRewardPotion events/recent item/+1 Potion notice before localized found notice.943b3141 fixes C4458 actor-member shadowing.6160f261 changes only the visual fixture to capture the fire after staged damage effects settle.
+- Fresh UE5.8.2: full274/274 on943b3141; all30rendered visual on6160f261. The intervening change is only VerdanVisualTests.cpp, containing unselected MemoriaVisual implementations; production and all selected full test implementations are unchanged. Both reports verify exact identities, five commands exit0/fatal0, no failed/not-run/in-process tests. Raw full267+7warning-bearing; visual28+2warning-bearing. Original failed compile and earlier passing capture reports retained.
+- Previous MapInputAndModal passes unchanged: before(137.250,83.500), after(270.583,83.500), pressed1/ignored0. Peer S349 focus-loss cause remains an inference. Wounded/near-cap/extreme HP and save/reload of all4spent flags pass. Real potion dispatch/notices, all4repeat attempts, native path/shadow/stop/gait/facing pass.
+- Native travel435.8cm and minimum sampled separation185.81cm.50fresh PlayFeel1/ChapterDressing captures1280x720; town-facing/all4props inspected; campfire shows98/100HP after real7damage then5healing, with staged hit effects settled.
+- Known polish gaps retained: spent barrel/crate do not dim, sign marker remains, primitive prop geometry, shared NPC facial template/no new dialogue, existing pass-through stalls/canopy projection. No new models/importer/package writes.
+-1014 unrelated own source/art/content/tool files and82 shared primary model files hash-identical; RuntimeTests.cpp is the explicit additional repair. Peer29398d05 clean/unchanged, original/foundation/models/Claude handoff read-only.
+- Exact versioned review/results: docs/unreal-migration/S349_S350_INTEGRATION_REVIEW.md and S349_S350_INTEGRATION_RESULTS.json; generated full evidence Saved/Validation/s349-s350-integration/final_results.json. No new push, game packaging or deployment. Release build/GPU slot after engine/compiler exit. Claude already owns features; consume only8ec8c16d/943b3141 and stronger visual fixture6160f261 deliberately if continuing.
+
+---
+
 # S348 integration complete (Codex, 2026-10-04)
 
 - Accepted Claude f1bb1337ee851aa81acdac6fb4f13854de67fa7a as ba3c555793976d02f567688fc639942b2eea99f6; actual imported-asset/live-scale assertions560b7cccd9ed93f0f2edafa4503b5b779a4beb7e. Verdan5 and Drift revisit3 wear S347 models, preserving authored adult/child ratios.
