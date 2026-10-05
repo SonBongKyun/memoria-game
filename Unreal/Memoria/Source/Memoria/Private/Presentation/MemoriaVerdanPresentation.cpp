@@ -293,11 +293,11 @@ void AMemoriaVerdanPresentation::TickInteractives()
             if (Roll < 40)
             {
                 // The source add_item emits its inventory/recent-item events and +1 Potion notice first.
-                const FGuid Owner = Snapshot.RunId;
+                const FGuid RewardRunId = Snapshot.RunId;
                 const auto Toast = Run->OnItemToastRequested.AddLambda([Narrative](const FString& Message, int32) { Narrative->ShowNotice(Message); });
                 const bool bGranted = Run->AddRewardPotion(TEXT("potion"), 1);
                 Run->OnItemToastRequested.Remove(Toast);
-                if (!bGranted || Run->GetRunSnapshot().RunId != Owner) return;
+                if (!bGranted || Run->GetRunSnapshot().RunId != RewardRunId) return;
                 Text = bKo ? TEXT("포션을 발견했다!") : TEXT("Found a Potion!");
             }
             else if (Roll < 70)
