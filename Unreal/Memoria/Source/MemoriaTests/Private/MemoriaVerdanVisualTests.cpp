@@ -548,7 +548,7 @@ public:
             auto* Combat = World->GetSubsystem<UMemoriaFieldCombatSubsystem>();
             auto* Foe = World->SpawnActorDeferred<AMemoriaFieldMonster>(AMemoriaFieldMonster::StaticClass(), FTransform(Pawn->GetActorLocation() + FVector(0,-90,0)));
             if (!Test->TestNotNull(TEXT("Temporary foe for a real wound"), Foe)) return true;
-            Foe->SetKind(EMemoriaFoeKind::MarketThief); Foe->FinishSpawning(Foe->GetActorTransform()); Foe->Stun(100);
+            Foe->SetKind(EMemoriaFoeKind::MemoryLeech); Foe->FinishSpawning(Foe->GetActorTransform()); Foe->Stun(100);
             Test->TestTrue(TEXT("A real strike wounds Arrel before campfire use"), Combat && Combat->StrikePlayer(Foe, 7.f, true));
             Foe->Destroy();
             HpBefore = Run->GetRunSnapshot().Player.Hp;
@@ -561,18 +561,18 @@ public:
             Test->TestTrue(TEXT("Resting by the campfire"), Used(3) && After.Player.Hp == FMath::Min(After.Player.MaxHp, HpBefore + 5));
             Test->TestTrue(TEXT("Campfire notice uses English"), Host->GetExplorationNotice().Contains(TEXT("Rested by the fire. +5 HP")));
             GrainsBefore = Grains(); PotionsBefore = Run->GetItemCount(TEXT("potion")); HpBefore = After.Player.Hp;
-            Pawn->SetActorLocation(FVector::ZeroVector);
+            // Remain beside the fire until the staged hit pose and hurt tint have settled.
         }
         // Each capture a little before Arrel moves on, so it shows him at the prop.
         if (Frame == 698) Capture(TEXT("PropBarrel"));
         if (Frame == 708) Capture(TEXT("PropCrate"));
         if (Frame == 718) Capture(TEXT("PropSign"));
-        if (Frame == 728) Capture(TEXT("PropCampfire"));
-        if (Frame == 740) Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
-        if (Frame == 750) Pawn->SetActorLocation(Props[1].At + FVector(0,-20,0));
-        if (Frame == 760) Pawn->SetActorLocation(Props[2].At + FVector(0,-20,0));
-        if (Frame == 770) Pawn->SetActorLocation(Props[3].At + FVector(-55,-15,0));
-        if (Frame == 780)
+        if (Frame == 808) Capture(TEXT("PropCampfire"));
+        if (Frame == 820) Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
+        if (Frame == 830) Pawn->SetActorLocation(Props[1].At + FVector(0,-20,0));
+        if (Frame == 840) Pawn->SetActorLocation(Props[2].At + FVector(0,-20,0));
+        if (Frame == 850) Pawn->SetActorLocation(Props[3].At + FVector(-55,-15,0));
+        if (Frame == 860)
         {
             Test->TestEqual(TEXT("All four props act only once"), Presentation->GetInteractiveUses(), 4);
             Test->TestEqual(TEXT("Repeated props give no grains"), Grains(), GrainsBefore);
