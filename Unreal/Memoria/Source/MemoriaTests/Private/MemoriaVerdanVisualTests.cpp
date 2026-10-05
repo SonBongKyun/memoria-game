@@ -508,6 +508,11 @@ public:
         {
             Test->TestEqual(TEXT("Four interactive props"), Props.Num(), 4);
             Test->TestEqual(TEXT("None was touched by the walks above"), Presentation->GetInteractiveUses(), 0);
+            // S351: unused they show whole, the sign with its "!"; the alleys smoke.
+            for (int32 I = 0; I < Props.Num(); ++I) Test->TestFalse(TEXT("An unused prop is not spent"), Presentation->IsInteractiveSpent(I));
+            Test->TestTrue(TEXT("The unread sign shows its marker"), Presentation->IsSignMarkerShown());
+            Test->TestEqual(TEXT("Three alleys of five smoke puffs"), Presentation->GetSmokePuffCount(), 15);
+            SmokeBefore = Presentation->GetSmokePuff(0);
             Run->SetLocale(TEXT("ko"));
             GrainsBefore = Grains(); PotionsBefore = Run->GetItemCount(TEXT("potion"));
             Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
@@ -581,14 +586,24 @@ public:
             auto* Save = Run->CaptureSave();
             if (Test->TestNotNull(TEXT("Used props are captured in a save"), Save))
                 for (const auto& Prop : Props) Test->TestTrue(TEXT("Save contains each spent prop flag"), Save->Run.GetFlag(Prop.Flag));
-            return true;
+            // S351: once used, the barrel and crate darken and the sign drops its "!"; the smoke keeps rising over its alleys.
+            for (int32 I = 0; I < Props.Num(); ++I) Test->TestTrue(TEXT("A used prop is spent"), Presentation->IsInteractiveSpent(I));
+            Test->TestFalse(TEXT("The read sign drops its marker"), Presentation->IsSignMarkerShown());
+            Test->TestFalse(TEXT("The smoke rises and drifts"), Presentation->GetSmokePuff(0).Equals(SmokeBefore, 1.));
+            for (int32 I = 0; I < Presentation->GetSmokePuffCount(); ++I)
+                Test->TestTrue(TEXT("Smoke stays over its alley"), Presentation->GetSmokePuff(I).Z > 20 && Presentation->GetSmokePuff(I).Z < 220 && Presentation->GetSmokePuff(I).Y > 580);
+            // Arrel by the north stalls: the spent barrel, the read sign and the alley smoke in view.
+            Pawn->SetActorLocation(FVector(-330, 330, 0));
         }
+        if (Frame == 880) Capture(TEXT("SpentAndSmoke"));
+        if (Frame == 886) return true;
         ++Frame; return false;
     }
 private:
     FAutomationTestBase* Test;
     double Started, OldDelta = 0, WallX = 0, LastWorldTime = -1;
     int64 GrainsBefore = 0, PotionsBefore = 0, HpBefore = 0;
+    FVector SmokeBefore = FVector::ZeroVector;
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;

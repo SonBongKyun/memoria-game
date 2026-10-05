@@ -62,6 +62,13 @@ public:
     static const TArray<FInteractive>& Interactives();
     static constexpr float InteractiveReach = 60.f;
     int32 GetInteractiveUses() const { return InteractiveUses; }
+    // S351: a used barrel or crate darkens and the read sign drops its "!" (the source dims their ColorRects),
+    // also when Verdan is entered with their flags already set.
+    bool IsInteractiveSpent(int32 Index) const { return Spent.IsValidIndex(Index) && Spent[Index]; }
+    bool IsSignMarkerShown() const;
+    // S351: verdan_market.gd's smoke wisps rising from the alleys, here between the north buildings.
+    int32 GetSmokePuffCount() const { return SmokePuffs.Num(); }
+    FVector GetSmokePuff(int32 Index) const;
 protected:
     virtual void BeginPlay() override;
 private:
@@ -80,6 +87,16 @@ private:
     void BuildInteractives(UMaterialInterface* Timber, UMaterialInterface* Iron, UMaterialInterface* Stone, UMaterialInterface* Glow);
     void TickInteractives();
     UPROPERTY(Transient) TObjectPtr<UPointLightComponent> CampfireLight;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> SpentWood;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> SpentIron;
+    TArray<FLinearColor> SpentWoodTint, SpentIronTint;
+    TArray<bool> Spent;
+    bool bSpentRead = false;
+    void MarkSpent(int32 Index);
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> SmokePuffs;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> SmokeMaterials;
+    void BuildSmoke();
+    void TickSmoke();
     int32 InteractiveUses = 0;
     UPROPERTY(Transient) TObjectPtr<UMemoriaCombatHudWidget> CombatHud;
     UPROPERTY(Transient) TObjectPtr<UMemoriaExplorationHudWidget> ExplorationHud;

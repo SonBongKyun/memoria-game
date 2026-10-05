@@ -217,22 +217,35 @@ const TArray<AMemoriaVerdanPresentation::FInteractive>& AMemoriaVerdanPresentati
 }
 void AMemoriaVerdanPresentation::BuildInteractives(UMaterialInterface* Timber, UMaterialInterface* Iron, UMaterialInterface* Stone, UMaterialInterface* Glow)
 {
-    // Built of the square's own timber, iron and stone. No collision, as with every prop here.
-    for (const auto& Prop : Interactives())
+    // Built of the square's own timber, iron and stone. No collision, as with every prop here. The barrel and the
+    // crate take materials of their own (S351), so one can darken once used; the sign's marker its own batch.
+    const FLinearColor WoodTint(.115f, .067f, .037f), IronTint(.075f, .085f, .10f);
+    Spent.Init(false, Interactives().Num());
+    SpentWood.Init(nullptr, Interactives().Num()); SpentIron.Init(nullptr, Interactives().Num());
+    SpentWoodTint.Init(WoodTint, Interactives().Num()); SpentIronTint.Init(IronTint, Interactives().Num());
+    for (int32 I = 0; I < Interactives().Num(); ++I)
     {
+        const auto& Prop = Interactives()[I];
         const FVector P(Prop.At.X, Prop.At.Y, -8);
         const FString Kind = Prop.Kind;
-        if (Kind == TEXT("barrel"))
+        if (Kind == TEXT("barrel") || Kind == TEXT("crate"))
         {
-            Solid(TEXT("Cylinder"), Timber, P + FVector(0, 0, 36), FVector(.44, .44, .72));
-            for (const double Z : {14.0, 58.0}) Solid(TEXT("Cylinder"), Iron, P + FVector(0, 0, Z), FVector(.46, .46, .04));
-            Solid(TEXT("Cylinder"), Iron, P + FVector(0, 0, 72.5), FVector(.38, .38, .01));
-        }
-        else if (Kind == TEXT("crate"))
-        {
-            Box(Timber, P + FVector(0, 0, 23), FVector(46, 46, 46));
-            Box(Iron, P + FVector(0, -23.5, 23), FVector(48, 1.5, 5)); Box(Iron, P + FVector(0, -23.5, 23), FVector(5, 1.5, 48));
-            Box(Iron, P + FVector(0, 0, 46.5), FVector(48, 5, 1.5)); Box(Iron, P + FVector(0, 0, 46.5), FVector(5, 48, 1.5));
+            const bool bBarrel = Kind == TEXT("barrel");
+            auto* Wood = Surface(bBarrel ? TEXT("BarrelWood") : TEXT("CrateWood"), WoodTint, 1);
+            auto* Hoops = Surface(bBarrel ? TEXT("BarrelIron") : TEXT("CrateIron"), IronTint, 3, .5f, .65f);
+            SpentWood[I] = Wood; SpentIron[I] = Hoops;
+            if (bBarrel)
+            {
+                Solid(TEXT("Cylinder"), Wood, P + FVector(0, 0, 36), FVector(.44, .44, .72));
+                for (const double Z : {14.0, 58.0}) Solid(TEXT("Cylinder"), Hoops, P + FVector(0, 0, Z), FVector(.46, .46, .04));
+                Solid(TEXT("Cylinder"), Hoops, P + FVector(0, 0, 72.5), FVector(.38, .38, .01));
+            }
+            else
+            {
+                Box(Wood, P + FVector(0, 0, 23), FVector(46, 46, 46));
+                Box(Hoops, P + FVector(0, -23.5, 23), FVector(48, 1.5, 5)); Box(Hoops, P + FVector(0, -23.5, 23), FVector(5, 1.5, 48));
+                Box(Hoops, P + FVector(0, 0, 46.5), FVector(48, 5, 1.5)); Box(Hoops, P + FVector(0, 0, 46.5), FVector(5, 48, 1.5));
+            }
         }
         else if (Kind == TEXT("sign"))
         {
@@ -240,14 +253,16 @@ void AMemoriaVerdanPresentation::BuildInteractives(UMaterialInterface* Timber, U
             Box(Timber, P + FVector(0, 0, 70), FVector(9, 9, 156));
             Box(Timber, P + FVector(0, -8, 118), FVector(86, 5, 42));
             for (const double Z : {97.0, 139.0}) Box(Iron, P + FVector(0, -11, Z), FVector(88, 2, 3));
-            Box(Glow, P + FVector(0, -10, 175), FVector(5, 4, 18)); Box(Glow, P + FVector(0, -10, 160), FVector(5, 4, 5));
+            auto* Marker = UMaterialInstanceDynamic::Create(Glow, this, TEXT("SignMarker"));
+            Box(Marker, P + FVector(0, -10, 175), FVector(5, 4, 18)); Box(Marker, P + FVector(0, -10, 160), FVector(5, 4, 5));
+            if (UInstancedStaticMeshComponent* Batch = MeshBatches.FindRef(TEXT("Cube|SignMarker"))) Batch->SetCastShadow(false);
         }
         else if (Kind == TEXT("campfire"))
         {
             // A ring of stones, two crossed logs, the embers and a small flame, its warm light and glow on the paving.
-            for (int32 I = 0; I < 9; ++I)
+            for (int32 StoneIndex = 0; StoneIndex < 9; ++StoneIndex)
             {
-                const double A = I * 2 * PI / 9;
+                const double A = StoneIndex * 2 * PI / 9;
                 Box(Stone, P + FVector(FMath::Cos(A) * 42, FMath::Sin(A) * 42, 7), FVector(21, 17, 14), FRotator(0, FMath::RadiansToDegrees(A), 0));
             }
             Box(Timber, P + FVector(0, 0, 10), FVector(74, 12, 11), FRotator(0, 30, 0));
@@ -272,13 +287,22 @@ void AMemoriaVerdanPresentation::TickInteractives()
     auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
     auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
     if (!Narrative || !Run || !Run->HasActiveRun() || Narrative->GetState() != EMemoriaSliceState::Exploration || (Combat && Combat->IsDefeated())) return;
-    const FVector Arrel = Player->GetActorLocation();
-    for (const auto& Prop : Interactives())
+    if (!bSpentRead)
     {
+        // Entering Verdan with a prop already used: it shows so from the start, as the source's _ready colours.
+        bSpentRead = true;
+        const FMemoriaRunSnapshot Snapshot = Run->GetRunSnapshot();
+        for (int32 I = 0; I < Interactives().Num(); ++I) if (Snapshot.GetFlag(Interactives()[I].Flag)) MarkSpent(I);
+    }
+    const FVector Arrel = Player->GetActorLocation();
+    for (int32 PropIndex = 0; PropIndex < Interactives().Num(); ++PropIndex)
+    {
+        const auto& Prop = Interactives()[PropIndex];
         if (FVector::Dist2D(Arrel, Prop.At) > InteractiveReach) continue;
         const FMemoriaRunSnapshot Snapshot = Run->GetRunSnapshot();
         if (Snapshot.GetFlag(Prop.Flag)) continue;
         Run->SetStoryFlag(Prop.Flag, true); Narrative->Record(FString(TEXT("flag:")) + Prop.Flag);
+        MarkSpent(PropIndex);
         const bool bKo = Snapshot.CurrentLocale == TEXT("ko");
         const FString Kind = Prop.Kind;
         FString Text; bool bChime = true;
@@ -320,6 +344,55 @@ void AMemoriaVerdanPresentation::TickInteractives()
         if (bChime) if (auto* Audio = GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>()) Audio->PlaySfx(TEXT("ui_select"));
         ++InteractiveUses;
     }
+}
+void AMemoriaVerdanPresentation::MarkSpent(int32 Index)
+{
+    if (!Spent.IsValidIndex(Index) || Spent[Index]) return;
+    Spent[Index] = true;
+    // The source fades a used barrel or crate to a third of its colour; the sign's "!" goes once it is read.
+    if (SpentWood[Index]) SpentWood[Index]->SetVectorParameterValue(TEXT("Tint"), SpentWoodTint[Index] * .38f);
+    if (SpentIron[Index]) SpentIron[Index]->SetVectorParameterValue(TEXT("Tint"), SpentIronTint[Index] * .5f);
+    if (FString(Interactives()[Index].Kind) == TEXT("sign"))
+        if (UInstancedStaticMeshComponent* Batch = MeshBatches.FindRef(TEXT("Cube|SignMarker"))) Batch->SetVisibility(false);
+}
+bool AMemoriaVerdanPresentation::IsSignMarkerShown() const
+{
+    const UInstancedStaticMeshComponent* Batch = MeshBatches.FindRef(TEXT("Cube|SignMarker"));
+    return Batch && Batch->IsVisible();
+}
+void AMemoriaVerdanPresentation::BuildSmoke()
+{
+    // verdan_market.gd's three smoke wisps (tiles (3,14), (15,11), (9,16)) rise 60 px at 8 px/s and fade from
+    // alpha .08 before starting again. The port's square has no south alleys (that side faces the camera); its
+    // alleys are the gaps between the north buildings, so the smoke rises low from their mouths, as the source's two tiles.
+    const FVector Alleys[] = {FVector(-392, 600, 0), FVector(54, 600, 0), FVector(474, 590, 0)};
+    for (int32 W = 0; W < UE_ARRAY_COUNT(Alleys); ++W)
+        for (int32 I = 0; I < 5; ++I)
+        {
+            auto* Puff = SoftQuad(Alleys[W], FVector::OneVector, FLinearColor(.5f, .51f, .55f), 0.f);
+            Puff->SetMobility(EComponentMobility::Movable);
+            SmokePuffs.Add(Puff); SmokeMaterials.Add(Cast<UMaterialInstanceDynamic>(Puff->GetMaterial(0)));
+        }
+    TickSmoke();
+}
+void AMemoriaVerdanPresentation::TickSmoke()
+{
+    const double T = LightTime;
+    for (int32 I = 0; I < SmokePuffs.Num(); ++I)
+    {
+        const int32 Wisp = I / 5;
+        const FVector Base = Wisp == 0 ? FVector(-392, 600, 0) : Wisp == 1 ? FVector(54, 600, 0) : FVector(474, 590, 0);
+        // Each puff a fifth of the way behind the last; a slow rise that widens, drifts east and thins.
+        const double Life = FMath::Frac(T * .075 + (I % 5) * .2 + Wisp * .13);
+        const FVector P = Base + FVector(28 * Life + 10 * FMath::Sin(T * .6 + I), 0, 30 + 180 * Life);
+        SmokePuffs[I]->SetRelativeTransform(FTransform(FRotator(0, T * 6 + I * 41, 0), P, FVector(.7 + 1.6 * Life, .6 + 1.4 * Life, 1)));
+        if (SmokeMaterials.IsValidIndex(I) && SmokeMaterials[I])
+            SmokeMaterials[I]->SetScalarParameterValue(TEXT("Alpha"), .4f * FMath::Sin(PI * Life) * (1. - .4 * Life));
+    }
+}
+FVector AMemoriaVerdanPresentation::GetSmokePuff(int32 Index) const
+{
+    return SmokePuffs.IsValidIndex(Index) && SmokePuffs[Index] ? SmokePuffs[Index]->GetComponentLocation() : FVector::ZeroVector;
 }
 bool AMemoriaVerdanPresentation::CanTownsfolkStand(const FVector& W) const
 {
@@ -658,6 +731,7 @@ void AMemoriaVerdanPresentation::BuildFieldLife()
     // Pale ash drifts through the whole courtyard; embers rise only from the two hanging lanterns.
     MoteGroup(AshMotes,AshCount,FLinearColor(.70f,.74f,.80f),.75f);
     MoteGroup(EmberMotes,EmberCount,FLinearColor(1.f,.52f,.20f),.95f);
+    BuildSmoke();
     for(int32 I=0;I<MistCount;++I)
     {
         auto* Patch=SoftQuad(FVector(-700+I*350,-380+Scatter(I,3)*700,-8.6),FVector(7.5,3.4,1),FLinearColor(.15f,.19f,.25f),.16f);
@@ -827,6 +901,7 @@ void AMemoriaVerdanPresentation::Tick(float DeltaSeconds)
     for (int32 I = 0; I < MarketLights.Num(); ++I)
         MarketLights[I]->SetIntensity(MarketBase[I] * (1.f + .05f * FMath::Sin(LightTime * 2.1f + I * 1.7f)));
     if (AshMotes.Num()==AshCount && EmberMotes.Num()==EmberCount) TickFieldLife();
+    TickSmoke();
     if (CampfireLight) CampfireLight->SetIntensity(9.f * (1.f + .12f * FMath::Sin(LightTime * 7.3f) + .06f * FMath::Sin(LightTime * 13.1f + 1.f)));
     if (!Player.IsValid()) return;
     TickTownsfolk(DeltaSeconds);
