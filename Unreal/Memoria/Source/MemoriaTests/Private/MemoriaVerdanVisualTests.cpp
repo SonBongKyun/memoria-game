@@ -22,6 +22,9 @@
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Save/MemoriaRunSaveGame.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Combat/MemoriaFieldMonster.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 #include "Engine/Texture2D.h"
@@ -133,8 +136,26 @@ public:
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
         { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/PlayFeel1")/(FString(Name)+TEXT(".png")), true, false); };
+        // Observe every native tick rather than only the final destination.
+        for (int32 I = 0; I < Presentation->GetTownsfolkCount(); ++I)
+        {
+            const FVector At = Presentation->GetTownsfolk(I)->GetComponentLocation();
+            bTownGroundClear &= Presentation->CanTownsfolkStand(At);
+            if (const auto* Shadow = Presentation->GetTownsShadow(I))
+                bTownShadowsFollow &= FVector::Dist2D(At, Shadow->GetComponentLocation()) < .01;
+            else bTownShadowsFollow = false;
+            for (int32 J = I + 1; J < Presentation->GetTownsfolkCount(); ++J)
+                MinTownSeparation = FMath::Min(MinTownSeparation, FVector::Dist2D(At, Presentation->GetTownsfolk(J)->GetComponentLocation()));
+        }
         if (Frame == 0)
         {
+            const FVector CornerFrom(280,245,0), CornerTo(331,277,0);
+            Test->TestTrue(TEXT("Corner regression endpoints are allowed"), Presentation->CanTownsfolkStand(CornerFrom) && Presentation->CanTownsfolkStand(CornerTo));
+            Test->TestFalse(TEXT("A path through a stall corner is rejected"), Presentation->CanTownsfolkTravel(CornerFrom, CornerTo));
+            Test->TestTrue(TEXT("A clear courtyard path remains allowed"), Presentation->CanTownsfolkTravel(FVector(100,100,0), FVector(130,100,0)));
+            Test->TestFalse(TEXT("A path past a waiting elder keeps 70 cm clearance"), AMemoriaVerdanPresentation::TownPathsStayApart(FVector(-511,205,0), FVector(-509,15,0), FVector(-549,92,0), FVector(-549,92,0)));
+            Test->TestFalse(TEXT("Crossing reserved paths are rejected"), AMemoriaVerdanPresentation::TownPathsStayApart(FVector(0,0,0), FVector(100,0,0), FVector(50,-100,0), FVector(50,100,0)));
+            Test->TestTrue(TEXT("Separate parallel paths remain allowed"), AMemoriaVerdanPresentation::TownPathsStayApart(FVector(0,0,0), FVector(100,0,0), FVector(0,80,0), FVector(100,80,0)));
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetRunSnapshot(), RunBefore);
             FJsonObjectConverter::UStructToJsonObjectString(Run->GetPlayerMemory()->GetSnapshot(), MemoryBefore);
             TraceBefore = Host->GetTrace();
@@ -448,8 +469,15 @@ public:
             // Arrel comes up beside the man in the square, to his south-west: he stops and turns to face him.
             if (auto* Man = Presentation->GetTownsfolk(2)) Pawn->SetActorLocation(FVector(Man->GetComponentLocation().X - 70, Man->GetComponentLocation().Y - 60, 0));
         }
+        if (Frame == 600) TownStop = Presentation->GetTownsfolk(2)->GetComponentLocation();
         if (Frame == 674)
         {
+            Test->TestTrue(TEXT("Townsfolk remain on clear ground throughout native movement"), bTownGroundClear);
+            Test->TestTrue(TEXT("Native movement keeps townsfolk separated"), MinTownSeparation >= 69.99);
+            Test->TestTrue(TEXT("Every townsfolk shadow follows its figure"), bTownShadowsFollow);
+            Test->TestTrue(TEXT("Nearby man stays stopped"), Presentation->GetTownsfolk(2)->GetComponentLocation().Equals(TownStop, .01));
+            Test->TestTrue(TEXT("Nearby man's gait settles"), Presentation->GetTownsfolk(2)->LocomotionWeight() < .001);
+            Test->AddInfo(FString::Printf(TEXT("VERDAN_TOWNS_CLEARANCE min_cm=%.2f"), MinTownSeparation));
             if (auto* Man = Presentation->GetTownsfolk(2))
             {
                 const float Want = ((Pawn->GetActorLocation() - Man->GetComponentLocation()) * FVector(1, 1, 0)).Rotation().Yaw;
@@ -480,6 +508,7 @@ public:
         {
             Test->TestEqual(TEXT("Four interactive props"), Props.Num(), 4);
             Test->TestEqual(TEXT("None was touched by the walks above"), Presentation->GetInteractiveUses(), 0);
+            Run->SetLocale(TEXT("ko"));
             GrainsBefore = Grains(); PotionsBefore = Run->GetItemCount(TEXT("potion"));
             Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
         }
@@ -487,25 +516,52 @@ public:
         {
             const int64 Got = Grains() - GrainsBefore;
             Test->TestTrue(TEXT("The barrel gives 1 to 3 grains"), Used(0) && Got >= 1 && Got <= 3);
+            Test->TestTrue(TEXT("Barrel notice uses Korean"), Host->GetExplorationNotice().Contains(TEXT("그레인")));
             GrainsBefore = Grains(); Pawn->SetActorLocation(Props[1].At + FVector(0, -20, 0));
+            // Make the real potion branch deterministic, before another world tick can consume random draws.
+            int32 Seed = 0;
+            for (; Seed < 1000; ++Seed) { FMath::RandInit(Seed); if (FMath::RandRange(0,99) < 40) break; }
+            Test->TestTrue(TEXT("Potion reward seed found"), Seed < 1000);
+            TArray<FString> Events;
+            const auto Changed = Run->OnInventoryChanged.AddLambda([&](const FString& Id) { Events.Add(TEXT("inventory:") + Id); });
+            const auto Toast = Run->OnItemToastRequested.AddLambda([&](const FString& Text, int32 Type) { Events.Add(Text + FString::Printf(TEXT(":%d"), Type)); });
+            FMath::RandInit(Seed); Presentation->Tick(0);
+            Run->OnInventoryChanged.Remove(Changed); Run->OnItemToastRequested.Remove(Toast);
+            Test->TestTrue(TEXT("Crate emits inventory then potion toast"), Events == TArray<FString>{TEXT("inventory:potion"), TEXT("+1 Potion:1")});
+            Test->TestTrue(TEXT("Crate records the potion as a recent item"), Run->GetRecentItems().Contains(TEXT("potion")));
+            const FString Notice = Host->GetExplorationNotice();
+            Test->TestTrue(TEXT("Potion grant notice precedes localized found notice"), Notice.Contains(TEXT("+1 Potion\n포션을 발견했다!")));
         }
         if (Frame == 710)
         {
             const int64 Got = Grains() - GrainsBefore, Potions = Run->GetItemCount(TEXT("potion")) - PotionsBefore;
             Test->AddInfo(FString::Printf(TEXT("VERDAN_CRATE grains=%lld potions=%lld"), Got, Potions));
             Test->TestTrue(TEXT("The crate gives a potion, 2 to 5 grains, or nothing"), Used(1) && ((Potions == 1 && Got == 0) || (Potions == 0 && Got >= 2 && Got <= 5) || (Potions == 0 && Got == 0)));
+            Test->TestEqual(TEXT("The deterministic crate actually gives one potion"), Potions, int64(1));
+            Run->SetLocale(TEXT("en"));
             Pawn->SetActorLocation(Props[2].At + FVector(0, -20, 0));
         }
         if (Frame == 720)
         {
             Test->TestTrue(TEXT("The sign is read"), Used(2));
-            HpBefore = Run->GetRunSnapshot().Player.Hp; Pawn->SetActorLocation(Props[3].At + FVector(-55, -15, 0));
+            Test->TestTrue(TEXT("Sign notice uses English"), Host->GetExplorationNotice().Contains(TEXT("Verdan Market — Trade at your own risk.")));
+            auto* Combat = World->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+            auto* Foe = World->SpawnActorDeferred<AMemoriaFieldMonster>(AMemoriaFieldMonster::StaticClass(), FTransform(Pawn->GetActorLocation() + FVector(0,-90,0)));
+            if (!Test->TestNotNull(TEXT("Temporary foe for a real wound"), Foe)) return true;
+            Foe->SetKind(EMemoriaFoeKind::MarketThief); Foe->FinishSpawning(Foe->GetActorTransform()); Foe->Stun(100);
+            Test->TestTrue(TEXT("A real strike wounds Arrel before campfire use"), Combat && Combat->StrikePlayer(Foe, 7.f, true));
+            Foe->Destroy();
+            HpBefore = Run->GetRunSnapshot().Player.Hp;
+            Test->TestTrue(TEXT("Campfire starts with missing HP"), HpBefore < Run->GetRunSnapshot().Player.MaxHp);
+            Pawn->SetActorLocation(Props[3].At + FVector(-55, -15, 0));
         }
         if (Frame == 730)
         {
             const FMemoriaRunSnapshot After = Run->GetRunSnapshot();
             Test->TestTrue(TEXT("Resting by the campfire"), Used(3) && After.Player.Hp == FMath::Min(After.Player.MaxHp, HpBefore + 5));
-            GrainsBefore = Grains(); Pawn->SetActorLocation(FVector::ZeroVector);
+            Test->TestTrue(TEXT("Campfire notice uses English"), Host->GetExplorationNotice().Contains(TEXT("Rested by the fire. +5 HP")));
+            GrainsBefore = Grains(); PotionsBefore = Run->GetItemCount(TEXT("potion")); HpBefore = After.Player.Hp;
+            Pawn->SetActorLocation(FVector::ZeroVector);
         }
         // Each capture a little before Arrel moves on, so it shows him at the prop.
         if (Frame == 698) Capture(TEXT("PropBarrel"));
@@ -513,10 +569,18 @@ public:
         if (Frame == 718) Capture(TEXT("PropSign"));
         if (Frame == 728) Capture(TEXT("PropCampfire"));
         if (Frame == 740) Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
-        if (Frame == 750)
+        if (Frame == 750) Pawn->SetActorLocation(Props[1].At + FVector(0,-20,0));
+        if (Frame == 760) Pawn->SetActorLocation(Props[2].At + FVector(0,-20,0));
+        if (Frame == 770) Pawn->SetActorLocation(Props[3].At + FVector(-55,-15,0));
+        if (Frame == 780)
         {
-            Test->TestEqual(TEXT("Each acts once"), Presentation->GetInteractiveUses(), 4);
-            Test->TestEqual(TEXT("The barrel is empty the second time"), Grains(), GrainsBefore);
+            Test->TestEqual(TEXT("All four props act only once"), Presentation->GetInteractiveUses(), 4);
+            Test->TestEqual(TEXT("Repeated props give no grains"), Grains(), GrainsBefore);
+            Test->TestEqual(TEXT("Repeated crate gives no potion"), Run->GetItemCount(TEXT("potion")), PotionsBefore);
+            Test->TestEqual(TEXT("Repeated fire gives no healing"), Run->GetRunSnapshot().Player.Hp, HpBefore);
+            auto* Save = Run->CaptureSave();
+            if (Test->TestNotNull(TEXT("Used props are captured in a save"), Save))
+                for (const auto& Prop : Props) Test->TestTrue(TEXT("Save contains each spent prop flag"), Save->Run.GetFlag(Prop.Flag));
             return true;
         }
         ++Frame; return false;
@@ -532,6 +596,9 @@ private:
     TArray<FString> TraceBefore;
     TSet<FString> SeenGaitPoses;
     float MaxBounce = 0.f;
+    double MinTownSeparation = 1e9;
+    bool bTownGroundClear = true, bTownShadowsFollow = true;
+    FVector TownStop = FVector::ZeroVector;
     double MinFootX = 1e9, MaxFootX = -1e9;
     TWeakObjectPtr<ACameraActor> PreviewCamera;
 };

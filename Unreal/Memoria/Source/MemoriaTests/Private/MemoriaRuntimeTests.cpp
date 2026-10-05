@@ -68,6 +68,61 @@ bool FMemoriaRuntimeLifetimeTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Ordered connected burn without Elia (Godot burn_memory -> chain -> burned -> carry)"), Events == TArray<EMemoriaMemoryEventKind>{EMemoriaMemoryEventKind::Cascaded, EMemoriaMemoryEventKind::Burned, EMemoriaMemoryEventKind::CarryChanged});
     TestEqual(TEXT("Restore emits run replacement only"), Replacements, 2);
     WeakDomain->OnObserved.Clear();
+    const int32 ReplacementsBeforeHealing = Replacements;
+    Run->RestoreHp(25);
+    TestEqual(TEXT("Rest heals a wounded active run by the requested amount"), Run->GetRunSnapshot().Player.Hp, int64(62));
+    Run->RestoreHp(0);
+    TestEqual(TEXT("Zero rest amount keeps wounded HP"), Run->GetRunSnapshot().Player.Hp, int64(62));
+    Run->RestoreHp(-25);
+    TestEqual(TEXT("Negative rest amount does not damage wounded HP"), Run->GetRunSnapshot().Player.Hp, int64(62));
+    Run->RestoreHp(MIN_int64);
+    TestEqual(TEXT("Minimum signed rest amount does not damage wounded HP"), Run->GetRunSnapshot().Player.Hp, int64(62));
+    TestEqual(TEXT("Healing does not replace the run"), Replacements, ReplacementsBeforeHealing);
+    const TCHAR* RestPropFlags[] = {TEXT("prop_barrel_160_128"), TEXT("prop_crate_352_288"), TEXT("prop_sign_256_64"), TEXT("prop_campfire_416_352")};
+    for (const TCHAR* Flag : RestPropFlags) Run->SetStoryFlag(Flag, true);
+    TStrongObjectPtr<UMemoriaRunSaveGame> HealedSave(Run->CaptureSave());
+    if (TestNotNull(TEXT("Capture healed run"), HealedSave.Get()))
+    {
+        TestEqual(TEXT("Capture preserves healed HP"), HealedSave->Run.Player.Hp, int64(62));
+        TestEqual(TEXT("Capture preserves the HP cap"), HealedSave->Run.Player.MaxHp, int64(100));
+        Run->RestoreHp(35);
+        TestEqual(TEXT("Rest can leave HP just below its cap"), Run->GetRunSnapshot().Player.Hp, int64(97));
+        Run->RestoreHp(25);
+        TestEqual(TEXT("Near-cap rest heals only to maximum HP"), Run->GetRunSnapshot().Player.Hp, int64(100));
+        for (const TCHAR* Flag : RestPropFlags)
+        {
+            TestTrue(*FString::Printf(TEXT("Capture preserves spent prop flag: %s"), Flag), HealedSave->Run.GetFlag(Flag));
+            Run->RemoveStoryFlag(Flag);
+            TestFalse(*FString::Printf(TEXT("Live run spent prop flag cleared before restore: %s"), Flag), Run->GetRunSnapshot().HasFlag(Flag));
+        }
+        TestTrue(TEXT("Restore the captured healed run"), Run->RestoreSave(*HealedSave));
+        for (const TCHAR* Flag : RestPropFlags)
+            TestTrue(*FString::Printf(TEXT("Restored save retains spent prop flag: %s"), Flag), Run->GetRunSnapshot().GetFlag(Flag));
+        TestEqual(TEXT("Restored save retains healed HP"), Run->GetRunSnapshot().Player.Hp, int64(62));
+        TestEqual(TEXT("Restored save retains the HP cap"), Run->GetRunSnapshot().Player.MaxHp, int64(100));
+    }
+    // RestoreRun accepts signed HP/max HP; healing must retain the same mathematical cap.
+    const struct { const TCHAR* Label; int64 Hp; int64 MaxHp; int64 Amount; int64 Expected; } HealingCases[] =
+    {
+        {TEXT("Maximum restored HP heals without overflow"), MAX_int64, MAX_int64, 25, MAX_int64},
+        {TEXT("Near-maximum restored HP saturates at its cap"), MAX_int64 - 2, MAX_int64, 25, MAX_int64},
+        {TEXT("Maximum heal amount is capped without overflow"), 37, 100, MAX_int64, 100},
+        {TEXT("Minimum restored HP plus maximum heal remains negative"), MIN_int64, MAX_int64, MAX_int64, -1},
+        {TEXT("Minimum restored cap is preserved"), MIN_int64, MIN_int64, MAX_int64, MIN_int64},
+        {TEXT("Negative restored cap bounds a positive heal"), -25, -10, 25, -10},
+        {TEXT("Zero amount still applies the existing maximum HP cap"), MAX_int64, 100, 0, 100},
+    };
+    for (const auto& Case : HealingCases)
+    {
+        auto HealingSnapshot = Run->GetRunSnapshot();
+        HealingSnapshot.Player.Hp = Case.Hp; HealingSnapshot.Player.MaxHp = Case.MaxHp;
+        if (TestTrue(*FString::Printf(TEXT("Restore signed HP fixture: %s"), Case.Label),
+            Run->RestoreRun(HealingSnapshot, WeakDomain->GetDefinitions(), WeakDomain->GetSnapshot()) == EMemoriaMemoryResult::Success))
+        {
+            Run->RestoreHp(Case.Amount);
+            TestEqual(Case.Label, Run->GetRunSnapshot().Player.Hp, Case.Expected);
+        }
+    }
     TestTrue(TEXT("Reset run explicitly"), Run->BeginRun(*Catalog, {}) == EMemoriaMemoryResult::Success);
     TestTrue(TEXT("New run ID"), FirstId != Run->GetRunSnapshot().RunId);
     TestFalse(TEXT("Old flags cleared"), Run->GetRunSnapshot().HasFlag(TEXT("CaseFlag")));
