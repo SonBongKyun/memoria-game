@@ -290,7 +290,16 @@ void AMemoriaVerdanPresentation::TickInteractives()
         else if (Kind == TEXT("crate"))
         {
             const int32 Roll = FMath::RandRange(0, 99);
-            if (Roll < 40) { Run->GrantFieldItem(TEXT("potion"), 1); Text = bKo ? TEXT("포션을 발견했다!") : TEXT("Found a Potion!"); }
+            if (Roll < 40)
+            {
+                // The source add_item emits its inventory/recent-item events and +1 Potion notice first.
+                const FGuid Owner = Snapshot.RunId;
+                const auto Toast = Run->OnItemToastRequested.AddLambda([Narrative](const FString& Message, int32) { Narrative->ShowNotice(Message); });
+                const bool bGranted = Run->AddRewardPotion(TEXT("potion"), 1);
+                Run->OnItemToastRequested.Remove(Toast);
+                if (!bGranted || Run->GetRunSnapshot().RunId != Owner) return;
+                Text = bKo ? TEXT("포션을 발견했다!") : TEXT("Found a Potion!");
+            }
             else if (Roll < 70)
             {
                 const int32 Grains = FMath::RandRange(2, 5); Run->AddGrains(Grains);
@@ -321,6 +330,37 @@ bool AMemoriaVerdanPresentation::CanTownsfolkStand(const FVector& W) const
         if (FMath::Abs(W.X - S.X) < 80 && W.Y - S.Y > -71 && W.Y - S.Y < 76) return false;
     for (const FVector& C : StoryClear) if (FVector::Dist2D(W, C) < 90) return false;
     return true;
+}
+bool AMemoriaVerdanPresentation::CanTownsfolkTravel(const FVector& From, const FVector& To) const
+{
+    if (!CanTownsfolkStand(From) || !CanTownsfolkStand(To)) return false;
+    // Test the whole segment; quarter samples can miss a short passage through a canopy corner.
+    for (const FVector& Stall : StallSpots)
+    {
+        double Enter = 0., Exit = 1.;
+        auto Slab = [&](double Start, double Delta, double Min, double Max)
+        {
+            if (FMath::Abs(Delta) < UE_DOUBLE_SMALL_NUMBER) return Start >= Min && Start <= Max;
+            const double A = (Min - Start) / Delta, B = (Max - Start) / Delta;
+            Enter = FMath::Max(Enter, FMath::Min(A, B));
+            Exit = FMath::Min(Exit, FMath::Max(A, B));
+            return Enter <= Exit;
+        };
+        if (Slab(From.X, To.X - From.X, Stall.X - 80., Stall.X + 80.) &&
+            Slab(From.Y, To.Y - From.Y, Stall.Y - 71., Stall.Y + 76.)) return false;
+    }
+    const FVector FlatFrom(From.X, From.Y, 0), FlatTo(To.X, To.Y, 0);
+    for (const FVector& Place : StoryClear)
+        if (FVector::Dist2D(FMath::ClosestPointOnSegment(FVector(Place.X, Place.Y, 0), FlatFrom, FlatTo), Place) < 90.) return false;
+    return true;
+}
+bool AMemoriaVerdanPresentation::TownPathsStayApart(const FVector& From, const FVector& To, const FVector& OtherFrom, const FVector& OtherTo)
+{
+    FVector Here, There;
+    // A waiting person's segment has zero length; the safe variant handles that too.
+    FMath::SegmentDistToSegmentSafe(FVector(From.X, From.Y, 0), FVector(To.X, To.Y, 0),
+        FVector(OtherFrom.X, OtherFrom.Y, 0), FVector(OtherTo.X, OtherTo.Y, 0), Here, There);
+    return FVector::Dist2D(Here, There) >= 70.;
 }
 void AMemoriaVerdanPresentation::TickTownsfolk(float DeltaSeconds)
 {
@@ -365,10 +405,14 @@ void AMemoriaVerdanPresentation::TickTownsfolk(float DeltaSeconds)
             {
                 const float Angle = TownRng.FRandRange(0.f, 2.f * PI), Reach = TownRng.FRandRange(30.f, TownRoam);
                 const FVector Spot = Mind.Home + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * Reach;
-                bool bClear = FVector::Dist2D(Spot, Arrel) > TownNotice;
-                for (const float Along : {.25f, .5f, .75f, 1.f}) bClear = bClear && CanTownsfolkStand(FMath::Lerp(At, Spot, Along));
-                for (int32 J = 0; J < Townsfolk.Num() && bClear; ++J)
-                    if (J != I && Townsfolk[J] && (FVector::Dist2D(Spot, Townsfolk[J]->GetComponentLocation()) < 70 || FVector::Dist2D(Spot, TownMinds[J].Target) < 70)) bClear = false;
+                bool bClear = FVector::Dist2D(Spot, Arrel) > TownNotice && CanTownsfolkTravel(At, Spot);
+                for (int32 J = 0; J < Townsfolk.Num() && J < TownMinds.Num() && bClear; ++J)
+                    if (J != I && Townsfolk[J])
+                    {
+                        const FVector OtherAt = Townsfolk[J]->GetComponentLocation();
+                        const FVector OtherTo = TownMinds[J].bWalking ? TownMinds[J].Target : OtherAt;
+                        bClear = TownPathsStayApart(At, Spot, OtherAt, OtherTo);
+                    }
                 if (bClear) { Mind.Target = FVector(Spot.X, Spot.Y, At.Z); Mind.bWalking = true; break; }
             }
         }

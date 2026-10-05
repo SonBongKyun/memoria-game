@@ -50,6 +50,9 @@ public:
     float GetTownsYaw(int32 Index) const { return TownMinds.IsValidIndex(Index) ? TownMinds[Index].Yaw : 0.f; }
     float GetTownsTravel() const { return TownTravel; }
     bool CanTownsfolkStand(const FVector& World) const;
+    bool CanTownsfolkTravel(const FVector& From, const FVector& To) const;
+    static bool TownPathsStayApart(const FVector& From, const FVector& To, const FVector& OtherFrom, const FVector& OtherTo);
+    UStaticMeshComponent* GetTownsShadow(int32 Index) const { return TownShadows.IsValidIndex(Index) ? TownShadows[Index].Get() : nullptr; }
     static constexpr float TownRoam = 120.f;    // how far from its place a townsperson strolls
     static constexpr float TownNotice = 170.f;  // how close Arrel comes before it turns to him
     static constexpr float TownSpeed = 50.f;    // a market amble
