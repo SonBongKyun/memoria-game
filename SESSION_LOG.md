@@ -1,3 +1,16 @@
+# S351 integration complete (Codex, 2026-10-07)
+
+- Source 37776bae2ccf7e120ce217139bae6253c7ae6ec4 -> de2c249d618869dba26e5652ee5500950d79724f, basec9e216a42b13d2ff6aceed5267056161da55c5af. Used barrel/crate bound wood/iron Tint dim independently; read sign marker hides; saved flags apply after actual map reentry. No extra product logic repair.
+- Verification4f86f001+d956930c: actual bound materials/independence, full native smoke opacity/reset cycle, isolated disk save then cleared flags/restoration/OpenLevel and all4loaded repeat attempts with no rewards. Existing S348–S350 checks retained.
+- Fresh tested revisiond956930c566733dc086cbf6c0cc211611f423aa9: UE5.8.2 serial build exit0/fatal0, Foundation6/6 and related52/52 (audio3+campaign4+shop15+all30rendered visual), exact58IDs. Raw5+1warning-bearing /50+2, failed/notRun/inProcess0; every pipeline command exit0/fatal0. Full274not rerun; peer full result remains separate.
+- Native smoke1reset/420fade samples/alpha.0004–.3240; disk flags/new world/tints/grants0 pass. Input before(137.250,83.500)->(307.250,83.500), pressed1/ignored0. Previous travel435.8cm/separation185.81cm and potion reward pass.
+-52fresh captures1280x720; spent containers/hidden marker and initial/reentry views inspected. Middle/right smoke visible; west partly covered by HUD. Source adaptations documented: opaque dim instead of source alpha.3, sign removal requested although current Godot leaves!, north13.33s/.324smoke versus source south7.5s/.08.
+- Existing startup15Conditionfailed/layout/memory-budget and three warning-bearing tests disclosed. First build/Foundation attempt retained; supervisor stopped before related tests to correct the new fixture's save coordinates/encounter route. Final verification reran.
+-1016unrelated own files+82shared primary files unchanged; peer159ae961f844e3492cd9857b6d472e8aa79b5d02 clean/read-only, Claude handoff unchanged, original/foundation untouched. Final documentation includes only a rounding-only attribution comment beyond tested code.
+- Detail: docs/unreal-migration/S351_INTEGRATION_REVIEW.md and S351_INTEGRATION_RESULTS.json. Build/GPU slot released after own engine/compiler exit, separate StellaDrift editor left alone. No new push, packaging, deployment or automatic peer merge/message.
+
+---
+
 # S349/S350 integration complete (Codex, 2026-10-05)
 
 - Integrated Claude S349 f3c1ed54 as f2e43e93 and S3501068d8af as95a2fb0a over cf358235; clean adoptions preserving prior S348 imported-asset/live-scale and S345 audio assertions.

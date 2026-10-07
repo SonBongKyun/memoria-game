@@ -364,7 +364,7 @@ bool AMemoriaVerdanPresentation::IsSignMarkerShown() const
 void AMemoriaVerdanPresentation::BuildSmoke()
 {
     // verdan_market.gd's three smoke wisps (tiles (3,14), (15,11), (9,16)) rise 60 px at 8 px/s and fade from
-    // alpha .08 before starting again. Here the 3D effect uses a slower 13.33s rise and a shaped alpha up to .323.
+    // alpha .08 before starting again. Here the 3D effect uses a slower 13.33s rise and a shaped alpha peaking at approximately .32.
     // The port's square has no south alleys (that side faces the camera); its
     // alleys are the gaps between the north buildings, so the smoke rises low from their mouths, as the source's two tiles.
     const FVector Alleys[] = {FVector(-392, 600, 0), FVector(54, 600, 0), FVector(474, 590, 0)};

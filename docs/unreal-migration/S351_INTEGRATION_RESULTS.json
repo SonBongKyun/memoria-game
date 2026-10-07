@@ -1,0 +1,1153 @@
+{
+  "task": "S351",
+  "status": "PASS",
+  "base": "c9e216a42b13d2ff6aceed5267056161da55c5af",
+  "source": "37776bae2ccf7e120ce217139bae6253c7ae6ec4",
+  "adoption": "de2c249d618869dba26e5652ee5500950d79724f",
+  "tested_head": "d956930c566733dc086cbf6c0cc211611f423aa9",
+  "execution": {
+    "head": "d956930c566733dc086cbf6c0cc211611f423aa9",
+    "started_utc": "2026-10-07T12:52:27.623680+00:00",
+    "steps": [
+      {
+        "label": "serial_build",
+        "command": [
+          "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+          "MemoriaEditor",
+          "Win64",
+          "Development",
+          "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+          "-WaitMutex",
+          "-NoHotReloadFromIDE",
+          "-MaxParallelActions=1"
+        ],
+        "started_utc": "2026-10-07T12:52:27.681706+00:00",
+        "log": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s351-integration\\final\\serial_build.log",
+        "pid": 39004,
+        "exit_code": 0,
+        "elapsed_seconds": 35.185,
+        "finished_utc": "2026-10-07T12:53:02.868033+00:00",
+        "fatal_diagnostics": []
+      },
+      {
+        "label": "foundation",
+        "command": [
+          "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\validate_unreal.py",
+          "--engine-root",
+          "C:\\Program Files\\Epic Games\\UE_5.8",
+          "--build-and-test",
+          "--rendered",
+          "--test-prefix",
+          "Memoria.Foundation.",
+          "--automation-timeout",
+          "1200",
+          "--evidence-dir",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s351-integration\\final\\foundation"
+        ],
+        "started_utc": "2026-10-07T12:53:02.997139+00:00",
+        "log": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s351-integration\\final\\foundation.log",
+        "pid": 13012,
+        "exit_code": 0,
+        "elapsed_seconds": 73.549,
+        "finished_utc": "2026-10-07T12:54:16.547846+00:00",
+        "fatal_diagnostics": []
+      },
+      {
+        "label": "related",
+        "command": [
+          "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\validate_unreal.py",
+          "--engine-root",
+          "C:\\Program Files\\Epic Games\\UE_5.8",
+          "--build-and-test",
+          "--rendered",
+          "--test-prefix",
+          "Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+          "--automation-timeout",
+          "1800",
+          "--evidence-dir",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s351-integration\\final\\related"
+        ],
+        "started_utc": "2026-10-07T12:54:16.699781+00:00",
+        "log": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s351-integration\\final\\related.log",
+        "pid": 26796,
+        "exit_code": 0,
+        "elapsed_seconds": 270.292,
+        "finished_utc": "2026-10-07T12:58:46.993307+00:00",
+        "fatal_diagnostics": []
+      }
+    ],
+    "status": "PASS",
+    "finished_utc": "2026-10-07T12:58:46.994251+00:00"
+  },
+  "reports": {
+    "foundation": {
+      "selected_prefix": "Memoria.Foundation.",
+      "distinct_tests": 6,
+      "tests": [
+        {
+          "path": "Memoria.Foundation.MapInputAndModal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Foundation.MemoryAdapter",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.NondefaultSaveRoundTrip",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.RunOwnership",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.RuntimeLifetime",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.SaveAndDialectBoundaries",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        }
+      ],
+      "groups": {
+        "Memoria.Foundation": 6
+      },
+      "raw_summary": {
+        "succeeded": 5,
+        "succeededWithWarnings": 1,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0,
+        "totalDuration": 3.7898645401000977
+      },
+      "warning_tests": [
+        {
+          "path": "Memoria.Foundation.MapInputAndModal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        }
+      ],
+      "commands": [
+        {
+          "name": "fixture_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\fixture_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "audio_source_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\audio_source_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "verdan_story_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\verdan_story_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "editor_build",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+            "MemoriaEditor",
+            "Win64",
+            "Development",
+            "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-WaitMutex",
+            "-NoHotReloadFromIDE",
+            "-MaxParallelActions=2"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\editor_build.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "automation",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-unattended",
+            "-nop4",
+            "-nosplash",
+            "-RenderOffscreen",
+            "-MemoriaCapture",
+            "-ResX=1280",
+            "-ResY=720",
+            "-ExecCmds=Automation RunTests Memoria.Foundation.",
+            "-TestExit=Automation Test Queue Empty",
+            "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\Automation-20261007T125306506078",
+            "-stdout",
+            "-FullStdOutLogOutput"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\automation.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        }
+      ],
+      "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125303290921\\Automation-20261007T125306506078\\index.json",
+      "report_sha256": "567a517b2f491cbcaf767c29b1225e99992c1a3d7c214dca689a8d4edbede7e2",
+      "utc": "2026-10-07T12:53:03.315181+00:00",
+      "rendered": true,
+      "diagnostics": {
+        "startup_condition_lines": 15,
+        "condition_lines_before_first_test": true,
+        "layout_warnings": 1,
+        "memory_budget_warnings": 2
+      },
+      "key_traces": [
+        "[2026.10.07-12.54.14:421][450]LogAutomationController: KEYBOARD_TRACE before=X=137.250 Y=83.500 Z=0.000 after=X=307.250 Y=83.500 Z=0.000 pressed=1 ignored=0"
+      ],
+      "warning_events": [
+        {
+          "test": "Memoria.Foundation.MapInputAndModal",
+          "event": {
+            "type": "Warning",
+            "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread.",
+            "context": "log",
+            "artifact": "00000000000000000000000000000000"
+          }
+        }
+      ]
+    },
+    "related": {
+      "selected_prefix": "Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+      "distinct_tests": 52,
+      "tests": [
+        {
+          "path": "Memoria.Audio.CatalogAssets",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.Routing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.RunReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.CanonicalPaidRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Campaign.FilteredOriginalChoice",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.HostContinuation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.UnseenFieldRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Guards",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.RequestCancellation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_both",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_exact",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_poor",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_sell_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.close",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.exchange",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.oath_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.oath_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_daily",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_identity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_relation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_sense",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Achievements",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ArtworkCoverage",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.BeltDressing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Journey",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Presentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "MemoriaVisual.Chapter3",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter3Travel",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter4",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter5",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ChapterContinue",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ChapterRevisit",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Codex",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.DialogueInteraction",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.DriftDressing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.EliaSkills",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldBurn",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldCharacters",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldCombat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldEncounters",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldFeel",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldFoes",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldItems",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldRewards",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FoeVariety",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.GameOver",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Journal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.PauseMenu",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.TitleScreen",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.TutorialHints",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.VerdanExploration",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        }
+      ],
+      "groups": {
+        "Memoria.Audio": 3,
+        "Memoria.Campaign": 4,
+        "Memoria.ShopTransactions": 3,
+        "Memoria.ShopTransactions.Source": 12,
+        "MemoriaVisual": 30
+      },
+      "raw_summary": {
+        "succeeded": 50,
+        "succeededWithWarnings": 2,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0,
+        "totalDuration": 203.86195373535156
+      },
+      "warning_tests": [
+        {
+          "path": "Memoria.Campaign.CanonicalPaidRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Presentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        }
+      ],
+      "commands": [
+        {
+          "name": "fixture_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\fixture_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "audio_source_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\audio_source_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "verdan_story_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\verdan_story_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "editor_build",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+            "MemoriaEditor",
+            "Win64",
+            "Development",
+            "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-WaitMutex",
+            "-NoHotReloadFromIDE",
+            "-MaxParallelActions=2"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\editor_build.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "automation",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-unattended",
+            "-nop4",
+            "-nosplash",
+            "-RenderOffscreen",
+            "-MemoriaCapture",
+            "-ResX=1280",
+            "-ResY=720",
+            "-ExecCmds=Automation RunTests Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+            "-TestExit=Automation Test Queue Empty",
+            "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\Automation-20261007T125422593061",
+            "-stdout",
+            "-FullStdOutLogOutput"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\automation.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        }
+      ],
+      "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261007T125417007592\\Automation-20261007T125422593061\\index.json",
+      "report_sha256": "5d34af773cb6d7f0b0e82b150a39b85049f2d651893ceece7646c5d257a07b3d",
+      "utc": "2026-10-07T12:54:17.039760+00:00",
+      "rendered": true,
+      "diagnostics": {
+        "startup_condition_lines": 15,
+        "condition_lines_before_first_test": true,
+        "layout_warnings": 1,
+        "memory_budget_warnings": 34
+      },
+      "key_traces": [
+        "[2026.10.07-12.58.46:281][628]LogAutomationController: VERDAN_TOWNS_TRAVEL 435.8",
+        "[2026.10.07-12.58.46:281][628]LogAutomationController: VERDAN_TOWNS_CLEARANCE min_cm=185.81",
+        "[2026.10.07-12.58.46:281][628]LogAutomationController: VERDAN_CRATE grains=0 potions=1",
+        "[2026.10.07-12.58.46:281][628]LogAutomationController: VERDAN_SMOKE resets=1 fading_samples=420 alpha_min=0.0004 alpha_max=0.3240",
+        "[2026.10.07-12.58.46:281][628]LogAutomationController: VERDAN_SPENT_REENTRY disk_restore=four_flags new_world=true material_tints=checked grants=0"
+      ],
+      "warning_events": [
+        {
+          "test": "Memoria.Campaign.CanonicalPaidRoute",
+          "event": {
+            "type": "Warning",
+            "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread.",
+            "context": "log",
+            "artifact": "00000000000000000000000000000000"
+          }
+        },
+        {
+          "test": "MemoriaVisual.Chapter1Presentation",
+          "event": {
+            "type": "Warning",
+            "message": "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_28:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject().",
+            "context": "log",
+            "artifact": "00000000000000000000000000000000"
+          }
+        }
+      ]
+    }
+  },
+  "captures": [
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\BoundaryClear.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "a41b03341504c36874e30a13bfe6fcf1598845edd3355450f4f83cd0177b9112"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\BoundaryOpaque.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e3428dc8320ca4b0e5e9abce56266dda7385b6de45d67c9714a2ea2fe15966ba"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\CharacterBack.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "54c0ca7e69b3759978195d1c8501252e7e16f90119b7534787b0a45f1659b57e"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\CharacterFront.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "2d63944cf80420b7ae220554e7ca6ce7df0e08e930ff04bcc5cac12c31c330fb"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\CharacterSide.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "4369881674d4a2710b6507677b162991e659ca83fe4c88333e9ca748adcb06be"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\Down.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "1b3b80fa2920cebf797c57fe35acfde52197d966ff1ce38936b84f2a41f2d731"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\East.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "78708df40e9664cddd625c66dbe4d95495e1a8336f1c0a3ab43d5a75487d6a28"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\EliaRigged.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "18573cb87670a449124ee14085d0cfae176a49b6a5676c737db46dcedffa1275"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\Left.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "da31ea29764a8ff160997b8501a6f1c5d15fc9bce8b64ede9701143876313e4a"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\MaletRigged.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "a5c6cd76fdec6c293d43403be925fa5e9155c12e590277335a30bab250d86bb1"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\Market.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "8b03eb7c04e2c72f58f4f73e42006b0f3e82a1c8a4b893daaacdca265e08a194"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\MarketFront.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "b9e7d2ab989e87d89988d1fd5cab7faeb4a1d06abab925a9f99a6ee1977d4bb7"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\NearMalet.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e28dfeeef85fc63205994167db329e3e0edd93da90dca6059b91e57c4fcd3705"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\North.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "244e73003efc881c2ded9ec0246d4b38d5241c22359468888f2cbe3f63157646"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\NorthEast.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9a12b6cca96fb27d159271e73cdc2463e95674f54c4af1ce282b30d68e90f2b2"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\NorthWest.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "f970e18160affb3ec5757f93f94b20df92b9402381609a4af91a8412d47daea2"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\PropBarrel.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "6be5682d2b57f14fd7579d65bfeb340108177d591883088d4010be75760c34a6"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\PropCampfire.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "1f024be2843288bde9d1cd23bd41269e228cae881a82214d022e0ba3536e2f16"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\PropCrate.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "ec722d2340706b7ce33c6385d06b816eb2f2783dc39edd636275f1785deeb9f8"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\PropSign.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "6cf9e88d2cde1289fa107bc39aa49b420c540e20acc8ecf3285e1fe9f7f4593b"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\Right.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "8b4daf44ec7f967b18d5071ce72d05bab9fc32b44a16ab6c2cdba8e89b4bfd23"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\South.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "11cc35e4e50f5431ec68170f7cd364f86cf4f506f115ecffb4a6e121f7090c12"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\SouthEast.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7fcc6b5c6f3622bfddc49bbd3ac7d1d8f65c521818751d6111f59109abf32e47"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\SouthWest.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "46fb74b1dcbd3a14b9b8d9569a427484a1279a68c7c1e9937ba88f203f2a3cb3"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\SpentAndSmoke.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "28d36a34a1e2c219daa2af38612d3aaa9e278aef87ccdfb7974d3736b6584ad9"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\SpentReentry.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "aec0006ca4b33e4826d01097faa22c5a9e689138bff1c59d06b7bccd9e341a3d"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\TownsfolkTurn.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "cc2037ac81b9f34548da0058fa715546ff54d16fd0b5190ee583827bfbb8e8b0"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\Up.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "d29843c267d4b75b9043380c1383bc94bac76337c8f01d03de328ae967bcf83e"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\WalkA.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "16a6749997e27504ccafed06470bedaed4c30ba072d7bb44f112322746c40e1b"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\WalkB.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "0e84ca7ade00fb4f6bd9a4a52a7b2e1c0fb1afa99a368c1f8653c95ca504332d"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\WalkC.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "50679397f0fd77cad509be83bfda988e61c5ae35b3858148dde1d835626f0090"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\WalkD.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7f282705672cf3d288f23c383a0beefb8952778ce333c20a6860d960250e6f7c"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\WalkSettled.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "5a5858e54dd226141f6cb6e680e6c18f0b6d8a3b1e92657b71509bb28bf1c975"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\PlayFeel1\\West.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "d9436f7a138f87252ec6c691ef02c36520b639f4055277b45970a98b46fea3d4"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\belt_waystation_Npcs.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "f8caae1dd67954bd2418e01a29841b783ea56ae2ced09afc634a6a55bfd5a9fa"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltCorner.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e29ae491418758dce728dd38df98ef17be859359903c112a7c768f8cd2d4fe0d"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltDoor.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "73d2cf1154aa26d1dac980335e31114f583d2b2f82ed84a91f74a0e8b2304bf5"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltExit.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "c1f22b8aa99175e428f938a8ac9ea1cee0b338bfe33ac44c1d9e86518d78440d"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltFreight.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "2d26a116eb58ffe2b8d4a669a487fe3d47724334cf8640859d44fd43dc322257"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltInside.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "8fa7ff0ace22a72623426f99deef6c5aa92f1d961d872d460914a283ac950f54"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltPlatform.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "6a8454141ba10cb6c40d1ae30b09e729360276099279ed06f04d2996556f349c"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltRuin.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7a34fde9731a5501811e3bc50e5392f8be04f7618bd4475bd8d514355ae0bd02"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\BeltSignal.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "53b45d4a109e2e1429bcd10362078fc9f7ef7a907310769090dfe9da38e0c417"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\drift_shelter_Npcs.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "704dfa2987388654ba4e49bf190269331260b2fceb1cd67d40387226cac751f1"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftCamp.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7ea8c4f2b39def11e0c78f662c82c02a8bcd5eef59d1ac75268c173cd427e2c1"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftEast.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "0124d958c07cfed03d2bd12558a4f63643072ae408fc6e335f7ea0ff4a2a79aa"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftGramophone.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "fd178e4a655d28f241361c6615b612a3c858ddaaa68872dfa4562a14b9934fcb"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftShelter.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "862aecc57bd34c2eb312b71e542650bc231598243e106a02401245e736238254"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftSouth.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "0094d498ef275bb83e961d6b91bf24e9355ce81255613c08c99c47ed15b78b02"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftStores.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "3b5c3e6197c6c2600d900afeb78e668126af2b8e52b47b840ea223d9028609aa"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftTarp.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "2be5056272416343f178b3c5e185e889adf03df22b11639d405c3ea31dff37c4"
+    },
+    {
+      "path": "Unreal\\Memoria\\Saved\\Validation\\s351-integration\\captures\\ChapterDressing\\DriftWest.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7f7696cfaaeb15143235db2673c72a0191133799b678b002e0c1ae1f9cbc42af"
+    }
+  ],
+  "preservation": {
+    "own_unrelated_files": 1016,
+    "shared_primary_files": 82,
+    "peer_head": "159ae961f844e3492cd9857b6d472e8aa79b5d02",
+    "peer_clean": true,
+    "handoff_unchanged": true
+  },
+  "source_differences": {
+    "spent_container": "Source changes RGB and alpha .3; opaque 3D wood and metal tint factors .38/.5.",
+    "sign": "Current Godot leaves ! shown; removal fulfills the requested port behavior.",
+    "smoke": "Source south alleys,7.5s/.08; port north gaps,13.33s/measured peak .3240 as 3D adaptation."
+  },
+  "prior_attempt": {
+    "head": "4f86f00145ca4f7e2306cd71a675f167d22190d9",
+    "serial_build_exit": 0,
+    "foundation_report": "Unreal/Memoria/Saved/Validation/s351-integration/foundation/unreal_validation.json",
+    "related_not_started": true,
+    "reason": "Supervisor stopped after review identified new test setup's invalid negative source save coordinates and encounter-prone revisit order; final native assertions use valid fire position and <60-tile visit route."
+  },
+  "finished_utc": "2026-10-07T12:59:51.813249+00:00",
+  "validation_commits": [
+    "4f86f00145ca4f7e2306cd71a675f167d22190d9",
+    "d956930c566733dc086cbf6c0cc211611f423aa9"
+  ],
+  "visual_inspection": {
+    "inspected": [
+      "SpentAndSmoke.png",
+      "SpentReentry.png",
+      "PropBarrel.png",
+      "PropCrate.png"
+    ],
+    "findings": "Used props visibly dark; sign marker absent before and after actual reentry. Middle/right smoke visible; west partly covered by location HUD. No claim that all three are unobscured in one frame. Reentry achievement toast and chapter3 label belong to the staged closed checkpoint fixture."
+  },
+  "build_slot": "RELEASED: no Codex worktree editor/compiler remains; separately observed StellaDrift editor left untouched."
+}
