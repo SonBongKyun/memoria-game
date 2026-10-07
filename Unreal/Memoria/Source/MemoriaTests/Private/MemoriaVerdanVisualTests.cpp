@@ -657,6 +657,7 @@ public:
             // Real disk restoration and map replacement, not a duplicated test actor.
             auto* Checkpoint = World->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
             if (!Test->TestTrue(TEXT("Spent-prop save storage is isolated"), Checkpoint->ConfigureTestStorage(TEXT("s351-") + FGuid::NewGuid().ToString(EGuidFormats::Digits)))) return true;
+            Pawn->SetActorLocation(Props[3].At + FVector(0, -20, 0));
             Run->SetCurrentChapter(3); Run->SetStoryFlag(TEXT("ch2_complete"), true);
             if (!Test->TestTrue(TEXT("Spent props are saved to disk"), Checkpoint->SaveClosedBoundary(Memoria::Coordinates::ToSource(Pawn->GetActorLocation())))) return true;
             for (const auto& Prop : Props) Run->SetStoryFlag(Prop.Flag, false);
@@ -678,9 +679,15 @@ public:
             }
             const int32 Elapsed = Frame - ReentryFrame;
             if (Elapsed == 0 || Elapsed == 10 || Elapsed == 20 || Elapsed == 30)
-                Pawn->SetActorLocation(Props[Elapsed / 10].At + FVector(0, -20, 0));
+            {
+                // The real revisit enables encounters. This route touches all props in less than 60 tiles.
+                const int32 VisitOrder[] = {3, 1, 2, 0};
+                Pawn->SetActorLocation(Props[VisitOrder[Elapsed / 10]].At + FVector(0, -20, 0));
+            }
             if (Elapsed == 40)
             {
+                auto* Combat = World->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+                Test->TestTrue(TEXT("Reentry prop checks stay clear of random combat"), Combat && Combat->LiveMonsterCount() == 0);
                 Test->TestEqual(TEXT("Loaded props never grant again"), Presentation->GetInteractiveUses(), 0);
                 Test->TestEqual(TEXT("Loaded props give no extra grains"), Grains(), GrainsBefore);
                 Test->TestEqual(TEXT("Loaded crate gives no extra potion"), Run->GetItemCount(TEXT("potion")), PotionsBefore);
