@@ -349,7 +349,8 @@ void AMemoriaVerdanPresentation::MarkSpent(int32 Index)
 {
     if (!Spent.IsValidIndex(Index) || Spent[Index]) return;
     Spent[Index] = true;
-    // The source fades a used barrel or crate to a third of its colour; the sign's "!" goes once it is read.
+    // The source recolours used containers with alpha .3; opaque 3D props instead reduce their bound tints.
+    // Hide the read sign's marker as requested (the current Godot marker remains visible).
     if (SpentWood[Index]) SpentWood[Index]->SetVectorParameterValue(TEXT("Tint"), SpentWoodTint[Index] * .38f);
     if (SpentIron[Index]) SpentIron[Index]->SetVectorParameterValue(TEXT("Tint"), SpentIronTint[Index] * .5f);
     if (FString(Interactives()[Index].Kind) == TEXT("sign"))
@@ -363,7 +364,8 @@ bool AMemoriaVerdanPresentation::IsSignMarkerShown() const
 void AMemoriaVerdanPresentation::BuildSmoke()
 {
     // verdan_market.gd's three smoke wisps (tiles (3,14), (15,11), (9,16)) rise 60 px at 8 px/s and fade from
-    // alpha .08 before starting again. The port's square has no south alleys (that side faces the camera); its
+    // alpha .08 before starting again. Here the 3D effect uses a slower 13.33s rise and a shaped alpha up to .323.
+    // The port's square has no south alleys (that side faces the camera); its
     // alleys are the gaps between the north buildings, so the smoke rises low from their mouths, as the source's two tiles.
     const FVector Alleys[] = {FVector(-392, 600, 0), FVector(54, 600, 0), FVector(474, 590, 0)};
     for (int32 W = 0; W < UE_ARRAY_COUNT(Alleys); ++W)

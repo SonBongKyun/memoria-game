@@ -62,7 +62,7 @@ public:
     static const TArray<FInteractive>& Interactives();
     static constexpr float InteractiveReach = 60.f;
     int32 GetInteractiveUses() const { return InteractiveUses; }
-    // S351: a used barrel or crate darkens and the read sign drops its "!" (the source dims their ColorRects),
+    // S351: a used barrel or crate darkens; the read sign drops its "!" as requested,
     // also when Verdan is entered with their flags already set.
     bool IsInteractiveSpent(int32 Index) const { return Spent.IsValidIndex(Index) && Spent[Index]; }
     bool IsSignMarkerShown() const;

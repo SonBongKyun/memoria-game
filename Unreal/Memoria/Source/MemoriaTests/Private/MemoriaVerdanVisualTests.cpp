@@ -23,6 +23,8 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Save/MemoriaRunSaveGame.h"
+#include "Save/MemoriaCheckpointSubsystem.h"
+#include "Framework/MemoriaCoordinates.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "PaperSpriteComponent.h"
@@ -136,6 +138,40 @@ public:
         auto Key = [&](FKey K, EInputEvent Event) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, Event, Event == IE_Released ? 0.0f : 1.0f)); };
         auto Capture = [&](const TCHAR* Name)
         { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("Validation/PlayFeel1")/(FString(Name)+TEXT(".png")), true, false); };
+        // Observe bound materials, complete smoke cycles and actual disk/map lifetimes.
+        auto ReadPropTint = [&](const TCHAR* Name, FLinearColor& Tint)
+        {
+            TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
+            for (const auto* Batch : Batches)
+                if (const auto* Material = Cast<UMaterialInstanceDynamic>(Batch->GetMaterial(0)))
+                    if (Material->GetName() == Name)
+                        return Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Tint")), Tint);
+            return false;
+        };
+        auto CheckSpentTints = [&]()
+        {
+            for (const TCHAR* Name : {TEXT("BarrelWood"), TEXT("BarrelIron"), TEXT("CrateWood"), TEXT("CrateIron")})
+            {
+                FLinearColor Actual;
+                if (Test->TestTrue(TEXT("The used prop's bound material resolves"), ReadPropTint(Name, Actual)))
+                    Test->TestTrue(TEXT("Bound prop tint actually darkens"), Actual.Equals(UnspentTints.FindChecked(Name) * (FString(Name).EndsWith(TEXT("Wood")) ? .38f : .5f), .00001f));
+            }
+        };
+        if (SmokeMaterial.IsValid() && World == SmokeWorld.Get())
+        {
+            const double Height = Presentation->GetSmokePuff(0).Z;
+            float Alpha = 0;
+            if (Test->TestTrue(TEXT("Smoke has a real opacity parameter"), SmokeMaterial->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Alpha")), Alpha)))
+            {
+                SmokeMaxAlpha = FMath::Max(SmokeMaxAlpha, Alpha);
+                SmokeMinAlpha = FMath::Min(SmokeMinAlpha, Alpha);
+                if (Alpha < SmokePreviousAlpha - .0001f) ++SmokeFadeSamples;
+                Test->TestTrue(TEXT("Smoke opacity stays finite and bounded"), FMath::IsFinite(Alpha) && Alpha >= 0 && Alpha <= .4f);
+                SmokePreviousAlpha = Alpha;
+            }
+            if (Height < SmokePreviousHeight - 100) ++SmokeResets;
+            SmokePreviousHeight = Height;
+        }
         // Observe every native tick rather than only the final destination.
         for (int32 I = 0; I < Presentation->GetTownsfolkCount(); ++I)
         {
@@ -149,6 +185,13 @@ public:
         }
         if (Frame == 0)
         {
+            SmokeWorld = World;
+            TArray<UStaticMeshComponent*> Meshes; Presentation->GetComponents(Meshes);
+            for (auto* Mesh : Meshes)
+                if (Mesh->GetComponentLocation().Equals(Presentation->GetSmokePuff(0), .001))
+                    SmokeMaterial = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(0));
+            Test->TestTrue(TEXT("A live smoke puff has its own dynamic material"), SmokeMaterial.IsValid());
+            SmokePreviousHeight = Presentation->GetSmokePuff(0).Z;
             const FVector CornerFrom(280,245,0), CornerTo(331,277,0);
             Test->TestTrue(TEXT("Corner regression endpoints are allowed"), Presentation->CanTownsfolkStand(CornerFrom) && Presentation->CanTownsfolkStand(CornerTo));
             Test->TestFalse(TEXT("A path through a stall corner is rejected"), Presentation->CanTownsfolkTravel(CornerFrom, CornerTo));
@@ -513,12 +556,21 @@ public:
             Test->TestTrue(TEXT("The unread sign shows its marker"), Presentation->IsSignMarkerShown());
             Test->TestEqual(TEXT("Three alleys of five smoke puffs"), Presentation->GetSmokePuffCount(), 15);
             SmokeBefore = Presentation->GetSmokePuff(0);
+            for (const TCHAR* Name : {TEXT("BarrelWood"), TEXT("BarrelIron"), TEXT("CrateWood"), TEXT("CrateIron")})
+            {
+                FLinearColor Tint;
+                if (Test->TestTrue(TEXT("Unspent prop's bound material resolves"), ReadPropTint(Name, Tint))) UnspentTints.Add(Name, Tint);
+            }
+            if (UnspentTints.Num() != 4) return true;
             Run->SetLocale(TEXT("ko"));
             GrainsBefore = Grains(); PotionsBefore = Run->GetItemCount(TEXT("potion"));
             Pawn->SetActorLocation(Props[0].At + FVector(0, -20, 0));
         }
         if (Frame == 700)
         {
+            FLinearColor Barrel, Crate;
+            Test->TestTrue(TEXT("Barrel wood dimmed on use"), ReadPropTint(TEXT("BarrelWood"), Barrel) && Barrel.Equals(UnspentTints.FindChecked(TEXT("BarrelWood")) * .38f, .00001f));
+            Test->TestTrue(TEXT("Using barrel leaves crate wood unchanged"), ReadPropTint(TEXT("CrateWood"), Crate) && Crate.Equals(UnspentTints.FindChecked(TEXT("CrateWood")), .00001f));
             const int64 Got = Grains() - GrainsBefore;
             Test->TestTrue(TEXT("The barrel gives 1 to 3 grains"), Used(0) && Got >= 1 && Got <= 3);
             Test->TestTrue(TEXT("Barrel notice uses Korean"), Host->GetExplorationNotice().Contains(TEXT("그레인")));
@@ -589,6 +641,10 @@ public:
             // S351: once used, the barrel and crate darken and the sign drops its "!"; the smoke keeps rising over its alleys.
             for (int32 I = 0; I < Props.Num(); ++I) Test->TestTrue(TEXT("A used prop is spent"), Presentation->IsInteractiveSpent(I));
             Test->TestFalse(TEXT("The read sign drops its marker"), Presentation->IsSignMarkerShown());
+            CheckSpentTints();
+            Test->TestTrue(TEXT("Smoke wraps through a complete native rise cycle"), SmokeResets >= 1);
+            Test->TestTrue(TEXT("Smoke has visible and fading portions"), SmokeMaxAlpha > .1f && SmokeMinAlpha < .02f && SmokeFadeSamples > 60);
+            Test->AddInfo(FString::Printf(TEXT("VERDAN_SMOKE resets=%d fading_samples=%d alpha_min=%.4f alpha_max=%.4f"), SmokeResets, SmokeFadeSamples, SmokeMinAlpha, SmokeMaxAlpha));
             Test->TestFalse(TEXT("The smoke rises and drifts"), Presentation->GetSmokePuff(0).Equals(SmokeBefore, 1.));
             for (int32 I = 0; I < Presentation->GetSmokePuffCount(); ++I)
                 Test->TestTrue(TEXT("Smoke stays over its alley"), Presentation->GetSmokePuff(I).Z > 20 && Presentation->GetSmokePuff(I).Z < 220 && Presentation->GetSmokePuff(I).Y > 580);
@@ -596,7 +652,45 @@ public:
             Pawn->SetActorLocation(FVector(-330, 330, 0));
         }
         if (Frame == 880) Capture(TEXT("SpentAndSmoke"));
-        if (Frame == 886) return true;
+        if (Frame == 886)
+        {
+            // Real disk restoration and map replacement, not a duplicated test actor.
+            auto* Checkpoint = World->GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
+            if (!Test->TestTrue(TEXT("Spent-prop save storage is isolated"), Checkpoint->ConfigureTestStorage(TEXT("s351-") + FGuid::NewGuid().ToString(EGuidFormats::Digits)))) return true;
+            Run->SetCurrentChapter(3); Run->SetStoryFlag(TEXT("ch2_complete"), true);
+            if (!Test->TestTrue(TEXT("Spent props are saved to disk"), Checkpoint->SaveClosedBoundary(Memoria::Coordinates::ToSource(Pawn->GetActorLocation())))) return true;
+            for (const auto& Prop : Props) Run->SetStoryFlag(Prop.Flag, false);
+            if (!Test->TestTrue(TEXT("Disk load restores spent props"), Host->ContinueCheckpoint())) return true;
+            for (const auto& Prop : Props) Test->TestTrue(TEXT("Disk restored each spent flag"), Run->GetRunSnapshot().GetFlag(Prop.Flag));
+            PreviousVerdanWorld = World;
+            if (!Test->TestTrue(TEXT("Return to Verdan travels to a fresh map"), Host->RequestCheckpointRevisit())) return true;
+        }
+        if (Frame > 886)
+        {
+            if (World == PreviousVerdanWorld.Get() || !Host->IsVerdanRevisit() || Host->GetState() != EMemoriaSliceState::Exploration) return false;
+            if (ReentryFrame == INDEX_NONE)
+            {
+                ReentryFrame = Frame;
+                for (int32 I = 0; I < Props.Num(); ++I) Test->TestTrue(TEXT("A fresh presentation restores spent state"), Presentation->IsInteractiveSpent(I));
+                Test->TestFalse(TEXT("Restored sign keeps its marker hidden"), Presentation->IsSignMarkerShown());
+                CheckSpentTints();
+                Test->TestEqual(TEXT("Reentry grants no immediate reward"), Presentation->GetInteractiveUses(), 0);
+            }
+            const int32 Elapsed = Frame - ReentryFrame;
+            if (Elapsed == 0 || Elapsed == 10 || Elapsed == 20 || Elapsed == 30)
+                Pawn->SetActorLocation(Props[Elapsed / 10].At + FVector(0, -20, 0));
+            if (Elapsed == 40)
+            {
+                Test->TestEqual(TEXT("Loaded props never grant again"), Presentation->GetInteractiveUses(), 0);
+                Test->TestEqual(TEXT("Loaded props give no extra grains"), Grains(), GrainsBefore);
+                Test->TestEqual(TEXT("Loaded crate gives no extra potion"), Run->GetItemCount(TEXT("potion")), PotionsBefore);
+                Test->TestEqual(TEXT("Loaded campfire gives no extra HP"), Run->GetRunSnapshot().Player.Hp, HpBefore);
+                Pawn->SetActorLocation(FVector(-330, 330, 0));
+                Test->AddInfo(TEXT("VERDAN_SPENT_REENTRY disk_restore=four_flags new_world=true material_tints=checked grants=0"));
+            }
+            if (Elapsed == 60) Capture(TEXT("SpentReentry"));
+            if (Elapsed == 66) return true;
+        }
         ++Frame; return false;
     }
 private:
@@ -604,6 +698,12 @@ private:
     double Started, OldDelta = 0, WallX = 0, LastWorldTime = -1;
     int64 GrainsBefore = 0, PotionsBefore = 0, HpBefore = 0;
     FVector SmokeBefore = FVector::ZeroVector;
+    TMap<FString, FLinearColor> UnspentTints;
+    TWeakObjectPtr<UMaterialInstanceDynamic> SmokeMaterial;
+    TWeakObjectPtr<UWorld> SmokeWorld, PreviousVerdanWorld;
+    double SmokePreviousHeight = 0;
+    float SmokePreviousAlpha = 0, SmokeMinAlpha = 1, SmokeMaxAlpha = 0;
+    int32 SmokeResets = 0, SmokeFadeSamples = 0, ReentryFrame = INDEX_NONE;
     uint64 LastFrame = MAX_uint64;
     int32 Frame = 0;
     bool bFixed = false, bOldFixed = false;
