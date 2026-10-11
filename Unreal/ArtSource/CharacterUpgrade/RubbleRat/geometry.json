@@ -1,0 +1,15 @@
+{
+  "name": "RubbleRat",
+  "height_cm": 55.13369941711426,
+  "triangles": 54036,
+  "bones": 18,
+  "source_sha256": null,
+  "clips": {
+    "Idle": 60,
+    "Walk": 30,
+    "Bite": 24,
+    "HitReact_Front_Lgt_01": 15,
+    "Death_Front_01": 40
+  },
+  "role": "quadruped scavenging rat"
+}

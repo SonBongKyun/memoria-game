@@ -114,3 +114,10 @@ docs/unreal-migration/fixtures/battle_core/*.json text eol=lf
 Unreal/Tools/generate_surface_detail_s353.py text eol=lf
 Unreal/ArtSource/SurfaceDetail/*.json text eol=lf
 Unreal/ArtSource/SurfaceDetail/*.png -text
+
+# S354 source and pigment atlas retain exact bytes across Windows checkouts.
+Unreal/Tools/build_character_geometry_s354.py text eol=lf
+Unreal/Tools/generate_creature_surfaces_s354.py text eol=lf
+Unreal/ArtSource/CharacterUpgrade/**/*.json text eol=lf
+Unreal/ArtSource/CharacterUpgrade/**/*.fbx -text
+Unreal/ArtSource/CharacterUpgrade/**/*.png -text

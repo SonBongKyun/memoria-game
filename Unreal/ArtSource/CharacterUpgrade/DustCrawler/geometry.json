@@ -1,0 +1,15 @@
+{
+  "name": "DustCrawler",
+  "height_cm": 55.78537952899933,
+  "triangles": 16500,
+  "bones": 16,
+  "source_sha256": null,
+  "clips": {
+    "Idle": 60,
+    "Walk": 30,
+    "Bite": 24,
+    "HitReact_Front_Lgt_01": 15,
+    "Death_Front_01": 40
+  },
+  "role": "six-legged plated dust crawler"
+}

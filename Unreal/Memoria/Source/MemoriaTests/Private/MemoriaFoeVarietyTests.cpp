@@ -21,6 +21,13 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "CollisionQueryParams.h"
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
+#include "Animation/AnimSequence.h"
+#include "Rendering/SkeletalMeshModel.h"
+#include "Rendering/SkeletalMeshLODModel.h"
+#include "Presentation/MemoriaCombatClips.h"
+#include "Presentation/MemoriaFieldAnimInstance.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
 #include "UnrealClient.h"
@@ -173,10 +180,78 @@ public:
             }
             if (CleanLineupAt == 0 || Frame < CleanLineupAt + 6) break;
             Clear();
-            // The wisp: a caster.
+            Foe = Spawn(EMemoriaFoeKind::RubbleRat, FVector(-140, -220, 0)); Foe->Stun(30.f);
+            Phase = 90; Mark = Frame; break;
+        case 90:
+        case 91:
+        {
+            if (!F) { Test->AddError(TEXT("Creature inspection lost its actor")); return true; }
+            auto* Figure = F->GetFigure(); auto* Skin = Figure->GetSkeletalMesh();
+            Figure->SetAim(0.f);
+            const FString Id = Phase == 90 ? TEXT("RubbleRat") : TEXT("DustCrawler");
+            if (Frame == Mark + 1)
+            {
+                Test->TestTrue(TEXT("Creature uses its dedicated anatomy, without a human dagger"), Figure->IsFoeModel()
+                    && Figure->GetCharacterId() == Id && !Figure->GetBlade() && Skin && Skin->GetSkeletalMeshAsset()->GetName() == TEXT("SK_") + Id);
+                if (!Skin) return true;
+                Test->TestTrue(TEXT("Creature retains authored region vertex colours"),Skin->GetSkeletalMeshAsset()->GetHasVertexColors());
+                TArray<FSoftSkinVertex> Vertices;
+                auto* Imported = Skin->GetSkeletalMeshAsset()->GetImportedModel();
+                if (Imported && Imported->LODModels.Num()) Imported->LODModels[0].GetVertices(Vertices);
+                double MeanRed=0;
+                for (const auto& Vertex:Vertices) MeanRed+=double(Vertex.Color.R)/255.0;
+                MeanRed/=FMath::Max(1,Vertices.Num());
+                Test->TestTrue(TEXT("FBX colours remain dark linear pigments, without an sRGB double lift"),Vertices.Num()>1000 && MeanRed>.02 && MeanRed<.30);
+                Test->AddInfo(FString::Printf(TEXT("CREATURE_PIGMENT %s vertices=%d linear_mean_red=%.4f"),*Id,Vertices.Num(),MeanRed));
+                auto* SurfaceMaterial=Cast<UMaterialInstanceDynamic>(Skin->GetMaterial(0));
+                UTexture* DetailTexture=nullptr;
+                Test->TestTrue(TEXT("Creature binds its real surface normal map"),SurfaceMaterial && SurfaceMaterial->GetTextureParameterValue(FMaterialParameterInfo(TEXT("DetailNormal")),DetailTexture) && DetailTexture);
+                Test->TestTrue(TEXT("Creature binds the authored fur or chitin pigment atlas"),SurfaceMaterial && SurfaceMaterial->GetTextureParameterValue(FMaterialParameterInfo(TEXT("PigmentAtlas")),DetailTexture) && DetailTexture);
+
+                Test->TestEqual(TEXT("Species skeleton matches its articulated limbs"), Skin->GetNumBones(), Phase == 90 ? 18 : 16);
+                const auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skin->GetAnimInstance());
+                Test->TestTrue(TEXT("Actual locomotion uses species clips"), Anim && Anim->Idle == MemoriaCombatClips::Load(Id,TEXT("Idle")) && Anim->Walk == MemoriaCombatClips::Load(Id,TEXT("Walk")));
+                for (const TCHAR* Clip : {TEXT("Idle"),TEXT("Walk"),TEXT("Bite"),MemoriaCombatClips::Hit(),MemoriaCombatClips::Death()})
+                {
+                    auto* Sequence = MemoriaCombatClips::Load(Id,Clip);
+                    Test->TestTrue(TEXT("Creature clip has a compatible skeleton and timed frames"), Sequence && Sequence->GetSkeleton() == Skin->GetSkeletalMeshAsset()->GetSkeleton() && Sequence->GetPlayLength() > .2f);
+                }
+                Figure->Face(TEXT("Down"));
+                if (!DetailCamera.IsValid()) DetailCamera = World->SpawnActor<ACameraActor>();
+                const FVector Center = F->GetActorLocation() + FVector(0,0,25);
+                const FVector Eye = Center + FVector(220,-240,155);
+                DetailCamera->SetActorLocation(Eye); DetailCamera->SetActorRotation((Center-Eye).Rotation());
+                DetailCamera->GetCameraComponent()->SetFieldOfView(48.f); PC->SetViewTarget(DetailCamera.Get());
+                LegAt = Skin->GetSocketTransform(TEXT("leg0_l"),RTS_Component);
+            }
+            if (Frame > Mark + 2 && Frame < Mark + 25) Figure->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+            if (Frame == Mark + 20)
+            {
+                Test->TestFalse(TEXT("Walking visibly articulates a leg"), Skin->GetSocketTransform(TEXT("leg0_l"),RTS_Component).Equals(LegAt,.01f));
+                const auto& Bind=Skin->GetSkeletalMeshAsset()->GetRefSkeleton().GetRefBonePose();
+                const FTransform BodyBind=Bind[1]*Bind[0];
+                const FTransform BodyNow=Skin->GetSocketTransform(TEXT("body"),RTS_Component);
+                Test->TestTrue(TEXT("Living creature stays upright relative to its imported bind pose"),FVector::DotProduct((BodyNow.GetRotation()*BodyBind.GetRotation().Inverse()).RotateVector(FVector::UpVector),FVector::UpVector)>.98f && FMath::Abs(BodyBind.GetLocation().Z-BodyNow.GetLocation().Z)<5.f);
+                Test->AddInfo(FString::Printf(TEXT("CREATURE_UPRIGHT %s upDot=%.4f bindZ=%.2f liveZ=%.2f"),*Id,FVector::DotProduct((BodyNow.GetRotation()*BodyBind.GetRotation().Inverse()).RotateVector(FVector::UpVector),FVector::UpVector),BodyBind.GetLocation().Z,BodyNow.GetLocation().Z));
+                Capture(Phase == 90 ? TEXT("RubbleRatDetail") : TEXT("DustCrawlerDetail"));
+            }
+            if (Frame == Mark + 30) Test->TestTrue(TEXT("Creature plays its actual bite"),Figure->PlayAction(TEXT("Bite")));
+            if (Frame == Mark + 48) Capture(Phase == 90 ? TEXT("RubbleRatBite") : TEXT("DustCrawlerBite"));
+            if (Frame == Mark + 84) Test->TestTrue(TEXT("Creature plays a held death"),Figure->PlayAction(MemoriaCombatClips::Death(),1.f,true));
+            if (Frame == Mark + 170)
+            {
+                Test->TestTrue(TEXT("Death remains held instead of returning to idle"),Figure->IsActing() && FMath::IsNearlyEqual(Figure->GetActionTime(),Figure->GetActionLength(),.02f));
+                Capture(Phase == 90 ? TEXT("RubbleRatDeath") : TEXT("DustCrawlerDeath"));
+            }
+            if (Frame < Mark + 180) break;
+            Clear();
+            if (Phase == 90)
+            { Foe = Spawn(EMemoriaFoeKind::DustCrawler,FVector(-140,-220,0)); Foe->Stun(30.f); Phase=91; Mark=Frame; break; }
+            PC->SetViewTarget(Pawn); DetailCamera->Destroy(); DetailCamera=nullptr;
             Foe = Spawn(EMemoriaFoeKind::VoidWisp, FVector(700, 0, 0));
             Hp = Combat->GetPlayerHp(); Orbs = Combat->GetOrbsLaunched(); Closest = 1e9f;
             Phase = 2; Mark = Frame; break;
+        }
         case 2:
             if (!F) break;
             Closest = FMath::Min(Closest, Away);
@@ -491,6 +566,8 @@ private:
     FVector Home = FVector::ZeroVector;
     bool bFixed = false, bOldFixed = false, bOrbShot = false, bLaneShot = false, bRushShot = false, bTicked = false, bCasterCue = false, bMeleeCue = false;
     TWeakObjectPtr<AMemoriaFieldMonster> Foe;
+    TWeakObjectPtr<ACameraActor> DetailCamera;
+    FTransform LegAt;
 };
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFoeVarietyTest, "MemoriaVisual.FoeVariety", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

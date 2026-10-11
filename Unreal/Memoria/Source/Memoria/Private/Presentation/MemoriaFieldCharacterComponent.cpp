@@ -304,7 +304,9 @@ float UMemoriaFieldCharacterComponent::AmbientHeight(const FString& Id, float Ar
 }
 bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
 {
-    auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
+    // S354: tailored ambient geometry shares the original skeleton, clips and painted material.
+    auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"), TEXT("_Detail"));
+    if (!Mesh) Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
     CharacterId = Id.Left(1).ToUpper() + Id.Mid(1).ToLower(); MeshYawOffset = 0.f;
     if (!CreateSkeletal(Mesh, RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle")), RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk")))) return false;
     // Bind rigid grips against the actual idle pose, including the FBX import basis.

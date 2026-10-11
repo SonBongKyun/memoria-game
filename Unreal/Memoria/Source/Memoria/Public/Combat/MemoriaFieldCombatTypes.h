@@ -204,14 +204,19 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
         false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.62f, .64f, .70f), .20f, FLinearColor(.69f, .73f, .77f), .36f);
     static const FMemoriaFoeSpec Walker = FVariant::Of(Husk, TEXT("Ash Walker"), TEXT("재의 방랑자"), 60, 11, 55.f, 185.f, 70.f, 8.f, .85f, 1.00f,
         false, A::Burn, A::Weaken, B::Brawler, FLinearColor(1.f, .42f, .08f), 5.f, FLinearColor(1.f, .5f, .15f), .40f, FLinearColor(1.04f, 1.f, .90f), .62f);
+    // S354: visual anatomy only; HP, damage, collision, rush timing and status effects remain unchanged.
+    static const FMemoriaFoeSpec RatBody = [] { auto S = Rat; S.Model = TEXT("RubbleRat"); S.Height = 62.f;
+        S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Bite"); return S; }();
+    static const FMemoriaFoeSpec CrawlerBody = [] { auto S = Crawler; S.Model = TEXT("DustCrawler"); S.Height = 64.f;
+        S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Bite"); return S; }();
     switch (Kind)
     {
     case EMemoriaFoeKind::MarketThief: return Thief;
     case EMemoriaFoeKind::BeltScavenger: return Scavenger;
     case EMemoriaFoeKind::VoidWisp: return Wisp;
-    case EMemoriaFoeKind::DustCrawler: return Crawler;
+    case EMemoriaFoeKind::DustCrawler: return CrawlerBody;
     case EMemoriaFoeKind::MemoryLeech: return Leech;
-    case EMemoriaFoeKind::RubbleRat: return Rat;
+    case EMemoriaFoeKind::RubbleRat: return RatBody;
     case EMemoriaFoeKind::AshWalker: return Walker;
     default: return Husk;
     }

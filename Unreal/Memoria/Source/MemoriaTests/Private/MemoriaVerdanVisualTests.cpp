@@ -285,6 +285,7 @@ public:
             {
                 auto* Figure = Presentation->GetTownsfolk(Index);
                 auto* Skin = Figure ? Figure->GetSkeletalMesh() : nullptr;
+                Test->TestTrue(TEXT("The live market figure uses the tailored geometry"),Skin && Skin->GetSkeletalMeshAsset() && Skin->GetSkeletalMeshAsset()->GetName().EndsWith(TEXT("_Detail")));
                 if (!Test->TestNotNull(TEXT("A live townsfolk mesh stands"), Skin)) continue;
                 const float StandingHeight = float(Skin->GetSkeletalMeshAsset()->GetBounds().BoxExtent.Z * 2 * Skin->GetComponentScale().Z);
                 Test->TestTrue(TEXT("Live townsfolk keeps its authored scale beside Arrel"), FMath::IsNearlyEqual(StandingHeight, AMemoriaVerdanPresentation::ArrelHeight * AuthoredCm[Index] / 180.f, .5f));
@@ -808,6 +809,16 @@ bool FFieldCharactersTest::RunTest(const FString&)
             if (!TestNotNull(*(N + TEXT(" ") + Clip + TEXT(" retargeted clip loads")), Anim)) continue;
             TestEqual(*(N + TEXT(" ") + Clip + TEXT(" uses its mesh skeleton")), Anim->GetSkeleton(), Skin->GetSkeleton());
             TestTrue(*(N + TEXT(" ") + Clip + TEXT(" contains animation")), Anim->GetPlayLength() > .1f);
+        }
+        auto* Detail = LoadObject<USkeletalMesh>(nullptr, *(Base + TEXT("SK_") + N + TEXT("_Detail.SK_") + N + TEXT("_Detail")));
+        if (TestNotNull(*(N + TEXT(" has the tailored replacement mesh")), Detail))
+        {
+            TestEqual(*(N + TEXT(" reuses the existing animation skeleton")),Detail->GetSkeleton(),Skin->GetSkeleton());
+            TestTrue(*(N + TEXT(" detailed height preserves the existing scale")),FMath::IsNearlyEqual(float(Detail->GetBounds().BoxExtent.Z*2),Person.HeightCm,1.f));
+            const auto& DetailRef=Detail->GetRefSkeleton();
+            TestEqual(TEXT("Detail bone count remains compatible"),DetailRef.GetNum(),Ref.GetNum());
+            for(int32 Bone=0;Bone<FMath::Min(Ref.GetNum(),DetailRef.GetNum());++Bone)
+                TestTrue(TEXT("Detail preserves bind transforms"),Ref.GetRefBonePose()[Bone].Equals(DetailRef.GetRefBonePose()[Bone],.015f));
         }
         AddInfo(FString::Printf(TEXT("TOWNSFOLK_ASSET %s height_cm=%.2f bones=%d idle_walk=checked"), *N, Skin->GetBounds().BoxExtent.Z * 2, Ref.GetNum()));
     }
