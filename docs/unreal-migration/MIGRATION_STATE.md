@@ -1,3 +1,15 @@
+# S354 complete — NPC clothing and distinct creature anatomy (Codex, 2026-10-11)
+
+- User requested a stronger visible graphics upgrade after S353. Source/assets commit **1f4d1ed4b868279d03944fc548bf2c680b2e762c**, base `f001b6b3603329f4439869b704eb922847b04b9d`. Nine ambient NPCs now use tailored clothing geometry, role hats/lapels/cuffs/pouches and original 77-bone animation bindings/heights. Rubble Rat and Dust Crawler replace human stand-ins with 18/16-bone creature rigs, continuous rat anatomy / six-legged carapace and 10 authored clips.
+- New built-in imagegen pigment atlas (intact source and full prompt saved) plus four reproducible technical maps improve fur/chitin; no old painted image was edited. Existing gameplay values, collision and status rules are preserved.
+- Fresh serial UE5.8.2 build; focused4/4; final **Foundation6/6 + related52/52 =58/58 PASS**, including **all30 rendered visuals**. Exact IDs, exits0, failed/notRun/inProcess0. Full274 not rerun. 54 focused and78 final selected captures1280x720 hashed; four representative native images committed in evidence/s354.
+- Rejected early floating fur/corduroy/white pigments and mixed FBX/Interchange bind axes. Fresh legacy imports fixed visible poses; upright body, animated legs, bite and held death now checked. Import commandlet preserves existing generated packages; changed FBX requires scratch clean import. Earlier failures retained.
+- All1233 frozen files match;1049 unrelated original files unchanged. Claude159ae961 clean/unchanged; original/foundation/models/handoff untouched. NPC facial paint remains shared; heroes and four other encounter variants are unchanged. No LOD/Shipping/performance claim.
+- Existing startup/MotionVector/missing-world warnings and52 related memory-budget messages retained in results. Root reviewed source and native captures. No editor/compiler remains; GPU slot released. Local only, no push or peer action.
+- Detail: docs/unreal-migration/S354_REVIEW.md and S354_RESULTS.json; rebuild/provenance: Unreal/ArtSource/CharacterUpgrade/README.md.
+
+---
+
 # S353 complete - character and monster surface detail (Codex, 2026-10-11)
 
 - User requested more character/monster graphic detail. Source/assets commit 2cfc182db5ba1a86435cbb246f75b8af6a1aa917, base e50350229a033dfa77610c994e2c57e4ceb8745a.14existing body materials (Arrel/Elia/Malet,9ambientNPCs,Husk/Thief) now use8deterministic normal/packed maps. Broad fabric/leather/bone relief, subdued armour/brass/steel response and6muted reflected foe tint/weathering profiles preserve painted identities, face/hair/embroidery, crack/rim/orb/hit cues and gameplay values.
