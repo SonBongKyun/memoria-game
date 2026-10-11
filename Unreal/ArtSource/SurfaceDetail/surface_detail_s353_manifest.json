@@ -1,0 +1,393 @@
+{
+  "atlas": {
+    "gutter_px": 8,
+    "interior_px": 496,
+    "normal_fade_px": 24,
+    "tile_px": 512
+  },
+  "files": {
+    "ambient_detail_normal.png": {
+      "bytes": 592658,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGB",
+      "sha256": "e2dd76a32dcbdbb1220d41dd18f652f4ce2145f7821438ed080398547ce3de21"
+    },
+    "ambient_detail_surface.png": {
+      "bytes": 1272199,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "sha256": "ffe7452a636d2f4212c728aa4b2f12cc63ea9ba060834f1c833d64cd9750dd54"
+    },
+    "hero_detail_normal.png": {
+      "bytes": 43545,
+      "dimensions": [
+        512,
+        512
+      ],
+      "mode": "RGB",
+      "sha256": "6da70e39be86d3f535323d6eafb48be5e01c5d75bca53b21b097c3e143ffe301"
+    },
+    "hero_detail_surface.png": {
+      "bytes": 109371,
+      "dimensions": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "sha256": "7fe334899c650516ef05b0810ba8e0b03e5883134be3c134e07a83657c2978bd"
+    },
+    "husk_detail_normal.png": {
+      "bytes": 977408,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGB",
+      "sha256": "805e5e2e52e1cc9dbffa999939ed6d5b73fc0ac678b439a038857bc183e62f92"
+    },
+    "husk_detail_surface.png": {
+      "bytes": 1445207,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "sha256": "b01a7f0cd4f7da3655bf96915953b4f88b44245cd37636616bae76bb65ce9783"
+    },
+    "thief_detail_normal.png": {
+      "bytes": 910892,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGB",
+      "sha256": "7790a8d56419208f9f5af088c87d8d7170d66b1dc6e9da6a64f010b174ebd419"
+    },
+    "thief_detail_surface.png": {
+      "bytes": 1441611,
+      "dimensions": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "sha256": "8ff2ca62b4af287bfc65f83d94fc1f0d09d670cf83ead4de899ee80ef4274d36"
+    }
+  },
+  "generator_sha256": "072518aed40ec3448a71e4ed449ea9e9350860da0690c4953243f11331fafc35",
+  "generator_version": 1,
+  "normal_convention": "DirectX/Unreal tangent RGB; image y increases downward; unnormalized normal = (-dh/dx, +dh/dy, 1); neutral = (128,128,255).",
+  "profiles": {
+    "ambient_detail": {
+      "layout": "upper eight tiles; protected lower head half",
+      "lower_half": "protected head: roughness .68, metallic 0, normal XY <= .01",
+      "normal_xy_max_encoded": 0.330204,
+      "normal_xy_mean_encoded": 0.029947,
+      "seed": 35302,
+      "size": 2048,
+      "surface_channel_max": [
+        254,
+        232,
+        115,
+        241
+      ],
+      "surface_channel_min": [
+        243,
+        129,
+        0,
+        26
+      ],
+      "tile_profiles": [
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.33,
+          "roughness": 0.84,
+          "surface": "cloth",
+          "tile": 0
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.3,
+          "roughness": 0.63,
+          "surface": "leather",
+          "tile": 1
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.33,
+          "roughness": 0.84,
+          "surface": "cloth",
+          "tile": 2
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.022,
+          "roughness": 0.68,
+          "surface": "skin",
+          "tile": 3
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.045,
+          "roughness": 0.78,
+          "surface": "hair",
+          "tile": 4
+        },
+        {
+          "metallic": 0.45,
+          "normal_xy_limit": 0.15,
+          "roughness": 0.54,
+          "surface": "brass_soft",
+          "tile": 5
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.3,
+          "roughness": 0.63,
+          "surface": "leather",
+          "tile": 6
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.33,
+          "roughness": 0.84,
+          "surface": "cloth",
+          "tile": 7
+        }
+      ],
+      "tiles": [
+        "cloth",
+        "leather",
+        "cloth",
+        "skin",
+        "hair",
+        "brass_soft",
+        "leather",
+        "cloth"
+      ]
+    },
+    "hero_detail": {
+      "layout": "periodic shared detail",
+      "normal_xy_max_encoded": 0.156175,
+      "normal_xy_mean_encoded": 0.065344,
+      "periodic_edge_byte_delta_max": 2,
+      "seed": 35301,
+      "size": 512,
+      "surface_channel_max": [
+        254,
+        218,
+        0,
+        235
+      ],
+      "surface_channel_min": [
+        244,
+        182,
+        0,
+        26
+      ],
+      "tiles": [
+        "hero"
+      ]
+    },
+    "husk_detail": {
+      "layout": "upper eight tiles repeated in lower half",
+      "lower_half": "byte-identical to upper half",
+      "normal_xy_max_encoded": 0.342279,
+      "normal_xy_mean_encoded": 0.056261,
+      "seed": 35303,
+      "size": 2048,
+      "surface_channel_max": [
+        254,
+        249,
+        20,
+        234
+      ],
+      "surface_channel_min": [
+        242,
+        96,
+        0,
+        28
+      ],
+      "tile_profiles": [
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.345,
+          "roughness": 0.88,
+          "surface": "shreds",
+          "tile": 0
+        },
+        {
+          "metallic": 0.08,
+          "normal_xy_limit": 0.34,
+          "roughness": 0.65,
+          "surface": "bone_plate",
+          "tile": 1
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.3,
+          "roughness": 0.63,
+          "surface": "leather",
+          "tile": 2
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.035,
+          "roughness": 0.8,
+          "surface": "neutral",
+          "tile": 3
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.008,
+          "roughness": 0.96,
+          "surface": "void_face",
+          "tile": 4
+        },
+        {
+          "metallic": 0.05,
+          "normal_xy_limit": 0.22,
+          "roughness": 0.43,
+          "surface": "talon",
+          "tile": 5
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.035,
+          "roughness": 0.8,
+          "surface": "neutral",
+          "tile": 6
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.06,
+          "roughness": 0.8,
+          "surface": "crack",
+          "tile": 7
+        }
+      ],
+      "tiles": [
+        "shreds",
+        "bone_plate",
+        "leather",
+        "neutral",
+        "void_face",
+        "talon",
+        "neutral",
+        "crack"
+      ]
+    },
+    "thief_detail": {
+      "layout": "upper eight tiles repeated in lower half",
+      "lower_half": "byte-identical to upper half",
+      "normal_xy_max_encoded": 0.330204,
+      "normal_xy_mean_encoded": 0.050023,
+      "seed": 35304,
+      "size": 2048,
+      "surface_channel_max": [
+        254,
+        237,
+        178,
+        238
+      ],
+      "surface_channel_min": [
+        243,
+        92,
+        0,
+        26
+      ],
+      "tile_profiles": [
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.33,
+          "roughness": 0.84,
+          "surface": "cloth",
+          "tile": 0
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.3,
+          "roughness": 0.63,
+          "surface": "leather",
+          "tile": 1
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.33,
+          "roughness": 0.84,
+          "surface": "cloth",
+          "tile": 2
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.022,
+          "roughness": 0.68,
+          "surface": "skin",
+          "tile": 3
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.01,
+          "roughness": 0.91,
+          "surface": "eye_socket",
+          "tile": 4
+        },
+        {
+          "metallic": 0.65,
+          "normal_xy_limit": 0.16,
+          "roughness": 0.4,
+          "surface": "steel",
+          "tile": 5
+        },
+        {
+          "metallic": 0.7,
+          "normal_xy_limit": 0.15,
+          "roughness": 0.47,
+          "surface": "brass",
+          "tile": 6
+        },
+        {
+          "metallic": 0.0,
+          "normal_xy_limit": 0.33,
+          "roughness": 0.84,
+          "surface": "cloth",
+          "tile": 7
+        }
+      ],
+      "tiles": [
+        "cloth",
+        "leather",
+        "cloth",
+        "skin",
+        "eye_socket",
+        "steel",
+        "brass",
+        "cloth"
+      ]
+    }
+  },
+  "schema": "memoria.surface_detail.s353.v1",
+  "source_images_read": [],
+  "surface_packing": {
+    "A": "mottled weathering mask",
+    "B": "metallic",
+    "G": "roughness",
+    "R": "ambient occlusion"
+  },
+  "texture_import": {
+    "normal": {
+      "compression": "TC_Normalmap",
+      "flip_green": false,
+      "srgb": false
+    },
+    "surface": {
+      "compression": "TC_Masks",
+      "srgb": false
+    }
+  }
+}

@@ -28,6 +28,9 @@ struct FMemoriaFoeLook
     bool bRetint = false;
     FLinearColor ModelGlow = FLinearColor(.32f, .008f, .72f), ModelRim = FLinearColor::White;
     float ModelCrack = 2.5f, ModelRimStrength = .12f;
+    // S353: painted surfaces vary without changing the luminous combat cues.
+    FLinearColor SurfaceTint = FLinearColor::White;
+    float Weathering = 0.f;
 };
 // Rigged field figures share distance-driven locomotion. Illustrated/pixel cards remain a fallback.
 UCLASS()

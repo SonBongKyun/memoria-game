@@ -78,6 +78,37 @@ public:
             }
             return true;
         };
+        auto CheckBaseSurface = [&](AMemoriaFieldMonster* Monster)
+        {
+            auto* Mesh = Monster ? Monster->GetFigure()->GetSkeletalMesh() : nullptr;
+            if (!Mesh) return;
+            for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
+            {
+                auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
+                if (!Test->TestNotNull(TEXT("Base foe body has a runtime material"), Material)) continue;
+                FLinearColor Tint;
+                float Weathering = -1.f, Detail = -1.f;
+                Test->TestTrue(*FString::Printf(TEXT("%s body %d explicitly retains its painted colour"), Monster->Spec().Name, I),
+                    Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("SurfaceTint")), Tint, true) && Tint.Equals(FLinearColor::White, .001f));
+                Test->TestTrue(*FString::Printf(TEXT("%s body %d explicitly retains its base wear"), Monster->Spec().Name, I),
+                    Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Weathering")), Weathering, true) && FMath::IsNearlyZero(Weathering));
+                Test->TestTrue(TEXT("The base foe's normal detail is enabled"),
+                    Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("DetailStrength")), Detail) && FMath::IsNearlyEqual(Detail, 1.f));
+            }
+            // The new surface controls must not replace the existing dynamic hit flash.
+            Monster->GetFigure()->SetHitFlash(.65f);
+            for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
+            {
+                auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
+                float Hit = -1.f;
+                FLinearColor Tint;
+                Test->TestTrue(TEXT("Surface detail preserves the live body hit flash"), Material &&
+                    Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Hit")), Hit, true) && FMath::IsNearlyEqual(Hit, .65f));
+                Test->TestTrue(TEXT("Hit flash does not replace the base surface tint"), Material &&
+                    Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("SurfaceTint")), Tint, true) && Tint.Equals(FLinearColor::White, .001f));
+            }
+            Monster->GetFigure()->SetHitFlash(0.f);
+        };
         const FVector Me = Pawn->GetActorLocation();
         AMemoriaFieldMonster* H = Husk.Get(); AMemoriaFieldMonster* T = Thief.Get();
         if (Phase == 0)
@@ -101,6 +132,7 @@ public:
                 Test->TestTrue(TEXT("The thief wears its model"), T->GetFigure()->IsFoeModel() && T->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetName() == TEXT("SK_Thief"));
                 Test->TestTrue(TEXT("The husk wears its own material (not the default)"), UsesFoeMaterial(H));
                 Test->TestTrue(TEXT("The thief wears its own material"), UsesFoeMaterial(T));
+                CheckBaseSurface(H); CheckBaseSurface(T);
                 const auto* HuskAnim = Cast<UMemoriaFieldAnimInstance>(H->GetFigure()->GetSkeletalMesh()->GetAnimInstance());
                 Test->TestTrue(TEXT("The husk shambles on the zombie clips"), HuskAnim && HuskAnim->Idle == MemoriaCombatClips::Load(TEXT("Husk"), TEXT("Zombie_Idle_Loop")) &&
                     HuskAnim->Walk == MemoriaCombatClips::Load(TEXT("Husk"), TEXT("Zombie_Walk_Fwd_Loop")));

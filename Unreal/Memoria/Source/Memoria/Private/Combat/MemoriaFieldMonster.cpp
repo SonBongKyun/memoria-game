@@ -32,6 +32,7 @@ void AMemoriaFieldMonster::BeginPlay()
     Look.Model = S.Model; Look.Height = S.Height; Look.bQuinn = S.bQuinn; Look.Idle = S.Idle; Look.Walk = S.Walk;
     Look.Color = S.Color; Look.Glow = S.Glow; Look.Crack = S.Crack; Look.Rim = S.Rim; Look.BladeScale = S.BladeScale;
     Look.bRetint = S.bRetint; Look.ModelGlow = S.ModelGlow; Look.ModelCrack = S.ModelCrack; Look.ModelRim = S.ModelRim; Look.ModelRimStrength = S.ModelRimStrength;
+    Look.SurfaceTint = S.SurfaceTint; Look.Weathering = S.Weathering;
     Figure->InitializeFoe(Look);
     Health = MaxHealth = S.Health; Movement->MaxSpeed = S.Speed;
     PreviousLocation = GetActorLocation();

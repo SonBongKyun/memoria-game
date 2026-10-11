@@ -13,9 +13,13 @@
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Interaction/MemoriaEliaCompanion.h"
+#include "Tutorial/MemoriaTutorialSubsystem.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "EngineUtils.h"
 #include "Components/BoxComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "CollisionQueryParams.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
@@ -94,12 +98,80 @@ public:
         case 1:
             if (Frame == Mark + 200)
             {
+                TArray<FLinearColor> LiveTints;
+                TArray<float> LiveWear;
                 for (const auto& M : Combat->GetMonsters())
-                    if (M.IsValid()) Test->TestTrue(*FString::Printf(TEXT("%s stands at its own height"), M->Spec().Name), FMath::IsNearlyEqual(M->GetFigure()->GetWorldHeight(), M->Spec().Height));
+                {
+                    if (!M.IsValid()) continue;
+                    const auto& S = M->Spec();
+                    Test->TestTrue(*FString::Printf(TEXT("%s stands at its own height"), S.Name), FMath::IsNearlyEqual(M->GetFigure()->GetWorldHeight(), S.Height));
+                    auto* Mesh = M->GetFigure()->GetSkeletalMesh();
+                    if (!Test->TestNotNull(TEXT("Variant wears its rigged body"), Mesh)) continue;
+                    Test->TestTrue(TEXT("Variant body has a material slot"), Mesh->GetNumMaterials() > 0);
+                    for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
+                    {
+                        auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
+                        if (!Test->TestNotNull(TEXT("Variant body has its own runtime material"), Material)) continue;
+                        FLinearColor Tint, Glow, Rim;
+                        float Wear = -1.f, Crack = -1.f, RimStrength = -1.f;
+                        const bool bTint = Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("SurfaceTint")), Tint, true);
+                        const bool bWear = Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Weathering")), Wear, true);
+                        Test->TestTrue(*FString::Printf(TEXT("%s body %d receives its surface tint at runtime"), S.Name, I), bTint && Tint.Equals(S.SurfaceTint, .001f));
+                        Test->TestTrue(*FString::Printf(TEXT("%s body %d receives its weathering at runtime"), S.Name, I), bWear && FMath::IsNearlyEqual(Wear, S.Weathering));
+                        if(FString(S.Model)==TEXT("Husk"))
+                            Test->TestTrue(TEXT("Husk surface variation preserves its existing crack glow"),
+                                Material->Parent->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Glow")), Glow) &&
+                                Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Glow")), Glow, true) && Glow.Equals(S.ModelGlow, .001f) &&
+                                Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("CrackStrength")), Crack, true) && FMath::IsNearlyEqual(Crack, S.ModelCrack));
+                        else
+                            Test->TestTrue(TEXT("Thief based surfaces keep their non glowing parent"),
+                                !Material->Parent->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Glow")), Glow) &&
+                                !Material->Parent->GetScalarParameterValue(FMaterialParameterInfo(TEXT("CrackStrength")), Crack));
+                        Test->TestTrue(TEXT("Surface variation preserves the existing rim and projectile colour"),
+                            Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("RimColor")), Rim, true) && Rim.Equals(S.ModelRim, .001f) &&
+                            Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("RimStrength")), RimStrength, true) && FMath::IsNearlyEqual(RimStrength, S.ModelRimStrength));
+                        if (I == 0 && bTint && bWear) { LiveTints.Add(Tint); LiveWear.Add(Wear); }
+                    }
+                    M->GetFigure()->SetHitFlash(.65f);
+                    for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
+                    {
+                        auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
+                        float Hit = -1.f, Wear = -1.f;
+                        FLinearColor Tint;
+                        Test->TestTrue(TEXT("Each variant retains a dynamic body hit flash"), Material &&
+                            Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Hit")), Hit, true) && FMath::IsNearlyEqual(Hit, .65f));
+                        Test->TestTrue(TEXT("A hit leaves the variant's surface controls independent"), Material &&
+                            Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("SurfaceTint")), Tint, true) && Tint.Equals(S.SurfaceTint, .001f) &&
+                            Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Weathering")), Wear, true) && FMath::IsNearlyEqual(Wear, S.Weathering));
+                    }
+                    M->GetFigure()->SetHitFlash(0.f);
+                }
+                Test->TestEqual(TEXT("All six live variants provide surface profiles"), LiveTints.Num(), 6);
+                for (int32 I = 0; I < LiveTints.Num(); ++I)
+                    for (int32 J = I + 1; J < LiveTints.Num(); ++J)
+                    {
+                        Test->TestFalse(TEXT("Different kinds retain independent non-emissive tints"), LiveTints[I].Equals(LiveTints[J], .001f));
+                        Test->TestFalse(TEXT("Different kinds retain independent weathering strengths"), FMath::IsNearlyEqual(LiveWear[I], LiveWear[J]));
+                    }
                 Capture(TEXT("FoeLineup"));
             }
-            // (Held until the tutorial's first hint has left the top of the screen.)
-            if (Frame < Mark + 206) break;
+            // S353: retain the original comparison shot, then also show the same live lineup after
+            // the real tutorial/achievement queues have remained quiet for half a second. No UI is hidden.
+            if (Frame >= Mark + 360 && CleanLineupAt == 0)
+            {
+                const auto* Tutorial = World->GetGameInstance()->GetSubsystem<UMemoriaTutorialSubsystem>();
+                const auto* Achievements = World->GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>();
+                if (!Tutorial || !Achievements) { Test->AddError(TEXT("Lineup overlay subsystems are missing")); return true; }
+                QuietLineupFrames = !Tutorial->IsShowing() && Achievements->GetPopup().IsEmpty() ? QuietLineupFrames + 1 : 0;
+                if (QuietLineupFrames >= 30)
+                {
+                    Test->TestEqual(TEXT("Six live foes remain for the unobscured lineup"), Combat->LiveMonsterCount(), 6);
+                    Capture(TEXT("FoeLineupClean")); CleanLineupAt = Frame;
+                    Test->AddInfo(FString::Printf(TEXT("Clean foe lineup captured after %d frames with tutorial and achievement overlays expired"), Frame - Mark));
+                }
+                if (Frame > Mark + 1200) { Test->AddError(TEXT("Lineup overlays did not expire while the foes were held")); return true; }
+            }
+            if (CleanLineupAt == 0 || Frame < CleanLineupAt + 6) break;
             Clear();
             // The wisp: a caster.
             Foe = Spawn(EMemoriaFoeKind::VoidWisp, FVector(700, 0, 0));
@@ -413,6 +485,7 @@ private:
     double Started, OldDelta = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
     int32 Phase = 0, Frame = 0, Mark = 0, Orbs = 0, Taken = 0, WindupAt = 0;
+    int32 CleanLineupAt = 0, QuietLineupFrames = 0;
     int64 Hp = 0;
     float Closest = 0.f, Health = 0.f;
     FVector Home = FVector::ZeroVector;

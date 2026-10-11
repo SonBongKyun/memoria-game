@@ -227,6 +227,8 @@ bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
                 if (UMaterialInterface* Base = Skeletal->GetMaterial(I))
                 {
                     auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal); Skeletal->SetMaterial(I, Material); FoeMaterials.Add(Material);
+                    Material->SetVectorParameterValue(TEXT("SurfaceTint"), Look.SurfaceTint);
+                    Material->SetScalarParameterValue(TEXT("Weathering"), FMath::Clamp(Look.Weathering, 0.f, 1.f));
                     if (Look.bRetint)
                     {
                         Material->SetVectorParameterValue(TEXT("Glow"), Look.ModelGlow); Material->SetScalarParameterValue(TEXT("CrackStrength"), Look.ModelCrack);
@@ -253,6 +255,8 @@ bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
         for (int32 I = 0; I < Skeletal->GetNumMaterials(); ++I)
         {
             auto* Material = UMaterialInstanceDynamic::Create(Base, Skeletal);
+            Material->SetVectorParameterValue(TEXT("SurfaceTint"), Look.SurfaceTint);
+            Material->SetScalarParameterValue(TEXT("Weathering"), FMath::Clamp(Look.Weathering, 0.f, 1.f));
             Material->SetVectorParameterValue(TEXT("Color"), Look.Color); Material->SetVectorParameterValue(TEXT("Glow"), Look.Glow);
             Material->SetScalarParameterValue(TEXT("CrackStrength"), Look.Crack); Material->SetScalarParameterValue(TEXT("RimStrength"), Look.Rim);
             Skeletal->SetMaterial(I, Material); FoeMaterials.Add(Material);

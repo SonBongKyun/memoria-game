@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "MemoriaSurfaceDetailChecks.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
 #include "Editor.h"
@@ -728,6 +729,7 @@ private:
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFieldCharactersTest, "MemoriaVisual.FieldCharacters", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FFieldCharactersTest::RunTest(const FString&)
 {
+    CheckMemoriaSurfaceDetail(this);
     // FIELD_SPRITE_ART_SPEC.md acceptance: every Verdan field character resolves art; the report says which.
     for (const TCHAR* Id : {TEXT("arrel"), TEXT("elia"), TEXT("malet")})
     {

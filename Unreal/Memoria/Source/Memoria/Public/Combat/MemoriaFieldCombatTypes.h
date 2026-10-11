@@ -154,6 +154,9 @@ struct FMemoriaFoeSpec
     bool bRetint = false;
     FLinearColor ModelGlow = FLinearColor(.32f, .008f, .72f), ModelRim = FLinearColor::White;
     float ModelCrack = 2.5f, ModelRimStrength = .12f;
+    // S353: non-emissive surface variation, independent of attack/orb and crack colours.
+    FLinearColor SurfaceTint = FLinearColor::White;
+    float Weathering = 0.f;
 };
 inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
 {
@@ -176,12 +179,13 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
     {
         static FMemoriaFoeSpec Of(const FMemoriaFoeSpec& Base, const TCHAR* Name, const TCHAR* NameKo, int32 Hp, int32 Atk, float Health, float Height, float Speed, float Damage,
             float Windup, float Recover, bool bVoid, EMemoriaFoeAbility Ability, EMemoriaFoeAbility Second, EMemoriaFoeBehaviour Behaviour,
-            const FLinearColor& Glow, float Crack, const FLinearColor& Rim, float RimStrength)
+            const FLinearColor& Glow, float Crack, const FLinearColor& Rim, float RimStrength, const FLinearColor& SurfaceTint, float Weathering)
         {
             FMemoriaFoeSpec S = Base;
             S.Name = Name; S.NameKo = NameKo; S.SourceHp = Hp; S.SourceAtk = Atk; S.Health = Health; S.Height = Height; S.Speed = Speed; S.Damage = Damage;
             S.Windup = Windup; S.Recover = Recover; S.bVoid = bVoid; S.Ability = Ability; S.Second = Second; S.Behaviour = Behaviour;
             S.bRetint = true; S.ModelGlow = Glow; S.ModelCrack = Crack; S.ModelRim = Rim; S.ModelRimStrength = RimStrength;
+            S.SurfaceTint = SurfaceTint; S.Weathering = Weathering;
             // The mannequin stand-in (when the models are not imported) wears the same glow.
             S.Glow = Rim;
             return S;
@@ -189,17 +193,17 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
     };
     using A = EMemoriaFoeAbility; using B = EMemoriaFoeBehaviour;
     static const FMemoriaFoeSpec Scavenger = FVariant::Of(Thief, TEXT("Belt Scavenger"), TEXT("벨트 약탈자"), 55, 12, 50.f, 165.f, 140.f, 7.f, .45f, .75f,
-        false, A::Weaken, A::None, B::Brawler, FLinearColor::Black, 0.f, FLinearColor(.95f, .62f, .22f), .24f);
+        false, A::Weaken, A::None, B::Brawler, FLinearColor::Black, 0.f, FLinearColor(.95f, .62f, .22f), .24f, FLinearColor(1.06f, .88f, .69f), .22f);
     static const FMemoriaFoeSpec Wisp = FVariant::Of(Husk, TEXT("Void Wisp"), TEXT("보이드 도깨비불"), 45, 14, 40.f, 135.f, 110.f, 8.f, .90f, 1.40f,
-        true, A::Drain, A::None, B::Caster, FLinearColor(.25f, .7f, 1.f), 5.f, FLinearColor(.4f, .8f, 1.f), .70f);
+        true, A::Drain, A::None, B::Caster, FLinearColor(.25f, .7f, 1.f), 5.f, FLinearColor(.4f, .8f, 1.f), .70f, FLinearColor(.72f, .88f, 1.03f), .16f);
     static const FMemoriaFoeSpec Crawler = FVariant::Of(Thief, TEXT("Dust Crawler"), TEXT("먼지 크롤러"), 40, 10, 36.f, 118.f, 170.f, 6.f, .65f, 1.10f,
-        false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.85f, .74f, .46f), .22f);
+        false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.85f, .74f, .46f), .22f, FLinearColor(1.08f, .91f, .65f), .50f);
     static const FMemoriaFoeSpec Leech = FVariant::Of(Husk, TEXT("Memory Leech"), TEXT("기억 거머리"), 50, 13, 45.f, 150.f, 100.f, 8.f, .60f, .90f,
-        true, A::Drain, A::None, B::Brawler, FLinearColor(1.f, .1f, .3f), 4.f, FLinearColor(1.f, .2f, .4f), .45f);
+        true, A::Drain, A::None, B::Brawler, FLinearColor(1.f, .1f, .3f), 4.f, FLinearColor(1.f, .2f, .4f), .45f, FLinearColor(.89f, .75f, .92f), .28f);
     static const FMemoriaFoeSpec Rat = FVariant::Of(Thief, TEXT("Rubble Rat"), TEXT("잔해쥐"), 35, 9, 32.f, 105.f, 185.f, 5.f, .60f, 1.10f,
-        false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.62f, .64f, .70f), .20f);
+        false, A::Poison, A::None, B::Charger, FLinearColor::Black, 0.f, FLinearColor(.62f, .64f, .70f), .20f, FLinearColor(.69f, .73f, .77f), .36f);
     static const FMemoriaFoeSpec Walker = FVariant::Of(Husk, TEXT("Ash Walker"), TEXT("재의 방랑자"), 60, 11, 55.f, 185.f, 70.f, 8.f, .85f, 1.00f,
-        false, A::Burn, A::Weaken, B::Brawler, FLinearColor(1.f, .42f, .08f), 5.f, FLinearColor(1.f, .5f, .15f), .40f);
+        false, A::Burn, A::Weaken, B::Brawler, FLinearColor(1.f, .42f, .08f), 5.f, FLinearColor(1.f, .5f, .15f), .40f, FLinearColor(1.04f, 1.f, .90f), .62f);
     switch (Kind)
     {
     case EMemoriaFoeKind::MarketThief: return Thief;
