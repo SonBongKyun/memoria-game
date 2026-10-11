@@ -1,3 +1,15 @@
+# S352 complete - field combat readability and memory choices (Codex, 2026-10-11)
+
+- User requested autonomous Codex work from Notion approved manuscripts/worldbuilding, prioritizing graphics and gameplay. Live final hub approval covers final-1 chapters 1-56 (latest 55-56 approved 2026-10-10); approved early finals and worldbuilding v10 were read. Irreversible memory cost remains visible; no narrative or save-schema change.
+- Source/test commit f6e7411ba10ea2478fb641cc47926d59a1a66595, base c8870f19186de773306d7a9cbe5d2e5c15c396b8. Thin projected melee/charge/caster warnings show windup progress without opaque ground cover. Charge previews stop at cover and movement cannot exceed nominal 520cm on long frames. Enemy orbs compare first player/wall contact over the whole segment, retain dodge/lifetime rules and expire with dead/destroyed owners.
+- Burn picker shows at most six rows at actual UI scale, follows selection through all memories, fits authored text and keeps irreversible warning/cancel controls visible. Native fixture: 13 owned / 12 available, local geometry 2011.3x1081.1, six visible. Korean/English navigation and both cancellation inputs preserve ownership/history; real burn still verified.
+- Fresh UE5.8.2 serial build and Foundation 6/6 + related 52/52 = 58/58 PASS, including all 30 rendered visual tests. Exact IDs, all command exits 0/fatal diagnostics 0, failed/notRun/inProcess 0. Full 274 not rerun. 25 fresh captures 1280x720 hash/dimension checked; representative native views inspected; 875 unrelated own source/content/tool files unchanged.
+- Earlier passing and failed attempts retained: outline closure introduced a TArray self-alias assertion, repaired by copying the endpoint before Add, followed by fresh final validation. Existing startup/memory-budget and three warning-bearing tests are documented. Smaller viewports use geometry assertions; no dedicated polygon-vertex clipping assertion.
+- Claude checkout 159ae961f844e3492cd9857b6d472e8aa79b5d02 clean/unchanged; original/foundation/models/handoff read-only. No own engine/compiler remains. Local commits only, no remote push or peer merge/message.
+- Detail and exact evidence: docs/unreal-migration/S352_REVIEW.md and S352_RESULTS.json; raw Saved/Validation/s352/. Shared NPC faces, primitive market props and pass-through stalls remain further polish targets.
+
+---
+
 # S351 integration complete (Codex, 2026-10-07)
 
 - Source 37776bae2ccf7e120ce217139bae6253c7ae6ec4 -> de2c249d618869dba26e5652ee5500950d79724f, basec9e216a42b13d2ff6aceed5267056161da55c5af. Used barrel/crate bound wood/iron Tint dim independently; read sign marker hides; saved flags apply after actual map reentry. No extra product logic repair.
