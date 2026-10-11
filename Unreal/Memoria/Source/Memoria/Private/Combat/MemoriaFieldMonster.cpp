@@ -5,11 +5,9 @@
 #include "Presentation/MemoriaCombatClips.h"
 #include "Animation/AnimSequence.h"
 #include "Components/BoxComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/FloatingPawnMovement.h"
-#include "Materials/MaterialInstanceDynamic.h"
 using namespace MemoriaCombatTuning;
 AMemoriaFieldMonster::AMemoriaFieldMonster()
 {
@@ -22,12 +20,6 @@ AMemoriaFieldMonster::AMemoriaFieldMonster()
     Movement->MaxSpeed = HuskSpeed; Movement->Acceleration = 900.f; Movement->Deceleration = 1400.f; // the kind's speed is set in BeginPlay
     Figure = CreateDefaultSubobject<UMemoriaFieldCharacterComponent>(TEXT("Figure"));
     Figure->SetupAttachment(Box);
-    // The telegraph: a thin red disc under the husk while it winds up, the reach of its strike.
-    Telegraph = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Telegraph"));
-    Telegraph->SetupAttachment(Box); Telegraph->SetCollisionEnabled(ECollisionEnabled::NoCollision); Telegraph->SetCastShadow(false);
-    Telegraph->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder")));
-    Telegraph->SetRelativeLocation(FVector(0, 0, -8.5)); Telegraph->SetRelativeScale3D(FVector(HuskReach / 50.f, HuskReach / 50.f, .004f));
-    Telegraph->SetHiddenInGame(true);
     AutoPossessAI = EAutoPossessAI::Disabled;
 }
 UPawnMovementComponent* AMemoriaFieldMonster::GetMovementComponent() const { return Movement; }
@@ -42,40 +34,56 @@ void AMemoriaFieldMonster::BeginPlay()
     Look.bRetint = S.bRetint; Look.ModelGlow = S.ModelGlow; Look.ModelCrack = S.ModelCrack; Look.ModelRim = S.ModelRim; Look.ModelRimStrength = S.ModelRimStrength;
     Figure->InitializeFoe(Look);
     Health = MaxHealth = S.Health; Movement->MaxSpeed = S.Speed;
-    Telegraph->SetRelativeScale3D(FVector(S.Reach / 50.f, S.Reach / 50.f, .004f));
-    if (auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
-    {
-        TelegraphMaterial = UMaterialInstanceDynamic::Create(Base, this);
-        TelegraphMaterial->SetVectorParameterValue(TEXT("Color"), FLinearColor(.45f, .02f, .03f));
-        Telegraph->SetMaterial(0, TelegraphMaterial);
-    }
     PreviousLocation = GetActorLocation();
 }
 void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
 {
     State = Next; StateTime = 0.f;
-    Telegraph->SetHiddenInGame(Next != EMemoriaMonsterState::Windup);
-    if (Next == EMemoriaMonsterState::Windup)
-    {
-        // The telegraph is the reach of what is coming: a disc under a brawler or a caster, a lane before a charger.
-        const FMemoriaFoeSpec& S = Spec();
-        if (S.Behaviour == EMemoriaFoeBehaviour::Charger)
-        {
-            Telegraph->SetRelativeRotation(FRotator(0, RushDirection.Rotation().Yaw, 0));
-            Telegraph->SetRelativeLocation(RushDirection * RushDistance * .5f + FVector(0, 0, -8.5));
-            Telegraph->SetRelativeScale3D(FVector(RushDistance / 100.f, RushWidth / 100.f, .004f));
-        }
-        else
-        {
-            Telegraph->SetRelativeRotation(FRotator::ZeroRotator); Telegraph->SetRelativeLocation(FVector(0, 0, -8.5));
-            const float Reach = S.Behaviour == EMemoriaFoeBehaviour::Caster ? 60.f : S.Reach;
-            Telegraph->SetRelativeScale3D(FVector(Reach / 50.f, Reach / 50.f, .004f));
-        }
-    }
     // The kind's strike, timed so its blow lands as the windup ends.
     if (Next == EMemoriaMonsterState::Windup)
         if (const UAnimSequence* Clip = MemoriaCombatClips::Load(Figure->GetCharacterId(), Spec().Strike))
             Figure->PlayAction(Spec().Strike, FMath::Max(.1f, Clip->GetPlayLength() * Spec().StrikeAt / Spec().Windup));
+}
+FMemoriaAttackCue AMemoriaFieldMonster::GetAttackCue() const
+{
+    FMemoriaAttackCue Cue;
+    const auto* C = Combat();
+    const APawn* Target = C ? C->GetPlayer() : nullptr;
+    if (State != EMemoriaMonsterState::Windup || !Target || C->IsDefeated()) return Cue;
+    Cue.bActive = true;
+    Cue.Behaviour = Spec().Behaviour;
+    Cue.Origin = GetActorLocation() - FVector(0, 0, 8.5f);
+    Cue.Progress = FMath::Clamp(StateTime / FMath::Max(Spec().Windup, SMALL_NUMBER), 0.f, 1.f);
+    if (Cue.Behaviour == EMemoriaFoeBehaviour::Charger)
+    {
+        // The charger commits when it enters Windup, unlike the caster's live aim.
+        Cue.Direction = RushDirection;
+        Cue.Length = RushDistance;
+        Cue.Radius = RushHit;
+        // Preview the same blocking box used by the rush, with pawn bodies ignored.
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MemoriaRushPreview), false, this);
+        for (TActorIterator<APawn> It(GetWorld()); It; ++It) Query.AddIgnoredActor(*It);
+        const auto* Collision = CastChecked<UPrimitiveComponent>(GetRootComponent());
+        FHitResult Hit;
+        if (GetWorld()->SweepSingleByChannel(Hit, GetActorLocation(),
+            GetActorLocation() + RushDirection * RushDistance, GetActorQuat(),
+            Collision->GetCollisionObjectType(), Collision->GetCollisionShape(), Query))
+        {
+            Cue.bBlocked = true;
+            Cue.Length = FMath::Min(Cue.Length, FVector::Dist2D(GetActorLocation(), Hit.Location));
+            Cue.BlockPoint = Hit.ImpactPoint;
+            Cue.BlockNormal = Hit.ImpactNormal.GetSafeNormal2D();
+        }
+    }
+    else if (Cue.Behaviour == EMemoriaFoeBehaviour::Caster)
+    {
+        Cue.Direction = (Target->GetActorLocation() - GetActorLocation()).GetSafeNormal2D();
+        if (Cue.Direction.IsNearlyZero()) Cue.Direction = FVector::ForwardVector;
+        Cue.Length = 220.f; // a direction guide, not a promise of the orb's full travel
+        Cue.Radius = OrbRadius;
+    }
+    else Cue.Radius = Spec().Reach + 40.f; // StrikePlayer includes Arrel's contact allowance
+    return Cue;
 }
 bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shove)
 {
@@ -152,7 +160,6 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
     case EMemoriaMonsterState::Windup:
         // The charger's lane is set; the others keep turning to Arrel.
         if (Spec().Behaviour != EMemoriaFoeBehaviour::Charger) FaceTarget();
-        if (TelegraphMaterial) TelegraphMaterial->SetVectorParameterValue(TEXT("Color"), FLinearColor(.45f + .5f * StateTime / Spec().Windup, .02f, .03f));
         if (StateTime >= Spec().Windup)
         {
             ++Strikes;
@@ -175,7 +182,9 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         {
             // Walls stop the rush; Arrel and the other foes do not (it runs through them).
             const FVector Before = GetActorLocation();
-            const FVector Next = Before + RushDirection * RushSpeed * DeltaSeconds;
+            // The final long frame must not travel beyond the lane the player was shown.
+            const float TimeLeft = FMath::Max(0.f, RushDistance / RushSpeed - (StateTime - DeltaSeconds));
+            const FVector Next = Before + RushDirection * RushSpeed * FMath::Min(DeltaSeconds, TimeLeft);
             // Ignore pawns for this sweep only. An unswept retry after hitting a pawn would also
             // skip a wall behind it, especially during a long frame.
             auto* Collision = CastChecked<UPrimitiveComponent>(GetRootComponent());

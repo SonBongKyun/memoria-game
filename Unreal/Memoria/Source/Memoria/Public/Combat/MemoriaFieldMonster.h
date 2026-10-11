@@ -4,10 +4,19 @@
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "MemoriaFieldMonster.generated.h"
 class UFloatingPawnMovement;
-class UStaticMeshComponent;
-class UMaterialInstanceDynamic;
 class UMemoriaFieldCharacterComponent;
 class UMemoriaFieldCombatSubsystem;
+
+// Game-space attack warning, shared by the rendered cue and contact-boundary tests.
+// It previews the existing rules; it does not alter attack power or timing.
+struct FMemoriaAttackCue
+{
+    bool bActive = false, bBlocked = false;
+    EMemoriaFoeBehaviour Behaviour = EMemoriaFoeBehaviour::Brawler;
+    FVector Origin = FVector::ZeroVector, Direction = FVector::ForwardVector;
+    float Length = 0.f, Radius = 0.f, Progress = 0.f;
+    FVector BlockPoint = FVector::ZeroVector, BlockNormal = FVector::ZeroVector;
+};
 
 // A field foe (S313: a void husk or a market thief, FoeSpec) on Epic's mannequin, chasing the player and
 // striking after a telegraph. Set the kind before BeginPlay (SpawnWave spawns deferred).
@@ -32,6 +41,7 @@ public:
     // S342: a drain gives the foe back part of the harm it did.
     void Heal(float Amount) { if (!IsDead()) Health = FMath::Min(MaxHealth, Health + Amount); }
     const FVector& GetRushDirection() const { return RushDirection; }
+    FMemoriaAttackCue GetAttackCue() const;
     float GetHitFlash() const { return HitFlash; }
     bool IsDead() const { return State == EMemoriaMonsterState::Dead; }
     EMemoriaMonsterState GetState() const { return State; }
@@ -44,8 +54,6 @@ protected:
 private:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UFloatingPawnMovement> Movement;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMemoriaFieldCharacterComponent> Figure;
-    UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Telegraph;
-    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> TelegraphMaterial;
     EMemoriaMonsterState State = EMemoriaMonsterState::Idle;
     EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk;
     float Health = MemoriaCombatTuning::HuskHealth, MaxHealth = MemoriaCombatTuning::HuskHealth, StateTime = 0.f;

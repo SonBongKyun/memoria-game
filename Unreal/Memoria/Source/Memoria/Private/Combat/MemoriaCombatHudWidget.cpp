@@ -2,6 +2,8 @@
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
+#include "Combat/MemoriaAttackTelegraph.h"
+#include "Combat/MemoriaBurnPickerLayout.h"
 #include "Presentation/MemoriaFonts.h"
 #include "Presentation/MemoriaHudKit.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
@@ -98,6 +100,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     // The run's locale, like the memory titles and the story text (a new game takes it from the settings).
     const auto* Run = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>() : nullptr;
     const bool Ko = !Run || Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    MemoriaAttackTelegraph::Paint(Elements, Layer, Geometry, PC, *C);
     // S312: the released burn. The ring spreads over the floor in the grade's colour, the screen flares,
     // and the banner names the skill and the memory it cost.
     const FMemoriaBurnWave& Wave = C->GetBurnWave();
@@ -357,49 +360,89 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
 }
 void UMemoriaCombatHudWidget::PaintBurnPicker(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& Geometry, bool Ko) const
 {
-    // The world slows behind an ember-dark veil; the memories that can burn are listed weakest first.
+    // The world slows behind an ember-dark veil. S352 keeps the selection and the irreversible
+    // confirmation in view even after a long run has accumulated more than nine memories.
     const auto* C = Combat.Get();
     const FVector2D Size = Geometry.GetLocalSize();
     const auto& Choices = C->GetBurnChoices();
     const int32 Selected = C->GetBurnSelection();
+    const auto Layout = MemoriaBurnPicker::Build(Size, Choices.Num(), Selected);
+    const FVector2D Panel = Layout.Panel;
+    const float Width = Layout.Extent.X, K = Layout.Scale, RowH = Layout.RowHeight;
+    auto Font = [&](MemoriaFonts::EStyle Style, int32 Points, const FString& Line, float MaxWidth)
+    {
+        const int32 Scaled = FMath::Max(8, FMath::RoundToInt(Points * K));
+        FSlateFontInfo Result = MemoriaFonts::Get(Style, Scaled);
+        const float Measured = MemoriaHudKit::Width(Line, Result);
+        if (Measured > MaxWidth && Measured > 0.f)
+            Result = MemoriaFonts::Get(Style, FMath::Max(8, FMath::FloorToInt(Scaled * MaxWidth / Measured)));
+        return Result;
+    };
+    auto Centered = [&](const FString& Line, const FVector2D& At, MemoriaFonts::EStyle Style, int32 Points, const FLinearColor& Color)
+    { Text(Elements, Layer + 3, Geometry, Line, At, Font(Style, Points, Line, Width - 48.f * K), Color); };
     Box(Elements, Layer, Geometry, FVector2D::ZeroVector, Size, FLinearColor(.02f, .006f, .004f, .52f));
-    const float RowH = 64.f, Width = 760.f, Height = 150.f + RowH * Choices.Num() + 64.f;
-    const FVector2D Panel(Size.X * .5 - Width * .5, FMath::Max(40.f, Size.Y * .5 - Height * .5 - 30.f));
-    Box(Elements, Layer + 1, Geometry, Panel - FVector2D(2, 2), FVector2D(Width, Height) + FVector2D(4, 4), Srgb(.55f, .24f, .10f, .85f));
-    Box(Elements, Layer + 1, Geometry, Panel, FVector2D(Width, Height), Srgb(.055f, .035f, .03f, .96f));
-    Text(Elements, Layer + 3, Geometry, Ko ? TEXT("무엇을 태우겠는가") : TEXT("What will you burn?"), Panel + FVector2D(Width * .5, 52),
-        MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 34), Srgb(1.f, .80f, .56f));
-    Text(Elements, Layer + 3, Geometry, Ko ? TEXT("태운 기억은 돌아오지 않는다") : TEXT("A burned memory never returns"), Panel + FVector2D(Width * .5, 98),
-        MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15), Srgb(.78f, .56f, .44f));
-    for (int32 I = 0; I < Choices.Num(); ++I)
+    Box(Elements, Layer + 1, Geometry, Panel - FVector2D(2, 2) * K, Layout.Extent + FVector2D(4, 4) * K, Srgb(.55f, .24f, .10f, .85f));
+    Box(Elements, Layer + 1, Geometry, Panel, Layout.Extent, Srgb(.055f, .035f, .03f, .96f));
+    Centered(Ko ? TEXT("무엇을 태우겠는가") : TEXT("What will you burn?"), Panel + FVector2D(Width * .5, 42.f * K),
+        MemoriaFonts::EStyle::Title, 34, Srgb(1.f, .80f, .56f));
+    Centered(Ko ? TEXT("태운 기억은 돌아오지 않는다") : TEXT("A burned memory never returns"), Panel + FVector2D(Width * .5, 84.f * K),
+        MemoriaFonts::EStyle::Ui, 15, Srgb(.78f, .56f, .44f));
+    const FString Position = Ko ? FString::Printf(TEXT("선택 %d / %d"), Selected + 1, Choices.Num())
+        : FString::Printf(TEXT("Selected %d / %d"), Selected + 1, Choices.Num());
+    Centered(Position, Panel + FVector2D(Width * .5, 119.f * K), MemoriaFonts::EStyle::Ui, 13, Srgb(.84f, .72f, .60f));
+    if (Layout.First > 0)
+        TextAt(Elements, Layer + 3, Geometry, FString::Printf(TEXT("↑ %d"), Layout.First), Panel + FVector2D(28.f * K, 119.f * K),
+            0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::Max(8, FMath::RoundToInt(13 * K))), Srgb(.84f, .72f, .60f));
+    const int32 Below = Choices.Num() - Layout.First - Layout.Visible;
+    if (Below > 0)
+        TextAt(Elements, Layer + 3, Geometry, FString::Printf(TEXT("%d ↓"), Below), Panel + FVector2D(Width - 28.f * K, 119.f * K),
+            1.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::Max(8, FMath::RoundToInt(13 * K))), Srgb(.84f, .72f, .60f));
+    for (int32 I = Layout.First; I < Layout.First + Layout.Visible; ++I)
     {
         const FMemoriaBurnChoice& Row = Choices[I];
-        const FVector2D At = Panel + FVector2D(24, 132 + RowH * I);
+        const FVector2D At = Layout.RowAt(I);
         const bool bOn = I == Selected;
         if (bOn)
         {
-            Box(Elements, Layer + 2, Geometry, At, FVector2D(Width - 48, RowH - 6), Srgb(.34f, .13f, .06f, .92f));
-            Box(Elements, Layer + 2, Geometry, At, FVector2D(5, RowH - 6), Row.Accent);
+            Box(Elements, Layer + 2, Geometry, At, FVector2D(Width - 48.f * K, RowH - 6.f * K), Srgb(.34f, .13f, .06f, .92f));
+            Box(Elements, Layer + 2, Geometry, At, FVector2D(5.f * K, RowH - 6.f * K), Row.Accent);
         }
-        // Two lines: the memory, then its grade and the skill it becomes; the blow's power on the right.
-        const float Mid = At.Y + (RowH - 6) * .5f;
+        // Keep the authored title, grade, skill and power; numeric shortcuts still name the first nine.
+        const float Mid = At.Y + (RowH - 6.f * K) * .5f;
         const FLinearColor Ink = bOn ? Srgb(1.f, .94f, .86f) : Srgb(.80f, .74f, .68f);
-        if (I < 9) TextAt(Elements, Layer + 3, Geometry, FString::FromInt(I + 1), FVector2D(At.X + 22, Mid), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16), Srgb(.62f, .50f, .40f));
-        Box(Elements, Layer + 3, Geometry, FVector2D(At.X + 44, Mid - 5), FVector2D(10, 10), Row.Accent);
-        TextAt(Elements, Layer + 3, Geometry, Row.Title, FVector2D(At.X + 66, Mid - 11), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 19), Ink);
-        TextAt(Elements, Layer + 3, Geometry, FString::Printf(TEXT("%s  ·  %s"), *Row.GradeLabel, MemoriaCombatTuning::BurnSkillName(Row.Grade, Ko)),
-            FVector2D(At.X + 66, Mid + 14), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), bOn ? Srgb(1.f, .72f, .42f) : Srgb(.62f, .54f, .47f));
-        TextAt(Elements, Layer + 3, Geometry, FString::FromInt(FMath::RoundToInt(Row.Damage)), FVector2D(At.X + Width - 72, Mid), 1.f,
-            MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 24), bOn ? Srgb(1.f, .80f, .52f) : Srgb(.70f, .60f, .50f));
+        if (I < 9) TextAt(Elements, Layer + 3, Geometry, FString::FromInt(I + 1), FVector2D(At.X + 22.f * K, Mid), .5f,
+            MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::Max(8, FMath::RoundToInt(16 * K))), Srgb(.62f, .50f, .40f));
+        Box(Elements, Layer + 3, Geometry, FVector2D(At.X + 44.f * K, Mid - 5.f * K), FVector2D(10, 10) * K, Row.Accent);
+        TextAt(Elements, Layer + 3, Geometry, Row.Title, FVector2D(At.X + 66.f * K, Mid - 11.f * K), 0.f,
+            Font(MemoriaFonts::EStyle::Ui, 19, Row.Title, Width - 190.f * K), Ink);
+        const FString Detail = FString::Printf(TEXT("%s  ·  %s"), *Row.GradeLabel, MemoriaCombatTuning::BurnSkillName(Row.Grade, Ko));
+        TextAt(Elements, Layer + 3, Geometry, Detail, FVector2D(At.X + 66.f * K, Mid + 14.f * K), 0.f,
+            Font(MemoriaFonts::EStyle::Ui, 13, Detail, Width - 190.f * K), bOn ? Srgb(1.f, .72f, .42f) : Srgb(.62f, .54f, .47f));
+        TextAt(Elements, Layer + 3, Geometry, FString::FromInt(FMath::RoundToInt(Row.Damage)), FVector2D(At.X + Width - 72.f * K, Mid), 1.f,
+            MemoriaFonts::Get(MemoriaFonts::EStyle::Title, FMath::Max(8, FMath::RoundToInt(24 * K))), bOn ? Srgb(1.f, .80f, .52f) : Srgb(.70f, .60f, .50f));
     }
-    const FVector2D Foot = Panel + FVector2D(Width * .5, Height - 38);
+    if (Layout.Visible > 0 && Choices.Num() > Layout.Visible)
+    {
+        const float TrackH = Layout.Visible * RowH - 6.f * K;
+        const FVector2D Track = Panel + FVector2D(Width - 14.f * K, Layout.ListTop);
+        Box(Elements, Layer + 2, Geometry, Track, FVector2D(3.f * K, TrackH), Srgb(.25f, .16f, .12f, .8f));
+        const float ThumbH = TrackH * Layout.Visible / Choices.Num();
+        const float ThumbAt = (TrackH - ThumbH) * Layout.First / (Choices.Num() - Layout.Visible);
+        Box(Elements, Layer + 3, Geometry, Track + FVector2D(0, ThumbAt), FVector2D(3.f * K, ThumbH), Srgb(.86f, .54f, .28f, .95f));
+    }
+    Box(Elements, Layer + 2, Geometry, FVector2D(Panel.X + 24.f * K, Layout.FooterTop() + 4.f * K),
+        FVector2D(Width - 48.f * K, K), Srgb(.42f, .24f, .14f, .8f));
     if (C->IsBurnArmed() && Choices.IsValidIndex(Selected))
     {
         const FString Warn = Ko ? FString::Printf(TEXT("한 번 더 누르면 「%s」은(는) 영원히 사라진다"), *Choices[Selected].Title)
             : FString::Printf(TEXT("Press again and \"%s\" is gone forever"), *Choices[Selected].Title);
-        Text(Elements, Layer + 3, Geometry, Warn, Foot, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16), Srgb(1.f, .36f, .30f));
+        Centered(Warn, Layout.WarningAt(), MemoriaFonts::EStyle::Ui, 16, Srgb(1.f, .36f, .30f));
     }
     else
-        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("1–9 · ↑↓  고르기      R · Enter  태우기      Esc  그만두기") : TEXT("1–9 · ↑↓  Choose      R · Enter  Burn      Esc  Let it be"), Foot,
-            MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 14), Srgb(.72f, .64f, .56f));
+        Centered(Ko ? TEXT("↑↓ · W/S · 휠로 전체 기억 살펴보기") : TEXT("↑↓ · W/S · wheel to browse every memory"),
+            Layout.WarningAt(), MemoriaFonts::EStyle::Ui, 13, Srgb(.72f, .64f, .56f));
+    // Cancel remains visible while a costly memory is armed; the second ask never replaces the controls.
+    Centered(Ko ? TEXT("1–9  고르기      R · Enter  태우기      Esc · 우클릭  그만두기")
+        : TEXT("1–9  Choose      R · Enter  Burn      Esc · RMB  Let it be"),
+        Layout.ControlsAt(), MemoriaFonts::EStyle::Ui, 14, Srgb(.80f, .72f, .64f));
 }

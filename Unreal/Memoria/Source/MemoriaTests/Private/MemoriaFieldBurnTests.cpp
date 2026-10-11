@@ -12,6 +12,12 @@
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
+#include "Combat/MemoriaBurnPickerLayout.h"
+#include "Combat/MemoriaCombatHudWidget.h"
+#include "UObject/UObjectIterator.h"
+#include "Domain/MemoriaChapterMemories.h"
+#include "Tutorial/MemoriaTutorialSubsystem.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "EngineUtils.h"
@@ -59,10 +65,50 @@ public:
         };
         auto IndexOf = [&](const TCHAR* Id) { return Combat->GetBurnChoices().IndexOfByPredicate([&](const FMemoriaBurnChoice& C) { return C.Id == Id; }); };
         auto Dilation = [&] { return World->GetWorldSettings()->TimeDilation; };
-        const auto* Memory = Run->GetPlayerMemory();
+        auto* Memory = Run->GetPlayerMemory();
+        auto SelectWithKeys = [&](int32 Index)
+        {
+            for (int32 I = 0; I < Combat->GetBurnChoices().Num() && Combat->GetBurnSelection() != Index; ++I)
+                Press(EKeys::Down);
+        };
+        auto CheckUnchanged = [&]
+        {
+            const auto After = Memory->GetSnapshot();
+            Test->TestEqual(TEXT("Cancelling a long list burns nothing"), Combat->GetBurns(), 0);
+            Test->TestEqual(TEXT("Cancelling keeps every owned memory"), After.Owned.Num(), BeforePicker.Owned.Num());
+            Test->TestTrue(TEXT("Cancelling keeps burn history"), After.BurnedHistory == BeforePicker.BurnedHistory);
+            for (int32 I = 0; I < BeforePicker.Owned.Num() && I < After.Owned.Num(); ++I)
+            {
+                const auto& A = BeforePicker.Owned[I]; const auto& B = After.Owned[I];
+                Test->TestTrue(*FString::Printf(TEXT("Cancel leaves %s intact and in order"), *A.Id),
+                    A.Id == B.Id && A.bBurned == B.bBurned && A.bFaded == B.bFaded && A.bResidue == B.bResidue
+                    && A.Erosion == B.Erosion && A.Connections == B.Connections);
+            }
+        };
+        auto CheckLayout = [&](const FVector2D& Viewport, int32 Selection)
+        {
+            const auto L = MemoriaBurnPicker::Build(Viewport, Combat->GetBurnChoices().Num(), Selection);
+            Test->TestTrue(TEXT("Picker panel remains inside the viewport"),
+                L.Panel.X >= 2.f && L.Panel.Y >= 2.f && L.Panel.X + L.Extent.X <= Viewport.X - 2.f
+                && L.Panel.Y + L.Extent.Y <= Viewport.Y - 2.f);
+            Test->TestTrue(TEXT("Selected memory remains visible"), L.Visible > 0 && L.Shows(Selection));
+            Test->TestTrue(TEXT("Rows stop above the reserved confirmation and controls"),
+                L.RowAt(L.First + L.Visible - 1).Y + L.RowHeight <= L.FooterTop() + .01f
+                && L.WarningAt().Y > L.FooterTop() && L.ControlsAt().Y > L.WarningAt().Y
+                && L.ControlsAt().Y + 12.f * L.Scale < L.Panel.Y + L.Extent.Y);
+        };
         if (Phase == 0)
         {
             for (TActorIterator<AMemoriaEliaCompanion> It(World); It; ++It) It->SetActorHiddenInGame(true);
+            // A late-run inventory made entirely from the real imported chapter definitions. This fixture
+            // does not advance the chapter or create synthetic memories merely to exercise the UI.
+            OriginalLocale = Run->GetRunSnapshot().CurrentLocale;
+            Run->SetLocale(TEXT("ko"));
+            for (int64 Chapter = 3; Chapter <= 5; ++Chapter)
+                for (const auto& Definition : MemoriaChapterMemories::For(Chapter))
+                    if (!Memory->GetDefinitions().ContainsByPredicate([&](const auto& D) { return D.Id == Definition.Id; }))
+                        Test->TestEqual(TEXT("Acquire an authored long-list fixture memory"), Run->AcquireMemory(Definition), EMemoriaMemoryResult::Success);
+            BeforePicker = Memory->GetSnapshot();
             const FVector Me = Pawn->GetActorLocation();
             // Three husks inside Incinerate's reach, one far beyond it (and beyond its aggro, so it stays put).
             for (AMemoriaFieldMonster* Husk : Combat->SpawnWave(3, Me, 300.f)) Near.Add(Husk);
@@ -74,12 +120,107 @@ public:
         if (Phase == 1)
         {
             if (Frame < Mark + 12) return false;
+            UMemoriaCombatHudWidget* LiveHud = nullptr;
+            for (TObjectIterator<UMemoriaCombatHudWidget> It; It; ++It)
+                if (It->GetOwningPlayer() == PC && It->IsInViewport()) { LiveHud = *It; break; }
+            // Native UMG local units can differ from physical screenshot pixels under DPI scaling.
+            // Exercise the geometry the actual owning picker paints, then separately check smaller limits.
+            if (!LiveHud || LiveHud->GetCachedGeometry().GetLocalSize().IsNearlyZero()) return false;
+            NativeViewport = LiveHud->GetCachedGeometry().GetLocalSize();
             Press(EKeys::R);
             Test->TestTrue(TEXT("R opens the burn picker"), Combat->IsPickingBurn());
             Test->TestTrue(TEXT("The picker offers the starting memories"), Combat->GetBurnChoices().Num() >= 5);
             Test->TestTrue(TEXT("Weakest first"), Combat->GetBurnChoices().Num() > 1 && Combat->GetBurnChoices()[0].Grade <= Combat->GetBurnChoices().Last().Grade);
             Test->TestTrue(TEXT("The world slows while choosing"), FMath::IsNearlyEqual(Dilation(), MemoriaCombatTuning::BurnPickDilation, .001f));
             Test->TestFalse(TEXT("Arrel holds still while choosing"), Combat->CanMove());
+            Test->TestTrue(TEXT("The native fixture has more than nine real memories"), Combat->GetBurnChoices().Num() > 9);
+            const auto NativeLayout = MemoriaBurnPicker::Build(NativeViewport, Combat->GetBurnChoices().Num(), 0);
+            Test->TestTrue(TEXT("The real owning HUD requires scrolling"), Combat->GetBurnChoices().Num() > NativeLayout.Visible);
+            MiddleIndex = FMath::Min(Combat->GetBurnChoices().Num() - 1, NativeLayout.Visible + 2);
+            Test->AddInfo(FString::Printf(TEXT("S352 picker: owned=%d available=%d native_local=%.1fx%.1f visible=%d middle=%d"),
+                Memory->GetSnapshot().Owned.Num(), Combat->GetBurnChoices().Num(), NativeViewport.X, NativeViewport.Y, NativeLayout.Visible, MiddleIndex));
+            for (const FVector2D Viewport : {NativeViewport, FVector2D(1280, 720), FVector2D(960, 540), FVector2D(640, 360)})
+                for (int32 I = 0; I < Combat->GetBurnChoices().Num(); ++I) CheckLayout(Viewport, I);
+            Phase = 7; Mark = Frame; return false;
+        }
+        if (Phase == 7)
+        {
+            // Let ordinary first-battle hints and queued achievement toasts finish before the UI captures.
+            const auto* Tutorial = World->GetGameInstance()->GetSubsystem<UMemoriaTutorialSubsystem>();
+            const auto* Achievements = World->GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>();
+            if ((Tutorial && Tutorial->IsShowing()) || (Achievements && !Achievements->GetPopup().IsEmpty())) { QuietFrames = 0; return false; }
+            if (++QuietFrames < 32) return false;
+            Phase = 10; Mark = Frame; return false;
+        }
+        if (Phase == 10)
+        {
+            if (Frame == Mark + 1)
+            {
+                SelectWithKeys(MiddleIndex);
+                Test->TestEqual(TEXT("Keyboard reaches beyond the native first visible page"), Combat->GetBurnSelection(), MiddleIndex);
+                const auto L = MemoriaBurnPicker::Build(NativeViewport, Combat->GetBurnChoices().Num(), MiddleIndex);
+                Test->TestTrue(TEXT("The native visible window follows keyboard selection"), L.First > 0 && L.Shows(MiddleIndex));
+                CheckLayout(NativeViewport, Combat->GetBurnSelection());
+            }
+            if (Frame == Mark + 6) Capture(TEXT("BurnPickerMiddle"));
+            if (Frame == Mark + 10)
+            {
+                for (int32 I = Combat->GetBurnSelection(); I < Combat->GetBurnChoices().Num() - 1; ++I) Press(EKeys::MouseScrollDown);
+                Test->TestEqual(TEXT("Wheel reaches the final memory"), Combat->GetBurnSelection(), Combat->GetBurnChoices().Num() - 1);
+                CheckLayout(NativeViewport, Combat->GetBurnSelection());
+            }
+            if (Frame == Mark + 16) Capture(TEXT("BurnPickerEnd"));
+            if (Frame == Mark + 20)
+            {
+                Press(EKeys::One);
+                Test->TestEqual(TEXT("Digit one returns from the last page to the first memory"), Combat->GetBurnSelection(), 0);
+                Press(EKeys::Up);
+                Test->TestEqual(TEXT("Up wraps from the first memory to the last"), Combat->GetBurnSelection(), Combat->GetBurnChoices().Num() - 1);
+                const auto& Last = Combat->GetBurnChoices().Last();
+                Test->TestTrue(TEXT("The last authored memory needs irreversible confirmation"), Last.Grade >= MemoriaCombatTuning::BurnAskTwiceFrom);
+                Press(EKeys::Enter);
+                Test->TestTrue(TEXT("The last page keeps its second confirmation armed"), Combat->IsPickingBurn() && Combat->IsBurnArmed());
+                CheckLayout(NativeViewport, Combat->GetBurnSelection());
+                Test->TestEqual(TEXT("Arming the last memory does not consume it"), Memory->CanBurn(Last.Id), EMemoriaMemoryResult::Success);
+            }
+            if (Frame == Mark + 26) Capture(TEXT("BurnPickerConfirmation"));
+            if (Frame < Mark + 32) return false;
+            Press(EKeys::Escape);
+            Test->TestFalse(TEXT("Esc cancels even from a last-page irreversible confirmation"), Combat->IsPickingBurn());
+            CheckUnchanged();
+            Run->SetLocale(TEXT("en"));
+            Press(EKeys::R);
+            Test->TestTrue(TEXT("The English picker opens the same long inventory"), Combat->IsPickingBurn());
+            for (const auto& Choice : Combat->GetBurnChoices())
+            {
+                const auto* Definition = Memory->GetDefinitions().FindByPredicate([&](const auto& D) { return D.Id == Choice.Id; });
+                Test->TestTrue(TEXT("English rows keep their authored title"), Definition && Choice.Title == Definition->Title);
+            }
+            Phase = 11; Mark = Frame; return false;
+        }
+        if (Phase == 11)
+        {
+            if (Frame == Mark + 1)
+            {
+                SelectWithKeys(MiddleIndex);
+                Test->TestEqual(TEXT("English keyboard selection reaches the native overflow window"), Combat->GetBurnSelection(), MiddleIndex);
+                CheckLayout(NativeViewport, Combat->GetBurnSelection());
+            }
+            if (Frame == Mark + 6) Capture(TEXT("BurnPickerMiddleEnglish"));
+            if (Frame == Mark + 10)
+            {
+                SelectWithKeys(Combat->GetBurnChoices().Num() - 1);
+                Press(EKeys::Enter);
+                Test->TestTrue(TEXT("English last-page confirmation arms without burning"), Combat->IsPickingBurn() && Combat->IsBurnArmed());
+                CheckLayout(NativeViewport, Combat->GetBurnSelection());
+            }
+            if (Frame == Mark + 16) Capture(TEXT("BurnPickerConfirmationEnglish"));
+            if (Frame < Mark + 22) return false;
+            Press(EKeys::RightMouseButton);
+            Test->TestFalse(TEXT("Right click cancels the English confirmation"), Combat->IsPickingBurn());
+            CheckUnchanged();
+            Run->SetLocale(OriginalLocale);
+            Press(EKeys::R);
             Phase = 2; Mark = Frame; return false;
         }
         if (Phase == 2)
@@ -94,13 +235,12 @@ public:
                 Press(EKeys::R);
                 const int32 Sword = IndexOf(TEXT("identity_first_sword"));
                 Test->TestTrue(TEXT("The first sword is offered"), Sword >= 0);
-                static const FKey Digits[9] = {EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight, EKeys::Nine};
-                if (Sword >= 0 && Sword < 9) Press(Digits[Sword]);
+                SelectWithKeys(Sword);
                 Press(EKeys::Enter);
                 Test->TestTrue(TEXT("An identity memory asks twice"), Combat->IsBurnArmed() && Combat->IsPickingBurn());
                 Test->TestEqual(TEXT("One confirm does not burn it"), Memory->CanBurn(TEXT("identity_first_sword")), EMemoriaMemoryResult::Success);
                 Hand = IndexOf(TEXT("rel_hand_reaching"));
-                if (Hand >= 0 && Hand < 9) Press(Digits[Hand]);
+                SelectWithKeys(Hand);
                 Test->TestFalse(TEXT("Choosing again disarms"), Combat->IsBurnArmed());
                 Test->TestEqual(TEXT("The hand is selected"), Combat->GetBurnSelection(), Hand);
             }
@@ -182,6 +322,10 @@ private:
     double Started, OldDelta = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
     int32 Phase = 0, Frame = 0, Mark = 0, Hand = -1, ReleaseFrame = 0;
+    int32 QuietFrames = 0, MiddleIndex = 0;
+    FVector2D NativeViewport = FVector2D::ZeroVector;
+    FString OriginalLocale;
+    FMemoriaMemorySnapshot BeforePicker;
     bool bFixed = false, bOldFixed = false, bReleased = false;
     TArray<TWeakObjectPtr<AMemoriaFieldMonster>> Near;
     TWeakObjectPtr<AMemoriaFieldMonster> Far;

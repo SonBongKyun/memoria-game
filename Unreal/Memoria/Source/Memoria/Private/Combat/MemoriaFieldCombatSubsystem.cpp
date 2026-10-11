@@ -21,6 +21,8 @@
 #include "Codex/MemoriaCodexSubsystem.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
+#include "CollisionQueryParams.h"
+#include "CollisionShape.h"
 using namespace MemoriaCombatTuning;
 namespace
 {
@@ -28,6 +30,23 @@ UMemoriaRunSubsystem* RunOf(const UWorld* World)
 { return World && World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>() : nullptr; }
 void Cue(const UWorld* World, const TCHAR* Id)
 { if (auto* Audio = World && World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>() : nullptr) Audio->PlaySfx(Id); }
+// The first point where a flat projectile enters Arrel's existing hit radius, including a
+// frame whose start and end are both outside it. The fraction is comparable to a world sweep.
+bool OrbPlayerContact(const FVector& From, const FVector& To, const FVector& PlayerPosition, float& ContactTime)
+{
+    const FVector Offset = (From - PlayerPosition) * FVector(1, 1, 0);
+    const FVector Travel = (To - From) * FVector(1, 1, 0);
+    const double C = Offset.SizeSquared() - FMath::Square(double(OrbRadius));
+    if (C <= 0.) { ContactTime = 0.f; return true; }
+    const double A = Travel.SizeSquared();
+    if (A <= UE_SMALL_NUMBER) return false;
+    const double B = FVector::DotProduct(Offset, Travel);
+    const double Discriminant = B * B - A * C;
+    if (Discriminant < 0.) return false;
+    const double Time = (-B - FMath::Sqrt(Discriminant)) / A;
+    if (Time < 0. || Time > 1.) return false;
+    ContactTime = float(Time); return true;
+}
 }
 void UMemoriaFieldCombatSubsystem::RegisterPlayer(APawn* Pawn, UMemoriaFieldCharacterComponent* Figure)
 { Player = Pawn; PlayerFigure = Figure; ComboStep = -1; DashLeft = StaggerLeft = CastLeft = 0.f; bDefeated = false; CloseBurnPicker(); }
@@ -274,27 +293,42 @@ void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
         const int64 Loss = FMath::Min(ScorchDamage, Hp - 1);
         if (Loss > 0) { Hp -= Loss; Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, FString(), FLinearColor(1.f, .55f, .2f)); }
     }
-    // S342: the orbs fly on; one that reaches Arrel strikes him as its thrower's blow, unless he is mid-dodge
-    // (it passes through) or its thrower is gone (it fades).
+    // S352: resolve the whole live segment, in contact order. Cover stops a projectile even
+    // during a long frame; a dodge lets it pass through Arrel. A vanished thrower cannot hurt him.
     for (int32 I = Orbs.Num() - 1; I >= 0; --I)
     {
         FMemoriaOrb& Orb = Orbs[I];
-        Orb.Age += DeltaSeconds; Orb.Location += Orb.Velocity * DeltaSeconds;
-        bool bDone = Orb.Age >= OrbLife;
-        if (!bDone && Pawn && FVector::Dist2D(Orb.Location, Pawn->GetActorLocation()) <= OrbRadius)
+        AMemoriaFieldMonster* Owner = Orb.Owner.Get();
+        if (!Owner || Owner->IsDead() || Orb.Age >= OrbLife) { Orbs.RemoveAt(I); continue; }
+        const float TravelTime = FMath::Clamp(DeltaSeconds, 0.f, OrbLife - Orb.Age);
+        const FVector From = Orb.Location, To = From + Orb.Velocity * TravelTime;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MemoriaOrbCover), false, Owner);
+        // Pawn bodies are not cover. This also keeps a nearby foe or companion from hiding a wall.
+        for (TActorIterator<APawn> It(GetWorld()); It; ++It) Query.AddIgnoredActor(*It);
+        FHitResult Cover;
+        const bool bCover = GetWorld()->SweepSingleByChannel(Cover, From, To, FQuat::Identity,
+            ECC_Visibility, FCollisionShape::MakeSphere(OrbRadius), Query);
+        float PlayerTime = 0.f;
+        const bool bPlayer = Pawn && !IsInvulnerable() && OrbPlayerContact(From, To, Pawn->GetActorLocation(), PlayerTime);
+        if (bCover && (!bPlayer || Cover.Time <= PlayerTime))
         {
-            AMemoriaFieldMonster* Owner = Orb.Owner.Get();
-            if (!Owner || Owner->IsDead()) bDone = true;
-            else if (!IsInvulnerable())
-            {
-                const float Damage = Orb.Damage; const FVector At = Orb.Location; const FLinearColor Color = Orb.Color;
-                Orbs.RemoveAt(I);
-                StrikePlayer(Owner, Damage, true);
-                Burst(At, 10, Color, 260.f);
-                continue;
-            }
+            const FLinearColor Color = Orb.Color;
+            Orbs.RemoveAt(I);
+            Burst(Cover.ImpactPoint, 6, Color, 180.f);
+            continue;
         }
-        if (bDone) Orbs.RemoveAt(I);
+        if (bPlayer)
+        {
+            const float Damage = Orb.Damage;
+            const FVector At = FMath::Lerp(From, To, PlayerTime);
+            const FLinearColor Color = Orb.Color;
+            Orbs.RemoveAt(I);
+            StrikePlayer(Owner, Damage, true);
+            Burst(At, 10, Color, 260.f);
+            continue;
+        }
+        Orb.Age += TravelTime; Orb.Location = To;
+        if (Orb.Age >= OrbLife) Orbs.RemoveAt(I);
     }
     if (PoisonLeft > 0 && Run && Pawn && (PoisonClock -= DeltaSeconds) <= 0.f)
     {
@@ -307,7 +341,7 @@ void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
 }
 void UMemoriaFieldCombatSubsystem::LaunchOrb(AMemoriaFieldMonster* Owner, const FVector& From, const FVector& Direction)
 {
-    if (!Owner || Direction.IsNearlyZero()) return;
+    if (!Owner || Owner->IsDead() || Direction.IsNearlyZero()) return;
     FMemoriaOrb Orb; Orb.Location = From; Orb.Velocity = Direction.GetSafeNormal2D() * OrbSpeed; Orb.Damage = Owner->Spec().Damage; Orb.Owner = Owner;
     Orb.Color = Owner->Spec().bRetint ? Owner->Spec().ModelRim : Owner->Spec().Glow;
     Orbs.Add(Orb); ++OrbsLaunched;

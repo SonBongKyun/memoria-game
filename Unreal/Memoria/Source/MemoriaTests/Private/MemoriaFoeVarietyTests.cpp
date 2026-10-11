@@ -16,6 +16,7 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "EngineUtils.h"
 #include "Components/BoxComponent.h"
+#include "CollisionQueryParams.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
 #include "UnrealClient.h"
@@ -107,12 +108,22 @@ public:
         case 2:
             if (!F) break;
             Closest = FMath::Min(Closest, Away);
+            if (!bCasterCue && F->GetAttackCue().bActive && F->GetAttackCue().Progress >= .35f)
+            {
+                const FMemoriaAttackCue Cue = F->GetAttackCue();
+                Test->TestTrue(TEXT("Caster cue is a directed guide with the orb's actual hit radius"), Cue.Behaviour == EMemoriaFoeBehaviour::Caster
+                    && FMath::IsNearlyEqual(Cue.Radius, OrbRadius) && FMath::IsNearlyEqual(Cue.Length, 220.f));
+                Test->TestTrue(TEXT("Caster cue follows its live aim and advances during windup"), FVector::DotProduct(Cue.Direction, (Me - F->GetActorLocation()).GetSafeNormal2D()) > .99f
+                    && Cue.Progress >= .35f && Cue.Progress < 1.f && Cue.Origin.Equals(F->GetActorLocation() - FVector(0, 0, 8.5f), .01f));
+                bCasterCue = true; Capture(TEXT("FoeCasterCue"));
+            }
             if (Combat->GetOrbsLaunched() > Orbs && !bOrbShot && Combat->GetOrbs().Num() > 0 && Combat->GetOrbs()[0].Age > .25f) { bOrbShot = true; Capture(TEXT("FoeWispOrb")); }
             if (Combat->GetPlayerHp() < Hp)
             {
                 Test->TestTrue(TEXT("The wisp cast from its range and never closed"), Combat->GetOrbsLaunched() == Orbs + 1 && Closest >= CasterRetreat && Closest <= CasterRange + 5.f);
                 Test->TestEqual(TEXT("Its orb did the wisp's harm"), Combat->GetPlayerHp(), Hp - int64(F->Spec().Damage));
                 Test->TestEqual(TEXT("No orb is left"), Combat->GetOrbs().Num(), 0);
+                Test->TestTrue(TEXT("Caster cue clears when its shot has launched"), bCasterCue && !F->GetAttackCue().bActive);
                 Hp = Combat->GetPlayerHp(); Orbs = Combat->GetOrbsLaunched();
                 Phase = 3; Mark = Frame;
             }
@@ -153,11 +164,21 @@ public:
                 bLaneShot = true; WindupAt = Frame;
                 Test->TestTrue(TEXT("It commits to its lane within reach of a rush"), Away <= RushFrom + 5.f && Away > RushHit);
                 Test->TestTrue(TEXT("The lane points at Arrel"), FVector::DotProduct(F->GetRushDirection(), (Me - F->GetActorLocation()).GetSafeNormal2D()) > .99f);
+                const FMemoriaAttackCue Cue = F->GetAttackCue();
+                Test->TestTrue(TEXT("Charge cue covers its full committed rush and hit radius"), Cue.bActive && Cue.Behaviour == EMemoriaFoeBehaviour::Charger
+                    && FMath::IsNearlyEqual(Cue.Length, RushDistance) && FMath::IsNearlyEqual(Cue.Radius, RushHit) && Cue.Direction.Equals(F->GetRushDirection(), .001f));
             }
             if (bLaneShot && Frame == WindupAt + 20) Capture(TEXT("FoeCrawlerLane"));
+            if (bLaneShot && Frame == WindupAt + 22)
+            {
+                Test->TestTrue(TEXT("Charge cue counts down without rotating its committed lane"), F->GetAttackCue().bActive
+                    && F->GetAttackCue().Progress > .3f && F->GetAttackCue().Progress < 1.f && F->GetAttackCue().Direction.Equals(F->GetRushDirection(), .001f));
+                Capture(TEXT("FoeChargerCue"));
+            }
             if (F->GetState() == EMemoriaMonsterState::Rush && !bRushShot && Away < 200.f) { bRushShot = true; Capture(TEXT("FoeCrawlerRush")); }
             if (bLaneShot && F->GetState() == EMemoriaMonsterState::Recover)
             {
+                Test->TestTrue(TEXT("Charge cue clears during recovery"), !F->GetAttackCue().bActive);
                 Test->TestEqual(TEXT("The rush struck Arrel once"), Combat->GetStrikesTaken(), Taken + 1);
                 Test->TestTrue(TEXT("And poisoned him"), Combat->IsPoisoned());
                 Test->TestTrue(TEXT("It ran on past him"), FVector::DotProduct(F->GetActorLocation() - Me, F->GetRushDirection()) > 0.f);
@@ -236,13 +257,19 @@ public:
             Wall->Destroy(); Clear();
             // Proximity must not strike through a wall that stops the actual rush segment.
             F = Spawn(EMemoriaFoeKind::DustCrawler, FVector(-60, 0, 0));
-            F->Tick(.01f); F->Tick(.01f); F->Tick(F->Spec().Windup + .01f);
-            Test->TestTrue(TEXT("Thin-wall regression enters the real rush before the wall is placed"), F->GetState() == EMemoriaMonsterState::Rush);
+            F->Tick(.01f); F->Tick(.01f);
+            Test->TestTrue(TEXT("Thin-wall regression enters the real windup before the wall is placed"), F->GetState() == EMemoriaMonsterState::Windup);
             Wall = World->SpawnActor<AActor>();
             Box = NewObject<UBoxComponent>(Wall); Wall->SetRootComponent(Box); Wall->AddInstanceComponent(Box);
             Box->SetBoxExtent(FVector(5, 160, 80)); Box->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
             Box->SetCollisionObjectType(ECC_WorldStatic); Box->SetCollisionResponseToAllChannels(ECR_Block); Box->RegisterComponent();
             Wall->SetActorLocation(TestCentre + FVector(-20, 0, 0));
+            const FMemoriaAttackCue BlockedCue = F->GetAttackCue();
+            const FVector CueEnd = BlockedCue.Origin + BlockedCue.Direction * BlockedCue.Length;
+            Test->TestTrue(TEXT("A charge warning detects the wall during windup and stops at its body clearance"), BlockedCue.bActive && BlockedCue.bBlocked
+                && BlockedCue.Length < RushDistance && CueEnd.X + 30.f <= TestCentre.X - 25.f + .1f);
+            F->Tick(F->Spec().Windup + .01f);
+            Test->TestTrue(TEXT("Thin-wall regression releases the real rush after its blocked warning"), F->GetState() == EMemoriaMonsterState::Rush);
             Hp = Combat->GetPlayerHp(); Taken = Combat->GetStrikesTaken();
             F->Tick(.5f);
             Test->TestTrue(TEXT("The thin wall stops the rush before Arrel"), F->GetActorLocation().X + 30.f <= TestCentre.X - 25.f + .1f);
@@ -252,6 +279,7 @@ public:
             Phase = 13; Mark = Frame; break;
         }
         case 13:
+        {
             if (Frame < Mark + 40) break;
             // The same long frame in an open lane crosses Arrel even though both endpoints are outside reach.
             F = Spawn(EMemoriaFoeKind::DustCrawler, FVector(-150, 0, 0));
@@ -262,8 +290,121 @@ public:
             Test->TestTrue(TEXT("The open-lane long frame runs beyond Arrel"), FVector::DotProduct(F->GetActorLocation() - Me, F->GetRushDirection()) > RushHit);
             Test->TestEqual(TEXT("The traversed open lane strikes Arrel once during an overshoot"), Combat->GetStrikesTaken(), Taken + 1);
             Test->TestEqual(TEXT("The traversed open lane deals the crawler's harm during an overshoot"), Combat->GetPlayerHp(), Hp - int64(F->Spec().Damage));
+            Clear();
+            F = Spawn(EMemoriaFoeKind::DustCrawler, FVector(-150, 0, 0));
+            F->Tick(.01f); F->Tick(.01f); F->Tick(F->Spec().Windup + .01f);
+            const FVector RushStart = F->GetActorLocation();
+            Hp = Combat->GetPlayerHp(); Taken = Combat->GetStrikesTaken();
+            F->Tick(.7f); F->Tick(.5f);
+            Test->TestTrue(TEXT("A long final rush frame stops at the advertised 520 cm and enters recovery"),
+                FMath::IsNearlyEqual(FVector::Dist2D(F->GetActorLocation(), RushStart), RushDistance, .1f) && F->GetState() == EMemoriaMonsterState::Recover);
+            Test->TestTrue(TEXT("The lifetime-clipped rush still sweeps Arrel exactly once"), Combat->GetStrikesTaken() == Taken + 1
+                && Combat->GetPlayerHp() == Hp - int64(F->Spec().Damage));
             Clear(); Pawn->SetActorLocation(Home);
+            Phase = 14; Mark = Frame; break;
+        }
+        case 14:
+            if (Frame < Mark + 40) break;
+            Foe = Spawn(EMemoriaFoeKind::AshWalker, FVector(110, 0, 0));
+            Test->TestTrue(TEXT("Melee cue is absent before a windup"), !Foe->GetAttackCue().bActive);
+            Phase = 15; Mark = Frame; break;
+        case 15:
+            if (!F) break;
+            if (!bMeleeCue && F->GetAttackCue().bActive && F->GetAttackCue().Progress >= .35f)
+            {
+                const FMemoriaAttackCue Cue = F->GetAttackCue();
+                Test->TestTrue(TEXT("Melee cue covers the same radius as StrikePlayer"), Cue.Behaviour == EMemoriaFoeBehaviour::Brawler
+                    && FMath::IsNearlyEqual(Cue.Radius, F->Spec().Reach + 40.f) && FMath::IsNearlyZero(Cue.Length));
+                Test->TestTrue(TEXT("Melee cue is a ground warning with a live windup clock"), Cue.Progress >= .35f && Cue.Progress < 1.f
+                    && Cue.Origin.Equals(F->GetActorLocation() - FVector(0, 0, 8.5f), .01f));
+                bMeleeCue = true; Capture(TEXT("FoeMeleeCue")); WindupAt = Frame;
+            }
+            if (bMeleeCue && Frame >= WindupAt + 3)
+            {
+                F->Stun(30.f);
+                Test->TestTrue(TEXT("Interrupting a melee windup clears its warning immediately"), !F->GetAttackCue().bActive);
+                Clear(); Phase = 16; Mark = Frame;
+            }
+            if (Frame > Mark + 300) { Test->AddError(TEXT("The melee attack never showed its cue")); return true; }
+            break;
+        case 16:
+        {
+            if (Frame < Mark + 10) break;
+            // Direct public launch/tick calls isolate collision from AI timing. The remote lane
+            // contains only these fixtures, at the same height as a real wisp's projectile.
+            const FVector Centre = Home + FVector(0, 5000, 0);
+            const FVector OrbHeight(0, 0, FoeSpec(EMemoriaFoeKind::VoidWisp).Height * .6f);
+            auto Reset = [&]
+            {
+                Combat->Revive(1.f); Pawn->SetActorLocation(Centre);
+                AMemoriaFieldMonster* Owner = Spawn(EMemoriaFoeKind::VoidWisp, FVector(-800, 0, 0));
+                Owner->Stun(60.f); return Owner;
+            };
+            auto WallAt = [&](float X)
+            {
+                AActor* Wall = World->SpawnActor<AActor>();
+                auto* Box = NewObject<UBoxComponent>(Wall); Wall->SetRootComponent(Box); Wall->AddInstanceComponent(Box);
+                Box->SetBoxExtent(FVector(5, 160, 180)); Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+                Box->SetCollisionObjectType(ECC_WorldStatic); Box->SetCollisionResponseToAllChannels(ECR_Block); Box->RegisterComponent();
+                Wall->SetActorLocation(Centre + FVector(X, 0, 90)); return Wall;
+            };
+            auto Shot = [&](AMemoriaFieldMonster* Owner, float Distance)
+            { Combat->LaunchOrb(Owner, Centre + FVector(-Distance, 0, 0) + OrbHeight, FVector::ForwardVector); };
+            auto Snapshot = [&] { Hp = Combat->GetPlayerHp(); Taken = Combat->GetStrikesTaken(); };
+            auto Unharmed = [&](const TCHAR* Message)
+            { Test->TestTrue(Message, Combat->GetPlayerHp() == Hp && Combat->GetStrikesTaken() == Taken); };
+            auto Struck = [&](const TCHAR* Message, AMemoriaFieldMonster* Owner)
+            { Test->TestTrue(Message, Combat->GetPlayerHp() == Hp - int64(Owner->Spec().Damage) && Combat->GetStrikesTaken() == Taken + 1); };
+
+            AMemoriaFieldMonster* Owner = Reset();
+            AActor* Wall = WallAt(-80.f);
+            FCollisionQueryParams Query(SCENE_QUERY_STAT(MemoriaOrbFixture), false, Owner); Query.AddIgnoredActor(Pawn);
+            FHitResult WallHit;
+            Test->TestTrue(TEXT("Orb cover fixture actually blocks visibility at projectile height"), World->LineTraceSingleByChannel(WallHit,
+                Centre + FVector(-200, 0, 0) + OrbHeight, Centre + OrbHeight, ECC_Visibility, Query) && WallHit.GetActor() == Wall);
+            Shot(Owner, 200.f); Snapshot(); Combat->Tick(.9f);
+            Unharmed(TEXT("Cover before Arrel absorbs a crossing orb during a long frame"));
+            Test->TestEqual(TEXT("Cover consumes the orb"), Combat->GetOrbs().Num(), 0); Wall->Destroy();
+
+            Owner = Reset(); Wall = WallAt(110.f);
+            Shot(Owner, 200.f); Snapshot(); Combat->Tick(.9f);
+            Struck(TEXT("Arrel before cover receives the first contact instead of the later wall"), Owner);
+            Test->TestEqual(TEXT("Player contact consumes the orb once"), Combat->GetOrbs().Num(), 0); Wall->Destroy();
+
+            Owner = Reset();
+            auto* Decoy = Spawn(EMemoriaFoeKind::MarketThief, FVector(-100, 0, 0)); Decoy->Stun(60.f);
+            CastChecked<UBoxComponent>(Decoy->GetRootComponent())->SetBoxExtent(FVector(30, 160, 180));
+            Shot(Owner, 200.f); Snapshot(); Combat->Tick(.9f);
+            Struck(TEXT("An open-lane orb crosses Arrel once and ignores other pawn bodies"), Owner);
+            Test->TestEqual(TEXT("Long-frame crossing leaves no orb beyond Arrel"), Combat->GetOrbs().Num(), 0);
+
+            Owner = Reset();
+            Test->TestTrue(TEXT("The crossing regression starts a real dodge"), Combat->RequestDash(FVector::RightVector));
+            Shot(Owner, 200.f); Snapshot(); Combat->Tick(.9f);
+            Unharmed(TEXT("A crossing orb preserves dodge immunity"));
+            Test->TestTrue(TEXT("A dodged orb continues through the old player position"), Combat->GetOrbs().Num() == 1
+                && Combat->GetOrbs()[0].Location.X > Centre.X + OrbRadius);
+            Combat->Tick(OrbLife); Unharmed(TEXT("The dodged orb does not strike later from its old crossing"));
+            Test->TestEqual(TEXT("The dodged orb eventually expires"), Combat->GetOrbs().Num(), 0);
+
+            Owner = Reset();
+            Shot(Owner, OrbSpeed * OrbLife + OrbRadius + 20.f); Snapshot(); Combat->Tick(OrbLife + .5f);
+            Unharmed(TEXT("An expiring orb cannot travel beyond its remaining lifetime to hit Arrel"));
+            Test->TestEqual(TEXT("An expired orb is removed"), Combat->GetOrbs().Num(), 0);
+            Owner = Reset();
+            Shot(Owner, OrbSpeed * (OrbLife - .1f) + OrbRadius); Snapshot(); Combat->Tick(OrbLife + .5f);
+            Struck(TEXT("The live portion of an expiring long frame still resolves its earlier contact"), Owner);
+
+            Owner = Reset(); Shot(Owner, 200.f); Owner->Destroy(); Snapshot(); Combat->Tick(.9f);
+            Unharmed(TEXT("An orphaned orb cannot harm Arrel"));
+            Test->TestEqual(TEXT("An orphaned orb fades immediately"), Combat->GetOrbs().Num(), 0);
+            Owner = Reset(); Shot(Owner, 200.f); Owner->TakeHit(999.f, Centre, 0.f); Snapshot(); Combat->Tick(.9f);
+            Unharmed(TEXT("A dead thrower's orb cannot harm Arrel"));
+            Test->TestEqual(TEXT("A dead thrower's orb fades immediately"), Combat->GetOrbs().Num(), 0);
+            Test->TestTrue(TEXT("A dead thrower has no attack cue"), !Owner->GetAttackCue().bActive);
+            Combat->Revive(1.f); Pawn->SetActorLocation(Home);
             return true;
+        }
         }
         return false;
     }
@@ -275,7 +416,7 @@ private:
     int64 Hp = 0;
     float Closest = 0.f, Health = 0.f;
     FVector Home = FVector::ZeroVector;
-    bool bFixed = false, bOldFixed = false, bOrbShot = false, bLaneShot = false, bRushShot = false, bTicked = false;
+    bool bFixed = false, bOldFixed = false, bOrbShot = false, bLaneShot = false, bRushShot = false, bTicked = false, bCasterCue = false, bMeleeCue = false;
     TWeakObjectPtr<AMemoriaFieldMonster> Foe;
 };
 }
