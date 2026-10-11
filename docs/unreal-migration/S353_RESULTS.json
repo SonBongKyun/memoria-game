@@ -1,0 +1,2335 @@
+{
+  "task": "S353",
+  "status": "PASS",
+  "base": "e50350229a033dfa77610c994e2c57e4ceb8745a",
+  "tested_base": "e50350229a033dfa77610c994e2c57e4ceb8745a",
+  "tested_source_working_tree": true,
+  "full274_rerun": false,
+  "execution": {
+    "head": "e50350229a033dfa77610c994e2c57e4ceb8745a",
+    "started_utc": "2026-10-11T11:28:52.183142+00:00",
+    "steps": [
+      {
+        "label": "serial_build",
+        "command": [
+          "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+          "MemoriaEditor",
+          "Win64",
+          "Development",
+          "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+          "-WaitMutex",
+          "-NoHotReloadFromIDE",
+          "-MaxParallelActions=1"
+        ],
+        "started_utc": "2026-10-11T11:28:54.918828+00:00",
+        "log": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s353\\final\\serial_build.log",
+        "pid": 50052,
+        "exit_code": 0,
+        "elapsed_seconds": 4.901,
+        "finished_utc": "2026-10-11T11:28:59.824432+00:00",
+        "fatal_diagnostics": []
+      },
+      {
+        "label": "foundation",
+        "command": [
+          "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\validate_unreal.py",
+          "--engine-root",
+          "C:\\Program Files\\Epic Games\\UE_5.8",
+          "--build-and-test",
+          "--rendered",
+          "--test-prefix",
+          "Memoria.Foundation.",
+          "--automation-timeout",
+          "1200",
+          "--evidence-dir",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s353\\final\\foundation"
+        ],
+        "started_utc": "2026-10-11T11:29:02.528071+00:00",
+        "log": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s353\\final\\foundation.log",
+        "pid": 34776,
+        "exit_code": 0,
+        "elapsed_seconds": 98.104,
+        "finished_utc": "2026-10-11T11:30:40.634031+00:00",
+        "fatal_diagnostics": []
+      },
+      {
+        "label": "related",
+        "command": [
+          "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\validate_unreal.py",
+          "--engine-root",
+          "C:\\Program Files\\Epic Games\\UE_5.8",
+          "--build-and-test",
+          "--rendered",
+          "--test-prefix",
+          "Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+          "--automation-timeout",
+          "1800",
+          "--evidence-dir",
+          "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s353\\final\\related"
+        ],
+        "started_utc": "2026-10-11T11:30:48.238525+00:00",
+        "log": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s353\\final\\related.log",
+        "pid": 33196,
+        "exit_code": 0,
+        "elapsed_seconds": 294.554,
+        "finished_utc": "2026-10-11T11:35:42.793482+00:00",
+        "fatal_diagnostics": []
+      }
+    ],
+    "status": "PASS",
+    "finished_utc": "2026-10-11T11:35:42.799089+00:00"
+  },
+  "reports": {
+    "foundation": {
+      "distinct_tests": 6,
+      "tests": [
+        {
+          "path": "Memoria.Foundation.MapInputAndModal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Foundation.MemoryAdapter",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.NondefaultSaveRoundTrip",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.RunOwnership",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.RuntimeLifetime",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Foundation.SaveAndDialectBoundaries",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        }
+      ],
+      "raw_summary": {
+        "succeeded": 5,
+        "succeededWithWarnings": 1,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0,
+        "totalDuration": 2.5770576000213623
+      },
+      "warning_events": [
+        {
+          "test": "Memoria.Foundation.MapInputAndModal",
+          "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread."
+        }
+      ],
+      "commands": [
+        {
+          "name": "fixture_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\fixture_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "audio_source_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\audio_source_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "verdan_story_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\verdan_story_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "editor_build",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+            "MemoriaEditor",
+            "Win64",
+            "Development",
+            "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-WaitMutex",
+            "-NoHotReloadFromIDE",
+            "-MaxParallelActions=2"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\editor_build.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "automation",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-unattended",
+            "-nop4",
+            "-nosplash",
+            "-RenderOffscreen",
+            "-MemoriaCapture",
+            "-ResX=1280",
+            "-ResY=720",
+            "-ExecCmds=Automation RunTests Memoria.Foundation.",
+            "-TestExit=Automation Test Queue Empty",
+            "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\Automation-20261011T112905772140",
+            "-stdout",
+            "-FullStdOutLogOutput"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\automation.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        }
+      ],
+      "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T112902795436\\Automation-20261011T112905772140\\index.json",
+      "report_sha256": "672c0325c250aeebdc2c01fcf1729932c13b6ad816a601956b39945c6cdbbac5",
+      "utc": "2026-10-11T11:29:02.818444+00:00",
+      "rendered": true,
+      "diagnostics": {
+        "startup_condition_lines": 15,
+        "conditions_before_first_test": true,
+        "layout_warning_lines": 0,
+        "memory_budget_lines": 6
+      },
+      "key_traces": [
+        "[2026.10.11-11.30.39:520][451]LogAutomationController: KEYBOARD_TRACE before=X=137.250 Y=83.500 Z=0.000 after=X=367.250 Y=83.500 Z=0.000 pressed=1 ignored=0"
+      ]
+    },
+    "related": {
+      "distinct_tests": 52,
+      "tests": [
+        {
+          "path": "Memoria.Audio.CatalogAssets",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.Routing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Audio.RunReplacement",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.CanonicalPaidRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "Memoria.Campaign.FilteredOriginalChoice",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.HostContinuation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.Campaign.UnseenFieldRoute",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Canonical",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Guards",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.RequestCancellation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_both",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_exact",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_poor",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.buy_sell_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.close",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.exchange",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.oath_en",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.oath_ko",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_daily",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_identity",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_relation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "Memoria.ShopTransactions.Source.sell_sense",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Achievements",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ArtworkCoverage",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.BeltDressing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Journey",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter1Presentation",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 1
+        },
+        {
+          "path": "MemoriaVisual.Chapter3",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 5
+        },
+        {
+          "path": "MemoriaVisual.Chapter3Travel",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter4",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Chapter5",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ChapterContinue",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.ChapterRevisit",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Codex",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.DialogueInteraction",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.DriftDressing",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.EliaSkills",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldBurn",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldCharacters",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldCombat",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldEncounters",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldFeel",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldFoes",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldItems",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FieldRewards",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.FoeVariety",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.GameOver",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.Journal",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.PauseMenu",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.TitleScreen",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.TutorialHints",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        },
+        {
+          "path": "MemoriaVisual.VerdanExploration",
+          "state": "Success",
+          "errors": 0,
+          "warnings": 0
+        }
+      ],
+      "raw_summary": {
+        "succeeded": 49,
+        "succeededWithWarnings": 3,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0,
+        "totalDuration": 221.56106567382812
+      },
+      "warning_events": [
+        {
+          "test": "Memoria.Campaign.CanonicalPaidRoute",
+          "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread."
+        },
+        {
+          "test": "MemoriaVisual.Chapter1Presentation",
+          "message": "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_28:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+        },
+        {
+          "test": "MemoriaVisual.Chapter3",
+          "message": "LogEOSSDK: LogAnalytics: EventCache either took too long to flush (1.957 ms) or had a very large payload (3.095 KB, 4 events). Listing events in the payload for investigation:"
+        },
+        {
+          "test": "MemoriaVisual.Chapter3",
+          "message": "LogEOSSDK: LogAnalytics: EOSSDK.Heartbeat,838"
+        },
+        {
+          "test": "MemoriaVisual.Chapter3",
+          "message": "LogEOSSDK: LogAnalytics: UsageMetric,772"
+        },
+        {
+          "test": "MemoriaVisual.Chapter3",
+          "message": "LogEOSSDK: LogAnalytics: UsageMetric,771"
+        },
+        {
+          "test": "MemoriaVisual.Chapter3",
+          "message": "LogEOSSDK: LogAnalytics: UsageMetric,775"
+        }
+      ],
+      "commands": [
+        {
+          "name": "fixture_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\fixture_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "audio_source_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\audio_source_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "verdan_story_check",
+          "command": [
+            "C:\\Users\\jc\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+            "--check"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\verdan_story_check.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "editor_build",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+            "MemoriaEditor",
+            "Win64",
+            "Development",
+            "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-WaitMutex",
+            "-NoHotReloadFromIDE",
+            "-MaxParallelActions=2"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\editor_build.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        },
+        {
+          "name": "automation",
+          "command": [
+            "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+            "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+            "-unattended",
+            "-nop4",
+            "-nosplash",
+            "-RenderOffscreen",
+            "-MemoriaCapture",
+            "-ResX=1280",
+            "-ResY=720",
+            "-ExecCmds=Automation RunTests Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+            "-TestExit=Automation Test Queue Empty",
+            "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\Automation-20261011T113052093980",
+            "-stdout",
+            "-FullStdOutLogOutput"
+          ],
+          "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\automation.log",
+          "exit_code": 0,
+          "fatal_diagnostics": []
+        }
+      ],
+      "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261011T113048571422\\Automation-20261011T113052093980\\index.json",
+      "report_sha256": "c16eb1211c58560477708b223bb48df38b6ddc93ce23c8548bc9e3fdd6c13b91",
+      "utc": "2026-10-11T11:30:48.654629+00:00",
+      "rendered": true,
+      "diagnostics": {
+        "startup_condition_lines": 15,
+        "conditions_before_first_test": true,
+        "layout_warning_lines": 0,
+        "memory_budget_lines": 50
+      },
+      "key_traces": []
+    }
+  },
+  "captures": [
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/BoundaryClear.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "2d508e01e091697e8b31dcf774768558eed012c0d47d8710c1595415ec07f0e5"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/BoundaryOpaque.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "34f8883248a1c5c3f9a0cfab39941c4557d7aad7db6cb026dbc1b3c6651de0f4"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/CharacterBack.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "8aefdfb15c1ba4b3fb94b1b48dbab97609f2e67454e6de2ba5613ca5bd2400ea"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/CharacterFront.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "549eb03eae7fadef1d4e692aa3bdabd53ea49ac3d2e9a95804b8e99ddd292d54"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/CharacterSide.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "0bb15d31ec64d8f1d25d9855c3b7ac41e6a571e3d3a15bb6d1a0cfa2d17223c6"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/Down.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "33d96482fa9bc744da91315f269110a39914001dd09a836f4edd9e3cba63643c"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/East.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "372d58bd6a8496fb78af0d0e4978916962a080d817c6c2b8bece72aff8d2a668"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/EliaRigged.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "79941028ec616bafb9ff29ccd29382075b30d25ac72b431abdb4dde297c702df"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/Left.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "5dc555f3ab82ced3bea647f6da6a5af48496ffdd1efd0dcbb1c3d56c76704a69"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/MaletRigged.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "78a07e2a76cf9418e157438ee35f431069e315f7b977fdbba9d022aef674c974"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/Market.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "3bf4bceba4c44fdfcae2b52d2e33482327eff9c455cd023f3d3b6051bb62a9a6"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/MarketFront.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e32b46372b10f66ae2e5de81e62221da96b1d03ed2be3789eec12133864a8ce0"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/NearMalet.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "4e5c4750aee01e76778dc4c310600d280ee7459e5a439d75dbedbe5bb1a66371"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/North.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "4198a02e83e7436463af77414a924d3c958f6456f4522faa6ecda001ce38a96e"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/NorthEast.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "78f6e1d563972bbff0e0c05bfe7fbcc39478605dba577d0f31841246fc985d0e"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/NorthWest.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "41695d362c5cb0e688b22f8ccb24c83eae1ef5b576ff9d1948d0c83998997f1c"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/PropBarrel.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "d18d61231b67a111cb6fa1418b12518519a667bfdd36262b671cf98d8d270717"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/PropCampfire.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "f11d2d562cd7ca92c59ee87f222d003070c2dcdd2053ff840708d91977fcf4fb"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/PropCrate.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "d7f3c2833350d7bf4f68f33b835ff27053ffd707c53b186e31bd0be8529e279e"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/PropSign.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "25ffae5a38b345ca28b32d12260d97aebc9b93f4ca7d7b6e803a815c47dd5d61"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/Right.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "1fec8af7146605e678d13fb814fbefd621d2d2a5c079ba0fec7f4f88c11cedbe"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/South.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "ee7131cf2edf432e9f91383ff64be87db3b3c78fedeae9d573d0c135d378eb37"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/SouthEast.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e03956553fc1f00d09410c56c04e928fd211fdc20ae2bbeef37f2db318bcb2ff"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/SouthWest.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "be36ea78e6a15dd20b3a5885d857711502f101a78eb31b54e489f5e1fcfbe410"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/SpentAndSmoke.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "c0119e35c095584954f410b6714f8d7d36450ebe8cbdf2aa51c5680381e535de"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/SpentReentry.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "49449ac6c79434ac78116094f0607e89238262d649e641d106758917f13a27c8"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/TownsfolkTurn.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "583c4d1a87f4b6486acae4f256379a64904ae8bfa4ae1f449111a9913201b605"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/Up.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "386db45e9607f6a5f278b0c2cdcb50022557443ba43f454a3fa9a76ffd5f63a5"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/WalkA.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "5c450ab171beebabdf175d957c7215d02c72b4966f5759e1696c2f4aa370bc95"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/WalkB.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "a66a805305e28636c04cefee5dd83b3099457b4217b1f7cdc014e0ea821c7115"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/WalkC.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "de11c6ad909cf6f480b7609bad05708347d5dc5e8e4bdd1bde947b854b1c878d"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/WalkD.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "c04aac7d2ae29ac0699603095c3523399430a723067ede802a80182f6e6dfcdf"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/WalkSettled.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9c681a8aede0213d65e6ae5756ec775eb5ef2cf6b02fd985b33dac802cb7d705"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/PlayFeel1/West.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "12b7c41ad907eac73d8afcb018f8e82c2146c86ba1fe53e8b8a617597afd0448"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldFoes/FoesChase.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "cf75881abdc2c43ed670f6a64188e3d04a517b62462e76f3ea39b9bccc26e9f0"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldFoes/HuskApproach.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "0bf5532aeb6a5be0a94bd95995271bf1315a3fed713d717680e739c31386cac0"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldFoes/HuskStrike.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9b3fedd1b257cc349ccfc651443dc8c89d7909c975df80b31d95be16721c845e"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldFoes/ThiefApproach.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "4d2f73c0317975b7625096b7627fa8bffcc361496d75fd42e2263ff13f4e0443"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldFoes/ThiefStrike.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "1cb4b3808bd228d842425cab469c9df66d4748c03882cff0e42e72082aa034dd"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeCasterCue.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "47320b73fcbff1ad6b7f070e36eefa37f4bb8c778a630f83580f37ea65ca1cc6"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeChargerCue.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "adadf619e197aa6f64cc0d83bf08726e7e6fb33fe30056203c6388e92ca77b07"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeCrawlerLane.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "b7aade5b1400a2d23cb991ee651ac3c357e6026ce90bb823e14c920cab7b9b76"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeCrawlerRush.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "3ecc8fbeab3d8106f12cd4649acbafcef50d6d6c82c0b29a55f5c8a5d104e4b1"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeLineup.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "25347c29b69ac557e56795fec0e09252725ded1ab350bfa4594ce9a04b9cf506"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeLineupClean.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "4ced062370cbd6d2c081deabff1f42252e5cedaf6c62ab5b90a7d8d76e11900d"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeMeleeCue.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e185b2c4d8983618121a600bc75932ef40d6b145e8e044a04a74f0e658bb0c63"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeWalkerScorch.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "d1a7da49118462bb33c5cff14ddc6c0f6260e1c9ee004957bff4a9c4fe24059a"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FoeVariety/FoeWispOrb.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9eff468474fbf5db980f72528f693a4cf2286eb6463404907c4ed2052d02c14d"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatApproach.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "81d11e87c40d4c70b633724513bf45946fc0715dd1636f8fedb547f9971a79fa"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatDash.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "d673e6bee4868c9573ec8af97b13968dc1a47b3dfc1f4489ca3cc31954f87190"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatField.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "ed1976682b627d447f301e4dcba2193c07044ead23e147c4c5de5e71b9924ccf"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatKill.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "31d3f14f081ec2b7d4a3e9782c71b7ea84d9e1ef2d161851e94482ddc7d19d64"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatSwing1.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "fb71807bb66a0b41c66a4866971441acc1cbad7c81a2d04c85e64cc33dfa1d17"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatSwing2.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9d9d3409b8417d1a09a9a5b0397cb325315ed68a58bfee8052f25d293b9e4915"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatSwing3.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "34181d9707dae39c3eaaa47568d9ac5774c80227b572189c56b7736c347e8c2b"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/FieldCombat/CombatTelegraph.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "043abff2c84a426577520cf8fa9fe7becc533016720924ed0d3d6b67f157ee1b"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/belt_waystation_Npcs.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "08ebca104e5fd73b54af40288c840cf189d6961bbf3479bd54e4dca411122f39"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltCorner.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9067157a8002c46bb161b8f9922bc914dbe10bde55a127eb474d77f18a0f840a"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltDoor.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "249a69769d1f169c55705deed4494752d61d20f64ae9d0cc82cd5981c6c7d4c1"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltExit.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "2a2182a19e0da1fc00f65b4ea811211141ceec61e8b486576bdf04de1dcf804e"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltFreight.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "e1df74fc0f665a52b154b5723a281e7436645a2f0c25cb5ecf10d77eb64a9ad3"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltInside.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "f92b18e9cdf54a7bb9cf8e9d07a058f66a994c8837ae470ce376231268264e85"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltPlatform.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "4ba8a275172e1f4b95937b3bfec389a7f173230f71a26e99e3b3719229931f20"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltRuin.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "1fb6808e477cc9d37e8c13c8baa74530a71f9b42c2cb478bf6508be3adfd2fff"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/BeltSignal.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "57201c1764e9e8bb91cf3937b5d705e354a0a0fd7e4dcfa4231923cc44015c74"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/drift_shelter_Npcs.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "b1f4b33a9552cd630d37807149f4ca51e6e9ce7ecc6166c6c91652dba8fad4fe"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftCamp.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "428fc9a8accb93663de7e6c8813628ba39dd80981181fb9f788508d65c9d4fd0"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftEast.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "5cd756aead9c6eb6db124a2e433b016163e343827b6dac5cf0ff62cefd8f5acd"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftGramophone.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9507ec5c9c3e52a97cf16278dca76a37feea7ab4ee1c2174f9aa9474469ee8eb"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftShelter.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "68d49585809a9ade815d3eb5dfd759483141730f10e365f7f0cbec24bb3b5517"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftSouth.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "7598621b46ef5c028595f7dbfd778fa266d742ec41907d1b2d8a60f0980e63b0"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftStores.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "bb631f0817088407ef7e36419a3c5367dda32920dc7748210d3e4922c82069b6"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftTarp.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "33db185dd851e968d2602f9750f4888e3bf904391b8264246a1a619d1f6111c8"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/ChapterDressing/DriftWest.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "bf66f71515072ebf1c9a1a7705cc7007a89f8d68fa2a20c8c13df49c01d22442"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/EliaSkills/EliaDiary.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "9a9b286bb1c01186cd777605d374e03e9a720ce99f56302c9a03c41981cba293"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/EliaSkills/EliaShield.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "76983b7c5af900b36c93b02a8c3a139d36aa56e748ee60ea723139cc30ac39a5"
+    },
+    {
+      "path": "Unreal/Memoria/Saved/Validation/s353/captures/EliaSkills/EliaStrike.png",
+      "size": [
+        1280,
+        720
+      ],
+      "sha256": "31d0830a5e4cd3bce0d5f9365d407b14b51374dd480da45e0d9e59e15787636d"
+    }
+  ],
+  "changed_source_assets_sha256": {
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Arrel/M_Arrel.uasset": "3ac9e603a51ba8e3620c456f28fbafee70e953fd197e4e7666fe500ec2e27ad5",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Bureauagent/M_Bureauagent.uasset": "0040ada7e105a984297a6a878c31b40cecea07c499027302853308b1377282ad",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Child/M_Child.uasset": "e1cb2744adc4d20db4b8e789e219b4210537ab8f86d7c0538054b2184d81215b",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Elder/M_Elder.uasset": "015e07f99b250c795f0feb498e10efdb38d34e634736c35efe6a3c6e9244217f",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Elia/M_Elia.uasset": "38a41d3feeae196ad0a82acd9c715bd21aa5551ddc8124b04ce659ff3471f46b",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Fisherman/M_Fisherman.uasset": "f219bed8914893652a7ff3793d2962f072e497247757f71524f5c772b533fffc",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Guard/M_Guard.uasset": "cea9c4a550b7f1844f77864d3890bf5b74bca352dfc21782e2ddeb62b13c71e2",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Husk/M_Husk.uasset": "a2a8f58c75e352b2e29fa6e8b4b5e984debef6cb40e1b85c3415efab83363481",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Malet/M_Malet.uasset": "bc8c10fa146fc022797eee238f9b4d1dd804d5097e1e4a37cf7e5b16b637286c",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Scholar/M_Scholar.uasset": "2e5f16572b2b2e5e5cefa8d124d8ec1e7074d826f77959b48735c59814ad20c0",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Thief/M_Thief.uasset": "13fb6e7584014c6c030a65a2823e05511174c63fc3482fc64b7e85984df59380",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Traveler/M_Traveler.uasset": "1d7e026dec2bae37baa9224c617bd0fe57b8a8981979b5185574fb7b67411297",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Villagerf/M_Villagerf.uasset": "99020724a9884e0732eb3f8d6b3d375375a35f5ba5f8b19d1287d3f98806f841",
+    "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Villagerm/M_Villagerm.uasset": "502e749e0702994f1e42cdd4c04ca8c011ebebcb5a3bf02a055200c48fcab88a",
+    "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldMonster.cpp": "92a39b663a22f4694e94ea68defc05f4988808710c8851da2bf38947066f9ebe",
+    "Unreal/Memoria/Source/Memoria/Private/Presentation/MemoriaFieldCharacterComponent.cpp": "7b37f029f7f3122bf703fbbac3f936a65d5eb49c1f52695c84dac7b3cafbd706",
+    "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaFieldCombatTypes.h": "aeeeae4a958e20d131af695bf251a346a70969b4c19e5b3317fa7f658f012da1",
+    "Unreal/Memoria/Source/Memoria/Public/Presentation/MemoriaFieldCharacterComponent.h": "a450a4fd35340ed07550acec12f67636b79eaf957215356b6af93589188297cf",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaFieldFoesTests.cpp": "49123633d0433de7c704e4c9b11fdef769d1730333caacd9930b8df141cb8704",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaFoeVarietyTests.cpp": "3cde6fe66ef657a3899c1ee20657996ccb796ffe85580095b61541f3f0839f74",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaVerdanVisualTests.cpp": "bec9b5d82931ad916462036529a4ba075524d8948cdf6835502b1a704f3a5882",
+    "Unreal/ArtSource/SurfaceDetail/ambient_detail_normal.png": "e2dd76a32dcbdbb1220d41dd18f652f4ce2145f7821438ed080398547ce3de21",
+    "Unreal/ArtSource/SurfaceDetail/ambient_detail_surface.png": "ffe7452a636d2f4212c728aa4b2f12cc63ea9ba060834f1c833d64cd9750dd54",
+    "Unreal/ArtSource/SurfaceDetail/hero_detail_normal.png": "6da70e39be86d3f535323d6eafb48be5e01c5d75bca53b21b097c3e143ffe301",
+    "Unreal/ArtSource/SurfaceDetail/hero_detail_surface.png": "7fe334899c650516ef05b0810ba8e0b03e5883134be3c134e07a83657c2978bd",
+    "Unreal/ArtSource/SurfaceDetail/husk_detail_normal.png": "805e5e2e52e1cc9dbffa999939ed6d5b73fc0ac678b439a038857bc183e62f92",
+    "Unreal/ArtSource/SurfaceDetail/husk_detail_surface.png": "b01a7f0cd4f7da3655bf96915953b4f88b44245cd37636616bae76bb65ce9783",
+    "Unreal/ArtSource/SurfaceDetail/surface_detail_s353_manifest.json": "4d6b9460740b3cba72b55727e3273f52da95ec923ef63a34d8828f3293b8b2fd",
+    "Unreal/ArtSource/SurfaceDetail/thief_detail_normal.png": "7790a8d56419208f9f5af088c87d8d7170d66b1dc6e9da6a64f010b174ebd419",
+    "Unreal/ArtSource/SurfaceDetail/thief_detail_surface.png": "8ff2ca62b4af287bfc65f83d94fc1f0d09d670cf83ead4de899ee80ef4274d36",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_AmbientDetail_Normal.uasset": "8fdaacf511b94fa8f44e2f21ca00e9b5ea71470840881d2a4b8a910eb3c4130b",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_AmbientDetail_Surface.uasset": "7aeb976c545273f7578480dda878254608378b99c7315c1bea12bab898fda2f2",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_HeroDetail_Normal.uasset": "4d3f3b98c584cdd735b75b0eedcd0523c450a7786c52f10655001d282e179099",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_HeroDetail_Surface.uasset": "0ffbeb127ec495c17d4ba2088937c20a8382b336c02109919b59641d51ff5965",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_HuskDetail_Normal.uasset": "befe310b74864c53d6a90cf31f676ace9481ed406e81a37a8887b005f5f3d504",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_HuskDetail_Surface.uasset": "672d5de3a546ae0eed7912c673a444f4918bb6647c2b4e329a1fde7393fb8887",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_ThiefDetail_Normal.uasset": "e643903a618162c4d53dffae3d7b729454af85e23cd0fbd47d54372a507a620a",
+    "Unreal/Memoria/Content/Memoria/Presentation/SurfaceDetail/T_ThiefDetail_Surface.uasset": "6d4bd42b04b52aa9ce00bad8b9a9eedaac72b4ee2c62b9cdb450c8ff8b95680a",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaSurfaceDetailChecks.h": "397b9c4d20cc308f148d4b56edc02e42b240e9b0f2922f7ba3d92309f44c98a4",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaSurfaceDetailCommandlet.cpp": "b7c5818b9066697978964b5a00466564d50c96f4a9c76f0cc3a8609d6e5ced7b",
+    "Unreal/Memoria/Source/MemoriaTests/Public/MemoriaSurfaceDetailCommandlet.h": "b856970809bdd245c6d52d9f2d14295215a13eb91a2aff526ffa065e109b2c80",
+    "Unreal/Tools/generate_surface_detail_s353.py": "072518aed40ec3448a71e4ed449ea9e9350860da0690c4953243f11331fafc35"
+  },
+  "preservation": {
+    "utc": "2026-10-11T11:36:45.777571+00:00",
+    "baseline_files": 1022,
+    "changed_expected": [
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Arrel/M_Arrel.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Bureauagent/M_Bureauagent.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Child/M_Child.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Elder/M_Elder.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Elia/M_Elia.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Fisherman/M_Fisherman.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Guard/M_Guard.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Husk/M_Husk.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Malet/M_Malet.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Scholar/M_Scholar.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Thief/M_Thief.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Traveler/M_Traveler.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Villagerf/M_Villagerf.uasset",
+      "Unreal/Memoria/Content/Memoria/Presentation/Field3D/Villagerm/M_Villagerm.uasset",
+      "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldMonster.cpp",
+      "Unreal/Memoria/Source/Memoria/Private/Presentation/MemoriaFieldCharacterComponent.cpp",
+      "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaFieldCombatTypes.h",
+      "Unreal/Memoria/Source/Memoria/Public/Presentation/MemoriaFieldCharacterComponent.h",
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaFieldFoesTests.cpp",
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaFoeVarietyTests.cpp",
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaVerdanVisualTests.cpp"
+    ],
+    "unchanged_files": 1001,
+    "all_previous_paint_fbx_rigs_clips_preserved": true,
+    "peer_head": "159ae961f844e3492cd9857b6d472e8aa79b5d02",
+    "peer_status": "",
+    "validated_frozen_files": 1159
+  },
+  "data_manifest": {
+    "atlas": {
+      "gutter_px": 8,
+      "interior_px": 496,
+      "normal_fade_px": 24,
+      "tile_px": 512
+    },
+    "files": {
+      "ambient_detail_normal.png": {
+        "bytes": 592658,
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "mode": "RGB",
+        "sha256": "e2dd76a32dcbdbb1220d41dd18f652f4ce2145f7821438ed080398547ce3de21"
+      },
+      "ambient_detail_surface.png": {
+        "bytes": 1272199,
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "mode": "RGBA",
+        "sha256": "ffe7452a636d2f4212c728aa4b2f12cc63ea9ba060834f1c833d64cd9750dd54"
+      },
+      "hero_detail_normal.png": {
+        "bytes": 43545,
+        "dimensions": [
+          512,
+          512
+        ],
+        "mode": "RGB",
+        "sha256": "6da70e39be86d3f535323d6eafb48be5e01c5d75bca53b21b097c3e143ffe301"
+      },
+      "hero_detail_surface.png": {
+        "bytes": 109371,
+        "dimensions": [
+          512,
+          512
+        ],
+        "mode": "RGBA",
+        "sha256": "7fe334899c650516ef05b0810ba8e0b03e5883134be3c134e07a83657c2978bd"
+      },
+      "husk_detail_normal.png": {
+        "bytes": 977408,
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "mode": "RGB",
+        "sha256": "805e5e2e52e1cc9dbffa999939ed6d5b73fc0ac678b439a038857bc183e62f92"
+      },
+      "husk_detail_surface.png": {
+        "bytes": 1445207,
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "mode": "RGBA",
+        "sha256": "b01a7f0cd4f7da3655bf96915953b4f88b44245cd37636616bae76bb65ce9783"
+      },
+      "thief_detail_normal.png": {
+        "bytes": 910892,
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "mode": "RGB",
+        "sha256": "7790a8d56419208f9f5af088c87d8d7170d66b1dc6e9da6a64f010b174ebd419"
+      },
+      "thief_detail_surface.png": {
+        "bytes": 1441611,
+        "dimensions": [
+          2048,
+          2048
+        ],
+        "mode": "RGBA",
+        "sha256": "8ff2ca62b4af287bfc65f83d94fc1f0d09d670cf83ead4de899ee80ef4274d36"
+      }
+    },
+    "generator_sha256": "072518aed40ec3448a71e4ed449ea9e9350860da0690c4953243f11331fafc35",
+    "generator_version": 1,
+    "normal_convention": "DirectX/Unreal tangent RGB; image y increases downward; unnormalized normal = (-dh/dx, +dh/dy, 1); neutral = (128,128,255).",
+    "profiles": {
+      "ambient_detail": {
+        "layout": "upper eight tiles; protected lower head half",
+        "lower_half": "protected head: roughness .68, metallic 0, normal XY <= .01",
+        "normal_xy_max_encoded": 0.330204,
+        "normal_xy_mean_encoded": 0.029947,
+        "seed": 35302,
+        "size": 2048,
+        "surface_channel_max": [
+          254,
+          232,
+          115,
+          241
+        ],
+        "surface_channel_min": [
+          243,
+          129,
+          0,
+          26
+        ],
+        "tile_profiles": [
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.33,
+            "roughness": 0.84,
+            "surface": "cloth",
+            "tile": 0
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.3,
+            "roughness": 0.63,
+            "surface": "leather",
+            "tile": 1
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.33,
+            "roughness": 0.84,
+            "surface": "cloth",
+            "tile": 2
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.022,
+            "roughness": 0.68,
+            "surface": "skin",
+            "tile": 3
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.045,
+            "roughness": 0.78,
+            "surface": "hair",
+            "tile": 4
+          },
+          {
+            "metallic": 0.45,
+            "normal_xy_limit": 0.15,
+            "roughness": 0.54,
+            "surface": "brass_soft",
+            "tile": 5
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.3,
+            "roughness": 0.63,
+            "surface": "leather",
+            "tile": 6
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.33,
+            "roughness": 0.84,
+            "surface": "cloth",
+            "tile": 7
+          }
+        ],
+        "tiles": [
+          "cloth",
+          "leather",
+          "cloth",
+          "skin",
+          "hair",
+          "brass_soft",
+          "leather",
+          "cloth"
+        ]
+      },
+      "hero_detail": {
+        "layout": "periodic shared detail",
+        "normal_xy_max_encoded": 0.156175,
+        "normal_xy_mean_encoded": 0.065344,
+        "periodic_edge_byte_delta_max": 2,
+        "seed": 35301,
+        "size": 512,
+        "surface_channel_max": [
+          254,
+          218,
+          0,
+          235
+        ],
+        "surface_channel_min": [
+          244,
+          182,
+          0,
+          26
+        ],
+        "tiles": [
+          "hero"
+        ]
+      },
+      "husk_detail": {
+        "layout": "upper eight tiles repeated in lower half",
+        "lower_half": "byte-identical to upper half",
+        "normal_xy_max_encoded": 0.342279,
+        "normal_xy_mean_encoded": 0.056261,
+        "seed": 35303,
+        "size": 2048,
+        "surface_channel_max": [
+          254,
+          249,
+          20,
+          234
+        ],
+        "surface_channel_min": [
+          242,
+          96,
+          0,
+          28
+        ],
+        "tile_profiles": [
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.345,
+            "roughness": 0.88,
+            "surface": "shreds",
+            "tile": 0
+          },
+          {
+            "metallic": 0.08,
+            "normal_xy_limit": 0.34,
+            "roughness": 0.65,
+            "surface": "bone_plate",
+            "tile": 1
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.3,
+            "roughness": 0.63,
+            "surface": "leather",
+            "tile": 2
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.035,
+            "roughness": 0.8,
+            "surface": "neutral",
+            "tile": 3
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.008,
+            "roughness": 0.96,
+            "surface": "void_face",
+            "tile": 4
+          },
+          {
+            "metallic": 0.05,
+            "normal_xy_limit": 0.22,
+            "roughness": 0.43,
+            "surface": "talon",
+            "tile": 5
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.035,
+            "roughness": 0.8,
+            "surface": "neutral",
+            "tile": 6
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.06,
+            "roughness": 0.8,
+            "surface": "crack",
+            "tile": 7
+          }
+        ],
+        "tiles": [
+          "shreds",
+          "bone_plate",
+          "leather",
+          "neutral",
+          "void_face",
+          "talon",
+          "neutral",
+          "crack"
+        ]
+      },
+      "thief_detail": {
+        "layout": "upper eight tiles repeated in lower half",
+        "lower_half": "byte-identical to upper half",
+        "normal_xy_max_encoded": 0.330204,
+        "normal_xy_mean_encoded": 0.050023,
+        "seed": 35304,
+        "size": 2048,
+        "surface_channel_max": [
+          254,
+          237,
+          178,
+          238
+        ],
+        "surface_channel_min": [
+          243,
+          92,
+          0,
+          26
+        ],
+        "tile_profiles": [
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.33,
+            "roughness": 0.84,
+            "surface": "cloth",
+            "tile": 0
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.3,
+            "roughness": 0.63,
+            "surface": "leather",
+            "tile": 1
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.33,
+            "roughness": 0.84,
+            "surface": "cloth",
+            "tile": 2
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.022,
+            "roughness": 0.68,
+            "surface": "skin",
+            "tile": 3
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.01,
+            "roughness": 0.91,
+            "surface": "eye_socket",
+            "tile": 4
+          },
+          {
+            "metallic": 0.65,
+            "normal_xy_limit": 0.16,
+            "roughness": 0.4,
+            "surface": "steel",
+            "tile": 5
+          },
+          {
+            "metallic": 0.7,
+            "normal_xy_limit": 0.15,
+            "roughness": 0.47,
+            "surface": "brass",
+            "tile": 6
+          },
+          {
+            "metallic": 0.0,
+            "normal_xy_limit": 0.33,
+            "roughness": 0.84,
+            "surface": "cloth",
+            "tile": 7
+          }
+        ],
+        "tiles": [
+          "cloth",
+          "leather",
+          "cloth",
+          "skin",
+          "eye_socket",
+          "steel",
+          "brass",
+          "cloth"
+        ]
+      }
+    },
+    "schema": "memoria.surface_detail.s353.v1",
+    "source_images_read": [],
+    "surface_packing": {
+      "A": "mottled weathering mask",
+      "B": "metallic",
+      "G": "roughness",
+      "R": "ambient occlusion"
+    },
+    "texture_import": {
+      "normal": {
+        "compression": "TC_Normalmap",
+        "flip_green": false,
+        "srgb": false
+      },
+      "surface": {
+        "compression": "TC_Masks",
+        "srgb": false
+      }
+    }
+  },
+  "focused_execution": [
+    {
+      "label": "surface_import",
+      "command": [
+        "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+        "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+        "-unattended",
+        "-nop4",
+        "-nosplash",
+        "-RenderOffscreen",
+        "-stdout",
+        "-FullStdOutLogOutput",
+        "-run=MemoriaSurfaceDetail",
+        "-AllowCommandletRendering"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 130.47,
+      "fatal": []
+    },
+    {
+      "label": "native_focus",
+      "command": [
+        "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+        "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+        "-unattended",
+        "-nop4",
+        "-nosplash",
+        "-RenderOffscreen",
+        "-stdout",
+        "-FullStdOutLogOutput",
+        "-MemoriaCapture",
+        "-ResX=1280",
+        "-ResY=720",
+        "-ExecCmds=Automation RunTests MemoriaVisual.FieldCharacters+MemoriaVisual.VerdanExploration+MemoriaVisual.FieldFoes+MemoriaVisual.FoeVariety",
+        "-TestExit=Automation Test Queue Empty",
+        "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s353\\focused\\Automation"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 115.96,
+      "fatal": []
+    }
+  ],
+  "before_capture_receipt": {
+    "utc": "2026-10-11T10:40:40.347992+00:00",
+    "exit": 0,
+    "tests": 3,
+    "images": {
+      "FieldFoes\\FoesChase.png": "2a4e4d83fa3243092638404ba4d0b3d6b1039808ceb887dbf526eff935a7d6dc",
+      "FieldFoes\\HuskApproach.png": "393ee507ac6a634f770bab7238c3f08a5db5e507d7cb00ce949e356658ece094",
+      "FieldFoes\\HuskStrike.png": "84a8c594c18f76b4468f00d64df9636153a19f8b8cbfbb589ef7325db9dcd0fb",
+      "FieldFoes\\ThiefApproach.png": "d9479f0220e9a06db40695d96f1e946a05a35e1c3c257fc053a898dd42d6bd94",
+      "FieldFoes\\ThiefStrike.png": "6f6b085e25f957e917d34a7761acc92245b91040326c6d7c8855b11494709d85",
+      "FoeVariety\\FoeCasterCue.png": "01110c6729b2045925b20a120f8bd1877e1229b1f01309acc36113ef50ee9d15",
+      "FoeVariety\\FoeChargerCue.png": "f5d429c42761537d0a4cde0c7b35b6bf4c4446e2421fa198a9baef14c0c52b4e",
+      "FoeVariety\\FoeCrawlerLane.png": "e51a3e8b0025e13479c67a90f540547122f7f069c0014e7a52c63b96a5a9c20b",
+      "FoeVariety\\FoeCrawlerRush.png": "9292c47a9afb5f8a3616d9caa691a90907cbe362a36efe91b3fd14e171eb492a",
+      "FoeVariety\\FoeLineup.png": "b74541c95f21f1fcec49079348421a82c1b3c7e2c1cb10fe2dbfd36da1ffa408",
+      "FoeVariety\\FoeMeleeCue.png": "973255169869eb9762c6061226942226010149413f4c2783da63f2a74ca6ede9",
+      "FoeVariety\\FoeWalkerScorch.png": "7423507a9acf021cef42463de96774f01bf116a6e8ab82d6a0fe3ae45626ec3b",
+      "FoeVariety\\FoeWispOrb.png": "422b55a2d67d0dc7d8f881e7a285068d822daae25e71c5c2bf51191ccb9ef713",
+      "PlayFeel1\\BoundaryClear.png": "1402a0178833efa7a5bde535a0a83bedb060859c2d055f70c3dfec2b9fb411e6",
+      "PlayFeel1\\BoundaryOpaque.png": "1b3fd47b2c2f834c7ee3734ee9925044cfc9918df2b93271b4ca1ce305418657",
+      "PlayFeel1\\CharacterBack.png": "c298ca298cca443c4cfe5246e13373340ac3e8a3efb74cfa0a8a548c24633fe4",
+      "PlayFeel1\\CharacterFront.png": "b57cdb9425c2a32a3914d18a0f9b4af4a4788fc0be7edf19a09dec7f9c5a13ac",
+      "PlayFeel1\\CharacterSide.png": "3832ad54ed12fcf1436158eea833d16947537894496697a42923c3809414f967",
+      "PlayFeel1\\Down.png": "a43609e20e2fb61da0b81cd6117d29a90db72f170bcf04158dd6614034693f03",
+      "PlayFeel1\\East.png": "5695eb5a95b3025e927890bef8291afbf715268ec3d6eb4b6e35907b0f5cdd2c",
+      "PlayFeel1\\EliaRigged.png": "f8b2263cd3621135fb3b3efc8d080c1fba97d18a785fd08ed1b912ae8b54f6b5",
+      "PlayFeel1\\Left.png": "1e5dd2fd36d8d2182ea491aebb1b608aff79b1b9c4af28a356b92dc660ed1df2",
+      "PlayFeel1\\MaletRigged.png": "ba7b49208134a0b82e84215f80250f70c810916c7a8be3e58f99f6114d299370",
+      "PlayFeel1\\Market.png": "5141cf646afdcd4705a9869f70b310e63024ab1854e858a3fddf9df9e62481da",
+      "PlayFeel1\\MarketFront.png": "a36c97a41530b43b6ffc15407012afeef94f8ee73be65fe664642aa3a225b3f6",
+      "PlayFeel1\\NearMalet.png": "eadf28d93356dcd4a196b683238d2b057a44d7443f592241e0fd7385dd298b51",
+      "PlayFeel1\\North.png": "2163d0661ea6da97328644969df92a9c291cdde0a05c45c56e36ffcd6452ce0e",
+      "PlayFeel1\\NorthEast.png": "b7c6518a626fc81d46e8631c07ee9ae4b90cacd5c72ca2b3165e84e3b301db85",
+      "PlayFeel1\\NorthWest.png": "a1cafd0a803c3cad9279ede22452f3e692ee717c9bef33d3fcd3f0fad2db1fd7",
+      "PlayFeel1\\PropBarrel.png": "66b89c88da6a27fe4b68ca7949d6baa3b73b6afe4b61cd4bf0cb51b0f8b36e9e",
+      "PlayFeel1\\PropCampfire.png": "9bf8647e3bac21b1598c6b3e45d194e94ca9fccdff039ebe55198b410479db58",
+      "PlayFeel1\\PropCrate.png": "f8fafcf620bcb0210115199c18af3f3facf81431397129a40528c9df9e18382c",
+      "PlayFeel1\\PropSign.png": "d5d8bdb4d9d866e1a18eff15e95146c0db324f0146128edd27c5c64e7f81442d",
+      "PlayFeel1\\Right.png": "a2ec67da7cf2f11f6e1f14edf9f79134bee98775779c7ef751569ad173aa9c33",
+      "PlayFeel1\\South.png": "124139d4fea63af3bfb4ac586aa23003a2d6927c85551e27a454805bb1498056",
+      "PlayFeel1\\SouthEast.png": "2a5749a774c2464d2fa9834f3c913f59d6efd1f6bc63a2cea6299065dc75e43f",
+      "PlayFeel1\\SouthWest.png": "26babdf57fc3d6858ff95e42bee0a5711b398689b3c85de149ef0443085e9fe7",
+      "PlayFeel1\\SpentAndSmoke.png": "4f902a1b0e605f6ae974cb3b4a779b666b149858aba361192382020332091740",
+      "PlayFeel1\\SpentReentry.png": "3b44a73832a8470d42ee8cfcdd689d0ee20b67150a00a63a2760d7eb623234d5",
+      "PlayFeel1\\TownsfolkTurn.png": "89718f035c3135475162ca929defdd6b835d54718e2594fef1aa6e91cd08e653",
+      "PlayFeel1\\Up.png": "0e3df92d58ffc7c399e1c658e5c85763a35555931305776c521aa364b8f0a8f4",
+      "PlayFeel1\\WalkA.png": "c7c2d9a2a1eae65f0a8837da82d7664301b8882a08b0491c14b73d374e8430c6",
+      "PlayFeel1\\WalkB.png": "af8d65e548fe9f5a60f8a73eb1bf5bfdece43c8354c145072407806030a25446",
+      "PlayFeel1\\WalkC.png": "11d046d3eac3ebb93bfbea633fb110bc85909e38bedc889ad10913a8143ca234",
+      "PlayFeel1\\WalkD.png": "455aff284651ce2dbe27010f26c26c0ca95218250e1c108513eaceb9250e1e83",
+      "PlayFeel1\\WalkSettled.png": "038f6996ad67b1040714760267fcd3216ad7e1ee1760a5ca916e51de5fe69d74",
+      "PlayFeel1\\West.png": "cd6d85ef25d877038006fa600934ee0beaf19426c318e8bd39c29620f3053c89"
+    },
+    "all_copied_images": {
+      "FieldFoes\\FoesChase.png": "2a4e4d83fa3243092638404ba4d0b3d6b1039808ceb887dbf526eff935a7d6dc",
+      "FieldFoes\\HuskApproach.png": "393ee507ac6a634f770bab7238c3f08a5db5e507d7cb00ce949e356658ece094",
+      "FieldFoes\\HuskStrike.png": "84a8c594c18f76b4468f00d64df9636153a19f8b8cbfbb589ef7325db9dcd0fb",
+      "FieldFoes\\ThiefApproach.png": "d9479f0220e9a06db40695d96f1e946a05a35e1c3c257fc053a898dd42d6bd94",
+      "FieldFoes\\ThiefStrike.png": "6f6b085e25f957e917d34a7761acc92245b91040326c6d7c8855b11494709d85",
+      "FoeVariety\\FoeCasterCue.png": "01110c6729b2045925b20a120f8bd1877e1229b1f01309acc36113ef50ee9d15",
+      "FoeVariety\\FoeChargerCue.png": "f5d429c42761537d0a4cde0c7b35b6bf4c4446e2421fa198a9baef14c0c52b4e",
+      "FoeVariety\\FoeCrawlerLane.png": "e51a3e8b0025e13479c67a90f540547122f7f069c0014e7a52c63b96a5a9c20b",
+      "FoeVariety\\FoeCrawlerRush.png": "9292c47a9afb5f8a3616d9caa691a90907cbe362a36efe91b3fd14e171eb492a",
+      "FoeVariety\\FoeLineup.png": "b74541c95f21f1fcec49079348421a82c1b3c7e2c1cb10fe2dbfd36da1ffa408",
+      "FoeVariety\\FoeMeleeCue.png": "973255169869eb9762c6061226942226010149413f4c2783da63f2a74ca6ede9",
+      "FoeVariety\\FoeWalkerScorch.png": "7423507a9acf021cef42463de96774f01bf116a6e8ab82d6a0fe3ae45626ec3b",
+      "FoeVariety\\FoeWispOrb.png": "422b55a2d67d0dc7d8f881e7a285068d822daae25e71c5c2bf51191ccb9ef713",
+      "PlayFeel1\\BoundaryClear.png": "1402a0178833efa7a5bde535a0a83bedb060859c2d055f70c3dfec2b9fb411e6",
+      "PlayFeel1\\BoundaryOpaque.png": "1b3fd47b2c2f834c7ee3734ee9925044cfc9918df2b93271b4ca1ce305418657",
+      "PlayFeel1\\CharacterBack.png": "c298ca298cca443c4cfe5246e13373340ac3e8a3efb74cfa0a8a548c24633fe4",
+      "PlayFeel1\\CharacterFront.png": "b57cdb9425c2a32a3914d18a0f9b4af4a4788fc0be7edf19a09dec7f9c5a13ac",
+      "PlayFeel1\\CharacterSide.png": "3832ad54ed12fcf1436158eea833d16947537894496697a42923c3809414f967",
+      "PlayFeel1\\Down.png": "a43609e20e2fb61da0b81cd6117d29a90db72f170bcf04158dd6614034693f03",
+      "PlayFeel1\\East.png": "5695eb5a95b3025e927890bef8291afbf715268ec3d6eb4b6e35907b0f5cdd2c",
+      "PlayFeel1\\EliaRigged.png": "f8b2263cd3621135fb3b3efc8d080c1fba97d18a785fd08ed1b912ae8b54f6b5",
+      "PlayFeel1\\Left.png": "1e5dd2fd36d8d2182ea491aebb1b608aff79b1b9c4af28a356b92dc660ed1df2",
+      "PlayFeel1\\MaletRigged.png": "ba7b49208134a0b82e84215f80250f70c810916c7a8be3e58f99f6114d299370",
+      "PlayFeel1\\Market.png": "5141cf646afdcd4705a9869f70b310e63024ab1854e858a3fddf9df9e62481da",
+      "PlayFeel1\\MarketFront.png": "a36c97a41530b43b6ffc15407012afeef94f8ee73be65fe664642aa3a225b3f6",
+      "PlayFeel1\\NearMalet.png": "eadf28d93356dcd4a196b683238d2b057a44d7443f592241e0fd7385dd298b51",
+      "PlayFeel1\\North.png": "2163d0661ea6da97328644969df92a9c291cdde0a05c45c56e36ffcd6452ce0e",
+      "PlayFeel1\\NorthEast.png": "b7c6518a626fc81d46e8631c07ee9ae4b90cacd5c72ca2b3165e84e3b301db85",
+      "PlayFeel1\\NorthWest.png": "a1cafd0a803c3cad9279ede22452f3e692ee717c9bef33d3fcd3f0fad2db1fd7",
+      "PlayFeel1\\PropBarrel.png": "66b89c88da6a27fe4b68ca7949d6baa3b73b6afe4b61cd4bf0cb51b0f8b36e9e",
+      "PlayFeel1\\PropCampfire.png": "9bf8647e3bac21b1598c6b3e45d194e94ca9fccdff039ebe55198b410479db58",
+      "PlayFeel1\\PropCrate.png": "f8fafcf620bcb0210115199c18af3f3facf81431397129a40528c9df9e18382c",
+      "PlayFeel1\\PropSign.png": "d5d8bdb4d9d866e1a18eff15e95146c0db324f0146128edd27c5c64e7f81442d",
+      "PlayFeel1\\Right.png": "a2ec67da7cf2f11f6e1f14edf9f79134bee98775779c7ef751569ad173aa9c33",
+      "PlayFeel1\\South.png": "124139d4fea63af3bfb4ac586aa23003a2d6927c85551e27a454805bb1498056",
+      "PlayFeel1\\SouthEast.png": "2a5749a774c2464d2fa9834f3c913f59d6efd1f6bc63a2cea6299065dc75e43f",
+      "PlayFeel1\\SouthWest.png": "26babdf57fc3d6858ff95e42bee0a5711b398689b3c85de149ef0443085e9fe7",
+      "PlayFeel1\\SpentAndSmoke.png": "4f902a1b0e605f6ae974cb3b4a779b666b149858aba361192382020332091740",
+      "PlayFeel1\\SpentReentry.png": "3b44a73832a8470d42ee8cfcdd689d0ee20b67150a00a63a2760d7eb623234d5",
+      "PlayFeel1\\TownsfolkTurn.png": "89718f035c3135475162ca929defdd6b835d54718e2594fef1aa6e91cd08e653",
+      "PlayFeel1\\Up.png": "0e3df92d58ffc7c399e1c658e5c85763a35555931305776c521aa364b8f0a8f4",
+      "PlayFeel1\\WalkA.png": "c7c2d9a2a1eae65f0a8837da82d7664301b8882a08b0491c14b73d374e8430c6",
+      "PlayFeel1\\WalkB.png": "af8d65e548fe9f5a60f8a73eb1bf5bfdece43c8354c145072407806030a25446",
+      "PlayFeel1\\WalkC.png": "11d046d3eac3ebb93bfbea633fb110bc85909e38bedc889ad10913a8143ca234",
+      "PlayFeel1\\WalkD.png": "455aff284651ce2dbe27010f26c26c0ca95218250e1c108513eaceb9250e1e83",
+      "PlayFeel1\\WalkSettled.png": "038f6996ad67b1040714760267fcd3216ad7e1ee1760a5ca916e51de5fe69d74",
+      "PlayFeel1\\West.png": "cd6d85ef25d877038006fa600934ee0beaf19426c318e8bd39c29620f3053c89"
+    },
+    "fresh_image_count": 47,
+    "freshness": "PNG modified at or after baseline command receipt; older copied views excluded"
+  },
+  "focused_after_capture_receipt": {
+    "utc": "2026-10-11T11:25:54.959365+00:00",
+    "tests": 4,
+    "images": {
+      "PlayFeel1\\BoundaryClear.png": {
+        "sha256": "aa3362b526927378a76fbdec4f58d85603345aa5263a0798c50531f784a50fce",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\BoundaryOpaque.png": {
+        "sha256": "d45bd8af48e630219e59c6b41235058d1ca549dcad155a5ca40746509e86fb59",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\CharacterBack.png": {
+        "sha256": "26cc43f1cbf0d129bb7f8754582ef054d50c9538de331aa834eb1fdab3cd5f11",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\CharacterFront.png": {
+        "sha256": "8b9124a6309f8411d48ad29df42dad9462bf36afec83d5378824470f81d2c4d7",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\CharacterSide.png": {
+        "sha256": "06bc3ddfa7c72aff7d719384f5b40c52a9a6cd1491144262dd340433bb5b63ce",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\Down.png": {
+        "sha256": "7e5831608247bf3d907c849aea28929e6b4d7deab566793df0d36f77018fb19b",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\East.png": {
+        "sha256": "4cb343ca34052f5685f7df37de92eeb7fdb07b9d3da2a6b069ea83737d7c18f7",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\EliaRigged.png": {
+        "sha256": "9513ef3719abdbbc32a1851de9c217d10a19f14ff61df6ce0c7f850365a65bba",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\Left.png": {
+        "sha256": "4c0359fb365a2fcdb13a39f2021acc0b158d246f6247cc94f2eeeaccb8e33958",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\MaletRigged.png": {
+        "sha256": "dbabf3791d2520b744d1be2796d5066861bf220c34b340be20bf00de3157a9ed",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\Market.png": {
+        "sha256": "a6debb37482e2fefc0ee6570d3575760191c79832b0675c38f1be2873b7ca164",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\MarketFront.png": {
+        "sha256": "154d1f2bd4ac5349372520be26e4ade4fc3831c2e6fa0aac92c5ee526bfd9f03",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\NearMalet.png": {
+        "sha256": "68b90e45c9b3124fd030a75ab6f881434a78a419eaea8410772d5446a720d831",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\North.png": {
+        "sha256": "46eda08e67c267d59ddee3750a01c85fa07b26c65e343e394e6e7700ca719981",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\NorthEast.png": {
+        "sha256": "efa63a3b5a6c4fae9990b6e551f21c26c9d2d6145e7894a83468c7489bf1d8a8",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\NorthWest.png": {
+        "sha256": "bb12717847beec22e16449df73642599db0c48ed130c227f65cef2b9371933dc",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\PropBarrel.png": {
+        "sha256": "33bcf8b74cea08d4c90886b3576cb9dde1fc674cb529f950901fb799518e8db2",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\PropCampfire.png": {
+        "sha256": "6d347fe03823572de34513c29a57795b2ba83d837af3b93df220433258f29c66",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\PropCrate.png": {
+        "sha256": "d8851bad12e39f11e9e8cebc27b2651cc5df91914ef412a0403610267bf84d93",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\PropSign.png": {
+        "sha256": "24b1dfef1c0808fb2a308522ea2e3531ba81e789f8221e1ac6c1a164a72ef2eb",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\Right.png": {
+        "sha256": "a6f19f0e390ea62b95e6483083d84cf880ab16f14605db761936e1d9e037455f",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\South.png": {
+        "sha256": "aa9346628c975f3059cf8110ff1c0b4d35de7749aa34bd711ba7ef14596241c4",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\SouthEast.png": {
+        "sha256": "ad15d9e8344f3807b1150e0328f983e640a255c5b17ba011394ac78952a954f9",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\SouthWest.png": {
+        "sha256": "b98cb18f4c79dc08eebe5aa9502da65822c9334d0d5dd00db54504cf77bc8dc2",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\SpentAndSmoke.png": {
+        "sha256": "00b19be13f75c1a9ed2a3106377211fb33da53d206e09f606c0bfe6afab80570",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\SpentReentry.png": {
+        "sha256": "3dd5f1a64219ea174baac1d2c0ea1416f3c52249a47e7c76f2324cc9afa13f8c",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\TownsfolkTurn.png": {
+        "sha256": "4afe5284690fd77ceee91eaa636e642e70100ab7b1a190291feebb51995df2a0",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\Up.png": {
+        "sha256": "f216f6aca3a53e4d9c0fcbb6912d6370dbe74f775a28a88aba9e657baee60a2e",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\WalkA.png": {
+        "sha256": "1331768d2b8d9394546a9c840e5112883580d99e85ad71d13ef1de3c2f1fc975",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\WalkB.png": {
+        "sha256": "3e6f5109ea9e98e6b5ff44ed8f6bc561f753f1ff34842f3490238b909ea99f45",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\WalkC.png": {
+        "sha256": "afa5a4f595c18069e8b79ca89d05c20524c948ae3009b34e736ffb98d376c529",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\WalkD.png": {
+        "sha256": "fee2b270edbc927c2de83f7f94c4262ae8c5d9c0b5abad55e3c9649785cada5d",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\WalkSettled.png": {
+        "sha256": "ad659522a9c7f3b5feeaa60bba08d5c47c0b8adb0bfb35f00b9f93ce331f6a4d",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "PlayFeel1\\West.png": {
+        "sha256": "6d8c930542b2f4fd26a9190484fe589ff745aa625c161681f74b86b2d287125a",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FieldFoes\\FoesChase.png": {
+        "sha256": "cb863d371a9029741dbec4f4c22543e69372e769cb2b737d46d14482d00d0f83",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FieldFoes\\HuskApproach.png": {
+        "sha256": "97a97188c5c3887c78d66a0897e4e9098765d6a179844d934ffd3115e18ac0ba",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FieldFoes\\HuskStrike.png": {
+        "sha256": "48dd92df1909f7a2b9815a21d9b9a91f6eec9c6e720c4cea0e4d94d4e18d4d2e",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FieldFoes\\ThiefApproach.png": {
+        "sha256": "a483ae3c6e740254a959599950169933c723b58110cfd7f8613ac9c356aa77ad",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FieldFoes\\ThiefStrike.png": {
+        "sha256": "6fc977ff06e4db4c80fb007e367dbab362e6ed3d2176493da306c3bc405a4874",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeCasterCue.png": {
+        "sha256": "6a7a1eab05519260801d1e40fa532c783c3dcff4422cba89b1fa9dad8a1390f3",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeChargerCue.png": {
+        "sha256": "3364ae886c675241866930474f89a5da29a8cb59bcc50a745a8517d43aeab962",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeCrawlerLane.png": {
+        "sha256": "ac400bc56cef3309bcbd69a31b9a7c08e4a3db0246427129c28296e948ffd4ae",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeCrawlerRush.png": {
+        "sha256": "6ac4de21df55fa9bd6f593c079e7df936ba40e69a2ac61d47df923defff98bf1",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeLineup.png": {
+        "sha256": "ccbb4078050ca07bb81a9ebf42a5ef5b1a5c428f2f4b44d39406be4e1390e897",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeLineupClean.png": {
+        "sha256": "17ba178da7b48fb6295f55ef2bd894cf959451957b907a42879d20d7d1d0fc7a",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeMeleeCue.png": {
+        "sha256": "4adb045e9d7c7ede394d8b814cffddb683197c664594a25681917f2991587a91",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeWalkerScorch.png": {
+        "sha256": "8c97b5af7a48f0f2c88e2e5c384e90cec19a50bdede3b3d3b4480e531a59d09e",
+        "size": [
+          1280,
+          720
+        ]
+      },
+      "FoeVariety\\FoeWispOrb.png": {
+        "sha256": "9cada56ae726671cbafc50d02e4c560fff9c04efd53cff234a87ccc1c9844125",
+        "size": [
+          1280,
+          720
+        ]
+      }
+    }
+  },
+  "source_authority": {
+    "reference_task": "S352",
+    "read_live_same_chat": "2026-10-11",
+    "approved_final_hub": "https://app.notion.com/p/3e5fcba683478136adbee4854f09d05f",
+    "worldbuilding_v10": "https://app.notion.com/p/3ebfcba6834781b79800d0ceac49aa64",
+    "constraint": "Preserve canonical identities and existing painted colours; restrained dark fantasy surface detail. No new narrative canon."
+  },
+  "scope_limits": [
+    "Full274 registry not rerun; fresh58 includes all30rendered visual tests.",
+    "Material/surface polish only; existing14 body meshes/rigs/animations/basecolor unchanged.",
+    "Six enemy variants still use two existing body meshes; shared NPC facial geometry is unchanged.",
+    "Hero head guard uses posed local height plus skin colour attenuation, not a per-vertex head mask; extreme custom poses could defeat height attenuation.",
+    "Field-distance surface differences are restrained; existing glow/size/silhouette remain dominant.",
+    "Clean lineup removes expired tutorial/achievement overlays by waiting; foreground stalls still partially overlap one foe.",
+    "No Shipping package or GPU performance benchmark."
+  ],
+  "earlier_attempts": [
+    {
+      "evidence": "build.log",
+      "result": "New check helper pointer/API errors repaired before build-repair.log PASS."
+    },
+    {
+      "evidence": "focused/no_render_surface_import.log",
+      "result": "Render-disabled authoring wrote data maps but refused material save; added rendering preflight and explicit AllowCommandletRendering."
+    },
+    {
+      "evidence": "focused/partial_load_surface_import.log",
+      "result": "Reimport save failed on partially loaded package; FullyLoad-before-overwrite/graph reset/save repair; only exact own importer/orphan shader workers stopped."
+    },
+    {
+      "evidence": "focused_async_failed",
+      "result": "Actual native4 run passed3; FieldCharacters inspected async32px placeholder. Await actual texture/shader compilation; focused rerun4PASS."
+    },
+    {
+      "evidence": "focused_hero_subtle",
+      "result": "Pre-enhancement focused4PASS; reviewer found hero change too subtle. Broadened cloth detail, posed head protection and subdued Arrel armour response; latest focus and final regression follow."
+    }
+  ],
+  "finished_utc": "2026-10-11T11:38:34.497445+00:00",
+  "generator_check": {
+    "result": "PASS",
+    "files": 9,
+    "pngs": 8,
+    "source_images_read": [],
+    "checks": "exact deterministic bytes, dimensions, normal bounds, AO bounds, atlas topology, protected head"
+  },
+  "native_views_inspected": {
+    "root": [
+      "after/PlayFeel1/CharacterFront.png",
+      "before/PlayFeel1/CharacterFront.png",
+      "after/PlayFeel1/CharacterBack.png",
+      "after/PlayFeel1/EliaRigged.png",
+      "after/FoeVariety/FoeLineupClean.png",
+      "after/FieldFoes/HuskApproach.png",
+      "after/FieldFoes/ThiefStrike.png",
+      "captures/FieldCombat/CombatSwing2.png",
+      "captures/FieldCombat/CombatSwing3.png",
+      "captures/FieldCombat/CombatDash.png"
+    ],
+    "independent": [
+      "before/after CharacterFront",
+      "before/after CharacterBack",
+      "before/after EliaRigged",
+      "before/after MaletRigged",
+      "before/after HuskApproach",
+      "before/after ThiefApproach",
+      "FoeLineupClean"
+    ],
+    "conclusion": "No blocking surface/identity/gloss artifact in inspected current clips. Arrel cloak/armour and foe leather/bone show the strongest change; Elia remains subtle. Not proof for arbitrary deeper future poses."
+  },
+  "process_check": {
+    "utc": "2026-10-11T11:39:20.077058+00:00",
+    "own_editor_compiler_remaining": 0,
+    "method": "Escalated read-only Win32_Process inventory filtered to UnrealEditor, ShaderCompileWorker and UnrealBuildTool; no matching process."
+  },
+  "review_status": "No unresolved actionable defect after read-only graph/API/native visual review; pose and shared-geometry limits documented.",
+  "source_assets_commit": "2cfc182db5ba1a86435cbb246f75b8af6a1aa917",
+  "executed_task_working_files_still_match_sha256": true,
+  "checkout_filter_proof": {
+    "Unreal/Tools/generate_surface_detail_s353.py": {
+      "checkout_filtered_sha256": "072518aed40ec3448a71e4ed449ea9e9350860da0690c4953243f11331fafc35",
+      "exact_working_bytes": true
+    },
+    "Unreal/ArtSource/SurfaceDetail/surface_detail_s353_manifest.json": {
+      "checkout_filtered_sha256": "4d6b9460740b3cba72b55727e3273f52da95ec923ef63a34d8828f3293b8b2fd",
+      "exact_working_bytes": true
+    },
+    "Unreal/ArtSource/SurfaceDetail/hero_detail_normal.png": {
+      "checkout_filtered_sha256": "6da70e39be86d3f535323d6eafb48be5e01c5d75bca53b21b097c3e143ffe301",
+      "exact_working_bytes": true
+    }
+  },
+  "post_validation_delivery_change": "Only scoped .gitattributes LF/-text rules for the new self-hashed generator, JSON manifest and PNG maps; current runtime/source/asset bytes unchanged. Git filtered checkout bytes verified. Included with documentation commit."
+}

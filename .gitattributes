@@ -109,3 +109,8 @@ Unreal/ArtSource/Audio/*.wav binary
 
 # Battle core oracle fixtures are compared byte for byte.
 docs/unreal-migration/fixtures/battle_core/*.json text eol=lf
+
+# S353 procedural data and self-hash remain exact on Windows checkout.
+Unreal/Tools/generate_surface_detail_s353.py text eol=lf
+Unreal/ArtSource/SurfaceDetail/*.json text eol=lf
+Unreal/ArtSource/SurfaceDetail/*.png -text

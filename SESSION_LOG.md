@@ -1,3 +1,15 @@
+# S353 complete - character and monster surface detail (Codex, 2026-10-11)
+
+- User requested more character/monster graphic detail. Source/assets commit 2cfc182db5ba1a86435cbb246f75b8af6a1aa917, base e50350229a033dfa77610c994e2c57e4ceb8745a.14existing body materials (Arrel/Elia/Malet,9ambientNPCs,Husk/Thief) now use8deterministic normal/packed maps. Broad fabric/leather/bone relief, subdued armour/brass/steel response and6muted reflected foe tint/weathering profiles preserve painted identities, face/hair/embroidery, crack/rim/orb/hit cues and gameplay values.
+- Hero head attenuation uses posed local height plus skin colour; current upright/walk/sword followthrough/dash views have no visible gloss/identity regression, but arbitrary deeper future poses are not proven. Elia's pale robe stays subtle. SharedNPCfaces and twofoe body meshes remain; no new creature geometry.
+- Fresh UE5.8.2 serial build, focus4/4 and Foundation6/6 + related52/52 =58/58PASS, including all30rendered visuals. Exact IDs; all command exits0/fatal0; failed/notRun/inProcess0. Full274not rerun. Actual mesh bindings, connected data samplers/native shader resources and independent runtimeMID/glow/hit controls pass.
+-47fresh before/48focused after/77final selected captures1280x720 hashed. Generator --check reproduces8PNGs+manifest exactly; no source images read.1001unrelated tracked own files unchanged; all1159broader frozen files match. Claude159ae961 clean/unchanged; original/foundation/models/handoff untouched; no own editor/compiler remains.
+- Repaired earlier test API, render-disabled authoring, partly loaded reimport and async32px placeholder checks; attempts retained. Initial hero pass too subtle, then restrained cloth/armour improvement and full fresh regression. Existing startup/memory-budget/MotionVector/missing-world warnings and this run's Chapter3EOS analytics-flush warnings disclosed. No unresolved blocking review findings.
+- Scoped .gitattributes LF/-text rules preserve new self-hash/manifest/PNG bytes on Windows; filtered checkout proof recorded. Executed source/assets unchanged after validation. Local only; no push, peer merge/message, Shipping package or performance benchmark.
+- Review/results: docs/unreal-migration/S353_REVIEW.md and S353_RESULTS.json; raw Saved/Validation/s353/.
+
+---
+
 # S352 complete - field combat readability and memory choices (Codex, 2026-10-11)
 
 - User requested autonomous Codex work from Notion approved manuscripts/worldbuilding, prioritizing graphics and gameplay. Live final hub approval covers final-1 chapters 1-56 (latest 55-56 approved 2026-10-10); approved early finals and worldbuilding v10 were read. Irreversible memory cost remains visible; no narrative or save-schema change.
