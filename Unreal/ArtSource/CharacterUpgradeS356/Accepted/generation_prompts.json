@@ -1,0 +1,13 @@
+{
+  "mode": "built-in imagegen",
+  "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-26e5258d-fa45-44f2-8744-5468d9547fdc.png",
+  "file": "SupernaturalAtlas.png",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "image_mode": "RGB",
+  "sha256": "0a608f911de9ba69c90b34d3a24712757baf730c462c79ea94dbbbb415bbf376",
+  "prompt": "Production surface atlas for MEMORIA, a somber dark-fantasy 3D RPG. ONE flat orthographic image split into TWO equal vertical material panels, no dividing line, no border, no margins, no text, no objects or scene. LEFT HALF: dark fractured slate-blue obsidian crystal surface, dense irregular fine angular facets and thin subdued cyan mineral veins, predominantly dark desaturated blue-grey, worn stone microtexture, no bright glow, no white highlights, no large diamond shapes. RIGHT HALF: desaturated brown-purple leathery annelid skin, fine pores, organic soft wrinkles, subtle narrow transverse rings and scarred patches, restrained natural variations, mostly dark umber and muted plum, no fur, no slime shine, no pink candy colors. Both surfaces finely detailed yet readable with harmonious values and even diffuse flat illumination. Flat tileable physically plausible painterly realistic albedo texture swatches only; no directional cast shadows, no perspective. Square high resolution image with each panel precisely filling its half.",
+  "unchanged_bytes": true
+}

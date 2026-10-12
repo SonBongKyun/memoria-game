@@ -1,5 +1,6 @@
 #include "Misc/AutomationTest.h"
 #include "MemoriaSurfaceDetailChecks.h"
+#include "MemoriaGraphicsS356Checks.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
 #include "Editor.h"
@@ -259,19 +260,30 @@ public:
             Test->TestNotNull(TEXT("Malet drawn by the same figure"),Presentation->MaletFigure() ? Presentation->MaletFigure()->GetCard() : nullptr);
             }
             TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
-            int32 Instances = 0, Roofs = 0, PropBatches = 0;
+            int32 Instances = 0, PropBatches = 0, ArchitectureBatches = 0;
+            TMap<FString,int32> ArchitectureCounts;
             for (auto* Batch : Batches)
             {
                 Instances += Batch->GetInstanceCount();
                 if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetPathName().StartsWith(TEXT("/Game/Memoria/Presentation/MarketPropsS355/"))) ++PropBatches;
                 Test->TestTrue(TEXT("Every geometry batch has a mesh"), Batch->GetStaticMesh() != nullptr);
                 Test->TestNotNull(TEXT("Every geometry batch has a material"), Batch->GetMaterial(0));
-                if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetName() == TEXT("SM_PitchedRoof")) Roofs += Batch->GetInstanceCount();
+                if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetPathName().StartsWith(TEXT("/Game/Memoria/Presentation/EnvironmentS356/")))
+                {
+                    ++ArchitectureBatches;
+                    ArchitectureCounts.FindOrAdd(Batch->GetStaticMesh()->GetName())+=Batch->GetInstanceCount();
+                    Test->TestFalse(TEXT("Architecture adds no overlap events"),Batch->GetGenerateOverlapEvents());
+                }
             }
             Test->AddInfo(FString::Printf(TEXT("VERDAN_BATCHES %d instances %d"), Batches.Num(), Instances));
-            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() - PropBatches < 40);
-            // S346: six buildings, the two story stalls and the market ring's ten.
-            Test->TestEqual(TEXT("Six buildings and twelve stall roofs"), Roofs, 18);
+            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() - PropBatches < 48 && ArchitectureBatches <= 20);
+            // Inspect the actual revision geometry; the twelve cloth stalls have their own silhouette.
+            for(const auto& Entry:TMap<FString,int32>{{TEXT("SM_TiledRoof"),6},{TEXT("SM_RoofEaves"),6},
+                {TEXT("SM_DoorWood"),6},{TEXT("SM_DoorStone"),6},{TEXT("SM_WindowWood"),12},{TEXT("SM_WindowStone"),12},
+                {TEXT("SM_ClothCanopy"),12},{TEXT("SM_CanopyRope"),12},{TEXT("SM_WallCourse"),6},{TEXT("SM_ChippedCap"),6}})
+                Test->TestEqual(*(Entry.Key+TEXT(" actual live instance count")),ArchitectureCounts.FindRef(Entry.Key),Entry.Value);
+            CheckMemoriaArchitectureS356(Test);
+            CheckMemoriaNamedFigureS356(Test,TEXT("Malet"),Presentation->MaletFigure()?Presentation->MaletFigure()->GetSkeletalMesh():nullptr);
             Test->TestEqual(TEXT("The market ring stands round the square"), Presentation->GetMarketStallCount(), 10);
             Test->TestEqual(TEXT("With the kit's lantern posts and freight"), Presentation->GetMarketPropCount(), 6);
             Test->TestEqual(TEXT("Each stall, post and rope lantern burns warm"), Presentation->GetMarketLightCount(), 17);
@@ -489,6 +501,7 @@ public:
                 Test->TestTrue(TEXT("Elia rig and staff are active"), Elia && Elia->IsRigged() && Elia->GetPropCount() == 1);
                 if (Elia)
                 {
+                    CheckMemoriaNamedFigureS356(Test,TEXT("Elia"),Elia->GetSkeletalMesh());
                     Elia->Face(TEXT("Down"));
                     PreviewCamera->SetActorLocation(Elia->GetComponentLocation() + FVector(0, -450, 100));
                     PreviewCamera->SetActorRotation((Elia->FocusPosition() - PreviewCamera->GetActorLocation()).Rotation());
@@ -782,6 +795,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFieldCharactersTest, "MemoriaVisual.FieldChara
 bool FFieldCharactersTest::RunTest(const FString&)
 {
     CheckMemoriaSurfaceDetail(this);
+    CheckMemoriaNamedFigureS356(this,TEXT("Elia"),nullptr);
+    CheckMemoriaNamedFigureS356(this,TEXT("Malet"),nullptr);
     // FIELD_SPRITE_ART_SPEC.md acceptance: every Verdan field character resolves art; the report says which.
     for (const TCHAR* Id : {TEXT("arrel"), TEXT("elia"), TEXT("malet")})
     {

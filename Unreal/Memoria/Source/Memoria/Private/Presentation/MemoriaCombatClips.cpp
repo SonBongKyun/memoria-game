@@ -48,7 +48,22 @@ FString ClipPath(const FString& Id, const FString& Name)
         const auto* Clip = Clips().FindByPredicate([&](const FMemoriaCombatClip& C) { return Name == C.Name; });
         return Clip ? FString(Clip->MannequinPath) : FString::Printf(TEXT("/Game/Memoria/Presentation/Combat/Foes/A_Mannequin_%s"), *Name);
     }
-    return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/%s/Combat/A_%s_%s"), *Id, *Id, *Name);
+    // S356: new supernatural rigs own their clips; tailored humanoids keep the original action timing.
+    if (Id == TEXT("VoidWisp") || Id == TEXT("MemoryLeech"))
+        return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/%s/Combat/A_%s_%s"), *Id, *Id, *Name);
+    // Original and tailored humanoids share the exact 77-bone skeleton. These five authored roles
+    // replace inherited retargeted hit poses that collapsed every live vertex to the origin.
+    const FString SafeHuman=(Id==TEXT("Husk") || Id==TEXT("AshWalker"))?TEXT("AshWalker"):(Id==TEXT("Thief") || Id==TEXT("BeltScavenger"))?TEXT("BeltScavenger"):TEXT("");
+    const bool SafeRole=Name==TEXT("Idle") || Name==TEXT("Walk") || Name==TEXT("HitReact_Front_Lgt_01") || Name==TEXT("Death_Front_01")
+        || (SafeHuman==TEXT("AshWalker") && (Name==TEXT("Zombie_Idle_Loop") || Name==TEXT("Zombie_Walk_Fwd_Loop") || Name==TEXT("Zombie_Scratch")))
+        || (SafeHuman==TEXT("BeltScavenger") && Name==TEXT("Sword_Regular_A"));
+    if (!SafeHuman.IsEmpty() && SafeRole)
+    {
+        const FString Clip=SafeHuman==TEXT("AshWalker") && Name==TEXT("Idle")?TEXT("Zombie_Idle_Loop"):SafeHuman==TEXT("AshWalker") && Name==TEXT("Walk")?TEXT("Zombie_Walk_Fwd_Loop"):Name;
+        return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/%s/Combat/A_%s_%s"),*SafeHuman,*SafeHuman,*Clip);
+    }
+    const FString Original = Id == TEXT("AshWalker") ? TEXT("Husk") : Id == TEXT("BeltScavenger") ? TEXT("Thief") : Id;
+    return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/%s/Combat/A_%s_%s"), *Original, *Original, *Name);
 }
 UAnimSequence* Load(const FString& Id, const FString& Name)
 {

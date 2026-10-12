@@ -1,0 +1,167 @@
+{
+  "revision": "Accepted",
+  "source_status": "four base mesh sources and twenty safe clips preserved; final encounter heads authored separately",
+  "files": [
+    {
+      "file": "AshWalker/clips.json",
+      "bytes": 2249,
+      "sha256": "b2db6ed91d87a522152c4bdaee531d302c7d08f3f9616e858941047928b9331a"
+    },
+    {
+      "file": "AshWalker/Death_Front_01.fbx",
+      "bytes": 765276,
+      "sha256": "91f3c0bf69e2f6ca13cc2af3f7d8c86d662b4d9e15a92bf46039e73a7ea1a590"
+    },
+    {
+      "file": "AshWalker/HitReact_Front_Lgt_01.fbx",
+      "bytes": 625612,
+      "sha256": "971960633d912ecf5054597108280a60e33595fee103f8f74b77e242e8504f66"
+    },
+    {
+      "file": "AshWalker/Zombie_Idle_Loop.fbx",
+      "bytes": 752460,
+      "sha256": "38367ee90f411cc4f519c8d7ae7e3d1f8d7c867f15045810c723ea0352937b8d"
+    },
+    {
+      "file": "AshWalker/Zombie_Scratch.fbx",
+      "bytes": 671884,
+      "sha256": "2e8159171ff5ed410d87b1876773c3af511a47cfc4a38c2268714a5a97649349"
+    },
+    {
+      "file": "AshWalker/Zombie_Walk_Fwd_Loop.fbx",
+      "bytes": 668428,
+      "sha256": "6ed156cb6ad2ca8cc7f7bfa325fb225cb93eeda639ae19e149b3ff1b522a3f47"
+    },
+    {
+      "file": "BeltScavenger/clips.json",
+      "bytes": 2232,
+      "sha256": "0ab78738d5b2ba66f4be9902a2ad0a984190f61cea863b25873460d0a6cd3187"
+    },
+    {
+      "file": "BeltScavenger/Death_Front_01.fbx",
+      "bytes": 765196,
+      "sha256": "dc67da6b4392840da6e791334c06c99f4fdc537801cd45ba688fc5ff19659f66"
+    },
+    {
+      "file": "BeltScavenger/HitReact_Front_Lgt_01.fbx",
+      "bytes": 625612,
+      "sha256": "bfa238c5185f14542d59abdfeb2ec85470c15bdf977c6c0c2419f7c47d54d47a"
+    },
+    {
+      "file": "BeltScavenger/Idle.fbx",
+      "bytes": 753436,
+      "sha256": "9a27ad4daafbf50a0ff7e711637d357f33d8c7db362af91973130d6bd0c7cde3"
+    },
+    {
+      "file": "BeltScavenger/Sword_Regular_A.fbx",
+      "bytes": 673164,
+      "sha256": "d923807d00e18d9045aa349e6086d57646c0e9c64081e493729cd464071fd5df"
+    },
+    {
+      "file": "BeltScavenger/Walk.fbx",
+      "bytes": 668428,
+      "sha256": "c3f6c4bff72a6eb3e042cda4373e3c4d9169809aba9cfe3fdcf2cc9053e57523"
+    },
+    {
+      "file": "Elia/Elia.fbx",
+      "bytes": 1403292,
+      "sha256": "c1da6e1102056afb96d9b67e50810e9026d35fe973f7bfbfd62cdef1dcf199ae"
+    },
+    {
+      "file": "Elia/geometry.json",
+      "bytes": 795,
+      "sha256": "835c358c3e01a8a755e3cde1bfcc4dc60ed30eb239ee95761766084255791911"
+    },
+    {
+      "file": "generation_prompts.json",
+      "bytes": 1451,
+      "sha256": "2560dd62f10c35e0c289ce7986116ab120a1b6b2112c42171f91814f4f7b0b14"
+    },
+    {
+      "file": "Malet/geometry.json",
+      "bytes": 807,
+      "sha256": "5c1e6fea5f0aada62840fbca8cf5c5748b7b00cccef328dc15e7af7d15b366c9"
+    },
+    {
+      "file": "Malet/Malet.fbx",
+      "bytes": 1408732,
+      "sha256": "524d2f0e5caf95e12e3ef2165963a82dab6ed0501320663b522ddee0821d7f5f"
+    },
+    {
+      "file": "MemoryLeech/Bite.fbx",
+      "bytes": 113628,
+      "sha256": "28c553dc21c62dea56360320fae9dd2aba498a6b2bad2d426db863d25cde2bcb"
+    },
+    {
+      "file": "MemoryLeech/Death_Front_01.fbx",
+      "bytes": 120860,
+      "sha256": "4eb9fa3a2aa9e033f5a23f4f2216257496b0be6434864a362ae6313e2354292b"
+    },
+    {
+      "file": "MemoryLeech/geometry.json",
+      "bytes": 703,
+      "sha256": "8c7f77bf59ba286119603df51df184f0e1c34e6c883ab7a00aef50ee6c6a3356"
+    },
+    {
+      "file": "MemoryLeech/HitReact_Front_Lgt_01.fbx",
+      "bytes": 105676,
+      "sha256": "042b8c15935309c0217f83a3c2a63a0742c97d3c691489da0841020591b6275d"
+    },
+    {
+      "file": "MemoryLeech/Idle.fbx",
+      "bytes": 132428,
+      "sha256": "0790f1b8b782384a3bc879fe0d9ecf04b42fecbf0ef767f4366b3c5e460ac3ce"
+    },
+    {
+      "file": "MemoryLeech/MemoryLeech.fbx",
+      "bytes": 668220,
+      "sha256": "6b8e047d600fbe43eccceebb5ab46e59695b2acbd126f70bd26171116ec2b0f0"
+    },
+    {
+      "file": "MemoryLeech/Walk.fbx",
+      "bytes": 120764,
+      "sha256": "3d50c7ce377e03e2b48f4ea751fdb3c1d7aec6342f12d7fa3f11afe106719f9d"
+    },
+    {
+      "file": "SupernaturalAtlas.png",
+      "bytes": 3638487,
+      "sha256": "0a608f911de9ba69c90b34d3a24712757baf730c462c79ea94dbbbb415bbf376"
+    },
+    {
+      "file": "VoidWisp/Cast.fbx",
+      "bytes": 176620,
+      "sha256": "871de4527703bf35ac638f70671b4a76d12d91db67b1cf469fcdffb3237ac830"
+    },
+    {
+      "file": "VoidWisp/Death_Front_01.fbx",
+      "bytes": 185692,
+      "sha256": "ff338540fbb1d2d79bc79989aa67367169ff6e4267c8eba85eaaba65f506835a"
+    },
+    {
+      "file": "VoidWisp/geometry.json",
+      "bytes": 683,
+      "sha256": "775926ffb7f9de70d0f4c2527a0d66494daedd1d7ad8f8beb54de04c37d77642"
+    },
+    {
+      "file": "VoidWisp/HitReact_Front_Lgt_01.fbx",
+      "bytes": 163756,
+      "sha256": "bdb1806c30a500e87f2a5c4f9ccd211b91c4a510881c6985329988e238566356"
+    },
+    {
+      "file": "VoidWisp/Idle.fbx",
+      "bytes": 207884,
+      "sha256": "648903c89728c6d309839826d3724a22838e71e9352e877fe897c34910aff1a9"
+    },
+    {
+      "file": "VoidWisp/VoidWisp.fbx",
+      "bytes": 144124,
+      "sha256": "c10b14bc74ef020da6df2d66d5e7c0b76560683971b500edba762c1a5d164070"
+    },
+    {
+      "file": "VoidWisp/Walk.fbx",
+      "bytes": 188140,
+      "sha256": "cb016b34101b1304be6c8997842fea0993cfe638ea867e74af200260bd17aa6a"
+    }
+  ],
+  "packages": 33
+}

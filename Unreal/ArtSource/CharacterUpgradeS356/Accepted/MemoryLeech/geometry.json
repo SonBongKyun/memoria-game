@@ -1,0 +1,26 @@
+{
+  "name": "MemoryLeech",
+  "height_cm": 100.64875793457031,
+  "triangles": 20762,
+  "bones": 12,
+  "source_sha256": null,
+  "bounds_cm": {
+    "width": 74.63665008544922,
+    "length": 126.94324111938477,
+    "height": 100.64875793457031
+  },
+  "normalized_at_existing_world_height": {
+    "width": 111.233340008978,
+    "length": 189.18749280826887,
+    "height": 150.0
+  },
+  "clips": {
+    "Idle": 60,
+    "Walk": 30,
+    "Bite": 24,
+    "HitReact_Front_Lgt_01": 15,
+    "Death_Front_01": 40
+  },
+  "role": "segmented annelid with sucker jaw, hooked teeth and sensory palps",
+  "authoring_helper_sha256": "4774661b239b3139e3835276de2a107bc9147215deb7621175816a357ec1fab2"
+}

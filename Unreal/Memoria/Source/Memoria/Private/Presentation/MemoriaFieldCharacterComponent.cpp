@@ -22,10 +22,25 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
+    // S356 revision bodies share original humanoid rigs; animation/prop fallbacks stay below.
+    for (const TCHAR* Revision : {TEXT("Elia"), TEXT("Malet"), TEXT("AshWalker"), TEXT("BeltScavenger"), TEXT("VoidWisp"), TEXT("MemoryLeech")})
+        if (Id.Equals(Revision, ESearchCase::IgnoreCase))
+        {
+            const FString RevisedAsset = Prefix + FString(Revision) + Suffix;
+            return (FString(Revision)==TEXT("AshWalker") || FString(Revision)==TEXT("BeltScavenger")
+                ? TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/HeadRefinement/")
+                : TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/")) + FString(Revision) + TEXT("/") + RevisedAsset + TEXT(".") + RevisedAsset;
+        }
     return TEXT("/Game/Memoria/Presentation/Field3D/") + Name + TEXT("/") + Asset + TEXT(".") + Asset;
 }
 template<class T> T* RiggedAsset(const FString& Id, const FString& Prefix, const FString& Suffix = TEXT(""))
-{ return LoadObject<T>(nullptr, *RiggedPath(Id, Prefix, Suffix), nullptr, LOAD_NoWarn | LOAD_Quiet); }
+{
+    if (auto* Revised = LoadObject<T>(nullptr, *RiggedPath(Id, Prefix, Suffix), nullptr, LOAD_NoWarn | LOAD_Quiet)) return Revised;
+    const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
+    const FString Asset = Prefix + Name + Suffix;
+    const FString Original = TEXT("/Game/Memoria/Presentation/Field3D/") + Name + TEXT("/") + Asset + TEXT(".") + Asset;
+    return LoadObject<T>(nullptr, *Original, nullptr, LOAD_NoWarn | LOAD_Quiet);
+}
 bool HasRigged(const FString& Id)
 {
     return RiggedAsset<USkeletalMesh>(Id, TEXT("SK_")) &&
@@ -235,7 +250,7 @@ bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
                         Material->SetVectorParameterValue(TEXT("RimColor"), Look.ModelRim); Material->SetScalarParameterValue(TEXT("RimStrength"), Look.ModelRimStrength);
                     }
                 }
-            if (auto* Dagger = RiggedAsset<UStaticMesh>(Id, TEXT("SM_"), TEXT("_dagger")))
+            if (auto* Dagger = RiggedAsset<UStaticMesh>(Id == TEXT("BeltScavenger") ? TEXT("Thief") : Id, TEXT("SM_"), TEXT("_dagger")))
             { Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms(); Blade = AttachGrip(Dagger, 1.f); }
             if (Card) Card->SetHiddenInGame(true);
             bFoeModel = true; bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;

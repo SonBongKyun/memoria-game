@@ -40,6 +40,9 @@ namespace
 {
 const TCHAR* SurfacePath = TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface");
 const TCHAR* RoofPath = TEXT("/Game/Memoria/Presentation/Depth/SM_PitchedRoof.SM_PitchedRoof");
+const TCHAR* ArchitecturePath = TEXT("/Game/Memoria/Presentation/EnvironmentS356/M_ArchitectureSurface.M_ArchitectureSurface");
+FString ArchitectureMesh(const TCHAR* Name)
+{ return FString::Printf(TEXT("/Game/Memoria/Presentation/EnvironmentS356/%s.%s"), Name, Name); }
 }
 AMemoriaVerdanPresentation::AMemoriaVerdanPresentation()
 {
@@ -86,7 +89,19 @@ UStaticMeshComponent* AMemoriaVerdanPresentation::SoftQuad(const FVector& Locati
 }
 UMaterialInstanceDynamic* AMemoriaVerdanPresentation::Surface(FName Name, FLinearColor Tint, float Mode, float Roughness, float Metallic)
 {
-    auto* Result = UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr, SurfacePath), this, Name);
+    // S356: the square's structural surfaces share a painted atlas. Other MIDs,
+    // especially the independent spent barrel/crate colours, keep their original parent.
+    const bool bPlaster = Name == TEXT("Plaster"), bStone = Name == TEXT("Stone");
+    const bool bTimber = Name == TEXT("Timber"), bTile = Name == TEXT("Slate");
+    const bool bArchitecture = bPlaster || bStone || bTimber || bTile;
+    auto* Result = UMaterialInstanceDynamic::Create(LoadObject<UMaterialInterface>(nullptr, bArchitecture ? ArchitecturePath : SurfacePath), this, Name);
+    if (bArchitecture)
+    {
+        Result->SetScalarParameterValue(TEXT("AtlasRegion"), bTile ? 0.f : bPlaster ? 1.f : bStone ? 2.f : 3.f);
+        Tint = bPlaster ? FLinearColor(.74f,.72f,.68f) : bStone ? FLinearColor(.65f,.70f,.75f) :
+            bTimber ? FLinearColor(.65f,.59f,.52f) : FLinearColor(.62f,.60f,.58f);
+    }
+    if (bArchitecture) Result->SetVectorParameterValue(TEXT("ArchitectureTint"), Tint);
     Result->SetVectorParameterValue(TEXT("Tint"), Tint); Result->SetScalarParameterValue(TEXT("Mode"), Mode);
     Result->SetScalarParameterValue(TEXT("Roughness"), Roughness); Result->SetScalarParameterValue(TEXT("Metallic"), Metallic);
     SurfaceMaterials.Add(Result); return Result;
@@ -134,26 +149,28 @@ void AMemoriaVerdanPresentation::Building(FVector P, FVector Size, UMaterialInte
     for (double X : {-W*.5+5,W*.5-5})
         for (double Y : {-D*.5-3,D*.5+3}) Box(Timber,P+FVector(X,Y,H*.5),FVector(13,13,H));
     const double Front = -D*.5-5;
-    Box(Timber,P+FVector(0,Front,66),FVector(62,7,126));
+    UMaterialInterface* Masonry = Wall;
+    for (const auto& M : SurfaceMaterials) if (M && M->GetFName() == TEXT("Stone")) Masonry = M;
+    // Deep-set planked door, individual dressed-stone jambs and a worn threshold.
+    Box(Timber,P+FVector(0,Front+4,66),FVector(70,3,134));
+    Solid(*ArchitectureMesh(TEXT("SM_DoorWood")),Timber,P+FVector(0,Front,0),FVector::OneVector);
+    Solid(*ArchitectureMesh(TEXT("SM_DoorStone")),Masonry,P+FVector(0,Front-3,0),FVector::OneVector);
     for (double X : {-W*.28,W*.28})
     {
-        Box(Timber,P+FVector(X,Front,151),FVector(62,9,93));
-        Box(Glow,P+FVector(X,Front-5,151),FVector(48,3,76));
-        Box(Timber,P+FVector(X,Front-8,151),FVector(5,4,78));
-        Box(Timber,P+FVector(X,Front-8,151),FVector(50,4,5));
-        for (double Side : {-1.0,1.0})
-        {
-            Box(Timber,P+FVector(X+Side*42,Front-8,151),FVector(19,8,86));
-            Box(Roof,P+FVector(X+Side*42,Front-13,128),FVector(21,3,4));
-            Box(Roof,P+FVector(X+Side*42,Front-13,175),FVector(21,3,4));
-        }
+        // The original glowing panes stay recessed behind real mullions and shutter slats.
+        Box(Timber,P+FVector(X,Front+2,151),FVector(62,5,93));
+        Box(Glow,P+FVector(X,Front-1,151),FVector(48,3,76));
+        Solid(*ArchitectureMesh(TEXT("SM_WindowWood")),Timber,P+FVector(X,Front-5,151),FVector::OneVector);
+        Solid(*ArchitectureMesh(TEXT("SM_WindowStone")),Masonry,P+FVector(X,Front-4,151),FVector::OneVector);
         Beam(Timber,P+FVector(X-40,Front,H*.64),P+FVector(X+40,Front,H-10),7);
     }
-    Solid(TEXT("Roof"),Roof,P+FVector(0,0,H),FVector((W+46)/100,(D+55)/100,2.3));
-    Box(Timber,P+FVector(0,0,H+96),FVector(W+50,12,10));
-    // Recessed masonry chimney and cap provide a readable rooftop silhouette.
-    Box(Wall,P+FVector(W*.27,D*.1,H+80),FVector(43,45,150));
-    Box(Timber,P+FVector(W*.27,D*.1,H+159),FVector(55,57,10));
+    // Six pitched tiled roofs retain the original eave footprint and ridge height.
+    const FVector RoofScale((W+46)/100,(D+55)/100,2.3);
+    Solid(*ArchitectureMesh(TEXT("SM_TiledRoof")),Roof,P+FVector(0,0,H),RoofScale);
+    Solid(*ArchitectureMesh(TEXT("SM_RoofEaves")),Timber,P+FVector(0,0,H),RoofScale);
+    // The chimney is brick-sized masonry rather than one uninterrupted block.
+    Solid(*ArchitectureMesh(TEXT("SM_WallCourse")),Masonry,P+FVector(W*.27,D*.1,H+5),FVector(.43,.45,1.5));
+    Solid(*ArchitectureMesh(TEXT("SM_ChippedCap")),Masonry,P+FVector(W*.27,D*.1,H+155),FVector(.55,.57,1));
 }
 void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UMaterialInterface* Cloth, UMaterialInterface* Iron, UMaterialInterface* Glow, bool bLantern)
 {
@@ -161,14 +178,9 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Timber,P+FVector(0,0,66),FVector(98,92,12));
     Box(Cloth,P+FVector(0,-44,30),FVector(95,4,58));
     for (double X : {-42.0,42.0}) for (double Y : {-38.0,38.0}) Box(Timber,P+FVector(X,Y,74),FVector(7,7,148));
-    Solid(TEXT("Roof"),Cloth,P+FVector(0,0,145),FVector(1.4,1.28,0.75));
-    // The canopy and its seams keep the original roof silhouette and obstacle footprint.
-    for (double X : {-48.0,-16.0,16.0,48.0})
-    {
-        Beam(Timber,P+FVector(X,-63,146),P+FVector(X,0,175),1.3f);
-        Box(Cloth,P+FVector(X,-63,138),FVector(29,2,14));
-    }
-    Beam(Iron,P+FVector(-65,0,176),P+FVector(65,0,176),1.8f);
+    // Curved, sagged cloth with scalloped hems and modeled seams over the same twelve stalls.
+    Solid(*ArchitectureMesh(TEXT("SM_ClothCanopy")),Cloth,P+FVector(0,0,145),FVector::OneVector);
+    Solid(*ArchitectureMesh(TEXT("SM_CanopyRope")),Timber,P+FVector(0,0,145),FVector::OneVector);
     for (double X : {-42.0,42.0})
         Beam(Timber,P+FVector(X,-38,104),P+FVector(X,-13,145),4);
     Box(Timber,P+FVector(0,-47,64),FVector(99,5,8));

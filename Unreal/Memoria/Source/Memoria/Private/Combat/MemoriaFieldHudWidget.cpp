@@ -86,30 +86,52 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
         }
         Text(Elements, Layer + 1, Geometry, Verb, FVector2D(X, Mid), 0.f, VerbFont, Srgb(.90f, .88f, .84f));
     }
-    // S341: the quick items, at the bottom right. Each slot shows the item it would use now, its key and how many
-    // are left; an empty slot is dim, and the tray darkens for the moment between two items.
+    // S356: the five existing quick slots read as a travelling apothecary's kit. Original cutout paintings
+    // have room to breathe; a category seam, a dark key cap and a separate count keep the art legible.
     if (const auto* Combat = GetWorld() ? GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>() : nullptr; Combat && Combat->GetPlayer())
     {
         static const TCHAR* Keys[MemoriaCombatTuning::QuickSlots] = {TEXT("Z"), TEXT("X"), TEXT("C"), TEXT("V"), TEXT("B")};
-        const FVector2D Cell(74, 74); const float Gap = 8.f;
-        const FVector2D TrayAt(Size.X - 26 - MemoriaCombatTuning::QuickSlots * (Cell.X + Gap) + Gap, Size.Y - Cell.Y - 34);
-        const float Cooling = Combat->GetItemCooldown() / MemoriaCombatTuning::ItemCooldown;
+        const FVector2D Cell(90, 98); const float Gap = 7.f;
+        const float TrayWidth = MemoriaCombatTuning::QuickSlots * (Cell.X + Gap) - Gap;
+        const FVector2D TrayAt(Size.X - 26 - TrayWidth, Size.Y - Cell.Y - 28);
+        const float Cooling = FMath::Clamp(Combat->GetItemCooldown() / MemoriaCombatTuning::ItemCooldown, 0.f, 1.f);
+        Box(Elements, Layer, Geometry, TrayAt - FVector2D(7, 7), FVector2D(TrayWidth + 14, Cell.Y + 14), Srgb(.012f, .012f, .018f, .54f));
         for (int32 I = 0; I < MemoriaCombatTuning::QuickSlots; ++I)
         {
             const FString Id = Combat->QuickItemId(I); const int64 Count = Combat->QuickItemCount(I);
             const FVector2D SlotAt = TrayAt + FVector2D(I * (Cell.X + Gap), 0);
-            const float Lit = Count > 0 ? 1.f : .34f;
-            Box(Elements, Layer, Geometry, SlotAt - FVector2D(1.5, 1.5), Cell + FVector2D(3, 3), Srgb(.70f, .56f, .34f, .5f * Lit));
-            Box(Elements, Layer, Geometry, SlotAt, Cell, Srgb(.030f, .024f, .040f, .86f));
-            if (const FSlateBrush* Icon = IconBrushes.Find(Id)) Image(Elements, Layer + 1, Geometry, *Icon, SlotAt + FVector2D(6, 6), Cell - FVector2D(12, 12), FLinearColor(1, 1, 1, Lit));
-            else Text(Elements, Layer + 1, Geometry, MemoriaCombatTuning::ItemName(Id, View.bKorean).Left(2), SlotAt + Cell * .5, .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 14), Srgb(.86f, .82f, .76f, Lit));
-            if (Cooling > 0.f && Count > 0) Box(Elements, Layer + 2, Geometry, SlotAt, FVector2D(Cell.X, Cell.Y * Cooling), Srgb(0, 0, .01f, .6f));
-            Text(Elements, Layer + 2, Geometry, Keys[I], SlotAt + FVector2D(9, 11), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 12), Srgb(.86f, .80f, .68f, .5f + .5f * Lit));
-            Text(Elements, Layer + 2, Geometry, FString::Printf(TEXT("%lld"), Count), SlotAt + FVector2D(Cell.X - 6, Cell.Y - 12), 1.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15), Count > 0 ? Srgb(1.f, .96f, .88f) : Srgb(.5f, .5f, .52f));
+            const float Lit = Count > 0 ? 1.f : .28f;
+            FLinearColor Accent = Id == TEXT("antidote") ? Srgb(.47f, .70f, .48f) : Id == TEXT("firebomb") ? Srgb(.92f, .47f, .22f)
+                : Id == TEXT("smoke_bomb") ? Srgb(.53f, .64f, .78f) : Id == TEXT("witness_ink") ? Srgb(.68f, .53f, .84f)
+                : Id == TEXT("hi_potion") ? Srgb(.96f, .72f, .41f) : Srgb(.35f, .61f, .87f);
+            Box(Elements, Layer, Geometry, SlotAt - FVector2D(1, 1), Cell + FVector2D(2, 2), Srgb(.48f, .40f, .29f, .7f * Lit));
+            Box(Elements, Layer, Geometry, SlotAt, Cell, Srgb(.028f, .025f, .035f, .94f));
+            Box(Elements, Layer + 1, Geometry, SlotAt + FVector2D(3, 3), FVector2D(Cell.X - 6, 2), FLinearColor(Accent.R, Accent.G, Accent.B, .85f * Lit));
+            // 80px of art, up from 62px. The image alpha leaves the frame and category colour visible.
+            if (const FSlateBrush* Icon = IconBrushes.Find(Id)) Image(Elements, Layer + 1, Geometry, *Icon, SlotAt + FVector2D(5, 4), FVector2D(80, 80), FLinearColor(1, 1, 1, Lit));
+            else Text(Elements, Layer + 1, Geometry, MemoriaCombatTuning::ItemName(Id, View.bKorean).Left(2), SlotAt + FVector2D(Cell.X * .5, 43), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15), Srgb(.86f, .82f, .76f, Lit));
+            if (Cooling > 0.f && Count > 0)
+            {
+                Box(Elements, Layer + 2, Geometry, SlotAt + FVector2D(4, 6), FVector2D(Cell.X - 8, 76 * Cooling), Srgb(.005f, .008f, .016f, .65f));
+                Box(Elements, Layer + 2, Geometry, SlotAt + FVector2D(4, 80), FVector2D((Cell.X - 8) * (1.f - Cooling), 2), FLinearColor(Accent.R, Accent.G, Accent.B, .9f));
+            }
+            // Hardware-like key cap and count seal remain readable over every painting and during cooldown.
+            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(5, 7), FVector2D(22, 22), Srgb(.055f, .047f, .045f, .97f));
+            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(5, 27), FVector2D(22, 2), Srgb(.65f, .53f, .34f, .8f));
+            Text(Elements, Layer + 4, Geometry, Keys[I], SlotAt + FVector2D(16, 17), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.98f, .91f, .77f));
+            const FString Amount = FString::Printf(TEXT("%lld"), Count);
+            const FSlateFontInfo CountFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16);
+            const float CountWidth = FMath::Max(25.f, Width(Amount, CountFont) + 12.f);
+            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(Cell.X - CountWidth - 4, 59), FVector2D(CountWidth, 23), Srgb(.018f, .017f, .024f, .96f));
+            Text(Elements, Layer + 4, Geometry, Amount, SlotAt + FVector2D(Cell.X - 10, 70), 1.f, CountFont, Count > 0 ? Srgb(1.f, .96f, .87f) : Srgb(.58f, .56f, .55f));
+            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(4, 84), FVector2D(Cell.X - 8, 1), Srgb(.48f, .40f, .29f, .34f));
+            const FString Name = MemoriaCombatTuning::ItemName(Id, View.bKorean);
+            const FSlateFontInfo NameFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 10);
+            Text(Elements, Layer + 4, Geometry, Name, SlotAt + FVector2D(Cell.X * .5, 91), .5f, NameFont, Srgb(.84f, .79f, .70f, Count > 0 ? .94f : .48f));
         }
     }
     // The controls, faint, at the bottom left.
     Text(Elements, Layer, Geometry, View.bKorean ? TEXT("WASD  이동      TAB  기억      ESC  메뉴") : TEXT("WASD  Move      TAB  Memories      ESC  Menu"),
         FVector2D(30, Size.Y - 28), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.78f, .74f, .68f, .62f));
-    return Layer + 3;
+    return Layer + 6;
 }

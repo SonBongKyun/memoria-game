@@ -17,6 +17,7 @@
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "SkeletalRenderPublic.h"
 #include "Components/StaticMeshComponent.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -28,6 +29,40 @@
 #if WITH_DEV_AUTOMATION_TESTS
 namespace
 {
+// Check actual deformed body vertices during the gameplay replay. Bone names and imported bounds
+// can survive even when a bad hit clip has collapsed the rendered figure to one point underground.
+void CheckBaseFoeDeformation(FAutomationTestBase* Test,AMemoriaFieldMonster* F,APlayerController* PC,const TCHAR* Pose)
+{
+    auto* Figure=F?F->GetFigure():nullptr;auto* Skin=Figure?Figure->GetSkeletalMesh():nullptr;
+    if (!Test->TestTrue(TEXT("Base foe deformation inspection has its live actor, rig and camera"),F && Skin && PC))return;
+    TArray<FFinalSkinVertex> Vertices;Skin->GetCPUSkinnedVertices(Vertices,0);
+    if (!Test->TestTrue(TEXT("Base foe has actual CPU-skinned rendered vertices"),Vertices.Num()>100))return;
+    const FVector Actor=F->GetActorLocation();const double Height=F->Spec().Height;
+    int32 Width=0,ScreenHeight=0;PC->GetViewportSize(Width,ScreenHeight);
+    FBox Body(ForceInit);FBox2D Projection(ForceInit);int32 Finite=0,Above=0,Near=0,Visible=0;
+    for (const auto& Vertex:Vertices)
+    {
+        const FVector Point=Skin->GetComponentTransform().TransformPosition(FVector(Vertex.Position));
+        if (Point.ContainsNaN())continue;
+        ++Finite;Body+=Point;
+        if (Point.Z>=Actor.Z-35.f)++Above;
+        if (FVector::Dist2D(Point,Actor)<=Height*1.65 && FMath::Abs(Point.Z-Actor.Z)<=Height*2.0)++Near;
+        FVector2D Pixel;if (PC->ProjectWorldLocationToScreen(Point,Pixel))
+        {
+            Projection+=Pixel;if (Pixel.X>=0 && Pixel.X<Width && Pixel.Y>=0 && Pixel.Y<ScreenHeight)++Visible;
+        }
+    }
+    const double Count=Vertices.Num();const FVector Size=Body.IsValid?Body.GetSize():FVector::ZeroVector;
+    const FVector Center=Body.IsValid?Body.GetCenter()-Actor:FVector::ZeroVector;
+    const FVector2D Pixels=Projection.bIsValid?Projection.GetSize():FVector2D::ZeroVector;
+    const auto* Anim=Cast<UMemoriaFieldAnimInstance>(Skin->GetAnimInstance());
+    Test->AddInfo(FString::Printf(TEXT("S356_BASE_FOE_SKIN %s pose=%s action=%s time=%.4f weight=%.4f vertices=%d finite=%d above=%.3f near=%.3f visible=%.3f center=%s size=%s projected=%s root_scale=%s head_scale=%s"),
+        *Figure->GetCharacterId(),Pose,*GetNameSafe(Figure->GetActionClip()),Figure->GetActionTime(),Anim?Anim->ActionWeight:-1.f,Vertices.Num(),Finite,Above/Count,Near/Count,Visible/Count,*Center.ToString(),*Size.ToString(),*Pixels.ToString(),
+        *Skin->GetSocketTransform(TEXT("root"),RTS_Component).GetScale3D().ToString(),*Skin->GetSocketTransform(TEXT("head"),RTS_Component).GetScale3D().ToString()));
+    Test->TestTrue(TEXT("Base foe body remains finite, above ground and close to its actual encounter"),Finite==Vertices.Num() && Above/Count>=.85 && Near/Count>=.85);
+    Test->TestTrue(TEXT("Base foe animated body retains a plausible center and nonzero standing volume"),Body.IsValid && Center.Size2D()<=Height*.95 && Center.Z>=Height*.10 && Center.Z<=Height*1.25 && Size.Z>=Height*.45 && Size.Z<=Height*2.0);
+    Test->TestTrue(TEXT("Base foe rendered body is visible with a readable projected height"),Width>0 && ScreenHeight>0 && Visible/Count>=.75 && Pixels.X>=Width*.015 && Pixels.Y>=ScreenHeight*.075);
+}
 // S313: the field foes. A void husk shambles on UAL2's zombie clips and scratches; a market thief runs in
 // fast with a short blade and cuts. Close captures of each, then both chasing Arrel from the game camera.
 // S326: they wear Codex's models (the husk's violet cracks from its mask, the thief's dagger in hand), the
@@ -141,10 +176,10 @@ public:
                 Look(H, (Me - H->GetActorLocation()).Rotation().Yaw + 25.f);
             }
             // Close captures while each closes in: the husk's shamble, the thief's run with the blade.
-            if (Frame == Mark + 22) Capture(TEXT("HuskApproach"));
+            if (Frame == Mark + 22) { CheckBaseFoeDeformation(Test,H,PC,TEXT("approach"));Capture(TEXT("HuskApproach")); }
             // From Arrel's side of each foe, so the camera never sits inside the market's walls.
             if (Frame == Mark + 26 && T) Look(T, (Me - T->GetActorLocation()).Rotation().Yaw + 25.f);
-            if (Frame == Mark + 44) Capture(TEXT("ThiefApproach"));
+            if (Frame == Mark + 44) { CheckBaseFoeDeformation(Test,T,PC,TEXT("approach"));Capture(TEXT("ThiefApproach")); }
             if (Frame < Mark + 48) return false;
             PC->SetViewTarget(Pawn);
             Phase = 2; Mark = Frame; return false;
@@ -162,7 +197,7 @@ public:
                 Test->TestTrue(TEXT("The thief cuts with the blade clip"), T->GetFigure()->GetActionClip() == MemoriaCombatClips::Load(TEXT("Thief"), TEXT("Sword_Regular_A")));
                 Look(T, 60.f); ThiefFrame = Frame;
             }
-            if (bThiefStrike && Frame == ThiefFrame + 18) Capture(TEXT("ThiefStrike"));
+            if (bThiefStrike && Frame == ThiefFrame + 18) { CheckBaseFoeDeformation(Test,T,PC,TEXT("strike"));Capture(TEXT("ThiefStrike")); }
             if (bThiefStrike && Frame == ThiefFrame + 22) PC->SetViewTarget(Pawn);
             if (H && H->GetState() == EMemoriaMonsterState::Windup && !bHuskStrike)
             {
@@ -171,7 +206,7 @@ public:
                 HuskFrame = Frame;
                 if (!bThiefStrike || Frame > ThiefFrame + 22) Look(H, -40.f);
             }
-            if (bHuskStrike && Frame == HuskFrame + 30) { Capture(TEXT("HuskStrike")); }
+            if (bHuskStrike && Frame == HuskFrame + 30) { CheckBaseFoeDeformation(Test,H,PC,TEXT("strike"));Capture(TEXT("HuskStrike")); }
             if (bHuskStrike && bThiefStrike && Frame > FMath::Max(HuskFrame, ThiefFrame) + 34)
             {
                 // The thief started further off yet struck first: it closes faster than the husk.
@@ -192,7 +227,50 @@ public:
             Test->TestTrue(TEXT("M_Husk compiles for this platform"), Resource && Resource->GetCompileErrors().IsEmpty() && Resource->GetMaterialInterface() &&
                 Resource->GetMaterialInterface()->GetName() == TEXT("M_Husk"));
             if (Resource) for (const FString& Error : Resource->GetCompileErrors()) Test->AddError(Error);
-            return true;
+            if (!H || !T) { Test->AddError(TEXT("Base foes were lost before real hit-reaction validation"));return true; }
+            // Keep the existing approach, chase and attack assertions above. Afterwards, apply the
+            // actual gameplay stun, observe the hit, and let it finish without resetting the action.
+            H->Stun(30.f);T->Stun(30.f);Look(H,60.f);
+            RecoveryFrame=Frame+18+FMath::CeilToInt(FMath::Max(H->GetFigure()->GetActionLength(),T->GetFigure()->GetActionLength())/.8f*60.f)+8;
+            Phase=4;Mark=Frame;return false;
+        }
+        if (Phase==4)
+        {
+            if (!H || !T) { Test->AddError(TEXT("Base foe hit inspection lost its actor"));return true; }
+            auto CheckHit=[&](AMemoriaFieldMonster* Monster)
+            {
+                auto* Figure=Monster->GetFigure();auto* Skin=Figure->GetSkeletalMesh();
+                const auto* Clip=MemoriaCombatClips::Load(Figure->GetCharacterId(),MemoriaCombatClips::ForAction(Figure->GetCharacterId(),MemoriaCombatClips::Hit()));
+                Test->TestTrue(TEXT("Base foe uses the compatible authored final hit role during the real stun"),Clip && Figure->GetActionClip()==Clip
+                    && Clip->GetPathName().Contains(TEXT("CharacterUpgradeS356/Accepted/")) && Clip->GetSkeleton()==Skin->GetSkeletalMeshAsset()->GetSkeleton());
+                CheckBaseFoeDeformation(Test,Monster,PC,TEXT("real_stun_hit"));
+            };
+            if (Frame==Mark+12) { CheckHit(H);Capture(TEXT("HuskHit")); }
+            if (Frame==Mark+18) { T->Stun(30.f);Look(T,60.f); }
+            if (Frame==Mark+30) { CheckHit(T);Capture(TEXT("ThiefHit")); }
+            if (Frame==RecoveryFrame)
+            {
+                Test->TestFalse(TEXT("Husk real hit action naturally returns to locomotion"),H->GetFigure()->IsActing());
+                Test->TestFalse(TEXT("Thief real hit action naturally returns to locomotion"),T->GetFigure()->IsActing());
+                Look(H,60.f);
+            }
+            if (Frame==RecoveryFrame+2) { CheckBaseFoeDeformation(Test,H,PC,TEXT("idle_after_hit"));Capture(TEXT("HuskRecoveredIdle")); }
+            if (Frame==RecoveryFrame+4)Look(T,60.f);
+            if (Frame==RecoveryFrame+6) { CheckBaseFoeDeformation(Test,T,PC,TEXT("idle_after_hit"));Capture(TEXT("ThiefRecoveredIdle")); }
+            if (Frame>RecoveryFrame+6 && Frame<=RecoveryFrame+32)T->GetFigure()->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+            if (Frame==RecoveryFrame+32)
+            {
+                Test->TestFalse(TEXT("Base thief recovered walk has no surviving hit override"),T->GetFigure()->IsActing());
+                CheckBaseFoeDeformation(Test,T,PC,TEXT("walk_after_hit"));Capture(TEXT("ThiefRecoveredWalk"));
+            }
+            if (Frame==RecoveryFrame+34)Look(H,60.f);
+            if (Frame>RecoveryFrame+34 && Frame<=RecoveryFrame+60)H->GetFigure()->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+            if (Frame==RecoveryFrame+60)
+            {
+                Test->TestFalse(TEXT("Base husk recovered walk has no surviving hit override"),H->GetFigure()->IsActing());
+                CheckBaseFoeDeformation(Test,H,PC,TEXT("walk_after_hit"));Capture(TEXT("HuskRecoveredWalk"));
+            }
+            if (Frame>=RecoveryFrame+66) { PC->SetViewTarget(Pawn);return true; }
         }
         return false;
     }
@@ -200,7 +278,7 @@ private:
     FAutomationTestBase* Test;
     double Started, OldDelta = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
-    int32 Phase = 0, Frame = 0, Mark = 0, ThiefFrame = 0, HuskFrame = 0;
+    int32 Phase = 0, Frame = 0, Mark = 0, ThiefFrame = 0, HuskFrame = 0, RecoveryFrame = 0;
     bool bFixed = false, bOldFixed = false, bThiefStrike = false, bHuskStrike = false;
     TWeakObjectPtr<AMemoriaFieldMonster> Husk, Thief;
     TWeakObjectPtr<ACameraActor> Camera;

@@ -35,7 +35,7 @@ FString ItemPackage(const FString& ItemId)
     // "hi_potion" -> T_ItemHiPotion
     FString Name; bool bUpper = true;
     for (const TCHAR C : ItemId) { if (C == TEXT('_')) { bUpper = true; continue; } Name.AppendChar(bUpper ? FChar::ToUpper(C) : C); bUpper = false; }
-    return TEXT("/Game/Memoria/Presentation/Hud/T_Item") + Name;
+    return TEXT("/Game/Memoria/Presentation/ItemsS356/T_Item") + Name;
 }
 UTexture2D* LoadItem(const FString& ItemId)
 {

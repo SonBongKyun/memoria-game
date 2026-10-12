@@ -1,0 +1,22 @@
+{
+  "name": "Elia",
+  "height_cm": 166.01657104492188,
+  "triangles": 26674,
+  "bones": 77,
+  "source_sha256": "9c2532424085a599d80f0d467e87586e2ff9c4d35bf15be5357c46fc73a2aa6d",
+  "source_character": "elia",
+  "original_source_vertices": 12789,
+  "retained_original_vertices": 12789,
+  "new_accessory_vertices": 708,
+  "preserved_paint_vertex_alpha": 0,
+  "garment_vertex_alpha": 1,
+  "material_slots": [
+    "immutable original body material",
+    "new opaque accessory material"
+  ],
+  "full_original_body_preserved": true,
+  "removed_occluding_head_components": [],
+  "head_surface_offsets": [],
+  "role": "original embroidered dress plus open back cape and side satchel",
+  "authoring_helper_sha256": "4774661b239b3139e3835276de2a107bc9147215deb7621175816a357ec1fab2"
+}

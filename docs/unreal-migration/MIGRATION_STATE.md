@@ -1,3 +1,12 @@
+# S356 complete — broad Unreal graphics upgrade (Codex, 2026-10-12)
+
+- Six original item paintings and clearer five-slot HUD; Elia/Malet retain their painted costumes with new accessories; Ash Walker/Scavenger have distinct equipment and repaired original-rig animation; Wisp/Leech have dedicated creature anatomy, rigs and clips.
+- Thirteen architecture meshes and a new stone/plaster/timber/roof atlas refine Verdan, Belt Waystation and Drift Shelter. These are the three implemented Unreal exploration regions. Existing gameplay, blockers, routes, save and narrative contracts retained.
+- Fresh build/import; focus 4/4; rendered visuals 30/30 + aggregate Memoria registry 274/274 = 304 unique accepted identities. Registry proof combines 122 closed error-free rendered log records with 152 exact resumed native records. Final visual/resume processes exit 0 without fatal diagnostics; the interrupted original pipeline remains AUTOMATION_FAILED and the separate NullRHI exit-3/test-harness crash is preserved and excluded. Native/source reviews pass; simple stylized human foe surfaces remain an art limitation. Original 564 packages and executed source/assets preserved; warnings disclosed. No Shipping/LOD/performance claim.
+- Local task commit only; no push/peer merge/release. Claude remains clean159ae961. Review: [S356_REVIEW.md](S356_REVIEW.md), [S356_RESULTS.json](S356_RESULTS.json). Build/GPU slot released after own processes exited.
+
+---
+
 # S355 complete — Verdan interactive prop geometry (Codex, 2026-10-12)
 
 - Unreal continuation from clean dc6cfd70. Barrel staves/hoops, crate planks/braces, sign boards/fittings and campfire stones/logs/embers/flames replace primitive shapes with ten new meshes (10,098 triangles). Existing gameplay and material packages retained.

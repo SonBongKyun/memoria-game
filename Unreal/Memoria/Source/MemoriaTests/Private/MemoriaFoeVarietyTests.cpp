@@ -26,6 +26,10 @@
 #include "Animation/AnimSequence.h"
 #include "Rendering/SkeletalMeshModel.h"
 #include "Rendering/SkeletalMeshLODModel.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+#include "Rendering/SkeletalMeshLODRenderData.h"
+#include "Rendering/SkinWeightVertexBuffer.h"
+#include "SkeletalRenderPublic.h"
 #include "Presentation/MemoriaCombatClips.h"
 #include "Presentation/MemoriaFieldAnimInstance.h"
 #include "Misc/App.h"
@@ -34,6 +38,95 @@
 #if WITH_DEV_AUTOMATION_TESTS
 namespace
 {
+// Inspect the live skinned vertices, not imported mesh bounds or bone presence: both can remain
+// valid when an animation deforms the rendered body underground or outside the detail camera.
+void CheckSkinnedBody(FAutomationTestBase* Test,USkeletalMeshComponent* Skin,AMemoriaFieldMonster* F,APlayerController* PC,const FString& Id,const TCHAR* Pose,bool bFallen=false)
+{
+    if (!Skin || !F || !PC) { Test->AddError(TEXT("S356 skin inspection requires the live actor and camera"));return; }
+    TArray<FFinalSkinVertex> Vertices;Skin->GetCPUSkinnedVertices(Vertices,0);
+    if (!Test->TestTrue(TEXT("S356 live deformation has CPU-skinned vertices"),Vertices.Num()>100))return;
+    const FVector Actor=F->GetActorLocation();const double Height=F->Spec().Height;
+    int32 Width=0,ScreenHeight=0;PC->GetViewportSize(Width,ScreenHeight);
+    FBox Body(ForceInit);FBox2D Projection(ForceInit);int32 Near=0,Above=0,Visible=0,Finite=0;
+    for (const auto& Vertex:Vertices)
+    {
+        const FVector Point=Skin->GetComponentTransform().TransformPosition(FVector(Vertex.Position));
+        if (Point.ContainsNaN())continue;
+        ++Finite;Body+=Point;
+        if (FVector::Dist2D(Point,Actor)<=Height*1.65 && FMath::Abs(Point.Z-Actor.Z)<=Height*2.0)++Near;
+        if (Point.Z>=Actor.Z-35.f)++Above;
+        FVector2D Pixel;
+        if (PC->ProjectWorldLocationToScreen(Point,Pixel))
+        {
+            Projection+=Pixel;
+            if (Pixel.X>=0 && Pixel.X<Width && Pixel.Y>=0 && Pixel.Y<ScreenHeight)++Visible;
+        }
+    }
+    const double Count=Vertices.Num();const FVector Size=Body.IsValid?Body.GetSize():FVector::ZeroVector;
+    const FVector Center=Body.IsValid?Body.GetCenter()-Actor:FVector::ZeroVector;
+    const FVector2D Pixels=Projection.bIsValid?Projection.GetSize():FVector2D::ZeroVector;
+    const auto* Anim=Cast<UMemoriaFieldAnimInstance>(Skin->GetAnimInstance());
+    const auto* Figure=F->GetFigure();
+    Test->AddInfo(FString::Printf(TEXT("S356_SKIN_BODY %s pose=%s action=%s time=%.4f weight=%.4f vertices=%d finite=%d near=%.3f above=%.3f visible=%.3f center=%s size=%s projected=%s root_scale=%s head_scale=%s head=%s"),
+        *Id,Pose,*GetNameSafe(Figure->GetActionClip()),Figure->GetActionTime(),Anim?Anim->ActionWeight:-1.f,Vertices.Num(),Finite,Near/Count,Above/Count,Visible/Count,*Center.ToString(),*Size.ToString(),*Pixels.ToString(),
+        *Skin->GetSocketTransform(TEXT("root"),RTS_Component).GetScale3D().ToString(),*Skin->GetSocketTransform(TEXT("head"),RTS_Component).GetScale3D().ToString(),*(Skin->GetSocketLocation(TEXT("head"))-Actor).ToString()));
+    Test->TestTrue(TEXT("S356 live body vertices remain finite, close to the encounter and above its ground"),Finite==Vertices.Num() && Near/Count>=.85 && Above/Count>=.85);
+    // A held corpse must retain volume and remain on the ground, but is expected to be lying down.
+    const bool PlausibleShape=bFallen?Center.Z>=-Height*.05 && Size.GetMax()>=Height*.35:Center.Z>=Height*.10 && Size.Z>=Height*.45;
+    Test->TestTrue(TEXT("S356 live body has a plausible world center and extent while animated"),Body.IsValid && Center.Size2D()<=Height*.95 && Center.Z<=Height*1.25 && Size.Z<=Height*2.0 && PlausibleShape);
+    const bool ReadableProjection=bFallen?Pixels.GetMax()>=FMath::Min(Width,ScreenHeight)*.06:Pixels.X>=Width*.015 && Pixels.Y>=ScreenHeight*.075;
+    Test->TestTrue(TEXT("S356 animated body itself is visible with a readable projected extent"),Width>0 && ScreenHeight>0 && Visible/Count>=.75 && ReadableProjection);
+
+    if (Id!=TEXT("AshWalker") && Id!=TEXT("BeltScavenger"))return;
+    const auto* Render=Skin->GetSkeletalMeshRenderData();
+    const auto* Weights=Skin->GetSkinWeightBuffer(0);
+    if (!Test->TestTrue(TEXT("S356 retained head can be inspected against its actual render skin weights"),Render && Render->LODRenderData.Num()>0 && Weights && Weights->GetNumVertices()==uint32(Vertices.Num())))return;
+    const auto& LOD=Render->LODRenderData[0];const auto& Colors=LOD.StaticVertexBuffers.ColorVertexBuffer;
+    const bool HasColors=Colors.GetNumVertices()==uint32(Vertices.Num()) && Colors.GetAllowCPUAccess();
+    if (!Test->TestTrue(TEXT("S356 head validation requires the retained alpha source in the editor CPU colour buffer"),HasColors))return;
+    const auto& Ref=Skin->GetSkeletalMeshAsset()->GetRefSkeleton();const int32 HeadIndex=Ref.FindBoneIndex(TEXT("head"));
+    if (!Test->TestTrue(TEXT("S356 humanoid still has its retained head bone"),HeadIndex!=INDEX_NONE))return;
+    auto IsHeadBone=[&](int32 Bone)
+    {
+        for (int32 Current=Bone;Current!=INDEX_NONE;Current=Ref.GetParentIndex(Current))if (Current==HeadIndex)return true;
+        return false;
+    };
+    FBox HeadBody(ForceInit);FBox2D HeadProjection(ForceInit);int32 Heads=0,HeadFinite=0,HeadAbove=0,HeadVisible=0,InvalidMap=0;
+    for (const auto& Section:LOD.RenderSections)
+    {
+        const TConstArrayView<FBoneIndexType> BoneMap=Section.BoneMap.IsEmpty()?LOD.GetUnifiedBoneMap():TConstArrayView<FBoneIndexType>(Section.BoneMap);
+        const uint32 End=FMath::Min(uint32(Vertices.Num()),Section.BaseVertexIndex+Section.NumVertices);
+        for (uint32 V=Section.BaseVertexIndex;V<End;++V)
+        {
+            // Alpha zero marks the preserved original face/hair/skin, rather than a new hood or collar.
+            if (Colors.VertexColor(V).A>8)continue;
+            uint32 TotalWeight=0,HeadWeight=0;
+            for (uint32 I=0;I<Weights->GetMaxBoneInfluences();++I)
+            {
+                const uint32 Weight=Weights->GetBoneWeight(V,I);if (!Weight)continue;
+                const uint32 LocalBone=Weights->GetBoneIndex(V,I);TotalWeight+=Weight;
+                if (LocalBone>=uint32(BoneMap.Num())) { ++InvalidMap;continue; }
+                if (IsHeadBone(BoneMap[LocalBone]))HeadWeight+=Weight;
+            }
+            if (!TotalWeight || HeadWeight*2<TotalWeight)continue;
+            ++Heads;const FVector Point=Skin->GetComponentTransform().TransformPosition(FVector(Vertices[V].Position));
+            if (Point.ContainsNaN())continue;
+            ++HeadFinite;HeadBody+=Point;if (Point.Z>=Actor.Z-35.f)++HeadAbove;
+            FVector2D Pixel;if (PC->ProjectWorldLocationToScreen(Point,Pixel))
+            {
+                HeadProjection+=Pixel;
+                if (Pixel.X>=0 && Pixel.X<Width && Pixel.Y>=0 && Pixel.Y<ScreenHeight)++HeadVisible;
+            }
+        }
+    }
+    const FVector HeadSize=HeadBody.IsValid?HeadBody.GetSize():FVector::ZeroVector;
+    const FVector HeadCenter=HeadBody.IsValid?HeadBody.GetCenter():FVector::ZeroVector;
+    const FVector LiveHead=Skin->GetSocketLocation(TEXT("head"));const double HeadCount=FMath::Max(1,Heads);
+    Test->AddInfo(FString::Printf(TEXT("S356_SKIN_HEAD %s pose=%s retained_alpha=%d vertices=%d invalid_bone_map=%d finite=%d above=%.3f visible=%.3f center=%s size=%s distance_to_head=%.3f projected=%s"),
+        *Id,Pose,HasColors,Heads,InvalidMap,HeadFinite,HeadAbove/HeadCount,HeadVisible/HeadCount,*(HeadCenter-Actor).ToString(),*HeadSize.ToString(),FVector::Dist(HeadCenter,LiveHead),*(HeadProjection.bIsValid?HeadProjection.GetSize():FVector2D::ZeroVector).ToString()));
+    Test->TestTrue(TEXT("S356 retained actual head vertices remain present with valid bone maps and volume"),InvalidMap==0 && Heads>=30 && HeadFinite==Heads && HeadBody.IsValid && HeadSize.GetMax()>=Height*.06 && HeadSize.GetMin()>=Height*.02);
+    Test->TestTrue(TEXT("S356 retained head surface follows the live head above ground and inside the detail camera"),HeadBody.IsValid && FVector::Dist(HeadCenter,LiveHead)<=Height*.22 && HeadAbove/HeadCount>=.90 && HeadVisible/HeadCount>=.70);
+}
 // S342: the foes of the chapter maps' pools. Each carries its source name, HP and attack; the wisp keeps its
 // distance and throws an orb that can be stepped out of; the crawler marks a lane and runs it; the leech's and
 // the wisp's blows drain; the ash walker's scorches and weakens, and the antidote ends the scorch.
@@ -107,6 +200,7 @@ public:
             {
                 TArray<FLinearColor> LiveTints;
                 TArray<float> LiveWear;
+                TSet<FString> LiveBodies;
                 for (const auto& M : Combat->GetMonsters())
                 {
                     if (!M.IsValid()) continue;
@@ -115,6 +209,9 @@ public:
                     auto* Mesh = M->GetFigure()->GetSkeletalMesh();
                     if (!Test->TestNotNull(TEXT("Variant wears its rigged body"), Mesh)) continue;
                     Test->TestTrue(TEXT("Variant body has a material slot"), Mesh->GetNumMaterials() > 0);
+                    const auto* Body = Mesh->GetSkeletalMeshAsset();
+                    Test->TestTrue(TEXT("Each encounter uses its named authored silhouette"), Body && Body->GetName() == TEXT("SK_") + FString(S.Model));
+                    if (Body) LiveBodies.Add(Body->GetPathName());
                     for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
                     {
                         auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
@@ -125,13 +222,13 @@ public:
                         const bool bWear = Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Weathering")), Wear, true);
                         Test->TestTrue(*FString::Printf(TEXT("%s body %d receives its surface tint at runtime"), S.Name, I), bTint && Tint.Equals(S.SurfaceTint, .001f));
                         Test->TestTrue(*FString::Printf(TEXT("%s body %d receives its weathering at runtime"), S.Name, I), bWear && FMath::IsNearlyEqual(Wear, S.Weathering));
-                        if(FString(S.Model)==TEXT("Husk"))
-                            Test->TestTrue(TEXT("Husk surface variation preserves its existing crack glow"),
+                        if(FString(S.Model)==TEXT("Husk") || FString(S.Model)==TEXT("AshWalker") || FString(S.Model)==TEXT("VoidWisp") || FString(S.Model)==TEXT("MemoryLeech"))
+                            Test->TestTrue(TEXT("Void and charred surfaces retain their independently controlled glow"),
                                 Material->Parent->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Glow")), Glow) &&
                                 Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Glow")), Glow, true) && Glow.Equals(S.ModelGlow, .001f) &&
                                 Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("CrackStrength")), Crack, true) && FMath::IsNearlyEqual(Crack, S.ModelCrack));
                         else
-                            Test->TestTrue(TEXT("Thief based surfaces keep their non glowing parent"),
+                            Test->TestTrue(TEXT("Physical creature and scavenger surfaces keep their non glowing parent"),
                                 !Material->Parent->GetVectorParameterValue(FMaterialParameterInfo(TEXT("Glow")), Glow) &&
                                 !Material->Parent->GetScalarParameterValue(FMaterialParameterInfo(TEXT("CrackStrength")), Crack));
                         Test->TestTrue(TEXT("Surface variation preserves the existing rim and projectile colour"),
@@ -154,6 +251,7 @@ public:
                     M->GetFigure()->SetHitFlash(0.f);
                 }
                 Test->TestEqual(TEXT("All six live variants provide surface profiles"), LiveTints.Num(), 6);
+                Test->TestEqual(TEXT("All six encounters have distinct geometry, rather than shared human stand-ins"), LiveBodies.Num(), 6);
                 for (int32 I = 0; I < LiveTints.Num(); ++I)
                     for (int32 J = I + 1; J < LiveTints.Num(); ++J)
                     {
@@ -247,10 +345,120 @@ public:
             Clear();
             if (Phase == 90)
             { Foe = Spawn(EMemoriaFoeKind::DustCrawler,FVector(-140,-220,0)); Foe->Stun(30.f); Phase=91; Mark=Frame; break; }
-            PC->SetViewTarget(Pawn); DetailCamera->Destroy(); DetailCamera=nullptr;
-            Foe = Spawn(EMemoriaFoeKind::VoidWisp, FVector(700, 0, 0));
-            Hp = Combat->GetPlayerHp(); Orbs = Combat->GetOrbsLaunched(); Closest = 1e9f;
-            Phase = 2; Mark = Frame; break;
+            Foe = Spawn(EMemoriaFoeKind::VoidWisp,FVector(-140,-220,0)); Foe->Stun(30.f); Phase=92; Mark=Frame; break;
+        }
+        case 92:
+        case 93:
+        case 94:
+        case 95:
+        {
+            if (!F) { Test->AddError(TEXT("S356 character inspection lost its actor")); return true; }
+            auto* Figure=F->GetFigure();auto* Skin=Figure->GetSkeletalMesh();
+            const TCHAR* Ids[]={TEXT("VoidWisp"),TEXT("MemoryLeech"),TEXT("AshWalker"),TEXT("BeltScavenger")};
+            const FString Id=Ids[Phase-92];Figure->SetAim(0.f);
+            const FName MovingBone=Phase==92?TEXT("trail0_tip"):Phase==93?TEXT("segment3"):TEXT("calf_l");
+            if (Frame==Mark+1)
+            {
+                Test->TestTrue(TEXT("S356 encounter wears its new immutable revision body"), Skin && Figure->IsFoeModel() && Figure->GetCharacterId()==Id
+                    && Skin->GetSkeletalMeshAsset()->GetPathName()==(Phase>=94?FString(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/HeadRefinement/")):FString(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/")))+Id+TEXT("/SK_")+Id+TEXT(".SK_")+Id);
+                if (!Skin) return true;
+                Test->TestEqual(TEXT("New anatomy uses its intended articulated rig"),Skin->GetNumBones(),Phase==92?20:Phase==93?12:77);
+                if (Phase==93)
+                {
+                    const FVector Extent=Skin->GetSkeletalMeshAsset()->GetBounds().BoxExtent;
+                    const float NormalizedLength=FMath::Max(Extent.X,Extent.Y)/FMath::Max(1.0,Extent.Z)*F->Spec().Height;
+                    Test->TestTrue(TEXT("Arched leech remains compact at the unchanged runtime world height"),NormalizedLength<=225.f);
+                    Test->AddInfo(FString::Printf(TEXT("S356_LEECH_BOUNDS normalized_longest_horizontal=%.2f world_height=%.2f"),NormalizedLength,F->Spec().Height));
+                }
+                const auto* Anim=Cast<UMemoriaFieldAnimInstance>(Skin->GetAnimInstance());
+                Test->TestTrue(TEXT("S356 actual locomotion binds compatible authored clips"),Anim && Anim->Idle==MemoriaCombatClips::Load(Id,F->Spec().Idle?F->Spec().Idle:TEXT("Idle"))
+                    && Anim->Walk==MemoriaCombatClips::Load(Id,F->Spec().Walk?F->Spec().Walk:TEXT("Walk")));
+                for (const TCHAR* Clip:{F->Spec().Strike,MemoriaCombatClips::Hit(),MemoriaCombatClips::Death()})
+                {
+                    const auto* Sequence=MemoriaCombatClips::Load(Id,MemoriaCombatClips::ForAction(Id,Clip));
+                    Test->TestTrue(TEXT("S356 strike, hit and held death clips agree with the live skeleton"),Sequence && Sequence->GetSkeleton()==Skin->GetSkeletalMeshAsset()->GetSkeleton() && Sequence->GetPlayLength()>.2f);
+                }
+                Test->TestTrue(TEXT("Only the scavenger retains the thief's physical dagger grip"),Phase==95?Figure->GetBlade()!=nullptr:Figure->GetBlade()==nullptr);
+                if (Phase>=94)
+                {
+                    const FString Original=Phase==94?TEXT("Husk"):TEXT("Thief");
+                    auto* Old=LoadObject<USkeletalMesh>(nullptr,*(TEXT("/Game/Memoria/Presentation/Field3D/")+Original+TEXT("/SK_")+Original+TEXT(".SK_")+Original));
+                    auto* NewMesh=Skin->GetSkeletalMeshAsset();
+                    auto* Accessories=LoadObject<UMaterialInterface>(nullptr,*(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/")+Id+TEXT("/M_")+Id+TEXT("Refined.M_")+Id+TEXT("Refined")));
+                    Test->TestTrue(TEXT("Accepted humanoid keeps original painted body material and independent accessories"),Old && Accessories
+                        && NewMesh->GetMaterials().Num()==2 && Old->GetMaterials().Num()>0
+                        && NewMesh->GetMaterials()[0].MaterialInterface.Get()==Old->GetMaterials()[0].MaterialInterface.Get()
+                        && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Accessories);
+                    auto* BodyMID=Cast<UMaterialInstanceDynamic>(Skin->GetMaterial(0));
+                    auto* AccessoryMID=Cast<UMaterialInstanceDynamic>(Skin->GetMaterial(1));
+                    Test->TestTrue(TEXT("Both live humanoid sections retain their own shader and hit callbacks"),BodyMID && AccessoryMID && Old
+                        && BodyMID->Parent==Old->GetMaterials()[0].MaterialInterface && AccessoryMID->Parent==Accessories);
+                    const auto& Ref=Skin->GetSkeletalMeshAsset()->GetRefSkeleton();
+                    bool SameBind=Old && Old->GetRefSkeleton().GetNum()==Ref.GetNum();
+                    for (int32 I=0;SameBind && I<Ref.GetNum();++I) SameBind=Ref.GetBoneName(I)==Old->GetRefSkeleton().GetBoneName(I)
+                        && Ref.GetParentIndex(I)==Old->GetRefSkeleton().GetParentIndex(I)
+                        && Ref.GetRefBonePose()[I].Equals(Old->GetRefSkeleton().GetRefBonePose()[I],.015f);
+                    Test->TestTrue(TEXT("Tailored monster outfit preserves every original humanoid bind transform"),SameBind);
+                }
+                const FVector Center=F->GetActorLocation()+FVector(0,0,F->Spec().Height*.45f);
+                const FVector Eye=Center+FVector(370,-410,235);
+                DetailCamera->SetActorLocation(Eye);DetailCamera->SetActorRotation((Center-Eye).Rotation());DetailCamera->GetCameraComponent()->SetFieldOfView(48.f);
+                PC->SetViewTarget(DetailCamera.Get());LegAt=Skin->GetSocketTransform(MovingBone,RTS_Component);
+                RecoveryAt=Mark+FMath::Max(32,FMath::CeilToInt(Figure->GetActionLength()/.8f*60.f)+8);
+            }
+            if (Frame>Mark+2 && Frame<Mark+25)Figure->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+            if (Frame==Mark+20)
+            {
+                Test->TestFalse(TEXT("S356 locomotion articulates actual character joints"),Skin->GetSocketTransform(MovingBone,RTS_Component).Equals(LegAt,.01f));
+                CheckSkinnedBody(Test,Skin,F,PC,Id,TEXT("hit_with_locomotion"));
+                Capture(*(Id+TEXT("Detail")));
+            }
+            // Let the real stun reaction finish before inspecting idle and distance-driven walking.
+            // No StopAction/reset can conceal a broken action pose or a bad return to locomotion.
+            if (Frame==RecoveryAt)
+            {
+                Test->TestFalse(TEXT("S356 hit reaction naturally finishes before returning to idle"),Figure->IsActing());
+                CheckSkinnedBody(Test,Skin,F,PC,Id,TEXT("idle_after_hit"));
+                Capture(*(Id+TEXT("RecoveredIdle")));
+                LegAt=Skin->GetSocketTransform(MovingBone,RTS_Component);
+            }
+            if (Frame>RecoveryAt && Frame<=RecoveryAt+24)Figure->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+            if (Frame==RecoveryAt+24)
+            {
+                Test->TestFalse(TEXT("S356 recovered walking articulates joints without an action override"),Skin->GetSocketTransform(MovingBone,RTS_Component).Equals(LegAt,.01f));
+                Test->TestFalse(TEXT("S356 recovered walking is no longer in the hit action"),Figure->IsActing());
+                CheckSkinnedBody(Test,Skin,F,PC,Id,TEXT("walk_after_hit"));
+                Capture(*(Id+TEXT("RecoveredWalk")));
+            }
+            if (Frame==RecoveryAt+30)Test->TestTrue(TEXT("S356 encounter plays its real strike"),Figure->PlayAction(F->Spec().Strike));
+            if (Frame==RecoveryAt+45)
+            {
+                CheckSkinnedBody(Test,Skin,F,PC,Id,TEXT("strike"));
+                Capture(*(Id+TEXT("Strike")));
+            }
+            if (Frame==RecoveryAt+85)
+            {
+                Test->TestTrue(TEXT("S356 encounter plays its held death"),Figure->PlayAction(MemoriaCombatClips::Death(),1.f,true));
+                DeathHoldFrame=Frame+FMath::Max(90,FMath::CeilToInt(Figure->GetActionLength()*60.f)+3);
+            }
+            if (Frame==DeathHoldFrame)
+            {
+                Test->TestTrue(TEXT("S356 death stays held rather than returning to idle"),Figure->IsActing() && FMath::IsNearlyEqual(Figure->GetActionTime(),Figure->GetActionLength(),.02f));
+                CheckSkinnedBody(Test,Skin,F,PC,Id,TEXT("held_death"),true);
+                Capture(*(Id+TEXT("Death")));
+            }
+            if (DeathHoldFrame==0 || Frame<DeathHoldFrame+10)break;
+            DeathHoldFrame=0;
+            Clear();
+            if (Phase<95)
+            {
+                const EMemoriaFoeKind Next[]={EMemoriaFoeKind::MemoryLeech,EMemoriaFoeKind::AshWalker,EMemoriaFoeKind::BeltScavenger};
+                Foe=Spawn(Next[Phase-92],FVector(-140,-220,0));Foe->Stun(30.f);++Phase;Mark=Frame;break;
+            }
+            PC->SetViewTarget(Pawn);DetailCamera->Destroy();DetailCamera=nullptr;
+            Foe=Spawn(EMemoriaFoeKind::VoidWisp,FVector(700,0,0));
+            Hp=Combat->GetPlayerHp();Orbs=Combat->GetOrbsLaunched();Closest=1e9f;
+            Phase=2;Mark=Frame;break;
         }
         case 2:
             if (!F) break;
@@ -559,7 +767,7 @@ private:
     FAutomationTestBase* Test;
     double Started, OldDelta = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
-    int32 Phase = 0, Frame = 0, Mark = 0, Orbs = 0, Taken = 0, WindupAt = 0;
+    int32 Phase = 0, Frame = 0, Mark = 0, Orbs = 0, Taken = 0, WindupAt = 0, RecoveryAt = 0, DeathHoldFrame = 0;
     int32 CleanLineupAt = 0, QuietLineupFrames = 0;
     int64 Hp = 0;
     float Closest = 0.f, Health = 0.f;

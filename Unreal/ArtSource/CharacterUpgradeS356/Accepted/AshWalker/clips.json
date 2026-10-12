@@ -1,0 +1,87 @@
+{
+  "name": "AshWalker",
+  "bones": 77,
+  "original_rig_sha256": "4286b71326d6df37149060cd2d295a8530a2dc0738f23eb21b599e6506cfe182",
+  "clips": [
+    {
+      "clip": "Zombie_Idle_Loop",
+      "source_frames": 60,
+      "source_fps": 30,
+      "all_77_local_scales": [
+        1,
+        1,
+        1
+      ],
+      "head_source_z_range": [
+        155.85260009765625,
+        156.8897247314453
+      ],
+      "duration_policy": "importer resamples normalized keys to immutable original frame rate and frame count",
+      "strike_apex": null
+    },
+    {
+      "clip": "Zombie_Walk_Fwd_Loop",
+      "source_frames": 30,
+      "source_fps": 30,
+      "all_77_local_scales": [
+        1,
+        1,
+        1
+      ],
+      "head_source_z_range": [
+        156.3863525390625,
+        157.5797882080078
+      ],
+      "duration_policy": "importer resamples normalized keys to immutable original frame rate and frame count",
+      "strike_apex": null
+    },
+    {
+      "clip": "Zombie_Scratch",
+      "source_frames": 40,
+      "source_fps": 30,
+      "all_77_local_scales": [
+        1,
+        1,
+        1
+      ],
+      "head_source_z_range": [
+        153.77481079101562,
+        156.4720001220703
+      ],
+      "duration_policy": "importer resamples normalized keys to immutable original frame rate and frame count",
+      "strike_apex": 0.55
+    },
+    {
+      "clip": "HitReact_Front_Lgt_01",
+      "source_frames": 24,
+      "source_fps": 30,
+      "all_77_local_scales": [
+        1,
+        1,
+        1
+      ],
+      "head_source_z_range": [
+        152.22747802734375,
+        156.4720001220703
+      ],
+      "duration_policy": "importer resamples normalized keys to immutable original frame rate and frame count",
+      "strike_apex": null
+    },
+    {
+      "clip": "Death_Front_01",
+      "source_frames": 60,
+      "source_fps": 30,
+      "all_77_local_scales": [
+        1,
+        1,
+        1
+      ],
+      "head_source_z_range": [
+        52.64824676513672,
+        156.4720001220703
+      ],
+      "duration_policy": "importer resamples normalized keys to immutable original frame rate and frame count",
+      "strike_apex": null
+    }
+  ]
+}

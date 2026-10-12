@@ -1,0 +1,29 @@
+{
+  "name": "AshWalker",
+  "height_cm": 185.025146484375,
+  "triangles": 13436,
+  "bones": 77,
+  "source_sha256": "4286b71326d6df37149060cd2d295a8530a2dc0738f23eb21b599e6506cfe182",
+  "source_character": "void_husk",
+  "original_source_vertices": 7350,
+  "retained_original_vertices": 6662,
+  "new_accessory_vertices": 416,
+  "preserved_paint_vertex_alpha": 0,
+  "garment_vertex_alpha": 1,
+  "material_slots": [
+    "immutable original body material",
+    "new opaque accessory material"
+  ],
+  "full_original_body_preserved": false,
+  "removed_occluding_head_components": [
+    360,
+    328
+  ],
+  "head_surface_offsets": [],
+  "head_refinement": true,
+  "face_surface_fitting": "actual source triangle ray intersections with .1cm center protrusion",
+  "role": "original charred body with exposed original void mask, calcified relief and torn back mantle",
+  "authoring_helper_sha256": "4774661b239b3139e3835276de2a107bc9147215deb7621175816a357ec1fab2",
+  "runtime_world_height": 185,
+  "source_height_policy": "actual visible mesh bounds; runtime normalizes to unchanged Spec.Height; removed hood/binding does not require artificial height geometry"
+}

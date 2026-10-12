@@ -1,0 +1,12 @@
+{
+  "mode": "built-in image_gen",
+  "assets": [
+    {
+      "id": "architecture",
+      "prompt": "Production surface atlas for an existing dark-fantasy 3D RPG village. ONE flat orthographic 2 by 2 grid of four equally sized square physically plausible material swatches, no separators, no margins, no text. Top-left weathered warm muted russet terracotta clay roof tiles, staggered small rows, chips and soot, soft color variation. Top-right aged sandy off-white lime plaster, fine grain, irregular hairline cracks and subtle water stains, almost uniform value, no bricks. Bottom-left rough cool grey fieldstone masonry with uneven chunky stones, recessed dark mortar and tiny moss flecks. Bottom-right dark desaturated brown weathered timber planks, longitudinal grain, knots and restrained edge wear. Even diffuse flat lighting, no directional shadows, no objects, no perspective, no scene, no border. Rich painterly realistic texture detail but no excessive noise or high contrast, harmonious earthy palette. Each quadrant fills precisely its quarter; 2048 square or higher.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-4b7b33f1-999c-4ae2-8dfa-8418f77ad99d.png",
+      "destination": "Unreal/ArtSource/EnvironmentS356/ArchitectureAtlas.png",
+      "transparent": false
+    }
+  ]
+}

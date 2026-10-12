@@ -17,6 +17,9 @@
 #include "Misc/App.h"
 #include "Misc/Paths.h"
 #include "UnrealClient.h"
+#include "Presentation/MemoriaHudKit.h"
+#include "Engine/Texture2D.h"
+#include "Misc/Crc.h"
 #if WITH_DEV_AUTOMATION_TESTS
 namespace
 {
@@ -71,6 +74,35 @@ public:
             Test->TestEqual(TEXT("Slot one counts both potions"), Combat->QuickItemCount(0), int64(3));
             Test->TestTrue(TEXT("The slots hold their items"), Combat->QuickItemId(1) == TEXT("antidote") && Combat->QuickItemId(2) == TEXT("firebomb") && Combat->QuickItemId(3) == TEXT("smoke_bomb") && Combat->QuickItemId(4) == TEXT("witness_ink"));
             Test->TestTrue(TEXT("The tray has its six icons"), PC->GetFieldHud() && PC->GetFieldHud()->GetIconCount() == 6);
+            // A real transparent painting for each item, on distinct immutable packages. This catches missing
+            // imports, placeholder-sized resources, an opaque background or accidental reuse of one icon.
+            TSet<FString> IconPaths; TSet<uint32> Paintings;
+            for (const auto& Item : FieldItems)
+            {
+                UTexture2D* Icon = MemoriaHudKit::LoadItem(Item.Id);
+                Test->TestNotNull(*FString::Printf(TEXT("Painted %s icon loads"), Item.Id), Icon);
+                if (!Icon) continue;
+                const FString Expected = MemoriaHudKit::ItemPackage(Item.Id);
+                Test->TestEqual(TEXT("Icon uses the S356 package"), Icon->GetOutermost()->GetName(), Expected);
+                Test->TestTrue(TEXT("Icon package is immutable S356 art"), Expected.StartsWith(TEXT("/Game/Memoria/Presentation/ItemsS356/T_Item")));
+                IconPaths.Add(Icon->GetPathName());
+                Test->TestTrue(TEXT("UI art has a readable resource size"), Icon->GetSizeX() >= 256 && Icon->GetSizeY() >= 256 && Icon->GetSizeX() <= 512 && Icon->GetSizeY() <= 512);
+                Test->TestTrue(TEXT("UI art keeps sRGB, alpha-safe UI compression and clamp sampling"), Icon->SRGB && Icon->LODGroup == TEXTUREGROUP_UI && Icon->CompressionSettings == TC_EditorIcon && Icon->AddressX == TA_Clamp && Icon->AddressY == TA_Clamp);
+                Test->TestTrue(TEXT("Original painting is at least 1024px"), Icon->Source.GetSizeX() >= 1024 && Icon->Source.GetSizeY() >= 1024);
+                TArray64<uint8> Pixels;
+                const bool bSource = Icon->Source.GetFormat() == TSF_BGRA8 && Icon->Source.GetMipData(Pixels, 0);
+                Test->TestTrue(TEXT("RGBA source pixels remain available"), bSource);
+                if (!bSource) continue;
+                int64 Transparent = 0, Opaque = 0;
+                for (int64 Pixel = 3; Pixel < Pixels.Num(); Pixel += 4) { Transparent += Pixels[Pixel] <= 2; Opaque += Pixels[Pixel] >= 245; }
+                Test->TestTrue(TEXT("Painting has visible subject and genuine transparent background"), Transparent >= Pixels.Num() / 20 && Opaque >= Pixels.Num() / 80);
+                const int64 W = Icon->Source.GetSizeX(), Ht = Icon->Source.GetSizeY();
+                Test->TestTrue(TEXT("All four corners are transparent"), Pixels[3] <= 2 && Pixels[(W - 1) * 4 + 3] <= 2 && Pixels[((Ht - 1) * W) * 4 + 3] <= 2 && Pixels[(Ht * W - 1) * 4 + 3] <= 2);
+                Paintings.Add(FCrc::MemCrc32(Pixels.GetData(), int32(Pixels.Num())));
+            }
+            Test->TestEqual(TEXT("Six distinct item package bindings"), IconPaths.Num(), 6);
+            Test->TestEqual(TEXT("Six distinct item paintings"), Paintings.Num(), 6);
+            Test->TestEqual(TEXT("The quick item kit remains five slots"), QuickSlots, 5);
             // Unhurt, a potion is kept; so is an antidote with nothing to cure, and a smoke bomb with no one to flee.
             Test->TestEqual(TEXT("Arrel is unhurt"), Combat->GetPlayerHp(), Max);
             Test->TestFalse(TEXT("A potion at full HP is refused"), Combat->UseQuickItem(0, Me));
@@ -105,8 +137,13 @@ public:
             Phase = 3; Mark = Frame; break;
         case 3:
             if (Frame < Mark + 55) break;
-            // A deep wound: the hi-potion is taken before the potion.
-            Test->TestTrue(TEXT("A heavy blow lands"), Combat->StrikePlayer(H, 70.f));
+            // A deep wound: the hi-potion painting replaces the potion in the same first slot.
+            if (Frame == Mark + 55)
+            {
+                Test->TestTrue(TEXT("A heavy blow lands"), Combat->StrikePlayer(H, 70.f));
+                Capture(TEXT("ItemsHiPotion"));
+            }
+            if (Frame < Mark + 60) break;
             Test->TestEqual(TEXT("A deep wound takes the hi-potion"), Combat->QuickItemId(0), FString(TEXT("hi_potion")));
             Test->TestTrue(TEXT("The hi-potion is used"), Combat->UseQuickItem(0, Me));
             Test->TestTrue(TEXT("It restores 70 of its 80"), Combat->GetPlayerHp() == Max && Run->GetItemCount(TEXT("hi_potion")) == 0 && Run->GetItemCount(TEXT("potion")) == 1);
@@ -144,6 +181,7 @@ public:
             Phase = 8; Mark = Frame; break;
         case 8:
             if (Frame == Mark + 6) Capture(TEXT("ItemsSmoke"));
+            if (Frame == Mark + 54) Capture(TEXT("ItemsSpent"));
             if (Frame < Mark + 60) break;
             Test->TestTrue(TEXT("An escape pays nothing"), Run->GetRunSnapshot().Player.Grains == Grains && Combat->GetLastReward().Age > 3.f);
             Test->TestEqual(TEXT("Six items were used"), Combat->GetItemsUsed(), 6);

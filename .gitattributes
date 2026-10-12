@@ -121,3 +121,10 @@ Unreal/Tools/generate_creature_surfaces_s354.py text eol=lf
 Unreal/ArtSource/CharacterUpgrade/**/*.json text eol=lf
 Unreal/ArtSource/CharacterUpgrade/**/*.fbx -text
 Unreal/ArtSource/CharacterUpgrade/**/*.png -text
+
+# S356 source and capture bytes remain exact, including authored Windows CRLF.
+Unreal/Tools/build_character_geometry_s356.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Unreal/ArtSource/CharacterUpgradeS356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Unreal/ArtSource/ItemsS356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Unreal/ArtSource/EnvironmentS356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/unreal-migration/evidence/s356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

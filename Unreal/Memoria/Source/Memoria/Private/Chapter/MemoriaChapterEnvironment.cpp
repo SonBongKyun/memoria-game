@@ -30,12 +30,14 @@ namespace
 const TCHAR* ChapterArt = TEXT("/Game/Memoria/Presentation/Chapter/");
 const TCHAR* FocusSurfacePath = TEXT("/Game/Memoria/Presentation/Depth2/M_FocusSurface.M_FocusSurface");
 const TCHAR* RoofPath = TEXT("/Game/Memoria/Presentation/Depth/SM_PitchedRoof.SM_PitchedRoof");
+const TCHAR* ArchitecturePath = TEXT("/Game/Memoria/Presentation/EnvironmentS356/M_ArchitectureSurface.M_ArchitectureSurface");
+FString ArchitectureMesh(const TCHAR* Name)
+{ return FString::Printf(TEXT("/Game/Memoria/Presentation/EnvironmentS356/%s.%s"), Name, Name); }
 const TCHAR* EnvArt = TEXT("/Game/Memoria/Presentation/Environment/");
 const TCHAR* RubblePath = TEXT("/Game/Memoria/Presentation/Field3D/Props/SM_Rubble.SM_Rubble");
-// Codex's S337 polish assets (its lane, -run=MemoriaVisualPolishAssets): a 100 cm block with a bevelled edge and
-// a weathered stone material. The walls and slabs wear them where they are imported; a plain cube stands in.
+// The retained S337 100cm beveled mesh keeps the exact concrete slab transforms.
+// S356 supplies its stone atlas through the copied focus shader; the old package is untouched.
 const TCHAR* BevelPath = TEXT("/Game/Memoria/Presentation/VisualPolish/SM_BeveledBlock.SM_BeveledBlock");
-const TCHAR* StonePath = TEXT("/Game/Memoria/Presentation/VisualPolish/M_StoneSurface.M_StoneSurface");
 const TCHAR* BlockMesh() { return LoadObject<UStaticMesh>(nullptr, BevelPath, nullptr, LOAD_NoWarn | LOAD_Quiet) ? BevelPath : TEXT("Cube"); }
 constexpr float Feet = -8.f;   // the figures stand on z -8
 // Stable per-tile and per-index scatter, so a map looks the same every visit and captures repeat.
@@ -98,9 +100,15 @@ FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
 { return MemoriaChapterMaps::ToWorld(FVector2D((X + .5f) * Spec->TileSize, (Y + .5f) * Spec->TileSize)); }
 UMaterialInstanceDynamic* AMemoriaChapterPresentation::Focus(const TCHAR* Name, const FLinearColor& Tint, float Mode, float Roughness, float Metallic)
 {
-    auto* Base = LoadObject<UMaterialInterface>(nullptr, FocusSurfacePath);
+    const FString Kind(Name);
+    const bool bStone = Kind == TEXT("Masonry") || Kind == TEXT("WallCap") || Kind == TEXT("RuinStone") || Kind == TEXT("Slab") ||
+        Kind == TEXT("BorderStone") || Kind == TEXT("BorderCap") || Kind == TEXT("SetStone");
+    const bool bTimber = Kind == TEXT("Timber") || Kind == TEXT("SetTimber");
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, bStone || bTimber ? ArchitecturePath : FocusSurfacePath);
     auto* Result = UMaterialInstanceDynamic::Create(Base, this, FName(*(FString(TEXT("Chapter")) + Name)));
-    Result->SetVectorParameterValue(TEXT("Tint"), Tint); Result->SetScalarParameterValue(TEXT("Mode"), Mode);
+    if (bStone || bTimber) Result->SetScalarParameterValue(TEXT("AtlasRegion"), bStone ? 2.f : 3.f);
+    if (bStone || bTimber) Result->SetVectorParameterValue(TEXT("ArchitectureTint"), Tint * 5.5f);
+    Result->SetVectorParameterValue(TEXT("Tint"), bStone || bTimber ? Tint * 5.5f : Tint); Result->SetScalarParameterValue(TEXT("Mode"), Mode);
     Result->SetScalarParameterValue(TEXT("Roughness"), Roughness); Result->SetScalarParameterValue(TEXT("Metallic"), Metallic);
     FocusMaterials.Add(Result); return Result;
 }
@@ -277,18 +285,16 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
     auto* Masonry = Focus(TEXT("Masonry"), Look.WallTint, 0, .9f);
     auto* Cap = Focus(TEXT("WallCap"), Look.WallTint * 1.3f, 0, .86f);
     auto* RuinStone = Focus(TEXT("RuinStone"), Look.RuinTint, 0, .93f);
-    UMaterialInstanceDynamic* Slab = nullptr;
-    if (auto* Weathered = LoadObject<UMaterialInterface>(nullptr, StonePath, nullptr, LOAD_NoWarn | LOAD_Quiet))
-    {
-        Slab = UMaterialInstanceDynamic::Create(Weathered, this, TEXT("ChapterSlab"));
-        Slab->SetVectorParameterValue(TEXT("Tint"), Look.RuinTint * 1.25f); Slab->SetScalarParameterValue(TEXT("Mode"), 2.f); Slab->SetScalarParameterValue(TEXT("Roughness"), .9f);
-    }
-    else Slab = Focus(TEXT("Slab"), Look.RuinTint * 1.25f, 0, .9f);
+    // Keep the S337 beveled concrete geometry, but give its broad faces the same
+    // worn stone texture as the dressed walls. Focus also registers its occlusion
+    // parameters, so this cosmetic binding cannot hide Arrel beside the slabs.
+    auto* Slab = Focus(TEXT("Slab"), Look.RuinTint * 1.25f, 0, .9f);
     const TCHAR* Block = BlockMesh();
     auto Stand = [&](UMaterialInterface* Material, const FVector& Position, const FVector& Size, const FRotator& Rotation = FRotator::ZeroRotator)
     { Solid(Block, Material, Position, Size / 100.0, Rotation); };
     auto* Timber = Focus(TEXT("Timber"), Look.TimberTint, 1);
     auto* Iron = Focus(TEXT("Iron"), Look.IronTint, 3, .5f, .65f);
+    auto* Weeds = Focus(TEXT("RuinWeeds"), Look.bRain ? FLinearColor(.055f,.073f,.057f) : FLinearColor(.12f,.095f,.045f), 2, .96f);
     const bool bRubbleModel = LoadObject<UStaticMesh>(nullptr, RubblePath, nullptr, LOAD_NoWarn | LOAD_Quiet) != nullptr;
     auto Border = [&](int32 X, int32 Y) { return X <= 0 || Y <= 0 || X >= Spec->Width - 1 || Y >= Spec->Height - 1; };
     auto IsWall = [&](int32 X, int32 Y) { return Spec->TileAt(X, Y) == WallType && !Border(X, Y); };
@@ -312,9 +318,14 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                 const bool bDoorSide = (Open(X - 1, Y) && Open(X - 2, Y) && IsWall(X - 3, Y)) || (Open(X + 1, Y) && Open(X + 2, Y) && IsWall(X + 3, Y));
                 const bool bTall = (bAcross && bAlong) || bJamb || bDoorSide;
                 const float Height = bTall ? 170.f : N < .16f ? 62.f + 120.f * N : 116.f + 44.f * N;
-                Stand(Masonry, C + FVector(0, 0, Height * .5f + Feet), FVector(T, T, Height));
+                // Authored staggered courses replace the uninterrupted block. Physical
+                // blockers remain the untouched, source-derived layer in BuildTerrain.
+                Solid(*ArchitectureMesh(TEXT("SM_WallCourse")), Masonry, C + FVector(0,0,Feet), FVector(T/100.f,T/100.f,Height/100.f));
                 Stand(Masonry, C + FVector(0, 0, 7.f + Feet), FVector(T + 9, T + 9, 14));
-                if (bTall || N > .4f) Stand(Cap, C + FVector(0, 0, Height + 3.5f + Feet), FVector(T + 4, T + 4, 7));
+                if (bTall || N > .4f) Solid(*ArchitectureMesh(TEXT("SM_ChippedCap")), Cap, C + FVector(0,0,Height+Feet), FVector((T+4)/100.f,(T+4)/100.f,.7f));
+                // Small broken stones and tufts crown existing solid cells only.
+                if (N < .36f) Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), RuinStone, C + FVector(0,0,Height+Feet), FVector(.52f), FRotator(0,N*360,0));
+                if (N > .55f) Solid(*ArchitectureMesh(TEXT("SM_RuinTuft")), Weeds, C + FVector((N-.7f)*T*.4f,0,Height+Feet), FVector(.7f), FRotator(0,N*360,0));
                 if (bJamb || bDoorSide)
                 {
                     // A lantern on an iron bracket at each side of the door, on the face the camera sees.
@@ -345,6 +356,8 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                 if (Free(X + 1, Y)) { Taken.Add(FIntPoint(X + 1, Y)); Prop(TEXT("RuinWall"), RuinKit, (C + TileCentre(X + 1, Y)) * .5 + Ground, Turn); }
                 else if (Free(X, Y + 1)) { Taken.Add(FIntPoint(X, Y + 1)); Prop(TEXT("RuinWall"), RuinKit, (C + TileCentre(X, Y + 1)) * .5 + Ground, 90.f + Turn); }
                 else Prop(TEXT("RuinWall"), RuinKit, C + Ground, 360.f * Hash(X, Y, 7), FVector(.6f));
+                Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), RuinStone, C + Ground, FVector(T/120.f), FRotator(0,N*360,0));
+                if (N > .35f) Solid(*ArchitectureMesh(TEXT("SM_RuinTuft")), Weeds, C + Ground + FVector(T*.18f,0,0), FVector(.85f), FRotator(0,N*360,0));
                 for (int32 I = 0; I < 3; ++I)
                 {
                     const FVector At = C + FVector((Hash(X * 7 + I, Y, 15) - .5f) * T * .8f, (Hash(X, Y * 7 + I, 17) - .5f) * T * .8f, Feet);
@@ -396,7 +409,9 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
             {
                 const FVector P = (TileCentre(From, Row) + TileCentre(X - 1, Row)) * .5 + FVector(0, 0, Feet);
                 const float Wide = (X - From) * T / 384.f, Deep = .6f;
-                Prop(TEXT("TarpCanopy"), Canvas, P, From == FloorMin.X ? 0.f : 180.f, FVector(Wide, Deep, 1));
+                const FRotator Turn(0, From == FloorMin.X ? 0.f : 180.f, 0);
+                Prop(TEXT("TarpCanopy"), Canvas, P, Turn.Yaw, FVector(Wide, Deep, 1));
+                Solid(*ArchitectureMesh(TEXT("SM_ShelterRigging")), Timber, P, FVector(Wide, Deep, 1), Turn);
                 for (float Side : {-180.f, 180.f})
                 {
                     const FVector Pole = P + FVector(Side * Wide, -130.f * Deep, 0);
@@ -430,16 +445,16 @@ void AMemoriaChapterPresentation::BuildBorder(const FDressing& Look)
             {
                 // Drift: broken walls all round, high at the back, low at the front where the camera looks over.
                 const float Height = bNorth ? 118.f + 86.f * N : bSouth ? 26.f + 30.f * N : 64.f + 96.f * N;
-                Stand(Stone, C + FVector(0, 0, Height * .5f + Feet), FVector(T, T, Height));
-                if (N > .45f && !bSouth) Stand(Stone, C + FVector((N - .7f) * 30.f, 0, Height + 14.f + Feet), FVector(T * .55f, T * .8f, 28));
-                if (N < .3f) Box(Cap, C + FVector(0, 0, Height + 3.f + Feet), FVector(T + 3, T + 3, 6));
+                Solid(*ArchitectureMesh(TEXT("SM_WallCourse")), Stone, C + FVector(0,0,Feet), FVector(T/100.f,T/100.f,Height/100.f));
+                if (N > .45f && !bSouth) Solid(*ArchitectureMesh(TEXT("SM_ChippedCap")), Stone, C + FVector((N-.7f)*30.f,0,Height+Feet), FVector(T*.55f/100.f,T*.8f/100.f,2.8f));
+                if (N < .3f) Solid(*ArchitectureMesh(TEXT("SM_ChippedCap")), Cap, C + FVector(0,0,Height+Feet), FVector((T+3)/100.f,(T+3)/100.f,.6f));
                 continue;
             }
             if (bNorth)
             {
                 // The Belt: the rail line's embankment along the north.
-                Stand(Stone, C + FVector(0, 0, 23.f + Feet), FVector(T, T, 46));
-                Box(Cap, C + FVector(0, -T * .5f + 9.f, 49.f + Feet), FVector(T, 20, 7));
+                Solid(*ArchitectureMesh(TEXT("SM_WallCourse")), Stone, C + FVector(0,0,Feet), FVector(T/100.f,T/100.f,.46f));
+                Solid(*ArchitectureMesh(TEXT("SM_ChippedCap")), Cap, C + FVector(0,-T*.5f+9.f,46.f+Feet), FVector(T/100.f,.2f,.7f));
                 continue;
             }
             // The other three sides: a worn kerb, and stone posts joined by chains.
@@ -518,6 +533,7 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
             const FVector P((TileCentre(17.f, 0.f).X + TileCentre(20.f, 0.f).X) * .5, 30.f, Bank.Z);
             Box(Stone, FVector(P.X, 82.f, (Bank.Z + Feet) * .5f), FVector(380, 164, Bank.Z - Feet));
             Prop(TEXT("PlatformShelter"), Lit, P);
+            Solid(*ArchitectureMesh(TEXT("SM_ShelterRigging")), Timber, P, FVector(.845f,.877f,1.08f));
             for (float Side : {-152.f, 152.f}) Lamp(P + FVector(Side, -114, 182), 460.f, Look.LampIntensity * 1.1f, false);
         }
         // The banner pole at the north-east corner, its long cloth torn.
@@ -559,6 +575,7 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
             Box(Dark, FVector(-900.f + I * 760.f, 1150.f + 500.f * Scatter(I, 22), 120.f), FVector(420.f + 300.f * Scatter(I, 23), 300, 300.f + 320.f * Scatter(I, 24)),
                 FRotator(0, (Scatter(I, 25) - .5) * 24., (Scatter(I, 26) - .5) * 9.), false);
         Prop(TEXT("TarpCanopy"), Camp, Beyond);
+        Solid(*ArchitectureMesh(TEXT("SM_ShelterRigging")), Timber, Beyond, FVector::OneVector);
         Prop(TEXT("CrateStack"), Freight, Beyond + FVector(24, 26, 0), 180.f, FVector(.9f));
         Beam(Iron, Beyond + FVector(-180, -130, 190), Beyond + FVector(-166, -140, 176), 2.f);
         Lamp(Beyond + FVector(-166, -140, 168), 520.f, Look.LampIntensity);

@@ -1,0 +1,132 @@
+{
+  "schema": "memoria.environment-s356.original-art.v1",
+  "generator_mode": "built-in image_gen",
+  "source_policy": "The built-in image_gen PNG output is copied byte-for-byte intact; no existing game image was edited.",
+  "exact_prompts": "generation_prompts.json",
+  "assets": [
+    {
+      "id": "architecture",
+      "file": "ArchitectureAtlas.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-4b7b33f1-999c-4ae2-8dfa-8418f77ad99d.png",
+      "source_sha256": "18e048a2890fcce1179dd6a3faafd8f67263bd923b80ae4a622ce5d4c610d708",
+      "sha256": "18e048a2890fcce1179dd6a3faafd8f67263bd923b80ae4a622ce5d4c610d708",
+      "byte_length": 3808515,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGB",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "requested_resolution": "2048 square or higher",
+      "actual_resolution_note": "Generator returned 1254x1254. Original retained without enlargement, cropping or retouching.",
+      "quadrant_mapping": [
+        {
+          "name": "top_left",
+          "surface": "weathered russet terracotta roof tiles",
+          "pixel_bounds_left_top_right_bottom": [
+            0,
+            0,
+            627,
+            627
+          ],
+          "width": 627,
+          "height": 627,
+          "uv_offset": [
+            0,
+            0
+          ],
+          "uv_scale": [
+            0.5,
+            0.5
+          ],
+          "decoded_pixel_sha256": "d971203106122e3a9f69e72394f6dbd8dc0af1a048229824d4fd6137cea47d4f",
+          "mean_rgb": [
+            100.5773,
+            70.1321,
+            53.4895
+          ]
+        },
+        {
+          "name": "top_right",
+          "surface": "aged off-white lime plaster",
+          "pixel_bounds_left_top_right_bottom": [
+            627,
+            0,
+            1254,
+            627
+          ],
+          "width": 627,
+          "height": 627,
+          "uv_offset": [
+            0.5,
+            0
+          ],
+          "uv_scale": [
+            0.5,
+            0.5
+          ],
+          "decoded_pixel_sha256": "7d50536cc27007f74002c35279fdc885c616dea439999a33093b94beabe2c955",
+          "mean_rgb": [
+            172.6522,
+            160.4387,
+            140.8036
+          ]
+        },
+        {
+          "name": "bottom_left",
+          "surface": "rough cool grey fieldstone masonry",
+          "pixel_bounds_left_top_right_bottom": [
+            0,
+            627,
+            627,
+            1254
+          ],
+          "width": 627,
+          "height": 627,
+          "uv_offset": [
+            0,
+            0.5
+          ],
+          "uv_scale": [
+            0.5,
+            0.5
+          ],
+          "decoded_pixel_sha256": "540226891679e466cea7e03ca4714c76a2cb957c7536c84163b62a32e3bb30b4",
+          "mean_rgb": [
+            83.8928,
+            79.3219,
+            68.7001
+          ]
+        },
+        {
+          "name": "bottom_right",
+          "surface": "dark weathered timber planks",
+          "pixel_bounds_left_top_right_bottom": [
+            627,
+            627,
+            1254,
+            1254
+          ],
+          "width": 627,
+          "height": 627,
+          "uv_offset": [
+            0.5,
+            0.5
+          ],
+          "uv_scale": [
+            0.5,
+            0.5
+          ],
+          "decoded_pixel_sha256": "cecdf8ccd405f9fc14c2e5eaec3c985680808ab8e7b53f7ad51563c19a2af791",
+          "mean_rgb": [
+            75.6008,
+            63.6212,
+            52.7978
+          ]
+        }
+      ],
+      "quadrants_visually_inspected": true,
+      "quadrants_visually_inspected_note": "Native atlas inspection confirms the four material subjects in the requested order; this is albedo art, not measured PBR data."
+    }
+  ]
+}

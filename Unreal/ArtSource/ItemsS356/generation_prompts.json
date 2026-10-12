@@ -1,0 +1,54 @@
+{
+  "mode": "built-in image_gen",
+  "assets": [
+    {
+      "id": "potion",
+      "prompt": "Production game asset for MEMORIA, a somber dark-fantasy RPG. One isolated hand-painted 2.5D inventory object, refined realistic materials with painterly edges, strong readable silhouette at 48 pixels, three-quarter view, subtle upper-left rim light, muted aged brass and dark iron fittings, visually substantial object centered with 12% clear margins. Genuine transparent background, no ground plane, no cast shadow, no words, no letters, no numbers, no decorative UI frame, no multiple views, no extra unrelated objects. Deliver square high-resolution RGBA cutout. A compact squat faceted glass healing vial filled with luminous sapphire-blue liquid. A broad dark iron stopper and two simple brass bands, small blue gem. Make the blue liquid body large and clear, few strong details.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-47ff724a-0b2d-4918-a497-e01d89fb5e80.png",
+      "destination": "Unreal/ArtSource/ItemsS356/potion.png",
+      "transparent": true
+    },
+    {
+      "id": "hi_potion",
+      "prompt": "Production game asset for MEMORIA, a somber dark-fantasy RPG. One isolated hand-painted 2.5D inventory object, refined realistic materials with painterly edges, strong readable silhouette at 48 pixels, three-quarter view, subtle upper-left rim light, muted aged brass and dark iron fittings, visually substantial object centered with 12% clear margins. Genuine transparent background, no ground plane, no cast shadow, no words, no letters, no numbers, no decorative UI frame, no multiple views, no extra unrelated objects. Deliver square high-resolution RGBA cutout. A grand round flask filled with brilliant icy cyan-blue healing liquid, flared gold-brass collar and a tall angular crystal stopper. Clearly larger round pear-shaped silhouette than a small ordinary healing vial, elegant restrained metal filigree.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-7f7ff0da-8d8c-4093-aa42-50b5669ddbba.png",
+      "destination": "Unreal/ArtSource/ItemsS356/hi_potion.png",
+      "transparent": true
+    },
+    {
+      "id": "antidote",
+      "prompt": "Production game asset for MEMORIA, a somber dark-fantasy RPG. One isolated hand-painted 2.5D inventory object, refined realistic materials with painterly edges, strong readable silhouette at 48 pixels, three-quarter view, subtle upper-left rim light, muted aged brass and dark iron fittings, visually substantial object centered with 12% clear margins. Genuine transparent background, no ground plane, no cast shadow, no words, no letters, no numbers, no decorative UI frame, no multiple views, no extra unrelated objects. Deliver square high-resolution RGBA cutout. A slim green apothecary bottle filled with vivid emerald antidote, rounded shoulders, cork stopper bound in brass wire and two dried medicinal leaves tied at neck. Clear green body, recognizably botanical and distinct from blue healing bottles.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-28d478df-73be-4815-a183-5160ebb56d6d.png",
+      "destination": "Unreal/ArtSource/ItemsS356/antidote.png",
+      "transparent": true
+    },
+    {
+      "id": "firebomb",
+      "prompt": "Production game asset for MEMORIA, a somber dark-fantasy RPG. One isolated hand-painted 2.5D inventory object, refined realistic materials with painterly edges, strong readable silhouette at 48 pixels, three-quarter view, subtle upper-left rim light, muted aged brass and dark iron fittings, visually substantial object centered with 12% clear margins. Genuine transparent background, no ground plane, no cast shadow, no words, no letters, no numbers, no decorative UI frame, no multiple views, no extra unrelated objects. Deliver square high-resolution RGBA cutout. A heavy blackened iron spherical firebomb with a large bronze locking cap and one thick curved burning fuse. Worn forged segments, tiny orange cracks and warm ember light. Strong round grenade silhouette, no mystical writing.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-d572b11f-eb90-4ca6-b5f3-86b2b691a87e.png",
+      "destination": "Unreal/ArtSource/ItemsS356/firebomb.png",
+      "transparent": true
+    },
+    {
+      "id": "smoke_bomb",
+      "prompt": "Production game asset for MEMORIA, a somber dark-fantasy RPG. One isolated hand-painted 2.5D inventory object, refined realistic materials with painterly edges, strong readable silhouette at 48 pixels, three-quarter view, subtle upper-left rim light, muted aged brass and dark iron fittings, visually substantial object centered with 12% clear margins. Genuine transparent background, no ground plane, no cast shadow, no words, no letters, no numbers, no decorative UI frame, no multiple views, no extra unrelated objects. Deliver square high-resolution RGBA cutout. A charcoal-grey cloth smoke bomb bundle: stout round pouch tightly bound by crossed coarse rope and a short silver metal nozzle at top. Small soft grey-blue wisp escaping nozzle, minimal contained smoke, no cloud obscuring silhouette. Clearly cloth and rope rather than glass or a metal firebomb.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-32b216ca-c663-4506-8bd1-7ab30795811e.png",
+      "destination": "Unreal/ArtSource/ItemsS356/smoke_bomb.png",
+      "transparent": true
+    },
+    {
+      "id": "witness_ink",
+      "prompt": "Production game asset for MEMORIA, a somber dark-fantasy RPG. One isolated hand-painted 2.5D inventory object, refined realistic materials with painterly edges, strong readable silhouette at 48 pixels, three-quarter view, subtle upper-left rim light, muted aged brass and dark iron fittings, visually substantial object centered with 12% clear margins. Genuine transparent background, no ground plane, no cast shadow, no words, no letters, no numbers, no decorative UI frame, no multiple views, no extra unrelated objects. Deliver square high-resolution RGBA cutout. A low square violet-glass inkwell filled with deep luminous amethyst ink, a dark metal pen holder and one short ivory feather quill leaning from the neck. Broad square ink bottle plus prominent feather silhouette; plainly an inkwell rather than a healing potion.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-2e81299c-5095-4126-a4b2-3aa8332d3ae3.png",
+      "destination": "Unreal/ArtSource/ItemsS356/witness_ink.png",
+      "transparent": true
+    },
+    {
+      "id": "architecture",
+      "prompt": "Production surface atlas for an existing dark-fantasy 3D RPG village. ONE flat orthographic 2 by 2 grid of four equally sized square physically plausible material swatches, no separators, no margins, no text. Top-left weathered warm muted russet terracotta clay roof tiles, staggered small rows, chips and soot, soft color variation. Top-right aged sandy off-white lime plaster, fine grain, irregular hairline cracks and subtle water stains, almost uniform value, no bricks. Bottom-left rough cool grey fieldstone masonry with uneven chunky stones, recessed dark mortar and tiny moss flecks. Bottom-right dark desaturated brown weathered timber planks, longitudinal grain, knots and restrained edge wear. Even diffuse flat lighting, no directional shadows, no objects, no perspective, no scene, no border. Rich painterly realistic texture detail but no excessive noise or high contrast, harmonious earthy palette. Each quadrant fills precisely its quarter; 2048 square or higher.",
+      "source": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-4b7b33f1-999c-4ae2-8dfa-8418f77ad99d.png",
+      "destination": "Unreal/ArtSource/EnvironmentS356/ArchitectureAtlas.png",
+      "transparent": false
+    }
+  ]
+}

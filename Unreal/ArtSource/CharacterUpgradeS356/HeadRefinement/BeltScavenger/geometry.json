@@ -1,0 +1,32 @@
+{
+  "name": "BeltScavenger",
+  "height_cm": 164.96864318847656,
+  "triangles": 12676,
+  "bones": 77,
+  "source_sha256": "9663232498df0541d3c51c37b08fe49febde2de866d4db5fa0b6074f3400eea2",
+  "source_character": "market_thief",
+  "original_source_vertices": 7046,
+  "retained_original_vertices": 5926,
+  "new_accessory_vertices": 796,
+  "preserved_paint_vertex_alpha": 0,
+  "garment_vertex_alpha": 1,
+  "material_slots": [
+    "immutable original body material",
+    "new opaque accessory material"
+  ],
+  "full_original_body_preserved": false,
+  "removed_occluding_head_components": [
+    84,
+    84,
+    264,
+    360,
+    328
+  ],
+  "head_surface_offsets": [],
+  "head_refinement": true,
+  "face_surface_fitting": "actual source triangle ray intersections with .1cm center protrusion",
+  "role": "original leather body and exposed face with salvage pack, shoulder plates and bound greaves",
+  "authoring_helper_sha256": "4774661b239b3139e3835276de2a107bc9147215deb7621175816a357ec1fab2",
+  "runtime_world_height": 165,
+  "source_height_policy": "actual visible mesh bounds; runtime normalizes to unchanged Spec.Height; removed hood/binding does not require artificial height geometry"
+}

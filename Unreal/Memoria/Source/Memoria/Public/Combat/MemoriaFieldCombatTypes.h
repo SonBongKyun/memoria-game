@@ -209,15 +209,23 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
         S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Bite"); return S; }();
     static const FMemoriaFoeSpec CrawlerBody = [] { auto S = Crawler; S.Model = TEXT("DustCrawler"); S.Height = 64.f;
         S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Bite"); return S; }();
+    // S356 presentation only: six pool encounters now have six authored body silhouettes.
+    // Numeric tuning, collision, void classification, status abilities and attack fractions remain intact.
+    static const FMemoriaFoeSpec ScavengerBody = [] { auto S = Scavenger; S.Model = TEXT("BeltScavenger"); return S; }();
+    static const FMemoriaFoeSpec WispBody = [] { auto S = Wisp; S.Model = TEXT("VoidWisp");
+        S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Cast"); return S; }();
+    static const FMemoriaFoeSpec LeechBody = [] { auto S = Leech; S.Model = TEXT("MemoryLeech");
+        S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Bite"); return S; }();
+    static const FMemoriaFoeSpec WalkerBody = [] { auto S = Walker; S.Model = TEXT("AshWalker"); return S; }();
     switch (Kind)
     {
     case EMemoriaFoeKind::MarketThief: return Thief;
-    case EMemoriaFoeKind::BeltScavenger: return Scavenger;
-    case EMemoriaFoeKind::VoidWisp: return Wisp;
+    case EMemoriaFoeKind::BeltScavenger: return ScavengerBody;
+    case EMemoriaFoeKind::VoidWisp: return WispBody;
     case EMemoriaFoeKind::DustCrawler: return CrawlerBody;
-    case EMemoriaFoeKind::MemoryLeech: return Leech;
+    case EMemoriaFoeKind::MemoryLeech: return LeechBody;
     case EMemoriaFoeKind::RubbleRat: return RatBody;
-    case EMemoriaFoeKind::AshWalker: return Walker;
+    case EMemoriaFoeKind::AshWalker: return WalkerBody;
     default: return Husk;
     }
 }

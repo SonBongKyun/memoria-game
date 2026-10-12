@@ -1,0 +1,28 @@
+{
+  "revision": "HeadRefinement",
+  "packages": 2,
+  "references_frozen_accepted_packages": 33,
+  "source_status": "two source exports and roundtrip verified; native coordinator validation pending",
+  "files": [
+    {
+      "file": "AshWalker/AshWalker.fbx",
+      "bytes": 573612,
+      "sha256": "a2ac956bd4b88e5664ac8a26dab768ce665bf5b0e235373dec3e3521b495cd16"
+    },
+    {
+      "file": "AshWalker/geometry.json",
+      "bytes": 1181,
+      "sha256": "6cb783093b3d81e4b21b419ea4840c4e8f7165ca404eff4fb245e672ba94fa36"
+    },
+    {
+      "file": "BeltScavenger/BeltScavenger.fbx",
+      "bytes": 547212,
+      "sha256": "ee42b077608aa746743b7412b9bbc995b6ed5c8f08e521f0a33e476a7882cdfe"
+    },
+    {
+      "file": "BeltScavenger/geometry.json",
+      "bytes": 1217,
+      "sha256": "0718f14d0ac32e7b2b2f627b64dfe0d61219f78df4a6f8c4c0abff06f8c305c8"
+    }
+  ]
+}

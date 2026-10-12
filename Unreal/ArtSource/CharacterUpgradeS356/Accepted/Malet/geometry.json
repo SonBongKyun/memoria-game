@@ -1,0 +1,22 @@
+{
+  "name": "Malet",
+  "height_cm": 180.0,
+  "triangles": 27652,
+  "bones": 77,
+  "source_sha256": "18bc45d39333cb32dd63f98828b4b07fa5adb3ce23a5c3c0ec22b387f5d1c521",
+  "source_character": "malet",
+  "original_source_vertices": 12806,
+  "retained_original_vertices": 12806,
+  "new_accessory_vertices": 1252,
+  "preserved_paint_vertex_alpha": 0,
+  "garment_vertex_alpha": 1,
+  "material_slots": [
+    "immutable original body material",
+    "new opaque accessory material"
+  ],
+  "full_original_body_preserved": true,
+  "removed_occluding_head_components": [],
+  "head_surface_offsets": [],
+  "role": "original merchant coat and clear glasses face plus trading pouches and rolled blanket",
+  "authoring_helper_sha256": "4774661b239b3139e3835276de2a107bc9147215deb7621175816a357ec1fab2"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "VoidWisp",
+  "height_cm": 116.07717990875244,
+  "triangles": 3900,
+  "bones": 20,
+  "source_sha256": null,
+  "bounds_cm": {
+    "width": 61.97201919555664,
+    "length": 62.7900390625,
+    "height": 116.07717990875244
+  },
+  "normalized_at_existing_world_height": {
+    "width": 72.07465410493934,
+    "length": 73.02602699428903,
+    "height": 135.0
+  },
+  "clips": {
+    "Idle": 60,
+    "Walk": 30,
+    "Cast": 24,
+    "HitReact_Front_Lgt_01": 15,
+    "Death_Front_01": 40
+  },
+  "role": "floating fractured nucleus with six articulated trails",
+  "authoring_helper_sha256": "4774661b239b3139e3835276de2a107bc9147215deb7621175816a357ec1fab2"
+}

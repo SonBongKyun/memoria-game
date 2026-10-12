@@ -1,0 +1,254 @@
+{
+  "schema": "memoria.items-s356.original-art.v1",
+  "generator_mode": "built-in image_gen",
+  "source_policy": "The six built-in image_gen PNG outputs are copied byte-for-byte intact; no existing game image was edited.",
+  "exact_prompts": "generation_prompts.json (six item entries and the environment atlas entry retained as generated)",
+  "assets": [
+    {
+      "id": "potion",
+      "file": "potion.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-47ff724a-0b2d-4918-a497-e01d89fb5e80.png",
+      "source_sha256": "bf9afe172cfabf2224ad897229e58eb10f00279c1ce062735653e538aa3374ca",
+      "sha256": "bf9afe172cfabf2224ad897229e58eb10f00279c1ce062735653e538aa3374ca",
+      "byte_length": 1408970,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "runtime_package": "/Game/Memoria/Presentation/ItemsS356/T_ItemPotion",
+      "category_and_slot": "Healing; first quick slot Z, ordinary healing vial",
+      "alpha": {
+        "transparent_le_2_pixels": 995484,
+        "transparent_fraction": 0.6330517463733278,
+        "opaque_ge_245_pixels": 567684,
+        "opaque_fraction": 0.36100364002655616,
+        "corner_alpha_tl_tr_bl_br": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "required_transparent_fraction": 0.2,
+        "required_opaque_fraction": 0.05,
+        "cutout_checks_pass": true
+      },
+      "import_settings": {
+        "ui_resource_maximum": 512,
+        "compression": "TC_EditorIcon",
+        "lod_group": "TEXTUREGROUP_UI",
+        "srgb": true,
+        "mips": "TMGS_NoMipmaps",
+        "address_x": "TA_Clamp",
+        "address_y": "TA_Clamp",
+        "never_stream": true
+      }
+    },
+    {
+      "id": "hi_potion",
+      "file": "hi_potion.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-7f7ff0da-8d8c-4093-aa42-50b5669ddbba.png",
+      "source_sha256": "61ee6fa7f58309779340f03a2874ca7de23b3ea9b9f52bff64e8f3c5828de6a7",
+      "sha256": "61ee6fa7f58309779340f03a2874ca7de23b3ea9b9f52bff64e8f3c5828de6a7",
+      "byte_length": 1365526,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "runtime_package": "/Game/Memoria/Presentation/ItemsS356/T_ItemHiPotion",
+      "category_and_slot": "Healing; same first quick slot Z, selected automatically for a deep wound",
+      "alpha": {
+        "transparent_le_2_pixels": 1076509,
+        "transparent_fraction": 0.6845774542198617,
+        "opaque_ge_245_pixels": 484573,
+        "opaque_fraction": 0.3081513955978826,
+        "corner_alpha_tl_tr_bl_br": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "required_transparent_fraction": 0.2,
+        "required_opaque_fraction": 0.05,
+        "cutout_checks_pass": true
+      },
+      "import_settings": {
+        "ui_resource_maximum": 512,
+        "compression": "TC_EditorIcon",
+        "lod_group": "TEXTUREGROUP_UI",
+        "srgb": true,
+        "mips": "TMGS_NoMipmaps",
+        "address_x": "TA_Clamp",
+        "address_y": "TA_Clamp",
+        "never_stream": true
+      }
+    },
+    {
+      "id": "antidote",
+      "file": "antidote.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-28d478df-73be-4815-a183-5160ebb56d6d.png",
+      "source_sha256": "0e622a5c2f29487711289d88794d096c9c8a60414b9b57883a43835ee9817655",
+      "sha256": "0e622a5c2f29487711289d88794d096c9c8a60414b9b57883a43835ee9817655",
+      "byte_length": 983893,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "runtime_package": "/Game/Memoria/Presentation/ItemsS356/T_ItemAntidote",
+      "category_and_slot": "Cure; quick slot X",
+      "alpha": {
+        "transparent_le_2_pixels": 1209835,
+        "transparent_fraction": 0.7693626010800526,
+        "opaque_ge_245_pixels": 347517,
+        "opaque_fraction": 0.22099425379455598,
+        "corner_alpha_tl_tr_bl_br": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "required_transparent_fraction": 0.2,
+        "required_opaque_fraction": 0.05,
+        "cutout_checks_pass": true
+      },
+      "import_settings": {
+        "ui_resource_maximum": 512,
+        "compression": "TC_EditorIcon",
+        "lod_group": "TEXTUREGROUP_UI",
+        "srgb": true,
+        "mips": "TMGS_NoMipmaps",
+        "address_x": "TA_Clamp",
+        "address_y": "TA_Clamp",
+        "never_stream": true
+      }
+    },
+    {
+      "id": "firebomb",
+      "file": "firebomb.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-d572b11f-eb90-4ca6-b5f3-86b2b691a87e.png",
+      "source_sha256": "24fe727029d9203907a21d19d3029b5dbb5f9e2b5f901f70ae736367ceea8836",
+      "sha256": "24fe727029d9203907a21d19d3029b5dbb5f9e2b5f901f70ae736367ceea8836",
+      "byte_length": 1974585,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "runtime_package": "/Game/Memoria/Presentation/ItemsS356/T_ItemFirebomb",
+      "category_and_slot": "Fire; quick slot C",
+      "alpha": {
+        "transparent_le_2_pixels": 809742,
+        "transparent_fraction": 0.5149340292880963,
+        "opaque_ge_245_pixels": 742463,
+        "opaque_fraction": 0.4721497269344159,
+        "corner_alpha_tl_tr_bl_br": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "required_transparent_fraction": 0.2,
+        "required_opaque_fraction": 0.05,
+        "cutout_checks_pass": true
+      },
+      "import_settings": {
+        "ui_resource_maximum": 512,
+        "compression": "TC_EditorIcon",
+        "lod_group": "TEXTUREGROUP_UI",
+        "srgb": true,
+        "mips": "TMGS_NoMipmaps",
+        "address_x": "TA_Clamp",
+        "address_y": "TA_Clamp",
+        "never_stream": true
+      }
+    },
+    {
+      "id": "smoke_bomb",
+      "file": "smoke_bomb.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-32b216ca-c663-4506-8bd1-7ab30795811e.png",
+      "source_sha256": "18af056530fb726c9baf70544b53fb2de5f1ee09d2c451a1f4d8a7143da9324a",
+      "sha256": "18af056530fb726c9baf70544b53fb2de5f1ee09d2c451a1f4d8a7143da9324a",
+      "byte_length": 1191724,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "runtime_package": "/Game/Memoria/Presentation/ItemsS356/T_ItemSmokeBomb",
+      "category_and_slot": "Escape; quick slot V",
+      "alpha": {
+        "transparent_le_2_pixels": 1166128,
+        "transparent_fraction": 0.7415682892892663,
+        "opaque_ge_245_pixels": 361479,
+        "opaque_fraction": 0.22987301878009508,
+        "corner_alpha_tl_tr_bl_br": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "required_transparent_fraction": 0.2,
+        "required_opaque_fraction": 0.05,
+        "cutout_checks_pass": true
+      },
+      "import_settings": {
+        "ui_resource_maximum": 512,
+        "compression": "TC_EditorIcon",
+        "lod_group": "TEXTUREGROUP_UI",
+        "srgb": true,
+        "mips": "TMGS_NoMipmaps",
+        "address_x": "TA_Clamp",
+        "address_y": "TA_Clamp",
+        "never_stream": true
+      }
+    },
+    {
+      "id": "witness_ink",
+      "file": "witness_ink.png",
+      "source_path": "C:\\Users\\jc\\.codex\\generated_images\\01a12e2c-3c53-71b0-962e-5f1c668664b6\\exec-2e81299c-5095-4126-a4b2-3aa8332d3ae3.png",
+      "source_sha256": "7b8d67bf2b1e075e38e80970a7d236141ae1d045255ed7bc91d6f52459a48084",
+      "sha256": "7b8d67bf2b1e075e38e80970a7d236141ae1d045255ed7bc91d6f52459a48084",
+      "byte_length": 1629714,
+      "copied_byte_for_byte": true,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "generator_mode": "built-in image_gen",
+      "original_png_modified": false,
+      "runtime_package": "/Game/Memoria/Presentation/ItemsS356/T_ItemWitnessInk",
+      "category_and_slot": "Ward; quick slot B",
+      "alpha": {
+        "transparent_le_2_pixels": 972090,
+        "transparent_fraction": 0.6181749502071839,
+        "opaque_ge_245_pixels": 580725,
+        "opaque_fraction": 0.3692967193974497,
+        "corner_alpha_tl_tr_bl_br": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "required_transparent_fraction": 0.2,
+        "required_opaque_fraction": 0.05,
+        "cutout_checks_pass": true
+      },
+      "import_settings": {
+        "ui_resource_maximum": 512,
+        "compression": "TC_EditorIcon",
+        "lod_group": "TEXTUREGROUP_UI",
+        "srgb": true,
+        "mips": "TMGS_NoMipmaps",
+        "address_x": "TA_Clamp",
+        "address_y": "TA_Clamp",
+        "never_stream": true
+      }
+    }
+  ]
+}
