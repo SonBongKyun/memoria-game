@@ -1,3 +1,11 @@
+# S355 complete — Verdan interactive prop geometry (Codex, 2026-10-12)
+
+- Unreal continuation from clean dc6cfd70. Barrel staves/hoops, crate planks/braces, sign boards/fittings and campfire stones/logs/embers/flames replace primitive shapes with ten new meshes (10,098 triangles). Existing gameplay and material packages retained.
+- Fresh UE5.8.2 build; baseline rendered30/30; final Foundation6/6 + related52/52 =58/58, including all30visual tests. Native play/close views and spent-state disk reentry inspected;13 captures hashed. Existing engine/build warnings retained in results. No full274/Shipping/performance claim.
+- Local commit requested by the user; no push, peer edit or release. Review/evidence: [S355_REVIEW.md](S355_REVIEW.md), [S355_RESULTS.json](S355_RESULTS.json). Build/GPU slot released.
+
+---
+
 # S354 complete — NPC clothing and distinct creature anatomy (Codex, 2026-10-11)
 
 - User requested a stronger visible graphics upgrade after S353. Source/assets commit **1f4d1ed4b868279d03944fc548bf2c680b2e762c**, base `f001b6b3603329f4439869b704eb922847b04b9d`. Nine ambient NPCs now use tailored clothing geometry, role hats/lapels/cuffs/pouches and original 77-bone animation bindings/heights. Rubble Rat and Dust Crawler replace human stand-ins with 18/16-bone creature rigs, continuous rat anatomy / six-legged carapace and 10 authored clips.

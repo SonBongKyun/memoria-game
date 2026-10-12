@@ -1,0 +1,782 @@
+{
+  "task": "S355",
+  "status": "PASS",
+  "utc": "2026-10-12T05:48:03.332479+00:00",
+  "base": "dc6cfd70487224343817eef9a7cb4c9a2cbe51ab",
+  "local_only": true,
+  "full_registry_rerun": false,
+  "shipping_verified": false,
+  "initial_state": {
+    "head": "dc6cfd70487224343817eef9a7cb4c9a2cbe51ab",
+    "status": "",
+    "peer_head": "159ae961f844e3492cd9857b6d472e8aa79b5d02",
+    "peer_status": "",
+    "preimages": {
+      "MemoriaVerdanPresentation.cpp": "eef153210b7ad0617638163ea4ef04bdc2eca5b34c4b0622a1fa5feba59540e9",
+      "MemoriaVerdanVisualTests.cpp": "d7ca5e780a294f28638123eb985d1ac69f8679159861487f323f1fe41b68cab6"
+    }
+  },
+  "runs": {
+    "baseline": {
+      "validation": {
+        "utc": "2026-10-12T05:28:02.878855+00:00",
+        "requested_engine": "5.8.2",
+        "detected": [
+          {
+            "path": "C:\\Program Files\\Epic Games\\UE_5.8",
+            "build_version_present": true,
+            "version": {
+              "MajorVersion": 5,
+              "MinorVersion": 8,
+              "PatchVersion": 2,
+              "Changelist": 56702186,
+              "CompatibleChangelist": 55116800,
+              "IsLicenseeVersion": 0,
+              "IsPromotedBuild": 1,
+              "BranchName": "++UE5+Release-5.8"
+            }
+          }
+        ],
+        "registry_checked": [
+          "Software\\Epic Games\\Unreal Engine\\Builds",
+          "SOFTWARE\\EpicGames\\Unreal Engine\\5.8"
+        ],
+        "launcher_checked": "C:\\ProgramData\\Epic\\UnrealEngineLauncher\\LauncherInstalled.dat",
+        "installation_parents_checked": [
+          {
+            "path": "C:\\Program Files\\Epic Games",
+            "exists": true
+          },
+          {
+            "path": "D:\\Epic Games",
+            "exists": false
+          },
+          {
+            "path": "G:\\Epic Games",
+            "exists": false
+          }
+        ],
+        "engine_environment": {
+          "UE_ENGINE_ROOT": null
+        },
+        "scope": "Launcher, known installation parents, registered builds, UE_ENGINE_ROOT, explicit root; no whole-disk scan",
+        "ue_compilation": "PASS",
+        "editor_launch": "UNATTENDED_CMD",
+        "ue_automation": "PASS",
+        "commands": [
+          {
+            "name": "fixture_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\fixture_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "audio_source_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\audio_source_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "verdan_story_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\verdan_story_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "editor_build",
+            "command": [
+              "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+              "MemoriaEditor",
+              "Win64",
+              "Development",
+              "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+              "-WaitMutex",
+              "-NoHotReloadFromIDE",
+              "-MaxParallelActions=2"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\editor_build.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "automation",
+            "command": [
+              "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+              "-unattended",
+              "-nop4",
+              "-nosplash",
+              "-RenderOffscreen",
+              "-MemoriaCapture",
+              "-ResX=1280",
+              "-ResY=720",
+              "-ExecCmds=Automation RunTests MemoriaVisual.",
+              "-TestExit=Automation Test Queue Empty",
+              "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\Automation-20261012T052806689611",
+              "-stdout",
+              "-FullStdOutLogOutput"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\automation.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          }
+        ],
+        "selected_engine": "C:\\Program Files\\Epic Games\\UE_5.8",
+        "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\Automation-20261012T052806689611\\index.json",
+        "automation_discovered": 30,
+        "source_parity_discovered": 0,
+        "legacy_required_total": 54,
+        "phase1b_required_total": 57,
+        "phase1c_required_total": 3,
+        "phase1d_required_total": 12,
+        "phase1e_required_total": 4,
+        "phase1f_required_total": 4,
+        "phase1h_required_total": 8,
+        "phase1i_required_total": 7,
+        "phase1g_required_total": 6,
+        "current_required_total": 274,
+        "test_prefix": "MemoriaVisual.",
+        "selected_required_total": 30,
+        "rendered": true,
+        "automation_timeout_seconds": 1200,
+        "automation_validation_errors": [],
+        "status": "PASS"
+      },
+      "counts": {
+        "succeeded": 28,
+        "succeededWithWarnings": 2,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "identities": [
+        "MemoriaVisual.Achievements",
+        "MemoriaVisual.ArtworkCoverage",
+        "MemoriaVisual.BeltDressing",
+        "MemoriaVisual.Chapter1Journey",
+        "MemoriaVisual.Chapter1Presentation",
+        "MemoriaVisual.Chapter3",
+        "MemoriaVisual.Chapter3Travel",
+        "MemoriaVisual.Chapter4",
+        "MemoriaVisual.Chapter5",
+        "MemoriaVisual.ChapterContinue",
+        "MemoriaVisual.ChapterRevisit",
+        "MemoriaVisual.Codex",
+        "MemoriaVisual.DialogueInteraction",
+        "MemoriaVisual.DriftDressing",
+        "MemoriaVisual.EliaSkills",
+        "MemoriaVisual.FieldBurn",
+        "MemoriaVisual.FieldCharacters",
+        "MemoriaVisual.FieldCombat",
+        "MemoriaVisual.FieldEncounters",
+        "MemoriaVisual.FieldFeel",
+        "MemoriaVisual.FieldFoes",
+        "MemoriaVisual.FieldItems",
+        "MemoriaVisual.FieldRewards",
+        "MemoriaVisual.FoeVariety",
+        "MemoriaVisual.GameOver",
+        "MemoriaVisual.Journal",
+        "MemoriaVisual.PauseMenu",
+        "MemoriaVisual.TitleScreen",
+        "MemoriaVisual.TutorialHints",
+        "MemoriaVisual.VerdanExploration"
+      ],
+      "warning_events": [
+        {
+          "test": "MemoriaVisual.Achievements",
+          "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread."
+        },
+        {
+          "test": "MemoriaVisual.Chapter1Presentation",
+          "message": "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_0:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+        }
+      ],
+      "startup_condition_lines": 15,
+      "memory_budget_lines": 0,
+      "unexpected_error_lines": [],
+      "log_receipts": {
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\fixture_check.log": "c2d1fdf2ca03b463dcd8b116c94d974078779d7be4c7a75dc01c66078c64fa66",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\audio_source_check.log": "461afb802aace9bab48dc01a398ad4d0b0f099f2e55ea0c275c9d7566d8b208f",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\verdan_story_check.log": "46d458e1aea91e7d78af97639338f884744b07e7beaa7f92030130728817d089",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\editor_build.log": "270f7f3d0c951db2a10860f859f140cd65c0956665de9c73d8f15c5c0245363e",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T052802854850\\automation.log": "38388876da897b6333b37989096cfb3a375abdd276f6175620a20912efc279ca"
+      }
+    },
+    "related": {
+      "validation": {
+        "utc": "2026-10-12T05:43:36.472885+00:00",
+        "requested_engine": "5.8.2",
+        "detected": [
+          {
+            "path": "C:\\Program Files\\Epic Games\\UE_5.8",
+            "build_version_present": true,
+            "version": {
+              "MajorVersion": 5,
+              "MinorVersion": 8,
+              "PatchVersion": 2,
+              "Changelist": 56702186,
+              "CompatibleChangelist": 55116800,
+              "IsLicenseeVersion": 0,
+              "IsPromotedBuild": 1,
+              "BranchName": "++UE5+Release-5.8"
+            }
+          }
+        ],
+        "registry_checked": [
+          "Software\\Epic Games\\Unreal Engine\\Builds",
+          "SOFTWARE\\EpicGames\\Unreal Engine\\5.8"
+        ],
+        "launcher_checked": "C:\\ProgramData\\Epic\\UnrealEngineLauncher\\LauncherInstalled.dat",
+        "installation_parents_checked": [
+          {
+            "path": "C:\\Program Files\\Epic Games",
+            "exists": true
+          },
+          {
+            "path": "D:\\Epic Games",
+            "exists": false
+          },
+          {
+            "path": "G:\\Epic Games",
+            "exists": false
+          }
+        ],
+        "engine_environment": {
+          "UE_ENGINE_ROOT": null
+        },
+        "scope": "Launcher, known installation parents, registered builds, UE_ENGINE_ROOT, explicit root; no whole-disk scan",
+        "ue_compilation": "PASS",
+        "editor_launch": "UNATTENDED_CMD",
+        "ue_automation": "PASS",
+        "commands": [
+          {
+            "name": "fixture_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\fixture_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "audio_source_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\audio_source_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "verdan_story_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\verdan_story_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "editor_build",
+            "command": [
+              "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+              "MemoriaEditor",
+              "Win64",
+              "Development",
+              "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+              "-WaitMutex",
+              "-NoHotReloadFromIDE",
+              "-MaxParallelActions=2"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\editor_build.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "automation",
+            "command": [
+              "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+              "-unattended",
+              "-nop4",
+              "-nosplash",
+              "-RenderOffscreen",
+              "-MemoriaCapture",
+              "-ResX=1280",
+              "-ResY=720",
+              "-ExecCmds=Automation RunTests Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+              "-TestExit=Automation Test Queue Empty",
+              "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\Automation-20261012T054402068823",
+              "-stdout",
+              "-FullStdOutLogOutput"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\automation.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          }
+        ],
+        "selected_engine": "C:\\Program Files\\Epic Games\\UE_5.8",
+        "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\Automation-20261012T054402068823\\index.json",
+        "automation_discovered": 52,
+        "source_parity_discovered": 0,
+        "legacy_required_total": 54,
+        "phase1b_required_total": 57,
+        "phase1c_required_total": 3,
+        "phase1d_required_total": 12,
+        "phase1e_required_total": 4,
+        "phase1f_required_total": 4,
+        "phase1h_required_total": 8,
+        "phase1i_required_total": 7,
+        "phase1g_required_total": 6,
+        "current_required_total": 274,
+        "test_prefix": "Memoria.Audio.+Memoria.Campaign.+MemoriaVisual.+Memoria.BattleEntry.+Memoria.ShopTransactions.",
+        "selected_required_total": 52,
+        "rendered": true,
+        "automation_timeout_seconds": 1200,
+        "automation_validation_errors": [],
+        "status": "PASS"
+      },
+      "counts": {
+        "succeeded": 50,
+        "succeededWithWarnings": 2,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "identities": [
+        "Memoria.Audio.CatalogAssets",
+        "Memoria.Audio.Routing",
+        "Memoria.Audio.RunReplacement",
+        "Memoria.Campaign.CanonicalPaidRoute",
+        "Memoria.Campaign.FilteredOriginalChoice",
+        "Memoria.Campaign.HostContinuation",
+        "Memoria.Campaign.UnseenFieldRoute",
+        "Memoria.ShopTransactions.Source.buy_both",
+        "Memoria.ShopTransactions.Source.buy_exact",
+        "Memoria.ShopTransactions.Source.buy_poor",
+        "Memoria.ShopTransactions.Source.buy_sell_ko",
+        "Memoria.ShopTransactions.Source.close",
+        "Memoria.ShopTransactions.Source.exchange",
+        "Memoria.ShopTransactions.Source.oath_en",
+        "Memoria.ShopTransactions.Source.oath_ko",
+        "Memoria.ShopTransactions.Source.sell_daily",
+        "Memoria.ShopTransactions.Source.sell_identity",
+        "Memoria.ShopTransactions.Source.sell_relation",
+        "Memoria.ShopTransactions.Source.sell_sense",
+        "Memoria.ShopTransactions.Canonical",
+        "Memoria.ShopTransactions.Guards",
+        "Memoria.ShopTransactions.RequestCancellation",
+        "MemoriaVisual.Achievements",
+        "MemoriaVisual.ArtworkCoverage",
+        "MemoriaVisual.BeltDressing",
+        "MemoriaVisual.Chapter1Journey",
+        "MemoriaVisual.Chapter1Presentation",
+        "MemoriaVisual.Chapter3",
+        "MemoriaVisual.Chapter3Travel",
+        "MemoriaVisual.Chapter4",
+        "MemoriaVisual.Chapter5",
+        "MemoriaVisual.ChapterContinue",
+        "MemoriaVisual.ChapterRevisit",
+        "MemoriaVisual.Codex",
+        "MemoriaVisual.DialogueInteraction",
+        "MemoriaVisual.DriftDressing",
+        "MemoriaVisual.EliaSkills",
+        "MemoriaVisual.FieldBurn",
+        "MemoriaVisual.FieldCharacters",
+        "MemoriaVisual.FieldCombat",
+        "MemoriaVisual.FieldEncounters",
+        "MemoriaVisual.FieldFeel",
+        "MemoriaVisual.FieldFoes",
+        "MemoriaVisual.FieldItems",
+        "MemoriaVisual.FieldRewards",
+        "MemoriaVisual.FoeVariety",
+        "MemoriaVisual.GameOver",
+        "MemoriaVisual.Journal",
+        "MemoriaVisual.PauseMenu",
+        "MemoriaVisual.TitleScreen",
+        "MemoriaVisual.TutorialHints",
+        "MemoriaVisual.VerdanExploration"
+      ],
+      "warning_events": [
+        {
+          "test": "Memoria.Campaign.CanonicalPaidRoute",
+          "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread."
+        },
+        {
+          "test": "MemoriaVisual.Chapter1Presentation",
+          "message": "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_28:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+        }
+      ],
+      "startup_condition_lines": 15,
+      "memory_budget_lines": 0,
+      "unexpected_error_lines": [],
+      "log_receipts": {
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\fixture_check.log": "c2d1fdf2ca03b463dcd8b116c94d974078779d7be4c7a75dc01c66078c64fa66",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\audio_source_check.log": "461afb802aace9bab48dc01a398ad4d0b0f099f2e55ea0c275c9d7566d8b208f",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\verdan_story_check.log": "46d458e1aea91e7d78af97639338f884744b07e7beaa7f92030130728817d089",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\editor_build.log": "2e2439d6071f49df9779f4c6fe76d5a03ce065e53637313e3d96a40652ab4198",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054336460826\\automation.log": "98b538cfe868a4c9875aa9007b8ee0f515e8070276eaab1e902712a983e3437e"
+      }
+    },
+    "foundation": {
+      "validation": {
+        "utc": "2026-10-12T05:41:50.421368+00:00",
+        "requested_engine": "5.8.2",
+        "detected": [
+          {
+            "path": "C:\\Program Files\\Epic Games\\UE_5.8",
+            "build_version_present": true,
+            "version": {
+              "MajorVersion": 5,
+              "MinorVersion": 8,
+              "PatchVersion": 2,
+              "Changelist": 56702186,
+              "CompatibleChangelist": 55116800,
+              "IsLicenseeVersion": 0,
+              "IsPromotedBuild": 1,
+              "BranchName": "++UE5+Release-5.8"
+            }
+          }
+        ],
+        "registry_checked": [
+          "Software\\Epic Games\\Unreal Engine\\Builds",
+          "SOFTWARE\\EpicGames\\Unreal Engine\\5.8"
+        ],
+        "launcher_checked": "C:\\ProgramData\\Epic\\UnrealEngineLauncher\\LauncherInstalled.dat",
+        "installation_parents_checked": [
+          {
+            "path": "C:\\Program Files\\Epic Games",
+            "exists": true
+          },
+          {
+            "path": "D:\\Epic Games",
+            "exists": false
+          },
+          {
+            "path": "G:\\Epic Games",
+            "exists": false
+          }
+        ],
+        "engine_environment": {
+          "UE_ENGINE_ROOT": null
+        },
+        "scope": "Launcher, known installation parents, registered builds, UE_ENGINE_ROOT, explicit root; no whole-disk scan",
+        "ue_compilation": "PASS",
+        "editor_launch": "UNATTENDED_CMD",
+        "ue_automation": "PASS",
+        "commands": [
+          {
+            "name": "fixture_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_memory_test_header.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\fixture_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "audio_source_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\generate_audio_sources.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\audio_source_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "verdan_story_check",
+            "command": [
+              "C:\\Users\\jc\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Tools\\export_verdan_story_triggers.py",
+              "--check"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\verdan_story_check.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "editor_build",
+            "command": [
+              "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+              "MemoriaEditor",
+              "Win64",
+              "Development",
+              "-Project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+              "-WaitMutex",
+              "-NoHotReloadFromIDE",
+              "-MaxParallelActions=2"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\editor_build.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          },
+          {
+            "name": "automation",
+            "command": [
+              "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+              "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+              "-unattended",
+              "-nop4",
+              "-nosplash",
+              "-RenderOffscreen",
+              "-MemoriaCapture",
+              "-ResX=1280",
+              "-ResY=720",
+              "-ExecCmds=Automation RunTests Memoria.Foundation.",
+              "-TestExit=Automation Test Queue Empty",
+              "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\Automation-20261012T054153880734",
+              "-stdout",
+              "-FullStdOutLogOutput"
+            ],
+            "log": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\automation.log",
+            "exit_code": 0,
+            "fatal_diagnostics": []
+          }
+        ],
+        "selected_engine": "C:\\Program Files\\Epic Games\\UE_5.8",
+        "automation_report": "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\Automation-20261012T054153880734\\index.json",
+        "automation_discovered": 6,
+        "source_parity_discovered": 0,
+        "legacy_required_total": 54,
+        "phase1b_required_total": 57,
+        "phase1c_required_total": 3,
+        "phase1d_required_total": 12,
+        "phase1e_required_total": 4,
+        "phase1f_required_total": 4,
+        "phase1h_required_total": 8,
+        "phase1i_required_total": 7,
+        "phase1g_required_total": 6,
+        "current_required_total": 274,
+        "test_prefix": "Memoria.Foundation.",
+        "selected_required_total": 6,
+        "rendered": true,
+        "automation_timeout_seconds": 1200,
+        "automation_validation_errors": [],
+        "status": "PASS"
+      },
+      "counts": {
+        "succeeded": 5,
+        "succeededWithWarnings": 1,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "identities": [
+        "Memoria.Foundation.MapInputAndModal",
+        "Memoria.Foundation.MemoryAdapter",
+        "Memoria.Foundation.NondefaultSaveRoundTrip",
+        "Memoria.Foundation.RunOwnership",
+        "Memoria.Foundation.RuntimeLifetime",
+        "Memoria.Foundation.SaveAndDialectBoundaries"
+      ],
+      "warning_events": [
+        {
+          "test": "Memoria.Foundation.MapInputAndModal",
+          "message": "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread."
+        }
+      ],
+      "startup_condition_lines": 15,
+      "memory_budget_lines": 0,
+      "unexpected_error_lines": [],
+      "log_receipts": {
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\fixture_check.log": "c2d1fdf2ca03b463dcd8b116c94d974078779d7be4c7a75dc01c66078c64fa66",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\audio_source_check.log": "461afb802aace9bab48dc01a398ad4d0b0f099f2e55ea0c275c9d7566d8b208f",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\verdan_story_check.log": "46d458e1aea91e7d78af97639338f884744b07e7beaa7f92030130728817d089",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\editor_build.log": "d9ba8ef27ed409aa70e033e7d05a53de5c2b8f6cab652a5effefec8f7eb04da3",
+        "Unreal\\Memoria\\Saved\\Validation\\unreal-run-20261012T054150402365\\automation.log": "7c1035d181ad23be5f77762e0bc4af5b0b755ad2e565424bc5522f2d9cf9e93e"
+      }
+    }
+  },
+  "fresh_final_tests": 58,
+  "fresh_final_visual_tests": 30,
+  "runtime_outside_prop_geometry_builder_unchanged": true,
+  "first_related_pass_and_rejected_review_views": "Unreal/Memoria/Saved/Validation/s355/related_before_camera_review; first_close_views",
+  "authoring": {
+    "exit_code": 0,
+    "log": "Unreal\\Memoria\\Saved\\Validation\\s355\\authoring.log",
+    "sha256": "2fe61f5e905ee5cde9b9054625560e58a6d0ca17028411fe36fc9c51bd7fec77",
+    "meshes": [
+      {
+        "name": "SM_BarrelWood",
+        "triangles": 1376,
+        "bounds": "X=21.998 Y=21.998 Z=36.000"
+      },
+      {
+        "name": "SM_BarrelIron",
+        "triangles": 2176,
+        "bounds": "X=22.550 Y=22.550 Z=35.400"
+      },
+      {
+        "name": "SM_CrateWood",
+        "triangles": 2304,
+        "bounds": "X=23.000 Y=25.000 Z=22.250"
+      },
+      {
+        "name": "SM_CrateIron",
+        "triangles": 1152,
+        "bounds": "X=22.250 Y=25.126 Z=23.400"
+      },
+      {
+        "name": "SM_SignWood",
+        "triangles": 256,
+        "bounds": "X=43.150 Y=7.530 Z=78.000"
+      },
+      {
+        "name": "SM_SignIron",
+        "triangles": 704,
+        "bounds": "X=37.000 Y=9.175 Z=65.500"
+      },
+      {
+        "name": "SM_FireStone",
+        "triangles": 704,
+        "bounds": "X=50.253 Y=51.178 Z=8.514"
+      },
+      {
+        "name": "SM_FireWood",
+        "triangles": 228,
+        "bounds": "X=33.456 Y=34.302 Z=10.956"
+      },
+      {
+        "name": "SM_FireEmbers",
+        "triangles": 768,
+        "bounds": "X=16.624 Y=13.582 Z=2.000"
+      },
+      {
+        "name": "SM_FireFlame",
+        "triangles": 430,
+        "bounds": "X=13.147 Y=13.517 Z=22.500"
+      }
+    ],
+    "triangles_total": 10098
+  },
+  "native_captures": [
+    {
+      "path": "docs/unreal-migration/evidence/s355/before_PropBarrel.png",
+      "sha256": "6784e1ee43318ec877042cabe7bd52b5831df1de70045872a8a17046c3c8d181",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/before_PropCrate.png",
+      "sha256": "505b8404ec764fd92f3c04b981c73945991252ace73e37ee729715f59b8d98b3",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/before_PropSign.png",
+      "sha256": "12b9b34e4cee136271d3d15f87ceabf579c91994c3c0cbc441688fdf06d5b6ff",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/before_PropCampfire.png",
+      "sha256": "eace19de0573865d3936ecd30d95f33c59c7cfba8d99736e5741699e78b5787f",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropBarrel.png",
+      "sha256": "356af1c4e37dc3229910582fd45d6d1b4860f2d85aa29375dce7af6f0474da5a",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropCrate.png",
+      "sha256": "f2bf41ebbb0feb5295579236971eb2843ac0cd00738aee76146f23613aeff374",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropSign.png",
+      "sha256": "56a89422120fe0fb899420bbc5842487897bdce06bde7dbad23e902efa05abad",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropCampfire.png",
+      "sha256": "e86fa35696c38b5122e3fffa99290336f61d4cf02048f5254582943fd1840b8d",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropBarrelDetail.png",
+      "sha256": "da15a299c5ba4d4bdd6783bc953746b6d5187209ccfef5aa5470eb7c8fdddede",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropCrateDetail.png",
+      "sha256": "9aa0a8baa4dcc7ec35bd9f8a1125ea773d5968afff2eb638f3137635bb273a1c",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropSignDetail.png",
+      "sha256": "24b5141ccea8dc3a705f82bf26ebb60e8bccf31482493e053c8325280728dab1",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_PropCampfireDetail.png",
+      "sha256": "5ceb69a5701de7317cd3cce1195bbf78675f3b3c03bfcd61f7bfdeb991170680",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s355/after_SpentReentry.png",
+      "sha256": "dc3ea5ae485efbdd0ad70f63351fbaf54ac5cfb4869626fc7c24dd26d218f75d",
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "tested_files": {
+    "Unreal/Memoria/Source/Memoria/Private/Presentation/MemoriaVerdanPresentation.cpp": "394cd504228cbd17ff7b9eb176c2d8cf56800575d99c2338d8cfc588cc047bcf",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaVerdanVisualTests.cpp": "0ba36d58395bc1bec1a1f029ad67886b9f89fbe63d5a8421a9a031f5aeaccb6a",
+    "Unreal/Memoria/Source/MemoriaTests/Public/MemoriaMarketPropsCommandlet.h": "1798c2ad13af1710dbfe9f21c0bae0f42e257368a60d64fc46d1d47748bd035c",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaMarketPropsCommandlet.cpp": "7f816f8d50ca9ba7e01a9c21b2ad316c419109a672e08d9d0a5a268fcd88204b",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_BarrelIron.uasset": "67069caa2a34503b3c0ddbe2c5e310508eae0e66dcbebfb49e81f73b97b3be4f",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_BarrelWood.uasset": "c332b66374c1571481053922a71f26443da386a52b9c65b6b4790f7960e9e24a",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_CrateIron.uasset": "428b0df9504f8c4103cc006b11dbe05ed1131310588c301645722249c1f7727f",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_CrateWood.uasset": "5a4104bae8b2ef2fe2017fd7ded66e72fc83b3228062e30cbc16198a45d0eb1b",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_FireEmbers.uasset": "72a9dffb6ca7d8f1f03c34730a11c8d546898a86d6556a906dd501d26b00c2e0",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_FireFlame.uasset": "7d65390517afb6dbfcac6ec4f06a30b76c20398899fd305f87ca5e4f864b09c3",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_FireStone.uasset": "273927a8fe21b886531a8ef98613f75f89ba725a48d9abed3006d54a158323c4",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_FireWood.uasset": "cee1a127a096e63f02eb884d93b7b9badc81476582f301ad027ce013f2d26b53",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_SignIron.uasset": "a55d24923386f546c76029eea278366ec4a4c7c980025db521da0370c16c3f4e",
+    "Unreal/Memoria/Content/Memoria/Presentation/MarketPropsS355/SM_SignWood.uasset": "7889f46f89711674da971b4274793e542f39fb2bb34cf30814444291676c21ce"
+  },
+  "peer_final": {
+    "head": "159ae961f844e3492cd9857b6d472e8aa79b5d02",
+    "status": ""
+  },
+  "tracked_changes_before_documentation": [
+    "Unreal/Memoria/Source/Memoria/Private/Presentation/MemoriaVerdanPresentation.cpp",
+    "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaVerdanVisualTests.cpp"
+  ],
+  "existing_content_packages_changed": []
+}

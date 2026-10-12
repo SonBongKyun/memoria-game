@@ -234,43 +234,33 @@ void AMemoriaVerdanPresentation::BuildInteractives(UMaterialInterface* Timber, U
             auto* Wood = Surface(bBarrel ? TEXT("BarrelWood") : TEXT("CrateWood"), WoodTint, 1);
             auto* Hoops = Surface(bBarrel ? TEXT("BarrelIron") : TEXT("CrateIron"), IronTint, 3, .5f, .65f);
             SpentWood[I] = Wood; SpentIron[I] = Hoops;
-            if (bBarrel)
-            {
-                Solid(TEXT("Cylinder"), Wood, P + FVector(0, 0, 36), FVector(.44, .44, .72));
-                for (const double Z : {14.0, 58.0}) Solid(TEXT("Cylinder"), Hoops, P + FVector(0, 0, Z), FVector(.46, .46, .04));
-                Solid(TEXT("Cylinder"), Hoops, P + FVector(0, 0, 72.5), FVector(.38, .38, .01));
-            }
-            else
-            {
-                Box(Wood, P + FVector(0, 0, 23), FVector(46, 46, 46));
-                Box(Hoops, P + FVector(0, -23.5, 23), FVector(48, 1.5, 5)); Box(Hoops, P + FVector(0, -23.5, 23), FVector(5, 1.5, 48));
-                Box(Hoops, P + FVector(0, 0, 46.5), FVector(48, 5, 1.5)); Box(Hoops, P + FVector(0, 0, 46.5), FVector(5, 48, 1.5));
-            }
+            // S355: authored geometry shares the original independent spent-state materials.
+            const TCHAR* WoodMesh = bBarrel
+                ? TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_BarrelWood.SM_BarrelWood")
+                : TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_CrateWood.SM_CrateWood");
+            const TCHAR* IronMesh = bBarrel
+                ? TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_BarrelIron.SM_BarrelIron")
+                : TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_CrateIron.SM_CrateIron");
+            Solid(WoodMesh, Wood, P, FVector::OneVector);
+            Solid(IronMesh, Hoops, P, FVector::OneVector);
         }
         else if (Kind == TEXT("sign"))
         {
-            // A board on a post, with the source's "!" marker above it.
-            Box(Timber, P + FVector(0, 0, 70), FVector(9, 9, 156));
-            Box(Timber, P + FVector(0, -8, 118), FVector(86, 5, 42));
-            for (const double Z : {97.0, 139.0}) Box(Iron, P + FVector(0, -11, Z), FVector(88, 2, 3));
+            // Three worn boards and forged fittings, retaining the source's unread marker.
+            Solid(TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_SignWood.SM_SignWood"), Timber, P, FVector::OneVector);
+            Solid(TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_SignIron.SM_SignIron"), Iron, P, FVector::OneVector);
             auto* Marker = UMaterialInstanceDynamic::Create(Glow, this, TEXT("SignMarker"));
             Box(Marker, P + FVector(0, -10, 175), FVector(5, 4, 18)); Box(Marker, P + FVector(0, -10, 160), FVector(5, 4, 5));
             if (UInstancedStaticMeshComponent* Batch = MeshBatches.FindRef(TEXT("Cube|SignMarker"))) Batch->SetCastShadow(false);
         }
         else if (Kind == TEXT("campfire"))
         {
-            // A ring of stones, two crossed logs, the embers and a small flame, its warm light and glow on the paving.
-            for (int32 StoneIndex = 0; StoneIndex < 9; ++StoneIndex)
-            {
-                const double A = StoneIndex * 2 * PI / 9;
-                Box(Stone, P + FVector(FMath::Cos(A) * 42, FMath::Sin(A) * 42, 7), FVector(21, 17, 14), FRotator(0, FMath::RadiansToDegrees(A), 0));
-            }
-            Box(Timber, P + FVector(0, 0, 10), FVector(74, 12, 11), FRotator(0, 30, 0));
-            Box(Timber, P + FVector(0, 0, 15), FVector(74, 12, 11), FRotator(0, -35, 0));
-            Box(Timber, P + FVector(0, 0, 13), FVector(66, 11, 10), FRotator(0, 95, 0));
-            Box(Glow, P + FVector(0, 0, 14), FVector(30, 30, 8));
-            for (const double Yaw : {0.0, 60.0, 120.0}) Box(Glow, P + FVector(0, 0, 34), FVector(9, 9, 36), FRotator(0, Yaw, 0));
-            Box(Glow, P + FVector(0, 0, 56), FVector(6, 6, 14), FRotator(0, 25, 0));
+            auto* FireStone = Surface(TEXT("CampfireStone"), FLinearColor(.12f, .13f, .14f), 3, .96f);
+            auto* Charcoal = Surface(TEXT("CampfireCharcoal"), FLinearColor(.048f, .030f, .018f), 1, .98f);
+            Solid(TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_FireStone.SM_FireStone"), FireStone, P, FVector::OneVector);
+            Solid(TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_FireWood.SM_FireWood"), Charcoal, P, FVector::OneVector);
+            Solid(TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_FireEmbers.SM_FireEmbers"), Glow, P, FVector::OneVector);
+            Solid(TEXT("/Game/Memoria/Presentation/MarketPropsS355/SM_FireFlame.SM_FireFlame"), Glow, P, FVector::OneVector);
             CampfireLight = NewObject<UPointLightComponent>(this, TEXT("CampfireLight"));
             AddInstanceComponent(CampfireLight); CampfireLight->SetupAttachment(RootComponent); CampfireLight->SetRelativeLocation(P + FVector(0, -30, 70));
             CampfireLight->bUseInverseSquaredFalloff = false; CampfireLight->LightFalloffExponent = 2.2f;

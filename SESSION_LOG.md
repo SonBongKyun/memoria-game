@@ -9252,3 +9252,11 @@ Local collaboration snapshot of the current foundation HEAD plus 15 modified tra
 - Offline local TripoSR/Blender only; fitted S310 head detail, rebuilt clothing/limbs/props. No new accounts/downloads/uploads/paid tools. Rat deferred.
 - Shared bundle/manifest/preview: models/_handoff/s334_ambient.zip, models/MANIFEST.md, models/_qa/s334/overview.png. Final audit: models/_qa/s334/final_delivery_audit.json.
 - Slot released; Unreal import/retarget/placement/test are Claude's next task. Code integration still awaits the two S330 fixes in codex-review.md. No commit/push; S310 uncommitted work and source/Claude/foundation preserved.
+
+
+## S355 — 2026-10-12 (Unreal Verdan prop geometry)
+
+- Corrected the mistaken legacy-Godot start and restored only that pass's source/moved files; continued in own Unreal checkout from dc6cfd70.
+- Authored ten immutable mesh packages for barrel/crate/sign/campfire. Added geometric staves, planks, fittings, bevelled stones, rounded charred logs and tapered fire. Kept original gameplay, collision, save, independent spent tints and light behavior.
+- Fresh baseline visual30/30; final Foundation6/6 + related52/52 =58/58, including all30visual. Inspected native gameplay/close captures and disk reentry. Existing warnings disclosed; no full-registry/Shipping/performance claim.
+- User requested a local commit of these source/assets and evidence; no push or peer writes. See docs/unreal-migration/S355_REVIEW.md and S355_RESULTS.json. GPU/build slot released.

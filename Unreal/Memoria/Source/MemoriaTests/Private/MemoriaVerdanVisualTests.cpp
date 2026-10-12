@@ -259,16 +259,17 @@ public:
             Test->TestNotNull(TEXT("Malet drawn by the same figure"),Presentation->MaletFigure() ? Presentation->MaletFigure()->GetCard() : nullptr);
             }
             TArray<UInstancedStaticMeshComponent*> Batches; Presentation->GetComponents(Batches);
-            int32 Instances = 0, Roofs = 0;
+            int32 Instances = 0, Roofs = 0, PropBatches = 0;
             for (auto* Batch : Batches)
             {
                 Instances += Batch->GetInstanceCount();
+                if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetPathName().StartsWith(TEXT("/Game/Memoria/Presentation/MarketPropsS355/"))) ++PropBatches;
                 Test->TestTrue(TEXT("Every geometry batch has a mesh"), Batch->GetStaticMesh() != nullptr);
                 Test->TestNotNull(TEXT("Every geometry batch has a material"), Batch->GetMaterial(0));
                 if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetName() == TEXT("SM_PitchedRoof")) Roofs += Batch->GetInstanceCount();
             }
             Test->AddInfo(FString::Printf(TEXT("VERDAN_BATCHES %d instances %d"), Batches.Num(), Instances));
-            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() < 40);
+            Test->TestTrue(TEXT("Architecture is instanced real geometry"), Instances > 200 && Batches.Num() - PropBatches < 40);
             // S346: six buildings, the two story stalls and the market ring's ten.
             Test->TestEqual(TEXT("Six buildings and twelve stall roofs"), Roofs, 18);
             Test->TestEqual(TEXT("The market ring stands round the square"), Presentation->GetMarketStallCount(), 10);
@@ -515,6 +516,29 @@ public:
             if (auto* Man = Presentation->GetTownsfolk(2)) Pawn->SetActorLocation(FVector(Man->GetComponentLocation().X - 70, Man->GetComponentLocation().Y - 60, 0));
         }
         if (Frame == 600) TownStop = Presentation->GetTownsfolk(2)->GetComponentLocation();
+        // S355: native close views of the same live props, without moving Arrel or touching run state.
+        const TCHAR* PropViews[] = {TEXT("PropBarrelDetail"), TEXT("PropCrateDetail"), TEXT("PropSignDetail"), TEXT("PropCampfireDetail")};
+        for (int32 I = 0; I < 4; ++I)
+        {
+            const int32 Start = 606 + I * 16;
+            if (Frame == Start)
+            {
+                if (I == 0) PreviewCamera = World->SpawnActor<ACameraActor>();
+                const FVector At = AMemoriaVerdanPresentation::Interactives()[I].At;
+                const FVector Focus = At + FVector(0, 0, I == 2 ? 85 : I == 3 ? 18 : 28);
+                // View the barrel from its clear western alley, outside the story-stall canopy.
+                const FVector Offset = I == 0 ? FVector(-100, -165, 140) : I == 2 ? FVector(130, -265, 130) : FVector(110, -210, 140);
+                PreviewCamera->SetActorLocation(Focus + Offset);
+                PreviewCamera->SetActorRotation((Focus - PreviewCamera->GetActorLocation()).Rotation());
+                PreviewCamera->GetCameraComponent()->SetFieldOfView(I == 2 ? 58 : I == 3 ? 42 : 35);
+                PC->SetViewTarget(PreviewCamera.Get());
+            }
+            if (Frame == Start + 10) Capture(PropViews[I]);
+        }
+        if (Frame == 672)
+        {
+            PC->SetViewTarget(Pawn); if (PreviewCamera.IsValid()) PreviewCamera->Destroy();
+        }
         if (Frame == 674)
         {
             Test->TestTrue(TEXT("Townsfolk remain on clear ground throughout native movement"), bTownGroundClear);
@@ -552,6 +576,33 @@ public:
         if (Frame == 690)
         {
             Test->TestEqual(TEXT("Four interactive props"), Props.Num(), 4);
+            const TCHAR* MeshNames[] = {TEXT("SM_BarrelWood"), TEXT("SM_BarrelIron"), TEXT("SM_CrateWood"), TEXT("SM_CrateIron"),
+                TEXT("SM_SignWood"), TEXT("SM_SignIron"), TEXT("SM_FireStone"), TEXT("SM_FireWood"), TEXT("SM_FireEmbers"), TEXT("SM_FireFlame")};
+            const int32 PropIndices[] = {0, 0, 1, 1, 2, 2, 3, 3, 3, 3};
+            TArray<UInstancedStaticMeshComponent*> PropMeshes; Presentation->GetComponents(PropMeshes);
+            int32 TotalTriangles = 0;
+            for (int32 I = 0; I < UE_ARRAY_COUNT(MeshNames); ++I)
+            {
+                const FString Path = FString(TEXT("/Game/Memoria/Presentation/MarketPropsS355/")) + MeshNames[I] + TEXT(".") + MeshNames[I];
+                UInstancedStaticMeshComponent* Found = nullptr; int32 Matches = 0;
+                for (auto* Batch : PropMeshes) if (Batch->GetStaticMesh() && Batch->GetStaticMesh()->GetPathName() == Path) { Found = Batch; ++Matches; }
+                Test->TestEqual(*FString::Printf(TEXT("One live authored batch: %s"), MeshNames[I]), Matches, 1);
+                if (!Found) continue;
+                Test->TestEqual(TEXT("Each interactive mesh is instantiated once"), Found->GetInstanceCount(), 1);
+                Test->TestEqual(TEXT("Authored detail cannot change collision"), Found->GetCollisionEnabled(), ECollisionEnabled::NoCollision);
+                Test->TestFalse(TEXT("Authored detail cannot add overlaps"), Found->GetGenerateOverlapEvents());
+                Test->TestFalse(TEXT("Authored detail cannot change navigation"), Found->CanEverAffectNavigation());
+                FTransform Transform; Found->GetInstanceTransform(0, Transform);
+                Test->TestTrue(TEXT("Original prop anchor and centimetre scale retained"), Transform.GetLocation().Equals(Props[PropIndices[I]].At + FVector(0,0,-8), .001)
+                    && Transform.GetScale3D().Equals(FVector::OneVector, .001));
+                const int32 Triangles = Found->GetStaticMesh()->GetNumTriangles(0); TotalTriangles += Triangles;
+                Test->TestTrue(TEXT("Authored mesh contains detail within its triangle budget"), Triangles > 100 && Triangles < 5000);
+                Test->TestEqual(TEXT("Each mesh has one material section"), Found->GetStaticMesh()->GetStaticMaterials().Num(), 1);
+                const FVector Extent = Found->GetStaticMesh()->GetBounds().BoxExtent;
+                Test->TestTrue(TEXT("Props stay within their original small footprint"), Extent.X <= 55 && Extent.Y <= 55 && Extent.Z <= 80);
+                Test->AddInfo(FString::Printf(TEXT("MARKET_PROP_LIVE %s triangles=%d bounds=%s"), MeshNames[I], Triangles, *Extent.ToString()));
+            }
+            Test->TestTrue(TEXT("Four detailed props remain below 15000 triangles total"), TotalTriangles > 1000 && TotalTriangles < 15000);
             Test->TestEqual(TEXT("None was touched by the walks above"), Presentation->GetInteractiveUses(), 0);
             // S351: unused they show whole, the sign with its "!"; the alleys smoke.
             for (int32 I = 0; I < Props.Num(); ++I) Test->TestFalse(TEXT("An unused prop is not spent"), Presentation->IsInteractiveSpent(I));
