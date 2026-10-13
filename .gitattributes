@@ -128,3 +128,8 @@ Unreal/ArtSource/CharacterUpgradeS356/** -text whitespace=blank-at-eol,blank-at-
 Unreal/ArtSource/ItemsS356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Unreal/ArtSource/EnvironmentS356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 docs/unreal-migration/evidence/s356/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S357 authored source and native evidence retain exact bytes on Windows.
+Unreal/Tools/build_humanoid_faces_s357.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Unreal/ArtSource/HumanoidFacesS357/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+docs/unreal-migration/evidence/s357/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

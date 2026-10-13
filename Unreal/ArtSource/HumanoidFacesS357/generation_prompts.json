@@ -1,0 +1,52 @@
+{
+  "mode": "built-in imagegen",
+  "use_case": "stylized-concept",
+  "prompt": "Use case: stylized-concept. Asset type: original diffuse-albedo material atlas for detailed 3D dark-fantasy humanoid enemies in Unreal Engine. Make one square high-resolution image divided into EXACTLY FOUR equally wide vertical edge-to-edge material strips, left to right: (1) weathered adult human skin, muted olive beige with restrained pink-brown mottling, microscopic pores, sparse tiny freckles and fine old healed scratch texture; (2) ancient calcified charcoal bone, pale desaturated ash-grey mineral grain mixed with sooty dark microfissures and subtle dirty ivory deposits; (3) worn dark umber leather, irregular natural fine grain, subtle scuffs, no large folds; (4) faded near-black slate charcoal woven cloth, finely visible irregular fibers, delicate dust and worn threads, no large folds. These are FLAT SURFACE SWATCHES ONLY, filling each complete strip; no face, eyes, mouth, anatomy, bones, skulls, clothing objects, stitches, props, labels, text, borders, dividers, logos or watermark. Natural hand-painted realism suited to a refined dark fantasy RPG. Diffuse color only, perfectly uniform neutral ambient illumination, no directional light, no specular highlights, no cast shadows, no perspective, no vignette. Fine detail should be irregular, subtle and evenly spread; materials should tile within each strip. The boundaries between four strips must be straight vertical at 25%, 50%, 75% of width. Opaque RGB background. Target 2048 by 2048 pixels.",
+  "generated_source": "C:/Users/jc/.codex/generated_images/01a12e2c-3c53-71b0-962e-5f1c668664b6/exec-7150dbec-7f5f-4111-b85c-e38660dc31fb.png",
+  "destination": "SurfaceAtlas.png",
+  "sha256": "a6bd683d10b2726a1cd3621894b2de0d1732c9570911d303122be0f0ab7df9b8",
+  "width": 1254,
+  "height": 1254,
+  "color_mode": "RGB",
+  "raster_edits": false,
+  "strips": [
+    "skin",
+    "charred_ivory",
+    "leather",
+    "ash_cloth"
+  ],
+  "read_only_strip_statistics": [
+    {
+      "linear_mean_rgb": [
+        0.2987875218486639,
+        0.17180692357163063,
+        0.100896356856613
+      ],
+      "linear_mean_luminance": 0.19368325584850363
+    },
+    {
+      "linear_mean_rgb": [
+        0.20860822941511606,
+        0.17720089440203313,
+        0.13413209825971065
+      ],
+      "linear_mean_luminance": 0.18076852674433885
+    },
+    {
+      "linear_mean_rgb": [
+        0.04916480036033323,
+        0.03327303376680274,
+        0.025129648007353463
+      ],
+      "linear_mean_luminance": 0.036063670892755084
+    },
+    {
+      "linear_mean_rgb": [
+        0.03701589338788956,
+        0.03693860848319998,
+        0.03623961469040106
+      ],
+      "linear_mean_luminance": 0.0369045719020969
+    }
+  ]
+}

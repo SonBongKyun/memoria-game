@@ -1,3 +1,11 @@
+# S357 complete — humanoid faces and surface detail (Codex, 2026-10-13)
+
+- Two R4 sculpted humanoid heads serve AshWalker/Husk and BeltScavenger/Thief. New eye/face/neck topology and regional skin/bone/cloth/leather/metal materials replace smooth oval faces; original 77-bone rigs, safe clips, heights and gameplay contracts are retained.
+- Fresh build/import and final rendered visual 30 + Foundation 6 = 36/36 unique PASS, exit 0 and fatal diagnostics 0. Actual native front/profile/gameplay and hit/recovery/walk/strike/death reviewed. Earlier rejected source revisions, the failed focus and warnings are preserved; all 619 original packages unchanged.
+- Local task commit only. No full 274-test registry rerun, Shipping/LOD/performance claim or facial animation system. [Review](S357_REVIEW.md), [results](S357_RESULTS.json).
+
+---
+
 # S356 complete — broad Unreal graphics upgrade (Codex, 2026-10-12)
 
 - Six original item paintings and clearer five-slot HUD; Elia/Malet retain their painted costumes with new accessories; Ash Walker/Scavenger have distinct equipment and repaired original-rig animation; Wisp/Leech have dedicated creature anatomy, rigs and clips.

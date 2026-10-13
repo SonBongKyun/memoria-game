@@ -22,6 +22,18 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
+    // S357 changes only the two humanoid bodies; identity, safe clips and original props keep their paths.
+    if (Prefix == TEXT("SK_") && Suffix.IsEmpty())
+    {
+        const bool Ash = Id.Equals(TEXT("Husk"), ESearchCase::IgnoreCase) || Id.Equals(TEXT("AshWalker"), ESearchCase::IgnoreCase);
+        const bool Scav = Id.Equals(TEXT("Thief"), ESearchCase::IgnoreCase) || Id.Equals(TEXT("BeltScavenger"), ESearchCase::IgnoreCase);
+        if (Ash || Scav)
+        {
+            const FString Revision = Ash ? TEXT("AshWalker") : TEXT("BeltScavenger");
+            const FString RevisedAsset = TEXT("SK_") + Revision;
+            return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidFacesS357/R4/") + Revision + TEXT("/") + RevisedAsset + TEXT(".") + RevisedAsset;
+        }
+    }
     // S356 revision bodies share original humanoid rigs; animation/prop fallbacks stay below.
     for (const TCHAR* Revision : {TEXT("Elia"), TEXT("Malet"), TEXT("AshWalker"), TEXT("BeltScavenger"), TEXT("VoidWisp"), TEXT("MemoryLeech")})
         if (Id.Equals(Revision, ESearchCase::IgnoreCase))

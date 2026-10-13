@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "MemoriaHumanoidS357Checks.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
 #include "Editor.h"
@@ -21,6 +22,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialExpressionScalarParameter.h"
 #include "MaterialShared.h"
 #include "EngineUtils.h"
 #include "Misc/App.h"
@@ -31,16 +33,18 @@ namespace
 {
 // Check actual deformed body vertices during the gameplay replay. Bone names and imported bounds
 // can survive even when a bad hit clip has collapsed the rendered figure to one point underground.
-void CheckBaseFoeDeformation(FAutomationTestBase* Test,AMemoriaFieldMonster* F,APlayerController* PC,const TCHAR* Pose)
+void CheckBaseFoeDeformation(FAutomationTestBase* Test,AMemoriaFieldMonster* F,APlayerController* PC,const TCHAR* Pose,bool bFallen=false)
 {
     auto* Figure=F?F->GetFigure():nullptr;auto* Skin=Figure?Figure->GetSkeletalMesh():nullptr;
     if (!Test->TestTrue(TEXT("Base foe deformation inspection has its live actor, rig and camera"),F && Skin && PC))return;
     TArray<FFinalSkinVertex> Vertices;Skin->GetCPUSkinnedVertices(Vertices,0);
     if (!Test->TestTrue(TEXT("Base foe has actual CPU-skinned rendered vertices"),Vertices.Num()>100))return;
+    const auto BodyVertices=MemoriaHumanoidS357::BodyVertices(Skin,Vertices);
+    if(!Test->TestTrue(TEXT("Retained humanoid body has actual render vertices independently of the dense face"),BodyVertices.Num()>100))return;
     const FVector Actor=F->GetActorLocation();const double Height=F->Spec().Height;
     int32 Width=0,ScreenHeight=0;PC->GetViewportSize(Width,ScreenHeight);
     FBox Body(ForceInit);FBox2D Projection(ForceInit);int32 Finite=0,Above=0,Near=0,Visible=0;
-    for (const auto& Vertex:Vertices)
+    for (const auto& Vertex:BodyVertices)
     {
         const FVector Point=Skin->GetComponentTransform().TransformPosition(FVector(Vertex.Position));
         if (Point.ContainsNaN())continue;
@@ -52,16 +56,19 @@ void CheckBaseFoeDeformation(FAutomationTestBase* Test,AMemoriaFieldMonster* F,A
             Projection+=Pixel;if (Pixel.X>=0 && Pixel.X<Width && Pixel.Y>=0 && Pixel.Y<ScreenHeight)++Visible;
         }
     }
-    const double Count=Vertices.Num();const FVector Size=Body.IsValid?Body.GetSize():FVector::ZeroVector;
+    const double Count=BodyVertices.Num();const FVector Size=Body.IsValid?Body.GetSize():FVector::ZeroVector;
     const FVector Center=Body.IsValid?Body.GetCenter()-Actor:FVector::ZeroVector;
     const FVector2D Pixels=Projection.bIsValid?Projection.GetSize():FVector2D::ZeroVector;
     const auto* Anim=Cast<UMemoriaFieldAnimInstance>(Skin->GetAnimInstance());
     Test->AddInfo(FString::Printf(TEXT("S356_BASE_FOE_SKIN %s pose=%s action=%s time=%.4f weight=%.4f vertices=%d finite=%d above=%.3f near=%.3f visible=%.3f center=%s size=%s projected=%s root_scale=%s head_scale=%s"),
-        *Figure->GetCharacterId(),Pose,*GetNameSafe(Figure->GetActionClip()),Figure->GetActionTime(),Anim?Anim->ActionWeight:-1.f,Vertices.Num(),Finite,Above/Count,Near/Count,Visible/Count,*Center.ToString(),*Size.ToString(),*Pixels.ToString(),
+        *Figure->GetCharacterId(),Pose,*GetNameSafe(Figure->GetActionClip()),Figure->GetActionTime(),Anim?Anim->ActionWeight:-1.f,BodyVertices.Num(),Finite,Above/Count,Near/Count,Visible/Count,*Center.ToString(),*Size.ToString(),*Pixels.ToString(),
         *Skin->GetSocketTransform(TEXT("root"),RTS_Component).GetScale3D().ToString(),*Skin->GetSocketTransform(TEXT("head"),RTS_Component).GetScale3D().ToString()));
-    Test->TestTrue(TEXT("Base foe body remains finite, above ground and close to its actual encounter"),Finite==Vertices.Num() && Above/Count>=.85 && Near/Count>=.85);
-    Test->TestTrue(TEXT("Base foe animated body retains a plausible center and nonzero standing volume"),Body.IsValid && Center.Size2D()<=Height*.95 && Center.Z>=Height*.10 && Center.Z<=Height*1.25 && Size.Z>=Height*.45 && Size.Z<=Height*2.0);
-    Test->TestTrue(TEXT("Base foe rendered body is visible with a readable projected height"),Width>0 && ScreenHeight>0 && Visible/Count>=.75 && Pixels.X>=Width*.015 && Pixels.Y>=ScreenHeight*.075);
+    Test->TestTrue(TEXT("Base foe body remains finite, above ground and close to its actual encounter"),Finite==BodyVertices.Num() && Above/Count>=.85 && Near/Count>=.85);
+    const bool PlausibleShape=bFallen?Center.Z>=-Height*.05 && Size.GetMax()>=Height*.35:Center.Z>=Height*.10 && Size.Z>=Height*.45;
+    Test->TestTrue(TEXT("Base foe animated body retains plausible position and nonzero volume"),Body.IsValid && Center.Size2D()<=Height*.95 && Center.Z<=Height*1.25 && Size.Z<=Height*2.0 && PlausibleShape);
+    const bool Readable=bFallen?Pixels.GetMax()>=FMath::Min(Width,ScreenHeight)*.06:Pixels.X>=Width*.015 && Pixels.Y>=ScreenHeight*.075;
+    Test->TestTrue(TEXT("Base foe rendered body is visible with a readable projected extent"),Width>0 && ScreenHeight>0 && Visible/Count>=.75 && Readable);
+    MemoriaHumanoidS357::CheckFace(Test,Skin,F,PC,Pose);
 }
 // S313: the field foes. A void husk shambles on UAL2's zombie clips and scratches; a market thief runs in
 // fast with a short blade and cuts. Close captures of each, then both chasing Arrel from the game camera.
@@ -102,17 +109,6 @@ public:
             Camera->SetActorLocation(Eye); Camera->SetActorRotation((Center + FVector(0, 0, 85.f) - Eye).Rotation());
             Camera->GetCameraComponent()->SetFieldOfView(50.f); PC->SetViewTarget(Camera.Get());
         };
-        auto UsesFoeMaterial = [](const AMemoriaFieldMonster* M)
-        {
-            const USkeletalMeshComponent* Mesh = M ? M->GetFigure()->GetSkeletalMesh() : nullptr;
-            if (!Mesh || Mesh->GetNumMaterials() == 0) return false;
-            for (int32 I = 0; I < Mesh->GetNumMaterials(); ++I)
-            {
-                const auto* Material = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(I));
-                if (!Material || !Material->Parent || !(Material->Parent->GetName() == TEXT("M_Husk") || Material->Parent->GetName() == TEXT("M_Thief"))) return false;
-            }
-            return true;
-        };
         auto CheckBaseSurface = [&](AMemoriaFieldMonster* Monster)
         {
             auto* Mesh = Monster ? Monster->GetFigure()->GetSkeletalMesh() : nullptr;
@@ -127,8 +123,26 @@ public:
                     Material->GetVectorParameterValue(FMaterialParameterInfo(TEXT("SurfaceTint")), Tint, true) && Tint.Equals(FLinearColor::White, .001f));
                 Test->TestTrue(*FString::Printf(TEXT("%s body %d explicitly retains its base wear"), Monster->Spec().Name, I),
                     Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("Weathering")), Weathering, true) && FMath::IsNearlyZero(Weathering));
-                Test->TestTrue(TEXT("The base foe's normal detail is enabled"),
-                    Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("DetailStrength")), Detail) && FMath::IsNearlyEqual(Detail, 1.f));
+                const float ExpectedDetail=I==2?.08f:.14f;
+                // DetailStrength is inherited from the authored parent, unlike runtime hit/tint
+                // overrides. Read the effective value, then verify the real normal graph uses it.
+                Test->TestTrue(TEXT("The base foe retains restrained face and body normal detail"),Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("DetailStrength")),Detail) && FMath::IsNearlyEqual(Detail,ExpectedDetail));
+                const FString NormalId=Monster->GetFigure()->GetCharacterId()==TEXT("Husk")?TEXT("Husk"):TEXT("Thief");
+                auto* ExpectedNormal=LoadObject<UTexture2D>(nullptr,*(TEXT("/Game/Memoria/Presentation/SurfaceDetail/T_")+NormalId+TEXT("Detail_Normal.T_")+NormalId+TEXT("Detail_Normal")));
+                UTexture* LiveNormal=nullptr;
+                Test->TestTrue(TEXT("The base foe keeps its original effective normal texture"),ExpectedNormal && Material->GetTextureParameterValue(FMaterialParameterInfo(TEXT("DetailNormal")),LiveNormal) && LiveNormal==ExpectedNormal);
+                auto* Parent=Material->Parent?Material->Parent->GetMaterial():nullptr;
+                bool HasStrength=false,HasNormal=false;TSet<UMaterialExpression*> Seen;
+                TFunction<void(UMaterialExpression*)> InspectNormal=[&](UMaterialExpression* Expression)
+                {
+                    if(!Expression || Seen.Contains(Expression))return;Seen.Add(Expression);
+                    if(auto* Scalar=Cast<UMaterialExpressionScalarParameter>(Expression);Scalar && Scalar->ParameterName==TEXT("DetailStrength") && FMath::IsNearlyEqual(Scalar->DefaultValue,ExpectedDetail))HasStrength=true;
+                    if(auto* Texture=Cast<UMaterialExpressionTextureSample>(Expression);Texture && Texture->Texture==ExpectedNormal)HasNormal=true;
+                    for(FExpressionInput* Input:Expression->GetInputsView())if(Input)InspectNormal(Input->Expression);
+                };
+                if(Parent)InspectNormal(Parent->GetEditorOnlyData()->Normal.Expression);
+                Test->TestTrue(TEXT("The base foe actual normal output connects the authored strength and original texture"),Parent && ExpectedNormal && HasStrength && HasNormal);
+                Test->AddInfo(FString::Printf(TEXT("S357_BASE_NORMAL %s slot=%d effective=%.4f expected=%.4f texture=%s connected=%d"),*Monster->GetFigure()->GetCharacterId(),I,Detail,ExpectedDetail,*GetPathNameSafe(LiveNormal),HasStrength && HasNormal));
             }
             // The new surface controls must not replace the existing dynamic hit flash.
             Monster->GetFigure()->SetHitFlash(.65f);
@@ -163,10 +177,9 @@ public:
                 Test->TestTrue(TEXT("The husk is a void husk"), H->GetKind() == EMemoriaFoeKind::VoidHusk && H->GetMaxHealth() == FoeSpec(EMemoriaFoeKind::VoidHusk).Health);
                 Test->TestTrue(TEXT("The thief is a market thief"), T->GetKind() == EMemoriaFoeKind::MarketThief && T->GetMaxHealth() == FoeSpec(EMemoriaFoeKind::MarketThief).Health);
                 Test->TestTrue(TEXT("The husk wears its model"), H->GetFigure()->IsFoeModel() && H->GetFigure()->GetCharacterId() == TEXT("Husk") &&
-                    H->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetName() == TEXT("SK_Husk"));
-                Test->TestTrue(TEXT("The thief wears its model"), T->GetFigure()->IsFoeModel() && T->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetName() == TEXT("SK_Thief"));
-                Test->TestTrue(TEXT("The husk wears its own material (not the default)"), UsesFoeMaterial(H));
-                Test->TestTrue(TEXT("The thief wears its own material"), UsesFoeMaterial(T));
+                    H->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetPathName() == MemoriaHumanoidS357::MeshPath(TEXT("Husk")));
+                Test->TestTrue(TEXT("The thief wears its model"), T->GetFigure()->IsFoeModel() && T->GetFigure()->GetSkeletalMesh()->GetSkeletalMeshAsset()->GetPathName() == MemoriaHumanoidS357::MeshPath(TEXT("Thief")));
+                MemoriaHumanoidS357::CheckAssets(Test,H);MemoriaHumanoidS357::CheckAssets(Test,T);
                 CheckBaseSurface(H); CheckBaseSurface(T);
                 const auto* HuskAnim = Cast<UMemoriaFieldAnimInstance>(H->GetFigure()->GetSkeletalMesh()->GetAnimInstance());
                 Test->TestTrue(TEXT("The husk shambles on the zombie clips"), HuskAnim && HuskAnim->Idle == MemoriaCombatClips::Load(TEXT("Husk"), TEXT("Zombie_Idle_Loop")) &&
@@ -220,13 +233,6 @@ public:
         }
         if (Phase == 3 && Frame == Mark + 4)
         {
-            // A material that fails to compile silently renders as the engine default; require a clean compile.
-            auto* Foe = Cast<UMaterialInstanceDynamic>(H ? H->GetFigure()->GetSkeletalMesh()->GetMaterial(0) : nullptr);
-            const FMaterialResource* Resource = Foe ? Foe->GetMaterialResource(GMaxRHIShaderPlatform) : nullptr;
-            // S326: the husk's model material (its mask sampled as linear grayscale) in place of M_FieldFoe.
-            Test->TestTrue(TEXT("M_Husk compiles for this platform"), Resource && Resource->GetCompileErrors().IsEmpty() && Resource->GetMaterialInterface() &&
-                Resource->GetMaterialInterface()->GetName() == TEXT("M_Husk"));
-            if (Resource) for (const FString& Error : Resource->GetCompileErrors()) Test->AddError(Error);
             if (!H || !T) { Test->AddError(TEXT("Base foes were lost before real hit-reaction validation"));return true; }
             // Keep the existing approach, chase and attack assertions above. Afterwards, apply the
             // actual gameplay stun, observe the hit, and let it finish without resetting the action.
@@ -270,7 +276,31 @@ public:
                 Test->TestFalse(TEXT("Base husk recovered walk has no surviving hit override"),H->GetFigure()->IsActing());
                 CheckBaseFoeDeformation(Test,H,PC,TEXT("walk_after_hit"));Capture(TEXT("HuskRecoveredWalk"));
             }
-            if (Frame>=RecoveryFrame+66) { PC->SetViewTarget(Pawn);return true; }
+            if (Frame>=RecoveryFrame+66)
+            {
+                Test->TestTrue(TEXT("Base husk plays its compatible held death"),H->GetFigure()->PlayAction(MemoriaCombatClips::Death(),1.f,true));
+                Test->TestTrue(TEXT("Base thief plays its compatible held death"),T->GetFigure()->PlayAction(MemoriaCombatClips::Death(),1.f,true));
+                DeathFrame=Frame+FMath::Max(90,FMath::CeilToInt(FMath::Max(H->GetFigure()->GetActionLength(),T->GetFigure()->GetActionLength())*60.f)+3);
+                Phase=5;return false;
+            }
+        }
+        if (Phase==5)
+        {
+            if (!H || !T) { Test->AddError(TEXT("Base foe death inspection lost its actor"));return true; }
+            if (Frame==DeathFrame)Look(H,60.f);
+            auto CheckDeath=[&](AMemoriaFieldMonster* Monster)
+            {
+                auto* Figure=Monster->GetFigure();auto* Skin=Figure->GetSkeletalMesh();
+                const auto* Clip=MemoriaCombatClips::Load(Figure->GetCharacterId(),MemoriaCombatClips::Death());
+                Test->TestTrue(TEXT("Base foe death uses the same compatible S356 role"),Clip && Figure->GetActionClip()==Clip && Clip->GetSkeleton()==Skin->GetSkeletalMeshAsset()->GetSkeleton()
+                    && Clip->GetPathName().Contains(TEXT("CharacterUpgradeS356/Accepted/")));
+                Test->TestTrue(TEXT("Base foe death remains held instead of returning to idle"),Figure->IsActing() && FMath::IsNearlyEqual(Figure->GetActionTime(),Figure->GetActionLength(),.02f));
+                CheckBaseFoeDeformation(Test,Monster,PC,TEXT("held_death"),true);
+            };
+            if (Frame==DeathFrame+4){CheckDeath(H);Capture(TEXT("HuskDeath"));}
+            if (Frame==DeathFrame+8)Look(T,60.f);
+            if (Frame==DeathFrame+12){CheckDeath(T);Capture(TEXT("ThiefDeath"));}
+            if (Frame>=DeathFrame+18){PC->SetViewTarget(Pawn);return true;}
         }
         return false;
     }
@@ -278,7 +308,7 @@ private:
     FAutomationTestBase* Test;
     double Started, OldDelta = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
-    int32 Phase = 0, Frame = 0, Mark = 0, ThiefFrame = 0, HuskFrame = 0, RecoveryFrame = 0;
+    int32 Phase = 0, Frame = 0, Mark = 0, ThiefFrame = 0, HuskFrame = 0, RecoveryFrame = 0, DeathFrame = 0;
     bool bFixed = false, bOldFixed = false, bThiefStrike = false, bHuskStrike = false;
     TWeakObjectPtr<AMemoriaFieldMonster> Husk, Thief;
     TWeakObjectPtr<ACameraActor> Camera;
