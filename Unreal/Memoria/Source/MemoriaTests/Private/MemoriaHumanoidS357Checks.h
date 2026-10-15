@@ -32,7 +32,7 @@ inline FString Folder(const FString& Id)
 }
 inline FString MeshPath(const FString& Id)
 {
-    const FString Name=TEXT("SK_")+SculptId(Id);return Folder(Id)+Name+TEXT(".")+Name;
+    const FString Name=TEXT("SK_")+SculptId(Id);return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/")+SculptId(Id)+TEXT("/")+Name+TEXT(".")+Name;
 }
 inline void CheckAssets(FAutomationTestBase* Test,AMemoriaFieldMonster* F)
 {

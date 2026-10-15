@@ -9277,3 +9277,12 @@ Local collaboration snapshot of the current foundation HEAD plus 15 modified tra
 - Rejected R1 UV-to-RGBA corruption, R2 scalp/brow intersections and R3 eye-boundary/crease intersections before any Unreal import. R4 fits details to actual triangulated skin and stitches exact eye cut boundaries. Failed/rejected evidence preserved.
 - Fresh editor build and legacy import PASS; final visual 30 + Foundation 6 = 36/36 unique rendered PASS, exit 0/fatal 0. Earlier focus 1/2 failed on stale material assertions; corrected effective-value and actual normal-graph checks pass in the final run. Actual imported colors, separately posed body and face, real hit/recovery/walk/strike/death and native front/profile/gameplay inspected. Warnings retained; no full 274-test/Shipping/LOD/performance claim.
 - All619 oldpackages and finalexecutedinputs preserved. OriginalGodot/foundation/peer/sharedsourcebundles read-only; localtaskcommit, no push/release. See S357_REVIEW.md and S357_RESULTS.json.
+
+
+## S358 — 2026-10-15 (Unreal NPC and humanoid overall graphics)
+
+- Continued from f816e6fb. New R3 meshes for nine ambient NPCs, Elia/Malet and two humanoid foe families shared by four identities. Fitted waistcoats, articulated sleeves/trousers, layered shoulders, bracers, boots, split coats; NPC tailoring and continuous blended neck/collar; named NPC rear accessory trim.
+- Existing paint/materials, 77-bone binds, all clips, heights and gameplay/save/story/collision contracts retained. Thirteen new skeletal packages; no new texture/material or raster edits. Retained corners and explicit neck/collar/body replacement scope recorded in source receipts.
+- Fresh build/import PASS. Final rendered visual30 + Foundation6 + all-NPC acceptance1 =37/37 unique PASS, exit0/fatal0. Actual idle/walk and blended-neck geometry, original-material bindings and existing foe hit/recovery/strike/death checks; native captures reviewed. 628 old packages and 319 final executed inputs unchanged.
+- Preserved rejected shoulder/UV candidates, first test-startup crash, and R2 passing-but-visually-rejected neck captures; final R3 acceptance is separate. Warnings and limits disclosed; no full274/Shipping/LOD/performance claim.
+- Local scoped commit; original/peer/shared sources remain read-only. See S358_REVIEW.md and S358_RESULTS.json.

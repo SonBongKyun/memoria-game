@@ -22,6 +22,22 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
+    // S358 clothing/body revisions reuse every original material, rig, clip and prop.
+    if(Prefix==TEXT("SK_"))
+    {
+        for(const TCHAR* Ambient:{TEXT("Traveler"),TEXT("Bureauagent"),TEXT("Guard"),TEXT("Villagerf"),TEXT("Villagerm"),TEXT("Fisherman"),TEXT("Elder"),TEXT("Child"),TEXT("Scholar")})
+            if(Id.Equals(Ambient,ESearchCase::IgnoreCase) && (Suffix.IsEmpty() || Suffix==TEXT("_Detail")))
+                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/")+FString(Ambient)+TEXT("/SK_")+Ambient+TEXT("_Detail.SK_")+Ambient+TEXT("_Detail");
+        if(Suffix.IsEmpty())
+        {
+            FString Body;
+            if(Id.Equals(TEXT("Husk"),ESearchCase::IgnoreCase) || Id.Equals(TEXT("AshWalker"),ESearchCase::IgnoreCase))Body=TEXT("AshWalker");
+            else if(Id.Equals(TEXT("Thief"),ESearchCase::IgnoreCase) || Id.Equals(TEXT("BeltScavenger"),ESearchCase::IgnoreCase))Body=TEXT("BeltScavenger");
+            else if(Id.Equals(TEXT("Elia"),ESearchCase::IgnoreCase))Body=TEXT("Elia");
+            else if(Id.Equals(TEXT("Malet"),ESearchCase::IgnoreCase))Body=TEXT("Malet");
+            if(!Body.IsEmpty())return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/")+Body+TEXT("/SK_")+Body+TEXT(".SK_")+Body;
+        }
+    }
     // S357 changes only the two humanoid bodies; identity, safe clips and original props keep their paths.
     if (Prefix == TEXT("SK_") && Suffix.IsEmpty())
     {

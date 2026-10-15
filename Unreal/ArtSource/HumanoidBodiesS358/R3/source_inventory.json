@@ -1,0 +1,110 @@
+{
+  "revision": "R3",
+  "generator_sha256": "283d894bfde6d138d2627c27fcdfe0de7589e73ef47591691592f1ed15fa7a9e",
+  "files": [
+    {
+      "path": "AshWalker/AshWalker.fbx",
+      "sha256": "17709179967fa2bd7e5be2350d59d06bdd2da2f335a8f7c920be9dbe4d37d799"
+    },
+    {
+      "path": "AshWalker/geometry.json",
+      "sha256": "615e769f95f6eaf046f9aa46273d0a239bb7098a3144238a13f4a19d2e0ced90"
+    },
+    {
+      "path": "BeltScavenger/BeltScavenger.fbx",
+      "sha256": "ba3fa794fde5c4f9ea05777e9868f4c1a2b67cb8ab53a4e258467e50507d6820"
+    },
+    {
+      "path": "BeltScavenger/geometry.json",
+      "sha256": "9aaa9002a9216119b6674eebecd31f3c9287534c5faac4b7e0dc50b1c71c4bc2"
+    },
+    {
+      "path": "Bureauagent/Bureauagent.fbx",
+      "sha256": "cea35578820b4b284776641acfc54936b6443562fcf27b684a581d6efd920ae5"
+    },
+    {
+      "path": "Bureauagent/geometry.json",
+      "sha256": "d566133669fa3064237a34b5cf0e3ad7cab0d18726ad2e0da30794a34891cb33"
+    },
+    {
+      "path": "Child/Child.fbx",
+      "sha256": "c8962e8fe29ae1cdf4ac98fc9551f3fe93e824887a2c75256e78b95a001563ce"
+    },
+    {
+      "path": "Child/geometry.json",
+      "sha256": "4717e4ea4f7166b6db4020659fe77fcd93e9369242c5a0cb531e5a899cae1df8"
+    },
+    {
+      "path": "Elder/Elder.fbx",
+      "sha256": "999ac5606cf8adfa7e1b5c4300474f71e6c66c5751080e0301f1b30ad8713c34"
+    },
+    {
+      "path": "Elder/geometry.json",
+      "sha256": "11cf7544d8c7ca731caf0a73fa3d8e510b41cf495dc3c27911f3add3ca7f44e3"
+    },
+    {
+      "path": "Elia/Elia.fbx",
+      "sha256": "dcfbe974ccc4895212dd257148e9bd1fb8d7735997ab62390865754c36315f50"
+    },
+    {
+      "path": "Elia/geometry.json",
+      "sha256": "83ada0a7820fa7c5d238e45412cfa8c2e8f1442d90751996ace6357d65e6dcc5"
+    },
+    {
+      "path": "Fisherman/Fisherman.fbx",
+      "sha256": "0b917f073d651540911e29856c069ff29828feb196645e61bd0dc659723fd46f"
+    },
+    {
+      "path": "Fisherman/geometry.json",
+      "sha256": "09147b52678bdc2a59bea3722d5205cbc09b37a7490bedc8ab61c45c1cf46da4"
+    },
+    {
+      "path": "Guard/geometry.json",
+      "sha256": "49f803e9b3e847f931aa95ca0172480e91a1e5c5cc92a38df26a4bbdcd2a4efd"
+    },
+    {
+      "path": "Guard/Guard.fbx",
+      "sha256": "b0f57a7682fcb4e4d4e79805744e280d763f40358002c9fef3bbc9a4d340cac8"
+    },
+    {
+      "path": "Malet/geometry.json",
+      "sha256": "c8b401807117e4e976049d08b34319538ac32472c4be3328f55cf1980c191c43"
+    },
+    {
+      "path": "Malet/Malet.fbx",
+      "sha256": "9ebaaaecd3e683e6f83d9216543dd254d839bb3eef32ebc21d900a14eb379d0d"
+    },
+    {
+      "path": "Scholar/geometry.json",
+      "sha256": "0261ea97e0fa5eaa13568794202fafabb9b960851c94a4fcbbfc2a794be20c40"
+    },
+    {
+      "path": "Scholar/Scholar.fbx",
+      "sha256": "55d3690d9ef5cb62a981aff4a64849dc5a5c3de7f55cfbe90f3f91a3f94c0c4c"
+    },
+    {
+      "path": "Traveler/geometry.json",
+      "sha256": "682767ffc17a6f218afd717d1b28bd83e3d6dc65565a4e073629a90e18ac8386"
+    },
+    {
+      "path": "Traveler/Traveler.fbx",
+      "sha256": "65ab6eb57d44ccc17d3328c1c4239247f4e1eb9c80df9f516b73f940355a99a9"
+    },
+    {
+      "path": "Villagerf/geometry.json",
+      "sha256": "c26f283ba9aca413fcd019d6cefbd47e3051848dea9f42b2bc33b2028fd5f9d9"
+    },
+    {
+      "path": "Villagerf/Villagerf.fbx",
+      "sha256": "2d3303e38ba909816741bc812638a34f9ab7783895b067ca7eaab89a88d9f4ba"
+    },
+    {
+      "path": "Villagerm/geometry.json",
+      "sha256": "610ec2d6dddb37ce66db9aa8664a1835863e5ba0c837217d4b95951c47bc5724"
+    },
+    {
+      "path": "Villagerm/Villagerm.fbx",
+      "sha256": "6db1217d7725019ba4699138d9ba7d4e83f4822450bbc422bdb6309b4e373e34"
+    }
+  ]
+}

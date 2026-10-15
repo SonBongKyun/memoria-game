@@ -54,7 +54,7 @@ inline void CheckMemoriaArchitectureS356(FAutomationTestBase* Test)
 }
 inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* Name,USkeletalMeshComponent* Component)
 {
-    const FString Revision=FString(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/"))+Name+TEXT("/SK_")+Name;
+    const FString Revision=FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/"))+Name+TEXT("/SK_")+Name;
     auto* NewMesh=LoadObject<USkeletalMesh>(nullptr,*(Revision+TEXT(".SK_")+Name));
     const FString Original=FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/SK_")+Name;
     auto* OldMesh=LoadObject<USkeletalMesh>(nullptr,*(Original+TEXT(".SK_")+Name));

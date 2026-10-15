@@ -1,3 +1,11 @@
+# S358 complete — NPC tailoring and humanoid body silhouettes (Codex, 2026-10-15)
+
+- R3: 13 immutable meshes for nine ambient NPCs, Elia/Malet and two humanoid foe families. Continuous NPC neck/collar, refined clothing and articulated foe silhouettes; original paint/materials/77-bone rigs/clips retained.
+- Fresh build/import and rendered visual30 + Foundation6 + NPC acceptance1 =37/37 unique PASS. Native review completed; 628 original packages and 319 executed inputs unchanged. Rejected candidates and failed test startup retained. No full274/Shipping/LOD/performance claim.
+- [Review](S358_REVIEW.md), [results](S358_RESULTS.json). Local task commit only.
+
+---
+
 # S357 complete — humanoid faces and surface detail (Codex, 2026-10-13)
 
 - Two R4 sculpted humanoid heads serve AshWalker/Husk and BeltScavenger/Thief. New eye/face/neck topology and regional skin/bone/cloth/leather/metal materials replace smooth oval faces; original 77-bone rigs, safe clips, heights and gameplay contracts are retained.
