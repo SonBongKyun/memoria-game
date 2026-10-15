@@ -32,7 +32,7 @@ class FS358Replay final:public IAutomationLatentCommand
  {
   auto* Skin=Figure->GetSkeletalMesh();const FVector Base=Actor->GetActorLocation();
   const FVector Target=Close?Skin->GetSocketLocation(TEXT("head"))+FVector(0,0,Height*.045f):Base+FVector(0,0,Height*.42f);
-  const FVector Forward=Index<9?-Skin->GetRightVector():Skin->GetForwardVector();const FVector Right=Index<9?Skin->GetForwardVector():Skin->GetRightVector();
+  const FVector Forward=Skin->GetForwardVector();const FVector Right=Skin->GetRightVector();
   const FVector Eye=Target+Forward*Height*(Close?.75f:3.6f)+Right*Height*(Close?.10f:.6f)+FVector(0,0,Height*(Close?.025f:.18f));
   Camera->SetActorLocation(Eye);Camera->SetActorRotation((Target-Eye).Rotation());Camera->GetCameraComponent()->SetFieldOfView(Close?35.f:40.f);
   GEditor->PlayWorld->GetFirstPlayerController()->SetViewTarget(Camera.Get());
@@ -83,15 +83,17 @@ public:
   {
    Actor=World->SpawnActor<AActor>();auto* Root=NewObject<USceneComponent>(Actor.Get());Actor->SetRootComponent(Root);Root->RegisterComponent();FVector At=PC->GetPawn()->GetActorLocation()+FVector(-140,-220,0);At.Z=0;Actor->SetActorLocation(At);
    auto* F=NewObject<UMemoriaFieldCharacterComponent>(Actor.Get());F->SetupAttachment(Root);F->RegisterComponent();Figure=F;
-   const FString Name=Names[Index],Asset=TEXT("SK_")+Name+(Index<9?TEXT("_Detail"):TEXT(""));const FString Path=TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/")+Name+TEXT("/")+Asset+TEXT(".")+Asset;
+   const FString Name=Names[Index],Asset=TEXT("SK_")+Name+(Index<9?TEXT("_Detail"):TEXT(""));const FString Path=TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/")+Name+TEXT("/")+Asset+TEXT(".")+Asset;
    auto* Mesh=LoadObject<USkeletalMesh>(nullptr,*Path);if(!Test->TestNotNull(TEXT("S358 delivered NPC mesh loads"),Mesh))return true;
    Height=Mesh->GetBounds().BoxExtent.Z*2;
    if(!Test->TestTrue(TEXT("S358 NPC initializes through the real presentation component"),F->InitializeCharacter(Name.ToLower(),Height)))return true;
    auto* Skin=F->GetSkeletalMesh();Test->TestEqual(TEXT("S358 live NPC uses the delivered revision"),Skin->GetSkeletalMeshAsset(),Mesh);
    const FString OldPath=Index<9?TEXT("/Game/Memoria/Presentation/Field3D/")+Name+TEXT("/SK_")+Name+TEXT("_Detail.SK_")+Name+TEXT("_Detail"):TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/")+Name+TEXT("/SK_")+Name+TEXT(".SK_")+Name;
    auto* Old=LoadObject<USkeletalMesh>(nullptr,*OldPath);if(!Test->TestNotNull(TEXT("S358 original NPC remains for comparison"),Old))return true;
-   Test->TestEqual(TEXT("S358 NPC keeps its original skeleton"),Mesh->GetSkeleton(),Old->GetSkeleton());Test->TestEqual(TEXT("S358 NPC keeps its original slot count"),Skin->GetNumMaterials(),Old->GetMaterials().Num());
-   for(int32 I=0;I<Skin->GetNumMaterials();++I)Test->TestEqual(TEXT("S358 NPC preserves the actual original painted material"),Skin->GetMaterial(I),Old->GetMaterials()[I].MaterialInterface.Get());
+   Test->TestEqual(TEXT("S358 NPC keeps its original skeleton"),Mesh->GetSkeleton(),Old->GetSkeleton());Test->TestEqual(TEXT("NPC current slot count is natural surface or original garments plus face"),Skin->GetNumMaterials(),Index<9?1:3);
+   auto* Surface=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/M_NaturalHuman.M_NaturalHuman"));
+   if(Index<9)Test->TestEqual(TEXT("Ambient NPC uses the delivered natural skin/cloth material"),Skin->GetMaterial(0),Surface);
+   else {for(int32 I=0;I<2;++I)Test->TestEqual(TEXT("Named NPC preserves actual painted garment materials"),Skin->GetMaterial(I),Old->GetMaterials()[I].MaterialInterface.Get());Test->TestEqual(TEXT("Named NPC face uses the delivered natural surface"),Skin->GetMaterial(2),Surface);}
    Test->TestEqual(TEXT("S358 NPC adds no gameplay collision"),Skin->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
    Test->TestFalse(TEXT("S358 NPC adds no overlap events"),Skin->GetGenerateOverlapEvents());
    Test->TestTrue(TEXT("S358 NPC height stays exact"),FMath::IsNearlyEqual(Height,float(Old->GetBounds().BoxExtent.Z*2),.15f));Look();

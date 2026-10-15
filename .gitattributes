@@ -138,3 +138,8 @@ docs/unreal-migration/evidence/s357/** -text whitespace=blank-at-eol,blank-at-eo
 Unreal/ArtSource/HumanoidBodiesS358/** -text whitespace=cr-at-eol
 Unreal/Tools/build_humanoid_bodies_s358.py -text whitespace=cr-at-eol
 docs/unreal-migration/evidence/s358/** -text whitespace=cr-at-eol
+
+# S359 source and native evidence retain exact executed bytes.
+Unreal/ArtSource/HumanoidNaturalS359/** -text whitespace=cr-at-eol
+Unreal/Tools/build_humanoid_natural_s359.py -text whitespace=cr-at-eol
+docs/unreal-migration/evidence/s359/** -text whitespace=cr-at-eol

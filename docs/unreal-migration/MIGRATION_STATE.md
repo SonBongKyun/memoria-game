@@ -1,3 +1,11 @@
+# S359 complete — natural NPC anatomy and humanoid motion (Codex, 2026-10-15)
+
+- R6: eleven NPC face meshes; nine ambient bodies rebuilt with coherent shoulders/limbs/boots, Elia/Malet painted clothing retained. Thirty-two new contact-aware idle/walk and foe action clips; original77binds/heights and combat timings retained.
+- Fresh build/import and rendered visual30 + Foundation6 + two current NPC checks =38/38 unique PASS (36 success, 2 success with warnings), exit0/fatal0. Actual native faces, bodies, temporal movement and combat/death reviewed; original641 packages and394 final inputs unchanged.
+- Native pigment and original named clothing UV checks guard rejected R4/R5 failures. No full274/Shipping/LOD/performance claim. [Review](S359_REVIEW.md), [results](S359_RESULTS.json). Local task commit only.
+
+---
+
 # S358 complete — NPC tailoring and humanoid body silhouettes (Codex, 2026-10-15)
 
 - R3: 13 immutable meshes for nine ambient NPCs, Elia/Malet and two humanoid foe families. Continuous NPC neck/collar, refined clothing and articulated foe silhouettes; original paint/materials/77-bone rigs/clips retained.

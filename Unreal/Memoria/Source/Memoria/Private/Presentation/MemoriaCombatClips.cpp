@@ -60,7 +60,7 @@ FString ClipPath(const FString& Id, const FString& Name)
     if (!SafeHuman.IsEmpty() && SafeRole)
     {
         const FString Clip=SafeHuman==TEXT("AshWalker") && Name==TEXT("Idle")?TEXT("Zombie_Idle_Loop"):SafeHuman==TEXT("AshWalker") && Name==TEXT("Walk")?TEXT("Zombie_Walk_Fwd_Loop"):Name;
-        return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/%s/Combat/A_%s_%s"),*SafeHuman,*SafeHuman,*Clip);
+        return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/%s/A_%s_%s"),*SafeHuman,*SafeHuman,*Clip);
     }
     const FString Original = Id == TEXT("AshWalker") ? TEXT("Husk") : Id == TEXT("BeltScavenger") ? TEXT("Thief") : Id;
     return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/%s/Combat/A_%s_%s"), *Original, *Original, *Name);

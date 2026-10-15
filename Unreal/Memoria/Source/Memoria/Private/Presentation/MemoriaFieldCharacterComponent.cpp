@@ -22,6 +22,22 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
+    // S359 natural NPC anatomy and contact-aware loops, sharing the original bind skeletons.
+    for(const TCHAR* Person:{TEXT("Traveler"),TEXT("Bureauagent"),TEXT("Guard"),TEXT("Villagerf"),TEXT("Villagerm"),TEXT("Fisherman"),TEXT("Elder"),TEXT("Child"),TEXT("Scholar"),TEXT("Elia"),TEXT("Malet")})
+        if(Id.Equals(Person,ESearchCase::IgnoreCase))
+        {
+            const bool Ambient=FString(Person)!=TEXT("Elia") && FString(Person)!=TEXT("Malet");
+            if(Prefix==TEXT("SK_") && (Suffix.IsEmpty() || Suffix==TEXT("_Detail")))
+            {
+                const FString A=TEXT("SK_")+FString(Person)+(Ambient?TEXT("_Detail"):TEXT(""));
+                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/")+FString(Person)+TEXT("/")+A+TEXT(".")+A;
+            }
+            if(Prefix==TEXT("A_") && (Suffix==TEXT("_Idle") || Suffix==TEXT("_Walk")))
+            {
+                const FString A=TEXT("A_")+FString(Person)+Suffix;
+                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/")+FString(Person)+TEXT("/")+A+TEXT(".")+A;
+            }
+        }
     // S358 clothing/body revisions reuse every original material, rig, clip and prop.
     if(Prefix==TEXT("SK_"))
     {
@@ -173,7 +189,7 @@ void UMemoriaFieldCharacterComponent::AdvanceLocomotion(const FVector& Step, flo
     if (bMoving)
     {
         Facing = FMath::Abs(Step.X) >= FMath::Abs(Step.Y) ? (Step.X > 0 ? TEXT("Right") : TEXT("Left")) : (Step.Y > 0 ? TEXT("Up") : TEXT("Down"));
-        Phase = FMath::Fmod(Phase + float(Distance) / StrideLength, 1.f);
+        Phase = FMath::Fmod(Phase + float(Distance) / GaitStride, 1.f);
     }
     // The gait blends in quickly and settles within a few frames of stopping.
     const float Target = bMoving ? 1.f : 0.f;
@@ -332,6 +348,15 @@ bool UMemoriaFieldCharacterComponent::CreateSkeletal(USkeletalMesh* Mesh, UAnimS
     auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skeletal->GetAnimInstance());
     if (!Anim) { Skeletal->DestroyComponent(); Skeletal = nullptr; return false; }
     Anim->Idle = Idle; Anim->Walk = WalkClip;
+    GaitStride=StrideLength;
+    if(WalkClip->GetPathName().Contains(TEXT("HumanoidNaturalS359/")))
+    {
+        const float Step=CharacterId.Equals(TEXT("Child"),ESearchCase::IgnoreCase)?17.f:
+            (CharacterId.Equals(TEXT("AshWalker"),ESearchCase::IgnoreCase) || CharacterId.Equals(TEXT("Husk"),ESearchCase::IgnoreCase))?23.f:
+            (CharacterId.Equals(TEXT("BeltScavenger"),ESearchCase::IgnoreCase) || CharacterId.Equals(TEXT("Thief"),ESearchCase::IgnoreCase))?26.f:30.f;
+        // One grounded stance traverses one authored step. Scale its full cycle to the live figure.
+        GaitStride=2.f*Step*Height/180.f;
+    }
     return true;
 }
 // Animation assets and their skeleton must agree before replacing a working card.

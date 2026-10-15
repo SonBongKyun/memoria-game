@@ -54,7 +54,7 @@ inline void CheckMemoriaArchitectureS356(FAutomationTestBase* Test)
 }
 inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* Name,USkeletalMeshComponent* Component)
 {
-    const FString Revision=FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/"))+Name+TEXT("/SK_")+Name;
+    const FString Revision=FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/"))+Name+TEXT("/SK_")+Name;
     auto* NewMesh=LoadObject<USkeletalMesh>(nullptr,*(Revision+TEXT(".SK_")+Name));
     const FString Original=FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/SK_")+Name;
     auto* OldMesh=LoadObject<USkeletalMesh>(nullptr,*(Original+TEXT(".SK_")+Name));
@@ -80,7 +80,18 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
         if(Test->TestTrue(TEXT("NPC original body versus accessories has inspectable color masks"),HasColors))
         {
             for(uint32 I=0;I<Colors.GetNumVertices();++I){if(Colors.VertexColor(I).A<8)++Preserved;else ++Added;}
-            Test->TestTrue(TEXT("Full painted NPC body survives instead of head and hands alone"),Preserved>=OriginalVertices*.75f);
+            TSet<FIntVector> Current;
+            for(uint32 I=0;I<LOD.GetNumVertices();++I){const FVector3f P=LOD.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(I);Current.Add(FIntVector(FMath::RoundToInt(P.X*100),FMath::RoundToInt(P.Y*100),FMath::RoundToInt(P.Z*100)));}
+            const auto& OriginalLOD=OldRender->LODRenderData[0];int32 Garment=0,Matched=0;
+            const float HeadCut=float(OldMesh->GetBounds().BoxExtent.Z*2)-25.f;
+            for(uint32 I=0;I<OriginalLOD.GetNumVertices();++I)
+            {const FVector3f P=OriginalLOD.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(I);if(P.Z>=HeadCut)continue;++Garment;Matched+=Current.Contains(FIntVector(FMath::RoundToInt(P.X*100),FMath::RoundToInt(P.Y*100),FMath::RoundToInt(P.Z*100)));}
+            Test->TestTrue(TEXT("S359 named NPC retains actual painted garment coordinates below the replaced head"),Garment>1000 && Matched>=Garment*.99f);
+            auto UVKey=[](const FVector3f& P,const FVector2f& UV){return FString::Printf(TEXT("%d,%d,%d:%d,%d"),FMath::RoundToInt(P.X*100),FMath::RoundToInt(P.Y*100),FMath::RoundToInt(P.Z*100),FMath::RoundToInt(UV.X*10000),FMath::RoundToInt(UV.Y*10000));};
+            TSet<FString> Painted;for(uint32 I=0;I<LOD.GetNumVertices();++I)Painted.Add(UVKey(LOD.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(I),LOD.StaticVertexBuffers.StaticMeshVertexBuffer.GetVertexUV(I,0)));
+            int32 UVM=0,UVN=0;for(uint32 I=0;I<OriginalLOD.GetNumVertices();++I){const FVector3f P=OriginalLOD.StaticVertexBuffers.PositionVertexBuffer.VertexPosition(I);if(P.Z>=HeadCut)continue;++UVN;UVM+=Painted.Contains(UVKey(P,OriginalLOD.StaticVertexBuffers.StaticMeshVertexBuffer.GetVertexUV(I,0)));}
+            Test->TestTrue(TEXT("S359 original garment paint keeps actual position/UV corner pairs"),UVN>1000 && UVM>=UVN*.99f);
+
             Test->TestTrue(TEXT("NPC gains actual accessory geometry"),Added>100);
             Test->AddInfo(FString::Printf(TEXT("S356_NPC_ORIGINAL_BODY %s retained_vertices=%d original_vertices=%d accessory_vertices=%d"),Name,Preserved,OriginalVertices,Added));
         }
@@ -90,8 +101,8 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
     auto* Paint=LoadObject<UTexture2D>(nullptr,*(FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/T_")+Name));
     if(Test->TestNotNull(TEXT("Named NPC refined outfit material loads"),Outfit) && Test->TestNotNull(TEXT("Original face paint remains available"),Paint))
     {
-        Test->TestTrue(TEXT("NPC retains original body material plus separate accessory material"),NewMesh->GetMaterials().Num()==2 && OldMesh->GetMaterials().Num()>0 && NewMesh->GetMaterials()[0].MaterialInterface.Get()==OldMesh->GetMaterials()[0].MaterialInterface.Get() && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Outfit);
-        if(NewMesh->GetMaterials().Num()==2 && NewMesh->GetMaterials()[0].MaterialInterface)
+        Test->TestTrue(TEXT("NPC retains original body material plus separate accessory material"),NewMesh->GetMaterials().Num()==3 && OldMesh->GetMaterials().Num()>0 && NewMesh->GetMaterials()[0].MaterialInterface.Get()==OldMesh->GetMaterials()[0].MaterialInterface.Get() && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Outfit);
+        if(NewMesh->GetMaterials().Num()==3 && NewMesh->GetMaterials()[0].MaterialInterface)
         {
             auto* Body=NewMesh->GetMaterials()[0].MaterialInterface->GetMaterial();
             TSet<UMaterialExpression*> PaintSeen;
@@ -103,7 +114,7 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
                 for(FExpressionInput* Input:Expression->GetInputsView())if(Input && HasPaint(Input->Expression))return true;
                 return false;
             };
-            Test->TestTrue(TEXT("Actual original body paint reaches visible garment and face"),Body && HasPaint(Body->GetEditorOnlyData()->BaseColor.Expression));
+            Test->TestTrue(TEXT("Actual original body paint still reaches visible garments"),Body && HasPaint(Body->GetEditorOnlyData()->BaseColor.Expression));
         }
         auto* Inputs=Outfit->GetEditorOnlyData();
         TSet<UMaterialExpression*> Seen;

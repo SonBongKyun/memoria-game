@@ -122,6 +122,7 @@ private:
     bool bMirrorLeft = false, bHighResolution = false;
     FString Facing = TEXT("Down");
     float Phase = 0.f, Weight = 0.f, Age = 0.f, Height = 140.f, Scale = 1.f;
+    float GaitStride = StrideLength; // S359: match authored foot travel to actual world distance.
     static int32 DirectionIndex(const FString& Direction);
     void ApplyFrame();
 };

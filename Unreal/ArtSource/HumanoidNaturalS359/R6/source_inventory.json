@@ -1,0 +1,341 @@
+{
+  "revision": "R6",
+  "generator_sha256": "89734f99c493ef2ff89827d1ba7da0609940b462f670457ce8856e889198a7df",
+  "files": [
+    {
+      "path": "AshWalker\\clips.json",
+      "bytes": 101556,
+      "sha256": "7d6c4034fe85f085116815bc713d1093e9fe3840a5591401cec55899206ee763"
+    },
+    {
+      "path": "AshWalker\\Death_Front_01.fbx",
+      "bytes": 836844,
+      "sha256": "39a90746ef09b18da24684246ce42cb8d670e1f80040348cea5c32ed55a29d96"
+    },
+    {
+      "path": "AshWalker\\HitReact_Front_Lgt_01.fbx",
+      "bytes": 668428,
+      "sha256": "c2334312d698c1ce04f352b7d9d65d9382e714e7b14a0f19ead30bdc9bc0a188"
+    },
+    {
+      "path": "AshWalker\\Zombie_Idle_Loop.fbx",
+      "bytes": 1013436,
+      "sha256": "5c4cb626b282e9db0ba6cad874cacb3643a74ca671b1b7392554eee27bd3e6c9"
+    },
+    {
+      "path": "AshWalker\\Zombie_Scratch.fbx",
+      "bytes": 715468,
+      "sha256": "e65beb21454187a8520f6d92934bed01c6ec82da9b22eb942e11be05fdd8fd5c"
+    },
+    {
+      "path": "AshWalker\\Zombie_Walk_Fwd_Loop.fbx",
+      "bytes": 646828,
+      "sha256": "eb8207f9676809f2baaf45d96f4d4bc7accf7ae9753ea87497229de6d9e737ca"
+    },
+    {
+      "path": "BeltScavenger\\clips.json",
+      "bytes": 103051,
+      "sha256": "138c68d94b6519aa90b4aeba76be0ab14d2d6e948552d7753b897126be0c3ab0"
+    },
+    {
+      "path": "BeltScavenger\\Death_Front_01.fbx",
+      "bytes": 837580,
+      "sha256": "a849a4f090660a0cbf9e7e8cf763ae15214d59dcb5ec805682dd160747811cc7"
+    },
+    {
+      "path": "BeltScavenger\\HitReact_Front_Lgt_01.fbx",
+      "bytes": 668428,
+      "sha256": "f14e897d5f99e5f7c1ca7923a71187ac9aa9744c2d08963cd2fbd00211c8a618"
+    },
+    {
+      "path": "BeltScavenger\\Idle.fbx",
+      "bytes": 1012604,
+      "sha256": "a883b8dc66736ba173b1246046c16885f31b7c12d20f99cfdbefdba2358b2cc2"
+    },
+    {
+      "path": "BeltScavenger\\Sword_Regular_A.fbx",
+      "bytes": 716268,
+      "sha256": "72577b102d5c62addc4c565b3f9fa3515d2ec43aaa268722f716bb768028bd7d"
+    },
+    {
+      "path": "BeltScavenger\\Walk.fbx",
+      "bytes": 646748,
+      "sha256": "4e8819bc98a4db3d7c3d380e53a4b85bf7476a5765fb688f2c4435d799ce6095"
+    },
+    {
+      "path": "Bureauagent\\Bureauagent.fbx",
+      "bytes": 1622940,
+      "sha256": "41d1e7461bca87e1a6c42b5fcc533b4acddcc3fa8f623498fb8648c58474a827"
+    },
+    {
+      "path": "Bureauagent\\clips.json",
+      "bytes": 51039,
+      "sha256": "3ba2726c15f6ccbd64abc7d2230210305495be8d5f7c399be748f388527da663"
+    },
+    {
+      "path": "Bureauagent\\geometry.json",
+      "bytes": 57644,
+      "sha256": "9274f52ff97036677bd97696bd25c35563d98b9b09ec90ab1c6bf87e0ab2e875"
+    },
+    {
+      "path": "Bureauagent\\Idle.fbx",
+      "bytes": 1011692,
+      "sha256": "5ca55435f3646bfd315793f2174c6f38fca7676217d96d98637a5dd9b2ffca9b"
+    },
+    {
+      "path": "Bureauagent\\Walk.fbx",
+      "bytes": 646428,
+      "sha256": "b6dc3a802c90222711b291bff66130ec2c5205bafffe984e8eb9836d5d4aa9be"
+    },
+    {
+      "path": "Child\\Child.fbx",
+      "bytes": 1623532,
+      "sha256": "b6ca6a9a7b16fa18ae63d7a4a73f7db9efe008c737124c03d8b1f8670971a352"
+    },
+    {
+      "path": "Child\\clips.json",
+      "bytes": 51806,
+      "sha256": "959abfea207aa42a124ce2bfa3fe770bc285bd34d8bd008a451ebf2effa0a240"
+    },
+    {
+      "path": "Child\\geometry.json",
+      "bytes": 57853,
+      "sha256": "caabe352c1db2e4e18a3ba1e2660ab74bee152d1c888a69ad73c95657b74d006"
+    },
+    {
+      "path": "Child\\Idle.fbx",
+      "bytes": 1009932,
+      "sha256": "39c1bd8b26bff4a7903e8abfbdd2fdec40ba892721ec07e9682a9349f300ddbb"
+    },
+    {
+      "path": "Child\\Walk.fbx",
+      "bytes": 645756,
+      "sha256": "fafa70d65156c5c8e0555e4c13e96bef1e8b9e14d672df9bc9bb65adcd0e6575"
+    },
+    {
+      "path": "Elder\\clips.json",
+      "bytes": 50907,
+      "sha256": "674ef440aa1295710cc2b065c48042c2b0c8c990ca458530ed52b682ff8a7770"
+    },
+    {
+      "path": "Elder\\Elder.fbx",
+      "bytes": 1643148,
+      "sha256": "b253caa67e9b255fbcd8c59db6dbcc98c913371a96f2173228e7ecb08505b8e5"
+    },
+    {
+      "path": "Elder\\geometry.json",
+      "bytes": 58968,
+      "sha256": "4ceedbcbe70ba0a4b5690a1ee8529d5e73644321c297d38ffca4ce842a550d43"
+    },
+    {
+      "path": "Elder\\Idle.fbx",
+      "bytes": 1011276,
+      "sha256": "92d7564f1c3f957b02ab4551a8644efbe1dd5b46809915d2a78a06c6479aa0d8"
+    },
+    {
+      "path": "Elder\\Walk.fbx",
+      "bytes": 646396,
+      "sha256": "9a531125f0ea5b15bd0b88749da2d97461d9f6bbf8274dffeabeaa88fb1278bc"
+    },
+    {
+      "path": "Elia\\clips.json",
+      "bytes": 52142,
+      "sha256": "7604a46c80ebee22a96eed94e0b49f75ed46d5a1cb33abe313e7ae625aa6a01a"
+    },
+    {
+      "path": "Elia\\Elia.fbx",
+      "bytes": 2143020,
+      "sha256": "e69cca0f3a984ab5a843a08364242843729fa18d815ed4c2478d30659eb0f94e"
+    },
+    {
+      "path": "Elia\\geometry.json",
+      "bytes": 55888,
+      "sha256": "7bf2c84cc6c47c3562e047566fe97d372b234f2a859a11d7f29e507110c360e0"
+    },
+    {
+      "path": "Elia\\Idle.fbx",
+      "bytes": 1020684,
+      "sha256": "1246f26e9c4bb59ae28602899353be503c53cfa00baceb240df77f5553d74d60"
+    },
+    {
+      "path": "Elia\\Walk.fbx",
+      "bytes": 649180,
+      "sha256": "f8299b843d426b8ad81d8951a5818f182a7b52a7624aba24e0c4f936d8af2bee"
+    },
+    {
+      "path": "Fisherman\\clips.json",
+      "bytes": 52099,
+      "sha256": "52b25f795710eb215c0f103238e33802511b7d662692de1dd4962ce57a18b203"
+    },
+    {
+      "path": "Fisherman\\Fisherman.fbx",
+      "bytes": 1640012,
+      "sha256": "e705d1d8f72b3abecd3cce6ecca9e035ec5df5e8c65fe2460d6c58f2f30d637f"
+    },
+    {
+      "path": "Fisherman\\geometry.json",
+      "bytes": 58865,
+      "sha256": "713a5049428f034b56ab145057aa4115fd51ffde9f458613190f77df368f572d"
+    },
+    {
+      "path": "Fisherman\\Idle.fbx",
+      "bytes": 1011596,
+      "sha256": "a8fabe9107ebbd25e892284d1ed51bf9cb1a7cf6881d496680299f9e3de60829"
+    },
+    {
+      "path": "Fisherman\\Walk.fbx",
+      "bytes": 646524,
+      "sha256": "ea714d0963726a13f23d964517f17b99bbf977cdfc19253189bdce28f83fa7c4"
+    },
+    {
+      "path": "Guard\\clips.json",
+      "bytes": 51111,
+      "sha256": "0d4b5f69cc706800307a29c516b55e83bde0cc1b1f75089df0e81ba633124f66"
+    },
+    {
+      "path": "Guard\\geometry.json",
+      "bytes": 57615,
+      "sha256": "31cc83bc3abde159bf43796e0b8e5f43595e41e1758d58015f4705d308e99d09"
+    },
+    {
+      "path": "Guard\\Guard.fbx",
+      "bytes": 1627964,
+      "sha256": "08ff11750c6fef308606d055163b61a84887a78f79a57f5926a7a43bbdcedfc1"
+    },
+    {
+      "path": "Guard\\Idle.fbx",
+      "bytes": 1011884,
+      "sha256": "6dac64f9a4acdb097e8fa1293da8b495e381167cb01ed99266b6bc301f0f6a0a"
+    },
+    {
+      "path": "Guard\\Walk.fbx",
+      "bytes": 646764,
+      "sha256": "c1d8baa2f09675c13547af45cb8e5398df823f6d6b3f97d0c0da94cc90cce1c2"
+    },
+    {
+      "path": "Malet\\clips.json",
+      "bytes": 51090,
+      "sha256": "f61347276f00fccfbb10238fceadbe2a859ca2bed04f05438e6ba159d8084d48"
+    },
+    {
+      "path": "Malet\\geometry.json",
+      "bytes": 55859,
+      "sha256": "b86366993c705e7d09f3cbdd74eb620e42a93f7c5f682202158805514c995637"
+    },
+    {
+      "path": "Malet\\Idle.fbx",
+      "bytes": 1012844,
+      "sha256": "325120f9ae70f29c5cd9f2bbf1720c1b61db741bdf8017e2a81d7195c209461b"
+    },
+    {
+      "path": "Malet\\Malet.fbx",
+      "bytes": 2149804,
+      "sha256": "d17cb3818e801d1458eda24f9b2841f92b473a2861b21f2779d7836084522ebc"
+    },
+    {
+      "path": "Malet\\Walk.fbx",
+      "bytes": 646924,
+      "sha256": "92c31264627365bdb32ad0ff338a0ee090564981a6dfe3d9092f68cc0d67de4d"
+    },
+    {
+      "path": "Scholar\\clips.json",
+      "bytes": 52026,
+      "sha256": "010b3fdb3ba055382ba363e085cbeedb3d1fbf321ca9484b9436c2809c844450"
+    },
+    {
+      "path": "Scholar\\geometry.json",
+      "bytes": 58044,
+      "sha256": "c7efd829931e8c0eb4886ba49482cfadb9c026c18fb86b7d3472694a32c07e3b"
+    },
+    {
+      "path": "Scholar\\Idle.fbx",
+      "bytes": 1012140,
+      "sha256": "8098c612be473eec02fee7e548cb77c93108c7ae2fd3aae3ef7c8fd1c5809333"
+    },
+    {
+      "path": "Scholar\\Scholar.fbx",
+      "bytes": 1589548,
+      "sha256": "ee0b75db12ef23fbb631b59d67b7bd7892f5f4dded8af485ac2d9027bc3001f9"
+    },
+    {
+      "path": "Scholar\\Walk.fbx",
+      "bytes": 646684,
+      "sha256": "8540ffc6e28e5a773152fbdbc8ba0d3b8845e9ad1aa8ee9fefbe00317aa3a823"
+    },
+    {
+      "path": "Traveler\\clips.json",
+      "bytes": 51112,
+      "sha256": "91f7422b1fb6600eb5a4a3bdeb1b12bdaace9da042b5d1b6eda979d934c56727"
+    },
+    {
+      "path": "Traveler\\geometry.json",
+      "bytes": 57692,
+      "sha256": "53c349068192a22fd9db8eb9e263afdab0eaf21c7901068480c72a871cece0a5"
+    },
+    {
+      "path": "Traveler\\Idle.fbx",
+      "bytes": 1011740,
+      "sha256": "39e267a80002f80feaecff7e1ef08b19b5b110aea623e71e5af4522ee419a7bd"
+    },
+    {
+      "path": "Traveler\\Traveler.fbx",
+      "bytes": 1622060,
+      "sha256": "78dd19a3acab555e29e308467a93b7b30aad88f12f52a9fe54d873c3f2f41cb4"
+    },
+    {
+      "path": "Traveler\\Walk.fbx",
+      "bytes": 646636,
+      "sha256": "37a2e47f3a360e114e517ded3405003bb25851967900307976ff88e5d125c22a"
+    },
+    {
+      "path": "Villagerf\\clips.json",
+      "bytes": 50995,
+      "sha256": "758b7333fe0568a9d93c5bf7c0cde8815f731749dc83d98cc04adb3931282d4b"
+    },
+    {
+      "path": "Villagerf\\geometry.json",
+      "bytes": 57966,
+      "sha256": "846f6a8dcf6fc6afd3f027284b8bc1f0d643c44cee1c1856be10f951d4a33e86"
+    },
+    {
+      "path": "Villagerf\\Idle.fbx",
+      "bytes": 1010828,
+      "sha256": "93ff9e480e1dcb309c86ea49cf73198789cf40b0542329f0c3ccc04dbf38760f"
+    },
+    {
+      "path": "Villagerf\\Villagerf.fbx",
+      "bytes": 1619980,
+      "sha256": "71a3d46116c9cf66d886ca6a43b48993fa6a0cb4aaffb03478cd69742f26fadb"
+    },
+    {
+      "path": "Villagerf\\Walk.fbx",
+      "bytes": 646236,
+      "sha256": "a92ac467b41df2924d297ff861881e736ba217ebc9defb51952f480f766905ae"
+    },
+    {
+      "path": "Villagerm\\clips.json",
+      "bytes": 51174,
+      "sha256": "908673fb0b7b01925a48b7fcaeb55551eff65fac919522be734a7beb77e8391d"
+    },
+    {
+      "path": "Villagerm\\geometry.json",
+      "bytes": 57761,
+      "sha256": "fe77399651604f05757a668918f8f34261fdcb5437676ffda8af2e6df6535150"
+    },
+    {
+      "path": "Villagerm\\Idle.fbx",
+      "bytes": 1011276,
+      "sha256": "70ecba2d804352aaeaca73d0e8adb6dcdbbf3fbb97bf2e5485ee835441737926"
+    },
+    {
+      "path": "Villagerm\\Villagerm.fbx",
+      "bytes": 1627644,
+      "sha256": "2da387b495935e7fd211561aef4d24137fdb99e34f8ee95d1fa9f04cd3d04045"
+    },
+    {
+      "path": "Villagerm\\Walk.fbx",
+      "bytes": 646380,
+      "sha256": "1088de80a7ae413a175e6d025d6f626b11a9b273069cc9b4df71402dfd4b4291"
+    }
+  ]
+}

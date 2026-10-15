@@ -9286,3 +9286,12 @@ Local collaboration snapshot of the current foundation HEAD plus 15 modified tra
 - Fresh build/import PASS. Final rendered visual30 + Foundation6 + all-NPC acceptance1 =37/37 unique PASS, exit0/fatal0. Actual idle/walk and blended-neck geometry, original-material bindings and existing foe hit/recovery/strike/death checks; native captures reviewed. 628 old packages and 319 final executed inputs unchanged.
 - Preserved rejected shoulder/UV candidates, first test-startup crash, and R2 passing-but-visually-rejected neck captures; final R3 acceptance is separate. Warnings and limits disclosed; no full274/Shipping/LOD/performance claim.
 - Local scoped commit; original/peer/shared sources remain read-only. See S358_REVIEW.md and S358_RESULTS.json.
+
+
+## S359 — 2026-10-15 (Unreal natural NPC faces/body and humanoid motion)
+
+- User rejected S358's unnatural face/body/posture. Rebuilt nine ambient bodies and eleven NPC faces (including Elia/Malet), retaining named painted clothing below the documented head cut. Modeled orbital lids/eyes, nose/lips/jaw, ears/hair, continuous shoulders/sleeves and anatomical boots.
+- Thirty-two compatible new idle/walk and humanoid foe strike/hit/death clips. Two-bone contact solves, relaxed arms, pelvis/torso counter motion, continuous toe-off/heel-contact velocity and scaled distance cadence. Original77bone binds/heights, combat clip deadlines and all gameplay/save/story/collision contracts retained.
+- Final R6 editor build/import PASS; visual30 + Foundation6 + S358 current NPC + S359 anatomy/contact =38/38 unique PASS (36 success,2 success with warnings), exit0/fatal0. Native11close faces,6representative bodies, profile/temporal walk and foe combat/death reviewed. Original641 packages and394 final inputs unchanged.31rawPNGs and3native-frame walk videos collected.
+- Rejected shoulder/boot/density candidates and R4 white-color/R5 UV/contact failures preserved in Saved; no failed or duplicate focus counted in final38. Layer-zero pigment, FBX color/UV/bind roundtrip and actual named garment position/UV pairs now verified.
+- Faces remain stylized/shared, no blink/expression animation; original named clothing scan irregularity remains. No full274/Shipping/LOD/performance claim. Local scoped commit only; no peer writes/message/merge, push or release. See S359_REVIEW.md / S359_RESULTS.json.
