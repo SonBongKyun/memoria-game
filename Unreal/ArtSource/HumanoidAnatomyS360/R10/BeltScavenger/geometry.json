@@ -1,0 +1,17 @@
+{
+  "name": "BeltScavenger",
+  "source": "Unreal\\ArtSource\\HumanoidAnatomyS360\\R8\\BeltScavenger\\BeltScavenger.fbx",
+  "source_sha256": "16057ab977b2a82107d33e8037b7e4b1a10c6d76da3128a3beea9b9679aac349",
+  "output_sha256": "a8a540a150e223aec7466cb13da036083770e7ca0426fa50d7e8f546777f4c2b",
+  "generator_sha256": "3457b2b7caef3900cd57c6167832f4d508673253a5fb2bf5c62d27839085cc46",
+  "height_cm": 164.96864318847656,
+  "neck_low_high_cm": [
+    133.18177795410156,
+    143.57171630859375
+  ],
+  "neck_rings": 13,
+  "bones": 77,
+  "policy": "R8 positions/UV/materials/binds retained; additional neck bridges with mixed neck/head weights",
+  "reused_neck_generator_sha256": "3db3fd24262982b41f01488fa01da4077d9580f476220a9ed7cb3308a4babb75",
+  "uv_policy": "All added bridge UV layers explicitly parameterized on [0,1]; original R8 face/body UVs retained."
+}

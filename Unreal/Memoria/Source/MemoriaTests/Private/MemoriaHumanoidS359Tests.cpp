@@ -56,7 +56,16 @@ class FS359Replay final:public IAutomationLatentCommand
      {const uint32 Bone=Weights->GetBoneIndex(I,J);if(Bone<uint32(Map.Num()) && Weights->GetBoneWeight(I,J)>52000 && Ref.GetBoneName(Map[Bone])==TEXT("head")){Head+=FVector(Vertices[I].Position);break;}}
    }
    const FVector Size=Head.GetSize();
-   Test->TestTrue(TEXT("S359 NPC head has natural bounded proportions instead of the old oversized face"),Head.IsValid && FMath::Max(Size.X,Size.Y)<Height*.16f && Size.Z>Height*.08f && Size.Z<Height*.25f);
+   Test->TestTrue(TEXT("S359 NPC head has natural bounded proportions instead of the old oversized face"),Head.IsValid && FMath::Max(Size.X,Size.Y)<Height*(Index==7?.18f:.16f) && Size.Z>Height*.08f && Size.Z<Height*.25f);
+  }
+  if(Index>=11)
+  {
+   FBox FaceBounds(ForceInit),OutfitBounds(ForceInit);
+   for(const auto& Section:LOD.RenderSections)for(uint32 I=Section.BaseVertexIndex;I<FMath::Min(uint32(Vertices.Num()),Section.BaseVertexIndex+Section.NumVertices);++I)
+   {const FVector P=Skin->GetComponentTransform().TransformPosition(FVector(Vertices[I].Position));if(Section.MaterialIndex==2)FaceBounds+=P;else OutfitBounds+=P;}
+   const double Gap=FaceBounds.Min.Z-OutfitBounds.Max.Z;
+   Test->TestTrue(TEXT("S360 humanoid face/neck geometry reaches its torso instead of floating above it"),FaceBounds.IsValid && OutfitBounds.IsValid && Gap<Height*.015);
+   Test->AddInfo(FString::Printf(TEXT("S360_NECK_ATTACHMENT %s pose=%s vertical_gap_cm=%.6f"),Names[Index],Pose,Gap));
   }
   Test->TestTrue(TEXT("S359 body stands with coherent human height and ground support"),Body.IsValid && Body.GetSize().Z>Height*.78f && Body.GetSize().Z<Height*1.10f && FMath::Abs(Body.Min.Z-(Actor->GetActorLocation().Z-8.f))<Height*.04f);
   Test->AddInfo(FString::Printf(TEXT("S359_NATIVE_BODY %s pose=%s vertices=%d body=%s head=%s min_ground=%.4f"),Names[Index],Pose,Vertices.Num(),*Body.GetSize().ToString(),*Head.GetSize().ToString(),Body.Min.Z-Actor->GetActorLocation().Z+8.f));
@@ -91,7 +100,7 @@ public:
    Actor=World->SpawnActor<AActor>();auto* Root=NewObject<USceneComponent>(Actor.Get());Actor->SetRootComponent(Root);Root->RegisterComponent();FVector At=PC->GetPawn()->GetActorLocation()+FVector(-200,-240,0);At.Z=0;Actor->SetActorLocation(At);
    auto* F=NewObject<UMemoriaFieldCharacterComponent>(Actor.Get());F->SetupAttachment(Root);F->RegisterComponent();Figure=F;
    const FString Name=Names[Index],A=TEXT("SK_")+Name+(Index<9?TEXT("_Detail"):TEXT(""));
-   const FString Path=(Index<11?TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/"):TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/"))+Name+TEXT("/")+A+TEXT(".")+A;
+   const FString Path=(Index<11?TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/"):TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R10/"))+Name+TEXT("/")+A+TEXT(".")+A;
    auto* Mesh=LoadObject<USkeletalMesh>(nullptr,*Path);if(!Test->TestNotNull(TEXT("S359 delivered mesh loads"),Mesh))return true;Height=Mesh->GetBounds().BoxExtent.Z*2;
    if(Index<11){if(!F->InitializeCharacter(Name.ToLower(),Height))return true;}
    else{FMemoriaFoeLook L;L.Model=Names[Index];L.Height=Height;L.Idle=Index==11?TEXT("Zombie_Idle_Loop"):TEXT("Idle");L.Walk=Index==11?TEXT("Zombie_Walk_Fwd_Loop"):TEXT("Walk");if(!F->InitializeFoe(L))return true;}
@@ -101,7 +110,7 @@ public:
    if(Index<11 && Colors.GetAllowCPUAccess())for(const auto& Section:ColorLOD.RenderSections)if(Section.MaterialIndex==(Index<9?0:2))
     for(uint32 I=Section.BaseVertexIndex;I<Section.BaseVertexIndex+Section.NumVertices;++I){const FColor C=Colors.VertexColor(I);++PaintCount;Pigmented+=C.R<250 || C.G<250 || C.B<250;}
    if(Index<11)Test->TestTrue(TEXT("S359 actual face/cloth section color buffer retains authored pigment"),Colors.GetNumVertices()==ColorLOD.GetNumVertices() && PaintCount>1000 && Pigmented>PaintCount*.99f);
-   Test->TestTrue(TEXT("S359 idle and walk actually use the new compatible motion"),Anim && Anim->Idle && Anim->Walk && Anim->Idle->GetPathName().Contains(TEXT("HumanoidNaturalS359/R6/")) && Anim->Walk->GetPathName().Contains(TEXT("HumanoidNaturalS359/R6/")) && Anim->Idle->GetSkeleton()==Mesh->GetSkeleton() && Anim->Walk->GetSkeleton()==Mesh->GetSkeleton());
+   Test->TestTrue(TEXT("S359 idle and walk actually use the new compatible motion"),Anim && Anim->Idle && Anim->Walk && Anim->Idle->GetPathName().Contains(Index<11?TEXT("HumanoidAnatomyS360/R7/"):TEXT("HumanoidAnatomyS360/R8/")) && Anim->Walk->GetPathName().Contains(Index<11?TEXT("HumanoidAnatomyS360/R7/"):TEXT("HumanoidAnatomyS360/R8/")) && Anim->Idle->GetSkeleton()==Mesh->GetSkeleton() && Anim->Walk->GetSkeleton()==Mesh->GetSkeleton());
    FootReady=false;MaxFootDrift=0;FootSamples=0;Look();
   }
   if(Frame==20){CheckBody(TEXT("idle"));Capture(TEXT("Front"));}

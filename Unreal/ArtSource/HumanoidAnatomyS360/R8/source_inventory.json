@@ -1,0 +1,70 @@
+{
+  "revision": "R8",
+  "generator_sha256": "ee11cdd39610ad28690b7ac43bb5f3ea8c078e042719206116fdd69260fe1dd3",
+  "files": [
+    {
+      "path": "AshWalker\\AshWalker.fbx",
+      "sha256": "b17c5a71cc299707c1a1b9c9cc2baf296cb9e0546c8e5c36dfd2629768e0c5be"
+    },
+    {
+      "path": "AshWalker\\clips.json",
+      "sha256": "2316ff6eb0aaae817e6e8f0eec93a080dafedc72f0b2513749007e9c04ce549d"
+    },
+    {
+      "path": "AshWalker\\Death_Front_01.fbx",
+      "sha256": "42e6191b4c95a93001d313ab2ddb2d70657b862ede04ddfadd07904baa896425"
+    },
+    {
+      "path": "AshWalker\\geometry.json",
+      "sha256": "8ad8cb23520dc4170baff82d87ae60face5144f1fac0a27e09e621473fbcce0e"
+    },
+    {
+      "path": "AshWalker\\HitReact_Front_Lgt_01.fbx",
+      "sha256": "3c91796e66732d2894b6f922a650f94b3d4098bf496b8e0101359f1f0c3afee6"
+    },
+    {
+      "path": "AshWalker\\Zombie_Idle_Loop.fbx",
+      "sha256": "4c76466c85ace1ff2a8ce85fc1a597a88d610a2d5fa5adddf419bc3a6ac59847"
+    },
+    {
+      "path": "AshWalker\\Zombie_Scratch.fbx",
+      "sha256": "d494c3bcc94f6a0bdc2770689e2050f6b90029a8ca18f3f7b95789ea4daf4e58"
+    },
+    {
+      "path": "AshWalker\\Zombie_Walk_Fwd_Loop.fbx",
+      "sha256": "def35b9e0dfc3744d0f92a049d12c0142858beeef169d517eee7e4e39f310557"
+    },
+    {
+      "path": "BeltScavenger\\BeltScavenger.fbx",
+      "sha256": "16057ab977b2a82107d33e8037b7e4b1a10c6d76da3128a3beea9b9679aac349"
+    },
+    {
+      "path": "BeltScavenger\\clips.json",
+      "sha256": "a9396bfd073dd17aedbee17a3152d120bbf05c54700b22a605ab622a33201236"
+    },
+    {
+      "path": "BeltScavenger\\Death_Front_01.fbx",
+      "sha256": "da1210a22c4dec0197af3287b7064db237cb37044cae849427089236933e53a7"
+    },
+    {
+      "path": "BeltScavenger\\geometry.json",
+      "sha256": "0875f7c60fe94ff8446af186531d856a1dbe5450e514f647f9ac1d2db29cc982"
+    },
+    {
+      "path": "BeltScavenger\\HitReact_Front_Lgt_01.fbx",
+      "sha256": "9635d488b088e94fd702061d88e8a039662fa34fa3273f99c9d9a43d3a7c70d2"
+    },
+    {
+      "path": "BeltScavenger\\Idle.fbx",
+      "sha256": "6999b8dd79e7887f2c6ce2106ed96889f58b51481be82703dc41b674286fc2bb"
+    },
+    {
+      "path": "BeltScavenger\\Sword_Regular_A.fbx",
+      "sha256": "65485b7d3084fa14446d0eb34c07af09b9959255850bad10d5619aef39635874"
+    },
+    {
+      "path": "BeltScavenger\\Walk.fbx",
+      "sha256": "e3b76fc092bda86c3d5748e1b1fb6f9a678b47f184db3ab0372841d0b1f52611"
+    }
+  ]
+}

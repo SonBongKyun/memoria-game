@@ -51,7 +51,7 @@ FString ClipPath(const FString& Id, const FString& Name)
     // S356: new supernatural rigs own their clips; tailored humanoids keep the original action timing.
     if (Id == TEXT("VoidWisp") || Id == TEXT("MemoryLeech"))
         return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/CharacterUpgradeS356/Accepted/%s/Combat/A_%s_%s"), *Id, *Id, *Name);
-    // Original and tailored humanoids share the exact 77-bone skeleton. These five authored roles
+    // S360 human foes use anatomical 77-bone rigs. These five compatible authored roles
     // replace inherited retargeted hit poses that collapsed every live vertex to the origin.
     const FString SafeHuman=(Id==TEXT("Husk") || Id==TEXT("AshWalker"))?TEXT("AshWalker"):(Id==TEXT("Thief") || Id==TEXT("BeltScavenger"))?TEXT("BeltScavenger"):TEXT("");
     const bool SafeRole=Name==TEXT("Idle") || Name==TEXT("Walk") || Name==TEXT("HitReact_Front_Lgt_01") || Name==TEXT("Death_Front_01")
@@ -60,8 +60,11 @@ FString ClipPath(const FString& Id, const FString& Name)
     if (!SafeHuman.IsEmpty() && SafeRole)
     {
         const FString Clip=SafeHuman==TEXT("AshWalker") && Name==TEXT("Idle")?TEXT("Zombie_Idle_Loop"):SafeHuman==TEXT("AshWalker") && Name==TEXT("Walk")?TEXT("Zombie_Walk_Fwd_Loop"):Name;
-        return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/%s/A_%s_%s"),*SafeHuman,*SafeHuman,*Clip);
+        return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R8/%s/A_%s_%s"),*SafeHuman,*SafeHuman,*Clip);
     }
+    if(Id.Equals(TEXT("Elia"),ESearchCase::IgnoreCase))
+        for(const TCHAR* Role:{TEXT("Attack_01"),TEXT("Attack_02"),TEXT("Attack_03"),TEXT("ChargedAttack"),TEXT("Dash"),TEXT("HitReact_Front_Lgt_01"),TEXT("Death_Front_01")})
+            if(Name==Role)return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R9/Elia/A_Elia_")+Name;
     const FString Original = Id == TEXT("AshWalker") ? TEXT("Husk") : Id == TEXT("BeltScavenger") ? TEXT("Thief") : Id;
     return FString::Printf(TEXT("/Game/Memoria/Presentation/Field3D/%s/Combat/A_%s_%s"), *Original, *Original, *Name);
 }

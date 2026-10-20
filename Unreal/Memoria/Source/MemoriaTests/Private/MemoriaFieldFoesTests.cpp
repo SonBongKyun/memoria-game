@@ -248,7 +248,7 @@ public:
                 auto* Figure=Monster->GetFigure();auto* Skin=Figure->GetSkeletalMesh();
                 const auto* Clip=MemoriaCombatClips::Load(Figure->GetCharacterId(),MemoriaCombatClips::ForAction(Figure->GetCharacterId(),MemoriaCombatClips::Hit()));
                 Test->TestTrue(TEXT("Base foe uses the compatible authored final hit role during the real stun"),Clip && Figure->GetActionClip()==Clip
-                    && Clip->GetPathName().Contains(TEXT("HumanoidNaturalS359/R6/")) && Clip->GetSkeleton()==Skin->GetSkeletalMeshAsset()->GetSkeleton());
+                    && Clip->GetPathName().Contains(TEXT("HumanoidAnatomyS360/R8/")) && Clip->GetSkeleton()==Skin->GetSkeletalMeshAsset()->GetSkeleton());
                 CheckBaseFoeDeformation(Test,Monster,PC,TEXT("real_stun_hit"));
             };
             if (Frame==Mark+12) { CheckHit(H);Capture(TEXT("HuskHit")); }
@@ -293,7 +293,7 @@ public:
                 auto* Figure=Monster->GetFigure();auto* Skin=Figure->GetSkeletalMesh();
                 const auto* Clip=MemoriaCombatClips::Load(Figure->GetCharacterId(),MemoriaCombatClips::Death());
                 Test->TestTrue(TEXT("Base foe death uses the compatible S359 role"),Clip && Figure->GetActionClip()==Clip && Clip->GetSkeleton()==Skin->GetSkeletalMeshAsset()->GetSkeleton()
-                    && Clip->GetPathName().Contains(TEXT("HumanoidNaturalS359/R6/")));
+                    && Clip->GetPathName().Contains(TEXT("HumanoidAnatomyS360/R8/")));
                 Test->TestTrue(TEXT("Base foe death remains held instead of returning to idle"),Figure->IsActing() && FMath::IsNearlyEqual(Figure->GetActionTime(),Figure->GetActionLength(),.02f));
                 CheckBaseFoeDeformation(Test,Monster,PC,TEXT("held_death"),true);
             };

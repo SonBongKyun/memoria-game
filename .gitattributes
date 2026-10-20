@@ -143,3 +143,16 @@ docs/unreal-migration/evidence/s358/** -text whitespace=cr-at-eol
 Unreal/ArtSource/HumanoidNaturalS359/** -text whitespace=cr-at-eol
 Unreal/Tools/build_humanoid_natural_s359.py -text whitespace=cr-at-eol
 docs/unreal-migration/evidence/s359/** -text whitespace=cr-at-eol
+
+# S360 anatomical source and native evidence retain exact bytes.
+Unreal/ArtSource/HumanoidAnatomyS360/** -text whitespace=cr-at-eol
+Unreal/Tools/build_humanoid_anatomy_s360.py -text whitespace=cr-at-eol
+docs/unreal-migration/evidence/s360/** -text whitespace=cr-at-eol
+
+# S360 repair generators retain executed bytes.
+Unreal/Tools/build_humanoid_foe_fit_s360.py -text whitespace=cr-at-eol
+Unreal/Tools/build_humanoid_necks_actions_s360.py -text whitespace=cr-at-eol
+Unreal/Tools/build_humanoid_neck_uv_s360.py -text whitespace=cr-at-eol
+
+# Vendored graphical source/license bytes retain upstream whitespace and heading rules.
+Unreal/ArtSource/HumanoidAnatomyS360/Vendor/** -text -diff

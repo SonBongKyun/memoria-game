@@ -1,0 +1,22 @@
+{
+  "revision": "R10",
+  "generator_sha256": "3457b2b7caef3900cd57c6167832f4d508673253a5fb2bf5c62d27839085cc46",
+  "files": [
+    {
+      "path": "AshWalker\\AshWalker.fbx",
+      "sha256": "c6141c53e8f651b313d665a23028f3cd3f1a61cbbca6c6f0c92cedf66256b27f"
+    },
+    {
+      "path": "AshWalker\\geometry.json",
+      "sha256": "6d3aa010ab6e822a8e5d035bd904149c9f27698dec71ed8ed9941bd2940cf986"
+    },
+    {
+      "path": "BeltScavenger\\BeltScavenger.fbx",
+      "sha256": "a8a540a150e223aec7466cb13da036083770e7ca0426fa50d7e8f546777f4c2b"
+    },
+    {
+      "path": "BeltScavenger\\geometry.json",
+      "sha256": "f28dafa4b4a7b832a7d3b8ef5414a5113b049eb2da038a322f14687a57bb8278"
+    }
+  ]
+}

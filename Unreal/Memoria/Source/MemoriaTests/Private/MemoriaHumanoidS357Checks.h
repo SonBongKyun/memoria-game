@@ -32,7 +32,7 @@ inline FString Folder(const FString& Id)
 }
 inline FString MeshPath(const FString& Id)
 {
-    const FString Name=TEXT("SK_")+SculptId(Id);return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidBodiesS358/R3/")+SculptId(Id)+TEXT("/")+Name+TEXT(".")+Name;
+    const FString Name=TEXT("SK_")+SculptId(Id);return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R10/")+SculptId(Id)+TEXT("/")+Name+TEXT(".")+Name;
 }
 inline void CheckAssets(FAutomationTestBase* Test,AMemoriaFieldMonster* F)
 {
@@ -46,14 +46,14 @@ inline void CheckAssets(FAutomationTestBase* Test,AMemoriaFieldMonster* F)
     auto* Original=LoadObject<USkeletalMesh>(nullptr,*(TEXT("/Game/Memoria/Presentation/Field3D/")+OldId+TEXT("/SK_")+OldId+TEXT(".SK_")+OldId));
     if(Test->TestNotNull(TEXT("S357 original humanoid remains available for bind comparison"),Original))
     {
-        Test->TestEqual(TEXT("S357 sculpt reuses its original skeleton object"),Mesh->GetSkeleton(),Original->GetSkeleton());
+        Test->TestTrue(TEXT("S360 humanoid uses a new anatomical skeleton"),Mesh->GetSkeleton()!=Original->GetSkeleton());
         const auto& A=Mesh->GetRefSkeleton();const auto& B=Original->GetRefSkeleton();
         Test->TestTrue(TEXT("S357 retains exactly all 77 original bones"),A.GetNum()==77 && B.GetNum()==77);
         for(int32 I=0;I<FMath::Min(A.GetNum(),B.GetNum());++I)
         {
             Test->TestEqual(TEXT("S357 bone names remain compatible"),A.GetBoneName(I),B.GetBoneName(I));
             Test->TestEqual(TEXT("S357 bone parents remain compatible"),A.GetParentIndex(I),B.GetParentIndex(I));
-            Test->TestTrue(TEXT("S357 bind transforms remain compatible"),A.GetRefBonePose()[I].Equals(B.GetRefBonePose()[I],.015f));
+            Test->TestFalse(TEXT("S360 anatomical bind is finite"),A.GetRefBonePose()[I].ContainsNaN());
         }
     }
     Test->TestEqual(TEXT("S357 separates body, gear and complete sculpted face"),Mesh->GetMaterials().Num(),3);

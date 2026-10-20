@@ -1,0 +1,43 @@
+{
+  "name": "Elia",
+  "source_sha256": "7fcff4036ce6a6bc2b8b9ae3c4b80930e4f587d55b52dfed19ad40df7b335b5d",
+  "generator_sha256": "3db3fd24262982b41f01488fa01da4077d9580f476220a9ed7cb3308a4babb75",
+  "clips": [
+    {
+      "clip": "Attack_01",
+      "sha256": "df89507ed670a6fca4bc05b40e34ca76f431df610252b218290502ae1a4dd6a4",
+      "unit_scales": true
+    },
+    {
+      "clip": "Attack_02",
+      "sha256": "c8eee3ce72e7b6808d29f3b2e981921f5f579debac10f63c12fe9cb567517ada",
+      "unit_scales": true
+    },
+    {
+      "clip": "Attack_03",
+      "sha256": "a33f656b302921967e727e1b9405ca998a6a203d160c892519fe229cf87410c8",
+      "unit_scales": true
+    },
+    {
+      "clip": "ChargedAttack",
+      "sha256": "51df3a1a817e1835a1cac9d74b4fe4aa5bdfc3369a2f1c73738bc3589f1dcfce",
+      "unit_scales": true
+    },
+    {
+      "clip": "Dash",
+      "sha256": "a503b99f0cfc6ce54f584803b60776c300bbaf2c354b896cc6f7b76161c53136",
+      "unit_scales": true
+    },
+    {
+      "clip": "HitReact_Front_Lgt_01",
+      "sha256": "6581d71db287e73302970bc89137d2fc8e374e4bc9413f4dd5017d4df7aca118",
+      "unit_scales": true
+    },
+    {
+      "clip": "Death_Front_01",
+      "sha256": "f3355339570a1003d0256f640eb2043f9fc2c80fd3ade62a43846997b385886d",
+      "unit_scales": true
+    }
+  ],
+  "timing": "import resamples to each original Elia combat deadline"
+}

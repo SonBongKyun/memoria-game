@@ -1,0 +1,17 @@
+{
+  "name": "AshWalker",
+  "source": "Unreal\\ArtSource\\HumanoidAnatomyS360\\R8\\AshWalker\\AshWalker.fbx",
+  "source_sha256": "b17c5a71cc299707c1a1b9c9cc2baf296cb9e0546c8e5c36dfd2629768e0c5be",
+  "output_sha256": "c6141c53e8f651b313d665a23028f3cd3f1a61cbbca6c6f0c92cedf66256b27f",
+  "generator_sha256": "3457b2b7caef3900cd57c6167832f4d508673253a5fb2bf5c62d27839085cc46",
+  "height_cm": 185.025146484375,
+  "neck_low_high_cm": [
+    149.18427429199218,
+    161.17098083496094
+  ],
+  "neck_rings": 13,
+  "bones": 77,
+  "policy": "R8 positions/UV/materials/binds retained; additional neck bridges with mixed neck/head weights",
+  "reused_neck_generator_sha256": "3db3fd24262982b41f01488fa01da4077d9580f476220a9ed7cb3308a4babb75",
+  "uv_policy": "All added bridge UV layers explicitly parameterized on [0,1]; original R8 face/body UVs retained."
+}

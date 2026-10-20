@@ -22,7 +22,7 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
-    // S359 natural NPC anatomy and contact-aware loops, sharing the original bind skeletons.
+    // S360 anatomical NPC rigs and compatible contact-aware loops.
     for(const TCHAR* Person:{TEXT("Traveler"),TEXT("Bureauagent"),TEXT("Guard"),TEXT("Villagerf"),TEXT("Villagerm"),TEXT("Fisherman"),TEXT("Elder"),TEXT("Child"),TEXT("Scholar"),TEXT("Elia"),TEXT("Malet")})
         if(Id.Equals(Person,ESearchCase::IgnoreCase))
         {
@@ -30,15 +30,20 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
             if(Prefix==TEXT("SK_") && (Suffix.IsEmpty() || Suffix==TEXT("_Detail")))
             {
                 const FString A=TEXT("SK_")+FString(Person)+(Ambient?TEXT("_Detail"):TEXT(""));
-                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/")+FString(Person)+TEXT("/")+A+TEXT(".")+A;
+                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/")+FString(Person)+TEXT("/")+A+TEXT(".")+A;
             }
             if(Prefix==TEXT("A_") && (Suffix==TEXT("_Idle") || Suffix==TEXT("_Walk")))
             {
                 const FString A=TEXT("A_")+FString(Person)+Suffix;
-                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidNaturalS359/R6/")+FString(Person)+TEXT("/")+A+TEXT(".")+A;
+                return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/")+FString(Person)+TEXT("/")+A+TEXT(".")+A;
             }
         }
-    // S358 clothing/body revisions reuse every original material, rig, clip and prop.
+    if(Prefix==TEXT("SK_") && Suffix.IsEmpty())
+    {
+        const FString Body=(Id.Equals(TEXT("Husk"),ESearchCase::IgnoreCase) || Id.Equals(TEXT("AshWalker"),ESearchCase::IgnoreCase))?TEXT("AshWalker"):(Id.Equals(TEXT("Thief"),ESearchCase::IgnoreCase) || Id.Equals(TEXT("BeltScavenger"),ESearchCase::IgnoreCase))?TEXT("BeltScavenger"):TEXT("");
+        if(!Body.IsEmpty())return TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R10/")+Body+TEXT("/SK_")+Body+TEXT(".SK_")+Body;
+    }
+    // S358 clothing/body revisions remain immutable fallbacks.
     if(Prefix==TEXT("SK_"))
     {
         for(const TCHAR* Ambient:{TEXT("Traveler"),TEXT("Bureauagent"),TEXT("Guard"),TEXT("Villagerf"),TEXT("Villagerm"),TEXT("Fisherman"),TEXT("Elder"),TEXT("Child"),TEXT("Scholar")})
@@ -349,7 +354,7 @@ bool UMemoriaFieldCharacterComponent::CreateSkeletal(USkeletalMesh* Mesh, UAnimS
     if (!Anim) { Skeletal->DestroyComponent(); Skeletal = nullptr; return false; }
     Anim->Idle = Idle; Anim->Walk = WalkClip;
     GaitStride=StrideLength;
-    if(WalkClip->GetPathName().Contains(TEXT("HumanoidNaturalS359/")))
+    if(WalkClip->GetPathName().Contains(TEXT("HumanoidAnatomyS360/")))
     {
         const float Step=CharacterId.Equals(TEXT("Child"),ESearchCase::IgnoreCase)?17.f:
             (CharacterId.Equals(TEXT("AshWalker"),ESearchCase::IgnoreCase) || CharacterId.Equals(TEXT("Husk"),ESearchCase::IgnoreCase))?23.f:

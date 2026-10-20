@@ -1,0 +1,54 @@
+{
+  "revision": "R9",
+  "generator_sha256": "3db3fd24262982b41f01488fa01da4077d9580f476220a9ed7cb3308a4babb75",
+  "files": [
+    {
+      "path": "AshWalker\\AshWalker.fbx",
+      "sha256": "5c7f791df77e02ccaa283a88f5db312627acb47e8d3f9d910d5bd4bb43683b50"
+    },
+    {
+      "path": "AshWalker\\geometry.json",
+      "sha256": "7a2d1381028ddcfacfc7e347f3b1093105435019a28f67d1a35cbedc1fc4d092"
+    },
+    {
+      "path": "BeltScavenger\\BeltScavenger.fbx",
+      "sha256": "879cf5f4a7f0a59bde3e0907d4b5fc4db1d33465e77bc29c35a22abbb3560f6f"
+    },
+    {
+      "path": "BeltScavenger\\geometry.json",
+      "sha256": "5b5f76e8395165e244d0dcf7055dbd6f6fc321cfe141fbcebef79c3e5859f85d"
+    },
+    {
+      "path": "Elia\\Attack_01.fbx",
+      "sha256": "df89507ed670a6fca4bc05b40e34ca76f431df610252b218290502ae1a4dd6a4"
+    },
+    {
+      "path": "Elia\\Attack_02.fbx",
+      "sha256": "c8eee3ce72e7b6808d29f3b2e981921f5f579debac10f63c12fe9cb567517ada"
+    },
+    {
+      "path": "Elia\\Attack_03.fbx",
+      "sha256": "a33f656b302921967e727e1b9405ca998a6a203d160c892519fe229cf87410c8"
+    },
+    {
+      "path": "Elia\\ChargedAttack.fbx",
+      "sha256": "51df3a1a817e1835a1cac9d74b4fe4aa5bdfc3369a2f1c73738bc3589f1dcfce"
+    },
+    {
+      "path": "Elia\\clips.json",
+      "sha256": "2ee30581951de99a0177844bead801cc6696fbd82811cb630810eb83db4d4b48"
+    },
+    {
+      "path": "Elia\\Dash.fbx",
+      "sha256": "a503b99f0cfc6ce54f584803b60776c300bbaf2c354b896cc6f7b76161c53136"
+    },
+    {
+      "path": "Elia\\Death_Front_01.fbx",
+      "sha256": "f3355339570a1003d0256f640eb2043f9fc2c80fd3ade62a43846997b385886d"
+    },
+    {
+      "path": "Elia\\HitReact_Front_Lgt_01.fbx",
+      "sha256": "6581d71db287e73302970bc89137d2fc8e374e4bc9413f4dd5017d4df7aca118"
+    }
+  ]
+}

@@ -1,3 +1,11 @@
+# S360 complete — continuous human NPC anatomy and compatible motion (Codex, 2026-10-20)
+
+- Human base topology replaces tubular NPC proportions; eleven NPC faces, nine ambient bodies, fitted Elia/Malet painted garments, anatomical77binds, two repaired humanoid foe families and39compatible clips. Original names/hierarchy, gameplay heights/contracts and combat timing retained.
+- Final R10 editor build/import PASS; visual30 + Foundation6 + current anatomy3 =39/39 unique rendered PASS (37 success,2 with warnings), exit0/fatal0. All13 travel/contact checks; max drift0.077081cm per0.5cm actor step;20 actual posed neck overlaps.685 original packages and475 final inputs unchanged.
+-66 new packages;31 exact nativePNGs (30new+1previous) and3 native-frame walk videos. Failed/rejected R1-R9 attempts remain excluded. Simplified clothing/hair/expressions and one obstructed Elia profile disclosed. No full274/Shipping/LOD/performance claim. [Review](S360_REVIEW.md), [results](S360_RESULTS.json). Local task commit only.
+
+---
+
 # S359 complete — natural NPC anatomy and humanoid motion (Codex, 2026-10-15)
 
 - R6: eleven NPC face meshes; nine ambient bodies rebuilt with coherent shoulders/limbs/boots, Elia/Malet painted clothing retained. Thirty-two new contact-aware idle/walk and foe action clips; original77binds/heights and combat timings retained.
