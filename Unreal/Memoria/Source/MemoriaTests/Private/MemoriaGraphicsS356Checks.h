@@ -54,7 +54,7 @@ inline void CheckMemoriaArchitectureS356(FAutomationTestBase* Test)
 }
 inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* Name,USkeletalMeshComponent* Component)
 {
-    const FString Revision=FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/"))+Name+TEXT("/SK_")+Name;
+    const FString Revision=FString(Name)==TEXT("Elia")?TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/Elia/SK_Elia"):FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/"))+Name+TEXT("/SK_")+Name;
     auto* NewMesh=LoadObject<USkeletalMesh>(nullptr,*(Revision+TEXT(".SK_")+Name));
     const FString Original=FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/SK_")+Name;
     auto* OldMesh=LoadObject<USkeletalMesh>(nullptr,*(Original+TEXT(".SK_")+Name));
@@ -102,8 +102,8 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
     auto* Paint=LoadObject<UTexture2D>(nullptr,*(FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/T_")+Name));
     if(Test->TestNotNull(TEXT("Named NPC refined outfit material loads"),Outfit) && Test->TestNotNull(TEXT("Original face paint remains available"),Paint))
     {
-        Test->TestTrue(TEXT("NPC retains original body material plus separate accessory material"),NewMesh->GetMaterials().Num()==3 && OldMesh->GetMaterials().Num()>0 && NewMesh->GetMaterials()[0].MaterialInterface.Get()==OldMesh->GetMaterials()[0].MaterialInterface.Get() && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Outfit);
-        if(NewMesh->GetMaterials().Num()==3 && NewMesh->GetMaterials()[0].MaterialInterface)
+        Test->TestTrue(TEXT("NPC retains original body material plus separate accessory material"),NewMesh->GetMaterials().Num()==(FString(Name)==TEXT("Elia")?4:3) && OldMesh->GetMaterials().Num()>0 && NewMesh->GetMaterials()[0].MaterialInterface.Get()==OldMesh->GetMaterials()[0].MaterialInterface.Get() && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Outfit);
+        if(NewMesh->GetMaterials().Num()==(FString(Name)==TEXT("Elia")?4:3) && NewMesh->GetMaterials()[0].MaterialInterface)
         {
             auto* Body=NewMesh->GetMaterials()[0].MaterialInterface->GetMaterial();
             TSet<UMaterialExpression*> PaintSeen;

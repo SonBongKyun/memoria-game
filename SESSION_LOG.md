@@ -1,3 +1,12 @@
+# S361 complete — protagonist face, hair and armor polish (Codex, 2026-10-22)
+
+- Arrel original painted face/garments retained; conformed armor trims/clasps/gems. Elia swept fringe/curved side locks/layered rear hair and refined face/eyes. R4 two meshes/two materials; no new rigs/clips/textures, original77binds and gameplay contracts retained.
+- Fresh editor build/immutable legacy import PASS; rendered visual30 + Foundation6 + S358–S361 =40/40 unique PASS (38success,2with warnings),exit0/fatal0. Actual15 action roles,45 CPU-skinned pose samples,21 effective combat role checks including duplicate mappings,82 stored walk frames.751 original packages preserved; source/UV/weights retained100%. 561fresh final PNGs; selected24exact PNGs/two native-frame videos.
+- R1/R2/R3 failed/rejected candidates retained outside active sources/Content. R3 shell-miter needle caught by native review despite passing automation; R4 local hair/XY guards added. Original unused malformed Arrel HitReact preserved; actual hit resolves valid Hit_Knockback.
+- Existing face/cloth scan artifacts, regular rear hair tips, simple weapons/some cape intersections remain. No held-block lifecycle, weapon/body clearance, new animation, full274/Shipping/LOD/performance claim. [Review](S361_REVIEW.md), [results](S361_RESULTS.json). Local task commit only.
+
+---
+
 # S354 complete — NPC clothing and distinct creature anatomy (Codex, 2026-10-11)
 
 - User requested a stronger visible graphics upgrade after S353. Source/assets commit **1f4d1ed4b868279d03944fc548bf2c680b2e762c**, base `f001b6b3603329f4439869b704eb922847b04b9d`. Nine ambient NPCs now use tailored clothing geometry, role hats/lapels/cuffs/pouches and original 77-bone animation bindings/heights. Rubble Rat and Dust Crawler replace human stand-ins with 18/16-bone creature rigs, continuous rat anatomy / six-legged carapace and 10 authored clips.

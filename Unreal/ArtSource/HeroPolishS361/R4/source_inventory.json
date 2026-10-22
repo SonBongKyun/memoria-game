@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "session": "S361",
+  "revision": "R4",
+  "generator_sha256": "e962e59570fe9099180c1d8f3d5ef54c4e13ba6ccd9d699a3540947549b98a78",
+  "source_frozen_sha256": {
+    "Unreal\\ArtSource\\FieldCharacters\\arrel\\arrel_rigged.fbx": "e9c04c3c90149bb145ac317ee706256a838404cfecd304e8055548b3068a43c7",
+    "Unreal\\ArtSource\\HumanoidAnatomyS360\\R7\\Elia\\Elia.fbx": "7fcff4036ce6a6bc2b8b9ae3c4b80930e4f587d55b52dfed19ad40df7b335b5d"
+  },
+  "heroes": [
+    {
+      "name": "Arrel",
+      "triangles": 33804,
+      "source_sha256": "e9c04c3c90149bb145ac317ee706256a838404cfecd304e8055548b3068a43c7",
+      "output_sha256": "12e633df733b71ed6701db941e3e14c5d1680d81e61042e48a3e98b14d2ad594",
+      "authored_bind_error": 0.0,
+      "roundtrip_bind_error": 6.67572021484375e-05,
+      "retained_garment_ratio": 1.0
+    },
+    {
+      "name": "Elia",
+      "triangles": 68648,
+      "source_sha256": "7fcff4036ce6a6bc2b8b9ae3c4b80930e4f587d55b52dfed19ad40df7b335b5d",
+      "output_sha256": "a91a34addc9f091d6ed95ed610ce0f97a99d7f40311b895ffb16e2893c71a1d7",
+      "authored_bind_error": 0.0,
+      "roundtrip_bind_error": 0.000102996826171875,
+      "retained_garment_ratio": 1.0
+    }
+  ],
+  "files": [
+    {
+      "path": "Arrel\\Arrel.fbx",
+      "bytes": 1688780,
+      "sha256": "12e633df733b71ed6701db941e3e14c5d1680d81e61042e48a3e98b14d2ad594"
+    },
+    {
+      "path": "Arrel\\geometry.json",
+      "bytes": 61224,
+      "sha256": "d36d8a12293b35547c3a5a94bcdff2b0a23af2bd2322e473d60b01aeb2048ce6"
+    },
+    {
+      "path": "Elia\\Elia.fbx",
+      "bytes": 3110236,
+      "sha256": "a91a34addc9f091d6ed95ed610ce0f97a99d7f40311b895ffb16e2893c71a1d7"
+    },
+    {
+      "path": "Elia\\geometry.json",
+      "bytes": 81614,
+      "sha256": "6e493dc6979f6836fa6ada8bc7d552690a4ec64b92d3c606895d31f61c321c17"
+    },
+    {
+      "path": "generator_snapshot.py",
+      "bytes": 49016,
+      "sha256": "e962e59570fe9099180c1d8f3d5ef54c4e13ba6ccd9d699a3540947549b98a78"
+    }
+  ]
+}

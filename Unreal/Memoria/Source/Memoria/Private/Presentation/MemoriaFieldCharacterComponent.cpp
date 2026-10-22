@@ -13,6 +13,7 @@
 #include "Engine/Texture2D.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
+#include "Misc/PackageName.h"
 namespace
 {
 const TCHAR* Directions[4] = {TEXT("Down"), TEXT("Up"), TEXT("Left"), TEXT("Right")};
@@ -22,6 +23,12 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
+    // S361 changes only the hero mesh; each existing rig, clip and prop path remains active.
+    if((Name==TEXT("Arrel") || Name==TEXT("Elia")) && Prefix==TEXT("SK_") && (Suffix.IsEmpty() || Suffix==TEXT("_Detail")))
+    {
+        const FString Hero=TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/")+Name+TEXT("/SK_")+Name;
+        if(FPackageName::DoesPackageExist(Hero))return Hero;
+    }
     // S360 anatomical NPC rigs and compatible contact-aware loops.
     for(const TCHAR* Person:{TEXT("Traveler"),TEXT("Bureauagent"),TEXT("Guard"),TEXT("Villagerf"),TEXT("Villagerm"),TEXT("Fisherman"),TEXT("Elder"),TEXT("Child"),TEXT("Scholar"),TEXT("Elia"),TEXT("Malet")})
         if(Id.Equals(Person,ESearchCase::IgnoreCase))

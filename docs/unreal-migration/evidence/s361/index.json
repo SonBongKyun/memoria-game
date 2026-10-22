@@ -1,0 +1,680 @@
+{
+  "pngs": [
+    {
+      "path": "docs/unreal-migration/evidence/s361/baseline_ArrelFront.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/baseline-R4/Captures/HeroS361Baseline/ArrelFront.png",
+      "bytes": 1382097,
+      "sha256": "c1219dc7311e25de53b04f0de53fa8eeac30d3d58788171944f04746eb8bef8a",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/baseline_ArrelFace.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/baseline-R4/Captures/HeroS361Baseline/ArrelFace.png",
+      "bytes": 1277583,
+      "sha256": "aa5d32f4104c3001d5992e64d2493e2dd3a91ef8475ddc79e6a1ab0b6d365592",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelFront.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelFront.png",
+      "bytes": 1388719,
+      "sha256": "e38569c4b8738d4b4c9ab9be472d19e4bd3d0c6fdeb0d3a2a87a59627f705916",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelProfile.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelProfile.png",
+      "bytes": 1051268,
+      "sha256": "12aa899ddd8d978073b16fa2893a9ed172ef800992b1195fbb20c42bcd744a04",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelBack.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelBack.png",
+      "bytes": 1309321,
+      "sha256": "45504c02653d422cd543bf0815a96bcf079c7fffedd7538e7eb8ceaa98428682",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelFace.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelFace.png",
+      "bytes": 1282780,
+      "sha256": "44bfe6af979cfec36f93402d87de9f9927590a2ab2a453a7df6b683cafe1be5c",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelMotion150.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion150.png",
+      "bytes": 1378299,
+      "sha256": "e93ce13b9a5d3546ad7430aff8d451d01a9e539fcab7e3d3e898d2f54877d765",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/baseline_EliaFront.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/baseline-R4/Captures/HeroS361Baseline/EliaFront.png",
+      "bytes": 1357551,
+      "sha256": "fca90ba7a41062cb0bd94869ba37abe0ddca7b75ec901f133919c21a4e41bcdd",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/baseline_EliaFace.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/baseline-R4/Captures/HeroS361Baseline/EliaFace.png",
+      "bytes": 1187353,
+      "sha256": "b8768a44dccf5e0bd1098d01686f69ce88e1e103ee1b85d2557a1d60513b49af",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaFront.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaFront.png",
+      "bytes": 1361616,
+      "sha256": "cd8a372d94291559c42a83a1087fd8ad19c7a11c2126ca098b6c9f17a699af89",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaProfile.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaProfile.png",
+      "bytes": 1050837,
+      "sha256": "7cd2e70bab83ed93115bf933a26e3bbdc0056dad718020436093e6ea80933127",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaBack.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaBack.png",
+      "bytes": 1323625,
+      "sha256": "423c18a3f47c0371cea0e57775007854475208ce6edbb1e08ad6c0fa5a1e4dca",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaFace.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaFace.png",
+      "bytes": 1189559,
+      "sha256": "95f472725cce38f22624bba2a4b062f33b796d8ba8a73e35a050967ba7f0f85a",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaMotion150.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion150.png",
+      "bytes": 1353665,
+      "sha256": "4b12fb1f59124c7d112e72a1a2200d34d3fed0a14b0c8ea759896b5227d3b907",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelAction_Block.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelAction_Block.png",
+      "bytes": 1370362,
+      "sha256": "43abe71a2fad1aca3297bae5438fd9eec09a8a0eb409cc739b90075c6f236bcd",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelBlockProfile.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelBlockProfile.png",
+      "bytes": 1086960,
+      "sha256": "c697437876b4a735b52600b351db4cc97697f97a823985d9c9f1b9d768dd5817",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelAction_Attack_01.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelAction_Attack_01.png",
+      "bytes": 1365226,
+      "sha256": "9888498af579c4c6e2657b5906e536da559a4c2b0c094da49d45ab13f1b20d2c",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelAction_HitReact_Front_Lgt_01.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelAction_HitReact_Front_Lgt_01.png",
+      "bytes": 1354116,
+      "sha256": "64b77b1a35ee09eecadd03237c5e385bc4cd5c95fd76f74607dc88412850c298",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelDeathHeld.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelDeathHeld.png",
+      "bytes": 1368490,
+      "sha256": "12fb3193dd01df9cbf18778f829d6a491bcca95a9a1666d0d85edc8b60745d1a",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaAction_Attack_01.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaAction_Attack_01.png",
+      "bytes": 1382245,
+      "sha256": "c95862c52b2eb096e8d295f76d246a078c9ddb9a7f40b59336f273b374867c7f",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaAction_HitReact_Front_Lgt_01.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaAction_HitReact_Front_Lgt_01.png",
+      "bytes": 1374430,
+      "sha256": "87407adb10bcc0bbfb92a8e86da8d0900bb23ccdc05cccd089dc9d72052c551b",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaDeathHeld.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaDeathHeld.png",
+      "bytes": 1334224,
+      "sha256": "824a1888a2911d54179a1b12f6ee48cb16de3b13fa8512a2f27f5fe19939781c",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/product_CharacterFront.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/PlayFeel1/CharacterFront.png",
+      "bytes": 1496141,
+      "sha256": "a8bd58a10723237e3e24156d88bca7238801abe9daaa256beb5c5b47c78d8cc9",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/product_EliaRigged.png",
+      "source": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/PlayFeel1/EliaRigged.png",
+      "bytes": 1456718,
+      "sha256": "fcbd8144b1b3bca1484c156af1e3e47a3d418e0c8f7432920381df22985da60d",
+      "dimensions": [
+        1280,
+        720
+      ]
+    }
+  ],
+  "videos": [
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_ArrelWalk.mp4",
+      "sha256": "a556fbedfc147e7eb885ee636e333f30c3557f0e71398add92e7fa0c1dd6ac9e",
+      "bytes": 884814,
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-n",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s361\\Arrel-frames-R4.txt",
+        "-fps_mode",
+        "cfr",
+        "-r",
+        "20",
+        "-frames:v",
+        "41",
+        "-c:v",
+        "libx264",
+        "-threads",
+        "2",
+        "-preset",
+        "medium",
+        "-crf",
+        "18",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\docs\\unreal-migration\\evidence\\s361\\final_ArrelWalk.mp4"
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "20/1",
+            "duration": "2.050000",
+            "nb_frames": "41"
+          }
+        ]
+      },
+      "source_frames": [
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion090.png",
+          "sha256": "4bc2dedfe4c5dd1dd48cc36eb00e1cfcbe762d8be8106b6e7ef4f45f6f4dbb10"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion093.png",
+          "sha256": "4b60f88d6f64ad3a4041f69e23ceeb4502fd4c00b23a025052fcb44f32d6917c"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion096.png",
+          "sha256": "cef9a573bbf188eec59bf863fd7f8148c5f8e7d2f9bb092541a53eb110880fd3"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion099.png",
+          "sha256": "0c8b16e2799a28126d97db022e204ad3b208348edd842c3f048543a0f1863e71"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion102.png",
+          "sha256": "5968e635f1c95468f8076088bcd2735c0ba5741c8ce0838383d0801c61e15f95"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion105.png",
+          "sha256": "e3cc7a0449fdac5642a2e5d704932c1f3e7dda2dd0e0e8326bfce0dc69572dcf"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion108.png",
+          "sha256": "4c1c1684aa989e9e96d9c9fdf09b5bae8b4cfe1da10d72f46337fdf274dbda45"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion111.png",
+          "sha256": "e5768d970cb85408d07129493b2bb337a4ad0226c9dce5d9a6deb37aa528999d"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion114.png",
+          "sha256": "0c828bada620d9eed1f7a0216fd0d1c136b55544050ea5d7c5ddbedb8efad495"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion117.png",
+          "sha256": "4d365512998c9a8e3f0bda2bf7ca2f52911659ff4c23a2cb5f0406dd961f9bc5"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion120.png",
+          "sha256": "8abae56cfb2d17fa3680b8ad897eeaba561ae8fc3bb3e632d3e45309d7f85a75"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion123.png",
+          "sha256": "be6e39b543719ded8b8bcdc6a4d38e4eefd9a33a51e91caec7f3cc8c53f0df86"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion126.png",
+          "sha256": "fa4283f2579d1137c644ca4fd2ba63b9d82a6157f83eb6b6ad851cf187cc3abe"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion129.png",
+          "sha256": "82cea90de1bdbc4faaac4065eb1865a937c9d25c8c7fca4ab398b404a0921969"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion132.png",
+          "sha256": "16d951b499ecd00cce0d2a8aeb5bf6076d55a0a52d05b6f3ff880cd16d9eb28c"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion135.png",
+          "sha256": "56c4d654c6f3079be54beb100c99fbf1ccb8d8df1e68c5c56d7bfc61e74fe89f"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion138.png",
+          "sha256": "26b374d81cc68d989082ba581ad3a20476bb13e089e7c3535b263d751693ed8d"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion141.png",
+          "sha256": "f0164eafbadb17fbb6f66bf043b3b80c0024c37dcceb9b683060c8aaab27570e"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion144.png",
+          "sha256": "f799a3c9cdf2a1493d06d7fc9aa50dc2b936fde786dacdf8d95128b1d3873737"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion147.png",
+          "sha256": "3918c36efa1f5fb5fa985bd2111bfc39ca9788c463167a7586559a810b504ea3"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion150.png",
+          "sha256": "e93ce13b9a5d3546ad7430aff8d451d01a9e539fcab7e3d3e898d2f54877d765"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion153.png",
+          "sha256": "fca7d98bcdc63ac17033a34bf6f4d4159e8a332e9a356a4fb85c3c088a56d6d3"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion156.png",
+          "sha256": "d9a18598386d481923394474803cee110514bb2038d355795fdf751f101fbbf8"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion159.png",
+          "sha256": "22fe09b62d0041b13939e07f4b24e3977fb313312e96d94417b07361e136cf56"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion162.png",
+          "sha256": "0cf4c80ebafd68e14ef202decf6634dac4d73f791242cbcfab97852ca69d95b7"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion165.png",
+          "sha256": "923d06350ac14eb1cc908d0fb9e307539b0fc90b263d482ccee737b3ddee49e1"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion168.png",
+          "sha256": "49b00b3296fe4245856f15397bffd6a6f7b50ba6e3eb2c45b080a6fa79c20d17"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion171.png",
+          "sha256": "5e40aadb5b5994b2935030a7890cdef1f27b46f0fad2608e85de728047c9275f"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion174.png",
+          "sha256": "fc8ef75ada7053fa2a1a988d0ab9e85790d7cd6269efca39ba52c7050f4f0977"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion177.png",
+          "sha256": "b8d51b5a270e3c8c7a92e8314490d675a62867a08ce0e9d5bf5d5ff6b3e7d4ac"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion180.png",
+          "sha256": "42fe2fcfc7b726835fbd7cccafb087e4ff29b01f5e6e73d563bf6cfb8aa67841"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion183.png",
+          "sha256": "e3edae97156a527ea47a4658997f39768d7ea1d124f374e6974f0daaf7265380"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion186.png",
+          "sha256": "20cc33eb0411a0ea73dedef266d2bb3bde988c89f0c0d1a0ab0d61a66672398d"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion189.png",
+          "sha256": "5c76b23b1d91aec847122fc1bc74ff9b4a62f126adfbdc2d15baef319af0c14b"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion192.png",
+          "sha256": "f4b175eb24d4b77a750b4c603a9d05216aae21836d07023f1481d9c7a8daca14"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion195.png",
+          "sha256": "7b2823617a80b86fed8f83d9b1a7cbe77aa51a78a39e714ec1ae3eb16db3cf41"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion198.png",
+          "sha256": "31e5810a946a462465c078184f4bad7fcbf3cb6aa6d2556811168c057057106b"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion201.png",
+          "sha256": "9f419a9f25d09dfbbecabda336f1f635071e15d116332ea9abb68f994a741e83"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion204.png",
+          "sha256": "47c36120ee31756df1a299bb5aec9a6a14b08db749931552a1fd0c793935f431"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion207.png",
+          "sha256": "b7483ff86a1811422bf44a9714eacdb89d96b1f3bfbfbe3c420f1a9c892f51ff"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/ArrelMotion210.png",
+          "sha256": "e7a9d161e4205d1783cbd4d9429d5d51618feb9bf660fa7d06ecb784229d31d4"
+        }
+      ],
+      "policy": "Exact41 fresh native frames at20fps. No pixel edits or interpolation."
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s361/final_EliaWalk.mp4",
+      "sha256": "2876141e23b426b5503198a4c3bcd768164720eb2f14c2959739e82ebe39239d",
+      "bytes": 850849,
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-n",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s361\\Elia-frames-R4.txt",
+        "-fps_mode",
+        "cfr",
+        "-r",
+        "20",
+        "-frames:v",
+        "41",
+        "-c:v",
+        "libx264",
+        "-threads",
+        "2",
+        "-preset",
+        "medium",
+        "-crf",
+        "18",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\docs\\unreal-migration\\evidence\\s361\\final_EliaWalk.mp4"
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "20/1",
+            "duration": "2.050000",
+            "nb_frames": "41"
+          }
+        ]
+      },
+      "source_frames": [
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion090.png",
+          "sha256": "009eb300433e01507842b33cb3996a8336391472866140d1fbe7227dc64a7233"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion093.png",
+          "sha256": "537933ff08f96491a31f7ee6c112a1ab9eb20039be534732bcfe66356be4082d"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion096.png",
+          "sha256": "084898933c63a657c3cd74f31e3bd7ad99454eef7b41951ffcc264f3c54fb9b4"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion099.png",
+          "sha256": "178507106c26da48bb8356486da4aad404bacbc4f9ab6bb2d134ab384612a211"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion102.png",
+          "sha256": "3b31b1cae726e0591b99dbe657e97df2916006c87e5bd9668bf2709c3d515f5c"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion105.png",
+          "sha256": "9e3877f880e2b7e54d7a68df5da25f375bcda2072d3ff16c287a11001c902906"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion108.png",
+          "sha256": "aa6887cde1977af1c92bd4153f1da7771dd05dcc5b65fbe98d4a5f84fba30063"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion111.png",
+          "sha256": "55707dde566460f3fece8b153f3e3dd37e0762e58ab98a6ffe860d53707857d9"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion114.png",
+          "sha256": "00a7eb6fa37af1ead60cb3d4b419cdc9f8f0935c1b40941f395a098aeab7255b"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion117.png",
+          "sha256": "a69ff2bb30fa8eb00d8de3aeee2989e84dc1424feab090762e83a9f711fc06ca"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion120.png",
+          "sha256": "e8c3b7ab3316ac8694cdabb674d23d3c456a95faafcb368106e6cfe812344a52"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion123.png",
+          "sha256": "5f0e2eebf5f27c1c53e084ff25a4c9d7055e1db6623f00af275d075e30057cb5"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion126.png",
+          "sha256": "a487b70ef1da826ef572f08e010b80cd201bdf00842a3ed1256c0b56abbaa526"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion129.png",
+          "sha256": "8c97a5a30f97fd9295125bb145d62ac12895bd7e8db70de9a34581036c93a632"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion132.png",
+          "sha256": "49db99d90bfbe94c1c37bca483cf86d9dccb7984da4e1d9495f9438053f323a3"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion135.png",
+          "sha256": "d697e30f8a3ec028f815769ceb1c9748af3635d20abd6b731230f806b71de4eb"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion138.png",
+          "sha256": "3bb911e4ef152e5af5c54629bff7d2aa076df0df4a86ccddf5778c1382768fcf"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion141.png",
+          "sha256": "fe8a675b870d5e2e199e5f06b47ff11bbf6e36ab3eb63eeb8eeed7d1b55a4f46"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion144.png",
+          "sha256": "750ad969eb6888609444c9f85b70bd30de2377d3f92d2bab9cf064fbd1d924df"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion147.png",
+          "sha256": "a23ee3ef4cbdfa0342b0c2006f438ffc62829bb503b2f150cfa30b9e2a9dd010"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion150.png",
+          "sha256": "4b12fb1f59124c7d112e72a1a2200d34d3fed0a14b0c8ea759896b5227d3b907"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion153.png",
+          "sha256": "d3af63a847240a6231d8a940a3d3ba534662ce2da6a2d4bdf5efdd7f3f1d7638"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion156.png",
+          "sha256": "5f6ebc5dc7be9fee4c696a55e7f43b8cec85df0c301fd0d6516f9ab32c3b396f"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion159.png",
+          "sha256": "9e2f348840a1e5698e3ddbbc28e4d3a67f9376d86f2dc1cae031e339cd29d2a2"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion162.png",
+          "sha256": "ea4f7846e6adb7ae1b8aea4a63962c1d3136600e209693a5c45701d3c5ae920e"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion165.png",
+          "sha256": "86952c7cc849404be386047fd6a3dcd366e5a763015cf50d6b6ff3977b147075"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion168.png",
+          "sha256": "d03930eaba1c0cca3a4c298a01e180fa1c1d1dbf9dca1c9d0ab547d4f574bd43"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion171.png",
+          "sha256": "81cb1c1e9909c55565a46345c02ea6aa3439ebf089dbfe90916d48aa8c813db6"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion174.png",
+          "sha256": "807ff0b35278d96b1e10bca810de9b15799699bddbb0dbe0326088a757c7aca0"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion177.png",
+          "sha256": "f99dc3d8f2f8ca795cc426d3d9b78e183be200005c1bdea911929b6a7e0d0b01"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion180.png",
+          "sha256": "62e86c80ee98d66a3eb1a76f8b405e53118ed5d2b1ce7d3a7702eac521ecfef1"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion183.png",
+          "sha256": "6a1a10d99f060a801b2c193ec823941c14d77962e47d6acc7b0f7b03e06f4f79"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion186.png",
+          "sha256": "c0919693b6850d13b65d6af932a51b99a9f8d0aefd4f23b5cb21eec944628b04"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion189.png",
+          "sha256": "355d7907e5ecc544e4d91b42a0b4212ee578febdc76dcbeb38df4e80ce919e35"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion192.png",
+          "sha256": "f7035b14d1c4c6719983ad0a1013832eb06e4225687d11d938c54915a0647588"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion195.png",
+          "sha256": "688c3f68fe0c0989dc5d181fcd8e3ef11ad5219d57e913598e856d8b6c153c73"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion198.png",
+          "sha256": "3c34281622c94dfc4e318e521cb5c27371b4d9fb3f045ed97ab8cb4f591bdcd9"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion201.png",
+          "sha256": "4b253d6cddfa69dde4bbf84216a2d9cf94768388c5896696474660e5c649fc66"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion204.png",
+          "sha256": "6823df82c05340d566026bbabeb0a7ccf542a3ad9cddc03de7af000a9f4f0220"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion207.png",
+          "sha256": "1ab67ed4203ebe05a7b49dc1f22c7d49e910b3f81947ead00106f4c4318b02b0"
+        },
+        {
+          "path": "Unreal/Memoria/Saved/Validation/s361/final-R4/Captures/HeroS361/EliaMotion210.png",
+          "sha256": "d5f960e43d13c0780a51601f2fed7578fd59d7e65f787fb7d3e6b68d3b2f71f6"
+        }
+      ],
+      "policy": "Exact41 fresh native frames at20fps. No pixel edits or interpolation."
+    }
+  ]
+}

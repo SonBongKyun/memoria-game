@@ -156,3 +156,9 @@ Unreal/Tools/build_humanoid_neck_uv_s360.py -text whitespace=cr-at-eol
 
 # Vendored graphical source/license bytes retain upstream whitespace and heading rules.
 Unreal/ArtSource/HumanoidAnatomyS360/Vendor/** -text -diff
+
+# S361 authored source and native evidence retain exact executed bytes.
+Unreal/ArtSource/HeroPolishS361/** -text whitespace=cr-at-eol
+Unreal/Tools/build_hero_polish_s361.py -text whitespace=cr-at-eol
+docs/unreal-migration/evidence/s361/** -text whitespace=cr-at-eol
+Unreal/Memoria/Source/MemoriaTests/**/MemoriaHeroS361* text eol=lf

@@ -101,7 +101,7 @@ public:
    auto* F=NewObject<UMemoriaFieldCharacterComponent>(Actor.Get());F->SetupAttachment(Root);F->RegisterComponent();Figure=F;
    const FString Name=Names[Index],A=TEXT("SK_")+Name+(Index<9?TEXT("_Detail"):TEXT(""));
    const FString Path=(Index<11?TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/"):TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R10/"))+Name+TEXT("/")+A+TEXT(".")+A;
-   auto* Mesh=LoadObject<USkeletalMesh>(nullptr,*Path);if(!Test->TestNotNull(TEXT("S359 delivered mesh loads"),Mesh))return true;Height=Mesh->GetBounds().BoxExtent.Z*2;
+   const FString ActivePath=Name==TEXT("Elia")?TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/Elia/SK_Elia.SK_Elia"):Path;auto* Mesh=LoadObject<USkeletalMesh>(nullptr,*ActivePath);if(!Test->TestNotNull(TEXT("S359 delivered mesh loads"),Mesh))return true;Height=Mesh->GetBounds().BoxExtent.Z*2;
    if(Index<11){if(!F->InitializeCharacter(Name.ToLower(),Height))return true;}
    else{FMemoriaFoeLook L;L.Model=Names[Index];L.Height=Height;L.Idle=Index==11?TEXT("Zombie_Idle_Loop"):TEXT("Idle");L.Walk=Index==11?TEXT("Zombie_Walk_Fwd_Loop"):TEXT("Walk");if(!F->InitializeFoe(L))return true;}
    F->Face(TEXT("Right"));auto* Skin=F->GetSkeletalMesh();Test->TestEqual(TEXT("S359 real figure binds delivered mesh"),Skin->GetSkeletalMeshAsset(),Mesh);
