@@ -173,10 +173,11 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         // S366: the first swing after an Afterimage is an Echo Counter, for every foe that swing reaches.
         if (!bEchoSwing && EchoLeft > 0.f) { bEchoSwing = true; EchoLeft = 0.f; ++EchoCounters; }
         const float Damage = (IsHeavy() ? HeavyDamage : ComboDamage[FMath::Clamp(ComboStep, 0, 2)]) * (IsWeakened() ? WeakenFactor : 1.f) * (bEchoSwing ? EchoCounterFactor : 1.f);
-        if (Monster->TakeHit(Damage, Origin, IsHeavy() ? HeavyShove : 14.f))
+        // S367: an Echo Counter or a heavy cut breaks an elite's void shell; a plain cut only grazes it.
+        if (Monster->TakeHit(Damage, Origin, IsHeavy() ? HeavyShove : 14.f, IsHeavy() || bEchoSwing))
         {
             const bool bBig = IsHeavy() || ComboStep == 2 || bEchoSwing, bKill = Monster->IsDead();
-            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), bEchoSwing ? FLinearColor(.84f, .72f, 1.f) : FLinearColor::Transparent, bBig || bKill);
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Monster->GetLastHitDamage(), false, FString(), bEchoSwing ? FLinearColor(.84f, .72f, 1.f) : FLinearColor::Transparent, bBig || bKill);
             if (bEchoSwing)
             {
                 const auto* EchoRun = RunOf(GetWorld()); const bool bEchoKo = EchoRun && EchoRun->GetRunSnapshot().CurrentLocale == TEXT("ko");
@@ -207,8 +208,8 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         const FVector Spark = (Pawn->GetActorLocation() + Monster->GetActorLocation()) * .5f + FVector(0, 0, 110.f);
         if (BlockHeld <= ParryWindow)
         {
-            // Parry: the guard met the blow as it came. No harm, and the foe reels.
-            ++Parries; Monster->Stun(ParryStun);
+            // Parry: the guard met the blow as it came. No harm, and the foe reels (and an elite's shell breaks, S367).
+            ++Parries; Monster->BreakShell(Pawn->GetActorLocation()); Monster->Stun(ParryStun);
             Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("패링!") : TEXT("Parry!"), FLinearColor(1.f, .9f, .55f), false, EMemoriaDefenseOutcome::Parry);
             HitStop(HitStopHeavy, ShakeHeavy); Burst(Spark, 18, FLinearColor(1.f, .92f, .6f), 480.f);
             Impact(Spark, FLinearColor(1.f, .95f, .72f), 140.f, true, EMemoriaDefenseOutcome::Parry);
@@ -235,6 +236,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         Cue(GetWorld(), TEXT("shield"));
         return false;
     }
+    if (Monster->IsElite()) Damage *= EliteDamage;          // S367: a void-touched elite hits harder
     if (ShieldLeft > 0.f) Damage *= HummingShieldFactor; // Elia's humming shield (S319)
     auto& Hp = Run->State.Player.Hp;
     Hp = FMath::Max<int64>(0, Hp - FMath::RoundToInt64(Damage)); ++StrikesTaken;
@@ -266,7 +268,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     Afflict(Monster->Spec().Ability, Damage); Afflict(Monster->Spec().Second, Damage);
     return true;
 }
-TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Count, const FVector& Center, float Radius, EMemoriaFoeKind Kind)
+TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Count, const FVector& Center, float Radius, EMemoriaFoeKind Kind, int32 Elites)
 {
     TArray<AMemoriaFieldMonster*> Spawned;
     UWorld* World = GetWorld(); if (!World) return Spawned;
@@ -281,9 +283,38 @@ TArray<AMemoriaFieldMonster*> UMemoriaFieldCombatSubsystem::SpawnWave(int32 Coun
         const FVector Location = Center + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * Radius;
         // Deferred, so the kind is known when the foe builds its figure in BeginPlay.
         if (auto* Monster = World->SpawnActorDeferred<AMemoriaFieldMonster>(AMemoriaFieldMonster::StaticClass(), FTransform(Location), nullptr, nullptr, Params.SpawnCollisionHandlingOverride))
-        { Monster->SetKind(Kind); Monster->FinishSpawning(FTransform(Location)); Monsters.Add(Monster); Spawned.Add(Monster); }
+        {
+            Monster->SetKind(Kind); Monster->SetElite(I < Elites); Monster->FinishSpawning(FTransform(Location)); Monsters.Add(Monster); Spawned.Add(Monster);
+            if (Monster->IsElite())
+            {
+                // S367: named as it rises, so the shell reads before the first cut.
+                const auto* Run = RunOf(World); const bool Ko = Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+                Popup(Location + FVector(0, 0, Monster->Spec().Height * EliteScale + 30.f), 0.f, false, Ko ? TEXT("공허에 잠식된 자") : TEXT("Void-touched"), FLinearColor(.78f, .6f, 1.f), true);
+                Burst(Location + FVector(0, 0, 60.f), 18, FLinearColor(.62f, .4f, 1.f), 320.f);
+            }
+        }
     }
     return Spawned;
+}
+int32 UMemoriaFieldCombatSubsystem::EncounterElites() const
+{
+    // S367: the run's next roaming fight brings an elite on a schedule that tightens with every memory burned.
+    const auto* Run = RunOf(GetWorld());
+    if (!Run || !Run->HasActiveRun()) return 0;
+    const int32 NumBurned = Run->GetPlayerMemory() ? Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num() : 0;
+    return EliteWave(Run->State.TotalBattles + 1, NumBurned) ? 1 : 0;
+}
+void UMemoriaFieldCombatSubsystem::NotifyShellBroken(AMemoriaFieldMonster* Monster, const FVector& From)
+{
+    if (!Monster) return;
+    ++ShellsBroken;
+    const auto* Run = RunOf(GetWorld()); const bool Ko = Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
+    const FVector At = Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height * EliteScale * .55f);
+    Popup(At + FVector(0, 0, 90.f), 0.f, false, Ko ? TEXT("껍질이 깨졌다") : TEXT("Shell broken"), FLinearColor(.86f, .74f, 1.f), true);
+    Burst(At, 28, FLinearColor(.66f, .44f, 1.f), 520.f);
+    Impact(At, FLinearColor(.7f, .5f, 1.f), 170.f, true);
+    HitStop(HitStopHeavy, ShakeHeavy);
+    Cue(GetWorld(), TEXT("shield"));
 }
 void UMemoriaFieldCombatSubsystem::NotifyMonsterDied(AMemoriaFieldMonster* Monster)
 {
@@ -293,8 +324,8 @@ void UMemoriaFieldCombatSubsystem::NotifyMonsterDied(AMemoriaFieldMonster* Monst
     // Source Win grains for the foe: (void ? 8 : 3) + max HP / 20, paid as each one falls.
     const FMemoriaFoeSpec& S = Monster->Spec();
     if (auto* Codex = GetWorld()->GetGameInstance()->GetSubsystem<UMemoriaCodexSubsystem>()) Codex->RecordDefeat(S.Name);
-    const int64 Grains = (S.bVoid ? 8 : 3) + int64(S.Health) / 20;
-    Run->State.Player.Grains += Grains; WaveGrains += Grains; ++WaveKills; bWaveVoid |= S.bVoid;
+    const int64 Grains = ((S.bVoid ? 8 : 3) + int64(S.Health) / 20) * (Monster->IsElite() ? EliteGrainsFactor : 1);
+    Run->State.Player.Grains += Grains; WaveGrains += Grains; ++WaveKills; bWaveVoid |= S.bVoid; bWaveElite |= Monster->IsElite();
     Popup(Monster->GetActorLocation() + FVector(0, 0, S.Height * .6f), float(Grains), false, FString::Printf(TEXT("+%lld Grains"), Grains), FLinearColor(1.f, .86f, .35f));
     if (LiveMonsterCount() == 0) WinWave();
 }
@@ -307,10 +338,11 @@ void UMemoriaFieldCombatSubsystem::WinWave()
     if (auto* Achievements = GetWorld()->GetGameInstance()->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordBattleWon(P.Hp);
     Reward = FMemoriaFieldReward(); Reward.Grains = WaveGrains; Reward.Kills = WaveKills; Reward.Age = 0.f;
     Reward.Heal = FMath::Min<int64>(int64(P.MaxHp * WaveHealShare), P.MaxHp - P.Hp); P.Hp += Reward.Heal;
-    if (Drops.FRand() <= ItemDropChance)
+    // S367: an elite always leaves something, from the richer table. The roll is still drawn (seeded runs keep their sequence).
+    if (Drops.FRand() <= ItemDropChance || bWaveElite)
     {
         TArray<const TCHAR*> Table = {TEXT("potion"), TEXT("potion"), TEXT("potion"), TEXT("antidote"), TEXT("antidote"), TEXT("firebomb")};
-        if (bWaveVoid) Table.Append({TEXT("firebomb"), TEXT("hi_potion"), TEXT("witness_ink")});
+        if (bWaveVoid || bWaveElite) Table.Append({TEXT("firebomb"), TEXT("hi_potion"), TEXT("witness_ink")});
         Reward.ItemId = Table[Drops.RandRange(0, Table.Num() - 1)];
         auto* Item = P.Items.FindByPredicate([&](const FMemoriaItemCount& I) { return I.Id == Reward.ItemId; });
         if (Item) ++Item->Count; else { FMemoriaItemCount New; New.Id = Reward.ItemId; New.Count = 1; P.Items.Add(New); }
@@ -319,7 +351,7 @@ void UMemoriaFieldCombatSubsystem::WinWave()
     }
     if (Pawn && Reward.Heal > 0) Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Reward.Heal), true, FString::Printf(TEXT("+%lld HP"), Reward.Heal), FLinearColor(.5f, 1.f, .6f));
     // A won fight ends the statuses and the chain, like the source battle's end.
-    WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
+    WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false; bWaveElite = false;
     Cue(GetWorld(), TEXT("heal"));
 }
 void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Damage)
@@ -600,7 +632,7 @@ void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
         AMemoriaFieldMonster* Monster = Weak.Get();
         if (!Monster || Monster->IsDead() || Burned.Contains(Weak) || FVector::Dist2D(Monster->GetActorLocation(), Wave.Center) > Reach + 30.f) continue;
         Burned.Add(Weak);
-        if (Monster->TakeHit(Casting.Damage, Wave.Center, BurnShove[Casting.Grade]))
+        if (Monster->TakeHit(Casting.Damage, Wave.Center, BurnShove[Casting.Grade], true))
         {
             ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Casting.Damage, false);
             // Source: a burn of grade 2 or 1 leaves the foe burning (power * 0.3 + 5 for two turns).
@@ -781,7 +813,7 @@ bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector&
     {
         // "Guaranteed escape from battle": the foes lose him in the smoke and are gone, and the fight pays nothing.
         for (const auto& M : Monsters) if (M.IsValid() && !M->IsDead()) { Burst(M->GetActorLocation() + FVector(0, 0, 90.f), 10, FLinearColor(.6f, .62f, .68f), 220.f); M->Destroy(); }
-        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; BurnChain = 0; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; Orbs.Reset();
+        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; bWaveElite = false; BurnChain = 0; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; Orbs.Reset();
         Burst(Me + FVector(0, 0, 80.f), 34, FLinearColor(.66f, .68f, .74f), 340.f);
         Impact(Me + FVector(0, 0, 30.f), FLinearColor(.7f, .72f, .78f), 260.f, false);
         Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("연기 속으로 사라졌다") : TEXT("Vanished in smoke"), FLinearColor(.82f, .84f, .9f));
@@ -807,7 +839,7 @@ void UMemoriaFieldCombatSubsystem::BurstBomb(const FVector& At)
         if (!Monster || Monster->IsDead() || FVector::Dist2D(Monster->GetActorLocation(), At) > BombRadius) continue;
         if (Monster->TakeHit(float(Bomb->Extra), At, 40.f))
         {
-            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), float(Bomb->Extra), false, FString(), FLinearColor(1.f, .55f, .2f));
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Monster->GetLastHitDamage(), false, FString(), FLinearColor(1.f, .55f, .2f));
             if (!Monster->IsDead()) Monster->Ignite(float(Bomb->Power), BombBurnTicks);
         }
     }
@@ -898,7 +930,7 @@ void UMemoriaFieldCombatSubsystem::ClearRecoveryState()
     for(const auto& M:Monsters)if(M.IsValid())M->Destroy();
     ClearAfterimage();
     Monsters.Reset();bDefeated=false;DefeatLeft=0.f;StaggerLeft=CastLeft=DashLeft=0.f;ComboStep=-1;ClearComboIntent();
-    WeakenLeft=0.f;PoisonLeft=0;BurnChain=0;WaveKills=0;WaveGrains=0;bWaveVoid=false;
+    WeakenLeft=0.f;PoisonLeft=0;BurnChain=0;WaveKills=0;WaveGrains=0;bWaveVoid=false;bWaveElite=false;
     Thrown.Reset();bWarded=false;Orbs.Reset();ScorchLeft=0;
     EndBlock();EndCharge();
     if(auto* Figure=PlayerFigure.Get()){Figure->StopAction();Figure->ClearAim();}
@@ -1000,10 +1032,10 @@ bool UMemoriaFieldCombatSubsystem::UseEliaSkill(int32 Slot)
         AMemoriaFieldMonster* Target = Nearest(RememberedStrikeRange);
         if (!Target) return false;
         const float Damage = 10.f + 8.f * Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num();
-        if (Target->TakeHit(Damage, From, 30.f))
+        if (Target->TakeHit(Damage, From, 30.f, true))   // S367: a remembered blow breaks a void shell
         {
             ++HitsLanded;
-            Popup(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height), Damage, false, FString(), Pale);
+            Popup(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height), Target->GetLastHitDamage(), false, FString(), Pale);
             Burst(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height * .55f), 12, Pale, 380.f);
             HitStop(HitStopLight, ShakeLight);
             Impact(Target->GetActorLocation() + FVector(0, 0, Target->Spec().Height * .55f), Pale, 96.f, false);

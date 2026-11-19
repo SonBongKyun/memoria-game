@@ -8,6 +8,9 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/FloatingPawnMovement.h"
+#include "Components/PointLightComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 using namespace MemoriaCombatTuning;
 AMemoriaFieldMonster::AMemoriaFieldMonster()
 {
@@ -33,8 +36,21 @@ void AMemoriaFieldMonster::BeginPlay()
     Look.Color = S.Color; Look.Glow = S.Glow; Look.Crack = S.Crack; Look.Rim = S.Rim; Look.BladeScale = S.BladeScale;
     Look.bRetint = S.bRetint; Look.ModelGlow = S.ModelGlow; Look.ModelCrack = S.ModelCrack; Look.ModelRim = S.ModelRim; Look.ModelRimStrength = S.ModelRimStrength;
     Look.SurfaceTint = S.SurfaceTint; Look.Weathering = S.Weathering;
+    if (bElite) Look.Height = S.Height * EliteScale;   // S367: the elite stands taller
     Figure->InitializeFoe(Look);
-    Health = MaxHealth = S.Health; Movement->MaxSpeed = S.Speed;
+    Health = MaxHealth = S.Health * (bElite ? EliteHealth : 1.f); Movement->MaxSpeed = S.Speed;
+    if (bElite)
+    {
+        // A cold violet light breathes about it, and the void shell glows over its body.
+        AuraLight = NewObject<UPointLightComponent>(this, NAME_None, RF_Transient);
+        AuraLight->SetupAttachment(GetRootComponent());
+        AuraLight->SetRelativeLocation(FVector(0, 0, S.Height * EliteScale * .55f));
+        AuraLight->SetMobility(EComponentMobility::Movable); AuraLight->SetCastShadows(false);
+        AuraLight->SetIntensityUnits(ELightUnits::Candelas); AuraLight->SetIntensity(14.f);
+        AuraLight->SetLightColor(FLinearColor(.62f, .38f, 1.f)); AuraLight->SetAttenuationRadius(360.f);
+        AuraLight->RegisterComponent();
+        bShelled = true; SetShellLook(true);
+    }
     PreviousLocation = GetActorLocation();
 }
 void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
@@ -86,9 +102,36 @@ FMemoriaAttackCue AMemoriaFieldMonster::GetAttackCue() const
     else Cue.Radius = Spec().Reach + 40.f; // StrikePlayer includes Arrel's contact allowance
     return Cue;
 }
-bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shove)
+void AMemoriaFieldMonster::SetShellLook(bool bOn)
+{
+    USkeletalMeshComponent* Body = Figure ? Figure->GetSkeletalMesh() : nullptr;
+    if (!Body) return;
+    if (!bOn) { Body->SetOverlayMaterial(nullptr); return; }
+    // The ghost material of S366, as an overlay: the body again, violet and edge-lit.
+    if (auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Combat/M_Afterimage.M_Afterimage")))
+    {
+        auto* Shell = UMaterialInstanceDynamic::Create(Base, this);
+        Shell->SetVectorParameterValue(TEXT("Tint"), FLinearColor(.66f, .42f, 1.f)); Shell->SetScalarParameterValue(TEXT("Alpha"), .55f);
+        Body->SetOverlayMaterial(Shell);
+    }
+}
+bool AMemoriaFieldMonster::BreakShell(const FVector& From)
+{
+    if (!bShelled || IsDead()) return false;
+    bShelled = false; SetShellLook(false);
+    if (AuraLight) AuraLight->SetIntensity(5.f);
+    Stun(EliteShellBreakStun);
+    if (auto* C = Combat()) C->NotifyShellBroken(this, From);
+    return true;
+}
+bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shove, bool bBreaksShell)
 {
     if (IsDead()) return false;
+    // S367: the void shell. A plain blow does a third and does not stop the elite; a breaking one opens it.
+    const bool bWasShelled = bShelled && Damage > 0.f;
+    if (bWasShelled && bBreaksShell) BreakShell(From);
+    else if (bWasShelled) Damage *= EliteShellFactor;
+    LastHitDamage = Damage;
     Health = FMath::Max(0.f, Health - Damage);
     if (Damage > 0.f) { HitFlash = 1.f; Figure->SetHitFlash(1.f); }
     const FVector Away = (GetActorLocation() - From).GetSafeNormal2D();
@@ -102,6 +145,9 @@ bool AMemoriaFieldMonster::TakeHit(float Damage, const FVector& From, float Shov
         if (auto* C = Combat()) C->NotifyMonsterDied(this);
         return true;
     }
+    if (bWasShelled && !bBreaksShell) return true;   // shrugged off: no stagger, no shove
+    // A broken shell has already set the stun; keep it rather than the shorter stagger.
+    if (bWasShelled && State == EMemoriaMonsterState::Stagger) return true;
     Enter(EMemoriaMonsterState::Stagger); StaggerFor = Spec().Stagger;
     Figure->PlayAction(MemoriaCombatClips::Hit(), 1.2f);
     // A shove away from the blow: short for a sword, far for a burn.
@@ -114,6 +160,8 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
     StateTime += DeltaSeconds;
     const FVector Step = GetActorLocation() - PreviousLocation; PreviousLocation = GetActorLocation();
     if (HitFlash > 0.f) { HitFlash = FMath::Max(0.f, HitFlash - DeltaSeconds * 6.f); Figure->SetHitFlash(HitFlash); }
+    if (AuraLight && !IsDead()) { AuraClock += DeltaSeconds; AuraLight->SetIntensity((bShelled ? 14.f : 5.f) * (.75f + .25f * FMath::Sin(AuraClock * 3.1f))); }
+    else if (AuraLight && IsDead()) AuraLight->SetIntensity(0.f);
     Figure->AdvanceLocomotion(Step, DeltaSeconds);
     if (IsDead())
     {

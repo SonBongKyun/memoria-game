@@ -29,6 +29,17 @@ inline constexpr float EchoCounterFactor = 1.6f;
 inline constexpr float GhostDashLife = .42f, GhostDashAlpha = .20f;   // the faint trail of every dash
 inline constexpr float GhostDodgeLife = 1.15f, GhostDodgeAlpha = .62f; // the afterimage that took the blow
 inline constexpr float GhostDashInterval = .10f;    // a second trail ghost mid-dash
+// S367 Void-touched elites: the more Arrel has burned, the sooner the void notices him. A pack's elite is
+// larger and wears a void shell: a plain cut does a third and cannot stop it; an Echo Counter, a heavy cut,
+// a memory burn, Elia's Remembered Strike or a parry breaks the shell and the foe reels.
+inline constexpr float EliteHealth = 2.2f, EliteDamage = 1.3f, EliteScale = 1.18f;
+inline constexpr float EliteShellFactor = .35f;
+inline constexpr float EliteShellBreakStun = 1.2f;
+inline constexpr int64 EliteGrainsFactor = 3;
+inline constexpr int64 EliteFromBattle = 3;          // never in the run's first two fights
+inline int32 EliteInterval(int32 Burns) { return FMath::Clamp(5 - Burns / 2, 2, 5); }
+// Whether the run's Nth roaming fight (1-based) brings an elite: every 5th fight unburned, every 2nd at 6+ burns.
+inline bool EliteWave(int64 BattleNumber, int32 Burns) { return BattleNumber >= EliteFromBattle && BattleNumber % EliteInterval(Burns) == 0; }
 inline constexpr float SheatheDelay = 4.f;          // S312: seconds after the last fight before Arrel sheathes
 // S315 feel: hit stop (real seconds at a near-frozen world), camera shake, sparks, the blade's trail.
 inline constexpr float HitStopDilation = .06f;

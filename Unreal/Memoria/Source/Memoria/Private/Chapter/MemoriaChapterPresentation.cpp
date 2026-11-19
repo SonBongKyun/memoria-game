@@ -280,7 +280,7 @@ void AMemoriaChapterPresentation::UpdateEncounters()
     {
         // S342: the pool's own foe, by its source name, in its pack.
         const EMemoriaFoeKind Kind = FoeKindByName(Spec->Encounters[Step.EnemyIndex].Name, Spec->Encounters[Step.EnemyIndex].bVoid);
-        Combat->SpawnWave(FoePackSize(Kind), Player->GetActorLocation(), 420.f, Kind);
+        Combat->SpawnWave(FoePackSize(Kind), Player->GetActorLocation(), 420.f, Kind, Combat->EncounterElites());
         if (Run) Run->RecordBattleStarted();
         Narrative->Record(TEXT("encounter:field_started:") + Spec->Encounters[Step.EnemyIndex].Name);
     }

@@ -148,7 +148,12 @@ public:
     FMemoriaComboInputProbe GetComboInputProbe() const
     { return {ComboStep, StepTime, StepLength, EarlyComboLeft, bQueued, AimDirection, SwingAimDirection}; }
     // Spawns void husks in a ring around a point on the floor.
-    TArray<AMemoriaFieldMonster*> SpawnWave(int32 Count, const FVector& Center, float Radius = 420.f, EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk);
+    // S367: the first Elites of the wave are void-touched elites.
+    TArray<AMemoriaFieldMonster*> SpawnWave(int32 Count, const FVector& Center, float Radius = 420.f, EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk, int32 Elites = 0);
+    // S367: how many elites the run's next roaming fight brings (0 or 1), by the burn-tightened schedule.
+    int32 EncounterElites() const;
+    void NotifyShellBroken(AMemoriaFieldMonster* Monster, const FVector& From);
+    int32 GetShellsBroken() const { return ShellsBroken; }
     const TArray<TWeakObjectPtr<AMemoriaFieldMonster>>& GetMonsters() const { return Monsters; }
     int32 LiveMonsterCount() const;
     int32 GetKills() const { return Kills; }
@@ -243,7 +248,8 @@ private:
     // S366 Afterimage (MemoriaAfterimageS366.cpp).
     TArray<FMemoriaAfterimageGhost> Ghosts;
     TWeakObjectPtr<class UPostProcessComponent> AfterimagePost;
-    int32 PerfectDodges = 0, EchoCounters = 0;
+    int32 PerfectDodges = 0, EchoCounters = 0, ShellsBroken = 0;
+    bool bWaveElite = false;
     TWeakObjectPtr<class UPoseableMeshComponent> DashGhostBody;   // the ghost left where the dash began
     FVector DashOrigin = FVector::ZeroVector;
     float EchoLeft = 0.f, SlowLeft = 0.f, SlowPeak = 0.f, DashGhostClock = 0.f;

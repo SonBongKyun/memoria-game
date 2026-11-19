@@ -32,7 +32,14 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual UPawnMovementComponent* GetMovementComponent() const override;
     // Returns true when the hit landed (not dead). Staggers and cancels a windup.
-    bool TakeHit(float Damage, const FVector& From, float Shove = 14.f);
+    // S367: on a shelled elite only a shell-breaking blow does full harm and staggers; others do a third.
+    bool TakeHit(float Damage, const FVector& From, float Shove = 14.f, bool bBreaksShell = false);
+    float GetLastHitDamage() const { return LastHitDamage; }
+    // S367: a void-touched elite (set before BeginPlay, as the kind).
+    void SetElite(bool bInElite) { bElite = bInElite; }
+    bool IsElite() const { return bElite; }
+    bool IsShelled() const { return bShelled; }
+    bool BreakShell(const FVector& From);
     // S314: the source burn status on a foe, ticking once a second.
     void Ignite(float TickDamage, int32 Ticks);
     bool IsBurning() const { return IgniteLeft > 0; }
@@ -62,6 +69,10 @@ private:
     float IgniteDamage = 0.f, IgniteClock = 0.f, HitFlash = 0.f, StaggerFor = 0.f;
     FVector PreviousLocation = FVector::ZeroVector, RushDirection = FVector::ForwardVector;
     bool bRushHit = false;
+    bool bElite = false, bShelled = false;
+    float LastHitDamage = 0.f, AuraClock = 0.f;
+    UPROPERTY(Transient) TObjectPtr<class UPointLightComponent> AuraLight;
+    void SetShellLook(bool bOn);
     void Enter(EMemoriaMonsterState Next);
     UMemoriaFieldCombatSubsystem* Combat() const;
 };

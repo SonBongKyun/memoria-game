@@ -280,6 +280,7 @@ bool AMemoriaSliceController::InputKey(const FInputKeyEventArgs& Params)
             if(Params.Key==EKeys::LeftShift || Params.Key==EKeys::RightShift){Combat->RequestDash(GetPawn()->GetLastMovementInputVector().IsNearlyZero()?GetPawn()->GetVelocity():GetPawn()->GetLastMovementInputVector());return true;}
             if(Params.Key==EKeys::F9){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f);return true;}
             if(Params.Key==EKeys::F10){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f,EMemoriaFoeKind::MarketThief);return true;}
+            if(Params.Key==EKeys::F11){Combat->SpawnWave(1,GetPawn()->GetActorLocation(),380.f,EMemoriaFoeKind::MarketThief,1);return true;} // S367: a debug elite
             if(Params.Key==EKeys::R){Combat->OpenBurnPicker();return true;}
             // S341: the quick items on Z X C V B (healing, antidote, firebomb toward the cursor, smoke bomb, witness ink).
             static const FKey QuickItems[5]={EKeys::Z,EKeys::X,EKeys::C,EKeys::V,EKeys::B};
@@ -428,7 +429,7 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
             if (Combat && Combat->GetPlayer())
             {
                 const bool bThief=Step.EnemyIndex%2==1;
-                Combat->SpawnWave(bThief?2:3,GetPawn()->GetActorLocation(),420.f,bThief?EMemoriaFoeKind::MarketThief:EMemoriaFoeKind::VoidHusk);
+                Combat->SpawnWave(bThief?2:3,GetPawn()->GetActorLocation(),420.f,bThief?EMemoriaFoeKind::MarketThief:EMemoriaFoeKind::VoidHusk,Combat->EncounterElites());
                 GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->RecordBattleStarted();
                 Narrative->Record(TEXT("encounter:field_started"));
             }
