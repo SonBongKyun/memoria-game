@@ -19,6 +19,16 @@ inline constexpr float DashTime = .32f;
 inline constexpr float DashDistance = 330.f;
 inline constexpr float DashCooldown = .7f;
 inline constexpr float PlayerStagger = .30f;
+// S366 Afterimage: a dash begun just before a blow lands leaves Arrel's afterimage where he stood, and the blow
+// falls on what he was a moment ago. The world slows, the foe loses him, and his next swing is an Echo Counter.
+inline constexpr float PerfectDodgeWindow = .18f;   // seconds from the dash's start in which a blow counts as dodged on the mark
+inline constexpr float AfterimageSlowDilation = .30f, AfterimageSlowTime = .55f; // real seconds of slowed world
+inline constexpr float AfterimageStun = .9f;        // the foe struck the afterimage and lost him
+inline constexpr float EchoCounterTime = 1.6f;      // world seconds in which the next swing is an Echo Counter
+inline constexpr float EchoCounterFactor = 1.6f;
+inline constexpr float GhostDashLife = .42f, GhostDashAlpha = .20f;   // the faint trail of every dash
+inline constexpr float GhostDodgeLife = 1.15f, GhostDodgeAlpha = .62f; // the afterimage that took the blow
+inline constexpr float GhostDashInterval = .10f;    // a second trail ghost mid-dash
 inline constexpr float SheatheDelay = 4.f;          // S312: seconds after the last fight before Arrel sheathes
 // S315 feel: hit stop (real seconds at a near-frozen world), camera shake, sparks, the blade's trail.
 inline constexpr float HitStopDilation = .06f;

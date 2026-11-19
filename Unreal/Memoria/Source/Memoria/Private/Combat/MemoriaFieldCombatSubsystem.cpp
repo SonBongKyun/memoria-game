@@ -13,6 +13,9 @@
 #include "Engine/PointLight.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/PoseableMeshComponent.h"
+#include "Components/PostProcessComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/App.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "EngineUtils.h"
@@ -96,7 +99,7 @@ void UMemoriaFieldCombatSubsystem::ClearComboIntent()
 bool UMemoriaFieldCombatSubsystem::StartStep(int32 Step)
 {
     auto* Figure = PlayerFigure.Get();
-    ComboStep = Step; StepTime = 0.f; ClearComboIntent(); HitThisSwing.Reset(); DrawSword();
+    ComboStep = Step; StepTime = 0.f; ClearComboIntent(); HitThisSwing.Reset(); DrawSword(); bEchoSwing = false;
     // Animation and the current damage arc commit to the SAME direction. A later
     // press may steer the next cut, but never a cut which is already playing.
     SwingAimDirection = AimDirection;
@@ -142,6 +145,9 @@ bool UMemoriaFieldCombatSubsystem::RequestDash(const FVector& Direction)
     DashDirection = Flat.IsNearlyZero() ? AimDirection : Flat.GetSafeNormal();
     ComboStep = -1; ClearComboIntent(); StaggerLeft = 0.f;
     DashLeft = DashTime; DashCooldownLeft = DashCooldown + DashTime; DrawSword();
+    // S366: the dash leaves a faint ghost where it began; a blow that falls on it in time is an Afterimage.
+    bDodgeSpent = false; bDashTrailSecond = false; DashOrigin = Pawn->GetActorLocation();
+    DashGhostBody = SpawnGhost(GhostDashAlpha, GhostDashLife, FLinearColor(.62f, .74f, 1.f));
     if (Figure)
     {
         Figure->SetAim(DashDirection.Rotation().Yaw);
@@ -164,11 +170,19 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         if (Distance > (IsHeavy() ? HeavyRange : AttackRange) + 30.f) continue;
         if (!IsHeavy() && Distance > 60.f && FVector::DotProduct(To / Distance, SwingAimDirection) < AttackArcCos) continue;
         HitThisSwing.Add(Weak);
-        const float Damage = (IsHeavy() ? HeavyDamage : ComboDamage[FMath::Clamp(ComboStep, 0, 2)]) * (IsWeakened() ? WeakenFactor : 1.f);
+        // S366: the first swing after an Afterimage is an Echo Counter, for every foe that swing reaches.
+        if (!bEchoSwing && EchoLeft > 0.f) { bEchoSwing = true; EchoLeft = 0.f; ++EchoCounters; }
+        const float Damage = (IsHeavy() ? HeavyDamage : ComboDamage[FMath::Clamp(ComboStep, 0, 2)]) * (IsWeakened() ? WeakenFactor : 1.f) * (bEchoSwing ? EchoCounterFactor : 1.f);
         if (Monster->TakeHit(Damage, Origin, IsHeavy() ? HeavyShove : 14.f))
         {
-            const bool bBig = IsHeavy() || ComboStep == 2, bKill = Monster->IsDead();
-            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), FLinearColor::Transparent, bBig || bKill);
+            const bool bBig = IsHeavy() || ComboStep == 2 || bEchoSwing, bKill = Monster->IsDead();
+            ++HitsLanded; Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), bEchoSwing ? FLinearColor(.84f, .72f, 1.f) : FLinearColor::Transparent, bBig || bKill);
+            if (bEchoSwing)
+            {
+                const auto* EchoRun = RunOf(GetWorld()); const bool bEchoKo = EchoRun && EchoRun->GetRunSnapshot().CurrentLocale == TEXT("ko");
+                Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height + 40.f), 0.f, false, bEchoKo ? TEXT("잔상 반격") : TEXT("Echo Counter"), FLinearColor(.84f, .72f, 1.f), true);
+                Burst(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height * .55f), 12, FLinearColor(.7f, .55f, 1.f), 440.f);
+            }
             Cue(GetWorld(), TEXT("hit"));
             HitStop(bBig || bKill ? HitStopHeavy : HitStopLight, bBig ? ShakeHeavy : ShakeLight);
             const FVector Struck = Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height * .55f);
@@ -182,7 +196,9 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
 bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, float Damage, bool bContactResolved)
 {
     APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld()); auto* Figure = PlayerFigure.Get();
-    if (!Pawn || !Monster || !Run || IsInvulnerable()) return false;
+    if (!Pawn || !Monster || !Run) return false;
+    // S366: a blow that meets a dash begun just in time falls on Arrel's afterimage.
+    if (IsInvulnerable()) { TryPerfectDodge(Monster, bContactResolved); return false; }
     if (!bContactResolved && FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
     if (bPicking) CloseBurnPicker();
     const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
@@ -828,7 +844,9 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
 {
     // Hit stop and shake run on real time; sparks and the trail on world time, so they hang in the stop.
     const float Real = FApp::GetDeltaTime();
-    if (HitStopLeft > 0.f && (HitStopLeft -= Real) <= 0.f && !bPicking && GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+    // S366: a hit stop ending inside an Afterimage's slow returns to the slow, not to full speed.
+    if (HitStopLeft > 0.f && (HitStopLeft -= Real) <= 0.f && !bPicking && GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowLeft > 0.f ? AfterimageSlowDilation : 1.f);
+    TickAfterimage(DeltaSeconds, Real);
     ShakeClock += Real; ShakeLeft = FMath::Max(0.f, ShakeLeft - Real);
     // S341: the item's cooldown, and a thrown firebomb's flight to where it bursts.
     ItemCooldownLeft = FMath::Max(0.f, ItemCooldownLeft - DeltaSeconds);
@@ -878,6 +896,7 @@ void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
 void UMemoriaFieldCombatSubsystem::ClearRecoveryState()
 {
     for(const auto& M:Monsters)if(M.IsValid())M->Destroy();
+    ClearAfterimage();
     Monsters.Reset();bDefeated=false;DefeatLeft=0.f;StaggerLeft=CastLeft=DashLeft=0.f;ComboStep=-1;ClearComboIntent();
     WeakenLeft=0.f;PoisonLeft=0;BurnChain=0;WaveKills=0;WaveGrains=0;bWaveVoid=false;
     Thrown.Reset();bWarded=false;Orbs.Reset();ScorchLeft=0;

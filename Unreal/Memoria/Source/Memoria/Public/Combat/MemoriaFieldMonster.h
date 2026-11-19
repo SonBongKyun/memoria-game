@@ -43,6 +43,7 @@ public:
     const FVector& GetRushDirection() const { return RushDirection; }
     FMemoriaAttackCue GetAttackCue() const;
     float GetHitFlash() const { return HitFlash; }
+    float GetStateTime() const { return StateTime; }   // S366: seconds in the current state (tests time a dodge by it)
     bool IsDead() const { return State == EMemoriaMonsterState::Dead; }
     EMemoriaMonsterState GetState() const { return State; }
     float GetHealth() const { return Health; }

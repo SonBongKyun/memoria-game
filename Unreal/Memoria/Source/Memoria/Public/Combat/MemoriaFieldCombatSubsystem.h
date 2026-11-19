@@ -36,6 +36,8 @@ struct FMemoriaTrailSample { FVector Base, Tip; float Age = 0.f; };
 // S342: a caster's orb, flying slowly in a straight line.
 struct FMemoriaOrb { FVector Location = FVector::ZeroVector, Velocity = FVector::ZeroVector; float Age = 0.f, Damage = 0.f; TWeakObjectPtr<class AMemoriaFieldMonster> Owner; FLinearColor Color = FLinearColor::White; };
 // S341: a firebomb in the air, from Arrel's hand to where it bursts.
+// S366: a ghost of Arrel's pose left by a dash (MemoriaAfterimageS366.cpp).
+struct FMemoriaAfterimageGhost { TWeakObjectPtr<class UPoseableMeshComponent> Body; TWeakObjectPtr<class UStaticMeshComponent> Blade; TWeakObjectPtr<class UMaterialInstanceDynamic> Material; float Age = 0.f, Life = .4f, Alpha = .2f; FLinearColor Tint = FLinearColor::White; };
 struct FMemoriaThrown { FVector From = FVector::ZeroVector, To = FVector::ZeroVector; float Age = 0.f; };
 
 // S311: field action combat. Owns the player's combo, dash and stagger, the live monsters, damage and
@@ -95,6 +97,14 @@ public:
     int32 GetParries() const { return Parries; }
     int32 GetBlocks() const { return Blocks; }
     bool IsHitStopped() const { return HitStopLeft > 0.f; }
+    // S366 Afterimage (perfect dodge) and its Echo Counter; the ghosts are Arrel's own pose, fading.
+    int32 GetPerfectDodges() const { return PerfectDodges; }
+    int32 GetEchoCounters() const { return EchoCounters; }
+    bool IsEchoCounterReady() const { return EchoLeft > 0.f; }
+    bool IsAfterimageSlow() const { return SlowLeft > 0.f; }
+    float GetAfterimageWeight() const;
+    int32 GetGhostCount() const { return Ghosts.Num(); }
+    float GetBrightestGhostAlpha() const;
     FVector GetShakeOffset() const;
     const TArray<FMemoriaSpark>& GetSparks() const { return Sparks; }
     const TArray<FMemoriaTrailSample>& GetTrail() const { return Trail; }
@@ -230,4 +240,16 @@ private:
     bool StartStep(int32 Step);
     void ResolveSwing();
     void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent, bool bBig = false, EMemoriaDefenseOutcome Outcome = EMemoriaDefenseOutcome::None);
+    // S366 Afterimage (MemoriaAfterimageS366.cpp).
+    TArray<FMemoriaAfterimageGhost> Ghosts;
+    TWeakObjectPtr<class UPostProcessComponent> AfterimagePost;
+    int32 PerfectDodges = 0, EchoCounters = 0;
+    TWeakObjectPtr<class UPoseableMeshComponent> DashGhostBody;   // the ghost left where the dash began
+    FVector DashOrigin = FVector::ZeroVector;
+    float EchoLeft = 0.f, SlowLeft = 0.f, SlowPeak = 0.f, DashGhostClock = 0.f;
+    bool bDodgeSpent = false, bEchoSwing = false, bDashTrailSecond = false;
+    bool TryPerfectDodge(AMemoriaFieldMonster* Monster, bool bContactResolved);
+    class UPoseableMeshComponent* SpawnGhost(float Alpha, float Life, const FLinearColor& Tint);
+    void TickAfterimage(float DeltaSeconds, float Real);
+    void ClearAfterimage();
 };
