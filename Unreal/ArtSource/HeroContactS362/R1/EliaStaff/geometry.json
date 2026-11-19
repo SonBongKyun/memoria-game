@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "session": "S362",
+  "revision": "R1",
+  "name": "EliaStaff",
+  "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\FieldCharacters\\elia\\elia_prop_staff.fbx",
+  "source_sha256": "fe74531ef66971fb567d75aa730c0885a27d13754154d6f4f94806fbeb70f55c",
+  "generator_sha256": "85ef242f99422c3f65a09caa7eac2dba47f2730a540e40e166e35947271b6dfd",
+  "output_sha256": "991f52fe949c1bb68dcbb10b5deac3723b7dba3d6fb0b00502b3e03ec1af2a64",
+  "source_materials": [
+    "EliaProps"
+  ],
+  "output_materials": [
+    "EliaProps",
+    "S362_StaffMetal",
+    "S362_StaffCrystal"
+  ],
+  "source_origin_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "triangles": 1716,
+  "detail": {
+    "original_gold_triangles_material_finished": 728,
+    "replaced_only_crystal_triangles": 20,
+    "crystal_facet_inset_m": 0.0008,
+    "new_collars_z_m": [
+      -0.4,
+      0.22
+    ],
+    "original_crystal_outer_points_kept": true,
+    "native_material_contract": "Old atlas BaseColor/UVs reused by copied gold/crystal graphs; wood/leather slot0 unchanged."
+  },
+  "authored_retained": {
+    "source_corners": 2508,
+    "retained_corners": 2508,
+    "position_all_UVs_ratio": 1.0,
+    "UV_channels": [
+      "UVMap"
+    ]
+  },
+  "roundtrip_retained": {
+    "source_corners": 2508,
+    "retained_corners": 2508,
+    "position_all_UVs_ratio": 1.0,
+    "UV_channels": [
+      "UVMap"
+    ]
+  },
+  "roundtrip_envelope": {
+    "maximum_world_bound_error_m": 0.0,
+    "tolerance_m": 2e-06,
+    "original": [
+      [
+        -0.21195732057094574,
+        0.21195732057094574
+      ],
+      [
+        -0.02849644236266613,
+        0.02849644236266613
+      ],
+      [
+        -0.903499960899353,
+        0.9220000505447388
+      ]
+    ],
+    "current": [
+      [
+        -0.21195732057094574,
+        0.21195732057094574
+      ],
+      [
+        -0.02849644236266613,
+        0.02849644236266613
+      ],
+      [
+        -0.903499960899353,
+        0.9220000505447388
+      ]
+    ]
+  },
+  "contract": "Original prop origin, grip frame, length, outer bounds and all retained original paint UVs unchanged. No image, hero/clothes, rig, clip or gameplay edit."
+}

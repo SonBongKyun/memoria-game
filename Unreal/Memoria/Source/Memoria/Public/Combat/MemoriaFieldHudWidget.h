@@ -2,8 +2,23 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Styling/SlateBrush.h"
+#include "Combat/MemoriaHudLayoutS363.h"
 #include "MemoriaFieldHudWidget.generated.h"
 class UTexture2D;
+class AActor;
+
+// Read-only proof of the cue actually painted for the existing interaction resolver.
+struct FMemoriaInteractionFocusPaintProbe
+{
+    bool bDrawn = false, bUsingGamepad = false;
+    uint64 Frame = 0;
+    TWeakObjectPtr<AActor> Target;
+    FVector WorldAnchor = FVector::ZeroVector;
+    FVector2D Viewport = FVector2D::ZeroVector;
+    FBox2D Bounds{ForceInit};
+    FString Prompt;
+    int32 Segments = 0;
+};
 
 // What the field shows beside the status plate while Arrel explores.
 struct FMemoriaFieldHudView
@@ -30,12 +45,16 @@ public:
     bool HasRibbon() const { return Toast != nullptr; }
     // S341: the quick items' tray at the bottom right: each slot's icon, key and count.
     int32 GetIconCount() const { return Icons.Num(); }
+    const FMemoriaQuickTrayPaintProbe& GetQuickTrayPaintProbe() const { return QuickTrayProbe; }
+    const FMemoriaInteractionFocusPaintProbe& GetInteractionFocusPaintProbe() const { return InteractionFocusProbe; }
 protected:
     virtual void NativeConstruct() override;
     virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const override;
 private:
     FMemoriaFieldHudView View;
+    mutable FMemoriaQuickTrayPaintProbe QuickTrayProbe;
+    mutable FMemoriaInteractionFocusPaintProbe InteractionFocusProbe;
     UPROPERTY(Transient) TObjectPtr<UTexture2D> Toast;
     FSlateBrush ToastBrush;
     UPROPERTY(Transient) TMap<FString, TObjectPtr<UTexture2D>> Icons;

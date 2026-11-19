@@ -1,0 +1,91 @@
+{
+  "schema": 2,
+  "session": "S362",
+  "revision": "R2",
+  "name": "ArrelBlade",
+  "triangles": 158,
+  "materials": [
+    {
+      "slot": 0,
+      "name": "ArrelBlade",
+      "triangles": 158,
+      "bounds_m": [
+        [
+          -0.02199999988079071,
+          0.02199999988079071
+        ],
+        [
+          -0.0044999998062849045,
+          0.0044999998062849045
+        ],
+        [
+          -0.9100251793861389,
+          -0.12434449791908264
+        ]
+      ]
+    }
+  ],
+  "origin_world_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "bounds_m": [
+    [
+      -0.02199999988079071,
+      0.02199999988079071
+    ],
+    [
+      -0.0044999998062849045,
+      0.0044999998062849045
+    ],
+    [
+      -0.9100251793861389,
+      -0.12434449791908264
+    ]
+  ],
+  "authored_original_geometry": null,
+  "roundtrip_position_UVs_RGBA": {
+    "retained_corners": 474,
+    "source_corners": 474,
+    "all_UVs_RGBA_position_ratio": 1.0,
+    "UV_channels": [
+      "UVMap",
+      "UVMap.001"
+    ]
+  },
+  "roundtrip_envelope": {
+    "maximum_world_bound_error_m": 0.0,
+    "tolerance_m": 2e-06,
+    "original": [
+      [
+        -0.02199999988079071,
+        0.02199999988079071
+      ],
+      [
+        -0.0044999998062849045,
+        0.0044999998062849045
+      ],
+      [
+        -0.9100251793861389,
+        -0.12434449791908264
+      ]
+    ],
+    "current": [
+      [
+        -0.02199999988079071,
+        0.02199999988079071
+      ],
+      [
+        -0.0044999998062849045,
+        0.0044999998062849045
+      ],
+      [
+        -0.9100251793861389,
+        -0.12434449791908264
+      ]
+    ]
+  },
+  "output_sha256": "42582137a365665644dd13ed68e9acb1f56457eaa64cd47894bbb7700fc1e954",
+  "purpose": "Append new geometry only to a copy of original native MeshDescription."
+}

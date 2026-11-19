@@ -1,4 +1,5 @@
 #include "Codex/MemoriaCodexSubsystem.h"
+#include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Presentation/MemoriaArchiveView.h"
@@ -45,7 +46,7 @@ FString UMemoriaCodexSubsystem::Path() const { return FPaths::ProjectSavedDir() 
 void UMemoriaCodexSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
-    bPersist = !GIsAutomationTesting && !IsRunningCommandlet() && !FApp::IsUnattended();
+    bPersist = !GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive() && !IsRunningCommandlet() && !FApp::IsUnattended();
     FString Text; TSharedPtr<FJsonObject> O;
     if (!bPersist || !FFileHelper::LoadFileToString(Text, *Path()) || !FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Text), O) || !O) return;
     const TArray<TSharedPtr<FJsonValue>>* List;

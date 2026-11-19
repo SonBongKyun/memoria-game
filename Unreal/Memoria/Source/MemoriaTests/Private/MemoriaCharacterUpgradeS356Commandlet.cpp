@@ -135,7 +135,7 @@ UMaterial* BodyMaterial(const FString& Name,const FString& OriginalName,UTexture
     const FString DetailPath=TEXT("/Game/Memoria/Presentation/SurfaceDetail/T_")+(Human?(Ash?FString(TEXT("HuskDetail")):Name==TEXT("BeltScavenger")?FString(TEXT("ThiefDetail")):FString(TEXT("HeroDetail"))):FString(TEXT("HeroDetail")))+TEXT("_Normal");
     auto* Normal=Load<UTexture2D>(DetailPath);if (!Paint || !Normal)return nullptr;
     auto* M=NewObject<UMaterial>(CreatePackage(*Path),*FPackageName::GetShortName(Path),RF_Public|RF_Standalone);
-    M->SetShadingModel(MSM_DefaultLit);M->bUsedWithSkeletalMesh=true;M->TwoSided=true;
+    M->SetShadingModel(MSM_DefaultLit);M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);M->TwoSided=true;
     auto* Regions=Node<UMaterialExpressionVertexColor>(M);
     auto* Mask=Node<UMaterialExpressionComponentMask>(M);Mask->Input.Connect(4,Regions);Mask->R=true;
     auto* UV=Node<UMaterialExpressionTextureCoordinate>(M);

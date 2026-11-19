@@ -10,6 +10,7 @@
 #include "Framework/MemoriaCoordinates.h"
 #include "Narrative/MemoriaVerdanStory.h"
 #include "Narrative/MemoriaSumpLedger.h"
+#include "Narrative/MemoriaNavigationGoal.h"
 #include "Chapter/MemoriaChapterMap.h"
 #include "Narrative/MemoriaClassifier.h"
 #include "Achievements/MemoriaAchievementSubsystem.h"
@@ -197,13 +198,15 @@ bool UMemoriaNarrativeSubsystem::AutosaveChapterMap(const FString& Map, const FV
     Record(Saved ? TEXT("autosave:map_saved:") + Map : FString(TEXT("autosave:skipped")));
     return Saved;
 }
-bool UMemoriaNarrativeSubsystem::ContinueChapterMap(const FString& Map)
+bool UMemoriaNarrativeSubsystem::ContinueChapterMap(const FString& Map,int32 ManualSlot)
 {
     auto* Checkpoint = GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
     ContinuedMapPosition.Reset();
     // The slot must name this map; a refused load leaves a live run as it was.
     FString Saved; FVector2D Position;
-    if (Checkpoint->PeekChapterMap() != Map || !Checkpoint->RestoreChapterMap(Saved, Position)) { bMapLoadFailed = true; Record(TEXT("autosave:map_resume_failed")); return false; }
+    const bool bRestored=ManualSlot==0 ? Checkpoint->PeekChapterMap()==Map && Checkpoint->RestoreChapterMap(Saved,Position)
+        : Checkpoint->GetManualSlotSummary(ManualSlot).Map==Map && Checkpoint->RestoreManualSlot(ManualSlot,Saved,Position);
+    if (!bRestored) { bMapLoadFailed = true; Record(TEXT("autosave:map_resume_failed")); return false; }
     bMapLoadFailed = false; ContinuedMapPosition = Position; Record(TEXT("autosave:map_resumed:") + Map);
     return true;
 }
@@ -288,19 +291,23 @@ bool UMemoriaNarrativeSubsystem::EnterVerdan()
     Explore(); return true;
 }
 
-bool UMemoriaNarrativeSubsystem::ContinueCheckpoint()
+bool UMemoriaNarrativeSubsystem::ContinueCheckpoint(int32 ManualSlot)
 {
     auto* World=GetWorld();
     if (!World || World->bIsTearingDown || !World->GetMapName().EndsWith(TEXT("L_VerdanHost"))) return false;
     FVector2D Position;
     auto* Checkpoint=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>();
-    if (!Checkpoint->RestoreClosedBoundary(Position))
+    FString LoadedMap;
+    const bool bRestored=ManualSlot==0 ? Checkpoint->RestoreClosedBoundary(Position)
+        : Checkpoint->GetManualSlotSummary(ManualSlot).Map==TEXT("verdan_market") && Checkpoint->RestoreManualSlot(ManualSlot,LoadedMap,Position);
+    if (!bRestored)
     {
         // A failed load leaves an existing run and its owner unchanged.
         if (!Context) { bCheckpointLoadFailed=true; State=EMemoriaSliceState::Deferred; CheckpointWorld=World; }
         ++Revision; return false;
     }
     Context=MakeUnique<FMemoriaNarrativeContext>(Run->State,*Run->GetPlayerMemory());
+    bTitle=false; // Only an accepted checkpoint restore transfers ownership away from Title.
     bCheckpointScreen=true; bCheckpointLoadFailed=false; CheckpointWorld=World;
     State=EMemoriaSliceState::Deferred; DeferredInteraction=TEXT("before:chapter_transition_delay");
     if (auto* PC=World->GetFirstPlayerController())
@@ -502,13 +509,22 @@ FString UMemoriaNarrativeSubsystem::GetExplorationNotice() const
 }
 FString UMemoriaNarrativeSubsystem::GetQuestTrackerLine() const
 {
-    if (!Run || !Run->HasActiveRun() || !MemoriaSumpLedger::IsActive(Run->GetRunSnapshot())) return FString();
-    const bool bKo = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
-    return (bKo ? TEXT("퀘스트  ") : TEXT("QUEST  ")) + MemoriaSumpLedger::Title(bKo) + TEXT("  -  ") + MemoriaSumpLedger::CurrentStepText(Run->GetRunSnapshot(), bKo);
+    if (!Run || !Run->HasActiveRun()) return FString();
+    const auto Snapshot = Run->GetRunSnapshot();
+    // The active ledger keeps its existing priority even while its dialogue is visible.
+    // Main goals only describe the actual current exploration field.
+    if (State != EMemoriaSliceState::Exploration && !MemoriaSumpLedger::IsActive(Snapshot)) return FString();
+    FString Region = ChapterMap;
+    if (Region.IsEmpty() && GetWorld() && GetWorld()->GetMapName().EndsWith(TEXT("L_VerdanHost"))) Region = TEXT("verdan_market");
+    return MemoriaNavigationGoal::Line(Snapshot, Region, IsVerdanRevisit());
+}
+bool UMemoriaNarrativeSubsystem::CanInteractWithElia() const
+{
+    return State == EMemoriaSliceState::Exploration && Context && StoryWorld.IsValid() && StoryWorld.Get() == GetWorld();
 }
 bool UMemoriaNarrativeSubsystem::InteractWithElia()
 {
-    if (State != EMemoriaSliceState::Exploration || !Context || !StoryWorld.IsValid() || StoryWorld.Get() != GetWorld()) return false;
+    if (!CanInteractWithElia()) return false;
     const auto& S = Run->GetRunSnapshot();
     // PerceptionFilter.take_burn_reaction, in the order verdan_market.gd sets the metadata.
     for (const auto& R : MemoriaVerdanStory::EliaReactions())

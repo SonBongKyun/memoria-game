@@ -1,0 +1,412 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-26T06:18:48.812441+00:00",
+  "project": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+  "engine": "5.8.2/DX11",
+  "base": "6fd6fce0f169193d35c6f48172c05cfe17ead1d0",
+  "committed": false,
+  "native": {
+    "unique_tests": 40,
+    "warning_bearing_tests": 1,
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\result.json",
+    "captures": 522,
+    "inputs_unchanged": true,
+    "scope": "Relevant regression selection; full354 not rerun."
+  },
+  "baseline": {
+    "tests": 3,
+    "same_saved_execution_inputs_as_final_native": true,
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\result.json"
+  },
+  "regional_comparison": {
+    "status": "PASS",
+    "pairs": [
+      {
+        "region": "verdan_market",
+        "view": "Wide",
+        "player_world_max_abs_delta": 0,
+        "camera_world_max_abs_delta": 0,
+        "camera_rotation_max_abs_delta": 0.0,
+        "camera_fov": 55,
+        "before_world_seconds": 1.6166667509824038,
+        "after_world_seconds": 1.6166667509824038,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\verdan_market_Baseline_Wide.png",
+            "sha256": "d3841ee24c59f84d4c38a4016199595e7cc828022b1cb83a2cc9a43304f99e55"
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\verdan_market_After_Wide.png",
+            "sha256": "1a4d3ab027c4eb394fe3537e21c257dfa22941a23a42a29865754749ad670816"
+          }
+        ],
+        "solid_instances": 62,
+        "soft_planes": 4
+      },
+      {
+        "region": "verdan_market",
+        "view": "Detail",
+        "player_world_max_abs_delta": 0,
+        "camera_world_max_abs_delta": 0,
+        "camera_rotation_max_abs_delta": 0.0,
+        "camera_fov": 55,
+        "before_world_seconds": 2.0500001069158316,
+        "after_world_seconds": 2.0500001069158316,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\verdan_market_Baseline_Detail.png",
+            "sha256": "aebe9c5f6e7734c736043f01a72edbea8b0822de82842f0b1b02e73ba0f534b6"
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\verdan_market_After_Detail.png",
+            "sha256": "605d6360962f6dc7393c75fc46ca25cc2bc4e2ac37eab6c45121d98ed643fb66"
+          }
+        ],
+        "solid_instances": 62,
+        "soft_planes": 4
+      },
+      {
+        "region": "belt_waystation",
+        "view": "Wide",
+        "player_world_max_abs_delta": 0,
+        "camera_world_max_abs_delta": 0,
+        "camera_rotation_max_abs_delta": 0.0,
+        "camera_fov": 55,
+        "before_world_seconds": 8.832895213738084,
+        "after_world_seconds": 8.817981516942382,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\belt_waystation_Baseline_Wide.png",
+            "sha256": "80657b41b59c6feae517e48ceecd39ccab68ebbef3453e44b42958430f350ada"
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\belt_waystation_After_Wide.png",
+            "sha256": "7c48270dc4e8ecdb7e9f6b3c8358cfe1eaae169d346a701eaab77b8f0e2b5482"
+          }
+        ],
+        "solid_instances": 280,
+        "soft_planes": 8
+      },
+      {
+        "region": "belt_waystation",
+        "view": "Detail",
+        "player_world_max_abs_delta": 0,
+        "camera_world_max_abs_delta": 0,
+        "camera_rotation_max_abs_delta": 0.0,
+        "camera_fov": 55,
+        "before_world_seconds": 9.266228569671512,
+        "after_world_seconds": 9.25131487287581,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\belt_waystation_Baseline_Detail.png",
+            "sha256": "3a416c39377ad5f86600b46c4c453c405201dd4a439d1e0bb3946801754e87f0"
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\belt_waystation_After_Detail.png",
+            "sha256": "422d1f772de534142d540a62314bbdf1206772157dd3ba828efb3a424085e784"
+          }
+        ],
+        "solid_instances": 280,
+        "soft_planes": 8
+      },
+      {
+        "region": "drift_shelter",
+        "view": "Wide",
+        "player_world_max_abs_delta": 0,
+        "camera_world_max_abs_delta": 0,
+        "camera_rotation_max_abs_delta": 0.0,
+        "camera_fov": 55,
+        "before_world_seconds": 9.230882050469518,
+        "after_world_seconds": 9.221795735880733,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\drift_shelter_Baseline_Wide.png",
+            "sha256": "fe2ad4a41259d2b19799d0e61be44c580f2deda67b14bf4fe534da73ff56f4d3"
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\drift_shelter_After_Wide.png",
+            "sha256": "814451b9e1f137ef2aa685ef2922ffe8040d0ecfa716c989c0a6665bfb529029"
+          }
+        ],
+        "solid_instances": 187,
+        "soft_planes": 8
+      },
+      {
+        "region": "drift_shelter",
+        "view": "Detail",
+        "player_world_max_abs_delta": 0,
+        "camera_world_max_abs_delta": 0,
+        "camera_rotation_max_abs_delta": 0.0,
+        "camera_fov": 55,
+        "before_world_seconds": 9.664215406402946,
+        "after_world_seconds": 9.65512909181416,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\drift_shelter_Baseline_Detail.png",
+            "sha256": "d3850576631a303bc98331623b5e66a21500c7ea75b996acb0526fa8be879a87"
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\drift_shelter_After_Detail.png",
+            "sha256": "0b5094642aab25133896c61d0fe1ea8f2620e31799c039ffcf77981c1e7e8e1c"
+          }
+        ],
+        "solid_instances": 187,
+        "soft_planes": 8
+      }
+    ],
+    "limit": "Same authored player/camera/FOV and actual1280x720 pixels. World time/weather/particles are recorded but not claimed pixel-identical."
+  },
+  "preservation": {
+    "status": "PASS",
+    "original_packages_unchanged": 882,
+    "package_set_unchanged": true,
+    "all_existing_art_source_unchanged": true,
+    "original_animation_bridge_restored": true,
+    "current_source_registry": 354,
+    "baseline_execution_inputs": 1961,
+    "current_execution_inputs": 1969,
+    "execution_input_changes": {
+      "added": [
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaHudLayoutS363.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Presentation/MemoriaRegionalAtmosphereS363.cpp",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaHudLayoutS363.h",
+        "Unreal/Memoria/Source/Memoria/Public/Presentation/MemoriaRegionalAtmosphereS363.h",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaHudS363Tests.cpp",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaRegionalS363Tests.cpp",
+        "Unreal/Tools/run_s363_native.py",
+        "Unreal/Tools/run_s363_packaged.py"
+      ],
+      "removed": [],
+      "changed": [
+        "Unreal/Memoria/Binaries/Win64/UnrealEditor-Memoria.dll",
+        "Unreal/Memoria/Binaries/Win64/UnrealEditor-MemoriaTests.dll",
+        "Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterEnvironment.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaCombatHudWidget.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldCombatSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldHudWidget.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Presentation/MemoriaVerdanPresentation.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Validation/MemoriaUpgradeSmokeSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaCombatHudWidget.h",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaFieldCombatSubsystem.h",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaFieldHudWidget.h"
+      ]
+    },
+    "unexpected_changes": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "limit": "Checks actual saved inputs against start-of-S363. No independent compilation provenance, Shipping or external checkout certification."
+  },
+  "packaged": {
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\packaged-smoke1\\result.json",
+    "build_receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\package-dev-build1\\result.json",
+    "captures": 13,
+    "exit_code": 0,
+    "engine_csv": {
+      "expected_path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/UpgradeSmokeRuntime/s363-28fe7f01de1e40678e150227e26c10e3/Saved/Validation/UpgradeSmoke/upgrade-smoke-3644C61D4CC33F76532E1BB32DAB32E7/EngineCookedSmoke.csv",
+      "completion_limit": "Use engine default blocking finalization with the normal processing thread to avoid the installed UE5.8 nonblocking Stop retry race. The fifteen-second future/artifact poll does not bound the engine end-frame file-write wait; an external600second process deadline is required. Phase17 is excluded from gameplay measurements.",
+      "source": "Owned cooked-process engine CSV; raw GPUTime/GPUMem/animation counters are separate from inline manual CPU/RHI/DXGI summaries.",
+      "tag_mapping": "MemoriaS362Smoke/Region:0=unmapped,1=Verdan,2=Belt,3=Drift; Phase=harness phase; CapturePending/ActualCombat are 0 or 1. Render/GPU pipeline counters may lag these game-thread tags.",
+      "gpu_timing_status": "Not inferred here; inspect finalized raw GPUTime for valid positive samples. Missing/nonpositive GPUTime is unavailable, never substituted with CPU/wall time.",
+      "status": "complete",
+      "actual_path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/UpgradeSmokeRuntime/s363-28fe7f01de1e40678e150227e26c10e3/Saved/Validation/UpgradeSmoke/upgrade-smoke-3644C61D4CC33F76532E1BB32DAB32E7/EngineCookedSmoke.csv",
+      "capture_started_elapsed_seconds": 0.07447429746389389,
+      "stop_requested_elapsed_seconds": 32.14721119776368,
+      "bytes": 14233730,
+      "sha1": "5ADCD084983FE75349250FFD34D79EE40E0916E2",
+      "completed_utc": "2026-10-26T06:16:33.529Z",
+      "completion_elapsed_seconds": 32.249454598873854,
+      "gpu_time_column_present": true,
+      "completion_future_ready": true,
+      "final_header_metadata_present": true
+    },
+    "inner_executable": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\package-dev1\\Windows\\Memoria\\Binaries\\Win64\\Memoria.exe",
+    "inner_executable_sha256": "c2790e263cac4c91a4d77edc82f66fc86888293a4be572fbbb067e6865ae5a8e"
+  },
+  "retained_images": [
+    {
+      "path": "docs/unreal-migration/evidence/s363/verdan_market_Wide_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\verdan_market_Baseline_Wide.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d3841ee24c59f84d4c38a4016199595e7cc828022b1cb83a2cc9a43304f99e55",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/verdan_market_Wide_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\verdan_market_After_Wide.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "1a4d3ab027c4eb394fe3537e21c257dfa22941a23a42a29865754749ad670816",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/verdan_market_Detail_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\verdan_market_Baseline_Detail.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "aebe9c5f6e7734c736043f01a72edbea8b0822de82842f0b1b02e73ba0f534b6",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/verdan_market_Detail_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\verdan_market_After_Detail.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "605d6360962f6dc7393c75fc46ca25cc2bc4e2ac37eab6c45121d98ed643fb66",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/belt_waystation_Wide_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\belt_waystation_Baseline_Wide.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "80657b41b59c6feae517e48ceecd39ccab68ebbef3453e44b42958430f350ada",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/belt_waystation_Wide_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\belt_waystation_After_Wide.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "7c48270dc4e8ecdb7e9f6b3c8358cfe1eaae169d346a701eaab77b8f0e2b5482",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/belt_waystation_Detail_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\belt_waystation_Baseline_Detail.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "3a416c39377ad5f86600b46c4c453c405201dd4a439d1e0bb3946801754e87f0",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/belt_waystation_Detail_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\belt_waystation_After_Detail.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "422d1f772de534142d540a62314bbdf1206772157dd3ba828efb3a424085e784",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/drift_shelter_Wide_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\drift_shelter_Baseline_Wide.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "fe2ad4a41259d2b19799d0e61be44c580f2deda67b14bf4fe534da73ff56f4d3",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/drift_shelter_Wide_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\drift_shelter_After_Wide.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "814451b9e1f137ef2aa685ef2922ffe8040d0ecfa716c989c0a6665bfb529029",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/drift_shelter_Detail_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\region-baseline3\\Captures\\S363Regional\\D4189AFD4D307EF52A4612A4843743C2\\drift_shelter_Baseline_Detail.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d3850576631a303bc98331623b5e66a21500c7ea75b996acb0526fa8be879a87",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/drift_shelter_Detail_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Regional\\496054E34BFA0C3017FDEAA22EF8162B\\drift_shelter_After_Detail.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "0b5094642aab25133896c61d0fe1ea8f2620e31799c039ffcf77981c1e7e8e1c",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Case00_Idle.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Hud\\Case00_Idle.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "e9fea1dbbdbac8d203654d83a6958e78ad5b5b210a0278b74773e4e07a233fe9",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Case00_Combat.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Hud\\Case00_Combat.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "40405863f410c008be614cabf8973c580fa3f2bc58745ff3ec59eabaf72043bd",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Case01_PickerFirstPaint.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Hud\\Case01_PickerFirstPaint.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "f576825b7fb2b4ddf0c254a5e1d0cf33229bfb0f66da119728b490b88314d393",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Case07_Combat.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Hud\\Case07_Combat.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "b107efd8496ac827128c09b7a233266e7235320959dc0f79bebad14c971b000d",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Case15_PickerFirstPaint.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\final-native2\\Captures\\S363Hud\\Case15_PickerFirstPaint.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "6fba90657afe05507f847ccaa3f1edd02ac64c46db7c09ec6922306ecc091ea4",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Cooked_03_BurnPicker.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\packaged-smoke1\\RuntimeArtifacts\\03_BurnPicker.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "98518e6f5eb45b3b5850e84b1f74017c4d450f08024559fdf00c321d4ce26aa8",
+      "modified_pixels": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s363/Cooked_13_GuardHud.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\packaged-smoke1\\RuntimeArtifacts\\13_GuardHud.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4488aee0ac48f8ea42116f562c935d5d8a452b9d116b9ee0f98b7bde3226b125",
+      "modified_pixels": false
+    }
+  ],
+  "performance_analysis": {
+    "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\performance-final.json",
+    "classification": "verified_cooked_development_smoke",
+    "limits": [
+      "Bounded seeded cooked Development smoke, not a steady-state or Shipping benchmark, human playthrough or before/after optimization comparison.",
+      "No FPS/performance pass thresholds are imposed. Evidence integrity and measurement availability are separate from performance quality.",
+      "No warmup was added. Captures, UI, streaming, seeded encounters, file work and profiling overhead can affect observations.",
+      "Region/phase/capture/combat tags come from the game thread. Published render/RHI/GPU counters may lag those tags; no exact cross-thread alignment is claimed.",
+      "Phase17 is artifact finalization and is excluded from gameplay summaries. Capture/combat groups are separated, not silently pooled into an idle rendering benchmark.",
+      "Nearest-rank p50/p95/p99 are computed from actual valid raw samples. Small sample counts remain visible; no percentile is invented from manual min/mean/max aggregates.",
+      "GPUTime requires positive raw engine samples. Missing/nonpositive GPU timing is unavailable; CPU/wall timings are never substituted.",
+      "Manual scoped CPU, engine thread timing and parallel-task sums measure different scopes and may overlap. Manual scopes exclude separate engine bone refresh and GPU skinning.",
+      "RHI texture allocation accounting, one-shot DXGI process LOCAL usage/budget and engine GPUMem counters have different scopes. No texture dimensions are converted to invented VRAM bytes.",
+      "The status exit_code is the harness's recorded intent. External process exit/log/fatal validation remains a separate runner responsibility."
+    ]
+  },
+  "rejected_cloth": {
+    "baseline_crossing_samples": 893,
+    "positive_candidate": 937,
+    "negative_candidate": 870,
+    "negative_guard20_baseline": 125,
+    "negative_guard20_candidate": 136,
+    "active_correction": false,
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s363\\rejected-cloth-code1\\receipt.json"
+  },
+  "limits": [
+    "Subtle additive regional surface/threshold polish; not a scene or character replacement.",
+    "Original cape/leg-armor clipping remains; cloth correction rejected, not shipped.",
+    "Actual same camera/FOV/dimensions; world time/weather not claimed pixel-identical.",
+    "No physical gamepad, human full playthrough, Shipping or steady-state performance certification."
+  ]
+}

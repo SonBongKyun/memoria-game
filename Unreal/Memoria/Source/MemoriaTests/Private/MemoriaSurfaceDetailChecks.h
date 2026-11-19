@@ -1,4 +1,5 @@
 #pragma once
+#include "Materials/MaterialExpression.h"
 #include "Misc/AutomationTest.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/Texture2D.h"
@@ -20,7 +21,7 @@ inline bool MemoriaSurfaceReachable(UMaterialExpression* Root,FName Parameter,UT
         Seen.Add(Expression);
         if(auto* Sample=Cast<UMaterialExpressionTextureSampleParameter2D>(Expression);
             Sample&&Sample->ParameterName==Parameter&&Sample->Texture==Texture)return true;
-        for(FExpressionInput* Input:Expression->GetInputsView())if(Input&&Visit(Input->Expression))return true;
+        for (FExpressionInputIterator Input{Expression}; Input; ++Input)if(Input&&Visit(Input->Expression))return true;
         return false;
     };
     return Visit(Root);

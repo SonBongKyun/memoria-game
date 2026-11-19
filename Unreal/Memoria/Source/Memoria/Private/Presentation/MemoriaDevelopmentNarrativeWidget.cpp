@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
+#include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Presentation/MemoriaFonts.h"
 #include "Presentation/MemoriaUiKit.h"
@@ -217,7 +218,7 @@ FString UMemoriaDevelopmentNarrativeWidget::StoryBody() const
 }
 bool UMemoriaDevelopmentNarrativeWidget::IsTyping() const
 {
-    const bool Enabled=TypewriterOverride.Get(!GIsAutomationTesting);
+    const bool Enabled=TypewriterOverride.Get(!GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive());
     return Enabled && IsStoryMode() && !View.bPaused && View.Choices.IsEmpty() && Typed<ShownBody.Len();
 }
 void UMemoriaDevelopmentNarrativeWidget::Display(const FMemoriaNarrativeView& InView)
@@ -310,7 +311,7 @@ FMemoriaPresentationProbe UMemoriaDevelopmentNarrativeWidget::GetPresentationPro
 void UMemoriaDevelopmentNarrativeWidget::ApplyStoryText()
 {
     if(!StoryText)return;
-    const bool Enabled=TypewriterOverride.Get(!GIsAutomationTesting);
+    const bool Enabled=TypewriterOverride.Get(!GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive());
     const int32 Count=Enabled?FMath::Clamp(FMath::FloorToInt(Typed),0,ShownBody.Len()):ShownBody.Len();
     FString Shown=ShownBody.Left(Count);const FString Rest=ShownBody.Mid(Count);
     // _play_subtle_distortion pre-glitch: the line reads scrambled for its first 0.12 s.

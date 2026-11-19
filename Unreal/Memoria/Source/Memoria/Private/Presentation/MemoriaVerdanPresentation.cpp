@@ -1,4 +1,6 @@
 #include "Presentation/MemoriaVerdanPresentation.h"
+#include "Presentation/MemoriaRegionalAtmosphereS363.h"
+#include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Narrative/MemoriaVerdanStory.h"
@@ -34,7 +36,6 @@
 #if WITH_EDITOR
 #include "TextureCompiler.h"
 #include "Engine/Texture2D.h"
-#include "Achievements/MemoriaAchievementSubsystem.h"
 #endif
 namespace
 {
@@ -211,6 +212,59 @@ void AMemoriaVerdanPresentation::Stall(FVector P, UMaterialInterface* Timber, UM
     Box(Cloth,P+FVector(-22,18,24),FVector(27,27,37));
     Box(Timber,P+FVector(18,20,18),FVector(39,32,25));
     for (double X : {4.0,32.0}) Box(Iron,P+FVector(X,20,31),FVector(3,33,2));
+    // S362: the two retained memory counters are the square's focal pair. Give
+    // their existing cloth/wood counter a layered joinery silhouette at play
+    // scale; the other ten stalls retain their quieter original construction.
+    // These inserts stay inside the existing 100cm obstacle footprint and use
+    // the original atlas/focus parents, so their grain and Arrel reveal agree.
+    if (FMath::IsNearlyEqual(P.Y,200.,.01) && FMath::IsNearlyEqual(FMath::Abs(P.X),400.,.01))
+    {
+        auto Detail = [&](const TCHAR* Name, UMaterialInterface* Parent, FLinearColor Tint, bool bAtlas, float Roughness)
+        {
+            for (const auto& M : SurfaceMaterials) if (M && M->GetFName() == FName(Name)) return M.Get();
+            // A MID cannot parent another MID. Reuse its valid shader parent,
+            // then copy its runtime atlas/metal/focus overrides before tinting.
+            auto* Source = Cast<UMaterialInstanceDynamic>(Parent);
+            auto* M = UMaterialInstanceDynamic::Create(Source ? Source->Parent.Get() : Parent,this,FName(Name));
+            if (Source) M->CopyInterpParameters(Source);
+            M->SetVectorParameterValue(bAtlas ? TEXT("ArchitectureTint") : TEXT("Tint"),Tint);
+            M->SetScalarParameterValue(TEXT("Roughness"),Roughness);
+            SurfaceMaterials.Add(M); return M;
+        };
+        auto* EdgeWood = Detail(TEXT("S362CounterWood"),Timber,FLinearColor(.81f,.70f,.57f),true,.68f);
+        auto* RecessWood = Detail(TEXT("S362CounterRecess"),Timber,FLinearColor(.37f,.32f,.27f),true,.94f);
+        auto* Fittings = Detail(TEXT("S362CounterFittings"),Iron,FLinearColor(.19f,.135f,.065f),false,.33f);
+        const TCHAR* Bevel = TEXT("/Game/Memoria/Presentation/VisualPolish/SM_BeveledBlock.SM_BeveledBlock");
+        auto Trim = [&](UMaterialInterface* M,FVector At,FVector Size)
+        { Solid(Bevel,M,P+At,Size/100.); };
+        // Dark rebate behind a bright outer stile makes real edge depth, rather
+        // than painting a bright outline on the original canvas panel.
+        for (double X : {-39.,39.}) Trim(RecessWood,FVector(X,-46.3,34),FVector(5,2.2,50));
+        for (double Z : {12.,55.}) Trim(RecessWood,FVector(0,-46.3,Z),FVector(80,2.2,3));
+        for (double X : {-43.,43.})
+        {
+            Trim(EdgeWood,FVector(X,-48,34),FVector(7,3,56));
+            Trim(Fittings,FVector(X,-49,11),FVector(9,1.5,7));
+            Trim(Fittings,FVector(X,-49,57),FVector(9,1.5,7));
+        }
+        for (double Z : {8.,61.}) Trim(EdgeWood,FVector(0,-48,Z),FVector(89,3,6));
+        Trim(EdgeWood,FVector(0,-46,71),FVector(98,7,4));
+        for (double X : {-27.,27.})
+        {
+            Beam(EdgeWood,P+FVector(X,-47,17),P+FVector(X+11,-47,53),3.5f);
+            for (double Z : {14.,55.})
+                Solid(TEXT("Cylinder"),Fittings,P+FVector(X,-49.4,Z),FVector(.035,.035,.014),FRotator(0,0,90));
+        }
+        // A small framed trade placard hangs below the existing awning; it has
+        // no text, glow, marker or interaction and creates no new story object.
+        Trim(RecessWood,FVector(18,-37,119),FVector(33,4,24));
+        for (double X : {1.5,34.5}) Trim(EdgeWood,FVector(X,-40,119),FVector(3,3,27));
+        for (double Z : {105.5,132.5}) Trim(EdgeWood,FVector(18,-40,Z),FVector(36,3,3));
+        for (double X : {6.,30.}) Beam(Fittings,P+FVector(X,-37,133),P+FVector(X,-37,143),1.4f);
+        // The old counter lantern remains the only light. Its reflected warmth
+        // is local to the counter approach and does not recolour the courtyard.
+        SoftQuad(P+FVector(0,-79,-1.12),FVector(1.55,1.05,1),FLinearColor(.24f,.12f,.043f),.22f);
+    }
     if (bLantern) Lantern(P+FVector(-35,-27,119),Iron,Glow,true);
 }
 const TArray<AMemoriaVerdanPresentation::FInteractive>& AMemoriaVerdanPresentation::Interactives()
@@ -537,7 +591,9 @@ void AMemoriaVerdanPresentation::BuildMarketRing(UMaterialInterface* Timber, UMa
         Stall(Stalls[I], Timber, Cloths[I % 3], Iron, Glow, false);
         // The lamp under the canopy: a glowing pane and its light on the counter.
         Box(Glow, Stalls[I] + FVector(-30, -30, 110), FVector(11, 11, 15));
-        MarketLight(Stalls[I] + FVector(-30, -70, 118), 5.f, 420.f);
+        // S362: quiet the perimeter slightly; the original two memory counters
+        // and the central north lantern now hold the eye without a new light.
+        MarketLight(Stalls[I] + FVector(-30, -70, 118), 4.1f, 420.f);
         // The lamp's warmth on the paving in front of the counter, as the story stalls' lanterns have.
         SoftQuad(FVector(Stalls[I].X - 10, Stalls[I].Y - 95, -9.25), FVector(2.4, 1.8, 1), FLinearColor(.19f, .095f, .035f), .2f);
         ++MarketStalls;
@@ -710,6 +766,8 @@ void AMemoriaVerdanPresentation::BuildDepthEnvironment()
     auto* Fog=NewObject<UExponentialHeightFogComponent>(this); AddInstanceComponent(Fog); Fog->SetupAttachment(RootComponent);
     Fog->SetRelativeLocation(FVector(0,0,-100)); Fog->SetFogDensity(.017f); Fog->SetFogHeightFalloff(.1f);
     Fog->SetFogInscatteringColor(FLinearColor(.035f,.055f,.08f)); Fog->SetStartDistance(800); Fog->SetFogMaxOpacity(.55f); Fog->RegisterComponent();
+    const auto Grounded = MemoriaRegionalAtmosphereS363::BuildVerdan(*this,Stone,Paving);
+    for (auto* Material : Grounded.Materials) SurfaceMaterials.Add(Material);
 }
 namespace
 {

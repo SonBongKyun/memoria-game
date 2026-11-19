@@ -1,0 +1,414 @@
+{
+	"schema": "s362-native-composite-r5-v1",
+	"accepted": true,
+	"output_revision": "R5",
+	"immutable_source_revision": "R2",
+	"method": "New sword derives accepted native LOD0 hilt518tri plus158authored steel; Nanite/reduction/recompute disabled only new sword, persistent FastBuild copies supplied attributes; original2UVs remain exact and6unused storage channels are explicitly zero. Staff original MeshDescription/build-settings unchanged with collars appended. Exact original rendered attributes/winding required, no tolerance relaxation.",
+	"native_checks": [
+		{
+			"check": "native_inventory",
+			"label": "accepted_original_sword",
+			"mesh": "/Game/Memoria/Presentation/Field3D/Arrel/SM_Arrel_sword_drawn.SM_Arrel_sword_drawn",
+			"render_triangles": 532,
+			"UV_channels": 2,
+			"nanite_enabled": true,
+			"render_high_precision_tangents": false,
+			"render_full_precision_UVs": false,
+			"nanite_fallback_target": 0,
+			"nanite_fallback_percent_triangles": 1,
+			"nanite_fallback_relative_error": 1,
+			"nanite_position_precision": -2147483648,
+			"serialized_fast_build": false,
+			"native_LOD0_fingerprint_sha1_v1": "01E8D8E004269FF94ACF4F8715ECC9199FE67005",
+			"native_slot0_fingerprint_sha1_v1": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+			"CPU_tangent_data_available": true,
+			"CPU_position_data_available": true,
+			"allow_CPU_access": false,
+			"generate_lightmap_UVs": false,
+			"build_scale": "X=1.000 Y=1.000 Z=1.000",
+			"full_precision_UVs": false,
+			"F16_truncation": false,
+			"remove_degenerates": false,
+			"recompute_normals": true,
+			"recompute_tangents": true,
+			"reduction_percent_triangles": 1,
+			"reduction_percent_vertices": 1,
+			"sections": [
+				{
+					"slot": 0,
+					"slot_name": "Arrel",
+					"material": "/Game/Memoria/Presentation/Field3D/Arrel/M_Arrel.M_Arrel",
+					"triangles": 518
+				},
+				{
+					"slot": 1,
+					"slot_name": "ArrelBlade",
+					"material": "/Game/Memoria/Presentation/Field3D/Arrel/ArrelBlade.ArrelBlade",
+					"triangles": 14
+				}
+			],
+			"description_triangles": 862
+		},
+		{
+			"check": "native_inventory",
+			"label": "accepted_original_staff",
+			"mesh": "/Game/Memoria/Presentation/Field3D/Elia/SM_Elia_staff.SM_Elia_staff",
+			"render_triangles": 836,
+			"UV_channels": 2,
+			"nanite_enabled": false,
+			"render_high_precision_tangents": false,
+			"render_full_precision_UVs": false,
+			"nanite_fallback_target": 0,
+			"nanite_fallback_percent_triangles": 1,
+			"nanite_fallback_relative_error": 1,
+			"nanite_position_precision": -2147483648,
+			"serialized_fast_build": false,
+			"native_LOD0_fingerprint_sha1_v1": "868D9C494593652440E3A3E424C1074D38C3EC3B",
+			"native_slot0_fingerprint_sha1_v1": "868D9C494593652440E3A3E424C1074D38C3EC3B",
+			"CPU_tangent_data_available": true,
+			"CPU_position_data_available": true,
+			"allow_CPU_access": false,
+			"generate_lightmap_UVs": true,
+			"build_scale": "X=1.000 Y=1.000 Z=1.000",
+			"full_precision_UVs": false,
+			"F16_truncation": false,
+			"remove_degenerates": true,
+			"recompute_normals": false,
+			"recompute_tangents": false,
+			"reduction_percent_triangles": 1,
+			"reduction_percent_vertices": 1,
+			"sections": [
+				{
+					"slot": 0,
+					"slot_name": "EliaProps",
+					"material": "/Game/Memoria/Presentation/Field3D/Elia/M_EliaProps.M_EliaProps",
+					"triangles": 836
+				}
+			],
+			"description_triangles": 836
+		},
+		{
+			"check": "native_inventory",
+			"label": "rejected_R1_legacy_import_diagnostic_only",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Scratch/RejectedR1Sword.RejectedR1Sword",
+			"render_triangles": 1006,
+			"UV_channels": 2,
+			"nanite_enabled": false,
+			"render_high_precision_tangents": false,
+			"render_full_precision_UVs": false,
+			"nanite_fallback_target": 0,
+			"nanite_fallback_percent_triangles": 1,
+			"nanite_fallback_relative_error": 1,
+			"nanite_position_precision": -2147483648,
+			"serialized_fast_build": false,
+			"native_LOD0_fingerprint_sha1_v1": "F1BEEB3C534B3870B344134D97057E8EAF8971E3",
+			"native_slot0_fingerprint_sha1_v1": "3A8125A8D1C420485EBF0E1E6BCB17E5635DA1E7",
+			"CPU_tangent_data_available": true,
+			"CPU_position_data_available": true,
+			"allow_CPU_access": true,
+			"generate_lightmap_UVs": false,
+			"build_scale": "X=1.000 Y=1.000 Z=1.000",
+			"full_precision_UVs": false,
+			"F16_truncation": false,
+			"remove_degenerates": true,
+			"recompute_normals": false,
+			"recompute_tangents": false,
+			"reduction_percent_triangles": 1,
+			"reduction_percent_vertices": 1,
+			"sections": [
+				{
+					"slot": 0,
+					"slot_name": "Arrel",
+					"material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+					"triangles": 848
+				},
+				{
+					"slot": 1,
+					"slot_name": "ArrelBlade",
+					"material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+					"triangles": 158
+				}
+			],
+			"description_triangles": 1006
+		},
+		{
+			"check": "rejected_R1_diagnosis_only",
+			"old_painted_corners": 1554,
+			"position_tolerance_cm": 0.001,
+			"UV_tolerance": 1.0000000000000001e-05,
+			"position_matching_corners_same_slot": 481,
+			"position_matching_corners_any_slot": 481,
+			"UV_channel_diagnosis": [
+				{
+					"candidate_UV_channel": 0,
+					"old_UV0_matching_corners": 203,
+					"old_UV0_Vflipped_matching_corners": 0,
+					"maximum_nearest_UV_error_at_matched_position": 0.500244140625
+				},
+				{
+					"candidate_UV_channel": 1,
+					"old_UV0_matching_corners": 0,
+					"old_UV0_Vflipped_matching_corners": 0,
+					"maximum_nearest_UV_error_at_matched_position": 1.0020219087600708
+				}
+			]
+		},
+		{
+			"check": "accepted_native_LOD0_hilt_basis",
+			"accepted_hilt_triangles": 518,
+			"diagnostic_authored_hilt_triangles": 848,
+			"old_steel_triangles_removed": 14,
+			"method": "UE ExportStaticMeshLOD of unchanged accepted asset; native positions/allUVs/tangent basis/sRGB colors/winding copied. New derived asset only."
+		},
+		{
+			"check": "explicit_fastbuild_UV_padding_source",
+			"label": "native_hilt_copy",
+			"original_UV_channels": 2,
+			"initialized_UV_channels": 8,
+			"zero_padding_scalars": 18648,
+			"original_attribute_records_bit_exact": 1554,
+			"nonzero_padding_scalars": 0,
+			"reason": "UE5.8 TArray vertex Init ignores requested channel count and exposes8 slots. Explicit zero source padding persists through FastBuild reload/cook; every original UV remains bit-exact."
+		},
+		{
+			"check": "explicit_fastbuild_UV_padding_source",
+			"label": "authored_blade_copy",
+			"original_UV_channels": 2,
+			"initialized_UV_channels": 8,
+			"zero_padding_scalars": 5688,
+			"original_attribute_records_bit_exact": 474,
+			"nonzero_padding_scalars": 0,
+			"reason": "UE5.8 TArray vertex Init ignores requested channel count and exposes8 slots. Explicit zero source padding persists through FastBuild reload/cook; every original UV remains bit-exact."
+		},
+		{
+			"check": "native_description_exact",
+			"label": "Arrel_accepted_native_LOD0_hilt",
+			"retained_polygons": 518,
+			"exact_corners_all_attributes": 1554,
+			"UV_channels": 8
+		},
+		{
+			"check": "native_description_exact",
+			"label": "after_native_build",
+			"retained_polygons": 518,
+			"exact_corners_all_attributes": 1554,
+			"UV_channels": 8
+		},
+		{
+			"check": "native_description_exact",
+			"label": "accepted_original_authored_source_unchanged",
+			"retained_polygons": 848,
+			"exact_corners_all_attributes": 2544,
+			"UV_channels": 2
+		},
+		{
+			"check": "authored_addition_description_exact",
+			"slot": "ArrelBlade",
+			"authored_triangles": 158,
+			"exact_triangles": 158,
+			"native_UV_channels": 8
+		},
+		{
+			"check": "native_inventory",
+			"label": "delivered_native_sword",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Arrel/SM_Arrel_sword_drawn.SM_Arrel_sword_drawn",
+			"render_triangles": 676,
+			"UV_channels": 8,
+			"nanite_enabled": false,
+			"render_high_precision_tangents": false,
+			"render_full_precision_UVs": false,
+			"nanite_fallback_target": 0,
+			"nanite_fallback_percent_triangles": 1,
+			"nanite_fallback_relative_error": 1,
+			"nanite_position_precision": -2147483648,
+			"serialized_fast_build": true,
+			"native_LOD0_fingerprint_sha1_v1": "C3B76A2C4D3E653AB03953BE8142AE6F65971E31",
+			"native_slot0_fingerprint_sha1_v1": "A0C0A5F2603BBFF2BA30D846D6C86F8AFF811342",
+			"native_slot0_original2UV_fingerprint_sha1_v1": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+			"CPU_tangent_data_available": true,
+			"CPU_position_data_available": true,
+			"allow_CPU_access": true,
+			"generate_lightmap_UVs": false,
+			"build_scale": "X=1.000 Y=1.000 Z=1.000",
+			"full_precision_UVs": false,
+			"F16_truncation": false,
+			"remove_degenerates": false,
+			"recompute_normals": false,
+			"recompute_tangents": false,
+			"reduction_percent_triangles": 1,
+			"reduction_percent_vertices": 1,
+			"sections": [
+				{
+					"slot": 0,
+					"slot_name": "Arrel",
+					"material": "/Game/Memoria/Presentation/Field3D/Arrel/M_Arrel.M_Arrel",
+					"triangles": 518
+				},
+				{
+					"slot": 1,
+					"slot_name": "ArrelBlade",
+					"material": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/M_SwordSteel.M_SwordSteel",
+					"triangles": 158
+				}
+			],
+			"description_triangles": 676
+		},
+		{
+			"check": "native_render_preflight",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Arrel/SM_Arrel_sword_drawn.SM_Arrel_sword_drawn",
+			"original_UV_channels": 2,
+			"new_UV_channels": 8,
+			"new_CPU_tangents": true,
+			"original_CPU_tangents": true,
+			"new_CPU_UVs": true,
+			"original_CPU_UVs": true,
+			"new_CPU_positions": true,
+			"original_CPU_positions": true,
+			"new_vertices": 2028,
+			"original_vertices": 594,
+			"new_index_count": 2028,
+			"original_index_count": 1596
+		},
+		{
+			"check": "native_fastbuild_zero_UV_padding",
+			"original_UV_channels_exactly_compared": 2,
+			"render_UV_channels": 8,
+			"padding_scalars_checked": 24336,
+			"nonzero_padding_scalars": 0
+		},
+		{
+			"check": "native_render_exact",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Arrel/SM_Arrel_sword_drawn.SM_Arrel_sword_drawn",
+			"retained_corners": 1554,
+			"original_corners": 1554,
+			"position_allUV_RGBA_exact_corners": 1554,
+			"maximum_normal_angle_diagnostic_degrees": 0,
+			"maximum_tangent_angle_diagnostic_degrees": 0,
+			"packed_tangent_bytes_in_exact_key": true
+		},
+		{
+			"check": "native_steel_surface_equivalence",
+			"authored_triangles": 158,
+			"rendered_triangles": 158,
+			"source_to_fallback_max_sample_error_cm": 8.8524623375147224e-16,
+			"fallback_to_source_max_sample_error_cm": 8.8524623375147224e-16,
+			"fallback_envelope_error_cm": 0,
+			"authored_minimum_groove_depth_cm": 0.079199997901916508,
+			"maximum_allowed_surface_error_cm": 0.019799999475479127,
+			"source_samples": 7110,
+			"fallback_samples": 7110,
+			"scope": "Bidirectional native triangle-surface sampling at barycentric grid8, including every profile vertex. Error budget is quarter smallest authored fuller depth; exact source attributes and original hilt fallback checked separately."
+		},
+		{
+			"check": "native_staff_material_regions",
+			"wood_leather_triangles": 88,
+			"original_gold_triangles": 728,
+			"original_crystal_triangles": 20,
+			"maximum_source_position_match_error_cm": 1.3486991523486091e-06
+		},
+		{
+			"check": "native_description_exact",
+			"label": "Elia_entire_original_staff",
+			"retained_polygons": 836,
+			"exact_corners_all_attributes": 2508,
+			"UV_channels": 1
+		},
+		{
+			"check": "native_description_exact",
+			"label": "after_native_build",
+			"retained_polygons": 836,
+			"exact_corners_all_attributes": 2508,
+			"UV_channels": 1
+		},
+		{
+			"check": "native_description_exact",
+			"label": "accepted_original_authored_source_unchanged",
+			"retained_polygons": 836,
+			"exact_corners_all_attributes": 2508,
+			"UV_channels": 1
+		},
+		{
+			"check": "authored_addition_description_exact",
+			"slot": "S362_NativeStaffMetal",
+			"authored_triangles": 760,
+			"exact_triangles": 760,
+			"native_UV_channels": 1
+		},
+		{
+			"check": "native_inventory",
+			"label": "delivered_native_staff",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Elia/SM_Elia_staff.SM_Elia_staff",
+			"render_triangles": 1596,
+			"UV_channels": 2,
+			"nanite_enabled": false,
+			"render_high_precision_tangents": false,
+			"render_full_precision_UVs": false,
+			"nanite_fallback_target": 0,
+			"nanite_fallback_percent_triangles": 1,
+			"nanite_fallback_relative_error": 1,
+			"nanite_position_precision": -2147483648,
+			"serialized_fast_build": false,
+			"native_LOD0_fingerprint_sha1_v1": "220BA10B65CC73C42884DAFABE5EC1DC7EFB658B",
+			"native_slot0_fingerprint_sha1_v1": "3B886CC21DA069CDD5C6FF87A73973E8002B411F",
+			"CPU_tangent_data_available": true,
+			"CPU_position_data_available": true,
+			"allow_CPU_access": true,
+			"generate_lightmap_UVs": true,
+			"build_scale": "X=1.000 Y=1.000 Z=1.000",
+			"full_precision_UVs": false,
+			"F16_truncation": false,
+			"remove_degenerates": true,
+			"recompute_normals": false,
+			"recompute_tangents": false,
+			"reduction_percent_triangles": 1,
+			"reduction_percent_vertices": 1,
+			"sections": [
+				{
+					"slot": 0,
+					"slot_name": "EliaProps",
+					"material": "/Game/Memoria/Presentation/Field3D/Elia/M_EliaProps.M_EliaProps",
+					"triangles": 88
+				},
+				{
+					"slot": 1,
+					"slot_name": "S362_NativeStaffMetal",
+					"material": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/M_StaffMetal.M_StaffMetal",
+					"triangles": 1488
+				},
+				{
+					"slot": 2,
+					"slot_name": "S362_NativeStaffCrystal",
+					"material": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/M_StaffCrystal.M_StaffCrystal",
+					"triangles": 20
+				}
+			],
+			"description_triangles": 1596
+		},
+		{
+			"check": "native_render_preflight",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Elia/SM_Elia_staff.SM_Elia_staff",
+			"original_UV_channels": 2,
+			"new_UV_channels": 2,
+			"new_CPU_tangents": true,
+			"original_CPU_tangents": true,
+			"new_CPU_UVs": true,
+			"original_CPU_UVs": true,
+			"new_CPU_positions": true,
+			"original_CPU_positions": true,
+			"new_vertices": 1908,
+			"original_vertices": 1524,
+			"new_index_count": 4788,
+			"original_index_count": 2508
+		},
+		{
+			"check": "native_render_exact",
+			"mesh": "/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/Elia/SM_Elia_staff.SM_Elia_staff",
+			"retained_corners": 2508,
+			"original_corners": 2508,
+			"position_allUV_RGBA_exact_corners": 2508,
+			"maximum_normal_angle_diagnostic_degrees": 0,
+			"maximum_tangent_angle_diagnostic_degrees": 0,
+			"packed_tangent_bytes_in_exact_key": true
+		}
+	]
+}

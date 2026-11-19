@@ -4,7 +4,7 @@ public class Memoria : ModuleRules
 {
     public Memoria(ReadOnlyTargetRules Target) : base(Target)
     {
-        PrivateDependencyModuleNames.AddRange(new string[] { "Json", "AnimGraphRuntime" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Json", "AnimGraphRuntime", "RHI", "RenderCore" });
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         CppStandard = CppStandardVersion.Cpp20;
         PublicDependencyModuleNames.AddRange(new string[] {

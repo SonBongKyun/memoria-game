@@ -6,7 +6,7 @@
 class UMemoriaSettingsSubsystem;
 
 // Menu rows first (their order is the row order); Language reports a language switch in Options.
-enum class EMemoriaPauseAction : uint8 { Resume, Options, Save, Load, Journal, Codex, Achievements, Title, Quit, Language };
+enum class EMemoriaPauseAction : uint8 { Resume, Options, Save, Load, Journal, Codex, Achievements, Title, Quit, Language, DemoComplete };
 DECLARE_DELEGATE_OneParam(FMemoriaPauseActionEvent, EMemoriaPauseAction);
 
 // S317: the ESC menu after pause_menu.gd, painted like the combat HUD: a dark veil, the amber-bordered
@@ -18,8 +18,8 @@ class MEMORIA_API UMemoriaPauseWidget : public UUserWidget
 {
     GENERATED_BODY()
 public:
-    static constexpr int32 ItemCount = 9;
-    static constexpr int32 OptionRowCount = 6; // master, bgm, sfx, fullscreen, language, back
+    static constexpr int32 ItemCount = 10;
+    static constexpr int32 OptionRowCount = 10; // audio3, fullscreen, language, motion, flash, shake, text, back
     FMemoriaPauseActionEvent OnAction;
     void Configure(UMemoriaSettingsSubsystem* InSettings, bool bInCanSave, bool bInCanLoad, const FString& InInfo);
     void Navigate(int32 Direction);
@@ -30,6 +30,8 @@ public:
     void Select(int32 Index);
     void SetNotice(const FString& Text) { Notice = Text; NoticeAge = 0.f; }
     void SetCanLoad(bool bValue) { bCanLoad = bValue; }
+    void SetCanDemo(bool bValue) { bCanDemo=bValue; if(!bCanDemo && Selected==9)Selected=0; }
+    const FString& GetInfo() const { return Info; }
     void SetInfo(const FString& Text) { Info = Text; }
     int32 GetSelected() const { return Selected; }
     int32 GetOptionRow() const { return OptionRow; }
@@ -51,9 +53,11 @@ private:
     FSlateBrush Backdrop, Slab;
     float NoticeAge = 99.f, Clock = 0.f;
     int32 Selected = 0, OptionRow = 0, QuitChoice = 1;
+    bool bCanDemo = false;
     bool bCanSave = false, bCanLoad = false, bOptionsOpen = false, bAskQuit = false;
     // Row rectangles from the last paint, in local units, for the mouse.
     mutable TArray<FBox2D> Rows;
+    mutable TArray<int32> RowIds; // visible rows retain their original menu/option identity
     bool Ko() const;
     FString Loc(const TCHAR* En, const TCHAR* KoText) const { return Ko() ? FString(KoText) : FString(En); }
     void Activate(int32 Index);

@@ -28,7 +28,7 @@ bool MakeMaterial()
     const FString Path = FString(CombatRoot) + TEXT("M_FieldFoe");
     if (Load<UMaterial>(Path)) { UE_LOG(LogTemp, Display, TEXT("FOE_KEPT %s"), *Path); return true; }
     auto* M = NewObject<UMaterial>(CreatePackage(*Path), TEXT("M_FieldFoe"), RF_Public | RF_Standalone);
-    M->bUsedWithSkeletalMesh = true;
+    M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);
     auto* Color = Vector(M, TEXT("Color"), FLinearColor(.035f, .025f, .05f));
     M->GetEditorOnlyData()->BaseColor.Connect(0, Color);
     M->GetEditorOnlyData()->Roughness.Connect(0, Scalar(M, TEXT("Roughness"), .82f));

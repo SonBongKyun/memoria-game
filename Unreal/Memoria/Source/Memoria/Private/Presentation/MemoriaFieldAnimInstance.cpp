@@ -1,4 +1,8 @@
 #include "Presentation/MemoriaFieldAnimInstance.h"
+#include "Presentation/MemoriaPresentationMetrics.h"
+#include "Presentation/MemoriaArrelSoleContactS362.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Animation/AnimSequence.h"
 #include "AnimNodes/AnimNode_SequenceEvaluator.h"
@@ -21,6 +25,10 @@ public:
     {
         FAnimInstanceProxy::PreUpdate(Instance, DeltaSeconds);
         const auto* Inputs = CastChecked<UMemoriaFieldAnimInstance>(Instance);
+        Personality=Inputs->IdlePersonality;
+        const auto* Skin=Inputs->GetSkelMeshComponent();const auto* Mesh=Skin?Skin->GetSkeletalMeshAsset():nullptr;
+        SoleLift=MemoriaArrelSoleContactS362::Sample(Inputs->Phase,Inputs->Weight,
+            Mesh && MemoriaArrelSoleContactS362::SupportsMeshPath(Mesh->GetPathName()),Inputs->Action!=nullptr);
         Idle.SetSequence(Inputs->Idle); Walk.SetSequence(Inputs->Walk);
         Idle.SetExplicitTime(Inputs->Idle ? FMath::Fmod(Inputs->Age, FMath::Max(.01f, Inputs->Idle->GetPlayLength())) : 0.f);
         Walk.SetExplicitTime(Inputs->Walk ? Inputs->Phase * Inputs->Walk->GetPlayLength() : 0.f);
@@ -33,7 +41,9 @@ public:
     virtual void UpdateAnimationNode(const FAnimationUpdateContext& Context) override { Top.Update_AnyThread(Context); }
     virtual bool Evaluate(FPoseContext& Output) override
     {
+        MemoriaPresentationMetrics::FScopedCpu Cpu(MemoriaPresentationMetrics::EScope::AnimationEvaluate);
         Top.Evaluate_AnyThread(Output);
+        MemoriaCharacterPersonalityS362::Apply(Output.Pose,Personality);
         // Root lock: combat clips carry the mannequin's lunge on the root bone. The pawn owns field position, so
         // the mesh must not wander off it (and snap back) while a clip plays.
         if (Output.Pose.GetNumBones() > 0)
@@ -41,9 +51,12 @@ public:
             const FCompactPoseBoneIndex Root(0);
             Output.Pose[Root].SetTranslation(Output.Pose.GetRefPose(Root).GetTranslation());
         }
+        MemoriaArrelSoleContactS362::Apply(Output.Pose,SoleLift);
         return true;
     }
 private:
+    FMemoriaIdlePoseS362 Personality;
+    FMemoriaSoleLiftS362 SoleLift;
     FAnimNode_SequenceEvaluator_Standalone Idle, Walk, Action;
     FAnimNode_TwoWayBlend Blend, Top;
 };

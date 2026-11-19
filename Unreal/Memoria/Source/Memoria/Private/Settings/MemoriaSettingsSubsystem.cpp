@@ -1,4 +1,5 @@
 #include "Settings/MemoriaSettingsSubsystem.h"
+#include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/App.h"
@@ -11,13 +12,19 @@ void UMemoriaSettingsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     // Tests and commandlets never read or write the player's settings file.
-    bPersist = !GIsAutomationTesting && !IsRunningCommandlet() && !FApp::IsUnattended();
+    bPersist = !GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive() && !IsRunningCommandlet() && !FApp::IsUnattended();
     if (!bPersist || !GConfig) return;
     GConfig->GetInt(Section, TEXT("MasterVolume"), Master, GGameUserSettingsIni);
     GConfig->GetInt(Section, TEXT("MusicVolume"), Music, GGameUserSettingsIni);
     GConfig->GetInt(Section, TEXT("SfxVolume"), Sfx, GGameUserSettingsIni);
     GConfig->GetBool(Section, TEXT("Fullscreen"), bFullscreen, GGameUserSettingsIni);
     GConfig->GetString(Section, TEXT("Locale"), Locale, GGameUserSettingsIni);
+    GConfig->GetBool(Section, TEXT("ReduceMotion"), bReduceMotion, GGameUserSettingsIni);
+    GConfig->GetBool(Section, TEXT("ReduceFlash"), bReduceFlash, GGameUserSettingsIni);
+    GConfig->GetInt(Section, TEXT("ShakePercent"), ShakePercent, GGameUserSettingsIni);
+    GConfig->GetInt(Section, TEXT("TextPercent"), TextPercent, GGameUserSettingsIni);
+    ShakePercent = FMath::Clamp(ShakePercent,0,100);
+    TextPercent = FMath::Clamp(TextPercent,100,125);
     Master = FMath::Clamp(Master, 0, 100); Music = FMath::Clamp(Music, 0, 100); Sfx = FMath::Clamp(Sfx, 0, 100);
     if (Locale != TEXT("en") && Locale != TEXT("ko")) Locale = TEXT("ko");
     ApplyWindowMode();
@@ -27,6 +34,10 @@ void UMemoriaSettingsSubsystem::SetMusicVolume(int32 Value) { Music = FMath::Cla
 void UMemoriaSettingsSubsystem::SetSfxVolume(int32 Value) { Sfx = FMath::Clamp(Value, 0, 100); Changed(); }
 void UMemoriaSettingsSubsystem::SetFullscreen(bool bValue) { bFullscreen = bValue; ApplyWindowMode(); Changed(); }
 void UMemoriaSettingsSubsystem::SetLocale(const FString& Value) { Locale = Value == TEXT("en") ? TEXT("en") : TEXT("ko"); Changed(); }
+void UMemoriaSettingsSubsystem::SetReduceMotion(bool bValue) { bReduceMotion=bValue; Changed(); }
+void UMemoriaSettingsSubsystem::SetReduceFlash(bool bValue) { bReduceFlash=bValue; Changed(); }
+void UMemoriaSettingsSubsystem::SetShakePercent(int32 Value) { ShakePercent=FMath::Clamp(Value,0,100); Changed(); }
+void UMemoriaSettingsSubsystem::SetTextPercent(int32 Value) { TextPercent=FMath::Clamp(Value,100,125); Changed(); }
 void UMemoriaSettingsSubsystem::Changed()
 {
     if (bPersist && GConfig)
@@ -36,6 +47,10 @@ void UMemoriaSettingsSubsystem::Changed()
         GConfig->SetInt(Section, TEXT("SfxVolume"), Sfx, GGameUserSettingsIni);
         GConfig->SetBool(Section, TEXT("Fullscreen"), bFullscreen, GGameUserSettingsIni);
         GConfig->SetString(Section, TEXT("Locale"), *Locale, GGameUserSettingsIni);
+        GConfig->SetBool(Section,TEXT("ReduceMotion"),bReduceMotion,GGameUserSettingsIni);
+        GConfig->SetBool(Section,TEXT("ReduceFlash"),bReduceFlash,GGameUserSettingsIni);
+        GConfig->SetInt(Section,TEXT("ShakePercent"),ShakePercent,GGameUserSettingsIni);
+        GConfig->SetInt(Section,TEXT("TextPercent"),TextPercent,GGameUserSettingsIni);
         GConfig->Flush(false, GGameUserSettingsIni);
     }
     OnChanged.Broadcast();

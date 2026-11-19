@@ -9,4 +9,6 @@ UCLASS()
 class MEMORIA_API UMemoriaGameInstance : public UGameInstance
 {
     GENERATED_BODY()
+public:
+    virtual void Init() override;
 };

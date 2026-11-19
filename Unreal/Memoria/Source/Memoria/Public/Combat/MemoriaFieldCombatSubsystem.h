@@ -7,16 +7,28 @@ class APawn;
 class AMemoriaFieldMonster;
 class UMemoriaFieldCharacterComponent;
 
+// Presentation metadata only; no saved state or change to defense rules.
+enum class EMemoriaDefenseOutcome : uint8 { None, Block, Parry, Ward };
+// Read-only current input/action state for native diagnostics; never a test mutation hook.
+struct FMemoriaComboInputProbe
+{
+    int32 Step = -1;
+    float StepTime = 0.f, StepLength = 0.f, EarlySeconds = 0.f;
+    bool bQueued = false;
+    FVector Aim = FVector::ForwardVector, SwingAim = FVector::ForwardVector;
+};
 // bBig (S340): a heavy or killing blow; its number is drawn larger.
-struct FMemoriaCombatPopup { FVector Location; float Amount = 0.f; float Age = 0.f; bool bPlayer = false; FString Label; FLinearColor Tint = FLinearColor::Transparent; bool bBig = false; };
+struct FMemoriaCombatPopup { FVector Location; float Amount = 0.f; float Age = 0.f; bool bPlayer = false; FString Label; FLinearColor Tint = FLinearColor::Transparent; bool bBig = false; EMemoriaDefenseOutcome Outcome = EMemoriaDefenseOutcome::None; };
 // S340: the mark a blow leaves for the HUD: a ring that opens where it landed (and a cross of light when heavy).
-struct FMemoriaImpact { FVector Location = FVector::ZeroVector; FLinearColor Color = FLinearColor::White; float Age = 0.f, Life = .3f, Radius = 70.f; bool bHeavy = false; };
+struct FMemoriaImpact { FVector Location = FVector::ZeroVector; FLinearColor Color = FLinearColor::White; float Age = 0.f, Life = .3f, Radius = 70.f; bool bHeavy = false; EMemoriaDefenseOutcome Outcome = EMemoriaDefenseOutcome::None; };
 // S314: what a won fight gave (the source Win: grains per foe, 20% HP back, a 30% drop).
 struct FMemoriaFieldReward { int64 Grains = 0, Heal = 0; FString ItemId, ItemName; int32 Kills = 0; float Age = 99.f; };
 // S312: a memory that can be burned, as the picker lists it (localized title, source grade and skill).
-struct FMemoriaBurnChoice { FString Id, Title, GradeLabel; int32 Grade = 0; int64 Power = 0; float Damage = 0.f; FLinearColor Accent = FLinearColor::White; };
+struct FMemoriaBurnChoice { FString Id, Title, GradeLabel, Description, KnownConsequence; int32 Grade = 0; int64 Power = 0; float Damage = 0.f; FLinearColor Accent = FLinearColor::White; };
 // The released burn: its ring on the floor, and what burned, for the HUD.
 struct FMemoriaBurnWave { FVector Center = FVector::ZeroVector; float Radius = 0.f, Age = 0.f; int32 Grade = 0; FString Title, Skill; bool bLive = false; };
+// Presentation-only native notification; it is never saved and owns no widget.
+DECLARE_MULTICAST_DELEGATE(FMemoriaBurnPickerVisibilityChanged);
 class APointLight;
 // S315: a spark in the world, drawn by the HUD; and one sample of the blade for its trail.
 struct FMemoriaSpark { FVector Location, Velocity; float Age = 0.f, Life = .5f, Size = 4.f; FLinearColor Color; };
@@ -49,6 +61,7 @@ public:
     // S312 memory burn. R opens the picker and the world slows; a choice is confirmed (twice from grade 2
     // up) and the memory is burned for good through the run, then Arrel releases the grade's skill: a ring
     // of fire (void for the top grades) that strikes every husk within its reach.
+    FMemoriaBurnPickerVisibilityChanged OnBurnPickerVisibilityChanged;
     bool OpenBurnPicker();
     void CloseBurnPicker();
     bool IsPickingBurn() const { return bPicking; }
@@ -76,6 +89,8 @@ public:
     bool IsHeavy() const { return ComboStep == 3; }
     bool BeginBlock();
     void EndBlock();
+    // Modal/focus changes release held guard/charge without undoing a committed swing, cast or reward.
+    void CancelHeldInput();
     bool IsBlocking() const { return bBlocking; }
     int32 GetParries() const { return Parries; }
     int32 GetBlocks() const { return Blocks; }
@@ -118,6 +133,10 @@ public:
     void SeedDrops(int32 Seed) { Drops.Initialize(Seed); }
     int32 GetBurns() const { return Burns; }
     int32 GetComboStep() const { return ComboStep; }
+    // S364: a press up to120ms before the original combo queue window can be remembered once.
+    static constexpr float EarlyComboSeconds = .12f;
+    FMemoriaComboInputProbe GetComboInputProbe() const
+    { return {ComboStep, StepTime, StepLength, EarlyComboLeft, bQueued, AimDirection, SwingAimDirection}; }
     // Spawns void husks in a ring around a point on the floor.
     TArray<AMemoriaFieldMonster*> SpawnWave(int32 Count, const FVector& Center, float Radius = 420.f, EMemoriaFoeKind Kind = EMemoriaFoeKind::VoidHusk);
     const TArray<TWeakObjectPtr<AMemoriaFieldMonster>>& GetMonsters() const { return Monsters; }
@@ -141,16 +160,22 @@ public:
     // S318: after the fall plays out, the game over screen (game_over.gd) takes the choice.
     bool IsAwaitingGameOver() const { return bDefeated && DefeatLeft <= 0.f; }
     // "Stagger On": HP at the given share of max, the foes withdraw, statuses end. Also used after a load.
+    // Clear combat only after a validated restore, retaining the snapshot HP exactly.
+    void ResetForRestoredRun();
     void Revive(float HpShare);
     const TArray<FMemoriaCombatPopup>& GetPopups() const { return Popups; }
     void NotifyMonsterDied(AMemoriaFieldMonster* Monster);
 private:
+    void ClearRecoveryState();
     TWeakObjectPtr<APawn> Player;
     TWeakObjectPtr<UMemoriaFieldCharacterComponent> PlayerFigure;
     TArray<TWeakObjectPtr<AMemoriaFieldMonster>> Monsters;
     TArray<FMemoriaCombatPopup> Popups;
     TSet<TWeakObjectPtr<AMemoriaFieldMonster>> HitThisSwing;
     FVector DashDirection = FVector::ZeroVector, AimDirection = FVector::ForwardVector;
+    FVector SwingAimDirection = FVector::ForwardVector, EarlyComboAim = FVector::ForwardVector;
+    float EarlyComboLeft = 0.f;
+    void ClearComboIntent();
     int32 ComboStep = -1, LastStep = -1, Kills = 0, HitsLanded = 0;
     float StepTime = 0.f, StepLength = 0.f, SinceStep = 99.f, DashLeft = 0.f, DashCooldownLeft = 0.f, StaggerLeft = 0.f, DefeatLeft = 0.f;
     bool bQueued = false, bDefeated = false;
@@ -184,7 +209,7 @@ private:
     TWeakObjectPtr<APointLight> HitLight;
     float HitLightLeft = 0.f, HitLightPeak = 0.f, HurtAge = 99.f;
     int32 ImpactsMade = 0;
-    void Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy);
+    void Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy, EMemoriaDefenseOutcome Outcome = EMemoriaDefenseOutcome::None);
     TArray<FMemoriaTrailSample> Trail;
     static float ChargeTimeValue();
     void HitStop(float Seconds, float Shake);
@@ -204,5 +229,5 @@ private:
     void ReleaseBurn();
     bool StartStep(int32 Step);
     void ResolveSwing();
-    void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent, bool bBig = false);
+    void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent, bool bBig = false, EMemoriaDefenseOutcome Outcome = EMemoriaDefenseOutcome::None);
 };

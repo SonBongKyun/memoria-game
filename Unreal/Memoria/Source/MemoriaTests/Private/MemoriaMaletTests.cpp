@@ -1069,7 +1069,10 @@ public:
                     {
                         bQuestCompleteCaptured=true;
                         Test->TestTrue(TEXT("Completion toast after the return group"),Host->GetExplorationNotice().Contains(TEXT("Quest Complete: The Sump Ledger")));
-                        Test->TestTrue(TEXT("Tracker clears"),Host->GetQuestTrackerLine().IsEmpty());
+                        const FString ExpectedGoal = Run->GetRunSnapshot().CurrentLocale == TEXT("ko")
+                            ? TEXT("목표  베르단 시장 살펴보기") : TEXT("GOAL  Explore Verdan Market");
+                        Test->TestEqual(TEXT("Completed side quest restores the current revealed market goal"), Host->GetQuestTrackerLine(), ExpectedGoal);
+                        Test->TestFalse(TEXT("Completed ledger step leaves the tracker"), Host->GetQuestTrackerLine().Contains(L::Title(Run->GetRunSnapshot().CurrentLocale == TEXT("ko"))));
                         Test->TestFalse(TEXT("Completed trader is inert"),Host->IsStoryBeatAvailable(L::TraderPoint));
                         Capture(TEXT("QuestComplete"));Stage=29;Frame=-1;EliaStep=0;EliaFrame=0;
                     }

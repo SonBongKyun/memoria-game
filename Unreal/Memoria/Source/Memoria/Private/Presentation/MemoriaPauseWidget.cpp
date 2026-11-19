@@ -36,14 +36,14 @@ bool UMemoriaPauseWidget::Ko() const { return !Settings || Settings->GetLocale()
 void UMemoriaPauseWidget::Configure(UMemoriaSettingsSubsystem* InSettings, bool bInCanSave, bool bInCanLoad, const FString& InInfo)
 {
     Settings = InSettings; bCanSave = bInCanSave; bCanLoad = bInCanLoad; Info = InInfo;
-    Selected = 0; bOptionsOpen = bAskQuit = false; Notice.Reset(); NoticeAge = 99.f;
+    Selected = 0; bCanDemo=false; bOptionsOpen = bAskQuit = false; Notice.Reset(); NoticeAge = 99.f;
 }
 bool UMemoriaPauseWidget::IsItemEnabled(int32 Index) const
-{ return Index == 2 ? bCanSave : Index == 3 ? bCanLoad : Index >= 0 && Index < ItemCount; }
+{ return Index == 2 ? bCanSave : Index == 3 ? bCanLoad : Index == 9 ? bCanDemo : Index >= 0 && Index < 9; }
 FString UMemoriaPauseWidget::ItemLabel(int32 Index) const
 {
-    static const TCHAR* En[ItemCount] = {TEXT("Resume"), TEXT("Options"), TEXT("Save"), TEXT("Load"), TEXT("Journal"), TEXT("Codex"), TEXT("Achievements"), TEXT("Return to Title"), TEXT("Quit Game")};
-    static const TCHAR* KoText[ItemCount] = {TEXT("계속하기"), TEXT("옵션"), TEXT("저장"), TEXT("불러오기"), TEXT("저널"), TEXT("도감"), TEXT("업적"), TEXT("타이틀로"), TEXT("게임 종료")};
+    static const TCHAR* En[ItemCount] = {TEXT("Resume"), TEXT("Options"), TEXT("Save"), TEXT("Load"), TEXT("Journal"), TEXT("Codex"), TEXT("Achievements"), TEXT("Return to Title"), TEXT("Quit Game"), TEXT("Segment complete: review")};
+    static const TCHAR* KoText[ItemCount] = {TEXT("계속하기"), TEXT("옵션"), TEXT("저장"), TEXT("불러오기"), TEXT("저널"), TEXT("도감"), TEXT("업적"), TEXT("타이틀로"), TEXT("게임 종료"), TEXT("체험판 구간 완료 · 기록")};
     return Index >= 0 && Index < ItemCount ? Loc(En[Index], KoText[Index]) : FString();
 }
 void UMemoriaPauseWidget::Navigate(int32 Direction)
@@ -81,7 +81,7 @@ void UMemoriaPauseWidget::Activate(int32 Index)
 {
     if (!IsItemEnabled(Index)) return;
     Selected = Index;
-    const auto Action = static_cast<EMemoriaPauseAction>(Index);
+    const auto Action = Index==9 ? EMemoriaPauseAction::DemoComplete : static_cast<EMemoriaPauseAction>(Index);
     if (Action == EMemoriaPauseAction::Options) { bOptionsOpen = true; OptionRow = 0; return; }
     // "Are you sure you want to quit?" (the source's confirmation), defaulting to stay.
     if (Action == EMemoriaPauseAction::Quit) { bAskQuit = true; QuitChoice = 1; return; }
@@ -99,6 +99,10 @@ void UMemoriaPauseWidget::ActivateOption(int32 Row, int32 Step)
     case 2: if (Step) Settings->SetSfxVolume(Settings->GetSfxVolume() + 10 * Step); break;
     case 3: Settings->SetFullscreen(!Settings->IsFullscreen()); break;
     case 4: Settings->SetLocale(Settings->GetLocale() == TEXT("en") ? TEXT("ko") : TEXT("en")); OnAction.ExecuteIfBound(EMemoriaPauseAction::Language); break;
+    case 5: Settings->SetReduceMotion(!Settings->IsReduceMotion()); break;
+    case 6: Settings->SetReduceFlash(!Settings->IsReduceFlash()); break;
+    case 7: if (Step) Settings->SetShakePercent(Settings->GetShakePercent()+10*Step); break;
+    case 8: if (Step) Settings->SetTextPercent(Settings->GetTextPercent()+5*Step); break;
     default: if (Step == 0) Back(); break;
     }
 }
@@ -116,12 +120,13 @@ void UMemoriaPauseWidget::NativeConstruct()
 void UMemoriaPauseWidget::NativeTick(const FGeometry& Geometry, float DeltaTime)
 {
     Super::NativeTick(Geometry, DeltaTime);
-    Clock += DeltaTime; NoticeAge += DeltaTime;
+    if (!Settings || !Settings->IsReduceMotion()) Clock += DeltaTime;
+    NoticeAge += DeltaTime;
 }
 int32 UMemoriaPauseWidget::RowAt(const FGeometry& Geometry, const FVector2D& Screen) const
 {
     const FVector2D Local = Geometry.AbsoluteToLocal(Screen);
-    for (int32 I = 0; I < Rows.Num(); ++I) if (Rows[I].IsInside(Local)) return I;
+    for (int32 I = 0; I < Rows.Num(); ++I) if (Rows[I].IsInside(Local)) return RowIds.IsValidIndex(I) ? RowIds[I] : I;
     return INDEX_NONE;
 }
 FReply UMemoriaPauseWidget::NativeOnMouseMove(const FGeometry& Geometry, const FPointerEvent& Event)
@@ -141,7 +146,13 @@ FReply UMemoriaPauseWidget::NativeOnMouseButtonDown(const FGeometry& Geometry, c
     if (Event.GetEffectingButton() == EKeys::RightMouseButton) { if (!Back()) OnAction.ExecuteIfBound(EMemoriaPauseAction::Resume); return FReply::Handled(); }
     if (Row == INDEX_NONE) return FReply::Handled();
     if (bAskQuit) { QuitChoice = Row; Confirm(); }
-    else if (bOptionsOpen) ActivateOption(Row, Row <= 2 ? 1 : 0);
+    else if (bOptionsOpen)
+    {
+        // Left/right halves let a mouse both lower and raise all sliders.
+        const bool bSlider=Row<=2 || Row==7 || Row==8;
+        const float LocalX=Geometry.AbsoluteToLocal(Event.GetScreenSpacePosition()).X;
+        ActivateOption(Row,bSlider ? (LocalX<Geometry.GetLocalSize().X*.7525f ? -1 : 1) : 0);
+    }
     else Activate(Row);
     return FReply::Handled();
 }
@@ -151,6 +162,7 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
     const int32 L = Super::NativePaint(Args, Geometry, CullingRect, Elements, LayerId, Style, bParentEnabled) + 1;
     const FVector2D Size = Geometry.GetLocalSize();
     Rows.Reset();
+    RowIds.Reset();
     // The archive backdrop covers the screen (keep aspect, covered), a 0.58 veil over it, and the control slab
     // behind the panel (anchors 0.555-0.95 x, 0.075-0.925 y); the panel sits at 0.585-0.92 x, 0.12-0.88 y.
     if (Backdrop.GetResourceObject())
@@ -168,8 +180,9 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
     Box(Elements, L + 1, Geometry, At, Panel, Srgb(.030f, .026f, .040f, .90f));
     Frame(Elements, L + 2, Geometry, At, Panel, 2.f, Srgb(.72f, .54f, .30f, .46f));
     const float Pad = 36.f, W = Panel.X - Pad * 2;
-    const FSlateFontInfo Heading = MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 34), Body = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 18),
-        Small = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 14);
+    const auto FontSize=[this](int32 Base){return Settings ? Settings->ScaledTextSize(Base) : Base;};
+    const FSlateFontInfo Heading = MemoriaFonts::Get(MemoriaFonts::EStyle::Title, FontSize(34)), Body = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FontSize(18)),
+        Small = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FontSize(14));
     float Y = At.Y + 52;
     const bool bSaved = NoticeAge < 1.4f && !Notice.IsEmpty();
     Text(Elements, L + 3, Geometry, bOptionsOpen ? Loc(TEXT("OPTIONS"), TEXT("옵션")) : Loc(TEXT("PAUSED"), TEXT("일시정지")), FVector2D(At.X + Panel.X * .5, Y), .5f, Heading, Srgb(.92f, .75f, .45f));
@@ -189,9 +202,14 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
         Text(Elements, L + 4, Geometry, Label, R + FVector2D(24, RS.Y * .5), 0.f, Body, Ink);
         if (!Value.IsEmpty()) Text(Elements, L + 4, Geometry, Value, R + FVector2D(RS.X - 24, RS.Y * .5), 1.f, Body, Ink);
         Rows.Add(FBox2D(R, R + RS));
+        RowIds.Add(Index);
         Y += RowHeight + RowGap;
     };
-    auto FitRows = [&](int32 Count) { RowHeight = FMath::Clamp((At.Y + Panel.Y - 64.f - Y) / Count - RowGap, 34.f, RowH); };
+    // Scroll the selection into the visible window instead of shrinking ten
+    // options (or nine menu entries) below readable text at 720p / 125% text.
+    auto VisibleCount=[&](int32 Count)
+    { return FMath::Clamp(FMath::FloorToInt((At.Y+Panel.Y-64.f-Y)/(FontSize(18)+RowGap+12.f)),1,Count); };
+    auto FitRows = [&](int32 Count) { RowHeight=FMath::Clamp((At.Y+Panel.Y-64.f-Y)/Count-RowGap,25.f,RowH); };
     if (!bOptionsOpen)
     {
         // The source's info card: chapter and place, then the run's numbers.
@@ -200,39 +218,49 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
         TArray<FString> Lines; Info.ParseIntoArrayLines(Lines);
         for (int32 N = 0; N < Lines.Num() && N < 3; ++N) Text(Elements, L + 3, Geometry, Lines[N], I + FVector2D(16, 22 + 26.f * N), 0.f, Small, Srgb(.60f, .55f, .50f));
         Y += IS.Y + 24;
-        FitRows(ItemCount);
+        const int32 Count=bCanDemo?ItemCount:9;
+        const int32 Visible=VisibleCount(Count), First=FMath::Clamp(Selected-Visible+1,0,Count-Visible);
+        FitRows(Visible);
         // The ported save point is the closed Chapter 2 boundary; elsewhere Save says why it is dark.
-        for (int32 N = 0; N < ItemCount; ++N)
+        for (int32 N = First; N < First+Visible; ++N)
             Row(N, FString::Printf(TEXT("%02d    %s"), N + 1, *ItemLabel(N)), N == 2 && !bCanSave ? Loc(TEXT("Not here"), TEXT("여기서는 불가")) : FString(), N == Selected && !bAskQuit, IsItemEnabled(N));
     }
     else
     {
         const FString Labels[OptionRowCount] = {Loc(TEXT("Master Volume"), TEXT("전체 음량")), Loc(TEXT("BGM Volume"), TEXT("배경음악 음량")), Loc(TEXT("SFX Volume"), TEXT("효과음 음량")),
-            Loc(TEXT("Fullscreen"), TEXT("전체 화면")), Loc(TEXT("Language"), TEXT("언어")), Loc(TEXT("Back"), TEXT("뒤로"))};
+            Loc(TEXT("Fullscreen"), TEXT("전체 화면")), Loc(TEXT("Language"), TEXT("언어")),
+            Loc(TEXT("Reduce Motion"),TEXT("움직임 줄이기")),Loc(TEXT("Reduce Flash"),TEXT("섬광 줄이기")),
+            Loc(TEXT("Camera Shake"),TEXT("화면 흔들림")),Loc(TEXT("Text Size"),TEXT("글자 크기")),Loc(TEXT("Back"), TEXT("뒤로"))};
         FString Values[OptionRowCount];
         if (Settings)
         {
             Values[0] = FString::Printf(TEXT("%d%%"), Settings->GetMasterVolume()); Values[1] = FString::Printf(TEXT("%d%%"), Settings->GetMusicVolume());
             Values[2] = FString::Printf(TEXT("%d%%"), Settings->GetSfxVolume()); Values[3] = Settings->IsFullscreen() ? Loc(TEXT("On"), TEXT("켜짐")) : Loc(TEXT("Off"), TEXT("꺼짐"));
             Values[4] = Settings->GetLocale() == TEXT("en") ? TEXT("English") : TEXT("한국어");
+            Values[5]=Settings->IsReduceMotion() ? Loc(TEXT("On"),TEXT("켜짐")) : Loc(TEXT("Off"),TEXT("꺼짐"));
+            Values[6]=Settings->IsReduceFlash() ? Loc(TEXT("On"),TEXT("켜짐")) : Loc(TEXT("Off"),TEXT("꺼짐"));
+            Values[7]=FString::Printf(TEXT("%d%%"),Settings->GetShakePercent());
+            Values[8]=FString::Printf(TEXT("%d%%"),Settings->GetTextPercent());
         }
-        FitRows(OptionRowCount);
-        for (int32 N = 0; N < OptionRowCount; ++N) Row(N, Labels[N], Values[N], N == OptionRow, true);
+        const int32 Visible=VisibleCount(OptionRowCount), First=FMath::Clamp(OptionRow-Visible+1,0,OptionRowCount-Visible);
+        FitRows(Visible);
+        for (int32 N = First; N < First+Visible; ++N) Row(N, Labels[N], Values[N], N == OptionRow, true);
     }
     // The last-saved line (the source's green note), then the controls hint.
     if (bSaved) Text(Elements, L + 3, Geometry, Notice, FVector2D(At.X + Panel.X * .5, Y + 8), .5f, Small, Srgb(.55f, .75f, .45f, FMath::Clamp((1.4f - NoticeAge) / .4f, 0.f, 1.f)));
-    Text(Elements, L + 3, Geometry, bOptionsOpen ? Loc(TEXT("↑↓ Choose    ←→ Change    ESC Back"), TEXT("↑↓ 선택    ←→ 변경    ESC 뒤로"))
-        : Loc(TEXT("↑↓ Choose    ENTER Confirm    ESC Resume"), TEXT("↑↓ 선택    ENTER 결정    ESC 계속하기")),
+    Text(Elements, L + 3, Geometry, bOptionsOpen ? Loc(TEXT("↑↓ Choose  ←→ Change  B/ESC Back"), TEXT("↑↓ 선택  ←→ 변경  B/ESC 뒤로"))
+        : Loc(TEXT("ENTER/A Confirm   ESC/B Back"), TEXT("ENTER/A 결정   ESC/B 뒤로")),
         FVector2D(At.X + Panel.X * .5, At.Y + Panel.Y - 30), .5f, Small, Srgb(.45f, .42f, .38f));
     if (bAskQuit)
     {
         // The quit question, over everything; its two buttons replace the rows for the mouse.
         Rows.Reset();
+        RowIds.Reset();
         const FVector2D Q(Size.X * .5 - 300, Size.Y * .5 - 130), QS(600, 260);
         Box(Elements, L + 6, Geometry, FVector2D::ZeroVector, Size, FLinearColor(0, 0, 0, .45f));
         Box(Elements, L + 7, Geometry, Q, QS, Srgb(.04f, .035f, .05f, .97f));
         Frame(Elements, L + 8, Geometry, Q, QS, 2.f, Srgb(.72f, .54f, .30f, .6f));
-        Text(Elements, L + 9, Geometry, Loc(TEXT("Are you sure you want to quit?"), TEXT("정말 종료할까요?")), Q + FVector2D(QS.X * .5, 62), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 26), Srgb(.92f, .80f, .60f));
+        Text(Elements, L + 9, Geometry, Loc(TEXT("Are you sure you want to quit?"), TEXT("정말 종료할까요?")), Q + FVector2D(QS.X * .5, 62), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Title, FontSize(26)), Srgb(.92f, .80f, .60f));
         Text(Elements, L + 9, Geometry, Loc(TEXT("Unsaved progress will be lost."), TEXT("저장하지 않은 진행은 사라집니다.")), Q + FVector2D(QS.X * .5, 110), .5f, Small, Srgb(.70f, .55f, .45f));
         const FString Choices[2] = {Loc(TEXT("Yes, Quit"), TEXT("예, 종료")), Loc(TEXT("No, Stay"), TEXT("아니요"))};
         for (int32 N = 0; N < 2; ++N)
@@ -243,6 +271,7 @@ int32 UMemoriaPauseWidget::NativePaint(const FPaintArgs& Args, const FGeometry& 
             Frame(Elements, L + 9, Geometry, B, BS, 1.f, bOn ? Srgb(.85f, .65f, .30f) : Srgb(.35f, .28f, .20f, .5f));
             Text(Elements, L + 10, Geometry, Choices[N], B + BS * .5, .5f, Body, bOn ? Srgb(.95f, .82f, .50f) : Srgb(.70f, .65f, .55f));
             Rows.Add(FBox2D(B, B + BS));
+            RowIds.Add(N);
         }
     }
     return L + 12;

@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "MemoriaArrelSoleS362Validation.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
 #include "Editor.h"
@@ -195,11 +196,18 @@ class FHeroS361Replay final : public IAutomationLatentCommand
         if (!Test->TestNotNull(TEXT("S361 actual live component has its inspected mesh"), Mesh)) return false;
         if (!bBaseline)
         {
-            const FString Package = TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/") + Name() + TEXT("/") + Asset;
+            // Keep the explicit original baseline mode above; production acceptance follows the
+            // separately named current revision without weakening bind/clip/pose/grip checks below.
+            const bool bSoleR4=Hero==0 && Mesh->GetPathName()==TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/Arrel/SK_Arrel.SK_Arrel");
+            const bool bFinish = bSoleR4 || Mesh->GetPathName().Contains(TEXT("/HeroFinishS362/R2/"));
+            const FString Package = (bSoleR4 ? TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/")
+                : bFinish ? TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/")
+                : TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/")) + Name() + TEXT("/") + Asset;
+            if(bSoleR4 && !Test->TestTrue(TEXT("Arrel R4 changes only approved20sole skins/4Z; every other native normal/UV/paint/bind/topology exact"),MemoriaArrelSoleNativeS362::ValidateDelivered(Mesh)))return false;
             auto* Delivered = LoadObject<USkeletalMesh>(nullptr, *(Package + TEXT(".") + Asset));
             if (!Test->TestNotNull(TEXT("S361 new immutable hero mesh loads"), Delivered)) return false;
             Test->TestEqual(TEXT("S361 actual production figure binds the delivered hero mesh"), Mesh, Delivered);
-            Test->TestEqual(TEXT("S361 new hero material slot count"), Mesh->GetMaterials().Num(), Hero == 0 ? 2 : 4);
+            Test->TestEqual(TEXT("S361 new hero material slot count"), Mesh->GetMaterials().Num(), Hero == 0 ? 2 : (bFinish ? 5 : 4));
             const int32 RetainedSlots = Hero == 0 ? 1 : 2;
             for (int32 I = 0; I < RetainedSlots; ++I)
                 Test->TestTrue(TEXT("S361 original painted clothing material pointers are retained"),

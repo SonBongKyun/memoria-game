@@ -1,16 +1,21 @@
 #include "Combat/MemoriaCombatHudWidget.h"
+#include "Framework/MemoriaSliceHost.h"
+#include "Framework/MemoriaCombatInputRouter.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldCombatTypes.h"
+#include "Combat/MemoriaDefenseFeedbackS364.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Combat/MemoriaAttackTelegraph.h"
-#include "Combat/MemoriaBurnPickerLayout.h"
+#include "Settings/MemoriaSettingsSubsystem.h"
 #include "Presentation/MemoriaFonts.h"
 #include "Presentation/MemoriaHudKit.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Presentation/MemoriaUiKit.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "Engine/World.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/GameViewportSubsystem.h"
 #include "Rendering/DrawElements.h"
 #include "Fonts/FontMeasure.h"
 #include "Framework/Application/SlateApplication.h"
@@ -20,7 +25,29 @@
 namespace
 {
 using MemoriaUiKit::Srgb;
-constexpr float RewardShown = 3.5f; // seconds the victory rewards stay up
+TArray<FString> WrapBurnText(const FString& Text, const FSlateFontInfo& Font, float MaxWidth)
+{
+    TArray<FString> Lines, Paragraphs;
+    Text.Replace(TEXT("\r"), TEXT("")).ParseIntoArray(Paragraphs, TEXT("\n"), false);
+    for (const FString& Paragraph : Paragraphs)
+    {
+        FString Line;
+        for (TCHAR Character : Paragraph)
+        {
+            if (!Line.IsEmpty() && MemoriaHudKit::Width(Line + FString::Chr(Character), Font) > MaxWidth)
+            {
+                int32 Break = INDEX_NONE;
+                for (int32 I = Line.Len() - 1; I > 0; --I) if (FChar::IsWhitespace(Line[I])) { Break = I; break; }
+                if (Break > 0) { Lines.Add(Line.Left(Break)); Line = Line.Mid(Break + 1); }
+                else { Lines.Add(Line); Line.Reset(); }
+            }
+            Line.AppendChar(Character);
+        }
+        Lines.Add(Line);
+    }
+    return Lines;
+}
+constexpr float RewardShown = MemoriaHudLayoutS363::RewardShownSeconds; // seconds the victory rewards stay up
 void Box(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G, const FVector2D& At, const FVector2D& Size, const FLinearColor& Color)
 {
     FSlateDrawElement::MakeBox(Elements, Layer, G.ToPaintGeometry(FVector2f(Size), FSlateLayoutTransform(FVector2f(At))),
@@ -75,18 +102,80 @@ void Segment(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& G,
 FLinearColor Toward(const FLinearColor& Hue, float White, float Alpha)
 { return FLinearColor(FMath::Lerp(Hue.R, 1.f, White), FMath::Lerp(Hue.G, 1.f, White), FMath::Lerp(Hue.B, 1.f, White), Alpha); }
 }
+void UMemoriaCombatHudWidget::UnbindPickerState()
+{
+    if (auto* Bound = Combat.Get(); Bound && PickerVisibilityHandle.IsValid())
+        Bound->OnBurnPickerVisibilityChanged.Remove(PickerVisibilityHandle);
+    PickerVisibilityHandle.Reset();
+}
+void UMemoriaCombatHudWidget::Bind(UMemoriaFieldCombatSubsystem* InCombat)
+{
+    if (Combat.Get() != InCombat || !PickerVisibilityHandle.IsValid())
+    {
+        if (Combat.Get() != InCombat) { HealthTrails.Reset(); HealthTrailFrame = MAX_uint64; }
+        UnbindPickerState(); Combat = InCombat;
+        if (InCombat) PickerVisibilityHandle = InCombat->OnBurnPickerVisibilityChanged.AddUObject(this, &UMemoriaCombatHudWidget::SyncViewportLayer);
+    }
+    SyncViewportLayer();
+}
+void UMemoriaCombatHudWidget::NativeTick(const FGeometry& Geometry, float DeltaTime)
+{
+    Super::NativeTick(Geometry, DeltaTime);
+    // Presentation follows world/gameplay time, not Slate's wall-clock delta.
+    if (GetWorld() && HealthTrailFrame != GFrameCounter)
+    {
+        HealthTrailFrame = GFrameCounter;
+        const auto* C = Combat.Get();
+        const auto* Settings = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>() : nullptr;
+        const bool bSnap = !MemoriaCombatFeedbackS365::IsEnabled() || (Settings && Settings->IsReduceMotion());
+        TSet<TWeakObjectPtr<AMemoriaFieldMonster>> Current;
+        if (C) for (const auto& Weak : C->GetMonsters())
+            if (auto* M = Weak.Get(); M && !M->IsDead())
+            {
+                Current.Add(Weak);
+                HealthTrails.FindOrAdd(Weak).Observe(M->GetHealth(),M->GetMaxHealth(),GetWorld()->IsPaused()?0.f:GetWorld()->GetDeltaSeconds(),bSnap);
+            }
+        for (auto It=HealthTrails.CreateIterator();It;++It) if (!Current.Contains(It.Key())) It.RemoveCurrent();
+    }
+    // Fallback for initial attachment; normal Open/Close synchronizes in the game tick.
+    SyncViewportLayer();
+}
+void UMemoriaCombatHudWidget::SyncViewportLayer()
+{
+    const auto* Owner = GetOwningPlayer();
+    if (bChangingViewportLayer || !GetWorld() || GetWorld()->bIsTearingDown || !Owner || Owner->IsActorBeingDestroyed()) return;
+    auto* Viewport = UGameViewportSubsystem::Get();
+    if (!Viewport || !Viewport->IsWidgetAdded(this)) return;
+    const bool bWantPicker = Combat.IsValid() && Combat->IsPickingBurn();
+    if (bWantPicker == bPickerRaised) return;
+    auto Placement = Viewport->GetWidgetSlot(this);
+    if (bWantPicker) { PreviousViewportOrder = Placement.ZOrder; Placement.ZOrder = 100; }
+    else Placement.ZOrder = PreviousViewportOrder;
+    // UE5.8 SetWidgetSlot updates the inner Canvas only. Reinsert the viewport
+    // host to change its actual sibling Overlay order, then keep exact layout.
+    // The transient reinsert must not be mistaken for an owner/world teardown.
+    bChangingViewportLayer = true; bPickerRaised = bWantPicker;
+    RemoveFromParent();
+    AddToViewport(Placement.ZOrder);
+    if (Viewport->IsWidgetAdded(this)) Viewport->SetWidgetSlot(this, Placement);
+    bChangingViewportLayer = false;
+}
+void UMemoriaCombatHudWidget::NativeDestruct()
+{
+    if (!bChangingViewportLayer) { bPickerRaised = false; UnbindPickerState(); HealthTrails.Reset(); HealthTrailFrame = MAX_uint64; }
+    Super::NativeDestruct();
+}
 void UMemoriaCombatHudWidget::NativeConstruct()
 {
     Super::NativeConstruct();
+    Bind(Combat.Get());
     Ribbon = MemoriaHudKit::Load(MemoriaHudKit::EArt::Ribbon);
     MemoriaHudKit::Brush(RibbonBrush, Ribbon);
 }
 bool UMemoriaCombatHudWidget::IsShowing() const
 {
     const auto* C = Combat.Get();
-    return C && (C->LiveMonsterCount() > 0 || C->GetPopups().Num() > 0 || C->IsDefeated() || C->GetPlayerHp() < C->GetPlayerMaxHp() ||
-        C->IsPickingBurn() || C->IsCasting() || C->GetBurnWave().bLive || C->GetLastReward().Age < RewardShown || C->IsWeakened() || C->IsPoisoned() ||
-        C->GetSparks().Num() > 0 || C->GetTrail().Num() > 0 || C->GetImpacts().Num() > 0 || C->GetThrown().Num() > 0 || C->IsWarded() || C->GetOrbs().Num() > 0 || C->IsScorched() || C->GetCharge() > 0.f || C->IsBlocking() || C->GetEliaNoticeAge() < 3.5f);
+    return C && MemoriaHudLayoutS363::IsRibbonShowing(*C);
 }
 int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -94,9 +183,25 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     const int32 Layer = Super::NativePaint(Args, Geometry, CullingRect, Elements, LayerId, Style, bParentEnabled) + 1;
     const auto* C = Combat.Get();
     APlayerController* PC = GetOwningPlayer();
+    const auto* SliceController = Cast<AMemoriaSliceController>(PC);
+    const auto* InputRouter = SliceController ? SliceController->GetCombatInputRouter() : nullptr;
+    const bool bPad = InputRouter && InputRouter->IsUsingGamepad();
     // The game over screen (S318) takes over from the fall's veil.
+    PickerProbe = FMemoriaBurnPickerPaintProbe();
+    RibbonProbe = FMemoriaRibbonPaintProbe();
+    DefenseProbe = FMemoriaDefensePaintProbe(); DefenseProbe.Frame = GFrameCounter;
+    FeedbackProbe = FMemoriaCombatFeedbackPaintProbe(); FeedbackProbe.Frame = GFrameCounter;
     if (!C || !PC || !IsShowing() || C->IsAwaitingGameOver()) return Layer;
+    const auto* Settings = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>() : nullptr;
+    const float FlashScale = Settings ? Settings->FlashScale() : 1.f;
+    const float DecorativeOpacity = Settings && Settings->IsReduceMotion() ? .2f : 1.f;
     const FVector2D Size = Geometry.GetLocalSize();
+    const bool bFeedbackEnabled = MemoriaCombatFeedbackS365::IsEnabled();
+    FeedbackProbe.bDrawn = true; FeedbackProbe.bEnabled = bFeedbackEnabled; FeedbackProbe.Viewport = Size;
+    const bool bDefenseEnabled = MemoriaDefenseFeedbackS364::IsEnabled();
+    const bool bReduceMotion = Settings && Settings->IsReduceMotion();
+    DefenseProbe.bDrawn = true; DefenseProbe.bEnabled = bDefenseEnabled;
+    DefenseProbe.bReduceMotion = bReduceMotion; DefenseProbe.FlashScale = FlashScale; DefenseProbe.Viewport = Size;
     // The run's locale, like the memory titles and the story text (a new game takes it from the settings).
     const auto* Run = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>() : nullptr;
     const bool Ko = !Run || Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
@@ -118,7 +223,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
             Ring(Elements, Layer + 1, Geometry, PC, Wave.Center, Reach * .6f, 1.5f, Toward(Hue, 0.f, .35f * Fade));
         }
         const float Flash = FMath::Clamp(1.f - Wave.Age / .5f, 0.f, 1.f);
-        if (Flash > 0.f) Box(Elements, Layer, Geometry, FVector2D::ZeroVector, Size, Toward(Hue, 0.f, .30f * Flash * Flash));
+        if (Flash > 0.f) Box(Elements, Layer, Geometry, FVector2D::ZeroVector, Size, Toward(Hue, 0.f, .30f * Flash * Flash * FlashScale));
         const float Banner = FMath::Clamp(FMath::Min(Wave.Age / .15f, (BurnAfterglow - Wave.Age) / .5f), 0.f, 1.f);
         Text(Elements, Layer + 6, Geometry, Wave.Skill, FVector2D(Size.X * .5, 190), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 46), Toward(Hue, .6f, Banner));
         const FString Cost = Ko ? FString::Printf(TEXT("「%s」 — 연소"), *Wave.Title) : FString::Printf(TEXT("\"%s\" — burned"), *Wave.Title);
@@ -132,22 +237,41 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         for (const float Along : {1.f, .8f, .6f})
         {
             const FVector A = FMath::Lerp(Trail[I - 1].Base, Trail[I - 1].Tip, Along), B = FMath::Lerp(Trail[I].Base, Trail[I].Tip, Along);
-            Segment(Elements, Layer, Geometry, PC, A, B, Along == 1.f ? 5.f : 3.f, FLinearColor(.85f, .92f, 1.f, Fade * (Along == 1.f ? .85f : .45f)));
+            Segment(Elements, Layer, Geometry, PC, A, B, Along == 1.f ? 5.f : 3.f, FLinearColor(.85f, .92f, 1.f, Fade * DecorativeOpacity * (Along == 1.f ? .85f : .45f)));
         }
-        Segment(Elements, Layer, Geometry, PC, Trail[I].Base, Trail[I].Tip, 1.5f, FLinearColor(.8f, .88f, 1.f, Fade * .18f));
+        Segment(Elements, Layer, Geometry, PC, Trail[I].Base, Trail[I].Tip, 1.5f, FLinearColor(.8f, .88f, 1.f, Fade * .18f * DecorativeOpacity));
     }
     for (const FMemoriaSpark& Spark : C->GetSparks())
     {
         // A short streak along the spark's flight, with a soft glow under it.
         const float Life = FMath::Clamp(1.f - Spark.Age / Spark.Life, 0.f, 1.f), Width = Spark.Size * (.5f + .5f * Life);
-        const FLinearColor Hot(FMath::Lerp(Spark.Color.R, 1.f, Life * .6f), FMath::Lerp(Spark.Color.G, 1.f, Life * .6f), FMath::Lerp(Spark.Color.B, 1.f, Life * .45f), Life);
+        const FLinearColor Hot(FMath::Lerp(Spark.Color.R, 1.f, Life * .6f), FMath::Lerp(Spark.Color.G, 1.f, Life * .6f), FMath::Lerp(Spark.Color.B, 1.f, Life * .45f), Life * DecorativeOpacity);
         const FVector Tail = Spark.Location - Spark.Velocity * .035f;
-        Segment(Elements, Layer, Geometry, PC, Tail, Spark.Location, Width * 2.4f, FLinearColor(Spark.Color.R, Spark.Color.G, Spark.Color.B, .28f * Life));
+        Segment(Elements, Layer, Geometry, PC, Tail, Spark.Location, Width * 2.4f, FLinearColor(Spark.Color.R, Spark.Color.G, Spark.Color.B, .28f * Life * DecorativeOpacity));
         Segment(Elements, Layer + 1, Geometry, PC, Tail, Spark.Location, Width, Hot);
     }
     // S340: where a blow landed, a ring opens and fades; a heavy one also throws a cross of light.
     for (const FMemoriaImpact& Mark : C->GetImpacts())
     {
+        if (bDefenseEnabled && Mark.Outcome != EMemoriaDefenseOutcome::None)
+        {
+            FVector2D At;
+            if (UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, Mark.Location, At, false))
+            {
+                const auto Shape = MemoriaDefenseFeedbackS364::Shape(Mark, bReduceMotion, FlashScale);
+                if (!Shape.Lines.IsEmpty())
+                {
+                    for (const auto& Line : Shape.Lines)
+                        FSlateDrawElement::MakeLines(Elements, Layer + 2, Geometry.ToPaintGeometry(),
+                            TArray<FVector2f>{FVector2f(At+Line.A),FVector2f(At+Line.B)}, ESlateDrawEffect::None, Line.Color, true, Line.Thickness);
+                    FMemoriaDefenseShapePaintRecord Record; Record.Outcome = Mark.Outcome;
+                    Record.Bounds = FBox2D(At+Shape.Bounds.Min,At+Shape.Bounds.Max); Record.Segments = Shape.Lines.Num();
+                    Record.bReduceMotion = bReduceMotion; Record.FlashScale = FlashScale; Record.Age = Mark.Age;
+                    DefenseProbe.Shapes.Add(MoveTemp(Record));
+                }
+            }
+            continue;
+        }
         const float T = FMath::Clamp(Mark.Age / Mark.Life, 0.f, 1.f), Open = 1.f - FMath::Square(1.f - T), Fade = 1.f - T;
         Ring(Elements, Layer + 1, Geometry, PC, Mark.Location, Mark.Radius * (.25f + .75f * Open), (Mark.bHeavy ? 7.f : 4.5f) * Fade + 1.f, Toward(Mark.Color, .45f, .9f * Fade));
         Ring(Elements, Layer, Geometry, PC, Mark.Location, Mark.Radius * (.15f + .55f * Open), 10.f * Fade + 1.f, Toward(Mark.Color, 0.f, .22f * Fade));
@@ -175,32 +299,70 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, M->GetActorLocation() + FVector(0, 0, M->Spec().Height + 25.f), At, false)) continue;
         const FVector2D Bar(96, 9);
         Box(Elements, Layer, Geometry, At - FVector2D(Bar.X * .5 + 2, 2), Bar + FVector2D(4, 4), FLinearColor(0, 0, 0, .75f));
-        Box(Elements, Layer + 1, Geometry, At - FVector2D(Bar.X * .5, 0), FVector2D(Bar.X * M->GetHealth() / M->GetMaxHealth(), Bar.Y), M->Spec().bVoid ? Srgb(.62f, .12f, .78f) : Srgb(.80f, .42f, .16f));
+        const float Current = M->GetHealth(), Maximum = FMath::Max(1.f,M->GetMaxHealth());
+        const auto* TrailState = HealthTrails.Find(Weak);
+        const float Recent = bFeedbackEnabled && !bReduceMotion && TrailState ? FMath::Clamp(TrailState->Value,Current,Maximum) : Current;
+        const FVector2D BarAt = At-FVector2D(Bar.X*.5,0);
+        const float FillWidth = Bar.X*Current/Maximum, TrailWidth = Bar.X*Recent/Maximum;
+        if (TrailWidth>FillWidth+.01f)
+            Box(Elements,Layer+1,Geometry,BarAt+FVector2D(FillWidth,0),FVector2D(TrailWidth-FillWidth,Bar.Y),Srgb(.94f,.77f,.48f,.85f));
+        Box(Elements, Layer + 2, Geometry, BarAt, FVector2D(FillWidth, Bar.Y), M->Spec().bVoid ? Srgb(.62f, .12f, .78f) : Srgb(.80f, .42f, .16f));
+        FMemoriaHealthPaintRecordS365 Health; Health.Target=Weak; Health.Current=Current; Health.Trail=Recent; Health.Max=Maximum;
+        Health.Bounds=FBox2D(BarAt,BarAt+Bar); Health.bTrailVisible=TrailWidth>FillWidth+.01f;
+        if(Health.bTrailVisible) Health.RecentDamageBounds=FBox2D(BarAt+FVector2D(FillWidth,0),BarAt+FVector2D(TrailWidth,Bar.Y));
+        FeedbackProbe.Health.Add(MoveTemp(Health));
         // S342: the pools' foes are named over their bar, since two kinds can share a model.
         if (M->Spec().bRetint)
             Text(Elements, Layer + 2, Geometry, Ko ? M->Spec().NameKo : M->Spec().Name, At - FVector2D(0, 12), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.90f, .86f, .80f, .92f));
     }
-    // Rising damage numbers: ember on a husk, red on Arrel.
-    for (const auto& P : C->GetPopups())
+    // Collect the exact glyphs before painting, so defense words, damage,
+    // healing and status text share one measured screen-space collision pass.
+    struct FPopupStyle { FSlateFontInfo Font; FLinearColor Ink; EMemoriaDefenseOutcome Outcome; };
+    TArray<FPopupStyle> PopupStyles;
+    const auto& Popups = C->GetPopups();
+    for (int32 I=0; I<Popups.Num(); ++I)
     {
-        FVector2D At;
-        if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, P.Location, At, false)) continue;
-        // Words (grains, statuses, healing) linger a little longer than numbers.
-        const bool bWord = !P.Label.IsEmpty();
-        const float Alpha = FMath::Clamp((bWord ? 2.2f : 1.4f) - P.Age * 1.4f, 0.f, 1.f);
-        const FLinearColor Base = P.Tint.A > 0.f ? P.Tint : P.bPlayer ? FLinearColor(1.f, .28f, .24f) : FLinearColor(1.f, .82f, .46f);
-        // S340: a number lands large and settles; a heavy or killing blow's stays larger and brighter.
-        const float Pop = 1.f + .55f * FMath::Square(FMath::Clamp(1.f - P.Age / .16f, 0.f, 1.f));
-        const int32 Points = FMath::RoundToInt((bWord ? 22 : P.bPlayer ? 30 : P.bBig ? 46 : 34) * Pop);
-        const FLinearColor Ink = P.bBig && !bWord ? FLinearColor(FMath::Lerp(Base.R, 1.f, .35f), FMath::Lerp(Base.G, 1.f, .35f), FMath::Lerp(Base.B, 1.f, .35f)) : Base;
-        Text(Elements, Layer + 2, Geometry, bWord ? P.Label : FString::Printf(TEXT("%d"), FMath::RoundToInt(P.Amount)), At - FVector2D(0, (bWord ? 40.f : 60.f) * P.Age),
-            MemoriaFonts::Get(bWord ? MemoriaFonts::EStyle::Ui : MemoriaFonts::EStyle::Title, Points), Srgb(Ink.R, Ink.G, Ink.B, Alpha));
+        const auto& P=Popups[I]; FVector2D At;
+        if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC,P.Location,At,false)) continue;
+        const bool bWord=!P.Label.IsEmpty(), bDefense=P.Outcome!=EMemoriaDefenseOutcome::None;
+        const float Alpha=FMath::Clamp((bWord?2.2f:1.4f)-P.Age*1.4f,0.f,1.f);
+        if(Alpha<=.001f) continue;
+        const auto Base=P.Tint.A>0.f?P.Tint:P.bPlayer?FLinearColor(1.f,.28f,.24f):FLinearColor(1.f,.82f,.46f);
+        const float Pop=1.f+.55f*FMath::Square(FMath::Clamp(1.f-P.Age/.16f,0.f,1.f));
+        const auto Ink=P.bBig&&!bWord?FLinearColor(FMath::Lerp(Base.R,1.f,.35f),FMath::Lerp(Base.G,1.f,.35f),FMath::Lerp(Base.B,1.f,.35f)):Base;
+        const FString Painted=bDefense?(bDefenseEnabled?MemoriaDefenseFeedbackS364::PopupText(P,Ko):P.Label):bWord?P.Label:FString::Printf(TEXT("%d"),FMath::RoundToInt(P.Amount));
+        const float DefensePop=bDefenseEnabled&&bReduceMotion?1.f:Pop;
+        const int32 Points=bDefense?FMath::RoundToInt(22.f*DefensePop*(bDefenseEnabled&&Settings?Settings->TextScale():1.f)):
+            FMath::RoundToInt((bWord?22:P.bPlayer?30:P.bBig?46:34)*Pop);
+        const auto Font=MemoriaFonts::Get(bWord?MemoriaFonts::EStyle::Ui:MemoriaFonts::EStyle::Title,Points);
+        const FVector2D Extent=FSlateApplication::Get().GetRenderer()->GetFontMeasureService()->Measure(Painted,Font);
+        FVector2D Center=At-FVector2D(0,bDefense&&bDefenseEnabled&&bReduceMotion?0.f:(bWord?40.f:60.f)*P.Age);
+        if(bDefense&&bDefenseEnabled)
+        {
+            Center.X=FMath::Clamp(Center.X,Extent.X*.5+4.,FMath::Max(Extent.X*.5+4.,Size.X-Extent.X*.5-5.5));
+            Center.Y=FMath::Clamp(Center.Y,Extent.Y*.5+4.,FMath::Max(Extent.Y*.5+4.,Size.Y-Extent.Y*.5-5.5));
+        }
+        FMemoriaPopupPaintRecordS365 Record; Record.SourceIndex=I; Record.Text=Painted; Record.Amount=P.Amount; Record.Alpha=Alpha;
+        Record.DesiredCenter=Record.PaintedCenter=Center; Record.Bounds=FBox2D(Center-Extent*.5,Center+Extent*.5+FVector2D(1.5,1.5));
+        FeedbackProbe.Popups.Add(MoveTemp(Record));
+        PopupStyles.Add(FPopupStyle{Font,Srgb(Ink.R,Ink.G,Ink.B,Alpha),P.Outcome});
+    }
+    if(bFeedbackEnabled) MemoriaCombatFeedbackS365::PlacePopups(FeedbackProbe.Popups,Size);
+    for(int32 I=0;I<FeedbackProbe.Popups.Num();++I)
+    {
+        const auto& P=FeedbackProbe.Popups[I]; const auto& Paint=PopupStyles[I];
+        Text(Elements,Layer+2,Geometry,P.Text,P.PaintedCenter,Paint.Font,Paint.Ink);
+        if(Paint.Outcome!=EMemoriaDefenseOutcome::None)
+        {
+            FMemoriaDefensePopupPaintRecord Record;Record.Outcome=Paint.Outcome;Record.Text=P.Text;Record.Amount=P.Amount;Record.Alpha=P.Alpha;Record.Bounds=P.Bounds;
+            DefenseProbe.Popups.Add(MoveTemp(Record));
+        }
     }
     // S340: a wound reddens the screen's edge for a moment; under a third of his HP the edge keeps a slow pulse.
     {
         const float Share = C->GetPlayerMaxHp() > 0 ? float(C->GetPlayerHp()) / float(C->GetPlayerMaxHp()) : 1.f;
-        const float Struck = FMath::Square(FMath::Clamp(1.f - C->GetHurtAge() / UMemoriaFieldCombatSubsystem::HurtTime, 0.f, 1.f)) * .5f;
-        const float Low = Share < .3f && !C->IsDefeated() ? .16f + .1f * FMath::Sin(float(FPlatformTime::Seconds()) * 4.6f) : 0.f;
+        const float Struck = FMath::Square(FMath::Clamp(1.f - C->GetHurtAge() / UMemoriaFieldCombatSubsystem::HurtTime, 0.f, 1.f)) * .5f * FlashScale;
+        const float Low = Share < .3f && !C->IsDefeated() ? (Settings && Settings->IsReduceFlash() ? .06f : .16f + .1f * FMath::Sin(float(FPlatformTime::Seconds()) * 4.6f)) : 0.f;
         const float Edge = FMath::Max(Struck, Low);
         if (Edge > .01f)
         {
@@ -221,8 +383,12 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     // Elia's four techniques, the burn, the guard and the dodge, each with its key; its left orb holds Arrel's HP
     // and its right orb the memories he still has to burn. K takes the ribbon's own pixels (1840 x 386) to the
     // viewport's units.
-    constexpr float K = .6f;
-    const FVector2D RibbonAt(Size.X * .5 - 1840 * K * .5, Size.Y - 386 * K + 14);
+    const auto RibbonLayout = MemoriaHudLayoutS363::Ribbon(Size, C->LiveMonsterCount() > 0, C->GetLastReward().Age < RewardShown);
+    const float K = RibbonLayout.Scale;
+    const FVector2D RibbonAt = RibbonLayout.Origin;
+    RibbonProbe.bDrawn = true; RibbonProbe.Frame = GFrameCounter; RibbonProbe.Viewport = Size; RibbonProbe.bUsingGamepad = bPad;
+    RibbonProbe.ArtBounds = FBox2D(RibbonAt, RibbonAt + FVector2D(1840, 386) * K);
+    RibbonProbe.OccupiedBounds = RibbonLayout.OccupiedBounds;
     const float Hp = float(C->GetPlayerHp()), Max = FMath::Max(1.f, float(C->GetPlayerMaxHp()));
     // Arrel's HP as a gauge over the ribbon.
     const FVector2D Bar(520, 14), At(Size.X * .5 - Bar.X * .5, RibbonAt.Y - 16);
@@ -237,6 +403,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         int32 Held = 0;
         if (Run && Run->GetPlayerMemory()) for (const auto& M : Run->GetPlayerMemory()->GetSnapshot().Owned) Held += !M.bBurned && !M.bFaded ? 1 : 0;
         const FVector2D Left = RibbonAt + FVector2D(160, 188) * K, Right = RibbonAt + FVector2D(1680, 188) * K;
+        RibbonProbe.MemoryOrbBounds = FBox2D(Right - FVector2D(70, 70) * K, Right + FVector2D(70, 70) * K);
         MemoriaHudKit::Arc(Elements, Layer + 1, Geometry, Left, 70 * K, Hp / Max, 3.5f, Srgb(.92f, .26f, .22f, .95f));
         Text(Elements, Layer + 2, Geometry, FString::FromInt(int32(Hp)), Left - FVector2D(0, 5), MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 22), Srgb(1.f, .90f, .84f));
         Text(Elements, Layer + 2, Geometry, TEXT("HP"), Left + FVector2D(0, 16), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 10), Srgb(.86f, .62f, .56f));
@@ -275,12 +442,14 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         {
             bOpen = C->IsEliaSkillUnlocked(I);
             Cool = bOpen ? C->GetEliaCooldown(I) / MemoriaCombatTuning::EliaSkills[I].Cooldown : 0.f;
-            Key = FString::FromInt(I + 1);
+            static const TCHAR* PadSkills[] = {TEXT("LT+↑"),TEXT("LT+→"),TEXT("LT+↓"),TEXT("LT+←")};
+            Key = bPad ? FString(PadSkills[I]) : FString::FromInt(I + 1);
             Name = bOpen ? FString(Ko ? MemoriaCombatTuning::EliaSkills[I].NameKo : MemoriaCombatTuning::EliaSkills[I].Name) : FString(TEXT("???"));
         }
-        else if (I == 4) { Key = TEXT("R"); Name = Ko ? TEXT("기억 연소") : TEXT("Burn"); Hue = Srgb(1.f, .62f, .30f); bLit = C->IsPickingBurn() || C->IsCasting(); }
-        else if (I == 5) { Key = Ko ? TEXT("우클릭") : TEXT("RMB"); Name = Ko ? TEXT("막기") : TEXT("Guard"); Hue = Srgb(.82f, .88f, 1.f); bLit = C->IsBlocking(); }
-        else { Key = TEXT("Shift"); Name = Ko ? TEXT("회피") : TEXT("Dodge"); Hue = Srgb(.82f, .88f, 1.f); }
+        else if (I == 4) { Key = bPad ? TEXT("Y") : TEXT("R"); Name = Ko ? TEXT("기억 연소") : TEXT("Burn"); Hue = Srgb(1.f, .62f, .30f); bLit = C->IsPickingBurn() || C->IsCasting(); }
+        else if (I == 5) { Key = bPad ? TEXT("LB") : Ko ? TEXT("우클릭") : TEXT("RMB"); Name = Ko ? TEXT("막기") : TEXT("Guard"); Hue = Srgb(.82f, .88f, 1.f); bLit = C->IsBlocking(); }
+        else { Key = bPad ? TEXT("B") : TEXT("Shift"); Name = Ko ? TEXT("회피") : TEXT("Dodge"); Hue = Srgb(.82f, .88f, 1.f); }
+        RibbonProbe.ActionCells.Add(FBox2D(CellAt, CellAt + Cell)); RibbonProbe.ActionKeys.Add(Key);
         if (bLit) Box(Elements, Layer + 1, Geometry, CellAt, Cell, FLinearColor(Hue.R, Hue.G, Hue.B, .16f));
         if (Cool > 0.f) Box(Elements, Layer + 1, Geometry, CellAt, FVector2D(Cell.X, Cell.Y * Cool), Srgb(.0f, .0f, .01f, .62f));
         Box(Elements, Layer + 1, Geometry, CellAt + FVector2D(Cell.X * .2, Cell.Y - 3), FVector2D(Cell.X * .6, 2), !bOpen ? Srgb(.3f, .32f, .36f, .4f) : Cool > 0.f ? Srgb(.4f, .44f, .5f, .6f) : FLinearColor(Hue.R, Hue.G, Hue.B, .9f));
@@ -348,7 +517,8 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     }
     // The attack has no cell: its hint stands over the gauge while a fight is on.
     if (C->LiveMonsterCount() > 0)
-        Text(Elements, Layer + 3, Geometry, Ko ? TEXT("좌클릭 / J  공격     길게 눌러 회전베기") : TEXT("LMB / J  Attack     hold to spin"),
+        Text(Elements, Layer + 3, Geometry, bPad ? (Ko ? TEXT("RB  공격     길게 눌러 회전베기") : TEXT("RB  Attack     hold to spin")) :
+                (Ko ? TEXT("좌클릭 / J  공격     길게 눌러 회전베기") : TEXT("LMB / J  Attack     hold to spin")),
             At + FVector2D(Bar.X * .5, -18), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.86f, .82f, .76f, .9f));
     if (C->IsDefeated())
     {
@@ -360,89 +530,114 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
 }
 void UMemoriaCombatHudWidget::PaintBurnPicker(FSlateWindowElementList& Elements, int32 Layer, const FGeometry& Geometry, bool Ko) const
 {
-    // The world slows behind an ember-dark veil. S352 keeps the selection and the irreversible
-    // confirmation in view even after a long run has accumulated more than nine memories.
-    const auto* C = Combat.Get();
+    const auto* Fight = Combat.Get(); const auto& Choices = Fight->GetBurnChoices();
+    const int32 SelectedIndex = Fight->GetBurnSelection();
+    if (!Choices.IsValidIndex(SelectedIndex)) return;
+    const auto& Choice = Choices[SelectedIndex];
+    const auto* SliceController = Cast<AMemoriaSliceController>(GetOwningPlayer());
+    const auto* InputRouter = SliceController ? SliceController->GetCombatInputRouter() : nullptr;
+    const bool bPad = InputRouter && InputRouter->IsUsingGamepad();
+    const auto* Settings = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>() : nullptr;
+    const float TextScale = Settings ? Settings->TextScale() : 1.f;
     const FVector2D Size = Geometry.GetLocalSize();
-    const auto& Choices = C->GetBurnChoices();
-    const int32 Selected = C->GetBurnSelection();
-    const auto Layout = MemoriaBurnPicker::Build(Size, Choices.Num(), Selected);
-    const FVector2D Panel = Layout.Panel;
-    const float Width = Layout.Extent.X, K = Layout.Scale, RowH = Layout.RowHeight;
-    auto Font = [&](MemoriaFonts::EStyle Style, int32 Points, const FString& Line, float MaxWidth)
+    const float K = FMath::Clamp(FMath::Min(float(Size.X) / 1040.f, float(Size.Y) / 720.f), .1f, 1.f);
+    const float Margin = 24.f * K, PanelPadding = 24.f * K;
+    const float Width = FMath::Min(1200.f * K, float(Size.X) - 2.f * Margin), MaxHeight = float(Size.Y) - 2.f * Margin;
+    const float TextWidth = Width - 2.f * PanelPadding;
+    const auto Measure = FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+    auto Font = [&](int32 Base, MemoriaFonts::EStyle Style = MemoriaFonts::EStyle::Ui)
+    { return MemoriaFonts::Get(Style, FMath::Max(8, FMath::RoundToInt((Settings ? Settings->ScaledTextSize(Base) : Base) * K))); };
+    auto Height = [&](const FSlateFontInfo& Face) { return float(Measure->Measure(TEXT("Ag가"), Face).Y); };
+    auto FitsFont = [&](const FString& Line, FSlateFontInfo Face, float Available)
+    { while (Face.Size > 8 && MemoriaHudKit::Width(Line, Face) > Available) --Face.Size; return Face; };
+    const auto TitleFont = Font(28, MemoriaFonts::EStyle::Title), DangerFont = Font(13), LabelFont = Font(12), MetaFont = Font(12);
+    const auto RowTitleFont = Font(19), RowDetailFont = Font(13), RowDamageFont = Font(24, MemoriaFonts::EStyle::Title);
+    FSlateFontInfo InfoFont = Font(18);
+    const FString Consequence = Choice.KnownConsequence.IsEmpty() ? (Ko ? TEXT("기록된 영향 없음") : TEXT("No recorded consequence")) : Choice.KnownConsequence;
+    const FString Warning = Fight->IsBurnArmed()
+        ? (Ko ? FString::Printf(TEXT("한 번 더 누르면 「%s」은(는) 영원히 사라진다"), *Choice.Title) : FString::Printf(TEXT("Press again and \"%s\" is gone forever"), *Choice.Title))
+        : bPad ? (Ko ? TEXT("방향키 ↑↓로 전체 기억 살펴보기") : TEXT("D-pad ↑↓ to browse every memory"))
+        : (Ko ? TEXT("↑↓ · W/S · 휠로 전체 기억 살펴보기") : TEXT("↑↓ · W/S · wheel to browse every memory"));
+    const FString Controls = bPad ? (Ko ? TEXT("A / Y 확인     B 뒤로") : TEXT("A / Y Confirm     B Back"))
+        : (Ko ? TEXT("1–9 고르기     R · Enter 태우기     Esc · 우클릭 그만두기") : TEXT("1–9 Choose     R · Enter Burn     Esc · RMB Let it be"));
+    const auto WarningFont = FitsFont(Warning, Font(16), TextWidth), ControlsFont = FitsFont(Controls, Font(14), TextWidth);
+    const float LabelHeight = Height(LabelFont), MetaHeight = Height(MetaFont);
+    const float TopHeight = PanelPadding + Height(TitleFont) + 3.f * K + Height(DangerFont) + 12.f * K;
+    const float FooterHeight = 14.f * K + Height(WarningFont) + 6.f * K + Height(ControlsFont) + PanelPadding;
+    const float RowHeight = FMath::Max(64.f * K, Height(RowTitleFont) + Height(RowDetailFont) + 14.f * K);
+    TArray<FString> DescriptionLines, ConsequenceLines; float LineHeight = 0.f, InfoHeight = 0.f;
+    auto Reflow = [&]
     {
-        const int32 Scaled = FMath::Max(8, FMath::RoundToInt(Points * K));
-        FSlateFontInfo Result = MemoriaFonts::Get(Style, Scaled);
-        const float Measured = MemoriaHudKit::Width(Line, Result);
-        if (Measured > MaxWidth && Measured > 0.f)
-            Result = MemoriaFonts::Get(Style, FMath::Max(8, FMath::FloorToInt(Scaled * MaxWidth / Measured)));
-        return Result;
+        LineHeight = Height(InfoFont) + 3.f * K;
+        DescriptionLines = WrapBurnText(Choice.Description, InfoFont, TextWidth);
+        ConsequenceLines = WrapBurnText(Consequence, InfoFont, TextWidth);
+        InfoHeight = 2.f * LabelHeight + 6.f * K + (DescriptionLines.Num() + ConsequenceLines.Num()) * LineHeight + 8.f * K;
     };
-    auto Centered = [&](const FString& Line, const FVector2D& At, MemoriaFonts::EStyle Style, int32 Points, const FLinearColor& Color)
-    { Text(Elements, Layer + 3, Geometry, Line, At, Font(Style, Points, Line, Width - 48.f * K), Color); };
+    Reflow();
+    const int32 MinimumRows = FMath::Min(2, Choices.Num());
+    auto FixedHeight = [&] { return TopHeight + InfoHeight + 10.f * K + MetaHeight + 8.f * K + FooterHeight; };
+    // Allocate the entire selected meaning before rows. On a constrained viewport, reduce the number
+    // of visible rows first; an 8-point emergency fallback still wraps every authored character.
+    while (InfoFont.Size > 8 && MaxHeight - FixedHeight() < MinimumRows * RowHeight) { --InfoFont.Size; Reflow(); }
+    const int32 Capacity = FMath::Clamp(FMath::FloorToInt((MaxHeight - FixedHeight()) / RowHeight), MinimumRows, 6);
+    const int32 VisibleRows = FMath::Min(Capacity, Choices.Num());
+    const int32 FirstRow = (SelectedIndex / FMath::Max(1, VisibleRows)) * VisibleRows;
+    const int32 Pages = FMath::DivideAndRoundUp(Choices.Num(), FMath::Max(1, VisibleRows)), Page = SelectedIndex / FMath::Max(1, VisibleRows) + 1;
+    const FVector2D Extent(Width, FixedHeight() + VisibleRows * RowHeight), Panel = (Size - Extent) * .5f;
+    PickerProbe.bDrawn = true; PickerProbe.Viewport = Size; PickerProbe.PanelBounds = FBox2D(Panel, Panel + Extent);
+    PickerProbe.Description = Choice.Description; PickerProbe.AuthoredConsequence = Choice.KnownConsequence; PickerProbe.PaintedConsequence = Consequence;
+    PickerProbe.DescriptionLines = DescriptionLines; PickerProbe.ConsequenceLines = ConsequenceLines;
+    PickerProbe.Selected = SelectedIndex; PickerProbe.First = FirstRow; PickerProbe.Visible = FMath::Min(VisibleRows, Choices.Num() - FirstRow);
+    PickerProbe.Pages = Pages; PickerProbe.Page = Page; PickerProbe.TextScale = TextScale; PickerProbe.InfoFontSize = FMath::RoundToInt(InfoFont.Size);
     Box(Elements, Layer, Geometry, FVector2D::ZeroVector, Size, FLinearColor(.02f, .006f, .004f, .52f));
-    Box(Elements, Layer + 1, Geometry, Panel - FVector2D(2, 2) * K, Layout.Extent + FVector2D(4, 4) * K, Srgb(.55f, .24f, .10f, .85f));
-    Box(Elements, Layer + 1, Geometry, Panel, Layout.Extent, Srgb(.055f, .035f, .03f, .96f));
-    Centered(Ko ? TEXT("무엇을 태우겠는가") : TEXT("What will you burn?"), Panel + FVector2D(Width * .5, 42.f * K),
-        MemoriaFonts::EStyle::Title, 34, Srgb(1.f, .80f, .56f));
-    Centered(Ko ? TEXT("태운 기억은 돌아오지 않는다") : TEXT("A burned memory never returns"), Panel + FVector2D(Width * .5, 84.f * K),
-        MemoriaFonts::EStyle::Ui, 15, Srgb(.78f, .56f, .44f));
-    const FString Position = Ko ? FString::Printf(TEXT("선택 %d / %d"), Selected + 1, Choices.Num())
-        : FString::Printf(TEXT("Selected %d / %d"), Selected + 1, Choices.Num());
-    Centered(Position, Panel + FVector2D(Width * .5, 119.f * K), MemoriaFonts::EStyle::Ui, 13, Srgb(.84f, .72f, .60f));
-    if (Layout.First > 0)
-        TextAt(Elements, Layer + 3, Geometry, FString::Printf(TEXT("↑ %d"), Layout.First), Panel + FVector2D(28.f * K, 119.f * K),
-            0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::Max(8, FMath::RoundToInt(13 * K))), Srgb(.84f, .72f, .60f));
-    const int32 Below = Choices.Num() - Layout.First - Layout.Visible;
-    if (Below > 0)
-        TextAt(Elements, Layer + 3, Geometry, FString::Printf(TEXT("%d ↓"), Below), Panel + FVector2D(Width - 28.f * K, 119.f * K),
-            1.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::Max(8, FMath::RoundToInt(13 * K))), Srgb(.84f, .72f, .60f));
-    for (int32 I = Layout.First; I < Layout.First + Layout.Visible; ++I)
+    Box(Elements, Layer + 1, Geometry, Panel - FVector2D(2, 2) * K, Extent + FVector2D(4, 4) * K, Srgb(.55f, .24f, .10f, .85f));
+    Box(Elements, Layer + 1, Geometry, Panel, Extent, Srgb(.055f, .035f, .03f, .97f));
+    float Y = Panel.Y + PanelPadding;
+    TextAt(Elements, Layer + 3, Geometry, Ko ? TEXT("무엇을 태우겠는가") : TEXT("What will you burn?"), FVector2D(Panel.X + Width * .5f, Y + Height(TitleFont) * .5f), .5f, TitleFont, Srgb(1.f, .80f, .56f));
+    Y += Height(TitleFont) + 3.f * K;
+    TextAt(Elements, Layer + 3, Geometry, Ko ? TEXT("태운 기억은 돌아오지 않는다") : TEXT("A burned memory never returns"), FVector2D(Panel.X + Width * .5f, Y + Height(DangerFont) * .5f), .5f, DangerFont, Srgb(.78f, .56f, .44f));
+    Y += Height(DangerFont) + 12.f * K;
+    TextAt(Elements, Layer + 3, Geometry, Ko ? TEXT("기억") : TEXT("Memory"), FVector2D(Panel.X + PanelPadding, Y + LabelHeight * .5f), 0.f, LabelFont, Srgb(.80f, .65f, .48f));
+    Y += LabelHeight + 3.f * K;
+    PickerProbe.DescriptionBounds = FBox2D(FVector2D(Panel.X + PanelPadding, Y), FVector2D(Panel.X + Width - PanelPadding, Y + DescriptionLines.Num() * LineHeight));
+    for (const auto& Line : DescriptionLines) { TextAt(Elements, Layer + 3, Geometry, Line, FVector2D(Panel.X + PanelPadding, Y + LineHeight * .5f), 0.f, InfoFont, Srgb(.90f, .84f, .75f)); Y += LineHeight; }
+    Y += 8.f * K;
+    TextAt(Elements, Layer + 3, Geometry, Ko ? TEXT("기록된 대가") : TEXT("Recorded cost"), FVector2D(Panel.X + PanelPadding, Y + LabelHeight * .5f), 0.f, LabelFont, Srgb(.87f, .60f, .40f));
+    Y += LabelHeight + 3.f * K;
+    PickerProbe.ConsequenceBounds = FBox2D(FVector2D(Panel.X + PanelPadding, Y), FVector2D(Panel.X + Width - PanelPadding, Y + ConsequenceLines.Num() * LineHeight));
+    for (const auto& Line : ConsequenceLines) { TextAt(Elements, Layer + 3, Geometry, Line, FVector2D(Panel.X + PanelPadding, Y + LineHeight * .5f), 0.f, InfoFont, Srgb(.95f, .71f, .53f)); Y += LineHeight; }
+    Y += 10.f * K;
+    const FString Position = Ko ? FString::Printf(TEXT("선택 %d / %d  ·  페이지 %d / %d  ·  예상 피해 %d"), SelectedIndex + 1, Choices.Num(), Page, Pages, FMath::RoundToInt(Choice.Damage))
+        : FString::Printf(TEXT("Selected %d / %d  ·  Page %d / %d  ·  Expected damage %d"), SelectedIndex + 1, Choices.Num(), Page, Pages, FMath::RoundToInt(Choice.Damage));
+    TextAt(Elements, Layer + 3, Geometry, Position, FVector2D(Panel.X + Width * .5f, Y + MetaHeight * .5f), .5f, FitsFont(Position, MetaFont, TextWidth), Srgb(.84f, .72f, .60f));
+    Y += MetaHeight + 8.f * K;
+    for (int32 I = FirstRow; I < Choices.Num() && I < FirstRow + VisibleRows; ++I)
     {
-        const FMemoriaBurnChoice& Row = Choices[I];
-        const FVector2D At = Layout.RowAt(I);
-        const bool bOn = I == Selected;
-        if (bOn)
-        {
-            Box(Elements, Layer + 2, Geometry, At, FVector2D(Width - 48.f * K, RowH - 6.f * K), Srgb(.34f, .13f, .06f, .92f));
-            Box(Elements, Layer + 2, Geometry, At, FVector2D(5.f * K, RowH - 6.f * K), Row.Accent);
-        }
-        // Keep the authored title, grade, skill and power; numeric shortcuts still name the first nine.
-        const float Mid = At.Y + (RowH - 6.f * K) * .5f;
-        const FLinearColor Ink = bOn ? Srgb(1.f, .94f, .86f) : Srgb(.80f, .74f, .68f);
-        if (I < 9) TextAt(Elements, Layer + 3, Geometry, FString::FromInt(I + 1), FVector2D(At.X + 22.f * K, Mid), .5f,
-            MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::Max(8, FMath::RoundToInt(16 * K))), Srgb(.62f, .50f, .40f));
-        Box(Elements, Layer + 3, Geometry, FVector2D(At.X + 44.f * K, Mid - 5.f * K), FVector2D(10, 10) * K, Row.Accent);
-        TextAt(Elements, Layer + 3, Geometry, Row.Title, FVector2D(At.X + 66.f * K, Mid - 11.f * K), 0.f,
-            Font(MemoriaFonts::EStyle::Ui, 19, Row.Title, Width - 190.f * K), Ink);
-        const FString Detail = FString::Printf(TEXT("%s  ·  %s"), *Row.GradeLabel, MemoriaCombatTuning::BurnSkillName(Row.Grade, Ko));
-        TextAt(Elements, Layer + 3, Geometry, Detail, FVector2D(At.X + 66.f * K, Mid + 14.f * K), 0.f,
-            Font(MemoriaFonts::EStyle::Ui, 13, Detail, Width - 190.f * K), bOn ? Srgb(1.f, .72f, .42f) : Srgb(.62f, .54f, .47f));
-        TextAt(Elements, Layer + 3, Geometry, FString::FromInt(FMath::RoundToInt(Row.Damage)), FVector2D(At.X + Width - 72.f * K, Mid), 1.f,
-            MemoriaFonts::Get(MemoriaFonts::EStyle::Title, FMath::Max(8, FMath::RoundToInt(24 * K))), bOn ? Srgb(1.f, .80f, .52f) : Srgb(.70f, .60f, .50f));
+        const auto& Row = Choices[I]; const bool bSelected = I == SelectedIndex; const FVector2D At(Panel.X + PanelPadding, Y + (I - FirstRow) * RowHeight);
+        if (bSelected) { Box(Elements, Layer + 2, Geometry, At, FVector2D(TextWidth, RowHeight - 6.f * K), Srgb(.34f, .13f, .06f, .92f)); Box(Elements, Layer + 2, Geometry, At, FVector2D(5.f * K, RowHeight - 6.f * K), Row.Accent); }
+        const float Middle = At.Y + (RowHeight - 6.f * K) * .5f;
+        const FLinearColor Ink = bSelected ? Srgb(1.f, .94f, .86f) : Srgb(.80f, .74f, .68f);
+        if (I < 9) TextAt(Elements, Layer + 3, Geometry, FString::FromInt(I + 1), FVector2D(At.X + 22.f * K, Middle), .5f, RowDetailFont, Srgb(.62f, .50f, .40f));
+        Box(Elements, Layer + 3, Geometry, FVector2D(At.X + 44.f * K, Middle - 5.f * K), FVector2D(10, 10) * K, Row.Accent);
+        TextAt(Elements, Layer + 3, Geometry, Row.Title, FVector2D(At.X + 66.f * K, At.Y + Height(RowTitleFont) * .5f + 3.f * K), 0.f, FitsFont(Row.Title, RowTitleFont, TextWidth - 190.f * K), Ink);
+        const FString RowInfo = FString::Printf(TEXT("%s · %s"), *Row.GradeLabel, MemoriaCombatTuning::BurnSkillName(Row.Grade, Ko));
+        TextAt(Elements, Layer + 3, Geometry, RowInfo, FVector2D(At.X + 66.f * K, At.Y + Height(RowTitleFont) + Height(RowDetailFont) * .5f + 5.f * K), 0.f, FitsFont(RowInfo, RowDetailFont, TextWidth - 190.f * K), Srgb(.72f, .60f, .47f));
+        TextAt(Elements, Layer + 3, Geometry, FString::FromInt(FMath::RoundToInt(Row.Damage)), FVector2D(At.X + TextWidth - 14.f * K, Middle), 1.f, RowDamageFont, bSelected ? Srgb(1.f, .80f, .52f) : Srgb(.70f, .60f, .50f));
     }
-    if (Layout.Visible > 0 && Choices.Num() > Layout.Visible)
-    {
-        const float TrackH = Layout.Visible * RowH - 6.f * K;
-        const FVector2D Track = Panel + FVector2D(Width - 14.f * K, Layout.ListTop);
-        Box(Elements, Layer + 2, Geometry, Track, FVector2D(3.f * K, TrackH), Srgb(.25f, .16f, .12f, .8f));
-        const float ThumbH = TrackH * Layout.Visible / Choices.Num();
-        const float ThumbAt = (TrackH - ThumbH) * Layout.First / (Choices.Num() - Layout.Visible);
-        Box(Elements, Layer + 3, Geometry, Track + FVector2D(0, ThumbAt), FVector2D(3.f * K, ThumbH), Srgb(.86f, .54f, .28f, .95f));
-    }
-    Box(Elements, Layer + 2, Geometry, FVector2D(Panel.X + 24.f * K, Layout.FooterTop() + 4.f * K),
-        FVector2D(Width - 48.f * K, K), Srgb(.42f, .24f, .14f, .8f));
-    if (C->IsBurnArmed() && Choices.IsValidIndex(Selected))
-    {
-        const FString Warn = Ko ? FString::Printf(TEXT("한 번 더 누르면 「%s」은(는) 영원히 사라진다"), *Choices[Selected].Title)
-            : FString::Printf(TEXT("Press again and \"%s\" is gone forever"), *Choices[Selected].Title);
-        Centered(Warn, Layout.WarningAt(), MemoriaFonts::EStyle::Ui, 16, Srgb(1.f, .36f, .30f));
-    }
-    else
-        Centered(Ko ? TEXT("↑↓ · W/S · 휠로 전체 기억 살펴보기") : TEXT("↑↓ · W/S · wheel to browse every memory"),
-            Layout.WarningAt(), MemoriaFonts::EStyle::Ui, 13, Srgb(.72f, .64f, .56f));
-    // Cancel remains visible while a costly memory is armed; the second ask never replaces the controls.
-    Centered(Ko ? TEXT("1–9  고르기      R · Enter  태우기      Esc · 우클릭  그만두기")
-        : TEXT("1–9  Choose      R · Enter  Burn      Esc · RMB  Let it be"),
-        Layout.ControlsAt(), MemoriaFonts::EStyle::Ui, 14, Srgb(.80f, .72f, .64f));
+    Y += VisibleRows * RowHeight + 14.f * K;
+    Box(Elements, Layer + 2, Geometry, FVector2D(Panel.X + PanelPadding, Y - 7.f * K), FVector2D(TextWidth, K), Srgb(.42f, .24f, .14f, .8f));
+    const float WarningWidth = MemoriaHudKit::Width(Warning, WarningFont);
+    PickerProbe.WarningBounds = FBox2D(FVector2D(Panel.X + (Width - WarningWidth) * .5f, Y), FVector2D(Panel.X + (Width + WarningWidth) * .5f, Y + Height(WarningFont)));
+    TextAt(Elements, Layer + 3, Geometry, Warning, FVector2D(Panel.X + Width * .5f, Y + Height(WarningFont) * .5f), .5f, WarningFont, Fight->IsBurnArmed() ? Srgb(1.f, .36f, .30f) : Srgb(.72f, .64f, .56f));
+    Y += Height(WarningFont) + 6.f * K;
+    const float ControlsWidth = MemoriaHudKit::Width(Controls, ControlsFont);
+    PickerProbe.ControlsBounds = FBox2D(FVector2D(Panel.X + (Width - ControlsWidth) * .5f, Y), FVector2D(Panel.X + (Width + ControlsWidth) * .5f, Y + Height(ControlsFont)));
+    TextAt(Elements, Layer + 3, Geometry, Controls, FVector2D(Panel.X + Width * .5f, Y + Height(ControlsFont) * .5f), .5f, ControlsFont, Srgb(.80f, .72f, .64f));
+    auto Outside = [&](const FBox2D& Bounds)
+    { return Bounds.Min.X < Panel.X - .5f || Bounds.Min.Y < Panel.Y - .5f || Bounds.Max.X > Panel.X + Width + .5f || Bounds.Max.Y > Panel.Y + Extent.Y + .5f; };
+    for (const auto& Line : DescriptionLines) PickerProbe.bDescriptionClipped |= MemoriaHudKit::Width(Line, InfoFont) > TextWidth + .5f;
+    for (const auto& Line : ConsequenceLines) PickerProbe.bConsequenceClipped |= MemoriaHudKit::Width(Line, InfoFont) > TextWidth + .5f;
+    PickerProbe.bDescriptionClipped |= Outside(PickerProbe.DescriptionBounds);
+    PickerProbe.bConsequenceClipped |= Outside(PickerProbe.ConsequenceBounds);
+    PickerProbe.bClipped = Panel.X < 0.f || Panel.Y < 0.f || Panel.X + Width > Size.X || Panel.Y + Extent.Y > Size.Y || PickerProbe.bDescriptionClipped || PickerProbe.bConsequenceClipped || Outside(PickerProbe.WarningBounds) || Outside(PickerProbe.ControlsBounds);
 }

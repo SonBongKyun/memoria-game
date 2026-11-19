@@ -68,6 +68,7 @@ public:
     void SetSwordDrawn(bool bDrawn);
     bool IsSwordDrawn() const { return bSwordDrawn; }
     UStaticMeshComponent* GetBlade() const { return Blade; }
+    virtual void OnUnregister() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     // Which art a character id resolves to: "rigged", "hd", "pixel" or "missing".
     static FString DescribeArt(const FString& Id);

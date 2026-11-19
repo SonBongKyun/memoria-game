@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "session": "S362",
+  "revision": "R2",
+  "source_frozen_sha256": {
+    "Unreal\\ArtSource\\HeroPolishS361\\R4\\Arrel\\Arrel.fbx": "12e633df733b71ed6701db941e3e14c5d1680d81e61042e48a3e98b14d2ad594",
+    "Unreal\\ArtSource\\HeroPolishS361\\R4\\Elia\\Elia.fbx": "a91a34addc9f091d6ed95ed610ce0f97a99d7f40311b895ffb16e2893c71a1d7",
+    "Unreal\\ArtSource\\HeroPolishS361\\R4\\generator_snapshot.py": "e962e59570fe9099180c1d8f3d5ef54c4e13ba6ccd9d699a3540947549b98a78",
+    "Unreal\\ArtSource\\HeroPolishS361\\R4\\Elia\\geometry.json": "6e493dc6979f6836fa6ada8bc7d552690a4ec64b92d3c606895d31f61c321c17"
+  },
+  "generator_sha256": "2df3159d4c015bda7d48a513983fc85f2a8f24ab775c66504bbbcdc16687810b",
+  "heroes": [
+    {
+      "name": "Arrel",
+      "triangles": 33804,
+      "morphs": [],
+      "output_sha256": "a99abcc2e00dfe6ecf8ac0170079405ea42c21e55506d62967c7c3b80ae517da"
+    },
+    {
+      "name": "Elia",
+      "triangles": 64832,
+      "morphs": [
+        {
+          "name": "HeroBlink_L",
+          "moved_vertices": 240,
+          "local_bounds_cm": [
+            [
+              1.8023779392242432,
+              3.806377649307251
+            ],
+            [
+              -6.7538981437683105,
+              -6.112758636474609
+            ],
+            [
+              155.13619995117188,
+              155.89707946777344
+            ]
+          ],
+          "max_displacement_cm": 1.7603507133032354
+        },
+        {
+          "name": "HeroBlink_R",
+          "moved_vertices": 240,
+          "local_bounds_cm": [
+            [
+              -3.8063769340515137,
+              -1.8023772239685059
+            ],
+            [
+              -6.7538981437683105,
+              -6.112758636474609
+            ],
+            [
+              155.13619995117188,
+              155.89707946777344
+            ]
+          ],
+          "max_displacement_cm": 1.7603507133032354
+        }
+      ],
+      "output_sha256": "d3c49d4a4724050011a566126749a8c090e0e1545e3e7731afffa3d28b6944f3"
+    }
+  ],
+  "files": [
+    {
+      "path": "Arrel\\Arrel.fbx",
+      "bytes": 1689420,
+      "sha256": "a99abcc2e00dfe6ecf8ac0170079405ea42c21e55506d62967c7c3b80ae517da"
+    },
+    {
+      "path": "Arrel\\geometry.json",
+      "bytes": 50401,
+      "sha256": "4552977532a8b385d40be4b8ea3e57f17d933749720601abea7dd22d55598b1e"
+    },
+    {
+      "path": "Elia\\Elia.fbx",
+      "bytes": 2952844,
+      "sha256": "d3c49d4a4724050011a566126749a8c090e0e1545e3e7731afffa3d28b6944f3"
+    },
+    {
+      "path": "Elia\\geometry.json",
+      "bytes": 112578,
+      "sha256": "d9033a6eaf24eaee3d628865782d6790aaf72201c727ca7dff68ffdfdb8590ca"
+    },
+    {
+      "path": "generator_snapshot.py",
+      "bytes": 28675,
+      "sha256": "2df3159d4c015bda7d48a513983fc85f2a8f24ab775c66504bbbcdc16687810b"
+    }
+  ]
+}

@@ -16,6 +16,10 @@ class UMemoriaAchievementPopupWidget;
 class UMemoriaAchievementsWidget;
 class UMemoriaCodexWidget;
 class UMemoriaJournalWidget;
+class UMemoriaDemoCompletionWidget;
+enum class EMemoriaDemoCompletionAction : uint8;
+class UMemoriaSaveSlotsWidget;
+class UMemoriaCombatInputRouter;
 enum class EMemoriaGameOverAction : uint8;
 enum class EMemoriaPauseAction : uint8;
 enum class EMemoriaTitleAction : uint8;
@@ -34,6 +38,11 @@ class MEMORIA_API AMemoriaSliceController : public AMemoriaPlayerController
     GENERATED_BODY()
 public:
     AMemoriaSliceController();
+    bool CanOpenDemoCompletion() const;
+    bool OpenDemoCompletion();
+    UMemoriaDemoCompletionWidget* GetDemoCompletionWidget() const { return DemoCompletionWidget; }
+    UMemoriaSaveSlotsWidget* GetSaveSlotsWidget() const { return SaveSlotsWidget; }
+    UMemoriaCombatInputRouter* GetCombatInputRouter() const { return CombatInputRouter; }
     virtual void Tick(float DeltaSeconds) override;
     virtual bool InputKey(const FInputKeyEventArgs& Params) override;
     UMemoriaInteractionComponent* GetInteraction() const { return Interaction; }
@@ -69,6 +78,7 @@ protected:
     virtual void OpenModal() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
+    UPROPERTY(Transient) TObjectPtr<UMemoriaCombatInputRouter> CombatInputRouter;
     FMemoriaEncounterModel Encounter;
     FMemoriaEncounterRng EncounterRng = FMemoriaEncounterRng::Random();
     bool bEncounterInitialized = false;
@@ -88,7 +98,15 @@ private:
     void UpdateHints(class UMemoriaFieldCombatSubsystem* Combat);
     void GameOverAction(EMemoriaGameOverAction Action);
     void CloseGameOver();
-    void LoadNewest();
+    UPROPERTY(Transient) TObjectPtr<UMemoriaSaveSlotsWidget> SaveSlotsWidget;
+    void OpenSaveSlots(bool bSaving);
+    void CloseSaveSlots();
+    void LoadSlot(int32 Slot);
+    void ManualSlotSaved(int32 Slot);
+    UPROPERTY(Transient) TObjectPtr<UMemoriaDemoCompletionWidget> DemoCompletionWidget;
+    void CloseDemoCompletion();
+    void DemoCompletionAction(EMemoriaDemoCompletionAction Action);
+    bool LoadNewest();
     void ContinueIntoMap();
     void PauseAction(EMemoriaPauseAction Action);
     FString PauseInfo() const;

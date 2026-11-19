@@ -1,5 +1,8 @@
 #pragma once
+#include "Materials/MaterialExpression.h"
 #include "MemoriaSurfaceDetailChecks.h"
+#include "Presentation/MemoriaHeroFinish.h"
+#include "Misc/PackageName.h"
 #include "Engine/StaticMesh.h"
 #include "StaticMeshResources.h"
 #include "Rendering/SkeletalMeshRenderData.h"
@@ -54,11 +57,18 @@ inline void CheckMemoriaArchitectureS356(FAutomationTestBase* Test)
 }
 inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* Name,USkeletalMeshComponent* Component)
 {
-    const FString Revision=FString(Name)==TEXT("Elia")?TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/Elia/SK_Elia"):FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/"))+Name+TEXT("/SK_")+Name;
+    const FString Finish=TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/Elia/SK_Elia");
+    const FString Revision=FString(Name)==TEXT("Elia")?(FPackageName::DoesPackageExist(Finish)?Finish:FString(TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/Elia/SK_Elia"))):FString(TEXT("/Game/Memoria/Presentation/Field3D/HumanoidAnatomyS360/R7/"))+Name+TEXT("/SK_")+Name;
     auto* NewMesh=LoadObject<USkeletalMesh>(nullptr,*(Revision+TEXT(".SK_")+Name));
     const FString Original=FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/SK_")+Name;
     auto* OldMesh=LoadObject<USkeletalMesh>(nullptr,*(Original+TEXT(".SK_")+Name));
     if(!Test->TestNotNull(TEXT("Named NPC revision mesh loads"),NewMesh) || !Test->TestNotNull(TEXT("Named NPC original rig remains"),OldMesh))return;
+    if(FString(Name)==TEXT("Elia"))
+    {
+        auto* Face=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/M_EliaSkin.M_EliaSkin"));
+        Test->TestTrue(TEXT("Current Elia uses its exact accepted S362 R2 face material"),Face && NewMesh->GetMaterials().IsValidIndex(2) && NewMesh->GetMaterials()[2].MaterialInterface.Get()==Face);
+        Test->TestTrue(TEXT("Current Elia retains both imported dedicated lid morphs"),FMemoriaHeroFinish::HasDedicatedLids(NewMesh));
+    }
     Test->TestTrue(TEXT("Named NPC uses a new anatomical rig"),NewMesh->GetSkeleton()!=OldMesh->GetSkeleton());
     const auto& A=NewMesh->GetRefSkeleton();const auto& B=OldMesh->GetRefSkeleton();
     Test->TestEqual(TEXT("Named NPC retains all 77 bones"),A.GetNum(),77);
@@ -102,8 +112,8 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
     auto* Paint=LoadObject<UTexture2D>(nullptr,*(FString(TEXT("/Game/Memoria/Presentation/Field3D/"))+Name+TEXT("/T_")+Name));
     if(Test->TestNotNull(TEXT("Named NPC refined outfit material loads"),Outfit) && Test->TestNotNull(TEXT("Original face paint remains available"),Paint))
     {
-        Test->TestTrue(TEXT("NPC retains original body material plus separate accessory material"),NewMesh->GetMaterials().Num()==(FString(Name)==TEXT("Elia")?4:3) && OldMesh->GetMaterials().Num()>0 && NewMesh->GetMaterials()[0].MaterialInterface.Get()==OldMesh->GetMaterials()[0].MaterialInterface.Get() && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Outfit);
-        if(NewMesh->GetMaterials().Num()==(FString(Name)==TEXT("Elia")?4:3) && NewMesh->GetMaterials()[0].MaterialInterface)
+        Test->TestTrue(TEXT("NPC retains original body material plus separate accessory material"),NewMesh->GetMaterials().Num()==(FString(Name)==TEXT("Elia")?5:3) && OldMesh->GetMaterials().Num()>0 && NewMesh->GetMaterials()[0].MaterialInterface.Get()==OldMesh->GetMaterials()[0].MaterialInterface.Get() && NewMesh->GetMaterials()[1].MaterialInterface.Get()==Outfit);
+        if(NewMesh->GetMaterials().Num()==(FString(Name)==TEXT("Elia")?5:3) && NewMesh->GetMaterials()[0].MaterialInterface)
         {
             auto* Body=NewMesh->GetMaterials()[0].MaterialInterface->GetMaterial();
             TSet<UMaterialExpression*> PaintSeen;
@@ -112,7 +122,7 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
                 if(!Expression || PaintSeen.Contains(Expression))return false;
                 PaintSeen.Add(Expression);
                 if(auto* Sample=Cast<UMaterialExpressionTextureSample>(Expression);Sample && Sample->Texture==Paint)return true;
-                for(FExpressionInput* Input:Expression->GetInputsView())if(Input && HasPaint(Input->Expression))return true;
+                for (FExpressionInputIterator Input{Expression}; Input; ++Input)if(Input && HasPaint(Input->Expression))return true;
                 return false;
             };
             Test->TestTrue(TEXT("Actual original body paint still reaches visible garments"),Body && HasPaint(Body->GetEditorOnlyData()->BaseColor.Expression));
@@ -124,7 +134,7 @@ inline void CheckMemoriaNamedFigureS356(FAutomationTestBase* Test,const TCHAR* N
             if(!Expression || Seen.Contains(Expression))return false;
             Seen.Add(Expression);
             if(Cast<UMaterialExpressionVertexColor>(Expression))return true;
-            for(FExpressionInput* Input:Expression->GetInputsView())if(Input && HasRegions(Input->Expression))return true;
+            for (FExpressionInputIterator Input{Expression}; Input; ++Input)if(Input && HasRegions(Input->Expression))return true;
             return false;
         };
         Test->TestTrue(TEXT("Garment region mask reaches visible color"),HasRegions(Inputs->BaseColor.Expression));

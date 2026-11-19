@@ -1,4 +1,5 @@
 #include "Misc/AutomationTest.h"
+#include "Materials/MaterialExpression.h"
 #include "MemoriaHumanoidS357Checks.h"
 #include "Tests/AutomationEditorCommon.h"
 #include "Tests/AutomationCommon.h"
@@ -138,7 +139,7 @@ public:
                     if(!Expression || Seen.Contains(Expression))return;Seen.Add(Expression);
                     if(auto* Scalar=Cast<UMaterialExpressionScalarParameter>(Expression);Scalar && Scalar->ParameterName==TEXT("DetailStrength") && FMath::IsNearlyEqual(Scalar->DefaultValue,ExpectedDetail))HasStrength=true;
                     if(auto* Texture=Cast<UMaterialExpressionTextureSample>(Expression);Texture && Texture->Texture==ExpectedNormal)HasNormal=true;
-                    for(FExpressionInput* Input:Expression->GetInputsView())if(Input)InspectNormal(Input->Expression);
+                    for (FExpressionInputIterator Input{Expression}; Input; ++Input)if(Input)InspectNormal(Input->Expression);
                 };
                 if(Parent)InspectNormal(Parent->GetEditorOnlyData()->Normal.Expression);
                 Test->TestTrue(TEXT("The base foe actual normal output connects the authored strength and original texture"),Parent && ExpectedNormal && HasStrength && HasNormal);

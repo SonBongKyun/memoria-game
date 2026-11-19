@@ -100,6 +100,8 @@ bool AMemoriaEliaCompanion::CanInteract(const APawn& Pawn) const
 {
     // companion.gd is reached by the player's InteractionRay: the player has to face her.
     if (Pawn.GetWorld() != GetWorld()) return false;
+    const auto* Host = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>() : nullptr;
+    if (!Host || !Host->CanInteractWithElia()) return false;
     const FVector To = FVector(GetActorLocation().X - Pawn.GetActorLocation().X, GetActorLocation().Y - Pawn.GetActorLocation().Y, 0);
     if (To.Size() > InteractionRange || To.IsNearlyZero()) return false;
     FString Facing = TEXT("Down");

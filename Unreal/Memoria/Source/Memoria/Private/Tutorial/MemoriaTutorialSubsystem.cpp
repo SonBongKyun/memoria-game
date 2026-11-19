@@ -1,4 +1,5 @@
 #include "Tutorial/MemoriaTutorialSubsystem.h"
+#include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/App.h"
 namespace
@@ -26,7 +27,7 @@ void UMemoriaTutorialSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     // Tests and commandlets never read or write the player's profile.
-    bPersist = !GIsAutomationTesting && !IsRunningCommandlet() && !FApp::IsUnattended();
+    bPersist = !GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive() && !IsRunningCommandlet() && !FApp::IsUnattended();
     if (!bPersist || !GConfig) return;
     FString Saved; GConfig->GetString(Section, TEXT("ShownHints"), Saved, GGameUserSettingsIni);
     TArray<FString> Ids; Saved.ParseIntoArray(Ids, TEXT(","), true);

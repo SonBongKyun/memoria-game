@@ -9,6 +9,9 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Save/MemoriaCheckpointSubsystem.h"
+#include "Save/MemoriaSaveSlotsWidget.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "InputKeyEventArgs.h"
 #include "Save/MemoriaRunSaveGame.h"
 #include "Domain/MemoriaChapterMemories.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
@@ -226,8 +229,10 @@ bool FChapterMapSaveTest::RunTest(const FString&)
 namespace
 {
 // S330: Chapter 3 played through its arrival, then saved and continued. The arrival grants the Belt's memories
-// and raises their toasts when its chain of dialogues ends; the departure autosaves in the map; the pause menu's Load brings
-// the run back into the closed Belt Waystation at the saved place, where the gated chests are open and stepping
+// and raises their toasts when its chain of dialogues ends; the departure still autosaves in the map. Pause
+// Save explicitly commits manual1 at arrival, then replaces it after departure through its confirmation UI.
+// Pause Load explicitly selects that manual1 and brings the run back into the closed Belt at its saved place,
+// where the gated chests are open and stepping
 // into the exit again takes the road on to Drift Shelter, whose arrival grants Chapter 4's memories.
 class FChapterContinueReplay final : public IAutomationLatentCommand
 {
@@ -256,6 +261,8 @@ public:
         auto Flag = [&](const TCHAR* Id) { return Run->GetRunSnapshot().GetFlag(Id); };
         auto Place = [&](const FVector2D& Source) { Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld(Source) + FVector(0, 0, Pawn->GetActorLocation().Z)); };
         auto Traced = [&](const TCHAR* Prefix) { return Host->GetTrace().ContainsByPredicate([&](const FString& E) { return E.StartsWith(Prefix); }); };
+        auto Key = [&](const FKey& K) { PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, IE_Pressed, 1.f)); PC->InputKey(FInputKeyEventArgs::CreateSimulated(K, IE_Released, 0.f)); };
+        auto ReadDisk = [](const FString& Path) { FString Text; FFileHelper::LoadFileToString(Text, *Path); return Text; };
         if (Host->GetState() == EMemoriaSliceState::Field) { if (Frame % 4 == 0) Host->Confirm(); return false; }
         switch (Step)
         {
@@ -278,38 +285,79 @@ public:
                 Test->TestTrue(TEXT("The memory toasts are raised in Korean"), Host->GetTrace().Contains(TEXT("toast:기억 획득: 죽은 흙의 맛")) && Host->GetTrace().Contains(TEXT("toast:기억 획득: 전부 받아 적는 남자")));
                 Test->TestTrue(TEXT("Chapter 3's erosion is counted once"), Run->GetPlayerMemory()->GetSnapshot().VigilChapters.Contains(3));
                 Test->TestFalse(TEXT("Nothing is autosaved yet"), Traced(TEXT("autosave:map_saved")));
-                // The pause menu saves here, in the map slot.
+                // The pause menu saves here through manual1; the map autosave stays separate.
                 Place(FVector2D(400, 300));
                 ++Step; Mark = Frame;
             }
             if (Frame > Mark + 3200) { Test->AddError(TEXT("The arrival chain did not finish")); return true; }
             break;
         case 2:
+            if (bInitialManualSaved)
+            {
+                if (Frame < Mark + 6) break; // let the manual metadata capture paint before closing
+                Key(EKeys::Escape);
+                Test->TestTrue(TEXT("Closing save browser leaves the chapter paused"), !PC->GetSaveSlotsWidget() && PC->GetPauseWidget() && World->IsPaused());
+                PC->ClosePause();
+                // On to the east exit: the departure closes the chapter and writes the original autosave0.
+                Place(Spec->Exit.Rect.Center());
+                ++Step; Mark = Frame; break;
+            }
             if (Frame == Mark + 20) Capture(TEXT("ContinueToasts"));
             if (Frame < Mark + 30) break;
             Test->TestTrue(TEXT("The pause menu opens"), PC->OpenPause() && PC->GetPauseWidget());
             if (auto* Menu = PC->GetPauseWidget())
             {
                 Test->TestTrue(TEXT("Save is lit in a chapter map"), Menu->IsItemEnabled(2));
-                Menu->Select(2); Menu->Confirm();
-                Test->TestTrue(TEXT("It saves the map slot"), Checkpoint->FindContinue() == EMemoriaContinueSource::Map && Checkpoint->PeekChapterMap() == TEXT("belt_waystation"));
-                Test->TestTrue(TEXT("Load is lit after the save"), Menu->IsItemEnabled(3));
+                Menu->Select(2); Key(EKeys::Enter);
+                if (!Test->TestNotNull(TEXT("Pause Save opens a manual browser"), PC->GetSaveSlotsWidget())) return true;
+                Test->TestEqual(TEXT("Save explicitly selects manual1"), PC->GetSaveSlotsWidget()->GetSelectedSlot(), 1);
+                Key(EKeys::Enter);
+                const auto Saved = Checkpoint->GetManualSlotSummary(1);
+                Test->TestTrue(TEXT("Manual metadata identifies Chapter3 Belt"), Saved.CanLoad() && Saved.Map == TEXT("belt_waystation") && Saved.Chapter == 3);
+                Test->TestTrue(TEXT("Manual Save does not manufacture an autosave"), Checkpoint->FindContinue() == EMemoriaContinueSource::None && Checkpoint->PeekChapterMap().IsEmpty());
+                Test->TestTrue(TEXT("Load is browsable after the manual save"), Menu->IsItemEnabled(3));
+                Capture(TEXT("ContinueManualSaved"));
             }
-            PC->ClosePause();
-            // On to the east exit: the departure closes the chapter and autosaves.
-            Place(Spec->Exit.Rect.Center());
-            ++Step; Mark = Frame; break;
+            else return true;
+            bInitialManualSaved = true; Mark = Frame; break;
         case 3:
             if (Map->IsChapterComplete())
             {
-                Test->TestTrue(TEXT("The departure autosaves in the Belt Waystation"), Host->GetTrace().Contains(TEXT("autosave:map_saved:belt_waystation")) && Host->GetTrace().Contains(TEXT("toast:자동 저장 완료")));
-                Test->TestEqual(TEXT("The run is in Chapter 4"), Run->GetRunSnapshot().CurrentChapter, int64(4));
-                RunId = Run->GetRunSnapshot().RunId; Grains = Run->GetRunSnapshot().Player.Grains;
-                // Away from the save: the live run changes, then the pause menu's Load brings the save back.
+                if (!bClosedManualSaved)
+                {
+                    // This assertion remains about the actual automatic departure adapter, not Pause Save.
+                    Test->TestTrue(TEXT("The departure autosaves in the Belt Waystation"), Host->GetTrace().Contains(TEXT("autosave:map_saved:belt_waystation")) && Host->GetTrace().Contains(TEXT("toast:자동 저장 완료")));
+                    Test->TestTrue(TEXT("Original autosave0 remains offered"), Checkpoint->FindContinue() == EMemoriaContinueSource::Map && Checkpoint->PeekChapterMap() == TEXT("belt_waystation"));
+                    Test->TestEqual(TEXT("The run is in Chapter 4"), Run->GetRunSnapshot().CurrentChapter, int64(4));
+                    DepartureAutosave = ReadDisk(Checkpoint->GetMapSlotPath());
+                    if (auto* Combat = World->GetSubsystem<UMemoriaFieldCombatSubsystem>()) Combat->Revive(.58f);
+                    RunId = Run->GetRunSnapshot().RunId; Grains = Run->GetRunSnapshot().Player.Grains; SavedHp = Run->GetRunSnapshot().Player.Hp;
+                    Test->TestTrue(TEXT("Closed manual fixture has nonmax HP"), SavedHp > 0 && SavedHp < Run->GetRunSnapshot().Player.MaxHp);
+                    Test->TestTrue(TEXT("The pause menu opens"), PC->OpenPause() && PC->GetPauseWidget());
+                    if (auto* Menu = PC->GetPauseWidget()) { Menu->Select(2); Key(EKeys::Enter); }
+                    auto* Browser = PC->GetSaveSlotsWidget();
+                    if (!Test->TestNotNull(TEXT("Closed chapter Save opens manual browser"), Browser)) return true;
+                    Key(EKeys::Enter);
+                    Test->TestTrue(TEXT("Replacing arrival manual1 asks and defaults Keep"), Browser->IsAskingOverwrite() && !Browser->WillReplaceOnConfirm());
+                    Key(EKeys::Left); Key(EKeys::Enter);
+                    Test->TestTrue(TEXT("Explicit replacement commits closed Chapter4 manual1"), !Browser->IsAskingOverwrite() && Checkpoint->GetManualSlotSummary(1).CanLoad() && Checkpoint->GetManualSlotSummary(1).Chapter == 4);
+                    Test->TestEqual(TEXT("Manual replacement does not rewrite departure autosave0"), ReadDisk(Checkpoint->GetMapSlotPath()), DepartureAutosave);
+                    Capture(TEXT("ContinueManualSavedClosed"));
+                    bClosedManualSaved = true; Mark = Frame; break;
+                }
+                if (Frame < Mark + 6) break;
+                Key(EKeys::Escape);
+                Test->TestTrue(TEXT("Closing manual save retains Pause"), !PC->GetSaveSlotsWidget() && PC->GetPauseWidget() && World->IsPaused());
+                // Away from the manual snapshot: the live run and HP change, then explicit Load restores it.
                 Run->AddGrains(500);
-                Test->TestTrue(TEXT("The pause menu opens"), PC->OpenPause() && PC->GetPauseWidget());
-                if (auto* Menu = PC->GetPauseWidget()) { Menu->Select(3); Menu->Confirm(); }
-                Before = World;
+                if (auto* Combat = World->GetSubsystem<UMemoriaFieldCombatSubsystem>()) Combat->Revive(.91f);
+                if (auto* Menu = PC->GetPauseWidget()) { Menu->Select(3); Key(EKeys::Enter); }
+                auto* Browser = PC->GetSaveSlotsWidget();
+                if (!Test->TestNotNull(TEXT("Pause Load opens the real slot browser"), Browser)) return true;
+                Key(EKeys::Down);
+                Test->TestEqual(TEXT("Load selects manual1 rather than autosave0"), Browser->GetSelectedSlot(), 1);
+                Before = World; Key(EKeys::Enter);
+                Test->TestTrue(TEXT("Manual load releases both modal owners"), !PC->GetSaveSlotsWidget() && !PC->GetPauseWidget() && !World->IsPaused());
                 ++Step; Mark = Frame;
             }
             if (Frame > Mark + 1200) { Test->AddError(TEXT("The exit never closed the chapter")); return true; }
@@ -323,6 +371,8 @@ public:
             }
             Test->TestTrue(TEXT("The save is resumed"), Host->GetTrace().Contains(TEXT("autosave:map_resumed:belt_waystation")));
             Test->TestTrue(TEXT("The saved run, not the changed one"), Run->GetRunSnapshot().RunId == RunId && Run->GetRunSnapshot().Player.Grains == Grains);
+            Test->TestEqual(TEXT("Manual load preserves exact saved nonmax HP"), Run->GetRunSnapshot().Player.Hp, SavedHp);
+            Test->TestEqual(TEXT("Manual load leaves departure autosave0 unchanged"), ReadDisk(Checkpoint->GetMapSlotPath()), DepartureAutosave);
             Test->TestTrue(TEXT("Chapter 3 is closed in it"), Flag(TEXT("ch3_complete")) && Run->GetRunSnapshot().CurrentChapter == 4);
             Test->TestTrue(TEXT("Arrel stands where the save was made"), Spec->Exit.Rect.Contains(MemoriaChapterMaps::ToSource(Pawn->GetActorLocation())));
             Test->TestTrue(TEXT("The memories came back with it"), Holds(*Run, TEXT("rel_tobias_records")));
@@ -386,10 +436,11 @@ private:
     double Started, OldDelta = 0;
     uint64 LastFrame = MAX_uint64;
     int32 Step = 0, Frame = 0, Mark = 0, Owned = 0;
-    int64 Grains = 0, ChestGrains = 0;
+    int64 Grains = 0, ChestGrains = 0, SavedHp = 0;
+    FString DepartureAutosave;
     FGuid RunId;
     TWeakObjectPtr<UWorld> Before;
-    bool bFixed = false, bOldFixed = false, bGrantChecked = false;
+    bool bFixed = false, bOldFixed = false, bGrantChecked = false, bInitialManualSaved = false, bClosedManualSaved = false;
 };
 }
 namespace

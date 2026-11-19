@@ -93,7 +93,7 @@ UMaterial* CreatureMaterial(bool bShell)
     auto* M=Load<UMaterial>(Path);
     if(!M)M=NewObject<UMaterial>(CreatePackage(*Path),*Name,RF_Public | RF_Standalone);
     M->GetOutermost()->FullyLoad();M->GetExpressionCollection().Empty();
-    M->SetShadingModel(MSM_DefaultLit); M->bUsedWithSkeletalMesh = true;
+    M->SetShadingModel(MSM_DefaultLit); M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);
     auto* Regions = Node<UMaterialExpressionVertexColor>(M);
     auto* Tint = Node<UMaterialExpressionVectorParameter>(M); Tint->ParameterName=TEXT("SurfaceTint"); Tint->DefaultValue=FLinearColor::White;
     // Blender exports LINEAR vertex RGB explicitly; FBX importer preserves those numeric values.

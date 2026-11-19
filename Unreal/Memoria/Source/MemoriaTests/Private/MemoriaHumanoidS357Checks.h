@@ -1,4 +1,5 @@
 #pragma once
+#include "Materials/MaterialExpression.h"
 #include "Misc/AutomationTest.h"
 #include "Combat/MemoriaFieldMonster.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
@@ -115,7 +116,7 @@ inline void CheckAssets(FAutomationTestBase* Test,AMemoriaFieldMonster* F)
             if(!Expression || Seen.Contains(Expression))return;Seen.Add(Expression);
             if(auto* Sample=Cast<UMaterialExpressionTextureSample>(Expression);Sample && Sample->Texture==Atlas)UsesAtlas=true;
             if(Cast<UMaterialExpressionVertexColor>(Expression))UsesVertexColor=true;
-            for(FExpressionInput* Input:Expression->GetInputsView())if(Input)Visit(Input->Expression);
+            for (FExpressionInputIterator Input{Expression}; Input; ++Input)if(Input)Visit(Input->Expression);
         };
         Test->TestNotNull(TEXT("S357 actual normal detail remains connected"),Parent->GetEditorOnlyData()->Normal.Expression);
         Test->TestNotNull(TEXT("S357 actual surface roughness remains connected"),Parent->GetEditorOnlyData()->Roughness.Expression);

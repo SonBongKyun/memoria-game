@@ -1,7 +1,15 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
+#include "Presentation/MemoriaPresentationMetrics.h"
 #include "Presentation/MemoriaVerdanArt.h"
 #include "Presentation/MemoriaFieldAnimInstance.h"
 #include "Presentation/MemoriaCombatClips.h"
+#include "Presentation/MemoriaHeroFinish.h"
+#include "Presentation/MemoriaHeroPropMount.h"
+#include "Presentation/MemoriaCharacterPersonalityS362.h"
+#include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Settings/MemoriaSettingsSubsystem.h"
+#include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Animation/AnimSequence.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -23,9 +31,22 @@ FString RiggedPath(const FString& Id, const FString& Prefix, const FString& Suff
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     const FString Asset = Prefix + Name + Suffix;
+    // S362 immutable prop finish keeps the same original grip/pivot frame.
+    if(Prefix==TEXT("SM_") && ((Name==TEXT("Arrel") && Suffix==TEXT("_sword_drawn")) || (Name==TEXT("Elia") && Suffix==TEXT("_staff"))))
+    {
+        const FString Prop=TEXT("/Game/Memoria/Presentation/Field3D/HeroContactS362/R5/")+Name+TEXT("/")+Asset;
+        if(FPackageName::DoesPackageExist(Prop))return Prop;
+    }
     // S361 changes only the hero mesh; each existing rig, clip and prop path remains active.
     if((Name==TEXT("Arrel") || Name==TEXT("Elia")) && Prefix==TEXT("SK_") && (Suffix.IsEmpty() || Suffix==TEXT("_Detail")))
     {
+        if(Name==TEXT("Arrel"))
+        {
+            const FString Sole=TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/Arrel/SK_Arrel");
+            if(FPackageName::DoesPackageExist(Sole))return Sole;
+        }
+        const FString Finish=TEXT("/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/")+Name+TEXT("/SK_")+Name;
+        if(FPackageName::DoesPackageExist(Finish))return Finish;
         const FString Hero=TEXT("/Game/Memoria/Presentation/Field3D/HeroPolishS361/R4/")+Name+TEXT("/SK_")+Name;
         if(FPackageName::DoesPackageExist(Hero))return Hero;
     }
@@ -126,7 +147,7 @@ bool UMemoriaFieldCharacterComponent::InitializeCharacter(const FString& Id, flo
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     Height = WorldHeight; Walk.Reset(); WalkFrames = 0; bMirrorLeft = false;
-    if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    if (Skeletal) { FMemoriaHeroFinish::ClearBlink(Skeletal); Skeletal->DestroyComponent(); Skeletal = nullptr; }
     for (const auto& Prop : Props) if (Prop) Prop->DestroyComponent();
     for (UStaticMeshComponent* Part : {Scabbard.Get(), Blade.Get()}) if (Part) Part->DestroyComponent();
     Props.Reset(); Sheathed = Scabbard = Blade = nullptr; bSwordDrawn = false; Phase = Weight = Age = 0.f;
@@ -225,7 +246,17 @@ void UMemoriaFieldCharacterComponent::ApplyFrame()
         {
             Anim->Age = Age; Anim->Phase = Phase; Anim->Weight = Weight;
             Anim->Action = ActionClip; Anim->ActionTime = ActionTime; Anim->ActionWeight = ActionWeight;
+            const auto* World=GetWorld();
+            const auto* Combat=World?World->GetSubsystem<UMemoriaFieldCombatSubsystem>():nullptr;
+            const auto* Game=World?World->GetGameInstance():nullptr;
+            const auto* Settings=Game?Game->GetSubsystem<UMemoriaSettingsSubsystem>():nullptr;
+            Anim->IdlePersonality=MemoriaCharacterPersonalityS362::Sample(CharacterId,Age,Weight,ActionClip!=nullptr,
+                Combat && Combat->LiveMonsterCount()>0,Settings && Settings->IsReduceMotion());
         }
+        // New dedicated lids follow transient presentation time. Active/held death stays neutral.
+        const bool bDeath = ActionClip && ActionClip->GetName().Contains(TEXT("Death"));
+        FMemoriaHeroFinish::ApplyBlink(Skeletal,
+            FMemoriaHeroFinish::BlinkWeight(Age, GetTypeHash(CharacterId), bDeath), bDeath);
         return;
     }
     if (!Card) return;
@@ -248,6 +279,7 @@ void UMemoriaFieldCharacterComponent::ApplyFrame()
 }
 void UMemoriaFieldCharacterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+    MemoriaPresentationMetrics::FScopedCpu Cpu(MemoriaPresentationMetrics::EScope::CharacterUpdate);
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     Age += DeltaTime;
     if (ActionClip)
@@ -278,11 +310,20 @@ bool UMemoriaFieldCharacterComponent::PlayAction(const TCHAR* Clip, float Rate, 
     ActionHoldAt = bHold ? FMath::Clamp(HoldAt, .01f, 1.f) : 1.f;
     ApplyFrame(); return true;
 }
-void UMemoriaFieldCharacterComponent::StopAction() { ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false; ApplyFrame(); }
+void UMemoriaFieldCharacterComponent::StopAction()
+{
+    ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false;
+    ApplyFrame(); FMemoriaHeroFinish::ClearBlink(Skeletal);
+}
+void UMemoriaFieldCharacterComponent::OnUnregister()
+{
+    FMemoriaHeroFinish::ClearBlink(Skeletal);
+    Super::OnUnregister();
+}
 bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
 {
     Height = Look.Height; CharacterId = TEXT("Mannequin"); bFoeModel = false;
-    if (Skeletal) { Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    if (Skeletal) { FMemoriaHeroFinish::ClearBlink(Skeletal); Skeletal->DestroyComponent(); Skeletal = nullptr; }
     FoeMaterials.Reset();
     if (Blade) { Blade->DestroyComponent(); Blade = nullptr; }
     // S326: Codex's model, its idle and walk and the clips retargeted onto it; the material's Hit flash is
@@ -357,6 +398,7 @@ bool UMemoriaFieldCharacterComponent::CreateSkeletal(USkeletalMesh* Mesh, UAnimS
     Skeletal->SetAnimationMode(EAnimationMode::AnimationBlueprint);
     Skeletal->SetAnimInstanceClass(UMemoriaFieldAnimInstance::StaticClass());
     Skeletal->RegisterComponent(); Skeletal->AddTickPrerequisiteComponent(this);
+    FMemoriaHeroFinish::ClearBlink(Skeletal);
     auto* Anim = Cast<UMemoriaFieldAnimInstance>(Skeletal->GetAnimInstance());
     if (!Anim) { Skeletal->DestroyComponent(); Skeletal = nullptr; return false; }
     Anim->Idle = Idle; Anim->Walk = WalkClip;
@@ -426,7 +468,8 @@ UStaticMeshComponent* UMemoriaFieldCharacterComponent::AttachProp(const FString&
     Part->SetGenerateOverlapEvents(false); Part->SetLightingChannels(true, true, false);
     Part->SetupAttachment(Skeletal, Bone);
     // The prop FBX origin is its grip. Cancel the idle grip rotation, then follow the animated bone.
-    const FTransform Desired(FRotator(0, 90, 0).Quaternion(), BoneTransform.GetLocation() + Offset);
+    FTransform Desired(FRotator(0, 90, 0).Quaternion(), BoneTransform.GetLocation() + Offset);
+    if(Id==TEXT("arrel") && (Prop==TEXT("sword_sheathed") || Prop==TEXT("scabbard"))) Desired=FMemoriaHeroPropMount::FinishScabbardMount(Desired);
     Part->SetRelativeTransform(Desired.GetRelativeTransform(BoneTransform));
     if (Prop == TEXT("staff")) Part->SetRelativeScale3D(FVector(.85f));
     Part->RegisterComponent();

@@ -1,0 +1,2499 @@
+{
+  "utc": "2026-10-26T10:19:49.625544+00:00",
+  "status": "PASS",
+  "project": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+  "base_head": "6fd6fce0f169193d35c6f48172c05cfe17ead1d0",
+  "build": {
+    "utc": "2026-10-26T09:41:32.364614+00:00",
+    "command": [
+      "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\Build.bat",
+      "MemoriaEditor",
+      "Win64",
+      "Development",
+      "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+      "-WaitMutex",
+      "-NoHotReloadFromIDE"
+    ],
+    "exit_code": 0,
+    "errors": [],
+    "status": "PASS",
+    "elapsed_seconds": 177.723
+  },
+  "native": {
+    "utc": "2026-10-26T09:50:29.973622+00:00",
+    "command": [
+      "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+      "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+      "-unattended",
+      "-nop4",
+      "-nosplash",
+      "-RenderOffscreen",
+      "-MemoriaCapture",
+      "-ResX=1280",
+      "-ResY=720",
+      "-ExecCmds=Automation RunTests ^Memoria.Foundation+^Memoria.S362Burn+^Memoria.S362Restore+^MemoriaUpgrade.S362+^MemoriaGraphics.S362+^MemoriaVisual.Field+^MemoriaVisual.VerdanExploration$+^Memoria.Verdan.RevisitJourney$+^MemoriaVisual.S362PickerFullMeaning$+^MemoriaVisual.S363+^MemoriaSave.S362.ControllerFlow$+^MemoriaSave.S362.TitleVerdanContinue$+^Memoria.S362Navigation+^MemoriaVisual.RegionalS362+S364+S365",
+      "-TestExit=Automation Test Queue Empty",
+      "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Automation",
+      "-stdout",
+      "-FullStdOutLogOutput"
+    ],
+    "expected": [
+      "Memoria.Foundation.MapInputAndModal",
+      "Memoria.Foundation.MemoryAdapter",
+      "Memoria.Foundation.NondefaultSaveRoundTrip",
+      "Memoria.Foundation.RunOwnership",
+      "Memoria.Foundation.RuntimeLifetime",
+      "Memoria.Foundation.SaveAndDialectBoundaries",
+      "Memoria.S362Burn.CancelHeldInputPreservesCommittedActions",
+      "Memoria.S362Burn.PreviewMatchesCommittedDamage",
+      "Memoria.S362Navigation.RevealedCurrentGoals",
+      "Memoria.S362Navigation.TrackerReadOnly",
+      "Memoria.S362Restore.FreshCombo",
+      "Memoria.S362Restore.QuiescesAbandonedEffects",
+      "Memoria.S364Focus.BeltEliaEligibility",
+      "Memoria.S364Focus.DriftEliaEligibility",
+      "Memoria.Verdan.RevisitJourney",
+      "MemoriaGraphics.S362.BlinkContract",
+      "MemoriaGraphics.S362.ContactProbe.Block",
+      "MemoriaGraphics.S362.ContactProbe.Full",
+      "MemoriaGraphics.S362.ContactProbe.MountValueContract",
+      "MemoriaGraphics.S362.EvaluatedBlink",
+      "MemoriaGraphics.S362.ImportedMorphs",
+      "MemoriaGraphics.S362.PropsR5Reload",
+      "MemoriaGraphics.S362.RenderedBlinkLifecycle",
+      "MemoriaGraphics.S362.SoleR4.NativePreservation",
+      "MemoriaGraphics.S362.SoleR4.PoseScope",
+      "MemoriaGraphics.S362.SoleR4.Values",
+      "MemoriaSave.S362.ControllerFlow",
+      "MemoriaSave.S362.TitleVerdanContinue",
+      "MemoriaUpgrade.S362.AccessibilitySettings",
+      "MemoriaUpgrade.S362.HeldInput",
+      "MemoriaUpgrade.S362.IdlePersonality",
+      "MemoriaUpgrade.S362.NativeGamepad",
+      "MemoriaUpgrade.S364Combo.CommittedAimAndBufferedInput",
+      "MemoriaUpgrade.S365Swing.FrameWindowContact",
+      "MemoriaVisual.FieldBurn",
+      "MemoriaVisual.FieldCharacters",
+      "MemoriaVisual.FieldCombat",
+      "MemoriaVisual.FieldEncounters",
+      "MemoriaVisual.FieldFeel",
+      "MemoriaVisual.FieldFoes",
+      "MemoriaVisual.FieldItems",
+      "MemoriaVisual.FieldRewards",
+      "MemoriaVisual.RegionalS362.Belt",
+      "MemoriaVisual.RegionalS362.Drift",
+      "MemoriaVisual.RegionalS362.Verdan",
+      "MemoriaVisual.S362PickerFullMeaning",
+      "MemoriaVisual.S363.HudLayoutAndFirstPaint",
+      "MemoriaVisual.S363Region.Belt",
+      "MemoriaVisual.S363Region.Drift",
+      "MemoriaVisual.S363Region.Verdan",
+      "MemoriaVisual.S364Defense.OutcomesAndAccessibility",
+      "MemoriaVisual.S364Focus.NativeTargetAndExecution",
+      "MemoriaVisual.S365Feedback.ConcurrentPopupsAndDamageTrail",
+      "MemoriaVisual.VerdanExploration"
+    ],
+    "status": "PASS",
+    "exit_code": 0,
+    "tests": [
+      {
+        "path": "Memoria.Foundation.MapInputAndModal",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.Foundation.MemoryAdapter",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.Foundation.NondefaultSaveRoundTrip",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.Foundation.RunOwnership",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.Foundation.RuntimeLifetime",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.Foundation.SaveAndDialectBoundaries",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S362Burn.CancelHeldInputPreservesCommittedActions",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S362Burn.PreviewMatchesCommittedDamage",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S362Navigation.RevealedCurrentGoals",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S362Navigation.TrackerReadOnly",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S362Restore.FreshCombo",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S362Restore.QuiescesAbandonedEffects",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S364Focus.BeltEliaEligibility",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.S364Focus.DriftEliaEligibility",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "Memoria.Verdan.RevisitJourney",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.ContactProbe.Block",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.ContactProbe.Full",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.ContactProbe.MountValueContract",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.SoleR4.NativePreservation",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.SoleR4.PoseScope",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.SoleR4.Values",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.BlinkContract",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.EvaluatedBlink",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.ImportedMorphs",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.PropsR5Reload",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaGraphics.S362.RenderedBlinkLifecycle",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaSave.S362.ControllerFlow",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaSave.S362.TitleVerdanContinue",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaUpgrade.S362.AccessibilitySettings",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaUpgrade.S362.HeldInput",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaUpgrade.S362.IdlePersonality",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaUpgrade.S362.NativeGamepad",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaUpgrade.S364Combo.CommittedAimAndBufferedInput",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaUpgrade.S365Swing.FrameWindowContact",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.RegionalS362.Belt",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.RegionalS362.Drift",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.RegionalS362.Verdan",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S363.HudLayoutAndFirstPaint",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S363Region.Belt",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S363Region.Drift",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S363Region.Verdan",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S364Defense.OutcomesAndAccessibility",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S364Focus.NativeTargetAndExecution",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S365Feedback.ConcurrentPopupsAndDamageTrail",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldBurn",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldCharacters",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldCombat",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldEncounters",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldFeel",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldFoes",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldItems",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.FieldRewards",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.S362PickerFullMeaning",
+        "state": "Success",
+        "errors": []
+      },
+      {
+        "path": "MemoriaVisual.VerdanExploration",
+        "state": "Success",
+        "errors": []
+      }
+    ],
+    "captures": [
+      {
+        "path": "Captures\\FoundationModal.png",
+        "sha256": "76cb737a7763e8adb10de60765f3605d99b962163082008718f8dc49de5b0980"
+      },
+      {
+        "path": "Captures\\FoundationSprite.png",
+        "sha256": "1f17594cce7a6999a325e193132782e803a95444f9708bcc3b86d099cef86947"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnAfter.png",
+        "sha256": "89e78dc79ae0cb35990888b2106de009428c5d189160b88e1152a61bbbfa7aaf"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnPicker.png",
+        "sha256": "6057c6317996294d56ba8b894bc3626965108152362150b58024d849c61b6c22"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnPickerConfirmation.png",
+        "sha256": "ed831ebad89ccf1355b6b2bdbadea7a825aca3203c667bb1b17e52b7478b2813"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnPickerConfirmationEnglish.png",
+        "sha256": "1b7a9efc3b3df62fdb02cadf4483ad296df9c73260e4c5f14cfcaa26ffd6ffbd"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnPickerEnd.png",
+        "sha256": "6ea41773696f767681bf63b67fee7eb82ecc94f44672a2cea9c6241ce3430b2c"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnPickerMiddle.png",
+        "sha256": "3fc86068aaaf2f361e32d59c834da0702918b1b6ccd2edd0e86d70de4dd2a4f1"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnPickerMiddleEnglish.png",
+        "sha256": "c0e127f37b82167738184be2a4920e21825db5bbbbc34f1852ea7b57769983eb"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnRelease.png",
+        "sha256": "ecfe46e469709939d0239772953c6c316ced963df1f2823a2850a38f3323c2f7"
+      },
+      {
+        "path": "Captures\\FieldBurn\\BurnRing.png",
+        "sha256": "dc51ffa5c865f48ef3417356b5ab51f2f0f9f2f660b438ddfb320eada090301e"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatApproach.png",
+        "sha256": "17f5558862ebbe632c56aed4445c942bc9ed5a76b5fbf6c09f4c88420c2db109"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatDash.png",
+        "sha256": "b1a0296b02f44eb8ddccd1fa944ea151069db17401f594b1029c3a455de14bea"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatField.png",
+        "sha256": "1da0f6a930c8fd44a4c2ec163cc7e2ea0b21df91627c1221797b5731ed5d75c8"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatKill.png",
+        "sha256": "bdf5c682b18d8b440919f2297e5f99a9d975e447289c4b84729f6083c0f462ce"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatSwing1.png",
+        "sha256": "66ab5902c2bec8b0f82e9a40e5ed3e30107334f832ef73a2f2faf13f8ce57ebb"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatSwing2.png",
+        "sha256": "ebfe018216a27a6d5a93af11295c875de1a1772dac1ffab5b0a3d44589ecfc4d"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatSwing3.png",
+        "sha256": "62a784f83ee4848a9331f072527d4fb58dbfdd5721f082ee7b39d04757bbebd6"
+      },
+      {
+        "path": "Captures\\FieldCombat\\CombatTelegraph.png",
+        "sha256": "1befdc748cc42c574f00ea4bd8bd2179617e40709f6ad6da1eb3edd0156a064b"
+      },
+      {
+        "path": "Captures\\FieldEncounters\\EncounterStart.png",
+        "sha256": "caf121c61b893c3923434f9286a593f51cd3b6dc4440fbde6a377d63b95e3d9c"
+      },
+      {
+        "path": "Captures\\FieldFeel\\FeelBlock.png",
+        "sha256": "90dce02c0b54ce49b5567424e1d1cf365cfb566829225469f2fcde382f83e59f"
+      },
+      {
+        "path": "Captures\\FieldFeel\\FeelCharge.png",
+        "sha256": "dbad0fd9a9d4834ac0cbbd7fbb2febade6e053b55e353561e5c5870a89d057d5"
+      },
+      {
+        "path": "Captures\\FieldFeel\\FeelHeavy.png",
+        "sha256": "1aeb76f37cee9c1de8815fe4783d20dd95fbfed549b8a6e58043a81b03e84c5c"
+      },
+      {
+        "path": "Captures\\FieldFeel\\FeelImpact.png",
+        "sha256": "db1ef6a0ffd8abc400af0c410b686e3c3fca008bbef92f4b47124c526877c2e4"
+      },
+      {
+        "path": "Captures\\FieldFeel\\FeelParry.png",
+        "sha256": "de58c980f6a11e42de21f822b43e8f413381d0b6d21ee47dba2835913c848ae5"
+      },
+      {
+        "path": "Captures\\FieldFeel\\FeelTrail.png",
+        "sha256": "4f050aaa90abeb976b3711b8f44dd466860a56c746ba56d18403eeba6734b8f8"
+      },
+      {
+        "path": "Captures\\FieldFoes\\FoesChase.png",
+        "sha256": "df4df9b1651b6ab11dd12f37cd3b9059a78726162785902880e1473b2e6c90c3"
+      },
+      {
+        "path": "Captures\\FieldFoes\\HuskApproach.png",
+        "sha256": "a172495a1f974bce231351310bd4635a47feb1744018ed378da84f935848d781"
+      },
+      {
+        "path": "Captures\\FieldFoes\\HuskDeath.png",
+        "sha256": "97528afa0be55e8d5ef77859b78e1d1939ebb94093bc0f48ee9d95c84964ef89"
+      },
+      {
+        "path": "Captures\\FieldFoes\\HuskHit.png",
+        "sha256": "8c48e0585728413878b65710305756096a52826db3d6ca3375caad06c6bcf453"
+      },
+      {
+        "path": "Captures\\FieldFoes\\HuskRecoveredIdle.png",
+        "sha256": "acb5cfa05e2ce8a4fbfbd0f780e2bf9283faf439319f921b4d08ee52e2cf0335"
+      },
+      {
+        "path": "Captures\\FieldFoes\\HuskRecoveredWalk.png",
+        "sha256": "136ff591e4a929c6233633a3e96dc636ae9b6d3c03b50f2d731f85f7dbc3f40d"
+      },
+      {
+        "path": "Captures\\FieldFoes\\HuskStrike.png",
+        "sha256": "5bc94d5791b56a9792c6e2aa7e722d7a13b9d779b7810b679a6f318125abf61b"
+      },
+      {
+        "path": "Captures\\FieldFoes\\ThiefApproach.png",
+        "sha256": "05e8604c157534387076eaed9468f6dbb5171bafa7043839112e113bfb21a5cd"
+      },
+      {
+        "path": "Captures\\FieldFoes\\ThiefDeath.png",
+        "sha256": "a861572ac4580796c93edef673852a7d3e6305d2f3191f99147ba1df0d0b4643"
+      },
+      {
+        "path": "Captures\\FieldFoes\\ThiefHit.png",
+        "sha256": "20725e5d9e50fe0ff83eefcf2297c638ba8611b2bfcd8af145c34e882351e086"
+      },
+      {
+        "path": "Captures\\FieldFoes\\ThiefRecoveredIdle.png",
+        "sha256": "0ce30ae26cad9a9b5fbbc95323f6c063aaecf32395342a8d4b36b9a4729c3780"
+      },
+      {
+        "path": "Captures\\FieldFoes\\ThiefRecoveredWalk.png",
+        "sha256": "d2c043395e019574d9f2a353db9a01af62b482612102816501f7c73c676c7cb0"
+      },
+      {
+        "path": "Captures\\FieldFoes\\ThiefStrike.png",
+        "sha256": "549dc72b7fdba0d105cb5a0f7c6cacb3edcaf10a276cb2df1b1b12224762fb19"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsBombBurst.png",
+        "sha256": "58bc5fe10f3f625da47cc53de418e716688a5e3660ea741705ef5ea32911a679"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsBombFlight.png",
+        "sha256": "81a798640298782947afc32b0e6715c87500b966d865944f3e48ac0613adf6d0"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsHeal.png",
+        "sha256": "3ac8ab223b4941769b965eb5ee1e21c5607b39d1774de18c26f34c3f17427d76"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsHiPotion.png",
+        "sha256": "89d92ae9e0e88d90e7a3fe716cae92071ea4c17bed92daa9648787ffab2b1fca"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsSmoke.png",
+        "sha256": "236f13ea71f4a7507da3a2b75aa8eb7894fae554bca752189294b17d23965d50"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsSpent.png",
+        "sha256": "2d64aff3ee20612da6ba7ad321ae6d04ed79eca633b3eba91b1f159f10dbba02"
+      },
+      {
+        "path": "Captures\\FieldItems\\ItemsTray.png",
+        "sha256": "3e86257f9bbb6cba974227eb072ecb118964f468affc8744c105d8fc8e3bbef3"
+      },
+      {
+        "path": "Captures\\FieldRewards\\RewardsAfflicted.png",
+        "sha256": "ee38dc2d9ac65427417fcaa351d4b0668ad2e1056cc7f2e48916f1ac3996a557"
+      },
+      {
+        "path": "Captures\\FieldRewards\\RewardsVictory.png",
+        "sha256": "7627b9045c43aba51eba9ef3e9c6eee2737ab318db34e341de876743317d0e3a"
+      },
+      {
+        "path": "Captures\\HeroS362\\EliaEyesOpen.png",
+        "sha256": "10e4e90c2a191c6dabcc6cdf1b32a1eaed3a1c250a78825490c92c31ac59f7ce"
+      },
+      {
+        "path": "Captures\\HeroS362\\EliaEyesReopened.png",
+        "sha256": "576d2062e3a8866baef0355243f310b01cab42789a0d0d193df0041c09b3df8e"
+      },
+      {
+        "path": "Captures\\HeroS362\\EliaLidsClosed.png",
+        "sha256": "d1cb98bf2d67f9ece7adc60736c611e81d3be96dd13ed0105abcb785c331123f"
+      },
+      {
+        "path": "Captures\\HeroS362\\EliaLidsClosing.png",
+        "sha256": "9e6326d4bc64c0322da21d3cc152cc04db955b5cf29486aa960e35ac85e55c2a"
+      },
+      {
+        "path": "Captures\\HeroS362\\EliaLidsOpening.png",
+        "sha256": "3bd30a5f6ef3076d3feb1655ef5c4fcfba9ec27c63af0bb7254906f03bb2a47a"
+      },
+      {
+        "path": "Captures\\HeroS362Evaluated\\EliaControlledClosedHeld.png",
+        "sha256": "a6a554cdf99593d01c9ab6106babf6c1354d5ac14c1d0bdb80a59913a328beb9"
+      },
+      {
+        "path": "Captures\\HeroS362Evaluated\\EliaControlledOpen.png",
+        "sha256": "6ac0f60b541822b115496282617c5bd0fbdc220c3805edee36fde558d6c0be1a"
+      },
+      {
+        "path": "Captures\\HeroS362Evaluated\\EliaControlledReopened.png",
+        "sha256": "8bc12b8ac555b4786d8d1744c169093dc5633845a3af5777544f0c158f58bb94"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Accept_Selected.png",
+        "sha256": "5c1b682d0d07f6502d75336f5bb78e239c02bd0790a04e3ef6af408dc5ad2dd9"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_AfterReaction.png",
+        "sha256": "d655206332952ae04ef05c660aee84a7efcba5aa6914babf03d8c471d9c16aea"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Antidote_Before.png",
+        "sha256": "9ffe5933060e6d4239cb10422af030b744f98500390b179b478b0424228f22e1"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Antidote_Granted.png",
+        "sha256": "77c8dbcc61785f8c48b7f84e9a500ea197029b084f9da32f70302fcd9a277ce1"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Antidote_Signal.png",
+        "sha256": "81f858b319fc8d140c290a9d877bbc35721a6e3f6e61dc25c1c1cb2e323b713e"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Antidote_Toast.png",
+        "sha256": "9386dd3c3bf08f4bd5bc769d35ee28307832713a42390e5be4b4aea6810400ce"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_BeforeInteraction.png",
+        "sha256": "a2fbc4a48138c6fbac61e593268e48401e65bc5efc2aab6e394cbb9adab06996"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Checkpoint_Loaded.png",
+        "sha256": "ff73d1aa1d8010a553b73f87ea031b421461671c14608767ac73280345e1f964"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Deal_FirstLine.png",
+        "sha256": "c919872367faf04dbf7afbea38f403d499832c7415eb28c62d51083d80f98ec6"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Deal_LastLine.png",
+        "sha256": "a223610597b35fa8097ab1bebcc916903786af5bc004320c62993c52944a8f1e"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Deal_MiddleLine.png",
+        "sha256": "c10f17477577f3918cfaa4b73462c5693eb6d26f7f60647d5394d576a4c7c888"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_EliaBurnedLine.png",
+        "sha256": "b72464dae650f386353eab6096345c398c327e448e777ac05c722d08a89453ff"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_EliaRepeat.png",
+        "sha256": "70cfa7cd1b561f3194e33d724636bffdcd545f51e8a053730566a7df2dd20f51"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_EliaReturned.png",
+        "sha256": "33fc36fee056bf73bd1a50fa57fb6c353ce183e0104ae4d20a450cebfa44f15a"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_EliaSwordReaction.png",
+        "sha256": "869ac805e8db5a5576dc2264f41f14e7ebeba766b4321a81d83530e0b3935b0a"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Firebomb_Before.png",
+        "sha256": "688e988f0e3247ac696a2a58835d3999efd193e0905f2be7e4db238f40175384"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Firebomb_Granted.png",
+        "sha256": "1a4116e5ef867ab7542c57d9e9e1838403acc0f9b7fe86039c48ee290d87cfd7"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_FirstLine.png",
+        "sha256": "d4749c659f25ccf8dfb1f3f292d9f3307f926e811e308e6996626b59fd01c4de"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_LaterLine.png",
+        "sha256": "8b1b67bd097b0dbefbc5acbcc5e62373a3057f9e96f8b86ce6e8de4cdaaa514b"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_MaletDone_Set.png",
+        "sha256": "2222b30e902078e013d1a2fd4e266a661ee19f81e1895b0c8b72a6c727d261f5"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Moved.png",
+        "sha256": "1e9f90797cb8eb562b5612434ad76688d17073af4a980c2e6670d7ff25814632"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_NormalEncounter_Choices.png",
+        "sha256": "5c1b682d0d07f6502d75336f5bb78e239c02bd0790a04e3ef6af408dc5ad2dd9"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_NormalEncounter_FirstLine.png",
+        "sha256": "1210c67c1b371ec694ad239af77172078ad175b0c1666f81a3df794b247e902d"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Potion_Before.png",
+        "sha256": "6a0d22d7847a866d0fbec24d050f888897f1ab961af2cd8c88163fd2844f135b"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Potion_Granted.png",
+        "sha256": "b150b5a7cc29de4292fe4850f03792db77e91d81f45cc1b25756457eeed4e8bd"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Potion_Toast.png",
+        "sha256": "370e3732070ac1ed8314744c740cd973032c86bd89a79849c5339e5eea71bed1"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Prompt.png",
+        "sha256": "96751cdf2a7de049394cd7146fedd2db156b6864409817e5613c28df7ab825b1"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_QuestComplete.png",
+        "sha256": "40673d0d532aa0d549dc62493321f524e7d079f8d9b164211e078a1a26d79ed7"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_QuestLedgerFound.png",
+        "sha256": "4ef6a5b8dcd1f7618161fdd26196a1ee11be8a3b7f9246690fa2f8be87ada117"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_QuestReminder.png",
+        "sha256": "868b6445e5b9c8de72e85ac9b6a4ad7b8e9b76da2f6ce070a3c78a2dc557f389"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_QuestReturn.png",
+        "sha256": "9d7b858c9d9f2a94476650e8d37cd47c89e7bb9e2c7f330a704e5bee7800adea"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_QuestTraderStart.png",
+        "sha256": "458dd0d0069ce21b7f2de0f950bccd95bd9f9f45afdc393f6b73f1ee64c16f66"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Reward_Completion.png",
+        "sha256": "c9d0d2ffe0513ee9377d0fc8f1ab925737b0199e8ec974e37e723a21506696b0"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Reward_FirstLine.png",
+        "sha256": "5696f5d2377f8219ffbffbb59ee299b803bb89b716688a0ef99f6ace567db0bf"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Reward_LastLine.png",
+        "sha256": "ca131049a6ff2a17f6ecc8d6ac5fa9df3f9ade23ff11d56a2017188cf515460d"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Reward_MiddleLine.png",
+        "sha256": "118c33818272c763f95b2eb8b6778c7e9dedac9b16cb37f169556d653a078a91"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Reward_Toasts.png",
+        "sha256": "4808f80713e0d2b5e15939874641b62a4f8f6e008d394ff8df7cec7f1fb35b02"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Shop_Bought.png",
+        "sha256": "3ddb5b7617e1f85a41c91c856090ee8abb19a64bcf538f6160d5601254fd483f"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Shop_Closed.png",
+        "sha256": "328a24a2b2a18a05bcd2ef61bc2bb256ba2324aa9ec3e8724badb5df07edd65d"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Shop_Deferred.png",
+        "sha256": "c9d0d2ffe0513ee9377d0fc8f1ab925737b0199e8ec974e37e723a21506696b0"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_Shop_Sold.png",
+        "sha256": "d48e80ee4da07a4911025ae12cca4ebef835e3075743e175d69fa6078b986567"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_StoryMaletBackstory.png",
+        "sha256": "d6be7e4ec89303a87e31714f6d1a524359f4487fec4a6d16d249c1c83b45e1a4"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_StoryMaletSeventeenEyes.png",
+        "sha256": "5f5e5181b89c9f450891401a96eb2a4e678f13e925a9110112ba7037ee8152ec"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_StoryOldBurner.png",
+        "sha256": "af721bfb0523a585f2575d7546cd20ed0afc1381a2207e9fc9160b944da5e643"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_StoryReturned.png",
+        "sha256": "f1de0ac198120349a3250a8ec25ad48002db79abf24155db602c339fb642dd0e"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_WorldKnowledge_Seeded.png",
+        "sha256": "1c7e19dbbea9c92f003086f9d17da3c4f2049ef779427934fd7813027c5b49ff"
+      },
+      {
+        "path": "Captures\\Phase1O\\ShopRevisit_WorldSeed_Complete.png",
+        "sha256": "98fd7ef361c9b2bede8bcb83436cc55b8029f2f62aafce112d1b6f1ff4d9624d"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\BoundaryClear.png",
+        "sha256": "59574ee002ade17f5b76ce5e24b3be3d7ec14e353d8eaa7af423cc45e8273869"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\BoundaryOpaque.png",
+        "sha256": "54500359ea83ebdc39e1e926659288dae54c71e25d202e0e1f16b59cb573a78b"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\CharacterBack.png",
+        "sha256": "e09b2215a6b13b485a4a1ea30dea58daefcdcca33283391fee30ffca10f8effc"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\CharacterFront.png",
+        "sha256": "d103eca407db1a636854d8bfedf119193779c76eaba160a168ba1da09fd4e339"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\CharacterSide.png",
+        "sha256": "17561f72262f9acfb6312d3e0a61d75783d0ffcb8f7a634a7781c7551cdd1d51"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\Down.png",
+        "sha256": "9faf0c45bf069f2c8769ab0a574d3c859a8710004a8128984c54600bb7763151"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\East.png",
+        "sha256": "6ab4c9a751a444456e620bb4f9c74496183b8fb0729742d4443a89c1726b3a72"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\EliaRigged.png",
+        "sha256": "9f1c261135550ba5d5f515c42dd9cc77ed62eb50844986020e7c705a3ec439bf"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\Left.png",
+        "sha256": "e51d4ef88cb47ef72c2d3adc8ab00f8373b503220c4a96f84cedae1463a3fd4a"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\MaletRigged.png",
+        "sha256": "6576556aa688d6135f395ea98b3c5c8ee144ba5cb3d67ea4bea9ffc1acd58c6c"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\Market.png",
+        "sha256": "55415a1f9900b32ae9be2fadf2908954732c50c2517539a128e9e23ba5770985"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\MarketFront.png",
+        "sha256": "22c0be062e3ff4dc12ea209117db4840d64d3b3435e3dbbcb722067b17c7489e"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\NearMalet.png",
+        "sha256": "af40aab7b6e1131623c1d4fe3e7ef6e462eb16421b36972ab037f13d249e955a"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\North.png",
+        "sha256": "4b70e4b000c2a35a9b584f7664f55b04f9ca12131aa1845ec6e32f48eeee93a9"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\NorthEast.png",
+        "sha256": "b34c47f397865366eb4a44c941ca7c586736d1cf685f05c0a12b83b7f85ca865"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\NorthWest.png",
+        "sha256": "dc25fec40b645a9e8eaebb22fc47ed9b19662fb3ce5a0ba4047059792e9d8f47"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropBarrel.png",
+        "sha256": "16cb3b7bb1d78314d92b9858e78eb2160da1d6a1d9668043d06a6030cfc8abbf"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropBarrelDetail.png",
+        "sha256": "5e53d862719b68accbb04ef3c04c809d3a492d35a236b349b32a9f501b22bc43"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropCampfire.png",
+        "sha256": "91db5484f3b6522bd37d848c666e575b74d26e2a5b63a3aa19f3a250a562706d"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropCampfireDetail.png",
+        "sha256": "9e0610e092a255eeecc45fefd0a3f8384accfd0f93a1d94c0f23022f9681b32a"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropCrate.png",
+        "sha256": "b3dce8098639b22f8203a6c6f03840816b56d5b657a975c178541b3e16254446"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropCrateDetail.png",
+        "sha256": "81eb3f355e2a85fb3a4cd797a0ad403c661a31ed907d8b8709917011ad6872c3"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropSign.png",
+        "sha256": "a202c8262759eee4bf70491e5ae783b2c104c5fe92755b945a67ef1313ff0c0b"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\PropSignDetail.png",
+        "sha256": "c156ba8882c713d1060e29a73f3c56f0c9df2c7e6cb2cd5d99f0ddbcace1e56a"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\Right.png",
+        "sha256": "82165f54e82686b3650417d2112580f56dbe6fc89ca72d538a6188c919ba7be5"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\South.png",
+        "sha256": "1f053ca8fa34b774ecbe6d90ddb16615971f9c563cde400a066beb847c1b7362"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\SouthEast.png",
+        "sha256": "4f66a41af66cb8a9c519f4f121b57341bcda1bc295aa2b02552d500e7ce2f223"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\SouthWest.png",
+        "sha256": "e2785b95074e02669cf3ecd45deaafad9b1e9666731b29ec324d3e27d7ad9a71"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\SpentAndSmoke.png",
+        "sha256": "c25199fdc004a5e4946b42e67c8cfb417463877d14aaee3d7a7c7f6e8e29c31d"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\SpentReentry.png",
+        "sha256": "63fc0526e3af493741fc4022193d6dfdc992eef7a1aefad95bea7b7a14cd83cc"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\TownsfolkTurn.png",
+        "sha256": "bf99ec2c69e250ea0b88d598d7c4128ac586aea446ade2c9689c33c75a03ca8a"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\Up.png",
+        "sha256": "0c5af95fbe2085ed0039d8af4d168043a0a20314e20a851a81b0914a03338b5c"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\WalkA.png",
+        "sha256": "2860887acc8cd4b87f6fb41ed208c6edcc7edcc06fabbcbaa94cbd40348cd171"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\WalkB.png",
+        "sha256": "331567896c52ece4a7eaa79e96f1bb5406f123ca42fa4f1c5a4180996bc48e84"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\WalkC.png",
+        "sha256": "7362c7b280f33219855c9b17dcce5397f4f3ac855dd39b3be36a8eef704f95eb"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\WalkD.png",
+        "sha256": "87f28acefd0f9ff2bd5d2f7845428893f64cdd462aaaffaa45eadf5b408717e9"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\WalkSettled.png",
+        "sha256": "71a684388abfe3f8d37b8f725c7ba386af6e1f4af03120d89355650a8139ea1f"
+      },
+      {
+        "path": "Captures\\PlayFeel1\\West.png",
+        "sha256": "28c7ca8600caea5526e5f7b73501c7b3b5efec1f8c7b5bf0775e6cf2f9d4f9af"
+      },
+      {
+        "path": "Captures\\s362\\HeldInputRecovered.png",
+        "sha256": "6f11dfd9e1adb18bdbbe29e1b2a81cc53ae48c6b5c7f1d24f70bd8783f4143b0"
+      },
+      {
+        "path": "Captures\\S362Controls\\KeyboardHints.png",
+        "sha256": "5e86ff382b73cfdcc7aec2e88e2661168e0aeac7591a78fa3f442f38a055e5e4"
+      },
+      {
+        "path": "Captures\\S362Controls\\PadAimX.png",
+        "sha256": "31ed49164e21e8c0f20990c2d902571fbbe8ab81990f8054fa31d5b4183bf550"
+      },
+      {
+        "path": "Captures\\S362Controls\\PadAimY.png",
+        "sha256": "c06df778fbc1cc501cf23f9f2286b6729d1fdbfe6278bfd952bec23253e0acaa"
+      },
+      {
+        "path": "Captures\\S362Controls\\PadPickerHints.png",
+        "sha256": "3118ff161313006e2421c43b082c7d664ca94339ccb51dfb38e77fb32286f380"
+      },
+      {
+        "path": "Captures\\S362Picker\\en_core_confirmation_1280x720_125.png",
+        "sha256": "65526646975f40de12d49698ed003e5f7d9b94aa530d9f2dc818c3aeca3087f3"
+      },
+      {
+        "path": "Captures\\S362Picker\\en_core_confirmation_640x360_125.png",
+        "sha256": "e59a0d3c7aeabd4cc237aa1e91933174a438e4a650409af25f98315586a19b4e"
+      },
+      {
+        "path": "Captures\\S362Picker\\en_longest_meaning_1280x720_125.png",
+        "sha256": "84f6f49242167a68a9b87a68fea4445a33f12717317ecaa3389700b8b7aa20bb"
+      },
+      {
+        "path": "Captures\\S362Picker\\en_longest_meaning_640x360_125.png",
+        "sha256": "a10615586c9b3f7614b323f636cc7b3ad9a39a62fcfb3fce121045e8d24622ca"
+      },
+      {
+        "path": "Captures\\S362Picker\\ko_core_confirmation_1280x720_125.png",
+        "sha256": "301ff390bb8665678d68e47fa4db5bbec00479673c2cd5e899a6f794c2c37abe"
+      },
+      {
+        "path": "Captures\\S362Picker\\ko_core_confirmation_640x360_125.png",
+        "sha256": "70bcecd1df18949a1e17ffbf73613f6580de07e91b5e0863b0bd7a791218f106"
+      },
+      {
+        "path": "Captures\\S362Picker\\ko_longest_meaning_1280x720_125.png",
+        "sha256": "8dc19c041f2221305034585fb55dc2a973025b66f0060abde1683a5888f3cabe"
+      },
+      {
+        "path": "Captures\\S362Picker\\ko_longest_meaning_640x360_125.png",
+        "sha256": "3d5e8360a8c5d713dba5f1ca9e511342bd693e7d14e10fb196f373a146d26a04"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case00_Combat.png",
+        "sha256": "dbdd09077f44c4bc90d64a5777b2d6e2af72980c1a956351f2c545296a3a405a"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case00_Idle.png",
+        "sha256": "45e3037ff1cc79141b4d02e7ac51aec7631b1363f488b44342769fb9d431a204"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case00_PickerFirstPaint.png",
+        "sha256": "b78c3f7ad70f0bda6805814419c0f555d86c45eeec9c65650455b3f6c83d5c56"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case01_Combat.png",
+        "sha256": "7164a070689d73b2b79360de3ec2afc1fec9503d82f8b72185b3790513ca39cf"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case01_Idle.png",
+        "sha256": "2a12887025ad10a4e7be3cb88fdbbc2ccad7c668abe3e7d719b41d7a4f320e1a"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case01_PickerFirstPaint.png",
+        "sha256": "e52f2ae69d70e2ad3d989f71c1073ae94443a00470eac363635ab428d164f31b"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case02_Combat.png",
+        "sha256": "758f1b33a8b2b9ce745433358360f17b8e5f15f5bd3c87b860645d6a0e7d1357"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case02_Idle.png",
+        "sha256": "e197f58c3240f538d291c131181bbe78a633d33578094501f73148522586c407"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case02_PickerFirstPaint.png",
+        "sha256": "8158b49a19c06d5f6e700d0270fde51b9bd9b1e31eece4c578b37f86307cd413"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case03_Combat.png",
+        "sha256": "1b02ae279b9458fcf884e8b3e067755f26b81241bf460b2ca4d7921efcdb35f4"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case03_Idle.png",
+        "sha256": "136401ef931589d4e67241c78dbd41f7496b3e41edb752fb60e0c760a93cee4f"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case03_PickerFirstPaint.png",
+        "sha256": "9bb9bf390f89f33cea1639faac74daed782c9761cd3b3b8471c787e85c1419ee"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case04_Combat.png",
+        "sha256": "db4404b89db202a905e5a764e4bb2484d2579372b7602613695a2677ab340652"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case04_Idle.png",
+        "sha256": "e56af0958171ac9b6df03632f85208f1978068324751b3713160ad915c08d5b1"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case04_PickerFirstPaint.png",
+        "sha256": "4d6315822e0bb6af17ce97843c176dd9b969d95403163175e880a95f40a658b6"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case05_Combat.png",
+        "sha256": "932fd4fefd7958681ff01ec157c3fa46b1a4e9356f6531bbd1f615f71d31b8ca"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case05_Idle.png",
+        "sha256": "a7d854a705b1ccca7144e79e3ab1d5419e325f41a0eb5ae47bf7fc133b1dbe86"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case05_PickerFirstPaint.png",
+        "sha256": "de1dd6c3954d44730b273c5861861da77ff6719815d491a3b344c9998cfc2aef"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case06_Combat.png",
+        "sha256": "cfe66480a413102e53bbe4de28dba9e74502bc2c22f242d5be6f1242f1aad741"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case06_Idle.png",
+        "sha256": "5ad2b74ed6f1a541c27c76a32e484c3e03ff49dfd647ca9e69888f44801930a0"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case06_PickerFirstPaint.png",
+        "sha256": "fcb26bc0cfd4531b5d267cbc0f586eb62c26d591f1ccd378e44ca61f39d0c98b"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case07_Combat.png",
+        "sha256": "4ce6656c69709561671bcf8ea0fbddf7bf03cc9b50e1c23b9e7468fff721039d"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case07_Idle.png",
+        "sha256": "42a0bcd97c44efc807ba2682dec3583179a7605a3061e19a5e1a88ff269e85b2"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case07_PickerFirstPaint.png",
+        "sha256": "1f8e4b0f2275a1be98dab3c7d7da9dbf691f4bb14f32d09eb41db90253a895a7"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case08_Combat.png",
+        "sha256": "179f855c3ba36cf6e2526f07db7d544d04b774dede8523b236da3619495b585e"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case08_Idle.png",
+        "sha256": "a16a17db24315d10fec284faf5a1780fc7581b54557e114937b8bbc819821911"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case08_PickerFirstPaint.png",
+        "sha256": "a63c5e19c691e3d3db41c230a5d14a3bc03ddfd91b15cb518c186d2302d4f376"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case09_Combat.png",
+        "sha256": "d756639e674f2b9d55e218839534c7a141f947f7f55f984cd1ec824e95b79136"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case09_Idle.png",
+        "sha256": "8e571960ea07cb711f3bced05391c696fdad5c0aac40c85a46dd2e7104f8a04b"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case09_PickerFirstPaint.png",
+        "sha256": "79baa24cd4b4744be1ee153ca095704e77130f932ec55c77685aff5af3f0e98d"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case10_Combat.png",
+        "sha256": "e301c444c41dc33b5ac00904ea90a3155bf9146fab4b02ef504a3a762ab72439"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case10_Idle.png",
+        "sha256": "9cdc91a9d76ea19f32279b5a21cc444a1e4c57dd22a2b6045c4beedba7e7470e"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case10_PickerFirstPaint.png",
+        "sha256": "857e7e6dc54778fbeb7ef31ddf409d14034f5a01eebd157069ca7f4adfa44dd9"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case11_Combat.png",
+        "sha256": "bf5edc5d9a7fb0106b0894f451c4c001e4d4072584fb7897dba345cd16a711a0"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case11_Idle.png",
+        "sha256": "d0200105fbbe1de9f74a1093858fb2ba72067308d1fb6e0b74a22a65d8a938dc"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case11_PickerFirstPaint.png",
+        "sha256": "ec33a47f781cd67e0d9c2a5b87d76c246d1903c53c24d5a8fabf05c587542b3a"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case12_Combat.png",
+        "sha256": "cd9f71e5e6fb35eafa34e4fed4910e31ab8dcac961cfbf7c0e38f676ee0e0c62"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case12_Idle.png",
+        "sha256": "92e5864caeed7327c16fd4f38c91c45ba1667d54f2589c6fea8fac0635780aad"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case12_PickerFirstPaint.png",
+        "sha256": "a26100f8f0110cbbbb5aaf34995c65307c77efd70e0dfe34f5d8d88f18bc1c48"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case13_Combat.png",
+        "sha256": "63ad7321d4044c36327619bd2f32bed7a78027191ac54a011e1e0c394d6abe85"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case13_Idle.png",
+        "sha256": "b84901928f2916520c388a58788fc69c9794efd4a7962e3fee06cbd8d613dac5"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case13_PickerFirstPaint.png",
+        "sha256": "5ebe8abc0b7fcae6987601b8def7c0363d183a78ac6c3c3e4871b552dfb66c98"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case14_Combat.png",
+        "sha256": "93cbe6ab7929d328d14b60d9154b652f3644d957d1767d9f24e9173cae41f5ad"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case14_Idle.png",
+        "sha256": "5d253bf735e807c713b6fd352b3ac6e8b23140dccaad3b41521d8aee644f306b"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case14_PickerFirstPaint.png",
+        "sha256": "786df1951a499ee0b1afaacbe840acfbd9b2ef678b9f2b46391193a5df021ecd"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case15_Combat.png",
+        "sha256": "123d22c7ae407f24fb0863007b9b132aeee7e03002630a688fa5945bb90a6c7e"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case15_Idle.png",
+        "sha256": "58c0bd1ef54f6d6e55d154b8c841aa26a732e654e6f99dec0e8ead5ffde30ca4"
+      },
+      {
+        "path": "Captures\\S363Hud\\Case15_PickerFirstPaint.png",
+        "sha256": "9c42fdf900857320da70a943406269ffb9c24e99833af01a0e20fd2873349c82"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Concurrent.png",
+        "sha256": "b5c4633bfc735329865d586158d9c34aa1aa7a052de1334e6dd0a439bfb9bffe"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_EdgeWord.png",
+        "sha256": "77f41f879fe99ec3e7befe6537f88fbe8a0140cd72485a95f7e848a34d5f3c89"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Concurrent.png",
+        "sha256": "a85f8bf231992718cc325927ba806687ebfee97155c483a3329b7196db243288"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_EdgeWord.png",
+        "sha256": "8ce4bb1e87ad8772d129223e7148e8ca5b610595522c59ead13074eecad63f8d"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Concurrent.png",
+        "sha256": "510f9436f89b06dbd06de4edd358ce1d23aba32cad3d12938d7863380b5720de"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_EdgeWord.png",
+        "sha256": "3ed069a6ace9fdba92576c9a314f5984ca4d1186c498570aebed9fa1c44635f5"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Concurrent.png",
+        "sha256": "292160609b47d42a33ee02041fbe64c88f04d40415c40922d2dca9f2e252b42d"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_EdgeWord.png",
+        "sha256": "4b2d385741c8875a33177220d9edcec770710cb39bfc6e45d4d10ba9f4b03245"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Concurrent.png",
+        "sha256": "34e7ef7f167788d4e39becb84f239bd7425b038d7b2ab049b97fcffa01ed3833"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_EdgeWord.png",
+        "sha256": "ffb5d61a4e82e2cb5854eaf820cb3092219f08cbb12436ebd93b30f5bfb7379f"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Concurrent.png",
+        "sha256": "8eef2135ee71709ede8848b69717effb37c4152054746c71070b2023d38706ac"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_EdgeWord.png",
+        "sha256": "18fa4f10f2711b57bb94ec5c435bec6ef7b43282d8766ea3d47e1099cda983cc"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Concurrent.png",
+        "sha256": "1ad61fc905eaf18234dca487adf3e7c2b415a77bb6a6ee853cff4f7a36e04fc1"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_EdgeWord.png",
+        "sha256": "ec93011e2d5ff238a5bd359ff6f664210be7eb97c2e4cbfbfdfaf7aece68d47a"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Concurrent.png",
+        "sha256": "34ef065e3b3750db754128f399b523931ead18c25e3c1e745db429fed33535bd"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_EdgeWord.png",
+        "sha256": "9d4adf3dc1b9ff8224a01a44280af28b07d4c14a6ea44055e0bad01ad7ff7edd"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_Concurrent.png",
+        "sha256": "a804addf8a5a634be5f96b5b26620025004e29140f9aab3514c002077d6f8dc7"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_EdgeWord.png",
+        "sha256": "d8a6daa4bf9b2378867ca428d701e40652c774bbb5bc54ada6887f69e9ee96f7"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case09_Concurrent.png",
+        "sha256": "64da12584b3cc7ff1d765962c50c1f98616464f032277bf0cbd0d4ee67781f91"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case09_EdgeWord.png",
+        "sha256": "fb6701e71ecbae7dfee52ea4492df1b2af6d907de504c8cde0d0f1cbb68a75e1"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case10_Concurrent.png",
+        "sha256": "f61c83bab49be86bb200298dbff446e8993cdb23a2330e03e0476b238a89ab57"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case10_EdgeWord.png",
+        "sha256": "192ccb7aca044a77d4d1ceaeee1457d28183a967f090f407df6b319b653ab612"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case11_Concurrent.png",
+        "sha256": "7c33bf42153551701f7e1edb5849d02e1b479fb8a3d186bf23d5fbad64d6e726"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case11_EdgeWord.png",
+        "sha256": "fdfeaaaf5947946a3bdc5f4f1fadeb55f9359f95de639b75f7dcf9c630aadfe1"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case12_Concurrent.png",
+        "sha256": "b9834231174db417db98c0478498e71f667429e80eeabaacdce42254b0abde44"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case12_EdgeWord.png",
+        "sha256": "0669e754a1d40fb5339ad9ccbe5be32cff80ce7207ec5b0e83050c77e71be2dd"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case13_Concurrent.png",
+        "sha256": "b33c6b23715b7fb0ef0cb1000fb3bab7cc30ccd006fd8ec244d61ffceddded95"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case13_EdgeWord.png",
+        "sha256": "234085d24eb51ea1e40194ece5410ef7cef0bbe167050b3813882abf3012fd31"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case14_Concurrent.png",
+        "sha256": "fe3ad7f2f5fe98375875b3f1ae72f2e9c0af26ea60f7ec45923ca0e8f0c41d7c"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case14_EdgeWord.png",
+        "sha256": "eb0e307759982ad8a90aeca99eeb5deaf8fff3496a1fca6862d3f2abae5623d9"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case15_Concurrent.png",
+        "sha256": "a45fe00a24b6a0e2fa2419323108c3352ff4929a6f6ba171a14d62a5852761d6"
+      },
+      {
+        "path": "Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case15_EdgeWord.png",
+        "sha256": "8e3dc5679b870e14a2c6232b56af83f2698f877d8978c470b758027067dccefc"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Elia_After.png",
+        "sha256": "259d491f872bcd0096c58555db7c7011708cb3e023e3b94410c759b5062f9ad4"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Elia_After.png",
+        "sha256": "f6faa3d4f94a60155b3b265b9f8bd6de0b0b7202695fe2cc402b5724b513f090"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Elia_After.png",
+        "sha256": "4e436d4fb6888b7e61d412122ce079aff526023c615f987328c10dad9d0e124e"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Elia_After.png",
+        "sha256": "a65f1f18497c008bf3a7a696fbe3776aa8998d532733f4b08c5cad28b16a1f2a"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Story_After.png",
+        "sha256": "11e2232de7e0de19e2cecab0fcb2355e2545979e1a286b1477d390f3a5d0d5d4"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Story_After.png",
+        "sha256": "5fd068b40f354eff6d31134dad8ac1319d68c520b5d01762f05b283f60ee1737"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Story_After.png",
+        "sha256": "c3244410b72ec5f108bb1fe2f850a4a338f15c73c9e85275660edec47dae442f"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Story_After.png",
+        "sha256": "8674bc37664c74710e5cb93490203bb14cda538528bbb009d2b2e3352460c0c5"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_Malet_After.png",
+        "sha256": "4b47f6c84b840333928bc60c5f376278b2884f8fe59edc0d483983a102a01aff"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case09_Malet_After.png",
+        "sha256": "c77f3ed9b6b0932687c71291c36215a1cafce8c6dd09212b64431c86155d62a2"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case10_Malet_After.png",
+        "sha256": "4ff7a61e4f2598fdf6cbaf7f2788759673e735e634822622751b22aed24bf47d"
+      },
+      {
+        "path": "Captures\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case11_Malet_After.png",
+        "sha256": "459c0f3e6beb93de1afbd70b1f33a89a28d52a60b1c26a73d198775985681621"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_BlockHP1_T10.png",
+        "sha256": "1da9ddc55f8bd21910b09c99491388f5b7e51f372240126bf40f681675ddd02c"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Block_T02.png",
+        "sha256": "86a38575735b654d115f2edfffb4d3003189b4a90786690514e327433e0a05da"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Block_T10.png",
+        "sha256": "8f4143c6482d462c3cd96e1ac675e1d1a5980830cd2de2dc904305a6c0f34577"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Block_T30.png",
+        "sha256": "6abddb1574c90f718bf3804cd4f4ff44f40d223a2f8ee2a3083e9ebf2d7af1c9"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Parry_T02.png",
+        "sha256": "e04f97e54c8c724e8b55b54ec61b6324f28ebf2d955cdb8bcb7067377b951fb3"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Parry_T10.png",
+        "sha256": "6a3da931a8b240b68488cbc676c486e454d9a557e527c8c606a8f39ff029e8ae"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Parry_T30.png",
+        "sha256": "41653df27371aaf28126526e8c442fe635416f2c4403ce55f84429516203d0a2"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Ward_T02.png",
+        "sha256": "e8cfdb68a06ac8099db7ccab487b3fd149b004ce90d75c220eae1ab417ae73b5"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Ward_T10.png",
+        "sha256": "5f3939146f6c717257dc78550b14a6a10c9b11a32f8cd68da9b3328d2146cbb7"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Ward_T30.png",
+        "sha256": "e9eaa03fa14e0a9a74c601737f681689495ff71988db8ef7c5ee8e60c247a68a"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_BlockHP1_T10.png",
+        "sha256": "efb0b3a94a7410b7911597a65a91148ceafa6b1f307ff566b223ff190285d6e2"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Block_T10.png",
+        "sha256": "95bec22e7241ace219cf25be57c35c79338748b21fb83947ca776e0295c72431"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Parry_T10.png",
+        "sha256": "d6f5e00f6ded52a07558c7afa33b8e87089dde83e47ceeca8c37210b2404baaf"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Ward_T10.png",
+        "sha256": "6c9fa8938edf2ee490492f4fe947b4121b5f5ec65b3bd0be71f77a00193ac552"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_BlockHP1_T10.png",
+        "sha256": "55f52e0232feb0c00dad75e8199b8c3449d954ea346ed023ea0d437023bc49fd"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Block_T10.png",
+        "sha256": "8d053afe3237113d209f3df15fda9e2180566b44e26c2dd45128d46125c2f7f3"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Parry_T10.png",
+        "sha256": "92981e06c0a71653f23cfd95720a40fb29ac1e27089f59b307e3b96c9e514987"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Ward_T10.png",
+        "sha256": "5152926d9bc1979b34790703b7252fff2f784ee94083e4d65b61147ef8d22140"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_BlockHP1_T10.png",
+        "sha256": "bdacc525f415d3c06c908a79dcafd512536e4556be07ea68843618a13c379b64"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Block_T10.png",
+        "sha256": "d02f37a599df3d6201bb43544d3c439554d56aac1e4ea70af1b3bb7cfe891300"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Parry_T10.png",
+        "sha256": "ef325c5df8349583e9383536700361af9ba0a80e9586f7e8ff8f1a2da0225b06"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Ward_T10.png",
+        "sha256": "e8f3a34ff048aaee4e837157faf37c92115e80db2781936da09c234e7eb0d5e5"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_BlockHP1_T10.png",
+        "sha256": "164b69f511a841e376aa0d027374faf119f0fe1e90aaf41fdebecf57559aea13"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Block_T10.png",
+        "sha256": "9ea6e0226b47103c6a8150bedb6bf55b7d31bf284df0b46a41fd1f6e131aad05"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Parry_T10.png",
+        "sha256": "c53fd9fdaa2ff65327b8c5e72129208c4b46b563a34dfc1ec548568e0712688a"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Ward_T10.png",
+        "sha256": "b08686d5e8c63c51a515ce6c4394984811a0e2689712789bcd81429e7a0b3e24"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_BlockHP1_T10.png",
+        "sha256": "962c8033912cfba3651b769c410dd0ad52dfc1dd985be95d28c0ff77dd745b33"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Block_T10.png",
+        "sha256": "1da9f3f5a414d9837551847b8d4736e63f3f591785973f7ec9c354c501bcdf8c"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Parry_T10.png",
+        "sha256": "a97ce3660c7ebcbc7631b48739011d52a27dd2e94deb9d5e40b92b6d20197aa2"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Ward_T10.png",
+        "sha256": "1701516e3242e31a99b25c8d5d6b2612186066a02a766b4fc58e619b6e3bf53b"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_BlockHP1_T10.png",
+        "sha256": "ee7491575383ba00d0ed85a31ac3edf1608f6a0e62c96ae9b4b1f77c0b39de14"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Block_T10.png",
+        "sha256": "1634687eb5beae08280152f88c45a1f454487a06ff4d8092caa4fa13d31791bb"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Parry_T10.png",
+        "sha256": "1887bf007b5a58a22033309d5b9acc82f07a303769a26042a224bb2f297e4da6"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Ward_T10.png",
+        "sha256": "1b5ee962541b83b576e698c67cca05db4ce62de39808e1dc6a57919aec45ed59"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_BlockHP1_T10.png",
+        "sha256": "0e83b36c49b84a3003dd7f978065af3f11fc59972b6ee4bb453386f178d9f8d0"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Block_T10.png",
+        "sha256": "d4231b802949ede75108e8471a605424865069a441e4c3410d6cc7e1f55b48f4"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Parry_T10.png",
+        "sha256": "8197a656bb8e5277f404f3487819f389461b9a794532a90ec98917f6ada56085"
+      },
+      {
+        "path": "Captures\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Ward_T10.png",
+        "sha256": "92a56310007238fab1d3b931242ec23a24121291e469169dcda1f3580541b731"
+      },
+      {
+        "path": "Captures\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\belt_waystation_After_Detail.png",
+        "sha256": "13994f8f0f641ffdff1fb71c5a341cb489963dd0031bd1e34a744edbb7651fa3"
+      },
+      {
+        "path": "Captures\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\belt_waystation_After_Wide.png",
+        "sha256": "bc634ad05b6ad02957f85ebd174f885c6a0f9d4b06978539c8c4551d4d05a799"
+      },
+      {
+        "path": "Captures\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\drift_shelter_After_Detail.png",
+        "sha256": "aa068d9494ec8142c3543338d03f88185ed77ed67de006ee34df4a790fc80010"
+      },
+      {
+        "path": "Captures\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\drift_shelter_After_Wide.png",
+        "sha256": "6efd3e9c054f0ed61b88bfa943f05283e67a36619e582b5d49f5abe1687c4c40"
+      },
+      {
+        "path": "Captures\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\verdan_market_After_Detail.png",
+        "sha256": "0d0c13f43e6e7e6c0ec5130b95f1deb3e08089ba895cb960dcc35eee1380ab6c"
+      },
+      {
+        "path": "Captures\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\verdan_market_After_Wide.png",
+        "sha256": "0a7cd6948bbb1e3226611f6ec76481f2654a8d622c16984e916275070f435996"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\AutoLoadedHpRetained.png",
+        "sha256": "af4c5da950cf5d73523acb3653bdfa249c59e5a881ff9044fee0f232ce4620e7"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\AutoRestoreRefusedHpRetained.png",
+        "sha256": "8aa9903b793d3d3814914627cc651ded971098015202971b0b241a37a89ec426"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\BeltManualLoaded.png",
+        "sha256": "a4c4f37366b8006a5e4f43a2ea7d97817b2496950ef3e1812c813517e3a3206d"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\DriftManualLoaded.png",
+        "sha256": "edfeabba0cc4ed8095a8f6ac14b4f83f724445768f10f147e7f6c683b95a5c98"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\Load125Regions.png",
+        "sha256": "28a4cb8d688a7c3dc8dc50af8a64e323107de367eb5422921a69cf881a7d9616"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\LoadCorruptRefused.png",
+        "sha256": "1d029eba53fd3130bb7c21ff7220c591219d5219d9ff1ad730fe4275b682a13d"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\OverwriteDefaultsKeep.png",
+        "sha256": "e6ac5e10cf4689a043c744201c9a10d6b497ff761cc4a5cbcfd8b05640763e13"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\SameWorldManualLoadedHpRetained.png",
+        "sha256": "112f2f6c9351364c3b767a67a116cbf3fc58afd019cdbff8871a6958361ea340"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\SameWorldRestoreRefusedHpRetained.png",
+        "sha256": "7defa33a2fa9f5a30ea072f81ad26ceed46cd7c3779cac98f9620e53bc430444"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\Save100Committed.png",
+        "sha256": "883b5967b33dde2ccb170238df3b03411ed9cde7c15400cbe5d9e1873d75b51e"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\Save100Empty.png",
+        "sha256": "20cc19eebd103c02997d6fdf437b60fbd1adb00a1119e3ed1ff24f8314adfd74"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\Save125Committed.png",
+        "sha256": "0d5a828eb476ef54fe3007abaaee930bf82610e187e3952104d07013f0e25d58"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\TitleVerdanAutosaveBeforeContinue.png",
+        "sha256": "01dbc922cd4467406a79ad1f50f421471e5162a319a84a672f9a5f289f6a619f"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\TitleVerdanAutosaveLoaded.png",
+        "sha256": "872d9925d3de44a95a95cd1a7cc913c5fd6387d7628b34b896c25bdcf09cebc8"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\TitleVerdanManualBeforeContinue.png",
+        "sha256": "01dbc922cd4467406a79ad1f50f421471e5162a319a84a672f9a5f289f6a619f"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\TitleVerdanManualLoaded.png",
+        "sha256": "e6e753591a9529dda73c054925cba6a4fd5889f7d338c490e4e1565ec8f5d582"
+      },
+      {
+        "path": "Captures\\s362\\SaveSlots\\VerdanManualCheckpoint.png",
+        "sha256": "fff8b1d63daa0119b966ea70774d53660acd35ebf6909e964b97b4fe98dc0d11"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR4LandingAfter.png",
+        "sha256": "340417ab2a2bfd4e710d5d25244c6f63ac439c916c25aa1d0605ddb533a3e74d"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR4LandingBefore.png",
+        "sha256": "8ff4990adfa56176cd0f8dbae6c1dc287daabcebdd40d3fa2e225abfda9fd85a"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR4WalkToeOffAfter.png",
+        "sha256": "b318a103f6965c4e3e6e2edbc5c610205829e1b34c1f61fb801a6e01f8d2a950"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR4WalkToeOffBefore.png",
+        "sha256": "a3140c6655c759324cc748458f097a97fbc801b3e271b3f66dcabb0205c991a4"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR5Back.png",
+        "sha256": "a7850d1fe1ba540d94e2180605119cde62753d35294883b560bb84bc285e42ef"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR5Front.png",
+        "sha256": "f243ba2f572cbccfe4759458effc7f2b55930cb9ed20813ed2cd5ce0fbb37a1f"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR5HeldGuard.png",
+        "sha256": "881af1f9cc29fff3fe65faaff7a789f3871238cffd994344061a69018464508e"
+      },
+      {
+        "path": "Captures\\HeroContactS362\\CapturesR5\\76EE2377464762E0E62E4DB627BBD2BA\\ArrelR5Profile.png",
+        "sha256": "17e8715ab9e34b4e854ed42f02e90998ca16739b9113f77f09bceb3ebedccd47"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "Artifacts\\HeroContactS362\\BlockProbe.json",
+        "sha256": "0b3affa3a0b6e63718b6be764c268d2934ba0f48ee8cf8fa6ebb9318ea8b5f7a"
+      },
+      {
+        "path": "Artifacts\\HeroContactS362\\FullProbe.json",
+        "sha256": "fda5d9b57760677c0cecafe176d13d435c55478feee4ac6105411e6c6b6de6c7"
+      },
+      {
+        "path": "Artifacts\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\belt_waystation_After.json",
+        "sha256": "e15442d95cf8da4d9e68a3c6436692c40fcb326005b1e3d105df23d219271f9e"
+      },
+      {
+        "path": "Artifacts\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\drift_shelter_After.json",
+        "sha256": "06ffef49451e1a647deb4448a9482d71e8fea6fb074cc47bc9869a8e6d615140"
+      },
+      {
+        "path": "Artifacts\\S363Regional\\FA55101B4A0A82A794DA53B4BE2D1EF8\\verdan_market_After.json",
+        "sha256": "9a2800314e35073004a32d7f1a7f7cf1ad2de623f10a06e0384dd1fc4796a919"
+      },
+      {
+        "path": "Artifacts\\S364Combo\\FA55101B4A0A82A794DA53B4BE2D1EF8\\combo.json",
+        "sha256": "c3acabc36a952be3b5fe4b06a018151a51ba0949eb36c05f0803679e8e1f5510"
+      },
+      {
+        "path": "Artifacts\\S364Defense\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Defense.json",
+        "sha256": "bbea4514c29ed61e04791df0a8fc3dbf8b83829d4fbdc0293bbeae624aa6cc45"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Elia_After.json",
+        "sha256": "96fdec8d725ff7f5d8d088eaadfff99f3ab067a5ed747407649df03a31def421"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Elia_After.json",
+        "sha256": "cbb266b77992c856b04a86eb4ef9edd5d17d6c5104ecf424a3a30e1a2b3e3b44"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Elia_After.json",
+        "sha256": "197420e290de9125ceabfd4cb7e85684b95659d34eed4491bc3277485f6737a2"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Elia_After.json",
+        "sha256": "18079f0f58f98236dbc57a0f692c7c4a1e8bf33578a7d7367f54df4562b600ef"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Story_After.json",
+        "sha256": "85428792f6935fe2352c0f7aba2e60b92d587e4c7b91c04fb2deaeea798dcd09"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Story_After.json",
+        "sha256": "5c37b18f5cd544f2f596d95fbfef780f5ba41ced8f52be21c901031c282c848f"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Story_After.json",
+        "sha256": "29eb641317dc84edde8da62c33bcddd4ed1a86cdaa19bceee3a72dcb6d875a2a"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Story_After.json",
+        "sha256": "de70a4685d4e6ecd0c536ac4de891b7648aaea3dd361a7cad85b634f779dde18"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_Malet_After.json",
+        "sha256": "8a5ff5b59beb955fe516793f8525d87d422816b8c739a23af038a01249cad00a"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case09_Malet_After.json",
+        "sha256": "94a28d3aeaf2f11de0a92497fbb33c9b6805e4cea7d9dc949ddaa1d7976da8f6"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case10_Malet_After.json",
+        "sha256": "d42c56c7cd9d2484ad55590f1947b64f8bcbfb801d607b069aaa7135827b6f2c"
+      },
+      {
+        "path": "Artifacts\\S364Focus\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case11_Malet_After.json",
+        "sha256": "98f7fe5edffcf12ef190756d13f5eaa9bf538b13294d95fcdb5cf159e915df9b"
+      },
+      {
+        "path": "Artifacts\\S365Swing\\FA55101B4A0A82A794DA53B4BE2D1EF8\\swing.json",
+        "sha256": "60afd4e7c7057722560f1e9ef48ae6ef24d9109939c0dd83761d2392c70cb9ef"
+      },
+      {
+        "path": "Artifacts\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Feedback.json",
+        "sha256": "644ed4c9cb220cece7b6e18650c553b2d585235dd5e922d5c7c69f559fdd9d03"
+      }
+    ],
+    "execution_inputs": {
+      "files": 1984,
+      "unchanged": true,
+      "differences": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "scope": "Saved source/config/content/art source/test fixtures/Python and PowerShell tools and DLL/module inputs. Does not prove compilation provenance."
+    },
+    "validation_errors": [],
+    "fatal_diagnostics": [],
+    "elapsed_seconds": 365.155
+  },
+  "visual_baseline": {
+    "utc": "2026-10-26T09:57:20.005789+00:00",
+    "command": [
+      "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+      "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+      "-unattended",
+      "-nop4",
+      "-nosplash",
+      "-RenderOffscreen",
+      "-MemoriaCapture",
+      "-ResX=1280",
+      "-ResY=720",
+      "-ExecCmds=Automation RunTests S365Feedback",
+      "-TestExit=Automation Test Queue Empty",
+      "-ReportExportPath=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Automation",
+      "-stdout",
+      "-FullStdOutLogOutput",
+      "-MemoriaGraphicsS365Baseline"
+    ],
+    "expected": [
+      "MemoriaVisual.S365Feedback.ConcurrentPopupsAndDamageTrail"
+    ],
+    "status": "PASS",
+    "exit_code": 0,
+    "tests": [
+      {
+        "path": "MemoriaVisual.S365Feedback.ConcurrentPopupsAndDamageTrail",
+        "state": "Success",
+        "errors": []
+      }
+    ],
+    "captures": [
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case00_Concurrent.png",
+        "sha256": "540ab7284521b3dec25240e3e52d50d6ae28963697794ccdd2cc69cea5ce941a"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case00_EdgeWord.png",
+        "sha256": "48b2d54fd206fb0522f5130c20bd8cdd8f7a49d24dbb4869a55bb39c07bc3288"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case01_Concurrent.png",
+        "sha256": "c342bc120c1418c69cb5ca4f9be4942e925a2ecc41c8705161ff272473321584"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case01_EdgeWord.png",
+        "sha256": "bf36737ee9d887cd1aef867135a6ce4070ad9185d6f241c05b2cbd1cab2ee91d"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case02_Concurrent.png",
+        "sha256": "d4b8d115662192efb57c33a07a249c25cf149b3747b67791a91d517c475b6b20"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case02_EdgeWord.png",
+        "sha256": "5c1117af047f43a3696a394d73509ed6e47d8fd96d04bf3a5d72df4a4662e998"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case03_Concurrent.png",
+        "sha256": "e12599bdd06a9883d9dfac676dab847eff3f62e9be1f767c63723a65552aa3c8"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case03_EdgeWord.png",
+        "sha256": "30e27599557c3cc2071495e7c8a3da200dad52904e0f6c997814c31509a1620e"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case04_Concurrent.png",
+        "sha256": "d90988f3ae2f324093e7c3efddf1778c81b5c37aed181cbf048fc3915bbab40e"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case04_EdgeWord.png",
+        "sha256": "8f2f38a013e1ed7a0c59ee4424ea1e15c31ace3a6051832dfa596b12886d3519"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case05_Concurrent.png",
+        "sha256": "cc989b93d8eb253a6a575c27e6eb1b9f4f7ff53c44a81ce00ba3e08e51388351"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case05_EdgeWord.png",
+        "sha256": "a8653b0c6a2070d3d375f1f6e25121850087762f86ae6d71fc8efcc51cd65149"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case06_Concurrent.png",
+        "sha256": "8f501399d6dd805b239aa713db7107b9b40cdc713df519024a40cd1eaba717a9"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case06_EdgeWord.png",
+        "sha256": "5f451e70bd95818a692ba264c8ef11b225a3be2a939d2ba6ddd1fac884c3678a"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case07_Concurrent.png",
+        "sha256": "ee0e1ef4c754e6839d775a8fb8e756104a127e4393d645f9b698bf60b66ae34f"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case07_EdgeWord.png",
+        "sha256": "afffcb7f5a09dc75ad66d3d68cd686bf612dd9d76d9cdb99e6d7d17a0638f86a"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case08_Concurrent.png",
+        "sha256": "3122decc25c85a3087f0c70dd702bb8fac1552e2441e1f9e7983d85d01cddd9b"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case08_EdgeWord.png",
+        "sha256": "d22c5e8a5fd4b9cd1253a74f5618b2253ee0f98d2a33f1263bf4b41c34a957d4"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case09_Concurrent.png",
+        "sha256": "69dc3e9fc1697bca5dcd47f78c9f29a2214c5b6f68cd8b4e76185121a2acda99"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case09_EdgeWord.png",
+        "sha256": "60848323fd8dc254eb32c6017e6bf671cb9437856d57ef77296f9bc6fbbc722e"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case10_Concurrent.png",
+        "sha256": "c9c470556aca5200505303fc246d6d1aa7ac2e5edbbbe11bf08563adc921895e"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case10_EdgeWord.png",
+        "sha256": "eedafce634e3f55ef350a346e02deed4f8e094bf93c4d3b72fbca516305802ce"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case11_Concurrent.png",
+        "sha256": "3e495b5f808b5a18027324be6ac277c458126cc4e6c9683df7f29c03c212a7a2"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case11_EdgeWord.png",
+        "sha256": "ab697c3327dca3f8e6edb726ca67f2dea5a6d3a324f1e3d07a686af740319f92"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case12_Concurrent.png",
+        "sha256": "e65704f0f326cade6bac5607db80ad6e1c0cb652145de1d016708c90ba898da2"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case12_EdgeWord.png",
+        "sha256": "07b5e959c1cdd89bf3601f02bf92b798f8a77286161b7c0a90e0fd208921d120"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case13_Concurrent.png",
+        "sha256": "a84dfa134bc74e1af2b986bd85b06851e03283ca148666dd8d4f1eda3483ebdb"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case13_EdgeWord.png",
+        "sha256": "61f2e218cce1905a8d847d3ae5198a8b553d11ac118ad161e664ec36161c9c82"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case14_Concurrent.png",
+        "sha256": "464d063122446e85d75fae264774472139b0ee045ba99087c283c48dae1bc4da"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case14_EdgeWord.png",
+        "sha256": "02028f440ff7c143e60c4312dd1397263e61c8769492dced6e089f758f35a548"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case15_Concurrent.png",
+        "sha256": "47c6ac4248e4a56cc0528b329164b826586b730fc415392d9affb164a3118a84"
+      },
+      {
+        "path": "Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case15_EdgeWord.png",
+        "sha256": "2644b663aad96c67dfb3b28237e4e8d5d048a05cf1c46f86a16225698dab324e"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "Artifacts\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Feedback.json",
+        "sha256": "2694fb486488934d0eb6f2331a5a2cc970fca802e1544f88c7dfbc167fa0c8d4"
+      }
+    ],
+    "execution_inputs": {
+      "files": 1984,
+      "unchanged": true,
+      "differences": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "scope": "Saved source/config/content/art source/test fixtures/Python and PowerShell tools and DLL/module inputs. Does not prove compilation provenance."
+    },
+    "validation_errors": [],
+    "fatal_diagnostics": [],
+    "elapsed_seconds": 156.921
+  },
+  "visual_comparison": {
+    "utc": "2026-10-26T10:01:19.922152+00:00",
+    "status": "PASS",
+    "pairs": [
+      {
+        "case": 0,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case00_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Concurrent.png",
+        "before_sha256": "540ab7284521b3dec25240e3e52d50d6ae28963697794ccdd2cc69cea5ce941a",
+        "after_sha256": "b5c4633bfc735329865d586158d9c34aa1aa7a052de1334e6dd0a439bfb9bffe",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 0,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case00_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_EdgeWord.png",
+        "before_sha256": "48b2d54fd206fb0522f5130c20bd8cdd8f7a49d24dbb4869a55bb39c07bc3288",
+        "after_sha256": "77f41f879fe99ec3e7befe6537f88fbe8a0140cd72485a95f7e848a34d5f3c89",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 1,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case01_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_Concurrent.png",
+        "before_sha256": "c342bc120c1418c69cb5ca4f9be4942e925a2ecc41c8705161ff272473321584",
+        "after_sha256": "a85f8bf231992718cc325927ba806687ebfee97155c483a3329b7196db243288",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 1,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case01_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case01_EdgeWord.png",
+        "before_sha256": "bf36737ee9d887cd1aef867135a6ce4070ad9185d6f241c05b2cbd1cab2ee91d",
+        "after_sha256": "8ce4bb1e87ad8772d129223e7148e8ca5b610595522c59ead13074eecad63f8d",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 2,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case02_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_Concurrent.png",
+        "before_sha256": "d4b8d115662192efb57c33a07a249c25cf149b3747b67791a91d517c475b6b20",
+        "after_sha256": "510f9436f89b06dbd06de4edd358ce1d23aba32cad3d12938d7863380b5720de",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 2,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case02_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case02_EdgeWord.png",
+        "before_sha256": "5c1117af047f43a3696a394d73509ed6e47d8fd96d04bf3a5d72df4a4662e998",
+        "after_sha256": "3ed069a6ace9fdba92576c9a314f5984ca4d1186c498570aebed9fa1c44635f5",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 3,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case03_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Concurrent.png",
+        "before_sha256": "e12599bdd06a9883d9dfac676dab847eff3f62e9be1f767c63723a65552aa3c8",
+        "after_sha256": "292160609b47d42a33ee02041fbe64c88f04d40415c40922d2dca9f2e252b42d",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 3,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case03_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_EdgeWord.png",
+        "before_sha256": "30e27599557c3cc2071495e7c8a3da200dad52904e0f6c997814c31509a1620e",
+        "after_sha256": "4b2d385741c8875a33177220d9edcec770710cb39bfc6e45d4d10ba9f4b03245",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 4,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case04_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_Concurrent.png",
+        "before_sha256": "d90988f3ae2f324093e7c3efddf1778c81b5c37aed181cbf048fc3915bbab40e",
+        "after_sha256": "34e7ef7f167788d4e39becb84f239bd7425b038d7b2ab049b97fcffa01ed3833",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 4,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case04_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case04_EdgeWord.png",
+        "before_sha256": "8f2f38a013e1ed7a0c59ee4424ea1e15c31ace3a6051832dfa596b12886d3519",
+        "after_sha256": "ffb5d61a4e82e2cb5854eaf820cb3092219f08cbb12436ebd93b30f5bfb7379f",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 5,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case05_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_Concurrent.png",
+        "before_sha256": "cc989b93d8eb253a6a575c27e6eb1b9f4f7ff53c44a81ce00ba3e08e51388351",
+        "after_sha256": "8eef2135ee71709ede8848b69717effb37c4152054746c71070b2023d38706ac",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 5,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case05_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case05_EdgeWord.png",
+        "before_sha256": "a8653b0c6a2070d3d375f1f6e25121850087762f86ae6d71fc8efcc51cd65149",
+        "after_sha256": "18fa4f10f2711b57bb94ec5c435bec6ef7b43282d8766ea3d47e1099cda983cc",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 6,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case06_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_Concurrent.png",
+        "before_sha256": "8f501399d6dd805b239aa713db7107b9b40cdc713df519024a40cd1eaba717a9",
+        "after_sha256": "1ad61fc905eaf18234dca487adf3e7c2b415a77bb6a6ee853cff4f7a36e04fc1",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 6,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case06_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case06_EdgeWord.png",
+        "before_sha256": "5f451e70bd95818a692ba264c8ef11b225a3be2a939d2ba6ddd1fac884c3678a",
+        "after_sha256": "ec93011e2d5ff238a5bd359ff6f664210be7eb97c2e4cbfbfdfaf7aece68d47a",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 7,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case07_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_Concurrent.png",
+        "before_sha256": "ee0e1ef4c754e6839d775a8fb8e756104a127e4393d645f9b698bf60b66ae34f",
+        "after_sha256": "34ef065e3b3750db754128f399b523931ead18c25e3c1e745db429fed33535bd",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 7,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case07_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case07_EdgeWord.png",
+        "before_sha256": "afffcb7f5a09dc75ad66d3d68cd686bf612dd9d76d9cdb99e6d7d17a0638f86a",
+        "after_sha256": "9d4adf3dc1b9ff8224a01a44280af28b07d4c14a6ea44055e0bad01ad7ff7edd",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 8,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case08_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_Concurrent.png",
+        "before_sha256": "3122decc25c85a3087f0c70dd702bb8fac1552e2441e1f9e7983d85d01cddd9b",
+        "after_sha256": "a804addf8a5a634be5f96b5b26620025004e29140f9aab3514c002077d6f8dc7",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 8,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case08_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_EdgeWord.png",
+        "before_sha256": "d22c5e8a5fd4b9cd1253a74f5618b2253ee0f98d2a33f1263bf4b41c34a957d4",
+        "after_sha256": "d8a6daa4bf9b2378867ca428d701e40652c774bbb5bc54ada6887f69e9ee96f7",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 9,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case09_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case09_Concurrent.png",
+        "before_sha256": "69dc3e9fc1697bca5dcd47f78c9f29a2214c5b6f68cd8b4e76185121a2acda99",
+        "after_sha256": "64da12584b3cc7ff1d765962c50c1f98616464f032277bf0cbd0d4ee67781f91",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 9,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case09_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case09_EdgeWord.png",
+        "before_sha256": "60848323fd8dc254eb32c6017e6bf671cb9437856d57ef77296f9bc6fbbc722e",
+        "after_sha256": "fb6701e71ecbae7dfee52ea4492df1b2af6d907de504c8cde0d0f1cbb68a75e1",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 10,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case10_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case10_Concurrent.png",
+        "before_sha256": "c9c470556aca5200505303fc246d6d1aa7ac2e5edbbbe11bf08563adc921895e",
+        "after_sha256": "f61c83bab49be86bb200298dbff446e8993cdb23a2330e03e0476b238a89ab57",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 10,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case10_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case10_EdgeWord.png",
+        "before_sha256": "eedafce634e3f55ef350a346e02deed4f8e094bf93c4d3b72fbca516305802ce",
+        "after_sha256": "192ccb7aca044a77d4d1ceaeee1457d28183a967f090f407df6b319b653ab612",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 11,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case11_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case11_Concurrent.png",
+        "before_sha256": "3e495b5f808b5a18027324be6ac277c458126cc4e6c9683df7f29c03c212a7a2",
+        "after_sha256": "7c33bf42153551701f7e1edb5849d02e1b479fb8a3d186bf23d5fbad64d6e726",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 11,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case11_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case11_EdgeWord.png",
+        "before_sha256": "ab697c3327dca3f8e6edb726ca67f2dea5a6d3a324f1e3d07a686af740319f92",
+        "after_sha256": "fdfeaaaf5947946a3bdc5f4f1fadeb55f9359f95de639b75f7dcf9c630aadfe1",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 12,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case12_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case12_Concurrent.png",
+        "before_sha256": "e65704f0f326cade6bac5607db80ad6e1c0cb652145de1d016708c90ba898da2",
+        "after_sha256": "b9834231174db417db98c0478498e71f667429e80eeabaacdce42254b0abde44",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 12,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case12_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case12_EdgeWord.png",
+        "before_sha256": "07b5e959c1cdd89bf3601f02bf92b798f8a77286161b7c0a90e0fd208921d120",
+        "after_sha256": "0669e754a1d40fb5339ad9ccbe5be32cff80ce7207ec5b0e83050c77e71be2dd",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 13,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case13_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case13_Concurrent.png",
+        "before_sha256": "a84dfa134bc74e1af2b986bd85b06851e03283ca148666dd8d4f1eda3483ebdb",
+        "after_sha256": "b33c6b23715b7fb0ef0cb1000fb3bab7cc30ccd006fd8ec244d61ffceddded95",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 13,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case13_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case13_EdgeWord.png",
+        "before_sha256": "61f2e218cce1905a8d847d3ae5198a8b553d11ac118ad161e664ec36161c9c82",
+        "after_sha256": "234085d24eb51ea1e40194ece5410ef7cef0bbe167050b3813882abf3012fd31",
+        "width": 1280,
+        "height": 720
+      },
+      {
+        "case": 14,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case14_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case14_Concurrent.png",
+        "before_sha256": "464d063122446e85d75fae264774472139b0ee045ba99087c283c48dae1bc4da",
+        "after_sha256": "fe3ad7f2f5fe98375875b3f1ae72f2e9c0af26ea60f7ec45923ca0e8f0c41d7c",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 14,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case14_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case14_EdgeWord.png",
+        "before_sha256": "02028f440ff7c143e60c4312dd1397263e61c8769492dced6e089f758f35a548",
+        "after_sha256": "eb0e307759982ad8a90aeca99eeb5deaf8fff3496a1fca6862d3f2abae5623d9",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 15,
+        "edge_fixture": false,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case15_Concurrent.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case15_Concurrent.png",
+        "before_sha256": "47c6ac4248e4a56cc0528b329164b826586b730fc415392d9affb164a3118a84",
+        "after_sha256": "a45fe00a24b6a0e2fa2419323108c3352ff4929a6f6ba171a14d62a5852761d6",
+        "width": 640,
+        "height": 360
+      },
+      {
+        "case": 15,
+        "edge_fixture": true,
+        "before_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case15_EdgeWord.png",
+        "after_png": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case15_EdgeWord.png",
+        "before_sha256": "2644b663aad96c67dfb3b28237e4e8d5d048a05cf1c46f86a16225698dab324e",
+        "after_sha256": "8e3dc5679b870e14a2c6232b56af83f2698f877d8978c470b758027067dccefc",
+        "width": 640,
+        "height": 360
+      }
+    ],
+    "pair_count": 32,
+    "max_popup_age_delta": 0,
+    "before_overlapping_pairs": 56,
+    "after_overlapping_pairs": 0,
+    "relocated_entries": 48,
+    "scope": "Same saved inputs/camera/options/real HP/source texts and popup ages. Baseline disables only S365 layout and trail. World weather/particles and actor instance paths not claimed pixel-identical."
+  },
+  "package": {
+    "utc": "2026-10-26T10:01:34.891836+00:00",
+    "configuration": "Development",
+    "command": [
+      "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\RunUAT.bat",
+      "BuildCookRun",
+      "-project=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+      "-noP4",
+      "-platform=Win64",
+      "-clientconfig=Development",
+      "-build",
+      "-cook",
+      "-stage",
+      "-pak",
+      "-archive",
+      "-archivedirectory=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\package-dev1",
+      "-unattended",
+      "-utf8output",
+      "-NoXGE",
+      "-UbtArgs=-MaxParallelActions=2"
+    ],
+    "archive": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\package-dev1",
+    "status": "PASS",
+    "exit_code": 0,
+    "timeout_seconds": 3600,
+    "tool_sha256": "22a63fc25dd91cc6e91f1327ae003ed925c2261bb9aff387a43ac19b142485fc",
+    "provenance_limit": "Saved source/config/content/art source/fixtures/tools and DLL/module hashes; no independent compilation-provenance or Shipping certification.",
+    "execution_input_count_before": 1984,
+    "pid": 74724,
+    "uat_elapsed_seconds": 928.385,
+    "execution_input_changes": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "source_content_fixture_tool_changes": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "source_content_fixture_tools_unchanged": true,
+    "allowed_change_scope": "Unreal/Memoria/Binaries/ only",
+    "fatal_diagnostics": [],
+    "inner_executable": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\package-dev1\\Windows\\Memoria\\Binaries\\Win64\\Memoria.exe",
+    "archive_artifact_count": 28,
+    "inner_executable_sha256": "d3efffb12febe1fd6f49deeb2fa657530df191e0252e23d41079e2daa5c5e8d3",
+    "validation_errors": [],
+    "elapsed_seconds": 971.489
+  },
+  "packaged_smoke": {
+    "utc": "2026-10-26T10:18:26.319331+00:00",
+    "command": [
+      "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\package-dev1\\Windows\\Memoria\\Binaries\\Win64\\Memoria.exe",
+      "/Game/Tests/Campaign/L_Ch2VerdanSlice",
+      "-MemoriaUpgradeSmoke",
+      "-MemoriaGraphicsS363Smoke",
+      "-MemoriaS364Smoke",
+      "-MemoriaS365Smoke",
+      "-UserDir=C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\UpgradeSmokeRuntime\\s365-cd614e98f1d749309728662228df3cb0",
+      "-unattended",
+      "-nop4",
+      "-nosplash",
+      "-RenderOffscreen",
+      "-ResX=1280",
+      "-ResY=720",
+      "-csvGpuStats",
+      "-csvCompression=0",
+      "-ExecCmds=csv.BlockOnCaptureEnd 1",
+      "-stdout",
+      "-FullStdOutLogOutput"
+    ],
+    "user_dir": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\UpgradeSmokeRuntime\\s365-cd614e98f1d749309728662228df3cb0",
+    "exe_sha256": "d3efffb12febe1fd6f49deeb2fa657530df191e0252e23d41079e2daa5c5e8d3",
+    "status": "PASS",
+    "provenance_limit": "Fresh cooked Development inspection; not Shipping, human input or a benchmark.",
+    "pid": 71952,
+    "exit_code": 0,
+    "runtime_status_path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\UpgradeSmokeRuntime\\s365-cd614e98f1d749309728662228df3cb0\\Saved\\Validation\\UpgradeSmoke\\upgrade-smoke-863C41834D8799779640339C475963DC\\status.json",
+    "runtime_status": "PASS",
+    "engine_csv": {
+      "expected_path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/UpgradeSmokeRuntime/s365-cd614e98f1d749309728662228df3cb0/Saved/Validation/UpgradeSmoke/upgrade-smoke-863C41834D8799779640339C475963DC/EngineCookedSmoke.csv",
+      "completion_limit": "Use engine default blocking finalization with the normal processing thread to avoid the installed UE5.8 nonblocking Stop retry race. The fifteen-second future/artifact poll does not bound the engine end-frame file-write wait; an external600second process deadline is required. Phase17 is excluded from gameplay measurements.",
+      "source": "Owned cooked-process engine CSV; raw GPUTime/GPUMem/animation counters are separate from inline manual CPU/RHI/DXGI summaries.",
+      "tag_mapping": "MemoriaS362Smoke/Region:0=unmapped,1=Verdan,2=Belt,3=Drift; Phase=harness phase; CapturePending/ActualCombat are 0 or 1. Render/GPU pipeline counters may lag these game-thread tags.",
+      "gpu_timing_status": "Not inferred here; inspect finalized raw GPUTime for valid positive samples. Missing/nonpositive GPUTime is unavailable, never substituted with CPU/wall time.",
+      "status": "complete",
+      "actual_path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/UpgradeSmokeRuntime/s365-cd614e98f1d749309728662228df3cb0/Saved/Validation/UpgradeSmoke/upgrade-smoke-863C41834D8799779640339C475963DC/EngineCookedSmoke.csv",
+      "capture_started_elapsed_seconds": 0.15374910086393356,
+      "stop_requested_elapsed_seconds": 33.88297729939222,
+      "bytes": 7893061,
+      "sha1": "55A6A8B031603FEB5907039C8CC551F16B2F3C21",
+      "completed_utc": "2026-10-26T10:19:08.019Z",
+      "completion_elapsed_seconds": 33.983897898346186,
+      "gpu_time_column_present": true,
+      "completion_future_ready": true,
+      "final_header_metadata_present": true
+    },
+    "execution_inputs": {
+      "files": 1984,
+      "unchanged": true,
+      "differences": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      }
+    },
+    "validation_errors": [],
+    "fatal_diagnostics": [],
+    "elapsed_seconds": 50.08
+  },
+  "preservation": {
+    "utc": "2026-10-26T10:19:17.406694+00:00",
+    "status": "PASS",
+    "source_registry_count": 361,
+    "baseline_inputs": 1978,
+    "current_inputs": 1984,
+    "original_packages_set_and_hashes_unchanged": true,
+    "original_packages": 882,
+    "all_original_art_source_unchanged": true,
+    "animation_bridge_unchanged": true,
+    "scoped_files": [
+      "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaCombatFeedbackS365.cpp",
+      "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaCombatHudWidget.cpp",
+      "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldCombatSubsystem.cpp",
+      "Unreal/Memoria/Source/Memoria/Private/Validation/MemoriaUpgradeSmokeSubsystem.cpp",
+      "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaCombatFeedbackS365.h",
+      "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaCombatHudWidget.h",
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaFeedbackS365Tests.cpp",
+      "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaSwingS365Tests.cpp",
+      "Unreal/Tools/run_s365_native.py",
+      "Unreal/Tools/run_s365_packaged.py"
+    ],
+    "changes": {
+      "added": [
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaCombatFeedbackS365.cpp",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaCombatFeedbackS365.h",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaFeedbackS365Tests.cpp",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaSwingS365Tests.cpp",
+        "Unreal/Tools/run_s365_native.py",
+        "Unreal/Tools/run_s365_packaged.py"
+      ],
+      "removed": [],
+      "changed": [
+        "Unreal/Memoria/Binaries/Win64/UnrealEditor-Memoria.dll",
+        "Unreal/Memoria/Binaries/Win64/UnrealEditor-MemoriaTests.dll",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaCombatHudWidget.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldCombatSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Validation/MemoriaUpgradeSmokeSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaCombatHudWidget.h"
+      ]
+    },
+    "unexpected": []
+  },
+  "selected_images": [
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case00_Concurrent_before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case00_Concurrent.png",
+      "sha256": "540ab7284521b3dec25240e3e52d50d6ae28963697794ccdd2cc69cea5ce941a",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case00_Concurrent_after.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case00_Concurrent.png",
+      "sha256": "b5c4633bfc735329865d586158d9c34aa1aa7a052de1334e6dd0a439bfb9bffe",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case03_Concurrent_before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case03_Concurrent.png",
+      "sha256": "e12599bdd06a9883d9dfac676dab847eff3f62e9be1f767c63723a65552aa3c8",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case03_Concurrent_after.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case03_Concurrent.png",
+      "sha256": "292160609b47d42a33ee02041fbe64c88f04d40415c40922d2dca9f2e252b42d",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case08_Concurrent_before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case08_Concurrent.png",
+      "sha256": "3122decc25c85a3087f0c70dd702bb8fac1552e2441e1f9e7983d85d01cddd9b",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case08_Concurrent_after.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case08_Concurrent.png",
+      "sha256": "a804addf8a5a634be5f96b5b26620025004e29140f9aab3514c002077d6f8dc7",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case15_Concurrent_before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case15_Concurrent.png",
+      "sha256": "47c6ac4248e4a56cc0528b329164b826586b730fc415392d9affb164a3118a84",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case15_Concurrent_after.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case15_Concurrent.png",
+      "sha256": "a45fe00a24b6a0e2fa2419323108c3352ff4929a6f6ba171a14d62a5852761d6",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case15_EdgeWord_before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\visual-baseline1\\Captures\\S365Feedback\\5FEC77C54BA2CE2FAF29CC8BBB0F8C59\\Case15_EdgeWord.png",
+      "sha256": "2644b663aad96c67dfb3b28237e4e8d5d048a05cf1c46f86a16225698dab324e",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Case15_EdgeWord_after.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\final-native1\\Captures\\S365Feedback\\FA55101B4A0A82A794DA53B4BE2D1EF8\\Case15_EdgeWord.png",
+      "sha256": "8e3dc5679b870e14a2c6232b56af83f2698f877d8978c470b758027067dccefc",
+      "width": 640,
+      "height": 360
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Cooked_14_ComboChain.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\packaged-smoke1\\RuntimeArtifacts\\14_ComboChain.png",
+      "sha256": "cfb3c5fa10477673849e6875f2e9e639a21e6a46ef4cace27ca520391b5020b3",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Cooked_15_BlockOutcome.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\packaged-smoke1\\RuntimeArtifacts\\15_BlockOutcome.png",
+      "sha256": "c20ee63fdb6c36cafc19f941e77e2b4f54c272ff356b5464c7426905b6bbe458",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "docs\\unreal-migration\\evidence\\s365\\Cooked_16_ParryOutcome.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s365\\packaged-smoke1\\RuntimeArtifacts\\16_ParryOutcome.png",
+      "sha256": "41b5351aa63bd8a3910abf687aa291308208d528b44c6b1672bbe01a709a28df",
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "limits": [
+    "Related54 unique tests; full361 registry not rerun.",
+    "Temporal active-window sampling at current target positions, not moving-target rewind or geometric weapon sweep.",
+    "Controlled contact/AI fixtures and input replay, not human or physical hardware acceptance.",
+    "Popup rectangles avoid each other when viewport capacity permits; static HUD exclusion and arbitrary overload packing not promised.",
+    "Gold enemy damage trail is presentation only; actor maximum-health changes and some edge cases tested at helper level.",
+    "Existing cape/leg armor intersections remain. No new models, Shipping, long-session or FPS benchmark."
+  ]
+}

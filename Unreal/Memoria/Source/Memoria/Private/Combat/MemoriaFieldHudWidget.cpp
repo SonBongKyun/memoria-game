@@ -1,12 +1,24 @@
 #include "Combat/MemoriaFieldHudWidget.h"
+#include "Framework/MemoriaSliceHost.h"
+#include "Framework/MemoriaCombatInputRouter.h"
 #include "Presentation/MemoriaFonts.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
 #include "Combat/MemoriaFieldCombatTypes.h"
+#include "Interaction/MemoriaInteractionComponent.h"
+#include "Interaction/MemoriaInteractable.h"
+#include "Interaction/MemoriaInteractionFocusS364.h"
+#include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Engine/GameInstance.h"
+#include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 #include "Presentation/MemoriaHudKit.h"
 #include "Presentation/MemoriaUiKit.h"
 #include "Engine/Texture2D.h"
 #include "Rendering/DrawElements.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Rendering/SlateRenderer.h"
+#include "Fonts/FontMeasure.h"
 namespace
 {
 using MemoriaUiKit::Srgb;
@@ -31,7 +43,61 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
 {
     const int32 Layer = Super::NativePaint(Args, Geometry, CullingRect, Elements, LayerId, Style, bParentEnabled) + 1;
+    QuickTrayProbe = FMemoriaQuickTrayPaintProbe();
+    InteractionFocusProbe = FMemoriaInteractionFocusPaintProbe();
+    // The picker owns the screen. Keep the region ribbon and quick-item strip
+    // from painting over its full meaning/warning on a small physical viewport.
+    // Presentation only: the field, inventory and interaction state remain live.
+    if (const auto* Fight = GetWorld() ? GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>() : nullptr;
+        Fight && Fight->IsPickingBurn()) return Layer;
     const FVector2D Size = Geometry.GetLocalSize();
+    const auto* SliceController = Cast<AMemoriaSliceController>(GetOwningPlayer());
+    const auto* InputRouter = SliceController ? SliceController->GetCombatInputRouter() : nullptr;
+    const bool bPad = InputRouter && InputRouter->IsUsingGamepad();
+    // Show only the resolver's actual current target. This read-only cue neither
+    // scans for candidates nor changes the original range, facing or LOS rules.
+    // Explicit owner guards also cover a modal opening before the next resolver tick.
+    const auto* Narrative = GetGameInstance() ? GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>() : nullptr;
+    if (MemoriaInteractionFocusS364::IsEnabled() && SliceController && GetWorld() && !GetWorld()->IsPaused() &&
+        Narrative && Narrative->GetState() == EMemoriaSliceState::Exploration && !SliceController->IsModalOpen() &&
+        !SliceController->GetArchiveWidget() && !SliceController->GetPauseWidget() && !SliceController->GetSaveSlotsWidget() &&
+        !SliceController->GetTitleWidget() && !SliceController->GetGameOverWidget() && !SliceController->GetDemoCompletionWidget() &&
+        !SliceController->GetAchievementsWidget() && !SliceController->GetCodexWidget() && !SliceController->GetJournalWidget())
+    {
+        const auto* Interaction = SliceController->GetInteraction();
+        AActor* Target = Interaction ? Interaction->GetTarget() : nullptr;
+        const APawn* Pawn = SliceController->GetPawn().Get();
+        const auto* Boundary = Cast<IMemoriaInteractable>(Target);
+        FVector2D CueAt; FBox2D Bounds(ForceInit);
+        const FVector Anchor = Target ? Target->GetActorLocation() + FVector(0, 0, 18) : FVector::ZeroVector;
+        if (IsValid(Target) && !Target->IsActorBeingDestroyed() && Target->GetWorld() == GetWorld() && Pawn && Boundary &&
+            Boundary->CanInteract(*Pawn) && !Interaction->GetPrompt().IsEmpty() &&
+            UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(GetOwningPlayer(), Anchor, CueAt, false) &&
+            MemoriaInteractionFocusS364::CueBounds(CueAt, Size, Bounds))
+        {
+            InteractionFocusProbe.bDrawn = true; InteractionFocusProbe.bUsingGamepad = bPad;
+            InteractionFocusProbe.Frame = GFrameCounter; InteractionFocusProbe.Target = Target;
+            InteractionFocusProbe.WorldAnchor = Anchor; InteractionFocusProbe.Viewport = Size; InteractionFocusProbe.Bounds = Bounds;
+            InteractionFocusProbe.Prompt = Interaction->GetPrompt(); InteractionFocusProbe.Segments = 12;
+            auto Stroke = [&](const FVector2D& A, const FVector2D& B)
+            {
+                const TArray<FVector2f> Points{FVector2f(A), FVector2f(B)};
+                FSlateDrawElement::MakeLines(Elements, Layer, Geometry.ToPaintGeometry(), Points,
+                    ESlateDrawEffect::None, FLinearColor(.015f, .01f, .008f, .95f), true, 4.f);
+                FSlateDrawElement::MakeLines(Elements, Layer + 1, Geometry.ToPaintGeometry(), Points,
+                    ESlateDrawEffect::None, Srgb(.98f, .77f, .38f, .98f), true, 1.6f);
+            };
+            for (const FVector2D& Sign : {FVector2D(-1, -1), FVector2D(1, -1), FVector2D(-1, 1), FVector2D(1, 1)})
+            {
+                const FVector2D Corner = CueAt + Sign * FVector2D(24, 14);
+                Stroke(Corner, Corner - FVector2D(Sign.X * 9, 0));
+                Stroke(Corner, Corner - FVector2D(0, Sign.Y * 7));
+            }
+            const FVector2D DiamondAt = CueAt - FVector2D(0, 28);
+            const FVector2D Diamond[] = {DiamondAt + FVector2D(0, -7), DiamondAt + FVector2D(5, 0), DiamondAt + FVector2D(0, 7), DiamondAt - FVector2D(5, 0)};
+            for (int32 I = 0; I < 4; ++I) Stroke(Diamond[I], Diamond[(I + 1) % 4]);
+        }
+    }
     using namespace MemoriaHudKit;
     // The place, on the toast frame at the top left. K takes the frame's own pixels (895 x 199) to the
     // viewport's units; its dark field runs from x 115 to 780 and y 64 to 145.
@@ -66,6 +132,7 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
     if (!View.Prompt.IsEmpty())
     {
         FString Name, Keys, Verb; SplitPrompt(View.Prompt, Name, Keys, Verb);
+        if (Keys==TEXT("E / A")) Keys=bPad ? TEXT("A") : TEXT("E");
         const FSlateFontInfo NameFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Title, 18), KeyFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 14), VerbFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16);
         const float NameW = Name.IsEmpty() ? 0.f : Width(Name, NameFont) + 22.f, KeyW = Keys.IsEmpty() ? 0.f : Width(Keys, KeyFont) + 22.f, VerbW = Width(Verb, VerbFont);
         const float Total = NameW + KeyW + (KeyW > 0 ? 12.f : 0.f) + VerbW + 44.f;
@@ -91,15 +158,23 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
     if (const auto* Combat = GetWorld() ? GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>() : nullptr; Combat && Combat->GetPlayer())
     {
         static const TCHAR* Keys[MemoriaCombatTuning::QuickSlots] = {TEXT("Z"), TEXT("X"), TEXT("C"), TEXT("V"), TEXT("B")};
-        const FVector2D Cell(90, 98); const float Gap = 7.f;
-        const float TrayWidth = MemoriaCombatTuning::QuickSlots * (Cell.X + Gap) - Gap;
-        const FVector2D TrayAt(Size.X - 26 - TrayWidth, Size.Y - Cell.Y - 28);
+        static const TCHAR* PadKeys[MemoriaCombatTuning::QuickSlots] = {TEXT("RT+↑"), TEXT("RT+→"), TEXT("RT+↓"), TEXT("RT+←"), TEXT("RT+R3")};
+        const bool bRibbonVisible = MemoriaHudLayoutS363::IsRibbonShowing(*Combat) && !Combat->IsAwaitingGameOver();
+        const auto RibbonLayout = MemoriaHudLayoutS363::Ribbon(Size, Combat->LiveMonsterCount() > 0,
+            Combat->GetLastReward().Age < MemoriaHudLayoutS363::RewardShownSeconds);
+        const auto TrayLayout = MemoriaHudLayoutS363::QuickTray(Size, bRibbonVisible ? &RibbonLayout.OccupiedBounds : nullptr);
+        const FVector2D Cell = TrayLayout.Cell; const float Gap = TrayLayout.Gap, TrayWidth = TrayLayout.Width;
+        const FVector2D TrayAt = TrayLayout.Origin;
+        QuickTrayProbe.bDrawn = true; QuickTrayProbe.bLifted = TrayLayout.bLifted; QuickTrayProbe.bUsingGamepad = bPad;
+        QuickTrayProbe.Frame = GFrameCounter; QuickTrayProbe.Viewport = Size; QuickTrayProbe.OriginalBounds = TrayLayout.OriginalBounds;
+        QuickTrayProbe.Bounds = FBox2D(TrayAt - FVector2D(7, 7), TrayAt + FVector2D(TrayWidth + 7, Cell.Y + 7));
         const float Cooling = FMath::Clamp(Combat->GetItemCooldown() / MemoriaCombatTuning::ItemCooldown, 0.f, 1.f);
         Box(Elements, Layer, Geometry, TrayAt - FVector2D(7, 7), FVector2D(TrayWidth + 14, Cell.Y + 14), Srgb(.012f, .012f, .018f, .54f));
         for (int32 I = 0; I < MemoriaCombatTuning::QuickSlots; ++I)
         {
             const FString Id = Combat->QuickItemId(I); const int64 Count = Combat->QuickItemCount(I);
             const FVector2D SlotAt = TrayAt + FVector2D(I * (Cell.X + Gap), 0);
+            QuickTrayProbe.Cells.Add(FBox2D(SlotAt, SlotAt + Cell));
             const float Lit = Count > 0 ? 1.f : .28f;
             FLinearColor Accent = Id == TEXT("antidote") ? Srgb(.47f, .70f, .48f) : Id == TEXT("firebomb") ? Srgb(.92f, .47f, .22f)
                 : Id == TEXT("smoke_bomb") ? Srgb(.53f, .64f, .78f) : Id == TEXT("witness_ink") ? Srgb(.68f, .53f, .84f)
@@ -116,9 +191,15 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
                 Box(Elements, Layer + 2, Geometry, SlotAt + FVector2D(4, 80), FVector2D((Cell.X - 8) * (1.f - Cooling), 2), FLinearColor(Accent.R, Accent.G, Accent.B, .9f));
             }
             // Hardware-like key cap and count seal remain readable over every painting and during cooldown.
-            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(5, 7), FVector2D(22, 22), Srgb(.055f, .047f, .045f, .97f));
-            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(5, 27), FVector2D(22, 2), Srgb(.65f, .53f, .34f, .8f));
-            Text(Elements, Layer + 4, Geometry, Keys[I], SlotAt + FVector2D(16, 17), .5f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.98f, .91f, .77f));
+            const FString Key = bPad ? PadKeys[I] : Keys[I];
+            const auto KeyFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13);
+            const float KeyWidth = bPad ? FMath::Clamp(Width(Key, KeyFont) + 10.f, 22.f, float(Cell.X) - 10.f) : 22.f;
+            const FVector2D KeyTextSize = FSlateApplication::Get().GetRenderer()->GetFontMeasureService()->Measure(Key, KeyFont);
+            const FVector2D KeyTextAt = SlotAt + FVector2D(5.f + KeyWidth * .5f, 17) - KeyTextSize * .5;
+            QuickTrayProbe.Keys.Add(Key); QuickTrayProbe.KeyBounds.Add(FBox2D(KeyTextAt, KeyTextAt + KeyTextSize));
+            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(5, 7), FVector2D(KeyWidth, 22), Srgb(.055f, .047f, .045f, .97f));
+            Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(5, 27), FVector2D(KeyWidth, 2), Srgb(.65f, .53f, .34f, .8f));
+            Text(Elements, Layer + 4, Geometry, Key, SlotAt + FVector2D(5.f + KeyWidth * .5f, 17), .5f, KeyFont, Srgb(.98f, .91f, .77f));
             const FString Amount = FString::Printf(TEXT("%lld"), Count);
             const FSlateFontInfo CountFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 16);
             const float CountWidth = FMath::Max(25.f, Width(Amount, CountFont) + 12.f);
@@ -127,11 +208,18 @@ int32 UMemoriaFieldHudWidget::NativePaint(const FPaintArgs& Args, const FGeometr
             Box(Elements, Layer + 3, Geometry, SlotAt + FVector2D(4, 84), FVector2D(Cell.X - 8, 1), Srgb(.48f, .40f, .29f, .34f));
             const FString Name = MemoriaCombatTuning::ItemName(Id, View.bKorean);
             const FSlateFontInfo NameFont = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 10);
+            const FVector2D NameTextSize = FSlateApplication::Get().GetRenderer()->GetFontMeasureService()->Measure(Name, NameFont);
+            const FVector2D NameTextAt = SlotAt + FVector2D(Cell.X * .5, 91) - NameTextSize * .5;
+            QuickTrayProbe.Names.Add(Name); QuickTrayProbe.NameBounds.Add(FBox2D(NameTextAt, NameTextAt + NameTextSize));
             Text(Elements, Layer + 4, Geometry, Name, SlotAt + FVector2D(Cell.X * .5, 91), .5f, NameFont, Srgb(.84f, .79f, .70f, Count > 0 ? .94f : .48f));
         }
     }
     // The controls, faint, at the bottom left.
-    Text(Elements, Layer, Geometry, View.bKorean ? TEXT("WASD  이동      TAB  기억      ESC  메뉴") : TEXT("WASD  Move      TAB  Memories      ESC  Menu"),
+    if (bPad)
+        Text(Elements, Layer, Geometry, View.bKorean ? TEXT("방향키 ↑→↓←: 1–4 · LT 엘리아 / RT 아이템 · RT+R3 잉크") : TEXT("D-pad ↑→↓←: 1–4 · LT Elia / RT Items · RT+R3 Ink"),
+            FVector2D(30, Size.Y - 49), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 11), Srgb(.78f, .74f, .68f, .76f));
+    Text(Elements, Layer, Geometry, bPad ? (View.bKorean ? TEXT("LS  이동    RS  조준    A  상호작용    Menu  메뉴") : TEXT("LS  Move    RS  Aim    A  Interact    Menu  Menu"))
+        : (View.bKorean ? TEXT("WASD  이동      TAB  기억      ESC  메뉴") : TEXT("WASD  Move      TAB  Memories      ESC  Menu")),
         FVector2D(30, Size.Y - 28), 0.f, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 13), Srgb(.78f, .74f, .68f, .62f));
     return Layer + 6;
 }

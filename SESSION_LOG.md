@@ -1,3 +1,48 @@
+# S365 COMPLETE — combat contact reliability and readability (Codex, 2026-10-26)
+
+- User requested remaining gaps repaired and further improvements. Actual own Unreal project/UE5.8.2/DX11, base6fd6fce0 and existing branch preserved with uncommitted S362-S364. No commit/push/release, Godot/peer/foundation/shared-model writes or external messages.
+- Fixed whole active-window frame skipping in current melee cut. Existing per-target dedup, committed aim and next intent, damage12/14/22/30, range/timing/combo progression retained. Tests use real PIE/mapped clips and target HP, manual gameplay deltas/frozen AI; no moving-target rewind/geometric sword sweep claim.
+- All combat popup glyphs+shadow measured before painting, nearest bounded placement preserves all source words/amounts/colors/age/lifetime; viewport overload exposed without hiding/coalescing. Static HUD exclusion not claimed. Enemy current HP immediate with short gold recent-damage trail, game-time/pause/heal/max/dead/rebind/reduced-motion handling, weak actor cleanup; presentation only.
+- Fresh editor build1 PASS. New2 focus PASS then final related54/54unique PASS (old52+new2), exit0/fatal0, frozen saved inputs. Current source registry361, full361notrerun. ENKO/1280+640/text100+125/default+reduced16conditions32actualPNG. Same-input visualbaseline1 PASS,32actualpairs with source text/HP/camera/eachpopupage equality, no after popup-to-popup boundary overlap. Initialfocus includes~3min externalbuild/platformquerydelay; otherjobsnotterminated. Existing15engine startupConditionfailed also presentinoldS364; rawlogsretained, selectedtests successful.
+- Fresh Development build/cook/archive package-dev1 PASS, actual isolated packaged-smoke1 PASS17actualPNGs/completedCSV, newconcurrentblock+parry layout verification and existingcombo/actualHPblock/parry/burn/kill/three regions/manualsave/actualTitle-to-Verdancontinue. Prioroptinphase2/3controlled1/60replaynotnaturalFPS; noShipping/physicalpad/humanfullrun/longbenchmark claim.
+- Original882packageSET/hashes/allArtSource/animationbridge unchanged. Ten scopedsource/tools files, noasset/save/storychange. Originalcape/legarmoroverlap remains. Reports docs/unreal-migration/S365_REVIEW.md /S365_RESULTS.json;13exactselectedPNGcopies+manifest in evidence/s365. Build/GPU slot RELEASED after ownedprocessinventory. No Claude action requested.
+
+---
+
+# S364 complete — combat response and visible interaction (Codex, 2026-10-26)
+
+- User requested more graphics and gameplay in Unreal. Added120ms gameplay-time single earlycombo buffer, fixed committed-swing aim vs next-input direction, preserved existing attack/burn/parry/save values. Menu and other interruption paths clear future intent while retaining committed action whereappropriate.
+- Block/parry/ward use distinct line effects; normalblock displaysactualpositiveHP loss. Actualresolver target gets goldfocus; Elia dialogueaffordance shares exactexecutioneligibility, no newchapterdialogue/canon/rewards. S362/S363 and Godot preserved.
+- Build3 andrelated52/52unique PASS (existing47+new5),exit0/fatal0; baseline4/4 withsame1978inputs,50actualA/Bpairs/agedelta0. Currentregistry359, fullnotrerun. Actualfront12/rear14HP, keyboard/padgestures,8cancelroutes, ENKO/1280+640/reduceddefense, actualE/A, chapterrefusal andoldJourney/save regressions.
+- Package1smokefailed duefirstPNGwaitmissingearlyqueuewindow; fixed ONLYoptinvalidationpauseownership, notqueue/gameplay. Build4+new5targetedrerunPASS; normalgame/visualsourceunchangedfrom52, validationcpp/binariesdifference documented. FreshDevelopmentpackage5 andisolatedruntime4PASS17PNG/CSV/actualcombo-block-parry-focus/oldburn-region-save-titleflow.
+- Original882packageSET/hashes/allArtSource/animationbridge unchanged.20uneditedselectedimages/manifest and reports S364_REVIEW.md/S364_RESULTS.json. Existingcapeoverlap; noShipping/physicalhardware/fullhumanplay/longFPSbenchmark. FocusRunSnapshotassertionisnotfullMemoryDomainbyteproof. Rawfailures/intermediates retained, includingsmoke1/2,smoke3oldcountfailure andunexecutedsupersededpackage3. Optinphase2/3 usescontrolled1/60engine-stepreplayafter2measuredarmingframes; priorFAppstate restoredbeforeburn/failure/teardown, no naturalFPSinterpretationofthisphase.
+- Local/uncommitted; no commit/push/release/peerwrite/message. Build/GPUslotreleased afterownedprocessinventory.
+
+---
+
+# S363 complete — regional surface and HUD graphics (Codex, 2026-10-26)
+
+- User requested further Unreal graphics. Accepted Verdan/Belt/Drift stone thresholds, surface/contact/bounce detail and shared combat quicktray clearance. Original assets/rigs/gameplay preserved; Godot remains separate.
+- Item labels fit104high cells with unchangedfonts; tray clears fullribbon/MEM by12Slateunits onlywhenneeded. Pickeractualviewporthostraises synchronously beforefirstpaint andrestores onclose; weaklifetime/teardownguards retained.
+- Finaleditorbuild10 PASS; relevant40/40unique PASS (old36+new4),exit0/fatal0, inputsunchanged.16actualHUDcases/48PNG; finalbaseline3/3 sameinputs and6same-camera/FOV1280x720pairs. Full354notrerun.
+- FreshDevelopmentbuild/cook/package andactualisolatedrun PASS13PNG/completedengineCSV, firstpicker/guardHUD/3regions/manualsave/actualTitle-to-Verdancontinue. Original882packages/allArtSourceunchanged.
+- Clothcandidate rejected despiteaggregate893->870 becauseGuard20125->136worse; activeanimationbridge restored, candidates/failedrawhistoryarchived. Existingcape/legarmorclippingremains. NoShipping/physicalpad/humanfullrun/longbenchmark orFPSimprovement claim.
+- Detailedreport: docs/unreal-migration/S363_REVIEW.md; results S363_RESULTS.json;19uneditedselectedimages/manifest under evidence/s363. Uncommitted/localonly, no push/release/peerwrites/messages. Build/GPUslotreleased afterprocessinventory.
+
+---
+
+# S362 complete — sequential Unreal upgrade (Codex, 2026-10-24–25)
+
+- User authorized all 13 Unreal audit items in order and resumed interrupted work. Actual root `memoria-unreal-codex`, base `6fd6fce0`; Godot preserved separately. Changes remain uncommitted; no push/release.
+- Held-input/restore safety, post-burn preview equality, full authored meaning/cost, actual place/next goals, controller/accessibility, manual 3-slot storage/validated metadata and current Chapters 1–5 demo review implemented. Final registry: PASS 350/350 unique; separate producer/consumer process proof: PASS 3/3, different PID/GUID.
+- Elia R2 blink/hair, Arrel R4 finish/rigid sole, R5 sword/staff, three-region detail and 10 NPC role idles implemented. Focused graphics 15/15 and current save/Title 8/8 (`save-title-final`, including new TitleVerdanContinue) passed. Original 33,804 Arrel triangle basis/UV/RGBA/winding retained except exact 4Z/20 sole-weight changes. Actual 147 persistent ground patches, max XY drift 0.037729cm, air 0, eight complete native views; landing/guard pixels inspected.
+- Actual cooked tests exposed missing FName-travel maps, Windows long-temp-path atomic rename and installed-engine CSV nonblocking finalization failures; these were repaired and red evidence retained. Final reviewer also caught Title→Verdan `bTitle` state leaking across successful manual/automatic restore; final two-route regression: PASS (Title manual1 + boundary autosave0).
+- Final Development build/cook/archive: PASS; actual isolated cooked runtime: PASS, 12 PNGs, Title manual1 travel, completed CSV; IoStore content: PASS, 12 required present / rejected R3 absent. Actual R4/R2/R5 bindings/attribute fingerprints, attacks/burn/kill, all four maps, manual save/restore, actual Title→browser manual1→Verdan travel, 12 captures and completed owned engine CSV are checked by the packaged smoke. Native Title regression additionally covers boundary autosave0.
+- Performance: PASS observed cooked Development (packaged-smoke8); not a benchmark. Kept actual frame/GPU/spike/CPU/DXGI observations and provisional budget; no stable-60FPS, Shipping or before/after claim. Original 871 package/R2-source hashes retained and execution inputs unchanged. Rejected candidates and failed/interrupted runs preserved outside acceptance counts.
+- Limits: physical gamepad/human full demo play and Shipping/long-session performance were not tested. Existing cape/leg-armor contact remains; role-idle work does not replace all NPC faces/clothes or all eight foes. Final review/results: `docs/unreal-migration/S362_REVIEW.md`, `S362_RESULTS.json`.
+
+---
+
 # S361 complete — protagonist face, hair and armor polish (Codex, 2026-10-22)
 
 - Arrel original painted face/garments retained; conformed armor trims/clasps/gems. Elia swept fringe/curved side locks/layered rear hair and refined face/eyes. R4 two meshes/two materials; no new rigs/clips/textures, original77binds and gameplay contracts retained.

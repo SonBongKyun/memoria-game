@@ -89,13 +89,13 @@ public:
     // source's "Autosaved" toast; and Continue into a chapter map: the run restored before the map is entered,
     // Arrel's saved place handed to the map's presentation.
     bool AutosaveChapterMap(const FString& Map, const FVector2D& Position);
-    bool ContinueChapterMap(const FString& Map);
+    bool ContinueChapterMap(const FString& Map,int32 ManualSlot=0);
     bool ConsumeMapPosition(FVector2D& Out);
     // S334: whether a map Continue was refused since the last call (the title then says so).
     bool ConsumeMapLoadFailure() { const bool bFailed = bMapLoadFailed; bMapLoadFailed = false; return bFailed; }
     void ShowNotice(const FString& Text) { Notice(Text); }
     FMemoriaFieldFinished OnFieldFinished;
-    bool ContinueCheckpoint();
+    bool ContinueCheckpoint(int32 ManualSlot=0);
     bool RequestCheckpointRevisit();
     bool HasPendingVerdanReentry() const { return bPendingVerdanReentry; }
     bool EnterVerdanReentry();
@@ -103,6 +103,8 @@ public:
     bool ReturnFromAmbientBattle();
     bool InteractWithMalet();
     // Source companion.gd interact() for Elia in Verdan: burn reaction, first talk, repeat line.
+    // Same read-only eligibility used by the resolver and actual dialogue entry.
+    bool CanInteractWithElia() const;
     bool InteractWithElia();
     // Source verdan_market.gd exploration beats: armed on Verdan entry, one-time by flag.
     bool StartStoryBeat(const FString& Group);

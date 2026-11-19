@@ -33,7 +33,7 @@ UMaterial* Surface(bool Face)
  const FString Name=Face?TEXT("M_EliaFace"):TEXT("M_HeroCraft"),Path=Root+Name;
  if(FPackageName::DoesPackageExist(Path))return nullptr;
  auto* M=NewObject<UMaterial>(CreatePackage(*Path),*Name,RF_Public|RF_Standalone);
- M->SetShadingModel(MSM_DefaultLit);M->bUsedWithSkeletalMesh=true;M->TwoSided=true;
+ M->SetShadingModel(MSM_DefaultLit);M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);M->TwoSided=true;
  auto* C=Node<UMaterialExpressionVertexColor>(M);auto* UV=Node<UMaterialExpressionTextureCoordinate>(M);
  auto* A=Node<UMaterialExpressionComponentMask>(M);A->Input.Connect(4,C);A->R=true;
  auto* Base=Custom(M,Face?TEXT("float pore=sin(UV.x*701)*sin(UV.y*673)*.003;return saturate(C.rgb*(.985+pore));"):TEXT("float cloth=1-step(.08,abs(A-.5));float weave=sin(UV.x*431)*sin(UV.y*379);return saturate(C.rgb*(1-cloth*.022*(.5+.5*weave)));"),CMOT_Float3,{{TEXT("C"),C},{TEXT("UV"),UV},{TEXT("A"),A}});

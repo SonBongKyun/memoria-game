@@ -62,7 +62,7 @@ UMaterial* Material(const FString& Path,bool Ash,bool Face,UTexture2D* Surface,U
 {
     if(FPackageName::DoesPackageExist(Path))return nullptr;
     auto* M=NewObject<UMaterial>(CreatePackage(*Path),*FPackageName::GetShortName(Path),RF_Public|RF_Standalone);
-    M->SetShadingModel(MSM_DefaultLit);M->bUsedWithSkeletalMesh=true;M->TwoSided=true;
+    M->SetShadingModel(MSM_DefaultLit);M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);M->TwoSided=true;
     auto* UV=Node<UMaterialExpressionTextureCoordinate>(M);
     auto* Regions=Node<UMaterialExpressionVertexColor>(M);
     auto* Category=Node<UMaterialExpressionComponentMask>(M);Category->Input.Connect(4,Regions);Category->R=true;

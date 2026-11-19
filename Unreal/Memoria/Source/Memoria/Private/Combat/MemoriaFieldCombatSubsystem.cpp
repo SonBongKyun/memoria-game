@@ -23,13 +23,44 @@
 #include "GameFramework/Pawn.h"
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
+#include "UObject/StrongObjectPtr.h"
+#include "Settings/MemoriaSettingsSubsystem.h"
 using namespace MemoriaCombatTuning;
 namespace
 {
+float CombatFlashScale(const UWorld* World)
+{
+    const auto* Settings = World && World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>() : nullptr;
+    return Settings ? Settings->FlashScale() : 1.f;
+}
 UMemoriaRunSubsystem* RunOf(const UWorld* World)
 { return World && World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>() : nullptr; }
 void Cue(const UWorld* World, const TCHAR* Id)
 { if (auto* Audio = World && World->GetGameInstance() ? World->GetGameInstance()->GetSubsystem<UMemoriaAudioSubsystem>() : nullptr) Audio->PlaySfx(Id); }
+int32 ChainAfterBurn(int32 Before, int32 Grade) { return Grade >= 2 ? Before + 1 : 0; }
+// Both the picker projection and the real commit use the post-burn passives. In particular, the fifth
+// and thirtieth voluntary burn benefit from the passive that this very burn unlocks.
+float BurnDamage(const FMemoriaBurnChoice& Choice, const UMemoriaPlayerMemoryDomain& After, int32 Chain)
+{
+    const float Base = BurnBaseDamage[Choice.Grade];
+    float Damage = FMath::Max(Base + float(Choice.Power), Base + float(After.GetEffectiveBurnPower(Choice.Id)));
+    if (After.HasPassive(TEXT("ember_affinity"))) Damage *= EmberAffinity;
+    if (Chain >= 2) Damage *= 1.f + (Chain - 1) * BurnChainBonus;
+    if (Choice.Grade >= 3 && After.HasPassive(TEXT("void_touch"))) Damage *= VoidTouch;
+    return Damage;
+}
+bool PreviewBurnDamage(const UMemoriaRunSubsystem& Run, const FMemoriaBurnChoice& Choice, int32 Chain, float& OutDamage)
+{
+    const auto* Memory = Run.GetPlayerMemory();
+    if (!Memory) return false;
+    // This transient domain has no observers. Predict the real domain's cascade and passive unlocks
+    // without publishing events, consuming a real memory, changing the run, or writing a save.
+    TStrongObjectPtr<UMemoriaPlayerMemoryDomain> Projection(NewObject<UMemoriaPlayerMemoryDomain>(GetTransientPackage()));
+    if (Projection->Restore(Memory->GetDefinitions(), Memory->GetSnapshot()) != EMemoriaMemoryResult::Success ||
+        Projection->Burn(Choice.Id, EMemoriaBurnMode::Normal, false, Run.GetRunSnapshot().MemoryContext()) != EMemoriaMemoryResult::Success) return false;
+    OutDamage = BurnDamage(Choice, *Projection.Get(), ChainAfterBurn(Chain, Choice.Grade));
+    return true;
+}
 // The first point where a flat projectile enters Arrel's existing hit radius, including a
 // frame whose start and end are both outside it. The fraction is comparable to a world sweep.
 bool OrbPlayerContact(const FVector& From, const FVector& To, const FVector& PlayerPosition, float& ContactTime)
@@ -49,7 +80,7 @@ bool OrbPlayerContact(const FVector& From, const FVector& To, const FVector& Pla
 }
 }
 void UMemoriaFieldCombatSubsystem::RegisterPlayer(APawn* Pawn, UMemoriaFieldCharacterComponent* Figure)
-{ Player = Pawn; PlayerFigure = Figure; ComboStep = -1; DashLeft = StaggerLeft = CastLeft = 0.f; bDefeated = false; CloseBurnPicker(); }
+{ Player = Pawn; PlayerFigure = Figure; ComboStep = -1; ClearComboIntent(); DashLeft = StaggerLeft = CastLeft = 0.f; bDefeated = false; CloseBurnPicker(); }
 int64 UMemoriaFieldCombatSubsystem::GetPlayerHp() const { const auto* Run = RunOf(GetWorld()); return Run ? Run->State.Player.Hp : 0; }
 int64 UMemoriaFieldCombatSubsystem::GetPlayerMaxHp() const { const auto* Run = RunOf(GetWorld()); return Run ? Run->State.Player.MaxHp : 0; }
 int32 UMemoriaFieldCombatSubsystem::LiveMonsterCount() const
@@ -58,11 +89,18 @@ int32 UMemoriaFieldCombatSubsystem::LiveMonsterCount() const
     for (const auto& M : Monsters) if (M.IsValid() && !M->IsDead()) ++Live;
     return Live;
 }
+void UMemoriaFieldCombatSubsystem::ClearComboIntent()
+{
+    bQueued = false; EarlyComboLeft = 0.f; EarlyComboAim = FVector::ForwardVector;
+}
 bool UMemoriaFieldCombatSubsystem::StartStep(int32 Step)
 {
     auto* Figure = PlayerFigure.Get();
-    ComboStep = Step; StepTime = 0.f; bQueued = false; HitThisSwing.Reset(); DrawSword();
-    if (Figure) Figure->SetAim(AimDirection.Rotation().Yaw);
+    ComboStep = Step; StepTime = 0.f; ClearComboIntent(); HitThisSwing.Reset(); DrawSword();
+    // Animation and the current damage arc commit to the SAME direction. A later
+    // press may steer the next cut, but never a cut which is already playing.
+    SwingAimDirection = AimDirection;
+    if (Figure) Figure->SetAim(SwingAimDirection.Rotation().Yaw);
     // Without a clip (no rigged art) the combo still resolves on a fixed half-second beat.
     const float Rate = Step == 3 ? HeavyRate : Figure && Figure->HasSword() ? SwordComboRate[FMath::Clamp(Step, 0, 2)] : ComboRate;
     StepLength = Figure && Figure->PlayAction(MemoriaCombatClips::Attack(FMath::Min(Step, 2)), Rate) ? Figure->GetActionLength() / Rate : .5f;
@@ -72,7 +110,7 @@ bool UMemoriaFieldCombatSubsystem::StartStep(int32 Step)
 bool UMemoriaFieldCombatSubsystem::RequestAttack(const FVector& AimPoint)
 {
     APawn* Pawn = Player.Get();
-    if (!Pawn || bDefeated || DashLeft > 0.f || StaggerLeft > 0.f || bBlocking) return false;
+    if (!Pawn || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f || StaggerLeft > 0.f || bBlocking) return false;
     const FVector Aim = (AimPoint - Pawn->GetActorLocation()) * FVector(1, 1, 0);
     if (!IsAttacking())
     {
@@ -80,10 +118,19 @@ bool UMemoriaFieldCombatSubsystem::RequestAttack(const FVector& AimPoint)
         // A press shortly after a step ends still chains the combo; otherwise it starts over.
         return StartStep(SinceStep < ComboReset && LastStep >= 0 && LastStep < 2 ? LastStep + 1 : 0);
     }
-    if (!IsHeavy() && StepTime / FMath::Max(StepLength, .01f) >= QueueFrom && ComboStep < 2)
+    if (!IsHeavy() && ComboStep < 2)
     {
-        if (!Aim.IsNearlyZero()) AimDirection = Aim.GetSafeNormal();
-        bQueued = true;
+        const FVector NextAim = Aim.IsNearlyZero() ? AimDirection : Aim.GetSafeNormal();
+        if (StepTime / FMath::Max(StepLength, .01f) >= QueueFrom)
+        {
+            AimDirection = NextAim; bQueued = true; EarlyComboLeft = 0.f;
+        }
+        else
+        {
+            // Only a fresh semantic press reaches this method. This one slot
+            // remembers the latest early press; holding never adds a combo.
+            EarlyComboAim = NextAim; EarlyComboLeft = EarlyComboSeconds;
+        }
     }
     return true;
 }
@@ -93,7 +140,7 @@ bool UMemoriaFieldCombatSubsystem::RequestDash(const FVector& Direction)
     if (!Pawn || bDefeated || DashLeft > 0.f || DashCooldownLeft > 0.f) return false;
     const FVector Flat = Direction * FVector(1, 1, 0);
     DashDirection = Flat.IsNearlyZero() ? AimDirection : Flat.GetSafeNormal();
-    ComboStep = -1; bQueued = false; StaggerLeft = 0.f;
+    ComboStep = -1; ClearComboIntent(); StaggerLeft = 0.f;
     DashLeft = DashTime; DashCooldownLeft = DashCooldown + DashTime; DrawSword();
     if (Figure)
     {
@@ -115,7 +162,7 @@ void UMemoriaFieldCombatSubsystem::ResolveSwing()
         const FVector To = (Monster->GetActorLocation() - Origin) * FVector(1, 1, 0);
         const float Distance = To.Size();
         if (Distance > (IsHeavy() ? HeavyRange : AttackRange) + 30.f) continue;
-        if (!IsHeavy() && Distance > 60.f && FVector::DotProduct(To / Distance, AimDirection) < AttackArcCos) continue;
+        if (!IsHeavy() && Distance > 60.f && FVector::DotProduct(To / Distance, SwingAimDirection) < AttackArcCos) continue;
         HitThisSwing.Add(Weak);
         const float Damage = (IsHeavy() ? HeavyDamage : ComboDamage[FMath::Clamp(ComboStep, 0, 2)]) * (IsWeakened() ? WeakenFactor : 1.f);
         if (Monster->TakeHit(Damage, Origin, IsHeavy() ? HeavyShove : 14.f))
@@ -146,9 +193,9 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         {
             // Parry: the guard met the blow as it came. No harm, and the foe reels.
             ++Parries; Monster->Stun(ParryStun);
-            Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("패링!") : TEXT("Parry!"), FLinearColor(1.f, .9f, .55f));
+            Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("패링!") : TEXT("Parry!"), FLinearColor(1.f, .9f, .55f), false, EMemoriaDefenseOutcome::Parry);
             HitStop(HitStopHeavy, ShakeHeavy); Burst(Spark, 18, FLinearColor(1.f, .92f, .6f), 480.f);
-            Impact(Spark, FLinearColor(1.f, .95f, .72f), 140.f, true);
+            Impact(Spark, FLinearColor(1.f, .95f, .72f), 140.f, true, EMemoriaDefenseOutcome::Parry);
             Cue(GetWorld(), TEXT("shield"));
             return false;
         }
@@ -157,9 +204,9 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         auto& Hp = Run->State.Player.Hp;
         const int64 Loss = FMath::Min<int64>(FMath::RoundToInt64(Damage * BlockFactor), Hp - 1);
         if (Loss > 0) Hp -= Loss;
-        Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, Ko ? TEXT("막음") : TEXT("Blocked"), FLinearColor(.75f, .82f, 1.f));
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Loss), true, Ko ? TEXT("막음") : TEXT("Blocked"), FLinearColor(.75f, .82f, 1.f), false, EMemoriaDefenseOutcome::Block);
         HitStop(HitStopLight, ShakeLight); Burst(Spark, 8, FLinearColor(.8f, .85f, 1.f), 300.f);
-        Impact(Spark, FLinearColor(.78f, .85f, 1.f), 80.f, false);
+        Impact(Spark, FLinearColor(.78f, .85f, 1.f), 80.f, false, EMemoriaDefenseOutcome::Block);
         Cue(GetWorld(), TEXT("shield"));
         return true;
     }
@@ -167,8 +214,8 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     {
         // S341: the witness ink's guard. The blow is turned aside and the ward is spent.
         bWarded = false;
-        Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("잉크가 막았다") : TEXT("Warded"), FLinearColor(.72f, .8f, 1.f));
-        Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(.7f, .8f, 1.f), 120.f, true);
+        Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("잉크가 막았다") : TEXT("Warded"), FLinearColor(.72f, .8f, 1.f), false, EMemoriaDefenseOutcome::Ward);
+        Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(.7f, .8f, 1.f), 120.f, true, EMemoriaDefenseOutcome::Ward);
         Cue(GetWorld(), TEXT("shield"));
         return false;
     }
@@ -188,7 +235,7 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     // S340: a wound reddens the screen's edge and marks where it landed.
     HurtAge = 0.f; Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(1.f, .22f, .18f), 86.f, false);
     Burst(Pawn->GetActorLocation() + FVector(0, 0, 100.f), 8, FLinearColor(1.f, .3f, .22f), 260.f);
-    ComboStep = -1; bQueued = false;
+    ComboStep = -1; ClearComboIntent();
     if (Hp <= 0)
     {
         // Defeat: Arrel falls, and after a beat rises again at full strength; the husks withdraw.
@@ -350,9 +397,9 @@ void UMemoriaFieldCombatSubsystem::LaunchOrb(AMemoriaFieldMonster* Owner, const 
 }
 void UMemoriaFieldCombatSubsystem::NotifyBurnTick(AMemoriaFieldMonster* Monster, float Damage)
 { if (Monster) Popup(Monster->GetActorLocation() + FVector(0, 0, Monster->Spec().Height), Damage, false, FString(), FLinearColor(1.f, .45f, .15f)); }
-void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label, const FLinearColor& Tint, bool bBig)
+void UMemoriaFieldCombatSubsystem::Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label, const FLinearColor& Tint, bool bBig, EMemoriaDefenseOutcome Outcome)
 {
-    FMemoriaCombatPopup P; P.Location = Location; P.Amount = Amount; P.bPlayer = bPlayer; P.Label = Label; P.Tint = Tint; P.bBig = bBig;
+    FMemoriaCombatPopup P; P.Location = Location; P.Amount = Amount; P.bPlayer = bPlayer; P.Label = Label; P.Tint = Tint; P.bBig = bBig; P.Outcome = Outcome;
     // Words raised at the same moment and place stack upward instead of printing over each other.
     if (!Label.IsEmpty())
         for (const FMemoriaCombatPopup& Other : Popups)
@@ -394,14 +441,28 @@ void UMemoriaFieldCombatSubsystem::Tick(float DeltaSeconds)
     }
     if (IsAttacking())
     {
+        const float BeforeStepTime = StepTime;
         StepTime += DeltaSeconds;
-        const float Fraction = StepTime / FMath::Max(StepLength, .01f);
-        if (Fraction >= HitWindowStart && Fraction <= HitWindowEnd) ResolveSwing();
+        if (EarlyComboLeft > 0.f && !IsHeavy() && ComboStep < 2)
+        {
+            // Compare expiry to the actual queue-window crossing within this
+            // gameplay frame, rather than expiring first on a long frame.
+            const float ToWindow = FMath::Max(0.f, StepLength * QueueFrom - BeforeStepTime);
+            if (DeltaSeconds >= ToWindow && EarlyComboLeft + 1.e-6f >= ToWindow)
+            { AimDirection = EarlyComboAim; bQueued = true; EarlyComboLeft = 0.f; }
+            else EarlyComboLeft = FMath::Max(0.f, EarlyComboLeft - DeltaSeconds);
+        }
+        // Sample the elapsed clip interval, not just this frame's endpoint: a
+        // hitch can cross the whole active window. Resolve before ending or
+        // chaining this committed cut; HitThisSwing still limits each target
+        // to one hit while allowing another target to enter a later frame.
+        const float WindowLength = FMath::Max(StepLength, .01f);
+        if (StepTime >= WindowLength * HitWindowStart && BeforeStepTime <= WindowLength * HitWindowEnd) ResolveSwing();
         if (StepTime >= StepLength)
         {
             LastStep = ComboStep;
             if (bQueued && ComboStep < 2) StartStep(ComboStep + 1);
-            else { ComboStep = -1; SinceStep = 0.f; if (Figure) Figure->ClearAim(); }
+            else { ComboStep = -1; ClearComboIntent(); SinceStep = 0.f; if (Figure) Figure->ClearAim(); }
         }
     }
     else SinceStep += DeltaSeconds;
@@ -418,16 +479,22 @@ bool UMemoriaFieldCombatSubsystem::OpenBurnPicker()
         if (Memory->CanBurn(Row.Id) != EMemoriaMemoryResult::Success) continue;
         FMemoriaBurnChoice Choice;
         Choice.Id = Row.Id; Choice.Title = Row.Title; Choice.GradeLabel = Row.GradeLabel; Choice.Grade = FMath::Clamp(Row.Grade, 0, 4);
-        Choice.Power = Memory->GetEffectiveBurnPower(Row.Id); Choice.Damage = BurnBaseDamage[Choice.Grade] + float(Choice.Power);
+        Choice.Power = Memory->GetEffectiveBurnPower(Row.Id);
+        Choice.Description = Row.Description; Choice.KnownConsequence = Row.StoryEffect;
         Choice.Accent = Row.Accent;
-        Choices.Add(Choice);
+        if (PreviewBurnDamage(*Run, Choice, BurnChain, Choice.Damage)) Choices.Add(Choice);
     }
     if (Choices.IsEmpty()) return false;
+    // Only a successful modal entry releases held combat input; an unavailable picker changes nothing.
+    CancelHeldInput();
     // Weakest first, so the first keys are the cheap burns.
     Choices.StableSort([](const FMemoriaBurnChoice& A, const FMemoriaBurnChoice& B) { return A.Grade < B.Grade; });
-    ComboStep = -1; bQueued = false; Selection = 0; bArmed = false; bPicking = true;
+    ComboStep = -1; ClearComboIntent(); Selection = 0; bArmed = false; bPicking = true;
     UGameplayStatics::SetGlobalTimeDilation(GetWorld(), BurnPickDilation);
     Cue(GetWorld(), TEXT("ui_open"));
+    // Notify before the caller can request its first picker screenshot/paint.
+    // The widget changes only presentation order; paid effects and timing remain authoritative here.
+    OnBurnPickerVisibilityChanged.Broadcast();
     return true;
 }
 void UMemoriaFieldCombatSubsystem::CloseBurnPicker()
@@ -435,6 +502,7 @@ void UMemoriaFieldCombatSubsystem::CloseBurnPicker()
     if (!bPicking) return;
     bPicking = bArmed = false;
     if (GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+    OnBurnPickerVisibilityChanged.Broadcast();
 }
 void UMemoriaFieldCombatSubsystem::SelectBurn(int32 Index)
 {
@@ -456,13 +524,10 @@ bool UMemoriaFieldCombatSubsystem::ConfirmBurn()
     NoteDiary(Choice.Id);
     const auto* Memory = Run->GetPlayerMemory();
     Casting.Power = Memory->GetEffectiveBurnPower(Choice.Id);
-    // Source burn damage: base + effective power, then Ember Affinity, the chain and (void grades) Void Touch.
-    float Damage = FMath::Max(Choice.Damage, BurnBaseDamage[Choice.Grade] + float(Casting.Power));
-    if (Memory->HasPassive(TEXT("ember_affinity"))) Damage *= EmberAffinity;
-    BurnChain = Choice.Grade >= 2 ? BurnChain + 1 : 0;
-    if (BurnChain >= 2) Damage *= 1.f + (BurnChain - 1) * BurnChainBonus;
-    if (Choice.Grade >= 3 && Memory->HasPassive(TEXT("void_touch"))) Damage *= VoidTouch;
-    Casting.Damage = Damage;
+    // The actual run has committed exactly once above. Recompute from that authoritative state;
+    // Choice.Damage is already a fully modified preview and must never be multiplied a second time.
+    BurnChain = ChainAfterBurn(BurnChain, Choice.Grade);
+    Casting.Damage = BurnDamage(Choice, *Memory, BurnChain);
     if (Memory->HasPassive(TEXT("residual_warmth")))
     {
         auto& P = Run->State.Player; const int64 Warmth = FMath::Min(ResidualWarmth, P.MaxHp - P.Hp); P.Hp += Warmth;
@@ -495,7 +560,7 @@ void UMemoriaFieldCombatSubsystem::ReleaseBurn()
         auto* Component = Light->PointLightComponent.Get();
         Component->SetMobility(EComponentMobility::Movable);
         Component->SetLightColor(BurnColor(Grade)); Component->SetAttenuationRadius(Wave.Radius * 1.6f);
-        Component->SetIntensityUnits(ELightUnits::Candelas); Component->SetIntensity(60.f + 40.f * Grade);
+        Component->SetIntensityUnits(ELightUnits::Candelas); Component->SetIntensity((60.f + 40.f * Grade) * CombatFlashScale(World));
         Component->SetCastShadows(false);
         Flare = Light;
     }
@@ -529,7 +594,7 @@ void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
     if (auto* Light = Flare.Get())
     {
         const float Fade = FMath::Clamp(1.f - Wave.Age / BurnAfterglow, 0.f, 1.f);
-        Light->PointLightComponent->SetIntensity((60.f + 40.f * Casting.Grade) * Fade * Fade);
+        Light->PointLightComponent->SetIntensity((60.f + 40.f * Casting.Grade) * Fade * Fade * CombatFlashScale(GetWorld()));
         if (Fade <= 0.f) Light->Destroy();
     }
     if (Wave.Age >= BurnAfterglow)
@@ -542,7 +607,7 @@ void UMemoriaFieldCombatSubsystem::Deinitialize()
 {
     if (auto* Light = Flare.Get()) Light->Destroy();
     if (auto* Light = HitLight.Get()) Light->Destroy();
-    CloseBurnPicker();
+    CloseBurnPicker(); ClearComboIntent();
     Super::Deinitialize();
 }
 void UMemoriaFieldCombatSubsystem::DrawSword()
@@ -556,9 +621,20 @@ bool UMemoriaFieldCombatSubsystem::BeginBlock()
     auto* Figure = PlayerFigure.Get();
     if (!Player.IsValid() || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f || bBlocking) return false;
     // The guard cancels a swing; the sword comes out for it.
-    ComboStep = -1; bQueued = false; bCharging = false; bBlocking = true; BlockHeld = 0.f; DrawSword();
+    ComboStep = -1; ClearComboIntent(); bCharging = false; bBlocking = true; BlockHeld = 0.f; DrawSword();
     if (Figure) Figure->PlayAction(MemoriaCombatClips::Block(), 1.6f, true, BlockHoldAt);
     return true;
+}
+void UMemoriaFieldCombatSubsystem::CancelHeldInput()
+{
+    const bool bHeldGuard = bBlocking;
+    bBlocking = false;
+    EndCharge();
+    // Future input belongs to the old field gesture, unlike its committed cut.
+    ClearComboIntent();
+    // A modal must lower the held guard pose, while an already committed action keeps its lifecycle.
+    if (bHeldGuard && !IsAttacking() && CastLeft <= 0.f && DashLeft <= 0.f && !bDefeated)
+        if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
 }
 void UMemoriaFieldCombatSubsystem::EndBlock()
 {
@@ -579,7 +655,8 @@ void UMemoriaFieldCombatSubsystem::HitStop(float Seconds, float Shake)
 FVector UMemoriaFieldCombatSubsystem::GetShakeOffset() const
 {
     if (ShakeLeft <= 0.f) return FVector::ZeroVector;
-    const float A = ShakeStrength * ShakeLeft / ShakeTime;
+    const auto* Settings = GetWorld() && GetWorld()->GetGameInstance() ? GetWorld()->GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>() : nullptr;
+    const float A = ShakeStrength * ShakeLeft / ShakeTime * (Settings ? Settings->ShakeScale() : 1.f);
     return FVector(FMath::Sin(ShakeClock * 71.f), FMath::Sin(ShakeClock * 53.f + 1.3f), .5f * FMath::Sin(ShakeClock * 37.f + .7f)) * A;
 }
 void UMemoriaFieldCombatSubsystem::Burst(const FVector& Location, int32 Count, const FLinearColor& Color, float Speed)
@@ -723,9 +800,9 @@ void UMemoriaFieldCombatSubsystem::BurstBomb(const FVector& At)
     HitStop(HitStopLight, ShakeHeavy);
     Cue(GetWorld(), TEXT("burn_ignite"));
 }
-void UMemoriaFieldCombatSubsystem::Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy)
+void UMemoriaFieldCombatSubsystem::Impact(const FVector& Location, const FLinearColor& Color, float Radius, bool bHeavy, EMemoriaDefenseOutcome Outcome)
 {
-    FMemoriaImpact Mark; Mark.Location = Location; Mark.Color = Color; Mark.Radius = Radius; Mark.bHeavy = bHeavy; Mark.Life = bHeavy ? .36f : .26f;
+    FMemoriaImpact Mark; Mark.Location = Location; Mark.Color = Color; Mark.Radius = Radius; Mark.bHeavy = bHeavy; Mark.Life = bHeavy ? .36f : .26f; Mark.Outcome = Outcome;
     Impacts.Add(Mark); ++ImpactsMade;
     // The blow lights the ground and the figures round it for an instant. One light, moved to each blow.
     UWorld* World = GetWorld();
@@ -745,7 +822,7 @@ void UMemoriaFieldCombatSubsystem::Impact(const FVector& Location, const FLinear
     if (Peak < GetHitLight()) return;
     Light->SetActorLocation(Location + FVector(0, -30, 40.f));
     Light->PointLightComponent->SetLightColor(Color); Light->PointLightComponent->SetAttenuationRadius(bHeavy ? 620.f : 430.f);
-    HitLightPeak = Peak; HitLightLeft = HitLightTime; Light->PointLightComponent->SetIntensity(Peak);
+    HitLightPeak = Peak; HitLightLeft = HitLightTime; Light->PointLightComponent->SetIntensity(Peak * CombatFlashScale(World));
 }
 void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
 {
@@ -764,7 +841,7 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
     if (HitLightLeft > 0.f)
     {
         HitLightLeft = FMath::Max(0.f, HitLightLeft - Real);
-        if (auto* Light = HitLight.Get()) Light->PointLightComponent->SetIntensity(GetHitLight());
+        if (auto* Light = HitLight.Get()) Light->PointLightComponent->SetIntensity(GetHitLight() * CombatFlashScale(GetWorld()));
     }
     for (FMemoriaSpark& S : Sparks) { S.Age += DeltaSeconds; S.Velocity.Z -= 900.f * DeltaSeconds; S.Location += S.Velocity * DeltaSeconds; }
     Sparks.RemoveAll([](const FMemoriaSpark& S) { return S.Age >= S.Life; });
@@ -791,18 +868,47 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
 }
 void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
 {
-    if (auto* Run = RunOf(GetWorld()))
+    if(auto* Run=RunOf(GetWorld()))
     {
-        auto& P = Run->State.Player;
-        P.Hp = FMath::Clamp<int64>(int64(P.MaxHp * HpShare), 1, P.MaxHp);
+        auto& P=Run->State.Player;
+        P.Hp=FMath::Clamp<int64>(int64(P.MaxHp*HpShare),1,P.MaxHp);
     }
-    for (const auto& M : Monsters) if (M.IsValid()) M->Destroy();
-    Monsters.Reset(); bDefeated = false; DefeatLeft = 0.f; StaggerLeft = CastLeft = DashLeft = 0.f; ComboStep = -1;
-    WeakenLeft = 0.f; PoisonLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false;
-    Thrown.Reset(); bWarded = false; Orbs.Reset(); ScorchLeft = 0;
-    EndBlock(); EndCharge();
-    if (auto* Figure = PlayerFigure.Get()) { Figure->StopAction(); Figure->ClearAim(); }
+    ClearRecoveryState();
 }
+void UMemoriaFieldCombatSubsystem::ClearRecoveryState()
+{
+    for(const auto& M:Monsters)if(M.IsValid())M->Destroy();
+    Monsters.Reset();bDefeated=false;DefeatLeft=0.f;StaggerLeft=CastLeft=DashLeft=0.f;ComboStep=-1;ClearComboIntent();
+    WeakenLeft=0.f;PoisonLeft=0;BurnChain=0;WaveKills=0;WaveGrains=0;bWaveVoid=false;
+    Thrown.Reset();bWarded=false;Orbs.Reset();ScorchLeft=0;
+    EndBlock();EndCharge();
+    if(auto* Figure=PlayerFigure.Get()){Figure->StopAction();Figure->ClearAim();}
+}
+void UMemoriaFieldCombatSubsystem::ResetForRestoredRun()
+{
+    ClearRecoveryState();
+    // The old world subsystem survives a same-level restore. Its paid effects,
+    // buffs and cooldowns are not part of the snapshot and belong to the old run.
+    CloseBurnPicker();bPicking=bArmed=false;Choices.Reset();Selection=0;
+    Casting=FMemoriaBurnChoice();Wave=FMemoriaBurnWave();Burned.Reset();
+    if(auto* Light=Flare.Get())Light->Destroy();Flare.Reset();
+    if(auto* Light=HitLight.Get())Light->Destroy();HitLight.Reset();
+    if(GetWorld())UGameplayStatics::SetGlobalTimeDilation(GetWorld(),1.f);
+    HitStopLeft=ShakeLeft=ShakeStrength=ShakeClock=0.f;
+    LastStep=-1;StepTime=StepLength=0.f;SinceStep=99.f;ClearComboIntent();HitThisSwing.Reset();
+    DashCooldownLeft=0.f;DashDirection=FVector::ZeroVector;AimDirection=SwingAimDirection=FVector::ForwardVector;SheatheIn=0.f;
+    PoisonClock=ScorchClock=0.f;PoisonDamage=ScorchDamage=0;
+    for(float& Cooldown:EliaCooldown)Cooldown=0.f;
+    ShieldLeft=ItemCooldownLeft=0.f;ItemRefusal.Reset();
+    Reward=FMemoriaFieldReward();EliaNotice.Reset();EliaNoticeAge=99.f;
+    Popups.Reset();Sparks.Reset();Trail.Reset();Impacts.Reset();
+    HitLightLeft=HitLightPeak=0.f;HurtAge=99.f;
+    if(auto* Figure=PlayerFigure.Get())Figure->SetSwordDrawn(false);
+    // This event counter drives the first-burn hint; the restored snapshot must
+    // not be treated as a fresh burn from the abandoned timeline.
+    Burns=0;
+}
+
 AMemoriaEliaCompanion* UMemoriaFieldCombatSubsystem::FindElia() const
 {
     for (TActorIterator<AMemoriaEliaCompanion> It(GetWorld()); It; ++It) return *It;

@@ -1,0 +1,90 @@
+{
+  "schema": 2,
+  "session": "S362",
+  "revision": "R2",
+  "name": "EliaCollars",
+  "triangles": 760,
+  "materials": [
+    {
+      "slot": 0,
+      "name": "S362_StaffMetal",
+      "triangles": 760,
+      "bounds_m": [
+        [
+          -0.01600000075995922,
+          0.01600000075995922
+        ],
+        [
+          -0.01600000075995922,
+          0.01600000075995922
+        ],
+        [
+          -0.4090000092983246,
+          0.22899998724460602
+        ]
+      ]
+    }
+  ],
+  "origin_world_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "bounds_m": [
+    [
+      -0.01600000075995922,
+      0.01600000075995922
+    ],
+    [
+      -0.01600000075995922,
+      0.01600000075995922
+    ],
+    [
+      -0.4090000092983246,
+      0.22899998724460602
+    ]
+  ],
+  "authored_original_geometry": null,
+  "roundtrip_position_UVs_RGBA": {
+    "retained_corners": 2280,
+    "source_corners": 2280,
+    "all_UVs_RGBA_position_ratio": 1.0,
+    "UV_channels": [
+      "UVMap"
+    ]
+  },
+  "roundtrip_envelope": {
+    "maximum_world_bound_error_m": 0.0,
+    "tolerance_m": 2e-06,
+    "original": [
+      [
+        -0.01600000075995922,
+        0.01600000075995922
+      ],
+      [
+        -0.01600000075995922,
+        0.01600000075995922
+      ],
+      [
+        -0.4090000092983246,
+        0.22899998724460602
+      ]
+    ],
+    "current": [
+      [
+        -0.01600000075995922,
+        0.01600000075995922
+      ],
+      [
+        -0.01600000075995922,
+        0.01600000075995922
+      ],
+      [
+        -0.4090000092983246,
+        0.22899998724460602
+      ]
+    ]
+  },
+  "output_sha256": "cd0e76dd1f7cd6eda11bd79b135bd8267d38e1f349aedadfdbda5ea94308ddb6",
+  "purpose": "Append new geometry only to a copy of original native MeshDescription."
+}

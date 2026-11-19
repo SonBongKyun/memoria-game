@@ -1,0 +1,1877 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-26T08:34:29.112311+00:00",
+  "project": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Memoria.uproject",
+  "engine": "5.8.2/DX11",
+  "base": "6fd6fce0f169193d35c6f48172c05cfe17ead1d0",
+  "committed": false,
+  "native": {
+    "unique_tests": 52,
+    "warning_bearing": 1,
+    "inputs": {
+      "files": 1978,
+      "unchanged": true,
+      "differences": {
+        "added": [],
+        "removed": [],
+        "changed": []
+      },
+      "scope": "Saved source/config/content/art source/test fixtures/Python and PowerShell tools and DLL/module inputs. Does not prove compilation provenance."
+    },
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\result.json",
+    "scope": "Related existing47 +new5. Full359 not rerun."
+  },
+  "baseline": {
+    "tests": 4,
+    "same_saved_source_and_dll_inputs": true,
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\result.json"
+  },
+  "post_harness_repair": {
+    "new_tests_rerun": 5,
+    "receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\native-post-smoke-repair1\\result.json",
+    "saved_input_changes_since_native52": [
+      "Unreal/Memoria/Binaries/Win64/UnrealEditor-Memoria.dll",
+      "Unreal/Memoria/Source/Memoria/Private/Validation/MemoriaUpgradeSmokeSubsystem.cpp"
+    ],
+    "normal_gameplay_presentation_source_unchanged": true
+  },
+  "combo": {
+    "front_actual_loss": 12,
+    "rear_actual_loss": 14,
+    "status": "PASS",
+    "scope": "Real PIE player/imported clips/actual two-foe HP; manually advanced gameplay-delta boundary cases plus real keyboard and Enhanced Input gamepad gestures. No physical hardware or rendered contact certification.",
+    "physical_keyboard_path": true,
+    "enhanced_gamepad_path": true,
+    "early_window_seconds": 0.11999999731779099,
+    "cases": [
+      {
+        "case": "OppositeTargetsCommittedAim",
+        "step": 1,
+        "step_time": 0.18666666746139526,
+        "step_length": 0.5333333611488342,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 180
+      },
+      {
+        "case": "EarlyExpiry",
+        "step": -1,
+        "step_time": 0.5683333277702332,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "LatestEarlyPressSingleConsumption",
+        "step": -1,
+        "step_time": 0.5433333516120911,
+        "step_length": 0.5333333611488342,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=0.000 Y=1.000 Z=0.000",
+        "committed_aim": "X=0.000 Y=1.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "LongFrameExpired",
+        "step": 0,
+        "step_time": 0.19333332777023315,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "LongFrameValid",
+        "step": 0,
+        "step_time": 0.19333332777023315,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": true,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Modal_Early",
+        "step": -1,
+        "step_time": 0.5699999928474426,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "Guard_Early",
+        "step": -1,
+        "step_time": 0.08666666597127914,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Dash_Early",
+        "step": -1,
+        "step_time": 0.08666666597127914,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "Hit_Early",
+        "step": -1,
+        "step_time": 0.08666666597127914,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Death_Early",
+        "step": -1,
+        "step_time": 0.08666666597127914,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "BurnPicker_Early",
+        "step": -1,
+        "step_time": 0.08666666597127914,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Register_Early",
+        "step": -1,
+        "step_time": 0.08666666597127914,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Restore_Early",
+        "step": -1,
+        "step_time": 0,
+        "step_length": 0,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "Modal_Queued",
+        "step": -1,
+        "step_time": 0.6653333306312561,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "Guard_Queued",
+        "step": -1,
+        "step_time": 0.18199999630451202,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Dash_Queued",
+        "step": -1,
+        "step_time": 0.18199999630451202,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "Hit_Queued",
+        "step": -1,
+        "step_time": 0.18199999630451202,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Death_Queued",
+        "step": -1,
+        "step_time": 0.18199999630451202,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "BurnPicker_Queued",
+        "step": -1,
+        "step_time": 0.18199999630451202,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Register_Queued",
+        "step": -1,
+        "step_time": 0.18199999630451202,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=-1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": 0
+      },
+      {
+        "case": "Restore_Queued",
+        "step": -1,
+        "step_time": 0,
+        "step_length": 0,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=1.000 Y=0.000 Z=0.000",
+        "committed_aim": "X=1.000 Y=0.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "PhysicalKeyboardAndModal",
+        "step": -1,
+        "step_time": 0.6539999842643738,
+        "step_length": 0.4333333373069763,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=0.000 Y=-1.000 Z=0.000",
+        "committed_aim": "X=0.000 Y=-1.000 Z=0.000",
+        "figure_yaw": -90
+      },
+      {
+        "case": "PhysicalGamepadChain",
+        "step": -1,
+        "step_time": 0.5433333516120911,
+        "step_length": 0.5333333611488342,
+        "early_seconds": 0,
+        "queued": false,
+        "future_aim": "X=0.000 Y=-1.000 Z=0.000",
+        "committed_aim": "X=0.000 Y=-1.000 Z=0.000",
+        "figure_yaw": 90
+      }
+    ]
+  },
+  "visual_comparison": {
+    "status": "PASS",
+    "same_saved_execution_inputs": true,
+    "pairs": [
+      {
+        "kind": "defense",
+        "name": "Case00_Block_T02.png",
+        "case": 0,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "Blocked",
+        "after_text": "Blocked · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.020666668191552162,
+        "after_popup_age": 0.020666668191552162,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Block_T02.png",
+            "sha256": "edef059744b69a98e054defaf0f3f7dac5780c42f345a2c46f245b7d3331a0dc",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Block_T02.png",
+            "sha256": "29164a63c1d32e021bb569035912632a468feae8fd6de0c30c105c9563a5f677",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Block_T10.png",
+        "case": 0,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "Blocked",
+        "after_text": "Blocked · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Block_T10.png",
+            "sha256": "acb3faf5ab3019ff6a23f6a69ea21737334b0827fb56cc89cfead67c7f2bd3e9",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Block_T10.png",
+            "sha256": "ef997e2e0de9b3336a67c3fc0f5c44a1c581733002f9d583e9853e4d6adb29cd",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Block_T30.png",
+        "case": 0,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "Blocked",
+        "after_text": "Blocked · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.30400004982948303,
+        "after_popup_age": 0.30400004982948303,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Block_T30.png",
+            "sha256": "eb84452f63403972c3207cf4d845cdafddcc785ba2ab61b680459058f111f301",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Block_T30.png",
+            "sha256": "186ca1369ca656047b56d245afe067017d3edbf94fd2635318d05a885ffca07c",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Parry_T02.png",
+        "case": 0,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "Parry!",
+        "after_text": "Parry!",
+        "hp_loss": 0,
+        "before_popup_age": 0.02366666868329048,
+        "after_popup_age": 0.02366666868329048,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Parry_T02.png",
+            "sha256": "57ded1e932b88f9916750ea510c3029a2fec2129472e27339ed5f3c748e33a47",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Parry_T02.png",
+            "sha256": "500c8f1e466ab9fd187de4a945324ad1d871ae382c166e2af6ed0aa338600467",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Parry_T10.png",
+        "case": 0,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "Parry!",
+        "after_text": "Parry!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Parry_T10.png",
+            "sha256": "b3835dd0e2c7767ac6365efabe9a2a325dfa9e5e8e436b8c0fa8840559302c31",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Parry_T10.png",
+            "sha256": "d852c3469ec6a4fdd9784a74a44a384edea3b54ae6f02e9d0e8d4e1a4ca3bcfe",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Parry_T30.png",
+        "case": 0,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "Parry!",
+        "after_text": "Parry!",
+        "hp_loss": 0,
+        "before_popup_age": 0.3070000410079956,
+        "after_popup_age": 0.3070000410079956,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Parry_T30.png",
+            "sha256": "e7ba55b02af86b29351c172d5608f028bc69319c5bcf02b4b72bd358bbd52c2d",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Parry_T30.png",
+            "sha256": "33d1839afd54415855f45f0a66ae90dd3be51c41c7a525604905a4e6cea05f4b",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Ward_T02.png",
+        "case": 0,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "Warded",
+        "after_text": "Warded",
+        "hp_loss": 0,
+        "before_popup_age": 0.03333333507180214,
+        "after_popup_age": 0.03333333507180214,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Ward_T02.png",
+            "sha256": "673c57f195a7642e9fbdcb156cd05ce7a3b1a9b4cc3ea56dd1ba00e973cdd952",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Ward_T02.png",
+            "sha256": "3c6ad2fd24e3bbdafe2c7632b2975bc81a6f5d282a27d5558f1559f11c72f3ae",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Ward_T10.png",
+        "case": 0,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "Warded",
+        "after_text": "Warded",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Ward_T10.png",
+            "sha256": "a24daa50440ff4ca86c118a1f8c777bd3b35149d47f0df41306bcbfa4a80f534",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Ward_T10.png",
+            "sha256": "bcdca7b12cf84d5dd2fbb61fffa2dc5bd13cc5dc1d46797f378d47c23e0b8f92",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_Ward_T30.png",
+        "case": 0,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "Warded",
+        "after_text": "Warded",
+        "hp_loss": 0,
+        "before_popup_age": 0.30000004172325134,
+        "after_popup_age": 0.30000004172325134,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Ward_T30.png",
+            "sha256": "0458bf7c9c7ff133227328c91a129f0d07510537878654c4428826c293b00a97",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Ward_T30.png",
+            "sha256": "980790d52ef8faf3e337ca63111010520e05543d40681705e9ac4b056c054408",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case00_BlockHP1_T10.png",
+        "case": 0,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "Blocked",
+        "after_text": "Blocked",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_BlockHP1_T10.png",
+            "sha256": "0e66c37b560677aba57611a2ee77071505e2d0b6d79cd52f64a119825a782328",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_BlockHP1_T10.png",
+            "sha256": "92500921d0131a32d2105ab8e023aece965c21aec093361703fdb4a2150fba3e",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case01_Block_T10.png",
+        "case": 1,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "막음",
+        "after_text": "막음 · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case01_Block_T10.png",
+            "sha256": "42152fd86b325f6410eb9765bc16febe73856b8c016d96f0effbeabcda2d69f5",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case01_Block_T10.png",
+            "sha256": "4bfd9b7ad1138b4eb11f1517236f03d18907047aa6e2a588745ba922648a2786",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case01_Parry_T10.png",
+        "case": 1,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "패링!",
+        "after_text": "패링!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case01_Parry_T10.png",
+            "sha256": "5cbd62c040959a55cacabd6e83eb47390c8c8cdf4fc93d8308da3cd6a5d12aad",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case01_Parry_T10.png",
+            "sha256": "1ec5b8450c5aafb5b61c9c919abcca056b252e45be59830ae78e746757b6548a",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case01_Ward_T10.png",
+        "case": 1,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "잉크가 막았다",
+        "after_text": "잉크가 막았다",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case01_Ward_T10.png",
+            "sha256": "bc14d2ca65ba54e28dc646741900935183f9517de90711c3e143e625da62c6ca",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case01_Ward_T10.png",
+            "sha256": "8ac7819419409b0a9ca9b602271553806dbdc5683fffeb950ba49dd3e047cca0",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case01_BlockHP1_T10.png",
+        "case": 1,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "막음",
+        "after_text": "막음",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case01_BlockHP1_T10.png",
+            "sha256": "80ea2acea505197fe51aafab87175b906c831c0b10af121b086f34b0a30e7f87",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case01_BlockHP1_T10.png",
+            "sha256": "32e2aeb589ecf7ffb026620aea3b303024e4639b466946749575ebf7f06ace0e",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case02_Block_T10.png",
+        "case": 2,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "Blocked",
+        "after_text": "Blocked · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case02_Block_T10.png",
+            "sha256": "571099a8f896af9c08cbe895fcec1ac6dfc1709344b51b0bb171d13eaf0bbf47",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case02_Block_T10.png",
+            "sha256": "474063b25098c3694b6e2a803b8d2b02d2cc32990197bea5ef9782b80f7f75e1",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case02_Parry_T10.png",
+        "case": 2,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "Parry!",
+        "after_text": "Parry!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case02_Parry_T10.png",
+            "sha256": "474b70041012bb6fc6ef4d5c090a4630aa22cea6f48f8da3868f723f4472e005",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case02_Parry_T10.png",
+            "sha256": "a7d90a724820f767e2a430a7b71c04618f310390cfcb58e8279af67950f4eea9",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case02_Ward_T10.png",
+        "case": 2,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "Warded",
+        "after_text": "Warded",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case02_Ward_T10.png",
+            "sha256": "93224d71c8fb3db9f0e8d923aa896d2ff6113b2243aec01fc6fbaf767127cd6e",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case02_Ward_T10.png",
+            "sha256": "be22f072fef14fb64f04181a613b65b99f1c83e806af9daa4d1869a6b4faccb8",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case02_BlockHP1_T10.png",
+        "case": 2,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "Blocked",
+        "after_text": "Blocked",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case02_BlockHP1_T10.png",
+            "sha256": "a5cf740dd4529b3e8f9cfdf703a59a4934cdf453de3f68617906c7aa4b6ab8d5",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case02_BlockHP1_T10.png",
+            "sha256": "b16fa3b455d586f711ae05d27f980a229be5fa953555c8087afd5cd41b79de69",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case03_Block_T10.png",
+        "case": 3,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "막음",
+        "after_text": "막음 · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case03_Block_T10.png",
+            "sha256": "6fad2c3b29b17b326166f22a5b3e639744cf89aee29afffe8b1d68ac35cb4c4a",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case03_Block_T10.png",
+            "sha256": "99c12ff91142423e8c0098b030a8e6303cabe58e51758767178e9ccbf8366be0",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case03_Parry_T10.png",
+        "case": 3,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "패링!",
+        "after_text": "패링!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case03_Parry_T10.png",
+            "sha256": "b1f03d1771a0529436529bd806444987f82e5f3795a80963cb6ae187f57e813c",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case03_Parry_T10.png",
+            "sha256": "024f49fae5c5a689b494d8d19cea7dc8fcd1fecbbbe3c03f83276d4b8d0ad595",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case03_Ward_T10.png",
+        "case": 3,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "잉크가 막았다",
+        "after_text": "잉크가 막았다",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case03_Ward_T10.png",
+            "sha256": "0ea8ee604679a0c4df73a8e1722ad72fe0a815151a4aaf1dcd74f6f52b50eef4",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case03_Ward_T10.png",
+            "sha256": "7dad7286e82e20e0b43c03294ddca70aa5ce91a47419df1257f1047df2b716dc",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case03_BlockHP1_T10.png",
+        "case": 3,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "막음",
+        "after_text": "막음",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case03_BlockHP1_T10.png",
+            "sha256": "4a2058519295831e6e8fc4424e40590c558e5b021b4fd536ac9c20f907cb0e6d",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case03_BlockHP1_T10.png",
+            "sha256": "16f5ac5ea3d6aa7fa0d02d2d6cbf7a6057dc98f4286cb7c0516470bcf28d680b",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case04_Block_T10.png",
+        "case": 4,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "Blocked",
+        "after_text": "Blocked · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case04_Block_T10.png",
+            "sha256": "b580b5d259e05149d15dea699ba6f5e283ac6880c7e9823bff3a44553d9c9755",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case04_Block_T10.png",
+            "sha256": "37b1b27acb71fb89db8245cb6021e58383c0dd57c5a2a4e4a70a6b5242ec1c31",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case04_Parry_T10.png",
+        "case": 4,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "Parry!",
+        "after_text": "Parry!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case04_Parry_T10.png",
+            "sha256": "c031f51c23d619bbb0df2419c7e4381adf1c5dc73860d08a672e5320729d774b",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case04_Parry_T10.png",
+            "sha256": "606a06c0f3f01ea0cda015049fe90e5adba749f1be8b0ace10c111404903a999",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case04_Ward_T10.png",
+        "case": 4,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "Warded",
+        "after_text": "Warded",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case04_Ward_T10.png",
+            "sha256": "519ce1532de9e306db0931925eaa62dcedda9642c265bff3a37e4a53295fbcda",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case04_Ward_T10.png",
+            "sha256": "dc4edcaaa442d4e78b942fbf51840a619f5977d81bd8580f33d6fc6e4f76e8ed",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case04_BlockHP1_T10.png",
+        "case": 4,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "Blocked",
+        "after_text": "Blocked",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case04_BlockHP1_T10.png",
+            "sha256": "3dc6e12adaaf6e9b8fe5042ad92092f1586852740641bef4d5b8d4725033ffc4",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case04_BlockHP1_T10.png",
+            "sha256": "32a9822d775e19b965b4f2c0259223504143ecae825f3c94f899bfb6ac652e7b",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case05_Block_T10.png",
+        "case": 5,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "막음",
+        "after_text": "막음 · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case05_Block_T10.png",
+            "sha256": "5dc694e18c2694840a68e371ae1eaf7607c96f7914a603e80b3f6d1768927b4b",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case05_Block_T10.png",
+            "sha256": "6717ddc0ae1c8fff560d1c93782911450cf90e34422b35dbd6e4b0e0b89c9800",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case05_Parry_T10.png",
+        "case": 5,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "패링!",
+        "after_text": "패링!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case05_Parry_T10.png",
+            "sha256": "ecee109ff7d1fa48c08effd9bbc5a15ed1e8412d225685dd87bf910c66050e4b",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case05_Parry_T10.png",
+            "sha256": "f449171bcc09ba672d6b2d9d78a7cd85821e4457b380501bbbcdee7951fa5181",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case05_Ward_T10.png",
+        "case": 5,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "잉크가 막았다",
+        "after_text": "잉크가 막았다",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case05_Ward_T10.png",
+            "sha256": "d0b52f9c217c52c8ab4fa51e9e25c3da3ed5128fbc3fa127b051521feec2449a",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case05_Ward_T10.png",
+            "sha256": "7f01cbfafb41a2ca0a28bdb43364e1b63a0fb03875e70f29eca8a757df30768d",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case05_BlockHP1_T10.png",
+        "case": 5,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "막음",
+        "after_text": "막음",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case05_BlockHP1_T10.png",
+            "sha256": "8367db7c6110fea761ed58813ec5904b210f6dd71dc6c9334372664d5c2003fc",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case05_BlockHP1_T10.png",
+            "sha256": "fca937bb654096221dc449589b6e85058f9d9e624f40928705e522f9b63ef08d",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case06_Block_T10.png",
+        "case": 6,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "Blocked",
+        "after_text": "Blocked · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case06_Block_T10.png",
+            "sha256": "011888cc650ed248fe0abf18c808b18b1f0b05d3b6f71229fdac7e1992a6ef55",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case06_Block_T10.png",
+            "sha256": "a2fbd67903b177ceb98363fd2662a69de397525863511f8647d9d4267afdb10c",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case06_Parry_T10.png",
+        "case": 6,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "Parry!",
+        "after_text": "Parry!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case06_Parry_T10.png",
+            "sha256": "40efe5ae90040a29eccee68cb9567ff17ded2cfd1d1b78de92fc16acdac141bc",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case06_Parry_T10.png",
+            "sha256": "17b7f1a6d7e8f022177cc6280b3db6ea9256c60f5b80b4734b779318b1a8f76e",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case06_Ward_T10.png",
+        "case": 6,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "Warded",
+        "after_text": "Warded",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case06_Ward_T10.png",
+            "sha256": "c921760298d30693bc686d7ae0ca0f8c884297645e2c3e3369ef68661c000fb7",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case06_Ward_T10.png",
+            "sha256": "7f49093512ba0af2f10af54278d7962f92044789ec5df2bda208813384d2048b",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case06_BlockHP1_T10.png",
+        "case": 6,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "Blocked",
+        "after_text": "Blocked",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case06_BlockHP1_T10.png",
+            "sha256": "e2d1eeed151d17e3e3f80dc0043364a3a5df40c885268b79bd30bb8c5dfd31c0",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case06_BlockHP1_T10.png",
+            "sha256": "d0f76e076470bac0dee5a0024e1978c38eb82a573e591e89af400c4553d54e6d",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case07_Block_T10.png",
+        "case": 7,
+        "outcome": "Block",
+        "hp1": false,
+        "before_text": "막음",
+        "after_text": "막음 · -2 HP",
+        "hp_loss": 2,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_Block_T10.png",
+            "sha256": "245371c32e3a8e37e34707f8a42878498c482ab8ecc912191cde9424d77873d7",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_Block_T10.png",
+            "sha256": "f65ce8b84dd952b99c6b7551df58410ec1eec43ff5566d082aa62835e0645a3e",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case07_Parry_T10.png",
+        "case": 7,
+        "outcome": "Parry",
+        "hp1": false,
+        "before_text": "패링!",
+        "after_text": "패링!",
+        "hp_loss": 0,
+        "before_popup_age": 0.10700000077486038,
+        "after_popup_age": 0.10700000077486038,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_Parry_T10.png",
+            "sha256": "af5010761568936f34d86142de35d41005e867ec08bf4bd36925fbd9f4f60ee3",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_Parry_T10.png",
+            "sha256": "b09b52731fa3873ab3b9b6b6854db37132508d6310ee04e599ff9c31179f3def",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case07_Ward_T10.png",
+        "case": 7,
+        "outcome": "Ward",
+        "hp1": false,
+        "before_text": "잉크가 막았다",
+        "after_text": "잉크가 막았다",
+        "hp_loss": 0,
+        "before_popup_age": 0.10000000149011612,
+        "after_popup_age": 0.10000000149011612,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_Ward_T10.png",
+            "sha256": "6a74ed133c41b46a7c353373def97f7ec1ee3929160a9968d91d561665989a9a",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_Ward_T10.png",
+            "sha256": "9b48ea3fe8d7db71cbe4cd8d92f0e1c4946a80776683fd38b09a849a0e40d5f9",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "defense",
+        "name": "Case07_BlockHP1_T10.png",
+        "case": 7,
+        "outcome": "Block",
+        "hp1": true,
+        "before_text": "막음",
+        "after_text": "막음",
+        "hp_loss": 0,
+        "before_popup_age": 0.10400000214576721,
+        "after_popup_age": 0.10400000214576721,
+        "popup_age_delta": 0.0,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_BlockHP1_T10.png",
+            "sha256": "3c4eecfc0b0c5e7e2f97a11f9e25b546478f16b1d6270edd1165e76587c51960",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_BlockHP1_T10.png",
+            "sha256": "95ac2a375c5b911420c4916a9c8caf7b100aa8ed4e4ab19e5b6456f2f33ec6b5",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case00_Elia_After",
+        "case": "Case00",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "prompt": "Elia  |  E / A: talk",
+        "before_world_seconds": 0.8166667092591524,
+        "after_world_seconds": 0.8166667092591524,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Elia_Baseline.png",
+            "sha256": "2b47f1538ce631a57d8287e8ff248a06dbc514b44119a19f3993223af5e986eb",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Elia_After.png",
+            "sha256": "d39c07491406a5cc0fb7e389d3987b456e8d2aaa34c79e100332c54ce454b9d2",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case01_Elia_After",
+        "case": "Case01",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "prompt": "Elia  |  E / A: talk",
+        "before_world_seconds": 1.3666667379438877,
+        "after_world_seconds": 1.3666667379438877,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case01_Elia_Baseline.png",
+            "sha256": "c6ae40b5b1c2840448b3e9b230fcba5c595db1761d099c9d18d7c9bfc9944d86",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case01_Elia_After.png",
+            "sha256": "cbd7bd8915f024ceacc6465723cb1b96bd2e1f2bd1fc412810b1c399d3ba5dd1",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case02_Elia_After",
+        "case": "Case02",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "prompt": "Elia  |  E / A: talk",
+        "before_world_seconds": 1.916666766628623,
+        "after_world_seconds": 1.916666766628623,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case02_Elia_Baseline.png",
+            "sha256": "1e53d9f6ab68038d8471d94b0e8ee2b2659bc0e0e277156a857a9ca241d94383",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case02_Elia_After.png",
+            "sha256": "81b1f603f5c0aaf6bd539a73624f204372a8a34c1bc66415b7fb2e529aa4a24a",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case03_Elia_After",
+        "case": "Case03",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaEliaCompanion_0",
+        "prompt": "Elia  |  E / A: talk",
+        "before_world_seconds": 2.4666667953133583,
+        "after_world_seconds": 2.4666667953133583,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case03_Elia_Baseline.png",
+            "sha256": "f1537a0da1edc1e1b38612aefd36015b43e59060f9ce6a930ee91cd00f94ee65",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case03_Elia_After.png",
+            "sha256": "e462c5a51f5fde6918bb406b0bc0627a5f3b4f06eafc00030eb0dba7aee4df2a",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case04_Story_After",
+        "case": "Case04",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "prompt": "Memory stalls  |  E / A: look",
+        "before_world_seconds": 3.0166668239980936,
+        "after_world_seconds": 3.0166668239980936,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case04_Story_Baseline.png",
+            "sha256": "1597d4f6f90567dc9c68e8ea6ea92fc43c4a349a6b72748f3d304fb90744c781",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case04_Story_After.png",
+            "sha256": "e571ace5ceb9e8b60067ddb372aa16092783f9f760ad3d24221aecb937ce4418",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case05_Story_After",
+        "case": "Case05",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "prompt": "Memory stalls  |  E / A: look",
+        "before_world_seconds": 3.566666852682829,
+        "after_world_seconds": 3.566666852682829,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case05_Story_Baseline.png",
+            "sha256": "e67fe184e28c6e960f69a686195371eebf70f5fbc9d742642155adb93f73deb0",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case05_Story_After.png",
+            "sha256": "e29745ba7c35f7b52f09dd4b49232e8dd5a1b8434739efd422674464c953a733",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case06_Story_After",
+        "case": "Case06",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "prompt": "Memory stalls  |  E / A: look",
+        "before_world_seconds": 4.116666881367564,
+        "after_world_seconds": 4.116666881367564,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case06_Story_Baseline.png",
+            "sha256": "a9c9f1b1500250aeea0b29ae6280a57b69f46e4f6d47a7cf84bb4a2dc9efe690",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case06_Story_After.png",
+            "sha256": "e57e8b38404d56de63f0c2e265d0c9bbd1f7d889221d8792ede509b165a25644",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case07_Story_After",
+        "case": "Case07",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.MemoriaStoryPointActor_0",
+        "prompt": "Memory stalls  |  E / A: look",
+        "before_world_seconds": 4.6666669100522995,
+        "after_world_seconds": 4.6666669100522995,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_Story_Baseline.png",
+            "sha256": "8a4bb16612078890dfc27540540579116bb2273dc8662c57cc9befe69443c7c4",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_Story_After.png",
+            "sha256": "da8621787fcb8633bac587ed92e046663e37b8a9054885b1b24b82cfa8ef49fd",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case08_Malet_After",
+        "case": "Case08",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "prompt": "Malet  |  E / A: talk",
+        "before_world_seconds": 5.216666938737035,
+        "after_world_seconds": 5.216666938737035,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case08_Malet_Baseline.png",
+            "sha256": "4473d77be288be29d3013ef478acb16fef4d22c6348f7e0eb985a96d0543f284",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case08_Malet_After.png",
+            "sha256": "a53736f74b438c915df666631d5cb1d98e0273ebc71b2676a15ba2a5a4c011a9",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case09_Malet_After",
+        "case": "Case09",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "prompt": "Malet  |  E / A: talk",
+        "before_world_seconds": 5.76666696742177,
+        "after_world_seconds": 5.76666696742177,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case09_Malet_Baseline.png",
+            "sha256": "6dad08aa0570d5834df00f01c6f9b0c3c085e069ec02340749a31e12a502c0ac",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case09_Malet_After.png",
+            "sha256": "c77f3ed9b6b0932687c71291c36215a1cafce8c6dd09212b64431c86155d62a2",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case10_Malet_After",
+        "case": "Case10",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "prompt": "Malet  |  E / A: talk",
+        "before_world_seconds": 6.316666996106505,
+        "after_world_seconds": 6.316666996106505,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case10_Malet_Baseline.png",
+            "sha256": "b12b9c2c5d5d49eed6380a0638ce29f04c6c54f2a18cf5dc0cbcf46808ac1679",
+            "width": 1280,
+            "height": 720
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case10_Malet_After.png",
+            "sha256": "4ff7a61e4f2598fdf6cbaf7f2788759673e735e634822622751b22aed24bf47d",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      {
+        "kind": "focus",
+        "name": "Case11_Malet_After",
+        "case": "Case11",
+        "before_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "after_actor": "/Game/Tests/Campaign/UEDPIE_0_L_VerdanHost.L_VerdanHost:PersistentLevel.Malet",
+        "prompt": "Malet  |  E / A: talk",
+        "before_world_seconds": 6.866667024791241,
+        "after_world_seconds": 6.866667024791241,
+        "images": [
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case11_Malet_Baseline.png",
+            "sha256": "342b4d2c8b87ebf33806023671fff14f1a9600a8ac572e0526e9d0a7f080c1d2",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case11_Malet_After.png",
+            "sha256": "459c0f3e6beb93de1afbd70b1f33a89a28d52a60b1c26a73d198775985681621",
+            "width": 640,
+            "height": 360
+          }
+        ]
+      }
+    ],
+    "defense_pairs": 38,
+    "focus_pairs": 12,
+    "max_defense_popup_age_delta": 0.0,
+    "limit": "Same authored role/player/camera/FOV/options/HP and real PNG dimensions. Popup ages match within one fixed frame and are retained. Instance paths/world time/weather/particles are not claimed pixel-identical. Baseline flag disables only new presentation; S364 gameplay/eligibility fixes remain active in both modes."
+  },
+  "preservation": {
+    "status": "PASS",
+    "existing_packages_unchanged": 882,
+    "package_set_unchanged": true,
+    "all_existing_art_source_unchanged": true,
+    "original_animation_bridge_unchanged": true,
+    "source_registry": 359,
+    "baseline_inputs": 1969,
+    "current_inputs": 1978,
+    "execution_input_changes": {
+      "added": [
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaDefenseFeedbackS364.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Interaction/MemoriaInteractionFocusS364.cpp",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaDefenseFeedbackS364.h",
+        "Unreal/Memoria/Source/Memoria/Public/Interaction/MemoriaInteractionFocusS364.h",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaComboS364Tests.cpp",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaDefenseS364Tests.cpp",
+        "Unreal/Memoria/Source/MemoriaTests/Private/MemoriaInteractionFocusS364Tests.cpp",
+        "Unreal/Tools/run_s364_native.py",
+        "Unreal/Tools/run_s364_packaged.py"
+      ],
+      "removed": [],
+      "changed": [
+        "Unreal/Memoria/Binaries/Win64/UnrealEditor-Memoria.dll",
+        "Unreal/Memoria/Binaries/Win64/UnrealEditor-MemoriaTests.dll",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaCombatHudWidget.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldCombatSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Combat/MemoriaFieldHudWidget.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Interaction/MemoriaEliaCompanion.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Narrative/MemoriaNarrativeSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Private/Validation/MemoriaUpgradeSmokeSubsystem.cpp",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaCombatHudWidget.h",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaFieldCombatSubsystem.h",
+        "Unreal/Memoria/Source/Memoria/Public/Combat/MemoriaFieldHudWidget.h",
+        "Unreal/Memoria/Source/Memoria/Public/Narrative/MemoriaNarrativeSubsystem.h"
+      ]
+    },
+    "unexpected_changes": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "limit": "Saved inputs and hash preservation; no independent compilation provenance or external-checkout certification."
+  },
+  "packaged": {
+    "build_receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\package-dev-build5\\result.json",
+    "run_receipt": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\packaged-smoke4\\result.json",
+    "captures": 17,
+    "exit_code": 0,
+    "exe": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\package-dev5\\Windows\\Memoria\\Binaries\\Win64\\Memoria.exe",
+    "exe_sha256": "8d3d3d23b7335ec83909a9183158ef1eb6f1c2d177f8a4ec09711898fb1cbbb6",
+    "early_press_fraction": 0.3076923191547394,
+    "early_buffer_seconds": 0.11999999731779099,
+    "actual_block_hp_loss": 6,
+    "actual_block_text": "Blocked · -6 HP"
+  },
+  "controlled_replay": {
+    "phases": [
+      2,
+      3
+    ],
+    "fixed_delta": 0.016666666666666666,
+    "scope": "Only the opt-in phase2/3 combo/defense fixture uses engine fixed1/60 gameplay steps. No attack clock, queue threshold, HP, pose or result is directly assigned. Prior timestep is restored before burn/travel and on failure/teardown. Phase2/3 timing is controlled validation, not natural-frame/FPS evidence."
+  },
+  "performance": {
+    "path": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\performance-final.json",
+    "classification": "verified_cooked_development_smoke",
+    "limits": [
+      "S364 phases2/3 use an opt-in controlled engine1/60 simulation step for deterministic combo/defense input replay. Engine FrameTime/game-clock values in or aggregated with those phases are not natural wall-frame/FPS evidence. Raw measurements are retained; no FPS/performance quality conclusion is drawn.",
+      "Bounded seeded cooked Development smoke, not a steady-state or Shipping benchmark, human playthrough or before/after optimization comparison.",
+      "No FPS/performance pass thresholds are imposed. Evidence integrity and measurement availability are separate from performance quality.",
+      "No warmup was added. Captures, UI, streaming, seeded encounters, file work and profiling overhead can affect observations.",
+      "Region/phase/capture/combat tags come from the game thread. Published render/RHI/GPU counters may lag those tags; no exact cross-thread alignment is claimed.",
+      "Phase17 is artifact finalization and is excluded from gameplay summaries. Capture/combat groups are separated, not silently pooled into an idle rendering benchmark.",
+      "Nearest-rank p50/p95/p99 are computed from actual valid raw samples. Small sample counts remain visible; no percentile is invented from manual min/mean/max aggregates.",
+      "GPUTime requires positive raw engine samples. Missing/nonpositive GPU timing is unavailable; CPU/wall timings are never substituted.",
+      "Manual scoped CPU, engine thread timing and parallel-task sums measure different scopes and may overlap. Manual scopes exclude separate engine bone refresh and GPU skinning.",
+      "RHI texture allocation accounting, one-shot DXGI process LOCAL usage/budget and engine GPUMem counters have different scopes. No texture dimensions are converted to invented VRAM bytes.",
+      "The status exit_code is the harness's recorded intent. External process exit/log/fatal validation remains a separate runner responsibility."
+    ]
+  },
+  "selected_images": [
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case00_Block_T10_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Block_T10.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "acb3faf5ab3019ff6a23f6a69ea21737334b0827fb56cc89cfead67c7f2bd3e9",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case00_Block_T10_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Block_T10.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "ef997e2e0de9b3336a67c3fc0f5c44a1c581733002f9d583e9853e4d6adb29cd",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case00_Parry_T10_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Parry_T10.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "b3835dd0e2c7767ac6365efabe9a2a325dfa9e5e8e436b8c0fa8840559302c31",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case00_Parry_T10_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Parry_T10.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d852c3469ec6a4fdd9784a74a44a384edea3b54ae6f02e9d0e8d4e1a4ca3bcfe",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case00_Ward_T10_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Ward_T10.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a24daa50440ff4ca86c118a1f8c777bd3b35149d47f0df41306bcbfa4a80f534",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case00_Ward_T10_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Ward_T10.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "bcdca7b12cf84d5dd2fbb61fffa2dc5bd13cc5dc1d46797f378d47c23e0b8f92",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case07_Block_T10_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_Block_T10.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "245371c32e3a8e37e34707f8a42878498c482ab8ecc912191cde9424d77873d7",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case07_Block_T10_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_Block_T10.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "f65ce8b84dd952b99c6b7551df58410ec1eec43ff5566d082aa62835e0645a3e",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case07_BlockHP1_T10_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Defense\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_BlockHP1_T10.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "3c4eecfc0b0c5e7e2f97a11f9e25b546478f16b1d6270edd1165e76587c51960",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/defense_Case07_BlockHP1_T10_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Defense\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_BlockHP1_T10.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "95ac2a375c5b911420c4916a9c8caf7b100aa8ed4e4ab19e5b6456f2f33ec6b5",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/focus_Case00_Elia_Baseline_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case00_Elia_Baseline.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "2b47f1538ce631a57d8287e8ff248a06dbc514b44119a19f3993223af5e986eb",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/focus_Case00_Elia_After_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case00_Elia_After.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "d39c07491406a5cc0fb7e389d3987b456e8d2aaa34c79e100332c54ce454b9d2",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/focus_Case07_Story_Baseline_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case07_Story_Baseline.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "8a4bb16612078890dfc27540540579116bb2273dc8662c57cc9befe69443c7c4",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/focus_Case07_Story_After_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case07_Story_After.png",
+      "width": 640,
+      "height": 360,
+      "sha256": "da8621787fcb8633bac587ed92e046663e37b8a9054885b1b24b82cfa8ef49fd",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/focus_Case08_Malet_Baseline_Before.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\visual-baseline1\\Captures\\S364Focus\\DFD7A9DE491384B52FE0B0B0E637CC67\\Case08_Malet_Baseline.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4473d77be288be29d3013ef478acb16fef4d22c6348f7e0eb985a96d0543f284",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/focus_Case08_Malet_After_After.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\final-native1\\Captures\\S364Focus\\1DEA3B0D478E628095FEB1B4F7143DD4\\Case08_Malet_After.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "a53736f74b438c915df666631d5cb1d98e0273ebc71b2676a15ba2a5a4c011a9",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/Cooked_14_ComboChain.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\packaged-smoke4\\RuntimeArtifacts\\14_ComboChain.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "de5274a1fd8f909ec02738ff437a1d4afbce8483507c11570006e6cfe4057ca1",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/Cooked_15_BlockOutcome.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\packaged-smoke4\\RuntimeArtifacts\\15_BlockOutcome.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "4db868958cc268d9f9cf1aea3cdc8db2f2b2a699e7c6c22491eb2b75eca41ddc",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/Cooked_16_ParryOutcome.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\packaged-smoke4\\RuntimeArtifacts\\16_ParryOutcome.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "2df8d4a2600681fece714db99ffd1534df3d0c98555528679a8d112896eae52b",
+      "pixels_modified": false
+    },
+    {
+      "path": "docs/unreal-migration/evidence/s364/Cooked_17_InteractionFocus.png",
+      "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\Memoria\\Saved\\Validation\\s364\\packaged-smoke4\\RuntimeArtifacts\\17_InteractionFocus.png",
+      "width": 1280,
+      "height": 720,
+      "sha256": "74267f6fa839e6ddccb662185da3f29a4eb216cbd3860989e864796ec87e532c",
+      "pixels_modified": false
+    }
+  ],
+  "limits": [
+    "120ms is gameplay time; no hardware input-latency measurement.",
+    "Defense contacts and early combo are controlled isolated fixtures; existing AI regression remains separate.",
+    "Focus RunJson compares RunSnapshot, not separate MemoryDomain bytes.",
+    "Visual baseline disables new presentation only; new gameplay/eligibility fixes remain active in both.",
+    "No physical pad, human full playthrough, Shipping, long-session or before/after FPS certification.",
+    "Existing cape/leg armor overlap remains."
+  ]
+}

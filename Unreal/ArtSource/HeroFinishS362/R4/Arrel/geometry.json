@@ -1,0 +1,438 @@
+{
+  "schema": "s362-arrel-sole-r4-v1",
+  "status": "STAGED_NOT_NATIVE_ACCEPTED",
+  "source": "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroFinishS362\\R2\\Arrel\\Arrel.fbx",
+  "source_sha256": "a99abcc2e00dfe6ecf8ac0170079405ea42c21e55506d62967c7c3b80ae517da",
+  "output_sha256": "5cd6297af9b7e8cb55d233e9e3bc4677aa0b30bac9b3ac652f510a4d60b0c1f9",
+  "fbx_version": 7400,
+  "triangles": 33804,
+  "vertices": 17005,
+  "bones": 77,
+  "materials": [
+    "Arrel",
+    "S361_HeroCraft_Regions"
+  ],
+  "weight_exceptions": [
+    {
+      "source_ID": 329,
+      "side": "l",
+      "source_position_cm": [
+        21.431045532226562,
+        7.847470283508301,
+        0.5369064807891846
+      ],
+      "old_weights": {
+        "calf_l": 0.3643307387828827,
+        "foot_l": 0.4278526306152344,
+        "ball_l": 0.20781609416007996
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 4492,
+      "side": "l",
+      "source_position_cm": [
+        18.630704879760742,
+        12.393990516662598,
+        0.5520178079605103
+      ],
+      "old_weights": {
+        "calf_l": 0.41429904103279114,
+        "foot_l": 0.43532854318618774,
+        "ball_l": 0.1503710001707077
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 4504,
+      "side": "l",
+      "source_position_cm": [
+        21.31740951538086,
+        12.959604263305664,
+        0.5475044846534729
+      ],
+      "old_weights": {
+        "calf_l": 0.4084475636482239,
+        "foot_l": 0.43264198303222656,
+        "ball_l": 0.15890872478485107
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 4964,
+      "side": "l",
+      "source_position_cm": [
+        19.042226791381836,
+        11.294987678527832,
+        4.6651344121073635e-08
+      ],
+      "old_weights": {
+        "calf_l": 0.4006625711917877,
+        "foot_l": 0.42877960205078125,
+        "ball_l": 0.17055727541446686
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 4981,
+      "side": "l",
+      "source_position_cm": [
+        21.25636100769043,
+        11.140504837036133,
+        0.038929495960474014
+      ],
+      "old_weights": {
+        "calf_l": 0.3940975069999695,
+        "foot_l": 0.4272651970386505,
+        "ball_l": 0.17863662540912628
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 4993,
+      "side": "l",
+      "source_position_cm": [
+        22.442298889160156,
+        11.528316497802734,
+        0.5820743441581726
+      ],
+      "old_weights": {
+        "calf_l": 0.38939398527145386,
+        "foot_l": 0.42969274520874023,
+        "ball_l": 0.18091095983982086
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 5331,
+      "side": "l",
+      "source_position_cm": [
+        17.661861419677734,
+        10.64750862121582,
+        0.5647144317626953
+      ],
+      "old_weights": {
+        "calf_l": 0.39827433228492737,
+        "foot_l": 0.42940327525138855,
+        "ball_l": 0.17232191562652588
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 5667,
+      "side": "l",
+      "source_position_cm": [
+        18.120319366455078,
+        9.138568878173828,
+        0.552756667137146
+      ],
+      "old_weights": {
+        "calf_l": 0.38339412212371826,
+        "foot_l": 0.428850919008255,
+        "ball_l": 0.1877545863389969
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 5671,
+      "side": "l",
+      "source_position_cm": [
+        19.054241180419922,
+        9.665356636047363,
+        0.18027842044830322
+      ],
+      "old_weights": {
+        "calf_l": 0.3874465525150299,
+        "foot_l": 0.4264136552810669,
+        "ball_l": 0.18613947927951813
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 5680,
+      "side": "l",
+      "source_position_cm": [
+        21.327293395996094,
+        8.46274185180664,
+        0.2586229145526886
+      ],
+      "old_weights": {
+        "calf_l": 0.38385599851608276,
+        "foot_l": 0.4262048006057739,
+        "ball_l": 0.18993861973285675
+      },
+      "expected_weights": {
+        "foot_l": 1.0
+      }
+    },
+    {
+      "source_ID": 6573,
+      "side": "r",
+      "source_position_cm": [
+        -21.431045532226562,
+        7.847470283508301,
+        0.5369065999984741
+      ],
+      "old_weights": {
+        "calf_r": 0.3643307387828827,
+        "foot_r": 0.4278526306152344,
+        "ball_r": 0.20781609416007996
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 10722,
+      "side": "r",
+      "source_position_cm": [
+        -18.630704879760742,
+        12.393990516662598,
+        0.5520178079605103
+      ],
+      "old_weights": {
+        "calf_r": 0.41429904103279114,
+        "foot_r": 0.43532854318618774,
+        "ball_r": 0.1503710001707077
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 10734,
+      "side": "r",
+      "source_position_cm": [
+        -21.31740951538086,
+        12.959604263305664,
+        0.5475045442581177
+      ],
+      "old_weights": {
+        "calf_r": 0.4084475636482239,
+        "foot_r": 0.43264198303222656,
+        "ball_r": 0.15890872478485107
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11185,
+      "side": "r",
+      "source_position_cm": [
+        -19.04222869873047,
+        11.294987678527832,
+        0.0
+      ],
+      "old_weights": {
+        "calf_r": 0.4006625711917877,
+        "foot_r": 0.42877960205078125,
+        "ball_r": 0.17055727541446686
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11202,
+      "side": "r",
+      "source_position_cm": [
+        -21.25636100769043,
+        11.140504837036133,
+        0.038929473608732224
+      ],
+      "old_weights": {
+        "calf_r": 0.3940975069999695,
+        "foot_r": 0.4272651970386505,
+        "ball_r": 0.17863662540912628
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11214,
+      "side": "r",
+      "source_position_cm": [
+        -22.442298889160156,
+        11.528316497802734,
+        0.5820744037628174
+      ],
+      "old_weights": {
+        "calf_r": 0.38939398527145386,
+        "foot_r": 0.4296927750110626,
+        "ball_r": 0.18091095983982086
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11549,
+      "side": "r",
+      "source_position_cm": [
+        -17.661861419677734,
+        10.64750862121582,
+        0.5647144317626953
+      ],
+      "old_weights": {
+        "calf_r": 0.398274302482605,
+        "foot_r": 0.42940327525138855,
+        "ball_r": 0.17232191562652588
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11882,
+      "side": "r",
+      "source_position_cm": [
+        -18.120319366455078,
+        9.138570785522461,
+        0.5527567863464355
+      ],
+      "old_weights": {
+        "calf_r": 0.38339412212371826,
+        "foot_r": 0.4288509488105774,
+        "ball_r": 0.1877545863389969
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11886,
+      "side": "r",
+      "source_position_cm": [
+        -19.054241180419922,
+        9.665356636047363,
+        0.18027842044830322
+      ],
+      "old_weights": {
+        "calf_r": 0.3874465525150299,
+        "foot_r": 0.4264136552810669,
+        "ball_r": 0.18613947927951813
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    },
+    {
+      "source_ID": 11895,
+      "side": "r",
+      "source_position_cm": [
+        -21.327293395996094,
+        8.46274185180664,
+        0.25862306356430054
+      ],
+      "old_weights": {
+        "calf_r": 0.38385599851608276,
+        "foot_r": 0.4262048006057739,
+        "ball_r": 0.18993861973285675
+      },
+      "expected_weights": {
+        "foot_r": 1.0
+      }
+    }
+  ],
+  "position_exceptions": [
+    {
+      "source_ID": 4981,
+      "old_source_position_cm": [
+        21.25636100769043,
+        11.140504837036133,
+        0.038929495960474014
+      ],
+      "new_source_position_cm": [
+        21.25636100769043,
+        11.140504837036133,
+        4.6651344121073635e-08
+      ],
+      "z_delta_source_cm": -0.03892944930912989
+    },
+    {
+      "source_ID": 5671,
+      "old_source_position_cm": [
+        19.054241180419922,
+        9.665356636047363,
+        0.18027842044830322
+      ],
+      "new_source_position_cm": [
+        19.054241180419922,
+        9.665356636047363,
+        4.6651344121073635e-08
+      ],
+      "z_delta_source_cm": -0.1802783737969591
+    },
+    {
+      "source_ID": 11202,
+      "old_source_position_cm": [
+        -21.25636100769043,
+        11.140504837036133,
+        0.038929473608732224
+      ],
+      "new_source_position_cm": [
+        -21.25636100769043,
+        11.140504837036133,
+        0.0
+      ],
+      "z_delta_source_cm": -0.038929473608732224
+    },
+    {
+      "source_ID": 11886,
+      "old_source_position_cm": [
+        -19.054241180419922,
+        9.665356636047363,
+        0.18027842044830322
+      ],
+      "new_source_position_cm": [
+        -19.054241180419922,
+        9.665356636047363,
+        0.0
+      ],
+      "z_delta_source_cm": -0.18027842044830322
+    }
+  ],
+  "sole_skinning": "Exactly20 source sole IDs use100percent of their existing respective foot bone; calf and ball removed only on these IDs. Authored ball poses/clips remain unchanged.",
+  "all_other_attributes_exact": [
+    "positions outside4",
+    "weights outside20",
+    "all encoded FBX loop normal arrays (exact)",
+    "all UV channels",
+    "all RGBA layers",
+    "all polygons/material slots",
+    "all77bind matrices/names/parents",
+    "mesh and rig object matrices"
+  ],
+  "unchanged_FBX_object_semantics_except_explicit_arrays_sha256": "6c76d4216596c15536ae1702bfa7692953fdcee397428fe5ca9bbfd72405de1f",
+  "roundtrip_FBX_object_semantics_sha256": "5e746792ca33000de200858e8056907562e312cfadd61c2d8f3e036bf86c697e",
+  "blender_roundtrip_other_attributes_exact": true,
+  "raw_FBX_normals_exact": true,
+  "blender_decoded_normal_cache_diagnostic": {
+    "changed_loops": 108,
+    "maximum_vector_delta": 3.5349690878156255e-05,
+    "all_changed_reference_z_below_cm": 1,
+    "native_corners_must_be_copied_bit_exact_from_R2": true
+  },
+  "native_import_required": true,
+  "no_Elia_skeleton_clip_material_texture_authored": true
+}

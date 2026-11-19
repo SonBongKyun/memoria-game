@@ -74,7 +74,7 @@ UMaterial* MakeMaterial(const FString& Path, UTexture2D* Color, UTexture2D* Mask
 {
     if (auto* Existing = Load<UMaterial>(Path)) return Existing;
     auto* M = NewObject<UMaterial>(CreatePackage(*Path), *FPackageName::GetShortName(Path), RF_Public | RF_Standalone);
-    M->SetShadingModel(MSM_DefaultLit); M->bUsedWithSkeletalMesh = true; M->TwoSided = true;
+    M->SetShadingModel(MSM_DefaultLit); M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true); M->TwoSided = true;
     auto* Sample = Node<UMaterialExpressionTextureSample>(M); Sample->Texture = Color;
     M->GetEditorOnlyData()->BaseColor.Connect(0, Sample);
     auto* Rough = Node<UMaterialExpressionConstant>(M); Rough->R = .8f; M->GetEditorOnlyData()->Roughness.Connect(0, Rough);

@@ -1,0 +1,21 @@
+{
+	"schema": "s362-sole-r4-native-v1",
+	"legacy_parsed_corner_cache_differences": 105,
+	"position_exception_controlpoints": 4,
+	"weight_exception_controlpoints": 20,
+	"accepted_native_tangent_wedge_triangles": 33804,
+	"accepted_native_tangent_wedge_corners": 101412,
+	"accepted_native_tangent_assigned_instances": 101412,
+	"accepted_native_tangent_cache_changes": 101277,
+	"accepted_native_tangent_conflicts": 0,
+	"original_MD_normal_changes": 0,
+	"accepted_R2_recompute_normals": false,
+	"accepted_R2_recompute_tangents": true,
+	"source_FBX_encoded_normal_arrays_unchanged": true,
+	"final_corner_attribute_differences": 0,
+	"native_sole_sourceIDs_verified": 20,
+	"native_weight_precision_bits": 8,
+	"native_triangles_all_original_attributes_checked": 33804,
+	"native_triangles_exact_except_authorized_position_skin": 33804,
+	"accepted": true
+}

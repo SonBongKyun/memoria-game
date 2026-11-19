@@ -80,7 +80,7 @@ UMaterial* Material(const FString& Source, const FString& Base, const FString& S
     T->Filter = TF_Trilinear; T->PostEditChange(); FTextureCompilingManager::Get().FinishCompilation({T});
     if (!Save(T)) return nullptr;
     auto* M = NewObject<UMaterial>(CreatePackage(*MPath), *FPaths::GetBaseFilename(MPath), RF_Public | RF_Standalone);
-    M->SetShadingModel(MSM_DefaultLit); M->bUsedWithSkeletalMesh = true; M->TwoSided = true;
+    M->SetShadingModel(MSM_DefaultLit); M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true); M->TwoSided = true;
     auto* Sample = NewObject<UMaterialExpressionTextureSample>(M); Sample->Texture = T;
     M->GetExpressionCollection().AddExpression(Sample); M->GetEditorOnlyData()->BaseColor.Expression = Sample;
     auto* Rough = NewObject<UMaterialExpressionConstant>(M); Rough->R = .8f;

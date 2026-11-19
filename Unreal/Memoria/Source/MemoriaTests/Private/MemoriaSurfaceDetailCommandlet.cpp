@@ -93,7 +93,7 @@ UMaterial* Rebuild(const FBody& Body,UTexture2D* Normal,UTexture2D* Surface)
     M->GetOutermost()->FullyLoad();
     M->GetExpressionCollection().Empty();
     auto* Data=M->GetEditorOnlyData();
-    M->SetShadingModel(MSM_DefaultLit);M->bUsedWithSkeletalMesh=true;M->TwoSided=true;
+    M->SetShadingModel(MSM_DefaultLit);M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);M->TwoSided=true;
     auto* Paint=Node<UMaterialExpressionTextureSample>(M);Paint->Texture=Color;Paint->SamplerType=SAMPLERTYPE_Color;
     auto* UV=Node<UMaterialExpressionTextureCoordinate>(M);
     UV->UTiling=UV->VTiling=Body.bHero?2.f:1.f;

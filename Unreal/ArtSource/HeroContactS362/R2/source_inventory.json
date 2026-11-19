@@ -1,0 +1,35 @@
+{
+  "schema": 2,
+  "session": "S362",
+  "revision": "R2",
+  "generator_sha256": "515175b3dcc0c1c82550f7b7ab8252fae5f459131b6870d61abc0ecf0d48fa83",
+  "protected_files_sha256": {
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroPolishS361\\R4\\generator_snapshot.py": "e962e59570fe9099180c1d8f3d5ef54c4e13ba6ccd9d699a3540947549b98a78",
+    "C:\\Users\\jc\\Documents\\Codex\\MEMORIA-Unreal-Collaboration\\models\\_raw\\s312_sword\\arrel_prop_sword_drawn.fbx": "380f3ca77c7df8e4b31a7e8797a372cd40c06dc22482d5006f5252ff4f33c309",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\FieldCharacters\\elia\\elia_prop_staff.fbx": "fe74531ef66971fb567d75aa730c0885a27d13754154d6f4f94806fbeb70f55c",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroContactS362\\R1\\ArrelSword\\ArrelSword.fbx": "8430c92076b2664ccb6e02ef87dbfde4ec03049ceeb628f310d4c4d4450c6184",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroContactS362\\R1\\ArrelSword\\geometry.json": "9ac451bca76bfafb040e6d19bdd216ade8b0cd720b31f818cdd04a158dfdedb4",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroContactS362\\R1\\EliaStaff\\EliaStaff.fbx": "991f52fe949c1bb68dcbb10b5deac3723b7dba3d6fb0b00502b3e03ec1af2a64",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroContactS362\\R1\\EliaStaff\\geometry.json": "e28fbe979f35da5ba7d92731bef560ee391a469cae212b99922b5e8ab45c8d38",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroContactS362\\R1\\generator_snapshot.py": "85ef242f99422c3f65a09caa7eac2dba47f2730a540e40e166e35947271b6dfd",
+    "C:\\Users\\jc\\orca\\workspaces\\Game\\memoria-unreal-codex\\Unreal\\ArtSource\\HeroContactS362\\R1\\source_inventory.json": "844ec88594576117a751417e70b4267bd372a344129832343ef0e2e990c88edc"
+  },
+  "assets": [
+    {
+      "name": "ArrelBlade",
+      "triangles": 158,
+      "output_sha256": "42582137a365665644dd13ed68e9acb1f56457eaa64cd47894bbb7700fc1e954"
+    },
+    {
+      "name": "EliaRegions",
+      "triangles": 836,
+      "output_sha256": "617ea6e3026a0c493d3b282117caae414ca4697115346606e6b64616934b1f83"
+    },
+    {
+      "name": "EliaCollars",
+      "triangles": 760,
+      "output_sha256": "cd0e76dd1f7cd6eda11bd79b135bd8267d38e1f349aedadfdbda5ea94308ddb6"
+    }
+  ],
+  "native_contract": "Duplicate original native MeshDescription/build settings. Keep all native painted hilt/staff attributes. Replace only steel. Append only blade/collars. StaffRegions only classifies material groups; original native crystal geometry retained."
+}

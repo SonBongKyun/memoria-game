@@ -59,7 +59,7 @@ UMaterialExpressionCustom* Custom(UMaterial* M,const FString& Code,ECustomMateri
 UMaterial* Material()
 {
  const FString Path=Root+TEXT("M_NaturalHuman");if(FPackageName::DoesPackageExist(Path))return nullptr;
- auto* M=NewObject<UMaterial>(CreatePackage(*Path),TEXT("M_NaturalHuman"),RF_Public|RF_Standalone);M->SetShadingModel(MSM_DefaultLit);M->bUsedWithSkeletalMesh=true;M->TwoSided=true;
+ auto* M=NewObject<UMaterial>(CreatePackage(*Path),TEXT("M_NaturalHuman"),RF_Public|RF_Standalone);M->SetShadingModel(MSM_DefaultLit);M->SetUsageByFlag(MATUSAGE_SkeletalMesh,true);M->TwoSided=true;
  auto* Regions=Node<UMaterialExpressionVertexColor>(M);auto* UV=Node<UMaterialExpressionTextureCoordinate>(M);
  auto* Category=Node<UMaterialExpressionComponentMask>(M);Category->Input.Connect(4,Regions);Category->R=true;
  auto* Color=Custom(M,TEXT("float cloth=1-step(.10,abs(Category-.75));float weave=1-cloth*.035*(.5+.5*sin(UV.x*447)*sin(UV.y*393));return C.rgb*weave;"),CMOT_Float3,{{TEXT("C"),Regions},{TEXT("Category"),Category},{TEXT("UV"),UV}});

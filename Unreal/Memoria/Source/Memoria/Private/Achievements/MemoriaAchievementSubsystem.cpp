@@ -1,4 +1,5 @@
 #include "Achievements/MemoriaAchievementSubsystem.h"
+#include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Audio/MemoriaAudioSubsystem.h"
@@ -66,7 +67,7 @@ void UMemoriaAchievementSubsystem::Initialize(FSubsystemCollectionBase& Collecti
 {
     Super::Initialize(Collection);
     // Tests and commandlets never read or write the player's achievements.
-    bPersist = !GIsAutomationTesting && !IsRunningCommandlet() && !FApp::IsUnattended();
+    bPersist = !GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive() && !IsRunningCommandlet() && !FApp::IsUnattended();
     FString Text;
     if (!bPersist || !FFileHelper::LoadFileToString(Text, *Path())) return;
     TSharedPtr<FJsonObject> O;

@@ -1,0 +1,936 @@
+{
+  "schema": "memoria-s362-sequential-upgrade-results-v1",
+  "task": "S362",
+  "status": "PASS",
+  "collected_utc": "2026-10-25T09:28:06.927467+00:00",
+  "project_root": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex",
+  "project": "Unreal/Memoria/Memoria.uproject",
+  "base": "6fd6fce0f169193d35c6f48172c05cfe17ead1d0",
+  "engine": "5.8.2",
+  "rhi": "D3D11",
+  "scope": "All 13 authorized Unreal audit items within the current real-time Chapters 1-5 demo; Godot preserved separately.",
+  "delivery": {
+    "uncommitted": true,
+    "commit_performed": false,
+    "push_performed": false,
+    "release_performed": false,
+    "final_package_directory": "package-dev8",
+    "final_executable": "Unreal/Memoria/Saved/Validation/s362/package-dev8/Windows/Memoria/Binaries/Win64/Memoria.exe"
+  },
+  "implementation": [
+    {
+      "item": 1,
+      "name": "Held-input and restore safety",
+      "behavior": "Release before modal early returns; cancel held guard/charge intent; preserve committed actions; reset transient combat state only after successful restore."
+    },
+    {
+      "item": 2,
+      "name": "Post-burn damage accuracy",
+      "behavior": "Observer-free projected memory/passive/chain state; one shared damage formula; actual burn once.",
+      "focused_preview_actual_values": [
+        22,
+        385,
+        462,
+        442.75,
+        531.3,
+        24.2
+      ]
+    },
+    {
+      "item": 3,
+      "name": "Place labels and next goals",
+      "behavior": "Actual regional names/current real-time guide/revealed chapter goals; existing ledger and gate priorities retained."
+    },
+    {
+      "item": 4,
+      "name": "Hero finish",
+      "behavior": "Arrel normal continuity; Elia R2 hair and dedicated eyelid morphs; blink lifecycle and rendered eye pixels."
+    },
+    {
+      "item": 5,
+      "name": "Props and contacts",
+      "behavior": "R5 blade/staff fittings, scabbard mount and R4 sole contact with strict preservation and skinned-surface checks."
+    },
+    {
+      "item": 6,
+      "name": "NPC role idles",
+      "behavior": "Ten role-specific idles suppressed while moving/acting/in combat/reduced motion; authored root/feet/rig/paint retained."
+    },
+    {
+      "item": 7,
+      "name": "Three regional scenes",
+      "behavior": "Verdan stall/sign/reflection details, Belt coping/braces/fascia, Drift joints/canopies/poles/lighting; atlas/collision/nav/RNG/markers retained."
+    },
+    {
+      "item": 8,
+      "name": "Burn picker",
+      "behavior": "Full authored meaning and revealed cost, measured wrapping and 2-6 rows; true outer Overlay 110 above popup 105, restored to 14.",
+      "focused_cases": 8,
+      "case_dimensions": "EN/KO x 1280/640 width x meaning/core warning at 125% text"
+    },
+    {
+      "item": 9,
+      "name": "Controller and accessibility",
+      "behavior": "Thirteen Enhanced Input mappings, last-input glyph state, aim deadzone; decorative motion/shake/flash/text options without changing combat timing or damage."
+    },
+    {
+      "item": 10,
+      "name": "Manual saves and continuation",
+      "behavior": "Manual slots 1-3 distinct from auto 0; validated metadata; default-cancel overwrite, corrupt/backup recovery; long-path atomic rename and Title-to-Verdan success-state repair."
+    },
+    {
+      "item": 11,
+      "name": "Current demo completion",
+      "behavior": "Existing Chapter5 revealed classifier and review/save/retry/return/Title Continue; no new Chapter6 or nonlethal canon."
+    },
+    {
+      "item": 12,
+      "name": "Measured performance and budget",
+      "behavior": "Actual package frame/GPU/CSV, draw calls, scoped animation CPU and DXGI process-local memory; provisional targets and explicit limits."
+    },
+    {
+      "item": 13,
+      "name": "Full validation and Development package",
+      "behavior": "Source-derived exact registry, frozen input hashes, independent checkpoint process and actual cooked runtime/content verification."
+    }
+  ],
+  "accepted_assets": {
+    "Arrel": {
+      "revision": "HeroFinishS362/R4",
+      "triangles": 33804,
+      "vertices": 17005,
+      "existing_bindings": 77,
+      "position_exception_controlpoints": 4,
+      "position_exception_axis": "Z only",
+      "max_reference_position_delta_cm": 0.18028,
+      "weight_exception_controlpoints": 20,
+      "weight_exception": "Existing respective Foot bone 100%; remove Calf/Ball contributions at only those original source IDs.",
+      "other_coordinates_normals_uv_rgba_materials_winding_bindings_physics_bounds_preserved": true,
+      "native_triangles_exact_except_authorized_position_skin": 33804,
+      "accepted_R2_packed_tangent_basis_preserved": true,
+      "native_tangent_conflicts": 0,
+      "source_fbx_sha256": "5cd6297af9b7e8cb55d233e9e3bc4677aa0b30bac9b3ac652f510a4d60b0c1f9",
+      "native_acceptance": "Unreal/Memoria/Saved/Validation/s362/sole-import-R4/native_acceptance.json"
+    },
+    "Elia": {
+      "revision": "HeroFinishS362/R2",
+      "triangles": 64832,
+      "existing_bindings": 77,
+      "new_eyelid_morphs": 2,
+      "iris_closed_correct_pixels": "74/74",
+      "iris_reopened_correct_pixels": "74/74",
+      "outside_eye_changed_pixels": 0
+    },
+    "props": {
+      "revision": "HeroContactS362/R5",
+      "sword_triangles": 676,
+      "staff_triangles": 1596,
+      "original_hilt_corners_preserved": 1554,
+      "original_staff_corners_preserved": 2508,
+      "preserved_attributes": [
+        "position",
+        "original UV0/UV1",
+        "RGBA",
+        "normals",
+        "packed tangents",
+        "winding"
+      ],
+      "new_padding_uv_channels": 6,
+      "verified_positive_zero_padding_scalars": 24336,
+      "native_hilt_2uv_sha1": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+      "native_sword_8uv_sha1": "C3B76A2C4D3E653AB03953BE8142AE6F65971E31",
+      "native_staff_8uv_sha1": "220BA10B65CC73C42884DAFABE5EC1DC7EFB658B"
+    }
+  },
+  "focused_graphics": {
+    "status": "PASS",
+    "unique_tests": 15,
+    "exit_code": 0,
+    "fatal_diagnostics": 0,
+    "evidence": "Unreal/Memoria/Saved/Validation/s362/sole-R4-landing-native/result.json",
+    "sole_contact": {
+      "persistent_patch_intervals": 147,
+      "maximum_xy_drift_cm": 0.0377292651,
+      "airborne_intervals": 0,
+      "minimum_persistent_points": 3,
+      "maximum_ground_distance_cm": 0.1,
+      "maximum_allowed_xy_drift_cm": 0.25,
+      "phase_or_velocity_exclusions": false,
+      "complete_native_views": 8,
+      "unowned_pose_changes": 0,
+      "link_length_error": 0
+    },
+    "scabbard_crossings_before_after": {
+      "sheathed": [
+        169,
+        46
+      ],
+      "empty_idle": [
+        46,
+        2
+      ],
+      "held_guard": [
+        49,
+        0
+      ]
+    }
+  },
+  "focused_save_title": {
+    "status": "PASS",
+    "unique_tests": 8,
+    "exit_code": 0,
+    "fatal_diagnostics": 0,
+    "evidence": "Unreal/Memoria/Saved/Validation/s362/save-title-final/result.json",
+    "windows_long_path_reproduction": "Unreal/Memoria/Saved/Validation/s362/long-rename-reproduction.json",
+    "expected_test_ids": [
+      "MemoriaSave.S362.BrowserContract",
+      "MemoriaSave.S362.ControllerFlow",
+      "MemoriaSave.S362.ManualDiskRoundTrip",
+      "MemoriaSave.S362.ManualSafetyRecovery",
+      "MemoriaSave.S362.MetadataSummary",
+      "MemoriaSave.S362.TitleManualOnly",
+      "MemoriaSave.S362.TitleVerdanContinue",
+      "MemoriaSave.S362.WindowsLongPathCommit"
+    ],
+    "input_hashes_unchanged": true
+  },
+  "final_gates": {
+    "editor_build": {
+      "status": "PASS",
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/verification-build23/unreal_validation.json"
+    },
+    "whole_registry": {
+      "status": "PASS",
+      "expected_unique_tests": 350,
+      "actual_unique_tests": 350,
+      "failed_notrun_inprocess_duplicate_missing": {
+        "failed": 0,
+        "not_run": 0,
+        "in_process": 0,
+        "duplicate": 0,
+        "missing": 0
+      },
+      "exit_code": 0,
+      "fatal_diagnostics": 0,
+      "input_hashes_unchanged": true,
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/final-native2/result.json",
+      "warning_bearing_tests": [
+        {
+          "test": "Memoria.Antidote.AntidoteSignalReplacement",
+          "warning_count": 1,
+          "messages": [
+            "LogConsoleManager: Console variable 'r.MotionVectorSimulation' used in the render thread. Rendering artifacts could happen. Use ECVF_RenderThreadSafe or don't use in render thread."
+          ]
+        },
+        {
+          "test": "Memoria.Chapter1.NewGameHost.burn_song_elia_counter_en",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_48:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        },
+        {
+          "test": "Memoria.Chapter1.NewGameHost.burn_song_strike_en",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_49:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        },
+        {
+          "test": "Memoria.Chapter1.NewGameHost.burn_song_strike_ko",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_50:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        },
+        {
+          "test": "Memoria.Chapter1.NewGameHost.read_rhythm_full_forest_en",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_51:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        },
+        {
+          "test": "Memoria.Chapter1.NewGameHost.refuse_humming_burns_en",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_52:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        },
+        {
+          "test": "Memoria.Chapter1.AutosaveResume",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_59:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        },
+        {
+          "test": "MemoriaVisual.Chapter1Presentation",
+          "warning_count": 1,
+          "messages": [
+            "LogScript: Script Msg: No world was found for object (/Engine/Transient.GameInstance_231:MemoriaNarrativeSubsystem_0) passed in to UEngine::GetWorldFromContextObject()."
+          ]
+        }
+      ],
+      "warning_bearing_test_count": 8
+    },
+    "title_verdan": {
+      "status": "PASS",
+      "test_id": "MemoriaSave.S362.TitleVerdanContinue",
+      "routes": [
+        "Title browser manual slot1 to L_VerdanHost",
+        "Title direct boundary autosave0 to L_VerdanHost"
+      ],
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/final-native2/Automation/index.json"
+    },
+    "checkpoint_restart": {
+      "status": "PASS",
+      "consumer_unique_tests": 3,
+      "different_os_pid_and_engine_instance": true,
+      "expected_run_id_and_pointer_verified": true,
+      "checkpoint_bytes_unchanged": true,
+      "consumer_evidence": "Unreal/Memoria/Saved/Validation/s362/checkpoint-restart-final/result.json",
+      "proof_evidence": "Unreal/Memoria/Saved/Validation/s362/checkpoint-proof-final/proof.json"
+    },
+    "development_package_build": {
+      "status": "PASS",
+      "source_content_fixture_tools_unchanged": true,
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/package-dev-build8/result.json"
+    },
+    "development_package_smoke": {
+      "status": "PASS",
+      "exit_code": 0,
+      "fatal_diagnostics": 0,
+      "verified_pngs": 12,
+      "engine_csv_complete": true,
+      "actual_assets": "ArrelR4/EliaR2/PropsR5 native buffer fingerprints and bindings",
+      "maps": [
+        "/Game/Tests/Campaign/L_Ch2VerdanSlice",
+        "/Game/Tests/Campaign/L_VerdanHost",
+        "/Game/Memoria/Maps/L_BeltWaystation",
+        "/Game/Memoria/Maps/L_DriftShelter"
+      ],
+      "covers_title_continue": true,
+      "title_route": "Title to browser manual1 to actual L_VerdanHost travel; native regression additionally covers boundary autosave0",
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/packaged-smoke8/result.json"
+    },
+    "cooked_content": {
+      "status": "PASS",
+      "package_summary_headers": 1380,
+      "container_rows": 2075,
+      "required_missing": [],
+      "rejected_R3_present": false,
+      "read_failures": [],
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/cooked-content8/content_verification.json"
+    },
+    "original_preservation": {
+      "status": "PASS",
+      "expected_original_packages": 871,
+      "unchanged_original_packages": 871,
+      "immutable_R2_Arrel_FBX_sha256": "a99abcc2e00dfe6ecf8ac0170079405ea42c21e55506d62967c7c3b80ae517da",
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/original-preservation-final-20261025.json"
+    }
+  },
+  "performance": {
+    "status": "PASS observed cooked Development (packaged-smoke8); not a benchmark",
+    "classification": "Short actual cooked Development smoke observation, not a stable-state benchmark or before/after improvement claim.",
+    "final_evidence": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/packaged-smoke8/performance_summary.json",
+    "final_document": "S362_PERFORMANCE.md",
+    "hardware_observed_package7": {
+      "cpu": "Intel Core i5-12600KF",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "rhi": "D3D11",
+      "viewport": [
+        1280,
+        720
+      ],
+      "render_target": [
+        1280,
+        720
+      ]
+    },
+    "package7_prefinal_observations_retained_as_history": {
+      "evidence": "Unreal/Memoria/Saved/Validation/s362/packaged-smoke7/performance_summary.json",
+      "process_elapsed_seconds": 29.574,
+      "positive_gpu_samples": 5892,
+      "regions": {
+        "Verdan": {
+          "capture_free_noncombat_samples": 189,
+          "frame_ms_p50_p95_p99": [
+            4.4491,
+            5.7416,
+            29.8828
+          ],
+          "gpu_ms_p95": 8.1224,
+          "frame_max_ms": 178.9291,
+          "dxgi_local_process_mib": 490.5,
+          "dxgi_budget_mib": 7250
+        },
+        "Belt": {
+          "capture_free_noncombat_samples": 2417,
+          "frame_ms_p50_p95_p99": [
+            3.6231,
+            4.3623,
+            4.9262
+          ],
+          "gpu_ms_p95": 4.5251,
+          "frame_max_ms": 150.1611,
+          "dxgi_local_process_mib": 474.2,
+          "dxgi_budget_mib": 7250
+        },
+        "Drift": {
+          "capture_free_noncombat_samples": 2624,
+          "frame_ms_p50_p95_p99": [
+            3.8361,
+            4.5569,
+            5.1621
+          ],
+          "gpu_ms_p95": 4.7124,
+          "frame_max_ms": 160.6414,
+          "dxgi_local_process_mib": 610.4,
+          "dxgi_budget_mib": 7250
+        }
+      },
+      "animation_completed_calls_evaluate_update_each": 32439,
+      "animation_mean_ms_per_completed_call_evaluate_update": [
+        0.0204622,
+        0.00208335
+      ]
+    },
+    "provisional_followup_budget": {
+      "resolution": [
+        1280,
+        720
+      ],
+      "rhi": "D3D11",
+      "target_fps": 60,
+      "frame_p95_ms": 16.67,
+      "gpu_p95_ms": 12,
+      "game_p95_ms": 8,
+      "render_p95_ms": 8,
+      "rhi_p95_ms": 4,
+      "dxgi_process_fraction_of_variable_budget": 0.8,
+      "not_retroactive_acceptance_threshold": true
+    },
+    "measurement_limits": [
+      "UI/loading/prior rendering pipeline work may remain in capture-free noncombat tags.",
+      "GPU timestamps may lag game-thread region/phase tags; no CPU replacement for missing/nonpositive GPUTime.",
+      "DXGI LOCAL is one process snapshot per region, not peak VRAM or physical-GPU total.",
+      "RHI texture allocations and streaming-pool limits are separate from DXGI budget.",
+      "Parallel animation CPU scopes overlap other threads and do not measure all skinning cost.",
+      "Large frame spikes remain and their cause is not established by this capture."
+    ],
+    "final_observations": {
+      "analyzer_status": "analyzed",
+      "classification": "verified_cooked_development_smoke",
+      "evidence_validation_status": "verified",
+      "environment": {
+        "cpu": "12th Gen Intel(R) Core(TM) i5-12600KF",
+        "logical_cpu_cores": 16,
+        "gpu": "NVIDIA GeForce RTX 3070",
+        "rhi": "D3D11",
+        "render_offscreen_requested": true,
+        "is_editor": false
+      },
+      "regions": {
+        "verdan_market": {
+          "capture_free_noncombat_frames": 214,
+          "engine_csv_counters": {
+            "FrameTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Engine whole-frame interval; includes profiling, capture, UI and frame limiting.",
+              "positive_samples": 214,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 214,
+              "minimum": 2.3179,
+              "mean": 5.325970560747663,
+              "p50": 4.3028,
+              "p95": 5.8402,
+              "p99": 12.2996,
+              "maximum": 169.5287
+            },
+            "GameThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine game-thread processing time.",
+              "positive_samples": 214,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 214,
+              "minimum": 1.0692,
+              "mean": 3.3312429906542054,
+              "p50": 1.8811,
+              "p95": 2.7309,
+              "p99": 34.9832,
+              "maximum": 146.6519
+            },
+            "RenderThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine render-thread processing time.",
+              "positive_samples": 214,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 214,
+              "minimum": 2.5752,
+              "mean": 5.008313551401869,
+              "p50": 4.265,
+              "p95": 5.2369,
+              "p99": 23.5387,
+              "maximum": 84.6806
+            },
+            "RHIThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine RHI-thread processing time when available.",
+              "positive_samples": 214,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 214,
+              "minimum": 1.2661,
+              "mean": 2.5861168224299065,
+              "p50": 2.091,
+              "p95": 3.0966,
+              "p99": 8.697,
+              "maximum": 34.4337
+            },
+            "GPUTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Engine RHIGetGPUFrameCycles timing; positive samples only, never CPU/wall substitution.",
+              "positive_samples": 214,
+              "sample_policy": "positive_only",
+              "samples": 214,
+              "minimum": 2.4944,
+              "mean": 5.929584579439252,
+              "p50": 4.221,
+              "p95": 5.7897,
+              "p99": 57.6276,
+              "maximum": 172.503
+            },
+            "RHI/DrawCalls": {
+              "status": "measured",
+              "unit": "draw_calls",
+              "scope": "Engine whole-frame RHI draw counter, including other passes/UI.",
+              "positive_samples": 214,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 214,
+              "minimum": 678.0,
+              "mean": 701.0934579439253,
+              "p50": 697.0,
+              "p95": 729.0,
+              "p99": 763.0,
+              "maximum": 1239.0
+            }
+          },
+          "dxgi_process_local_memory": {
+            "status": "measured",
+            "sample_elapsed_seconds": 2.4911829009652138,
+            "scope": "DXGI process LOCAL current usage/budget on the native D3D11 device adapter, node0; not physical-GPU total usage or texture-only allocation.",
+            "node_index": 0,
+            "current_usage_mib": 498.6640625,
+            "budget_mib": 7250
+          },
+          "manual_rhi_texture_maxima_mib": {
+            "rhi_texture_total_mib": 440.658203125,
+            "rhi_streaming_texture_mib": 98.2158203125,
+            "rhi_non_streaming_texture_mib": 387.8154296875,
+            "rhi_texture_pool_limit_mib": 1000
+          }
+        },
+        "belt_waystation": {
+          "capture_free_noncombat_frames": 2506,
+          "engine_csv_counters": {
+            "FrameTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Engine whole-frame interval; includes profiling, capture, UI and frame limiting.",
+              "positive_samples": 2506,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2506,
+              "minimum": 2.2181,
+              "mean": 3.63557102952913,
+              "p50": 3.4877,
+              "p95": 4.2627,
+              "p99": 4.9848,
+              "maximum": 158.5628
+            },
+            "GameThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine game-thread processing time.",
+              "positive_samples": 2506,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2506,
+              "minimum": 1.4877,
+              "mean": 1.920646049481245,
+              "p50": 1.7922,
+              "p95": 2.124,
+              "p99": 2.5379,
+              "maximum": 123.665
+            },
+            "RenderThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine render-thread processing time.",
+              "positive_samples": 2506,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2506,
+              "minimum": 2.5657,
+              "mean": 3.5770652833200316,
+              "p50": 3.4531,
+              "p95": 4.2236,
+              "p99": 4.9742,
+              "maximum": 75.5625
+            },
+            "RHIThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine RHI-thread processing time when available.",
+              "positive_samples": 2506,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2506,
+              "minimum": 1.2922,
+              "mean": 1.8636637270550678,
+              "p50": 1.7984,
+              "p95": 2.3405,
+              "p99": 2.8753,
+              "maximum": 34.0536
+            },
+            "GPUTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Engine RHIGetGPUFrameCycles timing; positive samples only, never CPU/wall substitution.",
+              "positive_samples": 2506,
+              "sample_policy": "positive_only",
+              "samples": 2506,
+              "minimum": 3.2225,
+              "mean": 3.716452194732642,
+              "p50": 3.4283,
+              "p95": 4.307,
+              "p99": 5.1384,
+              "maximum": 155.5804
+            },
+            "RHI/DrawCalls": {
+              "status": "measured",
+              "unit": "draw_calls",
+              "scope": "Engine whole-frame RHI draw counter, including other passes/UI.",
+              "positive_samples": 2506,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2506,
+              "minimum": 271.0,
+              "mean": 280.97406225059854,
+              "p50": 281.0,
+              "p95": 286.0,
+              "p99": 286.0,
+              "maximum": 1167.0
+            }
+          },
+          "dxgi_process_local_memory": {
+            "status": "measured",
+            "sample_elapsed_seconds": 15.545156501233578,
+            "scope": "DXGI process LOCAL current usage/budget on the native D3D11 device adapter, node0; not physical-GPU total usage or texture-only allocation.",
+            "node_index": 0,
+            "current_usage_mib": 472.6875,
+            "budget_mib": 7250
+          },
+          "manual_rhi_texture_maxima_mib": {
+            "rhi_texture_total_mib": 406.3359375,
+            "rhi_streaming_texture_mib": 104.392578125,
+            "rhi_non_streaming_texture_mib": 301.943359375,
+            "rhi_texture_pool_limit_mib": 1000
+          }
+        },
+        "drift_shelter": {
+          "capture_free_noncombat_frames": 2528,
+          "engine_csv_counters": {
+            "FrameTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Engine whole-frame interval; includes profiling, capture, UI and frame limiting.",
+              "positive_samples": 2528,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2528,
+              "minimum": 2.16,
+              "mean": 4.159816969936709,
+              "p50": 3.9279,
+              "p95": 5.1102,
+              "p99": 6.0361,
+              "maximum": 166.0581
+            },
+            "GameThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine game-thread processing time.",
+              "positive_samples": 2528,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2528,
+              "minimum": 1.2027,
+              "mean": 2.1527146756329114,
+              "p50": 1.9327,
+              "p95": 2.4407,
+              "p99": 2.8073,
+              "maximum": 132.5037
+            },
+            "RenderThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine render-thread processing time.",
+              "positive_samples": 2528,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2528,
+              "minimum": 2.674,
+              "mean": 4.0602260680379745,
+              "p50": 3.8858,
+              "p95": 5.0588,
+              "p99": 5.8637,
+              "maximum": 76.0621
+            },
+            "RHIThreadTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Published engine RHI-thread processing time when available.",
+              "positive_samples": 2528,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2528,
+              "minimum": 1.2965,
+              "mean": 2.1348024129746834,
+              "p50": 2.0195,
+              "p95": 2.7718,
+              "p99": 3.3651,
+              "maximum": 35.9663
+            },
+            "GPUTime": {
+              "status": "measured",
+              "unit": "ms",
+              "scope": "Engine RHIGetGPUFrameCycles timing; positive samples only, never CPU/wall substitution.",
+              "positive_samples": 2528,
+              "sample_policy": "positive_only",
+              "samples": 2528,
+              "minimum": 3.2502,
+              "mean": 4.293110047468355,
+              "p50": 3.8687,
+              "p95": 5.2163,
+              "p99": 6.3846,
+              "maximum": 164.0837
+            },
+            "RHI/DrawCalls": {
+              "status": "measured",
+              "unit": "draw_calls",
+              "scope": "Engine whole-frame RHI draw counter, including other passes/UI.",
+              "positive_samples": 2528,
+              "sample_policy": "all_valid_nonnegative",
+              "samples": 2528,
+              "minimum": 288.0,
+              "mean": 311.9276107594937,
+              "p50": 312.0,
+              "p95": 322.0,
+              "p99": 326.0,
+              "maximum": 802.0
+            }
+          },
+          "dxgi_process_local_memory": {
+            "status": "measured",
+            "sample_elapsed_seconds": 25.3690419010818,
+            "scope": "DXGI process LOCAL current usage/budget on the native D3D11 device adapter, node0; not physical-GPU total usage or texture-only allocation.",
+            "node_index": 0,
+            "current_usage_mib": 592.87890625,
+            "budget_mib": 7250
+          },
+          "manual_rhi_texture_maxima_mib": {
+            "rhi_texture_total_mib": 421.888671875,
+            "rhi_streaming_texture_mib": 102.0595703125,
+            "rhi_non_streaming_texture_mib": 373.255859375,
+            "rhi_texture_pool_limit_mib": 1000
+          }
+        }
+      },
+      "all_gameplay_gpu_time": {
+        "status": "measured",
+        "unit": "ms",
+        "scope": "Engine RHIGetGPUFrameCycles timing; positive samples only, never CPU/wall substitution.",
+        "positive_samples": 5917,
+        "sample_policy": "positive_only",
+        "samples": 5917,
+        "minimum": 2.4944,
+        "mean": 4.344258830488424,
+        "p50": 3.7447,
+        "p95": 5.0667,
+        "p99": 6.7389,
+        "maximum": 181.3944
+      },
+      "manual_cpu_animation": {
+        "status": "measured_scoped_cpu_elapsed",
+        "source": "Opt-in Cycles64 RAII scopes around all FFieldAnimProxy::Evaluate and UMemoriaFieldCharacterComponent::TickComponent calls; atomic cumulative cycles/call deltas, no UObject/world reads in the collector or animation worker scope.",
+        "limits": "Aggregates all field figures, not only Arrel. Elapsed CPU work spans may include preemption and overlap parallel workers; their sum is not exclusive game-thread or process CPU time. Evaluate includes pose evaluation/personality/root lock; component scope includes its update/ApplyFrame. Excludes separate animation PreUpdate/CacheBones/UpdateAnimationNode, engine bone refresh, physics/cloth and GPU skinning. Scope completions and independently atomic cycle/call snapshots may straddle frame/phase boundaries; per-call means are approximate.",
+        "collector_enabled": true,
+        "observed_evaluation_calls": 35044,
+        "observed_component_update_calls": 35044,
+        "observed_evaluation_scoped_ms": 728.538,
+        "observed_component_update_scoped_ms": 71.97330000000002
+      },
+      "actual_asset_inspections": [
+        {
+          "map": "verdan_market",
+          "world": "L_VerdanHost",
+          "viewport_width": 1280,
+          "viewport_height": 720,
+          "render_target_width": 1280,
+          "render_target_height": 720,
+          "arrel_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/Arrel/SK_Arrel.SK_Arrel",
+          "elia_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/Elia/SK_Elia.SK_Elia",
+          "arrel_render_lods": 1,
+          "elia_render_lods": 1,
+          "arrel_LOD0_triangles": 33804,
+          "elia_LOD0_triangles": 64832,
+          "arrel_LOD0_vertices": 32319,
+          "elia_LOD0_vertices": 48749,
+          "sword_native_fingerprint": "C3B76A2C4D3E653AB03953BE8142AE6F65971E31",
+          "staff_native_fingerprint": "220BA10B65CC73C42884DAFABE5EC1DC7EFB658B",
+          "original_hilt_fingerprint": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+          "bound_elia_staffs": 1,
+          "visible_elia_figures": 1,
+          "s362_materials": 3,
+          "s362_instances": 52,
+          "atlas_bindings": 3
+        },
+        {
+          "map": "belt_waystation",
+          "world": "L_BeltWaystation",
+          "viewport_width": 1280,
+          "viewport_height": 720,
+          "render_target_width": 1280,
+          "render_target_height": 720,
+          "arrel_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/Arrel/SK_Arrel.SK_Arrel",
+          "elia_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/Elia/SK_Elia.SK_Elia",
+          "arrel_render_lods": 1,
+          "elia_render_lods": 1,
+          "arrel_LOD0_triangles": 33804,
+          "elia_LOD0_triangles": 64832,
+          "arrel_LOD0_vertices": 32319,
+          "elia_LOD0_vertices": 48749,
+          "sword_native_fingerprint": "C3B76A2C4D3E653AB03953BE8142AE6F65971E31",
+          "staff_native_fingerprint": "220BA10B65CC73C42884DAFABE5EC1DC7EFB658B",
+          "original_hilt_fingerprint": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+          "bound_elia_staffs": 1,
+          "visible_elia_figures": 1,
+          "s362_materials": 1,
+          "s362_instances": 30,
+          "atlas_bindings": 1
+        },
+        {
+          "map": "drift_shelter",
+          "world": "L_DriftShelter",
+          "viewport_width": 1280,
+          "viewport_height": 720,
+          "render_target_width": 1280,
+          "render_target_height": 720,
+          "arrel_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/Arrel/SK_Arrel.SK_Arrel",
+          "elia_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/Elia/SK_Elia.SK_Elia",
+          "arrel_render_lods": 1,
+          "elia_render_lods": 1,
+          "arrel_LOD0_triangles": 33804,
+          "elia_LOD0_triangles": 64832,
+          "arrel_LOD0_vertices": 32319,
+          "elia_LOD0_vertices": 48749,
+          "sword_native_fingerprint": "C3B76A2C4D3E653AB03953BE8142AE6F65971E31",
+          "staff_native_fingerprint": "220BA10B65CC73C42884DAFABE5EC1DC7EFB658B",
+          "original_hilt_fingerprint": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+          "bound_elia_staffs": 1,
+          "visible_elia_figures": 1,
+          "s362_materials": 3,
+          "s362_instances": 169,
+          "atlas_bindings": 2
+        },
+        {
+          "map": "drift_shelter",
+          "world": "L_DriftShelter",
+          "viewport_width": 1280,
+          "viewport_height": 720,
+          "render_target_width": 1280,
+          "render_target_height": 720,
+          "arrel_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R4/Arrel/SK_Arrel.SK_Arrel",
+          "elia_mesh": "/Game/Memoria/Presentation/Field3D/HeroFinishS362/R2/Elia/SK_Elia.SK_Elia",
+          "arrel_render_lods": 1,
+          "elia_render_lods": 1,
+          "arrel_LOD0_triangles": 33804,
+          "elia_LOD0_triangles": 64832,
+          "arrel_LOD0_vertices": 32319,
+          "elia_LOD0_vertices": 48749,
+          "sword_native_fingerprint": "C3B76A2C4D3E653AB03953BE8142AE6F65971E31",
+          "staff_native_fingerprint": "220BA10B65CC73C42884DAFABE5EC1DC7EFB658B",
+          "original_hilt_fingerprint": "BB4F86E5A3F5DA756DE8A14B21E2FF8A8871FD05",
+          "bound_elia_staffs": 1,
+          "visible_elia_figures": 1,
+          "s362_materials": 3,
+          "s362_instances": 169,
+          "atlas_bindings": 2
+        }
+      ],
+      "raw_summary_sha256": "72314b8f46e78e65d5142261ff8e262a6e00d5d753dffef2ec95b6728a454484",
+      "performance_document_sha256": "df158536496305b0da81e289de38794e06c675cc8b414862dced23ff2ea842f2",
+      "complete_raw_summary": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/packaged-smoke8/performance_summary.json"
+    }
+  },
+  "retained_failures_and_rejected_candidates": {
+    "root": "Unreal/Memoria/Saved/Validation/s362/",
+    "interrupted_prefinal_349_run": "final-native",
+    "interrupted_prefinal_run_is_final_acceptance": false,
+    "interrupted_prefinal_349_success_count": 128,
+    "interrupted_prefinal_349_failure_count": 0,
+    "interruption_receipt": "Unreal/Memoria/Saved/Validation/s362/final-native/interruption.json",
+    "rejected_package_locations": [
+      "rejected-packages",
+      "rejected-packages2",
+      "rejected-packages3"
+    ],
+    "rejected_R3_receipt": "sole-import-R4/stale-R3-receipt-rejected.json",
+    "only_task_created_untracked_rejected_packages_moved": true
+  },
+  "limits": [
+    "Baseline1280x720 consumable tray partly overlaps the duplicated held-memory MEM orb; seven action cells/key labels remain clear and the count also appears at upper right. Shared normal-HUD layout remains a follow-up.",
+    "Packaged03_BurnPicker is an immediate-open paint with tutorial/achievement overlap. Engine source snapshots Overlay arrangements before child NativeTick/Paint reinsertion; next-paint correction is an inference, not an observed later cooked capture. Stable picker readability is accepted through eight native EN/KO viewport/outer-overlay/paint checks. Green CSV text is opt-in smoke instrumentation.",
+    "No physical gamepad hardware or human full Chapters1-5 playthrough.",
+    "No Shipping, low-end, long-session or stable60FPS certification.",
+    "Existing cape/leg-armor clipping remains visible in held guard; scabbard crossings are reduced, not universally zero; no new cloth physics.",
+    "NPC role-idle work does not remodel all NPC faces/clothes or all eight foes.",
+    "No engine/renderer blanket upgrade, new Chapter6 or nonlethal canon.",
+    "Focused and separate-process repeated IDs must not be added to the final registry unique-ID total.",
+    "Package8 smoke covers Title manual1 continuation; the native two-route regression additionally covers Title boundary autosave0."
+  ],
+  "selected_native_captures": [
+    {
+      "label": "엘리아 눈 열림",
+      "path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/final-native2/Captures/HeroS362/EliaEyesOpen.png",
+      "sha256": "2aa752b1da28515d04f2bf989ea5f726c52df911d811d41be4501c30b8f6906b",
+      "source_run": "final-native2",
+      "root_visually_inspected": true
+    },
+    {
+      "label": "엘리아 눈 닫힘",
+      "path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/final-native2/Captures/HeroS362/EliaLidsClosed.png",
+      "sha256": "eb34611a189953eab6f64ccfc343b1c89cc9fb89f00f73b0d22ed2b9f78eba23",
+      "source_run": "final-native2",
+      "root_visually_inspected": true
+    },
+    {
+      "label": "벨트 내부",
+      "path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/final-native2/Captures/ChapterDressing/BeltInside.png",
+      "sha256": "9468b2bf13f11e17a19995f7c3e914aa86af8535deac3698955da02d6280aab2",
+      "source_run": "final-native2",
+      "root_visually_inspected": true
+    },
+    {
+      "label": "드리프트 천막",
+      "path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/final-native2/Captures/ChapterDressing/DriftTarp.png",
+      "sha256": "03bed142040f4139b88c5dc3d3a93262332fc9d0316cf072a1c51ecedcdc2819",
+      "source_run": "final-native2",
+      "root_visually_inspected": true
+    },
+    {
+      "label": "한국어 640×360 / 글자125%",
+      "path": "C:/Users/jc/orca/workspaces/Game/memoria-unreal-codex/Unreal/Memoria/Saved/Validation/s362/final-native2/Captures/S362Picker/ko_longest_meaning_640x360_125.png",
+      "sha256": "01eb3836d0405f5dc7d2f93bb939e4b01c7a3c5361ea861ab37f070eaf8227ea",
+      "source_run": "final-native2",
+      "root_visually_inspected": true
+    }
+  ]
+}

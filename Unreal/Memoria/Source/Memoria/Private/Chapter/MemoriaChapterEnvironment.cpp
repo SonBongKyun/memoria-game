@@ -8,6 +8,7 @@
 // shelter, crates, chain fences, tarps, the gramophone, dead trees, dry grass) are Codex's S343 models (S344,
 // -run=MemoriaEnvironmentAssets). None of this changes where Arrel can walk: the blocks stay one per solid tile.
 #include "Chapter/MemoriaChapterPresentation.h"
+#include "Presentation/MemoriaRegionalAtmosphereS363.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Camera/CameraComponent.h"
@@ -209,6 +210,11 @@ void AMemoriaChapterPresentation::BuildTerrain()
     if (!LoadObject<UMaterialInterface>(nullptr, FocusSurfacePath) || !LoadObject<UStaticMesh>(nullptr, RoofPath))
     { UE_LOG(LogTemp, Error, TEXT("MEMORIA_CHAPTER surface assets missing; the map stands undressed")); return; }
     BuildWalls(Look); BuildBorder(Look); BuildSetPieces(Look); BuildGrass(Look); BuildAir(Look);
+    UMaterialInstanceDynamic* OriginalStone = nullptr;
+    for (const auto& Material : FocusMaterials)
+        if (Material && Material->GetFName()==TEXT("ChapterRuinStone")) { OriginalStone=Material; break; }
+    const auto Grounded=MemoriaRegionalAtmosphereS363::BuildChapter(*this,*Spec,Map,OriginalStone);
+    for (auto* Material : Grounded.Materials) FocusMaterials.Add(Material);
 }
 void AMemoriaChapterPresentation::BuildGround(const FDressing& Look)
 {
@@ -295,6 +301,36 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
     auto* Timber = Focus(TEXT("Timber"), Look.TimberTint, 1);
     auto* Iron = Focus(TEXT("Iron"), Look.IronTint, 3, .5f, .65f);
     auto* Weeds = Focus(TEXT("RuinWeeds"), Look.bRain ? FLinearColor(.055f,.073f,.057f) : FLinearColor(.12f,.095f,.045f), 2, .96f);
+    // S362: only new edge/joint geometry receives these sibling MIDs. The parent
+    // atlas, original wall/slab bindings and all old package bytes stay intact.
+    // Register the copies alongside the old focus MIDs so every added edge
+    // opens on the same camera-to-Arrel ray as its underlying masonry.
+    auto EdgeMaterial = [&](const TCHAR* Name, UMaterialInterface* Parent, const FLinearColor& Tint, float Roughness)
+    {
+        // UE only accepts a material or constant instance as a MID parent.
+        // Preserve the source's atlas region/Mode/Metallic before the new finish.
+        auto* Source = Cast<UMaterialInstanceDynamic>(Parent);
+        auto* M = UMaterialInstanceDynamic::Create(Source ? Source->Parent.Get() : Parent,this,FName(Name));
+        if (Source) M->CopyInterpParameters(Source);
+        M->SetVectorParameterValue(TEXT("ArchitectureTint"),Tint);
+        M->SetScalarParameterValue(TEXT("Roughness"),Roughness);
+        FocusMaterials.Add(M); return M;
+    };
+    auto* CutStone = EdgeMaterial(TEXT("S362CutStone"),RuinStone,Look.RuinTint * (Look.bRain ? 8.6f : 7.9f),.76f);
+    auto* WetJoint = EdgeMaterial(TEXT("S362WetJoint"),Slab,Look.RuinTint * 3.25f,Look.bRain ? .27f : .94f);
+    auto DressRuin = [&](const FVector& At,float Yaw,float Scale)
+    {
+        const FRotator Turn(0,Yaw,0);
+        // Partial coping and offset end-grain stones sit on the existing
+        // 192x96x150 ruin model. Broken lengths preserve its irregular outline.
+        for (int32 I=0;I<3;++I)
+        {
+            const FVector Offset((-65.f+I*59.f)*Scale,-39.f*Scale,(133.f+(I%2)*9.f)*Scale);
+            Solid(Block,CutStone,At+Turn.RotateVector(Offset),FVector(46,13,9)*Scale/100.f,Turn);
+        }
+        for (float Side : {-1.f,1.f})
+            Solid(Block,CutStone,At+Turn.RotateVector(FVector(Side*76.f,-40.f,43.f)*Scale),FVector(15,9,29)*Scale/100.f,Turn);
+    };
     const bool bRubbleModel = LoadObject<UStaticMesh>(nullptr, RubblePath, nullptr, LOAD_NoWarn | LOAD_Quiet) != nullptr;
     auto Border = [&](int32 X, int32 Y) { return X <= 0 || Y <= 0 || X >= Spec->Width - 1 || Y >= Spec->Height - 1; };
     auto IsWall = [&](int32 X, int32 Y) { return Spec->TileAt(X, Y) == WallType && !Border(X, Y); };
@@ -341,7 +377,21 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
             {
                 // The fallen overpass: low slabs lying a little out of true.
                 const float Height = 34.f + 18.f * N;
-                Stand(Slab, C + FVector(0, 0, Height * .5f + Feet), FVector(T * .97f, T * .97f, Height), FRotator(0, (N - .5f) * 7.f, (Hash(X, Y, 3) - .5f) * 5.f));
+                const FRotator Turn(0,(N-.5f)*7.f,(Hash(X,Y,3)-.5f)*5.f);
+                const FVector Centre = C + FVector(0,0,Height*.5f+Feet);
+                Stand(Slab,Centre,FVector(T*.97f,T*.97f,Height),Turn);
+                // Wet arrises and recessed construction joints break the broad
+                // concrete faces at gameplay distance. They stay inside their
+                // original rotated slab and never bridge the path opening.
+                for (float Side : {-1.f,1.f})
+                {
+                    const FVector Lip(Side*T*.235f,-T*.448f,Height*.5f-3.5f);
+                    Solid(Block,CutStone,Centre+Turn.RotateVector(Lip),FVector(T*.43f,5.5f,5.f)/100.f,Turn);
+                    const FVector Joint(Side*T*.22f,-T*.470f,-1.5f);
+                    Solid(Block,WetJoint,Centre+Turn.RotateVector(Joint),FVector(2.8f,1.2f,Height*.66f)/100.f,Turn,false);
+                }
+                if (Look.bRain)
+                    Solid(Block,WetJoint,Centre+Turn.RotateVector(FVector(0,-T*.465f,-Height*.5f+4.f)),FVector(T*.88f,3.f,5.f)/100.f,Turn,false);
                 continue;
             }
             if (Type == Ruin && !Border(X, Y))
@@ -353,9 +403,21 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                 const auto Free = [&](int32 AX, int32 AY) { return Spec->TileAt(AX, AY) == Ruin && !Border(AX, AY) && !Claimed(AX, AY) && !Taken.Contains(FIntPoint(AX, AY)); };
                 const FVector Ground(0, 0, Feet);
                 const float Turn = (N - .5f) * 8.f + (Hash(X, Y, 5) > .5f ? 180.f : 0.f);
-                if (Free(X + 1, Y)) { Taken.Add(FIntPoint(X + 1, Y)); Prop(TEXT("RuinWall"), RuinKit, (C + TileCentre(X + 1, Y)) * .5 + Ground, Turn); }
-                else if (Free(X, Y + 1)) { Taken.Add(FIntPoint(X, Y + 1)); Prop(TEXT("RuinWall"), RuinKit, (C + TileCentre(X, Y + 1)) * .5 + Ground, 90.f + Turn); }
-                else Prop(TEXT("RuinWall"), RuinKit, C + Ground, 360.f * Hash(X, Y, 7), FVector(.6f));
+                if (Free(X + 1, Y))
+                {
+                    Taken.Add(FIntPoint(X+1,Y)); const FVector At=(C+TileCentre(X+1,Y))*.5+Ground;
+                    Prop(TEXT("RuinWall"),RuinKit,At,Turn); DressRuin(At,Turn,1.f);
+                }
+                else if (Free(X, Y + 1))
+                {
+                    Taken.Add(FIntPoint(X,Y+1)); const FVector At=(C+TileCentre(X,Y+1))*.5+Ground;
+                    Prop(TEXT("RuinWall"),RuinKit,At,90.f+Turn); DressRuin(At,90.f+Turn,1.f);
+                }
+                else
+                {
+                    const float Yaw=360.f*Hash(X,Y,7);
+                    Prop(TEXT("RuinWall"),RuinKit,C+Ground,Yaw,FVector(.6f)); DressRuin(C+Ground,Yaw,.6f);
+                }
                 Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), RuinStone, C + Ground, FVector(T/120.f), FRotator(0,N*360,0));
                 if (N > .35f) Solid(*ArchitectureMesh(TEXT("SM_RuinTuft")), Weeds, C + Ground + FVector(T*.18f,0,0), FVector(.85f), FRotator(0,N*360,0));
                 for (int32 I = 0; I < 3; ++I)
@@ -400,6 +462,10 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
         // path, and a lantern on each front pole. The awnings stand over the ring, where nobody walks: a roof
         // over the floor would hide the heads of those under it from this camera.
         auto* Canvas = Kit(TEXT("Drift"));
+        auto* Hem = UMaterialInstanceDynamic::Create(Canvas->Parent.Get(),this,TEXT("S362DriftCanvasHem"));
+        Hem->CopyInterpParameters(Canvas); // Retain Drift Color/Glow and reveal, not the base Belt defaults.
+        Hem->SetVectorParameterValue(TEXT("Tint"),FLinearColor(.82f,.89f,1.04f));
+        Hem->SetScalarParameterValue(TEXT("Roughness"),.67f); FocusMaterials.Add(Hem);
         const int32 Row = FloorMin.Y - 1;
         int32 From = FloorMin.X;
         for (int32 X = FloorMin.X; X <= FloorMax.X + 1; ++X)
@@ -412,12 +478,26 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                 const FRotator Turn(0, From == FloorMin.X ? 0.f : 180.f, 0);
                 Prop(TEXT("TarpCanopy"), Canvas, P, Turn.Yaw, FVector(Wide, Deep, 1));
                 Solid(*ArchitectureMesh(TEXT("SM_ShelterRigging")), Timber, P, FVector(Wide, Deep, 1), Turn);
+                // A rolled, shallow-sagging front hem gives the existing cloth
+                // an actual layered edge without putting a roof over the floor.
+                // Only the occupied slab row carries this canopy construction.
+                for (int32 I=0;I<12;++I)
+                {
+                    const float U0=-1.f+I/6.f,U1=-1.f+(I+1)/6.f;
+                    const FVector A(U0*174.f*Wide,-136.f*Deep,189.f+14.f*U0*U0);
+                    const FVector B(U1*174.f*Wide,-136.f*Deep,189.f+14.f*U1*U1);
+                    Beam(Hem,P+Turn.RotateVector(A),P+Turn.RotateVector(B),4.2f);
+                }
                 for (float Side : {-180.f, 180.f})
                 {
                     const FVector Pole = P + FVector(Side * Wide, -130.f * Deep, 0);
+                    // Metal collars and a timber foot shoe articulate the old
+                    // posts; neither changes the pole positions or their light.
+                    for (float Z : {14.f,94.f,143.f}) Box(Iron,Pole+FVector(0,0,Z),FVector(12,12,7));
+                    Box(Timber,Pole+FVector(0,0,7),FVector(19,18,14));
                     Beam(Iron, Pole + FVector(0, 0, 176.f), Pole + FVector(0, -13, 170.f), 2.f);
                     Beam(Iron, Pole + FVector(0, -13, 170.f), Pole + FVector(0, -13, 160.f), 1.5f);
-                    Lamp(Pole + FVector(0, -13, 153.f), 430.f, Look.LampIntensity);
+                    Lamp(Pole + FVector(0, -13, 153.f), 430.f, Look.LampIntensity*1.16f);
                 }
             }
             From = X + 1;
@@ -526,7 +606,13 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         {
             const FVector P = TileCentre(5.f, 0.f) + Bank;
             Prop(TEXT("SignalPost"), Lit, P);
-            Lamp(P + FVector(0, -30, 32), 430.f, Look.LampIntensity, false);
+            // S362: the retained relay signal reads as assembled timber and
+            // iron rather than one flat silhouette in the low evening key.
+            for (float Z : {58.f,142.f,225.f}) Box(Iron,P+FVector(0,-2,Z),FVector(22,22,7));
+            Box(Stone,P+FVector(0,0,7),FVector(40,34,14));
+            Beam(Timber,P+FVector(-32,-9,52),P+FVector(-5,-9,126),5.f);
+            Beam(Timber,P+FVector(32,-9,52),P+FVector(5,-9,126),5.f);
+            Lamp(P + FVector(0, -30, 32), 430.f, Look.LampIntensity*1.18f, false);
         }
         // The platform shelter between the embankment and the rails, on a plinth where it overhangs the bank.
         {
@@ -534,7 +620,17 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
             Box(Stone, FVector(P.X, 82.f, (Bank.Z + Feet) * .5f), FVector(380, 164, Bank.Z - Feet));
             Prop(TEXT("PlatformShelter"), Lit, P);
             Solid(*ArchitectureMesh(TEXT("SM_ShelterRigging")), Timber, P, FVector(.845f,.877f,1.08f));
-            for (float Side : {-152.f, 152.f}) Lamp(P + FVector(Side, -114, 182), 460.f, Look.LampIntensity * 1.1f, false);
+            // A doubled fascia, short end blocks and pole collars make a deep
+            // eave silhouette within the original 380x260 platform footprint.
+            Box(Timber,P+FVector(0,-124,218),FVector(350,10,15));
+            Box(Iron,P+FVector(0,-129,215),FVector(342,2.5,3));
+            for (float Side : {-152.f,152.f})
+            {
+                Box(Stone,P+FVector(Side,-114,7),FVector(28,28,14));
+                for (float Z : {72.f,154.f}) Box(Iron,P+FVector(Side,-114,Z),FVector(19,19,7));
+                Beam(Timber,P+FVector(Side,-114,170),P+FVector(Side*.72f,-114,211),7.f);
+                Lamp(P+FVector(Side,-114,182),460.f,Look.LampIntensity*1.28f,false);
+            }
         }
         // The banner pole at the north-east corner, its long cloth torn.
         Prop(TEXT("BannerPole"), Belt, TileCentre(22.6f, 0.f) + Bank);
@@ -647,7 +743,7 @@ void AMemoriaChapterPresentation::BuildLight()
     // reason, and every wall's face was black.)
     if (auto* Key = GetWorld()->SpawnActor<ADirectionalLight>(FVector(0, 0, 800), FRotator(Look.KeyPitch, Look.KeyYaw, 0), Params))
     {
-        auto* L = Key->GetComponent(); L->SetMobility(EComponentMobility::Movable);
+        auto* L = CastChecked<UDirectionalLightComponent>(Key->GetLightComponent()); L->SetMobility(EComponentMobility::Movable);
         Key->SetActorRotation(FRotator(Look.KeyPitch, Look.KeyYaw, 0));
         // The source's light colour, drawn a little towards white: at full strength it paints the whole map one hue.
         const FLinearColor Colour = Srgb(Spec->Light);
@@ -657,7 +753,7 @@ void AMemoriaChapterPresentation::BuildLight()
     }
     if (auto* Fill = GetWorld()->SpawnActor<ADirectionalLight>(FVector(0, 0, 800), FRotator(-35, Look.KeyYaw + 175.f, 0), Params))
     {
-        auto* L = Fill->GetComponent(); L->SetMobility(EComponentMobility::Movable); L->SetCastShadows(false);
+        auto* L = CastChecked<UDirectionalLightComponent>(Fill->GetLightComponent()); L->SetMobility(EComponentMobility::Movable); L->SetCastShadows(false);
         Fill->SetActorRotation(FRotator(-35, Look.KeyYaw + 175.f, 0));
         L->SetLightColor(FLinearColor(.55f, .62f, .78f)); L->SetIntensity(Look.FillIntensity); L->SetLightingChannels(true, true, false);
         L->ForwardShadingPriority = 0; L->SetAtmosphereSunLight(false);
@@ -668,7 +764,7 @@ void AMemoriaChapterPresentation::BuildLight()
     for (const FRotator& From : {FRotator(-89, 0, 0), FRotator(-28, 90, 0)})
         if (auto* Ambient = GetWorld()->SpawnActor<ADirectionalLight>(FVector(0, 0, 800), From, Params))
         {
-            auto* L = Ambient->GetComponent(); L->SetMobility(EComponentMobility::Movable); L->SetCastShadows(false);
+            auto* L = CastChecked<UDirectionalLightComponent>(Ambient->GetLightComponent()); L->SetMobility(EComponentMobility::Movable); L->SetCastShadows(false);
             Ambient->SetActorRotation(From);
             L->SetLightColor(Look.SkyColor); L->SetIntensity(Look.SkyIntensity); L->SetLightingChannels(true, true, false);
             L->ForwardShadingPriority = 0; L->SetAtmosphereSunLight(false);
