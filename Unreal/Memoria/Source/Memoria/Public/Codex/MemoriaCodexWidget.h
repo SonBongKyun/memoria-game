@@ -38,6 +38,9 @@ private:
     int32 Tab = 0, Selected = 0;
     mutable int32 FirstLine = 0;
     FString Loc(const TCHAR* En, const TCHAR* Ko) const { return bKo ? FString(Ko) : FString(En); }
+    // S369: a memory's title and description in Korean (the catalog's) when the codex is shown in Korean.
+    FString MemoryTitle(const struct FMemoriaCodexMemory& M) const;
+    FString MemoryDesc(const struct FMemoriaCodexMemory& M) const;
     FString EnemyName(const FString& Name) const;
     // The list index of each selectable line, in order.
     TArray<int32> SelectableLines() const;

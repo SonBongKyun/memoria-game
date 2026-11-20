@@ -76,6 +76,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMemoriaSettingsSubsystem> Settings;
     UPROPERTY(Transient) TObjectPtr<UScaleBox> BackdropFit;
     UPROPERTY(Transient) TObjectPtr<UImage> Backdrop;
+    UPROPERTY(Transient) TObjectPtr<class UTextBlock> KickerText;   // S369
     UPROPERTY(Transient) TObjectPtr<UImage> RiftGlow;
     UPROPERTY(Transient) TObjectPtr<UImage> TitleRail;
     UPROPERTY(Transient) TObjectPtr<UVerticalBox> TitleStack;

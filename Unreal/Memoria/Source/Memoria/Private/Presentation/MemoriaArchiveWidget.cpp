@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaArchiveWidget.h"
+#include "Localization/MemoriaKorean.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Blueprint/WidgetTree.h"
@@ -70,7 +71,7 @@ TSharedRef<SWidget> UMemoriaArchiveWidget::RebuildWidget()
         Heading=Label(WidgetTree,TEXT("Memory Archive"),31,Paper);Place(C,Heading,.06f,.108f,.69f,.166f);
         Summary=Label(WidgetTree,TEXT(""),13,Muted);Place(C,Summary,.062f,.168f,.77f,.195f);
         auto* Close=Button(WidgetTree,this,2,0);Close->SetStyle(ButtonStyle(false,Gold));
-        Close->SetContent(Label(WidgetTree,TEXT("CLOSE  /  TAB"),13,Paper));Place(C,Close,.79f,.096f,.934f,.15f);
+        Close->SetContent(Label(WidgetTree,MemoriaKorean::For(this,TEXT("CLOSE  /  TAB")),13,Paper));Place(C,Close,.79f,.096f,.934f,.15f);
         Filters=WidgetTree->ConstructWidget<UHorizontalBox>();Place(C,Filters,.06f,.227f,.935f,.279f);
         CardScroll=WidgetTree->ConstructWidget<UScrollBox>();Place(C,CardScroll,.06f,.306f,.558f,.875f);
         Cards=WidgetTree->ConstructWidget<UVerticalBox>();CardScroll->AddChild(Cards);
@@ -82,7 +83,7 @@ TSharedRef<SWidget> UMemoriaArchiveWidget::RebuildWidget()
         DetailTitle=Label(WidgetTree,TEXT(""),24,Paper);Place(C,DetailTitle,.601f,.57f,.936f,.662f);
         DetailScroll=WidgetTree->ConstructWidget<UScrollBox>();Place(C,DetailScroll,.604f,.678f,.935f,.874f);
         DetailBody=Label(WidgetTree,TEXT(""),16,Paper);DetailScroll->AddChild(DetailBody);
-        Hint=Label(WidgetTree,TEXT("UP / DOWN  Browse     LEFT / RIGHT  Grade     TAB / M / ESC / B  Close"),11,Muted);
+        Hint=Label(WidgetTree,MemoriaKorean::For(this,TEXT("UP / DOWN  Browse     LEFT / RIGHT  Grade     TAB / M / ESC / B  Close")),11,Muted);
         Place(C,Hint,.062f,.895f,.94f,.925f);
     }
     Draw();return Super::RebuildWidget();
@@ -164,7 +165,8 @@ void UMemoriaArchiveWidget::Draw()
 {
     if(!Heading)return;
     Heading->SetText(FText::FromString(View.Title));
-    Summary->SetText(FText::FromString(FString::Printf(TEXT("%d HELD     /     %d BURNED     /     %d RECORDED"),View.RemainingCount,View.BurnedCount,View.OwnedCount)));
+    Summary->SetText(FText::FromString(View.bKo ? FString::Printf(TEXT("보유 %d     /     연소 %d     /     기록 %d"),View.RemainingCount,View.BurnedCount,View.OwnedCount)
+        : FString::Printf(TEXT("%d HELD     /     %d BURNED     /     %d RECORDED"),View.RemainingCount,View.BurnedCount,View.OwnedCount)));
     Filters->ClearChildren();
     for(int32 I=0;I<View.FilterLabels.Num();++I)
     {

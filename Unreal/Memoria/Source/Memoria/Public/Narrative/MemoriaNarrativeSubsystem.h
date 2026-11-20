@@ -40,6 +40,8 @@ struct MEMORIA_API FMemoriaNarrativeView
     bool bLedgerThreadHolds = false;
     // vn_scene.gd _on_memory_burned: a new BurnSerial plays the burn glitch once.
     int32 BurnSerial = 0;
+    // S369: the frame's own words follow the run's language (set where the view is shown).
+    bool bKorean = false;
 };
 
 UCLASS()

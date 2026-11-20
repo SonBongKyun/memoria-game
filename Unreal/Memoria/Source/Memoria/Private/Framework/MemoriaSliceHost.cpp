@@ -1,4 +1,5 @@
 #include "Framework/MemoriaSliceHost.h"
+#include "Localization/MemoriaKorean.h"
 #include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "Presentation/MemoriaDemoCompletion.h"
 #include "Presentation/MemoriaDemoCompletionWidget.h"
@@ -462,7 +463,15 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
             NarrativeWidget->OnConfirm.BindUObject(this, &AMemoriaSliceController::ForwardConfirm);
             PresentModal(NarrativeWidget);
         }
-        NarrativeWidget->Display(Narrative->GetView());
+        FMemoriaNarrativeView View = Narrative->GetView();
+        if (MemoriaKorean::IsKorean(this))
+        {
+            // S369: the scene frame's fixed English (headers, places, choices, the stop screen) in Korean.
+            View.bKorean = true;
+            for (FString* Field : {&View.Header, &View.LocationTitle, &View.ChoiceTitle, &View.ChoiceHint, &View.Body}) *Field = MemoriaKorean::Text(*Field);
+            for (auto& Choice : View.Choices) Choice.Text = MemoriaKorean::Text(Choice.Text);
+        }
+        NarrativeWidget->Display(View);
     }
     else if (NarrativeWidget)
     {
@@ -489,6 +498,12 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         Narrative->GetExplorationNotice().ParseIntoArrayLines(Status.Notices, true);
         if (!Narrative->GetDeferredInteraction().IsEmpty())
             Status.Notices.Add(TEXT("Development boundary: resolved ") + Narrative->GetDeferredInteraction() + TEXT("; content deferred."));
+        if (Status.bKorean)
+        {
+            // S369: prompts, the quest line and toasts raised in English underneath, shown in Korean.
+            Status.Prompt = MemoriaKorean::Text(Status.Prompt); Status.Quest = MemoriaKorean::Text(Status.Quest);
+            for (FString& Line : Status.Notices) Line = MemoriaKorean::Text(Line);
+        }
         StatusWidget->Display(Status); StatusWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
         if (!StatusWidget->IsInViewport()) StatusWidget->AddToViewport(10);
         if (Changed && !IsModalOpen())
@@ -735,7 +750,7 @@ FString AMemoriaSliceController::PauseInfo() const
     }
     const FString MapId = Host() ? Host()->GetChapterMap() : FString();
     const FString Place=FieldPlaceLabel(MapId,Ko);
-    return Ko?FString::Printf(TEXT("%lld장 — %s\n기억  보유 %lld · 연소 %lld\nHP %lld / %lld    Grains %lld"),State.CurrentChapter,*Place,Held,Burned,State.Player.Hp,State.Player.MaxHp,State.Player.Grains)
+    return Ko?FString::Printf(TEXT("%lld장 — %s\n기억  보유 %lld · 연소 %lld\nHP %lld / %lld    그레인 %lld"),State.CurrentChapter,*Place,Held,Burned,State.Player.Hp,State.Player.MaxHp,State.Player.Grains)
         :FString::Printf(TEXT("Chapter %lld — %s\nMemories: %lld held, %lld burned\nHP %lld / %lld    Grains %lld"),State.CurrentChapter,*Place,Held,Burned,State.Player.Hp,State.Player.MaxHp,State.Player.Grains);
 }
 void AMemoriaSliceController::PauseAction(EMemoriaPauseAction Action)

@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaTitleWidget.h"
+#include "Localization/MemoriaKorean.h"
 #include "Presentation/MemoriaFonts.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Presentation/MemoriaUiKit.h"
@@ -138,7 +139,7 @@ TSharedRef<SWidget> UMemoriaTitleWidget::RebuildWidget()
         Panel->SetBrush(FSlateRoundedBoxBrush(Srgb(.018f, .014f, .027f, .76f), 2.f, Srgb(.55f, .40f, .22f, .54f), 1.f));
         Place(Root, Panel, .685f, .39f, .97f, .93f);
         auto* PanelEdge = Fill(WidgetTree, Srgb(.55f, .40f, .22f, .54f)); Place(Root, PanelEdge, .685f, .39f, .685f, .93f)->SetOffsets(FMargin(0, 0, 3 * U, 0));
-        auto* Kicker = Label(WidgetTree, EFont::Ui, Pt(13), Srgb(.72f, .60f, .44f, .92f)); Place(Root, Kicker, .718f, .42f, .955f, .45f); Kicker->SetText(FText::FromString(TEXT("MEMORY ARCHIVE  //  00")));
+        auto* Kicker = Label(WidgetTree, EFont::Ui, Pt(13), Srgb(.72f, .60f, .44f, .92f)); Place(Root, Kicker, .718f, .42f, .955f, .45f); KickerText = Kicker;   // S369: its words follow the language in Refresh
         auto* Heading = Label(WidgetTree, EFont::Title, Pt(18), Srgb(.91f, .85f, .76f)); Place(Root, Heading, .718f, .448f, .955f, .485f); Copy.Add(Heading);
         auto* GoldRule = Fill(WidgetTree, Srgb(.78f, .56f, .27f, .48f)); Place(Root, GoldRule, .718f, .482f, .955f, .484f);
         auto* Footer = Label(WidgetTree, EFont::Ui, Pt(13), Srgb(.58f, .55f, .52f, .92f)); Place(Root, Footer, .718f, .886f, .955f, .916f); Copy.Add(Footer);
@@ -225,6 +226,7 @@ void UMemoriaTitleWidget::Refresh()
         Loc(TEXT("Master Volume"), TEXT("전체 음량")), Loc(TEXT("BGM Volume"), TEXT("배경음악 음량")), Loc(TEXT("SFX Volume"), TEXT("효과음 음량")),
         Loc(TEXT("DISPLAY"), TEXT("화면")), Loc(TEXT("Fullscreen"), TEXT("전체 화면")), Loc(TEXT("Language"), TEXT("언어")), Loc(TEXT("Back"), TEXT("뒤로"))};
     for (int32 I = 0; I < Copy.Num() && I < UE_ARRAY_COUNT(Texts); ++I) Copy[I]->SetText(FText::FromString(Texts[I]));
+    if (KickerText) KickerText->SetText(FText::FromString(Loc(TEXT("MEMORY ARCHIVE  //  00"), TEXT("기억 서고  //  00"))));
     Copy[5]->SetColorAndOpacity(bLoadFailed ? Srgb(.93f, .58f, .42f) : Srgb(.58f, .55f, .52f, .92f));
     const FString Labels[] = {Loc(TEXT("New Game"), TEXT("새 게임")), Loc(TEXT("Continue"), TEXT("이어하기")), Loc(TEXT("Options"), TEXT("옵션")), Loc(TEXT("Quit Game"), TEXT("게임 종료"))};
     for (int32 I = 0; I < Items.Num(); ++I)

@@ -1,4 +1,5 @@
 #include "Achievements/MemoriaAchievementWidgets.h"
+#include "Localization/MemoriaKorean.h"
 #include "Achievements/MemoriaAchievementSubsystem.h"
 #include "Presentation/MemoriaBattleEntryArt.h"
 #include "Presentation/MemoriaFonts.h"
@@ -61,9 +62,10 @@ int32 UMemoriaAchievementPopupWidget::NativePaint(const FPaintArgs& Args, const 
     Panel(Elements, L, Geometry, At, Panel2, Srgb(.08f, .07f, .06f, .95f * Alpha), Srgb(.7f, .55f, .25f, .9f * Alpha), 2.f * S);
     Text(Elements, L + 2, Geometry, Glyph(Shown->Icon), At + FVector2D(16, 18) * S, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(24 * S)), Srgb(.95f, .85f, .55f, Alpha));
     const FVector2D TextAt = At + FVector2D(60, 8) * S;
-    Text(Elements, L + 2, Geometry, TEXT("ACHIEVEMENT UNLOCKED"), TextAt, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(11 * S)), Srgb(.6f, .55f, .4f, Alpha));
-    Text(Elements, L + 2, Geometry, Shown->Title, TextAt + FVector2D(0, 17) * S, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(15 * S)), Srgb(.95f, .85f, .55f, Alpha));
-    Text(Elements, L + 2, Geometry, Shown->Desc, TextAt + FVector2D(0, 38) * S, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(11 * S)), Srgb(.55f, .5f, .45f, Alpha));
+    const bool Ko = MemoriaKorean::IsKorean(this);
+    Text(Elements, L + 2, Geometry, Ko ? MemoriaKorean::Text(TEXT("ACHIEVEMENT UNLOCKED")) : FString(TEXT("ACHIEVEMENT UNLOCKED")), TextAt, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(11 * S)), Srgb(.6f, .55f, .4f, Alpha));
+    Text(Elements, L + 2, Geometry, Ko ? MemoriaKorean::Text(Shown->Title) : FString(Shown->Title), TextAt + FVector2D(0, 17) * S, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(15 * S)), Srgb(.95f, .85f, .55f, Alpha));
+    Text(Elements, L + 2, Geometry, Ko ? MemoriaKorean::Text(Shown->Desc) : FString(Shown->Desc), TextAt + FVector2D(0, 38) * S, MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, FMath::RoundToInt(11 * S)), Srgb(.55f, .5f, .45f, Alpha));
     return L + 4;
 }
 void UMemoriaAchievementsWidget::Configure(UMemoriaAchievementSubsystem* InAchievements, bool bInKo)
@@ -82,7 +84,8 @@ FReply UMemoriaAchievementsWidget::NativeOnMouseWheel(const FGeometry& Geometry,
 FString UMemoriaAchievementsWidget::HeaderText() const
 {
     const auto* A = Achievements.Get();
-    return FString::Printf(TEXT("ACHIEVEMENTS  (%d / %d)"), A ? A->NumUnlocked() : 0, UMemoriaAchievementSubsystem::All().Num());
+    const int32 Unlocked = A ? A->NumUnlocked() : 0, Total = UMemoriaAchievementSubsystem::All().Num();
+    return bKo ? FString::Printf(TEXT("업적  (%d / %d)"), Unlocked, Total) : FString::Printf(TEXT("ACHIEVEMENTS  (%d / %d)"), Unlocked, Total);
 }
 FString UMemoriaAchievementsWidget::ProgressText() const
 {
@@ -95,7 +98,7 @@ FString UMemoriaAchievementsWidget::RowTitle(int32 Index) const
     const auto& All = UMemoriaAchievementSubsystem::All();
     if (!All.IsValidIndex(Index)) return FString();
     const auto* A = Achievements.Get();
-    return A && A->IsUnlocked(All[Index].Id) ? FString(All[Index].Title) : TEXT("???");
+    return A && A->IsUnlocked(All[Index].Id) ? (bKo ? MemoriaKorean::Text(All[Index].Title) : FString(All[Index].Title)) : TEXT("???");
 }
 int32 UMemoriaAchievementsWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements, int32 LayerId, const FWidgetStyle& Style, bool bParentEnabled) const
@@ -138,7 +141,7 @@ int32 UMemoriaAchievementsWidget::NativePaint(const FPaintArgs& Args, const FGeo
         Box(Elements, L + 4, Geometry, RowAt, FVector2D(3.f * S, RowH), bOn ? Srgb(.58f, .44f, .24f, .42f) : Srgb(.2f, .18f, .2f, .28f));
         Text(Elements, L + 5, Geometry, Glyph(All[I].Icon), RowAt + FVector2D(14, 12) * S, GlyphFont, bOn ? Srgb(.82f, .67f, .38f) : Srgb(.3f, .28f, .3f));
         Text(Elements, L + 5, Geometry, RowTitle(I), RowAt + FVector2D(46, 6) * S, TitleFont, bOn ? Srgb(.85f, .75f, .5f) : Srgb(.35f, .3f, .28f));
-        Text(Elements, L + 5, Geometry, All[I].Desc, RowAt + FVector2D(46, 26) * S, Small, bOn ? Srgb(.6f, .55f, .5f) : Srgb(.3f, .28f, .25f));
+        Text(Elements, L + 5, Geometry, bKo ? MemoriaKorean::Text(All[I].Desc) : FString(All[I].Desc), RowAt + FVector2D(46, 26) * S, Small, bOn ? Srgb(.6f, .55f, .5f) : Srgb(.3f, .28f, .25f));
     }
     // Where the list stands, and the close hint.
     const FString Range = FString::Printf(TEXT("%d-%d / %d"), FirstRow + 1, FMath::Min(FirstRow + VisibleRows, All.Num()), All.Num());

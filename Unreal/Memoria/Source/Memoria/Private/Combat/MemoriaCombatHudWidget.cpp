@@ -1,4 +1,5 @@
 #include "Combat/MemoriaCombatHudWidget.h"
+#include "Localization/MemoriaKorean.h"
 #include "Framework/MemoriaSliceHost.h"
 #include "Framework/MemoriaCombatInputRouter.h"
 #include "Combat/MemoriaFieldCombatSubsystem.h"
@@ -330,7 +331,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
         const auto Base=P.Tint.A>0.f?P.Tint:P.bPlayer?FLinearColor(1.f,.28f,.24f):FLinearColor(1.f,.82f,.46f);
         const float Pop=1.f+.55f*FMath::Square(FMath::Clamp(1.f-P.Age/.16f,0.f,1.f));
         const auto Ink=P.bBig&&!bWord?FLinearColor(FMath::Lerp(Base.R,1.f,.35f),FMath::Lerp(Base.G,1.f,.35f),FMath::Lerp(Base.B,1.f,.35f)):Base;
-        const FString Painted=bDefense?(bDefenseEnabled?MemoriaDefenseFeedbackS364::PopupText(P,Ko):P.Label):bWord?P.Label:FString::Printf(TEXT("%d"),FMath::RoundToInt(P.Amount));
+        const FString Painted=bDefense?(bDefenseEnabled?MemoriaDefenseFeedbackS364::PopupText(P,Ko):P.Label):bWord?(Ko?MemoriaKorean::Text(P.Label):P.Label):FString::Printf(TEXT("%d"),FMath::RoundToInt(P.Amount));
         const float DefensePop=bDefenseEnabled&&bReduceMotion?1.f:Pop;
         const int32 Points=bDefense?FMath::RoundToInt(22.f*DefensePop*(bDefenseEnabled&&Settings?Settings->TextScale():1.f)):
             FMath::RoundToInt((bWord?22:P.bPlayer?30:P.bBig?46:34)*Pop);
@@ -506,7 +507,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     if (Won.Age < RewardShown)
     {
         const float A = FMath::Clamp(FMath::Min(Won.Age / .2f, (RewardShown - Won.Age) / .6f), 0.f, 1.f);
-        FString Line = FString::Printf(TEXT("Grains +%lld"), Won.Grains);
+        FString Line = Ko ? FString::Printf(TEXT("그레인 +%lld"), Won.Grains) : FString::Printf(TEXT("Grains +%lld"), Won.Grains);
         if (Won.Heal > 0) Line += FString::Printf(TEXT("    HP +%lld"), Won.Heal);
         if (!Won.ItemName.IsEmpty()) Line += Ko ? FString::Printf(TEXT("    %s 획득"), *Won.ItemName) : FString::Printf(TEXT("    %s found"), *Won.ItemName);
         const FVector2D Center(Size.X * .5, At.Y - 92.f);

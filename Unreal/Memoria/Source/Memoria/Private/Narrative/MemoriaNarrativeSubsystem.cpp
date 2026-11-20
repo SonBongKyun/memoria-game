@@ -1,4 +1,5 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Localization/MemoriaKorean.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Narrative/MemoriaMaletReaction.h"
@@ -168,12 +169,13 @@ void UMemoriaNarrativeSubsystem::ShowChapterLedger(const FString& Event)
     if (Burned.IsEmpty()) LedgerLines.Add(Ko ? TEXT("이번 장에서 태운 기억: 없음") : TEXT("Burned this chapter: nothing"));
     else
     {
-        // Unreal has no Korean memory titles yet; the source title is shown in both locales.
+        // S369: the memory's Korean title from the catalog when the run is Korean.
         TArray<FString> Names;
         for (const auto& Id : Burned)
         {
             const auto* D = Memory->GetDefinitions().FindByPredicate([&](const auto& V){ return V.Id.Equals(Id, ESearchCase::CaseSensitive); });
-            Names.Add(D ? D->Title : Id);
+            FString KoTitle, KoDescription;
+            Names.Add(Ko && MemoriaKorean::MemoryText(Id, KoTitle, KoDescription) ? KoTitle : D ? D->Title : Id);
         }
         FString Joined = FString::Join(TArray<FString>(Names.GetData(), FMath::Min(3, Names.Num())), TEXT(", "));
         if (Names.Num() > 3) Joined += Ko ? FString::Printf(TEXT(" 외 %d"), Names.Num() - 3) : FString::Printf(TEXT(" +%d more"), Names.Num() - 3);
@@ -662,8 +664,11 @@ FMemoriaNarrativeView UMemoriaNarrativeSubsystem::GetView() const
             FMemoriaNarrativeView V; V.bDevelopmentStop=true;V.Header=TEXT("VERDAN EXCHANGE COMPLETE / DEVELOPMENT BOUNDARY");
             V.Header=bCheckpointLoadFailed ? TEXT("MEMORIA / CONTINUE") : TEXT("VERDAN / EXCHANGE COMPLETE");
             V.Body=GetGameInstance()->GetSubsystem<UMemoriaCheckpointSubsystem>()->GetStatusText();
+            if (Run->GetRunSnapshot().CurrentLocale==TEXT("ko")) V.Body=MemoriaKorean::Text(V.Body);   // S369
             if (!bCheckpointLoadFailed)
-                V.Body+=TEXT("\n\nThis checkpoint includes memories, Grains and items at the end of the exchange.\nLoad this checkpoint to revisit Verdan and enter ambient encounters, or take the Belt road on to Chapter 3.");
+                V.Body+=Run->GetRunSnapshot().CurrentLocale==TEXT("ko")
+                    ? TEXT("\n\n이 체크포인트에는 거래가 끝난 시점의 기억, 그레인, 아이템이 담겨 있습니다.\n불러오면 베르단을 다시 둘러보며 주변의 조우를 겪을 수 있고, 벨트 길을 따라 3장으로 나아갈 수도 있습니다.")
+                    : TEXT("\n\nThis checkpoint includes memories, Grains and items at the end of the exchange.\nLoad this checkpoint to revisit Verdan and enter ambient encounters, or take the Belt road on to Chapter 3.");
             if (bCheckpointScreen && !bCheckpointLoadFailed) V.Choices.Add({3,TEXT("Return to Verdan")});
             V.Choices.Add({1,TEXT("Load checkpoint")});
             V.Choices.Add(bCheckpointLoadFailed ? FMemoriaPresentedChoice{2,TEXT("Start a new slice")} : FMemoriaPresentedChoice{0,TEXT("Save checkpoint again")});

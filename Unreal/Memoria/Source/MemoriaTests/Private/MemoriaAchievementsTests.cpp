@@ -134,8 +134,9 @@ public:
             if (Frame < Mark + 10) break;
             if (auto* List = PC->GetAchievementsWidget())
             {
-                Test->TestEqual(TEXT("The header counts the unlocked"), List->HeaderText(), FString::Printf(TEXT("ACHIEVEMENTS  (%d / 38)"), Achievements->NumUnlocked()));
-                Test->TestEqual(TEXT("First Blood is named"), List->RowTitle(0), FString(TEXT("First Blood")));
+                // S369: the Korean list is Korean throughout (the header and names were English before the patch).
+                Test->TestEqual(TEXT("The header counts the unlocked"), List->HeaderText(), FString::Printf(TEXT("업적  (%d / 38)"), Achievements->NumUnlocked()));
+                Test->TestEqual(TEXT("First Blood is named"), List->RowTitle(0), FString(TEXT("첫 승리")));
                 Test->TestEqual(TEXT("A locked one is ???"), List->RowTitle(1), FString(TEXT("???")));
                 Test->TestTrue(TEXT("The completion line is Korean"), List->ProgressText().StartsWith(TEXT("기억 속에")));
                 Capture(TEXT("AchievementsList"));

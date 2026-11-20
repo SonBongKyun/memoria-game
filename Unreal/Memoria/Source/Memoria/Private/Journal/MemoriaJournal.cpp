@@ -1,4 +1,5 @@
 #include "Journal/MemoriaJournal.h"
+#include "Localization/MemoriaKorean.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Domain/MemoriaChapterMemories.h"
@@ -197,6 +198,9 @@ TArray<FMemoriaJournalRecord> LossRecords(const UMemoriaRunSubsystem& Run, bool 
             if (MemoriaChapterMemories::Korean(State.Id, Text)) MemoryTitle = Text.Title;
             else if (Catalog)
                 if (const auto* Found = Catalog->LocalizedText.FindByPredicate([&](const auto& T) { return T.MemoryId == State.Id && T.Locale == TEXT("ko"); })) MemoryTitle = Found->Title;
+            // S369: the compass reading in Korean, naming the memory by its Korean title.
+            Compass = Rule && !Rule->Compass.IsEmpty() ? MemoriaKorean::Text(Rule->Compass) : FString(bFaded ? TEXT("침식 중: ") : TEXT("소실: ")) + MemoryTitle;
+            if (bFaded) Compass = TEXT("침식 경고: ") + Compass;
         }
         // _build_loss_record. The source's body labels are English in both locales; the port translates them.
         const FString Status = bFaded ? (bKo ? TEXT("바래는 중") : TEXT("FADING")) : (bKo ? TEXT("연소") : TEXT("BURNED"));

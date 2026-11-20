@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaDevelopmentNarrativeWidget.h"
+#include "Localization/MemoriaKorean.h"
 #include "Validation/MemoriaUpgradeSmokeSubsystem.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Presentation/MemoriaFonts.h"
@@ -221,6 +222,7 @@ bool UMemoriaDevelopmentNarrativeWidget::IsTyping() const
     const bool Enabled=TypewriterOverride.Get(!GIsAutomationTesting && !MemoriaUpgradeSmoke::IsIsolatedSmokeActive());
     return Enabled && IsStoryMode() && !View.bPaused && View.Choices.IsEmpty() && Typed<ShownBody.Len();
 }
+FString UMemoriaDevelopmentNarrativeWidget::L(const TCHAR* English) const { return View.bKorean ? MemoriaKorean::Text(English) : FString(English); }
 void UMemoriaDevelopmentNarrativeWidget::Display(const FMemoriaNarrativeView& InView)
 {
     const int32 Previous=SelectedOriginalIndex();const bool SameStep=View.Header==InView.Header;
@@ -503,12 +505,13 @@ void UMemoriaDevelopmentNarrativeWidget::RefreshStory(bool bChoosing)
     NameFill->SetVisibility(View.Speaker.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     const FString Body=StoryBody();
     if(Body!=ShownBody){ShownBody=Body;Typed=0.f;}
-    StoryHint->SetText(FText::FromString(View.bPaused?TEXT(""):bChoosing?TEXT("↑ ↓  Select      ENTER  Confirm"):TEXT("ENTER  Next      ESC  Pause      TAB  Memories")));
+    StoryHint->SetText(FText::FromString(View.bPaused?FString():bChoosing?L(TEXT("↑ ↓  Select      ENTER  Confirm")):L(TEXT("ENTER  Next      ESC  Pause      TAB  Memories"))));
+    StoryNext->SetText(FText::FromString(L(TEXT("NEXT  ▼"))));
     if(bChoosing)
     {
         const bool Framed=View.Choices.Num()==3;
         ChoiceFrameArt->SetVisibility(Framed?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
-        ChoiceTitleText->SetText(FText::FromString(View.ChoiceTitle.IsEmpty()?TEXT("YOUR CHOICE"):View.ChoiceTitle));
+        ChoiceTitleText->SetText(FText::FromString(View.ChoiceTitle.IsEmpty()?L(TEXT("YOUR CHOICE")):View.ChoiceTitle));
         ChoiceHintText->SetText(FText::FromString(View.ChoiceHint));
         BuildChoices(Framed);
     }
@@ -542,7 +545,7 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
         if(View.bPaused)
         {
             Position(NarrativePanel,.3f,.38f,.7f,.62f);
-            Speaker->SetText(FText::FromString(TEXT("PAUSED")));Message->SetText(FText::FromString(TEXT("Enter / A or Back: return to the current line")));
+            Speaker->SetText(FText::FromString(L(TEXT("PAUSED"))));Message->SetText(FText::FromString(L(TEXT("Enter / A or Back: return to the current line"))));
             BodyScroll->SetVisibility(ESlateVisibility::Visible);ChoiceScroll->SetVisibility(ESlateVisibility::Collapsed);ChoiceNote->SetVisibility(ESlateVisibility::Collapsed);
             Position(BodyScroll,.08f,.34f,.92f,.8f);Hint->SetText(FText::GetEmpty());Choices->ClearChildren();
         }
@@ -564,10 +567,10 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
     Position(BodyScroll,Face && !Right?.185f:.045f,View.bCompactStatus?.30f:.28f,Face && Right?.815f:.95f,View.bCompactStatus?.96f:.78f);
     Position(Hint,Face && !Right?.185f:.045f,.84f,Face && Right?.815f:.95f,.98f);
     Location->SetText(FText::FromString(View.bDevelopmentStop?View.Header:View.LocationTitle));
-    Speaker->SetText(FText::FromString(View.bCompactStatus?View.Header:View.bPaused?TEXT("PAUSED"):Choosing?(View.ChoiceTitle.IsEmpty()?TEXT("YOUR CHOICE"):View.ChoiceTitle):View.Speaker.IsEmpty()?TEXT("MEMORIA"):(View.SpeakerLabel.IsEmpty()?View.Speaker:View.SpeakerLabel)));
+    Speaker->SetText(FText::FromString(View.bCompactStatus?View.Header:View.bPaused?L(TEXT("PAUSED")):Choosing?(View.ChoiceTitle.IsEmpty()?L(TEXT("YOUR CHOICE")):View.ChoiceTitle):View.Speaker.IsEmpty()?TEXT("MEMORIA"):(View.SpeakerLabel.IsEmpty()?View.Speaker:View.SpeakerLabel)));
     Speaker->SetColorAndOpacity(View.bSystemLog && !Choosing?SystemCyan:Gold);
     Message->SetColorAndOpacity(View.bDistorted?Distorted:Paper);
-    FString Body=View.bPaused?TEXT("Enter / A or Back: return to the current line"):View.Narration;
+    FString Body=View.bPaused?L(TEXT("Enter / A or Back: return to the current line")):View.Narration;
     if(!View.bPaused && !View.Body.IsEmpty()){if(!Body.IsEmpty())Body+=TEXT("\n\n");Body+=View.Body;}
     // The exploration status is interface text: sans, smaller, so control hints do not wrap.
     Message->SetFont(MemoriaFonts::Get(View.bCompactStatus?EFont::Ui:EFont::Body,View.bCompactStatus?15:21));
@@ -593,5 +596,5 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
         Cast<UButtonSlot>(RowPadding->Slot)->SetVerticalAlignment(VAlign_Center);
         Choices->AddChildToVerticalBox(B)->SetPadding(FMargin(0,0,0,7));Buttons.Add(B);
     }
-    Hint->SetText(FText::FromString(View.bCompactStatus?TEXT(""):View.bDevelopmentStop && !Choosing?TEXT("Recorded development observation"):View.bPaused?TEXT(""):Choosing?TEXT("UP / DOWN  Select     ENTER / A  Confirm     or click a choice"):TEXT("ENTER / E / SPACE / A  Continue")));
+    Hint->SetText(FText::FromString(View.bCompactStatus?TEXT(""):View.bDevelopmentStop && !Choosing?L(TEXT("Recorded development observation")):View.bPaused?TEXT(""):Choosing?L(TEXT("UP / DOWN  Select     ENTER / A  Confirm     or click a choice")):L(TEXT("ENTER / E / SPACE / A  Continue"))));
 }

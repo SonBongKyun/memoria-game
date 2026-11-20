@@ -1,4 +1,5 @@
 #include "Presentation/MemoriaShopWidget.h"
+#include "Localization/MemoriaKorean.h"
 #include "Blueprint/WidgetTree.h"
 #include "Engine/GameInstance.h"
 #include "Components/CanvasPanel.h"
@@ -47,11 +48,11 @@ TSharedRef<SWidget> UMemoriaShopWidget::RebuildWidget()
         Back->SetBrushFromTexture(LoadObject<UTexture2D>(nullptr,TEXT("/Game/Memoria/Presentation/Shop/T_ShopBackdrop.T_ShopBackdrop")));
         Back->SetVisibility(ESlateVisibility::HitTestInvisible);Place(Canvas,Back,0,0,1,1);
         Title=Text(WidgetTree,TEXT(""),27,Gold);Place(Canvas,Title,0.105f,0.07f,0.77f,0.14f);
-        SellButton=WidgetTree->ConstructWidget<UMemoriaShopRowButton>(); SellButton->SetContent(Text(WidgetTree,TEXT("SELL"),16,Gold));
+        SellButton=WidgetTree->ConstructWidget<UMemoriaShopRowButton>(); SellButton->SetContent(Text(WidgetTree,MemoriaKorean::For(this,TEXT("SELL")),16,Gold));
         SellButton->OnClicked.AddDynamic(this,&UMemoriaShopWidget::SellTab);Place(Canvas,SellButton,.106f,.18f,.237f,.24f);
-        BuyButton=WidgetTree->ConstructWidget<UMemoriaShopRowButton>(); BuyButton->SetContent(Text(WidgetTree,TEXT("BUY"),16,Gold));
+        BuyButton=WidgetTree->ConstructWidget<UMemoriaShopRowButton>(); BuyButton->SetContent(Text(WidgetTree,MemoriaKorean::For(this,TEXT("BUY")),16,Gold));
         BuyButton->OnClicked.AddDynamic(this,&UMemoriaShopWidget::BuyTab);Place(Canvas,BuyButton,.244f,.18f,.375f,.24f);
-        auto* Close=WidgetTree->ConstructWidget<UMemoriaShopRowButton>();Close->SetStyle(RowStyle(false));Close->SetContent(Text(WidgetTree,TEXT("CLOSE / ESC"),15,Gold));
+        auto* Close=WidgetTree->ConstructWidget<UMemoriaShopRowButton>();Close->SetStyle(RowStyle(false));Close->SetContent(Text(WidgetTree,MemoriaKorean::For(this,TEXT("CLOSE / ESC")),15,Gold));
         Close->OnClicked.AddDynamic(this,&UMemoriaShopWidget::CloseIntent);Place(Canvas,Close,.803f,.76f,.935f,.83f);
         Action=WidgetTree->ConstructWidget<UMemoriaShopRowButton>();Action->SetStyle(RowStyle(false));
         Action->OnClicked.AddDynamic(this,&UMemoriaShopWidget::ConfirmIntent);Place(Canvas,Action,.425f,.77f,.76f,.83f);
@@ -62,7 +63,7 @@ TSharedRef<SWidget> UMemoriaShopWidget::RebuildWidget()
         auto* Details=Panel(WidgetTree,Canvas,0.417f,0.26f,0.765f,0.76f);
         auto* DetailScroll=WidgetTree->ConstructWidget<UScrollBox>();Details->SetContent(DetailScroll);
         Detail=Text(WidgetTree,TEXT(""),21);DetailScroll->AddChild(Detail);
-        Place(Canvas,Text(WidgetTree,TEXT("THE MEMORY EXCHANGE"),15,Gold),0.43f,0.185f,0.755f,0.24f);
+        Place(Canvas,Text(WidgetTree,MemoriaKorean::For(this,TEXT("THE MEMORY EXCHANGE")),15,Gold),0.43f,0.185f,0.755f,0.24f);
         auto* Portrait=WidgetTree->ConstructWidget<UImage>();PortraitImage=Portrait;
         Portrait->SetBrushFromTexture(LoadObject<UTexture2D>(nullptr,TEXT("/Game/Memoria/Presentation/Shop/T_MaletPortrait.T_MaletPortrait")));
         Portrait->SetVisibility(ESlateVisibility::HitTestInvisible);Place(Canvas,Portrait,0.805f,0.135f,0.905f,0.313f);
@@ -88,10 +89,11 @@ void UMemoriaShopWidget::Preview(int32 Index)
     if(!View.Rows.IsValidIndex(Index))return;
     Selection=Index;
     const auto& R=View.Rows[Index];
-    Detail->SetText(FText::FromString(R.Title+TEXT("\n\n")+R.Description+TEXT("\n\n")+FString::Printf(TEXT("%lld Grains"),R.Price)+(R.StoryEffect.IsEmpty()?FString():TEXT("\n\n")+R.StoryEffect)));
+    const bool Ko=MemoriaKorean::IsKorean(this);
+    Detail->SetText(FText::FromString(R.Title+TEXT("\n\n")+R.Description+TEXT("\n\n")+MemoriaKorean::Grains(R.Price,Ko)+(R.StoryEffect.IsEmpty()?FString():TEXT("\n\n")+R.StoryEffect)));
     Action->SetIsEnabled(View.bOpen && (View.Mode==TEXT("sell") || View.Grains>=R.Price));
-    const FString ActionText = View.Mode==TEXT("sell") ? FString::Printf(TEXT("Sell for %lld G / Enter"),R.Price)
-        : (View.Grains>=R.Price ? FString::Printf(TEXT("Buy for %lld G / Enter"),R.Price) : TEXT("Not enough Grains"));
+    const FString ActionText = View.Mode==TEXT("sell") ? (Ko ? FString::Printf(TEXT("%lld G에 판매 / Enter"),R.Price) : FString::Printf(TEXT("Sell for %lld G / Enter"),R.Price))
+        : (View.Grains>=R.Price ? (Ko ? FString::Printf(TEXT("%lld G에 구매 / Enter"),R.Price) : FString::Printf(TEXT("Buy for %lld G / Enter"),R.Price)) : MemoriaKorean::For(this,TEXT("Not enough Grains")));
     Action->SetContent(Text(WidgetTree,ActionText,17,Gold));
     for(int32 I=0;I<Buttons.Num();++I)Buttons[I]->SetStyle(RowStyle(I==Index));
 }
@@ -100,15 +102,15 @@ void UMemoriaShopWidget::Refresh()
     if(!Rows)return;
     Title->SetText(FText::FromString(View.Title));Caption->SetText(FText::FromString(View.Caption));Grains->SetText(FText::FromString(View.GrainsText));
     Detail->SetText(FText::FromString(View.EmptyDetail));Rows->ClearChildren();Buttons.Reset();
-    Action->SetIsEnabled(false);Action->SetContent(Text(WidgetTree,TEXT("Select a memory"),17,Gold));
+    Action->SetIsEnabled(false);Action->SetContent(Text(WidgetTree,MemoriaKorean::For(this,TEXT("Select a memory")),17,Gold));
     SellButton->SetStyle(RowStyle(View.Mode==TEXT("sell")));BuyButton->SetStyle(RowStyle(View.Mode==TEXT("buy")));
-    Feedback->SetText(FText::FromString(View.Feedback.IsEmpty()?TEXT("Up / Down: select   Left / Right: tab\nSelling burns the selected memory."):View.Feedback));
-    if(View.bEmptyAvailable)Rows->AddChild(Text(WidgetTree,View.Mode==TEXT("sell")?TEXT("No memories available to sell."):TEXT("No memories available to buy."),18));
+    Feedback->SetText(FText::FromString(View.Feedback.IsEmpty()?MemoriaKorean::For(this,TEXT("Up / Down: select   Left / Right: tab\nSelling burns the selected memory.")):View.Feedback));
+    if(View.bEmptyAvailable)Rows->AddChild(Text(WidgetTree,MemoriaKorean::For(this,View.Mode==TEXT("sell")?TEXT("No memories available to sell."):TEXT("No memories available to buy.")),18));
     for(int32 I=0;I<View.Rows.Num();++I)
     {
         const auto& R=View.Rows[I];auto* B=WidgetTree->ConstructWidget<UMemoriaShopRowButton>();B->Shop=this;B->RowIndex=I;
         B->SetStyle(RowStyle(false));B->OnClicked.AddDynamic(B,&UMemoriaShopRowButton::Preview);
-        auto* Label=Text(WidgetTree,R.Title+FString::Printf(TEXT("\n%lld Grains"),R.Price),18);
+        auto* Label=Text(WidgetTree,R.Title+TEXT("\n")+MemoriaKorean::Grains(R.Price,MemoriaKorean::IsKorean(this)),18);
         auto* Pad=WidgetTree->ConstructWidget<UBorder>();Pad->SetBrushColor(FLinearColor::Transparent);Pad->SetPadding(FMargin(10,12));Pad->SetContent(Label);B->SetContent(Pad);
         Rows->AddChildToVerticalBox(B)->SetPadding(FMargin(0,0,0,12));Buttons.Add(B);
     }

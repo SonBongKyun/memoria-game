@@ -120,6 +120,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> LedgerBody;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> LedgerThread;
     FMemoriaNarrativeView View;
+    FString L(const TCHAR* English) const;   // S369: the frame's words in the view's language
     int32 Selection = 0;
     void Refresh();
     void RefreshStory(bool bChoosing);

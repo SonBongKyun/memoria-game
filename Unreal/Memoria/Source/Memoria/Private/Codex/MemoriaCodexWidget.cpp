@@ -1,4 +1,5 @@
 #include "Codex/MemoriaCodexWidget.h"
+#include "Localization/MemoriaKorean.h"
 #include "Codex/MemoriaCodexSubsystem.h"
 #include "Presentation/MemoriaBattleEntryArt.h"
 #include "Presentation/MemoriaFonts.h"
@@ -91,7 +92,7 @@ TArray<UMemoriaCodexWidget::FLine> UMemoriaCodexWidget::ListLines() const
         // _populate_memory_archive.
         if (C->GetMemories().IsEmpty()) { Out.Add({Loc(TEXT("No memories collected yet."), TEXT("아직 모은 기억이 없습니다.")), Srgb(.55f, .5f, .45f), false}); return Out; }
         for (const auto& M : C->GetMemories())
-            Out.Add({UMemoriaCodexSubsystem::Stars(M.Grade) + TEXT(" ") + M.Title + (M.bBurned ? Loc(TEXT(" [BURNED]"), TEXT(" [연소됨]")) : FString()), GradeColors[FMath::Clamp(M.Grade, 0, 4)]});
+            Out.Add({UMemoriaCodexSubsystem::Stars(M.Grade) + TEXT(" ") + MemoryTitle(M) + (M.bBurned ? Loc(TEXT(" [BURNED]"), TEXT(" [연소됨]")) : FString()), GradeColors[FMath::Clamp(M.Grade, 0, 4)]});
     }
     return Out;
 }
@@ -101,11 +102,15 @@ TArray<int32> UMemoriaCodexWidget::SelectableLines() const
     for (int32 I = 0; I < Lines.Num(); ++I) if (Lines[I].bSelectable) Out.Add(I);
     return Out;
 }
+FString UMemoriaCodexWidget::MemoryTitle(const FMemoriaCodexMemory& M) const
+{ FString Title, Desc; return bKo && MemoriaKorean::MemoryText(M.Id, Title, Desc) ? Title : M.Title; }
+FString UMemoriaCodexWidget::MemoryDesc(const FMemoriaCodexMemory& M) const
+{ FString Title, Desc; return bKo && MemoriaKorean::MemoryText(M.Id, Title, Desc) ? Desc : M.Desc; }
 FString UMemoriaCodexWidget::DetailTitle() const
 {
     const auto* C = Codex.Get();
     if (!C || SelectableLines().IsEmpty()) return Loc(TEXT("Select an entry..."), TEXT("항목을 고르세요..."));
-    if (Tab == 1) return C->GetMemories().IsValidIndex(Selected) ? C->GetMemories()[Selected].Title : FString();
+    if (Tab == 1) return C->GetMemories().IsValidIndex(Selected) ? MemoryTitle(C->GetMemories()[Selected]) : FString();
     return C->GetEnemies().IsValidIndex(Selected) ? EnemyName(C->GetEnemies()[Selected].Name) : TEXT("???");
 }
 FString UMemoriaCodexWidget::DetailBody() const
@@ -119,7 +124,7 @@ FString UMemoriaCodexWidget::DetailBody() const
         const auto& M = C->GetMemories()[Selected];
         const int32 G = FMath::Clamp(M.Grade, 0, 4);
         return FString::Printf(TEXT("%s  %s\n%s\n\n%s"), bKo ? GradeKo[G] : GradeEn[G], *UMemoriaCodexSubsystem::Stars(M.Grade),
-            *(bKo ? FString(TEXT("상태: ")) + (M.bBurned ? TEXT("연소됨") : TEXT("보유")) : FString(TEXT("Status: ")) + (M.bBurned ? TEXT("BURNED") : TEXT("Held"))), *M.Desc);
+            *(bKo ? FString(TEXT("상태: ")) + (M.bBurned ? TEXT("연소됨") : TEXT("보유")) : FString(TEXT("Status: ")) + (M.bBurned ? TEXT("BURNED") : TEXT("Held"))), *MemoryDesc(M));
     }
     if (!C->GetEnemies().IsValidIndex(Selected))
         // _show_unmet_detail; scans are not carried, so only the first half of its second line.

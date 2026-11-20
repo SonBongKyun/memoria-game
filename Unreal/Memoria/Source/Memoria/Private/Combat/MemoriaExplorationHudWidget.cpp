@@ -56,9 +56,9 @@ int32 UMemoriaExplorationHudWidget::NativePaint(const FPaintArgs& Args, const FG
     // exploration_hud.gd rows: HP, chapter and place, memories, grains, items.
     Lines.Reset();
     Lines.Add(FString::Printf(TEXT("HP  %lld / %lld"), State.Player.Hp, State.Player.MaxHp));
-    Lines.Add(FString::Printf(TEXT("Ch.%lld — %s"), State.CurrentChapter, Ko ? *PlaceKo : *PlaceEn));
+    Lines.Add(Ko ? FString::Printf(TEXT("%lld장 — %s"), State.CurrentChapter, *PlaceKo) : FString::Printf(TEXT("Ch.%lld — %s"), State.CurrentChapter, *PlaceEn));
     Lines.Add(Ko ? FString::Printf(TEXT("기억  보유 %lld · 연소 %lld"), Held, Burned) : FString::Printf(TEXT("Memories: %lld held, %lld burned"), Held, Burned));
-    Lines.Add(FString::Printf(TEXT("Grains  %lld"), State.Player.Grains));
+    Lines.Add(Ko ? FString::Printf(TEXT("그레인  %lld"), State.Player.Grains) : FString::Printf(TEXT("Grains  %lld"), State.Player.Grains));
     Lines.Add(Ko ? FString::Printf(TEXT("아이템  %lld"), Items) : FString::Printf(TEXT("Items: %lld"), Items));
     const FVector2D Size = Geometry.GetLocalSize();
     const FSlateFontInfo Font = MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 15);
