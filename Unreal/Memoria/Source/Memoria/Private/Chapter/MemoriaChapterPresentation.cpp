@@ -1,4 +1,5 @@
 #include "Chapter/MemoriaChapterPresentation.h"
+#include "Narrative/MemoriaManuscript.h"
 #include "Chapter/MemoriaChapterCardWidget.h"
 #include "Combat/MemoriaCombatHudWidget.h"
 #include "Combat/MemoriaExplorationHudWidget.h"
@@ -10,6 +11,7 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Run/MemoriaRunSubsystem.h"
+#include "Interaction/MemoriaStoryPointActor.h"
 #include "Domain/MemoriaChapterMemories.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Audio/MemoriaAudioCatalog.h"
@@ -413,6 +415,11 @@ void AMemoriaChapterPresentation::BeginPlay()
             Narrative->ShowNotice(bKo ? FString::Printf(TEXT("%d장 완료. 출구의 길이 다음 목적지로 이어집니다: %s"), Spec->Chapter, *Where)
                                       : FString::Printf(TEXT("Chapter %d complete. The road at the exit goes on: %s"), Spec->Chapter, *Where));
         }
+    // S370: chapter 4's signposts on the east road (the narrative decides when each can be read).
+    if (Map == MemoriaManuscript::SignsMap)
+        for (int32 I = 0; I < MemoriaManuscript::SignCount(); ++I)
+            if (auto* Sign = GetWorld()->SpawnActor<AMemoriaStoryPointActor>(MemoriaChapterMaps::ToWorld(MemoriaManuscript::SignOrigin(I)), FRotator::ZeroRotator, Params))
+                Sign->Configure(MemoriaManuscript::SignGroup(I), MemoriaManuscript::SignPrompt(I));
     PreviousPosition = Player->GetActorLocation();
     if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("chapter:presented:") + Map);
     if (auto* Achievements = Game->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordMapVisit(Map);
@@ -566,6 +573,9 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
     for (const auto& Npc : AmbientNpcs) if (Npc && Npc->IsVisible() != bNpcs) Npc->SetVisibility(bNpcs, true);
     if (bNpcs) TickAmbientNpcs(DeltaSeconds);
     TickEnvironment(DeltaSeconds);
+    // S370: note how much had burned when the anchoring held, so later burns can loosen the signs again.
+    if (Map == MemoriaManuscript::SignsMap)
+        if (auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()) MemoriaManuscript::EnsureAnchorBaseline(*Run);
     UpdateEncounters();
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }
     if (SceneAt >= 0.f && Clock >= SceneAt)

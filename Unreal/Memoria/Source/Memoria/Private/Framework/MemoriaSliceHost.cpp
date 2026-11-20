@@ -468,7 +468,8 @@ void AMemoriaSliceController::Tick(float DeltaSeconds)
         {
             // S369: the scene frame's fixed English (headers, places, choices, the stop screen) in Korean.
             View.bKorean = true;
-            for (FString* Field : {&View.Header, &View.LocationTitle, &View.ChoiceTitle, &View.ChoiceHint, &View.Body}) *Field = MemoriaKorean::Text(*Field);
+            // S370: and every line in the final manuscript's words (narration and the speaker's name too).
+            for (FString* Field : {&View.Header, &View.LocationTitle, &View.ChoiceTitle, &View.ChoiceHint, &View.Body, &View.Narration, &View.SpeakerLabel}) *Field = MemoriaKorean::Text(*Field);
             for (auto& Choice : View.Choices) Choice.Text = MemoriaKorean::Text(Choice.Text);
         }
         NarrativeWidget->Display(View);

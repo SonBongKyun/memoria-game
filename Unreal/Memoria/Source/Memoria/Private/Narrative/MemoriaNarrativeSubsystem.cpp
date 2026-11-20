@@ -1,4 +1,5 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Narrative/MemoriaManuscript.h"
 #include "Localization/MemoriaKorean.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
 #include "Run/MemoriaRunSubsystem.h"
@@ -434,6 +435,10 @@ void UMemoriaNarrativeSubsystem::ArmStoryBeats()
 }
 bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) const
 {
+    // S370: a drift signpost, once the anchoring has held and until it is read.
+    if (MemoriaManuscript::SignIndex(Group) != INDEX_NONE)
+        return Run && Run->HasActiveRun() && ChapterMap == MemoriaManuscript::SignsMap
+            && MemoriaManuscript::SignsOpen(Run->GetRunSnapshot()) && !Run->GetRunSnapshot().GetFlag(Group);
     const bool bLive = Run && Run->HasActiveRun() && StoryWorld.IsValid() && StoryWorld.Get() == GetWorld();
     if (Group == MemoriaSumpLedger::TraderPoint) return bLive && bTraderArmed && !MemoriaSumpLedger::IsComplete(Run->GetRunSnapshot());
     if (Group == MemoriaSumpLedger::LedgerPoint) return bLive && bLedgerArmed && !Run->GetRunSnapshot().GetFlag(MemoriaSumpLedger::Steps()[1].Flag);
@@ -445,6 +450,7 @@ bool UMemoriaNarrativeSubsystem::StartStoryBeat(const FString& Group)
 {
     if (State != EMemoriaSliceState::Exploration || !Context || !IsStoryBeatAvailable(Group)) return false;
     if (Group == MemoriaSumpLedger::TraderPoint || Group == MemoriaSumpLedger::LedgerPoint) return HandleSumpLedger(Group);
+    if (const int32 Sign = MemoriaManuscript::SignIndex(Group); Sign != INDEX_NONE) return HandleManuscriptSign(Sign);
     const auto* Beat = MemoriaVerdanStory::Find(Group);
     const FString Path = FString(TEXT("/Game/Memoria/Generated/Narrative/")) + Beat->Asset + TEXT(".") + Beat->Asset;
     if (!LoadObject<UMemoriaFieldAsset>(nullptr, *Path)) { Record(TEXT("error:missing_story_contract:") + Group); return false; }
@@ -498,6 +504,36 @@ bool UMemoriaNarrativeSubsystem::HandleSumpLedger(const FString& Point)
         Notice(TEXT("Find the ledger in the Sump.")); ++Revision; return true;
     default: return false;
     }
+}
+bool UMemoriaNarrativeSubsystem::HandleManuscriptSign(int32 Index)
+{
+    using namespace MemoriaManuscript;
+    EnsureAnchorBaseline(*Run);
+    // Elia's patch holds until he burns again: any burn since the anchoring loosens the letters.
+    const bool bLoose = Scrambled(Run->GetRunSnapshot(), Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num());
+    UMemoriaFieldAsset* Asset = BuildSign(this, Index, bLoose);
+    if (!Asset) return false;
+    const FString Group = SignGroup(Index);
+    Run->SetStoryFlag(Group, true); Record(TEXT("flag:") + Group);
+    if (bLoose) Record(TEXT("manuscript:sign_loose:") + Group);
+    const int32 Read = SignsRead(Run->GetRunSnapshot());
+    if (Read >= SignCount() && !Run->GetRunSnapshot().GetFlag(SignsDoneFlag))
+    {
+        Run->SetStoryFlag(SignsDoneFlag, true); Run->AddGrains(SignsRewardGrains);
+        Notice(FString::Printf(TEXT("+%lld Grains"), SignsRewardGrains)); Notice(TEXT("Quest Complete: Signposts"));
+        Record(TEXT("quest:complete:drift_signs"));
+    }
+    else Notice(FString::Printf(TEXT("Signposts %d / %d"), Read, SignCount()));
+    bNoticeHeld = true; ManuscriptAsset = Asset;
+    return StartNativeField(Asset, Group);
+}
+bool UMemoriaNarrativeSubsystem::StartNativeField(UMemoriaFieldAsset* Asset, const FString& Group)
+{
+    if (!Asset || !Context) return false;
+    Record(TEXT("request:manuscript::") + Group); DeferredInteraction.Reset(); StoryAsset = Asset; ActiveFieldAsset = Asset; ++FieldInvocationCount;
+    Field = MakeUnique<FMemoriaFieldInterpreter>(Asset->Definition, *Context);
+    State = EMemoriaSliceState::Field; Record(TEXT("field:start:") + Group);
+    Field->Start(); FlushEvents(TEXT("field")); return true;
 }
 void UMemoriaNarrativeSubsystem::Notice(const FString& Text)
 {

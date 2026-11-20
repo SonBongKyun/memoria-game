@@ -1,4 +1,5 @@
 #include "Localization/MemoriaKorean.h"
+#include "Narrative/MemoriaManuscript.h"
 #include "Chapter/MemoriaChapterMap.h"
 #include "Domain/MemoriaChapterMemories.h"
 #include "Domain/MemoriaMemoryTypes.h"
@@ -138,6 +139,7 @@ const TMap<FString, FString>& Table()
         // Notices.
         {TEXT("Find the ledger in the Sump."), TEXT("웅덩이에서 장부를 찾아라.")},
         {TEXT("The Sump Ledger"), TEXT("웅덩이의 장부")},
+        {TEXT("Signposts"), TEXT("표지판")},
         {TEXT("Memory noise closes in"), TEXT("기억 소음이 닫힌다")},
         {TEXT("Memory noise closes in..."), TEXT("기억 소음이 닫힌다...")},
         // The dialogue frame's own words.
@@ -171,7 +173,8 @@ const TMap<FString, FString>& PromptNames()
     static const TMap<FString, FString> Values = {
         {TEXT("Elia"), TEXT("엘리아")}, {TEXT("Malet"), TEXT("말렛")}, {TEXT("Nervous Trader"), TEXT("불안한 상인")},
         {TEXT("Loose stone"), TEXT("헐거운 돌")}, {TEXT("Memory stalls"), TEXT("기억 노점")}, {TEXT("Old man"), TEXT("노인")},
-        {TEXT("Malet's table"), TEXT("말렛의 탁자")}, {TEXT("Sump stairs"), TEXT("웅덩이 계단")}};
+        {TEXT("Malet's table"), TEXT("말렛의 탁자")}, {TEXT("Sump stairs"), TEXT("웅덩이 계단")},
+        {TEXT("Leaning sign"), TEXT("기울어진 표지판")}, {TEXT("Waymark"), TEXT("이정표")}, {TEXT("Wall stone"), TEXT("돌벽의 돌")}};
     return Values;
 }
 const TMap<FString, FString>& PromptVerbs()
@@ -196,7 +199,7 @@ bool IsKorean(const UObject* WorldContext)
     const auto* Settings = Game->GetSubsystem<UMemoriaSettingsSubsystem>();
     return !Settings || Settings->GetLocale() != TEXT("en");
 }
-FString Text(const FString& English)
+static FString TextRaw(const FString& English)
 {
     if (English.IsEmpty()) return English;
     if (const FString* Found = Table().Find(English)) return *Found;
@@ -209,6 +212,7 @@ FString Text(const FString& English)
         return FString::Printf(TEXT("%s  |  %s: %s"), *Lookup(PromptNames(), CleanName), *Keys.TrimStartAndEnd(), KoVerb ? **KoVerb : *CleanVerb);
     }
     if (English.StartsWith(TEXT("Quest Complete: "))) return TEXT("퀘스트 완료: ") + Text(English.RightChop(16));
+    if (English.StartsWith(TEXT("Signposts "))) return TEXT("표지판 ") + English.RightChop(10);   // S370: "Signposts 1 / 3"
     if (English.StartsWith(TEXT("+")) && English.EndsWith(TEXT(" Grains"))) return English.LeftChop(7) + TEXT(" 그레인");
     if (English.StartsWith(TEXT("+")) && English.EndsWith(TEXT(" Hi-Potion"))) return English.LeftChop(10) + TEXT(" 하이포션");
     if (English.StartsWith(TEXT("Development boundary: resolved ")) && English.EndsWith(TEXT("; content deferred.")))
@@ -221,13 +225,15 @@ FString Text(const FString& English)
             .Replace(TEXT("MEMORY REACTION"), TEXT("기억 반응")).Replace(TEXT("CH2 ARRIVAL"), TEXT("2장 도착"));
     return MemoriaChapterMaps::Korean(English);
 }
+// S370: whatever the Korean is, it is shown in the final manuscript's words and names.
+FString Text(const FString& English) { return MemoriaManuscript::Canon(TextRaw(English)); }
 bool MemoryText(const FString& MemoryId, FString& OutTitle, FString& OutDescription)
 {
     if (FMemoriaMemoryLocalizedText Chapter; MemoriaChapterMemories::Korean(MemoryId, Chapter))
-    { OutTitle = Chapter.Title; OutDescription = Chapter.Description; return true; }
+    { OutTitle = MemoriaManuscript::Canon(Chapter.Title); OutDescription = MemoriaManuscript::Canon(Chapter.Description); return true; }
     const auto* Catalog = LoadObject<UMemoriaMemoryCatalog>(nullptr, TEXT("/Game/Memoria/Generated/Memory/DA_StartingMemoryCatalog.DA_StartingMemoryCatalog"));
     if (const auto* Text = Catalog ? Catalog->LocalizedText.FindByPredicate([&](const auto& T) { return T.MemoryId == MemoryId && T.Locale == TEXT("ko"); }) : nullptr)
-    { OutTitle = Text->Title; OutDescription = Text->Description; return true; }
+    { OutTitle = MemoriaManuscript::Canon(Text->Title); OutDescription = MemoriaManuscript::Canon(Text->Description); return true; }
     return false;
 }
 FString Grains(int64 Amount, bool bKorean)

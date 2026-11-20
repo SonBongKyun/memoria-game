@@ -424,12 +424,12 @@ FMemoriaSaveSlotSummary UMemoriaCheckpointSubsystem::Summarize(int32 Slot, const
         if (Save->Run.GetFlag(TEXT("ch5_malet_report_identified_arrel")))
         {
             Info.RecordTitle = TEXT("Classifier report: Arrel identified");
-            Info.RecordTitleKo = TEXT("분류자 보고: 아렐 식별");
+            Info.RecordTitleKo = TEXT("분류하는 자 보고: 아렐 식별");   // S370: the manuscript's name for Kairos' role
         }
         else if (Save->Run.GetFlag(TEXT("ch5_malet_report_requester_unknown")))
         {
             Info.RecordTitle = TEXT("Classifier report: requester unknown");
-            Info.RecordTitleKo = TEXT("분류자 보고: 요청자 불명");
+            Info.RecordTitleKo = TEXT("분류하는 자 보고: 요청자 불명");
         }
     }
     if (Info.RecordTitle.IsEmpty())

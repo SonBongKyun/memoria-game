@@ -173,11 +173,15 @@ private:
     TOptional<FVector2D> ContinuedMapPosition;
     bool bMapLoadFailed = false;
     bool HandleSumpLedger(const FString& Point);
+    // S370: the manuscript's drift signposts, played from runtime rows like the Elia repeat line.
+    bool HandleManuscriptSign(int32 Index);
+    bool StartNativeField(UMemoriaFieldAsset* Asset, const FString& Group);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;
     bool bEliaTalkCached = false; // companion.gd _talked_keys: per loaded Verdan, not saved.
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EliaTalkAsset;
     UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> EliaRepeatAsset;
+    UPROPERTY(Transient) TObjectPtr<UMemoriaFieldAsset> ManuscriptAsset;
     TArray<FString> Notices;
     double NoticeTime = -1000;
     TWeakObjectPtr<UWorld> NoticeWorld;

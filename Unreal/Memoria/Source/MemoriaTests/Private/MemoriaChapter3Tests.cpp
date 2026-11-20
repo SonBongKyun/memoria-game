@@ -85,7 +85,7 @@ public:
                 const int32 A = Trace.IndexOfByKey(TEXT("field:start:waystation_arrival")), B = Trace.IndexOfByKey(TEXT("field:start:blank_book_discovery")),
                     N = Trace.IndexOfByKey(TEXT("field:start:waystation_night")), W = Trace.IndexOfByKey(TEXT("field:start:class_seven_wall_message"));
                 Test->TestTrue(TEXT("The chain plays in the source's order"), A >= 0 && A < B && B < N && N < W);
-                Test->TestTrue(TEXT("The blank book toast is raised"), Trace.ContainsByPredicate([](const FString& E) { return E.StartsWith(TEXT("toast:")) && (E.Contains(TEXT("Blank Book")) || E.Contains(TEXT("백서"))); }));
+                Test->TestTrue(TEXT("The blank book toast is raised"), Trace.ContainsByPredicate([](const FString& E) { return E.StartsWith(TEXT("toast:")) && (E.Contains(TEXT("Blank Book")) || E.Contains(TEXT("백 노트"))); }));
                 Test->TestFalse(TEXT("The chapter is still open"), Flag(TEXT("ch3_complete")));
                 Capture(TEXT("Chapter3Field"));
                 ++Step; Mark = Frame;

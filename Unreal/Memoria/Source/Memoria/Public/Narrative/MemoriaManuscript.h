@@ -1,0 +1,44 @@
+#pragma once
+#include "CoreMinimal.h"
+#include "Journal/MemoriaJournal.h"
+
+struct FMemoriaRunSnapshot;
+class UMemoriaFieldAsset;
+class UMemoriaRunSubsystem;
+
+// S370: the final manuscript (Notion "MEMORIA | 최종본 (KR)", chapters 1-5, final-1) as the Korean the player reads.
+// The IR and its English stay as imported; this layer only changes what is drawn in Korean.
+namespace MemoriaManuscript
+{
+    // Korean display text in the manuscript's words: a whole line the manuscript rewrote, then its fixed
+    // names and units (말레트, 셈터, 공백 7호, 아헨 숲, 마일). Idempotent; text without a match passes through.
+    MEMORIA_API FString Canon(const FString& Korean);
+    MEMORIA_API int32 LineCount();
+
+    // The main quest, "공백 7호를 찾아서": one step per manuscript beat the port plays, done by the run's flags.
+    struct FMainStep { const TCHAR* Flag; const TCHAR* En; const TCHAR* Ko; };
+    MEMORIA_API const TArray<FMainStep>& MainSteps();
+    MEMORIA_API int32 MainStepIndex(const FMemoriaRunSnapshot& Run);   // the first step not yet done
+    MEMORIA_API FMemoriaJournalRecord MainRecord(const FMemoriaRunSnapshot& Run, bool bKo);
+
+    // Chapter 4's signposts: "그 뒤로 아렐은 표지판을 그냥 지나치지 않았다." Three on the east road of the
+    // drift map, open once Elia has anchored his reading. Burning after the anchoring loosens it again.
+    MEMORIA_API int32 SignCount();
+    MEMORIA_API FString SignGroup(int32 Index);              // ms_drift_sign_<n>; also the flag that it was read
+    MEMORIA_API int32 SignIndex(const FString& Group);       // INDEX_NONE when the group is not a sign
+    MEMORIA_API FVector2D SignOrigin(int32 Index);           // tile centre on drift_shelter, source pixels
+    MEMORIA_API FString SignPrompt(int32 Index);
+    MEMORIA_API bool SignsOpen(const FMemoriaRunSnapshot& Run);
+    MEMORIA_API int32 SignsRead(const FMemoriaRunSnapshot& Run);
+    inline const TCHAR* const SignsMap = TEXT("drift_shelter");
+    inline const TCHAR* const SignsDoneFlag = TEXT("ms_drift_signs_done");
+    inline const TCHAR* const AnchorFlag = TEXT("ch4_anchoring");
+    inline constexpr int64 SignsRewardGrains = 8;
+    // How many memories were burned when the anchoring held (INDEX_NONE until it is recorded).
+    MEMORIA_API int32 AnchorBaseline(const FMemoriaRunSnapshot& Run);
+    MEMORIA_API void EnsureAnchorBaseline(UMemoriaRunSubsystem& Run);
+    // "네가 얼마나 자주 태우느냐에 달렸어." Any burn since the anchoring loosens the letters again.
+    MEMORIA_API bool Scrambled(const FMemoriaRunSnapshot& Run, int32 BurnedNow);
+    MEMORIA_API UMemoriaFieldAsset* BuildSign(UObject* Outer, int32 Index, bool bScrambled);
+    MEMORIA_API FMemoriaJournalRecord SignsRecord(const FMemoriaRunSnapshot& Run, bool bKo);
+}

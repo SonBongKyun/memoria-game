@@ -1,4 +1,5 @@
 #include "Chapter/MemoriaChapterMap.h"
+#include "Narrative/MemoriaManuscript.h"
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -149,7 +150,8 @@ FString Korean(const FString& En)
          TEXT("아직 따뜻한 재. 최근 누군가 이곳에서 야영했다. 화덕에는 관리국 보급 불쏘시개가 깔려 있다.")},
         {TEXT("Scratched into the concrete: 'WE REMEMBER.' Below it, in different handwriting: 'For how long?'"),
          TEXT("콘크리트에 긁어 새긴 글씨: '우리는 기억한다.' 그 아래, 다른 필체로: '언제까지?'")}};
-    const FString* Found = Table.Find(En); return Found ? *Found : En;
+    // S370: Korean place and chapter names as the final manuscript has them (셈터, 무너진 돌벽, 더 심).
+    const FString* Found = Table.Find(En); return Found ? MemoriaManuscript::Canon(*Found) : En;
 }
 FString GroupAsset(const FMemoriaChapterMapSpec& Spec, const FString& Group) { return TEXT("DA_Field_") + Spec.AssetPrefix + Pascal(Group); }
 FString LevelPath(const FString& Map) { return TEXT("/Game/Memoria/Maps/L_") + Pascal(Map); }

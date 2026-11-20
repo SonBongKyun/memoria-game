@@ -140,7 +140,7 @@ bool FManualMetadataS362::RunTest(const FString&)
     TestTrue(TEXT("Recorded choice fixture saves in isolated slot2"), C->SaveManualSlot(2, TEXT("belt_waystation"), FVector2D(420, 310)));
     const auto Choice = C->GetManualSlotSummary(2);
     TestTrue(TEXT("Saved burn count and authored choice titles in both locales"), Choice.CanLoad() && Choice.BurnedMemoryCount == 1 &&
-        Choice.RecordTitle == TEXT("Refused Malet's Deal") && Choice.RecordTitleKo == TEXT("말렛의 거래를 거절하다"));
+        Choice.RecordTitle == TEXT("Refused Malet's Deal") && Choice.RecordTitleKo == TEXT("말레트의 거래를 거절하다"));
     TestTrue(TEXT("Legacy autosave uses the same read-only metadata"), C->SaveClosedBoundary(FVector2D(500, 340)));
     const auto Auto = C->GetAutosaveSummary();
     TestTrue(TEXT("Autosave metadata comes from its validated snapshot"), Auto.CanLoad() && Auto.BurnedMemoryCount == 1 && Auto.RecordTitle == Choice.RecordTitle && Auto.RecordTitleKo == Choice.RecordTitleKo);
@@ -148,7 +148,7 @@ bool FManualMetadataS362::RunTest(const FString&)
     TestTrue(TEXT("Completed classifier fixture saves in isolated slot3"), C->SaveManualSlot(3, TEXT("drift_shelter"), FVector2D(320, 512)));
     const auto Unknown = C->GetManualSlotSummary(3);
     TestTrue(TEXT("Already revealed classifier report takes priority over the earlier choice"), Unknown.CanLoad() && Unknown.BurnedMemoryCount == 1 &&
-        Unknown.RecordTitle == TEXT("Classifier report: requester unknown") && Unknown.RecordTitleKo == TEXT("분류자 보고: 요청자 불명"));
+        Unknown.RecordTitle == TEXT("Classifier report: requester unknown") && Unknown.RecordTitleKo == TEXT("분류하는 자 보고: 요청자 불명"));
     // Change the live run after saving. Browsing must keep the snapshot's count/report, not project live state.
     Run->SetStoryFlag(TEXT("malet_deal_refused"), false); Run->SetStoryFlag(TEXT("malet_deal_accepted"), true);
     Run->SetStoryFlag(TEXT("ch5_malet_report_requester_unknown"), false); Run->SetStoryFlag(TEXT("ch5_malet_report_identified_arrel"), true);
@@ -161,7 +161,7 @@ bool FManualMetadataS362::RunTest(const FString&)
     TestTrue(TEXT("Explicit replacement records the other revealed classifier outcome"), C->SaveManualSlot(3, TEXT("drift_shelter"), FVector2D(324, 516), true));
     const auto Identified = C->GetManualSlotSummary(3);
     TestTrue(TEXT("Identified report and saved two-burn count localize exactly"), Identified.CanLoad() && Identified.BurnedMemoryCount == 2 &&
-        Identified.RecordTitle == TEXT("Classifier report: Arrel identified") && Identified.RecordTitleKo == TEXT("분류자 보고: 아렐 식별"));
+        Identified.RecordTitle == TEXT("Classifier report: Arrel identified") && Identified.RecordTitleKo == TEXT("분류하는 자 보고: 아렐 식별"));
     const FString Path = C->GetManualSlotPath(3);
     TestTrue(TEXT("Only isolated primary is corrupted for validated-backup preview"), FFileHelper::SaveStringToFile(TEXT("broken"), *Path));
     const FString PrimaryBefore = Read(Path), BackupBefore = Read(Path + TEXT(".bak")), AutoBefore = Read(C->GetSlotPath());
@@ -217,7 +217,7 @@ bool FManualBrowserS362::RunTest(const FString&)
     Load->Refresh(); Load->Select(2); Load->Confirm();
     TestTrue(TEXT("Corrupt slot stays inspectable but cannot restore"), Load->GetSelectedSlot() == 2 && !Load->IsRowEnabled(2) && SelectedSlot == INDEX_NONE && !Load->GetNotice().IsEmpty());
     TestEqual(TEXT("English map is region rather than chapter title"), UMemoriaSaveSlotsWidget::RegionLabel(TEXT("belt_waystation"), false), FString(TEXT("Belt Waystation")));
-    TestEqual(TEXT("Korean region"), UMemoriaSaveSlotsWidget::RegionLabel(TEXT("drift_shelter"), true), FString(TEXT("드리프트 셸터")));
+    TestEqual(TEXT("Korean region"), UMemoriaSaveSlotsWidget::RegionLabel(TEXT("drift_shelter"), true), FString(TEXT("무너진 돌벽")));
     Save->Configure(C, Settings, EMemoriaSaveBrowserMode::Save, TEXT("belt_waystation"), FVector2D(410, 300), false);
     TestFalse(TEXT("Host field-safety refusal disables every save slot"), Save->IsRowEnabled(0) || Save->IsRowEnabled(1) || Save->IsRowEnabled(2));
     Game->Shutdown(); return !HasAnyErrors();

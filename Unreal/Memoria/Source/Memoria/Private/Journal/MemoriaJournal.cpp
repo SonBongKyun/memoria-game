@@ -1,4 +1,5 @@
 #include "Journal/MemoriaJournal.h"
+#include "Narrative/MemoriaManuscript.h"
 #include "Localization/MemoriaKorean.h"
 #include "Run/MemoriaRunSubsystem.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
@@ -101,8 +102,9 @@ const FJournalData& Data()
     return Loaded;
 }
 }
-FString FMemoriaJournalEntry::TitleIn(bool bKo) const { return bKo && !TitleKo.IsEmpty() ? TitleKo : Title; }
-FString FMemoriaJournalEntry::DescIn(bool bKo) const { return bKo && !DescKo.IsEmpty() ? DescKo : Desc; }
+// S370: the Korean journal speaks in the final manuscript's names.
+FString FMemoriaJournalEntry::TitleIn(bool bKo) const { return bKo && !TitleKo.IsEmpty() ? MemoriaManuscript::Canon(TitleKo) : Title; }
+FString FMemoriaJournalEntry::DescIn(bool bKo) const { return bKo && !DescKo.IsEmpty() ? MemoriaManuscript::Canon(DescKo) : Desc; }
 namespace MemoriaJournal
 {
 const TArray<FMemoriaJournalEntry>& Events() { return Data().Events; }
@@ -111,7 +113,7 @@ const TArray<FMemoriaJournalEntry>& World() { return Data().World; }
 const TArray<FMemoriaJournalEntry>& Choices() { return Data().Choices; }
 FString ChapterName(int32 Chapter, bool bKo)
 {
-    if (bKo) if (const FString* Ko = Data().ChaptersKo.Find(Chapter)) return *Ko;
+    if (bKo) if (const FString* Ko = Data().ChaptersKo.Find(Chapter)) return MemoriaManuscript::Canon(*Ko);   // S370
     const FString* En = Data().Chapters.Find(Chapter); return En ? *En : FString();
 }
 const TArray<FMemoriaJournalQuest>& Quests() { return Data().Quests; }
@@ -129,13 +131,16 @@ TArray<FMemoriaJournalRecord> QuestRecords(const UMemoriaRunSubsystem& Run, bool
 {
     TArray<FMemoriaJournalRecord> Out;
     const auto& State = Run.GetRunSnapshot();
+    // S370: the manuscript's main quest heads the list; the drift signposts follow once they are open.
+    if (Run.HasActiveRun()) Out.Add(MemoriaManuscript::MainRecord(State, bKo));
+    if (Run.HasActiveRun() && MemoriaManuscript::SignsOpen(State)) Out.Add(MemoriaManuscript::SignsRecord(State, bKo));
     for (const auto& Q : Quests())
     {
         // A quest's map must be one the port has: Verdan, or a ported chapter map.
         if (Q.Map != TEXT("verdan_market") && !MemoriaChapterMaps::Find(Q.Map)) continue;
         const auto Status = QuestStatus(Q, State);
         if (Status == EMemoriaQuestStatus::Locked) continue;
-        const FString Title = bKo && !Q.TitleKo.IsEmpty() ? Q.TitleKo : Q.Title, Desc = bKo && !Q.DescKo.IsEmpty() ? Q.DescKo : Q.Desc;
+        const FString Title = bKo && !Q.TitleKo.IsEmpty() ? MemoriaManuscript::Canon(Q.TitleKo) : Q.Title, Desc = bKo && !Q.DescKo.IsEmpty() ? MemoriaManuscript::Canon(Q.DescKo) : Q.Desc;
         FMemoriaJournalRecord R; R.Title = Title; R.Art = Q.Art;
         if (Status == EMemoriaQuestStatus::Complete)
         { R.Color = FLinearColor(.4f, .7f, .4f); R.Label = (bKo ? TEXT("[완료] ") : TEXT("[DONE] ")) + Title; R.Body = Desc; }
@@ -143,7 +148,7 @@ TArray<FMemoriaJournalRecord> QuestRecords(const UMemoriaRunSubsystem& Run, bool
         {
             // get_current_step_text: the first step whose flag is not set.
             FString Step;
-            for (const auto& S : Q.Steps) if (!State.GetFlag(S.Flag)) { Step = bKo && !S.DescKo.IsEmpty() ? S.DescKo : S.Desc; break; }
+            for (const auto& S : Q.Steps) if (!State.GetFlag(S.Flag)) { Step = bKo && !S.DescKo.IsEmpty() ? MemoriaManuscript::Canon(S.DescKo) : S.Desc; break; }
             R.Color = FLinearColor(.85f, .7f, .4f); R.Label = Title; R.Body = Desc + (bKo ? TEXT("\n\n현재: ") : TEXT("\n\nCurrent: ")) + Step;
         }
         else
@@ -153,7 +158,7 @@ TArray<FMemoriaJournalRecord> QuestRecords(const UMemoriaRunSubsystem& Run, bool
             for (const FString& P : Parts) Where += (Where.IsEmpty() ? TEXT("") : TEXT(" ")) + P.Left(1).ToUpper() + P.Mid(1);
             R.Color = FLinearColor(.55f, .5f, .45f); R.Label = (bKo ? TEXT("[신규] ") : TEXT("[NEW] ")) + Title;
             // In Korean the first step's own text says the same thing in the source's words.
-            R.Body = Desc + (bKo && !Q.Steps.IsEmpty() && !Q.Steps[0].DescKo.IsEmpty() ? TEXT("\n\n") + Q.Steps[0].DescKo
+            R.Body = Desc + (bKo && !Q.Steps.IsEmpty() && !Q.Steps[0].DescKo.IsEmpty() ? TEXT("\n\n") + MemoriaManuscript::Canon(Q.Steps[0].DescKo)
                                  : FString::Printf(TEXT("\n\nTalk to %s at %s."), *Q.Npc, *Where));
         }
         Out.Add(R);

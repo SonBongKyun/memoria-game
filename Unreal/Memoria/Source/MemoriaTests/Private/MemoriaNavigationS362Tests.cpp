@@ -37,7 +37,7 @@ bool FNavigationGoalS362::RunTest(const FString&)
         Flag(Run, Belt->Exit.Requires.ToUpper());
         TestFalse(TEXT("Case-changed source flags cannot reveal the exit"), Line(Run, Belt->Map).Contains(TEXT("→")));
         Flag(Run, Belt->Exit.Requires);
-        TestEqual(TEXT("The revealed source exit names the actual destination"), Line(Run, Belt->Map), bKo ? FString(TEXT("목표  동쪽 출구 → 드리프트 셸터")) : FString(TEXT("GOAL  East exit → Drift Shelter")));
+        TestEqual(TEXT("The revealed source exit names the actual destination"), Line(Run, Belt->Map), bKo ? FString(TEXT("목표  동쪽 출구 → 무너진 돌벽")) : FString(TEXT("GOAL  East exit → Drift Shelter")));
         Run = At(4); Run.CurrentLocale = bKo ? TEXT("ko") : TEXT("en");
         TestEqual(TEXT("Drift starts with current-place exploration"), Line(Run, Drift->Map), bKo ? FString(TEXT("목표  드리프트 셸터 살펴보기")) : FString(TEXT("GOAL  Explore Drift Shelter")));
         Flag(Run, Drift->Exit.Requires);

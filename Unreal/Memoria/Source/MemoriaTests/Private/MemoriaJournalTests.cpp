@@ -30,7 +30,7 @@ bool FMemoriaJournalSourceTest::RunTest(const FString&)
     const auto& First = MemoriaJournal::Events()[0];
     TestTrue(TEXT("The first event, in both languages"), First.Flag == TEXT("ch1_opening_done") && First.Title == TEXT("Awakening in the Forest") && First.TitleIn(true) == TEXT("숲에서 깨어나다"));
     TestTrue(TEXT("The art table decorates its events"), First.Art.StartsWith(TEXT("res://")) );
-    TestEqual(TEXT("Chapter 3 in Korean"), MemoriaJournal::ChapterName(3, true), FString(TEXT("벨트 중계소")));
+    TestEqual(TEXT("Chapter 3 in Korean"), MemoriaJournal::ChapterName(3, true), FString(TEXT("벨트 역참")));
     TestEqual(TEXT("Chapter 3 in English"), MemoriaJournal::ChapterName(3, false), FString(TEXT("Belt Waystation")));
     const auto* Tobias = MemoriaJournal::People().FindByPredicate([](const FMemoriaJournalEntry& E) { return E.Title == TEXT("Tobias Crane"); });
     const auto* Elia = MemoriaJournal::People().FindByPredicate([](const FMemoriaJournalEntry& E) { return E.Title == TEXT("Elia"); });
@@ -65,24 +65,29 @@ bool FMemoriaJournalRecordsTest::RunTest(const FString&)
     // Quests.
     TestTrue(TEXT("Locked before its chapter"), MemoriaJournal::QuestStatus(*Ledger, Run->GetRunSnapshot()) == EMemoriaQuestStatus::Locked);
     TestTrue(TEXT("Echoes in the Ash is available to the source"), MemoriaJournal::QuestStatus(*Echoes, Run->GetRunSnapshot()) == EMemoriaQuestStatus::Available);
-    TestEqual(TEXT("but Rim Forest is not a map of the port, so nothing is listed"), MemoriaJournal::QuestRecords(*Run, true).Num(), 0);
+    {
+        // S370: the manuscript's main quest heads the list; Rim Forest is not a map of the port, so its quest is not listed.
+        const auto Main = MemoriaJournal::QuestRecords(*Run, true);
+        TestTrue(TEXT("Only the main quest, since Rim Forest is not a map of the port"), Main.Num() == 1 && Main[0].Label == TEXT("[메인] 공백 7호를 찾아서")
+            && Main[0].Body.Contains(TEXT("찾으러 간 사람은 열일곱")) && Main[0].Body.Contains(TEXT("→ 아헨 숲을 빠져나가 베르단으로")));
+    }
     Run->SetCurrentChapter(4);
     TestTrue(TEXT("The prerequisite flag locks Sable's Vigil"), MemoriaJournal::QuestStatus(*Vigil, Run->GetRunSnapshot()) == EMemoriaQuestStatus::Locked);
     Run->SetCurrentChapter(3);
     TestTrue(TEXT("Available from Chapter 3"), MemoriaJournal::QuestStatus(*Ledger, Run->GetRunSnapshot()) == EMemoriaQuestStatus::Available);
     auto Rows = MemoriaJournal::QuestRecords(*Run, true);
-    TestTrue(TEXT("Listed as new, with where to go"), Rows.Num() == 1 && Rows[0].Label == TEXT("[신규] 웅덩이의 장부") && Rows[0].Title == TEXT("웅덩이의 장부")
-        && Rows[0].Body.StartsWith(TEXT("불안해하는 상인이")) && Rows[0].Body.EndsWith(TEXT("골목 근처의 불안한 상인과 대화하기")) && Rows[0].Art.EndsWith(TEXT("quest_sump_ledger_v1.png")));
+    TestTrue(TEXT("Listed as new, with where to go"), Rows.Num() == 2 && Rows[1].Label == TEXT("[신규] 셈터의 장부") && Rows[1].Title == TEXT("셈터의 장부")
+        && Rows[1].Body.StartsWith(TEXT("불안해하는 상인이")) && Rows[1].Body.EndsWith(TEXT("골목 근처의 불안한 상인과 대화하기")) && Rows[1].Art.EndsWith(TEXT("quest_sump_ledger_v1.png")));
     Rows = MemoriaJournal::QuestRecords(*Run, false);
-    TestTrue(TEXT("In English"), Rows.Num() == 1 && Rows[0].Label == TEXT("[NEW] The Sump Ledger") && Rows[0].Body.EndsWith(TEXT("Talk to Nervous Trader at Verdan Market.")));
+    TestTrue(TEXT("In English"), Rows.Num() == 2 && Rows[1].Label == TEXT("[NEW] The Sump Ledger") && Rows[1].Body.EndsWith(TEXT("Talk to Nervous Trader at Verdan Market.")));
     Run->SetStoryFlag(TEXT("sq_sump_ledger_started"), true);
     TestTrue(TEXT("Active once started"), MemoriaJournal::QuestStatus(*Ledger, Run->GetRunSnapshot()) == EMemoriaQuestStatus::Active);
     Rows = MemoriaJournal::QuestRecords(*Run, true);
-    TestTrue(TEXT("Active: the current step"), Rows.Num() == 1 && Rows[0].Label == TEXT("웅덩이의 장부") && Rows[0].Body.EndsWith(TEXT("현재: 웅덩이에 숨겨진 장부 찾기")));
+    TestTrue(TEXT("Active: the current step"), Rows.Num() == 2 && Rows[1].Label == TEXT("셈터의 장부") && Rows[1].Body.EndsWith(TEXT("현재: 셈터에 숨겨진 장부 찾기")));
     Run->SetStoryFlag(TEXT("sq_sump_ledger_found"), true); Run->SetStoryFlag(TEXT("sq_sump_ledger_done"), true);
     TestTrue(TEXT("Complete on the last step"), MemoriaJournal::QuestStatus(*Ledger, Run->GetRunSnapshot()) == EMemoriaQuestStatus::Complete);
     Rows = MemoriaJournal::QuestRecords(*Run, false);
-    TestTrue(TEXT("Complete: done, with the description alone"), Rows.Num() == 1 && Rows[0].Label == TEXT("[DONE] The Sump Ledger") && Rows[0].Body == Ledger->Desc);
+    TestTrue(TEXT("Complete: done, with the description alone"), Rows.Num() == 2 && Rows[1].Label == TEXT("[DONE] The Sump Ledger") && Rows[1].Body == Ledger->Desc);
     // Losses.
     TestEqual(TEXT("No losses while nothing is burned or faded"), MemoriaJournal::LossRecords(*Run, false).Num(), 0);
     TestTrue(TEXT("The market food burns"), Run->BurnMemory(TEXT("daily_market_food")) == EMemoriaMemoryResult::Success);
@@ -180,7 +185,7 @@ public:
             if (Frame < Mark + 6) break;
             Press(EKeys::Right);
             Test->TestEqual(TEXT("Right turns to the people"), J->GetTab(), 1);
-            Test->TestTrue(TEXT("Malet is met"), J->ListLines().ContainsByPredicate([](const UMemoriaJournalWidget::FLine& L) { return L.Label == TEXT("말렛"); }));
+            Test->TestTrue(TEXT("Malet is met"), J->ListLines().ContainsByPredicate([](const UMemoriaJournalWidget::FLine& L) { return L.Label == TEXT("말레트"); }));
             Test->TestTrue(TEXT("with the role first"), J->DetailBody().StartsWith(TEXT("기억 거래상")));
             ++Phase; Mark = Frame; break;
         case 3:
@@ -190,9 +195,9 @@ public:
             Test->TestTrue(TEXT("The world as Chapter 2 taught it"), J->ListLines().ContainsByPredicate([](const UMemoriaJournalWidget::FLine& L) { return L.Label == TEXT("그레인, 앰풀, 그리고 빚"); }));
             Press(EKeys::Right);
             Test->TestTrue(TEXT("No choices yet"), J->ListLines().Num() == 1 && J->ListLines()[0].Entry < 0);
-            // S332: no quests in Chapter 2; the Losses tab already holds what the road to Verdan burned.
+            // S332: no side quests in Chapter 2 (S370: the main quest heads the tab); the Losses tab already holds what the road to Verdan burned.
             Press(EKeys::Right);
-            Test->TestTrue(TEXT("The Quests tab, empty"), J->GetTab() == UMemoriaJournalWidget::QuestsTab && J->ListLines().Num() == 1 && J->ListLines()[0].Label == TEXT("아직 발견한 퀘스트가 없습니다."));
+            Test->TestTrue(TEXT("The Quests tab holds only the main quest"), J->GetTab() == UMemoriaJournalWidget::QuestsTab && J->ListLines().Num() == 1 && J->ListLines()[0].Label == TEXT("[메인] 공백 7호를 찾아서"));
             Press(EKeys::Right);
             {
                 const int32 Burned = World->GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num();
@@ -225,7 +230,8 @@ public:
                 Test->TestTrue(TEXT("The summary counts the losses"), J->SummaryText().Contains(FString::Printf(TEXT("연소 %d    상실 %d"), Burned, Burned)));
             }
             J->SetTab(UMemoriaJournalWidget::QuestsTab);
-            Test->TestTrue(TEXT("The Sump Ledger is new"), J->ListLines().Num() == 1 && J->ListLines()[0].Label == TEXT("[신규] 웅덩이의 장부") && J->DetailTitle() == TEXT("웅덩이의 장부") && J->HasDetailArt());
+            Test->TestTrue(TEXT("The Sump Ledger is new"), J->ListLines().Num() == 2 && J->ListLines()[0].Label == TEXT("[메인] 공백 7호를 찾아서") && J->ListLines()[1].Label == TEXT("[신규] 셈터의 장부")
+                && J->DetailTitle() == TEXT("공백 7호를 찾아서") && J->HasDetailArt());
             ++Phase; Mark = Frame; break;
         case 6:
             if (Frame == Mark + 8) Capture(TEXT("JournalQuests"));
