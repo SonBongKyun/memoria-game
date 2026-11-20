@@ -36,6 +36,8 @@ struct FMemoriaTrailSample { FVector Base, Tip; float Age = 0.f; };
 // S342: a caster's orb, flying slowly in a straight line.
 struct FMemoriaOrb { FVector Location = FVector::ZeroVector, Velocity = FVector::ZeroVector; float Age = 0.f, Damage = 0.f; TWeakObjectPtr<class AMemoriaFieldMonster> Owner; FLinearColor Color = FLinearColor::White; };
 // S341: a firebomb in the air, from Arrel's hand to where it bursts.
+// S368: the soot and cooling glow a burn leaves on the ground (MemoriaBurnRelicS368.cpp).
+struct FMemoriaScorch { TWeakObjectPtr<class UStaticMeshComponent> Soot, Glow; TWeakObjectPtr<class UMaterialInstanceDynamic> SootMaterial, GlowMaterial; float Age = 0.f; };
 // S366: a ghost of Arrel's pose left by a dash (MemoriaAfterimageS366.cpp).
 struct FMemoriaAfterimageGhost { TWeakObjectPtr<class UPoseableMeshComponent> Body; TWeakObjectPtr<class UStaticMeshComponent> Blade; TWeakObjectPtr<class UMaterialInstanceDynamic> Material; float Age = 0.f, Life = .4f, Alpha = .2f; FLinearColor Tint = FLinearColor::White; };
 struct FMemoriaThrown { FVector From = FVector::ZeroVector, To = FVector::ZeroVector; float Age = 0.f; };
@@ -104,6 +106,12 @@ public:
     bool IsAfterimageSlow() const { return SlowLeft > 0.f; }
     float GetAfterimageWeight() const;
     int32 GetGhostCount() const { return Ghosts.Num(); }
+    // S368: the burned memory's card and the scorches on the ground.
+    bool HasMemoryCard() const { return MemoryCard.IsValid(); }
+    float GetMemoryCardBurn() const { return CardBurnAge < 0.f ? 0.f : FMath::Clamp(CardBurnAge / MemoriaCombatTuning::MemoryCardBurnTime, 0.f, 1.f); }
+    const FString& GetMemoryCardArt() const { return CardArt; }
+    int32 GetScorchCount() const { return Scorches.Num(); }
+    float GetNewestScorchAlpha() const;
     float GetBrightestGhostAlpha() const;
     FVector GetShakeOffset() const;
     const TArray<FMemoriaSpark>& GetSparks() const { return Sparks; }
@@ -247,6 +255,17 @@ private:
     void Popup(const FVector& Location, float Amount, bool bPlayer, const FString& Label = FString(), const FLinearColor& Tint = FLinearColor::Transparent, bool bBig = false, EMemoriaDefenseOutcome Outcome = EMemoriaDefenseOutcome::None);
     // S366 Afterimage (MemoriaAfterimageS366.cpp).
     TArray<FMemoriaAfterimageGhost> Ghosts;
+    // S368 (MemoriaBurnRelicS368.cpp).
+    TWeakObjectPtr<class UStaticMeshComponent> MemoryCard;
+    TWeakObjectPtr<class UMaterialInstanceDynamic> MemoryCardMaterial;
+    FString CardArt; FLinearColor CardEdge = FLinearColor::White; FVector CardBase = FVector::ZeroVector;
+    float CardAge = 0.f, CardBurnAge = -1.f, CardHeight = 94.f;
+    TArray<FMemoriaScorch> Scorches;
+    void ShowMemoryCard(const FMemoriaBurnChoice& Choice);
+    void IgniteMemoryCard();
+    void LeaveScorch(const FVector& At, int32 Grade);
+    void TickBurnRelics(float DeltaSeconds);
+    void ClearBurnRelics();
     TWeakObjectPtr<class UPostProcessComponent> AfterimagePost;
     int32 PerfectDodges = 0, EchoCounters = 0, ShellsBroken = 0;
     bool bWaveElite = false;

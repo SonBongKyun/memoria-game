@@ -569,6 +569,7 @@ bool UMemoriaFieldCombatSubsystem::ConfirmBurn()
     // The burn is the run's: the memory is gone for good, and its passives, erosion and drama follow.
     if (Run->BurnMemory(Choice.Id) != EMemoriaMemoryResult::Success) { Cue(GetWorld(), TEXT("cancel")); return false; }
     ++Burns; Casting = Choice;
+    ShowMemoryCard(Choice);   // S368: the memory, seen one last time
     NoteDiary(Choice.Id);
     const auto* Memory = Run->GetPlayerMemory();
     Casting.Power = Memory->GetEffectiveBurnPower(Choice.Id);
@@ -614,6 +615,7 @@ void UMemoriaFieldCombatSubsystem::ReleaseBurn()
     }
     Cue(World, Grade >= 3 ? TEXT("void_pulse") : TEXT("burn_ignite"));
     HitStop(HitStopHeavy, ShakeHeavy + 3.f * Grade);
+    IgniteMemoryCard(); LeaveScorch(Wave.Center, Grade);   // S368
     Burst(Wave.Center + FVector(0, 0, 60.f), 24 + 8 * Grade, BurnColor(Grade), 520.f);
 }
 void UMemoriaFieldCombatSubsystem::TickBurn(float DeltaSeconds)
@@ -655,6 +657,7 @@ void UMemoriaFieldCombatSubsystem::Deinitialize()
 {
     if (auto* Light = Flare.Get()) Light->Destroy();
     if (auto* Light = HitLight.Get()) Light->Destroy();
+    ClearBurnRelics();
     CloseBurnPicker(); ClearComboIntent();
     Super::Deinitialize();
 }
@@ -879,6 +882,7 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
     // S366: a hit stop ending inside an Afterimage's slow returns to the slow, not to full speed.
     if (HitStopLeft > 0.f && (HitStopLeft -= Real) <= 0.f && !bPicking && GetWorld()) UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowLeft > 0.f ? AfterimageSlowDilation : 1.f);
     TickAfterimage(DeltaSeconds, Real);
+    TickBurnRelics(DeltaSeconds);
     ShakeClock += Real; ShakeLeft = FMath::Max(0.f, ShakeLeft - Real);
     // S341: the item's cooldown, and a thrown firebomb's flight to where it bursts.
     ItemCooldownLeft = FMath::Max(0.f, ItemCooldownLeft - DeltaSeconds);
@@ -928,7 +932,7 @@ void UMemoriaFieldCombatSubsystem::Revive(float HpShare)
 void UMemoriaFieldCombatSubsystem::ClearRecoveryState()
 {
     for(const auto& M:Monsters)if(M.IsValid())M->Destroy();
-    ClearAfterimage();
+    ClearAfterimage(); ClearBurnRelics();
     Monsters.Reset();bDefeated=false;DefeatLeft=0.f;StaggerLeft=CastLeft=DashLeft=0.f;ComboStep=-1;ClearComboIntent();
     WeakenLeft=0.f;PoisonLeft=0;BurnChain=0;WaveKills=0;WaveGrains=0;bWaveVoid=false;bWaveElite=false;
     Thrown.Reset();bWarded=false;Orbs.Reset();ScorchLeft=0;

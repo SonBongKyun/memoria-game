@@ -40,6 +40,12 @@ inline constexpr int64 EliteFromBattle = 3;          // never in the run's first
 inline int32 EliteInterval(int32 Burns) { return FMath::Clamp(5 - Burns / 2, 2, 5); }
 // Whether the run's Nth roaming fight (1-based) brings an elite: every 5th fight unburned, every 2nd at 6+ burns.
 inline bool EliteWave(int64 BattleNumber, int32 Burns) { return BattleNumber >= EliteFromBattle && BattleNumber % EliteInterval(Burns) == 0; }
+// S368: the burned memory's last sight, a card above Arrel that burns from the bottom as the ring is
+// released, and the burn's mark on the ground: soot that fades slowly and a glow of the grade's colour that cools.
+inline constexpr float MemoryCardWidth = 168.f, MemoryCardLift = 205.f, MemoryCardRise = 40.f;   // just over Arrel's head, below the HUD's burn banner
+inline constexpr float MemoryCardFadeIn = .14f, MemoryCardBurnTime = 1.f;
+inline constexpr float ScorchLife = 10.f, ScorchGlowLife = 5.f, ScorchSootAlpha = .72f, ScorchGlowAlpha = .55f;
+inline constexpr int32 MaxScorches = 4;
 inline constexpr float SheatheDelay = 4.f;          // S312: seconds after the last fight before Arrel sheathes
 // S315 feel: hit stop (real seconds at a near-frozen world), camera shake, sparks, the blade's trail.
 inline constexpr float HitStopDilation = .06f;
