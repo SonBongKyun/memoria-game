@@ -532,12 +532,15 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
 {
     UMemoriaFieldAsset* Asset = MemoriaManuscript::BuildScene(this, Group, Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num());
     if (!Asset) return false;
-    // 7화: Sable gives him the spiralwave shell that night; in the morning, the bark map with its hole.
-    if (Group == TEXT("ms_seam_night"))
+    // 7화: Sable gives him the small spiralwave that night; in the morning, the bark map with its hole.
+    // S372: the echo shell (and its memory, "껍질 속의 목소리들") is Elia's to give, in the valley (9-10화).
+    if (Group == TEXT("ms_seam_night") && !Run->GetRunSnapshot().GetFlag(TEXT("has_spiralwave")))
+    { Run->SetStoryFlag(TEXT("has_spiralwave"), true); Notice(TEXT("Obtained: Spiralwave shell")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_forest_valley"))
     {
         for (const auto& Memory : MemoriaChapterMemories::For(7))
             if (Memory.Id == MemoriaManuscript::EchoShellMemory && Run->AcquireMemory(Memory) == EMemoriaMemoryResult::Success)
-            { Notice(TEXT("Obtained: Spiralwave shell")); Record(TEXT("memory:acquired:") + Memory.Id); }
+            { Notice(TEXT("Obtained: Echo shell")); Record(TEXT("memory:acquired:") + Memory.Id); }
         bNoticeHeld = true;
     }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))

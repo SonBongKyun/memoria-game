@@ -30,6 +30,9 @@ PATCHES = {
     # S371: the Seam's mossy stones with their small flowers, and its worn cobbles.
     "seam_soil": ("map_the_seam_canvas_v1.png", (760, 1100, 900, 1240)),
     "seam_paved": ("map_the_seam_canvas_v1.png", (320, 400, 470, 550)),
+    # S372: the forest's green floor and its worn road.
+    "forest_soil": ("map_forgotten_forest_canvas_v2.png", (760, 330, 940, 510)),
+    "forest_paved": ("map_forgotten_forest_canvas_v2.png", (520, 420, 660, 560)),
 }
 # The Belt canvas's central dial: a flat round inlay, kept whole with a soft round edge.
 DIAL = ("map_belt_waystation_canvas_v1.png", (490, 555, 760, 825), 0.80, 0.94)

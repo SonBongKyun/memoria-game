@@ -42,6 +42,12 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch6_sable_night"))) return Prefix + (bKo ? TEXT("아침: 개울 북쪽 집에서 세이블에게 길을 묻는다") : TEXT("Morning: ask Sable the way, north of the brook"));
         if (Run.GetFlag(TEXT("ch6_feren"))) return Prefix + (bKo ? TEXT("마을 가운데 집의 안쪽 방에서 쉰다") : TEXT("Rest in the inner room, in the middle of the village"));
     }
+    if (Map == MemoriaManuscript::ForestMap && !Run.GetFlag(TEXT("ch7_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch7_escape"))) return Prefix + (bKo ? TEXT("남쪽 출구 → 두 돌 능선 사이") : TEXT("South exit → between the two stone ridges"));
+        if (Run.GetFlag(TEXT("ch7_lost_hour"))) return Prefix + (bKo ? TEXT("숲을 빠져나간다: 남쪽으로") : TEXT("Get out of the forest: south"));
+        if (Run.GetFlag(TEXT("ch7_forest_enter"))) return Prefix + (bKo ? TEXT("곧은 길을 따라 숲 안쪽으로. 소리 쪽으로 고개를 돌리지 말 것") : TEXT("Follow the straight road into the forest. Don't turn toward the sounds"));
+    }
     if (Map == TEXT("drift_shelter") && MemoriaDemoCompletion::IsComplete(Run))
         return Prefix + (bKo ? TEXT("일시정지 → 체험판 구간 완료 · 기록") : TEXT("Pause → Segment complete: review"));
     const bool bExitReady = (!Spec->Exit.Requires.IsEmpty() && Run.GetFlag(Spec->Exit.Requires))

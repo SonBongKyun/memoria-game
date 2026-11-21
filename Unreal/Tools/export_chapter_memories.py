@@ -20,7 +20,7 @@ SOURCE = ROOT / 'scripts/systems/memory_manager.gd'
 OUT = ROOT / 'docs/unreal-migration/ir/chapter_memories.v1.json'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Domain/MemoriaChapterMemorySources.inl'
 # The source's connected canon ended after Chapter 5; S371 ports the Seam (6) and the echo shell Sable gives there (7).
-CHAPTERS = (3, 4, 5, 6, 7)
+CHAPTERS = (3, 4, 5, 6, 7, 8)
 # enum MemoryGrade { GRADE_5, GRADE_4, GRADE_3, GRADE_2, GRADE_1 }
 GRADES = {'GRADE_5': 0, 'GRADE_4': 1, 'GRADE_3': 2, 'GRADE_2': 3, 'GRADE_1': 4}
 MEMORY = re.compile(

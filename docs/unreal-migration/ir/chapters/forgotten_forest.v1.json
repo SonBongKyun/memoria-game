@@ -1,0 +1,993 @@
+{
+ "ambient_npcs": [],
+ "ambient_npcs_gate": null,
+ "asset_prefix": "Ch7",
+ "atmosphere": {
+  "brightness": -0.08,
+  "fog": "soft",
+  "hue": [
+   0.15,
+   0.2,
+   0.12,
+   1.0
+  ],
+  "light": [
+   0.5,
+   0.66,
+   0.38,
+   1.0
+  ],
+  "mood": 0.55,
+  "saturation": 1.0,
+  "splash": "res://assets/cg/generated/chapter_splash_forgotten_forest.png"
+ },
+ "battles": [
+  {
+   "atk": 22,
+   "hp": 95,
+   "is_void": false,
+   "name": "Hollow Walker",
+   "rect": {
+    "origin": [
+     352.0,
+     448.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "battles_gate": "ch7_lost_hour",
+ "chapter": 7,
+ "chests": [
+  {
+   "flag": "chest_forest_cairn",
+   "origin": [
+    160.0,
+    160.0
+   ],
+   "rewards": {
+    "grains": 20,
+    "items": {
+     "antidote": 2,
+     "potion": 2
+    }
+   }
+  },
+  {
+   "flag": "chest_forest_canopy",
+   "origin": [
+    640.0,
+    96.0
+   ],
+   "rewards": {
+    "grains": 10,
+    "items": {
+     "firebomb": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_forest_roots",
+   "origin": [
+    448.0,
+    192.0
+   ],
+   "text": "The roots pulse faintly. Not with sap: with residue. These trees are digesting someone's childhood."
+  },
+  {
+   "flag": "clue_forest_carving",
+   "origin": [
+    192.0,
+    416.0
+   ],
+   "text": "Scratches in the bark. Someone tried to carve their name. The letters stop halfway: they forgot the rest."
+  }
+ ],
+ "decorations": [
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    176.0,
+    144.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    208.0,
+    144.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    432.0,
+    144.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    464.0,
+    144.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    144.0,
+    176.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    176.0,
+    176.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    240.0,
+    176.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    432.0,
+    176.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    176.0,
+    208.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.78,
+    0.92,
+    0.86,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    208.0,
+    208.0
+   ],
+   "scale": 2.0
+  },
+  {
+   "color": [
+    0.85,
+    0.95,
+    0.9,
+    1.0
+   ],
+   "energy": 0.5,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    208.0,
+    176.0
+   ],
+   "scale": 2.5
+  }
+ ],
+ "dialogue_file": "data/chapter8_dialogue.json",
+ "elia_repeat": "Don't turn toward the sounds.",
+ "encounter_range": [
+  30,
+  60
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "drain",
+    "poison"
+   ],
+   "atk": 18,
+   "hp": 80,
+   "is_void": true,
+   "name": "Memory Leech"
+  },
+  {
+   "abilities": [
+    "stun",
+    "charge"
+   ],
+   "atk": 22,
+   "hp": 95,
+   "is_void": false,
+   "name": "Hollow Walker"
+  },
+  {
+   "abilities": [
+    "reflect",
+    "weaken"
+   ],
+   "atk": 16,
+   "hp": 70,
+   "is_void": true,
+   "name": "Root Shade"
+  }
+ ],
+ "encounters_gate": "ch7_complete",
+ "exit": {
+  "center": [
+   496.0,
+   528.0
+  ],
+  "completes": "ch7_complete",
+  "flags": [
+   "canon_ch8_coast_ready"
+  ],
+  "group": "ms_forest_valley",
+  "next_chapter": 8,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "Under the slanted slab, the echo shell says the counting is wrong.",
+   "ko": "기울어진 돌판 아래에서, 에코 셸이 셈이 틀렸다고 말한다."
+  },
+  "requires": "ch7_escape",
+  "size": [
+   160.0,
+   32.0
+  ]
+ },
+ "height": 18,
+ "map": "forgotten_forest",
+ "objects_gate": "ch7_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch7_ridge",
+   "flags": [],
+   "group": "ms_forest_ridge",
+   "memories_chapter": 8,
+   "toasts": []
+  },
+  {
+   "flag": "ch7_forest_enter",
+   "flags": [],
+   "group": "ms_forest_enter",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  1,
+  2,
+  5
+ ],
+ "source": "scenes/maps/forgotten_forest.gd (ground) + 최종본 6-7화 (story)",
+ "spawn": [
+  272.0,
+  48.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.12,
+    0.14,
+    0.1,
+    1.0
+   ],
+   "detail": "dead_soil"
+  },
+  {
+   "color": [
+    0.08,
+    0.06,
+    0.05,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.05,
+    0.06,
+    0.04,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.16,
+    0.18,
+    0.14,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.15,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.1,
+    0.08,
+    0.06,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.4,
+    0.38,
+    0.35,
+    1.0
+   ],
+   "detail": "rock"
+  }
+ ],
+ "tile_names": [
+  "DEAD_SOIL",
+  "TRUNK",
+  "CANOPY",
+  "HOLLOW",
+  "PATH",
+  "ROOT",
+  "CAIRN"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   1,
+   0,
+   0,
+   0,
+   1,
+   0,
+   4,
+   4,
+   4,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   1,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   1,
+   1,
+   0,
+   0,
+   5,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   1,
+   0,
+   0,
+   3,
+   3,
+   6,
+   3,
+   4,
+   0,
+   0,
+   1,
+   0,
+   3,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   5,
+   0,
+   1,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   1,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   0,
+   5,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   1,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   5,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   1,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ ],
+ "title": {
+  "name": "The Listening Forest",
+  "number": 7,
+  "subtitle": "Voices of those who passed, and of those who are not here"
+ },
+ "triggers": [
+  {
+   "flag": "ch7_echoes",
+   "gate": "ch7_forest_enter",
+   "group": "ms_forest_echoes",
+   "rect": {
+    "origin": [
+     288.0,
+     224.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch7_mother",
+   "gate": "ch7_echoes",
+   "group": "ms_forest_mother",
+   "rect": {
+    "origin": [
+     320.0,
+     320.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch7_lost_hour",
+   "gate": "ch7_mother",
+   "group": "ms_forest_lost_hour",
+   "rect": {
+    "origin": [
+     352.0,
+     416.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch7_escape",
+   "gate": "ch7_lost_hour",
+   "group": "ms_forest_escape",
+   "rect": {
+    "origin": [
+     384.0,
+     480.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}

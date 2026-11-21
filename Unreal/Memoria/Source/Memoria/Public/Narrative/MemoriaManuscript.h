@@ -44,6 +44,8 @@ namespace MemoriaManuscript
 
     // S371: Chapter 6, the Seam (최종본 6화 「더 심」, 7화 「세이블」). Its scenes are built at runtime (ms_seam_*).
     inline const TCHAR* const SeamMap = TEXT("the_seam");
+    // S372: Chapter 7, the listening forest (최종본 8-10화), on the Godot forgotten_forest ground.
+    inline const TCHAR* const ForestMap = TEXT("forgotten_forest");
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
     // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
     inline constexpr int32 SableHeavyBurns = 4;

@@ -44,7 +44,7 @@ bool FSeamS371Test::RunTest(const FString&)
     Groups.Add(Seam->Exit.Group);
     TestEqual(TEXT("Six scenes"), Groups.Num(), 6);
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
-    TestEqual(TEXT("and no others"), SceneGroups().Num(), 6);
+    TestEqual(TEXT("and no other Seam scenes"), SceneGroups().FilterByPredicate([](const FString& G) { return G.StartsWith(TEXT("ms_seam_")); }).Num(), 6);
     TestEqual(TEXT("The arrival brings Chapter 6's memories"), Seam->Sequence[0].MemoriesChapter, 6);
     TestTrue(TEXT("Chapter 6 has its memories"), MemoriaChapterMemories::For(6).Num() == 3);
     TestTrue(TEXT("and Chapter 7 the echo shell"), MemoriaChapterMemories::For(7).ContainsByPredicate([](const FMemoriaMemoryDefinition& M) { return M.Id == EchoShellMemory; }));
@@ -94,7 +94,8 @@ bool FSeamS371Test::RunTest(const FString&)
     TestEqual(TEXT("The main quest is at the ridge road"), MainStepIndex(Run->GetRunSnapshot()), 8);
     Run->SetStoryFlag(TEXT("ch6_complete"), true);
     const auto Main = MainRecord(Run->GetRunSnapshot(), true);
-    TestTrue(TEXT("and then at the hole in the bark"), Main.Body.Contains(TEXT("→ 나무껍질의 구멍이 가리키는 곳")) && Main.Body.Contains(TEXT("세이블에게 길을 묻는다  (완료)")));
+    // S372: after the ridge road comes the listening forest.
+    TestTrue(TEXT("and then into the listening forest"), Main.Body.Contains(TEXT("→ 듣는 숲을 지난다")) && Main.Body.Contains(TEXT("세이블에게 길을 묻는다  (완료)")));
     Game->Shutdown();
     return true;
 }
@@ -168,8 +169,9 @@ public:
         case 3:
             if (Flag(TEXT("ch6_sable_night")) && Host->GetState() == EMemoriaSliceState::Exploration)
             {
-                Test->TestTrue(TEXT("Sable gave him the shell"), Run->GetPlayerMemory()->GetSnapshot().Owned.ContainsByPredicate([](const auto& M) { return M.Id == MemoriaManuscript::EchoShellMemory; })
-                    && Host->GetTrace().Contains(TEXT("memory:acquired:rel_echo_shell")));
+                // S372: Sable gives the small spiralwave; the echo shell is Elia's to give, in Chapter 7 (10화).
+                Test->TestTrue(TEXT("Sable gave him the spiralwave"), Flag(TEXT("has_spiralwave")));
+                Test->TestFalse(TEXT("not the echo shell"), Run->GetPlayerMemory()->GetSnapshot().Owned.ContainsByPredicate([](const auto& M) { return M.Id == MemoriaManuscript::EchoShellMemory; }));
                 Test->TestTrue(TEXT("Its toast"), Host->GetTrace().Contains(TEXT("toast:Obtained: Spiralwave shell")));
                 Capture(TEXT("S371ShellToast"));
                 Place(Spec->Triggers[1].Rect.Center());

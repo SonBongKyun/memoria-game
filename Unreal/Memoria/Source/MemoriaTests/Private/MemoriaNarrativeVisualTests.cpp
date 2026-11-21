@@ -12,8 +12,8 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVisualCoverage::RunTest(const FString&)
 {
-    // S371: plus the Seam's splash, three of its pictures and Sable's portrait.
-    TestEqual(TEXT("Seventy-two sources: the earlier sixty-seven and the Seam's five"),MemoriaNarrativeArtwork::Sources().Num(),72);
+    // S371: plus the Seam's splash, three of its pictures and Sable's portrait; S372: the forest's four (one more was set aside: it shows a fourth companion).
+    TestEqual(TEXT("Seventy-six sources: the earlier sixty-seven, the Seam's five and the forest's four"),MemoriaNarrativeArtwork::Sources().Num(),76);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);

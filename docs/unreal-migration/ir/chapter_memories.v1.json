@@ -163,6 +163,36 @@
     "story_effect": "Lose the Echo Shell's protection. BL-07's pull strengthens.",
     "title": "Voices in the Shell"
    }
+  ],
+  "8": [
+   {
+    "burn_power": 14,
+    "description": "They stand because they forgot how to fall. The bark peels away like old thoughts, revealing nothing underneath.",
+    "grade": 0,
+    "id": "sense_hollow_trees",
+    "ko": {
+     "description": "쓰러지는 법을 잊어서 서 있다. 껍질이 낡은 생각처럼 벗겨지고, 그 아래엔 아무것도 없다.",
+     "story_effect": "",
+     "title": "나무였던 것을 기억하는 나무"
+    },
+    "related_npc": "",
+    "story_effect": "",
+    "title": "Trees That Remember Being Trees"
+   },
+   {
+    "burn_power": 30,
+    "description": "'I was...' That's all they could say. The rest was eaten. You wonder how many sentences you've already lost.",
+    "grade": 1,
+    "id": "rel_ghost_words",
+    "ko": {
+     "description": "'나는...' 그게 전부였다. 나머지는 먹혔다. 나는 이미 몇 문장을 잃었을까.",
+     "story_effect": "끝나지 않은 생각을 알아채지 못하게 된다. 말의 구멍이 그냥 지나간다.",
+     "title": "유령의 마지막 문장"
+    },
+    "related_npc": "",
+    "story_effect": "Lose awareness of incomplete thoughts. Gaps in speech go unnoticed.",
+    "title": "A Ghost's Last Sentence"
+   }
   ]
  },
  "schema_version": 1,

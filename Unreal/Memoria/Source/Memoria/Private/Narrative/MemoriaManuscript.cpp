@@ -111,6 +111,10 @@ const TArray<FMainStep>& MainSteps()
         // S371: 6-7화.
         {TEXT("ch6_sable_morning"), TEXT("Ask Sable the way"), TEXT("세이블에게 길을 묻는다")},
         {TEXT("ch6_complete"), TEXT("Up the ridge road with Haren"), TEXT("하렌을 따라 능선길로")},
+        // S372: 8-10화.
+        {TEXT("ch7_lost_hour"), TEXT("Through the listening forest, eyes off the sounds"), TEXT("듣는 숲을 지난다. 소리 쪽으로 고개를 돌리지 말 것")},
+        {TEXT("ch7_escape"), TEXT("Get away from the shape between the trees"), TEXT("나무 사이의 형상에게서 벗어난다")},
+        {TEXT("ch7_complete"), TEXT("A night under the slanted slab, between the two stone ridges"), TEXT("두 돌 능선 사이, 기울어진 돌판 아래에서 밤")},
         {TEXT("ms_never"), TEXT("Where the hole in the bark points: north-north-east, through the unrecorded stretch"), TEXT("나무껍질의 구멍이 가리키는 곳: 북북동, 기록되지 않은 구간 너머")}};
     return Values;
 }

@@ -146,7 +146,16 @@ FString Korean(const FString& En)
         {TEXT("drift_shelter"), TEXT("드리프트 셸터")}, {TEXT("belt_waystation"), TEXT("벨트 중간역")},
         // S371: the Seam (최종본 6-7화).
         {TEXT("the_seam"), TEXT("더 심")}, {TEXT("Between what was and what will be"), TEXT("있던 것과 올 것 사이")},
-        {TEXT("The Ridge Road"), TEXT("능선길")}, {TEXT("Obtained: Spiralwave shell"), TEXT("획득: 나선파 조개")},
+        {TEXT("The Ridge Road"), TEXT("능선길")},
+        // S372: the listening forest (최종본 8-10화).
+        {TEXT("forgotten_forest"), TEXT("듣는 숲")}, {TEXT("The Listening Forest"), TEXT("듣는 숲")},
+        {TEXT("Voices of those who passed, and of those who are not here"), TEXT("지나간 사람들, 여기 없는 사람들의 목소리")},
+        {TEXT("Between the Two Stone Ridges"), TEXT("두 돌 능선 사이")}, {TEXT("Obtained: Echo shell"), TEXT("획득: 에코 셸")},
+        {TEXT("Under the slanted slab, the echo shell says the counting is wrong."), TEXT("기울어진 돌판 아래에서, 에코 셸이 셈이 틀렸다고 말한다.")},
+        {TEXT("The roots pulse faintly. Not with sap: with residue. These trees are digesting someone's childhood."),
+         TEXT("뿌리가 희미하게 맥박친다. 수액이 아니라 잔존으로. 이 나무들은 누군가의 어린 시절을 삭이고 있다.")},
+        {TEXT("Scratches in the bark. Someone tried to carve their name. The letters stop halfway: they forgot the rest."),
+         TEXT("나무껍질의 긁힌 자국. 누군가 자기 이름을 새기려 했다. 글자는 절반에서 멈췄다. 나머지를 잊은 것이다.")}, {TEXT("Obtained: Spiralwave shell"), TEXT("획득: 나선파 조개")},
         {TEXT("Obtained: Sable's bark map"), TEXT("획득: 세이블의 나무껍질 지도")},
         {TEXT("Somewhere north-north-east, the hole in the bark is waiting."), TEXT("북북동 어딘가에서, 나무껍질의 구멍이 가리키는 곳이 기다린다.")},
         {TEXT("A plank bridge over the brook. The pebbles show through, and the pattern of the water over them never stays the same."),

@@ -86,6 +86,11 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/chapter_expansion/ch06_seam_living_streets_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch06_seam_living_streets_v1"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch07_echo_shell_voices_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch07_echo_shell_voices_v1"), false},
         {TEXT("res://assets/portraits/sable_face_calm.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_sable_face_calm"), false},
+        // S372 Chapter 7, the listening forest: canon art only.
+        {TEXT("res://assets/cg/generated/chapter_splash_forgotten_forest.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_forgotten_forest"), false},
+        {TEXT("res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch7_crossing_the_ridgeline"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch08_memory_forest_entry_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch08_memory_forest_entry_v1"), false},
+        {TEXT("res://assets/cg/generated/story_ch8_ghost_mother.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch8_ghost_mother"), false},
     };
     return Values;
 }

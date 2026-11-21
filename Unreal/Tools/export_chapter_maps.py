@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7')}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -47,7 +47,7 @@ MANUSCRIPT = {
         ],
         # Haren takes them up the ridge road: the north-east path out of the village.
         'exit': {'center': [20 * T, 1.5 * T], 'size': [2 * T, T], 'requires': 'ch6_sable_morning', 'completes': 'ch6_complete',
-                 'group': 'ms_seam_departure', 'next_chapter': 7, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_seam_departure', 'next_chapter': 7, 'next_map': 'forgotten_forest', 'next_scene': None,
                  'flags': ['canon_ch7_ridge_ready'],
                  'notice': {'en': 'Somewhere north-north-east, the hole in the bark is waiting.',
                             'ko': '북북동 어딘가에서, 나무껍질의 구멍이 가리키는 곳이 기다린다.'}},
@@ -58,11 +58,49 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [], 'resume_blocked': [],
         'encounters_gate': 'ch6_complete',
         # The lanterns (Tile.LANTERN) are lit: add_tile_lights in the source.
-        'lantern_tile': 6, 'lantern_color': [1.0, 0.85, 0.5, 1.0],
+        'lights': [{'tile': 6, 'color': [1.0, 0.85, 0.5, 1.0], 'energy': 0.9, 'scale': 3.0}],
         'ambient_npcs': [{'position': [9 * T + 16, 3 * T + 16], 'preset': 'villager_f'},
                          {'position': [14 * T + 16, 13 * T + 16], 'preset': 'scholar'},
                          {'position': [18 * T + 16, 9 * T + 16], 'preset': 'villager_m'}],
         'ambient_npcs_gate': 'ch6_arrived',
+    },
+    # S372: 최종본 8화 「듣는 숲」, 9화 「빌려온 입」, 10화 「대가」 on the Godot forgotten_forest ground.
+    'forgotten_forest': {
+        'title': {'number': 7, 'name': 'The Listening Forest', 'subtitle': 'Voices of those who passed, and of those who are not here'},
+        # Over the ridge from the Seam: they come in on the north road and leave the forest to the south (9화).
+        'spawn': [8 * T + 16, 1.5 * T],
+        'elia_repeat': "Don't turn toward the sounds.",
+        'sequence': [
+            {'flag': 'ch7_ridge', 'group': 'ms_forest_ridge', 'memories_chapter': 8, 'flags': [], 'toasts': []},
+            {'flag': 'ch7_forest_enter', 'group': 'ms_forest_enter', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            {'rect': {'origin': [9 * T, 7 * T], 'size': [2 * T, T]}, 'group': 'ms_forest_echoes', 'flag': 'ch7_echoes', 'gate': 'ch7_forest_enter'},
+            {'rect': {'origin': [10 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_forest_mother', 'flag': 'ch7_mother', 'gate': 'ch7_echoes'},
+            {'rect': {'origin': [11 * T, 13 * T], 'size': [2 * T, T]}, 'group': 'ms_forest_lost_hour', 'flag': 'ch7_lost_hour', 'gate': 'ch7_mother'},
+            {'rect': {'origin': [12 * T, 15 * T], 'size': [2 * T, T]}, 'group': 'ms_forest_escape', 'flag': 'ch7_escape', 'gate': 'ch7_lost_hour'},
+        ],
+        # 9화: the shape between the trees. It rises where the lost hour ends; burning is how Arrel faced it.
+        'battles_gate': 'ch7_lost_hour',
+        'battles': [{'rect': {'origin': [11 * T, 14 * T], 'size': [2 * T, T]}, 'name': 'Hollow Walker', 'hp': 95, 'atk': 22, 'is_void': False}],
+        'exit': {'center': [15 * T + 16, 16.5 * T], 'size': [5 * T, T], 'requires': 'ch7_escape', 'completes': 'ch7_complete',
+                 'group': 'ms_forest_valley', 'next_chapter': 8, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch8_coast_ready'],
+                 'notice': {'en': 'Under the slanted slab, the echo shell says the counting is wrong.',
+                            'ko': '기울어진 돌판 아래에서, 에코 셸이 셈이 틀렸다고 말한다.'}},
+        'objects_gate': 'ch7_complete',
+        'chests': [{'origin': [5 * T, 5 * T], 'flag': 'chest_forest_cairn', 'rewards': {'grains': 20, 'items': {'potion': 2, 'antidote': 2}}},
+                   {'origin': [20 * T, 3 * T], 'flag': 'chest_forest_canopy', 'rewards': {'grains': 10, 'items': {'firebomb': 2}}}],
+        'clues': [{'origin': [14 * T, 6 * T], 'flag': 'clue_forest_roots',
+                   'text': "The roots pulse faintly. Not with sap: with residue. These trees are digesting someone's childhood."},
+                  {'origin': [6 * T, 13 * T], 'flag': 'clue_forest_carving',
+                   'text': 'Scratches in the bark. Someone tried to carve their name. The letters stop halfway: they forgot the rest.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch7_complete',
+        # The white mushroom rings (8화) give a faint pale light in the hollows and on the cairn.
+        'lights': [{'tile': 3, 'color': [0.78, 0.92, 0.86, 1.0], 'energy': 0.35, 'scale': 2.0},
+                   {'tile': 6, 'color': [0.85, 0.95, 0.9, 1.0], 'energy': 0.5, 'scale': 2.5}],
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
 }
 
@@ -73,13 +111,15 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     pool = [json.loads(entry) for entry in re.findall(r'\{"name": [^}]*\}', func_body(src, '_setup_random_encounters'))]
     rng = re.search(r',\s*(\d+),\s*(\d+)\s*\)\s*$', func_body(src, '_setup_random_encounters').strip())
     lights = []
-    for y, row in enumerate(ground['tiles']):
-        for x, v in enumerate(row):
-            if v == story['lantern_tile']:
-                lights.append({'kind': 'lantern', 'light': True, 'color': story['lantern_color'], 'energy': 0.9, 'scale': 3.0,
-                               'origin': [(x + .5) * ground['tile_size'], (y + .5) * ground['tile_size']]})
+    for spec in story['lights']:
+        for y, row in enumerate(ground['tiles']):
+            for x, v in enumerate(row):
+                if v == spec['tile']:
+                    lights.append({'kind': 'lantern', 'light': True, 'color': spec['color'], 'energy': spec['energy'], 'scale': spec['scale'],
+                                   'origin': [(x + .5) * ground['tile_size'], (y + .5) * ground['tile_size']]})
     # The village's cliffs stand as walls (the ported maps' WALL), its huts stay HUT and are built by name.
-    ground = dict(ground, tile_names=['WALL' if n == 'CLIFF' else n for n in ground['tile_names']])
+    if map_id == 'the_seam':
+        ground = dict(ground, tile_names=['WALL' if n == 'CLIFF' else n for n in ground['tile_names']])
     keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',
             'battles', 'resume_blocked', 'encounters_gate', 'ambient_npcs', 'ambient_npcs_gate')
     return dict(ground, schema_version=1, map=map_id, chapter=chapter, asset_prefix=prefix,

@@ -478,8 +478,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         const int32 Next = Spec->Chapter + 1;
         const bool bRoad = MemoriaChapterMaps::Find(Exit.NextMap) != nullptr;
         FString Where = !Exit.NextMap.IsEmpty() ? (bKo ? Ko(Exit.NextMap) : PlaceName(Exit.NextMap)) : (bKo ? Ko(SceneTitle(Exit.NextScene)) : SceneTitle(Exit.NextScene));
-        // S371: the Seam's road leads up the ridge road with Haren (7화), not yet a ported map.
-        if (Where.IsEmpty() && Map == MemoriaManuscript::SeamMap) Where = bKo ? Ko(TEXT("The Ridge Road")) : TEXT("The Ridge Road");
+        // S372: the forest's road ends in the fold between the two stone ridges (9화), not yet a ported map.
+        if (Where.IsEmpty() && Map == MemoriaManuscript::ForestMap) Where = bKo ? Ko(TEXT("Between the Two Stone Ridges")) : TEXT("Between the Two Stone Ridges");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));
