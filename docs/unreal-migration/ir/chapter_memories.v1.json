@@ -89,6 +89,80 @@
     "story_effect": "Lose awareness of Elia's movement patterns",
     "title": "Walking With Someone"
    }
+  ],
+  "6": [
+   {
+    "burn_power": 55,
+    "description": "She walked into a Void Hole and walked out. Her eyes stayed behind as the toll. When she speaks, you believe her.",
+    "grade": 2,
+    "id": "rel_sable_trust",
+    "ko": {
+     "description": "그녀는 보이드 홀로 걸어 들어갔다가 걸어 나왔다. 대가로 두 눈이 남았다. 그녀가 말하면 믿게 된다.",
+     "story_effect": "세이블을 향한 본능적 신뢰를 잃는다. 그녀의 조언이 공허하게 들린다.",
+     "title": "돌아온 여자"
+    },
+    "related_npc": "Sable",
+    "story_effect": "Lose instinctive trust toward Sable. Her advice feels hollow.",
+    "title": "The Woman Who Came Back"
+   },
+   {
+    "burn_power": 15,
+    "description": "Amber. Crimson. Green so deep it hurts. The Seam bleeds color into a gray world.",
+    "grade": 0,
+    "id": "sense_seam_colors",
+    "ko": {
+     "description": "호박색. 진홍. 아플 만큼 깊은 초록. 더 섬은 잿빛 세계에 색을 흘린다.",
+     "story_effect": "",
+     "title": "있을 수 없는 색"
+    },
+    "related_npc": "",
+    "story_effect": "",
+    "title": "Colors That Shouldn't Exist"
+   },
+   {
+    "burn_power": 28,
+    "description": "They bloom together, spring and autumn sharing the same soil. Time doesn't work right here.",
+    "grade": 1,
+    "id": "daily_garden_flowers",
+    "ko": {
+     "description": "봄과 가을이 같은 흙을 나눠 쓰며 함께 핀다. 여기서는 시간이 제대로 흐르지 않는다.",
+     "story_effect": "더 섬의 정원이 흑백으로 보인다.",
+     "title": "모든 계절의 꽃"
+    },
+    "related_npc": "",
+    "story_effect": "The Seam's gardens appear monochrome",
+    "title": "Flowers From Every Season"
+   }
+  ],
+  "7": [
+   {
+    "burn_power": 12,
+    "description": "Air that crackles against your teeth. The Threshold tastes like a storm that never breaks.",
+    "grade": 0,
+    "id": "sense_static_air",
+    "ko": {
+     "description": "이 사이에서 딱딱 튀는 공기. 문턱은 끝내 터지지 않는 폭풍 같은 맛이 난다.",
+     "story_effect": "",
+     "title": "정전기의 맛"
+    },
+    "related_npc": "",
+    "story_effect": "",
+    "title": "The Taste of Static"
+   },
+   {
+    "burn_power": 55,
+    "description": "Dozens of fragments. A woman warned someone. A man felt his hands dissolving. A child forgot blue.",
+    "grade": 2,
+    "id": "rel_echo_shell",
+    "ko": {
+     "description": "수십 개의 조각. 한 여자가 누군가에게 경고했다. 한 남자는 제 손이 녹는 걸 느꼈다. 한 아이는 파랑을 잊었다.",
+     "story_effect": "에코 셸의 보호를 잃는다. BL-07의 인력이 강해진다.",
+     "title": "껍질 속의 목소리들"
+    },
+    "related_npc": "Sable",
+    "story_effect": "Lose the Echo Shell's protection. BL-07's pull strengthens.",
+    "title": "Voices in the Shell"
+   }
   ]
  },
  "schema_version": 1,

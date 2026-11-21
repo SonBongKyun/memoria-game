@@ -27,7 +27,7 @@ const TArray<TPair<FString, FString>>& Terms()
         {TEXT("드리프트 셸터"), TEXT("무너진 돌벽")}, {TEXT("벨트 중간역"), TEXT("벨트 역참")}, {TEXT("벨트 중계소"), TEXT("벨트 역참")},
         {TEXT("웅덩이의 장부"), TEXT("셈터의 장부")}, {TEXT("웅덩이에서 장부"), TEXT("셈터에서 장부")},
         {TEXT("웅덩이에 숨겨진"), TEXT("셈터에 숨겨진")}, {TEXT("웅덩이 계단"), TEXT("셈터 계단")}, {TEXT("웅덩이  /"), TEXT("셈터  /")},
-        {TEXT("보이드 비스트"), TEXT("공허수")}, {TEXT("14킬로미터"), TEXT("아홉 마일")}, {TEXT("6장, 심"), TEXT("6장, 더 심")},
+        {TEXT("보이드 비스트"), TEXT("공허수")}, {TEXT("보이드 홀"), TEXT("공허 구멍")}, {TEXT("14킬로미터"), TEXT("아홉 마일")}, {TEXT("6장, 심"), TEXT("6장, 더 심")},
         {TEXT("아켄 숲"), TEXT("아헨 숲")}, {TEXT("더 섬프"), TEXT("셈터")}, {TEXT("섬프"), TEXT("셈터")},
         {TEXT("씸에서"), TEXT("더 심에서")}, {TEXT("BL-07"), TEXT("공백 7호")}, {TEXT("말렛"), TEXT("말레트")},
         {TEXT("분류자"), TEXT("분류하는 자")}, {TEXT("7등급"), TEXT("7급")}, {TEXT("백서"), TEXT("백 노트")}};
@@ -107,7 +107,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch3_class_seven_message"), TEXT("Read the writing on the wall"), TEXT("벽의 글씨를 읽는다")},
         {TEXT("ch4_anchoring"), TEXT("Follow the road east of the waystation"), TEXT("역참 동쪽 길을 따라간다")},
         {TEXT("ch4_night_watch"), TEXT("Keep watch in the rain-cut cave"), TEXT("빗물 동굴에서 밤을 지킨다")},
-        {TEXT("canon_ch6_seam_ready"), TEXT("Find Sable at the Seam, northeast of Verdan. Follow the colour."), TEXT("더 심의 세이블을 찾는다. 베르단 북동쪽, 색을 따르게.")}};
+        {TEXT("ch6_arrived"), TEXT("Find Sable at the Seam, northeast of Verdan. Follow the colour."), TEXT("더 심의 세이블을 찾는다. 베르단 북동쪽, 색을 따르게.")},
+        // S371: 6-7화.
+        {TEXT("ch6_sable_morning"), TEXT("Ask Sable the way"), TEXT("세이블에게 길을 묻는다")},
+        {TEXT("ch6_complete"), TEXT("Up the ridge road with Haren"), TEXT("하렌을 따라 능선길로")},
+        {TEXT("ms_never"), TEXT("Where the hole in the bark points: north-north-east, through the unrecorded stretch"), TEXT("나무껍질의 구멍이 가리키는 곳: 북북동, 기록되지 않은 구간 너머")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

@@ -399,8 +399,11 @@ void AMemoriaChapterPresentation::BeginPlay()
         const bool bKo = Run && Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
         const int32 Reached = int32(Run ? Run->GetRunSnapshot().CurrentChapter : Spec->Chapter);
         const FString Next = Moved == TEXT("canon_ch6_seam_ready") ? TEXT("The Seam") : FString();
-        Card->Show(bKo ? FString::Printf(TEXT("%d장 완료"), Reached) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Reached), bKo ? Ko(Next) : Next,
-            bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Reached + 1) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Reached + 1), SceneDelay);
+        // S371: once the Seam is ported, the east exit is its road.
+        const bool bOnward = Run && MemoriaChapterMaps::Find(MemoriaManuscript::RoadOnward(Map, Run->GetRunSnapshot())) != nullptr;
+        const FString Road = bOnward ? (bKo ? FString::Printf(TEXT("동쪽 출구에서 %d장으로 이어집니다"), Reached + 1) : FString::Printf(TEXT("The east exit goes on to Chapter %d"), Reached + 1))
+            : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Reached + 1) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Reached + 1));
+        Card->Show(bKo ? FString::Printf(TEXT("%d장 완료"), Reached) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Reached), bKo ? Ko(Next) : Next, Road, SceneDelay);
         if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>(); Narrative && !Next.IsEmpty())
             Narrative->ShowNotice(Localized(FString::Printf(TEXT("Next: Chapter %d, %s"), Reached + 1, *Next)));
     }
@@ -474,7 +477,9 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (!Exit.NoticeEn.IsEmpty() && Narrative) Narrative->ShowNotice(bKo && !Exit.NoticeKo.IsEmpty() ? Exit.NoticeKo : Exit.NoticeEn);
         const int32 Next = Spec->Chapter + 1;
         const bool bRoad = MemoriaChapterMaps::Find(Exit.NextMap) != nullptr;
-        const FString Where = !Exit.NextMap.IsEmpty() ? (bKo ? Ko(Exit.NextMap) : PlaceName(Exit.NextMap)) : (bKo ? Ko(SceneTitle(Exit.NextScene)) : SceneTitle(Exit.NextScene));
+        FString Where = !Exit.NextMap.IsEmpty() ? (bKo ? Ko(Exit.NextMap) : PlaceName(Exit.NextMap)) : (bKo ? Ko(SceneTitle(Exit.NextScene)) : SceneTitle(Exit.NextScene));
+        // S371: the Seam's road leads up the ridge road with Haren (7화), not yet a ported map.
+        if (Where.IsEmpty() && Map == MemoriaManuscript::SeamMap) Where = bKo ? Ko(TEXT("The Ridge Road")) : TEXT("The Ridge Road");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));
@@ -507,6 +512,15 @@ void AMemoriaChapterPresentation::CheckTriggers()
 {
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
     auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>();
+    // S371: a chapter the story has moved on from keeps its exit as the road to the next ported map
+    // (Drift after Chapter 5 -> the Seam), even while the closed chapter shows its card.
+    if (auto* OnRun = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>(); OnRun && Narrative && Narrative->GetState() == EMemoriaSliceState::Exploration && !(Combat && Combat->IsDefeated()))
+        if (const FString Onward = MemoriaManuscript::RoadOnward(Map, OnRun->GetRunSnapshot()); MemoriaChapterMaps::Find(Onward))
+        {
+            const bool bWasIn = bInExit; bInExit = Spec->Exit.Rect.Contains(PlayerSource());
+            if (bInExit && !bWasIn && !(Combat && Combat->LiveMonsterCount() > 0)) { bComplete = true; Narrative->TravelToChapterMap(Onward); return; }
+            if (bComplete) return;
+        }
     if (!Narrative || Narrative->GetState() != EMemoriaSliceState::Exploration || bComplete || (Combat && Combat->IsDefeated())) return;
     const FVector2D P = PlayerSource();
     for (const auto& Trigger : Spec->Triggers)

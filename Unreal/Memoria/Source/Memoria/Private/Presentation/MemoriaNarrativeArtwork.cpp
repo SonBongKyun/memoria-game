@@ -80,6 +80,12 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/cinematic_kairos_authority_edit.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_cinematic_kairos_authority_edit"), false},
         {TEXT("res://assets/portraits/character_shots/kairos_story_v2.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_story_v2"), false},
         {TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_edit_v3"), false},
+        // S371 Chapter 6, the Seam: canon art only (Sable as the blind old woman).
+        {TEXT("res://assets/cg/generated/chapter_splash_the_seam.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_the_seam"), false},
+        {TEXT("res://assets/cg/generated/story_ch5_seam_first_light.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch5_seam_first_light"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch06_seam_living_streets_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch06_seam_living_streets_v1"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch07_echo_shell_voices_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch07_echo_shell_voices_v1"), false},
+        {TEXT("res://assets/portraits/sable_face_calm.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_sable_face_calm"), false},
     };
     return Values;
 }
@@ -112,6 +118,7 @@ FString PortraitSource(const FString& Key)
         {TEXT("malet_neutral"), TEXT("res://assets/portraits/malet_face_neutral.png")},
         {TEXT("malet_price_revealed"), TEXT("res://assets/portraits/malet_face_price_revealed.png")},
         {TEXT("malet_warning"), TEXT("res://assets/portraits/malet_face_warning.png")},
+        {TEXT("sable_calm"), TEXT("res://assets/portraits/sable_face_calm.png")},
     };
     const FString* Value = Values.Find(Key); return Value ? *Value : FString();
 }

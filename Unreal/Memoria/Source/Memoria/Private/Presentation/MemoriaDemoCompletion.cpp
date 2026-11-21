@@ -20,8 +20,8 @@ FMemoriaDemoCompletionView MemoriaDemoCompletion::Build(const UMemoriaRunSubsyst
     for (const auto& M : Memory.Owned) View.Held += !M.bBurned && !M.bFaded ? 1 : 0;
     View.Burned = Memory.BurnedHistory.Num();
     View.Summary = bKo
-        ? FString::Printf(TEXT("5장 · 분류자\n\n현재 플레이 구간은 여기까지입니다.\n드리프트에 머물며 기억과 기록을 돌아볼 수 있습니다.\n\n온전한 기억 %d개 · 태운 기억 %d개"), View.Held, View.Burned)
-        : FString::Printf(TEXT("Chapter 5 · The Classifier\n\nYou have reached the end of the current playable segment.\nYou can stay in Drift Shelter and revisit your memories and records.\n\n%d intact memories · %d burned memories"), View.Held, View.Burned);
+        ? FString::Printf(TEXT("5장 · 분류하는 자\n\n무너진 돌벽의 동쪽 출구가 6장 「더 심」으로 이어집니다.\n기억과 기록을 돌아본 뒤 출발할 수 있습니다.\n\n온전한 기억 %d개 · 태운 기억 %d개"), View.Held, View.Burned)
+        : FString::Printf(TEXT("Chapter 5 · The Classifier\n\nThe east exit of Drift Shelter now goes on to Chapter 6, The Seam.\nReview your memories and records, then set out.\n\n%d intact memories · %d burned memories"), View.Held, View.Burned);
     // Show only the classifier outcome already revealed by the completed Chapter 5 scene.
     // These existing flags are mutually exclusive narrative outputs, not new story authority.
     FString Report;

@@ -21,7 +21,72 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6')}
+
+# S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
+# collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
+# story triggers, the exit and the placements below follow 최종본 6화 「더 심」 and 7화 「세이블」.
+# Their groups (ms_*) are scenes built at runtime by MemoriaManuscript, so no dialogue assets are needed.
+T = 32.0
+MANUSCRIPT = {
+    'the_seam': {
+        'title': {'number': 6, 'name': 'The Seam', 'subtitle': 'Between what was and what will be'},
+        # 6화: they come down the ridge road into the village; the north-west path is its end.
+        'spawn': [5 * T, 1.5 * T],
+        'elia_repeat': "I'm here. I'm not going anywhere.",
+        'sequence': [
+            {'flag': 'ch6_arrived', 'group': 'ms_seam_arrival', 'memories_chapter': 6, 'flags': [], 'toasts': []},
+            {'flag': 'ch6_name_slip', 'group': 'ms_seam_name', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch6_feren', 'group': 'ms_seam_feren', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # The night: the inner room by the water hall in the middle of the village (6화 끝 ~ 7화 앞).
+            {'rect': {'origin': [12 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_seam_night', 'flag': 'ch6_sable_night', 'gate': 'ch6_feren'},
+            # The morning: Sable carving spoons at the table north of the brook (7화).
+            {'rect': {'origin': [16 * T, 7 * T], 'size': [2 * T, T]}, 'group': 'ms_seam_morning', 'flag': 'ch6_sable_morning', 'gate': 'ch6_sable_night'},
+        ],
+        # Haren takes them up the ridge road: the north-east path out of the village.
+        'exit': {'center': [20 * T, 1.5 * T], 'size': [2 * T, T], 'requires': 'ch6_sable_morning', 'completes': 'ch6_complete',
+                 'group': 'ms_seam_departure', 'next_chapter': 7, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch7_ridge_ready'],
+                 'notice': {'en': 'Somewhere north-north-east, the hole in the bark is waiting.',
+                            'ko': '북북동 어딘가에서, 나무껍질의 구멍이 가리키는 곳이 기다린다.'}},
+        'objects_gate': 'ch6_complete',
+        'chests': [{'origin': [22 * T, 5 * T], 'flag': 'chest_seam_garden', 'rewards': {'grains': 20, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [10 * T, 8 * T], 'flag': 'clue_seam_stream',
+                   'text': 'A plank bridge over the brook. The pebbles show through, and the pattern of the water over them never stays the same.'}],
+        'battles_gate': None, 'battles': [], 'resume_blocked': [],
+        'encounters_gate': 'ch6_complete',
+        # The lanterns (Tile.LANTERN) are lit: add_tile_lights in the source.
+        'lantern_tile': 6, 'lantern_color': [1.0, 0.85, 0.5, 1.0],
+        'ambient_npcs': [{'position': [9 * T + 16, 3 * T + 16], 'preset': 'villager_f'},
+                         {'position': [14 * T + 16, 13 * T + 16], 'preset': 'scholar'},
+                         {'position': [18 * T + 16, 9 * T + 16], 'preset': 'villager_m'}],
+        'ambient_npcs_gate': 'ch6_arrived',
+    },
+}
+
+
+def manuscript_map(map_id, chapter, prefix, src, ground):
+    """A chapter map whose ground is the Godot script's and whose story is the manuscript's."""
+    story = MANUSCRIPT[map_id]
+    pool = [json.loads(entry) for entry in re.findall(r'\{"name": [^}]*\}', func_body(src, '_setup_random_encounters'))]
+    rng = re.search(r',\s*(\d+),\s*(\d+)\s*\)\s*$', func_body(src, '_setup_random_encounters').strip())
+    lights = []
+    for y, row in enumerate(ground['tiles']):
+        for x, v in enumerate(row):
+            if v == story['lantern_tile']:
+                lights.append({'kind': 'lantern', 'light': True, 'color': story['lantern_color'], 'energy': 0.9, 'scale': 3.0,
+                               'origin': [(x + .5) * ground['tile_size'], (y + .5) * ground['tile_size']]})
+    # The village's cliffs stand as walls (the ported maps' WALL), its huts stay HUT and are built by name.
+    ground = dict(ground, tile_names=['WALL' if n == 'CLIFF' else n for n in ground['tile_names']])
+    keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',
+            'battles', 'resume_blocked', 'encounters_gate', 'ambient_npcs', 'ambient_npcs_gate')
+    return dict(ground, schema_version=1, map=map_id, chapter=chapter, asset_prefix=prefix,
+                source='scenes/maps/%s.gd (ground) + 최종본 6-7화 (story)' % map_id,
+                encounters=[{k: e[k] for k in ('name', 'hp', 'atk', 'is_void', 'abilities') if k in e} for e in pool],
+                encounter_range=[int(rng.group(1)), int(rng.group(2))] if rng else None,
+                decorations=lights, **{k: story[k] for k in keys})
 
 
 def num(expr, tile):
@@ -210,6 +275,10 @@ def extract(map_id):
     spawn = re.search(r'player\.position = (Vector2\([^)]*\))', func_body(src, '_position_player'))
     repeat = re.search(r'elia\.repeat_line = "([^"]*)"', src)
     dialogue_file = re.search(r'const DIALOGUE_FILE: String = "res://([^"]+)"', src).group(1)
+    if map_id in MANUSCRIPT:
+        ground = {'dialogue_file': dialogue_file, 'tile_size': tile, 'width': width, 'height': height, 'tiles': tiles,
+                  'tile_defs': tile_defs, 'tile_names': tile_names, 'solid': solid, 'atmosphere': atmosphere}
+        return manuscript_map(map_id, chapter, prefix, src, ground)
 
     def handler_effects(name):
         """Flags, toasts and follow-ups a dialogue_ended handler performs."""

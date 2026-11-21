@@ -1,4 +1,5 @@
 #include "Narrative/MemoriaNarrativeSubsystem.h"
+#include "Domain/MemoriaChapterMemories.h"
 #include "Narrative/MemoriaManuscript.h"
 #include "Localization/MemoriaKorean.h"
 #include "Presentation/MemoriaNarrativeArtwork.h"
@@ -105,7 +106,7 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("system_log"), TEXT("시스템")}, {TEXT("System"), TEXT("시스템")}, {TEXT("Narration"), TEXT("나레이션")},
         {TEXT("Arrel"), TEXT("아렐")}, {TEXT("Elia"), TEXT("엘리아")}, {TEXT("Malet"), TEXT("말렛")}, {TEXT("Mallet"), TEXT("말렛")},
         {TEXT("Kairos"), TEXT("카이로스")}, {TEXT("Sable"), TEXT("세이블")}, {TEXT("Nera"), TEXT("네라")}, {TEXT("Seric"), TEXT("세릭")},
-        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
+        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
         {TEXT("Nervous Trader"), TEXT("불안한 상인")}, {TEXT("Gardener"), TEXT("정원사")}, {TEXT("Handler"), TEXT("관리관")},
         {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
         {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")}};
@@ -525,6 +526,23 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptSign(int32 Index)
     }
     else Notice(FString::Printf(TEXT("Signposts %d / %d"), Read, SignCount()));
     bNoticeHeld = true; ManuscriptAsset = Asset;
+    return StartNativeField(Asset, Group);
+}
+bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
+{
+    UMemoriaFieldAsset* Asset = MemoriaManuscript::BuildScene(this, Group, Run->GetPlayerMemory()->GetSnapshot().BurnedHistory.Num());
+    if (!Asset) return false;
+    // 7화: Sable gives him the spiralwave shell that night; in the morning, the bark map with its hole.
+    if (Group == TEXT("ms_seam_night"))
+    {
+        for (const auto& Memory : MemoriaChapterMemories::For(7))
+            if (Memory.Id == MemoriaManuscript::EchoShellMemory && Run->AcquireMemory(Memory) == EMemoriaMemoryResult::Success)
+            { Notice(TEXT("Obtained: Spiralwave shell")); Record(TEXT("memory:acquired:") + Memory.Id); }
+        bNoticeHeld = true;
+    }
+    if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
+    { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
+    ManuscriptAsset = Asset;
     return StartNativeField(Asset, Group);
 }
 bool UMemoriaNarrativeSubsystem::StartNativeField(UMemoriaFieldAsset* Asset, const FString& Group)
@@ -1206,6 +1224,7 @@ bool UMemoriaNarrativeSubsystem::EnterChapterMap(const FString& Map)
 bool UMemoriaNarrativeSubsystem::StartChapterField(const FString& Group, const FString& Asset, const FString& File)
 {
     if (ChapterMap.IsEmpty() || State != EMemoriaSliceState::Exploration) return false;
+    if (MemoriaManuscript::IsScene(Group)) return HandleManuscriptScene(Group);   // S371
     return StartStoryField(Group, *Asset, *File);
 }
 bool UMemoriaNarrativeSubsystem::EnterStoryScene(const FString& Scene)

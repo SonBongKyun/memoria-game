@@ -47,7 +47,8 @@ bool FNavigationGoalS362::RunTest(const FString&)
         Flag(Run, Drift->Exit.Completes);
         TestEqual(TEXT("A committed departure waits for the actual scheduled scene"), Line(Run, Drift->Map), bKo ? FString(TEXT("목표  잠시 후 다음 이야기가 이어집니다")) : FString(TEXT("GOAL  The next scene will begin shortly")));
         Run.CurrentChapter = 5; Flag(Run, TEXT("ch5_classifier_started")); Flag(Run, TEXT("canon_ch6_seam_ready"));
-        TestEqual(TEXT("The completed segment points to the existing Pause review row"), Line(Run, Drift->Map), bKo ? FString(TEXT("목표  일시정지 → 체험판 구간 완료 · 기록")) : FString(TEXT("GOAL  Pause → Segment complete: review")));
+        // S371: the Seam is ported, so the completed segment points down its road.
+        TestEqual(TEXT("The completed segment points to the Seam"), Line(Run, Drift->Map), bKo ? FString(TEXT("목표  동쪽 출구 → 더 심")) : FString(TEXT("GOAL  East exit → The Seam")));
         Run = At(2); Run.CurrentLocale = bKo ? TEXT("ko") : TEXT("en");
         TestTrue(TEXT("Malet is not suggested before actual market arrival"), Line(Run, TEXT("verdan_market")).IsEmpty());
         Flag(Run, TEXT("ch2_arrived"));

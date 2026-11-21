@@ -27,6 +27,9 @@ PATCHES = {
     "belt_paved": ("map_belt_waystation_canvas_v1.png", (275, 565, 467, 757)),
     "drift_soil": ("map_drift_shelter_canvas_v2.png", (300, 410, 492, 602)),
     "drift_paved": ("map_drift_shelter_canvas_v2.png", (745, 400, 905, 560)),
+    # S371: the Seam's mossy stones with their small flowers, and its worn cobbles.
+    "seam_soil": ("map_the_seam_canvas_v1.png", (760, 1100, 900, 1240)),
+    "seam_paved": ("map_the_seam_canvas_v1.png", (320, 400, 470, 550)),
 }
 # The Belt canvas's central dial: a flat round inlay, kept whole with a soft round edge.
 DIAL = ("map_belt_waystation_canvas_v1.png", (490, 555, 760, 825), 0.80, 0.94)

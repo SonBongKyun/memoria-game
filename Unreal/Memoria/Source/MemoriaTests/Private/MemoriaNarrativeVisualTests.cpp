@@ -12,7 +12,8 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FVisualCoverage::RunTest(const FString&)
 {
-    TestEqual(TEXT("Forty-five illustrations (five each for Chapters 3 and 4, one for 5), two frame overlays, the title art and nineteen unique portraits"),MemoriaNarrativeArtwork::Sources().Num(),67);
+    // S371: plus the Seam's splash, three of its pictures and Sable's portrait.
+    TestEqual(TEXT("Seventy-two sources: the earlier sixty-seven and the Seam's five"),MemoriaNarrativeArtwork::Sources().Num(),72);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);

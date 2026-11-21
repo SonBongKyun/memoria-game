@@ -1,4 +1,5 @@
 #include "Narrative/MemoriaNavigationGoal.h"
+#include "Narrative/MemoriaManuscript.h"
 #include "Narrative/MemoriaSumpLedger.h"
 #include "Chapter/MemoriaChapterMap.h"
 #include "Presentation/MemoriaDemoCompletion.h"
@@ -32,6 +33,15 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
     }
     const auto* Spec = MemoriaChapterMaps::Find(Map);
     if (!Spec) return FString();
+    // S371: after Chapter 5 the east exit is the road to the Seam.
+    if (Map == TEXT("drift_shelter") && !MemoriaManuscript::RoadOnward(Map, Run).IsEmpty() && MemoriaChapterMaps::Find(MemoriaManuscript::RoadOnward(Map, Run)))
+        return Prefix + (bKo ? TEXT("동쪽 출구 → 더 심") : TEXT("East exit → The Seam"));
+    if (Map == MemoriaManuscript::SeamMap && !Run.GetFlag(TEXT("ch6_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch6_sable_morning"))) return Prefix + (bKo ? TEXT("북동쪽 능선길 → 하렌을 따라") : TEXT("North-east ridge road → follow Haren"));
+        if (Run.GetFlag(TEXT("ch6_sable_night"))) return Prefix + (bKo ? TEXT("아침: 개울 북쪽 집에서 세이블에게 길을 묻는다") : TEXT("Morning: ask Sable the way, north of the brook"));
+        if (Run.GetFlag(TEXT("ch6_feren"))) return Prefix + (bKo ? TEXT("마을 가운데 집의 안쪽 방에서 쉰다") : TEXT("Rest in the inner room, in the middle of the village"));
+    }
     if (Map == TEXT("drift_shelter") && MemoriaDemoCompletion::IsComplete(Run))
         return Prefix + (bKo ? TEXT("일시정지 → 체험판 구간 완료 · 기록") : TEXT("Pause → Segment complete: review"));
     const bool bExitReady = (!Spec->Exit.Requires.IsEmpty() && Run.GetFlag(Spec->Exit.Requires))

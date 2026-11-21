@@ -144,6 +144,13 @@ FString Korean(const FString& En)
         {TEXT("The Classifier"), TEXT("분류자")}, {TEXT("The Seam"), TEXT("심")},
         {TEXT("Next: Chapter 6, The Seam"), TEXT("다음 여정: 6장, 심")},
         {TEXT("drift_shelter"), TEXT("드리프트 셸터")}, {TEXT("belt_waystation"), TEXT("벨트 중간역")},
+        // S371: the Seam (최종본 6-7화).
+        {TEXT("the_seam"), TEXT("더 심")}, {TEXT("Between what was and what will be"), TEXT("있던 것과 올 것 사이")},
+        {TEXT("The Ridge Road"), TEXT("능선길")}, {TEXT("Obtained: Spiralwave shell"), TEXT("획득: 나선파 조개")},
+        {TEXT("Obtained: Sable's bark map"), TEXT("획득: 세이블의 나무껍질 지도")},
+        {TEXT("Somewhere north-north-east, the hole in the bark is waiting."), TEXT("북북동 어딘가에서, 나무껍질의 구멍이 가리키는 곳이 기다린다.")},
+        {TEXT("A plank bridge over the brook. The pebbles show through, and the pattern of the water over them never stays the same."),
+         TEXT("개울 위의 판자 다리. 바닥의 자갈까지 보이고, 그 위를 지나는 물의 무늬는 계속 바뀐다.")},
         {TEXT("A faded Bureau sign: 'RELAY STATION 14, All combustion events must be reported within 72 hours.'"),
          TEXT("빛바랜 관리국 표지판: '중계소 14, 모든 연소는 72시간 이내에 보고할 것.'")},
         {TEXT("Warm ashes. Someone camped here recently, the fire pit is lined with Bureau-issue kindling."),

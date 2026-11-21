@@ -20,7 +20,8 @@ namespace
 const FString Base = TEXT("/Game/Memoria/Presentation/Chapter/");
 struct FGroundTexture { const TCHAR* File; const TCHAR* Name; };
 const FGroundTexture Textures[] = {{TEXT("belt_soil"), TEXT("T_BeltSoil")}, {TEXT("belt_paved"), TEXT("T_BeltPaved")},
-    {TEXT("drift_soil"), TEXT("T_DriftSoil")}, {TEXT("drift_paved"), TEXT("T_DriftPaved")}, {TEXT("belt_dial"), TEXT("T_BeltDial")}};
+    {TEXT("drift_soil"), TEXT("T_DriftSoil")}, {TEXT("drift_paved"), TEXT("T_DriftPaved")}, {TEXT("belt_dial"), TEXT("T_BeltDial")},
+    {TEXT("seam_soil"), TEXT("T_SeamSoil")}, {TEXT("seam_paved"), TEXT("T_SeamPaved")}};   // S371
 template<class T> T* Find(const FString& Name) { return LoadObject<T>(nullptr, *(Base + Name + TEXT(".") + Name), nullptr, LOAD_NoWarn | LOAD_Quiet); }
 template<class T> T* Node(UMaterial* M) { auto* N = NewObject<T>(M); M->GetExpressionCollection().AddExpression(N); return N; }
 bool Save(UObject* Object)

@@ -175,6 +175,8 @@ private:
     bool HandleSumpLedger(const FString& Point);
     // S370: the manuscript's drift signposts, played from runtime rows like the Elia repeat line.
     bool HandleManuscriptSign(int32 Index);
+    // S371: a manuscript chapter scene (the Seam), with what it gives.
+    bool HandleManuscriptScene(const FString& Group);
     bool StartNativeField(UMemoriaFieldAsset* Asset, const FString& Group);
     void Notice(const FString& Text);
     bool bTraderArmed = false, bLedgerArmed = false;

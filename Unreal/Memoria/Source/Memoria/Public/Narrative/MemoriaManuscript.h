@@ -41,4 +41,15 @@ namespace MemoriaManuscript
     MEMORIA_API bool Scrambled(const FMemoriaRunSnapshot& Run, int32 BurnedNow);
     MEMORIA_API UMemoriaFieldAsset* BuildSign(UObject* Outer, int32 Index, bool bScrambled);
     MEMORIA_API FMemoriaJournalRecord SignsRecord(const FMemoriaRunSnapshot& Run, bool bKo);
+
+    // S371: Chapter 6, the Seam (최종본 6화 「더 심」, 7화 「세이블」). Its scenes are built at runtime (ms_seam_*).
+    inline const TCHAR* const SeamMap = TEXT("the_seam");
+    inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
+    // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
+    inline constexpr int32 SableHeavyBurns = 4;
+    MEMORIA_API bool IsScene(const FString& Group);
+    MEMORIA_API TArray<FString> SceneGroups();
+    MEMORIA_API UMemoriaFieldAsset* BuildScene(UObject* Outer, const FString& Group, int32 Burned);
+    // The road a closed chapter's exit takes once the story has moved on (Drift -> the Seam after Chapter 5).
+    MEMORIA_API FString RoadOnward(const FString& Map, const FMemoriaRunSnapshot& Run);
 }
