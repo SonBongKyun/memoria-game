@@ -1,0 +1,742 @@
+{
+ "ambient_npcs": [],
+ "ambient_npcs_gate": null,
+ "asset_prefix": "Ch9",
+ "atmosphere": {
+  "brightness": 0.02,
+  "fog": "soft",
+  "hue": [
+   0.34,
+   0.48,
+   0.28,
+   1.0
+  ],
+  "light": [
+   0.62,
+   0.76,
+   0.42,
+   1.0
+  ],
+  "mood": 0.3,
+  "saturation": 0.72,
+  "splash": "res://assets/cg/generated/chapter_splash_rim_forest.png"
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 9,
+ "chests": [
+  {
+   "flag": "chest_clearing_branches",
+   "origin": [
+    128.0,
+    96.0
+   ],
+   "rewards": {
+    "grains": 22,
+    "items": {
+     "antidote": 1,
+     "potion": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_clearing_rings",
+   "origin": [
+    384.0,
+    288.0
+   ],
+   "text": "The cut face is pale and still damp. Fine strokes lie between the rings, deeper than a finger could rub away."
+  }
+ ],
+ "decorations": [],
+ "dialogue_file": "data/chapter1_dialogue.json",
+ "elia_repeat": "Tell me if it happens again.",
+ "encounter_range": [
+  30,
+  60
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "drain",
+    "poison"
+   ],
+   "atk": 18,
+   "hp": 80,
+   "is_void": true,
+   "name": "Memory Leech"
+  },
+  {
+   "abilities": [
+    "stun",
+    "charge"
+   ],
+   "atk": 22,
+   "hp": 95,
+   "is_void": false,
+   "name": "Hollow Walker"
+  },
+  {
+   "abilities": [
+    "reflect",
+    "weaken"
+   ],
+   "atk": 16,
+   "hp": 70,
+   "is_void": true,
+   "name": "Root Shade"
+  }
+ ],
+ "encounters_gate": "ch9_complete",
+ "exit": {
+  "center": [
+   400.0,
+   48.0
+  ],
+  "completes": "ch9_complete",
+  "flags": [
+   "canon_ch10_seam_return_ready"
+  ],
+  "group": "ms_clearing_channel",
+  "next_chapter": 10,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "In the morning, back to the Seam. At least ask her to her face.",
+   "ko": "아침이 되면 더 심으로. 적어도 그 사람 앞에서 물어야지."
+  },
+  "requires": "ch9_rock",
+  "size": [
+   96.0,
+   32.0
+  ]
+ },
+ "height": 18,
+ "map": "haren_clearing",
+ "objects_gate": "ch9_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch9_hand",
+   "flags": [],
+   "group": "ms_clearing_hand",
+   "memories_chapter": null,
+   "toasts": []
+  },
+  {
+   "flag": "ch9_trees",
+   "flags": [],
+   "group": "ms_clearing_trees",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  2,
+  4
+ ],
+ "source": "scenes/maps/rim_forest.gd (ground) + 최종본 6-7화 (story)",
+ "spawn": [
+  400.0,
+  496.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.18,
+    0.28,
+    0.15,
+    1.0
+   ],
+   "detail": "grass"
+  },
+  {
+   "color": [
+    0.35,
+    0.28,
+    0.2,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.08,
+    0.12,
+    0.08,
+    1.0
+   ],
+   "detail": "tree"
+  },
+  {
+   "color": [
+    0.22,
+    0.32,
+    0.18,
+    1.0
+   ],
+   "detail": "bush"
+  },
+  {
+   "color": [
+    0.12,
+    0.15,
+    0.25,
+    1.0
+   ],
+   "detail": "water"
+  }
+ ],
+ "tile_names": [
+  "GRASS",
+  "PATH",
+  "TREE",
+  "BUSH",
+  "WATER"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   2,
+   2,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   3,
+   0,
+   0,
+   0,
+   3,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   3,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   3,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   2,
+   2,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ ],
+ "title": {
+  "name": "Haren's Clearing",
+  "number": 9,
+  "subtitle": "This isn't memory. It's arithmetic."
+ },
+ "triggers": [
+  {
+   "flag": "ch9_haren",
+   "gate": "ch9_trees",
+   "group": "ms_clearing_haren",
+   "rect": {
+    "origin": [
+     320.0,
+     320.0
+    ],
+    "size": [
+     160.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch9_rings",
+   "gate": "ch9_haren",
+   "group": "ms_clearing_rings",
+   "rect": {
+    "origin": [
+     320.0,
+     256.0
+    ],
+    "size": [
+     160.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch9_rock",
+   "gate": "ch9_rings",
+   "group": "ms_clearing_rock",
+   "rect": {
+    "origin": [
+     352.0,
+     96.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}

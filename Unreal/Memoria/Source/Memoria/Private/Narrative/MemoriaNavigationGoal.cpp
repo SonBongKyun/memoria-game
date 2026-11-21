@@ -49,6 +49,13 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::ClearingMap && !Run.GetFlag(TEXT("ch9_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch9_rock"))) return Prefix + (bKo ? TEXT("북쪽 출구 → 부서진 암반 너머 마른 수로") : TEXT("North exit → the dry channel past the broken bedrock"));
+        if (Run.GetFlag(TEXT("ch9_rings"))) return Prefix + (bKo ? TEXT("길 건너편 바위의 물로: 북쪽 길") : TEXT("To the water in the rock across the path: north"));
+        if (Run.GetFlag(TEXT("ch9_haren"))) return Prefix + (bKo ? TEXT("쓰러진 나무의 잘린 면을 본다") : TEXT("Look at the felled tree's cut face"));
+        if (Run.GetFlag(TEXT("ch9_trees"))) return Prefix + (bKo ? TEXT("도끼 소리가 나는 공터로") : TEXT("To the clearing where the axe sounds"));
+    }
     if (Map == MemoriaManuscript::ForestMap && !Run.GetFlag(TEXT("ch7_complete")))
     {
         if (Run.GetFlag(TEXT("ch7_escape"))) return Prefix + (bKo ? TEXT("남쪽 출구 → 두 돌 능선 사이") : TEXT("South exit → between the two stone ridges"));

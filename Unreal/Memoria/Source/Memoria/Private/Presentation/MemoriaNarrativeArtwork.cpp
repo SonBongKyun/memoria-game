@@ -93,6 +93,8 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/story_ch8_ghost_mother.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch8_ghost_mother"), false},
         // S373 Chapter 8, the coast and Blank 7 (the still city reuses sealed_city_ruins above).
         {TEXT("res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch09_equalized_waste_v1"), false},
+        // S374 Chapter 9, Haren's clearing: the cut rings (the road and the humming are above).
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch08_ring_acceleration_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch08_ring_acceleration_v1"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch05_city_in_bedrock_v1"), false},
     };
     return Values;

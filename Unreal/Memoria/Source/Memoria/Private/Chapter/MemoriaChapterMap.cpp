@@ -155,6 +155,13 @@ FString Korean(const FString& En)
         {TEXT("crumbling_coast"), TEXT("붕괴의 해안")}, {TEXT("The Crumbling Coast"), TEXT("붕괴의 해안")},
         {TEXT("What fear used to do"), TEXT("공포가 하던 일")}, {TEXT("The Crossroads"), TEXT("갈림길")},
         {TEXT("Lost: fear"), TEXT("잃음: 공포")}, {TEXT("Returned: a line of the lullaby"), TEXT("돌아옴: 자장가 한 줄")},
+        // S374: Haren's clearing (최종본 13-14화).
+        {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
+        {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        {TEXT("A new line in the blank book"), TEXT("백 노트에 새 줄")}, {TEXT("Returned: six notes"), TEXT("돌아옴: 여섯 음")},
+        {TEXT("In the morning, back to the Seam. At least ask her to her face."), TEXT("아침이 되면 더 심으로. 적어도 그 사람 앞에서 물어야지.")},
+        {TEXT("The cut face is pale and still damp. Fine strokes lie between the rings, deeper than a finger could rub away."),
+         TEXT("잘린 면은 희고 아직 젖어 있다. 나이테 사이에 가는 획들이 놓여 있다. 손가락으로 문질러도 지워지지 않을 깊이다.")},
         {TEXT("Before the river the road forks twice more. To the north the rain has stopped."), TEXT("강 전까지 길은 두 번 더 갈라진다. 북쪽에서는 비가 그쳤다.")},
         {TEXT("Where the grass ends, every blade is cut along one line. Nine years, and the line has not moved."),
          TEXT("풀이 끝나는 자리에서 줄기들이 한 줄로 반듯하게 끊겨 있다. 아홉 해가 지났는데도 그 선은 그대로다.")}, {TEXT("Obtained: Echo shell"), TEXT("획득: 에코 셸")},

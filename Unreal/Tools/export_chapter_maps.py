@@ -21,7 +21,9 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9')}
+# S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
+GROUND = {'haren_clearing': 'rim_forest'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -120,7 +122,7 @@ MANUSCRIPT = {
         ],
         'battles_gate': None, 'battles': [],
         'exit': {'center': [5 * T + 16, 1.5 * T], 'size': [3 * T, T], 'requires': 'ch8_tree', 'completes': 'ch8_complete',
-                 'group': 'ms_coast_chair', 'next_chapter': 9, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_coast_chair', 'next_chapter': 9, 'next_map': 'haren_clearing', 'next_scene': None,
                  'flags': ['canon_ch9_clearing_ready'],
                  'notice': {'en': 'Before the river the road forks twice more. To the north the rain has stopped.',
                             'ko': '강 전까지 길은 두 번 더 갈라진다. 북쪽에서는 비가 그쳤다.'}},
@@ -137,12 +139,53 @@ MANUSCRIPT = {
         'atmosphere': {'saturation': 0.42, 'mood': 0.46, 'splash': 'res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png'},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
+    # S374: 최종본 13화 「산수」 and 14화 「자장가가 돌아오다」 on the Godot rim_forest ground: its ring of path round a
+    # green hollow stands as Haren's clearing. They come up from the south (the right-hand road from the chair) and
+    # leave north, past the rock with water in it, through broken bedrock to the dry channel.
+    'haren_clearing': {
+        'title': {'number': 9, 'name': "Haren's Clearing", 'subtitle': "This isn't memory. It's arithmetic."},
+        'spawn': [12 * T + 16, 15 * T + 16],
+        'elia_repeat': "Tell me if it happens again.",
+        'sequence': [
+            {'flag': 'ch9_hand', 'group': 'ms_clearing_hand', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch9_trees', 'group': 'ms_clearing_trees', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # Haren by the felled tree, in the hollow inside the ring.
+            {'rect': {'origin': [10 * T, 10 * T], 'size': [5 * T, T]}, 'group': 'ms_clearing_haren', 'flag': 'ch9_haren', 'gate': 'ch9_trees'},
+            # The cut face of the felled tree, at the hollow's north side.
+            {'rect': {'origin': [10 * T, 8 * T], 'size': [5 * T, T]}, 'group': 'ms_clearing_rings', 'flag': 'ch9_rings', 'gate': 'ch9_haren'},
+            # The low rock across the path with water in its top; past it the next fork, and something pale.
+            {'rect': {'origin': [11 * T, 3 * T], 'size': [3 * T, T]}, 'group': 'ms_clearing_rock', 'flag': 'ch9_rock', 'gate': 'ch9_rings'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # North through the broken bedrock to the dry channel and its limestone slab (14화).
+        'exit': {'center': [12 * T + 16, 1.5 * T], 'size': [3 * T, T], 'requires': 'ch9_rock', 'completes': 'ch9_complete',
+                 'group': 'ms_clearing_channel', 'next_chapter': 10, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch10_seam_return_ready'],
+                 'notice': {'en': 'In the morning, back to the Seam. At least ask her to her face.',
+                            'ko': '아침이 되면 더 심으로. 적어도 그 사람 앞에서 물어야지.'}},
+        'objects_gate': 'ch9_complete',
+        'chests': [{'origin': [4 * T, 3 * T], 'flag': 'chest_clearing_branches', 'rewards': {'grains': 22, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [12 * T, 9 * T], 'flag': 'clue_clearing_rings',
+                   'text': 'The cut face is pale and still damp. Fine strokes lie between the rings, deeper than a finger could rub away.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch9_complete',
+        # Chapter 1's pool is too small for Chapter 9: the listening forest's creatures stand in.
+        'encounters_from': 'forgotten_forest',
+        'lights': [],
+        # 13화: sunlight comes into the forest. Greener than the coast, still short of the Seam.
+        'atmosphere': {'saturation': 0.72, 'mood': 0.3, 'splash': 'res://assets/cg/generated/chapter_splash_rim_forest.png'},
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
 }
 
 
 def manuscript_map(map_id, chapter, prefix, src, ground):
     """A chapter map whose ground is the Godot script's and whose story is the manuscript's."""
     story = MANUSCRIPT[map_id]
+    if story.get('encounters_from'):
+        src = (ROOT / 'scenes/maps' / (story['encounters_from'] + '.gd')).read_text(encoding='utf-8').replace('\r\n', '\n')
     pool = [json.loads(entry) for entry in re.findall(r'\{"name": [^}]*\}', func_body(src, '_setup_random_encounters'))]
     rng = re.search(r',\s*(\d+),\s*(\d+)\s*\)\s*$', func_body(src, '_setup_random_encounters').strip())
     lights = []
@@ -163,7 +206,7 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',
             'battles', 'resume_blocked', 'encounters_gate', 'ambient_npcs', 'ambient_npcs_gate')
     return dict(ground, schema_version=1, map=map_id, chapter=chapter, asset_prefix=prefix,
-                source='scenes/maps/%s.gd (ground) + 최종본 6-7화 (story)' % map_id,
+                source='scenes/maps/%s.gd (ground) + 최종본 6-7화 (story)' % GROUND.get(map_id, map_id),
                 encounters=[{k: e[k] for k in ('name', 'hp', 'atk', 'is_void', 'abilities') if k in e} for e in pool],
                 encounter_range=[int(rng.group(1)), int(rng.group(2))] if rng else None,
                 decorations=lights, **{k: story[k] for k in keys})
@@ -330,7 +373,7 @@ def gate_of(body, position):
 
 def extract(map_id):
     chapter, prefix = MAPS[map_id]
-    path = ROOT / 'scenes/maps' / (map_id + '.gd')
+    path = ROOT / 'scenes/maps' / (GROUND.get(map_id, map_id) + '.gd')
     src = path.read_text(encoding='utf-8').replace('\r\n', '\n')
     tile = int(re.search(r'const TILE_SIZE: int = (\d+)', src).group(1))
     width = int(re.search(r'const MAP_WIDTH: int = (\d+)', src).group(1))
@@ -340,7 +383,12 @@ def extract(map_id):
     if len(tiles) != height or any(len(r) != width for r in tiles):
         raise ValueError('map_data does not match MAP_WIDTH x MAP_HEIGHT')
     defs = re.search(r'_tile_defs = \[(.*?)\n\t\]', src, re.S).group(1)
-    tile_defs = [{'color': color(c), 'detail': d} for c, d in re.findall(r'"color": (Color\([^)]*\)), "detail": "([^"]+)"', defs)]
+    # A detail may be a variable (rim_forest: grass_detail := "grass_clean" if ... else "grass"): take its plain value.
+    def detail(d):
+        if d.startswith('"'): return d.strip('"')
+        v = re.search(r'var ' + d + r' := "([^"]+)"(?: if .* else "([^"]+)")?', src)
+        return v.group(2) or v.group(1)
+    tile_defs = [{'color': color(c), 'detail': detail(d)} for c, d in re.findall(r'"color": (Color\([^)]*\)), "detail": ("[^"]+"|\w+)', defs)]
     enum = re.search(r'enum Tile \{([^}]*)\}', src).group(1)
     tile_names = [t.strip() for t in enum.split(',') if t.strip()]
     collide_names = re.search(r'add_collisions\([^\[]*\[([^\]]*)\]', src).group(1)

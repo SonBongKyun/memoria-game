@@ -119,7 +119,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch8_hole"), TEXT("The Crumbling Coast: the hole in the gravel"), TEXT("붕괴의 해안, 자갈밭의 구멍")},
         {TEXT("ch8_city"), TEXT("Into Blank 7, together"), TEXT("같이, 공백 7호 안으로")},
         {TEXT("ch8_complete"), TEXT("The empty chair where the road forks"), TEXT("갈림길의 빈 의자")},
-        {TEXT("ms_never"), TEXT("Where the hole in the bark points: north-north-east, through the unrecorded stretch"), TEXT("나무껍질의 구멍이 가리키는 곳: 북북동, 기록되지 않은 구간 너머")}};
+        // S374: 13-14화.
+        {TEXT("ch9_haren"), TEXT("Haren's clearing: the felled tree"), TEXT("하렌의 공터, 쓰러진 나무")},
+        {TEXT("ch9_rings"), TEXT("The writing inside the rings"), TEXT("나이테 안의 글씨")},
+        {TEXT("ch9_complete"), TEXT("A night in the dry channel, under the limestone slab"), TEXT("마른 수로, 석회암 판 아래에서 밤")},
+        {TEXT("ms_never"), TEXT("Back to the Seam in the morning: ask Sable, to her face"), TEXT("아침에 더 심으로: 세이블에게, 그 앞에서 묻는다")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

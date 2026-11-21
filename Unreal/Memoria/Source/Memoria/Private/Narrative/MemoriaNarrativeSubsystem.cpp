@@ -549,6 +549,15 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
             { Notice(TEXT("Obtained: Echo shell")); Record(TEXT("memory:acquired:") + Memory.Id); }
         bNoticeHeld = true;
     }
+    // S374 (13화): a new line in the blank book, said aloud: "이건 기억이 아니야. 이건 산수야."
+    if (Group == TEXT("ms_clearing_rings") && !Run->GetRunSnapshot().GetFlag(TEXT("ch9_tower_copy")))
+    { Run->SetStoryFlag(TEXT("ch9_tower_copy"), true); Notice(TEXT("A new line in the blank book")); bNoticeHeld = true; }
+    // S374 (14화): six notes come back to the grip, and they join Elia's seven.
+    if (Group == TEXT("ms_clearing_channel") && !Run->GetRunSnapshot().GetFlag(TEXT("ch9_six_notes")))
+    {
+        Run->SetStoryFlag(TEXT("ch9_six_notes"), true); Run->SetStoryFlag(TEXT("ch9_lullaby_joined"), true);
+        Notice(TEXT("Returned: six notes")); bNoticeHeld = true;
+    }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
     { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
     ManuscriptAsset = Asset;

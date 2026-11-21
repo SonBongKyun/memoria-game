@@ -291,6 +291,10 @@ void UMemoriaDevelopmentNarrativeWidget::StartCues()
             ActiveSlot=Side;
         }
     }
+    // S374: a speaker with no face (Haren, the man in the brown coat) does not borrow the last one shown:
+    // the side he speaks from is emptied, and the stage dims.
+    else if(!View.Speaker.IsEmpty() && View.PortraitSource.IsEmpty() && !View.bSystemLog)
+    {SlotTexture[View.PortraitSide==TEXT("right")?1:0]=nullptr;ActiveSlot=INDEX_NONE;}
     else if(View.Speaker.IsEmpty())ActiveSlot=INDEX_NONE;
 }
 void UMemoriaDevelopmentNarrativeWidget::NativeTick(const FGeometry& MyGeometry,float InDeltaTime)

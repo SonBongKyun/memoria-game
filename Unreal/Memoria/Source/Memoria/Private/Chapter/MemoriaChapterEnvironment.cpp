@@ -123,6 +123,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.2f, -36.f, -20.f, 1.2f, .62f, .012f, 4.4f, .5f,
         24, false, true};
     if (InMap == TEXT("crumbling_coast")) return Coast;
+    // S374 Haren's clearing: daylight into a living forest (13화: "햇빛이 숲 안쪽까지 들어왔다"), green but paler
+    // than the Seam after the coast; a small fire's amber under the slab past the north exit (14화).
+    static const FDressing Clearing{TEXT("T_ClearingSoil"), TEXT("T_ClearingPaved"),
+        FLinearColor(.95f, 1.f, .9f), FLinearColor(.05f, .06f, .045f), FLinearColor(.05f, .058f, .048f), FLinearColor(.055f, .058f, .05f),
+        FLinearColor(.06f, .045f, .03f), FLinearColor(.07f, .07f, .05f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .6f, .28f), FLinearColor(.46f, .54f, .44f), FLinearColor(.05f, .062f, .045f), FLinearColor(.95f, .92f, .72f),
+        220.f, 220.f, .1f, 0.f,
+        3.9f, -44.f, 30.f, 1.12f, .56f, .012f, 4.f, .52f,
+        40, false, true};
+    if (InMap == TEXT("haren_clearing")) return Clearing;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -728,6 +738,52 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         for (float Side : {-1.f, 1.f}) { Beam(Timber, Chair + FVector(Side * 16, -14, 0), Chair + FVector(-Side * 16, 14, 44), 3.f); }
         Box(Timber, Chair + FVector(0, 0, 44), FVector(36, 30, 3), FRotator::ZeroRotator);
     }
+    else if (Map == TEXT("haren_clearing"))
+    {
+        // S374: trees on the TREE tiles, every one inside and every other one on the rim; low shrubs on BUSH.
+        // In the hollow, the tree Haren planted lies felled beside its stump, the cut face pale (13화); across the north
+        // path the low rock with clear water in its top; past the north exit the limestone slab over the dry channel,
+        // a small fire beneath it (14화).
+        auto* Wood = Kit(TEXT("Drift"), FLinearColor(.78f, .86f, .62f));
+        auto* Leaf = Kit(TEXT("Grass"), FLinearColor(.55f, 1.15f, .5f));
+        const int32 TreeType = Spec->TileNames.IndexOfByKey(TEXT("TREE")), Bush = Spec->TileNames.IndexOfByKey(TEXT("BUSH"));
+        auto Rim = [&](int32 X, int32 Y) { return X == 0 || Y == 0 || X == Spec->Width - 1 || Y == Spec->Height - 1; };
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const int32 Type = Spec->TileAt(X, Y), Seed = X * 29 + Y * 13;
+                // The camera looks north from the south: no rim trees along the south edge, and lower ones near it.
+                if (Type == TreeType && Y < Spec->Height - 1 && (!Rim(X, Y) || (X + Y) % 2 == 0))
+                {
+                    const float Size = (Y >= Spec->Height - 3 ? .78f : Rim(X, Y) ? 1.3f : 1.1f) + .3f * float(Scatter(Seed, 61));
+                    const FVector At = TileCentre(X + .3f * (float(Scatter(Seed, 62)) - .5f), Y + .3f * (float(Scatter(Seed, 63)) - .5f));
+                    Prop(TEXT("DeadTree"), Wood, FVector(At.X, At.Y, Feet - 6.f), 360.f * float(Scatter(Seed, 64)), FVector(Size, Size, Size * 1.2f));
+                }
+                else if (Type == Bush && Leaf)
+                    for (int32 I = 0; I < 4; ++I)
+                        Prop(TEXT("DryGrass"), Leaf, TileCentre(X + .5f * (float(Scatter(Seed + I, 65)) - .5f), Y + .5f * (float(Scatter(Seed + I, 66)) - .5f)) + Ground,
+                             360.f * float(Scatter(Seed + I, 67)), FVector(2.2f, 2.2f, 1.8f), false);
+            }
+        auto* CutFace = Focus(TEXT("CutFace"), FLinearColor(.34f, .3f, .22f), 1);
+        const FVector Stump = TileCentre(12.f, 9.f) + Ground;
+        Box(Timber, Stump + FVector(0, 0, 16), FVector(50, 50, 32));
+        Box(CutFace, Stump + FVector(0, 0, 33), FVector(44, 44, 2), FRotator::ZeroRotator, false);
+        Beam(Timber, Stump + FVector(40, 10, 22), TileCentre(14.8f, 9.6f) + Ground + FVector(0, 0, 18), 34.f);
+        for (int32 I = 0; I < 4; ++I)
+        {
+            const FVector B = TileCentre(13.2f + .5f * I, 10.2f) + Ground;
+            Beam(Timber, B + FVector(0, 0, 4), B + FVector(30 + 8 * I, -22, 8), 5.f);
+        }
+        auto* Water = Focus(TEXT("RockWater"), FLinearColor(.16f, .22f, .24f), 2, .1f);
+        const FVector Rock = TileCentre(14.7f, 3.2f) + Ground;
+        Box(Stone, Rock + FVector(0, 0, 22), FVector(96, 72, 44), FRotator(0, 12, 0));
+        Box(Water, Rock + FVector(0, 0, 45), FVector(52, 36, 2), FRotator(0, 12, 0), false);
+        const FVector Slab = TileCentre(12.f, -1.7f) + Ground;
+        Box(Stone, Slab + FVector(0, 0, 70), FVector(280, 130, 24), FRotator(0, -6, 3));
+        auto* Embers = Focus(TEXT("Embers"), FLinearColor(1.f, .42f, .14f), 2, .4f);
+        Box(Embers, Slab + FVector(0, -40, 4), FVector(26, 26, 6), FRotator(0, 20, 0), false);
+        Lamp(Slab + FVector(0, -40, 34), 360.f, Look.LampIntensity * .7f, false);
+    }
     else if (Map == TEXT("forgotten_forest"))
     {
         // S372: the forest's trees stand on its TRUNK tiles and close the CANOPY border; pale mushroom rings
@@ -779,7 +835,7 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
 void AMemoriaChapterPresentation::BuildGrass(const FDressing& Look)
 {
     // Dry tufts on the open soil, as the canvases paint them: thick in the Belt's dead yard, thin in Drift's mud.
-    auto* Grass = Kit(TEXT("Grass"), Map == TEXT("forgotten_forest") ? FLinearColor(.5f, 1.05f, .55f) : Map == TEXT("the_seam") ? FLinearColor(.75f, 1.45f, .62f) : Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
+    auto* Grass = Kit(TEXT("Grass"), Map == TEXT("forgotten_forest") ? FLinearColor(.5f, 1.05f, .55f) : Map == TEXT("haren_clearing") ? FLinearColor(.66f, 1.25f, .55f) : Map == TEXT("the_seam") ? FLinearColor(.75f, 1.45f, .62f) : Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
     if (!Grass) return;
     // The cards stand edge-on to the low light and would go black; they give back some of their own colour.
     Grass->SetScalarParameterValue(TEXT("Fill"), Look.bRain ? .22f : .3f);
@@ -792,6 +848,7 @@ void AMemoriaChapterPresentation::BuildGrass(const FDressing& Look)
             // S371: in the Seam it is the gardens that grow, thick, and a little between the stones.
             const float Here = Map == TEXT("forgotten_forest") ? (Detail == TEXT("dead_soil") ? .62f : 0.f)
                 : Map == TEXT("the_seam") ? (Detail == TEXT("garden") ? .9f : Detail == TEXT("stone") ? .22f : 0.f)
+                : Map == TEXT("haren_clearing") ? (Detail == TEXT("grass") ? .55f : 0.f)
                 : (Detail == TEXT("dead_soil") || Detail == TEXT("mud")) ? Share : 0.f;
             if (Here <= 0.f || Hash(X, Y, 41) > Here) continue;
             const int32 Tufts = 1 + int32(Hash(X, Y, 43) * 3.f);

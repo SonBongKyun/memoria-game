@@ -39,7 +39,9 @@ FString Ko(const FString& En) { return MemoriaChapterMaps::Korean(En); }
 // The story scenes a chapter's road leads into before they are ported (drift_shelter.gd -> Chapter 5).
 FString SceneTitle(const FString& Scene) { return Scene.Contains(TEXT("ch5_classifier")) ? TEXT("The Classifier") : FString(); }
 FString PlaceName(const FString& Map)
-{ FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
+{
+    if (Map == MemoriaManuscript::ClearingMap) return TEXT("Haren's Clearing");
+    FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
 AMemoriaChapterPresentation::AMemoriaChapterPresentation()
 {
@@ -482,6 +484,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (Where.IsEmpty() && Map == MemoriaManuscript::ForestMap) Where = bKo ? Ko(TEXT("Between the Two Stone Ridges")) : TEXT("Between the Two Stone Ridges");
         // S373: the coast's road ends at the empty chair where it forks (12화).
         if (Where.IsEmpty() && Map == MemoriaManuscript::CoastMap) Where = bKo ? Ko(TEXT("The Crossroads")) : TEXT("The Crossroads");
+        // S374: the clearing's road ends in the dry channel under the limestone slab (14화).
+        if (Where.IsEmpty() && Map == MemoriaManuscript::ClearingMap) Where = bKo ? Ko(TEXT("The Dry Channel")) : TEXT("The Dry Channel");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));

@@ -36,6 +36,9 @@ PATCHES = {
     # S373: the coast's grey stones and its cobbled gravel.
     "coast_soil": ("map_crumbling_coast_canvas_v1.png", (850, 520, 1010, 680)),
     "coast_paved": ("map_crumbling_coast_canvas_v1.png", (480, 520, 640, 680)),
+    # S374: the rim forest's green hollow (Haren's clearing) and its ring of trodden earth.
+    "clearing_soil": ("map_rim_forest_canvas_v1.png", (720, 400, 880, 560)),
+    "clearing_paved": ("map_rim_forest_canvas_v1.png", (760, 90, 900, 230)),
 }
 # The Belt canvas's central dial: a flat round inlay, kept whole with a soft round edge.
 DIAL = ("map_belt_waystation_canvas_v1.png", (490, 555, 760, 825), 0.80, 0.94)
