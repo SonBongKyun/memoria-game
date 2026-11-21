@@ -106,7 +106,7 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("system_log"), TEXT("시스템")}, {TEXT("System"), TEXT("시스템")}, {TEXT("Narration"), TEXT("나레이션")},
         {TEXT("Arrel"), TEXT("아렐")}, {TEXT("Elia"), TEXT("엘리아")}, {TEXT("Malet"), TEXT("말렛")}, {TEXT("Mallet"), TEXT("말렛")},
         {TEXT("Kairos"), TEXT("카이로스")}, {TEXT("Sable"), TEXT("세이블")}, {TEXT("Nera"), TEXT("네라")}, {TEXT("Seric"), TEXT("세릭")},
-        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Brown Coat"), TEXT("갈색 코트의 사내")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
+        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Brown Coat"), TEXT("갈색 코트의 사내")}, {TEXT("Boy"), TEXT("소년")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
         {TEXT("Nervous Trader"), TEXT("불안한 상인")}, {TEXT("Gardener"), TEXT("정원사")}, {TEXT("Handler"), TEXT("관리관")},
         {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
         {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")}};
@@ -558,6 +558,14 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
         Run->SetStoryFlag(TEXT("ch9_six_notes"), true); Run->SetStoryFlag(TEXT("ch9_lullaby_joined"), true);
         Notice(TEXT("Returned: six notes")); bNoticeHeld = true;
     }
+    // S375 (15화): Sable hears both halves: one cradle song, put into two children.
+    if (Group == TEXT("ms_return_step") && !Run->GetRunSnapshot().GetFlag(TEXT("ch10_cradle_halves")))
+    { Run->SetStoryFlag(TEXT("ch10_cradle_halves"), true); Notice(TEXT("Two halves of one cradle song")); bNoticeHeld = true; }
+    // S375 (15화): with the fear gone, what rose in its place has a name: "네가 방금 얻은 분노".
+    if (Group == TEXT("ms_return_square") && !Run->GetRunSnapshot().GetFlag(TEXT("ch10_anger")))
+    { Run->SetStoryFlag(TEXT("ch10_anger"), true); Notice(TEXT("Gained: anger")); bNoticeHeld = true; }
+    // S375 (16화): the old man at the crossroads, and "여긴 아니야."
+    if (Group == TEXT("ms_return_crossroads")) Run->SetStoryFlag(TEXT("ch10_not_here"), true);
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
     { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
     ManuscriptAsset = Asset;

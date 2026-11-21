@@ -21,9 +21,10 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
-GROUND = {'haren_clearing': 'rim_forest'}
+# S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
+GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -161,7 +162,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # North through the broken bedrock to the dry channel and its limestone slab (14화).
         'exit': {'center': [12 * T + 16, 1.5 * T], 'size': [3 * T, T], 'requires': 'ch9_rock', 'completes': 'ch9_complete',
-                 'group': 'ms_clearing_channel', 'next_chapter': 10, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_clearing_channel', 'next_chapter': 10, 'next_map': 'seam_return', 'next_scene': None,
                  'flags': ['canon_ch10_seam_return_ready'],
                  'notice': {'en': 'In the morning, back to the Seam. At least ask her to her face.',
                             'ko': '아침이 되면 더 심으로. 적어도 그 사람 앞에서 물어야지.'}},
@@ -176,6 +177,42 @@ MANUSCRIPT = {
         'lights': [],
         # 13화: sunlight comes into the forest. Greener than the coast, still short of the Seam.
         'atmosphere': {'saturation': 0.72, 'mood': 0.3, 'splash': 'res://assets/cg/generated/chapter_splash_rim_forest.png'},
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
+    # S375: 최종본 15화 「손이 기억하는 것」 and 16화 「출발」, back on the Seam's own ground. Haren brings them down
+    # the north-east path; the village is packing; Sable on the stone step; the horn from the east; out by the west.
+    'seam_return': {
+        'title': {'number': 10, 'name': 'The Seam, Leaving', 'subtitle': 'What the hand remembers'},
+        'spawn': [20 * T, 1.5 * T],
+        'elia_repeat': "Still.",
+        'sequence': [
+            {'flag': 'ch10_road', 'group': 'ms_return_road', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch10_bridge', 'group': 'ms_return_bridge', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # Sable on the low stone step before the house where Elia drank (the inner room of 6화).
+            {'rect': {'origin': [12 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_return_step', 'flag': 'ch10_step', 'gate': 'ch10_bridge'},
+            # The east road: the horn, the boy, and the road Arrel does not take.
+            {'rect': {'origin': [19 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_return_horn', 'flag': 'ch10_horn', 'gate': 'ch10_step'},
+            # The square's west end: three groups, three roads.
+            {'rect': {'origin': [4 * T, 12 * T], 'size': [3 * T, T]}, 'group': 'ms_return_square', 'flag': 'ch10_square', 'gate': 'ch10_horn'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # West with Sable and Elia, toward the Belt road; the crossroads below the ridge (16화).
+        'exit': {'center': [T + 16, 9 * T], 'size': [T, 2 * T], 'requires': 'ch10_square', 'completes': 'ch10_complete',
+                 'group': 'ms_return_crossroads', 'next_chapter': 11, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch11_belt_road_ready'],
+                 'notice': {'en': 'Three more places like that before the Belt road.',
+                            'ko': '벨트 도로까지 저런 곳이 셋 더 있다.'}},
+        'objects_gate': 'ch10_complete',
+        'chests': [{'origin': [2 * T, 14 * T], 'flag': 'chest_seam_left_behind', 'rewards': {'grains': 24, 'items': {'potion': 2, 'smoke_bomb': 1}}}],
+        'clues': [{'origin': [11 * T, 11 * T], 'flag': 'clue_seam_bowl',
+                   'text': 'A bowl left at a door. It did not fit in the basket.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch10_complete',
+        'lights': [{'tile': 6, 'color': [0.85, 0.95, 0.9, 1.0], 'energy': 0.35, 'scale': 2.2}],
+        # Morning, the drying cloths gone from the walls; a little paler than the first visit.
+        'atmosphere': {'saturation': 0.82, 'splash': 'res://assets/cg/generated/chapter_splash_the_seam.png'},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
 }
@@ -196,7 +233,7 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
                     lights.append({'kind': 'lantern', 'light': True, 'color': spec['color'], 'energy': spec['energy'], 'scale': spec['scale'],
                                    'origin': [(x + .5) * ground['tile_size'], (y + .5) * ground['tile_size']]})
     # The village's cliffs stand as walls (the ported maps' WALL), its huts stay HUT and are built by name.
-    if map_id == 'the_seam':
+    if GROUND.get(map_id, map_id) == 'the_seam':
         ground = dict(ground, tile_names=['WALL' if n == 'CLIFF' else n for n in ground['tile_names']])
     if map_id == 'crumbling_coast':
         # The coast's cliffs stand as broken ruin stone (the ported maps' RUBBLE).

@@ -46,6 +46,7 @@ bool FClearingS374Test::RunTest(const FString&)
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     const auto* Coast = MemoriaChapterMaps::Find(CoastMap);
     TestTrue(TEXT("The coast's road leads to the clearing"), Coast && Coast->Exit.NextMap == ClearingMap && Coast->Exit.NextChapter == 9);
+    TestTrue(TEXT("and the clearing's back to the Seam"), Clearing->Exit.NextMap == ReturnMap && Clearing->Exit.NextChapter == 10);
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -89,10 +90,10 @@ bool FClearingS374Test::RunTest(const FString&)
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ClearingMap, false), FString(S[1])); }
     // The main quest: after the coast, the clearing; after the channel, back to the Seam.
     Run->SetStoryFlag(TEXT("ch9_haren"), false); Run->SetStoryFlag(TEXT("ch9_rings"), false);
-    for (const auto& Step : MainSteps()) if (!FString(Step.Flag).StartsWith(TEXT("ch9_")) && FString(Step.Flag) != TEXT("ms_never")) Run->SetStoryFlag(Step.Flag, true);
+    for (const auto& Step : MainSteps()) if (!FString(Step.Flag).StartsWith(TEXT("ch9_")) && !FString(Step.Flag).StartsWith(TEXT("ch10_")) && FString(Step.Flag) != TEXT("ms_never")) Run->SetStoryFlag(Step.Flag, true);
     TestTrue(TEXT("The main quest is at the clearing"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 하렌의 공터, 쓰러진 나무")));
     for (const TCHAR* F : {TEXT("ch9_haren"), TEXT("ch9_rings"), TEXT("ch9_complete")}) Run->SetStoryFlag(F, true);
-    TestTrue(TEXT("then back to the Seam"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 아침에 더 심으로: 세이블에게, 그 앞에서 묻는다")));
+    TestTrue(TEXT("then back to the Seam"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 더 심에서 세이블에게, 그 앞에서 묻는다")));
     Game->Shutdown();
     return true;
 }

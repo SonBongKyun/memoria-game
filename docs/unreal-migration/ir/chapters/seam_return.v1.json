@@ -1,0 +1,833 @@
+{
+ "ambient_npcs": [],
+ "ambient_npcs_gate": null,
+ "asset_prefix": "Ch10",
+ "atmosphere": {
+  "brightness": -0.03,
+  "fog": "none",
+  "hue": [
+   0.4,
+   0.3,
+   0.45,
+   1.0
+  ],
+  "light": [
+   0.9,
+   0.66,
+   0.44,
+   1.0
+  ],
+  "mood": 0.36,
+  "saturation": 0.82,
+  "splash": "res://assets/cg/generated/chapter_splash_the_seam.png"
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 10,
+ "chests": [
+  {
+   "flag": "chest_seam_left_behind",
+   "origin": [
+    64.0,
+    448.0
+   ],
+   "rewards": {
+    "grains": 24,
+    "items": {
+     "potion": 2,
+     "smoke_bomb": 1
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_seam_bowl",
+   "origin": [
+    352.0,
+    352.0
+   ],
+   "text": "A bowl left at a door. It did not fit in the basket."
+  }
+ ],
+ "decorations": [
+  {
+   "color": [
+    0.85,
+    0.95,
+    0.9,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    144.0,
+    112.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.85,
+    0.95,
+    0.9,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    400.0,
+    144.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.85,
+    0.95,
+    0.9,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    496.0,
+    304.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.85,
+    0.95,
+    0.9,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    144.0,
+    368.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.85,
+    0.95,
+    0.9,
+    1.0
+   ],
+   "energy": 0.35,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    560.0,
+    432.0
+   ],
+   "scale": 2.2
+  }
+ ],
+ "dialogue_file": "data/chapter6_dialogue.json",
+ "elia_repeat": "Still.",
+ "encounter_range": [
+  45,
+  80
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "drain",
+    "weaken"
+   ],
+   "atk": 18,
+   "hp": 90,
+   "is_void": true,
+   "name": "Void Wraith"
+  },
+  {
+   "abilities": [
+    "poison",
+    "shield"
+   ],
+   "atk": 20,
+   "hp": 110,
+   "is_void": true,
+   "name": "Seam Lurker"
+  }
+ ],
+ "encounters_gate": "ch10_complete",
+ "exit": {
+  "center": [
+   48.0,
+   288.0
+  ],
+  "completes": "ch10_complete",
+  "flags": [
+   "canon_ch11_belt_road_ready"
+  ],
+  "group": "ms_return_crossroads",
+  "next_chapter": 11,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "Three more places like that before the Belt road.",
+   "ko": "벨트 도로까지 저런 곳이 셋 더 있다."
+  },
+  "requires": "ch10_square",
+  "size": [
+   32.0,
+   64.0
+  ]
+ },
+ "height": 18,
+ "map": "seam_return",
+ "objects_gate": "ch10_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch10_road",
+   "flags": [],
+   "group": "ms_return_road",
+   "memories_chapter": null,
+   "toasts": []
+  },
+  {
+   "flag": "ch10_bridge",
+   "flags": [],
+   "group": "ms_return_bridge",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  1,
+  2
+ ],
+ "source": "scenes/maps/the_seam.gd (ground) + 최종본 6-7화 (story)",
+ "spawn": [
+  640.0,
+  48.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.3,
+    0.28,
+    0.26,
+    1.0
+   ],
+   "detail": "stone"
+  },
+  {
+   "color": [
+    0.15,
+    0.13,
+    0.12,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.42,
+    0.3,
+    0.22,
+    1.0
+   ],
+   "detail": "hut"
+  },
+  {
+   "color": [
+    0.15,
+    0.4,
+    0.2,
+    1.0
+   ],
+   "detail": "garden"
+  },
+  {
+   "color": [
+    0.45,
+    0.38,
+    0.3,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.12,
+    0.25,
+    0.45,
+    1.0
+   ],
+   "detail": "water"
+  },
+  {
+   "color": [
+    0.7,
+    0.55,
+    0.2,
+    1.0
+   ],
+   "detail": "lantern"
+  }
+ ],
+ "tile_names": [
+  "STONE",
+  "WALL",
+  "HUT",
+  "GARDEN",
+  "PATH",
+  "WATER",
+  "LANTERN"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  [
+   1,
+   1,
+   0,
+   0,
+   4,
+   4,
+   4,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   1,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   3,
+   3,
+   4,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   3,
+   3,
+   0,
+   0,
+   1,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   3,
+   3,
+   6,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   3,
+   3,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   2,
+   2,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   3,
+   0,
+   4,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   6,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   2,
+   2,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   5,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   2,
+   2,
+   0,
+   4,
+   0,
+   0,
+   5,
+   5,
+   5,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   2,
+   2,
+   0,
+   4,
+   0,
+   0,
+   0,
+   5,
+   5,
+   0,
+   0,
+   0,
+   6,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   6,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   3,
+   3,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1
+  ],
+  [
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   6,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   0,
+   4,
+   0,
+   2,
+   2,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   2,
+   2,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ]
+ ],
+ "title": {
+  "name": "The Seam, Leaving",
+  "number": 10,
+  "subtitle": "What the hand remembers"
+ },
+ "triggers": [
+  {
+   "flag": "ch10_step",
+   "gate": "ch10_bridge",
+   "group": "ms_return_step",
+   "rect": {
+    "origin": [
+     384.0,
+     320.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch10_horn",
+   "gate": "ch10_step",
+   "group": "ms_return_horn",
+   "rect": {
+    "origin": [
+     608.0,
+     320.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch10_square",
+   "gate": "ch10_horn",
+   "group": "ms_return_square",
+   "rect": {
+    "origin": [
+     128.0,
+     384.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}

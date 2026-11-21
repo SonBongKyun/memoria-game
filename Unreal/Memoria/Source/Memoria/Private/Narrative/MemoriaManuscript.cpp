@@ -123,7 +123,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch9_haren"), TEXT("Haren's clearing: the felled tree"), TEXT("하렌의 공터, 쓰러진 나무")},
         {TEXT("ch9_rings"), TEXT("The writing inside the rings"), TEXT("나이테 안의 글씨")},
         {TEXT("ch9_complete"), TEXT("A night in the dry channel, under the limestone slab"), TEXT("마른 수로, 석회암 판 아래에서 밤")},
-        {TEXT("ms_never"), TEXT("Back to the Seam in the morning: ask Sable, to her face"), TEXT("아침에 더 심으로: 세이블에게, 그 앞에서 묻는다")}};
+        // S375: 15-16화.
+        {TEXT("ch10_step"), TEXT("Back at the Seam: ask Sable, to her face"), TEXT("더 심에서 세이블에게, 그 앞에서 묻는다")},
+        {TEXT("ch10_horn"), TEXT("The horn from the east"), TEXT("동쪽의 뿔피리")},
+        {TEXT("ch10_complete"), TEXT("West with Sable, past the crossroads below the ridge"), TEXT("세이블과 서쪽으로, 능선 아래 교차로를 지나")},
+        {TEXT("ms_never"), TEXT("On to the Belt road: three more places like that"), TEXT("벨트 도로로: 저런 곳이 셋 더")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

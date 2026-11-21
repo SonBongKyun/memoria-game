@@ -50,6 +50,8 @@ namespace MemoriaManuscript
     inline const TCHAR* const CoastMap = TEXT("crumbling_coast");
     // S374: Chapter 9, Haren's clearing (최종본 13-14화), on the Godot rim_forest ground.
     inline const TCHAR* const ClearingMap = TEXT("haren_clearing");
+    // S375: Chapter 10, the Seam, leaving (최종본 15-16화), on the Seam's own ground again.
+    inline const TCHAR* const ReturnMap = TEXT("seam_return");
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
     // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
     inline constexpr int32 SableHeavyBurns = 4;

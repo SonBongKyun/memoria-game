@@ -41,6 +41,7 @@ FString SceneTitle(const FString& Scene) { return Scene.Contains(TEXT("ch5_class
 FString PlaceName(const FString& Map)
 {
     if (Map == MemoriaManuscript::ClearingMap) return TEXT("Haren's Clearing");
+    if (Map == MemoriaManuscript::ReturnMap) return TEXT("The Seam, Leaving");
     FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
 AMemoriaChapterPresentation::AMemoriaChapterPresentation()
@@ -486,6 +487,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (Where.IsEmpty() && Map == MemoriaManuscript::CoastMap) Where = bKo ? Ko(TEXT("The Crossroads")) : TEXT("The Crossroads");
         // S374: the clearing's road ends in the dry channel under the limestone slab (14화).
         if (Where.IsEmpty() && Map == MemoriaManuscript::ClearingMap) Where = bKo ? Ko(TEXT("The Dry Channel")) : TEXT("The Dry Channel");
+        // S375: the Seam's road west ends at the crossroads below the ridge (16화).
+        if (Where.IsEmpty() && Map == MemoriaManuscript::ReturnMap) Where = bKo ? Ko(TEXT("The Crossroads below the Ridge")) : TEXT("The Crossroads below the Ridge");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));

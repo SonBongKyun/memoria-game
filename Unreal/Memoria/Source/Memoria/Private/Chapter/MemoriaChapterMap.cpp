@@ -158,6 +158,13 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S375: the Seam, leaving (최종본 15-16화).
+        {TEXT("seam_return"), TEXT("떠나는 더 심")}, {TEXT("The Seam, Leaving"), TEXT("떠나는 더 심")},
+        {TEXT("What the hand remembers"), TEXT("손이 기억하는 것")}, {TEXT("The Crossroads below the Ridge"), TEXT("능선 아래 교차로")},
+        {TEXT("Two halves of one cradle song"), TEXT("한 요람가의 두 반쪽")}, {TEXT("Gained: anger"), TEXT("얻음: 분노")},
+        {TEXT("Three more places like that before the Belt road."), TEXT("벨트 도로까지 저런 곳이 셋 더 있다.")},
+        {TEXT("A bowl left at a door. It did not fit in the basket."), TEXT("문 앞에 남은 그릇 하나. 바구니에 들어가지 못했다.")},
+        {TEXT("Still."), TEXT("지금도.")},
         {TEXT("A new line in the blank book"), TEXT("백 노트에 새 줄")}, {TEXT("Returned: six notes"), TEXT("돌아옴: 여섯 음")},
         {TEXT("In the morning, back to the Seam. At least ask her to her face."), TEXT("아침이 되면 더 심으로. 적어도 그 사람 앞에서 물어야지.")},
         {TEXT("The cut face is pale and still damp. Fine strokes lie between the rings, deeper than a finger could rub away."),
