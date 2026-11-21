@@ -106,7 +106,7 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("system_log"), TEXT("시스템")}, {TEXT("System"), TEXT("시스템")}, {TEXT("Narration"), TEXT("나레이션")},
         {TEXT("Arrel"), TEXT("아렐")}, {TEXT("Elia"), TEXT("엘리아")}, {TEXT("Malet"), TEXT("말렛")}, {TEXT("Mallet"), TEXT("말렛")},
         {TEXT("Kairos"), TEXT("카이로스")}, {TEXT("Sable"), TEXT("세이블")}, {TEXT("Nera"), TEXT("네라")}, {TEXT("Seric"), TEXT("세릭")},
-        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
+        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Brown Coat"), TEXT("갈색 코트의 사내")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
         {TEXT("Nervous Trader"), TEXT("불안한 상인")}, {TEXT("Gardener"), TEXT("정원사")}, {TEXT("Handler"), TEXT("관리관")},
         {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
         {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")}};
@@ -536,6 +536,12 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     // S372: the echo shell (and its memory, "껍질 속의 목소리들") is Elia's to give, in the valley (9-10화).
     if (Group == TEXT("ms_seam_night") && !Run->GetRunSnapshot().GetFlag(TEXT("has_spiralwave")))
     { Run->SetStoryFlag(TEXT("has_spiralwave"), true); Notice(TEXT("Obtained: Spiralwave shell")); bNoticeHeld = true; }
+    // S373 (11화): inside Blank 7 the last fear goes, and one line of his mother's lullaby comes back.
+    if (Group == TEXT("ms_coast_city") && !Run->GetRunSnapshot().GetFlag(TEXT("ch8_fear_gone")))
+    {
+        Run->SetStoryFlag(TEXT("ch8_fear_gone"), true); Run->SetStoryFlag(TEXT("ch8_lullaby_line"), true);
+        Notice(TEXT("Lost: fear")); Notice(TEXT("Returned: a line of the lullaby")); bNoticeHeld = true;
+    }
     if (Group == TEXT("ms_forest_valley"))
     {
         for (const auto& Memory : MemoriaChapterMemories::For(7))

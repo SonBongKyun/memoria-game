@@ -18,6 +18,11 @@ const TCHAR* Ridgeline = TEXT("res://assets/cg/generated/story_ch7_crossing_the_
 const TCHAR* ForestEntry = TEXT("res://assets/cg/generated/chapter_expansion/ch08_memory_forest_entry_v1.png");
 const TCHAR* GhostMother = TEXT("res://assets/cg/generated/story_ch8_ghost_mother.png");
 const TCHAR* ForestPath = TEXT("res://assets/cg/generated/chapter_splash_forgotten_forest.png");
+// S373: the coast and Blank 7. "No water could be seen": the two walking into grey, flattened land; the city in the
+// rock beside them; the still city inside.
+const TCHAR* GreyShore = TEXT("res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png");
+const TCHAR* CityInRock = TEXT("res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png");
+const TCHAR* CityStill = TEXT("res://assets/cg/game_image/sealed_city_ruins.png");
 
 const TMap<FString, TArray<FLine>>& Scenes()
 {
@@ -225,6 +230,92 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("It said the counting is wrong. ...That's all."), TEXT("세는 게 틀렸다고 했어. ...그게 다야.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("All right."), TEXT("알겠어.")},
         {nullptr, nullptr, nullptr, TEXT("Toward dawn, with her asleep, he put the shell to his ear. \"Say it again.\" There was no answer. The shell was lukewarm. He didn't take it from his ear."), TEXT("새벽 가까이, 엘리아가 잠든 뒤 그는 조개를 귀에 가져갔다. \"다시 말해.\" 대답은 없었다. 조개는 미지근했다. 아렐은 귀에서 떼지 않았다.")}}},
+    // S373 Chapter 8, the Crumbling Coast and Blank 7: 최종본 11화 「공포가 하던 일」, 12화 「편집자」.
+    {TEXT("ms_coast_morning"), {
+        {nullptr, nullptr, GreyShore, TEXT("His arm went numb and he lowered the shell. No more words came out of it."), TEXT("팔이 저려 와 아렐은 조개를 내렸다. 조개에서는 더 말이 나오지 않았다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Did it speak again?"), TEXT("또 말했어?")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("No."), TEXT("아니.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("East."), TEXT("동쪽.")},
+        {nullptr, nullptr, nullptr, TEXT("The cold from the burn in the forest was still inside his right hand. Open the hand and it stayed."), TEXT("숲에서 연소할 때 생긴 차가움이 손 안쪽에 남아 있었다. 자루에서 손을 떼어 펴도 없어지지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("He looked at her shoulder. The name he hadn't said in the night came to mind: no sound to it, only that he had heard it. And the seventeenth."), TEXT("아렐은 엘리아의 어깨를 보았다. 밤에 말하지 않은 이름이 떠올랐다. 이름의 소리는 없고, 그것을 들었다는 사실만 있었다. 열이레째라는 말도 그대로 남아 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("She walked on, looking ahead. He added nothing."), TEXT("그녀는 앞을 보고 걸었다. 그는 아무것도 덧붙이지 않았다.")}}},
+    {TEXT("ms_coast_shore"), {
+        {nullptr, nullptr, nullptr, TEXT("The last grass ended as if along a rule. After it, gravel. One blade reached over the line, cut clean where the gravel began."), TEXT("마지막 풀들이 줄을 맞춘 듯 끝나 있었다. 그 앞에서부터 자갈이었다. 한 줄기는 자갈이 시작되는 선에서 반듯하게 끊긴 채 뻗어 있었다.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("Nine years, and still."), TEXT("아홉 해가 지났는데.")},
+        {nullptr, nullptr, nullptr, TEXT("On the Crumbling Coast there was no water to be seen. Gravel where the waves should reach. No wind. The air had almost no smell."), TEXT("붕괴의 해안에는 물이 보이지 않았다. 물결이 닿아야 할 자리에도 같은 돌들이 있었다. 바람도 없었다. 들이마신 공기에는 냄새가 거의 없었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Elia's coat was fading. The brown of the torn shoulder and the lining grew hard to tell apart. Even the dried blood on his hand was going grey."), TEXT("엘리아의 코트가 옅어지고 있었다. 찢어진 어깨의 갈색 천과 안감이 점점 구분하기 어려워졌다. 손등의 마른 피마저 회색에 가까워져 있었다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("What do you keep looking at?"), TEXT("뭘 자꾸 봐.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Your eyes. ...It's going out of here too."), TEXT("눈. ...여기도 빠지고 있어.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("I see it."), TEXT("보고 있어.")}}},
+    {TEXT("ms_coast_hole"), {
+        {nullptr, nullptr, CityInRock, TEXT("Thirty paces ahead the gravel broke off in a circle, five paces across. Its edge would not hold still under the eye. Blue-white light came up from inside."), TEXT("삼십 걸음쯤 앞에 구멍이 있었다. 자갈밭 한가운데가 둥글게 끊겨 있었다. 가장자리를 보려고 하면 선이 조금씩 어긋났다. 안쪽에서는 청백색 빛이 올라왔다.")},
+        {nullptr, nullptr, nullptr, TEXT("Inside there was a city. Pale buildings, lit windows, towers. Stars hung over it, though above his head it was afternoon."), TEXT("안에는 도시가 있었다. 창백한 건물 사이로 거리가 뻗어 있었고, 창문에는 빛이 있었다. 도시 위에는 별이 떠 있었다. 고개를 들면 오후의 하늘이었다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("This is it."), TEXT("여기야.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Blank 7?"), TEXT("공백 7호?")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("It's still here."), TEXT("아직 있어.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Where you were, nine years ago?"), TEXT("아홉 해 전에 네가 있던 곳?")},
+        {nullptr, nullptr, nullptr, TEXT("She nodded. Her hand pressed the gravel until the stones marked her palm, and her eyes stayed on one part of the city."), TEXT("엘리아가 다시 고개를 끄덕였다. 손바닥에 돌이 눌린 자국이 생겼는데도 자세를 바꾸지 않았다. 시선은 줄곧 도시의 한쪽에 머물렀다.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("If we go in, we may not come out the same."), TEXT("들어가면 같은 상태로 못 나올 수도 있어.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I know."), TEXT("알아.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Don't just say you know."), TEXT("안다는 말만 하지 마.")},
+        {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("I'm losing things out here too. I didn't come this far to turn back without looking."), TEXT("밖에서도 계속 잃고 있어. 여기까지 와서 안 보고 돌아가지는 않을 거야.")},
+        {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("Together."), TEXT("같이.")}}},
+    {TEXT("ms_coast_city"), {
+        {nullptr, nullptr, CityStill, TEXT("His boots stopped level with the gravel. No ground came up to meet them. The cold in his right hand was gone."), TEXT("부츠는 자갈과 같은 높이에서 멎었다. 아래에 땅이 닿는 감각은 없었다. 손 안쪽에 박혀 있던 차가움이 느껴지지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("A woman stood mid-step with a basket, half a loaf about to fall from her fingertips. He waited for it to fall. It didn't."), TEXT("여자가 서 있었다. 옆구리에 바구니를 낀 채 한 발을 내딛고 있었고, 빵 반쪽이 손끝에서 떨어질 모양이었다. 아렐은 빵이 떨어지기를 기다렸다. 떨어지지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("A man with his arm round a child who had stopped mid-laugh. Two old men at a table, a cup that never reached a mouth. A young woman alone, her face turned up."), TEXT("남자의 팔이 아이의 어깨를 감싸고 있었고, 아이는 웃다가 입을 벌린 채였다. 탁자 앞의 노인이 들어 올린 잔은 입에 닿지 못하고 멈춰 있었다. 젊은 여자가 혼자 얼굴을 위로 든 채 서 있었다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("They're warm."), TEXT("따뜻해.")},
+        {nullptr, nullptr, nullptr, TEXT("He saw the inside of the basket, the fingers under its handle, the man's jaw from where the child stood, the round mouth of the cup, all at once, without moving. No border between one and the next."), TEXT("바구니의 안쪽이 보였다. 손잡이 아래의 손가락이, 아이의 자리에서 올려다본 남자의 턱이, 탁자 위 잔의 둥근 입구가 한꺼번에 들어왔다. 아이가 보던 것에서 노인의 것으로 넘어가는 경계가 없었다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Everything was everything. All at once. ...There was no loneliness."), TEXT("전부가 전부였어. 동시에. ...외로움이 없었어.")},
+        {nullptr, nullptr, nullptr, TEXT("Her shoulder went behind the man. A few steps and he would see her again. In the forest he had called her name before his mouth opened. Now nothing happened."), TEXT("엘리아의 어깨가 남자의 몸 뒤로 가려졌다. 몇 걸음이면 다시 볼 수 있었다. 숲에서는 입이 열리기 전에 이미 안쪽이 조여 왔다. 지금은 아무 일도 없었다.")},
+        {nullptr, nullptr, nullptr, TEXT("The fear that she might not be there did not come. The last thing that had stayed was gone."), TEXT("그녀가 없을지도 모른다는 공포는 오지 않았다. 계속 남아 있던 마지막 것이 없어져 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("A low melody behind him, and words with it. The river will not flow. His mother used to sing it. A small room, a small window, the lower left corner of the glass broken; lamplight made a little star there."), TEXT("등 뒤에서 낮은 가락이 들렸고, 말이 붙었다. 강물은 흐르지 않으리. 어머니가 불러 주던 것이었다. 작은 방, 작은 창문. 유리의 왼쪽 아래 모서리가 깨져 있어, 등불을 켜면 그 자리에 작은 별 같은 빛이 생겼다.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Something came back. ...I won't say it yet."), TEXT("뭔가 돌아왔어. ...지금은 말 안 할래.")},
+        {TEXT("Elia"), TEXT("elia_gentle_smile"), nullptr, TEXT("Keep it."), TEXT("가지고 있어.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("It's quiet. Not the sound. ...I can't feel you. The city comes. Yours doesn't."), TEXT("조용해. 소리 말고. ...네가 안 느껴져. 도시는 와. 네 것은 안 와.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("We have to get out."), TEXT("나가야겠어.")},
+        {nullptr, nullptr, nullptr, TEXT("She stopped and laid her hand on nothing. It went no further. She leaned on it."), TEXT("엘리아가 아무것도 보이지 않는 곳에 손을 댔다. 손바닥은 더 나아가지 않았다. 그녀는 거기에 몸을 기댔다.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("Five years. Walk into a room and I'd feel who had been there first. What the ones who left had left. Even alone. ...Now it's mine."), TEXT("오 년 동안. 방에 들어가면 누가 먼저 와 있었는지 느껴졌어. 나간 사람 것도 남아 있었고. 나 혼자 있어도. ...지금은 내 거야.")},
+        {nullptr, nullptr, GreyShore, TEXT("Gravel shifted under his boots. The cold came back into his right hand. Four paces from the hole she sat and held the open water flask without drinking."), TEXT("자갈이 부츠 밑에서 밀렸다. 오른손의 차가움도 돌아왔다. 엘리아가 구멍에서 네 걸음쯤 떨어져 앉아, 마개를 연 물통을 마시지 않고 들고 있었다.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("You still don't come. I know you're here. I can see you."), TEXT("지금도 안 와. 있는 건 알아. 보이니까.")},
+        {nullptr, nullptr, nullptr, TEXT("She opened the blank book. There was writing on the first page, set deeper than the paper. She held her left palm beside it: the same mark."), TEXT("엘리아가 백 노트를 펼쳤다. 첫 장에 글씨가 있었다. 획은 종이의 표면보다 안쪽에 있는 것처럼 보였다. 그녀가 왼손바닥을 페이지 곁에 폈다. 같은 모양의 획이었다.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("The same."), TEXT("같아.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("I don't know what letter it is. ...It's quiet. Too quiet."), TEXT("모르겠어. ...조용해. 너무.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Shall we sit a little longer?"), TEXT("조금 더 앉아 있을까.")},
+        {nullptr, nullptr, nullptr, TEXT("Thinking of losing her, his chest did not tighten. The fear that was gone was not gone only inside the city."), TEXT("그녀가 없어지는 일을 생각하는 동안에도 가슴은 조여 오지 않았다. 없어진 공포는 도시 안에만 없는 것이 아니었다.")}}},
+    {TEXT("ms_coast_tree"), {
+        {nullptr, nullptr, nullptr, TEXT("North, on a narrow path people had walked, a young tree. Low on its trunk the bark was paler: a vertical line, a small box open on one side. Cut sitting down."), TEXT("북쪽, 사람들이 다녔던 좁은 길에 어린 나무가 있었다. 줄기 아래쪽에 표식이 있었다. 세로선 아래에 한쪽이 열린 작은 네모. 앉아서 새겼을 만한 자리였다.")},
+        {nullptr, nullptr, nullptr, TEXT("The grass beneath was pressed flat, two places side by side where boots had rested. Sitting there, back to the tree, you could watch the coast."), TEXT("나무 밑의 풀이 한쪽으로 눌려 있었고, 부츠를 놓았을 만한 자리가 나란히 있었다. 거기에 앉으면 나무에 등을 대고 해안 쪽을 볼 수 있었다.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Someone waited. For us to come out."), TEXT("기다렸나 봐. 우리가 나오는 걸.")},
+        {nullptr, nullptr, nullptr, TEXT("Under the mark, small writing. I will not stop you yet."), TEXT("표식 아래에 작은 글씨가 있었다. 아직 너를 막지 않겠다.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Kairos?"), TEXT("카이로스일까.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("The waystation wall was in this hand."), TEXT("역참에서도 이런 글씨였어.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("So he could stop us."), TEXT("막을 수는 있다는 거네.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("How far ahead, do you think?"), TEXT("얼마나 앞서 있을까.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("No idea. Not from this."), TEXT("모르겠어. 이걸로는.")}}},
+    {TEXT("ms_coast_chair"), {
+        {nullptr, nullptr, GreyShore, TEXT("Where the road forked, a chair stood empty. A flat stone beside it, a closed notebook and a corked ink bottle on the stone."), TEXT("갈림길에 의자 하나가 비어 있었다. 넓적한 돌 위에는 닫힌 노트와 마개를 꽂은 잉크병이 있었다.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Don't draw."), TEXT("뽑지 마.")},
+        {nullptr, nullptr, nullptr, TEXT("Beyond her hand, a man was sitting in the chair. A brown coat. He hadn't come in from any side. Arrel couldn't find the moment he sat down."), TEXT("그 너머에 사내가 앉아 있었다. 갈색 코트였다. 돌 옆의 틈도 의자 뒤의 길도 비어 있었다. 서 있는 사람이 앉는 모습까지 떠오르지 않았다.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Kairos?"), TEXT("카이로스?")},
+        {TEXT("Brown Coat"), nullptr, nullptr, TEXT("Sit."), TEXT("앉아.")},
+        {nullptr, nullptr, nullptr, TEXT("There was one chair. Elia knelt by the stone. Arrel stayed standing. In his chest, nothing happened."), TEXT("의자는 하나였다. 엘리아가 돌 옆에 무릎을 대고 앉았다. 아렐은 서 있었다. 가슴에서는 아무 일도 일어나지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("The notebook's cover lifted with no finger on it. He turned it to Arrel. The hand of the young tree."), TEXT("노트의 표지가 들렸다. 표지를 들어 올리는 손가락은 없었다. 사내가 노트를 돌려 아렐 쪽으로 밀었다. 해안의 나무에서 읽은 문장과 닮은 필체였다.")},
+        {TEXT("Brown Coat"), nullptr, nullptr, TEXT("Read."), TEXT("읽어.")},
+        {nullptr, nullptr, nullptr, TEXT("First: the breakfast leaving the waystation. Second: fear. Third: a short line where the small absence from the forest was. Fourth: three words. A shut door. Someone going out of a room."), TEXT("첫째, 역참을 떠나던 아침의 식사. 둘째, 공포. 셋째, 숲을 나온 뒤의 작은 공백이 걸린 짧은 한 줄. 넷째는 세 단어였다. 닫힌 문. 문 너머로 누군가 나가고 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("At the third reading a voice came up: only its beginning, the pitch someone used to call him when he was small. He parted his lips. It was gone."), TEXT("세 번째로 읽었을 때 목소리가 올라왔다. 첫머리만 있었다. 누군가 어린 그를 부를 때 내던 높이였다. 아렐은 입술을 떼었다. 목소리가 없어졌다.")},
+        {nullptr, nullptr, nullptr, TEXT("The man said one word. Three syllables, the middle long. Elia's right hand opened her coat and took out the blank book."), TEXT("사내가 한 단어를 말했다. 세 음절이었다. 가운데 소리가 길었다. 엘리아의 오른손이 코트 앞섶을 벌려 백 노트를 꺼냈다.")},
+        {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("I'm not taking it out. ...That isn't me."), TEXT("안 꺼내. ...내가 한 거 아니야.")},
+        {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("Stop. ...Stop it."), TEXT("멈춰. ...그만해.")},
+        {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("What did you just do? ...Look at me."), TEXT("지금 뭘 한 거야. ...이쪽 봐.")},
+        {nullptr, nullptr, nullptr, TEXT("He knew how fast he could draw. He didn't know if it was faster than one word."), TEXT("검을 얼마나 빨리 뽑을 수 있는지는 알고 있었다. 저 말 하나보다 빨리 뽑을 수 있는지는 몰랐다.")},
+        {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("Then you read it. My hand took it out, so you tell me what you know."), TEXT("그럼 당신이 읽어. 내 손으로 꺼냈으니까, 당신은 뭘 아는지 말해.")},
+        {nullptr, nullptr, nullptr, TEXT("The man closed his notebook. Elia's hand shut the blank book too, smoothly. She hadn't meant to."), TEXT("사내가 노트를 덮었다. 엘리아의 오른손도 백 노트의 표지를 들어 매끈하게 덮었다. 그녀가 한 일이 아니었다.")},
+        {TEXT("Brown Coat"), nullptr, nullptr, TEXT("Before the river the road forks twice more. To the north the rain has stopped."), TEXT("강 전까지 길은 두 번 더 갈라진다. 북쪽에서는 비가 그쳤다.")},
+        {nullptr, nullptr, nullptr, TEXT("He went off down the right-hand road without folding the chair. Over the seat, a hand's width up, a word hung in the air. It lasted one slow breath."), TEXT("사내는 의자도 접지 않고 오른쪽 길로 돌아섰다. 좌석 위, 천에서 한 손너비쯤 떨어진 허공에 한 단어가 있었다. 숨을 천천히 내쉬는 동안 남아 있었다.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Is it still there?"), TEXT("남아 있어?")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("Only that it was."), TEXT("있었다는 것만.")},
+        {nullptr, nullptr, nullptr, TEXT("His thumb caught on the hilt: a small roughness under the familiar groove, where he had been gripping while he watched the man's face. He had not seen the man touch the sword."), TEXT("오른손 엄지가 칼자루의 익숙한 홈 아래에서 걸렸다. 매끈하던 곳에 작은 거칠음이 있었다. 사내가 검에 손을 대는 모습은 보지 못했다.")}}},
     };
     return Values;
 }

@@ -46,6 +46,8 @@ namespace MemoriaManuscript
     inline const TCHAR* const SeamMap = TEXT("the_seam");
     // S372: Chapter 7, the listening forest (최종본 8-10화), on the Godot forgotten_forest ground.
     inline const TCHAR* const ForestMap = TEXT("forgotten_forest");
+    // S373: Chapter 8, the Crumbling Coast and Blank 7 (최종본 11-12화), on the Godot crumbling_coast ground.
+    inline const TCHAR* const CoastMap = TEXT("crumbling_coast");
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
     // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
     inline constexpr int32 SableHeavyBurns = 4;

@@ -114,6 +114,15 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         2.6f, -58.f, 20.f, 1.05f, .5f, .02f, 3.4f, .6f,
         70, false, true};
     if (InMap == TEXT("forgotten_forest")) return Forest;
+    // S373 The Crumbling Coast: grey gravel without wind or water, colours draining, the hole's blue-white light.
+    static const FDressing Coast{TEXT("T_CoastSoil"), TEXT("T_CoastPaved"),
+        FLinearColor(.94f, .94f, .96f), FLinearColor(.06f, .06f, .062f), FLinearColor(.06f, .06f, .064f), FLinearColor(.055f, .055f, .058f),
+        FLinearColor(.045f, .04f, .036f), FLinearColor(.07f, .07f, .072f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(.74f, .86f, 1.f), FLinearColor(.52f, .54f, .6f), FLinearColor(.06f, .062f, .07f), FLinearColor(.8f, .84f, .9f),
+        240.f, 230.f, .1f, 0.f,
+        4.2f, -36.f, -20.f, 1.2f, .62f, .012f, 4.4f, .5f,
+        24, false, true};
+    if (InMap == TEXT("crumbling_coast")) return Coast;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -701,6 +710,23 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         // A lantern post at the road's two ends.
         LanternPost(TileCentre(8.f, 0.f) + FVector(-20, -T * .5f - 14.f, 0), 0.f);
         LanternPost(TileCentre(Spec->Width - 1.f, 7.f) + FVector(-T * .5f - 14.f, 0, 0), 180.f);
+    }
+    else if (Map == TEXT("crumbling_coast"))
+    {
+        // S373: the hole on the pool's tiles: a flat pale disc of light, its edge not holding still (11화);
+        // the young tree on the north path with its mark (11화); the empty chair and the flat stone where the road
+        // forks, just past the north exit (12화).
+        const int32 Water = Spec->TileNames.IndexOfByKey(TEXT("WATER"));
+        auto* Light = Focus(TEXT("HoleLight"), FLinearColor(.16f, .24f, .4f), 2, .2f);
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+                if (Spec->TileAt(X, Y) == Water)
+                    Box(Light, TileCentre(X, Y) + FVector(0, 0, Feet + 1.f), FVector(T * .98f, T * .98f, 2.f), FRotator::ZeroRotator, false);
+        Prop(TEXT("DeadTree"), Kit(TEXT("Drift"), FLinearColor(.95f, .95f, .9f)), TileCentre(3.6f, 3.f) + Ground, 20.f, FVector(.62f, .62f, .7f));
+        const FVector Chair = TileCentre(7.2f, .8f) + Ground;
+        Box(Stone, Chair + FVector(-70, 0, 14), FVector(80, 54, 28), FRotator(0, 8, 0));
+        for (float Side : {-1.f, 1.f}) { Beam(Timber, Chair + FVector(Side * 16, -14, 0), Chair + FVector(-Side * 16, 14, 44), 3.f); }
+        Box(Timber, Chair + FVector(0, 0, 44), FVector(36, 30, 3), FRotator::ZeroRotator);
     }
     else if (Map == TEXT("forgotten_forest"))
     {

@@ -95,7 +95,8 @@ bool FForestS372Test::RunTest(const FString&)
         TEXT("ch4_night_watch"), TEXT("ch6_arrived"), TEXT("ch6_sable_morning"), TEXT("ch6_complete")}) Run->SetStoryFlag(F, true);
     TestTrue(TEXT("The main quest is at the slab"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 두 돌 능선 사이, 기울어진 돌판 아래에서 밤")));
     Run->SetStoryFlag(TEXT("ch7_complete"), true);
-    TestTrue(TEXT("then at the hole in the bark"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 나무껍질의 구멍이 가리키는 곳")));
+    // S373: then the coast.
+    TestTrue(TEXT("then at the coast"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 붕괴의 해안, 자갈밭의 구멍")));
     Game->Shutdown();
     return true;
 }

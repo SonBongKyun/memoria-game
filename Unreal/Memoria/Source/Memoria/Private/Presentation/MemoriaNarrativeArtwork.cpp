@@ -91,6 +91,9 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch7_crossing_the_ridgeline"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch08_memory_forest_entry_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch08_memory_forest_entry_v1"), false},
         {TEXT("res://assets/cg/generated/story_ch8_ghost_mother.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch8_ghost_mother"), false},
+        // S373 Chapter 8, the coast and Blank 7 (the still city reuses sealed_city_ruins above).
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch09_equalized_waste_v1"), false},
+        {TEXT("res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch05_city_in_bedrock_v1"), false},
     };
     return Values;
 }

@@ -150,7 +150,14 @@ FString Korean(const FString& En)
         // S372: the listening forest (최종본 8-10화).
         {TEXT("forgotten_forest"), TEXT("듣는 숲")}, {TEXT("The Listening Forest"), TEXT("듣는 숲")},
         {TEXT("Voices of those who passed, and of those who are not here"), TEXT("지나간 사람들, 여기 없는 사람들의 목소리")},
-        {TEXT("Between the Two Stone Ridges"), TEXT("두 돌 능선 사이")}, {TEXT("Obtained: Echo shell"), TEXT("획득: 에코 셸")},
+        {TEXT("Between the Two Stone Ridges"), TEXT("두 돌 능선 사이")},
+        // S373: the Crumbling Coast and Blank 7 (최종본 11-12화).
+        {TEXT("crumbling_coast"), TEXT("붕괴의 해안")}, {TEXT("The Crumbling Coast"), TEXT("붕괴의 해안")},
+        {TEXT("What fear used to do"), TEXT("공포가 하던 일")}, {TEXT("The Crossroads"), TEXT("갈림길")},
+        {TEXT("Lost: fear"), TEXT("잃음: 공포")}, {TEXT("Returned: a line of the lullaby"), TEXT("돌아옴: 자장가 한 줄")},
+        {TEXT("Before the river the road forks twice more. To the north the rain has stopped."), TEXT("강 전까지 길은 두 번 더 갈라진다. 북쪽에서는 비가 그쳤다.")},
+        {TEXT("Where the grass ends, every blade is cut along one line. Nine years, and the line has not moved."),
+         TEXT("풀이 끝나는 자리에서 줄기들이 한 줄로 반듯하게 끊겨 있다. 아홉 해가 지났는데도 그 선은 그대로다.")}, {TEXT("Obtained: Echo shell"), TEXT("획득: 에코 셸")},
         {TEXT("Under the slanted slab, the echo shell says the counting is wrong."), TEXT("기울어진 돌판 아래에서, 에코 셸이 셈이 틀렸다고 말한다.")},
         {TEXT("The roots pulse faintly. Not with sap: with residue. These trees are digesting someone's childhood."),
          TEXT("뿌리가 희미하게 맥박친다. 수액이 아니라 잔존으로. 이 나무들은 누군가의 어린 시절을 삭이고 있다.")},

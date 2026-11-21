@@ -1,0 +1,950 @@
+{
+ "ambient_npcs": [],
+ "ambient_npcs_gate": null,
+ "asset_prefix": "Ch8",
+ "atmosphere": {
+  "brightness": -0.02,
+  "fog": "none",
+  "hue": [
+   0.35,
+   0.4,
+   0.5,
+   1.0
+  ],
+  "light": [
+   0.6,
+   0.72,
+   0.94,
+   1.0
+  ],
+  "mood": 0.46,
+  "saturation": 0.42,
+  "splash": "res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png"
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 8,
+ "chests": [
+  {
+   "flag": "chest_coast_shore",
+   "origin": [
+    640.0,
+    448.0
+   ],
+   "rewards": {
+    "grains": 18,
+    "items": {
+     "firebomb": 1,
+     "potion": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_coast_grassline",
+   "origin": [
+    64.0,
+    288.0
+   ],
+   "text": "Where the grass ends, every blade is cut along one line. Nine years, and the line has not moved."
+  }
+ ],
+ "decorations": [
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    336.0,
+    48.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    368.0,
+    48.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    400.0,
+    48.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    432.0,
+    48.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    464.0,
+    48.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    336.0,
+    80.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    368.0,
+    80.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    400.0,
+    80.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    432.0,
+    80.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    464.0,
+    80.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    368.0,
+    112.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    400.0,
+    112.0
+   ],
+   "scale": 2.2
+  },
+  {
+   "color": [
+    0.5,
+    0.66,
+    1.0,
+    1.0
+   ],
+   "energy": 0.16,
+   "kind": "lantern",
+   "light": true,
+   "origin": [
+    432.0,
+    112.0
+   ],
+   "scale": 2.2
+  }
+ ],
+ "dialogue_file": "data/chapter5_dialogue.json",
+ "elia_repeat": "Nine years, and still.",
+ "encounter_range": [
+  40,
+  70
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "drain"
+   ],
+   "atk": 18,
+   "hp": 100,
+   "is_void": true,
+   "name": "Coastal Void Beast"
+  },
+  {
+   "abilities": [
+    "poison",
+    "multi_hit"
+   ],
+   "atk": 16,
+   "hp": 70,
+   "is_void": false,
+   "name": "Cliff Stalker"
+  },
+  {
+   "abilities": [
+    "burn_attack",
+    "weaken"
+   ],
+   "atk": 14,
+   "hp": 85,
+   "is_void": true,
+   "name": "Shore Wraith"
+  }
+ ],
+ "encounters_gate": "ch8_complete",
+ "exit": {
+  "center": [
+   176.0,
+   48.0
+  ],
+  "completes": "ch8_complete",
+  "flags": [
+   "canon_ch9_clearing_ready"
+  ],
+  "group": "ms_coast_chair",
+  "next_chapter": 9,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "Before the river the road forks twice more. To the north the rain has stopped.",
+   "ko": "강 전까지 길은 두 번 더 갈라진다. 북쪽에서는 비가 그쳤다."
+  },
+  "requires": "ch8_tree",
+  "size": [
+   96.0,
+   32.0
+  ]
+ },
+ "height": 18,
+ "map": "crumbling_coast",
+ "objects_gate": "ch8_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch8_morning",
+   "flags": [],
+   "group": "ms_coast_morning",
+   "memories_chapter": null,
+   "toasts": []
+  },
+  {
+   "flag": "ch8_shore",
+   "flags": [],
+   "group": "ms_coast_shore",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  2,
+  3
+ ],
+ "source": "scenes/maps/crumbling_coast.gd (ground) + 최종본 6-7화 (story)",
+ "spawn": [
+  48.0,
+  304.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.32,
+    0.3,
+    0.28,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.45,
+    0.4,
+    0.32,
+    1.0
+   ],
+   "detail": "sand"
+  },
+  {
+   "color": [
+    0.15,
+    0.13,
+    0.12,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.1,
+    0.18,
+    0.3,
+    1.0
+   ],
+   "detail": "water"
+  },
+  {
+   "color": [
+    0.38,
+    0.35,
+    0.3,
+    1.0
+   ],
+   "detail": "path"
+  }
+ ],
+ "tile_names": [
+  "ROCK",
+  "SAND",
+  "RUBBLE",
+  "WATER",
+  "PATH"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   0,
+   0,
+   2,
+   3,
+   3,
+   3,
+   3,
+   3,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   2,
+   3,
+   3,
+   3,
+   3,
+   3,
+   2,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2,
+   3,
+   3,
+   3,
+   2,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ ],
+ "title": {
+  "name": "The Crumbling Coast",
+  "number": 8,
+  "subtitle": "What fear used to do"
+ },
+ "triggers": [
+  {
+   "flag": "ch8_hole",
+   "gate": "ch8_shore",
+   "group": "ms_coast_hole",
+   "rect": {
+    "origin": [
+     352.0,
+     224.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch8_city",
+   "gate": "ch8_hole",
+   "group": "ms_coast_city",
+   "rect": {
+    "origin": [
+     352.0,
+     160.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch8_tree",
+   "gate": "ch8_city",
+   "group": "ms_coast_tree",
+   "rect": {
+    "origin": [
+     128.0,
+     96.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}

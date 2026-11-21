@@ -115,6 +115,10 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch7_lost_hour"), TEXT("Through the listening forest, eyes off the sounds"), TEXT("듣는 숲을 지난다. 소리 쪽으로 고개를 돌리지 말 것")},
         {TEXT("ch7_escape"), TEXT("Get away from the shape between the trees"), TEXT("나무 사이의 형상에게서 벗어난다")},
         {TEXT("ch7_complete"), TEXT("A night under the slanted slab, between the two stone ridges"), TEXT("두 돌 능선 사이, 기울어진 돌판 아래에서 밤")},
+        // S373: 11-12화.
+        {TEXT("ch8_hole"), TEXT("The Crumbling Coast: the hole in the gravel"), TEXT("붕괴의 해안, 자갈밭의 구멍")},
+        {TEXT("ch8_city"), TEXT("Into Blank 7, together"), TEXT("같이, 공백 7호 안으로")},
+        {TEXT("ch8_complete"), TEXT("The empty chair where the road forks"), TEXT("갈림길의 빈 의자")},
         {TEXT("ms_never"), TEXT("Where the hole in the bark points: north-north-east, through the unrecorded stretch"), TEXT("나무껍질의 구멍이 가리키는 곳: 북북동, 기록되지 않은 구간 너머")}};
     return Values;
 }

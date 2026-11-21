@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8')}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -84,7 +84,7 @@ MANUSCRIPT = {
         'battles_gate': 'ch7_lost_hour',
         'battles': [{'rect': {'origin': [11 * T, 14 * T], 'size': [2 * T, T]}, 'name': 'Hollow Walker', 'hp': 95, 'atk': 22, 'is_void': False}],
         'exit': {'center': [15 * T + 16, 16.5 * T], 'size': [5 * T, T], 'requires': 'ch7_escape', 'completes': 'ch7_complete',
-                 'group': 'ms_forest_valley', 'next_chapter': 8, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_forest_valley', 'next_chapter': 8, 'next_map': 'crumbling_coast', 'next_scene': None,
                  'flags': ['canon_ch8_coast_ready'],
                  'notice': {'en': 'Under the slanted slab, the echo shell says the counting is wrong.',
                             'ko': '기울어진 돌판 아래에서, 에코 셸이 셈이 틀렸다고 말한다.'}},
@@ -100,6 +100,41 @@ MANUSCRIPT = {
         # The white mushroom rings (8화) give a faint pale light in the hollows and on the cairn.
         'lights': [{'tile': 3, 'color': [0.78, 0.92, 0.86, 1.0], 'energy': 0.35, 'scale': 2.0},
                    {'tile': 6, 'color': [0.85, 0.95, 0.9, 1.0], 'energy': 0.5, 'scale': 2.5}],
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
+    # S373: 최종본 11화 「공포가 하던 일」 and 12화 「편집자」 on the Godot crumbling_coast ground. Its pool (WATER, walled
+    # in by cliffs) stands as the hole: 'no water could be seen'; blue-white light comes up from it.
+    'crumbling_coast': {
+        'title': {'number': 8, 'name': 'The Crumbling Coast', 'subtitle': 'What fear used to do'},
+        # East from the stone ridges (11화: "동쪽"): they come in on the west side; they leave north.
+        'spawn': [1 * T + 16, 9 * T + 16],
+        'elia_repeat': 'Nine years, and still.',
+        'sequence': [
+            {'flag': 'ch8_morning', 'group': 'ms_coast_morning', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch8_shore', 'group': 'ms_coast_shore', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            {'rect': {'origin': [11 * T, 7 * T], 'size': [3 * T, T]}, 'group': 'ms_coast_hole', 'flag': 'ch8_hole', 'gate': 'ch8_shore'},
+            {'rect': {'origin': [11 * T, 5 * T], 'size': [3 * T, T]}, 'group': 'ms_coast_city', 'flag': 'ch8_city', 'gate': 'ch8_hole'},
+            {'rect': {'origin': [4 * T, 3 * T], 'size': [2 * T, T]}, 'group': 'ms_coast_tree', 'flag': 'ch8_tree', 'gate': 'ch8_city'},
+        ],
+        'battles_gate': None, 'battles': [],
+        'exit': {'center': [5 * T + 16, 1.5 * T], 'size': [3 * T, T], 'requires': 'ch8_tree', 'completes': 'ch8_complete',
+                 'group': 'ms_coast_chair', 'next_chapter': 9, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch9_clearing_ready'],
+                 'notice': {'en': 'Before the river the road forks twice more. To the north the rain has stopped.',
+                            'ko': '강 전까지 길은 두 번 더 갈라진다. 북쪽에서는 비가 그쳤다.'}},
+        'objects_gate': 'ch8_complete',
+        'chests': [{'origin': [20 * T, 14 * T], 'flag': 'chest_coast_shore', 'rewards': {'grains': 18, 'items': {'potion': 2, 'firebomb': 1}}}],
+        'clues': [{'origin': [2 * T, 9 * T], 'flag': 'clue_coast_grassline',
+                   'text': 'Where the grass ends, every blade is cut along one line. Nine years, and the line has not moved.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch8_complete',
+        # Low and blue: thirteen lights over the pool's tiles wash out to white at any stronger setting.
+        'lights': [{'tile': 3, 'color': [0.5, 0.66, 1.0, 1.0], 'energy': 0.16, 'scale': 2.2}],
+        # The coast's colours drain (11화: 엘리아의 코트가 옅어지고 있었다).
+        # ...and the Godot splash shows breaking surf, which the manuscript's coast does not have.
+        'atmosphere': {'saturation': 0.42, 'mood': 0.46, 'splash': 'res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png'},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
 }
@@ -120,6 +155,11 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     # The village's cliffs stand as walls (the ported maps' WALL), its huts stay HUT and are built by name.
     if map_id == 'the_seam':
         ground = dict(ground, tile_names=['WALL' if n == 'CLIFF' else n for n in ground['tile_names']])
+    if map_id == 'crumbling_coast':
+        # The coast's cliffs stand as broken ruin stone (the ported maps' RUBBLE).
+        ground = dict(ground, tile_names=['RUBBLE' if n == 'CLIFF' else n for n in ground['tile_names']])
+    if 'atmosphere' in story:
+        ground = dict(ground, atmosphere=dict(ground['atmosphere'], **story['atmosphere']))
     keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',
             'battles', 'resume_blocked', 'encounters_gate', 'ambient_npcs', 'ambient_npcs_gate')
     return dict(ground, schema_version=1, map=map_id, chapter=chapter, asset_prefix=prefix,
