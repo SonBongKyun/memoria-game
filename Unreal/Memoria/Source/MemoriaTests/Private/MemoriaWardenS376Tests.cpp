@@ -15,7 +15,15 @@
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Localization/MemoriaKorean.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/ActorComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
+#include "Components/PointLightComponent.h"
+#include "Engine/Scene.h"
+#include "GameFramework/PlayerController.h"
 #include "EngineUtils.h"
 #include "Misc/App.h"
 #include "Misc/Paths.h"
@@ -38,11 +46,104 @@ bool HasClub(const AMemoriaFieldMonster* Warden)
         if (Mesh && Mesh->IsVisible() && FMath::IsNearlyEqual(Mesh->GetRelativeScale3D().X, .46f, .01f)) return true;
     return false;
 }
+const UStaticMeshComponent* ClubOf(const AMemoriaFieldMonster* Warden)
+{
+    if (!Warden) return nullptr;
+    TArray<UStaticMeshComponent*> Meshes;
+    Warden->GetComponents<UStaticMeshComponent>(Meshes);
+    for (const UStaticMeshComponent* Mesh : Meshes)
+        if (Mesh && Mesh->IsVisible() && FMath::IsNearlyEqual(Mesh->GetRelativeScale3D().X, .46f, .01f)) return Mesh;
+    return nullptr;
+}
+bool WearsDarkCoat(const AMemoriaFieldMonster* Warden)
+{
+    USkeletalMeshComponent* Body = Warden && Warden->GetFigure() ? Warden->GetFigure()->GetSkeletalMesh() : nullptr;
+    const USkeletalMesh* Asset = Body ? Body->GetSkeletalMeshAsset() : nullptr;
+    if (!Asset) return false;
+    bool bShieldGone = false, bCoat = false, bFace = false;
+    const TArray<FSkeletalMaterial>& Slots = Asset->GetMaterials();
+    for (int32 I = 0; I < Slots.Num(); ++I)
+    {
+        const FString Name = Slots[I].MaterialSlotName.ToString() + Slots[I].ImportedMaterialSlotName.ToString() + GetNameSafe(Slots[I].MaterialInterface);
+        if (Name.Contains(TEXT("Gear"))) bShieldGone = !Body->IsMaterialSectionShown(I, 0);
+        else if (auto* Mid = Cast<UMaterialInstanceDynamic>(Body->GetMaterial(I)))
+        {
+            const FLinearColor Tint = Mid->K2_GetVectorParameterValue(TEXT("SurfaceTint"));
+            if (Name.Contains(TEXT("Body")))
+            {
+                const FLinearColor Color = Mid->K2_GetVectorParameterValue(TEXT("Color"));
+                const UMaterialInterface* Parent = Mid->Parent;
+                // SurfaceTint barely darkens this coat. The body slot has to wear the flat dark cloth.
+                bCoat = Parent && Parent->GetName().Contains(TEXT("FieldFoe")) && Color.R < .08f && Color.G < .08f && Color.B < .08f;
+            }
+            if (Name.Contains(TEXT("Face"))) bFace = Tint.R > .8f;
+        }
+    }
+    return bShieldGone && bCoat && bFace;
+}
 void PlaceForTouch(AMemoriaFieldMonster* Warden, const FVector& PlayerLocation)
 {
     Warden->SetActorLocation(PlayerLocation + FVector(80.f, 0.f, 0.f), false);
     if (UMemoriaFieldCharacterComponent* Figure = Warden->GetFigure())
         Figure->SetAim((PlayerLocation - Warden->GetActorLocation()).Rotation().Yaw);
+}
+void HideNearbyBodies(UWorld* World, const AActor* Keep, const AActor* Player)
+{
+    if (!Keep) return;
+    const FVector At = Keep->GetActorLocation();
+    for (TActorIterator<AActor> It(World); It; ++It)
+    {
+        AActor* Actor = *It;
+        if (!Actor || Actor == Keep || Actor == Player) continue;
+        if (FVector::Dist2D(Actor->GetActorLocation(), At) > 500.f) continue;
+        if (Actor->FindComponentByClass<USkeletalMeshComponent>()) Actor->SetActorHiddenInGame(true);
+    }
+}
+// Close enough that the coat and the short club fill the frame, from the side so the reach reads as a push.
+ACameraActor* FrameWarden(UWorld* World, APlayerController* PC, const AMemoriaFieldMonster* Warden, ACameraActor* Camera)
+{
+    if (!World || !PC || !Warden) return Camera;
+    const float Yaw = Warden->GetFigure() ? Warden->GetFigure()->GetYaw() : 0.f;
+    const FVector Focus = Warden->GetActorLocation() + FVector(0, 0, Warden->Spec().Height * .52f);
+    const FVector Side = FRotator(0.f, Yaw + 50.f, 0.f).Vector();
+    const FVector Eye = Focus - Side * 640.f + FVector(0, 0, 170.f);
+    if (!Camera)
+    {
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        Camera = World->SpawnActor<ACameraActor>(Eye, (Focus - Eye).Rotation(), Params);
+        if (UCameraComponent* Cam = Camera ? Camera->GetCameraComponent() : nullptr)
+        {
+            Cam->SetFieldOfView(34.f);
+            // A dark scene would open the exposure until the coat reads as white. Hold it still.
+            Cam->PostProcessBlendWeight = 1.f;
+            FPostProcessSettings& PP = Cam->PostProcessSettings;
+            PP.bOverride_AutoExposureMethod = true;
+            PP.AutoExposureMethod = EAutoExposureMethod::AEM_Manual;
+            PP.bOverride_AutoExposureApplyPhysicalCameraExposure = true;
+            PP.AutoExposureApplyPhysicalCameraExposure = false;
+            PP.bOverride_AutoExposureBias = true;
+            PP.AutoExposureBias = 0.15f;
+        }
+        if (Camera)
+        {
+            auto* Lamp = NewObject<UPointLightComponent>(Camera, TEXT("WardenFill"));
+            Lamp->SetupAttachment(Camera->GetRootComponent());
+            Lamp->SetRelativeLocation(FVector(40.f, -180.f, 70.f));
+            Lamp->SetMobility(EComponentMobility::Movable);
+            Lamp->SetIntensityUnits(ELightUnits::Candelas);
+            Lamp->SetIntensity(280.f);
+            Lamp->SetAttenuationRadius(2400.f);
+            Lamp->SetCastShadows(false);
+            Lamp->SetLightColor(FLinearColor(.9f, .86f, .76f));
+            Lamp->RegisterComponent();
+        }
+    }
+    if (!Camera) return nullptr;
+    Camera->SetActorLocation(Eye);
+    Camera->SetActorRotation((Focus - Eye).Rotation());
+    PC->SetViewTargetWithBlend(Camera, 0.f);
+    return Camera;
 }
 
 // S376: the adjuster's club. A touch makes the hand forget. It does not cut.
@@ -88,6 +189,12 @@ public:
             W->Stun(60.f);
             const UStaticMeshComponent* Blade = W->GetFigure() ? W->GetFigure()->GetBlade() : nullptr;
             Test->TestTrue(TEXT("The coated man carries a short club, not the dagger"), HasClub(W) && (!Blade || !Blade->IsVisible()));
+            Test->TestTrue(TEXT("A dark coat, and the round shield stays with the thief"), WearsDarkCoat(W));
+            if (const UStaticMeshComponent* Club = ClubOf(W))
+            {
+                const FVector Held = Club->GetComponentLocation() - W->GetActorLocation();
+                Test->TestTrue(TEXT("At rest the club is low in front, not raised"), Held.Z > W->Spec().Height * .25f && Held.Z < W->Spec().Height * .6f && FMath::Abs(Club->GetComponentRotation().Pitch) < 8.f);
+            }
             if (UMemoriaFieldCharacterComponent* Figure = W->GetFigure()) Figure->SetAim(0.f);
             const int32 Strikes = Combat->GetStrikesTaken();
             Test->TestFalse(TEXT("A club held the wrong way does not touch"), Combat->StrikePlayer(W, W->Spec().Damage));
@@ -168,14 +275,46 @@ public:
         if (!Combat || !Combat->GetPlayer() || Host->GetState() != EMemoriaSliceState::Exploration) return false;
         if (Phase == 0)
         {
-            HideElia(World);
-            const TArray<AMemoriaFieldMonster*> Spawned = Combat->SpawnWave(1, Pawn->GetActorLocation() + FVector(80.f, 0.f, 0.f), 0.f, EMemoriaFoeKind::Warden);
-            if (!Test->TestTrue(TEXT("A warden enters the field"), Spawned.Num() == 1 && Spawned[0])) return true;
-            Warden = Spawned[0];
-            Warden->SetActorLocation(Pawn->GetActorLocation() + FVector(80.f, 0.f, 0.f), false);
+            if (!Warden.IsValid())
+            {
+                HideElia(World);
+                const TArray<AMemoriaFieldMonster*> Spawned = Combat->SpawnWave(1, Pawn->GetActorLocation() + FVector(80.f, 0.f, 0.f), 0.f, EMemoriaFoeKind::Warden);
+                if (!Test->TestTrue(TEXT("A warden enters the field"), Spawned.Num() == 1 && Spawned[0])) return true;
+                Warden = Spawned[0];
+                Warden->SetActorLocation(Pawn->GetActorLocation() + FVector(80.f, 0.f, 0.f), false);
+                if (UMemoriaFieldCharacterComponent* Figure = Warden->GetFigure())
+                    Figure->SetAim((Pawn->GetActorLocation() - Warden->GetActorLocation()).Rotation().Yaw);
+                HideNearbyBodies(World, Warden.Get(), Pawn);
+                Pawn->SetActorHiddenInGame(true);
+                Camera = FrameWarden(World, PC, Warden.Get(), Camera.Get());
+                Test->TestTrue(TEXT("The field warden wears the dark coat without the shield"), WearsDarkCoat(Warden.Get()));
+                Mark = Frame; return false;
+            }
+            Camera = FrameWarden(World, PC, Warden.Get(), Camera.Get());
+            if (Frame < Mark + 3) return false;
+            FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/S376Warden/WardenRest.png"), true, false);
             Phase = 1; Mark = Frame; return false;
         }
         AMemoriaFieldMonster* W = Warden.Get();
+        if (!bSawTouch && W && W->GetState() == EMemoriaMonsterState::Windup)
+        {
+            const float Push = W->GetStateTime() / FMath::Max(W->Spec().Windup, SMALL_NUMBER);
+            if (Push >= .55f && Push <= .92f)
+            {
+                bSawTouch = true;
+                const UStaticMeshComponent* Club = ClubOf(W);
+                Test->TestTrue(TEXT("The club is still in his hand at the touch"), Club != nullptr);
+                if (Club)
+                {
+                    const FVector Held = Club->GetComponentLocation() - W->GetActorLocation();
+                    const FVector Forward = FRotator(0.f, W->GetFigure() ? W->GetFigure()->GetYaw() : 0.f, 0.f).Vector();
+                    Test->TestTrue(TEXT("The touch is a straight push, kept at the waist"), FVector::DotProduct(Held, Forward) > 50.f
+                        && Held.Z > W->Spec().Height * .25f && Held.Z < W->Spec().Height * .6f && FMath::Abs(Club->GetComponentRotation().Pitch) < 8.f);
+                }
+                Camera = FrameWarden(World, PC, W, Camera.Get());
+                FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/S376Warden/WardenTouch.png"), true, false);
+            }
+        }
         if (!bSawReach && W && W->GetState() == EMemoriaMonsterState::Windup)
         {
             const FMemoriaAttackCue Cue = W->GetAttackCue();
@@ -193,8 +332,9 @@ public:
         }
         if (!bCaptured)
         {
-            Test->TestTrue(TEXT("The warden's own reach did it"), bSawReach && W && W->GetStrikeCount() >= 1);
+            Test->TestTrue(TEXT("The warden's own reach did it"), bSawReach && bSawTouch && W && W->GetStrikeCount() >= 1);
             Test->TestTrue(TEXT("While numb he can walk and cannot cut"), Combat->CanMove() && !Combat->RequestAttack(Pawn->GetActorLocation() + FVector(80.f, 0.f, 0.f)));
+            if (W) Camera = FrameWarden(World, PC, W, Camera.Get());
             FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/S376Warden/WardenNumb.png"), true, false);
             Test->TestTrue(TEXT("Dodge still answers after the picture"), Combat->RequestDash(FVector(0.f, -1.f, 0.f)));
             bCaptured = true; Mark = Frame;
@@ -206,8 +346,9 @@ private:
     double Started, OldDelta = 0, LastWorldTime = -1;
     uint64 LastFrame = MAX_uint64;
     int32 Phase = 0, Frame = 0, Mark = 0;
-    bool bFixed = false, bOldFixed = false, bSawReach = false, bCaptured = false;
+    bool bFixed = false, bOldFixed = false, bSawReach = false, bSawTouch = false, bCaptured = false;
     TWeakObjectPtr<AMemoriaFieldMonster> Warden;
+    TWeakObjectPtr<ACameraActor> Camera;
 };
 }
 

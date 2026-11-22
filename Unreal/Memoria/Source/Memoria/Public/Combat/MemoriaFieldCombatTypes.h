@@ -267,6 +267,8 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
         S.Model = TEXT("BeltScavenger"); S.Reach = WardenReach; S.Aggro = 620.f;
         S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = nullptr; S.bReach = true; S.BladeScale = 0.f; S.bQuinn = false;
         S.Color = FLinearColor(.03f, .03f, .034f); S.Glow = FLinearColor(.04f, .04f, .045f);
+        // The coated body only. The face stays its own slot, and the gear slot (the round shield) is hidden.
+        S.SurfaceTint = FLinearColor(.16f, .15f, .145f);
         return S;
     }();
     switch (Kind)

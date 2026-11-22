@@ -247,6 +247,13 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         if (Figure) Figure->StopAction();
         if (bPicking) CloseBurnPicker();
         Afflict(Monster->Spec().Ability, Damage); Afflict(Monster->Spec().Second, Damage);
+        // A dull grey mark where the club met him. Impact() would count a bloodied blow, and this one draws none.
+        FMemoriaImpact Dull;
+        Dull.Location = Pawn->GetActorLocation() + FVector(0, 0, 96.f);
+        Dull.Color = FLinearColor(.58f, .59f, .60f);
+        Dull.Life = .32f;
+        Dull.Radius = 36.f;
+        Impacts.Add(Dull);
         return true;
     }
     if (Monster->IsElite()) Damage *= EliteDamage;          // S367: a void-touched elite hits harder

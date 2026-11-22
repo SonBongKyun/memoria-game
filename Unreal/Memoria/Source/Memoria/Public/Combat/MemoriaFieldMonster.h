@@ -78,6 +78,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<class UStaticMeshComponent> Club;
     UPROPERTY(Transient) TObjectPtr<class UStaticMeshComponent> ClubBand;
     void SetShellLook(bool bOn);
+    void DressReach();
     void PlaceClub();
     void Enter(EMemoriaMonsterState Next);
     UMemoriaFieldCombatSubsystem* Combat() const;

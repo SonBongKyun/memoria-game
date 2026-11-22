@@ -12,6 +12,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/SkeletalMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
 using namespace MemoriaCombatTuning;
 AMemoriaFieldMonster::AMemoriaFieldMonster()
@@ -54,29 +55,72 @@ void AMemoriaFieldMonster::BeginPlay()
         bShelled = true; SetShellLook(true);
     }
     PreviousLocation = GetActorLocation();
-    if (S.bReach)
+    if (S.bReach) DressReach();
+}
+void AMemoriaFieldMonster::DressReach()
+{
+    // The market thief keeps his pale coat and round shield. Only the warden loses the shield and wears the coat dark.
+    USkeletalMeshComponent* Body = Figure ? Figure->GetSkeletalMesh() : nullptr;
+    if (UStaticMeshComponent* Dagger = Figure ? Figure->GetBlade() : nullptr) { Dagger->SetHiddenInGame(true); Dagger->SetVisibility(false); }
+    if (Body && Body->GetSkeletalMeshAsset())
     {
-        // The coated man's dagger is the model's grip. The club replaces it. It is held, not swung.
-        if (UStaticMeshComponent* Dagger = Figure->GetBlade()) { Dagger->SetHiddenInGame(true); Dagger->SetVisibility(false); }
-        auto* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
-        auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
-        auto MakeBar = [&](const TCHAR* Name, const FVector& Scale)
+        const TArray<FSkeletalMaterial>& Slots = Body->GetSkeletalMeshAsset()->GetMaterials();
+        const int32 Lods = FMath::Max(1, Body->GetNumLODs());
+        // The authored coat only blends a third of the way toward SurfaceTint, so the cloth stays pale.
+        // The body slot wears a flat dark cloth. The face keeps its own material, and the shield stays hidden.
+        auto* Cloth = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Memoria/Presentation/Combat/M_FieldFoe.M_FieldFoe"));
+        for (int32 I = 0; I < Slots.Num(); ++I)
         {
-            auto* Bar = NewObject<UStaticMeshComponent>(this, Name, RF_Transient);
-            Bar->SetStaticMesh(Mesh); Bar->SetupAttachment(Figure);
-            Bar->SetMobility(EComponentMobility::Movable); Bar->SetCollisionEnabled(ECollisionEnabled::NoCollision); Bar->SetCastShadow(false);
-            Bar->SetRelativeScale3D(Scale);
-            if (Base)
+            const FString Name = Slots[I].MaterialSlotName.ToString() + Slots[I].ImportedMaterialSlotName.ToString() + GetNameSafe(Slots[I].MaterialInterface);
+            if (Name.Contains(TEXT("Gear")))
+                for (int32 Lod = 0; Lod < Lods; ++Lod) Body->ShowMaterialSection(I, INDEX_NONE, false, Lod);
+            else if (Name.Contains(TEXT("Face")))
             {
-                auto* Ink = UMaterialInstanceDynamic::Create(Base, this);
-                const FLinearColor Black(.02f, .02f, .024f);
-                Ink->SetVectorParameterValue(TEXT("Color"), Black); Ink->SetVectorParameterValue(TEXT("BaseColor"), Black);
-                Bar->SetMaterial(0, Ink);
+                if (auto* Mid = Cast<UMaterialInstanceDynamic>(Body->GetMaterial(I)))
+                    Mid->SetVectorParameterValue(TEXT("SurfaceTint"), FLinearColor::White);
             }
-            Bar->RegisterComponent();
-            return Bar;
-        };
-        if (Mesh) { Club = MakeBar(TEXT("Club"), FVector(.46f, .055f, .055f)); ClubBand = MakeBar(TEXT("ClubBand"), FVector(.07f, .09f, .09f)); PlaceClub(); }
+            else if (Cloth && Name.Contains(TEXT("Body")))
+            {
+                auto* Ink = UMaterialInstanceDynamic::Create(Cloth, Body);
+                Ink->SetVectorParameterValue(TEXT("Color"), FLinearColor(.042f, .04f, .038f));
+                Ink->SetVectorParameterValue(TEXT("SurfaceTint"), Spec().SurfaceTint);
+                Ink->SetVectorParameterValue(TEXT("Glow"), FLinearColor(.02f, .02f, .022f));
+                Ink->SetScalarParameterValue(TEXT("CrackStrength"), 0.f);
+                Ink->SetScalarParameterValue(TEXT("RimStrength"), 0.f);
+                Body->SetMaterial(I, Ink);
+            }
+        }
+    }
+    // The dagger is gone. A short black club sits in the striking hand, banded pale at the grip.
+    USkeletalMeshComponent* Hand = Body;
+    const bool bHand = Hand && Hand->GetSkeletalMeshAsset() && Hand->GetSkeletalMeshAsset()->GetRefSkeleton().FindBoneIndex(TEXT("hand_r")) != INDEX_NONE;
+    auto* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+    auto MakeBar = [&](const TCHAR* Name, const FVector& Scale, const FLinearColor& InkColor)
+    {
+        auto* Bar = NewObject<UStaticMeshComponent>(this, Name, RF_Transient);
+        Bar->SetStaticMesh(Mesh);
+        if (bHand) Bar->SetupAttachment(Hand, TEXT("hand_r"));
+        else Bar->SetupAttachment(Figure);
+        Bar->SetMobility(EComponentMobility::Movable); Bar->SetCollisionEnabled(ECollisionEnabled::NoCollision); Bar->SetCastShadow(false);
+        // The idle hand rises. The club stays where PlaceClub puts it: low, and level.
+        Bar->SetUsingAbsoluteLocation(true); Bar->SetUsingAbsoluteRotation(true);
+        Bar->SetRelativeScale3D(Scale);
+        if (Base)
+        {
+            auto* Ink = UMaterialInstanceDynamic::Create(Base, this);
+            Ink->SetVectorParameterValue(TEXT("Color"), InkColor); Ink->SetVectorParameterValue(TEXT("BaseColor"), InkColor);
+            Bar->SetMaterial(0, Ink);
+        }
+        Bar->RegisterComponent();
+        return Bar;
+    };
+    if (Mesh)
+    {
+        // 46 cm long, a short baton rather than a crate. The pale band is only the grip.
+        Club = MakeBar(TEXT("Club"), FVector(.46f, .055f, .055f), FLinearColor(.015f, .015f, .016f));
+        ClubBand = MakeBar(TEXT("ClubBand"), FVector(.028f, .095f, .095f), FLinearColor(.62f, .58f, .50f));
+        PlaceClub();
     }
 }
 void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
@@ -152,13 +196,14 @@ void AMemoriaFieldMonster::PlaceClub()
     float Extend = 0.f;
     if (State == EMemoriaMonsterState::Windup) Extend = FMath::Clamp(StateTime / FMath::Max(Spec().Windup, SMALL_NUMBER), 0.f, 1.f);
     else if (State == EMemoriaMonsterState::Recover) Extend = 1.f - FMath::Clamp(StateTime / FMath::Max(Spec().Recover, SMALL_NUMBER), 0.f, 1.f);
+    // Held low in front of the waist, then pushed straight out. The bar never rises into a swing.
     const FRotator Yaw(0.f, Figure->GetYaw(), 0.f);
     const FVector Forward = Yaw.Vector();
-    const float Grip = FMath::Lerp(16.f, 36.f, Extend);
-    const float HeightZ = Spec().Height * FMath::Lerp(.40f, .46f, Extend);
-    const FVector Waist = Forward * Grip + FVector(0, 0, HeightZ);
-    Club->SetRelativeLocation(Waist + Forward * 23.f); Club->SetRelativeRotation(Yaw);
-    if (ClubBand) { ClubBand->SetRelativeLocation(Waist + Forward * 6.f); ClubBand->SetRelativeRotation(Yaw); }
+    const FVector Side(-Forward.Y, Forward.X, 0.f);
+    const float Grip = FMath::Lerp(20.f, 74.f, Extend);
+    const FVector Waist = GetActorLocation() + Forward * Grip + Side * 18.f + FVector(0, 0, Spec().Height * .42f);
+    Club->SetWorldLocation(Waist + Forward * 23.f); Club->SetWorldRotation(Yaw);
+    if (ClubBand) { ClubBand->SetWorldLocation(Waist + Forward * 16.f); ClubBand->SetWorldRotation(Yaw); }
 }
 void AMemoriaFieldMonster::SetShellLook(bool bOn)
 {
