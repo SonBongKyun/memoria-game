@@ -21,14 +21,15 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
-GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste'}
+# S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
+GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -241,7 +242,7 @@ MANUSCRIPT = {
         ],
         'battles_gate': None, 'battles': [],
         'exit': {'center': [10 * T + 16, 1.5 * T], 'size': [3 * T, T], 'requires': 'ch11_glove', 'completes': 'ch11_complete',
-                 'group': 'ms_farm_second', 'next_chapter': 12, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_farm_second', 'next_chapter': 12, 'next_map': 'basin_station', 'next_scene': None,
                  'flags': ['canon_ch12_belt_road_ready'],
                  'notice': {'en': 'Before asking who, he would first tell her he had heard.',
                             'ko': '누구냐고 묻기 전에, 자기가 들었다는 말부터 해야 했다.'}},
@@ -256,6 +257,57 @@ MANUSCRIPT = {
         'atmosphere': {'saturation': 0.55, 'mood': 0.34, 'hue': [0.46, 0.42, 0.32, 1.0], 'light': [0.84, 0.76, 0.6, 1.0],
                        'fog': 'soft', 'splash': 'res://assets/cg/generated/chapter_splash_belt_waystation.png'},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
+    # S379: 최종본 19화 「미라」 (a cutaway: the Central Records in Lumea) and 20화 「회색 우리」 on the Godot belt_waystation
+    # yard: the basin waystation at a crossroads, the ration window in its stone house, the queue for blankers along
+    # the south wall. They come down from the north (the fork, the signal tower), keep to the high ground on the west,
+    # walk round to the east and leave by the east road toward the sheep pen on the dry creek.
+    'basin_station': {
+        'title': {'number': 12, 'name': 'The Basin Waystation', 'subtitle': 'The grey pen'},
+        'spawn': [12 * T + 16, 1 * T + 16],
+        'elia_repeat': "I didn't touch my coat there.",
+        'sequence': [
+            {'flag': 'ch12_mira', 'group': 'ms_basin_mira', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch12_road', 'group': 'ms_basin_road', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # Below the fork, the signal tower on the east ridge, and the roofs of the basin coming into view.
+            {'rect': {'origin': [11 * T, 4 * T], 'size': [3 * T, T]}, 'group': 'ms_basin_tower', 'flag': 'ch12_tower', 'gate': 'ch12_road'},
+            # The higher ground south-west of the house, looking at the ration window and its queue along the south wall.
+            {'rect': {'origin': [6 * T, 13 * T], 'size': [2 * T, T]}, 'group': 'ms_basin_queue', 'flag': 'ch12_queue', 'gate': 'ch12_tower'},
+            # Round the basin on the far side, sixty paces from the window: Sable's hand on his sleeve.
+            {'rect': {'origin': [19 * T, 7 * T], 'size': [2 * T, T]}, 'group': 'ms_basin_walk', 'flag': 'ch12_walk', 'gate': 'ch12_queue'},
+        ],
+        'battles_gate': None, 'battles': [],
+        'exit': {'center': [23 * T + 16, 9 * T], 'size': [T, 2 * T], 'requires': 'ch12_walk', 'completes': 'ch12_complete',
+                 'group': 'ms_basin_pen', 'next_chapter': 13, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch13_verdan_ready'],
+                 'notice': {'en': 'What to do at the next window, he had not yet chosen.',
+                            'ko': '다음 창구 앞에서 무엇을 할지는 아직 고르지 않았다.'}},
+        'objects_gate': 'ch12_complete',
+        'chests': [{'origin': [5 * T, 15 * T], 'flag': 'chest_basin_trough', 'rewards': {'grains': 28, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [20 * T, 3 * T], 'flag': 'clue_basin_flag',
+                   'text': 'The flag on the signal tower hangs at half-mast. Not mourning. The wind holds south-south-west.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch12_complete',
+        'lights': [],
+        # Grey daylight over a dry basin; the queue, the clerk's window.
+        'atmosphere': {'saturation': 0.5, 'mood': 0.4, 'hue': [0.42, 0.42, 0.4, 1.0], 'light': [0.78, 0.76, 0.72, 1.0],
+                       'splash': 'res://assets/cg/generated/chapter_splash_belt_waystation.png'},
+        'ambient_npcs': [{'position': [400.0, 361.6], 'preset': 'bureau_agent'},
+                         {'position': [374.4, 406.4], 'preset': 'villager_m'},
+                         {'position': [400.0, 406.4], 'preset': 'villager_f'},
+                         {'position': [425.6, 406.4], 'preset': 'elder'},
+                         {'position': [451.2, 406.4], 'preset': 'traveler'},
+                         {'position': [476.8, 406.4], 'preset': 'villager_f'},
+                         {'position': [502.4, 406.4], 'preset': 'fisherman'},
+                         {'position': [528.0, 406.4], 'preset': 'villager_m'},
+                         {'position': [556.8, 428.8], 'preset': 'elder'},
+                         {'position': [556.8, 454.4], 'preset': 'villager_f'},
+                         {'position': [556.8, 480.0], 'preset': 'traveler'},
+                         {'position': [556.8, 505.6], 'preset': 'villager_m'}],
+        # Shown from the arrival on (an empty gate would keep them hidden).
+        'ambient_npcs_gate': 'ch12_road',
     },
 }
 

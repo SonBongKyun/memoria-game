@@ -32,6 +32,10 @@ const TCHAR* SableStep = TEXT("res://assets/cg/generated/illustration_expansion_
 // S377: the roofless farmhouses. The warm book in two hands (no faces). The road and the second farmhouse play over the
 // map's splash (the Belt road at dusk).
 const TCHAR* BookWarmth = TEXT("res://assets/cg/generated/story_ch3_blank_book_warmth.png");
+// S379: the basin waystation. A records desk with a candle and an open ledger, nobody at it (Mira's registry);
+// the pen plays over the map's splash.
+const TCHAR* RegistryDesk = TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png");
+const TCHAR* Pen = TEXT("res://assets/cg/generated/chapter_splash_belt_waystation.png");
 
 const TMap<FString, TArray<FLine>>& Scenes()
 {
@@ -715,6 +719,94 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, nullptr, TEXT("Fel. Arrel said it after her, only inside. A name he had never heard. He did not ask aloud who it was."), TEXT("펠. 아렐은 안에서만 따라 불러 보았다. 처음 듣는 이름이었다. 누구냐고 입 밖으로 묻지는 않았다.")},
         {nullptr, nullptr, nullptr, TEXT("The glove was left on the road. The name Fel he could call up just as it was; not like his own name from the shell, which he had had to beg to hear again."), TEXT("장갑은 길에 두고 왔다. 펠이라는 이름은 그대로 떠올릴 수 있었다. 자기 이름을 조개에서 들었을 때와는 달랐다.")},
         {nullptr, nullptr, nullptr, TEXT("Arrel corrected his first question. Before asking who, he would first tell her he had heard."), TEXT("아렐은 첫 질문을 고쳤다. 누구냐고 묻기 전에, 자기가 들었다는 말부터 해야 했다.")}}},
+    // S379 Chapter 12, the basin waystation: 최종본 19화 「미라」 (a cutaway in Lumea), 20화 「회색 우리」. Sable hears.
+    {TEXT("ms_basin_mira"), {
+        {nullptr, nullptr, RegistryDesk, TEXT("Mira did not set the graphite to the paper. The third error this week. Lumea, the Central Records building, west wing, the second Registry office. Her desk was the eleventh."), TEXT("미라는 흑연을 종이에 대지 않았다. 이번 주의 셋째 오류였다. 루메아 중앙 기록 건물 서관, 제2 레지스트리 사무실. 그녀의 책상은 열한 번째였다.")},
+        {nullptr, nullptr, nullptr, TEXT("Nineteen years of aligning. From the third year on, Mira had stopped reading names as sounds. She looked only for a missing stroke, for a mark set in the wrong place."), TEXT("정렬을 시작한 지 십구 년째였다. 삼 년째부터 미라는 이름을 소리로 읽지 않았다. 획이 빠졌는지, 기호가 붙을 자리가 맞는지만 보았다.")},
+        {nullptr, nullptr, nullptr, TEXT("K-7 at the top of the page. That warden's drift never went past 0.03 degrees. She laid the square against it and measured. 0.3 degrees."), TEXT("종이 위쪽에 K-7이라고 적혀 있었다. 그 관리관의 어긋남은 0.03도를 넘지 않았다. 직각자를 대어 각도를 재었다. 0.3도였다.")},
+        {nullptr, nullptr, nullptr, TEXT("The gap at the top closed before the second paragraph. He had begun writing at this angle, and come back before the second paragraph. Why come back here?"), TEXT("상단에서 벌어졌던 틈이 둘째 문단에 이르기 전에 줄었다. 이 각도로 쓰기 시작했다. 그리고 둘째 문단에 들어가기 전에 돌아왔다. 왜 여기서 돌아왔을까.")},
+        {nullptr, nullptr, nullptr, TEXT("From the third drawer Mira took a small notebook. None of the things the Registry told her to record were in it. Some day, she thought, one of these would be worth selling."), TEXT("미라는 셋째 서랍에서 작은 노트를 꺼냈다. 레지스트리에서 적으라고 한 것들은 들어 있지 않았다. 언젠가 팔 수 있는 것이 나올 거라고 생각했다.")},
+        {nullptr, nullptr, nullptr, TEXT("K-7. Wednesday. 0.3 degrees. Top only. She did not write why. She shut the notebook and pushed the drawer closed. The door opened."), TEXT("K-7. 수요일. 0.3도. 상단만. 왜 그랬는지는 적지 않았다. 노트를 덮고 서랍을 밀어 닫았다. 문이 열렸다.")},
+        {TEXT("Belor"), nullptr, nullptr, TEXT("Second Registry."), TEXT("제2 레지스트리.")},
+        {nullptr, nullptr, nullptr, TEXT("Belor. The white robe came toward the eleventh desk."), TEXT("벨로르였다. 흰 도포가 열한 번째 책상으로 다가왔다.")},
+        {TEXT("Mira"), nullptr, nullptr, TEXT("Yes."), TEXT("예.")},
+        {TEXT("Belor"), nullptr, nullptr, TEXT("The K-7 report."), TEXT("K-7 건.")},
+        {nullptr, nullptr, nullptr, TEXT("Belor read the first line aloud. He folded the report and put it under his arm."), TEXT("벨로르는 첫 줄을 소리 내 읽었다. 보고서를 접어 겨드랑이에 끼웠다.")},
+        {TEXT("Belor"), nullptr, nullptr, TEXT("Did you have it long?"), TEXT("오래 갖고 있었나.")},
+        {TEXT("Mira"), nullptr, nullptr, TEXT("Seven minutes."), TEXT("칠 분.")},
+        {TEXT("Belor"), nullptr, nullptr, TEXT("Anything?"), TEXT("뭔가 있었나.")},
+        {nullptr, nullptr, nullptr, TEXT("She could say 0.3 degrees. Ten times the usual, and only at the top: that would be everything she had found. Under the desk, Mira did not open her fingers."), TEXT("0.3도라고 말하면 됐다. 평소의 열 배였고, 상단에만 있었다고 덧붙이면 그녀가 발견한 것은 다 전달됐다. 미라는 책상 아래의 손가락을 펴지 않았다.")},
+        {TEXT("Mira"), nullptr, nullptr, TEXT("Nothing."), TEXT("없었습니다.")},
+        {TEXT("Belor"), nullptr, nullptr, TEXT("Good."), TEXT("좋군.")},
+        {nullptr, nullptr, nullptr, TEXT("The door closed. She counted from one. At seventy she took her hand from the drawer, and picked up the top of the six reports left in the tray."), TEXT("문이 닫혔다. 그녀는 하나부터 세었다. 칠십에 이르렀을 때 서랍에서 손을 뗐다. 트레이에 남은 여섯 장 가운데 맨 위의 것을 집었다.")}}},
+    {TEXT("ms_basin_road"), {
+        {nullptr, nullptr, nullptr, TEXT("Arrel slowed at an empty trough, a wooden tub sunk on one leg; its bottom was dry. A fallen mile stone lay beside the road, its numbers face down."), TEXT("아렐은 빈 음수조 앞에서 발을 늦췄다. 한쪽 다리가 내려앉은 나무통이었다. 바닥은 말라 있었다. 길 옆에는 쓰러진 마일 표석이 숫자 면을 땅에 대고 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Elia's right hand hung on her bag strap. The hand that had kept covering the same place on her coat yesterday."), TEXT("엘리아의 오른손은 가방 끈에 걸려 있었다. 어제 코트의 같은 곳을 덮었던 손이었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Last night I heard you say Fel. That was all it would take to begin. Before he said it, Elia told Sable the road forked."), TEXT("어젯밤 네가 펠이라고 부르는 걸 들었어. 그렇게 시작하면 됐다. 입 밖으로 내기 전에 엘리아가 세이블에게 길이 갈라진다고 말했다.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("There's a post on the south road."), TEXT("남쪽 길에 표주가 있어요.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Writing?"), TEXT("글씨는.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("The board's gone."), TEXT("판이 없어요.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("South, then."), TEXT("남쪽으로 가자.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Do we reach the Belt road today?"), TEXT("오늘 벨트 도로에 닿아요?")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("As far as its edge."), TEXT("경계까지는 간다.")},
+        {nullptr, nullptr, nullptr, TEXT("He said nothing about the book, or the name he had heard in the night."), TEXT("책에 관한 말도, 밤에 들은 이름도 꺼내지 않았다.")}}},
+    {TEXT("ms_basin_tower"), {
+        {nullptr, nullptr, nullptr, TEXT("Low stone walls divided the fields. Half an hour on, a signal tower stood on the east ridge, its flag hung halfway up the pole."), TEXT("낮은 돌담들이 밭을 나누고 있었다. 반 시간쯤 뒤 동쪽 능선에 신호탑이 나타났다. 꼭대기의 깃발은 기둥 중간에 걸려 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("South-south-west, the wind; it had held a while. He knew what it meant. Reaching for who had taught him, he found only the pole he had just seen."), TEXT("남남서풍. 한동안 방향이 바뀌지 않고 있었다. 그 뜻을 알았다. 누구에게서 배웠는지 찾으려 하자, 머릿속에는 조금 전 본 기둥만 남았다.")},
+        {nullptr, nullptr, nullptr, TEXT("Half-mast was not a sign of mourning. He knew that too."), TEXT("반쯤 내린 것은 애도를 알리는 신호가 아니었다. 그것도 알았다.")},
+        {nullptr, nullptr, nullptr, TEXT("Where the road eased down, roofs appeared. A waystation in the basin: four buildings round the place where two roads met."), TEXT("길이 완만하게 낮아지는 곳에서 지붕들이 보였다. 분지 안에 역참이 있었다. 길 둘이 만나는 곳을 건물 넷이 둘러싸고 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("In the low stone house on the corner, a window had been cut. People stood before it. About thirty-five."), TEXT("교차로 모서리의 낮은 돌집에는 창구가 나 있었다. 그 앞에 사람들이 서 있었다. 서른다섯쯤 됐다.")}}},
+    {TEXT("ms_basin_queue"), {
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("There's a ration line."), TEXT("배급 줄이 있어.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Where?"), TEXT("어디에.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Below. From the stone house's window to the stable."), TEXT("아래. 돌집 창구 앞에서 마구간까지.")},
+        {nullptr, nullptr, nullptr, TEXT("A clerk held out his arm. The man at the window opened his palm; something white was set there and hidden by his fingers. He raised the hand to his mouth. He drank no water."), TEXT("서기가 팔을 내밀었다. 창구 앞 남자가 손바닥을 폈다. 흰 것이 그 위에 놓였다가 손가락에 가려졌다. 남자는 그 손을 입에 가져갔다. 물을 마시지는 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("His throat moved once. He lowered his hand and swallowed again, then turned toward the stable. The one behind him stepped up to the window."), TEXT("턱 밑이 한 번 움직였다. 손을 내린 뒤 조금 더 삼켰다. 곧 몸을 돌려 마구간 쪽으로 갔다. 뒤에 있던 사람이 창구 앞으로 나왔다.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Blankers. ...They swallow and go."), TEXT("블랭커예요. ...삼키고 가요.")},
+        {nullptr, nullptr, nullptr, TEXT("The day he left Verdan, a white pill had been set on a palm too. He was a child then, his mother beside him. He had thought that hand should be moved away. And yet he had not been angry, and had wondered whether he was wrong."), TEXT("베르단을 떠나던 날에도 흰 알약이 손바닥에 놓였다. 그때는 아이였고, 곁에는 어머니가 있었다. 저 손을 치워야겠다고 생각했다. 그러고도 화가 나지 않아, 자신이 틀린 생각을 한 것인지 살폈다.")},
+        {nullptr, nullptr, nullptr, TEXT("Now it was hard to look away from the window. Set a pill on that flat stone and press, and it would break. Reach before the clerk took out the next one."), TEXT("지금은 창구에서 시선을 떼기가 어려웠다. 저 위에 알약을 놓고 누르면 부서질 것 같았다. 서기가 다음 것을 꺼내기 전에 손을 뻗으면 됐다.")},
+        {nullptr, nullptr, nullptr, TEXT("Arrel clenched his jaw."), TEXT("아렐은 턱을 세게 다물었다.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Arrel. Come down this way. Walk."), TEXT("아렐. 이쪽 길로 내려와. 걷자.")},
+        {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("They came for it. On their own feet. To take that."), TEXT("받으러 온 거예요. 자기 발로 걸어와서. 저걸 받으려고.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Do you mean to get in that line too?"), TEXT("너도 그 안으로 들어가겠다는 거니?")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("No."), TEXT("아뇨.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Then come. I don't mean to stand here long."), TEXT("그럼 와. 여기 오래 서 있을 생각 없다.")}}},
+    {TEXT("ms_basin_walk"), {
+        {nullptr, nullptr, nullptr, TEXT("The way round was sixty paces from the window. Below, the line kept moving. Arrel's right fingers curled."), TEXT("돌아가는 길은 창구에서 육십 걸음쯤 떨어져 있었다. 아래에서는 줄이 계속 움직였다. 아렐의 오른손가락이 굽었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Sable's left hand touched his sleeve. Her fingertips followed the cloth down and rested on the back of his hand. She did not turn her face his way. A dry palm. It did not press, or pull."), TEXT("세이블의 왼손이 그의 소매에 닿았다. 노파의 손끝이 천을 따라 내려와 손등에 얹혔다. 세이블은 그쪽으로 얼굴을 돌리지 않았다. 마른 손바닥이었다. 누르지도, 끌어당기지도 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("A few steps later Sable took her hand back. She asked Elia only whether there were stones underfoot."), TEXT("몇 걸음 뒤 세이블이 손을 거두었다. 노파는 발밑에 돌이 있는지만 엘리아에게 물었다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("It's clear ahead."), TEXT("앞은 괜찮아.")},
+        {nullptr, nullptr, nullptr, TEXT("Elia's lips moved a little. No word came. He could not put last night's name to it."), TEXT("엘리아의 입술이 조금 움직였다. 들린 말은 없었다. 어젯밤 들은 이름을 거기에 붙일 수는 없었다.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Elia. ...Lower your strap. It's caught on your shoulder."), TEXT("엘리아. ...끈 좀 내려. 어깨에 걸렸어.")},
+        {nullptr, nullptr, nullptr, TEXT("The road bent behind the stable. The window went out of sight first. They did not go into the waystation that day."), TEXT("길이 마구간 뒤로 꺾였다. 창구가 먼저 가려졌다. 그날은 역참에 들어가지 않았다.")}}},
+    {TEXT("ms_basin_pen"), {
+        {nullptr, nullptr, Pen, TEXT("The pen where sheep had been kept stood over a dry creek: stone walls south of a low ridge, no timber left to close the gap."), TEXT("양을 가두던 우리는 마른 시내 위에 있었다. 낮은 능선의 남쪽에 돌벽이 남아 있었다. 입구를 막았을 나무는 없었다.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I'll keep watch first."), TEXT("먼저 볼게요.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("After that, I'll stay awake."), TEXT("그 뒤엔 내가 깨어 있으마.")},
+        {nullptr, nullptr, nullptr, TEXT("After dark the window still came back. If he had gone and broken the pill, what would that man have done? He might have asked for something else."), TEXT("어두워진 뒤에도 창구가 떠올랐다. 창구로 가서 알약을 부수었다면 그 남자가 어떻게 했을까. 다른 것을 달라고 했을 수도 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Today he had not thought past taking the pill from a man's hand. He had only been choosing what to ask the clerk once it was broken."), TEXT("오늘은 사람의 손에서 알약을 빼낸 다음을 생각하지 않았다. 부수고 나서 서기에게 물을 말만 고르고 있었다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Arrel."), TEXT("아렐.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Mm."), TEXT("응.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("You saw."), TEXT("봤지.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("The line?"), TEXT("줄?")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("My hand. ...I didn't touch my coat there."), TEXT("내 손. ...거기서 코트에 손 안 댔어.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I saw."), TEXT("봤어.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("I wanted to."), TEXT("대고 싶었는데.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("The book?"), TEXT("책을?")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Mm."), TEXT("응.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Why didn't you?"), TEXT("왜 안 했어.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Because the book would have known where we were."), TEXT("책이 우리가 어디 있는지 알았을 테니까.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("And if you don't touch it, it doesn't?"), TEXT("손을 안 대면 몰라?")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("That I don't know. ...I don't want to touch it to find out, either."), TEXT("그건 몰라. ...알아보려고 만지고 싶지도 않아.")},
+        {nullptr, nullptr, nullptr, TEXT("Arrel thought of last night's name. He only had to say he had heard. Elia was awake. He did not bring the name up."), TEXT("아렐은 어젯밤의 이름을 떠올렸다. 들었다고 말하면 됐다. 엘리아는 깨어 있었다. 그는 이름을 꺼내지 않았다.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Arrel."), TEXT("아렐.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Here. Just a little further."), TEXT("여기요. 조금만 더 오면 돼요.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Don't go down the front. The stones roll."), TEXT("앞으로 내려가지 마세요. 돌이 굴러요.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("You stop watching too, and lie down."), TEXT("너도 그만 보고 누워.")},
+        {nullptr, nullptr, nullptr, TEXT("With his eyes closed, the window came back clearer. He pictured the man reaching out again after his pill was taken. Holding that hand shut came to him easily. He stopped thinking of holding the hand."), TEXT("눈을 감자 창구가 더 잘 떠올랐다. 알약을 빼앗긴 남자가 다시 손을 내미는 모습을 생각했다. 그 손을 못 펴게 붙잡는 자신은 쉽게 떠올랐다. 그는 손을 붙잡는 생각을 그만두었다.")},
+        {nullptr, nullptr, nullptr, TEXT("When he woke, grey sky showed over the wall. Sable had a hand on the top of the wall. Her face, tilted toward the road they had come by, turned at the sound of his coat."), TEXT("눈을 떴을 때 벽 위로 회색 하늘이 보였다. 세이블이 벽 꼭대기에 손을 얹고 있었다. 지나온 길 쪽으로 기울였던 얼굴이 아렐의 코트가 스치는 소리에 돌아왔다.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Up."), TEXT("일어나.")},
+        {nullptr, nullptr, nullptr, TEXT("He buckled on the sword. What to do at the next window, he had not yet chosen."), TEXT("그는 검을 허리에 둘렀다. 다음 창구 앞에서 무엇을 할지는 아직 고르지 않았다.")}}},
     };
     return Values;
 }

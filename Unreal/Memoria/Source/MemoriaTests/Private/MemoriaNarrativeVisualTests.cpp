@@ -13,7 +13,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVisualCoverage,"MemoriaVisual.ArtworkCoverage"
 bool FVisualCoverage::RunTest(const FString&)
 {
     // S371: plus the Seam's splash, three of its pictures and Sable's portrait; S372: the forest's four (one more was set aside: it shows a fourth companion); S373: the coast's two (pictures with breaking surf set aside: the manuscript's coast has no water).
-    TestEqual(TEXT("Seventy-nine sources: the earlier sixty-seven, the Seam's five, the forest's four, the coast's two and the Seam leaving's one (S378 dropped the Tobias rings and the salt-flat road)"),MemoriaNarrativeArtwork::Sources().Num(),79);
+    TestEqual(TEXT("Eighty sources: the earlier sixty-seven, the Seam's five, the forest's four, the coast's two, the Seam leaving's one and the registry desk (S378 dropped the Tobias rings and the salt-flat road)"),MemoriaNarrativeArtwork::Sources().Num(),80);
     for(const auto& Entry:MemoriaNarrativeArtwork::Sources())
     {
         auto* Texture=MemoriaNarrativeArtwork::Load(Entry.Source);

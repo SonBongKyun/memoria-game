@@ -131,7 +131,10 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch11_house"), TEXT("A night in the roofless farmhouse"), TEXT("지붕 없는 농가에서 밤")},
         {TEXT("ch11_glove"), TEXT("The grey glove on the road"), TEXT("길 위의 회색 장갑")},
         {TEXT("ch11_complete"), TEXT("The second farmhouse"), TEXT("두 번째 농가")},
-        {TEXT("ms_never"), TEXT("On to the Belt road, off the roads the cleaners walk"), TEXT("벨트 도로로: 청소하는 자들이 다니는 길을 피해")}};
+        // S379: 19-20화.
+        {TEXT("ch12_queue"), TEXT("The ration window in the basin"), TEXT("분지 역참의 배급 창구")},
+        {TEXT("ch12_complete"), TEXT("A night in the grey sheep pen"), TEXT("회색 양 우리에서 밤")},
+        {TEXT("ms_never"), TEXT("On toward the Belt road; the next window"), TEXT("벨트 도로 쪽으로: 다음 창구")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

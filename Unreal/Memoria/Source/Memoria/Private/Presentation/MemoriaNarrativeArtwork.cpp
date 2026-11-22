@@ -93,6 +93,8 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/story_ch8_ghost_mother.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch8_ghost_mother"), false},
         // S373 Chapter 8, the coast and Blank 7 (the still city reuses sealed_city_ruins above).
         {TEXT("res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch09_equalized_waste_v1"), false},
+        // S379 Chapter 12: Mira's registry desk (a records desk, candle and ledger, nobody at it).
+        {TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_pause_archive_backdrop"), false},
         // S375 Chapter 10, the Seam, leaving: Sable listening, eyes half shut (blind canon).
         {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_sable_witness_v3"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch05_city_in_bedrock_v1"), false},

@@ -158,6 +158,13 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S379: the basin waystation (최종본 19-20화).
+        {TEXT("basin_station"), TEXT("분지의 역참")}, {TEXT("The Basin Waystation"), TEXT("분지의 역참")},
+        {TEXT("The grey pen"), TEXT("회색 우리")}, {TEXT("The Sheep Pen"), TEXT("양 우리")},
+        {TEXT("The ration window: blankers"), TEXT("배급 창구: 블랭커")},
+        {TEXT("What to do at the next window, he had not yet chosen."), TEXT("다음 창구 앞에서 무엇을 할지는 아직 고르지 않았다.")},
+        {TEXT("The flag on the signal tower hangs at half-mast. Not mourning. The wind holds south-south-west."), TEXT("신호탑의 깃발이 기둥 중간에 걸려 있다. 애도가 아니다. 바람은 남남서풍이다.")},
+        {TEXT("I didn't touch my coat there."), TEXT("거기서 코트에 손 안 댔어.")},
         // S377: the roofless farmhouses (최종본 17-18화).
         {TEXT("roofless_farms"), TEXT("지붕 없는 농가")}, {TEXT("The Roofless Farmhouses"), TEXT("지붕 없는 농가")},
         {TEXT("The reader"), TEXT("읽는 자")}, {TEXT("The Second Farmhouse"), TEXT("두 번째 농가")},

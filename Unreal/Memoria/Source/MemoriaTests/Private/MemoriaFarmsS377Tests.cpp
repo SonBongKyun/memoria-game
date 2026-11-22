@@ -51,6 +51,7 @@ bool FFarmsS377Test::RunTest(const FString&)
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     const auto* Return = MemoriaChapterMaps::Find(ReturnMap);
     TestTrue(TEXT("The Seam's road west leads to the farmhouses"), Return && Return->Exit.NextMap == FarmsMap && Return->Exit.NextChapter == 11);
+    TestTrue(TEXT("and the farmhouses' road to the basin"), Farms->Exit.NextMap == BasinMap && Farms->Exit.NextChapter == 12);
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -96,10 +97,10 @@ bool FFarmsS377Test::RunTest(const FString&)
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), FarmsMap, false), FString(S[1])); }
     // The main quest: after the crossroads, the farmhouse; after the second farmhouse, the Belt road off the cleaners' roads.
     for (const TCHAR* F : {TEXT("ch11_house"), TEXT("ch11_glove")}) Run->SetStoryFlag(F, false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch11_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch11_")) && !FString(M.Flag).StartsWith(TEXT("ch12_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is at the farmhouse"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 지붕 없는 농가에서 밤")));
     for (const TCHAR* F : {TEXT("ch11_house"), TEXT("ch11_glove"), TEXT("ch11_complete")}) Run->SetStoryFlag(F, true);
-    TestTrue(TEXT("then the Belt road"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 벨트 도로로: 청소하는 자들이 다니는 길을 피해")));
+    TestTrue(TEXT("then the basin"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 분지 역참의 배급 창구")));
     Game->Shutdown();
     return true;
 }

@@ -54,6 +54,8 @@ namespace MemoriaManuscript
     inline const TCHAR* const ReturnMap = TEXT("seam_return");
     // S377: Chapter 11, the roofless farmhouses (최종본 17-18화), on the Godot colorless_waste plain.
     inline const TCHAR* const FarmsMap = TEXT("roofless_farms");
+    // S379: Chapter 12, the basin waystation (최종본 19-20화), on the Godot belt_waystation yard.
+    inline const TCHAR* const BasinMap = TEXT("basin_station");
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
     // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
     inline constexpr int32 SableHeavyBurns = 4;

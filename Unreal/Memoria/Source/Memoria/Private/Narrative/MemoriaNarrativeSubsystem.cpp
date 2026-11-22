@@ -573,6 +573,12 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_farm_fel") && !Run->GetRunSnapshot().GetFlag(TEXT("ch11_fel_name")))
     { Run->SetStoryFlag(TEXT("ch11_fel_name"), true); Notice(TEXT("A name: Fel")); bNoticeHeld = true; }
     if (Group == TEXT("ms_farm_second")) Run->SetStoryFlag(TEXT("ch11_fel_heard"), true);
+    // S379 (19화): Mira keeps the 0.3 degrees in her own notebook and tells Belor "없었습니다".
+    if (Group == TEXT("ms_basin_mira")) Run->SetStoryFlag(TEXT("ch12_mira_kept"), true);
+    // S379 (20화): the ration window: blankers, swallowed dry.
+    if (Group == TEXT("ms_basin_queue") && !Run->GetRunSnapshot().GetFlag(TEXT("ch12_blankers")))
+    { Run->SetStoryFlag(TEXT("ch12_blankers"), true); Notice(TEXT("The ration window: blankers")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_basin_walk")) Run->SetStoryFlag(TEXT("ch12_sable_hand"), true);
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
     { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
     ManuscriptAsset = Asset;

@@ -153,6 +153,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.2f, -30.f, -48.f, 1.15f, .58f, .012f, 2.4f, .5f,
         46, false, true};
     if (InMap == TEXT("roofless_farms")) return Fields;
+    // S379 The basin waystation: grey daylight over a dry basin (20화), the Belt yard's earth and cracked road; low
+    // broken field walls round the rim ("낮은 돌담들이 밭을 나누고"); no lamps lit by day.
+    static const FDressing Basin{TEXT("T_BeltSoil"), TEXT("T_BeltPaved"),
+        FLinearColor(.9f, .9f, .9f), FLinearColor(.07f, .065f, .06f), FLinearColor(.075f, .072f, .068f), FLinearColor(.066f, .064f, .06f),
+        FLinearColor(.05f, .04f, .03f), FLinearColor(.08f, .08f, .08f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .7f, .4f), FLinearColor(.56f, .57f, .6f), FLinearColor(.07f, .07f, .072f), FLinearColor(.85f, .85f, .82f),
+        230.f, 250.f, 0.f, 0.f,
+        3.9f, -50.f, 26.f, 1.25f, .66f, .013f, 1.6f, .48f,
+        30, false, true};
+    if (InMap == TEXT("basin_station")) return Basin;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -758,6 +768,29 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         for (float Side : {-1.f, 1.f}) { Beam(Timber, Chair + FVector(Side * 16, -14, 0), Chair + FVector(-Side * 16, 14, 44), 3.f); }
         Box(Timber, Chair + FVector(0, 0, 44), FVector(36, 30, 3), FRotator::ZeroRotator);
     }
+    else if (Map == TEXT("basin_station"))
+    {
+        // S379: the signal tower on the east ridge with its flag at half-mast (20화); the empty trough sunk on one leg
+        // and the fallen mile stone by the north road; the ration window cut in the stone house's south wall, a flat
+        // stone sill under it.
+        auto* Pole = Timber;   // the set pieces' timber; another SetTimber MID would collide by name
+        auto* Cloth = Focus(TEXT("BasinFlag"), FLinearColor(.32f, .3f, .27f), 2, .9f);
+        auto* Shutter = Focus(TEXT("BasinWindow"), FLinearColor(.015f, .013f, .012f), 2, .95f);
+        const FVector Tower = TileCentre(Spec->Width + 2.2f, 3.5f) + Ground;
+        for (const float Side : {-1.f, 1.f})
+            for (const float Depth : {-1.f, 1.f})
+                Beam(Pole, Tower + FVector(Side * 70.f, Depth * 70.f, 0), Tower + FVector(Side * 22.f, Depth * 22.f, 620.f), 7.f);
+        Box(Pole, Tower + FVector(0, 0, 610.f), FVector(70, 70, 10));
+        Beam(Pole, Tower + FVector(0, 0, 610.f), Tower + FVector(0, 0, 900.f), 4.f);
+        Box(Cloth, Tower + FVector(-46.f, 0, 760.f), FVector(88, 3, 52), FRotator(0, 0, 4));
+        const FVector Trough = TileCentre(10.6f, 2.4f) + Ground;
+        Box(Timber, Trough + FVector(0, 0, 20.f), FVector(110, 46, 40), FRotator(0, 8, -9));
+        const FVector Mile = TileCentre(14.2f, 3.2f) + Ground;
+        Box(Stone, Mile + FVector(0, 0, 12.f), FVector(32, 76, 24), FRotator(0, 18, 0));
+        const FVector Window = TileCentre(11.2f, 11.f) + Ground;
+        Box(Shutter, Window + FVector(0, -T * .52f, 95.f), FVector(54, 4, 38), FRotator::ZeroRotator, false);
+        Box(Stone, Window + FVector(0, -T * .62f, 58.f), FVector(70, 18, 8));
+    }
     else if (Map == TEXT("roofless_farms"))
     {
         // S377: the first farmhouse's standing walls on the PILLAR tiles, roofless, with roof-tile shards inside (17화);
@@ -921,7 +954,7 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
 void AMemoriaChapterPresentation::BuildGrass(const FDressing& Look)
 {
     // Dry tufts on the open soil, as the canvases paint them: thick in the Belt's dead yard, thin in Drift's mud.
-    auto* Grass = Kit(TEXT("Grass"), Map == TEXT("forgotten_forest") ? FLinearColor(.5f, 1.05f, .55f) : Map == TEXT("haren_clearing") ? FLinearColor(.66f, 1.25f, .55f) : Map == TEXT("roofless_farms") ? FLinearColor(1.55f, 1.32f, .9f) : Map == TEXT("the_seam") || Map == TEXT("seam_return") ? FLinearColor(.75f, 1.45f, .62f) : Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
+    auto* Grass = Kit(TEXT("Grass"), Map == TEXT("forgotten_forest") ? FLinearColor(.5f, 1.05f, .55f) : Map == TEXT("haren_clearing") ? FLinearColor(.66f, 1.25f, .55f) : Map == TEXT("roofless_farms") ? FLinearColor(1.55f, 1.32f, .9f) : Map == TEXT("basin_station") ? FLinearColor(1.2f, 1.15f, 1.f) : Map == TEXT("the_seam") || Map == TEXT("seam_return") ? FLinearColor(.75f, 1.45f, .62f) : Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
     if (!Grass) return;
     // The cards stand edge-on to the low light and would go black; they give back some of their own colour.
     Grass->SetScalarParameterValue(TEXT("Fill"), Look.bRain ? .22f : .3f);

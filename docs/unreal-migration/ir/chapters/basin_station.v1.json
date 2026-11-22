@@ -1,0 +1,834 @@
+{
+ "ambient_npcs": [
+  {
+   "position": [
+    400.0,
+    361.6
+   ],
+   "preset": "bureau_agent"
+  },
+  {
+   "position": [
+    374.4,
+    406.4
+   ],
+   "preset": "villager_m"
+  },
+  {
+   "position": [
+    400.0,
+    406.4
+   ],
+   "preset": "villager_f"
+  },
+  {
+   "position": [
+    425.6,
+    406.4
+   ],
+   "preset": "elder"
+  },
+  {
+   "position": [
+    451.2,
+    406.4
+   ],
+   "preset": "traveler"
+  },
+  {
+   "position": [
+    476.8,
+    406.4
+   ],
+   "preset": "villager_f"
+  },
+  {
+   "position": [
+    502.4,
+    406.4
+   ],
+   "preset": "fisherman"
+  },
+  {
+   "position": [
+    528.0,
+    406.4
+   ],
+   "preset": "villager_m"
+  },
+  {
+   "position": [
+    556.8,
+    428.8
+   ],
+   "preset": "elder"
+  },
+  {
+   "position": [
+    556.8,
+    454.4
+   ],
+   "preset": "villager_f"
+  },
+  {
+   "position": [
+    556.8,
+    480.0
+   ],
+   "preset": "traveler"
+  },
+  {
+   "position": [
+    556.8,
+    505.6
+   ],
+   "preset": "villager_m"
+  }
+ ],
+ "ambient_npcs_gate": "ch12_road",
+ "asset_prefix": "Ch12",
+ "atmosphere": {
+  "brightness": -0.03,
+  "fog": "none",
+  "hue": [
+   0.42,
+   0.42,
+   0.4,
+   1.0
+  ],
+  "light": [
+   0.78,
+   0.76,
+   0.72,
+   1.0
+  ],
+  "mood": 0.4,
+  "saturation": 0.5,
+  "splash": "res://assets/cg/generated/chapter_splash_belt_waystation.png"
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 12,
+ "chests": [
+  {
+   "flag": "chest_basin_trough",
+   "origin": [
+    160.0,
+    480.0
+   ],
+   "rewards": {
+    "grains": 28,
+    "items": {
+     "antidote": 1,
+     "potion": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_basin_flag",
+   "origin": [
+    640.0,
+    96.0
+   ],
+   "text": "The flag on the signal tower hangs at half-mast. Not mourning. The wind holds south-south-west."
+  }
+ ],
+ "decorations": [],
+ "dialogue_file": "data/chapter3_dialogue.json",
+ "elia_repeat": "I didn't touch my coat there.",
+ "encounter_range": [
+  50,
+  90
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "weaken"
+   ],
+   "atk": 12,
+   "hp": 55,
+   "is_void": false,
+   "name": "Belt Scavenger"
+  },
+  {
+   "abilities": [
+    "drain"
+   ],
+   "atk": 14,
+   "hp": 45,
+   "is_void": true,
+   "name": "Void Wisp"
+  },
+  {
+   "abilities": [
+    "poison"
+   ],
+   "atk": 10,
+   "hp": 40,
+   "is_void": false,
+   "name": "Dust Crawler"
+  }
+ ],
+ "encounters_gate": "ch12_complete",
+ "exit": {
+  "center": [
+   752.0,
+   288.0
+  ],
+  "completes": "ch12_complete",
+  "flags": [
+   "canon_ch13_verdan_ready"
+  ],
+  "group": "ms_basin_pen",
+  "next_chapter": 13,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "What to do at the next window, he had not yet chosen.",
+   "ko": "다음 창구 앞에서 무엇을 할지는 아직 고르지 않았다."
+  },
+  "requires": "ch12_walk",
+  "size": [
+   32.0,
+   64.0
+  ]
+ },
+ "height": 18,
+ "map": "basin_station",
+ "objects_gate": "ch12_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch12_mira",
+   "flags": [],
+   "group": "ms_basin_mira",
+   "memories_chapter": null,
+   "toasts": []
+  },
+  {
+   "flag": "ch12_road",
+   "flags": [],
+   "group": "ms_basin_road",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  3,
+  2
+ ],
+ "source": "scenes/maps/belt_waystation.gd (ground) + 최종본 19-20화 (story)",
+ "spawn": [
+  400.0,
+  48.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.25,
+    0.23,
+    0.21,
+    1.0
+   ],
+   "detail": "dead_soil"
+  },
+  {
+   "color": [
+    0.3,
+    0.28,
+    0.25,
+    1.0
+   ],
+   "detail": "road"
+  },
+  {
+   "color": [
+    0.18,
+    0.16,
+    0.14,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.12,
+    0.1,
+    0.09,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.35,
+    0.32,
+    0.28,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.2,
+    0.18,
+    0.16,
+    1.0
+   ],
+   "detail": "stone_floor"
+  }
+ ],
+ "tile_names": [
+  "DEAD_SOIL",
+  "CRACKED_ROAD",
+  "RUIN",
+  "WALL",
+  "PATH",
+  "INTERIOR"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   4,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   3,
+   4,
+   4,
+   3,
+   3,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   4,
+   4,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ]
+ ],
+ "title": {
+  "name": "The Basin Waystation",
+  "number": 12,
+  "subtitle": "The grey pen"
+ },
+ "triggers": [
+  {
+   "flag": "ch12_tower",
+   "gate": "ch12_road",
+   "group": "ms_basin_tower",
+   "rect": {
+    "origin": [
+     352.0,
+     128.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch12_queue",
+   "gate": "ch12_tower",
+   "group": "ms_basin_queue",
+   "rect": {
+    "origin": [
+     192.0,
+     416.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch12_walk",
+   "gate": "ch12_queue",
+   "group": "ms_basin_walk",
+   "rect": {
+    "origin": [
+     608.0,
+     224.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}
