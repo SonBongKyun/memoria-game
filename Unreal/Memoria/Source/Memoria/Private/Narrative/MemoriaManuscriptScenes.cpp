@@ -23,18 +23,15 @@ const TCHAR* ForestPath = TEXT("res://assets/cg/generated/chapter_splash_forgott
 const TCHAR* GreyShore = TEXT("res://assets/cg/generated/chapter_expansion/ch09_equalized_waste_v1.png");
 const TCHAR* CityInRock = TEXT("res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png");
 const TCHAR* CityStill = TEXT("res://assets/cg/game_image/sealed_city_ruins.png");
-// S374: Haren's clearing. The forest road toward far towers; the cut rings with Haren kneeling and the two
-// watching; Elia humming by the fire with Arrel's sword across his knees.
+// S374: Haren's clearing. The forest road toward far towers. (S378, Gemini T-1: the ring picture shows Tobias, who
+// appears from 23화, and the humming picture has Arrel's blade drawn where 14화 says it stays sheathed; both removed.)
 const TCHAR* ClearingRoad = TEXT("res://assets/cg/generated/chapter_splash_rim_forest.png");
-const TCHAR* RingStump = TEXT("res://assets/cg/generated/chapter_expansion/ch08_ring_acceleration_v1.png");
-const TCHAR* Humming = TEXT("res://assets/cg/generated/archive_ch1_camp_humming_v2.png");
-// S375: the Seam, leaving. Sable seated and listening, her eyes half shut (blind canon); the living streets;
-// three small figures on a road past marker stones, toward the Belt road (16화).
+// S375: the Seam, leaving. Sable seated and listening, her eyes half shut (blind canon). (S378: the living streets, a calm
+// night with Sable at a door, and the drowned salt-flat road were dropped after Gemini's T-1 review.)
 const TCHAR* SableStep = TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png");
-const TCHAR* BeltRoad = TEXT("res://assets/cg/generated/ch16_eastward_road.png");
-// S377: the roofless farmhouses. The warm book in two hands (no faces); the second farmhouse is the grey fields.
+// S377: the roofless farmhouses. The warm book in two hands (no faces). The road and the second farmhouse play over the
+// map's splash (the Belt road at dusk).
 const TCHAR* BookWarmth = TEXT("res://assets/cg/generated/story_ch3_blank_book_warmth.png");
-const TCHAR* SecondFarm = TEXT("res://assets/cg/generated/ch16_eastward_road.png");
 
 const TMap<FString, TArray<FLine>>& Scenes()
 {
@@ -352,15 +349,17 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("That isn't real."), TEXT("저건 진짜가 아니야.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("What isn't?"), TEXT("뭐가.")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("The trees."), TEXT("나무들.")},
-        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Where?"), TEXT("어디가.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("In what way?"), TEXT("어디가.")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("The way they stand."), TEXT("서 있는 방식이.")},
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("They're just trees to me."), TEXT("나한테는 그냥 나무야.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Has the path changed?"), TEXT("길이 바뀌었어?")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("That I don't know."), TEXT("그건 모르겠어.")},
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Then where are you going?"), TEXT("그럼 어디로 가려고.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Where people walked."), TEXT("다니던 데로.")},
         {nullptr, nullptr, nullptr, TEXT("The path forked once. One side was overgrown; on the other, freshly trodden leaves lay turned over. He took the side with the turned leaves."), TEXT("길이 한 번 갈라졌다. 한쪽은 풀에 덮였고, 다른 쪽에는 최근에 밟힌 잎이 뒤집혀 있었다. 아렐은 잎이 뒤집힌 쪽으로 갔다.")},
         {nullptr, nullptr, nullptr, TEXT("A little later, the sound of a treetop coming down. Between the trunks a man straightened. An axe handle rose to shoulder height and fell."), TEXT("조금 뒤 나무 끝이 떨어지는 소리가 났다. 줄기 사이로 사람이 몸을 펴는 모습이 보였다. 도끼 자루가 어깨 높이로 들렸다가 내려갔다.")}}},
     {TEXT("ms_clearing_haren"), {
-        {nullptr, nullptr, RingStump, TEXT("The clearing lay a little off the path. A felled tree blocked one side; at the end of its trunk a man was knocking chips off his axe blade."), TEXT("공터는 길 옆으로 조금 들어간 곳에 있었다. 쓰러진 나무가 한쪽을 가로막고 있었고, 줄기 끝에서 사내가 도끼날에 붙은 부스러기를 털었다.")},
+        {nullptr, nullptr, nullptr, TEXT("The clearing lay a little off the path. A felled tree blocked one side; at the end of its trunk a man was knocking chips off his axe blade."), TEXT("공터는 길 옆으로 조금 들어간 곳에 있었다. 쓰러진 나무가 한쪽을 가로막고 있었고, 줄기 끝에서 사내가 도끼날에 붙은 부스러기를 털었다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Haren?"), TEXT("하렌?")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("So it's you two."), TEXT("너희였군.")},
         {nullptr, nullptr, nullptr, TEXT("The man who had pointed out the road in front of the Seam's last house. The same axe."), TEXT("더 심의 마지막 집 앞에서 길을 가리켜 주던 사람이었다. 도끼도 같았다.")},
@@ -381,7 +380,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, nullptr, TEXT("Arrel nodded. Haren did not turn the question on Elia."), TEXT("아렐은 고개를 끄덕였다. 하렌은 엘리아에게 같은 질문을 돌리지 않았다.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("Then just look at this."), TEXT("그럼 이것만 봐.")}}},
     {TEXT("ms_clearing_rings"), {
-        {nullptr, nullptr, RingStump, TEXT("The cut face was still damp. A little off the centre, between the grain, lay small, exact strokes."), TEXT("잘린 면은 아직 젖어 있었다. 가운데에서 조금 비껴난 자리, 나뭇결 사이에 작고 정교한 획들이 놓여 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("The cut face was still damp. A little off the centre, between the grain, lay small, exact strokes."), TEXT("잘린 면은 아직 젖어 있었다. 가운데에서 조금 비껴난 자리, 나뭇결 사이에 작고 정교한 획들이 놓여 있었다.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("See it?"), TEXT("보이나.")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("There's writing."), TEXT("글씨가 있어요.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("Something on the surface?"), TEXT("겉에 묻은 건가.")},
@@ -403,7 +402,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("The tower is a copy."), TEXT("탑은 복제품이야.")},
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("The tower is a copy of something older. The older thing was for sharing. The copy is for keeping."), TEXT("탑은 더 오래된 것의 복제품이야. 더 오래된 것은 공유를 위한 거였어. 복제품은 보관을 위한 거야.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("Whose voice was that just now?"), TEXT("방금 그 목소리 누구 거야.")},
-        {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("Mine. ...It came out of my mouth."), TEXT("내 거야. ...내 입에서 나왔어.")},
+        {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("Mine. ...It came out of my mouth. I didn't know before I said it. Now I do."), TEXT("내 거야. ...내 입에서 나왔어. 말하기 전에는 몰랐어. 지금은 알아.")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Did a memory of the tower come back?"), TEXT("탑을 본 기억이 돌아온 거야?")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("I'm not finding a place I saw. This isn't memory. It's arithmetic."), TEXT("본 곳을 찾는 게 아니야. 이건 기억이 아니야. 이건 산수야.")},
         {nullptr, nullptr, nullptr, TEXT("She closed the book and put it in her coat, pressed the top corner all the way down, and drew her hand out."), TEXT("엘리아가 책을 덮어 코트 안에 넣었다. 위쪽 모서리를 눌러 끝까지 밀고 손을 빼냈다.")},
@@ -420,7 +419,9 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("A person?"), TEXT("사람?")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("I don't know."), TEXT("모르겠어.")},
         {nullptr, nullptr, nullptr, TEXT("She filled the flask from the clear water in the rock's top. The overflow dropped into the muddy pool. She drank a long time and handed him the rest."), TEXT("엘리아가 바위 위쪽의 맑은 물을 물통에 담았다. 넘친 물은 흙이 섞인 웅덩이로 떨어졌다. 오래 마신 뒤 남은 물을 아렐에게 건넸다.")},
-        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Drink. ...Not while you watch over there."), TEXT("마셔. ...그쪽 보면서 마시지 마.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Drink."), TEXT("마셔.")},
+        {nullptr, nullptr, nullptr, TEXT("He drank. As he turned back to the road, water ran from the corner of his mouth."), TEXT("아렐은 물을 마셨다. 다시 길을 보려는데 물이 입가로 흘렀다.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Don't drink while you watch over there."), TEXT("그쪽 보면서 마시지 마.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("It hasn't come out yet."), TEXT("아직 안 나왔어.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("I saw. I saw you keep looking, too."), TEXT("봤어. 네가 계속 보는 것도.")},
         {nullptr, nullptr, nullptr, TEXT("No more axe sounds from the clearing. At the fork past the rock he took the side with boot prints. He did not go near the tree where the white thing had gone."), TEXT("공터에서는 도끼 소리가 들리지 않았다. 바위 너머의 갈림에서 아렐은 부츠 자국이 이어지는 쪽을 택했다. 흰 것이 사라진 나무에는 다가가지 않았다.")}}},
@@ -431,7 +432,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, nullptr, TEXT("He gathered dry sticks and lit a small fire. From the road you could only see a little light moving on the slab's underside."), TEXT("아렐은 마른 가지를 모아 작은 불을 피웠다. 길에서 내려다보면 판 밑면에 움직이는 빛이 조금 보일 뿐이었다.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("It hasn't happened since the clearing. ...But I keep checking. Afterwards."), TEXT("공터를 떠난 뒤로는 안 했어. ...그런데 계속 확인하게 돼. 끝내고 나서.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("If it isn't moving, you can rest."), TEXT("안 움직이면 쉬어도 되잖아.")},
-        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("We only knew after it moved. Back there too."), TEXT("움직인 뒤에 알았잖아. 아까도.")},
+        {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("I only knew after it moved. Back there too."), TEXT("움직인 뒤에 알았잖아. 아까도.")},
         {nullptr, nullptr, nullptr, TEXT("He laid the sword where the firelight reached. There were four notches on the grip. The lowest had a clean edge."), TEXT("불빛이 닿는 곳에 검을 올려놓았다. 손잡이의 홈은 넷이었다. 가장 아래의 홈은 가장자리가 깨끗했다.")},
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Is that one new?"), TEXT("새로 생긴 거야?")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("I didn't cut it."), TEXT("내가 안 팠어.")},
@@ -440,14 +441,14 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Are you about to sing something?"), TEXT("뭐 부르려고 해?")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I didn't sing."), TEXT("안 불렀어.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Your throat's moving."), TEXT("목이 움직여.")},
-        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("There are six notes. ...Back then there were three."), TEXT("여섯 음이 있어. ...그땐 셋이었어.")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("There are six notes. ...Coming down from the canyon, there were three."), TEXT("여섯 음이 있어. ...협곡을 내려왔을 땐 셋이었어.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Sing it."), TEXT("불러 봐.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("No. ...Not now."), TEXT("싫어. ...지금은 안 할 거야.")},
-        {TEXT("Elia"), TEXT("elia_gentle_smile"), Humming, TEXT("This is how I learned it."), TEXT("나는 이렇게 배웠어.")},
+        {TEXT("Elia"), TEXT("elia_gentle_smile"), nullptr, TEXT("This is how I learned it."), TEXT("나는 이렇게 배웠어.")},
         {nullptr, nullptr, nullptr, TEXT("She hummed. He counted. The seventh note held a little longer than the rest. Where her last note ended, his first came in. After his sixth, the pitch she had started on fitted."), TEXT("그녀가 흥얼거렸다. 아렐은 세었다. 일곱째 음이 앞의 것들보다 조금 오래 이어졌다. 엘리아의 마지막 음이 끝나는 자리에 그의 첫 음이 들어갔다. 여섯째 뒤에는 그녀가 시작한 높이가 맞았다.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("The same?"), TEXT("같아?")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Different. ...They join."), TEXT("다른데. ...이어져.")},
-        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("I was told to sing it before sleep. ...I sang it before I knew her."), TEXT("자기 전에 부르라고 했어. ...그 사람을 알기 전부터 불렀어.")},
+        {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("I was told to sing it before sleep. ...I sang it before I knew Sable."), TEXT("자기 전에 부르라고 했어. ...세이블을 알기 전부터 불렀어.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("What comes to mind when you sing it?"), TEXT("그걸 부를 때 어떤 게 떠올라.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("A cradle. The side that listens before sleeping. You?"), TEXT("요람. 잠들기 전에 듣는 쪽이야. 너는?")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("The side that holds."), TEXT("쥐는 쪽.")},
@@ -458,14 +459,14 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("Don't put everything you don't know in there."), TEXT("네가 모르는 걸 전부 거기에 넣지는 마.")},
         {nullptr, nullptr, nullptr, TEXT("He felt for his own name in his mouth. It was gone from the first sound. Where he reached for it, the six notes came in. He cut them off halfway."), TEXT("아렐은 제 이름을 입 안에서 찾아보았다. 첫 소리부터 없었다. 이름을 찾으려던 자리에 여섯 음이 들어왔다. 그는 중간에서 끊었다.")},
         {nullptr, nullptr, nullptr, TEXT("Above the channel, a sound like wheels on hard ground. It came no closer. No cart was ever seen."), TEXT("수로 위에서 바퀴가 단단한 땅을 구르는 듯한 소리가 났다. 가까워지지 않았고, 마차는 보이지 않았다.")},
-        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Why did Sable give us the shells? ...She never said we each had half."), TEXT("세이블은 조개를 왜 줬을까. ...우리한테 두 반쪽이 있다는 말은 안 했어.")},
+        {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Why did Sable give us those shells? ...She never said we each had half."), TEXT("세이블은 조개를 왜 줬을까. ...우리한테 두 반쪽이 있다는 말은 안 했어.")},
         {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("Let's go and ask. ...In the morning."), TEXT("가서 물어보자. ...아침에.")},
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("And if she won't say there either?"), TEXT("거기서도 말 안 하면?")},
         {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("At least we ask her to her face."), TEXT("적어도 그 사람 앞에서 물어야지.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Not the way we came. Not the forest."), TEXT("올 때 간 길은 피하자. 숲.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("We'll ask Haren for another road."), TEXT("하렌한테 다른 길을 물으면 돼.")},
         {nullptr, nullptr, nullptr, TEXT("Even after she closed her eyes, he did not let the six notes out."), TEXT("엘리아가 눈을 감은 뒤에도 아렐은 여섯 음을 입 밖에 내지 않았다.")},
-        {nullptr, nullptr, nullptr, TEXT("Back up the road they had come down, the man in the brown coat sat on a stone by the way. Without turning the page, he closed his notebook."), TEXT("두 사람이 내려온 길 뒤쪽, 갈색 코트의 사내가 길가 돌에 앉아 있었다. 펼친 노트를 넘기지 않고 표지를 덮었다.")}}},
+        {nullptr, nullptr, nullptr, TEXT("Back up the road they had come down, the man in the brown coat sat on a stone by the way. Without turning the page, he closed his notebook."), TEXT("두 사람이 내려온 길 뒤쪽, 갈색 코트의 사내가 길가 돌에 앉아 있었다. 펼친 노트의 페이지를 넘기지 않고 표지를 덮었다.")}}},
     // S375 Chapter 10, the Seam, leaving: 최종본 15화 「손이 기억하는 것」, 16화 「출발」. Sable is blind: she hears.
     {TEXT("ms_return_road"), {
         {nullptr, nullptr, nullptr, TEXT("Arrel turned over the coals under the ash. Black all through. He pushed earth from the channel's edge over them. No smoke rose."), TEXT("아렐은 재 밑에 남은 숯을 뒤집었다. 안쪽도 검었다. 수로 가장자리의 흙을 그 위에 밀어 넣었다. 연기는 올라오지 않았다.")},
@@ -483,12 +484,12 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Haren"), nullptr, nullptr, TEXT("About the tree, I did. That it was inside. How do you explain something you can't even read?"), TEXT("나무 얘기는 했지. 안에 있었다고 했어. 읽지도 못한 걸 뭐라고 설명하나.")},
         {nullptr, nullptr, nullptr, TEXT("Arrel began with the chair. No one there, and then someone sitting in it; a corked ink bottle, open. After one word, Elia had taken out the book."), TEXT("아렐은 의자부터 말했다. 사람이 없었는데 앉아 있었고, 닫힌 잉크병이 열려 있었다. 한 단어 뒤에 엘리아가 책을 꺼냈다.")},
         {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("I wasn't trying to take it out. I was trying to put my hand down. And it set it on the stone and opened it."), TEXT("꺼내려고 한 게 아니었어. 손을 내리려고 했어. 그런데 돌 위에 놓고 펼치기까지 했어.")},
-        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Could you tell Sable that too? Even without me?"), TEXT("세이블한테도 그렇게 말해 줄 수 있어요? 내가 없어도.")},
+        {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Could you tell Sable that too? ...Other people, I mean. Even without me."), TEXT("세이블한테도 그렇게 말해 줄 수 있어요? ...다른 사람한테요. 내가 없어도.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("I can say it. I can't carry what you saw."), TEXT("말은 할 수 있어. 네가 본 것까지 들고 갈 수는 없어.")},
-        {TEXT("Haren"), nullptr, nullptr, TEXT("She knows me. She'll believe I saw something to talk like this. Even if what she says is she'd have to see the tree."), TEXT("그놈은 나를 알아. 내가 뭘 봐서 이런 소리를 하는지는 믿겠지. 나무를 봐야 알겠다는 말이 나오더라도.")},
+        {TEXT("Haren"), nullptr, nullptr, TEXT("Tell my cousin there was writing inside a tree and he'll say someone carved it after the cut. Still, he knows me. He'll believe I saw something to talk like this. Even if he says he'd have to see the tree."), TEXT("내 사촌한테 나무 안에 글씨가 있었다고 하면, 베고 나서 누가 새겼겠지 할 거다. 그래도 그놈은 나를 알아. 내가 뭘 봐서 이런 소리를 하는지는 믿겠지. 나무를 봐야 알겠다는 말이 나오더라도.")},
         {nullptr, nullptr, nullptr, TEXT("Elia wiped under her nose with the inside of her sleeve. A thin red line stayed on her upper lip. She walked on, not facing the side he was looking from."), TEXT("엘리아가 소매 안쪽으로 코 밑을 닦았다. 윗입술에 가는 붉은 자국이 남았다. 그녀는 아렐이 보고 있는 쪽을 향하지 않은 채 걸었다.")}}},
     {TEXT("ms_return_bridge"), {
-        {nullptr, nullptr, Streets, TEXT("Past the bridge, bedding was piled up. The first time, children had run across this bridge. Now a boy was tying folded sleeping rolls with cord."), TEXT("다리 너머에 이불들이 쌓여 있었다. 처음 왔을 때는 아이들이 뛰어 건너던 다리였다. 지금은 소년 하나가 개킨 잠자리를 끈으로 묶고 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Past the bridge, bedding was piled up. The first time, children had run across this bridge. Now a boy was tying folded sleeping rolls with cord."), TEXT("다리 너머에 이불들이 쌓여 있었다. 처음 왔을 때는 아이들이 뛰어 건너던 다리였다. 지금은 소년 하나가 개킨 잠자리를 끈으로 묶고 있었다.")},
         {nullptr, nullptr, nullptr, TEXT("The brook was as clear as before. From the house across, a man carried out bowls wrapped in a blanket."), TEXT("개울은 여전히 맑았다. 맞은편 집에서 남자가 담요에 싼 그릇을 가져왔다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Are you leaving?"), TEXT("떠나는 거예요?")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("Packing."), TEXT("챙기는 중이야.")},
@@ -503,7 +504,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Go to the clearing. Split the tree you cut yesterday and burn it. No piece left with writing on it. Bury the ash. Don't tell anyone where."), TEXT("공터로 가. 어제 벤 나무를 쪼개서 태워. 글씨 남은 데가 없도록. 재는 묻고. 어디에 묻었는지 말하지 마.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("That's a record. It came out because I cut it."), TEXT("그건 기록이야. 내가 베어서 나온 거고.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("You didn't write it."), TEXT("네가 쓴 것은 아니지.")},
-        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Whoever wrote it will know where his record is. I'm not going to leave that tree standing and wait to see whether he comes this far for it."), TEXT("쓴 자는 자기 기록이 어디 있는지 알 거야. 그 나무를 그대로 두고 여기까지 찾아오는지 기다릴 생각은 없어.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Whoever wrote it will know where his record is. I'm not going to leave that tree lying there and wait to find out whether he comes this far for it."), TEXT("쓴 자는 자기 기록이 어디 있는지 알 거야. 그 나무를 그대로 두고 여기까지 찾아오는지 기다릴 생각은 없어.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("Once it's burned, I can't show it to anyone."), TEXT("태우고 나면 보여 줄 수 없어.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("I know."), TEXT("알아.")},
         {TEXT("Haren"), nullptr, nullptr, TEXT("I'll come back when it's done."), TEXT("다 하고 돌아오지.")},
@@ -549,7 +550,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("I was listening to you."), TEXT("네 얘기 듣고 있었어.")},
         {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("I never asked you only to listen."), TEXT("듣기만 하라고 한 적 없어.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Those who left their fear behind did things afterward they had never done. Thinking the body could take more."), TEXT("공포를 두고 온 사람들은 그다음에, 전에는 하지 않던 일을 했어. 몸이 더 견딜 수 있다고 생각하면서.")},
-        {nullptr, nullptr, nullptr, TEXT("A horn sounded from the east. One long, flat note. A second did not come."), TEXT("동쪽에서 뿔피리가 울렸다. 길고 평평한 음 하나였다. 두 번째는 울리지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("A horn sounded from the east. One long, flat note. A second did not come. A boy came running in from the east road."), TEXT("동쪽에서 뿔피리가 울렸다. 길고 평평한 음 하나였다. 두 번째는 울리지 않았다. 소년 하나가 동쪽 길에서 뛰어 들어왔다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("How many?"), TEXT("몇이냐.")},
         {TEXT("Boy"), nullptr, nullptr, TEXT("Eight. Nine with the adjuster. He's in the middle. They're on the last ridge before the village. Coming slow."), TEXT("여덟이에요. 조정관까지 아홉. 조정관은 가운데 있고. 마을로 내려오기 전 마지막 능선에 있어요. 천천히 와요.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("What are they carrying?"), TEXT("손에 든 것은.")},
@@ -566,7 +567,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("The arm is gone?"), TEXT("팔이 없어지는 거예요?")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Still attached, and no use. It doesn't move when it has to."), TEXT("붙어 있어도 못 써. 움직여야 할 때 움직이지 않는 거다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("The people who planned to make ones like you got it ready before any of you existed."), TEXT("너 같은 자들을 만들 계획을 세운 사람들이, 그들이 생기기도 전에 준비해 놓은 거지.")},
-        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("For me?"), TEXT("나한테 쓰려고요?")},
+        {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Burners? ...For me?"), TEXT("연소자요? ...나한테 쓰려고요?")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Yes. For you."), TEXT("그래. 너에게.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Burn all you have left to be rid of the adjuster and he is simply replaced. You don't get back what you burned. ...Walk west with us."), TEXT("네가 남은 걸 다 태워 조정관을 없애도 그자는 바뀐다. 너는 태운 걸 돌려받지 못해. ...서쪽으로 같이 걸어.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Come with us."), TEXT("같이 가자.")},
@@ -574,18 +575,18 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("West."), TEXT("서쪽.")}}},
     {TEXT("ms_return_square"), {
         {nullptr, nullptr, nullptr, TEXT("The bundles set down in the square were thinning out. One bowl left at a door would not fit in the basket. The woman looked at it a moment and came out with only the basket."), TEXT("광장에는 내려놓았던 짐이 줄어들고 있었다. 문 앞에 남은 그릇 하나는 바구니에 들어가지 못했다. 여자가 잠깐 그것을 보다가 바구니만 들고 나왔다.")},
-        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("We go in three. Three roads. Not the one we came in by."), TEXT("셋으로 나눠서 간다. 세 길로. 들어왔던 길은 쓰지 마.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("We go in three. Three roads. Not the way in."), TEXT("셋으로 나눠서 간다. 세 길로. 들어왔던 길은 쓰지 마.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("No fighting today. You leave with us."), TEXT("오늘은 싸우지 않아. 우리와 같이 떠나는 거야.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("And after that?"), TEXT("그다음은요.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Once we're far off, we'll talk. About where to put the anger you just got."), TEXT("멀어지고 나서 얘기하자. 네가 방금 얻은 분노를 어디에 쓸지.")},
         {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("Not on them?"), TEXT("저들한테 쓰면 안 되고요?")},
-        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Not while that's all you can say. ...I've known people like that before."), TEXT("네가 그 말밖에 못 하는 동안에는. ...전에 그런 사람들을 봤어.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Not while that's all you can say. ...I've known people like that before."), TEXT("네가 그 말밖에 못 하는 동안에는. ...전에 그런 사람들을 겪었어.")},
         {nullptr, nullptr, nullptr, TEXT("Haren had not come back. No smoke rose from the direction of the clearing. There was no telling whether the tree was still there."), TEXT("하렌은 아직 돌아오지 않았다. 공터 쪽에서 올라오는 연기는 보이지 않았다. 나무가 아직 남아 있는지 알 수 없었다.")}}},
     {TEXT("ms_return_crossroads"), {
         {nullptr, nullptr, nullptr, TEXT("The sound of leaves underfoot grew. Sable's hand was on Elia's left wrist. Where a root crossed the path, Elia lifted her foot first and said how high."), TEXT("낙엽 밟는 소리가 점점 커졌다. 세이블의 손은 엘리아의 왼손목에 있었다. 뿌리가 길을 가로지르면 엘리아가 먼저 발을 들고 높이를 말했다.")},
-        {nullptr, nullptr, nullptr, TEXT("No footsteps came after them; Haren did not return. The heat in his chest did not go down with walking."), TEXT("하렌이 돌아오는 발소리는 없었다. 가슴의 열은 걸어도 내려가지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("No footsteps of Haren's came behind them. The heat in his chest did not go down with walking."), TEXT("하렌이 돌아오는 발소리는 없었다. 가슴의 열은 걸어도 내려가지 않았다.")},
         {nullptr, nullptr, nullptr, TEXT("The leaves ahead had much white in them. The further they walked, the paler the colour."), TEXT("앞쪽 잎에는 흰빛이 많이 섞여 있었다. 걷는 쪽으로 갈수록 색이 옅었다.")},
-        {nullptr, nullptr, BeltRoad, TEXT("A marker stone stood on the left of the road. The middle of its face had been shaved shallow. There were no strokes to read."), TEXT("표지석이 길 왼쪽에 서 있었다. 길을 향한 면의 가운데가 얕게 깎여 있었다. 읽을 획이 없었다.")},
+        {nullptr, nullptr, nullptr, TEXT("A marker stone stood on the left of the road. The middle of its face had been shaved shallow. There were no strokes to read."), TEXT("표지석이 길 왼쪽에 서 있었다. 길을 향한 면의 가운데가 얕게 깎여 있었다. 읽을 획이 없었다.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Nothing."), TEXT("없어.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("We're going to the Belt road?"), TEXT("벨트 도로로 가는 거죠?")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Yes. It's a long way yet."), TEXT("그래. 아직 멀었다.")},
@@ -596,7 +597,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, nullptr, TEXT("The adjuster closed the record and said something short. The one beside the old man held his weapon out. The round end touched the old man's right arm and came away."), TEXT("조정관이 기록을 덮고 짧게 말했다. 노인 곁의 자가 무기를 앞으로 내밀었다. 둥근 끝이 노인의 오른팔에 닿았다가 떨어졌다.")},
         {nullptr, nullptr, nullptr, TEXT("The old man moved his shoulder. The arm swung back and forth. The elbow did not bend. No torn sleeve, no spreading blood."), TEXT("노인이 어깨를 움직였다. 팔은 앞뒤로 흔들렸다. 팔꿈치는 굽혀지지 않았다. 벌어진 소매나 번지는 피는 보이지 않았다.")},
         {TEXT("Elia"), TEXT("elia_worried"), nullptr, TEXT("It touched him. ...His arm won't move."), TEXT("닿았어. ...팔이 안 움직여.")},
-        {nullptr, nullptr, nullptr, TEXT("Sixty paces down the slope; flat ground after that. Arrel began to look through what he had left. He had not chosen one, and his right shoulder was already forward."), TEXT("육십 걸음이었다. 아래까지 내려가면 평지가 남았다. 아렐은 남아 있는 기억들을 찾기 시작했다. 아직 하나도 고르지 않았는데 오른쪽 어깨가 앞으로 나와 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("Sixty paces down the slope; flat ground after that. Arrel began to look through the memories he had left. He had not chosen one, and his right shoulder was already forward."), TEXT("육십 걸음이었다. 아래까지 내려가면 평지가 남았다. 아렐은 남아 있는 기억들을 찾기 시작했다. 아직 하나도 고르지 않았는데 오른쪽 어깨가 앞으로 나와 있었다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Not here."), TEXT("여긴 아니야.")},
         {nullptr, nullptr, nullptr, TEXT("His front foot pressed the gravel. A small stone rolled once underneath."), TEXT("아렐의 앞발이 자갈을 눌렀다. 작은 돌이 밑에서 한 번 굴렀다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Not here."), TEXT("여긴 아니야.")},
@@ -619,7 +620,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, nullptr, TEXT("Arrel went over the ridge first."), TEXT("아렐은 먼저 능선을 넘었다.")}}},
     // S377 Chapter 11, the roofless farmhouses: 최종본 17화 「읽는 자」, 18화 「펠의 손」. Sable is blind: she hears.
     {TEXT("ms_farm_road"), {
-        {nullptr, nullptr, BeltRoad, TEXT("The book in her coat had grown heavier. Elia held up the front of her coat with her right hand. Her left wrist, in Sable's grip, trailed behind."), TEXT("코트 안의 책이 더 무거워졌다. 엘리아는 오른손으로 앞섶을 받쳤다. 세이블이 잡은 왼손목은 뒤에 남았다.")},
+        {nullptr, nullptr, nullptr, TEXT("The book in her coat had grown heavier. Elia held up the front of her coat with her right hand. Her left wrist, in Sable's grip, trailed behind."), TEXT("코트 안의 책이 더 무거워졌다. 엘리아는 오른손으로 앞섶을 받쳤다. 세이블이 잡은 왼손목은 뒤에 남았다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("A stone?"), TEXT("돌이 있니?")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("No. My coat caught."), TEXT("아니. 옷이 걸렸어.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Don't step on the edge. It crumbles."), TEXT("가장자리 밟지 마. 부서져.")},
@@ -704,7 +705,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("Not now."), TEXT("지금은 안 할래.")},
         {nullptr, nullptr, nullptr, TEXT("He had said those words himself, when a line of song and a small room came back to him in the city and she asked what it was. It did not make them easier to hear."), TEXT("자기 입으로도 했던 말이었다. 도시에서 노래 한 줄과 작은 방이 돌아왔을 때, 무엇이냐고 묻는 그녀에게 그랬다. 그렇다고 듣기 편해지지는 않았다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("All right."), TEXT("알았어.")},
-        {nullptr, nullptr, SecondFarm, TEXT("The second farmhouse appeared at sunset: two walls leaning on each other, no roof. They lit no fire."), TEXT("두 번째 농가는 해가 질 때 나왔다. 벽 두 장이 서로 기대어 있었다. 지붕은 없었다. 불은 피우지 않았다.")},
+        {nullptr, nullptr, nullptr, TEXT("The second farmhouse appeared at sunset: two walls leaning on each other, no roof. They lit no fire."), TEXT("두 번째 농가는 해가 질 때 나왔다. 벽 두 장이 서로 기대어 있었다. 지붕은 없었다. 불은 피우지 않았다.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("If you're sleeping, come further in."), TEXT("잘 거면 안쪽으로 와.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Not sleeping yet."), TEXT("아직 안 자.")},
         {TEXT("Elia"), TEXT("elia_concern"), nullptr, TEXT("Stay there and you'll be cold."), TEXT("거기 계속 있으면 추워.")},

@@ -23,6 +23,9 @@ INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSou
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
 MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
+# The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
+EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
+            'seam_return': '15-16', 'roofless_farms': '17-18'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste'}
@@ -147,7 +150,7 @@ MANUSCRIPT = {
     'haren_clearing': {
         'title': {'number': 9, 'name': "Haren's Clearing", 'subtitle': "This isn't memory. It's arithmetic."},
         'spawn': [12 * T + 16, 15 * T + 16],
-        'elia_repeat': "Tell me if it happens again.",
+        'elia_repeat': "I'm watching the same thing you are.",
         'sequence': [
             {'flag': 'ch9_hand', 'group': 'ms_clearing_hand', 'memories_chapter': None, 'flags': [], 'toasts': []},
             {'flag': 'ch9_trees', 'group': 'ms_clearing_trees', 'memories_chapter': None, 'flags': [], 'toasts': []},
@@ -251,7 +254,7 @@ MANUSCRIPT = {
         'lights': [],
         # Late light over dry fields: straw and dust, paler than the Seam, warmer than the waste the ground came from.
         'atmosphere': {'saturation': 0.55, 'mood': 0.34, 'hue': [0.46, 0.42, 0.32, 1.0], 'light': [0.84, 0.76, 0.6, 1.0],
-                       'fog': 'soft', 'splash': 'res://assets/cg/generated/ch16_eastward_road.png'},
+                       'fog': 'soft', 'splash': 'res://assets/cg/generated/chapter_splash_belt_waystation.png'},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
 }
@@ -285,7 +288,7 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',
             'battles', 'resume_blocked', 'encounters_gate', 'ambient_npcs', 'ambient_npcs_gate')
     return dict(ground, schema_version=1, map=map_id, chapter=chapter, asset_prefix=prefix,
-                source='scenes/maps/%s.gd (ground) + 최종본 6-7화 (story)' % GROUND.get(map_id, map_id),
+                source='scenes/maps/%s.gd (ground) + 최종본 %s화 (story)' % (GROUND.get(map_id, map_id), EPISODES.get(map_id, '?')),
                 encounters=[{k: e[k] for k in ('name', 'hp', 'atk', 'is_void', 'abilities') if k in e} for e in pool],
                 encounter_range=[int(rng.group(1)), int(rng.group(2))] if rng else None,
                 decorations=lights, **{k: story[k] for k in keys})

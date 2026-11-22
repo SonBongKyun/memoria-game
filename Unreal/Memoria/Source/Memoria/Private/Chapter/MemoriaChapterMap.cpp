@@ -171,7 +171,7 @@ FString Korean(const FString& En)
         {TEXT("Two halves of one cradle song"), TEXT("한 요람가의 두 반쪽")}, {TEXT("Gained: anger"), TEXT("얻음: 분노")},
         {TEXT("Three more places like that before the Belt road."), TEXT("벨트 도로까지 저런 곳이 셋 더 있다.")},
         {TEXT("A bowl left at a door. It did not fit in the basket."), TEXT("문 앞에 남은 그릇 하나. 바구니에 들어가지 못했다.")},
-        {TEXT("Still."), TEXT("지금도.")},
+        {TEXT("Still."), TEXT("지금도.")}, {TEXT("I'm watching the same thing you are."), TEXT("네가 보는 걸 나도 보고 있어.")},
         {TEXT("A new line in the blank book"), TEXT("백 노트에 새 줄")}, {TEXT("Returned: six notes"), TEXT("돌아옴: 여섯 음")},
         {TEXT("In the morning, back to the Seam. At least ask her to her face."), TEXT("아침이 되면 더 심으로. 적어도 그 사람 앞에서 물어야지.")},
         {TEXT("The cut face is pale and still damp. Fine strokes lie between the rings, deeper than a finger could rub away."),

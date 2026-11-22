@@ -59,7 +59,7 @@ Branch `claude/s366-upgrade`, on top of the team setup (`4a8de43c`). Team task *
   - trees beyond the rim (none along the south, where the camera looks over);
   - past the north exit, two walls leaning on each other.
 - **Art:**
-  - the three small figures on the road (`ch16_eastward_road`) for the road and the second farmhouse, also as the splash;
+  - ~~the three small figures on the road (`ch16_eastward_road`)~~ **replaced in S378**: the splash is now the Belt road at dusk with nobody on it (`chapter_splash_belt_waystation`), and the road and second-farmhouse lines play over it;
   - the warm book in two hands, no faces (`story_ch3_blank_book_warmth`) for the opening.
   - No new imports. Pictures with Tobias reading relay books were rejected (he appears from 23화).
 

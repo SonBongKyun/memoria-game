@@ -58,8 +58,9 @@ Branch `claude/s366-upgrade`, on top of S374 (`b3cf51a3`). The user asked to por
   - Sable's low stone step.
 - **Art:**
   - Sable seated and listening with her eyes half shut (`world_rewrite_sable_witness_v3`, blind canon), newly imported;
-  - the Seam's living streets for the bridge;
-  - three small figures on a road past marker stones (`ch16_eastward_road`, newly imported) for the road west.
+  - ~~the Seam's living streets for the bridge~~ **removed in S378**: a calm night, cloths still on the walls, and Sable at a door with a lantern;
+  - ~~three small figures on a road (`ch16_eastward_road`)~~ **removed in S378**: drowned salt flats, made for the old storyline's trio. Its import was deleted.
+  - (Found by Gemini's T-1 review.) The S375 line "전에 그런 사람들을 봤어" now reads "겪었어", and Haren's cousin is restored in `ms_return_road`.
   - A first choice for the ridge, `story_ch7_crossing_the_ridgeline`, shows four people. It was dropped after the capture review.
 
 ## Canon notes

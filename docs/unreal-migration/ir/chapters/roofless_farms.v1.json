@@ -19,7 +19,7 @@
   ],
   "mood": 0.34,
   "saturation": 0.55,
-  "splash": "res://assets/cg/generated/ch16_eastward_road.png"
+  "splash": "res://assets/cg/generated/chapter_splash_belt_waystation.png"
  },
  "battles": [],
  "battles_gate": null,
@@ -133,7 +133,7 @@
   2,
   3
  ],
- "source": "scenes/maps/colorless_waste.gd (ground) + 최종본 6-7화 (story)",
+ "source": "scenes/maps/colorless_waste.gd (ground) + 최종본 17-18화 (story)",
  "spawn": [
   272.0,
   496.0

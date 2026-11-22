@@ -63,9 +63,9 @@ Branch `claude/s366-upgrade`, on top of S373 (`648b907b`). The user asked to por
   - Past the exit, the limestone slab and a small fire.
 - **Art:**
   - The forest road toward far towers (`chapter_splash_rim_forest`), also the splash.
-  - The cut rings with Haren kneeling and the two watching (`ch08_ring_acceleration_v1`, newly imported).
-  - Elia humming beside Arrel's sword (`archive_ch1_camp_humming_v2`).
-  - None shows Tobias or another companion.
+  - ~~The cut rings with Haren kneeling~~ **Corrected in S378:** the kneeling man in `ch08_ring_acceleration_v1` is **Tobias** (gallery entry `tobias_ring_theory`), who appears from 23화. It was removed and its import deleted. The clearing now plays over the map's splash.
+  - ~~Elia humming beside Arrel's sword~~ **Corrected in S378:** `archive_ch1_camp_humming_v2` shows Arrel's blade drawn, where 14화 says it stays sheathed. It was removed from the scene.
+  - (Found by Gemini's T-1 review, `docs/reviews/GEMINI_T1_CH9_10.md`.)
 - **Fix (all chapters):** a speaker without a portrait (Haren, the brown-coat man) showed the last face on stage, here Arrel's. That side is now emptied and the stage dims. It also affected 6화's Haren and 12화's man in the brown coat.
 
 ## Verification

@@ -52,7 +52,7 @@
  ],
  "decorations": [],
  "dialogue_file": "data/chapter1_dialogue.json",
- "elia_repeat": "Tell me if it happens again.",
+ "elia_repeat": "I'm watching the same thing you are.",
  "encounter_range": [
   30,
   60
@@ -138,7 +138,7 @@
   2,
   4
  ],
- "source": "scenes/maps/rim_forest.gd (ground) + 최종본 6-7화 (story)",
+ "source": "scenes/maps/rim_forest.gd (ground) + 최종본 13-14화 (story)",
  "spawn": [
   400.0,
   496.0
