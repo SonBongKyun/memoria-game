@@ -21,10 +21,11 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
-GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam'}
+# S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
+GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -200,7 +201,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # West with Sable and Elia, toward the Belt road; the crossroads below the ridge (16화).
         'exit': {'center': [T + 16, 9 * T], 'size': [T, 2 * T], 'requires': 'ch10_square', 'completes': 'ch10_complete',
-                 'group': 'ms_return_crossroads', 'next_chapter': 11, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_return_crossroads', 'next_chapter': 11, 'next_map': 'roofless_farms', 'next_scene': None,
                  'flags': ['canon_ch11_belt_road_ready'],
                  'notice': {'en': 'Three more places like that before the Belt road.',
                             'ko': '벨트 도로까지 저런 곳이 셋 더 있다.'}},
@@ -213,6 +214,44 @@ MANUSCRIPT = {
         'lights': [{'tile': 6, 'color': [0.85, 0.95, 0.9, 1.0], 'energy': 0.35, 'scale': 2.2}],
         # Morning, the drying cloths gone from the walls; a little paler than the first visit.
         'atmosphere': {'saturation': 0.82, 'splash': 'res://assets/cg/generated/chapter_splash_the_seam.png'},
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
+    # S377: 최종본 17화 「읽는 자」 and 18화 「펠의 손」 on the Godot colorless_waste plain: fields toward the Belt road.
+    # Its PILLAR clusters stand as the roofless farmhouse's walls; MARKER tiles are standing stones; RIDGE clusters are
+    # field-boundary stones. In from the south (over the ridge), out to the north (the dry channel, the second farmhouse).
+    'roofless_farms': {
+        'title': {'number': 11, 'name': 'The Roofless Farmhouses', 'subtitle': 'The reader'},
+        'spawn': [8 * T + 16, 15 * T + 16],
+        'elia_repeat': "It's nothing.",
+        'sequence': [
+            {'flag': 'ch11_road', 'group': 'ms_farm_road', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # Inside the first farmhouse's standing corner: the book opens (17화).
+            {'rect': {'origin': [17 * T, 11 * T], 'size': [2 * T, T]}, 'group': 'ms_farm_house', 'flag': 'ch11_house', 'gate': 'ch11_road'},
+            # Along the same wall, toward the low broken west side: the night.
+            {'rect': {'origin': [17 * T, 12 * T], 'size': [2 * T, T]}, 'group': 'ms_farm_night', 'flag': 'ch11_night', 'gate': 'ch11_house'},
+            # The threshold in the morning: the fourth line, a name (18화).
+            {'rect': {'origin': [14 * T, 11 * T], 'size': [2 * T, T]}, 'group': 'ms_farm_fel', 'flag': 'ch11_fel', 'gate': 'ch11_night'},
+            # Where the road comes down off the long ridge: the grey glove.
+            {'rect': {'origin': [9 * T, 4 * T], 'size': [3 * T, T]}, 'group': 'ms_farm_glove', 'flag': 'ch11_glove', 'gate': 'ch11_fel'},
+        ],
+        'battles_gate': None, 'battles': [],
+        'exit': {'center': [10 * T + 16, 1.5 * T], 'size': [3 * T, T], 'requires': 'ch11_glove', 'completes': 'ch11_complete',
+                 'group': 'ms_farm_second', 'next_chapter': 12, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch12_belt_road_ready'],
+                 'notice': {'en': 'Before asking who, he would first tell her he had heard.',
+                            'ko': '누구냐고 묻기 전에, 자기가 들었다는 말부터 해야 했다.'}},
+        'objects_gate': 'ch11_complete',
+        'chests': [{'origin': [21 * T, 14 * T], 'flag': 'chest_farm_field', 'rewards': {'grains': 26, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [11 * T, 5 * T], 'flag': 'clue_farm_glove',
+                   'text': 'A grey leather glove in the ditch, its cuff open. No one has come back for it.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch11_complete',
+        'lights': [],
+        # Late light over dry fields: straw and dust, paler than the Seam, warmer than the waste the ground came from.
+        'atmosphere': {'saturation': 0.55, 'mood': 0.34, 'hue': [0.46, 0.42, 0.32, 1.0], 'light': [0.84, 0.76, 0.6, 1.0],
+                       'fog': 'soft', 'splash': 'res://assets/cg/generated/ch16_eastward_road.png'},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
 }
@@ -238,6 +277,9 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     if map_id == 'crumbling_coast':
         # The coast's cliffs stand as broken ruin stone (the ported maps' RUBBLE).
         ground = dict(ground, tile_names=['RUBBLE' if n == 'CLIFF' else n for n in ground['tile_names']])
+    if map_id == 'roofless_farms':
+        # Open fields: the plain's rim is not a wall here (no masonry along the edge); hedges and trees stand beyond it.
+        ground = dict(ground, tile_names=['EDGE' if n == 'WALL' else n for n in ground['tile_names']])
     if 'atmosphere' in story:
         ground = dict(ground, atmosphere=dict(ground['atmosphere'], **story['atmosphere']))
     keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',

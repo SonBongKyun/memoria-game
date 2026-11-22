@@ -158,6 +158,13 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S377: the roofless farmhouses (최종본 17-18화).
+        {TEXT("roofless_farms"), TEXT("지붕 없는 농가")}, {TEXT("The Roofless Farmhouses"), TEXT("지붕 없는 농가")},
+        {TEXT("The reader"), TEXT("읽는 자")}, {TEXT("The Second Farmhouse"), TEXT("두 번째 농가")},
+        {TEXT("The blank book: the relay"), TEXT("백 노트: 중계")}, {TEXT("A name: Fel"), TEXT("이름 하나: 펠")},
+        {TEXT("Before asking who, he would first tell her he had heard."), TEXT("누구냐고 묻기 전에, 자기가 들었다는 말부터 해야 했다.")},
+        {TEXT("A grey leather glove in the ditch, its cuff open. No one has come back for it."), TEXT("골에 회색 가죽 장갑 하나. 손목이 벌어져 있다. 찾으러 온 사람은 없다.")},
+        {TEXT("It's nothing."), TEXT("아무것도 아니야.")},
         // S375: the Seam, leaving (최종본 15-16화).
         {TEXT("seam_return"), TEXT("떠나는 더 심")}, {TEXT("The Seam, Leaving"), TEXT("떠나는 더 심")},
         {TEXT("What the hand remembers"), TEXT("손이 기억하는 것")}, {TEXT("The Crossroads below the Ridge"), TEXT("능선 아래 교차로")},

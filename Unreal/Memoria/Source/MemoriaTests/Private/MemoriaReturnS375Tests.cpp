@@ -48,6 +48,7 @@ bool FReturnS375Test::RunTest(const FString&)
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     const auto* Clearing = MemoriaChapterMaps::Find(ClearingMap);
     TestTrue(TEXT("The dry channel's road leads back to the Seam"), Clearing && Clearing->Exit.NextMap == ReturnMap && Clearing->Exit.NextChapter == 10);
+    TestTrue(TEXT("and the Seam's road west leads to the farmhouses"), Return->Exit.NextMap == FarmsMap && Return->Exit.NextChapter == 11);
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -99,10 +100,10 @@ bool FReturnS375Test::RunTest(const FString&)
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ReturnMap, false), FString(S[1])); }
     // The main quest: after the dry channel, Sable; after the crossroads, the Belt road.
     Run->SetStoryFlag(TEXT("ch10_step"), false); Run->SetStoryFlag(TEXT("ch10_horn"), false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch10_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch10_")) && !FString(M.Flag).StartsWith(TEXT("ch11_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is at Sable's step"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 더 심에서 세이블에게, 그 앞에서 묻는다")));
     for (const TCHAR* F : {TEXT("ch10_step"), TEXT("ch10_horn"), TEXT("ch10_complete")}) Run->SetStoryFlag(F, true);
-    TestTrue(TEXT("then the Belt road"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 벨트 도로로: 저런 곳이 셋 더")));
+    TestTrue(TEXT("then the farmhouses"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 지붕 없는 농가에서 밤")));
     Game->Shutdown();
     return true;
 }

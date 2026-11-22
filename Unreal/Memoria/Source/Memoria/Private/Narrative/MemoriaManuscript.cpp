@@ -127,7 +127,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch10_step"), TEXT("Back at the Seam: ask Sable, to her face"), TEXT("더 심에서 세이블에게, 그 앞에서 묻는다")},
         {TEXT("ch10_horn"), TEXT("The horn from the east"), TEXT("동쪽의 뿔피리")},
         {TEXT("ch10_complete"), TEXT("West with Sable, past the crossroads below the ridge"), TEXT("세이블과 서쪽으로, 능선 아래 교차로를 지나")},
-        {TEXT("ms_never"), TEXT("On to the Belt road: three more places like that"), TEXT("벨트 도로로: 저런 곳이 셋 더")}};
+        // S377: 17-18화.
+        {TEXT("ch11_house"), TEXT("A night in the roofless farmhouse"), TEXT("지붕 없는 농가에서 밤")},
+        {TEXT("ch11_glove"), TEXT("The grey glove on the road"), TEXT("길 위의 회색 장갑")},
+        {TEXT("ch11_complete"), TEXT("The second farmhouse"), TEXT("두 번째 농가")},
+        {TEXT("ms_never"), TEXT("On to the Belt road, off the roads the cleaners walk"), TEXT("벨트 도로로: 청소하는 자들이 다니는 길을 피해")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

@@ -143,6 +143,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.6f, -46.f, 40.f, 1.2f, .6f, .011f, 3.2f, .5f,
         36, false, true};
     if (InMap == TEXT("seam_return")) return SeamLeaving;
+    // S377 The roofless farmhouses: dry fields toward the Belt road in late light (17화: "해가 낮아졌을 때"), straw and
+    // dust; the dry yard's earth and the clearing's trodden path; no lamps (18화: "불은 피우지 않았다").
+    static const FDressing Fields{TEXT("T_BeltSoil"), TEXT("T_ClearingPaved"),
+        FLinearColor(1.02f, .98f, .86f), FLinearColor(.07f, .06f, .045f), FLinearColor(.075f, .068f, .058f), FLinearColor(.068f, .062f, .054f),
+        FLinearColor(.06f, .045f, .03f), FLinearColor(.09f, .08f, .06f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .62f, .32f), FLinearColor(.58f, .52f, .44f), FLinearColor(.07f, .062f, .05f), FLinearColor(.95f, .86f, .66f),
+        230.f, 220.f, 0.f, 0.f,
+        4.2f, -30.f, -48.f, 1.15f, .58f, .012f, 2.4f, .5f,
+        46, false, true};
+    if (InMap == TEXT("roofless_farms")) return Fields;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -151,7 +161,7 @@ UMaterialInstanceDynamic* AMemoriaChapterPresentation::Focus(const TCHAR* Name, 
 {
     const FString Kind(Name);
     const bool bStone = Kind == TEXT("Masonry") || Kind == TEXT("WallCap") || Kind == TEXT("RuinStone") || Kind == TEXT("Slab") ||
-        Kind == TEXT("BorderStone") || Kind == TEXT("BorderCap") || Kind == TEXT("SetStone");
+        Kind == TEXT("BorderStone") || Kind == TEXT("BorderCap") || Kind == TEXT("SetStone") || Kind == TEXT("FieldStone");
     const bool bTimber = Kind == TEXT("Timber") || Kind == TEXT("SetTimber");
     auto* Base = LoadObject<UMaterialInterface>(nullptr, bStone || bTimber ? ArchitecturePath : FocusSurfacePath);
     auto* Result = UMaterialInstanceDynamic::Create(Base, this, FName(*(FString(TEXT("Chapter")) + Name)));
@@ -748,6 +758,57 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         for (float Side : {-1.f, 1.f}) { Beam(Timber, Chair + FVector(Side * 16, -14, 0), Chair + FVector(-Side * 16, 14, 44), 3.f); }
         Box(Timber, Chair + FVector(0, 0, 44), FVector(36, 30, 3), FRotator::ZeroRotator);
     }
+    else if (Map == TEXT("roofless_farms"))
+    {
+        // S377: the first farmhouse's standing walls on the PILLAR tiles, roofless, with roof-tile shards inside (17화);
+        // field-boundary stones on the RIDGE tiles; standing stones on the MARKER tiles; trees and hedges beyond the
+        // rim of the fields; past the north exit, the second farmhouse: two walls leaning on each other (18화).
+        const int32 Pillar = Spec->TileNames.IndexOfByKey(TEXT("PILLAR")), Ridge = Spec->TileNames.IndexOfByKey(TEXT("RIDGE"));
+        const int32 Marker = Spec->TileNames.IndexOfByKey(TEXT("MARKER"));
+        // Pale field stone, lighter than the set pieces' dark masonry: the farmhouse walls read against dry earth.
+        auto* Wall = Focus(TEXT("FieldStone"), FLinearColor(.15f, .14f, .12f), 0, .93f);
+        auto* Shard = Focus(TEXT("RoofShard"), FLinearColor(.16f, .07f, .05f), 1, .9f);
+        auto* Far = Kit(TEXT("Drift"), FLinearColor(.86f, .8f, .62f));
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const int32 Type = Spec->TileAt(X, Y);
+                const FVector C = TileCentre(X, Y);
+                const float N = Hash(X, Y, 77);
+                if (Type == Pillar)
+                {
+                    // Waist-high where the wall broke, full height at the standing corner.
+                    const float Height = N < .35f ? 96.f + 30.f * N : 190.f + 40.f * N;
+                    Solid(*ArchitectureMesh(TEXT("SM_WallCourse")), Wall, C + FVector(0, 0, Feet), FVector(T / 100.f, T / 100.f, Height / 100.f));
+                    if (N > .5f) Solid(*ArchitectureMesh(TEXT("SM_ChippedCap")), Wall, C + FVector(0, 0, Height + Feet), FVector((T + 4) / 100.f, (T + 4) / 100.f, .7f));
+                }
+                else if (Type == Ridge)
+                    Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), Wall, C + FVector(0, 0, Feet), FVector(.7f + .3f * N), FRotator(0, 360.f * N, 0));
+                else if (Type == Marker)
+                    Box(Wall, C + FVector(0, 0, Feet + 55.f), FVector(30, 22, 110), FRotator(0, 30.f * N, 4.f * (N - .5f)));
+            }
+        for (int32 I = 0; I < 7; ++I)
+        {
+            const FVector At = TileCentre(17.2f + .4f * float(Scatter(I, 81)), 11.3f + .5f * float(Scatter(I, 82))) + Ground;
+            Box(Shard, At + FVector(0, 0, 2), FVector(16, 11, 3), FRotator(0, 360.f * float(Scatter(I, 83)), 0), false);
+        }
+        int32 Seed = 0;
+        for (float X = -3.f; X <= Spec->Width + 3.f; X += 2.8f, ++Seed)
+        {
+            const float S = .85f + .4f * float(Scatter(Seed, 84));
+            Prop(TEXT("DeadTree"), Far, TileCentre(X + float(Scatter(Seed, 85)), -2.4f - 2.f * float(Scatter(Seed, 86))) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 87)), FVector(S, S, S * 1.1f));
+        }
+        // Not along the south rim's last rows: the camera looks north over them.
+        for (float Y = 1.f; Y < Spec->Height - 4; Y += 3.6f, ++Seed)
+            for (const float X : {-2.6f, Spec->Width + 1.6f})
+            {
+                const float S = .8f + .4f * float(Scatter(Seed, 88));
+                Prop(TEXT("DeadTree"), Far, TileCentre(X + float(Scatter(Seed, 89)), Y) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 90)), FVector(S, S, S * 1.1f));
+            }
+        const FVector Second = TileCentre(10.5f, -2.f) + Ground;
+        Solid(*ArchitectureMesh(TEXT("SM_WallCourse")), Wall, Second + FVector(-34, 0, 0), FVector(T * 1.6f / 100.f, T * .4f / 100.f, 1.9f), FRotator(0, 0, 6));
+        Solid(*ArchitectureMesh(TEXT("SM_WallCourse")), Wall, Second + FVector(34, 10, 0), FVector(T * .4f / 100.f, T * 1.4f / 100.f, 1.7f), FRotator(-5, 0, 0));
+    }
     else if (Map == TEXT("haren_clearing"))
     {
         // S374: trees on the TREE tiles, every one inside and every other one on the rim; low shrubs on BUSH.
@@ -860,7 +921,7 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
 void AMemoriaChapterPresentation::BuildGrass(const FDressing& Look)
 {
     // Dry tufts on the open soil, as the canvases paint them: thick in the Belt's dead yard, thin in Drift's mud.
-    auto* Grass = Kit(TEXT("Grass"), Map == TEXT("forgotten_forest") ? FLinearColor(.5f, 1.05f, .55f) : Map == TEXT("haren_clearing") ? FLinearColor(.66f, 1.25f, .55f) : Map == TEXT("the_seam") || Map == TEXT("seam_return") ? FLinearColor(.75f, 1.45f, .62f) : Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
+    auto* Grass = Kit(TEXT("Grass"), Map == TEXT("forgotten_forest") ? FLinearColor(.5f, 1.05f, .55f) : Map == TEXT("haren_clearing") ? FLinearColor(.66f, 1.25f, .55f) : Map == TEXT("roofless_farms") ? FLinearColor(1.55f, 1.32f, .9f) : Map == TEXT("the_seam") || Map == TEXT("seam_return") ? FLinearColor(.75f, 1.45f, .62f) : Look.bRain ? FLinearColor(.8f, .84f, .92f) : FLinearColor(1.5f, 1.3f, 1.f));
     if (!Grass) return;
     // The cards stand edge-on to the low light and would go black; they give back some of their own colour.
     Grass->SetScalarParameterValue(TEXT("Fill"), Look.bRain ? .22f : .3f);
@@ -874,6 +935,7 @@ void AMemoriaChapterPresentation::BuildGrass(const FDressing& Look)
             const float Here = Map == TEXT("forgotten_forest") ? (Detail == TEXT("dead_soil") ? .62f : 0.f)
                 : Map == TEXT("the_seam") || Map == TEXT("seam_return") ? (Detail == TEXT("garden") ? .9f : Detail == TEXT("stone") ? .22f : 0.f)
                 : Map == TEXT("haren_clearing") ? (Detail == TEXT("grass") ? .55f : 0.f)
+                : Map == TEXT("roofless_farms") ? (Detail == TEXT("dead_soil") ? .5f : 0.f)
                 : (Detail == TEXT("dead_soil") || Detail == TEXT("mud")) ? Share : 0.f;
             if (Here <= 0.f || Hash(X, Y, 41) > Here) continue;
             const int32 Tufts = 1 + int32(Hash(X, Y, 43) * 3.f);

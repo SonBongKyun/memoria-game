@@ -566,6 +566,13 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     { Run->SetStoryFlag(TEXT("ch10_anger"), true); Notice(TEXT("Gained: anger")); bNoticeHeld = true; }
     // S375 (16화): the old man at the crossroads, and "여긴 아니야."
     if (Group == TEXT("ms_return_crossroads")) Run->SetStoryFlag(TEXT("ch10_not_here"), true);
+    // S377 (17화): the relay lines: "몸은 중계의 비용이다."
+    if (Group == TEXT("ms_farm_house") && !Run->GetRunSnapshot().GetFlag(TEXT("ch11_relay")))
+    { Run->SetStoryFlag(TEXT("ch11_relay"), true); Notice(TEXT("The blank book: the relay")); bNoticeHeld = true; }
+    // S377 (18화): the fourth line is a name, and a hand that held hers.
+    if (Group == TEXT("ms_farm_fel") && !Run->GetRunSnapshot().GetFlag(TEXT("ch11_fel_name")))
+    { Run->SetStoryFlag(TEXT("ch11_fel_name"), true); Notice(TEXT("A name: Fel")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_farm_second")) Run->SetStoryFlag(TEXT("ch11_fel_heard"), true);
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
     { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
     ManuscriptAsset = Asset;

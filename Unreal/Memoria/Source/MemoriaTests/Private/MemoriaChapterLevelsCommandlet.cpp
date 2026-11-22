@@ -11,7 +11,7 @@ UMemoriaChapterLevelsCommandlet::UMemoriaChapterLevelsCommandlet()
 { IsClient = false; IsServer = false; IsEditor = true; LogToConsole = true; }
 int32 UMemoriaChapterLevelsCommandlet::Main(const FString& Params)
 {
-    for (const TCHAR* Map : {TEXT("belt_waystation"), TEXT("drift_shelter"), TEXT("the_seam"), TEXT("forgotten_forest"), TEXT("crumbling_coast"), TEXT("haren_clearing"), TEXT("seam_return")})
+    for (const TCHAR* Map : {TEXT("belt_waystation"), TEXT("drift_shelter"), TEXT("the_seam"), TEXT("forgotten_forest"), TEXT("crumbling_coast"), TEXT("haren_clearing"), TEXT("seam_return"), TEXT("roofless_farms")})
     {
         const auto* Spec = MemoriaChapterMaps::Find(Map);
         if (!Spec) { UE_LOG(LogTemp, Error, TEXT("CHAPTER_LEVEL_SPEC_MISSING %s"), Map); return 1; }

@@ -49,6 +49,14 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::FarmsMap && !Run.GetFlag(TEXT("ch11_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch11_glove"))) return Prefix + (bKo ? TEXT("북쪽 출구 → 마른 수로, 두 번째 농가") : TEXT("North exit → the dry channel, the second farmhouse"));
+        if (Run.GetFlag(TEXT("ch11_fel"))) return Prefix + (bKo ? TEXT("북쪽 길로: 능선을 돌아 내려가는 곳") : TEXT("North along the road, where it comes down off the ridge"));
+        if (Run.GetFlag(TEXT("ch11_night"))) return Prefix + (bKo ? TEXT("아침: 농가 문턱으로") : TEXT("Morning: to the farmhouse threshold"));
+        if (Run.GetFlag(TEXT("ch11_house"))) return Prefix + (bKo ? TEXT("밤: 같은 벽을 따라") : TEXT("Night: along the same wall"));
+        if (Run.GetFlag(TEXT("ch11_road"))) return Prefix + (bKo ? TEXT("둔덕 뒤, 지붕 없는 농가 안으로") : TEXT("Into the roofless farmhouse behind the mound"));
+    }
     if (Map == MemoriaManuscript::ReturnMap && !Run.GetFlag(TEXT("ch10_complete")))
     {
         if (Run.GetFlag(TEXT("ch10_square"))) return Prefix + (bKo ? TEXT("서쪽 출구 → 벨트 도로 쪽") : TEXT("West exit → toward the Belt road"));

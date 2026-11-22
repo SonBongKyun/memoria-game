@@ -1,0 +1,762 @@
+{
+ "ambient_npcs": [],
+ "ambient_npcs_gate": null,
+ "asset_prefix": "Ch11",
+ "atmosphere": {
+  "brightness": -0.05,
+  "fog": "soft",
+  "hue": [
+   0.46,
+   0.42,
+   0.32,
+   1.0
+  ],
+  "light": [
+   0.84,
+   0.76,
+   0.6,
+   1.0
+  ],
+  "mood": 0.34,
+  "saturation": 0.55,
+  "splash": "res://assets/cg/generated/ch16_eastward_road.png"
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 11,
+ "chests": [
+  {
+   "flag": "chest_farm_field",
+   "origin": [
+    672.0,
+    448.0
+   ],
+   "rewards": {
+    "grains": 26,
+    "items": {
+     "antidote": 1,
+     "potion": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_farm_glove",
+   "origin": [
+    352.0,
+    160.0
+   ],
+   "text": "A grey leather glove in the ditch, its cuff open. No one has come back for it."
+  }
+ ],
+ "decorations": [],
+ "dialogue_file": "data/chapter9_dialogue.json",
+ "elia_repeat": "It's nothing.",
+ "encounter_range": [
+  25,
+  55
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "drain",
+    "stun"
+   ],
+   "atk": 24,
+   "hp": 100,
+   "is_void": true,
+   "name": "Colorless Wraith"
+  },
+  {
+   "abilities": [
+    "charge",
+    "reflect"
+   ],
+   "atk": 20,
+   "hp": 85,
+   "is_void": false,
+   "name": "Depth Crawler"
+  },
+  {
+   "abilities": [
+    "drain",
+    "shield",
+    "reflect"
+   ],
+   "atk": 26,
+   "hp": 110,
+   "is_void": true,
+   "name": "Void Fragment"
+  }
+ ],
+ "encounters_gate": "ch11_complete",
+ "exit": {
+  "center": [
+   336.0,
+   48.0
+  ],
+  "completes": "ch11_complete",
+  "flags": [
+   "canon_ch12_belt_road_ready"
+  ],
+  "group": "ms_farm_second",
+  "next_chapter": 12,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "Before asking who, he would first tell her he had heard.",
+   "ko": "누구냐고 묻기 전에, 자기가 들었다는 말부터 해야 했다."
+  },
+  "requires": "ch11_glove",
+  "size": [
+   96.0,
+   32.0
+  ]
+ },
+ "height": 18,
+ "map": "roofless_farms",
+ "objects_gate": "ch11_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch11_road",
+   "flags": [],
+   "group": "ms_farm_road",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  1,
+  2,
+  3
+ ],
+ "source": "scenes/maps/colorless_waste.gd (ground) + 최종본 6-7화 (story)",
+ "spawn": [
+  272.0,
+  496.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.2,
+    0.2,
+    0.2,
+    1.0
+   ],
+   "detail": "dead_soil"
+  },
+  {
+   "color": [
+    0.12,
+    0.12,
+    0.12,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.15,
+    0.15,
+    0.15,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.08,
+    0.08,
+    0.08,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.25,
+    0.25,
+    0.25,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.3,
+    0.3,
+    0.3,
+    1.0
+   ],
+   "detail": "rock"
+  }
+ ],
+ "tile_names": [
+  "FLAT",
+  "RIDGE",
+  "PILLAR",
+  "EDGE",
+  "PATH",
+  "MARKER"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ]
+ ],
+ "title": {
+  "name": "The Roofless Farmhouses",
+  "number": 11,
+  "subtitle": "The reader"
+ },
+ "triggers": [
+  {
+   "flag": "ch11_house",
+   "gate": "ch11_road",
+   "group": "ms_farm_house",
+   "rect": {
+    "origin": [
+     544.0,
+     352.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch11_night",
+   "gate": "ch11_house",
+   "group": "ms_farm_night",
+   "rect": {
+    "origin": [
+     544.0,
+     384.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch11_fel",
+   "gate": "ch11_night",
+   "group": "ms_farm_fel",
+   "rect": {
+    "origin": [
+     448.0,
+     352.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch11_glove",
+   "gate": "ch11_fel",
+   "group": "ms_farm_glove",
+   "rect": {
+    "origin": [
+     288.0,
+     128.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}
