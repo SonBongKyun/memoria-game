@@ -41,7 +41,7 @@ MANUSCRIPT = {
         'title': {'number': 6, 'name': 'The Seam', 'subtitle': 'Between what was and what will be'},
         # 6화: they come down the ridge road into the village; the north-west path is its end.
         'spawn': [5 * T, 1.5 * T],
-        'elia_repeat': "I'm here. I'm not going anywhere.",
+        'elia_repeat': "I wanted to stay a little longer.",
         'sequence': [
             {'flag': 'ch6_arrived', 'group': 'ms_seam_arrival', 'memories_chapter': 6, 'flags': [], 'toasts': []},
             {'flag': 'ch6_name_slip', 'group': 'ms_seam_name', 'memories_chapter': None, 'flags': [], 'toasts': []},

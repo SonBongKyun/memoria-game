@@ -82,13 +82,9 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_edit_v3"), false},
         // S371 Chapter 6, the Seam: canon art only (Sable as the blind old woman).
         {TEXT("res://assets/cg/generated/chapter_splash_the_seam.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_the_seam"), false},
-        {TEXT("res://assets/cg/generated/story_ch5_seam_first_light.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch5_seam_first_light"), false},
-        {TEXT("res://assets/cg/generated/chapter_expansion/ch06_seam_living_streets_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch06_seam_living_streets_v1"), false},
-        {TEXT("res://assets/cg/generated/chapter_expansion/ch07_echo_shell_voices_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch07_echo_shell_voices_v1"), false},
         {TEXT("res://assets/portraits/sable_face_calm.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_sable_face_calm"), false},
         // S372 Chapter 7, the listening forest: canon art only.
         {TEXT("res://assets/cg/generated/chapter_splash_forgotten_forest.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_chapter_splash_forgotten_forest"), false},
-        {TEXT("res://assets/cg/generated/story_ch7_crossing_the_ridgeline.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch7_crossing_the_ridgeline"), false},
         {TEXT("res://assets/cg/generated/chapter_expansion/ch08_memory_forest_entry_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch08_memory_forest_entry_v1"), false},
         {TEXT("res://assets/cg/generated/story_ch8_ghost_mother.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_story_ch8_ghost_mother"), false},
         // S373 Chapter 8, the coast and Blank 7 (the still city reuses sealed_city_ruins above).
@@ -97,7 +93,6 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_pause_archive_backdrop"), false},
         // S375 Chapter 10, the Seam, leaving: Sable listening, eyes half shut (blind canon).
         {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_sable_witness_v3"), false},
-        {TEXT("res://assets/cg/generated/chapter_expansion/ch05_city_in_bedrock_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch05_city_in_bedrock_v1"), false},
     };
     return Values;
 }

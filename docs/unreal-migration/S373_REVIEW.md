@@ -43,7 +43,7 @@ Branch `claude/s366-upgrade`, on top of S372 (`4f259bc3`). The user asked to por
   - the chair and the flat stone past the exit.
 - **Art:**
   - "No water could be seen": the two walking into grey flattened land (`ch09_equalized_waste_v1`) for the shore and the chair, also as the map's splash;
-  - the city in the rock for the hole;
+  - ~~the city in the rock for the hole~~ **removed in S380** (Gemini T-4): `ch05_city_in_bedrock_v1` has breaking sea at its right edge. The hole now plays over the grey splash;
   - the existing `sealed_city_ruins` for inside.
   - The Godot coast splash and the cliff-parting picture show breaking surf. Both were imported, then removed in this session, and the asset-registry cache was moved aside again.
 

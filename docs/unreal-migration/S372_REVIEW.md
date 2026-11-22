@@ -43,7 +43,7 @@ Branch `claude/s366-upgrade`, on top of S371 (`aa943bdc`). The user asked to por
   - pale mushroom rings round the trunks;
   - green growth on the soil;
   - a dim, still, green dressing with pale mushroom light.
-- **Art:** the forest splash, the ridgeline, the forest entry and the mother in the forest.
+- **Art:** the forest splash, ~~the ridgeline~~, the forest entry and the mother in the forest. **Corrected in S380** (Gemini T-4): `story_ch7_crossing_the_ridgeline` shows four people, **Tobias** among them. It was removed and its import deleted; the ridge line plays over the forest splash.
   - Set aside: the pictures that show a third companion with the two (Tobias's look), including one imported then removed in this session (`story_ch8_forgotten_moss`).
 
 ## Verification

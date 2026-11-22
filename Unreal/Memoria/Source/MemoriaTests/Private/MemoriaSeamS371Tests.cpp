@@ -56,7 +56,7 @@ bool FSeamS371Test::RunTest(const FString&)
     TestTrue(TEXT("Arrel loses Elia's name on the bridge"), Name && Name->Definition.Rows.ContainsByPredicate([](const FMemoriaFieldRow& R) { return R.Text.TextKo == TEXT("네 이름이 안 나와."); }));
     const UMemoriaFieldAsset* Night = BuildScene(GetTransientPackage(), TEXT("ms_seam_night"), 0);
     const UMemoriaFieldAsset* HeavyNight = BuildScene(GetTransientPackage(), TEXT("ms_seam_night"), SableHeavyBurns);
-    TestEqual(TEXT("Months: three"), Ko(Night, 10), FString(TEXT("몇 달. 셋. 지금 정도로 버티면 넷까지 볼 수 있겠지. 더 크게 태우면 그보다 짧고.")));
+    TestEqual(TEXT("Months: three"), Ko(Night, 10), FString(TEXT("몇 달. 셋. 지금 정도로 버티면 넷까지 갈 수 있겠지. 더 크게 태우면 그보다 짧고.")));
     TestTrue(TEXT("Burned more, two"), Ko(HeavyNight, 10).StartsWith(TEXT("몇 달. 둘.")));
     TestEqual(TEXT("Sable says it"), Night ? Night->Definition.Rows[10].Text.Speaker : FString(), FString(TEXT("Sable")));
     const UMemoriaFieldAsset* Leave = BuildScene(GetTransientPackage(), TEXT("ms_seam_departure"), 0);

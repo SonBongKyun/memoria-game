@@ -40,7 +40,10 @@ Branch `claude/s366-upgrade`, on top of S370 (`4c42b46a`). The user asked to por
   - A violet-dusk, warm-lamp dressing.
   - Drift's dead-tree ring and camp no longer apply to other maps.
 - **Art:**
-  - The Seam splash, three canon CGs (first light, the living streets, the echo shell's voices) and Sable's blind portrait (`sable_calm`).
+  - The Seam splash and Sable's blind portrait (`sable_calm`). ~~Three canon CGs (first light, the living streets, the echo shell's voices)~~ **Corrected in S380** (Gemini T-4):
+    - first light shows **Tobias** with the party, before 23화;
+    - the living streets and the shell voices show Sable carrying a lantern (7화: "등불을 들고 있지 않았다"), and an old echo-shell sphere.
+    - All three were removed and their imports deleted.
   - Not used: the briefing CG, which shows Tobias (not in the story until 23화).
 - Korean names: 더 심, 있던 것과 올 것 사이, 능선길, 페렌, 하렌, 마을 여자; "보이드 홀" is shown as "공허 구멍".
 

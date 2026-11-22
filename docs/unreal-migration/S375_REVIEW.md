@@ -64,7 +64,7 @@ Branch `claude/s366-upgrade`, on top of S374 (`b3cf51a3`). The user asked to por
   - A first choice for the ridge, `story_ch7_crossing_the_ridgeline`, shows four people. It was dropped after the capture review.
 
 ## Canon notes
-- Sable's lines follow the manuscript. One of them, "전에 그런 사람들을 봤어", uses 보다 in the past tense ("I've known people like that before"). The S148 rule bans seeing verbs for Sable; the newer manuscript's wording was kept. Easy to change if the author prefers.
+- ~~One Sable line kept the manuscript's "봤어"~~. **Updated in S378** to "전에 그런 사람들을 겪었어", per Gemini's T-1 recommendation, removing the seeing verb.
 
 ## Verification
 Native UE 5.8.2, D3D 1280x720.
