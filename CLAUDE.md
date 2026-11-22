@@ -1,6 +1,6 @@
 # Active Unreal collaboration worktree
 
-Read `docs/collaboration/CLAUDE_CODEX.md` first for current project, file ownership and handoff rules. This checkout is an Unreal migration workspace; legacy Godot notes below remain reference. Wait for a user-assigned development task.
+Read `docs/collaboration/TEAM.md` first: the Opus + Gemini + Grok team (from 2026-11-22), lanes, roles, build slot and handoff rules. If you are Grok, your worktree is `memoria-unreal-grok` (branch `grok/memoria-lane`) and your handoff is `grok-handoff.md`; if you are Opus/Claude, you are the coordinator. `docs/collaboration/CLAUDE_CODEX.md` is the paused Codex pair's history. This checkout is an Unreal migration workspace; legacy Godot notes below remain reference. Wait for a user-assigned development task.
 
 # MEMORIA: The Price of Oblivion — Game Project
 
