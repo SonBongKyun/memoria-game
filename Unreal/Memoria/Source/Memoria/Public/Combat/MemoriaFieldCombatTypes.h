@@ -152,6 +152,17 @@ inline constexpr float OrbSpeed = 480.f, OrbRadius = 52.f, OrbLife = 2.4f;
 inline constexpr float RushFrom = 380.f, RushSpeed = 640.f, RushDistance = 520.f, RushHit = 78.f, RushWidth = 70.f;
 inline constexpr float DrainShare = .5f;
 inline constexpr int32 ScorchTicks = 2;
+// S376: the adjuster's club. A landed touch makes the hand forget its work. Another touch refreshes
+// the time and stops at the cap. The club does not cut, and the numbness does not tick as a wound.
+inline constexpr float NumbTouch = 3.f;
+inline constexpr float NumbCap = 4.5f;
+inline constexpr float NumbNoticeTime = 3.5f;
+inline constexpr float WardenHealth = 48.f;
+inline constexpr float WardenSpeed = 52.f;
+inline constexpr float WardenReach = 110.f;
+inline constexpr float WardenWindup = 1.35f;
+inline constexpr float WardenRecover = 1.10f;
+inline constexpr float WardenReachWidth = 36.f;
 // Fire for the lower grades, void violet for Identity Pyre and Zero Burn (the source's elements).
 inline FLinearColor BurnColor(int32 Grade)
 { return Grade >= 3 ? FLinearColor(.62f, .30f, 1.f) : Grade == 1 ? FLinearColor(.35f, .62f, 1.f) : FLinearColor(1.f, .52f, .16f); }
@@ -160,10 +171,11 @@ enum class EMemoriaMonsterState : uint8 { Idle, Chase, Windup, Recover, Stagger,
 // S313: the field foes. The void husk is the stand-in void creature; the market thief is the Verdan source
 // enemy (source: 50 HP, "weaken"). Both are Epic's mannequin until Codex's models arrive.
 // S342: and the six foes of the Belt Waystation's and Drift Shelter's pools, each on one of the two models.
-enum class EMemoriaFoeKind : uint8 { VoidHusk, MarketThief, BeltScavenger, VoidWisp, DustCrawler, MemoryLeech, RubbleRat, AshWalker };
+enum class EMemoriaFoeKind : uint8 { VoidHusk, MarketThief, BeltScavenger, VoidWisp, DustCrawler, MemoryLeech, RubbleRat, AshWalker, Warden };
 enum class EMemoriaFoeBehaviour : uint8 { Brawler, Caster, Charger };
 // The source enemy abilities carried into the field (S314): a blow that lands also poisons or weakens.
-enum class EMemoriaFoeAbility : uint8 { None, Poison, Weaken, Drain, Burn };
+// S376 Numb is appended: a touch that makes the hand forget, with no wound.
+enum class EMemoriaFoeAbility : uint8 { None, Poison, Weaken, Drain, Burn, Numb };
 struct FMemoriaFoeSpec
 {
     const TCHAR* Name; const TCHAR* NameKo;
@@ -184,6 +196,8 @@ struct FMemoriaFoeSpec
     // S353: non-emissive surface variation, independent of attack/orb and crack colours.
     FLinearColor SurfaceTint = FLinearColor::White;
     float Weathering = 0.f;
+    // S376: the strike is a short reach held out in front. Contact is that corridor, not a swung circle.
+    bool bReach = false;
 };
 inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
 {
@@ -244,6 +258,17 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
     static const FMemoriaFoeSpec LeechBody = [] { auto S = Leech; S.Model = TEXT("MemoryLeech");
         S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = TEXT("Bite"); return S; }();
     static const FMemoriaFoeSpec WalkerBody = [] { auto S = Walker; S.Model = TEXT("AshWalker"); return S; }();
+    // S376: eight men in dark coats. The club is held low and reached out to touch; it is not swung.
+    // BeltScavenger is the coated humanoid. The dagger is hidden and a short black club is carried instead.
+    static const FMemoriaFoeSpec Warden = [] {
+        FMemoriaFoeSpec S = FVariant::Of(Thief, TEXT("Warden"), TEXT("감시자"), 48, 0, WardenHealth, 168.f, WardenSpeed, 0.f,
+            WardenWindup, WardenRecover, false, A::Numb, A::None, B::Brawler,
+            FLinearColor(.02f, .02f, .025f), 0.f, FLinearColor(.16f, .16f, .18f), .06f, FLinearColor(.16f, .16f, .18f), .08f);
+        S.Model = TEXT("BeltScavenger"); S.Reach = WardenReach; S.Aggro = 620.f;
+        S.Idle = TEXT("Idle"); S.Walk = TEXT("Walk"); S.Strike = nullptr; S.bReach = true; S.BladeScale = 0.f; S.bQuinn = false;
+        S.Color = FLinearColor(.03f, .03f, .034f); S.Glow = FLinearColor(.04f, .04f, .045f);
+        return S;
+    }();
     switch (Kind)
     {
     case EMemoriaFoeKind::MarketThief: return Thief;
@@ -253,6 +278,7 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
     case EMemoriaFoeKind::MemoryLeech: return LeechBody;
     case EMemoriaFoeKind::RubbleRat: return RatBody;
     case EMemoriaFoeKind::AshWalker: return WalkerBody;
+    case EMemoriaFoeKind::Warden: return Warden;
     default: return Husk;
     }
 }
@@ -260,7 +286,7 @@ inline const FMemoriaFoeSpec& FoeSpec(EMemoriaFoeKind Kind)
 inline EMemoriaFoeKind FoeKindByName(const FString& SourceName, bool bVoid)
 {
     for (const EMemoriaFoeKind Kind : {EMemoriaFoeKind::BeltScavenger, EMemoriaFoeKind::VoidWisp, EMemoriaFoeKind::DustCrawler, EMemoriaFoeKind::MemoryLeech,
-        EMemoriaFoeKind::RubbleRat, EMemoriaFoeKind::AshWalker, EMemoriaFoeKind::MarketThief, EMemoriaFoeKind::VoidHusk})
+        EMemoriaFoeKind::RubbleRat, EMemoriaFoeKind::AshWalker, EMemoriaFoeKind::Warden, EMemoriaFoeKind::MarketThief, EMemoriaFoeKind::VoidHusk})
         if (SourceName.Equals(FoeSpec(Kind).Name, ESearchCase::CaseSensitive)) return Kind;
     return bVoid ? EMemoriaFoeKind::VoidHusk : EMemoriaFoeKind::MarketThief;
 }

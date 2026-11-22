@@ -6,7 +6,8 @@ bool MemoriaHudLayoutS363::IsRibbonShowing(const UMemoriaFieldCombatSubsystem& C
 {
     return C.LiveMonsterCount() > 0 || C.GetPopups().Num() > 0 || C.IsDefeated() || C.GetPlayerHp() < C.GetPlayerMaxHp() ||
         C.IsPickingBurn() || C.IsCasting() || C.GetBurnWave().bLive || C.GetLastReward().Age < RewardShownSeconds || C.IsWeakened() || C.IsPoisoned() ||
-        C.GetSparks().Num() > 0 || C.GetTrail().Num() > 0 || C.GetImpacts().Num() > 0 || C.GetThrown().Num() > 0 || C.IsWarded() || C.GetOrbs().Num() > 0 || C.IsScorched() || C.GetCharge() > 0.f || C.IsBlocking() || C.GetEliaNoticeAge() < 3.5f;
+        C.GetSparks().Num() > 0 || C.GetTrail().Num() > 0 || C.GetImpacts().Num() > 0 || C.GetThrown().Num() > 0 || C.IsWarded() || C.GetOrbs().Num() > 0 || C.IsScorched() || C.GetCharge() > 0.f || C.IsBlocking() || C.GetEliaNoticeAge() < 3.5f ||
+        C.IsNumbed() || C.GetNumbNoticeAge() < MemoriaCombatTuning::NumbNoticeTime;
 }
 MemoriaHudLayoutS363::FRibbon MemoriaHudLayoutS363::Ribbon(const FVector2D& Viewport, bool bAttackHint, bool bVictory)
 {

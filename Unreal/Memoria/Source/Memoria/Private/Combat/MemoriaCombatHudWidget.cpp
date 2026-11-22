@@ -9,6 +9,7 @@
 #include "Combat/MemoriaAttackTelegraph.h"
 #include "Settings/MemoriaSettingsSubsystem.h"
 #include "Presentation/MemoriaFonts.h"
+#include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Presentation/MemoriaHudKit.h"
 #include "Domain/MemoriaPlayerMemoryDomain.h"
 #include "Presentation/MemoriaUiKit.h"
@@ -428,6 +429,7 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     if (C->IsWeakened()) Tag(Ko ? FString::Printf(TEXT("약화 %d초"), WeakSeconds) : FString::Printf(TEXT("Weak %ds"), WeakSeconds), Srgb(.80f, .66f, 1.f));
     if (C->IsPoisoned()) Tag(Ko ? FString::Printf(TEXT("중독 ×%d"), PoisonTicks) : FString::Printf(TEXT("Poison ×%d"), PoisonTicks), Srgb(.60f, 1.f, .42f));
     if (C->IsScorched()) Tag(Ko ? FString::Printf(TEXT("화상 ×%d"), C->GetScorchTicksLeft()) : FString::Printf(TEXT("Scorch ×%d"), C->GetScorchTicksLeft()), Srgb(1.f, .62f, .30f));
+    if (C->IsNumbed()) Tag(FString::Printf(TEXT("%s %d"), *MemoriaKorean::For(C, TEXT("Numbed")), FMath::CeilToInt(C->GetNumbLeft())), Srgb(.62f, .64f, .66f));
     if (C->IsBlocking()) Tag(Ko ? TEXT("막기") : TEXT("Guard"), Srgb(.78f, .86f, 1.f));
     // The cells. S319: Elia's techniques show their name (??? until her diary unlocks it) and the cooldown
     // draining from the cell; then the burn, the guard and the dodge.
@@ -493,6 +495,19 @@ int32 UMemoriaCombatHudWidget::NativePaint(const FPaintArgs& Args, const FGeomet
     }
     if (const APawn* Arrel = C->GetPlayer(); Arrel && C->IsShielded())
         Arc(Elements, Layer, Geometry, PC, Arrel->GetActorLocation() - FVector(0, 0, 4.f), 64.f, 1.f, 3.f, FLinearColor(.62f, .82f, 1.f, .8f));
+    // S376: the hand is still on the weapon. A muted ring is all the club leaves there.
+    if (const APawn* Arrel = C->GetPlayer(); Arrel && C->IsNumbed())
+    {
+        const float Yaw = C->GetPlayerFigure() ? C->GetPlayerFigure()->GetYaw() : Arrel->GetActorRotation().Yaw;
+        const FVector Hand = Arrel->GetActorLocation() + FRotator(0.f, Yaw, 0.f).Vector() * 42.f + FVector(0, 0, 96.f);
+        Ring(Elements, Layer + 2, Geometry, PC, Hand, 18.f, 3.5f, FLinearColor(.42f, .43f, .45f, .8f));
+    }
+    if (C->GetNumbNoticeAge() < MemoriaCombatTuning::NumbNoticeTime && !C->GetNumbNotice().IsEmpty())
+    {
+        const float Limit = MemoriaCombatTuning::NumbNoticeTime;
+        const float A = FMath::Clamp(FMath::Min(C->GetNumbNoticeAge() / .3f, (Limit - C->GetNumbNoticeAge()) / .6f), 0.f, 1.f);
+        Text(Elements, Layer + 6, Geometry, C->GetNumbNotice(), FVector2D(Size.X * .5f, 248.f), MemoriaFonts::Get(MemoriaFonts::EStyle::Ui, 17), Srgb(.70f, .72f, .74f, A));
+    }
     // The diary notice after a burn (EliaDiary toasts), under the burn banner.
     if (C->GetEliaNoticeAge() < 3.5f && !C->GetEliaNotice().IsEmpty())
     {

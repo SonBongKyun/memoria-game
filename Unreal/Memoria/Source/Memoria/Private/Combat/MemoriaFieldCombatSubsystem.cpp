@@ -1,4 +1,5 @@
 #include "Combat/MemoriaFieldCombatSubsystem.h"
+#include "Localization/MemoriaKorean.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Combat/MemoriaFieldCombatTypes.h"
 #include "Combat/MemoriaFieldMonster.h"
@@ -113,7 +114,7 @@ bool UMemoriaFieldCombatSubsystem::StartStep(int32 Step)
 bool UMemoriaFieldCombatSubsystem::RequestAttack(const FVector& AimPoint)
 {
     APawn* Pawn = Player.Get();
-    if (!Pawn || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f || StaggerLeft > 0.f || bBlocking) return false;
+    if (!Pawn || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f || StaggerLeft > 0.f || bBlocking || NumbLeft > 0.f) return false;
     const FVector Aim = (AimPoint - Pawn->GetActorLocation()) * FVector(1, 1, 0);
     if (!IsAttacking())
     {
@@ -201,6 +202,8 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
     // S366: a blow that meets a dash begun just in time falls on Arrel's afterimage.
     if (IsInvulnerable()) { TryPerfectDodge(Monster, bContactResolved); return false; }
     if (!bContactResolved && FVector::Dist2D(Pawn->GetActorLocation(), Monster->GetActorLocation()) > Monster->Spec().Reach + 40.f) return false;
+    // S376: a reaching touch only lands inside the short corridor held out from the waist.
+    if (!bContactResolved && Monster->Spec().bReach && !Monster->IsReachTouch(Pawn->GetActorLocation())) return false;
     if (bPicking) CloseBurnPicker();
     const bool Ko = Run->GetRunSnapshot().CurrentLocale == TEXT("ko");
     if (bBlocking)
@@ -235,6 +238,16 @@ bool UMemoriaFieldCombatSubsystem::StrikePlayer(AMemoriaFieldMonster* Monster, f
         Impact(Pawn->GetActorLocation() + FVector(0, 0, 90.f), FLinearColor(.7f, .8f, 1.f), 120.f, true, EMemoriaDefenseOutcome::Ward);
         Cue(GetWorld(), TEXT("shield"));
         return false;
+    }
+    // S376: the club does not cut. No blood, no stagger, no flinch. The hand forgets, and that is the whole blow.
+    if (Monster->Spec().Ability == EMemoriaFoeAbility::Numb || Monster->Spec().Second == EMemoriaFoeAbility::Numb)
+    {
+        ++StrikesTaken;
+        ComboStep = -1; ClearComboIntent(); bCharging = false; ChargeHeld = 0.f;
+        if (Figure) Figure->StopAction();
+        if (bPicking) CloseBurnPicker();
+        Afflict(Monster->Spec().Ability, Damage); Afflict(Monster->Spec().Second, Damage);
+        return true;
     }
     if (Monster->IsElite()) Damage *= EliteDamage;          // S367: a void-touched elite hits harder
     if (ShieldLeft > 0.f) Damage *= HummingShieldFactor; // Elia's humming shield (S319)
@@ -351,7 +364,7 @@ void UMemoriaFieldCombatSubsystem::WinWave()
     }
     if (Pawn && Reward.Heal > 0) Popup(Pawn->GetActorLocation() + FVector(0, 0, 150.f), float(Reward.Heal), true, FString::Printf(TEXT("+%lld HP"), Reward.Heal), FLinearColor(.5f, 1.f, .6f));
     // A won fight ends the statuses and the chain, like the source battle's end.
-    WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false; bWaveElite = false;
+    WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; NumbLeft = 0.f; BurnChain = 0; WaveKills = 0; WaveGrains = 0; bWaveVoid = false; bWaveElite = false;
     Cue(GetWorld(), TEXT("heal"));
 }
 void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Damage)
@@ -369,6 +382,21 @@ void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Dam
         ScorchLeft = ScorchTicks; ScorchClock = PoisonInterval; ScorchDamage = int64(Damage * .2f) + 3;
         Popup(Pawn->GetActorLocation() + FVector(0, 0, 195.f), 0.f, true, Ko ? TEXT("화상") : TEXT("Scorched"), FLinearColor(1.f, .55f, .2f));
     }
+    else if (Ability == EMemoriaFoeAbility::Numb)
+    {
+        // Another touch lengthens the forgetting, up to the cap. It does not stack, and it does not bleed.
+        const bool bFirst = !bNumbTold;
+        NumbLeft = FMath::Min(NumbCap, NumbLeft + NumbTouch);
+        bCharging = false; ChargeHeld = 0.f; ComboStep = -1; ClearComboIntent();
+        if (auto* Hand = PlayerFigure.Get()) Hand->StopAction();
+        if (bPicking) CloseBurnPicker();
+        if (bFirst)
+        {
+            bNumbTold = true; NumbNoticeAge = 0.f;
+            NumbNotice = MemoriaKorean::For(this, TEXT("The hand forgets what it was doing."));
+            Popup(Pawn->GetActorLocation() + FVector(0, 0, 175.f), 0.f, true, MemoriaKorean::For(this, TEXT("Numbed")), FLinearColor(.55f, .56f, .58f));
+        }
+    }
     else if (Ability == EMemoriaFoeAbility::Poison && PoisonLeft == 0)
     {
         // Source poison: attack * 0.3 + 2..5 each turn; the field takes the middle of the range.
@@ -379,6 +407,7 @@ void UMemoriaFieldCombatSubsystem::Afflict(EMemoriaFoeAbility Ability, float Dam
 void UMemoriaFieldCombatSubsystem::TickStatuses(float DeltaSeconds)
 {
     WeakenLeft = FMath::Max(0.f, WeakenLeft - DeltaSeconds);
+    NumbLeft = FMath::Max(0.f, NumbLeft - DeltaSeconds);
     auto* Run = RunOf(GetWorld()); APawn* Pawn = Player.Get();
     if (ScorchLeft > 0 && Run && Pawn && (ScorchClock -= DeltaSeconds) <= 0.f)
     {
@@ -518,7 +547,7 @@ void UMemoriaFieldCombatSubsystem::Tick(float DeltaSeconds)
 bool UMemoriaFieldCombatSubsystem::OpenBurnPicker()
 {
     APawn* Pawn = Player.Get(); auto* Run = RunOf(GetWorld());
-    if (!Pawn || !Run || !Run->GetPlayerMemory() || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f) return false;
+    if (!Pawn || !Run || !Run->GetPlayerMemory() || bDefeated || bPicking || CastLeft > 0.f || DashLeft > 0.f || NumbLeft > 0.f) return false;
     const auto* Memory = Run->GetPlayerMemory();
     Choices.Reset();
     // The archive's rows carry the localized titles and grade labels; only what can burn now is offered.
@@ -816,7 +845,7 @@ bool UMemoriaFieldCombatSubsystem::UseItem(const FString& ItemId, const FVector&
     {
         // "Guaranteed escape from battle": the foes lose him in the smoke and are gone, and the fight pays nothing.
         for (const auto& M : Monsters) if (M.IsValid() && !M->IsDead()) { Burst(M->GetActorLocation() + FVector(0, 0, 90.f), 10, FLinearColor(.6f, .62f, .68f), 220.f); M->Destroy(); }
-        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; bWaveElite = false; BurnChain = 0; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; Orbs.Reset();
+        Monsters.Reset(); WaveKills = 0; WaveGrains = 0; bWaveVoid = false; bWaveElite = false; BurnChain = 0; WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; NumbLeft = 0.f; Orbs.Reset();
         Burst(Me + FVector(0, 0, 80.f), 34, FLinearColor(.66f, .68f, .74f), 340.f);
         Impact(Me + FVector(0, 0, 30.f), FLinearColor(.7f, .72f, .78f), 260.f, false);
         Popup(Me + FVector(0, 0, 175.f), 0.f, true, Ko ? TEXT("연기 속으로 사라졌다") : TEXT("Vanished in smoke"), FLinearColor(.82f, .84f, .9f));
@@ -911,8 +940,10 @@ void UMemoriaFieldCombatSubsystem::TickFeel(float DeltaSeconds)
     }
     if (bBlocking) BlockHeld += DeltaSeconds;
     for (float& Cooldown : EliaCooldown) Cooldown = FMath::Max(0.f, Cooldown - DeltaSeconds);
-    ShieldLeft = FMath::Max(0.f, ShieldLeft - DeltaSeconds); EliaNoticeAge += DeltaSeconds;
-    if (bCharging && !IsHeavy() && !bBlocking)
+    ShieldLeft = FMath::Max(0.f, ShieldLeft - DeltaSeconds); EliaNoticeAge += DeltaSeconds; NumbNoticeAge += DeltaSeconds;
+    // A numb hand cannot finish a heavy cut it was holding for.
+    if (NumbLeft > 0.f) { bCharging = false; ChargeHeld = 0.f; }
+    else if (bCharging && !IsHeavy() && !bBlocking)
     {
         ChargeHeld += DeltaSeconds;
         // Held long enough: the heavy cut, a full spin, breaking off whatever swing was playing.
@@ -935,7 +966,7 @@ void UMemoriaFieldCombatSubsystem::ClearRecoveryState()
     ClearAfterimage(); ClearBurnRelics();
     Monsters.Reset();bDefeated=false;DefeatLeft=0.f;StaggerLeft=CastLeft=DashLeft=0.f;ComboStep=-1;ClearComboIntent();
     WeakenLeft=0.f;PoisonLeft=0;BurnChain=0;WaveKills=0;WaveGrains=0;bWaveVoid=false;bWaveElite=false;
-    Thrown.Reset();bWarded=false;Orbs.Reset();ScorchLeft=0;
+    Thrown.Reset();bWarded=false;Orbs.Reset();ScorchLeft=0;NumbLeft=0.f;
     EndBlock();EndCharge();
     if(auto* Figure=PlayerFigure.Get()){Figure->StopAction();Figure->ClearAim();}
 }
@@ -956,6 +987,7 @@ void UMemoriaFieldCombatSubsystem::ResetForRestoredRun()
     for(float& Cooldown:EliaCooldown)Cooldown=0.f;
     ShieldLeft=ItemCooldownLeft=0.f;ItemRefusal.Reset();
     Reward=FMemoriaFieldReward();EliaNotice.Reset();EliaNoticeAge=99.f;
+    NumbNotice.Reset();NumbNoticeAge=99.f;bNumbTold=false;
     Popups.Reset();Sparks.Reset();Trail.Reset();Impacts.Reset();
     HitLightLeft=HitLightPeak=0.f;HurtAge=99.f;
     if(auto* Figure=PlayerFigure.Get())Figure->SetSwordDrawn(false);
@@ -1057,7 +1089,7 @@ bool UMemoriaFieldCombatSubsystem::UseEliaSkill(int32 Slot)
         // Anchor Pulse: 15% of max HP and every status cured.
         auto& P = Run->State.Player;
         const int64 Heal = FMath::Min<int64>(int64(P.MaxHp * AnchorPulseShare), P.MaxHp - P.Hp); P.Hp += Heal;
-        WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0;
+        WeakenLeft = 0.f; PoisonLeft = 0; ScorchLeft = 0; NumbLeft = 0.f;
         Popup(Me + FVector(0, 0, 150.f), float(Heal), true, FString::Printf(TEXT("+%lld HP"), Heal), FLinearColor(.5f, 1.f, .6f));
         Burst(Me + FVector(0, 0, 60.f), 14, FLinearColor(.55f, 1.f, .7f), 240.f);
         Cue(GetWorld(), TEXT("heal"));

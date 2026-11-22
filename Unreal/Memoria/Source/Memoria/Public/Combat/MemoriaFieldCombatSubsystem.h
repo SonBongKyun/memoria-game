@@ -87,7 +87,7 @@ public:
     int32 GetBurnChain() const { return BurnChain; }
     int32 GetStrikesTaken() const { return StrikesTaken; }
     // S315 feel and the two new moves.
-    void BeginCharge() { bCharging = !bDefeated; ChargeHeld = 0.f; }
+    void BeginCharge() { if (bDefeated || NumbLeft > 0.f) { bCharging = false; ChargeHeld = 0.f; return; } bCharging = true; ChargeHeld = 0.f; }
     void EndCharge() { bCharging = false; ChargeHeld = 0.f; }
     float GetCharge() const { return bCharging ? FMath::Clamp(ChargeHeld / ChargeTimeValue(), 0.f, 1.f) : 0.f; }
     bool IsHeavy() const { return ComboStep == 3; }
@@ -175,6 +175,11 @@ public:
     int32 GetOrbsLaunched() const { return OrbsLaunched; }
     bool IsScorched() const { return ScorchLeft > 0; }
     int32 GetScorchTicksLeft() const { return ScorchLeft; }
+    // S376: a warden's touch. The hand forgets its work for a few seconds. Dodge, walking and Elia's skills stay open.
+    bool IsNumbed() const { return NumbLeft > 0.f; }
+    float GetNumbLeft() const { return NumbLeft; }
+    const FString& GetNumbNotice() const { return NumbNotice; }
+    float GetNumbNoticeAge() const { return NumbNoticeAge; }
     APawn* GetPlayer() const { return Player.Get(); }
     UMemoriaFieldCharacterComponent* GetPlayerFigure() const { return PlayerFigure.Get(); }
     int64 GetPlayerHp() const;
@@ -209,6 +214,9 @@ private:
     TWeakObjectPtr<APointLight> Flare;
     int32 Selection = 0, Burns = 0;
     float CastLeft = 0.f, SheatheIn = 0.f, WeakenLeft = 0.f, PoisonClock = 0.f;
+    float NumbLeft = 0.f, NumbNoticeAge = 99.f;
+    bool bNumbTold = false;
+    FString NumbNotice;
     float HitStopLeft = 0.f, ShakeLeft = 0.f, ShakeStrength = 0.f, ShakeClock = 0.f, ChargeHeld = 0.f, BlockHeld = 0.f;
     bool bCharging = false, bBlocking = false;
     int32 Parries = 0, Blocks = 0, EliaSkillsUsed = 0;

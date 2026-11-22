@@ -110,7 +110,7 @@ void MemoriaAttackTelegraph::Paint(FSlateWindowElementList& Elements, int32 Laye
         if (!Cue.bActive) continue;
         const bool bCaster = Cue.Behaviour == EMemoriaFoeBehaviour::Caster;
         const bool bCharger = Cue.Behaviour == EMemoriaFoeBehaviour::Charger;
-        const FLinearColor Hue = bCaster ? FLinearColor(.42f, .70f, 1.f) :
+        const FLinearColor Hue = Cue.bReach ? FLinearColor(.35f, .36f, .38f) : bCaster ? FLinearColor(.42f, .70f, 1.f) :
             bCharger ? FLinearColor(1.f, .22f, .10f) : FLinearColor(1.f, .48f, .13f);
         auto Ink = [&](float Alpha) { return FLinearColor(Hue.R, Hue.G, Hue.B, Alpha); };
         TArray<FVector2f> Outline;
@@ -125,6 +125,14 @@ void MemoriaAttackTelegraph::Paint(FSlateWindowElementList& Elements, int32 Laye
             if (Project(PC, {Tip - Cue.Direction * 52.f + Side * Cue.Radius, Tip,
                 Tip - Cue.Direction * 52.f - Side * Cue.Radius}, Arrow))
                 Stroke(Elements, Layer + 2, G, Arrow, Ink(.95f), 3.f);
+        }
+        else if (Cue.bReach)
+        {
+            if (Project(PC, Capsule(Cue), Outline))
+            {
+                Fill(Elements, Layer, G, Outline, Ink(.055f + .045f * Cue.Progress));
+                Stroke(Elements, Layer + 1, G, Outline, Ink(.9f), 2.5f, true);
+            }
         }
         else if (Project(PC, bCharger ? Capsule(Cue) : Circle(Cue.Origin, Cue.Radius), Outline))
         {

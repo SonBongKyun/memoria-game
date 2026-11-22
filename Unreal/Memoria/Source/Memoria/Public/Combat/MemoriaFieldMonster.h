@@ -15,6 +15,7 @@ struct FMemoriaAttackCue
     EMemoriaFoeBehaviour Behaviour = EMemoriaFoeBehaviour::Brawler;
     FVector Origin = FVector::ZeroVector, Direction = FVector::ForwardVector;
     float Length = 0.f, Radius = 0.f, Progress = 0.f;
+    bool bReach = false;
     FVector BlockPoint = FVector::ZeroVector, BlockNormal = FVector::ZeroVector;
 };
 
@@ -57,6 +58,8 @@ public:
     float GetMaxHealth() const { return MaxHealth; }
     UMemoriaFieldCharacterComponent* GetFigure() const { return Figure; }
     int32 GetStrikeCount() const { return Strikes; }
+    // S376: the club's corridor. Ahead of the reach, and no wider than the short bar held at the waist.
+    bool IsReachTouch(const FVector& Point) const;
 protected:
     virtual void BeginPlay() override;
 private:
@@ -72,7 +75,10 @@ private:
     bool bElite = false, bShelled = false;
     float LastHitDamage = 0.f, AuraClock = 0.f;
     UPROPERTY(Transient) TObjectPtr<class UPointLightComponent> AuraLight;
+    UPROPERTY(Transient) TObjectPtr<class UStaticMeshComponent> Club;
+    UPROPERTY(Transient) TObjectPtr<class UStaticMeshComponent> ClubBand;
     void SetShellLook(bool bOn);
+    void PlaceClub();
     void Enter(EMemoriaMonsterState Next);
     UMemoriaFieldCombatSubsystem* Combat() const;
 };

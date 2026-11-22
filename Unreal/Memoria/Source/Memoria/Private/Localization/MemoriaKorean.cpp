@@ -165,6 +165,10 @@ const TMap<FString, FString>& Table()
         {TEXT("UP / DOWN  Browse     LEFT / RIGHT  Grade     TAB / M / ESC / B  Close"), TEXT("↑ / ↓  살펴보기     ← / →  등급     TAB / M / ESC / B  닫기")},
         {TEXT("MEMORY ARCHIVE  //  00"), TEXT("기억 서고  //  00")},
         {TEXT("Confirm received. Escape / B closes this modal."), TEXT("확인했습니다. Esc / B로 이 창을 닫습니다.")},
+        // S376: the adjuster's club. The hand is still there. It has forgotten its work.
+        {TEXT("Numbed"), TEXT("손이 잊었다")},
+        {TEXT("The hand forgets what it was doing."), TEXT("손이 하던 일을 잊었다.")},
+        {TEXT("Warden"), TEXT("감시자")},
     };
     return Values;
 }

@@ -10,6 +10,8 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
 using namespace MemoriaCombatTuning;
 AMemoriaFieldMonster::AMemoriaFieldMonster()
@@ -52,12 +54,36 @@ void AMemoriaFieldMonster::BeginPlay()
         bShelled = true; SetShellLook(true);
     }
     PreviousLocation = GetActorLocation();
+    if (S.bReach)
+    {
+        // The coated man's dagger is the model's grip. The club replaces it. It is held, not swung.
+        if (UStaticMeshComponent* Dagger = Figure->GetBlade()) { Dagger->SetHiddenInGame(true); Dagger->SetVisibility(false); }
+        auto* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+        auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+        auto MakeBar = [&](const TCHAR* Name, const FVector& Scale)
+        {
+            auto* Bar = NewObject<UStaticMeshComponent>(this, Name, RF_Transient);
+            Bar->SetStaticMesh(Mesh); Bar->SetupAttachment(Figure);
+            Bar->SetMobility(EComponentMobility::Movable); Bar->SetCollisionEnabled(ECollisionEnabled::NoCollision); Bar->SetCastShadow(false);
+            Bar->SetRelativeScale3D(Scale);
+            if (Base)
+            {
+                auto* Ink = UMaterialInstanceDynamic::Create(Base, this);
+                const FLinearColor Black(.02f, .02f, .024f);
+                Ink->SetVectorParameterValue(TEXT("Color"), Black); Ink->SetVectorParameterValue(TEXT("BaseColor"), Black);
+                Bar->SetMaterial(0, Ink);
+            }
+            Bar->RegisterComponent();
+            return Bar;
+        };
+        if (Mesh) { Club = MakeBar(TEXT("Club"), FVector(.46f, .055f, .055f)); ClubBand = MakeBar(TEXT("ClubBand"), FVector(.07f, .09f, .09f)); PlaceClub(); }
+    }
 }
 void AMemoriaFieldMonster::Enter(EMemoriaMonsterState Next)
 {
     State = Next; StateTime = 0.f;
     // The kind's strike, timed so its blow lands as the windup ends.
-    if (Next == EMemoriaMonsterState::Windup)
+    if (Next == EMemoriaMonsterState::Windup && Spec().Strike)
         if (const UAnimSequence* Clip = MemoriaCombatClips::Load(Figure->GetCharacterId(), Spec().Strike))
             Figure->PlayAction(Spec().Strike, FMath::Max(.1f, Clip->GetPlayLength() * Spec().StrikeAt / Spec().Windup));
 }
@@ -99,8 +125,40 @@ FMemoriaAttackCue AMemoriaFieldMonster::GetAttackCue() const
         Cue.Length = 220.f; // a direction guide, not a promise of the orb's full travel
         Cue.Radius = OrbRadius;
     }
+    else if (Spec().bReach)
+    {
+        // A short stroke held forward, the width of the club, not the orange disc of a swung blow.
+        Cue.bReach = true;
+        Cue.Direction = FRotator(0.f, Figure->GetYaw(), 0.f).Vector();
+        if (Cue.Direction.IsNearlyZero()) Cue.Direction = FVector::ForwardVector;
+        Cue.Length = Spec().Reach + 40.f;
+        Cue.Radius = WardenReachWidth;
+    }
     else Cue.Radius = Spec().Reach + 40.f; // StrikePlayer includes Arrel's contact allowance
     return Cue;
+}
+bool AMemoriaFieldMonster::IsReachTouch(const FVector& Point) const
+{
+    if (!Spec().bReach || !Figure) return false;
+    const FVector Flat = (Point - GetActorLocation()) * FVector(1, 1, 0);
+    const FVector Forward = FRotator(0.f, Figure->GetYaw(), 0.f).Vector();
+    const float Along = FVector::DotProduct(Flat, Forward);
+    const float Side = FVector::DotProduct(Flat, FVector(-Forward.Y, Forward.X, 0.f));
+    return Along > 0.f && Along <= Spec().Reach + 40.f && FMath::Abs(Side) <= WardenReachWidth;
+}
+void AMemoriaFieldMonster::PlaceClub()
+{
+    if (!Club || !Figure) return;
+    float Extend = 0.f;
+    if (State == EMemoriaMonsterState::Windup) Extend = FMath::Clamp(StateTime / FMath::Max(Spec().Windup, SMALL_NUMBER), 0.f, 1.f);
+    else if (State == EMemoriaMonsterState::Recover) Extend = 1.f - FMath::Clamp(StateTime / FMath::Max(Spec().Recover, SMALL_NUMBER), 0.f, 1.f);
+    const FRotator Yaw(0.f, Figure->GetYaw(), 0.f);
+    const FVector Forward = Yaw.Vector();
+    const float Grip = FMath::Lerp(16.f, 36.f, Extend);
+    const float HeightZ = Spec().Height * FMath::Lerp(.40f, .46f, Extend);
+    const FVector Waist = Forward * Grip + FVector(0, 0, HeightZ);
+    Club->SetRelativeLocation(Waist + Forward * 23.f); Club->SetRelativeRotation(Yaw);
+    if (ClubBand) { ClubBand->SetRelativeLocation(Waist + Forward * 6.f); ClubBand->SetRelativeRotation(Yaw); }
 }
 void AMemoriaFieldMonster::SetShellLook(bool bOn)
 {
@@ -220,7 +278,9 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
             else if (Spec().Behaviour == EMemoriaFoeBehaviour::Charger) { bRushHit = false; Enter(EMemoriaMonsterState::Rush); }
             else
             {
-                if (C) C->StrikePlayer(this, Spec().Damage);
+                // A reach that falls wide of the corridor recovers with the club unlanded.
+                const bool bTouch = !Spec().bReach || IsReachTouch(Target->GetActorLocation());
+                if (C && bTouch) C->StrikePlayer(this, Spec().Damage);
                 // A parry has already sent the foe reeling (Stun); keep that instead of the recovery.
                 if (State == EMemoriaMonsterState::Windup) Enter(EMemoriaMonsterState::Recover);
             }
@@ -266,6 +326,7 @@ void AMemoriaFieldMonster::Tick(float DeltaSeconds)
         break;
     default: break;
     }
+    PlaceClub();
 }
 void AMemoriaFieldMonster::Ignite(float TickDamage, int32 Ticks)
 {
