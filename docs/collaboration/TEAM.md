@@ -8,8 +8,10 @@ Talk to the user in Korean.
 | Agent | Worktree | Branch | Role |
 |---|---|---|---|
 | **Opus** (Claude) | `C:/Users/jc/orca/workspaces/Game/memoria-unreal-claude` | `claude/s366-upgrade` | Coordinator, main implementer, reviewer, integrator. The only one who pushes. |
-| **Gemini** | `C:/Users/jc/orca/workspaces/Game/memoria-unreal-gemini` | `gemini/memoria-review` | Canon and manuscript review: compares ported scenes, quests and text against the final manuscript; writes review notes; edits text or docs only when assigned. |
+| **Gemini** (in the Antigravity app) | `C:/Users/jc/orca/workspaces/Game/memoria-unreal-gemini` | `gemini/memoria-review` | Canon and manuscript review: compares ported scenes, quests and text against the final manuscript; writes review notes; edits text or docs only when assigned. |
 | **Grok** | `C:/Users/jc/orca/workspaces/Game/memoria-unreal-grok` | `grok/memoria-lane` | Implements tasks Opus assigns that do not overlap Opus's files (combat, environment, tools, tests), on its own branch. |
+
+Gemini runs in Google's Antigravity app, not as an Orca terminal agent: Google no longer serves Gemini CLI to personal accounts (2026-11-22). Antigravity opens the Gemini worktree folder and reads `.agent/rules/memoria-team.md`.
 
 `claude/s366-upgrade` (pushed to `origin`) is the integration line. Never force-push it. The old `SonBongKyun/memoria-unreal-claude` / `-codex` branches and the Codex worktree are not ours to change.
 
