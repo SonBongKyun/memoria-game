@@ -148,7 +148,11 @@ Branch `claude/s366-upgrade`, on top of `d98719d0`. Team task **T-10** on `TEAM-
 - Results: see the commit message.
 
 ## Limits
-- **Elia's portrait** (`elia_neutral` = `character_shots/elia_story_v2.png`) is blond, with an anchor. 23화 gives her silver hair ("은색 머리카락이 코트 어깨에 걸려 있었다"). It is the same portrait every chapter has used since Chapter 1; not changed here.
+- ~~**Elia's portrait** (`elia_neutral` = `character_shots/elia_story_v2.png`) is blond, with an anchor.~~
+  - S386 fixed it. Every Elia expression key now shows `elia_face_silver_v1.png`: silver short bob and brown cloak, as 23화 has her.
+  - It is cut from her character sheet, `이미지/메모리아 삽화/Elia.png`, chosen by the user.
+  - One face serves every expression, as Sable's does. The old blond faces stay imported but unused by dialogue.
+  - Still blond: some CGs and the field 3D figure.
 - **Elia's field figure** carries a staff, as in every chapter.
 - **Chapters 11-13** play their nights over the dusk road with its lit lantern too, for example Chapter 13's furrow night. Gemini's T-11 reviews that backdrop.
 - The scenes trim a few narration sentences; spoken lines are kept whole.

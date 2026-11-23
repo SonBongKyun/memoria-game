@@ -126,6 +126,10 @@ bool FRidgeFarmhouseS385Test::RunTest(const FString&)
     TestEqual(TEXT("Tobias's portrait"), MemoriaNarrativeArtwork::PortraitSource(TEXT("tobias_neutral")), FString(TEXT("res://assets/portraits/tobias_face_neutral.png")));
     TestNotNull(TEXT("is imported"), MemoriaNarrativeArtwork::Load(TEXT("res://assets/portraits/tobias_face_neutral.png")));
     TestNotNull(TEXT("and so is his desk"), MemoriaNarrativeArtwork::Load(Ink));
+    // S386: Elia as 23화 has her, "은색 머리카락": every expression key shows the silver-haired face.
+    for (const TCHAR* Key : {TEXT("elia_neutral"), TEXT("elia_concern"), TEXT("elia_sad"), TEXT("elia_determined"), TEXT("elia_calm"), TEXT("elia_worried"), TEXT("elia_gentle_smile"), TEXT("elia_hopeful")})
+        TestEqual(*FString::Printf(TEXT("Elia's face: %s"), Key), MemoriaNarrativeArtwork::PortraitSource(Key), FString(TEXT("res://assets/portraits/elia_face_silver_v1.png")));
+    TestNotNull(TEXT("and it is imported"), MemoriaNarrativeArtwork::Load(TEXT("res://assets/portraits/elia_face_silver_v1.png")));
     TestEqual(TEXT("The toast in Korean"), MemoriaKorean::Text(TEXT("Joined: Tobias")), FString(TEXT("합류: 토비아스")));
     TestEqual(TEXT("The title in Korean"), MemoriaKorean::Text(TEXT("Resonance")), FString(TEXT("공명")));
     TestEqual(TEXT("The subtitle in Korean"), MemoriaKorean::Text(TEXT("The Third Person")), FString(TEXT("세 번째 사람")));

@@ -93,6 +93,9 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_pause_archive_backdrop"), false},
         // S375 Chapter 10, the Seam, leaving: Sable listening, eyes half shut (blind canon).
         {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_sable_witness_v3"), false},
+        // S386: Elia's face as the canon has her (23화: "은색 머리카락"; short bob, brown cloak), cut from her character sheet
+        // (이미지/메모리아 삽화/Elia.png). Every Elia expression shows it; the old blond faces stay imported but unused here.
+        {TEXT("res://assets/portraits/elia_face_silver_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_face_silver_v1"), false},
         // S385 Chapter 14 (23화): Tobias's face, and his Arcane desk for the flashback only (the journal's import).
         {TEXT("res://assets/portraits/tobias_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_tobias_face_neutral"), false},
         {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png"), TEXT("/Game/Memoria/Presentation/Journal/T_world_rewrite_tobias_ink_v3"), true},
@@ -111,14 +114,14 @@ FString PortraitSource(const FString& Key)
         {TEXT("arrel_pain"), TEXT("res://assets/portraits/arrel_face_shocked.png")},
         {TEXT("arrel_pensive"), TEXT("res://assets/portraits/character_shots/arrel_story_v2.png")},
         {TEXT("arrel_shocked"), TEXT("res://assets/portraits/arrel_face_shocked.png")},
-        {TEXT("elia_calm"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},
-        {TEXT("elia_concern"), TEXT("res://assets/portraits/elia_face_worried.png")},
-        {TEXT("elia_determined"), TEXT("res://assets/portraits/character_shots/elia_anchor_v3.png")},
-        {TEXT("elia_gentle_smile"), TEXT("res://assets/portraits/elia_face_gentle_smile.png")},
-        {TEXT("elia_hopeful"), TEXT("res://assets/portraits/elia_face_gentle_smile.png")},
-        {TEXT("elia_neutral"), TEXT("res://assets/portraits/character_shots/elia_story_v2.png")},
-        {TEXT("elia_sad"), TEXT("res://assets/portraits/elia_face_sad.png")},
-        {TEXT("elia_worried"), TEXT("res://assets/portraits/elia_face_worried.png")},
+        {TEXT("elia_calm"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_concern"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_determined"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_gentle_smile"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_hopeful"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_neutral"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_sad"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
+        {TEXT("elia_worried"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
         {TEXT("kairos_cold"), TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png")},
         {TEXT("kairos_neutral"), TEXT("res://assets/portraits/character_shots/kairos_story_v2.png")},
         {TEXT("malet_amused"), TEXT("res://assets/portraits/malet_face_amused.png")},
