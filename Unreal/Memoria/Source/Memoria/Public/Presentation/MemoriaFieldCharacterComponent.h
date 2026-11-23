@@ -101,6 +101,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<USkeletalMeshComponent> Skeletal;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Props;
     bool InitializeRigged(const FString& Id);
+    // T-12: the registry clerk. Reuses a townsperson rig; the coat, badge and bag are applied in code.
+    bool InitializeTobias();
     bool CreateSkeletal(USkeletalMesh* Mesh, UAnimSequence* Idle, UAnimSequence* WalkClip);
     UPROPERTY(Transient) TObjectPtr<UAnimSequence> ActionClip;
     FString CharacterId;

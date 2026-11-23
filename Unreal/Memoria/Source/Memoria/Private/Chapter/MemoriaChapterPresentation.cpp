@@ -8,6 +8,7 @@
 #include "Framework/MemoriaFieldPawn.h"
 #include "Framework/MemoriaVerdanTuning.h"
 #include "Interaction/MemoriaEliaCompanion.h"
+#include "Interaction/MemoriaTobiasCompanion.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Run/MemoriaRunSubsystem.h"
@@ -395,8 +396,12 @@ void AMemoriaChapterPresentation::BeginPlay()
     auto* Run = Game->GetSubsystem<UMemoriaRunSubsystem>();
     FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     if (Run && Run->GetRunSnapshot().Player.bEliaWithParty)
+    {
         if (auto* Elia = GetWorld()->SpawnActor<AMemoriaEliaCompanion>(Player->GetActorLocation() + FVector(-30, -20, 0), FRotator::ZeroRotator, Params))
             Elia->Follow(Player.Get());
+        if (Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
+            AMemoriaTobiasCompanion::Join(GetWorld(), Player.Get());
+    }
     if (auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>())
     {
         Combat->RegisterPlayer(Player.Get(), ArrelFigure);

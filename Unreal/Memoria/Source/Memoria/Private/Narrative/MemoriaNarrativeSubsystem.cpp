@@ -22,6 +22,7 @@
 #include "Audio/MemoriaAudioSubsystem.h"
 #include "Interaction/MemoriaStoryPointActor.h"
 #include "Interaction/MemoriaEliaCompanion.h"
+#include "Interaction/MemoriaTobiasCompanion.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Misc/Paths.h"
@@ -431,8 +432,12 @@ void UMemoriaNarrativeSubsystem::ArmStoryBeats()
     // The companion node sits beside the player (verdan_market.gd places her at the player's side).
     APawn* Pawn = World->GetFirstPlayerController() ? World->GetFirstPlayerController()->GetPawn() : nullptr;
     if (Pawn && S.Player.bEliaWithParty)
+    {
         if (auto* Elia = World->SpawnActor<AMemoriaEliaCompanion>(Pawn->GetActorLocation() + FVector(-30, -20, 0), FRotator::ZeroRotator, Params))
             Elia->Follow(Pawn);
+        if (S.GetFlag(TEXT("party_tobias")))
+            AMemoriaTobiasCompanion::Join(World, Pawn);
+    }
 }
 bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) const
 {

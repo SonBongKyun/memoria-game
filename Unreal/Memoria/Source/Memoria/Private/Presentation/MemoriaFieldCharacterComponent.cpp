@@ -11,6 +11,17 @@
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#if WITH_EDITOR
+#include "Materials/Material.h"
+#include "Materials/MaterialExpressionVertexColor.h"
+#include "Materials/MaterialExpressionComponentMask.h"
+#include "Materials/MaterialExpressionCustom.h"
+#include "Materials/MaterialExpressionTextureCoordinate.h"
+#include "MaterialShared.h"
+#include "ShaderCompiler.h"
+#include "UObject/StrongObjectPtr.h"
+#include <initializer_list>
+#endif
 #include "Animation/AnimSequence.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -125,6 +136,59 @@ bool HasRigged(const FString& Id)
         RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
 }
 FString HD(const FString& Id, const FString& Name) { return FString::Printf(TEXT("/Game/Memoria/Presentation/FieldHD/SPR_%s_%s"), *Id, *Name); }
+#if WITH_EDITOR
+// M_NaturalHuman has no tint parameter. This copy keeps its vertex-color person and recolours only cloth.
+UMaterial* TobiasCoat()
+{
+    static TStrongObjectPtr<UMaterial> Held;
+    static bool bAttempted = false;
+    if (bAttempted) return Held.Get();
+    bAttempted = true;
+    UMaterial* Surface = NewObject<UMaterial>(GetTransientPackage(), TEXT("M_TobiasCoat"), RF_Transient);
+    if (!Surface) return nullptr;
+    Surface->SetShadingModel(MSM_DefaultLit);
+    Surface->SetUsageByFlag(MATUSAGE_SkeletalMesh, true);
+    Surface->TwoSided = true;
+    auto* Regions = NewObject<UMaterialExpressionVertexColor>(Surface);
+    auto* UV = NewObject<UMaterialExpressionTextureCoordinate>(Surface);
+    auto* Category = NewObject<UMaterialExpressionComponentMask>(Surface);
+    Surface->GetExpressionCollection().AddExpression(Regions);
+    Surface->GetExpressionCollection().AddExpression(UV);
+    Surface->GetExpressionCollection().AddExpression(Category);
+    Category->Input.Connect(4, Regions);
+    Category->R = true;
+    auto AddCustom = [&](const FString& Code, ECustomMaterialOutputType Type, std::initializer_list<TPair<FName, UMaterialExpression*>> Inputs)
+    {
+        auto* Node = NewObject<UMaterialExpressionCustom>(Surface);
+        Surface->GetExpressionCollection().AddExpression(Node);
+        Node->Code = Code;
+        Node->OutputType = Type;
+        for (const TPair<FName, UMaterialExpression*>& Pair : Inputs)
+        {
+            FCustomInput Input;
+            Input.InputName = Pair.Key;
+            Input.Input.Connect(0, Pair.Value);
+            Node->Inputs.Add(Input);
+        }
+        return Node;
+    };
+    auto* Color = AddCustom(TEXT("float cloth=1-step(.10,abs(Category-.75));float weave=1-cloth*.035*(.5+.5*sin(UV.x*447)*sin(UV.y*393));float3 ink=float3(0.10,0.075,0.055);return lerp(C.rgb,ink,cloth)*weave;"), CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("Category"), Category}, {TEXT("UV"), UV}});
+    auto* Rough = AddCustom(TEXT("return Category>.92?.40:(Category<.12?.66:(Category<.62?.73:.89));"), CMOT_Float1, {{TEXT("Category"), Category}});
+    auto* Spec = AddCustom(TEXT("return Category<.12?.28:(Category>.92?.48:.20);"), CMOT_Float1, {{TEXT("Category"), Category}});
+    if (UMaterialEditorOnlyData* Editor = Surface->GetEditorOnlyData())
+    {
+        Editor->BaseColor.Connect(0, Color);
+        Editor->Roughness.Connect(0, Rough);
+        Editor->Specular.Connect(0, Spec);
+    }
+    Surface->PostEditChange();
+    if (GShaderCompilingManager) GShaderCompilingManager->FinishAllCompilation();
+    const FMaterialResource* Resource = Surface->GetMaterialResource(GMaxRHIShaderPlatform);
+    if (!Resource || Resource->GetCompileErrors().Num()) return nullptr;
+    Held.Reset(Surface);
+    return Surface;
+}
+#endif
 }
 UMemoriaFieldCharacterComponent::UMemoriaFieldCharacterComponent()
 {
@@ -424,8 +488,70 @@ float UMemoriaFieldCharacterComponent::AmbientHeight(const FString& Id, float Ar
     const float* Cm = Authored.Find(Id.Replace(TEXT("_"), TEXT("")).ToLower());
     return Cm ? ArrelWorldHeight * *Cm / 180.f : ArrelWorldHeight;
 }
+bool UMemoriaFieldCharacterComponent::InitializeTobias()
+{
+    // 23화: a third-grade registry clerk. The bureau agent's rig is the coat; scholar is the fallback if that mesh is absent.
+    const TCHAR* Donor = TEXT("bureauagent");
+    auto LoadDonor = [&](const TCHAR* Id, USkeletalMesh*& Mesh, UAnimSequence*& Idle, UAnimSequence*& WalkClip)
+    {
+        Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"), TEXT("_Detail"));
+        if (!Mesh) Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
+        Idle = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle"));
+        WalkClip = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
+    };
+    USkeletalMesh* Mesh = nullptr; UAnimSequence* Idle = nullptr; UAnimSequence* WalkClip = nullptr;
+    LoadDonor(Donor, Mesh, Idle, WalkClip);
+    if (!Mesh || !Idle || !WalkClip) { Donor = TEXT("scholar"); LoadDonor(Donor, Mesh, Idle, WalkClip); }
+    CharacterId = TEXT("Tobias"); MeshYawOffset = 0.f;
+    if (!CreateSkeletal(Mesh, Idle, WalkClip)) return false;
+    Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
+    // The bureau mesh has one M_NaturalHuman slot: vertex color is the person, and alpha near 0.75 is cloth.
+    // A flat FieldFoe instance would erase the face. Recolour only that cloth. No weapon and no lantern.
+#if WITH_EDITOR
+    if (UMaterial* Coat = TobiasCoat())
+    {
+        const TArray<FSkeletalMaterial>& Slots = Skeletal->GetSkeletalMeshAsset()->GetMaterials();
+        for (int32 Index = 0; Index < Slots.Num() && Index < Skeletal->GetNumMaterials(); ++Index)
+        {
+            const FString Name = Slots[Index].MaterialSlotName.ToString() + Slots[Index].ImportedMaterialSlotName.ToString() + GetNameSafe(Slots[Index].MaterialInterface);
+            if (Name.Contains(TEXT("Face")) || Name.Contains(TEXT("Eye")) || Name.Contains(TEXT("Hair")) || Name.Contains(TEXT("Brow")) || Name.Contains(TEXT("Head"))) continue;
+            Skeletal->SetMaterial(Index, Coat);
+        }
+    }
+#endif
+    auto* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    auto Kit = [&](const TCHAR* Name, const FVector& Offset, const FVector& Scale, const FLinearColor& Ink)
+    {
+        if (!Cube || !Skeletal || !Skeletal->GetSkeletalMeshAsset()) return;
+        const auto& Ref = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
+        FName Bone = NAME_None;
+        for (const TCHAR* Candidate : {TEXT("spine_03"), TEXT("spine_02"), TEXT("spine_01"), TEXT("pelvis")})
+            if (Ref.FindBoneIndex(Candidate) != INDEX_NONE) { Bone = Candidate; break; }
+        if (Bone.IsNone()) return;
+        const FTransform BoneTransform = Skeletal->GetSocketTransform(Bone, RTS_Component);
+        auto* Part = NewObject<UStaticMeshComponent>(GetOwner(), Name);
+        Part->SetStaticMesh(Cube); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Part->SetGenerateOverlapEvents(false); Part->SetCastShadow(true); Part->SetLightingChannels(true, true, false);
+        Part->SetupAttachment(Skeletal, Bone);
+        Part->SetRelativeTransform(FTransform(FQuat::Identity, BoneTransform.GetLocation() + Offset, Scale).GetRelativeTransform(BoneTransform));
+        if (Base)
+        {
+            auto* InkMid = UMaterialInstanceDynamic::Create(Base, Part);
+            InkMid->SetVectorParameterValue(TEXT("Color"), Ink); InkMid->SetVectorParameterValue(TEXT("BaseColor"), Ink);
+            Part->SetMaterial(0, InkMid);
+        }
+        Part->RegisterComponent(); Props.Add(Part);
+    };
+    // The chest surface sits well in front of spine_03, so the seal has to clear the coat. The bag stays on the back.
+    Kit(TEXT("TobiasBadge"), FVector(24.f, 4.f, 12.f), FVector(0.11f, 0.09f, 0.028f), FLinearColor(0.82f, 0.78f, 0.68f));
+    Kit(TEXT("TobiasBag"), FVector(-16.f, 0.f, 4.f), FVector(0.15f, 0.18f, 0.24f), FLinearColor(0.15f, 0.10f, 0.06f));
+    Kit(TEXT("TobiasStrap"), FVector(-14.f, 0.f, 18.f), FVector(0.035f, 0.20f, 0.045f), FLinearColor(0.11f, 0.08f, 0.05f));
+    bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
+}
 bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
 {
+    if (Id.Equals(TEXT("tobias"), ESearchCase::IgnoreCase)) return InitializeTobias();
     // S354: tailored ambient geometry shares the original skeleton, clips and painted material.
     auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"), TEXT("_Detail"));
     if (!Mesh) Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
