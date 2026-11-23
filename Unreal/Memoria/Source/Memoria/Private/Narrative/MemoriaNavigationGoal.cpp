@@ -49,6 +49,14 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::VerdanReturnMap && !Run.GetFlag(TEXT("ch13_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch13_alley"))) return Prefix + (bKo ? TEXT("동쪽 출구 → 묵은 밭") : TEXT("East exit → the old fields"));
+        if (Run.GetFlag(TEXT("ch13_vendor"))) return Prefix + (bKo ? TEXT("모퉁이 안쪽 골목으로") : TEXT("Into the alley past the corner"));
+        if (Run.GetFlag(TEXT("ch13_sump"))) return Prefix + (bKo ? TEXT("동쪽 모퉁이의 기름 노점") : TEXT("The oil stall on the east corner"));
+        if (Run.GetFlag(TEXT("ch13_market"))) return Prefix + (bKo ? TEXT("셈터로: 광장 남쪽의 돌계단") : TEXT("To the Sump: the stone steps south of the square"));
+        if (Run.GetFlag(TEXT("ch13_farewell"))) return Prefix + (bKo ? TEXT("시장으로: 공동 저수지") : TEXT("Into the market: the public reservoir"));
+    }
     if (Map == MemoriaManuscript::BasinMap && !Run.GetFlag(TEXT("ch12_complete")))
     {
         if (Run.GetFlag(TEXT("ch12_walk"))) return Prefix + (bKo ? TEXT("동쪽 출구 → 마른 시내 위의 양 우리") : TEXT("East exit → the sheep pen over the dry creek"));

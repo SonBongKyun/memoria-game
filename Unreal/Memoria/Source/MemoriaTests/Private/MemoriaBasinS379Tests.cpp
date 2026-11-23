@@ -54,6 +54,7 @@ bool FBasinS379Test::RunTest(const FString&)
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     const auto* Farms = MemoriaChapterMaps::Find(FarmsMap);
     TestTrue(TEXT("The farmhouses' road leads to the basin"), Farms && Farms->Exit.NextMap == BasinMap && Farms->Exit.NextChapter == 12);
+    TestTrue(TEXT("and the basin's road to Verdan"), Basin->Exit.NextMap == VerdanReturnMap && Basin->Exit.NextChapter == 13);
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -100,10 +101,10 @@ bool FBasinS379Test::RunTest(const FString&)
         {TEXT("ch12_queue"), TEXT("목표  분지를 돌아 동쪽으로: 창구에서 육십 걸음")}, {TEXT("ch12_walk"), TEXT("목표  동쪽 출구 → 마른 시내 위의 양 우리")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), BasinMap, false), FString(S[1])); }
     Run->SetStoryFlag(TEXT("ch12_queue"), false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch12_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch12_")) && !FString(M.Flag).StartsWith(TEXT("ch13_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is at the window"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 분지 역참의 배급 창구")));
     for (const TCHAR* F : {TEXT("ch12_queue"), TEXT("ch12_complete")}) Run->SetStoryFlag(F, true);
-    TestTrue(TEXT("then the next window"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 벨트 도로 쪽으로: 다음 창구")));
+    TestTrue(TEXT("then Verdan"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 다시 베르단: 셈터")));
     Game->Shutdown();
     return true;
 }

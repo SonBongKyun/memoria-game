@@ -21,15 +21,17 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
-GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation'}
+# S382: Verdan again, on the Godot verdan_market ground (not the Chapter 2 slice, L_VerdanHost, which carries Malet).
+GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation',
+          'verdan_return': 'verdan_market'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -280,7 +282,7 @@ MANUSCRIPT = {
         ],
         'battles_gate': None, 'battles': [],
         'exit': {'center': [23 * T + 16, 9 * T], 'size': [T, 2 * T], 'requires': 'ch12_walk', 'completes': 'ch12_complete',
-                 'group': 'ms_basin_pen', 'next_chapter': 13, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_basin_pen', 'next_chapter': 13, 'next_map': 'verdan_return', 'next_scene': None,
                  'flags': ['canon_ch13_verdan_ready'],
                  'notice': {'en': 'What to do at the next window, he had not yet chosen.',
                             'ko': '다음 창구 앞에서 무엇을 할지는 아직 고르지 않았다.'}},
@@ -308,6 +310,55 @@ MANUSCRIPT = {
                          {'position': [556.8, 505.6], 'preset': 'villager_m'}],
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
+    },
+    # S382: 최종본 21화 「다시 베르단」 on the Godot verdan_market ground (Gemini's T-7 brief: Chapter 13 = 21화 alone).
+    # Verdan has no wall: the road from the fields runs straight into the first stalls. In from the north (the slope where
+    # Sable turns back), the market emptying round the square and its reservoir, the Sump's door at the south of the
+    # alley ring (DOOR tiles) sealed with cord and red wax, the oil stall on the east corner, the alley, and out east
+    # into the old fields.
+    'verdan_return': {
+        'title': {'number': 13, 'name': 'Verdan, Again', 'subtitle': 'Filed'},
+        'spawn': [14 * T + 16, 1 * T + 16],
+        'elia_repeat': "It used to be loud even at this hour.",
+        'sequence': [
+            {'flag': 'ch13_road', 'group': 'ms_verdan_road', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch13_farewell', 'group': 'ms_verdan_farewell', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # The market emptying, north of the square: carts going out, the reservoir by the old barn.
+            {'rect': {'origin': [13 * T, 8 * T], 'size': [3 * T, T]}, 'group': 'ms_verdan_market', 'flag': 'ch13_market', 'gate': 'ch13_farewell'},
+            # The Sump: three flights down to the door, cord and red wax, the Bureau's seal.
+            {'rect': {'origin': [13 * T, 15 * T], 'size': [2 * T, T]}, 'group': 'ms_verdan_sump', 'flag': 'ch13_sump', 'gate': 'ch13_market'},
+            # The oil stall on the east corner.
+            {'rect': {'origin': [22 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_verdan_vendor', 'flag': 'ch13_vendor', 'gate': 'ch13_sump'},
+            # The alley past the corner, where the oil smell thins.
+            {'rect': {'origin': [25 * T, 13 * T], 'size': [2 * T, T]}, 'group': 'ms_verdan_alley', 'flag': 'ch13_alley', 'gate': 'ch13_vendor'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # Out by a street they had not come in by, east into the old fields; the night where two furrows meet.
+        'exit': {'center': [28 * T + 16, 16 * T], 'size': [T, 2 * T], 'requires': 'ch13_alley', 'completes': 'ch13_complete',
+                 'group': 'ms_verdan_furrow', 'next_chapter': 14, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch14_resonance_ready'],
+                 'notice': {'en': 'North-west. When it gets light, we go.',
+                            'ko': '북서쪽. 밝아지면 가 보자.'}},
+        'objects_gate': 'ch13_complete',
+        'chests': [{'origin': [2 * T, 18 * T], 'flag': 'chest_verdan_cart', 'rewards': {'grains': 30, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [12 * T, 16 * T], 'flag': 'clue_verdan_seal',
+                   'text': 'Cord from the frame to the door, and red wax where the cords cross. The Bureau seal. No sound below.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch13_complete',
+        # The Chapter 2 market's rats are too small for Chapter 13: the waste's creatures stand in.
+        'encounters_from': 'colorless_waste',
+        'lights': [],
+        # Daytime, the market thinning: warm smoke from a few stalls, the rest packing.
+        'atmosphere': {'saturation': 0.66, 'mood': 0.34, 'splash': 'res://assets/cg/generated/chapter_splash_verdan_market.png'},
+        'ambient_npcs': [{'position': [307.2, 140.8], 'preset': 'villager_f'},
+                         {'position': [620.8, 147.2], 'preset': 'villager_m'},
+                         {'position': [208.0, 307.2], 'preset': 'elder'},
+                         {'position': [691.2, 524.8], 'preset': 'villager_m'},
+                         {'position': [787.2, 307.2], 'preset': 'traveler'},
+                         {'position': [147.2, 531.2], 'preset': 'villager_f'}],
+        'ambient_npcs_gate': 'ch13_road',
     },
 }
 

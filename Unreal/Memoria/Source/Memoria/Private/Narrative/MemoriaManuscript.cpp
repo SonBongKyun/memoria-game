@@ -134,7 +134,11 @@ const TArray<FMainStep>& MainSteps()
         // S379: 19-20화.
         {TEXT("ch12_queue"), TEXT("The ration window in the basin"), TEXT("분지 역참의 배급 창구")},
         {TEXT("ch12_complete"), TEXT("A night in the grey sheep pen"), TEXT("회색 양 우리에서 밤")},
-        {TEXT("ms_never"), TEXT("On toward the Belt road; the next window"), TEXT("벨트 도로 쪽으로: 다음 창구")}};
+        // S382: 21화.
+        {TEXT("ch13_sump"), TEXT("Verdan again: the Sump"), TEXT("다시 베르단: 셈터")},
+        {TEXT("ch13_vendor"), TEXT("Where Malet went"), TEXT("말레트의 행방")},
+        {TEXT("ch13_complete"), TEXT("A night in the old furrows"), TEXT("묵은 고랑의 밤")},
+        {TEXT("ms_never"), TEXT("North-west: something like the book"), TEXT("북서쪽: 이 책 같은 것")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

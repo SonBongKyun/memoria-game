@@ -100,7 +100,7 @@ bool FReturnS375Test::RunTest(const FString&)
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ReturnMap, false), FString(S[1])); }
     // The main quest: after the dry channel, Sable; after the crossroads, the Belt road.
     Run->SetStoryFlag(TEXT("ch10_step"), false); Run->SetStoryFlag(TEXT("ch10_horn"), false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch10_")) && !FString(M.Flag).StartsWith(TEXT("ch11_")) && !FString(M.Flag).StartsWith(TEXT("ch12_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch10_")) && !FString(M.Flag).StartsWith(TEXT("ch11_")) && !FString(M.Flag).StartsWith(TEXT("ch12_")) && !FString(M.Flag).StartsWith(TEXT("ch13_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is at Sable's step"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 더 심에서 세이블에게, 그 앞에서 묻는다")));
     for (const TCHAR* F : {TEXT("ch10_step"), TEXT("ch10_horn"), TEXT("ch10_complete")}) Run->SetStoryFlag(F, true);
     TestTrue(TEXT("then the farmhouses"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 지붕 없는 농가에서 밤")));

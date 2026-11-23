@@ -158,6 +158,12 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S382: Verdan again (최종본 21화).
+        {TEXT("verdan_return"), TEXT("다시 베르단")}, {TEXT("Verdan, Again"), TEXT("다시 베르단")}, {TEXT("Filed"), TEXT("파일됨")},
+        {TEXT("The Old Furrows"), TEXT("묵은 고랑")}, {TEXT("Parted: Sable"), TEXT("작별: 세이블")}, {TEXT("Malet: filed"), TEXT("말레트: 파일됨")},
+        {TEXT("North-west. When it gets light, we go."), TEXT("북서쪽. 밝아지면 가 보자.")},
+        {TEXT("Cord from the frame to the door, and red wax where the cords cross. The Bureau seal. No sound below."), TEXT("문틀에서 문으로 이어진 끈, 두 줄이 겹친 곳의 붉은 밀랍. 관리국의 인장. 아래에서는 아무 소리도 없다.")},
+        {TEXT("It used to be loud even at this hour."), TEXT("전에는 이 시간에도 시끄러웠어.")},
         // S379: the basin waystation (최종본 19-20화).
         {TEXT("basin_station"), TEXT("분지의 역참")}, {TEXT("The Basin Waystation"), TEXT("분지의 역참")},
         {TEXT("The grey pen"), TEXT("회색 우리")}, {TEXT("The Sheep Pen"), TEXT("양 우리")},

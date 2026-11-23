@@ -106,7 +106,7 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("system_log"), TEXT("시스템")}, {TEXT("System"), TEXT("시스템")}, {TEXT("Narration"), TEXT("나레이션")},
         {TEXT("Arrel"), TEXT("아렐")}, {TEXT("Elia"), TEXT("엘리아")}, {TEXT("Malet"), TEXT("말렛")}, {TEXT("Mallet"), TEXT("말렛")},
         {TEXT("Kairos"), TEXT("카이로스")}, {TEXT("Sable"), TEXT("세이블")}, {TEXT("Nera"), TEXT("네라")}, {TEXT("Seric"), TEXT("세릭")},
-        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Brown Coat"), TEXT("갈색 코트의 사내")}, {TEXT("Boy"), TEXT("소년")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
+        {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Brown Coat"), TEXT("갈색 코트의 사내")}, {TEXT("Boy"), TEXT("소년")}, {TEXT("Vendor"), TEXT("상인")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
         {TEXT("Nervous Trader"), TEXT("불안한 상인")}, {TEXT("Gardener"), TEXT("정원사")}, {TEXT("Handler"), TEXT("관리관")},
         {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
         {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")}};
@@ -579,6 +579,12 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_basin_queue") && !Run->GetRunSnapshot().GetFlag(TEXT("ch12_blankers")))
     { Run->SetStoryFlag(TEXT("ch12_blankers"), true); Notice(TEXT("The ration window: blankers")); bNoticeHeld = true; }
     if (Group == TEXT("ms_basin_walk")) Run->SetStoryFlag(TEXT("ch12_sable_hand"), true);
+    // S382 (21화): Sable turns back north; Malet is filed; the book leans north-west, unopened.
+    if (Group == TEXT("ms_verdan_farewell") && !Run->GetRunSnapshot().GetFlag(TEXT("ch13_sable_gone")))
+    { Run->SetStoryFlag(TEXT("ch13_sable_gone"), true); Notice(TEXT("Parted: Sable")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_verdan_vendor") && !Run->GetRunSnapshot().GetFlag(TEXT("ch13_malet_filed")))
+    { Run->SetStoryFlag(TEXT("ch13_malet_filed"), true); Notice(TEXT("Malet: filed")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_verdan_furrow")) Run->SetStoryFlag(TEXT("ch13_book_northwest"), true);
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
     { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
     ManuscriptAsset = Asset;

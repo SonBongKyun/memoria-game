@@ -163,6 +163,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         3.9f, -50.f, 26.f, 1.25f, .66f, .013f, 1.6f, .48f,
         30, false, true};
     if (InMap == TEXT("basin_station")) return Basin;
+    // S382 Verdan, again: a market town with no wall by day (21화), cobbles, smoke from the few stalls still frying,
+    // the rest packing; warm but thinning.
+    static const FDressing VerdanAgain{TEXT("T_SeamPaved"), TEXT("T_BeltPaved"),
+        FLinearColor(.95f, .92f, .88f), FLinearColor(.07f, .06f, .05f), FLinearColor(.08f, .07f, .06f), FLinearColor(.068f, .062f, .056f),
+        FLinearColor(.07f, .045f, .028f), FLinearColor(.14f, .09f, .06f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .6f, .3f), FLinearColor(.6f, .56f, .5f), FLinearColor(.08f, .07f, .06f), FLinearColor(.95f, .82f, .62f),
+        210.f, 230.f, 0.f, 0.f,
+        4.4f, -46.f, 34.f, 1.2f, .6f, .012f, 2.6f, .48f,
+        40, false, true};
+    if (InMap == TEXT("verdan_return")) return VerdanAgain;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -767,6 +777,43 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         Box(Stone, Chair + FVector(-70, 0, 14), FVector(80, 54, 28), FRotator(0, 8, 0));
         for (float Side : {-1.f, 1.f}) { Beam(Timber, Chair + FVector(Side * 16, -14, 0), Chair + FVector(-Side * 16, 14, 44), 3.f); }
         Box(Timber, Chair + FVector(0, 0, 44), FVector(36, 30, 3), FRotator::ZeroRotator);
+    }
+    else if (Map == TEXT("verdan_return"))
+    {
+        // S382: the stalls on the STALL tiles, half of them packed bare; the oil stall on the east corner still frying;
+        // the Sump's door on the DOOR tiles south of the alley ring, sealed with cord and red wax; the public reservoir's
+        // stone basin in the square; a cart going out with chair legs under its cover (21화).
+        const int32 Stall = Spec->TileNames.IndexOfByKey(TEXT("STALL")), DoorTile = Spec->TileNames.IndexOfByKey(TEXT("DOOR"));
+        auto* Awning = Focus(TEXT("VerdanAwning"), FLinearColor(.2f, .1f, .06f), 1, .95f);
+        auto* Reservoir = Focus(TEXT("VerdanWater"), FLinearColor(.06f, .08f, .09f), 2, .15f);
+        auto* Wax = Focus(TEXT("VerdanWax"), FLinearColor(.4f, .03f, .02f), 2, .5f);
+        auto* Recess = Focus(TEXT("VerdanRecess"), FLinearColor(.012f, .011f, .01f), 2, .95f);
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const FVector C = TileCentre(X, Y) + Ground;
+                const float N = Hash(X, Y, 91);
+                if (Spec->TileAt(X, Y) == Stall)
+                {
+                    Box(Timber, C + FVector(0, 0, 45.f), FVector(T * .9f, T * .5f, 90.f));
+                    for (const float Side : {-1.f, 1.f}) Beam(Timber, C + FVector(Side * T * .42f, T * .3f, 0), C + FVector(Side * T * .42f, T * .3f, 210.f), 4.f);
+                    // Half of them packed: no awning, the counter bare.
+                    if (N < .5f || (X == 24 && Y == 10)) Box(Awning, C + FVector(0, T * .1f, 205.f), FVector(T * 1.f, T * .8f, 4.f), FRotator(0, 0, -12.f));
+                    if (X == 24 && Y == 10) Lamp(C + FVector(0, -T * .2f, 105.f), 300.f, Look.LampIntensity * 1.4f, false);
+                }
+                else if (Spec->TileAt(X, Y) == DoorTile)
+                {
+                    Box(Recess, C + FVector(0, 0, 2.f), FVector(T * .9f, T * .9f, 4.f), FRotator::ZeroRotator, false);
+                    Box(Wax, C + FVector(0, -T * .35f, 60.f), FVector(10, 4, 10), FRotator::ZeroRotator, false);
+                    Beam(Timber, C + FVector(-T * .45f, -T * .35f, 60.f), C + FVector(T * .45f, -T * .35f, 60.f), 1.5f);
+                }
+            }
+        const FVector Square = TileCentre(14.f, 11.5f) + Ground;
+        Box(Stone, Square + FVector(0, 0, 22.f), FVector(150, 100, 44));
+        Box(Reservoir, Square + FVector(0, 0, 45.f), FVector(130, 80, 2), FRotator::ZeroRotator, false);
+        const FVector Cart = TileCentre(17.2f, 2.6f) + Ground;
+        Prop(TEXT("CrateStack"), Kit(TEXT("Belt"), FLinearColor(1.f, .9f, .8f)), Cart, 15.f, FVector(.8f));
+        for (int32 I = 0; I < 3; ++I) Beam(Timber, Cart + FVector(-20.f + 20.f * I, 10.f, 110.f), Cart + FVector(-26.f + 20.f * I, 18.f, 160.f), 2.f);
     }
     else if (Map == TEXT("basin_station"))
     {
