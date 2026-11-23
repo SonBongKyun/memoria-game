@@ -102,6 +102,8 @@ Native UE 5.8.2, D3D 1280x720. Build slot taken by Opus on `TEAM-BOARD.md`.
 ## Limits
 - Chapter 13 (21화 「다시 베르단」) is not ported. Chapter 12 ends on "양 우리 · 13장으로 가는 길은 아직 준비 중".
 - The sheep pen is a scene played at the east exit, not a walkable map.
-- The queue figures stroll a little around their places, and turn toward Arrel as he comes near (S349).
+- ~~The queue figures stroll a little around their places, and turn toward Arrel as he comes near (S349).~~
+  - S383 (Grok T-8, `ec262ad6`): they now hold their places. The eleven look at the ration window and the clerk looks out at the line.
+    Each glances at Arrel only inside 150 units, then turns back. In a fight they still watch the foe.
 - The basin reuses the Belt yard's layout, so it can look like the Chapter 3 waystation without its props.
 - English lines are this port's translation.

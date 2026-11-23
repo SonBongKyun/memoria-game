@@ -1,88 +1,148 @@
 {
  "ambient_npcs": [
   {
+   "face": [
+    400.0,
+    406.4
+   ],
    "position": [
     400.0,
     361.6
    ],
-   "preset": "bureau_agent"
+   "preset": "bureau_agent",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     374.4,
     406.4
    ],
-   "preset": "villager_m"
+   "preset": "villager_m",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     400.0,
     406.4
    ],
-   "preset": "villager_f"
+   "preset": "villager_f",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     425.6,
     406.4
    ],
-   "preset": "elder"
+   "preset": "elder",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     451.2,
     406.4
    ],
-   "preset": "traveler"
+   "preset": "traveler",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     476.8,
     406.4
    ],
-   "preset": "villager_f"
+   "preset": "villager_f",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     502.4,
     406.4
    ],
-   "preset": "fisherman"
+   "preset": "fisherman",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     528.0,
     406.4
    ],
-   "preset": "villager_m"
+   "preset": "villager_m",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     556.8,
     428.8
    ],
-   "preset": "elder"
+   "preset": "elder",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     556.8,
     454.4
    ],
-   "preset": "villager_f"
+   "preset": "villager_f",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     556.8,
     480.0
    ],
-   "preset": "traveler"
+   "preset": "traveler",
+   "still": true
   },
   {
+   "face": [
+    374.4,
+    368.0
+   ],
    "position": [
     556.8,
     505.6
    ],
-   "preset": "villager_m"
+   "preset": "villager_m",
+   "still": true
   }
  ],
  "ambient_npcs_gate": "ch12_road",

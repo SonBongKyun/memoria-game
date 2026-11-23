@@ -46,6 +46,16 @@ bool FBasinS379Test::RunTest(const FString&)
     TestTrue(TEXT("The clerk at the window"), Basin->AmbientNpcs.Num() && Basin->AmbientNpcs[0].Preset == TEXT("bureau_agent"));
     bool bQueueOpen = true; for (const auto& N : Basin->AmbientNpcs) bQueueOpen &= Open(N.Position);
     TestTrue(TEXT("The queue stands on open ground"), bQueueOpen);
+    // S383 (T-8): the queue holds its places; the eleven look at the window, the clerk out at the line.
+    bool bHeld = true, bToWindow = true;
+    for (int32 I = 0; I < Basin->AmbientNpcs.Num(); ++I)
+    {
+        const auto& N = Basin->AmbientNpcs[I]; bHeld &= N.bStill && N.bHasFace;
+        if (I > 0) bToWindow &= N.Face.Equals(FVector2D(374.4f, 368.f), .1f);
+    }
+    TestTrue(TEXT("Everyone in the queue holds a place and faces a point"), bHeld);
+    TestTrue(TEXT("The line faces the ration window"), bToWindow);
+    TestTrue(TEXT("The clerk looks out at the line"), Basin->AmbientNpcs.Num() && Basin->AmbientNpcs[0].Face.Y > Basin->AmbientNpcs[0].Position.Y);
     TestEqual(TEXT("The queue is there from the arrival on"), Basin->AmbientNpcsGate, FString(TEXT("ch12_road")));
     TArray<FString> Groups; for (const auto& S : Basin->Sequence) Groups.Add(S.Group);
     for (const auto& T : Basin->Triggers) Groups.Add(T.Group);
