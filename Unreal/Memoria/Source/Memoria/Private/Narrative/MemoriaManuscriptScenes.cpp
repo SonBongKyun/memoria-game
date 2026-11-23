@@ -31,7 +31,7 @@ const TCHAR* SableStep = TEXT("res://assets/cg/generated/illustration_expansion_
 // S377: the roofless farmhouses. The warm book in two hands (no faces). The road and the second farmhouse play over the
 // map's splash (the Belt road at dusk).
 // S380: the warm-book picture was Arrel's gauntleted hands in a library; removed from the farmhouse.
-// S379: the basin waystation. A records desk with a candle and an open ledger, nobody at it (Mira's registry);
+// S379: the basin waystation. A dark archive desk with a candle, a brass compass and a closed book, nobody at it (Mira's registry);
 // the pen plays over the map's splash.
 const TCHAR* RegistryDesk = TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png");
 const TCHAR* Pen = TEXT("res://assets/cg/generated/chapter_splash_belt_waystation.png");
@@ -726,7 +726,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
     {TEXT("ms_basin_mira"), {
         {nullptr, nullptr, RegistryDesk, TEXT("Mira did not set the graphite to the paper. The third error this week. Lumea, the Central Records building, west wing, the second Registry office. Her desk was the eleventh."), TEXT("미라는 흑연을 종이에 대지 않았다. 이번 주의 셋째 오류였다. 루메아 중앙 기록 건물 서관, 제2 레지스트리 사무실. 그녀의 책상은 열한 번째였다.")},
         {nullptr, nullptr, nullptr, TEXT("Nineteen years of aligning. From the third year on, Mira had stopped reading names as sounds. She looked only for a missing stroke, for a mark set in the wrong place."), TEXT("정렬을 시작한 지 십구 년째였다. 삼 년째부터 미라는 이름을 소리로 읽지 않았다. 획이 빠졌는지, 기호가 붙을 자리가 맞는지만 보았다.")},
-        {nullptr, nullptr, nullptr, TEXT("K-7 at the top of the page. That warden's drift never went past 0.03 degrees. She laid the square against it and measured. 0.3 degrees."), TEXT("종이 위쪽에 K-7이라고 적혀 있었다. 그 관리관의 어긋남은 0.03도를 넘지 않았다. 직각자를 대어 각도를 재었다. 0.3도였다.")},
+        {nullptr, nullptr, nullptr, TEXT("K-7 at the top of the page. That official's drift never went past 0.03 degrees. She laid the square against it and measured. 0.3 degrees."), TEXT("종이 위쪽에 K-7이라고 적혀 있었다. 그 관리관의 어긋남은 0.03도를 넘지 않았다. 직각자를 대어 각도를 재었다. 0.3도였다.")},
         {nullptr, nullptr, nullptr, TEXT("The gap at the top closed before the second paragraph. He had begun writing at this angle, and come back before the second paragraph. Why come back here?"), TEXT("상단에서 벌어졌던 틈이 둘째 문단에 이르기 전에 줄었다. 이 각도로 쓰기 시작했다. 그리고 둘째 문단에 들어가기 전에 돌아왔다. 왜 여기서 돌아왔을까.")},
         {nullptr, nullptr, nullptr, TEXT("From the third drawer Mira took a small notebook. None of the things the Registry told her to record were in it. Some day, she thought, one of these would be worth selling."), TEXT("미라는 셋째 서랍에서 작은 노트를 꺼냈다. 레지스트리에서 적으라고 한 것들은 들어 있지 않았다. 언젠가 팔 수 있는 것이 나올 거라고 생각했다.")},
         {nullptr, nullptr, nullptr, TEXT("K-7. Wednesday. 0.3 degrees. Top only. She did not write why. She shut the notebook and pushed the drawer closed. The door opened."), TEXT("K-7. 수요일. 0.3도. 상단만. 왜 그랬는지는 적지 않았다. 노트를 덮고 서랍을 밀어 닫았다. 문이 열렸다.")},
@@ -767,7 +767,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, nullptr, TEXT("His throat moved once. He lowered his hand and swallowed again, then turned toward the stable. The one behind him stepped up to the window."), TEXT("턱 밑이 한 번 움직였다. 손을 내린 뒤 조금 더 삼켰다. 곧 몸을 돌려 마구간 쪽으로 갔다. 뒤에 있던 사람이 창구 앞으로 나왔다.")},
         {TEXT("Arrel"), TEXT("arrel_pensive"), nullptr, TEXT("Blankers. ...They swallow and go."), TEXT("블랭커예요. ...삼키고 가요.")},
         {nullptr, nullptr, nullptr, TEXT("The day he left Verdan, a white pill had been set on a palm too. He was a child then, his mother beside him. He had thought that hand should be moved away. And yet he had not been angry, and had wondered whether he was wrong."), TEXT("베르단을 떠나던 날에도 흰 알약이 손바닥에 놓였다. 그때는 아이였고, 곁에는 어머니가 있었다. 저 손을 치워야겠다고 생각했다. 그러고도 화가 나지 않아, 자신이 틀린 생각을 한 것인지 살폈다.")},
-        {nullptr, nullptr, nullptr, TEXT("Now it was hard to look away from the window. Set a pill on that flat stone and press, and it would break. Reach before the clerk took out the next one."), TEXT("지금은 창구에서 시선을 떼기가 어려웠다. 저 위에 알약을 놓고 누르면 부서질 것 같았다. 서기가 다음 것을 꺼내기 전에 손을 뻗으면 됐다.")},
+        {nullptr, nullptr, nullptr, TEXT("Now it was hard to look away from the window. Set a pill on that flat stone and press, and it would break. Reach before the clerk took out the next one."), TEXT("지금은 창구에서 시선을 떼기가 어려웠다. 창구 아래의 평평한 돌 위에 알약을 놓고 누르면 부서질 것 같았다. 서기가 다음 것을 꺼내기 전에 손을 뻗으면 됐다.")},
         {nullptr, nullptr, nullptr, TEXT("Arrel clenched his jaw."), TEXT("아렐은 턱을 세게 다물었다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Arrel. Come down this way. Walk."), TEXT("아렐. 이쪽 길로 내려와. 걷자.")},
         {TEXT("Arrel"), TEXT("arrel_determined"), nullptr, TEXT("They came for it. On their own feet. To take that."), TEXT("받으러 온 거예요. 자기 발로 걸어와서. 저걸 받으려고.")},
@@ -786,7 +786,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {nullptr, nullptr, Pen, TEXT("The pen where sheep had been kept stood over a dry creek: stone walls south of a low ridge, no timber left to close the gap."), TEXT("양을 가두던 우리는 마른 시내 위에 있었다. 낮은 능선의 남쪽에 돌벽이 남아 있었다. 입구를 막았을 나무는 없었다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I'll keep watch first."), TEXT("먼저 볼게요.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("After that, I'll stay awake."), TEXT("그 뒤엔 내가 깨어 있으마.")},
-        {nullptr, nullptr, nullptr, TEXT("After dark the window still came back. If he had gone and broken the pill, what would that man have done? He might have asked for something else."), TEXT("어두워진 뒤에도 창구가 떠올랐다. 창구로 가서 알약을 부수었다면 그 남자가 어떻게 했을까. 다른 것을 달라고 했을 수도 있었다.")},
+        {nullptr, nullptr, nullptr, TEXT("After dark the window still came back. If he had gone and broken the pill, what would that man have done? He might have asked for another one."), TEXT("어두워진 뒤에도 창구가 떠올랐다. 창구로 가서 알약을 부수었다면 그 남자가 어떻게 했을까. 다른 것을 달라고 했을 수도 있었다.")},
         {nullptr, nullptr, nullptr, TEXT("Today he had not thought past taking the pill from a man's hand. He had only been choosing what to ask the clerk once it was broken."), TEXT("오늘은 사람의 손에서 알약을 빼낸 다음을 생각하지 않았다. 부수고 나서 서기에게 물을 말만 고르고 있었다.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("Arrel."), TEXT("아렐.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Mm."), TEXT("응.")},
@@ -805,7 +805,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Arrel."), TEXT("아렐.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Here. Just a little further."), TEXT("여기요. 조금만 더 오면 돼요.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Don't go down the front. The stones roll."), TEXT("앞으로 내려가지 마세요. 돌이 굴러요.")},
-        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("You stop watching too, and lie down."), TEXT("너도 그만 보고 누워.")},
+        {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Stop keeping watch and lie down too."), TEXT("너도 그만 보고 누워.")},
         {nullptr, nullptr, nullptr, TEXT("With his eyes closed, the window came back clearer. He pictured the man reaching out again after his pill was taken. Holding that hand shut came to him easily. He stopped thinking of holding the hand."), TEXT("눈을 감자 창구가 더 잘 떠올랐다. 알약을 빼앗긴 남자가 다시 손을 내미는 모습을 생각했다. 그 손을 못 펴게 붙잡는 자신은 쉽게 떠올랐다. 그는 손을 붙잡는 생각을 그만두었다.")},
         {nullptr, nullptr, nullptr, TEXT("When he woke, grey sky showed over the wall. Sable had a hand on the top of the wall. Her face, tilted toward the road they had come by, turned at the sound of his coat."), TEXT("눈을 떴을 때 벽 위로 회색 하늘이 보였다. 세이블이 벽 꼭대기에 손을 얹고 있었다. 지나온 길 쪽으로 기울였던 얼굴이 아렐의 코트가 스치는 소리에 돌아왔다.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("Up."), TEXT("일어나.")},

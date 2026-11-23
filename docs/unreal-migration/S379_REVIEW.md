@@ -71,7 +71,7 @@ Branch `claude/s366-upgrade`, on top of round 1's integration (`af939f8f`). Team
   - the empty trough and the fallen mile stone by the north road;
   - the dark ration window with a stone sill in the house's south wall.
 - **Art:**
-  - Mira's registry: a records desk with a candle and an open ledger, nobody at it (`ui_pause_archive_backdrop`, newly imported);
+  - Mira's registry: a dark archive desk with a candle, a brass compass and a closed book, nobody at it (`ui_pause_archive_backdrop`, newly imported; a placeholder until Lumea's registry has its own picture). (S383: corrected from "an open ledger" after Gemini's T-7 review.)
   - the map splash, the Belt road at dusk, for the pen.
   - The Lumea pictures show Arrel and Elia, who are not in Lumea in 19화, so they were not used. Pictures with Tobias were not used.
 
