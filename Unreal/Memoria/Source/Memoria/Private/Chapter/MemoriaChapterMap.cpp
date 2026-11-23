@@ -109,7 +109,16 @@ FMemoriaChapterMapSpec Parse(const TCHAR* Json)
             S.Decorations.Add(Decoration);
         }
     if (const TArray<TSharedPtr<FJsonValue>>* Npcs = nullptr; O->TryGetArrayField(TEXT("ambient_npcs"), Npcs) && Npcs)
-        for (const auto& V : *Npcs) { const Obj N = V->AsObject(); S.AmbientNpcs.Add({VecField(N, TEXT("position")), Str(N, TEXT("preset"))}); }
+        for (const auto& V : *Npcs)
+        {
+            const Obj N = V->AsObject(); if (!N) continue;
+            FMemoriaChapterNpc Npc;
+            Npc.Position = VecField(N, TEXT("position")); Npc.Preset = Str(N, TEXT("preset"));
+            N->TryGetBoolField(TEXT("still"), Npc.bStill);
+            if (const TArray<TSharedPtr<FJsonValue>>* Face = nullptr; N->TryGetArrayField(TEXT("face"), Face) && Face && Face->Num() >= 2)
+            { Npc.bHasFace = true; Npc.Face = Vec(*Face); }
+            S.AmbientNpcs.Add(Npc);
+        }
     S.AmbientNpcsGate = Str(O, TEXT("ambient_npcs_gate"));
     return S;
 }

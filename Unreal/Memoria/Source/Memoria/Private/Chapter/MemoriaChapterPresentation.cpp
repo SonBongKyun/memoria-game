@@ -182,7 +182,9 @@ void AMemoriaChapterPresentation::BuildAmbientNpcs()
         Figure->Face(TEXT("Down")); Figure->SetVisibility(false, true);
         AmbientNpcs.Add(Figure);
         // Each sets out a little after the one before, so they are never in step.
+        // A still figure never sets out: it keeps this spot and, when it has one, looks toward its point.
         FAmbientMind Mind; Mind.Home = Mind.Target = Figure->GetComponentLocation(); Mind.Wait = 1.5f + 1.3f * NpcMinds.Num();
+        Mind.bStill = Npc.bStill; Mind.bHasFace = Npc.bHasFace; Mind.FacePoint = MemoriaChapterMaps::ToWorld(Npc.Face);
         NpcMinds.Add(Mind);
     }
 }
@@ -212,17 +214,29 @@ void AMemoriaChapterPresentation::TickAmbientNpcs(float DeltaSeconds)
         if (Combat)
             for (const auto& Weak : Combat->GetMonsters())
                 if (const auto* M = Weak.Get(); M && !M->IsDead() && (!Foe || FVector::DistSquared2D(M->GetActorLocation(), At) < FVector::DistSquared2D(Foe->GetActorLocation(), At))) Foe = M;
+        const float Notice = Mind.bStill ? FAmbientMind::Glance : NpcNotice;
+        auto FacePoint = [&]()
+        {
+            if (!Mind.bHasFace) return;
+            const FVector ToFace = (Mind.FacePoint - At) * FVector(1, 1, 0);
+            if (!ToFace.IsNearlyZero()) Want = ToFace.Rotation().Yaw;
+        };
         if (Foe)
         {
-            // A fight: it stands where it is and watches the foe.
+            // A fight: it stands where it is and watches the foe. A still figure keeps this reaction.
             Mind.bWalking = false; Mind.Wait = FMath::Max(Mind.Wait, 2.f);
             Want = ((Foe->GetActorLocation() - At) * FVector(1, 1, 0)).Rotation().Yaw;
         }
-        else if (ToArrel.Size() < NpcNotice)
+        else if (ToArrel.Size() < Notice)
         {
-            // Arrel is close: it stops and turns to him.
+            // Arrel is close: it stops and turns to him. A still figure only glances this close, then looks back.
             Mind.bWalking = false; Mind.Wait = FMath::Max(Mind.Wait, 1.2f);
             if (!ToArrel.IsNearlyZero()) Want = ToArrel.Rotation().Yaw;
+        }
+        else if (Mind.bStill)
+        {
+            Mind.bWalking = false;
+            FacePoint();
         }
         else if (Mind.bWalking)
         {
@@ -244,8 +258,15 @@ void AMemoriaChapterPresentation::TickAmbientNpcs(float DeltaSeconds)
                 if (bClear) { Mind.Target = FVector(Spot.X, Spot.Y, At.Z); Mind.bWalking = true; break; }
             }
         }
+        else if (Mind.bHasFace) FacePoint();
+        if (Mind.bStill) Step = FVector::ZeroVector;
         Mind.Yaw = FMath::FixedTurn(Mind.Yaw, Want, 320.f * DeltaSeconds);
         if (!Step.IsZero()) { Figure->SetWorldLocation(At + Step); NpcTravel += Step.Size(); }
+        if (Mind.bStill)
+        {
+            const FVector Locked(Mind.Home.X, Mind.Home.Y, Figure->GetComponentLocation().Z);
+            if (FVector::DistSquared2D(Figure->GetComponentLocation(), Locked) > .25f) Figure->SetWorldLocation(Locked);
+        }
         Figure->AdvanceLocomotion(Step, DeltaSeconds);
         // A rigged figure turns freely; a card keeps the four facings its walk gave it.
         if (Figure->IsRigged()) Figure->SetAim(Mind.Yaw);

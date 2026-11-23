@@ -28,7 +28,15 @@ struct FMemoriaChapterDecoration
     float Rotation = 0.f, Energy = 0.f, Scale = 1.f;
 };
 // S331: an ambient NPC of the map's revisit (PixelSprite.create_npc_sprite preset), at its tile's centre.
-struct FMemoriaChapterNpc { FVector2D Position = FVector2D::ZeroVector; FString Preset; };
+// S381: optional "still" keeps it on that tile, and optional "face" is a source-pixel point it looks toward.
+struct FMemoriaChapterNpc
+{
+    FVector2D Position = FVector2D::ZeroVector;
+    FString Preset;
+    bool bStill = false;
+    bool bHasFace = false;
+    FVector2D Face = FVector2D::ZeroVector;
+};
 // The exit: what opens it, the flag it closes, the departure group, and where the road goes (another
 // chapter map, or a story scene not yet ported), with the flags and bilingual notice its end handler raises.
 struct FMemoriaChapterExit { FMemoriaChapterRect Rect; FString Requires, Completes, Group, NextMap, NextScene, NoticeEn, NoticeKo; TArray<FString> Flags; int32 NextChapter = 0; };

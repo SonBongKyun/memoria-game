@@ -93,7 +93,16 @@ private:
     bool bEncounterReady = false;
     void BuildDecorations();
     void BuildAmbientNpcs();
-    struct FAmbientMind { FVector Home = FVector::ZeroVector, Target = FVector::ZeroVector; float Wait = 0.f, Yaw = -90.f; bool bWalking = false; };
+    struct FAmbientMind
+    {
+        FVector Home = FVector::ZeroVector, Target = FVector::ZeroVector;
+        float Wait = 0.f, Yaw = -90.f;
+        bool bWalking = false;
+        bool bStill = false, bHasFace = false;
+        FVector FacePoint = FVector::ZeroVector;
+        // A still figure glances at Arrel only this close, then turns back to its point.
+        static constexpr float Glance = 150.f;
+    };
     TArray<FAmbientMind> NpcMinds;
     FRandomStream NpcRng{20261002};
     float NpcTravel = 0.f;
