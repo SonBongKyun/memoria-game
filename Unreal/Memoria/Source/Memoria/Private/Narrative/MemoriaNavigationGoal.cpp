@@ -49,6 +49,17 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::RidgeMap && !Run.GetFlag(TEXT("ch14_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch14_ten_years"))) return Prefix + (bKo ? TEXT("벽 안쪽으로: 동이 튼다") : TEXT("Inside the walls: first light"));
+        if (Run.GetFlag(TEXT("ch14_slope"))) return Prefix + (bKo ? TEXT("길 가장자리: 그가 앉은 돌") : TEXT("The edge of the road: the stone he sits on"));
+        if (Run.GetFlag(TEXT("ch14_night"))) return Prefix + (bKo ? TEXT("무너진 모서리: 내려오는 길을 지킨다") : TEXT("The broken corner: watch the road down"));
+        if (Run.GetFlag(TEXT("ch14_house"))) return Prefix + (bKo ? TEXT("높은 벽 아래: 불 없는 밤") : TEXT("Under the high wall: a night with no fire"));
+        if (Run.GetFlag(TEXT("ch14_stumps"))) return Prefix + (bKo ? TEXT("능선 아래 농가: 열린 쪽 앞의 길") : TEXT("The farmhouse under the ridge: the road at its open side"));
+        if (Run.GetFlag(TEXT("ch14_tower"))) return Prefix + (bKo ? TEXT("북쪽 그루터기 사이로") : TEXT("North among the stumps"));
+        if (Run.GetFlag(TEXT("ch14_fields"))) return Prefix + (bKo ? TEXT("서쪽: 무너진 돌담 너머") : TEXT("West: over the broken stone wall"));
+        if (Run.GetFlag(TEXT("ch14_morning"))) return Prefix + (bKo ? TEXT("밭 가장자리 길로") : TEXT("Along the edge of the fields"));
+    }
     if (Map == MemoriaManuscript::VerdanReturnMap && !Run.GetFlag(TEXT("ch13_complete")))
     {
         if (Run.GetFlag(TEXT("ch13_alley"))) return Prefix + (bKo ? TEXT("동쪽 출구 → 묵은 밭") : TEXT("East exit → the old fields"));

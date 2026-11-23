@@ -58,6 +58,8 @@ namespace MemoriaManuscript
     inline const TCHAR* const BasinMap = TEXT("basin_station");
     // S382: Chapter 13, Verdan again (최종본 21화), on the Godot verdan_market ground.
     inline const TCHAR* const VerdanReturnMap = TEXT("verdan_return");
+    // S385: Chapter 14, the farmhouse under the ridge (최종본 22-23화), on the Godot drift_shelter ground.
+    inline const TCHAR* const RidgeMap = TEXT("ridge_farmhouse");
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
     // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
     inline constexpr int32 SableHeavyBurns = 4;

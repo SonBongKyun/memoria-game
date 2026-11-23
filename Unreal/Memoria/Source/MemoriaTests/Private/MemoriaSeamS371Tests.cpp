@@ -68,7 +68,8 @@ bool FSeamS371Test::RunTest(const FString&)
             {
                 const auto& R = A->Definition.Rows[I];
                 bIndexed &= R.OriginalIndex == I && R.Id == FString::Printf(TEXT("field/%s/%d"), *G, I) && (R.Text.bHasTextKo || R.Text.bHasNarrateKo) && (R.Text.bHasText || R.Text.bHasNarrate);
-                bArt &= !R.Presentation.bHasCg || !R.Presentation.Cg.IsEmpty();
+                // S385: Chapter 14 plays on black; an empty picture there returns from Tobias's desk to black.
+                bArt &= !R.Presentation.bHasCg || !R.Presentation.Cg.IsEmpty() || G.StartsWith(TEXT("ms_ridge_"));
             }
     TestTrue(TEXT("Rows carry their indices and both languages"), bIndexed && bArt);
     TestNull(TEXT("Unknown group"), BuildScene(GetTransientPackage(), TEXT("ms_nowhere"), 0));

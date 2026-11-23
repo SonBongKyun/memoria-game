@@ -45,6 +45,7 @@ FString PlaceName(const FString& Map)
     if (Map == MemoriaManuscript::FarmsMap) return TEXT("The Roofless Farmhouses");
     if (Map == MemoriaManuscript::BasinMap) return TEXT("The Basin Waystation");
     if (Map == MemoriaManuscript::VerdanReturnMap) return TEXT("Verdan, Again");
+    if (Map == MemoriaManuscript::RidgeMap) return TEXT("The Farmhouse under the Ridge");
     FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
 AMemoriaChapterPresentation::AMemoriaChapterPresentation()
@@ -519,6 +520,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (Where.IsEmpty() && Map == MemoriaManuscript::BasinMap) Where = bKo ? Ko(TEXT("The Sheep Pen")) : TEXT("The Sheep Pen");
         // S382: Verdan's road east ends in the old furrows (21화).
         if (Where.IsEmpty() && Map == MemoriaManuscript::VerdanReturnMap) Where = bKo ? Ko(TEXT("The Old Furrows")) : TEXT("The Old Furrows");
+        // S385: the farmhouse at first light: a third person (23화).
+        if (Where.IsEmpty() && Map == MemoriaManuscript::RidgeMap) Where = bKo ? Ko(TEXT("The Third Person")) : TEXT("The Third Person");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));

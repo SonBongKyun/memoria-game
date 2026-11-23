@@ -173,6 +173,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.4f, -46.f, 34.f, 1.2f, .6f, .012f, 2.6f, .48f,
         40, false, true};
     if (InMap == TEXT("verdan_return")) return VerdanAgain;
+    // S385 The farmhouse under the ridge: dry fields and stumps under a grey sky going to a night with no fire
+    // (22화: "불은 피우지 않았다"); the farm earth, a trodden road, cool light; no lamps.
+    static const FDressing Ridge{TEXT("T_BeltSoil"), TEXT("T_ClearingPaved"),
+        FLinearColor(.94f, .93f, .86f), FLinearColor(.065f, .058f, .046f), FLinearColor(.075f, .07f, .062f), FLinearColor(.066f, .062f, .056f),
+        FLinearColor(.055f, .042f, .03f), FLinearColor(.08f, .075f, .065f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .7f, .4f), FLinearColor(.5f, .52f, .58f), FLinearColor(.06f, .062f, .068f), FLinearColor(.84f, .84f, .86f),
+        230.f, 220.f, 0.f, 0.f,
+        3.6f, -42.f, -36.f, 1.15f, .62f, .013f, 1.6f, .52f,
+        26, false, true};
+    if (InMap == TEXT("ridge_farmhouse")) return Ridge;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -518,6 +528,9 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                 if (IsWall(End, Y) && End - X <= 3) Beam(Timber, TileCentre(X - 1, Y) + FVector(0, 0, 176.f + Feet), TileCentre(End, Y) + FVector(0, 0, 176.f + Feet), 15.f);
             }
     if (FloorMin.X > FloorMax.X) return;
+    // S385: the farmhouse under the ridge has no roof left at all (22화: "남아 있는 벽 위로 지붕이 없었다"), no awning
+    // and no lantern (23화: "불빛은 없었다").
+    if (Map == TEXT("ridge_farmhouse")) return;
     if (WallType >= 0 && IsWall(FloorMin.X - 1, FloorMin.Y - 1))
     {
         // What is left of the relay house's roof: the wall plates on the long walls and a few rafters across,
@@ -837,6 +850,66 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         const FVector Window = TileCentre(11.2f, 11.f) + Ground;
         Box(Shutter, Window + FVector(0, -T * .52f, 95.f), FVector(54, 4, 38), FRotator::ZeroRotator, false);
         Box(Stone, Window + FVector(0, -T * .62f, 58.f), FVector(70, 18, 8));
+    }
+    else if (Map == TEXT("ridge_farmhouse"))
+    {
+        // S385: inside the roofless farmhouse (22화): the shelf warped by rain on the west wall with two round marks,
+        // a broken bowl, leaves under the high wall, dry wood nobody burns. West beyond the rim the signal tower, its
+        // flag halfway up, a low building at its foot and a cart; north past the rim the rows of stumps below the
+        // ridge, and the ridge's trees. No lamp anywhere.
+        auto* Leaf = Focus(TEXT("RidgeLeaves"), FLinearColor(.08f, .055f, .03f), 1, .95f);
+        auto* Clay = Focus(TEXT("RidgeBowl"), FLinearColor(.16f, .12f, .09f), 1, .8f);
+        auto* Cloth = Focus(TEXT("RidgeFlag"), FLinearColor(.3f, .28f, .25f), 2, .9f);
+        auto* Far = Kit(TEXT("Drift"), FLinearColor(.8f, .78f, .66f));
+        // The shelf against the west wall's inner face, warped down at one end.
+        const FVector Shelf = TileCentre(5.f, 7.4f) + Ground + FVector(T * .5f + 7.f, 0, 0);
+        Box(Timber, Shelf + FVector(0, 0, 118.f), FVector(12, T * 1.5f, 4), FRotator(0, 0, 5.f));
+        for (const float Side : {-1.f, 1.f}) Beam(Timber, Shelf + FVector(0, Side * T * .62f, 0), Shelf + FVector(0, Side * T * .62f, 120.f), 3.f);
+        for (const float Side : {-1.f, 1.f}) Box(Clay, Shelf + FVector(0, Side * 18.f, 121.f), FVector(9, 9, .6f), FRotator::ZeroRotator, false);
+        // The broken bowl Elia pushed aside, and leaves heaped under the high north wall.
+        for (int32 I = 0; I < 4; ++I)
+        {
+            const FVector At = TileCentre(7.6f + .3f * float(Scatter(I, 61)), 8.3f + .3f * float(Scatter(I, 62))) + Ground;
+            Box(Clay, At + FVector(0, 0, 2), FVector(11, 8, 3), FRotator(0, 360.f * float(Scatter(I, 63)), 10.f), false);
+        }
+        for (int32 I = 0; I < 14; ++I)
+        {
+            const FVector At = TileCentre(6.6f + 7.6f * float(Scatter(I, 64)), 5.85f + .25f * float(Scatter(I, 65))) + Ground;
+            Box(Leaf, At + FVector(0, 0, 1.5f), FVector(24, 18, 3), FRotator(0, 360.f * float(Scatter(I, 66)), 0), false);
+        }
+        // Dry wood under the east wall: there, and not burned.
+        const FVector Wood = TileCentre(14.f, 6.4f) + Ground + FVector(T * .28f, 0, 0);
+        for (int32 I = 0; I < 3; ++I) Beam(Timber, Wood + FVector(-4.f + 4.f * I, -30.f, 4.f + 6.f * I), Wood + FVector(4.f - 4.f * I, 30.f, 4.f + 6.f * I), 3.f);
+        // The signal tower to the west, the flag halfway up the pole; the low building at its foot, a cart before it.
+        const FVector Tower = TileCentre(-3.6f, 8.5f) + Ground;
+        for (const float Side : {-1.f, 1.f})
+            for (const float Depth : {-1.f, 1.f})
+                Beam(Timber, Tower + FVector(Side * 70.f, Depth * 70.f, 0), Tower + FVector(Side * 22.f, Depth * 22.f, 620.f), 7.f);
+        Box(Timber, Tower + FVector(0, 0, 610.f), FVector(70, 70, 10));
+        Beam(Timber, Tower + FVector(0, 0, 610.f), Tower + FVector(0, 0, 900.f), 4.f);
+        Box(Cloth, Tower + FVector(46.f, 0, 770.f), FVector(88, 3, 52), FRotator(0, 0, 4));
+        Box(Stone, Tower + FVector(150.f, -40.f, 70.f), FVector(220, 160, 140));
+        Prop(TEXT("CrateStack"), Kit(TEXT("Belt"), FLinearColor(1.f, .9f, .8f)), Tower + FVector(150.f, -190.f, 0), 80.f, FVector(.7f));
+        // The rows of stumps past the broken north wall, and the ridge's trees beyond them.
+        int32 Seed = 0;
+        for (float Y = -.4f; Y >= -3.6f; Y -= 1.1f)
+            for (float X = .4f; X <= 12.f; X += 1.6f, ++Seed)
+            {
+                const FVector At = TileCentre(X + .5f * float(Scatter(Seed, 67)), Y) + Ground;
+                const float H = 22.f + 22.f * float(Scatter(Seed, 68));
+                Beam(Timber, At, At + FVector(0, 0, H), 13.f + 6.f * float(Scatter(Seed, 69)));
+            }
+        for (float X = -3.f; X <= Spec->Width + 3.f; X += 2.6f, ++Seed)
+        {
+            const float S = .85f + .4f * float(Scatter(Seed, 70));
+            Prop(TEXT("DeadTree"), Far, TileCentre(X + float(Scatter(Seed, 71)), -4.6f - 2.f * float(Scatter(Seed, 72))) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 73)), FVector(S, S, S * 1.1f));
+        }
+        // East: hedges of dead trees along the rim; not along the south rim, where the camera looks north.
+        for (float Y = 1.f; Y < Spec->Height - 4; Y += 3.4f, ++Seed)
+        {
+            const float S = .8f + .4f * float(Scatter(Seed, 74));
+            Prop(TEXT("DeadTree"), Far, TileCentre(Spec->Width + 1.6f + float(Scatter(Seed, 75)), Y) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 76)), FVector(S, S, S * 1.1f));
+        }
     }
     else if (Map == TEXT("roofless_farms"))
     {

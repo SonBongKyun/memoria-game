@@ -138,7 +138,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch13_sump"), TEXT("Verdan again: the Sump"), TEXT("다시 베르단: 셈터")},
         {TEXT("ch13_vendor"), TEXT("Where Malet went"), TEXT("말레트의 행방")},
         {TEXT("ch13_complete"), TEXT("A night in the old furrows"), TEXT("묵은 고랑의 밤")},
-        {TEXT("ms_never"), TEXT("North-west: something like the book"), TEXT("북서쪽: 이 책 같은 것")}};
+        // S385: 22-23화.
+        {TEXT("ch14_stumps"), TEXT("North-west: round the signal tower, through the stumps"), TEXT("북서쪽: 신호탑을 돌아 그루터기 사이로")},
+        {TEXT("ch14_night"), TEXT("A night with no fire under the ridge"), TEXT("능선 아래, 불 없는 밤")},
+        {TEXT("ch14_complete"), TEXT("Someone came down from the ridge"), TEXT("능선에서 내려온 사람")},
+        {TEXT("ms_never"), TEXT("On north-west, the three of them"), TEXT("셋이서 북서쪽으로")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

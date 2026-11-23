@@ -543,6 +543,8 @@ void UMemoriaDevelopmentNarrativeWidget::Refresh()
         if(bPendingCrossFade)BackdropPrevious->SetBrushFromTexture(Old,true);
         Backdrop->SetBrushFromTexture(CG,true);
     }
+    // S385: a step with no picture plays on black. An image with no texture draws its white tint.
+    Backdrop->SetColorAndOpacity(CG?FLinearColor::White:FLinearColor::Black);
     if(bStory)
     {
         RefreshStory(Choosing);PortraitFrame->SetVisibility(ESlateVisibility::Collapsed);

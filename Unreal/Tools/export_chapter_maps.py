@@ -21,17 +21,19 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
 # S382: Verdan again, on the Godot verdan_market ground (not the Chapter 2 slice, L_VerdanHost, which carries Malet).
+# S385: the farmhouse under the ridge stands on the Godot drift_shelter ground: its walled slab ring, open on the
+# south, is the roofless farmhouse of three high walls (22-23화).
 GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation',
-          'verdan_return': 'verdan_market'}
+          'verdan_return': 'verdan_market', 'ridge_farmhouse': 'drift_shelter'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -313,6 +315,55 @@ MANUSCRIPT = {
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
     },
+    # S385: 최종본 22화 「공명」 and 23화 「세 번째 사람」 on the Godot drift_shelter ground (Gemini's T-7 brief: Chapter 14
+    # = 22-23화). In from the south: the furrows' morning, the fields, the signal tower to the west that they go round,
+    # the stumps under the ridge; then the roofless farmhouse: three high walls and a broken corner, the road from the
+    # ridge passing its open side. A night with no fire. At first light Tobias comes down the slope, and stays.
+    'ridge_farmhouse': {
+        'title': {'number': 14, 'name': 'Resonance', 'subtitle': 'The Third Person'},
+        'spawn': [10 * T + 16, 16 * T + 16],
+        'elia_repeat': "I'm not opening it. ...Not now.",
+        'sequence': [
+            {'flag': 'ch14_morning', 'group': 'ms_ridge_morning', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # The fields past the low stone wall: a man hoeing who never looks up.
+            {'rect': {'origin': [9 * T, 13 * T], 'size': [3 * T, T]}, 'group': 'ms_ridge_fields', 'flag': 'ch14_fields', 'gate': 'ch14_morning'},
+            # West, where the field road bends toward the signal tower; over the broken north wall into the stumps.
+            {'rect': {'origin': [4 * T, 11 * T], 'size': [2 * T, T]}, 'group': 'ms_ridge_tower', 'flag': 'ch14_tower', 'gate': 'ch14_fields'},
+            # Among the stumps below the ridge: the wet boot, the sleep, the bread kept for him.
+            {'rect': {'origin': [4 * T, 2 * T], 'size': [2 * T, T]}, 'group': 'ms_ridge_stumps', 'flag': 'ch14_stumps', 'gate': 'ch14_tower'},
+            # The farmhouse's open side, the road from the ridge passing it.
+            {'rect': {'origin': [8 * T, 10 * T], 'size': [4 * T, T]}, 'group': 'ms_ridge_house', 'flag': 'ch14_house', 'gate': 'ch14_stumps'},
+            # Under the high wall: no fire, the book warmer though nobody touches it.
+            {'rect': {'origin': [7 * T, 6 * T], 'size': [3 * T, T]}, 'group': 'ms_ridge_night', 'flag': 'ch14_night', 'gate': 'ch14_house'},
+            # The broken corner where Arrel keeps watch: someone stops halfway down the slope.
+            {'rect': {'origin': [12 * T, 9 * T], 'size': [2 * T, T]}, 'group': 'ms_ridge_slope', 'flag': 'ch14_slope', 'gate': 'ch14_night'},
+            # The edge of the road, where the clerk sits on a stone with the book on his knees.
+            {'rect': {'origin': [9 * T, 11 * T], 'size': [3 * T, T]}, 'group': 'ms_ridge_ten_years', 'flag': 'ch14_ten_years', 'gate': 'ch14_slope'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # First light inside the walls: names, and a third person sitting down a few steps from Elia.
+        'exit': {'center': [10 * T, 9 * T + 16], 'size': [2 * T, T], 'requires': 'ch14_ten_years', 'completes': 'ch14_complete',
+                 'group': 'ms_ridge_third', 'next_chapter': 15, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch15_two_notes_ready'],
+                 'notice': {'en': "I'd like to come with you.", 'ko': '같이 가고 싶습니다.'}},
+        'objects_gate': 'ch14_complete',
+        'chests': [{'origin': [2 * T, 3 * T], 'flag': 'chest_ridge_stumps', 'rewards': {'grains': 32, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [6 * T, 8 * T], 'flag': 'clue_ridge_shelf',
+                   'text': 'A shelf warped by rain. Two round marks on top, and under them a long strip less faded than the rest.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch14_complete',
+        # Drift's rats are too small for Chapter 14: the waste's creatures stand in.
+        'encounters_from': 'colorless_waste',
+        # No fire, no lamp (22화: "불은 피우지 않았다"; 23화: "불빛은 없었다").
+        'lights': [],
+        # Afternoon going to a night without fire; dry fields and stumps under a grey sky. No picture: every candidate
+        # shows a lit lantern (the dusk road), a burning ground, other people or the wrong Elia, so the scenes play dark.
+        'atmosphere': {'saturation': 0.56, 'mood': 0.46, 'hue': [0.36, 0.37, 0.42, 1.0], 'light': [0.7, 0.72, 0.78, 1.0], 'fog': 'none',
+                       'splash': ''},
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
     # S382: 최종본 21화 「다시 베르단」 on the Godot verdan_market ground (Gemini's T-7 brief: Chapter 13 = 21화 alone).
     # Verdan has no wall: the road from the fields runs straight into the first stalls. In from the north (the slope where
     # Sable turns back), the market emptying round the square and its reservoir, the Sump's door at the south of the
@@ -339,7 +390,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # Out by a street they had not come in by, east into the old fields; the night where two furrows meet.
         'exit': {'center': [28 * T + 16, 16 * T], 'size': [T, 2 * T], 'requires': 'ch13_alley', 'completes': 'ch13_complete',
-                 'group': 'ms_verdan_furrow', 'next_chapter': 14, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_verdan_furrow', 'next_chapter': 14, 'next_map': 'ridge_farmhouse', 'next_scene': None,
                  'flags': ['canon_ch14_resonance_ready'],
                  'notice': {'en': 'North-west. When it gets light, we go.',
                             'ko': '북서쪽. 밝아지면 가 보자.'}},
@@ -385,6 +436,19 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     if map_id == 'crumbling_coast':
         # The coast's cliffs stand as broken ruin stone (the ported maps' RUBBLE).
         ground = dict(ground, tile_names=['RUBBLE' if n == 'CLIFF' else n for n in ground['tile_names']])
+    if map_id == 'ridge_farmhouse':
+        # The rim is open field, not a wall; the slab ring stands as the farmhouse's high stone walls.
+        ground = dict(ground, tile_names=['WALL' if n == 'CONCRETE' else 'EDGE' if n == 'WALL' else n for n in ground['tile_names']])
+        tiles = [list(r) for r in ground['tiles']]
+        mud, path, wall = (ground['tile_names'].index(n) for n in ('MUD', 'PATH', 'WALL'))
+        tiles[5][10] = wall                     # the back wall is whole: three high walls, the south side open
+        for x in range(8, 13): tiles[1][x] = mud
+        for y in range(2, 5): tiles[y][10] = mud
+        for y in range(1, 11): tiles[y][20] = path   # the road down from the ridge, east of the house
+        for x in range(11, 21): tiles[11][x] = path  # and along the open side to the field road
+        edge = ground['tile_names'].index('EDGE')
+        for y in range(8, 11): tiles[y][24] = edge   # the shelter's east way out is closed: they stay the night
+        ground = dict(ground, tiles=tiles)
     if map_id == 'roofless_farms':
         # Open fields: the plain's rim is not a wall here (no masonry along the edge); hedges and trees stand beyond it.
         ground = dict(ground, tile_names=['EDGE' if n == 'WALL' else n for n in ground['tile_names']])

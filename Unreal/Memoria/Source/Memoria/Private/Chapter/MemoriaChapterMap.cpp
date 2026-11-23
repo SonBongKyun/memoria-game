@@ -167,6 +167,12 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S385: the farmhouse under the ridge (최종본 22-23화).
+        {TEXT("ridge_farmhouse"), TEXT("능선 아래 농가")}, {TEXT("The Farmhouse under the Ridge"), TEXT("능선 아래 농가")},
+        {TEXT("Resonance"), TEXT("공명")}, {TEXT("The Third Person"), TEXT("세 번째 사람")}, {TEXT("Joined: Tobias"), TEXT("합류: 토비아스")},
+        {TEXT("I'd like to come with you."), TEXT("같이 가고 싶습니다.")}, {TEXT("I'm not opening it. ...Not now."), TEXT("안 열 거야. ...지금은.")},
+        {TEXT("A shelf warped by rain. Two round marks on top, and under them a long strip less faded than the rest."),
+         TEXT("빗물을 먹어 휜 선반. 위쪽에 둥근 자국이 두 개, 그 아래로 길쭉하게 덜 바랜 자리.")},
         // S382: Verdan again (최종본 21화).
         {TEXT("verdan_return"), TEXT("다시 베르단")}, {TEXT("Verdan, Again"), TEXT("다시 베르단")}, {TEXT("Filed"), TEXT("파일됨")},
         {TEXT("The Old Furrows"), TEXT("묵은 고랑")}, {TEXT("Parted: Sable"), TEXT("작별: 세이블")}, {TEXT("Malet: filed"), TEXT("말레트: 파일됨")},

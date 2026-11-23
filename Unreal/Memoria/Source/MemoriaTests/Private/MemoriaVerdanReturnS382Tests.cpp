@@ -96,10 +96,10 @@ bool FVerdanReturnS382Test::RunTest(const FString&)
         {TEXT("ch13_sump"), TEXT("목표  동쪽 모퉁이의 기름 노점")}, {TEXT("ch13_vendor"), TEXT("목표  모퉁이 안쪽 골목으로")}, {TEXT("ch13_alley"), TEXT("목표  동쪽 출구 → 묵은 밭")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), VerdanReturnMap, false), FString(S[1])); }
     for (const TCHAR* F : {TEXT("ch13_sump"), TEXT("ch13_vendor")}) Run->SetStoryFlag(F, false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch13_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch13_")) && !FString(M.Flag).StartsWith(TEXT("ch14_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is at the Sump"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 다시 베르단: 셈터")));
     for (const TCHAR* F : {TEXT("ch13_sump"), TEXT("ch13_vendor"), TEXT("ch13_complete")}) Run->SetStoryFlag(F, true);
-    TestTrue(TEXT("then north-west"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 북서쪽: 이 책 같은 것")));
+    TestTrue(TEXT("then north-west"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 북서쪽: 신호탑을 돌아 그루터기 사이로")));
     Game->Shutdown();
     return true;
 }

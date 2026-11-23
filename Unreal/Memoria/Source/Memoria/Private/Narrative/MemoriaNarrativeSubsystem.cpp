@@ -585,6 +585,10 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_verdan_vendor") && !Run->GetRunSnapshot().GetFlag(TEXT("ch13_malet_filed")))
     { Run->SetStoryFlag(TEXT("ch13_malet_filed"), true); Notice(TEXT("Malet: filed")); bNoticeHeld = true; }
     if (Group == TEXT("ms_verdan_furrow")) Run->SetStoryFlag(TEXT("ch13_book_northwest"), true);
+    // S385 (22-23화): the book warms with nobody touching it; at first light Tobias asks to come, and stays.
+    if (Group == TEXT("ms_ridge_night")) Run->SetStoryFlag(TEXT("ch14_book_awake"), true);
+    if (Group == TEXT("ms_ridge_third") && !Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
+    { Run->SetStoryFlag(TEXT("party_tobias"), true); Notice(TEXT("Joined: Tobias")); bNoticeHeld = true; }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
     { Run->SetStoryFlag(TEXT("has_bark_map"), true); Notice(TEXT("Obtained: Sable's bark map")); bNoticeHeld = true; }
     ManuscriptAsset = Asset;

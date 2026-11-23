@@ -93,6 +93,9 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ui_pause_archive_backdrop"), false},
         // S375 Chapter 10, the Seam, leaving: Sable listening, eyes half shut (blind canon).
         {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_sable_witness_v3.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_world_rewrite_sable_witness_v3"), false},
+        // S385 Chapter 14 (23화): Tobias's face, and his Arcane desk for the flashback only (the journal's import).
+        {TEXT("res://assets/portraits/tobias_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_tobias_face_neutral"), false},
+        {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png"), TEXT("/Game/Memoria/Presentation/Journal/T_world_rewrite_tobias_ink_v3"), true},
     };
     return Values;
 }
@@ -126,6 +129,7 @@ FString PortraitSource(const FString& Key)
         {TEXT("malet_price_revealed"), TEXT("res://assets/portraits/malet_face_price_revealed.png")},
         {TEXT("malet_warning"), TEXT("res://assets/portraits/malet_face_warning.png")},
         {TEXT("sable_calm"), TEXT("res://assets/portraits/sable_face_calm.png")},
+        {TEXT("tobias_neutral"), TEXT("res://assets/portraits/tobias_face_neutral.png")},
     };
     const FString* Value = Values.Find(Key); return Value ? *Value : FString();
 }
