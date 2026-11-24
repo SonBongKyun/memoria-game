@@ -34,10 +34,10 @@ const TCHAR* SableStep = TEXT("res://assets/cg/generated/illustration_expansion_
 // S379: the basin waystation. A dark archive desk with a candle, a brass compass and a closed book, nobody at it (Mira's registry);
 // the pen plays over the map's splash.
 const TCHAR* RegistryDesk = TEXT("res://assets/cg/generated/ui_pause_archive_backdrop.png");
-const TCHAR* Pen = TEXT("res://assets/cg/generated/chapter_splash_belt_waystation.png");
+// S390 (Gemini T-14 backdrop hunt): no picture without people, lantern or glow exists, so the sheep pen and the old
+// furrows play on black too (Dark, below). The dusk road (Pen) is no longer used by any scene.
 // S382: Verdan again. The market splash (no named people; Gemini T-7: SAFE).
-// The night in the old furrows leaves the market: it plays over the empty dusk road (Pen; T-7: RISKY, no people,
-// the closest picture to a road out of town with grass between the ruts).
+// The night in the old furrows leaves the market: it plays on black (S390; before, the dusk road, which hangs a lamp).
 const TCHAR* Market = TEXT("res://assets/cg/generated/chapter_splash_verdan_market.png");
 // S385: the farmhouse under the ridge plays dark (no picture): the dusk road (Pen) hangs a lit lantern, and 22화 and
 // 23화 light no fire. Tobias's years at his desk in Arcane play over his own picture (T-7: SAFE for 23화's flashback
@@ -788,7 +788,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Elia. ...Lower your strap. It's caught on your shoulder."), TEXT("엘리아. ...끈 좀 내려. 어깨에 걸렸어.")},
         {nullptr, nullptr, nullptr, TEXT("The road bent behind the stable. The window went out of sight first. They did not go into the waystation that day."), TEXT("길이 마구간 뒤로 꺾였다. 창구가 먼저 가려졌다. 그날은 역참에 들어가지 않았다.")}}},
     {TEXT("ms_basin_pen"), {
-        {nullptr, nullptr, Pen, TEXT("The pen where sheep had been kept stood over a dry creek: stone walls south of a low ridge, no timber left to close the gap."), TEXT("양을 가두던 우리는 마른 시내 위에 있었다. 낮은 능선의 남쪽에 돌벽이 남아 있었다. 입구를 막았을 나무는 없었다.")},
+        {nullptr, nullptr, Dark, TEXT("The pen where sheep had been kept stood over a dry creek: stone walls south of a low ridge, no timber left to close the gap."), TEXT("양을 가두던 우리는 마른 시내 위에 있었다. 낮은 능선의 남쪽에 돌벽이 남아 있었다. 입구를 막았을 나무는 없었다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I'll keep watch first."), TEXT("먼저 볼게요.")},
         {TEXT("Sable"), TEXT("sable_calm"), nullptr, TEXT("After that, I'll stay awake."), TEXT("그 뒤엔 내가 깨어 있으마.")},
         {nullptr, nullptr, nullptr, TEXT("After dark the window still came back. If he had gone and broken the pill, what would that man have done? He might have asked for another one."), TEXT("어두워진 뒤에도 창구가 떠올랐다. 창구로 가서 알약을 부수었다면 그 남자가 어떻게 했을까. 다른 것을 달라고 했을 수도 있었다.")},
@@ -912,7 +912,7 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_sad"), nullptr, TEXT("I know. ...Still, I want to get out now."), TEXT("알아. ...그래도 지금은 나가고 싶어.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("This way."), TEXT("이쪽.")}}},
     {TEXT("ms_verdan_furrow"), {
-        {nullptr, nullptr, Pen, TEXT("They did not leave the way they had come. He stopped at every corner to look ahead. Where the houses thinned, grass grew between the wheel ruts; he chose the road running east."), TEXT("들어온 길로 나가지 않았다. 아렐은 모퉁이마다 멈춰 앞을 보았다. 집들이 드물어진 뒤에는 바퀴 자국 사이로 풀이 났다. 그는 동쪽으로 이어지는 길을 골랐다.")},
+        {nullptr, nullptr, Dark, TEXT("They did not leave the way they had come. He stopped at every corner to look ahead. Where the houses thinned, grass grew between the wheel ruts; he chose the road running east."), TEXT("들어온 길로 나가지 않았다. 아렐은 모퉁이마다 멈춰 앞을 보았다. 집들이 드물어진 뒤에는 바퀴 자국 사이로 풀이 났다. 그는 동쪽으로 이어지는 길을 골랐다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("We couldn't buy food."), TEXT("먹을 걸 못 샀어.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("There's bread left."), TEXT("빵 남았어.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("I wanted something warm."), TEXT("따뜻한 걸 먹으려고 했는데.")},

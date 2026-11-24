@@ -98,3 +98,7 @@ Branch `claude/s366-upgrade`, on top of `b8df8e81`. Team task **T-9** on `TEAM-B
 - **English:** the vendor's "Went under." is now "Taken below."
 - **This file:** the quote above now reads "들어온 길로 나가지 않았다", as the manuscript has it.
 - **The dusk-road backdrop under the furrow night stays.** Gemini rated it RISKY, temporary. It hangs a lit lantern, so a picture without one is still wanted.
+
+## S390: the furrow night on black
+- `ms_verdan_furrow` now plays on black instead of the dusk road, which hangs a lit lantern.
+- Gemini's T-14 found no SAFE picture to replace it. The town scenes keep the market splash.

@@ -261,7 +261,8 @@ MANUSCRIPT = {
         'lights': [],
         # Late light over dry fields: straw and dust, paler than the Seam, warmer than the waste the ground came from.
         'atmosphere': {'saturation': 0.55, 'mood': 0.34, 'hue': [0.46, 0.42, 0.32, 1.0], 'light': [0.84, 0.76, 0.6, 1.0],
-                       'fog': 'soft', 'splash': 'res://assets/cg/generated/chapter_splash_belt_waystation.png'},
+                       # S390 (Gemini T-14): no splash. The dusk road hangs a lit lantern (18화: "불은 피우지 않았다").
+                       'fog': 'soft', 'splash': ''},
         'ambient_npcs': [], 'ambient_npcs_gate': None,
     },
     # S379: 최종본 19화 「미라」 (a cutaway: the Central Records in Lumea) and 20화 「회색 우리」 on the Godot belt_waystation
@@ -299,7 +300,8 @@ MANUSCRIPT = {
         'lights': [],
         # Grey daylight over a dry basin; the queue, the clerk's window.
         'atmosphere': {'saturation': 0.5, 'mood': 0.4, 'hue': [0.42, 0.42, 0.4, 1.0], 'light': [0.78, 0.76, 0.72, 1.0],
-                       'splash': 'res://assets/cg/generated/chapter_splash_belt_waystation.png'},
+                       # S390 (Gemini T-14): no splash. The dusk road hangs a lit lantern; the basin's nights have no fire.
+                       'splash': ''},
         # S383 (T-8): the queue holds. Nobody walks off: each keeps a place and looks toward the ration window
         # (the shutter at tile (11.2, 11)); the clerk behind it looks out at the head of the line.
         'ambient_npcs': [{'position': [400.0, 361.6], 'preset': 'bureau_agent', 'still': True, 'face': [400.0, 406.4]},
@@ -361,7 +363,7 @@ MANUSCRIPT = {
     # S385: 최종본 22화 「공명」 and 23화 「세 번째 사람」 on the Godot drift_shelter ground (Gemini's T-7 brief: Chapter 14
     # = 22-23화). In from the south: the furrows' morning, the fields, the signal tower to the west that they go round,
     # the stumps under the ridge; then the roofless farmhouse: three high walls and a broken corner, the road from the
-    # ridge passing its open side. A night with no fire. At first light Tobias comes down the slope, and stays.
+    # ridge passing its open side. A night with no fire. In the dark Tobias comes down the slope; at first light he stays.
     'ridge_farmhouse': {
         'title': {'number': 14, 'name': 'Resonance', 'subtitle': 'The Third Person'},
         'spawn': [10 * T + 16, 16 * T + 16],

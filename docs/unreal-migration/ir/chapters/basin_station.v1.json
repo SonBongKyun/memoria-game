@@ -164,7 +164,7 @@
   ],
   "mood": 0.4,
   "saturation": 0.5,
-  "splash": "res://assets/cg/generated/chapter_splash_belt_waystation.png"
+  "splash": ""
  },
  "battles": [],
  "battles_gate": null,

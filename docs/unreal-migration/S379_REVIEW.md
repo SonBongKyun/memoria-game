@@ -107,3 +107,8 @@ Native UE 5.8.2, D3D 1280x720. Build slot taken by Opus on `TEAM-BOARD.md`.
     Each glances at Arrel only inside 150 units, then turns back. In a fight they still watch the foe.
 - The basin reuses the Belt yard's layout, so it can look like the Chapter 3 waystation without its props.
 - English lines are this port's translation.
+
+## S390: on black
+- Gemini's T-14 backdrop hunt found no picture without people, a lantern or a glow.
+- Chapter 12's splash is now empty, and the sheep pen night (`ms_basin_pen`) plays on black.
+- Mira's registry desk is unchanged: it still shows under the Lumea cutaway.

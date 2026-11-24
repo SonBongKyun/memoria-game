@@ -89,3 +89,7 @@ Native UE 5.8.2, D3D 1280x720. Build slot taken by Opus on TEAM-BOARD (Grok had 
 - The dry channel and the second farmhouse are a scene played at the north exit, not a walkable map.
 - The walls are whole-tile blocks over the collision tiles, not thin walls with a doorway.
 - English lines are this port's translation.
+
+## S390: on black
+- Gemini's T-14 backdrop hunt found no picture without people, a lantern or a glow.
+- The dusk road hangs a lit lantern, and 18화 lights no fire. So Chapter 11's splash is now empty, and its scenes play on black, as Chapters 14-15 do.
