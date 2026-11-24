@@ -66,7 +66,7 @@ Branch `claude/s366-upgrade`, on top of `b8df8e81`. Team task **T-9** on `TEAM-B
 - **Art:**
   - The market splash plays under the town scenes. Gemini rated it SAFE; it shows a busier night than 21화's thinning day, but no named people.
   - The night in the furrows plays over **the empty dusk road** (`chapter_splash_belt_waystation.png`, the farm chapter's splash). Gemini rated it RISKY: no people, but a paved station rather than grass between ruts. It is the closest picture in the game.
-  - The first render had the market splash behind the furrows too. A crowded market under "그들은 들어온 길로 나가지 않았다" was wrong, so that scene was switched.
+  - The first render had the market splash behind the furrows too. A crowded market under "들어온 길로 나가지 않았다" was wrong, so that scene was switched.
   - No CG with Malet, the Verdan gate, Tobias, an open or glowing book, or a lantern is used.
 - **HUD:**
   - Goals: "시장으로: 공동 저수지" → "셈터로: 광장 남쪽의 돌계단" → "동쪽 모퉁이의 기름 노점" → "모퉁이 안쪽 골목으로" → "동쪽 출구 → 묵은 밭".
@@ -87,3 +87,14 @@ Branch `claude/s366-upgrade`, on top of `b8df8e81`. Team task **T-9** on `TEAM-B
   - checks both toasts, the three closing flags, the last furrow line and the card;
   - 17 captures in `Saved/Validation/S382Verdan/`.
 - Results: see the commit message.
+
+## S387: Gemini's T-11 review applied
+- Review: `docs/reviews/GEMINI_T11_CH13_T7.md`.
+- **Must-fix:** "지금은 좀 자." is Arrel's. He tells Elia to sleep, then keeps watch facing north-west (21화:501-519).
+- **Restored lines** (rather than compressed into one, or written new):
+  - Arrel's "그 사내?" between Elia's "누군지 모르겠어." and "모른다고 했어." (21화:327-333);
+  - his "같아?" and her "응." (21화:489-497).
+  - The alley and the furrows each gained two rows, so the test captures moved: alley 13 → 15, furrow 26 → 28.
+- **English:** the vendor's "Went under." is now "Taken below."
+- **This file:** the quote above now reads "들어온 길로 나가지 않았다", as the manuscript has it.
+- **The dusk-road backdrop under the furrow night stays.** Gemini rated it RISKY, temporary. It hangs a lit lantern, so a picture without one is still wanted.

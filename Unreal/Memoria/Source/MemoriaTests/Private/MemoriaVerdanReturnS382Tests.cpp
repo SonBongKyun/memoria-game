@@ -62,10 +62,14 @@ bool FVerdanReturnS382Test::RunTest(const FString&)
     TestTrue(TEXT("Filed"), Has(Vendor, TEXT("Vendor"), TEXT("파일됐어.")));
     TestTrue(TEXT("Never said a name"), Has(Vendor, TEXT("Vendor"), TEXT("에디터라고 한 적 없어. ...이름도 안 했어.")));
     TestTrue(TEXT("The editor is Arrel's word"), Has(Vendor, TEXT("Arrel"), TEXT("에디터.")));
-    TestTrue(TEXT("Not here"), Has(BuildScene(GetTransientPackage(), TEXT("ms_verdan_alley"), 0), TEXT("Elia"), TEXT("여기서 확인하고 싶지 않아.")));
+    const auto* Alley = BuildScene(GetTransientPackage(), TEXT("ms_verdan_alley"), 0);
+    TestTrue(TEXT("Not here"), Has(Alley, TEXT("Elia"), TEXT("여기서 확인하고 싶지 않아.")));
+    TestTrue(TEXT("That man? (T-11)"), Has(Alley, TEXT("Arrel"), TEXT("그 사내?")) && Has(Alley, TEXT("Elia"), TEXT("모른다고 했어.")));
     const auto* Furrow = BuildScene(GetTransientPackage(), TEXT("ms_verdan_furrow"), 0);
     TestTrue(TEXT("North-west"), Has(Furrow, TEXT("Elia"), TEXT("아니. 북서쪽.")));
     TestTrue(TEXT("Something like this book"), Has(Furrow, TEXT("Elia"), TEXT("사람인지는 몰라. ...이 책 같은 게 있어.")));
+    TestTrue(TEXT("The same? (T-11)"), Has(Furrow, TEXT("Arrel"), TEXT("같아?")));
+    TestTrue(TEXT("Arrel tells her to sleep (T-11)"), Has(Furrow, TEXT("Arrel"), TEXT("지금은 좀 자.")) && !Has(Furrow, TEXT("Elia"), TEXT("지금은 좀 자.")));
     TestTrue(TEXT("The book stays shut"), Furrow && Furrow->Definition.Rows.Last().Text.NarrateKo.Contains(TEXT("책은 닫힌 채")));
     bool bRows = true, bCast = true, bFaces = true, bSableLeaves = true;
     for (const FString& G : SceneGroups())
@@ -184,7 +188,7 @@ public:
             if (Map->IsChapterComplete())
             {
                 Test->TestTrue(TEXT("The furrows close Chapter 13"), Flag(TEXT("ch13_complete")) && Flag(TEXT("canon_ch14_resonance_ready")) && Flag(TEXT("ch13_book_northwest")));
-                Test->TestTrue(TEXT("Its last line was shown"), Taken.Contains(TEXT("field:ms_verdan_furrow:26")));
+                Test->TestTrue(TEXT("Its last line was shown"), Taken.Contains(TEXT("field:ms_verdan_furrow:28")));
                 Test->TestTrue(TEXT("The card shows"), Map->GetCard() && Map->GetCard()->IsShowing());
                 ++Step; Mark = Frame;
             }
@@ -212,8 +216,8 @@ private:
         {TEXT("field:ms_verdan_farewell:11"), TEXT("S382CatchIt")}, {TEXT("field:ms_verdan_farewell:17"), TEXT("S382Gone")},
         {TEXT("field:ms_verdan_market:0"), TEXT("S382Market")}, {TEXT("field:ms_verdan_sump:2"), TEXT("S382Seal")},
         {TEXT("field:ms_verdan_vendor:9"), TEXT("S382Filed")}, {TEXT("field:ms_verdan_vendor:16"), TEXT("S382NoName")},
-        {TEXT("field:ms_verdan_alley:13"), TEXT("S382NotHere")}, {TEXT("field:ms_verdan_furrow:10"), TEXT("S382Warm")},
-        {TEXT("field:ms_verdan_furrow:14"), TEXT("S382NorthWest")}, {TEXT("field:ms_verdan_furrow:26"), TEXT("S382Closed")}};
+        {TEXT("field:ms_verdan_alley:15"), TEXT("S382NotHere")}, {TEXT("field:ms_verdan_furrow:10"), TEXT("S382Warm")},
+        {TEXT("field:ms_verdan_furrow:14"), TEXT("S382NorthWest")}, {TEXT("field:ms_verdan_furrow:28"), TEXT("S382Closed")}};
 };
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FVerdanReturnVisualTest, "MemoriaVisual.S382VerdanReturn", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
