@@ -167,6 +167,12 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S389: the dry wells (최종본 24화).
+        {TEXT("dry_wells"), TEXT("마른 우물")}, {TEXT("The Dry Wells"), TEXT("마른 우물")}, {TEXT("Two Notes"), TEXT("두 노트")},
+        {TEXT("This way."), TEXT("이쪽입니다.")}, {TEXT("Not now. I'm not doing it now."), TEXT("지금은 안 할 거야.")},
+        {TEXT("The six originals"), TEXT("여섯 원본")}, {TEXT("The Fork"), TEXT("갈림길")},
+        {TEXT("Stone stacked square for a rim, the corners worn round. No frame for a bucket. A pebble strikes the bottom, dry."),
+         TEXT("네모나게 쌓은 돌 테두리, 닳은 모서리. 두레박 틀은 없다. 자갈이 바닥을 친다. 물소리는 없다.")},
         // S385: the farmhouse under the ridge (최종본 22-23화).
         {TEXT("ridge_farmhouse"), TEXT("능선 아래 농가")}, {TEXT("The Farmhouse under the Ridge"), TEXT("능선 아래 농가")},
         {TEXT("Resonance"), TEXT("공명")}, {TEXT("The Third Person"), TEXT("세 번째 사람")}, {TEXT("Joined: Tobias"), TEXT("합류: 토비아스")},

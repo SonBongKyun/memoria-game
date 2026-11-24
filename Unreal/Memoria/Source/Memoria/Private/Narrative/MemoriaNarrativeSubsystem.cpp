@@ -592,6 +592,11 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_verdan_furrow")) Run->SetStoryFlag(TEXT("ch13_book_northwest"), true);
     // S385 (22-23화): the book warms with nobody touching it; at first light Tobias asks to come, and stays.
     if (Group == TEXT("ms_ridge_night")) Run->SetStoryFlag(TEXT("ch14_book_awake"), true);
+    // S389 (24화): the books open for the first time; six buried originals; the warmth leans toward Arcane.
+    if (Group == TEXT("ms_wells_dry")) Run->SetStoryFlag(TEXT("ch15_books_opened"), true);
+    if (Group == TEXT("ms_wells_angles") && !Run->GetRunSnapshot().GetFlag(TEXT("ch15_six_originals")))
+    { Run->SetStoryFlag(TEXT("ch15_six_originals"), true); Notice(TEXT("The six originals")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_wells_arcane")) Run->SetStoryFlag(TEXT("ch15_toward_arcane"), true);
     if (Group == TEXT("ms_ridge_third") && !Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
     { Run->SetStoryFlag(TEXT("party_tobias"), true); Notice(TEXT("Joined: Tobias")); bNoticeHeld = true; }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))
@@ -1260,6 +1265,8 @@ bool UMemoriaNarrativeSubsystem::EnterChapterMap(const FString& Map)
         if (Run->BeginStartingMemoryRun(Spec->Chapter) != EMemoriaMemoryResult::Success) return false;
         auto& Player = Run->State.Player; Player = FMemoriaPlayerState();
         Player.Hp = Player.MaxHp = 100; Player.bEliaWithParty = true;
+        // S389: from Chapter 15 on Tobias walks with them (he joined at the end of Chapter 14, 23화).
+        if (Spec->Chapter >= 15) Run->SetStoryFlag(TEXT("party_tobias"), true);
         FMemoriaItemCount Ink; Ink.Id = TEXT("witness_ink"); Ink.Count = 1; Player.Items = {Ink};
         Player.QuickSlots = {TEXT("witness_ink"), TEXT("potion"), TEXT("antidote")};
         Run->State.CurrentLocale = GetGameInstance()->GetSubsystem<UMemoriaSettingsSubsystem>()->GetLocale();

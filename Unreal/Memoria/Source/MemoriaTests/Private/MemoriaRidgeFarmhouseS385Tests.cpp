@@ -60,7 +60,7 @@ bool FRidgeFarmhouseS385Test::RunTest(const FString&)
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     const auto* Verdan = MemoriaChapterMaps::Find(VerdanReturnMap);
     TestTrue(TEXT("Verdan's road leads to the farmhouse"), Verdan && Verdan->Exit.NextMap == RidgeMap && Verdan->Exit.NextChapter == 14);
-    TestTrue(TEXT("and the farmhouse's on to Chapter 15"), Ridge->Exit.NextChapter == 15 && Ridge->Exit.Flags.Contains(TEXT("canon_ch15_two_notes_ready")));
+    TestTrue(TEXT("and the farmhouse's on to Chapter 15"), Ridge->Exit.NextChapter == 15 && Ridge->Exit.NextMap == DryWellsMap && Ridge->Exit.Flags.Contains(TEXT("canon_ch15_two_notes_ready")));
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -144,12 +144,12 @@ bool FRidgeFarmhouseS385Test::RunTest(const FString&)
         {TEXT("ch14_slope"), TEXT("목표  길 가장자리: 그가 앉은 돌")}, {TEXT("ch14_ten_years"), TEXT("목표  벽 안쪽으로: 동이 튼다")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), RidgeMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch14_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch14_")) && !FString(M.Flag).StartsWith(TEXT("ch15_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is round the tower"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 북서쪽: 신호탑을 돌아 그루터기 사이로")));
     for (const TCHAR* F : {TEXT("ch14_stumps"), TEXT("ch14_night")}) Run->SetStoryFlag(F, true);
     TestTrue(TEXT("then someone from the ridge"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 능선에서 내려온 사람")));
     Run->SetStoryFlag(TEXT("ch14_complete"), true);
-    TestTrue(TEXT("then the three of them"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 셋이서 북서쪽으로")));
+    TestTrue(TEXT("then the three of them, to the wells"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 물부터: 움푹한 땅의 우물")));
     Game->Shutdown();
     return true;
 }

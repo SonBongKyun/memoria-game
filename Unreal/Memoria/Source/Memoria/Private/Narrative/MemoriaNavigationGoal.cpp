@@ -49,6 +49,15 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::DryWellsMap && !Run.GetFlag(TEXT("ch15_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch15_blood"))) return Prefix + (bKo ? TEXT("북쪽 갈림 → 능선 너머") : TEXT("North to the fork → over the ridge"));
+        if (Run.GetFlag(TEXT("ch15_angles"))) return Prefix + (bKo ? TEXT("엘리아 곁으로") : TEXT("To Elia's side"));
+        if (Run.GetFlag(TEXT("ch15_six"))) return Prefix + (bKo ? TEXT("우물 옆 그늘: 엘리아의 각도") : TEXT("The shade by the well: Elia's angles"));
+        if (Run.GetFlag(TEXT("ch15_dry"))) return Prefix + (bKo ? TEXT("토비아스의 돌: 새 글씨") : TEXT("Tobias's stone: new writing"));
+        if (Run.GetFlag(TEXT("ch15_pasture"))) return Prefix + (bKo ? TEXT("움푹한 땅: 우물 둘") : TEXT("The hollow: two wells"));
+        if (Run.GetFlag(TEXT("ch15_bread"))) return Prefix + (bKo ? TEXT("목초지 아래로: 물을 찾아") : TEXT("Down through the pasture: water"));
+    }
     if (Map == MemoriaManuscript::RidgeMap && !Run.GetFlag(TEXT("ch14_complete")))
     {
         if (Run.GetFlag(TEXT("ch14_ten_years"))) return Prefix + (bKo ? TEXT("벽 안쪽으로: 동이 튼다") : TEXT("Inside the walls: first light"));

@@ -183,6 +183,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         3.6f, -42.f, -36.f, 1.15f, .62f, .013f, 1.6f, .52f,
         26, false, true};
     if (InMap == TEXT("ridge_farmhouse")) return Ridge;
+    // S389 The dry wells: a dry pasture past noon (24화: "정오가 지난 뒤"), wind with little to break it; warm, plain
+    // daylight; no lamps.
+    static const FDressing Wells{TEXT("T_BeltSoil"), TEXT("T_ClearingPaved"),
+        FLinearColor(1.f, .97f, .88f), FLinearColor(.07f, .062f, .048f), FLinearColor(.08f, .074f, .064f), FLinearColor(.07f, .066f, .058f),
+        FLinearColor(.06f, .045f, .03f), FLinearColor(.09f, .08f, .065f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .7f, .4f), FLinearColor(.6f, .62f, .66f), FLinearColor(.07f, .068f, .066f), FLinearColor(.9f, .88f, .82f),
+        230.f, 220.f, 0.f, 0.f,
+        4.4f, -48.f, 30.f, 1.25f, .66f, .011f, 1.6f, .46f,
+        34, false, true};
+    if (InMap == TEXT("dry_wells")) return Wells;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -850,6 +860,65 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         const FVector Window = TileCentre(11.2f, 11.f) + Ground;
         Box(Shutter, Window + FVector(0, -T * .52f, 95.f), FVector(54, 4, 38), FRotator::ZeroRotator, false);
         Box(Stone, Window + FVector(0, -T * .62f, 58.f), FVector(70, 18, 8));
+    }
+    else if (Map == TEXT("dry_wells"))
+    {
+        // S389: the two dry wells (24화): square rims of stacked stone, the corners worn, no bucket frame, dark inside;
+        // the topped poplars on the TREE tiles, thin branches grown again above the cut; field stone on the RIDGE
+        // ledges; the broad flat stone where Tobias set his book, between the wells.
+        const int32 TreeType = Spec->TileNames.IndexOfByKey(TEXT("TREE")), RidgeType = Spec->TileNames.IndexOfByKey(TEXT("RIDGE"));
+        auto* Rim = Focus(TEXT("WellStone"), FLinearColor(.14f, .13f, .115f), 0, .93f);
+        auto* Shaft = Focus(TEXT("WellShaft"), FLinearColor(.008f, .007f, .006f), 2, .95f);
+        auto* Bark = Focus(TEXT("PoplarBark"), FLinearColor(.1f, .09f, .075f), 1, .9f);
+        auto* Twig = Focus(TEXT("PoplarTwig"), FLinearColor(.07f, .075f, .05f), 1, .9f);
+        auto* Field = Focus(TEXT("FieldStone"), FLinearColor(.15f, .14f, .12f), 0, .93f);
+        auto* Far = Kit(TEXT("Drift"), FLinearColor(.86f, .84f, .72f));
+        for (const FVector2D& W : {FVector2D(6.5f, 6.5f), FVector2D(11.5f, 6.5f)})
+        {
+            const FVector C = TileCentre(W.X, W.Y) + Ground;
+            const float Half = T * .62f, Side = T * 1.38f;
+            Box(Rim, C + FVector(0, Half, 26.f), FVector(Side, 26, 52));
+            Box(Rim, C + FVector(0, -Half, 22.f), FVector(Side, 26, 44));
+            Box(Rim, C + FVector(Half, 0, 24.f), FVector(26, Side - 52, 48));
+            Box(Rim, C + FVector(-Half, 0, 25.f), FVector(26, Side - 52, 50));
+            Box(Shaft, C + FVector(0, 0, 3.f), FVector(Side - 52, Side - 52, 4), FRotator::ZeroRotator, false);
+        }
+        // The broad stone between the wells, swept of earth.
+        Box(Field, TileCentre(9.8f, 6.55f) + Ground + FVector(0, 0, 4.f), FVector(70, 46, 8), FRotator(0, 14.f, 0), false);
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const int32 Type = Spec->TileAt(X, Y);
+                const FVector C = TileCentre(X, Y) + Ground;
+                const float N = Hash(X, Y, 93);
+                if (Type == TreeType)
+                {
+                    // A thick trunk cut off at a height, thin branches grown back above the cut.
+                    const float Cut = 230.f + 70.f * N;
+                    Beam(Bark, C, C + FVector(0, 0, Cut), 17.f + 5.f * N);
+                    for (int32 I = 0; I < 6; ++I)
+                    {
+                        const float A = 60.f * I + 360.f * N, L = 110.f + 60.f * float(Scatter(I + X * 7, Y));
+                        const FVector From = C + FVector(0, 0, Cut - 6.f);
+                        Beam(Twig, From, From + FRotator(0, A, 0).RotateVector(FVector(26.f, 0, L)), 2.5f);
+                    }
+                }
+                else if (Type == RidgeType)
+                    Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), Field, C, FVector(.75f + .3f * N), FRotator(0, 360.f * N, 0));
+            }
+        // Beyond the rim: dead trees along the north and east, none along the south where the camera looks north.
+        int32 Seed = 0;
+        for (float X = -3.f; X <= Spec->Width + 3.f; X += 2.7f, ++Seed)
+        {
+            const float S = .85f + .4f * float(Scatter(Seed, 94));
+            Prop(TEXT("DeadTree"), Far, TileCentre(X + float(Scatter(Seed, 95)), -2.2f - 2.f * float(Scatter(Seed, 96))) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 97)), FVector(S, S, S * 1.1f));
+        }
+        for (float Y = 1.f; Y < Spec->Height - 4; Y += 3.4f, ++Seed)
+            for (const float X : {-2.6f, Spec->Width + 1.6f})
+            {
+                const float S = .8f + .4f * float(Scatter(Seed, 98));
+                Prop(TEXT("DeadTree"), Far, TileCentre(X + float(Scatter(Seed, 99)), Y) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 100)), FVector(S, S, S * 1.1f));
+            }
     }
     else if (Map == TEXT("ridge_farmhouse"))
     {

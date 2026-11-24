@@ -21,19 +21,21 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
 # S382: Verdan again, on the Godot verdan_market ground (not the Chapter 2 slice, L_VerdanHost, which carries Malet).
 # S385: the farmhouse under the ridge stands on the Godot drift_shelter ground: its walled slab ring, open on the
 # south, is the roofless farmhouse of three high walls (22-23화).
+# S389: the dry wells stand on the unused Godot seam_outskirts ground: its winding path through the pasture, its two
+# rock clusters either side of the path as the two wells, its crack clusters as the topped poplars (24화).
 GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation',
-          'verdan_return': 'verdan_market', 'ridge_farmhouse': 'drift_shelter'}
+          'verdan_return': 'verdan_market', 'ridge_farmhouse': 'drift_shelter', 'dry_wells': 'seam_outskirts'}
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -315,6 +317,47 @@ MANUSCRIPT = {
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
     },
+    # S389: 최종본 24화 「두 노트」 on the Godot seam_outskirts ground (Gemini's T-11 brief: Chapter 15 = 24화 alone).
+    # Down from the farmhouse (south) through the pasture and the topped poplars to a hollow with two dry wells thirty
+    # paces apart; there the two notes open for the first time. Out north, by the fork over the ridge, toward Arcane.
+    'dry_wells': {
+        'title': {'number': 15, 'name': 'Two Notes', 'subtitle': 'The Dry Wells'},
+        'spawn': [12 * T + 16, 16 * T + 16],
+        'elia_repeat': "Not now. I'm not doing it now.",
+        'sequence': [
+            {'flag': 'ch15_bread', 'group': 'ms_wells_bread', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # The pasture: Arrel ahead, Elia, Tobias last; the topped poplars; three hours; Arrel's raised hand.
+            {'rect': {'origin': [10 * T, 12 * T], 'size': [2 * T, T]}, 'group': 'ms_wells_pasture', 'flag': 'ch15_pasture', 'gate': 'ch15_bread'},
+            # Between the two dry wells: pebbles, no water; the books set close, and Tobias's opens by itself.
+            {'rect': {'origin': [8 * T, 7 * T], 'size': [3 * T, T]}, 'group': 'ms_wells_dry', 'flag': 'ch15_dry', 'gate': 'ch15_pasture'},
+            # Tobias's stone: six lines, all below ground.
+            {'rect': {'origin': [9 * T, 8 * T], 'size': [2 * T, T]}, 'group': 'ms_wells_six', 'flag': 'ch15_six', 'gate': 'ch15_dry'},
+            # Elia in the shade by the first well: six angles from a centre; the originals, asleep, listening.
+            {'rect': {'origin': [4 * T, 7 * T], 'size': [2 * T, T]}, 'group': 'ms_wells_angles', 'flag': 'ch15_angles', 'gate': 'ch15_six'},
+            # The blood under her nose; the books closed.
+            {'rect': {'origin': [4 * T, 9 * T], 'size': [2 * T, T]}, 'group': 'ms_wells_blood', 'flag': 'ch15_blood', 'gate': 'ch15_angles'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # The warmth leans back past the farmhouse, over the ridge: Arcane. Tobias leads to the fork.
+        'exit': {'center': [10 * T, 1 * T + 16], 'size': [4 * T, T], 'requires': 'ch15_blood', 'completes': 'ch15_complete',
+                 'group': 'ms_wells_arcane', 'next_chapter': 16, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch16_arcane_ready'],
+                 'notice': {'en': 'This way.', 'ko': '이쪽입니다.'}},
+        'objects_gate': 'ch15_complete',
+        'chests': [{'origin': [2 * T, 15 * T], 'flag': 'chest_wells_poplar', 'rewards': {'grains': 34, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [5 * T, 6 * T], 'flag': 'clue_wells_rim',
+                   'text': 'Stone stacked square for a rim, the corners worn round. No frame for a bucket. A pebble strikes the bottom, dry.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ch15_complete',
+        'encounters_from': 'colorless_waste',
+        'lights': [],
+        # Past noon in a dry pasture. No picture fits (Gemini T-11: none SAFE for 24화), so the scenes play on black.
+        'atmosphere': {'saturation': 0.62, 'mood': 0.3, 'hue': [0.42, 0.4, 0.36, 1.0], 'light': [0.92, 0.88, 0.78, 1.0], 'fog': 'none',
+                       'splash': ''},
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
     # S385: 최종본 22화 「공명」 and 23화 「세 번째 사람」 on the Godot drift_shelter ground (Gemini's T-7 brief: Chapter 14
     # = 22-23화). In from the south: the furrows' morning, the fields, the signal tower to the west that they go round,
     # the stumps under the ridge; then the roofless farmhouse: three high walls and a broken corner, the road from the
@@ -345,7 +388,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # First light inside the walls: names, and a third person sitting down a few steps from Elia.
         'exit': {'center': [10 * T, 9 * T + 16], 'size': [2 * T, T], 'requires': 'ch14_ten_years', 'completes': 'ch14_complete',
-                 'group': 'ms_ridge_third', 'next_chapter': 15, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_ridge_third', 'next_chapter': 15, 'next_map': 'dry_wells', 'next_scene': None,
                  'flags': ['canon_ch15_two_notes_ready'],
                  'notice': {'en': "I'd like to come with you.", 'ko': '같이 가고 싶습니다.'}},
         'objects_gate': 'ch14_complete',
@@ -448,6 +491,17 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
         for x in range(11, 21): tiles[11][x] = path  # and along the open side to the field road
         edge = ground['tile_names'].index('EDGE')
         for y in range(8, 11): tiles[y][24] = edge   # the shelter's east way out is closed: they stay the night
+        ground = dict(ground, tiles=tiles)
+    if map_id == 'dry_wells':
+        # Open pasture: the rim is field, not a wall; the crack clusters stand as topped poplars, the ledges as field
+        # stone, the other void rocks as old stones. The two rock clusters either side of the path become the wells.
+        names = {'WALL': 'EDGE', 'CRACK': 'TREE', 'LEDGE': 'RIDGE', 'VOID_ROCK': 'RUBBLE'}
+        ground = dict(ground, tile_names=[names.get(n, n) for n in ground['tile_names']] + ['WELL'],
+                      tile_defs=ground['tile_defs'] + [{'color': [0.3, 0.28, 0.25, 1.0], 'detail': 'rock'}],
+                      solid=ground['solid'] + [len(ground['tile_names'])])
+        well = len(ground['tile_names']) - 1
+        tiles = [list(r) for r in ground['tiles']]
+        for x, y in ((6, 6), (7, 6), (6, 7), (11, 6), (12, 6), (12, 7)): tiles[y][x] = well
         ground = dict(ground, tiles=tiles)
     if map_id == 'roofless_farms':
         # Open fields: the plain's rim is not a wall here (no masonry along the edge); hedges and trees stand beyond it.

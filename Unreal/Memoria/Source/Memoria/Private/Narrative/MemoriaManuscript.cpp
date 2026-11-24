@@ -142,7 +142,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch14_stumps"), TEXT("North-west: round the signal tower, through the stumps"), TEXT("북서쪽: 신호탑을 돌아 그루터기 사이로")},
         {TEXT("ch14_night"), TEXT("A night with no fire under the ridge"), TEXT("능선 아래, 불 없는 밤")},
         {TEXT("ch14_complete"), TEXT("Someone came down from the ridge"), TEXT("능선에서 내려온 사람")},
-        {TEXT("ms_never"), TEXT("On north-west, the three of them"), TEXT("셋이서 북서쪽으로")}};
+        // S389: 24화.
+        {TEXT("ch15_dry"), TEXT("Water first: the wells in the hollow"), TEXT("물부터: 움푹한 땅의 우물")},
+        {TEXT("ch15_angles"), TEXT("Two notes, open: six buried places"), TEXT("열린 두 노트: 묻힌 여섯 곳")},
+        {TEXT("ch15_complete"), TEXT("Over the ridge, toward Arcane"), TEXT("능선 너머 아르케인 쪽으로")},
+        {TEXT("ms_never"), TEXT("Arcane: the gate, and one badge for three"), TEXT("아르케인: 성문, 배지는 하나")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

@@ -1,0 +1,789 @@
+{
+ "ambient_npcs": [],
+ "ambient_npcs_gate": null,
+ "asset_prefix": "Ch15",
+ "atmosphere": {
+  "brightness": -0.05,
+  "fog": "none",
+  "hue": [
+   0.42,
+   0.4,
+   0.36,
+   1.0
+  ],
+  "light": [
+   0.92,
+   0.88,
+   0.78,
+   1.0
+  ],
+  "mood": 0.3,
+  "saturation": 0.62,
+  "splash": ""
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 15,
+ "chests": [
+  {
+   "flag": "chest_wells_poplar",
+   "origin": [
+    64.0,
+    480.0
+   ],
+   "rewards": {
+    "grains": 34,
+    "items": {
+     "antidote": 1,
+     "potion": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_wells_rim",
+   "origin": [
+    160.0,
+    192.0
+   ],
+   "text": "Stone stacked square for a rim, the corners worn round. No frame for a bucket. A pebble strikes the bottom, dry."
+  }
+ ],
+ "decorations": [],
+ "dialogue_file": "data/chapter7_dialogue.json",
+ "elia_repeat": "Not now. I'm not doing it now.",
+ "encounter_range": [
+  25,
+  55
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "drain",
+    "stun"
+   ],
+   "atk": 24,
+   "hp": 100,
+   "is_void": true,
+   "name": "Colorless Wraith"
+  },
+  {
+   "abilities": [
+    "charge",
+    "reflect"
+   ],
+   "atk": 20,
+   "hp": 85,
+   "is_void": false,
+   "name": "Depth Crawler"
+  },
+  {
+   "abilities": [
+    "drain",
+    "shield",
+    "reflect"
+   ],
+   "atk": 26,
+   "hp": 110,
+   "is_void": true,
+   "name": "Void Fragment"
+  }
+ ],
+ "encounters_gate": "ch15_complete",
+ "exit": {
+  "center": [
+   320.0,
+   48.0
+  ],
+  "completes": "ch15_complete",
+  "flags": [
+   "canon_ch16_arcane_ready"
+  ],
+  "group": "ms_wells_arcane",
+  "next_chapter": 16,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "This way.",
+   "ko": "이쪽입니다."
+  },
+  "requires": "ch15_blood",
+  "size": [
+   128.0,
+   32.0
+  ]
+ },
+ "height": 18,
+ "map": "dry_wells",
+ "objects_gate": "ch15_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch15_bread",
+   "flags": [],
+   "group": "ms_wells_bread",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  3,
+  2,
+  1,
+  5,
+  6
+ ],
+ "source": "scenes/maps/seam_outskirts.gd (ground) + 최종본 24화 (story)",
+ "spawn": [
+  400.0,
+  528.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.18,
+    0.16,
+    0.15,
+    1.0
+   ],
+   "detail": "dead_soil"
+  },
+  {
+   "color": [
+    0.1,
+    0.08,
+    0.12,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.15,
+    0.1,
+    0.18,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.08,
+    0.06,
+    0.08,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.22,
+    0.2,
+    0.18,
+    1.0
+   ],
+   "detail": "path"
+  },
+  {
+   "color": [
+    0.12,
+    0.1,
+    0.1,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.3,
+    0.28,
+    0.25,
+    1.0
+   ],
+   "detail": "rock"
+  }
+ ],
+ "tile_names": [
+  "ASH_GROUND",
+  "TREE",
+  "RUBBLE",
+  "EDGE",
+  "PATH",
+  "RIDGE",
+  "WELL"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   4,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   5,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   5,
+   3
+  ],
+  [
+   3,
+   5,
+   0,
+   0,
+   0,
+   0,
+   6,
+   6,
+   0,
+   4,
+   0,
+   6,
+   6,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   6,
+   0,
+   0,
+   4,
+   0,
+   0,
+   6,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   5,
+   0,
+   2,
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   5,
+   3
+  ],
+  [
+   3,
+   5,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   5,
+   5,
+   5,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3
+  ],
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ]
+ ],
+ "title": {
+  "name": "Two Notes",
+  "number": 15,
+  "subtitle": "The Dry Wells"
+ },
+ "triggers": [
+  {
+   "flag": "ch15_pasture",
+   "gate": "ch15_bread",
+   "group": "ms_wells_pasture",
+   "rect": {
+    "origin": [
+     320.0,
+     384.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch15_dry",
+   "gate": "ch15_pasture",
+   "group": "ms_wells_dry",
+   "rect": {
+    "origin": [
+     256.0,
+     224.0
+    ],
+    "size": [
+     96.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch15_six",
+   "gate": "ch15_dry",
+   "group": "ms_wells_six",
+   "rect": {
+    "origin": [
+     288.0,
+     256.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch15_angles",
+   "gate": "ch15_six",
+   "group": "ms_wells_angles",
+   "rect": {
+    "origin": [
+     128.0,
+     224.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch15_blood",
+   "gate": "ch15_angles",
+   "group": "ms_wells_blood",
+   "rect": {
+    "origin": [
+     128.0,
+     288.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}
