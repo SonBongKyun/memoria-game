@@ -102,7 +102,7 @@
   ],
   "group": "ms_wells_arcane",
   "next_chapter": 16,
-  "next_map": null,
+  "next_map": "arcane_city",
   "next_scene": null,
   "notice": {
    "en": "This way.",

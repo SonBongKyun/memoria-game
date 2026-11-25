@@ -21,11 +21,11 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
@@ -35,7 +35,54 @@ EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '1
 # S389: the dry wells stand on the unused Godot seam_outskirts ground: its winding path through the pasture, its two
 # rock clusters either side of the path as the two wells, its crack clusters as the topped poplars (24화).
 GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation',
-          'verdan_return': 'verdan_market', 'ridge_farmhouse': 'drift_shelter', 'dry_wells': 'seam_outskirts'}
+          'verdan_return': 'verdan_market', 'ridge_farmhouse': 'drift_shelter', 'dry_wells': 'seam_outskirts',
+          # S393: Arcane's tiles are hand-authored (HANDMADE below); verdan_market.gd only lends its tile size.
+          'arcane_city': 'verdan_market'}
+
+# S393: grounds drawn here rather than read from a Godot map. Arcane (25-29화 and on, Gemini T-14): in by the south gate,
+# the street north to the first square and its bread window (K), the road curving west behind the five confession
+# booths (B) on the second square's south side, the low bench (b) beside the third, the alley north-west to the
+# cistern (C), and the low-arched way east to the door with the brass ring (D).
+HANDMADE = {
+    'arcane_city': {
+        'legend': {'.': ('ROAD', 'road', [0.3, 0.3, 0.31, 1.0], False), 'W': ('WALL', 'wall', [0.17, 0.17, 0.18, 1.0], True),
+                   'B': ('BOOTH', 'booth', [0.32, 0.24, 0.16, 1.0], True), 'b': ('BENCH', 'bench', [0.3, 0.22, 0.15, 1.0], True),
+                   'K': ('WINDOW', 'window', [0.35, 0.26, 0.16, 1.0], True), 'C': ('CISTERN', 'cistern', [0.12, 0.16, 0.18, 1.0], True),
+                   'D': ('DOOR', 'door', [0.4, 0.3, 0.18, 1.0], True)},
+        'rows': [
+            'WWWWWWWWWWWWWWWWWWWWWWWWW',
+            'WW......WWWWDWWWWWWWWWWWW',
+            'WW.CCC.......WWWWWWWWWWWW',
+            'WW.CCC.WWWWWWWWWWWWWWWWWW',
+            'WW......WWWWWWWWWWWWWWWWW',
+            'WWWW..WWWWWWWWWWWWWWWWWWW',
+            'W..............WWWWWWWWWW',
+            'W......bb......WWWWWWWWWW',
+            'W..............WWWWWWWWWW',
+            'W.B.B.B.B.B....WWWWWWWWWW',
+            'W....................WWWW',
+            'WWWWWWWWWWWW.........WWWW',
+            'WWWWWWWWWWWW.........KWWW',
+            'WWWWWWWWWWWW.........WWWW',
+            'WWWWWWWWWWW...WWWWWWWWWWW',
+            'WWWWWWWWWWW...WWWWWWWWWWW',
+            'WWWWWWWWWWW...WWWWWWWWWWW',
+            'WWWWWWWWWWWW.WWWWWWWWWWWW',
+        ],
+    },
+}
+
+
+def handmade_ground(map_id):
+    spec = HANDMADE[map_id]
+    order = list(spec['legend'])
+    rows = spec['rows']
+    assert all(len(r) == len(rows[0]) for r in rows), 'ragged rows'
+    names = [spec['legend'][k][0] for k in order]
+    return {'width': len(rows[0]), 'height': len(rows), 'tiles': [[order.index(c) for c in r] for r in rows],
+            'tile_names': names, 'tile_defs': [{'color': spec['legend'][k][2], 'detail': spec['legend'][k][1]} for k in order],
+            'solid': [i for i, k in enumerate(order) if spec['legend'][k][3]]}
+
 
 # S371: maps whose story is the final manuscript's, not the Godot script's. The ground (tiles, colours,
 # collision, atmosphere, encounter pool) is still read from scenes/maps/<map>.gd; the arrival chain, the
@@ -319,6 +366,61 @@ MANUSCRIPT = {
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
     },
+    # S393: 최종본 25화 「고해소」 and 26화 「카이로스 주저하다」 on the hand-authored Arcane ground (Gemini's T-11 brief:
+    # Chapter 16 = 25-26화). In by the gate on Tobias's badge ("동행 둘"); the squares; the old man and the child at the
+    # third booth; Arrel burns the warmth of the hand that held his head and walks the old man to the bench; the alley,
+    # the cistern, the tower; Tobias's room. Then 26화, Kairos alone, follows them back through the booth, the gate and
+    # the relay office, and does not send the name ("미제출", "개입했나?").
+    'arcane_city': {
+        'title': {'number': 16, 'name': 'The Confessional', 'subtitle': 'Kairos Hesitates'},
+        'spawn': [12 * T + 16, 16 * T + 16],
+        'elia_repeat': "Not here. Don't open it here.",
+        'sequence': [
+            {'flag': 'ch16_gate', 'group': 'ms_arcane_gate', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # The first square and its bread window; the road curving to the second square and its five booths.
+            {'rect': {'origin': [14 * T, 12 * T], 'size': [3 * T, T]}, 'group': 'ms_arcane_squares', 'flag': 'ch16_squares', 'gate': 'ch16_gate'},
+            # Before the third booth: the old man at the door frame, the child, "셋째. 퇴실 보조."
+            {'rect': {'origin': [7 * T, 8 * T], 'size': [3 * T, T]}, 'group': 'ms_arcane_booth', 'flag': 'ch16_booth', 'gate': 'ch16_squares'},
+            # By the low bench: the burn, three steps, the old man sits.
+            {'rect': {'origin': [6 * T, 6 * T], 'size': [3 * T, T]}, 'group': 'ms_arcane_burn', 'flag': 'ch16_burn', 'gate': 'ch16_booth'},
+            # The alley north-west: his knee gives; "뭘 태웠는지 알아?"
+            {'rect': {'origin': [4 * T, 5 * T], 'size': [2 * T, T]}, 'group': 'ms_arcane_alley', 'flag': 'ch16_alley', 'gate': 'ch16_burn'},
+            # The cistern's stone wall: the tower; "여기서 태우면 탑에 남습니다."
+            {'rect': {'origin': [6 * T, 2 * T], 'size': [2 * T, T]}, 'group': 'ms_arcane_cistern', 'flag': 'ch16_cistern', 'gate': 'ch16_alley'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # The door with the brass ring: Tobias's room. Then 26화, Kairos alone, as one cutaway after another.
+        'exit': {'center': [12 * T + 16, 2 * T + 16], 'size': [T, T], 'requires': 'ch16_cistern', 'completes': 'ch16_complete',
+                 'group': 'ms_arcane_room', 'then': ['ms_kairos_report', 'ms_kairos_booth', 'ms_kairos_gate', 'ms_kairos_relay', 'ms_kairos_unsent'],
+                 'next_chapter': 17, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch17_hanna_ready'],
+                 'notice': {'en': 'Did I intervene?', 'ko': '개입했나?'}},
+        'objects_gate': 'ch16_complete',
+        'chests': [{'origin': [2 * T, 1 * T], 'flag': 'chest_arcane_cistern', 'rewards': {'grains': 36, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [11 * T, 16 * T], 'flag': 'clue_arcane_register',
+                   'text': 'The register board by the gate. Names, and numbers beside them. Under Tobias, in another hand: two.'}],
+        'resume_blocked': [],
+        # No wandering fights inside the city walls.
+        'encounters_gate': 'ms_never',
+        'lights': [],
+        # Grey noon over grey stone; the city seen from above (Gemini T-11/T-14: SAFE, nobody named, no glow).
+        'atmosphere': {'saturation': 0.42, 'mood': 0.5, 'hue': [0.36, 0.38, 0.42, 1.0], 'light': [0.74, 0.76, 0.8, 1.0], 'fog': 'none',
+                       'splash': 'res://assets/cg/generated/env_gray_belt_panorama.png'},
+        # The queue at the third booth, facing its door; four at the bread window; the clerk at the gate.
+        'ambient_npcs': [{'position': [176.0, 272.0], 'preset': 'villager_f', 'still': True, 'face': [208.0, 292.0]},
+                         {'position': [144.0, 272.0], 'preset': 'villager_m', 'still': True, 'face': [208.0, 292.0]},
+                         {'position': [112.0, 272.0], 'preset': 'elder', 'still': True, 'face': [208.0, 292.0]},
+                         {'position': [80.0, 272.0], 'preset': 'traveler', 'still': True, 'face': [208.0, 292.0]},
+                         {'position': [48.0, 272.0], 'preset': 'villager_f', 'still': True, 'face': [208.0, 292.0]},
+                         {'position': [656.0, 400.0], 'preset': 'villager_m', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [624.0, 400.0], 'preset': 'villager_f', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [592.0, 400.0], 'preset': 'elder', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [560.0, 400.0], 'preset': 'traveler', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [432.0, 496.0], 'preset': 'bureau_agent', 'still': True, 'face': [400.0, 496.0]}],
+        'ambient_npcs_gate': 'ch16_gate',
+    },
     # S389: 최종본 24화 「두 노트」 on the Godot seam_outskirts ground (Gemini's T-11 brief: Chapter 15 = 24화 alone).
     # Down from the farmhouse (south) through the pasture and the topped poplars to a hollow with two dry wells thirty
     # paces apart; there the two notes open for the first time. Out north, by the fork over the ridge, toward Arcane.
@@ -344,7 +446,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # The warmth leans back past the farmhouse, over the ridge: Arcane. Tobias leads to the fork.
         'exit': {'center': [10 * T, 1 * T + 16], 'size': [4 * T, T], 'requires': 'ch15_blood', 'completes': 'ch15_complete',
-                 'group': 'ms_wells_arcane', 'next_chapter': 16, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_wells_arcane', 'next_chapter': 16, 'next_map': 'arcane_city', 'next_scene': None,
                  'flags': ['canon_ch16_arcane_ready'],
                  'notice': {'en': 'This way.', 'ko': '이쪽입니다.'}},
         'objects_gate': 'ch15_complete',
@@ -513,7 +615,8 @@ def manuscript_map(map_id, chapter, prefix, src, ground):
     keys = ('title', 'spawn', 'elia_repeat', 'sequence', 'triggers', 'exit', 'objects_gate', 'chests', 'clues', 'battles_gate',
             'battles', 'resume_blocked', 'encounters_gate', 'ambient_npcs', 'ambient_npcs_gate')
     return dict(ground, schema_version=1, map=map_id, chapter=chapter, asset_prefix=prefix,
-                source='scenes/maps/%s.gd (ground) + 최종본 %s화 (story)' % (GROUND.get(map_id, map_id), EPISODES.get(map_id, '?')),
+                source=('hand-authored ground (export_chapter_maps.py HANDMADE)' if map_id in HANDMADE else 'scenes/maps/%s.gd (ground)' % GROUND.get(map_id, map_id))
+                + ' + 최종본 %s화 (story)' % EPISODES.get(map_id, '?'),
                 encounters=[{k: e[k] for k in ('name', 'hp', 'atk', 'is_void', 'abilities') if k in e} for e in pool],
                 encounter_range=[int(rng.group(1)), int(rng.group(2))] if rng else None,
                 decorations=lights, **{k: story[k] for k in keys})
@@ -713,6 +816,8 @@ def extract(map_id):
     if map_id in MANUSCRIPT:
         ground = {'dialogue_file': dialogue_file, 'tile_size': tile, 'width': width, 'height': height, 'tiles': tiles,
                   'tile_defs': tile_defs, 'tile_names': tile_names, 'solid': solid, 'atmosphere': atmosphere}
+        if map_id in HANDMADE:
+            ground = dict(ground, **handmade_ground(map_id))
         return manuscript_map(map_id, chapter, prefix, src, ground)
 
     def handler_effects(name):

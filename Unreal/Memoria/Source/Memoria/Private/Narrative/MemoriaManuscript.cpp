@@ -146,7 +146,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch15_dry"), TEXT("Water first: the wells in the hollow"), TEXT("물부터: 움푹한 땅의 우물")},
         {TEXT("ch15_angles"), TEXT("Two notes, open: six buried places"), TEXT("열린 두 노트: 묻힌 여섯 곳")},
         {TEXT("ch15_complete"), TEXT("Over the ridge, toward Arcane"), TEXT("능선 너머 아르케인 쪽으로")},
-        {TEXT("ms_never"), TEXT("Arcane: the gate, and one badge for three"), TEXT("아르케인: 성문, 배지는 하나")}};
+        {TEXT("ch16_gate"), TEXT("Arcane: the gate, and one badge for three"), TEXT("아르케인: 성문, 배지는 하나")},
+        // S393: 25-26화.
+        {TEXT("ch16_burn"), TEXT("The third booth: the old man and the child"), TEXT("셋째 부스: 노인과 아이")},
+        {TEXT("ch16_complete"), TEXT("Tobias's room, behind the cistern"), TEXT("저수조 뒤, 토비아스의 방")},
+        {TEXT("ms_never"), TEXT("In Tobias's room; somewhere, Kairos has not replied"), TEXT("토비아스의 방. 어딘가에서 카이로스는 회신하지 않았다")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

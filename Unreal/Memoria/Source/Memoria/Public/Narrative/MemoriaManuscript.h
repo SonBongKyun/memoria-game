@@ -62,6 +62,8 @@ namespace MemoriaManuscript
     inline const TCHAR* const RidgeMap = TEXT("ridge_farmhouse");
     // S389: Chapter 15, the dry wells (최종본 24화), on the Godot seam_outskirts ground.
     inline const TCHAR* const DryWellsMap = TEXT("dry_wells");
+    // S393: Chapter 16, Arcane (최종본 25-26화), on a hand-authored ground.
+    inline const TCHAR* const ArcaneMap = TEXT("arcane_city");
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");
     // Sable hears how much he has burned: from this many burns her "몇 달" is two, not three.
     inline constexpr int32 SableHeavyBurns = 4;

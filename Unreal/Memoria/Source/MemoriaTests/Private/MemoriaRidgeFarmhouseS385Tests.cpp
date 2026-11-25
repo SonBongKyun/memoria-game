@@ -144,7 +144,7 @@ bool FRidgeFarmhouseS385Test::RunTest(const FString&)
         {TEXT("ch14_slope"), TEXT("목표  길 가장자리: 그가 앉은 돌")}, {TEXT("ch14_ten_years"), TEXT("목표  벽 안쪽으로: 동이 튼다")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), RidgeMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch14_")) && !FString(M.Flag).StartsWith(TEXT("ch15_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch14_")) && !FString(M.Flag).StartsWith(TEXT("ch15_")) && !FString(M.Flag).StartsWith(TEXT("ch16_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is round the tower"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 북서쪽: 신호탑을 돌아 그루터기 사이로")));
     for (const TCHAR* F : {TEXT("ch14_stumps"), TEXT("ch14_night")}) Run->SetStoryFlag(F, true);
     TestTrue(TEXT("then someone from the ridge"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 능선에서 내려온 사람")));

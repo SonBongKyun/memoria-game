@@ -110,7 +110,10 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("Tobias"), TEXT("토비아스")}, {TEXT("Feren"), TEXT("페렌")}, {TEXT("Haren"), TEXT("하렌")}, {TEXT("Villager"), TEXT("마을 여자")}, {TEXT("Brown Coat"), TEXT("갈색 코트의 사내")}, {TEXT("Boy"), TEXT("소년")}, {TEXT("Vendor"), TEXT("상인")}, {TEXT("Veil"), TEXT("베일")}, {TEXT("Ashen Figure"), TEXT("잿빛 형상")}, {TEXT("Old Man"), TEXT("노인")},
         {TEXT("Nervous Trader"), TEXT("불안한 상인")}, {TEXT("Gardener"), TEXT("정원사")}, {TEXT("Handler"), TEXT("관리관")},
         {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
-        {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")}};
+        {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")},
+        // S393: Arcane (25-26화). None of them is named; none has a face.
+        {TEXT("Gate Clerk"), TEXT("성문 서기")}, {TEXT("Confessor"), TEXT("고해관")}, {TEXT("Clerk"), TEXT("서기")}, {TEXT("Child"), TEXT("아이")},
+        {TEXT("Old Man"), TEXT("노인")}, {TEXT("Man in Line"), TEXT("줄 선 사람")}, {TEXT("Messenger"), TEXT("심부름꾼")}, {TEXT("Relay Clerk"), TEXT("접수 서기")}};
     const FString* Found = Names.Find(Speaker); return Found ? *Found : Speaker;
 }
 int64 EntryChapter(const FMemoriaNarrativeMetadata& Metadata)
@@ -597,6 +600,11 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_wells_angles") && !Run->GetRunSnapshot().GetFlag(TEXT("ch15_six_originals")))
     { Run->SetStoryFlag(TEXT("ch15_six_originals"), true); Notice(TEXT("The six originals")); bNoticeHeld = true; }
     if (Group == TEXT("ms_wells_arcane")) Run->SetStoryFlag(TEXT("ch15_toward_arcane"), true);
+    // S393 (25-26화): Arrel burns the warmth of the hand that once held his head; Kairos does not send the name.
+    if (Group == TEXT("ms_arcane_burn") && !Run->GetRunSnapshot().GetFlag(TEXT("ch16_burned_hand")))
+    { Run->SetStoryFlag(TEXT("ch16_burned_hand"), true); Notice(TEXT("Burned: the hand that held his head")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_kairos_unsent") && !Run->GetRunSnapshot().GetFlag(TEXT("ch16_unsubmitted")))
+    { Run->SetStoryFlag(TEXT("ch16_unsubmitted"), true); Notice(TEXT("Kairos: unsubmitted")); bNoticeHeld = true; }
     if (Group == TEXT("ms_ridge_third") && !Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
     { Run->SetStoryFlag(TEXT("party_tobias"), true); Notice(TEXT("Joined: Tobias")); bNoticeHeld = true; }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))

@@ -60,7 +60,7 @@ FMemoriaChapterMapSpec Parse(const TCHAR* Json)
     {
         S.Exit.Rect = Rect(*E); S.Exit.Requires = Str(*E, TEXT("requires")); S.Exit.Completes = Str(*E, TEXT("completes"));
         S.Exit.Group = Str(*E, TEXT("group")); S.Exit.NextMap = Str(*E, TEXT("next_map")); S.Exit.NextChapter = (*E)->GetIntegerField(TEXT("next_chapter"));
-        S.Exit.NextScene = Str(*E, TEXT("next_scene")); S.Exit.Flags = Strings(*E, TEXT("flags"));
+        S.Exit.NextScene = Str(*E, TEXT("next_scene")); S.Exit.Flags = Strings(*E, TEXT("flags")); S.Exit.Then = Strings(*E, TEXT("then"));
         if (const Obj* N; (*E)->TryGetObjectField(TEXT("notice"), N)) { S.Exit.NoticeEn = Str(*N, TEXT("en")); S.Exit.NoticeKo = Str(*N, TEXT("ko")); }
     }
     for (const auto& V : O->GetArrayField(TEXT("triggers")))
@@ -167,6 +167,13 @@ FString Korean(const FString& En)
         // S374: Haren's clearing (최종본 13-14화).
         {TEXT("haren_clearing"), TEXT("하렌의 공터")}, {TEXT("Haren's Clearing"), TEXT("하렌의 공터")}, {TEXT("Haren Clearing"), TEXT("하렌의 공터")},
         {TEXT("This isn't memory. It's arithmetic."), TEXT("이건 기억이 아니야. 이건 산수야.")}, {TEXT("The Dry Channel"), TEXT("마른 수로")},
+        // S393: Arcane (최종본 25-26화).
+        {TEXT("arcane_city"), TEXT("아르케인")}, {TEXT("Arcane"), TEXT("아르케인")}, {TEXT("The Confessional"), TEXT("고해소")},
+        {TEXT("Kairos Hesitates"), TEXT("카이로스 주저하다")}, {TEXT("Unsubmitted"), TEXT("미제출")}, {TEXT("Did I intervene?"), TEXT("개입했나?")},
+        {TEXT("Burned: the hand that held his head"), TEXT("연소: 머리를 받쳐 주던 손")}, {TEXT("Kairos: unsubmitted"), TEXT("카이로스: 미제출")},
+        {TEXT("Not here. Don't open it here."), TEXT("여기선 펴지 마.")},
+        {TEXT("The register board by the gate. Names, and numbers beside them. Under Tobias, in another hand: two."),
+         TEXT("성문 옆의 명부 판. 이름들, 그 옆의 숫자. 토비아스 아래에 다른 필체로: 둘.")},
         // S389: the dry wells (최종본 24화).
         {TEXT("dry_wells"), TEXT("마른 우물")}, {TEXT("The Dry Wells"), TEXT("마른 우물")}, {TEXT("Two Notes"), TEXT("두 노트")},
         {TEXT("This way."), TEXT("이쪽입니다.")}, {TEXT("Not now. I'm not doing it now."), TEXT("지금은 안 할 거야.")},

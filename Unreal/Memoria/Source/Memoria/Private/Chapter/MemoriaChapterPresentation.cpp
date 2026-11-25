@@ -48,6 +48,7 @@ FString PlaceName(const FString& Map)
     if (Map == MemoriaManuscript::VerdanReturnMap) return TEXT("Verdan, Again");
     if (Map == MemoriaManuscript::RidgeMap) return TEXT("The Farmhouse under the Ridge");
     if (Map == MemoriaManuscript::DryWellsMap) return TEXT("The Dry Wells");
+    if (Map == MemoriaManuscript::ArcaneMap) return TEXT("Arcane");
     FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
 AMemoriaChapterPresentation::AMemoriaChapterPresentation()
@@ -500,7 +501,14 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
     // The departure closes the chapter: its end handler's chapter number, flags and notice, then the
     // completion card, and the road on to the next chapter map when it is ported.
-    if (bDeparting && Group == Spec->Exit.Group)
+    // S393: the exit's own group, then each of its "then" groups in turn, a beat apart; the last one closes the chapter.
+    const bool bExitChain = bDeparting && (Group == Spec->Exit.Group || Spec->Exit.Then.Contains(Group));
+    if (bExitChain)
+    {
+        const int32 Following = Group == Spec->Exit.Group ? 0 : Spec->Exit.Then.IndexOfByKey(Group) + 1;
+        if (Spec->Exit.Then.IsValidIndex(Following)) { ExitThen = Following; ExitThenAt = Clock + StepDelay; return; }
+    }
+    if (bExitChain)
     {
         bDeparting = false; bComplete = true;
         const auto& Exit = Spec->Exit;
@@ -530,6 +538,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (Where.IsEmpty() && Map == MemoriaManuscript::RidgeMap) Where = bKo ? Ko(TEXT("The Third Person")) : TEXT("The Third Person");
         // S389: the fork at the end of the pasture, over the ridge (24화).
         if (Where.IsEmpty() && Map == MemoriaManuscript::DryWellsMap) Where = bKo ? Ko(TEXT("The Fork")) : TEXT("The Fork");
+        // S393: Kairos leaves his reply unsubmitted (26화).
+        if (Where.IsEmpty() && Map == MemoriaManuscript::ArcaneMap) Where = bKo ? Ko(TEXT("Unsubmitted")) : TEXT("Unsubmitted");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));
@@ -642,6 +652,16 @@ void AMemoriaChapterPresentation::Tick(float DeltaSeconds)
         if (auto* Run = GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>()) MemoriaManuscript::EnsureAnchorBaseline(*Run);
     UpdateEncounters();
     if (StepAt >= 0.f && Clock >= StepAt) { StepAt = -1.f; StartNextStep(); }
+    if (ExitThenAt >= 0.f && Clock >= ExitThenAt && Spec->Exit.Then.IsValidIndex(ExitThen))
+    {
+        auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
+        if (Narrative && Narrative->GetState() != EMemoriaSliceState::Exploration) ExitThenAt = Clock + .3f;
+        else if (Narrative)
+        {
+            ExitThenAt = -1.f; const FString& Next = Spec->Exit.Then[ExitThen];
+            Narrative->StartChapterField(Next, MemoriaChapterMaps::GroupAsset(*Spec, Next), Spec->DialogueFile);
+        }
+    }
     if (SceneAt >= 0.f && Clock >= SceneAt)
     {
         // The story scene waits for any dialogue or menu to close.

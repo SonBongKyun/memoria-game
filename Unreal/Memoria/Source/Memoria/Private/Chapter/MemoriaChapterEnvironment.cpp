@@ -193,6 +193,15 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.4f, -48.f, 30.f, 1.25f, .66f, .011f, 1.6f, .46f,
         34, false, true};
     if (InMap == TEXT("dry_wells")) return Wells;
+    // S393 Arcane: grey stone streets at noon under a grey sky (25화); cold, even light; no lamps by day.
+    static const FDressing Arcane{TEXT("T_BeltSoil"), TEXT("T_SeamPaved"),
+        FLinearColor(.82f, .84f, .88f), FLinearColor(.06f, .062f, .066f), FLinearColor(.075f, .076f, .08f), FLinearColor(.066f, .067f, .07f),
+        FLinearColor(.05f, .042f, .034f), FLinearColor(.07f, .07f, .075f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .74f, .46f), FLinearColor(.56f, .58f, .64f), FLinearColor(.06f, .062f, .068f), FLinearColor(.8f, .82f, .86f),
+        230.f, 210.f, 0.f, 0.f,
+        3.8f, -52.f, 22.f, 1.3f, .7f, .013f, 1.2f, .5f,
+        18, false, true};
+    if (InMap == TEXT("arcane_city")) return Arcane;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -467,7 +476,8 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                     const FVector Hook = C + FVector(Side * (T * .5f - 14.f), -T * .5f - 16.f, 132.f);
                     Beam(Iron, Hook + FVector(0, 16, 14), Hook + FVector(0, 0, 14), 3.f);
                     Beam(Iron, Hook + FVector(0, 0, 14), Hook + FVector(0, 0, 7), 2.f);
-                    Lamp(Hook, 420.f, Look.LampIntensity);
+                    // S393: Arcane at noon (25화) lights no lamp by a door.
+                    if (Map != TEXT("arcane_city")) Lamp(Hook, 420.f, Look.LampIntensity);
                 }
                 continue;
             }
@@ -860,6 +870,78 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         const FVector Window = TileCentre(11.2f, 11.f) + Ground;
         Box(Shutter, Window + FVector(0, -T * .52f, 95.f), FVector(54, 4, 38), FRotator::ZeroRotator, false);
         Box(Stone, Window + FVector(0, -T * .62f, 58.f), FVector(70, 18, 8));
+    }
+    else if (Map == TEXT("arcane_city"))
+    {
+        // S393 (25화): the five one-person wooden booths on the second square's south side, a small bell on each door
+        // frame, the third standing open on its metal arm; the low bench beside them; the bread window in the first
+        // square's east wall; the cistern's stone wall with steps down to the water; the door with the brass ring;
+        // the city gate with the clerk's table and register board; the small tower inside the city, over the roofs.
+        const int32 BoothType = Spec->TileNames.IndexOfByKey(TEXT("BOOTH")), BenchType = Spec->TileNames.IndexOfByKey(TEXT("BENCH"));
+        const int32 WindowType = Spec->TileNames.IndexOfByKey(TEXT("WINDOW")), CisternType = Spec->TileNames.IndexOfByKey(TEXT("CISTERN"));
+        const int32 DoorType = Spec->TileNames.IndexOfByKey(TEXT("DOOR"));
+        auto* Plank = Focus(TEXT("BoothWood"), FLinearColor(.11f, .075f, .045f), 1, .9f);
+        auto* Gap = Focus(TEXT("BoothDark"), FLinearColor(.01f, .009f, .008f), 2, .95f);
+        auto* Brass = Focus(TEXT("Brass"), FLinearColor(.42f, .3f, .1f), 3, .35f, .9f);
+        auto* Water = Focus(TEXT("CisternWater"), FLinearColor(.04f, .06f, .07f), 2, .12f);
+        auto* Bread = Focus(TEXT("Loaf"), FLinearColor(.4f, .24f, .1f), 1, .8f);
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const int32 Type = Spec->TileAt(X, Y);
+                const FVector C = TileCentre(X, Y) + Ground;
+                const float N = Hash(X, Y, 97);
+                if (Type == BoothType)
+                {
+                    // One person sits inside. The door faces the square (north, +Y); a small bell on its frame.
+                    Box(Plank, C + FVector(0, 0, 115.f), FVector(T * .82f, T * .82f, 230.f));
+                    Box(Plank, C + FVector(0, 0, 236.f), FVector(T * .9f, T * .9f, 12.f));
+                    Box(Gap, C + FVector(0, T * .42f, 100.f), FVector(T * .5f, 4, 190.f), FRotator::ZeroRotator, false);
+                    Box(Brass, C + FVector(T * .3f, T * .44f, 200.f), FVector(9, 9, 11));
+                    // The third booth stands open: its metal arm at the height of a seated temple.
+                    if (X == 6) Beam(Iron, C + FVector(0, -T * .2f, 190.f), C + FVector(0, T * .18f, 140.f), 3.f);
+                }
+                else if (Type == BenchType)
+                {
+                    Box(Plank, C + FVector(0, 0, 42.f), FVector(T, T * .42f, 8.f));
+                    for (const float Side : {-1.f, 1.f}) Box(Plank, C + FVector(Side * T * .38f, 0, 20.f), FVector(8, T * .36f, 40.f));
+                }
+                else if (Type == WindowType)
+                {
+                    // The bread window in the wall: a dark opening, a counter, loaves on it.
+                    Box(Gap, C + FVector(-T * .5f - 1.f, 0, 120.f), FVector(4, T * .7f, 80.f), FRotator::ZeroRotator, false);
+                    Box(Plank, C + FVector(-T * .5f - 10.f, 0, 78.f), FVector(22, T * .8f, 6.f));
+                    for (int32 I = 0; I < 3; ++I) Box(Bread, C + FVector(-T * .5f - 10.f, (I - 1) * 16.f, 88.f), FVector(12, 10, 8), FRotator(0, 30.f * I, 0));
+                }
+                else if (Type == CisternType)
+                {
+                    // A broad stone wall round the water, the water low inside.
+                    Box(Stone, C + FVector(0, 0, 40.f), FVector(T, T, 80.f));
+                    Box(Water, C + FVector(0, 0, 82.f), FVector(T * .96f, T * .96f, 2.f), FRotator::ZeroRotator, false);
+                }
+                else if (Type == DoorType)
+                {
+                    // The door with the brass ring, on the face toward the alley (south, -Y).
+                    Box(Plank, C + FVector(0, -T * .5f - 3.f, 105.f), FVector(T * .62f, 6, 200.f));
+                    Box(Brass, C + FVector(T * .14f, -T * .5f - 8.f, 100.f), FVector(10, 3, 10));
+                }
+            }
+        // The steps down into the cistern, on its east side.
+        const FVector Steps = TileCentre(5.5f, 3.f) + Ground;
+        for (int32 I = 0; I < 3; ++I) Box(Stone, Steps + FVector(-I * 10.f, 0, 60.f - 18.f * I), FVector(20, T * .7f, 10));
+        // The gate: two stone piers either side of the opening and a lintel above; the clerk's table and the register board.
+        const FVector Gate = TileCentre(12.f, 17.f) + Ground;
+        for (const float Side : {-1.f, 1.f}) Box(Stone, Gate + FVector(Side * T, 0, 210.f), FVector(T * .9f, T * .9f, 420.f));
+        Box(Stone, Gate + FVector(0, 0, 440.f), FVector(T * 2.9f, T * .9f, 50.f));
+        const FVector Table = TileCentre(13.4f, 15.2f) + Ground;
+        Box(Plank, Table + FVector(0, 0, 70.f), FVector(50, 70, 6));
+        for (const float Side : {-1.f, 1.f}) Beam(Plank, Table + FVector(Side * 18.f, -26.f, 0), Table + FVector(Side * 18.f, -26.f, 68.f), 4.f);
+        Box(Plank, Table + FVector(20.f, 30.f, 60.f), FVector(4, 44, 120), FRotator(0, 0, 8));
+        // The small tower inside the city, over the roofs to the north-east.
+        const FVector Tower = TileCentre(18.5f, -2.5f) + Ground;
+        Box(Stone, Tower + FVector(0, 0, 500.f), FVector(150, 150, 1000.f));
+        Box(Stone, Tower + FVector(0, 0, 1060.f), FVector(180, 180, 40.f));
+        Beam(Iron, Tower + FVector(0, 0, 1080.f), Tower + FVector(0, 0, 1320.f), 5.f);
     }
     else if (Map == TEXT("dry_wells"))
     {

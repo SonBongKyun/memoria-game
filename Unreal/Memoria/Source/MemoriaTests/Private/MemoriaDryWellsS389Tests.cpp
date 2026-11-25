@@ -56,7 +56,7 @@ bool FDryWellsS389Test::RunTest(const FString&)
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     const auto* Ridge = MemoriaChapterMaps::Find(RidgeMap);
     TestTrue(TEXT("The farmhouse's road leads to the wells"), Ridge && Ridge->Exit.NextMap == DryWellsMap && Ridge->Exit.NextChapter == 15);
-    TestTrue(TEXT("and the wells' on to Chapter 16"), Wells->Exit.NextChapter == 16 && Wells->Exit.Flags.Contains(TEXT("canon_ch16_arcane_ready")));
+    TestTrue(TEXT("and the wells' on to Chapter 16"), Wells->Exit.NextChapter == 16 && Wells->Exit.NextMap == ArcaneMap && Wells->Exit.Flags.Contains(TEXT("canon_ch16_arcane_ready")));
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -120,7 +120,7 @@ bool FDryWellsS389Test::RunTest(const FString&)
         {TEXT("ch15_angles"), TEXT("목표  엘리아 곁으로")}, {TEXT("ch15_blood"), TEXT("목표  북쪽 갈림 → 능선 너머")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), DryWellsMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch15_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch15_")) && !FString(M.Flag).StartsWith(TEXT("ch16_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is water first"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 물부터: 움푹한 땅의 우물")));
     for (const TCHAR* F : {TEXT("ch15_dry"), TEXT("ch15_angles")}) Run->SetStoryFlag(F, true);
     TestTrue(TEXT("then over the ridge"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 능선 너머 아르케인 쪽으로")));

@@ -39,7 +39,9 @@ struct FMemoriaChapterNpc
 };
 // The exit: what opens it, the flag it closes, the departure group, and where the road goes (another
 // chapter map, or a story scene not yet ported), with the flags and bilingual notice its end handler raises.
-struct FMemoriaChapterExit { FMemoriaChapterRect Rect; FString Requires, Completes, Group, NextMap, NextScene, NoticeEn, NoticeKo; TArray<FString> Flags; int32 NextChapter = 0; };
+// S393: "then" groups play one after another after the exit's own group (26화's Kairos cutaway after 25화's room);
+// the chapter closes when the last of them ends.
+struct FMemoriaChapterExit { FMemoriaChapterRect Rect; FString Requires, Completes, Group, NextMap, NextScene, NoticeEn, NoticeKo; TArray<FString> Flags, Then; int32 NextChapter = 0; };
 struct FMemoriaChapterMapSpec
 {
     FString Map, AssetPrefix, DialogueFile, Source, TitleName, Subtitle, EliaRepeat, Splash;

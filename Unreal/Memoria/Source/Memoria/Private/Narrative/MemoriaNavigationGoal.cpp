@@ -49,6 +49,15 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::ArcaneMap && !Run.GetFlag(TEXT("ch16_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch16_cistern"))) return Prefix + (bKo ? TEXT("낮은 아치 골목 끝: 놋쇠 고리 문") : TEXT("The low-arched alley's end: the door with the brass ring"));
+        if (Run.GetFlag(TEXT("ch16_alley"))) return Prefix + (bKo ? TEXT("저수조의 돌벽으로") : TEXT("To the cistern's stone wall"));
+        if (Run.GetFlag(TEXT("ch16_burn"))) return Prefix + (bKo ? TEXT("북서쪽 골목으로") : TEXT("Into the alley north-west"));
+        if (Run.GetFlag(TEXT("ch16_booth"))) return Prefix + (bKo ? TEXT("셋째 부스 옆 낮은 벤치") : TEXT("The low bench by the third booth"));
+        if (Run.GetFlag(TEXT("ch16_squares"))) return Prefix + (bKo ? TEXT("둘째 광장: 셋째 부스") : TEXT("The second square: the third booth"));
+        if (Run.GetFlag(TEXT("ch16_gate"))) return Prefix + (bKo ? TEXT("첫 광장: 빵 창구") : TEXT("The first square: the bread window"));
+    }
     if (Map == MemoriaManuscript::DryWellsMap && !Run.GetFlag(TEXT("ch15_complete")))
     {
         if (Run.GetFlag(TEXT("ch15_blood"))) return Prefix + (bKo ? TEXT("북쪽 갈림 → 능선 너머") : TEXT("North to the fork → over the ridge"));

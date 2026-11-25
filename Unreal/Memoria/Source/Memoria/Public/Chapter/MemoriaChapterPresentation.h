@@ -85,6 +85,8 @@ private:
     FDelegateHandle FinishedHandle;
     FVector PreviousPosition = FVector::ZeroVector;
     float StepAt = -1.f, TravelAt = -1.f, SceneAt = -1.f, Clock = 0.f;
+    // S393: the next of the exit's "then" groups, and when it starts.
+    int32 ExitThen = -1; float ExitThenAt = -1.f;
     bool bComplete = false, bDeparting = false, bInExit = false;
     UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaFieldCharacterComponent>> AmbientNpcs;
     int32 DecorationCount = 0, ModelPropCount = 0;

@@ -32,7 +32,7 @@ Folder: `C:/Users/jc/Documents/Codex/MEMORIA-Unreal-Collaboration/`
 
 ## Canon (the final manuscript wins)
 - Source of truth: Notion "MEMORIA | 최종본 (KR)" (65화), with local copies in `C:/Users/jc/OneDrive/바탕 화면/메모리아/최종본/MEMORIA_KR_ChNNN_final.md`.
-- Ported so far: game chapters 6-13 = 6-21화 (see `docs/unreal-migration/S371_REVIEW.md` … `S382_REVIEW.md`).
+- Ported so far: game chapters 6-16 = 6-26화 (see `docs/unreal-migration/S371_REVIEW.md` … `S393_REVIEW.md`).
 - **Sable** is a blind old woman. No seeing verbs for her (hear, touch, know). Use only art that shows her blind.
 - **Tobias** appears from 23화 only. Reject pictures that show extra companions.
 - The brown-coat man is unnamed, with no portrait.
@@ -41,8 +41,8 @@ Folder: `C:/Users/jc/Documents/Codex/MEMORIA-Unreal-Collaboration/`
 ## Build and test (Opus and Grok)
 - Build: `"C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/Build.bat" MemoriaEditor Win64 Development "-Project=<your worktree>/Unreal/Memoria/Memoria.uproject" -WaitMutex -NoHotReloadFromIDE -MaxParallelActions=1`. A new test `.cpp` may need a second build. The first build of a new worktree takes about 10 min.
 - Tests (they do not build): `py -3 Unreal/Tools/run_s365_native.py --tests "<filters joined by +>" --evidence Unreal/Memoria/Saved/Validation/<fresh dir> --timeout N`.
-- Wide regression: `"MemoriaVisual.+Memoria.S36+Memoria.S37+Memoria.S38+Memoria.Journal+MemoriaSave.S362+Memoria.Foundation.MapInputAndModal"` (89 tests at S383).
-  - `Memoria.S38` matters: the `S37` prefix does not catch `S38x` tests. Add any new test outside these prefixes by name.
+- Wide regression: `"MemoriaVisual.+Memoria.S36+Memoria.S37+Memoria.S38+Memoria.S39+Memoria.Journal+MemoriaSave.S362+Memoria.Foundation.MapInputAndModal"` (97 tests at S393).
+  - Each `Memoria.S3x` prefix catches only its own decade: `S38` does not catch `S39x`. Add the next decade when its first test lands, and add any test outside these prefixes by name.
 - Use `py -3`. `python3` is a Store stub here.
 
 ## Gemini's review checklist

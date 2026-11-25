@@ -96,6 +96,10 @@ const TArray<FMemoriaArtworkSource>& Sources()
         // S386: Elia's face as the canon has her (23화: "은색 머리카락"; short bob, brown cloak), cut from her character sheet
         // (이미지/메모리아 삽화/Elia.png). Every Elia expression shows it; the old blond faces stay imported but unused here.
         {TEXT("res://assets/portraits/elia_face_silver_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_face_silver_v1"), false},
+        // S393 Chapter 16 (25-26화): Kairos's plain face (no sigil); Arcane from above; Kairos at his desk with the unsent report.
+        {TEXT("res://assets/portraits/kairos_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_face_neutral"), false},
+        {TEXT("res://assets/cg/generated/env_gray_belt_panorama.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_env_gray_belt_panorama"), false},
+        {TEXT("res://assets/cg/generated/ch14_unsent_incident_report.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch14_unsent_incident_report"), false},
         // S385 Chapter 14 (23화): Tobias's face, and his Arcane desk for the flashback only (the journal's import).
         {TEXT("res://assets/portraits/tobias_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_tobias_face_neutral"), false},
         {TEXT("res://assets/cg/generated/illustration_expansion_v3/world_rewrite_tobias_ink_v3.png"), TEXT("/Game/Memoria/Presentation/Journal/T_world_rewrite_tobias_ink_v3"), true},
@@ -123,7 +127,8 @@ FString PortraitSource(const FString& Key)
         {TEXT("elia_sad"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
         {TEXT("elia_worried"), TEXT("res://assets/portraits/elia_face_silver_v1.png")},
         {TEXT("kairos_cold"), TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png")},
-        {TEXT("kairos_neutral"), TEXT("res://assets/portraits/character_shots/kairos_story_v2.png")},
+        // S393: Kairos's plain face (Gemini T-11/T-14), not the sigil-lit story shot, wherever he is calm.
+        {TEXT("kairos_neutral"), TEXT("res://assets/portraits/kairos_face_neutral.png")},
         {TEXT("malet_amused"), TEXT("res://assets/portraits/malet_face_amused.png")},
         {TEXT("malet_calculating"), TEXT("res://assets/portraits/malet_face_calculating.png")},
         {TEXT("malet_deal_accepted"), TEXT("res://assets/portraits/malet_face_deal_accepted.png")},
