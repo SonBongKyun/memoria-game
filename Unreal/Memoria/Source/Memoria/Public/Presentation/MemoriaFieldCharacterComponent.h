@@ -4,6 +4,7 @@
 class UMaterialInstanceDynamic;
 class UStaticMesh;
 #include "MemoriaFieldCharacterComponent.generated.h"
+class UMaterialInterface;
 class USkeletalMeshComponent;
 class UStaticMeshComponent;
 class UPaperSprite;
@@ -103,6 +104,11 @@ private:
     bool InitializeRigged(const FString& Id);
     // T-12: the registry clerk. Reuses a townsperson rig; the coat, badge and bag are applied in code.
     bool InitializeTobias();
+    // T-18: cooked copies of the coat and hair graphs. Null until the assets exist; the looks load them.
+    UPROPERTY()
+    TObjectPtr<UMaterialInterface> EliaHairMaterial;
+    UPROPERTY()
+    TObjectPtr<UMaterialInterface> TobiasCoatMaterial;
     bool CreateSkeletal(USkeletalMesh* Mesh, UAnimSequence* Idle, UAnimSequence* WalkClip);
     UPROPERTY(Transient) TObjectPtr<UAnimSequence> ActionClip;
     FString CharacterId;

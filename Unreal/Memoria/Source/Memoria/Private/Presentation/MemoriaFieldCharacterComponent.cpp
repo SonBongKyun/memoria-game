@@ -11,6 +11,8 @@
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "UObject/ConstructorHelpers.h"
+#include "UObject/StrongObjectPtr.h"
 #if WITH_EDITOR
 #include "Materials/Material.h"
 #include "Materials/MaterialExpressionVertexColor.h"
@@ -19,7 +21,8 @@
 #include "Materials/MaterialExpressionTextureCoordinate.h"
 #include "MaterialShared.h"
 #include "ShaderCompiler.h"
-#include "UObject/StrongObjectPtr.h"
+#include "UObject/SavePackage.h"
+#include "HAL/FileManager.h"
 #include <initializer_list>
 #endif
 #include "Animation/AnimSequence.h"
@@ -137,18 +140,24 @@ bool HasRigged(const FString& Id)
         RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
 }
 FString HD(const FString& Id, const FString& Name) { return FString::Printf(TEXT("/Game/Memoria/Presentation/FieldHD/SPR_%s_%s"), *Id, *Name); }
+// Saved field looks. The graphs match the old editor-only materials, and the cooker packs these assets.
+const TCHAR* EliaHairPackageName = TEXT("/Game/Memoria/Presentation/FieldLooks/M_EliaHair");
+const TCHAR* EliaHairObjectPath = TEXT("/Game/Memoria/Presentation/FieldLooks/M_EliaHair.M_EliaHair");
+const TCHAR* TobiasCoatPackageName = TEXT("/Game/Memoria/Presentation/FieldLooks/M_TobiasCoat");
+const TCHAR* TobiasCoatObjectPath = TEXT("/Game/Memoria/Presentation/FieldLooks/M_TobiasCoat.M_TobiasCoat");
 #if WITH_EDITOR
-// M_NaturalHuman has no tint parameter. This copy keeps its vertex-color person and recolours only cloth.
-UMaterial* TobiasCoat()
+// M_NaturalHuman and M_HeroFinish have no tint parameter. These saved copies keep the vertex-color
+// person and recolour only cloth (coat) or the hair band (vertex alpha .10–.35).
+bool SaveFieldLook(const TCHAR* PackageName, bool bHair)
 {
-    static TStrongObjectPtr<UMaterial> Held;
-    static bool bAttempted = false;
-    if (bAttempted) return Held.Get();
-    bAttempted = true;
-    UMaterial* Surface = NewObject<UMaterial>(GetTransientPackage(), TEXT("M_TobiasCoat"), RF_Transient);
-    if (!Surface) return nullptr;
+    UPackage* Package = CreatePackage(PackageName);
+    if (!Package) return false;
+    const FString AssetName = FPaths::GetBaseFilename(PackageName);
+    UMaterial* Surface = NewObject<UMaterial>(Package, *AssetName, RF_Public | RF_Standalone);
+    if (!Surface) return false;
     Surface->SetShadingModel(MSM_DefaultLit);
     Surface->SetUsageByFlag(MATUSAGE_SkeletalMesh, true);
+    if (bHair) Surface->SetUsageByFlag(MATUSAGE_MorphTargets, true);
     Surface->TwoSided = true;
     auto* Regions = NewObject<UMaterialExpressionVertexColor>(Surface);
     auto* UV = NewObject<UMaterialExpressionTextureCoordinate>(Surface);
@@ -173,9 +182,21 @@ UMaterial* TobiasCoat()
         }
         return Node;
     };
-    auto* Color = AddCustom(TEXT("float cloth=1-step(.10,abs(Category-.75));float weave=1-cloth*.035*(.5+.5*sin(UV.x*447)*sin(UV.y*393));float3 ink=float3(0.10,0.075,0.055);return lerp(C.rgb,ink,cloth)*weave;"), CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("Category"), Category}, {TEXT("UV"), UV}});
-    auto* Rough = AddCustom(TEXT("return Category>.92?.40:(Category<.12?.66:(Category<.62?.73:.89));"), CMOT_Float1, {{TEXT("Category"), Category}});
-    auto* Spec = AddCustom(TEXT("return Category<.12?.28:(Category>.92?.48:.20);"), CMOT_Float1, {{TEXT("Category"), Category}});
+    UMaterialExpressionCustom* Color = nullptr;
+    UMaterialExpressionCustom* Rough = nullptr;
+    UMaterialExpressionCustom* Spec = nullptr;
+    if (bHair)
+    {
+        Color = AddCustom(TEXT("float hair=step(.10,A)*(1-step(.35,A));float3 silver=float3(0.80,0.82,0.84);return lerp(C.rgb,silver,hair);"), CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("A"), Category}});
+        Rough = AddCustom(TEXT("return A<.1?.59:(A<.35?.43:(A<.65?.82:(A<.9?.32:.18)));"), CMOT_Float1, {{TEXT("A"), Category}});
+        Spec = AddCustom(TEXT("return A<.1?.25:(A<.35?.30:(A<.65?.22:.48));"), CMOT_Float1, {{TEXT("A"), Category}});
+    }
+    else
+    {
+        Color = AddCustom(TEXT("float cloth=1-step(.10,abs(Category-.75));float weave=1-cloth*.035*(.5+.5*sin(UV.x*447)*sin(UV.y*393));float3 ink=float3(0.10,0.075,0.055);return lerp(C.rgb,ink,cloth)*weave;"), CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("Category"), Category}, {TEXT("UV"), UV}});
+        Rough = AddCustom(TEXT("return Category>.92?.40:(Category<.12?.66:(Category<.62?.73:.89));"), CMOT_Float1, {{TEXT("Category"), Category}});
+        Spec = AddCustom(TEXT("return Category<.12?.28:(Category>.92?.48:.20);"), CMOT_Float1, {{TEXT("Category"), Category}});
+    }
     if (UMaterialEditorOnlyData* Editor = Surface->GetEditorOnlyData())
     {
         Editor->BaseColor.Connect(0, Color);
@@ -185,65 +206,42 @@ UMaterial* TobiasCoat()
     Surface->PostEditChange();
     if (GShaderCompilingManager) GShaderCompilingManager->FinishAllCompilation();
     const FMaterialResource* Resource = Surface->GetMaterialResource(GMaxRHIShaderPlatform);
-    if (!Resource || Resource->GetCompileErrors().Num()) return nullptr;
-    Held.Reset(Surface);
-    return Surface;
-}
-// M_HeroFinish keeps the hair band (vertex alpha .10–.35) as the painted blonde. This copy
-// turns only that band silver. Face, lids and cloth stay on their vertex color. Editor only,
-// same as the coat: a packaged build keeps the authored hair pigment.
-UMaterial* EliaHair()
-{
-    static TStrongObjectPtr<UMaterial> Held;
-    static bool bAttempted = false;
-    if (bAttempted) return Held.Get();
-    bAttempted = true;
-    UMaterial* Surface = NewObject<UMaterial>(GetTransientPackage(), TEXT("M_EliaHair"), RF_Transient);
-    if (!Surface) return nullptr;
-    Surface->SetShadingModel(MSM_DefaultLit);
-    Surface->SetUsageByFlag(MATUSAGE_SkeletalMesh, true);
-    Surface->SetUsageByFlag(MATUSAGE_MorphTargets, true);
-    Surface->TwoSided = true;
-    auto* Regions = NewObject<UMaterialExpressionVertexColor>(Surface);
-    auto* UV = NewObject<UMaterialExpressionTextureCoordinate>(Surface);
-    auto* Category = NewObject<UMaterialExpressionComponentMask>(Surface);
-    Surface->GetExpressionCollection().AddExpression(Regions);
-    Surface->GetExpressionCollection().AddExpression(UV);
-    Surface->GetExpressionCollection().AddExpression(Category);
-    Category->Input.Connect(4, Regions);
-    Category->R = true;
-    auto AddCustom = [&](const FString& Code, ECustomMaterialOutputType Type, std::initializer_list<TPair<FName, UMaterialExpression*>> Inputs)
-    {
-        auto* Node = NewObject<UMaterialExpressionCustom>(Surface);
-        Surface->GetExpressionCollection().AddExpression(Node);
-        Node->Code = Code;
-        Node->OutputType = Type;
-        for (const TPair<FName, UMaterialExpression*>& Pair : Inputs)
-        {
-            FCustomInput Input;
-            Input.InputName = Pair.Key;
-            Input.Input.Connect(0, Pair.Value);
-            Node->Inputs.Add(Input);
-        }
-        return Node;
-    };
-    auto* Color = AddCustom(TEXT("float hair=step(.10,A)*(1-step(.35,A));float3 silver=float3(0.80,0.82,0.84);return lerp(C.rgb,silver,hair);"), CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("A"), Category}});
-    auto* Rough = AddCustom(TEXT("return A<.1?.59:(A<.35?.43:(A<.65?.82:(A<.9?.32:.18)));"), CMOT_Float1, {{TEXT("A"), Category}});
-    auto* Spec = AddCustom(TEXT("return A<.1?.25:(A<.35?.30:(A<.65?.22:.48));"), CMOT_Float1, {{TEXT("A"), Category}});
-    if (UMaterialEditorOnlyData* Editor = Surface->GetEditorOnlyData())
-    {
-        Editor->BaseColor.Connect(0, Color);
-        Editor->Roughness.Connect(0, Rough);
-        Editor->Specular.Connect(0, Spec);
-    }
-    Surface->PostEditChange();
-    if (GShaderCompilingManager) GShaderCompilingManager->FinishAllCompilation();
-    const FMaterialResource* Resource = Surface->GetMaterialResource(GMaxRHIShaderPlatform);
-    if (!Resource || Resource->GetCompileErrors().Num()) return nullptr;
-    Held.Reset(Surface);
-    return Surface;
+    if (!Resource || Resource->GetCompileErrors().Num()) return false;
+    const FString File = FPackageName::LongPackageNameToFilename(PackageName, FPackageName::GetAssetPackageExtension());
+    IFileManager::Get().MakeDirectory(*FPaths::GetPath(File), true);
+    FSavePackageArgs Args;
+    Args.TopLevelFlags = RF_Public | RF_Standalone;
+    Args.SaveFlags = SAVE_NoError;
+    return UPackage::SavePackage(Package, Surface, *File, Args);
 }
 #endif
+UMaterialInterface* FieldLook(const TCHAR* PackageName, const TCHAR* ObjectPath, bool bHair)
+{
+    static TStrongObjectPtr<UMaterialInterface> HairHeld;
+    static TStrongObjectPtr<UMaterialInterface> CoatHeld;
+    TStrongObjectPtr<UMaterialInterface>& Held = bHair ? HairHeld : CoatHeld;
+    if (Held.IsValid()) return Held.Get();
+#if WITH_EDITOR
+    // Cook is a commandlet. It must load the assets already on disk, not author new ones.
+    if (!IsRunningCommandlet() && !FPackageName::DoesPackageExist(PackageName))
+    {
+        static bool bTriedHair = false;
+        static bool bTriedCoat = false;
+        bool& bTried = bHair ? bTriedHair : bTriedCoat;
+        if (!bTried)
+        {
+            bTried = true;
+            SaveFieldLook(PackageName, bHair);
+        }
+    }
+#endif
+    if (UMaterialInterface* Loaded = LoadObject<UMaterialInterface>(nullptr, ObjectPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+    {
+        Held.Reset(Loaded);
+        return Loaded;
+    }
+    return nullptr;
+}
 // The confession seal is a thin plate on the coat, not a box held in front of the chest.
 // X is forward in the imported frame. The engine cube is 100cm, so scale X .012 is 1.2cm thick.
 FVector TobiasBadgeOffset(USkeletalMeshComponent* Skeletal, FName Bone)
@@ -277,6 +275,11 @@ UMemoriaFieldCharacterComponent::UMemoriaFieldCharacterComponent()
 {
     PrimaryComponentTick.bCanEverTick = true; PrimaryComponentTick.TickGroup = TG_PostPhysics;
     Walk.SetNum(0);
+    // Hard references so the cooker packs the saved looks. Quiet when the editor has not written them yet.
+    ConstructorHelpers::FObjectFinderOptional<UMaterialInterface> Hair(EliaHairObjectPath, LOAD_Quiet | LOAD_NoWarn);
+    ConstructorHelpers::FObjectFinderOptional<UMaterialInterface> Coat(TobiasCoatObjectPath, LOAD_Quiet | LOAD_NoWarn);
+    EliaHairMaterial = Hair.Get();
+    TobiasCoatMaterial = Coat.Get();
 }
 FString UMemoriaFieldCharacterComponent::DescribeArt(const FString& Id)
 {
@@ -590,9 +593,9 @@ bool UMemoriaFieldCharacterComponent::InitializeTobias()
     Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
     // The bureau mesh has one M_NaturalHuman slot: vertex color is the person, and alpha near 0.75 is cloth.
     // A flat FieldFoe instance would erase the face. Recolour only that cloth. No weapon and no lantern.
-#if WITH_EDITOR
-    if (UMaterial* Coat = TobiasCoat())
+    if (UMaterialInterface* Coat = FieldLook(TobiasCoatPackageName, TobiasCoatObjectPath, false))
     {
+        TobiasCoatMaterial = Coat;
         const TArray<FSkeletalMaterial>& Slots = Skeletal->GetSkeletalMeshAsset()->GetMaterials();
         for (int32 Index = 0; Index < Slots.Num() && Index < Skeletal->GetNumMaterials(); ++Index)
         {
@@ -601,7 +604,6 @@ bool UMemoriaFieldCharacterComponent::InitializeTobias()
             Skeletal->SetMaterial(Index, Coat);
         }
     }
-#endif
     auto* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"), nullptr, LOAD_NoWarn | LOAD_Quiet);
     auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"), nullptr, LOAD_NoWarn | LOAD_Quiet);
     auto Kit = [&](const TCHAR* Name, const FVector& Offset, const FVector& Scale, const FLinearColor& Ink)
@@ -667,9 +669,9 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
     else if (Id == TEXT("elia"))
     {
         // 23화: silver hair, and she does not carry a staff. The face and cloak stay on their own slots.
-#if WITH_EDITOR
-        if (UMaterial* Hair = EliaHair())
+        if (UMaterialInterface* Hair = FieldLook(EliaHairPackageName, EliaHairObjectPath, true))
         {
+            EliaHairMaterial = Hair;
             const TArray<FSkeletalMaterial>& Slots = Skeletal->GetSkeletalMeshAsset()->GetMaterials();
             for (int32 Index = 0; Index < Slots.Num() && Index < Skeletal->GetNumMaterials(); ++Index)
             {
@@ -680,7 +682,6 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
                     Skeletal->SetMaterial(Index, Hair);
             }
         }
-#endif
     }
     else if (Id == TEXT("malet"))
     {
