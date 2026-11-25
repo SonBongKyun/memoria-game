@@ -297,10 +297,13 @@ class FHeroS361Replay final : public IAutomationLatentCommand
             TArray<UStaticMeshComponent*> Parts; Actor->GetComponents(Parts);
             for (auto* Part : Parts)
                 if (Part->GetStaticMesh() && Part->GetStaticMesh()->GetName() == TEXT("SM_Elia_staff")) Grip = Part;
-            Test->TestTrue(TEXT("S361 Elia retains her listed staff prop"), F->GetPropCount() > 0);
+            // S388 (T-15): the manuscript gives Elia no staff (the only 지팡이, from 40화, is Arrel's). She holds nothing.
+            Test->TestEqual(TEXT("S388 Elia carries no staff"), F->GetPropCount(), 0);
+            Test->TestFalse(TEXT("S388 and no staff mesh is attached"), Grip.IsValid());
         }
-        if (!Test->TestTrue(TEXT("S361 hero grip prop exists"), Grip.IsValid())) return false;
-        GripRelative = Grip->GetRelativeTransform();
+        // Only Arrel holds something now: his sword.
+        if (Hero == 0 && !Test->TestTrue(TEXT("S361 hero grip prop exists"), Grip.IsValid())) return false;
+        if (Grip.IsValid()) GripRelative = Grip->GetRelativeTransform();
         MaxGripError = MaxGripDistance = 0.f; GripSamples = WalkSamples = 0; bHandMoved = false;
         LastGaitPhase = F->GaitPhase();
         Skin->TickAnimation(0.f, false); Skin->RefreshBoneTransforms();
@@ -313,6 +316,7 @@ class FHeroS361Replay final : public IAutomationLatentCommand
     void CheckGrip(const TCHAR* Pose)
     {
         auto* Skin = Figure->GetSkeletalMesh();
+        if (Hero != 0) return;   // S388: Elia holds no staff, so there is no grip to follow.
         if (!Test->TestTrue(TEXT("S361 grip remains attached to the live hero"), Grip.IsValid())) return;
         const FName Hand = Hero == 0 ? TEXT("hand_r") : TEXT("hand_l");
         const FTransform Bone = Skin->GetSocketTransform(Hand, RTS_World);
@@ -482,7 +486,7 @@ public:
                     {
                         if (I == 2) Capture(TEXT("BlockProfile"));
                         Test->AddInfo(FString::Printf(TEXT("S361_BLOCK_POSE %s sample=%d clip=%s sword_origin=%s hand=%s"),
-                            *Name(), I, *GetNameSafe(Figure->GetActionClip()), *Grip->GetComponentLocation().ToString(),
+                            *Name(), I, *GetNameSafe(Figure->GetActionClip()), Grip.IsValid() ? *Grip->GetComponentLocation().ToString() : TEXT("none"),
                             *Skin->GetSocketLocation(TEXT("hand_r")).ToString()));
                     }
                 }

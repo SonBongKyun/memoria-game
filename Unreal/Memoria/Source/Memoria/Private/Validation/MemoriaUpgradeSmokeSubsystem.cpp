@@ -1027,7 +1027,8 @@ struct FMemoriaUpgradeSmokeState
         }
         const auto* Run = World.GetGameInstance()->GetSubsystem<UMemoriaRunSubsystem>();
         if (!Check(!Run->GetRunSnapshot().Player.bEliaWithParty || EliaFigures > 0, Map + TEXT(": party Elia has a visible rigged runtime figure"))) return false;
-        if (!Check(EliaFigures == 0 || BoundEliaStaffs >= EliaFigures, Map + TEXT(": actual party Elia binds the cooked R5 staff"))) return false;
+        // S388 (T-15): the canon gives Elia no staff; the cooked R5 staff stays in the package but no figure binds it.
+        if (!Check(BoundEliaStaffs == 0, Map + TEXT(": actual party Elia carries no staff"))) return false;
         TInlineComponentArray<UInstancedStaticMeshComponent*> Batches; Owner->GetComponents(Batches);
         TSet<UMaterialInstanceDynamic*> Materials; int32 Instances = 0, AtlasBindings = 0;
         for (auto* Batch : Batches)
