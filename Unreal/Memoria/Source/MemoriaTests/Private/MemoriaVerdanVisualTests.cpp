@@ -498,7 +498,7 @@ public:
             {
                 It->SetActorHiddenInGame(false);
                 auto* Elia = It->FindComponentByClass<UMemoriaFieldCharacterComponent>();
-                Test->TestTrue(TEXT("Elia rig and staff are active"), Elia && Elia->IsRigged() && Elia->GetPropCount() == 1);
+                Test->TestTrue(TEXT("Elia rig is active and she carries no staff"), Elia && Elia->IsRigged() && Elia->GetPropCount() == 0);
                 if (Elia)
                 {
                     CheckMemoriaNamedFigureS356(Test,TEXT("Elia"),Elia->GetSkeletalMesh());

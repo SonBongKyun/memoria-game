@@ -27,6 +27,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
+#include "SkeletalRenderPublic.h"
 #include "PaperSprite.h"
 #include "PaperSpriteComponent.h"
 #include "Engine/Texture2D.h"
@@ -188,7 +189,89 @@ UMaterial* TobiasCoat()
     Held.Reset(Surface);
     return Surface;
 }
+// M_HeroFinish keeps the hair band (vertex alpha .10–.35) as the painted blonde. This copy
+// turns only that band silver. Face, lids and cloth stay on their vertex color. Editor only,
+// same as the coat: a packaged build keeps the authored hair pigment.
+UMaterial* EliaHair()
+{
+    static TStrongObjectPtr<UMaterial> Held;
+    static bool bAttempted = false;
+    if (bAttempted) return Held.Get();
+    bAttempted = true;
+    UMaterial* Surface = NewObject<UMaterial>(GetTransientPackage(), TEXT("M_EliaHair"), RF_Transient);
+    if (!Surface) return nullptr;
+    Surface->SetShadingModel(MSM_DefaultLit);
+    Surface->SetUsageByFlag(MATUSAGE_SkeletalMesh, true);
+    Surface->SetUsageByFlag(MATUSAGE_MorphTargets, true);
+    Surface->TwoSided = true;
+    auto* Regions = NewObject<UMaterialExpressionVertexColor>(Surface);
+    auto* UV = NewObject<UMaterialExpressionTextureCoordinate>(Surface);
+    auto* Category = NewObject<UMaterialExpressionComponentMask>(Surface);
+    Surface->GetExpressionCollection().AddExpression(Regions);
+    Surface->GetExpressionCollection().AddExpression(UV);
+    Surface->GetExpressionCollection().AddExpression(Category);
+    Category->Input.Connect(4, Regions);
+    Category->R = true;
+    auto AddCustom = [&](const FString& Code, ECustomMaterialOutputType Type, std::initializer_list<TPair<FName, UMaterialExpression*>> Inputs)
+    {
+        auto* Node = NewObject<UMaterialExpressionCustom>(Surface);
+        Surface->GetExpressionCollection().AddExpression(Node);
+        Node->Code = Code;
+        Node->OutputType = Type;
+        for (const TPair<FName, UMaterialExpression*>& Pair : Inputs)
+        {
+            FCustomInput Input;
+            Input.InputName = Pair.Key;
+            Input.Input.Connect(0, Pair.Value);
+            Node->Inputs.Add(Input);
+        }
+        return Node;
+    };
+    auto* Color = AddCustom(TEXT("float hair=step(.10,A)*(1-step(.35,A));float3 silver=float3(0.80,0.82,0.84);return lerp(C.rgb,silver,hair);"), CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("A"), Category}});
+    auto* Rough = AddCustom(TEXT("return A<.1?.59:(A<.35?.43:(A<.65?.82:(A<.9?.32:.18)));"), CMOT_Float1, {{TEXT("A"), Category}});
+    auto* Spec = AddCustom(TEXT("return A<.1?.25:(A<.35?.30:(A<.65?.22:.48));"), CMOT_Float1, {{TEXT("A"), Category}});
+    if (UMaterialEditorOnlyData* Editor = Surface->GetEditorOnlyData())
+    {
+        Editor->BaseColor.Connect(0, Color);
+        Editor->Roughness.Connect(0, Rough);
+        Editor->Specular.Connect(0, Spec);
+    }
+    Surface->PostEditChange();
+    if (GShaderCompilingManager) GShaderCompilingManager->FinishAllCompilation();
+    const FMaterialResource* Resource = Surface->GetMaterialResource(GMaxRHIShaderPlatform);
+    if (!Resource || Resource->GetCompileErrors().Num()) return nullptr;
+    Held.Reset(Surface);
+    return Surface;
+}
 #endif
+// The confession seal is a thin plate on the coat, not a box held in front of the chest.
+// X is forward in the imported frame. The engine cube is 100cm, so scale X .012 is 1.2cm thick.
+FVector TobiasBadgeOffset(USkeletalMeshComponent* Skeletal, FName Bone)
+{
+    const FVector Fallback(11.f, 0.f, 8.f);
+    if (!Skeletal || Bone.IsNone()) return Fallback;
+    const FVector Origin = Skeletal->GetSocketTransform(Bone, RTS_Component).GetLocation();
+    TArray<FFinalSkinVertex> Vertices;
+    Skeletal->GetCPUSkinnedVertices(Vertices, 0);
+    float MaxForward = -1.e9f;
+    FVector Sum = FVector::ZeroVector;
+    int32 Count = 0;
+    for (const FFinalSkinVertex& Vertex : Vertices)
+    {
+        const FVector P(Vertex.Position.X, Vertex.Position.Y, Vertex.Position.Z);
+        if (P.X < Origin.X - 1.f) continue;
+        if (FMath::Abs(P.Y - Origin.Y) > 12.f) continue;
+        if (P.Z < Origin.Z - 4.f || P.Z > Origin.Z + 18.f) continue;
+        MaxForward = FMath::Max(MaxForward, P.X);
+        Sum += P;
+        ++Count;
+    }
+    if (Count < 12) return Fallback;
+    const FVector Center = Sum / static_cast<float>(Count);
+    constexpr float HalfThickness = 0.6f;
+    constexpr float Clearance = 0.25f;
+    return FVector(MaxForward + HalfThickness + Clearance - Origin.X, Center.Y - Origin.Y, Center.Z - Origin.Z);
+}
 }
 UMemoriaFieldCharacterComponent::UMemoriaFieldCharacterComponent()
 {
@@ -543,8 +626,15 @@ bool UMemoriaFieldCharacterComponent::InitializeTobias()
         }
         Part->RegisterComponent(); Props.Add(Part);
     };
-    // The chest surface sits well in front of spine_03, so the seal has to clear the coat. The bag stays on the back.
-    Kit(TEXT("TobiasBadge"), FVector(24.f, 4.f, 12.f), FVector(0.11f, 0.09f, 0.028f), FLinearColor(0.82f, 0.78f, 0.68f));
+    // A thin plate on the coat, parented to the same chest bone the kit attaches to. The bag stays on the back.
+    FName Chest = NAME_None;
+    if (Skeletal->GetSkeletalMeshAsset())
+    {
+        const auto& ChestRef = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
+        for (const TCHAR* Candidate : {TEXT("spine_03"), TEXT("spine_02"), TEXT("spine_01"), TEXT("pelvis")})
+            if (ChestRef.FindBoneIndex(Candidate) != INDEX_NONE) { Chest = Candidate; break; }
+    }
+    Kit(TEXT("TobiasBadge"), TobiasBadgeOffset(Skeletal, Chest), FVector(0.012f, 0.05f, 0.065f), FLinearColor(0.86f, 0.84f, 0.76f));
     Kit(TEXT("TobiasBag"), FVector(-16.f, 0.f, 4.f), FVector(0.15f, 0.18f, 0.24f), FLinearColor(0.15f, 0.10f, 0.06f));
     Kit(TEXT("TobiasStrap"), FVector(-14.f, 0.f, 18.f), FVector(0.035f, 0.20f, 0.045f), FLinearColor(0.11f, 0.08f, 0.05f));
     bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
@@ -574,7 +664,24 @@ bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
         }
         else { Scabbard->SetHiddenInGame(true); Blade->SetHiddenInGame(true); }
     }
-    else if (Id == TEXT("elia")) AttachProp(Id, TEXT("staff"), TEXT("hand_l"), FVector(0, 0, -2));
+    else if (Id == TEXT("elia"))
+    {
+        // 23화: silver hair, and she does not carry a staff. The face and cloak stay on their own slots.
+#if WITH_EDITOR
+        if (UMaterial* Hair = EliaHair())
+        {
+            const TArray<FSkeletalMaterial>& Slots = Skeletal->GetSkeletalMeshAsset()->GetMaterials();
+            for (int32 Index = 0; Index < Slots.Num() && Index < Skeletal->GetNumMaterials(); ++Index)
+            {
+                const UMaterialInterface* Current = Skeletal->GetMaterial(Index);
+                const FString Name = Slots[Index].MaterialSlotName.ToString() + Slots[Index].ImportedMaterialSlotName.ToString() + GetNameSafe(Current);
+                if (Name.Contains(TEXT("EliaSkin")) || Name.Contains(TEXT("Face")) || Name.Contains(TEXT("Eye"))) continue;
+                if (Name.Contains(TEXT("HeroFinish")) || Name.Contains(TEXT("Hair")))
+                    Skeletal->SetMaterial(Index, Hair);
+            }
+        }
+#endif
+    }
     else if (Id == TEXT("malet"))
     {
         AttachProp(Id, TEXT("ledger"), TEXT("hand_r"), FVector(3, 0, -3));
