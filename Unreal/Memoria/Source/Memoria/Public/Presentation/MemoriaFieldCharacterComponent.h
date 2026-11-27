@@ -104,11 +104,16 @@ private:
     bool InitializeRigged(const FString& Id);
     // T-12: the registry clerk. Reuses a townsperson rig; the coat, badge and bag are applied in code.
     bool InitializeTobias();
+    // T-21: Hanna. Reuses a townsperson rig; the grey coat, white streaks, hat and bag are applied in code.
+    bool InitializeHanna();
     // T-18: cooked copies of the coat and hair graphs. Null until the assets exist; the looks load them.
+    // T-21: Hanna's combined look. One slot on the donor, so coat and hair share this asset.
     UPROPERTY()
     TObjectPtr<UMaterialInterface> EliaHairMaterial;
     UPROPERTY()
     TObjectPtr<UMaterialInterface> TobiasCoatMaterial;
+    UPROPERTY()
+    TObjectPtr<UMaterialInterface> HannaLookMaterial;
     bool CreateSkeletal(USkeletalMesh* Mesh, UAnimSequence* Idle, UAnimSequence* WalkClip);
     UPROPERTY(Transient) TObjectPtr<UAnimSequence> ActionClip;
     FString CharacterId;

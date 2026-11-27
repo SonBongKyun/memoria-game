@@ -19,6 +19,8 @@
 #include "Materials/MaterialExpressionComponentMask.h"
 #include "Materials/MaterialExpressionCustom.h"
 #include "Materials/MaterialExpressionTextureCoordinate.h"
+#include "Materials/MaterialExpressionWorldPosition.h"
+#include "Materials/MaterialExpressionTransformPosition.h"
 #include "MaterialShared.h"
 #include "ShaderCompiler.h"
 #include "UObject/SavePackage.h"
@@ -37,6 +39,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Misc/Paths.h"
 #include "Misc/PackageName.h"
+#include <initializer_list>
 namespace
 {
 const TCHAR* Directions[4] = {TEXT("Down"), TEXT("Up"), TEXT("Left"), TEXT("Right")};
@@ -145,6 +148,8 @@ const TCHAR* EliaHairPackageName = TEXT("/Game/Memoria/Presentation/FieldLooks/M
 const TCHAR* EliaHairObjectPath = TEXT("/Game/Memoria/Presentation/FieldLooks/M_EliaHair.M_EliaHair");
 const TCHAR* TobiasCoatPackageName = TEXT("/Game/Memoria/Presentation/FieldLooks/M_TobiasCoat");
 const TCHAR* TobiasCoatObjectPath = TEXT("/Game/Memoria/Presentation/FieldLooks/M_TobiasCoat.M_TobiasCoat");
+const TCHAR* HannaLookPackageName = TEXT("/Game/Memoria/Presentation/FieldLooks/M_HannaLook");
+const TCHAR* HannaLookObjectPath = TEXT("/Game/Memoria/Presentation/FieldLooks/M_HannaLook.M_HannaLook");
 #if WITH_EDITOR
 // M_NaturalHuman and M_HeroFinish have no tint parameter. These saved copies keep the vertex-color
 // person and recolour only cloth (coat) or the hair band (vertex alpha .10–.35).
@@ -242,6 +247,106 @@ UMaterialInterface* FieldLook(const TCHAR* PackageName, const TCHAR* ObjectPath,
     }
     return nullptr;
 }
+#if WITH_EDITOR
+// Villagerf has one NaturalHumanRegions slot, so the coat and the white streaks share this graph.
+// Hat, band, patch and bag are props. Local Z is the mesh frame: feet at 0, crown near 165.
+bool SaveHannaLook()
+{
+    UPackage* Package = CreatePackage(HannaLookPackageName);
+    if (!Package) return false;
+    UMaterial* Surface = NewObject<UMaterial>(Package, TEXT("M_HannaLook"), RF_Public | RF_Standalone);
+    if (!Surface) return false;
+    Surface->SetShadingModel(MSM_DefaultLit);
+    Surface->SetUsageByFlag(MATUSAGE_SkeletalMesh, true);
+    Surface->TwoSided = true;
+    auto* Regions = NewObject<UMaterialExpressionVertexColor>(Surface);
+    auto* UV = NewObject<UMaterialExpressionTextureCoordinate>(Surface);
+    auto* Category = NewObject<UMaterialExpressionComponentMask>(Surface);
+    auto* World = NewObject<UMaterialExpressionWorldPosition>(Surface);
+    auto* Local = NewObject<UMaterialExpressionTransformPosition>(Surface);
+    Surface->GetExpressionCollection().AddExpression(Regions);
+    Surface->GetExpressionCollection().AddExpression(UV);
+    Surface->GetExpressionCollection().AddExpression(Category);
+    Surface->GetExpressionCollection().AddExpression(World);
+    Surface->GetExpressionCollection().AddExpression(Local);
+    Category->Input.Connect(4, Regions);
+    Category->R = true;
+    World->WorldPositionShaderOffset = WPT_ExcludeAllShaderOffsets;
+    Local->TransformSourceType = TRANSFORMPOSSOURCE_World;
+    Local->TransformType = TRANSFORMPOSSOURCE_Local;
+    Local->Input.Connect(0, World);
+    auto AddCustom = [&](const FString& Code, ECustomMaterialOutputType Type, std::initializer_list<TPair<FName, UMaterialExpression*>> Inputs)
+    {
+        auto* Node = NewObject<UMaterialExpressionCustom>(Surface);
+        Surface->GetExpressionCollection().AddExpression(Node);
+        Node->Code = Code;
+        Node->OutputType = Type;
+        for (const TPair<FName, UMaterialExpression*>& Pair : Inputs)
+        {
+            FCustomInput Input;
+            Input.InputName = Pair.Key;
+            Input.Input.Connect(0, Pair.Value);
+            Node->Inputs.Add(Input);
+        }
+        return Node;
+    };
+    UMaterialExpressionCustom* Color = AddCustom(
+        TEXT("float cloth=1-step(.10,abs(Category-.75));float skin=1-step(.12,Category);float upper=smoothstep(148.0,156.0,Local.z);float face=smoothstep(-2.0,4.0,Local.x);float crown=skin*upper*(1.0-face);float strand=frac(sin(dot(Local.xy,float2(17.1,41.7)))*43758.5453);float3 silver=float3(0.86,0.87,0.85);float3 hair=lerp(C.rgb,silver,step(.55,strand));float weave=1-cloth*.035*(.5+.5*sin(UV.x*447)*sin(UV.y*393));float3 grey=float3(0.34,0.35,0.36);return lerp(lerp(C.rgb,hair,crown),grey,cloth)*weave;"),
+        CMOT_Float3, {{TEXT("C"), Regions}, {TEXT("Category"), Category}, {TEXT("UV"), UV}, {TEXT("Local"), Local}});
+    UMaterialExpressionCustom* Rough = AddCustom(TEXT("return Category>.92?.40:(Category<.12?.66:(Category<.62?.73:.89));"), CMOT_Float1, {{TEXT("Category"), Category}});
+    UMaterialExpressionCustom* Spec = AddCustom(TEXT("return Category<.12?.28:(Category>.92?.48:.20);"), CMOT_Float1, {{TEXT("Category"), Category}});
+    if (UMaterialEditorOnlyData* Editor = Surface->GetEditorOnlyData())
+    {
+        Editor->BaseColor.Connect(0, Color);
+        Editor->Roughness.Connect(0, Rough);
+        Editor->Specular.Connect(0, Spec);
+    }
+    Surface->PostEditChange();
+    if (GShaderCompilingManager) GShaderCompilingManager->FinishAllCompilation();
+    const FMaterialResource* Resource = Surface->GetMaterialResource(GMaxRHIShaderPlatform);
+    if (!Resource || Resource->GetCompileErrors().Num())
+    {
+        if (Resource)
+        {
+            for (const FString& CompileError : Resource->GetCompileErrors())
+                UE_LOG(LogTemp, Error, TEXT("Hanna look: %s"), *CompileError);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Hanna look: no material resource"));
+        }
+        return false;
+    }
+    const FString File = FPackageName::LongPackageNameToFilename(HannaLookPackageName, FPackageName::GetAssetPackageExtension());
+    IFileManager::Get().MakeDirectory(*FPaths::GetPath(File), true);
+    FSavePackageArgs Args;
+    Args.TopLevelFlags = RF_Public | RF_Standalone;
+    Args.SaveFlags = SAVE_NoError;
+    return UPackage::SavePackage(Package, Surface, *File, Args);
+}
+#endif
+UMaterialInterface* HannaFieldLook()
+{
+    static TStrongObjectPtr<UMaterialInterface> Held;
+    if (Held.IsValid()) return Held.Get();
+#if WITH_EDITOR
+    if (!IsRunningCommandlet() && !FPackageName::DoesPackageExist(HannaLookPackageName))
+    {
+        static bool bTried = false;
+        if (!bTried)
+        {
+            bTried = true;
+            SaveHannaLook();
+        }
+    }
+#endif
+    if (UMaterialInterface* Loaded = LoadObject<UMaterialInterface>(nullptr, HannaLookObjectPath, nullptr, LOAD_NoWarn | LOAD_Quiet))
+    {
+        Held.Reset(Loaded);
+        return Loaded;
+    }
+    return nullptr;
+}
 // The confession seal is a thin plate on the coat, not a box held in front of the chest.
 // X is forward in the imported frame. The engine cube is 100cm, so scale X .012 is 1.2cm thick.
 FVector TobiasBadgeOffset(USkeletalMeshComponent* Skeletal, FName Bone)
@@ -278,8 +383,10 @@ UMemoriaFieldCharacterComponent::UMemoriaFieldCharacterComponent()
     // Hard references so the cooker packs the saved looks. Quiet when the editor has not written them yet.
     ConstructorHelpers::FObjectFinderOptional<UMaterialInterface> Hair(EliaHairObjectPath, LOAD_Quiet | LOAD_NoWarn);
     ConstructorHelpers::FObjectFinderOptional<UMaterialInterface> Coat(TobiasCoatObjectPath, LOAD_Quiet | LOAD_NoWarn);
+    ConstructorHelpers::FObjectFinderOptional<UMaterialInterface> Hanna(HannaLookObjectPath, LOAD_Quiet | LOAD_NoWarn);
     EliaHairMaterial = Hair.Get();
     TobiasCoatMaterial = Coat.Get();
+    HannaLookMaterial = Hanna.Get();
 }
 FString UMemoriaFieldCharacterComponent::DescribeArt(const FString& Id)
 {
@@ -641,9 +748,75 @@ bool UMemoriaFieldCharacterComponent::InitializeTobias()
     Kit(TEXT("TobiasStrap"), FVector(-14.f, 0.f, 18.f), FVector(0.035f, 0.20f, 0.045f), FLinearColor(0.11f, 0.08f, 0.05f));
     bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
 }
+bool UMemoriaFieldCharacterComponent::InitializeHanna()
+{
+    // 28화, 30화: a woman in a grey coat. villager_f is the donor; the elder is the same height if that mesh is absent.
+    const TCHAR* Donor = TEXT("villagerf");
+    auto LoadDonor = [&](const TCHAR* Id, USkeletalMesh*& Mesh, UAnimSequence*& Idle, UAnimSequence*& WalkClip)
+    {
+        Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"), TEXT("_Detail"));
+        if (!Mesh) Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));
+        Idle = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Idle"));
+        WalkClip = RiggedAsset<UAnimSequence>(Id, TEXT("A_"), TEXT("_Walk"));
+    };
+    USkeletalMesh* Mesh = nullptr; UAnimSequence* Idle = nullptr; UAnimSequence* WalkClip = nullptr;
+    LoadDonor(Donor, Mesh, Idle, WalkClip);
+    if (!Mesh || !Idle || !WalkClip) { Donor = TEXT("elder"); LoadDonor(Donor, Mesh, Idle, WalkClip); }
+    CharacterId = TEXT("Hanna"); MeshYawOffset = 0.f;
+    if (!CreateSkeletal(Mesh, Idle, WalkClip)) return false;
+    Skeletal->TickAnimation(0.f, false); Skeletal->RefreshBoneTransforms();
+    if (UMaterialInterface* Look = HannaFieldLook())
+    {
+        HannaLookMaterial = Look;
+        const TArray<FSkeletalMaterial>& Slots = Skeletal->GetSkeletalMeshAsset()->GetMaterials();
+        for (int32 Index = 0; Index < Slots.Num() && Index < Skeletal->GetNumMaterials(); ++Index)
+        {
+            const FString Name = Slots[Index].MaterialSlotName.ToString() + Slots[Index].ImportedMaterialSlotName.ToString() + GetNameSafe(Slots[Index].MaterialInterface);
+            if (Name.Contains(TEXT("Face")) || Name.Contains(TEXT("Eye")) || Name.Contains(TEXT("Brow"))) continue;
+            Skeletal->SetMaterial(Index, Look);
+        }
+    }
+    auto* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    auto* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"), nullptr, LOAD_NoWarn | LOAD_Quiet);
+    auto Kit = [&](const TCHAR* Name, FName Bone, const FVector& Offset, const FVector& Scale, const FLinearColor& Ink)
+    {
+        if (!Cube || !Skeletal || Bone.IsNone()) return;
+        const FTransform BoneTransform = Skeletal->GetSocketTransform(Bone, RTS_Component);
+        auto* Part = NewObject<UStaticMeshComponent>(GetOwner(), Name);
+        Part->SetStaticMesh(Cube); Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Part->SetGenerateOverlapEvents(false); Part->SetCastShadow(true); Part->SetLightingChannels(true, true, false);
+        Part->SetupAttachment(Skeletal, Bone);
+        Part->SetRelativeTransform(FTransform(FQuat::Identity, BoneTransform.GetLocation() + Offset, Scale).GetRelativeTransform(BoneTransform));
+        if (Base)
+        {
+            auto* InkMid = UMaterialInstanceDynamic::Create(Base, Part);
+            InkMid->SetVectorParameterValue(TEXT("Color"), Ink); InkMid->SetVectorParameterValue(TEXT("BaseColor"), Ink);
+            Part->SetMaterial(0, InkMid);
+        }
+        Part->RegisterComponent(); Props.Add(Part);
+    };
+    auto Bone = [&](std::initializer_list<const TCHAR*> Candidates)
+    {
+        FName Found = NAME_None;
+        if (!Skeletal || !Skeletal->GetSkeletalMeshAsset()) return Found;
+        const auto& Ref = Skeletal->GetSkeletalMeshAsset()->GetRefSkeleton();
+        for (const TCHAR* Candidate : Candidates)
+            if (Ref.FindBoneIndex(Candidate) != INDEX_NONE) return FName(Candidate);
+        return Found;
+    };
+    const FName Head = Bone({TEXT("head"), TEXT("neck_01"), TEXT("spine_03")});
+    const FName Back = Bone({TEXT("spine_03"), TEXT("spine_02"), TEXT("spine_01"), TEXT("pelvis")});
+    Kit(TEXT("HannaHat"), Head, FVector(0.f, 0.f, 10.f), FVector(0.16f, 0.15f, 0.05f), FLinearColor(0.30f, 0.31f, 0.32f));
+    Kit(TEXT("HannaHatBand"), Head, FVector(0.f, 0.f, 7.f), FVector(0.18f, 0.17f, 0.02f), FLinearColor(0.22f, 0.22f, 0.23f));
+    Kit(TEXT("HannaHatPatch"), Head, FVector(6.f, -8.f, 7.f), FVector(0.06f, 0.08f, 0.028f), FLinearColor(0.08f, 0.08f, 0.09f));
+    Kit(TEXT("HannaBag"), Back, FVector(-16.f, 0.f, 0.f), FVector(0.16f, 0.18f, 0.22f), FLinearColor(0.18f, 0.16f, 0.13f));
+    Kit(TEXT("HannaBuckle"), Back, FVector(-23.f, 6.f, 2.f), FVector(0.045f, 0.055f, 0.03f), FLinearColor(0.55f, 0.52f, 0.42f));
+    bHighResolution = true; WalkFrames = 30; ApplyFrame(); return true;
+}
 bool UMemoriaFieldCharacterComponent::InitializeRigged(const FString& Id)
 {
     if (Id.Equals(TEXT("tobias"), ESearchCase::IgnoreCase)) return InitializeTobias();
+    if (Id.Equals(TEXT("hanna"), ESearchCase::IgnoreCase)) return InitializeHanna();
     // S354: tailored ambient geometry shares the original skeleton, clips and painted material.
     auto* Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"), TEXT("_Detail"));
     if (!Mesh) Mesh = RiggedAsset<USkeletalMesh>(Id, TEXT("SK_"));

@@ -23,6 +23,7 @@
 #include "Interaction/MemoriaStoryPointActor.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Interaction/MemoriaTobiasCompanion.h"
+#include "Interaction/MemoriaHannaCompanion.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Misc/Paths.h"
@@ -440,6 +441,8 @@ void UMemoriaNarrativeSubsystem::ArmStoryBeats()
             Elia->Follow(Pawn);
         if (S.GetFlag(TEXT("party_tobias")))
             AMemoriaTobiasCompanion::Join(World, Pawn);
+        if (S.GetFlag(TEXT("party_hanna")) && !S.GetFlag(TEXT("hanna_gone")))
+            AMemoriaHannaCompanion::Join(World, Pawn);
     }
 }
 bool UMemoriaNarrativeSubsystem::IsStoryBeatAvailable(const FString& Group) const

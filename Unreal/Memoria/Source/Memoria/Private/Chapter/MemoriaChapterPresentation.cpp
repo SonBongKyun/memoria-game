@@ -9,6 +9,7 @@
 #include "Framework/MemoriaVerdanTuning.h"
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Interaction/MemoriaTobiasCompanion.h"
+#include "Interaction/MemoriaHannaCompanion.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Run/MemoriaRunSubsystem.h"
@@ -403,6 +404,8 @@ void AMemoriaChapterPresentation::BeginPlay()
             Elia->Follow(Player.Get());
         if (Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
             AMemoriaTobiasCompanion::Join(GetWorld(), Player.Get());
+        if (Run->GetRunSnapshot().GetFlag(TEXT("party_hanna")) && !Run->GetRunSnapshot().GetFlag(TEXT("hanna_gone")))
+            AMemoriaHannaCompanion::Join(GetWorld(), Player.Get());
     }
     if (auto* Combat = GetWorld()->GetSubsystem<UMemoriaFieldCombatSubsystem>())
     {
