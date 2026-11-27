@@ -210,7 +210,7 @@
   ],
   "group": "ms_arcane_room",
   "next_chapter": 17,
-  "next_map": null,
+  "next_map": "arcane_leave",
   "next_scene": null,
   "notice": {
    "en": "Did I intervene?",

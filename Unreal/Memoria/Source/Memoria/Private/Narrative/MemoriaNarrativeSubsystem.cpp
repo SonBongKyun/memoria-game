@@ -605,6 +605,12 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     { Run->SetStoryFlag(TEXT("ch16_burned_hand"), true); Notice(TEXT("Burned: the hand that held his head")); bNoticeHeld = true; }
     if (Group == TEXT("ms_kairos_unsent") && !Run->GetRunSnapshot().GetFlag(TEXT("ch16_unsubmitted")))
     { Run->SetStoryFlag(TEXT("ch16_unsubmitted"), true); Notice(TEXT("Kairos: unsubmitted")); bNoticeHeld = true; }
+    // S396 (27-30화): the book reads what opening costs; the lullaby's first words come back; at the south gate
+    // Hanna turns into another alley (T-21's companion walks off on hanna_gone).
+    if (Group == TEXT("ms_leave_relay")) Run->SetStoryFlag(TEXT("ch17_relay_read"), true);
+    if (Group == TEXT("ms_leave_lullaby") && !Run->GetRunSnapshot().GetFlag(TEXT("ch17_lullaby_words")))
+    { Run->SetStoryFlag(TEXT("ch17_lullaby_words"), true); Notice(TEXT("Remembered: little one, slowly, the river")); bNoticeHeld = true; }
+    if (Group == TEXT("ms_leave_gate")) Run->SetStoryFlag(TEXT("hanna_gone"), true);
     if (Group == TEXT("ms_ridge_third") && !Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
     { Run->SetStoryFlag(TEXT("party_tobias"), true); Notice(TEXT("Joined: Tobias")); bNoticeHeld = true; }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))

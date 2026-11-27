@@ -49,6 +49,12 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::ArcaneLeaveMap && !Run.GetFlag(TEXT("ch17_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch17_stone"))) return Prefix + (bKo ? TEXT("남문 아래로: 성문 서기") : TEXT("Under the south gate: the gate clerk"));
+        if (Run.GetFlag(TEXT("ch17_cistern"))) return Prefix + (bKo ? TEXT("거리를 지나 남문 안쪽의 낮은 돌로") : TEXT("Down the streets to the low stone inside the south gate"));
+        if (Run.GetFlag(TEXT("ch17_door"))) return Prefix + (bKo ? TEXT("한나를 따라 저수조 쪽으로") : TEXT("Follow Hanna toward the cistern"));
+    }
     if (Map == MemoriaManuscript::ArcaneMap && !Run.GetFlag(TEXT("ch16_complete")))
     {
         if (Run.GetFlag(TEXT("ch16_cistern"))) return Prefix + (bKo ? TEXT("낮은 아치 골목 끝: 놋쇠 고리 문") : TEXT("The low-arched alley's end: the door with the brass ring"));

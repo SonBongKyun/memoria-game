@@ -69,7 +69,7 @@ bool FArcaneS393Test::RunTest(const FString&)
     TestTrue(TEXT("26화 plays after the room, Kairos alone"), City->Exit.Group == TEXT("ms_arcane_room") && City->Exit.Then.Num() == 5 && City->Exit.Then[0] == TEXT("ms_kairos_report") && City->Exit.Then.Last() == TEXT("ms_kairos_unsent"));
     const auto* Wells = MemoriaChapterMaps::Find(DryWellsMap);
     TestTrue(TEXT("The wells' road leads to Arcane"), Wells && Wells->Exit.NextMap == ArcaneMap && Wells->Exit.NextChapter == 16);
-    TestTrue(TEXT("and Arcane's on to Chapter 17"), City->Exit.NextChapter == 17 && City->Exit.Flags.Contains(TEXT("canon_ch17_hanna_ready")));
+    TestTrue(TEXT("and Arcane's on to Chapter 17"), City->Exit.NextChapter == 17 && City->Exit.NextMap == ArcaneLeaveMap && City->Exit.Flags.Contains(TEXT("canon_ch17_hanna_ready")));
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -145,12 +145,13 @@ bool FArcaneS393Test::RunTest(const FString&)
         {TEXT("ch16_alley"), TEXT("목표  저수조의 돌벽으로")}, {TEXT("ch16_cistern"), TEXT("목표  낮은 아치 골목 끝: 놋쇠 고리 문")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ArcaneMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch16_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch16_")) && !FString(M.Flag).StartsWith(TEXT("ch17_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is the gate"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 아르케인: 성문, 배지는 하나")));
     Run->SetStoryFlag(TEXT("ch16_gate"), true);
     TestTrue(TEXT("then the third booth"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 셋째 부스: 노인과 아이")));
     for (const TCHAR* F : {TEXT("ch16_burn"), TEXT("ch16_complete")}) Run->SetStoryFlag(F, true);
-    TestTrue(TEXT("then the room, and Kairos's silence"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 토비아스의 방. 어딘가에서 카이로스는 회신하지 않았다")));
+    // S396: after Chapter 16 the next main step is Chapter 17's room.
+    TestTrue(TEXT("then the room, and the one who sings"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 토비아스의 방: 책, 그리고 노래하는 사람")));
     Game->Shutdown();
     return true;
 }

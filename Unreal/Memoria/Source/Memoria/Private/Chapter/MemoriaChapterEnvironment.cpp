@@ -201,7 +201,7 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         230.f, 210.f, 0.f, 0.f,
         3.8f, -52.f, 22.f, 1.3f, .7f, .013f, 1.2f, .5f,
         18, false, true};
-    if (InMap == TEXT("arcane_city")) return Arcane;
+    if (InMap == TEXT("arcane_city") || InMap == TEXT("arcane_leave")) return Arcane;
     return InMap == TEXT("drift_shelter") ? Drift : InMap == TEXT("the_seam") ? Seam : Belt;
 }
 FVector AMemoriaChapterPresentation::TileCentre(float X, float Y) const
@@ -477,7 +477,7 @@ void AMemoriaChapterPresentation::BuildWalls(const FDressing& Look)
                     Beam(Iron, Hook + FVector(0, 16, 14), Hook + FVector(0, 0, 14), 3.f);
                     Beam(Iron, Hook + FVector(0, 0, 14), Hook + FVector(0, 0, 7), 2.f);
                     // S393: Arcane at noon (25화) lights no lamp by a door.
-                    if (Map != TEXT("arcane_city")) Lamp(Hook, 420.f, Look.LampIntensity);
+                    if (Map != TEXT("arcane_city") && Map != TEXT("arcane_leave")) Lamp(Hook, 420.f, Look.LampIntensity);
                 }
                 continue;
             }
@@ -871,7 +871,8 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
         Box(Shutter, Window + FVector(0, -T * .52f, 95.f), FVector(54, 4, 38), FRotator::ZeroRotator, false);
         Box(Stone, Window + FVector(0, -T * .62f, 58.f), FVector(70, 18, 8));
     }
-    else if (Map == TEXT("arcane_city"))
+    // S396: Chapter 17 walks the same streets (27-30화), so the same set pieces stand.
+    else if (Map == TEXT("arcane_city") || Map == TEXT("arcane_leave"))
     {
         // S393 (25화): the five one-person wooden booths on the second square's south side, a small bell on each door
         // frame, the third standing open on its metal arm; the low bench beside them; the bread window in the first

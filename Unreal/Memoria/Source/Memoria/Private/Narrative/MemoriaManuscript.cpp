@@ -150,7 +150,11 @@ const TArray<FMainStep>& MainSteps()
         // S393: 25-26화.
         {TEXT("ch16_burn"), TEXT("The third booth: the old man and the child"), TEXT("셋째 부스: 노인과 아이")},
         {TEXT("ch16_complete"), TEXT("Tobias's room, behind the cistern"), TEXT("저수조 뒤, 토비아스의 방")},
-        {TEXT("ms_never"), TEXT("In Tobias's room; somewhere, Kairos has not replied"), TEXT("토비아스의 방. 어딘가에서 카이로스는 회신하지 않았다")}};
+        // S396: 27-30화.
+        {TEXT("ch17_lullaby"), TEXT("Tobias's room: the book, and the one who sings"), TEXT("토비아스의 방: 책, 그리고 노래하는 사람")},
+        {TEXT("ch17_stone"), TEXT("With Hanna, to the south gate before the third bell"), TEXT("한나와 함께, 셋째 종 전에 남문으로")},
+        {TEXT("ch17_complete"), TEXT("Out under the south gate: two companions"), TEXT("남문 밖으로: 동행 둘")},
+        {TEXT("ms_never"), TEXT("Two miles to a cart going east; nothing decided yet"), TEXT("동쪽으로 가는 마차까지 두 마일. 아직 정한 건 없다")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

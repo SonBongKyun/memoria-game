@@ -174,6 +174,12 @@ FString Korean(const FString& En)
         {TEXT("Not here. Don't open it here."), TEXT("여기선 펴지 마.")},
         {TEXT("The register board by the gate. Names, and numbers beside them. Under Tobias, in another hand: two."),
          TEXT("성문 옆의 명부 판. 이름들, 그 옆의 숫자. 토비아스 아래에 다른 필체로: 둘.")},
+        // S396: leaving Arcane (최종본 27-30화).
+        {TEXT("arcane_leave"), TEXT("아르케인")}, {TEXT("The Singer"), TEXT("노래하는 자")}, {TEXT("Mother's Lullaby"), TEXT("어머니의 자장가")},
+        {TEXT("Two."), TEXT("둘입니다.")}, {TEXT("Not today. I'm only listening."), TEXT("오늘은 안 불러. 듣기만 할 거야.")},
+        {TEXT("Remembered: little one, slowly, the river"), TEXT("떠오름: 작은 아이야, 천천히, 강")}, {TEXT("The South Gate"), TEXT("남문")},
+        {TEXT("The low stone inside the south gate, worn flat by people waiting. A smear of black on top, where writing was pushed away with the side of a hand."),
+         TEXT("남문 안쪽의 낮은 돌. 기다리던 사람들에 닳아 평평하다. 위에 검은 자국이 번져 있다. 글씨를 손 옆면으로 밀어 지운 자리.")},
         // S389: the dry wells (최종본 24화).
         {TEXT("dry_wells"), TEXT("마른 우물")}, {TEXT("The Dry Wells"), TEXT("마른 우물")}, {TEXT("Two Notes"), TEXT("두 노트")},
         {TEXT("This way."), TEXT("이쪽입니다.")}, {TEXT("Not now. I'm not doing it now."), TEXT("지금은 안 할 거야.")},

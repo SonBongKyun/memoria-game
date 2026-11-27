@@ -21,11 +21,11 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16'), 'arcane_leave': (17, 'Ch17')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26', 'arcane_leave': '27-30'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
@@ -37,7 +37,9 @@ EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '1
 GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_farms': 'colorless_waste', 'basin_station': 'belt_waystation',
           'verdan_return': 'verdan_market', 'ridge_farmhouse': 'drift_shelter', 'dry_wells': 'seam_outskirts',
           # S393: Arcane's tiles are hand-authored (HANDMADE below); verdan_market.gd only lends its tile size.
-          'arcane_city': 'verdan_market'}
+          'arcane_city': 'verdan_market',
+          # S396: Chapter 17 leaves the same city: the same hand-authored ground, from Tobias's door to the south gate.
+          'arcane_leave': 'verdan_market'}
 
 # S393: grounds drawn here rather than read from a Godot map. Arcane (25-29화 and on, Gemini T-14): in by the south gate,
 # the street north to the first square and its bread window (K), the road curving west behind the five confession
@@ -71,6 +73,9 @@ HANDMADE = {
         ],
     },
 }
+
+# S396: Chapter 17 (27-30화) walks the same streets back, from the door with the brass ring to the south gate.
+HANDMADE['arcane_leave'] = HANDMADE['arcane_city']
 
 
 def handmade_ground(map_id):
@@ -366,6 +371,58 @@ MANUSCRIPT = {
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
     },
+    # S396: 최종본 27화 「조용함의 무게」 to 30화 「어머니의 자장가」 on the Arcane ground again (Gemini's T-14 and T-17
+    # briefs: Chapter 17 = 27-30화). The room behind the brass ring plays as the arrival, on black: the book read by a
+    # short candle ("끝까지 열면 죽는다."); Hanna, who never speaks, and her board; two hours; the songs through the wall;
+    # the lullaby's first words. Then out: Hanna leads past the cistern and down the streets to the low stone inside the
+    # south gate, writes "second mile" once more and turns into another alley. The three go out under the gate.
+    'arcane_leave': {
+        'title': {'number': 17, 'name': 'The Singer', 'subtitle': "Mother's Lullaby"},
+        'spawn': [12 * T + 16, 2 * T + 16],
+        'elia_repeat': "Not today. I'm only listening.",
+        'sequence': [
+            {'flag': 'ch17_quiet', 'group': 'ms_leave_quiet', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_relay', 'group': 'ms_leave_relay', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_cost', 'group': 'ms_leave_cost', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_hanna', 'group': 'ms_leave_hanna', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_east', 'group': 'ms_leave_east', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_wait', 'group': 'ms_leave_wait', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_printer', 'group': 'ms_leave_printer', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_songs', 'group': 'ms_leave_songs', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch17_lullaby', 'group': 'ms_leave_lullaby', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            # Out of the door: Hanna goes first, and walks with them as far as the south gate (T-21's companion).
+            {'flag': 'ch17_door', 'group': 'ms_leave_door', 'memories_chapter': None, 'flags': ['party_hanna'], 'toasts': []},
+        ],
+        'triggers': [
+            # The road above the cistern: Hanna quickens, Arrel's boot drags; she comes back and walks beside them.
+            {'rect': {'origin': [7 * T, 2 * T], 'size': [2 * T, T]}, 'group': 'ms_leave_cistern', 'flag': 'ch17_cistern', 'gate': 'ch17_door'},
+            # The low stone inside the south gate: "second mile"; Hanna leaves into another alley (hanna_gone).
+            {'rect': {'origin': [11 * T, 14 * T], 'size': [3 * T, T]}, 'group': 'ms_leave_gate', 'flag': 'ch17_stone', 'gate': 'ch17_cistern'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # Under the south gate: "동행은요?" "둘입니다." Out toward the second mile and the cart going east.
+        'exit': {'center': [12 * T + 16, 16 * T + 16], 'size': [3 * T, T], 'requires': 'ch17_stone', 'completes': 'ch17_complete',
+                 'group': 'ms_leave_out', 'next_chapter': 18, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch18_east_road_ready'],
+                 'notice': {'en': 'Two.', 'ko': '둘입니다.'}},
+        'objects_gate': 'ch17_complete',
+        'chests': [],
+        'clues': [{'origin': [11 * T, 15 * T], 'flag': 'clue_leave_stone',
+                   'text': 'The low stone inside the south gate, worn flat by people waiting. A smear of black on top, where writing was pushed away with the side of a hand.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ms_never',
+        'lights': [],
+        # The same grey noon; the room's scenes play on black, the streets' over the city seen from above.
+        'atmosphere': {'saturation': 0.42, 'mood': 0.5, 'hue': [0.36, 0.38, 0.42, 1.0], 'light': [0.74, 0.76, 0.8, 1.0], 'fog': 'none',
+                       'splash': 'res://assets/cg/generated/env_gray_belt_panorama.png'},
+        # Four at the bread window; the clerk at the gate. The booths' queue has gone.
+        'ambient_npcs': [{'position': [656.0, 400.0], 'preset': 'villager_m', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [624.0, 400.0], 'preset': 'villager_f', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [592.0, 400.0], 'preset': 'elder', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [560.0, 400.0], 'preset': 'traveler', 'still': True, 'face': [690.0, 400.0]},
+                         {'position': [432.0, 496.0], 'preset': 'bureau_agent', 'still': True, 'face': [400.0, 496.0]}],
+        'ambient_npcs_gate': 'ch17_quiet',
+    },
     # S393: 최종본 25화 「고해소」 and 26화 「카이로스 주저하다」 on the hand-authored Arcane ground (Gemini's T-11 brief:
     # Chapter 16 = 25-26화). In by the gate on Tobias's badge ("동행 둘"); the squares; the old man and the child at the
     # third booth; Arrel burns the warmth of the hand that held his head and walks the old man to the bench; the alley,
@@ -394,7 +451,7 @@ MANUSCRIPT = {
         # The door with the brass ring: Tobias's room. Then 26화, Kairos alone, as one cutaway after another.
         'exit': {'center': [12 * T + 16, 2 * T + 16], 'size': [T, T], 'requires': 'ch16_cistern', 'completes': 'ch16_complete',
                  'group': 'ms_arcane_room', 'then': ['ms_kairos_report', 'ms_kairos_booth', 'ms_kairos_gate', 'ms_kairos_relay', 'ms_kairos_unsent'],
-                 'next_chapter': 17, 'next_map': None, 'next_scene': None,
+                 'next_chapter': 17, 'next_map': 'arcane_leave', 'next_scene': None,
                  'flags': ['canon_ch17_hanna_ready'],
                  'notice': {'en': 'Did I intervene?', 'ko': '개입했나?'}},
         'objects_gate': 'ch16_complete',
