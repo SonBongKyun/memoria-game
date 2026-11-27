@@ -425,7 +425,7 @@ MANUSCRIPT = {
     # Down from the farmhouse (south) through the pasture and the topped poplars to a hollow with two dry wells thirty
     # paces apart; there the two notes open for the first time. Out north, by the fork over the ridge, toward Arcane.
     'dry_wells': {
-        'title': {'number': 15, 'name': 'Two Notes', 'subtitle': 'The Dry Wells'},
+        'title': {'number': 15, 'name': 'Two Notes', 'subtitle': 'Two Notes'},
         'spawn': [12 * T + 16, 16 * T + 16],
         'elia_repeat': "Not now. I'm not doing it now.",
         'sequence': [

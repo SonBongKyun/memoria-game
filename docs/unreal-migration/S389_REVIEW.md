@@ -116,6 +116,10 @@ Branch `claude/s366-upgrade`, on top of `8c469ba6`. Team task **T-13** on `TEAM-
 - Results: see the commit message.
 
 ## Limits
-- Elia's field figure is still blond and carries a staff. Grok's T-15 fixes that (deferred to 2026-11-25).
+- ~~Elia's field figure is still blond and carries a staff.~~ Fixed by Grok's T-15 (`acb39b24`, `81ab6528`): she is silver-haired and holds nothing. T-18 (`bbde9491`) keeps the look in cooked builds.
 - The hollow is not a dip in the ground; the wells stand on the level pasture.
 - English lines are this port's translation; a few narration sentences are trimmed, and spoken lines are kept whole.
+
+## S394: the plaque (Gemini T-17 nit)
+- The map plaque read "마른 우물 / 마른 우물": the subtitle repeated the place name.
+- The subtitle is now "Two Notes" (두 노트), so the plaque reads "마른 우물 / 두 노트".
