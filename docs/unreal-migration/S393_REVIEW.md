@@ -149,6 +149,12 @@ Branch `claude/s366-upgrade`, on top of `81ab6528`. Team task **T-16** on `TEAM-
 
 ## Limits
 - The booths are plain wooden boxes with a dark doorway; the old man, the child and the confessor are in the scenes only, not standing figures.
-- Elia's hair tint and Tobias's coat are editor-only until Grok's T-18 lands.
+- ~~Elia's hair tint and Tobias's coat are editor-only until Grok's T-18 lands.~~ T-18 (`bbde9491`) saved both materials, so they survive cooking.
 - `kairos_face_neutral.png` is a flatter, cel-shaded style than the painted portraits.
 - English lines are this port's translation; a few narration sentences are trimmed or merged, and spoken lines are kept whole.
+
+## S397: Gemini T-20 nits
+- Tobias's room (`ms_arcane_room`) now opens on `Dark`, as Chapter 17's room does, instead of showing the city panorama.
+- "the two of them's hands" now reads "both of their hands".
+- `SpeakerKo` no longer registers "Old Man" twice.
+- Not changed: the south booths' roofs hiding Arrel's feet from the camera (Nit 1). Gemini found it harmless and the placement follows 25화.

@@ -119,7 +119,8 @@ bool FArcaneS393Test::RunTest(const FString&)
                     if (Nameless.Contains(Who)) bFaces &= !R.Presentation.bHasPortrait;
                     // 26화: Kairos never meets the three; in 25화 Kairos is not there at all.
                     bKairosApart &= bKairos ? !(Who == TEXT("Arrel") || Who == TEXT("Elia") || Who == TEXT("Tobias")) : Who != TEXT("Kairos");
-                    if (R.Presentation.bHasCg) bArt &= bKairos && (R.Presentation.Cg == Unsent2 || R.Presentation.Cg.IsEmpty());
+                    // S397: Tobias's room opens on black (Gemini T-20).
+                    if (R.Presentation.bHasCg) bArt &= (bKairos && (R.Presentation.Cg == Unsent2 || R.Presentation.Cg.IsEmpty())) || (G == TEXT("ms_arcane_room") && I == 0 && R.Presentation.Cg.IsEmpty());
                 }
             }
     TestTrue(TEXT("Rows indexed, in Korean"), bRows);

@@ -1562,13 +1562,14 @@ const TMap<FString, TArray<FLine>>& Scenes()
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("It's been warmer since a while ago."), TEXT("아까부터 더 따뜻해졌어.")},
         {nullptr, nullptr, nullptr, TEXT("Tobias pressed the inside of his coat too. His eyes went to Elia."), TEXT("토비아스도 코트 안을 눌렀다. 그의 눈이 엘리아에게 갔다.")},
         {TEXT("Tobias"), TEXT("tobias_neutral"), nullptr, TEXT("Mine too."), TEXT("제 것도요.")},
-        {nullptr, nullptr, nullptr, TEXT("Arrel looked at the two of them's hands."), TEXT("아렐은 두 사람의 손을 보았다.")},
+        {nullptr, nullptr, nullptr, TEXT("Arrel looked at both of their hands."), TEXT("아렐은 두 사람의 손을 보았다.")},
         {TEXT("Arrel"), TEXT("arrel_neutral"), nullptr, TEXT("Don't open them here."), TEXT("여기선 펴지 마.")},
         {TEXT("Elia"), TEXT("elia_neutral"), nullptr, TEXT("I know."), TEXT("알아.")},
         {nullptr, nullptr, nullptr, TEXT("She walked toward the arch first. Arrel took his hand off the stone wall and followed. He put his right hand inside his coat, but the cold stayed in the palm."), TEXT("그녀가 먼저 아치 쪽으로 걸었다. 아렐은 돌벽에서 손을 떼고 뒤를 따랐다. 오른손을 코트 안에 넣어 보았지만 찬 기운은 손바닥 안에 그대로 있었다.")}}},
     // The exit: the door with the brass ring, Tobias's room (25화's end). 26화 follows as its "then" groups.
+    // S397 (Gemini T-20): the room opens on black, as Chapter 17's room does.
     {TEXT("ms_arcane_room"), {
-        {nullptr, nullptr, nullptr, TEXT("The door at the end of the alley had a brass ring. Tobias stopped before it, looked back down the alley, and pushed it open. Under a low ceiling a narrow room appeared. Elia went in first."), TEXT("골목 끝의 문에는 놋쇠 고리가 달려 있었다. 토비아스가 문 앞에서 걸음을 멈췄다. 뒤의 골목을 보고, 문을 밀었다. 낮은 천장 아래로 좁은 방이 드러났다. 엘리아가 먼저 들어갔다.")},
+        {nullptr, nullptr, Dark, TEXT("The door at the end of the alley had a brass ring. Tobias stopped before it, looked back down the alley, and pushed it open. Under a low ceiling a narrow room appeared. Elia went in first."), TEXT("골목 끝의 문에는 놋쇠 고리가 달려 있었다. 토비아스가 문 앞에서 걸음을 멈췄다. 뒤의 골목을 보고, 문을 밀었다. 낮은 천장 아래로 좁은 방이 드러났다. 엘리아가 먼저 들어갔다.")},
         {nullptr, nullptr, nullptr, TEXT("Arrel stood at the threshold. From here the cistern's wall and the top of the tower beyond could both be seen."), TEXT("아렐은 문턱 앞에 섰다. 여기서는 저수조의 벽과 그 너머 탑 꼭대기가 함께 보였다.")},
         {TEXT("Tobias"), TEXT("tobias_neutral"), nullptr, TEXT("Arrel."), TEXT("아렐.")},
         {nullptr, nullptr, nullptr, TEXT("He turned. Tobias waited, holding the door. Arrel crossed the threshold and put his back to the wall. Tobias drew the door shut by the ring and lifted the inner bar, then stopped."), TEXT("그는 돌아보았다. 토비아스는 문을 잡은 채 그를 기다렸다. 아렐은 문턱을 넘어가 벽 쪽에 등을 붙였다. 토비아스가 고리를 당겨 문을 닫았다. 안쪽 빗장을 들다가 손을 멈췄다.")},

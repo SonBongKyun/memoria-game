@@ -114,7 +114,7 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")},
         // S393: Arcane (25-26화). None of them is named; none has a face.
         {TEXT("Gate Clerk"), TEXT("성문 서기")}, {TEXT("Confessor"), TEXT("고해관")}, {TEXT("Clerk"), TEXT("서기")}, {TEXT("Child"), TEXT("아이")},
-        {TEXT("Old Man"), TEXT("노인")}, {TEXT("Man in Line"), TEXT("줄 선 사람")}, {TEXT("Messenger"), TEXT("심부름꾼")}, {TEXT("Relay Clerk"), TEXT("접수 서기")}};
+        {TEXT("Man in Line"), TEXT("줄 선 사람")}, {TEXT("Messenger"), TEXT("심부름꾼")}, {TEXT("Relay Clerk"), TEXT("접수 서기")}};
     const FString* Found = Names.Find(Speaker); return Found ? *Found : Speaker;
 }
 int64 EntryChapter(const FMemoriaNarrativeMetadata& Metadata)
@@ -613,7 +613,12 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_leave_relay")) Run->SetStoryFlag(TEXT("ch17_relay_read"), true);
     if (Group == TEXT("ms_leave_lullaby") && !Run->GetRunSnapshot().GetFlag(TEXT("ch17_lullaby_words")))
     { Run->SetStoryFlag(TEXT("ch17_lullaby_words"), true); Notice(TEXT("Remembered: little one, slowly, the river")); bNoticeHeld = true; }
-    if (Group == TEXT("ms_leave_gate")) Run->SetStoryFlag(TEXT("hanna_gone"), true);
+    // S397 (T-21): she walks off east along the road past the squares, away from the gate street, and is gone.
+    if (Group == TEXT("ms_leave_gate"))
+    {
+        AMemoriaHannaCompanion::SetLeavingPoint(MemoriaChapterMaps::ToWorld(MemoriaManuscript::HannaLeavingPoint));
+        Run->SetStoryFlag(TEXT("hanna_gone"), true);
+    }
     if (Group == TEXT("ms_ridge_third") && !Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
     { Run->SetStoryFlag(TEXT("party_tobias"), true); Notice(TEXT("Joined: Tobias")); bNoticeHeld = true; }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))

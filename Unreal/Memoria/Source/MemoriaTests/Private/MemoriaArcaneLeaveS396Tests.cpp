@@ -12,6 +12,7 @@
 #include "Framework/MemoriaSliceHost.h"
 #include "Framework/MemoriaFieldPawn.h"
 #include "Interaction/MemoriaTobiasCompanion.h"
+#include "Interaction/MemoriaHannaCompanion.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Narrative/MemoriaNarrativeData.h"
 #include "Narrative/MemoriaManuscript.h"
@@ -53,6 +54,8 @@ bool FArcaneLeaveS396Test::RunTest(const FString&)
     TestTrue(TEXT("The exit is the south gate"), Open(ExitAt) && ExitAt.Y > (Leave->Height - 3) * Leave->TileSize);
     for (const auto& T : Leave->Triggers) TestTrue(*(TEXT("Open ground: ") + T.Group), Open(T.Rect.Center()));
     TestEqual(TEXT("Two places on the way"), Leave->Triggers.Num(), 2);
+    // S397 (T-21): Hanna turns off on open road, east of the gate street, clear of the bread-window queue.
+    TestTrue(TEXT("Hanna's leaving point is open road"), Open(HannaLeavingPoint) && TileOf(HannaLeavingPoint).X > 13 && TileOf(HannaLeavingPoint).Y < 12);
     TestTrue(TEXT("Past the cistern, then the low stone inside the gate"), Leave->Triggers.Num() == 2 && Leave->Triggers[0].Group == TEXT("ms_leave_cistern")
         && Leave->Triggers[1].Group == TEXT("ms_leave_gate") && Leave->Triggers[1].Rect.Center().Y > Leave->Triggers[0].Rect.Center().Y);
     TestTrue(TEXT("No fights inside the walls"), Leave->Battles.IsEmpty() && Leave->EncountersGate == TEXT("ms_never"));
@@ -191,6 +194,7 @@ public:
         if (!Spec) return false;
         auto Capture = [&](const FString& Name) { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/S396Leave") / (Name + TEXT(".png")), true, false); };
         auto Flag = [&](const FString& Id) { return Run->GetRunSnapshot().GetFlag(Id); };
+        auto Hannas = [&] { int32 Count = 0; for (TActorIterator<AMemoriaHannaCompanion> It(World); It; ++It) ++Count; return Count; };
         auto Place = [&](const FVector2D& Source) { Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld(Source) + FVector(0, 0, Pawn->GetActorLocation().Z)); };
         if (Host->GetState() == EMemoriaSliceState::Field)
         {
@@ -220,6 +224,7 @@ public:
             Test->TestEqual(TEXT("The map is leaving Arcane"), Map->GetMap(), FString(MemoriaManuscript::ArcaneLeaveMap));
             Test->TestEqual(TEXT("A development run in Chapter 17"), Run->GetRunSnapshot().CurrentChapter, int64(17));
             { int32 Count = 0; for (TActorIterator<AMemoriaTobiasCompanion> It(World); It; ++It) ++Count; Test->TestEqual(TEXT("Tobias walks with them"), Count, 1); }
+            Test->TestEqual(TEXT("Hanna is not here before the door"), Hannas(), 0);
             ++Step; Mark = Frame; break;
         case 1:
             if (Frame == Mark + 40) Capture(TEXT("S396Title"));
@@ -228,18 +233,42 @@ public:
                 Test->TestTrue(TEXT("The book read what opening costs"), Flag(TEXT("ch17_relay_read")));
                 Test->TestTrue(TEXT("The lullaby's first words came back"), Flag(TEXT("ch17_lullaby_words")) && Host->GetTrace().Contains(TEXT("toast:Remembered: little one, slowly, the river")));
                 Test->TestTrue(TEXT("Hanna walks with them from the door"), Flag(TEXT("party_hanna")) && !Flag(TEXT("hanna_gone")));
-                Capture(TEXT("S396DoorStreet")); Place(Spec->Triggers[0].Rect.Center()); ++Step; Mark = Frame;
+                // S397 (T-21): she joins mid-map, once, behind Tobias.
+                Test->TestEqual(TEXT("Hanna is in the street"), Hannas(), 1);
+                // Walk Arrel west along the street from the door for four seconds, so the companions come out behind him.
+                if (!bShot) { bShot = true; Mark = Frame; break; }
+                if (Frame <= Mark + 240) { Place(FMath::Lerp(Spec->Spawn, FVector2D(9.6 * 32.0, Spec->Spawn.Y), double(Frame - Mark) / 240.0)); break; }
+                if (Frame == Mark + 330) { Capture(TEXT("S396HannaFollows")); break; }
+                if (Frame < Mark + 350) break;
+                bShot = false;
+                Place(Spec->Triggers[0].Rect.Center()); ++Step; Mark = Frame;
             }
             if (Frame > Mark + 40000) { Test->AddError(TEXT("The room's scenes did not finish")); return true; }
             break;
-        case 2: Next(TEXT("ch17_cistern"), 1, TEXT("S396Cistern")); break;
+        case 2:
+            if (Flag(TEXT("ch17_cistern")) && Host->GetState() == EMemoriaSliceState::Exploration) Test->TestEqual(TEXT("Hanna still walks with them"), Hannas(), 1);
+            Next(TEXT("ch17_cistern"), 1, TEXT("S396Cistern")); break;
         case 3:
-            if (Flag(TEXT("ch17_stone"))) Test->TestTrue(TEXT("Hanna turns into another alley"), Flag(TEXT("hanna_gone")));
-            Next(TEXT("ch17_stone"), -1, TEXT("S396LowStone")); break;
+            // The low stone: Hanna walks off toward the leaving point and is removed; then the gate.
+            if (Flag(TEXT("ch17_stone")) && Host->GetState() == EMemoriaSliceState::Exploration && Frame > Mark + 20)
+            {
+                if (!bShot) { bShot = true; LeaveAt = Frame; Test->TestTrue(TEXT("Hanna turns into another alley"), Flag(TEXT("hanna_gone"))); break; }
+                if (Frame == LeaveAt + 45) Capture(TEXT("S396HannaLeaving"));
+                if (Hannas() == 0 && Frame > LeaveAt + 60)
+                {
+                    bShot = false; Capture(TEXT("S396LowStone"));
+                    Place(Spec->Exit.Rect.Center()); ++Step; Mark = Frame;
+                }
+                else if (Frame > LeaveAt + 2400) { Test->AddError(TEXT("Hanna never reached her alley")); Step = 99; }
+                break;
+            }
+            if (Frame > Mark + 12000) { Test->AddError(TEXT("Stuck before ch17_stone")); Step = 99; }
+            break;
         case 4:
             if (Map->IsChapterComplete())
             {
                 Test->TestTrue(TEXT("Out under the south gate closes Chapter 17"), Flag(TEXT("ch17_complete")) && Flag(TEXT("canon_ch18_east_road_ready")));
+                Test->TestEqual(TEXT("Two companions: Hanna is gone"), Hannas(), 0);
                 Test->TestTrue(TEXT("Every row of the thirteen scenes was shown"), Seen.Num() == 414);
                 Test->TestTrue(TEXT("Its last line was shown"), Seen.Contains(TEXT("field:ms_leave_out:4")));
                 Test->TestTrue(TEXT("The card shows"), Map->GetCard() && Map->GetCard()->IsShowing());
@@ -260,7 +289,7 @@ private:
     FAutomationTestBase* Test;
     double Started, OldDelta = 0;
     uint64 LastFrame = MAX_uint64;
-    int32 Step = 0, Frame = 0, Mark = 0, ShotAt = 0;
+    int32 Step = 0, Frame = 0, Mark = 0, ShotAt = 0, LeaveAt = 0;
     bool bFixed = false, bOldFixed = false, bShot = false;
     FString ShotName;
     TSet<FString> Taken, Seen;

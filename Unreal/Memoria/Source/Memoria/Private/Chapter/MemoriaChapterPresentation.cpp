@@ -562,6 +562,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         {
             // The group's dialogue_ended handler: its flags and toasts, then the next link after a beat.
             for (const FString& F : Step.Flags) SetFlag(F);
+            // S397 (T-21): Hanna joins mid-map when 30화's door closes; the load-time spawn block covers reloads.
+            if (Step.Flags.Contains(TEXT("party_hanna"))) AMemoriaHannaCompanion::Join(GetWorld(), Player.Get());
             for (const FString& Toast : Step.Toasts) if (Narrative) Narrative->ShowNotice(Localized(Toast));
             // The field shows notices only between dialogues, so the memory toasts wait for the chain's last link.
             if (&Step == &Spec->Sequence.Last())

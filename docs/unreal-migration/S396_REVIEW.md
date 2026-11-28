@@ -47,7 +47,7 @@ Branch `claude/s366-upgrade`, on top of `8714a82f`. Team task **T-19** on `TEAM-
 ## For T-21 (Grok, Hanna's companion)
 - `party_hanna` is set when `ms_leave_door` ends (the last arrival scene), so she should appear in front of Tobias's door and follow.
 - `hanna_gone` is set when `ms_leave_gate` starts, at the low stone inside the south gate (tiles 11-13, row 14).
-- **The point she walks to:** another alley, away from the gate street. On this ground the nearest open way that is not the road they came by is the street east of the gate (tile (20, 12), by the bread window). The chapter will pass it through whatever hook T-21 provides.
+- **The point she walks to:** another alley, away from the gate street. S397 gives it as `MemoriaManuscript::HannaLeavingPoint`, tile (20, 10): the east end of the road past the squares. That keeps her clear of the queue at the bread window, row 12.
 
 ## Tests
 - `Memoria.S396.ArcaneLeave` (unit):
@@ -77,6 +77,22 @@ Branch `claude/s366-upgrade`, on top of `8714a82f`. Team task **T-19** on `TEAM-
 - Results: see the commit message.
 
 ## Limits
-- Hanna has no field figure until T-21 lands; the flags are set for it.
+- ~~Hanna has no field figure until T-21 lands.~~ S397 integrates T-21: see below.
 - The room is not built: its scenes play on black, as Tobias's room did in Chapter 16.
 - English lines are this port's translation. A few narration sentences are trimmed. Spoken lines and every board line are kept whole.
+
+## S397: T-21 integrated (Hanna in the field)
+- Grok's `AMemoriaHannaCompanion` and `M_HannaLook` (`ab2eb27f`, cherry-picked) are in. Her look:
+  - a grey coat and short hair with white strands at the back;
+  - a hat whose band has a darker patch;
+  - a bag with a buckle;
+  - no weapon, no lantern, no glow.
+- **Joining:** `party_hanna` is set when `ms_leave_door` ends. The chapter then calls `AMemoriaHannaCompanion::Join` at once, so she comes out behind Tobias without a reload. The load-time spawn blocks still cover reloads.
+- **Leaving:** when `ms_leave_gate` starts, the chapter calls `SetLeavingPoint(ToWorld(HannaLeavingPoint))`, then sets `hanna_gone`. She walks off and is removed. A reload with `hanna_gone` set does not bring her back.
+- **The replay checks:**
+  - no Hanna before the door;
+  - one Hanna from the door, walking behind Tobias (`S396HannaFollows.png`, Arrel walked four seconds west from the door);
+  - still one after the cistern;
+  - at the stone she walks off and is removed before the gate (`S396HannaLeaving.png`);
+  - none under the gate.
+- **Limit:** the companions spawn south of Arrel, inside the wall block below the door, and come out once he walks. This is the same spawn offset Tobias has always used. They pass through walls while catching up.
