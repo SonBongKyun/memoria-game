@@ -87,6 +87,9 @@ private:
     float StepAt = -1.f, TravelAt = -1.f, SceneAt = -1.f, Clock = 0.f;
     // S393: the next of the exit's "then" groups, and when it starts.
     int32 ExitThen = -1; float ExitThenAt = -1.f;
+    // S399 (T-24): the cart on the east road (32-35화), and the chapter's part in driving it.
+    TWeakObjectPtr<class AMemoriaCart> RoadCart;
+    void EastRoadCart(const FString& Event);
     bool bComplete = false, bDeparting = false, bInExit = false;
     UPROPERTY(Transient) TArray<TObjectPtr<UMemoriaFieldCharacterComponent>> AmbientNpcs;
     int32 DecorationCount = 0, ModelPropCount = 0;

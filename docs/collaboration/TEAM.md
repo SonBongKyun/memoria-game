@@ -41,7 +41,7 @@ Folder: `C:/Users/jc/Documents/Codex/MEMORIA-Unreal-Collaboration/`
 ## Build and test (Opus and Grok)
 - Build: `"C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/Build.bat" MemoriaEditor Win64 Development "-Project=<your worktree>/Unreal/Memoria/Memoria.uproject" -WaitMutex -NoHotReloadFromIDE -MaxParallelActions=1`. A new test `.cpp` may need a second build. The first build of a new worktree takes about 10 min.
 - Tests (they do not build): `py -3 Unreal/Tools/run_s365_native.py --tests "<filters joined by +>" --evidence Unreal/Memoria/Saved/Validation/<fresh dir> --timeout N`.
-- Wide regression: `"MemoriaVisual.+Memoria.S36+Memoria.S37+Memoria.S38+Memoria.S39+Memoria.Journal+MemoriaSave.S362+Memoria.Foundation.MapInputAndModal"` (102 tests at S398).
+- Wide regression: `"MemoriaVisual.+Memoria.S36+Memoria.S37+Memoria.S38+Memoria.S39+Memoria.Journal+MemoriaSave.S362+Memoria.Foundation.MapInputAndModal"` (103 tests at S400).
   - Each `Memoria.S3x` prefix catches only its own decade: `S38` does not catch `S39x`. Add the next decade when its first test lands, and add any test outside these prefixes by name.
 - Use `py -3`. `python3` is a Store stub here.
 

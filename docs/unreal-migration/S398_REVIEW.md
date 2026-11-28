@@ -132,6 +132,31 @@ Branch `claude/s366-upgrade`, on top of `128dc475`. Team task **T-22** on `TEAM-
 - Results: see the commit message.
 
 ## Limits
-- No cart to ride until T-24 (see Riding).
+- ~~No cart to ride until T-24.~~ S400 integrates T-24: see below.
 - The man in the grey coat is a plain `traveler` figure; he has no field look of his own yet (no scar, no grey coat).
 - English lines are this port's translation. Narration is trimmed more than in earlier chapters, since 31화 and 33화 are long single-viewpoint passages. Every spoken line is kept whole.
+
+## S400: T-24 integrated (the cart), T-23 nits
+- Grok's `AMemoriaCart` (`722c9eb0`, cherry-picked as `5c3a2c66`) is in. It brings:
+  - an uncovered goods cart with low sides, two wheels and one horse;
+  - the hooded driver, who shows no face;
+  - its saved materials.
+- **The ride** (`AMemoriaChapterPresentation::EastRoadCart`):
+  - **The second mile:** the cart waits there from the start (root at tile 10.2, 12). The three board when `ms_east_cart` ends.
+  - **Leg 1:** through the third mile to the fourth-mile bend. `ms_east_third_mile` and then `ms_east_rest` start as the cart passes and stops.
+  - **Leg 2:** after the rest, past the bend to the seventh-mile post. `ms_east_panel` (33화) plays on the way.
+    - The driver turns toward the bed when the post's scene starts, and back when it ends.
+  - **Leg 3:** up into the eighth-mile yard. They get down when `ms_east_yard` ends.
+  - **Leg 4:** "타." (`ms_east_onward`): aboard again, out east across the yard.
+  - Each leg ends inside the next place's trigger, so a place passed while a scene plays still starts when the cart stops there.
+- A save loaded after boarding has no cart; the party walks the rest of the road.
+- **The replay** (`MemoriaVisual.S398EastRoad`) now rides instead of teleporting. It checks:
+  - one cart, and all three riding after the second mile;
+  - the driver turned back after the post;
+  - everyone down in the yard;
+  - aboard again at the card.
+  - Captures: `S398FirstMile`, `S398Riding`, `S398Post`, `S398Yard`, `S398OnEast`.
+- **Grok's captures showed the default checker; ours do not.** In the map the saved materials load. But at this map's low evening light, the wood, horse and hood all read as one pale beige, far brighter than the yard's own boards. Darkening them is left to the cart's owner (Round 9).
+- Gemini T-23 nits:
+  - Tobias reads Hanna's board line inside quotation marks: "‘누가 먼저 찾을지 기다리지 마라.’";
+  - "Her emotion board."

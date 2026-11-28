@@ -10,6 +10,7 @@
 #include "Interaction/MemoriaEliaCompanion.h"
 #include "Interaction/MemoriaTobiasCompanion.h"
 #include "Interaction/MemoriaHannaCompanion.h"
+#include "Interaction/MemoriaCart.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Presentation/MemoriaFieldCharacterComponent.h"
 #include "Run/MemoriaRunSubsystem.h"
@@ -462,6 +463,7 @@ void AMemoriaChapterPresentation::BeginPlay()
         for (int32 I = 0; I < MemoriaManuscript::SignCount(); ++I)
             if (auto* Sign = GetWorld()->SpawnActor<AMemoriaStoryPointActor>(MemoriaChapterMaps::ToWorld(MemoriaManuscript::SignOrigin(I)), FRotator::ZeroRotator, Params))
                 Sign->Configure(MemoriaManuscript::SignGroup(I), MemoriaManuscript::SignPrompt(I));
+    if (Map == MemoriaManuscript::EastRoadMap) EastRoadCart(TEXT("begin"));
     PreviousPosition = Player->GetActorLocation();
     if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("chapter:presented:") + Map);
     if (auto* Achievements = Game->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordMapVisit(Map);
@@ -500,9 +502,35 @@ void AMemoriaChapterPresentation::GrantChapterMemories(int32 Chapter)
     }
     if (Narrative) Narrative->Record(FString::Printf(TEXT("chapter:memories:%d:%d"), Chapter, Definitions.Num() - Before));
 }
+void AMemoriaChapterPresentation::EastRoadCart(const FString& Event)
+{
+    // S399 (T-24, 32-35화): the cart waits at the second mile. The three board when the second mile's scene ends,
+    // and it drives each leg to the next place: through the third mile to the fourth-mile bend; past the bend (33화
+    // plays on the way) to the seventh-mile post, where the driver turns round (34화); up into the eighth-mile yard,
+    // where they get down (35화); then, aboard again, out east. Each leg ends inside the next place's trigger, so the
+    // scene starts when the cart stops there even if the one before it was still playing as it passed.
+    // A save loaded after boarding has no cart: the party walks the rest of the road.
+    const auto At = [](float X, float Y) { return MemoriaChapterMaps::ToWorld(FVector2D(X * 32.f, Y * 32.f)); };
+    if (Event == TEXT("begin"))
+    {
+        if (!Flag(TEXT("ch18_cart")))
+            RoadCart = AMemoriaCart::SpawnOnRoute(GetWorld(), {At(10.2f, 12.f), At(11.5f, 11.6f), At(13.f, 11.5f), At(14.5f, 10.5f)});
+        return;
+    }
+    AMemoriaCart* Ride = RoadCart.Get();
+    if (!Ride) return;
+    auto Leg = [&](const TArray<FVector>& Points) { Ride->SetRoute(Points); Ride->Board(); };
+    if (Event == TEXT("ms_east_cart")) Ride->Board();
+    else if (Event == TEXT("ms_east_rest")) Leg({At(14.5f, 10.5f), At(14.5f, 8.5f), At(17.9f, 8.5f)});
+    else if (Event == TEXT("start:ms_east_post")) Ride->TurnDriverTowardBed();
+    else if (Event == TEXT("ms_east_post")) { Ride->TurnDriverAhead(); Leg({At(17.9f, 8.5f), At(19.5f, 8.5f), At(19.5f, 6.6f)}); }
+    else if (Event == TEXT("ms_east_yard")) Ride->GetDown();
+    else if (Event == TEXT("ms_east_onward")) Leg({At(19.5f, 6.6f), At(19.5f, 3.5f), At(23.4f, 3.5f)});
+}
 void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
 {
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
+    if (Map == MemoriaManuscript::EastRoadMap) EastRoadCart(Group);
     // The departure closes the chapter: its end handler's chapter number, flags and notice, then the
     // completion card, and the road on to the next chapter map when it is ported.
     // S393: the exit's own group, then each of its "then" groups in turn, a beat apart; the last one closes the chapter.
@@ -595,7 +623,12 @@ void AMemoriaChapterPresentation::CheckTriggers()
     const FVector2D P = PlayerSource();
     for (const auto& Trigger : Spec->Triggers)
         if (!Flag(Trigger.Flag) && (Trigger.Gate.IsEmpty() || Flag(Trigger.Gate)) && Trigger.Rect.Contains(P))
-        { SetFlag(Trigger.Flag); Narrative->StartChapterField(Trigger.Group, MemoriaChapterMaps::GroupAsset(*Spec, Trigger.Group), Spec->DialogueFile); return; }
+        {
+            SetFlag(Trigger.Flag);
+            if (Map == MemoriaManuscript::EastRoadMap) EastRoadCart(TEXT("start:") + Trigger.Group);
+            Narrative->StartChapterField(Trigger.Group, MemoriaChapterMaps::GroupAsset(*Spec, Trigger.Group), Spec->DialogueFile);
+            return;
+        }
     const auto& Exit = Spec->Exit;
     // body_entered: the exit acts on stepping into it, not on standing in it.
     const bool bWasInExit = bInExit; bInExit = Exit.Rect.Contains(P);

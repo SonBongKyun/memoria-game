@@ -13,6 +13,7 @@
 #include "Framework/MemoriaFieldPawn.h"
 #include "Interaction/MemoriaTobiasCompanion.h"
 #include "Interaction/MemoriaHannaCompanion.h"
+#include "Interaction/MemoriaCart.h"
 #include "Narrative/MemoriaNarrativeSubsystem.h"
 #include "Narrative/MemoriaNarrativeData.h"
 #include "Narrative/MemoriaManuscript.h"
@@ -191,6 +192,20 @@ public:
         if (!Spec) return false;
         auto Capture = [&](const FString& Name) { FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Validation/S398East") / (Name + TEXT(".png")), true, false); };
         auto Flag = [&](const FString& Id) { return Run->GetRunSnapshot().GetFlag(Id); };
+        AMemoriaCart* Cart = nullptr; int32 Carts = 0; for (TActorIterator<AMemoriaCart> It(World); It; ++It) { Cart = *It; ++Carts; }
+        const bool bExploring = Host->GetState() == EMemoriaSliceState::Exploration;
+        // S399: once aboard, the cart carries Arrel from place to place; the replay only waits and looks.
+        auto Ride = [&](const TCHAR* Done, const TCHAR* Shot)
+        {
+            if (Flag(Done) && bExploring && Frame > Mark + 20)
+            {
+                if (!bShot) { bShot = true; Mark = Frame; return; }
+                if (Frame == Mark + 30) { Capture(Shot); return; }
+                if (Frame < Mark + 40) return;
+                bShot = false; ++Step; Mark = Frame; return;
+            }
+            if (Frame > Mark + 30000) { Test->AddError(FString::Printf(TEXT("The cart never brought them to %s"), Done)); Step = 99; }
+        };
         auto Place = [&](const FVector2D& Source) { Pawn->SetActorLocation(MemoriaChapterMaps::ToWorld(Source) + FVector(0, 0, Pawn->GetActorLocation().Z)); };
         if (Host->GetState() == EMemoriaSliceState::Field)
         {
@@ -233,19 +248,38 @@ public:
             break;
         case 2: Next(TEXT("ch18_first_mile"), 1, TEXT("S398FirstMile")); break;
         case 3:
-            if (Flag(TEXT("ch18_cart"))) Test->TestTrue(TEXT("They board the cart"), Flag(TEXT("ch18_cart_boarded")));
-            Next(TEXT("ch18_cart"), 2, TEXT("S398SecondMile")); break;
-        case 4: Next(TEXT("ch18_third_mile"), 3, TEXT("S398LowWalls")); break;
-        case 5: Next(TEXT("ch18_rest"), 4, TEXT("S398Bend")); break;
+            // The second mile: the three board and the cart drives off east.
+            if (Flag(TEXT("ch18_cart")) && bExploring && Frame > Mark + 20 && !bShot)
+            {
+                Test->TestTrue(TEXT("They board the cart"), Flag(TEXT("ch18_cart_boarded")));
+                Test->TestTrue(TEXT("One cart, and the three ride it"), Carts == 1 && Cart && Cart->IsRiding());
+            }
+            Ride(TEXT("ch18_cart"), TEXT("S398Riding")); break;
+        case 4: Ride(TEXT("ch18_third_mile"), TEXT("S398LowWalls")); break;
+        case 5: Ride(TEXT("ch18_rest"), TEXT("S398Bend")); break;
         case 6:
-            if (Flag(TEXT("ch18_panel"))) Test->TestTrue(TEXT("Kairos moves nothing"), Flag(TEXT("ch18_panel_unmoved")));
-            Next(TEXT("ch18_panel"), 5); break;
+            if (Flag(TEXT("ch18_panel")) && bExploring) Test->TestTrue(TEXT("Kairos moves nothing"), Flag(TEXT("ch18_panel_unmoved")));
+            Ride(TEXT("ch18_panel"), TEXT("S398PastTheBend")); break;
         case 7:
-            if (Flag(TEXT("ch18_post"))) Test->TestTrue(TEXT("The driver turned round"), Flag(TEXT("ch18_driver_turned")));
-            Next(TEXT("ch18_post"), 6, TEXT("S398Post")); break;
+            if (Flag(TEXT("ch18_post")) && bExploring)
+                Test->TestTrue(TEXT("The driver turned round, and back"), Flag(TEXT("ch18_driver_turned")) && Cart && !Cart->IsDriverTurnedTowardBed());
+            Ride(TEXT("ch18_post"), TEXT("S398Post")); break;
         case 8:
-            if (Flag(TEXT("ch18_yard"))) Test->TestTrue(TEXT("A face he does not know"), Flag(TEXT("ch18_unknown_face")) && Host->GetTrace().Contains(TEXT("toast:A face he does not know")));
-            Next(TEXT("ch18_yard"), -1, TEXT("S398Yard")); break;
+            if (Flag(TEXT("ch18_yard")) && bExploring)
+            {
+                Test->TestTrue(TEXT("A face he does not know"), Flag(TEXT("ch18_unknown_face")) && Host->GetTrace().Contains(TEXT("toast:A face he does not know")));
+                Test->TestTrue(TEXT("They got down in the yard"), Cart && !Cart->IsRiding());
+            }
+            // Down in the yard: walk east to the same cart.
+            if (Flag(TEXT("ch18_yard")) && bExploring && Frame > Mark + 20)
+            {
+                if (!bShot) { bShot = true; Mark = Frame; break; }
+                if (Frame == Mark + 30) { Capture(TEXT("S398Yard")); break; }
+                if (Frame < Mark + 40) break;
+                bShot = false; Place(Spec->Exit.Rect.Center()); ++Step; Mark = Frame; break;
+            }
+            if (Frame > Mark + 30000) { Test->AddError(TEXT("The cart never reached the yard")); return true; }
+            break;
         case 9:
             if (Map->IsChapterComplete())
             {
@@ -253,13 +287,15 @@ public:
                 Test->TestTrue(TEXT("Every row of the ten scenes was shown"), Seen.Num() == 255);
                 Test->TestTrue(TEXT("Its last line was shown"), Seen.Contains(TEXT("field:ms_east_onward:23")));
                 Test->TestTrue(TEXT("The card shows"), Map->GetCard() && Map->GetCard()->IsShowing());
+                Test->TestTrue(TEXT("Aboard again, on east"), Cart && Cart->IsRiding());
                 ++Step; Mark = Frame;
             }
             if (Frame > Mark + 12000) { Test->AddError(TEXT("The yard never closed the chapter")); return true; }
             break;
         case 10:
             if (Frame == Mark + 30) Capture(TEXT("S398Complete"));
-            if (Frame < Mark + 40) break;
+            if (Frame == Mark + 150) Capture(TEXT("S398OnEast"));
+            if (Frame < Mark + 160) break;
             return true;
         default:
             return true;
