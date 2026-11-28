@@ -72,7 +72,7 @@ bool FArcaneLeaveS396Test::RunTest(const FString&)
     TestEqual(TEXT("Thirteen scenes"), Groups.Num(), 13);
     for (const FString& G : Groups) TestTrue(*(TEXT("A manuscript scene: ") + G), IsScene(G));
     TestTrue(TEXT("Arcane's room leads here"), City->Exit.NextMap == ArcaneLeaveMap && City->Exit.NextChapter == 17);
-    TestTrue(TEXT("and the gate on toward Chapter 18"), Leave->Exit.NextChapter == 18 && Leave->Exit.NextMap.IsEmpty() && Leave->Exit.Flags.Contains(TEXT("canon_ch18_east_road_ready")));
+    TestTrue(TEXT("and the gate on toward Chapter 18"), Leave->Exit.NextChapter == 18 && Leave->Exit.NextMap == EastRoadMap && Leave->Exit.Flags.Contains(TEXT("canon_ch18_east_road_ready")));
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -155,13 +155,14 @@ bool FArcaneLeaveS396Test::RunTest(const FString&)
         {TEXT("ch17_stone"), TEXT("목표  남문 아래로: 성문 서기")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ArcaneLeaveMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch17_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch17_")) && !FString(M.Flag).StartsWith(TEXT("ch18_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is the room"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 토비아스의 방: 책, 그리고 노래하는 사람")));
     Run->SetStoryFlag(TEXT("ch17_lullaby"), true);
     TestTrue(TEXT("then the gate with Hanna"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 한나와 함께, 셋째 종 전에 남문으로")));
     Run->SetStoryFlag(TEXT("ch17_stone"), true);
     TestTrue(TEXT("then out under it"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 남문 밖으로: 동행 둘")));
     Run->SetStoryFlag(TEXT("ch17_complete"), true);
+    // S398: Chapter 18's first main step keeps this line.
     TestTrue(TEXT("then two miles to the cart"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 동쪽으로 가는 마차까지 두 마일. 아직 정한 건 없다")));
     Game->Shutdown();
     return true;

@@ -21,11 +21,11 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16'), 'arcane_leave': (17, 'Ch17')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16'), 'arcane_leave': (17, 'Ch17'), 'east_road': (18, 'Ch18')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26', 'arcane_leave': '27-30'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26', 'arcane_leave': '27-30', 'east_road': '31-35'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
@@ -39,7 +39,9 @@ GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_f
           # S393: Arcane's tiles are hand-authored (HANDMADE below); verdan_market.gd only lends its tile size.
           'arcane_city': 'verdan_market',
           # S396: Chapter 17 leaves the same city: the same hand-authored ground, from Tobias's door to the south gate.
-          'arcane_leave': 'verdan_market'}
+          'arcane_leave': 'verdan_market',
+          # S398: the east road is hand-authored too (HANDMADE below).
+          'east_road': 'verdan_market'}
 
 # S393: grounds drawn here rather than read from a Godot map. Arcane (25-29화 and on, Gemini T-14): in by the south gate,
 # the street north to the first square and its bread window (K), the road curving west behind the five confession
@@ -76,6 +78,40 @@ HANDMADE = {
 
 # S396: Chapter 17 (27-30화) walks the same streets back, from the door with the brass ring to the south gate.
 HANDMADE['arcane_leave'] = HANDMADE['arcane_city']
+
+# S398: the east road (31-35화, Gemini T-17/T-20). West to east: out of the south gate past the first mile stone (M);
+# the second mile, where the cart waited; low field walls (w) to the third mile; the fourth-mile bend with a few trees
+# (T) in the pasture outside it; the seventh-mile post (P) on the road's right, its lamp unlit; up the slope into the
+# eighth-mile yard: the doorless shed (S) across the back, the low rail (R), the dry trough (O), the bench (B) and
+# three other carts (C). The pasture either side is open ground; the rim (E) is pasture too, only closed.
+HANDMADE['east_road'] = {
+    'legend': {',': ('FIELD', 'dead_soil', [0.36, 0.32, 0.22, 1.0], False), '.': ('ROAD', 'road', [0.42, 0.36, 0.27, 1.0], False),
+               'E': ('EDGE', 'cliff', [0.34, 0.31, 0.22, 1.0], True), 'w': ('LOWWALL', 'rock', [0.3, 0.29, 0.26, 1.0], True),
+               'T': ('TREE', 'rock', [0.2, 0.24, 0.14, 1.0], True), 'M': ('MILESTONE', 'rock', [0.4, 0.38, 0.34, 1.0], True),
+               'P': ('POST', 'wall', [0.3, 0.25, 0.2, 1.0], True), 'S': ('SHED', 'wall', [0.3, 0.24, 0.17, 1.0], True),
+               'R': ('RAIL', 'wall', [0.32, 0.25, 0.17, 1.0], True), 'O': ('TROUGH', 'rock', [0.26, 0.22, 0.16, 1.0], True),
+               'B': ('BENCH', 'bench', [0.3, 0.22, 0.15, 1.0], True), 'C': ('CART', 'wall', [0.33, 0.26, 0.18, 1.0], True)},
+    'rows': [
+        'EEEEEEEEEEEEEEEEEEEEEEEEE',
+        'E,,,,,,,,,,,,,,,,,RSSSSSE',
+        'E,,,,,,,,,,,,,,,,,R.B..OE',
+        'E,,,,,,,,,,,,,,,,,R.....E',
+        'E,,,,,,,,,,,,,,,,,R...C.E',
+        'E,,,,,,,,,,,,T,,,,R.....E',
+        'E,,,,,,,,,,,T,,,,,R..C.CE',
+        'E,,,,,,,,,T,,,,,,,,.RRRRE',
+        'E,,,,,,,,T,,,,......,,,,E',
+        'E,,,,,,,,,,T,,.,M,,,,,,,E',
+        'E,,,,,,,wwww,,.,,PP,,,,,E',
+        'E,,,,,,,,,,....,,,,,,,,,E',
+        'E,,,,,,.....,M,,,,,,,,,,E',
+        'E.......,,,,,,,,,,,,,,,,E',
+        'E.....,,Mwwww,,,,,,,,,,,E',
+        'E,,,M,,,,,,,,,,,,,,,,,,,E',
+        'E,,,,,,,,,,,,,,,,,,,,,,,E',
+        'EEEEEEEEEEEEEEEEEEEEEEEEE',
+    ],
+}
 
 
 def handmade_ground(map_id):
@@ -371,6 +407,60 @@ MANUSCRIPT = {
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
     },
+    # S398: 최종본 31화 「늙은 편집자」 to 35화 「모르는 얼굴」 on a hand-authored road east (Gemini's T-20 brief, Option A:
+    # Chapter 18 = 31-35화). Two cutaways open it: Telos's drawer in Lumea; Kairos's report, 0.3 degrees off true. Then
+    # the road: the first mile on foot; the cart at the second mile and its hooded driver ("말 못 해."); the third mile;
+    # the rest at the fourth-mile bend; Kairos at the obsidian panel, who moves nothing (33화); the seventh-mile post,
+    # unlit, where the driver turns round (34화); the eighth-mile yard, the dry trough, the man in the grey coat with the
+    # scar (35화). Out east on the same cart.
+    'east_road': {
+        'title': {'number': 18, 'name': 'The East Road', 'subtitle': 'An Unknown Face'},
+        'spawn': [1 * T + 16, 13 * T + 16],
+        'elia_repeat': "If I want to stop, I'll say.",
+        'sequence': [
+            {'flag': 'ch18_telos', 'group': 'ms_east_telos', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch18_report', 'group': 'ms_east_report', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # The first mile stone: "돌 들어갔어?"
+            {'rect': {'origin': [4 * T, 13 * T], 'size': [T, 2 * T]}, 'group': 'ms_east_first_mile', 'flag': 'ch18_first_mile', 'gate': 'ch18_report'},
+            # The second mile: the cart and its hooded driver; they board.
+            {'rect': {'origin': [8 * T, 12 * T], 'size': [T, 2 * T]}, 'group': 'ms_east_cart', 'flag': 'ch18_cart', 'gate': 'ch18_first_mile'},
+            # The third mile: nobody either way; the low wall ends.
+            {'rect': {'origin': [11 * T, 11 * T], 'size': [2 * T, T]}, 'group': 'ms_east_third_mile', 'flag': 'ch18_third_mile', 'gate': 'ch18_cart'},
+            # The fourth-mile bend: the rest under the trees, the bread.
+            {'rect': {'origin': [13 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_east_rest', 'flag': 'ch18_rest', 'gate': 'ch18_third_mile'},
+            # Leaving the bend: Kairos at the obsidian panel (33화), a cutaway.
+            {'rect': {'origin': [14 * T, 8 * T], 'size': [T, 2 * T]}, 'group': 'ms_east_panel', 'flag': 'ch18_panel', 'gate': 'ch18_rest'},
+            # The seventh-mile post, its lamp unlit: the driver turns round.
+            {'rect': {'origin': [17 * T, 8 * T], 'size': [T, T]}, 'group': 'ms_east_post', 'flag': 'ch18_post', 'gate': 'ch18_panel'},
+            # Into the eighth-mile yard: the dry trough; the man in the grey coat.
+            {'rect': {'origin': [19 * T, 6 * T], 'size': [T, 2 * T]}, 'group': 'ms_east_yard', 'flag': 'ch18_yard', 'gate': 'ch18_post'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # Out of the yard, east: "타."; on the same cart; "수레는 동쪽 길로 올라섰다."
+        'exit': {'center': [23 * T + 16, 4 * T + 16], 'size': [T, 2 * T], 'requires': 'ch18_yard', 'completes': 'ch18_complete',
+                 'group': 'ms_east_onward', 'next_chapter': 19, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch19_east_onward_ready'],
+                 'notice': {'en': 'On, east.', 'ko': '동쪽으로.'}},
+        'objects_gate': 'ch18_complete',
+        'chests': [{'origin': [10 * T, 9 * T], 'flag': 'chest_east_bend', 'rewards': {'grains': 38, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [22 * T, 2 * T], 'flag': 'clue_east_trough',
+                   'text': 'The water trough by the shed. Dry to the bottom, a ring of old silt where the water stood.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ms_never',
+        'lights': [],
+        # Late afternoon going to evening on an open road; low warm light. No picture fits (Gemini T-20): black.
+        'atmosphere': {'saturation': 0.6, 'mood': 0.36, 'hue': [0.44, 0.4, 0.34, 1.0], 'light': [0.96, 0.84, 0.66, 1.0], 'fog': 'none',
+                       'splash': ''},
+        # The eighth-mile yard: the one wiping a horse; the man on the bench; the woman with the bridle; the man in the
+        # grey coat by the goods cart near the shed's mouth (no name, no lines).
+        'ambient_npcs': [{'position': [656.0, 176.0], 'preset': 'villager_m', 'still': True, 'face': [688.0, 208.0]},
+                         {'position': [688.0, 80.0], 'preset': 'villager_m', 'still': True, 'face': [640.0, 80.0]},
+                         {'position': [656.0, 144.0], 'preset': 'villager_f', 'still': True, 'face': [656.0, 100.0]},
+                         {'position': [720.0, 112.0], 'preset': 'traveler', 'still': True, 'face': [720.0, 160.0]}],
+        'ambient_npcs_gate': 'ch18_post',
+    },
     # S396: 최종본 27화 「조용함의 무게」 to 30화 「어머니의 자장가」 on the Arcane ground again (Gemini's T-14 and T-17
     # briefs: Chapter 17 = 27-30화). The room behind the brass ring plays as the arrival, on black: the book read by a
     # short candle ("끝까지 열면 죽는다."); Hanna, who never speaks, and her board; two hours; the songs through the wall;
@@ -402,7 +492,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # Under the south gate: "동행은요?" "둘입니다." Out toward the second mile and the cart going east.
         'exit': {'center': [12 * T + 16, 16 * T + 16], 'size': [3 * T, T], 'requires': 'ch17_stone', 'completes': 'ch17_complete',
-                 'group': 'ms_leave_out', 'next_chapter': 18, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_leave_out', 'next_chapter': 18, 'next_map': 'east_road', 'next_scene': None,
                  'flags': ['canon_ch18_east_road_ready'],
                  'notice': {'en': 'Two.', 'ko': '둘입니다.'}},
         'objects_gate': 'ch17_complete',

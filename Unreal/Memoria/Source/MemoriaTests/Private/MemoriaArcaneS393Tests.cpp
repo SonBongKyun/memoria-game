@@ -146,7 +146,7 @@ bool FArcaneS393Test::RunTest(const FString&)
         {TEXT("ch16_alley"), TEXT("목표  저수조의 돌벽으로")}, {TEXT("ch16_cistern"), TEXT("목표  낮은 아치 골목 끝: 놋쇠 고리 문")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ArcaneMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch16_")) && !FString(M.Flag).StartsWith(TEXT("ch17_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch16_")) && !FString(M.Flag).StartsWith(TEXT("ch17_")) && !FString(M.Flag).StartsWith(TEXT("ch18_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is the gate"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 아르케인: 성문, 배지는 하나")));
     Run->SetStoryFlag(TEXT("ch16_gate"), true);
     TestTrue(TEXT("then the third booth"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 셋째 부스: 노인과 아이")));

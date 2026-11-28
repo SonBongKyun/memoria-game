@@ -135,7 +135,7 @@
   ],
   "group": "ms_leave_out",
   "next_chapter": 18,
-  "next_map": null,
+  "next_map": "east_road",
   "next_scene": null,
   "notice": {
    "en": "Two.",

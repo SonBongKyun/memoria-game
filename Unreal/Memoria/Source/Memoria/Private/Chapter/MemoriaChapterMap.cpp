@@ -174,6 +174,12 @@ FString Korean(const FString& En)
         {TEXT("Not here. Don't open it here."), TEXT("여기선 펴지 마.")},
         {TEXT("The register board by the gate. Names, and numbers beside them. Under Tobias, in another hand: two."),
          TEXT("성문 옆의 명부 판. 이름들, 그 옆의 숫자. 토비아스 아래에 다른 필체로: 둘.")},
+        // S398: the east road (최종본 31-35화).
+        {TEXT("east_road"), TEXT("동쪽 길")}, {TEXT("The East Road"), TEXT("동쪽 길")}, {TEXT("An Unknown Face"), TEXT("모르는 얼굴")},
+        {TEXT("On, east."), TEXT("동쪽으로.")}, {TEXT("If I want to stop, I'll say."), TEXT("멈추고 싶으면 말할 거야.")},
+        {TEXT("A face he does not know"), TEXT("모르는 얼굴")}, {TEXT("The Eighth-Mile Yard"), TEXT("여덟째 마일 마당")},
+        {TEXT("The water trough by the shed. Dry to the bottom, a ring of old silt where the water stood."),
+         TEXT("창고 곁의 물받이 통. 바닥까지 말랐다. 물이 고여 있던 자리에 오래된 앙금이 둥글게 남았다.")},
         // S396: leaving Arcane (최종본 27-30화).
         {TEXT("arcane_leave"), TEXT("아르케인")}, {TEXT("The Singer"), TEXT("노래하는 자")}, {TEXT("Mother's Lullaby"), TEXT("어머니의 자장가")},
         {TEXT("Two."), TEXT("둘입니다.")}, {TEXT("Not today. I'm only listening."), TEXT("오늘은 안 불러. 듣기만 할 거야.")},

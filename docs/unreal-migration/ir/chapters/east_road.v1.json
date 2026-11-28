@@ -1,0 +1,917 @@
+{
+ "ambient_npcs": [
+  {
+   "face": [
+    688.0,
+    208.0
+   ],
+   "position": [
+    656.0,
+    176.0
+   ],
+   "preset": "villager_m",
+   "still": true
+  },
+  {
+   "face": [
+    640.0,
+    80.0
+   ],
+   "position": [
+    688.0,
+    80.0
+   ],
+   "preset": "villager_m",
+   "still": true
+  },
+  {
+   "face": [
+    656.0,
+    100.0
+   ],
+   "position": [
+    656.0,
+    144.0
+   ],
+   "preset": "villager_f",
+   "still": true
+  },
+  {
+   "face": [
+    720.0,
+    160.0
+   ],
+   "position": [
+    720.0,
+    112.0
+   ],
+   "preset": "traveler",
+   "still": true
+  }
+ ],
+ "ambient_npcs_gate": "ch18_post",
+ "asset_prefix": "Ch18",
+ "atmosphere": {
+  "brightness": 0.0,
+  "fog": "none",
+  "hue": [
+   0.44,
+   0.4,
+   0.34,
+   1.0
+  ],
+  "light": [
+   0.96,
+   0.84,
+   0.66,
+   1.0
+  ],
+  "mood": 0.36,
+  "saturation": 0.6,
+  "splash": ""
+ },
+ "battles": [],
+ "battles_gate": null,
+ "chapter": 18,
+ "chests": [
+  {
+   "flag": "chest_east_bend",
+   "origin": [
+    320.0,
+    288.0
+   ],
+   "rewards": {
+    "grains": 38,
+    "items": {
+     "antidote": 1,
+     "potion": 2
+    }
+   }
+  }
+ ],
+ "clues": [
+  {
+   "flag": "clue_east_trough",
+   "origin": [
+    704.0,
+    64.0
+   ],
+   "text": "The water trough by the shed. Dry to the bottom, a ring of old silt where the water stood."
+  }
+ ],
+ "decorations": [],
+ "dialogue_file": "data/chapter2_dialogue.json",
+ "elia_repeat": "If I want to stop, I'll say.",
+ "encounter_range": [
+  60,
+  100
+ ],
+ "encounters": [
+  {
+   "abilities": [
+    "poison"
+   ],
+   "atk": 8,
+   "hp": 35,
+   "is_void": false,
+   "name": "Alley Rat"
+  },
+  {
+   "abilities": [
+    "weaken"
+   ],
+   "atk": 12,
+   "hp": 50,
+   "is_void": false,
+   "name": "Market Thief"
+  }
+ ],
+ "encounters_gate": "ms_never",
+ "exit": {
+  "center": [
+   752.0,
+   144.0
+  ],
+  "completes": "ch18_complete",
+  "flags": [
+   "canon_ch19_east_onward_ready"
+  ],
+  "group": "ms_east_onward",
+  "next_chapter": 19,
+  "next_map": null,
+  "next_scene": null,
+  "notice": {
+   "en": "On, east.",
+   "ko": "동쪽으로."
+  },
+  "requires": "ch18_yard",
+  "size": [
+   32.0,
+   64.0
+  ]
+ },
+ "height": 18,
+ "map": "east_road",
+ "objects_gate": "ch18_complete",
+ "resume_blocked": [],
+ "schema_version": 1,
+ "sequence": [
+  {
+   "flag": "ch18_telos",
+   "flags": [],
+   "group": "ms_east_telos",
+   "memories_chapter": null,
+   "toasts": []
+  },
+  {
+   "flag": "ch18_report",
+   "flags": [],
+   "group": "ms_east_report",
+   "memories_chapter": null,
+   "toasts": []
+  }
+ ],
+ "solid": [
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11
+ ],
+ "source": "hand-authored ground (export_chapter_maps.py HANDMADE) + 최종본 31-35화 (story)",
+ "spawn": [
+  48.0,
+  432.0
+ ],
+ "tile_defs": [
+  {
+   "color": [
+    0.36,
+    0.32,
+    0.22,
+    1.0
+   ],
+   "detail": "dead_soil"
+  },
+  {
+   "color": [
+    0.42,
+    0.36,
+    0.27,
+    1.0
+   ],
+   "detail": "road"
+  },
+  {
+   "color": [
+    0.34,
+    0.31,
+    0.22,
+    1.0
+   ],
+   "detail": "cliff"
+  },
+  {
+   "color": [
+    0.3,
+    0.29,
+    0.26,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.2,
+    0.24,
+    0.14,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.4,
+    0.38,
+    0.34,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.3,
+    0.25,
+    0.2,
+    1.0
+   ],
+   "detail": "wall"
+  },
+  {
+   "color": [
+    0.3,
+    0.24,
+    0.17,
+    1.0
+   ],
+   "detail": "wall"
+  },
+  {
+   "color": [
+    0.32,
+    0.25,
+    0.17,
+    1.0
+   ],
+   "detail": "wall"
+  },
+  {
+   "color": [
+    0.26,
+    0.22,
+    0.16,
+    1.0
+   ],
+   "detail": "rock"
+  },
+  {
+   "color": [
+    0.3,
+    0.22,
+    0.15,
+    1.0
+   ],
+   "detail": "bench"
+  },
+  {
+   "color": [
+    0.33,
+    0.26,
+    0.18,
+    1.0
+   ],
+   "detail": "wall"
+  }
+ ],
+ "tile_names": [
+  "FIELD",
+  "ROAD",
+  "EDGE",
+  "LOWWALL",
+  "TREE",
+  "MILESTONE",
+  "POST",
+  "SHED",
+  "RAIL",
+  "TROUGH",
+  "BENCH",
+  "CART"
+ ],
+ "tile_size": 32,
+ "tiles": [
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   8,
+   7,
+   7,
+   7,
+   7,
+   7,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   8,
+   1,
+   10,
+   1,
+   1,
+   9,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   8,
+   1,
+   1,
+   1,
+   1,
+   1,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   8,
+   1,
+   1,
+   1,
+   11,
+   1,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   8,
+   1,
+   1,
+   1,
+   1,
+   1,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   8,
+   1,
+   1,
+   11,
+   1,
+   11,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   8,
+   8,
+   8,
+   8,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   4,
+   0,
+   0,
+   1,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   3,
+   3,
+   3,
+   3,
+   0,
+   0,
+   1,
+   0,
+   0,
+   6,
+   6,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   5,
+   3,
+   3,
+   3,
+   3,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   5,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   2
+  ],
+  [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ ],
+ "title": {
+  "name": "The East Road",
+  "number": 18,
+  "subtitle": "An Unknown Face"
+ },
+ "triggers": [
+  {
+   "flag": "ch18_first_mile",
+   "gate": "ch18_report",
+   "group": "ms_east_first_mile",
+   "rect": {
+    "origin": [
+     128.0,
+     416.0
+    ],
+    "size": [
+     32.0,
+     64.0
+    ]
+   }
+  },
+  {
+   "flag": "ch18_cart",
+   "gate": "ch18_first_mile",
+   "group": "ms_east_cart",
+   "rect": {
+    "origin": [
+     256.0,
+     384.0
+    ],
+    "size": [
+     32.0,
+     64.0
+    ]
+   }
+  },
+  {
+   "flag": "ch18_third_mile",
+   "gate": "ch18_cart",
+   "group": "ms_east_third_mile",
+   "rect": {
+    "origin": [
+     352.0,
+     352.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch18_rest",
+   "gate": "ch18_third_mile",
+   "group": "ms_east_rest",
+   "rect": {
+    "origin": [
+     416.0,
+     320.0
+    ],
+    "size": [
+     64.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch18_panel",
+   "gate": "ch18_rest",
+   "group": "ms_east_panel",
+   "rect": {
+    "origin": [
+     448.0,
+     256.0
+    ],
+    "size": [
+     32.0,
+     64.0
+    ]
+   }
+  },
+  {
+   "flag": "ch18_post",
+   "gate": "ch18_panel",
+   "group": "ms_east_post",
+   "rect": {
+    "origin": [
+     544.0,
+     256.0
+    ],
+    "size": [
+     32.0,
+     32.0
+    ]
+   }
+  },
+  {
+   "flag": "ch18_yard",
+   "gate": "ch18_post",
+   "group": "ms_east_yard",
+   "rect": {
+    "origin": [
+     608.0,
+     192.0
+    ],
+    "size": [
+     32.0,
+     64.0
+    ]
+   }
+  }
+ ],
+ "width": 25
+}

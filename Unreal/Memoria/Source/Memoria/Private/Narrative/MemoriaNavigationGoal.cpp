@@ -49,6 +49,17 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::EastRoadMap && !Run.GetFlag(TEXT("ch18_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch18_yard"))) return Prefix + (bKo ? TEXT("마당 동쪽으로: 같은 수레") : TEXT("East out of the yard: the same cart"));
+        if (Run.GetFlag(TEXT("ch18_post"))) return Prefix + (bKo ? TEXT("비탈 위로: 여덟째 마일 마당") : TEXT("Up the slope: the eighth-mile yard"));
+        if (Run.GetFlag(TEXT("ch18_panel"))) return Prefix + (bKo ? TEXT("일곱째 마일 초소") : TEXT("The seventh-mile post"));
+        if (Run.GetFlag(TEXT("ch18_rest"))) return Prefix + (bKo ? TEXT("굽이를 지나 동쪽으로") : TEXT("On east past the bend"));
+        if (Run.GetFlag(TEXT("ch18_third_mile"))) return Prefix + (bKo ? TEXT("넷째 마일 굽이: 나무 밑") : TEXT("The fourth-mile bend: under the trees"));
+        if (Run.GetFlag(TEXT("ch18_cart"))) return Prefix + (bKo ? TEXT("셋째 마일로") : TEXT("On to the third mile"));
+        if (Run.GetFlag(TEXT("ch18_first_mile"))) return Prefix + (bKo ? TEXT("둘째 마일: 마차") : TEXT("The second mile: the cart"));
+        if (Run.GetFlag(TEXT("ch18_report"))) return Prefix + (bKo ? TEXT("동쪽으로: 첫째 마일 돌") : TEXT("East: the first mile stone"));
+    }
     if (Map == MemoriaManuscript::ArcaneLeaveMap && !Run.GetFlag(TEXT("ch17_complete")))
     {
         if (Run.GetFlag(TEXT("ch17_stone"))) return Prefix + (bKo ? TEXT("남문 아래로: 성문 서기") : TEXT("Under the south gate: the gate clerk"));

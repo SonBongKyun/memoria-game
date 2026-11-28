@@ -66,6 +66,8 @@ namespace MemoriaManuscript
     inline const TCHAR* const ArcaneMap = TEXT("arcane_city");
     // S396: Chapter 17, leaving Arcane (최종본 27-30화), on the same hand-authored ground.
     inline const TCHAR* const ArcaneLeaveMap = TEXT("arcane_leave");
+    // S398: Chapter 18, the east road (최종본 31-35화), on a hand-authored ground.
+    inline const TCHAR* const EastRoadMap = TEXT("east_road");
     // S397: where Hanna turns off at the south gate (30화:361): the east end of the road past the squares, tile (20, 10).
     inline const FVector2D HannaLeavingPoint(20 * 32.0 + 16.0, 10 * 32.0 + 16.0);
     inline const TCHAR* const EchoShellMemory = TEXT("rel_echo_shell");

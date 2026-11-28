@@ -50,6 +50,7 @@ FString PlaceName(const FString& Map)
     if (Map == MemoriaManuscript::RidgeMap) return TEXT("The Farmhouse under the Ridge");
     if (Map == MemoriaManuscript::DryWellsMap) return TEXT("The Dry Wells");
     if (Map == MemoriaManuscript::ArcaneMap || Map == MemoriaManuscript::ArcaneLeaveMap) return TEXT("Arcane");
+    if (Map == MemoriaManuscript::EastRoadMap) return TEXT("The East Road");
     FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
 AMemoriaChapterPresentation::AMemoriaChapterPresentation()
@@ -545,6 +546,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (Where.IsEmpty() && Map == MemoriaManuscript::ArcaneMap) Where = bKo ? Ko(TEXT("Unsubmitted")) : TEXT("Unsubmitted");
         // S396: out under the south gate (30화).
         if (Where.IsEmpty() && Map == MemoriaManuscript::ArcaneLeaveMap) Where = bKo ? Ko(TEXT("The South Gate")) : TEXT("The South Gate");
+        // S398: the eighth-mile yard, and on east (35화).
+        if (Where.IsEmpty() && Map == MemoriaManuscript::EastRoadMap) Where = bKo ? Ko(TEXT("The Eighth-Mile Yard")) : TEXT("The Eighth-Mile Yard");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));

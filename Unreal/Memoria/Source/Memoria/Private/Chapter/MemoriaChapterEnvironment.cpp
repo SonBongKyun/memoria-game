@@ -193,6 +193,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.4f, -48.f, 30.f, 1.25f, .66f, .011f, 1.6f, .46f,
         34, false, true};
     if (InMap == TEXT("dry_wells")) return Wells;
+    // S398 The east road: late afternoon sinking toward evening on an open road (32화: "길 위로 비치는 빛이 낮아졌다";
+    // 35화: "해는 수레 뒤쪽으로 더 낮아져"); the light low and warm from the west, behind the cart; no lamps lit.
+    static const FDressing East{TEXT("T_BeltSoil"), TEXT("T_ClearingPaved"),
+        FLinearColor(1.f, .93f, .8f), FLinearColor(.07f, .06f, .045f), FLinearColor(.08f, .072f, .06f), FLinearColor(.07f, .064f, .055f),
+        FLinearColor(.06f, .045f, .03f), FLinearColor(.09f, .08f, .065f), FLinearColor(.03f, .03f, .032f),
+        FLinearColor(1.f, .62f, .34f), FLinearColor(.58f, .56f, .6f), FLinearColor(.07f, .065f, .06f), FLinearColor(.92f, .82f, .68f),
+        230.f, 220.f, 0.f, 0.f,
+        4.2f, -30.f, 160.f, 1.2f, .64f, .011f, 1.6f, .46f,
+        34, false, true};
+    if (InMap == TEXT("east_road")) return East;
     // S393 Arcane: grey stone streets at noon under a grey sky (25화); cold, even light; no lamps by day.
     static const FDressing Arcane{TEXT("T_BeltSoil"), TEXT("T_SeamPaved"),
         FLinearColor(.82f, .84f, .88f), FLinearColor(.06f, .062f, .066f), FLinearColor(.075f, .076f, .08f), FLinearColor(.066f, .067f, .07f),
@@ -1002,6 +1012,120 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
                 const float S = .8f + .4f * float(Scatter(Seed, 98));
                 Prop(TEXT("DeadTree"), Far, TileCentre(X + float(Scatter(Seed, 99)), Y) + FVector(0, 0, Feet - 6.f), 360.f * float(Scatter(Seed, 100)), FVector(S, S, S * 1.1f));
             }
+    }
+    else if (Map == TEXT("east_road"))
+    {
+        // S398 (31-35화): mile stones by the road; low field walls; a few trees outside the fourth-mile bend; the
+        // seventh-mile post with its lamp hanging unlit under the eaves; the eighth-mile yard: the doorless shed, the low
+        // rail, the dry water trough, the bench, three other carts (one with its tarpaulin half drawn back).
+        const auto Type = [&](const TCHAR* Name) { return Spec->TileNames.IndexOfByKey(Name); };
+        const int32 MileType = Type(TEXT("MILESTONE")), WallType = Type(TEXT("LOWWALL")), TreeType = Type(TEXT("TREE")), RailType = Type(TEXT("RAIL"));
+        const int32 TroughType = Type(TEXT("TROUGH")), BenchType = Type(TEXT("BENCH")), CartType = Type(TEXT("CART"));
+        auto* Mile = Focus(TEXT("MileStone"), FLinearColor(.2f, .19f, .17f), 0, .93f);
+        auto* Cut = Focus(TEXT("MileCut"), FLinearColor(.02f, .018f, .016f), 2, .95f);
+        auto* Field = Focus(TEXT("FieldWall"), FLinearColor(.15f, .14f, .12f), 0, .93f);
+        auto* Bark = Focus(TEXT("RoadBark"), FLinearColor(.09f, .075f, .055f), 1, .9f);
+        auto* Leaf = Focus(TEXT("RoadLeaf"), FLinearColor(.06f, .085f, .035f), 1, .95f);
+        auto* Board = Focus(TEXT("YardBoard"), FLinearColor(.12f, .085f, .05f), 1, .9f);
+        auto* Shade = Focus(TEXT("YardShade"), FLinearColor(.01f, .009f, .008f), 2, .95f);
+        auto* Silt = Focus(TEXT("TroughSilt"), FLinearColor(.1f, .08f, .05f), 2, .97f);
+        auto* Canvas = Focus(TEXT("CartCanvas"), FLinearColor(.2f, .19f, .15f), 1, .95f);
+        auto* Glass = Focus(TEXT("UnlitLamp"), FLinearColor(.05f, .05f, .045f), 3, .3f, .4f);
+        auto Cart = [&](const FVector& C, float Yaw, bool bCovered)
+        {
+            const FRotator R(0, Yaw, 0);
+            auto At = [&](float X, float Y, float Z) { return C + R.RotateVector(FVector(X, Y, Z)); };
+            Box(Board, At(0, 0, 72.f), FVector(T * 1.05f, T * .62f, 8.f), R);
+            for (const float Side : {-1.f, 1.f})
+            {
+                Box(Board, At(0, Side * T * .3f, 86.f), FVector(T * 1.05f, 5.f, 22.f), R);
+                // A wheel each side: a disc standing on edge.
+                Solid(TEXT("Cylinder"), Board, At(-T * .1f, Side * T * .35f, 44.f), FVector(.86f, .86f, .06f), FRotator(0, Yaw, 90.f));
+                // The shafts forward, resting on the ground.
+                Beam(Board, At(T * .5f, Side * T * .2f, 66.f), At(T * 1.25f, Side * T * .22f, 8.f), 3.f);
+            }
+            if (bCovered) Box(Canvas, At(-T * .12f, 0, 100.f), FVector(T * .72f, T * .58f, 34.f), R);
+        };
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const int32 Here = Spec->TileAt(X, Y);
+                const FVector C = TileCentre(X, Y) + Ground;
+                const float N = Hash(X, Y, 101);
+                if (Here == MileType)
+                {
+                    // An upright stone, the mile cut on the face toward the road.
+                    Box(Mile, C + FVector(0, 0, 46.f), FVector(30, 20, 92));
+                    Box(Mile, C + FVector(0, 0, 95.f), FVector(34, 24, 8));
+                    Box(Cut, C + FVector(0, 11.f, 62.f), FVector(14, 2, 22), FRotator::ZeroRotator, false);
+                }
+                else if (Here == WallType)
+                {
+                    // A low field wall of stacked stone, knee high.
+                    Box(Field, C + FVector(0, 0, 26.f + 6.f * N), FVector(T, T * .46f, 52.f + 12.f * N), FRotator(0, (N - .5f) * 6.f, 0));
+                    if (N > .5f) Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), Field, C + FVector(0, 0, 58.f), FVector(.45f), FRotator(0, 360.f * N, 0));
+                }
+                else if (Here == TreeType)
+                {
+                    // A tree in leaf: a trunk and a rounded crown of a few overlapping masses.
+                    const float Top = 200.f + 50.f * N;
+                    Beam(Bark, C, C + FVector(0, 0, Top + 20.f), 15.f + 5.f * N);
+                    Solid(TEXT("Sphere"), Leaf, C + FVector(0, 0, Top + 50.f), FVector(1.35f, 1.25f, 1.05f), FRotator(0, 360.f * N, 0));
+                    for (int32 I = 0; I < 4; ++I)
+                    {
+                        const float A = 90.f * I + 360.f * N, S = .75f + .2f * float(Scatter(I + X * 5, Y + 104));
+                        const FVector Off = FRotator(0, A, 0).RotateVector(FVector(52.f, 0, 0));
+                        Solid(TEXT("Sphere"), Leaf, C + Off + FVector(0, 0, Top + 20.f + 18.f * float(I % 2)), FVector(S, S, S * .85f), FRotator(0, A, 0));
+                    }
+                }
+                else if (Here == RailType)
+                {
+                    // The yard's low rail: a post on each tile, the rails between neighbours.
+                    Beam(Board, C, C + FVector(0, 0, 82.f), 5.f);
+                    if (Spec->TileAt(X + 1, Y) == RailType)
+                        for (const float H : {44.f, 76.f}) Beam(Board, C + FVector(0, 0, H), TileCentre(X + 1, Y) + Ground + FVector(0, 0, H), 3.f);
+                    if (Spec->TileAt(X, Y + 1) == RailType)
+                        for (const float H : {44.f, 76.f}) Beam(Board, C + FVector(0, 0, H), TileCentre(X, Y + 1) + Ground + FVector(0, 0, H), 3.f);
+                }
+                else if (Here == TroughType)
+                {
+                    // The water trough by the shed, dry to the bottom (35화).
+                    Box(Board, C + FVector(0, 0, 30.f), FVector(T * .9f, T * .5f, 60.f));
+                    Box(Silt, C + FVector(0, 0, 61.f), FVector(T * .8f, T * .4f, 2.f), FRotator::ZeroRotator, false);
+                }
+                else if (Here == BenchType)
+                {
+                    Box(Board, C + FVector(0, 0, 42.f), FVector(T, T * .42f, 8.f));
+                    for (const float Side : {-1.f, 1.f}) Box(Board, C + FVector(Side * T * .38f, 0, 20.f), FVector(8, T * .36f, 40.f));
+                }
+                else if (Here == CartType)
+                    // The goods cart by the shed's mouth has its tarpaulin half drawn back; the small one by the rail has no horse.
+                    Cart(C, X == 22 && Y == 4 ? 180.f : 90.f, X == 22 && Y == 4);
+            }
+        // The seventh-mile post, set back a tile south of the road (the cart's right, going east): a low house, its eaves
+        // toward the road, the lamp under them unlit, a dry wick inside (34화). No light is made. Kept low so it does not
+        // hide the road behind it from a camera looking north.
+        const FVector Post = TileCentre(17.5f, 10.5f) + Ground;
+        Box(Stone, Post + FVector(0, 0, 80.f), FVector(T * 1.84f, T * .9f, 160.f));
+        Box(Timber, Post + FVector(0, 0, 168.f), FVector(T * 2.05f, T * 1.1f, 16.f));
+        Box(Timber, Post + FVector(0, T * .6f, 161.f), FVector(T * 2.05f, 34.f, 8.f));
+        Box(Shade, Post + FVector(-T * .35f, T * .46f, 72.f), FVector(52, 4, 140), FRotator::ZeroRotator, false);
+        const FVector Hook = Post + FVector(T * .45f, T * .46f + 22.f, 142.f);
+        Beam(Iron, Hook, Hook + FVector(0, 0, 22.f), 2.f);
+        Box(Glass, Hook + FVector(0, 0, -12.f), FVector(14, 14, 22));
+        // The doorless shed across the back of the yard: back and side walls, a roof over its own tiles, dark inside.
+        const FVector Shed = TileCentre(21.f, 1.f) + Ground;
+        Box(Board, Shed + FVector(0, T * .45f, 140.f), FVector(T * 5.f, 10, 280.f));
+        for (const float Side : {-1.f, 1.f}) Box(Board, Shed + FVector(Side * T * 2.5f, 0, 140.f), FVector(10, T, 280.f));
+        Box(Timber, Shed + FVector(0, 0, 290.f), FVector(T * 5.2f, T * 1.05f, 16.f));
+        Box(Shade, Shed + FVector(0, T * .38f, 130.f), FVector(T * 4.8f, 4, 250.f), FRotator::ZeroRotator, false);
+        // Far trees beyond the north rim, none along the south where the camera looks north.
+        for (float X = -2.f; X <= Spec->Width + 2.f; X += 3.1f)
+        {
+            const FVector C = TileCentre(X + float(Scatter(int32(X * 7), 102)), -2.4f - 1.6f * float(Scatter(int32(X * 5), 103))) + Ground;
+            Beam(Bark, C, C + FVector(0, 0, 260.f), 18.f);
+            Box(Leaf, C + FVector(0, 0, 330.f), FVector(190, 170, 140), FRotator(0, 40.f * X, 0), false);
+        }
     }
     else if (Map == TEXT("ridge_farmhouse"))
     {

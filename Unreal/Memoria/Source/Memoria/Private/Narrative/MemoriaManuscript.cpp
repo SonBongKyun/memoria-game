@@ -154,7 +154,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch17_lullaby"), TEXT("Tobias's room: the book, and the one who sings"), TEXT("토비아스의 방: 책, 그리고 노래하는 사람")},
         {TEXT("ch17_stone"), TEXT("With Hanna, to the south gate before the third bell"), TEXT("한나와 함께, 셋째 종 전에 남문으로")},
         {TEXT("ch17_complete"), TEXT("Out under the south gate: two companions"), TEXT("남문 밖으로: 동행 둘")},
-        {TEXT("ms_never"), TEXT("Two miles to a cart going east; nothing decided yet"), TEXT("동쪽으로 가는 마차까지 두 마일. 아직 정한 건 없다")}};
+        // S398: 31-35화.
+        {TEXT("ch18_cart"), TEXT("Two miles to a cart going east; nothing decided yet"), TEXT("동쪽으로 가는 마차까지 두 마일. 아직 정한 건 없다")},
+        {TEXT("ch18_post"), TEXT("East with the hooded driver, as far as the yard"), TEXT("후드 쓴 마부와 동쪽으로, 마당까지")},
+        {TEXT("ch18_complete"), TEXT("The eighth-mile yard: get down, or ride on"), TEXT("여덟째 마일 마당: 내릴지, 더 탈지")},
+        {TEXT("ms_never"), TEXT("On east on the same cart; the books still point north-west"), TEXT("같은 수레로 더 동쪽으로. 책은 여전히 북서쪽을 가리킨다")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)
