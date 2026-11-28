@@ -98,6 +98,8 @@ const TArray<FMemoriaArtworkSource>& Sources()
         {TEXT("res://assets/portraits/elia_face_silver_v1.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_elia_face_silver_v1"), false},
         // S393 Chapter 16 (25-26화): Kairos's plain face (no sigil); Arcane from above; Kairos at his desk with the unsent report.
         {TEXT("res://assets/portraits/kairos_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_kairos_face_neutral"), false},
+        // S401 Chapter 19 (36화, 39화): Nera's face (Gemini T-23: SAFE).
+        {TEXT("res://assets/portraits/nera_face_neutral.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_nera_face_neutral"), false},
         {TEXT("res://assets/cg/generated/env_gray_belt_panorama.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_env_gray_belt_panorama"), false},
         {TEXT("res://assets/cg/generated/ch14_unsent_incident_report.png"), TEXT("/Game/Memoria/Presentation/Dialogue/T_ch14_unsent_incident_report"), false},
         // S385 Chapter 14 (23화): Tobias's face, and his Arcane desk for the flashback only (the journal's import).
@@ -129,6 +131,8 @@ FString PortraitSource(const FString& Key)
         {TEXT("kairos_cold"), TEXT("res://assets/portraits/character_shots/kairos_edit_v3.png")},
         // S393: Kairos's plain face (Gemini T-11/T-14), not the sigil-lit story shot, wherever he is calm.
         {TEXT("kairos_neutral"), TEXT("res://assets/portraits/kairos_face_neutral.png")},
+        // S401: Nera, the special archivist (36화, 39화).
+        {TEXT("nera_neutral"), TEXT("res://assets/portraits/nera_face_neutral.png")},
         {TEXT("malet_amused"), TEXT("res://assets/portraits/malet_face_amused.png")},
         {TEXT("malet_calculating"), TEXT("res://assets/portraits/malet_face_calculating.png")},
         {TEXT("malet_deal_accepted"), TEXT("res://assets/portraits/malet_face_deal_accepted.png")},

@@ -158,7 +158,11 @@ const TArray<FMainStep>& MainSteps()
         {TEXT("ch18_cart"), TEXT("Two miles to a cart going east; nothing decided yet"), TEXT("동쪽으로 가는 마차까지 두 마일. 아직 정한 건 없다")},
         {TEXT("ch18_post"), TEXT("East with the hooded driver, as far as the yard"), TEXT("후드 쓴 마부와 동쪽으로, 마당까지")},
         {TEXT("ch18_complete"), TEXT("The eighth-mile yard: get down, or ride on"), TEXT("여덟째 마일 마당: 내릴지, 더 탈지")},
-        {TEXT("ms_never"), TEXT("On east on the same cart; the books still point north-west"), TEXT("같은 수레로 더 동쪽으로. 책은 여전히 북서쪽을 가리킨다")}};
+        // S401: 36-39화.
+        {TEXT("ch19_burn"), TEXT("On east on the same cart; the books still point north-west"), TEXT("같은 수레로 더 동쪽으로. 책은 여전히 북서쪽을 가리킨다")},
+        {TEXT("ch19_trees"), TEXT("East, where the shell points"), TEXT("조개가 가리키는 동쪽으로")},
+        {TEXT("ch19_complete"), TEXT("Among the thin trees by the road"), TEXT("길 옆 가느다란 나무들 사이")},
+        {TEXT("ms_never"), TEXT("A night among the trees; the bread, half a loaf; the water low"), TEXT("나무 사이의 밤. 빵 반쪽, 얼마 남지 않은 물")}};
     return Values;
 }
 int32 MainStepIndex(const FMemoriaRunSnapshot& Run)

@@ -49,6 +49,13 @@ FString Line(const FMemoriaRunSnapshot& Run, const FString& Map, bool bVerdanRev
         if (Run.GetFlag(TEXT("ch8_hole"))) return Prefix + (bKo ? TEXT("구멍 안으로: 같이") : TEXT("Into the hole: together"));
         if (Run.GetFlag(TEXT("ch8_shore"))) return Prefix + (bKo ? TEXT("자갈밭 가운데의 구멍으로") : TEXT("To the hole in the middle of the gravel"));
     }
+    if (Map == MemoriaManuscript::StormRoadMap && !Run.GetFlag(TEXT("ch19_complete")))
+    {
+        if (Run.GetFlag(TEXT("ch19_trees"))) return Prefix + (bKo ? TEXT("나무 사이 빈 땅으로") : TEXT("Into the empty ground among the trees"));
+        if (Run.GetFlag(TEXT("ch19_count"))) return Prefix + (bKo ? TEXT("그늘을 지나 길 옆 나무들로") : TEXT("Through the shade to the trees by the road"));
+        if (Run.GetFlag(TEXT("ch19_burn"))) return Prefix + (bKo ? TEXT("동쪽으로: 굽이를 지나") : TEXT("East, past the bend"));
+        if (Run.GetFlag(TEXT("ch19_weather"))) return Prefix + (bKo ? TEXT("수레로 동쪽으로") : TEXT("East on the cart"));
+    }
     if (Map == MemoriaManuscript::EastRoadMap && !Run.GetFlag(TEXT("ch18_complete")))
     {
         if (Run.GetFlag(TEXT("ch18_yard"))) return Prefix + (bKo ? TEXT("마당 동쪽으로: 같은 수레") : TEXT("East out of the yard: the same cart"));

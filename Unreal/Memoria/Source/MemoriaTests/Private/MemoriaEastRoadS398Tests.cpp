@@ -69,7 +69,7 @@ bool FEastRoadS398Test::RunTest(const FString&)
     TestTrue(TEXT("33화 plays as the cart leaves the bend"), Road->Triggers.Num() == 7 && Road->Triggers[3].Group == TEXT("ms_east_rest") && Road->Triggers[4].Group == TEXT("ms_east_panel"));
     const auto* Leave = MemoriaChapterMaps::Find(ArcaneLeaveMap);
     TestTrue(TEXT("The south gate leads here"), Leave && Leave->Exit.NextMap == EastRoadMap && Leave->Exit.NextChapter == 18);
-    TestTrue(TEXT("and the yard on toward Chapter 19"), Road->Exit.NextChapter == 19 && Road->Exit.NextMap.IsEmpty() && Road->Exit.Flags.Contains(TEXT("canon_ch19_east_onward_ready")));
+    TestTrue(TEXT("and the yard on toward Chapter 19"), Road->Exit.NextChapter == 19 && Road->Exit.NextMap == StormRoadMap && Road->Exit.Flags.Contains(TEXT("canon_ch19_east_onward_ready")));
 
     auto Has = [](const UMemoriaFieldAsset* A, const TCHAR* Speaker, const TCHAR* Ko)
     { return A && A->Definition.Rows.ContainsByPredicate([&](const FMemoriaFieldRow& R) { return (Speaker ? R.Text.Speaker == Speaker : !R.Text.bHasSpeaker) && (R.Text.TextKo == Ko || R.Text.NarrateKo == Ko); }); };
@@ -154,7 +154,7 @@ bool FEastRoadS398Test::RunTest(const FString&)
         {TEXT("ch18_post"), TEXT("목표  비탈 위로: 여덟째 마일 마당")}, {TEXT("ch18_yard"), TEXT("목표  마당 동쪽으로: 같은 수레")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), EastRoadMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch18_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch18_")) && !FString(M.Flag).StartsWith(TEXT("ch19_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is the cart"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 동쪽으로 가는 마차까지 두 마일. 아직 정한 건 없다")));
     Run->SetStoryFlag(TEXT("ch18_cart"), true);
     TestTrue(TEXT("then east with the driver"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 후드 쓴 마부와 동쪽으로, 마당까지")));

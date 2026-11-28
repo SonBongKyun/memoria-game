@@ -113,7 +113,7 @@ FString SpeakerKo(const FString& Speaker)
         {TEXT("Prisoner"), TEXT("수감자")}, {TEXT("Guard"), TEXT("경비병")}, {TEXT("Han"), TEXT("한")}, {TEXT("Mira"), TEXT("미라")},
         {TEXT("Vael"), TEXT("바엘")}, {TEXT("Belor"), TEXT("벨로르")}, {TEXT("Chief Archivist"), TEXT("수석 기록관")},
         // S393: Arcane (25-26화). None of them is named; none has a face.
-        {TEXT("Gate Clerk"), TEXT("성문 서기")}, {TEXT("Driver"), TEXT("마부")}, {TEXT("Confessor"), TEXT("고해관")}, {TEXT("Clerk"), TEXT("서기")}, {TEXT("Child"), TEXT("아이")},
+        {TEXT("Gate Clerk"), TEXT("성문 서기")}, {TEXT("Driver"), TEXT("마부")}, {TEXT("Courier"), TEXT("전달자")}, {TEXT("Envoy"), TEXT("전령")}, {TEXT("Confessor"), TEXT("고해관")}, {TEXT("Clerk"), TEXT("서기")}, {TEXT("Child"), TEXT("아이")},
         {TEXT("Man in Line"), TEXT("줄 선 사람")}, {TEXT("Messenger"), TEXT("심부름꾼")}, {TEXT("Relay Clerk"), TEXT("접수 서기")}};
     const FString* Found = Names.Find(Speaker); return Found ? *Found : Speaker;
 }
@@ -627,6 +627,16 @@ bool UMemoriaNarrativeSubsystem::HandleManuscriptScene(const FString& Group)
     if (Group == TEXT("ms_east_post")) Run->SetStoryFlag(TEXT("ch18_driver_turned"), true);
     if (Group == TEXT("ms_east_yard") && !Run->GetRunSnapshot().GetFlag(TEXT("ch18_unknown_face")))
     { Run->SetStoryFlag(TEXT("ch18_unknown_face"), true); Notice(TEXT("A face he does not know")); bNoticeHeld = true; }
+    // S401 (36-39화): an absence registered under a description; the joint burn over the open book; the turns back to
+    // the yard lost; the shell pointing east; the rubbing hidden.
+    if (Group == TEXT("ms_storm_nera")) Run->SetStoryFlag(TEXT("ch19_absence_registered"), true);
+    if (Group == TEXT("ms_storm_burn") && !Run->GetRunSnapshot().GetFlag(TEXT("ch19_burned_together")))
+    {
+        Run->SetStoryFlag(TEXT("ch19_burned_together"), true); Run->SetStoryFlag(TEXT("ch19_turns_lost"), true);
+        Notice(TEXT("Burned together: after he opened his eyes, before the fourth mile")); bNoticeHeld = true;
+    }
+    if (Group == TEXT("ms_storm_shell")) Run->SetStoryFlag(TEXT("ch19_shell_east"), true);
+    if (Group == TEXT("ms_storm_rubbing")) Run->SetStoryFlag(TEXT("ch19_rubbing_hidden"), true);
     if (Group == TEXT("ms_ridge_third") && !Run->GetRunSnapshot().GetFlag(TEXT("party_tobias")))
     { Run->SetStoryFlag(TEXT("party_tobias"), true); Notice(TEXT("Joined: Tobias")); bNoticeHeld = true; }
     if (Group == TEXT("ms_seam_morning") && !Run->GetRunSnapshot().GetFlag(TEXT("has_bark_map")))

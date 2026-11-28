@@ -70,7 +70,7 @@ bool FSeamS371Test::RunTest(const FString&)
                 bIndexed &= R.OriginalIndex == I && R.Id == FString::Printf(TEXT("field/%s/%d"), *G, I) && (R.Text.bHasTextKo || R.Text.bHasNarrateKo) && (R.Text.bHasText || R.Text.bHasNarrate);
                 // S385/S390: an empty picture plays on black (Chapter 14's return from Tobias's desk, the sheep pen,
                 // the old furrows): only where that is the choice.
-                bArt &= !R.Presentation.bHasCg || !R.Presentation.Cg.IsEmpty() || G.StartsWith(TEXT("ms_ridge_")) || G.StartsWith(TEXT("ms_leave_")) || G.StartsWith(TEXT("ms_east_")) || G == TEXT("ms_arcane_room") || G == TEXT("ms_basin_pen") || G == TEXT("ms_verdan_furrow") || G == TEXT("ms_kairos_relay");
+                bArt &= !R.Presentation.bHasCg || !R.Presentation.Cg.IsEmpty() || G.StartsWith(TEXT("ms_ridge_")) || G.StartsWith(TEXT("ms_leave_")) || G.StartsWith(TEXT("ms_east_")) || G.StartsWith(TEXT("ms_storm_")) || G == TEXT("ms_arcane_room") || G == TEXT("ms_basin_pen") || G == TEXT("ms_verdan_furrow") || G == TEXT("ms_kairos_relay");
             }
     TestTrue(TEXT("Rows carry their indices and both languages"), bIndexed && bArt);
     TestNull(TEXT("Unknown group"), BuildScene(GetTransientPackage(), TEXT("ms_nowhere"), 0));

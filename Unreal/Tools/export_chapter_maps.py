@@ -21,11 +21,11 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'docs/unreal-migration/ir/chapters'
 INL = ROOT / 'Unreal/Memoria/Source/Memoria/Private/Chapter/MemoriaChapterMapSources.inl'
 # map id -> (chapter, dialogue file group prefix used for the Unreal assets)
-MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16'), 'arcane_leave': (17, 'Ch17'), 'east_road': (18, 'Ch18')}
+MAPS = {'belt_waystation': (3, 'Ch3'), 'drift_shelter': (4, 'Ch4'), 'the_seam': (6, 'Ch6'), 'forgotten_forest': (7, 'Ch7'), 'crumbling_coast': (8, 'Ch8'), 'haren_clearing': (9, 'Ch9'), 'seam_return': (10, 'Ch10'), 'roofless_farms': (11, 'Ch11'), 'basin_station': (12, 'Ch12'), 'verdan_return': (13, 'Ch13'), 'ridge_farmhouse': (14, 'Ch14'), 'dry_wells': (15, 'Ch15'), 'arcane_city': (16, 'Ch16'), 'arcane_leave': (17, 'Ch17'), 'east_road': (18, 'Ch18'), 'storm_road': (19, 'Ch19')}
 # S374: a manuscript map whose ground is another Godot script's (the clearing stands on the rim forest's ring).
 # The final manuscript's episodes each manuscript map tells (recorded in the IR's source line).
 EPISODES = {'the_seam': '6-7', 'forgotten_forest': '8-10', 'crumbling_coast': '11-12', 'haren_clearing': '13-14',
-            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26', 'arcane_leave': '27-30', 'east_road': '31-35'}
+            'seam_return': '15-16', 'roofless_farms': '17-18', 'basin_station': '19-20', 'verdan_return': '21', 'ridge_farmhouse': '22-23', 'dry_wells': '24', 'arcane_city': '25-26', 'arcane_leave': '27-30', 'east_road': '31-35', 'storm_road': '36-39'}
 # S375: Chapter 10 comes back to the Seam itself: the same village, packing to leave.
 # S377: the fields toward the Belt road stand on the Godot colorless_waste plain; its stone clusters are the farmhouses.
 # S379: the basin waystation at a crossroads stands on the Godot belt_waystation yard (without the Belt's props).
@@ -41,7 +41,9 @@ GROUND = {'haren_clearing': 'rim_forest', 'seam_return': 'the_seam', 'roofless_f
           # S396: Chapter 17 leaves the same city: the same hand-authored ground, from Tobias's door to the south gate.
           'arcane_leave': 'verdan_market',
           # S398: the east road is hand-authored too (HANDMADE below).
-          'east_road': 'verdan_market'}
+          'east_road': 'verdan_market',
+          # S401: the storm road is hand-authored too.
+          'storm_road': 'verdan_market'}
 
 # S393: grounds drawn here rather than read from a Godot map. Arcane (25-29화 and on, Gemini T-14): in by the south gate,
 # the street north to the first square and its bread window (K), the road curving west behind the five confession
@@ -108,6 +110,36 @@ HANDMADE['east_road'] = {
         'E.......,,,,,,,,,,,,,,,,E',
         'E.....,,Mwwww,,,,,,,,,,,E',
         'E,,,M,,,,,,,,,,,,,,,,,,,E',
+        'E,,,,,,,,,,,,,,,,,,,,,,,E',
+        'EEEEEEEEEEEEEEEEEEEEEEEEE',
+    ],
+}
+
+# S401: the storm road (37-38화, Gemini T-23). On east from the eighth-mile yard through grassland with low mounds (m);
+# the stone the wheel caught on where the storm stopped the cart (r); a gentle bend; boulders (O) throwing the shade
+# where the shell went still; thin trees (T) beside the road with an empty patch among them, where they get down.
+HANDMADE['storm_road'] = {
+    'legend': {',': ('FIELD', 'dead_soil', [0.33, 0.3, 0.24, 1.0], False), '.': ('ROAD', 'road', [0.4, 0.35, 0.28, 1.0], False),
+               'E': ('EDGE', 'cliff', [0.32, 0.29, 0.23, 1.0], True), 'm': ('MOUND', 'rock', [0.3, 0.29, 0.22, 1.0], True),
+               'r': ('STONE', 'rock', [0.36, 0.34, 0.3, 1.0], True), 'O': ('BOULDER', 'rock', [0.28, 0.27, 0.25, 1.0], True),
+               'T': ('THINTREE', 'rock', [0.22, 0.24, 0.16, 1.0], True)},
+    'rows': [
+        'EEEEEEEEEEEEEEEEEEEEEEEEE',
+        'E,,,,,,,,,,,,,,,,,,,,,,,E',
+        'E,,,,,,,,,,,,,,,,,,,,,,,E',
+        'E,,,,,,,,,,,,,,,,,,,,T,TE',
+        'E,,,m,,,,,,,,,,,,,,,,T,TE',
+        'E,,mm,,,,,,,,,,,,mm,T,.,E',
+        'E,,,,,,,,,,,,,,,,,,,,T..E',
+        'E,,,,,,,,,r,,,,,,,,,T,..E',
+        'E,,,,,,.....,,,,,,,,,...E',
+        'E.......,,,....,,,,...,,E',
+        'E,,,,,,,,,,,,,......,,,,E',
+        'E,,,,,,,,,,,,,,,,,OO,,,,E',
+        'E,,,,,,,,,,,,,,,,O,,,,,,E',
+        'E,,,,,m,,,,,mm,,,,,,,,,,E',
+        'E,,,,,,,,,,,,m,,,,,,,,,,E',
+        'E,,,,,,,,,,,,,,,,,,,,,,,E',
         'E,,,,,,,,,,,,,,,,,,,,,,,E',
         'EEEEEEEEEEEEEEEEEEEEEEEEE',
     ],
@@ -407,6 +439,50 @@ MANUSCRIPT = {
         # Shown from the arrival on (an empty gate would keep them hidden).
         'ambient_npcs_gate': 'ch12_road',
     },
+    # S401: 최종본 36화 「네라」 to 39화 「등록관의 손」 (Gemini's T-23 brief, Option A: Chapter 19 = 36-39화). Lumea first:
+    # Nera registers the absence of a man with no name, files Kairos's folder "no problems" and a weather note in order.
+    # Then the cart again, east from the yard: the third-district storm stops it; the white notebook opens by itself; Arrel
+    # and Elia burn the time before the fourth mile together, hands held over the open book; Tobias loses the turns back
+    # to the yard. The echo shell shakes toward the east ("셈이 틀렸다." "끝."), goes still in the shade, and the driver
+    # turns in among thin trees. Lumea last, as the exit's chain: Veil, the registrar, keeps the original and hides the
+    # rubbing of a four-grooved hilt under his drawer's false floor.
+    'storm_road': {
+        'title': {'number': 19, 'name': 'The Storm of Forgetting', 'subtitle': "The Registrar's Hand"},
+        'spawn': [1 * T + 16, 9 * T + 16],
+        'elia_repeat': "I've no mind to take it out.",
+        'sequence': [
+            {'flag': 'ch19_nera', 'group': 'ms_storm_nera', 'memories_chapter': None, 'flags': [], 'toasts': []},
+            {'flag': 'ch19_weather', 'group': 'ms_storm_weather', 'memories_chapter': None, 'flags': [], 'toasts': []},
+        ],
+        'triggers': [
+            # Where the storm stops the cart: the strange colour, the driver's words; then, at the same place, the burn.
+            {'rect': {'origin': [9 * T, 8 * T], 'size': [2 * T, T]}, 'group': 'ms_storm_wind', 'flag': 'ch19_wind', 'gate': 'ch19_weather'},
+            {'rect': {'origin': [9 * T, 8 * T], 'size': [2 * T, T]}, 'group': 'ms_storm_burn', 'flag': 'ch19_burn', 'gate': 'ch19_wind'},
+            # Past the bend: the shell shakes toward the east; then, still riding, "세우지 말자."
+            {'rect': {'origin': [16 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_storm_shell', 'flag': 'ch19_shell', 'gate': 'ch19_burn'},
+            {'rect': {'origin': [16 * T, 10 * T], 'size': [2 * T, T]}, 'group': 'ms_storm_count', 'flag': 'ch19_count', 'gate': 'ch19_shell'},
+            # The shade, the shell still; in among the thin trees; they get down.
+            {'rect': {'origin': [21 * T, 8 * T], 'size': [2 * T, T]}, 'group': 'ms_storm_trees', 'flag': 'ch19_trees', 'gate': 'ch19_count'},
+        ],
+        'battles_gate': None, 'battles': [],
+        # The empty patch among the trees, where they will stop for the night. Then 39화: Veil, in Lumea.
+        'exit': {'center': [22 * T + 16, 5 * T + 16], 'size': [T, T], 'requires': 'ch19_trees', 'completes': 'ch19_complete',
+                 'group': 'ms_storm_veil', 'then': ['ms_storm_copy', 'ms_storm_rubbing'],
+                 'next_chapter': 20, 'next_map': None, 'next_scene': None,
+                 'flags': ['canon_ch20_white_country_ready'],
+                 'notice': {'en': 'Locked.', 'ko': '잠갔다.'}},
+        'objects_gate': 'ch19_complete',
+        'chests': [{'origin': [19 * T, 12 * T], 'flag': 'chest_storm_boulders', 'rewards': {'grains': 40, 'items': {'potion': 2, 'antidote': 1}}}],
+        'clues': [{'origin': [12 * T, 10 * T], 'flag': 'clue_storm_grains',
+                   'text': 'Grains of sand in the wheel ruts, purple going grey. They do not sting any more.'}],
+        'resume_blocked': [],
+        'encounters_gate': 'ms_never',
+        'lights': [],
+        # Evening after the yard; purple left low in the eastern sky (37화). No picture is SAFE for the storm: black.
+        'atmosphere': {'saturation': 0.56, 'mood': 0.42, 'hue': [0.4, 0.36, 0.42, 1.0], 'light': [0.86, 0.74, 0.78, 1.0], 'fog': 'none',
+                       'splash': ''},
+        'ambient_npcs': [], 'ambient_npcs_gate': None,
+    },
     # S398: 최종본 31화 「늙은 편집자」 to 35화 「모르는 얼굴」 on a hand-authored road east (Gemini's T-20 brief, Option A:
     # Chapter 18 = 31-35화). Two cutaways open it: Telos's drawer in Lumea; Kairos's report, 0.3 degrees off true. Then
     # the road: the first mile on foot; the cart at the second mile and its hooded driver ("말 못 해."); the third mile;
@@ -440,7 +516,7 @@ MANUSCRIPT = {
         'battles_gate': None, 'battles': [],
         # Out of the yard, east: "타."; on the same cart; "수레는 동쪽 길로 올라섰다."
         'exit': {'center': [23 * T + 16, 4 * T + 16], 'size': [T, 2 * T], 'requires': 'ch18_yard', 'completes': 'ch18_complete',
-                 'group': 'ms_east_onward', 'next_chapter': 19, 'next_map': None, 'next_scene': None,
+                 'group': 'ms_east_onward', 'next_chapter': 19, 'next_map': 'storm_road', 'next_scene': None,
                  'flags': ['canon_ch19_east_onward_ready'],
                  'notice': {'en': 'On, east.', 'ko': '동쪽으로.'}},
         'objects_gate': 'ch18_complete',

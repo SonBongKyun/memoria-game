@@ -155,7 +155,7 @@ bool FArcaneLeaveS396Test::RunTest(const FString&)
         {TEXT("ch17_stone"), TEXT("목표  남문 아래로: 성문 서기")}};
     for (const auto& S : Steps) { Run->SetStoryFlag(S[0], true); TestEqual(*FString(S[0]), MemoriaNavigationGoal::Line(Run->GetRunSnapshot(), ArcaneLeaveMap, false), FString(S[1])); }
     for (const auto& S : Steps) Run->SetStoryFlag(S[0], false);
-    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch17_")) && !FString(M.Flag).StartsWith(TEXT("ch18_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
+    for (const auto& M : MainSteps()) if (!FString(M.Flag).StartsWith(TEXT("ch17_")) && !FString(M.Flag).StartsWith(TEXT("ch18_")) && !FString(M.Flag).StartsWith(TEXT("ch19_")) && FString(M.Flag) != TEXT("ms_never")) Run->SetStoryFlag(M.Flag, true);
     TestTrue(TEXT("The main quest is the room"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 토비아스의 방: 책, 그리고 노래하는 사람")));
     Run->SetStoryFlag(TEXT("ch17_lullaby"), true);
     TestTrue(TEXT("then the gate with Hanna"), MainRecord(Run->GetRunSnapshot(), true).Body.Contains(TEXT("→ 한나와 함께, 셋째 종 전에 남문으로")));

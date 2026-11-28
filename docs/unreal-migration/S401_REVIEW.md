@@ -1,0 +1,123 @@
+# S401 — Chapter 19, the storm road, from the final manuscript (Opus, 2026-11-28)
+
+Branch `claude/s366-upgrade`, on top of `84c003e1`. Team task **T-25** on `TEAM-BOARD.md`.
+
+## Source
+- 최종본 36화 「네라」, 37화 「잊음의 폭풍」, 38화 「에코 셸이 진동한다」 and 39화 「등록관의 손」, read in full, with Gemini's T-23 brief (`docs/reviews/GEMINI_T23_BRIEF_36_39.md`).
+- Game Chapter 19 = 36-39화, the brief's Option A. Lumea opens it and closes it; between, the same cart goes on east from the eighth-mile yard.
+- No fight, so **no battles are placed**. Nobody draws a sword.
+- **Ground:** a new hand-authored ground, `HANDMADE['storm_road']` (map id `storm_road`, level `L_StormRoad`, "폭풍의 길"). West to east:
+  - grassland with low mounds;
+  - the stone the wheel caught on where the storm stopped the cart;
+  - a gentle bend;
+  - boulders throwing the shade where the shell went still;
+  - thin trees beside the road, with an empty patch among them.
+- **Cast:**
+  - Arrel, Elia, Tobias (companion) and the driver.
+  - **Nera** (네라) wears her new face, `nera_face_neutral.png` (Gemini T-23: SAFE; imported as `T_nera_face_neutral`). She has two lines in 36화 and seven in 39화.
+  - **Veil** (베일, never "Vael") has no portrait.
+  - The nameless **courier** (`Courier`, "전달자") and the editor's **envoy** (`Envoy`, "전령") have no faces either.
+  - No Kairos speaks; he is named only on a folder's cover.
+
+## What changed
+- **Road:** Chapter 18's yard (`east_road`) now leads here.
+- **Arrival** (sequence; Lumea, 36화):
+  - `ms_storm_nera`:
+    - the first seal suspends a clerk who did not come back;
+    - the eighth-mile report: "검은 뽑지 않았다.";
+    - a correction with no name. The second seal registers an absence under the identification "여덟째 마일 마당에서 오른손을 검 자루로 가져간 남자.", marked "즉시".
+    - Records `ch19_absence_registered`.
+  - `ms_storm_weather`:
+    - Kairos's folder, "문제 없음";
+    - the courier: "이 식별 문구로 넘깁니까?" "그 식별로 넘기세요.";
+    - the eastern weather station: "벨트 동부 격자, 기상 시그니처 패턴 이탈.", filed in order. Then the next application.
+- **The ride** (T-24's cart; it waits at the west edge, and the three board when Lumea's scenes end):
+  - **The storm stop**: two scenes in turn, at the same place.
+    - `ms_storm_wind`:
+      - a thin colour low in the east;
+      - the driver looks back over his shoulder: "제3구 폭풍이다. 달아나서 될 일이 아냐.";
+      - the white notebook opens by itself: "내가 연 것도 아니야.";
+      - purple sand; Tobias loses count.
+    - `ms_storm_burn`:
+      - "그때를 태울게." "내 것도.";
+      - the hands lock over the open book, and the storm stops pushing;
+      - Elia's cheek hollows and her jaw thins;
+      - Tobias loses the turns back to the yard;
+      - "눈 뜬 다음이 안 떠올라." "나도 네 얼굴은 안 떠올라."
+      - Records `ch19_burned_together` and `ch19_turns_lost`, with the toast "함께 연소: 넷째 마일 전, 눈 뜬 뒤".
+  - **Past the bend**: two scenes in turn.
+    - `ms_storm_shell`: the echo shell shakes harder toward the front, east. "셈이 틀렸다." "끝." Records `ch19_shell_east`.
+    - `ms_storm_count`: "지나온 굽이를 외워 뒀는데, 지금은 이어지지 않습니다."; "세우지 말자. 갈 수 있는 동안은 타고 가겠어."
+  - **The trees** (`ms_storm_trees`):
+    - the bread, half a loaf; the water unchanged since the yard;
+    - in the shade the shell goes still: "멈췄어.";
+    - the driver turns in among thin trees and gets down; "다리부터 받아 줘.";
+    - the three get down beside the cart.
+- **The exit** is the empty ground among the trees, then 39화 in Lumea as its `then` chain:
+  - `ms_storm_veil`:
+    - Veil stops again at "검은 뽑지 않았다.";
+    - the old scar by his left eye;
+    - Nera: "그때까지 정렬되지 않으면, 무엇을 빼고 있었는지부터 묻게 됩니다." "빠뜨리지 않겠습니다.";
+    - the graphite rubbing of a four-grooved hilt in his drawer.
+  - `ms_storm_copy`: nine days later the envoy's request carries one seal: "원본 반출에는 둘이 필요합니다." He gives a copy, and keeps the report in it.
+  - `ms_storm_rubbing`: his hand closes on an absent hilt. The rubbing goes under the drawer's false floor; "열쇠를 뽑아 주머니에 넣었다."
+  - Records `ch19_rubbing_hidden`, `ch19_complete` and `canon_ch20_white_country_ready`. The card reads "19장 완료 · 가느다란 나무들 사이".
+- After the chapter: a chest by the boulders, and a clue in the wheel ruts (the purple sand going grey).
+- **Look:**
+  - The dressing `Storm`: evening after the yard, dimmer and cooler, a violet cast; no lamps.
+  - The set pieces (`BuildSetPieces`, `storm_road`):
+    - low earth mounds;
+    - the stone;
+    - round boulders;
+    - thin trees with a few leaves only on their upper branches (38화).
+- **Art:**
+  - Every scene opens on black and stays black.
+  - All of Gemini's storm pictures (`ch17_*`) are UNSAFE: drawn swords, ruins, the blond Elia. None is used.
+  - One new import: Nera's face. `MemoriaVisual.ArtworkCoverage` now counts 82 sources.
+- **HUD:**
+  - Goals: "수레로 동쪽으로" … "나무 사이 빈 땅으로".
+  - Main quest:
+    - "같은 수레로 더 동쪽으로. 책은 여전히 북서쪽을 가리킨다" (Chapter 18's last line, now Chapter 19's first step);
+    - "조개가 가리키는 동쪽으로";
+    - "길 옆 가느다란 나무들 사이";
+    - then "나무 사이의 밤. 빵 반쪽, 얼마 남지 않은 물".
+- **Earlier tests:**
+  - The S374-S398 main-quest loops skip `ch19_`.
+  - S398 expects the yard's road to lead here.
+  - S371 allows the `ms_storm_` dark rows.
+- **Wide filter:** `+Memoria.S40` is added to TEAM.md, since `Memoria.S39` does not catch S401.
+
+## Tests
+- `Memoria.S401.StormRoad` (unit):
+  - **Map:**
+    - map, level, Korean name;
+    - the tile kinds;
+    - spawn west on the road;
+    - every trigger on open ground;
+    - two scenes at each of the first two stops;
+    - the places running west to east;
+    - the exit among at least three thin trees;
+    - no fights, no lamps, no splash;
+    - Lumea first and last;
+    - the roads in and out.
+  - **Scenes:**
+    - ten manuscript scenes, 178 rows, and their key lines;
+    - the cast, with no Kairos and no "Vael";
+    - the faces: Nera's and Tobias's; Veil and the nameless have none;
+    - all on black;
+    - no drawn sword;
+    - Nera's face imported.
+  - **Korean and HUD:** title, subtitle, toast; the four goals; the main quest through to the step after.
+- `MemoriaVisual.S401StormRoad` (renderer):
+  - plays the chapter on the cart from the west edge to the trees;
+  - Tobias is in the party, and the cart is there from the start;
+  - checks `ch19_absence_registered`, boarding after Lumea, `ch19_burned_together` with its toast, `ch19_turns_lost`, `ch19_shell_east`, the three down among the trees, then Veil's three scenes, `ch19_rubbing_hidden`, `ch19_complete` and `canon_ch20_white_country_ready`;
+  - every one of the 178 rows is shown, then the card;
+  - captures go to `Saved/Validation/S401Storm/`.
+- Results: see the commit message.
+
+## Limits
+- The cart still reads pale beige (T-27 is darkening it).
+- The storm itself is not drawn in the field: its scenes play on black, as Gemini's audit advises.
+- A save loaded after boarding has no cart; the party walks.
+- English lines are this port's translation. Narration is trimmed, and every spoken line is kept whole.

@@ -52,6 +52,7 @@ FString PlaceName(const FString& Map)
     if (Map == MemoriaManuscript::DryWellsMap) return TEXT("The Dry Wells");
     if (Map == MemoriaManuscript::ArcaneMap || Map == MemoriaManuscript::ArcaneLeaveMap) return TEXT("Arcane");
     if (Map == MemoriaManuscript::EastRoadMap) return TEXT("The East Road");
+    if (Map == MemoriaManuscript::StormRoadMap) return TEXT("The Storm Road");
     FString Out; for (const FString& Part : [&] { TArray<FString> P; Map.ParseIntoArray(P, TEXT("_")); return P; }()) Out += (Out.IsEmpty() ? TEXT("") : TEXT(" ")) + Part.Left(1).ToUpper() + Part.Mid(1); return Out; }
 }
 AMemoriaChapterPresentation::AMemoriaChapterPresentation()
@@ -463,7 +464,7 @@ void AMemoriaChapterPresentation::BeginPlay()
         for (int32 I = 0; I < MemoriaManuscript::SignCount(); ++I)
             if (auto* Sign = GetWorld()->SpawnActor<AMemoriaStoryPointActor>(MemoriaChapterMaps::ToWorld(MemoriaManuscript::SignOrigin(I)), FRotator::ZeroRotator, Params))
                 Sign->Configure(MemoriaManuscript::SignGroup(I), MemoriaManuscript::SignPrompt(I));
-    if (Map == MemoriaManuscript::EastRoadMap) EastRoadCart(TEXT("begin"));
+    if (Map == MemoriaManuscript::EastRoadMap || Map == MemoriaManuscript::StormRoadMap) EastRoadCart(TEXT("begin"));
     PreviousPosition = Player->GetActorLocation();
     if (auto* Narrative = Game->GetSubsystem<UMemoriaNarrativeSubsystem>()) Narrative->Record(TEXT("chapter:presented:") + Map);
     if (auto* Achievements = Game->GetSubsystem<UMemoriaAchievementSubsystem>()) Achievements->RecordMapVisit(Map);
@@ -511,6 +512,31 @@ void AMemoriaChapterPresentation::EastRoadCart(const FString& Event)
     // scene starts when the cart stops there even if the one before it was still playing as it passed.
     // A save loaded after boarding has no cart: the party walks the rest of the road.
     const auto At = [](float X, float Y) { return MemoriaChapterMaps::ToWorld(FVector2D(X * 32.f, Y * 32.f)); };
+    // S401 (37-38화): the same cart on east from the yard. Aboard when Lumea's cutaways end; stopped by the storm, where
+    // the driver looks back over his shoulder; past the bend to where the shell shakes; through the shade in among the
+    // thin trees, where they get down. Two scenes play at each of the first two stops, one after the other.
+    if (Map == MemoriaManuscript::StormRoadMap)
+    {
+        if (Event == TEXT("begin"))
+        {
+            if (!Flag(TEXT("ch19_wind")))
+            {
+                RoadCart = AMemoriaCart::SpawnOnRoute(GetWorld(), {At(3.2f, 9.f), At(6.5f, 9.f), At(7.5f, 8.5f), At(11.f, 8.5f)});
+                if (Flag(TEXT("ch19_weather")) && RoadCart.IsValid()) RoadCart->Board();
+            }
+            return;
+        }
+        AMemoriaCart* Ride = RoadCart.Get();
+        if (!Ride) return;
+        auto Leg = [&](const TArray<FVector>& Points) { Ride->SetRoute(Points); Ride->Board(); };
+        if (Event == TEXT("ms_storm_weather")) Ride->Board();
+        else if (Event == TEXT("start:ms_storm_wind")) Ride->TurnDriverTowardBed();
+        else if (Event == TEXT("ms_storm_wind")) Ride->TurnDriverAhead();
+        else if (Event == TEXT("ms_storm_burn")) Leg({At(11.f, 8.5f), At(12.f, 9.f), At(14.5f, 9.5f), At(17.8f, 10.5f)});
+        else if (Event == TEXT("ms_storm_count")) Leg({At(17.8f, 10.5f), At(19.5f, 10.2f), At(20.5f, 9.2f), At(22.8f, 8.5f)});
+        else if (Event == TEXT("ms_storm_trees")) Ride->GetDown();
+        return;
+    }
     if (Event == TEXT("begin"))
     {
         if (!Flag(TEXT("ch18_cart")))
@@ -530,7 +556,7 @@ void AMemoriaChapterPresentation::EastRoadCart(const FString& Event)
 void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
 {
     auto* Narrative = GetGameInstance()->GetSubsystem<UMemoriaNarrativeSubsystem>();
-    if (Map == MemoriaManuscript::EastRoadMap) EastRoadCart(Group);
+    if (Map == MemoriaManuscript::EastRoadMap || Map == MemoriaManuscript::StormRoadMap) EastRoadCart(Group);
     // The departure closes the chapter: its end handler's chapter number, flags and notice, then the
     // completion card, and the road on to the next chapter map when it is ported.
     // S393: the exit's own group, then each of its "then" groups in turn, a beat apart; the last one closes the chapter.
@@ -576,6 +602,8 @@ void AMemoriaChapterPresentation::OnFieldFinished(const FString& Group)
         if (Where.IsEmpty() && Map == MemoriaManuscript::ArcaneLeaveMap) Where = bKo ? Ko(TEXT("The South Gate")) : TEXT("The South Gate");
         // S398: the eighth-mile yard, and on east (35화).
         if (Where.IsEmpty() && Map == MemoriaManuscript::EastRoadMap) Where = bKo ? Ko(TEXT("The Eighth-Mile Yard")) : TEXT("The Eighth-Mile Yard");
+        // S401: among the thin trees by the road (38화).
+        if (Where.IsEmpty() && Map == MemoriaManuscript::StormRoadMap) Where = bKo ? Ko(TEXT("Among the Thin Trees")) : TEXT("Among the Thin Trees");
         const FString Eyebrow = bKo ? FString::Printf(TEXT("%d장 완료"), Spec->Chapter) : FString::Printf(TEXT("CHAPTER %d COMPLETE"), Spec->Chapter);
         const FString Road = bRoad ? (bKo ? FString::Printf(TEXT("%d장으로 이어집니다"), Next) : FString::Printf(TEXT("The road goes on to Chapter %d"), Next))
                                    : (bKo ? FString::Printf(TEXT("%d장으로 가는 길은 아직 준비 중입니다"), Next) : FString::Printf(TEXT("The road to Chapter %d is still being prepared"), Next));
@@ -625,7 +653,7 @@ void AMemoriaChapterPresentation::CheckTriggers()
         if (!Flag(Trigger.Flag) && (Trigger.Gate.IsEmpty() || Flag(Trigger.Gate)) && Trigger.Rect.Contains(P))
         {
             SetFlag(Trigger.Flag);
-            if (Map == MemoriaManuscript::EastRoadMap) EastRoadCart(TEXT("start:") + Trigger.Group);
+            if (Map == MemoriaManuscript::EastRoadMap || Map == MemoriaManuscript::StormRoadMap) EastRoadCart(TEXT("start:") + Trigger.Group);
             Narrative->StartChapterField(Trigger.Group, MemoriaChapterMaps::GroupAsset(*Spec, Trigger.Group), Spec->DialogueFile);
             return;
         }

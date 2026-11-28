@@ -174,6 +174,12 @@ FString Korean(const FString& En)
         {TEXT("Not here. Don't open it here."), TEXT("여기선 펴지 마.")},
         {TEXT("The register board by the gate. Names, and numbers beside them. Under Tobias, in another hand: two."),
          TEXT("성문 옆의 명부 판. 이름들, 그 옆의 숫자. 토비아스 아래에 다른 필체로: 둘.")},
+        // S401: the storm road (최종본 36-39화).
+        {TEXT("storm_road"), TEXT("폭풍의 길")}, {TEXT("The Storm Road"), TEXT("폭풍의 길")}, {TEXT("The Storm of Forgetting"), TEXT("잊음의 폭풍")},
+        {TEXT("The Registrar's Hand"), TEXT("등록관의 손")}, {TEXT("Locked."), TEXT("잠갔다.")}, {TEXT("I've no mind to take it out."), TEXT("꺼낼 생각 없어.")},
+        {TEXT("Burned together: after he opened his eyes, before the fourth mile"), TEXT("함께 연소: 넷째 마일 전, 눈 뜬 뒤")},
+        {TEXT("Among the Thin Trees"), TEXT("가느다란 나무들 사이")},
+        {TEXT("Grains of sand in the wheel ruts, purple going grey. They do not sting any more."), TEXT("바퀴 자국에 남은 모래알. 보랏빛이 잿빛으로 바래 간다. 이제 살갗을 때리지 않는다.")},
         // S398: the east road (최종본 31-35화).
         {TEXT("east_road"), TEXT("동쪽 길")}, {TEXT("The East Road"), TEXT("동쪽 길")}, {TEXT("An Unknown Face"), TEXT("모르는 얼굴")},
         {TEXT("On, east."), TEXT("동쪽으로.")}, {TEXT("If I want to stop, I'll say."), TEXT("멈추고 싶으면 말할 거야.")},

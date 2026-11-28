@@ -203,6 +203,16 @@ const AMemoriaChapterPresentation::FDressing& AMemoriaChapterPresentation::Dress
         4.2f, -30.f, 160.f, 1.2f, .64f, .011f, 1.6f, .46f,
         34, false, true};
     if (InMap == TEXT("east_road")) return East;
+    // S401 The storm road: evening after the yard, purple left low in the eastern sky after the storm (37화); cooler,
+    // dimmer light than the east road; no lamps.
+    static const FDressing Storm{TEXT("T_BeltSoil"), TEXT("T_ClearingPaved"),
+        FLinearColor(.9f, .86f, .9f), FLinearColor(.065f, .058f, .05f), FLinearColor(.075f, .068f, .062f), FLinearColor(.066f, .06f, .056f),
+        FLinearColor(.055f, .042f, .03f), FLinearColor(.085f, .075f, .07f), FLinearColor(.03f, .03f, .034f),
+        FLinearColor(1.f, .62f, .4f), FLinearColor(.56f, .52f, .62f), FLinearColor(.066f, .062f, .066f), FLinearColor(.84f, .76f, .82f),
+        230.f, 220.f, 0.f, 0.f,
+        3.6f, -24.f, 160.f, 1.15f, .62f, .012f, 1.6f, .48f,
+        30, false, true};
+    if (InMap == TEXT("storm_road")) return Storm;
     // S393 Arcane: grey stone streets at noon under a grey sky (25화); cold, even light; no lamps by day.
     static const FDressing Arcane{TEXT("T_BeltSoil"), TEXT("T_SeamPaved"),
         FLinearColor(.82f, .84f, .88f), FLinearColor(.06f, .062f, .066f), FLinearColor(.075f, .076f, .08f), FLinearColor(.066f, .067f, .07f),
@@ -1126,6 +1136,44 @@ void AMemoriaChapterPresentation::BuildSetPieces(const FDressing& Look)
             Beam(Bark, C, C + FVector(0, 0, 260.f), 18.f);
             Box(Leaf, C + FVector(0, 0, 330.f), FVector(190, 170, 140), FRotator(0, 40.f * X, 0), false);
         }
+    }
+    else if (Map == TEXT("storm_road"))
+    {
+        // S401 (37-38화): low mounds in the grassland; the stone the wheel caught on; boulders throwing the shade where
+        // the shell went still; thin trees by the road with a few leaves on their upper branches.
+        const auto Type = [&](const TCHAR* Name) { return Spec->TileNames.IndexOfByKey(Name); };
+        const int32 MoundType = Type(TEXT("MOUND")), StoneType = Type(TEXT("STONE")), BoulderType = Type(TEXT("BOULDER")), ThinType = Type(TEXT("THINTREE"));
+        auto* Turf = Focus(TEXT("Mound"), FLinearColor(.1f, .09f, .06f), 2, .97f);
+        auto* Rock = Focus(TEXT("StormRock"), FLinearColor(.14f, .13f, .12f), 0, .93f);
+        auto* Bark = Focus(TEXT("ThinBark"), FLinearColor(.08f, .07f, .055f), 1, .9f);
+        auto* Leaf = Focus(TEXT("ThinLeaf"), FLinearColor(.07f, .085f, .04f), 1, .95f);
+        for (int32 Y = 0; Y < Spec->Height; ++Y)
+            for (int32 X = 0; X < Spec->Width; ++X)
+            {
+                const int32 Here = Spec->TileAt(X, Y);
+                const FVector C = TileCentre(X, Y) + Ground;
+                const float N = Hash(X, Y, 111);
+                if (Here == MoundType)
+                    Solid(TEXT("Sphere"), Turf, C + FVector(0, 0, -8.f), FVector(1.15f + .2f * N, 1.f + .2f * N, .42f + .1f * N), FRotator(0, 360.f * N, 0));
+                else if (Here == StoneType)
+                    Solid(*ArchitectureMesh(TEXT("SM_RubbleCluster")), Rock, C, FVector(.7f), FRotator(0, 360.f * N, 0));
+                else if (Here == BoulderType)
+                    Solid(TEXT("Sphere"), Rock, C + FVector(0, 0, 40.f), FVector(1.05f + .25f * N, .9f + .2f * N, .85f + .2f * N), FRotator(0, 360.f * N, 10.f * N));
+                else if (Here == ThinType)
+                {
+                    // A slender trunk, a few thin branches, a few leaves only on the upper ones (38화).
+                    const float Top = 250.f + 60.f * N;
+                    Beam(Bark, C, C + FVector(0, 0, Top), 7.f + 3.f * N);
+                    for (int32 I = 0; I < 3; ++I)
+                    {
+                        const float A = 120.f * I + 360.f * N;
+                        const FVector From = C + FVector(0, 0, Top - 50.f - 30.f * I);
+                        const FVector To = From + FRotator(0, A, 0).RotateVector(FVector(46.f, 0, 60.f));
+                        Beam(Bark, From, To, 2.5f);
+                        Solid(TEXT("Sphere"), Leaf, To, FVector(.32f, .28f, .24f), FRotator(0, A, 0));
+                    }
+                }
+            }
     }
     else if (Map == TEXT("ridge_farmhouse"))
     {
