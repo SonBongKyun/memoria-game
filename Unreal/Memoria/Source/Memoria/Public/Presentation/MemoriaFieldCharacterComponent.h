@@ -92,6 +92,10 @@ public:
     void ClearAim() { bAim = false; ApplyFrame(); }
     float GetYaw() const;
     const FString& GetCharacterId() const { return CharacterId; }
+    // T-24: hips drop and the legs fold while a cart carries this figure. Off by default,
+    // so a standing companion is unchanged.
+    void SetSeated(bool bInSeated);
+    bool IsSeated() const { return bSeated; }
     // Distance for one full two-step gait cycle.
     static constexpr float StrideLength = 58.f;
     // The blade's handle centre from the knuckle line: toward the fingers, and into the palm.
@@ -139,4 +143,13 @@ private:
     float GaitStride = StrideLength; // S359: match authored foot travel to actual world distance.
     static int32 DirectionIndex(const FString& Direction);
     void ApplyFrame();
+    void ApplySitPose();
+    void ReleaseSitDelegate();
+    bool bSeated = false;
+    bool bHaveStandingMesh = false;
+    bool bApplyingSit = false;
+    FVector StandingMeshRelative = FVector::ZeroVector;
+    // Standing component-space pose, captured once. Sit is reapplied from this copy.
+    TArray<FTransform> StandingBones;
+    FDelegateHandle SitPoseHandle;
 };

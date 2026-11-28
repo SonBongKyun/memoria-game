@@ -32,6 +32,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
+#include "ReferenceSkeleton.h"
 #include "SkeletalRenderPublic.h"
 #include "PaperSprite.h"
 #include "PaperSpriteComponent.h"
@@ -404,7 +405,12 @@ bool UMemoriaFieldCharacterComponent::InitializeCharacter(const FString& Id, flo
 {
     const FString Name = Id.Left(1).ToUpper() + Id.Mid(1).ToLower();
     Height = WorldHeight; Walk.Reset(); WalkFrames = 0; bMirrorLeft = false;
-    if (Skeletal) { FMemoriaHeroFinish::ClearBlink(Skeletal); Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    if (Skeletal)
+    {
+        ReleaseSitDelegate(); bSeated = false; bHaveStandingMesh = false; StandingBones.Reset();
+        Skeletal->bPauseAnims = false;
+        FMemoriaHeroFinish::ClearBlink(Skeletal); Skeletal->DestroyComponent(); Skeletal = nullptr;
+    }
     for (const auto& Prop : Props) if (Prop) Prop->DestroyComponent();
     for (UStaticMeshComponent* Part : {Scabbard.Get(), Blade.Get()}) if (Part) Part->DestroyComponent();
     Props.Reset(); Sheathed = Scabbard = Blade = nullptr; bSwordDrawn = false; Phase = Weight = Age = 0.f;
@@ -474,6 +480,12 @@ void UMemoriaFieldCharacterComponent::Face(const FString& Direction)
 }
 void UMemoriaFieldCharacterComponent::AdvanceLocomotion(const FVector& Step, float DeltaSeconds)
 {
+    if (bSeated)
+    {
+        Weight = 0.f;
+        ApplyFrame();
+        return;
+    }
     const double Distance = Step.Size2D();
     const bool bMoving = Distance > .01 && DeltaSeconds > 0;
     if (bMoving)
@@ -548,6 +560,7 @@ void UMemoriaFieldCharacterComponent::TickComponent(float DeltaTime, ELevelTick 
         ActionWeight = FMath::Min(In, Out);
         if (!bActionHold && ActionTime >= Length) StopAction();
     }
+    if (bSeated) Weight = 0.f;
     ApplyFrame();
 }
 
@@ -572,15 +585,156 @@ void UMemoriaFieldCharacterComponent::StopAction()
     ActionClip = nullptr; ActionTime = ActionWeight = 0.f; bActionHold = false;
     ApplyFrame(); FMemoriaHeroFinish::ClearBlink(Skeletal);
 }
+void UMemoriaFieldCharacterComponent::ReleaseSitDelegate()
+{
+    if (Skeletal && SitPoseHandle.IsValid())
+        Skeletal->UnregisterOnBoneTransformsFinalizedDelegate(SitPoseHandle);
+    SitPoseHandle.Reset();
+}
+void UMemoriaFieldCharacterComponent::SetSeated(bool bInSeated)
+{
+    if (bSeated == bInSeated) return;
+    if (!Skeletal)
+    {
+        bSeated = bInSeated;
+        return;
+    }
+    if (bInSeated)
+    {
+        StandingMeshRelative = Skeletal->GetRelativeLocation();
+        bHaveStandingMesh = true;
+        Skeletal->SetRelativeLocation(StandingMeshRelative + FVector(0.f, 0.f, -Height * 0.52f));
+        Weight = 0.f;
+        bSeated = true;
+        if (Skeletal->GetComponentSpaceTransforms().Num() == 0)
+        {
+            Skeletal->TickAnimation(0.f, false);
+            Skeletal->RefreshBoneTransforms();
+        }
+        StandingBones = Skeletal->GetComponentSpaceTransforms();
+        Skeletal->bPauseAnims = true;
+        ApplyFrame();
+        if (!SitPoseHandle.IsValid())
+            SitPoseHandle = Skeletal->RegisterOnBoneTransformsFinalizedDelegate(
+                FOnBoneTransformsFinalizedMultiCast::FDelegate::CreateUObject(this, &UMemoriaFieldCharacterComponent::ApplySitPose));
+        ApplySitPose();
+    }
+    else
+    {
+        ReleaseSitDelegate();
+        Skeletal->bPauseAnims = false;
+        StandingBones.Reset();
+        if (bHaveStandingMesh) Skeletal->SetRelativeLocation(StandingMeshRelative);
+        bHaveStandingMesh = false;
+        bSeated = false;
+        ApplyFrame();
+    }
+}
+void UMemoriaFieldCharacterComponent::ApplySitPose()
+{
+    if (bApplyingSit || !bSeated || !Skeletal) return;
+    TGuardValue<bool> Guard(bApplyingSit, true);
+    const USkeletalMesh* Mesh = Skeletal->GetSkeletalMeshAsset();
+    if (!Mesh) return;
+    const FReferenceSkeleton& Ref = Mesh->GetRefSkeleton();
+    if (StandingBones.Num() != Ref.GetNum())
+    {
+        const TArray<FTransform>& Read = Skeletal->GetComponentSpaceTransforms();
+        if (Read.Num() == Ref.GetNum()) StandingBones = Read;
+        else if (!Skeletal->bPauseAnims)
+        {
+            Skeletal->TickAnimation(0.f, false);
+            Skeletal->RefreshBoneTransforms();
+            const TArray<FTransform>& Fresh = Skeletal->GetComponentSpaceTransforms();
+            if (Fresh.Num() == Ref.GetNum()) StandingBones = Fresh;
+        }
+    }
+    if (StandingBones.Num() != Ref.GetNum())
+    {
+        static bool bLoggedEmpty = false;
+        if (!bLoggedEmpty)
+        {
+            bLoggedEmpty = true;
+            UE_LOG(LogTemp, Warning, TEXT("Sit pose has no standing bones on %s (%d/%d)"),
+                *GetCharacterId(), StandingBones.Num(), Ref.GetNum());
+        }
+        return;
+    }
+    auto WriteFold = [&](TArray<FTransform>& Bones)
+    {
+        Bones = StandingBones;
+    auto IndexOf = [&](std::initializer_list<const TCHAR*> Names) -> int32
+    {
+        for (const TCHAR* Name : Names)
+        {
+            const int32 Index = Ref.FindBoneIndex(FName(Name));
+            if (Index != INDEX_NONE) return Index;
+        }
+        return INDEX_NONE;
+    };
+    auto RotateSubtree = [&](int32 Bone, float Degrees)
+    {
+        if (!Bones.IsValidIndex(Bone)) return;
+        const FQuat Delta(FVector::YAxisVector, FMath::DegreesToRadians(Degrees));
+        const FVector Pivot = Bones[Bone].GetLocation();
+        for (int32 Index = 0; Index < Bones.Num(); ++Index)
+        {
+            bool bUnder = false;
+            for (int32 Parent = Index; Parent != INDEX_NONE; Parent = Ref.GetParentIndex(Parent))
+                if (Parent == Bone) { bUnder = true; break; }
+            if (!bUnder) continue;
+            FTransform& BoneTransform = Bones[Index];
+            BoneTransform.SetLocation(Pivot + Delta.RotateVector(BoneTransform.GetLocation() - Pivot));
+            BoneTransform.SetRotation((Delta * BoneTransform.GetRotation()).GetNormalized());
+            BoneTransform.NormalizeRotation();
+        }
+    };
+    const int32 Spine = IndexOf({TEXT("spine_01"), TEXT("Spine_01"), TEXT("spine")});
+    const int32 ThighL = IndexOf({TEXT("thigh_l"), TEXT("LeftUpLeg"), TEXT("thigh_L")});
+    const int32 ThighR = IndexOf({TEXT("thigh_r"), TEXT("RightUpLeg"), TEXT("thigh_R")});
+    const int32 CalfL = IndexOf({TEXT("calf_l"), TEXT("LeftLeg"), TEXT("calf_L")});
+    const int32 CalfR = IndexOf({TEXT("calf_r"), TEXT("RightLeg"), TEXT("calf_R")});
+    if (ThighL == INDEX_NONE || CalfL == INDEX_NONE)
+    {
+        static bool bLogged = false;
+        if (!bLogged)
+        {
+            bLogged = true;
+            FString Names;
+            for (int32 Index = 0; Index < Ref.GetNum(); ++Index)
+                Names += Ref.GetBoneName(Index).ToString() + TEXT(" ");
+            UE_LOG(LogTemp, Warning, TEXT("Sit pose missing a leg bone on %s. Bones: %s"), *GetCharacterId(), *Names);
+        }
+    }
+        RotateSubtree(Spine, -12.f);
+        RotateSubtree(ThighL, -78.f);
+        RotateSubtree(ThighR, -78.f);
+        RotateSubtree(CalfL, 78.f);
+        RotateSubtree(CalfR, 78.f);
+    };
+    TArray<FTransform>& ReadBuffer = const_cast<TArray<FTransform>&>(Skeletal->GetComponentSpaceTransforms());
+    TArray<FTransform>& EditBuffer = Skeletal->GetEditableComponentSpaceTransforms();
+    WriteFold(ReadBuffer);
+    if (&EditBuffer != &ReadBuffer) WriteFold(EditBuffer);
+    Skeletal->MarkRenderDynamicDataDirty();
+}
 void UMemoriaFieldCharacterComponent::OnUnregister()
 {
+    if (Skeletal) Skeletal->bPauseAnims = false;
+    StandingBones.Reset();
+    ReleaseSitDelegate();
     FMemoriaHeroFinish::ClearBlink(Skeletal);
     Super::OnUnregister();
 }
 bool UMemoriaFieldCharacterComponent::InitializeFoe(const FMemoriaFoeLook& Look)
 {
     Height = Look.Height; CharacterId = TEXT("Mannequin"); bFoeModel = false;
-    if (Skeletal) { FMemoriaHeroFinish::ClearBlink(Skeletal); Skeletal->DestroyComponent(); Skeletal = nullptr; }
+    if (Skeletal)
+    {
+        ReleaseSitDelegate(); bSeated = false; bHaveStandingMesh = false; StandingBones.Reset();
+        Skeletal->bPauseAnims = false;
+        FMemoriaHeroFinish::ClearBlink(Skeletal); Skeletal->DestroyComponent(); Skeletal = nullptr;
+    }
     FoeMaterials.Reset();
     if (Blade) { Blade->DestroyComponent(); Blade = nullptr; }
     // S326: Codex's model, its idle and walk and the clips retargeted onto it; the material's Hit flash is
